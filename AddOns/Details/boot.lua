@@ -1,3 +1,9 @@
+-- RainbowUI: resolve display translations lazily, including framework files loaded before locales.
+local Loc = setmetatable({}, {__index = function(_, key)
+    local aceLocale = LibStub("AceLocale-3.0", true)
+    local locale = aceLocale and aceLocale:GetLocale("Details", true)
+    return locale and locale[key] or key
+end})
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --global name declaration
 --use lua-language-server annotations to help the linter:
@@ -17,8 +23,8 @@
 		end
 		local addonName, Details222 = ...
 		local version, build, date, tvs = GetBuildInfo()
-		Details.build_counter = 15280
-		Details.alpha_build_counter = 15280 --if this is higher than the regular counter, use it instead
+		Details.build_counter = 15300
+		Details.alpha_build_counter = 15300 --if this is higher than the regular counter, use it instead
 		Details.dont_open_news = true
 		Details.game_version = version
 		Details.userversion = version .. " " .. Details.build_counter
@@ -70,7 +76,7 @@
 
 		Details.DM = C_DamageMeter
 		Details.DefaultTooltipIconSize = 20
-		local isWowApocalypse = (tvs >= 120000)
+		local isWowApocalypse = DetailsFramework.IsAddonApocalypseWow()
 
 		function Details222.UpdateIsAllowed()
 			if (isWowApocalypse) then
@@ -1081,7 +1087,7 @@ do
 
 		--armazena instancias inativas
 			_detalhes.unused_instances = {}
-			_detalhes.default_skin_to_use = "Serenity" -- 更改預設值
+			_detalhes.default_skin_to_use = "Minimalistic"
 			_detalhes.instance_title_text_timer = {}
 		--player detail skin
 			_detalhes.playerdetailwindow_skins = {}

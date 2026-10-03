@@ -45,7 +45,7 @@ local new_clear_filter_func = function(self, mouseButton, param1, param2) print(
 ---text functions
 clearFilterButton:SetText("CLEAR") --changing the text alone, the button width will be ajusted to fit the new text because shortMethod is nil
 clearFilterButton:SetTextColor(1, 0, 0, 1) --changing the text color to red
-clearFilterButton:SetFontSize(14)
+clearFilterButton:SetFontSize(18)
 clearFilterButton:SetFontFace([[Fonts\FRIZQT__.TTF]])
 clearFilterButton:SetTexture([[Interface\Tooltips\UI-Tooltip-Background]], [[Interface\Tooltips\UI-Tooltip-Background]], [[Interface\Tooltips\UI-Tooltip-Background]], [[Interface\Tooltips\UI-Tooltip-Background]])
 

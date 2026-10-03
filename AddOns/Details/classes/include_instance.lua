@@ -185,7 +185,7 @@ _detalhes.instance_defaults = {
 			enabled = false, 
 			anchor = {5, 1}, 
 			text_face = "Friz Quadrata TT", 
-			text_size = 12, 
+			text_size = 16, 
 			text_color = {1, 1, 1, 1}, 
 			side = 1, 
 			shadow = false,
@@ -296,7 +296,7 @@ _detalhes.instance_defaults = {
 			--bar height
 				height = 14,
 			--font size
-				font_size = 10,
+				font_size = 14,
 			--font face (name)
 				font_face = "Arial Narrow",
 			--font face (file)

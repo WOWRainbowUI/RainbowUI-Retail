@@ -1,8 +1,13 @@
+-- RainbowUI: resolve display translations lazily, including framework files loaded before locales.
+local Loc = setmetatable({}, {__index = function(_, key)
+    local aceLocale = LibStub("AceLocale-3.0", true)
+    local locale = aceLocale and aceLocale:GetLocale("Details", true)
+    return locale and locale[key] or key
+end})
 
 
 local Details = _G.Details
 local DF = _G.DetailsFramework
-local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
 
 function Details:InitializePlaterIntegrationWindow()
     local DetailsPlaterIntegrationPanel = DF:CreateSimplePanel(UIParent, 700, 480, Loc["Details! Plater Nameplates Integration"], "DetailsPlaterIntegrationPanel")
@@ -422,9 +427,9 @@ function Details.OpenPlaterIntegrationWindow()
         titleBackground:SetBackdropColor(.5, .5, .5, .7)
         titleBackground:SetBackdropBorderColor(0, 0, 0, 1)
         
-        local platerTitle = DF:CreateLabel(titleBackground, Loc["Plater Nameplates Integration"], 16, "white")
-        local platerDesc1 = DF:CreateLabel(titleBackground, Loc["Add DPS and Damage information directly into the nameplate"], 14, "silver")
-        local platerDesc2 = DF:CreateLabel(titleBackground, Loc["See how much damage the enemy is taking in real time!"], 14, "silver")
+        local platerTitle = DF:CreateLabel(titleBackground, Loc["Plater Nameplates Integration"], 20, "white")
+        local platerDesc1 = DF:CreateLabel(titleBackground, Loc["Add DPS and Damage information directly into the nameplate"], 15, "silver")
+        local platerDesc2 = DF:CreateLabel(titleBackground, Loc["See how much damage the enemy is taking in real time!"], 15, "silver")
         local platerImage = DF:CreateImage(titleBackground, "Interface\\AddOns\\Details\\images\\plater_image")
         platerImage:SetSize(256, 64)
         
@@ -442,7 +447,7 @@ function Details.OpenPlaterIntegrationWindow()
                 end
             end
             
-            local PlaterDisabled1 = DF:CreateLabel(f, Loc["Plater isn't installed! you may download it from the Curseforge app."], 16, "red")
+            local PlaterDisabled1 = DF:CreateLabel(f, Loc["Plater isn't installed! you may download it from the Curseforge app."], 20, "red")
             PlaterDisabled1:SetPoint(10, -330)
         end
         

@@ -207,7 +207,7 @@ local addonName, Details222 = ...
 				["start_after_icon"] = true,
 				["font_face_file"] = "Fonts\\ARIALN.TTF",
 				["textL_custom_text"] = "{data1}. {data3}{data2}",
-				["font_size"] = 16,
+				["font_size"] = 20,
 				["height"] = 21,
 				["texture_file"] = "Interface\\AddOns\\Details\\images\\bar4",
 				["icon_file"] = "Interface\\AddOns\\Details\\images\\classes_small",
@@ -325,7 +325,7 @@ local addonName, Details222 = ...
 		micro_frames = {
 			color = {1, 1, 1, 1},
 			font = "Accidental Presidency",
-			size = 14,
+			size = 10,
 			textymod = 1,
 		},
 
@@ -482,7 +482,7 @@ local addonName, Details222 = ...
 				["start_after_icon"] = true,
 				["font_face_file"] = "Interface\\Addons\\Details\\fonts\\Accidental Presidency.ttf",
 				["textL_custom_text"] = "{data1}. {data3}{data2}",
-				["font_size"] = 16,
+				["font_size"] = 20,
 				["height"] = 21,
 				["texture_file"] = "Interface\\AddOns\\Details\\images\\bar_textures\\bar_best.png",
 				["icon_file"] = "Interface\\AddOns\\Details\\images\\classes_small",
@@ -558,7 +558,7 @@ local addonName, Details222 = ...
 		micro_frames = {
 			color = {1, 1, 1, 0.7},
 			font = "Friz Quadrata TT",
-			size = 13,
+			size = 9,
 			textymod = 0,
 		},
 
@@ -633,7 +633,7 @@ local addonName, Details222 = ...
 				["start_after_icon"] = true,
 				["font_face_file"] = "Fonts\\ARIALN.TTF",
 				["textL_custom_text"] = "{data1}. {data3}{data2}",
-				["font_size"] = 16,
+				["font_size"] = 20,
 				["height"] = 21,
 				["texture_file"] = "Interface\\AddOns\\Details\\images\\bar_serenity",
 				["icon_file"] = "Interface\\AddOns\\Details\\images\\classes_small",
@@ -785,7 +785,7 @@ local addonName, Details222 = ...
 			left = "DETAILS_STATUSBAR_PLUGIN_PATTRIBUTE",
 			color = {1, 1, 1, 0.7},
 			font = "Accidental Presidency",
-			size = 14,
+			size = 10,
 			textymod = 0,
 		},
 
@@ -835,7 +835,7 @@ local addonName, Details222 = ...
 				["enabled"] = true,
 				["shadow"] = false,
 				["side"] = 1,
-				["text_size"] = 13,
+				["text_size"] = 17,
 				["custom_text"] = "{name}",
 				["text_face"] = "Accidental Presidency",
 				["anchor"] = {
@@ -926,7 +926,7 @@ local addonName, Details222 = ...
 				["textR_bracket"] = "[",
 				["icon_file"] = "Interface\\AddOns\\Details\\images\\classes_small",
 				["icon_grayscale"] = false,
-				["font_size"] = 16,
+				["font_size"] = 20,
 				["height"] = 21,
 				["use_spec_icons"] = true,
 				["texture_custom"] = "",
@@ -1113,7 +1113,7 @@ local addonName, Details222 = ...
 		micro_frames = {
 			color = {.7, .7, .7, 0.7},
 			font = "FORCED SQUARE",
-			size = 14,
+			size = 10,
 			textymod = 1,
 		},
 
@@ -1200,7 +1200,7 @@ local addonName, Details222 = ...
 					-15,
 					5,
 				},
-				["text_size"] = 14,
+				["text_size"] = 16,
 				["enable_custom_text"] = false,
 			},
 			["switch_damager_in_combat"] = false,
@@ -1312,7 +1312,7 @@ local addonName, Details222 = ...
 				["textL_custom_text"] = "{data1}. {data3}{data2}",
 				["alpha"] = 1,
 				["no_icon"] = false,
-				["font_size"] = 16,
+				["font_size"] = 20,
 				["height"] = 21,
 				["texture_background"] = "Details Serenity",
 				["font_face"] = "FORCED SQUARE",
@@ -1379,7 +1379,7 @@ local addonName, Details222 = ...
 		micro_frames = {
 			color = {1, 1, 1, 0.7},
 			font = "FORCED SQUARE",
-			size = 14,
+			size = 10,
 			textymod = 1,
 		},
 
@@ -1447,7 +1447,7 @@ local addonName, Details222 = ...
 				["enabled"] = true,
 				["shadow"] = true,
 				["side"] = 1,
-				["text_size"] = 14,
+				["text_size"] = 16,
 				["custom_text"] = "{name}",
 				["text_face"] = "FORCED SQUARE",
 				["anchor"] = {
@@ -1493,7 +1493,7 @@ local addonName, Details222 = ...
 				["start_after_icon"] = true,
 				["font_face_file"] = "Interface\\Addons\\Details\\fonts\\FORCED SQUARE.ttf",
 				["textL_custom_text"] = "{data1}. {data3}{data2}",
-				["font_size"] = 16,
+				["font_size"] = 20,
 				["height"] = 21,
 				["texture_file"] = "Interface\\AddOns\\Details\\images\\bar4",
 				["icon_file"] = "Interface\\AddOns\\Details\\images\\classes_small",
@@ -1634,7 +1634,7 @@ local addonName, Details222 = ...
 		micro_frames = {
 			color = {0.525490, 0.525490, 0.525490, 1},
 			font = "FORCED SQUARE",
-			size = 15,
+			size = 11,
 			textymod = 1,
 		},
 
@@ -1720,7 +1720,7 @@ local addonName, Details222 = ...
 				["texture_background"] = "BantoBar",
 				["textL_custom_text"] = "{data1}. {data3}{data2}",
 				["no_icon"] = false,
-				["font_size"] = 16,
+				["font_size"] = 20,
 				["height"] = 21,
 				["font_face"] = "FORCED SQUARE",
 				["texture_class_colors"] = true,
@@ -1822,7 +1822,7 @@ local addonName, Details222 = ...
 		micro_frames = {
 			color = {1, 1, 1, 0.7},
 			font = "Oswald",
-			size = 13,
+			size = 9,
 			textymod = 0,
 			["left"] = "DETAILS_STATUSBAR_PLUGIN_PSEGMENT",
 			["center"] = "DETAILS_STATUSBAR_PLUGIN_CLOCK",
@@ -2115,7 +2115,7 @@ local addonName, Details222 = ...
 						["textXMod"] = 0,
 						["timeType"] = 1,
 						["textStyle"] = 2,
-						["textSize"] = 9,
+						["textSize"] = 13,
 						["textYMod"] = 0.5605735778808594,
 					},
 					["DETAILS_STATUSBAR_PLUGIN_PSEGMENT"] = {
@@ -2125,7 +2125,7 @@ local addonName, Details222 = ...
 						["segmentType"] = 2,
 						["textFace"] = "Oswald",
 						["textXMod"] = -4,
-						["textSize"] = 9,
+						["textSize"] = 13,
 						["textColor"] = {
 							1, -- [1]
 							1, -- [2]
@@ -2144,7 +2144,7 @@ local addonName, Details222 = ...
 						["textXMod"] = 5,
 						["textFace"] = "Oswald",
 						["textStyle"] = 2,
-						["textSize"] = 9,
+						["textSize"] = 13,
 						["textYMod"] = -1,
 					},
 				},
@@ -2304,7 +2304,7 @@ local addonName, Details222 = ...
 		micro_frames = {
 			color = {1, 1, 1, 1},
 			font = "Accidental Presidency",
-			size = 14,
+			size = 10,
 			textymod = 1,
 		},
 
@@ -2488,7 +2488,7 @@ local addonName, Details222 = ...
 				["start_after_icon"] = false,
 				["font_face_file"] = "Interface\\Addons\\Details\\fonts\\Accidental Presidency.ttf",
 				["textL_custom_text"] = "{data1}. {data3}{data2}",
-				["font_size"] = 16,
+				["font_size"] = 20,
 				["height"] = 21,
 				["texture_file"] = "Interface\\AddOns\\Details\\images\\bar_background",
 				["icon_file"] = "Interface\\AddOns\\Details\\images\\classes_small_alpha",
@@ -2569,7 +2569,7 @@ local addonName, Details222 = ...
 		micro_frames = {
 			color = {1, 1, 1, 1},
 			font = "Accidental Presidency",
-			size = 14,
+			size = 10,
 			textymod = 1,
 		},
 
@@ -2699,7 +2699,7 @@ local addonName, Details222 = ...
 					},
 					["texture"] = "Details BarBorder 2",
 				},
-				["font_size"] = 16,
+				["font_size"] = 20,
 				["height"] = 21,
 				["texture_file"] = "Interface\\RaidFrame\\Raid-Bar-Hp-Fill",
 				["icon_file"] = "Interface\\AddOns\\Details\\images\\classes_small",

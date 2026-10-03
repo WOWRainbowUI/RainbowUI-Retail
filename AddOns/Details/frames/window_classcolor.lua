@@ -81,7 +81,7 @@ function Details:OpenClassColorsConfig()
 
             button.text_overlay:ClearAllPoints()
             button.text_overlay:SetPoint("left", icon.widget, "right", 2, 0)
-            button.text_overlay.textsize = 10
+            button.text_overlay.textsize = 14
 
             button.my_icon = icon
             button.my_texture = backgroundTexture
@@ -182,7 +182,7 @@ function Details:OpenClassColorsConfig()
                 name = Loc["Debuff"],
                 desc = Loc["Debuff"],
             },
-			{--buff
+            {--buff
                 type = "select",
                 get = function() return Details.death_log_colors.buff end,
                 values = function()
@@ -202,7 +202,7 @@ function Details:OpenClassColorsConfig()
 
         DetailsFramework:BuildMenu(panel, deathLogOptions, 5, -315, 700, true, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
 
-        local deathLogColorsLabel = DF:CreateLabel(panel, Loc["Colors on Death Log:"], 12, "yellow")
+        local deathLogColorsLabel = DF:CreateLabel(panel, Loc["Colors on Death Log:"], 16, "yellow")
         deathLogColorsLabel:SetPoint("topleft", panel, "topleft", 5, -295)
     end
 

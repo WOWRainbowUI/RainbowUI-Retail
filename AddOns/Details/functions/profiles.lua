@@ -946,7 +946,7 @@ local default_profile = {
 		track_item_level = false,
 
 	--text settings
-		font_sizes = {menus = 14},
+		font_sizes = {menus = 10},
 		font_faces = {menus = "Friz Quadrata TT"},
 		ps_abbreviation = 3,
 		total_abbreviation = 2,
@@ -1014,7 +1014,7 @@ local default_profile = {
 		},
 
 	--bookmark
-		bookmark_text_size = 14,
+		bookmark_text_size = 11,
 
 	--cloud capture
 		cloud_capture = true,
@@ -1099,7 +1099,7 @@ local default_profile = {
 			enabled = false,
 			arena_enabled = true,
 			mythic_dungeon_enabled = false,
-			font_size = 18,
+			font_size = 22,
 			font_color = {1, 1, 1, 1},
 			font_shadow = "NONE",
 			font_face = "Friz Quadrata TT",
@@ -1124,7 +1124,7 @@ local default_profile = {
 		tooltip = {
 			fontface = "Friz Quadrata TT",
 			fontsize = 14,
-			fontsize_title = 14,
+			fontsize_title = 10,
 			fontcolor = {1, 1, 1, 1},
 			fontcolor_right = {1, 0.7, 0, 1}, --{1, 0.9254, 0.6078, 1}
 			fontshadow = true,
@@ -1423,7 +1423,7 @@ local default_global_data = {
 		immersion_special_units = true, --show a special unit as member of your group
 		immersion_unit_special_icons = true, --custom icons for specific units
 		immersion_pets_on_solo_play = false, --pets showing when solo play
-		damage_scroll_auto_open = false, -- 更改預設值
+		damage_scroll_auto_open = true,
 		damage_scroll_position = {
 			scale = 1,
 		},
@@ -1478,8 +1478,8 @@ local default_global_data = {
 		merge_pet_abilities = false,
 		merge_player_abilities = false,
 
-		played_class_time = false, -- 遊戲時間洗頻訊息
-		check_stuttering = false,  -- 檢查卡頓
+		played_class_time = true,
+		check_stuttering = false,
 
 		--[bossname] = texture
 		boss_icon_cache = {},
@@ -1529,7 +1529,7 @@ local default_global_data = {
 		},
 
 	breakdown_general = {
-		font_size = 11,
+		font_size = 15,
 		font_color = {0.9, 0.9, 0.9, 0.923},
 		font_outline = "NONE",
 		font_face = "DEFAULT",
@@ -1608,7 +1608,7 @@ local default_global_data = {
 		genericcontainer_headers_right = {}, --store information about active headers and their sizes (generic right)
 
 		spellcontainer_header_height = 20,
-		spellcontainer_header_fontsize = 14,
+		spellcontainer_header_fontsize = 10,
 		spellcontainer_header_fontcolor = {1, 1, 1, 1},
 	},
 

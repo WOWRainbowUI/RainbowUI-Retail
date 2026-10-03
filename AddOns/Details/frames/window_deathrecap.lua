@@ -79,7 +79,7 @@ local create_deathrecap_line = function(parent, n)
 	detailsFramework:SetFontColor(timeAt, "gray")
 	detailsFramework:SetFontColor(sourceName, "yellow")
 
-	detailsFramework:SetFontSize(sourceName, 10)
+	detailsFramework:SetFontSize(sourceName, 14)
 
 	--text alpha
 	timeAt:SetAlpha(textAlpha)
@@ -123,8 +123,8 @@ local create_deathrecap_line = function(parent, n)
 		backgroundTexture2:SetPoint("topright", backgroundTexture, "bottomright", 0, 0)
 		backgroundTexture2:SetHeight(32)
 
-		detailsFramework:SetFontSize(amount, 14)
-		detailsFramework:SetFontSize(lifePercent, 14)
+		detailsFramework:SetFontSize(amount, 18)
+		detailsFramework:SetFontSize(lifePercent, 18)
 		backgroundTexture:SetVertexColor(.2, .1, .1, .3)
 	end
 

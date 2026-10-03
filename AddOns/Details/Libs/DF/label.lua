@@ -467,7 +467,7 @@ end
 ---because the metatable forwards them.
 function detailsFramework:CreateErrorLabel(parent, text, size, color, layer, name)
 	---@type df_errorlabel
-	local errorMsg = detailsFramework:CreateLabel(parent, text or "", size or 13, color or "orangered", nil, nil, name, layer or "overlay")
+	local errorMsg = detailsFramework:CreateLabel(parent, text or "", size or 17, color or "orangered", nil, nil, name, layer or "overlay")
 	if (errorMsg) then
 		errorMsg:SetJustifyH("center")
 		errorMsg:SetAlpha(0)

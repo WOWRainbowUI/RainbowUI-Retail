@@ -2000,7 +2000,7 @@ function atributo_misc:ToolTipDebuffUptime(instance, numero, barra)
 end
 
 function atributo_misc:ToolTipBuffUptime(instance, barFrame)
----@cast instance instance
+	---@cast instance instance
 
 	local owner = self.owner
 	if (owner and owner.classe) then

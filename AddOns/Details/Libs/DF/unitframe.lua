@@ -636,7 +636,7 @@ detailsFramework.PowerFrameFunctions = {
 			self.percentText:Show()
 			PixelUtil.SetPoint(self.percentText, "center", self, "center", 0, 0)
 
-			detailsFramework:SetFontSize(self.percentText, 9)
+			detailsFramework:SetFontSize(self.percentText, 13)
 			detailsFramework:SetFontColor(self.percentText, "white")
 			detailsFramework:SetFontOutline(self.percentText, "OUTLINE")
 		else

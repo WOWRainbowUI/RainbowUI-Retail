@@ -466,7 +466,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 			row:SetWidth(200)
 			row:SetHeight(20)
 			row:SetBackdrop({bgFile = "Interface\\AddOns\\Details\\images\\background", tile = true, tileSize = 16, insets = {left = 0, right = 0, top = 0, bottom = 0}})
-			local t = row:CreateFontString(nil, "overlay", "GameFontHighlight")
+			local t = row:CreateFontString(nil, "overlay", "GameFontHighlightSmall")
 			t:SetPoint("left", row, "left")
 			row.text = t
 			rows [#rows+1] = row
@@ -489,7 +489,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 		--_detalhes.ResetButton:SetHighlightTexture(t)
 		Details.ResetButton:SetNormalTexture(t)
 
-		-- print("backdrop", Details.ResetButton:GetBackdrop())
+		print("backdrop", Details.ResetButton:GetBackdrop())
 
 		Details.ResetButton:SetBackdropColor(0, 0, 1, 1)
 
@@ -696,7 +696,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 						Details.id_frame.texto = CreateFrame("editbox", nil, Details.id_frame, "BackdropTemplate")
 						Details.id_frame.texto:SetPoint("topleft", Details.id_frame, "topleft")
 						Details.id_frame.texto:SetAutoFocus(false)
-						Details.id_frame.texto:SetFontObject(GameFontHighlight)
+						Details.id_frame.texto:SetFontObject(GameFontHighlightSmall)
 						Details.id_frame.texto:SetHeight(14)
 						Details.id_frame.texto:SetWidth(120)
 						Details.id_frame.texto:SetJustifyH("CENTER")
@@ -752,7 +752,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 					Details.id_frame.texto = CreateFrame("editbox", nil, Details.id_frame, "BackdropTemplate")
 					Details.id_frame.texto:SetPoint("topleft", Details.id_frame, "topleft")
 					Details.id_frame.texto:SetAutoFocus(false)
-					Details.id_frame.texto:SetFontObject(GameFontHighlight)
+					Details.id_frame.texto:SetFontObject(GameFontHighlightSmall)
 					Details.id_frame.texto:SetHeight(14)
 					Details.id_frame.texto:SetWidth(120)
 					Details.id_frame.texto:SetJustifyH("CENTER")
@@ -2544,7 +2544,7 @@ local openAPIFrame = function()
 	editboxNotes.scroll:SetPoint("bottomright", editboxNotes, "bottomright", -1, 0)
 
 	local font, h, flags = editboxNotes.editbox:GetFont()
-	editboxNotes.editbox:SetFont(font, 12, flags)
+	editboxNotes.editbox:SetFont(font, 16, flags)
 	editboxNotes.editbox:SetAllPoints()
 	editboxNotes.editbox:SetBackdrop(nil)
 	editboxNotes.editbox:SetTextInsets(4, 4, 4, 4)
@@ -2868,7 +2868,7 @@ noteEditor.OpenNoteEditor = function()
 				statusBar.text = statusBar:CreateFontString(nil, "overlay", "GameFontNormal")
 				statusBar.text:SetPoint("left", statusBar, "left", 5, 0)
 				statusBar.text:SetText("By Terciob | From Details! Damage Meter")
-				detailsFramework:SetFontSize(statusBar.text, 12)
+				detailsFramework:SetFontSize(statusBar.text, 16)
 				detailsFramework:SetFontColor(statusBar.text, "silver")
 			end
 
@@ -2884,7 +2884,7 @@ noteEditor.OpenNoteEditor = function()
 				editboxNotes.scroll:SetPoint("bottomright", editboxNotes, "bottomright", -1, 0)
 
 				local font, h, flags = editboxNotes.editbox:GetFont()
-				editboxNotes.editbox:SetFont(font, 12, flags)
+				editboxNotes.editbox:SetFont(font, 16, flags)
 				editboxNotes.editbox:SetAllPoints()
 				editboxNotes.editbox:SetBackdrop(nil)
 				editboxNotes.editbox:SetTextInsets(4, 4, 4, 4)
@@ -2933,7 +2933,7 @@ noteEditor.OpenNoteEditor = function()
 				typeYourNote:SetPoint("center", editboxNotes, "center", 0, 0)
 				typeYourNote:SetText("CLICK TO START YOUR NOTE")
 				detailsFramework:SetFontColor(typeYourNote, "gray")
-				detailsFramework:SetFontSize(typeYourNote, 14)
+				detailsFramework:SetFontSize(typeYourNote, 18)
 
 				--when the editbox is focused, hide the "type your note here" text
 				editboxNotes.editbox:HookScript("OnEditFocusGained", function(self)
@@ -3383,7 +3383,7 @@ noteEditor.OpenNoteEditor = function()
 				errorMsg:SetJustifyH("center")
 				errorMsg:SetAlpha(0)
 				detailsFramework:SetFontColor(errorMsg, "orangered")
-				detailsFramework:SetFontSize(errorMsg, 13)
+				detailsFramework:SetFontSize(errorMsg, 17)
 				mainFrame.ErrorMsg = errorMsg
 
 				--fade out animation using details framework animation hub
@@ -3426,7 +3426,7 @@ noteEditor.OpenNoteEditor = function()
 				whatsThisText:SetText("This panel allows you to create a note and share it with your group. Can contain route info, interrupt order, bloodlust timers, boss order, skips, rogue shroud, etc.")
 				whatsThisText:SetWidth(bottomFrame:GetWidth() - 10)
 				whatsThisText:SetJustifyH("left")
-				detailsFramework:SetFontSize(whatsThisText, 12)
+				detailsFramework:SetFontSize(whatsThisText, 16)
 				detailsFramework:SetFontColor(whatsThisText, "orange")
 				whatsThisText:SetAlpha(0.7)
 
@@ -3457,7 +3457,7 @@ noteEditor.OpenNoteEditor = function()
 				local reuseText = belowScrollFrame:CreateFontString(nil, "overlay", "GameFontNormal")
 				reuseText:SetPoint("topleft", belowScrollFrame, "topleft", 4, -5)
 				reuseText:SetText("Use dps1 dps2 dps3 healer1 tank1 in order to reuse the note without typing player names.")
-				detailsFramework:SetFontSize(reuseText, 11)
+				detailsFramework:SetFontSize(reuseText, 15)
 				detailsFramework:SetFontColor(reuseText, "silver")
 				reuseText:SetWidth(belowScrollFrame:GetWidth() - 6)
 				reuseText:SetJustifyH("left")
@@ -3563,13 +3563,13 @@ noteEditor.OpenNoteScreenPanel = function(senderName, noteText, commId, bIsSimul
 		local titleText = screenFrame:CreateFontString(nil, "overlay", "GameFontNormal") --sent by
 		PixelUtil.SetPoint(titleText, "topleft", screenFrame, "topleft", 3, -3)
 		titleText:SetAlpha(0.934)
-		detailsFramework:SetFontSize(titleText, 11)
+		detailsFramework:SetFontSize(titleText, 15)
 
 		--create a report button to report the sender
 		local reportButton = detailsFramework:CreateButton(screenFrame, function()end, 100, 20, REPORT_PLAYER)
 		PixelUtil.SetPoint(reportButton, "topright", screenFrame, "topright", -26, 0)
 		reportButton:SetAlpha(0.934)
-		reportButton.textsize = 11
+		reportButton.textsize = 15
 		screenFrame.ReportButton = reportButton
 
 		local rightClickToCloseText = screenFrame:CreateFontString(nil, "overlay", "GameFontNormal")
@@ -3577,7 +3577,7 @@ noteEditor.OpenNoteScreenPanel = function(senderName, noteText, commId, bIsSimul
 		rightClickToCloseText:SetPoint("bottom", screenFrame, "bottom", 0, 27)
 		rightClickToCloseText:SetAlpha(0.934)
 		rightClickToCloseText:SetText("Right Click to Close")
-		detailsFramework:SetFontSize(rightClickToCloseText, 14)
+		detailsFramework:SetFontSize(rightClickToCloseText, 18)
 
 		--create close button in the top right corner, can use the framework
 		local closeButton = detailsFramework:CreateButton(screenFrame, function() screenFrame:Hide() end, 20, 20)
@@ -3784,7 +3784,7 @@ function Details222.Notes.RegisterForOpenRaidNotes()
 	config["framepos"] = config["framepos"] or {scale = 1, position = {}}
 	config["screenpos"] = config["screenpos"] or {scale = 1, position = {}}
 	config["notes"] = config["notes"] or {}
-	config["fontsize"] = config["fontsize"] or 12
+	config["fontsize"] = config["fontsize"] or 16
 	config["transparency"] = config["transparency"] or 0.02
 
 	if (not config["framecolor"]) then

@@ -244,7 +244,7 @@ function breakdownMidnight.CreateBreakdownWindow(windowIndex, parentFrame)
     titleIcon:SetPoint("topleft", windowFrame, "topleft", CONST_WINDOW_PADDING, -5)
     windowFrame.TitleIcon = titleIcon
 
-    local titleText = detailsFramework:CreateLabel(windowFrame, Loc["STRING_PLAYER_DETAILS"] or "Breakdown", 12, "DETAILS_HEADER_YELLOW")
+    local titleText = detailsFramework:CreateLabel(windowFrame, Loc["STRING_PLAYER_DETAILS"] or "Breakdown", 16, "DETAILS_HEADER_YELLOW")
     titleText:SetPoint("left", titleIcon, "right", 4, 0)
     windowFrame.TitleText = titleText
 

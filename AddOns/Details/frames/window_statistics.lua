@@ -77,7 +77,8 @@ function Details:OpenRaidHistoryWindow(raidName, bossEncounterId, difficultyId, 
 
         --create title bar
         local titlebar = DF:CreateTitleBar(statisticsFrame, "Details! " .. Loc ["STRING_STATISTICS"])
-		titlebar.CloseButton:SetScript("OnClick", function() statisticsFrame:GetParent():Hide() end)
+        titlebar.CloseButton:SetScript("OnClick", function() statisticsFrame:GetParent():Hide() end)
+
 --STRING_GUILDDAMAGERANK_TUTORIAL_DESC
 --STRING_OPTIONS_CHART_CLOSE
 
@@ -712,7 +713,7 @@ function Details:OpenRaidHistoryWindow(raidName, bossEncounterId, difficultyId, 
                         local thisData = self.data
 
                         GameCooltip:AddLine(Loc["Total Done:"], Details:ToK2(thisData.value), 1, "white")
-                        GameCooltip:AddLine(Loc["Dps:"], Details:ToK2(thisData.value / thisData.elapsed), 1, "white")
+                        GameCooltip:AddLine("Dps:", Details:ToK2(thisData.value / thisData.elapsed), 1, "white")
                         GameCooltip:AddLine(Loc["Item Level:"], floor(thisData.data.itemLevel), 1, "white")
                         GameCooltip:AddLine(Loc["Date:"], thisData.fulldate:gsub(".*%s", ""), 1, "white")
 

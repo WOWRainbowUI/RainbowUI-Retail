@@ -170,7 +170,7 @@ local createVerticalAxisLabels = function(parent, amountLabels, labelsTable, red
 
         label:SetJustifyH("right")
         label:SetTextColor(red, green, blue, alpha)
-        detailsFramework:SetFontSize(label, 11)
+        detailsFramework:SetFontSize(label, 15)
         table.insert(labelsTable, label)
 
         local circleTexture = parent:CreateTexture("$parentYAxisLabel" .. i .. "CircleTexture", "border")
@@ -201,7 +201,7 @@ local createHorizontalAxisLabels = function(parent, amountLabels, labelsTable, r
         local label = parent:CreateFontString("$parentXAxisLabel" .. i, "overlay", "GameFontNormal")
         label:SetJustifyH("left")
         label:SetTextColor(red, green, blue, alpha)
-        detailsFramework:SetFontSize(label, 11)
+        detailsFramework:SetFontSize(label, 15)
         table.insert(labelsTable, label)
     end
 end
@@ -516,7 +516,7 @@ detailsFramework.ChartFrameSharedMixin = {
         newBackdropIndicator.fieldLabel:SetTextColor(1, 1, 1, 0.3)
         newBackdropIndicator.fieldLabel:SetJustifyH("left")
         newBackdropIndicator.fieldLabel:SetJustifyV("top")
-        detailsFramework:SetFontSize(newBackdropIndicator.fieldLabel, 10)
+        detailsFramework:SetFontSize(newBackdropIndicator.fieldLabel, 14)
         newBackdropIndicator.fieldLabel:SetPoint("topleft", newBackdropIndicator.fieldTexture, "topleft", 2, -2)
 
         newBackdropIndicator.indicatorTexture = newBackdropIndicator:CreateTexture(nil, "overlay")
@@ -1385,7 +1385,7 @@ detailsFramework.MultiChartFrameMixin = {
                 thisIndicator.Texture:SetSize(12, 12)
 
                 thisIndicator.Label = thisIndicator:CreateFontString("$parentLabel", "overlay", "GameFontNormal")
-                detailsFramework:SetFontSize(thisIndicator.Label, 11)
+                detailsFramework:SetFontSize(thisIndicator.Label, 15)
                 detailsFramework:SetFontColor(thisIndicator.Label, "white")
 
                 thisIndicator.Texture:SetPoint("left", thisIndicator, "left", 0, 0)

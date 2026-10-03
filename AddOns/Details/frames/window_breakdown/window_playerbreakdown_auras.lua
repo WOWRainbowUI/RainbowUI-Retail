@@ -1,9 +1,13 @@
+-- RainbowUI: resolve display translations lazily, including framework files loaded before locales.
+local Loc = setmetatable({}, {__index = function(_, key)
+    local aceLocale = LibStub("AceLocale-3.0", true)
+    local locale = aceLocale and aceLocale:GetLocale("Details", true)
+    return locale and locale[key] or key
+end})
 
 ---@type details
 local Details = Details
 ---@type detailsframework
-
-local Loc = _G.LibStub("AceLocale-3.0"):GetLocale ( "Details" )
 local detailsFramework = DetailsFramework
 
 local GameTooltip = GameTooltip
@@ -28,7 +32,7 @@ local createAuraTabOnBreakdownWindow = function(tab, frame)
     local scroll_width = 410
     local scrollHeight = 495
     local scroll_line_height = 19
-    local text_size = 10
+    local text_size = 14
 
     local debuffScrollStartX = 445
 

@@ -1,7 +1,7 @@
 -- SPDX-License-Identifier: LGPL-2.1-or-later
 -- Details Framework (DetailsFramework-1.0) -- see Libs/DF/LICENSE
 
-local dversion = 752
+local dversion = 758
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -165,14 +165,15 @@ end
 ---return if the wow version the player is playing is a classic version of wow
 ---@return boolean
 function DF.IsTimewalkWoW()
-    if (buildInfo < 60000) then        return true    end
+    if (buildInfo < 60000 and not DF.IsForeverWow()) then        return true    end
 	return false
 end
 
 ---return if the wow version the player is playing is the vanilla version of wow
 ---@return boolean
 function DF.IsClassicWow()
-    if (buildInfo < 20000) then        return true    end
+    --if (buildInfo < 20000) then        return true    end
+	if (buildInfo < 20000 and not DF.IsForeverWow()) then        return true    end
 	return false
 end
 
@@ -256,7 +257,12 @@ function DF.IsMidnightWow()
 end
 
 function DF.IsAddonApocalypseWow()
-	return buildInfo >= 120000
+	return buildInfo >= 120000 or DF.IsForeverWow()
+end
+
+function DF.IsForeverWow()
+	if (buildInfo < 20000 and buildInfo >= 16001) then   return true end
+	return false
 end
 
 function DF.IsMidnightWowAPI()
@@ -1532,7 +1538,7 @@ function DF:GetTextWidth(text, size)
 	if (size) then
 		DF:SetFontSize(dummyFontString, size)
 	else
-		DF:SetFontSize(dummyFontString, 12)
+		DF:SetFontSize(dummyFontString, 16)
 	end
 
 	dummyFontString:SetText(text)
@@ -3056,7 +3062,7 @@ end
 			textureTitle:SetWidth(36)
 			textureTitle:SetHeight(36)
 
-			local titleLabel = DF:NewLabel(newOptionsFrame, nil, "$parentTitle", nil, title, nil, 20, "yellow")
+			local titleLabel = DF:NewLabel(newOptionsFrame, nil, "$parentTitle", nil, title, nil, 24, "yellow")
 			titleLabel:SetPoint("left", textureTitle, "right", 2, -1)
 			DF:SetFontOutline (titleLabel, true)
 
@@ -3324,10 +3330,10 @@ end
 --DF.font_templates ["ORANGE_FONT_TEMPLATE"] = {color = "orange", size = 11, font = "Accidental Presidency"}
 --DF.font_templates ["OPTIONS_FONT_TEMPLATE"] = {color = "yellow", size = 12, font = "Accidental Presidency"}
 --DF.font_templates["ORANGE_FONT_TEMPLATE"] = {color = "orange", size = 10, font = DF:GetBestFontForLanguage()}
-DF.font_templates["ORANGE_FONT_TEMPLATE"] = {color = {1, 0.8235, 0, 1}, size = 16, font = DF:GetBestFontForLanguage()}
+DF.font_templates["ORANGE_FONT_TEMPLATE"] = {color = {1, 0.8235, 0, 1}, size = 11, font = DF:GetBestFontForLanguage()}
 --DF.font_templates["OPTIONS_FONT_TEMPLATE"] = {color = "yellow", size = 9.6, font = DF:GetBestFontForLanguage()}
-DF.font_templates["OPTIONS_FONT_TEMPLATE"] = {color = {1, 1, 1, 0.9}, size = 14, font = DF:GetBestFontForLanguage()}
-DF.font_templates["SMALL_SILVER"] = {color = "silver", size = 12, font = DF:GetBestFontForLanguage()}
+DF.font_templates["OPTIONS_FONT_TEMPLATE"] = {color = {1, 1, 1, 0.9}, size = 9.6, font = DF:GetBestFontForLanguage()}
+DF.font_templates["SMALL_SILVER"] = {color = "silver", size = 9, font = DF:GetBestFontForLanguage()}
 --~templates
 --dropdowns
 DF.dropdown_templates = DF.dropdown_templates or {}

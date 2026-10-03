@@ -1,9 +1,14 @@
+-- RainbowUI: resolve display translations lazily, including framework files loaded before locales.
+local Loc = setmetatable({}, {__index = function(_, key)
+    local aceLocale = LibStub("AceLocale-3.0", true)
+    local locale = aceLocale and aceLocale:GetLocale("Details", true)
+    return locale and locale[key] or key
+end})
 
 
 local Details = _G.Details
 ---@type detailsframework
 local DF = _G.DetailsFramework
-local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
 local _, Details222 = ...
 _ = nil
 local _GetSpellInfo = Details.GetSpellInfo
@@ -37,7 +42,7 @@ function Details:ScrollDamage()
 		local y = -15
 		local headerY = y - 15
 		local scrollY = headerY - 20
-		local fontSize = 10
+		local fontSize = 14
 
 		local LibWindow = _G.LibStub("LibWindow-1.1")
 		DetailsScrollDamage:SetScript("OnMouseDown", nil)
@@ -246,7 +251,7 @@ function Details:ScrollDamage()
 
 				elseif (token == "SWING_DAMAGE") then
 				--	amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand = spellID, spellName, spellType, amount, overKill, school, resisted, blocked, absorbed, isCritical
-				--	table.insert(DetailsScrollDamage.Data, 1, {timew, token, hidding, sourceSerial, sourceName, sourceFlag, sourceFlag2, targetSerial, targetName, targetFlag, targetFlag2, spellID, spellName, spellType, amount, overKill, school, resisted, blocked, absorbed, isCritical})
+				--	tinsert(DetailsScrollDamage.Data, 1, {timew, token, hidding, sourceSerial, sourceName, sourceFlag, sourceFlag2, targetSerial, targetName, targetFlag, targetFlag2, spellID, spellName, spellType, amount, overKill, school, resisted, blocked, absorbed, isCritical})
 				--	damageScroll:RefreshScroll()
 				end
 			end

@@ -161,7 +161,7 @@
 				GameCooltip:Hide()
 			end)
 
-			table.insert(UISpecialFrames, "DetailsCustomPanel")
+			tinsert(UISpecialFrames, "DetailsCustomPanel")
 
 			--menu title bar
 				local titlebar = CreateFrame("frame", nil, customWindow,"BackdropTemplate")
@@ -455,7 +455,7 @@
 						end
 
 						if (DetailsCustomPanel.IsImporting) then
-							table.insert(_detalhes.custom, object)
+							tinsert(_detalhes.custom, object)
 						end
 
 						DetailsCustomPanel.IsEditing = false
@@ -476,7 +476,7 @@
 							["tooltip"] = false,
 						}
 
-						table.insert(_detalhes.custom, new_custom_object)
+						tinsert(_detalhes.custom, new_custom_object)
 						setmetatable(new_custom_object, _detalhes.atributo_custom)
 						new_custom_object.__index = _detalhes.atributo_custom
 						_detalhes:Msg(Loc ["STRING_CUSTOM_CREATED"])
@@ -523,7 +523,7 @@
 						end
 
 						if (DetailsCustomPanel.IsImporting) then
-							table.insert(_detalhes.custom, object)
+							tinsert(_detalhes.custom, object)
 						end
 
 						DetailsCustomPanel.IsEditing = false
@@ -559,7 +559,7 @@
 							new_custom_object.percent_script = false
 						end
 
-						table.insert(_detalhes.custom, new_custom_object)
+						tinsert(_detalhes.custom, new_custom_object)
 						setmetatable(new_custom_object, _detalhes.atributo_custom)
 						new_custom_object.__index = _detalhes.atributo_custom
 						_detalhes:Msg(Loc ["STRING_CUSTOM_CREATED"])
@@ -1202,7 +1202,7 @@
 									t:SetSize(20, 20)
 									t:SetAlpha(0.7)
 
-									local text = gump:NewLabel(thisButton, nil, "DetailsCustomActorsFrame2Button"..i.."Label", "label", "Spell", nil, 9.5, {.8, .8, .8, .8})
+									local text = gump:NewLabel(thisButton, nil, "DetailsCustomActorsFrame2Button"..i.."Label", "label", "Spell", nil, 13.5, {.8, .8, .8, .8})
 									text:SetPoint("left", t.image, "right", 2, 0)
 									text:SetWidth(123)
 									text:SetHeight(10)
@@ -1410,7 +1410,7 @@
 									t:SetSize(20, 20)
 									t:SetAlpha(0.7)
 
-									local text = gump:NewLabel(thisButton, nil, "DetailsCustomActorsFrameButton"..i.."Label", "label", "Spell", nil, 9.5, {.8, .8, .8, .8})
+									local text = gump:NewLabel(thisButton, nil, "DetailsCustomActorsFrameButton"..i.."Label", "label", "Spell", nil, 13.5, {.8, .8, .8, .8})
 									text:SetPoint("left", t.image, "right", 2, 0)
 									text:SetWidth(123)
 									text:SetHeight(10)
@@ -1571,7 +1571,7 @@
 								local t = gump:NewImage(thisButton, nil, 20, 20, nil, nil, "image", "DetailsCustomEncounterImageButton"..i)
 								t:SetPoint("left", thisButton)
 
-								local text = gump:NewLabel(thisButton, nil, "DetailsCustomSpellsFrameButton"..i.."Label", "label", "Spell", nil, 9.5, {.8, .8, .8, .8})
+								local text = gump:NewLabel(thisButton, nil, "DetailsCustomSpellsFrameButton"..i.."Label", "label", "Spell", nil, 13.5, {.8, .8, .8, .8})
 								text:SetPoint("left", t.image, "right", 2, 0)
 								text:SetWidth(73)
 								text:SetHeight(10)
@@ -1737,10 +1737,10 @@
 				codeEditorBackground:SetTemplate(CONST_CODETEXTENTRY_TEMPLATE)
 
 				codeEditor:Hide()
-				codeEditor.font_size = 11
+				codeEditor.font_size = 15
 
 				local file, size, flags = codeEditor.editbox:GetFont()
-				codeEditor.editbox:SetFont(file, 11, flags)
+				codeEditor.editbox:SetFont(file, 15, flags)
 
 				local expand_func = function()
 					if (codeEditor.expanded) then

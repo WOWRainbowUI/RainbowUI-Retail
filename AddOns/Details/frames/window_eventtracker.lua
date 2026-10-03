@@ -1,8 +1,13 @@
+-- RainbowUI: resolve display translations lazily, including framework files loaded before locales.
+local Loc = setmetatable({}, {__index = function(_, key)
+    local aceLocale = LibStub("AceLocale-3.0", true)
+    local locale = aceLocale and aceLocale:GetLocale("Details", true)
+    return locale and locale[key] or key
+end})
 
 local Details = _G.Details
 local C_Timer = _G.C_Timer
 local GetSpellInfo = Details.GetSpellInfo
-local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
 local libwindow = LibStub("LibWindow-1.1")
 local playerGUID = UnitGUID('player')
 
@@ -33,21 +38,21 @@ function Details:OpenEventTrackerOptions(bFromOptionsPanel)
 				Details:UpdateEventTrackerFrame()
 			end
 			local strataTable = {}
-			strataTable [1] = {value = "BACKGROUND", label = Loc ["BACKGROUND"], onclick = set_frame_strata}
-			strataTable [2] = {value = "LOW", label = Loc ["LOW"], onclick = set_frame_strata}
-			strataTable [3] = {value = "MEDIUM", label = Loc ["MEDIUM"], onclick = set_frame_strata}
-			strataTable [4] = {value = "HIGH", label = Loc ["HIGH"], onclick = set_frame_strata}
-			strataTable [5] = {value = "DIALOG", label = Loc ["DIALOG"], onclick = set_frame_strata}
-		
+			strataTable [1] = {value = Loc["BACKGROUND"], label = Loc["BACKGROUND"], onclick = set_frame_strata}
+			strataTable [2] = {value = Loc["LOW"], label = Loc["LOW"], onclick = set_frame_strata}
+			strataTable [3] = {value = Loc["MEDIUM"], label = Loc["MEDIUM"], onclick = set_frame_strata}
+			strataTable [4] = {value = Loc["HIGH"], label = Loc["HIGH"], onclick = set_frame_strata}
+			strataTable [5] = {value = Loc["DIALOG"], label = Loc["DIALOG"], onclick = set_frame_strata}
+
 		--font options
 			local set_font_shadow= function(_, _, shadow)
 				Details.event_tracker.font_shadow = shadow
 				Details:UpdateEventTrackerFrame()
 			end
 			local fontShadowTable = {}
-			fontShadowTable [1] = {value = "NONE", label = Loc ["None"], onclick = set_font_shadow}
-			fontShadowTable [2] = {value = "OUTLINE", label = Loc ["Outline"], onclick = set_font_shadow}
-			fontShadowTable [3] = {value = "THICKOUTLINE", label = Loc ["Thick Outline"], onclick = set_font_shadow}
+			fontShadowTable [1] = {value = "NONE", label = Loc["None"], onclick = set_font_shadow}
+			fontShadowTable [2] = {value = "OUTLINE", label = Loc["Outline"], onclick = set_font_shadow}
+			fontShadowTable [3] = {value = "THICKOUTLINE", label = Loc["Thick Outline"], onclick = set_font_shadow}
 
 			local on_select_text_font = function(self, fixed_value, value)
 				Details.event_tracker.font_face = value
@@ -409,12 +414,12 @@ function Details:CreateEventTrackerFrame(parentObject, name)
 			righticon:SetPoint("right", line, "right", 0, 0)
 
 			local lefttext = statusbar:CreateFontString("$parentLeftText", "overlay", "GameFontNormal")
-			DF:SetFontSize(lefttext, 9)
+			DF:SetFontSize(lefttext, 13)
 			lefttext:SetPoint("left", lefticon, "right", 2, 0)
 			lefttext.__languageId = "enUS"
 
 			local righttext = statusbar:CreateFontString("$parentRightText", "overlay", "GameFontNormal")
-			DF:SetFontSize(righttext, 9)
+			DF:SetFontSize(righttext, 13)
 			righttext:SetPoint("right", righticon, "left", -2, 0)
 
 			lefttext:SetJustifyH("left")
@@ -595,7 +600,7 @@ function Details:CreateEventTrackerFrame(parentObject, name)
 						sourceName = "Снизуслева"
 
 					elseif (math.random(3) == 3) then
-						sourceName = "值下方的材質"
+						sourceName = "質下方的材質"
 
 					elseif (math.random(4) == 1) then
 						sourceName = "주문 별 받은 피해"

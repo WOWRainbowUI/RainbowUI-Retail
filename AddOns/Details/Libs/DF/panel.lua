@@ -1,3 +1,9 @@
+-- RainbowUI: resolve display translations lazily, including framework files loaded before locales.
+local Loc = setmetatable({}, {__index = function(_, key)
+    local aceLocale = LibStub("AceLocale-3.0", true)
+    local locale = aceLocale and aceLocale:GetLocale("Details", true)
+    return locale and locale[key] or key
+end})
 
 local detailsFramework = _G ["DetailsFramework"]
 if (not detailsFramework or not DetailsFrameworkCanLoad) then
@@ -404,16 +410,16 @@ detailsFramework.LayoutFrame = {
 			if (textType) then
 				textType = string.lower(textType)
 				if (textType == "short") then
-					text = "關閉視窗"
+					text = Loc["close window"]
 
 				elseif (textType == "medium") then
-					text = "關閉視窗"
+					text = Loc["close window"]
 
 				elseif (textType == "large") then
-					text = "關閉視窗"
+					text = Loc["close window"]
 				end
 			else
-				text = "關閉視窗"
+				text = Loc["close window"]
 			end
 		end
 
@@ -1644,7 +1650,7 @@ function detailsFramework:IconPick (callback, close_when_select, param1, param2)
 		detailsFramework.IconPickFrame.preview:Hide()
 
 		--serach
-		detailsFramework.IconPickFrame.searchLabel =  detailsFramework:NewLabel(detailsFramework.IconPickFrame, nil, "$parentSearchBoxLabel", nil, "搜尋:")
+		detailsFramework.IconPickFrame.searchLabel =  detailsFramework:NewLabel(detailsFramework.IconPickFrame, nil, "$parentSearchBoxLabel", nil, Loc["Search:"])
 		detailsFramework.IconPickFrame.searchLabel:SetPoint("topleft", detailsFramework.IconPickFrame, "topleft", 12, -36)
 		detailsFramework.IconPickFrame.searchLabel:SetTemplate(detailsFramework:GetTemplate("font", "ORANGE_FONT_TEMPLATE"))
 		detailsFramework.IconPickFrame.searchLabel.fontsize = 16
@@ -2152,7 +2158,7 @@ local SimplePanel_frame_backdrop_border_color = {0, 0, 0, 1}
 function detailsFramework:CreateScaleBar(frame, config, bNoRightClick) --~scale
 	--returns a wrapper table (not a frame); unwrap via wrapper:GetUIObject() / wrapper.widget when handing to Blizzard APIs
 	---@type df_scalebar
-	local scaleBar, text = detailsFramework:CreateSlider(frame, 120, 14, 0.6, 1.6, 0.1, config.scale, true, "ScaleBar", nil, "縮放:", detailsFramework:GetTemplate("slider", "OPTIONS_SLIDER_TEMPLATE"), detailsFramework:GetTemplate("font", "ORANGE_FONT_TEMPLATE"))
+	local scaleBar, text = detailsFramework:CreateSlider(frame, 120, 14, 0.6, 1.6, 0.1, config.scale, true, "ScaleBar", nil, Loc["Scale:"], detailsFramework:GetTemplate("slider", "OPTIONS_SLIDER_TEMPLATE"), detailsFramework:GetTemplate("font", "ORANGE_FONT_TEMPLATE"))
 	scaleBar.thumb:SetWidth(24)
 	scaleBar:SetValueStep(0.05)
 	scaleBar:SetObeyStepOnDrag(true)
@@ -2166,7 +2172,7 @@ function detailsFramework:CreateScaleBar(frame, config, bNoRightClick) --~scale
 	editbox:SetBackdrop({bgFile = [[Interface\ACHIEVEMENTFRAME\UI-GuildAchievement-Parchment-Horizontal-Desaturated]],
 	edgeFile = [[Interface\Buttons\WHITE8X8]],
 	tile = true, edgeSize = 1, tileSize = 64})
-	editbox:SetFontObject("GameFontHighlight")
+	editbox:SetFontObject("GameFontHighlightSmall")
 	editbox:SetBackdropColor(0, 0, 0, 1)
 
 	editbox:SetScript("OnEditFocusGained", function()
@@ -3006,9 +3012,9 @@ function detailsFramework:CreateRightClickToClose(parent, xOffset, yOffset, colo
 	xOffset = xOffset or 0
 	yOffset = yOffset or 0
 	color = color or "white"
-	fontSize = fontSize or 10
+	fontSize = fontSize or 14
 
-	local label = detailsFramework:CreateLabel(parent, "點一下右鍵關閉", fontSize, color)
+	local label = detailsFramework:CreateLabel(parent, Loc["right click to close"], fontSize, color)
 	label:SetPoint("bottomright", parent, "bottomright", -4 + xOffset, 5 + yOffset)
 
 	return label
@@ -3233,7 +3239,7 @@ local default_radiogroup_options = {
 	backdrop_border_color = {0.1, 0.1, 0.1, .2},
 	is_radio = false,
 	text_color = {1, 0.8196, 0, 1},
-	text_size = 10,
+	text_size = 14,
 	text_outline = "NONE",
 }
 

@@ -382,7 +382,7 @@
 			end
 
 			--create a font string in the topleft corner for plugin name
-			local pluginNameLabel = detailsFramework:CreateLabel(optionsFrame, title, 20, "yellow")
+			local pluginNameLabel = detailsFramework:CreateLabel(optionsFrame, title, 24, "yellow")
 			pluginNameLabel:SetPoint("left", pluginIconTexture, "right", 2, 0)
 
 			--create a close button at the right top corner
@@ -583,7 +583,7 @@
 		titleBarTools:SetHeight(pluginContainerFrame.TitleHeight)
 
 		--tools title label
-		local titleBarTools_TitleLabel = detailsFramework:NewLabel(titleBarTools, titleBarTools, nil, "titulo", Loc["Tools"], "GameFontHighlightLeft", 12, {227/255, 186/255, 4/255})
+		local titleBarTools_TitleLabel = detailsFramework:NewLabel(titleBarTools, titleBarTools, nil, "titulo", Loc["Tools"], "GameFontHighlightLeft", 16, {227/255, 186/255, 4/255})
 		PixelUtil.SetPoint(titleBarTools_TitleLabel, "center", titleBarTools , "center", 0, 0)
 		PixelUtil.SetPoint(titleBarTools_TitleLabel, "top", titleBarTools , "top", 0, -5)
 
@@ -735,7 +735,7 @@
 
 			newButton:SetTemplate("STANDARD_GRAY")
 			newButton:SetText(pluginObject.__name)
-			newButton.textsize = 10
+			newButton.textsize = 14
 			newButton:SetIcon(pluginObject.__icon, nil, nil, nil, pluginObject.__iconcoords, pluginObject.__iconcolor, 4)
 
 			return newButton

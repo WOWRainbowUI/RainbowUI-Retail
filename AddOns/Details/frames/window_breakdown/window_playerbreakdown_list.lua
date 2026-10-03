@@ -1,3 +1,9 @@
+-- RainbowUI: resolve display translations lazily, including framework files loaded before locales.
+local Loc = setmetatable({}, {__index = function(_, key)
+    local aceLocale = LibStub("AceLocale-3.0", true)
+    local locale = aceLocale and aceLocale:GetLocale("Details", true)
+    return locale and locale[key] or key
+end})
 
 --this file controls the left panel of the breakdown window, where the player list and plugins are shown
 ---@type details
@@ -5,7 +11,6 @@ local Details = _G.Details
 
 ---@class detailsframework
 local detailsFramework = _G.DetailsFramework
-local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
 
 local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0", true)
 local addonName, Details222 = ...
@@ -383,11 +388,11 @@ local createPlayerScrollBox = function(breakdownWindowFrame, breakdownSideMenu, 
 
 		local itemLevelText = detailsFramework:CreateLabel(OTTFrame, "", "GameFontNormal")
 		itemLevelText.textcolor = {1, 1, 1, .7}
-		itemLevelText.textsize = 11
+		itemLevelText.textsize = 15
 
 		local percentileText = detailsFramework:CreateLabel(OTTFrame, "", "GameFontNormal")
 		percentileText.textcolor = {1, 1, 1, .7}
-		percentileText.textsize = 11
+		percentileText.textsize = 15
 
 		local rankText = detailsFramework:CreateLabel(OTTFrame, "", "GameFontNormal")
 		rankText.textcolor = {.3, .3, .3, .7}
@@ -651,7 +656,7 @@ function breakdownWindowPlayerList.CreatePlayerListFrame()
 		PixelUtil.SetPoint(pluginHeaderFrame, "topright", breakdownSideMenu, "topright", -2, -0)
 		pluginHeaderFrame:SetHeight(sectionHeaderHeight)
 			--plugins header label
-			local titleBarPlugins_TitleLabel = detailsFramework:CreateLabel(pluginHeaderFrame, Loc["Plugins"], 12, "DETAILS_HEADER_YELLOW", "GameFontHighlightLeft", "pluginsLabel", nil, "overlay")
+			local titleBarPlugins_TitleLabel = detailsFramework:CreateLabel(pluginHeaderFrame, Loc["Plugins"], 16, "DETAILS_HEADER_YELLOW", "GameFontHighlightLeft", "pluginsLabel", nil, "overlay")
 			PixelUtil.SetPoint(titleBarPlugins_TitleLabel, "center", pluginHeaderFrame , "center", 0, 0)
 			PixelUtil.SetPoint(titleBarPlugins_TitleLabel, "top", pluginHeaderFrame , "top", 0, -5)
 
@@ -663,7 +668,7 @@ function breakdownWindowPlayerList.CreatePlayerListFrame()
 			--player selection header label
 			--converting from detailsFramework:NewLabel to detailsFramework:CreateLabel
 			--local titleBarTools_TitleLabel = detailsFramework:NewLabel(titleBarPlayerSeparator, titleBarPlayerSeparator, nil, "titulo", "Players", "GameFontHighlightLeft", 12, {227/255, 186/255, 4/255})
-			local titleBarTools_TitleLabel = detailsFramework:CreateLabel(playerSelectionHeaderFrame, Loc["Select Player"], 12, "DETAILS_HEADER_YELLOW", "GameFontHighlightLeft", "playersLabel", nil, "overlay")
+			local titleBarTools_TitleLabel = detailsFramework:CreateLabel(playerSelectionHeaderFrame, Loc["Select Player"], 16, "DETAILS_HEADER_YELLOW", "GameFontHighlightLeft", "playersLabel", nil, "overlay")
 			PixelUtil.SetPoint(titleBarTools_TitleLabel, "center", playerSelectionHeaderFrame , "center", 0, 0)
 			PixelUtil.SetPoint(titleBarTools_TitleLabel, "top", playerSelectionHeaderFrame , "top", 0, -5)
 
@@ -671,7 +676,7 @@ function breakdownWindowPlayerList.CreatePlayerListFrame()
 		local segmentSelectionHeaderFrame = CreateFrame("frame", nil, breakdownSideMenu, "BackdropTemplate")
 		segmentSelectionHeaderFrame:SetHeight(sectionHeaderHeight)
 			--segment selection header label
-			local titleBarSegment_TitleLabel = detailsFramework:CreateLabel(segmentSelectionHeaderFrame, Loc["Select Segment"], 12, "DETAILS_HEADER_YELLOW", "GameFontHighlightLeft", "segmentsLabel", nil, "overlay")
+			local titleBarSegment_TitleLabel = detailsFramework:CreateLabel(segmentSelectionHeaderFrame, Loc["Select Segment"], 16, "DETAILS_HEADER_YELLOW", "GameFontHighlightLeft", "segmentsLabel", nil, "overlay")
 			PixelUtil.SetPoint(titleBarSegment_TitleLabel, "center", segmentSelectionHeaderFrame , "center", 0, 0)
 			PixelUtil.SetPoint(titleBarSegment_TitleLabel, "top", segmentSelectionHeaderFrame , "top", 0, -5)
 

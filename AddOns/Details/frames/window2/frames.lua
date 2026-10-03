@@ -259,7 +259,7 @@ local defaultSettings = {
         totalbar_color = {.3, .3, .3, 0.834},
 
         text_color = {1, 1, 1, 0.823}, --the text color used in the lines
-        text_size = 13, --the text size used in the lines
+        text_size = 17, --the text size used in the lines
         text_x_offset = 0, --the text horizontal offset, used to align the text with the statusbar
         text_y_offset = 0, --the text vertical offset, used to align the text with the statusbar
         text_centered = false,

@@ -347,14 +347,14 @@ function DF:CreateCoolTip()
 			self.upperImageText = self:CreateFontString("$parent_UpperImageText", "OVERLAY", "GameTooltipHeaderText")
 			self.upperImageText:SetJustifyH("LEFT")
 			self.upperImageText:SetPoint("LEFT", self.upperImage, "RIGHT", 5, 0)
-			DF:SetFontSize(self.upperImageText, 13)
+			DF:SetFontSize(self.upperImageText, 17)
 		end
 
 		if (not self.upperImageText2) then
 			self.upperImageText2 = self:CreateFontString("$parent_UpperImageText2", "OVERLAY", "GameTooltipHeaderText")
 			self.upperImageText2:SetJustifyH("LEFT")
 			self.upperImageText2:SetPoint("BOTTOMRIGHT", self, "LEFT", 0, 3)
-			DF:SetFontSize(self.upperImageText2, 13)
+			DF:SetFontSize(self.upperImageText2, 17)
 		end
 
 		if (not self.titleIcon) then
@@ -369,7 +369,7 @@ function DF:CreateCoolTip()
 		if (not self.titleText) then
 			self.titleText = self:CreateFontString("$parent_TitleText", "OVERLAY", "GameFontHighlightSmall")
 			self.titleText:SetJustifyH("LEFT")
-			DF:SetFontSize(self.titleText, 10)
+			DF:SetFontSize(self.titleText, 14)
 			self.titleText:SetPoint("CENTER", self.titleIcon, "CENTER", 0, 6)
 		end
 
@@ -691,12 +691,12 @@ function DF:CreateCoolTip()
 		statusbar.leftText = statusbar:CreateFontString("$parent_LeftText", "overlay", "GameFontNormal")
 		statusbar.leftText:SetJustifyH("LEFT")
 		statusbar.leftText:SetPoint("LEFT", statusbar.leftIcon, "RIGHT", 3, 0)
-		DF:SetFontSize(statusbar.leftText, 10)
+		DF:SetFontSize(statusbar.leftText, 14)
 
 		statusbar.rightText = statusbar:CreateFontString("$parent_TextRight", "overlay", "GameFontNormal")
 		statusbar.rightText:SetJustifyH("RIGHT")
 		statusbar.rightText:SetPoint("RIGHT", statusbar.rightIcon, "LEFT", -3, 0)
-		DF:SetFontSize(statusbar.rightText, 10)
+		DF:SetFontSize(statusbar.rightText, 14)
 
 		--background status bar
 		self.statusbar2 = CreateFrame("StatusBar", "$Parent_StatusBarBackground", self)
@@ -1073,7 +1073,7 @@ function DF:CreateCoolTip()
 			elseif (leftTextSettings[6]) then
 				DF:SetFontSize(menuButton.leftText, leftTextSettings[6])
 			else
-				DF:SetFontSize(menuButton.leftText, 10)
+				DF:SetFontSize(menuButton.leftText, 14)
 			end
 
 			if (leftTextSettings[8]) then
@@ -1198,7 +1198,7 @@ function DF:CreateCoolTip()
 			elseif (rightTextSettings[6]) then
 				DF:SetFontSize(menuButton.rightText, rightTextSettings[6])
 			else
-				DF:SetFontSize(menuButton.rightText, 10)
+				DF:SetFontSize(menuButton.rightText, 14)
 			end
 
 			if (rightTextSettings[8]) then
@@ -4057,7 +4057,7 @@ function DF:CreateCoolTip()
 		gameCooltip:SetOption("StatusBarTexture", [[Interface\WorldStateFrame\WORLDSTATEFINALSCORE-HIGHLIGHT]])
 		--self:SetOption("TextFont", DF.Language.GetFontForLanguageID(GetLocale()))
 		self:SetOption("TextColor", "orange")
-		self:SetOption("TextSize", 14)
+		self:SetOption("TextSize", 15)
 		self:SetOption("ButtonsYMod", -4)
 		self:SetOption("YSpacingMod", -4)
 		self:SetOption("IgnoreButtonAutoHeight", true)

@@ -1,5 +1,4 @@
 local L = LibStub("AceLocale-3.0"):NewLocale("Details", "zhTW") 
-local L = LibStub("AceLocale-3.0"):NewLocale("Details", "zhTW") 
 if not L then return end 
 
 L["ABILITY_ID"] = "技能 ID"
@@ -311,14 +310,12 @@ L["STRING_KEYBIND_TOGGLE_WINDOWS"] = "切換顯示全部"
 L["STRING_KEYBIND_WINDOW_CONTROL"] = "視窗"
 L["STRING_KEYBIND_WINDOW_REPORT"] = "報告視窗 #%s 的資料"
 L["STRING_KEYBIND_WINDOW_REPORT_HEADER"] = "報告資料"
-L["STRING_KEYSTONE_ADD_TO_FRIENDS_TOOLTIP"] = "新增伺服器好友 (不是戰網好友)。"
-L["STRING_KEYSTONE_CLICK_TO_VIEW_SCOREBOARD"] = "點一下檢視計分板。"
-L["STRING_KEYSTONE_DND_TOOLTIP"] = "你的鑰石不會發送給你的公會或好友。在隊伍中時，鑰石仍會被發送。"
-L["STRING_KEYSTONE_LIFETIME_LIKES_YOU_GAVE"] = [=[你透過 GG 按鈕，在 |cFFFFFF00Details! Damage Meter Mythic+|r 插件中為該玩家提供終身按讚。
-
-選擇你與該玩家一起進行的 M+ 地城紀錄來查看詳細內容。]=]
-L["STRING_KEYSTONE_NO_MYTHICPLUS_ADDON"] = "沒有找到 M+ 計分板插件."
-L["STRING_KEYSTONE_REQUEST_FROM_GUILD"] = "來自公會的請求"
+L["STRING_KEYSTONE_ADD_TO_FRIENDS_TOOLTIP"] = "以角色身份加入好友列表（非Battlenet好友邀請）。"
+L["STRING_KEYSTONE_CLICK_TO_VIEW_SCOREBOARD"] = "點擊查看計分板。"
+L["STRING_KEYSTONE_DND_TOOLTIP"] = "你的鑰石不會發送給公會或朋友。當在隊伍中時該訊息仍會被傳送。"
+L["STRING_KEYSTONE_LIFETIME_LIKES_YOU_GAVE"] = "你透過 |cFFFFFF00Details! Damage Meter Mythic+|r插件的「GG」按鈕給這位玩家的終身讚！。透過選擇你用這名玩家完成的 Mythic+副本來查看遊戲解析。"
+L["STRING_KEYSTONE_NO_MYTHICPLUS_ADDON"] = "傳奇+插件未找到。"
+L["STRING_KEYSTONE_REQUEST_FROM_GUILD"] = "來自公會請求"
 L["STRING_KILLED"] = "擊殺"
 L["STRING_LAST_COOLDOWN"] = "最後的冷卻時間"
 L["STRING_LEFT"] = "左"
@@ -392,7 +389,7 @@ L["STRING_NEWS_REINSTALL"] = "更新後有問題嗎? 請試試輸入指令 /deta
 L["STRING_NEWS_TITLE"] = "更新資訊"
 L["STRING_NO"] = "否"
 L["STRING_NO_DATA"] = "資料已被清空"
-L["STRING_NO_MYTHIC_PLUS_ADDON"] = "若要追蹤你的 M+ 地城紀錄，包括獲得的戰利品、分數、造成的傷害、治療量，以及與你一同遊玩的隊友，請安裝 |cFFFFAA00Details! Damage Meter Mythic+|r 插件，可以在 |cFFfff1c1Wago AddOns|r 或 |cFFfff1c1Curse Forge|r 下載。"
+L["STRING_NO_MYTHIC_PLUS_ADDON"] = "追蹤你的傳奇+副本，包括戰利品、分數、傷害、治療等，以及你和誰一起玩，安裝 |cFFFFAA00Details! Damage Meter Mythic+|r插件，位於 |cFFfff1c1Wago AddOns|r 或 |cFFfff1c1Curse Forge|r。"
 L["STRING_NO_SPELL"] = "沒有已使用的法術"
 L["STRING_NO_TARGET"] = "沒有找到目標。"
 L["STRING_NO_TARGET_BOX"] = "沒有可用目標"
@@ -443,8 +440,8 @@ L["STRING_OPTIONS_ANIMATESCROLL_DESC"] = "啟用時，捲軸出現和隱藏時�
 L["STRING_OPTIONS_APPEARANCE"] = "外觀"
 L["STRING_OPTIONS_ATTRIBUTE_TEXT"] = "標題文字設定"
 L["STRING_OPTIONS_ATTRIBUTE_TEXT_DESC"] = "這些選項控制視窗的標題文字。"
-L["STRING_OPTIONS_AUTO_COMBATLOG"] = "自動記錄戰鬥日誌"
-L["STRING_OPTIONS_AUTO_COMBATLOG_DESC"] = "進入或離開團隊副本或地城時，自動開始或停止將戰鬥記錄寫入 combatlog.txt 檔案。"
+L["STRING_OPTIONS_AUTO_COMBATLOG"] = "自動啟用戰鬥記錄"
+L["STRING_OPTIONS_AUTO_COMBATLOG_DESC"] = "進入團隊副本或地城時，自動開始將戰鬥記錄寫入 combatlog.txt；離開時自動停止。"
 L["STRING_OPTIONS_AUTO_SWITCH"] = "所有角色職責 |cFFFFAA00(戰鬥中)|r"
 L["STRING_OPTIONS_AUTO_SWITCH_COMBAT"] = "|cFFFFAA00(戰鬥中)|r"
 L["STRING_OPTIONS_AUTO_SWITCH_DAMAGER_DESC"] = "在傷害輸出的專精時，此視窗會顯示所選的內容或外掛套件。"
@@ -690,12 +687,57 @@ L["STRING_OPTIONS_DEATHLOG_MINHEALING_DESC"] = [=[死亡記錄不會顯示低於
 |cFFFFFF00小提示|r: 點一下右鍵可以手動輸入數值。]=]
 L["STRING_OPTIONS_DESATURATE_MENU"] = "去色"
 L["STRING_OPTIONS_DESATURATE_MENU_DESC"] = "啟用時，工具列上的所有選單圖示都會變成黑白的。"
+L["STRING_OPTIONS_DESIGNER_ALIGN_COLUMNS"] = "對齊數值欄"
+L["STRING_OPTIONS_DESIGNER_ALIGN_COLUMNS_DESC"] = "將各數值欄分別顯示在固定欄位，不合併成同一段格式化文字。此設定會同時套用至所有視窗。"
+L["STRING_OPTIONS_DESIGNER_BACKGROUND_BY_CLASS"] = "依職業設定背景顏色"
+L["STRING_OPTIONS_DESIGNER_BAR_ALPHA"] = "不透明度"
+L["STRING_OPTIONS_DESIGNER_BAR_BORDER"] = "顯示統計條邊框"
+L["STRING_OPTIONS_DESIGNER_BAR_START_AFTER_ICON"] = "統計條從圖示後方開始"
+L["STRING_OPTIONS_DESIGNER_BORDER_COLOR"] = "邊框顏色"
+L["STRING_OPTIONS_DESIGNER_BORDER_THICKNESS"] = "邊框粗細"
+L["STRING_OPTIONS_DESIGNER_BUTTON_MODE"] = "模式"
+L["STRING_OPTIONS_DESIGNER_COLOR_BY_CLASS"] = "依職業設定顏色"
+L["STRING_OPTIONS_DESIGNER_DESATURATED_MENU"] = "按鈕去飽和"
+L["STRING_OPTIONS_DESIGNER_HINT"] = "點選預覽中的項目即可編輯。變更會套用至右上方所選的視窗。"
+L["STRING_OPTIONS_DESIGNER_ICON_GRAYSCALE"] = "灰階圖示"
+L["STRING_OPTIONS_DESIGNER_ICON_SIZE_OFFSET"] = "圖示大小調整"
+L["STRING_OPTIONS_DESIGNER_MENU_ICON_SIZE"] = "按鈕大小"
+L["STRING_OPTIONS_DESIGNER_MENU_ICON_SPACING"] = "按鈕間距"
+L["STRING_OPTIONS_DESIGNER_NAME_OFFSET"] = "名稱位移"
+L["STRING_OPTIONS_DESIGNER_NAME_TEXT"] = "單位名稱"
+L["STRING_OPTIONS_DESIGNER_OBJECT_BARICONS"] = "統計條圖示"
+L["STRING_OPTIONS_DESIGNER_OBJECT_BARS"] = "統計條"
+L["STRING_OPTIONS_DESIGNER_OBJECT_BARTEXTS"] = "統計條文字"
+L["STRING_OPTIONS_DESIGNER_OBJECT_STATUSBAR"] = "狀態列"
+L["STRING_OPTIONS_DESIGNER_OBJECT_TITLEBUTTONS"] = "標題列按鈕"
+L["STRING_OPTIONS_DESIGNER_OBJECT_TITLETEXT"] = "標題文字"
+L["STRING_OPTIONS_DESIGNER_OBJECT_WINDOW"] = "視窗"
+L["STRING_OPTIONS_DESIGNER_PERCENT_OF_TOP"] = "相對於第一名玩家"
+L["STRING_OPTIONS_DESIGNER_PERCENT_OF_TOTAL"] = "相對於總計"
+L["STRING_OPTIONS_DESIGNER_PERCENT_TYPE"] = "百分比類型"
+L["STRING_OPTIONS_DESIGNER_PREVIEW"] = "預覽"
+L["STRING_OPTIONS_DESIGNER_PREVIEW_MISSING"] = "無法建立預覽視窗，因此無法在此編輯。"
+L["STRING_OPTIONS_DESIGNER_ROUNDED_CORNERS"] = "圓角"
+L["STRING_OPTIONS_DESIGNER_ROW_AREA_ALPHA"] = "統計條區域不透明度"
+L["STRING_OPTIONS_DESIGNER_SHADOW_OFFSET_X"] = "陰影水平位移"
+L["STRING_OPTIONS_DESIGNER_SHADOW_OFFSET_Y"] = "陰影垂直位移"
+L["STRING_OPTIONS_DESIGNER_SHOW_ENCOUNTER_TIMER"] = "顯示戰鬥計時器"
+L["STRING_OPTIONS_DESIGNER_SHOW_PERCENT_DESC"] = "在數值欄旁顯示百分比欄。僅在數值欄對齊時生效；使用簡易文字格式時，顯示欄位由該格式決定。"
+L["STRING_OPTIONS_DESIGNER_SHOW_RANK_NUMBER"] = "顯示排名"
+L["STRING_OPTIONS_DESIGNER_SHOW_STATUSBAR"] = "顯示狀態列"
+L["STRING_OPTIONS_DESIGNER_SHOW_WINDOW_BORDER"] = "顯示邊框"
+L["STRING_OPTIONS_DESIGNER_TEXT_OUTLINE"] = "描邊"
+L["STRING_OPTIONS_DESIGNER_TEXT_X_OFFSET"] = "水平位移"
+L["STRING_OPTIONS_DESIGNER_TEXT_Y_OFFSET"] = "垂直位移"
+L["STRING_OPTIONS_DESIGNER_TITLE_TEXT_ENABLED"] = "顯示標題文字"
+L["STRING_OPTIONS_DESIGNER_TITLEBAR_ENABLED"] = "自訂標題列"
+L["STRING_OPTIONS_DESIGNER_TITLEBAR_HEIGHT"] = "高度"
+L["STRING_OPTIONS_DESIGNER_VALUE_TEXT"] = "數值欄"
+L["STRING_OPTIONS_DESIGNER_WHICH_BUTTONS"] = "顯示的按鈕："
 L["STRING_OPTIONS_DISABLE_ALLDISPLAYSWINDOW"] = "停用 '所有顯示內容' 選單"
 L["STRING_OPTIONS_DISABLE_ALLDISPLAYSWINDOW_DESC"] = "啟用時，在標題列上點右鍵會改為顯示書籤。"
 L["STRING_OPTIONS_DISABLE_BARHIGHLIGHT"] = "停用顯著標示計量條"
 L["STRING_OPTIONS_DISABLE_BARHIGHLIGHT_DESC"] = "滑鼠指向計量條時不會變得更亮。"
-L["STRING_OPTIONS_GROUPING_HORIZONTAL_GAP"] = "群組化水平間距"
-L["STRING_OPTIONS_GROUPING_HORIZONTAL_GAP_DESC"] = "更改已群組視窗之間的水平間距。"
 L["STRING_OPTIONS_DISABLE_GROUPS"] = "停用群組"
 L["STRING_OPTIONS_DISABLE_GROUPS_DESC"] = "當視窗放在另一個視窗附近時，不會再結合成群組。"
 L["STRING_OPTIONS_DISABLE_LOCK_RESIZE"] = "停用縮放按鈕大小"
@@ -707,7 +749,7 @@ L["STRING_OPTIONS_DISABLE_STRETCH_BUTTON_DESC"] = "啟用時，不會顯示快�
 L["STRING_OPTIONS_DISABLED_RESET"] = "按下此按鈕來重置的功能已被停用，請改由浮動提示資訊選單中選擇重置。"
 L["STRING_OPTIONS_DTAKEN_EVERYTHING"] = "進階承受傷害"
 L["STRING_OPTIONS_DTAKEN_EVERYTHING_DESC"] = "在 '|cFFFFFF00全部|r' 模式中會永遠顯示承受傷害。"
-L["STRING_OPTIONS_ED"] = "刪除資料"
+L["STRING_OPTIONS_ED"] = "清除資料"
 L["STRING_OPTIONS_ED_DESC"] = [=[|cFFFFFF00手動|r: 使用者需要自行點擊重置按鈕。
 
 |cFFFFFF00詢問|r: 進入新副本時詢問是否要重置。
@@ -719,8 +761,8 @@ L["STRING_OPTIONS_ED3"] = "自動"
 L["STRING_OPTIONS_EDIT_CUSTOM_TEXT"] = "編輯自訂文字"
 L["STRING_OPTIONS_EDITIMAGE"] = "編輯圖片"
 L["STRING_OPTIONS_EDITINSTANCE"] = "編輯視窗:"
-L["STRING_OPTIONS_ERASECHARTDATA"] = "刪除圖表"
-L["STRING_OPTIONS_ERASECHARTDATA_DESC"] = "登出時，所有用來建立圖表所蒐集的戰鬥資料都會被刪除。"
+L["STRING_OPTIONS_ERASECHARTDATA"] = "清除圖表"
+L["STRING_OPTIONS_ERASECHARTDATA_DESC"] = "登出時，所有用來建立圖表所蒐集的戰鬥資料都會被清除。"
 L["STRING_OPTIONS_EXPORT_PROFILE"] = "導出設定檔"
 L["STRING_OPTIONS_EXTERNALS_TITLE"] = "外部小套件"
 L["STRING_OPTIONS_EXTERNALS_TITLE2"] = "這些選項控制許多外部小套件的作用"
@@ -764,7 +806,7 @@ L["STRING_OPTIONS_INSTANCE_BACKDROP_DESC"] = [=[選擇此視窗使用的背景�
 L["STRING_OPTIONS_INSTANCE_CURRENT"] = "自動切換成目前"
 L["STRING_OPTIONS_INSTANCE_CURRENT_DESC"] = "只要進入戰鬥，視窗就會自動切換到目前戰鬥記錄。"
 L["STRING_OPTIONS_INSTANCE_DELETE"] = "刪除"
-L["STRING_OPTIONS_INSTANCE_DELETE_DESC"] = "永久性的移除視窗。刪除的過程中可能會重新載入遊戲畫面。"
+L["STRING_OPTIONS_INSTANCE_DELETE_DESC"] = "永久性的移除視窗。清除的過程中可能會重新載入遊戲畫面。"
 L["STRING_OPTIONS_INSTANCE_SKIN"] = "外觀"
 L["STRING_OPTIONS_INSTANCE_SKIN_DESC"] = "依據外觀主題來修改視窗外觀。"
 L["STRING_OPTIONS_INSTANCE_STATUSBAR_ANCHOR"] = "狀態列"
@@ -914,8 +956,8 @@ L["STRING_OPTIONS_PERFORMANCE_BG15"] = "戰場 15"
 L["STRING_OPTIONS_PERFORMANCE_BG40"] = "戰場 40"
 L["STRING_OPTIONS_PERFORMANCE_DUNGEON"] = "地城"
 L["STRING_OPTIONS_PERFORMANCE_ENABLE_DESC"] = "啟用時，當團隊符合所選的團隊類型時，會套用此設定。"
-L["STRING_OPTIONS_PERFORMANCE_ERASEWORLD"] = "自動刪除世界戰鬥記錄"
-L["STRING_OPTIONS_PERFORMANCE_ERASEWORLD_DESC"] = "在野外戰鬥時自動刪除戰鬥記錄。"
+L["STRING_OPTIONS_PERFORMANCE_ERASEWORLD"] = "自動清除世界戰鬥記錄"
+L["STRING_OPTIONS_PERFORMANCE_ERASEWORLD_DESC"] = "在野外戰鬥時自動清除戰鬥記錄。"
 L["STRING_OPTIONS_PERFORMANCE_MYTHIC"] = "傳奇"
 L["STRING_OPTIONS_PERFORMANCE_PROFILE_LOAD"] = "效能分析已更改:"
 L["STRING_OPTIONS_PERFORMANCE_RAID15"] = "團隊 10-15"
@@ -930,10 +972,10 @@ L["STRING_OPTIONS_PERFORMANCECAPTURES_DESC"] = "這些是分析和收集戰鬥�
 L["STRING_OPTIONS_PERFORMANCEPROFILES_ANCHOR"] = "效能分析:"
 L["STRING_OPTIONS_PICONS_DIRECTION"] = "外掛套件附加到右側"
 L["STRING_OPTIONS_PICONS_DIRECTION_DESC"] = "勾選時，外掛套件的按鈕會顯示在選單按鈕的右方。"
-L["STRING_OPTIONS_PLAYERNAME"] = "玩家名字"
+L["STRING_OPTIONS_PLAYERNAME"] = "玩家名稱"
 L["STRING_OPTIONS_PLAYERNAME_AUTO_ALIGNMENT"] = "自動對齊"
-L["STRING_OPTIONS_PLAYERNAME_AUTO_ALIGNMENT_DESC"] = "只有在遇到玩家名字對齊異常時才停用此選項。"
-L["STRING_OPTIONS_PLAYERNAME_AUTO_WIDTH"] = "長度自動"
+L["STRING_OPTIONS_PLAYERNAME_AUTO_ALIGNMENT_DESC"] = "只有玩家名稱對齊出現問題時，才需要停用此選項。"
+L["STRING_OPTIONS_PLAYERNAME_AUTO_WIDTH"] = "自動調整長度"
 L["STRING_OPTIONS_PLAYERNAME_WIDTH"] = "長度"
 L["STRING_OPTIONS_PLUGINS"] = "外掛套件"
 L["STRING_OPTIONS_PLUGINS_AUTHOR"] = "作者"
@@ -1082,7 +1124,7 @@ L["STRING_OPTIONS_SAVELOAD_APPLYALL_DESC"] = "將目前的外觀套用到所有�
 L["STRING_OPTIONS_SAVELOAD_APPLYTOALL"] = "套用到所有視窗"
 L["STRING_OPTIONS_SAVELOAD_CREATE_DESC"] = "將目前的外觀儲存為預先設定，可供匯出或作為備份。"
 L["STRING_OPTIONS_SAVELOAD_DESC"] = "這些選項讓你能夠儲存或載入預先定義好的設定。"
-L["STRING_OPTIONS_SAVELOAD_ERASE_DESC"] = "這個選項會刪除之前儲存的外觀。"
+L["STRING_OPTIONS_SAVELOAD_ERASE_DESC"] = "這個選項會清除之前儲存的外觀。"
 L["STRING_OPTIONS_SAVELOAD_EXPORT"] = "匯出"
 L["STRING_OPTIONS_SAVELOAD_EXPORT_COPY"] = "按下 CTRL + C"
 L["STRING_OPTIONS_SAVELOAD_EXPORT_DESC"] = "使用文字格式來儲存外觀。"
@@ -1093,7 +1135,7 @@ L["STRING_OPTIONS_SAVELOAD_LOAD"] = "套用"
 L["STRING_OPTIONS_SAVELOAD_LOAD_DESC"] = "選擇之前儲存的一種外觀來套用到目前所選的視窗。"
 L["STRING_OPTIONS_SAVELOAD_MAKEDEFAULT"] = "設為標準外觀"
 L["STRING_OPTIONS_SAVELOAD_PNAME"] = "名稱"
-L["STRING_OPTIONS_SAVELOAD_REMOVE"] = "刪除"
+L["STRING_OPTIONS_SAVELOAD_REMOVE"] = "清除"
 L["STRING_OPTIONS_SAVELOAD_RESET"] = "載入預設外觀"
 L["STRING_OPTIONS_SAVELOAD_SAVE"] = "儲存"
 L["STRING_OPTIONS_SAVELOAD_SKINCREATED"] = "外觀已儲存。"
@@ -1194,7 +1236,7 @@ L["STRING_OPTIONS_TEXT_RIGHT_ANCHOR"] = "右側文字:"
 L["STRING_OPTIONS_TEXT_ROUTILINE_DESC"] = "啟用或停用右側文字的外框。"
 L["STRING_OPTIONS_TEXT_ROWICONS_ANCHOR"] = "圖示:"
 L["STRING_OPTIONS_TEXT_SHADOWCOLOR"] = "陰影顏色"
-L["STRING_OPTIONS_TEXT_SHADOWOFFSET"] = "陰影偏移 %s"
+L["STRING_OPTIONS_TEXT_SHADOWOFFSET"] = "陰影位移 %s"
 L["STRING_OPTIONS_TEXT_SHOW_BRACKET"] = "括號"
 L["STRING_OPTIONS_TEXT_SHOW_BRACKET_DESC"] = "選擇每秒和百分比的開始和結束括號要使用哪個字元。"
 L["STRING_OPTIONS_TEXT_SHOW_PERCENT"] = "顯示百分比"
@@ -1271,8 +1313,8 @@ L["STRING_OPTIONS_TOOLTIPS_BACKGROUNDCOLOR_DESC"] = "選擇背景使用的顏色
 L["STRING_OPTIONS_TOOLTIPS_BORDER_COLOR_DESC"] = "更改邊框顏色。"
 L["STRING_OPTIONS_TOOLTIPS_BORDER_SIZE_DESC"] = "更改邊框大小。"
 L["STRING_OPTIONS_TOOLTIPS_BORDER_TEXTURE_DESC"] = "修改邊框材質檔案。"
-L["STRING_OPTIONS_TOOLTIPS_DISABLE"] = "停用浮動提示資訊"
-L["STRING_OPTIONS_TOOLTIPS_DISABLE_DESC"] = "停用所選視窗的浮動提示資訊。"
+L["STRING_OPTIONS_TOOLTIPS_DISABLE"] = "停用滑鼠提示"
+L["STRING_OPTIONS_TOOLTIPS_DISABLE_DESC"] = "停用所選視窗的滑鼠提示。"
 L["STRING_OPTIONS_TOOLTIPS_FONTCOLOR"] = "文字顏色"
 L["STRING_OPTIONS_TOOLTIPS_FONTCOLOR_DESC"] = "更改浮動提示資訊文字使用的顏色。"
 L["STRING_OPTIONS_TOOLTIPS_FONTFACE"] = "-"
@@ -1410,6 +1452,7 @@ L["STRING_OPTIONSMENU_COMBAT"] = "PvE PvP"
 L["STRING_OPTIONSMENU_DATACHART"] = "圖表資料"
 L["STRING_OPTIONSMENU_DATACOLLECT"] = "資料收集器"
 L["STRING_OPTIONSMENU_DATAFEED"] = "資料來源"
+L["STRING_OPTIONSMENU_DESIGNER"] = "介面設計"
 L["STRING_OPTIONSMENU_DISPLAY"] = "顯示"
 L["STRING_OPTIONSMENU_DISPLAY_DESC"] = "通用的基本調整和快速視窗控制。"
 L["STRING_OPTIONSMENU_LEFTMENU"] = "標題列"
@@ -1644,11 +1687,11 @@ L["STRING_WELCOME_1"] = [=[|cFFFFFFFF歡迎使用 Details! 快速設定精靈|r
 ]=]
 L["STRING_WELCOME_11"] = "如果你改變心意，永遠都可以透過選項面板再次更改設定。"
 L["STRING_WELCOME_12"] = "選擇視窗的更新速度，還可以啟用動畫效果，以及 HPS 和 DPS 數字的即時更新。"
-L["STRING_WELCOME_13"] = ""
-L["STRING_WELCOME_14"] = ""
+L["STRING_WELCOME_13"] = "-"
+L["STRING_WELCOME_14"] = "-"
 L["STRING_WELCOME_15"] = "歡迎視窗中更新速度的浮動提示資訊。"
-L["STRING_WELCOME_16"] = ""
-L["STRING_WELCOME_17"] = ""
+L["STRING_WELCOME_16"] = "-"
+L["STRING_WELCOME_17"] = "-"
 L["STRING_WELCOME_2"] = "如果你改變心意，永遠都可以透過選項面板再次更改設定。"
 L["STRING_WELCOME_26"] = "使用介面: 拉伸"
 L["STRING_WELCOME_27"] = [=[顯著標示的發光按鈕是拉伸按鈕。|cFFFFFF00按住它|r然後|cFFFFFF00往上拖曳!|r
@@ -1682,21 +1725,21 @@ L["STRING_WELCOME_4"] = "活躍時間:"
 L["STRING_WELCOME_41"] = "介面效果微調:"
 L["STRING_WELCOME_42"] = "快速外觀設定"
 L["STRING_WELCOME_43"] = "選擇喜愛的外觀:"
-L["STRING_WELCOME_44"] = ""
+L["STRING_WELCOME_44"] = "-"
 L["STRING_WELCOME_45"] = "還有更多自訂選項，請查看選項面板。"
-L["STRING_WELCOME_46"] = ""
+L["STRING_WELCOME_46"] = "-"
 L["STRING_WELCOME_5"] = "有效時間:"
-L["STRING_WELCOME_57"] = ""
+L["STRING_WELCOME_57"] = "-"
 L["STRING_WELCOME_58"] = [=[預先定義好的外觀設定。
 
 |cFFFFFF00重要|r: 所有設定稍後都可以在選項面板中更改。]=]
-L["STRING_WELCOME_59"] = ""
+L["STRING_WELCOME_59"] = "-"
 L["STRING_WELCOME_6"] = "每一位團隊成員停止活動時，便會暫停各自的計時，並在恢復後再次開始計時。"
-L["STRING_WELCOME_60"] = ""
-L["STRING_WELCOME_61"] = ""
-L["STRING_WELCOME_62"] = ""
+L["STRING_WELCOME_60"] = "-"
+L["STRING_WELCOME_61"] = "-"
+L["STRING_WELCOME_62"] = "-"
 L["STRING_WELCOME_63"] = "即時更新 DPS/HPS"
-L["STRING_WELCOME_64"] = ""
+L["STRING_WELCOME_64"] = "-"
 L["STRING_WELCOME_65"] = "按右鍵!"
 L["STRING_WELCOME_66"] = [=[將視窗拖曳到另一個視窗旁來建立群組。
 
@@ -1713,9 +1756,9 @@ L["STRING_WELCOME_68"] = [=[Details! 本身就擁有相當多的插件，稱為 
 例如: 仇恨值監視，DPS 分析，首領戰總檢討，建立圖表...還有更多。]=]
 L["STRING_WELCOME_69"] = "關閉"
 L["STRING_WELCOME_7"] = "用於排名，此方法會使用整場戰鬥時間來測量所有團隊成員的 DPS 和 HPS。"
-L["STRING_WELCOME_70"] = ""
-L["STRING_WELCOME_71"] = ""
-L["STRING_WELCOME_72"] = ""
+L["STRING_WELCOME_70"] = "-"
+L["STRING_WELCOME_71"] = "-"
+L["STRING_WELCOME_72"] = "-"
 L["STRING_WELCOME_73"] = "選擇語言或地區:"
 L["STRING_WELCOME_74"] = "Latin 拉丁字母"
 L["STRING_WELCOME_75"] = "Cyrillic 斯拉夫字母"
@@ -1732,1375 +1775,1440 @@ L["STRING_WIPE_ERROR2"] = "我們不在團隊首領戰中。"
 L["STRING_WIPE_ERROR3"] = "無法結束首領戰。"
 L["STRING_YES"] = "是"
 
--- 自行加入
-L["Details"] = "戰鬥-統計"
+L["\n-- code to run when Details! initializes, put here code which only will run once\n-- this also will run then the profile is changed\n\n--size of the death log tooltip in the Deaths display (default 350)\nDetails.death_tooltip_width = 350;\n\n--when in arena or battleground, details! silently switch to activity time (goes back to the old setting on leaving, default true)\nDetails.force_activity_time_pvp = true;\n\n--speed of the bar animations (default 33)\nDetails.animation_speed = 33;\n\n--threshold to trigger slow or fast speed (default 0.45)\nDetails.animation_speed_mintravel = 0.45;\n\n--call to update animations\nDetails:RefreshAnimationFunctions();\n\n--max window size, does require a /reload to work (default 480 x 450)\nDetails.max_window_size.width = 480;\nDetails.max_window_size.height = 450;\n\n--use the arena team color as the class color (default true)\nDetails.color_by_arena_team = true;\n\n--how much time the update warning is shown (default 10)\nDetails.update_warning_timeout = 10;"] = "\n-- Details! 初始化時會執行這段碼，放在這裡面的程式碼只會執行一次。\n-- 更改設定檔時也會執行\n\n--死亡顯示內容中的死亡記錄浮動提示資訊大小 (預設值 350)\nDetails.death_tooltip_width = 350;\n\n--在競技場或戰場中時，Details! 會自動切換成活躍時間 (離開時會自動切換回原本的設定，預設值 true)\nDetails.force_activity_time_pvp = true;\n\n--計量條動畫速度 (預設值 33)\nDetails.animation_speed = 33;\n\n--慢速或快速顯示動畫的分界值 (預設值 0.45)\nDetails.animation_speed_mintravel = 0.45;\n\n--呼叫這個函數來更新動畫\nDetails:RefreshAnimationFunctions();\n\n--視窗的最大尺寸，需要重新載入介面才會生效 (預設值 480 x 450)\nDetails.max_window_size.width = 480;\nDetails.max_window_size.height = 450;\n\n--使用競技場隊伍顏色取代職業顏色 (預設值 true)\nDetails.color_by_arena_team = true;\n\n--更新提醒通知要顯示多久時間 (預設值 10)\nDetails.update_warning_timeout = 10;"
 
--- classes\class_custom.lua
-L["|cFFFF9900error compiling code for custom display "] = "|cFFFF9900程式碼編譯錯誤，自訂顯示內容 "
-L["|cFFFF9900error compiling tooltip code for custom display "] = "|cFFFF9900浮動提示資訊程式碼編譯錯誤，自訂顯示內容 "
-L["|cFFFF9900error compiling total code for custom display "] = "|cFFFF9900總程式碼編譯錯誤，自訂顯示內容 "
-L["|cFFFF9900error compiling percent code for custom display "] = "|cFFFF9900百分比程式碼編譯錯誤，自訂顯示內容 "
-L["|cFFFF9900error on custom display function|r:"] = "|cFFFF9900自訂顯示內容函數發生錯誤|r:"
-L["|cFFFF9900percent script error|r:"] = "|cFFFF9900百分比腳本程式碼錯誤|r:"
-L["|cFFFF9900total script error|r:"] = "|cFFFF9900總腳本程式碼錯誤|r:"
-L["new custom"] = "新的自訂"
-L["|cFFFF9900error on custom display tooltip function|r:"] = "|cFFFF9900自訂顯示內容浮動提示資訊函數發生錯誤|r:"
-L["Show the crowd control amount for each player."] = "顯示每個玩家的控場數量。"
-L["Show the amount of crowd control received for each player."] = "顯示每個玩家受到的控場數量。"
-L["Show overall damage done on the fly."] = "即時顯示整場輸出傷害。"
-L["Damage done to shields"] = "對護盾造成的傷害"
+L["\n-- run when the player changes its spec"] = "\n-- 玩家更改專精時會執行這段碼"
 
--- classes\class_damage.lua
-L["% uptime)|r"] = "% 覆蓋時間)|r"
-L["m "] = " 分 "
-L["s"] = " 秒"
+L["\n-- this code runs when the player enter or leave a group"] = "\n-- 玩家加入或離開隊伍時會執行這段碼"
 
--- classes\classe_heal.lua
-L["Healers"] = "治療者"
--- L["% uptime)|r"] = "% 覆蓋時間)|r" -- 前面已有
-L["Spell Empower Average Level: "] = "法術聚能平均等級: "
-L["Level 1 Average: "] = "等級 1 平均: "
-L["Level 2 Average: "] = "等級 2 平均: "
-L["Level 3 Average: "] = "等級 3 平均: "
-L["Level 4 Average: "] = "等級 4 平均: "
-L["Level 5 Average: "] = "等級 5 平均: "
+L["\n-- this code runs when the player enters in combat"] = "\n-- 玩家進入戰鬥時會執行這段碼"
 
--- classes\class_instance.lua
-L["Unknown Plugin"] = "未知的外掛套件"
+L["\n-- this code runs when the player leave combat"] = "\n-- 玩家離開戰鬥時會執行這段碼"
 
--- classes\class_utility.lua 更改字體大小
-L["pre-potion: "] = "偷爆發: "
--- L["m "] = " 分 "
--- L["s"] = " 秒"
-L["s)"] = "秒)"
+L["\n-- when the player changes zone, this code will run"] = "\n-- 玩家更換區域時會執行這段碼"
 
--- core\control.lua
-L["combat ignored: less than 5 seconds."] = "已忽略戰鬥: 不到 5 秒。"
-L["combat ignored: elapsed time less than 5 seconds."] = "已忽略戰鬥: 經過時間不到 5 秒。"
-L["add '|cFFFFFF00Details.minimum_combat_time = 2;|r' on Auto Run Code to change the minimum time."] = "將 '|cFFFFFF00Details.minimum_combat_time = 2;|r' 加入到自動執行程式碼內來更改最小時間。"
-L["Your Team Damage"] = "我方隊伍傷害"
-L["Enemy Team Damage"] = "敵方隊伍傷害"
-L["Your Team Healing"] = "我方隊伍治療"
-L["Enemy Team Healing"] = "敵方隊伍治療"
-
--- core\gears.lua
-L["DB noot found on GetBestFromPlayer()"] = "GetBestFromPlayer() 無法找到資料庫"
-L["Wipe stored, you have now "] = "清空已儲存的資料，現在已清空這個首領的 "
-L[" wipes on this boss."] = "。"
-L[" item level: "] = " 裝等: "
-L["Details! Spec Id Invalid:"] = "Details! 無效的專精 ID:"
-L["Error on QueryInspect callback: "] = "QueryInspect callback 函數發生錯誤: "
-L["couldn't decode the data."] = "無法解碼資料。"
-L["couldn't uncompress the data."] = "無法解壓縮資料。"
-L["couldn't unserialize the data."] = "無法反序列化資料。"
-L["some addon may be causing small framerate stuttering, use '/details perf' to know more."] = "有些插件會造成輕微的畫面卡頓，輸入 '/details perf' 來瞭解更多。"
-L["some addon may be causing framerate drops, use '/details perf' to know more."] = "有些插件會造成畫面掉幀，輸入 '/details perf' 來瞭解更多。"
-L["some addon might be causing performance issues, use '/details perf' to know more."] = "有些插件可能會影響遊戲效能，輸入 '/details perf' 來瞭解更多。"
-L["Calculates memory usage of addons"] = "計算插件的記憶體使用量"
-L["an addon made your game freeze for more than a half second, use '/details perf' to know more."] = "有個遊戲讓遊戲卡頓了超過半秒，輸入 '/details perf' 做更多瞭解。"
-
--- core\network.lua
--- L["Update Available!"] = "有新版本可以用了!" -- 翻譯這個好像會出錯，待測試。
-
--- core\parser.lua
--- L["|cFFFFFF00First Hit|r: "] = "|cFFFFFF00開怪|r: " -- 不能用外部翻譯
--- L[" from "] = "來自 " -- 不能用外部翻譯
-L["|cFFFFBB00First Hit|r: *?*"] = "|cFFFFBB00開怪|r: *?*"
-L[" |cFFFFBB00Boss First Target|r: "] = " |cFFFFBB00首領的第一個目標|r: "
-L["|cFFFFBB00Your Best Score|r:"] = "|cFFFFBB00你的最好成績|r:"
 L[" [|cFFFFFF00Guild Rank: "] = " [|cFFFFFF00公會排名: "
-L["|cFFFF3300you may need sync the rank within the guild, type '|cFFFFFF00/details rank|r'|r"] = "|cFFFF3300你可能需要同步公會排名資料，請輸入 '|cFFFFFF00/details rank|r'|r"
-L["Parser Event Error -> Set to 16 DeathLogs and /reload"] = "分析器事件錯誤 -> 請將死亡記錄設為 16 然後重新載入介面 /reload"
-L["--unknown spell--"] = "--未知的法術--"
-L["[*] Unknown shield target"] = "[*] 未知的護盾目標"
-L["Melee"] = "近戰"
-L["Details: deleting boss:"] = "Details: 刪除首領:"
-L["error occurred on StoreEncounter():"] = "StoreEncounter() 發生錯誤:"
-L["error occurred on Details.Database.StoreWipe():"] = "Details.Database.StoreWipe() 發生錯誤:"
-L["Framework for Details! isn't loaded.\nIf you just updated the addon, please reboot the game client.\nWe apologize for the inconvenience and thank you for your comprehension."] = "Details! 的程式框架沒有載入。\n如果剛剛更新了插件，請重新啟動遊戲程式。\n對於給您帶來的不便，我們深表歉意，並感謝您的理解。"
-L["1 - Closing Janela Info."] = "1 - 關閉 Janela 資訊。"
-L["2 - Clearing user place from instances."] = "2 - 從實體中清空使用者位置。"
-L["3 - Leaving current combat."] = "3 - 離開目前的戰鬥。"
-L["4 - Reversing switches."] = "4 - 反轉開關。"
-L["5 - Is a full config wipe."] = "5 - 完全清空設定。"
-L["6 - Saving Config."] = "6 - 儲存設定。"
-L["7 - Saving Profiles."] = "7 - 儲存設定檔。"
-L["8 - Saving nicktag cache."] = "8 - 儲存暱稱標籤快取。"
-L["Unknown"] = "未知"
--- L["m "] = " 分 "
--- L["s"] = " 秒"
-L["Wipe has been called by your raid leader."] = "RL 說要 RE 了。"
 
--- core\plugins.lua 更改字體大小
-L["Details version is out of date."] = "Details! 版本已過期。"
-L["Game client needs to be restarted in order to finish Details! update."] = "必須重新啟動遊戲程式才能完成更新 Details!"
-L["InstallPlugin parameter 1 (plugin type) not especified"] = "InstallPlugin 參數 1 (外掛套件類型) 尚未指定"
-L["InstallPlugin parameter 2 (plugin name) can't be nil"] = "InstallPlugin 參數 2 (外掛套件名稱) 不可以是空的"
-L["InstallPlugin parameter 3 (plugin icon) can't be nil"] = "InstallPlugin 參數 3 (外掛套件圖示) 不可以是空的"
-L["InstallPlugin parameter 4 (plugin object) can't be nil"] = "InstallPlugin 參數 4 (外掛套件物件) 不可以是空的"
-L["InstallPlugin parameter 5 (plugin absolut name) can't be nil"] = "InstallPlugin 參數 4 (外掛套件絕對名稱) 不可以是空的"
-L[" name: "] = " 名稱: "
-L["plugin doesn't have a Frame, please check case-sensitive member name: Frame"] = "外掛套件沒有框架，請檢查成員名稱 (有區分大小): Frame"
-L["Hello There plugin developer!"] = "外掛套件開發者你好!"
-L["Please make sure you are declaring"] = "請確保你的外掛套件物件"
-L["A member called 'OnDetailsEvent' on your plugin object"] = "有宣告叫做 'OnDetailsEvent' 的成員"
-L["With a function to receive the events like bellow:"] = "並且包含用來接收事件的函數，例如:"
-L["Thank You Sir!==================="] = "感謝!==================="
-L[" right click to close"] = " 點一下右鍵關閉"
-L["Plugins"] = "外掛套件" -- 前面已有 STRING_OPTIONS_PLUGINS
-L["Tools"] = "工具"
-L["detected options panel out of screen, position has reset"] = "偵測到選項面板超出畫面，已重置位置。"
-L["|cFFFF7700plugin not found|r:|cFFFFFF00"] = "|cFFFF7700無法找到外掛套件|r:|cFFFFFF00"
-L["|rcheck if it is enabled in the addons control panel."] = "|r請在插件控制台內檢查是否已經啟用/載入。"
-
--- core\plugins_raid.lua
-L["|cFFFFFF00]|r Interrupt: "] = "|cFFFFFF00]|r 斷法: "
-L["Death: "] = "死亡: "
-
--- core\plugins_statusbar.lua 更改字體大小
--- L["m "] = " 分 "
--- L["s"] = " 秒"
-
--- core\util.lua
--- 修改 DPS 千以下不顯示單位
-L["NumSystem override is now:"] = "數字系統取代，現在是:"
-L["|cFFFF9900error on custom text|r:"] = "|cFFFF9900自訂文字發生錯誤|r:"
-L["GradientEffect() end function error:"] = "GradientEffect() end 函數錯誤:"
-L["Specialization"] = "專精"
-L["Specialization Alpha"] = "專精 (透明)"
-
--- core\windows.lua 更改字體大小
-L["invalid pre_defined table for resize, please rezise the window manually."] = "調整大小的預先定義表格無效，請手動調整視窗大小。"
-L["Total Done:"] = "總計:"
-L["Dps:"] = "DPS:"
-L["Item Level:"] = "裝等:"
-L["Date:"] = "日期:"
-L["Help Details! to Improve!"] = "幫助 Details! 變得更好!"
-L["Tell us about your experience using Details!, what you liked most, where we could improve, what things you want to see in the future?"] = "請告訴我們你的 Details! 使用體驗，最喜歡什麼、哪裡可以加強、在未來的版本中希望能夠看到什麼功能?"
-L["visit the link above and let's make Details! stronger!"] = "請造訪上面的連結，我們一起讓 Details! 變得更強大!"
-L["Close"] = "關閉" -- 前面已有 STRING_OPTIONS_WC_CLOSE
-L["Remind-me Later"] = "稍後再提醒我"
-L["couldn't open options panel: no window available."] = "無法打開選項面板: 沒有可用的視窗。"
-L["A New Version Is Available!"] = "已有新版本可以使用!"
-L["Good news everyone!\nA new version has been forged and is waiting to be looted."] = "好消息!\n新版本已經製作完成，正在等你下載回去。"
-L["|cFF00FF00Left Click:|r open options panel."] = "|cFF00FF00左鍵:|r 設定選項。"
-L["|cFF00FF00Left Click:|r clear all segments."] = "|cFF00FF00左鍵:|r 清空所有戰鬥記錄。"
-L["|cFFCFCFCFctrl + left click|r: show/hide windows"] = "|cFFCFCFCFCtrl + 左鍵|r: 顯示/隱藏視窗"
-L["|cFFCFCFCFctrl + right click|r: show/hide Mythic+ scoreboard"] = "|cFFCFCFCFCtrl + 右鍵|r: 顯示M+計分板"
-L["Details! - Reset Data"] = "Details! - 重置資料"
-L["Details! - Open Options"] = "Details! - 設定選項"
-
--- frames\anime.lua 更改字體和大小
--- 要加上 local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
-L["Damage Record!"] = "開始記錄傷害!"
-
--- frames\anime.xml 更改字體
--- frames\fw_mods.lua 更改字體
-
--- frames\window_aura_tracker.lua
--- 要加上 local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
-L["Aura Name"] = "光環名稱"
-L["Spell Id"] = "法術ID"
-L["Lua Table"] = "Lua Table"
-L["Payload (Points)"] = "有效載荷 (點數)"
-L["Last Cast"] = "上次施放"
-
--- frames\window_benchmark.lua
-L["Details! Benchmark"] = "Details! 效能測試"
-L["40 seconds"] = "40 秒"
-L["60 seconds"] = "60 秒"
-L["90 seconds"] = "90 秒"
-L["2 minutes"] = "2 分鐘"
-L["3 minutes"] = "3 分鐘"
-L["5 minutes"] = "5 分鐘"
-L["Amount of Time"] = "時間"
-L["Description"]= "說明"
-L["Boss Simulation"] = "模擬首領"
-
--- frames\window_brokertexteditor.lua
-L["Broker Text Editor"] = "Broker 資訊列文字編輯器"
-L["Reset"] = "重置"
-
--- frames\window_cdtracker.lua
--- 要加上 local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
-L["Cooldown Tracker"] = "技能冷卻追蹤"
-L["Details! Online CD Tracker"] = "Details! 線上技能冷卻追蹤"
-L["Enable Experimental Cooldown Tracker"] = "啟用實驗性的技能冷卻追蹤"
-L["Only in Group"] = "只有在隊伍中時"
-L["Only Inside Instances"] = "只有在副本內"
-L["Lock Frame"] = "鎖定框架"
-L["Defensive: Raid"] = "防禦: 團隊"
-L["Example: druid tranquility."] = "例如: 德魯伊的寧靜。"
-L["Defensive: Target"] = "防禦: 目標"
-L["Example: priest pain suppression."] = "例如: 牧師的痛苦鎮壓。"
-L["Defensive: Personal"] = "防禦: 個人"
-L["Example: mage ice block."] = "例如: 法師的冰箱。"
-L["Offensive Cooldowns"] = "攻擊冷卻"
-L["Example: priest power infusion."] = "例如: 牧師的能量注入。"
-L["Utility Cooldowns"] = "工具冷卻"
-L["Example: druid roar."] = "例如: 德魯伊的奔竄咆嘯。"
-L["Interrupt Cooldowns"] = "斷法冷卻"
-L["Example: rogue kick."] = "例如: 盜賊的腳踢。"
-L["Item: Healing"] = "物品: 治療"
-L["Example: Healthstone."] = "例如: 治療石"
-L["Item: Power Increase"] = "物品: 提升能力"
-L["Example: Elemental Potion of Power."] = "例如: 元素力量藥水"
-L["Item: Utility"] = "物品: 工具"
-L["Example: Invisibility Potion."] = "例如: 隱形藥水"
-L["Show Title"] = "顯示標題"
-L["Group Frames"] = "將框架組成群組"
--- L["Width"] = "寬度"
--- L["Height"] = "高度"
-L["Lines Per Column"] = "各自獨立一行"
-L["This is a concept of a cooldown tracker using the new library 'Open Raid' which uses comms to update cooldown timers.\nThe code to implement is so small that can fit inside a weakaura\nIf you're a coder, the implementation is on Details/frames/window_cdtracker.lua"] = "這是一種新的技能冷卻追蹤概念，使用新的函式庫 'Open Raid'，透過彼此通訊來更新冷卻時間。\n程式碼非常小，小可以塞到 WA 技能提醒裡面，如果你會寫程式，寫法在 Details/frames/window_cdtracker.lua。"
-L["Crowd Control"] = "控場"
-L["Example: Incapacitaion Roar."] = "例如: 癱瘓咆哮。"
-
--- frames\window_classcolor.lua
-L["Damage"] = "傷害"
-L["Heal"] = "治療"
-L["Friendly Fire"] = "誤傷"
-L["Cooldown"] = "冷卻"
-L["Debuff"] = "減益"
-L["Buff"] = "增益"
-L["Colors on Death Log:"] = "死亡記錄中的顏色:"
-
--- frames\window_copy.lua 更改字體大小
--- 要加上 local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
-L["Paste & Copy"] = "複製 & 貼上"
-L["paste on your web browser address bar"] = "貼到瀏覽器的網址列"
-
--- frames\window_currentdps.lua
--- 要加上 local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
-L["Details! Arena Damage Bar Options"] = "Details! 競技場傷害條選項"
-L["BACKGROUND"] = "背景"
-L["LOW"] = "低"
-L["MEDIUM"] = "中"
-L["HIGH"] = "高"
-L["DIALOG"] = "對話框 (最高)"
-L["None"] = "無"
-L["Outline"] = "外框"
-L["Thick Outline"] = "粗外框"
-L["Frame Settings:"] = "框架設定:"
-L["Enabled"] = "啟用"
-L["Locked"] = "鎖定"
-L["Show Title"] = "顯示標題"
-L["Backdrop Color"] = "背景顏色"
-L["Frame Strata"] = "框架層級"
-L["Speed"] = "速度"
-L["Low is faster"] = "愈低愈快"
-L["Width"] = "寬度"
-L["Height"] = "高度"
-L["Enabled On:"] = "啟用於:"
-L["Arena Matches"] = "競技場"
-L["Mythic Dungeons"] = "傳奇地城"
-L["Text Settings:"] = "文字設定:"
-L["Font Size"] = "文字大小"
-L["Font Color"] = "文字顏色"
-L["Font Shadow"] = "文字陰影"
-L["Font Face"] = "字體"
-L["Text Position"] = "文字位置"
-L["Dps on Last 5 Seconds"] = "最近 5 秒 DPS"
-L["Move-Me"] = "移動這裡"
-L["Lock"] = "鎖定"
-L["Details! Arena Real Time DPS Tracker"] = "Details! 競技場即時 DPS 追蹤"
-L["Real Time Group DPS"] = "隊伍即時 DPS"
-
--- frames\window_custom.lua 更改字體大小
-L["Details! Custom Displays"] = "Details! 自訂顯示內容"
-L["Save Code"] = "儲存程式碼"
-L["Import String:"] = "匯入文字字串:"
-L["Import"] = "匯入"
-L["All Characters"] = "所有角色"
-L["Search for matches in all characters."] = "在所有角色裡面搜尋符合條件。"
-L["Raid or Party Group"] = "團隊或小隊"
-L["Search for matches in all characters which is part of your party or raid group."] = "在團隊或小隊中的所有角色裡面搜尋符合條件。"
-L["Only You"] = "只有你"
-L["Search for matches only in your character."] = "只在你的角色搜尋符合條件。"
-L["Specific Character"] = "指定角色"
-L["Type the name of the character used to search."] = "輸入要搜尋的角色名字。"
-L["No Target"] = "無目標"
-L["Do not search for targets."] = "不要搜尋目標"
-L["Edit Total Code"] = "編輯總計程式碼"
-L["This code is responsible for edit the total number shown in the player bar.\n\nThis is not necessary if you want show exactly the value gotten in the search code."] = "編輯負責在玩家計量條中顯示總計數字的程式碼。\n\n如果你只是想要顯示從搜尋程式碼中所取得的值，則不需要編輯。"
-L["Edit Percent Code"] = "編輯百分比程式碼"
-L["Edit the code responsible for the percent number in the player bar.\n\nThis is not required if you want to use simple percentage (comparing with total)."] = "編輯負責在玩家計量條中顯示百分比數字的程式碼。\n\n如果你只是想要使用簡單的百分比 (相較於總計)，則不需要編輯。"
-L["This object need to be saved before."] = "必須先儲存此物件。"
-L["Expand"] = "展開"
-L["Apply"] = "套用"
-
--- frames\window_dump.lua
--- 要加上 local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
-L["Details! Dump Table [|cFFFF3333Ready Only|r]"] = "Details! Dump Table [|cFFFF3333唯讀|r]"
-L["Details! Dump String"] = "Details! Dump 傾印字串"
-L["Okay"] = "確定"
-L["Cancel"] = "取消"
-
--- frames\window_eventtracker.lua
--- 要加上 local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
--- L["Frame Settings:"] -- 這些前面已有
--- L["Enabled"]
--- L["Locked"]
--- L["Show Title"]
--- L["Backdrop Color"]
--- L["Frame Strata"]
--- L["Font Size"]
--- L["Font Color"]
--- L["Font Shadow"]
--- L["Font Face"]
-L["Show Crowd Control (Arena & BG)"] = "顯示控場 (競技場 & 戰場)"
-L["Show Crowd Control when inside a PvP zone"] = "在 PvP 區域時顯示控場"
-L["Show Crowd Control (Dungeon & Raid)"] = "顯示控場 (地城 & 團隊)"
-L["Show Crowd Control when inside a PvE zone"] = "在 PvE 區域時顯示控場"
-L["Details! Event Tracker Options"] = "Details! 事件追蹤選項"
-L["Line Settings:"] = "線條設定:"
-L["Line Height"] = "線條高度"
-L["Line Texture"] = "線條材質"
-L["Line Color"] = "線條顏色"
-L["Details!: Event Tracker"] = "Details! 事件追蹤"
-
--- frames\window_forge.lua 更改字體大小，用 L 不是 Loc
-L["Ignore"] = "忽略"
-L["Npc List"] = "NPC 清單"
-L["Show a list of known npcs"] = "列出已知的 NPC 清單。"
-L["Npc Name"] = "NPC 名字"
-L["NpcId"] = "NPC ID"
-L["Next "] = "下一個是"
-L[" In"] = " 再"
-
--- frames\window_macros.lua
--- 要加上 local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
-L["Details! Useful Macros"] = "Details! 有用的巨集"
-L["Macros"] = "巨集"
-
--- frames\window_main.lua 更改字體大小
-L["|cff33CC00Click|cffEEEEEE: "] = "|cff33CC00左鍵|cffEEEEEE: "
-L["+|cff33CC00 Click|cffEEEEEE: "] = "+|cff33CC00 左鍵|cffEEEEEE: "
-L["error occurred custom script shift+click:"] = "發生錯誤，自訂腳本程式碼 shift+左鍵:"
-L["this bar is waiting update."] = "此計量條正在等待更新。"
-L["Best Score:"] = "最佳分數:"
 L[" [|cFFFFFF00Rank: "] = " [|cFFFFFF00排名: "
-L["Open Rank"] = "打開排名"
-L["Refresh Talents"] = "重新整理天賦"
-L["error on alert function:"] = "通知功能發生錯誤:"
-L["this is a alpha version of Details\nyou can help us sending bug reports\nuse the blue button."] = "這是 Details! alpha 測試版本\n請使用藍色按鈕回報 bug\n來幫助我們改善。"
-L["Skin "] = "無法找到外觀 "
-L[" not found, changing to 'Dark Theme'."] = "，改為使用 'Serenity'。"
-L[" not found, changing to 'Minimalistic'."] = "，改為使用 'Minimalistic'。" -- 經典版
-L["Recommended to change the skin in the option panel > Skin Selection."] = "建議到設定選項 > 選擇外觀，在這裡更改外觀。"
--- L["Unknown Plugin"] = "未知的外掛套件" -- 前面已有
-L["in progress"] = "進行中"
--- L["m "] = " 分 "
--- L["s"] = " 秒"
-L["SetUserCustomSkinFile() file must be a string."] = "SetUserCustomSkinFile() 必須是文字檔案。"
-L["SetUserCustomSkinFile() file must be only the file name (with out up folders) and slashes."] = "SetUserCustomSkinFile() 只能有檔案名稱 (不包含上一層資料夾) 和斜線。"
-L["error Details! AdjustAlphaByContext()"] = "Details! AdjustAlphaByContext() 發生錯誤"
-L["All raid plugins already\nin use or disabled."] = "全部的團隊外掛套件都\n已經在使用中，或已經停用。"
-L["|TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:14:12:0:1:512:512:8:70:224:306|t Open Rank"] = "|TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:14:12:0:1:512:512:8:70:224:306|t 打開等級"
-L["|TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:14:12:0:1:512:512:8:70:328:409|t Refresh Talents"] = "|TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:14:12:0:1:512:512:8:70:328:409|t 刷新天賦"
-L["M+ Score:"] = "M+ 分數:"
-L["Remove Common Segments"] = "移除一般戰鬥記錄"
-L["Reset, but keep Mythic+ Overall Segments"] = "重置，但是保留 M+ 整場戰鬥記錄"
-L["Remove Battleground Segments"] = "移除戰場戰鬥記錄"
 
--- frames\window_news.lua
-L["Auto Open on New Changes"] = "有新的改動時自動打開"
+L[" name: "] = " 名稱: "
 
--- frames\window_options2.lua 更改字體大小
-L["Options"] = "選項" -- 前面已有 ["STRING_INTERFACE_OPENOPTIONS"]
+L[" right click to close"] = " 點一下右鍵關閉"
+
 L[" unknown"] = " 未知"
-L["Editing Group"] = "編輯群組"
-L["Character\nPosition"] = "角色\n位置"
-L["Goodbye Cruel World :("] = "再見! 殘酷的世界 :("
-L["Streamer Settings"] = "實況主設定"
-L["Set of tools for streamers, youtubers and broadcasters in general"] = "提供給實況主、Youtuber 和主播使用的工具組合。"
-L["Other Settings:"] = "其他設定:"
-L["Don't show alerts in the bottom of the window and avoid show tutorial popups."] = "不要顯示視窗底部的通知，也要避免顯示教學彈出視窗。"
-L["Increase the refresh rate to 60 times per second."] = "增加更新頻率到每秒 60 次。"
-L["Attempt to acquire player information such as class, spec or item level faster."] = "試著更快的取得玩家資訊，像是職業、專精或裝等。"
-L["No Mythic Dungeon Shenanigans"] = "不特別調整傳奇地城"
-L["Threat mythic dungeon segments as common segments: no trash merge, no mythic run overall, segments wraps on entering and leaving combat."] = "將傳奇地城的戰鬥記錄視為一般的戰鬥記錄，不要合併小怪記錄、沒有傳奇整場記錄，只要進入和離開戰鬥都會記錄。"
-L["Show Mythic Dungeon Damage Graphic"] = "顯示傳奇地城傷害圖表"
-L["At the end of a mythic dungeon run, show a graphic with the DPS of each player."] = "傳奇地城打完後，顯示每個玩家的 DPS 圖表。"
-L["Clear Cache on New Event"] = "新事件時清空快取"
-L["Reduces the chance of getting a serial number overlap when working with multiple realms."] = "減少在多伺服器群組時序號重複的機會。"
-L["Shortcut to modify the window color.\nFor more options check out |cFFFFFF00Window Settings|r section."] = "修改視窗顏色的捷徑。\n更多選項請到 |cFFFFFF00視窗設定|r。"
-L["In Combat Only"] = "只有在戰鬥中"
-L["Only apply click through when in combat."] = "只有在戰鬥中時才套用點擊穿透。"
-L["Affect Window"] = "穿透視窗"
-L["The window will be click through."] = "滑鼠點擊會穿透視窗。"
-L["Affect Bars"] = "穿透計量條"
-L["Player bars will be click through, won't show tooltips when hover hover them."] = "滑鼠點擊會穿透玩家計量條，滑鼠指向時也不會顯示浮動提示資訊。"
-L["Activity Time"] = "活躍時間"
-L["Effective Time"] = "有效時間"
-L["Click Through"] = "點擊穿透"
-L["16 Records"] = "16 筆記錄"
-L["32 Records"] = "32 筆記錄"
-L["45 Records"] = "45 筆記錄"
-L["Select Profile"] = "選擇設定檔"
-L["Details! Export Profile"] = "Details! 匯出設定檔"
-L["Insert a Name for the New Profile:"] = "輸入新設定檔的名稱:"
-L["Details! Import Profile (paste string)"] = "Details! 匯入設定檔 (貼上文字字串)"
-L["Import Profile"] = "匯入設定檔"
-L["Import current profile"] = "匯入目前設定檔"
-L["Export current profile"] = "匯出目前設定檔"
-L["Export Current Profile"] = "匯出目前設定檔"
-L["Details! Export Skin"] = "Details! 匯出外觀"
-L["failed to export skin."] = "匯出外觀失敗。"
-L["Details! Import Skin (paste string)"] = "Details! 匯入外觀 (貼上文字字串)"
-L["Author"] = "作者"
-L["Version"] = "版本"
-L["Site"] = "網站"
-L["Desc"] = "說明"
-L["File"] = "檔案"
-L["Width Offset"] = "寬度調整"
-L["Height Offset"] = "高度調整"
-L["Fine tune the size of the window while embeded in the chat."] = "嵌入到聊天視窗內時，微調視窗的大小。"
-L["Stop using the custom texture"] = "停止使用自訂材質"
-L["- Press escape to restore default value.\n- Leave empty to hide icons."] = "- 按下 ESC 鍵恢復成預設值。\n- 留空白會隱藏圖示。"
-L["Clear icon file / Restore default"] = "刪除圖示檔案/恢復成預設值"
-L["'func' keyword found, auto update disabled."] = "找到關鍵字 'func'，已停用自動更新。"
-L["no bracket"] = "無括號"
-L["no separator"] = "無分隔符號"
-L["invalid custom"] = "無效的自訂"
-L["confirm"] = "確認"
-L["Failed to load Details_3DModelsPaths addon."] = "無法載入 Details_3DModelsPaths 插件。"
-L["Fill"] = "填滿"
-L["Center"] = "中間"
-L["Stretch Left-Right"] = "左右延伸"
-L["Stretch Top-Bottom"] = "上下延伸"
-L["Top Left"] = "左上"
-L["Bottom Left"] = "左下"
-L["Top Right"] = "右上"
-L["Bottom Right"] = "右下"
-L["Preview:"] = "預覽:"
-L["Details! is Safe Loading the Options Panel During Combat"] = "Details! 可以在戰鬥中安全的載入選項面板"
-L["This may take only a few seconds"] = "只需要幾秒鐘"
-L["Details Serenity"] = "Details Serenity"
-L["loading: 0%"] = "已載入: 0%"
-L["wait... "] = "請稍等... "
-L["Background"] = "背景"
-L["Low"] = "低"
-L["Medium"] = "中"
-L["High"] = "高"
-L["Dialog"] = "對話框 (最高)"
-L[" |cFFFF5555(not installed)|r"] = " |cFFFF5555(未安裝)|r"
-L["Editing Window:"] = "編輯視窗:"
-L["Not Installed"] = "未安裝"
-L["Broadcaster Tools"] = "直播工具"
-L["Mythic Dungeon"] = "傳奇地城"
-L["Editing Group:"] = "編輯群組:"
-L["Search:"] = "搜尋:"
-L["Search Results"] = "搜尋結果"
-L["Combat Log"] = "戰鬥記錄"
 
--- frames\window_options2_sections.lua
--- L["Activity Time"] = "活躍時間" -- 前面已有
--- L["Effective Time"] = "有效時間"
-L["Real Time"] = "即時"
--- L["Click Through"] = "點擊穿透"
--- L["16 Records"] = "16 筆記錄"
--- L["32 Records"] = "32 筆記錄"
--- L["45 Records"] = "45 筆記錄"
--- L["Details! Import Skin (paste string)"] = "Details! 匯入外觀 (貼上文字字串)" 
--- L["Details! Export Skin"] = "Details! 匯出外觀"
--- L["failed to export skin."] = "匯出外觀失敗。"
--- L["Width Offset"] = "寬度調整"
--- L["Height Offset"] = "高度調整"
--- L["Fine tune the size of the window while embeded in the chat."] = "嵌入到聊天視窗內時，微調視窗的大小。"
--- L["Specialization"] = "專精"
--- L["Specialization Alpha"] = "專精 (透明)"
--- L["no bracket"] = "無括號"
--- L["no separator"] = "無分隔符號"
--- L["Background"] = "背景"
--- L["Low"] = "低"
--- L["Medium"] = "中"
--- L["High"] = "高"
--- L["Dialog"] = "對話框 (最高)"
--- L["Details! Export Profile"] = "Details! 匯出設定檔"
--- L["Insert a Name for the New Profile:"] = "輸入新設定檔的名稱:"
--- L["Details! Import Profile (paste string)"] = "Details! 匯入設定檔 (貼上文字字串)"
--- L["Import Profile"] = "匯入設定檔"
--- L["Select Profile"] = "選擇設定檔"
--- L["Not Installed"] = "未安裝"
--- L["Height"] = "高度"
--- L["Options"] = "選項"
-L["Immersion"] = "沉浸式體驗"
-L["Show pets when solo"] = "單人時顯示寵物"
-L["Click Through Only in Combat"] = "只有戰鬥中時要點擊穿透"
-L["Window Control:"] = "視窗控制:"
-L["Reset Nickname"] = "重置暱稱"
-L["Reset Custom Skin"] = "重置自訂外觀"
-L["Remove Custom Texture"] = "移除自訂材質"
-L["Enter the path for a custom icon file"] = "輸入自訂圖示檔案的路徑"
-L["Aligned Text Columns"] = "右側文字位置:"
-L["Vertically align texts in the right side as a vertical line."] = "分別調整右側文字的對齊位置。"
-L["Text 1 Offset"] = "文字 1 位置"
-L["Text 2 Offset"] = "文字 2 位置"
-L["Text 3 Offset"] = "文字 3 位置"
-L["Offset from right border"] = "與右側邊框的距離"
-L["Relative to Total"] = "相對於全體"
-L["Relative to Top Player"] = "相對於最高分玩家"
-L["Outline"] = "外框"
-L["Text Outline"] = "文字外框"
-L["Outline Color"] = "外框顏色"
-L["Edit Custom Text"] = "編輯自訂文字"
-L["Our thoughts strayed constantly\nAnd without boundary\nThe ringing of the division bell had began."] = "我們的思想不斷地錯開\n，超越無極限\n，分裂的鐘聲已經響起。"
-L["Chart Viewer"] = "圖表檢視"
-L["View combat data in handsome charts."] = "用帥氣的圖表來檢視戰鬥資料。"
-L["Advanced Death Logs"] = "進階死亡記錄"
-L["Encounter endurance per player (who's dying more), deaths timeline by enemy spells and regular death logs."] = "每位玩家的首領戰存活率 (誰死比較多次)、敵方技能的死亡時間軸和一般的死亡記錄。"
-L["Time Line"] = "時間軸"
-L["View raid cooldowns usage, debuff gain, boss casts in a fancy time line."] = "用花俏的時間軸來檢視團隊冷卻的使用、獲得減益效果和首領施放技能。"
-L["Raid Power Bars"] = "團隊能量條"
-L["Alternate power bar in a details! window"] = "在 Details! 視窗中顯示特殊能量"
-L["Target Caller"] = "當前目標傷害"
-L["Show raid damage done to an entity since you targetted it."] = "顯示自從你將它選取為目標後，團隊對此目標造成的傷害。"
-L["Can't delete current profile."] = "無法刪除目前的設定檔。"
-L["Set 1"] = "樣式 1"
-L["Set 2"] = "樣式 2"
-L["Set 3"] = "樣式 3"
-L["Set 4"] = "樣式 4"
-L["Icon Set"] = "圖示風格"
-L["Test"] = "測試"
-L["Click to test!"] = "點一下來測試!"
-L["Death Recap:"] = "死亡回顧:"
-L["Modify the Blizzard's Death Recap screen."] = "修改遊戲內建的死亡回顧畫面。"
-L["Relevance Time"] = "緊要時刻"
-L["Attempt to fill the Death Recap with high damage (discart low hits) in the relevant time before death."] = "在死亡回顧中顯示死亡前受到高傷害的相關時間 (忽略低傷害的)。"
-L["Life Percent"] = "生命百分比"
-L["Show the percent of life the player had when received the hit."] = "顯示玩家受到傷害時的生命值百分比。"
-L["Segment List"] = "戰鬥記錄列表"
-L["Show a list of the latest segments in case you want to see recaps from previous fights."] = "顯示最後幾場戰鬥記錄，方便回顧之前的戰鬥。"
-L["Show Death Menu"] = "顯示死亡選單"
-L["Show a panel below the Release / Death Recap panel with some shortcuts for Raid Leaders."] = "在釋放靈魂/死亡回顧的面板下方顯示供團隊隊長使用的快捷功能。"
-L["Action Tracker"] = "技能追蹤"
-L["Show the spells you are casting, allowing the viewer to follow your decision making and learn your rotation."] = "顯示你正在施放的法術，讓觀眾能夠了解你的決策和學習你的輸出迴圈。"
-L["Action Tracker Options"] = "技能追蹤設定選項"
-L["Plugin is enabled. You may disable it on Plugin Management section."] = "外掛套件已經啟用，可以在外掛套件管理的地方將它停用。"
-L["Enable Plugin"] = "啟用外掛套件"
-L["Enable 'Details!: Streamer' addon at the AddOns Control Panel."] = "在插件控制台中啟用實況主外掛套件。"
-L["Event Tracker"] = "事件追蹤"
-L["Show what's happening near you so the viewer can follow what's going on. Show cooldowns, CC, spell interruption. Useful on any group content."] = "顯示你附近發生的事情，以便讓觀眾可以知道。顯示冷卻時間、控場、斷法，對任何種類的隊伍都會很有幫助。"
-L["Enable Event Tracker"] = "啟用事件追蹤"
-L["Event Tracker Options"] = "事件追蹤設定選項"
-L["Arena DPS Bar"] = "競技場 DPS 計量條"
-L["Show a bar which grows to the side of the team doing most damage in the last 5 seconds."] = "最近 5 秒內輸出最高的隊伍計量條最長"
-L["Enable The Real Current Dps"] = "啟用即時 DPS"
-L["Current Real DPS Options"] = "即時 DPS 設定選項"
-L["Suppress Alerts"] = "不要顯示通知"
-L["60 Updates per Second"] = "每秒更新 60 次"
-L["Quick Player Info Detection"] = "快速偵測玩家資訊"
-L["Disable Mythic+ Stuff"] = "停用 M+ 相關內容"
-L["Disable Mythic+ Chart"] = "停用 M+ 圖表"
-L["Clear Cache Regularly"] = "定期清空快取"
-L["error exporting the time capture."] = "匯出時間擷取時發生錯誤。"
-L["Switch by Role Out of Combat"] = "非戰鬥中依角色職責切換"
-L["Switch by Role In Combat"] = "戰鬥中依角色職責切換"
-L["do not switch"] = "不要切換"
-L["profile name"] = "設定檔名稱"
-L["Export Profile"] = "匯出設定檔"
-L["Install"] = "安裝"
-L["Arena Team Color"] = "競技場隊伍顏色"
-L["Arena team color"] = "競技場隊伍顏色"
-L["Overlay:"] = "覆蓋:"
-L["Texture which sits above the bar"] = "疊加在條列上面的材質。"
-L["Unit Name Size Offset"] = "單位名字大小偏移"
-L["Title Bar"] = "標題列"
-L["Enable Custom Title Bar"] = "啟用自訂標題列"
-L["Use an alternative title bar instead of the title bar builtin in the Skin file.\n\n|cFFFFFF00Important|r: To disable the title bar from the Skin file, go to 'Window Body' and make the 'skin color' fully transparent."] = "啟用另一種標題列，而不是外觀檔案中內建的標題列。\n\n|cFFFFFF00重要|r: 要停用外觀檔案中的標題列，請到 '視窗設定' 將 '外觀顏色' 設為完全透明。"
-L["Color"] = "顏色"
-L["Window Area Border"] = "視窗區域邊框"
-L["Row's Area Border"] = "計量條區域邊框"
-L["Clear On Start PVP"] = "開始 PVP 時清空"
-L["When enabled, overall data is automatically wiped when a new arena or battleground starts."] = "啟用時，開始進行新的競技場或戰場時會自動清空整場資料。"
-L["Use Different Color for You"] = "自己使用不同顏色"
-L["Use a different color on your own bar"] = "你自己的計量條使用不同的顏色。"
-L["Your Bar Color"] = "自己的計量條顏色"
-L["Icon Size Offset"] = "圖示大小"
-L["Show Faction Icon"] = "顯示陣營圖示"
-L["When showing a player from the opposite faction, show the faction icon."] = "敵對陣營的玩家顯示敵對圖示。"
-L["Faction Icon Size Offset"] = "陣營圖示大小"
-L["Show Arena Role Icon"] = "顯示競技場角色職責圖示"
-L["When showing a player from arena, show the role icon."] = "競技場的玩家顯示角色職責圖示。"
-L["Arena Role Icon Size Offset"] = "競技場角色職責圖示大小"
-L["Show Border"] = "顯示邊框"
-L["Border Color"] = "邊框顏色"
-L["Border Thickness"] = "邊框粗細"
-L["Level"] = "層級"
-L["Change where the wallpaper is placed."] = "更改背景圖的位置。"
-L["Your Self"] = "自己"
-L["Use Dynamic Overall Damage"] = "使用動態整場傷害"
-L["When showing Damage Done Overall, swap to Dynamic Overall Damage on entering combat."] = "顯示整場輸出傷害，進入戰鬥時切換成動態整場傷害。"
-L["Bar Color"] = "計量條顏色"
-L["Divisor Color"] = "分隔線顏色"
-L["Show Rounded Border"] = "顯示圓角邊框"
-L["Text Y Offset"] = "文字垂直位置"
-L["Change the vertical offset for both left and right texts."] = "同時更改左側和右側文字的垂直偏移位置。"
-L["Offset"] = "偏移位置"
-L["Change the horizontal offset."] = "更改水平偏移位置。"
-L["Segments:"] = "戰鬥記錄:"
-L["Auto Erase:"] = "自動刪除:"
-L["Death Log Options:"] = "死亡記錄選項:"
-L["Invert Death Log (Raid)"] = "反向死亡記錄 (團隊)"
-L["Invert Death Log (M+)"] = "反向死亡記錄 (M+)"
-L["Invert Death Log (Overall Data)"] = "反向死亡記錄 (整場資料)"
-L["Damage Options:"] = "傷害輸出選項:"
-L["Merge Ring Gems 11.0.7"] = "合併戒指寶石 10.0.7"
-L["Class Options:"] = "職業選項:"
-L["Hunter Track Pet Frenzy"] = "獵人追蹤寵物狂暴"
-L["Show Augmentation Extra Bar"] = "顯示額外的強化計量條"
-L["Calculate how much the Augmentation Evoker are buffing other players"] = "計算強化喚能師提供多少增益效果給其他玩家"
-L["Use Real Time Dps for Aug. Evoker"] = "強化喚能師使用即時 DPS"
-L["Use Real Time Dps for Augmentation Evoker"] = "強化喚能師使用即時 DPS"
-L["Parser Options:"] = "分析選項:"
-L["Calculate Shield Wasted Amount"] = "計算浪費的護盾量"
-L["This is the 'overheal' of shields, it is calculated when a shield get replaced or removed."] = "這是護盾的 '過量治療'，在護盾被替換或移除時計算。"
-L["Calculate Energy Wasted Amount"] = "計算浪費的能量"
-L["Compute the energy wasted by players when they are at maximum energy."] = "當玩家能量全滿時計算浪費掉的能量。"
-L["Merge Critical Heals"] = "合併爆擊治療"
-L["Merges spells like Atonement and Awakened Faeline with their critical damage component."] = "合併像是贖罪和覺醒靈脈這類法術的致命一擊傷害。"
-L["Show 'Real Time' DPS"] = "顯示即時 DPS"
-L["If Enabled and while in combat, show the damage done of the latest 5 seconds divided by 5."] = "啟用時，戰鬥中會顯示最近 5 秒內造成的傷害除以 5。"
-L["Order Bars By Real Time DPS"] = "計量條依即時 DPS 排序"
-L["If Enabled, players dealing more real time DPS are place above other players in the window."] = "啟用時，即時 DPS 較高的玩家會排在其他玩家上方。"
-L["Always Use Real Time in Arenas"] = "競技場永遠使用即時 DPS"
-L["If Enabled, real time DPS is always used in arenas, even if the option above is disabled."] = "啟用時，就算停用上方的選項，競技場也會永遠使用即時 DPS。"
-L["Enable"] = "啟用"
-L["Disable"] = "停用"
-L["Load Your Image"] = "載入你的圖片"
-L["Segments Boss Wipe"]  = "滅團戰鬥記錄"
-L["Amount of segments to keep for wipes on the same boss."] = "同一個首領滅團要保留的戰鬥記錄數量。"
-L["Keep Best Performance (boss wipes)"] = "保留最佳表現 (首領滅團)"
-L["Keep the segments with more progress in the boss health and delete the ones with less progress."] = "保留首領戰進度較佳 (首領血量較少) 的戰鬥記錄，刪除進度較差的戰鬥記錄。"
-L["Auto Erase:"] = "自動刪除:"
-L["Shadow Color"] = "陰影顏色"
-L["Color of the text shadow"] = "文字陰影的顏色"
-L["Hide Yellow Helptips"] = "隱藏黃色說明提示"
-L["Those yellow boxes with an arrow and a text showing a text with tips."] = "那些顯示提示文字，有箭頭的黃色方框。"
-L["Record Tank Avoidance"] = "記錄坦克減傷"
-L["Record tank avoidance, this information is used in the Avoidance tank for tanks."] = "記錄坦克的閃躲招架等減傷，這資訊會用在坦克的減傷面板。"
-L["Record Energy Resources"] = "記錄能量資源"
-L["Energy resources are mana, rage, energy, runic power, and others."] = "能量資源包含法力、怒氣、能量、符能，以及其他。"
+L[" |cFFFFBB00Boss First Target|r: "] = " |cFFFFBB00首領的第一個目標|r: "
 
--- frames\window_plater.lua 更改字體大小
--- 要加上 local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
-L["Details! Plater Nameplates Integration"] = "Details! Plater 血條插件整合"
-L["Plater Nameplates"] = "Plater 血條"
-L["Top Left"] = "左上"
-L["Left"] = "左"
-L["Bottom Left"] = "左下"
-L["Bottom"] = "下"
-L["Bottom Right"] = "右下"
-L["Right"] = "右"
-L["Top Right"] = "右上"
-L["Top"] = "上"
-L["Center"] = "中"
-L["Inner Left"] = "內左"
-L["Inner Right"] = "內右"
-L["Inner Top"] = "內上"
-L["Inner Bottom"] = "內下"
-L["Add Real Time DPS Info in the Nameplate:"] = "在血條上加入 DPS 即時資訊:"
-L["a /reload might be needed to disable this setting."] = "停用此設定需要重新載入介面 /reload。"
-L["Show Real Time Dps"] = "顯示即時 DPS"
-L["Show Real Time DPS on the nameplate.\n\nReal time DPS is how much damage has been inflicted to the unit in the last 5 seconds."] = "在血條上顯示即時 DPS。\n\n即時 DPS 是最近 5 秒內對單位造成的傷害。"
-L["Text Size"] = "文字大小"
-L["Text Color"] = "文字顏色"
-L["Text Shadow"] = "文字陰影"
-L["Anchor Point"] = "對齊位置"
-L["Which side of the nameplate the text is attach to."] = "文字要對齊到血條的哪一側。"
-L["Anchor X Offset"] = "水平位置偏移"
-L["Slightly move the text horizontally."] = "在水平方向稍微移動文字。"
-L["Anchor Y Offset"] = "垂直位置偏移"
-L["Slightly move the text vertically."] = "在垂直方向稍微移動文字。"
-L["Add Real Time DPS Info Only From You in the Nameplate:"] = "在血條上只加入你的 DPS 即時資訊:"
-L["Show Real Time Dps (From You)"] = "顯示即時 DPS (你自己的)"
-L["Show Real Time DPS you are currently applying in the unit.\n\nReal time DPS is how much damage has been inflicted to the unit in the last 5 seconds."] = "在血條上顯示你目前對該單位的即時 DPS。\n\n即時 DPS 是最近 5 秒內對單位造成的傷害。"
-L["Add Total Damage Taken in the Nameplate:"] = "在血條上加入總共承受傷害:"
-L["Show Total Damage Taken"] = "顯示總共承受傷害"
-L["Show the total damage taken by the unit"] = "顯示單位的總共承受傷害。"
-L["Plater Nameplates Integration"] = "Plater 血條插件整合"
-L["Add DPS and Damage information directly into the nameplate"] = "將 DPS 和傷害資訊直接顯示在血條上"
-L["See how much damage the enemy is taking in real time!"] = "立馬知道敵人受到多少傷害!"
-L["Plater isn't installed! you may download it from the Curseforge app."] = "Plater 血條插件尚未安裝! 可以從 CurseForge 網站或使用 Curseforge app 下載。"
-
--- frames\window_breakdown\window_playerbreakdown.lua 更改字體大小
-L["An AddOn by Terciob | Part of Details! Damage Meter | Click 'Options' button for settings."] = "An AddOn by Terciob | Part of Details! Damage Meter | 點一下 '選項' 按鈕進行設定。"
-
--- frames\window_breakdown\window_playerbreakdown_auras.lua
--- 要加上 local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
-L["Buff Name"] = "增益名稱"
-L["Uptime"] = "覆蓋時間"
-L["applications"] = "作用"
-L["refreshes"] = "刷新"
-L["create weak aura"] = "建立 WA 提醒效果"
-L["Debuff Name"] = "減益名稱"
-L["Auras"] = "光環"
-
--- frames\window_breakdown\window_playerbreakdown_avoidance.lua 更改字體大小
-L["Percent values are comparisons with the previous try."] = "百分比數值是和前一場戰鬥的比較。"
-L["Summary"] = "總結"
-L["Total Damage Taken:"] = "總共承受傷害:"
-L["Per Second:"] = "每秒:"
-L["Total Absorbs:"] = "總共吸收:"
--- L["Melee"] = "近戰" -- 前面已有
-L["Dodge:"] = "閃躲:"
-L["Parry:"] = "架招:"
-L["Block:"] = "格擋:"
-L["Damage Blocked:"] = "減傷:"
-L["Absorb"] = "吸收"
-L["Full Absorbs:"] = "完全吸收:"
-L["Partially Absorbed:"] = "部分吸收"
-L["Average:"] = "平均:"
-L["No Absorption:"] = "沒有吸收:"
-L["Healing"] = "治療"
-L["Self Healing:"] = "自己治療:"
-L["healer name:"] = "治療者名字:"
-L["Spells"] = "法術"
-L["spell name:"] = "法術名稱:"
 L["% uptime)"] = "% 覆蓋時間)"
 
--- frames\window_breakdown\window_playerbreakdown_compare.lua 更改字體大小
--- 要加上 local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
-L["Total Casts:"] = "總共施法:"
-L["Total Hits:"] = "總共命中:"
-L["Critical:"] = "致命一擊:"
-L["Uptime:"] = "覆蓋時間:"
-L["Player 1"] = "玩家 1"
-L["Player 2"] = "玩家 2"
-L["Player 1 %"] = "玩家 1 %"
-L["There's no more players to compare (with the same class/spec)"] = "沒有更多玩家可供比較\n(相同職業/專精)"
-L["Player 3"] = "玩家 3"
+L["% uptime)|r"] = "% 覆蓋時間)|r"
 
--- frames\window_breakdown\window_playerbreakdown_list.lua 更改字體大小
--- 要加上 local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
--- L["Player Name"] = "玩家名字" -- 前面已有
-L["iLvL"] = "裝等"
-L["WCL Parse"] = "WCL 階段"
--- L["Plugins"] = "外掛套件" -- 前面已有
-L["Select Player"] = "選擇玩家"
-L["Select Segment"] = "選擇戰鬥記錄"
+L["' current value is: "] = "' 目前的值為: "
 
--- frames\window_breakdown\window_playerbreakdown_spells.lua
-L["spell name"] = "法術名稱"
-L["crit %"] = "致命 %"
-L["cast avg"] = "平均唱法"
-L["Spell Empower Average Level: "] = "法術聚能平均等級: "
-L["Level 1 Avg: "] = "等級 1 平均: "
-L["Level 2 Avg: "] = "等級 2 平均: "
-L["Level 3 Avg: "] = "等級 3 平均: "
-L["Level 4 Avg: "] = "等級 4 平均: "
-L["Level 5 Avg: "] = "等級 5 平均: "
-L["Trinket Info"] = "飾品資訊"
-L["Min Time: "] = "最小時間: "
-L["Max Time: "] = "最大時間: "
-L["Phase: "] = "階段: "
-L["Phases:"] = "階段:"
-L["Player not found."] = "沒有找到玩家。"
--- 以下需要手動加上 Loc，不要用程式替換
-L["total"] = "總計"
-L["ps"] = "每秒"
-L["hits"] = "命中"
-L["casts"] = "唱法"
-L["uptime"] = "覆蓋時間"
-L["overheal"] = "過量治療"
-L["absorbed"] = "吸收治療"
-L["name"] = "名稱"
+L["' expects a number"] = "' 需要數字"
 
--- frames\window_breakdown\window_playerbreakdown_spells_options.lua
--- 要加上 local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
-L["Details! Breakdown Options"] = "Details! 分析選項"
-L["Settings reseted to default."] = "設定已重置成預設值。"
-L["Reset Settings"] = "重置設定"
-L["General Settings"] = "一般設定"
-L["Background Color"] = "背景顏色"
-L["Spell Details Block"] = "法術詳細內容區塊"
-L["Block Height"] = "區塊高度"
-L["What to Show"] = "要顯示什麼"
-L["Per Second"] = "每秒"
-L["Casts"] = "唱法"
-L["Critical Hits Percent"] = "致命一擊百分比"
-L["Hits Amount"] = "擊中次數"
-L["Cast Average"] = "平均唱法"
--- L["Uptime"] = "覆蓋時間"
-L["Overheal"] = "過量治療"
-L["Heal Absorbed"] = "吸收治療"
-L["Text Options"] = "文字選項"
-L["Text Color"] = "文字顏色"
-L["Text Size"] = "文字大小"
-L["Text Outline"] = "文字外框"
-L["Font Face"] = "字體"
-L["Scroll Options"] = "捲動選項"
-L["Is Locked"] = "鎖定"
-L["Background Alpha"] = "背景透明度"
-L["Group Player Spells:"] = "群組玩家法術:"
-L["Group Player Spells With Same Name"] = "名稱相同的玩家法術組成群組"
-L["Group spells casted by players which has the same name"] = "將玩家所施放、相同名稱的法術群組在一起。"
-L["Group Pet Spells:"] = "群組寵物法術:"
-L["Group Pet Names Under a Pet Spell Bar"] = "寵物法術列的寵物名稱組成群組"
-L["Group Pets By Name"] = "依名稱群組寵物"
-L["Group Pet Spells Under a Pet Name Bar"] = "寵物名稱列的寵物法術組成群組"
-L["Group Pets By Spell"]= "依法術群組寵物"
+L["' expects a string"] = "' 需要文字字串"
 
--- frames\window_profiler.lua
-L["Profiler!"] = "設定檔!"
-L["Okey!"] = "確定!"
+L["' expects true or false"] = "' 需要 true 或 false"
 
--- frames\window_report.lua 更改字體和大小
-L["Export Text"] = "匯出文字"
-L["error occurred on report window skin call():"] = "報告視窗外觀 call() 發生錯誤:"
+L["' set to "] = "' 設為 "
 
--- frames\window_rowtexteditor.lua
-L["Details! Custom Line Text Editor"] = "Details! 自訂計量條文字編輯器"
--- L["Apply"] = "套用" -- 前面已有
+L["' set to false"] = "' 設為 false"
 
--- frames\window_runcode.lua
--- 要加上 local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
-L["Details! Run Code"] = "Details! 執行碼"
-L["Auto Run Code"] = "自動執行碼"
-L["Event:"] = "事件:"
-L["Code saved!"] = "執行碼已儲存!"
-L["Can't save the code: it has errors."] = "無法儲存執行碼: 有錯誤。"
-L["Save"] = "儲存"
--- L["Cancel"] = "取消" -- 前面已有
-L["Code cancelled!"] = "執行碼已取消!"
-L["Test Code"] = "測試執行碼"
+L["' set to true"] = "' 設為 true"
 
--- frames\window_scrolldamage.lua
--- 要加上 local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
-L["Icon"] = "圖示"
-L["Spell Name"] = "法術名稱"
-L["Amount"] = "數量"
-L["Time"] = "時間"
-L["Spell ID"] = "法術 ID"
-L["Token"] = "承受"
-L["School"] = "屬性"
-L["Auto Open on Training Dummy"] = "訓練用的木頭人時自動打開"
-L["search"] = "搜尋"
+L["+|cff33CC00 Click|cffEEEEEE: "] = "+|cff33CC00 左鍵|cffEEEEEE: "
 
--- frames\window_spellcategory.lua
--- 要加上 local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
-L["No survey at the moment."] = "目前沒有內容。"
-L["Details! Damage Meter: Spell Category Selection"] = "Details!: 選擇法術類別"
--- L["Icon"] = "圖示"
--- L["Spell Name"] = "法術名稱"
-L["NONE"] = "無"
-L["Offensive CD"] = "防禦冷卻"
-L["Personal CD"] = "個人冷卻"
-L["Targeted CD"] = "目標冷卻"
-L["Raid CD"] = "團隊冷卻"
-L["Utility CD"] = "工具冷卻"
-L["Interrupt"] = "斷法"
-L["Dispel"] = "驅散"
-L["CC"] = "控場"
-L["Racial"] = "種族"
-L["Cooldown"] = "冷卻"
-L["Duration"] = "持續時間"
-L["Export"] = "匯出"
-L["EXPORT ALL"] = "全部匯出"
-L["Examples:\nPower Infusion, Ice Veins, Combustion, Adrenaline Rush"] = "例如:\nPower Infusion, Ice Veins, Combustion, Adrenaline Rush"
-L["Examples:\nIce Block, Dispersion, Cloak of Shadows, Shield Wall "] = "例如:\nIce Block, Dispersion, Cloak of Shadows, Shield Wall "
-L["Examples:\nBlessing of Sacrifice, Ironbark, Life Cocoon, Pain Suppression"] = "例如:\nBlessing of Sacrifice, Ironbark, Life Cocoon, Pain Suppression"
-L["Examples:\nPower Word: Barrier, Spirit Link Totem, Tranquility, Anti-Magic Zone"] = "例如:\nPower Word: Barrier, Spirit Link Totem, Tranquility, Anti-Magic Zone"
-L["Examples:\nStampeding Roar, Leap of Faith"] = "例如:\nStampeding Roar, Leap of Faith"
+L[", total time: "] = "，總共用時: "
 
--- frames\window_statistics.lua 更改字體大小
--- L["Total Done:"] = "總計:" -- 前面已有
--- L["Dps:"] = "DPS:"
--- L["Item Level:"] = "裝等:"
--- L["Date:"] = "日期:"
--- L["Player Name"] = "玩家名字" 
-L["Statistics"] = "資料統計" -- 前面已有 ["STRING_STATISTICS"]
-L["working"] = "處理中"
-L["working [downloading "] = "處理中 [正在下載 "
-L["Details!: DPS Rank for: "] = "Details!: DPS 排名: "
-L["Damager"] = "傷害輸出"
-L["Healer"] = "治療者"
-L["Heroic"] = "英雄"
-L["Mythic"] = "傳奇"
--- L["Per Second"] = "每秒" -- 前面已有
-L["Total"] = "總計"
-L["Length"] = "時間"
-L["Item Level"] = "裝等"
-L["Date"] = "日期"
-L["Failled to load statistics, Details! Storage is disabled?"] = "無法載入統計資料，Details! Storage 是否被停用?"
-
--- frames\window_switch.lua 更改字體大小
-L["Plugin not found."] = "無法找到外掛套件。"
-L["select bookmark"] = "選擇書籤"
-
--- frames\window_wa.lua 更改字體大小，用 L 不是 Loc
--- L["Cancel"] = "取消" -- 前面已有
-L["Details! Create Aura"] = "Details! 建立提醒效果"
-L["Aura Name: "] = "提醒效果名稱: "
--- L["Icon"] = "圖示" -- 前面已有
-L["Text"] = "文字"
-L["Progress Bar"] = "進度條"
-L["Aura Type: "] = "提醒效果類型: "
-L["Debuff on You"] = "你有減益效果"
-L["Debuff on Target"] = "當前目標有減益效果"
-L["Debuff on Focus"] = "專注目標有減益效果"
-L["Buff on You"] = "你有增益效果"
-L["Buff on Target"] = "當前目標有增益效果"
-L["Buff on Focus"] = "專注目標有增益效果"
-L["Spell Cast Started"] = "施法開始"
-L["Spell Cast Successful"] = "施法成功"
-L["DBM Time Bar"] = "DBM 計時條"
-L["BigWigs Time Bar"] = "BigWigs 計時條"
-L["Spell Interrupt"] = "打斷法術"
-L["Spell Dispell"] = "驅散法術"
-L["Trigger On: "] = "何時觸發: "
-L["Spell Name: "] = "法術名稱: "
-L["Spell/Debuff/Buff to be tracked."] = "要監控的法術/增益/減益效果。"
-L["Spell Id: "] = "法術 ID: "
-L["Use SpellId: "] = "使用法術 ID:"
-L["Use the spell id instead of the spell name, for advanced users."] = "使用法術 ID 而不是法術名稱，供進階的玩家使用。"
-L["Only in Combat: "] = "只在戰鬥中: "
-L["Only active when in combat."] = "只有在戰鬥中時才會觸發。"
-L["Icon: "] = "圖示: "
-L["Cooldown Animation: "] = "冷卻轉圈動畫: "
-L["Trigger Stack Size: "] = "觸發所需層數: "
-L["Minimum amount of stacks to trigger the aura."] = "要觸發提醒效果最至少需要幾層的堆疊層數。"
-L["No Sound"] = "沒有音效"
-L["Play Sound: "] = "播放音效: "
-L["Sound played when the aura triggers."] = "提醒效果觸發時要播放的音效。"
-L["/Say on Trigger: "] = "觸發時說話 /Say:"
-L["Your character /say this phrase when the aura triggers."] = "提醒效果觸發時，你的角色會說這段話。"
-L["Aura Text: "] = "提醒效果文字: "
-L["Text shown at aura's icon right side."] = "在提醒效果圖示的右側顯示文字。"
-L["Glow Effect: "] = "發光效果: "
-L["Do not rename the aura on WeakAuras options panel or the glow effect may not work."] = "不要重新命名 WeakAuras 設定選項面板中的提醒效果名稱，否則將無法顯示發光效果。"
-L["Encounter ID: "] = "首領戰 ID: "
-L["Only load this aura for this raid encounter."] = "只有這場首領戰才要載入這個提醒效果。"
-L["Size: "] = "大小: "
-L["Icon size, width and height."] = "圖示大小，寬度和高度。"
-L["Addon: "] = "插件: "
-L["No Group"] = "沒有群組"
-L["WeakAuras Group: "] = "WA 提醒效果群組"
-L["nop, weakauras not found"] = "不~ 無法找到 WeakAuras。"
-L["nop, group name is too small"] = "不~ 群組名稱太短。"
-L["nop, group already exists"] = "不~ 群組已經存在。"
-L["New WeakAuras Group: "] = "新增 WA 提醒效果群組: "
-L["Enter the name of the new group"] = "輸入新群組的名稱。"
-L["Create Group"] = "建立群組"
-L["Icon Text: "] = "圖示文字: "
-L["Width/Height: "] = "寬度/高度: "
-L["Text: "] = "文字: "
-L["Text Size: "] = "文字大小: "
-L["Font Size: "] = "文字大小: "
-L["Left Text: "] = "左側文字: "
-L["Bar Width: "] = "進度條寬度: "
-L["Cast Duration: "] = "唱法時間: "
-L["Trigger Remaining Time:"] = "觸發所需剩餘時間: "
-L["Will trigger when the bar remaining time reach this value."] = "剩餘時間達到這個數值時，才會觸發提醒效果。"
-L["=Not Interrupted!="] = "=無法打斷!="
-L["Not Interrupted: "] = "不能斷法: "
-L["Dispels"] = "驅散"
-L["Title Text: "] = "標題文字: "
-L["No Aura Addon selected. Addons currently supported: WeakAuras 2."] = "沒有選擇提醒效果插件，目前支援的插件: WeakAuras 2。"
-
--- frames\window_welcome.lua 更改字體大小
--- L["wait... "] = "請稍等... " -- 前面已有
-
--- frames\window_mythicplus\window_chart.lua 更改字體大小
--- 要加上 local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
--- L["Enabled"] = "啟用" -- 前面已有
-L["Dungeon Run Chart"] = "地城攻略圖表"
-L["Show this chart at the end of a mythic dungeon run.\n\nIf disabled, you can reactivate it again at the options panel > streamer settings."] = "打完傳奇地城後顯示這個圖表。\n\n停用時，可以從選項面板 > streamer settings 將它再次啟用。"
-L["Show Boss"] = "顯示首領"
-L["Details!: Average Dps for "] = "Details!: 平均 DPS - "
-
--- frames\window_mythicplus\window_end_of_run.lua 更改字體大小
-L["Details! Mythic Run Completed!"] = "Details! 傳奇地城通關!"
-L["Under development"] = "開發中"
-L["Waiting for loot"] = "等待拾取"
-L["Show Breakdown"] = "顯示分析"
-L["Show Damage Graphic"] = "顯示傷害圖表"
-L["Run Time:"] = "通關時間:"
-L["Time not in combat:"] = "沒有戰鬥的時間:"
-
--- functions\deathmenu.lua 更改字體大小
--- 要加上 local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
-L["you can disable this at /details > Raid Tools"] = "可以在 /details > 團隊工具，停用。"
-L["Encounter Breakdown plugin is disabled! Please enable it in the Addon Control Panel."] = "首領戰分析外掛套件已停用! 請在插件控制台內將它載入/啟用。"
-L["Advanced Death Logs plugin is disabled! Please enable it (or download) in the Addon Control Panel."] = "進階死亡記錄外掛套件已停用! 請在插件控制台內將它載入/啟用 (或下載安裝)。"
-L["Encounter Breakdown"] = "首領戰分析"
-L["Show a panel with:"] = "顯示面板包含:"
-L["- Player Damage Taken"] = "- 玩家承受傷害"
-L["- Damage Taken by Spell"] = "- 承受傷害的法術"
-L["- Enemy Damage Taken"] = "- 敵方承受傷害"
-L["- Player Deaths"] = "- 玩家死亡"
-L["- Interrupts and Dispels"] = "- 斷法和驅散"
 L["- Damage Done Chart"] = "- 輸出傷害圖表"
+
 L["- Damage Per Phase"] = "- 每個階段傷害"
+
+L["- Damage Taken by Spell"] = "- 承受傷害的法術"
+
+L["- Enemy Damage Taken"] = "- 敵方承受傷害"
+
+L["- Interrupts and Dispels"] = "- 斷法和驅散"
+
+L["- Player Damage Taken"] = "- 玩家承受傷害"
+
+L["- Player Deaths"] = "- 玩家死亡"
+
 L["- Weakauras Tool"] = "- WA 技能提醒工具"
-L["Encounter Breakdown plugin is disabled in the Addon Control Panel."] = "首領戰分析外掛套件已在插件控制台內被停用。"
-L["Player Endurance"] = "玩家存活率"
-L["Open Player Endurance Breakdown"] = "打開玩家存活率分析"
-L["Player endurance is calculated using the amount of player deaths."] = "玩家存活率是依據玩家死亡次數計算的。"
-L["By default the plugin register the three first player deaths on each encounter to calculate who is under performing."] = "外掛套件預設在每場首領戰記錄前三名死亡的玩家，以此來計算誰的存活率不佳。"
-L["Advanced Death Logs plugin is disabled or not installed, check the Addon Control Panel or download it from the Curseforge APP."] = "進階死亡記錄外掛套件已停用，或是尚未安裝。請在插件控制台內將它載入/啟用 (或下載安裝)。"
-L["Spells"] = "法術"
-L["Open your player Details! breakdown."] = "打開 Details! 玩家分析。"
 
--- functions\mythicdungeon\mythicdungeon.lua
-L["the overall data has been reset."] = "已重置整場資料。"
+L["--unknown spell--"] = "--未知的法術--"
 
--- functions\profiles.lua 更改字體大小
-L["Profile Not Found."] = "沒有找到設定檔。"
-L["Failed to load a Details! window.\n/reload or reboot the game client may fix the problem.\nIf the problem persist, try /details reinstall.\nError: "] = "Details! 視窗載入失敗。\n重新載入介面或重新啟動遊戲程式或許可以修正問題。\n如果問題仍然無法解決，請輸入 /details reinstall 來重新安裝。\n錯誤: "
-L["|cFFFF2222Details!: Position for a window wasn't found! Moving it to the center of the screen.|r\nType '/details exitlog' to check for errors."] = "|cFFFF2222Details!: 無法找到視窗的位置! 會將它移動到畫面中央。|r\n請輸入 '/details exitlog' 來查看錯誤訊息。"
-L["|cFFFF2222Details!: Normal position for a window wasn't found! Moving it to the center of the screen.|r\nType '/details exitlog' to check for errors."] = "|cFFFF2222Details!: 無法找到視窗的正常位置! 會將它移動到畫面中央。|r\n請輸入 '/details exitlog' 來查看錯誤訊息。"
-L["\n-- run when the player changes its spec"] = "\n-- 玩家更改專精時會執行這段碼"
-L["\n-- when the player changes zone, this code will run"] = "\n-- 玩家更換區域時會執行這段碼"
-L["\n-- code to run when Details! initializes, put here code which only will run once\n-- this also will run then the profile is changed\n\n--size of the death log tooltip in the Deaths display (default 350)\nDetails.death_tooltip_width = 350;\n\n--when in arena or battleground, details! silently switch to activity time (goes back to the old setting on leaving, default true)\nDetails.force_activity_time_pvp = true;\n\n--speed of the bar animations (default 33)\nDetails.animation_speed = 33;\n\n--threshold to trigger slow or fast speed (default 0.45)\nDetails.animation_speed_mintravel = 0.45;\n\n--call to update animations\nDetails:RefreshAnimationFunctions();\n\n--max window size, does require a /reload to work (default 480 x 450)\nDetails.max_window_size.width = 480;\nDetails.max_window_size.height = 450;\n\n--use the arena team color as the class color (default true)\nDetails.color_by_arena_team = true;\n\n--how much time the update warning is shown (default 10)\nDetails.update_warning_timeout = 10;"] = "\n-- Details! 初始化時會執行這段碼，放在這裡面的程式碼只會執行一次。\n-- 更改設定檔時也會執行\n\n--死亡顯示內容中的死亡記錄浮動提示資訊大小 (預設值 350)\nDetails.death_tooltip_width = 350;\n\n--在競技場或戰場中時，Details! 會自動切換成活躍時間 (離開時會自動切換回原本的設定，預設值 true)\nDetails.force_activity_time_pvp = true;\n\n--計量條動畫速度 (預設值 33)\nDetails.animation_speed = 33;\n\n--慢速或快速顯示動畫的分界值 (預設值 0.45)\nDetails.animation_speed_mintravel = 0.45;\n\n--呼叫這個函數來更新動畫\nDetails:RefreshAnimationFunctions();\n\n--視窗的最大尺寸，需要重新載入介面才會生效 (預設值 480 x 450)\nDetails.max_window_size.width = 480;\nDetails.max_window_size.height = 450;\n\n--使用競技場隊伍顏色取代職業顏色 (預設值 true)\nDetails.color_by_arena_team = true;\n\n--更新提醒通知要顯示多久時間 (預設值 10)\nDetails.update_warning_timeout = 10;"
-L["\n-- this code runs when the player leave combat"] = "\n-- 玩家離開戰鬥時會執行這段碼"
-L["\n-- this code runs when the player enters in combat"] = "\n-- 玩家進入戰鬥時會執行這段碼"
-L["\n-- this code runs when the player enter or leave a group"] = "\n-- 玩家加入或離開隊伍時會執行這段碼"
-L["fail to get the current profile."] = "無法取得目前的設定檔。"
-L["invalid profile name or profile name is too short."] = "無效的設定檔名稱，或設定檔名稱太短。"
-L["failed to create a new profile."] = "無法建立新的設定檔。"
-L["profile successfully imported."] = "設定檔匯入成功。"
-L["failed to decompress profile data."] = "無法解壓縮設定檔資料。"
-L["Damage of Each Individual Player"] = "每位玩家個別的傷害"
-L["Damage of All Player Combined"] = "所有玩家合併的傷害"
-L["profile name already exists and was imported as:"] = "已經有相同的設定檔名稱，匯入為:"
+L["16 Records"] = "16 筆記錄"
 
--- functions\rowanimation.lua
-L["Default animation, makes the bar fade in or fade out when showing or hiding in the window"] = "預設動畫效果，讓計量條在視窗中顯示或隱藏時會有淡出淡入的效果。"
+L["2 minutes"] = "2 分鐘"
 
--- functions\skins.lua 更改字體大小
-L["This was the first skin made for Details!, inspired in the standard wow interface"] = "這是為 Details! 製作的的第一款外觀，靈感來自於魔獸的標準介面。"
-L["Simple skin with soft gray color and half transparent frames."] = "極簡外觀，有著柔和的灰色和半透明的框架。"
-L["Same as the first Minimalistic, but this one is more darker and less transparent."] = "和第一個 Minimalistic 相同，但這個更暗、更不透明。"
-L["Light blue, this skin fits on almost all interfaces.\n\nFor ElvUI interfaces, change the window color to black to get an compatible visual."] = "淺藍色，這個外觀幾乎能夠搭配所有的介面。\n\n使用 ElvUI 介面時，只要將視窗顏色改為黑色，便能夠有一致的視覺效果。"
-L["Right Chat Panel isn't shown."] = "沒有顯示出右側聊天面板。"
-L["Very clean skin without textures and only with a black contour."] = "非常乾淨的外觀，沒有材質，只有黑色的輪廓。"
-L["new simple gray 2"] = "新極簡灰 2"
-L["This skin is based on ElvUI's addons, relying with black and transparent frames."] = "這個外觀是根據 ElvUI 插件所製作，主要是黑色和透明的框架。"
-L["based on AddonSkins for ElvUI, this skin has opaque title bar and background."] = "根據 AddonSkins for ElvUI，這個外觀有不透明的標題列和背景。"
-L["Regular Details! skin but with a dark theme."] = "一般的 Details! 外觀，但是深色主題。"
-L["Shadowy Title Bar"] = "標題列顯示陰影"
+L["3 - Leaving current combat."] = "3 - 離開目前的戰鬥。"
+
+L["3 minutes"] = "3 分鐘"
+
+L["32 Records"] = "32 筆記錄"
+
+L["4 - Reversing switches."] = "4 - 反轉開關。"
+
+L["40 seconds"] = "40 秒"
+
+L["45 Records"] = "45 筆記錄"
+
+L["5 - Is a full config wipe."] = "5 - 完全清空設定。"
+
+L["5 minutes"] = "5 分鐘"
+
+L["6 - Saving Config."] = "6 - 儲存設定。"
+
+L["60 Updates per Second"] = "每秒更新 60 次"
+
+L["60 seconds"] = "60 秒"
+
+L["7 - Saving Profiles."] = "7 - 儲存設定檔。"
+
+L["8 - Saving nicktag cache."] = "8 - 儲存暱稱標籤快取。"
+
+L["90 seconds"] = "90 秒"
+
+L["A New Version Is Available!"] = "已有新版本可以使用!"
+
+L["A member called 'OnDetailsEvent' on your plugin object"] = "有宣告叫做 'OnDetailsEvent' 的成員"
+
+L["A new version has been installed: /details news"] = "已經安裝新版本: /details news"
+
+L["Absorb"] = "吸收"
+
+L["Action Tracker"] = "技能追蹤"
+
+L["Activity Time"] = "活躍時間"
+
+L["Add DPS and Damage information directly into the nameplate"] = "將 DPS 和傷害資訊直接顯示在血條上"
+
+L["Add Real Time DPS Info Only From You in the Nameplate:"] = "在血條上只加入你的 DPS 即時資訊:"
+
+L["Add Real Time DPS Info in the Nameplate:"] = "在血條上加入 DPS 即時資訊:"
+
+L["Add Total Damage Taken in the Nameplate:"] = "在血條上加入總共承受傷害:"
+
 L["Adds shadow on title bar components."] = "幫標題列的元件加上陰影。"
 
--- functions\slash.lua 更改字體大小
-L["segment removed."] = "已移除戰鬥記錄。"
-L["segment not found."] = "沒有戰鬥記錄。"
-L["segment ID invalid."] = "無效的戰鬥記錄 ID。"
--- L["Profile Not Found."] = "沒有找到設定檔。" -- 前面已有
-L["real -"] = "實際 -"
-L["current -"] = "目前 -"
-L["using segment"] = "使用戰鬥記錄"
-L["player actor:"] = "玩家:"
-L["actor table: "] = "玩家表格: "
-L["actor table not found"] = "無法找到玩家表格"
-L["overlay: "] = "覆蓋: "
-L["crop: "] = "裁切: "
-L["bgcolor:"] = "背景顏色:"
-L["bordercolor"] = "邊框顏色:"
-L["Force apply profile: "] = "強制套用設定檔: "
-L["names found."] = "個名稱已找到。"
-L["actors found."] = "個玩家已找到。"
-L["running... this is a debug command, details wont work until next /reload."] = "執行中... 這是除錯指令，直到下一次重新載入介面之前 Details! 都不會執行。"
-L["Wow combatlog record turned OFF."] = "魔獸戰鬥記錄已關閉。"
-L["Wow combatlog record turned ON."] = "魔獸戰鬥記錄已開啟。"
-L["Phase Changed!"] = "改階段了!"
-L["Selling"] = "賣出"
-L["gear score: "] = "裝備評分: "
-L["| item amount:"] = "| 物品數量:"
-L["| ilvl:"] = "| 裝等:"
-L["Boss Defeated, Open History! "] = "首領已被擊敗，打開歷史記錄!"
+L["Advanced Death Logs"] = "進階死亡記錄"
+
+L["Advanced Death Logs plugin is disabled or not installed, check the Addon Control Panel or download it from the Curseforge APP."] = "進階死亡記錄外掛套件已停用，或是尚未安裝。請在插件控制台內將它載入/啟用 (或下載安裝)。"
+
+L["Advanced Death Logs plugin is disabled! Please enable it (or download) in the Addon Control Panel."] = "進階死亡記錄外掛套件已停用! 請在插件控制台內將它載入/啟用 (或下載安裝)。"
+
+L["All Characters"] = "所有角色"
+
+L["All raid plugins already\nin use or disabled."] = "全部的團隊外掛套件都\n已經在使用中，或已經停用。"
+
+L["Alternate power bar in a details! window"] = "在 Details! 視窗中顯示特殊能量"
+
+L["Always Use Real Time in Arenas"] = "競技場永遠使用即時 DPS"
+
+L["Amount"] = "數量"
+
+L["Amount of Time"] = "時間"
+
+L["Amount of segments to keep for wipes on the same boss."] = "同一個首領滅團要保留的戰鬥記錄數量。"
+
+L["An AddOn by Terciob | Part of Details! Damage Meter | Click 'Options' button for settings."] = "An AddOn by Terciob | Part of Details! Damage Meter | 點一下 '選項' 按鈕進行設定。"
+
+L["Anchor Point"] = "對齊位置"
+
+L["Anchor X Offset"] = "水平位置偏移"
+
+L["Anchor Y Offset"] = "垂直位置偏移"
+
+L["Apply"] = "套用"
+
+L["Arena DPS Bar"] = "競技場 DPS 計量條"
+
+L["Arena Matches"] = "競技場"
+
+L["Arena Role Icon Size Offset"] = "競技場角色職責圖示大小"
+
+L["Arena Team Color"] = "競技場隊伍顏色"
+
+L["Arena team color"] = "競技場隊伍顏色"
+
+L["Attempt to fill the Death Recap with high damage (discart low hits) in the relevant time before death."] = "在死亡回顧中顯示死亡前受到高傷害的相關時間 (忽略低傷害的)。"
+
+L["Aura Name"] = "光環名稱"
+
+L["Auras"] = "光環"
+
+L["Auto Erase:"] = "自動刪除:"
+
+L["Auto Open on New Changes"] = "有新的改動時自動打開"
+
+L["Auto Open on Training Dummy"] = "訓練用的木頭人時自動打開"
+
+L["Auto Run Code"] = "自動執行碼"
+
+L["Average:"] = "平均:"
+
+L["BACKGROUND"] = "背景"
+
+L["Backdrop Color"] = "背景顏色"
+
+L["Background Alpha"] = "背景透明度"
+
+L["Background Color"] = "背景顏色"
+
+L["Bar Color"] = "計量條顏色"
+
+L["Best Score:"] = "最佳分數:"
+
+L["Block Height"] = "區塊高度"
+
+L["Block:"] = "格擋:"
+
+L["Border Color"] = "邊框顏色"
+
+L["Border Thickness"] = "邊框粗細"
+
 L["Boss Defeated! Show Ranking"] = "首領已被擊敗! 顯示排名"
-L["Current SpecID: "] = "目前 SpecID: "
-L["Item level dispatched."] = "已發送裝等。"
-L["already in combat, closing current segment."] = "已經在戰鬥中，關閉目前戰鬥記錄。"
-L["done merging, segments: "] = "合併完成，戰鬥記錄: "
-L[", total time: "] = "，總共用時: "
-L["config '"] = "設定選項 '"
-L["' set to "] = "' 設為 "
-L["' expects a number"] = "' 需要數字"
-L["' expects a string"] = "' 需要文字字串"
-L["' set to true"] = "' 設為 true"
-L["' set to false"] = "' 設為 false"
-L["' expects true or false"] = "' 需要 true 或 false"
-L["' current value is: "] = "' 目前的值為: "
-L["|r: open the player breakdown for you."] = "|r: 打開玩家分析。"
-L["|r: list of spells already saw."] = "|r: 列出已經看到的法術。"
-L["skin:"] = "外觀:"
-L["current profile:"] = "目前設定檔:"
-L["always use profile:"] = "總是使用設定檔:"
-L["profile name:"] = "設定檔名稱:"
-L["version:"] = "版本:"
-L["you aren't the raid leader."] = "你不是 RL。"
-L["coach disabled."] = "已停用訓練。"
-L["Details! Version Check"] = "Details! 版本檢查"
-L["User Name"] = "名字"
-L["Realm"] = "伺服器"
-L["Version"] = "版本"
-L["M+ Keystones (/key)"] = "M+ 鑰石  (/key)"
-L["Request from Guild"] = "從公會取得資料"
-L["Class"] = "職業"
-L["Player Name"] = "玩家名字"
-L["Level"] = "等級"
-L["Dungeon"] = "地城"
-L["Mythic+ Rating"] = "M+ 分數"
 
--- functions\spellcache.lua
-L[" (Trinket)"] = " (飾品)"
--- L["Unknown"] = "未知" -- 前面已有
+L["Boss Defeated, Open History! "] = "首領已被擊敗，打開歷史記錄!"
 
--- functions\timedata.lua
--- L["Unknown"] = "未知" -- 前面已有
--- L["m "] = " 分 "
--- L["s"] = " 秒"
-L["This capture belongs to a plugin and cannot be edited."] = "此資料擷取屬於外掛套件的，無法編輯。"
-L["Couldn't register the time capture, name was nil."] = "無法註冊時間擷取，名稱是空的。"
-L["Couldn't register the time capture, name already registred."] = "無法註冊時間擷取，名稱已經註冊過。"
-L["Couldn't register the time capture, invalid function."] = "無法註冊時間擷取，無效的函數。"
-L["Couldn't register the time capture, matrix was invalid."] = "無法註冊時間擷取，無效的矩陣。"
-L["|cFFFF9900error on chart script function|r:"] = "|cFFFF9900圖表腳本程式的函數錯誤|r:"
+L["Boss Simulation"] = "模擬首領"
 
+L["Bottom"] = "下"
 
--- boot.lua
-L["Click on Your Own Bar"] = "點一下自己的計量條"
-L["To open the player details window on your character, like if you click on your bar in the damage window. The number '1' is the window number where it'll click."] = "打開玩家詳細內容視窗並顯示你自己的角色，就像你點一下傷害視窗中的計量條一樣。數字 '1' 是將要點擊的視窗編號。"
-L["Open Encounter Breakdown"] = "打開首領戰分析"
-L["Open the encounter breakdown plugin. Details! Encounter Breakdown (plugin) must be enabled."] = "打開首領戰分析外掛套件。必須先載入/啟用 Details! 首領戰分析 (外掛套件)。"
-L["Open Damage per Phase"] = "打開每個階段的傷害"
-L["Open the encounter breakdown plugin in the phase tab. Details! Encounter Breakdown (plugin) must be enabled."] = "打開首領戰分析外掛套件並且顯示階段標籤頁面。必須先載入/啟用 Details! 首領戰分析 (外掛套件)。"
-L["Reset Data"] = "重置資料"
-L["Reset the overall and regular segments data. Use 'ResetSegmentOverallData' to reset only the overall."] = "重置整場和一般的戰鬥記錄資料。使用 'ResetSegmentOverallData' 可以只重置整場資料。"
+L["Bottom Left"] = "左下"
+
+L["Bottom Right"] = "右下"
+
+L["Broadcaster Tools"] = "直播工具"
+
+L["Broker Text Editor"] = "Broker 資訊列文字編輯器"
+
+L["Buff"] = "增益"
+
+L["Buff Name"] = "增益名稱"
+
+L["By default the plugin register the three first player deaths on each encounter to calculate who is under performing."] = "外掛套件預設在每場首領戰記錄前三名死亡的玩家，以此來計算誰的存活率不佳。"
+
+L["CC"] = "控場"
+
+L["Calculate Energy Wasted Amount"] = "計算浪費的能量"
+
+L["Calculate Shield Wasted Amount"] = "計算浪費的護盾量"
+
+L["Calculate how much the Augmentation Evoker are buffing other players"] = "計算強化喚能師提供多少增益效果給其他玩家"
+
+L["Calculates memory usage of addons"] = "計算插件的記憶體使用量"
+
+L["Can't delete current profile."] = "無法刪除目前的設定檔。"
+
+L["Can't save the code: it has errors."] = "無法儲存執行碼: 有錯誤。"
+
+L["Cancel"] = "取消"
+
+L["Cast Average"] = "平均唱法"
+
+L["Casts"] = "唱法"
+
+L["Center"] = "中"
+
 L["Change What the Window Shows"] = "更改視窗顯示內容"
-L["Make a window show different data. SetDisplay uses (segment, displayGroup, displayID), the menu from the sword icon is in order (damage = group 1, overheal is: displayGroup 2 displayID 3."] = "讓視窗顯示不同的資料，SetDisplay 的用法為 (戰鬥記錄, 顯示群組, 顯示 ID)，劍形圖示選單的順序為 (傷害 = 群組 1，過量治療是: 顯示群組 2 顯示 ID 3)。"
-L["Toggle Window Height to Max Size"] = "視窗高度切換成最大"
-L["Make a window be 450 pixel height, pressing the macro again toggle back to the original size. The number '1' if the window number. Hold a click in any window to show their number."] = "將視窗高度調整成 450 像素，再次按下巨集會恢復成原本的大小。數字 '1' 是視窗編號，在任何視窗上按住滑鼠左鍵不放都可以看到視窗編號。"
-L["Report What is Shown In the Window"] = "報告視窗顯示內容"
-L["Report the current data shown in the window, the number 1 is the window number, replace it to report another window."] = "報告目前在視窗中顯示的資料是什麼，數字 '1' 是視窗編號，更改編號便能報告另一個視窗。"
-L["On Initialization"] = "初始化"
-L["Run code when Details! initialize or when a profile is changed."] = "Details! 初始化或變更設定檔時執行的程式碼。"
-L["On Zone Changed"] = "改變區域"
-L["Run code when the zone where the player is in has changed (e.g. entered in a raid)."] = "玩家所在的區域變更時執行的程式碼 (例如進入副本)。"
-L["On Enter Combat"] = "進入戰鬥"
-L["Run code when the player enters in combat."] = "玩家進入戰鬥時執行的程式碼。"
-L["On Leave Combat"] = "離開戰鬥"
-L["Run code when the player left combat."] = "玩家離開戰鬥時執行的程式碼。"
-L["On Spec Change"] = "改變專精"
-L["Run code when the player has changed its specialization."] = "玩家更改專精時執行的程式碼。"
-L["On Enter/Leave Group"] = "加入/離開隊伍"
-L["Run code when the player has entered or left a party or raid group."] = "玩家加入或離開隊伍或團隊時執行的程式碼。"
-L["|r |cffcc7c7c(plugin)|r: "] = "|r |cffcc7c7c(外掛套件)|r: "
-L["seems failed to load, please type /reload to try again."] = "插件載入失敗，請輸入 /reload 再試一次。"
-L["you can always reset the addon running the command |cFFFFFF00'/details reinstall'|r if it does fail to load after being updated."] = "如果更新後確定無法載入，可以輸入 |cFFFFFF00'/details reinstall'|r 來重置插件。"
 
--- startup.lua
-L["A new version has been installed: /details news"] = "已經安裝新版本: /details news"
--- L["|CFFFFFF00[Details!]: you're using Details! for RETAIL on Classic WOW, please get the classic version (Details! Damage Meter Classic WoW), if you need help see our Discord (/details discord)."] = "|CFFFFFF00[Details!]: 你正在魔獸世界經典版中使用正式版專用的 Details! 請下載經典版專用的版本 (Details! Damage Meter Classic WoW)。如果你需要協助，請到我們的 Discord (/details discord)"
--- L["use '/details me' macro to open the player breakdown for you!"] = "使用巨集 '/details me' 可以快速打開你自己的玩家詳細分析!"
-L["spell not found"] = "無法找到法術"
+L["Change the horizontal offset."] = "更改水平偏移位置。"
+
+L["Change the vertical offset for both left and right texts."] = "同時更改左側和右側文字的垂直偏移位置。"
+
+L["Change where the wallpaper is placed."] = "更改背景圖的位置。"
+
+L["Chart Viewer"] = "圖表檢視"
+
+L["Class Options:"] = "職業選項:"
+
+L["Clear Cache Regularly"] = "定期清空快取"
+
+L["Clear On Start PVP"] = "開始 PVP 時清空"
+
+L["Click Through"] = "點擊穿透"
+
+L["Click Through Only in Combat"] = "只有戰鬥中時要點擊穿透"
+
+L["Click on Your Own Bar"] = "點一下自己的計量條"
+
+L["Click to test!"] = "點一下來測試!"
+
+L["Close"] = "關閉"
+
+L["Code saved!"] = "執行碼已儲存!"
+
+L["Color"] = "顏色"
+
+L["Color of the text shadow"] = "文字陰影的顏色"
+
+L["Colors on Death Log:"] = "死亡記錄中的顏色:"
+
+L["Combat Log"] = "戰鬥記錄"
+
+L["Compute the energy wasted by players when they are at maximum energy."] = "當玩家能量全滿時計算浪費掉的能量。"
+
+L["Cooldown"] = "冷卻"
+
+L["Cooldown Tracker"] = "技能冷卻追蹤"
+
+L["Couldn't register the time capture, invalid function."] = "無法註冊時間擷取，無效的函數。"
+
+L["Couldn't register the time capture, matrix was invalid."] = "無法註冊時間擷取，無效的矩陣。"
+
+L["Couldn't register the time capture, name already registred."] = "無法註冊時間擷取，名稱已經註冊過。"
+
+L["Couldn't register the time capture, name was nil."] = "無法註冊時間擷取，名稱是空的。"
+
+L["Critical Hits Percent"] = "致命一擊百分比"
+
+L["Critical:"] = "致命一擊:"
+
+L["Crowd Control"] = "控場"
+
+L["Current SpecID: "] = "目前 SpecID: "
+
+L["DIALOG"] = "對話框 (最高)"
+
+L["Damage"] = "傷害"
+
+L["Damage Blocked:"] = "減傷:"
+
+L["Damage Options:"] = "傷害輸出選項:"
+
+L["Damage Record!"] = "開始記錄傷害!"
+
+L["Damage of All Player Combined"] = "所有玩家合併的傷害"
+
+L["Damage of Each Individual Player"] = "每位玩家個別的傷害"
+
+L["Damager"] = "傷害輸出"
+
+L["Date:"] = "日期:"
+
+L["Death Log Options:"] = "死亡記錄選項:"
+
+L["Death Recap:"] = "死亡回顧:"
+
+L["Death: "] = "死亡: "
+
+L["Debuff"] = "減益"
+
+L["Debuff Name"] = "減益名稱"
+
+L["Default animation, makes the bar fade in or fade out when showing or hiding in the window"] = "預設動畫效果，讓計量條在視窗中顯示或隱藏時會有淡出淡入的效果。"
+
+L["Defensive: Personal"] = "防禦: 個人"
+
+L["Defensive: Raid"] = "防禦: 團隊"
+
+L["Defensive: Target"] = "防禦: 目標"
+
+L["Description"] = "說明"
+
+L["Details version is out of date."] = "Details! 版本已過期。"
+
+L["Details! - Open Options"] = "Details! - 設定選項"
+
+L["Details! - Reset Data"] = "Details! - 重置資料"
+
+L["Details! Arena Damage Bar Options"] = "Details! 競技場傷害條選項"
+
+L["Details! Arena Real Time DPS Tracker"] = "Details! 競技場即時 DPS 追蹤"
+
+L["Details! Benchmark"] = "Details! 效能測試"
+
+L["Details! Breakdown Options"] = "Details! 分析選項"
+
+L["Details! Custom Displays"] = "Details! 自訂顯示內容"
+
+L["Details! Custom Line Text Editor"] = "Details! 自訂計量條文字編輯器"
+
+L["Details! Damage Meter: Spell Category Selection"] = "Details!: 選擇法術類別"
+
+L["Details! Dump String"] = "Details! Dump 傾印字串"
+
+L["Details! Dump Table [|cFFFF3333Ready Only|r]"] = "Details! Dump Table [|cFFFF3333唯讀|r]"
+
+L["Details! Event Tracker Options"] = "Details! 事件追蹤選項"
+
+L["Details! Export Profile"] = "Details! 匯出設定檔"
+
+L["Details! Export Skin"] = "Details! 匯出外觀"
+
+L["Details! Import Skin (paste string)"] = "Details! 匯入外觀 (貼上文字字串)"
+
+L["Details! Mythic Run Completed!"] = "Details! 傳奇地城通關!"
+
+L["Details! Online CD Tracker"] = "Details! 線上技能冷卻追蹤"
+
+L["Details! Plater Nameplates Integration"] = "Details! Plater 血條插件整合"
+
+L["Details! Run Code"] = "Details! 執行碼"
+
+L["Details! Useful Macros"] = "Details! 有用的巨集"
+
+L["Details! Version Check"] = "Details! 版本檢查"
+
+L["Details!: Average Dps for "] = "Details!: 平均 DPS - "
+
+L["Details!: DPS Rank for: "] = "Details!: DPS 排名: "
+
+L["Details!: Event Tracker"] = "Details! 事件追蹤"
+
+L["Disable"] = "停用"
+
+L["Disable Mythic+ Chart"] = "停用 M+ 圖表"
+
+L["Disable Mythic+ Stuff"] = "停用 M+ 相關內容"
+
+L["Dispel"] = "驅散"
+
+L["Divisor Color"] = "分隔線顏色"
+
+L["Do not search for targets."] = "不要搜尋目標"
+
+L["Dodge:"] = "閃躲:"
+
+L["Dungeon Run Chart"] = "地城攻略圖表"
+
+L["Duration"] = "持續時間"
+
+L["EXPORT ALL"] = "全部匯出"
+
+L["Edit Percent Code"] = "編輯百分比程式碼"
+
+L["Edit Total Code"] = "編輯總計程式碼"
+
+L["Edit the code responsible for the percent number in the player bar.\n\nThis is not required if you want to use simple percentage (comparing with total)."] = "編輯負責在玩家計量條中顯示百分比數字的程式碼。\n\n如果你只是想要使用簡單的百分比 (相較於總計)，則不需要編輯。"
+
+L["Editing Group:"] = "編輯群組:"
+
+L["Effective Time"] = "有效時間"
+
+L["Enable"] = "啟用"
+
+L["Enable 'Details!: Streamer' addon at the AddOns Control Panel."] = "在插件控制台中啟用實況主外掛套件。"
+
+L["Enable Custom Title Bar"] = "啟用自訂標題列"
+
+L["Enable Experimental Cooldown Tracker"] = "啟用實驗性的技能冷卻追蹤"
+
+L["Enabled"] = "啟用"
+
+L["Enabled On:"] = "啟用於:"
+
+L["Encounter Breakdown"] = "首領戰分析"
+
+L["Encounter Breakdown plugin is disabled in the Addon Control Panel."] = "首領戰分析外掛套件已在插件控制台內被停用。"
+
+L["Encounter Breakdown plugin is disabled! Please enable it in the Addon Control Panel."] = "首領戰分析外掛套件已停用! 請在插件控制台內將它載入/啟用。"
+
+L["Encounter endurance per player (who's dying more), deaths timeline by enemy spells and regular death logs."] = "每位玩家的首領戰存活率 (誰死比較多次)、敵方技能的死亡時間軸和一般的死亡記錄。"
+
+L["Enemy Team Damage"] = "敵方隊伍傷害"
+
+L["Enemy Team Healing"] = "敵方隊伍治療"
+
+L["Energy resources are mana, rage, energy, runic power, and others."] = "能量資源包含法力、怒氣、能量、符能，以及其他。"
+
+L["Event Tracker"] = "事件追蹤"
+
+L["Event:"] = "事件:"
+
+L["Example: Elemental Potion of Power."] = "例如: 元素力量藥水"
+
+L["Example: Healthstone."] = "例如: 治療石"
+
+L["Example: Incapacitaion Roar."] = "例如: 癱瘓咆哮。"
+
+L["Example: Invisibility Potion."] = "例如: 隱形藥水"
+
+L["Example: druid roar."] = "例如: 德魯伊的奔竄咆嘯。"
+
+L["Example: druid tranquility."] = "例如: 德魯伊的寧靜。"
+
+L["Example: mage ice block."] = "例如: 法師的冰箱。"
+
+L["Example: priest pain suppression."] = "例如: 牧師的痛苦鎮壓。"
+
+L["Example: priest power infusion."] = "例如: 牧師的能量注入。"
+
+L["Example: rogue kick."] = "例如: 盜賊的腳踢。"
+
+L["Examples:\nBlessing of Sacrifice, Ironbark, Life Cocoon, Pain Suppression"] = "例如:\nBlessing of Sacrifice, Ironbark, Life Cocoon, Pain Suppression"
+
+L["Examples:\nIce Block, Dispersion, Cloak of Shadows, Shield Wall "] = "例如:\nIce Block, Dispersion, Cloak of Shadows, Shield Wall "
+
+L["Examples:\nPower Infusion, Ice Veins, Combustion, Adrenaline Rush"] = "例如:\nPower Infusion, Ice Veins, Combustion, Adrenaline Rush"
+
+L["Examples:\nPower Word: Barrier, Spirit Link Totem, Tranquility, Anti-Magic Zone"] = "例如:\nPower Word: Barrier, Spirit Link Totem, Tranquility, Anti-Magic Zone"
+
+L["Examples:\nStampeding Roar, Leap of Faith"] = "例如:\nStampeding Roar, Leap of Faith"
+
+L["Expand"] = "展開"
+
+L["Export"] = "匯出"
+
+L["Export Text"] = "匯出文字"
+
+L["Faction Icon Size Offset"] = "陣營圖示大小"
+
+L["Failed to load a Details! window.\n/reload or reboot the game client may fix the problem.\nIf the problem persist, try /details reinstall.\nError: "] = "Details! 視窗載入失敗。\n重新載入介面或重新啟動遊戲程式或許可以修正問題。\n如果問題仍然無法解決，請輸入 /details reinstall 來重新安裝。\n錯誤: "
+
+L["Failled to load statistics, Details! Storage is disabled?"] = "無法載入統計資料，Details! Storage 是否被停用?"
+
+L["Fine tune the size of the window while embeded in the chat."] = "嵌入到聊天視窗內時，微調視窗的大小。"
+
+L["Font Color"] = "文字顏色"
+
+L["Font Face"] = "字體"
+
+L["Font Shadow"] = "文字陰影"
+
+L["Font Size"] = "文字大小"
+
+L["Force apply profile: "] = "強制套用設定檔: "
+
+L["Frame Settings:"] = "框架設定:"
+
+L["Frame Strata"] = "框架層級"
+
+L["Framework for Details! isn't loaded.\nIf you just updated the addon, please reboot the game client.\nWe apologize for the inconvenience and thank you for your comprehension."] = "Details! 的程式框架沒有載入。\n如果剛剛更新了插件，請重新啟動遊戲程式。\n對於給您帶來的不便，我們深表歉意，並感謝您的理解。"
+
+L["Friendly Fire"] = "誤傷"
+
+L["Full Absorbs:"] = "完全吸收:"
+
+L["General Settings"] = "一般設定"
+
+L["Good news everyone!\nA new version has been forged and is waiting to be looted."] = "好消息!\n新版本已經製作完成，正在等你下載回去。"
+
+L["GradientEffect() end function error:"] = "GradientEffect() end 函數錯誤:"
+
+L["Group Frames"] = "將框架組成群組"
+
+L["Group Pet Names Under a Pet Spell Bar"] = "寵物法術列的寵物名稱組成群組"
+
+L["Group Pet Spells Under a Pet Name Bar"] = "寵物名稱列的寵物法術組成群組"
+
+L["Group Pet Spells:"] = "群組寵物法術:"
+
+L["Group Pets By Name"] = "依名稱群組寵物"
+
+L["Group Pets By Spell"] = "依法術群組寵物"
+
+L["Group Player Spells With Same Name"] = "名稱相同的玩家法術組成群組"
+
+L["Group Player Spells:"] = "群組玩家法術:"
+
+L["Group spells casted by players which has the same name"] = "將玩家所施放、相同名稱的法術群組在一起。"
+
+L["HIGH"] = "高"
+
+L["Heal"] = "治療"
+
+L["Heal Absorbed"] = "吸收治療"
+
+L["Healer"] = "治療者"
+
+L["Healers"] = "治療者"
+
+L["Healing"] = "治療"
+
+L["Height"] = "高度"
+
+L["Height Offset"] = "高度調整"
+
+L["Hello There plugin developer!"] = "外掛套件開發者你好!"
+
+L["Hide Yellow Helptips"] = "隱藏黃色說明提示"
+
+L["Hits Amount"] = "擊中次數"
+
+L["Hunter Track Pet Frenzy"] = "獵人追蹤寵物狂暴"
+
+L["Icon"] = "圖示"
+
+L["Icon Set"] = "圖示風格"
+
+L["Icon Size Offset"] = "圖示大小"
+
+L["If Enabled and while in combat, show the damage done of the latest 5 seconds divided by 5."] = "啟用時，戰鬥中會顯示最近 5 秒內造成的傷害除以 5。"
+
+L["If Enabled, players dealing more real time DPS are place above other players in the window."] = "啟用時，即時 DPS 較高的玩家會排在其他玩家上方。"
+
+L["If Enabled, real time DPS is always used in arenas, even if the option above is disabled."] = "啟用時，就算停用上方的選項，競技場也會永遠使用即時 DPS。"
+
+L["Immersion"] = "沉浸式體驗"
+
+L["Import"] = "匯入"
+
+L["Import String:"] = "匯入文字字串:"
+
+L["Inner Bottom"] = "內下"
+
+L["Inner Left"] = "內左"
+
+L["Inner Right"] = "內右"
+
+L["Inner Top"] = "內上"
+
+L["Install"] = "安裝"
+
+L["InstallPlugin parameter 1 (plugin type) not especified"] = "InstallPlugin 參數 1 (外掛套件類型) 尚未指定"
+
+L["InstallPlugin parameter 2 (plugin name) can't be nil"] = "InstallPlugin 參數 2 (外掛套件名稱) 不可以是空的"
+
+L["InstallPlugin parameter 3 (plugin icon) can't be nil"] = "InstallPlugin 參數 3 (外掛套件圖示) 不可以是空的"
+
+L["InstallPlugin parameter 4 (plugin object) can't be nil"] = "InstallPlugin 參數 4 (外掛套件物件) 不可以是空的"
+
+L["InstallPlugin parameter 5 (plugin absolut name) can't be nil"] = "InstallPlugin 參數 4 (外掛套件絕對名稱) 不可以是空的"
+
+L["Interrupt"] = "斷法"
+
+L["Interrupt Cooldowns"] = "斷法冷卻"
+
+L["Invert Death Log (M+)"] = "反向死亡記錄 (M+)"
+
+L["Invert Death Log (Overall Data)"] = "反向死亡記錄 (整場資料)"
+
+L["Invert Death Log (Raid)"] = "反向死亡記錄 (團隊)"
+
+L["Is Locked"] = "鎖定"
+
+L["Item Level:"] = "裝等:"
+
+L["Item level dispatched."] = "已發送裝等。"
+
+L["Item: Healing"] = "物品: 治療"
+
+L["Item: Power Increase"] = "物品: 提升能力"
+
+L["Item: Utility"] = "物品: 工具"
+
+L["Keep Best Performance (boss wipes)"] = "保留最佳表現 (首領滅團)"
+
+L["Keep the segments with more progress in the boss health and delete the ones with less progress."] = "保留首領戰進度較佳 (首領血量較少) 的戰鬥記錄，刪除進度較差的戰鬥記錄。"
+
+L["LOW"] = "低"
+
+L["Last Cast"] = "上次施放"
+
+L["Left"] = "左"
+
+L["Level"] = "等級"
+
+L["Level 1 Average: "] = "等級 1 平均: "
+
+L["Level 2 Average: "] = "等級 2 平均: "
+
+L["Level 3 Average: "] = "等級 3 平均: "
+
+L["Level 4 Average: "] = "等級 4 平均: "
+
+L["Level 5 Average: "] = "等級 5 平均: "
+
+L["Life Percent"] = "生命百分比"
+
+L["Light blue, this skin fits on almost all interfaces.\n\nFor ElvUI interfaces, change the window color to black to get an compatible visual."] = "淺藍色，這個外觀幾乎能夠搭配所有的介面。\n\n使用 ElvUI 介面時，只要將視窗顏色改為黑色，便能夠有一致的視覺效果。"
+
+L["Line Color"] = "線條顏色"
+
+L["Line Height"] = "線條高度"
+
+L["Line Settings:"] = "線條設定:"
+
+L["Line Texture"] = "線條材質"
+
+L["Lines Per Column"] = "各自獨立一行"
+
+L["Load Your Image"] = "載入你的圖片"
+
+L["Lock"] = "鎖定"
+
+L["Lock Frame"] = "鎖定框架"
+
+L["Locked"] = "鎖定"
+
+L["Low is faster"] = "愈低愈快"
+
+L["M+ Score:"] = "M+ 分數:"
+
+L["MEDIUM"] = "中"
+
+L["Macros"] = "巨集"
+
+L["Make a window be 450 pixel height, pressing the macro again toggle back to the original size. The number '1' if the window number. Hold a click in any window to show their number."] = "將視窗高度調整成 450 像素，再次按下巨集會恢復成原本的大小。數字 '1' 是視窗編號，在任何視窗上按住滑鼠左鍵不放都可以看到視窗編號。"
+
+L["Make a window show different data. SetDisplay uses (segment, displayGroup, displayID), the menu from the sword icon is in order (damage = group 1, overheal is: displayGroup 2 displayID 3."] = "讓視窗顯示不同的資料，SetDisplay 的用法為 (戰鬥記錄, 顯示群組, 顯示 ID)，劍形圖示選單的順序為 (傷害 = 群組 1，過量治療是: 顯示群組 2 顯示 ID 3)。"
+
+L["Melee"] = "近戰"
+
+L["Merge Critical Heals"] = "合併爆擊治療"
+
+L["Merge Ring Gems 11.0.7"] = "合併戒指寶石 10.0.7"
+
+L["Merges spells like Atonement and Awakened Faeline with their critical damage component."] = "合併像是贖罪和覺醒靈脈這類法術的致命一擊傷害。"
+
+L["Modify the Blizzard's Death Recap screen."] = "修改遊戲內建的死亡回顧畫面。"
+
+L["Move-Me"] = "移動這裡"
+
+L["Mythic Dungeon"] = "傳奇地城"
+
+L["Mythic Dungeons"] = "傳奇地城"
+
+L["NONE"] = "無"
+
 L["New expansion detected, clearing data..."] = "偵測到新資料片，清空資料..."
 
--- 函式庫：更改字體大小、少部分翻譯
--- Libs\DF\buildmenu.lua
--- Libs\DF\button.lua
--- Libs\DF\cooltip.lua
--- Libs\DF\dropdown.lua
--- Libs\DF\fw.lua
--- Libs\DF\languages.lua
--- Libs\DF\panel.lua
--- Libs\DF\slider.lua
--- Libs\DF\tabcontainer.lua
+L["No Absorption:"] = "沒有吸收:"
 
--- 外掛套件
--- Details_AdvancedPlayerBreakdown.lua
-L["Enhance the player breakdown window."] = "增強玩家詳細分析視窗的功能。"
-L["Utility"] = "功用"
-L["Cooldowns"] = "冷卻"
-L["Interrupts"] = "斷法"
--- L["Dispels"] = "驅散" -- 前面已有
-L["Regen Overflow"] = "能量溢出"
-L["Energy generated by this ability. The value in red is wasted energy (generated after the character is already with full energy)"] = "這個技能產生的能量，紅色的數值是浪費的能量 (角色的能量全滿後產生的)"
-L["Amount of energy wasted on auto regen because the character was sitting on full energy."] = "角色在能量全滿狀態時，自動產生能量浪費掉的值。"
-L["Resources"] = "能量"
-L["Deaths"] = "死亡"
-L["Death #"] = "死亡 #"
-L["Crowd Control"] = "控場"
-L["Casts:"] = "唱法:"
-L["Hits:"] = "命中:"
-L["Average:"] = "平均:"
-L["Critical:"] = "致命一擊:"
-L["Uptime:"] = "覆蓋時間:"
-L["m"] = " 分"
--- L["S"] = " 秒" -- 前面已有
-L["Compare2"] = "比較 2"
-L["Damage Done"] = "輸出傷害"
--- L["Casts"] = "唱法" -- 前面已有
-L["Avg Cast"] = "平均唱法"
-L["Hits"] = "命中"
-L["Avg Hit"] = "平均命中"
-L["Crit %"] = "致命 %"
-L["Uptime %"] = "覆蓋 %"
-L["Miss %"] = "未擊中 %"
-L["Dps"] = "DPS"
-L["Spells Used:"] = "使用的法術:"
-L["Spell Breakdown"] = "法術分析"
-L["Advanced Player Breakdown"] = "進階玩家詳細分析"
+L["No Target"] = "無目標"
 
--- Details_Compare2.lua
--- 要加上 local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
-L["Replaces the default comparison window on the player breakdown."] = "取代玩家分析中預設的比較視窗。"
--- L["Casts:"] -- 這些前面已有
--- L["Hits:"]
--- L["Average:"]
--- L["Critical:"]
--- L["Uptime:"]
--- L["m "]
--- L["s"]
-L["Compare"] = "比較"
-L["Compare 2.0"] = "比較 2.0"
-L["Compare Same Spec"]  = "比較相同專精"
-L["Compare Segments"] = "比較戰鬥記錄"
+L["No survey at the moment."] = "目前沒有內容。"
 
--- Details_CastHistory.lua
-L["Show a time line of casts of players"] = "顯示玩家的施法時間軸。"
-L["Cast Timeline (New Plugin Pls Test)"] = "施法時間軸"
-L["Time:"] = "時間:"
-L["Duration:"] = "持續時間:"
-L["Target:"] = "目標:"
-L["SpellId:"] = "法術 ID:"
-L["scroll"] = "捲動"
-L["zoom"] = "縮放"
-L["Cast History"] = "施法歷史記錄"
+L["None"] = "無"
 
--- Details_RaidCheck.lua
--- L["Details! Team"] = "Details! 團隊" -- 前面已有
+L["Not Installed"] = "未安裝"
+
+L["NumSystem override is now:"] = "數字系統取代，現在是:"
+
+L["Offensive CD"] = "防禦冷卻"
+
+L["Offensive Cooldowns"] = "攻擊冷卻"
+
+L["Offset"] = "偏移位置"
+
+L["Okay"] = "確定"
+
+L["On Enter Combat"] = "進入戰鬥"
+
+L["On Enter/Leave Group"] = "加入/離開隊伍"
+
+L["On Initialization"] = "初始化"
+
+L["On Leave Combat"] = "離開戰鬥"
+
+L["On Spec Change"] = "改變專精"
+
+L["On Zone Changed"] = "改變區域"
+
+L["Only Inside Instances"] = "只有在副本內"
+
+L["Only You"] = "只有你"
+
+L["Only in Group"] = "只有在隊伍中時"
+
+L["Open Damage per Phase"] = "打開每個階段的傷害"
+
+L["Open Encounter Breakdown"] = "打開首領戰分析"
+
+L["Open Player Endurance Breakdown"] = "打開玩家存活率分析"
+
+L["Open the encounter breakdown plugin in the phase tab. Details! Encounter Breakdown (plugin) must be enabled."] = "打開首領戰分析外掛套件並且顯示階段標籤頁面。必須先載入/啟用 Details! 首領戰分析 (外掛套件)。"
+
+L["Open the encounter breakdown plugin. Details! Encounter Breakdown (plugin) must be enabled."] = "打開首領戰分析外掛套件。必須先載入/啟用 Details! 首領戰分析 (外掛套件)。"
+
+L["Open your player Details! breakdown."] = "打開 Details! 玩家分析。"
+
+L["Options"] = "選項"
+
+L["Order Bars By Real Time DPS"] = "計量條依即時 DPS 排序"
+
+L["Our thoughts strayed constantly\nAnd without boundary\nThe ringing of the division bell had began."] = "我們的思想不斷地錯開\n，超越無極限\n，分裂的鐘聲已經響起。"
+
+L["Outline"] = "外框"
+
+L["Outline Color"] = "外框顏色"
+
+L["Overheal"] = "過量治療"
+
+L["Overlay:"] = "覆蓋:"
+
+L["Parry:"] = "架招:"
+
+L["Parser Event Error -> Set to 16 DeathLogs and /reload"] = "分析器事件錯誤 -> 請將死亡記錄設為 16 然後重新載入介面 /reload"
+
+L["Parser Options:"] = "分析選項:"
+
+L["Partially Absorbed:"] = "部分吸收"
+
+L["Paste & Copy"] = "複製 & 貼上"
+
+L["Payload (Points)"] = "有效載荷 (點數)"
+
+L["Per Second"] = "每秒"
+
+L["Per Second:"] = "每秒:"
+
+L["Percent values are comparisons with the previous try."] = "百分比數值是和前一場戰鬥的比較。"
+
+L["Personal CD"] = "個人冷卻"
+
+L["Phase Changed!"] = "改階段了!"
+
+L["Plater Nameplates"] = "Plater 血條"
+
+L["Plater Nameplates Integration"] = "Plater 血條插件整合"
+
+L["Plater isn't installed! you may download it from the Curseforge app."] = "Plater 血條插件尚未安裝! 可以從 CurseForge 網站或使用 Curseforge app 下載。"
+
+L["Player 1"] = "玩家 1"
+
+L["Player 1 %"] = "玩家 1 %"
+
+L["Player 2"] = "玩家 2"
+
+L["Player 3"] = "玩家 3"
+
+L["Player Endurance"] = "玩家存活率"
+
 L["Player Name"] = "玩家名字"
-L["Talents"] = "天賦"
-L["Item Level"] = "裝等"
-L["Repair"] = "修裝"
-L["Food"] = "食物"
-L["Flask"] = "精煉"
-L["Rune"] = "符文"
-L["M+ Score"] = "M+ 分數"
-L["Pre-Pot Last Try"] = "上次有偷爆發"
-L["Using Details!"] = "使用 Details!"
-L["Report No Food/Flask"] = "報告沒有食物/精煉"
-L["Report No Pre-Pot"] = "報告沒有偷爆發藥水"
-L["Report No Rune"] = "報告沒有符文"
-L["Shift+Click: Options"] = "Shift+左鍵: 設定選項"
-L["Receives dynamic updates from other Details! users when they change talents and gear"] = "其他 Details! 使用者更改天賦和裝備時，會收到動態更新。"
-L["Details!: No Flask or Food: "] = "Details!: 沒有精煉或食物: "
-L["Details!: No Pre-Pot Last Try: "] = "Details!: 上次沒有偷爆發藥水: "
-L["Details!: Not using Rune: "] = "Details!: 沒有使用符文: "
-L["Details! Raid Check Options"] = "Details! 團隊檢查設定選項"
-L["General Settings:"] = "一般設定:"
-L["Track Healers Pre Pot"] = "追蹤治療偷爆發藥水"
-L["If enabled, pre potion for healers are also shown."] = "啟用時，偷爆發藥水也會顯示補師。"
-L["Track Tank Pre Pot"] = "追蹤坦克偷爆發藥水"
-L["If enabled, pre potion for tanks are also shown."] = "啟用時，偷爆發藥水也會顯示坦克。"
-L["Mythic 1-4 Group Only"] = "傳奇只檢查 1-4 隊"
-L["When raiding on Mythic difficult, only check the first 4 groups."] = "打傳奇難度的團本時，只檢查前 4 個隊伍。"
-L["Food Level Tracking:"] = "食物等級追蹤:"
-L["Food Tier 1 [41]"] = "T1 食物 [41]"
-L["Consider players using Tier 1 food."] = "玩家使用 T1 食物。"
-L["Food Tier 2 [55]"] = "T2 食物 [55]"
-L["Consider players using Tier 2 food."] = "玩家使用 T2 食物。"
-L["Food Tier 3 [>= 75]"] = "T3 食物 [>= 75]"
-L["Consider players using Tier 3 food."] = "玩家使用 T3 食物。"
-L["total lines:"] = "總行數:"
 
--- Details_Streamer.lua
--- L["Background"] = "背景" -- 前面已有
--- L["Low"] = "低"
--- L["Medium"] = "中"
--- L["High"] = "高"
--- L["Dialog"] = "對話框 (最高)"
--- L["Details! Team"] = "Details! 團隊"
-L["Details! Streamer: Action Tracker"] = "Details! 直播工具: 技能追蹤"
-L["|cFFFF7700Left Click|r: Open Options\n|cFFFF7700Right Click|r: Lock the Frame\n|cFFFF7700Slash Command|r: /streamer"] = "|cFFFF7700左鍵|r: 設定選項\n|cFFFF7700右鍵|r: 鎖定框架\n|cFFFF7700指令|r: /streamer"
-L["|cFFFF7700Left Click|r: Open Options\n|cFFFF7700Slash Command|r: /streamer"] = "|cFFFF7700左鍵|r: 設定選項\n|cFFFF7700指令|r: /streamer"
-L["Locked"] = "鎖定"
-L["Can't move or interact within the frame when it's locked."] = "鎖定時無法移動框架，也無法與之互動。"
-L["Color used on the background."] = "背景使用的顏色。"
--- L["Background Color"] = "背景顏色" -- 前面已有
-L["How hight is each bar."] = "每一條的高度。"
-L["Bar Height"] = "技能條高度"
-L["How much space each bar use."] = "每一條之間的距離。"
-L["Bar Space"] = "技能條間距"
-L["Which texture is used on bars."] = "技能條使用哪種材質。"
-L["Bar Texture"] = "技能條材質"
--- L["Bar Color"] = "技能條顏色" -- 前面已有
-L["The size of the text."] = "文字的大小。"
--- L["Text Size"] = "文字大小" -- 前面已有
-L["Font used on texts."] = "文字使用的字體。"
-L["Text Font"] = "文字字體"
-L["Color used on texts."] = "文字使用的顏色。"
--- L["Text Color"] = "文字顏色" -- 前面已有
-L["Show Dps/Hps"] = "顯示 DPS/HPS"
-L["Show in the screen your current Dps or Hps."] = "在畫面上顯示你目前的 DPS 或 HPS。"
-L["Show DPS or HPS."] = "顯示 DPS 或 HPS。"
-L["Show"] = "顯示"
-L["Dps/Hps Text Size"] = "DPS/HPS 文字大小"
-L["Dps/Hps Scale"] = "DPS/HPS 縮放大小"
-L["How fast the frame get updated."] = "更新速度要多快。"
-L["Dps/Hps Update Speed"] = "DPS/HPS 更新速度"
-L["Dps/Hps Text Shadow"] = "DPS/HPS 文字陰影"
-L["Enable text shadow."] = "啟用文字陰影。"
-L["Minimap Icon"] = "小地圖按鈕"
-L["Show/Hide minimap icon."]= "顯示/隱藏小地圖按鈕。"
-L["The icon used on the middle of the bar"] = "技能條中間使用的圖示。"
-L["Arrow Icon"] = "箭頭圖示"
-L["The size of the arrow."] = "箭頭的大小。"
-L["Arrow Size"] = "箭頭大小"
-L["The color used on the arrow."] = "箭頭使用的顏色。"
-L["Arrow Color"] = "箭頭顏色"
-L["Adjust the arrow positioning on X axis."] = "調整箭頭在水平方向的位置。"
-L["Arrow Anchor X"] = "箭頭水平對齊"
-L["Adjust the arrow positioning on Y axis."] = "調整箭頭在垂直方向的位置。"
-L["Arrow Anchor Y"] = "箭頭垂直對齊"
-L["Adjust the window width."] = "調整視窗寬度。"
-L["Window Width"] = "視窗寬度"
-L["Adjust the window height."] = "調整視窗高度。"
-L["Window Height"] = "視窗高度"
-L["How high the frame is placed in your interface, high values makes it be shown above backpack, talents frame, etc."] = "視窗要在使用者介面的前面或後面。較高的值會讓視窗顯示在背包、天賦視窗...的前面。"
-L["Window Strata"] = "框架層級"
-L["Show Spark"] = "顯示亮點"
-L["Show or hide the spark at bars"] = "顯示或隱藏技能條的亮點"
-L["Profile"] = "設定檔"
-L["New Profiile"] = "新增設定檔"
-L["Show in real time the spells you are casting.\n\nThe viewer can now follow what you are doing, what spells you are casting, learn your rotation.\n\nAlso tells who is the target and its class/spec on raiding or role if you are in arena.\n\nWhen you die, the panel is filled with your death log."] = "即時顯示你正在施放的技能。\n\n讓觀眾能夠知道你正在做什麼、施放什麼技能、學習你的迴圈。\n\n也能看到你的目標是誰、打團的職業/專精或是在技競場中擔任的角色。\n\n當你死亡時，面板中會顯示出你的死亡記錄。"
-L["|cFFFF7700Left Click|r: open options."] = "|cFFFF7700左鍵|r: 打開設定選項。"
-L["|cFFFF7700Right Click|r: hide this icon."] = "|cFFFF7700右鍵|r: 隱藏這個圖示。"
--- L["Action Tracker"] = "技能追蹤"
-L["Details!: Action Tracker (plugin)"] = "Details! 技能追蹤 (外掛套件)"
-L["If you are a Streamer or Youtuber, you might want to take a look at the Details! Action Tracker plugin."] = "如果你是實況主或 Youtuber，可能會想要看看 Details! 技能追蹤外掛套件。"
-L["Go to Options Panel -> Plugin Management and enable the Action Tracker plugin."] = "請到設定選項 > 外掛套件管理，啟用技能追蹤外掛套件。"
-L["Details!: Action Tracker"] = "Details! 技能追蹤"
-L["Use Square Mode"] = "使用方格模式"
-L["You need to /reload after change."] = "更改後必須重新載入介面。"
-L["Square Amount"] = "方格數量"
-L["Square Size"] = "方格大小"
-L["Square Direction"] = "方格方向"
-L["Disable Plugin"] = "停用外掛"
-L["Enable Plugin"] = "啟用外掛"
-L["Start Plugin"] = "啟動外掛"
-L["Scale"] = "縮放大小"
-L["Select Mode (test casting some spells)"] = "選擇呈現模式 (施放些法術來測試)"
+L["Player endurance is calculated using the amount of player deaths."] = "玩家存活率是依據玩家死亡次數計算的。"
 
--- Details_Vanguard.lua
-L["Show debuffs on each tanks in the raid, also shows incoming heal and damage and the last hits you took."] = "顯示團隊中每個坦克的減益，同時也會顯示即將治療、傷害和最後承受的攻擊。"
-L["Welcome to Vanguard!\n\n\n- The green-left bar represents the incoming healing plus absorbs on the tank.\n\n- The red-right show the incoming damage.\n\n- Tanks health bar and debuffs on them are shown in the bottom side.\n\n- Click anywhere to show options."] = "歡迎使用坦克 Vanguard!\n\n\n- 左側的綠條代表坦克即將受到的治療和吸收。\n\n- 右側的紅條顯示即將受到的傷害。\n\n- 坦克血量條和減益效果會顯示在下方。\n\n- 在任何地方點一下顯示設定選項。"
-L["Vanguard Options"] = "坦克設定選項"
-L["Texture"] = "材質"
-L["Show Incoming Damage"] = "顯示即將傷害"
-L["Incoming Damage Height"] = "即將傷害條高度"
-L["Show Health Bar"] = "顯示血量條"
-L["Show Cast Bar"] = "顯示施法條"
-L["Show Power Bar"] = "顯示能量條"
-L["Health Bar Width"] = "血量條寬度"
-L["Health Bar Height"] = "血量條高度"
-L["Cast Bar Height"] = "施法條高度"
-L["Power Bar Height"] = "能量條高度"
-L["Health Bar Background Color"] = "血量條背景顏色"
-L["Debuff Y Offset"] = "減益水平位置"
-L["Debuff Text Size"] = "減益文字大小"
-L["Vanguard"] = "坦克"
+L["Player not found."] = "沒有找到玩家。"
+
+L["Please make sure you are declaring"] = "請確保你的外掛套件物件"
+
+L["Plugin not found."] = "無法找到外掛套件。"
+
+L["Plugins"] = "外掛套件"
+
+L["Profile Not Found."] = "沒有找到設定檔。"
+
+L["Quick Player Info Detection"] = "快速偵測玩家資訊"
+
+L["Racial"] = "種族"
+
+L["Raid CD"] = "團隊冷卻"
+
+L["Raid Power Bars"] = "團隊能量條"
+
+L["Raid or Party Group"] = "團隊或小隊"
+
+L["Real Time"] = "即時"
+
+L["Real Time Group DPS"] = "隊伍即時 DPS"
+
+L["Realm"] = "伺服器"
+
+L["Record Energy Resources"] = "記錄能量資源"
+
+L["Record Tank Avoidance"] = "記錄坦克減傷"
+
+L["Record tank avoidance, this information is used in the Avoidance tank for tanks."] = "記錄坦克的閃躲招架等減傷，這資訊會用在坦克的減傷面板。"
+
+L["Regular Details! skin but with a dark theme."] = "一般的 Details! 外觀，但是深色主題。"
+
+L["Relevance Time"] = "緊要時刻"
+
+L["Remove Battleground Segments"] = "移除戰場戰鬥記錄"
+
+L["Remove Common Segments"] = "移除一般戰鬥記錄"
+
+L["Remove Custom Texture"] = "移除自訂材質"
+
+L["Report What is Shown In the Window"] = "報告視窗顯示內容"
+
+L["Report the current data shown in the window, the number 1 is the window number, replace it to report another window."] = "報告目前在視窗中顯示的資料是什麼，數字 '1' 是視窗編號，更改編號便能報告另一個視窗。"
+
+L["Reset"] = "重置"
+
+L["Reset Custom Skin"] = "重置自訂外觀"
+
+L["Reset Data"] = "重置資料"
+
+L["Reset Nickname"] = "重置暱稱"
+
+L["Reset Settings"] = "重置設定"
+
+L["Reset the overall and regular segments data. Use 'ResetSegmentOverallData' to reset only the overall."] = "重置整場和一般的戰鬥記錄資料。使用 'ResetSegmentOverallData' 可以只重置整場資料。"
+
+L["Reset, but keep Mythic+ Overall Segments"] = "重置，但是保留 M+ 整場戰鬥記錄"
+
+L["Right"] = "右"
+
+L["Right Chat Panel isn't shown."] = "沒有顯示出右側聊天面板。"
+
+L["Row's Area Border"] = "計量條區域邊框"
+
+L["Run Time:"] = "通關時間:"
+
+L["Run code when Details! initialize or when a profile is changed."] = "Details! 初始化或變更設定檔時執行的程式碼。"
+
+L["Run code when the player enters in combat."] = "玩家進入戰鬥時執行的程式碼。"
+
+L["Run code when the player has changed its specialization."] = "玩家更改專精時執行的程式碼。"
+
+L["Run code when the player has entered or left a party or raid group."] = "玩家加入或離開隊伍或團隊時執行的程式碼。"
+
+L["Run code when the player left combat."] = "玩家離開戰鬥時執行的程式碼。"
+
+L["Run code when the zone where the player is in has changed (e.g. entered in a raid)."] = "玩家所在的區域變更時執行的程式碼 (例如進入副本)。"
+
+L["Same as the first Minimalistic, but this one is more darker and less transparent."] = "和第一個 Minimalistic 相同，但這個更暗、更不透明。"
+
+L["Save"] = "儲存"
+
+L["Save Code"] = "儲存程式碼"
+
+L["Scroll Options"] = "捲動選項"
+
+L["Search Results"] = "搜尋結果"
+
+L["Search for matches in all characters which is part of your party or raid group."] = "在團隊或小隊中的所有角色裡面搜尋符合條件。"
+
+L["Search for matches in all characters."] = "在所有角色裡面搜尋符合條件。"
+
+L["Search for matches only in your character."] = "只在你的角色搜尋符合條件。"
+
+L["See how much damage the enemy is taking in real time!"] = "立馬知道敵人受到多少傷害!"
+
+L["Segment List"] = "戰鬥記錄列表"
+
+L["Segments Boss Wipe"] = "滅團戰鬥記錄"
+
+L["Segments:"] = "戰鬥記錄:"
+
+L["Select Player"] = "選擇玩家"
+
+L["Select Profile"] = "選擇設定檔"
+
+L["Select Segment"] = "選擇戰鬥記錄"
+
+L["Self Healing:"] = "自己治療:"
+
+L["Selling"] = "賣出"
+
+L["SetUserCustomSkinFile() file must be a string."] = "SetUserCustomSkinFile() 必須是文字檔案。"
+
+L["SetUserCustomSkinFile() file must be only the file name (with out up folders) and slashes."] = "SetUserCustomSkinFile() 只能有檔案名稱 (不包含上一層資料夾) 和斜線。"
+
+L["Settings reseted to default."] = "設定已重置成預設值。"
+
+L["Shadow Color"] = "陰影顏色"
+
+L["Shadowy Title Bar"] = "標題列顯示陰影"
+
+L["Show 'Real Time' DPS"] = "顯示即時 DPS"
+
+L["Show Arena Role Icon"] = "顯示競技場角色職責圖示"
+
+L["Show Augmentation Extra Bar"] = "顯示額外的強化計量條"
+
+L["Show Border"] = "顯示邊框"
+
+L["Show Boss"] = "顯示首領"
+
+L["Show Breakdown"] = "顯示分析"
+
+L["Show Crowd Control (Arena & BG)"] = "顯示控場 (競技場 & 戰場)"
+
+L["Show Crowd Control (Dungeon & Raid)"] = "顯示控場 (地城 & 團隊)"
+
+L["Show Crowd Control when inside a PvE zone"] = "在 PvE 區域時顯示控場"
+
+L["Show Crowd Control when inside a PvP zone"] = "在 PvP 區域時顯示控場"
+
+L["Show Death Menu"] = "顯示死亡選單"
+
+L["Show Faction Icon"] = "顯示陣營圖示"
+
+L["Show Real Time DPS on the nameplate.\n\nReal time DPS is how much damage has been inflicted to the unit in the last 5 seconds."] = "在血條上顯示即時 DPS。\n\n即時 DPS 是最近 5 秒內對單位造成的傷害。"
+
+L["Show Real Time DPS you are currently applying in the unit.\n\nReal time DPS is how much damage has been inflicted to the unit in the last 5 seconds."] = "在血條上顯示你目前對該單位的即時 DPS。\n\n即時 DPS 是最近 5 秒內對單位造成的傷害。"
+
+L["Show Real Time Dps"] = "顯示即時 DPS"
+
+L["Show Real Time Dps (From You)"] = "顯示即時 DPS (你自己的)"
+
+L["Show Rounded Border"] = "顯示圓角邊框"
+
+L["Show Title"] = "顯示標題"
+
+L["Show Total Damage Taken"] = "顯示總共承受傷害"
+
+L["Show a bar which grows to the side of the team doing most damage in the last 5 seconds."] = "最近 5 秒內輸出最高的隊伍計量條最長"
+
+L["Show a list of the latest segments in case you want to see recaps from previous fights."] = "顯示最後幾場戰鬥記錄，方便回顧之前的戰鬥。"
+
+L["Show a panel below the Release / Death Recap panel with some shortcuts for Raid Leaders."] = "在釋放靈魂/死亡回顧的面板下方顯示供團隊隊長使用的快捷功能。"
+
+L["Show a panel with:"] = "顯示面板包含:"
+
+L["Show pets when solo"] = "單人時顯示寵物"
+
+L["Show raid damage done to an entity since you targetted it."] = "顯示自從你將它選取為目標後，團隊對此目標造成的傷害。"
+
+L["Show the percent of life the player had when received the hit."] = "顯示玩家受到傷害時的生命值百分比。"
+
+L["Show the spells you are casting, allowing the viewer to follow your decision making and learn your rotation."] = "顯示你正在施放的法術，讓觀眾能夠了解你的決策和學習你的輸出迴圈。"
+
+L["Show the total damage taken by the unit"] = "顯示單位的總共承受傷害。"
+
+L["Show what's happening near you so the viewer can follow what's going on. Show cooldowns, CC, spell interruption. Useful on any group content."] = "顯示你附近發生的事情，以便讓觀眾可以知道。顯示冷卻時間、控場、斷法，對任何種類的隊伍都會很有幫助。"
+
+L["Simple skin with soft gray color and half transparent frames."] = "極簡外觀，有著柔和的灰色和半透明的框架。"
+
+L["Slightly move the text horizontally."] = "在水平方向稍微移動文字。"
+
+L["Slightly move the text vertically."] = "在垂直方向稍微移動文字。"
+
+L["Specialization"] = "專精"
+
+L["Specialization Alpha"] = "專精 (透明)"
+
+L["Specific Character"] = "指定角色"
+
+L["Speed"] = "速度"
+
+L["Spell Details Block"] = "法術詳細內容區塊"
+
+L["Spell Empower Average Level: "] = "法術聚能平均等級: "
+
+L["Spell ID"] = "法術 ID"
+
+L["Spell Id"] = "法術ID"
+
+L["Spell Name"] = "法術名稱"
+
+L["Spells"] = "法術"
+
+L["Summary"] = "總結"
+
+L["Suppress Alerts"] = "不要顯示通知"
+
+L["Switch by Role In Combat"] = "戰鬥中依角色職責切換"
+
+L["Switch by Role Out of Combat"] = "非戰鬥中依角色職責切換"
+
+L["Target Caller"] = "當前目標傷害"
+
+L["Targeted CD"] = "目標冷卻"
+
+L["Test"] = "測試"
+
+L["Test Code"] = "測試執行碼"
+
+L["Text Color"] = "文字顏色"
+
+L["Text Options"] = "文字選項"
+
+L["Text Outline"] = "文字外框"
+
+L["Text Position"] = "文字位置"
+
+L["Text Settings:"] = "文字設定:"
+
+L["Text Shadow"] = "文字陰影"
+
+L["Text Size"] = "文字大小"
+
+L["Text Y Offset"] = "文字垂直位置"
+
+L["Texture which sits above the bar"] = "疊加在條列上面的材質。"
+
+L["Thank You Sir!==================="] = "感謝!==================="
+
+L["There's no more players to compare (with the same class/spec)"] = "沒有更多玩家可供比較\n(相同職業/專精)"
+
+L["Thick Outline"] = "粗外框"
+
+L["This capture belongs to a plugin and cannot be edited."] = "此資料擷取屬於外掛套件的，無法編輯。"
+
+L["This code is responsible for edit the total number shown in the player bar.\n\nThis is not necessary if you want show exactly the value gotten in the search code."] = "編輯負責在玩家計量條中顯示總計數字的程式碼。\n\n如果你只是想要顯示從搜尋程式碼中所取得的值，則不需要編輯。"
+
+L["This is a concept of a cooldown tracker using the new library 'Open Raid' which uses comms to update cooldown timers.\nThe code to implement is so small that can fit inside a weakaura\nIf you're a coder, the implementation is on Details/frames/window_cdtracker.lua"] = "這是一種新的技能冷卻追蹤概念，使用新的函式庫 'Open Raid'，透過彼此通訊來更新冷卻時間。\n程式碼非常小，小可以塞到 WA 技能提醒裡面，如果你會寫程式，寫法在 Details/frames/window_cdtracker.lua。"
+
+L["This is the 'overheal' of shields, it is calculated when a shield get replaced or removed."] = "這是護盾的 '過量治療'，在護盾被替換或移除時計算。"
+
+L["This object need to be saved before."] = "必須先儲存此物件。"
+
+L["This skin is based on ElvUI's addons, relying with black and transparent frames."] = "這個外觀是根據 ElvUI 插件所製作，主要是黑色和透明的框架。"
+
+L["This was the first skin made for Details!, inspired in the standard wow interface"] = "這是為 Details! 製作的的第一款外觀，靈感來自於魔獸的標準介面。"
+
+L["Those yellow boxes with an arrow and a text showing a text with tips."] = "那些顯示提示文字，有箭頭的黃色方框。"
+
+L["Time"] = "時間"
+
+L["Time Line"] = "時間軸"
+
+L["Time not in combat:"] = "沒有戰鬥的時間:"
+
+L["Title Bar"] = "標題列"
+
+L["To open the player details window on your character, like if you click on your bar in the damage window. The number '1' is the window number where it'll click."] = "打開玩家詳細內容視窗並顯示你自己的角色，就像你點一下傷害視窗中的計量條一樣。數字 '1' 是將要點擊的視窗編號。"
+
+L["Toggle Window Height to Max Size"] = "視窗高度切換成最大"
+
+L["Tools"] = "工具"
+
+L["Top"] = "上"
+
+L["Top Left"] = "左上"
+
+L["Top Right"] = "右上"
+
+L["Total Absorbs:"] = "總共吸收:"
+
+L["Total Casts:"] = "總共施法:"
+
+L["Total Damage Taken:"] = "總共承受傷害:"
+
+L["Total Done:"] = "總計:"
+
+L["Total Hits:"] = "總共命中:"
+
+L["Type the name of the character used to search."] = "輸入要搜尋的角色名字。"
+
+L["Unknown"] = "未知"
+
+L["Unknown Plugin"] = "未知的外掛套件"
+
+L["Uptime"] = "覆蓋時間"
+
+L["Uptime:"] = "覆蓋時間:"
+
+L["Use Different Color for You"] = "自己使用不同顏色"
+
+L["Use Dynamic Overall Damage"] = "使用動態整場傷害"
+
+L["Use Real Time Dps for Aug. Evoker"] = "強化喚能師使用即時 DPS"
+
+L["Use Real Time Dps for Augmentation Evoker"] = "強化喚能師使用即時 DPS"
+
+L["Use a different color on your own bar"] = "你自己的計量條使用不同的顏色。"
+
+L["Use an alternative title bar instead of the title bar builtin in the Skin file.\n\n|cFFFFFF00Important|r: To disable the title bar from the Skin file, go to 'Window Body' and make the 'skin color' fully transparent."] = "啟用另一種標題列，而不是外觀檔案中內建的標題列。\n\n|cFFFFFF00重要|r: 要停用外觀檔案中的標題列，請到 '視窗設定' 將 '外觀顏色' 設為完全透明。"
+
+L["User Name"] = "名字"
+
+L["Utility CD"] = "工具冷卻"
+
+L["Utility Cooldowns"] = "工具冷卻"
+
+L["Version"] = "版本"
+
+L["Very clean skin without textures and only with a black contour."] = "非常乾淨的外觀，沒有材質，只有黑色的輪廓。"
+
+L["View combat data in handsome charts."] = "用帥氣的圖表來檢視戰鬥資料。"
+
+L["View raid cooldowns usage, debuff gain, boss casts in a fancy time line."] = "用花俏的時間軸來檢視團隊冷卻的使用、獲得減益效果和首領施放技能。"
+
+L["WCL Parse"] = "WCL 階段"
+
+L["Waiting for loot"] = "等待拾取"
+
+L["What to Show"] = "要顯示什麼"
+
+L["When enabled, overall data is automatically wiped when a new arena or battleground starts."] = "啟用時，開始進行新的競技場或戰場時會自動清空整場資料。"
+
+L["When showing Damage Done Overall, swap to Dynamic Overall Damage on entering combat."] = "顯示整場輸出傷害，進入戰鬥時切換成動態整場傷害。"
+
+L["When showing a player from arena, show the role icon."] = "競技場的玩家顯示角色職責圖示。"
+
+L["When showing a player from the opposite faction, show the faction icon."] = "敵對陣營的玩家顯示敵對圖示。"
+
+L["Which side of the nameplate the text is attach to."] = "文字要對齊到血條的哪一側。"
+
+L["Width"] = "寬度"
+
+L["Width Offset"] = "寬度調整"
+
+L["Window Area Border"] = "視窗區域邊框"
+
+L["Window Control:"] = "視窗控制:"
+
+L["Wipe has been called by your raid leader."] = "RL 說要 RE 了。"
+
+L["With a function to receive the events like bellow:"] = "並且包含用來接收事件的函數，例如:"
+
+L["Wow combatlog record turned OFF."] = "魔獸戰鬥記錄已關閉。"
+
+L["Wow combatlog record turned ON."] = "魔獸戰鬥記錄已開啟。"
+
+L["Your Bar Color"] = "自己的計量條顏色"
+
+L["Your Self"] = "自己"
+
+L["Your Team Damage"] = "我方隊伍傷害"
+
+L["Your Team Healing"] = "我方隊伍治療"
+
+L["[*] Unknown shield target"] = "[*] 未知的護盾目標"
+
+L["a /reload might be needed to disable this setting."] = "停用此設定需要重新載入介面 /reload。"
+
+L["absorbed"] = "吸收治療"
+
+L["actor table not found"] = "無法找到玩家表格"
+
+L["actor table: "] = "玩家表格: "
+
+L["actors found."] = "個玩家已找到。"
+
+L["add '|cFFFFFF00Details.minimum_combat_time = 2;|r' on Auto Run Code to change the minimum time."] = "將 '|cFFFFFF00Details.minimum_combat_time = 2;|r' 加入到自動執行程式碼內來更改最小時間。"
+
+L["already in combat, closing current segment."] = "已經在戰鬥中，關閉目前戰鬥記錄。"
+
+L["always use profile:"] = "總是使用設定檔:"
+
+L["an addon made your game freeze for more than a half second, use '/details perf' to know more."] = "有個遊戲讓遊戲卡頓了超過半秒，輸入 '/details perf' 做更多瞭解。"
+
+L["applications"] = "作用"
+
+L["based on AddonSkins for ElvUI, this skin has opaque title bar and background."] = "根據 AddonSkins for ElvUI，這個外觀有不透明的標題列和背景。"
+
+L["bgcolor:"] = "背景顏色:"
+
+L["bordercolor"] = "邊框顏色:"
+
+L["cast avg"] = "平均唱法"
+
+L["casts"] = "唱法"
+
+L["coach disabled."] = "已停用訓練。"
+
+L["combat ignored: elapsed time less than 5 seconds."] = "已忽略戰鬥: 經過時間不到 5 秒。"
+
+L["combat ignored: less than 5 seconds."] = "已忽略戰鬥: 不到 5 秒。"
+
+L["config '"] = "設定選項 '"
+
+L["couldn't decode the data."] = "無法解碼資料。"
+
+L["couldn't open options panel: no window available."] = "無法打開選項面板: 沒有可用的視窗。"
+
+L["couldn't uncompress the data."] = "無法解壓縮資料。"
+
+L["couldn't unserialize the data."] = "無法反序列化資料。"
+
+L["crit %"] = "致命 %"
+
+L["crop: "] = "裁切: "
+
+L["current -"] = "目前 -"
+
+L["current profile:"] = "目前設定檔:"
+
+L["detected options panel out of screen, position has reset"] = "偵測到選項面板超出畫面，已重置位置。"
+
+L["do not switch"] = "不要切換"
+
+L["done merging, segments: "] = "合併完成，戰鬥記錄: "
+
+L["error Details! AdjustAlphaByContext()"] = "Details! AdjustAlphaByContext() 發生錯誤"
+
+L["error exporting the time capture."] = "匯出時間擷取時發生錯誤。"
+
+L["error occurred on Details.Database.StoreWipe():"] = "Details.Database.StoreWipe() 發生錯誤:"
+
+L["error occurred on report window skin call():"] = "報告視窗外觀 call() 發生錯誤:"
+
+L["error on alert function:"] = "通知功能發生錯誤:"
+
+L["fail to get the current profile."] = "無法取得目前的設定檔。"
+
+L["failed to create a new profile."] = "無法建立新的設定檔。"
+
+L["failed to decompress profile data."] = "無法解壓縮設定檔資料。"
+
+L["failed to export skin."] = "匯出外觀失敗。"
+
+L["gear score: "] = "裝備評分: "
+
+L["healer name:"] = "治療者名字:"
+
+L["hits"] = "命中"
+
+L["iLvL"] = "裝等"
+
+L["invalid pre_defined table for resize, please rezise the window manually."] = "調整大小的預先定義表格無效，請手動調整視窗大小。"
+
+L["invalid profile name or profile name is too short."] = "無效的設定檔名稱，或設定檔名稱太短。"
+
+L["m "] = " 分 "
+
+L["name"] = "名稱"
+
+L["names found."] = "個名稱已找到。"
+
+L["new custom"] = "新的自訂"
+
+L["new simple gray 2"] = "新極簡灰 2"
+
+L["overheal"] = "過量治療"
+
+L["overlay: "] = "覆蓋: "
+
+L["paste on your web browser address bar"] = "貼到瀏覽器的網址列"
+
+L["player actor:"] = "玩家:"
+
+L["plugin doesn't have a Frame, please check case-sensitive member name: Frame"] = "外掛套件沒有框架，請檢查成員名稱 (有區分大小): Frame"
+
+L["pre-potion: "] = "偷爆發: "
+
+L["profile name"] = "設定檔名稱"
+
+L["profile name already exists and was imported as:"] = "已經有相同的設定檔名稱，匯入為:"
+
+L["profile name:"] = "設定檔名稱:"
+
+L["profile successfully imported."] = "設定檔匯入成功。"
+
+L["ps"] = "每秒"
+
+L["real -"] = "實際 -"
+
+L["refreshes"] = "刷新"
+
+L["s"] = " 秒"
+
+L["s)"] = "秒)"
+
+L["search"] = "搜尋"
+
+L["seems failed to load, please type /reload to try again."] = "插件載入失敗，請輸入 /reload 再試一次。"
+
+L["segment ID invalid."] = "無效的戰鬥記錄 ID。"
+
+L["segment not found."] = "沒有戰鬥記錄。"
+
+L["segment removed."] = "已移除戰鬥記錄。"
+
+L["select bookmark"] = "選擇書籤"
+
+L["skin:"] = "外觀:"
+
+L["some addon may be causing framerate drops, use '/details perf' to know more."] = "有些插件會造成畫面掉幀，輸入 '/details perf' 來瞭解更多。"
+
+L["some addon may be causing small framerate stuttering, use '/details perf' to know more."] = "有些插件會造成輕微的畫面卡頓，輸入 '/details perf' 來瞭解更多。"
+
+L["some addon might be causing performance issues, use '/details perf' to know more."] = "有些插件可能會影響遊戲效能，輸入 '/details perf' 來瞭解更多。"
+
+L["spell name"] = "法術名稱"
+
+L["spell name:"] = "法術名稱:"
+
+L["spell not found"] = "無法找到法術"
+
+L["the overall data has been reset."] = "已重置整場資料。"
+
+L["total"] = "總計"
+
+L["uptime"] = "覆蓋時間"
+
+L["using segment"] = "使用戰鬥記錄"
+
+L["version:"] = "版本:"
+
+L["wait... "] = "請稍等... "
+
+L["working"] = "處理中"
+
+L["working [downloading "] = "處理中 [正在下載 "
+
+L["you aren't the raid leader."] = "你不是 RL。"
+
+L["you can always reset the addon running the command |cFFFFFF00'/details reinstall'|r if it does fail to load after being updated."] = "如果更新後確定無法載入，可以輸入 |cFFFFFF00'/details reinstall'|r 來重置插件。"
+
+L["you can disable this at /details > Raid Tools"] = "可以在 /details > 團隊工具，停用。"
+
+L["| ilvl:"] = "| 裝等:"
+
+L["| item amount:"] = "| 物品數量:"
+
+L["|TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:14:12:0:1:512:512:8:70:224:306|t Open Rank"] = "|TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:14:12:0:1:512:512:8:70:224:306|t 打開等級"
+
+L["|TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:14:12:0:1:512:512:8:70:328:409|t Refresh Talents"] = "|TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:14:12:0:1:512:512:8:70:328:409|t 刷新天賦"
+
+L["|cFF00FF00Left Click:|r clear all segments."] = "|cFF00FF00左鍵:|r 清空所有戰鬥記錄。"
+
+L["|cFF00FF00Left Click:|r open options panel."] = "|cFF00FF00左鍵:|r 設定選項。"
+
+L["|cFFFF2222Details!: Normal position for a window wasn't found! Moving it to the center of the screen.|r\nType '/details exitlog' to check for errors."] = "|cFFFF2222Details!: 無法找到視窗的正常位置! 會將它移動到畫面中央。|r\n請輸入 '/details exitlog' 來查看錯誤訊息。"
+
+L["|cFFFF2222Details!: Position for a window wasn't found! Moving it to the center of the screen.|r\nType '/details exitlog' to check for errors."] = "|cFFFF2222Details!: 無法找到視窗的位置! 會將它移動到畫面中央。|r\n請輸入 '/details exitlog' 來查看錯誤訊息。"
+
+L["|cFFFF3300you may need sync the rank within the guild, type '|cFFFFFF00/details rank|r'|r"] = "|cFFFF3300你可能需要同步公會排名資料，請輸入 '|cFFFFFF00/details rank|r'|r"
+
+L["|cFFFF7700plugin not found|r:|cFFFFFF00"] = "|cFFFF7700無法找到外掛套件|r:|cFFFFFF00"
+
+L["|cFFFF9900error compiling code for custom display "] = "|cFFFF9900程式碼編譯錯誤，自訂顯示內容 "
+
+L["|cFFFF9900error compiling percent code for custom display "] = "|cFFFF9900百分比程式碼編譯錯誤，自訂顯示內容 "
+
+L["|cFFFF9900error compiling tooltip code for custom display "] = "|cFFFF9900浮動提示資訊程式碼編譯錯誤，自訂顯示內容 "
+
+L["|cFFFF9900error compiling total code for custom display "] = "|cFFFF9900總程式碼編譯錯誤，自訂顯示內容 "
+
+L["|cFFFF9900error on chart script function|r:"] = "|cFFFF9900圖表腳本程式的函數錯誤|r:"
+
+L["|cFFFF9900error on custom display function|r:"] = "|cFFFF9900自訂顯示內容函數發生錯誤|r:"
+
+L["|cFFFF9900error on custom display tooltip function|r:"] = "|cFFFF9900自訂顯示內容浮動提示資訊函數發生錯誤|r:"
+
+L["|cFFFF9900error on custom text|r:"] = "|cFFFF9900自訂文字發生錯誤|r:"
+
+L["|cFFFF9900percent script error|r:"] = "|cFFFF9900百分比腳本程式碼錯誤|r:"
+
+L["|cFFFF9900total script error|r:"] = "|cFFFF9900總腳本程式碼錯誤|r:"
+
+L["|cFFFFBB00First Hit|r: *?*"] = "|cFFFFBB00開怪|r: *?*"
+
+L["|cFFFFBB00Your Best Score|r:"] = "|cFFFFBB00你的最好成績|r:"
+
+L["|cFFFFFF00]|r Interrupt: "] = "|cFFFFFF00]|r 斷法: "
+
+L["|cff33CC00Click|cffEEEEEE: "] = "|cff33CC00左鍵|cffEEEEEE: "
+
+L["|r: list of spells already saw."] = "|r: 列出已經看到的法術。"
+
+L["|r: open the player breakdown for you."] = "|r: 打開玩家分析。"
+
+L["|rcheck if it is enabled in the addons control panel."] = "|r請在插件控制台內檢查是否已經啟用/載入。"
+
+L[" \ncommand: /details playedclass"] = " \n指令：/details playedclass"
+
+L["Alpha"] = "不透明度"
+
+L["Crop Bottom"] = "裁切下方"
+
+L["Crop Left"] = "裁切左側"
+
+L["Crop Right"] = "裁切右側"
+
+L["Crop Top"] = "裁切上方"
+
+L["Done"] = "完成"
+
+L["Flip H"] = "水平翻轉"
+
+L["Image Editor"] = "圖片編輯器"
+
+L["Right Click to Type the Value"] = "按右鍵輸入數值"
+
+L["Scale:"] = "縮放："
+
+L["Search:"] = "搜尋："
+
+L["close window"] = "關閉視窗"
+
+L["no option selected"] = "尚未選擇選項"
+
+L["no options"] = "沒有選項"
+
+L["right click to close"] = "按右鍵關閉"
+
+L["right click to type the value"] = "按右鍵輸入數值"
+
+L["STRING_ATTRIBUTE_HEAL_POTIONS"] = "藥水"

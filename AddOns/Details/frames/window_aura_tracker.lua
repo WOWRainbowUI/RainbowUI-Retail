@@ -1,7 +1,12 @@
+-- RainbowUI: resolve display translations lazily, including framework files loaded before locales.
+local Loc = setmetatable({}, {__index = function(_, key)
+    local aceLocale = LibStub("AceLocale-3.0", true)
+    local locale = aceLocale and aceLocale:GetLocale("Details", true)
+    return locale and locale[key] or key
+end})
 
 local Details = Details
 local DF = DetailsFramework
-local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
 local _
 
 --namespace
@@ -120,7 +125,7 @@ function Details.AuraTracker.CreatePanel()
     statusBar.text = statusBar:CreateFontString(nil, "overlay", "GameFontNormal")
     statusBar.text:SetPoint("left", statusBar, "left", 5, 0)
     statusBar.text:SetText("By Terciob | Part of Details! Damage Meter")
-    DetailsFramework:SetFontSize(statusBar.text, 11)
+    DetailsFramework:SetFontSize(statusBar.text, 15)
     DetailsFramework:SetFontColor(statusBar.text, "gray")
 
     --header
@@ -128,7 +133,7 @@ function Details.AuraTracker.CreatePanel()
         {text = "", width = 20},
         {text = Loc["Aura Name"], width = 162},
         {text = Loc["Spell Id"], width = 100},
-        {text = Loc["Lua Table"], width = 200},
+        {text = "Lua Table", width = 200},
         {text = Loc["Payload (Points)"], width = 296},
         {text = Loc["Last Cast"], width = 100},
     }

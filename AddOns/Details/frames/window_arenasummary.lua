@@ -696,12 +696,12 @@ function ArenaSummary.CreateWindow() --~create
     arenaInfoText:SetText("")
     arenaInfoText:SetPoint("top", window, "top", 0, posY)
     window.ArenaInfoText = arenaInfoText
-    detailsFramework:SetFontSize(arenaInfoText, 18)
+    detailsFramework:SetFontSize(arenaInfoText, 22)
 
     local arenaOutcomeText = window:CreateFontString("$parentArenaOutcomeText", "overlay", "GameFontNormal")
     arenaOutcomeText:SetText("")
     arenaOutcomeText:SetPoint("top", arenaInfoText, "bottom", 0, -10)
-    detailsFramework:SetFontSize(arenaOutcomeText, 20)
+    detailsFramework:SetFontSize(arenaOutcomeText, 24)
     window.ArenaOutcomeText = arenaOutcomeText
 
     posY = posY - 128
@@ -957,7 +957,7 @@ function ArenaSummary.CreateWindow() --~create
                 local line = ArenaSummary.Lines[i]
                 for j = 1, #line.Buttons do
                     local button = line.Buttons[j]
-                    detailsFramework:SetFontSize(button.Text, 10)
+                    detailsFramework:SetFontSize(button.Text, 14)
                 end
             end
         end
@@ -1207,7 +1207,7 @@ function ArenaSummary.CreateWindow() --~create
             PlaySound(SOUNDKIT.IG_MAINMENU_OPTION)
         end, 140, 20, "Queue as Team")
         requeueButton:SetPoint("bottom", window, "bottom", -100, 10)
-        requeueButton.fontsize = 12
+        requeueButton.fontsize = 16
         requeueButton:SetTemplate("OPAQUE_DARK")
         window.RequeueButton = requeueButton
 
@@ -1222,7 +1222,7 @@ function ArenaSummary.CreateWindow() --~create
             PlaySound(SOUNDKIT.IG_MAINMENU_OPTION)
         end, 140, 20, "Leave Arena")
         leaveButton:SetPoint("bottom", window, "bottom", 100, 10)
-        leaveButton.fontsize = 12
+        leaveButton.fontsize = 16
         leaveButton:SetTemplate("OPAQUE_DARK")
         window.LeaveButton = leaveButton
 

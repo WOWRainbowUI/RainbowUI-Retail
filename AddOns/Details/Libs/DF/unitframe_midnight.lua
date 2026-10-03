@@ -494,7 +494,7 @@ function detailsFramework:CreateHealthBar(parent, name, settingsOverride)
 			hooksecurefunc(healthBar, 'SetWidth', function(self, w)
 				healthBar.shieldAbsorbIndicatorBar:SetWidth(w)
 			end)
-			hooksecurefunc(healthBar, 'SetSize', function(self, h, w)
+			hooksecurefunc(healthBar, 'SetSize', function(self, w, h)
 				--healthBar.shieldAbsorbIndicatorBar:SetSize(h, w)
 				healthBar.shieldAbsorbIndicatorBar:SetWidth(w)
 			end)
@@ -686,7 +686,7 @@ detailsFramework.PowerFrameFunctions = {
 			self.percentText:Show()
 			PixelUtil.SetPoint(self.percentText, "center", self, "center", 0, 0)
 
-			detailsFramework:SetFontSize(self.percentText, 9)
+			detailsFramework:SetFontSize(self.percentText, 13)
 			detailsFramework:SetFontColor(self.percentText, "white")
 			detailsFramework:SetFontOutline(self.percentText, "OUTLINE")
 		else

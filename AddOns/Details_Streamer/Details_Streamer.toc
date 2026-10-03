@@ -1,4 +1,4 @@
-## Interface: 120100, 120007
+## Interface: 120100
 ## Title: Details!: Streamer (plugin)
 ## Notes: Show which spells you are casting, viewers can see what are you doing and follow your steps.
 ## RequiredDeps: Details
@@ -7,8 +7,7 @@
 
 ## X-Wago-ID: VBNB9MGx
 
+Details_Streamer.lua
+
 ## Title-zhTW: |cffFF2D2D[戰鬥]|r Details! 戰鬥統計-直播工具
 ## Notes-zhTW: Details!: Streamer (plugin) |n顯示你施放了什麼法術，讓粉絲能夠追隨你的步伐。
-## DefaultState: disabled
-
-Details_Streamer.lua

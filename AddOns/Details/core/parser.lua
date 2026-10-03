@@ -14,7 +14,7 @@
 	local UnitHealthMax = UnitHealthMax
 	Details.HealthMaxFrame = CreateFrame("Frame")
 
-	if not detailsFramework.IsMidnightWow() then
+	if not detailsFramework.IsAddonApocalypseWow() then
 		Details.HealthMaxFrame:RegisterEvent("UNIT_MAXHEALTH")
 	end
 
@@ -956,7 +956,7 @@
 					end
 
 					Details.WhoAggroTimer = C_Timer.NewTimer(0.1, whoAggro)
-					Details.WhoAggroTimer.HitBy = "|cFFFFFF00開怪|r: " .. (link or "") .. " 由 " .. (sourceName or "未知") -- 不能用外部翻譯
+					Details.WhoAggroTimer.HitBy = "|cFFFFFF00First Hit|r: " .. (link or "") .. " from " .. (sourceName or "Unknown")
 
 					if (Details.announce_firsthit.enabled) then
 						Details:Msg("", Details.WhoAggroTimer.HitBy)
@@ -7840,7 +7840,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				actor.total = healingDone
 				actor.classe = classToken or "UNKNOW"
 
-			elseif (name ~= "Unknown" and type(name) == "string" and string.len(name) > 1) then
+			elseif (name ~= Loc["Unknown"] and type(name) == "string" and string.len(name) > 1) then
 				local guid = UnitGUID(name)
 				if (guid) then
 					local flag

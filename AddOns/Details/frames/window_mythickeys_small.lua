@@ -5,7 +5,7 @@ local _ = nil
 local detailsFramework = DetailsFramework
 local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
 
-if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
+if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE and not detailsFramework.IsForeverWow()) then
     local eventFrame = CreateFrame("frame")
     eventFrame:RegisterUnitEvent("UNIT_SPELLCAST_START", "player")
     eventFrame:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player")
@@ -230,7 +230,7 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
     local altsLabel = mainPanel:CreateFontString(nil, "overlay", "GameFontNormal")
     altsLabel:SetText("Alts")
     altsLabel:SetPoint("left", altsCheckbox.widget or altsCheckbox, "right", 4, 0)
-    detailsFramework:SetFontSize(altsLabel, 11)
+    detailsFramework:SetFontSize(altsLabel, 15)
 
     --shows the compact M+ keystone window.
     function Details222.MythicKeys.OpenSmallKeysPanel()
@@ -537,11 +537,11 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
                     specIcon:SetPoint("left", line, "left", X_SPEC_ICON, 0)
 
                     local playerNameText = detailsFramework:CreateLabel(line, "")
-                    detailsFramework:SetFontSize(playerNameText, 11)
+                    detailsFramework:SetFontSize(playerNameText, 15)
                     playerNameText:SetPoint("left", line, "left", X_PLAYER_NAME, 0)
 
                     local keystoneLevelText = detailsFramework:CreateLabel(line, "")
-                    detailsFramework:SetFontSize(keystoneLevelText, 11)
+                    detailsFramework:SetFontSize(keystoneLevelText, 15)
                     keystoneLevelText:SetPoint("left", line, "left", X_KEY_LEVEL, 0)
 
                     local dungeonIcon = line:CreateTexture(nil, "overlay")
@@ -549,11 +549,11 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
                     dungeonIcon:SetPoint("left", line, "left", X_DUNGEON_ICON, 0)
 
                     local dungeonNameText = detailsFramework:CreateLabel(line, "")
-                    detailsFramework:SetFontSize(dungeonNameText, 10)
+                    detailsFramework:SetFontSize(dungeonNameText, 14)
                     dungeonNameText:SetPoint("left", line, "left", X_DUNGEON_NAME, 0)
 
                     local ratingText = detailsFramework:CreateLabel(line, "")
-                    detailsFramework:SetFontSize(ratingText, 11)
+                    detailsFramework:SetFontSize(ratingText, 15)
                     ratingText:SetPoint("right", line, "right", -4, 0)
 
                     line.roleIcon = roleIcon
@@ -670,7 +670,7 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
                 local keysHeaderOptions = {
                     padding = 1,
                     header_height = KEYS_HEADER_HEIGHT,
-                    text_size = 9,
+                    text_size = 13,
                     header_backdrop_color = {.2, .2, .2, .5},
                     header_backdrop_color_selected = {.5, .4, 0, .8},
                     header_click_callback = function()
@@ -1256,12 +1256,12 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
                     dungeonTexture:SetPoint("left", line, "left", 2, 0)
 
                     local dungeonNameText = detailsFramework:CreateLabel(line, "")
-                    detailsFramework:SetFontSize(dungeonNameText, 10)
+                    detailsFramework:SetFontSize(dungeonNameText, 14)
                     dungeonNameText:SetPoint("left", line, "left", LINE_HEIGHT + 4, 0)
 
                     --party-member count: how many of {player, party1..4} are currently in this dungeon's zone.
                     local playerCountText = detailsFramework:CreateLabel(line, "")
-                    detailsFramework:SetFontSize(playerCountText, 12)
+                    detailsFramework:SetFontSize(playerCountText, 16)
                     playerCountText:SetPoint("right", line, "right", -8, 0)
 
                     line.dungeonTexture = dungeonTexture
@@ -1477,33 +1477,33 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 
                     --top row: dungeon name | date | character name (right-anchored)
                     local dungeonNameText = detailsFramework:CreateLabel(line, "")
-                    detailsFramework:SetFontSize(dungeonNameText, 11)
+                    detailsFramework:SetFontSize(dungeonNameText, 15)
                     dungeonNameText:SetPoint("topleft", line, "topleft", X_TOP_NAME, -3)
                     line.dungeonNameText = dungeonNameText
 
                     local dateText = detailsFramework:CreateLabel(line, "")
-                    detailsFramework:SetFontSize(dateText, 10)
+                    detailsFramework:SetFontSize(dateText, 14)
                     dateText:SetPoint("topleft", line, "topleft", X_TOP_DATE, -3)
                     line.dateText = dateText
 
                     local playerNameText = detailsFramework:CreateLabel(line, "")
-                    detailsFramework:SetFontSize(playerNameText, 10)
+                    detailsFramework:SetFontSize(playerNameText, 14)
                     playerNameText:SetPoint("topright", line, "topright", -4, -3)
                     line.playerNameText = playerNameText
 
                     --bottom row: keystone level | elapsed time | death amount (right-anchored)
                     local levelText = detailsFramework:CreateLabel(line, "")
-                    detailsFramework:SetFontSize(levelText, 12)
+                    detailsFramework:SetFontSize(levelText, 16)
                     levelText:SetPoint("bottomleft", line, "bottomleft", X_BOT_LEVEL, 3)
                     line.levelText = levelText
 
                     local elapsedText = detailsFramework:CreateLabel(line, "")
-                    detailsFramework:SetFontSize(elapsedText, 10)
+                    detailsFramework:SetFontSize(elapsedText, 14)
                     elapsedText:SetPoint("bottomleft", line, "bottomleft", X_BOT_ELAPSED, 3)
                     line.elapsedText = elapsedText
 
                     local deathsText = detailsFramework:CreateLabel(line, "")
-                    detailsFramework:SetFontSize(deathsText, 10)
+                    detailsFramework:SetFontSize(deathsText, 14)
                     deathsText:SetPoint("bottomright", line, "bottomright", -4, 3)
                     line.deathsText = deathsText
 

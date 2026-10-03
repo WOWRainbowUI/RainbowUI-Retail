@@ -1,3 +1,9 @@
+-- RainbowUI: resolve display translations lazily, including framework files loaded before locales.
+local Loc = setmetatable({}, {__index = function(_, key)
+    local aceLocale = LibStub("AceLocale-3.0", true)
+    local locale = aceLocale and aceLocale:GetLocale("Details", true)
+    return locale and locale[key] or key
+end})
 
 --[=[
 
@@ -639,7 +645,7 @@ DF:Mixin(DFSliderMetaFunctions, DF.ScriptHookMixin)
 				editbox:SetSize(40, 20)
 				editbox:SetJustifyH("center")
 				DF:ApplyStandardBackdrop(editbox)
-				editbox:SetFontObject("GameFontHighlight")
+				editbox:SetFontObject("GameFontHighlightSmall")
 
 				editbox:SetScript("OnEnterPressed", function()
 					editbox:ClearFocus()
@@ -937,21 +943,27 @@ local setCheckedTexture = function(self, texture, xOffSet, yOffSet, sizePercent,
 end
 
 local set_as_checkbok = function(self)
-	if self.is_checkbox and self.checked_texture then return end
-	local checked = self:CreateTexture(self:GetName() .. "CheckTexture", "overlay")
-	checked:SetTexture([[Interface\Buttons\UI-CheckBox-Check]])
-	checked:SetPoint("center", self.button, "center", -1, -1)
+	--only the CREATION is once. the sizing and the painting below run on every call, because these
+	--widgets are pooled and re-templated: a checkbox first converted at some other width, or before
+	--its template had been applied, used to keep that first geometry and that first colour for the
+	--rest of the session -- the early return here covered all three
+	if (not self.is_checkbox or not self.checked_texture) then
+		local checked = self:CreateTexture(self:GetName() .. "CheckTexture", "overlay")
+		checked:SetTexture([[Interface\Buttons\UI-CheckBox-Check]])
+		checked:SetPoint("center", self.button, "center", -1, -1)
+		self.checked_texture = checked
+
+		self.SetCheckedTexture = setCheckedTexture
+		self.SetChecked = switch_set_value
+		self.GetChecked = switch_get_value
+
+		self._thumb:Hide()
+		self._text:Hide()
+		self.is_checkbox = true
+	end
+
 	local size_pct = self:GetWidth()/32
-	checked:SetSize(32 * size_pct, 32 * size_pct)
-	self.checked_texture = checked
-
-	self.SetCheckedTexture = setCheckedTexture
-	self.SetChecked = switch_set_value
-	self.GetChecked = switch_get_value
-
-	self._thumb:Hide()
-	self._text:Hide()
-	self.is_checkbox = true
+	self.checked_texture:SetSize(32 * size_pct, 32 * size_pct)
 
 	if (rawget(self, "value")) then
 		self.checked_texture:Show()
@@ -1106,7 +1118,7 @@ function DF:NewSwitch(parent, container, name, member, width, height, leftText, 
 	thumb:SetAlpha(0.7)
 	thumb:SetPoint("left", slider.widget, "left")
 
-	local text = slider:CreateFontString(nil, "overlay", "GameFontHighlight")
+	local text = slider:CreateFontString(nil, "overlay", "GameFontHighlightSmall")
 	text:SetTextColor(.8, .8, .8, 1)
 	text:SetPoint("center", thumb, "center")
 
@@ -1413,10 +1425,10 @@ function DF:NewSlider (parent, container, name, member, width, height, minValue,
 	SliderObject.slider_middle:SetPoint("bottomright", SliderObject.slider_right, "bottomleft", 0, 0)
 
 	if (not isSwitch) then
-		SliderObject.have_tooltip = "點右鍵來輸入值"
+		SliderObject.have_tooltip = Loc["Right Click to Type the Value"]
 	end
 
-	SliderObject.amt = SliderObject.slider:CreateFontString(nil, "overlay", "GameFontHighlight")
+	SliderObject.amt = SliderObject.slider:CreateFontString(nil, "overlay", "GameFontHighlightSmall")
 
 	local amt = defaultValue
 	if (amt < 10 and amt >= 1) then
@@ -1458,7 +1470,7 @@ function DF:NewSlider (parent, container, name, member, width, height, minValue,
 
 	setmetatable(SliderObject, DFSliderMetaFunctions)
 
-	SliderObject:SetTooltip("點右鍵來輸入值")
+	SliderObject:SetTooltip(Loc["right click to type the value"])
 
 	if (with_label) then
 		local label = DF:CreateLabel(SliderObject.slider, with_label, nil, nil, nil, "label", nil, "overlay")

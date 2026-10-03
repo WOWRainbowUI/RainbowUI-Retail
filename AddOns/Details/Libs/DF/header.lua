@@ -727,7 +727,7 @@ local default_header_options = {
 	propagate_clicks = false,
 
 	text_color = {1, 1, 1, 1},
-	text_size = 10,
+	text_size = 14,
 	text_shadow = false,
 	grow_direction = "RIGHT",
 	padding = 2,

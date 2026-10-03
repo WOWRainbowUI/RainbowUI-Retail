@@ -364,7 +364,7 @@ detailsFramework.KeybindMixin = {
 
 		self.keybindListener = keybindListener
 
-        keybindListener.text = detailsFramework:CreateLabel(keybindListener, "- Press a keyboard key to bind.\n- Click to bind a mouse button.\n- Press escape to cancel.", 11, "orange")
+        keybindListener.text = detailsFramework:CreateLabel(keybindListener, "- Press a keyboard key to bind.\n- Click to bind a mouse button.\n- Press escape to cancel.", 15, "orange")
         keybindListener.text:SetPoint("center", keybindListener, "center", 0, 0)
         keybindListener:Hide()
     end,
@@ -898,7 +898,7 @@ detailsFramework.KeybindMixin = {
 		---@type df_button
         line.setKeybindButton = detailsFramework:CreateButton(line, function()end, headerTable[3].width, keyBindFrame.options.line_height-6, "", nil, nil, nil, "SetNewKeybindButton", "$parentSetNewKeybindButton", 0, nil, options_text_template)
 		line.setKeybindButton.textcolor = "white"
-		line.setKeybindButton.textsize = 10
+		line.setKeybindButton.textsize = 14
 		line.setKeybindButton:SetHook("OnEnter", keyBindFrame.OnEnterScrollLine)
 		line.setKeybindButton:SetHook("OnLeave", keyBindFrame.OnLeaveScrollLine)
 
@@ -980,7 +980,7 @@ detailsFramework.KeybindMixin = {
 		createMacroButton:SetIcon(136377)
 		createMacroButton:SetTemplate("OPTIONS_CIRCLEBUTTON_TEMPLATE")
 		createMacroButton:SetScale(0.9)
-		createMacroButton:SetFontSize(13)
+		createMacroButton:SetFontSize(17)
 
 		local keybindScroll = detailsFramework:CreateScrollBox(self, "$parentScrollBox", detailsFramework.KeybindMixin.RefreshKeybindScroll, {}, scroll_width, scroll_height, scroll_lines, scroll_line_height)
 		---@cast keybindScroll df_keybindscroll

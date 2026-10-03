@@ -309,7 +309,7 @@ function detailsFramework:CreateTabContainer(parent, title, frameName, tabList, 
 
     --create the fontstring which show the title
     ---@type fontstring
-	local mainTitle = detailsFramework:CreateLabel(tabContainer, title, 24, "white")
+	local mainTitle = detailsFramework:CreateLabel(tabContainer, title, 28, "white")
 	mainTitle:SetPoint("topleft", tabContainer, "topleft", 10, -30 + yOffset)
     tabContainer.MainTitle = mainTitle
 
@@ -362,7 +362,7 @@ function detailsFramework:CreateTabContainer(parent, title, frameName, tabList, 
 		local bIsLanguagePrahseID = detailsFramework.Language.DoesPhraseIDExistsInDefaultLanguage(addonId, phraseId)
 
         --create the fontstring which show this tab text, this text is only shown when the tab is shown
-		local titleLabel = detailsFramework:CreateLabel(tabFrame, "", 16, "silver")
+		local titleLabel = detailsFramework:CreateLabel(tabFrame, "", 20, "silver")
 		if (bIsLanguagePrahseID) then
 			DetailsFramework.Language.RegisterObjectWithDefault(addonId, titleLabel, tabInfo.text, tabInfo.text)
 		else
@@ -386,7 +386,7 @@ function detailsFramework:CreateTabContainer(parent, title, frameName, tabList, 
 
 		local rightClickToBack
 		if (tabIndex == 1 or optionsTable.rightbutton_always_close) then
-			rightClickToBack = detailsFramework:CreateLabel(tabFrame, "點右鍵關閉", 14, "gray")
+			rightClickToBack = detailsFramework:CreateLabel(tabFrame, "right click to close", 14, "gray")
 			rightClickToBack:SetPoint("bottomright", tabFrame, "bottomright", -1, optionsTable.right_click_y or 0)
 			if (optionsTable.close_text_alpha) then
 				rightClickToBack:SetAlpha(optionsTable.close_text_alpha)
@@ -394,7 +394,7 @@ function detailsFramework:CreateTabContainer(parent, title, frameName, tabList, 
 			tabFrame.bIsFrontPage = true
             tabFrame.RightClickToBackLabel = rightClickToBack
 		else
-			rightClickToBack = detailsFramework:CreateLabel(tabFrame, "點右鍵回主選單", 14, "gray")
+			rightClickToBack = detailsFramework:CreateLabel(tabFrame, "right click to go back to main menu", 14, "gray")
 			rightClickToBack:SetPoint("bottomright", tabFrame, "bottomright", -1, optionsTable.right_click_y or 0)
 			if (optionsTable.close_text_alpha) then
 				rightClickToBack:SetAlpha(optionsTable.close_text_alpha)

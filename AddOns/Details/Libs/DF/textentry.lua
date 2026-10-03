@@ -1,3 +1,9 @@
+-- RainbowUI: resolve display translations lazily, including framework files loaded before locales.
+local Loc = setmetatable({}, {__index = function(_, key)
+    local aceLocale = LibStub("AceLocale-3.0", true)
+    local locale = aceLocale and aceLocale:GetLocale("Details", true)
+    return locale and locale[key] or key
+end})
 
 --[=[
 	When enter is pressed a callback function is called in this format:
@@ -569,10 +575,10 @@ detailsFramework.TextEntryCounter = detailsFramework.TextEntryCounter or 1
 		self.MagnifyingGlassTexture = magnifyingGlassTexture
 
 		local searchFontString = self:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-		searchFontString:SetText("搜尋")
+		searchFontString:SetText(Loc["search"])
 		searchFontString:SetAlpha(0.3)
 		searchFontString:SetPoint("left", magnifyingGlassTexture, "right", 2, 0)
-		detailsFramework:SetFontSize(searchFontString, 10)
+		detailsFramework:SetFontSize(searchFontString, 14)
 		self.SearchFontString = searchFontString
 
 		local clearSearchButton = CreateFrame("button", nil, self.widget, "UIPanelCloseButton")

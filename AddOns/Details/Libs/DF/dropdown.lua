@@ -1,3 +1,9 @@
+-- RainbowUI: resolve display translations lazily, including framework files loaded before locales.
+local Loc = setmetatable({}, {__index = function(_, key)
+    local aceLocale = LibStub("AceLocale-3.0", true)
+    local locale = aceLocale and aceLocale:GetLocale("Details", true)
+    return locale and locale[key] or key
+end})
 
 --[=[
 	On selecting an option it calls the 'onclick' function of the option with the parameters: dropdownObject, fixedValue, option.value
@@ -458,7 +464,7 @@ function DropDownMetaFunctions:NoOption(state)
 		self:Disable()
 		self:SetAlpha(0.5)
 		self.no_options = true
-		self.label:SetText(self.no_options_text or "沒有選項")
+		self.label:SetText(self.no_options_text or Loc["no options"])
 		self.label:SetPoint("left", self.icon, "right", 2, 0)
 		self.label:SetTextColor(1, 1, 1, 0.4)
 		self.icon:SetTexture([[Interface\CHARACTERFRAME\UI-Player-PlayTimeUnhealthy]])
@@ -716,7 +722,7 @@ function DropDownMetaFunctions:Selected(thisOption)
 	end
 
 	if (overrideFont) then
-		self.label:SetFont(overrideFont, 10)
+		self.label:SetFont(overrideFont, 14)
 
 	elseif (thisOption.font and not self.isSimpleHeader) then
 		self.label:SetFont(thisOption.font, 14)
@@ -995,15 +1001,15 @@ function DetailsFrameworkDropDownOnMouseDown(button, buttontype)
 					thisOptionFrame.label:SetText(thisOption.label)
 
 					if (overrideFont) then
-						thisOptionFrame.label:SetFont(overrideFont, 14)
+						thisOptionFrame.label:SetFont(overrideFont, 14.5)
 
 					elseif (thisOption.font) then
-						thisOptionFrame.label:SetFont(thisOption.font, 14)
+						thisOptionFrame.label:SetFont(thisOption.font, 14.5)
 
 					else
-						thisOptionFrame.label:SetFontObject(_G["GameFontHighlight"])
+						thisOptionFrame.label:SetFontObject(_G["GameFontHighlightSmall"])
 						local font, _, flags = thisOptionFrame.label:GetFont()
-						thisOptionFrame.label:SetFont(font, 14, flags)
+						thisOptionFrame.label:SetFont(font, 14.5, flags)
 					end
 
 					if (currentText and currentText == thisOption.label) then
@@ -2030,12 +2036,12 @@ function DF:CreateNewDropdownFrame(parent, name)
 	centerTexture:SetSize(20, 20)
 	newDropdownFrame.centerTexture = centerTexture
 
-	local text = newDropdownFrame:CreateFontString("$parent_Text", "ARTWORK", "GameFontHighlight")
+	local text = newDropdownFrame:CreateFontString("$parent_Text", "ARTWORK", "GameFontHighlightSmall")
 	text:SetPoint("left", icon, "right", 5, 0)
 	text:SetJustifyH("left")
-	text:SetText("尚未選擇選項")
+	text:SetText(Loc["no option selected"])
 	text:SetTextColor(1, 1, 1, 0.4)
-	DF:SetFontSize(text, 10)
+	DF:SetFontSize(text, 14)
 	newDropdownFrame.text = text
 
 	local arrowHightlight = newDropdownFrame:CreateTexture("$parent_ArrowTexture2", "OVERLAY", nil, 2)
@@ -2123,7 +2129,7 @@ function DF:CreateDropdownButton(parent, name)
 	icon:SetTexture([[Interface\ICONS\Spell_ChargePositive]])
 	newButton.icon = icon
 
-	local text = newButton:CreateFontString("$parent_Text", "OVERLAY", "GameFontHighlight")
+	local text = newButton:CreateFontString("$parent_Text", "OVERLAY", "GameFontHighlightSmall")
 	text:SetPoint("left", icon, "right", 5, 0)
 	text:SetJustifyH("left")
 	DF:SetFontSize(text, 14)

@@ -927,7 +927,7 @@ function Details:CreateBreakdownWindow()
 
 	function breakdownWindowFrame:SetStatusbarText(text, fontSize, fontColor)
 		if (not text) then
-			breakdownWindowFrame:SetStatusbarText(Loc["An AddOn by Terciob | Part of Details! Damage Meter | Click 'Options' button for settings."], 14, "gray")
+			breakdownWindowFrame:SetStatusbarText(Loc["An AddOn by Terciob | Part of Details! Damage Meter | Click 'Options' button for settings."], 10, "gray")
 			return
 		end
 		statusBar.Text.text = text

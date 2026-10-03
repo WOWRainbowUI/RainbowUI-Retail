@@ -5,19 +5,22 @@
 ## SavedVariables: _detalhes_global, __details_backup
 ## SavedVariablesPerCharacter: _detalhes_database
 ## OptionalDeps: Ace3, LibSharedMedia-3.0, LibWindow-1.1, LibDBIcon-1.0, NickTag-1.0, LibDataBroker-1.1, LibItemUpgradeInfo-1.0, LibGroupInSpecT-1.1, LibGraph-2.0
-## Version: #Details.20260918.15280.172
+## Version: #Details.20260929.15300.172
 ## IconTexture: Interface\AddOns\Details\images\minimap
-
-## Title-zhTW: |cffFF2D2D[戰鬥]|r Details! 戰鬥統計
-## Notes-zhTW: Details! Damage Meter |n|n可以看自己和隊友的DPS、HPS...等模組化的傷害統計資訊，還有各種好用的戰鬥分析工具和外掛套件。|n|n|cffffd200使用方法: |r點小地圖按鈕，或從Esc>選項>插件>戰鬥-統計，進行設定。
-## Category-zhTW: 戰鬥
-## DefaultState: disabled
 
 #@no-lib-strip@
 Libs\libs.xml
 #@end-no-lib-strip@
 
 locales\Details-enUS.lua
+locales\Details-deDE.lua
+locales\Details-esES.lua
+locales\Details-esMX.lua
+locales\Details-frFR.lua
+locales\Details-itIT.lua
+locales\Details-koKR.lua
+locales\Details-ptBR.lua
+locales\Details-ruRU.lua
 locales\Details-zhCN.lua
 locales\Details-zhTW.lua
 
@@ -144,6 +147,7 @@ classes\class_utility.lua
 classes\class_spellutility.lua
 classes\include_instance.lua
 classes\class_instance.lua
+classes\class_instance_detached.lua
 
 classes\class_custom.lua
 classes\custom_damagedone.lua

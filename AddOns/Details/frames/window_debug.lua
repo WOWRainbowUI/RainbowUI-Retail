@@ -45,7 +45,7 @@ local createDebugOptionsFrame = function()
     statusBar.text = statusBar:CreateFontString(nil, "overlay", "GameFontNormal")
     statusBar.text:SetPoint("left", statusBar, "left", 5, 0)
     statusBar.text:SetText("By Terciob | Part of Details! Damage Meter")
-    DetailsFramework:SetFontSize(statusBar.text, 11)
+    DetailsFramework:SetFontSize(statusBar.text, 15)
     DetailsFramework:SetFontColor(statusBar.text, "gray")
 
     local options = {
@@ -197,7 +197,7 @@ local createDebugOptionsFrame = function()
     --/run Details:GetWindow(1):GetActorInfoFromLineIndex(3)
 
     --create a label with the text "actor info from window and line index"
-    local actorInfoLabel = detailsFramework:CreateLabel(debugOptionsPanel, "Get Actor Info From Window 'X' and Line Index 'X'", 12)
+    local actorInfoLabel = detailsFramework:CreateLabel(debugOptionsPanel, "Get Actor Info From Window 'X' and Line Index 'X'", 16)
     actorInfoLabel:SetPoint("bottomleft", debugOptionsPanel, "bottomleft", 5, 50)
 
     local instanceIdEntry = detailsFramework:CreateTextEntry(debugOptionsPanel, function()end, 20, 20, _, _, _, detailsFramework:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
@@ -283,7 +283,7 @@ function Details:ShowCleuDebugWindow(filterFunction)
         statusBar.text = statusBar:CreateFontString(nil, "overlay", "GameFontNormal")
         statusBar.text:SetPoint("left", statusBar, "left", 5, 0)
         statusBar.text:SetText("By Terciob | Part of Details! Damage Meter")
-        detailsFramework:SetFontSize(statusBar.text, 11)
+        detailsFramework:SetFontSize(statusBar.text, 15)
         detailsFramework:SetFontColor(statusBar.text, "gray")
 
         ---@type df_headercolumndata[]

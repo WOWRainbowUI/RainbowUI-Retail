@@ -28,7 +28,7 @@ local elapsedtime_frame_options = {
 	backdrop_color = {.3, .3, .3, .7},
 
 	text_color = {1, 1, 1, 1},
-	text_size = 12,
+	text_size = 16,
 	text_font = "Arial Narrow",
 	text_outline = "NONE",
 

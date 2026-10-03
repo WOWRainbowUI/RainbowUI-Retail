@@ -117,7 +117,7 @@ function AllInOneWindow:CreateOptionsPanel()
     --detailsFramework:ApplyStandardBackdrop(headerOptionsFrame)
     optionsPanel.HeaderOptionsFrame = headerOptionsFrame
 
-    local headerOptionsLabel = detailsFramework:CreateLabel(headerOptionsFrame, "Which Information To Show", 12, "orange")
+    local headerOptionsLabel = detailsFramework:CreateLabel(headerOptionsFrame, "Which Information To Show", 16, "orange")
     headerOptionsLabel:SetPoint("topleft", headerOptionsFrame, "topleft", 2, -2)
 
     ---@type details_allinonewindow_headercolumndata[]

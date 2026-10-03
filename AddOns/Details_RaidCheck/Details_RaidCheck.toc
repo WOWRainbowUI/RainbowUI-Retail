@@ -1,4 +1,4 @@
-## Interface: 120100, 120007
+## Interface: 120100
 ## Title: Details!: Raid Check (plugin)
 ## Notes: Show talents and item level for all members in your group, also shows food and flask state.
 ## RequiredDeps: Details
@@ -6,9 +6,8 @@
 
 ## X-Wago-ID: WL6Jk2Kv
 
+Details_RaidCheck.lua
+
 ## Title-zhTW: |cffFF2D2D[戰鬥]|r Details! 戰鬥統計-團隊檢查
 ## Notes-zhTW: Details!: Raid Check (plugin) |n|n顯示隊伍中所有成員的天賦和裝等，以及食物精煉的狀態。
 ## Category-zhTW: 戰鬥
-## DefaultState: disabled
-
-Details_RaidCheck.lua

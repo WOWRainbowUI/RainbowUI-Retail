@@ -1,5 +1,10 @@
+-- RainbowUI: resolve display translations lazily, including framework files loaded before locales.
+local Loc = setmetatable({}, {__index = function(_, key)
+    local aceLocale = LibStub("AceLocale-3.0", true)
+    local locale = aceLocale and aceLocale:GetLocale("Details", true)
+    return locale and locale[key] or key
+end})
 local _detalhes = 		_G.Details
-local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
 
 --code from blizzard AlertFrames
 
@@ -291,7 +296,7 @@ function _detalhes.PlayBestDamageOnGuild (damage)
 	----------------------------------------------
 
 	local NewDamageRecord  = DetailsNewDamageRecord:CreateFontString("NewDamageRecordFontString", "OVERLAY")
-	NewDamageRecord:SetFont(STANDARD_TEXT_FONT, 16, "OUTLINE")
+	NewDamageRecord:SetFont([=[Fonts\FRIZQT__.TTF]=], 16, "OUTLINE")
 	NewDamageRecord:SetText(Loc["Damage Record!"])
 	NewDamageRecord:SetDrawLayer("OVERLAY", 0)
 	NewDamageRecord:SetPoint("center", DetailsNewDamageRecord, "center", 18, 7)
@@ -330,7 +335,7 @@ function _detalhes.PlayBestDamageOnGuild (damage)
 	----------------------------------------------
 
 	local DamageAmount  = DetailsNewDamageRecord:CreateFontString("DamageAmountFontString", "OVERLAY")
-	DamageAmount:SetFont(STANDARD_TEXT_FONT, 16, "THICKOUTLINE")
+	DamageAmount:SetFont([=[Fonts\FRIZQT__.TTF]=], 16, "THICKOUTLINE")
 	DamageAmount:SetText(_detalhes:comma_value (damage))
 	DamageAmount:SetDrawLayer("OVERLAY", 0)
 	DamageAmount:SetPoint("center", DetailsNewDamageRecord, "center", 18, -7)

@@ -962,7 +962,7 @@
 		return setmetatable({
 			name = Loc["new custom"],
 			icon = [[Interface\ICONS\TEMP]],
-			author = UNKNOWN, -- 需要自行修改為大寫
+			author = "unknown",
 			attribute = "damagedone",
 			source = "[all]",
 			target = "[all]",

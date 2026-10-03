@@ -1,15 +1,20 @@
+-- RainbowUI: resolve display translations lazily, including framework files loaded before locales.
+local Loc = setmetatable({}, {__index = function(_, key)
+    local aceLocale = LibStub("AceLocale-3.0", true)
+    local locale = aceLocale and aceLocale:GetLocale("Details", true)
+    return locale and locale[key] or key
+end})
 
 
 local Details = _G.Details
 local DF = _G.DetailsFramework
-local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
 
 local _
 
 function Details:InitializeMacrosWindow()
-    local DetailsMacrosPanel = DF:CreateSimplePanel(UIParent, 700, 480, Loc ["Details! Useful Macros"], "DetailsMacrosPanel")
+    local DetailsMacrosPanel = DF:CreateSimplePanel(UIParent, 700, 480, Loc["Details! Useful Macros"], "DetailsMacrosPanel")
     DetailsMacrosPanel.Frame = DetailsMacrosPanel
-    DetailsMacrosPanel.__name = Loc ["Macros"]
+    DetailsMacrosPanel.__name = Loc["Macros"]
     DetailsMacrosPanel.real_name = "DETAILS_MACROSWINDOW"
     DetailsMacrosPanel.__icon = [[Interface\MacroFrame\MacroFrame-Icon]]
     DetailsMacrosPanel.__iconcoords = {0, 1, 0, 1}
@@ -28,7 +33,7 @@ function Details.OpenMacrosWindow()
     if (not DetailsMacrosPanel or not DetailsMacrosPanel.Initialized) then
 
         DetailsMacrosPanel.Initialized = true
-        local f = DetailsMacrosPanel or DF:CreateSimplePanel(UIParent, 700, 480, Loc ["Details! Useful Macros"], "DetailsMacrosPanel")
+        local f = DetailsMacrosPanel or DF:CreateSimplePanel(UIParent, 700, 480, Loc["Details! Useful Macros"], "DetailsMacrosPanel")
         
         local scrollbox_line_backdrop_color = {0, 0, 0, 0.2}
         local scrollbox_line_backdrop_color_onenter = {.3, .3, .3, 0.5}

@@ -1,3 +1,9 @@
+-- RainbowUI: resolve display translations lazily, including framework files loaded before locales.
+local Loc = setmetatable({}, {__index = function(_, key)
+    local aceLocale = LibStub("AceLocale-3.0", true)
+    local locale = aceLocale and aceLocale:GetLocale("Details", true)
+    return locale and locale[key] or key
+end})
 
 --build data for OpenRaidLibrary, so addons can use it to know about cooldown types
 --this code should run only on beta periods of an new expansion
@@ -5,7 +11,6 @@
 local Details = _G.Details
 ---@type detailsframework
 local DF = _G.DetailsFramework
-local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
 local _
 
 local startX = 5
@@ -293,7 +298,7 @@ function Details.Survey.OpenSpellCategoryScreen()
 		statusBar2:SetAlpha(0.99)
 		DF:ApplyStandardBackdrop(statusBar2)
         DF:ApplyStandardBackdrop(statusBar2)
-        local dataInfoLabel = DF:CreateLabel(statusBar2, "An AddOn By Terciob", 12, "white")
+        local dataInfoLabel = DF:CreateLabel(statusBar2, "An AddOn By Terciob", 16, "white")
         dataInfoLabel:SetPoint("left", 5, 0)
         dataInfoLabel.justifyH = "center"
 

@@ -207,7 +207,7 @@ function Details:CreateAPI2Frame()
         --info box
             local infoWidth = panelWidth - xAnchorPoint - 10
             --api name
-            Api2Frame.ApiFunctionName = DetailsFramework:CreateLabel(Api2Frame, "", 14, "orange")
+            Api2Frame.ApiFunctionName = DetailsFramework:CreateLabel(Api2Frame, "", 18, "orange")
             Api2Frame.ApiFunctionName:SetPoint("topleft", Api2Frame, "topleft", xAnchorPoint, yStart)
             --api desc
             Api2Frame.ApiFunctionDesc = DetailsFramework:CreateLabel(Api2Frame)
@@ -217,7 +217,7 @@ function Details:CreateAPI2Frame()
             Api2Frame.ApiFunctionDesc.valign = "top"
             
             --api func to copy
-            local apiCopyString = DetailsFramework:CreateLabel(Api2Frame, "Copy String", 12, "orange")
+            local apiCopyString = DetailsFramework:CreateLabel(Api2Frame, "Copy String", 16, "orange")
             apiCopyString:SetPoint("topleft", Api2Frame.ApiFunctionDesc, "bottomleft", 0, -20)
             Api2Frame.ApiCopy = DetailsFramework:CreateTextEntry(Api2Frame, function() end, infoWidth, 20)
             Api2Frame.ApiCopy:SetPoint("topleft", apiCopyString, "bottomleft", 0, -2)
@@ -225,7 +225,7 @@ function Details:CreateAPI2Frame()
             
             --parameters
             local parametersYStart = yStart - 110
-            local parametersString = DetailsFramework:CreateLabel(Api2Frame, "Parameters", 12, "orange")
+            local parametersString = DetailsFramework:CreateLabel(Api2Frame, "Parameters", 16, "orange")
             parametersString:SetPoint("topleft", Api2Frame, "topleft", xAnchorPoint, parametersYStart)
             
             parametersYStart = parametersYStart - 20
@@ -236,10 +236,10 @@ function Details:CreateAPI2Frame()
             parametersHeader:SetPoint("topleft", Api2Frame, "topleft", xAnchorPoint, parametersYStart)
             parametersHeader:SetBackdrop({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
             parametersHeader:SetBackdropColor(unpack(backdropColor))
-            parametersHeader.name = DetailsFramework:CreateLabel(parametersHeader, "Name", 12, "yellow")
-            parametersHeader.typeData = DetailsFramework:CreateLabel(parametersHeader, "Type", 12, "yellow")
-            parametersHeader.required = DetailsFramework:CreateLabel(parametersHeader, "Is Required", 12, "yellow")
-            parametersHeader.default = DetailsFramework:CreateLabel(parametersHeader, "Default Value", 12, "yellow")
+            parametersHeader.name = DetailsFramework:CreateLabel(parametersHeader, "Name", 16, "yellow")
+            parametersHeader.typeData = DetailsFramework:CreateLabel(parametersHeader, "Type", 16, "yellow")
+            parametersHeader.required = DetailsFramework:CreateLabel(parametersHeader, "Is Required", 16, "yellow")
+            parametersHeader.default = DetailsFramework:CreateLabel(parametersHeader, "Default Value", 16, "yellow")
             parametersHeader.name:SetPoint("left", parametersHeader, "left", 2, 0)
             parametersHeader.typeData:SetPoint("left", parametersHeader, "left", space1, 0)
             parametersHeader.required:SetPoint("left", parametersHeader, "left", space2, 0)
@@ -291,7 +291,7 @@ function Details:CreateAPI2Frame()
         
         --return value box
             local returnYStart = yStart - 260
-            local returnString = DetailsFramework:CreateLabel(Api2Frame, "Return Values", 12, "orange")
+            local returnString = DetailsFramework:CreateLabel(Api2Frame, "Return Values", 16, "orange")
             returnString:SetPoint("topleft", Api2Frame, "topleft", xAnchorPoint, returnYStart)
             
             returnYStart = returnYStart - 20
@@ -302,8 +302,8 @@ function Details:CreateAPI2Frame()
             returnHeader:SetPoint("topleft", Api2Frame, "topleft", xAnchorPoint, returnYStart)
             returnHeader:SetBackdrop({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
             returnHeader:SetBackdropColor(unpack(backdropColor))
-            returnHeader.name = DetailsFramework:CreateLabel(returnHeader, "Name", 12, "yellow")
-            returnHeader.typeData = DetailsFramework:CreateLabel(returnHeader, "Type", 12, "yellow")
+            returnHeader.name = DetailsFramework:CreateLabel(returnHeader, "Name", 16, "yellow")
+            returnHeader.typeData = DetailsFramework:CreateLabel(returnHeader, "Type", 16, "yellow")
             returnHeader.name:SetPoint("left", returnHeader, "left", 2, 0)
             returnHeader.typeData:SetPoint("left", returnHeader, "left", space1, 0)
 
@@ -327,7 +327,7 @@ function Details:CreateAPI2Frame()
                 f.name = DetailsFramework:CreateLabel(f)
                 f.typeData = DetailsFramework:CreateLabel(f)
                 
-                f.desc = DetailsFramework:CreateLabel(f, "", 10, "gray")
+                f.desc = DetailsFramework:CreateLabel(f, "", 14, "gray")
                 f.desc.width = infoWidth
                 f.desc.height = 60
                 f.desc.valign = "top"

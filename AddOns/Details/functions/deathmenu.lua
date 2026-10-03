@@ -1,7 +1,12 @@
+-- RainbowUI: resolve display translations lazily, including framework files loaded before locales.
+local Loc = setmetatable({}, {__index = function(_, key)
+    local aceLocale = LibStub("AceLocale-3.0", true)
+    local locale = aceLocale and aceLocale:GetLocale("Details", true)
+    return locale and locale[key] or key
+end})
 
 
 local Details = _G.Details
-local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
 local addonName, Details222 = ...
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -144,7 +149,7 @@ detailsOnDeathMenu.breakdownButton.CoolTip = {
 		GameCooltip:SetOption("RelativeAnchor", "bottom")
 		GameCooltip:SetOption("WidthAnchorMod", 0)
 		GameCooltip:SetOption("HeightAnchorMod", -13)
-		GameCooltip:SetOption("TextSize", 10)
+		GameCooltip:SetOption("TextSize", 14)
 		GameCooltip:SetOption("FixedWidth", 220)
 	end
 }
@@ -185,7 +190,7 @@ detailsOnDeathMenu.enduranceButton.CoolTip = {
 		GameCooltip:SetOption("RelativeAnchor", "bottom")
 		GameCooltip:SetOption("WidthAnchorMod", 0)
 		GameCooltip:SetOption("HeightAnchorMod", -13)
-		GameCooltip:SetOption("TextSize", 10)
+		GameCooltip:SetOption("TextSize", 14)
 		GameCooltip:SetOption("FixedWidth", 220)
 	end
 }
@@ -217,7 +222,7 @@ detailsOnDeathMenu.spellsButton.CoolTip = {
 		GameCooltip:SetOption("RelativeAnchor", "bottom")
 		GameCooltip:SetOption("WidthAnchorMod", 0)
 		GameCooltip:SetOption("HeightAnchorMod", -13)
-		GameCooltip:SetOption("TextSize", 10)
+		GameCooltip:SetOption("TextSize", 14)
 		GameCooltip:SetOption("FixedWidth", 220)
 	end
 }

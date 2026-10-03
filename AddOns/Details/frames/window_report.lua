@@ -134,7 +134,7 @@ local _
 			editBox:SetPoint("bottomright", Details.copypasteframe, "bottomright", -2, 2)
 			editBox:SetAutoFocus(false)
 			editBox:SetMultiLine(true)
-			editBox:SetFontObject("GameFontHighlight")
+			editBox:SetFontObject("GameFontHighlightSmall")
 
 			editBox:SetScript("OnEditFocusGained", function() editBox:HighlightText() end)
 			editBox:SetScript("OnEditFocusLost", function() Details.copypasteframe:Hide() end)
@@ -387,7 +387,7 @@ local createDropdown = function(thisFrame)
 		thisFrame.linhas_amt:SetText(Loc ["STRING_REPORTFRAME_LINES"])
 		thisFrame.linhas_amt:SetTextColor(.9, .9, .9, 1)
 		thisFrame.linhas_amt:SetPoint("bottomleft", thisFrame, "bottomleft", 58, 12)
-		Details:SetFontSize(thisFrame.linhas_amt, 10)
+		Details:SetFontSize(thisFrame.linhas_amt, 14)
 
 		local slider = CreateFrame("Slider", "Details_Report_Slider", thisFrame, "BackdropTemplate")
 		thisFrame.slider = slider
@@ -416,7 +416,7 @@ local createDropdown = function(thisFrame)
 		local lastValue = Details.report_lines or 5
 		slider:SetValue(floor(lastValue))
 
-		slider.amt = slider:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+		slider.amt = slider:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 		local amt = slider:GetValue()
 		if (amt < 10) then
 			amt = "0" .. amt
@@ -451,14 +451,14 @@ local createDropdown = function(thisFrame)
 		thisFrame.wisp_who:SetTextColor(1, 1, 1, 1)
 		thisFrame.wisp_who:SetPoint("topleft", thisFrame.select, "topleft", 14, -30)
 
-		Details:SetFontSize(thisFrame.wisp_who, 10)
+		Details:SetFontSize(thisFrame.wisp_who, 14)
 
 		--editbox
 		local editbox = CreateFrame("EditBox", nil, thisFrame, "BackdropTemplate")
 		thisFrame.editbox = editbox
 
 		editbox:SetAutoFocus(false)
-		editbox:SetFontObject("GameFontHighlight")
+		editbox:SetFontObject("GameFontHighlightSmall")
 
 		editbox:SetPoint("TOPLEFT", thisFrame.select, "TOPLEFT", 64, -28)
 

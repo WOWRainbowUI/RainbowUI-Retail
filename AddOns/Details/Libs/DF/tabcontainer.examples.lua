@@ -33,15 +33,15 @@ local function Example_BasicTabContainer(parent)
 
     -- Add content to each tab frame
     local generalFrame = tabContainer:GetTabFrameByIndex(1)
-    local generalLabel = DF:CreateLabel(generalFrame, "General settings go here", 14, "white")
+    local generalLabel = DF:CreateLabel(generalFrame, "General settings go here", 18, "white")
     generalLabel:SetPoint("topleft", generalFrame, "topleft", 20, -80)
 
     local displayFrame = tabContainer:GetTabFrameByName("DisplaySettings") -- lookup by name
-    local displayLabel = DF:CreateLabel(displayFrame, "Display settings go here", 14, "white")
+    local displayLabel = DF:CreateLabel(displayFrame, "Display settings go here", 18, "white")
     displayLabel:SetPoint("topleft", displayFrame, "topleft", 20, -80)
 
     local aboutFrame = tabContainer:GetTabFrameByName("About") -- lookup by text
-    local aboutLabel = DF:CreateLabel(aboutFrame, "About this addon", 14, "white")
+    local aboutLabel = DF:CreateLabel(aboutFrame, "About this addon", 18, "white")
     aboutLabel:SetPoint("topleft", aboutFrame, "topleft", 20, -80)
 
     tabContainer:Show()
@@ -104,7 +104,7 @@ local function Example_LazyTabs(parent)
         -- This tab's content is only built when first shown
         {name = "HeavyTab", text = "Heavy Content", createOnDemandFunc = function(tabFrame, tabContainer, parentFrame)
             -- This function runs exactly once, the first time the tab is shown
-            local label = DF:CreateLabel(tabFrame, "This content was loaded on demand!", 14, "white")
+            local label = DF:CreateLabel(tabFrame, "This content was loaded on demand!", 18, "white")
             label:SetPoint("center", tabFrame, "center", 0, 0)
 
             -- You can create scrollboxes, sliders, checkboxes, etc. here
@@ -113,7 +113,7 @@ local function Example_LazyTabs(parent)
 
         -- Another on-demand tab
         {name = "RareTab", text = "Rarely Used", createOnDemandFunc = function(tabFrame, tabContainer, parentFrame)
-            local label = DF:CreateLabel(tabFrame, "Rarely visited tab", 14, "white")
+            local label = DF:CreateLabel(tabFrame, "Rarely visited tab", 18, "white")
             label:SetPoint("center", tabFrame, "center", 0, 0)
         end},
     }

@@ -1444,7 +1444,7 @@ hooksecurefunc("ChatFrame_DisplayTimePlayed", function()
 			local levelText = TIME_PLAYED_LEVEL and TIME_PLAYED_LEVEL:gsub("%%s", "") or ""
 			for fontString in ChatFrame1.fontStringPool:EnumerateActive() do
 				if (fontString:GetText() and fontString:GetText():find(levelText)) then
-					print(Details.GetPlayTimeOnClassString() .. " \n(不顯示此訊息請輸入 /details playedclass)")
+					print(Details.GetPlayTimeOnClassString() .. Loc[" \ncommand: /details playedclass"])
 					break
 				end
 			end

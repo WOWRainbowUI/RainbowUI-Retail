@@ -292,7 +292,7 @@ local createLootSquare = function(playerBanner, name, parent, lootIndex)
 	local lootItemLevel = lootSquare:CreateFontString("$parentLootItemLevel", "overlay", "GameFontNormal")
 	lootItemLevel:SetPoint("bottom", lootSquare, "bottom", 0, -4)
 	lootItemLevel:SetTextColor(1, 1, 1)
-	detailsFramework:SetFontSize(lootItemLevel, 11)
+	detailsFramework:SetFontSize(lootItemLevel, 15)
 	lootSquare.LootItemLevel = lootItemLevel
 
 	local lootItemLevelBackgroundTexture = lootSquare:CreateTexture("$parentItemLevelBackgroundTexture", "artwork", nil, 6)
@@ -519,7 +519,7 @@ local createPlayerBanner = function(parent, name, index)
     local levelFontString = levelUpTextFrame:CreateFontString("$parentLVLText", "artwork", "GameFontNormal")
     levelFontString:SetPoint("bottom", keyStoneDungeonTexture, "bottom", 0, -4)
     levelFontString:SetTextColor(1, 1, 1)
-    detailsFramework:SetFontSize(levelFontString, 15)
+    detailsFramework:SetFontSize(levelFontString, 19)
 	levelFontString:SetText("")
 	playerBanner.LevelFontString = levelFontString
 
@@ -606,11 +606,11 @@ local createPlayerBanner = function(parent, name, index)
 	detailsFramework:CreateFlashAnimation(flashTexture)
 	--flashTexture:Flash(0.1, 0.5, 0.01)
 
-	local rantingLabel = detailsFramework:CreateLabel(playerBanner, "", 14, "green")
+	local rantingLabel = detailsFramework:CreateLabel(playerBanner, "", 18, "green")
 	rantingLabel:SetPoint("right", playerBanner, "left", -144, 0)
 	playerBanner.RantingLabel = rantingLabel
 
-	local waitingForLootDotsAnimationLabel = detailsFramework:CreateLabel(playerBanner, "...", 20, "silver") --~dots
+	local waitingForLootDotsAnimationLabel = detailsFramework:CreateLabel(playerBanner, "...", 24, "silver") --~dots
 	waitingForLootDotsAnimationLabel:SetDrawLayer("overlay", 6)
 	waitingForLootDotsAnimationLabel:SetAlpha(0.5)
 	waitingForLootDotsAnimationLabel:SetPoint("right", keyStoneDungeonTexture, "left", -12, 0)
@@ -1009,7 +1009,7 @@ function mythicDungeonFrames.ShowEndOfMythicPlusPanel()
 	--create the panel if it doesn't exist
 	if (not mythicDungeonFrames.ReadyFrame) then
 		local textColor = {1, 0.8196, 0, 1}
-		local textSize = 11
+		local textSize = 15
 
 		---@type details_mplus_endframe
 		mythicDungeonFrames.ReadyFrame = CreateFrame("frame", readyFrameName, UIParent, "BackdropTemplate")
@@ -1044,7 +1044,7 @@ function mythicDungeonFrames.ShowEndOfMythicPlusPanel()
 		local downloadText = downloadFrame:CreateFontString("$parentDownloadText", "overlay", "GameFontNormal")
 		downloadText:SetSize(readyFrame:GetWidth() - 20, 200)
 		downloadText:SetTextColor(unpack(textColor))
-		detailsFramework:SetFontSize(downloadText, 16)
+		detailsFramework:SetFontSize(downloadText, 20)
 		downloadText:SetText("YOUR M+ PANEL LEVELED UP!\n\nDownload\n|cFFFFFFFFDetails! Damage Meter Mythic+|r\n addon to see a complete overview of your runs!")
 		downloadText:SetPoint("center", downloadFrame, "center", 0, 135)
 		downloadFrame.DownloadText = downloadText
@@ -1058,7 +1058,7 @@ function mythicDungeonFrames.ShowEndOfMythicPlusPanel()
 		end, readyFrame:GetWidth()-20, 40, "Click to copy addon name and don't show this again.")
 		downloadButton:SetPoint("center", downloadFrame, "center", 0, -142)
 		DetailsFramework:AddRoundedCornersToFrame(downloadButton.widget, Details.PlayerBreakdown.RoundedCornerPreset)
-		downloadButton.textsize = 12
+		downloadButton.textsize = 16
 		downloadFrame.DownloadButton = downloadButton
 
 		local previewImage = downloadFrame:CreateTexture("$parentPreviewImage", "overlay")
@@ -1068,7 +1068,7 @@ function mythicDungeonFrames.ShowEndOfMythicPlusPanel()
 
 		local clickToEnlargeText = downloadFrame:CreateFontString("$parentClickToEnlargeText", "overlay", "GameFontNormal")
 		clickToEnlargeText:SetTextColor(1, 1, 1)
-		detailsFramework:SetFontSize(clickToEnlargeText, 11)
+		detailsFramework:SetFontSize(clickToEnlargeText, 15)
 		clickToEnlargeText:SetText("Click to enlarge the preview image")
 		clickToEnlargeText:SetPoint("top", previewImage, "bottom", 0, -5)
 		downloadFrame.ClickToEnlargeText = clickToEnlargeText
@@ -1088,7 +1088,7 @@ function mythicDungeonFrames.ShowEndOfMythicPlusPanel()
 
 		local deprecatedText = downloadFrame:CreateFontString("$parentDeprecatedText", "overlay", "GameFontNormal")
 		deprecatedText:SetTextColor(1, 0.7, 0.7, 1)
-		detailsFramework:SetFontSize(deprecatedText, 11)
+		detailsFramework:SetFontSize(deprecatedText, 15)
 		deprecatedText:SetText("this panel will be removed on 11.2")
 		deprecatedText:SetPoint("bottom", downloadFrame, "bottom", 0, 7)
 
@@ -1110,7 +1110,7 @@ function mythicDungeonFrames.ShowEndOfMythicPlusPanel()
 
 		local whyText = whyFrame:CreateFontString(nil, "overlay", "GameFontNormal")
 		whyText:SetTextColor(1, 1, 1)
-		detailsFramework:SetFontSize(whyText, 11)
+		detailsFramework:SetFontSize(whyText, 15)
 		whyText:SetText("why?")
 		whyText:SetPoint("center", whyFrame, "center", 0, 0)
 
@@ -1161,7 +1161,7 @@ function mythicDungeonFrames.ShowEndOfMythicPlusPanel()
 
 		local elapsedTimeText = readyFrame:CreateFontString("$parentClockText", "artwork", "GameFontNormal")
 		elapsedTimeText:SetTextColor(1, 1, 1)
-		detailsFramework:SetFontSize(elapsedTimeText, 11)
+		detailsFramework:SetFontSize(elapsedTimeText, 15)
 		elapsedTimeText:SetText("00:00")
 		elapsedTimeText:SetPoint("left", elapsedTimeIcon, "right", 3, 0)
 		readyFrame.ElapsedTimeText = elapsedTimeText
@@ -1175,7 +1175,7 @@ function mythicDungeonFrames.ShowEndOfMythicPlusPanel()
 
 		local outOfCombatText = readyFrame:CreateFontString("$parentClockText2", "artwork", "GameFontNormal")
 		outOfCombatText:SetTextColor(1, 1, 1)
-		detailsFramework:SetFontSize(outOfCombatText, 11)
+		detailsFramework:SetFontSize(outOfCombatText, 15)
 		detailsFramework:SetFontColor(outOfCombatText, "orangered")
 		outOfCombatText:SetText("00:00")
 		outOfCombatText:SetPoint("left", outOfCombatIcon, "right", 3, 0)
@@ -1189,7 +1189,7 @@ function mythicDungeonFrames.ShowEndOfMythicPlusPanel()
 
 		local sandTimeText = readyFrame:CreateFontString("$parentSandTimeText", "artwork", "GameFontNormal")
 		sandTimeText:SetTextColor(1, 1, 1)
-		detailsFramework:SetFontSize(sandTimeText, 11)
+		detailsFramework:SetFontSize(sandTimeText, 15)
 		sandTimeText:SetText("0")
 		sandTimeText:SetPoint("left", sandTimeIcon, "right", 1, 0)
 		readyFrame.KeylevelText = sandTimeText

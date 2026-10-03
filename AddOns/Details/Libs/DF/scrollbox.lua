@@ -855,7 +855,7 @@ function detailsFramework:CreateMenuWithGridScrollBox(parent, name, refreshMeFun
 
         local button = detailsFramework:CreateButton(line, onClickButtonSelectorButton, width, height)
         detailsFramework:AddRoundedCornersToFrame(button.widget, gridScrollBoxOptions.roundedFramePreset)
-        button.textsize = 11
+        button.textsize = 15
 
 		line.button = button
 
@@ -972,7 +972,7 @@ local auraScrollDefaultSettings = {
     no_backdrop = false,
     backdrop_onenter = {.8, .8, .8, 0.4},
     backdrop_onleave = {.8, .8, .8, 0.2},
-    font_size = 12,
+    font_size = 16,
 	title_text = "",
 }
 
@@ -1053,7 +1053,7 @@ function detailsFramework:CreateAuraScrollBox(parent, name, data, onAuraRemoveCa
 					if (sameNameSpells) then
 						GameCooltip:Preset(2)
 						GameCooltip:SetOwner(line, "left", "right", 2, 0)
-						GameCooltip:SetOption("TextSize", 10)
+						GameCooltip:SetOption("TextSize", 14)
 
 						for i, thisSpellId in ipairs(sameNameSpells) do
 							GameCooltip:AddLine(spellName .. " (" .. thisSpellId .. ")")
@@ -1068,7 +1068,7 @@ function detailsFramework:CreateAuraScrollBox(parent, name, data, onAuraRemoveCa
 		else --the user entered the spellId to track the spell
 			GameCooltip:Preset(2)
 			GameCooltip:SetOwner(line, "left", "right", 2, 0)
-			GameCooltip:SetOption("TextSize", 10)
+			GameCooltip:SetOption("TextSize", 14)
 
 			local spellName, _, spellIcon = GetSpellInfo(spellId)
 			if (spellName) then
@@ -1136,7 +1136,7 @@ function detailsFramework:CreateAuraScrollBox(parent, name, data, onAuraRemoveCa
 		local clickToSetupText = setupAuraButton:CreateFontString("$parentText", "overlay", "GameFontNormal")
 		clickToSetupText:SetText("click to setup")
 		clickToSetupText:SetPoint("right", setupAuraButton, "left", -2, 0)
-		detailsFramework:SetFontSize(clickToSetupText, 9)
+		detailsFramework:SetFontSize(clickToSetupText, 13)
 
 		local setupAuraTexture = setupAuraButton:CreateTexture(nil, "overlay")
 		setupAuraTexture:SetAllPoints()
@@ -1183,7 +1183,7 @@ function detailsFramework:CreateAuraScrollBox(parent, name, data, onAuraRemoveCa
 	local titleLabel = auraScrollBox:CreateFontString("$parentTitleLabel", "overlay", "GameFontNormal")
 	titleLabel:SetPoint("bottomleft", auraScrollBox, "topleft", 0, 2)
 	detailsFramework:SetFontColor(titleLabel, "silver")
-	detailsFramework:SetFontSize(titleLabel, 10)
+	detailsFramework:SetFontSize(titleLabel, 14)
 	auraScrollBox.TitleLabel = titleLabel
 
 	function auraScrollBox:GetTitleFontString()
@@ -1821,7 +1821,7 @@ local simplelistbox_default_options = {
 	width = 230,
 	icon = false,
 	text = "",
-	text_size = 10,
+	text_size = 14,
 	textcolor = "wheat",
 
 	backdrop_color = {1, 1, 1, .5},
@@ -1877,12 +1877,12 @@ function detailsFramework:CreateSimpleListBox(parent, name, title, emptyText, li
 
 	scroll:SetSize(scroll.options.width + 2, scroll.options.height)
 
-	local name = detailsFramework:CreateLabel(scroll, title, 12, "silver")
+	local name = detailsFramework:CreateLabel(scroll, title, 16, "silver")
 	name:SetTemplate(detailsFramework:GetTemplate("font", "OPTIONS_FONT_TEMPLATE"))
 	name:SetPoint("bottomleft", scroll, "topleft", 0, 2)
 	scroll.Title = name
 
-	local emptyLabel = detailsFramework:CreateLabel(scroll, emptyText, 12, "gray")
+	local emptyLabel = detailsFramework:CreateLabel(scroll, emptyText, 16, "gray")
 	emptyLabel:SetAlpha(.6)
 	emptyLabel:SetSize(scroll.options.width-10, scroll.options.height)
 	emptyLabel:SetPoint("center", 0, 0)
@@ -1952,8 +1952,8 @@ detailsFramework.DataScrollFunctions = {
 		local date = detailsFramework:CreateLabel(line, "", detailsFramework:GetTemplate("font", self.options.title_template))
 		local text = detailsFramework:CreateLabel(line, "", detailsFramework:GetTemplate("font", self.options.text_tempate))
 
-		title.textsize = 14
-		date.textsize = 14
+		title.textsize = 18
+		date.textsize = 18
 		text:SetSize(self.options.width - 20, self.options.line_height)
 		text:SetJustifyV ("top")
 
@@ -2142,8 +2142,8 @@ detailsFramework.BossScrollSelectorMixin = {
 		local bossRaid = line:CreateFontString(nil, "overlay", "GameFontNormal")
 		bossName:SetPoint("left", bossIcon, "right", -8, 6)
 		bossRaid:SetPoint("topleft", bossName, "bottomleft", 0, -2)
-		detailsFramework:SetFontSize(bossName, 10)
-		detailsFramework:SetFontSize(bossRaid, 9)
+		detailsFramework:SetFontSize(bossName, 14)
+		detailsFramework:SetFontSize(bossRaid, 13)
 		detailsFramework:SetFontColor(bossRaid, "silver")
 
 		detailsFramework:CreateHighlightTexture(line)

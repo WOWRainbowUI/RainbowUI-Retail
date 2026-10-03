@@ -1,8 +1,13 @@
+-- RainbowUI: resolve display translations lazily, including framework files loaded before locales.
+local Loc = setmetatable({}, {__index = function(_, key)
+    local aceLocale = LibStub("AceLocale-3.0", true)
+    local locale = aceLocale and aceLocale:GetLocale("Details", true)
+    return locale and locale[key] or key
+end})
 do
 
 	local _detalhes = _G.Details
 	local DetailsFrameWork = _detalhes.gump
-	local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
 	local _
 --panel
 	
@@ -38,7 +43,7 @@ do
 		panel.background:SetPoint(0, -25)
 		
 		--title
-		--panel.TitleText:SetText(Loc ["Paste & Copy"]) --10.0 fuck
+		--panel.TitleText:SetText(Loc["Paste & Copy"]) --10.0 fuck
 		--panel.portrait:SetTexture([[Interface\CHARACTERFRAME\TEMPORARYPORTRAIT-FEMALE-BLOODELF]])
 		
 		DetailsFrameWork:NewTextEntry(panel, _, "$parentTextEntry", "text", 476, 14)
@@ -46,7 +51,7 @@ do
 		panel.text:SetHook("OnEditFocusLost", function() panel:Hide() end)
 		panel.text:SetHook("OnChar", function() panel:Hide() end)
 		
-		DetailsFrameWork:NewLabel(panel, _, _, "desc", Loc["paste on your web browser address bar"], "OptionsFontHighlight", 12)
+		DetailsFrameWork:NewLabel(panel, _, _, "desc", Loc["paste on your web browser address bar"], "OptionsFontHighlightSmall", 16)
 		panel.desc:SetPoint(340, -78)
 		panel.desc.width = 150
 		panel.desc.height = 25

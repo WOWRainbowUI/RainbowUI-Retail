@@ -1,3 +1,9 @@
+-- RainbowUI: resolve display translations lazily, including framework files loaded before locales.
+local Loc = setmetatable({}, {__index = function(_, key)
+    local aceLocale = LibStub("AceLocale-3.0", true)
+    local locale = aceLocale and aceLocale:GetLocale("Details", true)
+    return locale and locale[key] or key
+end})
 
 if (true) then
     return
@@ -6,7 +12,6 @@ end
 local Details = _G.Details
 local DF = _G.DetailsFramework
 local libwindow = LibStub("LibWindow-1.1")
-local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
 
 --this function isn't in use
     function Details.OpenDpsBenchmark()

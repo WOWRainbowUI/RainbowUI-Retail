@@ -635,7 +635,7 @@ function Details.switch:ShowMe(instancia)
 
 			function Details.switch:CreateSegmentBlock()
 				local s = gump:CreateLabel(Details.switch.frame)
-				Details:SetFontSize(s, 9)
+				Details:SetFontSize(s, 13)
 
 				local index = #Details.switch.segments_blocks
 				if (index == 1) then --overall button
@@ -1293,7 +1293,7 @@ local bookmarkButtonBodyOnEnter = function(self)
 		gameCooltip:Reset()
 		gameCooltip:SetOwner(self)
 
-		gameCooltip:SetOption("TextSize", 10)
+		gameCooltip:SetOption("TextSize", 14)
 		gameCooltip:SetOption("ButtonsYMod", 0)
 		gameCooltip:SetOption("YSpacingMod", 0)
 		gameCooltip:SetOption("IgnoreButtonAutoHeight", false)

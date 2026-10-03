@@ -33,7 +33,7 @@ local buttonTemplate = detailsFramework:GetTemplate("button", "OPTIONS_BUTTON_TE
 local codeEditor = detailsFramework:NewSpecialLuaEditorEntry(panel, scrollWidth, 555, "editbox", "$parentEntry")
 codeEditor:SetPoint("topleft", panel, "topleft", 10, y)
 detailsFramework:ApplyStandardBackdrop(codeEditor)
-detailsFramework:SetFontSize(codeEditor.editbox, 14)
+detailsFramework:SetFontSize(codeEditor.editbox, 18)
 detailsFramework:ReskinSlider(codeEditor.scroll)
 
 local arg1Button = detailsFramework:NewButton(panel, nil, "$parentButton1", nil, 80, 20, function() codeEditor.editbox:Insert("{data1}") end, nil, nil, nil, string.format(Loc ["STRING_OPTIONS_TEXTEDITOR_DATA"], "1"), 1)

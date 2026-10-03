@@ -413,7 +413,7 @@ local setLabelProperties = function(parent, widget, widgetTable, currentXOffset,
     if (widgetTable.text_template or template) then
         widget:SetTemplate(widgetTable.text_template or template)
     else
-        widget.fontsize = widgetTable.size or 10
+        widget.fontsize = widgetTable.size or 14
     end
 
     if (widgetTable.font) then
@@ -509,6 +509,24 @@ local setToggleProperties = function(parent, widget, widgetTable, currentXOffset
     widget.widget_type = "toggle"
     widget.OnSwitch = widgetTable.set
 
+    if (widgetWidth) then
+        PixelUtil.SetWidth(widget.widget, widgetWidth)
+    end
+    if (widgetHeight) then
+        PixelUtil.SetHeight(widget.widget, widgetHeight)
+    end
+
+    widget:SetTemplate(template)
+
+    --the template goes FIRST, before the checkbox conversion and before the value.
+    --SetTemplate is what stores backdrop_enabledcolor / backdrop_disabledcolor on the widget, and
+    --both of the calls below paint the backdrop from them. run in the old order those two fields
+    --are still nil on a widget's very first build, so SetAsCheckBox and SwitchOnClick each fell
+    --back to a hardcoded colour the template never got to override, and SetTemplate then painted
+    --the flat backdropcolor over the result -- an OFF switch came out of its first build looking
+    --nothing like an off switch, while every later build of the same pooled widget was correct.
+    --SetAsCheckBox also sizes its check texture from the widget's current width and then
+    --early-returns for the rest of the widget's life, so it has to see the template's width too
     if (switchIsCheckbox) then
         widget:SetAsCheckBox()
     end
@@ -560,15 +578,6 @@ local setToggleProperties = function(parent, widget, widgetTable, currentXOffset
         end
         widget:SetValue(widgetTable.get())
     end
-
-    if (widgetWidth) then
-        PixelUtil.SetWidth(widget.widget, widgetWidth)
-    end
-    if (widgetHeight) then
-        PixelUtil.SetHeight(widget.widget, widgetHeight)
-    end
-
-    widget:SetTemplate(template)
 
     setWidgetId(parent, widgetTable, widget)
 
@@ -1414,7 +1423,7 @@ local getMenuWidgetVolative = function(parent, widgetType, indexTable)
     if (widgetType == "label") then
         widgetObject = parent.widget_list_by_type[widgetType][indexTable[widgetType]]
         if (not widgetObject) then
-            widgetObject = detailsFramework:CreateLabel(parent, "", 10, "white", "", nil, "$parentWidget" .. widgetType .. indexTable[widgetType], "overlay")
+            widgetObject = detailsFramework:CreateLabel(parent, "", 14, "white", "", nil, "$parentWidget" .. widgetType .. indexTable[widgetType], "overlay")
             table.insert(parent.widget_list, widgetObject)
             table.insert(parent.widget_list_by_type[widgetType], widgetObject)
         end
@@ -1424,7 +1433,7 @@ local getMenuWidgetVolative = function(parent, widgetType, indexTable)
         widgetObject = parent.widget_list_by_type[widgetType][indexTable[widgetType]]
         if (not widgetObject) then
             widgetObject = detailsFramework:CreateDropDown(parent, function() return {} end, nil, 120, 18, nil, "$parentWidget" .. widgetType .. indexTable[widgetType])
-            widgetObject.hasLabel = detailsFramework:CreateLabel(parent, "", 10, "white", "", nil, "$parentWidget" .. widgetType .. indexTable[widgetType] .. "label", "overlay")
+            widgetObject.hasLabel = detailsFramework:CreateLabel(parent, "", 14, "white", "", nil, "$parentWidget" .. widgetType .. indexTable[widgetType] .. "label", "overlay")
             table.insert(parent.widget_list, widgetObject)
             table.insert(parent.widget_list_by_type[widgetType], widgetObject)
 
@@ -1438,7 +1447,7 @@ local getMenuWidgetVolative = function(parent, widgetType, indexTable)
         widgetObject = parent.widget_list_by_type[widgetType][indexTable[widgetType]]
         if (not widgetObject) then
             widgetObject = detailsFramework:CreateSwitch(parent, nil, true, 20, 20, nil, nil, nil, "$parentWidget" .. widgetType .. indexTable[widgetType])
-            widgetObject.hasLabel = detailsFramework:CreateLabel(parent, "", 10, "white", "", nil, "$parentWidget" .. widgetType .. indexTable[widgetType] .. "label", "overlay")
+            widgetObject.hasLabel = detailsFramework:CreateLabel(parent, "", 14, "white", "", nil, "$parentWidget" .. widgetType .. indexTable[widgetType] .. "label", "overlay")
 
             table.insert(parent.widget_list, widgetObject)
             table.insert(parent.widget_list_by_type[widgetType], widgetObject)
@@ -1451,7 +1460,7 @@ local getMenuWidgetVolative = function(parent, widgetType, indexTable)
         widgetObject = parent.widget_list_by_type[widgetType][indexTable[widgetType]]
         if (not widgetObject) then
             widgetObject = detailsFramework:CreateSlider(parent, 120, 20, 1, 2, 1, 1, false, nil, "$parentWidget" .. widgetType .. indexTable[widgetType])
-            widgetObject.hasLabel = detailsFramework:CreateLabel(parent, "", 10, "white", "", nil, "$parentWidget" .. widgetType .. indexTable[widgetType] .. "label", "overlay")
+            widgetObject.hasLabel = detailsFramework:CreateLabel(parent, "", 14, "white", "", nil, "$parentWidget" .. widgetType .. indexTable[widgetType] .. "label", "overlay")
 
             table.insert(parent.widget_list, widgetObject)
             table.insert(parent.widget_list_by_type[widgetType], widgetObject)
@@ -1464,7 +1473,7 @@ local getMenuWidgetVolative = function(parent, widgetType, indexTable)
         widgetObject = parent.widget_list_by_type[widgetType][indexTable[widgetType]]
         if (not widgetObject) then
             widgetObject = detailsFramework:CreateColorPickButton(parent, "$parentWidget" .. widgetType .. indexTable[widgetType], nil, function()end, 1)
-            widgetObject.hasLabel = detailsFramework:CreateLabel(parent, "", 10, "white", "", nil, "$parentWidget" .. widgetType .. indexTable[widgetType] .. "label", "overlay")
+            widgetObject.hasLabel = detailsFramework:CreateLabel(parent, "", 14, "white", "", nil, "$parentWidget" .. widgetType .. indexTable[widgetType] .. "label", "overlay")
 
             table.insert(parent.widget_list, widgetObject)
             table.insert(parent.widget_list_by_type[widgetType], widgetObject)
@@ -1477,7 +1486,7 @@ local getMenuWidgetVolative = function(parent, widgetType, indexTable)
         widgetObject = parent.widget_list_by_type[widgetType][indexTable[widgetType]]
         if (not widgetObject) then
             widgetObject = detailsFramework:CreateButton(parent, function()end, 120, 18, "", nil, nil, nil, nil, "$parentWidget" .. widgetType .. indexTable[widgetType])
-            widgetObject.hasLabel = detailsFramework:CreateLabel(parent, "", 10, "white", "", nil, "$parentWidget" .. widgetType .. indexTable[widgetType] .. "label", "overlay")
+            widgetObject.hasLabel = detailsFramework:CreateLabel(parent, "", 14, "white", "", nil, "$parentWidget" .. widgetType .. indexTable[widgetType] .. "label", "overlay")
 
             table.insert(parent.widget_list, widgetObject)
             table.insert(parent.widget_list_by_type[widgetType], widgetObject)
@@ -1490,7 +1499,7 @@ local getMenuWidgetVolative = function(parent, widgetType, indexTable)
         widgetObject = parent.widget_list_by_type[widgetType][indexTable[widgetType]]
         if (not widgetObject) then
             widgetObject = detailsFramework:CreateTextEntry(parent, function()end, 120, 18, nil, "$parentWidget" .. widgetType .. indexTable[widgetType])
-            widgetObject.hasLabel = detailsFramework:CreateLabel(parent, "", 10, "white", "", nil, "$parentWidget" .. widgetType .. indexTable[widgetType] .. "label", "overlay")
+            widgetObject.hasLabel = detailsFramework:CreateLabel(parent, "", 14, "white", "", nil, "$parentWidget" .. widgetType .. indexTable[widgetType] .. "label", "overlay")
 
             table.insert(parent.widget_list, widgetObject)
             table.insert(parent.widget_list_by_type[widgetType], widgetObject)
@@ -2333,7 +2342,7 @@ function detailsFramework:CreateInCombatTexture(frame)
     inCombatBackgroundTexture:SetColorTexture(.6, 0, 0, .1)
     inCombatBackgroundTexture:Hide()
 
-    local inCombatLabel = detailsFramework:CreateLabel(frame, "you are in combat", 24, "silver")
+    local inCombatLabel = detailsFramework:CreateLabel(frame, "you are in combat", 28, "silver")
     inCombatLabel:SetPoint("right", inCombatBackgroundTexture, "right", -10, 0)
     inCombatLabel:Hide()
 

@@ -606,7 +606,7 @@ function bParser.ShowTooltip_Hook(instanceLine)
             icon = "",
             texts = {""},
             amount = 0,
-            text_size = 16,
+            text_size = 20,
         }
         tooltipData[#tooltipData + 1] = data
 

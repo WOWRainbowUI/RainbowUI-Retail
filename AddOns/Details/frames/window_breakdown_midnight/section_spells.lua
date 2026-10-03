@@ -114,6 +114,10 @@ local compareRows = function(a, b, sortKey, sortOrder)
     local v1 = getSortValue(a, sortKey)
     local v2 = getSortValue(b, sortKey)
 
+    if issecretvalue(v1) or issecretvalue(v2) then
+        return false
+    end
+
     if (type(v1) == "number" and type(v2) == "number") then
         if (sortOrder == "ASC") then
             return v1 < v2
@@ -357,7 +361,7 @@ local refreshFunc = function(self, data, offset, totalLines)
     if (self.bUseGroupedSpellData) then
         for rowIndex = 1, #data do
             local rowData = data[rowIndex]
-            if (rowData and not rowData.isExpandedChild) then
+            if (rowData and not rowData.isExpandedChild and not issecretvalue(rowData.amount)) then
                 maxGroupedAmount = math.max(maxGroupedAmount, rowData.amount or 0)
             end
         end
@@ -484,7 +488,7 @@ function breakdownMidnight.SpellScrollInit(sectionFrame, windowFrame)
     local spellScroll = windowFrame.SpellScroll
     ---@cast spellScroll detailsbreakdownmidnight_sectionscroll
     local attributeNameText = sectionFrame:CreateFontString("$parentAttributeNameText", "overlay", "GameFontNormal")
-    detailsFramework:SetFontSize(attributeNameText, 14)
+    detailsFramework:SetFontSize(attributeNameText, 18)
     attributeNameText:SetPoint("bottom", sectionFrame, "top", 0, 6)
     spellScroll.AttributeNameText = attributeNameText
     spellScroll.ExpandedSpellGroups = spellScroll.ExpandedSpellGroups or {}
@@ -540,7 +544,7 @@ function breakdownMidnight.SpellScrollInit(sectionFrame, windowFrame)
     local noDataText = noDataPanel:CreateFontString("$parentNoDataText", "overlay", "GameFontNormal")
     noDataText:SetPoint("center", noDataPanel, "center", 0, 0)
     noDataText:SetText("No data available or data is secret value.")
-    detailsFramework:SetFontSize(noDataText, 14)
+    detailsFramework:SetFontSize(noDataText, 18)
     spellScroll.NoDataPanel = noDataPanel
     spellScroll.NoDataText = noDataText
 

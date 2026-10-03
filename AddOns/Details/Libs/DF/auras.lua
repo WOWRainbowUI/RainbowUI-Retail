@@ -65,9 +65,14 @@ function DF:GetSpellCaches()
 	return spellsHashMap, spellsIndexTable, spellsWithSameName
 end
 
+local ignoredSpellIDs = { -- don't load, breaks beta
+	[1251678] = true,
+	[1251535] = true,
+}
+
 local lazyLoadAllSpells = function(payload, iterationCount, maxIterations)
 	local startPoint = payload.nextIndex
-	--the goal is iterate over 500000 spell ids over 200 frames
+	--the goal is iterate over 1500000 spell ids over 600 frames
 	local endPoint = startPoint + 2500
 	payload.nextIndex = endPoint
 	local i = startPoint + 1
@@ -81,22 +86,24 @@ local lazyLoadAllSpells = function(payload, iterationCount, maxIterations)
 	local allSpellsSameName = payload.allSpellsSameName
 
 	while (i < endPoint) do
-		local spellName = GetSpellInfo(i)
+		if not ignoredSpellIDs[i] then
+			local spellName = GetSpellInfo(i)
 
-		if (spellName) then
-			spellName = toLowerCase(spellName)
-			hashMap[spellName] = i --[spellname] = spellId
-			indexTable[#indexTable+1] = spellName --array with all spellnames
+			if (spellName) then
+				spellName = toLowerCase(spellName)
+				hashMap[spellName] = i --[spellname] = spellId
+				indexTable[#indexTable+1] = spellName --array with all spellnames
 
-			local spellNameTable = allSpellsSameName[spellName]
-			if (not spellNameTable) then
-				spellNameTable = {}
-				allSpellsSameName[spellName] = spellNameTable
+				local spellNameTable = allSpellsSameName[spellName]
+				if (not spellNameTable) then
+					spellNameTable = {}
+					allSpellsSameName[spellName] = spellNameTable
+				end
+				spellNameTable[#spellNameTable+1] = i
 			end
-			spellNameTable[#spellNameTable+1] = i
-		end
 
-		i = i + 1
+			i = i + 1
+		end
 	end
 end
 
@@ -122,7 +129,7 @@ function DF:LoadSpellCache(hashMap, indexTable, allSpellsSameName)
 	spellsIndexTable = indexTable
 	spellsWithSameName = allSpellsSameName
 
-	local iterations = 200
+	local iterations = 600
 	local payload = {
 		nextIndex = 0,
 		hashMap = hashMap,
@@ -261,10 +268,10 @@ function DF:CreateAuraConfigPanel(parent, name, db, changeCallback, options, tex
 	methodSelectionBackground:SetPoint("topright", newAuraPanel, "topright", 0, 0)
 	DF:ApplyStandardBackdrop(methodSelectionBackground)
 
-	local trackingMethodLabel = self:CreateLabel(methodSelectionBackground, texts.METHOD, 12, "orange")
+	local trackingMethodLabel = self:CreateLabel(methodSelectionBackground, texts.METHOD, 16, "orange")
 	trackingMethodLabel:SetPoint("topleft", methodSelectionBackground, "topleft", 6, -4)
 
-	newAuraPanel.desc_label = self:CreateLabel(methodSelectionBackground, "", 10, "silver")
+	newAuraPanel.desc_label = self:CreateLabel(methodSelectionBackground, "", 14, "silver")
 	newAuraPanel.desc_label:SetPoint("left", methodSelectionBackground, "left", 130, 0)
 	newAuraPanel.desc_label:SetJustifyV("top")
 
@@ -895,12 +902,12 @@ function DF:CreateAuraConfigPanel(parent, name, db, changeCallback, options, tex
 	newAuraPanel.buffs_added = buffs_added
 	newAuraPanel.debuffs_added = debuffs_added
 
-	local buffs_added_name = DF:CreateLabel(buffs_added, "Buffs", 12, "silver")
+	local buffs_added_name = DF:CreateLabel(buffs_added, "Buffs", 16, "silver")
 	buffs_added_name:SetTemplate(DF:GetTemplate("font", "OPTIONS_FONT_TEMPLATE"))
 	buffs_added_name:SetPoint("bottomleft", buffs_added, "topleft", 0, 2)
 	buffs_added.Title = buffs_added_name
 
-	local debuffs_added_name = DF:CreateLabel(debuffs_added, "Debuffs", 12, "silver")
+	local debuffs_added_name = DF:CreateLabel(debuffs_added, "Debuffs", 16, "silver")
 	debuffs_added_name:SetTemplate(DF:GetTemplate("font", "OPTIONS_FONT_TEMPLATE"))
 	debuffs_added_name:SetPoint("bottomleft", debuffs_added, "topleft", 0, 2)
 	debuffs_added.Title = debuffs_added_name
@@ -1016,7 +1023,7 @@ function DF:CreateAuraConfigPanel(parent, name, db, changeCallback, options, tex
 		end
 	end, 100, 20, "Add Debuff", nil, nil, nil, nil, nil, nil, DF:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"))
 
-	local multiple_spells_label = DF:CreateLabel(buffs_added, "You can add multiple auras at once by separating them with ';'.\nExample: Fireball; Frostbolt; Flamestrike", 10, "gray")
+	local multiple_spells_label = DF:CreateLabel(buffs_added, "You can add multiple auras at once by separating them with ';'.\nExample: Fireball; Frostbolt; Flamestrike", 14, "gray")
 	multiple_spells_label:SetSize(350, 24)
 	multiple_spells_label:SetJustifyV("top")
 

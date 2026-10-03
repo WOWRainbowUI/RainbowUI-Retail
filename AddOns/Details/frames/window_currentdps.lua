@@ -1,7 +1,12 @@
+-- RainbowUI: resolve display translations lazily, including framework files loaded before locales.
+local Loc = setmetatable({}, {__index = function(_, key)
+    local aceLocale = LibStub("AceLocale-3.0", true)
+    local locale = aceLocale and aceLocale:GetLocale("Details", true)
+    return locale and locale[key] or key
+end})
 
 
 local Details = _G.Details
-local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
 local libwindow = LibStub("LibWindow-1.1")
 local DF = DetailsFramework
 local isDragonflight = DF.IsDragonflight()
@@ -43,7 +48,7 @@ function Details:OpenCurrentRealDPSOptions(from_options_panel)
 		statusBar.text = statusBar:CreateFontString(nil, "overlay", "GameFontNormal")
 		statusBar.text:SetPoint("left", statusBar, "left", 5, 0)
 		statusBar.text:SetText("By Terciob | Part of Details! Damage Meter | Built with Details! Framework")
-		DF:SetFontSize(statusBar.text, 11)
+		DF:SetFontSize(statusBar.text, 15)
 		DF:SetFontColor(statusBar.text, "gray")
 
 		--add an extra background
@@ -60,11 +65,11 @@ function Details:OpenCurrentRealDPSOptions(from_options_panel)
 				Details:UpdateTheRealCurrentDPSFrame(testUsing)
 			end
 			local strataTable = {}
-			strataTable [1] = {value = "BACKGROUND", label = Loc ["BACKGROUND"], onclick = set_frame_strata}
-			strataTable [2] = {value = "LOW", label = Loc ["LOW"], onclick = set_frame_strata}
-			strataTable [3] = {value = "MEDIUM", label = Loc ["MEDIUM"], onclick = set_frame_strata}
-			strataTable [4] = {value = "HIGH", label = Loc ["HIGH"], onclick = set_frame_strata}
-			strataTable [5] = {value = "DIALOG", label = Loc ["DIALOG"], onclick = set_frame_strata}
+			strataTable [1] = {value = Loc["BACKGROUND"], label = Loc["BACKGROUND"], onclick = set_frame_strata}
+			strataTable [2] = {value = Loc["LOW"], label = Loc["LOW"], onclick = set_frame_strata}
+			strataTable [3] = {value = Loc["MEDIUM"], label = Loc["MEDIUM"], onclick = set_frame_strata}
+			strataTable [4] = {value = Loc["HIGH"], label = Loc["HIGH"], onclick = set_frame_strata}
+			strataTable [5] = {value = Loc["DIALOG"], label = Loc["DIALOG"], onclick = set_frame_strata}
 			
 		--font options
 			local set_font_shadow= function(_, _, shadow)
@@ -429,7 +434,7 @@ function Details:CreateCurrentDpsFrame(parent, name)
 			barFrame.splitBar = DF:CreateSplitBar(barFrame, 400, 20)
 			barFrame.splitBar:SetSize(400, 20)
 			barFrame.splitBar:SetPoint("center", barFrame, "center", 0, 0)
-			barFrame.splitBar.fontsize = 10
+			barFrame.splitBar.fontsize = 14
 			barFrame.splitBar:SetTexture(SharedMedia:Fetch("statusbar", "Details Flat"))
 			barFrame.splitBar:SetBackgroundTexture([[Interface/AddOns/Details/images/bar_textures/chess]])
 			barFrame.splitBar:SetBackgroundColor(1, 0, 0, 1)
@@ -478,7 +483,7 @@ function Details:CreateCurrentDpsFrame(parent, name)
 		local TitleString = f:CreateFontString(nil, "overlay", "GameFontNormal")
 		TitleString:SetPoint("top", f, "top", 0, -5)
 		TitleString:SetText(Loc["Details! Arena Real Time DPS Tracker"])
-		DF:SetFontSize(TitleString, 9)
+		DF:SetFontSize(TitleString, 13)
 		local TitleBackground = f:CreateTexture(nil, "artwork")
 		TitleBackground:SetTexture([[Interface\Tooltips\UI-Tooltip-Background]])
 		TitleBackground:SetVertexColor(.1, .1, .1, .9)
@@ -511,7 +516,7 @@ function Details:CreateCurrentDpsFrame(parent, name)
 	--labels for mythic dungeon / group party
 		local labelGroupDamage = f:CreateFontString(nil, "overlay", "GameFontNormal")
 		labelGroupDamage:SetText(Loc["Real Time Group DPS"])
-		DF:SetFontSize(labelGroupDamage, 14)
+		DF:SetFontSize(labelGroupDamage, 18)
 		DF:SetFontOutline (labelGroupDamage, "NONE")
 		
 		local labelGroupDamage_DPS = f:CreateFontString(nil, "overlay", "GameFontNormal")
@@ -949,7 +954,7 @@ function DetailsTestSplitBar()
 		barFrame.splitBar = DF:CreateSplitBar(barFrame, 400, 50)
 		barFrame.splitBar:SetSize(400, 50)
 		barFrame.splitBar:SetPoint("center", barFrame, "center", 0, 0)
-		barFrame.splitBar.fontsize = 10
+		barFrame.splitBar.fontsize = 14
 		local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
 		barFrame.splitBar:SetTexture(SharedMedia:Fetch("statusbar", "Details Flat"))
 

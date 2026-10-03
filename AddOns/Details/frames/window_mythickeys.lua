@@ -6,7 +6,7 @@ local _ = nil
 local detailsFramework = DetailsFramework
 
 
-if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
+if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE and not detailsFramework.IsForeverWow()) then
 	SLASH_KEYSTONE1 = "/keystone"
 	SLASH_KEYSTONE2 = "/keys"
 	SLASH_KEYSTONE3 = "/key"
@@ -142,7 +142,7 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 	cooldownBlocker.cooldownText:SetPoint("center", cooldownBlocker, "center", 0, 0)
 	cooldownBlocker.cooldownText:SetTextColor(1, 1, 1, 0.25)
 	cooldownBlocker.cooldownText:SetText("Cooldown")
-	detailsFramework:SetFontSize(cooldownBlocker.cooldownText, 20)
+	detailsFramework:SetFontSize(cooldownBlocker.cooldownText, 24)
 
 	local spellIdToCheckCooldown
 	local teleporterButtons = {}
@@ -343,7 +343,7 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
                 dndCheckbox.Text:SetText(Loc["STRING_ENABLE_DO_NOT_DISTURB"])
                 dndCheckbox.Text:SetText("D.N.D.")
                 dndCheckbox.Text:SetPoint("left", dndCheckbox.widget, "right", 5, 0)
-                detailsFramework:SetFontSize(dndCheckbox.Text, 10)
+                detailsFramework:SetFontSize(dndCheckbox.Text, 14)
 
                 ---@type df_radiooptions[]
                 local mainTabSelectorRadioOptions = {{
@@ -356,7 +356,7 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
                         mask = nil,
                         width = 20,
                         height = 20,
-                        text_size = 12,
+                        text_size = 16,
                         callback = selectSection,
                     }}
 
@@ -371,7 +371,7 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
                         mask = nil,
                         width = 20,
                         height = 20,
-                        text_size = 12,
+                        text_size = 16,
                         callback = selectSection,
                     })
                 end
@@ -387,7 +387,7 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
                         mask = nil,
                         width = 20,
                         height = 20,
-                        text_size = 12,
+                        text_size = 16,
                         callback = selectSection,
                     })
                 end
@@ -489,7 +489,7 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
                 statusBar.text = statusBar:CreateFontString(nil, "overlay", "GameFontNormal")
                 statusBar.text:SetPoint("left", statusBar, "left", 5, 0)
                 statusBar.text:SetText("By Terciob | From Details! Damage Meter")
-                detailsFramework:SetFontSize(statusBar.text, 12)
+                detailsFramework:SetFontSize(statusBar.text, 16)
                 detailsFramework:SetFontColor(statusBar.text, "gray")
 
                 local requestFromGuildButton = detailsFramework:CreateButton(f, function()
@@ -530,7 +530,7 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
                 recentPlayersFrame.Title:SetPoint("bottomleft", recentPlayersFrame, "topleft", 3, 3)
                 recentPlayersFrame.Title:SetText(Loc["STRING_RECENT_PLAYERS"])
                 recentPlayersFrame:SetAlpha(0.834)
-                detailsFramework:SetFontSize(recentPlayersFrame.Title, 12)
+                detailsFramework:SetFontSize(recentPlayersFrame.Title, 16)
 
                 local backgroundGradientTexture = detailsFramework:CreateTexture(recentPlayersFrame, {gradient = "vertical", fromColor = {0, 0, 0, 0.3}, toColor = {0, 0, 0, 0}}, 1, 60, "artwork", {0, 1, 0, 1})
                 backgroundGradientTexture:SetPoint("bottomleft", recentPlayersFrame, "bottomleft", 0, 0)
@@ -598,7 +598,7 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 
                     ---@type recent_friend_button
                     local button = detailsFramework:CreateButton(line, openScoreBoardAtRunId, width, 32)
-                    button.textsize = 11
+                    button.textsize = 15
                     button:SetAlpha(0.934)
 
                     detailsFramework:ApplyStandardBackdrop(button)
@@ -629,13 +629,13 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
                     local playerName = button:CreateFontString(nil, "overlay", "GameFontNormal")
                     playerName:SetPoint("left", roleIcon, "right", 2, 0)
                     playerName:SetText("Player Name") --place holder
-                    detailsFramework:SetFontSize(playerName, 10)
+                    detailsFramework:SetFontSize(playerName, 14)
 
                     --type
                     local activityType = button:CreateFontString(nil, "overlay", "GameFontNormal")
                     activityType:SetPoint("bottomleft", button.widget, "bottomleft", 3, 1)
                     activityType:SetText("Activity Type") --place holder
-                    detailsFramework:SetFontSize(activityType, 9)
+                    detailsFramework:SetFontSize(activityType, 13)
 
                     local addFriendButtonSize = 16
 
@@ -1132,7 +1132,7 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 
                     --dungeon name
                     local dungeonNameText = detailsFramework:CreateLabel(line, "")
-                    detailsFramework:SetFontSize(dungeonNameText, 10)
+                    detailsFramework:SetFontSize(dungeonNameText, 14)
 
                     --classic dungeon name
                     local classicDungeonNameText = detailsFramework:CreateLabel(line, "")
