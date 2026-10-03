@@ -12,6 +12,8 @@ if (GetLocale() ~= "zhTW") then return end
 -- Local reference for faster access.
 local L = MikSBT.translations
 
+L.MSBT_MSBT = "戰鬥-捲動文字"
+
 -------------------------------------------------------------------------------
 -- Traditional Chinese localization
 -------------------------------------------------------------------------------
