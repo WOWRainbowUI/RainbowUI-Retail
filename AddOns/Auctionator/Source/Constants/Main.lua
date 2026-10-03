@@ -53,7 +53,7 @@ Auctionator.Constants = {
 
   AfterAHCut = 0.95,
   IsLegacyAH = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC or IsUsingLegacyAuctionClient ~= nil and IsUsingLegacyAuctionClient(),
-  IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE,
+  IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE or WOW_PROJECT_ID == WOW_PROJECT_CAMELOT, -- temporary fix assigning retail to mainline
   IsForever = build >= 16000 and build < 20000,
   IsVanilla = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC,
 
