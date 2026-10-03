@@ -5,6 +5,10 @@
 
 local addonName, RGX = ...
 
+-- Flavor-gated (compat.lua): this module's Blizzard namespace only exists on
+-- specific clients; without the required API the module must not register.
+if not (RGX and type(RGX.ModuleSupported) == 'function' and RGX:ModuleSupported("housing")) then return end
+
 local Housing = {
     _eventsInit = false,
     _onFavorGained = {},
@@ -104,4 +108,4 @@ function Housing:Init()
 end
 
 _G.RGXHousing = Housing
-RGX:RegisterModule("housing", Housing)
+RGX:RegisterModule("housing", Housing, { category = "game", flavors = { "retail" } })

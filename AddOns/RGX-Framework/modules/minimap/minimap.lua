@@ -4,6 +4,11 @@
     One-call minimap button with circular drag, persistent angle, tooltip, and
     show/hide — shared across all RGX addons so no addon has to reimplement it.
 
+    Suite icons: the framework ships round and square brand icons — use
+    "Interface\\AddOns\\RGX-Framework\\media\\round.tga" for minimap buttons
+    and "Interface\\AddOns\\RGX-Framework\\media\\square.tga" for header/panel
+    icons so every RGX addon shares one identity.
+
     Quick start:
         local MM = RGX:GetMinimap()
 
@@ -49,7 +54,7 @@
         btn.frame              — the raw WoW Button frame
 --]]
 
-local _, Minimap = ...
+local Minimap = {}
 local RGX = _G.RGXFramework
 
 if not RGX then
@@ -368,6 +373,12 @@ function Minimap:Create(opts)
         if GameTooltip then GameTooltip:Hide() end
     end)
 
+    -- If an addon changes a line after creation, OnEnter and post-click calls
+    -- re-render it from the current binding rather than stale literal text.
+    function btn:RefreshTooltip()
+        if type(ShowTooltip) == "function" then ShowTooltip(self, opts) end
+    end
+
     frame:SetScript("OnClick", function(_, mouseButton)
         if frame.isDragging then return end
 
@@ -417,7 +428,7 @@ end
 ============================================================================]]
 
 function Minimap:Init()
-    RGX:RegisterModule("minimap", self)
+    RGX:RegisterModule("minimap", self, { category = "library" })
     _G.RGXMinimap = self
 end
 

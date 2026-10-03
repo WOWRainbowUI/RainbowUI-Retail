@@ -91,6 +91,27 @@ function RGX:HasCapability(name)
     return self.Capabilities[name] == true
 end
 
+-- Module load gating is capability-first: a module registers only when the
+-- client's own global surface contains what the module drives. Decisions are
+-- evidence-coded against the Ketho client dumps (Resources/GlobalAPI.lua):
+--   housing      C_Housing                        retail only
+--   delves       C_DelvesUI                       retail only
+--   tradingpost  C_PerksProgram                   retail only
+--   collectibles C_ToyBox/C_MountJournal          retail only
+--   prey         C_QuestLog.GetActivePreyQuest    retail + forever beta
+-- Deliberately keying on the namespace function keeps this correct even as
+-- flavor builds change; Blizzard's typo'd CURRENT_HOUSE_INFO_RECIEVED event
+-- exists on every flavor and is NOT a housing signal by itself.
+function RGX:ModuleSupported(name)
+    if name == "housing" then return type(C_Housing) == "table" or type(C_HousingDecor) == "table" end
+    if name == "delves" then return HasFunction(C_DelvesUI, "GetFactionForCompanion") or HasFunction(C_DelvesUI, "GetDelvesFactionForSeason") end
+    if name == "tradingpost" then return HasFunction(C_PerksProgram, "GetCurrencyAmount") end
+    if name == "collectibles" then return type(C_ToyBox) == "table" or type(C_MountJournal) == "table" end
+    if name == "prey" then return HasFunction(C_QuestLog, "GetActivePreyQuest") end
+    -- Unlisted modules are framework-structural and load everywhere.
+    return true
+end
+
 function RGX:HasEvent(name)
     return HasEvent(name)
 end
@@ -111,8 +132,9 @@ if not C_AddOns then
     C_AddOns.IsAddOnLoaded = IsAddOnLoaded
 end
 
--- Safe API wrappers (return nil if API doesn't exist)
-RGX.API = {}
+-- Safe API wrappers (return nil if API doesn't exist). Preserve any wrappers
+-- an earlier compat file already installed; this table is shared state.
+RGX.API = RGX.API or {}
 
 function RGX.API.GetAddOnMetadata(name, field)
     if C_AddOns and C_AddOns.GetAddOnMetadata then
@@ -209,6 +231,19 @@ local function SecretPredicate(name, ...)
     return result
 end
 
+-- A client is secret-capable only when it actually ships the secret-value
+-- machinery. Clients without it (the 4.4.2 Cataclysm contract, the WoW Forever
+-- beta) cannot produce secret values at all.
+local function SecretMachineryPresent()
+    if type(canaccessvalue) == "function"
+        or type(issecretvalue) == "function"
+        or type(canaccesstable) == "function"
+        or type(issecrettable) == "function" then
+        return true
+    end
+    return type(C_Secrets) == "table"
+end
+
 function RGX.API.HasSecretRestrictions()
     local restricted = SecretPredicate("HasSecretRestrictions")
     if type(restricted) == "boolean" then
@@ -217,6 +252,13 @@ function RGX.API.HasSecretRestrictions()
 
     -- The supported 4.4.2 Cataclysm contract predates secret values entirely.
     if RGX.isCata then
+        return false
+    end
+
+    -- docs/AURAS.md: a contract with no secret-value system preserves
+    -- unrestricted behavior; only an unknown or partially supported
+    -- secret-capable environment fails closed.
+    if not SecretMachineryPresent() then
         return false
     end
     return nil
@@ -235,6 +277,13 @@ end
 
 function RGX.API.ShouldAurasBeSecret()
     return AuraSecretPredicate("ShouldAurasBeSecret")
+end
+
+function RGX.API.ShouldSpellCooldownBeSecret(spellID)
+    if not RGX.API.CanAccessValue(spellID) or type(spellID) ~= "number" then
+        return nil
+    end
+    return AuraSecretPredicate("ShouldSpellCooldownBeSecret", spellID)
 end
 
 function RGX.API.ShouldUnitAuraIndexBeSecret(unit, index, filter)
@@ -281,7 +330,7 @@ function RGX.API.UnitAura(unit, index, filter)
         if not RGX.API.CanAccessTable(auraData) then return nil, "restricted" end
         return auraData, "accessible"
     end
-    if type(UnitAura) ~= "function" then return nil, "missing" end
+    if type(UnitAura) ~= "function" then return nil, "restricted" end
     local name, icon, applications, dispelName, duration, expirationTime,
         sourceUnit, isStealable, _, spellId, canApplyAura, isBossAura,
         castByPlayer, nameplateShowAll, timeMod = UnitAura(unit, index, filter)
@@ -542,7 +591,7 @@ function RGX:TryLoadModule(moduleName)
     return false
 end
 
-RGX:Debug("Compat layer loaded: " .. RGX.wowVersion)
+if type(RGX.Debug) == "function" then RGX:Debug("Compat layer loaded: " .. RGX.wowVersion) end
 
 -- Secret value/table access helpers for addons
 function RGX.API.CanAccessValue(value)

@@ -1,7 +1,7 @@
 --=====================================================================================
 -- RGX-Framework | RGXSharedMedia
 -- Multi-type media registry with external-addon scanner.
--- Inspired by BLU's rewritten SharedMedia bridge (no LibStub/LibSharedMedia dep).
+-- Bridge design proven in consumer addons (no LibStub/LibSharedMedia dep).
 --
 -- Supported media types (extensible):
 --   "sound"      - .ogg / .mp3 / .wav files
@@ -369,7 +369,7 @@ end
 -- Register a bridge sound path (auto-detected; not persisted)
 -- Register an AddOn folder whose sounds should not be bridged by the generic
 -- scan. Call this before the generic scan runs (e.g. from a consumer's OnReady).
--- Idempotent. folderName is the AddOn folder name, e.g. "BLU".
+-- Idempotent. folderName is the AddOn folder name, e.g. "MyAddon".
 function SM:ExcludeFolder(folderName)
     if type(folderName) ~= "string" or folderName == "" then return end
     self.excludedFolders[string.lower(folderName)] = true
@@ -658,4 +658,4 @@ end
 -- ── Wire into framework ───────────────────────────────────────────────────────
 
 _G.RGXSharedMedia = SM
-RGX:RegisterModule("sharedmedia", SM)
+RGX:RegisterModule("sharedmedia", SM, { category = "library" })

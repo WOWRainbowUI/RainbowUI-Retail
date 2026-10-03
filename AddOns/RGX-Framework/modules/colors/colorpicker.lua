@@ -1080,7 +1080,7 @@ end
 ============================================================================]]
 
 function ColorPicker:Init()
-    RGX:RegisterModule("colorpicker", self)
+    RGX:RegisterModule("colorpicker", self, { category = "library", depends = { "colors" } })
 end
 
 ColorPicker:Init()

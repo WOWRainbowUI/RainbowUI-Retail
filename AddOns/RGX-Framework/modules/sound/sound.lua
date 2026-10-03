@@ -320,7 +320,7 @@ INITIALIZATION
 ============================================================================]]
 
 function Sound:Init()
-    RGX:RegisterModule("sound", self)
+    RGX:RegisterModule("sound", self, { category = "library" })
     _G.RGXSound = self
 end
 

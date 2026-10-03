@@ -40,6 +40,7 @@ function Fonts:CreateFontDropdown(parent, opts)
 		height = opts.height or 56,
 		label = opts.label or "Font",
 		buttonWidth = opts.buttonWidth or 180,
+		triggerStyle = opts.triggerStyle,
 		menuHeight = opts.menuHeight or 300,
 		menuWidth = opts.menuWidth,
 		value = initialValue,
@@ -54,6 +55,7 @@ function Fonts:CreateFontDropdown(parent, opts)
 			if type(opts.onChange) == "function" then
 				opts.onChange(resolved, h.path, nil, h)
 			end
+			h:Refresh(resolved)
 		end,
 	})
 

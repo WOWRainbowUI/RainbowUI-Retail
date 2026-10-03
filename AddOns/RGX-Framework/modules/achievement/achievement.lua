@@ -50,4 +50,4 @@ function Achievement:Init()
 end
 
 _G.RGXAchievement = Achievement
-RGX:RegisterModule("achievement", Achievement)
+RGX:RegisterModule("achievement", Achievement, { category = "game" })

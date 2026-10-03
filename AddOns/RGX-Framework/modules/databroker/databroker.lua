@@ -135,4 +135,4 @@ end
 -- ── Wire into framework ───────────────────────────────────────────────────────
 
 _G.RGXDataBroker = DB
-RGX:RegisterModule("databroker", DB)
+RGX:RegisterModule("databroker", DB, { category = "library" })

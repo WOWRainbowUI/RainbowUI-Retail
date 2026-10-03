@@ -5,6 +5,10 @@
 
 local addonName, RGX = ...
 
+-- Flavor-gated (compat.lua): this module's Blizzard namespace only exists on
+-- specific clients; without the required API the module must not register.
+if not (RGX and type(RGX.ModuleSupported) == 'function' and RGX:ModuleSupported("prey")) then return end
+
 local Prey = {
     _eventsInit = false,
     _onHuntStarted = {},
@@ -122,4 +126,4 @@ function Prey:Init()
 end
 
 _G.RGXPrey = Prey
-RGX:RegisterModule("prey", Prey)
+RGX:RegisterModule("prey", Prey, { category = "game", flavors = { "retail", "forever" } })

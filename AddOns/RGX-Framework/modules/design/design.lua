@@ -34,10 +34,19 @@ local addonName, RGX = ...
 
 local Design = {}
 
+-- Apply the framework default font to a label, preserving size/flags.
+local function ApplyDefaultFont(fs)
+    local Fonts = _G.RGXFonts
+    if not (Fonts and type(Fonts.Apply) == "function" and type(Fonts.GetDefault) == "function") then return end
+    if not (fs and fs.GetFont) then return end
+    local _, size, flags = fs:GetFont()
+    pcall(Fonts.Apply, Fonts, fs, Fonts:GetDefault(), size, flags)
+end
+
 -- Theme tokens. Addons should override these before building UI.
 Design.Theme = {
     primary = {0.000, 0.902, 1.000}, -- #00e6ff cyan
-    accent  = {0.941, 0.706, 0.161}, -- #f0b429 gold
+    accent  = {0.737, 0.435, 0.659}, -- #bc6fa8 brand purple (highlights/active states)
 }
 
 -- Structural palette: dark navy foundation with cyan-friendly neutrals.
@@ -65,8 +74,24 @@ Design.PANEL_TEX = "Interface\\AddOns\\RGX-Framework\\media\\panel_rounded.tga"
 local PANEL_TC = 0.25
 
 local function ApplyLabelFont(fs, size)
-    -- Inter for latin clients; the client's own font covers CJK/cyrillic
-    -- scripts that Inter does not provide glyphs for.
+    -- One font per addon: honor the framework font designation
+    -- (RGXFonts default set by the addon) so element, button, and text fonts
+    -- are always the same face. Locale fallback covers CJK/cyrillic scripts.
+    local Fonts = _G.RGXFonts
+    if Fonts and type(Fonts.Apply) == "function" and type(Fonts.GetDefault) == "function" then
+        local ok = pcall(function()
+            local _, natural = fs:GetFont()
+            Fonts:Apply(fs, Fonts:GetDefault(), size or natural or 12, "")
+        end)
+        if ok and fs.GetFont then
+            local applied = fs:GetFont()
+            if applied then
+                fs:SetShadowColor(0, 0, 0, 0.6)
+                fs:SetShadowOffset(1, -1)
+                return fs
+            end
+        end
+    end
     local font = "Interface\\AddOns\\RGX-Framework\\media\\fonts\\Inter-Regular.otf"
     local locale = _G.GetLocale and _G.GetLocale()
     if locale == "koKR" or locale == "zhCN" or locale == "zhTW" or locale == "ruRU" then
@@ -166,7 +191,7 @@ end
 
 -- Scoped theme override for one addon's UI construction without mutating the
 -- shared defaults: applies the theme for fn's duration, then restores.
---   Design:WithTheme({ primary = SQP_GREEN }, function() ... build panel ... end)
+--   Design:WithTheme({ primary = MY_BRAND_GREEN }, function() ... build panel ... end)
 function Design:WithTheme(theme, fn)
     if type(fn) ~= "function" then return end
     local prevPrimary = self.Theme.primary
@@ -243,6 +268,9 @@ function Design:CreateFrame(parent, opts)
         if opts.width  then frame:SetWidth(opts.width)   end
         if opts.height then frame:SetHeight(opts.height) end
         self:ApplyBackdrop(frame, opts.variant or "dark", opts.bgAlpha)
+        if opts.color then
+            frame:SetBackdropColor(self:Unpack(opts.color))
+        end
         return frame
     end
 
@@ -268,11 +296,11 @@ function Design:CreateButton(parent, text, width, height, tooltipTitle, tooltipB
     border:SetBackdropBorderColor(self:Unpack("border"))
     btn.border = border
 
-    local label = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    local label = btn:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     label:SetPoint("CENTER", 0, 0)
     label:SetText(text or "")
-    label:SetTextColor(self:Unpack("text"))
-    ApplyLabelFont(label, 12)
+    label:SetTextColor(self:Unpack("subtext"))
+    ApplyDefaultFont(label)
     btn.label = label
 
     btn:SetScript("OnEnter", function(self)
@@ -293,7 +321,7 @@ function Design:CreateButton(parent, text, width, height, tooltipTitle, tooltipB
     btn:SetScript("OnLeave", function(self)
         self.bg:SetColorTexture(Design:Unpack("surface"))
         self.border:SetBackdropBorderColor(Design:Unpack("border"))
-        self.label:SetTextColor(Design:Unpack("text"))
+        self.label:SetTextColor(Design:Unpack("subtext"))
         GameTooltip:Hide()
     end)
 
@@ -313,6 +341,11 @@ function Design:CreateSectionHeader(parent, text, icon)
     local header = CreateFrame("Frame", nil, parent, "BackdropTemplate")
     header:SetHeight(32)
     self:ApplyBackdrop(header, "solid", 0.95)
+    -- Section headers frame in a muted version of the theme's brand color:
+    -- the primary token dimmed down, never the full-brightness or accent
+    -- variant, so every addon gets its own subdued brand frame.
+    local pr, pg, pb = self:Unpack("primary")
+    header:SetBackdropBorderColor(pr * 0.35, pg * 0.35, pb * 0.35)
 
     local leftInset = 10
     if icon then
@@ -328,7 +361,7 @@ function Design:CreateSectionHeader(parent, text, icon)
     label:SetPoint("LEFT", leftInset, 0)
     label:SetText(text)
     label:SetTextColor(self:Unpack("primary"))
-    ApplyLabelFont(label, 13)
+    ApplyDefaultFont(label)
     header.label = label
 
     return header
@@ -343,8 +376,9 @@ function Design:CreateDivider(parent)
     return d
 end
 
-function Design:CreateSection(parent, title, icon)
-    local section = self:CreateFrame(parent, { color = "panelAlt" })
+function Design:CreateSection(parent, title, icon, opts)
+    opts = opts or {}
+    local section = self:CreateFrame(parent, { color = "panelAlt", square = opts.square })
 
     if title then
         local header = self:CreateSectionHeader(section, title, icon)
@@ -354,14 +388,18 @@ function Design:CreateSection(parent, title, icon)
         section.content = CreateFrame("Frame", nil, section)
         section.content:SetPoint("TOPLEFT",     16, -42)
         section.content:SetPoint("BOTTOMRIGHT", -16,  12)
+        section.contentTopInset = 42
+        section.contentBottomInset = 12
     else
         section.content = CreateFrame("Frame", nil, section)
         section.content:SetPoint("TOPLEFT",     16, -10)
         section.content:SetPoint("BOTTOMRIGHT", -16,  10)
+        section.contentTopInset = 10
+        section.contentBottomInset = 10
     end
 
     return section
 end
 
 _G.RGXDesign = Design
-RGX:RegisterModule("design", Design)
+RGX:RegisterModule("design", Design, { category = "library" })

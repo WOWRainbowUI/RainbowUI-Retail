@@ -27,6 +27,7 @@ function Fonts:CreateFontSettingControl(parent, opts)
 		width = opts.dropdownWidth or (opts.width or 250) - (opts.showReset == false and 0 or 28),
 		height = opts.dropdownHeight or 56,
 		buttonWidth = opts.buttonWidth or 180,
+		triggerStyle = opts.triggerStyle,
 		value = resolveCurrentName(),
 		onChange = function(fontName, fontPath)
 			holder.value = fontName
@@ -51,28 +52,16 @@ function Fonts:CreateFontSettingControl(parent, opts)
 		return holder
 	end
 	dropdown:SetPoint("TOPLEFT", holder, "TOPLEFT", 0, 0)
+	if opts.fill then
+		dropdown:SetPoint("TOPRIGHT", holder, "TOPRIGHT", 0, 0)
+	end
 	holder.dropdown = dropdown
 
 	local reset = nil
 	if opts.showReset ~= false then
-		reset = CreateFrame("Button", nil, holder)
-		reset:SetSize(opts.resetWidth or 22, opts.resetHeight or 18)
-		reset:SetPoint("TOPLEFT", dropdown, "TOPRIGHT", -2, -18)
-		reset.bg = reset:CreateTexture(nil, "BACKGROUND")
-		reset.bg:SetAllPoints()
-		reset.bg:SetColorTexture(0.08, 0.08, 0.08, 0.90)
-		reset.border = reset:CreateTexture(nil, "BORDER")
-		reset.border:SetAllPoints()
-		reset.border:SetColorTexture(0.30, 0.30, 0.30, 0.85)
-		reset.text = reset:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-		reset.text:SetPoint("CENTER", reset, "CENTER", 0, 0)
-		reset.text:SetText(opts.resetText or "R")
-		reset:SetScript("OnEnter", function()
-			reset.bg:SetColorTexture(0.14, 0.14, 0.14, 0.95)
-		end)
-		reset:SetScript("OnLeave", function()
-			reset.bg:SetColorTexture(0.08, 0.08, 0.08, 0.90)
-		end)
+		reset = RGX:GetUI():CreateResetButton(holder, function() holder:Reset() end)
+		RGX:GetUI():AnchorRowReset(parent, reset,
+			dropdown.retailTrigger or dropdown.dropdown or dropdown)
 		holder.reset = reset
 	end
 
@@ -140,11 +129,6 @@ function Fonts:CreateFontSettingControl(parent, opts)
 
 	holder:SetValue(resolveCurrentName())
 
-	if reset then
-		reset:SetScript("OnClick", function()
-			holder:Reset()
-		end)
-	end
 
 	return holder
 end

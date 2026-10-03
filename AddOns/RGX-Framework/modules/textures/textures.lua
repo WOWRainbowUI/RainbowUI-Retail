@@ -438,7 +438,7 @@ function Textures:Init()
 
     self:ImportLibSharedMedia()
 
-    RGX:RegisterModule("textures", self)
+    RGX:RegisterModule("textures", self, { category = "library" })
     _G.RGXTextures = self
     RGX:Debug("Textures: Initialized")
 end

@@ -143,7 +143,9 @@ end
 
 local function IsIndexQueryAccessible(unit, index, filter)
     local predicate = RGX.API and RGX.API.ShouldUnitAuraIndexBeSecret
-    return type(predicate) == "function" and predicate(unit, index, filter) == false
+    if type(predicate) ~= "function" then return false end
+    local ok, secret = pcall(predicate, unit, index, filter)
+    return ok and CanAccessValue(secret) and secret == false
 end
 
 local function IsInstanceQueryAccessible(unit, auraInstanceID)
@@ -215,6 +217,111 @@ end
 
 function Auras:HasPlayerAura(spellId)
     return type(SafeGetPlayerAuraBySpellID(spellId)) ~= "nil"
+end
+
+-- ── Tri-state readiness (fail-closed) ────────────────────────────────────────
+-- For rules like "PW:S ready" that require a cooldown to be provably idle and a
+-- locked aura to be provably absent. On clients with restricted combat data,
+-- comparison of secret values throws; predicates exist to decide before
+-- comparing, so restricted data reads answer "unknown" and callers fail closed.
+--
+--   Auras:CooldownState(spellID)                  -> "idle" | "active" | "unknown"
+--   Auras:AuraState(unit, spellID[, filter])      -> "present" | "absent" | "unknown"
+--   Auras:CastReadiness(spellID, blockedAuraID)   -> "ready" | "blocked" | "unknown"
+--     ready    cooldown idle AND blocked aura absent (both proven)
+--     blocked  cooldown active OR blocked aura present
+--     unknown  either half was restricted/unavailable (treat as blocked: no alert)
+
+function Auras:CooldownState(spellID)
+    if not IsValidInstanceID(spellID) then return "unknown" end
+    local predicate = RGX.API and RGX.API.ShouldSpellCooldownBeSecret
+    if type(predicate) ~= "function" then return "unknown" end
+    local ok, secret = pcall(predicate, spellID)
+    if not ok or not CanAccessValue(secret) or secret ~= false then return "unknown" end
+
+    -- Prefer the modern table result; normalize the legacy tuple only after
+    -- the query has passed the same capability/secrecy boundary.
+    local getter = C_Spell and C_Spell.GetSpellCooldown
+    local modern = type(getter) == "function"
+    if not modern then getter = GetSpellCooldown end
+    if type(getter) ~= "function" then return "unknown" end
+    local info, duration, enabled, modRate
+    ok, info, duration, enabled, modRate = pcall(getter, spellID)
+    if not ok then return "unknown" end
+    local startTime = info
+    if modern then
+        if not CanAccessTable(info) then return "unknown" end
+        startTime, duration, enabled, modRate = info.startTime, info.duration, info.isEnabled, info.modRate
+    end
+    if not CanAccessValue(startTime) or not CanAccessValue(duration)
+        or not CanAccessValue(enabled) then return "unknown" end
+    if type(startTime) ~= "number" or type(duration) ~= "number"
+        or startTime ~= startTime or duration ~= duration
+        or startTime < 0 or duration < 0
+        or startTime >= math.huge or duration >= math.huge then return "unknown" end
+    if modern then
+        if type(enabled) ~= "boolean" then return "unknown" end
+        if enabled == false then return "active" end
+    else
+        if type(enabled) ~= "number" or (enabled ~= 0 and enabled ~= 1) then return "unknown" end
+        if enabled == 0 then return "active" end
+    end
+    if type(modRate) ~= "nil" then
+        if not CanAccessValue(modRate) or type(modRate) ~= "number"
+            or modRate ~= modRate or modRate <= 0 or modRate >= math.huge then return "unknown" end
+    end
+    if duration == 0 then return "idle" end
+    -- A modified clock is left active until Blizzard reports zero duration;
+    -- do not manufacture an expiry using an assumed rate conversion.
+    if type(modRate) ~= "nil" and modRate ~= 1 then return "active" end
+    if type(GetTime) ~= "function" then return "unknown" end
+    local timeOK, now = pcall(GetTime)
+    if not timeOK or not CanAccessValue(now) or type(now) ~= "number"
+        or now ~= now or now < 0 or now >= math.huge then return "unknown" end
+    if startTime > 0 and (startTime + duration) <= now then return "idle" end
+    return "active"
+end
+
+function Auras:AuraState(unit, spellID, filter)
+    if not IsValidInstanceID(spellID) then return "unknown" end
+    unit = NormalizeUnit(unit)
+    if type(unit) == "nil" then return "unknown" end
+    local filters
+    if type(filter) == "nil" then
+        filters = { "HELPFUL", "HARMFUL" }
+    elseif CanAccessValue(filter) and type(filter) == "string" and filter ~= "" then
+        filters = { filter }
+    else
+        return "unknown"
+    end
+    -- RequiresNonSecretAura spell lookups can hide restricted matches. Only a
+    -- complete guarded index scan proves absence in the requested filters.
+    for _, auraFilter in ipairs(filters) do
+        local index = 1
+        while true do
+            local aura, status = SafeGetAuraDataByIndex(unit, index, auraFilter)
+            if status == "missing" then break end
+            if status ~= "accessible" then return "unknown" end
+            local auraSpellID = aura.spellId
+            if not CanAccessValue(auraSpellID) or type(auraSpellID) ~= "number" then
+                return "unknown"
+            end
+            if auraSpellID == spellID then return "present" end
+            index = index + 1
+        end
+    end
+    return "absent"
+end
+
+function Auras:CastReadiness(spellID, blockedAuraSpellID)
+    local cooldown = self:CooldownState(spellID)
+    local aura = "absent"
+    if type(blockedAuraSpellID) ~= "nil" then
+        aura = self:AuraState("player", blockedAuraSpellID)
+    end
+    if cooldown == "unknown" or aura == "unknown" then return "unknown" end
+    if cooldown == "active" or aura == "present" then return "blocked" end
+    return "ready"
 end
 
 local function IterateAccessibleAuras(unit, filters, callback)
@@ -563,4 +670,4 @@ end
 -- ── Wire into framework ───────────────────────────────────────────────────────
 
 _G.RGXAuras = Auras
-RGX:RegisterModule("auras", Auras)
+RGX:RegisterModule("auras", Auras, { category = "game" })

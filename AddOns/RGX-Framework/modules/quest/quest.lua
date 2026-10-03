@@ -175,4 +175,4 @@ function Quest:Init()
 end
 
 _G.RGXQuest = Quest
-RGX:RegisterModule("quest", Quest)
+RGX:RegisterModule("quest", Quest, { category = "game" })

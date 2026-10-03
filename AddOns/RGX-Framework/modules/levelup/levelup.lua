@@ -42,4 +42,4 @@ function LevelUp:Init()
 end
 
 _G.RGXLevelUp = LevelUp
-RGX:RegisterModule("levelup", LevelUp)
+RGX:RegisterModule("levelup", LevelUp, { category = "game" })

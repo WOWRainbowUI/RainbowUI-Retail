@@ -47,7 +47,7 @@ Fonts._resolvePathCache = {}
 Fonts.default = nil
 Fonts.defaultSize = 12
 Fonts.defaultFlags = ""
-Fonts.autoScale = true
+Fonts.autoScale = false -- natural template sizes by default; SetAutoScale(true) opts into UI-scale multiplication
 Fonts.previewSample = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus posuere, sapien ut gravida feugiat, augue turpis placerat velit, sed porta dui justo eget lorem."
 Fonts._widgetId = 0
 Fonts.flagPresets = {
@@ -166,12 +166,10 @@ function Fonts:Init()
 		end
 	end
 
-	if self:IsAvailable("Inter-Regular") then
+	if not self:SetDefault("FrizQuadrata") then
 		self:SetDefault("Inter-Regular")
-	else
-		self:SetDefault("FrizQuadrata")
 	end
 
-	RGX:RegisterModule("fonts", self)
+	RGX:RegisterModule("fonts", self, { category = "library", depends = { "dropdowns" } })
 	_G.RGXFonts = self
 end

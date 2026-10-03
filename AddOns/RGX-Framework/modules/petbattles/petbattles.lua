@@ -274,5 +274,5 @@ function PetBattles:Init()
     RGX:Debug("PetBattles: module initialized")
 end
 
-RGX:RegisterModule("petbattles", PetBattles)
+RGX:RegisterModule("petbattles", PetBattles, { category = "game" })
 _G.RGXPetBattles = PetBattles

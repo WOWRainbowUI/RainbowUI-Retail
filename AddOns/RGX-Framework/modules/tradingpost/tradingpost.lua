@@ -5,6 +5,10 @@
 
 local addonName, RGX = ...
 
+-- Flavor-gated (compat.lua): this module's Blizzard namespace only exists on
+-- specific clients; without the required API the module must not register.
+if not (RGX and type(RGX.ModuleSupported) == 'function' and RGX:ModuleSupported("tradingpost")) then return end
+
 local TradingPost = {
     _eventsInit = false,
     _onPurchase = {},
@@ -62,4 +66,4 @@ function TradingPost:Init()
 end
 
 _G.RGXTradingPost = TradingPost
-RGX:RegisterModule("tradingpost", TradingPost)
+RGX:RegisterModule("tradingpost", TradingPost, { category = "game", flavors = { "retail", "forever" } })

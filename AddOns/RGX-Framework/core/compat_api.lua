@@ -17,7 +17,7 @@
 
 local _, RGX = ...
 
-RGX.API = {}
+RGX.API = RGX.API or {}
 
 local function FirstAvailable(...)
     for i = 1, select("#", ...) do

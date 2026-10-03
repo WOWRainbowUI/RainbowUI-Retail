@@ -26,7 +26,7 @@
         Colors:ApplyStatusBar(bar, color) - Apply a color to a status bar
 --]]
 
-local _, Colors = ...
+local Colors = {}
 local RGX = _G.RGXFramework
 
 if not RGX then
@@ -433,10 +433,14 @@ function Colors:OpenPicker(options)
     end
 
     local initial = self:CreatePickerColor(
-        options.color or options.name or options.hex,
+        options.color or options.name or options.hex
+            or (options.r and options.g and options.b
+                and { r = options.r, g = options.g, b = options.b, a = options.a }),
         options.a or options.alpha
     )
-    local hasOpacity = options.hasOpacity == true or initial.a ~= nil
+    local hasOpacity = options.hasOpacity == true or options.a ~= nil
+        or options.alpha ~= nil
+        or (type(options.color) == "table" and options.color.a ~= nil)
     local onChanged = options.onChanged or options.callback
     local onCancel = options.onCancel
     local function emit(color, cancelled)
@@ -701,7 +705,7 @@ end
 ============================================================================]]
 
 function Colors:Init()
-    RGX:RegisterModule("colors", self)
+    RGX:RegisterModule("colors", self, { category = "library" })
     _G.RGXColors = self
     RGX:Debug("Colors: Initialized")
 end

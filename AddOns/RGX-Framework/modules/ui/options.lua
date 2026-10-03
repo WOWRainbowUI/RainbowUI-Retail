@@ -11,6 +11,7 @@
 --       version   = nil,            -- auto-read from TOC if nil
 --       author    = "Me",
 --       website   = "discord.gg/...",
+--       closeButton = true,         -- standard window close button (hidden when embedded in Settings)
 --       maxPerRow = 6,              -- tabs per row before wrapping
 --       tabs = {
 --           { text = "General", icon = "Interface\\Icons\\...", content = function(frame) ... end },
@@ -41,6 +42,15 @@ local function GetDesign()
     return _G.RGXDesign
 end
 
+-- Apply the framework default font (Blizzard-compatible) to panel header text
+local function ApplyDefaultFont(fs)
+    local Fonts = _G.RGXFonts
+    if not (Fonts and type(Fonts.Apply) == "function" and type(Fonts.GetDefault) == "function") then return end
+    if not (fs and fs.GetFont) then return end
+    local _, size, flags = fs:GetFont()
+    pcall(Fonts.Apply, Fonts, fs, Fonts:GetDefault(), size, flags)
+end
+
 -- ── Layout constants ──────────────────────────────────────────────────────────
 
 local TAB_W = 94
@@ -48,7 +58,7 @@ local TAB_H        = 22
 local TAB_SPACING  = 6
 local TAB_ROW_PAD  = 8
 local TAB_ROW_GAP  = 3
-local HEADER_H     = 52
+local HEADER_H     = 64
 
 -- ── TOC metadata helper ───────────────────────────────────────────────────────
 
@@ -111,6 +121,7 @@ local function CreateTabButton(parent, text, tabIndex, row, col, panelRef, icon,
     btn.border = border
 
     local btnText = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    ApplyDefaultFont(btnText)
     if icon then
         local iconTex = btn:CreateTexture(nil, "ARTWORK")
         iconTex:SetSize(14, 14)
@@ -170,7 +181,9 @@ local function CreateTabButton(parent, text, tabIndex, row, col, panelRef, icon,
 end
 
 -- ── Auto-layout helper (passed to tab content functions) ─────────────────────
--- Widgets stack vertically so authors never need to call SetPoint.
+-- Widgets stack vertically through the framework's scroll page + flow layout:
+-- rows are positioned and clipped by the framework, so authors never call
+-- SetPoint for routine content and tall pages scroll instead of overflowing.
 --
 -- Usage inside a tab content function:
 --   content = function(add)
@@ -180,38 +193,40 @@ end
 --   end
 
 local function CreateAddHelper(frame)
+    -- The helper frame stays a valid WoW frame: callers may parent manual
+    -- widgets to it directly. Managed controls land in the scroll canvas.
     local UI = GetUI()
-    local yOff = 0
-    local X    = 16
-    local Y0   = 16
-    local GAP  = 10
-
-    local function Place(w)
-        w:SetPoint("TOPLEFT", frame, "TOPLEFT", X, -(Y0 + yOff))
-        yOff = yOff + w:GetHeight() + GAP
-    end
-
-    -- Extend the frame itself with helper methods so it remains a valid WoW
-    -- frame (usable as a parent, CreateTexture target, etc.) while also
-    -- supporting the auto-layout API.
     frame._frame = frame
 
+    if not (UI and UI.CreateScrollPage and UI.CreateFlowLayout) then
+        return frame
+    end
+
+    local canvas = UI:CreateScrollPage(frame)
+    local flow = UI:CreateFlowLayout(canvas)
+
+    frame._rgxCanvas = canvas
+    frame._rgxFlow = flow
+
+    local function Add(w)
+        if w then flow:Add(w) end
+        return w
+    end
+
     function frame:Toggle(label, storage, key, default, onChange)
-        if not UI then return end
-        local w = UI:CreateToggle(frame, {
+        local w = UI:CreateToggle(canvas, {
             label    = label,
             storage  = storage,
             key      = key,
             default  = default ~= false,
             onChange = onChange,
         })
-        Place(w)
+        Add(w)
         return w
     end
 
     function frame:Slider(label, storage, key, min, max, default, suffix)
-        if not UI then return end
-        local w = UI:CreateSlider(frame, {
+        local w = UI:CreateSlider(canvas, {
             label   = label,
             storage = storage,
             key     = key,
@@ -221,37 +236,30 @@ local function CreateAddHelper(frame)
             default = default,
             suffix  = suffix or "",
         })
-        Place(w)
+        Add(w)
         return w
     end
 
     function frame:Color(label, storage, key, default)
-        if not UI then return end
-        local w = UI:CreateColorPicker(frame, {
+        local w = UI:CreateColorPicker(canvas, {
             label   = label,
             storage = storage,
             key     = key,
             default = default or { r = 1, g = 1, b = 1 },
         })
-        Place(w)
+        Add(w)
         return w
     end
 
     function frame:Section(title)
-        if not UI then return end
-        local w = UI:CreateLabel(frame, { text = title, size = "normal", color = "accent" })
-        w:SetPoint("TOPLEFT", frame, "TOPLEFT", X, -(Y0 + yOff))
-        yOff = yOff + 28 + GAP
+        local w = UI:CreateLabel(canvas, { text = title, size = "normal", color = "accent" })
+        Add(w)
         return w
     end
 
     function frame:Text(text)
-        if not UI then return end
-        local w = UI:CreateLabel(frame, { text = text, size = "small", color = "muted" })
-        local y = -(Y0 + yOff)
-        w:SetPoint("TOPLEFT",  frame, "TOPLEFT",  X,  y)
-        w:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -X, y)
-        yOff = yOff + 20 + GAP
+        local w = UI:CreateLabel(canvas, { text = text, size = "small", color = "muted", wrap = true })
+        Add(w)
         return w
     end
 
@@ -291,6 +299,11 @@ local function CreateOptionsPanel(UI, opts)
 
     local tAddonName = opts.addonName or addonName
     local tabs       = opts.tabs or {}
+    local singlePage = #tabs == 0 and type(opts.content) == "function"
+    if singlePage then
+        -- Reuse the existing lazy content lifecycle without drawing a tab row.
+        tabs = { { text = "", content = opts.content } }
+    end
     local maxPerRow  = opts.maxPerRow or 6
 
     _panelCounter = _panelCounter + 1
@@ -298,12 +311,12 @@ local function CreateOptionsPanel(UI, opts)
 
     -- ── Panel frame ───────────────────────────────────────────────────────────
     local panel = CreateFrame("Frame", "RGXOptionsPanel_" .. addonKey, UIParent, "BackdropTemplate")
-    panel:SetSize(opts.width or 760, opts.height or 620)
+    panel:SetSize(opts.width or 760, opts.height or 632)
     panel:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
     panel:SetFrameStrata("DIALOG")
     panel:EnableMouse(true)
     local _sidebarIcon  = opts.icon or GetMeta(tAddonName, "IconTexture")
-    local _sidebarTitle = opts.title or tAddonName
+    local _sidebarTitle = opts.sidebarTitle or opts.title or tAddonName
     local _sidebarName  = _sidebarIcon
         and format("|T%s:16:16:0:0|t %s", _sidebarIcon, _sidebarTitle)
         or  _sidebarTitle
@@ -349,61 +362,83 @@ local function CreateOptionsPanel(UI, opts)
     -- Icon
     if opts.icon then
         local logo = header:CreateTexture(nil, "ARTWORK")
-        logo:SetSize(28, 28)
-        logo:SetPoint("LEFT", 10, 0)
+        logo:SetSize(42, 42)
+        logo:SetPoint("LEFT", 11, 0)
         logo:SetTexture(opts.icon)
     end
 
-    local leftX  = opts.icon and 50 or 14
+    local leftX  = opts.icon and 62 or 14
     local rightX = -14
 
     local titleStr = header:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
-    titleStr:SetPoint("LEFT", header, "TOPLEFT", leftX, -14)
+    titleStr:SetPoint("LEFT", header, "TOPLEFT", leftX, -16)
     titleStr:SetJustifyV("MIDDLE")
     titleStr:SetText(opts.title or tAddonName)
+    ApplyDefaultFont(titleStr)
 
     if opts.subtitle then
         local sub = header:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-        sub:SetPoint("LEFT", header, "TOPLEFT", leftX, -26)
+        sub:SetPoint("LEFT", header, "TOPLEFT", leftX, -30)
         sub:SetJustifyV("MIDDLE")
         sub:SetText(opts.subtitle)
         sub:SetTextColor(D:Unpack("subtext"))
+        ApplyDefaultFont(sub)
     end
 
     if opts.website then
         local site = header:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-        site:SetPoint("LEFT", header, "TOPLEFT", leftX, -38)
+        site:SetPoint("LEFT", header, "TOPLEFT", leftX, -44)
         site:SetJustifyV("MIDDLE")
         site:SetText(opts.website)
         site:SetTextColor(D:Unpack("text"))
+        ApplyDefaultFont(site)
     end
 
     local verText = opts.version or GetMeta(tAddonName, "Version") or ""
     if verText ~= "" then
         if not verText:match("^v") then verText = "v" .. verText end
         local ver = header:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-        ver:SetPoint("RIGHT", header, "TOPRIGHT", rightX, -14)
+        ver:SetPoint("RIGHT", header, "TOPRIGHT", rightX, -16)
         ver:SetJustifyV("MIDDLE")
         ver:SetText(verText)
         ver:SetJustifyH("RIGHT")
         ver:SetTextColor(D:Unpack("primary"))
+        ApplyDefaultFont(ver)
     end
 
     if opts.author then
         local auth = header:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-        auth:SetPoint("RIGHT", header, "TOPRIGHT", rightX, -26)
+        auth:SetPoint("RIGHT", header, "TOPRIGHT", rightX, -30)
         auth:SetJustifyV("MIDDLE")
         auth:SetText("by " .. opts.author)
         auth:SetTextColor(D:Unpack("subtext"))
         auth:SetJustifyH("RIGHT")
+        ApplyDefaultFont(auth)
     end
 
     if opts.brand then
         local brand = header:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-        brand:SetPoint("RIGHT", header, "TOPRIGHT", rightX, -38)
+        brand:SetPoint("RIGHT", header, "TOPRIGHT", rightX, -44)
         brand:SetJustifyV("MIDDLE")
         brand:SetText(opts.brand)
         brand:SetJustifyH("RIGHT")
+        ApplyDefaultFont(brand)
+    end
+
+    -- ── Close button ─────────────────────────────────────────────────────
+    -- The panel uses the shared framework close-button factory so consumers
+    -- see one chrome primitive everywhere. Hidden while the panel is hosted
+    -- inside the Settings canvas (which owns its own chrome; hiding the
+    -- canvas child would blank the category). opts.closeButton == false
+    -- skips it.
+    local closeBtn
+    if opts.closeButton ~= false then
+        closeBtn = GetUI():CreateCloseButton(panel, {
+            onClick = function()
+                if not panel._settingsEmbedded then panel:Hide() end
+            end,
+        })
+        panel.closeButton = closeBtn
     end
 
     -- ── Banner (optional, sits between header and tabs) ───────────────────────
@@ -428,7 +463,7 @@ local function CreateOptionsPanel(UI, opts)
 
     -- ── Tab container ─────────────────────────────────────────────────────────
     local rowCount      = GetRowCount(tabs, maxPerRow)
-    local tabAreaHeight = GetTabContainerHeight(rowCount)
+    local tabAreaHeight = singlePage and 0 or GetTabContainerHeight(rowCount)
 
     local tabArea = CreateFrame("Frame", nil, container)
     tabArea:SetPoint("TOPLEFT",  tabAnchor, "BOTTOMLEFT",  0, -2)
@@ -438,6 +473,7 @@ local function CreateOptionsPanel(UI, opts)
     local tabBg = tabArea:CreateTexture(nil, "BACKGROUND")
     tabBg:SetAllPoints()
     tabBg:SetColorTexture(br, bg, bb, 0.60)
+    if singlePage then tabBg:Hide() end
 
     -- ── Build tabs and content frames ─────────────────────────────────────────
     for i, tabInfo in ipairs(tabs) do
@@ -448,6 +484,7 @@ local function CreateOptionsPanel(UI, opts)
             tabArea, tabInfo.text, i, row, col, panel, tabInfo.icon, addonKey
         )
         panel.tabs[i] = tabBtn
+        if singlePage then tabBtn:Hide() end
 
         -- Content frame for this tab
         local content = CreateFrame("Frame", nil, container, "BackdropTemplate")
@@ -571,6 +608,19 @@ end
     end
 
     -- ── SelectTab ─────────────────────────────────────────────────────────────
+    -- Flow content lands in _rgxCanvas when the helper is used; after every
+    -- build or refresh, pack the rows and size the scroll child to the used
+    -- height so long pages scroll and short ones fit.
+    local function ReflowScrollContent(content)
+        local flow = content._rgxFlow
+        local canvas = content._rgxCanvas
+        if not flow or not canvas then return end
+        local ok = pcall(function()
+            local used = flow:Apply()
+            canvas:SetHeight(math.max(1, used))
+        end)
+    end
+
     function panel:SelectTab(index)
         QueueBannerBuild()
 
@@ -593,13 +643,16 @@ end
                             if ok then
                                 content._built = true
                             else
-                                RGX:Debug("[RGXOptions] Tab build error: " .. tostring(err))
+                                RGX:Error("[RGXOptions] " .. tostring(tabInfo.text) .. " tab build failed: " .. tostring(err))
+                                ClearContent(content)
                             end
                         else
                             content._built = true
                         end
+                        ReflowScrollContent(content)
                     elseif type(content.Refresh) == "function" then
                         pcall(content.Refresh, content)
+                        ReflowScrollContent(content)
                     end
                     if tabInfo and type(tabInfo.onSelect) == "function" then
                         pcall(tabInfo.onSelect)
@@ -617,6 +670,12 @@ end
                 return
             end
         end
+    end
+
+    -- A consumer may show a preview-selected subpage inside the current tab.
+    -- Keep its content visible while clearing the tab-row active state.
+    function panel:ClearTabHighlight()
+        for _, tab in ipairs(self.tabs) do tab:SetActive(false) end
     end
 
     function panel:InvalidateAllTabs()
@@ -638,11 +697,13 @@ end
                         if type(tabInfo.content) == "function" then
                             local ok = pcall(tabInfo.content, CreateAddHelper(content))
                             content._built = ok == true
+                            if not ok then ClearContent(content) end
                         end
                     end
                 elseif type(content.Refresh) == "function" then
                     pcall(content.Refresh, content)
                 end
+                ReflowScrollContent(content)
             end
         end
     end
@@ -796,9 +857,25 @@ end
             self:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
             self:Show()
         end
+
+        -- Track hosting so the close button can tell floating panels
+        -- (safe to hide) from Settings-canvas hosting (canvas owns chrome).
+        self._settingsEmbedded = opened and true or false
+        if closeBtn then closeBtn:SetShown(not self._settingsEmbedded) end
     end
 
     panel:SetScript("OnShow", function(self)
+        -- Settings-canvas hosting: Blizzard re-parents the category panel into
+        -- its own canvas container. Fill it so the panel IS the canvas page;
+        -- a fixed-size centered panel inside the canvas shows the container's
+        -- own frame and background as a visible border around ours.
+        local parent = self:GetParent()
+        if parent and parent ~= UIParent and not self._settingsEmbedded then
+            self._settingsEmbedded = true
+            self:ClearAllPoints()
+            self:SetAllPoints(parent)
+            if closeBtn then closeBtn:Hide() end
+        end
         if #self.tabs > 0 and not self._activeTab then
             local initialTab = opts.initialTab or 1
             local function selectInitialTab()

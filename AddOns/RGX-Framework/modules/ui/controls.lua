@@ -52,6 +52,15 @@ UI.backdrop = {
     insets = {left = 0, right = 0, top = 0, bottom = 0}
 }
 
+-- Apply the framework default font to a label, preserving size/flags.
+local function ApplyDefaultFont(fs)
+    local Fonts = _G.RGXFonts
+    if not (Fonts and type(Fonts.Apply) == "function" and type(Fonts.GetDefault) == "function") then return end
+    if not (fs and fs.GetFont) then return end
+    local _, size, flags = fs:GetFont()
+    pcall(Fonts.Apply, Fonts, fs, Fonts:GetDefault(), size, flags)
+end
+
 function UI:CreateStatusBarDropdown(parent, options)
     options = options or {}
 
@@ -76,15 +85,19 @@ UI.CreateTextureDropdown = UI.CreateStatusBarDropdown
 function UI:CreateColorPickerCard(parent, options)
     local CP = RGX:GetColorPicker()
     if not CP or not CP.CreateEmbedded then
-        return self:CreateLabel(parent, { text = "RGX ColorPicker not loaded", color = "red" })
+        local LocaleMod = RGX:GetModule("locale")
+        local LL = (LocaleMod and LocaleMod.L) or {}
+        return self:CreateLabel(parent, { text = LL["UI_COLORPICKER_NOT_LOADED"] or "RGX ColorPicker not loaded", color = "red" })
     end
     return CP:CreateEmbedded(parent, options or {})
 end
 
 function UI:CreateColorPicker(parent, options)
     options = options or {}
+    local LocaleMod = RGX:GetModule("locale")
+    local LL = (LocaleMod and LocaleMod.L) or {}
     local key = options.key or "color"
-    local label = options.label or "Color"
+    local label = options.label or LL["UI_COLOR_DEFAULT_LABEL"] or "Color"
     local default = options.default or {r=1, g=1, b=1}
     local storage = options.storage or {}
     local onChange = options.onChange or function() end
@@ -96,7 +109,7 @@ function UI:CreateColorPicker(parent, options)
     -- Label
     container.label = self:CreateLabel(container, {
         text = label,
-        size = "small",
+		size = "normal",
         color = "muted"
     })
     container.label:SetPoint("LEFT", 0, 0)
@@ -194,8 +207,10 @@ Usage:
 
 function UI:CreateSlider(parent, options)
 	options = options or {}
+	local LocaleMod = RGX:GetModule("locale")
+	local LL = (LocaleMod and LocaleMod.L) or {}
 	local key = options.key or "value"
-	local label = options.label or "Slider"
+	local label = options.label or LL["UI_SLIDER_DEFAULT_LABEL"] or "Slider"
 	local min = options.min or 0
 	local max = options.max or 100
 	local step = options.step or 1
@@ -217,14 +232,14 @@ function UI:CreateSlider(parent, options)
 
 	container.label = self:CreateLabel(container, {
 		text = label,
-		size = "small",
+		size = "normal",
 		color = "muted"
 	})
 	container.label:SetPoint("TOPLEFT", 0, 0)
 
 	container.valueLabel = self:CreateLabel(container, {
 		text = (storage[key] or default) .. suffix,
-		size = "small"
+		size = "normal"
 	})
 	container.valueLabel:SetPoint("TOPRIGHT", -28, 0)
 
@@ -278,13 +293,17 @@ function UI:CreateSlider(parent, options)
 	-- the track has no width yet (frame not laid out, or built while hidden) so
 	-- the caller can retry once geometry resolves.
 	local function positionThumb()
+		local current = storage[key] or default
+		container.valueLabel:SetText(current .. suffix)
+		valueLabel:SetText(current .. suffix)
 		local trackWidth = track:GetWidth()
 		if trackWidth < 1 then return false end
-		local pct = valueToPercent(storage[key] or default)
+		local pct = math.max(0, math.min(1, valueToPercent(current)))
+		local thumbX = trackWidth * pct
 		local fillW = math.max(4, trackWidth * pct)
 		if showProgress then fill:SetWidth(fillW) end
 		thumb:ClearAllPoints()
-		thumb:SetPoint("CENTER", track, "LEFT", fillW, 0)
+		thumb:SetPoint("CENTER", track, "LEFT", thumbX, 0)
 		return true
 	end
 
@@ -293,7 +312,7 @@ function UI:CreateSlider(parent, options)
 	-- otherwise stay at the wrong spot until its value changed -- the "default
 	-- position wrong on login until set/reset/reload" bug. OnShow re-arms this.
 	local function positionThumbDeferred()
-		if positionThumb() then return end
+		if positionThumb() then trackFrame:SetScript("OnUpdate", nil); return end
 		trackFrame:SetScript("OnUpdate", function()
 			if positionThumb() then trackFrame:SetScript("OnUpdate", nil) end
 		end)
@@ -350,16 +369,29 @@ function UI:CreateSlider(parent, options)
 	local reset = self:CreateResetButton(container, function()
 		apply(default)
 	end)
-	reset:SetPoint("RIGHT", container, "RIGHT", 0, -10)
+    self:AnchorRowReset(parent, reset, trackFrame)
 
 	-- Re-place the thumb every time the slider is shown: the first apply() below
 	-- runs while the panel is usually still hidden (login/load), so this is what
 	-- makes the initial position correct without needing a set/reset/reload.
 	container:SetScript("OnShow", positionThumbDeferred)
+	container:SetScript("OnSizeChanged", positionThumbDeferred)
+	trackFrame:SetScript("OnSizeChanged", positionThumbDeferred)
 
 	apply(storage[key] or default)
 
-	container.SetValue = apply
+	container.SetValue = function(first, maybe)
+		-- Support both control:SetValue(v) and control.SetValue(v)
+		local value
+		if maybe ~= nil and first == container then
+			value = maybe
+		elseif maybe == nil then
+			value = first
+		else
+			value = maybe
+		end
+		apply(value)
+	end
 	container.GetValue = function() return storage[key] or default end
 
 	return container
@@ -438,13 +470,8 @@ function UI:CreateVolumeSlider(parent, options)
 		onChange(volume)
 	end
 
-	local function apply(volume)
-		if volume ~= "low" and volume ~= "high" then
-			volume = "medium"
-		end
-		setVolume(volume)
-
-		local function updateVisuals()
+	local function updateVisuals()
+			local volume = getVolume()
 			local trackWidth = track:GetWidth()
 			if trackWidth < 1 then return false end
 			local pct = 0.50
@@ -459,15 +486,22 @@ function UI:CreateVolumeSlider(parent, options)
 			thumb:SetPoint("CENTER", track, "LEFT", fillW, 0)
 			label:SetText(volume:gsub("^%l", string.upper))
 			return true
-		end
-
+	end
+	local function refreshVisuals()
 		if not updateVisuals() then
 			frame:SetScript("OnUpdate", function()
 				if updateVisuals() then
 					frame:SetScript("OnUpdate", nil)
 				end
 			end)
+		else
+			frame:SetScript("OnUpdate", nil)
 		end
+	end
+	local function apply(volume)
+		if volume ~= "low" and volume ~= "high" then volume = "medium" end
+		setVolume(volume)
+		refreshVisuals()
 	end
 
 	button:SetScript("OnMouseDown", function(self)
@@ -496,6 +530,8 @@ function UI:CreateVolumeSlider(parent, options)
 		end
 	end)
 	button:EnableMouseWheel(true)
+	frame:SetScript("OnShow", refreshVisuals)
+	frame:SetScript("OnSizeChanged", refreshVisuals)
 
 	apply(getVolume())
 
@@ -509,6 +545,26 @@ end
 --[[============================================================================
 TOGGLE CONTROL
 ============================================================================]]
+
+-- A label and 18px checkbox sharing a single layout frame. Consumers can
+-- bind the check to their database or event handlers without recreating its
+-- geometry, font, and artwork in each addon.
+function UI:CreateCheckbox(parent, text)
+    local frame = CreateFrame("Frame", nil, parent)
+    frame:SetSize(300, 20)
+    local checkbox = CreateFrame("CheckButton", nil, frame)
+    checkbox:SetSize(18, 18)
+    checkbox:SetPoint("LEFT", 0, 0)
+    checkbox:SetNormalTexture("Interface\\Buttons\\UI-CheckBox-Up")
+    checkbox:SetPushedTexture("Interface\\Buttons\\UI-CheckBox-Down")
+    checkbox:SetHighlightTexture("Interface\\Buttons\\UI-CheckBox-Highlight")
+    checkbox:SetCheckedTexture("Interface\\Buttons\\UI-CheckBox-Check")
+    local label = self:CreateLabel(frame, { text = text, size = "normal", color = "normal" })
+    label:SetPoint("LEFT", checkbox, "RIGHT", 5, 0)
+    frame.checkbox = checkbox
+    frame.label = label
+    return frame
+end
 
 function UI:CreateToggle(parent, options)
     options = options or {}
@@ -525,12 +581,14 @@ function UI:CreateToggle(parent, options)
     local check = CreateFrame("CheckButton", nil, container, "UICheckButtonTemplate")
     check:SetSize(24, 24)
     check:SetPoint("LEFT", 0, 0)
-    check:SetChecked(storage[key] ~= false and default)
+    local currentValue = storage[key]
+    if type(currentValue) == "nil" then currentValue = default end
+    check:SetChecked(currentValue and true or false)
     
     -- Label
     container.label = self:CreateLabel(container, {
         text = label,
-        size = "small"
+        size = "normal"
     })
     container.label:SetPoint("LEFT", check, "RIGHT", 4, 0)
     
@@ -573,11 +631,12 @@ function UI:CreateLabel(parent, options)
     else
         label:SetFontObject("GameFontNormal")
     end
+    ApplyDefaultFont(label)
     
     local colorKeys = {
         normal = "text",
         muted  = "subtext",
-        accent = "primary",
+        accent = "accent",
         red    = "error",
         green  = "success",
         yellow = "warning",
@@ -656,72 +715,299 @@ function UI:CreateResetButton(parent, onClick)
     return btn
 end
 
-function UI:CreateButton(parent, text, w, h)
-    h = h or 22
-    local D = RGX:GetDesign()
-    if D and type(D.CreateButton) == "function" then
-        return D:CreateButton(parent, text, w, h)
-    end
-    local btn = CreateFrame("Button", nil, parent, "BackdropTemplate")
-    btn:SetSize(w or 120, h or 22)
-    local bg = btn:CreateTexture(nil, "BACKGROUND")
-    bg:SetAllPoints()
-    bg:SetColorTexture(D:Unpack("surface"))
-    local border = CreateFrame("Frame", nil, btn, "BackdropTemplate")
-    border:SetAllPoints()
-    border:SetBackdrop({ edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1 })
-    border:SetBackdropBorderColor(D:Unpack("border"))
-    local lbl = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-    lbl:SetAllPoints()
-    lbl:SetJustifyH("CENTER")
-    lbl:SetJustifyV("MIDDLE")
-    lbl:SetText(text or "")
-    lbl:SetTextColor(D:Unpack("subtext"))
-    btn:SetScript("OnEnter", function()
-        local D2 = RGX:GetDesign()
-        border:SetBackdropBorderColor(D2:Unpack("primary"))
-        bg:SetColorTexture(D2:Unpack("hover"))
-        lbl:SetTextColor(D2:Unpack("primary"))
-    end)
-    btn:SetScript("OnLeave", function()
-        border:SetBackdropBorderColor(D:Unpack("border"))
-        bg:SetColorTexture(D:Unpack("surface"))
-        lbl:SetTextColor(D:Unpack("subtext"))
+-- Buttons are created with skin only. Behavior is attached via SetScript or
+-- the options table form. Pcall-isolated like every other shared dispatch so
+-- one consumer's handler error cannot break unrelated panels.
+local function AttachButtonAction(btn, onClick)
+    if type(onClick) ~= "function" then return btn end
+    btn:SetScript("OnClick", function(self, button)
+        local ok, err = pcall(onClick, self, button)
+        if not ok and RGX and type(RGX.Error) == "function" then
+            RGX:Error("[RGXUI] button onClick failed: " .. tostring(err))
+        end
     end)
     return btn
+end
+
+-- UI:CreateButton(parent, textOrOpts[, w][, h])
+-- Legacy positional form still works; the table form is the declared
+-- ergonomic surface: { text, width, height, tooltip, onClick }.
+function UI:CreateButton(parent, textOrOpts, w, h)
+    local opts = nil
+    local text = textOrOpts
+    if type(textOrOpts) == "table" then
+        opts = textOrOpts
+        text = opts.text
+        w = opts.width or w
+        h = opts.height or h
+    elseif type(textOrOpts) == "function" then
+        -- UI:CreateButton(parent, onClickFn) is never valid — surface it.
+        text = nil
+        opts = { onClick = textOrOpts }
+    end
+    h = h or (opts and opts.height) or 22
+
+    local D = RGX:GetDesign()
+    local btn
+    if D and type(D.CreateButton) == "function" then
+        btn = D:CreateButton(parent, text, w, h,
+            opts and opts.tooltip, opts and opts.tooltipBody)
+    else
+        btn = CreateFrame("Button", nil, parent, "BackdropTemplate")
+        btn:SetSize(w or 120, h)
+        local bg = btn:CreateTexture(nil, "BACKGROUND")
+        bg:SetAllPoints()
+        bg:SetColorTexture(D:Unpack("surface"))
+        local border = CreateFrame("Frame", nil, btn, "BackdropTemplate")
+        border:SetAllPoints()
+        border:SetBackdrop({ edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1 })
+        border:SetBackdropBorderColor(D:Unpack("border"))
+        local lbl = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+        lbl:SetAllPoints()
+        lbl:SetJustifyH("CENTER")
+        lbl:SetJustifyV("MIDDLE")
+        lbl:SetText(text or "")
+        lbl:SetTextColor(D:Unpack("subtext"))
+        btn:SetScript("OnEnter", function()
+            local D2 = RGX:GetDesign()
+            border:SetBackdropBorderColor(D2:Unpack("primary"))
+            bg:SetColorTexture(D2:Unpack("hover"))
+            lbl:SetTextColor(D2:Unpack("primary"))
+        end)
+        btn:SetScript("OnLeave", function()
+            border:SetBackdropBorderColor(D:Unpack("border"))
+            bg:SetColorTexture(D:Unpack("surface"))
+            lbl:SetTextColor(D:Unpack("subtext"))
+        end)
+    end
+    if opts and type(opts.onClick) == "function" then
+        AttachButtonAction(btn, opts.onClick)
+    end
+    return btn
+end
+
+-- Standard window close ("X") button attachable to any framework-built
+-- window, dialog, or panel, so consumers never hand-roll window chrome.
+-- Uses the native UIPanelCloseButton art on every supported flavor.
+-- opts: width/height (default 30), point/relativePoint (default TOPRIGHT),
+-- relativeTo (default parent), x/y (default 0), onClick (default hides the
+-- parent), tooltip (optional hover text), hidden (start hidden).
+-- Returns the button; find it later via parent.closeButton or your own ref.
+function UI:CreateCloseButton(parent, opts)
+    assert(parent, "RGX UI: CreateCloseButton requires a parent frame")
+    opts = opts or {}
+    local button = CreateFrame("Button", nil, parent, "UIPanelCloseButton")
+    button:SetSize(opts.width or 30, opts.height or 30)
+    button:ClearAllPoints()
+    local point = opts.point or "TOPRIGHT"
+    local relativeTo = opts.relativeTo or parent
+    local relativePoint = opts.relativePoint or point
+    button:SetPoint(point, relativeTo, relativePoint, opts.x or 0, opts.y or 0)
+    local onClick = opts.onClick
+    if type(onClick) ~= "function" then
+        onClick = function()
+            if parent and parent.Hide then parent:Hide() end
+        end
+    end
+    button:SetScript("OnClick", onClick)
+    if opts.tooltip then
+        button:SetScript("OnEnter", function(self)
+            if GameTooltip then
+                GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT")
+                GameTooltip:SetText(opts.tooltip, 1, 1, 1, 1, true)
+                GameTooltip:Show()
+            end
+        end)
+        button:SetScript("OnLeave", function()
+            if GameTooltip then GameTooltip:Hide() end
+        end)
+    end
+    if opts.hidden then
+        button:Hide()
+    end
+    parent.closeButton = button
+    return button
+end
+
+-- Sub-menu configuration affordance: a small gear button attached to a
+-- control (or any anchor frame) that opens a configuration dialog, so
+-- consumers never hand-roll "advanced settings" chrome. opts: point /
+-- relativeTo / relativePoint / x / y (default RIGHT of the anchor, 6, 0),
+-- onClick (default: Show opts.dialog), dialog (frame to show), tooltip,
+-- width/height (default 18), hidden. The button publishes itself as
+-- opts.anchor.configButton when an anchor is given.
+function UI:CreateConfigButton(anchor, opts)
+    assert(anchor, "RGX UI: CreateConfigButton requires an anchor frame")
+    opts = opts or {}
+    local button = CreateFrame("Button", nil, anchor:GetParent() or anchor)
+    button:SetSize(opts.width or 18, opts.height or 18)
+    button:ClearAllPoints()
+    local point = opts.point or "LEFT"
+    local relativeTo = opts.relativeTo or anchor
+    local relativePoint = opts.relativePoint or "RIGHT"
+    button:SetPoint(point, relativeTo, relativePoint, opts.x or 6, opts.y or 0)
+    local gear = button:CreateTexture(nil, "ARTWORK")
+    gear:SetAllPoints()
+    gear:SetTexture("Interface\\WorldMap\\Gear_64.png")
+    gear:SetTexCoord(0, 0.5, 0, 0.5)
+    gear:SetDesaturated(true)
+    button.gear = gear
+    button:SetScript("OnEnter", function(self)
+        gear:SetDesaturated(false)
+        if opts.tooltip and GameTooltip then
+            GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT")
+            GameTooltip:SetText(opts.tooltip, 1, 1, 1, 1, true)
+            GameTooltip:Show()
+        end
+    end)
+    button:SetScript("OnLeave", function()
+        gear:SetDesaturated(true)
+        if GameTooltip then GameTooltip:Hide() end
+    end)
+    local onClick = opts.onClick
+    if type(onClick) ~= "function" then
+        local dialog = opts.dialog
+        onClick = function()
+            if dialog and dialog.Show then dialog:Show() end
+        end
+    end
+    button:SetScript("OnClick", onClick)
+    if opts.hidden then
+        button:Hide()
+    end
+    anchor.configButton = button
+    return button
+end
+
+-- Titled configuration dialog for a control's advanced settings: design-skinned
+-- frame with the framework close button and an optional Reset action.
+-- opts: title (required), width/height (default 420x260), onReset (function),
+-- onShow (function), strata (default "FULLSCREEN_DIALOG"), hidden (bool).
+-- Consumers populate the returned frame; show it from a CreateConfigButton.
+function UI:CreateConfigDialog(parent, opts)
+    opts = opts or {}
+    local D = RGX:GetDesign()
+    local dialog = CreateFrame("Frame", nil, parent or UIParent, "BackdropTemplate")
+    dialog:SetSize(opts.width or 420, opts.height or 260)
+    dialog:SetFrameStrata(opts.strata or "FULLSCREEN_DIALOG")
+    dialog:SetClampedToScreen(true)
+    dialog:EnableMouse(true)
+    dialog:SetMovable(true)
+    dialog:RegisterForDrag("LeftButton")
+    dialog:SetScript("OnDragStart", function(self) self:StartMoving() end)
+    dialog:SetScript("OnDragStop", function(self) self:StopMovingOrSizing() end)
+    dialog:SetBackdrop({
+        bgFile = "Interface\\Buttons\\WHITE8x8",
+        edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1,
+    })
+    if D then
+        dialog:SetBackdropColor(D:Unpack("surface"))
+        dialog:SetBackdropBorderColor(D:Unpack("border"))
+    else
+        dialog:SetBackdropColor(0.05, 0.05, 0.05, 0.95)
+        dialog:SetBackdropBorderColor(0.137, 0.137, 0.173)
+    end
+
+    local title = dialog:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+    title:SetPoint("TOPLEFT", 16, -12)
+    title:SetText(opts.title or "Configuration")
+    if D then
+        title:SetTextColor(D:Unpack("primary"))
+    end
+
+    self:CreateCloseButton(dialog, { onClick = function() dialog:Hide() end })
+
+    if type(opts.onReset) == "function" then
+        local reset = self:CreateButton(dialog, {
+            text = "Reset",
+            width = 90,
+            onClick = function() opts.onReset() end,
+        })
+        reset:SetPoint("BOTTOMLEFT", 16, 14)
+        dialog.resetButton = reset
+    end
+
+    if type(opts.onShow) == "function" then
+        dialog:HookScript("OnShow", opts.onShow)
+    end
+    if opts.hidden ~= false then
+        dialog:Hide()
+    end
+    return dialog
 end
 
 --[[============================================================================
     SECTION/PANEL
 ============================================================================]]
 
+-- A scrollable canvas for card layouts taller than an options tab. Keep the
+-- scrollbar and clipping in the framework so consumers only position cards.
+function UI:CreateScrollPage(parent, height)
+    -- Intrinsic clipping viewport: framework pages never expose native bars.
+    local scroll = CreateFrame("ScrollFrame", nil, parent)
+    scroll:SetPoint("TOPLEFT", parent, "TOPLEFT", 8, -8)
+    scroll:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", -8, 8)
+
+    local canvas = CreateFrame("Frame", nil, scroll)
+    canvas:SetHeight(height or 620)
+    canvas:SetWidth(math.max(1, scroll:GetWidth()))
+    scroll:SetScrollChild(canvas)
+    local function clampScroll()
+        local max = math.max(0, scroll:GetVerticalScrollRange())
+        scroll:SetVerticalScroll(math.max(0, math.min(max, scroll:GetVerticalScroll())))
+    end
+    scroll:EnableMouseWheel(true)
+    scroll:SetScript("OnMouseWheel", function(self, delta)
+        local max = math.max(0, self:GetVerticalScrollRange())
+        self:SetVerticalScroll(math.max(0, math.min(max, self:GetVerticalScroll() - delta * 30)))
+    end)
+    scroll:HookScript("OnShow", clampScroll)
+    scroll:HookScript("OnSizeChanged", function(self, width)
+        canvas:SetWidth(math.max(1, width))
+        clampScroll()
+    end)
+    canvas:HookScript("OnSizeChanged", clampScroll)
+    return canvas, scroll
+end
+
 function UI:CreateSection(parent, options)
     options = options or {}
     local title = options.title or "Section"
     local width = options.width or 300
     local height = options.height or 200
-    
-    local section = CreateFrame("Frame", nil, parent, "BackdropTemplate")
-    section:SetSize(width, height)
-    section:SetBackdrop(self.backdrop)
     local D = RGX:GetDesign()
-    local sr, sg, sb = D:Unpack("surface")
-    section:SetBackdropColor(sr, sg, sb, 0.85)
-    section:SetBackdropBorderColor(D:Unpack("border"))
-    
-    -- Header
-    section.header = self:CreateLabel(section, {
-        text = title,
-        size = "small",
-        color = "accent"
-    })
-    section.header:SetPoint("TOPLEFT", 12, -10)
-    
-    -- Content area
-    section.content = CreateFrame("Frame", nil, section)
-    section.content:SetPoint("TOPLEFT", 12, -30)
-    section.content:SetPoint("BOTTOMRIGHT", -12, 12)
-    
+    assert(D and type(D.CreateSection) == "function", "RGX UI: section design unavailable")
+    -- Share the consumer-proven section skin; RGXUI owns placement, RGXDesign textures.
+    local section = D:CreateSection(parent, title ~= "" and title or nil, options.icon,
+        { square = options.square ~= false })
+    section:SetSize(width, height)
+    section.headerBand = section.header
+    -- Measure direct widgets after the consumer finishes building the card.
+    -- Children can be Frames or FontStrings; do not depend on a fixed count,
+    -- particular widget type, or the consumer's hand-maintained y offsets.
+    function section:FitContent(padding)
+        local top = self.content:GetTop()
+        local deepest = 0
+        local function measure(region)
+            if not region or (region.IsShown and not region:IsShown()) then return end
+            local bottom = region.GetBottom and region:GetBottom()
+            if top and type(bottom) == "number" then
+                deepest = math.max(deepest, top - bottom)
+            elseif region.GetPoint and region.GetHeight then
+                local _, relative, relativePoint, _, y = region:GetPoint(1)
+                if relative == self.content and (relativePoint == "TOPLEFT" or relativePoint == "TOP")
+                    and type(y) == "number" then
+                    deepest = math.max(deepest, -y + (region:GetHeight() or 0))
+                end
+            end
+        end
+        for _, child in ipairs({self.content:GetChildren()}) do measure(child) end
+        for _, region in ipairs({self.content:GetRegions()}) do measure(region) end
+        if deepest > 0 then
+            self:SetHeight(self.contentTopInset + deepest + self.contentBottomInset + (padding or 2))
+        end
+        return self:GetHeight()
+    end
     return section
 end
 
@@ -745,7 +1031,7 @@ function UI:CreatePreviewFrame(parent, options)
     -- Label
     frame.label = self:CreateLabel(frame, {
         text = options.title or "Preview",
-        size = "small",
+        size = "normal",
         color = "muted"
     })
     frame.label:SetPoint("TOP", 0, -8)
@@ -764,11 +1050,423 @@ function UI:CreatePreviewFrame(parent, options)
 end
 
 --[[============================================================================
+    SWITCH — sliding on/off control (consumer module-page style)
+
+    UI:CreateSwitch(parent, options)
+    options:
+        key      storage key (when storage given)
+        label    text shown left of the switch
+        default  default state when storage has no value (default true)
+        storage  settings table (optional; without it the switch is stateless
+                 and reports via onChange)
+        onChange function(enabled)
+    Returns a container with .switchFrame / .toggle / .label / .Refresh and
+    container.checkbox (a Button emulating GetChecked) for compatibility.
+============================================================================]]
+
+function UI:CreateSwitch(parent, options)
+    options = options or {}
+    local D = RGX:GetDesign()
+    local pr, pg, pb = 0.02, 0.87, 0.38 -- green-ish; refined by theme below
+    if D then pr, pg, pb = D:Unpack("success") end
+    local br, bg_, bb = 0.30, 0.30, 0.30
+    if D then br, bg_, bb = D:Unpack("border") end
+
+    local container = CreateFrame("Button", nil, parent)
+    container:SetSize(200, 22)
+    container:RegisterForClicks("LeftButtonUp")
+
+    -- Status text (right of label area, matches consumer module toggles)
+    container.label = self:CreateLabel(container, {
+        text = options.label or "",
+        size = "small",
+    })
+    container.label:SetPoint("LEFT", 0, 0)
+
+    local status = container:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    status:SetPoint("RIGHT", container, "RIGHT", -52, 0)
+    ApplyDefaultFont(status)
+    container.status = status
+
+    -- Track
+    local switchFrame = CreateFrame("Frame", nil, container)
+    switchFrame:SetSize(44, 20)
+    switchFrame:SetPoint("RIGHT", container, "RIGHT", 0, 0)
+    container.switchFrame = switchFrame
+
+    local switchBg = switchFrame:CreateTexture(nil, "BACKGROUND")
+    switchBg:SetAllPoints()
+    switchBg:SetTexture("Interface\\Buttons\\WHITE8x8")
+
+    -- Thumb
+    local toggle = CreateFrame("Frame", nil, switchFrame)
+    toggle:SetSize(18, 18)
+    toggle:EnableMouse(false)
+    container.toggle = toggle
+
+    local toggleBg = toggle:CreateTexture(nil, "ARTWORK")
+    toggleBg:SetAllPoints()
+    toggleBg:SetTexture("Interface\\Buttons\\WHITE8x8")
+    toggleBg:SetVertexColor(0.92, 0.92, 0.92, 1)
+
+    local storage   = options.storage
+    local key       = options.key
+    local default   = options.default
+    if default == nil then default = true end
+    local onChange  = options.onChange or function() end
+    if not (storage and key) then
+        container._enabled = (default == true)
+    end
+
+    local function IsEnabled()
+        if storage and key then
+            local v = storage[key]
+            if v == nil then return default end
+            return v and true or false
+        end
+        return container._enabled == true
+    end
+
+    function container:Refresh()
+        local enabled = IsEnabled()
+        toggle:ClearAllPoints()
+        if enabled then
+            toggle:SetPoint("RIGHT", switchFrame, "RIGHT", -1, 0)
+            switchBg:SetVertexColor(pr, pg, pb, 1)
+            status:SetText("|cff00ff00ON|r")
+        else
+            toggle:SetPoint("LEFT", switchFrame, "LEFT", 1, 0)
+            switchBg:SetVertexColor(br, bg_, bb, 1)
+            status:SetText("|cffff0000OFF|r")
+        end
+    end
+
+    container:SetScript("OnClick", function()
+        local nextState = not IsEnabled()
+        if storage and key then
+            storage[key] = nextState
+        else
+            container._enabled = nextState
+        end
+        container:Refresh()
+        onChange(nextState)
+    end)
+
+    -- Compatibility shim so generic refresh code can SetChecked/GetChecked
+    local fake = { checked = IsEnabled() }
+    function fake:GetChecked()  return IsEnabled() end
+    function fake:SetChecked(s) if storage and key then storage[key] = s and true or false else container._enabled = s and true or false end; container:Refresh() end
+    function fake:SetScript() end
+    container.checkbox = fake
+
+    container:Refresh()
+    return container
+end
+
+--[[============================================================================
+    COLUMNS — centered multi-column page layout
+
+    UI:CreateColumns(parent, count, options)
+    options:
+        colWidth  width per column (default: share the parent width evenly)
+        gap       horizontal gap between columns (default 14)
+        margin    extra inset from the parent edges when auto-sizing (default 0)
+
+    Columns are centered as a block inside the parent, so two-column pages
+    sit properly centered instead of hugging the edges.
+    Returns one frame per column (unpack into locals).
+============================================================================]]
+
+function UI:CreateColumns(parent, count, options)
+    options = options or {}
+    count = count or 2
+    local gap = options.gap or 14
+    local margin = options.margin or 0
+    local fixedWidth = options.colWidth
+
+    local columns = {}
+    for i = 1, count do
+        columns[i] = CreateFrame("Frame", nil, parent)
+    end
+
+    -- Column width is derived from the parent, which may be anchor-sized and
+    -- therefore report 0 until layout resolves. Recompute on size changes so
+    -- the page settles at the right width instead of staying collapsed.
+    local function layout()
+        local colWidth = fixedWidth
+        if not colWidth then
+            local w = (parent.GetWidth and parent:GetWidth()) or 0
+            if w <= 0 then
+                colWidth = 360
+            else
+                colWidth = math.floor((w - (count - 1) * gap - margin * 2) / count)
+                if colWidth < 80 then colWidth = 80 end
+            end
+        end
+        for i = 1, count do
+            local col = columns[i]
+            col:SetWidth(colWidth)
+            local xCenter = (i - 0.5 - count / 2) * (colWidth + gap)
+            col:ClearAllPoints()
+            col:SetPoint("TOP", parent, "TOP", xCenter, 0)
+            col:SetPoint("BOTTOM", parent, "BOTTOM", xCenter, 0)
+        end
+    end
+    layout()
+
+    if parent.HookScript then
+        parent:HookScript("OnSizeChanged", layout)
+    end
+
+    return unpack(columns)
+end
+
+-- Versioned label definitions: data-only editor/import surface. Keep this
+-- validator congruent with contract/schemas/rgx-definition.schema.json and JS fixtures.
+local definitionKeys = { version = true, kind = true, id = true, text = true,
+    enabled = true, x = true, y = true, scale = true }
+local function DefinitionValueAccessible(value)
+    return RGX.API and type(RGX.API.CanAccessValue) == "function"
+        and RGX.API.CanAccessValue(value) == true
+end
+local function DefinitionTableAccessible(value)
+    return RGX.API and type(RGX.API.CanAccessTable) == "function"
+        and RGX.API.CanAccessTable(value) == true
+end
+local function ValidDefinitionText(text)
+    if #text > 256 then return false end
+    local i = 1
+    while i <= #text do
+        local first = text:byte(i)
+        local count, low, high = 0, 128, 191
+        if first < 128 then
+            if first < 32 or first == 127 then return false end
+        elseif first >= 194 and first <= 223 then count = 1
+        elseif first == 224 then count, low = 2, 160
+        elseif first >= 225 and first <= 236 then count = 2
+        elseif first == 237 then count, high = 2, 159
+        elseif first >= 238 and first <= 239 then count = 2
+        elseif first == 240 then count, low = 3, 144
+        elseif first >= 241 and first <= 243 then count = 3
+        elseif first == 244 then count, high = 3, 143
+        else return false end
+        for offset = 1, count do
+            local byte = text:byte(i + offset)
+            if not byte or byte < (offset == 1 and low or 128)
+                or byte > (offset == 1 and high or 191) then return false end
+        end
+        i = i + count + 1
+    end
+    return true
+end
+
+function UI:NormalizeDefinition(value)
+    if not DefinitionTableAccessible(value) or getmetatable(value) ~= nil then
+        return nil, "definition must be an accessible plain table"
+    end
+    for key in pairs(value) do
+        if not DefinitionValueAccessible(key) or not definitionKeys[key] then
+            return nil, "unknown definition field"
+        end
+    end
+    for key in pairs(definitionKeys) do
+        if not DefinitionValueAccessible(value[key]) then return nil, "missing/inaccessible definition field" end
+    end
+    if value.version ~= 1 or value.kind ~= "label" then return nil, "unsupported definition version/kind" end
+    if type(value.id) ~= "string" or #value.id > 48
+        or not value.id:match("^[A-Za-z][A-Za-z0-9_-]*$") then return nil, "invalid definition id" end
+    if type(value.text) ~= "string" or not ValidDefinitionText(value.text) then return nil, "invalid definition text" end
+    if type(value.enabled) ~= "boolean" then return nil, "invalid definition enabled state" end
+    for _, key in ipairs({ "x", "y", "scale" }) do
+        local number = value[key]
+        local min, max = -500, 500
+        if key == "scale" then min, max = 25, 300 end
+        if type(number) ~= "number" or number ~= number or number < min or number > max
+            or number % 1 ~= 0 then return nil, "invalid definition number" end
+    end
+    return { version = 1, kind = "label", id = value.id, text = value.text,
+        enabled = value.enabled, x = value.x == 0 and 0 or value.x,
+        y = value.y == 0 and 0 or value.y, scale = value.scale }
+end
+
+function UI:ExportDefinition(value)
+    local d, err = self:NormalizeDefinition(value)
+    if not d then return nil, err end
+    local text = d.text:gsub(".", function(char) return string.format("%%%02X", char:byte()) end)
+    return table.concat({ "RGXD1", d.kind, d.id, d.enabled and "1" or "0",
+        tostring(d.scale), tostring(d.x), tostring(d.y), text }, "|")
+end
+
+function UI:ImportDefinition(wire)
+    if not DefinitionValueAccessible(wire) or type(wire) ~= "string" or #wire > 1024 then
+        return nil, "invalid definition transfer"
+    end
+    local p = {}
+    for part in (wire .. "|"):gmatch("(.-)|") do p[#p + 1] = part end
+    if #p ~= 8 or p[1] ~= "RGXD1" or (p[4] ~= "0" and p[4] ~= "1")
+        or p[8]:gsub("%%[%x][%x]", "") ~= "" then return nil, "invalid definition transfer" end
+    for index = 5, 7 do
+        if not p[index]:match("^-?%d+$") or p[index]:match("^-?0%d") then
+            return nil, "invalid definition number"
+        end
+    end
+    local text = p[8]:gsub("%%([%x][%x])", function(hex) return string.char(tonumber(hex, 16)) end)
+    return self:NormalizeDefinition({ version = 1, kind = p[2], id = p[3], text = text,
+        enabled = p[4] == "1", scale = tonumber(p[5]), x = tonumber(p[6]), y = tonumber(p[7]) })
+end
+
+function UI:CreateDefinitionSession(value, onSave)
+    local owner = self
+    local saved, err = owner:NormalizeDefinition(value)
+    if not saved then return nil, err end
+    local draft = owner:NormalizeDefinition(saved)
+    local session = {}
+    function session:GetDefinition() return owner:NormalizeDefinition(saved) end
+    function session:GetDraft() return owner:NormalizeDefinition(draft) end
+    function session:Patch(changes)
+        if not DefinitionTableAccessible(changes) or getmetatable(changes) ~= nil then
+            return nil, "changes must be an accessible plain table"
+        end
+        local nextDraft = owner:NormalizeDefinition(draft)
+        if not nextDraft then return nil, "inaccessible draft" end
+        for key, value in pairs(changes) do
+            if not DefinitionValueAccessible(key) or not DefinitionValueAccessible(value)
+                or not definitionKeys[key] then return nil, "invalid definition change" end
+            nextDraft[key] = value
+        end
+        local normalized, errorText = owner:NormalizeDefinition(nextDraft)
+        if not normalized then return nil, errorText end
+        draft = normalized
+        return self:GetDraft()
+    end
+    function session:Import(wire)
+        local nextDraft, errorText = owner:ImportDefinition(wire)
+        if not nextDraft then return nil, errorText end
+        draft = nextDraft
+        return self:GetDraft()
+    end
+    function session:Export() return owner:ExportDefinition(draft) end
+    function session:Cancel()
+        local nextDraft, errorText = owner:NormalizeDefinition(saved)
+        if not nextDraft then return nil, errorText end
+        draft = nextDraft
+        return self:GetDraft()
+    end
+    function session:Save()
+        local nextSaved, errorText = owner:NormalizeDefinition(draft)
+        if not nextSaved then return nil, errorText end
+        if type(onSave) == "function" then
+            local ok, accepted = pcall(onSave, owner:NormalizeDefinition(nextSaved))
+            if not ok or (type(accepted) ~= "nil" and
+                (not DefinitionValueAccessible(accepted) or accepted ~= true)) then
+                return nil, "definition save rejected"
+            end
+        end
+        saved = nextSaved
+        return self:GetDefinition()
+    end
+    return session
+end
+
+function UI:CreateDefinitionEditor(parent, options)
+    options = options or {}
+    local session, err = self:CreateDefinitionSession(options.definition, options.onSave)
+    if not session then return nil, err end
+    local frame = CreateFrame("Frame", nil, parent)
+    frame:SetSize(480, 390)
+    frame.session = session
+    local scene = self:CreateSection(frame, { title = "Label preview", width = 460, height = 100 })
+    scene:SetPoint("TOPLEFT", 10, 0)
+    local previewCanvas = self:CreateScrollPage(scene.content, 48)
+    local preview = CreateFrame("Frame", nil, previewCanvas)
+    preview:SetSize(1, 1)
+    local label = self:CreateLabel(preview, { text = "" })
+    label:SetPoint("CENTER")
+    local status = self:CreateLabel(frame, { text = "", width = 460, color = "muted" })
+    status:SetPoint("TOPLEFT", 10, -350)
+    local fields, syncing, invalidFields = {}, false, {}
+    local function updatePreview()
+        local d = session:GetDraft()
+        if not d then return end
+        label:SetText(d.text:gsub("|", "||")) -- plain text, matching browser textContent
+        preview:ClearAllPoints()
+        preview:SetPoint("CENTER", previewCanvas, "CENTER", d.x, d.y)
+        preview:SetScale(d.scale / 100)
+        if d.enabled then preview:Show() else preview:Hide() end
+    end
+    local function input(title, y, onChange)
+        local caption = self:CreateLabel(frame, { text = title })
+        caption:SetPoint("TOPLEFT", 10, y)
+        local box = CreateFrame("EditBox", nil, frame, "InputBoxTemplate")
+        box:SetSize(320, 24)
+        box:SetPoint("TOPLEFT", 140, y + 4)
+        if type(box.SetAutoFocus) == "function" then box:SetAutoFocus(false) end
+        ApplyDefaultFont(box)
+        box:SetScript("OnEscapePressed", function(widget) widget:ClearFocus() end)
+        box:SetScript("OnEnterPressed", function(widget) widget:ClearFocus() end)
+        box:SetScript("OnTextChanged", function(widget, userInput)
+            if syncing or not userInput or not onChange then return end
+            local ok, errorText = onChange(widget:GetText())
+            invalidFields[title] = not ok or nil
+            status:SetText(ok and "Draft changed; Save to persist." or (errorText or "Invalid value"))
+            updatePreview()
+        end)
+        return box
+    end
+    fields.text = input("Text", -120, function(text) return session:Patch({ text = text }) end)
+    for index, key in ipairs({ "x", "y", "scale" }) do
+        local fieldKey = key
+        fields[key] = input(key == "scale" and "Scale (%)" or key:upper(), -120 - index * 30,
+            function(text)
+                local number = tonumber(text)
+                if not number then return nil, "Enter an integer" end
+                return session:Patch({ [fieldKey] = number })
+            end)
+    end
+    local toggle = self:CreateToggle(frame, { label = "Enabled", storage = { enabled = session:GetDraft().enabled },
+        default = true, onChange = function(value) session:Patch({ enabled = value }); updatePreview() end })
+    toggle:SetPoint("TOPLEFT", 10, -242)
+    fields.transfer = input("Import / export", -274)
+    local function refresh(message)
+        syncing = true
+        invalidFields = {}
+        local d = session:GetDraft()
+        if d then
+            fields.text:SetText(d.text)
+            for _, key in ipairs({ "x", "y", "scale" }) do fields[key]:SetText(tostring(d[key])) end
+            toggle.check:SetChecked(d.enabled)
+            fields.transfer:SetText(session:Export() or "")
+        end
+        syncing = false
+        status:SetText(message or "Draft ready; changes are saved only on Save.")
+        updatePreview()
+    end
+    for index, action in ipairs({ "Import", "Export", "Save", "Cancel" }) do
+        local name = action
+        local button = self:CreateButton(frame, { text = name, width = 100, onClick = function()
+            if name == "Export" then fields.transfer:SetText(session:Export() or ""); return end
+            local result, errorText
+            if name == "Import" then result, errorText = session:Import(fields.transfer:GetText())
+            elseif name == "Save" then
+                if next(invalidFields) then status:SetText("Fix invalid fields before saving."); return end
+                result, errorText = session:Save()
+            else result, errorText = session:Cancel() end
+            if result then refresh(name .. " complete") else status:SetText(errorText or "Operation failed") end
+        end })
+        button:SetPoint("TOPLEFT", 10 + (index - 1) * 115, -312)
+    end
+    function frame:Refresh() refresh() end
+    frame:SetScript("OnHide", function() session:Cancel(); refresh() end)
+    refresh()
+    return frame
+end
+
+--[[============================================================================
     INITIALIZATION
 ============================================================================]]
 
 function UI:Init()
-    RGX:RegisterModule("ui", self)
+    RGX:RegisterModule("ui", self, { category = "library", depends = { "fonts", "colors", "textures", "dropdowns" } })
     _G.RGXUI = self
 end
 

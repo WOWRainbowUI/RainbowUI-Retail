@@ -126,4 +126,4 @@ end
 -- ── Wire into framework ───────────────────────────────────────────────────────
 
 _G.RGXLoot = Loot
-RGX:RegisterModule("loot", Loot)
+RGX:RegisterModule("loot", Loot, { category = "game" })

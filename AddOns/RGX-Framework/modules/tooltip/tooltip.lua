@@ -212,4 +212,4 @@ end
 -- ── Wire into framework ───────────────────────────────────────────────────────
 
 _G.RGXTooltip = Tooltip
-RGX:RegisterModule("tooltip", Tooltip)
+RGX:RegisterModule("tooltip", Tooltip, { category = "library" })

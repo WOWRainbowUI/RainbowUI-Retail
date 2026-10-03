@@ -5,6 +5,10 @@
 
 local addonName, RGX = ...
 
+-- Flavor-gated (compat.lua): this module's Blizzard namespace only exists on
+-- specific clients; without the required API the module must not register.
+if not (RGX and type(RGX.ModuleSupported) == 'function' and RGX:ModuleSupported("delves")) then return end
+
 local Delves = {
     _eventsInit = false,
     _onCompanionLevelUp = {},
@@ -165,4 +169,4 @@ function Delves:Init()
 end
 
 _G.RGXDelves = Delves
-RGX:RegisterModule("delves", Delves)
+RGX:RegisterModule("delves", Delves, { category = "game", flavors = { "retail", "forever" } })

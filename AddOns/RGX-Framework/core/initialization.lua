@@ -138,6 +138,16 @@ RGX:RegisterEvent("ADDON_LOADED", function(_, addon)
         TryInit("collectibles", "RGXCollectibles")
         TryInit("loot", "RGXLoot")
 
+        -- SavedVariables adoption safety net: databases are constructed at
+        -- consumer chunk load, before the client deserializes their
+        -- SavedVariables. Adopt every database once all SVs are guaranteed
+        -- loaded (consumers normally adopt in their own ADDON_LOADED).
+        RGX:RegisterEvent("PLAYER_LOGIN", function()
+            if type(RGX.AdoptDatabases) == "function" then
+                RGX:AdoptDatabases()
+            end
+        end, "RGX_DB_Adopt")
+
         -- Mark ready and fire queued callbacks
         RGX._ready = true
         local callbacks = RGX._readyCallbacks
@@ -150,7 +160,10 @@ RGX:RegisterEvent("ADDON_LOADED", function(_, addon)
         end
 
         -- One framework startup line, gated by /rgx login off.
-        RGX:LoginMessage(string.format("RGX-Framework v%s loaded.", tostring(RGX.version)))
+        local LocaleMod = RGX:GetModule("locale")
+        local LL = (LocaleMod and LocaleMod.L) or {}
+        local loginFmt = LL["LOGIN_LOADED_FORMAT"] or "RGX-Framework v%s loaded."
+        RGX:LoginMessage(string.format(loginFmt, tostring(RGX.version)))
 
         RGX:UnregisterEvent("ADDON_LOADED", "RGX_Init")
     end

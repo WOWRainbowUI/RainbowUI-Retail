@@ -1,6 +1,7 @@
 --[[ RGX-Framework - Commands ]]
 
 local _, RGX = ...
+local L = (RGX:GetModule("locale") or {}).L or {}
 
 RGX:RegisterSlashCommand("rgx", function(msg)
     local input = strtrim(msg or "")
@@ -10,12 +11,16 @@ RGX:RegisterSlashCommand("rgx", function(msg)
 
     if cmd == "modules" then
         local mods = RGX:GetLoadedModules()
-        RGX:Print("Modules:", table.concat(mods, ", "))
+        RGX:Print(L["COMMAND_MODULES_HEADER"] or "Modules:", table.concat(mods, ", "))
     elseif cmd == "fonts" or cmd == "font" then
         local Fonts = RGX:GetModule("fonts")
         if Fonts then
             local list = Fonts:ListAvailable()
-            RGX:Print("Fonts:", #list, "available")
+            RGX:Print(
+                L["COMMAND_FONTS_HEADER"] or "Fonts:",
+                #list,
+                L["COMMAND_FONTS_AVAILABLE"] or "available"
+            )
             for i, f in ipairs(list) do
                 print("  ", f.name, "-", f.displayName, "-", f.category)
             end
@@ -24,32 +29,47 @@ RGX:RegisterSlashCommand("rgx", function(msg)
         local Fonts = RGX:GetModule("fonts")
         if Fonts then
             Fonts._forceDebug = not Fonts._forceDebug
-            RGX:Print("Font debug:", Fonts._forceDebug and "ON" or "OFF")
+            local state = Fonts._forceDebug
+                and (L["COMMAND_FONT_DEBUG_ON"] or "ON")
+                or  (L["COMMAND_FONT_DEBUG_OFF"] or "OFF")
+            RGX:Print(L["COMMAND_FONT_DEBUG_PREFIX"] or "Font debug:", state)
         end
     elseif cmd == "dbtest" then
         if type(RGX.RunDBTests) == "function" then
             RGX:RunDBTests()
         else
-            RGX:Print("DB Tests not loaded.")
+            RGX:Print(L["COMMAND_DB_TESTS_MISSING"] or "DB Tests not loaded.")
         end
     elseif cmd == "login" then
         local arg = strtrim(rest):lower()
         if arg == "on" then
             RGX:SetLoginMessagesEnabled(true)
-            RGX:Print("Login messages: ON")
+            RGX:Print(
+                L["COMMAND_LOGIN_MESSAGES_PREFIX"] or "Login messages:",
+                L["COMMAND_FONT_DEBUG_ON"] or "ON"
+            )
         elseif arg == "off" then
             -- This confirmation is a normal command response, not a login
             -- message, so it prints even after disabling.
             RGX:SetLoginMessagesEnabled(false)
-            RGX:Print("Login messages: OFF")
+            RGX:Print(
+                L["COMMAND_LOGIN_MESSAGES_PREFIX"] or "Login messages:",
+                L["COMMAND_FONT_DEBUG_OFF"] or "OFF"
+            )
         elseif arg == "status" or arg == "" then
-            RGX:Print("Login messages:", RGX:IsLoginMessagesEnabled() and "ON" or "OFF")
+            local state = RGX:IsLoginMessagesEnabled()
+                and (L["COMMAND_FONT_DEBUG_ON"] or "ON")
+                or  (L["COMMAND_FONT_DEBUG_OFF"] or "OFF")
+            RGX:Print(L["COMMAND_LOGIN_MESSAGES_PREFIX"] or "Login messages:", state)
         else
-            RGX:Print("Usage: /rgx login on|off|status")
+            RGX:Print(L["COMMAND_LOGIN_USAGE"] or "Usage: /rgx login on|off|status")
         end
+    elseif cmd == "editor" then
+        RGX:OpenDefinitionEditor()
     elseif cmd == "version" or cmd == "ver" then
-        RGX:Print("RGX-Framework v" .. (RGX.version or "unknown"))
+        local ver = tostring(RGX.version or (L["COMMAND_VERSION_UNKNOWN"] or "unknown"))
+        RGX:Print((L["COMMAND_VERSION_PREFIX"] or "RGX-Framework v") .. ver)
     else
-        RGX:Print("Commands: modules, fonts, debug, dbtest, login, version")
+        RGX:Print(L["COMMAND_LIST"] or "Commands: modules, fonts, debug, dbtest, login, editor, version")
     end
 end, "RGX")

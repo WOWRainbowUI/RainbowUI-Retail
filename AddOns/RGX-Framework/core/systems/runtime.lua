@@ -1,7 +1,7 @@
 --[[
     RGX-Framework - Runtime Helpers
 
-    BLU already proved that a WoW addon can provide its own lightweight
+    Consumer addons already proved that a WoW addon can provide its own lightweight
     framework runtime without leaning on LibStub-era dependency chains.
 
     RGX keeps the same philosophy here:

@@ -35,17 +35,23 @@ local addonName, RGX = ...
 
 local Rep = {}
 
+-- Locale strings (modules/locale/locale.lua + overrides.lua) must load before
+-- this module via RGX-Framework.xml; fall back to English if absent so the
+-- framework still boots during isolated tooling linting.
+local LocaleMod = RGX:GetModule("locale")
+local L = (LocaleMod and LocaleMod.L) or {}
+
 -- ── Constants ─────────────────────────────────────────────────────────────────
 
 Rep.Ranks = {
-    [1] = "Hated",
-    [2] = "Hostile",
-    [3] = "Unfriendly",
-    [4] = "Neutral",
-    [5] = "Friendly",
-    [6] = "Honored",
-    [7] = "Revered",
-    [8] = "Exalted",
+    [1] = L["REP_RANK_1"] or "Hated",
+    [2] = L["REP_RANK_2"] or "Hostile",
+    [3] = L["REP_RANK_3"] or "Unfriendly",
+    [4] = L["REP_RANK_4"] or "Neutral",
+    [5] = L["REP_RANK_5"] or "Friendly",
+    [6] = L["REP_RANK_6"] or "Honored",
+    [7] = L["REP_RANK_7"] or "Revered",
+    [8] = L["REP_RANK_8"] or "Exalted",
 }
 
 local SCAN_DELAY = 0.10
@@ -150,7 +156,7 @@ function Rep:Scan()
                 if ok2 and data then
                     self._renown[fid] = {
                         level = data.renownLevel or 0,
-                        name  = data.name or ("Faction " .. fid),
+                        name  = data.name or string.format(L["REP_FACTION_FALLBACK_FORMAT"] or "Faction %d", fid),
                     }
                 end
             end
@@ -216,7 +222,7 @@ function Rep:CheckChanges()
                     local oldLevel = self._renown[fid] and self._renown[fid].level or 0
                     local newLevel = data.renownLevel or 0
                     if newLevel > oldLevel then
-                        local fname = data.name or ("Faction " .. fid)
+                        local fname = data.name or string.format(L["REP_FACTION_FALLBACK_FORMAT"] or "Faction %d", fid)
                         Fire(self._onRenownUp, fname, fid, oldLevel, newLevel)
                         self._renown[fid] = { level = newLevel, name = fname }
                     end
@@ -253,7 +259,7 @@ function Rep:GetAll()
             id       = id,
             name     = data.name,
             standing = data.standing,
-            rankName = self.Ranks[data.standing] or "Unknown",
+            rankName = self.Ranks[data.standing] or L["REP_UNKNOWN"] or "Unknown",
             value    = data.value,
             max      = data.max,
         })
@@ -311,7 +317,7 @@ function Rep:Init()
             RGX:RegisterEvent("COVENANT_SANCTUM_RENOWN_LEVEL_CHANGED", function(_, newLevel, oldLevel)
                 local covenantID = C_Covenants and C_Covenants.GetActiveCovenantID and C_Covenants.GetActiveCovenantID() or 0
                 local key = "covenant_" .. tostring(covenantID or 0)
-                local name = "Covenant"
+                local name = L["REP_COVENANT"] or "Covenant"
                 if type(newLevel) == "number" and type(oldLevel) == "number" and newLevel > oldLevel then
                     Rep._covenantRenown[key] = { level = newLevel, name = name }
                     Fire(Rep._onRenownUp, name, key, oldLevel, newLevel)
@@ -324,4 +330,4 @@ end
 -- ── Wire into framework ───────────────────────────────────────────────────────
 
 _G.RGXReputation = Rep
-RGX:RegisterModule("reputation", Rep)
+RGX:RegisterModule("reputation", Rep, { category = "game" })

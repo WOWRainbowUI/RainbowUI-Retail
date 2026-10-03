@@ -218,11 +218,10 @@ local function DeserializeValue(str)
                     if char == "{" then
                         level = level + 1
                     elseif char == "}" then
+                        level = level - 1
                         if level == 0 then
                             endPos = i
                             break
-                        else
-                            level = level - 1
                         end
                     end
                 end
@@ -252,7 +251,7 @@ function RGX:SerializeTable(t)
 end
 
 function RGX:DeserializeTable(str)
-    if type(str) ~= "string" or not str:find("^" .. SERIAL_PREFIX, 1, true) then
+    if type(str) ~= "string" or str:sub(1, #SERIAL_PREFIX) ~= SERIAL_PREFIX then
         return nil
     end
     return DeserializeValue(str:sub(#SERIAL_PREFIX + 1))
@@ -337,7 +336,34 @@ end
 
 local function ActiveProfile(self)
     local raw = self._raw
-    return raw.profiles and raw.profiles[raw.activeProfile]
+    if type(raw) ~= "table" then return nil end
+    local profiles = raw.profiles
+    if type(profiles) ~= "table" then return nil end
+    -- SavedVariables data can never legitimately carry a metatable. A proxied
+    -- table stored as the profile store (or as a profile) loops every database
+    -- access: indexing it re-enters this function through __index chains and
+    -- exhausts the C stack at this exact line. Rebuild the entry as a plain
+    -- table so one bad write cannot hard-crash every consumer read.
+    if getmetatable(profiles) ~= nil then
+        if type(RGX.Error) == "function" then
+            pcall(RGX.Error, RGX, "database: profile store carried a metatable; rebuilt plain")
+        end
+        profiles = {}
+        raw.profiles = profiles
+    end
+    local profile = profiles[raw.activeProfile]
+    if type(profile) ~= "table" then return nil end
+    if getmetatable(profile) ~= nil then
+        if type(RGX.Error) == "function" then
+            pcall(RGX.Error, RGX, "database: active profile carried a metatable; rebuilt plain")
+        end
+        profile = {}
+        profiles[raw.activeProfile] = profile
+        if type(self._defaults) == "table" then
+            MergeTable(profile, self._defaults)
+        end
+    end
+    return profile
 end
 
 -- ── Internal: fire all "profile switched" callbacks ────────────────────────────
@@ -347,14 +373,18 @@ local function NotifySwitch(self)
     self._guard = true
     local name = self._raw.activeProfile
     local profile = ActiveProfile(self)
-    if self._onSwitch then
-        self._onSwitch(name, profile)
-    end
-    if self._callbacks then
-        for _, cb in ipairs(self._callbacks) do
-            cb(name, profile)
+    local function dispatch(callback)
+        local ok = pcall(callback, name, profile)
+        if not ok and type(RGX.Error) == "function" then
+            -- Diagnostics must not throw past the notification guard either.
+            pcall(RGX.Error, RGX, "Database profile callback failed")
         end
     end
+    -- Snapshot observers so registration during dispatch applies next time.
+    local observers = {}
+    for i, callback in ipairs(self._callbacks or {}) do observers[i] = callback end
+    if type(self._onSwitch) == "function" then dispatch(self._onSwitch) end
+    for _, callback in ipairs(observers) do dispatch(callback) end
     self._guard = nil
 end
 
@@ -396,6 +426,64 @@ end
 
 function DB:GetActiveProfile()
     return self._raw.activeProfile
+end
+
+-- Consumers may declare their addon before their settings module is loaded.
+-- Bind defaults to the existing owner instead of replacing the DB proxy.
+function DB:RegisterDefaults(defaults)
+    if type(defaults) ~= "table" then return false end
+    self._defaults = defaults
+    EnsureDefault(self)
+    for _, profile in pairs(self._raw.profiles) do
+        if type(profile) == "table" then FillDefaults(self, profile) end
+    end
+    NotifySwitch(self)
+    return true
+end
+
+-- ── Adopt the client-loaded SavedVariables table ────────────────────────────
+-- NewDatabase runs at consumer chunk load, BEFORE the client deserializes
+-- SavedVariables (that happens just before ADDON_LOADED). The client then
+-- REPLACES _G[globalName] with the loaded table, leaving db._raw bound to
+-- the pre-load empty table: every runtime write would be lost at logout.
+-- Adopt() rebinds _raw to the loaded table, restores structure, re-applies
+-- fill-only defaults and fires the switch callbacks. No-op when bound.
+function DB:Adopt()
+    local g = _G[self._globalName]
+    if type(g) == "nil" then
+        -- A saved file may explicitly assign nil after pre-load construction.
+        -- Reattach the initialized store so later writes reach the TOC global.
+        _G[self._globalName] = self._raw
+        return false
+    end
+    if not g or g == self._raw then return false end
+
+    self._raw = g
+    if type(g.profiles) ~= "table" then g.profiles = {} end
+    if type(g.global) ~= "table" then g.global = {} end
+    if type(g.char) ~= "table" then g.char = {} end
+
+    if type(self._globalDefaults) == "table" then
+        MergeTable(g.global, self._globalDefaults)
+    end
+    if type(self._charDefaults) == "table" then
+        local key = self._charKey
+        if type(g.char[key]) ~= "table" then g.char[key] = {} end
+        MergeTable(g.char[key], self._charDefaults)
+    end
+
+    EnsureDefault(self)
+    local active = g.activeProfile
+    if not active or not g.profiles[active] then
+        active = PROTECTED_PROFILE
+    end
+    g.activeProfile = active
+    if g.profiles[active].currentProfile == nil then
+        g.profiles[active].currentProfile = active
+    end
+    FillDefaults(self, g.profiles[active])
+    NotifySwitch(self)
+    return true
 end
 
 function DB:GetChar()
@@ -562,7 +650,7 @@ DB.__index = function(self, key)
 
  if key == "global" then -- step 2
  if self._profileIsGlobal then
- return ActiveProfile(self) or self._raw.global
+ return self._globalView or ActiveProfile(self) or self._raw.global
  end
  if not self._raw.global then self._raw.global = {} end
  return self._raw.global
@@ -572,7 +660,7 @@ DB.__index = function(self, key)
  return self:GetChar()
  end
 
- if key == "_raw" or key == "_defaults" or key == "_charDefaults" or key == "_charKey" or key == "_callbacks" or key == "_onSwitch" or key == "_guard" or key == "_profileIsGlobal" then
+ if key == "_raw" or key == "_defaults" or key == "_charDefaults" or key == "_charKey" or key == "_callbacks" or key == "_onSwitch" or key == "_guard" or key == "_profileIsGlobal" or key == "_globalName" or key == "_globalView" or key == "_globalDefaults" then
  return rawget(self, key) -- step 3
  end
 
@@ -587,7 +675,7 @@ DB.__index = function(self, key)
  -- __newindex: called when you do db.something = value
  DB.__newindex = function(self, key, value)
  if key == "global" or key == "char" then return end -- block: use db.global.key / db.char.key
- if key == "_raw" or key == "_defaults" or key == "_charDefaults" or key == "_charKey" or key == "_callbacks" or key == "_onSwitch" or key == "_guard" or key == "_profileIsGlobal" then
+ if key == "_raw" or key == "_defaults" or key == "_charDefaults" or key == "_charKey" or key == "_callbacks" or key == "_onSwitch" or key == "_guard" or key == "_profileIsGlobal" or key == "_globalName" or key == "_globalView" or key == "_globalDefaults" then
  rawset(self, key, value)
  return
  end
@@ -602,7 +690,7 @@ DB.__index = function(self, key)
 -- ══════════════════════════════════════════════════════════════════════════════
 
 -- Modern API: flat defaults, metamethod access.
---   local db = RGX:NewDatabase("BLUDB", { enabled = true, volume = 1.0 }, {
+--   local db = RGX:NewDatabase("MyAddonDB", { enabled = true, volume = 1.0 }, {
 --       global = { installedVersion = "1.0" },
 --       char   = { lastZone = nil },        -- per-character defaults
 --       profileIsGlobal = true,             -- db.global → active profile (legacy compat)
@@ -627,7 +715,8 @@ function RGX:NewDatabase(globalName, defaults, opts)
         _callbacks  = {},
         _onSwitch   = opts.onSwitch,
         _profileIsGlobal = opts.profileIsGlobal and true or nil,
-    }, DB)
+        _globalName      = globalName,
+        _globalDefaults  = opts.global,    }, DB)
 
     -- Step 3: apply global defaults
  if type(opts.global) == "table" then
@@ -655,16 +744,53 @@ function RGX:NewDatabase(globalName, defaults, opts)
     raw.profiles[active].currentProfile = active
     FillDefaults(db, raw.profiles[active])
 
-    -- Step 6: fire the initial onSwitch callback (used by BLU for UI wiring)
-    if opts.onSwitch then
-        opts.onSwitch(active, raw.profiles[active])
+    -- Step 6: fire the initial onSwitch callback (used by consumers for UI wiring)
+    if opts.onSwitch then NotifySwitch(db) end
+
+    -- Step 6b: profileIsGlobal consumers capture db.global once (e.g.
+    -- MySettings = db.global). Return a live view proxy instead of the
+    -- raw profile table so captured references keep routing to the active
+    -- profile across SavedVariables adoption and profile switches.
+    if db._profileIsGlobal then
+        local viewMT = {}
+        viewMT.__index = function(_, key)
+            local profile = ActiveProfile(db)
+            local val = profile and profile[key]
+            if val ~= nil then return val end
+            return db._defaults and db._defaults[key]
+        end
+        viewMT.__newindex = function(_, key, value)
+            local profile = ActiveProfile(db)
+            if profile then profile[key] = value end
+        end
+        db._globalView = setmetatable({}, viewMT)
     end
+
+    RGX._databases = RGX._databases or {}
+    RGX._databases[#RGX._databases + 1] = db
 
     return db
 end
 
+-- Safety net: adopt every constructed database once SavedVariables for all
+-- addons are guaranteed loaded. Consumers normally adopt earlier in their
+-- own ADDON_LOADED (db:Adopt()); this catches anything that did not.
+function RGX:AdoptDatabases()
+    local list = self._databases
+    if type(list) ~= "table" then return end
+    for i = 1, #list do
+        local db = list[i]
+        if type(db) == "table" and type(db.Adopt) == "function" then
+            local ok, err = pcall(db.Adopt, db)
+            if not ok then
+                self:Error("DB adopt error: " .. tostring(err))
+            end
+        end
+    end
+end
+
 -- Backward-compat wrapper: same as NewDatabase but with opts.profile/{defaults} naming.
---   local handle = RGX:OpenDB("BLUDB", {
+--   local handle = RGX:OpenDB("MyAddonDB", {
 --       profile  = { enabled = true },
 --       global   = { installedVersion = "1.0" },
 --       onSwitch = function(name, profile) end,

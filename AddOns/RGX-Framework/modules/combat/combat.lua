@@ -477,4 +477,4 @@ end
 -- ── Wire into framework ───────────────────────────────────────────────────────
 
 _G.RGXCombat = Combat
-RGX:RegisterModule("combat", Combat)
+RGX:RegisterModule("combat", Combat, { category = "game" })

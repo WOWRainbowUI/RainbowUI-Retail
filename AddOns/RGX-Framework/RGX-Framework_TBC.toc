@@ -1,0 +1,16 @@
+## Interface: 20506
+## X-Wago-ID: E6gz1DN1
+## Version: 2.7.11
+## Title: RGX-Framework
+## Notes: Modular WoW addon framework
+## Author: RGX
+## Category: RealmGX
+## DefaultState: Enabled
+## Group: RealmGX
+## SavedVariables: RGXFrameworkDB
+## IconTexture: Interface\AddOns\RGX-Framework\media\logo.tga
+## X-Category: Library
+## X-License: MIT
+## X-Localizations: enUS, deDE, esES, esMX, frFR, itIT, koKR, ptBR, ptPT, ruRU, zhCN, zhTW
+
+RGX-Framework.xml

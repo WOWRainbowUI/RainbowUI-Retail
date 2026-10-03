@@ -73,4 +73,4 @@ function Honor:Init()
 end
 
 _G.RGXHonor = Honor
-RGX:RegisterModule("honor", Honor)
+RGX:RegisterModule("honor", Honor, { category = "game" })

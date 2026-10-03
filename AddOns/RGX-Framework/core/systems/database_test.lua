@@ -145,6 +145,23 @@ function RGX:RunDBTests()
  assert(rawTable.profiles.Default.settingB == 99, "profileIsGlobal: writes via db.global should land in the profile")
  _G[testDBName .. "_GlobalAsProfile"] = nil
 
+ -- 17. profileIsGlobal live view + SavedVariables adoption
+ do
+     local tName = testDBName .. "_Adopt"
+     _G[tName] = nil
+     local adb = self:NewDatabase(tName, { enabled = true }, { profileIsGlobal = true })
+     local captured = adb.global
+     local loaded = { profiles = { Default = { enabled = false, kept = "yes" } }, global = {}, char = {} }
+     _G[tName] = loaded
+     assert(adb:Adopt() == true, "Adopt: should adopt the client-loaded table")
+     assert(captured.enabled == false, "view: captured db.global should read adopted data")
+     assert(captured.kept == "yes", "view: adopted values should be visible through the view")
+     captured.newKey = 7
+     assert(loaded.profiles.Default.newKey == 7, "view: writes should land in the adopted profile")
+     assert(captured.enabled == false, "Adopt: FillDefaults must not clobber saved values")
+     _G[tName] = nil
+ end
+
  -- Cleanup
     _G[testDBName] = nil
 

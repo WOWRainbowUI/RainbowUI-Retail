@@ -837,7 +837,7 @@ function Dropdowns:CreateNestedDropdown_Legacy(parent, opts)
     InitializeDropdown(holder.dropdown, function(_, level, menuList)
         level = level or 1
         if level == 1 then
-            -- Rebuild data registry fresh on every open (BLU pattern).
+            -- Rebuild data registry fresh on every open (consumer-proven pattern).
             -- Prevents stale key accumulation and ensures TWW compat.
             holder._menuData = {}
             menuKeyCounter = 0
@@ -868,13 +868,106 @@ function Dropdowns:CreateNestedDropdown_Legacy(parent, opts)
     return holder
 end
 
+-- A consumer's retail trigger is a visual overlay for an existing nested dropdown.
+-- The existing MenuUtil / UIDropDownMenu menus still own items and selection;
+-- only the visible button changes. Consumers opt in per control.
+function Dropdowns:ApplyRetailTrigger(holder, opts)
+    local D = RGX:GetDesign()
+    local native = holder.dropdown
+    local trigger = CreateFrame("Button", nil, holder, "BackdropTemplate")
+    trigger:SetFrameLevel(native:GetFrameLevel() + 1)
+    trigger:SetSize(opts.buttonWidth or 180, 22)
+    if opts.label == "" then
+        trigger:SetPoint("TOPLEFT", holder, "TOPLEFT", 0, -2)
+    else
+        trigger:SetPoint("TOPLEFT", holder.label, "BOTTOMLEFT", 0, -5)
+    end
+    trigger:SetBackdrop({
+        bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
+        edgeFile = "Interface\\Buttons\\WHITE8x8",
+        tile = true, tileSize = 16, edgeSize = 1,
+        insets = { left = 1, right = 1, top = 1, bottom = 1 },
+    })
+    trigger:SetBackdropColor(0.10, 0.14, 0.19, 0.96)
+    trigger:SetBackdropBorderColor(D:Unpack("border"))
+    trigger:RegisterForClicks("LeftButtonUp")
+    local text = trigger:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    text:SetPoint("LEFT", 8, 0)
+    text:SetPoint("RIGHT", -18, 0)
+    text:SetJustifyH("LEFT")
+    text:SetTextColor(D:Unpack("text"))
+    local arrow = trigger:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    arrow:SetPoint("RIGHT", -6, 0)
+    arrow:SetText("v")
+    arrow:SetTextColor(D:Unpack("subtext"))
+
+    -- Disable the original hit area; programmatic opening retains the native
+    -- nested menu implementation and its radio/selection semantics.
+    native:SetAlpha(0)
+    if native.EnableMouse then native:EnableMouse(false) end
+    trigger:SetScript("OnClick", function(self)
+        if type(native.OpenMenu) == "function" then
+            native:OpenMenu()
+        elseif type(native.Click) == "function" then
+            native:Click()
+        elseif type(ToggleDropDownMenu) == "function" then
+            ToggleDropDownMenu(1, nil, native, self, 0, 0)
+        end
+    end)
+    trigger:SetScript("OnEnter", function(self)
+        self:SetBackdropColor(0.11, 0.18, 0.24, 1)
+        self:SetBackdropBorderColor(D:Unpack("primary"))
+    end)
+    trigger:SetScript("OnLeave", function(self)
+        self:SetBackdropColor(0.10, 0.14, 0.19, 0.96)
+        self:SetBackdropBorderColor(D:Unpack("border"))
+    end)
+    local function fitTrigger()
+        local width = holder:GetWidth()
+        if type(width) == "number" and width > 20 then
+            trigger:SetWidth(width)
+        end
+    end
+    fitTrigger()
+    holder:HookScript("OnSizeChanged", fitTrigger)
+    local refresh = holder.Refresh
+    function holder:Refresh(value)
+        refresh(self, value)
+        text:SetText(self:GetValueText(self.value))
+        native:SetAlpha(0)
+    end
+    local setEnabled = holder.SetEnabled
+    function holder:SetEnabled(enabled)
+        setEnabled(self, enabled)
+        trigger:SetEnabled(enabled ~= false)
+        trigger:SetAlpha(enabled ~= false and 1 or 0.45)
+        native:SetAlpha(0)
+    end
+    holder.retailTrigger = trigger
+    -- The old 56px holder reserved space below a 22px trigger. Size the
+    -- labeled control to its actual content so containing cards can fit it.
+    if not opts.height then
+        local labelHeight = opts.label == "" and 0 or math.max(14, holder.label:GetHeight())
+        holder:SetHeight(labelHeight + (opts.label == "" and 2 or 5) + trigger:GetHeight())
+    end
+    holder:Refresh(holder.value)
+    return holder
+end
+
 function Dropdowns:CreateNestedDropdown(parent, opts)
-	if HasModernDropdownTemplate() then
-		RGX:Debug("RGXDropdown: dispatching to MenuUtil path")
-		return self:CreateNestedDropdown_MenuUtil(parent, opts)
-	end
-	RGX:Debug("RGXDropdown: dispatching to Legacy path")
-	return self:CreateNestedDropdown_Legacy(parent, opts)
+    opts = opts or {}
+    local holder
+    if HasModernDropdownTemplate() then
+        RGX:Debug("RGXDropdown: dispatching to MenuUtil path")
+        holder = self:CreateNestedDropdown_MenuUtil(parent, opts)
+    else
+        RGX:Debug("RGXDropdown: dispatching to Legacy path")
+        holder = self:CreateNestedDropdown_Legacy(parent, opts)
+    end
+    if holder and opts.triggerStyle == "retail" then
+        return self:ApplyRetailTrigger(holder, opts)
+    end
+    return holder
 end
 
 --[[============================================================================
@@ -1029,7 +1122,7 @@ end
 ============================================================================]]
 
 function Dropdowns:Init()
-    RGX:RegisterModule("dropdowns", self)
+    RGX:RegisterModule("dropdowns", self, { category = "library" })
     _G.RGXDropdowns = self
 end
 
