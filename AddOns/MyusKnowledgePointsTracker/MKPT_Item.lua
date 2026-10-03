@@ -148,7 +148,6 @@ function MKPT_Item:ToggleTrack()
     local _, isTomTomLoaded = C_AddOns.IsAddOnLoaded("TomTom")
     if isTomTomLoaded and TomTom then
       local itemName = self:GetName() or L["Item not cached"]
-      local itemName = self:GetName() or L["Item not cached"]
       self.tomtomUid = TomTom:AddWaypoint(wp.map, wp.x, wp.y, { title = itemName, persistent = false, source = "MKPT_WA" })
     end
   end

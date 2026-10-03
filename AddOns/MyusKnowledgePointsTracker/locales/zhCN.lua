@@ -34,7 +34,6 @@ L["Row Background Opacity"] = "行背景透明度"
 L["Changes row background opacity"] = "调整内容行的背景透明度"
 L["UI scale"] = "界面缩放"
 L["Resizes the addon window"] = "调整插件窗口的大小"
--- LLM translated section
 L["General"] = "常规"
 L["Subcategories"] = "子分类"
 L["Go to general options"] = "前往常规设置"
@@ -59,7 +58,6 @@ L["Start expanded (All characters)"] = "默认展开（所有角色）"
 L["Professions are expanded on login for all characters, unchecking this will cause them to be collapsed (default)"] = "所有角色登录时专业将默认展开，取消勾选后专业将默认折叠（默认）"
 L["Start expanded (Only this character)"] = "默认展开（仅此角色）"
 L["Professions are expanded on login for this character, unchecking this will cause them to be collapsed (default)"] = "此角色登录时专业将默认展开，取消勾选后专业将默认折叠（默认）"
--- End of LLM translated section
 
 -- MKPT_SlashCommand.lua
 L["Available commands:"] = "可用命令："
@@ -127,3 +125,10 @@ L["Looted through mining, after 5 Slabs of Slate"] = "采矿时掉落，需先�
 L["Looted through mining, after 5 Igneous Rock Specimen"] = "采矿时掉落，需先拾取5个火成岩样本"
 L["Looted through skinning, after 5 pelts"] = "剥皮时掉落，需先拾取5个毛皮"
 L["Looted through skinning, after 5 hides"] = "剥皮时掉落，需先拾取5个皮毛"
+
+-- LLM translated section below. If you read this and find anything anormal or have suggestions please report it at https://www.curseforge.com/wow/addons/myus-knowledge-points-tracker or open an issue at https://github.com/myu-westfall/MyusKnowledgePointsTracker/issues.
+-- MKPT_RightClickMenu.lua
+L["Filled Tree"] = "专精树已完成"
+
+-- MKPT_UI.lua
+L["Professions are complete!"] = "专业技能已完成！"

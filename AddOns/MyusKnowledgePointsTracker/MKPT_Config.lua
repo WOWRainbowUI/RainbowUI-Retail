@@ -11,6 +11,7 @@ function MKPT_env.InitializeSavedVariables()
       },
       config = {
         professionsStartExpanded = false,
+        professionsHideFilledTree = false,
       }
     },
     global = {

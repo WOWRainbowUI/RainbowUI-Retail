@@ -15,6 +15,7 @@ L["Weekly Treasures"] = "Tesouros semanais"
 L["Catch-Up"] = "Recuperação de progresso"
 L["Settings"] = "Configurações"
 L["Close"] = "Fechar"
+L["Filled Tree"] = "Árvore Completa"
 
 -- MKPT_Options.lua
 L["Myu's kp Tracker"] = "Rastreador de Pontos de Conhecimento do Myu"
@@ -72,6 +73,7 @@ L["command not found."] = "Comando não encontrado."
 
 -- MKPT_Ui.lua
 L["Auto hide"] = "Ocultar automaticamente"
+L["Professions are complete!"] = "Profissões estão completas!"
 
 -- MKPT_MinimapIcon.lua
 L["Myu's Knowledge Points Tracker"] = "Rastreador de Pontos de Conhecimento do Myu"
