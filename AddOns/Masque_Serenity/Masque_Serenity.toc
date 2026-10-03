@@ -1,0 +1,34 @@
+## Interface: 11509, 20506, 30405, 38002, 40402, 50504, 120100
+
+## Author: StormFX
+## Title: Masque: Serenity
+## Version: 12.1.0
+
+## Category: Masque
+## Dependencies: Masque
+## IconTexture: Interface\AddOns\Masque_Serenity\Textures\Icon
+
+## Notes: Serenity skins for Masque.
+## Notes-deDE: Serenity-Skin für Masque.
+## Notes-esMX: Skins Serenity para Masque.
+## Notes-esES: Skins Serenity para Masque.
+## Notes-frFR: Skins de Serenity pour Masque.
+## Notes-itIT: Skins Serenity per Masque.
+## Notes-ptBR: Aparências Serenity para o Masque.
+## Notes-ruRU: Скин Serenity для Masque.
+## Notes-zhTW: Masque的Serenity外觀。
+
+## X-Category: Interface Enhancements
+## X-Credits: Sairen
+## X-Discord: https://discord.gg/7MTWRgDzz8
+## X-Website: https://github.com/SFX-WoW/Masque_Serenity
+
+## X-Curse-Project-ID: 13601
+## X-Wago-ID: kaNePnG2
+## X-WoWI-ID: 8875
+
+# Locales
+Locales.lua
+
+# Skins
+Skins.lua
