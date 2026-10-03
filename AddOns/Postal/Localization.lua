@@ -5,9 +5,9 @@
 
 local AL3 = LibStub("AceLocale-3.0")
 local debug = false
---[===[@debug@
+--[==[@debug@
 debug = true
---@end-debug@]===]
+--@end-debug@]==]
 
 local L = AL3:NewLocale("Postal", "enUS", true, debug)
 if L then

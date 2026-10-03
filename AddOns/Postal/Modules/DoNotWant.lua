@@ -33,7 +33,7 @@ StaticPopupDialogs["POSTAL_DELETE_MONEY"] = {
 		--HideUIPanel(OpenMailFrame)
 	end,
 	OnShow = function(self)
-		MoneyFrame_Update(self.moneyFrame, selectedIDmoney)
+		MoneyFrame_Update(self.MoneyFrame or self.moneyFrame, selectedIDmoney)
 	end,
 	hasMoneyFrame = 1,
 	showAlert = 1,

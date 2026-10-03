@@ -1,8 +1,9 @@
-------------------------------------------------------------------------
-r663 | Zimzarina | 2025-10-29 20:49:10 +0000 (Wed, 29 Oct 2025) | 1 line
-Changed paths:
-   M /trunk/Postal_Mists.toc
+Update for WoW 12.1 and fix several errors
 
-TOC Update MOP.
-------------------------------------------------------------------------
+- Postal now loads on 12.1 retail without the "out of date" warning. Classic versions are unchanged.
+- Select: opening the mailbox no longer throws an error.
+- Do Not Want: deleting mail that holds only gold no longer errors.
+- Express: turning the Alt-Click option back on no longer errors, and Ctrl- or Alt-clicking equipped items with the Send Mail tab open no longer errors. Express also no longer repeats its Alt-Click setup on every mailbox visit.
+- New Profile: an empty name, or a name over 50 characters, is now rejected instead of causing an error.
 
+-Royaleint
