@@ -6,6 +6,8 @@ if locale ~= "zhTW" then return end
 
 local L = BBF.L_native
 
+L["SETTINGS_CATEGORY_NAME"] = "頭像"
+
 -- Falls back to English (enUS) if translation is not provided
 -- Any key needing update in translation will either be commented out completely or tagged --needsUpdate
 -- 如果未提供翻譯，則回退到英語（enUS）

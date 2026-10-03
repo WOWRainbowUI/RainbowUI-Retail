@@ -313,6 +313,7 @@ L["FADE"] = "Fade"
 L["THANKS_FOR_USING_COOLINATOR_DONATE"] = "Thanks for using Coolinator. Consider donating to support development"
 
 local L = Locales.zhTW
+L["SETTINGS_CATEGORY_NAME"] = "技能冷卻"
 L["NUMBER_PAD_X"] = "數字鍵盤%s"
 L["SWING"] = "揮擊"
 L["MAIN_HAND"] = "主手"

@@ -300,4 +300,7 @@ if L and (C == "zhTW" or C == "zhCN") then
 	L["This version of OPie is not flagged as compatible with this World of Warcraft patch."] = C == "zhTW" and "此版本的 OPie 尚未標示為相容於目前的魔獸世界版本。" or "此版本的 OPie 尚未标记为兼容当前的魔兽世界版本。"
 	L["If you encounter problems, please [check whether an OPie update is available]."] = C == "zhTW" and "如果遇到問題，請[檢查是否有 OPie 更新版本]。" or "如果遇到问题，请[检查是否有 OPie 更新版本]。"
 end
+if C == "zhTW" then
+	T.SettingsCategoryName = "快捷列-環形"
+end
 T.L = L or nil

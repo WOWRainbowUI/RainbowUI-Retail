@@ -1,7 +1,7 @@
 local ADDON, T = ...
 local H, PC, TS, XU, config, L = {}, T.OPieCore, T.TenSettings, T.exUI, T.config, T.L
 
-local frame = TS:CreateOptionsPanel(L"OPie", nil, {
+local frame = TS:CreateOptionsPanel(T.SettingsCategoryName or L"OPie", nil, {
 	forceRootVersion=true,
 	selfBrandedRoot=true,
 	tabText="|TInterface/Buttons/UI-HomeButton:16:18:0:-4|t"

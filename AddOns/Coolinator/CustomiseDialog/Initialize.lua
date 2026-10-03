@@ -39,7 +39,7 @@ function addonTable.CustomiseDialog.Initialize()
   optionsFrame.OnDefault = function() end
   optionsFrame.OnRefresh = function() end
 
-  local category = Settings.RegisterCanvasLayoutCategory(optionsFrame, addonTable.Locales.COOLINATOR)
+  local category = Settings.RegisterCanvasLayoutCategory(optionsFrame, addonTable.Locales.SETTINGS_CATEGORY_NAME or addonTable.Locales.COOLINATOR)
   category.ID = addonTable.Locales.COOLINATOR
   Settings.RegisterAddOnCategory(category)
 end

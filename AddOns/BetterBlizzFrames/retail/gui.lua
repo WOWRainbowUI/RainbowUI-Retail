@@ -11825,7 +11825,7 @@ function BBF.InitializeOptions()
         BetterBlizzFrames = CreateFrame("Frame")
         BetterBlizzFrames.name = "Better|cff00c0ffBlizz|rFrames |A:gmchat-icon-blizz:16:16|a"
         --InterfaceOptions_AddCategory(BetterBlizzFrames)
-        BBF.category = Settings.RegisterCanvasLayoutCategory(BetterBlizzFrames, BetterBlizzFrames.name)
+        BBF.category = Settings.RegisterCanvasLayoutCategory(BetterBlizzFrames, rawget(L, "SETTINGS_CATEGORY_NAME") or BetterBlizzFrames.name)
         Settings.RegisterAddOnCategory(BBF.category)
 
         local titleText = BetterBlizzFrames:CreateFontString(nil, "OVERLAY", "GameFont_Gigantic")
