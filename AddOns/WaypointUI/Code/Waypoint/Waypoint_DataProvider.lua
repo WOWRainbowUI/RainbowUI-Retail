@@ -1,31 +1,46 @@
 local env = select(2, ...)
+local L = env.L
 local Config = env.Config
-local Path = env.WPM:Import("wpm_modules\\path")
-local MapPin = env.WPM:Import("@\\MapPin")
-local SharedUtil = env.WPM:Import("@\\SharedUtil")
-local CallbackRegistry = env.WPM:Import("wpm_modules\\callback-registry")
-local Waypoint_ContextIcon = env.WPM:Import("@\\Waypoint\\ContextIcon")
-local Waypoint_Define = env.WPM:Import("@\\Waypoint\\Define")
-local Waypoint_Enum = env.WPM:Import("@\\Waypoint\\Enum")
-local Waypoint_Cache = env.WPM:Import("@\\Waypoint\\Cache")
-local Waypoint_DataProvider = env.WPM:New("@\\Waypoint\\DataProvider")
+local Path = env.modules:Import("packages\\path")
+local MapPin = env.modules:Import("@\\MapPin")
+local SharedUtil = env.modules:Import("@\\SharedUtil")
+local CallbackRegistry = env.modules:Import("packages\\callback-registry")
+local Waypoint_ContextIcon = env.modules:Import("@\\Waypoint\\ContextIcon")
+local Waypoint_Define = env.modules:Import("@\\Waypoint\\Define")
+local Waypoint_Enum = env.modules:Import("@\\Waypoint\\Enum")
+local Waypoint_Cache = env.modules:Import("@\\Waypoint\\Cache")
+local Waypoint_DataProvider = env.modules:New("@\\Waypoint\\DataProvider")
 
 local CreateFrame = CreateFrame
-local GetBestMapForUnit = C_Map.GetBestMapForUnit
 local GetNavigationFrame = C_Navigation.GetFrame
 local GetDistance = C_Navigation.GetDistance
 local GetQuestClassification = C_QuestInfoSystem.GetQuestClassification
 local IsComplete = C_QuestLog.IsComplete
 local IsInsideQuestBlob = C_Minimap.IsInsideQuestBlob
+local GetNeighborhoodMapData = C_HousingNeighborhood.GetNeighborhoodMapData
+
+local CachedNextWaypointInfo = {}
+local EL = CreateFrame("Frame")
+EL:RegisterEvent("SUPER_TRACKING_PATH_UPDATED")
+EL:RegisterEvent("PLAYER_LOGIN")
+EL:SetScript("OnEvent", function()
+    local mapID = C_Map.GetBestMapForUnit("player")
+    if mapID then
+        local x, y, waypointDescription = C_SuperTrack.GetNextWaypointForMap(mapID)
+        CachedNextWaypointInfo.x, CachedNextWaypointInfo.y, CachedNextWaypointInfo.waypointDescription = x, y, waypointDescription
+    else
+        CachedNextWaypointInfo.x, CachedNextWaypointInfo.y, CachedNextWaypointInfo.waypointDescription = nil, nil, nil
+    end
+end)
 
 local DataProviderUtil = {}
 do
     local CLAMP_THRESHOLD = 0.125
 
     function DataProviderUtil.GetCompletionText(questID)
-        if not C_QuestLog.GetLogIndexForQuestID(questID) then return nil end
-        C_QuestLog.SetSelectedQuest(questID)
-        return GetQuestLogCompletionText()
+        local questLogIndex = C_QuestLog.GetLogIndexForQuestID(questID)
+        if not questLogIndex then return nil end
+        return GetQuestLogCompletionText(questLogIndex)
     end
 
     function DataProviderUtil.GetObjectiveInfo(objectives)
@@ -39,15 +54,15 @@ do
         local questID = Waypoint_Cache.Get("questID")
         if questID then
             if not IsComplete(questID) then
-                return Waypoint_Enum.TrackingType.QuestIncomplete
+                return Waypoint_Enum.TrackingType.IncompleteQuest
             end
             local classification = GetQuestClassification(questID)
-            if classification == Enum.QuestClassification.Recurring or classification == Enum.QuestClassification.Meta then
-                return Waypoint_Enum.TrackingType.QuestCompleteRecurring
+            if classification == Enum.QuestClassification.Recurring or classification == Enum.QuestClassification.Meta or classification == Enum.QuestClassification.Calling then
+                return Waypoint_Enum.TrackingType.CompleteRepeatableQuest
             elseif classification == Enum.QuestClassification.Important then
-                return Waypoint_Enum.TrackingType.QuestCompleteImportant
+                return Waypoint_Enum.TrackingType.CompleteImportantQuest
             end
-            return Waypoint_Enum.TrackingType.QuestComplete
+            return Waypoint_Enum.TrackingType.CompleteQuest
         end
         if Waypoint_Cache.Get("pinType") == Enum.SuperTrackingType.Corpse then
             return Waypoint_Enum.TrackingType.Corpse
@@ -56,9 +71,8 @@ do
     end
 
     function DataProviderUtil.GetRedirectInfo()
-        local mapID = GetBestMapForUnit("player")
-        if mapID then
-            local x, y, text = C_SuperTrack.GetNextWaypointForMap(mapID)
+        if CachedNextWaypointInfo.x then
+            local x, y, text = CachedNextWaypointInfo.x, CachedNextWaypointInfo.y, CachedNextWaypointInfo.waypointDescription
             return Waypoint_Define.RedirectInfo{ valid = text ~= nil, x = x, y = y, text = text }
         end
         return Waypoint_Define.RedirectInfo{ valid = false }
@@ -95,8 +109,52 @@ do
     end
 
     do -- Context Icon
-        local PATH_CONTEXT_ICON = Path.Root .. "\\Art\\Icon\\"
-        local RedirectContextIcon = Waypoint_Define.ContextIconTexture{ type = "TEXTURE", path = PATH_CONTEXT_ICON .. "Redirect.png", requestRecolor = true }
+        local HOUSING_ATLAS_MAP = {
+            [Enum.HousingPlotOwnerType.None]     = "housing-map-plot-unoccupied",
+            [Enum.HousingPlotOwnerType.Self]     = "housing-map-plot-player-house",
+            [Enum.HousingPlotOwnerType.Friend]   = "housing-map-plot-occupied-friend",
+            [Enum.HousingPlotOwnerType.Stranger] = "housing-map-plot-occupied"
+        }
+
+        local function GetSuperTrackedHousingPlotInfo()
+            local pinType, plotDataID = C_SuperTrack.GetSuperTrackedMapPin()
+            if pinType ~= Enum.SuperTrackingMapPinType.HousingPlot or not plotDataID then return nil end
+
+            local mapData = GetNeighborhoodMapData()
+            for _, plotInfo in ipairs(mapData) do
+                if plotInfo.plotDataID == plotDataID then
+                    return HOUSING_ATLAS_MAP[plotInfo.ownerType]
+                end
+            end
+
+            return nil
+        end
+
+
+        local PATH_CONTEXT_ICON = Path.Root .. "\\Art\\Icons\\"
+        local RedirectContextIcon = Waypoint_Define.ContextIconTexture{ type = "TEXTURE", path = PATH_CONTEXT_ICON .. "Redirect", requestRecolor = true }
+
+        Waypoint_DataProvider.FallbackPinIcon = Waypoint_Define.ContextIconTexture{ type = "TEXTURE", path = PATH_CONTEXT_ICON .. "MapPin", requestRecolor = true }
+
+        local function GetContextIconForPinData(pinInfo)
+            if pinInfo and pinInfo.iconTexture then
+                return Waypoint_Define.ContextIconTexture{
+                    type           = pinInfo.iconType or "TEXTURE",
+                    path           = pinInfo.iconTexture,
+                    requestRecolor = pinInfo.requestRecolor
+                }
+            end
+
+            return Waypoint_DataProvider.FallbackPinIcon
+        end
+
+        function Waypoint_DataProvider.GetContextIconForUserNavigation()
+            return GetContextIconForPinData(MapPin.GetUserNavigation())
+        end
+
+        function Waypoint_DataProvider.GetContextIconForPin(pinInfo)
+            return GetContextIconForPinData(pinInfo)
+        end
 
         function Waypoint_DataProvider.GetContextIconTextureForQuest(questID)
             local texturePath = Waypoint_ContextIcon.GetContextIcon(questID)
@@ -109,27 +167,38 @@ do
 
             local poiType = Waypoint_Cache.Get("poiType")
             local poiInfo = Waypoint_Cache.Get("poiInfo")
+            local isVignette = Waypoint_Cache.Get("vignetteID") ~= nil
+            local pathStepWaypoint = MapPin.IsPathStepWaypointTracked() and MapPin.GetPathStepWaypoint() or nil
+            local isCustomUserNavigationTracked = MapPin.IsCustomUserNavigationTracked()
+            local userNavigation = MapPin.GetUserNavigation()
 
             if pinType == Enum.SuperTrackingType.Corpse then
                 return Waypoint_Define.ContextIconTexture{ type = "ATLAS", path = "poi-torghast" }
+            elseif pathStepWaypoint then
+                return Waypoint_DataProvider.GetContextIconForPin(pathStepWaypoint)
+            elseif isCustomUserNavigationTracked and userNavigation and userNavigation.iconTexture then
+                return Waypoint_DataProvider.GetContextIconForUserNavigation()
             elseif poiType == Enum.SuperTrackingMapPinType.TaxiNode then
                 return Waypoint_Define.ContextIconTexture{ type = "ATLAS", path = "Crosshair_Taxi_128" }
             elseif poiInfo and poiInfo.atlasName then
                 return Waypoint_Define.ContextIconTexture{ type = "ATLAS", path = poiInfo.atlasName }
-            elseif MapPin.IsUserNavigationTracked() then
-                if MapPin.IsUserNavigationFlagged("TomTom_Waypoint") then
-                    return Waypoint_Define.ContextIconTexture{ type = "TEXTURE", path = PATH_CONTEXT_ICON .. "TomTomArrow.png", requestRecolor = true }
-                else
-                    return Waypoint_Define.ContextIconTexture{ type = "TEXTURE", path = PATH_CONTEXT_ICON .. "Navigation.png", requestRecolor = true }
-                end
+            elseif isCustomUserNavigationTracked then
+                return Waypoint_Define.ContextIconTexture{ type = "TEXTURE", path = PATH_CONTEXT_ICON .. "Navigation", requestRecolor = true }
             elseif pinType == Enum.SuperTrackingType.UserWaypoint then
-                return Waypoint_Define.ContextIconTexture{ type = "TEXTURE", path = PATH_CONTEXT_ICON .. "MapPin.png", requestRecolor = true }
+                return Waypoint_Define.ContextIconTexture{ type = "TEXTURE", path = PATH_CONTEXT_ICON .. "MapPin", requestRecolor = true }
             elseif poiType == Enum.SuperTrackingMapPinType.DigSite then
                 return Waypoint_Define.ContextIconTexture{ type = "ATLAS", path = "ArchBlob" }
             elseif poiType == Enum.SuperTrackingMapPinType.QuestOffer then
-                return Waypoint_Define.ContextIconTexture{ type = "TEXTURE", path = PATH_CONTEXT_ICON .. "QuestAvailable.png" }
+                return Waypoint_Define.ContextIconTexture{ type = "TEXTURE", path = PATH_CONTEXT_ICON .. "AvailableQuest" }
+            elseif isVignette then
+                return Waypoint_Define.ContextIconTexture{ type = "TEXTURE", path = PATH_CONTEXT_ICON .. "VignetteElite", requestRecolor = true }
+            elseif poiType == Enum.SuperTrackingMapPinType.HousingPlot then
+                local atlas = GetSuperTrackedHousingPlotInfo()
+                if atlas then
+                    return Waypoint_Define.ContextIconTexture{ type = "ATLAS", path = atlas }
+                end
             end
-            return Waypoint_Define.ContextIconTexture{ type = "TEXTURE", path = PATH_CONTEXT_ICON .. "MapPin.png", requestRecolor = true }
+            return Waypoint_DataProvider.FallbackPinIcon
         end
 
         function Waypoint_DataProvider.GetContextIconTextureForRedirect()
@@ -171,11 +240,26 @@ function Waypoint_DataProvider.CacheSuperTrackingInfo()
     local pinName, pinDescription = C_SuperTrack.GetSuperTrackedItemName()
     local redirectInfo = DataProviderUtil.GetRedirectInfo()
     local redirectContextIcon = Waypoint_DataProvider.GetContextIconTextureForRedirect()
+    local vignetteID = C_SuperTrack.GetSuperTrackedVignette()
+    local pathStepWaypoint = MapPin.IsPathStepWaypointTracked() and MapPin.GetPathStepWaypoint() or nil
 
-    if MapPin.IsUserNavigationTracked() then
+    if pathStepWaypoint then
+        pinName = pathStepWaypoint.name
+
+        if not pathStepWaypoint.stripCoordinates then
+            pinDescription = string.format(L["WAYPOINTSYSTEM_COORDINATE_FORMAT"], pathStepWaypoint.x * 100, pathStepWaypoint.y * 100)
+        else
+            pinDescription = nil
+        end
+    elseif MapPin.IsCustomUserNavigationTracked() then
         local info = MapPin.GetUserNavigation()
         pinName = info.name
-        pinDescription = string.format("X: %0.1f, Y: %0.1f", info.x * 100, info.y * 100)
+
+        if not info.stripCoordinates then
+            pinDescription = string.format(L["WAYPOINTSYSTEM_COORDINATE_FORMAT"], info.x * 100, info.y * 100)
+        else
+            pinDescription = nil
+        end
     end
 
     Waypoint_Cache.Set("valid", valid)
@@ -191,6 +275,7 @@ function Waypoint_DataProvider.CacheSuperTrackingInfo()
     Waypoint_Cache.Set("redirectInfo", redirectInfo)
     Waypoint_Cache.Set("redirectContextIcon", redirectContextIcon)
     Waypoint_Cache.Set("pinContextIcon", Waypoint_DataProvider.GetContextIconTextureForOtherPinType())
+    Waypoint_Cache.Set("vignetteID", vignetteID)
 
     CallbackRegistry.Trigger("Waypoint_DataProvider.CacheSuperTrackingInfo")
 end

@@ -1,5 +1,5 @@
 local env = select(2, ...)
-local Waypoint_Enum = env.WPM:New("@\\Waypoint\\Enum")
+local Waypoint_Enum = env.modules:New("@\\Waypoint\\Enum")
 
 Waypoint_Enum.NavigationMode = {
     Hidden    = -1,
@@ -9,12 +9,12 @@ Waypoint_Enum.NavigationMode = {
 }
 
 Waypoint_Enum.TrackingType = {
-    QuestCompleteRecurring = 1,
-    QuestCompleteImportant = 2,
-    QuestComplete          = 3,
-    QuestIncomplete        = 4,
-    Corpse                 = 5,
-    Other                  = 6
+    CompleteRepeatableQuest = 1,
+    CompleteImportantQuest  = 2,
+    CompleteQuest           = 3,
+    IncompleteQuest         = 4,
+    Corpse                  = 5,
+    Other                   = 6
 }
 
 Waypoint_Enum.State = {

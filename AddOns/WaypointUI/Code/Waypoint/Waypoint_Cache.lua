@@ -1,5 +1,5 @@
 local env            = select(2, ...)
-local Waypoint_Cache = env.WPM:New("@\\Waypoint\\Cache")
+local Waypoint_Cache = env.modules:New("@\\Waypoint\\Cache")
 
 Waypoint_Cache.navFrame = nil
 local Cache = {}
