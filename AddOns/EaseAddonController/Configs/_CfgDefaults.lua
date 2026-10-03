@@ -1,4 +1,4 @@
-local _, U1 = ...
+﻿local _, U1 = ...
 
 local D = {}
 U1.CfgDefaults = D
@@ -1273,14 +1273,14 @@ D["MiliUI_UnitFrames"] = {
 		text = "點 '米利的單位框架' 的小地圖按鈕也可以打開設定選項。\n\n移動位置：用遊戲內建的編輯模式可以拖曳移動頭像框架。\n",
 	},
 };
-D["MiniCC"] = {
+D["MiniAuras"] = {
     defaultEnable = 0,
 	tags = { "COMBAT" },
-	title = "隊友技能和控場監控",
-	desc = "在隊伍或團隊框架上即時顯示敵方的控場技能、重要法術提示，並追蹤友方技能冷卻狀態。``除了圖示顯示外，還提供音效與語音提醒，讓玩家在激烈戰鬥中不會錯過關鍵資訊。``插件支援踢技計時器、隊友飾品顯示、名條整合，以及多種框架插件 (如 ElvUI、Grid2、Shadowed Unit Frames 等)，並具備多語言版本。``簡單來說，MiniCC 的用途就是幫助玩家在戰場或競技場中更快掌握敵我雙方的技能狀態，提升反應速度與團隊協作效率。`",
+	title = "迷你技能提醒",
+	desc = "在隊伍或團隊框架上即時顯示敵方的控場技能、重要法術提示，並追蹤友方技能冷卻狀態。``除了圖示顯示外，還提供音效與語音提醒，讓玩家在激烈戰鬥中不會錯過關鍵資訊。``插件支援踢技計時器、隊友飾品顯示、名條整合，以及多種框架插件 (如 ElvUI、Grid2、Shadowed Unit Frames 等)，並具備多語言版本。``簡單來說，MiniAuras 的用途就是幫助玩家在戰場或競技場中更快掌握敵我雙方的技能狀態，提升反應速度與團隊協作效率。`",
     {
         text = "設定選項",
-        callback = function() SlashCmdList["MINICC"]("") end,
+        callback = function() SlashCmdList["MINIAURAS"]("") end,
     },
 };
 D["MinimalistCooldownEdge"] = {
