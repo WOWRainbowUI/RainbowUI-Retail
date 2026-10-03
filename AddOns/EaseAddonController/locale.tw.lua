@@ -147,7 +147,9 @@ L["help.SEARCH"] = "這裡可以輸入中文或英文進行搜尋，例如 '|cff
 --- GameMenu Button and Minimap Button
 L["Ease AddOn"] = "彩虹ui"
 L["Ease Addon Controller"] = "插件控制台"
-L["Right click: Open Ease Addon Controller's main panel\nMiddle or extra mouse buttons: Reload UI"] = "右鍵: 打開插件控制台\n其他按鍵: 重新載入介面"
+L["Left or right click: Open Ease Addon Controller's main panel"] = "左鍵或右鍵點擊: 打開插件控制台"
+L["Left drag: Move window"] = "左鍵拖曳：移動視窗"
+L["Middle or extra mouse buttons: Reload UI"] = "中鍵或其他滑鼠按鍵: 重新載入介面"
 L["Open Ease Addon Controller's main panel"] = "打開插件控制台"
 L["An advanced in-game addon control center, which combines Categoring, Searching, Loading and Setting of wow addons all together."] = ""
 L["Right click to open quick menu."] = "左鍵 插件控制台|n右鍵 快速設定控制台"

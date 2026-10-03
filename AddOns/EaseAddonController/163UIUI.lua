@@ -1707,18 +1707,52 @@ function UUI.CreateUI()
 		:un()
 		
 		GameMenuFrame.Header.Text:SetText(L["Ease AddOn"])
+		-- Track cursor travel because BlizzMove starts moving on mouse-down.
+		local pressX, pressY, dragged
+		local function CheckHeaderDrag()
+			if pressX then
+				local x, y = GetCursorPosition()
+				if (x - pressX)^2 + (y - pressY)^2 > 25 then
+					dragged = true
+				end
+			end
+		end
 		GameMenuFrame.Header:SetScript("OnMouseDown", function(self, button)
-			if button == "RightButton" then
+			if button == "LeftButton" then
+				pressX, pressY = GetCursorPosition()
+				dragged = false
+			elseif button == "RightButton" then
 				UUI.ToggleUI() 
 			elseif button ~= "LeftButton" then
 				ReloadUI()
 			end
 		end)
+		GameMenuFrame.Header:HookScript("OnUpdate", CheckHeaderDrag)
+		GameMenuFrame.Header:HookScript("OnMouseUp", function(self, button)
+			if button ~= "LeftButton" or not pressX then return end
+			CheckHeaderDrag()
+			local clicked = not dragged and self:IsMouseOver()
+			pressX, pressY, dragged = nil, nil, nil
+			if clicked then
+				-- Let BlizzMove's mouse-up hook stop movement before hiding the menu.
+				C_Timer.After(0, function()
+					if GameMenuFrame:IsShown() then UUI.ToggleUI() end
+				end)
+			end
+		end)
 		GameMenuFrame.Header:SetScript("OnShow", function(self) UICoreFrameFlash(self.logo.highlight, 2 , 2, -1, nil, 0, 0) end)
 		GameMenuFrame.Header:SetScript("OnHide", function(self) UICoreFrameFlashStop(self.logo.highlight) end)
+		GameMenuFrame.Header:HookScript("OnHide", function() pressX, pressY, dragged = nil, nil, nil end)
 		GameMenuFrame.Header:SetScript("OnEnter", function(self) UICoreFrameFlashStop(self.logo.highlight); UICoreFrameFlash(self.logo.highlight, 0.5 , 0.5, -1, nil, 0, 0) end)
 		GameMenuFrame.Header:SetScript("OnLeave", function(self) UICoreFrameFlashStop(self.logo.highlight); UICoreFrameFlash(self.logo.highlight, 2 , 2, -1, nil, 0, 0) end)
-		CoreUIEnableTooltip(GameMenuFrame.Header, L["Right click: Open Ease Addon Controller's main panel\nMiddle or extra mouse buttons: Reload UI"])
+		GameMenuFrame.Header:HookScript("OnEnter", function(self)
+			self.tooltipTitle = L["Left or right click: Open Ease Addon Controller's main panel"]
+			if C_AddOns.IsAddOnLoaded("BlizzMove") then
+				self.tooltipTitle = self.tooltipTitle .. "\n" .. L["Left drag: Move window"]
+			end
+			self.tooltipTitle = self.tooltipTitle .. "\n" .. L["Middle or extra mouse buttons: Reload UI"]
+		end)
+		CoreUIEnableTooltip(GameMenuFrame.Header, L["Left or right click: Open Ease Addon Controller's main panel"])
 	else
 	-- Buttons on GameMenuFrame
 		CoreHookScript(GameMenuFrame, "OnShow", function()
