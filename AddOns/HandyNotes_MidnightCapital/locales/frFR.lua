@@ -105,6 +105,9 @@ L.NODE_CRAFTING_ORDERS_TITLE = "Commandes d'artisanat"
 L.NODE_CRAFTING_ORDERS_DESC = "Commandes d'artisanat et connaissances de metier."
 L.NPC_CONSORTIUM_CLERK = "Commis du consortium"
 
+L.NODE_PROFESSIONS_AREA_TITLE = "Zone des professions"
+L.NODE_PROFESSIONS_AREA_DESC = "Apprenez et pratiquez vos professions."
+
 L.NODE_FISHING_TITLE = "Maitre de peche"
 L.NODE_FISHING_DESC = "Apprenez la peche."
 L.NPC_FISHING_MASTER = "Maitre pecheur"
