@@ -31,28 +31,29 @@ L["LOGIN_MESSAGE"] = "|cff42E400Random Hearthstone|r - Macro name can now be cus
 
 -- zhCN
 if locale == "zhCN" then
-    L = L or {}
-    L["ADDON_NAME"] = "随机炉石"
-    L["NO_VALID_CHOSEN"] = "|cff42E400随机炉石|r - 没有选择有效的炉石玩具。 设置宏来使用炉石玩具"
-    L["MACRO_NAME"] = "随机炉石"
-    L["RENOWN_LOCKED"] = "盟约锁定"
-    L["THANKS"] = "谢谢你使用我的插件"
-    L["DESCRIPTION"] = "在列表中选择启用或禁用循环炉石玩具"
-    L["SELECT_ALL"] = "全部启用"
-    L["DESELECT_ALL"] = "全部禁用"
-    L["OPT_MACRO_ICON"] = "宏图标"
-    L["COV_ONLY"] = "仅允许玩家使用当前盟约的炉石"
-    L["DAL_R_CLICK"] = "鼠标右键点击宏使用达拉然炉石"
-    L["GAR_M_CLICK"] = "鼠标中键点击宏使用要塞炉石"
-    L["SETUP_1"] = "设置随机炉石数据库"
-    L["SETUP_2"] = "现在您可以用鼠标右键点击达拉然炉石，用鼠标中键点击要塞炉石。"
-    L["SETUP_3"] = "这些设置可以在选项中更改，输入 /rh"
-    L["RANDOM"] = "随机"
-    L["HEARTHSTONE"] = "炉石"
-    L["MACRO_NOT_FOUND"] = "|cff42E400随机炉石|r - 未找到宏，正在创建宏名为 '"
-    L["UPDATE_MACRO_NAME"] = "|cff42E400随机炉石|r - 更新宏名为 '"
-    L["UNIQUE_NAME_ERROR"] = "使用中的宏名称！\n请选择一个唯一的名字。"
-    L["OPT_MACRO_NAME"] = "宏名字"
+	L = L or {}
+	L["ADDON_NAME"] = "Random Hearthstone"
+	L["NO_VALID_CHOSEN"] = "|cff42E400Random Hearthstone|r - 未选择炉石玩具，宏已设置为使用炉石。"
+	L["MACRO_NAME"] = "随机炉石"
+	L["RENOWN_LOCKED"] = "盟约未解锁"
+	L["THANKS"] = "感谢您使用我的插件"
+	L["DESCRIPTION"] = "将炉石玩具添加或移除随机循环"
+	L["SELECT_ALL"] = "全部启用"
+	L["DESELECT_ALL"] = "全部禁用"
+	L["OPT_MACRO_ICON"] = "宏图标"
+	L["COV_ONLY"] = "仅限使用玩家当前的盟约炉石"
+	L["DAL_R_CLICK"] = "右键点击宏时使用达拉然炉石"
+	L["GAR_M_CLICK"] = "中键点击宏时使用要塞炉石"
+	L["SETUP_1"] = "正在初始化Random Hearthstone数据库。"
+	L["SETUP_2"] = "现在您可以使用右键达拉然炉石，中键要塞炉石。"
+	L["SETUP_3"] = "这些设置可以随时通过输入 /rh 进行修改。"
+	L["RANDOM"] = "随机"
+	L["HEARTHSTONE"] = "炉石"
+	L["MACRO_NOT_FOUND"] = "|cff42E400Random Hearthstone|r - 未找到宏，正在创建名为'"
+	L["UPDATE_MACRO_NAME"] = "|cff42E400Random Hearthstone|r - 正在将宏名称更新为'"
+	L["UNIQUE_NAME_ERROR"] = "宏名称已被占用！\n请选择一个未被使用的名称。"
+	L["OPT_MACRO_NAME"] = "宏名字"
+	L["LOGIN_MESSAGE"] = "|cff42E400Random Hearthstone|r - 现在可以自定义宏名称了。输入 /rh 打开选项。"
 end
 
 -- zhTW
@@ -79,4 +80,31 @@ if locale == "zhTW" then
     L["UPDATE_MACRO_NAME"] = "|cff42E400隨機爐石|r - 更新巨集名為 '"
     L["UNIQUE_NAME_ERROR"] = "使用中的巨集名稱！\n請選擇一個唯一的名字。"
     L["OPT_MACRO_NAME"] = "巨集名字"
+end
+
+-- ptBR
+if locale == "ptBR" then
+    L = L or {}
+    L["ADDON_NAME"] = "Pedra de Regresso Instável"
+    L["NO_VALID_CHOSEN"] = "|cff42E400Pedra de Regresso Instável|r - Brinquedo inválido. Voltando para Pedra de Regresso padrão."
+    L["MACRO_NAME"] = "Pedra Instável"
+    L["RENOWN_LOCKED"] = "Renome bloqueado"
+    L["THANKS"] = "Obrigado por usar meu addon"
+    L["DESCRIPTION"] = "Adiciona ou remove Pedras da rotação"
+    L["SELECT_ALL"] = "Marcar tudo"
+    L["DESELECT_ALL"] = "Desmarcar tudo"
+    L["OPT_MACRO_ICON"] = "Ícone da macro"
+    L["COV_ONLY"] = "Permitir apenas Pedra de Regresso do Pacto do jogador"
+    L["DAL_R_CLICK"] = "Use a Pedra de Dalaran com botão direito do mouse"
+    L["GAR_M_CLICK"] = "Use a Pedra da Guarnição com botão do meio do mouse"
+    L["SETUP_1"] = "Configurando o banco de dados da Pedra de Regresso Instável."
+    L["SETUP_2"] = "Você pode usar a pedra de Dalaran com o botão direito e a pedra da Guarnição com o botão do meio do mouse."
+    L["SETUP_3"] = "Estas configurações podem ser modificadas nas opções, digite /rh."
+    L["RANDOM"] = "Instável"
+    L["HEARTHSTONE"] = "Pedra de Regresso"
+    L["MACRO_NOT_FOUND"] = "|cff42E400Pedra de Regresso Instável|r - Macro não encontrada, criando a macro '"
+    L["UPDATE_MACRO_NAME"] = "|cff42E400Pedra de Regresso Instável|r - Atualizando nome da macro para '"
+    L["UNIQUE_NAME_ERROR"] = "Nome da macro em uso!\nPor favor escolha um nome diferente."
+    L["OPT_MACRO_NAME"] = "Nome da macro"
+    L["LOGIN_MESSAGE"] = "|cff42E400Pedra de Regresso Instável|r - Nome da macro pode ser customizada. Digite /rh para as opções."
 end

@@ -49,7 +49,8 @@ local rhToys = {
 	263489, -- Naaru's Enfold
 	257736, -- Lightcalled Hearthstone
 	265100, -- Corewarden's Hearthstone
-	263933, --.Preyseeker's Hearthstone
+	263933, -- Preyseeker's Hearthstone
+	264367, -- Mycomancer's Hearthstone
 }
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------
