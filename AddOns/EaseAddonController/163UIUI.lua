@@ -1698,8 +1698,8 @@ function UUI.CreateUI()
         CoreScheduleTimer(false, 0.1, self.PLAYER_REGEN_ENABLED, self)
     end
 	
-	-- 遊戲選單的彩虹ui按鈕
-	if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then
+	-- 各版本統一使用遊戲選單標題，不再新增選單按鈕。
+	if GameMenuFrame and GameMenuFrame.Header and GameMenuFrame.Header.Text then
 		WW:Button(nil, GameMenuFrame.Header):Key("logo"):CENTER(GameMenuFrame.Header, "LEFT", 0, 0):Size(40):EnableMouse(false)
 		:CreateTexture():SetTexture(UUI.Tex"UI2-logo"):ALL():up()
 		:CreateTexture():Key("highlight"):TL(-3,3):BR(3,-3):SetTexture("Interface\\UnitPowerBarAlt\\Atramedes_Circular_Flash")
@@ -1753,27 +1753,6 @@ function UUI.CreateUI()
 			self.tooltipTitle = self.tooltipTitle .. "\n" .. L["Middle or extra mouse buttons: Reload UI"]
 		end)
 		CoreUIEnableTooltip(GameMenuFrame.Header, L["Left or right click: Open Ease Addon Controller's main panel"])
-	else
-	-- Buttons on GameMenuFrame
-		CoreHookScript(GameMenuFrame, "OnShow", function()
-			GameMenuFrame:SetHeight(GameMenuFrame:GetHeight() + 26)
-			if GameMenuFrame.btn163 then return end
-
-			WW:Button(nil, GameMenuFrame, "GameMenuButtonTemplate"):Key("btn163")
-			:SetText(L["Ease AddOn"])
-			:TOP(select(2, GameMenuButtonAddons:GetPoint()), "BOTTOM", 0, -1)
-			:SetScript("OnClick", UUI.ToggleUI)
-			:SetScript("OnEnter", function(self) UICoreFrameFlash(self.logo.highlight, 0.5 , 0.5, -1, nil, 0, 0) end)
-			:SetScript("OnLeave", function(self) UICoreFrameFlashStop(self.logo.highlight) end)
-			:Button():Key("logo"):CENTER("$parent", "LEFT", 0, 0):Size(32):EnableMouse(false)
-			--:CreateTexture():SetColorTexture(0, 1, 0, 0.4):ALL():up()
-			:CreateTexture():SetTexture(UUI.Tex"UI2-logo"):ALL():up()
-			:CreateTexture():Key("highlight"):TL(-3,3):BR(3,-3):SetTexture("Interface\\UnitPowerBarAlt\\Atramedes_Circular_Flash")
-			:SetBlendMode("ADD"):SetDrawLayer("OVERLAY"):Hide():up()
-			:un()
-			GameMenuButtonAddons:SetPoint("TOP", GameMenuFrame.btn163, "BOTTOM", 0, -1)
-			CoreUIEnableTooltip(GameMenuFrame.btn163, L["Ease Addon Controller"], L["Open Ease Addon Controller's main panel"])
-		end, true)
 	end
 
 
