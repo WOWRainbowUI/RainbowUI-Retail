@@ -1,6 +1,54 @@
 local addonName = ...
 local addonPath = "Interface\\AddOns\\" .. addonName
 
+-- RainbowUI localization begin
+local skinTranslations
+if GetLocale() == "zhTW" then
+    skinTranslations = {
+        ["|cff7fd8ffMidnight|r"] = "|cff7fd8ff至暗之夜|r",
+        ["|cff7fd8ffMidnight|r (No BG)"] = "|cff7fd8ff至暗之夜|r (無背景)",
+        ["|cff7fd8ffMidnight|r (Rounded)"] = "|cff7fd8ff至暗之夜|r (圓角)",
+        ["|cff7fd8ffMidnight|r (Rounded No BG)"] = "|cff7fd8ff至暗之夜|r (圓角 無背景)",
+        ["|cff7fd8ffMidnight|r (Rounded-Bordered)"] = "|cff7fd8ff至暗之夜|r (圓角外框)",
+        ["|cff7fd8ffMidnight|r (Rounded-Bordered No BG)"] = "|cff7fd8ff至暗之夜|r (圓角外框 無背景)",
+        ["|cff7fd8ffMidnight|r (Mel++)"] = "|cff7fd8ff至暗之夜|r (Mel++)",
+        ["|cff7fd8ffMidnight|r (Mel++ No BG)"] = "|cff7fd8ff至暗之夜|r (Mel++ 無背景)",
+        ["|cff7fd8ffMidnight|r (Mel+)"] = "|cff7fd8ff至暗之夜|r (Mel+)",
+        ["|cff7fd8ffMidnight|r (Mel+ No BG)"] = "|cff7fd8ff至暗之夜|r (Mel+ 無背景)",
+        ["|cff7fd8ffMidnight|r (Mel)"] = "|cff7fd8ff至暗之夜|r (Mel)",
+        ["|cff7fd8ffMidnight|r (Mel No BG)"] = "|cff7fd8ff至暗之夜|r (Mel 無背景)",
+        ["|cff7fd8ffMidnight|r (DF)"] = "|cff7fd8ff至暗之夜|r (DF)",
+        ["|cff7fd8ffMidnight|r (DF No BG)"] = "|cff7fd8ff至暗之夜|r (DF 無背景)",
+        ["|cff7fd8ffMidnight|r (Sv2)"] = "|cff7fd8ff至暗之夜|r (Sv2)",
+        ["|cff7fd8ffMidnight|r (Sv2 No BG)"] = "|cff7fd8ff至暗之夜|r (Sv2 無背景)",
+        ["Midnight skin."] = "至暗之夜外觀。",
+    }
+elseif GetLocale() == "zhCN" then
+    skinTranslations = {
+        ["|cff7fd8ffMidnight|r"] = "|cff7fd8ff至暗之夜|r",
+        ["|cff7fd8ffMidnight|r (No BG)"] = "|cff7fd8ff至暗之夜|r (无背景)",
+        ["|cff7fd8ffMidnight|r (Rounded)"] = "|cff7fd8ff至暗之夜|r (圆角)",
+        ["|cff7fd8ffMidnight|r (Rounded No BG)"] = "|cff7fd8ff至暗之夜|r (圆角 无背景)",
+        ["|cff7fd8ffMidnight|r (Rounded-Bordered)"] = "|cff7fd8ff至暗之夜|r (圆角边框)",
+        ["|cff7fd8ffMidnight|r (Rounded-Bordered No BG)"] = "|cff7fd8ff至暗之夜|r (圆角边框 无背景)",
+        ["|cff7fd8ffMidnight|r (Mel++)"] = "|cff7fd8ff至暗之夜|r (Mel++)",
+        ["|cff7fd8ffMidnight|r (Mel++ No BG)"] = "|cff7fd8ff至暗之夜|r (Mel++ 无背景)",
+        ["|cff7fd8ffMidnight|r (Mel+)"] = "|cff7fd8ff至暗之夜|r (Mel+)",
+        ["|cff7fd8ffMidnight|r (Mel+ No BG)"] = "|cff7fd8ff至暗之夜|r (Mel+ 无背景)",
+        ["|cff7fd8ffMidnight|r (Mel)"] = "|cff7fd8ff至暗之夜|r (Mel)",
+        ["|cff7fd8ffMidnight|r (Mel No BG)"] = "|cff7fd8ff至暗之夜|r (Mel 无背景)",
+        ["|cff7fd8ffMidnight|r (DF)"] = "|cff7fd8ff至暗之夜|r (DF)",
+        ["|cff7fd8ffMidnight|r (DF No BG)"] = "|cff7fd8ff至暗之夜|r (DF 无背景)",
+        ["|cff7fd8ffMidnight|r (Sv2)"] = "|cff7fd8ff至暗之夜|r (Sv2)",
+        ["|cff7fd8ffMidnight|r (Sv2 No BG)"] = "|cff7fd8ff至暗之夜|r (Sv2 无背景)",
+        ["Midnight skin."] = "至暗之夜外观。",
+    }
+end
+local function localizeSkin(text)
+    return skinTranslations and skinTranslations[text] or text
+end
+-- RainbowUI localization end
+
 -- ============================================================================
 -- SKIN VARIANTS
 -- - skinName: current Midnight skin with visible wallpaper background
@@ -20,22 +68,22 @@ local addonPath = "Interface\\AddOns\\" .. addonName
 -- - skinNameSv2: Midnight (Sv2) variant with Smoothv2 bars
 -- - skinNameSv2NoBackground: Sv2 variant with wallpaper alpha forced to 0
 -- ============================================================================
-local skinName = "|cff7fd8ff至暗之夜|r"
-local skinNameNoBackground = "|cff7fd8ff至暗之夜|r (無背景)"
-local skinNameRounded = "|cff7fd8ff至暗之夜|r (圓角)"
-local skinNameRoundedNoBackground = "|cff7fd8ff至暗之夜|r (圓角 無背景)"
-local skinNameRoundedBordered = "|cff7fd8ff至暗之夜|r (圓角外框)"
-local skinNameRoundedBorderedNoBackground = "|cff7fd8ff至暗之夜|r (圓角外框 無背景)"
-local skinNameMelPlusPlus = "|cff7fd8ff至暗之夜|r (Mel++)"
-local skinNameMelPlusPlusNoBackground = "|cff7fd8ff至暗之夜|r (Mel++ 無背景)"
-local skinNameMelPlus = "|cff7fd8ff至暗之夜|r (Mel+)"
-local skinNameMelPlusNoBackground = "|cff7fd8ff至暗之夜|r (Mel+ 無背景)"
-local skinNameMel = "|cff7fd8ff至暗之夜|r (Mel)"
-local skinNameMelNoBackground = "|cff7fd8ff至暗之夜|r (Mel 無背景)"
-local skinNameDF = "|cff7fd8ff至暗之夜|r (DF)"
-local skinNameDFNoBackground = "|cff7fd8ff至暗之夜|r (DF 無背景)"
-local skinNameSv2 = "|cff7fd8ff至暗之夜|r (Sv2)"
-local skinNameSv2NoBackground = "|cff7fd8ff至暗之夜|r (Sv2 無背景)"
+local skinName = localizeSkin("|cff7fd8ffMidnight|r")
+local skinNameNoBackground = localizeSkin("|cff7fd8ffMidnight|r (No BG)")
+local skinNameRounded = localizeSkin("|cff7fd8ffMidnight|r (Rounded)")
+local skinNameRoundedNoBackground = localizeSkin("|cff7fd8ffMidnight|r (Rounded No BG)")
+local skinNameRoundedBordered = localizeSkin("|cff7fd8ffMidnight|r (Rounded-Bordered)")
+local skinNameRoundedBorderedNoBackground = localizeSkin("|cff7fd8ffMidnight|r (Rounded-Bordered No BG)")
+local skinNameMelPlusPlus = localizeSkin("|cff7fd8ffMidnight|r (Mel++)")
+local skinNameMelPlusPlusNoBackground = localizeSkin("|cff7fd8ffMidnight|r (Mel++ No BG)")
+local skinNameMelPlus = localizeSkin("|cff7fd8ffMidnight|r (Mel+)")
+local skinNameMelPlusNoBackground = localizeSkin("|cff7fd8ffMidnight|r (Mel+ No BG)")
+local skinNameMel = localizeSkin("|cff7fd8ffMidnight|r (Mel)")
+local skinNameMelNoBackground = localizeSkin("|cff7fd8ffMidnight|r (Mel No BG)")
+local skinNameDF = localizeSkin("|cff7fd8ffMidnight|r (DF)")
+local skinNameDFNoBackground = localizeSkin("|cff7fd8ffMidnight|r (DF No BG)")
+local skinNameSv2 = localizeSkin("|cff7fd8ffMidnight|r (Sv2)")
+local skinNameSv2NoBackground = localizeSkin("|cff7fd8ffMidnight|r (Sv2 No BG)")
 
 -- ============================================================================
 -- TEXTURE CONFIG
@@ -104,8 +152,12 @@ local styleConfig = {
     barHeight = 20,
     -- Rounded skin row height override (Rounded / Rounded No BG / Rounded-Bordered).
     roundedRowHeight = 24,
+    -- Vertical spacing between bars for rounded variants only.
+    roundedBarSpacingBetween = 0,
+    -- Rounded-Bordered specific spacing override.
+    roundedBorderedBarSpacingBetween = -2,
     -- Vertical spacing between bars.
-    barSpacingBetween = 5,
+    barSpacingBetween = 1,
     -- Vertical gap between header and first bar.
     barOffsetTop = 0,
     -- Vertical gap between last bar and bottom of the window.
@@ -122,7 +174,7 @@ local styleConfig = {
     -- Header controls.
     titlebarHeight = 32,
     -- Header title text size.
-    headerTextSize = 12,
+    headerTextSize = 13,
     -- Horizontal crop for header texture (0-1). Use to trim transparent side padding.
     headerTexCoordLeft = 0.045,
     headerTexCoordRight = 0.965,    
@@ -427,6 +479,7 @@ local function buildSkinTable(wallpaperAlpha, textureOverrides)
     local barBackgroundAlpha = textureOverrides.barBackgroundAlpha or styleConfig.barBackgroundAlpha
     local barBackgroundColor = textureOverrides.barBackgroundColor or {0, 0, 0, barBackgroundAlpha}
     local rowHeight = textureOverrides.rowHeight or styleConfig.barHeight
+    local barSpacingBetween = textureOverrides.barSpacingBetween or styleConfig.barSpacingBetween
     local defaultIconOffset = styleConfig.defaultIconOffset or {-30, 0}
     local iconOffset = textureOverrides.iconOffset or defaultIconOffset
     local attributeTextShadow = textureOverrides.attributeTextShadow == true
@@ -443,13 +496,13 @@ local function buildSkinTable(wallpaperAlpha, textureOverrides)
         file = [[Interface\AddOns\Details\images\skins\default_skin.blp]],
         author = "Midnight",
         version = version,
-        desc = "Midnight skin.",
+        desc = localizeSkin("Midnight skin."),
         no_cache = true,
 
         micro_frames = {
             color = {1, 1, 1, 1},
             font = "Friz Quadrata TT",
-            size = 12,
+            size = 10,
             textymod = 1
         },
 
@@ -514,15 +567,15 @@ local function buildSkinTable(wallpaperAlpha, textureOverrides)
                 alpha = 1,
 
                 height = rowHeight,
-                space = {left = styleConfig.rowSpaceLeft, right = styleConfig.rowSpaceRight, between = styleConfig.barSpacingBetween},
+                space = {left = styleConfig.rowSpaceLeft, right = styleConfig.rowSpaceRight, between = barSpacingBetween},
                 row_offsets = {left = 30, right = -40, top = styleConfig.barOffsetTop, bottom = styleConfig.barOffsetBottom},
 
                 no_icon = false,
                 start_after_icon = true,
                 use_spec_icons = true,
-                spec_file = addonPath .. "\\Textures\\spec_icons_normal.jpg",
+                spec_file = "Interface\\AddOns\\Details\\images\\spec_icons_normal",
                 icon_mask = "",
-                icon_file = addonPath .. "\\Textures\\classes_small",
+                icon_file = "Interface\\AddOns\\Details\\images\\classes_small",
                 icon_offset = {iconOffset[1] or defaultIconOffset[1] or -30, iconOffset[2] or defaultIconOffset[2] or 0},
                 icon_size_offset = 0,
 
@@ -651,28 +704,31 @@ local function installSkins()
     -- Third skin variant: same as main Midnight, but with rounded bar texture.
     local okRounded = pcall(Details.InstallSkin, Details, skinNameRounded, buildSkinTable(wallpaperAlphaDefault, {
         rowHeight = styleConfig.roundedRowHeight,
+        barSpacingBetween = styleConfig.roundedBarSpacingBetween,
         barTextureName = textureBarRounded,
         barTextureFile = textureFiles.roundedBar,
-        barBackgroundTextureName = textureBarRoundedBackground,
-        barBackgroundTextureFile = textureFiles.roundedBarBackground,
-        -- Use texture's own color/alpha without darkening.
-        barBackgroundColor = {1, 1, 1, 1}
+        -- Rounded: use the same texture for bar background at 40% opacity.
+        barBackgroundTextureName = textureBarRounded,
+        barBackgroundTextureFile = textureFiles.roundedBar,
+        barBackgroundColor = {1, 1, 1, styleConfig.barBackgroundAlpha}
     }))
 
     -- Fourth skin variant: rounded bars with no wallpaper background.
     local okRoundedNoBackground = pcall(Details.InstallSkin, Details, skinNameRoundedNoBackground, buildSkinTable(wallpaperAlphaNoBackground, {
         rowHeight = styleConfig.roundedRowHeight,
+        barSpacingBetween = styleConfig.roundedBarSpacingBetween,
         barTextureName = textureBarRounded,
         barTextureFile = textureFiles.roundedBar,
-        barBackgroundTextureName = textureBarRoundedBackground,
-        barBackgroundTextureFile = textureFiles.roundedBarBackground,
-        -- Use texture's own color/alpha without darkening.
-        barBackgroundColor = {1, 1, 1, 1}
+        -- Rounded No BG: use the same texture for bar background at 40% opacity.
+        barBackgroundTextureName = textureBarRounded,
+        barBackgroundTextureFile = textureFiles.roundedBar,
+        barBackgroundColor = {1, 1, 1, styleConfig.barBackgroundAlpha}
     }))
 
     -- Fifth skin variant: rounded bars with bordered background and full bg alpha.
     local okRoundedBordered = pcall(Details.InstallSkin, Details, skinNameRoundedBordered, buildSkinTable(wallpaperAlphaDefault, {
         rowHeight = styleConfig.roundedRowHeight,
+        barSpacingBetween = styleConfig.roundedBorderedBarSpacingBetween,
         barTextureName = textureBarRoundedBordered,
         barTextureFile = textureFiles.roundedBorderedBar,
         barBackgroundTextureName = textureBarRoundedBorderedBackground,
@@ -689,6 +745,7 @@ local function installSkins()
     -- Sixth skin variant: rounded bordered bars with no wallpaper background.
     local okRoundedBorderedNoBackground = pcall(Details.InstallSkin, Details, skinNameRoundedBorderedNoBackground, buildSkinTable(wallpaperAlphaNoBackground, {
         rowHeight = styleConfig.roundedRowHeight,
+        barSpacingBetween = styleConfig.roundedBorderedBarSpacingBetween,
         barTextureName = textureBarRoundedBordered,
         barTextureFile = textureFiles.roundedBorderedBar,
         barBackgroundTextureName = textureBarRoundedBorderedBackground,
