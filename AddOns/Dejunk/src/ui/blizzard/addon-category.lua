@@ -36,6 +36,6 @@ Widgets:Button({
   onClick = Commands.junk
 })
 
-local category = Settings.RegisterCanvasLayoutCategory(categoryFrame, ADDON_NAME)
+local category = Settings.RegisterCanvasLayoutCategory(categoryFrame, rawget(L, "SETTINGS_CATEGORY_NAME") or ADDON_NAME)
 category.ID = ADDON_NAME
 Settings.RegisterAddOnCategory(category)

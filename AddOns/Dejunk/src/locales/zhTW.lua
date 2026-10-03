@@ -6,6 +6,8 @@ local L = Addon:GetModule("Locale")
 -- Traditional Chinese (繁體中文)
 -- ============================================================================
 
+L.SETTINGS_CATEGORY_NAME = "賣垃圾"
+
 L.ACTIVATE = "啟用"
 L.ACTIVE_PROFILE = "目前設定檔："
 L.ADD_ALL_TO_LIST = "將所有物品加入%s"
