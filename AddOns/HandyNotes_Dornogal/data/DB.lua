@@ -156,7 +156,7 @@ DB.nodes = {
         [41192269] = { icon = "portal", label = L["Portal to Stormwind"], note = ElwynnForest, faction = "Alliance" },
         -- [38872442] = { icon = "vendor", npc = 223725 }, -- Randulls Scredpyr / BUGGED -- (RE)MOVED
         -- [38972424] = { icon = "vendor", npc = 223727 }, -- Emissary of the Depths / BUGGED -- (RE)MOVED
-        [39092417] = { icon = "vendor", npc = 223728 }, -- Auditor Balwurz
+        [39092417] = { icon = "quartermaster", npc = 223728 }, -- Auditor Balwurz
         -- [39252379] = { icon = "vendor", npc = 223726 }, -- Foreman Azap -- (RE)MOVED
         [40602894] = { icon = "portaltrainer", npc = 222631, class = "MAGE" }, -- Archmage Celindra
 
