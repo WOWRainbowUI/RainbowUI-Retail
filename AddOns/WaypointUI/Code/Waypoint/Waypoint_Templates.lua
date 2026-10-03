@@ -1,11 +1,14 @@
 local env = select(2, ...)
-local Path = env.WPM:Import("wpm_modules\\path")
-local GenericEnum = env.WPM:Import("wpm_modules\\generic-enum")
-local UIKit = env.WPM:Import("wpm_modules\\ui-kit")
-local Frame, LayoutGrid, LayoutHorizontal, LayoutVertical, Text, ScrollView, LazyScrollView, ScrollBar, ScrollViewEdge, Input, LinearSlider, HitRect, List = unpack(UIKit.UI.Frames)
-local UIAnim = env.WPM:Import("wpm_modules\\ui-anim")
-local Waypoint_Preload = env.WPM:Import("@\\Waypoint\\Preload")
-local Waypoint_Templates = env.WPM:New("@\\Waypoint\\Templates")
+local Config = env.Config
+local Path = env.modules:Import("packages\\path")
+local GenericEnum = env.modules:Import("packages\\generic-enum")
+local UIKit = env.modules:Import("packages\\ui-kit")
+local CallbackRegistry = env.modules:Import("packages\\callback-registry")
+local SavedVariables = env.modules:Import("packages\\saved-variables")
+local Frame, LayoutGrid, LayoutHorizontal, LayoutVertical, Text, ScrollContainer, LazyScrollContainer, ScrollBar, ScrollContainerEdge, Input, LinearSlider, HitRect, List, SecureButton, ModelScene = unpack(UIKit.UI.Frames)
+local UIAnim = env.modules:Import("packages\\ui-anim")
+local Waypoint_Preload = env.modules:Import("@\\Waypoint\\Preload")
+local Waypoint_Templates = env.modules:New("@\\Waypoint\\Templates")
 
 local Mixin = Mixin
 
@@ -30,82 +33,15 @@ do -- Pinpoint Arrow
 
     PinpointArrowMixin.AnimGroup = UIAnim.New()
     do
-        local Arrow1Intro = UIAnim.Animate()
-            :property(UIAnim.Enum.Property.Alpha)
-            :duration(0.5)
-            :loopDelayEnd(1.25)
-            :loop(UIAnim.Enum.Looping.Reset)
-            :easing(UIAnim.Enum.Easing.Linear)
-            :from(0)
-            :to(1)
-        local Arrow1Translate = UIAnim.Animate()
-            :property(UIAnim.Enum.Property.PosY)
-            :duration(1.75)
-            :loop(UIAnim.Enum.Looping.Reset)
-            :easing(UIAnim.Enum.Easing.Linear)
-            :from(7.5)
-            :to(-7.5)
-        local Arrow1Outro = UIAnim.Animate()
-            :property(UIAnim.Enum.Property.Alpha)
-            :duration(0.5)
-            :loopDelayStart(1.25)
-            :loop(UIAnim.Enum.Looping.Reset)
-            :easing(UIAnim.Enum.Easing.Linear)
-            :from(1)
-            :to(0)
-        local Arrow2Intro = UIAnim.Animate()
-            :wait(0.25)
-            :property(UIAnim.Enum.Property.Alpha)
-            :duration(0.5)
-            :loopDelayEnd(1.25)
-            :loop(UIAnim.Enum.Looping.Reset)
-            :easing(UIAnim.Enum.Easing.Linear)
-            :from(0)
-            :to(1)
-        local Arrow2Translate = UIAnim.Animate()
-            :wait(0.25)
-            :property(UIAnim.Enum.Property.PosY)
-            :duration(1.75)
-            :loop(UIAnim.Enum.Looping.Reset)
-            :easing(UIAnim.Enum.Easing.Linear)
-            :from(7.5)
-            :to(-7.5)
-        local Arrow2Outro = UIAnim.Animate()
-            :wait(0.25)
-            :property(UIAnim.Enum.Property.Alpha)
-            :duration(0.5)
-            :loopDelayStart(1.25)
-            :loop(UIAnim.Enum.Looping.Reset)
-            :easing(UIAnim.Enum.Easing.Linear)
-            :from(1)
-            :to(0)
-        local Arrow3Intro = UIAnim.Animate()
-            :wait(0.5)
-            :property(UIAnim.Enum.Property.Alpha)
-            :duration(0.5)
-            :loopDelayEnd(1.25)
-            :loop(UIAnim.Enum.Looping.Reset)
-            :easing(UIAnim.Enum.Easing.Linear)
-            :from(0)
-            :to(1)
-        local Arrow3Translate = UIAnim.Animate()
-            :wait(0.5)
-            :property(UIAnim.Enum.Property.PosY)
-            :duration(1.75)
-            :loop(UIAnim.Enum.Looping.Reset)
-            :easing(UIAnim.Enum.Easing.Linear)
-            :from(7.5)
-            :to(-7.5)
-        local Arrow3Outro = UIAnim.Animate()
-            :wait(0.5)
-            :property(UIAnim.Enum.Property.Alpha)
-            :duration(0.5)
-            :loopDelayStart(1.25)
-            :loop(UIAnim.Enum.Looping.Reset)
-            :easing(UIAnim.Enum.Easing.Linear)
-            :from(1)
-            :to(0)
-
+        local Arrow1Intro = UIAnim.Animate():property(UIAnim.Enum.Property.Alpha):duration(0.5):loopDelayEnd(1.25):loop(UIAnim.Enum.Looping.Reset):easing(UIAnim.Enum.Easing.Linear):from(0):to(1)
+        local Arrow1Translate = UIAnim.Animate():property(UIAnim.Enum.Property.PosY):duration(1.75):loop(UIAnim.Enum.Looping.Reset):easing(UIAnim.Enum.Easing.Linear):from(7.5):to(-7.5)
+        local Arrow1Outro = UIAnim.Animate():property(UIAnim.Enum.Property.Alpha):duration(0.5):loopDelayStart(1.25):loop(UIAnim.Enum.Looping.Reset):easing(UIAnim.Enum.Easing.Linear):from(1):to(0)
+        local Arrow2Intro = UIAnim.Animate():wait(0.25):property(UIAnim.Enum.Property.Alpha):duration(0.5):loopDelayEnd(1.25):loop(UIAnim.Enum.Looping.Reset):easing(UIAnim.Enum.Easing.Linear):from(0):to(1)
+        local Arrow2Translate = UIAnim.Animate():wait(0.25):property(UIAnim.Enum.Property.PosY):duration(1.75):loop(UIAnim.Enum.Looping.Reset):easing(UIAnim.Enum.Easing.Linear):from(7.5):to(-7.5)
+        local Arrow2Outro = UIAnim.Animate():wait(0.25):property(UIAnim.Enum.Property.Alpha):duration(0.5):loopDelayStart(1.25):loop(UIAnim.Enum.Looping.Reset):easing(UIAnim.Enum.Easing.Linear):from(1):to(0)
+        local Arrow3Intro = UIAnim.Animate():wait(0.5):property(UIAnim.Enum.Property.Alpha):duration(0.5):loopDelayEnd(1.25):loop(UIAnim.Enum.Looping.Reset):easing(UIAnim.Enum.Easing.Linear):from(0):to(1)
+        local Arrow3Translate = UIAnim.Animate():wait(0.5):property(UIAnim.Enum.Property.PosY):duration(1.75):loop(UIAnim.Enum.Looping.Reset):easing(UIAnim.Enum.Easing.Linear):from(7.5):to(-7.5)
+        local Arrow3Outro = UIAnim.Animate():wait(0.5):property(UIAnim.Enum.Property.Alpha):duration(0.5):loopDelayStart(1.25):loop(UIAnim.Enum.Looping.Reset):easing(UIAnim.Enum.Easing.Linear):from(1):to(0)
         PinpointArrowMixin.AnimGroup:State("NORMAL", function(frame)
             frame.Arrow1Texture:SetAlpha(0)
             frame.Arrow2Texture:SetAlpha(0)
@@ -132,7 +68,7 @@ do -- Pinpoint Arrow
                     Frame(name .. "Arrow1", {
                         Frame(name .. "Arrow1Texture")
                             :id("Arrow1Texture", id)
-                            :background(Waypoint_Preload.UIDef.UIPinpointArrow)
+                            :background(Waypoint_Preload.UIDEF.UIPinpointArrow)
                             :point(UIKit.Enum.Point.Center)
                             :size(ARROW_SIZE, ARROW_SIZE)
                             :backgroundBlendMode(UIKit.Enum.BlendMode.Add)
@@ -145,7 +81,7 @@ do -- Pinpoint Arrow
                     Frame(name .. "Arrow2", {
                         Frame(name .. "Arrow2Texture")
                             :id("Arrow2Texture", id)
-                            :background(Waypoint_Preload.UIDef.UIPinpointArrow)
+                            :background(Waypoint_Preload.UIDEF.UIPinpointArrow)
                             :point(UIKit.Enum.Point.Center)
                             :size(ARROW_SIZE, ARROW_SIZE)
                             :backgroundBlendMode(UIKit.Enum.BlendMode.Add)
@@ -158,7 +94,7 @@ do -- Pinpoint Arrow
                     Frame(name .. "Arrow3", {
                         Frame(name .. "Arrow3Texture")
                             :id("Arrow3Texture", id)
-                            :background(Waypoint_Preload.UIDef.UIPinpointArrow)
+                            :background(Waypoint_Preload.UIDEF.UIPinpointArrow)
                             :point(UIKit.Enum.Point.Center)
                             :size(ARROW_SIZE, ARROW_SIZE)
                             :backgroundBlendMode(UIKit.Enum.BlendMode.Add)
@@ -190,12 +126,25 @@ end
 
 do -- Context Icon
     local FOREGROUND_SIZE = UIKit.Define.Percentage{ value = 100, operator = "-", delta = 14 }
-    local CONTENT_SIZE = UIKit.Define.Percentage{ value = 32 }
+    local CONTENT_SIZE = UIKit.Define.Percentage{ value = 28 }
+    local APPEARANCE_TEXTURE_MAP = {
+        [env.Enum.ContextIconAppearance.Diamond] = Waypoint_Preload.UIDEF.UIContextIcon,
+        [env.Enum.ContextIconAppearance.Circle] = Waypoint_Preload.UIDEF.UIContextIconCircle
+    }
 
     local ContextIconMixin = {}
 
     function ContextIconMixin:OnLoad()
         self.tintColor = nil
+        self:UpdateAppearance()
+
+        SavedVariables.OnChange("WaypointDB_Global", "ContextIconAppearance", function() self:UpdateAppearance() end)
+        CallbackRegistry.Add("Preload.DatabaseReady", function() self:UpdateAppearance() end)
+    end
+
+    function ContextIconMixin:UpdateAppearance()
+        if not Config.DBGlobal then return end
+        self.BackgroundFrame:background(APPEARANCE_TEXTURE_MAP[Config.DBGlobal:GetVariable("ContextIconAppearance")])
     end
 
     function ContextIconMixin:SetIcon(texture)
@@ -222,10 +171,10 @@ do -- Context Icon
 
     function ContextIconMixin:Decolor()
         self.ImageTexture:SetDesaturated(false)
-        self.ImageTexture:SetColor(GenericEnum.ColorRGB01.White)
+        self.ImageTexture:SetColor(GenericEnum.ColorRGB01.WHITE_FONT_COLOR)
     end
 
-    function ContextIconMixin:SetInfo(ContextIconTexture)
+    function ContextIconMixin:SetData(ContextIconTexture)
         if ContextIconTexture.type == "ATLAS" then
             self:SetAtlas(ContextIconTexture.path)
         else
@@ -237,10 +186,10 @@ do -- Context Icon
         local frame =
             Frame(name, {
                 Frame(name .. "Background")
-                    :id("BackgroundTexture", id)
+                    :id("BackgroundFrame", id)
                     :point(UIKit.Enum.Point.Center)
                     :size(FOREGROUND_SIZE, FOREGROUND_SIZE)
-                    :background(Waypoint_Preload.UIDef.ContextIcon)
+                    :background(Waypoint_Preload.UIDEF.UIContextIcon)
                     :frameLevel(2),
                 Frame(name .. "Image")
                     :id("Image", id)
@@ -250,7 +199,8 @@ do -- Context Icon
                     :size(CONTENT_SIZE, CONTENT_SIZE)
             })
 
-        frame.BackgroundTexture = UIKit.GetElementById("BackgroundTexture", id):GetTextureFrame()
+        frame.BackgroundFrame = UIKit.GetElementById("BackgroundFrame", id)
+        frame.BackgroundTexture = frame.BackgroundFrame:GetTextureFrame()
         frame.ImageTexture = UIKit.GetElementById("Image", id):GetTextureFrame()
 
         Mixin(frame, ContextIconMixin)

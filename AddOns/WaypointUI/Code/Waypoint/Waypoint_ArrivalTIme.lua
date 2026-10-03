@@ -1,7 +1,7 @@
 local env                  = select(2, ...)
-local CallbackRegistry     = env.WPM:Import("wpm_modules\\callback-registry")
-local Waypoint_Cache       = env.WPM:Import("@\\Waypoint\\Cache")
-local Waypoint_ArrivalTime = env.WPM:New("@\\Waypoint\\ArrivalTime")
+local CallbackRegistry     = env.modules:Import("packages\\callback-registry")
+local Waypoint_Cache       = env.modules:Import("@\\Waypoint\\Cache")
+local Waypoint_ArrivalTime = env.modules:New("@\\Waypoint\\ArrivalTime")
 
 local ALPHA              = 0.2
 local MIN_DELTA_TIME     = 0.05

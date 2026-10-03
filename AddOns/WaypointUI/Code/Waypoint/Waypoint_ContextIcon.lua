@@ -1,6 +1,6 @@
 local env = select(2, ...)
-local Path = env.WPM:Import("wpm_modules\\path")
-local Waypoint_ContextIcon = env.WPM:New("@\\Waypoint\\ContextIcon")
+local Path = env.modules:Import("packages\\path")
+local Waypoint_ContextIcon = env.modules:New("@\\Waypoint\\ContextIcon")
 
 local IsOnQuest = C_QuestLog.IsOnQuest
 local IsReadyForTurnIn = C_QuestLog.ReadyForTurnIn
@@ -8,14 +8,14 @@ local IsQuestRepeatable = C_QuestLog.IsRepeatableQuest
 local GetQuestClassification = C_QuestInfoSystem.GetQuestClassification
 local GetQuestType = C_QuestLog.GetQuestType
 
-local PATH = Path.Root .. "\\Art\\Icon\\"
+local PATH = Path.Root .. "\\Art\\Icons\\"
 local ICON_TYPE_LOOKUP = {
     Default    = nil,
     Important  = "Important",
     Campaign   = "Campaign",
     Legendary  = "Legendary",
     Artifact   = "Artifact",
-    Calling    = "CampaignRecurring",
+    Calling    = "Calling",
     Meta       = "Meta",
     Recurring  = "Recurring",
     Repeatable = "Repeatable"
@@ -26,7 +26,7 @@ local function GetQuestIconName(questID)
     local questType = GetQuestType(questID)
     local isCompleted = IsReadyForTurnIn(questID)
     local isActive = IsOnQuest(questID)
-    local suffix = isCompleted and "Complete" or (isActive and "Incomplete" or "Available")
+    local statusPrefix = isCompleted and "Complete" or (isActive and "Incomplete" or "Available")
 
     local typeKey
     if classification == Enum.QuestClassification.Normal then
@@ -51,7 +51,7 @@ local function GetQuestIconName(questID)
     if not typeKey then return nil end
 
     local typeName = ICON_TYPE_LOOKUP[typeKey]
-    return typeName and ("Quest%s%s"):format(typeName, suffix) or ("Quest%s"):format(suffix)
+    return ("%s%sQuest"):format(statusPrefix, typeName or "")
 end
 
 function Waypoint_ContextIcon.GetContextIcon(questID)
@@ -60,5 +60,5 @@ function Waypoint_ContextIcon.GetContextIcon(questID)
     local iconName = GetQuestIconName(questID)
     if not iconName then return nil, nil end
 
-    return PATH .. iconName .. ".png"
+    return PATH .. iconName
 end

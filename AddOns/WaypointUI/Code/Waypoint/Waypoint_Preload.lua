@@ -1,23 +1,21 @@
 local env = select(2, ...)
-local Path = env.WPM:Import("wpm_modules\\path")
-local UIKit = env.WPM:Import("wpm_modules\\ui-kit")
-local Waypoint_Preload = env.WPM:New("@\\Waypoint\\Preload")
+local Path = env.modules:Import("packages\\path")
+local UIKit = env.modules:Import("packages\\ui-kit")
+local Utils_Texture = env.modules:Import("packages\\utils\\texture")
+local Waypoint_Preload = env.modules:New("@\\Waypoint\\Preload")
 
-local ATLAS = UIKit.Define.Texture_Atlas{ path = Path.Root .. "\\Art\\Waypoint\\Waypoint.png" }
-Waypoint_Preload.UIDef = {
-    ContextIcon          = ATLAS{ left = 0 / 1792, right = 256 / 1792, top = 256 / 2560, bottom = 512 / 2560 },
-
-    --Waypoint
-    UIBeam               = ATLAS{ left = 768 / 1792, right = 1280 / 1792, top = 0 / 2560, bottom = 2560 / 2560 },
-    UIBeamFX             = ATLAS{ left = 1280 / 1792, right = 1792 / 1792, top = 0 / 2560, bottom = 2560 / 2560 },
-    UIWave               = ATLAS{ left = 512 / 1792, right = 768 / 1792, top = 256 / 2560, bottom = 512 / 2560 },
-    UIBeamMask           = UIKit.Define.Texture{ path = Path.Root .. "\\Art\\Waypoint\\Mask-Beam.png" },
-    UIBeamFXMask         = UIKit.Define.Texture{ path = Path.Root .. "\\Art\\Waypoint\\Mask-BeamFX.png" },
-
-    --Pinpoint
-    UIPinpointBackground = ATLAS{ inset = 75, scale = 0.125, left = 0 / 1792, right = 512 / 1792, top = 0 / 2560, bottom = 256 / 2560 },
-    UIPinpointArrow      = ATLAS{ left = 512 / 1792, right = 768 / 1792, top = 0 / 2560, bottom = 256 / 2560 },
-
-    --Navigator
-    UINavigatorArrow     = ATLAS{ left = 0 / 1792, right = 256 / 1792, top = 512 / 2560, bottom = 768 / 2560 }
+local ATLAS = UIKit.Define.Texture_Atlas{ path = Path.Root .. "\\Art\\Waypoint\\Waypoint" }
+Utils_Texture.Preload(Path.Root .. "\\Art\\Waypoint\\Waypoint")
+Waypoint_Preload.UIDEF = {
+    UIContextIcon        = ATLAS{ left = 0 / 1024, right = 128 / 1024, top = 128 / 1024, bottom = 256 / 1024 },
+    UIContextIconCircle  = ATLAS{ left = 0 / 1024, right = 128 / 1024, top = 256 / 1024, bottom = 384 / 1024 },
+    UIWaypointWave       = ATLAS{ left = 512 / 1792, right = 768 / 1792, top = 256 / 2560, bottom = 512 / 2560 },
+    UIWaypointWaveCircle = ATLAS{ left = 128/1024, right = 256/1024, top = 256/1024, bottom = 384/1024 },
+    UIWaypointBeam       = ATLAS{ left = 693 / 1024, right = 843 / 1024, top = 0 / 1024, bottom = 1024 / 1024 },
+    UIWaypointBeamFX     = ATLAS{ left = 896 / 1024, right = 1024 / 1024, top = 0 / 1024, bottom = 1024 / 1024 },
+    UIWaypointBeamMask   = UIKit.Define.Texture{ path = Path.Root .. "\\Art\\Waypoint\\Mask-Beam" },
+    UIWaypointBeamFXMask = UIKit.Define.Texture{ path = Path.Root .. "\\Art\\Waypoint\\Mask-BeamFX" },
+    UIPinpoint           = ATLAS{ inset = 32, scale = 0.25, left = 0 / 1024, right = 256 / 1024, top = 0 / 1024, bottom = 128 / 1024 },
+    UIPinpointArrow      = ATLAS{ left = 256 / 1024, right = 384 / 1024, top = 0 / 1024, bottom = 128 / 1024 },
+    UINavigatorArrow     = ATLAS{ left = 0 / 1024, right = 128 / 1024, top = 384 / 1024, bottom = 512 / 1024 }
 }
