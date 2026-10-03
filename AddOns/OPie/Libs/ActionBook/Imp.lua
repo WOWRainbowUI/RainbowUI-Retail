@@ -5,7 +5,8 @@ if T.TenEnv then T.TenEnv() end
 
 local EV, AB, RW = T.Evie, T.ActionBook:compatible(2,34), T.ActionBook:compatible("Rewire", 1,27)
 assert(EV and AB and RW and 1, "Incompatible library bundle")
-local MODERN, CF_WRATH, CI_ERA = COMPAT >= 10e4, COMPAT < 10e4 and COMPAT >= 3e4, COMPAT < 2e4
+local MODERN, CF_WRATH = COMPAT >= 10e4, COMPAT < 10e4 and COMPAT >= 3e4
+local CI_ERA, CI_4E = COMPAT < 160e2, COMPAT > 160e2 and COMPAT < 2e4
 local IM, L, XU = {}, T.ActionBook.L, T.exUI
 
 local function assert(condition, text, level, ...)
@@ -80,7 +81,7 @@ local commandType, addCommandType = {["#show"]=0, ["#showtooltip"]=0, ["#imp"]=-
 	for n, ct in ("CAST:1 USE:1 CASTSEQUENCE:2 CASTRANDOM:3 USERANDOM:3"):gmatch("(%a+):(%d+)") do
 		addCommandType(n, ct+0)
 	end
-	if MODERN then
+	if MODERN or CI_4E then
 		addCommandType("PING", 4)
 		addCommandType("PING_SPELL", 5)
 	end
