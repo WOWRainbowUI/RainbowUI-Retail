@@ -1,8 +1,7 @@
 ## Interface: 11509, 20506, 30405, 38002, 40402, 50504, 120100, 120007
-
 ## Author: StormFX
 ## Title: Masque: Serenity
-## Version: 12.0.7
+## Version: 12.1.0
 
 ## Category: Masque
 ## Dependencies: Masque
@@ -31,7 +30,6 @@
 ## Notes-zhTW: Masque: Serenity |n|n白色圓形外框和圓角方形的按鈕外觀佈景主題。
 ## Category-zhTW: 介面
 ## DefaultState: disabled
-
 # Locales
 Locales.lua
 
