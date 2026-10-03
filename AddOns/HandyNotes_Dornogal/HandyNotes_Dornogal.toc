@@ -1,4 +1,4 @@
-## Interface: 120000
+## Interface: 120001
 ## Title: HandyNotes: Dornogal
 ## Title-zhCN: HandyNotes：多恩诺嘉尔
 ## Title-ruRU: HandyNotes: Дорногал
@@ -7,12 +7,12 @@
 ## Notes-zhCN: 显示多恩诺嘉尔各种NPC及传送门位置。
 ## Notes-ruRU: Показывает расположение NPC и других интересных мест в Дорногале
 ## Author: |cFFFF8C00Dathwada EU-Eredar|r
-## Version: v10
+## Version: v11
 ## RequiredDeps: HandyNotes
 ## DefaultState: enabled
 ## SavedVariables: HandyNotes_DornogalDB
 ## IconTexture: 4661645
-## X-Date: 2026-01-22
+## X-Date: 2026-02-26
 ## X-Category: Map
 
 # LOCALIZATION FILES
