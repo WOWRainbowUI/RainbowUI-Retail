@@ -1,6 +1,7 @@
 # Chattynator
 
-## [221](https://github.com/TheMouseNest/Chattynator/tree/221) (2026-08-14)
-[Full Changelog](https://github.com/TheMouseNest/Chattynator/compare/220...221) 
+## [225](https://github.com/TheMouseNest/Chattynator/tree/225) (2026-10-02)
+[Full Changelog](https://github.com/TheMouseNest/Chattynator/compare/224...225) 
 
-- Retail: Fix name on ping messages  
+- Forever: Update constants and fix config dialog  
+- Dialogs update  

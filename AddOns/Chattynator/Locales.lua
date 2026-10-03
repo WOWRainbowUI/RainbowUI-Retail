@@ -355,6 +355,9 @@ L["EXPORT"] = "匯出"
 L["PASTE_YOUR_IMPORT_STRING_HERE"] = "在此貼上匯入字串"
 
 
+
+L["THANKS_FOR_USING_CHATTYNATOR_DONATE"] = "感謝使用Chattynator。考慮捐款支持發展"
+
 local L = Locales.zhCN
 L["ABBREV_GENERAL_WORLD"] = "世"
 L["ABBREV_GUILD"] = "公"
@@ -501,3 +504,25 @@ L["VERSION_COLON_X"] = "版本: %s"
 L["WHISPER_SOUNDS"] = "密语音效"
 L["WHISPERS_ONLY"] = "仅密语"
 L["WINDOW_X"] = "窗口 %s"
+L["ENTER_THE_NEW_PROFILE_NAME"] = "输入新的配置文件名称"
+
+L["EXPORT"] = "导出"
+
+L["IMPORT"] = "导入"
+
+L["INVALID_IMPORT"] = "导入失败"
+
+L["MAKE_NEW"] = "新建"
+
+L["OVERWRITE"] = "覆盖"
+
+L["OVERWRITE_CURRENT_PROFILE"] = "是否覆盖当前配置文件？"
+
+L["PASTE_YOUR_IMPORT_STRING_HERE"] = "请将你的导入字符串粘贴到此处"
+
+L["THANKS_FOR_USING_CHATTYNATOR_DONATE"] = "感谢使用 Chattynator。请考虑赞助以支持开发。"
+
+L["THAT_PROFILE_NAME_ALREADY_EXISTS"] = "该配置文件名称已存在。"
+
+L["THIS_WILL_OVERWRITE_STYLE_CUSTOM"] = "这将覆盖样式“自定义”。是否继续？"
+
