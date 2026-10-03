@@ -1,0 +1,3 @@
+-- WoW only reads WTF\...\SavedVariables\MiniCC.lua for an addon folder literally named MiniCC, so
+-- this folder exists to put MiniCCDB back into the global namespace.
+-- Temporary, until the release that drops MiniCCDB.
