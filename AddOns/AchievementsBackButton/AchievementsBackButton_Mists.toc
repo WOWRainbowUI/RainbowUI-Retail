@@ -1,5 +1,5 @@
 ## Interface: 50504
-## Version: 1.7.0
+## Version: 1.7.1
 ## Title: Achievements Back Button
 ## IconAtlas: StoryHeader-CheevoIcon
 ## Author: LudiusMaximus

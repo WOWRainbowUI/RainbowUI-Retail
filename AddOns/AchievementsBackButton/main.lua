@@ -39,12 +39,26 @@ local backButton = nil
 local blizzardBackButton = nil
 local blizzardBackButtonOriginalOnClick = nil
 
+-- Transparent catcher on top of Blizzard's button, shown only while that button
+-- is disabled, so that it can be disabled for real and still have a tooltip and
+-- a right-click menu.
+local blizzardBackButtonOverlay = nil
+
 -- Only true while Blizzard's back button exists, i.e. while there is
 -- anything to choose from in the options menu.
 local hasOptionsMenu = false
 
 -- The texture we replaced Blizzard's removed Header.LeftDDLInset with.
 local leftDDLInset = nil
+
+-- True while ElvUI is skinning the achievements frame. ElvUI strips the header
+-- art and gives the frame a backdrop that reaches above AchievementFrame's own
+-- top edge, so the pre 12.1.0 row of widgets needs different anchors there.
+local isElvUISkin = false
+
+-- What our button anchors to in every mode except side by side, set up along
+-- with the button itself.
+local defaultButtonAnchorFrame = nil
 
 local BUTTON_TEXTURE_UP       = "Interface\\Buttons\\UI-SpellbookIcon-PrevPage-Up"
 local BUTTON_TEXTURE_DOWN     = "Interface\\Buttons\\UI-SpellbookIcon-PrevPage-Down"
@@ -93,30 +107,22 @@ end
 -- ### Back button state
 -- ####################################################################
 
--- Both buttons are always enabled, so that right-clicks still open the options
--- menu while there is nothing to go back to. We only let them appear disabled.
--- This is what UIPanelButton_OnEnable() / UIPanelButton_OnDisable() do.
-local UIPANEL_TEXTURE_UP       = "Interface\\Buttons\\UI-Panel-Button-Up"
-local UIPANEL_TEXTURE_DISABLED = "Interface\\Buttons\\UI-Panel-Button-Disabled"
+-- In replace mode Blizzard's button runs on our history, so our history decides
+-- whether it is greyed out. It is disabled for real, which leaves the look and
+-- the whole highlight and pushed state machine to UIPanelButton_OnDisable(),
+-- and the overlay takes over while the button below cannot be clicked.
+local function RefreshBlizzardBackButtonState()
+  if not blizzardBackButtonOverlay then return end
 
-local function RefreshBlizzardBackButtonLook()
-  if not blizzardBackButton then return end
-
-  local appearsEnabled
-  if Addon.GetMode() == Addon.MODE_REPLACE_BLIZZARD then
-    -- The button runs on our history now, so it is greyed out by our history.
-    appearsEnabled = next(history) ~= nil
-  else
-    -- Blizzard is in charge, we only mirror whatever it decided.
-    appearsEnabled = blizzardBackButton:IsEnabled()
+  if Addon.GetMode() ~= Addon.MODE_REPLACE_BLIZZARD then
+    -- Blizzard owns the enabled state in the other modes.
+    blizzardBackButtonOverlay:Hide()
+    return
   end
 
-  local texture = appearsEnabled and UIPANEL_TEXTURE_UP or UIPANEL_TEXTURE_DISABLED
-  blizzardBackButton.Left:SetTexture(texture)
-  blizzardBackButton.Middle:SetTexture(texture)
-  blizzardBackButton.Right:SetTexture(texture)
-  blizzardBackButton:GetFontString():SetFontObject(appearsEnabled and GameFontNormal or GameFontDisable)
-  blizzardBackButton:GetHighlightTexture():SetShown(appearsEnabled)
+  local hasHistory = next(history) ~= nil
+  blizzardBackButton:SetEnabled(hasHistory)
+  blizzardBackButtonOverlay:SetShown(not hasHistory)
 end
 
 
@@ -135,7 +141,7 @@ Addon.UpdateBackButtons = function()
     end
   end
 
-  RefreshBlizzardBackButtonLook()
+  RefreshBlizzardBackButtonState()
   RefreshBackButtonTooltip()
 end
 
@@ -301,6 +307,12 @@ end
 -- put the search box and the filter dropdown back where they were before
 -- 12.1.0 and give the freed up band back to the achievements list.
 
+-- Blizzard_AchievementUI.xml gives the search box <Size x="107" y="30"/>, in
+-- 12.0.7 as well as in 12.1.0. ElvUI skins the filter dropdown next to it much
+-- flatter than that, so under ElvUI the search box has to come down to match.
+local SEARCHBOX_HEIGHT = 30
+local SEARCHBOX_HEIGHT_ELVUI = 20
+
 local function SetContentTopOffset(offset, summaryOffset)
   AchievementFrameAchievements:ClearAllPoints()
   AchievementFrameAchievements:SetPoint("TOPLEFT", AchievementFrameCategories, "TOPRIGHT", 22, offset)
@@ -341,14 +353,31 @@ local function ApplyLayout()
     searchBox.ignoreInLayout = true
     filterDropdown.ignoreInLayout = true
 
-    -- Positions taken from the 12.0.7 version of Blizzard_AchievementUI.xml.
-    rightDDLInset:Show()
     searchBox:ClearAllPoints()
-    searchBox:SetPoint("TOPLEFT", rightDDLInset, "TOPLEFT", 12, 2)
-
     filterDropdown:ClearAllPoints()
-    filterDropdown:SetPoint("TOPLEFT", AchievementFrame, "TOPLEFT", 144, 8)
-    leftDDLInset:SetShown(filterDropdown:IsShown())
+
+    if isElvUISkin then
+      -- ElvUI strips the header art, so the two inset textures have to stay
+      -- gone and the widgets hang off the frame itself. ElvUI also used to keep
+      -- the filter dropdown next to the search box instead of on the far left,
+      -- both sitting in the top right of its backdrop, level with the points.
+      rightDDLInset:Hide()
+      leftDDLInset:Hide()
+      searchBox:SetHeight(SEARCHBOX_HEIGHT_ELVUI)
+      -- Anchored by the middle of the row rather than by its top, so that ElvUI
+      -- giving either widget a height of its own cannot break the alignment.
+      -- -10 puts the row level with our own back button, which sits just above
+      -- the achievements list once the band is reclaimed.
+      searchBox:SetPoint("RIGHT", AchievementFrame, "TOPRIGHT", -25, -10)
+      filterDropdown:SetPoint("RIGHT", searchBox, "LEFT", -4, 0)
+    else
+      -- Positions taken from the 12.0.7 version of Blizzard_AchievementUI.xml.
+      searchBox:SetHeight(SEARCHBOX_HEIGHT)
+      rightDDLInset:Show()
+      searchBox:SetPoint("TOPLEFT", rightDDLInset, "TOPLEFT", 12, 2)
+      filterDropdown:SetPoint("TOPLEFT", AchievementFrame, "TOPLEFT", 144, 8)
+      leftDDLInset:SetShown(filterDropdown:IsShown())
+    end
 
     SetContentTopOffset(0, -19)
 
@@ -359,6 +388,9 @@ local function ApplyLayout()
     -- Blizzard only shows the right inset in the comparison view now.
     rightDDLInset:SetShown(comparison)
 
+    -- Undo the flatter ElvUI search box before Filters:Layout() measures it.
+    searchBox:SetHeight(SEARCHBOX_HEIGHT)
+
     searchBox.ignoreInLayout = nil
     filterDropdown.ignoreInLayout = nil
     -- In the comparison view Blizzard anchors the search box by hand,
@@ -368,6 +400,29 @@ local function ApplyLayout()
     end
 
     SetContentTopOffset(-36, -55)
+  end
+end
+
+
+-- The skin decides the size and the resting place, the mode decides whether
+-- Blizzard's button is already sitting there.
+local function PositionBackButton()
+  if not backButton then return end
+
+  local size = isElvUISkin and 25 or 29
+  backButton:SetSize(size, size)
+  backButton:ClearAllPoints()
+
+  if not isElvUISkin then
+    -- Blizzard's own header art keeps us up by the points display, well clear of
+    -- the band Blizzard's back button sits in, in every mode.
+    backButton:SetPoint("LEFT", defaultButtonAnchorFrame, "RIGHT", 10, 1)
+  elseif blizzardBackButton and Addon.GetMode() == Addon.MODE_SIDE_BY_SIDE then
+    -- ElvUI leaves us exactly where Blizzard's button goes, so stack on top of
+    -- it, pulled two to the left to line the two up along their left edges.
+    backButton:SetPoint("BOTTOMLEFT", blizzardBackButton, "TOPLEFT", -2, 0)
+  else
+    backButton:SetPoint("BOTTOMLEFT", AchievementFrameAchievements, "TOPLEFT", -1, -3)
   end
 end
 
@@ -388,16 +443,14 @@ Addon.ApplyMode = function()
       blizzardBackButton:Hide()
     else
       blizzardBackButton:SetShown(not IsComparison())
-      if mode == Addon.MODE_REPLACE_BLIZZARD then
-        blizzardBackButton:SetEnabled(true)
-      end
       -- Lets Blizzard restore the enabled state it wants for side by side mode
-      -- and runs our hook, which puts the look back in sync either way.
+      -- and runs our hook, which puts it back on our history in replace mode.
       AchievementFrame_RefreshBackButton()
     end
   end
 
   ApplyLayout()
+  PositionBackButton()
   Addon.UpdateBackButtons()
 end
 
@@ -420,6 +473,29 @@ local function SetupBlizzardBackButton()
   leftDDLInset:SetSize(128, 32)
   leftDDLInset:SetPoint("TOPLEFT", AchievementFrame.Header, "TOPLEFT", 112, -56)
   leftDDLInset:Hide()
+
+  -- A disabled button swallows the mouse without reacting to it, so this sits
+  -- on top of it and is shown by RefreshBlizzardBackButtonState() for exactly
+  -- as long as the button below is disabled.
+  blizzardBackButtonOverlay = CreateFrame("Button", nil, blizzardBackButton)
+  blizzardBackButtonOverlay:SetAllPoints()
+  blizzardBackButtonOverlay:SetFrameLevel(blizzardBackButton:GetFrameLevel() + 1)
+  blizzardBackButtonOverlay:EnableMouse(true)
+  blizzardBackButtonOverlay:RegisterForClicks("RightButtonUp")
+  blizzardBackButtonOverlay:Hide()
+
+  blizzardBackButtonOverlay:SetScript("OnClick", function(self, mouseButton)
+    if mouseButton == "RightButton" then
+      Addon.OpenOptionsMenu()
+    end
+  end)
+  -- Owned by the button below, so that RefreshBackButtonTooltip() still finds it.
+  blizzardBackButtonOverlay:SetScript("OnEnter", function()
+    BackButtonEnterFunction(blizzardBackButton, "ANCHOR_RIGHT")
+  end)
+  blizzardBackButtonOverlay:SetScript("OnLeave", function()
+    GameTooltip:Hide()
+  end)
 
   blizzardBackButton:RegisterForClicks("LeftButtonUp", "RightButtonUp")
 
@@ -465,36 +541,23 @@ local function SetupBlizzardBackButton()
 
   -- AchievementFrame_RefreshBackButton() and AchievementFrame_SetComparisonMode()
   -- both show the button again, so catch every attempt.
-  -- UIPanelButton_OnShow() also resets the textures, so restore our look.
   blizzardBackButton:HookScript("OnShow", function(self)
     if Addon.GetMode() == Addon.MODE_HIDE_BLIZZARD then
       self:Hide()
       return
     end
-    RefreshBlizzardBackButtonLook()
+    RefreshBlizzardBackButtonState()
   end)
-
-  -- While the button only appears disabled it is still enabled, so
-  -- UIPanelButton_OnMouseDown() would give it a pressed look.
-  local function SuppressPressedLookWhileAppearingDisabled()
-    if Addon.GetMode() ~= Addon.MODE_REPLACE_BLIZZARD then return end
-    if next(history) ~= nil then return end
-    RefreshBlizzardBackButtonLook()
-  end
-  blizzardBackButton:HookScript("OnMouseDown", SuppressPressedLookWhileAppearingDisabled)
-  blizzardBackButton:HookScript("OnMouseUp", SuppressPressedLookWhileAppearingDisabled)
 
   hooksecurefunc("AchievementFrame_RefreshBackButton", function()
     if Addon.GetMode() ~= Addon.MODE_REPLACE_BLIZZARD then
-      RefreshBlizzardBackButtonLook()
+      RefreshBlizzardBackButtonState()
       return
     end
-    -- Blizzard hides the button on the statistics tab and disables it from
-    -- its own one step history. Ours spans all tabs and has to stay enabled,
-    -- because right-clicking it is the only way back to the options.
+    -- Blizzard hides the button on the statistics tab and enables it from its
+    -- own one step history. Ours spans all tabs and runs on our history.
     blizzardBackButton:SetShown(not IsComparison())
-    blizzardBackButton:SetEnabled(true)
-    RefreshBlizzardBackButtonLook()
+    RefreshBlizzardBackButtonState()
   end)
 
   hooksecurefunc("AchievementFrame_SetComparisonMode", function()
@@ -506,6 +569,7 @@ local function SetupBlizzardBackButton()
     leftDDLInset:Hide()
   end)
   hooksecurefunc("AchievementFrame_TryShowFilterDropdown", function()
+    if isElvUISkin then return end
     if Addon.GetMode() == Addon.MODE_HIDE_BLIZZARD and not IsComparison() then
       leftDDLInset:SetShown(AchievementFrame.HeaderDetails.Filters.FilterDropdown:IsShown())
     end
@@ -519,8 +583,21 @@ eventFrame:RegisterEvent("ADDON_LOADED")
 eventFrame:SetScript("OnEvent", function(self, event, name)
   if name == "Blizzard_AchievementUI" and not started then
 
+    -- Krowi's Achievement Filter reworks the achievements frame and replaces the
+    -- AchievementFrame_SelectAchievement global outright (Globals.lua), so none
+    -- of the hooks below ever fire and our history stays empty. It also ships a
+    -- browsing history of its own, with a back and a forward button, so there is
+    -- nothing left for us to add. Step aside instead of adding a dead button.
+    if C_AddOns.IsAddOnLoaded("Krowi_AchievementFilter") then
+      if ABB_config and not ABB_config.krowiNoticeShown then
+        ABB_config.krowiNoticeShown = true
+        print("|cff33ff99Achievements Back Button|r: Krowi's Achievement Filter is enabled. It reworks the achievements frame in a way this addon cannot follow, and it already has a browsing history with a back and a forward button of its own, so Achievements Back Button is staying out of its way. You can safely disable Achievements Back Button while you use Krowi's Achievement Filter.")
+      end
+      self:UnregisterEvent("ADDON_LOADED")
+      return
+    end
+
     local buttonParentFrame = nil
-    local buttonAnchorFrame = nil
 
     -- ####################################################################
     -- ### Wrath, Cata
@@ -585,7 +662,7 @@ eventFrame:SetScript("OnEvent", function(self, event, name)
       end)
 
       buttonParentFrame = AchievementFrameHeader
-      buttonAnchorFrame = AchievementFrameHeaderPointBorder
+      defaultButtonAnchorFrame = AchievementFrameHeaderPointBorder
 
 
     -- ####################################################################
@@ -699,7 +776,7 @@ eventFrame:SetScript("OnEvent", function(self, event, name)
       end)
 
       buttonParentFrame = AchievementFrame.Header
-      buttonAnchorFrame = AchievementFrame.Header.PointBorder
+      defaultButtonAnchorFrame = AchievementFrame.Header.PointBorder
 
       -- Blizzard added a back button of its own in 12.1.0.
       if AchievementFrame.HeaderDetails and AchievementFrame.HeaderDetails.Back then
@@ -724,7 +801,6 @@ eventFrame:SetScript("OnEvent", function(self, event, name)
     backButton:RegisterForClicks("LeftButtonUp", "RightButtonUp")
 
     -- Check if using ElvUI skin (only when ElvUI is loaded)
-    local isElvUISkin = false
     if C_AddOns.IsAddOnLoaded("ElvUI") then
       local E = unpack(ElvUI or {})
       if E and E.private and E.private.skins and
@@ -732,25 +808,6 @@ eventFrame:SetScript("OnEvent", function(self, event, name)
          E.private.skins.blizzard.enable and
          E.private.skins.blizzard.achievement then
         isElvUISkin = true
-      end
-    end
-
-    -- Position button based on skin and other addons
-    local hasKrowiFilter = C_AddOns.IsAddOnLoaded("Krowi_AchievementFilter")
-
-    if isElvUISkin then
-      backButton:SetSize(25, 25)
-      if hasKrowiFilter then
-        backButton:SetPoint("BOTTOMRIGHT", AchievementFrameCategories, "TOPRIGHT", 0, -1)
-      else
-        backButton:SetPoint("BOTTOMLEFT", AchievementFrameAchievements, "TOPLEFT", -1, -3)
-      end
-    else
-      backButton:SetSize(29, 29)
-      if hasKrowiFilter then
-        backButton:SetPoint("BOTTOM", KrowiAF_AchievementFrameBrowsingHistoryPrevAchievementButton, "TOP", 0, -5)
-      else
-        backButton:SetPoint("LEFT", buttonAnchorFrame, "RIGHT", 10, 1)
       end
     end
 
