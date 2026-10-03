@@ -103,6 +103,6 @@ RGX:RegisterEvent("PLAYER_LOGIN", function()
         author = "RGX Mods",
         website = "github.com/RGXMods/RGX-Framework",
         content = BuildGuide,
-        registerInSettings = true,
+        registerInSettings = false,
     })
 end, "RGX_GUIDE_PANEL")

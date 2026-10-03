@@ -6,6 +6,8 @@ if GetLocale() ~= "zhTW" then return end
 local env = select(2, ...)
 local L = env.L
 
+L["SETTINGS_CATEGORY_NAME"] = "導航"
+
 L["PASTE"] = "貼上"
 L["REPLACE"] = "替換"
 L["CANCEL"] = "取消"

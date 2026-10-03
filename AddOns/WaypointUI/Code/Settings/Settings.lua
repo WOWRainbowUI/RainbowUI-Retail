@@ -130,7 +130,7 @@ local function OnAddonLoaded()
     SettingFrameAnchor:Hide()
     SettingFrame:Hide()
 
-    local category = Settings.RegisterCanvasLayoutCategory(SettingFrameAnchor, Settings_Preload.NAME)
+    local category = Settings.RegisterCanvasLayoutCategory(SettingFrameAnchor, rawget(env.L, "SETTINGS_CATEGORY_NAME") or Settings_Preload.NAME)
     Settings.RegisterAddOnCategory(category)
     categoryId = category:GetID()
 end
