@@ -429,6 +429,7 @@ local attributes = {
 ---@field use_colon boolean? if true a colon is shown after the option name
 ---@field can_move boolean? if true the object can be moved
 ---@field can_click boolean? if true the live-preview click-to-select overlay is shown for this object
+---@field use_builtin_attributes boolean? defaults to true. when false the object type's built-in attribute rows are not offered at all and the menu is built from extraOptions alone
 ---@field icon any atlasName atlasTable (from DF:CreateAtlas) or texture path|id
 ---@field parentId any? id of the parent registration. nests this entry under that parent in the object selector. selecting a nested entry auto-expands its parent
 
@@ -437,12 +438,15 @@ local editObjectDefaultOptions = {
     use_colon = false,
     can_move = true,
     can_click = true,
+    use_builtin_attributes = true,
 }
 
 ---@class df_editor_defaultoptions : table
 ---@field width number
 ---@field height number
 ---@field options_width number
+---@field options_label_width number width of the label column in the center panel, the widget column starts right after it
+---@field options_widget_width number width of each widget in the center panel. label width + widget width + 7 must fit options_width
 ---@field create_object_list boolean
 ---@field object_list_width number
 ---@field object_list_height number
@@ -464,6 +468,8 @@ local editorDefaultOptions = {
     width = 400,
     height = 548,
     options_width = 340,
+    options_label_width = 150,
+    options_widget_width = 180,
     create_object_list = true,
     object_list_width = 200,
     object_list_height = 420,
@@ -1240,6 +1246,21 @@ detailsFramework.EditorMixin = {
             attributeList = {}
         end
 
+        --a registration can decline the built-in rows outright, taking the same path an unrecognized
+        --object type already takes above.
+        --they are chosen by object type ALONE and are then kept or dropped by whether their key
+        --happens to resolve in the consumer's profile table, which has two consequences a consumer
+        --cannot otherwise avoid: a settings page standing on a hidden anchor frame is offered the
+        --whole Frame set even though it edits no widget, and a profile key that merely SHARES A NAME
+        --with a widget attribute ("alpha", "width", "scale") becomes a control nobody wrote -- with a
+        --setter that calls the widget method on an object the page is not about.
+        --profileKeyMap cannot express this: it REDIRECTS a row at another profile key, it does not
+        --select which rows exist, so the only way to drop one today is to point its key at a name
+        --that resolves to nil.
+        if (editingOptions.use_builtin_attributes == false) then
+            attributeList = {}
+        end
+
         --if there's extra options, add the attributeList to a new table and right after the extra options
         if (extraOptions and #extraOptions > 0) then
             local attributeListWithExtraOptions = {}
@@ -1511,8 +1532,8 @@ detailsFramework.EditorMixin = {
 
         --at this point, the optionsTable is ready to be used on DF:BuildMenuVolatile()
         menuOptions.align_as_pairs = true
-        menuOptions.align_as_pairs_length = 150
-        menuOptions.widget_width = 180
+        menuOptions.align_as_pairs_length = self.options.options_label_width
+        menuOptions.widget_width = self.options.options_widget_width
         menuOptions.slider_buttons_to_left = true
 
         local optionsFrame = self:GetOptionsFrame()

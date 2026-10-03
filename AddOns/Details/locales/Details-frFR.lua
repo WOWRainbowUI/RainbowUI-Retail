@@ -566,6 +566,100 @@ L["STRING_OPTIONS_DEATHLOG_MINHEALING"] = "Soins minimum pour l'onglet Morts"
 L["STRING_OPTIONS_DEATHLOG_MINHEALING_DESC"] = "L'onglet Morts ne montrera pas les soins en dessous de ce seuil. |cFFFFFF00Conseil|r : clic droit pour saisir manuellement la valeur."
 L["STRING_OPTIONS_DESATURATE_MENU"] = "Désaturé"
 L["STRING_OPTIONS_DESATURATE_MENU_DESC"] = "En activant cette option, toutes les icônes du menu de la barre d'outils deviennent noires et blanches."
+--[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_ALIGN_COLUMNS"] = "Align Value Columns"
+--[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_ALIGN_COLUMNS_DESC"] = "Draws the value columns in fixed columns instead of running them together into one formatted string. This is not a window setting, it changes every window at once."
+--[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_BACKGROUND_BY_CLASS"] = "Background by Class"
+--[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_BAR_ALPHA"] = "Opacity"
+--[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_BAR_BORDER"] = "Show Bar Border"
+--[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_BAR_START_AFTER_ICON"] = "Bar Starts After Icon"
+--[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_BORDER_COLOR"] = "Border Color"
+--[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_BORDER_THICKNESS"] = "Border Thickness"
+--[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_BUTTON_MODE"] = "Mode"
+--[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_COLOR_BY_CLASS"] = "Color by Class"
+--[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_DESATURATED_MENU"] = "Desaturated Buttons"
+--[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_HINT"] = "Click a part of the preview to edit it. Changes apply to the window selected at the top right."
+--[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_ICON_GRAYSCALE"] = "Grayscale Icons"
+--[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_ICON_SIZE_OFFSET"] = "Icon Size Offset"
+--[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_MENU_ICON_SIZE"] = "Button Size"
+--[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_MENU_ICON_SPACING"] = "Button Spacing"
+--[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_NAME_OFFSET"] = "Name Offset"
+--[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_NAME_TEXT"] = "Unit Name"
+--[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_OBJECT_BARICONS"] = "Bar Icons"
+--[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_OBJECT_BARS"] = "Bars"
+--[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_OBJECT_BARTEXTS"] = "Bar Texts"
+--[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_OBJECT_STATUSBAR"] = "Status Bar"
+--[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_OBJECT_TITLEBUTTONS"] = "Title Buttons"
+--[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_OBJECT_TITLETEXT"] = "Title Text"
+--[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_OBJECT_WINDOW"] = "Window"
+--[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_PERCENT_OF_TOP"] = "Relative to Top Player"
+--[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_PERCENT_OF_TOTAL"] = "Relative to Total"
+--[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_PERCENT_TYPE"] = "Percent Type"
+--[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_PREVIEW"] = "Preview"
+--[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_PREVIEW_MISSING"] = "A preview window could not be created, so there is nothing to edit here."
+--[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_ROUNDED_CORNERS"] = "Rounded Corners"
+--[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_ROW_AREA_ALPHA"] = "Row Area Opacity"
+--[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_SHADOW_OFFSET_X"] = "Shadow Offset X"
+--[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_SHADOW_OFFSET_Y"] = "Shadow Offset Y"
+--[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_SHOW_ENCOUNTER_TIMER"] = "Show Encounter Timer"
+--[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_SHOW_PERCENT_DESC"] = "Shows the percent column beside the value columns. Applies while the value columns are aligned; with the simple text format the columns are decided by that format instead."
+--[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_SHOW_RANK_NUMBER"] = "Show Rank Number"
+--[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_SHOW_STATUSBAR"] = "Show Status Bar"
+--[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_SHOW_WINDOW_BORDER"] = "Show Border"
+--[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_TEXT_OUTLINE"] = "Outline"
+--[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_TEXT_X_OFFSET"] = "Horizontal Offset"
+--[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_TEXT_Y_OFFSET"] = "Vertical Offset"
+--[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_TITLE_TEXT_ENABLED"] = "Show Title Text"
+--[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_TITLEBAR_ENABLED"] = "Custom Title Bar"
+--[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_TITLEBAR_HEIGHT"] = "Height"
+--[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_VALUE_TEXT"] = "Value Columns"
+--[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_WHICH_BUTTONS"] = "Buttons shown:"
 L["STRING_OPTIONS_DISABLE_ALLDISPLAYSWINDOW"] = "Désactive le menu 'Tout afficher'"
 L["STRING_OPTIONS_DISABLE_ALLDISPLAYSWINDOW_DESC"] = "Si cette option est activée, un clic droit sur la barre de titre affiche vos marque-pages au lieu de la liste de tous les affichages."
 L["STRING_OPTIONS_DISABLE_BARHIGHLIGHT"] = "Désactiver surbrillance de la barre"
@@ -1143,6 +1237,8 @@ L["STRING_OPTIONSMENU_COMBAT"] = "JcE JcJ"
 L["STRING_OPTIONSMENU_DATACHART"] = "Données pour graphiques"
 L["STRING_OPTIONSMENU_DATACOLLECT"] = "Collecteur de données"
 L["STRING_OPTIONSMENU_DATAFEED"] = "Gadgets externes"
+--[[Translation missing --]]
+L["STRING_OPTIONSMENU_DESIGNER"] = "Designer"
 L["STRING_OPTIONSMENU_DISPLAY"] = "Afficher"
 L["STRING_OPTIONSMENU_DISPLAY_DESC"] = "Ajustements de base globaux et contrôle rapide des fenêtres."
 L["STRING_OPTIONSMENU_LEFTMENU"] = "Barre de titre : Général"
