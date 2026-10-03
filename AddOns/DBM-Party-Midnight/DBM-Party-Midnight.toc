@@ -4,8 +4,6 @@
 ## Title:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0Dungeons (Midnight)|r
 ## Title-koKR:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0던전 (한밤)|r
 ## Title-ruRU:|cffffe00a<|r|cffff7d0aDBM Мод|r|cffffe00a>|r |cffc030c0Подземелья (Полночь)|r
-## Title-zhCN:|cffffe00a<|r|cffff7d0aDBM 模组|r|cffffe00a>|r |cffc030c0队伍首领 (至暗之夜)|r
-## Title-zhTW:|cffffe00a<|r|cffff7d0aDBM 模組|r|cffffe00a>|r |cffc030c0隊伍首領 (至暗之夜)|r
 ## LoadOnDemand: 1
 ## RequiredDeps: DBM-Core
 ## SavedVariables: DBMPartyMidnight_AllSavedVars
@@ -69,3 +67,7 @@ AltarofFangs\Ravi.lua
 AltarofFangs\TheWrithingCoil.lua
 AltarofFangs\Zuljan.lua
 AltarofFangs\AltarofFangsTrash.lua
+
+## Title-zhCN:|cffffe00a<|r|cffff7d0aDBM 模组|r|cffffe00a>|r |cffc030c0队伍首领 (至暗之夜)|r
+
+## Title-zhTW:|cffffe00a<|r|cffff7d0aDBM 模組|r|cffffe00a>|r |cffc030c0隊伍首領 (至暗之夜)|r
