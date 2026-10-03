@@ -370,3 +370,17 @@ L["CHANGELOG"] = "更新记录"
 -- TODO: L["VAULT_SNOOZE_CHAT_MESSAGE"] = "Vault alert flash snoozed for %s."
 -- TODO: L["VAULT_SNOOZE_FLASH"] = "Snooze alert flash"
 -- TODO: L["VAULT_SNOOZE_MINUTES"] = "Flash snooze duration (minutes)"
+
+L["SHOW_LEGACY_BUTTON"] = "显示传承按钮"
+
+L["HIDE_MAGE_PORT_BUTTON"] = "隐藏法师传送门按钮"
+
+L["HIDE_MAGE_PORT_TEXT"] = "隐藏法师传送门文字"
+
+L["MAGE_PORTALS"] = "法师传送门"
+
+L["MAGE_TELEPORTS"] = "传送"
+
+L["MAGE_PORTAL_SPELLS"] = "传送门"
+
+L["CHANGE_MAGE_PORT_OPTION"] = "更改法师传送门"

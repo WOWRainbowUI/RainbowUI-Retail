@@ -7,8 +7,12 @@ local WOW_PROJECT_MISTS_CLASSIC = _G.WOW_PROJECT_MISTS_CLASSIC
 XIVBar.compat = compat
 
 -- Version flags
+-- Forever (Camelot) reports WOW_PROJECT_CLASSIC but uses interface 16001.
+-- Detect it first so it is not treated as Vanilla Anniversary.
+local interfaceVersion = select(4, GetBuildInfo()) or 0
 compat.projectId = WOW_PROJECT_ID
-compat.isClassicEra = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
+compat.isForever = interfaceVersion >= 16000 and interfaceVersion < 20000
+compat.isClassicEra = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC and not compat.isForever
 compat.isTBC = WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC
 compat.isWrath = WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC
 compat.isMainline = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
@@ -176,6 +180,11 @@ compat.ResolveMicroButton = function(key)
 end
 
 compat.GetMicroButtonMacro = function(key)
+    -- Forever has no LFGMicroButton or PVPMicroButton. A /click macro on a
+    -- missing button does nothing. LFG clicks LFDMicroButton directly.
+    if compat.isForever then
+        return nil
+    end
     if key == 'lfg' then
         return "/click LFDMicroButton\n/click LFGMicroButton"
     elseif key == 'pvp' then
@@ -185,59 +194,113 @@ compat.GetMicroButtonMacro = function(key)
     return nil
 end
 
--- LFG toggle helper: Retail via PVEFrame, Classic via LFGMinimapFrame.
--- Falls back to legacy toggles when needed.
+-- Blizzard_GroupFinder is not loaded on Forever. The vanilla-style finder is.
+-- Category 118 is LFGLISTING_BATTLEGROUND_CATEGORY_ID in that addon's constants.
+local FOREVER_BATTLEGROUND_CATEGORY_ID = 118
+
+local function LoadVanillaGroupFinder()
+    if _G.GroupFinderVanillaStyle_LoadUI then
+        _G.GroupFinderVanillaStyle_LoadUI()
+    end
+    return _G.LFGVanilla_ShowFrame ~= nil
+end
+
+local function ShowVanillaGroupFinder(categoryID)
+    if not LoadVanillaGroupFinder() then
+        return false
+    end
+    _G.LFGVanilla_ShowFrame(1)
+    local listing = _G.LFGListingFrame
+    if categoryID and listing and listing.SetCategorySelection
+        and _G.C_LFGList and _G.C_LFGList.GetLfgCategoryInfo
+        and _G.C_LFGList.GetLfgCategoryInfo(categoryID) then
+        listing:SetCategorySelection(categoryID)
+    end
+    return true
+end
+
+local function IsVanillaGroupFinder()
+    local style = _G.Enum and _G.Enum.PremadeGroupFinderStyle
+    local info = _G.C_LFGList
+    return style and info and info.GetPremadeGroupFinderStyle
+        and info.GetPremadeGroupFinderStyle() == style.Vanilla
+end
+
+-- LFGMicroButton and PVPMicroButton on Anniversary Classic have no OnClick.
+-- They toggle from OnMouseUp only when the cursor is over the Blizzard button,
+-- so a secure /click or :Click() does nothing.
+-- TBC/Vanilla open the on-demand vanilla finder. Wrath and later use PVEFrame.
 local function TryToggleLFG()
-    if compat.isMists and _G.PVEFrame_ToggleFrame then
-        _G.PVEFrame_ToggleFrame("GroupFinderFrame")
+    if compat.isForever then
+        local lfdButton = _G.LFDMicroButton
+        if lfdButton and lfdButton.Click then
+            lfdButton:Click()
+        end
+        return
+    end
+
+    if IsVanillaGroupFinder() then
+        if _G.UIParentLoadAddOn then
+            _G.UIParentLoadAddOn("Blizzard_GroupFinder_VanillaStyle")
+        end
+        if _G.ToggleLFGParentFrame then
+            _G.ToggleLFGParentFrame()
+            return
+        end
+    end
+
+    if _G.PVEFrame_ToggleFrame then
+        if compat.isMists then
+            _G.PVEFrame_ToggleFrame("GroupFinderFrame")
+        else
+            _G.PVEFrame_ToggleFrame()
+        end
+        return
+    end
+
+    if _G.ToggleLFGFrame then
+        _G.ToggleLFGFrame()
+        return
+    end
+
+    local lfgFrame = _G.LFGMinimapFrame
+    if lfgFrame and lfgFrame.Click then
+        lfgFrame:Click()
         return
     end
 
     local microButton = ResolveLFGMicroButton()
     if microButton and microButton.Click then
         microButton:Click()
-        return
-    end
-
-    local lfgFrame = _G.LFGMinimapFrame
-    if lfgFrame and lfgFrame.Click then
-        lfgFrame:Click()
-        return
-    end
-
-    if _G.ToggleLFGParentFrame then
-        _G.ToggleLFGParentFrame()
-    elseif _G.PVEFrame_ToggleFrame then
-        _G.PVEFrame_ToggleFrame()
-    elseif _G.ToggleLFGFrame then
-        _G.ToggleLFGFrame()
     end
 end
 
 compat.ToggleLFG = TryToggleLFG
 
--- PVP toggle helper: legacy LFGMinimapFrame button, otherwise modern PVP UI.
+-- PVP toggle helper. Wrath and later define TogglePVPFrame.
+-- TBC Anniversary's keybind is ToggleCharacter("PVPFrame"); Vanilla uses HonorFrame.
+-- PVPMicroButton:Click() does not reach that path.
 local function TryTogglePVP()
-    if compat.isMists and _G.TogglePVPFrame then
-        _G.TogglePVPFrame()
-        return
-    end
-
-    local microButton = ResolvePVPMicroButton()
-    if microButton and microButton.Click then
-        microButton:Click()
-        return
-    end
-
-    local lfgFrame = _G.LFGMinimapFrame
-    if lfgFrame and lfgFrame.Click then
-        lfgFrame:Click()
+    if compat.isForever and ShowVanillaGroupFinder(FOREVER_BATTLEGROUND_CATEGORY_ID) then
         return
     end
 
     if _G.TogglePVPFrame then
         _G.TogglePVPFrame()
-    elseif _G.PVPUIFrame_ToggleFrame then
+        return
+    end
+
+    if _G.ToggleCharacter and _G.PVPFrame then
+        _G.ToggleCharacter("PVPFrame")
+        return
+    end
+
+    if _G.ToggleCharacter and _G.HonorFrame then
+        _G.ToggleCharacter("HonorFrame")
+        return
+    end
+
+    if _G.PVPUIFrame_ToggleFrame then
         _G.PVPUIFrame_ToggleFrame()
     elseif _G.PVEFrame_ToggleFrame then
         _G.PVEFrame_ToggleFrame()
@@ -245,6 +308,53 @@ local function TryTogglePVP()
 end
 
 compat.TogglePVP = TryTogglePVP
+
+local function TryToggleFriends()
+    if _G.ToggleFriendsFrame then
+        _G.ToggleFriendsFrame()
+        return
+    end
+    local friendsButton = _G.FriendsMicroButton
+    if friendsButton and friendsButton.Click then
+        friendsButton:Click()
+    end
+end
+
+compat.ToggleFriends = TryToggleFriends
+
+local function TryToggleTalents()
+    if _G.PlayerSpellsFrame_LoadUI then
+        _G.PlayerSpellsFrame_LoadUI()
+    end
+    local util = _G.PlayerSpellsUtil
+    if util and util.ToggleClassTalentFrame then
+        util.ToggleClassTalentFrame()
+        return
+    end
+    if util and util.TogglePlayerSpellsFrame and util.FrameTabs then
+        util.TogglePlayerSpellsFrame(util.FrameTabs.ClassTalents)
+        return
+    end
+    local talentButton = _G.TalentMicroButton or _G.PlayerSpellsMicroButton
+    if talentButton and talentButton.Click then
+        talentButton:Click()
+    end
+end
+
+compat.ToggleTalents = TryToggleTalents
+
+local function TryToggleJournal()
+    if _G.ToggleEncounterJournal then
+        _G.ToggleEncounterJournal()
+        return
+    end
+    local journalButton = _G.EJMicroButton
+    if journalButton and journalButton.Click then
+        journalButton:Click()
+    end
+end
+
+compat.ToggleJournal = TryToggleJournal
 
 -- Chat menu toggle helper: modern menu (ChatFrameMenuButton) or
 -- classic menu (ChatMenu/ChatFrame_ToggleMenu).
@@ -290,22 +400,59 @@ compat.ToggleStore = TryToggleStore
 -- UI modules read these flags before creating buttons.
 compat.features = {
     microMenu = {
-        achievements = not compat.isClassicOrTBC,
+        achievements = not compat.isClassicOrTBC and not compat.isForever,
         lfg = true,
         pvp = true,
-        pet = not compat.isClassicOrTBC,
-        journal = compat.isMainline or compat.isClassicProgression,
+        pet = not compat.isClassicOrTBC or compat.isForever,
+        legacy = compat.isForever,
+        -- Blizzard_EncounterJournal does not load on Forever: AllowLoadGameType
+        -- is standard/classic, and the journal UI itself is cata, mists, mainline.
+        journal = (compat.isMainline or compat.isClassicProgression) and not compat.isForever,
         shop = not compat.isClassicOrTBC,
     },
     currency = {
-        -- No currencies in Classic Era/TBC, we only keep the XP bar
-        available = not compat.isClassicOrTBC,
+        -- No currencies in Classic Era/TBC/Forever V1, we only keep the XP bar
+        available = not compat.isClassicOrTBC and not compat.isForever,
     },
     travel = {
         secondaryPorts = compat.isMainline or compat.isMists,
+        magePortals = true,
     },
     armor = {
         -- Equipment sets were added in Mists of Pandaria.
         equipmentSets = compat.isMainline or compat.isMists,
     },
 }
+
+-- AceGUI CheckBox calls the FrameXML helper SetDesaturation(texture, desat).
+-- Forever only exposes Texture:SetDesaturated / :SetDesaturation.
+if not _G.SetDesaturation then
+    function SetDesaturation(texture, desaturation)
+        if not texture then
+            return
+        end
+        if texture.SetDesaturated then
+            texture:SetDesaturated(desaturation and true or false)
+        elseif texture.SetDesaturation then
+            texture:SetDesaturation(desaturation and 1 or 0)
+        end
+    end
+end
+
+-- AceConfigDialog still calls GameTooltip:SetText(text, r, g, b, wrapBoolean).
+-- Forever types arg 5 as alpha (number), so `true` errors.
+if compat.isForever then
+    local AceConfigDialog = LibStub("AceConfigDialog-3.0", true)
+    local tip = AceConfigDialog and AceConfigDialog.tooltip
+    if tip and not tip._xivSetTextPatched then
+        tip._xivSetTextPatched = true
+        local origSetText = tip.SetText
+        function tip:SetText(text, r, g, b, a, wrap)
+            if type(a) == "boolean" then
+                wrap = a
+                a = 1
+            end
+            return origSetText(self, text, r, g, b, a, wrap)
+        end
+    end
+end

@@ -418,3 +418,17 @@ L["VAULT_SNOOZE_CHAT"] = "顯示延後提醒聊天訊息"
 L["VAULT_SNOOZE_CHAT_MESSAGE"] = "寶庫提示閃爍已延後 %s。"
 L["VAULT_SNOOZE_FLASH"] = "延後提示閃爍"
 L["VAULT_SNOOZE_MINUTES"] = "閃爍延後時間 (分鐘)"
+
+L["SHOW_LEGACY_BUTTON"] = "顯示傳承按鈕"
+
+L["HIDE_MAGE_PORT_BUTTON"] = "隱藏法師傳送門按鈕"
+
+L["HIDE_MAGE_PORT_TEXT"] = "隱藏法師傳送門文字"
+
+L["MAGE_PORTALS"] = "法師傳送門"
+
+L["MAGE_TELEPORTS"] = "傳送"
+
+L["MAGE_PORTAL_SPELLS"] = "傳送門"
+
+L["CHANGE_MAGE_PORT_OPTION"] = "變更法師傳送門"
