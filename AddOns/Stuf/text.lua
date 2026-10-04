@@ -145,7 +145,7 @@ do  -- custom text handlers ----------------------------------------------------
 		end
 	end
 	-- Secret-value tags: raw UnitHealth/Power values that can ONLY go to C-side APIs.
-	-- Never pass these through gsub — use SetFormattedText instead.
+	-- Never pass raw values through gsub; insert them only during final display.
 	-- Plain percent tags are safe because UnitHealthPercent/UnitPowerPercent return plain numbers.
 	local DIRECT_TAGS = {
 		-- Ghost form can report a small non-zero health value on some clients.
@@ -171,14 +171,18 @@ do  -- custom text handlers ----------------------------------------------------
 
 			-- Phase 1+2: ALL health/power values are secret in 12.0.1.
 			-- Replace every secret tag with a \001N marker and collect raw values.
-			-- SetFormattedText will pass them to C which handles secrets natively.
+			-- Only ordinary markers pass through formatting; SetText receives the final display value.
 			local rawArgs = {}
 			local argCount = 0
+			local function collectRaw(value)
+				argCount = argCount + 1
+				rawArgs[argCount] = value
+				-- Terminate the index so adjacent digits and indices >= 10 stay distinct.
+				return "\001" .. argCount .. "\002"
+			end
 			local function collectTag(placeholder, valueFn)
 				if strmatch(text, placeholder) then
-					argCount = argCount + 1
-					rawArgs[argCount] = valueFn(unit)
-					text = gsub(text, placeholder, "\001" .. argCount)
+					text = gsub(text, placeholder, collectRaw(valueFn(unit)))
 				end
 			end
 				-- CurveConstants.ScaleTo100 scales the result to 0-100.
@@ -203,8 +207,8 @@ do  -- custom text handlers ----------------------------------------------------
 					local cached = cache[pat2]
 					local itag
 					if IsSecret(cached) then
-						-- Secret strings cannot safely pass through Lua gsub/format logic.
-						itag = nil
+						-- Format/color only the ordinary marker; preserve the raw display value.
+						itag = collectRaw(cached)
 					elseif cached then
 						itag = cached
 					else
@@ -239,8 +243,8 @@ do  -- custom text handlers ----------------------------------------------------
 					local cached = cache[pat]
 					local val
 					if IsSecret(cached) then
-						-- Secret strings cannot safely pass through Lua gsub/format logic.
-						val = nil
+						-- Keep secret names out of gsub and TextFormat.
+						val = collectRaw(cached)
 					elseif cached then
 						val = cached
 					else
@@ -268,23 +272,20 @@ do  -- custom text handlers ----------------------------------------------------
 					end
 					-- plain text before the marker
 					result = result .. text:sub(pos, ms - 1)
-					-- single digit index after \001
-					local idx = tonumber(text:sub(ms + 1, ms + 1))
+					local markerStart, markerEnd, index = text:find("\001(%d+)\002", ms)
+					local idx = markerStart == ms and tonumber(index)
 					local raw = idx and rawArgs[idx]
 					if idx and (IsSecret(raw) or raw ~= nil) then
-						local abbrevd
-						if _abbrev then
-							abbrevd = _abbrev(raw)
-						else
-							abbrevd = raw
+						local output = raw
+						-- Names stay as strings; only health/power numbers are abbreviated.
+						if type(raw) == "number" then
+							if _abbrev then output = _abbrev(raw) end
+							if not IsSecret(output) then
+								output = gsub(tostring(output), " ([KMBTkmbt])", "%1")
+							end
 						end
-						-- strip space before K/M/B/T suffixes e.g. "45.0 K" -> "45.0K"
-						-- only safe on plain strings; secret strings can't be gsub'd
-						if not IsSecret(abbrevd) then
-							abbrevd = gsub(abbrevd, " ([KMBTkmbt])", "%1")
-						end
-						result = result .. abbrevd
-						pos = ms + 2
+						result = result .. output
+						pos = markerEnd + 1
 					else
 						result = result .. "\001"
 						pos = ms + 1
