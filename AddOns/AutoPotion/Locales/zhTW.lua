@@ -42,3 +42,6 @@ L["Shows the drink that will currently be used, based on what is in your bags."]
 L["AutoBandage"] = "AutoBandage"
 L["AutoFood"] = "AutoFood"
 L["AutoDrink"] = "AutoDrink"
+
+L["Soulburn Healthstone"] = "靈魂燃燒治療石"
+L["Casts Soulburn right before the macro in combat to empower your Healthstone. Costs a Soul Shard every time Soulburn is off cooldown, also on presses that use a potion or spell."] = "戰鬥中在巨集前施放靈魂燃燒，強化你的治療石。靈魂燃燒冷卻完畢時，每次按下都會消耗一個靈魂裂片，即使該次使用的是藥水或法術也一樣。"

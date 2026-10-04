@@ -1,11 +1,12 @@
 ## Interface: 120100, 120105
-## Version: 3.16.3
+## Version: 3.16.4
 ## Title: Auto Potion
 ## Author: ollidiemaus
 ## Notes: Updates the Macro AutoPotion to use either Healthstone or the highest Potion found in Bags 
 ## Notes-zhCN: 自动药水循环宏，使用治疗石或背包中的最高等级治疗药水 
 ## X-Curse-Project-ID: 312940
 ## X-Wago-ID: yQKybBG7
+## Dependencies: Ace3
 ## SavedVariables: HAMDB
 ## Category-enUS: Combat
 ## Category-deDE: Kampf
