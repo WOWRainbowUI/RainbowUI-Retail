@@ -188,7 +188,7 @@ Config\Panels\Profiles.lua
 
 MiniAuras.lua
 
-## Title-zhTW: |cffFF2D2D[戰鬥]|r 迷你技能提醒
+## Title-zhTW: |cffFF2D2D[戰鬥]|r MA 技能提醒
 ## Notes-zhTW: MiniAuras |n|n在隊伍、團隊框架與名條上顯示控場及重要技能提示，提供技能冷卻、打斷和飾品追蹤，以及音效與語音提醒。|n|n|cffffd200使用方法：|r輸入 /miniauras 或從 Esc > 選項 > 插件 > 技能提醒，進行設定。
 ## X-Category-zhTW: 戰鬥
 
