@@ -48,3 +48,8 @@ L["AutoDrink"] = "AutoDrink"     -- DO NOT TRANSLATE
 
 L["Soulburn Healthstone"] = "灵魂燃烧治疗石"
 L["Casts Soulburn right before the macro in combat to empower your Healthstone. Costs a Soul Shard every time Soulburn is off cooldown, also on presses that use a potion or spell."] = "战斗中在宏前施放灵魂燃烧，强化你的治疗石。灵魂燃烧冷却完毕时，每次按下都会消耗一个灵魂碎片，即使该次使用的是药水或法术也一样。"
+
+-- Settings display labels; macro identifiers remain unchanged.
+L["AutoBandage Settings"] = "AutoBandage"
+L["AutoFood Settings"] = "AutoFood"
+L["AutoDrink Settings"] = "AutoDrink"

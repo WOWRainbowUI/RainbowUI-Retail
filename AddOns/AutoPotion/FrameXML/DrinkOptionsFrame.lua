@@ -118,7 +118,7 @@ end
 function ham.drinkSettingsFrame:InitializeOptions()
 	-- Create the sub-panel inside the Interface Options container
 	self.panel = CreateFrame("Frame", addonName .. "Drink", InterfaceOptionsFramePanelContainer)
-	self.panel.name = L["AutoDrink"]
+	self.panel.name = L["AutoDrink Settings"]
 
 	-- Register as a subcategory of the main AutoPotion panel
 	if InterfaceOptions_AddCategory then
@@ -160,7 +160,7 @@ function ham.drinkSettingsFrame:InitializeOptions()
 	-- title
 	local title = self.content:CreateFontString(nil, "ARTWORK", "GameFontNormalHuge")
 	title:SetPoint("TOP", 0, 0)
-	title:SetText(L["AutoDrink"])
+	title:SetText(L["AutoDrink Settings"])
 
 	-- subtitle
 	local subtitle = self.content:CreateFontString(nil, "ARTWORK", "GameFontNormal")

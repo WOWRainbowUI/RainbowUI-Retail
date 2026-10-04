@@ -46,3 +46,8 @@ L["AutoPotion"] = "AutoPotion"   -- DO NOT TRANSLATE
 L["AutoBandage"] = "AutoBandage" -- DO NOT TRANSLATE
 L["AutoFood"] = "AutoFood"       -- DO NOT TRANSLATE
 L["AutoDrink"] = "AutoDrink"     -- DO NOT TRANSLATE
+
+-- Settings display labels; macro identifiers remain unchanged.
+L["AutoBandage Settings"] = "AutoBandage"
+L["AutoFood Settings"] = "AutoFood"
+L["AutoDrink Settings"] = "AutoDrink"

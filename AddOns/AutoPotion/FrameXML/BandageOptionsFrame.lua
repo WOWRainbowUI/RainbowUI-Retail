@@ -118,7 +118,7 @@ end
 function ham.bandageSettingsFrame:InitializeOptions()
 	-- Create the sub-panel inside the Interface Options container
 	self.panel = CreateFrame("Frame", addonName .. "Bandage", InterfaceOptionsFramePanelContainer)
-	self.panel.name = L["AutoBandage"]
+	self.panel.name = L["AutoBandage Settings"]
 
 	-- Register as a subcategory of the main AutoPotion panel
 	if InterfaceOptions_AddCategory then
@@ -160,7 +160,7 @@ function ham.bandageSettingsFrame:InitializeOptions()
 	-- title
 	local title = self.content:CreateFontString(nil, "ARTWORK", "GameFontNormalHuge")
 	title:SetPoint("TOP", 0, 0)
-	title:SetText(L["AutoBandage"])
+	title:SetText(L["AutoBandage Settings"])
 
 	-- subtitle
 	local subtitle = self.content:CreateFontString(nil, "ARTWORK", "GameFontNormal")
