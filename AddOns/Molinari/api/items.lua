@@ -77,11 +77,11 @@ end
 local salvagers = addon:T()
 function addon:IsSalvagable(itemID)
 	for kind, salvager in next, salvagers do
-		local spellID, numItems, skillID, skillRequired = salvager(itemID)
+		local spellID, numItems, skillID, requiredSkillLevel = salvager(itemID)
 		if spellID then
-			if skillRequired and skillID then
+			if requiredSkillLevel and skillID then
 				local skillLevel = addon:GetProfessionSkillLevel(skillID)
-				if skillLevel >= skillRequired then
+				if skillLevel >= requiredSkillLevel then
 					return spellID, addon.colors[kind], numItems
 				end
 			else
@@ -111,13 +111,14 @@ function salvagers.disenchantable(itemID)
 		return 13262
 	end
 
-	local _, _, quality, _, _, _, _, _, _, _, _, class, subClass = C_Item.GetItemInfo(itemID)
-	-- if not addon:IsRetail() then
-	-- 	-- make sure the player has enough skill to disenchant the item
-	-- 	if addon:GetProfessionSkillLevel(333) < addon:RequiredDisenchantingLevel(itemID) then
-	-- 		return
-	-- 	end
-	-- end
+	local _, _, quality, itemLevel, _, _, _, _, _, _, _, class, subClass = C_Item.GetItemInfo(itemID)
+	if addon.GetRequiredDisenchantingLevel then
+		local requiredSkillLevel = addon:GetRequiredDisenchantingLevel(quality, itemLevel)
+		if requiredSkillLevel and addon:GetProfessionSkillLevel(333) < requiredSkillLevel then
+			-- make sure the player has enough skill to disenchant the item
+			return
+		end
+	end
 
 	if not quality or quality < ItemQuality.Uncommon or quality > ItemQuality.Epic then
 		-- grey, white, legendary, artifacts and heirlooms can't be disenchanted
@@ -137,7 +138,7 @@ function salvagers.disenchantable(itemID)
 end
 
 if addon:IsForever() and UnitClassBase('player') == 'HUNTER' then
-	function salvagers.food(itemID) -- not really a "salvager" but w/e
+	function salvagers.feed(itemID) -- not really a "salvager" but w/e
 		return C_PetInfo.CanPetEatItem(itemID) and 6991
 	end
 end
