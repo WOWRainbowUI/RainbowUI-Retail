@@ -1,6 +1,8 @@
 # Baganator
 
-## [833](https://github.com/TheMouseNest/Baganator/tree/833) (2026-09-30)
-[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/832...833) 
+## [834](https://github.com/TheMouseNest/Baganator/tree/834) (2026-10-03)
+[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/833...834) 
 
-- Forever: Fix right-click moving items from bags to bank not working past 1st tab  
+- Forever: Fix issue with tracking currencies from panel  
+- Fix infrequent error where API doesn't return anything even for a valid value  
+- Update dialogs skinning  
