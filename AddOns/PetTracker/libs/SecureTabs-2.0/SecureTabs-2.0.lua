@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with SecureTabs. If not, see <http://www.gnu.org/licenses/>.
 --]]
 
-local Lib, old = LibStub:NewLibrary('SecureTabs-2.0', 15)
+local Lib, old = LibStub:NewLibrary('SecureTabs-2.0', 16)
 if not Lib then
 	return
 elseif not old then
@@ -28,7 +28,7 @@ end
 
 Lib.tabs = Lib.tabs or {}
 Lib.covers = Lib.covers or {}
-Lib.template = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE and 'PanelTabButtonTemplate' or 'CharacterFrameTabButtonTemplate'
+Lib.template = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE or WOW_PROJECT_ID == 18) and 'PanelTabButtonTemplate' or 'CharacterFrameTabButtonTemplate'
 
 
 --[[ Main API ]]--
@@ -41,12 +41,15 @@ function Lib:Add(panel, frame, label)
 	local tab = CreateFrame('Button', '$parentSecureTab' .. id, panel, self.template)
 	tab.frame = frame
 	tab.Select = function(tab) self:Select(tab) end
-	tab:SetPoint('LEFT', panel:GetName() .. anchor, 'RIGHT', WOW_PROJECT_ID == WOW_PROJECT_MAINLINE and 3 or -16, 0)
-	tab:SetFrameLevel(panel:GetFrameLevel() + 610)
+	tab:SetPoint('LEFT', panel:GetName() .. anchor, 'RIGHT', 'PanelTabButtonTemplate' and 3 or -1, 0)
 	tab:SetScript('OnClick', tab.Select)
 	tab:SetText(label)
 	tinsert(secureTabs, tab)
 	PanelTemplates_DeselectTab(tab)
+
+	if WOW_PROJECT_ID ~= 18 then
+		tab:SetFrameLevel(panel:GetFrameLevel() + 610)
+	end
 
 	local cover = self.covers[panel] or CreateFrame('Button', '$parentCoverTab', panel, self.template)
 	cover:SetScript('OnClick', function() self:Update(panel) end)
