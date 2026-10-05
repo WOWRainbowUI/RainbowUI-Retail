@@ -180,11 +180,11 @@ function DetailMixin:Build()
 
 	self.lootEmpty = self.lootBG:CreateFontString(nil, "ARTWORK", "GameFontDisableSmall")
 	self.lootEmpty:SetPoint("CENTER")
-	self.lootEmpty:SetText("Nothing known")
+	self.lootEmpty:SetText("無已知戰利品")
 
 	self.empty = self:CreateFontString(nil, "ARTWORK", "GameFontDisableLarge")
 	self.empty:SetPoint("CENTER")
-	self.empty:SetText("Pick a rare from the list")
+	self.empty:SetText("請從清單選取稀有怪")
 
 	self:SetScript("OnHide", function(pane) pane:ReleaseLoot() end)
 	self:SetMob(nil)
@@ -232,7 +232,7 @@ function DetailMixin:BuildActions()
 	actions:SetPoint("RIGHT", -PADDING, 0)
 	actions:SetHeight(52)
 
-	self.ignore = checkbox(actions, IGNORE, "Never tell me about this one again.")
+	self.ignore = checkbox(actions, IGNORE, "不再通知此稀有怪。")
 	self.ignore:SetPoint("TOPLEFT")
 	self.ignore:SetScript("OnClick", function(check)
 		if self.mobid then core:SetIgnore(self.mobid, check:GetChecked()) end
@@ -241,7 +241,7 @@ function DetailMixin:BuildActions()
 	-- No per-zone "watch here". In here a rare is always shown under a zone it is
 	-- already known for, so adding it as a custom mob there would do nothing.
 	-- The Custom tab is where a mob goes somewhere it is not expected.
-	self.watchEverywhere = checkbox(actions, "Watch everywhere", "Keep scanning for this rare in every zone, not just where it's expected.")
+	self.watchEverywhere = checkbox(actions, "在所有區域監控", "在所有區域持續掃描此稀有怪，不限於已知出沒區域。")
 	self.watchEverywhere:SetPoint("LEFT", self.ignore.label, "RIGHT", PADDING, 0)
 	self.watchEverywhere:SetScript("OnClick", function(check)
 		if self.mobid then core:SetCustom('any', self.mobid, check:GetChecked()) end
@@ -261,7 +261,7 @@ function DetailMixin:BuildActions()
 	end)
 	self.link:SetPoint("BOTTOMLEFT")
 
-	self.showOnMap = actionButton("Show on map", 110, function()
+	self.showOnMap = actionButton("在地圖上顯示", 110, function()
 		local uiMapID = self:Where()
 		if not uiMapID then return end
 		if WorldMapFrame.SetMapID then

@@ -69,8 +69,8 @@ function module:OnInitialize()
 					},
 					skipcomplete = {
 						type = "toggle",
-						name = "Skip completed mobs",
-						desc = "Don't even try to target mobs with nothing left on them for you. This asks the same question the announcement filter does, so Notability decides what counts",
+						name = "略過已無所需獎勵的怪物",
+						desc = "不嘗試選取已無所需獎勵的怪物。判斷方式與通知篩選相同，由「關注條件」決定。",
 						order = 35,
 					},
 					skipvignette = {
@@ -82,8 +82,8 @@ function module:OnInitialize()
 					},
 					marker = {
 						type = "select",
-						name = "Mark the mob",
-						desc = "This adds some length to the macro, so you'll be able to scan for less mobs",
+						name = "標記怪物",
+						desc = "此功能會增加巨集長度，因此可掃描的怪物數量會減少。",
 						values = {
 							[0] = NONE,
 							[1] = ICON_LIST[1] .. "0|t Star",

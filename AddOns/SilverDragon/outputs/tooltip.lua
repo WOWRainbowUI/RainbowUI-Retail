@@ -20,18 +20,18 @@ function module:OnInitialize()
 		config.options.args.general.plugins.tooltip = {
 			tooltip = {
 				type = "group",
-				name = "Tooltips",
+				name = "浮動提示",
 				inline = true,
 				order = 93,
 				get = function(info) return self.db.profile[info[#info]] end,
 				set = function(info, v) self.db.profile[info[#info]] = v end,
 				args = {
-					about = config.desc("SilverDragon can put some information about mobs into their tooltips. For rares, that can include whether you actually need to kill them for an achievement.", 0),
-					achievement = config.toggle("Achievements", "Show if you need a rare mob for an achievement", 1),
-					drop = config.toggle("Drops", "Show if you need a drop from a mob", 2),
-					combatdrop = config.toggle("...in combat", "Show the drops while you're in combat", 3),
-					regularloot = config.toggle("...including regular loot", "List plain items too, not just the ones we can tell whether you have, like mounts and toys. The map overlay asks this as well", 4),
-					id = config.toggle("Unit IDs", "Show mob ids in tooltips", 5),
+					about = config.desc("在怪物的浮動提示中顯示額外資訊。稀有怪也會顯示是否仍需擊殺以完成成就。", 0),
+					achievement = config.toggle("成就", "顯示是否仍需擊殺此稀有怪以完成成就", 1),
+					drop = config.toggle("掉落物品", "顯示是否仍需要此怪物掉落的物品", 2),
+					combatdrop = config.toggle("戰鬥中也顯示", "戰鬥中也顯示掉落物品", 3),
+					regularloot = config.toggle("包含一般戰利品", "同時列出一般物品，不限於能判斷是否已收藏的坐騎或玩具等。地圖標示也使用此設定。", 4),
+					id = config.toggle("怪物 ID", "在浮動提示中顯示怪物 ID", 5),
 				},
 			},
 		}

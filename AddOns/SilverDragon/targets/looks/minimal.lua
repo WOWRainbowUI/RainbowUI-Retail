@@ -86,7 +86,7 @@ module:RegisterLookConfig("Minimal", {
     },
     width = {
         type = "range",
-        name = "Width",
+        name = "寬度",
         width = "full",
         min = 120,
         max = 480,
@@ -95,7 +95,7 @@ module:RegisterLookConfig("Minimal", {
     },
     height = {
         type = "range",
-        name = "Height",
+        name = "高度",
         width = "full",
         min = 30,
         max = 120,
@@ -104,7 +104,7 @@ module:RegisterLookConfig("Minimal", {
     },
     titleFontSize = {
         type = "range",
-        name = "Title font size",
+        name = "標題字體大小",
         width = "full",
         min = 4,
         max = 32,
@@ -113,7 +113,7 @@ module:RegisterLookConfig("Minimal", {
     },
     statusFontSize = {
         type = "range",
-        name = "Status font size",
+        name = "狀態字體大小",
         width = "full",
         min = 4,
         max = 32,
@@ -122,7 +122,7 @@ module:RegisterLookConfig("Minimal", {
     },
     sourceFontSize = {
         type = "range",
-        name = "Source font size",
+        name = "來源字體大小",
         width = "full",
         min = 4,
         max = 32,

@@ -298,7 +298,7 @@ function module:ShowTooltip(pin)
         tooltip:AddLine(core:GetLabel(id, isTreasure))
         if not isTreasure then
             -- nothing tracks when a treasure was last seen
-            tooltip:AddDoubleLine("Last seen", core:FormatLastSeen(core.db.global.mob_seen[id]))
+            tooltip:AddDoubleLine("上次發現", core:FormatLastSeen(core.db.global.mob_seen[id]))
         end
         ns:UpdateTooltipWithCompletion(tooltip, id, isTreasure)
         if lootGoesIn(pin:Config(), module.const.LOOT_TOOLTIP) then

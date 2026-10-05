@@ -32,8 +32,8 @@ local LOOT_CATEGORY_NAMES = {
 	mount = MOUNT,
 	pet = TOOLTIP_BATTLE_PET,
 	toy = TOY,
-	something = "Other loot",
-	nothing = "Nothing known",
+	something = "其他戰利品",
+	nothing = "無已知戰利品",
 }
 local LOOT_CATEGORY_ORDER = {}
 for i, category in ipairs(LOOT_CATEGORIES) do LOOT_CATEGORY_ORDER[category] = i end
@@ -657,7 +657,7 @@ function module:BuildSearchEntries()
 			kind = KIND_SOURCE,
 			key = "search/more",
 			indent = 0,
-			source = ("showing the first %d of %d"):format(#matches, total),
+			source = ("顯示前 %d 筆，共 %d 筆"):format(#matches, total),
 			noToggle = true,
 		})
 	end
@@ -922,10 +922,10 @@ function module:FillMobTooltip(tooltip, id, uiMapID, coord)
 			tooltip:AddDoubleLine(LOCATION_COLON, where)
 		end
 		if not core:IsMobInPhase(id, uiMapID) then
-			tooltip:AddLine("Belongs to a different version of this zone", 1, 0.5, 0.5, true)
+			tooltip:AddLine("屬於此區域的其他版本", 1, 0.5, 0.5, true)
 		end
 	end
-	tooltip:AddDoubleLine("Last seen", core:FormatLastSeen(core.db.global.mob_seen[id]))
+	tooltip:AddDoubleLine("上次發現", core:FormatLastSeen(core.db.global.mob_seen[id]))
 	ns:UpdateTooltipWithCompletion(tooltip, id)
 	ns.Loot.Summary.UpdateTooltip(tooltip, id)
 	local data = ns.mobdb[id]
@@ -1109,7 +1109,7 @@ function module:ShowRowMenu(owner, kind, id, key, uiMapID, source)
 				core:SetIgnore(id, not core.db.global.ignore[id])
 				return MenuResponse.Refresh
 			end)
-			rootDescription:CreateCheckbox("Watch everywhere", function()
+			rootDescription:CreateCheckbox("在所有區域監控", function()
 				return core.db.global.custom.any[id]
 			end, function()
 				core:SetCustom('any', id, not core.db.global.custom.any[id])
@@ -1117,7 +1117,7 @@ function module:ShowRowMenu(owner, kind, id, key, uiMapID, source)
 			end)
 			local overlay = core:GetModule("Overlay", true)
 			if overlay then
-				rootDescription:CreateCheckbox("Hide from the map", function()
+				rootDescription:CreateCheckbox("從地圖隱藏", function()
 					return overlay.db.profile.hidden[id]
 				end, function()
 					overlay.db.profile.hidden[id] = not overlay.db.profile.hidden[id] or nil
@@ -1147,13 +1147,13 @@ function module:ShowRowMenu(owner, kind, id, key, uiMapID, source)
 			return MenuResponse.CloseAll
 		end
 		if #ids == 0 then
-			rootDescription:CreateTitle("Expand this to change what's ignored")
+			rootDescription:CreateTitle("展開後可設定要忽略的稀有怪")
 			return
 		end
-		rootDescription:CreateButton(("Ignore all %d of these"):format(#ids), function()
+		rootDescription:CreateButton(("忽略全部 %d 個"):format(#ids), function()
 			return setAll(true)
 		end)
-		rootDescription:CreateButton(("Stop ignoring all %d of these"):format(#ids), function()
+		rootDescription:CreateButton(("取消忽略全部 %d 個"):format(#ids), function()
 			return setAll(false)
 		end)
 	end)

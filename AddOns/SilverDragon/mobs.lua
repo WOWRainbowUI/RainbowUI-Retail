@@ -29,8 +29,8 @@ end
 
 -- Worded the way the browser's filter menu words them, these being the same
 -- two switches reached from two places.
-local SOURCE_KNOWN_DESC = "If you disable this, SilverDragon will just not know about these mobs. They'll still be announced when you mouse over them, like any unknown rare."
-local SOURCE_IGNORE_DESC = "Ignore every mob provided by this module. This will make them all not be announced, regardless of any other settings."
+local SOURCE_KNOWN_DESC = "停用後將不再載入這些怪物的資料。但滑鼠指向牠們時，仍會像其他未知稀有怪一樣發出通知。"
+local SOURCE_IGNORE_DESC = "忽略此模組提供的所有怪物。無論其他設定為何，都不會通知這些怪物。"
 
 local function toggle_source(source)
 	return {
@@ -126,19 +126,19 @@ function module:OptionsRequested(callback, options)
 			args = {
 				sources = {
 					type = "group",
-					name = "Sources",
+					name = "資料來源",
 					order = 0,
 					args = {
-						about = core:GetModule("Config").desc("Where SilverDragon gets its rares from.", 0),
+						about = core:GetModule("Config").desc("設定稀有怪資料的來源。", 0),
 						open = {
 							type = "execute",
-							name = "Browse rares",
+							name = "瀏覽稀有怪",
 							func = function() core:GetModule("Browser"):Toggle() end,
 							order = 1,
 						},
 						known = {
 							type = "group",
-							name = "Sources SilverDragon knows",
+							name = "啟用的稀有怪資料來源",
 							inline = true,
 							order = 10,
 							get = function(info) return core.db.global.datasources[info.arg] end,
@@ -152,7 +152,7 @@ function module:OptionsRequested(callback, options)
 						},
 						ignore = {
 							type = "group",
-							name = "Sources to ignore",
+							name = "忽略的資料來源",
 							inline = true,
 							order = 20,
 							get = function(info) return core.db.global.ignore_datasource[info.arg] end,

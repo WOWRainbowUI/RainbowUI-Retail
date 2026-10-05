@@ -334,16 +334,16 @@ local openConfig = function()
 end
 
 local filterIgnoredLabels = {
-	show = "Show ignored",
-	hide = "Hide ignored",
-	only = "Only ignored",
+	show = "顯示已忽略的",
+	hide = "隱藏已忽略的",
+	only = "僅顯示已忽略的",
 }
 
 -- The per-expansion switches, the only settings here that reach outside the
 -- window. The wording has to be plain about that: unticking an expansion does
 -- not tidy up this list, it takes those rares away from the whole addon.
-local SOURCE_KNOWN_DESC = "If you disable this, SilverDragon will just not know about these mobs. They'll still be announced when you mouse over them, like any unknown rare."
-local SOURCE_IGNORE_DESC = "Ignore every mob provided by this module. This will make them all not be announced, regardless of any other settings."
+local SOURCE_KNOWN_DESC = "停用後將不再載入這些怪物的資料。但滑鼠指向牠們時，仍會像其他未知稀有怪一樣發出通知。"
+local SOURCE_IGNORE_DESC = "忽略此模組提供的所有怪物。無論其他設定為何，都不會通知這些怪物。"
 
 local sources = {}
 local function sortedSources()
@@ -356,7 +356,7 @@ local function sortedSources()
 end
 
 function module:AddDatasourceMenu(rootDescription)
-	local known = rootDescription:CreateButton("Sources SilverDragon knows...")
+	local known = rootDescription:CreateButton("啟用的稀有怪資料來源…")
 	for _, source in ipairs(sortedSources()) do
 		known:CreateCheckbox(source, function(value)
 			return core.db.global.datasources[value]
@@ -367,7 +367,7 @@ function module:AddDatasourceMenu(rootDescription)
 		end, source):SetTitleAndTextTooltip(nil, SOURCE_KNOWN_DESC)
 	end
 
-	local silenced = rootDescription:CreateButton("Sources to ignore...")
+	local silenced = rootDescription:CreateButton("忽略的資料來源…")
 	for _, source in ipairs(sortedSources()) do
 		silenced:CreateCheckbox(source, function(value)
 			return core.db.global.ignore_datasource[value]
@@ -381,14 +381,14 @@ end
 
 -- The same two switches, for the one source whose heading was right-clicked.
 function module:AddSourceSwitches(rootDescription, source)
-	rootDescription:CreateCheckbox("SilverDragon knows these rares", function()
+	rootDescription:CreateCheckbox("載入這些稀有怪資料", function()
 		return core.db.global.datasources[source]
 	end, function()
 		core.db.global.datasources[source] = not core.db.global.datasources[source]
 		core:BuildLookupTables()
 		return MenuResponse.Refresh
 	end):SetTitleAndTextTooltip(nil, SOURCE_KNOWN_DESC)
-	rootDescription:CreateCheckbox("Ignore every rare from here", function()
+	rootDescription:CreateCheckbox("忽略此來源的所有稀有怪", function()
 		return core.db.global.ignore_datasource[source]
 	end, function()
 		core.db.global.ignore_datasource[source] = not core.db.global.ignore_datasource[source] or nil
@@ -402,7 +402,7 @@ function module:ShowFilterMenu(owner)
 	MenuUtil.CreateContextMenu(owner, function(_, rootDescription)
 		rootDescription:SetTag("MENU_SILVERDRAGON_BROWSER_FILTER")
 		rootDescription:CreateTitle(FILTER)
-		rootDescription:CreateCheckbox("Group by expansion", function()
+		rootDescription:CreateCheckbox("依資料片分組", function()
 			return module.db.profile.groupBySource
 		end, function()
 			module.db.profile.groupBySource = not module.db.profile.groupBySource
@@ -420,7 +420,7 @@ function module:ShowFilterMenu(owner)
 			end, value)
 		end
 		rootDescription:CreateDivider()
-		rootDescription:CreateCheckbox("Only mobs I've added", function()
+		rootDescription:CreateCheckbox("僅顯示自行新增的怪物", function()
 			return module.db.profile.filterWatched
 		end, function()
 			module.db.profile.filterWatched = not module.db.profile.filterWatched
@@ -431,7 +431,7 @@ function module:ShowFilterMenu(owner)
 		module:AddDatasourceMenu(rootDescription)
 
 		rootDescription:CreateDivider()
-		rootDescription:CreateButton("Edit custom mobs...", function()
+		rootDescription:CreateButton("編輯自訂怪物…", function()
 			local config = core:GetModule("Config", true)
 			if not config then return end
 			config:ShowConfig()
@@ -452,31 +452,31 @@ function module:ShowConfigMenu(owner)
 	end
 	MenuUtil.CreateContextMenu(owner, function(_, rootDescription)
 		rootDescription:SetTag("MENU_SILVERDRAGON_BROWSER_CONTEXT")
-		rootDescription:CreateTitle("Rare browser")
-		local styles = rootDescription:CreateButton("Style")
+		rootDescription:CreateTitle("稀有怪瀏覽器")
+		local styles = rootDescription:CreateButton("樣式")
 		for look in pairs(module.Looks) do
-			styles:CreateRadio(look:gsub("_", ": "), function(value)
+			styles:CreateRadio(core:GetModule("Config").LookName(look), function(value)
 				return module.db.profile.style == value
 			end, function(value)
 				module:SetLook(value)
 				return MenuResponse.Close
 			end, look)
 		end
-		rootDescription:CreateCheckbox("Show the map", function()
+		rootDescription:CreateCheckbox("顯示地圖", function()
 			return module.db.profile.showMap
 		end, function()
 			module.db.profile.showMap = not module.db.profile.showMap
 			module.window:Layout()
 			return MenuResponse.Refresh
 		end)
-		rootDescription:CreateCheckbox("Show the model", function()
+		rootDescription:CreateCheckbox("顯示模型", function()
 			return module.db.profile.model
 		end, function()
 			module.db.profile.model = not module.db.profile.model
 			module.window.detailPane:SetMob(module.selectedMob)
 			return MenuResponse.Refresh
 		end)
-		rootDescription:CreateCheckbox("Show other rares in the zone", function()
+		rootDescription:CreateCheckbox("顯示區域內其他稀有怪", function()
 			return module.db.profile.mapShowAll
 		end, function()
 			module.db.profile.mapShowAll = not module.db.profile.mapShowAll

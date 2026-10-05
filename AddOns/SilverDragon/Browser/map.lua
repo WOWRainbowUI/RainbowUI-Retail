@@ -80,7 +80,7 @@ function MapMixin:SetMap(uiMapID)
 	self.pinPool:ReleaseAll()
 
 	if not (uiMapID and hasMapArt) then
-		return self:ShowMessage(uiMapID and "No map art for this zone" or "")
+		return self:ShowMessage(uiMapID and "此區域無地圖圖像" or "")
 	end
 
 	local layers = C_Map.GetMapArtLayers(uiMapID)
@@ -88,7 +88,7 @@ function MapMixin:SetMap(uiMapID)
 	local textures = layer and C_Map.GetMapArtLayerTextures(uiMapID, LAYER)
 	if not (layer and textures and #textures > 0) then
 		-- continent overlays and some instance floors have none
-		return self:ShowMessage("No map art for this zone")
+		return self:ShowMessage("此區域無地圖圖像")
 	end
 	self.message:Hide()
 

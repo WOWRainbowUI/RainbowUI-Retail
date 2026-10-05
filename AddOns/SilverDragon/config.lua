@@ -1,6 +1,20 @@
 local core = LibStub("AceAddon-3.0"):GetAddon("SilverDragon")
 local module = core:NewModule("Config", "AceConsole-3.0")
 
+local lookNames = {
+	Traditional = "傳統", Minimal = "極簡", Classic = "經典",
+	Legendary = "傳說", SilverDragon = "銀龍", Store = "商城",
+	StoreSilver = "商城（銀色）", Transmog = "塑形",
+	Loot_MoreAwesome = "戰利品：華麗", Loot_LessAwesome = "戰利品：簡約",
+	Loot_QuestReward = "戰利品：任務獎勵", Loot_Alliance = "戰利品：聯盟",
+	Loot_Horde = "戰利品：部落", Loot_Azerite = "戰利品：艾澤萊晶",
+	Loot_NZoth = "戰利品：恩若司", Loot_Oribos = "戰利品：奧睿博司",
+}
+
+function module.LookName(look)
+	return lookNames[look] or look:gsub("_", ": ")
+end
+
 local function toggle(name, desc, order, inline, disabled)
 	return {
 		type = "toggle",
@@ -38,19 +52,19 @@ local options = {
 			type = "group",
 			name = "關於",
 			args = {
-				about = desc("SilverDragon keeps an eye out for rare mobs for you.\n\n"..
-						"If you want to change how it does that, go to the \"Scanning\" section "..
-						"of the config. You can enable or disable the different methods used, and "..
-						"adjust how some of them behave.\n\n"..
-						"If you want to adjust the way the targeting popup appears, go to the \"ClickTarget\" "..
-						"section.\n\n"..
-						"If you want to change how you're told about seeing a rare, check out the "..
-						"\"Announcements\" section.\n\n"..
-						"If you want to add a custom mob to scan for, look at \"Custom\" in the \"Mobs\" "..
-						"section.\n\n"..
-						"If you want SilverDragon to please, please stop telling you about a certain "..
-						"mob, look at \"Ignore\" in the \"Mobs\" section.\n\n"..
-						"The same but about a treasure is in \"Scanning\" > \"Vignettes\"."),
+				about = desc("稀有怪通知會協助你尋找稀有怪。\n\n"..
+						"要調整偵測方式，請前往「掃描」設定。"..
+						"可以啟用或停用各種掃描方式，"..
+						"並調整其運作方式。\n\n"..
+						"要調整目標通知框的外觀，請前往「目標框架」"..
+						"設定。\n\n"..
+						"要調整發現稀有怪時的通知方式，請前往"..
+						"「通知」設定。\n\n"..
+						"要新增自訂掃描怪物，請前往「稀有怪 > 自訂」"..
+						"設定。\n\n"..
+						"要停止通知特定"..
+						"怪物，請前往「稀有怪 > 忽略」。\n\n"..
+						"要忽略特定寶藏，請前往「掃描 > 地圖星號」。"),
 			},
 			order = 0,
 		},
@@ -65,12 +79,12 @@ local options = {
 					inline = true,
 					order = 10,
 					args = {
-						about = desc("Some options for how SilverDragon will treat loot drops from mobs", 0),
-						charloot = toggle("Current character only", "Only count loot that should drop for your current character towards a rare being worth announcing. The loot window still shows everything, with what won't drop for you moved to its own section.", 10),
-						sharedloot = toggle("Count shared loot", "Some rares draw on a loot table shared with others nearby. Count what's in it towards them being worth announcing, the same as their own loot.", 15),
-						sharedloot_alerts = toggle("...for alerts?", "A shared mount you haven't got will earn the mount sound, flash and map icon as well, rather than just being notable.", 16, nil, function() return not core.db.profile.sharedloot end),
-						boeloot = toggle("Count sellable duplicates", "A mount, pet or toy you already have still counts as notable if it's bind-on-equip, since you can sell it.", 20),
-						transmog_specific = toggle("Transmog exact items", "For transmog appearances, only count them as known if you know them from that exact item, rather than from another sharing the same appearance", 25),
+						about = desc("設定如何判斷怪物掉落的戰利品。", 0),
+						charloot = toggle("僅計算目前角色", "判斷稀有怪是否值得通知時，只計算目前角色可獲得的戰利品。戰利品視窗仍顯示全部物品，無法掉落給你的物品會另列在獨立區段。", 10),
+						sharedloot = toggle("計算共用戰利品", "某些稀有怪與附近的其他稀有怪共用戰利品表。判斷是否值得通知時，將共用戰利品與專屬戰利品一併計算。", 15),
+						sharedloot_alerts = toggle("共用戰利品也觸發提醒", "共用戰利品中有尚未取得的坐騎時，也會觸發坐騎音效、畫面閃爍與地圖圖示。", 16, nil, function() return not core.db.profile.sharedloot end),
+						boeloot = toggle("計算可出售的重複收藏", "已擁有的坐騎、寵物或玩具若為裝備綁定，仍視為值得關注，因為可以出售。", 20),
+						transmog_specific = toggle("塑形須取得相同物品", "只有從該件物品取得的塑形外觀才視為已收藏；從其他同外觀物品取得的不算。", 25),
 					}
 				},
 			},
@@ -78,27 +92,27 @@ local options = {
 		},
 		notable = {
 			type = "group",
-			name = "Notability",
+			name = "關注條件",
 			order = 13,
 			args = {
-				about = desc("These decide what SilverDragon treats as worth your attention. The announcement filter, the map overlay and the click-target macro all ask the same question.", 0),
-				achievement_notable = toggle(_G.TRANSMOG_SOURCE_5 or ACHIEVEMENTS or "Achievement", "Count unearned achievement-progress as notable", 10),
-				mount_notable = toggle(PERKS_VENDOR_CATEGORY_MOUNT or MOUNTS or "Mount", "Count unlearned mounts as notable loot. This also picks which sightings get the mount sound and flash, whatever the filters say", 20),
-				toy_notable = toggle(TOY or "Toy", "Count unlearned toys as notable loot", 30),
-				pet_notable = toggle(TOOLTIP_BATTLE_PET or "Battle Pet", "Count uncaught pets as notable loot", 40),
-				transmog_notable = toggle("Transmog", "Count unlearned transmogrification appearances as notable loot.\n\nWhether an appearance you know from some other item counts as known here is up to \"Transmog exact items\", over in General's Loot options", 50),
-				decor_notable = toggle(_G.BINDING_TAG_DECOR or "Decor", "Count unfound decor as notable loot", 60, nil, not _G.BINDING_TAG_DECOR),
-				quest_notable = toggle("Quest-attached", "Count items with attached uncompleted quests as notable loot (this includes a lot of \"learnable\" items, weekly reputation drops, etc)", 70),
-				alts_achievements_count = toggle("An alt counts", "Treat an achievement one of your other characters has completed as done, rather than as something still to earn", 80),
+				about = desc("設定哪些內容值得關注。通知篩選、地圖標示與點擊選取目標巨集都會使用這些條件。", 0),
+				achievement_notable = toggle(_G.TRANSMOG_SOURCE_5 or ACHIEVEMENTS or "成就", "將尚未完成的成就進度視為值得關注", 10),
+				mount_notable = toggle(PERKS_VENDOR_CATEGORY_MOUNT or MOUNTS or "坐騎", "將尚未學會的坐騎視為值得關注的戰利品。此選項也決定哪些發現會觸發坐騎音效與畫面閃爍，不受篩選條件影響。", 20),
+				toy_notable = toggle(TOY or "玩具", "將尚未收藏的玩具視為值得關注的戰利品", 30),
+				pet_notable = toggle(TOOLTIP_BATTLE_PET or "戰寵", "將尚未收藏的寵物視為值得關注的戰利品", 40),
+				transmog_notable = toggle("塑形外觀", "將尚未收藏的塑形外觀視為值得關注的戰利品。\n\n從其他物品取得的相同外觀是否算已收藏，由「一般 > 戰利品 > 塑形須取得相同物品」決定。", 50),
+				decor_notable = toggle(_G.BINDING_TAG_DECOR or "裝飾", "將尚未取得的裝飾視為值得關注的戰利品", 60, nil, not _G.BINDING_TAG_DECOR),
+				quest_notable = toggle("附帶任務", "將附帶未完成任務的物品視為值得關注的戰利品，包括許多可學習物品、每週聲望物品等。", 70),
+				alts_achievements_count = toggle("計入其他角色成就", "其他角色已完成的成就視為已完成，不再當作尚待取得的成就。", 80),
 			},
 			plugins = {},
 		},
 		announcements = {
 			type = "group",
-			name = "Announcements",
+			name = "通知",
 			order = 17,
 			args = {
-				about = desc("SilverDragon wants to tell you when it sees a rare. These options set how it does that.", 0),
+				about = desc("設定發現稀有怪時的通知方式。", 0),
 			},
 			plugins = {},
 		},
@@ -122,9 +136,9 @@ local options = {
 					min = 30, max = (60 * 60), step = 10,
 					order = 20,
 				},
-				dead = toggle("Dead rares", "Count a rare that's already dead when we spot it, and tell you about it. Not every way of spotting them can tell whether one is dead.", 45),
-				instances = toggle("Scan in instances", "Look for rares while you're in an instance, and tell you about the ones we find. There aren't that many actual rares in instances, and scanning might slow things down at a time when you'd like the most performance possible.", 50),
-				taxi = toggle("Scan on taxis", "Keep scanning for rares while flying on a taxi or in a dragon race. Just hope that it'll still be there after you land and make your way back...", 55),
+				dead = toggle("已死亡的稀有怪", "發現已死亡的稀有怪時仍記錄並通知。並非所有偵測方式都能判斷怪物是否已死亡。", 45),
+				instances = toggle("在副本內掃描", "在副本內掃描並通知稀有怪。副本中的稀有怪不多，掃描可能會影響遊戲效能。", 50),
+				taxi = toggle("搭乘飛行交通時掃描", "搭乘飛行交通或參加飛龍競速時持續掃描稀有怪。降落後返回時，牠可能已經不在了。", 55),
 			},
 			plugins = {},
 		},

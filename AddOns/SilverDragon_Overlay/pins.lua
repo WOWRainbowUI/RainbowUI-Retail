@@ -218,7 +218,7 @@ do
         local function achievementButton(achievement)
             rootDescription:CreateButton(
                 -- core:RenderString(TEXT_MODE_A_STRING_VALUE_TYPE:format(OBJECTIVES_VIEW_ACHIEVEMENT, "{achievement:" .. achievement .. "}")),
-                core:RenderString("Show {achievement:" .. achievement .. "}"),
+                core:RenderString("顯示成就 {achievement:" .. achievement .. "}"),
                 showAchievement, achievement
             )
         end
@@ -236,12 +236,12 @@ do
                 end
             end
         end
-        rootDescription:CreateButton("Create waypoint", function() module.CreateWaypoint(uiMapID, coord, id, isTreasure) end)
+        rootDescription:CreateButton("建立導航點", function() module.CreateWaypoint(uiMapID, coord, id, isTreasure) end)
             :SetEnabled(core:GetModule("TomTom"):CanPointTo(uiMapID))
 
         -- Specifically for TomTom, since it supports multiples:
         rootDescription:CreateButton(
-            "Create waypoint for all locations",
+            "為所有位置建立導航點",
             function() createWaypointForAll(uiMapID, id, isTreasure) end
         ):SetEnabled(TomTom and true or false) -- can't be nil
 
@@ -255,7 +255,7 @@ do
 
         -- Hide menu item
         rootDescription:CreateButton(
-            isTreasure and "Hide treasure" or "Hide mob",
+            isTreasure and "隱藏寶藏" or "隱藏怪物",
             function() module.HidePoint(id, isTreasure) end
         )
 

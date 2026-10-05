@@ -407,7 +407,7 @@ function module:CreateWindow()
 	local title = frame:CreateFontString(nil, "ARTWORK", "GameFontHighlight");
 	frame.title = title
 	title:SetJustifyV("MIDDLE")
-	title:SetText("None seen")
+	title:SetText("尚未發現")
 
 	local icon = frame:CreateTexture(nil, "ARTWORK")
 	frame.icon = icon
@@ -547,16 +547,16 @@ function module:ShowConfigMenu(frame)
 	MenuUtil.CreateContextMenu(frame, function(owner, rootDescription)
 		rootDescription:SetTag("MENU_SILVERDRAGON_HISTORY_CONTEXT")
 		rootDescription:CreateTitle(myfullname .. " " .. HISTORY)
-		local styles = rootDescription:CreateButton("Style")
+		local styles = rootDescription:CreateButton("樣式")
 		for look in pairs(module.Looks) do
-			styles:CreateRadio(look, function(value)
+			styles:CreateRadio(({Traditional = "傳統", Modern = "現代"})[look] or look, function(value)
 				return db.style == value
 			end, function(value)
 				module:SetLook(value)
 				return MenuResponse.Close
 			end, look)
 		end
-		rootDescription:CreateCheckbox("Enabled", isChecked, function()
+		rootDescription:CreateCheckbox("啟用", isChecked, function()
 			db.enabled = false
 			module:Disable()
 			return MenuResponse.CloseAll
@@ -729,7 +729,7 @@ LineMixin = {
 			end
 			if data.vignetteGUID then
 				local _, vignetteID = core:GUIDShard(data.vignetteGUID)
-				GameTooltip:AddDoubleLine("Vignette ID",  vignetteID, 0, 1, 1, 0, 1, 1)
+				GameTooltip:AddDoubleLine("地圖圖示 ID",  vignetteID, 0, 1, 1, 0, 1, 1)
 			end
 			local uiMapID, x, y = module:GetPositionFromData(data, false)
 			if uiMapID and x and y and x ~= 0 and y ~= 0 then

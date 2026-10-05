@@ -16,7 +16,7 @@ function module:OnInitialize()
 			rare_only = true,
 		},
 	})
-	-- "Dead rares" used to live here as well as on Announce, two switches with the
+	-- "已死亡的稀有怪" used to live here as well as on Announce, two switches with the
 	-- same name in different sections. Core's covers both now. It defaulted on, so
 	-- a stored value here only ever means it was turned off.
 	if self.db.profile.dead ~= nil then
@@ -35,10 +35,10 @@ function module:OnInitialize()
 				get = function(info) return self.db.profile[info[#info]] end,
 				set = function(info, v) self.db.profile[info[#info]] = v end,
 				args = {
-					mouseover = config.toggle("Mouseover", "Check mobs that you mouse over.", 10),
-					targets = config.toggle("Targets", "Check the targets of people in your group.", 20),
-					nameplate = config.toggle("Nameplates", "Check units whose nameplates appear.", 30),
-					rare_only = config.toggle("Rare only", "Only look for mobs that are still flagged as rare", 40),
+					mouseover = config.toggle("滑鼠指向", "檢查滑鼠指向的怪物。", 10),
+					targets = config.toggle("隊友目標", "檢查隊伍成員的目標。", 20),
+					nameplate = config.toggle("名條", "檢查顯示名條的單位。", 30),
+					rare_only = config.toggle("僅限稀有怪", "僅偵測仍標記為稀有的怪物", 40),
 				},
 			},
 		}

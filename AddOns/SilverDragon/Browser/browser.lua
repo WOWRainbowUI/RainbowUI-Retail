@@ -102,7 +102,7 @@ end
 function module:RegisterLookConfig(look, config, defaults, reset)
 	self.LookConfig[look] = {
 		type = "group",
-		name = look:gsub("_", ": "),
+		name = core:GetModule("Config").LookName(look),
 		args = config,
 		inline = true,
 	}

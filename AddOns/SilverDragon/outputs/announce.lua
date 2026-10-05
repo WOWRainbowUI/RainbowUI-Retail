@@ -153,7 +153,7 @@ function module:OnInitialize()
 		-- Singling a mount out asks the same question the filter does, so say so
 		-- wherever that happens -- it's not obvious from here that a checkbox in
 		-- another section can switch these off.
-		local mountNote = "\n\nWhich mounts count comes from the Mount option under Notability: one you already know only counts if it's BoE, and with that unticked this stops happening at all."
+		local mountNote = "\n\n哪些坐騎符合條件由「關注條件 > 坐騎」決定：已學會的坐騎僅在裝備綁定時才計入；停用坐騎關注條件也會停用此提醒。"
 
 		local sink_config = self:GetSinkAce3OptionsDataTable()
 		local sink_args = {}
@@ -237,8 +237,8 @@ function module:OnInitialize()
 				end
 			}
 			fake_args.mount_chest = {
-				type = "execute", name = "Mawsworn Supply Chest (mount)",
-				desc = "Fake seeing a Mawsworn Supply Chest, which contains a mount",
+				type = "execute", name = "淵誓補給箱（坐騎）",
+				desc = "模擬發現含有坐騎的淵誓補給箱",
 				func = function()
 					-- id, zone, x, y, instanceid
 					core.events:Fire("SeenLoot", "Mawsworn Supply Chest", 4969, 1970, 0.318, 0.628)
@@ -247,28 +247,28 @@ function module:OnInitialize()
 		end
 
 		local filter_values = {
-			none = "None",
-			notable = "Notable ones",
-			everything = "All of them",
+			none = "無",
+			notable = "值得關注的",
+			everything = "全部",
 		}
 		-- least noisy first, so the list reads as a scale
 		local filter_sorting = {"none", "notable", "everything"}
 
 		local options = {
 			filter = {
-				type = "group", name = "Filters", inline = true,
+				type = "group", name = "篩選", inline = true,
 				order = 5,
 				get = get, set = set,
 				args = {
 					filter = {
-						type = "select", name = "Which rares?",
-						desc = "\"Notable ones\" leaves out a rare once it has nothing left for you. What counts as worth having is set under Notability.\n\nWhether loot that can't drop for you counts is up to \"Current character only\", over in General's Loot options. Rares we know nothing about are always announced.",
+						type = "select", name = "通知哪些稀有怪？",
+						desc = "「值得關注的」會略過已無所需獎勵的稀有怪。哪些獎勵值得取得，由「關注條件」決定。\n\n無法掉落給你的物品是否計入，由「一般 > 戰利品 > 僅計算目前角色」決定。沒有已知資料的稀有怪一律通知。",
 						values = filter_values, sorting = filter_sorting,
 						order = 0, width = "double",
 					},
 					filter_loot = {
-						type = "select", name = "Which treasures?",
-						desc = "\"Notable ones\" leaves out a treasure once it has nothing left for you. What counts as worth having is set under Notability.\n\nWhether loot that can't drop for you counts is up to \"Current character only\", over in General's Loot options. Treasures we know nothing about are always announced.",
+						type = "select", name = "通知哪些寶藏？",
+						desc = "「值得關注的」會略過已無所需獎勵的寶藏。哪些獎勵值得取得，由「關注條件」決定。\n\n無法掉落給你的物品是否計入，由「一般 > 戰利品 > 僅計算目前角色」決定。沒有已知資料的寶藏一律通知。",
 						values = filter_values, sorting = filter_sorting,
 						order = 1, width = "double",
 					},
@@ -329,7 +329,7 @@ function module:OnInitialize()
 					soundfile = soundfile("sound", 22),
 					sound_loop = soundrange(23),
 					mount = {type="header", name="", order=25,},
-					sound_mount = toggle("Mount sounds", "Play a sound for mobs that drop a mount" .. mountNote, 26),
+					sound_mount = toggle("坐騎音效", "發現會掉落坐騎的怪物時播放音效" .. mountNote, 26),
 					soundfile_mount = soundfile("sound_mount", 27),
 					sound_mount_loop = soundrange(28),
 					boss = {type="header", name="", order=30,},
@@ -337,10 +337,10 @@ function module:OnInitialize()
 					soundfile_boss = soundfile("sound_boss", 35),
 					sound_boss_loop = soundrange(37),
 					loot = {type="header", name="", order=40,},
-					sound_loot = toggle("Loot sounds", "Play a sound for notable treasures", 41),
+					sound_loot = toggle("寶藏音效", "發現值得關注的寶藏時播放音效", 41),
 					soundfile_loot = soundfile("sound_loot", 45),
 					sound_loot_loop = soundrange(47),
-					sound_loot_junk = toggle("Junk loot sounds", "Play a sound for treasures that aren't notable. Only reachable when the treasures filter, over in Announcements, is set to \"All of them\"", 48),
+					sound_loot_junk = toggle("其他寶藏音效", "發現不值得關注的寶藏時播放音效。僅在「通知」的寶藏篩選設為「全部」時生效。", 48),
 					soundfile_loot_junk = soundfile("sound_loot_junk", 49),
 					sound_loot_junk_loop = soundrange(50),
 				},
@@ -378,7 +378,7 @@ function module:OnInitialize()
 						order = 4,
 					},
 					mount = {type="header", name="", order=10,},
-					flash_mount = toggle("Mount flash", "Flash the screen differently when we see a mob with a mount?" .. mountNote, 11),
+					flash_mount = toggle("坐騎畫面閃爍", "發現會掉落坐騎的怪物時，使用不同的畫面閃爍效果？" .. mountNote, 11),
 					flash_color_mount = {
 						name = COLOR,
 						type = "color",
@@ -449,7 +449,7 @@ function module:OnInitialize()
 			if heading then
 				t["vibrate_heading" .. key] = {type="header", name="", order=order,}
 			end
-			t["vibrate" .. key] = toggle(heading or "Vibrate", description or "Vibrate the controller?", order + 1)
+			t["vibrate" .. key] = toggle(heading or "震動", description or "震動控制器？", order + 1)
 			t["vibrate_type" .. key] = {
 				type = "select", name = "類型",
 				desc = "使用哪種震動類型",
@@ -478,9 +478,9 @@ function module:OnInitialize()
 		end
 		local order = 1
 		order = vibrate_section(options.controller.args, nil, 1)
-		order = vibrate_section(options.controller.args, "mount", order, "Vibrate for mounts", "Vibrate the controller?" .. mountNote)
-		order = vibrate_section(options.controller.args, "boss", order, "Vibrate for bosses")
-		order = vibrate_section(options.controller.args, "loot", order, "Vibrate for loot")
+		order = vibrate_section(options.controller.args, "mount", order, "坐騎震動提醒", "震動控制器？" .. mountNote)
+		order = vibrate_section(options.controller.args, "boss", order, "首領震動提醒")
+		order = vibrate_section(options.controller.args, "loot", order, "寶藏震動提醒")
 
 		config.options.args.announcements.plugins.announce = options
 	end

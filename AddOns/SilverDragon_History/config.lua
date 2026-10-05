@@ -33,19 +33,19 @@ function module:RegisterConfig()
 				end,
 				order = 10,
 			},
-			combat = config.toggle("Show in combat", "Whether to hide away when combat starts", 15),
-			empty = config.toggle("Show when empty", "Whether to show the window before you've seen anything", 20),
-			grow = config.toggle("Grow to max height", "Whether to fit the window to its contents until you reach the maximum height", 25),
-			relative = config.toggle("Use relative time", "Whether to show time in the window as relative or absolute", 30),
-			loot = config.toggle("Include loot", "Whether to include treasure vignettes", 35),
+			combat = config.toggle("戰鬥中要顯示", "啟用後，進入戰鬥時仍顯示視窗；停用則在戰鬥開始時隱藏。", 15),
+			empty = config.toggle("顯示空的清單", "尚未發現任何稀有怪時也顯示視窗", 20),
+			grow = config.toggle("自動調整高度", "依內容自動調整視窗高度，直到達到最大高度", 25),
+			relative = config.toggle("使用相對時間", "以距離現在多久的相對時間顯示；停用則顯示實際時間", 30),
+			loot = config.toggle("包含寶藏圖示", "在歷史記錄中包含寶藏圖示", 35),
 			style = {
 				type = "select",
-				name = "Style",
-				desc = "How the window looks",
+				name = "樣式",
+				desc = "視窗的外觀樣式",
 				values = function(info)
 					local values = {}
 					for key in pairs(self.Looks) do
-						values[key] = key
+						values[key] = ({Traditional = "傳統", Modern = "現代"})[key] or key
 					end
 					-- replace ourself with the built values table
 					info.option.values = values

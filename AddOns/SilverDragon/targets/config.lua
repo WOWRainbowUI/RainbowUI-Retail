@@ -37,7 +37,7 @@ function module:RegisterConfig()
 					values = function(info)
 						local values = {}
 						for key in pairs(self.Looks) do
-							values[key] = key:gsub("_", ": ")
+							values[key] = core:GetModule("Config").LookName(key)
 						end
 						-- replace ourself with the built values table
 						info.option.values = values
@@ -51,8 +51,8 @@ function module:RegisterConfig()
 				},
 				model = {
 					type = "toggle",
-					name = "Show 3d model",
-					desc = "Whether to show the fully 3d model of the mob. In some styles this will fall back to a 2d icon, in others it'll go away entirely.",
+					name = "顯示 3D 模型",
+					desc = "是否顯示怪物的完整 3D 模型。部分樣式會改用 2D 圖示，其他樣式則完全隱藏。",
 					set = function(info, v)
 						self.db.profile[info[#info]] = v
 						module:Redraw()
@@ -61,8 +61,8 @@ function module:RegisterConfig()
 				},
 				showSource = {
 					type = "toggle",
-					name = "Show source",
-					desc = "Show how the mob was detected, e.g. mouseover or vignette",
+					name = "顯示偵測來源",
+					desc = "顯示發現怪物的方式，例如滑鼠指向或地圖星號",
 					set = function(info, v)
 						self.db.profile[info[#info]] = v
 						module:Redraw()
@@ -71,8 +71,8 @@ function module:RegisterConfig()
 				},
 				showStatus = {
 					type = "toggle",
-					name = "Show status",
-					desc = "Show the achievement / completion status line",
+					name = "顯示完成狀態",
+					desc = "顯示成就與完成狀態",
 					set = function(info, v)
 						self.db.profile[info[#info]] = v
 						module:Redraw()
@@ -132,7 +132,7 @@ function module:RegisterConfig()
 					name = "聊天通報",
 					order = 50,
 				},
-				announceDesc = config.desc("Shift-clicking the target popup will try to send a message about the rare. If you've got it targeted or are near enough to see its nameplate, health will be included.\nIf you have an editbox open, it'll paste the message into that for you to send. If you don't, it'll do whatever these settings say:", 51),
+				announceDesc = config.desc("按住 Shift 點擊目標通知框可通報稀有怪。若已選取牠或距離近到能看見血條，訊息也會包含生命值。\n若文字輸入框已開啟，訊息會貼入其中供你送出；否則依下列設定處理：", 51),
 				announce = {
 					type = "select",
 					name = "通報到聊天視窗",
@@ -215,7 +215,7 @@ end
 function module:RegisterLookConfig(look, config, defaults, reset)
 	self.LookConfig[look] = {
 		type = "group",
-		name = look:gsub("_", ": "),
+		name = core:GetModule("Config").LookName(look),
 		args = config,
 		inline = true,
 	}

@@ -12,13 +12,13 @@ local _, myfullname = C_AddOns.GetAddOnInfo("SilverDragon")
 local function lootSelect(order)
     return {
         type = "select",
-        name = "Show loot",
-        desc = "Where to list what a mob or treasure drops. Whether that includes plain items is set under Tooltips",
+        name = "顯示戰利品",
+        desc = "選擇怪物或寶藏戰利品的顯示位置。是否包含一般物品由「浮動提示」設定決定。",
         values = {
-            [module.const.LOOT_TOOLTIP] = "In the tooltip",
-            [module.const.LOOT_WINDOW] = "In a popout window",
-            [module.const.LOOT_BOTH] = "Both",
-            [module.const.LOOT_NONE] = "Don't",
+            [module.const.LOOT_TOOLTIP] = "在浮動提示中",
+            [module.const.LOOT_WINDOW] = "在彈出視窗中",
+            [module.const.LOOT_BOTH] = "兩者皆顯示",
+            [module.const.LOOT_NONE] = "不顯示",
         },
         sorting = {
             module.const.LOOT_TOOLTIP,
@@ -31,15 +31,15 @@ local function lootSelect(order)
 end
 
 local iconThemes = {
-    {value = "skulls", text = "Skulls"},
-    {value = "circles", text = "Circles"},
-    {value = "stars", text = "Stars"},
+    {value = "skulls", text = "骷髏"},
+    {value = "circles", text = "圓形"},
+    {value = "stars", text = "星形"},
 }
 local iconColors = {
-    {value = "distinct", text = "Unique per-mob",
-     tip = "A color of its own for every mob and treasure in the zone."},
-    {value = "completion", text = "What's left on it",
-     tip = "Four colors: a mount, something notable, nothing notable, or nothing at all."},
+    {value = "distinct", text = "每個怪物使用不同顏色",
+     tip = "區域內每個怪物與寶藏都有各自的顏色。"},
+    {value = "completion", text = "依剩餘獎勵",
+     tip = "以四種顏色區分：有坐騎、有值得關注的獎勵、沒有值得關注的獎勵，以及完全沒有剩餘獎勵。"},
 }
 local function selectValues(list)
     local values = {}
@@ -49,10 +49,10 @@ local function selectValues(list)
     return values
 end
 
-local unknownTip = "Nothing to judge by: no tracking quest, no achievement, no known loot"
-local nothingTip = "Still lootable, but with nothing notable remaining"
-local doneTip = "Nothing left at all: the achievement is done and everything is looted, or the tracking quest is complete"
-local achievementlessTip = "Whether to show icons for things which aren't part of the criteria for any known achievement"
+local unknownTip = "沒有可判斷的資訊：沒有追蹤任務、成就或已知戰利品"
+local nothingTip = "仍可拾取戰利品，但已無值得關注的獎勵"
+local doneTip = "已無剩餘獎勵：成就已完成且戰利品已全部拾取，或追蹤任務已完成"
+local achievementlessTip = "是否顯示不屬於任何已知成就條件的圖示"
 
 function module:RegisterConfig()
     local config = core:GetModule("Config", true)
@@ -73,23 +73,23 @@ function module:RegisterConfig()
                 args = {
                     rares = {
                         type = "group",
-                        name = "Rares",
+                        name = "稀有怪",
                         inline = true,
                         args = {
                             showMobs = {
                                 type = "toggle",
-                                name = "Show rares",
-                                desc = "Whether to put rare mobs on the map at all",
+                                name = "顯示稀有怪",
+                                desc = "是否在地圖上顯示稀有怪",
                                 width = "full",
                                 order = 0,
                             },
                             filter = {
                                 type = "select",
-                                name = "Which rares",
-                                desc = "What counts as \"notable\" is set in the Notability settings; generally it means some collectable loot",
+                                name = "顯示哪些稀有怪",
+                                desc = "哪些內容「值得關注」由「關注條件」設定決定，通常是可收藏的戰利品。",
                                 values = {
-                                    everything = "All of them",
-                                    notable = "Notable ones",
+                                    everything = "全部",
+                                    notable = "值得關注的",
                                 },
                                 sorting = {"notable", "everything"},
                                 disabled = function() return not self.db.profile.showMobs end,
@@ -98,28 +98,28 @@ function module:RegisterConfig()
                             },
                             showUnknown = {
                                 type = "toggle",
-                                name = "...and unknown ones",
+                                name = "也顯示資料未知的",
                                 desc = unknownTip,
                                 disabled = function() return not self.db.profile.showMobs or self.db.profile.filter == "everything" end,
                                 order = 10,
                             },
                             showNothing = {
                                 type = "toggle",
-                                name = "...and emptied ones",
+                                name = "也顯示已無所需獎勵的",
                                 desc = nothingTip,
                                 disabled = function() return not self.db.profile.showMobs or self.db.profile.filter == "everything" end,
                                 order = 11,
                             },
                             showDone = {
                                 type = "toggle",
-                                name = "...and finished ones",
+                                name = "也顯示已完成的",
                                 desc = doneTip,
                                 disabled = function() return not self.db.profile.showMobs or self.db.profile.filter == "everything" end,
                                 order = 12,
                             },
                             achievementless = {
                                 type = "toggle",
-                                name = "Show non-achievement rares",
+                                name = "顯示與成就無關的稀有怪",
                                 desc = achievementlessTip,
                                 disabled = function() return not self.db.profile.showMobs end,
                                 width = "full",
@@ -130,23 +130,23 @@ function module:RegisterConfig()
                     },
                     treasures = {
                         type = "group",
-                        name = "Treasures",
+                        name = "寶藏",
                         inline = true,
                         args = {
                             showTreasures = {
                                 type = "toggle",
-                                name = "Show treasures",
-                                desc = "Whether to put treasures on the map at all",
+                                name = "顯示寶藏",
+                                desc = "是否在地圖上顯示寶藏",
                                 width = "full",
                                 order = 0,
                             },
                             filterTreasure = {
                                 type = "select",
-                                name = "Which treasures",
-                                desc = "What counts as \"notable\" is set in the Notability settings; generally it means some collectable loot",
+                                name = "顯示哪些寶藏",
+                                desc = "哪些內容「值得關注」由「關注條件」設定決定，通常是可收藏的戰利品。",
                                 values = {
-                                    everything = "All of them",
-                                    notable = "Notable ones",
+                                    everything = "全部",
+                                    notable = "值得關注的",
                                 },
                                 sorting = {"notable", "everything"},
                                 disabled = function() return not self.db.profile.showTreasures end,
@@ -155,28 +155,28 @@ function module:RegisterConfig()
                             },
                             showUnknownTreasure = {
                                 type = "toggle",
-                                name = "...and unsure ones",
+                                name = "也顯示無法判斷的",
                                 desc = unknownTip,
                                 disabled = function() return not self.db.profile.showTreasures or self.db.profile.filterTreasure == "everything" end,
                                 order = 10,
                             },
                             showNothingTreasure = {
                                 type = "toggle",
-                                name = "...and emptied ones",
+                                name = "也顯示已無所需獎勵的",
                                 desc = nothingTip,
                                 disabled = function() return not self.db.profile.showTreasures or self.db.profile.filterTreasure == "everything" end,
                                 order = 11,
                             },
                             showDoneTreasure = {
                                 type = "toggle",
-                                name = "...and looted ones",
+                                name = "也顯示已拾取的",
                                 desc = doneTip,
                                 disabled = function() return not self.db.profile.showTreasures or self.db.profile.filterTreasure == "everything" end,
                                 order = 12,
                             },
                             achievementlessTreasure = {
                                 type = "toggle",
-                                name = "Show non-achievement treasures",
+                                name = "顯示與成就無關的寶藏",
                                 desc = achievementlessTip,
                                 disabled = function() return not self.db.profile.showTreasures end,
                                 width = "full",
@@ -187,15 +187,15 @@ function module:RegisterConfig()
                     },
                     emphasize = {
                         type = "toggle",
-                        name = "Emphasize notable",
-                        desc = "Make the icons bigger for anything that still has something notable. Useful when the map is showing emptied or finished rares.",
+                        name = "強調值得關注的圖示",
+                        desc = "放大仍有值得關注獎勵的圖示。在地圖同時顯示已無所需獎勵或已完成的稀有怪時，便於辨識。",
                         width = "full",
                         order = 30,
                     },
                     unhide = {
                         type = "execute",
-                        name = "Reset hidden nodes",
-                        desc = "Show all nodes that you manually hid by right-clicking on them and choosing \"hide\".",
+                        name = "重設隱藏的圖示",
+                        desc = "重新顯示所有透過右鍵選單手動隱藏的圖示。",
                         func = function()
                             wipe(self.db.profile.hidden)
                             wipe(self.db.profile.hiddenTreasure)
@@ -218,15 +218,15 @@ function module:RegisterConfig()
                     },
                     icon_theme = {
                         type = "select",
-                        name = "Theme",
-                        desc = "Which icon set to use",
+                        name = "圖示樣式",
+                        desc = "選擇要使用的圖示樣式",
                         values = selectValues(iconThemes),
                         order = 40,
                     },
                     icon_color = {
                         type = "select",
-                        name = "Color",
-                        desc = "How to color the icons.\n\n\"What's left on it\" has four colors: a mount, something notable, nothing notable, or nothing at all.",
+                        name = "圖示顏色",
+                        desc = "選擇圖示的著色方式。\n\n「依剩餘獎勵」以四種顏色區分：有坐騎、有值得關注的獎勵、沒有值得關注的獎勵，以及完全沒有剩餘獎勵。",
                         values = selectValues(iconColors),
                         order = 50,
                     },
@@ -267,9 +267,9 @@ function module:RegisterConfig()
                         min = 0, max = 1, step = 0.01,
                         order = 30,
                     },
-                    routes = config.toggle("Routes", "Show the routes that some mobs take", 40),
+                    routes = config.toggle("巡邏路線", "顯示部分怪物的巡邏路線", 40),
                     loot = lootSelect(50),
-                    tooltip_help = config.toggle("Help", "Show the click shortcuts in the tooltip", 53),
+                    tooltip_help = config.toggle("操作提示", "在浮動提示中顯示滑鼠操作快捷方式", 53),
                 },
                 order = 20,
             },
@@ -314,9 +314,9 @@ function module:RegisterConfig()
                         min = 0, max = 1, step = 0.01,
                         order = 30,
                     },
-                    routes = config.toggle("Routes", "Show the routes that some mobs take", 40),
+                    routes = config.toggle("巡邏路線", "顯示部分怪物的巡邏路線", 40),
                     loot = lootSelect(41),
-                    tooltip_help = config.toggle("Help", "Show the click shortcuts in the tooltip", 43),
+                    tooltip_help = config.toggle("操作提示", "在浮動提示中顯示滑鼠操作快捷方式", 43),
                 },
                 order = 30,
             },
@@ -329,20 +329,20 @@ end
 -- options above. Worldmap/minimap tuning is left out -- fiddly, and rarely
 -- touched -- so those wait on the full panel.
 local menuKinds = {
-    {name = "Rares", show = "showMobs", filter = "filter", showTip = "Put rare mobs on the map",
+    {name = "稀有怪", show = "showMobs", filter = "filter", showTip = "在地圖上顯示稀有怪",
      also = {
-        {key = "showUnknown", text = "...and unsure ones", tip = unknownTip},
-        {key = "showNothing", text = "...and emptied ones", tip = nothingTip},
-        {key = "showDone", text = "...and finished ones", tip = doneTip},
+        {key = "showUnknown", text = "也顯示無法判斷的", tip = unknownTip},
+        {key = "showNothing", text = "也顯示已無所需獎勵的", tip = nothingTip},
+        {key = "showDone", text = "也顯示已完成的", tip = doneTip},
      },
-     achless = {key = "achievementless", text = "Non-achievement rares", tip = achievementlessTip}},
-    {name = "Treasures", show = "showTreasures", filter = "filterTreasure", showTip = "Put treasures on the map",
+     achless = {key = "achievementless", text = "與成就無關的稀有怪", tip = achievementlessTip}},
+    {name = "寶藏", show = "showTreasures", filter = "filterTreasure", showTip = "在地圖上顯示寶藏",
      also = {
-        {key = "showUnknownTreasure", text = "...and unsure ones", tip = unknownTip},
-        {key = "showNothingTreasure", text = "...and emptied ones", tip = nothingTip},
-        {key = "showDoneTreasure", text = "...and looted ones", tip = doneTip},
+        {key = "showUnknownTreasure", text = "也顯示無法判斷的", tip = unknownTip},
+        {key = "showNothingTreasure", text = "也顯示已無所需獎勵的", tip = nothingTip},
+        {key = "showDoneTreasure", text = "也顯示已拾取的", tip = doneTip},
      },
-     achless = {key = "achievementlessTreasure", text = "Non-achievement treasures", tip = achievementlessTip}},
+     achless = {key = "achievementlessTreasure", text = "與成就無關的寶藏", tip = achievementlessTip}},
 }
 
 local function displayMenu(owner, rootDescription)
@@ -364,8 +364,8 @@ local function displayMenu(owner, rootDescription)
     local function filterRadios(parent, key, enabled)
         local function on(v) return function() return odb[key] == v end end
         local function pick(v) return function() odb[key] = v; module:Update(); return MenuResponse.Refresh end end
-        local a = parent:CreateRadio("Notable ones", on("notable"), pick("notable"))
-        local b = parent:CreateRadio("All of them", on("everything"), pick("everything"))
+        local a = parent:CreateRadio("值得關注的", on("notable"), pick("notable"))
+        local b = parent:CreateRadio("全部", on("everything"), pick("everything"))
         if enabled then a:SetEnabled(enabled) b:SetEnabled(enabled) end
     end
 
@@ -384,10 +384,10 @@ local function displayMenu(owner, rootDescription)
         toggle(root, k.achless.text, k.achless.key, k.achless.tip, kindOn)
     end
 
-    toggle(rootDescription, "Emphasize notable", "emphasize", "Bigger icons for anything notable")
+    toggle(rootDescription, "強調值得關注的圖示", "emphasize", "放大值得關注的圖示")
 
     rootDescription:CreateDivider()
-    rootDescription:CreateTitle("Icons")
+    rootDescription:CreateTitle("圖示")
     local function picker(text, key, list, tip)
         local submenu = rootDescription:CreateButton(text)
         submenu:SetTitleAndTextTooltip(nil, tip)
@@ -398,11 +398,11 @@ local function displayMenu(owner, rootDescription)
             if entry.tip then item:SetTitleAndTextTooltip(nil, entry.tip) end
         end
     end
-    picker("Theme", "icon_theme", iconThemes, "Which icon set to use")
-    picker("Color", "icon_color", iconColors, "How to color the icons")
+    picker("圖示樣式", "icon_theme", iconThemes, "選擇要使用的圖示樣式")
+    picker("圖示顏色", "icon_color", iconColors, "選擇圖示的著色方式")
 
     rootDescription:CreateDivider()
-    rootDescription:CreateButton("Open settings", function()
+    rootDescription:CreateButton("開啟設定", function()
         local config = core:GetModule("Config", true)
         if not config then return end
         config:ShowConfig()

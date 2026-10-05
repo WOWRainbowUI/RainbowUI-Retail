@@ -11,7 +11,7 @@ function module:RegisterConfig()
 	if not config then return end
 	config.options.plugins.browser = { browser = {
 		type = "group",
-		name = "Browser",
+		name = "稀有怪瀏覽器",
 		order = 16, -- straight after Mobs, which is where the rest of this lives
 		get = function(info) return self.db.profile[info[#info]] end,
 		set = function(info, v)
@@ -19,21 +19,21 @@ function module:RegisterConfig()
 			self:Refresh()
 		end,
 		args = {
-			about = config.desc("A window listing every rare SilverDragon knows about, with where to find it and what it drops.", 0),
+			about = config.desc("列出所有已知稀有怪、出現位置與掉落戰利品的瀏覽視窗。", 0),
 			open = {
 				type = "execute",
-				name = "Browse rares",
+				name = "瀏覽稀有怪",
 				func = function() self:Toggle() end,
 				order = 5,
 			},
 			style = {
 				type = "select",
-				name = "Style",
-				desc = "How the window looks",
+				name = "樣式",
+				desc = "視窗的外觀樣式",
 				values = function(info)
 					local values = {}
 					for key in pairs(self.Looks) do
-						values[key] = key:gsub("_", ": ")
+						values[key] = core:GetModule("Config").LookName(key)
 					end
 					-- replace ourself with the built values table
 					info.option.values = values
@@ -46,8 +46,8 @@ function module:RegisterConfig()
 			},
 			model = {
 				type = "toggle",
-				name = "Show 3d model",
-				desc = "Whether to show the fully 3d model of the selected rare",
+				name = "顯示 3D 模型",
+				desc = "是否顯示所選稀有怪的完整 3D 模型",
 				set = function(info, v)
 					self.db.profile[info[#info]] = v
 					if self.window then
@@ -58,8 +58,8 @@ function module:RegisterConfig()
 			},
 			showMap = {
 				type = "toggle",
-				name = "Show the map",
-				desc = "Whether to show a map of the zone, with the rares marked on it",
+				name = "顯示地圖",
+				desc = "是否顯示區域地圖並標示稀有怪位置",
 				set = function(info, v)
 					self.db.profile[info[#info]] = v
 					if self.window then
@@ -70,8 +70,8 @@ function module:RegisterConfig()
 			},
 			mapShowAll = {
 				type = "toggle",
-				name = "Show other rares in the zone",
-				desc = "With a rare selected, whether the others in the zone stay on the map, dimmed, or go away entirely",
+				name = "顯示區域內其他稀有怪",
+				desc = "選取稀有怪時，是否將區域內其他稀有怪以淡化圖示保留在地圖上；停用則隱藏。",
 				set = function(info, v)
 					self.db.profile[info[#info]] = v
 					self:RefreshMap()
@@ -92,7 +92,7 @@ function module:RegisterConfig()
 			},
 			style_options = {
 				type = "group",
-				name = "Style options",
+				name = "樣式選項",
 				order = 40,
 				-- no style has any yet, and an empty tab reads as a fault
 				hidden = function()

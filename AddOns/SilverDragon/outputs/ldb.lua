@@ -112,8 +112,8 @@ function module:OnInitialize()
 					},
 					ignored = {
 						type = "toggle",
-						name = "Show ignored mobs",
-						desc = "Toggle showing ignored mobs in the list",
+						name = "顯示已忽略的怪物",
+						desc = "切換是否在清單中顯示已忽略的怪物",
 					},
 					worldmap = {
 						type = "toggle",
