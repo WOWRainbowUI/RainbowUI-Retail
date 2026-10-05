@@ -2496,3 +2496,9 @@ Change Log:
 * Fixed potential Blizzard taint issue when running GTFO for the first time
 * Added Midnight spells (world)
 * Added The War Within spells (world)
+
+6.12
+* Added vehicle aura sound support
+* Added Midnight spells (world)
+* Added Midnight spells for Windrunner Spire
+* Added Midnight spells for The Venomous Abyss

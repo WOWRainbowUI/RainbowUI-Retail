@@ -74,6 +74,7 @@ GTFO.SpellID["1291560"] = {
   --desc = "Stunned (Spiritwing)";
   map = 2512; -- The Coiled Isle
   sound = 3;
+  vehicle = true;
   applicationOnly = true;
 };
 
@@ -154,6 +155,26 @@ GTFO.SpellID["1279158"] = {
   sound = 3;
 };
 
+GTFO.SpellID["1292151"] = {
+  --desc = "Smothered";
+  map = 2512; -- The Coiled Isle
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["1243521"] = {
+  --desc = "Mash Potatoad (Aggressive Potatoad)";
+  map = 2413; -- Harandar
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["399061"] = {
+  --desc = "Terrifying Presence (Soul-Scarred Fury)";
+  instance = 3014; -- The Broken Throne
+  applicationOnly = true;
+  sound = 3;
+};
 
 --- *******************
 --- * Midnight (Prey) *
@@ -908,6 +929,18 @@ GTFO.SpellID["1310026"] = {
 	encounter = 3287;
 	sound = 3;
 	applicationOnly = true;
+};
+
+--- ***************************
+--- * Windrunner Spire (2805) *
+--- ***************************
+
+GTFO.SpellID["470212"] = {
+  --desc = "Flaming Twisters (Emberdawn)";
+  instance = 2805;
+  encounter = 3056;
+  applicationOnly = true;
+  sound = 3;
 };
 
 --- ****************************

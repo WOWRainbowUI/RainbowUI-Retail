@@ -163,6 +163,18 @@ GTFO.SpellID["1285630"] = {
   sound = 1;
 };
 
+GTFO.SpellID["1282656"] = {
+  --desc = "Tainted Ground (Malevolent Force)";
+  instance = 3014; -- The Broken Throne
+  sound = 1;
+};
+
+GTFO.SpellID["1278901"] = {
+  --desc = "Wild Flames (Faithbreaker Ger'lok)";
+  instance = 3014; -- The Broken Throne
+  sound = 1;
+};
+
 --- *******************
 --- * Midnight (Prey) *
 --- *******************
@@ -309,11 +321,30 @@ GTFO.SpellID["473784"] = {
   instance = 2805; 
 };
 
+GTFO.SpellID["473789"] = {
+  --desc = "Fetid Bile (Flesh Behemoth)";
+  instance = 2805;
+  sound = 1;
+};
+
+GTFO.SpellID["1216834"] = {
+  --desc = "Acidic Demise";
+  instance = 2805;
+  sound = 1;
+};
+
 GTFO.SpellID["472118"] = {
   --desc = "Ignited Embers (Emberdawn)";
   sound = 1;
   instance = 2805; 
   test = true;
+};
+
+--- * Lingering Marauder (Windrunner Spire) *
+GTFO.SpellID["1216643"] = {
+  --desc = "Gore Whirl (Lingering Marauder)";
+  instance = 2805;
+  sound = 1;
 };
 
 GTFO.SpellID["468924"] = {
@@ -722,6 +753,13 @@ GTFO.SpellID["1292552"] = {
   --desc = "Congealed Gore (The Twin Fangs)";
   instance = 3004;
   encounter = 3421;
+  sound = 1;
+};
+
+GTFO.SpellID["1306925"] = {
+  --desc = "Congealed Gore (Ithraz)";
+  instance = 3004; -- The Venomous Abyss
+  encounter = 3421; -- The Twin Fangs
   sound = 1;
 };
 
