@@ -387,3 +387,5 @@ L["Pin Trading Post"] = "貿易站";
 
 -- 自行加入
 L["Dialogue UI"] = "任務-對話"
+L["Quest Completed On Alt"] = "你之前已用其他角色完成此任務。";
+L["HelpTip Alt Completed Quest"] = "此圖示表示你已用其他角色完成此任務。";

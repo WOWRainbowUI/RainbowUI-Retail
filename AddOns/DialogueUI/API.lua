@@ -1084,7 +1084,7 @@ do  -- Quest
         API.GetAvailableQuestInfo = GetAvailableQuestInfo;
     else
         API.GetAvailableQuestInfo = function()
-            return false, 0, false, false, 0
+            return false, 1, false, false, 0
         end
     end
 
@@ -1509,15 +1509,6 @@ do  -- Quest
     end
     API.GetRecurringQuestTimeLeft = GetRecurringQuestTimeLeft;
 
-    local function ShouldMuteQuestDetail(questID)
-        --Fix for WoW offering a quest that you're ready on
-        if IsOnQuest(questID) then
-            return true
-        else
-            return false
-        end
-    end
-    API.ShouldMuteQuestDetail = ShouldMuteQuestDetail;
 
     do
         --Replace player name with RP name:
@@ -2614,7 +2605,7 @@ do  -- Tooltip
         TP:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", 0, -128);
         TP:Show();
         TP:SetScript("OnUpdate", nil);
-        TP.shouldManuallyAddItemLevel = not addon.IsToCVersionEqualOrNewerThan(50500);
+        TP.shouldManuallyAddItemLevel = addon.IS_VANILLA or addon.IS_TBC;
 
 
         local UpdateFrame = CreateFrame("Frame");
@@ -3208,7 +3199,7 @@ do  -- Spell
     end
     API.GetGlyphIDForSpell = GetGlyphIDForSpell;
 
-    if addon.IsToCVersionEqualOrNewerThan(110000) then
+    if C_Spell.GetSpellInfo then
         local GetSpellInfo_Table = C_Spell.GetSpellInfo;    --{"name", "rank", "iconID", "castTime", "minRange", "maxRange", "spellID", "originalIconID"}
 
         local function GetSpellName(spellID)

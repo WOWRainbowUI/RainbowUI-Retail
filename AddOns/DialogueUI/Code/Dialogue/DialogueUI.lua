@@ -313,7 +313,7 @@ function DUIDialogBaseMixin:OnLoad()
     --Warband Completed Alert
     local wb = headerFrame.WarbandCompleteAlert;
     self.WarbandCompleteAlert = wb;
-    wb.tooltipText = L["Quest Completed On Account"];
+    wb.tooltipText = addon.IS_RETAIL and L["Quest Completed On Account"] or L["Quest Completed On Alt"];
     wb:SetScript("OnEnter", TooltipFrame.ShowWidgetTooltip);
     wb:SetScript("OnLeave", TooltipFrame.HideTooltip);
     API.DisableSharpening(wb.Icon);
@@ -956,6 +956,17 @@ function DUIDialogBaseMixin:SetQuestTextRange(questTextRange)
 end
 
 local function SortFunc_GossipOrder(a, b)
+    local override1 = GossipDataProvider:GetOverrideOrder(a.gossipOptionID);
+    local override2 = GossipDataProvider:GetOverrideOrder(b.gossipOptionID);
+
+    if override1 and override2 and override1 ~= override2 then
+        return override1 < override2;
+    elseif override1 and not override2 then
+        return true;
+    elseif (not override1) and override2 then
+        return false;
+    end
+
 	return a.orderIndex < b.orderIndex;
 end
 
@@ -987,7 +998,7 @@ local function SortFunc_GossipPrioritizeQuest(a, b)
         return a.icon ~= 132053
     end
 
-	return a.orderIndex < b.orderIndex
+	return SortFunc_GossipOrder(a, b);
 end
 addon.SortFunc_GossipPrioritizeQuest = SortFunc_GossipPrioritizeQuest;
 
@@ -1896,6 +1907,15 @@ function DUIDialogBaseMixin:HandleQuestGreeting()
 
         local title = GetAvailableTitle(i);
         local isTrivial, frequency, isRepeatable, isLegendary, questID = GetAvailableQuestInfo(i);
+
+        if type(frequency) == "number" then
+            -- For Retail Enum.QuestFrequency.Daily = 1
+            -- For Classic LE_QUEST_FREQUENCY_DAILY = 2
+            -- Not many quests use QUEST_GREETING in Retail,
+            -- so we can't confirm if the frequency from GetAvailableQuestInfo and C_GossipInfo.GetAvailableQuests are the same.
+            -- Let's assume they are not
+            frequency = frequency - 1;
+        end
 
         local questInfo = {
             index = i,
