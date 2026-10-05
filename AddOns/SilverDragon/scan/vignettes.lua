@@ -14,7 +14,8 @@ local function vignetteToggle(vignetteid, name)
 		arg = vignetteid,
 		-- width = "double",
 		descStyle = "inline",
-		order = vignetteid,
+		-- AceConfig treats a string order as a handler method name and errors
+		order = tonumber(vignetteid) or 100,
 	}
 end
 
@@ -51,6 +52,12 @@ function module:OnInitialize()
 
 	-- migrate!
 	local db = self.db.profile
+	-- ignore ids are always numbers; a string key breaks the options panel
+	for id in pairs(db.ignore) do
+		if type(id) ~= "number" then
+			db.ignore[id] = nil
+		end
+	end
 	if db.loot == false then
 		db.ignore_type.vignetteloot = true
 		db.ignore_type.vignettelootelite = true
@@ -266,6 +273,12 @@ function module:WorkOutMobFromVignette(instanceid)
 	if self:ShouldIgnoreVignette(vignetteID, vignetteInfo.atlasName) then
 		return -- Debug("Vignette was ignored", vignetteInfo.vignetteID, vignetteInfo.name)
 	end
+	-- instanceid *is* the vignetteGUID, and unlike vignetteInfo.vignetteGUID it's
+	-- guaranteed to be present, so it's the safer key to dedupe on. Checked early
+	-- to skip the position and zone lookups below.
+	if already_notified_loot[instanceid] and time() < (already_notified_loot[instanceid] + core.db.profile.delay) then
+		return -- Debug("skipping notification", "delay not exceeded")
+	end
 	local current_zone = HBD:GetPlayerZone()
 	if not current_zone or current_zone == 0 then
 		return -- Debug("We don't know what zone we're in", current_zone)
@@ -298,11 +311,6 @@ function module:WorkOutMobFromVignette(instanceid)
 		end
 		if not core:PlayerIsInteractive() then
 			return -- Debug("skipping notification", "on taxi")
-		end
-		-- instanceid *is* the vignetteGUID, and unlike vignetteInfo.vignetteGUID
-		-- it's guaranteed to be present, so it's the safer key to dedupe on
-		if already_notified_loot[instanceid] and time() < (already_notified_loot[instanceid] + core.db.profile.delay) then
-			return -- Debug("skipping notification", "delay not exceeded")
 		end
 		local treasure = ns.vignetteTreasureLookup[vignetteInfo.vignetteID]
 		if treasure then
