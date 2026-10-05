@@ -1,7 +1,7 @@
 --[[
     This file is part of Decursive.
 
-    Decursive (v 2.9.0-RC2) add-on for World of Warcraft UI
+    Decursive (v 2.9.0-RC3) add-on for World of Warcraft UI
     Copyright (C) 2006-2026 John Wellesz (Decursive AT 2072productions.com) ( http://www.2072productions.com/to/decursive.php )
 
     Decursive is free software: you can redistribute it and/or modify
@@ -24,7 +24,7 @@
     Decursive is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY.
 
-    This file was last updated on 2026-08-28T15:57:06Z
+    This file was last updated on 2026-09-25T15:31:25Z
 
 --]]
 -------------------------------------------------------------------------------
@@ -319,7 +319,7 @@ function LiveList.prototype:SetDebuff(UnitID, Debuff, IsCharmed) -- {{{
         self.PrevDebuffApplicaton = Debuff.Applications
         local appDisplayString
         if Debuff.secretMode then
-            appDisplayString = Debuff.auraInstanceID and C_UnitAuras.GetAuraApplicationDisplayCount(UnitID, Debuff.auraInstanceID, 1) or ""
+            appDisplayString = Debuff.auraInstanceID and (not D:AurasRestricted()) and C_UnitAuras.GetAuraApplicationDisplayCount(UnitID, Debuff.auraInstanceID, 1) or ""
         else
             appDisplayString = Debuff.Applications > 1 and Debuff.Applications or ""
         end
@@ -369,6 +369,9 @@ end -- }}}
 
 
 function LiveList:GetDebuff(UnitID) -- {{{
+
+    if D:AurasRestricted() then return false end
+
     --  (note that this function is only called for the mouseover and target if the MUFs are active)
 
     if (UnitID == "target" or UnitID == "mouseover") and (not UnitIsFriend(UnitID, "player") or not UnitExists(UnitID)) then
@@ -399,6 +402,9 @@ function LiveList:GetDebuff(UnitID) -- {{{
 end -- }}}
 
 function LiveList:DelayedGetDebuff(UnitID, o_auraUpdateInfo) -- {{{
+
+    if D:AurasRestricted() then return end
+
     if not D:DelayedCallExixts("Dcr_GetDebuff"..UnitID) then
         D.DebuffUpdateRequest = D.DebuffUpdateRequest + 1;
         D:Debug("LiveList: GetDebuff scheduled for, ", UnitID);
@@ -606,4 +612,4 @@ function LiveList:Onclick() -- {{{
     D:Println(L["HLP_LL_ONCLICK_TEXT"]);
 end -- }}}
 
-T._LoadedFiles["Dcr_LiveList.lua"] = "2.9.0-RC2";
+T._LoadedFiles["Dcr_LiveList.lua"] = "2.9.0-RC3";

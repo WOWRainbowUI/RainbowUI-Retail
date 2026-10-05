@@ -1,7 +1,7 @@
 --[[
     This file is part of Decursive.
 
-    Decursive (v 2.9.0-RC2) add-on for World of Warcraft UI
+    Decursive (v 2.9.0-RC3) add-on for World of Warcraft UI
     Copyright (C) 2006-2026 John Wellesz (Decursive AT 2072productions.com) ( http://www.2072productions.com/to/decursive.php )
 
     Decursive is free software: you can redistribute it and/or modify
@@ -24,7 +24,7 @@
     Decursive is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY.
 
-    This file was last updated on 2026-08-31T01:57:24Z
+    This file was last updated on 2026-09-27T21:20:33Z
 --]]
 -------------------------------------------------------------------------------
 
@@ -348,10 +348,16 @@ do
    local iterator = 1;
    local DebuffHistHashTable = {};
 
-   function D:Debuff_History_Add( DebuffName, DebuffType, spellID)
-       if not canaccessvalue(DebuffName) then  -- do not store secret value
-          return;
+   function D:Debuff_History_Add(DebuffName, DebuffType, spellID)
+       if not (canaccessvalue(DebuffName) and canaccessvalue(DebuffType) and canaccessvalue(spellID)) then  -- do not store secret values
+          return
        end
+
+       if type(spellID) ~= "number" or spellID <= 0 or not (DebuffName and DebuffType) then
+           T._AddDebugText("Debuff_History_Add() bad usage, args:", DebuffName, DebuffType, spellID);
+           return
+       end
+
        if not DebuffHistHashTable[DebuffName] then
 
            -- reset iterator if out of boundaries
@@ -373,6 +379,12 @@ do
 
            -- This is a useless comment
            iterator = iterator + 1;
+
+           if DC.RESTRICTED_AURAS then
+               D:AddKnownSpellIDToSoundReg(spellID, DC.NameToTypes[DebuffType])
+
+               D.db.global.t_SpellIDsSoundReg[spellID] = {["spellType"] = DC.NameToTypes[DebuffType], ["from"] = "history", ["enabled"] = true}
+           end
        end
 
    end
@@ -407,17 +419,17 @@ do
     local D                 = D;
     local C_UnitAuras       = _G.C_UnitAuras
 
-    local filter = DC.MN and "RAID_PLAYER_DISPELLABLE" or nil
+    local filter = nil
 
-    local UnitDebuff        = (not DC.MN and _G.UnitDebuff) or function (unitToken, i)
+    local UnitDebuff        = (not DC.RESTRICTED_AURAS and _G.UnitDebuff) or function (unitToken, i)
 
         -- this mechanism is completely disabled in 12.1 so do nothing for now...
-        if DC.TWELVE_ONE then
-            D:Debug("12.1: UnitDebuff was called!", debugstack(2))
+        if D:AurasRestricted() then
+            --D:Debug("12.1: UnitDebuff was called while auras are restricted!", debugstack(2))
             return nil
         end
 
-        local auraData = C_UnitAuras.GetDebuffDataByIndex(unitToken, i, filter); -- forbidden in 12.1...
+        local auraData = C_UnitAuras.GetDebuffDataByIndex(unitToken, i, filter);
 
         if not auraData then
 			return nil;
@@ -433,7 +445,7 @@ do
 		nil,
 		nil,
 		auraData.spellId,
-        DC.MN and auraData.auraInstanceID or nil;
+        DC.RESTRICTED_AURAS and auraData.auraInstanceID or nil;
     end
 
     D.UnitDebuff = UnitDebuff -- it's reused in dcr_events
@@ -463,8 +475,7 @@ do
             end
         end
 
-        -- debuffs are unusable in midnight so always return false
-        if DC.MN then
+        if D:AurasRestricted() then
             return false
         end
 
@@ -499,9 +510,13 @@ do
             RequestLoadSpellData(SpellID);
 
         elseif D.Status.P_BleedEffectsKeywords_noCase ~= false then
-            if D:hasDescBleedEffectkeyword(GetSpellDescription(SpellID)) then
+            if D:hasDescBleedEffectkeyword(D.spell_desc_cache[SpellID]) then
                 D.Status.t_CheckBleedDebuffsActiveIDs[SpellID] = true;
                 D.db.global.t_BleedEffectsIDCheck[SpellID] = true;
+
+                if DC.RESTRICTED_AURAS then
+                    D:AddKnownSpellIDToSoundReg(SpellID, DC.BLEED)
+                end
             else
                 D.Status.t_CheckBleedDebuffsActiveIDs[SpellID] = false;
             end
@@ -570,7 +585,7 @@ do
             end
             --@end-debug@]==]
 
-            local s_color = DC.MN and auraInstanceID and C_UnitAuras.GetAuraDispelTypeColor(Unit, auraInstanceID, D.Status.dsCurve)
+            local s_color = auraInstanceID and (not D:AurasRestricted()) and C_UnitAuras.GetAuraDispelTypeColor(Unit, auraInstanceID, D.Status.dsCurve)
 
             -- test for a type
             if not secretMode then
@@ -580,7 +595,7 @@ do
                     TypeName = DC.TypeNames[self.Status.ReversedCureOrder[1]];
                     Type = DC.NameToTypes[TypeName]
                 elseif not isSpellIDScret and self.Status.CuringSpells[DC.BLEED] then
-                    checkSpellIDForBleed();
+                    checkSpellIDForBleed(); -- note that this is native in Midnight, the Bleed type actualy exists now...
                     if D.Status.t_CheckBleedDebuffsActiveIDs[SpellID] then
                         Type = DC.NameToTypes["Bleed"]
                         TypeName = DC.TypeNames[DC.BLEED];
@@ -637,6 +652,12 @@ do
 
                 -- we can't use i, else we wouldn't have contiguous indexes in the table
                 StoredDebuffIndex = StoredDebuffIndex + 1;
+
+                -- on midnight, always add the debuff to the history (includes sound registration)
+                -- SpellID is nil for charm effects detected while in combat (aura data unavailable) and == 0 when it's the "Test item" affliction
+                if DC.RESTRICTED_AURAS and not secretMode and SpellID and SpellID > 0 then
+                    D:Debuff_History_Add(Name, TypeName, SpellID);
+                end
             end
 
             i = i + 1;
@@ -886,7 +907,7 @@ do
                         self.db.global.delayedUnDebuffOccurences = self.db.global.delayedUnDebuffOccurences + 1;
                     end
 
-                    if (not self.Status.delayedDebuffReportDisabled) and self.db.global.MFScanEverybodyReport then
+                    if (not DC.RESTRICTED_AURAS) and (not self.Status.delayedDebuffReportDisabled) and self.db.global.MFScanEverybodyReport then
                         if IsDebuffed then
                             self:AddDebugText("delayed debuff found by scaneveryone (you can disable this error by unchecking the `Periodic scan debug reporting` option in the MUFs performance options - see Decursive 2.7.16 release notes)", Unit, Debuffs[1].Name);
                             --D:ScheduleDelayedCall("Dcr_lateanalysis" .. Unit, self.MicroUnitF.LateAnalysis, 1, self.MicroUnitF, "ScanEveryone", Debuffs, MUF, MUF.UnitStatus);
@@ -947,13 +968,9 @@ do
     local buffName;
     local GetCVarBool = _G.GetCVarBool
 
-    local function auraAccessRestricted()
-        return DC.MN and (InCombatLockdown() or GetCVarBool("secretAurasForced"))
-    end
-
     local function UnitBuff(unit, BuffNameToCheck)
 
-        local restricted = auraAccessRestricted()
+        local restricted = D:AurasRestricted()
             --[==[@debug@
             --D:Debug("UnitBuff", unit, BuffNameToCheck)
             --@end-debug@]==]
@@ -987,7 +1004,7 @@ do
     -- this function returns true if one of the debuff(s) passed to it is found on the specified unit
     function D:CheckUnitForBuffs(unit, BuffNamesToCheck) --{{{
 
-        if DC.TWELVE_ONE then
+        if DC.RESTRICTED_AURAS then
             D:Debug("12.1: CheckUnitForBuffs was called!", debugstack(2))
             return false
         end
@@ -1010,7 +1027,7 @@ end
 
 
 function D:CheckUnitStealth(unit)
-    if not DC.MN then -- this cannot work anymore in Midnight...
+    if not DC.RESTRICTED_AURAS then -- this cannot work anymore in Midnight...
         return self:CheckUnitForBuffs(unit, DC.IS_STEALTH_BUFF)
     else
         return false
@@ -1020,6 +1037,6 @@ end
 
 
 
-T._LoadedFiles["Decursive.lua"] = "2.9.0-RC2";
+T._LoadedFiles["Decursive.lua"] = "2.9.0-RC3";
 
 -- Sin

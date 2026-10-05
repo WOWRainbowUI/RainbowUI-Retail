@@ -41,16 +41,16 @@ if not T._LoadedFiles or not T._LoadedFiles["Dcr_DebuffsFrame.xml"] or not T._Lo
     DecursiveInstallCorrupted = true;
     return;
 end
-T._LoadedFiles["Dcr_12_1_Sounds.lua"] = not DC.MN and "2.9.0-RC2";
+T._LoadedFiles["Dcr_12_1_Sounds.lua"] = not DC.RESTRICTED_AURAS and "2.9.0-RC3";
 
 function D:Schedule_MN_SoundsRegistration(delay)
-    if DC.MN then
+    if DC.RESTRICTED_AURAS then
         D:ScheduleDelayedCall("12.1RegisterSounds", D.Refresh12_1AuraSounds, delay or 1, D)
     end
 end
 
 
-if not DC.TWELVE_ONE or not C_UnitAuras or type(C_UnitAuras.AddAuraSound) ~= "function" then
+if not DC.RESTRICTED_AURAS or not C_UnitAuras or type(C_UnitAuras.AddAuraSound) ~= "function" then
     return
 end
 
@@ -68,8 +68,8 @@ local SPELLS_BY_TYPE = {
     [DC.POISON] = {
         1294845, 1305368, 1307571, 474515, 1216590, 1234846, 1250937,
         1226031, 1289258, 1263971, 267273, 271564, 1298104, 1306763,
-        263957, 272699, 273563, 1308100, 1308148, 267027, 1303486,
-        1308546, 1301800, 1306906,
+        263957, 272699, 273563, 1308100, 1308148, 267027,
+        1301800, 1306906,
         11918 -- poison from an Elwyn forest spider I use for my tests...
     },
     [DC.DISEASE] = {
@@ -87,6 +87,70 @@ local SPELLS_BY_TYPE = {
     },
 }
 
+
+local allSpells = {}
+
+for k, s in pairs(SPELLS_BY_TYPE) do
+    for _, id in ipairs(s) do
+        allSpells[id] = k
+    end
+end
+
+
+local expectedCount = (
+        #SPELLS_BY_TYPE[DC.MAGIC]
+        + #SPELLS_BY_TYPE[DC.POISON]
+        + #SPELLS_BY_TYPE[DC.DISEASE]
+        + #SPELLS_BY_TYPE[DC.CURSE]
+        + #SPELLS_BY_TYPE[DC.BLEED]
+        )
+
+local actualCount = D:tCount(allSpells)
+
+assert(
+    actualCount == expectedCount,
+    ("Bad SPELLS_BY_TYPE table (non unique or duplicated ids): expected: %d, found: %d"):format(expectedCount, actualCount)
+)
+
+DC.KNOWN_SIDS_to_TYPES = allSpells
+DC.KNOWN_SIDS_by_TYPES = SPELLS_BY_TYPE
+
+function D:AddKnownSpellIDToSoundReg(spellID, spellType)
+
+    if spellType == DC.ENEMYMAGIC then
+        spellType = DC.MAGIC
+    end
+
+    if not SPELLS_BY_TYPE[spellType] then
+        D:Debug("AddKnownSpellIDToSoundReg bad usage: unknown type:", spellType)
+        return
+    end
+
+    if allSpells[spellID] then return end
+
+    allSpells[spellID] = spellType
+    SPELLS_BY_TYPE[spellType][#SPELLS_BY_TYPE[spellType] + 1] = spellID
+
+    D:Schedule_MN_SoundsRegistration()
+end
+
+function D:RemoveKnownSpellIDFromSoundReg(spellID)
+    if not allSpells[spellID] then return end
+
+    local spellType = allSpells[spellID]
+
+    allSpells[spellID] = nil
+
+    for i = #SPELLS_BY_TYPE[spellType], 1, -1 do
+        if SPELLS_BY_TYPE[spellType][i] == spellID then
+            table.remove(SPELLS_BY_TYPE[spellType], i)
+            break
+        end
+    end
+
+    D:Schedule_MN_SoundsRegistration()
+end
+
 local handles = {}
 
 local soundRegCache = setmetatable({}, {
@@ -103,13 +167,15 @@ local function buildDesiredRegistrations()
         return desired
     end
 
-    local cureOrder = D:GetCureOrderTable() -- key are types, values are positive number when type is enabled, false or negative number otherwise
+    local curingSpells = D.Status.CuringSpells
+    local cureOrder = D:GetCureOrderTable() -- key are types, values are positive number when type is enabled, false when not
     local soundFile = D.profile.SoundFile or DC.AfflictionSound
 
     for _, unit in ipairs(D.Status.Unit_Array) do
         for debuffType, spellIDs in pairs(SPELLS_BY_TYPE) do
-            local typePrio = cureOrder[debuffType]
-            if typePrio and typePrio > 0 then
+            local typePrioEnabledWithSpell = cureOrder[debuffType] and curingSpells[debuffType]
+
+            if typePrioEnabledWithSpell then
                 for _, spellID in ipairs(spellIDs) do
                     local key = unit .. ":" .. spellID .. ":" .. soundFile
                     if not soundRegCache[key] then
@@ -131,8 +197,8 @@ local function buildDesiredRegistrations()
 end
 
 function D:Refresh12_1AuraSounds()
-    if D:InEncounterOrCombat() then
-        D:Debug("|cFFFF0000Sound registration not possible right now... rescheduling in 5s|r")
+    if D:AurasRestricted() then
+        D:Debug("|cFFFF0000Sound registration not possible while auras are restricted... rescheduling in 5s|r")
         D:Schedule_MN_SoundsRegistration(5)
         return false
     end
@@ -173,4 +239,4 @@ function D:Refresh12_1AuraSounds()
 end
 
 
-T._LoadedFiles["Dcr_12_1_Sounds.lua"] = "2.9.0-RC2";
+T._LoadedFiles["Dcr_12_1_Sounds.lua"] = "2.9.0-RC3";

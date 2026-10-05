@@ -1,7 +1,7 @@
 --[[
     This file is part of Decursive.
 
-    Decursive (v 2.9.0-RC2) add-on for World of Warcraft UI
+    Decursive (v 2.9.0-RC3) add-on for World of Warcraft UI
     Copyright (C) 2006-2026 John Wellesz (Decursive AT 2072productions.com) ( http://www.2072productions.com/to/decursive.php )
 
     Decursive is free software: you can redistribute it and/or modify
@@ -24,7 +24,7 @@
     Decursive is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY.
 
-    This file was last updated on 2026-09-02T10:28:21Z
+    This file was last updated on 2026-10-04T20:39:26Z
 --]]
 -------------------------------------------------------------------------------
 
@@ -118,7 +118,7 @@ local DebugTextTable    = T._DebugTextTable;
 local Reported          = {};
 
 local UNPACKAGED = "@pro" .. "ject-version@";
-local VERSION = "2.9.0-RC2";
+local VERSION = "2.9.0-RC3";
 
 if not T._LoadedFiles then
     T._LoadedFiles = {};
@@ -342,7 +342,7 @@ do
         local dbclud = T.Dcr.Status and T.Dcr.Status.delayedUnDebuffOccurences or -1
 
 
-        DebugHeader = ("%s\n2.9.0-RC2  %s(%s)  CT: %0.4f D: %s %s %s DTl: %d DE: %d nDrE: %d Embeded: %s W: %d (LA: %d TAMU: %d) TA: %d NDRTA: %d BUIE: %d dbc: [d:%d-%d, u:%d-%d] TI: [dc:%d, lc:%d, y:%d, LEBY:%d, LB:%d, TTE:%u] (%s, %s, %s, %s)"):format(instructionsHeader, -- "%s\n
+        DebugHeader = ("%s\n2.9.0-RC3  %s(%s)  CT: %0.4f D: %s %s %s DTl: %d DE: %d nDrE: %d Embeded: %s W: %d (LA: %d TAMU: %d) TA: %d NDRTA: %d BUIE: %d dbc: [d:%d-%d, u:%d-%d] TI: [dc:%d, lc:%d, y:%d, LEBY:%d, LB:%d, TTE:%u] (%s, %s, %s, %s)"):format(instructionsHeader, -- "%s\n
         tostring(DC.MyClass), tostring(UnitLevel("player") or "??"), NiceTime(), date(), GetLocale(), -- %s(%s)  CT: %0.4f D: %s %s
         BugGrabber and "BG" .. (T.BugGrabber and "e" or "") or "NBG", -- %s
         #DebugTextTable / 2, -- DTl: %d
@@ -403,6 +403,24 @@ Active no case version:
             )
         end);
 
+
+        local SIDRegSuccess, SIDRegProfileData = pcall(function()
+            local D = T.Dcr;
+            local knownSIDCount = 0;
+            local result = ""
+
+            if not DC.RESTRICTED_AURAS then return "N/A (not RESTRICTED_AURAS)" end
+
+            if D.db and D.db.global and type(D.db.global.t_SpellIDsSoundReg) == "table" then
+                for _ in pairs(D.db.global.t_SpellIDsSoundReg) do
+                    knownSIDCount = knownSIDCount + 1;
+                end
+                return ("Extra Spell IDs registered for sound: %d"):format(knownSIDCount)
+            else
+                return "D.db.global.t_SpellIDsSoundReg not available or not a table"
+            end
+        end)
+
         local CSCsuccess, customSpellConfiguration = pcall(T._ExportCustomSpellConfiguration);
         local STPsuccess, spellTable = pcall(T._PrintSpellTable);
 
@@ -423,6 +441,7 @@ Active no case version:
         .. table.concat(T._DebugTextTable, "")
         .. SEP .. "Bleed Conf:\n" .. bleedConfiguration .. SEP
         .. "Action Conf:\n" .. actionsConfiguration .. SEP -- (Spells assignments:)
+        .. "Spell id sound registration:\n" .. SIDRegProfileData .. SEP
         .. "Custom Spell Conf:\n" .. customSpellConfiguration .. SEP
         .. "Decursive known spells:\n" .. spellTable .. SEP
         .. "Script ran too long errors:\n" .. SRTOLErrors .. SEP
@@ -673,17 +692,27 @@ local _, _, _, tocversion = GetBuildInfo();
 T._CatchAllErrors = false;
 T._tocversion = tocversion;
 
-DC.WOWC = WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE
+
+-- WOW Flavors variable
+-- Notes on proper usage: they should be used to differentiate between spell
+-- registration or specific game mechanics NOT API compatibilities to the
+-- extent where this is possible
+
+-- WoW Forever (Camelot) reports WOW_PROJECT_MAINLINE because it runs on the
+-- modern client with the same restrictions as the 12.1 retail, but its classes, spells and ranks follow Classic rules.
+DC.FOREVER = tocversion >= 16000 and tocversion < 20000
+DC.WOWC = DC.FOREVER or WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE
 -- Titan Reforged uses 38xxx TOCs but follows WotLK class and spell behavior.
 DC.TITAN = tocversion >= 38000 and tocversion < 40000
 DC.WOTLK = DC.TITAN or (WOW_PROJECT_WRATH_CLASSIC ~= nil and WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC) -- https://wowpedia.fandom.com/wiki/WOW_PROJECT_ID
 DC.CATACLYSM = not DC.TITAN and WOW_PROJECT_CATACLYSM_CLASSIC ~= nil and WOW_PROJECT_ID >= WOW_PROJECT_CATACLYSM_CLASSIC
 DC.TWW = tocversion >= 110000
-DC.MN = tocversion >= 120000
+DC.MN = tocversion >= 120000 -- this is used to differentiate specificities
+-- Forever uses the same restricted aura system as Midnight despite its 16xxx
 DC.BCC = tocversion >= 20505 and tocversion < 30000
 DC.MOP = tocversion >= 50504 and tocversion < 60000
-DC.TWELVE_ONE = tocversion >= 120100
 
+DC.RESTRICTED_AURAS = DC.FOREVER or DC.MN
 
 
 function T._DecursiveErrorHandler(err, ...)
@@ -1001,7 +1030,7 @@ do
             ["AceAddon-3.0"] = 13,
             ["AceComm-3.0"] = 14,
             ["AceConsole-3.0"] = 7,
-            ["AceDB-3.0"] = 29,
+            ["AceDB-3.0"] = 36,
             ["AceDBOptions-3.0"] = 15,
             ["AceEvent-3.0"] = 4,
             ["AceHook-3.0"] = 9,
@@ -1048,8 +1077,8 @@ do
             LibraryIssues = true;
         end
 
-        local DcrMinTOC = tonumber(GetAddOnMetadata("Decursive", "X-Min-Interface") or 11508); -- once GetAddOnMetadata() was bugged and returned nil...
-        local DcrMinMidTOC = tonumber(GetAddOnMetadata("Decursive", "X-Mid-Interface") or 50503);
+        local DcrMinTOC = tonumber(GetAddOnMetadata("Decursive", "X-Min-Interface") or 11509); -- once GetAddOnMetadata() was bugged and returned nil...
+        local DcrMinMidTOC = tonumber(GetAddOnMetadata("Decursive", "X-Mid-Interface") or 50504);
 
         -- test if Decursive is backward compatible with the client's version
         -- Allow supported WotLK-compatible clients in the mid-classic version gap.
@@ -1218,4 +1247,4 @@ do
     end
 end
 
-T._LoadedFiles["Dcr_DIAG.lua"] = "2.9.0-RC2";
+T._LoadedFiles["Dcr_DIAG.lua"] = "2.9.0-RC3";
