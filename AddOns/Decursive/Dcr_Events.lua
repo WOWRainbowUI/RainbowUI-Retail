@@ -1,7 +1,7 @@
 --[[
     This file is part of Decursive.
 
-    Decursive (v 2.9.0-RC2) add-on for World of Warcraft UI
+    Decursive (v 2.9.0-RC3) add-on for World of Warcraft UI
     Copyright (C) 2006-2026 John Wellesz (Decursive AT 2072productions.com) ( http://www.2072productions.com/to/decursive.php )
 
     Decursive is free software: you can redistribute it and/or modify
@@ -24,7 +24,7 @@
     Decursive is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY.
 
-    This file was last updated on 2026-09-06T16:14:35Z
+    This file was last updated on 2026-09-25T15:08:00Z
 --]]
 -------------------------------------------------------------------------------
 
@@ -377,7 +377,7 @@ end--}}}
 
 do
     local currentState = {}
-    if DC.MN then
+    if DC.RESTRICTED_AURAS then
 
         -- Observation on 2026-02-22: S_Active is never fired, only S_Activating is.
         -- The current state can be queried with GetAddOnRestrictionState which
@@ -423,8 +423,19 @@ do
         return currentState
     end;
 
+    local Combat        = Enum.AddOnRestrictionType.Combat
+    local Encounter     = Enum.AddOnRestrictionType.Encounter
+    local ChallengeMode = Enum.AddOnRestrictionType.ChallengeMode
+    local PvPMatch      = Enum.AddOnRestrictionType.PvPMatch
+
+    assert(Combat and Encounter and ChallengeMode and PvPMatch)
+
     function D:InEncounterOrCombat()
-        return currentState[Enum.AddOnRestrictionType.Combat] ~= 0 or currentState[Enum.AddOnRestrictionType.Encounter] ~= 0
+        return currentState[Combat] ~= 0 or currentState[Encounter] ~= 0
+    end
+
+    function D:AurasRestricted()
+        return DC.RESTRICTED_AURAS and (D:InEncounterOrCombat() or currentState[ChallengeMode] ~= 0 or currentState[PvPMatch] ~= 0)
     end
 end
 
@@ -475,7 +486,7 @@ function D:PLAYER_TARGET_CHANGED()
     if UnitExists("target") and not UnitCanAttack("player", "target") then
         D.Status.TargetExists = true;
 
-        if not DC.TWELVE_ONE then -- impossible to do it this way in 12.1
+        if not DC.RESTRICTED_AURAS then -- Done using Blizzard's special aura container API
             self.LiveList:DelayedGetDebuff("target");
             self.Stealthed_Units["target"] = self:CheckUnitStealth("target")
         end
@@ -601,8 +612,7 @@ do
         --@end-debug@]==]
 
 
-        -- defunct code in midnight, leave it here for now
-        if DC.MN and false then -- classic versioins still use CLEU and although they support UNIT_AURA as well CLEU provides more features
+        if not D:AurasRestricted() then -- classic versions still use CLEU and although they support UNIT_AURA as well CLEU provides more features
             if o_auraUpdateInfo.removedAuraInstanceIDs then
                 self:checkForDebuff(UnitID)
 
@@ -702,7 +712,7 @@ do
                 return;
             end
 
-            if not self.profile.HideLiveList and not DC.MN then
+            if not self.profile.HideLiveList then
                 self.LiveList:DelayedGetDebuff(UnitID, o_auraUpdateInfo);
             end
         end
@@ -1290,6 +1300,6 @@ do
     end
 end
 
-T._LoadedFiles["Dcr_Events.lua"] = "2.9.0-RC2";
+T._LoadedFiles["Dcr_Events.lua"] = "2.9.0-RC3";
 
 -- The Great Below

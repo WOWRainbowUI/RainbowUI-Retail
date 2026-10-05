@@ -1,7 +1,7 @@
 --[[
     This file is part of Decursive.
 
-    Decursive (v 2.9.0-RC2) add-on for World of Warcraft UI
+    Decursive (v 2.9.0-RC3) add-on for World of Warcraft UI
     Copyright (C) 2006-2026 John Wellesz (Decursive AT 2072productions.com) ( http://www.2072productions.com/to/decursive.php )
 
     Decursive is free software: you can redistribute it and/or modify
@@ -24,7 +24,7 @@
     Decursive is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY.
 
-    This file was last updated on 2026-09-06T17:24:10Z
+    This file was last updated on 2026-09-27T22:00:37Z
 --]]
 -------------------------------------------------------------------------------
 
@@ -98,7 +98,6 @@ local InCombatLockdown  = _G.InCombatLockdown;
 local GetItemInfo           = _G.C_Item and _G.C_Item.GetItemInfo or _G.GetItemInfo;
 local GetSpellInfo          = _G.C_Spell and _G.C_Spell.GetSpellInfo or _G.GetSpellInfo;
 local GetSpellName          = _G.C_Spell and _G.C_Spell.GetSpellName or function (spellId) return (GetSpellInfo(spellId)) end;
-local GetSpellDescription = _G.C_Spell and _G.C_Spell.GetSpellDescription or _G.GetSpellDescription;
 local GetSpecialization = _G.GetSpecialization or (GetActiveTalentGroup or function () return nil; end);
 local GetAddOnMetadata  = _G.C_AddOns and _G.C_AddOns.GetAddOnMetadata or _G.GetAddOnMetadata;
 local _;
@@ -184,7 +183,7 @@ function D:GetDefaultsSettings()
                 "ctrl-%s3",
             },
             BleedAutoDetection = true,
-            t_BleedEffectsIDCheck = {
+            t_BleedEffectsIDCheck = DC.MN and {
                 [396007] = true, -- Vicious Peck
                 [396093] = true, -- Savage Leap
                 [193092] = true, -- Bloodletting Sweep
@@ -199,7 +198,8 @@ function D:GetDefaultsSettings()
                 [393444] = true, -- Gushing Wound
                 [413131] = true, -- Whirling Dagger
                 [413136] = true, -- Whirling Dagger
-            },
+            } or {},
+            t_SpellIDsSoundReg = {},
             -- The time between each MUF update
             DebuffsFrameRefreshRate = 0.10,
 
@@ -1299,6 +1299,7 @@ local function GetStaticOptions ()
                                 set = function(info,v)
                                     D.SetHandler(info, 1 - v);
                                     D.profile.DebuffsFrameElemBorderAlpha = (1 - v) / 2;
+                                    D:SetColorCurve() -- necessary to update the stealth color curve
                                 end,
                                 disabled = function() return D.Status.Combat or not D.profile.DebuffsFrameElemTieTransparency end,
                                 min = 0,
@@ -1747,6 +1748,8 @@ local function GetStaticOptions ()
                                 set = function(info, v)
                                     D.db.global.t_BleedEffectsIDCheck[TN(v)] = true;
                                     D.Status.t_CheckBleedDebuffsActiveIDs[TN(v)] = true;
+
+                                    D:updateBleedEffectSoundRegistrations()
                                 end,
                                 validate = function(info, v)
                                     return TN(v) ~= nil and C_Spell.DoesSpellExist(TN(v)) and 0 or D:ColorPrint(1, 0, 0, L["OPT_BLEED_EFFECT_BAD_SPELLID"]);
@@ -1975,7 +1978,7 @@ local function GetStaticOptions ()
                                     "\n\n|cFFDDDD00 %s|r:\n   %s"..
                                     "\n\n|cFFDDDD00 %s|r:\n   %s\n\n   %s"
                                 ):format(
-                                    "2.9.0-RC2", "John Wellesz", ("2026-09-07T07:43:30Z"):sub(1,10),
+                                    "2.9.0-RC3", "John Wellesz", ("2026-10-04T22:37:08Z"):sub(1,10),
                                     L["ABOUT_NOTES"],
                                     L["ABOUT_LICENSE"],         GetAddOnMetadata("Decursive", "X-License") or 'All Rights Reserved',
                                     L["ABOUT_SHAREDLIBS"],      GetAddOnMetadata("Decursive", "X-Embeds")  or 'GetAddOnMetadata() failure',
@@ -2297,7 +2300,7 @@ end
 
 function D:SetColorCurve()
 
-    if DC.MN then
+    if DC.RESTRICTED_AURAS then
         local mfc = D.profile.MF_colors
         local dsc = D.Status.dsCurve
         local dtToBT = DC.DTtoBT
@@ -2366,8 +2369,13 @@ function D:SetColorCurve()
 
         -- update the static stealth color curve
         local sdsc = D.Status.stealthCurve
+        local adjustedStealthColor = {}
+        D:tcopy(adjustedStealthColor, mfc[DC.STEALTHED])
+        -- apply the transparency plus a little more to compensate for the default status that cannot go away
+        adjustedStealthColor[4] = adjustedStealthColor[4] * D.profile.DebuffsFrameElemAlpha * .87
+        D:Debug("setting stealth cc, alpha:", adjustedStealthColor[4] )
         sdsc:ClearPoints()
-        sdsc:AddPoint(0, D:NumToColorMixin(mfc[DC.STEALTHED]))
+        sdsc:AddPoint(0, D:NumToColorMixin(adjustedStealthColor))
     end
 
 end
@@ -2651,7 +2659,7 @@ do -- All this block predates Ace3, it could be recoded in a much more effecicen
         classes["header2"] = {
             type = "description",
             name = function ()
-                local spellDesc = GetSpellDescription(spellID);
+                local spellDesc = D.spell_desc_cache[spellID];
                 local desc;
 
                 --D:Debug("Dealing with spell description for ", spellID);
@@ -2716,7 +2724,7 @@ do -- All this block predates Ace3, it could be recoded in a much more effecicen
             },
             get = "get",
             set = "set",
-            hidden = DC.MN,
+            hidden = DC.RESTRICTED_AURAS,
             order = 100 + num
         };
 
@@ -2791,7 +2799,7 @@ do -- All this block predates Ace3, it could be recoded in a much more effecicen
     local AddFunc = function (spellID)
         local newDebuff = GetSpellName(spellID);
         if newDebuff then
-            if DC.MN and C_Secrets.GetSpellAuraSecrecy(spellID) ~= Enum.SecrecyLevel.NeverSecret then
+            if DC.RESTRICTED_AURAS and C_Secrets.GetSpellAuraSecrecy(spellID) ~= Enum.SecrecyLevel.NeverSecret then
                 error("Can't add debuff, not a 'Never secret' spellID:", spellID);
             else
                 DebuffsSkipList[newDebuff] = spellID;
@@ -3612,36 +3620,6 @@ do
     local t_CheckBleedDebuffsActiveIDs = {};
     local noCasekeywordPatterns = "";
 
-    local tw_spell_desc_cache = setmetatable({}, {
-        __index = function(table, spellID)
-            --D:Debug("metatable __index called with ", spellID);
-            local desc = C_Spell.DoesSpellExist(spellID) and GetSpellDescription(spellID) or L["OPT_BLEED_EFFECT_UNKNOWN_SPELL"]:format(spellID);
-
-            if desc ~= "" then
-                table[spellID] = desc;
-            elseif not C_Spell.IsSpellDataCached(spellID) then
-                C_Spell.RequestLoadSpellData(spellID);
-                desc =  L["OPT_SPELL_DESCRIPTION_LOADING"];
-
-                D:Debug("delayed Bleed Effect option panel refresh scheduled because of spellID: ", spellID);
-                D:ScheduleDelayedCall("refreshBleedEffectList", function () LibStub("AceConfigRegistry-3.0"):NotifyChange(D.name) end, 2);
-
-            else
-                desc = L["OPT_SPELL_DESCRIPTION_UNAVAILABLE"];
-                table[spellID] = desc;
-            end
-            --D:Debug("metatable __index called with ", spellID, "desc:", desc);
-            return desc;
-        end;
-    });
-
-    local tw_spell_name_cache = setmetatable({}, {
-        __index = function(table, spellID)
-            local spellName = C_Spell.DoesSpellExist(spellID) and D.GetSpellOrItemInfo(spellID) or false;
-            table[spellID] = spellName;
-            return spellName;
-        end
-    });
     local order = 0;
 
     function D:hasDescBleedEffectkeyword(desc, test_pattern, testAll)
@@ -3679,8 +3657,8 @@ do
     end
 
     local function GetBleedEffectColoredName(spellID) -- {{{
-        local descHasID = D:hasDescBleedEffectkeyword(tw_spell_desc_cache[spellID]);
-        local name = tw_spell_name_cache[spellID];
+        local descHasID = D:hasDescBleedEffectkeyword(D.spell_desc_cache[spellID]);
+        local name = D.spell_name_cache[spellID];
         local color = 'FFFFFFFF';
 
         if name then
@@ -3712,7 +3690,7 @@ do
             desc = {
                 type = 'description',
                 name = function (info)
-                    return higlightkeywords(tw_spell_desc_cache[TN(info[#info - 1])])
+                    return higlightkeywords(D.spell_desc_cache[TN(info[#info - 1])])
                 end,
                 order = 10,
             },
@@ -3723,6 +3701,8 @@ do
                 set = function(info, v)
                     t_BleedEffectsIDCheck[TN(info[#info - 1])] = v;
                     t_CheckBleedDebuffsActiveIDs[TN(info[#info - 1])] = v;
+
+                    D:updateBleedEffectSoundRegistrations()
 
                     return t_BleedEffectsIDCheck[TN(info[#info - 1])];
                 end,
@@ -3741,8 +3721,10 @@ do
                 func = function (info)
                     local toRemove = TN(info[#info - 1]);
                     t_BleedEffectsIDCheck[toRemove] = t_DefaultBleedEffectsIDCheck[toRemove] and -1 or nil;
-                    D:Debug('XXXX',t_BleedEffectsIDCheck[toRemove]  );
+                    D:Debug('XXXX',t_BleedEffectsIDCheck[toRemove]);
                     t_CheckBleedDebuffsActiveIDs[toRemove] = nil;
+
+                    if DC.RESTRICTED_AURAS then D:RemoveKnownSpellIDFromSoundReg(toRemove) end
                 end,
                 order = 30,
             },
@@ -3797,6 +3779,8 @@ do
                 D.Status.t_CheckBleedDebuffsActiveIDs[spellID] = isBleed;
             end
         end
+
+        D:updateBleedEffectSoundRegistrations()
     end
 
     function D:GetDefaultBleedEffectsKeywords()
@@ -3829,6 +3813,22 @@ do
         for spellID, isBleed in pairs(defaults) do
             t_BleedEffectsIDCheck[spellID] = isBleed;
             t_CheckBleedDebuffsActiveIDs[spellID] = isBleed;
+        end
+
+        D:updateBleedEffectSoundRegistrations()
+    end
+
+    function D:updateBleedEffectSoundRegistrations()
+        if not DC.RESTRICTED_AURAS then return end
+
+        local t_BleedEffectsIDCheck = D.db.global.t_BleedEffectsIDCheck;
+
+        for spellID, isBleed in pairs(t_BleedEffectsIDCheck) do
+            if not isBleed or isBleed == -1 then
+                D:RemoveKnownSpellIDFromSoundReg(spellID)
+            else
+                D:AddKnownSpellIDToSoundReg(spellID, DC.BLEED)
+            end
         end
     end
 end
@@ -3969,7 +3969,20 @@ function D:QuickAccess (CallingObject, button) -- {{{
 
 end -- }}}
 
+function D:registerHistoryDebuffForSound()
+    if not DC.RESTRICTED_AURAS then return end
 
-T._LoadedFiles["Dcr_opt.lua"] = "2.9.0-RC2";
+    local t_SpellIDsSoundReg = D.db.global.t_SpellIDsSoundReg
+
+    for spellID, regInfo in pairs(t_SpellIDsSoundReg) do
+        if regInfo.enabled then
+           D:AddKnownSpellIDToSoundReg(spellID, regInfo.spellType)
+        else
+            D:RemoveKnownSpellIDFromSoundReg(spellID)
+        end
+    end
+end
+
+T._LoadedFiles["Dcr_opt.lua"] = "2.9.0-RC3";
 
 -- Closer

@@ -1,7 +1,7 @@
 --[[
     This file is part of Decursive.
 
-    Decursive (v 2.9.0-RC2) add-on for World of Warcraft UI
+    Decursive (v 2.9.0-RC3) add-on for World of Warcraft UI
     Copyright (C) 2006-2026 John Wellesz (Decursive AT 2072productions.com) ( http://www.2072productions.com/to/decursive.php )
 
     Decursive is free software: you can redistribute it and/or modify
@@ -24,7 +24,7 @@
     Decursive is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY.
 
-    This file was last updated on 2026-08-28T15:57:06Z
+    This file was last updated on 2026-09-25T15:08:00Z
 --]]
 -------------------------------------------------------------------------------
 
@@ -56,7 +56,7 @@ T._LoadedFiles["Dcr_utils.lua"] = false;
 
 local D = T.Dcr;
 
---local L = D.L;
+local L = D.L;
 --local LC = D.LC;
 local DC = T._C;
 
@@ -385,6 +385,15 @@ function D:tcopy(to, from)   -- "to" must be a table (possibly empty)
             to[k] = v;
         end
     end
+end
+
+function D:tCount(t)
+    local c = 0
+    for _ in pairs(t) do
+        c = c + 1
+    end
+
+    return c
 end
 
 
@@ -741,7 +750,7 @@ function D:isSpellReady(spellID, isPetAbility)
     end
 
     -- in wow classic flavors, the 'display all ranks' option in the spell book UI changes the output of the IsSpellKnown() function...
-    if DC.WOWC and not DC.CATACLYSM and (isPetAbility or not IsSpellKnownOrOverridesKnown(spellID, isPetAbility)) then
+    if DC.WOWC and not DC.CATACLYSM and (isPetAbility or not IsSpellKnownOrOverridesKnown(spellID, isPetAbility)) then -- TODO: check if this works in WoW Forever...
         -- Former ranks of known pet spell abilities are lost in WoW classic
         -- so we need to get back to the corresponding current spell id using
         -- the name of the spell.
@@ -1155,4 +1164,59 @@ do
         return nocase:trim();
     end
 end
-T._LoadedFiles["Dcr_utils.lua"] = "2.9.0-RC2";
+
+do
+    local GetSpellDescription = _G.C_Spell and _G.C_Spell.GetSpellDescription or _G.GetSpellDescription;
+    local GetSpellName        = _G.C_Spell and _G.C_Spell.GetSpellName or function (spellId) return (GetSpellInfo(spellId)) end;
+
+    -- spell description cache table
+    D.spell_desc_cache = setmetatable({}, {
+        __index = function(table, spellID)
+            local spellExists = C_Spell.DoesSpellExist(spellID)
+
+            local desc = ""
+
+            if spellExists then
+                desc = GetSpellDescription(spellID)
+            else
+                desc = L["OPT_BLEED_EFFECT_UNKNOWN_SPELL"]:format(spellID)
+            end
+
+            --[==[@debug@
+            D:Debug("metatable __index called with ", spellID, "desc nil?", desc == nil, "desc empty?", desc == "", "desc type:", type(desc));
+            --@end-debug@]==]
+
+            if desc and desc ~= "" then -- it used to return an empty string when the desc was not available yet, now it seems to return nil in Midnight but not in Classic...
+                table[spellID] = desc;
+            elseif not C_Spell.IsSpellDataCached(spellID) then
+                C_Spell.RequestLoadSpellData(spellID);
+                desc =  L["OPT_SPELL_DESCRIPTION_LOADING"];
+
+                if not InCombatLockdown() then
+                    D:Debug("Delayed Bleed Effect option panel refresh scheduled because of spellID: ", spellID);
+                    D:ScheduleDelayedCall("refreshBleedEffectList", function () LibStub("AceConfigRegistry-3.0"):NotifyChange(D.name) end, 2);
+                end
+
+            else -- can happen, not sure why...
+                desc = L["OPT_SPELL_DESCRIPTION_UNAVAILABLE"];
+                table[spellID] = desc;
+            end
+
+            --D:Debug("metatable __index called with ", spellID, "desc:", desc);
+            return desc;
+        end;
+    });
+
+    -- spell name cache table
+    D.spell_name_cache = setmetatable({}, {
+        __index = function(table, spellID)
+            local spellName = C_Spell.DoesSpellExist(spellID) and D.GetSpellOrItemInfo(spellID) or false;
+            table[spellID] = spellName;
+            return spellName;
+        end
+    });
+
+
+end
+
+T._LoadedFiles["Dcr_utils.lua"] = "2.9.0-RC3";
