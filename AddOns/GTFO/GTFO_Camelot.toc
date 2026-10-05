@@ -11,15 +11,15 @@
 ## X-Wago-ID: PANz0MK4
 ## IconTexture: Interface\Icons\spell_fire_fire
 Localization\enUS.lua
-Localization\esES.lua
-Localization\esMX.lua
-Localization\deDE.lua
-Localization\frFR.lua
-Localization\ruRU.lua
+
+
+
+
+
 Localization\zhCN.lua
 Localization\zhTW.lua
-Localization\koKR.lua
-Localization\ptBR.lua
+
+
 Localization\Boss.lua
 GTFO.lua
 Spells\GTFO_Ignore.lua
