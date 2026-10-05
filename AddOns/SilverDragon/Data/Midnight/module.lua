@@ -7,12 +7,12 @@ end
 
 local core = LibStub("AceAddon-3.0"):GetAddon("SilverDragon")
 
-ns.BeginDataModule("Midnight")
+ns.BeginDataModule("至暗之夜")
 ns.MAXLEVEL = ns.conditions.Level(90)
 
 -- Treasures
 
-core:RegisterTreasureData("Midnight", {
+core:RegisterTreasureData("至暗之夜", {
 	-- Junk
 	-- Technically these contain some healing potions, grey gear, profession knowledge weekly items, and housing dyes
 	-- Eversong
@@ -58,7 +58,7 @@ core:RegisterTreasureData("Midnight", moths, true)
 
 -- Rares
 
-core:RegisterMobData("Midnight", {
+core:RegisterMobData("至暗之夜", {
 	-- World bosses
 	[244762] = {
 		name="Lu'ashal",

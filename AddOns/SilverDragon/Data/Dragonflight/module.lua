@@ -7,7 +7,7 @@ end
 
 local core = LibStub("AceAddon-3.0"):GetAddon("SilverDragon")
 
-ns.BeginDataModule("Dragonflight")
+ns.BeginDataModule("巨龍崛起")
 
 -- Rares
 

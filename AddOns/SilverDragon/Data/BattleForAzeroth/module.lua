@@ -7,7 +7,7 @@ end
 
 local core = LibStub("AceAddon-3.0"):GetAddon("SilverDragon")
 
-ns.BeginDataModule("BattleForAzeroth")
+ns.BeginDataModule("決戰艾澤拉斯")
 
 local ULDUM_NZOTH = core.conditions.WorldQuestActive(57157)
 

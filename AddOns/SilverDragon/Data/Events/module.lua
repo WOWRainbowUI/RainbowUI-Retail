@@ -8,7 +8,7 @@ local core = LibStub("AceAddon-3.0"):GetAddon("SilverDragon")
 local ANNIVERSARY = core.conditions.CalendarEventStartTexture(6238552)
 local GREEDY = core.conditions.AuraActive(1250685) -- core.conditions.CalendarEvent(1382)
 
-core:RegisterMobData("Events", {
+core:RegisterMobData("事件", {
     -- Anniversary
     [121818] = {name="Lord Kazzak",locations={[17]={33804860},},loot={150379,150380,150381,150382,150383,150384,150385,150386,150426,150427},quest=47461,vignette=6661,requires=ANNIVERSARY,},
     [121820] = {name="Azuregos",locations={[76]={49608260},},loot={150417,150419,150421,150422,150423,150424,150425,150428,150543,150544,150545},quest=47462,vignette=6660,requires=ANNIVERSARY,},
