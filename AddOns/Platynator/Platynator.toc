@@ -1,6 +1,6 @@
 ## Interface: 120100, 16001, 50504, 38001, 20506, 11509
 ## Title: Platynator
-## Version: 493
+## Version: 495
 ## Author: plusmouse
 ## SavedVariables: PLATYNATOR_CONFIG
 ## SavedVariablesPerCharacter: PLATYNATOR_CURRENT_PROFILE, PLATYNATOR_LAST_INSTANCE
@@ -75,6 +75,7 @@ Display/FocusHighlight.lua
 Display/MouseoverHighlight.lua
 Display/FixedHighlight.lua
 Display/AnimatedHighlight.lua
+Display/FlashingHighlight.lua
 Display/QuestMarker.lua
 Display/CannotInterruptMarker.lua
 Display/CastIconMarker.lua

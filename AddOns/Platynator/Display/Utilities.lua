@@ -433,27 +433,17 @@ do
     end
 
   elseif addonTable.Constants.IsForever then
-    if playerClass == "WARRIOR" then
-      GetPlayerRole = function()
-        if GetShapeshiftForm() == 2 then
-          return roleType.Tank
-        end
-        return roleType.Damage
+    local roleMap = {
+      ["DAMAGER"] = roleType.Damage,
+      ["TANK"] = roleType.Tank,
+      ["HEALER"] = roleType.Healer,
+    }
+
+    GetPlayerRole = function()
+      if UnitHasEffectivelyTankAura("player") then
+        return roleType.Tank
       end
-    elseif playerClass == "DRUID" then
-      GetPlayerRole = function()
-        if GetShapeshiftForm() == 1 then
-          return roleType.Tank
-        end
-        return roleType.Damage
-      end
-    else
-      GetPlayerRole = function()
-        if UnitHasEffectivelyTankAura("player") then
-          return roleType.Tank
-        end
-        return roleType.Damage
-      end
+      return roleMap[UnitGroupRolesAssigned("player")] or roleType.Damage
     end
 
   else
@@ -516,6 +506,8 @@ do
       elseif playerClass == "PALADIN" then
         specializationMonitor:RegisterUnitEvent("UNIT_AURA", "player")
       end
+      specializationMonitor:RegisterEvent("PLAYER_ROLES_ASSIGNED")
+      specializationMonitor:RegisterEvent("GROUP_ROSTER_UPDATE")
 
     elseif C_EventUtils.IsEventValid("PLAYER_SPECIALIZATION_CHANGED") then
       specializationMonitor:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
@@ -803,5 +795,15 @@ do
 
   function addonTable.Display.Utilities.GetAuraNumericFormatter()
     return auraFormatter, auraPlainFormatter
+  end
+end
+
+do
+  local curve = C_CurveUtil.CreateCurve()
+  curve:AddPoint(0.9999999, 1)
+  curve:AddPoint(1, 0)
+
+  function addonTable.Display.Utilities.Get01HiddenCurve()
+    return curve
   end
 end

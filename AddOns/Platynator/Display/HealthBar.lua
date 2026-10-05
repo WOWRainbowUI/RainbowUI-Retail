@@ -1,6 +1,8 @@
 ---@class addonTablePlatynator
 local addonTable = select(2, ...)
 
+local curve = addonTable.Display.Utilities.Get01HiddenCurve()
+
 addonTable.Display.HealthBarMixin = {}
 
 function addonTable.Display.HealthBarMixin:PostInit()
@@ -12,6 +14,7 @@ function addonTable.Display.HealthBarMixin:PostInit()
   self.calculator:SetDamageAbsorbClampMode(Enum.UnitDamageAbsorbClampMode.MaximumHealth)
 
   self.animate = self.details.animate and Enum.StatusBarInterpolation.ExponentialEaseOut or Enum.StatusBarInterpolation.Immediate
+  self.isMarkerShown = self.marker:IsShown()
 end
 
 function addonTable.Display.HealthBarMixin:SetUnit(unit)
@@ -50,19 +53,18 @@ function addonTable.Display.HealthBarMixin:Strip()
 
 end
 
-function addonTable.Display.HealthBarMixin:SetColor(...)
-  self.statusBar:GetStatusBarTexture():SetVertexColor(...)
-  self.statusBarCutaway:GetStatusBarTexture():SetVertexColor(...)
+function addonTable.Display.HealthBarMixin:SetColor(r, g, b, a)
+  self.statusBar:GetStatusBarTexture():SetVertexColor(r, g, b)
+  self.statusBarCutaway:GetStatusBarTexture():SetVertexColor(r, g, b)
   if self.details.background.applyColor then
     local mod = self.details.background.color
     if self.modColors then
       self.background:SetVertexColor(addonTable.Display.GetColor(self.modColors, self.colorState, self.unit))
     else
-      local r, g, b = ...
       self.background:SetVertexColor(r, g, b, mod.a)
     end
   end
-  self.marker:SetVertexColor(...)
+  self.marker:SetVertexColor(r, g, b)
 end
 
 function addonTable.Display.HealthBarMixin:UpdateHealth()
@@ -78,6 +80,10 @@ function addonTable.Display.HealthBarMixin:UpdateHealth()
   self.statusBarAbsorb:SetValue(absorbs, self.animate)
   self.newHealth = self.calculator:GetCurrentHealth()
   self.statusBar:SetValue(self.newHealth, self.animate)
+
+  if self.isMarkerShown then
+    self:SetMarkerAlpha(self.calculator:EvaluateCurrentHealthPercent(curve))
+  end
 end
 
 function addonTable.Display.HealthBarMixin:OnEvent(eventName)

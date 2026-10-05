@@ -303,6 +303,25 @@ addonTable.CustomiseDialog.DesignWidgets = {
     },
   },
   {
+    name = addonTable.Locales.FLASHING,
+    kind = "highlights",
+    default = {
+      anchor = {"TOPLEFT", -140, 50},
+      kind = "flashing",
+      asset = "Platy: Feathered",
+      sliced = true,
+      height = 1.1,
+      width = 1,
+      color = GetColor("AAAAAA", 1),
+      autoColors = {
+        CopyTable(addonTable.CustomiseDialog.ColorsConfig["importantCast"].default),
+      },
+      scale = 1,
+      layer = 0,
+      speed = 1,
+    },
+  },
+  {
     name = addonTable.Locales.AURAS,
     special = "header",
   },
