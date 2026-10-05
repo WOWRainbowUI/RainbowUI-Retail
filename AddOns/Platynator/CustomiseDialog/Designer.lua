@@ -1381,7 +1381,7 @@ function addonTable.CustomiseDialog.GetMainDesigner(parent)
         end
       elseif w.kind == "highlights" then
         w:Show()
-        if w.details.kind == "animatedBorder" then
+        if w.details.kind == "animatedBorder" or w.details.kind == "flashing" then
           w.Animation:Play()
         end
       end

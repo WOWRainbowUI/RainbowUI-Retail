@@ -39,6 +39,9 @@ addonTable.Constants = {
   StackRegionColor = CreateColor(198/255, 0/255, 0/255, 0.3),
   StackRegionBorderColor = CreateColor(104/255, 0/255, 0/255),
 }
+
+addonTable.Constants.IsClassic = addonTable.Constants.IsClassic and not addonTable.Constants.IsForever
+
 addonTable.Constants.Events = {
   "SettingChanged",
   "RefreshStateChange",

@@ -382,6 +382,7 @@ local defaultHighlight = {
 }
 
 local mouseoverHighlight = CopyTable(defaultHighlight)
+table.insert(mouseoverHighlight.entries, { kind = "spacer" })
 table.insert(mouseoverHighlight.entries,
   {
     label = addonTable.Locales.INCLUDE_TARGET,
@@ -391,6 +392,40 @@ table.insert(mouseoverHighlight.entries,
     end,
     getter = function(details)
       return details.includeTarget
+    end,
+  }
+)
+
+local animatedBorderHighlight = CopyTable(defaultHighlight)
+table.insert(animatedBorderHighlight.entries, { kind = "spacer" })
+table.insert(animatedBorderHighlight.entries,
+  {
+    label = addonTable.Locales.BORDER_WIDTH,
+    kind = "slider",
+    min = 50, max = 500,
+    valuePattern = "%d%%",
+    setter = function(details, value)
+      details.borderWidth = value / 100
+    end,
+    getter = function(details)
+      return details.borderWidth * 100
+    end,
+  }
+)
+
+local flashingHighlight = CopyTable(defaultHighlight)
+table.insert(flashingHighlight.entries, { kind = "spacer" })
+table.insert(flashingHighlight.entries,
+  {
+    label = addonTable.Locales.SPEED,
+    kind = "slider",
+    min = 10, max = 500,
+    valuePattern = "%d%%",
+    setter = function(details, value)
+      details.speed = value / 100
+    end,
+    getter = function(details)
+      return details.speed * 100
     end,
   }
 )
@@ -749,6 +784,21 @@ addonTable.CustomiseDialog.WidgetsConfig = {
       },
     },
     ["health"] = {
+      {
+        label = addonTable.Locales.GENERAL,
+        entries = {
+          {
+            label = addonTable.Locales.HIDE_WHEN_01,
+            kind = "checkbox",
+            setter = function(details, value)
+              details.hideWhen01 = value
+            end,
+            getter = function(details)
+              return details.hideWhen01
+            end,
+          },
+        },
+      },
       {
         label = addonTable.Locales.VALUES,
         entries = {
@@ -1728,24 +1778,25 @@ addonTable.CustomiseDialog.WidgetsConfig = {
       },
     },
     ["animatedBorder"] = {
-      defaultHighlight,
+      animatedBorderHighlight,
       {
-        label = addonTable.Locales.GENERAL,
+        label = addonTable.Locales.COLORS,
         entries = {
           {
-            label = addonTable.Locales.BORDER_WIDTH,
-            kind = "slider",
-            min = 50, max = 500,
-            valuePattern = "%d%%",
-            setter = function(details, value)
-              details.borderWidth = value / 100
-            end,
+            label = "",
+            kind = "autoColors",
+            lockedElements = {},
+            addAlpha = true,
+            setter = function() end,
             getter = function(details)
-              return details.borderWidth * 100
+              return details.autoColors
             end,
           },
-        }
+        },
       },
+    },
+    ["flashing"] = {
+      flashingHighlight,
       {
         label = addonTable.Locales.COLORS,
         entries = {
