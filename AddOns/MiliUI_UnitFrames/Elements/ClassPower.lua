@@ -5,6 +5,8 @@
 -- 每一列自己決定長相：
 --   pip  分段（點數型：聖能／連擊點數／真氣／碎片／充能／精華／符文，以及光環堆疊型）
 --   bar  連續長條（怒氣／能量／集中值／符文能量／星能／元能／狂亂值／復仇之怒）
+-- 點數型裡「正在累積的那一格」畫部分填充、暗一階：符文回充、精華回充、毀滅術的碎片片段
+-- （後兩者只在讀得到明文時畫，秘密時退回整數）
 --
 -- ⚠ **不做法力**：法力已經有單位框自己的能量條（mpbar）與型態外魔力小條（manabar），
 -- 資源條再列一次是重複。Ayije_CDM 有 MANA_SPECS 那張表是因為它的資源條是獨立 HUD、
@@ -34,6 +36,7 @@ local PT = Enum.PowerType
 -- aura   光環 spellID（層數當點數）
 -- cast   GetSpellCastCount 的 spellID
 -- fill   pip 專用的特殊填充：rune（符文冷卻）／essence（精華回充）
+-- fractionSpec  這個專精的點數有小數（毀滅術的碎片片段）：正在累積的那一格畫部分填充
 -- 資源名稱優先用暴雪的全域字串：那是十二個語系的官方譯名，比插件自己翻準。
 -- 全域不存在時退回英文，不要讓 name 變 nil
 local function PowerName(global, fallback)
@@ -61,9 +64,9 @@ local RESOURCES = {
     HolyPower       = { name = PowerName("HOLY_POWER", "Holy Power"),     mode = "pip", power = PT.HolyPower },
     ComboPoints     = { name = PowerName("COMBO_POINTS", "Combo Points"), mode = "pip", power = PT.ComboPoints },
     Chi             = { name = PowerName("CHI", "Chi"),     mode = "pip", power = PT.Chi },
-    SoulShards      = { name = PowerName("SOUL_SHARDS", "Soul Shards"), mode = "pip", power = PT.SoulShards },
+    SoulShards      = { name = PowerName("SOUL_SHARDS", "Soul Shards"), mode = "pip", power = PT.SoulShards, fractionSpec = 267 },
     ArcaneCharges   = { name = PowerName("ARCANE_CHARGES", "Arcane Charges"), mode = "pip", power = PT.ArcaneCharges },
-    Essence         = { name = PowerName("ESSENCE", "Essence"),     mode = "pip", power = PT.Essence },
+    Essence         = { name = PowerName("ESSENCE", "Essence"),     mode = "pip", power = PT.Essence, fill = "essence" },
     Runes           = { name = PowerName("RUNES", "Runes"),     mode = "pip", power = PT.Runes, fill = "rune" },
     -- 光環／技能次數型（Ayije_CDM 的 custom power，資料來源都是明文 API）
     -- 中文名一律取自 Ayije_CDM/Locales/zhTW.lua（使用者已對過官方譯名，別自己翻）
@@ -856,6 +859,42 @@ local function MakeRow(parent)
     return row
 end
 
+-- 符文格的秒數（懶建；只有符文列、倒數開著才顯示）。
+-- 顯示／隱藏只在排版時做，更新只換字
+local function LayoutRuneTimer(seg, on, edb)
+    if not on then
+        if seg.timer then seg.timer:Hide() end
+        return
+    end
+    if not seg.timer then
+        local fs = seg:CreateFontString(nil, "OVERLAY")
+        -- ⚠ 先給字型才能 SetText
+        Media.SetPixelFont(fs, 10, "OUTLINE")
+        fs:SetDrawLayer("OVERLAY", 7)
+        fs:SetJustifyH("CENTER")
+        fs:SetPoint("CENTER", seg, "CENTER", 0, 0)
+        fs:SetTextColor(1, 1, 1, 1)
+        fs:SetShadowColor(0, 0, 0, 1)
+        fs:SetShadowOffset(1, -1)
+        seg.timer = fs
+    end
+    Media.SetPixelFont(seg.timer, edb.textSize or 10, "OUTLINE", ns.db.global.font)
+    seg.timer:SetText("")
+    seg.timerSec = nil
+    seg.timer:Show()
+end
+
+-- 死騎符文列的數字：「長條上顯示數值」（showText）是總開關，開著時這裡二選一
+-- （使用者 2026-10-01 試過兩者並列後定案：一排數字裡再夾一個顆數會分不出哪個是顆數、
+-- 哪個是秒數，不要再拆成兩個獨立開關）。
+--   countdown 在轉的格子印剩餘秒數（預設）／count 中間印轉好的顆數
+-- 排序與回充進度不受影響，兩種都有
+local function RuneText(edb)
+    local v = edb and edb.runeText
+    if v == "count" then return v end
+    return "countdown"
+end
+
 -- 一列的版面：pip 依段數切；bar 就整條
 local function LayoutRow(row, key, edb, numSeg)
     local def = RESOURCES[key]
@@ -880,6 +919,7 @@ local function LayoutRow(row, key, edb, numSeg)
     row.bar:SetShown(not isPip)
     -- 數值兩種模式都給：點數型（聖能、氣漩武器那種）一樣要看得到數字
     local showText = edb.showText and true or false
+    if def.fill == "rune" then showText = showText and RuneText(edb) == "count" end
     row.text:SetShown(showText)
     if showText then
         Media.SetPixelFont(row.text, edb.textSize or 10, "OUTLINE", ns.db.global.font)
@@ -892,25 +932,38 @@ local function LayoutRow(row, key, edb, numSeg)
         return
     end
 
-    local spacing = ns.P.Scale(edb.spacing or 1)
-    -- 格寬是除出來的小數 → 一定要對齊實體像素，不然每格寬度／間距會忽大忽小
-    local rawW, rawGap = edb.totalw or 200, edb.spacing or 1
-    local segW = ns.P.Scale((rawW - rawGap * (numSeg - 1)) / numSeg)
+    -- 每格的左右邊界在整數實體像素上各自四捨五入，零頭平均分到各格，最後一格的右緣一定落在總寬上。
+    -- ⚠ 不能「格寬先對齊像素、再一格接一格串」：每格的捨入誤差會累積，整列比同寬的長條多出幾 px
+    local px = ns.P.Scale(1)
+    if not px or px <= 0 then px = 1 end
+    local gp = math.max(0, math.floor((edb.spacing or 1) + 0.5))
+    local span = math.floor(totalW / px + 0.5) + gp
+    local isRune = def.fill == "rune" and edb.showText and RuneText(edb) == "countdown"
     for i = 1, numSeg do
         local seg = row.segs[i]
+        local x0 = math.floor((i - 1) * span / numSeg + 0.5)
+        local x1 = math.floor(i * span / numSeg + 0.5) - gp
+        local segW = (x1 - x0) * px
         seg:SetSize(segW, h)
         seg:ClearAllPoints()
-        if i == 1 then
-            if reversed then
-                seg:SetPoint("TOPRIGHT", row, "TOPRIGHT", 0, 0)
-            else
-                seg:SetPoint("TOPLEFT", row, "TOPLEFT", 0, 0)
-            end
-        elseif reversed then
-            seg:SetPoint("RIGHT", row.segs[i - 1], "LEFT", -spacing, 0)
+        if reversed then
+            seg:SetPoint("TOPRIGHT", row, "TOPRIGHT", -x0 * px, 0)
         else
-            seg:SetPoint("LEFT", row.segs[i - 1], "RIGHT", spacing, 0)
+            seg:SetPoint("TOPLEFT", row, "TOPLEFT", x0 * px, 0)
         end
+        -- 填色貼在填充起點那一側、寬度由這裡給：符文回充時只改寬度（見 SetSegFill），其他資源永遠滿寬
+        seg.fullW = segW
+        seg.fg:ClearAllPoints()
+        if reversed then
+            seg.fg:SetPoint("TOPRIGHT", seg, "TOPRIGHT", 0, 0)
+            seg.fg:SetPoint("BOTTOMRIGHT", seg, "BOTTOMRIGHT", 0, 0)
+        else
+            seg.fg:SetPoint("TOPLEFT", seg, "TOPLEFT", 0, 0)
+            seg.fg:SetPoint("BOTTOMLEFT", seg, "BOTTOMLEFT", 0, 0)
+        end
+        seg.fg:SetWidth(segW)
+        seg.fgW = segW
+        LayoutRuneTimer(seg, isRune, edb)
         seg:Show()
     end
     for i = numSeg + 1, MAX_SEGMENTS do row.segs[i]:Hide() end
@@ -1039,6 +1092,87 @@ local function Relayout(f, edb, rows, newSegs)
     f:SetSize(ns.P.Scale(edb.totalw or 200), n > 0 and (n * h + (n - 1) * gap) or 1)
 end
 
+------------------------------------------------------------
+-- 部分填充（符文回充／精華回充／毀滅術的碎片片段共用）
+--
+-- 「正在累積的那一格」一律畫成同色系暗一階、寬度＝進度（狀態只換明暗不換色）。
+-- 三者共用同一個係數，免得三種資源各暗各的
+------------------------------------------------------------
+local RECHARGE_SHADE = 0.55
+
+local function PlainNumber(v)
+    if type(v) ~= "number" or ns.IsSecret(v) then return nil end
+    return v
+end
+
+-- 填色寬度＝格寬 × 進度（貼在填充起點那一側，見 LayoutRow）。0 寬的貼圖會被當成沒有尺寸，給一點點
+local function SetSegFill(seg, prog)
+    local w = (seg.fullW or 0) * prog
+    if w < 0.01 then w = 0.01 end
+    if seg.fgW ~= w then
+        seg.fgW = w
+        seg.fg:SetWidth(w)
+    end
+end
+
+local function Clamp01(v)
+    if v < 0 then return 0 elseif v > 1 then return 1 end
+    return v
+end
+
+-- 毀滅術的碎片片段：UnitPower 帶第三個參數 true 拿「原始單位」（一顆＝10 片段）。
+-- 回傳 (整顆數, 累積中那格的進度 0～1, 含小數的顆數)；讀不到明文就回 nil，
+-- 呼叫端退回整數（＝加這個功能之前的樣子）。
+-- 每顆幾個片段由 rawMax / max 推，讀不到就當 10 —— 不寫死，暴雪哪天改倍率也不會畫錯
+local function ShardFraction(def, max)
+    if not def.fractionSpec or StateSpec() ~= def.fractionSpec then return nil end
+    local ok, raw = pcall(UnitPower, "player", def.power, true)
+    raw = ok and PlainNumber(raw)
+    if not raw or raw < 0 then return nil end
+    local per = 10
+    local ok2, rawMax = pcall(UnitPowerMax, "player", def.power, true)
+    rawMax = ok2 and PlainNumber(rawMax)
+    if rawMax and rawMax > 0 and max and max > 0 then per = rawMax / max end
+    local value = raw / per
+    local whole = math.floor(value)
+    if max and max > 0 and whole >= max then return max, 0, value end
+    return whole, value - whole, value
+end
+
+-- 喚能師的精華回充進度（下一顆回到幾成）。來源優先序：
+--   1. UnitPartialPower（0～1000，明文才用）—— 暴雪內建精華條就是讀這個
+--   2. 每秒回充量 GetPowerRegenForPowerType × 「上次精華數變動到現在」推算。
+--      回充量只在明文時更新、秘密時沿用上次的明文值
+--   3. 都沒有 ⇒ 不畫進度（回 nil）
+-- 已滿（cur >= max）也回 nil。
+-- ⚠ cur 在這裡自己重讀明文，不吃呼叫端那個 Desecret(…, 0) 的值：秘密時那邊是 0，
+-- 拿 0 去推算會畫出一格假進度、ticker 也停不下來。秘密就整個不畫
+local essenceLastCur, essenceChangeAt, essenceRegen
+
+local function EssenceProgress(def, max, now)
+    local okc, cur = pcall(UnitPower, "player", def.power)
+    cur = okc and PlainNumber(cur)
+    if not cur then return nil end
+    if cur ~= essenceLastCur then
+        essenceLastCur, essenceChangeAt = cur, now
+    end
+    if not max or max <= 0 or cur >= max then return nil end
+    if UnitPartialPower then
+        local ok, p = pcall(UnitPartialPower, "player", def.power)
+        p = ok and PlainNumber(p)
+        if p then return Clamp01(p / 1000) end
+    end
+    if GetPowerRegenForPowerType then
+        local ok, r = pcall(GetPowerRegenForPowerType, def.power)
+        r = ok and PlainNumber(r)
+        if r and r > 0 then essenceRegen = r end
+    end
+    if essenceRegen and essenceChangeAt then
+        return Clamp01((now - essenceChangeAt) * essenceRegen)
+    end
+    return nil
+end
+
 -- 「未填滿」那幾格的顏色：整條層級規則的 bgColor 命中時取代原本的暗色
 -- （alpha 缺就沿用暗色那一份，不要突然變成不透明）
 local function DimColor(edb, barOv)
@@ -1054,15 +1188,28 @@ end
 -- charged/chargedCC/chargedEmptyCC 只有連擊點數會帶（見 ChargedPoints）；
 -- 沒有充能格時三個都是 nil，整段判斷退化成原本那兩條路。
 -- conds/barOv 只有這一列真的有條件規則時才會帶（見 ResolveConditions）；
--- 都是 nil 時整段跟加這個功能之前一模一樣
-local function PaintPip(row, edb, numSeg, filled, cc, charged, chargedCC, chargedEmptyCC, conds, barOv)
+-- 都是 nil 時整段跟加這個功能之前一模一樣。
+-- partial（0～1 或 nil）＝第 filled+1 格正在累積的進度（精華回充／毀滅術碎片片段）：
+-- 那一格填到進度、暗一階、不吃條件色（條件看的是整顆數，它還不算一顆）；
+-- 其餘格子一律滿寬（列是池化的，上一輪的部分寬度要還原）
+local function PaintPip(row, edb, numSeg, filled, cc, charged, chargedCC, chargedEmptyCC, conds, barOv, partial)
     local dc = edb.dimColor or DIM
     local alpha = edb.barAlpha or 1
     local dimC, dimA = DimColor(edb, barOv)
+    local partialAt = partial and (filled + 1) or nil
     for i = 1, numSeg do
         local seg = row.segs[i]
         local isCharged = charged and charged[i]
-        if i <= filled then
+        if i == partialAt then
+            SetSegFill(seg, partial)
+        else
+            SetSegFill(seg, 1)
+        end
+        if i == partialAt then
+            local k = RECHARGE_SHADE
+            seg.fg:SetVertexColor(cc.r * k, cc.g * k, cc.b * k, alpha)
+            seg.bg:SetVertexColor(dimC.r, dimC.g, dimC.b, dimA)
+        elseif i <= filled then
             local c = isCharged and chargedCC or cc
             -- ⚠ 充能且已填滿的格子**跳過條件**：充能色是「這一格值兩點」的訊號，
             -- 被條件色蓋掉就讀不出來了，充能色優先
@@ -1088,18 +1235,126 @@ end
 
 -- 點數型的數字。光環／技能次數型（氣漩武器、長矛之尖、靈魂碎片）沒累積時就不畫，
 -- 空著比一顆「0」乾淨；標準職業點數（聖能、連擊點那種）照常顯示 0。
-local function SetPipText(row, def, edb, n)
+-- fracValue（含小數的顆數）只有毀滅術碎片讀得到明文時才帶：印一位小數（例 3.7）
+local function SetPipText(row, def, edb, n, fracValue)
     if not edb.showText then return end
     if (def.aura or def.cast) and n <= 0 then
         row.text:SetText("")
         return
     end
+    if fracValue then
+        row.text:SetFormattedText("%.1f", fracValue)
+        return
+    end
     row.text:SetFormattedText("%d", n)
 end
 
--- 符文那一趟要先數完才知道 powerValue（已轉好的顆數），所以分兩趟跑。
--- 檔案層級的 scratch，同 segScratch —— 貴的是那 N 次 pcall，趟數不影響它
-local runeReady = {}
+------------------------------------------------------------
+-- 符文（死亡騎士）
+--
+-- GetRuneCooldown(i) 的 start／duration／ready 在 12.1 是明文；仍一律過 pcall／IsSecret，
+-- 讀不到的那顆當「在轉、進度不明」（不填、不印秒數），排序照樣排在最後，不會跳格。
+-- 同時最多三顆在轉，其餘的 start 在未來（排隊中）。edb.runeQueued（預設開）決定排隊中的怎麼畫：
+--   開  秒數印 start＋duration－now（＝從現在到這顆轉好的總等待時間）；填充照「花掉那一刻 → 轉好」
+--       整段等待時間走（RuneProgress），排隊轉成在轉時不跳回 0
+--   關  舊行為：排隊中進度 0、不印秒數，填充只算自己那段冷卻
+-- 「花掉那一刻」沒有 API，自己記（runeSpentAt：看到某顆從轉好變成沒轉好的那次更新）。
+-- 檔案層級的 scratch（平行陣列，不配表）
+------------------------------------------------------------
+local runeReady, runeRemain, runeProgress, runeQueued, runeOrder = {}, {}, {}, {}, {}
+local runeSpentAt = {}               -- [符文編號] = 看到它沒轉好的第一個時間點；轉好時清掉
+
+-- 沒轉好的符文的填充進度（0～1）。countQueued 關：只算自己那段冷卻（排隊中＝0）；
+-- 開：從 spentAt（花掉那一刻）到 start＋duration 的整段等待時間，spentAt 晚於 start 時以 start 為準
+local function RuneProgress(now, start, duration, spentAt, countQueued)
+    local t0, span = start, duration
+    if countQueued and type(spentAt) == "number" and spentAt < start then
+        t0 = spentAt
+        span = start + duration - spentAt
+    end
+    if span <= 0 then return 0 end
+    local prog = (now - t0) / span
+    if prog < 0 then prog = 0 elseif prog > 1 then prog = 1 end
+    return prog
+end
+
+-- 回傳轉好的顆數、有沒有在轉的
+local function ReadRunes(n, now, countQueued)
+    local readyCount, anyRecharging = 0, false
+    for i = 1, n do
+        local ok, start, duration, isReady = pcall(GetRuneCooldown, i)
+        local r, rem, prog, queued = false, nil, nil, false
+        if ok and isReady ~= nil and not ns.IsSecret(isReady) then r = isReady and true or false end
+        if r then
+            readyCount = readyCount + 1
+            runeSpentAt[i] = nil
+        else
+            anyRecharging = true
+            if not runeSpentAt[i] then runeSpentAt[i] = now end
+            local st, d = ok and PlainNumber(start), ok and PlainNumber(duration)
+            if st and d and d > 0 then
+                rem = st + d - now
+                if rem < 0 then rem = 0 end
+                queued = st > now
+                prog = RuneProgress(now, st, d, runeSpentAt[i], countQueued)
+            end
+        end
+        runeReady[i], runeRemain[i], runeProgress[i], runeQueued[i] = r, rem, prog, queued
+    end
+    return readyCount, anyRecharging
+end
+
+-- runeOrder[格位] = 符文編號：轉好的靠左（照編號）、在轉的依剩餘時間由短到長，
+-- 剩餘讀不到的排最後；同分照編號（插入排序，最多六顆）
+local function RuneOrder(n)
+    local order = runeOrder
+    local k = 0
+    for i = 1, n do
+        if runeReady[i] then k = k + 1; order[k] = i end
+    end
+    local first = k + 1
+    for i = 1, n do
+        if not runeReady[i] then
+            local key = runeRemain[i] or math.huge
+            local j = k
+            while j >= first and (runeRemain[order[j]] or math.huge) > key do
+                order[j + 1] = order[j]
+                j = j - 1
+            end
+            order[j + 1] = i
+            k = k + 1
+        end
+    end
+    for i = n + 1, #order do order[i] = nil end
+    return order
+end
+
+-- 沒轉好的格子要印的秒數（無條件進位，跟冷卻數字同一種讀法）；
+-- 排隊中的：countQueued 開印總等待時間、關不印；讀不到／轉完回 nil
+local function RuneSeconds(remain, queued, countQueued)
+    if type(remain) ~= "number" or remain <= 0 then return nil end
+    if queued and not countQueued then return nil end
+    return math.ceil(remain)
+end
+
+-- 回充的進度與秒數沒有事件可等（RUNE_POWER_UPDATE 只在轉好／用掉時來）：
+-- 有符文在轉時掛上共用的 0.1 秒 Metro，全部轉好就卸下
+local RuneTick
+local runeTicking = false
+local function SetRuneTicking(on)
+    if on == runeTicking then return end
+    runeTicking = on
+    if on then ns.Metro.Add("classpower_rune", 0.1, RuneTick) else ns.Metro.Remove("classpower_rune") end
+end
+
+-- 精華回充同理：進度沒有事件可等（UNIT_POWER 只在整顆回滿時來），有格子在回充時掛 Metro、回滿就卸
+local EssenceTick
+local essenceTicking = false
+local function SetEssenceTicking(on)
+    if on == essenceTicking then return end
+    essenceTicking = on
+    if on then ns.Metro.Add("classpower_essence", 0.1, EssenceTick) else ns.Metro.Remove("classpower_essence") end
+end
 
 local function UpdateRow(row, edb, isPreview, numSeg)
     local key = row.key
@@ -1119,14 +1374,10 @@ local function UpdateRow(row, edb, isPreview, numSeg)
             return
         end
         if def.fill == "rune" and not isPreview then
-            -- 符文：每格看自己的冷卻，不是「有幾點」
-            local readyCount = 0
-            for i = 1, numSeg do
-                local ok, _, _, isReady = pcall(GetRuneCooldown, i)
-                local ready = (ok and isReady) and true or false
-                runeReady[i] = ready
-                if ready then readyCount = readyCount + 1 end
-            end
+            -- 符文：先排序再畫（轉好的靠左、在轉的依剩餘時間往右排），在轉的格子填進度
+            local countQueued = edb.runeQueued ~= false
+            local readyCount, anyRecharging = ReadRunes(numSeg, GetTime(), countQueued)
+            local order = RuneOrder(numSeg)
             local barOv
             if conds then
                 BuildCondState(readyCount, numSeg)
@@ -1134,32 +1385,69 @@ local function UpdateRow(row, edb, isPreview, numSeg)
             end
             local dimC, dimA = DimColor(edb, barOv)
             local alpha = edb.barAlpha or 1
-            for i = 1, numSeg do
-                local seg = row.segs[i]
-                local ready = runeReady[i]
-                local c, a
-                if ready then c, a = cc, alpha else c, a = dimC, dimA end
+            local runeText = edb.showText and RuneText(edb) or nil
+            local countdown = runeText == "countdown"
+            for slot = 1, numSeg do
+                local idx = order[slot]
+                local seg = row.segs[slot]
+                local ready = runeReady[idx]
+                local prog = ready and 1 or (runeProgress[idx] or 0)
+                -- 在轉的格子：同色系暗一階（狀態只換明暗不換色），底色照未填滿的暗色
+                local k = ready and 1 or RECHARGE_SHADE
+                local r, g, b, a = cc.r * k, cc.g * k, cc.b * k, alpha
                 if conds then
                     -- ⚠ 符文是唯一「沒轉好的格子也吃條件色」的列：pipRecharging
-                    -- 這個變數就是為它存在的，不讓它上色等於那個變數永遠沒用。
-                    -- 命中時用滿的不透明度，不然暗色上的條件色根本看不出來
+                    -- 這個變數就是為它存在的。格子序號是排序後的位置
                     condState.pipRecharging = not ready
-                    local ov = FirstMatch(conds, condState, i)
+                    local ov = FirstMatch(conds, condState, slot)
                     local oc = ov and ValidColor(ov.color)
-                    if oc then c, a = oc, alpha end
+                    if oc then
+                        r, g, b, a = oc.r, oc.g, oc.b, alpha
+                        prog = 1          -- 命中時整格上色，暗底上看不出來
+                    end
                 end
-                seg.fg:SetVertexColor(c.r, c.g, c.b, a)
+                SetSegFill(seg, prog)
+                seg.fg:SetVertexColor(r, g, b, a)
                 if ready then
-                    seg.bg:SetVertexColor(c.r * 0.3, c.g * 0.3, c.b * 0.3, 0.8)
+                    seg.bg:SetVertexColor(r * 0.3, g * 0.3, b * 0.3, 0.8)
                 else
-                    seg.bg:SetVertexColor(0, 0, 0, 0.4)
+                    seg.bg:SetVertexColor(dimC.r, dimC.g, dimC.b, dimA)
+                end
+                if seg.timer then
+                    local sec = countdown and not ready and RuneSeconds(runeRemain[idx], runeQueued[idx], countQueued)
+                    if sec then
+                        if seg.timerSec ~= sec then
+                            seg.timerSec = sec
+                            seg.timer:SetFormattedText("%d", sec)
+                        end
+                    elseif seg.timerSec then
+                        seg.timerSec = nil
+                        seg.timer:SetText("")
+                    end
                 end
             end
             ApplyRowOverrides(row, barOv)
-            SetPipText(row, def, edb, readyCount)
+            -- 中間的顆數只在選了「顆數」時印（見 RuneText；不走 SetPipText，那支看 showText）
+            if runeText == "count" then row.text:SetFormattedText("%d", readyCount) end
+            SetRuneTicking(anyRecharging)
             return
         end
         local filled = isPreview and math.min(3, numSeg) or (GetValue(key) or 0)
+        -- 正在累積的那一格（毀滅術碎片片段／精華回充）。預覽不畫；讀不到明文就是 nil ＝ 整數
+        local partial, fracValue
+        if not isPreview then
+            if def.fractionSpec then
+                local whole, frac, value = ShardFraction(def, numSeg)
+                if whole then
+                    filled = whole
+                    fracValue = value
+                    if frac > 0 then partial = frac end
+                end
+            elseif def.fill == "essence" then
+                partial = EssenceProgress(def, numSeg, GetTime())
+                SetEssenceTicking(partial ~= nil)
+            end
+        end
         -- 充能格：沒有的話兩個充能色連解析都不用（一般情況一列只解析一次顏色）
         local charged = ChargedPoints(key, isPreview)
         local chargedCC, chargedEmptyCC
@@ -1173,9 +1461,9 @@ local function UpdateRow(row, edb, isPreview, numSeg)
             BuildCondState(filled, numSeg)
             barOv = FirstMatch(conds, condState, nil)
         end
-        PaintPip(row, edb, numSeg, filled, cc, charged, chargedCC, chargedEmptyCC, conds, barOv)
+        PaintPip(row, edb, numSeg, filled, cc, charged, chargedCC, chargedEmptyCC, conds, barOv, partial)
         ApplyRowOverrides(row, barOv)
-        SetPipText(row, def, edb, filled)
+        SetPipText(row, def, edb, filled, fracValue)
         return
     end
 
@@ -1263,6 +1551,24 @@ local function RepaintRows(match)
 end
 
 local function IsComboRow(key) return key == "ComboPoints" end
+local function IsRuneRow(_, def) return def.fill == "rune" end
+local function IsEssenceRow(_, def) return def.fill == "essence" end
+
+-- 符文列不在畫面上（框藏了、整列關了）就停：RepaintRows 沒走進符文那段 ⇒ 沒人說還在轉
+RuneTick = function()
+    local was = runeTicking
+    runeTicking = false
+    RepaintRows(IsRuneRow)
+    if was and not runeTicking then ns.Metro.Remove("classpower_rune") end
+end
+
+-- 同上：精華列不在畫面上就停
+EssenceTick = function()
+    local was = essenceTicking
+    essenceTicking = false
+    RepaintRows(IsEssenceRow)
+    if was and not essenceTicking then ns.Metro.Remove("classpower_essence") end
+end
 
 -- 型態／專精／符文／光環變動 → 重新評估（清單和格數都可能變）
 Reevaluate = function()

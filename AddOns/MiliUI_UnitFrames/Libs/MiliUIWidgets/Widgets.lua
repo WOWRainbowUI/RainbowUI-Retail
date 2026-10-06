@@ -64,8 +64,18 @@ fontSmall:SetTextColor(0.8, 0.8, 0.8)
 fontSmall:SetShadowColor(0, 0, 0)
 fontSmall:SetShadowOffset(1, -1)
 
-W.fontNormal, W.fontTitle, W.fontDisabled, W.fontSmall =
-    fontNormal, fontTitle, fontDisabled, fontSmall
+-- 強調說明字（「黃字說明」）：適用範圍、注意事項這種要玩家先看到的說明。字級跟 fontSmall 一樣，只換顏色。
+-- 全套組通用（使用者 2026-10-03 指定：說「黃字說明」就是這個顏色）；色值另外放 W.EMPHASIS_COLOR，
+-- 給沒有走字型物件的地方（|c 色碼、SetTextColor）用同一個值。
+W.EMPHASIS_COLOR = { r = 1, g = 0.82, b = 0 }
+local fontEmphasis = CreateFont(NS .. "_FontEmphasis")
+fontEmphasis:SetFont(Env.Font(), 11, "")
+fontEmphasis:SetTextColor(W.EMPHASIS_COLOR.r, W.EMPHASIS_COLOR.g, W.EMPHASIS_COLOR.b)
+fontEmphasis:SetShadowColor(0, 0, 0)
+fontEmphasis:SetShadowOffset(1, -1)
+
+W.fontNormal, W.fontTitle, W.fontDisabled, W.fontSmall, W.fontEmphasis =
+    fontNormal, fontTitle, fontDisabled, fontSmall, fontEmphasis
 
 ------------------------------------------------------------
 -- 文字量測
@@ -194,6 +204,16 @@ function W.PaintButton(b, hover)
         b:SetBackdropColor(unpack(c[1]))
         b:SetBackdropBorderColor(unpack(c[3]))
     end
+end
+
+-- 換一顆 W.CreateButton 的配色（"normal"｜"primary"…）並照目前狀態重畫。
+-- 給「按鈕本身表達開關狀態」的呼叫端用（例如預覽列：設定有啟用的那幾顆用 primary）；按鈕照樣能按
+function W.SetButtonVariant(b, colorKey)
+    local colors = BTN_COLORS[colorKey or "normal"] or BTN_COLORS.normal
+    if b._colors == colors then return end
+    b._colors = colors
+    if not colors[3] then b:SetBackdropBorderColor(0, 0, 0, 1) end
+    W.PaintButton(b, b:IsMouseOver())
 end
 
 function W.CreateButton(parent, text, colorKey, width, height)
@@ -395,6 +415,263 @@ function W.CreateButtonGroup(buttons, onClick)
         end)
     end
     return HighlightOnly
+end
+
+------------------------------------------------------------
+-- 分頁卡片：一排分頁鈕＋底下一張卡片（像資料夾的分頁）
+--
+-- 用在「頁面裡的一段有好幾種選擇」的子分頁：卡片包住那個分頁的全部列，
+-- 一眼看得出分頁鈕管到哪裡為止。整頁的頂層分頁不需要（卡片會包住整頁，沒有資訊）。
+--
+--   卡片    底＝CARD_FILL（比面板 0.1 亮一階的不透明純色）、1px 邊＝職業色 × BTN_BORDER_SCALE
+--           （primary 平時的邊，同一條公式）、直角
+--   選中鈕  底＝卡片底、邊＝卡片邊、**底邊打通**（跟卡片連成一塊）；滑過不變（點了也不做事）
+--   未選中  normal 按鈕原樣
+--   狀態只換明暗：選中＝跟卡片一樣亮、閒置＝WIDGET_FILL、滑過＝normal 的滑過；色相只有職業色一個
+--
+-- ⚠ 卡片是畫在 **parent 上的貼圖**（BACKGROUND／BORDER 層），不是一個 frame：
+--   子 frame 永遠蓋過父層貼圖，所以 parent 底下的列（控件、遮罩、右鍵接收框）不管 frame level
+--   多少都在卡片上面，不用排層級。parent 自己的字（OVERLAY）也照樣在上面。
+--   代價是 parent 上不能再有別的 BACKGROUND 貼圖蓋在同一塊（backdrop 的底在 -8 子層，不受影響）。
+--
+-- 座標一律是 parent 的 TOPLEFT 起算（y 往下是負的），跟 Controls.Build 回傳的 rows 同一套 ——
+-- 表單排完之後直接拿 rows[i].bottom 當卡片的底。
+--
+-- 分頁鈕放不下就換排（同 W.FlowLayout 的規則）。換了排而選中的鈕不在最後一排時，
+-- 它跟卡片之間隔著別排的鈕，打通不了 ⇒ 那一顆只換底與邊（卡片上緣整條畫滿）。
+--
+-- opts.help（字串，或回傳字串的函式）：最後一顆分頁鈕後面多一個「!」小方塊，滑過顯示這段說明
+-- （講這幾個分頁各管什麼；字由呼叫端給，共用層不帶語系）。放不下就跟著換排。
+------------------------------------------------------------
+local CARD_FILL = { 0.15, 0.15, 0.15, 1 }
+W.CARD_FILL = CARD_FILL
+W.TAB_CARD_PAD = 4      -- 卡片內距的建議值（分頁鈕列底下到第一列、最後一列到卡片底）
+
+function W.CreateTabCard(parent, opts)
+    opts = opts or {}
+    local tabH   = opts.tabHeight or 20
+    local minW   = opts.tabMinWidth or 56
+    local gapX   = opts.tabGap or 2
+    local gapY   = opts.rowGap or 2
+    local inset  = opts.inset or 6
+    local border = BTN_COLORS.primary[3]
+    local selColors = { CARD_FILL, CARD_FILL, border, border }
+
+    local tc = { buttons = {}, byId = {} }
+    local strip = CreateFrame("Frame", nil, parent)
+    strip:SetSize(1, tabH)
+    tc.strip = strip
+
+    -- 說明「!」：跟分頁鈕同一列、緊接在最後一顆後面（LayoutTabs 排）
+    local helpMark
+    if opts.help then
+        local m = CreateFrame("Frame", nil, strip, "BackdropTemplate")
+        local sz = tabH - 4
+        P.Size(m, sz, sz)
+        W.Stylize(m, { 0.1, 0.1, 0.1, 0.9 }, { 0.4, 0.4, 0.4, 1 })
+        local q = m:CreateFontString(nil, "OVERLAY")
+        q:SetFontObject(W.fontSmall)
+        q:SetPoint("CENTER", m, "CENTER", 0, 0)
+        q:SetText("!")
+        q:SetTextColor(0.6, 0.6, 0.6)
+        m:EnableMouse(true)
+        m:SetScript("OnEnter", function(self)
+            q:SetTextColor(1, 1, 1)
+            local text = opts.help
+            if type(text) == "function" then text = text() end
+            GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+            GameTooltip:SetText(tostring(text or ""), 1, 1, 1, 1, true)
+            GameTooltip:Show()
+        end)
+        m:SetScript("OnLeave", function()
+            q:SetTextColor(0.6, 0.6, 0.6)
+            GameTooltip:Hide()
+        end)
+        helpMark = m
+        tc.help = m
+    end
+
+    -- 卡片：底＋四邊（上緣分左右兩段，中間留給選中的那顆鈕）
+    local function Tex(layer)
+        local t = parent:CreateTexture(nil, layer, nil, 1)
+        t:SetTexture(WHITE)
+        t:Hide()
+        return t
+    end
+    local bg = Tex("BACKGROUND")
+    bg:SetVertexColor(unpack(CARD_FILL))
+    local edges = {}
+    for _, k in ipairs({ "left", "right", "bottom", "topL", "topR" }) do
+        edges[k] = Tex("BORDER")
+        edges[k]:SetVertexColor(unpack(border))
+    end
+
+    local placed, shown = false, true
+    local cardX, cardW, cardTop, cardBottom = 0, 0, 0, nil
+    local stripX, stripY, lastRow = 0, 0, 1
+    local selected
+
+    local function Bar(t, x, y, w, h)
+        if w <= 0 or h <= 0 then t:Hide() return end
+        t:ClearAllPoints()
+        t:SetPoint("TOPLEFT", parent, "TOPLEFT", x, y)
+        t:SetSize(w, h)
+        t:Show()
+    end
+
+    local function DrawCard()
+        local on = shown and placed and cardBottom ~= nil and cardTop - cardBottom > 0
+        if not on then
+            bg:Hide()
+            for _, t in pairs(edges) do t:Hide() end
+            return
+        end
+        local px = P.Scale(1)
+        local h = cardTop - cardBottom
+        Bar(bg, cardX, cardTop, cardW, h)
+        Bar(edges.left, cardX, cardTop, px, h)
+        Bar(edges.right, cardX + cardW - px, cardTop, px, h)
+        Bar(edges.bottom, cardX, cardBottom + px, cardW, px)
+        -- 選中的鈕在最後一排 ⇒ 上緣在它底下斷開（左右各多蓋 1px，接住鈕的左右邊，轉角才是連著的）
+        local b = selected
+        if b and b:IsShown() and b._tcRow == lastRow then
+            local bx = stripX + b._tcX
+            Bar(edges.topL, cardX, cardTop, bx + px - cardX, px)
+            local rx = bx + b:GetWidth() - px
+            Bar(edges.topR, rx, cardTop, cardX + cardW - rx, px)
+        else
+            Bar(edges.topL, cardX, cardTop, cardW, px)
+            edges.topR:Hide()
+        end
+    end
+
+    local function Paint()
+        for _, b in ipairs(tc.buttons) do
+            local sel = b == selected
+            if sel then
+                b._colors = selColors
+            else
+                b._colors = BTN_COLORS.normal
+                b:SetBackdropBorderColor(0, 0, 0, 1)
+            end
+            W.PaintButton(b, b:IsVisible() and b:IsMouseOver())
+            b._tcBridge:SetShown(sel and b._tcRow == lastRow)
+        end
+        DrawCard()
+    end
+
+    -- 分頁鈕排版（自己走一次換排，順便記下每顆在第幾排、離列首多遠：卡片上緣要照它斷開）
+    local function LayoutTabs()
+        local maxW = strip:GetWidth()
+        if type(maxW) ~= "number" or maxW <= 0 then maxW = math.huge end
+        local row, x, prev = 1, 0, nil
+        for _, b in ipairs(tc.buttons) do
+            if b:IsShown() then
+                local w = b:GetWidth() or 0
+                if prev and x + gapX + w > maxW then row, x, prev = row + 1, 0, nil end
+                if prev then x = x + gapX end
+                b:ClearAllPoints()
+                b:SetPoint("TOPLEFT", strip, "TOPLEFT", x, -(row - 1) * (tabH + gapY))
+                b._tcRow, b._tcX = row, x
+                x = x + w
+                prev = b
+            end
+        end
+        lastRow = row
+        if helpMark then
+            local w = helpMark:GetWidth() or tabH
+            local gap = gapX + 4
+            if prev and x + gap + w > maxW then row, x, prev = row + 1, 0, nil; gap = 0 end
+            helpMark:ClearAllPoints()
+            helpMark:SetPoint("LEFT", strip, "TOPLEFT", x + (prev and gap or 0), -(row - 1) * (tabH + gapY) - tabH / 2)
+        end
+        local h = row * tabH + (row - 1) * gapY
+        strip:SetHeight(h)
+        return h
+    end
+
+    for i, d in ipairs(opts.tabs or {}) do
+        local b = W.CreateButton(strip, d.label, "normal", minW, tabH)
+        W.FitButton(b, minW, tabH)
+        b.id = d.id
+        -- 底邊打通：用卡片底蓋掉鈕的下邊框（左右邊框留著）。ARTWORK 層在 backdrop 的邊之上、字之下
+        local bridge = b:CreateTexture(nil, "ARTWORK")
+        bridge:SetTexture(WHITE)
+        bridge:SetVertexColor(unpack(CARD_FILL))
+        bridge:SetPoint("BOTTOMLEFT", b, "BOTTOMLEFT", P.Scale(1), 0)
+        bridge:SetPoint("BOTTOMRIGHT", b, "BOTTOMRIGHT", -P.Scale(1), 0)
+        bridge:SetHeight(P.Scale(1))
+        bridge:Hide()
+        b._tcBridge = bridge
+        b:SetScript("OnClick", function(self)
+            if self == selected then return end
+            tc:Select(self.id)
+            if opts.onSelect then opts.onSelect(self.id, self) end
+        end)
+        tc.buttons[i], tc.byId[d.id] = b, b
+    end
+
+    -- 分頁鈕列的左上角放在 parent 的 (x, y)，卡片的左右邊＝x～x + width（鈕列內縮 inset、放不下換排）。
+    -- 回傳鈕列高；卡片上緣＝y − 鈕列高
+    function tc:Place(x, y, width)
+        cardX, cardW = x, width
+        stripX, stripY = x + inset, y
+        strip:ClearAllPoints()
+        strip:SetPoint("TOPLEFT", parent, "TOPLEFT", stripX, y)
+        strip:SetWidth(math.max(1, width - inset * 2))
+        local h = LayoutTabs()
+        cardTop = y - h
+        placed = true
+        Paint()
+        return h
+    end
+
+    -- 卡片底緣（parent 座標；表單用 rows[i].bottom − 內距）
+    function tc:SetBottom(y)
+        cardBottom = y
+        DrawCard()
+    end
+
+    -- 卡片高（從鈕列底緣往下；自由版面用）
+    function tc:SetCardHeight(h)
+        cardBottom = cardTop - (h or 0)
+        DrawCard()
+    end
+
+    -- 只顯示 ids 裡的鈕（nil＝全部），重排；回傳鈕列高（卡片上緣跟著動，底緣不動）
+    function tc:SetTabs(ids)
+        local has
+        if ids then
+            has = {}
+            for _, id in ipairs(ids) do has[id] = true end
+        end
+        for _, b in ipairs(self.buttons) do b:SetShown(not has or has[b.id] == true) end
+        local h = LayoutTabs()
+        if placed then cardTop = stripY - h end
+        Paint()
+        return h
+    end
+
+    -- 高亮 id 那顆（不叫 onSelect）
+    function tc:Select(id)
+        selected = self.byId[id] or selected
+        Paint()
+    end
+
+    function tc:GetSelected() return selected and selected.id end
+    function tc:GetCardTop() return cardTop end
+
+    function tc:SetShown(on)
+        shown = on and true or false
+        strip:SetShown(shown)
+        DrawCard()
+    end
+    function tc:Show() self:SetShown(true) end
+    function tc:Hide() self:SetShown(false) end
+
+    if opts.selected then selected = tc.byId[opts.selected] end
+    selected = selected or tc.buttons[1]
+    return tc
 end
 
 ------------------------------------------------------------
@@ -1779,4 +2056,285 @@ function W.CreateInputPopup(parent, width, title, fields)
     end
 
     return popup
+end
+
+------------------------------------------------------------
+-- 格線開關（opt-in）：設定視窗右上角的「格線: ON／OFF」，滑過時上方浮出間距滑桿
+--
+--   local grid = W.CreateGridToggle(panel, {
+--       db = function() return ns.sv.optionsWindow end,  -- 存 grid（布林）／gridSpacing（數字）
+--       onChange = function(shown, spacing) end,         -- 選用：開關或間距變了
+--   })
+--   grid:Active()   -- 格線此刻畫在畫面上 ⇒ 間距；否則 nil（宿主的拖曳吸附讀這個）
+--   grid.width      -- 按鈕寬（固定）：分頁列右側還要排東西的宿主拿去扣
+--
+-- 用途：設定視窗開著就能拖的插件（冷卻管理器之類），給玩家一張對齊用的格線。
+-- 只在面板開著時畫；開關與間距存宿主的 db（帳號層那張），跟著視窗位置一起走。
+--
+-- 格線跟暴雪編輯模式的格線同一種畫法：從畫面中心往外、UIParent 座標、中心兩條較亮。
+-- 所以吸附的原點一律是 UIParent:GetCenter()，跟暴雪那套換算一致。
+--
+-- ⚠ 畫格線的框是**全套組共用一張**（_G 具名），不是每份 vendor 各畫一張：兩支插件的
+--   面板同時開著格線時，兩套線交錯在一起就是 wow-editmode-blizzard-grid 那次的「格線好亂」。
+--   誰最後開／改間距就照誰的間距畫。名字帶版號：哪天畫法改了換名字，不要去改舊框。
+-- ⚠ 暴雪編輯模式的格線看得到時，我們的整張讓位（同理，兩套線不要疊）。不掛暴雪框的
+--   腳本（post-hook 會讓我們的 Lua 跑進進出編輯模式的執行堆疊），改成開著時 0.2 秒看一次。
+------------------------------------------------------------
+local GRID_TEXT = {
+    enUS = { "Grid", "Spacing" },
+    zhTW = { "格線", "間距" },
+    zhCN = { "网格", "间距" },
+    koKR = { "격자", "간격" },
+    deDE = { "Raster", "Abstand" },
+    frFR = { "Grille", "Espacement" },
+    esES = { "Cuadrícula", "Espaciado" },
+    itIT = { "Griglia", "Spaziatura" },
+    ptBR = { "Grade", "Espaçamento" },
+    ruRU = { "Сетка", "Шаг" },
+}
+GRID_TEXT.esMX = GRID_TEXT.esES
+GRID_TEXT.ptPT = GRID_TEXT.ptBR
+local gridText = GRID_TEXT[GetLocale()] or GRID_TEXT.enUS
+
+local GRID_MIN, GRID_MAX, GRID_STEP, GRID_DEFAULT = 10, 200, 2, 40
+local GRID_OVERLAY_NAME = "MiliUIWidgetsGridOverlay1"
+
+local function GridOverlay()
+    local ov = _G[GRID_OVERLAY_NAME]
+    if ov then return ov end
+
+    ov = CreateFrame("Frame", GRID_OVERLAY_NAME, UIParent)
+    ov:SetAllPoints(UIParent)
+    ov:SetFrameStrata("BACKGROUND")
+    ov:SetFrameLevel(0)
+    ov:EnableMouse(false)
+    ov:Hide()
+    ov.owners, ov.order, ov.lines, ov.used = {}, {}, {}, 0
+
+    local function Line(i)
+        local t = ov.lines[i]
+        if not t then
+            t = ov:CreateTexture(nil, "BACKGROUND")
+            t:SetTexture(WHITE)
+            ov.lines[i] = t
+        end
+        t:ClearAllPoints()
+        t:Show()
+        return t
+    end
+
+    -- 線池只長不丟（貼圖刪不掉）；間距變大時多的藏起來
+    function ov:Redraw()
+        local spacing = self.spacing
+        local w, h = self:GetSize()
+        if not (spacing and w and h and w > 0 and h > 0) then return end
+        -- 1 個實體像素在這張框上是多少 UI 單位
+        local px = (768 / select(2, GetPhysicalScreenSize())) / self:GetEffectiveScale()
+        local ar, ag, ab = W.Accent()
+        local n = 0
+        local cx, cy = w / 2, h / 2
+        local function V(x, center)
+            n = n + 1
+            local t = Line(n)
+            t:SetPoint("TOPLEFT", self, "TOPLEFT", x - px / 2, 0)
+            t:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", x - px / 2, 0)
+            t:SetWidth(px)
+            if center then t:SetVertexColor(ar, ag, ab, 0.7) else t:SetVertexColor(0.6, 0.6, 0.6, 0.35) end
+        end
+        local function H(y, center)
+            n = n + 1
+            local t = Line(n)
+            t:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", 0, y - px / 2)
+            t:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", 0, y - px / 2)
+            t:SetHeight(px)
+            if center then t:SetVertexColor(ar, ag, ab, 0.7) else t:SetVertexColor(0.6, 0.6, 0.6, 0.35) end
+        end
+        for k = 1, math.floor(cx / spacing) do V(cx - k * spacing); V(cx + k * spacing) end
+        for k = 1, math.floor(cy / spacing) do H(cy - k * spacing); H(cy + k * spacing) end
+        -- 中心兩條最後畫，蓋在一般線上面
+        V(cx, true)
+        H(cy, true)
+        for i = n + 1, self.used do self.lines[i]:Hide() end
+        self.used = n
+    end
+
+    -- 暴雪編輯模式的格線看得到 ⇒ 我們讓位
+    -- ⚠ 要問 IsVisible 不是 IsShown：玩家在編輯模式勾過「顯示格線」的話，暴雪載入設定時就
+    --   Grid:SetShown(true)，沒進編輯模式時 Grid 自己的旗標照樣是 true（只是父框藏著）
+    --   ⇒ 問 IsShown 會永遠讓位、一條線都不畫
+    local function BlizzGridShown()
+        local g = EditModeManagerFrame and EditModeManagerFrame.Grid
+        if not (g and g.IsVisible) then return false end
+        local ok, v = pcall(g.IsVisible, g)
+        return ok and v == true
+    end
+    ov.BlizzGridShown = BlizzGridShown
+
+    function ov:Update()
+        local top = self.order[#self.order]
+        if not top then
+            self:Hide()
+            self.spacing = nil
+            return
+        end
+        self.spacing = self.owners[top]
+        local show = not BlizzGridShown()
+        self:SetShown(show)
+        if show then self:Redraw() end
+    end
+
+    -- owner 開著格線就給間距，關掉給 nil。最後動的那個排到最後（照它的間距畫）
+    function ov:SetOwner(owner, spacing)
+        for i = #self.order, 1, -1 do
+            if self.order[i] == owner then table.remove(self.order, i) end
+        end
+        self.owners[owner] = spacing
+        if spacing then self.order[#self.order + 1] = owner end
+        self:Update()
+    end
+
+    -- 可見與否：自己藏起來的時候 OnUpdate 也停，所以讓位的檢查掛在另一張常駐的小框上
+    local watch = CreateFrame("Frame")
+    local acc = 0
+    watch:SetScript("OnUpdate", function(_, elapsed)
+        if #ov.order == 0 then return end
+        acc = acc + elapsed
+        if acc < 0.2 then return end
+        acc = 0
+        local want = not BlizzGridShown()
+        if want ~= ov:IsShown() then
+            ov:SetShown(want)
+            if want then ov:Redraw() end
+        end
+    end)
+
+    ov:SetScript("OnSizeChanged", function(self) if self:IsShown() then self:Redraw() end end)
+    ov:RegisterEvent("UI_SCALE_CHANGED")
+    ov:RegisterEvent("DISPLAY_SIZE_CHANGED")
+    ov:SetScript("OnEvent", function(self) if self:IsShown() then self:Redraw() end end)
+    return ov
+end
+
+local GRID_BTN_H = 22
+local GRID_POP_W, GRID_POP_H = 230, 30
+
+function W.CreateGridToggle(panel, opts)
+    opts = opts or {}
+    local function DB()
+        local d = opts.db
+        if type(d) == "function" then d = d() end
+        return d
+    end
+    local function Spacing()
+        local d = DB()
+        local v = d and tonumber(d.gridSpacing) or GRID_DEFAULT
+        if v < GRID_MIN then v = GRID_MIN elseif v > GRID_MAX then v = GRID_MAX end
+        return v
+    end
+    local function On()
+        local d = DB()
+        return d and d.grid == true or false
+    end
+
+    local btn = W.CreateButton(panel, "", "normal", 74, GRID_BTN_H)
+    -- 跟左邊的分頁鈕同一排：面板上緣外側、靠右
+    btn:SetPoint("BOTTOMRIGHT", panel, "TOPRIGHT", 0, 1)
+
+    -- 浮出的間距滑桿：按鈕正上方、右緣對齊（標題列在左邊，不會撞）
+    -- 層級壓過面板裡的一切（關閉鈕 +200、標題列那排的搜尋框）：浮窗只在滑過時出現，蓋住是對的
+    local pop = W.CreateFrame(nil, btn, GRID_POP_W, GRID_POP_H)
+    pop:SetPoint("BOTTOMRIGHT", btn, "TOPRIGHT", 0, 2)
+    pop:SetFrameLevel(panel:GetFrameLevel() + 300)
+    pop:SetBackdropBorderColor(W.Accent(0.8))
+    pop:EnableMouse(true)
+    pop:Hide()
+
+    local label = pop:CreateFontString(nil, "OVERLAY")
+    label:SetFontObject(fontSmall)
+    label:SetPoint("LEFT", pop, "LEFT", 8, 0)
+    label:SetText(gridText[2])
+
+    local toggle = { button = btn, popup = pop }
+    local ov
+
+    local function Push()
+        ov = ov or GridOverlay()
+        ov:SetOwner(toggle, (On() and panel:IsShown()) and Spacing() or nil)
+    end
+
+    local function Paint()
+        local on = On()
+        btn:SetText(gridText[1] .. ": " .. (on and "ON" or "OFF"))
+        W.SetButtonVariant(btn, on and "primary" or "normal")
+    end
+
+    -- 寬度照 ON／OFF 比較寬的那個一次定死：切換時按鈕不跟著伸縮（左邊有分頁或搜尋框在排）
+    local fs = btn:GetFontString()
+    local btnW = 74
+    for _, v in ipairs({ "ON", "OFF" }) do
+        btn:SetText(gridText[1] .. ": " .. v)
+        btnW = math.max(btnW, math.ceil(fs:GetStringWidth()) + W.BTN_TEXT_PAD)
+    end
+    P.Size(btn, btnW, GRID_BTN_H)
+    toggle.width = btnW     -- 宿主排分頁列右側空間時扣掉這段
+
+    local slider = W.CreateSlider(pop, GRID_MIN, GRID_MAX,
+        GRID_POP_W - 16 - math.ceil(label:GetStringWidth()) - 8, GRID_STEP,
+        function(v)
+            local d = DB()
+            if d then d.gridSpacing = v end
+            -- 調間距就是想看格線：關著的話順手打開
+            if d and not d.grid then d.grid = true; Paint() end
+            Push()
+            if opts.onChange then opts.onChange(On(), v) end
+        end,
+        function(v)
+            local d = DB()
+            if d then d.gridSpacing = v end
+            Push()
+            if opts.onChange then opts.onChange(On(), v) end
+        end)
+    slider:SetPoint("LEFT", label, "RIGHT", 8, 0)
+
+    -- 滑鼠離開按鈕＋浮窗、而且沒在拖拉桿／打數字，0.3 秒後收起來
+    -- （中間要跨過 2px 的縫，不能一離開就關）
+    -- 拖拉桿時游標常常滑出浮窗，按著左鍵的期間不收（放開落在外面也照樣收得到：輪詢按鍵狀態）
+    local away, dragging = 0, false
+    slider.slider:HookScript("OnMouseDown", function() dragging = true end)
+    pop:SetScript("OnUpdate", function(self, elapsed)
+        if dragging and not IsMouseButtonDown("LeftButton") then dragging = false end
+        local busy = dragging or btn:IsMouseOver() or self:IsMouseOver() or slider.editBox:HasFocus()
+        if busy then away = 0 return end
+        away = away + elapsed
+        if away > 0.3 then self:Hide() end
+    end)
+
+    btn:SetScript("OnEnter", function(self)
+        W.PaintButton(self, true)
+        away = 0
+        slider:SetValue(Spacing())
+        pop:Show()
+    end)
+    btn:SetScript("OnLeave", function(self) W.PaintButton(self, false) end)
+    btn:SetScript("OnClick", function()
+        local d = DB()
+        if not d then return end
+        d.grid = not On()
+        Paint()
+        Push()
+        if opts.onChange then opts.onChange(On(), Spacing()) end
+    end)
+
+    panel:HookScript("OnShow", function() Paint(); Push() end)
+    panel:HookScript("OnHide", function() pop:Hide(); Push() end)
+
+    function toggle:Active()
+        if not (ov and ov.owners[self] and ov:IsShown()) then return nil end
+        return ov.spacing
+    end
+    function toggle:Refresh() Paint(); Push() end
+
+    Paint()
+    if panel:IsShown() then Push() end
+    return toggle
 end
