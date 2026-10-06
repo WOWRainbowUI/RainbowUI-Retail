@@ -11,8 +11,8 @@ local module = core:NewModule("LDB", "AceEvent-3.0")
 local dataobject, tooltip
 
 local default_help = {
-	"Left-click to browse every rare",
-	"Right-click to open settings",
+	"左鍵: 瀏覽所有稀有怪",
+	"右鍵: 開啟設定",
 }
 if core.debuggable then
 	table.insert(default_help, "Shift+右鍵: 顯示除錯資訊")
@@ -159,7 +159,7 @@ function module:SetupDataObject()
 	dataobject = LibStub("LibDataBroker-1.1"):NewDataObject("SilverDragon", {
 		type = "data source",
 		icon = "Interface\\Icons\\INV_Misc_Head_Dragon_01",
-		label = "Rares",
+		label = "稀有怪",
 		text = "",
 	})
 
@@ -260,12 +260,12 @@ function module:SetupWorldMap()
 			if not button.options.config_path then
 				button.options.config_path = {'overlay'}
 				button.options.help = {
-					"Left-click to toggle map icons",
-					"Shift-left-click to toggle them for this zone only",
-					"Right-click for what to show",
+					"左鍵: 顯示或隱藏地圖圖示",
+					"Shift+左鍵: 只切換目前區域的地圖圖示",
+					"右鍵: 設定要顯示的內容",
 				}
 				if core.debuggable then
-					table.insert(button.options.help, "Shift-right-click to view debug information")
+					table.insert(button.options.help, "Shift+右鍵: 顯示除錯資訊")
 				end
 			end
 		else
@@ -333,8 +333,8 @@ function module:SetupMounts()
 	button:SetScript("OnEnter", function(self)
 		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
 		GameTooltip:SetText(C_AddOns.GetAddOnMetadata(myname, "Title"))
-		GameTooltip:AddLine(("SilverDragon knows about %d rares that drop a mount."):format(module:CountMountMobs()), 1, 1, 1)
-		GameTooltip:AddLine("Click to see them", 0, 1, 1)
+		GameTooltip:AddLine(("已知有 %d 個會掉落坐騎的稀有怪。"):format(module:CountMountMobs()), 1, 1, 1)
+		GameTooltip:AddLine("點擊查看這些稀有怪", 0, 1, 1)
 		GameTooltip:Show()
 	end)
 	button:SetScript("OnLeave", GameTooltip_Hide)
