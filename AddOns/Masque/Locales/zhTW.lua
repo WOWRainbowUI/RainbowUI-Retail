@@ -225,3 +225,6 @@ L["A square skin with zoomed icons and a semi-transparent background."] = "方�
 
 -- 自行加入
 L["Masque"] = "按鈕外觀"
+L["Baganator"] = "多角色背包"
+L["BuffReminders"] = "增益提醒"
+L["MiniAuras"] = "MA 技能提醒"

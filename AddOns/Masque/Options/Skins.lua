@@ -160,6 +160,7 @@ end
 -- Creates a skin options group for an add-on or add-on group.
 local function GetOptions(obj, Order)
 	local Addon, Group, Notes = obj.Addon, obj.Group, obj.Notes or nil
+	Addon = Addon and L[Addon]
 	local Name, Title, Desc
 
 	if Group then
