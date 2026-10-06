@@ -53,7 +53,7 @@ constants.defaults = {
 			minimapPos = 153,
 		},
 		showbutton = true, 
-		showmoneyinfo = true, 
+		showmoneyinfo = false,
 		showintrotip = true,
 		showmoneyonbutton = true,
 		showsessiononbutton = true,
