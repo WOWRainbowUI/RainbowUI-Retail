@@ -1,7 +1,8 @@
 # MiliUIWidgets
 
-MiliUI 各插件共用的元件與基礎設施。自寫、零外部依賴、零資產檔（材質只用暴雪內建的
-`WHITE8X8`，字型走暴雪內建路徑），複製過去就會動。
+MiliUI 各插件共用的元件與基礎設施。自寫、零外部依賴，資產檔只有一張勾選框的勾
+（`Media/check-outline.tga`；其餘材質只用暴雪內建的 `WHITE8X8`，字型走暴雪內建路徑），
+整個資料夾複製過去就會動。
 
 **這是 vendor 包，不是 LibStub 函式庫。** 每個插件各帶一份、各跑各的，彼此不共享執行期
 狀態 —— 所以單獨發佈某支插件時，玩家只會下載到**一個**資料夾，不必另外裝共用層。
@@ -30,6 +31,7 @@ python3 .claude/scripts/sync-widgets.py --check   # 只檢查漂移（提交前�
 | `ContextMenu.lua` | 逐字複製 | 右鍵／情境選單（長在遊戲畫面上的那種，不是設定表單裡的下拉） |
 | `Controls.lua` | 逐字複製 | 表單引擎：吃一張 spec 清單，吐出對齊好的一整頁控制項 |
 | `PixelPerfect.lua` | 可略 | 像素對齊。插件已經有自己的一份就別帶，把 `Env.P` 指過去即可 |
+| `Media/check-outline.tga` | 逐字複製 | 勾選框的勾：64×64「白勾＋1px 黑框」，`SetVertexColor` 染職業色（乘法 ⇒ 黑框不變）。跟 MiliUI_Skin 的勾同一張。`Widgets.lua` 照 `<插件>\Libs\MiliUIWidgets\Media\` 取用 —— **這包一定要放在 `Libs/MiliUIWidgets/`**，換地方勾會靜默變空白。同步腳本會自動補齊（貼圖不用排 TOC） |
 
 ## 怎麼搬到新插件
 
@@ -58,7 +60,7 @@ python3 .claude/scripts/sync-widgets.py --check   # 只檢查漂移（提交前�
 
 已用掉的前綴：`MiliUIPack`（本體）、`MiliUIUF`、`MiliUITip`、`MiliUIFocus`、
 `MiliUIChatBar`、`MiliUIBurst`、`MiliUIBLM`、`MiliUIDM`、`MiliUIAura`、`MiliUINote`、
-`MiliUIInfo`。
+`MiliUIInfo`、`MiliUIShop`、`MiliUIMerchant`、`MiliUIMPlus`、`MiliUIAGSC`。
 
 ### L 只需要四個 key
 
@@ -96,6 +98,24 @@ Options\Blizzard.lua
 `Secret` / `Errors` / `Metro` 三支**完全沒有相依**（不讀 Env、不讀語系），所以跟
 `PixelPerfect.lua` 一起排在最前面 —— 宿主的 `Core/*.lua` 在檔案層就會用到它們。
 
+### 格線開關（`W.CreateGridToggle`，opt-in）
+
+設定視窗開著就能拖東西的插件用：面板右上角（分頁列那一排、靠右）一顆「格線: ON／OFF」，
+滑過時正上方浮出「間距」滑桿，拖動即時重畫（關著的話順手打開）。
+
+```lua
+local grid = W.CreateGridToggle(panel, { db = function() return ns.sv.optionsWindow end })
+grid:Active()   -- 格線此刻畫在畫面上 ⇒ 間距（UIParent 單位、原點畫面中心）；否則 nil
+```
+
+- 存在宿主給的 db 表：`grid`（布林）、`gridSpacing`（10～200，預設 40）。
+- 只在面板開著時畫；畫法跟暴雪編輯模式的格線一樣（畫面中心往外、中心兩條職業色）。
+  宿主的拖曳吸附原點用 `UIParent:GetCenter()` 就對得上。
+- 畫線的框**全套組共用一張**（`_G.MiliUIWidgetsGridOverlay1`）：兩支插件的面板同時開格線
+  不會疊兩套線，誰最後動就照誰的間距。暴雪編輯模式的格線看得到時整張讓位。
+- 要排在宿主 `panel:SetScript("OnShow"/"OnHide")` **之後**（共用層走 HookScript）。
+- 文案（「格線」「間距」）跟拖曳提示一樣是共用層自帶的十語系，不吃宿主的 L。
+
 ### 右鍵選單（`ContextMenu.lua`）
 
 長在**遊戲畫面上**的那種選單，不是設定表單裡的 `CreateDropdown`。
@@ -107,8 +127,10 @@ W.Menu.IsOpenFor(btn)        -- 同一顆再按一次＝關閉；宿主用它避
 W.SetMenuFont(token, size)   -- 選用，讓選單跟著宿主自己的字型設定走
 ```
 
-`items` 每一筆：`{ text, onClick, value, isActive, isTitle, isSeparator, submenu, keepOpen }`。
+`items` 每一筆：`{ text, onClick, value, isActive, isTitle, isSeparator, submenu, keepOpen, tooltip }`。
 `value` 是右側的「目前值」讀數，`isActive` 會在左槽打勾。
+`tooltip` 選用，`function(tt)`：滑過時在該列右邊開 GameTooltip，宿主只管 `tt:AddLine`。
+`keepAnchor` 重畫時子選單若開著會照同一列重開 —— 子選單裡的 keepOpen 單選／開關按下去看得到打勾換位置。
 
 ⚠ **「有哪些項目」是宿主自己的事，不要寫回這支。** 這包會進共用層正是因為
 ChatBar 與 DamageMeters 各帶一份幾乎一樣的引擎，結果同一個「ESC 關不掉」的 bug
@@ -116,6 +138,95 @@ ChatBar 與 DamageMeters 各帶一份幾乎一樣的引擎，結果同一個「E
 
 版面與互動的設計規則（打勾欄、標題階層、子選單寬限期）寫在
 [`miliui-menu-design`](../../../../.claude/skills/miliui-menu-design/SKILL.md) 技能。
+
+### 說明文字的兩種顏色
+
+```lua
+fs:SetFontObject(W.fontSmall)      -- 一般說明（灰字）：控件下一列的補充
+fs:SetFontObject(W.fontEmphasis)   -- 強調說明（黃字）：適用範圍、注意事項，要玩家先看到的
+W.EMPHASIS_COLOR                   -- 同一個黃色的 { r, g, b }，給 |c 色碼或 SetTextColor 用
+```
+
+「黃字說明」是全套組的用語：使用者說要黃字說明，就是 `W.fontEmphasis` 這個顏色，不要另外挑黃色。
+字級跟 `fontSmall` 一樣，只換顏色。
+
+### 按鈕配色（`W.CreateButton` 的 colorKey）
+
+```lua
+W.CreateButton(parent, text, "primary", w, h)  -- 「確認／執行」那一顆
+W.CreateButton(parent, text, "normal",  w, h)  -- 其餘（取消、返回、一整排平行選項）
+W.PaintButton(b, hover)                        -- 自己接 OnEnter/OnLeave 時用它重畫
+```
+
+**用哪一種是全套組的規則**，寫在 `.claude/notes/project-miliui-button-variants.md`：
+一個區塊最多一顆 `primary`，其餘 `normal`；`red` 留給破壞性動作與關閉鈕。
+`primary` 跟 MiliUI_Skin 的主按鈕是同一條公式（平時壓暗的職業色底 ＋ 中亮的職業色邊、
+滑過整顆換成職業色、停用退回中性），兩邊的數字要一起改。
+`accent`（半透明底）與 `green` 是舊配色，新程式碼不要再用。
+
+⚠ **自己 `SetScript("OnEnter"/"OnLeave")` 的呼叫端**（掛工具提示、列高亮）要叫
+`W.PaintButton(self, true/false)`，不要自己 `unpack(self._colors[2])`：那只換得到底，
+`primary` 的邊會卡在上一個狀態。啟停（`SetEnabled`／`Enable`／`Disable`）已經內建重畫。
+
+### 放不下的字（幾支 opt-in 的工具）
+
+共用層的按鈕字、勾選框標籤、下拉的選中文字**都不換行**，太長就溢出或被截成「…」，
+歐語譯文特別容易踩到。每支工具各對應一個位置，**全部是 opt-in**：
+
+```lua
+W.FitButton(b, minW, height)   -- 字 + 內距 > minW 才把按鈕撐開，回傳實際寬度
+W.WrapButton(b, width, minH)   -- 右邊撐不開時改成「字換行、按鈕往下長」，回傳實際高度
+cb:SetLabelMaxWidth(maxW)      -- 勾選框右側的標籤夾進 maxW 換行，回傳多出來的高度
+dd:SetMaxWidth(maxW)           -- 下拉照「最寬的項目」撐寬，上限 maxW
+W.TextExtraHeight(fs, text)    -- 底層：填字並回傳換行多出來的高度（沒換行回 0）
+```
+
+⚠ **預設不能撐寬**，所以沒有一支是自動的。呼叫端的版面有一半是絕對座標排的，
+擅自撐寬只是把「字溢出」換成「蓋到隔壁控件」——後者連點擊區一起蓋，更糟。
+只有知道「這一列右邊還剩多少」的呼叫端說得出上限。
+
+**字放得下的時候三支都一個位元都不動**（尺寸、錨點、點擊熱區與沒呼叫時相同），
+一排等寬的按鈕才不會只有一顆特別寬。`Controls.Build` 的 `button` / `toggle` /
+`dropdown` 三個分支已經內建接上了，走表單引擎的不必自己叫。
+
+`dd:SetMaxWidth` 量的是**最寬的那一項**、不是當下選的那一項 —— 寬度一次定好，
+選一次跳一次很難看；之後每次 `dd:SetItems` 會照新清單重算。撐到上限還是放不下時，
+滑鼠移上去會用 `GameTooltip` 補上全文（這條是內建的，沒 opt-in 也有）。
+
+`W.FitButton` 可以重複呼叫：之後才 `SetText` 的（讀數型按鈕）換完字再叫一次。
+刻意**不去 hook `SetText`** —— 那會讓每次刷新讀數都偷偷改版面。
+
+`W.WrapButton` 是 `FitButton` 的另一半：**右邊沒有空間可以撐寬**時（固定寬的直排
+清單，右邊緊接著分隔線）只剩「往下長」這條路。判準是「自然寬 ≤ width 就完全不動」，
+內距（`W.BTN_WRAP_PAD`）只有換行時才留 —— 拿內距當判準的話，原本貼著邊框但沒溢出的
+那幾顆（中韓譯名多半是這樣）會當場多長一行。呼叫端要拿回傳的高度**累加**著往下排，
+不能再用固定的 pitch。量不到高度（版面還沒解析）時會整個收手退回原樣：
+「換了行卻沒長高」會讓第二行畫到下一顆按鈕身上，比字溢出更糟。
+
+### 一排按鈕放不下就換排（`W.FlowLayout` / `W.FlowRows`）
+
+```lua
+local rows, h = W.FlowLayout(parent, buttons, maxW, gapX, gapY, rowH)  -- 排可見的那些
+local rows    = W.FlowRows(buttons, maxW, gapX)                        -- 只數排數，每顆都算
+```
+
+一排 chip 用「第一顆錨 parent 的 `TOPLEFT`、其餘一路 `LEFT`→`RIGHT` 串接」排成一行是
+最省事的寫法，但那排字是會被翻譯的：中文剛好卡邊的一排，俄文展開有兩倍半寬，直接衝出
+視窗右緣（溢出去的那截點得到、看不到）。`W.FlowLayout` 只排版、不建立東西，而且
+**單排時的錨點與原本的串接寫法逐位元相同**，放得下的語系一個像素都不會變。
+
+`maxW` 量不到（`GetWidth()` 回 0／nil）就當成無限寬＝維持單排的舊行為；退成「每顆
+一排」的話，版面解析前跑一次就會把整排炸開。呼叫端仍應自己備一個由視窗寬算出來的
+退路值。
+
+`W.FlowRows` **不管按鈕現在顯不顯示、每一顆都算**：清單內容會變的容器（不同對象有
+不同數量的 chip），高度應該一次留給「全部都出現」的排數。跟著內容跳的話，底下的東西
+每換一次對象就上下彈一次 —— 穩定比緊湊重要，chip 少的時候底下空一排可以接受。
+
+`W.CreateConfirmPopup` / `W.CreateChoicePopup` 的高度原本寫死（84／96，只夠兩三行），
+訊息換完行有四行的語系會讓後兩行**蓋在確定／取消上面**。現在兩者的 `OnShow` 會量文字、
+撞到按鈕才加高（撞不到就維持原高）。⚠ 一定要在 `OnShow` 量：訊息多半是重用的彈窗在
+`Show()` 之前才 `popup.text:SetText(...)` 填的。
 
 ### 三個比較不明顯的元件
 
