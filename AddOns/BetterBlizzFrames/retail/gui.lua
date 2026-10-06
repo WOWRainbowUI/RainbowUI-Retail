@@ -87,10 +87,11 @@ local function KeepPopupInSettings(popup, panel)
     if popup.Bg then
         popup.Bg:Hide()
     end
-    popup:SetFrameStrata("DIALOG")
+    popup:SetFrameStrata("FULLSCREEN_DIALOG")
+    popup:SetFrameLevel(550)
     popup:SetToplevel(true)
     popup:HookScript("OnShow", function(self)
-        self:SetFrameStrata("DIALOG")
+        self:SetFrameStrata("FULLSCREEN_DIALOG")
         self:Raise()
     end)
     popup:HookScript("OnHide", function()
@@ -1026,7 +1027,8 @@ local function CreateIconChangeWindow()
     local window = CreateFrame("Frame", "IconChangeWindow", UIParent, "DefaultPanelFlatTemplate")
     window:SetSize(300, 180)
     window:SetPoint("CENTER")
-    window:SetFrameStrata("HIGH")
+    window:SetFrameStrata("FULLSCREEN_DIALOG")
+    window:SetFrameLevel(550)
     window:SetIgnoreParentAlpha(true)
     window:SetTitle(L["Icon"])
     window:EnableMouse(true)
@@ -1038,6 +1040,7 @@ local function CreateIconChangeWindow()
     window:Hide()
 
     window.closeButton = CreateFrame("Button", nil, window, "UIPanelCloseButton")
+    window.closeButton:SetFrameLevel((window.TitleContainer or window):GetFrameLevel() + 10)
     window.closeButton:SetPoint("TOPRIGHT", window, "TOPRIGHT", 0, 0)
     window.closeButton:SetScript("OnClick", function()
         window:Hide()
@@ -1242,7 +1245,7 @@ local function CreateSlider(parent, label, minValue, maxValue, stepValue, elemen
     editBox:SetHeight(20) -- Set the height of the EditBox
     editBox:SetMultiLine(false)
     editBox:SetPoint("CENTER", slider, "CENTER", 0, 0) -- Position it to the right of the slider
-    editBox:SetFrameStrata("DIALOG") -- Ensure it appears above other UI elements
+    editBox:SetFrameStrata("TOOLTIP") -- Ensure it appears above other UI elements
     editBox:Hide()
     editBox:SetFontObject(GameFontHighlightSmall)
 
@@ -1356,6 +1359,14 @@ local function CreateSlider(parent, label, minValue, maxValue, stepValue, elemen
                     BetterBlizzFramesDB.darkModeColor = value
                     if not BBF.checkCombatAndWarn() then
                         BBF.DarkmodeFrames()
+                    end
+                elseif element == "darkModeColorElite" then
+                    BetterBlizzFramesDB.darkModeColorElite = value
+                    if not BBF.checkCombatAndWarn() then
+                        BBF.DarkmodeFrames(true)
+                        if BetterBlizzFramesDB.playerEliteFrame then
+                            BBF.PlayerElite(BetterBlizzFramesDB.playerEliteFrameMode)
+                        end
                     end
                 elseif element == "targetAndFocusAuraOffsetX" then
                     BetterBlizzFramesDB.targetAndFocusAuraOffsetX = value
@@ -1900,6 +1911,44 @@ local function ShowProfileConfirmation(profileName, class, profileFunction, addi
     BBF.ShowPopup("BBF_CONFIRM_PROFILE", nil, nil, { func = profileFunction })
 end
 
+function BBF.ShowProfileLink(link)
+    local box = BBF.profileLinkBox
+    if not box then
+        box = CreateFrame("EditBox", nil, UIParent, "InputBoxTemplate")
+        box:SetSize(170, 20)
+        box:SetAutoFocus(false)
+        box:SetFrameStrata("FULLSCREEN_DIALOG")
+        box:SetScript("OnEscapePressed", box.Hide)
+        box:SetScript("OnEnterPressed", box.Hide)
+        box:SetScript("OnEditFocusLost", box.Hide)
+        box:SetScript("OnTextChanged", function(self, userInput)
+            if userInput then
+                self:SetText(self.link)
+                self:HighlightText()
+            end
+        end)
+        box:SetScript("OnKeyDown", function(self, key)
+            if key == "C" and IsControlKeyDown() then
+                C_Timer.After(0, function() self:Hide() end)
+            end
+        end)
+        BBF.profileLinkBox = box
+    end
+    if not link then
+        box:Hide()
+        return
+    end
+    box.link = link
+    box:ClearAllPoints()
+    local x, y = GetCursorPosition()
+    local scale = UIParent:GetEffectiveScale()
+    box:SetPoint("TOP", UIParent, "BOTTOMLEFT", x / scale, y / scale - 12)
+    box:SetText(link)
+    box:Show()
+    box:SetFocus()
+    box:HighlightText()
+end
+
 local function CreateClassButton(parent, class, name, twitchName, onClickFunc)
     local bbfParent = parent == BetterBlizzFrames
     local coreProfile = class == "STARTER" or name == "Bodify"
@@ -1926,8 +1975,11 @@ local function CreateClassButton(parent, class, name, twitchName, onClickFunc)
     end
     local ttAnchor = "ANCHOR_TOP"
 
-    button:SetScript("OnClick", function()
-        if onClickFunc then
+    button:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+    button:SetScript("OnClick", function(self, mouseButton)
+        if mouseButton == "RightButton" then
+            BBF.ShowProfileLink(twitchName and ("www.twitch.tv/"..twitchName))
+        elseif onClickFunc then
             onClickFunc()
         end
     end)
@@ -3843,9 +3895,28 @@ local function guiProfiles()
     frame.infoText = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     frame.infoText:SetPoint("BOTTOM", frame, "BOTTOM", 2, 50)
     frame.infoText:SetText(L["Profile_Info_Message"])
-    frame.infoText:SetWidth(100)
+    frame.infoText:SetWidth(135)
 
     frame:SetSize(130, parent:GetHeight())
+
+    local streamerCount = 0
+    for _, profile in ipairs(BBF.ProfileData) do
+        if not profile.core then
+            streamerCount = streamerCount + 1
+        end
+    end
+    if streamerCount >= 20 then
+        frame.twoColumn = true
+        frame.titleText:SetText("|A:gmchat-icon-blizz:16:16|a BetterBlizzFrames")
+        frame.descriptionText:SetFontObject("GameFontNormal")
+        frame.descriptionText:SetText((L["Profile_Description"]:gsub(" ", "\n", 1)))
+        frame.descriptionText:SetWidth(145)
+        frame.coreText:SetFontObject("GameFontNormalLarge")
+        frame.coreText:SetPoint("TOP", frame.descriptionText, "BOTTOM", 0, -10)
+        frame.streamerText:SetFontObject("GameFontNormalLarge")
+        frame.infoText:SetWidth(135)
+        frame:SetWidth(165)
+    end
     frame:SetPoint("TOPRIGHT", parent, "TOPLEFT", 7, 0)
     frame:SetFrameStrata("BACKGROUND")
     frame.ClosePanelButton:SetAlpha(0)
@@ -4111,11 +4182,10 @@ local function guiGeneralTab()
         { key = "darkModeGameTooltip", label = L["Tooltip"], tooltipTitle = L["Dark_Mode_Tooltip"], tooltip = L["Tooltip_Dark_Mode_GameTooltip_Desc"], onChange = function(value)
             BBF.DarkmodeFrames(true)
         end },
-        { key = "darkModeEliteTexture", label = L["Elite_Texture"], tooltipTitle = L["Dark_Mode_Elite_Texture"], tooltip = L["Tooltip_Dark_Mode_Elite_Texture_Desc"], onChange = function(value)
+        { key = "darkModeEliteTexture", label = L["Elite_Texture"], tooltipTitle = L["Dark_Mode_Elite_Texture"], tooltip = L["Tooltip_Dark_Mode_Elite_Texture_Desc"] .. "\n\n|cff32f795" .. L["Right_Click_More_Settings"] .. "|r", onChange = function(value)
             BBF.DarkmodeFrames(true)
         end, onRightClick = function()
-            BetterBlizzFramesDB.darkModeEliteTextureDesaturated = not BetterBlizzFramesDB.darkModeEliteTextureDesaturated or nil
-            BBF.DarkmodeFrames(true)
+            BBF.OpenDarkModeEliteWindow()
         end },
         { key = "darkModeObjectiveFrame", label = L["Objectives"], tooltipTitle = L["Dark_Mode_Objectives"], tooltip = L["Tooltip_Dark_Mode_Objectives_Desc"], onChange = function(value)
             BBF.DarkmodeFrames(true)
@@ -4147,6 +4217,68 @@ local function guiGeneralTab()
     end
     darkModeUi:HookScript("OnClick", UpdateDarkModeOptionsState)
     UpdateDarkModeOptionsState()
+
+    function BBF.OpenDarkModeEliteWindow()
+        if not BBF.DarkModeEliteWindow then
+            local f = CreateFrame("Frame", "BBFDarkModeEliteWindow", UIParent, "DefaultPanelFlatTemplate")
+            f:SetSize(210, 140)
+            f:SetPoint("TOP", darkModeOptions, "BOTTOM", 0, -20)
+            f:SetFrameStrata("FULLSCREEN_DIALOG")
+            f:SetFrameLevel(550)
+            f:SetIgnoreParentAlpha(true)
+            f:SetTitle(L["Dark_Mode_Elite_Texture"])
+            f:EnableMouse(true)
+            f:SetMovable(true)
+            f:SetClampedToScreen(true)
+            f:RegisterForDrag("LeftButton")
+            f:SetScript("OnDragStart", function(self) self:StartMoving() end)
+            f:SetScript("OnDragStop", function(self) self:StopMovingOrSizing() end)
+
+            f.closeButton = CreateFrame("Button", nil, f, "UIPanelCloseButton")
+            f.closeButton:SetFrameLevel((f.TitleContainer or f):GetFrameLevel() + 10)
+            f.closeButton:SetPoint("TOPRIGHT", f, "TOPRIGHT", 0, 0)
+            f.closeButton:SetScript("OnClick", function()
+                f:Hide()
+            end)
+
+            f.bg = f:CreateTexture(nil, "BACKGROUND")
+            f.bg:SetPoint("TOPLEFT", f, "TOPLEFT", 7, -3)
+            f.bg:SetPoint("BOTTOMRIGHT", f, "BOTTOMRIGHT", -3, 3)
+            f.bg:SetColorTexture(0.08, 0.08, 0.08, 1)
+
+            local desaturate = CreateCheckbox("darkModeEliteTextureDesaturated", L["Desaturate"], f)
+            desaturate:SetPoint("TOPLEFT", f, "TOPLEFT", 14, -28)
+            desaturate:HookScript("OnClick", function()
+                BBF.DarkmodeFrames(true)
+            end)
+
+            local brightness = CreateSlider(f, L["Elite_Texture_Brightness_Tweak"], -1, 1, 0.01, "darkModeColorElite", nil, 170)
+            brightness:SetPoint("TOP", f, "TOP", 2, -75)
+            CreateTooltipTwo(brightness, L["Elite_Texture_Brightness_Tweak"], L["Tooltip_Elite_Texture_Brightness_Tweak"])
+
+            local defaultButton = CreateFrame("Button", nil, f, "UIPanelButtonTemplate")
+            defaultButton:SetSize(80, 22)
+            defaultButton:SetText(L["Default"])
+            defaultButton:SetPoint("BOTTOM", f, "BOTTOM", 0, 10)
+            defaultButton:SetScript("OnClick", function()
+                brightness:SetValue(0.1)
+                BetterBlizzFramesDB.darkModeColorElite = 0.1
+                BBF.DarkmodeFrames(true)
+            end)
+
+            f.desaturate = desaturate
+            KeepPopupInSettings(f, BetterBlizzFrames)
+            BBF.DarkModeEliteWindow = f
+            return
+        end
+        local f = BBF.DarkModeEliteWindow
+        if f:IsShown() then
+            f:Hide()
+        else
+            f.desaturate:SetChecked(BetterBlizzFramesDB.darkModeEliteTextureDesaturated and true or false)
+            f:Show()
+        end
+    end
 
 
 
@@ -4189,6 +4321,15 @@ local function guiGeneralTab()
     local bbfBigPlayerHealthbar = CreateCheckbox("bigPlayerHealthbar", L["Big_PlayerHealthbar"], BetterBlizzFrames, nil, BBF.UpdateBigPlayerHealthbar)
     bbfBigPlayerHealthbar:SetPoint("TOPLEFT", BetterBlizzFrames.playerFrameHidden, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
     CreateTooltipTwo(bbfBigPlayerHealthbar, L["Big_PlayerHealthbar"], L["Tooltip_Big_PlayerHealthbar_Desc"])
+
+    local hidePlayerLevelText = CreateCheckbox("hidePlayerLevelText", L["Hide_Player_Level"], BetterBlizzFrames, nil, BBF.HideFrames)
+    hidePlayerLevelText:SetPoint("LEFT", bbfBigPlayerHealthbar.text, "RIGHT", 5, 0)
+    CreateTooltipTwo(hidePlayerLevelText, L["Hide_Player_Level"], L["Tooltip_Hide_Player_Level"])
+    hidePlayerLevelText:HookScript("OnClick", function()
+        if BetterBlizzFramesDB.classicFrames or BetterBlizzFramesDB.noPortraitModes then
+            BBF.ShowPopup("BBF_CONFIRM_RELOAD")
+        end
+    end)
 
     local playerReputationColor = CreateCheckbox("playerReputationColor", L["Add_Reputation_Color"], BetterBlizzFrames, nil, BBF.PlayerReputationColor)
     playerReputationColor:SetPoint("TOPLEFT", bbfBigPlayerHealthbar, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
@@ -4251,7 +4392,8 @@ local function guiGeneralTab()
             classOptionsFrame = CreateFrame("Frame", "ClassOptionsFrame", UIParent, "DefaultPanelFlatTemplate")
             classOptionsFrame:SetSize(185, 252)
             classOptionsFrame:SetPoint("CENTER")
-            classOptionsFrame:SetFrameStrata("DIALOG")
+            classOptionsFrame:SetFrameStrata("FULLSCREEN_DIALOG")
+            classOptionsFrame:SetFrameLevel(550)
             classOptionsFrame:SetIgnoreParentAlpha(true)
             classOptionsFrame:SetTitle(L["Class_Specific_Options"])
             classOptionsFrame:EnableMouse(true)
@@ -4262,6 +4404,7 @@ local function guiGeneralTab()
             classOptionsFrame:SetScript("OnDragStop", function(self) self:StopMovingOrSizing() end)
 
             classOptionsFrame.closeButton = CreateFrame("Button", nil, classOptionsFrame, "UIPanelCloseButton")
+            classOptionsFrame.closeButton:SetFrameLevel((classOptionsFrame.TitleContainer or classOptionsFrame):GetFrameLevel() + 10)
             classOptionsFrame.closeButton:SetPoint("TOPRIGHT", classOptionsFrame, "TOPRIGHT", 0, 0)
             classOptionsFrame.closeButton:SetScript("OnClick", function()
                 classOptionsFrame:Hide()
@@ -4671,7 +4814,8 @@ local function guiGeneralTab()
     KeepPopupInSettings(betterTargetHighlight.extendedSettings, BetterBlizzFrames)
     betterTargetHighlight.extendedSettings:SetSize(250, 195)
     betterTargetHighlight.extendedSettings:SetPoint("BOTTOMRIGHT", betterTargetHighlight, "BOTTOMLEFT", -5, -10)
-    betterTargetHighlight.extendedSettings:SetFrameStrata("DIALOG")
+    betterTargetHighlight.extendedSettings:SetFrameStrata("FULLSCREEN_DIALOG")
+    betterTargetHighlight.extendedSettings:SetFrameLevel(550)
     betterTargetHighlight.extendedSettings:SetIgnoreParentAlpha(true)
     betterTargetHighlight.extendedSettings:Hide()
     betterTargetHighlight.extendedSettings:SetTitle(L["Better_Target_Highlight_Settings"])
@@ -4683,6 +4827,7 @@ local function guiGeneralTab()
     betterTargetHighlight.extendedSettings:SetScript("OnDragStop", function(self) self:StopMovingOrSizing() end)
 
     betterTargetHighlight.closeButton = CreateFrame("Button", nil, betterTargetHighlight.extendedSettings, "UIPanelCloseButton")
+    betterTargetHighlight.closeButton:SetFrameLevel((betterTargetHighlight.extendedSettings.TitleContainer or betterTargetHighlight.extendedSettings):GetFrameLevel() + 10)
     betterTargetHighlight.closeButton:SetPoint("TOPRIGHT", betterTargetHighlight.extendedSettings, "TOPRIGHT", 0, 0)
     betterTargetHighlight.closeButton:SetScript("OnClick", function()
         betterTargetHighlight.extendedSettings:Hide()
@@ -5205,7 +5350,107 @@ local function guiGeneralTab()
 
     local classicFrames = CreateCheckbox("classicFrames", L["Classic_Frames"], BetterBlizzFrames)
     classicFrames:SetPoint("TOPLEFT", allFrameText, "BOTTOMLEFT", -24, pixelsOnFirstBox)
-    CreateTooltipTwo(classicFrames, L["Classic_Frames"], L["Tooltip_Classic_Frames_Desc"])
+    CreateTooltipTwo(classicFrames, L["Classic_Frames"], L["Tooltip_Classic_Frames_Desc"] .. L["Tooltip_Classic_Frames_Right_Click"])
+    classicFrames:HookScript("OnMouseDown", function(_, button)
+        if button == "RightButton" then
+            BBF.OpenClassicFramesWindow()
+        end
+    end)
+
+    function BBF.OpenClassicFramesWindow()
+        local f = BBF.ClassicFramesWindow
+        if f and f:IsShown() then
+            f:Hide()
+            return
+        end
+        if not f then
+            local entries = {
+                { key = "classicFramesHDElite", label = L["HD_Elite_Dragons"], title = L["Classic_Frames_HD_Elite"], desc = L["Tooltip_Classic_Frames_HD_Elite_Desc"] },
+                { key = "classicFramesHDTextures", label = L["HD_Textures_By_Mo"], title = L["Classic_Frames_HD_Textures"], desc = L["Tooltip_Classic_Frames_HD_Textures_Desc"] },
+            }
+
+            f = CreateFrame("Frame", "BBFClassicFramesWindow", UIParent, "DefaultPanelFlatTemplate")
+            f:SetWidth(240)
+            f:SetPoint("TOPLEFT", classicFrames.Text, "TOPRIGHT", 10, 10)
+            f:SetFrameStrata("FULLSCREEN_DIALOG")
+            f:SetFrameLevel(550)
+            f:SetIgnoreParentAlpha(true)
+            f:SetTitle(L["Classic_Frames"])
+            f:EnableMouse(true)
+            f:SetMovable(true)
+            f:SetClampedToScreen(true)
+            f:RegisterForDrag("LeftButton")
+            f:SetScript("OnDragStart", function(self) self:StartMoving() end)
+            f:SetScript("OnDragStop", function(self) self:StopMovingOrSizing() end)
+
+            f.closeButton = CreateFrame("Button", nil, f, "UIPanelCloseButton")
+            f.closeButton:SetFrameLevel((f.TitleContainer or f):GetFrameLevel() + 10)
+            f.closeButton:SetPoint("TOPRIGHT", f, "TOPRIGHT", 0, 0)
+            f.closeButton:SetScript("OnClick", function()
+                f:Hide()
+            end)
+
+            f.bg = f:CreateTexture(nil, "BACKGROUND")
+            f.bg:SetPoint("TOPLEFT", f, "TOPLEFT", 7, -3)
+            f.bg:SetPoint("BOTTOMRIGHT", f, "BOTTOMRIGHT", -3, 3)
+            f.bg:SetColorTexture(0.08, 0.08, 0.08, 1)
+
+            f.boxes = {}
+            function f.Refresh()
+                local db = BetterBlizzFramesDB
+                for _, box in ipairs(f.boxes) do
+                    box:SetChecked(db[box.entry.key] and true or false)
+                    local enabled = not box.entry.parent or db[box.entry.parent]
+                    if box.original then
+                        enabled = enabled and box.original:IsEnabled()
+                    end
+                    box:SetEnabled(enabled and true or false)
+                    box:SetAlpha(enabled and 1 or 0.5)
+                end
+            end
+
+            local y = -28
+            for _, entry in ipairs(entries) do
+                local original
+                if not entry.onChange then
+                    for _, data in ipairs(checkBoxList) do
+                        if data.checkbox.dbKey == entry.key then
+                            original = data.checkbox
+                            break
+                        end
+                    end
+                end
+                if original or entry.onChange then
+                    local box = CreateFrame("CheckButton", nil, f, "UICheckButtonTemplate")
+                    box:SetSize(26, 26)
+                    box:SetPoint("TOPLEFT", f, "TOPLEFT", entry.parent and 34 or 14, y)
+                    box.Text:SetText(entry.label)
+                    box.entry = entry
+                    box.original = original
+                    if entry.title then
+                        CreateTooltipTwo(box, entry.title, entry.desc)
+                    end
+                    box:SetScript("OnClick", function(self)
+                        if original then
+                            original:Click()
+                        else
+                            BetterBlizzFramesDB[entry.key] = self:GetChecked() and true or false
+                            entry.onChange()
+                        end
+                        f.Refresh()
+                    end)
+                    table.insert(f.boxes, box)
+                    y = y - 24
+                end
+            end
+            f:SetHeight(-y + 12)
+
+            KeepPopupInSettings(f, BetterBlizzFrames)
+            BBF.ClassicFramesWindow = f
+        end
+        f.Refresh()
+        f:Show()
+    end
     classicFrames:HookScript("OnClick", function(self)
         BetterBlizzFramesDB.noPortraitModes = false
         if self:GetChecked() and C_AddOns.IsAddOnLoaded("ClassicFrames") then
@@ -5256,10 +5501,10 @@ local function guiGeneralTab()
                             CreateTooltipTwo(self.cfHDElite, L["Classic_Frames_HD_Elite"], L["Tooltip_Classic_Frames_HD_Elite_Desc"])
                             self.cfHDElite.Text:SetText(L["HD_Elite_Dragons"])
 
-                            -- self.cfHDTextures = CreateFrame("CheckButton", nil, self, "UICheckButtonTemplate")
-                            -- self.cfHDTextures:SetSize(26, 26)
-                            -- CreateTooltipTwo(self.cfHDTextures, L["Classic_Frames_HD_Textures"], L["Tooltip_Classic_Frames_HD_Textures_Desc"])
-                            -- self.cfHDTextures.Text:SetText(L["HD_Textures_By_Mo"])
+                            self.cfHDTextures = CreateFrame("CheckButton", nil, self, "UICheckButtonTemplate")
+                            self.cfHDTextures:SetSize(26, 26)
+                            CreateTooltipTwo(self.cfHDTextures, L["Classic_Frames_HD_Textures"], L["Tooltip_Classic_Frames_HD_Textures_Desc"])
+                            self.cfHDTextures.Text:SetText(L["HD_Textures_By_Mo"])
 
                             local firstClick = BetterBlizzFramesDB.classicFramesClicked == nil
                             BetterBlizzFramesDB.classicFramesClicked = true
@@ -5268,7 +5513,7 @@ local function guiGeneralTab()
                             self.cfComboPoints:SetChecked(C_CVar.GetCVar("comboPointLocation") == "1" and true or false)
                             self.cfTextures:SetChecked(BetterBlizzFramesDB.changeUnitFrameHealthbarTexture or false)
                             self.cfHDElite:SetChecked(BetterBlizzFramesDB.classicFramesHDElite or false)
-                            -- self.cfHDTextures:SetChecked(BetterBlizzFramesDB.classicFramesHDTextures or false)
+                            self.cfHDTextures:SetChecked(BetterBlizzFramesDB.classicFramesHDTextures or false)
 
                             self.classicSettings = true
                         end
@@ -5308,7 +5553,7 @@ local function guiGeneralTab()
                             BBF.ChangesOnReload["hidePlayerHealthLossAnim"] = statusBarsEnabled and true or nil
 
                             BBF.ChangesOnReload["classicFramesHDElite"] = self.cfHDElite:GetChecked() or false
-                            -- BBF.ChangesOnReload["classicFramesHDTextures"] = self.cfHDTextures:GetChecked() or false
+                            BBF.ChangesOnReload["classicFramesHDTextures"] = self.cfHDTextures:GetChecked() or false
                         end
                         CheckBoxes()
 
@@ -5324,17 +5569,17 @@ local function guiGeneralTab()
                         self.cfHDElite:SetScript("OnClick", function()
                             CheckBoxes()
                         end)
-                        -- self.cfHDTextures:SetScript("OnClick", function()
-                            -- CheckBoxes()
-                        -- end)
+                        self.cfHDTextures:SetScript("OnClick", function()
+                            CheckBoxes()
+                        end)
                         self.cfCastbars:SetPoint("BOTTOMLEFT", self.ButtonContainer.Button1, "TOPLEFT", 15, 63)
                         self.cfComboPoints:SetPoint("TOPLEFT", self.cfCastbars, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
                         self.cfTextures:SetPoint("TOPLEFT", self.cfComboPoints, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
                         self.cfHDElite:SetPoint("TOPLEFT", self.cfTextures, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
                         self.cfTextures:Show()
-                        -- self.cfHDTextures:SetPoint("LEFT", self.cfHDElite.Text, "RIGHT", 10, 0)
+                        self.cfHDTextures:SetPoint("LEFT", self.cfHDElite.Text, "RIGHT", 10, 0)
                         self.cfHDElite:Show()
-                        -- self.cfHDTextures:Show()
+                        self.cfHDTextures:Show()
                     end,
                     OnHide = function(self)
                         if self.cfTextures then
@@ -5349,9 +5594,9 @@ local function guiGeneralTab()
                         if self.cfHDElite then
                             self.cfHDElite:Hide()
                         end
-                        -- if self.cfHDTextures then
-                            -- self.cfHDTextures:Hide()
-                        -- end
+                        if self.cfHDTextures then
+                            self.cfHDTextures:Hide()
+                        end
                     end,
                     timeout = 0,
                     whileDead = true,
@@ -5429,7 +5674,8 @@ local function guiGeneralTab()
             noPortraitOptionsFrame = CreateFrame("Frame", "NoPortraitOptionsFrame", UIParent, "DefaultPanelFlatTemplate")
             noPortraitOptionsFrame:SetSize(185, 155)
             noPortraitOptionsFrame:SetPoint("TOP", noPortraitModes, "BOTTOM", 0, -20)
-            noPortraitOptionsFrame:SetFrameStrata("DIALOG")
+            noPortraitOptionsFrame:SetFrameStrata("FULLSCREEN_DIALOG")
+            noPortraitOptionsFrame:SetFrameLevel(550)
             noPortraitOptionsFrame:SetIgnoreParentAlpha(true)
             noPortraitOptionsFrame:SetTitle(L["No_Portrait_Options"])
             noPortraitOptionsFrame:EnableMouse(true)
@@ -5440,6 +5686,7 @@ local function guiGeneralTab()
             noPortraitOptionsFrame:SetScript("OnDragStop", function(self) self:StopMovingOrSizing() end)
 
             noPortraitOptionsFrame.closeButton = CreateFrame("Button", nil, noPortraitOptionsFrame, "UIPanelCloseButton")
+            noPortraitOptionsFrame.closeButton:SetFrameLevel((noPortraitOptionsFrame.TitleContainer or noPortraitOptionsFrame):GetFrameLevel() + 10)
             noPortraitOptionsFrame.closeButton:SetPoint("TOPRIGHT", noPortraitOptionsFrame, "TOPRIGHT", 0, 0)
             noPortraitOptionsFrame.closeButton:SetScript("OnClick", function()
                 noPortraitOptionsFrame:Hide()
@@ -5586,7 +5833,8 @@ local function guiGeneralTab()
     KeepPopupInSettings(customHealthbarColors.extendedSettings, BetterBlizzFrames)
     customHealthbarColors.extendedSettings:SetSize(345, 560)
     customHealthbarColors.extendedSettings:SetPoint("TOPLEFT", classColorFrames, "BOTTOMLEFT", 0, -10)
-    customHealthbarColors.extendedSettings:SetFrameStrata("DIALOG")
+    customHealthbarColors.extendedSettings:SetFrameStrata("FULLSCREEN_DIALOG")
+    customHealthbarColors.extendedSettings:SetFrameLevel(550)
     customHealthbarColors.extendedSettings:SetIgnoreParentAlpha(true)
     customHealthbarColors.extendedSettings:Hide()
     customHealthbarColors.extendedSettings:SetTitle(L["Custom_Health_Colors"])
@@ -5598,6 +5846,7 @@ local function guiGeneralTab()
     customHealthbarColors.extendedSettings:SetScript("OnDragStop", function(self) self:StopMovingOrSizing() end)
 
     customHealthbarColors.closeButton = CreateFrame("Button", nil, customHealthbarColors.extendedSettings, "UIPanelCloseButton")
+    customHealthbarColors.closeButton:SetFrameLevel((customHealthbarColors.extendedSettings.TitleContainer or customHealthbarColors.extendedSettings):GetFrameLevel() + 10)
     customHealthbarColors.closeButton:SetPoint("TOPRIGHT", customHealthbarColors.extendedSettings, "TOPRIGHT", 0, 0)
     customHealthbarColors.closeButton:SetScript("OnClick", function()
         customHealthbarColors.extendedSettings:Hide()
@@ -6494,13 +6743,31 @@ local function guiGeneralTab()
             ShowProfileConfirmation((profile.name == "Starter" and L["Starter"] or profile.name), profile.class, function() BBF.ApplyProfile(profile.name) end, additionalNote)
         end)
         table.insert(profileButtons, button)
+        if profilesFrame.twoColumn then
+            button:SetScale(profile.core and 1.05 or 0.9)
+        end
         if profile.core then
             button:SetPoint("TOP", lastCoreButton, "BOTTOM", 0, lastCoreButton == profilesFrame.coreText and -3 or btnGap)
             lastCoreButton = button
+        elseif profilesFrame.twoColumn then
+            button:SetSize(82, 24)
+            button:SetText((CLASS_COLORS[profile.class] or "|cffffffff")..profile.name.."|r")
+            if lastStreamerButton ~= profilesFrame.streamerText and not lastStreamerButton.rowPartner then
+                button:SetPoint("LEFT", lastStreamerButton, "RIGHT", 1, 0)
+                lastStreamerButton.rowPartner = button
+            else
+                button:SetPoint("TOPRIGHT", lastStreamerButton, lastStreamerButton == profilesFrame.streamerText and "BOTTOM" or "BOTTOMRIGHT", 0, lastStreamerButton == profilesFrame.streamerText and -3 or -1)
+                lastStreamerButton = button
+            end
         else
             button:SetPoint("TOP", lastStreamerButton, "BOTTOM", 0, lastStreamerButton == profilesFrame.streamerText and -3 or btnGap)
             lastStreamerButton = button
         end
+    end
+
+    if profilesFrame.twoColumn then
+        profilesFrame.streamerText:ClearAllPoints()
+        profilesFrame.streamerText:SetPoint("TOP", lastCoreButton, "BOTTOM", 0, -12)
     end
 
     local resetBBFButton = CreateFrame("Button", nil, BetterBlizzFrames, "UIPanelButtonTemplate")
@@ -6512,6 +6779,8 @@ local function guiGeneralTab()
     end)
     CreateTooltip(resetBBFButton, L["Tooltip_Full_Reset"], "ANCHOR_TOP")
     table.insert(profileButtons, resetBBFButton)
+    profilesFrame.infoText:ClearAllPoints()
+    profilesFrame.infoText:SetPoint("BOTTOM", resetBBFButton, "TOP", 0, 6)
 
     profilesFrame:HookScript("OnShow", function()
         for _, button in ipairs(profileButtons) do
@@ -7399,7 +7668,8 @@ local function guiCastbars()
             castBarTargetTextOptionsFrame = CreateFrame("Frame", "BBFCastbarTargetTextOptionsFrame", UIParent, "DefaultPanelFlatTemplate")
             castBarTargetTextOptionsFrame:SetSize(220, 275)
             castBarTargetTextOptionsFrame:SetPoint("CENTER")
-            castBarTargetTextOptionsFrame:SetFrameStrata("HIGH")
+            castBarTargetTextOptionsFrame:SetFrameStrata("FULLSCREEN_DIALOG")
+            castBarTargetTextOptionsFrame:SetFrameLevel(550)
             castBarTargetTextOptionsFrame:SetIgnoreParentAlpha(true)
             castBarTargetTextOptionsFrame:SetTitle(L["Castbar_Target_Text_Options"])
             castBarTargetTextOptionsFrame:EnableMouse(true)
@@ -7410,6 +7680,7 @@ local function guiCastbars()
             castBarTargetTextOptionsFrame:SetScript("OnDragStop", function(self) self:StopMovingOrSizing() end)
 
             castBarTargetTextOptionsFrame.closeButton = CreateFrame("Button", nil, castBarTargetTextOptionsFrame, "UIPanelCloseButton")
+            castBarTargetTextOptionsFrame.closeButton:SetFrameLevel((castBarTargetTextOptionsFrame.TitleContainer or castBarTargetTextOptionsFrame):GetFrameLevel() + 10)
             castBarTargetTextOptionsFrame.closeButton:SetPoint("TOPRIGHT", castBarTargetTextOptionsFrame, "TOPRIGHT", 0, 0)
             castBarTargetTextOptionsFrame.closeButton:SetScript("OnClick", function()
                 castBarTargetTextOptionsFrame:Hide()
@@ -8377,7 +8648,7 @@ local function guiFrameLook()
 
     local contentFrame = CreateFrame("Frame", nil, scrollFrame)
     contentFrame.name = guiFrameLook.name
-    contentFrame:SetSize(680, 920)
+    contentFrame:SetSize(680, 980)
     scrollFrame:SetScrollChild(contentFrame)
 
     local mainGuiAnchor = contentFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
@@ -9172,6 +9443,25 @@ local function guiFrameLook()
         BBF.TexturePRD()
     end)
 
+    local changeXpBarTexture = CreateCheckbox("changeXpBarTexture", L["Change_XP_Rep_Bar_Texture"], contentFrame)
+    changeXpBarTexture:SetPoint("TOPLEFT", useCustomTextureForSelfMana, "BOTTOMLEFT", 0, -40)
+    CreateTooltipTwo(changeXpBarTexture, L["Change_XP_Rep_Bar_Texture"], L["Tooltip_Change_XP_Rep_Bar_Texture_Desc"])
+
+    local xpBarTexture = CreateTextureDropdown(
+        "xpBarTexture",
+        contentFrame,
+        L["Select_Texture"],
+        "xpBarTexture",
+        function(arg1)
+            BBF.XpBarTexture()
+        end,
+        { anchorFrame = changeXpBarTexture, x = 5, y = 3, label = L["Texture"] }
+    )
+    changeXpBarTexture:HookScript("OnClick", function(self)
+        xpBarTexture:SetEnabled(self:GetChecked())
+        BBF.XpBarTexture()
+    end)
+    xpBarTexture:SetEnabled(changeXpBarTexture:GetChecked())
 
 end
 
@@ -10191,8 +10481,47 @@ local function guiMisc()
         BBF.ShowPopup("BBF_CONFIRM_RELOAD")
     end)
 
+    local smoothBars = CreateCheckbox("smoothBars", L["Smooth_Bars"], contentFrame)
+    smoothBars:SetPoint("TOPLEFT", arenaOptimizer, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
+    CreateTooltipTwo(smoothBars, L["Smooth_Bars"], L["Tooltip_Smooth_Bars_Desc"], L["Tooltip_Smooth_Bars_SubText"])
+
+    local function AskHideManaFeedback()
+        local db = BetterBlizzFramesDB
+        if not db.smoothBars or not db.smoothManabars or db.hideManaFeedback then return end
+        BBF.ShowPopup("BBF_SMOOTH_MANA_FEEDBACK")
+    end
+
+    local smoothBarsOptions = CreateMultiSelectDropdown(L["Smooth_Bars_Options"], contentFrame, {
+        { key = "smoothHealthbars", label = L["Smooth_Healthbars"], tooltip = L["Tooltip_Smooth_Healthbars_Desc"] },
+        { key = "smoothManabars", label = L["Smooth_Manabars"], tooltip = L["Tooltip_Smooth_Manabars_Desc"] },
+    }, 150, function(key, value)
+        if value then
+            BBF.SmoothBars()
+            if key == "smoothManabars" then
+                AskHideManaFeedback()
+            end
+        else
+            BBF.ShowPopup("BBF_CONFIRM_RELOAD")
+        end
+    end)
+    smoothBarsOptions:SetPoint("LEFT", smoothBars.Text, "RIGHT", 5, 0)
+    smoothBarsOptions:SetScale(0.7)
+    smoothBarsOptions:SetShown(BetterBlizzFramesDB.smoothBars)
+    smoothBarsOptions.searchParentKey = "smoothBars"
+    CreateTooltipTwo(smoothBarsOptions, L["Smooth_Bars_Options"], L["Tooltip_Smooth_Bars_Options_Desc"])
+
+    smoothBars:HookScript("OnClick", function(self)
+        if self:GetChecked() then
+            smoothBarsOptions:Show()
+            BBF.SmoothBars()
+            AskHideManaFeedback()
+        else
+            BBF.ShowPopup("BBF_CONFIRM_RELOAD")
+        end
+    end)
+
     local cdManagerCenterIcons = CreateCheckbox("cdManagerCenterIcons", L["CDM_Center_Icons"], contentFrame, nil, BBF.HookCooldownManagerTweaks)
-    cdManagerCenterIcons:SetPoint("TOPLEFT", arenaOptimizer, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
+    cdManagerCenterIcons:SetPoint("TOPLEFT", smoothBars, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
     CreateTooltipTwo(cdManagerCenterIcons, L["CDM_Center_Icons"], L["CDM_Center_Icons_Tooltip"])
     cdManagerCenterIcons:HookScript("OnClick", function(self)
         BBF.ShowPopup("BBF_CONFIRM_RELOAD")
@@ -10378,8 +10707,19 @@ local function guiMisc()
         end
     end)
 
+    local createAltManaBarDruidManaOnly = CreateCheckbox("createAltManaBarDruidManaOnly", L["Druid_Mana_Only"], contentFrame)
+    createAltManaBarDruidManaOnly:SetPoint("TOPLEFT", createAltManaBarDruid, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
+    CreateTooltipTwo(createAltManaBarDruidManaOnly, L["Druid_Mana_Only"], L["Tooltip_Druid_Mana_Only_Desc"])
+    createAltManaBarDruidManaOnly:HookScript("OnClick", function(self)
+        if not self:GetChecked() or PlayerFrame.AltManaBarBBF then
+            BBF.ShowPopup("BBF_CONFIRM_RELOAD")
+        else
+            BBF.CreateAltManaBar()
+        end
+    end)
+
     local shamanMaelstromCombos = CreateCheckbox("shamanMaelstromCombos", L["Shaman_Maelstrom_Combos"], contentFrame)
-    shamanMaelstromCombos:SetPoint("TOPLEFT", createAltManaBarDruid, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
+    shamanMaelstromCombos:SetPoint("TOPLEFT", createAltManaBarDruidManaOnly, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
     CreateTooltipTwo(shamanMaelstromCombos, L["Shaman_Maelstrom_Combos"], L["Tooltip_Shaman_Maelstrom_Desc"])
     shamanMaelstromCombos:HookScript("OnClick", function(self)
         BBF.CreateMaelstromWeaponBar()
@@ -10450,6 +10790,8 @@ local function guiMisc()
     function BBF.OpenLegacyComboSliderWindow(launch)
         if not BBF.ComboSliderWindow then
             local f = CreateFrame("Frame", "BBFComboSliderWindow", guiMisc, "DefaultPanelFlatTemplate")
+            f:SetFrameStrata("FULLSCREEN_DIALOG")
+            f:SetFrameLevel(550)
             f:SetSize(210, 270)
             f:SetPoint("RIGHT", enableLegacyComboPoints, "LEFT", -10, 0)
             f:SetIgnoreParentAlpha(true)
@@ -10462,6 +10804,7 @@ local function guiMisc()
             f:SetScript("OnDragStop", function(self) self:StopMovingOrSizing() end)
 
             f.closeButton = CreateFrame("Button", nil, f, "UIPanelCloseButton")
+            f.closeButton:SetFrameLevel((f.TitleContainer or f):GetFrameLevel() + 10)
             f.closeButton:SetPoint("TOPRIGHT", f, "TOPRIGHT", 0, 0)
             f.closeButton:SetScript("OnClick", function()
                 f:Hide()
@@ -10611,7 +10954,8 @@ local function guiMisc()
             KeepPopupInSettings(prdResourceOptionsFrame, guiMisc)
             prdResourceOptionsFrame:SetSize(220, 190)
             prdResourceOptionsFrame:SetPoint("CENTER")
-            prdResourceOptionsFrame:SetFrameStrata("DIALOG")
+            prdResourceOptionsFrame:SetFrameStrata("FULLSCREEN_DIALOG")
+            prdResourceOptionsFrame:SetFrameLevel(550)
             prdResourceOptionsFrame:SetIgnoreParentAlpha(true)
             prdResourceOptionsFrame:SetTitle(L["Prd_Resource_Adjust"])
             prdResourceOptionsFrame:EnableMouse(true)
@@ -10622,6 +10966,7 @@ local function guiMisc()
             prdResourceOptionsFrame:SetScript("OnDragStop", function(self) self:StopMovingOrSizing() end)
 
             prdResourceOptionsFrame.closeButton = CreateFrame("Button", nil, prdResourceOptionsFrame, "UIPanelCloseButton")
+            prdResourceOptionsFrame.closeButton:SetFrameLevel((prdResourceOptionsFrame.TitleContainer or prdResourceOptionsFrame):GetFrameLevel() + 10)
             prdResourceOptionsFrame.closeButton:SetPoint("TOPRIGHT", prdResourceOptionsFrame, "TOPRIGHT", 0, 0)
             prdResourceOptionsFrame.closeButton:SetScript("OnClick", function()
                 prdResourceOptionsFrame:Hide()
@@ -11033,8 +11378,19 @@ local function guiMisc()
         end
     end)
 
+    local classicFramesHDElite = CreateCheckbox("classicFramesHDElite", L["Classic_Frames_HD_Elite"], contentFrame, nil, BBF.RefreshClassicHDElite)
+    classicFramesHDElite:SetPoint("TOPLEFT", normalizeGameMenu, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
+    CreateTooltipTwo(classicFramesHDElite, L["Classic_Frames_HD_Elite"], L["Tooltip_Classic_Frames_HD_Elite_Desc"])
+
+    local classicFramesHDTextures = CreateCheckbox("classicFramesHDTextures", L["Classic_Frames_HD_Textures"], contentFrame)
+    classicFramesHDTextures:SetPoint("TOPLEFT", classicFramesHDElite, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
+    CreateTooltipTwo(classicFramesHDTextures, L["Classic_Frames_HD_Textures"], L["Tooltip_Classic_Frames_HD_Textures_Desc"])
+    classicFramesHDTextures:HookScript("OnClick", function()
+        BBF.ShowPopup("BBF_CONFIRM_RELOAD")
+    end)
+
     local moveQueueStatusEye = CreateCheckbox("moveQueueStatusEye", L["Move_Queue_Eye"], contentFrame, nil, BBF.MoveQueueStatusEye)
-    moveQueueStatusEye:SetPoint("TOPLEFT", normalizeGameMenu, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
+    moveQueueStatusEye:SetPoint("TOPLEFT", classicFramesHDTextures, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
     CreateTooltipTwo(moveQueueStatusEye, L["Move_Queue_Eye"], L["Tooltip_Move_Queue_Eye_Desc"])
 
     moveQueueStatusEye:HookScript("OnClick", function(self)
@@ -11067,7 +11423,8 @@ local function guiMisc()
             foreverMinimapTweaks.optionsFrame = frame
             frame:SetSize(220, 298)
             frame:SetPoint("CENTER")
-            frame:SetFrameStrata("DIALOG")
+            frame:SetFrameStrata("FULLSCREEN_DIALOG")
+            frame:SetFrameLevel(550)
             frame:SetIgnoreParentAlpha(true)
             frame:SetTitle(L["Minimap_Tweaks"])
             frame:EnableMouse(true)
@@ -11078,6 +11435,7 @@ local function guiMisc()
             frame:SetScript("OnDragStop", frame.StopMovingOrSizing)
 
             frame.closeButton = CreateFrame("Button", nil, frame, "UIPanelCloseButton")
+            frame.closeButton:SetFrameLevel((frame.TitleContainer or frame):GetFrameLevel() + 10)
             frame.closeButton:SetPoint("TOPRIGHT", frame, "TOPRIGHT", 0, 0)
             frame.closeButton:SetScript("OnClick", function()
                 frame:Hide()
@@ -11199,48 +11557,8 @@ local function guiMisc()
         BBF.RecolorHpTempLoss()
     end)
 
-    local smoothBars = CreateCheckbox("smoothBars", L["Smooth_Bars"], contentFrame)
-    smoothBars:SetPoint("TOPLEFT", recolorTempHpLoss, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
-    CreateTooltipTwo(smoothBars, L["Smooth_Bars"], L["Tooltip_Smooth_Bars_Desc"], L["Tooltip_Smooth_Bars_SubText"])
-
-    local function AskHideManaFeedback()
-        local db = BetterBlizzFramesDB
-        if not db.smoothBars or not db.smoothManabars or db.hideManaFeedback then return end
-        BBF.ShowPopup("BBF_SMOOTH_MANA_FEEDBACK")
-    end
-
-    local smoothBarsOptions = CreateMultiSelectDropdown(L["Smooth_Bars_Options"], contentFrame, {
-        { key = "smoothHealthbars", label = L["Smooth_Healthbars"], tooltip = L["Tooltip_Smooth_Healthbars_Desc"] },
-        { key = "smoothManabars", label = L["Smooth_Manabars"], tooltip = L["Tooltip_Smooth_Manabars_Desc"] },
-    }, 150, function(key, value)
-        if value then
-            BBF.SmoothBars()
-            if key == "smoothManabars" then
-                AskHideManaFeedback()
-            end
-        else
-            BBF.ShowPopup("BBF_CONFIRM_RELOAD")
-        end
-    end)
-    smoothBarsOptions:SetPoint("LEFT", smoothBars.Text, "RIGHT", 5, 0)
-    smoothBarsOptions:SetScale(0.7)
-    smoothBarsOptions:SetShown(BetterBlizzFramesDB.smoothBars)
-    smoothBarsOptions.searchParentKey = "smoothBars"
-    CreateTooltipTwo(smoothBarsOptions, L["Smooth_Bars_Options"], L["Tooltip_Smooth_Bars_Options_Desc"])
-
-    smoothBars:HookScript("OnClick", function(self)
-        if self:GetChecked() then
-            smoothBarsOptions:Show()
-            BBF.SmoothBars()
-            AskHideManaFeedback()
-        else
-            BBF.ShowPopup("BBF_CONFIRM_RELOAD")
-        end
-    end)
-
-
     local tweakExtraBarTextures = CreateCheckbox("tweakExtraBarTextures", L["Tweak_Extra_Bar_Textures"], contentFrame)
-    tweakExtraBarTextures:SetPoint("TOPLEFT", smoothBars, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
+    tweakExtraBarTextures:SetPoint("TOPLEFT", recolorTempHpLoss, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
     CreateTooltipTwo(tweakExtraBarTextures, L["Tweak_Extra_Bar_Textures"], L["Tooltip_Tweak_Extra_Bar_Textures_Desc"])
     tweakExtraBarTextures:HookScript("OnClick", function(self)
         if self:GetChecked() then
@@ -11290,19 +11608,8 @@ local function guiMisc()
     --     BBF.ShowPopup("BBF_CONFIRM_RELOAD")
     -- end)
 
-    local classicFramesHDElite = CreateCheckbox("classicFramesHDElite", L["Classic_Frames_HD_Elite"], contentFrame, nil, BBF.RefreshClassicHDElite)
-    classicFramesHDElite:SetPoint("TOPLEFT", disableCastbarMovement, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
-    CreateTooltipTwo(classicFramesHDElite, L["Classic_Frames_HD_Elite"], L["Tooltip_Classic_Frames_HD_Elite_Desc"])
-
-    -- local classicFramesHDTextures = CreateCheckbox("classicFramesHDTextures", L["Classic_Frames_HD_Textures"], contentFrame)
-    -- classicFramesHDTextures:SetPoint("TOPLEFT", classicFramesHDElite, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
-    -- CreateTooltipTwo(classicFramesHDTextures, L["Classic_Frames_HD_Textures"], L["Tooltip_Classic_Frames_HD_Textures_Desc"])
-    -- classicFramesHDTextures:HookScript("OnClick", function()
-        -- BBF.ShowPopup("BBF_CONFIRM_RELOAD")
-    -- end)
-
     local useMiniPlayerFrame = CreateCheckbox("useMiniPlayerFrame", L["Mini_PlayerFrame"], contentFrame)
-    useMiniPlayerFrame:SetPoint("TOPLEFT", classicFramesHDElite, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
+    useMiniPlayerFrame:SetPoint("TOPLEFT", disableCastbarMovement, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
     CreateTooltip(useMiniPlayerFrame, L["Tooltip_Mini_Player"])
     useMiniPlayerFrame:HookScript("OnClick", function(self)
         BBF.MiniFrame(PlayerFrame)
@@ -11408,6 +11715,7 @@ local function guiImportAndExport()
 
     local auraWhitelist = CreateImportExportUI(fullProfile, L["Aura_Whitelist"], BetterBlizzFramesDB.auraWhitelist, 0, -100, "auraWhitelist")
     local auraBlacklist = CreateImportExportUI(auraWhitelist, L["Aura_Blacklist"], BetterBlizzFramesDB.auraBlacklist, 210, 0, "auraBlacklist")
+
 
     -- local importPVPWhitelist = CreateFrame("Button", nil, guiImportAndExport, "UIPanelButtonTemplate")
     -- importPVPWhitelist:SetSize(150, 35)
@@ -11915,6 +12223,7 @@ function BBF.CreateIntroMessageWindow()
     BBF.IntroMessageWindow:SetScript("OnDragStop", BBF.IntroMessageWindow.StopMovingOrSizing)
     BBF.IntroMessageWindow:SetTitle("Better|cff00c0ffBlizz|rFrames "..BBF.VersionNumber)
     BBF.IntroMessageWindow:SetFrameStrata("HIGH")
+    BBF.IntroMessageWindow:SetFrameLevel(550)
 
     -- Add background texture
     BBF.IntroMessageWindow.textureTest = BBF.IntroMessageWindow:CreateTexture(nil, "BACKGROUND")

@@ -218,10 +218,11 @@ local function KeepPopupInSettings(popup, panel)
     if popup.Bg then
         popup.Bg:Hide()
     end
-    popup:SetFrameStrata("DIALOG")
+    popup:SetFrameStrata("FULLSCREEN_DIALOG")
+    popup:SetFrameLevel(550)
     popup:SetToplevel(true)
     popup:HookScript("OnShow", function(self)
-        self:SetFrameStrata("DIALOG")
+        self:SetFrameStrata("FULLSCREEN_DIALOG")
         self:Raise()
     end)
     popup:HookScript("OnHide", function()
@@ -493,7 +494,8 @@ local function CreateIconChangeWindow()
     local window = CreateFrame("Frame", "IconChangeWindow", UIParent, "BasicFrameTemplateWithInset")
     window:SetSize(300, 180)
     window:SetPoint("CENTER")
-    window:SetFrameStrata("HIGH")
+    window:SetFrameStrata("FULLSCREEN_DIALOG")
+    window:SetFrameLevel(550)
     window:SetMovable(true)
     window:EnableMouse(true)
     window:RegisterForDrag("LeftButton")
@@ -694,7 +696,7 @@ local function CreateSlider(parent, label, minValue, maxValue, stepValue, elemen
     editBox:SetHeight(20) -- Set the height of the EditBox
     editBox:SetMultiLine(false)
     editBox:SetPoint("CENTER", slider, "CENTER", 0, 0) -- Position it to the right of the slider
-    editBox:SetFrameStrata("DIALOG") -- Ensure it appears above other UI elements
+    editBox:SetFrameStrata("TOOLTIP") -- Ensure it appears above other UI elements
     editBox:Hide()
     editBox:SetFontObject(GameFontHighlightSmall)
 
@@ -1261,6 +1263,44 @@ local function ShowProfileConfirmation(profileName, class, profileFunction, addi
     BBF.ShowPopup("BBF_CONFIRM_PROFILE", nil, nil, { func = profileFunction })
 end
 
+function BBF.ShowProfileLink(link)
+    local box = BBF.profileLinkBox
+    if not box then
+        box = CreateFrame("EditBox", nil, UIParent, "InputBoxTemplate")
+        box:SetSize(170, 20)
+        box:SetAutoFocus(false)
+        box:SetFrameStrata("FULLSCREEN_DIALOG")
+        box:SetScript("OnEscapePressed", box.Hide)
+        box:SetScript("OnEnterPressed", box.Hide)
+        box:SetScript("OnEditFocusLost", box.Hide)
+        box:SetScript("OnTextChanged", function(self, userInput)
+            if userInput then
+                self:SetText(self.link)
+                self:HighlightText()
+            end
+        end)
+        box:SetScript("OnKeyDown", function(self, key)
+            if key == "C" and IsControlKeyDown() then
+                C_Timer.After(0, function() self:Hide() end)
+            end
+        end)
+        BBF.profileLinkBox = box
+    end
+    if not link then
+        box:Hide()
+        return
+    end
+    box.link = link
+    box:ClearAllPoints()
+    local x, y = GetCursorPosition()
+    local scale = UIParent:GetEffectiveScale()
+    box:SetPoint("TOP", UIParent, "BOTTOMLEFT", x / scale, y / scale - 12)
+    box:SetText(link)
+    box:Show()
+    box:SetFocus()
+    box:HighlightText()
+end
+
 local function CreateClassButton(parent, class, name, twitchName, onClickFunc)
     local bbfParent = parent == BetterBlizzFrames
     local btnWidth, btnHeight = bbfParent and 96 or 150, bbfParent and 22 or  30
@@ -1279,8 +1319,11 @@ local function CreateClassButton(parent, class, name, twitchName, onClickFunc)
     local a,b,c,d,e = button.Text:GetPoint()
     button.Text:SetPoint(a,b,c,d,e-0.5)
 
-    button:SetScript("OnClick", function()
-        if onClickFunc then
+    button:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+    button:SetScript("OnClick", function(self, mouseButton)
+        if mouseButton == "RightButton" then
+            BBF.ShowProfileLink(twitchName and ("www.twitch.tv/"..twitchName))
+        elseif onClickFunc then
             onClickFunc()
         end
     end)
@@ -3575,13 +3618,17 @@ local function guiGeneralTab()
     -- CreateTooltip(hidePlayerGuideIcon, "Hide the guide icon from PlayerFrame.|A:UI-HUD-UnitFrame-Player-Group-GuideIcon:22:22|a")
     -- notWorking(hidePlayerGuideIcon, true)
 
-    local hidePlayerRoleIcon = CreateCheckbox("hidePlayerRoleIcon", L["Hide_Role_Icon"], BetterBlizzFrames, nil, BBF.HideFrames)
-    hidePlayerRoleIcon:SetPoint("TOPLEFT", hidePlayerLeaderIcon, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
-    CreateTooltip(hidePlayerRoleIcon, L["Tooltip_Hide_Role_Icon"] .. " |A:roleicon-tiny-dps:22:22|a")
-    notWorking(hidePlayerRoleIcon, true)
+    local hidePlayerLevelText = CreateCheckbox("hidePlayerLevelText", L["Hide_Player_Level"], BetterBlizzFrames, nil, BBF.HideFrames)
+    hidePlayerLevelText:SetPoint("TOPLEFT", hidePlayerLeaderIcon, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
+    CreateTooltipTwo(hidePlayerLevelText, L["Hide_Player_Level"], L["Tooltip_Hide_Player_Level"])
+    hidePlayerLevelText:HookScript("OnClick", function(self)
+        if not self:GetChecked() then
+            BBF.ShowPopup("BBF_CONFIRM_RELOAD")
+        end
+    end)
 
     local hidePvpTimerText = CreateCheckbox("hidePvpTimerText", L["Hide_PvP_Timer"], BetterBlizzFrames, nil, BBF.HideFrames)
-    hidePvpTimerText:SetPoint("TOPLEFT", hidePlayerRoleIcon, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
+    hidePvpTimerText:SetPoint("TOPLEFT", hidePlayerLevelText, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
     CreateTooltip(hidePvpTimerText, L["Tooltip_Hide_PvP_Timer_Desc"])
 
     local hidePlayerPower = CreateCheckbox("hidePlayerPower", L["Hide_Resource_Power"], BetterBlizzFrames, nil, BBF.HideFrames)
@@ -3594,7 +3641,8 @@ local function guiGeneralTab()
             classOptionsFrame = CreateFrame("Frame", "ClassOptionsFrame", UIParent, "BasicFrameTemplateWithInset")
             classOptionsFrame:SetSize(185, 210)
             classOptionsFrame:SetPoint("CENTER")
-            classOptionsFrame:SetFrameStrata("DIALOG")
+            classOptionsFrame:SetFrameStrata("FULLSCREEN_DIALOG")
+            classOptionsFrame:SetFrameLevel(550)
             classOptionsFrame:SetMovable(true)
             classOptionsFrame:EnableMouse(true)
             classOptionsFrame:RegisterForDrag("LeftButton")
@@ -4302,7 +4350,8 @@ local function guiGeneralTab()
             biggerHealthbarsOptionsFrame = CreateFrame("Frame", "BiggerHealthbarsOptionsFrame", UIParent, "BasicFrameTemplateWithInset")
             biggerHealthbarsOptionsFrame:SetSize(185, 135)
             biggerHealthbarsOptionsFrame:SetPoint("CENTER")
-            biggerHealthbarsOptionsFrame:SetFrameStrata("DIALOG")
+            biggerHealthbarsOptionsFrame:SetFrameStrata("FULLSCREEN_DIALOG")
+            biggerHealthbarsOptionsFrame:SetFrameLevel(550)
             biggerHealthbarsOptionsFrame:SetMovable(true)
             biggerHealthbarsOptionsFrame:EnableMouse(true)
             biggerHealthbarsOptionsFrame:RegisterForDrag("LeftButton")
@@ -4446,6 +4495,10 @@ local function guiGeneralTab()
     local hidePvpIcon = CreateCheckbox("hidePvpIcon", L["Hide_PvP_Icon"], BetterBlizzFrames, nil, BBF.HideFrames)
     hidePvpIcon:SetPoint("TOPLEFT", hideLevelText, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
     CreateTooltip(hidePvpIcon, L["Tooltip_Hide_PvP_Icon_Desc"])
+
+    local hideRareDragonTexture = CreateCheckbox("hideRareDragonTexture", L["Hide_Dragon"], BetterBlizzFrames, nil, BBF.RefreshTargetClassification)
+    hideRareDragonTexture:SetPoint("LEFT", hidePvpIcon.Text, "RIGHT", 0, 0)
+    CreateTooltip(hideRareDragonTexture, L["Tooltip_Hide_Dragon"])
 
     local classPortraits = CreateCheckbox("classPortraits", L["Class_Portraits"], BetterBlizzFrames)
     classPortraits:SetPoint("TOPLEFT", hidePvpIcon, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
@@ -5592,7 +5645,8 @@ local function guiCastbars()
             castBarTargetTextOptionsFrame = CreateFrame("Frame", "BBFCastbarTargetTextOptionsFrame", UIParent, "BasicFrameTemplateWithInset")
             castBarTargetTextOptionsFrame:SetSize(220, 275)
             castBarTargetTextOptionsFrame:SetPoint("CENTER")
-            castBarTargetTextOptionsFrame:SetFrameStrata("HIGH")
+            castBarTargetTextOptionsFrame:SetFrameStrata("FULLSCREEN_DIALOG")
+            castBarTargetTextOptionsFrame:SetFrameLevel(550)
             castBarTargetTextOptionsFrame:SetMovable(true)
             castBarTargetTextOptionsFrame:EnableMouse(true)
             castBarTargetTextOptionsFrame:RegisterForDrag("LeftButton")
@@ -6569,6 +6623,26 @@ local function guiFrameLook()
         allIngameFont:SetEnabled(self:GetChecked())
     end)
     allIngameFont:SetEnabled(changeAllFontsIngame:GetChecked())
+
+    local changeXpBarTexture = CreateCheckbox("changeXpBarTexture", L["Change_XP_Rep_Bar_Texture"], guiFrameLook)
+    changeXpBarTexture:SetPoint("TOPLEFT", changeAllFontsIngame, "BOTTOMLEFT", 0, -30)
+    CreateTooltipTwo(changeXpBarTexture, L["Change_XP_Rep_Bar_Texture"], L["Tooltip_Change_XP_Rep_Bar_Texture_Desc"])
+
+    local xpBarTexture = CreateTextureDropdown(
+        "xpBarTexture",
+        guiFrameLook,
+        L["Select_Texture"],
+        "xpBarTexture",
+        function(arg1)
+            BBF.XpBarTexture()
+        end,
+        { anchorFrame = changeXpBarTexture, x = 5, y = 3, label = L["Texture"] }
+    )
+    changeXpBarTexture:HookScript("OnClick", function(self)
+        xpBarTexture:SetEnabled(self:GetChecked())
+        BBF.XpBarTexture()
+    end)
+    xpBarTexture:SetEnabled(changeXpBarTexture:GetChecked())
 
 
 
@@ -7851,7 +7925,8 @@ local function guiMisc()
             f:RegisterForDrag("LeftButton")
             f:SetScript("OnDragStart", f.StartMoving)
             f:SetScript("OnDragStop", f.StopMovingOrSizing)
-            f:SetFrameStrata("DIALOG")
+            f:SetFrameStrata("FULLSCREEN_DIALOG")
+            f:SetFrameLevel(550)
             f:SetClampedToScreen(true)
             f:SetToplevel(true)
 
@@ -8672,6 +8747,7 @@ function BBF.CreateIntroMessageWindow()
     BBF.IntroMessageWindow:SetScript("OnDragStop", BBF.IntroMessageWindow.StopMovingOrSizing)
     BBF.IntroMessageWindow:SetTitle("Better|cff00c0ffBlizz|rFrames v"..BBF.VersionNumber)
     BBF.IntroMessageWindow:SetFrameStrata("HIGH")
+    BBF.IntroMessageWindow:SetFrameLevel(550)
 
     -- Add background texture
     BBF.IntroMessageWindow.textureTest = BBF.IntroMessageWindow:CreateTexture(nil, "BACKGROUND")
