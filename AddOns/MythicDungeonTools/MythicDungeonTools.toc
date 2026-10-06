@@ -1,3 +1,4 @@
+## Dependencies: Ace3
 ## Interface: 120100
 # WOW_INTERFACE_TARGETS: standard
 ## Title: Mythic Dungeon Tools (MDT)
