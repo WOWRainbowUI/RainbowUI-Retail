@@ -1,6 +1,6 @@
 ## Interface: 120100, 16001
 ## Title: Coolinator
-## Version: 155
+## Version: 156
 ## Author: plusmouse
 ## OptionalDeps: Masque
 ## SavedVariables: COOLINATOR_CONFIG

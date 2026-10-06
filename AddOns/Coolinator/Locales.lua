@@ -226,6 +226,8 @@ L["ACTIVE"] = "Active"
 L["RANGE_CHECKING"] = "Range checking"
 L["SPELL_RANK"] = "Spell rank"
 L["MAX"] = "Max"
+L["ROTATE"] = "Rotate"
+L["ONLY_SHOW_FOR_AURAS_FROM_YOU"] = "Only show for auras from you"
 
 L["SETTING_CHANGED_THAT_REQUIRES_A_RELOAD"] = "Setting changed that requires a reload."
 

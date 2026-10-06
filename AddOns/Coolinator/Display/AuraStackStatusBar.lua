@@ -161,7 +161,8 @@ function addonTable.Display.AuraStacksBaseMixin:ApplyPadding(horizontal, vertica
         auraButton:SetSize(self.sizingWidth + horizontal, self.sizingHeight + vertical)
         auraButton:SetScale(self:GetEffectiveScale() / UIParent:GetScale())
         auraButton:SetFrameLevel(self:GetFrameLevel() + 1)
-      end, candidateFilters = self.include}
+      end, candidateFilters = self.include},
+      self.details.playerSourced
     )
 
   else
@@ -222,13 +223,13 @@ end
 
 function addonTable.Display.AuraStacksBaseMixin:OnShow()
   if self.index then
-    addonTable.Display.SetAuraSlotsEnabled(self.index, true)
+    addonTable.Display.SetAuraSlotsEnabled(self.index, true, self.details.playerSourced)
   end
 end
 
 function addonTable.Display.AuraStacksBaseMixin:OnHide()
   if self.index then
-    addonTable.Display.SetAuraSlotsEnabled(self.index, false)
+    addonTable.Display.SetAuraSlotsEnabled(self.index, false, self.details.playerSourced)
   end
 end
 

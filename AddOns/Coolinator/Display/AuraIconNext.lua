@@ -138,7 +138,8 @@ function addonTable.Display.AuraIconNextMixin:ApplyPadding(horizontal, vertical)
         auraButton:SetSize(offsetSize + horizontal, offsetSize + vertical)
         auraButton:SetScale(self:GetEffectiveScale() / UIParent:GetScale())
         auraButton:SetFrameLevel(self:GetFrameLevel() + 1)
-      end, candidateFilters = self.include}
+      end, candidateFilters = self.include},
+      self.details.playerSourced
     )
 
   else
@@ -200,13 +201,13 @@ end
 
 function addonTable.Display.AuraIconNextMixin:OnShow()
   if self.index then
-    addonTable.Display.SetAuraSlotsEnabled(self.index, true)
+    addonTable.Display.SetAuraSlotsEnabled(self.index, true, self.details.playerSourced)
   end
 end
 
 function addonTable.Display.AuraIconNextMixin:OnHide()
   if self.index then
-    addonTable.Display.SetAuraSlotsEnabled(self.index, false)
+    addonTable.Display.SetAuraSlotsEnabled(self.index, false, self.details.playerSourced)
   end
 end
 

@@ -148,6 +148,7 @@ function addonTable.Designer.Options.GetBarTextPositioning(rootParent, texts)
     w:SetSize(1, 1)
     preview.widgets[key] = w
     w.text = w:CreateFontString(nil, nil, "GameFontNormal")
+    w.text:SetWordWrap(false)
     w.kind = key
     w:SetMovable(true)
     w:EnableMouse(true)
@@ -185,6 +186,7 @@ function addonTable.Designer.Options.GetBarTextPositioning(rootParent, texts)
     preview.bar.rawWidth, preview.bar.rawHeight, preview.bar.borderWidth, preview.bar.borderHeight, preview.bar.lowerScale
       = addonTable.Display.ApplyStatusBar(preview.bar.details, preview.bar.statusBar, preview.bar.border, preview.bar.borderMask, preview.bar.background)
     local sizing = addonTable.Display.GetSizingForStatusBar(preview.bar, 0, 0)
+    preview.bar.statusWidth, preview.bar.statusHeight = sizing.statusWidth, sizing.statusHeight
     PixelUtil.SetSize(preview.bar, sizing.rawWidth, sizing.rawHeight)
     PixelUtil.SetSize(preview.bar.statusBar, sizing.statusWidth * preview.bar.lowerScale, sizing.statusHeight * preview.bar.lowerScale)
     PixelUtil.SetSize(wrapper, sizing.rawWidth, sizing.rawHeight)
@@ -226,19 +228,51 @@ function addonTable.Designer.Options.GetBarTextPositioning(rootParent, texts)
           text:SetTextScale(textDetails.scale)
           text:SetScale(1)
         end
-        text:SetPoint(textDetails.anchor[1] or "CENTER")
+        local anchor = textDetails.anchor[1]
+        local oldText = text:GetText()
+        text:ClearText()
+        text:SetJustifyH("CENTER")
+        if textDetails.rotate then
+          if anchor:match("TOP") then
+            text:SetJustifyH("LEFT")
+          elseif anchor:match("BOTTOM") then
+            text:SetJustifyH("RIGHT")
+          end
+        else
+          if anchor:match("LEFT") then
+            text:SetJustifyH("LEFT")
+          elseif anchor:match("RIGHT") then
+            text:SetJustifyH("RIGHT")
+          end
+        end
+        text:SetText(oldText)
+        local statusDim = textDetails.rotate and preview.bar.statusHeight or preview.bar.statusWidth
+        local width = math.max(text:GetLineHeight(), textDetails.widthLimit * statusDim / text:GetScale())
+        local xDiff, yDiff = 0, 0
+        if textDetails.rotate then
+          xDiff, yDiff = addonTable.Display.CalculateBarTextOffset(textDetails.anchor[1] or "CENTER", width, text:GetLineHeight())
+        end
+        text:SetPoint(textDetails.anchor[1] or "CENTER", xDiff, yDiff)
         text:SetTextColor(textDetails.color.r, textDetails.color.g, textDetails.color.b)
+        text:SetWidth(width)
         if textDetails.visible then
           preview.widgets[key]:SetAlpha(1)
         else
           preview.widgets[key]:SetAlpha(0.5)
         end
         local w, h = text:GetSize()
+        if textDetails.rotate then
+          local tmp = h
+          h = w
+          w = tmp
+        end
         preview.widgets[key]:SetSize(w * text:GetScale(), h * text:GetScale())
+        text:SetRotation(textDetails.rotate and -math.pi / 2 or 0)
         preview.widgets[key].details = textDetails
 
         preview.widgets[key]:ClearAllPoints()
-        PixelUtil.SetPoint(preview.widgets[key], textDetails.anchor[1], wrapper, textDetails.anchor[1], textDetails.anchor[2], textDetails.anchor[3])
+        local x, y = textDetails.anchor[2], textDetails.anchor[3]
+        PixelUtil.SetPoint(preview.widgets[key], textDetails.anchor[1], wrapper, textDetails.anchor[1], x, y)
       end
     end
 

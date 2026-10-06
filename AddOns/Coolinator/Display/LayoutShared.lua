@@ -8,6 +8,8 @@ function addonTable.Display.LayoutManagerSharedMixin:OnLoad()
   self:RegisterEvent("UPDATE_BONUS_ACTIONBAR")
   self:RegisterEvent("UPDATE_VEHICLE_ACTIONBAR")
   self:RegisterEvent("UPDATE_OVERRIDE_ACTIONBAR")
+  self:RegisterEvent("PET_BATTLE_OPENING_START")
+  self:RegisterEvent("PET_BATTLE_OVER")
 
   self.disabled = {}
 
@@ -169,5 +171,11 @@ function addonTable.Display.LayoutManagerSharedMixin:OnEvent(eventName, data)
       self.disabled.vehicle = nil
       self:Layout()
     end
+  elseif eventName == "PET_BATTLE_OPENING_START" then
+    self.disabled.petBattle = true
+    self:Delayout()
+  elseif eventName == "PET_BATTLE_OVER" then
+    self.disabled.petBattle = nil
+    self:Layout()
   end
 end
