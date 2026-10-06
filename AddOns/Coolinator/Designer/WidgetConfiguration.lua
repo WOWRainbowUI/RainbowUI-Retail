@@ -571,6 +571,22 @@ local iconCooldown = {
   }
 }
 
+local auraGeneralSelf = {
+  label = addonTable.Locales.GENERAL,
+  entries = {
+    {
+      label = addonTable.Locales.ONLY_SHOW_FOR_AURAS_FROM_YOU,
+      kind = "checkbox",
+      setter = function(details, value)
+        details.playerSourced = value
+      end,
+      getter = function(details)
+        return details.playerSourced
+      end,
+    }
+  },
+}
+
 addonTable.Designer.WidgetConfiguration = {
   ["icon"] = {
     ["*"] = {
@@ -680,6 +696,7 @@ addonTable.Designer.WidgetConfiguration = {
     },
     ["aura"] = {
       ["*"] = {
+        auraGeneralSelf,
         iconTexts,
         iconCooldown,
         {
@@ -763,6 +780,7 @@ addonTable.Designer.WidgetConfiguration = {
     },
     ["auraMissing"] = {
       ["*"] = {
+        auraGeneralSelf,
         {
           label = addonTable.Locales.ACTIVE,
           entries = {
@@ -957,6 +975,7 @@ addonTable.Designer.WidgetConfiguration = {
     },
     ["aura"] = {
       ["*"] = {
+        auraGeneralSelf,
         barIcon,
         fullBarTextures,
         durationNameBarTexts,
@@ -983,12 +1002,14 @@ addonTable.Designer.WidgetConfiguration = {
     },
     ["auraStacks"] = {
       ["*"] = {
+        auraGeneralSelf,
         fullBarTextures,
         applicationsBarTexts,
       },
     },
     ["auraStackPip"] = {
       ["*"] = {
+        auraGeneralSelf,
         fullBarTextures,
         --valueBarTexts,
       }
@@ -1299,7 +1320,8 @@ addonTable.Designer.WidgetConfiguration = {
     },
     ["swing"] = {
       ["*"] = {
-        fullBarTextures
+        fullBarTextures,
+        durationNameBarTexts,
       }
     }
   },
@@ -1688,6 +1710,16 @@ addonTable.Designer.BarTextsConfig = {
       end,
     },
     {
+      label = addonTable.Locales.ROTATE,
+      kind = "checkbox",
+      setter = function(details, value)
+        details.rotate = value
+      end,
+      getter = function(details)
+        return details.rotate
+      end,
+    },
+    {
       label = addonTable.Locales.COLOR,
       kind = "colorPicker",
       setter = function(details, value)
@@ -1734,6 +1766,16 @@ addonTable.Designer.BarTextsConfig = {
       end,
     },
     {
+      label = addonTable.Locales.ROTATE,
+      kind = "checkbox",
+      setter = function(details, value)
+        details.rotate = value
+      end,
+      getter = function(details)
+        return details.rotate
+      end,
+    },
+    {
       label = addonTable.Locales.COLOR,
       kind = "colorPicker",
       setter = function(details, value)
@@ -1743,7 +1785,6 @@ addonTable.Designer.BarTextsConfig = {
         return details.color
       end,
     },
-    { kind = "spacer" },
     {
       label = addonTable.Locales.DISPLAY,
       kind = "dropdown",
@@ -1829,6 +1870,16 @@ addonTable.Designer.BarTextsConfig = {
       end,
     },
     {
+      label = addonTable.Locales.ROTATE,
+      kind = "checkbox",
+      setter = function(details, value)
+        details.rotate = value
+      end,
+      getter = function(details)
+        return details.rotate
+      end,
+    },
+    {
       label = addonTable.Locales.COLOR,
       kind = "colorPicker",
       setter = function(details, value)
@@ -1883,6 +1934,16 @@ addonTable.Designer.BarTextsConfig = {
       end,
       getter = function(details)
         return details.widthLimit * 100
+      end,
+    },
+    {
+      label = addonTable.Locales.ROTATE,
+      kind = "checkbox",
+      setter = function(details, value)
+        details.rotate = value
+      end,
+      getter = function(details)
+        return details.rotate
       end,
     },
     {

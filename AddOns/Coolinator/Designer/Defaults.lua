@@ -108,6 +108,9 @@ local spellBarTexts = {
   }
 }
 
+local spellBarTextsFractions = CopyTable(spellBarTexts)
+spellBarTextsFractions.duration.showFractions = true
+
 local auraStacksTexts = {
   applications = {
     anchor = {"CENTER", 0, 0},
@@ -242,7 +245,8 @@ local function GetAuraStackGroup(fill, empty)
       asset = "Cooli: 7px",
       color = GetColor("9d9d9d"),
     },
-    showEmpty = true
+    showEmpty = true,
+    playerSourced  = true,
   }
   local group = CopyTable(Group)
   group.locked = true
@@ -281,6 +285,7 @@ addonTable.Designer.Defaults = {
     glowColor = GetColor("ffe114"),
     showPandemic = true,
     pandemicColor = GetColor("ff3030"),
+    playerSourced  = true,
   },
   AuraMissingIcon = {
     kind = "icon",
@@ -292,6 +297,7 @@ addonTable.Designer.Defaults = {
     whenInactive = "none",
     whenActive = "hide",
     glowColor = GetColor("ffe114"),
+    playerSourced  = true,
   },
   AbilityIcon = {
     kind = "icon",
@@ -358,6 +364,7 @@ addonTable.Designer.Defaults = {
       color = {r = 1, g = 1, b = 1},
     },
     texts = spellBarTexts,
+    playerSourced  = true,
   },
   AbilityBar = {
     kind = "bar",
@@ -407,6 +414,7 @@ addonTable.Designer.Defaults = {
       color = {r = 1, g = 1, b = 1},
     },
     texts = auraStacksTexts,
+    playerSourced  = true,
   },
   ClassResource = {
     ["icicles"] = {
@@ -537,6 +545,6 @@ addonTable.Designer.Defaults = {
       asset = "Cooli: Blizzard Midnight",
       color = {r = 1, g = 1, b = 1},
     },
-    texts = spellBarTexts,
+    texts = spellBarTextsFractions,
   },
 }

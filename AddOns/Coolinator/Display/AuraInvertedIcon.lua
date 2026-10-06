@@ -85,7 +85,8 @@ function addonTable.Display.AuraInvertedIconMixin:ApplyPadding(horizontal, verti
         end
         self.AuraWrapper.sizing:SetPoint("LEFT", auraButton, "RIGHT")
         prev = auraButton
-      end, candidateFilters = self.include}
+      end, candidateFilters = self.include},
+      self.details.playerSourced
     )
 
   else
@@ -137,13 +138,13 @@ end
 
 function addonTable.Display.AuraInvertedIconMixin:OnShow()
   if self.index then
-    addonTable.Display.SetAuraSlotsEnabled(self.index, true)
+    addonTable.Display.SetAuraSlotsEnabled(self.index, true, self.details.playerSourced)
   end
 end
 
 function addonTable.Display.AuraInvertedIconMixin:OnHide()
   if self.index then
-    addonTable.Display.SetAuraSlotsEnabled(self.index, false)
+    addonTable.Display.SetAuraSlotsEnabled(self.index, false, self.details.playerSourced)
   end
 end
 

@@ -31,31 +31,33 @@ local function GenerateKindOptions(parent, options)
   for k1, l1 in pairs(options) do
     for k2, l2 in pairs(l1) do
       for _, tabDetails in ipairs(l2) do
-        local c = CreateFrame("Frame", nil, container)
-        c.label = tabDetails.label
-        c:Hide()
-        c:SetPoint("LEFT")
-        c:SetPoint("RIGHT")
-        c.allFrames = addonTable.Designer.Options.GenerateOptions(c, 0, 0, tabDetails.entries)
-        function c:UpdateOptions(details)
-          c.details = details
+        if #tabDetails.entries > 0 then
+          local c = CreateFrame("Frame", nil, container)
+          c.label = tabDetails.label
+          c:Hide()
+          c:SetPoint("LEFT")
+          c:SetPoint("RIGHT")
+          c.allFrames = addonTable.Designer.Options.GenerateOptions(c, 0, 0, tabDetails.entries)
+          function c:UpdateOptions(details)
+            c.details = details
 
-          for _, f in ipairs(c.allFrames) do
-            if f.getInitData then
-              f:Init(f.getInitData(c.details))
-            end
-            if f.SetValue then
-              f:SetValue(f.Getter())
+            for _, f in ipairs(c.allFrames) do
+              if f.getInitData then
+                f:Init(f.getInitData(c.details))
+              end
+              if f.SetValue then
+                f:SetValue(f.Getter())
+              end
             end
           end
+          if not paths[k1] then
+            paths[k1] = {}
+          end
+          if not paths[k1][k2] then
+            paths[k1][k2] = {}
+          end
+          table.insert(paths[k1][k2], c)
         end
-        if not paths[k1] then
-          paths[k1] = {}
-        end
-        if not paths[k1][k2] then
-          paths[k1][k2] = {}
-        end
-        table.insert(paths[k1][k2], c)
       end
     end
   end

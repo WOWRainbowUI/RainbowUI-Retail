@@ -230,24 +230,35 @@ function addonTable.Display.ApplyTexts(self, details, byKeys, scaleModifier)
   local font = addonTable.Config.Get(addonTable.Config.Options.NUMBER_FONT)
   local texts = details.texts
   for key, settingsKey in pairs(byKeys) do
+    local settings = texts[settingsKey]
     self.TextsContainer[key]:SetFontObject(addonTable.CurrentNumberFont)
-    self.TextsContainer[key]:SetShown(texts[settingsKey].visible)
-    self.TextsContainer[key]:SetTextColor(texts[settingsKey].color.r, texts[settingsKey].color.g, texts[settingsKey].color.b)
+    self.TextsContainer[key]:SetShown(settings.visible)
+    self.TextsContainer[key]:SetTextColor(settings.color.r, settings.color.g, settings.color.b)
     if font.flags.slug then
-      self.TextsContainer[key]:SetScale(texts[settingsKey].scale * scaleModifier)
+      self.TextsContainer[key]:SetScale(settings.scale * scaleModifier)
       self.TextsContainer[key]:SetTextScale(1)
       self.TextsContainer[key]:SetSmoothScaling(true)
     else
       self.TextsContainer[key]:SetScale(1)
-      self.TextsContainer[key]:SetTextScale(texts[settingsKey].scale * scaleModifier)
+      self.TextsContainer[key]:SetTextScale(settings.scale * scaleModifier)
       self.TextsContainer[key]:SetSmoothScaling(false)
     end
 
-    local anchor = texts[settingsKey].anchor[1]
-    if anchor == "LEFT" or anchor == "RIGHT" then
-      self.TextsContainer[key]:SetJustifyH(anchor)
+    local anchor = settings.anchor[1]
+    self.TextsContainer[key]:SetJustifyH("CENTER")
+
+    if settings.rotate then
+      if anchor:match("TOP") then
+        self.TextsContainer[key]:SetJustifyH("LEFT")
+      elseif anchor:match("BOTTOM") then
+        self.TextsContainer[key]:SetJustifyH("RIGHT")
+      end
     else
-      self.TextsContainer[key]:SetJustifyH("CENTER")
+      if anchor:match("LEFT") then
+        self.TextsContainer[key]:SetJustifyH("LEFT")
+      elseif anchor:match("RIGHT") then
+        self.TextsContainer[key]:SetJustifyH("RIGHT")
+      end
     end
   end
 end
@@ -257,11 +268,54 @@ function addonTable.Display.SizeTextsForBar(self, details, byKeys, scaleModifier
 
   local texts = details.texts
   local statusWidth = self.sizingWidth / details.scale
+  local statusHeight = self.sizingHeight / details.scale
   for key, settingsKey in pairs(byKeys) do
     local scale = self.TextsContainer[key]:GetScale()
-    PixelUtil.SetPoint(self.TextsContainer[key], texts[settingsKey].anchor[1], self.statusBar, texts[settingsKey].anchor[1], texts[settingsKey].anchor[2]/scale, texts[settingsKey].anchor[3]/scale)
-    PixelUtil.SetWidth(self.TextsContainer[key], texts[settingsKey].widthLimit * statusWidth * scaleModifier / scale)
+    local settings = texts[settingsKey]
+    local text = self.TextsContainer[key]
+    text:ClearAllPoints()
+    local width = settings.widthLimit * (settings.rotate and (details.layout == "horizontal" and statusWidth or statusHeight) or statusWidth) * scaleModifier / scale
+    local height = text:GetLineHeight()
+    local xDiff, yDiff = 0, 0
+    if settings.rotate then
+      xDiff, yDiff = addonTable.Display.CalculateBarTextOffset(settings.anchor[1], width, height)
+    end
+    PixelUtil.SetPoint(text, settings.anchor[1], self.statusBar, settings.anchor[1], settings.anchor[2]/scale + xDiff, settings.anchor[3]/scale + yDiff)
+    PixelUtil.SetWidth(text, width)
+    text:SetRotation(settings.rotate and -math.pi / 2 or 0)
   end
+end
+
+function addonTable.Display.CalculateBarTextOffset(point, width, height)
+  local top, bottom, left, right = point:match("TOP"), point:match("BOTTOM"), point:match("LEFT"), point:match("RIGHT")
+  local x, y = 0, 0
+  if left and top then
+    x = height
+  elseif left and bottom then
+    x = - width + height
+  elseif right and top then
+    x = width
+  elseif (not right and not left) and top then
+    x = width / 2 + height / 2
+  elseif (not right and not left) and bottom then
+    x = - width / 2 + height / 2
+  elseif (not top and not bottom) and right then
+    x = width / 2
+  elseif (not top and not bottom) and left then
+    x = - width / 2 + height
+  elseif (not top and not bottom) and (not left and not right) then
+    x = height / 2
+  end
+
+  if top then
+    y = 0
+  elseif bottom then
+    y = - height
+  else
+    y = - height / 2
+  end
+
+  return x, y
 end
 
 do
@@ -388,11 +442,11 @@ do
     end
   end)
 
-  function addonTable.Display.GeneratePlayerAuraSlots(selfSettings, targetSettings)
+  function addonTable.Display.GeneratePlayerAuraSlots(selfSettings, targetSettings, playerSourced)
     index = index + 1
     local key = tostring(index)
 
-    return key, helpful:AddAuraSlot(key, "HELPFUL|PLAYER", selfSettings), harmful:AddAuraSlot(key, "HARMFUL|PLAYER", targetSettings), helpfulPet:AddAuraSlot(key, "HELPFUL", selfSettings)
+    return key, helpful:AddAuraSlot(key, playerSourced and "HELPFUL|PLAYER" or "HELPFUL", selfSettings), harmful:AddAuraSlot(key, playerSourced and "HARMFUL|PLAYER" or "HARMFUL", targetSettings), helpfulPet:AddAuraSlot(key, "HELPFUL", selfSettings)
   end
 
   function addonTable.Display.SetAuraSlotsFilters(key, selfSettings, targetSettings)
@@ -401,10 +455,10 @@ do
     harmful:SetAuraSlotCandidateFilters(key, targetSettings)
   end
 
-  function addonTable.Display.SetAuraSlotsEnabled(key, enabled)
-    helpful:SetAuraSlotFilterString(key, enabled and "HELPFUL|PLAYER" or "")
+  function addonTable.Display.SetAuraSlotsEnabled(key, enabled, playerSourced)
+    helpful:SetAuraSlotFilterString(key, enabled and (playerSourced and "HELPFUL|PLAYER" or "HELPFUL") or "")
     helpfulPet:SetAuraSlotFilterString(key, enabled and "HELPFUL" or "")
-    harmful:SetAuraSlotFilterString(key, enabled and "HARMFUL|PLAYER" or "")
+    harmful:SetAuraSlotFilterString(key, enabled and (playerSourced and "HARMFUL|PLAYER" or "HARMFUL") or "")
   end
 end
 

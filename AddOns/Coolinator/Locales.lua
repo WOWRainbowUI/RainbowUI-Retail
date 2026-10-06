@@ -226,6 +226,8 @@ L["ACTIVE"] = "Active"
 L["RANGE_CHECKING"] = "Range checking"
 L["SPELL_RANK"] = "Spell rank"
 L["MAX"] = "Max"
+L["ROTATE"] = "Rotate"
+L["ONLY_SHOW_FOR_AURAS_FROM_YOU"] = "Only show for auras from you"
 
 L["SETTING_CHANGED_THAT_REQUIRES_A_RELOAD"] = "Setting changed that requires a reload."
 
@@ -313,6 +315,8 @@ L["FADE"] = "Fade"
 L["THANKS_FOR_USING_COOLINATOR_DONATE"] = "Thanks for using Coolinator. Consider donating to support development"
 
 local L = Locales.zhTW
+L["ROTATE"] = "旋轉"
+L["ONLY_SHOW_FOR_AURAS_FROM_YOU"] = "只顯示你施放的光環"
 L["SETTINGS_CATEGORY_NAME"] = "技能冷卻"
 L["NUMBER_PAD_X"] = "數字鍵盤%s"
 L["SWING"] = "揮擊"
@@ -573,6 +577,8 @@ L["WIDTH_RESTRICTION"] = "寬度限制"
 L["WORLD"] = "世界"
 
 local L = Locales.zhCN
+L["ROTATE"] = "旋转"
+L["ONLY_SHOW_FOR_AURAS_FROM_YOU"] = "只显示你施放的光环"
 L["NUMBER_PAD_X"] = "数字键盘%s"
 L["SWING"] = "挥击"
 L["MAIN_HAND"] = "主手"

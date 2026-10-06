@@ -408,6 +408,19 @@ local function Combov26(group)
   end
 end
 
+local function Iconsv27(group)
+  for i = #group.entries, 1, -1 do
+    local entry = group.entries[i]
+    if entry.kind == "group" or entry.kind == "stack" then
+      Iconsv27(entry)
+    elseif entry.kind == "icon" and (entry.resource.kind == "aura" or entry.resource.kind == "auraMissing") then
+      entry.playerSourced = true
+    elseif entry.kind == "bar" and (entry.resource.kind == "aura" or entry.resource.kind == "auraStacks" or entry.resource.kind == "auraStackPip") then
+      entry.playerSourced = true
+    end
+  end
+end
+
 local steps = {
   AddAlignment,
   addonTable.Core.RemoveDeadGroups,
@@ -439,6 +452,7 @@ local steps = {
   Iconsv25,
   Combov26,
   Combov26,
+  Iconsv27,
 }
 addonTable.Constants.CurrentLayoutVersion = #steps
 
