@@ -161,6 +161,7 @@ end
 local function GetOptions(obj, Order)
 	local Addon, Group, Notes = obj.Addon, obj.Group, obj.Notes or nil
 	Addon = Addon and L[Addon]
+	Group = Group and L[Group]
 	local Name, Title, Desc
 
 	if Group then
@@ -531,8 +532,8 @@ function Core:UpdateSkinOptions(obj, Delete)
 		args[ID] = nil
 	elseif not args[ID] then
 		args[ID] = GetOptions(obj)
-	elseif Group and (args[ID].name ~= Group) then
-		args[ID].name = Group
+	elseif Group and (args[ID].name ~= L[Group]) then
+		args[ID].name = L[Group]
 	else
 		return
 	end
