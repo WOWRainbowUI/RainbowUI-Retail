@@ -202,7 +202,7 @@ local AccountantClassicDefaultOptions = {
 	-- prvdateweek, 
 	month = cmonth,
 	-- prvmonth,
-	weekstart = 1, 
+	weekstart = 5,
 	curryear = cyear,
 	-- prvyear,
 	totalcash = 0,
