@@ -100,7 +100,7 @@ local function ShowToolTip (frame)
     local x, y;
     -- 1
     x, y = tooltip:AddLine();
-    tooltip:SetCell(x,y,'Decursive', HeadFont,"CENTER",2);
+    tooltip:SetCell(x,y,L['Decursive'], HeadFont,"CENTER",2);
 
     -- 2
     --tooltip:AddLine(    ("|cFF00FF00%s|r: "):format(D.L["HLP_RIGHTCLICK"]),

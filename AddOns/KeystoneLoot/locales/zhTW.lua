@@ -176,3 +176,4 @@ L["Role check confirmed automatically."] = "已自動確認職責檢查。";
 
 -- bindings.lua
 L["Toggle Window"] = "開啟/關閉視窗";
+L["KeystoneLoot"] = "職業適合裝備查詢";

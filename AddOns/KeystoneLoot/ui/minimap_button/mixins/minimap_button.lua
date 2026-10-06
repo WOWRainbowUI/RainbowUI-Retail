@@ -128,7 +128,7 @@ end
 
 function KeystoneLootMinimapButtonMixin:OnEnter()
     GameTooltip:SetOwner(self, "ANCHOR_LEFT");
-    GameTooltip:SetText(AddonName, 1, 1, 1);
+    GameTooltip:SetText(L[AddonName], 1, 1, 1);
     GameTooltip:AddLine(L["Left click: Open overview"]);
     GameTooltip:Show();
 end

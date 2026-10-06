@@ -163,7 +163,7 @@ bootstrapFrame:SetScript("OnEvent", function(_, event, arg1)
                 end
             end,
             OnTooltipShow = function(tooltip)
-                tooltip:AddLine("BuffReminders")
+                tooltip:AddLine(L["BuffReminders"])
                 tooltip:AddLine(L["Display.MinimapLeftClick"])
                 tooltip:AddLine(L["Display.MinimapRightClick"])
                 local owner = tooltip:GetOwner()
