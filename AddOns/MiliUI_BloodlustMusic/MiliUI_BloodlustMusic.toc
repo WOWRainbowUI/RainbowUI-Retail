@@ -1,4 +1,4 @@
-## Interface: 120007, 120100
+## Interface: 120007, 120100, 120105
 ## Title: MiliUI BloodlustMusic
 ## Notes: Bloodlust / Heroism music playback and countdown bar.|n|n|cffffd200Usage: |rEsc>Options>AddOns>Bloodlust Music or type /blm to configure.
 ## Title-zhTW: |cFF00FFFF[戰鬥]|r 米利嗜血音樂
@@ -12,12 +12,31 @@
 ## Category-zhCN: 战斗
 ## Category-koKR: 전투
 ## Author: Mili
-## Version: 1.2.3
+## Version: 1.2.5
+## Dependencies: Ace3
 ## SavedVariables: MiliUI_BloodlustMusic_DB
 
-
+Libs\MiliUIWidgets\PixelPerfect.lua
+Libs\MiliUIWidgets\Secret.lua
+Libs\MiliUIWidgets\Errors.lua
+Libs\MiliUIWidgets\Metro.lua
 Locales\Locales.xml
+
 Config.lua
 Music.lua
 Reminder.lua
-Options.lua
+
+Libs\Callbacks.lua
+Libs\MiliUIWidgets\Env.lua
+Libs\MiliUIWidgets\Widgets.lua
+Libs\MiliUIWidgets\ContextMenu.lua
+Libs\MiliUIWidgets\Controls.lua
+Options\Specs.lua
+Options\Panel.lua
+Options\Tab_Music.lua
+Options\Tab_Tracks.lua
+Options\Tab_Bar.lua
+Options\Tab_Reminder.lua
+Libs\MiliUIWidgets\BlizzOptions.lua
+Options\Blizzard.lua
+Api.lua
