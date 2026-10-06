@@ -381,6 +381,11 @@ local function CreateBarFrame()
 
     -- Edit Mode selection overlay
     local editSelection = CreateFrame("Frame", nil, barFrame, "EditModeSystemSelectionTemplate")
+    -- The template's XML binds OnMouseDown -> EditModeManagerFrame:SelectSystem(self.parent).
+    -- We are not a real Edit Mode system: a click without a drag lets Blizzard run that
+    -- selection pass tainted by us across EVERY registered system (action bars included).
+    -- Silent at click time; it surfaces later as blocked action buttons in combat.
+    editSelection:SetScript("OnMouseDown", function() end)
     editSelection:SetAllPoints()
     editSelection:Hide()
     editSelection:RegisterForDrag("LeftButton")
@@ -759,7 +764,8 @@ end
 local eventFrame = CreateFrame("Frame")
 eventFrame:RegisterEvent("PLAYER_LOGIN")
 eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
-eventFrame:RegisterEvent("UNIT_AURA")
+-- 只看自己：引擎在 C 層先濾掉隊友與名條的光環事件，不讓它們進 Lua
+eventFrame:RegisterUnitEvent("UNIT_AURA", "player")
 
 eventFrame:SetScript("OnEvent", function(self, event, ...)
     if event == "PLAYER_LOGIN" then
@@ -821,8 +827,6 @@ eventFrame:SetScript("OnEvent", function(self, event, ...)
                 end
             end
         end)
-
-        print(L["LOADED_MSG"])
 
     elseif event == "PLAYER_ENTERING_WORLD" then
         -- Fires at login and after every loading screen (zone/instance
