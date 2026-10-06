@@ -1,6 +1,6 @@
 ## Interface: 50504
 ## X-Wago-ID: E6gz1DN1
-## Version: 2.7.12
+## Version: 2.7.13
 ## Title: RGX-Framework
 ## Notes: Modular WoW addon framework
 ## Author: RGX

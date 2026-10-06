@@ -15,7 +15,64 @@ local function BuildGuide(content)
 
     -- Sections read like a book: opener, the model, what ships today, then
     -- current runtime facts from the actual loaded framework (not docs text).
-    local about = UI:CreateCard(left, { title = "About RGX-Framework" })
+
+    -- FIRST: the operator-facing theme controls (the coolest options lead).
+    local Design = RGX:GetDesign()
+    local theme = UI:CreateCard(left, { title = "Theme" })
+    if Design and Design.THEME_PRESETS then
+        local Drops = _G.RGXDropdowns
+        if Drops and type(Drops.CreateNestedDropdown) == "function" then
+            local items = {}
+            for name in pairs(Design.THEME_PRESETS) do items[#items + 1] = { text = name, value = name } end
+            table.sort(items, function(a, b) return a.value < b.value end)
+            local themeDD = Drops:CreateNestedDropdown(theme.content, {
+                label = "Main color",
+                width = 300, buttonWidth = 290, triggerStyle = "retail",
+                value = Design:GetThemePreset() or "cyan",
+                items = items,
+                onChange = function(value)
+                    if Design:SetThemePreset(value) then
+                        RGX.db.themePreset = value
+                    end
+                end,
+            })
+            if themeDD then
+                themeDD:SetPoint("TOPLEFT", 8, -8)
+                themeDD:SetPoint("TOPRIGHT", theme.content, "TOPRIGHT", -8, -8)
+            end
+        end
+        local corners = UI:CreateButtonGroup(theme.content, { "Rounded", "Square" },
+            { buttonWidth = 100, height = 22 })
+        corners:SetPoint("TOPLEFT", 8, -52)
+        local function UpdateCornerButtons()
+            local square = Design.cornerStyle == "square"
+            corners.buttons[1]:SetAlpha(square and 0.6 or 1)
+            corners.buttons[2]:SetAlpha(square and 1 or 0.6)
+        end
+        UpdateCornerButtons()
+        corners.buttons[1]:SetScript("OnClick", function()
+            Design:SetCornerStyle("rounded")
+            RGX.db.cornerStyle = "rounded"
+            UpdateCornerButtons()
+        end)
+        corners.buttons[2]:SetScript("OnClick", function()
+            Design:SetCornerStyle("square")
+            RGX.db.cornerStyle = "square"
+            UpdateCornerButtons()
+        end)
+        local note = UI:CreateLabel(theme.content, {
+            text = "Applies to every RGX panel; reload to re-skin already-open windows.",
+            size = "small", color = "muted", width = 292,
+        })
+        theme.flow:AddSpacer(74)
+        theme.flow:Add(note)
+    end
+    theme:AutoHeight()
+
+    local about = UI:CreateCard(left, { title = "About RGX-Framework", above = nil })
+    about:ClearAllPoints()
+    about:SetPoint("TOPLEFT", theme, "BOTTOMLEFT", 0, -8)
+    about:SetPoint("TOPRIGHT", theme, "BOTTOMRIGHT", 0, -8)
     AddLine(UI, about, "One shared foundation for the RGX Mods suite. Addons depend on it once and inherit events, timers, profiles, options, and safety boundaries instead of rebuilding them.")
     AddLine(UI, about, "The design goal is to make common addon bugs unrepresentable at the consumer boundary rather than fixed repeatedly in every product.")
     AddLine(UI, about, "Feature content stays in the addon; reusable plumbing belongs here.")
@@ -24,8 +81,7 @@ local function BuildGuide(content)
     local runtime = UI:CreateCard(left, { title = "This install" })
     runtime:ClearAllPoints()
     runtime:SetPoint("TOPLEFT", about, "BOTTOMLEFT", 0, -8)
-    runtime:SetPoint("TOPRIGHT", about, "BOTTOMRIGHT", 0, -8)
-    local version = (RGX.GetMetadata and RGX:GetMetadata(addonName, "Version")) or RGX.version or "unknown"
+    runtime:SetPoint("TOPRIGHT", about, "BOTTOMRIGHT", 0, -8)    local version = (RGX.GetMetadata and RGX:GetMetadata(addonName, "Version")) or RGX.version or "unknown"
     local modules = RGX.GetLoadedModules and RGX:GetLoadedModules() or {}
     AddLine(UI, runtime, "Framework version: " .. tostring(version))
     AddLine(UI, runtime, "Loaded modules: " .. tostring(#modules) .. (modules[1] and (" (" .. table.concat(modules, ", ") .. ")") or ""))
@@ -98,7 +154,7 @@ RGX:RegisterEvent("PLAYER_LOGIN", function()
     RGX.guidePanel = UI:CreateOptionsPanel({
         addonName = addonName,
         title = "RGX-Framework",
-        subtitle = "Help, docs and about",
+        subtitle = "Theme, help, docs and about",
         icon = "Interface\\AddOns\\RGX-Framework\\media\\logo.tga",
         author = "RGX Mods",
         website = "github.com/RGXMods/RGX-Framework",

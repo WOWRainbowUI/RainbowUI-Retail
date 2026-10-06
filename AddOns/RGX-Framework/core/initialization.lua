@@ -103,6 +103,18 @@ RGX:RegisterEvent("ADDON_LOADED", function(_, addon)
         _G.RGXFrameworkDB = _G.RGXFrameworkDB or {}
         RGX.db = _G.RGXFrameworkDB
 
+        -- Restore the operator's theme and corner preferences before any
+        -- module builds UI. Stored by the framework settings panel.
+        local Design = type(RGX.GetDesign) == "function" and RGX:GetDesign() or nil
+        if Design then
+            if RGX.db.themePreset and type(Design.SetThemePreset) == "function" then
+                pcall(Design.SetThemePreset, Design, RGX.db.themePreset)
+            end
+            if RGX.db.cornerStyle and type(Design.SetCornerStyle) == "function" then
+                pcall(Design.SetCornerStyle, Design, RGX.db.cornerStyle)
+            end
+        end
+
         -- Initialize modules that need post-load startup.
         -- TryInit is a no-op when a module's global is nil, so optional modules
         -- can be removed from the XML without requiring a matching change here.

@@ -58,6 +58,7 @@ local TAB_H        = 22
 local TAB_SPACING  = 6
 local TAB_ROW_PAD  = 8
 local TAB_ROW_GAP  = 3
+local TAB_AREA_GAP = 2
 local HEADER_H     = 64
 
 -- ── TOC metadata helper ───────────────────────────────────────────────────────
@@ -445,18 +446,23 @@ local function CreateOptionsPanel(UI, opts)
     local tabAnchor = header  -- tabs anchor to this; swapped to banner when present
 
     if opts.bannerHeight and opts.bannerHeight > 0 then
-        local bannerFrame = CreateFrame("Frame", nil, container, "BackdropTemplate")
+        -- The banner is a plain content area on the panel surface, not a
+        -- second card: the panel container already provides the backdrop,
+        -- so a boxed frame here renders as extra chrome around consumer
+        -- content (reported around a consumer's nameplate preview).
+        local bannerFrame = CreateFrame("Frame", nil, container)
         bannerFrame:SetHeight(opts.bannerHeight)
         bannerFrame:SetPoint("TOPLEFT",  header, "BOTTOMLEFT",  0, -2)
         bannerFrame:SetPoint("TOPRIGHT", header, "BOTTOMRIGHT", 0, -2)
-        bannerFrame:SetBackdrop({
-            bgFile   = "Interface\\Tooltips\\UI-Tooltip-Background",
-            edgeFile = "Interface\\Buttons\\WHITE8x8",
-            tile = true, tileSize = 16, edgeSize = 1,
-            insets = {left=1, right=1, top=1, bottom=1},
-        })
-        bannerFrame:SetBackdropColor(sr, sg, sb, 0.95)
-        bannerFrame:SetBackdropBorderColor(D:Unpack("border"))
+        -- Divider along the banner's bottom: separates banner content
+        -- (e.g. the preview's type buttons) from the tab row below.
+        local bannerDivider = bannerFrame:CreateTexture(nil, "ARTWORK")
+        bannerDivider:SetHeight(2)
+        bannerDivider:SetPoint("BOTTOMLEFT",  bannerFrame, "BOTTOMLEFT",  0, 0)
+        bannerDivider:SetPoint("BOTTOMRIGHT", bannerFrame, "BOTTOMRIGHT", 0, 0)
+        bannerDivider:SetColorTexture(D:Unpack("border"))
+        bannerFrame.divider = bannerDivider
+        bannerFrame.dividerGap = TAB_AREA_GAP + TAB_ROW_PAD
         panel.bannerFrame = bannerFrame
         tabAnchor = bannerFrame
     end
@@ -466,8 +472,8 @@ local function CreateOptionsPanel(UI, opts)
     local tabAreaHeight = singlePage and 0 or GetTabContainerHeight(rowCount)
 
     local tabArea = CreateFrame("Frame", nil, container)
-    tabArea:SetPoint("TOPLEFT",  tabAnchor, "BOTTOMLEFT",  0, -2)
-    tabArea:SetPoint("TOPRIGHT", tabAnchor, "BOTTOMRIGHT", 0, -2)
+    tabArea:SetPoint("TOPLEFT",  tabAnchor, "BOTTOMLEFT",  0, -TAB_AREA_GAP)
+    tabArea:SetPoint("TOPRIGHT", tabAnchor, "BOTTOMRIGHT", 0, -TAB_AREA_GAP)
     tabArea:SetHeight(tabAreaHeight)
 
     local tabBg = tabArea:CreateTexture(nil, "BACKGROUND")
@@ -488,7 +494,7 @@ local function CreateOptionsPanel(UI, opts)
 
         -- Content frame for this tab
         local content = CreateFrame("Frame", nil, container, "BackdropTemplate")
-        content:SetPoint("TOPLEFT",     tabArea, "BOTTOMLEFT",          1, -8)
+        content:SetPoint("TOPLEFT",     tabArea, "BOTTOMLEFT",          1, -2)
         content:SetPoint("BOTTOMRIGHT", container, "BOTTOMRIGHT",      -7,  8)
         content:SetBackdrop({
             bgFile   = "Interface\\Tooltips\\UI-Tooltip-Background",
@@ -545,7 +551,7 @@ local function CreateOptionsPanel(UI, opts)
         self.tabs[i]._tabInfo = tabInfo
 
         local content = CreateFrame("Frame", nil, container, "BackdropTemplate")
-        content:SetPoint("TOPLEFT",     tabArea, "BOTTOMLEFT",          1, -8)
+        content:SetPoint("TOPLEFT",     tabArea, "BOTTOMLEFT",          1, -2)
         content:SetPoint("BOTTOMRIGHT", container, "BOTTOMRIGHT",      -7,  8)
         content:SetBackdrop({
             bgFile   = "Interface\\Tooltips\\UI-Tooltip-Background",
@@ -802,6 +808,21 @@ local function DeferOptionsOpen(fn)
     fn()
   end
 end
+
+    -- Visibility must include the host: a Settings page can remain shown
+    -- internally even while the containing Settings window is hidden.
+    function panel:Close()
+        local host = self
+        if self._settingsEmbedded then
+            if SettingsPanel and SettingsPanel:IsShown() then host = SettingsPanel
+            elseif InterfaceOptionsFrame and InterfaceOptionsFrame:IsShown() then host = InterfaceOptionsFrame end
+        end
+        RGX:SafeHide(host)
+    end
+
+    function panel:Toggle()
+        if self:IsVisible() then self:Close() else self:Open() end
+    end
 
     -- ── Open ──────────────────────────────────────────────────────────────────
     function panel:Open()

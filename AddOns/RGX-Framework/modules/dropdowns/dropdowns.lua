@@ -62,7 +62,8 @@ local BORDER_PAD       = BORDER_THICKNESS * 2
 local function EnsureDropDownAPI()
     if type(UIDropDownMenu_Initialize) == "function"
         and type(UIDropDownMenu_AddButton) == "function"
-        and type(UIDropDownMenu_CreateInfo) == "function" then
+        and type(UIDropDownMenu_CreateInfo) == "function"
+        and type(ToggleDropDownMenu) == "function" then
         return true
     end
 
@@ -81,6 +82,7 @@ local function EnsureDropDownAPI()
     return type(UIDropDownMenu_Initialize) == "function"
         and type(UIDropDownMenu_AddButton) == "function"
         and type(UIDropDownMenu_CreateInfo) == "function"
+        and type(ToggleDropDownMenu) == "function"
 end
 
 local function SetDropdownText(dropdown, text)
@@ -397,6 +399,9 @@ function Dropdowns:AddInlineButton(buttonFrame, opts)
 
         existing:SetScript("OnLeave", function() GameTooltip:Hide() end)
         buttonFrame[key] = existing
+        -- Native menu rows are recycled by other dropdowns after closing.
+        -- An inline action must be explicitly shown for its new row owner.
+        buttonFrame:HookScript("OnHide", function() existing:Hide() end)
     end
 
     -- Update per-call properties
@@ -476,13 +481,9 @@ end
 -- ─────────────────────────────────────────────────────────────────────────────
 -- MenuUtil path (TWW / Midnight 12.x).
 --
--- Blizzard removed Blizzard_UIDropDownMenu in 11.0; what remains is a deprecation
--- shim that taints any insecure code path that touches it, producing
--- "ADDON FORBIDDEN" errors when our dropdowns are opened next to secure UI.
--- Modern clients use MenuUtil + WowStyle1ArrowDropdownTemplate, which has no
--- such taint surface. We dispatch to this path when MenuUtil is available and
--- fall back to the legacy implementation for Classic Era / Cata Classic /
--- MoP Classic where MenuUtil does not exist.
+-- Prefer the modern menu description API when its selection template is
+-- available. Legacy APIs remain client capabilities, not guarantees derived
+-- from a flavor name. Neither path establishes protected-action/taint safety.
 -- ─────────────────────────────────────────────────────────────────────────────
 
 local function HasMenuUtil()
@@ -586,6 +587,7 @@ function Dropdowns:CreateNestedDropdown_MenuUtil(parent, opts)
 		local function isSelected(value) return holder.value == value end
         local function setSelected(value)
             holder.value = value
+            holder:Refresh(value)
             local item = FindItemByValue(holder:GetItems(), value)
             if type(opts.onChange) == "function" then
                 opts.onChange(value, item, holder)
@@ -644,7 +646,7 @@ function Dropdowns:CreateNestedDropdown_MenuUtil(parent, opts)
         -- OverrideText pins the displayed label regardless of which radio is
         -- currently selected; useful for getValueText callers (e.g. fonts)
         -- that format the displayed label differently from the menu items.
-        if type(self.dropdown.OverrideText) == "function" and type(opts.getValueText) == "function" then
+        if type(self.dropdown.OverrideText) == "function" then
             self.dropdown:OverrideText(text)
         end
     end
@@ -964,6 +966,11 @@ function Dropdowns:CreateNestedDropdown(parent, opts)
         RGX:Debug("RGXDropdown: dispatching to Legacy path")
         holder = self:CreateNestedDropdown_Legacy(parent, opts)
     end
+    if holder then
+        -- Programmatic restoration is silent; only native menu selection
+        -- dispatches onChange. Both menu implementations share this surface.
+        function holder:SetValue(value) return self:Refresh(value) end
+    end
     if holder and opts.triggerStyle == "retail" then
         return self:ApplyRetailTrigger(holder, opts)
     end
@@ -977,7 +984,9 @@ end
 function Dropdowns:CreateContextMenu(opts)
     opts = opts or {}
     
-    if HasModernDropdownTemplate() and HasMenuUtil() then
+    -- Context menus do not instantiate a selection DropdownButton. Their
+    -- availability must not depend on that unrelated template probe.
+    if HasMenuUtil() then
         local generator = function(owner, rootDescription)
             local items = type(opts.items) == "function" and opts.items() or opts.items
             items = Dropdowns:NormalizeItems(items)

@@ -219,6 +219,9 @@ function UI:CreateSlider(parent, options)
 	local suffix = options.suffix or ""
 	local onChange = options.onChange or function() end
 	local sliderWidth = options.width or 200
+	local valueDisplay = options.valueDisplay or "always"
+	assert(valueDisplay == "always" or valueDisplay == "hover" or valueDisplay == "none",
+		"RGX UI: slider valueDisplay must be always, hover, or none")
 	-- progress: show the brand-colored fill behind the thumb. Defaults on so
 	-- existing sliders are unchanged; pass progress = false for a bare track
 	-- (some panels want the thumb without a running fill).
@@ -230,22 +233,28 @@ function UI:CreateSlider(parent, options)
 	local container = CreateFrame("Frame", nil, parent)
 	container:SetSize(sliderWidth + 32, 38)
 
-	container.label = self:CreateLabel(container, {
-		text = label,
-		size = "normal",
-		color = "muted"
-	})
-	container.label:SetPoint("TOPLEFT", 0, 0)
+	-- Static label above the track is the default. opts.noLabel drops it and
+	-- the label moves into the track hover tooltip instead ("label: value").
+	local hasLabel = options.noLabel ~= true
+	if hasLabel then
+		container.label = self:CreateLabel(container, {
+			text = label,
+			size = "normal",
+			color = "muted"
+		})
+		container.label:SetPoint("TOPLEFT", 0, 0)
+	end
 
 	container.valueLabel = self:CreateLabel(container, {
 		text = (storage[key] or default) .. suffix,
 		size = "normal"
 	})
 	container.valueLabel:SetPoint("TOPRIGHT", -28, 0)
+	if valueDisplay ~= "always" then container.valueLabel:Hide() end
 
 	local trackFrame = CreateFrame("Frame", nil, container)
-	trackFrame:SetPoint("TOPLEFT", container.label, "BOTTOMLEFT", 0, -4)
-	trackFrame:SetPoint("TOPRIGHT", container.valueLabel, "BOTTOMRIGHT", 0, -4)
+	trackFrame:SetPoint("TOPLEFT", container.label or container, hasLabel and "BOTTOMLEFT" or "TOPLEFT", 0, hasLabel and -4 or 0)
+	trackFrame:SetPoint("TOPRIGHT", container.valueLabel, "BOTTOMRIGHT", 0, hasLabel and -4 or 0)
 	trackFrame:SetHeight(18)
 
 	local button = CreateFrame("Button", nil, trackFrame)
@@ -257,8 +266,18 @@ function UI:CreateSlider(parent, options)
 	valueLabel:SetPoint("TOP", button, "BOTTOM", 0, 2)
 	valueLabel:Hide()
 
-	button:SetScript("OnEnter", function() valueLabel:Show() end)
-	button:SetScript("OnLeave", function() valueLabel:Hide() end)
+	button:SetScript("OnEnter", function(self)
+		if valueDisplay ~= "none" then valueLabel:Show() end
+		if not hasLabel and GameTooltip then
+			GameTooltip:SetOwner(self, "ANCHOR_TOP")
+			GameTooltip:SetText(label .. ": " .. (storage[key] or default) .. suffix)
+			GameTooltip:Show()
+		end
+	end)
+	button:SetScript("OnLeave", function()
+		valueLabel:Hide()
+		if not hasLabel and GameTooltip then GameTooltip:Hide() end
+	end)
 
 	local track = trackFrame:CreateTexture(nil, "ARTWORK")
 	track:SetHeight(4)
@@ -393,6 +412,9 @@ function UI:CreateSlider(parent, options)
 		apply(value)
 	end
 	container.GetValue = function() return storage[key] or default end
+	container.hoverValueLabel = valueLabel
+	container.button = button
+	container.resetButton = reset
 
 	return container
 end
@@ -546,9 +568,39 @@ end
 TOGGLE CONTROL
 ============================================================================]]
 
+-- Normalize the widget API without teaching consumers removed method names.
+-- Modern clients expose one combined setter; older clients used two setters.
+-- Returns false when bounds cannot be applied (never reports a no-op success).
+function UI:SetResizeBounds(frame, minWidth, minHeight, maxWidth, maxHeight)
+    if not frame then return false end
+    if type(frame.SetResizeBounds) == "function" then
+        frame:SetResizeBounds(minWidth, minHeight, maxWidth, maxHeight)
+        return true
+    end
+    if type(frame.SetMinResize) == "function" and type(frame.SetMaxResize) == "function"
+        and maxWidth ~= nil and maxHeight ~= nil then
+        frame:SetMinResize(minWidth, minHeight)
+        frame:SetMaxResize(maxWidth, maxHeight)
+        return true
+    end
+    return false
+end
+
 -- A label and 18px checkbox sharing a single layout frame. Consumers can
 -- bind the check to their database or event handlers without recreating its
 -- geometry, font, and artwork in each addon.
+local function AttachCheckboxLabel(frame, checkbox, label)
+    -- Limit the hit target to the text, not the entire row: neighboring
+    -- controls remain independently clickable. Anchors track font changes.
+    local target = CreateFrame("Button", nil, frame)
+    target:SetPoint("TOPLEFT", label, "TOPLEFT", -4, 3)
+    target:SetPoint("BOTTOMRIGHT", label, "BOTTOMRIGHT", 4, -3)
+    target:SetScript("OnClick", function()
+        if checkbox:IsEnabled() then checkbox:Click("LeftButton") end
+    end)
+    frame.labelButton = target
+end
+
 function UI:CreateCheckbox(parent, text)
     local frame = CreateFrame("Frame", nil, parent)
     frame:SetSize(300, 20)
@@ -563,6 +615,7 @@ function UI:CreateCheckbox(parent, text)
     label:SetPoint("LEFT", checkbox, "RIGHT", 5, 0)
     frame.checkbox = checkbox
     frame.label = label
+    AttachCheckboxLabel(frame, checkbox, label)
     return frame
 end
 
@@ -591,6 +644,7 @@ function UI:CreateToggle(parent, options)
         size = "normal"
     })
     container.label:SetPoint("LEFT", check, "RIGHT", 4, 0)
+    AttachCheckboxLabel(container, check, container.label)
     
     check:SetScript("OnClick", function(self)
         local enabled = self:GetChecked()
@@ -715,8 +769,9 @@ function UI:CreateResetButton(parent, onClick)
     return btn
 end
 
--- Buttons are created with skin only. Behavior is attached via SetScript or
--- the options table form. Pcall-isolated like every other shared dispatch so
+-- Click behavior uses the options table or SetScript("OnClick"). Hover
+-- behavior must compose with the skin via HookScript or table callbacks.
+-- Pcall-isolated like every other shared dispatch so
 -- one consumer's handler error cannot break unrelated panels.
 local function AttachButtonAction(btn, onClick)
     if type(onClick) ~= "function" then return btn end
@@ -782,6 +837,18 @@ function UI:CreateButton(parent, textOrOpts, w, h)
     end
     if opts and type(opts.onClick) == "function" then
         AttachButtonAction(btn, opts.onClick)
+    end
+    for _, entry in ipairs({ { "OnEnter", "onEnter" }, { "OnLeave", "onLeave" } }) do
+        local callback = opts and opts[entry[2]]
+        if type(callback) == "function" then
+            local script = entry[1]
+            btn:HookScript(script, function(self, ...)
+                local ok, err = pcall(callback, self, ...)
+                if not ok and RGX and type(RGX.Error) == "function" then
+                    RGX:Error("[RGXUI] button " .. script .. " failed: " .. tostring(err))
+                end
+            end)
+        end
     end
     return btn
 end
@@ -887,8 +954,16 @@ end
 function UI:CreateConfigDialog(parent, opts)
     opts = opts or {}
     local D = RGX:GetDesign()
-    local dialog = CreateFrame("Frame", nil, parent or UIParent, "BackdropTemplate")
-    dialog:SetSize(opts.width or 420, opts.height or 260)
+    local dialog
+    if D and type(D.CreateFrame) == "function" then
+        dialog = D:CreateFrame(parent or UIParent, {
+            width = opts.width or 420, height = opts.height or 260,
+            square = opts.square, bgAlpha = 0.95,
+        })
+    else
+        dialog = CreateFrame("Frame", nil, parent or UIParent, "BackdropTemplate")
+        dialog:SetSize(opts.width or 420, opts.height or 260)
+    end
     dialog:SetFrameStrata(opts.strata or "FULLSCREEN_DIALOG")
     dialog:SetClampedToScreen(true)
     dialog:EnableMouse(true)
@@ -896,16 +971,40 @@ function UI:CreateConfigDialog(parent, opts)
     dialog:RegisterForDrag("LeftButton")
     dialog:SetScript("OnDragStart", function(self) self:StartMoving() end)
     dialog:SetScript("OnDragStop", function(self) self:StopMovingOrSizing() end)
-    dialog:SetBackdrop({
-        bgFile = "Interface\\Buttons\\WHITE8x8",
-        edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1,
-    })
-    if D then
-        dialog:SetBackdropColor(D:Unpack("surface"))
-        dialog:SetBackdropBorderColor(D:Unpack("border"))
-    else
-        dialog:SetBackdropColor(0.05, 0.05, 0.05, 0.95)
-        dialog:SetBackdropBorderColor(0.137, 0.137, 0.173)
+    if not dialog.SetPanelColor then
+        dialog:SetBackdrop({
+            bgFile = "Interface\\Buttons\\WHITE8x8",
+            edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1,
+        })
+        if D then
+            dialog:SetBackdropColor(D:Unpack("surface"))
+            dialog:SetBackdropBorderColor(D:Unpack("border"))
+        else
+            dialog:SetBackdropColor(0.05, 0.05, 0.05, 0.95)
+            dialog:SetBackdropBorderColor(0.137, 0.137, 0.173)
+        end
+    end
+
+    if opts.resizable == true and type(dialog.SetResizable) == "function" then
+        dialog.resizable = self:SetResizeBounds(dialog, opts.minWidth or 280,
+            opts.minHeight or 180, opts.maxWidth or 1400, opts.maxHeight or 1000)
+        dialog:SetResizable(dialog.resizable)
+        if dialog.resizable then
+            local grip = CreateFrame("Button", nil, dialog)
+            grip:SetSize(16, 16)
+            grip:SetPoint("BOTTOMRIGHT", dialog, "BOTTOMRIGHT", -2, 2)
+            grip:SetNormalTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Up")
+            grip:RegisterForDrag("LeftButton")
+            grip:SetScript("OnDragStart", function() dialog:StartSizing("BOTTOMRIGHT") end)
+            grip:SetScript("OnDragStop", function()
+                dialog:StopMovingOrSizing()
+                if type(opts.onResize) == "function" then
+                    local ok, err = pcall(opts.onResize, dialog:GetWidth(), dialog:GetHeight(), dialog)
+                    if not ok then RGX:Error("[RGXUI] resize callback failed: " .. tostring(err)) end
+                end
+            end)
+            dialog.resizeGrip = grip
+        end
     end
 
     local title = dialog:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
@@ -914,6 +1013,7 @@ function UI:CreateConfigDialog(parent, opts)
     if D then
         title:SetTextColor(D:Unpack("primary"))
     end
+    dialog.titleText = title
 
     self:CreateCloseButton(dialog, { onClick = function() dialog:Hide() end })
 
@@ -1200,7 +1300,7 @@ function UI:CreateColumns(parent, count, options)
                 colWidth = 360
             else
                 colWidth = math.floor((w - (count - 1) * gap - margin * 2) / count)
-                if colWidth < 80 then colWidth = 80 end
+                if colWidth < 0 then colWidth = 0 end
             end
         end
         for i = 1, count do

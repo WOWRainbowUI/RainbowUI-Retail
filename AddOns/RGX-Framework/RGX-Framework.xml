@@ -38,7 +38,8 @@
 <Script file="modules/design/design.lua" />
  <Script file="modules/ui/controls.lua" />
  <Script file="modules/ui/options.lua" />
- <Script file="modules/ui/layout.lua" />
+<Script file="modules/ui/layout.lua" />
+<Script file="modules/ui/profiles.lua" />
  <Script file="modules/ui/guide.lua" />
 <Script file="modules/minimap/minimap.lua" />
   <Script file="modules/sharedmedia/sharedmedia.lua" />

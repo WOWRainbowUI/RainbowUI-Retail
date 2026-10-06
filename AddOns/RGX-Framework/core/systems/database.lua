@@ -500,6 +500,12 @@ function DB:GetChar()
     return charData
 end
 
+-- Public read for the "Name - Realm" key this DB addresses. Profile UIs show
+-- it instead of reaching for the private _charKey field.
+function DB:GetCharKey()
+    return self._charKey
+end
+
 function DB:ListProfiles()
     local names = {}
     for name in pairs(self._raw.profiles) do

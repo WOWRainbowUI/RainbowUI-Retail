@@ -49,6 +49,46 @@ Design.Theme = {
     accent  = {0.737, 0.435, 0.659}, -- #bc6fa8 brand purple (highlights/active states)
 }
 
+-- Named theme presets exposed through the framework settings panel. Each
+-- preset is a full {primary, accent} pair; the framework persists the
+-- operator's choice in RGXFrameworkDB.themePreset and re-applies it on
+-- login. "cyan" is the shipped default.
+Design.THEME_PRESETS = {
+    cyan   = { primary = {0.000, 0.902, 1.000}, accent = {0.737, 0.435, 0.659} },
+    gold   = { primary = {1.000, 0.843, 0.000}, accent = {0.737, 0.435, 0.659} },
+    green  = { primary = {0.345, 0.745, 0.506}, accent = {0.737, 0.435, 0.659} },
+    purple = { primary = {0.639, 0.529, 1.000}, accent = {0.000, 0.902, 1.000} },
+    rose   = { primary = {1.000, 0.416, 0.678}, accent = {0.000, 0.902, 1.000} },
+}
+
+-- Current preset name (nil = custom theme set directly via SetTheme).
+Design.currentPreset = "cyan"
+
+-- Global corner preference: "rounded" (default) or "square". Stored in
+-- RGXFrameworkDB.cornerStyle and honored by CreateFrame unless the caller
+-- explicitly opts into square with opts.square.
+Design.cornerStyle = "rounded"
+
+function Design:SetThemePreset(name)
+    local preset = self.THEME_PRESETS and self.THEME_PRESETS[name]
+    if not preset then return false end
+    self:SetTheme({ primary = preset.primary, accent = preset.accent })
+    self.currentPreset = name
+    return true
+end
+
+function Design:GetThemePreset()
+    return self.currentPreset
+end
+
+function Design:SetCornerStyle(style)
+    if style == "rounded" or style == "square" then
+        self.cornerStyle = style
+        return true
+    end
+    return false
+end
+
 -- Structural palette: dark navy foundation with cyan-friendly neutrals.
 Design.Colors = {
     surface    = {0.086, 0.086, 0.110}, -- panel
@@ -157,10 +197,14 @@ local BACKDROPS = {
 
 local THEME_KEYS = {
     primary      = "primary",
+    main         = "primary",
+    mainColor    = "primary",
     highlight    = "primary",
     accent       = "accent",
     borderActive = "primary",
 }
+
+local MAIN_SHADES = { mainSurface = 0.10, mainHover = 0.20, mainBorder = 0.35 }
 
 local function IsColor(value)
     return type(value) == "table"
@@ -173,6 +217,8 @@ function Design:SetTheme(config)
     if type(config) ~= "table" then return end
 
     local primary = config.primary
+        or config.main
+        or config.mainColor
         or config.highlight
         or config.highlightColor
         or config.themeColor
@@ -188,6 +234,8 @@ end
 function Design:SetHighlightColor(color, accent)
     self:SetTheme({ primary = color, accent = accent })
 end
+
+Design.SetMainColor = Design.SetHighlightColor
 
 -- Scoped theme override for one addon's UI construction without mutating the
 -- shared defaults: applies the theme for fn's duration, then restores.
@@ -207,6 +255,13 @@ Design.SetColors = Design.SetTheme
 Design.UseTheme = Design.SetTheme
 
 function Design:GetColor(key)
+    -- Shared shades derive from the active main color, including scoped
+    -- construction themes. Never cache them across theme changes.
+    local factor = MAIN_SHADES[key]
+    if factor then
+        local main = self.Theme.primary
+        return { main[1] * factor, main[2] * factor, main[3] * factor }
+    end
     local themeKey = THEME_KEYS[key]
     if themeKey then return self.Theme[themeKey] or {1, 1, 1} end
     return self.Colors[key] or {1, 1, 1}
@@ -263,6 +318,12 @@ end
 
 function Design:CreateFrame(parent, opts)
     opts = opts or {}
+    -- Corner preference: an explicit opts.square wins (callers that need the
+    -- legacy backdrop say so); otherwise the framework-level cornerStyle
+    -- setting decides between rounded panels and square backdrops.
+    if opts.square == nil then
+        opts.square = self.cornerStyle == "square"
+    end
     if opts.square then
         local frame = CreateFrame("Frame", nil, parent, "BackdropTemplate")
         if opts.width  then frame:SetWidth(opts.width)   end
@@ -344,8 +405,7 @@ function Design:CreateSectionHeader(parent, text, icon)
     -- Section headers frame in a muted version of the theme's brand color:
     -- the primary token dimmed down, never the full-brightness or accent
     -- variant, so every addon gets its own subdued brand frame.
-    local pr, pg, pb = self:Unpack("primary")
-    header:SetBackdropBorderColor(pr * 0.35, pg * 0.35, pb * 0.35)
+    header:SetBackdropBorderColor(self:Unpack("mainBorder"))
 
     local leftInset = 10
     if icon then

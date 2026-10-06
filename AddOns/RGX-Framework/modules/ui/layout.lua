@@ -186,16 +186,22 @@ function UI:CreateFlowLayout(host, opts)
 
                     -- Fixed widths first, then distribute the remainder
                     -- among fill entries (left group only).
-                    local fixedTotal = 0
+                    local fixedTotal, rightTotal = 0, 0
+                    local widths = {}
+                    for _, e in ipairs(rightGroup) do
+                        widths[e] = e.width or NaturalWidth(e.child) or 0
+                        rightTotal = rightTotal + widths[e]
+                    end
                     for _, e in ipairs(leftGroup) do
                         if e.width then
+                            widths[e] = e.width
                             fixedTotal = fixedTotal + e.width
                         elseif e.fill then
                             -- counted below
                         else
                             local w = NaturalWidth(e.child)
                             if w then
-                                e.width = w
+                                widths[e] = w
                                 fixedTotal = fixedTotal + w
                             end
                         end
@@ -209,8 +215,13 @@ function UI:CreateFlowLayout(host, opts)
 
                     local fillWidth = 0
                     if fillCount > 0 then
-                        local room = avail - fixedTotal - gap * (#leftGroup - 1)
+                        local room = avail - fixedTotal - rightTotal - gap * math.max(0, #children - 1)
                         fillWidth = math.max(0, room / fillCount)
+                    end
+                    -- Set allocated widths before measuring wrapped labels.
+                    for _, e in ipairs(leftGroup) do
+                        if not widths[e] then widths[e] = fillWidth end
+                        if e.fill or e.width then e.child:SetWidth(widths[e]) end
                     end
 
                     -- Row height.
@@ -226,10 +237,10 @@ function UI:CreateFlowLayout(host, opts)
                     -- Place the left group from the left edge.
                     local x = 0
                     for _, e in ipairs(leftGroup) do
-                        local w = e.width or fillWidth
+                        local w = widths[e]
                         local h = NaturalHeight(e.child, MIN_ROW_HEIGHT)
                         local childY = y + (rowH - h) / 2
-                        Place(e.child, x, -childY, (e.fill or not e.width) and w or nil)
+                        Place(e.child, x, -childY, (e.fill or e.width or not NaturalWidth(e.child)) and w or nil)
                         x = x + w + gap
                     end
 
@@ -237,7 +248,7 @@ function UI:CreateFlowLayout(host, opts)
                     local rx = avail
                     for i = #rightGroup, 1, -1 do
                         local e = rightGroup[i]
-                        local w = e.width or NaturalWidth(e.child) or 0
+                        local w = widths[e]
                         rx = rx - w
                         local h = NaturalHeight(e.child, MIN_ROW_HEIGHT)
                         local childY = y + (rowH - h) / 2
@@ -248,11 +259,11 @@ function UI:CreateFlowLayout(host, opts)
                     -- Single-item alignment for plain Add() rows.
                     if #children == 1 and children[1].align == "center" then
                         local e = children[1]
-                        local w = e.width or fillWidth or NaturalWidth(e.child) or 0
+                        local w = widths[e]
                         local xOff = (avail - w) / 2
                         local h = NaturalHeight(e.child, MIN_ROW_HEIGHT)
                         Place(e.child, xOff, -(y + (rowH - h) / 2),
-                            (e.fill or not e.width) and w or nil)
+                            (e.fill or e.width or not NaturalWidth(e.child)) and w or nil)
                     end
 
                     y = y + rowH + gapY
@@ -401,9 +412,17 @@ function UI:CreateCard(parent, opts)
     card:SetPoint("TOPLEFT", parent, "TOPLEFT", 0, 0)
     card:SetPoint("TOPRIGHT", parent, "TOPRIGHT", 0, 0)
 
-    card.flow = UI:CreateFlowLayout(card.content, {
-        gap = opts.gap or DEFAULT_GAP,
-    })
+    card.flows = {}
+    if opts.columns then
+        assert(opts.columns == 1 or opts.columns == 2, "RGX UI: cards support one or two columns")
+        card.columns = { UI:CreateColumns(card.content, opts.columns, { gap = opts.columnGap or DEFAULT_GAP, card = false }) }
+        for i, column in ipairs(card.columns) do
+            card.flows[i] = UI:CreateFlowLayout(column, { gap = opts.gap or DEFAULT_GAP })
+        end
+    else
+        card.flows[1] = UI:CreateFlowLayout(card.content, { gap = opts.gap or DEFAULT_GAP })
+    end
+    card.flow = card.flows[1]
 
     -- Resize the card to exactly fit its flow content. Call after all
     -- flow:Add/AddRow calls. Extra px can be appended via the argument.
@@ -411,11 +430,28 @@ function UI:CreateCard(parent, opts)
         -- Normal method calls pass the card first. Keep the original dot-call
         -- form available to consumers that already use AutoHeight(extra).
         if first ~= card then extra = first end
-        local used = card.flow:Apply()
-        local top = card.headerBand and TITLED_CONTENT_TOP or UNTITLED_CONTENT_TOP
-        card:SetHeight(top + used + CONTENT_BOTTOM + (extra or 0))
+        if card._heightUpdating then return card end
+        card._heightUpdating = true
+        card._heightExtra = extra or 0
+        local ok, err = pcall(function()
+            local used = 0
+            for _, flow in ipairs(card.flows) do used = math.max(used, flow:Apply()) end
+            local top = card.headerBand and TITLED_CONTENT_TOP or UNTITLED_CONTENT_TOP
+            card:SetHeight(top + used + CONTENT_BOTTOM + (extra or 0))
+            card._contentWidth = card.content:GetWidth()
+        end)
+        card._heightUpdating = nil
+        if not ok then error(err, 0) end
         return card
     end
+    card.content:HookScript("OnSizeChanged", function()
+        if card._heightExtra ~= nil and card.content:GetWidth() ~= card._contentWidth then
+            card:AutoHeight(card._heightExtra)
+        end
+    end)
+    card:HookScript("OnShow", function()
+        if card._heightExtra ~= nil then card:AutoHeight(card._heightExtra) end
+    end)
 
     return card
 end
