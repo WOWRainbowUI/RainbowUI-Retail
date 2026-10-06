@@ -1,8 +1,8 @@
-## Interface: 11509, 20506, 30405, 38002, 40402, 50504, 120100
+## Interface: 11509, 16001, 20506, 30405, 38002, 40402, 50504, 120100
 
 ## Author: StormFX, Tuller
 ## Title: Masque: Dominos
-## Version: 12.1.0
+## Version: ba65e43
 
 ## Category: Masque
 ## OptionalDeps: Masque
