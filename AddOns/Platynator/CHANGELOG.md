@@ -1,6 +1,6 @@
 # Platynator
 
-## [495](https://github.com/TheMouseNest/Platynator/tree/495) (2026-10-04)
-[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/494...495) 
+## [497](https://github.com/TheMouseNest/Platynator/tree/497) (2026-10-05)
+[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/496...497) 
 
-- Fix off-tank colour  
+- Revert "Fix "In combat" check to include current player's pet"  

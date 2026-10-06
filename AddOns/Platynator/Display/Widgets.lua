@@ -762,6 +762,8 @@ function addonTable.Display.GetFlashingHighlight(frame, parent)
     self:SetShown(... ~= nil)
     self.Animation:SetPlaying(... ~= nil)
     if ... then
+      local _, _, _, a = ...
+      self:SetAlpha(a)
       self.highlight:SetVertexColor(...)
     end
   end
