@@ -27,6 +27,7 @@ local defaultSettings = {
     darkModeUnitFrames = true,
     darkModeCastbars = true,
     darkModeColor = 0.20,
+    darkModeColorElite = 0.1,
     darkModeVigor = true,
     darkModeNameplateResource = true,
     hideGroupIndicator = false,
@@ -61,6 +62,7 @@ local defaultSettings = {
     druidOverstacks = true,
     druidAlwaysShowCombos = true,
     createAltManaBarDruid = true,
+    createAltManaBarDruidManaOnly = false,
     shamanMaelstromCombos = true,
     hunterTipOfSpearCombos = false,
     prdResourceScale = 1,
@@ -712,23 +714,58 @@ end
 --------------------------------------
 -- CLICKTHROUGH
 --------------------------------------
+-- SecureUnitButton_OnClick checks C_ClickBindings, where the default Target/Open Menu
+-- interactions are only bound to unmodified Left/Right clicks. A shift-click resolves to
+-- no binding and gets dropped, so route shift-clicks through a SecureActionButton proxy
+-- (which skips that check) that targets/opens the menu for the same unit.
+-- The proxy uses "togglemenu" rather than copying the frame's "menu-function": a function
+-- attribute set from addon code runs tainted, which blocks protected menu entries (Set Focus etc).
+local shiftClickProxies = {}
+
+local function UpdateShiftClickProxy(frame)
+    local proxy = shiftClickProxies[frame]
+    if not proxy then
+        proxy = CreateFrame("Button", nil, frame, "SecureActionButtonTemplate")
+        proxy:SetAllPoints(frame)
+        proxy:EnableMouse(false)
+        proxy:SetAttribute("useOnKeyDown", false)
+        proxy:SetAttribute("*type1", "target")
+        if frame:GetAttribute("menu-function") then
+            proxy:SetAttribute("*type2", "togglemenu")
+        end
+        frame:SetAttribute("shift-type1", "click")
+        frame:SetAttribute("shift-type2", "click")
+        frame:SetAttribute("shift-clickbutton1", proxy)
+        frame:SetAttribute("shift-clickbutton2", proxy)
+        shiftClickProxies[frame] = proxy
+    end
+    proxy:SetAttribute("unit", frame:GetAttribute("unit"))
+end
+
+local function SetShiftClickable(frame, shift)
+    if shift then
+        UpdateShiftClickProxy(frame)
+    end
+    frame:SetMouseClickEnabled(shift)
+end
+
 function BBF.ClickthroughFrames()
     if not InCombatLockdown() then
         local shift = IsShiftKeyDown()
         local db = BetterBlizzFramesDB
 
         if db.playerFrameClickthrough then
-            PlayerFrame:SetMouseClickEnabled(shift)
+            SetShiftClickable(PlayerFrame, shift)
         end
 
         if db.targetFrameClickthrough then
-            TargetFrame:SetMouseClickEnabled(shift)
-            TargetFrameToT:SetMouseClickEnabled(shift)
+            SetShiftClickable(TargetFrame, shift)
+            SetShiftClickable(TargetFrameToT, shift)
         end
 
         if db.focusFrameClickthrough then
-            FocusFrame:SetMouseClickEnabled(shift)
-            FocusFrameToT:SetMouseClickEnabled(shift)
+            SetShiftClickable(FocusFrame, shift)
+            SetShiftClickable(FocusFrameToT, shift)
         end
     end
 end
@@ -2249,7 +2286,7 @@ function BBF.PlayerElite(mode)
                 BBF.PlayerElite(1)
             end
             if BBF.DarkModeUnitFramesOn() and BetterBlizzFramesDB.playerEliteFrameDarkmode then
-                local v = (BetterBlizzFramesDB.darkModeColor + 0.25)
+                local v = BBF.DarkModeEliteValue()
                 playerElite:SetVertexColor(v,v,v)
             end
             BBF.eliteToggled = true
@@ -2265,8 +2302,7 @@ function BBF.PlayerElite(mode)
             local frameTexture = PlayerFrame.ClassicFrame.Texture
             local alpha = mode > 3 and 1 or 0
             local playerElite = PlayerFrame.PlayerFrameContainer.PlayerElite
-            local hideLvl = db.hideLevelText
-            local alwaysHideLvl = hideLvl and db.hideLevelTextAlways
+            local hideLvl, alwaysHideLvl = BBF.PlayerLevelHideFlags()
 
             if mode > 3 then
                 if not PlayerFrame.PlayerFrameContainer.PlayerElite then
@@ -2336,15 +2372,14 @@ function BBF.PlayerElite(mode)
                 playerElite:SetVertexColor(1, 1, 1, alpha)
             end
             if BBF.DarkModeUnitFramesOn() and BetterBlizzFramesDB.playerEliteFrameDarkmode and playerElite then
-                local v = (BetterBlizzFramesDB.darkModeColor + 0.25)
+                local v = BBF.DarkModeEliteValue()
                 playerElite:SetVertexColor(v,v,v)
             end
             BBF.eliteToggled = true
         elseif BBF.eliteToggled then
             local frameTexture = PlayerFrame.ClassicFrame.Texture
             local playerElite = PlayerFrame.PlayerFrameContainer.PlayerElite
-            local hideLvl = db.hideLevelText
-            local alwaysHideLvl = hideLvl and db.hideLevelTextAlways
+            local hideLvl, alwaysHideLvl = BBF.PlayerLevelHideFlags()
 
             frameTexture:SetDesaturated(false)
             if alwaysHideLvl then
@@ -3012,6 +3047,34 @@ function BBF.LegacyComboActiveOnly()
     UpdateLegacyComboActiveOnly(ComboFrame)
 end
 
+local HD_COMBO_POINT = "Interface\\AddOns\\BetterBlizzFrames\\media\\MoTextures\\ComboPoint.png"
+
+local function LegacyComboPointTexture()
+    return BBF.ClassicHDTexturesActive and BBF.ClassicHDTexturesActive() and HD_COMBO_POINT or 130973
+end
+
+function BBF.HDLegacyComboPoints()
+    if not ComboFrame or not ComboFrame.ComboPoints then return end
+    if not (BBF.ClassicHDTexturesActive and BBF.ClassicHDTexturesActive()) then return end
+    for _, point in ipairs(ComboFrame.ComboPoints) do
+        for i = 1, point:GetNumRegions() do
+            local region = select(i, point:GetRegions())
+            if region and region:IsObjectType("Texture") and region:GetDrawLayer() == "BACKGROUND" then
+                region:SetTexture(HD_COMBO_POINT)
+                region:SetTexCoord(0, 0.375, 0, 1)
+            end
+        end
+        if point.Highlight and not point.Highlight:GetAtlas() then
+            point.Highlight:SetTexture(HD_COMBO_POINT)
+            point.Highlight:SetTexCoord(0.375, 0.5625, 0, 1)
+        end
+        if point.Shine then
+            point.Shine:SetTexture(HD_COMBO_POINT)
+            point.Shine:SetTexCoord(0.5625, 1, 0, 1)
+        end
+    end
+end
+
 function BBF.ApplyLegacyBlueCombos(isEnabled)
     if not ComboFrame or not ComboFrame.ComboPoints then return end
 
@@ -3029,7 +3092,7 @@ function BBF.ApplyLegacyBlueCombos(isEnabled)
                 point.Highlight:SetPoint("TOPLEFT", point, "TOPLEFT", -1, 1.5)
                 point.charged = true
             else
-                point.Highlight:SetTexture(130973) -- original texture
+                point.Highlight:SetTexture(LegacyComboPointTexture())
                 point.Highlight:SetTexCoord(0.375, 0.5625, 0, 1)
                 point.Highlight:SetSize(8, 16)
                 point.Highlight:SetPoint("TOPLEFT", point, "TOPLEFT", 2, 0)
@@ -3065,7 +3128,7 @@ function BBF.LegacyBlueCombos()
                         point.Highlight:SetPoint("TOPLEFT", point, "TOPLEFT", -1, 1.5)
                         point.charged = true
                     elseif point.charged then
-                        point.Highlight:SetTexture(130973)
+                        point.Highlight:SetTexture(LegacyComboPointTexture())
                         point.Highlight:SetTexCoord(0.375, 0.5625, 0, 1)
                         point.Highlight:SetSize(8, 16)
                         point.Highlight:SetPoint("TOPLEFT", point, "TOPLEFT", 2, 0)
@@ -4317,7 +4380,7 @@ function BBF.SymmetricPlayerFrame()
 
     local manaBar = PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.ManaBarArea.ManaBar
     manaBar:SetWidth(136)
-    manaBar:SetPoint("TOPLEFT", 76, -61)
+    manaBar:SetPoint("TOPLEFT", 75.5, -61)
 
     manaBar.LeftText:SetPoint("LEFT", 11, 0)
     manaBar.RightText:SetPoint("RIGHT", -5, 0)
@@ -4327,7 +4390,7 @@ function BBF.SymmetricPlayerFrame()
         if InCombatLockdown() then return end
         if not self.changing then
             self.changing = true
-            self:SetPoint("TOPLEFT", 76, -61)
+            self:SetPoint("TOPLEFT", 75.5, -61)
             self.LeftText:SetPoint("LEFT", 11, 0)
             self.RightText:SetPoint("RIGHT", -5, 0)
             self.ManaBarText:SetPoint("CENTER", 4.5, 0)
@@ -5217,9 +5280,30 @@ end
 
 local function executeCustomCode()
     if BetterBlizzFramesDB and BetterBlizzFramesDB.customCode then
-        local func, errorMsg = loadstring(BetterBlizzFramesDB.customCode)
+        local function fontMissing(path)
+            if not BBF.testFont then
+                BBF.testFont = UIParent:CreateFontString()
+            end
+            return not pcall(BBF.testFont.SetFont, BBF.testFont, path, 12, "")
+        end
+        local function quoted(q)
+            return function(path)
+                if fontMissing((path:gsub("\\\\", "\\"))) then
+                    return q .. STANDARD_TEXT_FONT:gsub("\\", "\\\\") .. q
+                end
+            end
+        end
+        local code = BetterBlizzFramesDB.customCode
+        code = code:gsub('"([^"\n]-%.[oOtT][tT][fF])"', quoted('"'))
+        code = code:gsub("'([^'\n]-%.[oOtT][tT][fF])'", quoted("'"))
+        code = code:gsub("%[%[([^\n]-%.[oOtT][tT][fF])%]%]", function(path)
+            if fontMissing(path) then
+                return "[[" .. STANDARD_TEXT_FONT .. "]]"
+            end
+        end)
+        local func, errorMsg = loadstring(code, "BBF Custom Code")
         if func then
-            func() -- Execute the custom code
+            xpcall(func, geterrorhandler())
         else
             BBF.Print(string.format(L["Print_Error_In_Custom_Code"], errorMsg))
         end
@@ -5617,6 +5701,7 @@ First:SetScript("OnEvent", function(_, event, addonName)
         BBF.AlwaysShowLegacyComboPoints()
         BBF.LegacyComboActiveOnly()
         BBF.GenericLegacyComboSupport()
+        BBF.HDLegacyComboPoints()
         BBF.RaiseTargetFrameLevel()
         BBF.RaiseTargetCastbarStratas()
         BBF.RaidFramePixelBorder()
@@ -5630,6 +5715,7 @@ First:SetScript("OnEvent", function(_, event, addonName)
             BBF.ClassColorLegacyCombos()
             BBF.UpdateCustomTextures()
             BBF.SetCompactUnitFramesBackground()
+            BBF.XpBarTexture()
         end)
         BBF.ClassicFrames()
         BBF.noPortraitModes()
