@@ -1,7 +1,8 @@
-## Interface: 11509, 20506, 30405, 38002, 40402, 50504, 120100, 120007
+## Interface: 11509, 16001, 20506, 30405, 38002, 40402, 50504, 120100, 120007
+
 ## Author: StormFX
 ## Title: Masque: Entropy
-## Version: 12.1.0
+## Version: 12.1.1
 
 ## Category: Masque
 ## Dependencies: Masque

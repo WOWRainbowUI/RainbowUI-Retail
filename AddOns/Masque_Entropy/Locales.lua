@@ -32,20 +32,26 @@ Core.Locale = setmetatable(L, {
 -- Localization
 ---
 
-if Locale == "enGB" or Locale == "enUS" then
-	L["A metallic version of Apathy in the color of %s ore."] = "A metallic version of Apathy in the color of %s ore."
-	return
---elseif Locale == "deDE" then
+if Locale == "deDE" then
+
 elseif Locale == "esES" or Locale == "esMX" then
-	L["A metallic version of Apathy in the color of %s ore."] = "Una versión metálica de Apathy en color %s."
---elseif Locale == "frFR" then
---elseif Locale == "itIT" then
---elseif Locale == "koKR" then
+L["A metallic version of Apathy in the color of %s ore."] = "Una versión metálica de Apathy en color %s."
+
+elseif Locale == "frFR" then
+
+elseif Locale == "itIT" then
+
+elseif Locale == "koKR" then
+
 elseif Locale == "ptBR" then
-	L["A metallic version of Apathy in the color of %s ore."] = "Uma versão metálica da Apathy na cor de minério de %s."
+L["A metallic version of Apathy in the color of %s ore."] = "Uma versão metálica da Apathy na cor de minério de %s."
+
 elseif Locale == "ruRU" then
-	L["A metallic version of Apathy in the color of %s ore."] = "Металлическая версия Apathy цвета %s руды."
---elseif Locale == "zhCN" then
+L["A metallic version of Apathy in the color of %s ore."] = "Металлическая версия Apathy цвета %s руды."
+
+elseif Locale == "zhCN" then
+
 elseif Locale == "zhTW" then
-	L["A metallic version of Apathy in the color of %s ore."] = "Apathy的一種金屬版本，以%s礦石的顏色顯示。"
+L["A metallic version of Apathy in the color of %s ore."] = "Apathy的一種金屬版本，以%s礦石的顏色顯示。"
+
 end
