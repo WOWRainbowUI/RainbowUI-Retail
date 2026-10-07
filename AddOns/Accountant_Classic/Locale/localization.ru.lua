@@ -1,4 +1,4 @@
--- $Id: localization.ru.lua 422 2026-09-19 09:20:34Z arithmandar $ 
+-- $Id$ 
 -- Thanks to Narumar and unw1s3
 local L = LibStub("AceLocale-3.0"):NewLocale("Accountant_Classic", "ruRU", false)
 

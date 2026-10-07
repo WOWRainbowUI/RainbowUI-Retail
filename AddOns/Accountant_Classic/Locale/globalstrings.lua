@@ -1,5 +1,5 @@
 --[[
-$Id: globalstrings.lua 425 2026-09-28 05:30:43Z arithmandar $
+$Id$
 ]]
 
 local L = LibStub("AceLocale-3.0"):GetLocale("Accountant_Classic");

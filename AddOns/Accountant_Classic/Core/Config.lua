@@ -1,6 +1,3 @@
---[[
-$Id: Config.lua 11 2017-04-12 12:10:11Z arith $
-]]
 -----------------------------------------------------------------------
 -- Upvalued Lua API.
 -----------------------------------------------------------------------
@@ -8,12 +5,13 @@ $Id: Config.lua 11 2017-04-12 12:10:11Z arith $
 local _G = getfenv(0)
 local pairs = _G.pairs
 -- Libraries
-local string, format = string, format
+local string = _G.string
+local format = string.format
 -- ----------------------------------------------------------------------------
 -- AddOn namespace.
 -- ----------------------------------------------------------------------------
-local FOLDER_NAME, private = ...
-local LibStub = _G.LibStub;
+local _, private = ...
+local LibStub = _G.LibStub
 local addon = LibStub("AceAddon-3.0"):GetAddon(private.addon_name)
 local L = LibStub("AceLocale-3.0"):GetLocale(private.addon_name)
 
@@ -88,13 +86,68 @@ local function confirmCharacterRemoval(value)
 	StaticPopup_Show("ACCOUNTANT_CLASSIC_CONFIRM_REMOVE")
 end
 
-local options, moduleOptions = nil, {}
+local aboutPanel, options, moduleOptions = nil, nil, {}
+local function getAboutPanel()
+	if not aboutPanel then
+		aboutPanel = {
+			type = "group",
+			name = addon.LocName,
+			args = {
+				general = {
+					order = 1,
+					type = "group",
+					name = L["About"],
+					args = {
+						description = {
+							order = 10,
+							type = "description",
+							name = addon.Notes,
+							width = "full",
+						},
+						info = {
+							order = 20,
+							type = "group",
+							name = L["Addon Info"],
+							inline = true,
+							args = {
+								version = {
+									order = 21,
+									type = "description",
+									name = GAME_VERSION_LABEL..HEADER_COLON.." "..addon.Version,
+									width = "full",
+								},
+								update = {
+									order = 22, 
+									type = "description",
+									name = UPDATE..HEADER_COLON.." "..addon.UpdateDate,
+									width = "full",
+								},
+								author = {
+									order = 23, 
+									type = "description",
+									name = L["Author"]..HEADER_COLON.." "..addon.Author,
+									width = "full",
+								},
+							},
+						},
+					},
+				},
+			},
+		}
+	end
+	-- merge modular option tables (e.g. "Options", "Profiles") registered via RegisterModuleOptions
+	for k,v in pairs(moduleOptions) do
+		aboutPanel.args[k] = (type(v) == "function") and v() or v
+	end
+	return aboutPanel
+end
+
 
 local function getOptions()
 	if not options then
 		options = {
 			type = "group",
-			name = addon.LocName,
+			name = L["Options"],
 			args = {
 				general = {
 					order = 1,
@@ -361,14 +414,10 @@ local function getOptions()
 				},
 			},
 		}
-		for k,v in pairs(moduleOptions) do
-			options.args[k] = (type(v) == "function") and v() or v
-		end
 	end
-	
+
 	return options
 end
-
 
 function addon:OpenOptions()
 	local frames = addon.optionsFrames or {}
@@ -405,10 +454,12 @@ function addon:SetupOptions()
 	self.optionsFrameRefs = {}
 
 	-- setup options table
-	AceConfigReg:RegisterOptionsTable(addon.LocName, getOptions)
+	AceConfigReg:RegisterOptionsTable(addon.LocName, getAboutPanel)
+	--AceConfigReg:RegisterOptionsTable(addon.LocName, getOptions)
 	local generalFrame, generalCategoryID = AceConfigDialog:AddToBlizOptions(addon.LocName, nil, nil, "general")
 	self.optionsFrames.General = generalCategoryID
 	self.optionsFrameRefs.General = generalFrame
+	self:RegisterModuleOptions("Options", getOptions, L["Options"])
 
 	self:RegisterModuleOptions("Profiles", giveProfiles, L["Profile Options"])
 end

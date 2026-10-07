@@ -21,17 +21,8 @@
 ## Notes-zhCN: 追踪各个角色获得和花费的金币
 ## Title-zhTW: 個人會計經典版
 ## Notes-zhTW: 記錄所有角色的金幣收支
-## Author: arith
-## Version: v2.21.01
-## OptionalDeps: LibStub, CallbackHandler-1.0, Ace3, LibDBIcon-1.0, !LibUIDropDownMenu
-## SavedVariables: Accountant_ClassicSaveData, Accountant_ClassicDB, Accountant_Classic_NewDB, Accountant_ClassicZoneDB
-## X-Credits: Sabaki, Shadow, Rophy, kamusis
-## X-Date: 2026-09-28T10:20:55Z
-## X-Donate: https://www.patreon.com/ArithonWoW
-## X-Website: http://mods.curse.com/addons/wow/accountant-classic
-## X-License: GPLv2
-## X-Category: Information
-## X-Localizations: enUS, frFR, deDE, zhCN, zhTW, koKR, esES, ptBR, ruRU
+## Author: arith, kamusis
+## Version: v2.21.02
 ## AddonCompartmentFunc: AccountantClassic_ButtonOnClick
 ## IconTexture: Interface\AddOns\Accountant_Classic\Images\AccountantClassicButton-Up
 ## Category: Other
@@ -45,6 +36,16 @@
 ## Category-ruRU: Другое
 ## Category-zhCN: 其它
 ## Category-zhTW: 其他
+## OptionalDeps: LibStub, CallbackHandler-1.0, Ace3, LibDBIcon-1.0, !LibUIDropDownMenu
+## SavedVariables: Accountant_ClassicSaveData, Accountant_ClassicDB, Accountant_Classic_NewDB, Accountant_ClassicZoneDB
+## X-Credits: Sabaki, Shadow, Rophy
+## X-Date: 2026-10-06T17:28:32Z
+## X-Website: https://www.curseforge.com/wow/addons/accountant-classic
+## X-License: GPLv2
+## X-Category: Information
+## X-Localizations: enUS, frFR, deDE, zhCN, zhTW, koKR, esES, ptBR, ruRU
+## X-Curse-Project-ID: 4344
+## X-WoWI-ID: 17044
 
 Libs\Libs.xml
 Locale\Locales.xml

@@ -1,4 +1,4 @@
--- $Id: localization.fr.lua 422 2026-09-19 09:20:34Z arithmandar $ 
+-- $Id$ 
 
 -- FR Translation, thanks to Thi0u ;)
 

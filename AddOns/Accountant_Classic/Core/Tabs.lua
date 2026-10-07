@@ -1,6 +1,3 @@
---[[
-$Id: Tabs.lua 418 2026-09-19 03:18:51Z arithmandar $
-]]
 -----------------------------------------------------------------------
 -- Description: Creates and manages the tab buttons for the Accountant Classic frame.
 -- This file is used to build the tab UI and handle tab switching behavior
@@ -10,6 +7,7 @@ $Id: Tabs.lua 418 2026-09-19 03:18:51Z arithmandar $
 local _G = getfenv(0)
 local _, private = ...
 
+local Client = private.Client
 local function createRetailTabTextures(tab)
 	local left = tab:CreateTexture(nil, "BACKGROUND")
 	left:SetAtlas("uiframe-tab-left", true)
@@ -52,7 +50,7 @@ end
 
 local function createTab(parent, index, text)
 	local template
-	if private.WoWClassicFamily then
+	if Client.isAnyClassic then
 		template = "CharacterFrameTabButtonTemplate"
 	end
 
@@ -84,14 +82,14 @@ function AccountantClassic_CreateTabs(parent)
 	end
 
 	local firstTab = tabs[1]
-	firstTab:SetPoint("BOTTOMLEFT", parent, "BOTTOMLEFT", private.WoWClassicFamily and 5 or 15, -20)
+	firstTab:SetPoint("BOTTOMLEFT", parent, "BOTTOMLEFT", Client.isAnyClassic and 5 or 15, -20)
 	for index = 2, 10 do
 		local row = index % 2 == 0 and 1 or 2
 		local previous = tabs[index == 2 and 1 or index - 2]
-		local offset = private.WoWClassicFamily and -20 or 5
-		local y = index == 3 and (private.WoWClassicFamily and -26 or -32) or 0
+		local offset = Client.isAnyClassic and -20 or 5
+		local y = index == 3 and (Client.isAnyClassic and -26 or -32) or 0
 		tabs[index]:SetPoint("LEFT", previous, "RIGHT", offset, y)
 	end
-	tabs[11]:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", private.WoWClassicFamily and 0 or -5, -20)
+	tabs[11]:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", Client.isAnyClassic and 0 or -5, -20)
 	return tabs
 end

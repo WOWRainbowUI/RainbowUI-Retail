@@ -1,49 +1,47 @@
--- $Id: Constants.lua 10 2017-04-12 09:58:16Z arith $
 -- ----------------------------------------------------------------------------
 -- Localized Lua globals.
 -- ----------------------------------------------------------------------------
 -- Functions
 local _G = getfenv(0)
-local GetBuildInfo = _G.GetBuildInfo
-
--- Libraries
-
--- Determine WoW client family
-local _, _, _, interfaceVersion = GetBuildInfo()
-local projectID = WOW_PROJECT_ID
-
-local PROJECT_MAINLINE = WOW_PROJECT_MAINLINE
-local PROJECT_CLASSIC = WOW_PROJECT_CLASSIC
-local PROJECT_TBC = WOW_PROJECT_BURNING_CRUSADE_CLASSIC
-local PROJECT_CATA = WOW_PROJECT_CATACLYSM_CLASSIC
-local PROJECT_MISTS = WOW_PROJECT_MISTS_CLASSIC
-
--- Beta-only fallback:
--- Replace these bounds with values verified from the actual Forever client.
-local isForeverBeta = projectID == PROJECT_MAINLINE and interfaceVersion >= 10000 and interfaceVersion < 20000
-
-local isRetail = projectID == PROJECT_MAINLINE and not isForeverBeta
-local isClassicEra = projectID == PROJECT_CLASSIC
-local isAnniversaryTBC = PROJECT_TBC ~= nil and projectID == PROJECT_TBC
-local isCataclysmClassic = PROJECT_CATA ~= nil and projectID == PROJECT_CATA
-local isMistsClassic = PROJECT_MISTS ~= nil and projectID == PROJECT_MISTS
-local isProgressionClassic = isCataclysmClassic or isMistsClassic
-local isClassicForever = isForeverBeta
-local isAnyClassic = isClassicEra or isAnniversaryTBC or isProgressionClassic
+local LibStub = _G.LibStub
+local UnitFactionGroup = _G.UnitFactionGroup
+local UnitClass = _G.UnitClass
 -- ----------------------------------------------------------------------------
 -- AddOn namespace.
 -- ----------------------------------------------------------------------------
-local FOLDER_NAME, private = ...
+local _, private = ...
 private.addon_name = "Accountant_Classic"
 
-local LibStub = _G.LibStub
 local L = LibStub("AceLocale-3.0"):GetLocale(private.addon_name)
-
-local constants = {}
-private.constants = constants
-
 local playerFaction = UnitFactionGroup("player")
 local _, playerClass = UnitClass("player")
+
+-- Determine WoW client family
+local projectID = WOW_PROJECT_ID
+
+local function IsProject(id)
+    return id ~= nil and projectID == id
+end
+
+local Client = {
+    projectID = projectID,
+
+    isRetail = IsProject(WOW_PROJECT_MAINLINE),
+    isClassicEra = IsProject(WOW_PROJECT_CLASSIC),
+    isTBCClassic = IsProject(WOW_PROJECT_BURNING_CRUSADE_CLASSIC),
+    isCataclysmClassic = IsProject(WOW_PROJECT_CATACLYSM_CLASSIC),
+    isMistsClassic = IsProject(WOW_PROJECT_MISTS_CLASSIC),
+    isForever = IsProject(WOW_PROJECT_CAMELOT),
+}
+
+Client.isProgressionClassic = Client.isCataclysmClassic or Client.isMistsClassic
+Client.isAnyClassic = Client.isClassicEra or Client.isTBCClassic or Client.isProgressionClassic
+Client.isKnownProject = Client.isRetail or Client.isAnyClassic or Client.isForever
+private.Client = Client
+
+-- Create constants table
+local constants = {}
+private.constants = constants
 
 constants.defaults = {
 	profile = {
@@ -110,7 +108,7 @@ constants.eventLogTypes = {
 	AUCTION_HOUSE_CLOSED = "",
 }
 
-if (isAnyClassic) then 
+if (Client.isAnyClassic) then 
 	constants.events = {
 		-- Barber shop
 		"BARBER_SHOP_APPEARANCE_APPLIED",

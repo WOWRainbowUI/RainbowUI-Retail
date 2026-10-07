@@ -1,4 +1,4 @@
--- $Id: localization.en.lua 420 2026-09-19 08:16:47Z arithmandar $ 
+-- $Id$ 
 
 local AceLocale = LibStub:GetLibrary("AceLocale-3.0");
 local L = AceLocale:NewLocale("Accountant_Classic", "enUS", true, true);

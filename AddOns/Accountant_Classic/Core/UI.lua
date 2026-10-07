@@ -1,6 +1,3 @@
---[[
-$Id: UI.lua 418 2026-09-19 03:18:51Z arithmandar $
-]]
 -----------------------------------------------------------------------
 -- Description: Creates and manages the main Accountant Classic window.
 -- This file is used for the addon's primary frame, labels, scroll list,

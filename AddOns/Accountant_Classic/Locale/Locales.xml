@@ -1,4 +1,4 @@
-<!-- $Id: Locales.xml 312 2018-07-25 13:54:16Z arith $ -->
+<!-- $Id$ -->
 <Ui xmlns="http://www.blizzard.com/wow/ui/"   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"   xsi:schemaLocation="http://www.blizzard.com/wow/ui/">
 	<Script file="localization.en.lua"/>
 	<Script file="localization.cn.lua"/>

@@ -1,4 +1,4 @@
--- $Id: localization.de.lua 422 2026-09-19 09:20:34Z arithmandar $ 
+-- $Id$ 
 -- DE Translation, thanks to snj & JokerGermany, IsabelGarcia, pas06
 local L = LibStub("AceLocale-3.0"):NewLocale("Accountant_Classic", "deDE", false)
 

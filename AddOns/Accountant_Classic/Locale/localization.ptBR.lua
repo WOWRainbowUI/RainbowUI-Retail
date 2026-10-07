@@ -1,4 +1,4 @@
--- $Id: localization.ptBR.lua 422 2026-09-19 09:20:34Z arithmandar $ 
+-- $Id$ 
 local L = LibStub("AceLocale-3.0"):NewLocale("Accountant_Classic", "ptBR", false)
 
 if not L then return end

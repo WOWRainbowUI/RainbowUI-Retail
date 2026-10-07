@@ -1,10 +1,15 @@
-﻿$Id: Revision.txt 427 2026-09-28 10:20:55Z arithmandar $
-Known Issue(s):
+﻿Known Issue(s):
 ===============
 - Some incomes were categorized into Unknown instead of corresponding group.
 
 Revision History:
 =================
+
+* v2.21.02 (Oct. 07, 2026)
+==========================
+- Forever client now has its own WOW_PROJECT_ID which is WOW_PROJECT_CAMELOT
+- Create centralized Client table to detect game client version and check in all relevant code sections
+- Added auto-packaging for WoWInterface
 
 * v2.21.01 (Sep. 28, 2026)
 ==========================
