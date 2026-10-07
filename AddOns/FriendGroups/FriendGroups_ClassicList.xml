@@ -1,0 +1,90 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+	<!-- ========================================================================
+	     FriendGroups' OWN contact list for the Classic flavors.
+
+	     Why this frame exists, and why it is not Blizzard's:
+
+	     Rendering into FriendsFrameFriendsScrollFrame means writing fields that
+	     Blizzard's own code reads back while the Social window is opening. Those are
+	     scrollFrame.buttons and the scroll offset inside FriendsFrame_UpdateFriends,
+	     the FriendsFrame_UpdateFriends global itself, FriendsFrame.selectedFriendType,
+	     and FriendsTooltip.button. Reading an addon written value taints the rest of
+	     that execution, and FriendsFrame_OnShow finishes by calling RaidFrame:Show()
+	     when the Raid tab is selected. RaidFrame is protected, because Blizzard_RaidUI
+	     parents 40 SecureUnitButtonTemplate raid buttons to it, so in combat that call
+	     is refused and the Raid panel never appears. That is CurseForge issue 55, and
+	     it costs Classic raid leaders the only way to move people between groups
+	     mid fight.
+
+	     So the addon draws into a list of its own and leaves Blizzard's alone. The look
+	     is unchanged because the pieces are the same pieces: rows are still
+	     FriendsFrameButtonTemplate, the frame is still HybridScrollFrameTemplate, and
+	     the bar is still MinimalHybridScrollBarTemplate, which is exactly what
+	     Blizzard's own friends list is built from (in FriendsFrame.xml its scroll frame
+	     inherits HybridScrollFrameTemplate and its $parentScrollBar inherits
+	     MinimalHybridScrollBarTemplate).
+
+	     Loaded ONLY by the Classic tocs. Retail keeps its ScrollBox path untouched.
+
+	     Wiring that comes for free here, and must not be re-implemented in Lua:
+	       HybridScrollFrameTemplate's ScrollChild OnLoad sets frame.scrollChild.
+	       MinimalHybridScrollBarTemplate carries parentKey="scrollBar", so
+	       frame.scrollBar resolves without help, and the template's OnValueChanged is
+	       HybridScrollFrame_OnValueChanged.
+	       The bar's carets register themselves as frame.scrollUp and frame.scrollDown,
+	       via HybridScrollFrameScrollUp_OnLoad reading self:GetParent():GetParent().
+	     HybridScrollFrame_CreateButtons needs frame.scrollBar to exist before it runs,
+	     which the above guarantees.
+
+	     Parented to FriendsListFrame, the Contacts page itself, so page visibility is
+	     inherited: Blizzard shows and hides that frame with the page, and no tab
+	     detection is needed. The anchors are the same numbers the addon has always
+	     applied when it re-seated Blizzard's list, so the list occupies the identical
+	     rectangle. The bar is seated in Lua (FG_SetupOwnClassicList) next to the two
+	     cosmetic lines that go with it.
+
+	     Starts hidden: while the own list path is switched off, this frame must not
+	     draw over the native one. FG_SetupOwnClassicList shows it.
+	     ======================================================================== -->
+	<ScrollFrame name="FriendGroupsClassicList" parent="FriendsListFrame" inherits="HybridScrollFrameTemplate" hidden="true">
+		<Anchors>
+			<Anchor point="TOPLEFT" x="7" y="-115"/>
+			<Anchor point="BOTTOMRIGHT" x="-28" y="35"/>
+		</Anchors>
+		<Layers>
+			<!-- The ornate border that frames the scrollbar. Blizzard declares these three
+			     on FriendsFrameFriendsScrollFrame itself, so the addon has always drawn
+			     them by re-seating that frame; without them the own list would show a bare
+			     bar. Copied verbatim: same file, sizes, offsets and tex coords. ElvUI
+			     strips them on Blizzard's frame, and the skin adapter does the same here. -->
+			<Layer level="BACKGROUND">
+				<Texture name="$parentTop" file="Interface\PaperDollInfoFrame\UI-Character-ScrollBar">
+					<Size x="29" y="102"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativePoint="TOPRIGHT" x="-6" y="5"/>
+					</Anchors>
+					<TexCoords left="0" right="0.445" top="0" bottom="0.4"/>
+				</Texture>
+				<Texture name="$parentBottom" file="Interface\PaperDollInfoFrame\UI-Character-ScrollBar">
+					<Size x="29" y="106"/>
+					<Anchors>
+						<Anchor point="BOTTOMLEFT" relativePoint="BOTTOMRIGHT" x="-6" y="-5"/>
+					</Anchors>
+					<TexCoords left="0.515625" right="0.960625" top="0" bottom="0.4140625"/>
+				</Texture>
+				<Texture name="$parentMiddle" file="Interface\PaperDollInfoFrame\UI-Character-ScrollBar">
+					<Size x="29" y="1"/>
+					<Anchors>
+						<Anchor point="TOP" relativeTo="$parentTop" relativePoint="BOTTOM"/>
+						<Anchor point="BOTTOM" relativeTo="$parentBottom" relativePoint="TOP"/>
+					</Anchors>
+					<TexCoords left="0" right="0.445" top="0.75" bottom="1.0"/>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Slider name="$parentScrollBar" inherits="MinimalHybridScrollBarTemplate"/>
+		</Frames>
+	</ScrollFrame>
+</Ui>

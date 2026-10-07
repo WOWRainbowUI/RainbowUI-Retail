@@ -312,13 +312,20 @@ local function BlankTabArt(tab)
     if hl then hl:SetTexture(""); if hl.SetAtlas then hl:SetAtlas("") end; hl:SetAlpha(0) end
 end
 
+-- i is Blizzard's LOGICAL tab index (what PanelTemplates_GetSelectedTab returns),
+-- which is not the index in the frame name: Forever drops the Who tab but keeps the
+-- names Tab1/Tab3/Tab4, so Tabs[] is the only correct map. Mirrors GetTabByIndex.
+local function GetFriendsTab(frame, i)
+    return (frame.Tabs and frame.Tabs[i]) or _G["FriendsFrameTab" .. i]
+end
+
 local function SkinTabsOnce()
     local frame = FriendsFrame
     if not frame then return end
     local font = GetFont()
     local ar, ag, ab = GetAccent()
     for i = 1, (frame.numTabs or 4) do
-        local tab = _G["FriendsFrameTab" .. i]
+        local tab = GetFriendsTab(frame, i)
         if tab and not tab.euiSkinned then
             tab.euiSkinned = true
             -- Capture Blizzard's tab textures and blank them (texture AND atlas).
@@ -772,7 +779,7 @@ local function SkinWindow()
     -- Re-skin secondary panels when the bottom tabs are clicked (Who/Raid/QJ
     -- panels are load-on-demand and may not exist until first shown).
     for i = 1, (frame.numTabs or 4) do
-        local tab = _G["FriendsFrameTab" .. i]
+        local tab = GetFriendsTab(frame, i)
         if tab then
             tab:HookScript("OnClick", function()
                 C_Timer.After(0, function() SkinSubTabs(); SkinContactsLogo(); SkinPanels(); UpdateTabs() end)
@@ -807,8 +814,17 @@ local function SkinWindow()
 
     -- Keep active-tab styling in sync.
     hooksecurefunc(frame, "Show", function() UpdateTabs() end)
-    for idx, sf in ipairs({ _G.FriendsListFrame, _G.WhoFrame, _G.RaidFrame, _G.QuickJoinFrame }) do
-        if sf then sf:HookScript("OnShow", function() UpdateTabs(idx) end) end
+    -- Pairs, not a bare frame list: _G.WhoFrame is nil on Forever and ipairs would stop
+    -- there, silently dropping Raid and Quick Join. The index must be Blizzard's own
+    -- constant, because Forever renumbers Raid to 2 and Quick Join to 3.
+    for _, e in ipairs({
+        { _G.FRIEND_TAB_FRIENDS, _G.FriendsListFrame },
+        { _G.FRIEND_TAB_WHO, _G.WhoFrame },
+        { _G.FRIEND_TAB_RAID, _G.RaidFrame },
+        { _G.FRIEND_TAB_QUICK_JOIN, _G.QuickJoinFrame },
+    }) do
+        local idx, sf = e[1], e[2]
+        if idx and sf then sf:HookScript("OnShow", function() UpdateTabs(idx) end) end
     end
     UpdateTabs()
 end
@@ -959,17 +975,8 @@ local function WarnFriendsConflict()
     end)
 end
 
--- Reload confirmation for the enable/disable toggle.
-StaticPopupDialogs["FRIENDGROUPS_EUI_RELOAD"] = {
-    text = L["EUI_RELOAD_PROMPT"],
-    button1 = YES,
-    button2 = NO,
-    OnAccept = function() ReloadUI() end,
-    timeout = 0,
-    whileDead = true,
-    hideOnEscape = true,
-    preferredIndex = 3,
-}
+-- The reload confirmation for the enable/disable toggle is FRIENDGROUPS_RELOAD, defined in
+-- FriendGroups.lua and shared with the Classic own-list toggle.
 
 -- ---------------------------------------------------------------------------
 --  Dynamic text not covered by the curated skin: the contact count and the

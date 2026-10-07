@@ -585,7 +585,16 @@ RenderFriendButton = function(button, elementData)
 		button.travelPassButton:Hide()
 	end
 
-	local selected = (FriendsFrame.selectedFriendType == buttonType) and (FriendsFrame.selectedFriend == id)
+	-- Selection: ours on the own-list path, Blizzard's fields on the legacy one. Reading
+	-- their fields is harmless, it is writing them that taints; the own list simply never
+	-- writes them, so it has to keep its own answer. See OWN-LIST SELECTION AND CLICKS.
+	local selected
+	if Compat.UseOwnClassicList() then
+		local selType, selId = Compat.GetClassicSelection()
+		selected = (selType == buttonType) and (selId == id)
+	else
+		selected = (FriendsFrame.selectedFriendType == buttonType) and (FriendsFrame.selectedFriend == id)
+	end
 
 	-- [[ FIX: Compatibility Selection Logic ]]
 	if FriendsFrame_FriendButtonSetSelection then
@@ -646,7 +655,15 @@ RenderFriendButton = function(button, elementData)
 		isFocused = (GetMouseFocus() == button)
 	end
 
-	if (FriendsTooltip.button == button) or isFocused then
+	-- On the own-list path FriendsTooltip.button is deliberately never written, so the
+	-- pointer is the only thing that can say whether this row is the hovered one. That is
+	-- also all Blizzard's field was standing in for here.
+	local refreshTooltip = isFocused
+	if not Compat.UseOwnClassicList() then
+		refreshTooltip = refreshTooltip or (FriendsTooltip.button == button)
+	end
+
+	if refreshTooltip then
 		-- [[ FIX: Safe OnEnter Call for Classic ]] --
 		if button.OnEnter then
 			button:OnEnter()
@@ -802,26 +819,567 @@ RenderHeader = function(button, elementData)
 end
 
 -- ============================================================================
+-- [[ OWN-LIST SELECTION AND CLICKS (Classic own-list path only) ]]
+--
+-- Blizzard's row handler calls FriendsFrame_SelectFriend, which writes
+-- FriendsFrame.selectedFriendType. FriendsList_Update reads that field on every window
+-- open, so one click on a row taints the execution that ends in RaidFrame:Show() and the
+-- Raid tab stops opening in combat. So on the own-list path the rows are ours and the
+-- selection is ours.
+--
+-- Only the TYPE is kept here. The index is read back from the client (BNGetSelectedFriend
+-- / C_FriendList.GetSelectedFriend), which is exactly what Blizzard does with its own
+-- field pair, and for the same reason: list indices shift as friends come and go, and the
+-- client is the thing that keeps its own selection pointing at the same person. Those
+-- setters and getters are C functions, so nothing addon-written travels with them.
+-- ============================================================================
+
+local FG_SelectedType
+local FG_SelectedIndex
+
+-- type, index of the selected row, or nil when nothing is selected. Mirrors Blizzard's
+-- FriendsList_Update: type from the addon's own state, index from the client.
+--
+-- FG_SelectedIndex is a fallback, not a second source of truth. C_FriendList.SetSelectedFriend
+-- is documented for Classic with no protection flag, but BNSetSelectedFriend is a legacy
+-- global with no generated docs at all, and Blizzard only ever calls it from its own secure
+-- row handler. If some client refuses it from addon code, the getter would report nothing and
+-- the list would lose its highlight and its Send Message button. The clicked index covers
+-- that: it can go stale as friends come and go, which is exactly why the client's own answer
+-- is preferred whenever it gives one.
+function Compat.GetClassicSelection()
+	if FG_SelectedType == FRIENDS_BUTTON_TYPE_WOW then
+		local id = C_FriendList and C_FriendList.GetSelectedFriend and C_FriendList.GetSelectedFriend()
+		if id and id > 0 then return FG_SelectedType, id end
+	elseif FG_SelectedType == FRIENDS_BUTTON_TYPE_BNET then
+		local id = BNGetSelectedFriend and BNGetSelectedFriend()
+		if id and id > 0 then return FG_SelectedType, id end
+	else
+		return nil, nil
+	end
+	if FG_SelectedIndex then return FG_SelectedType, FG_SelectedIndex end
+	return nil, nil
+end
+
+-- Whisperable, nil-safe. Blizzard's FriendsList_CanWhisperFriend indexes the friend list
+-- without guarding the result, which errors on a stale index -- and an index held across a
+-- friend going offline is exactly what this path has to survive.
+local function FG_CanWhisperSelection(buttonType, id)
+	if buttonType == FRIENDS_BUTTON_TYPE_BNET then
+		return true
+	elseif buttonType == FRIENDS_BUTTON_TYPE_WOW then
+		local info = C_FriendList and C_FriendList.GetFriendInfoByIndex and C_FriendList.GetFriendInfoByIndex(id)
+		return (info and info.connected) and true or false
+	end
+	return false
+end
+
+-- Send Message follows the addon's selection, the way Blizzard's follows its own.
+function Compat.UpdateClassicSendMessageButton()
+	local button = FriendsFrameSendMessageButton
+	if not button then return end
+	local buttonType, id = Compat.GetClassicSelection()
+	local enabled = (buttonType ~= nil) and FG_CanWhisperSelection(buttonType, id)
+	if button.SetEnabled then
+		button:SetEnabled(enabled)
+	elseif enabled then
+		button:Enable()
+	else
+		button:Disable()
+	end
+end
+
+-- Select a row. Sound and ordering match Blizzard's FriendsFrameFriendButton_OnClick.
+-- Record the selection and hand it to the client. Shared by the click path and the
+-- first-row seed so both leave the same state behind, fallback index included.
+local function FG_ApplySelection(buttonType, id)
+	FG_SelectedType = buttonType
+	FG_SelectedIndex = id
+	if buttonType == FRIENDS_BUTTON_TYPE_WOW then
+		if C_FriendList and C_FriendList.SetSelectedFriend then C_FriendList.SetSelectedFriend(id) end
+	elseif buttonType == FRIENDS_BUTTON_TYPE_BNET then
+		if BNSetSelectedFriend then BNSetSelectedFriend(id) end
+	end
+end
+
+function Compat.SetClassicSelection(buttonType, id)
+	if not buttonType or not id then return end
+	FG_ApplySelection(buttonType, id)
+	Compat.UpdateClassicSendMessageButton()
+	Compat.RefreshClassicVisible()
+end
+
+-- Blizzard opens its list with the first friend selected (FriendsList_Update: "set to
+-- first in list if no friend"). Same here, so the list never opens with no highlight and
+-- a dead Send Message button, and so a selection lost to a friend going offline is
+-- replaced rather than left dangling.
+function Compat.EnsureClassicSelection(layout)
+	if not layout then return end
+	local buttonType = Compat.GetClassicSelection()
+	if buttonType then return end
+	for i = 1, #layout do
+		local elementData = layout[i]
+		local rowType = elementData and elementData.buttonType
+		if rowType == FRIENDS_BUTTON_TYPE_BNET or rowType == FRIENDS_BUTTON_TYPE_WOW then
+			-- No RefreshClassicVisible here: this runs from inside the render that is about
+			-- to draw the rows anyway.
+			FG_ApplySelection(rowType, elementData.id)
+			Compat.UpdateClassicSendMessageButton()
+			return
+		end
+	end
+end
+
+-- Row click. Left selects, right opens the unit menu. Both branches mirror Blizzard's
+-- FriendsFrameFriendButton_OnClick, including the arguments it hands the menu, because
+-- those are what carry FriendGroups' own injected entries (Menu.ModifyMenu on the
+-- MENU_UNIT_BN_FRIEND / MENU_UNIT_FRIEND tags UnitPopup_OpenMenu raises from there).
+function Compat.ClassicRowOnClick(button, mouseButton)
+	local buttonType, id = button.buttonType, button.id
+	if not buttonType or not id then return end
+
+	if mouseButton == "LeftButton" then
+		if PlaySound and SOUNDKIT then PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON) end
+		Compat.SetClassicSelection(buttonType, id)
+
+		-- Friends of Friends parity: with that window open, clicking another Battle.net
+		-- friend switches it to them.
+		if FriendsFriendsFrame and FriendsFriendsFrame:IsShown()
+			and buttonType == FRIENDS_BUTTON_TYPE_BNET and BNGetFriendInfo then
+			local bnetIDAccount = BNGetFriendInfo(id)
+			if bnetIDAccount and bnetIDAccount ~= FriendsFriendsFrame.bnetIDAccount
+				and FriendsFriendsFrame_Show then
+				FriendsFriendsFrame_Show(bnetIDAccount)
+			end
+		end
+	elseif mouseButton == "RightButton" then
+		if PlaySound and SOUNDKIT then PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON) end
+		if buttonType == FRIENDS_BUTTON_TYPE_BNET then
+			if not BNGetFriendInfo or not FriendsFrame_ShowBNDropdown then return end
+			local bnetIDAccount, accountName, battleTag, isBattleTag, characterName,
+				bnetIDGameAccount, client, isOnline = BNGetFriendInfo(id)
+			FriendsFrame_ShowBNDropdown(accountName, isOnline, nil, nil, nil, 1, bnetIDAccount,
+				nil, nil, nil, nil)
+		else
+			if not FriendsFrame_ShowDropdown then return end
+			local info = C_FriendList and C_FriendList.GetFriendInfoByIndex
+				and C_FriendList.GetFriendInfoByIndex(id)
+			if not info then return end
+			FriendsFrame_ShowDropdown(info.name, info.connected, nil, nil, nil, 1, nil, nil,
+				nil, nil, nil, info.guid)
+		end
+	end
+end
+
+-- Blizzard's Send Message reads its own selection fields, so it has to be replaced
+-- alongside the rows. Same calls it makes (ChatFrameUtil.SendTell / SendBNetTell): Classic
+-- has no secret values, so the chat taint the retail priming path exists to avoid is
+-- harmless here, and the button keeps working in one click.
+function Compat.ClassicSendMessageOnClick()
+	local buttonType, id = Compat.GetClassicSelection()
+	if not buttonType then return end
+
+	local util = ChatFrameUtil
+	if buttonType == FRIENDS_BUTTON_TYPE_WOW then
+		local info = C_FriendList and C_FriendList.GetFriendInfoByIndex
+			and C_FriendList.GetFriendInfoByIndex(id)
+		local name = info and info.name
+		if not name then return end
+		local send = (util and util.SendTell) or _G.ChatFrame_SendTell
+		if not send then return end
+		send(name)
+		-- Blizzard plays this on the WoW branch only, and not for a Battle.net whisper.
+		-- Mirrored rather than tidied: the point of this path is that nothing the player
+		-- can see or hear changes.
+		if PlaySound and SOUNDKIT then PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON) end
+	elseif buttonType == FRIENDS_BUTTON_TYPE_BNET then
+		if not BNGetFriendInfo then return end
+		local _, tokenizedName = BNGetFriendInfo(id)
+		local send = (util and util.SendBNetTell) or _G.ChatFrame_SendBNetTell
+		if not send or not tokenizedName then return end
+		send(tokenizedName)
+	end
+end
+
+-- ============================================================================
+-- [[ ELVUI ADAPTER (Classic own-list path only) ]]
+--
+-- ElvUI styles the Classic friends list by global name -- the eleven
+-- FriendsFrameFriendsScrollFrameButtonN rows and that frame's scrollbar
+-- (ElvUI/Game/TBC/Skins/Friends.lua). Those names belong to Blizzard's list, so once the
+-- addon draws its own, ElvUI's work lands on a frame nobody can see. This puts the same
+-- treatment on our frame instead: strip the scrollbar border art, hand the bar to ElvUI's
+-- own HandleScrollBar, and give each row ElvUI's highlight texture and flattened summon
+-- button. Rows past the eleventh get it too, which they never did on Blizzard's frame.
+--
+-- Only ever touches frames FriendGroups created. Calling an ElvUI helper on a Blizzard
+-- frame from here would taint it, which is the thing this whole path exists to avoid.
+--
+-- Respects the player's own ElvUI switches (blizzard.enable and blizzard.friends): a skin
+-- they turned off must stay off. Nothing is cached as "not applicable" -- ElvUI initialises
+-- on its own schedule, so an early call simply returns and the next render tries again.
+-- ============================================================================
+
+function Compat.SkinClassicListForElvUI()
+	local list = _G.FriendGroupsClassicList
+	if not list then return end
+
+	local suite = _G.ElvUI
+	if type(suite) ~= "table" then return end
+	local E = suite[1]
+	if type(E) ~= "table" or type(E.private) ~= "table" or type(E.GetModule) ~= "function" then
+		return
+	end
+
+	local blizzard = E.private.skins and E.private.skins.blizzard
+	if not (blizzard and blizzard.enable and blizzard.friends) then return end
+
+	local ok, S = pcall(E.GetModule, E, "Skins")
+	if not ok or type(S) ~= "table" then return end
+
+	if not list.fgElvSkinned then
+		list.fgElvSkinned = true
+		if type(list.StripTextures) == "function" then pcall(list.StripTextures, list) end
+		if list.scrollBar and type(S.HandleScrollBar) == "function" then
+			pcall(S.HandleScrollBar, S, list.scrollBar)
+		end
+	end
+
+	local buttons = list.buttons
+	if not buttons then return end
+
+	local highlightTexture = E.Media and E.Media.Textures and E.Media.Textures.Highlight
+	for i = 1, #buttons do
+		local button = buttons[i]
+		if button and not button.fgElvSkinned then
+			button.fgElvSkinned = true
+			if button.highlight and highlightTexture then
+				button.highlight:SetTexture(highlightTexture)
+				button.highlight:SetAlpha(0.3)
+			end
+			local summon = button.summonButton
+			if summon then
+				if type(summon.StyleButton) == "function" then pcall(summon.StyleButton, summon) end
+				local normal = summon.GetNormalTexture and summon:GetNormalTexture()
+				if normal then normal:SetAlpha(0) end
+			end
+		end
+	end
+end
+
+-- ============================================================================
+-- [[ OWN-LIST ROW TOOLTIP (Classic own-list path only) ]]
+--
+-- The last taint source on the open path. Blizzard's FriendsFrameTooltip_Show ends with
+--   tooltip.button = self
+-- and Blizzard's own row renderer reads FriendsTooltip.button once per row on every window
+-- open (FriendsFrame_UpdateFriendButton, "update the tooltip if hovering over a button").
+-- That single write is enough to taint the execution that ends in RaidFrame:Show(), so
+-- hovering a row would keep the Raid tab broken in combat even with the rows and selection
+-- already ours. A decoy button object does not help: taint attaches to the field, not to
+-- the value in it.
+--
+-- So this is Blizzard's function with that one line left out. Everything else it does is
+-- safe: it draws into Blizzard's own FriendsTooltip frame, and Blizzard's
+-- FriendsFrameTooltip_SetLine writes only tooltip.height and tooltip.maxWidth, which
+-- nothing on the open path reads.
+--
+-- Blizzard's frame rather than one of our own, deliberately: addons that hook
+-- FriendsTooltip:Show keep working, which on Classic means Raider.IO (MoP and Era builds;
+-- there is no TBC one) and anything else that decorates the friend tooltip.
+--
+-- tooltip.hasBroadcast is deliberately NOT set. Blizzard's FriendsTooltip OnUpdate runs
+--   if self.hasBroadcast then FriendsFrameTooltip_Show(self.button) end
+-- and with .button left nil that would error every frame. All that is lost is the re-layout
+-- of a broadcast line while the pointer sits still, which Blizzard added for alternate
+-- alphabets; it is rebuilt on the next hover.
+--
+-- Mirrored from the live Classic source (FriendsFrame.lua, FriendsFrameTooltip_Show). If
+-- Blizzard changes the tooltip's content, this has to follow.
+-- ============================================================================
+
+local FG_TOOLTIP_ONE_YEAR = 12 * 30 * 24 * 60 * 60
+
+-- Blizzard's ShowRichPresenceOnly is a file local, so it is repeated here. Player realm
+-- and faction are read live rather than captured: Blizzard caches them on login events,
+-- and a cached nil faction is exactly the bug the Classic renderer already had once.
+local function FG_ShowRichPresenceOnly(client, wowProjectID, faction, realmID)
+	if client ~= BNET_CLIENT_WOW or wowProjectID ~= WOW_PROJECT_ID then
+		return true
+	end
+	local playerFaction = UnitFactionGroup("player")
+	local playerRealmID = GetNativeRealmID and GetNativeRealmID()
+	if faction ~= playerFaction or realmID ~= playerRealmID then
+		return true
+	end
+	return false
+end
+
+-- Raider.IO decorates the friend tooltip by hooking FriendsTooltip:Show and reading
+-- .button to work out who the row is. With that field left nil it bails, so the profile is
+-- requested directly through its documented API instead (ShowProfile draws on the tooltip
+-- it is handed and shows it). Entirely optional: no Raider.IO, nothing happens.
+local function FG_AddRaiderIOProfile(name, realm)
+	if not name or name == "" then return end
+	local RIO = _G.RaiderIO
+	if type(RIO) ~= "table" or type(RIO.ShowProfile) ~= "function" then return end
+	if not GameTooltip or not FriendsTooltip then return end
+	GameTooltip:SetOwner(FriendsTooltip, "ANCHOR_BOTTOMRIGHT", -FriendsTooltip:GetWidth(), -4)
+	local ok, drawn = pcall(RIO.ShowProfile, GameTooltip, name, realm)
+	if not ok or not drawn then GameTooltip:Hide() end
+end
+
+function Compat.ShowClassicRowTooltip(button)
+	if not button or button.buttonType == FRIENDS_BUTTON_TYPE_DIVIDER then return end
+
+	local tooltip = FriendsTooltip
+	local SetLine = FriendsFrameTooltip_SetLine
+	local id = button.id
+	if not tooltip or type(SetLine) ~= "function" or not id then return end
+
+	local wowInfoTemplate = NORMAL_FONT_COLOR_CODE .. FRIENDS_LIST_ZONE .. "|r%1$s|n"
+		.. NORMAL_FONT_COLOR_CODE .. FRIENDS_LIST_REALM .. "|r%2$s"
+	local anchor, text
+	local numGameAccounts = 0
+	local isOnline = false
+	local battleTag = ""
+	-- Raider.IO's subject, filled in by whichever branch knows a WoW character.
+	local rioName, rioRealm
+
+	tooltip.height = 0
+	tooltip.maxWidth = 0
+
+	if button.buttonType == FRIENDS_BUTTON_TYPE_BNET then
+		local bnetIDAccount, accountName, isBattleTag, _characterName, bnetIDGameAccount,
+			_client, lastOnline, isAFK, isDND, broadcastText, noteText, isFriend, broadcastTime
+		bnetIDAccount, accountName, battleTag, isBattleTag, _characterName, bnetIDGameAccount,
+			_client, isOnline, lastOnline, isAFK, isDND, broadcastText, noteText, isFriend,
+			broadcastTime = BNGetFriendInfo(id)
+
+		anchor = SetLine(FriendsTooltipHeader, nil, accountName or UNKNOWN)
+
+		if bnetIDGameAccount then
+			local _hasFocus, characterName, client, realmName, realmID, faction, race, class,
+				_guild, zoneName, level, gameText, _broadcast, _broadcastTime, _canSoR,
+				_toonID, _isGameAFK, _isGameBusy, _guid, _wowProjectIDUnused, wowProjectID,
+				realmDisplayName = BNGetGameAccountInfo(bnetIDGameAccount)
+			level = level or ""
+			race = race or ""
+			class = class or ""
+
+			if FG_ShowRichPresenceOnly(client, wowProjectID, faction, realmID) then
+				if isOnline then
+					characterName = BNet_GetValidatedCharacterName(characterName, battleTag, client) or ""
+				end
+				SetLine(FriendsTooltipGameAccount1Name, nil, characterName)
+				anchor = SetLine(FriendsTooltipGameAccount1Info, nil, gameText, -4)
+			else
+				if CanCooperateWithGameAccount(bnetIDGameAccount) then
+					text = string.format(FRIENDS_TOOLTIP_WOW_TOON_TEMPLATE, characterName, level, race, class)
+				else
+					text = string.format(FRIENDS_TOOLTIP_WOW_TOON_TEMPLATE,
+						characterName .. CANNOT_COOPERATE_LABEL, level, race, class)
+				end
+				SetLine(FriendsTooltipGameAccount1Name, nil, text)
+				anchor = SetLine(FriendsTooltipGameAccount1Info, nil,
+					string.format(wowInfoTemplate, zoneName, realmDisplayName), -4)
+				rioName, rioRealm = characterName, realmName
+			end
+		else
+			FriendsTooltipGameAccount1Info:Hide()
+			FriendsTooltipGameAccount1Name:Hide()
+		end
+
+		if noteText and noteText ~= "" then
+			FriendsTooltipNoteIcon:Show()
+			anchor = SetLine(FriendsTooltipNoteText, anchor, noteText, -8)
+		else
+			FriendsTooltipNoteIcon:Hide()
+			FriendsTooltipNoteText:Hide()
+		end
+
+		if broadcastText and broadcastText ~= "" then
+			FriendsTooltipBroadcastIcon:Show()
+			if broadcastTime and time() - broadcastTime < FG_TOOLTIP_ONE_YEAR then
+				broadcastText = broadcastText .. "|n" .. FRIENDS_BROADCAST_TIME_COLOR_CODE
+					.. string.format(BNET_BROADCAST_SENT_TIME,
+						FriendsFrame_GetLastOnline(broadcastTime) .. FONT_COLOR_CODE_CLOSE)
+			end
+			anchor = SetLine(FriendsTooltipBroadcastText, anchor, broadcastText, -8)
+		else
+			FriendsTooltipBroadcastIcon:Hide()
+			FriendsTooltipBroadcastText:Hide()
+		end
+
+		if isOnline then
+			FriendsTooltipHeader:SetTextColor(FRIENDS_BNET_NAME_COLOR.r, FRIENDS_BNET_NAME_COLOR.g,
+				FRIENDS_BNET_NAME_COLOR.b)
+			FriendsTooltipLastOnline:Hide()
+			numGameAccounts = BNGetNumFriendGameAccounts(id)
+		else
+			FriendsTooltipHeader:SetTextColor(FRIENDS_GRAY_COLOR.r, FRIENDS_GRAY_COLOR.g,
+				FRIENDS_GRAY_COLOR.b)
+			if not lastOnline or lastOnline == 0 or time() - lastOnline >= FG_TOOLTIP_ONE_YEAR then
+				text = FRIENDS_LIST_OFFLINE
+			else
+				text = string.format(BNET_LAST_ONLINE_TIME, FriendsFrame_GetLastOnline(lastOnline))
+			end
+			anchor = SetLine(FriendsTooltipLastOnline, anchor, text, -4)
+		end
+	elseif button.buttonType == FRIENDS_BUTTON_TYPE_WOW then
+		local info = C_FriendList.GetFriendInfoByIndex(id)
+		if not info then return end
+		anchor = SetLine(FriendsTooltipHeader, nil, info.name)
+		if info.connected then
+			FriendsTooltipHeader:SetTextColor(FRIENDS_WOW_NAME_COLOR.r, FRIENDS_WOW_NAME_COLOR.g,
+				FRIENDS_WOW_NAME_COLOR.b)
+			SetLine(FriendsTooltipGameAccount1Name, nil,
+				string.format(FRIENDS_LEVEL_TEMPLATE, info.level, info.className))
+			anchor = SetLine(FriendsTooltipGameAccount1Info, nil, info.area)
+		else
+			FriendsTooltipHeader:SetTextColor(FRIENDS_GRAY_COLOR.r, FRIENDS_GRAY_COLOR.g,
+				FRIENDS_GRAY_COLOR.b)
+			FriendsTooltipGameAccount1Name:Hide()
+			FriendsTooltipGameAccount1Info:Hide()
+		end
+		if info.notes then
+			FriendsTooltipNoteIcon:Show()
+			anchor = SetLine(FriendsTooltipNoteText, anchor, info.notes, -8)
+		else
+			FriendsTooltipNoteIcon:Hide()
+			FriendsTooltipNoteText:Hide()
+		end
+		FriendsTooltipBroadcastIcon:Hide()
+		FriendsTooltipBroadcastText:Hide()
+		FriendsTooltipLastOnline:Hide()
+		-- WoW friends are same-realm on Classic, so the row's name is enough and the realm
+		-- is left for Raider.IO to default to the player's.
+		rioName = info.name
+	end
+
+	-- Other game accounts, capped and then blanked out to the cap, exactly as Blizzard does.
+	local gameAccountIndex = 1
+	local characterNameString, gameAccountInfoString
+	if numGameAccounts > 1 then
+		local headerSet = false
+		local playerRealmName = GetRealmName()
+		local playerFactionGroup = UnitFactionGroup("player")
+		for i = 1, numGameAccounts do
+			local hasFocus, characterName, client, realmName, _realmID, faction, race, class,
+				_guild, zoneName, level, gameText, _broadcast, _broadcastTime, _canSoR,
+				_toonID, _isGameAFK, _isGameBusy, _guid, _unused, wowProjectID =
+				BNGetFriendGameAccountInfo(id, i)
+			if not hasFocus and client ~= BNET_CLIENT_APP and client ~= BNET_CLIENT_CLNT then
+				if not headerSet then
+					SetLine(FriendsTooltipOtherGameAccounts, anchor, nil, -8)
+					headerSet = true
+				end
+				gameAccountIndex = gameAccountIndex + 1
+				if gameAccountIndex > FRIENDS_TOOLTIP_MAX_GAME_ACCOUNTS then
+					break
+				end
+				characterNameString = _G["FriendsTooltipGameAccount" .. gameAccountIndex .. "Name"]
+				gameAccountInfoString = _G["FriendsTooltipGameAccount" .. gameAccountIndex .. "Info"]
+				text = BNet_GetClientEmbeddedAtlas(client, 18) .. " "
+				if client == BNET_CLIENT_WOW and wowProjectID == WOW_PROJECT_ID then
+					if realmName == playerRealmName and faction == playerFactionGroup then
+						text = text .. string.format(FRIENDS_TOOLTIP_WOW_TOON_TEMPLATE,
+							characterName, level, race, class)
+					else
+						text = text .. string.format(FRIENDS_TOOLTIP_WOW_TOON_TEMPLATE,
+							characterName .. CANNOT_COOPERATE_LABEL, level, race, class)
+					end
+					gameText = zoneName
+				else
+					if isOnline then
+						characterName = BNet_GetValidatedCharacterName(characterName, battleTag, client) or ""
+					end
+					text = text .. characterName
+				end
+				SetLine(characterNameString, nil, text)
+				SetLine(gameAccountInfoString, nil, gameText)
+			end
+		end
+		if not headerSet then
+			FriendsTooltipOtherGameAccounts:Hide()
+		end
+	else
+		FriendsTooltipOtherGameAccounts:Hide()
+	end
+	for i = gameAccountIndex + 1, FRIENDS_TOOLTIP_MAX_GAME_ACCOUNTS do
+		_G["FriendsTooltipGameAccount" .. i .. "Name"]:Hide()
+		_G["FriendsTooltipGameAccount" .. i .. "Info"]:Hide()
+	end
+	if numGameAccounts > FRIENDS_TOOLTIP_MAX_GAME_ACCOUNTS then
+		SetLine(FriendsTooltipGameAccountMany, nil,
+			string.format(FRIENDS_TOOLTIP_TOO_MANY_CHARACTERS,
+				numGameAccounts - FRIENDS_TOOLTIP_MAX_GAME_ACCOUNTS), 0)
+	else
+		FriendsTooltipGameAccountMany:Hide()
+	end
+
+	-- Blizzard's tail, minus `tooltip.button = self`. ClearAllPoints first because this
+	-- anchors to a different row each time; anchoring and sizing are widget state and
+	-- carry no taint.
+	tooltip:ClearAllPoints()
+	tooltip:SetPoint("TOPLEFT", button, "TOPRIGHT", 36, 0)
+	tooltip:SetHeight(tooltip.height + FRIENDS_TOOLTIP_MARGIN_WIDTH)
+	tooltip:SetWidth(min(FRIENDS_TOOLTIP_MAX_WIDTH, tooltip.maxWidth + FRIENDS_TOOLTIP_MARGIN_WIDTH))
+	tooltip:Show()
+
+	FG_AddRaiderIOProfile(rioName, rioRealm)
+end
+
+-- Blizzard's row OnLeave writes FriendsTooltip.button = nil, which taints the field just as
+-- surely as writing a frame into it. Hiding is enough on its own.
+function Compat.HideClassicRowTooltip()
+	if FriendsTooltip then FriendsTooltip:Hide() end
+end
+
+function Compat.InstallClassicSendMessageOverride()
+	local button = FriendsFrameSendMessageButton
+	if not button or button.fgOwnListSendMessage then return end
+	button.fgOwnListSendMessage = true
+	button:SetScript("OnClick", Compat.ClassicSendMessageOnClick)
+	Compat.UpdateClassicSendMessageButton()
+end
+
+-- ============================================================================
 -- [[ HYBRIDSCROLL DRIVER ]]
 -- Renders the visible slice of `layout` (the array FriendGroups_FriendsListUpdate
--- builds) into the native MoP button pool. Called for the initial build and, via
--- FriendsFrameFriendsScrollFrame.update, on every scroll.
+-- builds) into the HybridScroll button pool Compat.GetClassicListFrame hands back --
+-- FriendGroups' own list, or Blizzard's on the legacy path. Called for the initial
+-- build and, via that frame's .update field, on every scroll.
 -- ============================================================================
 function Compat.RenderClassicList(layout)
 	-- Bind shared state on first use (FriendGroups.lua has loaded by render time).
 	-- RenderHeader / RenderFriendButton share this upvalue, so they see it too.
 	State = State or addonTable.State
 
-	local scrollFrame = FriendsFrameFriendsScrollFrame
+	local scrollFrame = Compat.GetClassicListFrame()
 	if not scrollFrame then return end
 	local buttons = scrollFrame.buttons
 	if not buttons then return end
 
-	-- Force uniform fixed-height scrolling. The native friends list installs a
+	-- Own-list path only: seed the selection from the first friend row when there is none,
+	-- which is what Blizzard's own update does. Runs before the rows are drawn so the
+	-- highlight is right on the first paint.
+	if Compat.UseOwnClassicList() then
+		Compat.EnsureClassicSelection(layout)
+		-- Cheap and idempotent: per-frame and per-row flags mean this is a handful of
+		-- table lookups once everything has been styled, and it is the one place that
+		-- reliably sees rows the size setting added later.
+		Compat.SkinClassicListForElvUI()
+	end
+
+	-- Force uniform fixed-height scrolling. Blizzard's friends list installs a
 	-- dynamic-height callback (scrollFrame.dynamic) for variable-height rows; our
 	-- rows are a uniform 34px. Left set, HybridScrollFrame_SetOffset calls it and
 	-- it returns nil at large scroll offsets -> math.floor(nil) crash. Clearing it
 	-- routes SetOffset through the fixed-height path (element = offset/buttonHeight).
+	--
+	-- Only Blizzard's frame ever has one; ours is created without it, so on the own-list
+	-- path this is a no-op write to our own field rather than a write to theirs.
 	scrollFrame.dynamic = nil
 
 	local offset = HybridScrollFrame_GetOffset(scrollFrame)
@@ -855,9 +1413,37 @@ function Compat.RenderClassicList(layout)
 				button.fgIsHeader = nil
 				Compat.DetachHeaderDrag(button)
 
-				-- Reset recycled buttons to native click handlers
-				button:SetScript("OnClick", FriendsFrameFriendButton_OnClick)
-				button:SetScript("OnMouseDown", FriendsFrameFriendButton_OnMouseDown)
+				-- Reset recycled buttons to the click handler for the list in force. The
+				-- pool is shared with group headers, which install their own, so this has
+				-- to be re-applied on every render.
+				--
+				-- Blizzard's handler is only correct on the legacy path: it calls
+				-- FriendsFrame_SelectFriend, which writes FriendsFrame.selectedFriendType,
+				-- the field FriendsList_Update reads on every window open.
+				if Compat.UseOwnClassicList() then
+					button:SetScript("OnClick", Compat.ClassicRowOnClick)
+
+					-- Hover too: Blizzard's OnEnter is FriendsFrameTooltip_Show, which
+					-- writes FriendsTooltip.button, and its OnLeave writes that field back
+					-- to nil. Both taint it. See OWN-LIST ROW TOOLTIP.
+					--
+					-- ONCE per button, unlike OnClick above. HookScript works by wrapping
+					-- whatever script is installed and setting the wrapper, so a SetScript
+					-- on every render would throw away the alt-tooltip hooks that
+					-- RenderFriendButton adds a few lines further down -- and it only adds
+					-- them once. The header renderer never touches these two, so setting
+					-- them once is enough.
+					if not button.fgOwnListHoverScripts then
+						button.fgOwnListHoverScripts = true
+						button:SetScript("OnEnter", Compat.ShowClassicRowTooltip)
+						button:SetScript("OnLeave", Compat.HideClassicRowTooltip)
+					end
+				else
+					button:SetScript("OnClick", FriendsFrameFriendButton_OnClick)
+				end
+				-- Cleared, not restored: there is no FriendsFrameFriendButton_OnMouseDown
+				-- on any Classic client, so the call this replaces was already setting nil.
+				button:SetScript("OnMouseDown", nil)
 
 				-- 2. Hide Header-only elements
 				if button.collapseButton then button.collapseButton:Hide() end
@@ -883,7 +1469,7 @@ end
 -- FRIENDS_BUTTON_TYPE_DIVIDER and are skipped, exactly like the retail path.
 function Compat.RefreshClassicVisible()
 	State = State or addonTable.State
-	local scrollFrame = FriendsFrameFriendsScrollFrame
+	local scrollFrame = Compat.GetClassicListFrame()
 	local buttons = scrollFrame and scrollFrame.buttons
 	if not buttons then return end
 	for i = 1, #buttons do
