@@ -4,10 +4,12 @@
     <Script file="locales\enGB.lua"/>
     <Script file="locales\deDE.lua"/>
     <Script file="locales\esES.lua"/>
+    <Script file="locales\esMX.lua"/>
     <Script file="locales\frFR.lua"/>
     <Script file="locales\itIT.lua"/>
     <Script file="locales\koKR.lua"/>
     <Script file="locales\ptBR.lua"/>
+    <Script file="locales\ptPT.lua"/>
     <Script file="locales\ruRU.lua"/>
     <Script file="locales\zhCN.lua"/>
     <Script file="locales\zhTW.lua"/>

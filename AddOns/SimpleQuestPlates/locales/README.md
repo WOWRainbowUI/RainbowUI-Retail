@@ -12,6 +12,7 @@ Localization files for SimpleQuestPlates.
 - `itIT.lua` - Italian locale module
 - `koKR.lua` - Korean locale module
 - `ptBR.lua` - Brazilian Portuguese locale module
+- `ptPT.lua` - European Portuguese locale module
 - `ruRU.lua` - Russian overrides
 - `zhCN.lua` - Simplified Chinese overrides
 - `zhTW.lua` - Traditional Chinese locale module

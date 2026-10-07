@@ -6,25 +6,19 @@
 --=====================================================================================
 
 local addonName, SQP = ...
+local SQPSettings = SQP.db.global
 local format = string.format
 
 function SQP:CreateIconOptions(content)
     if not self.optionControls then self.optionControls = {} end
 
-    local leftColumn = CreateFrame("Frame", nil, content)
-    leftColumn:SetPoint("TOPLEFT")
-    leftColumn:SetPoint("BOTTOMLEFT")
-    leftColumn:SetWidth(300)
+    local leftColumn, rightColumn = SQP:CreateOptionColumns(content)
 
-    local rightColumn = CreateFrame("Frame", nil, content)
-    rightColumn:SetPoint("TOPRIGHT")
-    rightColumn:SetPoint("BOTTOMRIGHT")
-    rightColumn:SetPoint("LEFT", leftColumn, "RIGHT", 20, 0)
-
-    -- ── LEFT COLUMN: Position ────────────────────────────────────────────────
-    local yOffset = -15
+    -- == LEFT COLUMN: Position ================================================
+    local yOffset = -12
 
     local posLabel = leftColumn:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+    SQP:ApplyDefaultFont(posLabel)
     posLabel:SetPoint("TOPLEFT", 20, yOffset)
     posLabel:SetText("|cff58be81" .. (self.L["OPTIONS_ICON_POSITION"] or "Icon Position") .. "|r")
     yOffset = yOffset - 22
@@ -36,7 +30,7 @@ function SQP:CreateIconOptions(content)
 		min = -100,
 		max = 100,
 		step = 1,
-		default = 12,
+		default = 0,
 		storage = SQPSettings,
 		width = 160,
 		onChange = function(value)
@@ -55,7 +49,7 @@ function SQP:CreateIconOptions(content)
 		min = -100,
 		max = 100,
 		step = 1,
-		default = 3,
+		default = 0,
 		storage = SQPSettings,
 		width = 160,
 		onChange = function(value)
@@ -69,6 +63,7 @@ function SQP:CreateIconOptions(content)
 
     -- Nameplate side
     local anchorLabel = leftColumn:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+    SQP:ApplyDefaultFont(anchorLabel)
     anchorLabel:SetPoint("TOPLEFT", 20, yOffset)
     anchorLabel:SetText(self.L["OPTIONS_ANCHOR"] or "Nameplate Side")
     yOffset = yOffset - 22
@@ -107,20 +102,22 @@ function SQP:CreateIconOptions(content)
     end)
     anchorReset:SetPoint("LEFT", rightBtn, "RIGHT", 6, 0)
 
-    -- ── RIGHT COLUMN: Scale + Display Style ──────────────────────────────────
-    local rightYOffset = -15
+    -- == RIGHT COLUMN: Scale + Display Style ==================================
+    local rightYOffset = -12
 
     local styleLabel = rightColumn:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+    SQP:ApplyDefaultFont(styleLabel)
     styleLabel:SetPoint("TOPLEFT", 20, rightYOffset)
     styleLabel:SetText("|cff58be81" .. (self.L["OPTIONS_ICON_STYLE"] or "Icon Style") .. "|r")
     rightYOffset = rightYOffset - 22
 
 	-- Global Scale
+	-- Range 0.5–1.5 centers the slider on 1; 1.1 is the baseline default.
 	local scaleSlider = self:CreateStyledSlider(rightColumn, {
 		key = "scale",
 		label = self.L["OPTIONS_GLOBAL_SCALE"] or "Global Scale",
 		min = 0.5,
-		max = 3.0,
+		max = 1.5,
 		step = 0.1,
 		default = 1.1,
 		storage = SQPSettings,
@@ -131,6 +128,40 @@ function SQP:CreateIconOptions(content)
 	})
 	scaleSlider:SetPoint("TOPLEFT", 20, rightYOffset)
 	self.optionControls.scale = scaleSlider
+
+	rightYOffset = rightYOffset - 48
+
+    -- Toast Animation (the "?" pop when the quest frame shows)
+    local markerHeader = rightColumn:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+    markerHeader:SetPoint("TOPLEFT", 20, rightYOffset)
+    markerHeader:SetText("|cff58be81Toast Animation|r")
+    SQP:ApplyDefaultFont(markerHeader)
+    rightYOffset = rightYOffset - 20
+
+    local markerFrame = self:CreateStyledCheckbox(rightColumn, "Show toast animation")
+    markerFrame:SetPoint("TOPLEFT", 20, rightYOffset)
+    markerFrame.checkbox:SetChecked(SQPSettings.showQuestMarker ~= false)
+    self.optionControls.showQuestMarker = markerFrame.checkbox
+    markerFrame.checkbox:SetScript("OnClick", function(self)
+        SQP:SetSetting('showQuestMarker', self:GetChecked())
+    end)
+    rightYOffset = rightYOffset - 44
+
+	local markerSizeSlider = self:CreateStyledSlider(rightColumn, {
+		key = "questMarkerSize",
+		label = "Toast Size",
+		min = 10,
+		max = 48,
+		step = 1,
+		default = 28,
+		storage = SQPSettings,
+		width = 160,
+		onChange = function(value)
+			SQP:RefreshAllNameplates()
+		end,
+	})
+	markerSizeSlider:SetPoint("TOPLEFT", 20, rightYOffset)
+	self.optionControls.questMarkerSize = markerSizeSlider
 
 	rightYOffset = rightYOffset - 48
 

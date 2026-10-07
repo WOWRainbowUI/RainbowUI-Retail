@@ -6,6 +6,7 @@
 --=====================================================================================
 
 local addonName, SQP = ...
+local SQPSettings = SQP.db.global
 local RGX = _G.RGXFramework
 local format = string.format
 local tonumber = tonumber
@@ -89,7 +90,7 @@ function SQP:ShowStatus()
     self:PrintMessage(statusHeader)
     print(format(statusLine, SQPSettings.enabled and enabledText or disabledText))
     print(format(versionLine, self.VERSION or "unknown"))
-    print(format(scaleLine, SQPSettings.scale or 1))
+    print(format(scaleLine, SQPSettings.scale or 1.1))
     print(format(offsetLine, SQPSettings.offsetX or 0, SQPSettings.offsetY or 0))
     print(format(anchorLine, SQPSettings.anchor or "RIGHT"))
     print(format(minimapLine, SQPSettings.minimapIconEnabled ~= false and shownText or hiddenText))

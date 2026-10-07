@@ -6,6 +6,7 @@
 --=====================================================================================
 
 local addonName, SQP = ...
+local SQPSettings = SQP.db.global
 
 local RGX = _G.RGXFramework
 
@@ -22,21 +23,34 @@ end
 function SQP:ADDON_LOADED(addon)
     if addon ~= addonName then return end
     
+    -- One-time migration for players who installed the separate Forever
+    -- variant before the merged single addon existed: if this fresh install
+    -- never wrote SQPSettings but the Forever file still exists with profile
+    -- data, seed from it before the framework adopts the loaded table.
+    local forever = _G.SQPForeverSettings
+    local current = _G.SQPSettings
+    if type(forever) == "table" and type(forever.profiles) == "table"
+        and (type(current) ~= "table" or next(current) == nil) then
+        _G.SQPSettings = forever
+        if type(_G.SQPSettings.currentProfile) ~= "string" or _G.SQPSettings.currentProfile == "" then
+            _G.SQPSettings.currentProfile = "Default"
+        end
+    end
+
     self:LoadSettings()
+    -- Adopt the client-loaded SavedVariables into the database before use:
+    -- the DB was constructed at file load, before SVs deserialized.
+    if self.db and type(self.db.Adopt) == "function" then
+        pcall(function() self.db:Adopt() end)
+    end
+    self:MigrateLegacyFontDefaults()
     TryInitializeUI()
     
     -- Reanchor existing plates after settings load
     for plate, questFrame in pairs(self.QuestPlates) do
         if questFrame then
-            questFrame.icon:ClearAllPoints()
-            questFrame.icon:SetPoint(
-                SQPSettings.anchor or 'RIGHT',
-                questFrame,
-                SQPSettings.relativeTo or 'LEFT',
-                (SQPSettings.offsetX or 0) / (SQPSettings.scale or 1),
-                (SQPSettings.offsetY or 0) / (SQPSettings.scale or 1)
-            )
-            questFrame:SetScale(SQPSettings.scale or 1)
+            self:RefreshQuestPlateAnchor(plate)
+            questFrame:SetScale(SQPSettings.scale or 1.1)
         end
     end
     
@@ -53,6 +67,11 @@ function SQP:PLAYER_LOGIN()
     
     -- Framework-driven UI bootstrap
     TryInitializeUI()
+    -- Register the options category on login, before a minimap or slash click.
+    -- The framework builds visible tab content when the panel is first opened.
+    if not self.optionsPanel and type(self.CreateOptionsPanel) == "function" then
+        self:CreateOptionsPanel()
+    end
     
     -- Load world quests
     self:LoadWorldQuests()
@@ -103,6 +122,14 @@ function SQP:UPDATE_MOUSEOVER_UNIT()
     end
 end
 
+-- Raid markers changed: marked plates must drop their quest overlay (and
+-- unmarked plates may regain it). Read-only re-evaluation; Blizzard keeps
+-- full ownership of the marker frames.
+function SQP:RAID_TARGET_UPDATE()
+    self:ReevaluateActivePlates()
+    self:RefreshAllNameplates()
+end
+
 -- Quest events with throttling (using RGX:After for debounce)
 local questUpdatePending = false
 
@@ -120,6 +147,7 @@ function SQP:QUEST_LOG_UPDATE()
 	RGX:After(0.3, function()
 		questUpdatePending = false
 		self:CacheQuestIndexes()
+		self:ReevaluateActivePlates()
 		self:RefreshAllNameplates()
 	end)
 end
@@ -142,11 +170,13 @@ function SQP:QUEST_REMOVED(questID)
         end
     end
     self:UNIT_QUEST_LOG_CHANGED('player')
+    self:ReevaluateActivePlates()
     self:RefreshAllNameplates()
 end
 
 function SQP:QUEST_COMPLETE()
     -- Quest objectives all met — refresh immediately so icons hide promptly
+    self:ReevaluateActivePlates()
     self:RefreshAllNameplates()
 end
 
@@ -209,3 +239,4 @@ RGX:RegisterEvent("PLAYER_REGEN_DISABLED", function(event, ...) SQP:PLAYER_REGEN
 RGX:RegisterEvent("PLAYER_REGEN_ENABLED", function(event, ...) SQP:PLAYER_REGEN_ENABLED(...) end, "SQP_PLAYER_REGEN_ENABLED")
 RGX:RegisterEvent("PLAYER_TARGET_CHANGED", function(event, ...) SQP:PLAYER_TARGET_CHANGED(...) end, "SQP_PLAYER_TARGET_CHANGED")
 RGX:RegisterEvent("UPDATE_MOUSEOVER_UNIT", function(event, ...) SQP:UPDATE_MOUSEOVER_UNIT(...) end, "SQP_UPDATE_MOUSEOVER_UNIT")
+RGX:RegisterEvent("RAID_TARGET_UPDATE", function(event, ...) SQP:RAID_TARGET_UPDATE(...) end, "SQP_RAID_TARGET_UPDATE")
