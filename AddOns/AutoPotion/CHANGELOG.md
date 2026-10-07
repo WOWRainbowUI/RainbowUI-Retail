@@ -1,15 +1,20 @@
 # Auto Potion
 
-## [3.16.4](https://github.com/ollidiemaus/AutoPotion/tree/3.16.4) (2026-10-04)
-[Full Changelog](https://github.com/ollidiemaus/AutoPotion/compare/3.16.3...3.16.4) [Previous Releases](https://github.com/ollidiemaus/AutoPotion/releases)
+## [3.16.5](https://github.com/ollidiemaus/AutoPotion/tree/3.16.5) (2026-10-06)
+[Full Changelog](https://github.com/ollidiemaus/AutoPotion/compare/3.16.4...3.16.5) [Previous Releases](https://github.com/ollidiemaus/AutoPotion/releases)
 
-- Add optional Soulburn support for Healthstone (Warlock, Retail) (#121)  
-    * Add optional Soulburn support for Healthstone (Warlock, Retail)  
-    Users requested Soulburn support. Soulburn is off the GCD and must be cast  
-    right before the Healthstone to empower it (+30% healing, +20% max health).  
-    Adds an opt-in, Warlock-only setting that prepends '/cast [combat] Soulburn'  
-    to the AutoPotion macro. The line is only added when the talent is known and  
-    a Healthstone is in the bags, and is skipped if it would push a standard  
-    macro over 255 characters. It stays outside the castsequence so a missing  
-    Soul Shard can never block the sequence. Macro output is unchanged when the  
-    option is off.  
+- Update version to 3.16.5 in AutoPotion.toc  
+- Add AutoManaPotion macro and settings page (#127)  
+    Maintains an AutoManaPotion macro that uses the mana potion in the bags  
+    restoring the most mana. Per-flavor lists (Retail, Classic, TBC, Wrath,  
+    Cata, Mists, Forever) were researched on Wowhead and sorted by mana  
+    restored on each flavor's own numbers.  
+    Adds an AutoManaPotion sub-page to the settings with a priority preview  
+    and an "Include Rejuvenation Potions" toggle (health + mana potions).  
+    Channeled, side-effect and zone-locked potions are excluded.  
+- Skip saved spells that are no longer offered when building the macro (#128)  
+    Saved settings can still hold ids for spells we've stopped offering, such as  
+    Fortitude of the Bear (a passive since 12.0). Users can't untick them any more  
+    and IsSpellKnown returns true for the passive, so it ended up in the macro and  
+    blocked potions/healthstones for Hunters with a Tenacity pet. Only use saved  
+    ids that are in ham.supportedSpells (groups expanded to their members).  
