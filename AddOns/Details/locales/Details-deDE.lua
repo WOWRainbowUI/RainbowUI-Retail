@@ -686,6 +686,10 @@ L["STRING_OPTIONS_DESIGNER_ALIGN_COLUMNS"] = "Align Value Columns"
 --[[Translation missing --]]
 L["STRING_OPTIONS_DESIGNER_ALIGN_COLUMNS_DESC"] = "Draws the value columns in fixed columns instead of running them together into one formatted string. This is not a window setting, it changes every window at once."
 --[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_ARENA_ROLE_ICON_SIZE_OFFSET"] = "Arena Role Icon Size Offset"
+--[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_ARENA_TEAM_COLOR"] = "Arena Team Color"
+--[[Translation missing --]]
 L["STRING_OPTIONS_DESIGNER_BACKGROUND_BY_CLASS"] = "Background by Class"
 --[[Translation missing --]]
 L["STRING_OPTIONS_DESIGNER_BAR_ALPHA"] = "Opacity"
@@ -704,9 +708,13 @@ L["STRING_OPTIONS_DESIGNER_COLOR_BY_CLASS"] = "Color by Class"
 --[[Translation missing --]]
 L["STRING_OPTIONS_DESIGNER_DESATURATED_MENU"] = "Desaturated Buttons"
 --[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_FACTION_ICON_SIZE_OFFSET"] = "Faction Icon Size Offset"
+--[[Translation missing --]]
 L["STRING_OPTIONS_DESIGNER_HINT"] = "Click a part of the preview to edit it. Changes apply to the window selected at the top right."
 --[[Translation missing --]]
 L["STRING_OPTIONS_DESIGNER_ICON_GRAYSCALE"] = "Grayscale Icons"
+--[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_ICON_SET"] = "Icon Set"
 --[[Translation missing --]]
 L["STRING_OPTIONS_DESIGNER_ICON_SIZE_OFFSET"] = "Icon Size Offset"
 --[[Translation missing --]]
@@ -716,13 +724,29 @@ L["STRING_OPTIONS_DESIGNER_MENU_ICON_SPACING"] = "Button Spacing"
 --[[Translation missing --]]
 L["STRING_OPTIONS_DESIGNER_NAME_OFFSET"] = "Name Offset"
 --[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_NAME_SIZE_OFFSET"] = "Unit Name Size Offset"
+--[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_NAME_SIZE_OFFSET_DESC"] = "Give the unit name more or less room before it is cut short by the value columns."
+--[[Translation missing --]]
 L["STRING_OPTIONS_DESIGNER_NAME_TEXT"] = "Unit Name"
 --[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_NAME_TEXT_COLOR_DESC"] = [=[Change the text color of the unit name.
+
+Ignored if |cFFFFFFFFcolor by class|r is enabled.]=]
+--[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_NO_BRACKET"] = "no bracket"
+--[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_NO_SEPARATOR"] = "no separator"
+--[[Translation missing --]]
 L["STRING_OPTIONS_DESIGNER_OBJECT_BARICONS"] = "Bar Icons"
+--[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_OBJECT_BARNAMETEXT"] = "Bar Unit Name"
 --[[Translation missing --]]
 L["STRING_OPTIONS_DESIGNER_OBJECT_BARS"] = "Bars"
 --[[Translation missing --]]
 L["STRING_OPTIONS_DESIGNER_OBJECT_BARTEXTS"] = "Bar Texts"
+--[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_OBJECT_BARVALUETEXT"] = "Bar Values"
 --[[Translation missing --]]
 L["STRING_OPTIONS_DESIGNER_OBJECT_STATUSBAR"] = "Status Bar"
 --[[Translation missing --]]
@@ -731,6 +755,10 @@ L["STRING_OPTIONS_DESIGNER_OBJECT_TITLEBUTTONS"] = "Title Buttons"
 L["STRING_OPTIONS_DESIGNER_OBJECT_TITLETEXT"] = "Title Text"
 --[[Translation missing --]]
 L["STRING_OPTIONS_DESIGNER_OBJECT_WINDOW"] = "Window"
+--[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_OVERLAY"] = "Overlay"
+--[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_OVERLAY_TEXTURE_DESC"] = "Texture which sits above the bar"
 --[[Translation missing --]]
 L["STRING_OPTIONS_DESIGNER_PERCENT_OF_TOP"] = "Relative to Top Player"
 --[[Translation missing --]]
@@ -742,6 +770,8 @@ L["STRING_OPTIONS_DESIGNER_PREVIEW"] = "Preview"
 --[[Translation missing --]]
 L["STRING_OPTIONS_DESIGNER_PREVIEW_MISSING"] = "A preview window could not be created, so there is nothing to edit here."
 --[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_REMOVE_CUSTOM_TEXTURE"] = "Remove Custom Texture"
+--[[Translation missing --]]
 L["STRING_OPTIONS_DESIGNER_ROUNDED_CORNERS"] = "Rounded Corners"
 --[[Translation missing --]]
 L["STRING_OPTIONS_DESIGNER_ROW_AREA_ALPHA"] = "Row Area Opacity"
@@ -750,7 +780,13 @@ L["STRING_OPTIONS_DESIGNER_SHADOW_OFFSET_X"] = "Shadow Offset X"
 --[[Translation missing --]]
 L["STRING_OPTIONS_DESIGNER_SHADOW_OFFSET_Y"] = "Shadow Offset Y"
 --[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_SHOW_ARENA_ROLE_ICON"] = "Show Arena Role Icon"
+--[[Translation missing --]]
 L["STRING_OPTIONS_DESIGNER_SHOW_ENCOUNTER_TIMER"] = "Show Encounter Timer"
+--[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_SHOW_FACTION_ICON"] = "Show Faction Icon"
+--[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_SHOW_FACTION_ICON_DESC"] = "When showing a player from the opposite faction, show the faction icon."
 --[[Translation missing --]]
 L["STRING_OPTIONS_DESIGNER_SHOW_PERCENT_DESC"] = "Shows the percent column beside the value columns. Applies while the value columns are aligned; with the simple text format the columns are decided by that format instead."
 --[[Translation missing --]]
@@ -770,11 +806,19 @@ L["STRING_OPTIONS_DESIGNER_TITLE_TEXT_ENABLED"] = "Show Title Text"
 --[[Translation missing --]]
 L["STRING_OPTIONS_DESIGNER_TITLEBAR_ENABLED"] = "Custom Title Bar"
 --[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_TITLEBAR_ENABLED_DESC"] = [=[Use an alternative title bar instead of the title bar builtin in the Skin file.
+
+|cFFFFFF00Important|r: To disable the title bar from the Skin file, go to 'Window' and make the 'skin color' fully transparent.]=]
+--[[Translation missing --]]
 L["STRING_OPTIONS_DESIGNER_TITLEBAR_HEIGHT"] = "Height"
 --[[Translation missing --]]
 L["STRING_OPTIONS_DESIGNER_VALUE_TEXT"] = "Value Columns"
 --[[Translation missing --]]
-L["STRING_OPTIONS_DESIGNER_WHICH_BUTTONS"] = "Buttons shown:"
+L["STRING_OPTIONS_DESIGNER_VALUE_TEXT_COLOR_DESC"] = [=[Change the text color of the value columns.
+
+Ignored if |cFFFFFFFFcolor by class|r is enabled.]=]
+--[[Translation missing --]]
+L["STRING_OPTIONS_DESIGNER_WHICH_BUTTONS"] = "Buttons shown"
 L["STRING_OPTIONS_DISABLE_ALLDISPLAYSWINDOW"] = "Das Menü 'Alle Anzeigen' deaktivieren"
 L["STRING_OPTIONS_DISABLE_ALLDISPLAYSWINDOW_DESC"] = "Aktiviert: Ein Rechtsklick auf die Titelleiste zeigt stattdessen deine Lesezeichen."
 L["STRING_OPTIONS_DISABLE_BARHIGHLIGHT"] = "Balkenhervorhebung deaktivieren"

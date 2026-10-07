@@ -4,15 +4,42 @@ if not L then return end
 --------------------------------------------------------------------------------------------------------------------------------------------
 L = L or {}
 
+L["STRING_OPTIONS_WINDOW_SCALE_DESC"] = [=[Adjust the scale of the window.
+
+|cFFFFFF00Tip|r: right click to type the value.]=]
+L["STRING_OPTIONS_TOTALBAR_ANCHOR"] = "Total Bar"
+L["STRING_OPTIONS_DESIGNER_WHICH_BUTTONS"] = "Buttons shown"
+L["STRING_OPTIONS_DESIGNER_NAME_SIZE_OFFSET"] = "Unit Name Size Offset"
+L["STRING_OPTIONS_DESIGNER_SHOW_FACTION_ICON"] = "Show Faction Icon"
+L["STRING_OPTIONS_DESIGNER_SHOW_FACTION_ICON_DESC"] = "When showing a player from the opposite faction, show the faction icon."
+L["STRING_OPTIONS_DESIGNER_FACTION_ICON_SIZE_OFFSET"] = "Faction Icon Size Offset"
+L["STRING_OPTIONS_DESIGNER_NO_SEPARATOR"] = "no separator"
+L["STRING_OPTIONS_DESIGNER_NO_BRACKET"] = "no bracket"
+L["STRING_OPTIONS_DESIGNER_OBJECT_BARNAMETEXT"] = "Bar Unit Name"
+L["STRING_OPTIONS_DESIGNER_OBJECT_BARVALUETEXT"] = "Bar Values"
+L["STRING_OPTIONS_DESIGNER_TITLEBAR_ENABLED_DESC"] = "Use an alternative title bar instead of the title bar builtin in the Skin file.\n\n|cFFFFFF00Important|r: To disable the title bar from the Skin file, go to 'Window' and make the 'skin color' fully transparent."
+L["STRING_OPTIONS_DESIGNER_NAME_TEXT_COLOR_DESC"] = [=[Change the text color of the unit name.
+
+Ignored if |cFFFFFFFFcolor by class|r is enabled.]=]
+L["STRING_OPTIONS_DESIGNER_VALUE_TEXT_COLOR_DESC"] = [=[Change the text color of the value columns.
+
+Ignored if |cFFFFFFFFcolor by class|r is enabled.]=]
+L["STRING_OPTIONS_DESIGNER_NAME_SIZE_OFFSET_DESC"] = "Give the unit name more or less room before it is cut short by the value columns."
+L["STRING_OPTIONS_DESIGNER_OVERLAY"] = "Overlay"
+L["STRING_OPTIONS_DESIGNER_OVERLAY_TEXTURE_DESC"] = "Texture which sits above the bar"
+L["STRING_OPTIONS_DESIGNER_ARENA_TEAM_COLOR"] = "Arena Team Color"
+L["STRING_OPTIONS_DESIGNER_SHOW_ARENA_ROLE_ICON"] = "Show Arena Role Icon"
+L["STRING_OPTIONS_DESIGNER_ARENA_ROLE_ICON_SIZE_OFFSET"] = "Arena Role Icon Size Offset"
+L["STRING_OPTIONS_DESIGNER_REMOVE_CUSTOM_TEXTURE"] = "Remove Custom Texture"
+L["STRING_OPTIONS_DESIGNER_ICON_SET"] = "Icon Set"
+
 L["STRING_OPTIONSMENU_DESIGNER"] = "Designer"
 L["STRING_OPTIONS_DESIGNER_PREVIEW"] = "Preview"
 L["STRING_OPTIONS_DESIGNER_HINT"] = "Click a part of the preview to edit it. Changes apply to the window selected at the top right."
 L["STRING_OPTIONS_DESIGNER_PREVIEW_MISSING"] = "A preview window could not be created, so there is nothing to edit here."
 L["STRING_OPTIONS_DESIGNER_OBJECT_WINDOW"] = "Window"
 L["STRING_OPTIONS_DESIGNER_OBJECT_TITLETEXT"] = "Title Text"
-L["STRING_OPTIONS_DESIGNER_OBJECT_TITLEBUTTONS"] = "Title Buttons"
 L["STRING_OPTIONS_DESIGNER_OBJECT_BARS"] = "Bars"
-L["STRING_OPTIONS_DESIGNER_OBJECT_BARTEXTS"] = "Bar Texts"
 L["STRING_OPTIONS_DESIGNER_OBJECT_BARICONS"] = "Bar Icons"
 L["STRING_OPTIONS_DESIGNER_OBJECT_STATUSBAR"] = "Status Bar"
 L["STRING_OPTIONS_DESIGNER_ROW_AREA_ALPHA"] = "Row Area Opacity"
@@ -26,7 +53,6 @@ L["STRING_OPTIONS_DESIGNER_DESATURATED_MENU"] = "Desaturated Buttons"
 L["STRING_OPTIONS_DESIGNER_MENU_ICON_SIZE"] = "Button Size"
 L["STRING_OPTIONS_DESIGNER_MENU_ICON_SPACING"] = "Button Spacing"
 L["STRING_OPTIONS_DESIGNER_SHOW_ENCOUNTER_TIMER"] = "Show Encounter Timer"
-L["STRING_OPTIONS_DESIGNER_WHICH_BUTTONS"] = "Buttons shown:"
 L["STRING_OPTIONS_DESIGNER_BUTTON_MODE"] = "Mode"
 L["STRING_OPTIONS_DESIGNER_TITLE_TEXT_ENABLED"] = "Show Title Text"
 L["STRING_OPTIONS_DESIGNER_TEXT_X_OFFSET"] = "Horizontal Offset"
@@ -40,8 +66,6 @@ L["STRING_OPTIONS_DESIGNER_SHOW_RANK_NUMBER"] = "Show Rank Number"
 L["STRING_OPTIONS_DESIGNER_PERCENT_TYPE"] = "Percent Type"
 L["STRING_OPTIONS_DESIGNER_PERCENT_OF_TOTAL"] = "Relative to Total"
 L["STRING_OPTIONS_DESIGNER_PERCENT_OF_TOP"] = "Relative to Top Player"
-L["STRING_OPTIONS_DESIGNER_NAME_TEXT"] = "Unit Name"
-L["STRING_OPTIONS_DESIGNER_VALUE_TEXT"] = "Value Columns"
 L["STRING_OPTIONS_DESIGNER_TEXT_OUTLINE"] = "Outline"
 L["STRING_OPTIONS_DESIGNER_SHADOW_OFFSET_X"] = "Shadow Offset X"
 L["STRING_OPTIONS_DESIGNER_SHADOW_OFFSET_Y"] = "Shadow Offset Y"
@@ -56,9 +80,6 @@ L["STRING_OPTIONS_DESIGNER_SHOW_STATUSBAR"] = "Show Status Bar"
 L["STRING_OPTIONS_AUTO_COMBATLOG"] = "Auto Start Combatlog"
 L["STRING_OPTIONS_AUTO_COMBATLOG_DESC"] = "Automatically start and stop logging combat to the combatlog.txt file when you enter a raid or dungeon."
 
-L["STRING_OPTIONS_PLAYERNAME_AUTO_ALIGNMENT"] = "Auto Alignment"
-L["STRING_OPTIONS_PLAYERNAME_AUTO_ALIGNMENT_DESC"] = "Disable this only if you experience player name alignment issues."
-
 L["LE_EXPANSION_CLASSIC"] = "Classic"
 L["LE_EXPANSION_BURNING_CRUSADE"] = "The Burning Crusade"
 L["LE_EXPANSION_WRATH_OF_THE_LICH_KING"] = "Wrath of the Lich King"
@@ -72,12 +93,9 @@ L["LE_EXPANSION_DRAGONFLIGHT"] = "Dragonflight"
 L["LE_EXPANSION_WAR_WITHIN"] = "The War Within"
 L["LE_EXPANSION_MIDNIGHT"] = "Midnight"
 
-L["STRING_OR"] = "Or"
 L["STRING_OPTIONS_SELECT_TEMPLATE"] = "Select Template"
 L["STRING_OPTIONS_TEXT_SHADOWCOLOR"] = "Shadow Color"
-L["STRING_OPTIONS_TEXT_SHADOWOFFSET"] = "Shadow Offset %s"
 L["STRING_OPTIONS_PLAYERNAME"] = "Player Name"
-L["STRING_OPTIONS_PLAYERNAME_AUTO_WIDTH"] = "Length Auto"
 L["STRING_OPTIONS_PLAYERNAME_WIDTH"] = "Length"
 L["STRING_ATTRIBUTE_HEAL_POTIONS"] = "Potions"
 L["STRING_SIMPLE_TEXT_FORMAT_TITLE"] = "Midnight Right Text: Simple or Aligned"
@@ -86,8 +104,6 @@ L["STRING_SIMPLE_TEXT_FORMAT_DESC"] = "Enable the use of the three rules below."
 L["STRING_SIMPLE_TEXT_FORMAT_TYPE3"] = "When the line has information\nabout the total, per second and percent.\n|cFFAAAAAA%s order: total, per second, percent."
 L["STRING_SIMPLE_TEXT_FORMAT_TYPE2"] = "When the line has information\nabout the total and per second.\n|cFFAAAAAA%s order: total, per second."
 L["STRING_SIMPLE_TEXT_FORMAT_TYPE1"] = "When the line has information\nabout the total and percent.\n|cFFAAAAAA%s order: total, percent."
-L["STRING_SIMPLE_TEXT_FORMAT_ASLIGNED"] = "Use Aligned Text"
-L["STRING_SIMPLE_TEXT_FORMAT_ASLIGNED_DESC"] = "The text is aligned in columns, setup the spacing between columns."
 L["STRING_SIMPLE_TEXT_FORMAT_ASLIGNED_SPACE_BETWEEN"] = "Columns Gap"
 L["STRING_SIMPLE_TEXT_FORMAT_TEMPLATE2"] = "Don't Show Percent"
 L["STRING_SIMPLE_TEXT_FORMAT_TEMPLATE3"] = "Only Show Total"
@@ -521,7 +537,6 @@ L["STRING_OPTIONS_ALIGNED_TEXT_COLUMNS_AUTOALIGN_DESC"] = "The alignment is done
 L["STRING_OPTIONS_ALIGNED_TEXT_COLUMNS_DESC"] = "Disable brackets and separators and align bars texts in vertical columns"
 L["STRING_OPTIONS_ALIGNED_TEXT_COLUMNS_OFFSET"] = "Text %d Offset"
 L["STRING_OPTIONS_ALIGNED_TEXT_COLUMNS_OFFSET_DESC"] = "Offset from right border"
-L["STRING_OPTIONS_ALIGNED_TEXT_COLUMNS_WARNING"] = "is enabled, separators and brackets aren't used"
 L["STRING_OPTIONS_ALPHAMOD_ANCHOR"] = "Auto Hide:"
 L["STRING_OPTIONS_ALWAYS_USE"] = "Use On All Characters"
 L["STRING_OPTIONS_ALWAYS_USE_DESC"] = "The same profile is used on all characters. You may override this on any character by just selecting another existing profile."
@@ -548,7 +563,6 @@ L["STRING_OPTIONS_AUTO_SWITCH_WIPE_DESC"] = "After a fail attempt or defeat in a
 L["STRING_OPTIONS_AVATAR"] = "Choose Avatar"
 L["STRING_OPTIONS_AVATAR_ANCHOR"] = "Identity:"
 L["STRING_OPTIONS_AVATAR_DESC"] = "Avatars are also sent to guild members and shown on the top of tooltips and at the player details window."
-L["STRING_OPTIONS_BAR_BACKDROP_ANCHOR"] = "Border:"
 L["STRING_OPTIONS_BAR_BACKDROP_COLOR_DESC"] = "Changes the border color."
 L["STRING_OPTIONS_BAR_BACKDROP_ENABLED_DESC"] = "Enable or disable row borders."
 L["STRING_OPTIONS_BAR_BACKDROP_SIZE_DESC"] = "Adjust the border size."
@@ -616,7 +630,6 @@ L["STRING_OPTIONS_BARS_CUSTOM_TEXTURE"] = "Custom Texture File"
 L["STRING_OPTIONS_BARS_DESC"] = "These options control the bar appearance."
 L["STRING_OPTIONS_BARSORT"] = "Bar Rank Sort Order"
 L["STRING_OPTIONS_BARSORT_DESC"] = "Sort bars on descending or ascending order."
-L["STRING_OPTIONS_BARSTART"] = "Bar Start After Icon"
 L["STRING_OPTIONS_BARSTART_DESC"] = [=[When disabled the top texture starts at the icon left side instead of the right
 
 This is useful when using an icon pack with transparent areas.]=]
@@ -778,7 +791,6 @@ L["STRING_OPTIONS_DEATHLOG_MINHEALING"] = "DeathLog Min Healing"
 L["STRING_OPTIONS_DEATHLOG_MINHEALING_DESC"] = [=[Death log won't show heals below this threshold.
 
 |cFFFFFF00Tip|r: right click to manually enter the value.]=]
-L["STRING_OPTIONS_DESATURATE_MENU"] = "Desaturated"
 L["STRING_OPTIONS_DESATURATE_MENU_DESC"] = "Enabling this option, all menu icons on toolbar become black and white."
 L["STRING_OPTIONS_DISABLE_ALLDISPLAYSWINDOW"] = "Disable 'All Displays' Menu"
 L["STRING_OPTIONS_DISABLE_ALLDISPLAYSWINDOW_DESC"] = "If enabled, right clicking on title bar shows your bookmark instead."
@@ -857,7 +869,6 @@ Your game screen may reload during the erase process.]=]
 L["STRING_OPTIONS_INSTANCE_SKIN"] = "Skin"
 L["STRING_OPTIONS_INSTANCE_SKIN_DESC"] = "Modify window appearance based on a skin theme."
 L["STRING_OPTIONS_INSTANCE_STATUSBAR_ANCHOR"] = "Statusbar"
-L["STRING_OPTIONS_INSTANCE_STATUSBARCOLOR"] = "Color and Transparency"
 L["STRING_OPTIONS_INSTANCE_STATUSBARCOLOR_DESC"] = [=[Select the color used by the statusbar.
 
 |cFFFFFF00Important|r: this option overwrites the color and transparency chosen over Window Color.]=]
@@ -891,12 +902,9 @@ L["STRING_OPTIONS_MENU_ALPHALEAVE_DESC"] = "When you don't have the mouse over t
 L["STRING_OPTIONS_MENU_ALPHAWARNING"] = "Mouse Interaction is enabled, alpha may not be affected."
 L["STRING_OPTIONS_MENU_ANCHOR"] = "Buttons Attach on Right"
 L["STRING_OPTIONS_MENU_ANCHOR_DESC"] = "When checked, buttons are attached to the right side of the window."
-L["STRING_OPTIONS_MENU_ATTRIBUTE_ANCHORX"] = "Position X"
 L["STRING_OPTIONS_MENU_ATTRIBUTE_ANCHORX_DESC"] = "Adjust the attribute text location on the X axis."
-L["STRING_OPTIONS_MENU_ATTRIBUTE_ANCHORY"] = "Position Y"
 L["STRING_OPTIONS_MENU_ATTRIBUTE_ANCHORY_DESC"] = "Adjust the attribute text location on the Y axis."
 L["STRING_OPTIONS_MENU_ATTRIBUTE_ENABLED_DESC"] = "Active shows the display name currently shown in the window."
-L["STRING_OPTIONS_MENU_ATTRIBUTE_ENCOUNTERTIMER"] = "Encounter Timer"
 L["STRING_OPTIONS_MENU_ATTRIBUTE_ENCOUNTERTIMER_DESC"] = "When enabled, a stopwatch is shown on the left side of the text."
 --[[Translation missing --]]
 L["STRING_OPTIONS_MENU_ATTRIBUTE_FONT"] = ""
@@ -919,7 +927,6 @@ L["STRING_OPTIONS_MENU_FONT_SIZE"] = "Menus Text Size"
 L["STRING_OPTIONS_MENU_FONT_SIZE_DESC"] = "Modify the font size on all menus."
 L["STRING_OPTIONS_MENU_IGNOREBARS"] = "Ignore Bars"
 L["STRING_OPTIONS_MENU_IGNOREBARS_DESC"] = "When enabled, all rows on this window aren't affected by this mechanism."
-L["STRING_OPTIONS_MENU_SHOWBUTTONS"] = "Show Buttons"
 L["STRING_OPTIONS_MENU_SHOWBUTTONS_DESC"] = "Choose which buttons are shown on title bar."
 L["STRING_OPTIONS_MENU_X"] = "Position X"
 L["STRING_OPTIONS_MENU_X_DESC"] = "Changes the X axis position."
@@ -927,7 +934,6 @@ L["STRING_OPTIONS_MENU_Y"] = "Position Y"
 L["STRING_OPTIONS_MENU_Y_DESC"] = "Changes the Y axis position"
 L["STRING_OPTIONS_MENUS_SHADOW"] = "Shadow"
 L["STRING_OPTIONS_MENUS_SHADOW_DESC"] = "Adds a thin shadow border on all buttons."
-L["STRING_OPTIONS_MENUS_SPACEMENT"] = "Spacing"
 L["STRING_OPTIONS_MENUS_SPACEMENT_DESC"] = "Controls how much distance the buttons have between each other."
 L["STRING_OPTIONS_MICRODISPLAY_ANCHOR"] = "Micro Displays:"
 L["STRING_OPTIONS_MICRODISPLAY_LOCK"] = "Lock Micro Displays"
@@ -992,7 +998,6 @@ L["STRING_OPTIONS_PANIMODE_DESC"] = "When enabled and you get dropped from the g
 L["STRING_OPTIONS_PDW_ANCHOR"] = "Panels:"
 L["STRING_OPTIONS_PDW_SKIN_DESC"] = [=[Skin to be used on Player Detail Window, Report Window and Options Panel.
 Some changes require /reload.]=]
-L["STRING_OPTIONS_PERCENT_TYPE"] = "Percentage Type"
 L["STRING_OPTIONS_PERCENT_TYPE_DESC"] = [=[Changes the percentage method:
 
 |cFFFFFF00Relative Total|r: the percentage shows the active fraction of the total amount made by all raid members.
@@ -1201,7 +1206,6 @@ High values may increase the time your character takes to logoff.]=]
 L["STRING_OPTIONS_SENDFEEDBACK"] = "Feedback"
 L["STRING_OPTIONS_SHOW_SIDEBARS"] = "Show Skin Border"
 L["STRING_OPTIONS_SHOW_SIDEBARS_DESC"] = "Show the border of the window from the skin file, use the same color as the 'Window Color'."
-L["STRING_OPTIONS_SHOW_STATUSBAR"] = "Show Statusbar"
 L["STRING_OPTIONS_SHOW_STATUSBAR_DESC"] = "Show or hide the bottom statusbar."
 L["STRING_OPTIONS_SHOW_TOTALBAR_COLOR_DESC"] = "Select the color. The transparency value follows the row alpha value."
 L["STRING_OPTIONS_SHOW_TOTALBAR_DESC"] = "Show or hide the total bar."
@@ -1209,7 +1213,6 @@ L["STRING_OPTIONS_SHOW_TOTALBAR_ICON"] = "Icon"
 L["STRING_OPTIONS_SHOW_TOTALBAR_ICON_DESC"] = "Select the icon shown on the total bar."
 L["STRING_OPTIONS_SHOW_TOTALBAR_INGROUP"] = "Only in Group"
 L["STRING_OPTIONS_SHOW_TOTALBAR_INGROUP_DESC"] = "Total bar isn't shown if you aren't in a group."
-L["STRING_OPTIONS_SIZE"] = "Size"
 L["STRING_OPTIONS_SKIN_A"] = "Skin Settings"
 L["STRING_OPTIONS_SKIN_A_DESC"] = "These options allow you to change the skin."
 L["STRING_OPTIONS_SKIN_ELVUI_BUTTON1"] = "Align Within Right Chat"
@@ -1268,23 +1271,18 @@ L["STRING_OPTIONS_TESTBARS"] = "Create Test Bars"
 L["STRING_OPTIONS_TEXT"] = "Bar Text Settings"
 L["STRING_OPTIONS_TEXT_DESC"] = "These options control the appearance of the window row texts."
 L["STRING_OPTIONS_TEXT_FIXEDCOLOR"] = "Text Color"
-L["STRING_OPTIONS_TEXT_FIXEDCOLOR_DESC"] = [=[Change the text color of both left and right texts.
-
-Ignored if |cFFFFFFFFcolor by class|r is enabled.]=]
 L["STRING_OPTIONS_TEXT_FONT"] = "Text Font"
 L["STRING_OPTIONS_TEXT_FONT_DESC"] = "Change the font of both left and right texts."
 L["STRING_OPTIONS_TEXT_LCLASSCOLOR_DESC"] = "When enabled, the text always uses the color of the player class."
 L["STRING_OPTIONS_TEXT_LEFT_ANCHOR"] = "Left Text:"
 L["STRING_OPTIONS_TEXT_LOUTILINE"] = "Text Shadow"
 L["STRING_OPTIONS_TEXT_LOUTILINE_DESC"] = "Enable or disable the outline for left text."
-L["STRING_OPTIONS_TEXT_LPOSITION"] = "Show Number"
 L["STRING_OPTIONS_TEXT_LPOSITION_DESC"] = "Show position number on the player's name left side."
 L["STRING_OPTIONS_TEXT_LTRANSLIT"] = "Translit"
 L["STRING_OPTIONS_TEXT_LTRANSLIT_DESC"] = "Make those russian letters that no one understand to be presented as western letters."
 L["STRING_OPTIONS_TEXT_OUTLINE"] = "Text Outline"
 L["STRING_OPTIONS_TEXT_RIGHT_ANCHOR"] = "Right Text:"
 L["STRING_OPTIONS_TEXT_ROUTILINE_DESC"] = "Enable or disable the outline for right text."
-L["STRING_OPTIONS_TEXT_ROWICONS_ANCHOR"] = "Icons:"
 L["STRING_OPTIONS_TEXT_SHOW_BRACKET"] = "Bracket"
 L["STRING_OPTIONS_TEXT_SHOW_BRACKET_DESC"] = "Choose which character is used to open and close the per second and percent block."
 L["STRING_OPTIONS_TEXT_SHOW_PERCENT"] = "Show Percent"
@@ -1301,8 +1299,6 @@ L["STRING_OPTIONS_TEXT_SHOW_TOTAL_DESC"] = [=[Show the total done by the actor.
 For example: total damage, total heal received.]=]
 L["STRING_OPTIONS_TEXT_SIZE"] = "Text Size"
 L["STRING_OPTIONS_TEXT_SIZE_DESC"] = "Change the size of both left and right texts."
-L["STRING_OPTIONS_TEXT_TEXTUREL_ANCHOR"] = "Background:"
-L["STRING_OPTIONS_TEXT_TEXTUREU_ANCHOR"] = "Appearance:"
 L["STRING_OPTIONS_TEXTEDITOR_CANCEL"] = "Cancel"
 L["STRING_OPTIONS_TEXTEDITOR_CANCEL_TOOLTIP"] = "Finish the editing and ignore any change in the code."
 L["STRING_OPTIONS_TEXTEDITOR_COLOR_TOOLTIP"] = "Select the text and then click on the color button to change selected text color."
@@ -1403,7 +1399,6 @@ L["STRING_OPTIONS_TOOLTIPS_SHOWAMT"] = "Show Amount"
 L["STRING_OPTIONS_TOOLTIPS_SHOWAMT_DESC"] = "Shows a number indicating how many spells, targets and pets have in the tooltip."
 L["STRING_OPTIONS_TOOLTIPS_TITLE"] = "Tooltips"
 L["STRING_OPTIONS_TOOLTIPS_TITLE_DESC"] = "These options controls the appearance of tooltips."
-L["STRING_OPTIONS_TOTALBAR_ANCHOR"] = "Total Bar:"
 L["STRING_OPTIONS_TRASH_SUPPRESSION"] = "Trash Suppression"
 L["STRING_OPTIONS_TRASH_SUPPRESSION_DESC"] = "For |cFFFFFF00X|r seconds, suppress auto switching to show trash segments (|cFFFFFF00only after defeating a boss encounter|r)."
 L["STRING_OPTIONS_WALLPAPER_ALPHA"] = "Alpha:"
@@ -1462,11 +1457,6 @@ L["STRING_OPTIONS_WINDOW_IGNOREMASSTOGGLE_DESC"] = "When enabled, this window is
 L["STRING_OPTIONS_WINDOW_ROWAREA_COLOR"] = "\"Row's Area Color\""
 L["STRING_OPTIONS_WINDOW_ROWAREA_COLOR_DESC"] = "Set the background color of the area when the rows are shown."
 L["STRING_OPTIONS_WINDOW_SCALE"] = "Scale"
-L["STRING_OPTIONS_WINDOW_SCALE_DESC"] = [=[Adjust the scale of the window.
-
-|cFFFFFF00Tip|r: right click to type the value.
-
-|cFFFFFF00Current|r: %s]=]
 L["STRING_OPTIONS_WINDOW_SKIN_COLOR"] = "Skin Color"
 L["STRING_OPTIONS_WINDOW_SKIN_COLOR_DESC"] = [=[Modifies the color of the skin applied into this window.
 
@@ -2530,6 +2520,8 @@ L["STRING_OPTIONS_DESATURATE_MENU"] = "Desaturated"
 L["STRING_OPTIONS_DESATURATE_MENU_DESC"] = "Enabling this option, all menu icons on toolbar become black and white."
 L["STRING_OPTIONS_DESIGNER_ALIGN_COLUMNS"] = "Align Value Columns"
 L["STRING_OPTIONS_DESIGNER_ALIGN_COLUMNS_DESC"] = "Draws the value columns in fixed columns instead of running them together into one formatted string. This is not a window setting, it changes every window at once."
+L["STRING_OPTIONS_DESIGNER_ARENA_ROLE_ICON_SIZE_OFFSET"] = "Arena Role Icon Size Offset"
+L["STRING_OPTIONS_DESIGNER_ARENA_TEAM_COLOR"] = "Arena Team Color"
 L["STRING_OPTIONS_DESIGNER_BACKGROUND_BY_CLASS"] = "Background by Class"
 L["STRING_OPTIONS_DESIGNER_BAR_ALPHA"] = "Opacity"
 L["STRING_OPTIONS_DESIGNER_BAR_BORDER"] = "Show Bar Border"
@@ -2539,30 +2531,47 @@ L["STRING_OPTIONS_DESIGNER_BORDER_THICKNESS"] = "Border Thickness"
 L["STRING_OPTIONS_DESIGNER_BUTTON_MODE"] = "Mode"
 L["STRING_OPTIONS_DESIGNER_COLOR_BY_CLASS"] = "Color by Class"
 L["STRING_OPTIONS_DESIGNER_DESATURATED_MENU"] = "Desaturated Buttons"
+L["STRING_OPTIONS_DESIGNER_FACTION_ICON_SIZE_OFFSET"] = "Faction Icon Size Offset"
 L["STRING_OPTIONS_DESIGNER_HINT"] = "Click a part of the preview to edit it. Changes apply to the window selected at the top right."
 L["STRING_OPTIONS_DESIGNER_ICON_GRAYSCALE"] = "Grayscale Icons"
+L["STRING_OPTIONS_DESIGNER_ICON_SET"] = "Icon Set"
 L["STRING_OPTIONS_DESIGNER_ICON_SIZE_OFFSET"] = "Icon Size Offset"
 L["STRING_OPTIONS_DESIGNER_MENU_ICON_SIZE"] = "Button Size"
 L["STRING_OPTIONS_DESIGNER_MENU_ICON_SPACING"] = "Button Spacing"
 L["STRING_OPTIONS_DESIGNER_NAME_OFFSET"] = "Name Offset"
+L["STRING_OPTIONS_DESIGNER_NAME_SIZE_OFFSET"] = "Unit Name Size Offset"
+L["STRING_OPTIONS_DESIGNER_NAME_SIZE_OFFSET_DESC"] = "Give the unit name more or less room before it is cut short by the value columns."
 L["STRING_OPTIONS_DESIGNER_NAME_TEXT"] = "Unit Name"
+L["STRING_OPTIONS_DESIGNER_NAME_TEXT_COLOR_DESC"] = [=[Change the text color of the unit name.
+
+Ignored if |cFFFFFFFFcolor by class|r is enabled.]=]
+L["STRING_OPTIONS_DESIGNER_NO_BRACKET"] = "no bracket"
+L["STRING_OPTIONS_DESIGNER_NO_SEPARATOR"] = "no separator"
 L["STRING_OPTIONS_DESIGNER_OBJECT_BARICONS"] = "Bar Icons"
+L["STRING_OPTIONS_DESIGNER_OBJECT_BARNAMETEXT"] = "Bar Unit Name"
 L["STRING_OPTIONS_DESIGNER_OBJECT_BARS"] = "Bars"
 L["STRING_OPTIONS_DESIGNER_OBJECT_BARTEXTS"] = "Bar Texts"
+L["STRING_OPTIONS_DESIGNER_OBJECT_BARVALUETEXT"] = "Bar Values"
 L["STRING_OPTIONS_DESIGNER_OBJECT_STATUSBAR"] = "Status Bar"
 L["STRING_OPTIONS_DESIGNER_OBJECT_TITLEBUTTONS"] = "Title Buttons"
 L["STRING_OPTIONS_DESIGNER_OBJECT_TITLETEXT"] = "Title Text"
 L["STRING_OPTIONS_DESIGNER_OBJECT_WINDOW"] = "Window"
+L["STRING_OPTIONS_DESIGNER_OVERLAY"] = "Overlay"
+L["STRING_OPTIONS_DESIGNER_OVERLAY_TEXTURE_DESC"] = "Texture which sits above the bar"
 L["STRING_OPTIONS_DESIGNER_PERCENT_OF_TOP"] = "Relative to Top Player"
 L["STRING_OPTIONS_DESIGNER_PERCENT_OF_TOTAL"] = "Relative to Total"
 L["STRING_OPTIONS_DESIGNER_PERCENT_TYPE"] = "Percent Type"
 L["STRING_OPTIONS_DESIGNER_PREVIEW"] = "Preview"
 L["STRING_OPTIONS_DESIGNER_PREVIEW_MISSING"] = "A preview window could not be created, so there is nothing to edit here."
+L["STRING_OPTIONS_DESIGNER_REMOVE_CUSTOM_TEXTURE"] = "Remove Custom Texture"
 L["STRING_OPTIONS_DESIGNER_ROUNDED_CORNERS"] = "Rounded Corners"
 L["STRING_OPTIONS_DESIGNER_ROW_AREA_ALPHA"] = "Row Area Opacity"
 L["STRING_OPTIONS_DESIGNER_SHADOW_OFFSET_X"] = "Shadow Offset X"
 L["STRING_OPTIONS_DESIGNER_SHADOW_OFFSET_Y"] = "Shadow Offset Y"
+L["STRING_OPTIONS_DESIGNER_SHOW_ARENA_ROLE_ICON"] = "Show Arena Role Icon"
 L["STRING_OPTIONS_DESIGNER_SHOW_ENCOUNTER_TIMER"] = "Show Encounter Timer"
+L["STRING_OPTIONS_DESIGNER_SHOW_FACTION_ICON"] = "Show Faction Icon"
+L["STRING_OPTIONS_DESIGNER_SHOW_FACTION_ICON_DESC"] = "When showing a player from the opposite faction, show the faction icon."
 L["STRING_OPTIONS_DESIGNER_SHOW_PERCENT_DESC"] = "Shows the percent column beside the value columns. Applies while the value columns are aligned; with the simple text format the columns are decided by that format instead."
 L["STRING_OPTIONS_DESIGNER_SHOW_RANK_NUMBER"] = "Show Rank Number"
 L["STRING_OPTIONS_DESIGNER_SHOW_STATUSBAR"] = "Show Status Bar"
@@ -2572,9 +2581,15 @@ L["STRING_OPTIONS_DESIGNER_TEXT_X_OFFSET"] = "Horizontal Offset"
 L["STRING_OPTIONS_DESIGNER_TEXT_Y_OFFSET"] = "Vertical Offset"
 L["STRING_OPTIONS_DESIGNER_TITLE_TEXT_ENABLED"] = "Show Title Text"
 L["STRING_OPTIONS_DESIGNER_TITLEBAR_ENABLED"] = "Custom Title Bar"
+L["STRING_OPTIONS_DESIGNER_TITLEBAR_ENABLED_DESC"] = [=[Use an alternative title bar instead of the title bar builtin in the Skin file.
+
+|cFFFFFF00Important|r: To disable the title bar from the Skin file, go to 'Window' and make the 'skin color' fully transparent.]=]
 L["STRING_OPTIONS_DESIGNER_TITLEBAR_HEIGHT"] = "Height"
 L["STRING_OPTIONS_DESIGNER_VALUE_TEXT"] = "Value Columns"
-L["STRING_OPTIONS_DESIGNER_WHICH_BUTTONS"] = "Buttons shown:"
+L["STRING_OPTIONS_DESIGNER_VALUE_TEXT_COLOR_DESC"] = [=[Change the text color of the value columns.
+
+Ignored if |cFFFFFFFFcolor by class|r is enabled.]=]
+L["STRING_OPTIONS_DESIGNER_WHICH_BUTTONS"] = "Buttons shown"
 L["STRING_OPTIONS_DISABLE_ALLDISPLAYSWINDOW"] = "Disable 'All Displays' Menu"
 L["STRING_OPTIONS_DISABLE_ALLDISPLAYSWINDOW_DESC"] = "If enabled, right clicking on title bar shows your bookmark instead."
 L["STRING_OPTIONS_DISABLE_BARHIGHLIGHT"] = "Disable Bar Highlight"
@@ -3206,7 +3221,7 @@ L["STRING_OPTIONS_TOOLTIPS_SHOWAMT"] = "Show Amount"
 L["STRING_OPTIONS_TOOLTIPS_SHOWAMT_DESC"] = "Shows a number indicating how many spells, targets and pets have in the tooltip."
 L["STRING_OPTIONS_TOOLTIPS_TITLE"] = "Tooltips"
 L["STRING_OPTIONS_TOOLTIPS_TITLE_DESC"] = "These options controls the appearance of tooltips."
-L["STRING_OPTIONS_TOTALBAR_ANCHOR"] = "Total Bar:"
+L["STRING_OPTIONS_TOTALBAR_ANCHOR"] = "Total Bar"
 L["STRING_OPTIONS_TRASH_SUPPRESSION"] = "Trash Suppression"
 L["STRING_OPTIONS_TRASH_SUPPRESSION_DESC"] = "For |cFFFFFF00X|r seconds, suppress auto switching to show trash segments (|cFFFFFF00only after defeating a boss encounter|r)."
 L["STRING_OPTIONS_WALLPAPER_ALPHA"] = "Alpha:"
@@ -3267,9 +3282,7 @@ L["STRING_OPTIONS_WINDOW_ROWAREA_COLOR_DESC"] = "Set the background color of the
 L["STRING_OPTIONS_WINDOW_SCALE"] = "Scale"
 L["STRING_OPTIONS_WINDOW_SCALE_DESC"] = [=[Adjust the scale of the window.
 
-|cFFFFFF00Tip|r: right click to type the value.
-
-|cFFFFFF00Current|r: %s]=]
+|cFFFFFF00Tip|r: right click to type the value.]=]
 L["STRING_OPTIONS_WINDOW_SKIN_COLOR"] = "Skin Color"
 L["STRING_OPTIONS_WINDOW_SKIN_COLOR_DESC"] = [=[Modifies the color of the skin applied into this window.
 
@@ -3673,1437 +3686,699 @@ L["STRING_WIPE_ERROR3"] = "couldn't end the encounter."
 L["STRING_YES"] = "Yes"
 
 L["\n-- code to run when Details! initializes, put here code which only will run once\n-- this also will run then the profile is changed\n\n--size of the death log tooltip in the Deaths display (default 350)\nDetails.death_tooltip_width = 350;\n\n--when in arena or battleground, details! silently switch to activity time (goes back to the old setting on leaving, default true)\nDetails.force_activity_time_pvp = true;\n\n--speed of the bar animations (default 33)\nDetails.animation_speed = 33;\n\n--threshold to trigger slow or fast speed (default 0.45)\nDetails.animation_speed_mintravel = 0.45;\n\n--call to update animations\nDetails:RefreshAnimationFunctions();\n\n--max window size, does require a /reload to work (default 480 x 450)\nDetails.max_window_size.width = 480;\nDetails.max_window_size.height = 450;\n\n--use the arena team color as the class color (default true)\nDetails.color_by_arena_team = true;\n\n--how much time the update warning is shown (default 10)\nDetails.update_warning_timeout = 10;"] = true
-
 L["\n-- run when the player changes its spec"] = true
-
 L["\n-- this code runs when the player enter or leave a group"] = true
-
 L["\n-- this code runs when the player enters in combat"] = true
-
 L["\n-- this code runs when the player leave combat"] = true
-
 L["\n-- when the player changes zone, this code will run"] = true
-
-L[" [|cFFFFFF00Guild Rank: "] = true
-
-L[" [|cFFFFFF00Rank: "] = true
-
-L[" name: "] = true
-
-L[" right click to close"] = true
-
-L[" unknown"] = true
-
-L[" |cFFFFBB00Boss First Target|r: "] = true
-
-L["% uptime)"] = true
-
-L["% uptime)|r"] = true
-
-L["' current value is: "] = true
-
-L["' expects a number"] = true
-
-L["' expects a string"] = true
-
-L["' expects true or false"] = true
-
-L["' set to "] = true
-
-L["' set to false"] = true
-
-L["' set to true"] = true
-
-L["+|cff33CC00 Click|cffEEEEEE: "] = true
-
-L[", total time: "] = true
-
-L["- Damage Done Chart"] = true
-
-L["- Damage Per Phase"] = true
-
-L["- Damage Taken by Spell"] = true
-
-L["- Enemy Damage Taken"] = true
-
-L["- Interrupts and Dispels"] = true
-
-L["- Player Damage Taken"] = true
-
-L["- Player Deaths"] = true
-
-L["- Weakauras Tool"] = true
-
-L["--unknown spell--"] = true
-
-L["16 Records"] = true
-
-L["2 minutes"] = true
-
-L["3 - Leaving current combat."] = true
-
-L["3 minutes"] = true
-
-L["32 Records"] = true
-
-L["4 - Reversing switches."] = true
-
-L["40 seconds"] = true
-
-L["45 Records"] = true
-
-L["5 - Is a full config wipe."] = true
-
-L["5 minutes"] = true
-
-L["6 - Saving Config."] = true
-
-L["60 Updates per Second"] = true
-
-L["60 seconds"] = true
-
-L["7 - Saving Profiles."] = true
-
-L["8 - Saving nicktag cache."] = true
-
-L["90 seconds"] = true
-
-L["A New Version Is Available!"] = true
-
-L["A member called 'OnDetailsEvent' on your plugin object"] = true
-
-L["A new version has been installed: /details news"] = true
-
-L["Absorb"] = true
-
-L["Action Tracker"] = true
-
-L["Activity Time"] = true
-
-L["Add DPS and Damage information directly into the nameplate"] = true
-
-L["Add Real Time DPS Info Only From You in the Nameplate:"] = true
-
-L["Add Real Time DPS Info in the Nameplate:"] = true
-
-L["Add Total Damage Taken in the Nameplate:"] = true
-
-L["Adds shadow on title bar components."] = true
-
-L["Advanced Death Logs"] = true
-
-L["Advanced Death Logs plugin is disabled or not installed, check the Addon Control Panel or download it from the Curseforge APP."] = true
-
-L["Advanced Death Logs plugin is disabled! Please enable it (or download) in the Addon Control Panel."] = true
-
-L["All Characters"] = true
-
-L["All raid plugins already\nin use or disabled."] = true
-
-L["Alternate power bar in a details! window"] = true
-
-L["Always Use Real Time in Arenas"] = true
-
-L["Amount"] = true
-
-L["Amount of Time"] = true
-
-L["Amount of segments to keep for wipes on the same boss."] = true
-
-L["An AddOn by Terciob | Part of Details! Damage Meter | Click 'Options' button for settings."] = true
-
-L["Anchor Point"] = true
-
-L["Anchor X Offset"] = true
-
-L["Anchor Y Offset"] = true
-
-L["Apply"] = true
-
-L["Arena DPS Bar"] = true
-
-L["Arena Matches"] = true
-
-L["Arena Role Icon Size Offset"] = true
-
-L["Arena Team Color"] = true
-
-L["Arena team color"] = true
-
-L["Attempt to fill the Death Recap with high damage (discart low hits) in the relevant time before death."] = true
-
-L["Aura Name"] = true
-
-L["Auras"] = true
-
-L["Auto Erase:"] = true
-
-L["Auto Open on New Changes"] = true
-
-L["Auto Open on Training Dummy"] = true
-
-L["Auto Run Code"] = true
-
-L["Average:"] = true
-
-L["BACKGROUND"] = true
-
-L["Backdrop Color"] = true
-
-L["Background Alpha"] = true
-
-L["Background Color"] = true
-
-L["Bar Color"] = true
-
-L["Best Score:"] = true
-
-L["Block Height"] = true
-
-L["Block:"] = true
-
-L["Border Color"] = true
-
-L["Border Thickness"] = true
-
-L["Boss Defeated! Show Ranking"] = true
-
-L["Boss Defeated, Open History! "] = true
-
-L["Boss Simulation"] = true
-
-L["Bottom"] = true
-
-L["Bottom Left"] = true
-
-L["Bottom Right"] = true
-
-L["Broadcaster Tools"] = true
-
-L["Broker Text Editor"] = true
-
-L["Buff"] = true
-
-L["Buff Name"] = true
-
-L["By default the plugin register the three first player deaths on each encounter to calculate who is under performing."] = true
-
-L["CC"] = true
-
-L["Calculate Energy Wasted Amount"] = true
-
-L["Calculate Shield Wasted Amount"] = true
-
-L["Calculate how much the Augmentation Evoker are buffing other players"] = true
-
-L["Calculates memory usage of addons"] = true
-
-L["Can't delete current profile."] = true
-
-L["Can't save the code: it has errors."] = true
-
-L["Cancel"] = true
-
-L["Cast Average"] = true
-
-L["Casts"] = true
-
-L["Center"] = true
-
-L["Change What the Window Shows"] = true
-
-L["Change the horizontal offset."] = true
-
-L["Change the vertical offset for both left and right texts."] = true
-
-L["Change where the wallpaper is placed."] = true
-
-L["Chart Viewer"] = true
-
-L["Class Options:"] = true
-
-L["Clear Cache Regularly"] = true
-
-L["Clear On Start PVP"] = true
-
-L["Click Through"] = true
-
-L["Click Through Only in Combat"] = true
-
-L["Click on Your Own Bar"] = true
-
-L["Click to test!"] = true
-
-L["Close"] = true
-
-L["Code saved!"] = true
-
-L["Color"] = true
-
-L["Color of the text shadow"] = true
-
-L["Colors on Death Log:"] = true
-
-L["Combat Log"] = true
-
-L["Compute the energy wasted by players when they are at maximum energy."] = true
-
-L["Cooldown"] = true
-
-L["Cooldown Tracker"] = true
-
-L["Couldn't register the time capture, invalid function."] = true
-
-L["Couldn't register the time capture, matrix was invalid."] = true
-
-L["Couldn't register the time capture, name already registred."] = true
-
-L["Couldn't register the time capture, name was nil."] = true
-
-L["Critical Hits Percent"] = true
-
-L["Critical:"] = true
-
-L["Crowd Control"] = true
-
-L["Current SpecID: "] = true
-
-L["DIALOG"] = true
-
-L["Damage"] = true
-
-L["Damage Blocked:"] = true
-
-L["Damage Options:"] = true
-
-L["Damage Record!"] = true
-
-L["Damage of All Player Combined"] = true
-
-L["Damage of Each Individual Player"] = true
-
-L["Damager"] = true
-
-L["Date:"] = true
-
-L["Death Log Options:"] = true
-
-L["Death Recap:"] = true
-
-L["Death: "] = true
-
-L["Debuff"] = true
-
-L["Debuff Name"] = true
-
-L["Default animation, makes the bar fade in or fade out when showing or hiding in the window"] = true
-
-L["Defensive: Personal"] = true
-
-L["Defensive: Raid"] = true
-
-L["Defensive: Target"] = true
-
-L["Description"] = true
-
-L["Details version is out of date."] = true
-
-L["Details! - Open Options"] = true
-
-L["Details! - Reset Data"] = true
-
-L["Details! Arena Damage Bar Options"] = true
-
-L["Details! Arena Real Time DPS Tracker"] = true
-
-L["Details! Benchmark"] = true
-
-L["Details! Breakdown Options"] = true
-
-L["Details! Custom Displays"] = true
-
-L["Details! Custom Line Text Editor"] = true
-
-L["Details! Damage Meter: Spell Category Selection"] = true
-
-L["Details! Dump String"] = true
-
-L["Details! Dump Table [|cFFFF3333Ready Only|r]"] = true
-
-L["Details! Event Tracker Options"] = true
-
-L["Details! Export Profile"] = true
-
-L["Details! Export Skin"] = true
-
-L["Details! Import Skin (paste string)"] = true
-
-L["Details! Mythic Run Completed!"] = true
-
-L["Details! Online CD Tracker"] = true
-
-L["Details! Plater Nameplates Integration"] = true
-
-L["Details! Run Code"] = true
-
-L["Details! Useful Macros"] = true
-
-L["Details! Version Check"] = true
-
-L["Details!: Average Dps for "] = true
-
-L["Details!: DPS Rank for: "] = true
-
-L["Details!: Event Tracker"] = true
-
-L["Disable"] = true
-
-L["Disable Mythic+ Chart"] = true
-
-L["Disable Mythic+ Stuff"] = true
-
-L["Dispel"] = true
-
-L["Divisor Color"] = true
-
-L["Do not search for targets."] = true
-
-L["Dodge:"] = true
-
-L["Dungeon Run Chart"] = true
-
-L["Duration"] = true
-
-L["EXPORT ALL"] = true
-
-L["Edit Percent Code"] = true
-
-L["Edit Total Code"] = true
-
-L["Edit the code responsible for the percent number in the player bar.\n\nThis is not required if you want to use simple percentage (comparing with total)."] = true
-
-L["Editing Group:"] = true
-
-L["Effective Time"] = true
-
-L["Enable"] = true
-
-L["Enable 'Details!: Streamer' addon at the AddOns Control Panel."] = true
-
-L["Enable Custom Title Bar"] = true
-
-L["Enable Experimental Cooldown Tracker"] = true
-
-L["Enabled"] = true
-
-L["Enabled On:"] = true
-
-L["Encounter Breakdown"] = true
-
-L["Encounter Breakdown plugin is disabled in the Addon Control Panel."] = true
-
-L["Encounter Breakdown plugin is disabled! Please enable it in the Addon Control Panel."] = true
-
-L["Encounter endurance per player (who's dying more), deaths timeline by enemy spells and regular death logs."] = true
-
-L["Enemy Team Damage"] = true
-
-L["Enemy Team Healing"] = true
-
-L["Energy resources are mana, rage, energy, runic power, and others."] = true
-
-L["Event Tracker"] = true
-
-L["Event:"] = true
-
-L["Example: Elemental Potion of Power."] = true
-
-L["Example: Healthstone."] = true
-
-L["Example: Incapacitaion Roar."] = true
-
-L["Example: Invisibility Potion."] = true
-
-L["Example: druid roar."] = true
-
-L["Example: druid tranquility."] = true
-
-L["Example: mage ice block."] = true
-
-L["Example: priest pain suppression."] = true
-
-L["Example: priest power infusion."] = true
-
-L["Example: rogue kick."] = true
-
-L["Examples:\nBlessing of Sacrifice, Ironbark, Life Cocoon, Pain Suppression"] = true
-
-L["Examples:\nIce Block, Dispersion, Cloak of Shadows, Shield Wall "] = true
-
-L["Examples:\nPower Infusion, Ice Veins, Combustion, Adrenaline Rush"] = true
-
-L["Examples:\nPower Word: Barrier, Spirit Link Totem, Tranquility, Anti-Magic Zone"] = true
-
-L["Examples:\nStampeding Roar, Leap of Faith"] = true
-
-L["Expand"] = true
-
-L["Export"] = true
-
-L["Export Text"] = true
-
-L["Faction Icon Size Offset"] = true
-
-L["Failed to load a Details! window.\n/reload or reboot the game client may fix the problem.\nIf the problem persist, try /details reinstall.\nError: "] = true
-
-L["Failled to load statistics, Details! Storage is disabled?"] = true
-
-L["Fine tune the size of the window while embeded in the chat."] = true
-
-L["Font Color"] = true
-
-L["Font Face"] = true
-
-L["Font Shadow"] = true
-
-L["Font Size"] = true
-
-L["Force apply profile: "] = true
-
-L["Frame Settings:"] = true
-
-L["Frame Strata"] = true
-
-L["Framework for Details! isn't loaded.\nIf you just updated the addon, please reboot the game client.\nWe apologize for the inconvenience and thank you for your comprehension."] = true
-
-L["Friendly Fire"] = true
-
-L["Full Absorbs:"] = true
-
-L["General Settings"] = true
-
-L["Good news everyone!\nA new version has been forged and is waiting to be looted."] = true
-
-L["GradientEffect() end function error:"] = true
-
-L["Group Frames"] = true
-
-L["Group Pet Names Under a Pet Spell Bar"] = true
-
-L["Group Pet Spells Under a Pet Name Bar"] = true
-
-L["Group Pet Spells:"] = true
-
-L["Group Pets By Name"] = true
-
-L["Group Pets By Spell"] = true
-
-L["Group Player Spells With Same Name"] = true
-
-L["Group Player Spells:"] = true
-
-L["Group spells casted by players which has the same name"] = true
-
-L["HIGH"] = true
-
-L["Heal"] = true
-
-L["Heal Absorbed"] = true
-
-L["Healer"] = true
-
-L["Healers"] = true
-
-L["Healing"] = true
-
-L["Height"] = true
-
-L["Height Offset"] = true
-
-L["Hello There plugin developer!"] = true
-
-L["Hide Yellow Helptips"] = true
-
-L["Hits Amount"] = true
-
-L["Hunter Track Pet Frenzy"] = true
-
-L["Icon"] = true
-
-L["Icon Set"] = true
-
-L["Icon Size Offset"] = true
-
-L["If Enabled and while in combat, show the damage done of the latest 5 seconds divided by 5."] = true
-
-L["If Enabled, players dealing more real time DPS are place above other players in the window."] = true
-
-L["If Enabled, real time DPS is always used in arenas, even if the option above is disabled."] = true
-
-L["Immersion"] = true
-
-L["Import"] = true
-
-L["Import String:"] = true
-
-L["Inner Bottom"] = true
-
-L["Inner Left"] = true
-
-L["Inner Right"] = true
-
-L["Inner Top"] = true
-
-L["Install"] = true
-
-L["InstallPlugin parameter 1 (plugin type) not especified"] = true
-
-L["InstallPlugin parameter 2 (plugin name) can't be nil"] = true
-
-L["InstallPlugin parameter 3 (plugin icon) can't be nil"] = true
-
-L["InstallPlugin parameter 4 (plugin object) can't be nil"] = true
-
-L["InstallPlugin parameter 5 (plugin absolut name) can't be nil"] = true
-
-L["Interrupt"] = true
-
-L["Interrupt Cooldowns"] = true
-
-L["Invert Death Log (M+)"] = true
-
-L["Invert Death Log (Overall Data)"] = true
-
-L["Invert Death Log (Raid)"] = true
-
-L["Is Locked"] = true
-
-L["Item Level:"] = true
-
-L["Item level dispatched."] = true
-
-L["Item: Healing"] = true
-
-L["Item: Power Increase"] = true
-
-L["Item: Utility"] = true
-
-L["Keep Best Performance (boss wipes)"] = true
-
-L["Keep the segments with more progress in the boss health and delete the ones with less progress."] = true
-
-L["LOW"] = true
-
-L["Last Cast"] = true
-
-L["Left"] = true
-
-L["Level"] = true
-
-L["Level 1 Average: "] = true
-
-L["Level 2 Average: "] = true
-
-L["Level 3 Average: "] = true
-
-L["Level 4 Average: "] = true
-
-L["Level 5 Average: "] = true
-
-L["Life Percent"] = true
-
-L["Light blue, this skin fits on almost all interfaces.\n\nFor ElvUI interfaces, change the window color to black to get an compatible visual."] = true
-
-L["Line Color"] = true
-
-L["Line Height"] = true
-
-L["Line Settings:"] = true
-
-L["Line Texture"] = true
-
-L["Lines Per Column"] = true
-
-L["Load Your Image"] = true
-
-L["Lock"] = true
-
-L["Lock Frame"] = true
-
-L["Locked"] = true
-
-L["Low is faster"] = true
-
-L["M+ Score:"] = true
-
-L["MEDIUM"] = true
-
-L["Macros"] = true
-
-L["Make a window be 450 pixel height, pressing the macro again toggle back to the original size. The number '1' if the window number. Hold a click in any window to show their number."] = true
-
-L["Make a window show different data. SetDisplay uses (segment, displayGroup, displayID), the menu from the sword icon is in order (damage = group 1, overheal is: displayGroup 2 displayID 3."] = true
-
-L["Melee"] = true
-
-L["Merge Critical Heals"] = true
-
-L["Merge Ring Gems 11.0.7"] = true
-
-L["Merges spells like Atonement and Awakened Faeline with their critical damage component."] = true
-
-L["Modify the Blizzard's Death Recap screen."] = true
-
-L["Move-Me"] = true
-
-L["Mythic Dungeon"] = true
-
-L["Mythic Dungeons"] = true
-
-L["NONE"] = true
-
-L["New expansion detected, clearing data..."] = true
-
-L["No Absorption:"] = true
-
-L["No Target"] = true
-
-L["No survey at the moment."] = true
-
-L["None"] = true
-
-L["Not Installed"] = true
-
-L["NumSystem override is now:"] = true
-
-L["Offensive CD"] = true
-
-L["Offensive Cooldowns"] = true
-
-L["Offset"] = true
-
-L["Okay"] = true
-
-L["On Enter Combat"] = true
-
-L["On Enter/Leave Group"] = true
-
-L["On Initialization"] = true
-
-L["On Leave Combat"] = true
-
-L["On Spec Change"] = true
-
-L["On Zone Changed"] = true
-
-L["Only Inside Instances"] = true
-
-L["Only You"] = true
-
-L["Only in Group"] = true
-
-L["Open Damage per Phase"] = true
-
-L["Open Encounter Breakdown"] = true
-
-L["Open Player Endurance Breakdown"] = true
-
-L["Open the encounter breakdown plugin in the phase tab. Details! Encounter Breakdown (plugin) must be enabled."] = true
-
-L["Open the encounter breakdown plugin. Details! Encounter Breakdown (plugin) must be enabled."] = true
-
-L["Open your player Details! breakdown."] = true
-
-L["Options"] = true
-
-L["Order Bars By Real Time DPS"] = true
-
-L["Our thoughts strayed constantly\nAnd without boundary\nThe ringing of the division bell had began."] = true
-
-L["Outline"] = true
-
-L["Outline Color"] = true
-
-L["Overheal"] = true
-
-L["Overlay:"] = true
-
-L["Parry:"] = true
-
-L["Parser Event Error -> Set to 16 DeathLogs and /reload"] = true
-
-L["Parser Options:"] = true
-
-L["Partially Absorbed:"] = true
-
-L["Paste & Copy"] = true
-
-L["Payload (Points)"] = true
-
-L["Per Second"] = true
-
-L["Per Second:"] = true
-
-L["Percent values are comparisons with the previous try."] = true
-
-L["Personal CD"] = true
-
-L["Phase Changed!"] = true
-
-L["Plater Nameplates"] = true
-
-L["Plater Nameplates Integration"] = true
-
-L["Plater isn't installed! you may download it from the Curseforge app."] = true
-
-L["Player 1"] = true
-
-L["Player 1 %"] = true
-
-L["Player 2"] = true
-
-L["Player 3"] = true
-
-L["Player Endurance"] = true
-
-L["Player Name"] = true
-
-L["Player endurance is calculated using the amount of player deaths."] = true
-
-L["Player not found."] = true
-
-L["Please make sure you are declaring"] = true
-
-L["Plugin not found."] = true
-
-L["Plugins"] = true
-
-L["Profile Not Found."] = true
-
-L["Quick Player Info Detection"] = true
-
-L["Racial"] = true
-
-L["Raid CD"] = true
-
-L["Raid Power Bars"] = true
-
-L["Raid or Party Group"] = true
-
-L["Real Time"] = true
-
-L["Real Time Group DPS"] = true
-
-L["Realm"] = true
-
-L["Record Energy Resources"] = true
-
-L["Record Tank Avoidance"] = true
-
-L["Record tank avoidance, this information is used in the Avoidance tank for tanks."] = true
-
-L["Regular Details! skin but with a dark theme."] = true
-
-L["Relevance Time"] = true
-
-L["Remove Battleground Segments"] = true
-
-L["Remove Common Segments"] = true
-
-L["Remove Custom Texture"] = true
-
-L["Report What is Shown In the Window"] = true
-
-L["Report the current data shown in the window, the number 1 is the window number, replace it to report another window."] = true
-
-L["Reset"] = true
-
-L["Reset Custom Skin"] = true
-
-L["Reset Data"] = true
-
-L["Reset Nickname"] = true
-
-L["Reset Settings"] = true
-
-L["Reset the overall and regular segments data. Use 'ResetSegmentOverallData' to reset only the overall."] = true
-
-L["Reset, but keep Mythic+ Overall Segments"] = true
-
-L["Right"] = true
-
-L["Right Chat Panel isn't shown."] = true
-
-L["Row's Area Border"] = true
-
-L["Run Time:"] = true
-
-L["Run code when Details! initialize or when a profile is changed."] = true
-
-L["Run code when the player enters in combat."] = true
-
-L["Run code when the player has changed its specialization."] = true
-
-L["Run code when the player has entered or left a party or raid group."] = true
-
-L["Run code when the player left combat."] = true
-
-L["Run code when the zone where the player is in has changed (e.g. entered in a raid)."] = true
-
-L["Same as the first Minimalistic, but this one is more darker and less transparent."] = true
-
-L["Save"] = true
-
-L["Save Code"] = true
-
-L["Scroll Options"] = true
-
-L["Search Results"] = true
-
-L["Search for matches in all characters which is part of your party or raid group."] = true
-
-L["Search for matches in all characters."] = true
-
-L["Search for matches only in your character."] = true
-
-L["See how much damage the enemy is taking in real time!"] = true
-
-L["Segment List"] = true
-
-L["Segments Boss Wipe"] = true
-
-L["Segments:"] = true
-
-L["Select Player"] = true
-
-L["Select Profile"] = true
-
-L["Select Segment"] = true
-
-L["Self Healing:"] = true
-
-L["Selling"] = true
-
-L["SetUserCustomSkinFile() file must be a string."] = true
-
-L["SetUserCustomSkinFile() file must be only the file name (with out up folders) and slashes."] = true
-
-L["Settings reseted to default."] = true
-
-L["Shadow Color"] = true
-
-L["Shadowy Title Bar"] = true
-
-L["Show 'Real Time' DPS"] = true
-
-L["Show Arena Role Icon"] = true
-
-L["Show Augmentation Extra Bar"] = true
-
-L["Show Border"] = true
-
-L["Show Boss"] = true
-
-L["Show Breakdown"] = true
-
-L["Show Crowd Control (Arena & BG)"] = true
-
-L["Show Crowd Control (Dungeon & Raid)"] = true
-
-L["Show Crowd Control when inside a PvE zone"] = true
-
-L["Show Crowd Control when inside a PvP zone"] = true
-
-L["Show Death Menu"] = true
-
-L["Show Faction Icon"] = true
-
-L["Show Real Time DPS on the nameplate.\n\nReal time DPS is how much damage has been inflicted to the unit in the last 5 seconds."] = true
-
-L["Show Real Time DPS you are currently applying in the unit.\n\nReal time DPS is how much damage has been inflicted to the unit in the last 5 seconds."] = true
-
-L["Show Real Time Dps"] = true
-
-L["Show Real Time Dps (From You)"] = true
-
-L["Show Rounded Border"] = true
-
-L["Show Title"] = true
-
-L["Show Total Damage Taken"] = true
-
-L["Show a bar which grows to the side of the team doing most damage in the last 5 seconds."] = true
-
-L["Show a list of the latest segments in case you want to see recaps from previous fights."] = true
-
-L["Show a panel below the Release / Death Recap panel with some shortcuts for Raid Leaders."] = true
-
-L["Show a panel with:"] = true
-
-L["Show pets when solo"] = true
-
-L["Show raid damage done to an entity since you targetted it."] = true
-
-L["Show the percent of life the player had when received the hit."] = true
-
-L["Show the spells you are casting, allowing the viewer to follow your decision making and learn your rotation."] = true
-
-L["Show the total damage taken by the unit"] = true
-
-L["Show what's happening near you so the viewer can follow what's going on. Show cooldowns, CC, spell interruption. Useful on any group content."] = true
-
-L["Simple skin with soft gray color and half transparent frames."] = true
-
-L["Slightly move the text horizontally."] = true
-
-L["Slightly move the text vertically."] = true
-
-L["Specialization"] = true
-
-L["Specialization Alpha"] = true
-
-L["Specific Character"] = true
-
-L["Speed"] = true
-
-L["Spell Details Block"] = true
-
-L["Spell Empower Average Level: "] = true
-
-L["Spell ID"] = true
-
-L["Spell Id"] = true
-
-L["Spell Name"] = true
-
-L["Spells"] = true
-
-L["Summary"] = true
-
-L["Suppress Alerts"] = true
-
-L["Switch by Role In Combat"] = true
-
-L["Switch by Role Out of Combat"] = true
-
-L["Target Caller"] = true
-
-L["Targeted CD"] = true
-
-L["Test"] = true
-
-L["Test Code"] = true
-
-L["Text Color"] = true
-
-L["Text Options"] = true
-
-L["Text Outline"] = true
-
-L["Text Position"] = true
-
-L["Text Settings:"] = true
-
-L["Text Shadow"] = true
-
-L["Text Size"] = true
-
-L["Text Y Offset"] = true
-
-L["Texture which sits above the bar"] = true
-
-L["Thank You Sir!==================="] = true
-
-L["There's no more players to compare (with the same class/spec)"] = true
-
-L["Thick Outline"] = true
-
-L["This capture belongs to a plugin and cannot be edited."] = true
-
-L["This code is responsible for edit the total number shown in the player bar.\n\nThis is not necessary if you want show exactly the value gotten in the search code."] = true
-
-L["This is a concept of a cooldown tracker using the new library 'Open Raid' which uses comms to update cooldown timers.\nThe code to implement is so small that can fit inside a weakaura\nIf you're a coder, the implementation is on Details/frames/window_cdtracker.lua"] = true
-
-L["This is the 'overheal' of shields, it is calculated when a shield get replaced or removed."] = true
-
-L["This object need to be saved before."] = true
-
-L["This skin is based on ElvUI's addons, relying with black and transparent frames."] = true
-
-L["This was the first skin made for Details!, inspired in the standard wow interface"] = true
-
-L["Those yellow boxes with an arrow and a text showing a text with tips."] = true
-
-L["Time"] = true
-
-L["Time Line"] = true
-
-L["Time not in combat:"] = true
-
-L["Title Bar"] = true
-
-L["To open the player details window on your character, like if you click on your bar in the damage window. The number '1' is the window number where it'll click."] = true
-
-L["Toggle Window Height to Max Size"] = true
-
-L["Tools"] = true
-
-L["Top"] = true
-
-L["Top Left"] = true
-
-L["Top Right"] = true
-
-L["Total Absorbs:"] = true
-
-L["Total Casts:"] = true
-
-L["Total Damage Taken:"] = true
-
-L["Total Done:"] = true
-
-L["Total Hits:"] = true
-
-L["Type the name of the character used to search."] = true
-
-L["Unknown"] = true
-
-L["Unknown Plugin"] = true
-
-L["Uptime"] = true
-
-L["Uptime:"] = true
-
-L["Use Different Color for You"] = true
-
-L["Use Dynamic Overall Damage"] = true
-
-L["Use Real Time Dps for Aug. Evoker"] = true
-
-L["Use Real Time Dps for Augmentation Evoker"] = true
-
-L["Use a different color on your own bar"] = true
-
-L["Use an alternative title bar instead of the title bar builtin in the Skin file.\n\n|cFFFFFF00Important|r: To disable the title bar from the Skin file, go to 'Window Body' and make the 'skin color' fully transparent."] = true
-
-L["User Name"] = true
-
-L["Utility CD"] = true
-
-L["Utility Cooldowns"] = true
-
-L["Version"] = true
-
-L["Very clean skin without textures and only with a black contour."] = true
-
-L["View combat data in handsome charts."] = true
-
-L["View raid cooldowns usage, debuff gain, boss casts in a fancy time line."] = true
-
-L["WCL Parse"] = true
-
-L["Waiting for loot"] = true
-
-L["What to Show"] = true
-
-L["When enabled, overall data is automatically wiped when a new arena or battleground starts."] = true
-
-L["When showing Damage Done Overall, swap to Dynamic Overall Damage on entering combat."] = true
-
-L["When showing a player from arena, show the role icon."] = true
-
-L["When showing a player from the opposite faction, show the faction icon."] = true
-
-L["Which side of the nameplate the text is attach to."] = true
-
-L["Width"] = true
-
-L["Width Offset"] = true
-
-L["Window Area Border"] = true
-
-L["Window Control:"] = true
-
-L["Wipe has been called by your raid leader."] = true
-
-L["With a function to receive the events like bellow:"] = true
-
-L["Wow combatlog record turned OFF."] = true
-
-L["Wow combatlog record turned ON."] = true
-
-L["Your Bar Color"] = true
-
-L["Your Self"] = true
-
-L["Your Team Damage"] = true
-
-L["Your Team Healing"] = true
-
-L["[*] Unknown shield target"] = true
-
-L["a /reload might be needed to disable this setting."] = true
-
-L["absorbed"] = true
-
-L["actor table not found"] = true
-
-L["actor table: "] = true
-
-L["actors found."] = true
-
-L["add '|cFFFFFF00Details.minimum_combat_time = 2;|r' on Auto Run Code to change the minimum time."] = true
-
-L["already in combat, closing current segment."] = true
-
-L["always use profile:"] = true
-
-L["an addon made your game freeze for more than a half second, use '/details perf' to know more."] = true
-
-L["applications"] = true
-
-L["based on AddonSkins for ElvUI, this skin has opaque title bar and background."] = true
-
-L["bgcolor:"] = true
-
-L["bordercolor"] = true
-
-L["cast avg"] = true
-
-L["casts"] = true
-
-L["coach disabled."] = true
-
-L["combat ignored: elapsed time less than 5 seconds."] = true
-
-L["combat ignored: less than 5 seconds."] = true
-
-L["config '"] = true
-
-L["couldn't decode the data."] = true
-
-L["couldn't open options panel: no window available."] = true
-
-L["couldn't uncompress the data."] = true
-
-L["couldn't unserialize the data."] = true
-
-L["crit %"] = true
-
-L["crop: "] = true
-
-L["current -"] = true
-
-L["current profile:"] = true
-
-L["detected options panel out of screen, position has reset"] = true
-
-L["do not switch"] = true
-
-L["done merging, segments: "] = true
-
-L["error Details! AdjustAlphaByContext()"] = true
-
-L["error exporting the time capture."] = true
-
-L["error occurred on Details.Database.StoreWipe():"] = true
-
-L["error occurred on report window skin call():"] = true
-
-L["error on alert function:"] = true
-
-L["fail to get the current profile."] = true
-
-L["failed to create a new profile."] = true
-
-L["failed to decompress profile data."] = true
-
-L["failed to export skin."] = true
-
-L["gear score: "] = true
-
-L["healer name:"] = true
-
-L["hits"] = true
-
-L["iLvL"] = true
-
-L["invalid pre_defined table for resize, please rezise the window manually."] = true
-
-L["invalid profile name or profile name is too short."] = true
-
-L["m "] = true
-
-L["name"] = true
-
-L["names found."] = true
-
-L["new custom"] = true
-
-L["new simple gray 2"] = true
-
-L["overheal"] = true
-
-L["overlay: "] = true
-
-L["paste on your web browser address bar"] = true
-
-L["player actor:"] = true
-
-L["plugin doesn't have a Frame, please check case-sensitive member name: Frame"] = true
-
-L["pre-potion: "] = true
-
-L["profile name"] = true
-
-L["profile name already exists and was imported as:"] = true
-
-L["profile name:"] = true
-
-L["profile successfully imported."] = true
-
-L["ps"] = true
-
-L["real -"] = true
-
-L["refreshes"] = true
-
-L["s"] = true
-
-L["s)"] = true
-
-L["search"] = true
-
-L["seems failed to load, please type /reload to try again."] = true
-
-L["segment ID invalid."] = true
-
-L["segment not found."] = true
-
-L["segment removed."] = true
-
-L["select bookmark"] = true
-
-L["skin:"] = true
-
-L["some addon may be causing framerate drops, use '/details perf' to know more."] = true
-
-L["some addon may be causing small framerate stuttering, use '/details perf' to know more."] = true
-
-L["some addon might be causing performance issues, use '/details perf' to know more."] = true
-
-L["spell name"] = true
-
-L["spell name:"] = true
-
-L["spell not found"] = true
-
-L["the overall data has been reset."] = true
-
-L["total"] = true
-
-L["uptime"] = true
-
-L["using segment"] = true
-
-L["version:"] = true
-
-L["wait... "] = true
-
-L["working"] = true
-
-L["working [downloading "] = true
-
-L["you aren't the raid leader."] = true
-
-L["you can always reset the addon running the command |cFFFFFF00'/details reinstall'|r if it does fail to load after being updated."] = true
-
-L["you can disable this at /details > Raid Tools"] = true
-
-L["| ilvl:"] = true
-
-L["| item amount:"] = true
-
-L["|TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:14:12:0:1:512:512:8:70:224:306|t Open Rank"] = true
-
-L["|TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:14:12:0:1:512:512:8:70:328:409|t Refresh Talents"] = true
-
-L["|cFF00FF00Left Click:|r clear all segments."] = true
-
-L["|cFF00FF00Left Click:|r open options panel."] = true
-
-L["|cFFFF2222Details!: Normal position for a window wasn't found! Moving it to the center of the screen.|r\nType '/details exitlog' to check for errors."] = true
-
-L["|cFFFF2222Details!: Position for a window wasn't found! Moving it to the center of the screen.|r\nType '/details exitlog' to check for errors."] = true
-
-L["|cFFFF3300you may need sync the rank within the guild, type '|cFFFFFF00/details rank|r'|r"] = true
-
-L["|cFFFF7700plugin not found|r:|cFFFFFF00"] = true
-
-L["|cFFFF9900error compiling code for custom display "] = true
-
-L["|cFFFF9900error compiling percent code for custom display "] = true
-
-L["|cFFFF9900error compiling tooltip code for custom display "] = true
-
-L["|cFFFF9900error compiling total code for custom display "] = true
-
-L["|cFFFF9900error on chart script function|r:"] = true
-
-L["|cFFFF9900error on custom display function|r:"] = true
-
-L["|cFFFF9900error on custom display tooltip function|r:"] = true
-
-L["|cFFFF9900error on custom text|r:"] = true
-
-L["|cFFFF9900percent script error|r:"] = true
-
-L["|cFFFF9900total script error|r:"] = true
-
-L["|cFFFFBB00First Hit|r: *?*"] = true
-
-L["|cFFFFBB00Your Best Score|r:"] = true
-
-L["|cFFFFFF00]|r Interrupt: "] = true
-
-L["|cff33CC00Click|cffEEEEEE: "] = true
-
-L["|r: list of spells already saw."] = true
-
-L["|r: open the player breakdown for you."] = true
-
-L["|rcheck if it is enabled in the addons control panel."] = true
-
 L[" \ncommand: /details playedclass"] = true
-
+L[" [|cFFFFFF00Guild Rank: "] = true
+L[" [|cFFFFFF00Rank: "] = true
+L[" name: "] = true
+L[" right click to close"] = true
+L[" unknown"] = true
+L[" |cFFFFBB00Boss First Target|r: "] = true
+L["% uptime)"] = true
+L["% uptime)|r"] = true
+L["' current value is: "] = true
+L["' expects a number"] = true
+L["' expects a string"] = true
+L["' expects true or false"] = true
+L["' set to "] = true
+L["' set to false"] = true
+L["' set to true"] = true
+L["+|cff33CC00 Click|cffEEEEEE: "] = true
+L[", total time: "] = true
+L["- Damage Done Chart"] = true
+L["- Damage Per Phase"] = true
+L["- Damage Taken by Spell"] = true
+L["- Enemy Damage Taken"] = true
+L["- Interrupts and Dispels"] = true
+L["- Player Damage Taken"] = true
+L["- Player Deaths"] = true
+L["- Weakauras Tool"] = true
+L["--unknown spell--"] = true
+L["16 Records"] = true
+L["2 minutes"] = true
+L["3 - Leaving current combat."] = true
+L["3 minutes"] = true
+L["32 Records"] = true
+L["4 - Reversing switches."] = true
+L["40 seconds"] = true
+L["45 Records"] = true
+L["5 - Is a full config wipe."] = true
+L["5 minutes"] = true
+L["6 - Saving Config."] = true
+L["60 Updates per Second"] = true
+L["60 seconds"] = true
+L["7 - Saving Profiles."] = true
+L["8 - Saving nicktag cache."] = true
+L["90 seconds"] = true
+L["A New Version Is Available!"] = true
+L["A member called 'OnDetailsEvent' on your plugin object"] = true
+L["A new version has been installed: /details news"] = true
+L["Absorb"] = true
+L["Action Tracker"] = true
+L["Activity Time"] = true
+L["Add DPS and Damage information directly into the nameplate"] = true
+L["Add Real Time DPS Info Only From You in the Nameplate:"] = true
+L["Add Real Time DPS Info in the Nameplate:"] = true
+L["Add Total Damage Taken in the Nameplate:"] = true
+L["Adds shadow on title bar components."] = true
+L["Advanced Death Logs"] = true
+L["Advanced Death Logs plugin is disabled or not installed, check the Addon Control Panel or download it from the Curseforge APP."] = true
+L["Advanced Death Logs plugin is disabled! Please enable it (or download) in the Addon Control Panel."] = true
+L["All Characters"] = true
+L["All raid plugins already\nin use or disabled."] = true
 L["Alpha"] = true
-
+L["Alternate power bar in a details! window"] = true
+L["Always Use Real Time in Arenas"] = true
+L["Amount"] = true
+L["Amount of Time"] = true
+L["Amount of segments to keep for wipes on the same boss."] = true
+L["An AddOn by Terciob | Part of Details! Damage Meter | Click 'Options' button for settings."] = true
+L["Anchor Point"] = true
+L["Anchor X Offset"] = true
+L["Anchor Y Offset"] = true
+L["Apply"] = true
+L["Arena DPS Bar"] = true
+L["Arena Matches"] = true
+L["Attempt to fill the Death Recap with high damage (discart low hits) in the relevant time before death."] = true
+L["Aura Name"] = true
+L["Auras"] = true
+L["Auto Erase:"] = true
+L["Auto Open on New Changes"] = true
+L["Auto Open on Training Dummy"] = true
+L["Auto Run Code"] = true
+L["Average:"] = true
+L["BACKGROUND"] = true
+L["Backdrop Color"] = true
+L["Background Alpha"] = true
+L["Background Color"] = true
+L["Bar Color"] = true
+L["Best Score:"] = true
+L["Block Height"] = true
+L["Block:"] = true
+L["Border Color"] = true
+L["Border Thickness"] = true
+L["Boss Defeated! Show Ranking"] = true
+L["Boss Defeated, Open History! "] = true
+L["Boss Simulation"] = true
+L["Bottom"] = true
+L["Bottom Left"] = true
+L["Bottom Right"] = true
+L["Broadcaster Tools"] = true
+L["Broker Text Editor"] = true
+L["Buff"] = true
+L["Buff Name"] = true
+L["By default the plugin register the three first player deaths on each encounter to calculate who is under performing."] = true
+L["CC"] = true
+L["Calculate Energy Wasted Amount"] = true
+L["Calculate Shield Wasted Amount"] = true
+L["Calculate how much the Augmentation Evoker are buffing other players"] = true
+L["Calculates memory usage of addons"] = true
+L["Can't delete current profile."] = true
+L["Can't save the code: it has errors."] = true
+L["Cancel"] = true
+L["Cast Average"] = true
+L["Casts"] = true
+L["Center"] = true
+L["Change What the Window Shows"] = true
+L["Change where the wallpaper is placed."] = true
+L["Chart Viewer"] = true
+L["Class Options:"] = true
+L["Clear Cache Regularly"] = true
+L["Clear On Start PVP"] = true
+L["Click Through"] = true
+L["Click Through Only in Combat"] = true
+L["Click on Your Own Bar"] = true
+L["Click to test!"] = true
+L["Close"] = true
+L["Code saved!"] = true
+L["Color"] = true
+L["Color of the text shadow"] = true
+L["Colors on Death Log:"] = true
+L["Combat Log"] = true
+L["Compute the energy wasted by players when they are at maximum energy."] = true
+L["Cooldown"] = true
+L["Cooldown Tracker"] = true
+L["Couldn't register the time capture, invalid function."] = true
+L["Couldn't register the time capture, matrix was invalid."] = true
+L["Couldn't register the time capture, name already registred."] = true
+L["Couldn't register the time capture, name was nil."] = true
+L["Critical Hits Percent"] = true
+L["Critical:"] = true
 L["Crop Bottom"] = true
-
 L["Crop Left"] = true
-
 L["Crop Right"] = true
-
 L["Crop Top"] = true
-
+L["Crowd Control"] = true
+L["Current SpecID: "] = true
+L["DIALOG"] = true
+L["Damage"] = true
+L["Damage Blocked:"] = true
+L["Damage Options:"] = true
+L["Damage Record!"] = true
+L["Damage of All Player Combined"] = true
+L["Damage of Each Individual Player"] = true
+L["Damager"] = true
+L["Date:"] = true
+L["Death Log Options:"] = true
+L["Death Recap:"] = true
+L["Death: "] = true
+L["Debuff"] = true
+L["Debuff Name"] = true
+L["Default animation, makes the bar fade in or fade out when showing or hiding in the window"] = true
+L["Defensive: Personal"] = true
+L["Defensive: Raid"] = true
+L["Defensive: Target"] = true
+L["Description"] = true
+L["Details version is out of date."] = true
+L["Details! - Open Options"] = true
+L["Details! - Reset Data"] = true
+L["Details! Arena Damage Bar Options"] = true
+L["Details! Arena Real Time DPS Tracker"] = true
+L["Details! Benchmark"] = true
+L["Details! Breakdown Options"] = true
+L["Details! Custom Displays"] = true
+L["Details! Custom Line Text Editor"] = true
+L["Details! Damage Meter: Spell Category Selection"] = true
+L["Details! Dump String"] = true
+L["Details! Dump Table [|cFFFF3333Ready Only|r]"] = true
+L["Details! Event Tracker Options"] = true
+L["Details! Export Profile"] = true
+L["Details! Export Skin"] = true
+L["Details! Import Skin (paste string)"] = true
+L["Details! Mythic Run Completed!"] = true
+L["Details! Online CD Tracker"] = true
+L["Details! Plater Nameplates Integration"] = true
+L["Details! Run Code"] = true
+L["Details! Useful Macros"] = true
+L["Details! Version Check"] = true
+L["Details!: Average Dps for "] = true
+L["Details!: DPS Rank for: "] = true
+L["Details!: Event Tracker"] = true
+L["Disable"] = true
+L["Disable Mythic+ Chart"] = true
+L["Disable Mythic+ Stuff"] = true
+L["Dispel"] = true
+L["Divisor Color"] = true
+L["Do not search for targets."] = true
+L["Dodge:"] = true
 L["Done"] = true
-
+L["Dungeon Run Chart"] = true
+L["Duration"] = true
+L["EXPORT ALL"] = true
+L["Edit Percent Code"] = true
+L["Edit Total Code"] = true
+L["Edit the code responsible for the percent number in the player bar.\n\nThis is not required if you want to use simple percentage (comparing with total)."] = true
+L["Editing Group:"] = true
+L["Effective Time"] = true
+L["Enable"] = true
+L["Enable 'Details!: Streamer' addon at the AddOns Control Panel."] = true
+L["Enable Experimental Cooldown Tracker"] = true
+L["Enabled"] = true
+L["Enabled On:"] = true
+L["Encounter Breakdown"] = true
+L["Encounter Breakdown plugin is disabled in the Addon Control Panel."] = true
+L["Encounter Breakdown plugin is disabled! Please enable it in the Addon Control Panel."] = true
+L["Encounter endurance per player (who's dying more), deaths timeline by enemy spells and regular death logs."] = true
+L["Enemy Team Damage"] = true
+L["Enemy Team Healing"] = true
+L["Energy resources are mana, rage, energy, runic power, and others."] = true
+L["Event Tracker"] = true
+L["Event:"] = true
+L["Example: Elemental Potion of Power."] = true
+L["Example: Healthstone."] = true
+L["Example: Incapacitaion Roar."] = true
+L["Example: Invisibility Potion."] = true
+L["Example: druid roar."] = true
+L["Example: druid tranquility."] = true
+L["Example: mage ice block."] = true
+L["Example: priest pain suppression."] = true
+L["Example: priest power infusion."] = true
+L["Example: rogue kick."] = true
+L["Examples:\nBlessing of Sacrifice, Ironbark, Life Cocoon, Pain Suppression"] = true
+L["Examples:\nIce Block, Dispersion, Cloak of Shadows, Shield Wall "] = true
+L["Examples:\nPower Infusion, Ice Veins, Combustion, Adrenaline Rush"] = true
+L["Examples:\nPower Word: Barrier, Spirit Link Totem, Tranquility, Anti-Magic Zone"] = true
+L["Examples:\nStampeding Roar, Leap of Faith"] = true
+L["Expand"] = true
+L["Export"] = true
+L["Export Text"] = true
+L["Failed to load a Details! window.\n/reload or reboot the game client may fix the problem.\nIf the problem persist, try /details reinstall.\nError: "] = true
+L["Failled to load statistics, Details! Storage is disabled?"] = true
+L["Fine tune the size of the window while embeded in the chat."] = true
 L["Flip H"] = true
-
+L["Font Color"] = true
+L["Font Face"] = true
+L["Font Shadow"] = true
+L["Font Size"] = true
+L["Force apply profile: "] = true
+L["Frame Settings:"] = true
+L["Frame Strata"] = true
+L["Framework for Details! isn't loaded.\nIf you just updated the addon, please reboot the game client.\nWe apologize for the inconvenience and thank you for your comprehension."] = true
+L["Friendly Fire"] = true
+L["Full Absorbs:"] = true
+L["General Settings"] = true
+L["Good news everyone!\nA new version has been forged and is waiting to be looted."] = true
+L["GradientEffect() end function error:"] = true
+L["Group Frames"] = true
+L["Group Pet Names Under a Pet Spell Bar"] = true
+L["Group Pet Spells Under a Pet Name Bar"] = true
+L["Group Pet Spells:"] = true
+L["Group Pets By Name"] = true
+L["Group Pets By Spell"] = true
+L["Group Player Spells With Same Name"] = true
+L["Group Player Spells:"] = true
+L["Group spells casted by players which has the same name"] = true
+L["HIGH"] = true
+L["Heal"] = true
+L["Heal Absorbed"] = true
+L["Healer"] = true
+L["Healers"] = true
+L["Healing"] = true
+L["Height"] = true
+L["Height Offset"] = true
+L["Hello There plugin developer!"] = true
+L["Hide Yellow Helptips"] = true
+L["Hits Amount"] = true
+L["Hunter Track Pet Frenzy"] = true
+L["Icon"] = true
+L["If Enabled and while in combat, show the damage done of the latest 5 seconds divided by 5."] = true
+L["If Enabled, players dealing more real time DPS are place above other players in the window."] = true
+L["If Enabled, real time DPS is always used in arenas, even if the option above is disabled."] = true
 L["Image Editor"] = true
-
+L["Immersion"] = true
+L["Import"] = true
+L["Import String:"] = true
+L["Inner Bottom"] = true
+L["Inner Left"] = true
+L["Inner Right"] = true
+L["Inner Top"] = true
+L["Install"] = true
+L["InstallPlugin parameter 1 (plugin type) not especified"] = true
+L["InstallPlugin parameter 2 (plugin name) can't be nil"] = true
+L["InstallPlugin parameter 3 (plugin icon) can't be nil"] = true
+L["InstallPlugin parameter 4 (plugin object) can't be nil"] = true
+L["InstallPlugin parameter 5 (plugin absolut name) can't be nil"] = true
+L["Interrupt"] = true
+L["Interrupt Cooldowns"] = true
+L["Invert Death Log (M+)"] = true
+L["Invert Death Log (Overall Data)"] = true
+L["Invert Death Log (Raid)"] = true
+L["Is Locked"] = true
+L["Item Level:"] = true
+L["Item level dispatched."] = true
+L["Item: Healing"] = true
+L["Item: Power Increase"] = true
+L["Item: Utility"] = true
+L["Keep Best Performance (boss wipes)"] = true
+L["Keep the segments with more progress in the boss health and delete the ones with less progress."] = true
+L["LOW"] = true
+L["Last Cast"] = true
+L["Left"] = true
+L["Level"] = true
+L["Level 1 Average: "] = true
+L["Level 2 Average: "] = true
+L["Level 3 Average: "] = true
+L["Level 4 Average: "] = true
+L["Level 5 Average: "] = true
+L["Life Percent"] = true
+L["Light blue, this skin fits on almost all interfaces.\n\nFor ElvUI interfaces, change the window color to black to get an compatible visual."] = true
+L["Line Color"] = true
+L["Line Height"] = true
+L["Line Settings:"] = true
+L["Line Texture"] = true
+L["Lines Per Column"] = true
+L["Load Your Image"] = true
+L["Lock"] = true
+L["Lock Frame"] = true
+L["Locked"] = true
+L["Low is faster"] = true
+L["M+ Score:"] = true
+L["MEDIUM"] = true
+L["Macros"] = true
+L["Make a window be 450 pixel height, pressing the macro again toggle back to the original size. The number '1' if the window number. Hold a click in any window to show their number."] = true
+L["Make a window show different data. SetDisplay uses (segment, displayGroup, displayID), the menu from the sword icon is in order (damage = group 1, overheal is: displayGroup 2 displayID 3."] = true
+L["Melee"] = true
+L["Merge Critical Heals"] = true
+L["Merge Ring Gems 11.0.7"] = true
+L["Merges spells like Atonement and Awakened Faeline with their critical damage component."] = true
+L["Modify the Blizzard's Death Recap screen."] = true
+L["Move-Me"] = true
+L["Mythic Dungeon"] = true
+L["Mythic Dungeons"] = true
+L["NONE"] = true
+L["New expansion detected, clearing data..."] = true
+L["No Absorption:"] = true
+L["No Target"] = true
+L["No survey at the moment."] = true
+L["None"] = true
+L["Not Installed"] = true
+L["NumSystem override is now:"] = true
+L["Offensive CD"] = true
+L["Offensive Cooldowns"] = true
+L["Okay"] = true
+L["On Enter Combat"] = true
+L["On Enter/Leave Group"] = true
+L["On Initialization"] = true
+L["On Leave Combat"] = true
+L["On Spec Change"] = true
+L["On Zone Changed"] = true
+L["Only Inside Instances"] = true
+L["Only You"] = true
+L["Only in Group"] = true
+L["Open Damage per Phase"] = true
+L["Open Encounter Breakdown"] = true
+L["Open Player Endurance Breakdown"] = true
+L["Open the encounter breakdown plugin in the phase tab. Details! Encounter Breakdown (plugin) must be enabled."] = true
+L["Open the encounter breakdown plugin. Details! Encounter Breakdown (plugin) must be enabled."] = true
+L["Open your player Details! breakdown."] = true
+L["Options"] = true
+L["Order Bars By Real Time DPS"] = true
+L["Our thoughts strayed constantly\nAnd without boundary\nThe ringing of the division bell had began."] = true
+L["Outline"] = true
+L["Outline Color"] = true
+L["Overheal"] = true
+L["Parry:"] = true
+L["Parser Event Error -> Set to 16 DeathLogs and /reload"] = true
+L["Parser Options:"] = true
+L["Partially Absorbed:"] = true
+L["Paste & Copy"] = true
+L["Payload (Points)"] = true
+L["Per Second"] = true
+L["Per Second:"] = true
+L["Percent values are comparisons with the previous try."] = true
+L["Personal CD"] = true
+L["Phase Changed!"] = true
+L["Plater Nameplates"] = true
+L["Plater Nameplates Integration"] = true
+L["Plater isn't installed! you may download it from the Curseforge app."] = true
+L["Player 1"] = true
+L["Player 1 %"] = true
+L["Player 2"] = true
+L["Player 3"] = true
+L["Player Endurance"] = true
+L["Player Name"] = true
+L["Player endurance is calculated using the amount of player deaths."] = true
+L["Player not found."] = true
+L["Please make sure you are declaring"] = true
+L["Plugin not found."] = true
+L["Plugins"] = true
+L["Profile Not Found."] = true
+L["Quick Player Info Detection"] = true
+L["Racial"] = true
+L["Raid CD"] = true
+L["Raid Power Bars"] = true
+L["Raid or Party Group"] = true
+L["Real Time"] = true
+L["Real Time Group DPS"] = true
+L["Realm"] = true
+L["Record Energy Resources"] = true
+L["Record Tank Avoidance"] = true
+L["Record tank avoidance, this information is used in the Avoidance tank for tanks."] = true
+L["Regular Details! skin but with a dark theme."] = true
+L["Relevance Time"] = true
+L["Remove Battleground Segments"] = true
+L["Remove Common Segments"] = true
+L["Report What is Shown In the Window"] = true
+L["Report the current data shown in the window, the number 1 is the window number, replace it to report another window."] = true
+L["Reset"] = true
+L["Reset Custom Skin"] = true
+L["Reset Data"] = true
+L["Reset Nickname"] = true
+L["Reset Settings"] = true
+L["Reset the overall and regular segments data. Use 'ResetSegmentOverallData' to reset only the overall."] = true
+L["Reset, but keep Mythic+ Overall Segments"] = true
+L["Right"] = true
+L["Right Chat Panel isn't shown."] = true
 L["Right Click to Type the Value"] = true
-
+L["Row's Area Border"] = true
+L["Run Time:"] = true
+L["Run code when Details! initialize or when a profile is changed."] = true
+L["Run code when the player enters in combat."] = true
+L["Run code when the player has changed its specialization."] = true
+L["Run code when the player has entered or left a party or raid group."] = true
+L["Run code when the player left combat."] = true
+L["Run code when the zone where the player is in has changed (e.g. entered in a raid)."] = true
+L["Same as the first Minimalistic, but this one is more darker and less transparent."] = true
+L["Save"] = true
+L["Save Code"] = true
 L["Scale:"] = true
-
+L["Scroll Options"] = true
+L["Search Results"] = true
+L["Search for matches in all characters which is part of your party or raid group."] = true
+L["Search for matches in all characters."] = true
+L["Search for matches only in your character."] = true
 L["Search:"] = true
-
+L["See how much damage the enemy is taking in real time!"] = true
+L["Segment List"] = true
+L["Segments Boss Wipe"] = true
+L["Segments:"] = true
+L["Select Player"] = true
+L["Select Profile"] = true
+L["Select Segment"] = true
+L["Self Healing:"] = true
+L["Selling"] = true
+L["SetUserCustomSkinFile() file must be a string."] = true
+L["SetUserCustomSkinFile() file must be only the file name (with out up folders) and slashes."] = true
+L["Settings reseted to default."] = true
+L["Shadow Color"] = true
+L["Shadowy Title Bar"] = true
+L["Show 'Real Time' DPS"] = true
+L["Show Augmentation Extra Bar"] = true
+L["Show Border"] = true
+L["Show Boss"] = true
+L["Show Breakdown"] = true
+L["Show Crowd Control (Arena & BG)"] = true
+L["Show Crowd Control (Dungeon & Raid)"] = true
+L["Show Crowd Control when inside a PvE zone"] = true
+L["Show Crowd Control when inside a PvP zone"] = true
+L["Show Death Menu"] = true
+L["Show Real Time DPS on the nameplate.\n\nReal time DPS is how much damage has been inflicted to the unit in the last 5 seconds."] = true
+L["Show Real Time DPS you are currently applying in the unit.\n\nReal time DPS is how much damage has been inflicted to the unit in the last 5 seconds."] = true
+L["Show Real Time Dps"] = true
+L["Show Real Time Dps (From You)"] = true
+L["Show Rounded Border"] = true
+L["Show Title"] = true
+L["Show Total Damage Taken"] = true
+L["Show a bar which grows to the side of the team doing most damage in the last 5 seconds."] = true
+L["Show a list of the latest segments in case you want to see recaps from previous fights."] = true
+L["Show a panel below the Release / Death Recap panel with some shortcuts for Raid Leaders."] = true
+L["Show a panel with:"] = true
+L["Show pets when solo"] = true
+L["Show raid damage done to an entity since you targetted it."] = true
+L["Show the percent of life the player had when received the hit."] = true
+L["Show the spells you are casting, allowing the viewer to follow your decision making and learn your rotation."] = true
+L["Show the total damage taken by the unit"] = true
+L["Show what's happening near you so the viewer can follow what's going on. Show cooldowns, CC, spell interruption. Useful on any group content."] = true
+L["Simple skin with soft gray color and half transparent frames."] = true
+L["Slightly move the text horizontally."] = true
+L["Slightly move the text vertically."] = true
+L["Specialization"] = true
+L["Specialization Alpha"] = true
+L["Specific Character"] = true
+L["Speed"] = true
+L["Spell Details Block"] = true
+L["Spell Empower Average Level: "] = true
+L["Spell ID"] = true
+L["Spell Id"] = true
+L["Spell Name"] = true
+L["Spells"] = true
+L["Summary"] = true
+L["Suppress Alerts"] = true
+L["Switch by Role In Combat"] = true
+L["Switch by Role Out of Combat"] = true
+L["Target Caller"] = true
+L["Targeted CD"] = true
+L["Test"] = true
+L["Test Code"] = true
+L["Text Color"] = true
+L["Text Options"] = true
+L["Text Outline"] = true
+L["Text Position"] = true
+L["Text Settings:"] = true
+L["Text Shadow"] = true
+L["Text Size"] = true
+L["Thank You Sir!==================="] = true
+L["There's no more players to compare (with the same class/spec)"] = true
+L["Thick Outline"] = true
+L["This capture belongs to a plugin and cannot be edited."] = true
+L["This code is responsible for edit the total number shown in the player bar.\n\nThis is not necessary if you want show exactly the value gotten in the search code."] = true
+L["This is a concept of a cooldown tracker using the new library 'Open Raid' which uses comms to update cooldown timers.\nThe code to implement is so small that can fit inside a weakaura\nIf you're a coder, the implementation is on Details/frames/window_cdtracker.lua"] = true
+L["This is the 'overheal' of shields, it is calculated when a shield get replaced or removed."] = true
+L["This object need to be saved before."] = true
+L["This skin is based on ElvUI's addons, relying with black and transparent frames."] = true
+L["This was the first skin made for Details!, inspired in the standard wow interface"] = true
+L["Those yellow boxes with an arrow and a text showing a text with tips."] = true
+L["Time"] = true
+L["Time Line"] = true
+L["Time not in combat:"] = true
+L["To open the player details window on your character, like if you click on your bar in the damage window. The number '1' is the window number where it'll click."] = true
+L["Toggle Window Height to Max Size"] = true
+L["Tools"] = true
+L["Top"] = true
+L["Top Left"] = true
+L["Top Right"] = true
+L["Total Absorbs:"] = true
+L["Total Casts:"] = true
+L["Total Damage Taken:"] = true
+L["Total Done:"] = true
+L["Total Hits:"] = true
+L["Type the name of the character used to search."] = true
+L["Unknown"] = true
+L["Unknown Plugin"] = true
+L["Uptime"] = true
+L["Uptime:"] = true
+L["Use Different Color for You"] = true
+L["Use Dynamic Overall Damage"] = true
+L["Use Real Time Dps for Aug. Evoker"] = true
+L["Use Real Time Dps for Augmentation Evoker"] = true
+L["Use a different color on your own bar"] = true
+L["User Name"] = true
+L["Utility CD"] = true
+L["Utility Cooldowns"] = true
+L["Version"] = true
+L["Very clean skin without textures and only with a black contour."] = true
+L["View combat data in handsome charts."] = true
+L["View raid cooldowns usage, debuff gain, boss casts in a fancy time line."] = true
+L["WCL Parse"] = true
+L["Waiting for loot"] = true
+L["What to Show"] = true
+L["When enabled, overall data is automatically wiped when a new arena or battleground starts."] = true
+L["When showing Damage Done Overall, swap to Dynamic Overall Damage on entering combat."] = true
+L["Which side of the nameplate the text is attach to."] = true
+L["Width"] = true
+L["Width Offset"] = true
+L["Window Control:"] = true
+L["Wipe has been called by your raid leader."] = true
+L["With a function to receive the events like bellow:"] = true
+L["Wow combatlog record turned OFF."] = true
+L["Wow combatlog record turned ON."] = true
+L["Your Bar Color"] = true
+L["Your Self"] = true
+L["Your Team Damage"] = true
+L["Your Team Healing"] = true
+L["[*] Unknown shield target"] = true
+L["a /reload might be needed to disable this setting."] = true
+L["absorbed"] = true
+L["actor table not found"] = true
+L["actor table: "] = true
+L["actors found."] = true
+L["add '|cFFFFFF00Details.minimum_combat_time = 2;|r' on Auto Run Code to change the minimum time."] = true
+L["already in combat, closing current segment."] = true
+L["always use profile:"] = true
+L["an addon made your game freeze for more than a half second, use '/details perf' to know more."] = true
+L["applications"] = true
+L["based on AddonSkins for ElvUI, this skin has opaque title bar and background."] = true
+L["bgcolor:"] = true
+L["bordercolor"] = true
+L["cast avg"] = true
+L["casts"] = true
 L["close window"] = true
-
+L["coach disabled."] = true
+L["combat ignored: elapsed time less than 5 seconds."] = true
+L["combat ignored: less than 5 seconds."] = true
+L["config '"] = true
+L["couldn't decode the data."] = true
+L["couldn't open options panel: no window available."] = true
+L["couldn't uncompress the data."] = true
+L["couldn't unserialize the data."] = true
+L["crit %"] = true
+L["crop: "] = true
+L["current -"] = true
+L["current profile:"] = true
+L["detected options panel out of screen, position has reset"] = true
+L["do not switch"] = true
+L["done merging, segments: "] = true
+L["error Details! AdjustAlphaByContext()"] = true
+L["error exporting the time capture."] = true
+L["error occurred on Details.Database.StoreWipe():"] = true
+L["error occurred on report window skin call():"] = true
+L["error on alert function:"] = true
+L["fail to get the current profile."] = true
+L["failed to create a new profile."] = true
+L["failed to decompress profile data."] = true
+L["failed to export skin."] = true
+L["gear score: "] = true
+L["healer name:"] = true
+L["hits"] = true
+L["iLvL"] = true
+L["invalid pre_defined table for resize, please rezise the window manually."] = true
+L["invalid profile name or profile name is too short."] = true
+L["m "] = true
+L["name"] = true
+L["names found."] = true
+L["new custom"] = true
+L["new simple gray 2"] = true
 L["no option selected"] = true
-
 L["no options"] = true
-
+L["overheal"] = true
+L["overlay: "] = true
+L["paste on your web browser address bar"] = true
+L["player actor:"] = true
+L["plugin doesn't have a Frame, please check case-sensitive member name: Frame"] = true
+L["pre-potion: "] = true
+L["profile name"] = true
+L["profile name already exists and was imported as:"] = true
+L["profile name:"] = true
+L["profile successfully imported."] = true
+L["ps"] = true
+L["real -"] = true
+L["refreshes"] = true
 L["right click to close"] = true
-
 L["right click to type the value"] = true
+L["s"] = true
+L["s)"] = true
+L["search"] = true
+L["seems failed to load, please type /reload to try again."] = true
+L["segment ID invalid."] = true
+L["segment not found."] = true
+L["segment removed."] = true
+L["select bookmark"] = true
+L["skin:"] = true
+L["some addon may be causing framerate drops, use '/details perf' to know more."] = true
+L["some addon may be causing small framerate stuttering, use '/details perf' to know more."] = true
+L["some addon might be causing performance issues, use '/details perf' to know more."] = true
+L["spell name"] = true
+L["spell name:"] = true
+L["spell not found"] = true
+L["the overall data has been reset."] = true
+L["total"] = true
+L["uptime"] = true
+L["using segment"] = true
+L["version:"] = true
+L["wait... "] = true
+L["working"] = true
+L["working [downloading "] = true
+L["you aren't the raid leader."] = true
+L["you can always reset the addon running the command |cFFFFFF00'/details reinstall'|r if it does fail to load after being updated."] = true
+L["you can disable this at /details > Raid Tools"] = true
+L["| ilvl:"] = true
+L["| item amount:"] = true
+L["|TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:14:12:0:1:512:512:8:70:224:306|t Open Rank"] = true
+L["|TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:14:12:0:1:512:512:8:70:328:409|t Refresh Talents"] = true
+L["|cFF00FF00Left Click:|r clear all segments."] = true
+L["|cFF00FF00Left Click:|r open options panel."] = true
+L["|cFFFF2222Details!: Normal position for a window wasn't found! Moving it to the center of the screen.|r\nType '/details exitlog' to check for errors."] = true
+L["|cFFFF2222Details!: Position for a window wasn't found! Moving it to the center of the screen.|r\nType '/details exitlog' to check for errors."] = true
+L["|cFFFF3300you may need sync the rank within the guild, type '|cFFFFFF00/details rank|r'|r"] = true
+L["|cFFFF7700plugin not found|r:|cFFFFFF00"] = true
+L["|cFFFF9900error compiling code for custom display "] = true
+L["|cFFFF9900error compiling percent code for custom display "] = true
+L["|cFFFF9900error compiling tooltip code for custom display "] = true
+L["|cFFFF9900error compiling total code for custom display "] = true
+L["|cFFFF9900error on chart script function|r:"] = true
+L["|cFFFF9900error on custom display function|r:"] = true
+L["|cFFFF9900error on custom display tooltip function|r:"] = true
+L["|cFFFF9900error on custom text|r:"] = true
+L["|cFFFF9900percent script error|r:"] = true
+L["|cFFFF9900total script error|r:"] = true
+L["|cFFFFBB00First Hit|r: *?*"] = true
+L["|cFFFFBB00Your Best Score|r:"] = true
+L["|cFFFFFF00]|r Interrupt: "] = true
+L["|cff33CC00Click|cffEEEEEE: "] = true
+L["|r: list of spells already saw."] = true
+L["|r: open the player breakdown for you."] = true
+L["|rcheck if it is enabled in the addons control panel."] = true

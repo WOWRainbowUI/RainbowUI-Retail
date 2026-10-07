@@ -3546,7 +3546,7 @@
 						local thisEvent = t[i]
 
 						if (not thisEvent) then
-							return Details:Msg("Parser Event Error -> Set to 16 DeathLogs and /reload", i, _amount_of_last_events)
+							return Details:Msg(Loc["Parser Event Error -> Set to 16 DeathLogs and /reload"], i, _amount_of_last_events)
 						end
 
 						thisEvent[1] = 4 --4 = debuff aplication

@@ -330,6 +330,7 @@ end
 	function DropDownMetaFunctions:Enable()
 		self:SetAlpha(1)
 		rawset(self, "lockdown", false)
+		DF:SetOptionLabelEnabled(self, true)
 
 		if (self:IsText()) then
 			self:GetTextEntry():Enable()
@@ -344,6 +345,7 @@ end
 	function DropDownMetaFunctions:Disable()
 		self:SetAlpha(.4)
 		rawset(self, "lockdown", true)
+		DF:SetOptionLabelEnabled(self, false)
 
 		if (self:IsText()) then
 			self:GetTextEntry():Disable()
