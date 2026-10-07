@@ -42,9 +42,12 @@ local COMPRESS_LEVEL = 9
 -- APPEND-ONLY. The index is the bit position; reordering corrupts older peers.
 -- ============================================================================
 local BOOL_FIELDS = {
+    -- Bits 7 and 12 were gray_faction / show_btag, removed in 13.0.6: both had lost their
+    -- menu entry at some point and had been unreachable since, so nobody could turn them on.
+    -- RESERVED for the same reason as 20 and 21 -- 24 fields sit after bit 12.
     "hide_offline", "colour_classes", "show_faction_icons", "show_realm",
-    "hide_high_level", "add_favorite_group", "gray_faction", "show_mobile_afk",
-    "add_mobile_text", "ingame_only", "ingame_retail", "show_btag",
+    "hide_high_level", "add_favorite_group", "__reserved_7", "show_mobile_afk",
+    "add_mobile_text", "ingame_only", "ingame_retail", "__reserved_12",
     "show_retail", "show_search", "hide_empty_groups", "hide_afk",
     -- Bits 20 and 21 were auto_accept_res / auto_release, removed in 13.0.2 with the rest
     -- of the spirit automation. They are RESERVED, not deleted: thirteen fields sit after
@@ -70,6 +73,11 @@ local BOOL_FIELDS = {
     "width_normal",
     -- Default-ON display toggles, stored inverted (see DEFAULT_ON_INVERTED).
     "show_game_icon", "show_faction_color",
+    -- Appended in 13.0.6. Both default OFF, so NOT inverted: an older backup lacks these
+    -- bits and decodes as false, which is the correct default for each. safe_whisper is
+    -- stored on every flavor but only consumed on retail (hidden on Classic, which has no
+    -- secret values), the same pattern as the width bits. APPEND-ONLY.
+    "safe_whisper", "streamer_mode",
 }
 
 -- Allowed values for the one numeric scalar we sync.
@@ -97,6 +105,8 @@ local DEFAULT_ON_INVERTED = {
 -- reads these bits as 0, which sets auto_accept_res / auto_release to false -- exactly right
 -- for a feature that no longer exists. A NEW client importing an OLD profile ignores them.
 local RESERVED_FIELDS = {
+    __reserved_7 = true,    -- was gray_faction, removed 13.0.6
+    __reserved_12 = true,   -- was show_btag, removed 13.0.6
     __reserved_20 = true,   -- was auto_accept_res
     __reserved_21 = true,   -- was auto_release
 }
@@ -572,6 +582,16 @@ function M.Apply(profile)
     if not sv.show_known_alts and _G.wipe then
         if type(sv.alt_cache) == "table" then _G.wipe(sv.alt_cache) end
         if type(sv.guid_index) == "table" then _G.wipe(sv.guid_index) end
+    end
+
+    -- Match the menu's side-effects for the two 13.0.6 bits. Without these the settings
+    -- restore but do nothing until a reload, which reads as the import having failed.
+    -- Streamer mode also re-masks the player's own BattleTag, which the list refresh at the
+    -- end of this function does not touch.
+    if _G.FriendGroups_ApplyStreamerMode then _G.FriendGroups_ApplyStreamerMode() end
+    local state = addonTable and addonTable.State
+    if sv.safe_whisper and state and type(state.InstallSendMessageOverride) == "function" then
+        state.InstallSendMessageOverride()
     end
 
     -- An imported font scale changes the ROW HEIGHT as well as the text, and the Social UI

@@ -221,7 +221,7 @@ local function FriendGroups_GetCountColumnInset()
         if not boxRight then return nil end
         columnRight = boxRight - FG_COUNT_INSET_SCROLLBOX
     else
-        local scrollFrame = FriendsFrameFriendsScrollFrame
+        local scrollFrame = Compat.GetClassicListFrame()
         local buttons = scrollFrame and scrollFrame.buttons
         local row = buttons and buttons[1]
         local rowRight = row and row:GetRight()
@@ -585,7 +585,7 @@ local settingsMenuItems = {
             if FriendGroupsEUISkin and FriendGroupsEUISkin.RefreshEnabled then
                 FriendGroupsEUISkin.RefreshEnabled()
             end
-            StaticPopup_Show("FRIENDGROUPS_EUI_RELOAD")
+            StaticPopup_Show("FRIENDGROUPS_RELOAD")
         end
     },
 
@@ -638,6 +638,30 @@ local settingsMenuItems = {
 
     -- [[ Everything below moves into the "Advanced" submenu (back-end config). ]]
     { isAdvancedStart = true },
+
+    -- SECTION: CONTACT LIST
+    -- Classic only, and off by default. On, FriendGroups renders into a list frame of its
+    -- own instead of Blizzard's, which is what keeps the Raid panel openable during combat
+    -- (CurseForge #55) -- see Compat.UseOwnClassicList for the chain and
+    -- FriendGroups-Classic-OwnList-Plan.md in the dev workspace for the whole design.
+    --
+    -- Deliberately NOT in Sync.lua's BOOL_FIELDS: this is a platform switch, not a taste,
+    -- and a mask bit that decodes as false on older backups would quietly turn the fix off
+    -- again once the default flips. When the own list becomes the only path the saved
+    -- variable goes away entirely.
+    { text = L["SETTINGS_LIST"], notCheckable = true, isTitle = true,
+      condition = function() return not Compat.HAS_SCROLLBOX end },
+    {
+        text = L["SET_OWN_LIST"],
+        tooltip = { L["SET_OWN_LIST_TT_1"], L["SET_OWN_LIST_TT_2"] },
+        condition = function() return not Compat.HAS_SCROLLBOX end,
+        keepShownOnClick = true,
+        checked = function() return FriendGroups_SavedVars.classic_own_list end,
+        func = function()
+            FriendGroups_SavedVars.classic_own_list = not FriendGroups_SavedVars.classic_own_list
+            StaticPopup_Show("FRIENDGROUPS_RELOAD")
+        end
+    },
 
     -- SECTION: CHAT
     -- Retail only: Classic has no secret values, so whispering from the list cannot cause
@@ -808,12 +832,10 @@ local settingsMenuItems = {
             FriendGroups_SavedVars.hide_high_level = true
             FriendGroups_SavedVars.add_favorite_group = true
             FriendGroups_SavedVars.show_guildmates = true
-            FriendGroups_SavedVars.gray_faction = false
             FriendGroups_SavedVars.show_mobile_afk = false
             FriendGroups_SavedVars.add_mobile_text = true
             FriendGroups_SavedVars.ingame_only = false
             FriendGroups_SavedVars.ingame_retail = false
-            FriendGroups_SavedVars.show_btag = false
             FriendGroups_SavedVars.show_retail = false
             FriendGroups_SavedVars.show_search = true
             FriendGroups_SavedVars.hide_empty_groups = false
@@ -917,7 +939,8 @@ function FriendGroups_BuildGuildCache()
         
         for i = 1, numTotal do
             -- Safe capture of the first return value, supporting both future tables and legacy multi-var returns
-            local name = (C_GuildInfo and C_GuildInfo.GetGuildRosterInfo) and C_GuildInfo.GetGuildRosterInfo(i) or GetGuildRosterInfo(i)
+            local name = (C_GuildInfo and C_GuildInfo.GetGuildRosterInfo) and C_GuildInfo.GetGuildRosterInfo(i)
+                or (GetGuildRosterInfo and GetGuildRosterInfo(i))
             
             if name and type(name) == "string" then
                 local baseName, realmName = strsplit("-", name)
@@ -1035,12 +1058,15 @@ function FriendGroups_UpdateSize()
         FriendsListFrame.ScrollBox:SetPoint("TOPLEFT", FriendsListFrame, "TOPLEFT", 7, -115)
         FriendsListFrame.ScrollBox:SetPoint("BOTTOMRIGHT", FriendsListFrame, "BOTTOMRIGHT", -28, 35)
     else
-        -- Classic: the native HybridScroll button pool is sized to the default frame
-        -- height. After resizing the frame, create enough buttons to fill it so a Large
-        -- list shows more rows instead of empty space (CreateButtons appends until the
+        -- Classic: the HybridScroll button pool is sized to the default frame height.
+        -- After resizing the frame, create enough buttons to fill it so a Large list
+        -- shows more rows instead of empty space (CreateButtons appends until the
         -- current height is covered). Deferred a frame so the scroll frame's anchored
         -- height reflects the new size before it is measured.
-        local sf = FriendsFrameFriendsScrollFrame
+        --
+        -- Whichever list is in force: Blizzard's pool was built by its own OnLoad and
+        -- only needs topping up, ours starts empty and is filled here and at setup.
+        local sf = Compat.GetClassicListFrame()
         if sf and HybridScrollFrame_CreateButtons then
             C_Timer.After(0, function()
                 HybridScrollFrame_CreateButtons(sf, "FriendsFrameButtonTemplate")
@@ -1510,20 +1536,6 @@ function FriendGroups_HasValue(tab, val)
 	return false
 end
 
-function FriendGroups_SplitBattleTag(battleTag)
-	if type(battleTag) ~= "string" then return battleTag end
-
-	local sep = "#"
-	if sep == nil then
-		sep = "%s"
-	end
-	local t = {}
-	for str in string.gmatch(battleTag, "([^" .. sep .. "]+)") do
-		table.insert(t, str)
-	end
-	return t[1]
-end
-
 function FriendGroups_GetClassColorCode(class, returnTable)
 	if not class then
 		return returnTable and FRIENDS_GRAY_COLOR or
@@ -1712,8 +1724,8 @@ end
 --
 -- The fix is to mask the first candidate that is REAL TEXT, in preference order, rather
 -- than the first candidate that exists:
---   battleTag           plain on 12.1 (FriendGroups_SplitBattleTag has always sliced it),
---                       and its name half is the closest thing to a stable identity;
+--   battleTag           plain on 12.1, and its name half is the closest thing to a stable
+--                       identity;
 --   characterName       plain, but only while the friend is online;
 --   a remembered name   captured while its owner was online, this session for preference and
 --                       from the saved cache otherwise -- see FG_RememberedName above.
@@ -1762,6 +1774,9 @@ end
 -- gameInfo (the friend's gameAccountInfo) resolves WHICH game's level cap applies
 -- for the hide-max-level rule; nil-safe (Compat.IsMaxLevel fails open and shows
 -- the level when the friend's game cannot be determined).
+-- canCoop is unused since gray_faction went in 13.0.6, and is kept on purpose: it arrives
+-- from FriendGroups_GetFriendInfoById's 21-value positional tuple, so dropping it would
+-- renumber that tuple and this call in three files for no user-visible gain.
 function FriendGroups_GetBNetButtonNameText(accountName, client, canCoop, characterName, class, level, battleTag, timerunningSeasonID, realmName, gameInfo)
 	local nameText
 
@@ -1777,13 +1792,10 @@ function FriendGroups_GetBNetButtonNameText(accountName, client, canCoop, charac
 		nameText = "|cFF00FF00" .. FriendGroups_SavedVars.nicknames[accountIdentifier] .. "|r"
 	elseif accountName then
 		if streamerMode then
-			-- battleTag FIRST, whichever display setting is on: on 12.1 accountName is a
-			-- Kstring for every contact, so masking it directly would print "***" for the
-			-- whole list. The tag's name half is real text and survives the friend going
-			-- offline, which characterName does not.
+			-- battleTag FIRST: on 12.1 accountName is a Kstring for every contact, so masking
+			-- it directly would print "***" for the whole list. The tag's name half is real
+			-- text and survives the friend going offline, which characterName does not.
 			nameText = FriendGroups_MaskFirstPlain(battleTag, accountName, characterName)
-		elseif FriendGroups_SavedVars.show_btag and battleTag then
-			nameText = FriendGroups_SplitBattleTag(battleTag)
 		else
 			nameText = accountName
 		end
@@ -1837,11 +1849,9 @@ function FriendGroups_GetBNetButtonNameText(accountName, client, canCoop, charac
                 end
                 local akaFormattedName = "[" .. akaDisplayName .. "]"
 
-                -- Apply class or faction colors strictly to the name inside the AKA brackets
+                -- Apply class color strictly to the name inside the AKA brackets
                 if FriendGroups_SavedVars.colour_classes and akaInfo.class then
                     akaFormattedName = FriendGroups_GetClassColorCode(akaInfo.class) .. akaFormattedName .. FONT_COLOR_CODE_CLOSE
-                elseif not canCoop and FriendGroups_SavedVars.gray_faction then
-                    akaFormattedName = "|cFF949694" .. akaFormattedName .. "|r"
                 end
                 
                 if L["FORMAT_AKA_DISPLAY"] then
@@ -1852,9 +1862,7 @@ function FriendGroups_GetBNetButtonNameText(accountName, client, canCoop, charac
 
 		if client == BNET_CLIENT_WOW then
 			if characterName ~= "" and level ~= 0 then
-				if not canCoop and FriendGroups_SavedVars.gray_faction then
-					nameText = "|CFF949694" .. nameText .. " [" .. displayCharacterName .. "]" .. levelSuffix .. "|r"
-				elseif FriendGroups_SavedVars.colour_classes then
+				if FriendGroups_SavedVars.colour_classes then
 					local nameColor = FriendGroups_GetClassColorCode(class)
 					nameText = nameText .. " " .. nameColor .. "[" .. displayCharacterName .. "]" .. FONT_COLOR_CODE_CLOSE .. levelSuffix
 				else
@@ -3655,6 +3663,12 @@ FG_InstallSendMessageOverride = function()
     FriendsFrameSendMessageButton:SetScript("OnClick", FG_SendMessageButton_OnClick)
 end
 
+-- Published for Sync.Apply: restoring safe_whisper = true has to install the override the
+-- menu would have, or the opt-in decodes but never engages. Install-only and idempotent, so
+-- there is nothing to publish for the off direction -- the installed handler reads the saved
+-- var live (FG_IsSafeWhisperOn) and falls through to Blizzard's when it is off.
+addonTable.State.InstallSendMessageOverride = FG_InstallSendMessageOverride
+
 function FriendGroups_AddDropDownNew(ownerRegion, rootDescription, contextData)
     if not contextData then return end
     -- Scope the injection to the contact list: these MENU_UNIT_*_FRIEND tags also fire from
@@ -4699,6 +4713,21 @@ function FriendGroups_RunNicknameMigration()
     step()
 end
 
+-- Shared "this needs a reload" confirmation. Used by any setting that only takes effect on
+-- a fresh load: the EllesmereUI skin toggle (retail) and the Classic own-list toggle. Lives
+-- here rather than in EllesmereSkin.lua because that file is retail-only and Classic needs
+-- the same prompt.
+StaticPopupDialogs["FRIENDGROUPS_RELOAD"] = {
+    text = L["RELOAD_PROMPT"],
+    button1 = YES,
+    button2 = NO,
+    OnAccept = function() ReloadUI() end,
+    timeout = 0,
+    whileDead = true,
+    hideOnEscape = true,
+    preferredIndex = 3,
+}
+
 StaticPopupDialogs["FRIENDGROUPS_NICKNAME_MIGRATE"] = {
     text = L["POPUP_NICKNAME_MIGRATE"],
     button1 = ACCEPT,
@@ -4781,12 +4810,10 @@ EnableFriendGroups = function()
             show_realm = true,            
             hide_high_level = true,       
             add_favorite_group = true,    
-            gray_faction = false,
             show_mobile_afk = false,
             add_mobile_text = true,       
             ingame_only = false,
             ingame_retail = false,
-            show_btag = false,
             show_retail = false,
             show_search = true,           
             hide_empty_groups = false,
@@ -4801,6 +4828,14 @@ EnableFriendGroups = function()
             streamer_mode = false,
             -- Off on a fresh install: Whisper opens chat in one click, as it always has.
             safe_whisper = false,
+            -- Classic only, off while the own-list path is proven. Seeded here for the
+            -- record; nil reads the same as false everywhere it is consulted.
+            --
+            -- Deliberately absent from the "Reset to Default" block below and from
+            -- Sync.lua: this is a compatibility switch, not a preference, and neither a
+            -- settings reset nor an imported profile should be able to silently put a
+            -- Classic raid leader's Raid tab back to being blocked in combat.
+            classic_own_list = false,
             -- [[ FRESH-INSTALL SIZE DEFAULTS ]]
             -- Medium height, Wide panel, Small text.
             --
@@ -5074,6 +5109,9 @@ end)
         -- ScrollBox-only: re-assert our grouped provider after Blizzard's native
         -- update briefly swaps in its flat one (no ScrollBox on Classic clients).
         if Compat.HAS_SCROLLBOX then FriendGroups_ReassertGroupedProvider() end
+        -- Classic own-list: Blizzard's update re-derives Send Message's enabled state from
+        -- its own selection, so put ours back in the same execution.
+        if Compat.UseOwnClassicList() then Compat.UpdateClassicSendMessageButton() end
         FriendGroups_RequestListUpdate()
     end)
 
@@ -5099,7 +5137,8 @@ end)
     
     -- ScrollBox-only: hooking Blizzard's per-button updater and the ScrollBox button
     -- mixin only makes sense where the list is a ScrollBox. On Classic our rendering
-    -- is driven by FriendsFrameFriendsScrollFrame.update instead.
+    -- is driven by the HybridScrollFrame's own .update field instead (Blizzard's frame
+    -- or ours, per Compat.GetClassicListFrame).
     if Compat.HAS_SCROLLBOX then
         hooksecurefunc("FriendsFrame_UpdateFriendButton", FriendGroups_FriendsListUpdateFriendButton)
         hooksecurefunc(FriendsListButtonMixin, "OnClick", FriendGroups_FriendsListButtonTemplateClick)
@@ -5119,6 +5158,13 @@ end)
     -- opted in. See WHISPER WITHOUT TAINTING CHAT.
     if FriendGroups_SavedVars.safe_whisper then
         FG_InstallSendMessageOverride()
+    end
+
+    -- Classic own-list: Blizzard's Send Message reads the selection fields this path
+    -- deliberately stops writing, so the button follows FriendGroups' selection instead.
+    -- Same chat calls Blizzard makes; see OWN-LIST SELECTION AND CLICKS in Platform_Render.
+    if Compat.UseOwnClassicList() then
+        Compat.InstallClassicSendMessageOverride()
     end
 
     -- 4. Setup Scroll View
@@ -5164,13 +5210,90 @@ hooksecurefunc(GameTooltip, "Hide", function(self)
     FriendGroups_CurrentHoverAnchor = nil
 end)
 
+-- First-load fill for either Classic list: the HybridScroll button pool is sized from the
+-- frame's height, which is only correct once the frame is actually shown (it is hidden at
+-- login). Re-run sizing on show so a Large list fills immediately instead of staying short
+-- until the size is toggled by hand.
+local function FG_HookClassicSizeOnShow()
+    if not FriendsFrame or FriendsFrame.fgOnShowHooked then return end
+    FriendsFrame.fgOnShowHooked = true
+    FriendsFrame:HookScript("OnShow", function()
+        if FriendGroups_UpdateSize then FriendGroups_UpdateSize() end
+    end)
+end
+
+-- Take over the Contacts page with FriendGroups' OWN HybridScrollFrame (Classic only).
+--
+-- Blizzard's list is left completely alone and simply hidden: its updater keeps running,
+-- writing its own fields on a frame nobody can see, which is the whole point -- every
+-- field FriendsFrame_OnShow reads back on the way to RaidFrame:Show() stays Blizzard's.
+-- See Compat.UseOwnClassicList for the full chain, and FriendGroups_ClassicList.xml for
+-- why the look does not change.
+local function FG_SetupOwnClassicList()
+    local list = _G.FriendGroupsClassicList
+    if not list then return end
+
+    local native = FriendsFrameFriendsScrollFrame
+    if native then
+        native:Hide()
+        -- Blizzard never calls Show() on that frame in the Classic source, so this is
+        -- belt and braces rather than a known re-show. Hiding is pure widget state and
+        -- carries no taint, so re-asserting it costs nothing.
+        if FriendsListFrame and not native.fgOwnListHidden then
+            native.fgOwnListHidden = true
+            FriendsListFrame:HookScript("OnShow", function() native:Hide() end)
+        end
+    end
+
+    -- Seat the bar off the list's right edge. Same numbers the addon has always used on
+    -- Blizzard's frame: the -16/+16 insets are exactly the height of the up/down carets,
+    -- which are children of the bar anchored to its ends, so they end up flush with the
+    -- list's top and bottom. Anchored here rather than in XML because the bar template
+    -- ships no anchors of its own, and one place for the geometry beats two.
+    local bar = list.scrollBar
+    if bar then
+        bar:ClearAllPoints()
+        bar:SetPoint("TOPLEFT", list, "TOPRIGHT", 0, -16)
+        bar:SetPoint("BOTTOMLEFT", list, "BOTTOMRIGHT", 0, 16)
+
+        -- The two cosmetic lines Blizzard applies to its own friends bar in
+        -- FriendsFrame_OnLoad: no track art (MinimalHybridScrollBarTemplate's track is
+        -- opaque black), and the bar stays put when the list is short enough not to
+        -- scroll. Without doNotHide the bar would vanish on small lists, which is the
+        -- one visible difference this path could introduce.
+        if bar.trackBG then bar.trackBG:Hide() end
+        bar.doNotHide = true
+    end
+
+    -- Our own pool: Blizzard built its eleven buttons in its OnLoad, ours starts empty.
+    -- FriendGroups_UpdateSize tops it up again (deferred) once the frame has its final
+    -- height, but the list has to be able to paint before that lands.
+    if HybridScrollFrame_CreateButtons then
+        HybridScrollFrame_CreateButtons(list, "FriendsFrameButtonTemplate")
+    end
+
+    -- Re-render the visible slice as the user scrolls; HybridScrollFrame_SetOffset calls
+    -- this whenever the top element changes. Our frame, our field.
+    list.update = FriendGroups_FriendsListUpdate
+    list:Show()
+end
+
 SetupGroupedView = function()
     if not Compat.HAS_SCROLLBOX then
+        if Compat.UseOwnClassicList() then
+            FG_SetupOwnClassicList()
+            FG_HookClassicSizeOnShow()
+            return
+        end
         -- Classic (non-ScrollBox): drive the native HybridScrollFrame. We must also
         -- replace Blizzard's friends updater so ONLY our grouped render populates the
         -- frame -- otherwise the native updater runs too and its dynamic-height scroll
         -- state fights ours, crashing HybridScrollFrame_SetOffset on scroll. The
         -- .update handler re-renders the visible slice as the user scrolls.
+        --
+        -- This is the path that taints FriendsFrame_UpdateFriends and the scroll frame's
+        -- fields, and so the path that breaks the Raid tab in combat (CurseForge #55).
+        -- It stays the default only until the own-list path above is complete.
         local scrollFrame = FriendsFrameFriendsScrollFrame
         if scrollFrame then
             -- Seat the native HybridScroll frame below our search box and fit it to
@@ -5198,16 +5321,7 @@ SetupGroupedView = function()
             scrollFrame.update = FriendGroups_FriendsListUpdate
         end
 
-        -- First-load fill: the HybridScroll button pool is sized from the frame's
-        -- height, which is only correct once the frame is actually shown (it is hidden
-        -- at login). Re-run sizing on show so a Large list fills immediately instead of
-        -- staying short until the size is toggled by hand.
-        if FriendsFrame and not FriendsFrame.fgOnShowHooked then
-            FriendsFrame.fgOnShowHooked = true
-            FriendsFrame:HookScript("OnShow", function()
-                if FriendGroups_UpdateSize then FriendGroups_UpdateSize() end
-            end)
-        end
+        FG_HookClassicSizeOnShow()
         return
     end
     local view = CreateScrollBoxListLinearView()

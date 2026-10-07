@@ -14,8 +14,10 @@
 	                 FriendGroupsFrameFriendDividerTemplate (our own template)
 	  retail 12.1    SocialUIFrame.FriendsList.ScrollBox, headers drawn from
 	                 Blizzard's SocialUIScrollableHeaderTemplate and decorated
-	  Classic        FriendsFrameFriendsScrollFrame, a HybridScrollFrame whose
-	                 button pool is SHARED between headers and friend rows
+	  Classic        a HybridScrollFrame whose button pool is SHARED between headers
+	                 and friend rows -- FriendGroupsClassicList, or Blizzard's
+	                 FriendsFrameFriendsScrollFrame on the legacy path; the
+	                 primitives below resolve which via Compat.GetClassicListFrame
 
 	The platform divergence is confined to three Compat primitives --
 	ForEachListRowFrame, GetListScrollContainer and ScrollListByFraction -- so

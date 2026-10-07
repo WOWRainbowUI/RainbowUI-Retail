@@ -183,6 +183,50 @@ function Compat.ForEachContactListFrame(callback)
 	scrollBox:ForEachFrame(callback)
 end
 
+-- ============================================================================
+-- [[ CLASSIC LIST OWNERSHIP ]]
+-- Which HybridScrollFrame the Classic renderer draws into: Blizzard's, or ours.
+--
+-- Drawing into Blizzard's FriendsFrameFriendsScrollFrame means writing fields its own
+-- code reads back while the Social window opens. FriendsFrame_OnShow calls
+-- FriendsList_Update(true), which reads the FriendsFrame_UpdateFriends global and
+-- FriendsFrame.selectedFriendType, and the native updater then reads scrollFrame.buttons,
+-- the scroll offset and FriendsTooltip.button. Reading a value addon code last wrote
+-- taints the rest of that execution -- and OnShow ends in RaidFrame:Show() whenever the
+-- Raid tab is selected. RaidFrame is protected, so in combat that call is refused: the
+-- Raid panel never opens, which is CurseForge issue #55. On Classic that panel is the
+-- only way to move raid members between groups mid-fight (SetRaidSubgroup and
+-- SwapRaidSubgroup are blocked for addons and macros, but Blizzard's own drag is not),
+-- so the cost is real and not cosmetic.
+--
+-- The fix is ownership, not cleverness: our own list frame, Blizzard's left alone.
+-- FriendGroups_ClassicList.xml builds it from the same templates so nothing changes
+-- visually. See FriendGroups-Classic-OwnList-Plan.md in the dev workspace.
+--
+-- GATED while the path is built out. The row handlers, selection and tooltip still
+-- write Blizzard's fields (plan WP4-WP6), so the taint is not gone yet and this must
+-- stay off by default until they land. Flip it for a test with
+--   /run FriendGroups_SavedVars.classic_own_list = true  (then /reload)
+-- Every caller goes through GetClassicListFrame, so with the flag off the addon behaves
+-- exactly as it always has.
+function Compat.UseOwnClassicList()
+	if Compat.HAS_SCROLLBOX then return false end
+	if not _G.FriendGroupsClassicList then return false end
+	local sv = FriendGroups_SavedVars
+	return (sv ~= nil and sv.classic_own_list) and true or false
+end
+
+-- The Classic list frame in force right now. Nil on no flavor: Blizzard's frame is the
+-- fallback and exists on every Classic client (retail never reaches these callers, which
+-- all sit behind HAS_SCROLLBOX checks or in the Classic-only renderer).
+--
+-- Resolved per call, never cached: the saved variable is read live so a /reload is the
+-- only thing needed to switch paths, and no caller can be holding a stale frame.
+function Compat.GetClassicListFrame()
+	if Compat.UseOwnClassicList() then return _G.FriendGroupsClassicList end
+	return FriendsFrameFriendsScrollFrame
+end
+
 -- Walk every row frame the contact list is currently rendering, on EVERY flavor.
 --
 -- ForEachContactListFrame above covers the two ScrollBox platforms only, which is all the
@@ -210,7 +254,7 @@ function Compat.ForEachListRowFrame(callback)
 		return
 	end
 
-	local scrollFrame = FriendsFrameFriendsScrollFrame
+	local scrollFrame = Compat.GetClassicListFrame()
 	local buttons = scrollFrame and scrollFrame.buttons
 	if type(buttons) ~= "table" then return end
 	for i = 1, #buttons do
@@ -232,7 +276,7 @@ function Compat.GetListScrollContainer()
 	local view = Compat.GetSocialUIFriendsView()
 	if view and view.ScrollBox then return view.ScrollBox end
 	if FriendsListFrame and FriendsListFrame.ScrollBox then return FriendsListFrame.ScrollBox end
-	return FriendsFrameFriendsScrollFrame
+	return Compat.GetClassicListFrame()
 end
 
 -- Scroll the contact list by a signed FRACTION of its total scrollable range; negative
@@ -245,9 +289,10 @@ end
 --
 -- ScrollBox carries its position as a 0..1 percentage (GetScrollPercentage /
 -- SetScrollPercentage -- the same pair FG_ForceScrollRedraw in FriendGroups.lua uses).
--- HybridScrollFrame has no equivalent: its position lives on the companion slider that
--- HybridScrollBarTemplate creates as <scrollFrameName>ScrollBar, is read and written in
--- that slider's own units, and only redraws because the template's OnValueChanged runs
+-- HybridScrollFrame has no equivalent: its position lives on the companion slider the bar
+-- template publishes as scrollFrame.scrollBar (parentKey, so it is there on Blizzard's
+-- frame and on ours alike), is read and written in that slider's own units, and only
+-- redraws because the template's OnValueChanged runs
 -- HybridScrollFrame_SetOffset and then the frame's update callback.
 function Compat.ScrollListByFraction(fraction)
 	if type(fraction) ~= "number" or fraction == 0 then return end
@@ -263,7 +308,8 @@ function Compat.ScrollListByFraction(fraction)
 		return
 	end
 
-	local scrollBar = _G.FriendsFrameFriendsScrollFrameScrollBar
+	local listFrame = Compat.GetClassicListFrame()
+	local scrollBar = listFrame and listFrame.scrollBar
 	if not scrollBar or type(scrollBar.GetMinMaxValues) ~= "function" then return end
 	local minValue, maxValue = scrollBar:GetMinMaxValues()
 	if not minValue or not maxValue or maxValue <= minValue then return end
