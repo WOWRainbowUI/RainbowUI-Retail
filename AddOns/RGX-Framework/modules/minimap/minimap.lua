@@ -79,6 +79,8 @@ end
 
 local function PlaceButton(frame, angleDeg)
     if not _G.Minimap then return end
+    -- A collector owns layout after reparenting; keep its anchors intact.
+    if frame.GetParent and frame:GetParent() ~= _G.Minimap then return end
     local rad = math.rad(angleDeg or 220)
     local r   = CalcMinimapRadius()
     frame:ClearAllPoints()
@@ -326,7 +328,8 @@ function Minimap:Create(opts)
         backdrop:SetMask("Interface\\CharacterFrame\\TempPortraitAlphaMaskSmall")
     end
     backdrop:SetVertexColor(0.03, 0.03, 0.03, 0.98)
-    frame.backdrop = backdrop
+    -- ElvUI/collectors reserve .backdrop for a Frame, never a Texture.
+    frame.backgroundTexture = backdrop
 
     -- Tracking border ring overlay
     local ring = frame:CreateTexture(nil, "OVERLAY")

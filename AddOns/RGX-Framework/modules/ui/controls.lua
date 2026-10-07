@@ -811,18 +811,21 @@ function UI:CreateButton(parent, textOrOpts, w, h)
         btn = CreateFrame("Button", nil, parent, "BackdropTemplate")
         btn:SetSize(w or 120, h)
         local bg = btn:CreateTexture(nil, "BACKGROUND")
+        btn.bg = bg
         bg:SetAllPoints()
         bg:SetColorTexture(D:Unpack("surface"))
         local border = CreateFrame("Frame", nil, btn, "BackdropTemplate")
         border:SetAllPoints()
         border:SetBackdrop({ edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1 })
         border:SetBackdropBorderColor(D:Unpack("border"))
+        btn.border = border
         local lbl = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
         lbl:SetAllPoints()
         lbl:SetJustifyH("CENTER")
         lbl:SetJustifyV("MIDDLE")
         lbl:SetText(text or "")
         lbl:SetTextColor(D:Unpack("subtext"))
+        btn.label = lbl
         btn:SetScript("OnEnter", function()
             local D2 = RGX:GetDesign()
             border:SetBackdropBorderColor(D2:Unpack("primary"))
@@ -838,6 +841,35 @@ function UI:CreateButton(parent, textOrOpts, w, h)
     if opts and type(opts.onClick) == "function" then
         AttachButtonAction(btn, opts.onClick)
     end
+    -- Optional selection state: a selected button keeps its hover styling
+    -- after the pointer leaves (same contract as active option-tab buttons).
+    -- Consumers call btn:SetSelected(bool); IsMouseOver is honored when present.
+    btn._selected = false
+    function btn:SetSelected(state)
+        self._selected = state and true or false
+        local DD = RGX:GetDesign()
+        if not DD then return end
+        if self._selected then
+            if self.border then self.border:SetBackdropBorderColor(DD:Unpack("primary")) end
+            if self.bg then self.bg:SetColorTexture(DD:Unpack("hover")) end
+            if self.label then self.label:SetTextColor(DD:Unpack("primary")) end
+        elseif not (self.IsMouseOver and self:IsMouseOver()) then
+            if self.border then self.border:SetBackdropBorderColor(DD:Unpack("border")) end
+            if self.bg then self.bg:SetColorTexture(DD:Unpack("surface")) end
+            if self.label then self.label:SetTextColor(DD:Unpack("subtext")) end
+        end
+    end
+    if btn.IsSelected == nil then
+        function btn:IsSelected() return self._selected == true end
+    end
+    btn:HookScript("OnLeave", function(self)
+        if not self._selected then return end
+        local DD = RGX:GetDesign()
+        if not DD then return end
+        if self.border then self.border:SetBackdropBorderColor(DD:Unpack("primary")) end
+        if self.bg then self.bg:SetColorTexture(DD:Unpack("hover")) end
+        if self.label then self.label:SetTextColor(DD:Unpack("primary")) end
+    end)
     for _, entry in ipairs({ { "OnEnter", "onEnter" }, { "OnLeave", "onLeave" } }) do
         local callback = opts and opts[entry[2]]
         if type(callback) == "function" then

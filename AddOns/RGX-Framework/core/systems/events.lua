@@ -70,7 +70,11 @@ local function reportDispatchError(channel, name, id, err)
         return
     end
 
-    print("|cFFFF4444" .. message .. "|r")
+    -- The framework never writes to chat; errors are captured for diagnostics.
+    RGX._errorLog = RGX._errorLog or {}
+    local log = RGX._errorLog
+    log[#log + 1] = message
+    if #log > 50 then table.remove(log, 1) end
 end
 
 local function reportEventRegistrationError(action, event, err)
@@ -86,7 +90,10 @@ local function reportEventRegistrationError(action, event, err)
         return
     end
 
-    print("|cFFFF4444" .. message .. "|r")
+    RGX._errorLog = RGX._errorLog or {}
+    local log = RGX._errorLog
+    log[#log + 1] = message
+    if #log > 50 then table.remove(log, 1) end
 end
 
 -- Returns ok[, permanent]:

@@ -154,7 +154,7 @@ RGX:RegisterEvent("PLAYER_LOGIN", function()
     RGX.guidePanel = UI:CreateOptionsPanel({
         addonName = addonName,
         title = "RGX-Framework",
-        subtitle = "Theme, help, docs and about",
+        subtitle = "Help, docs and about",
         icon = "Interface\\AddOns\\RGX-Framework\\media\\logo.tga",
         author = "RGX Mods",
         website = "github.com/RGXMods/RGX-Framework",

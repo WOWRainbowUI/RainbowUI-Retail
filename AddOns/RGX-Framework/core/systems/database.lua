@@ -396,6 +396,23 @@ local function FillDefaults(self, profile)
  end
 end
 
+-- Opt-in migration for consumers moving an existing flat settings table to
+-- profiles. Keep the legacy keys recoverable; profile values are deep copies.
+local function MigrateFlatProfile(raw)
+    if type(raw) ~= "table" or type(raw.profiles) == "table" then return end
+    local values = {}
+    for key, value in pairs(raw) do
+        if key ~= "profiles" and key ~= "global" and key ~= "char"
+            and key ~= "activeProfile" and key ~= "currentProfile" then
+            values[key] = value
+        end
+    end
+    local profile = {}
+    MergeTable(profile, values)
+    raw.profiles = { [PROTECTED_PROFILE] = profile }
+    raw.activeProfile = PROTECTED_PROFILE
+end
+
 -- ── Switch to a named profile (internal, used by CRUD methods) ────────────────
 
 local function SwitchTo(self, name)
@@ -459,6 +476,7 @@ function DB:Adopt()
     if not g or g == self._raw then return false end
 
     self._raw = g
+    if self._legacyFlat then MigrateFlatProfile(g) end
     if type(g.profiles) ~= "table" then g.profiles = {} end
     if type(g.global) ~= "table" then g.global = {} end
     if type(g.char) ~= "table" then g.char = {} end
@@ -666,7 +684,7 @@ DB.__index = function(self, key)
  return self:GetChar()
  end
 
- if key == "_raw" or key == "_defaults" or key == "_charDefaults" or key == "_charKey" or key == "_callbacks" or key == "_onSwitch" or key == "_guard" or key == "_profileIsGlobal" or key == "_globalName" or key == "_globalView" or key == "_globalDefaults" then
+ if key == "_raw" or key == "_defaults" or key == "_charDefaults" or key == "_charKey" or key == "_callbacks" or key == "_onSwitch" or key == "_guard" or key == "_profileIsGlobal" or key == "_legacyFlat" or key == "_globalName" or key == "_globalView" or key == "_globalDefaults" then
  return rawget(self, key) -- step 3
  end
 
@@ -681,7 +699,7 @@ DB.__index = function(self, key)
  -- __newindex: called when you do db.something = value
  DB.__newindex = function(self, key, value)
  if key == "global" or key == "char" then return end -- block: use db.global.key / db.char.key
- if key == "_raw" or key == "_defaults" or key == "_charDefaults" or key == "_charKey" or key == "_callbacks" or key == "_onSwitch" or key == "_guard" or key == "_profileIsGlobal" or key == "_globalName" or key == "_globalView" or key == "_globalDefaults" then
+ if key == "_raw" or key == "_defaults" or key == "_charDefaults" or key == "_charKey" or key == "_callbacks" or key == "_onSwitch" or key == "_guard" or key == "_profileIsGlobal" or key == "_legacyFlat" or key == "_globalName" or key == "_globalView" or key == "_globalDefaults" then
  rawset(self, key, value)
  return
  end
@@ -700,6 +718,7 @@ DB.__index = function(self, key)
 --       global = { installedVersion = "1.0" },
 --       char   = { lastZone = nil },        -- per-character defaults
 --       profileIsGlobal = true,             -- db.global → active profile (legacy compat)
+--       legacyFlat = true,                  -- opt in to flat-store migration
 --       onSwitch = function(name, profile) RefreshUI() end,
 --   })
 function RGX:NewDatabase(globalName, defaults, opts)
@@ -708,6 +727,7 @@ function RGX:NewDatabase(globalName, defaults, opts)
     -- Step 1: initialize the SavedVariables global
     _G[globalName] = _G[globalName] or {}
     local raw = _G[globalName]
+    if opts.legacyFlat == true then MigrateFlatProfile(raw) end
     raw.profiles = raw.profiles or {}
     raw.global = raw.global or {}
     raw.char = raw.char or {}
@@ -721,6 +741,7 @@ function RGX:NewDatabase(globalName, defaults, opts)
         _callbacks  = {},
         _onSwitch   = opts.onSwitch,
         _profileIsGlobal = opts.profileIsGlobal and true or nil,
+        _legacyFlat       = opts.legacyFlat == true,
         _globalName      = globalName,
         _globalDefaults  = opts.global,    }, DB)
 
@@ -807,6 +828,7 @@ function RGX:OpenDB(globalName, opts)
         global   = opts.global,
         char     = opts.char,
         profileIsGlobal = opts.profileIsGlobal,
+        legacyFlat = opts.legacyFlat,
         onSwitch = opts.onSwitch,
     })
 end
