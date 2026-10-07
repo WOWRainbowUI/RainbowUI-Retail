@@ -76,7 +76,7 @@ if addonTable.Constants.IsRetail or addonTable.Constants.IsForever then
   }
 end
 
-if addonTable.Constants.IsEra or (KeyRingButtonIDToInvSlotID and not addonTable.Constants.IsMists) then
+if addonTable.Constants.IsEra or addonTable.Constants.IsForever or (KeyRingButtonIDToInvSlotID and not addonTable.Constants.IsMists) then
   table.insert(addonTable.Constants.AllBagIndexes, Enum.BagIndex.Keyring)
 end
 if addonTable.Constants.IsEra then
