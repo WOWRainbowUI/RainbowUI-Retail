@@ -12,9 +12,9 @@ local addonName, SQP = ...
 -- Prefer API presence over tocversion to avoid mismatches with multi-Interface TOC lists.
 local hasModernQuestLog = C_QuestLog and C_QuestLog.GetNumQuestLogEntries and C_QuestLog.GetInfo
 
-local isRetail = hasModernQuestLog or SQP.tocversion >= 100000  -- Dragonflight and later
+local isRetail = SQP.tocversion >= 100000 -- API presence does not identify the client flavor.
 local isLegion = hasModernQuestLog or SQP.tocversion >= 70000   -- Legion+ has modern APIs
-local isClassic = (not hasModernQuestLog) and SQP.tocversion < 70000   -- Pre-Legion uses Classic APIs
+local isClassic = not isRetail
 local isMoP = SQP.tocversion >= 50400 and SQP.tocversion < 60000
 local isCata = SQP.tocversion >= 40400 and SQP.tocversion < 50000
 local isWrath = SQP.tocversion >= 30400 and SQP.tocversion < 40000
@@ -24,6 +24,8 @@ local isVanilla = SQP.tocversion < 20000
 SQP.isRetail = isRetail
 SQP.isClassic = isClassic
 SQP.isMoP = isMoP
+-- Forever-only art APIs; Retail/Classic must not reach for them.
+SQP.isForever = SQP.tocversion >= 16000 and SQP.tocversion < 17000
 
 -- Create compatibility namespace
 SQP.Compat = {}

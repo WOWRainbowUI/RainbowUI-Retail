@@ -6,6 +6,7 @@
 --=====================================================================================
 
 local addonName, SQP = ...
+local SQPSettings = SQP.db.global
 
 -- Only load if modern nameplate API is not available
 if C_NamePlate and C_NamePlate.GetNamePlateForUnit then 
@@ -33,7 +34,7 @@ local function GetNameplateChildren()
     for i = 1, 40 do
         local frame = _G["NamePlate" .. i]
         if frame and frame:IsVisible() then
-            tinsert(frames, frame)
+            table.insert(frames, frame)
         end
     end
     return frames

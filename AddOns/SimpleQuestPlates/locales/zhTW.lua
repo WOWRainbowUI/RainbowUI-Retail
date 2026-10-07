@@ -215,3 +215,7 @@ L["Text"] = "文字"
 L["Tint Kill Icon"] = "擊殺圖示顏色"
 L["Tint Loot Icon"] = "拾取圖示顏色"
 L["Tint Percent Sign"] = "百分比圖示顏色"
+
+L["SimpleQuestPlates"] = "簡易任務怪提示"
+L["Global"] = "整體"
+L["Target Name"] = "目標名稱"

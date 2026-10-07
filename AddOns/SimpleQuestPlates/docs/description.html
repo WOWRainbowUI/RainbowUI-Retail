@@ -53,7 +53,7 @@
 ## <span style="color: #58be81;">📥 Installation</span>
 
 1.  **<span style="color: #2dc26b;">Download</span>** <span style="color: #8b4b5c;">R</span><span style="color: #8b4b5c;">G</span><span style="color: #8b4b5c;">X</span> <span style="color: #fff;">| </span> <span style="color: #58be81;">SQP</span> <span style="color: #e67e23;">from your preferred platform</span><span style="color: #3598db;">:</span>
-    *   [<span style="color: #4ecdc4;">CurseForge</span>](https://www.curseforge.com/wow/addons/simple-quest-plates)
+    *   [<span style="color: #4ecdc4;">CurseForge</span>](https://www.curseforge.com/wow/addons/simplequestplates)
     *   [<span style="color: #24292e;">GitHub</span>](https://github.com/RGXMods/SimpleQuestPlates)
     *   [<span style="color: #b96ad9;">Wago.io</span>](https://addons.wago.io/addons/simple-quest-plates)
 2.  **<span style="color: #4ecdc4;">Extract</span>** <span style="color: #e67e23;">to your</span> <span style="color: #06c;">WoW</span> `Interface/AddOns` <span style="color: #e67e23;">directory</span><span style="color: #3598db;">:</span>
@@ -96,6 +96,74 @@
 **<span style="color: #ff6b6b;">Disclaimer</span><span style="color: #3598db;">:</span>** <span style="color: #e67e23;">This</span> <span style="color: #8b4b5c;">R</span><span style="color: #8b4b5c;">G</span><span style="color: #8b4b5c;">X</span> <span style="color: #fff;">| </span> <span style="color: #58be81;">SQP</span> <span style="color: #e67e23;">addon is provided</span> <span style="color: #a8a8a8;">"as is"</span> <span style="color: #e67e23;">without warranty. Use at your own risk. The author is not responsible for any issues arising from its use.</span>
 
 ***
+
+## <span style="color:#ff6b6b">🆕 What's New</span>
+
+_<span style="color:#e67e23">See</span> [<span style="color:#58be81">docs/CHANGES.md</span>](./docs/CHANGES.md) <span style="color:#e67e23">for the full release history and latest updates.</span>_
+
+---
+
+## <span style="color:#ff6b6b">🛠️ Configuration Tips</span>
+
+<table width="100%">
+<tr>
+<td width="50%" valign="top">
+
+### <span style="color:#4ecdc4">Recommended Settings:</span>
+- **<span style="color:#2dc26b">Combat Players</span><span style="color:#3598db">:</span>** <span style="color:#e67e23">Enable "Hide in Combat" for cleaner fights</span>
+- **<span style="color:#b96ad9">Dungeon/Raid</span><span style="color:#3598db">:</span>** <span style="color:#e67e23">Enable "Hide in Instances" to reduce clutter</span>
+- **<span style="color:#58be81">Questing Focus</span><span style="color:#3598db">:</span>** <span style="color:#e67e23">Larger scale (1.5x) and bright colors for maximum visibility</span>
+- **<span style="color:#ff6b6b">Minimalist</span><span style="color:#3598db">:</span>** <span style="color:#e67e23">Smaller scale (0.8x) with subtle positioning</span>
+
+### <span style="color:#4ecdc4">Customization Options:</span>
+- **<span style="color:#2dc26b">Icon Scale</span><span style="color:#3598db">:</span>** <span style="color:#e67e23">0.5x to 2.0x size adjustment</span>
+- **<span style="color:#b96ad9">X/Y Offset</span><span style="color:#3598db">:</span>** <span style="color:#e67e23">-50 to +50 pixel positioning</span>
+- **<span style="color:#58be81">Anchor Side</span><span style="color:#3598db">:</span>** <span style="color:#e67e23">Left or right side attachment</span>
+- **<span style="color:#ff6b6b">Font Size</span><span style="color:#3598db">:</span>** <span style="color:#e67e23">8 to 20 point with outline and shadow options</span>
+- **<span style="color:#4ecdc4">Color Options</span><span style="color:#3598db">:</span>** <span style="color:#e67e23">Different colors for kill, item, and progress quests</span>
+
+</td>
+<td width="50%" valign="top">
+
+### <span style="color:#4ecdc4">How It Works:</span>
+- <span style="color:#e67e23">SQP uses Blizzard's quest API to detect which enemies are related to your active quests</span>
+- <span style="color:#e67e23">Automatically scans all nameplates in view</span>
+- <span style="color:#e67e23">Updates in real-time as you accept or complete quests</span>
+- <span style="color:#e67e23">Prioritizes item drops over kill counts for dual-objective quests</span>
+
+### <span style="color:#4ecdc4">Performance:</span>
+- <span style="color:#e67e23">Efficient caching system for quest data</span>
+- <span style="color:#e67e23">Minimal CPU usage with smart update cycles</span>
+- <span style="color:#e67e23">No impact on frame rates</span>
+
+</td>
+</tr>
+</table>
+
+---
+
+## <span style="color:#ff6b6b">🐛 Known Issues</span>
+
+- <span style="color:#e67e23">No known issues at this time. Report any problems via</span> [<span style="color:#ff6b6b">GitHub Issues</span>](https://github.com/RGXMods/SimpleQuestPlates/issues) <span style="color:#e67e23">or our</span> [<span style="color:#7289da">Discord</span>](https://discord.gg/N7kdKAHVVF)<span style="color:#e67e23">.</span>
+
+---
+
+## <span style="color:#ff6b6b">🔧 Troubleshooting</span>
+
+**<span style="color:#ff6b6b">Quest icons not showing?</span>**
+- <span style="color:#e67e23">Use</span> `/sqp test` <span style="color:#e67e23">to verify quest detection on current nameplates</span>
+- <span style="color:#e67e23">Check if "Hide in Combat" or "Hide in Instances" is enabled via</span> `/sqp status`
+- <span style="color:#e67e23">Confirm the addon is enabled with</span> `/sqp on`
+
+**<span style="color:#ff6b6b">Settings not applying?</span>**
+- <span style="color:#e67e23">Enable Debug Mode with</span> `/sqp debug` <span style="color:#e67e23">for detailed logging</span>
+- <span style="color:#e67e23">Reset all settings to defaults with</span> `/sqp reset`
+
+**<span style="color:#ff6b6b">Still having trouble?</span>**
+- <span style="color:#e67e23">Join our</span> [<span style="color:#7289da">Discord</span>](https://discord.gg/N7kdKAHVVF) <span style="color:#e67e23">for instant support</span>
+- <span style="color:#e67e23">Open a</span> [<span style="color:#ff6b6b">GitHub Issue</span>](https://github.com/RGXMods/SimpleQuestPlates/issues)
+
+---
 
 ## <span style="color: #4ecdc4;">🌟 Thank you for choosing </span> <span style="color: #8b4b5c;">R</span><span style="color: #8b4b5c;">G</span><span style="color: #8b4b5c;">X</span> <span style="color: #4ecdc4;">Mods! 🌟</span>
 

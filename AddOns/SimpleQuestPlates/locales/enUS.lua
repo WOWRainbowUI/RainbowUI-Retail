@@ -139,3 +139,7 @@ local L = {
 for k, v in pairs(L) do
     SQP.L[k] = v
 end
+
+L["SimpleQuestPlates"] = "SimpleQuestPlates"
+L["Global"] = "Global"
+L["Target Name"] = "Target Name"

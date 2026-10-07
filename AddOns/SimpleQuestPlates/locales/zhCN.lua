@@ -130,3 +130,7 @@ L["STATUS_OFFSET"] = "  Offset: |cff58be81X=%d, Y=%d|r"
 L["STATUS_ANCHOR"] = "  Position: |cff58be81%s|r"
 L["ADDON_ENABLED"] = "is now |cff00ff00ENABLED|r"
 L["ADDON_DISABLED"] = "is now |cffff0000DISABLED|r"
+
+L["SimpleQuestPlates"] = "简易任务怪提示"
+L["Global"] = "全局"
+L["Target Name"] = "目标名称"
