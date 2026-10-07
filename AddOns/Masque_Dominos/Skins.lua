@@ -25,11 +25,11 @@ local L = Core.Locale
 -- Locals
 ---
 
-local API_VERSION = 110208
+local API_VERSION = 120000
 
 -- Skin Info
 local Authors = {"StormFX", "Tuller"}
-local Version = "ba65e43"
+local Version = "c1b4983"
 local Websites = {
 	"https://github.com/SFX-WoW/Masque_Dominos",
 	"https://www.curseforge.com/wow/addons/masque-dominos",

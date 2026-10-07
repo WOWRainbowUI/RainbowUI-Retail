@@ -106,14 +106,18 @@ function ActionButton:OnCreate(id)
     end
 end
 
-function ActionButton:UpdateIcon()
-    local icon = GetActionTexture(self.action)
+function ActionButton:OnSlotChanged()
+    local action = self:GetAttribute("action")
+
+    local icon = GetActionTexture(action)
     if icon then
         self.icon:SetTexture(icon)
         self.icon:Show()
     else
         self.icon:Hide()
     end
+
+    self:UpdateShown()
 end
 
 function ActionButton:UpdateOverrideBindings()
@@ -163,7 +167,7 @@ function ActionButton:SetShowCooldowns(show)
         if self.cooldown:GetParent() ~= self then
             self.cooldown:SetParent(self)
 
-            if not Addon:IsBuild("standard", "forever") then
+            if not Addon:IsGameType("standard", "forever") then
                 ActionButton_UpdateCooldown(self)
             end
         end

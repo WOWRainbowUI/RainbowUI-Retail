@@ -2,7 +2,7 @@
 
 ## Author: StormFX, Tuller
 ## Title: Masque: Dominos
-## Version: ba65e43
+## Version: c1b4983
 
 ## Category: Masque
 ## OptionalDeps: Masque

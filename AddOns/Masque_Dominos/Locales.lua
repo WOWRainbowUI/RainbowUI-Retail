@@ -32,19 +32,22 @@ Core.Locale = setmetatable(L, {
 -- Localization
 ---
 
-if Locale == "enGB" or Locale == "enUS" then
-	L["A port of the original Dominos skin for Masque."] = "A port of the original Dominos skin for Masque."
-	return
---elseif Locale == "deDE" then
---elseif Locale == "esES" or Locale == "esMX" then
---elseif Locale == "frFR" then
---elseif Locale == "itIT" then
---elseif Locale == "koKR" then
+if Locale == "deDE" then
+--@localization(locale="deDE", format="lua_additive_table", handle-unlocalized="ignore")@
+elseif Locale == "esES" or Locale == "esMX" then
+--@localization(locale="esES", format="lua_additive_table", handle-unlocalized="ignore")@
+elseif Locale == "frFR" then
+--@localization(locale="frFR", format="lua_additive_table", handle-unlocalized="ignore")@
+elseif Locale == "itIT" then
+--@localization(locale="itIT", format="lua_additive_table", handle-unlocalized="ignore")@
+elseif Locale == "koKR" then
+--@localization(locale="koKR", format="lua_additive_table", handle-unlocalized="ignore")@
 elseif Locale == "ptBR" then
-	L["A port of the original Dominos skin for Masque."] = "Uma adaptação da aparência original Dominos para o Masque."
+--@localization(locale="ptBR", format="lua_additive_table", handle-unlocalized="ignore")@
 elseif Locale == "ruRU" then
-	L["A port of the original Dominos skin for Masque."] = "Порт оригинального скина Dominos для Masque."
---elseif Locale == "zhCN" then
+--@localization(locale="ruRU", format="lua_additive_table", handle-unlocalized="ignore")@
+elseif Locale == "zhCN" then
+--@localization(locale="zhCN", format="lua_additive_table", handle-unlocalized="ignore")@
 elseif Locale == "zhTW" then
-	L["A port of the original Dominos skin for Masque."] = "Masque原始Dominos外觀移植版。"
+--@localization(locale="zhTW", format="lua_additive_table", handle-unlocalized="ignore")@
 end
