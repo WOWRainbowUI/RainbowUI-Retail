@@ -50,3 +50,10 @@ L["Casts Soulburn right before the macro in combat to empower your Healthstone. 
 L["AutoBandage Settings"] = "自動繃帶"
 L["AutoFood Settings"] = "自動進食"
 L["AutoDrink Settings"] = "自動喝水"
+
+L["Mana Potion Priority"] = "法力藥水優先順序"
+L["Include Rejuvenation Potions"] = "包含恢復藥水"
+L["Also use potions that restore health and mana (Rejuvenation potions, Cavedweller's Delight, Refreshing Serum, ...). They are sorted by the amount of mana they restore."] = "也使用能恢復生命力和法力的藥水（恢復藥水、洞穴住民的喜悅、復甦血清等），並依恢復的法力數量排序。"
+L["Shows the mana potion that will currently be used, based on what is in your bags."] = "依照背包內的物品，顯示目前將使用的法力藥水。"
+L["AutoManaPotion"] = "AutoManaPotion"
+L["AutoManaPotion Settings"] = "自動法力藥水"

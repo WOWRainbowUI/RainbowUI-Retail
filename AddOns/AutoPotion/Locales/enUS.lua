@@ -12,6 +12,12 @@ L["Current Priority"] = "Current Priority"
 L["Bandage Priority"] = "Bandage Priority"
 L["Food Priority"] = "Food Priority"
 L["Drink Priority"] = "Drink Priority"
+L["Mana Potion Priority"] = "Mana Potion Priority"
+L["Include Rejuvenation Potions"] = "Include Rejuvenation Potions"
+L["Also use potions that restore health and mana (Rejuvenation potions, Cavedweller's Delight, Refreshing Serum, ...). They are sorted by the amount of mana they restore."] =
+"Also use potions that restore health and mana (Rejuvenation potions, Cavedweller's Delight, Refreshing Serum, ...). They are sorted by the amount of mana they restore."
+L["Shows the mana potion that will currently be used, based on what is in your bags."] =
+"Shows the mana potion that will currently be used, based on what is in your bags."
 L["Include Buff Food"] = "Include Buff Food"
 L["Include \"Well Fed\"/\"Relaxed\" buff food and drink items (with situational secondary-stat bonuses) in the food and drink priority lists."] =
 "Include \"Well Fed\"/\"Relaxed\" buff food and drink items (with situational secondary-stat bonuses) in the food and drink priority lists."
@@ -51,3 +57,6 @@ L["AutoDrink"] = "AutoDrink"     -- DO NOT TRANSLATE
 L["AutoBandage Settings"] = "AutoBandage"
 L["AutoFood Settings"] = "AutoFood"
 L["AutoDrink Settings"] = "AutoDrink"
+L["AutoManaPotion"] = "AutoManaPotion" -- DO NOT TRANSLATE
+
+L["AutoManaPotion Settings"] = "AutoManaPotion"
