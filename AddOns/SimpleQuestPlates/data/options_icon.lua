@@ -20,13 +20,13 @@ function SQP:CreateIconOptions(content)
     local posLabel = leftColumn:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     SQP:ApplyDefaultFont(posLabel)
     posLabel:SetPoint("TOPLEFT", 20, yOffset)
-    posLabel:SetText("|cff58be81" .. (self.L["OPTIONS_ICON_POSITION"] or "Icon Position") .. "|r")
+    posLabel:SetText("|cff58be81" .. (self.L["OPTIONS_ICON_POSITION"] or SQP.L["Icon Position"]) .. "|r")
     yOffset = yOffset - 22
 
 	-- X Offset
 	local xSlider = self:CreateStyledSlider(leftColumn, {
 		key = "offsetX",
-		label = self.L["OPTIONS_OFFSET_X"] or "Horizontal Offset",
+		label = self.L["OPTIONS_OFFSET_X"] or SQP.L["Horizontal Offset"],
 		min = -100,
 		max = 100,
 		step = 1,
@@ -45,7 +45,7 @@ function SQP:CreateIconOptions(content)
 	-- Y Offset
 	local ySlider = self:CreateStyledSlider(leftColumn, {
 		key = "offsetY",
-		label = self.L["OPTIONS_OFFSET_Y"] or "Vertical Offset",
+		label = self.L["OPTIONS_OFFSET_Y"] or SQP.L["Vertical Offset"],
 		min = -100,
 		max = 100,
 		step = 1,
@@ -65,7 +65,7 @@ function SQP:CreateIconOptions(content)
     local anchorLabel = leftColumn:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     SQP:ApplyDefaultFont(anchorLabel)
     anchorLabel:SetPoint("TOPLEFT", 20, yOffset)
-    anchorLabel:SetText(self.L["OPTIONS_ANCHOR"] or "Nameplate Side")
+    anchorLabel:SetText(self.L["OPTIONS_ANCHOR"] or SQP.L["Nameplate Side"])
     yOffset = yOffset - 22
 
     local leftBtn  = self:CreateStyledButton(leftColumn, self.L["Left Side"],  90, 25)
@@ -108,14 +108,14 @@ function SQP:CreateIconOptions(content)
     local styleLabel = rightColumn:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     SQP:ApplyDefaultFont(styleLabel)
     styleLabel:SetPoint("TOPLEFT", 20, rightYOffset)
-    styleLabel:SetText("|cff58be81" .. (self.L["OPTIONS_ICON_STYLE"] or "Icon Style") .. "|r")
+    styleLabel:SetText("|cff58be81" .. (self.L["OPTIONS_ICON_STYLE"] or SQP.L["Icon Style"]) .. "|r")
     rightYOffset = rightYOffset - 22
 
 	-- Global Scale
 	-- Range 0.5–1.5 centers the slider on 1; 1.1 is the baseline default.
 	local scaleSlider = self:CreateStyledSlider(rightColumn, {
 		key = "scale",
-		label = self.L["OPTIONS_GLOBAL_SCALE"] or "Global Scale",
+		label = self.L["OPTIONS_GLOBAL_SCALE"] or SQP.L["Global Scale"],
 		min = 0.5,
 		max = 1.5,
 		step = 0.1,
@@ -134,11 +134,11 @@ function SQP:CreateIconOptions(content)
     -- Toast Animation (the "?" pop when the quest frame shows)
     local markerHeader = rightColumn:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     markerHeader:SetPoint("TOPLEFT", 20, rightYOffset)
-    markerHeader:SetText("|cff58be81Toast Animation|r")
+    markerHeader:SetText(SQP.L["|cff58be81Toast Animation|r"])
     SQP:ApplyDefaultFont(markerHeader)
     rightYOffset = rightYOffset - 20
 
-    local markerFrame = self:CreateStyledCheckbox(rightColumn, "Show toast animation")
+    local markerFrame = self:CreateStyledCheckbox(rightColumn, SQP.L["Show toast animation"])
     markerFrame:SetPoint("TOPLEFT", 20, rightYOffset)
     markerFrame.checkbox:SetChecked(SQPSettings.showQuestMarker ~= false)
     self.optionControls.showQuestMarker = markerFrame.checkbox
@@ -149,7 +149,7 @@ function SQP:CreateIconOptions(content)
 
 	local markerSizeSlider = self:CreateStyledSlider(rightColumn, {
 		key = "questMarkerSize",
-		label = "Toast Size",
+		label = SQP.L["Toast Size"],
 		min = 10,
 		max = 48,
 		step = 1,

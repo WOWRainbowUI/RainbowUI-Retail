@@ -45,13 +45,13 @@ function SQP:CreatePercentOptions(content)
     end
 
     -- RIGHT: task icon visibility, side, dimensions, tint, and reset.
-    local taskCard = SQP:CreateCard(rightColumn, "Percent Task Icon")
+    local taskCard = SQP:CreateCard(rightColumn, SQP.L["Percent Task Icon"])
     do
         local c = taskCard.content
         local yOffset = -8
 
         local showSwitch = self:CreateHeaderSwitch(taskCard, "showPercentIcon")
-        SQP:SetControlTooltip(showSwitch, "Display toggle: show or hide the percent sign on quest nameplates.")
+        SQP:SetControlTooltip(showSwitch, SQP.L["Display toggle: show or hide the percent sign on quest nameplates."])
         yOffset = self:CreateMiniIconTintSection(c, "percent", ActivatePercent, yOffset)
 
         self:CreateIconSideSection(c, "percent", ActivatePercent, yOffset, { center = true })
@@ -118,8 +118,8 @@ function SQP:CreatePercentOptions(content)
     end
 
     -- LEFT: Main Icon first, then Animation.
-    local mainCard = SQP:CreateCard(leftColumn, "Percent Main Icon")
-    local animCard = SQP:CreateCard(leftColumn, "Percent Animation", { above = mainCard })
+    local mainCard = SQP:CreateCard(leftColumn, SQP.L["Percent Main Icon"])
+    local animCard = SQP:CreateCard(leftColumn, SQP.L["Percent Animation"], { above = mainCard })
     SQP:CreateHeaderSwitch(animCard, "percentAnimationsEnabled")
     do
         local c = animCard.content
@@ -156,7 +156,7 @@ function SQP:CreatePercentOptions(content)
 
         local percentAnimIntensitySlider = SQP:CreateStyledSlider(c, {
             key = "percentAnimationIntensity",
-            label = "Intensity",
+            label = SQP.L["Intensity"],
             min = 25,
             max = 200,
             step = 5,
@@ -210,7 +210,7 @@ function SQP:CreatePercentOptions(content)
         local colorLbl = c:CreateFontString(nil, "ARTWORK", "GameFontNormal")
         SQP:ApplyDefaultFont(colorLbl)
         colorLbl:SetPoint("LEFT", colorBtn, "RIGHT", 6, 0)
-        colorLbl:SetText("Count Color")
+        colorLbl:SetText(SQP.L["Count Color"])
         colorLbl:SetTextColor(_G.RGXDesign:Unpack("text"))
 
         local colorReset = self:CreateInlineResetButton(c, function()

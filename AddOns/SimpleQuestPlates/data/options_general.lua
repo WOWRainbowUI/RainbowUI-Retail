@@ -21,7 +21,7 @@ local function BuildDisplayModes(parent, yOffset)
     row:SetHeight(22)
     local left, right = SQP:CreateOptionColumns(row)
 
-    local task = SQP:CreateStyledCheckbox(left, "Task Icons")
+    local task = SQP:CreateStyledCheckbox(left, SQP.L["Task Icons"])
     task:SetPoint("TOPLEFT", left, "TOPLEFT", 0, 0)
     task:SetPoint("TOPRIGHT", left, "TOPRIGHT", 0, 0)
     task.checkbox:SetChecked(SQPSettings.showKillIcon ~= false
@@ -38,7 +38,7 @@ local function BuildDisplayModes(parent, yOffset)
         SQP:UpdatePreviewManually()
     end)
 
-    local text = SQP:CreateStyledCheckbox(right, "Text Mode")
+    local text = SQP:CreateStyledCheckbox(right, SQP.L["Text Mode"])
     text:SetPoint("TOPLEFT", right, "TOPLEFT", 0, 0)
     text:SetPoint("TOPRIGHT", right, "TOPRIGHT", 0, 0)
     text.checkbox:SetChecked(SQPSettings.showIconBackground == false)
@@ -60,12 +60,12 @@ local function BuildDisplayModes(parent, yOffset)
         SQP:RebuildQuestPlates()
         SQP:UpdatePreviewManually()
     end)
-    SQP:SetControlTooltip(text, "Use objective ratio text. Forever keeps its frame; Classic shows bare text.")
+    SQP:SetControlTooltip(text, SQP.L["Use objective ratio text. Forever keeps its frame; Classic shows bare text."])
 end
 
 -- Global behavior toggles and the reset action.
 local function BuildGeneralPage(leftColumn)
-    local generalCard = Card(leftColumn, "General")
+    local generalCard = Card(leftColumn, SQP.L["General"])
     do
         local c = generalCard.content
         local right = CreateFrame("Frame", nil, c)
@@ -74,7 +74,7 @@ local function BuildGeneralPage(leftColumn)
         right:SetHeight(44)
         local yOffset = -8
 
-        local chatFrame = SQP:CreateStyledCheckbox(c, "Chat Messages")
+        local chatFrame = SQP:CreateStyledCheckbox(c, SQP.L["Chat Messages"])
         chatFrame:SetPoint("TOPLEFT", 8, yOffset)
         chatFrame.checkbox:SetChecked(SQPSettings.showMessages ~= false)
         SQP.optionControls.showMessages = chatFrame.checkbox
@@ -83,17 +83,17 @@ local function BuildGeneralPage(leftColumn)
         end)
         yOffset = yOffset - 22
 
-        local minimapFrame = SQP:CreateStyledCheckbox(c, "Minimap Icon")
+        local minimapFrame = SQP:CreateStyledCheckbox(c, SQP.L["Minimap Icon"])
         minimapFrame:SetPoint("TOPLEFT", 8, yOffset)
         minimapFrame.checkbox:SetChecked(SQPSettings.minimapIconEnabled ~= false)
         SQP.optionControls.minimapIconEnabled = minimapFrame.checkbox
         minimapFrame.checkbox:SetScript("OnClick", function(self)
             SQP:ToggleMinimapIcon(self:GetChecked())
         end)
-        SQP:SetControlTooltip(minimapFrame, "Left-click opens options. Drag to move. Ctrl-right-click hides it.")
+        SQP:SetControlTooltip(minimapFrame, SQP.L["Left-click opens options. Drag to move. Ctrl-right-click hides it."])
         yOffset = yOffset - 22
 
-        local combatFrame = SQP:CreateStyledCheckbox(right, "Hide in Combat")
+        local combatFrame = SQP:CreateStyledCheckbox(right, SQP.L["Hide in Combat"])
         combatFrame:SetPoint("TOPLEFT", 2, -8)
         combatFrame.checkbox:SetChecked(SQPSettings.hideInCombat)
         SQP.optionControls.hideInCombat = combatFrame.checkbox
@@ -101,7 +101,7 @@ local function BuildGeneralPage(leftColumn)
             SQP:SetSetting('hideInCombat', self:GetChecked()); SQP:RefreshAllNameplates()
         end)
 
-        local instanceFrame = SQP:CreateStyledCheckbox(right, "Hide in Instances")
+        local instanceFrame = SQP:CreateStyledCheckbox(right, SQP.L["Hide in Instances"])
         instanceFrame:SetPoint("TOPLEFT", 2, -30)
         instanceFrame.checkbox:SetChecked(SQPSettings.hideInInstance)
         SQP.optionControls.hideInInstance = instanceFrame.checkbox
@@ -110,7 +110,7 @@ local function BuildGeneralPage(leftColumn)
         end)
 
         yOffset = yOffset - 8
-        local resetButton = SQP:CreateStyledButton(c, SQP.L["OPTIONS_RESET"] or "Reset All Settings", 138, 20)
+        local resetButton = SQP:CreateStyledButton(c, SQP.L["OPTIONS_RESET"] or SQP.L["Reset All Settings"], 138, 20)
         resetButton:SetPoint("TOP", c, "TOP", 0, yOffset)
         resetButton:SetAlpha(0.8)
         resetButton:SetScript("OnClick", function() StaticPopup_Show("SQP_RESET_CONFIRM") end)
@@ -151,7 +151,7 @@ end
 -- style, plus the font card on the left.
 local function BuildDisplayPage(leftColumn, rightColumn, generalCard)
     -- RIGHT: Display (quest display style + position & scale in one card)
-    local displayCard = Card(rightColumn, "Display")
+    local displayCard = Card(rightColumn, SQP.L["Display"])
     do
         local c = displayCard.content
         local yOffset = -8
@@ -207,7 +207,7 @@ local function BuildDisplayPage(leftColumn, rightColumn, generalCard)
 
         -- Range 0.5–1.5 centers the slider on 1; 1.1 is the baseline default.
         local scaleSlider = SQP:CreateStyledSlider(c, {
-            key = "scale", label = "Scale", min = 0.5, max = 1.5, step = 0.1,
+            key = "scale", label = SQP.L["Scale"], min = 0.5, max = 1.5, step = 0.1,
             default = 1.1, storage = SQPSettings, suffix = "", width = 160,
             onChange = function(value) SQP:RefreshAllNameplates() end,
         })
@@ -218,7 +218,7 @@ local function BuildDisplayPage(leftColumn, rightColumn, generalCard)
         yOffset = yOffset - 42
 
         local xSlider = SQP:CreateStyledSlider(c, {
-            key = "offsetX", label = "Offset X", min = -100, max = 100, step = 1,
+            key = "offsetX", label = SQP.L["Offset X"], min = -100, max = 100, step = 1,
             default = 0, storage = SQPSettings, width = 160,
             onChange = function(value) SQP:RefreshAllNameplates() end,
         })
@@ -234,7 +234,7 @@ local function BuildDisplayPage(leftColumn, rightColumn, generalCard)
         yOffset = yOffset - 42
 
         local ySlider = SQP:CreateStyledSlider(c, {
-            key = "offsetY", label = "Offset Y", min = -100, max = 100, step = 1,
+            key = "offsetY", label = SQP.L["Offset Y"], min = -100, max = 100, step = 1,
             default = 0, storage = SQPSettings, width = 160,
             onChange = function(value) SQP:RefreshAllNameplates() end,
         })
@@ -248,18 +248,18 @@ local function BuildDisplayPage(leftColumn, rightColumn, generalCard)
             -- One dropdown owns background choices; its value carries the chip
             -- texture selection at the same time.
             local blizzardItems = {
-                { text = "Classic (default)", value = "icon" },
-                { text = "Chip: Coin (gold)", value = "chip:coin" },
-                { text = "Chip: Coin (silver)", value = "chip:silver" },
-                { text = "Chip: Coin (copper)", value = "chip:copper" },
-                { text = "Chip: Medal (gold)", value = "chip:medalGold" },
-                { text = "Chip: Medal (silver)", value = "chip:medalSilver" },
-                { text = "Chip: Medal (bronze)", value = "chip:medalBronze" },
-                { text = "Chip: Artifact gold medallion", value = "chip:artifactMedal" },
-                { text = "Chip: Guild achievement badge", value = "chip:guildBadge" },
-                { text = "Chip: Gold ring 2", value = "chip:goldRing2" },
-                { text = "Chip: Gold ring 3", value = "chip:goldRing3" },
-                { text = "Chip: Titan disc", value = "chip:titanDisc" },
+                { text = SQP.L["Classic (default)"], value = "icon" },
+                { text = SQP.L["Chip: Coin (gold)"], value = "chip:coin" },
+                { text = SQP.L["Chip: Coin (silver)"], value = "chip:silver" },
+                { text = SQP.L["Chip: Coin (copper)"], value = "chip:copper" },
+                { text = SQP.L["Chip: Medal (gold)"], value = "chip:medalGold" },
+                { text = SQP.L["Chip: Medal (silver)"], value = "chip:medalSilver" },
+                { text = SQP.L["Chip: Medal (bronze)"], value = "chip:medalBronze" },
+                { text = SQP.L["Chip: Artifact gold medallion"], value = "chip:artifactMedal" },
+                { text = SQP.L["Chip: Guild achievement badge"], value = "chip:guildBadge" },
+                { text = SQP.L["Chip: Gold ring 2"], value = "chip:goldRing2" },
+                { text = SQP.L["Chip: Gold ring 3"], value = "chip:goldRing3" },
+                { text = SQP.L["Chip: Titan disc"], value = "chip:titanDisc" },
             }
             -- Image-only labels; item text is the artwork markup. Names stay
             -- in artworkLabel for data only.
@@ -304,7 +304,7 @@ local function BuildDisplayPage(leftColumn, rightColumn, generalCard)
                 return "icon"
             end
             local dd = Drops:CreateNestedDropdown(c, {
-                label = "Background style",
+                label = SQP.L["Background style"],
                 width = 300,
                 buttonWidth = 290,
                 triggerStyle = "retail",
@@ -337,7 +337,7 @@ local function BuildDisplayPage(leftColumn, rightColumn, generalCard)
                 if dd.label then dd.label:SetTextColor(0.345, 0.745, 0.506) end
                 dd:SetPoint("TOPLEFT", c, "TOPLEFT", 8, yOffset)
                 dd:SetPoint("TOPRIGHT", c, "TOPRIGHT", -8, yOffset)
-                SQP:SetControlTooltip(dd, "Blizzard contains Classic, coins, medals and badges. RGX contains bundled addon logos. Background selection preserves Text Mode. Unavailable atlases show the SQP logo.")
+                SQP:SetControlTooltip(dd, SQP.L["Blizzard contains Classic, coins, medals and badges. RGX contains bundled addon logos. Background selection preserves Text Mode. Unavailable atlases show the SQP logo."])
                 SQP.optionControls.unifiedDropdown = dd
             end
         end
@@ -356,12 +356,12 @@ local function BuildAnimationPage(page)
     local leftColumn, rightColumn = SQP:CreateOptionColumns(page)
 
     -- LEFT: Animation (applies across all quest types)
-    local animationCard = Card(leftColumn, "Animation")
+    local animationCard = Card(leftColumn, SQP.L["Animation"])
     do
         local c = animationCard.content
         local yOffset = -8
 
-        local taskFrame = SQP:CreateStyledCheckbox(c, "Animate task icons")
+        local taskFrame = SQP:CreateStyledCheckbox(c, SQP.L["Animate task icons"])
         taskFrame:SetPoint("TOPLEFT", 8, yOffset)
         taskFrame.checkbox:SetChecked(SQPSettings.animateQuestIcons == true)
         SQP.optionControls.animateQuestIcons = taskFrame.checkbox
@@ -369,10 +369,10 @@ local function BuildAnimationPage(page)
             SQP:SetSetting('animateQuestIcons', self:GetChecked())
             SQP:RefreshAllNameplates()
         end)
-        SQP:SetControlTooltip(taskFrame, "Pulse the small kill, loot and percent task icons on plates.")
+        SQP:SetControlTooltip(taskFrame, SQP.L["Pulse the small kill, loot and percent task icons on plates."])
         yOffset = yOffset - 22
 
-        local mainFrame = SQP:CreateStyledCheckbox(c, "Animate Main Icons")
+        local mainFrame = SQP:CreateStyledCheckbox(c, SQP.L["Animate Main Icons"])
         mainFrame:SetPoint("TOPLEFT", 8, yOffset)
         mainFrame.checkbox:SetChecked(SQPSettings.animateMainIcons == true)
         SQP.optionControls.animateMainIcons = mainFrame.checkbox
@@ -380,10 +380,10 @@ local function BuildAnimationPage(page)
             SQP:SetSetting('animateMainIcons', self:GetChecked())
             SQP:RefreshAllNameplates()
         end)
-        SQP:SetControlTooltip(mainFrame, "Animate every main quest icon. When off, Kill, Loot and Percent use their individual switches.")
+        SQP:SetControlTooltip(mainFrame, SQP.L["Animate every main quest icon. When off, Kill, Loot and Percent use their individual switches."])
         yOffset = yOffset - 22
 
-        local syncFrame = SQP:CreateStyledCheckbox(c, "Sync icon animations")
+        local syncFrame = SQP:CreateStyledCheckbox(c, SQP.L["Sync icon animations"])
         syncFrame:SetPoint("TOPLEFT", 8, yOffset)
         syncFrame.checkbox:SetChecked(SQPSettings.syncAnimations == true)
         SQP.optionControls.syncAnimations = syncFrame.checkbox
@@ -391,10 +391,10 @@ local function BuildAnimationPage(page)
             SQP:SetSetting('syncAnimations', self:GetChecked())
             SQP:RefreshAllNameplates()
         end)
-        SQP:SetControlTooltip(syncFrame, "Play the main, kill, loot and percent pulses in phase.")
+        SQP:SetControlTooltip(syncFrame, SQP.L["Play the main, kill, loot and percent pulses in phase."])
         yOffset = yOffset - 22
 
-        local globalFrame = SQP:CreateStyledCheckbox(c, "Use global intensity for all icons")
+        local globalFrame = SQP:CreateStyledCheckbox(c, SQP.L["Use global intensity for all icons"])
         globalFrame:SetPoint("TOPLEFT", 8, yOffset)
         globalFrame.checkbox:SetChecked(SQPSettings.useGlobalAnimationSettings == true)
         SQP.optionControls.useGlobalAnimationSettings = globalFrame.checkbox
@@ -402,13 +402,13 @@ local function BuildAnimationPage(page)
             SQP:SetSetting('useGlobalAnimationSettings', self:GetChecked())
             SQP:RefreshAllNameplates()
         end)
-        SQP:SetControlTooltip(globalFrame, "When checked, the global intensity below drives every icon. When off, Kill, Loot and Percent use their individual intensity sliders.")
+        SQP:SetControlTooltip(globalFrame, SQP.L["When checked, the global intensity below drives every icon. When off, Kill, Loot and Percent use their individual intensity sliders."])
         yOffset = yOffset - 24
 
         local intensityReady = false
         local globalIntensitySlider = SQP:CreateStyledSlider(c, {
             key = "globalAnimationIntensity",
-            label = "Global intensity",
+            label = SQP.L["Global intensity"],
             min = 25,
             max = 200,
             step = 5,
@@ -453,7 +453,7 @@ local function BuildAnimationPage(page)
             "lootAnimationIntensity", "percentAnimationIntensity", "showQuestMarker",
             "questMarkerSize", "toastDuration", "toastHeight",
         }
-        local resetAll = SQP:CreateStyledButton(c, "Reset All Animation Settings", 190, 20)
+        local resetAll = SQP:CreateStyledButton(c, SQP.L["Reset All Animation Settings"], 190, 20)
         resetAll:SetPoint("TOP", c, "TOP", 0, yOffset)
         resetAll:SetScript("OnClick", function()
             local animationDefaults = {}
@@ -485,18 +485,18 @@ local function BuildAnimationPage(page)
     end
 
     -- RIGHT: Quest Toast (the on-target question-mark pop)
-    local toastCard = Card(rightColumn, "Quest Toast")
+    local toastCard = Card(rightColumn, SQP.L["Quest Toast"])
     do
         local c = toastCard.content
         local flow = toastCard.flow
 
         flow:AddSpacer(8)
         local toastSwitch = SQP:CreateHeaderSwitch(toastCard, "showQuestMarker")
-        local toastPreview = SQP:CreateStyledButton(c, "Preview Toast", 104, 20)
-        SQP:SetControlTooltip(toastSwitch, "Enable quest toast: the question-mark pop that plays when you target a mob with a quest icon.")
+        local toastPreview = SQP:CreateStyledButton(c, SQP.L["Preview Toast"], 104, 20)
+        SQP:SetControlTooltip(toastSwitch, SQP.L["Enable quest toast: the question-mark pop that plays when you target a mob with a quest icon."])
 
         local toastDurationSlider = SQP:CreateStyledSlider(c, {
-            key = "toastDuration", label = "Toast Duration", min = 0.3, max = 2.5, step = 0.1,
+            key = "toastDuration", label = SQP.L["Toast Duration"], min = 0.3, max = 2.5, step = 0.1,
             default = 1.3, storage = SQPSettings, suffix = "s", width = 160,
         })
         flow:Add(toastDurationSlider, { fill = true })
@@ -515,7 +515,7 @@ local function BuildAnimationPage(page)
         end)
 
         local toastHeightSlider = SQP:CreateStyledSlider(c, {
-            key = "toastHeight", label = "Toast Height", min = 0, max = 60, step = 2,
+            key = "toastHeight", label = SQP.L["Toast Height"], min = 0, max = 60, step = 2,
             default = 30, storage = SQPSettings, suffix = "", width = 160,
         })
         flow:Add(toastHeightSlider, { fill = true })
@@ -523,7 +523,7 @@ local function BuildAnimationPage(page)
         SQP.optionControls.toastHeightLabel = toastHeightSlider.valueLabel
 
         local toastSizeSlider = SQP:CreateStyledSlider(c, {
-            key = "questMarkerSize", label = "Toast Size", min = 12, max = 48, step = 2,
+            key = "questMarkerSize", label = SQP.L["Toast Size"], min = 12, max = 48, step = 2,
             default = 40, storage = SQPSettings, suffix = "", width = 160,
             onChange = function(value) SQP:RefreshAllNameplates() end,
         })

@@ -57,7 +57,7 @@ function SQP:CreateOptionsPanel()
         addonName    = addonName,
         theme        = BrandTheme,
         title        = SQP.L["SimpleQuestPlates"],
-        sidebarTitle = (SQP.NAME:gsub("%s*%b()", "")),
+        sidebarTitle = SQP.L["SimpleQuestPlates"],
         subtitle     = SQP.L["Quest tracking overlay for enemy nameplates"],
         author       = SQP.AUTHOR or "DonnieDice",
         website      = "|cff7289daDiscord:|r |cffffd700discord.gg/N7kdKAHVVF|r",
@@ -81,17 +81,17 @@ function SQP:CreateOptionsPanel()
                       SQP.previewFrame.clearTypeSelection()
                   end
               end },
-            { text = "Animation", content = WithBrand(function(f) SQP:CreateAnimationOptions(f) end),
+            { text = SQP.L["Animation"], content = WithBrand(function(f) SQP:CreateAnimationOptions(f) end),
               onSelect = function()
                   if SQP.previewFrame and SQP.previewFrame.clearTypeSelection then
                       SQP.previewFrame.clearTypeSelection()
                   end
               end },
-            { text = "Profiles", content = WithBrand(function(f)
+            { text = SQP.L["Profiles"], content = WithBrand(function(f)
                 if type(UI.CreateProfilesPanel) == "function" then
                     UI:CreateProfilesPanel(f, {
                         db = SQP.db,
-                        title = "Profiles",
+                        title = SQP.L["Profiles"],
                         icon = SQP.ICON_TEXTURE,
                         description = "",
                         createFromCurrent = true,
@@ -99,9 +99,9 @@ function SQP:CreateOptionsPanel()
                         height = 176,
                         presetsPerPage = 6,
                         presets = {
-                            { name = "Classic",   description = "Floating quest icons",        mode = "icon" },
-                            { name = "Text Mode", description = "Counts only, no backgrounds", mode = "text" },
-                            { name = "Coin",      description = "Client-native coin chip",        mode = "chip" },
+                            { name = "Classic",   description = SQP.L["Floating quest icons"],        mode = "icon" },
+                            { name = "Text Mode", description = SQP.L["Counts only, no backgrounds"], mode = "text" },
+                            { name = "Coin",      description = SQP.L["Client-native coin chip"],        mode = "chip" },
                             { name = "Future Preset 1", disabled = true },
                             { name = "Future Preset 2", disabled = true },
                             { name = "Future Preset 3", disabled = true },
@@ -119,7 +119,7 @@ function SQP:CreateOptionsPanel()
                         end,
                     })
                 else
-                    local label = UI:CreateLabel(f, { text = "Profiles need the RGX-Framework beta. Enable its beta channel in your addon manager.", width = 500 })
+                    local label = UI:CreateLabel(f, { text = SQP.L["Profiles need the RGX-Framework beta. Enable its beta channel in your addon manager."], width = 500 })
                     label:SetPoint("TOPLEFT", f, "TOPLEFT", 8, -8)
                 end
             end), onSelect = function()

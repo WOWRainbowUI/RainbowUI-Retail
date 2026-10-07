@@ -50,7 +50,7 @@ function SQP:CreateLootOptions(content)
     end
 
     -- RIGHT: task icon visibility, side, dimensions, tint, and reset.
-    local taskCard = SQP:CreateCard(rightColumn, "Loot Task Icon")
+    local taskCard = SQP:CreateCard(rightColumn, SQP.L["Loot Task Icon"])
     do
         local c = taskCard.content
         local yOffset = -8
@@ -121,8 +121,8 @@ function SQP:CreateLootOptions(content)
     end
 
     -- LEFT: Main Icon first, then Animation.
-    local mainCard = SQP:CreateCard(leftColumn, "Loot Main Icon")
-    local animCard = SQP:CreateCard(leftColumn, "Loot Animation", { above = mainCard })
+    local mainCard = SQP:CreateCard(leftColumn, SQP.L["Loot Main Icon"])
+    local animCard = SQP:CreateCard(leftColumn, SQP.L["Loot Animation"], { above = mainCard })
     SQP:CreateHeaderSwitch(animCard, "lootAnimationsEnabled")
     do
         local c = animCard.content
@@ -156,7 +156,7 @@ function SQP:CreateLootOptions(content)
 
         local lootAnimIntensitySlider = SQP:CreateStyledSlider(c, {
             key = "lootAnimationIntensity",
-            label = "Intensity",
+            label = SQP.L["Intensity"],
             min = 25,
             max = 200,
             step = 5,
@@ -210,7 +210,7 @@ function SQP:CreateLootOptions(content)
         local colorLbl = c:CreateFontString(nil, "ARTWORK", "GameFontNormal")
         SQP:ApplyDefaultFont(colorLbl)
         colorLbl:SetPoint("LEFT", colorBtn, "RIGHT", 6, 0)
-        colorLbl:SetText("Count Color")
+        colorLbl:SetText(SQP.L["Count Color"])
         colorLbl:SetTextColor(_G.RGXDesign:Unpack("text"))
 
         local colorReset = self:CreateInlineResetButton(c, function()

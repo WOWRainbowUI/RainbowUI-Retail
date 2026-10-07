@@ -43,7 +43,6 @@
 ## X-WoWI-ID: 17044
 
 
-LibDataBroker-1.1.lua
 Locale\Locales.xml
 Core\Constants.lua
 Core\Templates.lua

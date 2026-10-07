@@ -636,7 +636,7 @@ function SQP:CreatePreviewSection(parent)
             -- own settings preview puts it); reports the live display style
             -- (Classic / Text / Forever) for the currently selected quest type.
             if SQPSettings.enabled == false then
-                self.modeCaption:SetText("|cff9a9a9aPreview — SQP disabled|r")
+                self.modeCaption:SetText(SQP.L["|cff9a9a9aPreview — SQP disabled|r"])
             else
                 local modeKey = self.questType or "kill"
                 local styleText
@@ -647,7 +647,7 @@ function SQP:CreatePreviewSection(parent)
                     if value == nil then value = SQPSettings.showIconBackground end
                     styleText = value == false and "Text" or "Classic"
                 end
-                self.modeCaption:SetText("|cff9a9a9aPreview — |r|cff58be81" .. styleText .. "|r")
+                self.modeCaption:SetText(SQP.L["|cff9a9a9aPreview — |r|cff58be81"] .. styleText .. "|r")
             end
         end
 

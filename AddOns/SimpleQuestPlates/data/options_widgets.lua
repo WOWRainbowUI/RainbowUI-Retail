@@ -196,7 +196,7 @@ function SQP:CreateFontSection(parent, typeKey, yOffset, activatePreviewFn)
     if typeKey then
         local fontHeader = parent:CreateFontString(nil, "ARTWORK", "GameFontNormal")
         fontHeader:SetPoint("TOPLEFT", 8, yOffset)
-        fontHeader:SetText("|cff58be81" .. (self.L["OPTIONS_FONT"] or "Font") .. "|r")
+        fontHeader:SetText("|cff58be81" .. (self.L["OPTIONS_FONT"] or SQP.L["Font"]) .. "|r")
         SQP:ApplyDefaultFont(fontHeader)
         yOffset = yOffset - 18
     end
@@ -205,7 +205,7 @@ function SQP:CreateFontSection(parent, typeKey, yOffset, activatePreviewFn)
 	local curSize = SQPSettings[sizeKey] or defaultSize
 	local sizeSlider = self:CreateStyledSlider(parent, {
 		key = sizeKey,
-		label = "Size",
+		label = SQP.L["Size"],
 		min = 6,
 		max = 26,
 		step = 1,
@@ -286,7 +286,7 @@ function SQP:CreateDisplayStyleSection(parent, typeKey, activatePreviewFn, yOffs
     local dsHeader = parent:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     SQP:ApplyDefaultFont(dsHeader)
     dsHeader:SetPoint("TOPLEFT", 8, yOffset)
-    dsHeader:SetText("|cff58be81Background Style|r")
+    dsHeader:SetText(SQP.L["|cff58be81Background Style|r"])
     dsHeader:SetFontObject(GameFontNormal)
     dsHeader:SetTextColor(0.345, 0.745, 0.506)
     yOffset = yOffset - 18
@@ -346,10 +346,10 @@ function SQP:CreateDisplayStyleSection(parent, typeKey, activatePreviewFn, yOffs
         triggerStyle = "retail",
         value = CurrentMode(),
         items = {
-            { text = "Classic (default)", value = "icon" },
+            { text = SQP.L["Classic (default)"], value = "icon" },
             -- The Forever atlas only exists on the Forever client. Elsewhere,
             -- chip maps to the portable rounded bubble variant instead.
-            { text = "Coin", value = "chip" },
+            { text = SQP.L["Coin"], value = "chip" },
         },
         onChange = function(value)
             SQP:SetSetting(chipKey, value == "chip")
@@ -359,12 +359,12 @@ function SQP:CreateDisplayStyleSection(parent, typeKey, activatePreviewFn, yOffs
     if dd then
         dd:SetPoint("TOPLEFT", 8, yOffset)
         dd:SetPoint("TOPRIGHT", parent, "TOPRIGHT", -8, yOffset)
-        SQP:SetControlTooltip(dd, "Pick this quest type's background: Classic icon or the Forever level-frame style.")
+        SQP:SetControlTooltip(dd, SQP.L["Pick this quest type's background: Classic icon or the Forever level-frame style."])
         self.optionControls[settingKey .. "StyleDropdown"] = dd
     end
     yOffset = yOffset - 30
 
-    local textFrame = self:CreateStyledCheckbox(parent, "Text Mode")
+    local textFrame = self:CreateStyledCheckbox(parent, SQP.L["Text Mode"])
     textFrame:SetPoint("TOPLEFT", 8, opts.textRowY or yOffset)
     if opts.textRowY then textFrame:SetWidth(130) end
     textFrame.checkbox:SetChecked(IsTextMode())
@@ -382,7 +382,7 @@ function SQP:CreateDisplayStyleSection(parent, typeKey, activatePreviewFn, yOffs
         end
         ApplyStyle()
     end)
-    SQP:SetControlTooltip(textFrame, "Use objective ratio text. Forever keeps its frame; Classic shows bare text. Unticking inherits Global text formatting.")
+    SQP:SetControlTooltip(textFrame, SQP.L["Use objective ratio text. Forever keeps its frame; Classic shows bare text. Unticking inherits Global text formatting."])
     if not opts.textRowY then yOffset = yOffset - 22 end
 
     UpdateStyleButtons()
@@ -498,13 +498,13 @@ function SQP:CreateMainIconSection(parent, typeKey, activatePreviewFn, yOffset, 
     local header = parent:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     SQP:ApplyDefaultFont(header)
     header:SetPoint("TOPLEFT", 8, yOffset)
-    header:SetText("|cff58be81Main Icon|r")
+    header:SetText(SQP.L["|cff58be81Main Icon|r"])
     header:SetFontObject(GameFontNormal)
     yOffset = yOffset - 18
 
     -- Animate Main Icon checkbox (skip if tab already exposes it in its own Animate section)
     if not skipAnimate then
-        local animFrame = self:CreateStyledCheckbox(parent, "Animate Main Icon")
+        local animFrame = self:CreateStyledCheckbox(parent, SQP.L["Animate Main Icon"])
         animFrame:SetPoint("TOPLEFT", 8, yOffset)
         animFrame.checkbox:SetChecked(SQPSettings[animKey] == true)
         self.optionControls[animKey] = animFrame.checkbox
@@ -525,7 +525,7 @@ function SQP:CreateMainIconSection(parent, typeKey, activatePreviewFn, yOffset, 
     tintSw:SetSize(16, 16); tintSw:SetPoint("CENTER")
     tintSw:SetColorTexture(unpack(SQPSettings[tintColorKey] or {1, 1, 1}))
 
-    local tintCbFrame = self:CreateStyledCheckbox(parent, "Tint Main Icon")
+    local tintCbFrame = self:CreateStyledCheckbox(parent, SQP.L["Tint Main Icon"])
     tintCbFrame:SetPoint("LEFT", tintColorBtn, "RIGHT", 6, 0)
     tintCbFrame.checkbox:SetChecked(SQPSettings[tintKey] == true)
     self.optionControls[tintKey] = tintCbFrame.checkbox

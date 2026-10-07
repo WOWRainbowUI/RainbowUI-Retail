@@ -12,7 +12,7 @@ local format = string.format
 local OBJECTIVES = {
     {
         key = "kill",
-        title = "Kill",
+        title = SQP.L["Kill"],
         preview = "activateKillMode",
         showKey = "showKillIcon",
         displayKey = "killShowIconBackground",
@@ -35,7 +35,7 @@ local OBJECTIVES = {
     },
     {
         key = "loot",
-        title = "Loot",
+        title = SQP.L["Loot"],
         preview = "activateLootMode",
         showKey = "showLootIcon",
         displayKey = "lootShowIconBackground",
@@ -58,7 +58,7 @@ local OBJECTIVES = {
     },
     {
         key = "percent",
-        title = "Percent",
+        title = SQP.L["Percent"],
         preview = "activatePercentMode",
         showKey = "showPercentIcon",
         displayKey = "percentShowIconBackground",
@@ -183,24 +183,24 @@ function SQP:CreateLegacyAnimationOptions(content)
     local header = content:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     SQP:ApplyDefaultFont(header)
     header:SetPoint("TOPLEFT", 14, -12)
-    header:SetText("|cffbc6fa8Animation Controls|r")
+    header:SetText(SQP.L["|cffbc6fa8Animation Controls|r"])
 
     local note = content:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     SQP:ApplyDefaultFont(note)
     note:SetPoint("TOPLEFT", header, "BOTTOMLEFT", 0, -4)
-    note:SetText("One place for all nameplate animation behavior.")
+    note:SetText(SQP.L["One place for all nameplate animation behavior."])
 
-    local globalSection = CreateSectionFrame(content, "Global Animation", "TOPLEFT", content, 0, -42, 314, 164)
-    local perTypeSection = CreateSectionFrame(content, "Objective Animation", "TOPRIGHT", content, 0, -42, 314, 290)
+    local globalSection = CreateSectionFrame(content, SQP.L["Global Animation"], "TOPLEFT", content, 0, -42, 314, 164)
+    local perTypeSection = CreateSectionFrame(content, SQP.L["Objective Animation"], "TOPRIGHT", content, 0, -42, 314, 290)
 
     local yOffset = -34
-    local overrideFrame = self:CreateStyledCheckbox(globalSection, "Use global override")
+    local overrideFrame = self:CreateStyledCheckbox(globalSection, SQP.L["Use global override"])
     overrideFrame:SetPoint("TOPLEFT", 12, yOffset)
     overrideFrame.checkbox:SetChecked(SQPSettings.useGlobalAnimationSettings == true)
     self.optionControls.useGlobalAnimationSettings = overrideFrame.checkbox
     yOffset = yOffset - 24
 
-    local enabledFrame = self:CreateStyledCheckbox(globalSection, "Enable all animations")
+    local enabledFrame = self:CreateStyledCheckbox(globalSection, SQP.L["Enable all animations"])
     enabledFrame:SetPoint("TOPLEFT", 12, yOffset)
     enabledFrame.checkbox:SetChecked(SQPSettings.globalAnimationEnabled ~= false)
     self.optionControls.globalAnimationEnabled = enabledFrame.checkbox
@@ -209,12 +209,12 @@ function SQP:CreateLegacyAnimationOptions(content)
     local modeLabel = globalSection:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     SQP:ApplyDefaultFont(modeLabel)
     modeLabel:SetPoint("TOPLEFT", 12, yOffset)
-    modeLabel:SetText("Animate when")
+    modeLabel:SetText(SQP.L["Animate when"])
     yOffset = yOffset - 18
 
-    local alwaysBtn = self:CreateStyledButton(globalSection, "Always", 58, 18)
-    local combatBtn = self:CreateStyledButton(globalSection, "Combat", 58, 18)
-    local noCombatBtn = self:CreateStyledButton(globalSection, "No Combat", 74, 18)
+    local alwaysBtn = self:CreateStyledButton(globalSection, SQP.L["Always"], 58, 18)
+    local combatBtn = self:CreateStyledButton(globalSection, SQP.L["Combat"], 58, 18)
+    local noCombatBtn = self:CreateStyledButton(globalSection, SQP.L["No Combat"], 74, 18)
     alwaysBtn:SetPoint("TOPLEFT", 12, yOffset)
     combatBtn:SetPoint("LEFT", alwaysBtn, "RIGHT", 6, 0)
     noCombatBtn:SetPoint("LEFT", combatBtn, "RIGHT", 6, 0)
@@ -246,14 +246,14 @@ function SQP:CreateLegacyAnimationOptions(content)
     noCombatBtn:SetScript("OnClick", function() SetMode("outofcombat") end)
     UpdateModeButtons()
 
-    CreateCompactSlider(globalSection, "Global intensity", "globalAnimationIntensity", 100, 25, 200, 5, yOffset, nil)
+    CreateCompactSlider(globalSection, SQP.L["Global intensity"], "globalAnimationIntensity", 100, 25, 200, 5, yOffset, nil)
 
     local taskSectionLabel = perTypeSection:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     SQP:ApplyDefaultFont(taskSectionLabel)
     taskSectionLabel:SetPoint("TOPLEFT", 12, -34)
-    taskSectionLabel:SetText("|cff58be81Task Icons|r")
+    taskSectionLabel:SetText(SQP.L["|cff58be81Task Icons|r"])
 
-    local taskFrame = self:CreateStyledCheckbox(perTypeSection, "Animate task icons")
+    local taskFrame = self:CreateStyledCheckbox(perTypeSection, SQP.L["Animate task icons"])
     taskFrame:SetPoint("TOPLEFT", 12, -54)
     taskFrame.checkbox:SetChecked(SQPSettings.animateQuestIcons == true)
     self.optionControls.animateQuestIcons = taskFrame.checkbox
@@ -263,7 +263,7 @@ function SQP:CreateLegacyAnimationOptions(content)
     summary:SetPoint("TOPLEFT", 12, -82)
     summary:SetWidth(280)
     summary:SetJustifyH("LEFT")
-    summary:SetText("Applies to the small quest markers on kill, loot, and percent plates.")
+    summary:SetText(SQP.L["Applies to the small quest markers on kill, loot, and percent plates."])
 
     local updaters = {}
     local startY = -122
@@ -273,7 +273,7 @@ function SQP:CreateLegacyAnimationOptions(content)
         title:SetPoint("TOPLEFT", 12, startY)
         title:SetText("|cffbc6fa8" .. objective.title .. "|r")
 
-        local mainFrame = self:CreateStyledCheckbox(perTypeSection, "Animate main icon")
+        local mainFrame = self:CreateStyledCheckbox(perTypeSection, SQP.L["Animate main icon"])
         mainFrame:SetPoint("TOPLEFT", 12, startY - 18)
         mainFrame.checkbox:SetChecked(SQPSettings[objective.animateMainKey] == true)
         self.optionControls[objective.animateMainKey] = mainFrame.checkbox
@@ -281,12 +281,12 @@ function SQP:CreateLegacyAnimationOptions(content)
 	local label = perTypeSection:CreateFontString(nil, "ARTWORK", "GameFontNormal")
 	SQP:ApplyDefaultFont(label)
 	label:SetPoint("TOPLEFT", 34, startY - 42)
-	label:SetText(format("Intensity: %d%%", SQPSettings[objective.intensityKey] or 100))
+	label:SetText(format(SQP.L["Intensity: %d%%"], SQPSettings[objective.intensityKey] or 100))
 	self.optionControls[objective.intensityKey .. "Label"] = label
 
 	local slider = self:CreateStyledSlider(perTypeSection, {
 		key = objective.intensityKey,
-		label = "Intensity",
+		label = SQP.L["Intensity"],
 		min = 25,
 		max = 200,
 		step = 5,
@@ -295,7 +295,7 @@ function SQP:CreateLegacyAnimationOptions(content)
 		suffix = "%%",
 		width = 132,
 		onChange = function(value)
-			label:SetText(format("Intensity: %d%%", value))
+			label:SetText(format(SQP.L["Intensity: %d%%"], value))
 			ActivatePreview(objective.preview)
 			SQP:RefreshAllNameplates()
 		end,
@@ -359,11 +359,11 @@ function SQP:CreateStyleOptions(content)
     local header = content:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     SQP:ApplyDefaultFont(header)
     header:SetPoint("TOPLEFT", 14, -12)
-    header:SetText("|cffbc6fa8Nameplate Style|r")
+    header:SetText(SQP.L["|cffbc6fa8Nameplate Style|r"])
 
-    local topLeft = CreateSectionFrame(content, "Kill Nameplate", "TOPLEFT", content, 0, -40, 314, 248)
-    local topRight = CreateSectionFrame(content, "Loot Nameplate", "TOPRIGHT", content, 0, -40, 314, 248)
-    local bottom = CreateSectionFrame(content, "Percent Nameplate", "TOPLEFT", topLeft, 0, -256, 314, 230)
+    local topLeft = CreateSectionFrame(content, SQP.L["Kill Nameplate"], "TOPLEFT", content, 0, -40, 314, 248)
+    local topRight = CreateSectionFrame(content, SQP.L["Loot Nameplate"], "TOPRIGHT", content, 0, -40, 314, 248)
+    local bottom = CreateSectionFrame(content, SQP.L["Percent Nameplate"], "TOPLEFT", topLeft, 0, -256, 314, 230)
 
     local sections = {
         {frame = topLeft, objective = OBJECTIVES[1]},
@@ -376,7 +376,7 @@ function SQP:CreateStyleOptions(content)
         local objective = entry.objective
         local yOffset = -32
 
-        local showFrame = self:CreateStyledCheckbox(frame, "Show on nameplates")
+        local showFrame = self:CreateStyledCheckbox(frame, SQP.L["Show on nameplates"])
         showFrame:SetPoint("TOPLEFT", 12, yOffset)
         showFrame.checkbox:SetChecked(SQPSettings[objective.showKey] ~= false)
         self.optionControls[objective.showKey] = showFrame.checkbox
@@ -418,23 +418,23 @@ function SQP:CreateLayoutOptions(content)
     local header = content:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     SQP:ApplyDefaultFont(header)
     header:SetPoint("TOPLEFT", 14, -12)
-    header:SetText("|cffbc6fa8Layout & Position|r")
+    header:SetText(SQP.L["|cffbc6fa8Layout & Position|r"])
 
-    local globalSection = CreateSectionFrame(content, "Global Placement", "TOPLEFT", content, 0, -40, 314, 212)
-    local typeSection = CreateSectionFrame(content, "Per-Objective Placement", "TOPRIGHT", content, 0, -40, 314, 336)
+    local globalSection = CreateSectionFrame(content, SQP.L["Global Placement"], "TOPLEFT", content, 0, -40, 314, 212)
+    local typeSection = CreateSectionFrame(content, SQP.L["Per-Objective Placement"], "TOPRIGHT", content, 0, -40, 314, 336)
 
     local yOffset = -32
-    yOffset = CreateCompactSlider(globalSection, "Global scale", "scale", 1.1, 0.5, 3.0, 0.1, yOffset, nil)
-    yOffset = CreateCompactSlider(globalSection, "Main anchor offset X", "offsetX", 16, -100, 100, 1, yOffset, nil)
-    yOffset = CreateCompactSlider(globalSection, "Main anchor offset Y", "offsetY", -4, -100, 100, 1, yOffset, nil)
+    yOffset = CreateCompactSlider(globalSection, SQP.L["Global scale"], "scale", 1.1, 0.5, 3.0, 0.1, yOffset, nil)
+    yOffset = CreateCompactSlider(globalSection, SQP.L["Main anchor offset X"], "offsetX", 16, -100, 100, 1, yOffset, nil)
+    yOffset = CreateCompactSlider(globalSection, SQP.L["Main anchor offset Y"], "offsetY", -4, -100, 100, 1, yOffset, nil)
 
     local anchorLabel = globalSection:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     SQP:ApplyDefaultFont(anchorLabel)
     anchorLabel:SetPoint("TOPLEFT", 12, yOffset)
-    anchorLabel:SetText("Nameplate side")
+    anchorLabel:SetText(SQP.L["Nameplate side"])
 
-    local leftBtn = self:CreateStyledButton(globalSection, "Left Side", 82, 18)
-    local rightBtn = self:CreateStyledButton(globalSection, "Right Side", 82, 18)
+    local leftBtn = self:CreateStyledButton(globalSection, SQP.L["Left Side"], 82, 18)
+    local rightBtn = self:CreateStyledButton(globalSection, SQP.L["Right Side"], 82, 18)
     leftBtn:SetPoint("TOPLEFT", 12, yOffset - 18)
     rightBtn:SetPoint("LEFT", leftBtn, "RIGHT", 6, 0)
 
@@ -465,9 +465,9 @@ function SQP:CreateLayoutOptions(content)
         title:SetText("|cffbc6fa8" .. objective.title .. "|r")
         currentY = currentY - 18
 
-        currentY = CreateCompactSlider(typeSection, "Size", objective.sizeKey, objective.sizeDefault, 8, 40, 1, currentY, objective.preview)
-        currentY = CreateCompactSlider(typeSection, "Offset X", objective.offsetXKey, objective.offsetXDefault, -80, 80, 1, currentY, objective.preview)
-        currentY = CreateCompactSlider(typeSection, "Offset Y", objective.offsetYKey, objective.offsetYDefault, -80, 80, 1, currentY, objective.preview)
+        currentY = CreateCompactSlider(typeSection, SQP.L["Size"], objective.sizeKey, objective.sizeDefault, 8, 40, 1, currentY, objective.preview)
+        currentY = CreateCompactSlider(typeSection, SQP.L["Offset X"], objective.offsetXKey, objective.offsetXDefault, -80, 80, 1, currentY, objective.preview)
+        currentY = CreateCompactSlider(typeSection, SQP.L["Offset Y"], objective.offsetYKey, objective.offsetYDefault, -80, 80, 1, currentY, objective.preview)
         currentY = currentY - 6
     end
 
