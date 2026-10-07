@@ -17,17 +17,9 @@
 ## Notes-ptBR: Acompanha o ouro ganho e gasto por seus personagens
 ## Title-ruRU: Accountant Classic
 ## Notes-ruRU: Отслеживает заработанное и потраченное золото ваших персонажей
-## Author: arith
-## Version: v2.21.01
-## OptionalDeps: LibStub, CallbackHandler-1.0, Ace3, LibDBIcon-1.0, !LibUIDropDownMenu
-## SavedVariables: Accountant_ClassicSaveData, Accountant_ClassicDB, Accountant_Classic_NewDB, Accountant_ClassicZoneDB
-## X-Credits: Sabaki, Shadow, Rophy, kamusis
-## X-Date: 2026-09-28T10:20:55Z
-## X-Donate: https://www.patreon.com/ArithonWoW
-## X-Website: http://mods.curse.com/addons/wow/accountant-classic
-## X-License: GPLv2
-## X-Category: Information
-## X-Localizations: enUS, frFR, deDE, zhCN, zhTW, koKR, esES, ptBR, ruRU
+## Author: arith, kamusis
+## Version: v2.21.02
+## Dependencies: Ace3
 ## AddonCompartmentFunc: AccountantClassic_ButtonOnClick
 ## IconTexture: Interface\AddOns\Accountant_Classic\Images\AccountantClassicButton-Up
 ## Category: Other
@@ -39,7 +31,16 @@
 ## Category-koKR: 기타
 ## Category-ptBR: Outro
 ## Category-ruRU: Другое
-## Category-zhCN: 其它
+## OptionalDeps: LibStub, CallbackHandler-1.0, Ace3, LibDBIcon-1.0, !LibUIDropDownMenu
+## SavedVariables: Accountant_ClassicSaveData, Accountant_ClassicDB, Accountant_Classic_NewDB, Accountant_ClassicZoneDB
+## X-Credits: Sabaki, Shadow, Rophy
+## X-Date: 2026-10-06T17:28:32Z
+## X-Website: https://www.curseforge.com/wow/addons/accountant-classic
+## X-License: GPLv2
+## X-Category: Information
+## X-Localizations: enUS, frFR, deDE, zhCN, zhTW, koKR, esES, ptBR, ruRU
+## X-Curse-Project-ID: 4344
+## X-WoWI-ID: 17044
 
 
 LibDataBroker-1.1.lua
@@ -53,12 +54,14 @@ Core\Tabs.lua
 Core\MoneyFrame.lua
 Core\Config.lua
 
+
+
+
+
+
+## Category-zhCN: 其它
 ## Title-zhCN: |cFF00FF00[信息]|rAccountant Classic
-
 ## Title-zhTW: |cffFFFF99[交易]|r 個人會計
-
 ## Notes-zhCN: |cff00CC33追踪每个角色的所有收入与支出状况，并可显示当日小计、当周小计、以及自有记录起的总计。并可显示所有角色的总金额。|r
-
 ## Notes-zhTW: Accountant Classic |n|n追蹤每個角色的所有收入與支出狀況，並可顯示當日小計、當週小計、以及自有記錄起的總計。並可顯示所有角色的總金額。|n|n|cffffd200使用方法: |r點小地圖按鈕。
-
 ## Category-zhTW: 交易
