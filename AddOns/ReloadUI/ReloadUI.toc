@@ -1,14 +1,9 @@
 ## Interface: 120100, 120007
 ## Title: ReloadUI
 ## Author: Sharpedge_Gaming
-## Version: v.3.0
-## Notes: Reload button for the game Menu
-## IconTexture: 975742 
+## Version: v.3.2
+## Notes: Reload button for the Settings window
 
-## Title-zhTW: |cffFF9900[進階]|r 重新載入按鈕
-## Notes-zhTW: ReloadUiReborn |n|n在按 Esc 的遊戲選單和選項視窗加上重新載入按鈕，調整UI或遇到汙染問題，需要常常 /reload 時非常好用。
-## IconTexture: Interface\Icons\ability_vehicle_loadselfcatapult
-## Category-zhTW: 進階
 
 ReloadUI.lua
 
@@ -17,3 +12,11 @@ ReloadUI.lua
 
 
 
+
+## Title-zhTW: |cffFF9900[進階]|r 重新載入按鈕
+
+## Notes-zhTW: ReloadUiReborn |n|n在選項視窗加上重新載入按鈕，調整UI或遇到汙染問題，需要常常 /reload 時非常好用。
+
+## Category-zhTW: 進階
+
+## IconTexture: Interface\Icons\ability_vehicle_loadselfcatapult
