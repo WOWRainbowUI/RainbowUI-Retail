@@ -21,6 +21,7 @@ function module.ShowAddSound(parent, anchor, hideHandler)
 	local nameLocale = L.EDITBOXES.customSoundName
 	local pathLocale = L.EDITBOXES.customSoundPath
 	Popups.ShowInput({
+		title = L.BUTTONS.addCustomSound.label,
 		parentFrame = parent,
 		anchorFrame = anchor,
 		anchorPoint = "BOTTOMLEFT",

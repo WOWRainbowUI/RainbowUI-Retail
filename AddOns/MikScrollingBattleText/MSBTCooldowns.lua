@@ -3,14 +3,13 @@ local moduleName = "Cooldowns"
 MikSBT[moduleName] = module
 
 local MSBTProfiles = MikSBT.Profiles
-local MSBTTriggers = MikSBT.Triggers
 local ItemCooldownTracker = MikSBT.Components.ItemCooldownTracker
 
 local GetItemInfo = C_Item.GetItemInfo
 local DisplayEvent = MikSBT.Animations.DisplayEvent
-local HandleCooldowns = MSBTTriggers.HandleCooldowns or function() end
 
 local eventFrame = CreateFrame("Frame")
+local isEnabled = false
 
 local function NormalizeNumber(value)
 	local success, result = pcall(function()
@@ -31,7 +30,6 @@ local itemTracker = ItemCooldownTracker:New({
 	getItemCooldown = C_Container.GetItemCooldown,
 	normalizeNumber = NormalizeNumber,
 	display = DisplayEvent,
-	handleCooldown = HandleCooldowns,
 	unknown = UNKNOWN,
 	watchDelay = 1,
 	updateInterval = 0.1,
@@ -41,13 +39,15 @@ local function IsItemTrackingEnabled()
 	local profile = MSBTProfiles.currentProfile
 	local settings = profile.events.NOTIFICATION_ITEM_COOLDOWN
 	return (settings and not settings.disabled)
-		or MSBTTriggers.categorizedTriggers["ITEM_COOLDOWN"]
 end
 
 local function UpdateRegisteredEvents()
-	itemTracker:SetEnabled(IsItemTrackingEnabled())
-	itemTracker:Reset()
-	eventFrame:Hide()
+	itemTracker:SetEnabled(isEnabled and IsItemTrackingEnabled())
+	if next(itemTracker.watchedItems) or next(itemTracker.activeCooldowns) then
+		eventFrame:Show()
+	else
+		eventFrame:Hide()
+	end
 end
 
 local function RecordItemUse(itemID)
@@ -89,11 +89,13 @@ local function UseItemByNameHook(itemName)
 end
 
 local function Enable()
+	isEnabled = true
 	UpdateRegisteredEvents()
 end
 
 local function Disable()
-	itemTracker:Reset()
+	isEnabled = false
+	itemTracker:SetEnabled(false)
 	eventFrame:Hide()
 end
 

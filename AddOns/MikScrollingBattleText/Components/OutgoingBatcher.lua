@@ -147,7 +147,9 @@ function OutgoingBatcher:Queue(
 		}
 		self.batches[batchKey] = batch
 		self.config.after(self.config.delay, function()
-			self:Flush(batchKey)
+			if self.batches[batchKey] == batch then
+				self:Flush(batchKey)
+			end
 		end)
 	end
 	if forceIsSpell then

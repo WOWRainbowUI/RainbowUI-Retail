@@ -18,4 +18,5 @@ MSBTOptionsControls.lua
 MSBTOptionsPopups.lua
 MSBTOptionsMain.lua
 MSBTOptionsSounds.lua
+MSBTOptionsProfileTransfer.lua
 MSBTOptionsTabs.lua

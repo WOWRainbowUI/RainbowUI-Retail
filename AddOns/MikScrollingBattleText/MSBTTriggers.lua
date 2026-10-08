@@ -23,9 +23,7 @@ local ShortenNumber = MikSBT.ShortenNumber
 local DisplayEvent = MikSBT.Animations.DisplayEvent
 local TestFlagsAny = MSBTParser.TestFlagsAny
 
-local classMap = MSBTParser.classMap
 local REACTION_HOSTILE = MSBTParser.REACTION_HOSTILE
-local unitMap = MSBTParser.unitMap
 
 local FLAG_YOU = 0xF0000000
 
@@ -40,26 +38,67 @@ local eventsRegistered
 local triggersDisabledNoticeShown
 local cleuTriggerDisableNoticeShown
 
-local playerName, playerGUID, playerClass
+local playerClass
 
-local listenEvents = {}
 
-local captureFuncs
+-- Retired trigger events remain recognizable in saved profiles.
+local retiredCombatLogEvents = {
+	DAMAGE_SHIELD = true,
+	DAMAGE_SHIELD_MISSED = true,
+	DAMAGE_SPLIT = true,
+	ENCHANT_APPLIED = true,
+	ENCHANT_REMOVED = true,
+	ENVIRONMENTAL_DAMAGE = true,
+	PARTY_KILL = true,
+	RANGE_DAMAGE = true,
+	RANGE_MISSED = true,
+	SPELL_AURA_APPLIED = true,
+	SPELL_AURA_APPLIED_DOSE = true,
+	SPELL_AURA_BROKEN_SPELL = true,
+	SPELL_AURA_REFRESH = true,
+	SPELL_AURA_REMOVED = true,
+	SPELL_AURA_REMOVED_DOSE = true,
+	SPELL_BUILDING_DAMAGE = true,
+	SPELL_CAST_FAILED = true,
+	SPELL_CAST_START = true,
+	SPELL_CAST_SUCCESS = true,
+	SPELL_CREATE = true,
+	SPELL_DAMAGE = true,
+	SPELL_DISPEL = true,
+	SPELL_DISPEL_FAILED = true,
+	SPELL_DRAIN = true,
+	SPELL_ENERGIZE = true,
+	SPELL_EXTRA_ATTACKS = true,
+	SPELL_HEAL = true,
+	SPELL_INTERRUPT = true,
+	SPELL_LEECH = true,
+	SPELL_MISSED = true,
+	SPELL_PERIODIC_DAMAGE = true,
+	SPELL_PERIODIC_DRAIN = true,
+	SPELL_PERIODIC_ENERGIZE = true,
+	SPELL_PERIODIC_HEAL = true,
+	SPELL_PERIODIC_LEECH = true,
+	SPELL_PERIODIC_MISSED = true,
+	SPELL_STOLEN = true,
+	SPELL_SUMMON = true,
+	SWING_DAMAGE = true,
+	SWING_MISSED = true,
+	UNIT_DESTROYED = true,
+	UNIT_DIED = true,
+}
+
 local testFuncs
 local eventConditionFuncs
 local exceptionConditionFuncs
 
 local categorizedTriggers = {}
 local triggerExceptions = {}
-local parserEvent = {}
 local lookupTable = {}
 
 local lastPercentages = {}
-local lastPowerTypes = {}
 local firedTimes = {}
 local triggersToFire = {}
 
-local triggerSuppressions = {}
 
 local powerTypes = {}
 
@@ -72,20 +111,8 @@ local function IsCLEUTriggerMainEvent(mainEvent)
 	if mainEvent == "SPELL_AURA_APPLIED" or mainEvent == "SPELL_AURA_REMOVED" then
 		return true
 	end
-	if captureFuncs and captureFuncs[mainEvent] then
+	if retiredCombatLogEvents[mainEvent] then
 		return true
-	end
-	return false
-end
-
-local function TriggerUsesCLEUMainEvents(mainEvents)
-	if not mainEvents or mainEvents == "" then
-		return false
-	end
-	for mainEvent in string_gmatch(mainEvents .. "&&", "(.-)%{.-%}&&") do
-		if IsCLEUTriggerMainEvent(mainEvent) then
-			return true
-		end
 	end
 	return false
 end
@@ -138,23 +165,6 @@ local function CreateTestFuncs()
 		lt = function(l, r) return type(l)=="number" and type(r)=="number" and l < r end,
 		gt = function(l, r) return type(l)=="number" and type(r)=="number" and l > r end,
 	}
-end
-
-local function CreateCaptureFuncs()
-	captureFuncs = {
-
-		SPELL_AURA_BROKEN_SPELL = function (p, ...) p.skillID, p.skillName, p.skillSchool, p.extraSkillID, p.extraSkillName, p.extraSkillSchool, p.auraType = ... end,
-		SPELL_AURA_REFRESH = function (p, ...) p.skillID, p.skillName, p.skillSchool, p.auraType = ... end,
-		SPELL_CAST_SUCCESS = function (p, ...) p.skillID, p.skillName, p.skillSchool = ... end,
-		SPELL_CAST_FAILED = function (p, ...) p.skillID, p.skillName, p.skillSchool, p.missType = ... end,
-		SPELL_SUMMON = function (p, ...) p.skillID, p.skillName, p.skillSchool = ... end,
-		SPELL_CREATE = function (p, ...) p.skillID, p.skillName, p.skillSchool = ... end,
-		UNIT_DIED = function (p, ...) end,
-		UNIT_DESTROYED = function (p, ...) end,
-	}
-
-	captureFuncs.__index = MSBTParser.captureFuncs
-	setmetatable(captureFuncs, captureFuncs)
 end
 
 local function CreateConditionFuncs()
@@ -261,91 +271,12 @@ local function CategorizeTrigger(triggerSettings)
 			end
 		else
 
-		conditions = { triggerSettings = triggerSettings }
-		if conditionsString and conditionsString ~= "" then
-			for conditionEntry in string_gmatch(conditionsString .. ";;", "(.-);;") do
-				conditions[#conditions + 1] = ConvertType(conditionEntry)
-			end
-		end
-
-		if mainEvent == "GENERIC_MISSED" then
-			listenEvents["COMBAT_LOG_EVENT_UNFILTERED"] = true
-
-			if not categorizedTriggers["SWING_MISSED"] then
-				categorizedTriggers["SWING_MISSED"] = {}
-			end
-			if not categorizedTriggers["RANGE_MISSED"] then
-				categorizedTriggers["RANGE_MISSED"] = {}
-			end
-			if not categorizedTriggers["SPELL_MISSED"] then
-				categorizedTriggers["SPELL_MISSED"] = {}
-			end
-
-			categorizedTriggers["SWING_MISSED"][#categorizedTriggers["SWING_MISSED"] + 1] = conditions
-			categorizedTriggers["RANGE_MISSED"][#categorizedTriggers["RANGE_MISSED"] + 1] = conditions
-			categorizedTriggers["SPELL_MISSED"][#categorizedTriggers["SPELL_MISSED"] + 1] = conditions
-
-		elseif mainEvent == "GENERIC_DAMAGE" then
-			listenEvents["COMBAT_LOG_EVENT_UNFILTERED"] = true
-
-			if not categorizedTriggers["SWING_DAMAGE"] then
-				categorizedTriggers["SWING_DAMAGE"] = {}
-			end
-			if not categorizedTriggers["RANGE_DAMAGE"] then
-				categorizedTriggers["RANGE_DAMAGE"] = {}
-			end
-			if not categorizedTriggers["SPELL_DAMAGE"] then
-				categorizedTriggers["SPELL_DAMAGE"] = {}
-			end
-
-			categorizedTriggers["SWING_DAMAGE"][#categorizedTriggers["SWING_DAMAGE"] + 1] = conditions
-			categorizedTriggers["RANGE_DAMAGE"][#categorizedTriggers["RANGE_DAMAGE"] + 1] = conditions
-			categorizedTriggers["SPELL_DAMAGE"][#categorizedTriggers["SPELL_DAMAGE"] + 1] = conditions
-
-		elseif mainEvent == "SPELL_AURA_APPLIED" then
-			listenEvents["COMBAT_LOG_EVENT_UNFILTERED"] = true
-
-			if not categorizedTriggers["SPELL_AURA_APPLIED"] then
-				categorizedTriggers["SPELL_AURA_APPLIED"] = {}
-			end
-			if not categorizedTriggers["SPELL_AURA_APPLIED_DOSE"]then
-				categorizedTriggers["SPELL_AURA_APPLIED_DOSE"] = {}
-			 end
-
-			categorizedTriggers["SPELL_AURA_APPLIED"][#categorizedTriggers["SPELL_AURA_APPLIED"] + 1] = conditions
-			categorizedTriggers["SPELL_AURA_APPLIED_DOSE"][#categorizedTriggers["SPELL_AURA_APPLIED_DOSE"] + 1] = conditions
-
-			local skillName, recipientAffiliation
-			for x = 1, #conditions, 3 do
-				if conditions[x] == "skillName" and conditions[x + 1] == "eq" and conditions[x + 2] then
-					skillName = conditions[x + 2]
-				end
-				if conditions[x] == "recipientAffiliation" and conditions[x + 1] == "eq" and conditions[x + 2] == FLAG_YOU then
-					recipientAffiliation = FLAG_YOU
-				end
-				if conditions[x] == "skillID" and conditions[x + 1] == "eq" and conditions[x + 2] then
-					skillName = GetSpellInfo(conditions[x + 2]) or UNKNOWN
+			conditions = { triggerSettings = triggerSettings }
+			if conditionsString and conditionsString ~= "" then
+				for conditionEntry in string_gmatch(conditionsString .. ";;", "(.-);;") do
+					conditions[#conditions + 1] = ConvertType(conditionEntry)
 				end
 			end
-
-				if skillName and recipientAffiliation then
-					triggerSuppressions[skillName] = true
-				end
-
-		elseif mainEvent == "SPELL_AURA_REMOVED" then
-			listenEvents["COMBAT_LOG_EVENT_UNFILTERED"] = true
-
-			if not categorizedTriggers["SPELL_AURA_REMOVED"] then
-				categorizedTriggers["SPELL_AURA_REMOVED"] = {}
-			end
-			if not categorizedTriggers["SPELL_AURA_REMOVED_DOSE"] then
-				categorizedTriggers["SPELL_AURA_REMOVED_DOSE"] = {}
-			end
-
-			categorizedTriggers["SPELL_AURA_REMOVED"][#categorizedTriggers["SPELL_AURA_REMOVED"] + 1] = conditions
-			categorizedTriggers["SPELL_AURA_REMOVED_DOSE"][#categorizedTriggers["SPELL_AURA_REMOVED_DOSE"] + 1] = conditions
-
-		else
 
 			if not categorizedTriggers[mainEvent] then
 				categorizedTriggers[mainEvent] = {}
@@ -353,7 +284,6 @@ local function CategorizeTrigger(triggerSettings)
 			eventConditions = categorizedTriggers[mainEvent]
 
 			if mainEvent == "UNIT_HEALTH" then
-				listenEvents[mainEvent] = true
 				lastPercentages[mainEvent] = {}
 
 				for x = 1, #conditions, 3 do
@@ -388,7 +318,6 @@ local function CategorizeTrigger(triggerSettings)
 				end
 
 			elseif mainEvent == "UNIT_POWER_UPDATE" then
-				listenEvents[mainEvent] = true
 
 				local powerType
 				for x = 1, #conditions, 3 do
@@ -438,11 +367,7 @@ local function CategorizeTrigger(triggerSettings)
 					end
 				end
 
-			elseif captureFuncs[mainEvent] then
-				listenEvents["COMBAT_LOG_EVENT_UNFILTERED"] = true
-				eventConditions[#eventConditions + 1] = conditions
 			end
-		end
 		end
 	end
 
@@ -465,13 +390,13 @@ local function CategorizeTrigger(triggerSettings)
 end
 
 local function UpdateTriggers()
-	EraseTable(listenEvents)
 
 	for mainEvent in pairs(categorizedTriggers) do
 		EraseTable(categorizedTriggers[mainEvent])
 	end
 
 	EraseTable(triggerExceptions)
+	EraseTable(firedTimes)
 
 	local currentProfileTriggers = rawget(MSBTProfiles.currentProfile, "triggers")
 	if currentProfileTriggers then
@@ -658,77 +583,6 @@ local function HandleHealthAndPowerTriggers(unit, event, currentAmount, maxAmoun
 	lastEventPercentages[unit] = currentPercentage
 end
 
-local function HandleCombatLogTriggers(timestamp, event, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, recipientGUID, recipientName, recipientFlags, recipientRaidFlags, ...)
-
-	if not categorizedTriggers[event] then
-		return
-	end
-
-	local captureFunc = captureFuncs[event]
-	if not captureFunc then
-		return
-	end
-
-	for k in pairs(parserEvent) do
-		parserEvent[k] = nil
-	end
-
-	parserEvent.sourceGUID = sourceGUID
-	parserEvent.sourceName = sourceName
-	parserEvent.sourceFlags = sourceFlags
-	parserEvent.recipientGUID = recipientGUID
-	parserEvent.recipientName = recipientName
-	parserEvent.recipientFlags = recipientFlags
-	parserEvent.sourceUnit = unitMap[sourceGUID]
-	parserEvent.recipientUnit = unitMap[recipientGUID]
-
-	captureFunc(parserEvent, ...)
-
-	for k in pairs(triggersToFire) do triggersToFire[k] = nil end
-
-	for _, eventConditions in ipairs(categorizedTriggers[event]) do
-
-		local doFire = true
-
-		if not triggersToFire[eventConditions.triggerSettings] then
-
-			for position = 1, #eventConditions, 3 do
-
-				local conditionFunc = eventConditionFuncs[eventConditions[position]]
-				local testFunc = testFuncs[eventConditions[position + 1]]
-				if conditionFunc and testFunc and not conditionFunc(testFunc, parserEvent, eventConditions[position + 2]) then
-					doFire = false
-					break
-				end
-			end
-
-			if doFire then
-				triggersToFire[eventConditions.triggerSettings] = true
-			end
-		end
-	end
-
-	if next(triggersToFire) then
-		local effectTexture
-		if parserEvent.skillID or parserEvent.extraSkillID then
-			_, _, effectTexture = GetSpellInfo(parserEvent.extraSkillID or parserEvent.skillID)
-		end
-
-		local sourceName = parserEvent.sourceName
-		local recipientName = parserEvent.recipientName
-		local sourceClass = classMap[sourceGUID]
-		local recipientClass = classMap[recipientGUID]
-		local skillName = parserEvent.skillName
-		local extraSkillName = parserEvent.extraSkillName
-		local amount = parserEvent.amount
-		for triggerSettings in pairs(triggersToFire) do
-			if not TestExceptions(triggerSettings) then
-				DisplayTrigger(triggerSettings, sourceName, sourceClass, recipientName, recipientClass, skillName, extraSkillName, amount, effectTexture)
-			end
-		end
-	end
-end
-
 local function OnEvent(this, event, arg1, arg2, ...)
 	if not isEnabled then
 		return
@@ -754,8 +608,6 @@ local function OnEvent(this, event, arg1, arg2, ...)
 		end
 		HandleHealthAndPowerTriggers(arg1, event, UnitPower(arg1, powerType), UnitPowerMax(arg1, powerType), powerType)
 
-	elseif event == "COMBAT_LOG_EVENT_UNFILTERED" then
-		HandleCombatLogTriggers(CombatLogGetCurrentEventInfo())
 	end
 end
 
@@ -783,8 +635,6 @@ local function Disable()
 	isEnabled = false
 end
 
-playerName = UnitName("player")
-playerGUID = UnitGUID("player")
 _, playerClass = UnitClass("player")
 
 eventFrame = CreateFrame("Frame")
@@ -805,7 +655,6 @@ local powerRegistered = SafeRegisterUnitEvent(
 )
 eventsRegistered = healthRegistered or powerRegistered
 
-CreateCaptureFuncs()
 CreateTestFuncs()
 CreateConditionFuncs()
 
@@ -828,15 +677,12 @@ powerTypes["FURY"] = Enum.PowerType.Fury
 powerTypes["PAIN"] = Enum.PowerType.Pain
 powerTypes["ESSENCE"] = Enum.PowerType.Essence
 
-module.triggerSuppressions		= triggerSuppressions
 module.categorizedTriggers		= categorizedTriggers
 module.powerTypes				= powerTypes
 
-module.HandleCombatLogTriggers	= HandleCombatLogTriggers
 module.ConvertType				= ConvertType
 module.UpdateTriggers			= UpdateTriggers
 module.Enable					= Enable
 module.Disable					= Disable
 module.IsCLEUTriggerMainEvent	= IsCLEUTriggerMainEvent
-module.TriggerUsesCLEUMainEvents = TriggerUsesCLEUMainEvents
 

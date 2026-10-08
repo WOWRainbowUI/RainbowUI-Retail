@@ -91,6 +91,7 @@ local function HandleItems(parserEvent)
 
 	local itemLink = parserEvent.itemLink
 	local itemName, _, itemQuality, _, _, itemType, _, _, _, itemTexture = GetItemInfo(itemLink)
+	itemName = itemName or string.match(itemLink, "%[(.-)%]") or UNKNOWN
 
 	local currentProfile = MSBTProfiles.currentProfile
 	local showEvent = true
