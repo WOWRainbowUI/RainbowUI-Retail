@@ -2,29 +2,26 @@ local _, MDT = ...
 
 MDT.changeLog = {
   {
-    tag = "6.2.21",
-    date = "2026-10-05",
+    tag = "6.3.3",
+    date = "2026-10-08",
     notes = {
-      "Clicking a shared route that did not fully arrive now shows a chat message asking you to have the route sent again, instead of an error window.",
-      "Fixed an error window appearing when drawing or setting a new route during a Live Session.",
+      "Fixed the text cursor and text highlighting not showing while editing a single-line map text with the map zoomed out.",
+      "The style bar of a selected map text now stays inside the map when the text is scrolled out of view, instead of moving out of the MDT window.",
     },
   },
   {
-    tag = "6.2.20",
-    date = "2026-09-25",
+    tag = "6.3.2",
+    date = "2026-10-07",
     notes = {
-      "Backend changes",
-      "Added a Mutating Elixir map icon in Altar of Fangs.",
-      "Added Warding Incense and Rune of Anchoring map icons in Den of Nalorakk.",
-      "Added Proof of Endurance and Proof of Mastery map icons above the enemies that grant them in Voidscar Arena.",
+      "Selected map texts now have a resize handle in their bottom right corner. Drag it to change the text size while the top left corner stays in place.",
+      "Opening MDT in an open-world zone like Eversong Woods no longer switches to a past season dungeon located there. Inside a dungeon or at its entrance MDT still switches to it.",
     },
   },
   {
-    tag = "6.2.19",
-    date = "2026-09-22",
+    tag = "6.3.1",
+    date = "2026-10-07",
     notes = {
-      "Fixed overlapping enemy blips visuals",
-      "Corrected G34 Living Venom positions and added two missing Living Venoms in Altar of Fangs.",
+      "Fixed icons in map texts being too small at small text sizes and too large at big text sizes.",
     },
   },
 }
