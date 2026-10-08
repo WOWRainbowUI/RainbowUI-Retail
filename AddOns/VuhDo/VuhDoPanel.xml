@@ -673,6 +673,11 @@
 							<Anchor point="TOPLEFT" relativeTo="$parentHlBar" relativePoint="TOPLEFT"/>
 							<Anchor point="BOTTOMRIGHT" relativeTo="$parentHlBar" relativePoint="BOTTOMRIGHT"/>
 						</Anchors>
+						<Scripts>
+							<OnLoad>
+								self.addLevel = 1;
+							</OnLoad>
+						</Scripts>
 						<Frames>
 
 							<StatusBar name="$parentIcBar" inherits="VuhDoStatusBar">
@@ -697,7 +702,7 @@
 							<OnLoad>
 								self:SetMinMaxValues(0, 1);
 								self:SetValue(0);
-								self.addLevel = 1;
+								self.addLevel = 2;
 							</OnLoad>
 						</Scripts>
 					</StatusBar>
@@ -739,7 +744,7 @@
 								self:SetReverseFill(true);
 								self:SetMinMaxValues(0, 1);
 								self:SetValue(0);
-								self.addLevel = 1;
+								self.addLevel = 2;
 							</OnLoad>
 						</Scripts>
 					</StatusBar>
@@ -755,7 +760,7 @@
 								self:SetReverseFill(true);
 								self:SetMinMaxValues(0, 1);
 								self:SetValue(0);
-								self.addLevel = 1;
+								self.addLevel = 2;
 							</OnLoad>
 						</Scripts>
 					</StatusBar>

@@ -10,6 +10,7 @@ local GetMacroIndexByName = GetMacroIndexByName;
 local GetMacroInfo = GetMacroInfo;
 local GetItemInfo = C_Item.GetItemInfo;
 local GetSpellName = C_Spell.GetSpellName;
+local InCombatLockdown = InCombatLockdown;
 
 VUHDO_IS_SFX_ENABLED = true;
 VUHDO_IS_SOUND_ERRORSPEECH_ENABLED = true;
@@ -35,24 +36,44 @@ local sBattleRezItemsPending = 0;
 
 
 --
+local tNumPending;
+local tName;
 function VUHDO_battleRezListenerOnEvent(aFrame, anEvent, anItemID, anIsSuccess)
 
 	if "GET_ITEM_INFO_RECEIVED" ~= anEvent then
 		return;
 	end
 
-	if VUHDO_BATTLE_REZ_ITEM_LOOKUP[anItemID] then
-		VUHDO_resetMacroCaches();
+	if not anIsSuccess or not VUHDO_BATTLE_REZ_ITEM_LOOKUP[anItemID] then
+		return;
+	end
 
-		VUHDO_timeReloadUI(1);
+	VUHDO_resetMacroCaches();
 
-		VUHDO_rebuildKeyboardMacros();
+	VUHDO_invalidateBindingCodeCache();
 
-		sBattleRezItemsPending = sBattleRezItemsPending - 1;
+	if not InCombatLockdown() then
+		VUHDO_updateBindingCodeAttributes();
+	end
 
-		if sBattleRezItemsPending <= 0 then
-			aFrame:UnregisterEvent("GET_ITEM_INFO_RECEIVED");
+	VUHDO_timeReloadUI(1);
+
+	VUHDO_rebuildKeyboardMacros();
+
+	tNumPending = 0;
+
+	for _, tItemID in ipairs(VUHDO_BATTLE_REZ_ITEM_IDS) do
+		tName = GetItemInfo(tItemID);
+
+		if tName == nil then
+			tNumPending = tNumPending + 1;
 		end
+	end
+
+	sBattleRezItemsPending = tNumPending;
+
+	if sBattleRezItemsPending <= 0 then
+		aFrame:UnregisterEvent("GET_ITEM_INFO_RECEIVED");
 	end
 
 	return;
@@ -64,8 +85,6 @@ sBattleRezListenerFrame:SetScript("OnEvent", VUHDO_battleRezListenerOnEvent);
 
 
 --
-local tNumPending;
-local tName;
 function VUHDO_macroFactoryInitLocalOverrides()
 
 	VUHDO_RAID = _G["VUHDO_RAID"];
@@ -242,13 +261,43 @@ local function VUHDO_generateTargetMacroText(aTarget, aFriendlyAction, aHostileA
 	if not aFriendlyAction or not aHostileAction then	return ""; end
 
 	tMacroId = GetMacroIndexByName(aHostileAction);
-	if tMacroId == 0 then
-		tMacroId = GetMacroIndexByName(aFriendlyAction);
+
+	if tMacroId ~= 0 then
+		_, _, tMacroText = GetMacroInfo(tMacroId);
+
+		return tMacroText;
 	end
 
-	if (tMacroId ~= 0) then
+	tMacroId = GetMacroIndexByName(aFriendlyAction);
+
+	if tMacroId ~= 0 then
 		_, _, tMacroText = GetMacroInfo(tMacroId);
-		return tMacroText;
+
+		tLowerHostile = strlower(aHostileAction);
+
+		if "target" == tLowerHostile then
+			tEnemyText = "/tar [harm,@vuhdo]";
+		elseif "focus" == tLowerHostile then
+			tEnemyText = "/focus [harm,@vuhdo]";
+		elseif "assist" == tLowerHostile then
+			tEnemyText = "/assist [harm,@vuhdo]";
+		elseif #aHostileAction > 0 and GetSpellName(aHostileAction) then
+			tEnemyText = "/use [harm,@vuhdo] " .. aHostileAction;
+		else
+			tEnemyText = "";
+		end
+
+		if tEnemyText == "" then
+			return tMacroText;
+		end
+
+		if VUHDO_SPELL_CONFIG["IS_CANCEL_CURRENT"] then
+			tStopText = "/stopcasting\n";
+		else
+			tStopText = "";
+		end
+
+		return format("%s%s%s\n/stopmacro [harm,@vuhdo]\n%s", sStopTargetText, tStopText, tEnemyText, tMacroText);
 	end
 
 	if VUHDO_SPELL_CONFIG["IS_CANCEL_CURRENT"] then
@@ -418,13 +467,22 @@ local VUHDO_PROHIBIT_HELP = {
 local tRezText;
 local tRezPrefix;
 local tItemName;
-local function VUHDO_getAutoBattleRezText(anIsKeyboard)
+local tUnitRef;
+local function VUHDO_getAutoBattleRezText(anIsKeyboard, anActionToSkip, aUnitToken)
 
 	if not VUHDO_SPELL_CONFIG["autoBattleRez"] then
 		return "";
 	end
 
-	tRezPrefix = "/use [dead,combat,@" .. (anIsKeyboard and "mouseover" or "vuhdo");
+	if aUnitToken then
+		tUnitRef = aUnitToken;
+	elseif anIsKeyboard then
+		tUnitRef = "mouseover";
+	else
+		tUnitRef = "vuhdo";
+	end
+
+	tRezPrefix = "/use [dead,combat,@" .. tUnitRef;
 
 	if VUHDO_SPELL_CONFIG["smartCastModi"] ~= "all" then
 		tRezPrefix = tRezPrefix .. ",mod:" .. VUHDO_SPELL_CONFIG["smartCastModi"];
@@ -433,13 +491,13 @@ local function VUHDO_getAutoBattleRezText(anIsKeyboard)
 	tRezPrefix = tRezPrefix .. "] ";
 	tRezText = "";
 
-	if "DRUID" == VUHDO_PLAYER_CLASS then
+	if "DRUID" == VUHDO_PLAYER_CLASS and anActionToSkip ~= VUHDO_SPELL_ID.REBIRTH then
 		tRezText = tRezText .. tRezPrefix .. VUHDO_SPELL_ID.REBIRTH .. "\n";
-	elseif "PALADIN" == VUHDO_PLAYER_CLASS then
+	elseif "PALADIN" == VUHDO_PLAYER_CLASS and anActionToSkip ~= VUHDO_SPELL_ID.INTERCESSION then
 		tRezText = tRezText .. tRezPrefix .. VUHDO_SPELL_ID.INTERCESSION .. "\n";
-	elseif "DEATHKNIGHT" == VUHDO_PLAYER_CLASS then
+	elseif "DEATHKNIGHT" == VUHDO_PLAYER_CLASS and anActionToSkip ~= VUHDO_SPELL_ID.RAISE_ALLY then
 		tRezText = tRezText .. tRezPrefix .. VUHDO_SPELL_ID.RAISE_ALLY .. "\n";
-	elseif "WARLOCK" == VUHDO_PLAYER_CLASS then
+	elseif "WARLOCK" == VUHDO_PLAYER_CLASS and anActionToSkip ~= VUHDO_SPELL_ID.SOULSTONE then
 		tRezText = tRezText .. tRezPrefix .. VUHDO_SPELL_ID.SOULSTONE .. "\n";
 	end
 
@@ -628,7 +686,8 @@ end
 local tTemplate;
 function VUHDO_buildRezSecureMacroTemplate(anAction)
 
-	tTemplate = "/tar [@SECURE_UNIT]\n/use " .. anAction .. "\n";
+	tTemplate = VUHDO_getAutoBattleRezText(false, anAction, "SECURE_UNIT");
+	tTemplate = tTemplate .. "/tar [@SECURE_UNIT]\n/use " .. anAction .. "\n";
 
 	if not VUHDO_SPELL_CONFIG["IS_AUTO_TARGET"] then
 		tTemplate = tTemplate .. "/targetlasttarget\n";
@@ -644,7 +703,8 @@ end
 local tTemplate;
 function VUHDO_buildPurgeSecureMacroTemplate(anAction)
 
-	tTemplate = format("/use [@SECURE_UNIT] %s\n", anAction);
+	tTemplate = VUHDO_getAutoBattleRezText(false, anAction, "SECURE_UNIT");
+	tTemplate = tTemplate .. format("/use [@SECURE_UNIT] %s\n", anAction);
 
 	if VUHDO_SPELL_CONFIG["IS_AUTO_TARGET"] then
 		tTemplate = tTemplate .. "/tar [@SECURE_UNIT]\n";
@@ -703,28 +763,36 @@ end
 
 
 --
-local tText;
+local tPurgeText;
 function VUHDO_buildPurgeMacroText(anAction, aTarget)
-	tText = format("/use [@%s] %s\n", aTarget, anAction);
+
+	tPurgeText = VUHDO_getAutoBattleRezText(false, anAction, aTarget);
+	tPurgeText = tPurgeText .. format("/use [@%s] %s\n", aTarget, anAction);
 
 	if VUHDO_SPELL_CONFIG["IS_AUTO_TARGET"] then
-		tText = format("%s/tar [@%s]\n", tText, aTarget);
+		tPurgeText = format("%s/tar [@%s]\n", tPurgeText, aTarget);
 	end
-	return tText;
+
+	return tPurgeText;
+
 end
 
 
 
 -- Catch players who have released spirit
-local tText;
+local tRezMacroText;
 function VUHDO_buildRezMacroText(anAction, aTarget)
-	tText = format("/tar [@%s]\n", aTarget);
-	tText = format("%s/use %s\n", tText, anAction);
+
+	tRezMacroText = VUHDO_getAutoBattleRezText(false, anAction, aTarget);
+	tRezMacroText = tRezMacroText .. format("/tar [@%s]\n", aTarget);
+	tRezMacroText = format("%s/use %s\n", tRezMacroText, anAction);
+
 	if not VUHDO_SPELL_CONFIG["IS_AUTO_TARGET"] then
-		tText = format("%s/targetlasttarget\n", tText);
+		tRezMacroText = format("%s/targetlasttarget\n", tRezMacroText);
 	end
 
-	return tText;
+	return tRezMacroText;
+
 end
 
 

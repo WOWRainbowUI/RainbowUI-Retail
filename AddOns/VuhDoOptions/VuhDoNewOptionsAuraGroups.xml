@@ -1502,6 +1502,28 @@
 								</Scripts>
 							</CheckButton>
 
+							<CheckButton name="$parentNameMatchCheckButton" text="VUHDO_I18N_MATCH_BY_NAME" inherits="VuhDoCheckButtonTemplate">
+								<Size>
+									<AbsDimension x="120" y="32" />
+								</Size>
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeTo="$parentOthersCheckButton" relativePoint="TOPRIGHT">
+										<Offset>
+											<AbsDimension x="8" y="0" />
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Scripts>
+									<OnLoad>
+										VUHDO_lnfSetModel(self, "VUHDO_SPELL_ENTRY_IS_NAME_MATCH");
+										VUHDO_lnfCheckButtonOnLoad(self);
+										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K898);
+
+										self:SetAttribute("custom_function_post", VUHDO_spellEntrySettingsChanged);
+									</OnLoad>
+								</Scripts>
+							</CheckButton>
+
 							<Frame name="$parentTimerTextLabel" inherits="VuhDoLabelFrameTemplate">
 								<Size>
 									<AbsDimension x="58" y="18" />

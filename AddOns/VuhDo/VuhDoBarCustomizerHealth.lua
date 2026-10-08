@@ -55,6 +55,10 @@ local VUHDO_startUnitButtonAuraGroupGlow;
 local VUHDO_stopUnitButtonAuraGroupGlow;
 local VUHDO_refreshPrivateAuras;
 local VUHDO_getRealParent;
+local VUHDO_getSideBarWidthLeft;
+local VUHDO_getSideBarWidthRight;
+local VUHDO_getHealthBarWidth;
+local VUHDO_positionHealthBar;
 local VUHDO_setOverlayChainBaselineColor;
 local VUHDO_hideOverlayFillChainBackground;
 local VUHDO_showOverlayFillChainBackground;
@@ -151,6 +155,10 @@ function VUHDO_customHealthInitBurstCache()
 	VUHDO_stopUnitButtonAuraGroupGlow = _G["VUHDO_stopUnitButtonAuraGroupGlow"];
 	VUHDO_refreshPrivateAuras = _G["VUHDO_refreshPrivateAuras"];
 	VUHDO_getRealParent = _G["VUHDO_getRealParent"];
+	VUHDO_getSideBarWidthLeft = _G["VUHDO_getSideBarWidthLeft"];
+	VUHDO_getSideBarWidthRight = _G["VUHDO_getSideBarWidthRight"];
+	VUHDO_getHealthBarWidth = _G["VUHDO_getHealthBarWidth"];
+	VUHDO_positionHealthBar = _G["VUHDO_positionHealthBar"];
 	VUHDO_setOverlayChainBaselineColor = _G["VUHDO_setOverlayChainBaselineColor"];
 	VUHDO_hideOverlayFillChainBackground = _G["VUHDO_hideOverlayFillChainBackground"];
 	VUHDO_showOverlayFillChainBackground = _G["VUHDO_showOverlayFillChainBackground"];
@@ -1505,6 +1513,8 @@ do
 	local tLossRegularHeight;
 	local tLossHealthHeight;
 	local tLossWidth;
+	local tLeftInset;
+	local tRightInset;
 	function VUHDO_updateHealthLossBar(aUnit, anInterpolation, aInfo, aAllButtons)
 
 		tLossInfo = aInfo or VUHDO_RAID[aUnit];
@@ -1565,23 +1575,21 @@ do
 
 					tLossRegularHeight = tButton["regularHeight"];
 					tLossHealthHeight = tLossRegularHeight and (tLossRegularHeight - tLossManaInset) or nil;
-					tLossWidth = tButton:GetWidth();
+					tLeftInset = VUHDO_getSideBarWidthLeft(tLossPanelNum);
+					tRightInset = VUHDO_getSideBarWidthRight(tLossPanelNum);
+					tLossWidth = VUHDO_getHealthBarWidth(tLossPanelNum);
 
-					VUHDO_PixelUtil.ClearAllPoints(tLossHealthBar);
 					tLossAnchorBase = VUHDO_getRealParent(tLossHealthBar);
 
 					if tLossPerc <= 0.0001 then
-						if tLossHealthHeight then
-							VUHDO_PixelUtil.SetPoint(tLossHealthBar, "TOPLEFT", tLossAnchorBase, "TOPLEFT", 0, 0);
-							VUHDO_PixelUtil.SetSize(tLossHealthBar, tLossWidth, tLossHealthHeight);
-						end
+						VUHDO_positionHealthBar(tButton, tLossPanelNum);
 
 						tLossBar:Hide();
 						tLossBar:SetValue(0, tLossInterpolation);
 
 						if tLossHealthHeight then
 							VUHDO_PixelUtil.ClearAllPoints(tLossBar);
-							VUHDO_PixelUtil.SetPoint(tLossBar, "TOPLEFT", tLossAnchorBase, "TOPLEFT", 0, 0);
+							VUHDO_PixelUtil.SetPoint(tLossBar, "TOPLEFT", tLossAnchorBase, "TOPLEFT", tLeftInset, 0);
 							VUHDO_PixelUtil.SetSize(tLossBar, tLossWidth, tLossHealthHeight);
 						end
 					else
@@ -1590,35 +1598,37 @@ do
 
 						if tLossHealthHeight then
 							VUHDO_PixelUtil.ClearAllPoints(tLossBar);
-							VUHDO_PixelUtil.SetPoint(tLossBar, "TOPLEFT", tLossAnchorBase, "TOPLEFT", 0, 0);
+							VUHDO_PixelUtil.SetPoint(tLossBar, "TOPLEFT", tLossAnchorBase, "TOPLEFT", tLeftInset, 0);
 							VUHDO_PixelUtil.SetSize(tLossBar, tLossWidth, tLossHealthHeight);
 						end
 
 						tLossTexture = tLossBar:GetStatusBarTexture();
 
+						VUHDO_PixelUtil.ClearAllPoints(tLossHealthBar);
+
 						if "HORIZONTAL" == tLossEffectiveOrientation then
-							VUHDO_PixelUtil.SetPoint(tLossHealthBar, "TOPLEFT", tLossAnchorBase, "TOPLEFT", 0, 0);
+							VUHDO_PixelUtil.SetPoint(tLossHealthBar, "TOPLEFT", tLossAnchorBase, "TOPLEFT", tLeftInset, 0);
 							VUHDO_PixelUtil.SetPoint(tLossHealthBar, "TOPRIGHT", tLossTexture, "TOPLEFT", 0, 0);
 
 							if tLossHealthHeight then
 								VUHDO_PixelUtil.SetHeight(tLossHealthBar, tLossHealthHeight);
 							end
 						elseif "HORIZONTAL_INV" == tLossEffectiveOrientation then
-							VUHDO_PixelUtil.SetPoint(tLossHealthBar, "TOPRIGHT", tLossAnchorBase, "TOPRIGHT", 0, 0);
+							VUHDO_PixelUtil.SetPoint(tLossHealthBar, "TOPRIGHT", tLossAnchorBase, "TOPRIGHT", -tRightInset, 0);
 							VUHDO_PixelUtil.SetPoint(tLossHealthBar, "TOPLEFT", tLossTexture, "TOPRIGHT", 0, 0);
 
 							if tLossHealthHeight then
 								VUHDO_PixelUtil.SetHeight(tLossHealthBar, tLossHealthHeight);
 							end
 						elseif "VERTICAL" == tLossEffectiveOrientation then
-							VUHDO_PixelUtil.SetPoint(tLossHealthBar, "BOTTOMLEFT", tLossAnchorBase, "BOTTOMLEFT", 0, tLossManaInset);
+							VUHDO_PixelUtil.SetPoint(tLossHealthBar, "BOTTOMLEFT", tLossAnchorBase, "BOTTOMLEFT", tLeftInset, tLossManaInset);
 							VUHDO_PixelUtil.SetPoint(tLossHealthBar, "TOPLEFT", tLossTexture, "BOTTOMLEFT", 0, 0);
 
 							if tLossWidth then
 								VUHDO_PixelUtil.SetWidth(tLossHealthBar, tLossWidth);
 							end
 						else
-							VUHDO_PixelUtil.SetPoint(tLossHealthBar, "TOPLEFT", tLossAnchorBase, "TOPLEFT", 0, 0);
+							VUHDO_PixelUtil.SetPoint(tLossHealthBar, "TOPLEFT", tLossAnchorBase, "TOPLEFT", tLeftInset, 0);
 							VUHDO_PixelUtil.SetPoint(tLossHealthBar, "BOTTOMLEFT", tLossTexture, "TOPLEFT", 0, 0);
 
 							if tLossWidth then

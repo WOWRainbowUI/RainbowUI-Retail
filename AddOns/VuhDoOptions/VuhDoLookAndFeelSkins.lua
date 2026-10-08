@@ -1,6 +1,7 @@
 local _;
 
 local _G = _G;
+
 local pairs = pairs;
 local ipairs = ipairs;
 local type = type;
@@ -9,7 +10,10 @@ local format = format;
 local tinsert = table.insert;
 local tsort = table.sort;
 local twipe = table.wipe;
+local select = select;
+
 local hooksecurefunc = hooksecurefunc;
+local debugprofilestop = debugprofilestop;
 
 local VUHDO_PixelUtil = VUHDO_PixelUtil;
 
@@ -44,7 +48,7 @@ local sDarkSkin = {
 	["checkFaceHidden"] = true,
 	["checkLabelLeft"] = true,
 	["badgeOnlyButtons"] = true,
-	["font"] = "Interface\\AddOns\\VuhDo\\Fonts\\TitilliumWeb-Bold.ttf",
+	["font"] = "Interface\\AddOns\\VuhDo\\Fonts\\Exo2-Bold.ttf",
 	["imagesPath"] = sDarkImagesPath,
 	["indicatorPlate"] = { 0.278, 0.298, 0.357, 1 },
 	["textures"] = {
@@ -234,16 +238,18 @@ local sCjkButtonFontNames = {
 	"VuDoButtonFontBigLight",
 };
 
-local sNativeTextures = { };
-local sNativeBackdrops = { };
-local sNativeFontStrings = { };
-local sNativeTabState = { };
-local sNativeSliderState = { };
-local sNativeSliderArrowState = { };
-local sNativeSliderLabelState = { };
-local sNativeEditBoxState = { };
-local sNativeTriStateState = { };
-local sNativeCheckFaceState = { };
+local sNative = {
+	["textures"] = { },
+	["backdrops"] = { },
+	["fontStrings"] = { },
+	["tabs"] = { },
+	["sliders"] = { },
+	["sliderArrows"] = { },
+	["sliderLabels"] = { },
+	["editBoxes"] = { },
+	["triStates"] = { },
+	["checkFaces"] = { },
+};
 
 local sFrameRegionTextureKeys = {
 	["blue_dk_square_16_16"] = "blue_dk_square_16_16",
@@ -493,7 +499,7 @@ function VUHDO_lnfSkinStyleListEntry(aPanel, anIsSelected)
 	aPanel["skinListEntry"] = true;
 	aPanel["skinListEntrySelected"] = anIsSelected;
 
-	tEntry = sNativeBackdrops[aPanel];
+	tEntry = sNative["backdrops"][aPanel];
 
 	if not tEntry and aPanel.GetBackdropColor then
 		tNativeR, tNativeG, tNativeB, tNativeA = aPanel:GetBackdropColor();
@@ -503,7 +509,7 @@ function VUHDO_lnfSkinStyleListEntry(aPanel, anIsSelected)
 			["bg"] = tBorder,
 			["border"] = { tNativeR, tNativeG, tNativeB, tNativeA },
 		};
-		sNativeBackdrops[aPanel] = tEntry;
+		sNative["backdrops"][aPanel] = tEntry;
 	end
 
 	if aPanel["backdropInfo"] and aPanel.ApplyBackdrop then
@@ -605,7 +611,7 @@ local function VUHDO_lnfSkinSnapshotTexture(aTexture)
 		return nil;
 	end
 
-	tEntry = sNativeTextures[aTexture];
+	tEntry = sNative["textures"][aTexture];
 
 	if tEntry then
 		return tEntry;
@@ -621,7 +627,7 @@ local function VUHDO_lnfSkinSnapshotTexture(aTexture)
 		["a"] = tNativeA,
 	};
 
-	sNativeTextures[aTexture] = tEntry;
+	sNative["textures"][aTexture] = tEntry;
 
 	return tEntry;
 
@@ -898,7 +904,7 @@ local function VUHDO_lnfSkinSnapshotBackdrop(aFrame)
 		return nil;
 	end
 
-	tEntry = sNativeBackdrops[aFrame];
+	tEntry = sNative["backdrops"][aFrame];
 
 	if tEntry then
 		return tEntry;
@@ -916,7 +922,7 @@ local function VUHDO_lnfSkinSnapshotBackdrop(aFrame)
 
 	tEntry["border"] = tNative;
 
-	sNativeBackdrops[aFrame] = tEntry;
+	sNative["backdrops"][aFrame] = tEntry;
 
 	return tEntry;
 
@@ -932,7 +938,7 @@ local function VUHDO_lnfSkinSnapshotFontString(aRegion)
 		return nil;
 	end
 
-	tEntry = sNativeFontStrings[aRegion];
+	tEntry = sNative["fontStrings"][aRegion];
 
 	if tEntry then
 		return tEntry;
@@ -951,7 +957,7 @@ local function VUHDO_lnfSkinSnapshotFontString(aRegion)
 		tEntry["fontPath"], tEntry["fontSize"], tEntry["fontFlags"] = aRegion:GetFont();
 	end
 
-	sNativeFontStrings[aRegion] = tEntry;
+	sNative["fontStrings"][aRegion] = tEntry;
 
 	return tEntry;
 
@@ -1039,7 +1045,7 @@ local function VUHDO_lnfSkinSnapshotTab(aButton)
 		return nil;
 	end
 
-	tEntry = sNativeTabState[aButton];
+	tEntry = sNative["tabs"][aButton];
 
 	if tEntry then
 		return tEntry;
@@ -1087,7 +1093,7 @@ local function VUHDO_lnfSkinSnapshotTab(aButton)
 		end
 	end
 
-	sNativeTabState[aButton] = tEntry;
+	sNative["tabs"][aButton] = tEntry;
 
 	return tEntry;
 
@@ -1108,7 +1114,7 @@ local function VUHDO_lnfSkinSnapshotSlider(aSlider)
 		return nil;
 	end
 
-	tEntry = sNativeSliderState[aSlider];
+	tEntry = sNative["sliders"][aSlider];
 
 	if tEntry then
 		return tEntry;
@@ -1127,7 +1133,7 @@ local function VUHDO_lnfSkinSnapshotSlider(aSlider)
 		tinsert(tEntry["points"], { tPoint, tRelativeTo, tRelativePoint, tOffsetX, tOffsetY });
 	end
 
-	sNativeSliderState[aSlider] = tEntry;
+	sNative["sliders"][aSlider] = tEntry;
 
 	return tEntry;
 
@@ -1190,7 +1196,7 @@ local function VUHDO_lnfSkinSnapshotSliderLabel(aLabel)
 		return nil;
 	end
 
-	tEntry = sNativeSliderLabelState[aLabel];
+	tEntry = sNative["sliderLabels"][aLabel];
 
 	if tEntry then
 		return tEntry;
@@ -1207,7 +1213,7 @@ local function VUHDO_lnfSkinSnapshotSliderLabel(aLabel)
 		tinsert(tEntry["points"], { tPoint, tRelativeTo, tRelativePoint, tOffsetX, tOffsetY });
 	end
 
-	sNativeSliderLabelState[aLabel] = tEntry;
+	sNative["sliderLabels"][aLabel] = tEntry;
 
 	return tEntry;
 
@@ -1252,7 +1258,7 @@ local function VUHDO_lnfSkinSnapshotSliderArrow(aButton)
 		return nil;
 	end
 
-	tArrowEntry = sNativeSliderArrowState[aButton];
+	tArrowEntry = sNative["sliderArrows"][aButton];
 
 	if tArrowEntry then
 		return tArrowEntry;
@@ -1270,7 +1276,7 @@ local function VUHDO_lnfSkinSnapshotSliderArrow(aButton)
 		["coords"] = tCoords,
 	};
 
-	sNativeSliderArrowState[aButton] = tArrowEntry;
+	sNative["sliderArrows"][aButton] = tArrowEntry;
 
 	return tArrowEntry;
 
@@ -1610,7 +1616,7 @@ local function VUHDO_lnfSkinSnapshotTriState(aButton)
 		return nil;
 	end
 
-	tEntry = sNativeTriStateState[aButton];
+	tEntry = sNative["triStates"][aButton];
 
 	if tEntry then
 		return tEntry;
@@ -1663,7 +1669,7 @@ local function VUHDO_lnfSkinSnapshotTriState(aButton)
 		end
 	end
 
-	sNativeTriStateState[aButton] = tEntry;
+	sNative["triStates"][aButton] = tEntry;
 
 	return tEntry;
 
@@ -2183,7 +2189,7 @@ function VUHDO_lnfSkinOnAuraGroupsRefresh()
 		return;
 	end
 
-	VUHDO_lnfSkinApplyToFrameTree(_G["VuhDoNewOptionsAuraGroupsStorePanelListEntriesPanelEntryScrollEntryScrollChild"]);
+	VUHDO_lnfSkinEnqueueFrameTree(_G["VuhDoNewOptionsAuraGroupsStorePanelListEntriesPanelEntryScrollEntryScrollChild"]);
 
 	return;
 
@@ -2198,7 +2204,7 @@ function VUHDO_lnfSkinOnBuffWatchRefresh()
 		return;
 	end
 
-	VUHDO_lnfSkinApplyToFrameTree(VuhDoNewOptionsBuffsGeneric);
+	VUHDO_lnfSkinEnqueueFrameTree(VuhDoNewOptionsBuffsGeneric);
 
 	return;
 
@@ -2308,7 +2314,7 @@ local function VUHDO_lnfSkinSnapshotEditBox(aEditBox)
 		return nil;
 	end
 
-	tEntry = sNativeEditBoxState[aEditBox];
+	tEntry = sNative["editBoxes"][aEditBox];
 
 	if tEntry then
 		return tEntry;
@@ -2323,7 +2329,7 @@ local function VUHDO_lnfSkinSnapshotEditBox(aEditBox)
 		["a"] = tNativeA,
 	};
 
-	sNativeEditBoxState[aEditBox] = tEntry;
+	sNative["editBoxes"][aEditBox] = tEntry;
 
 	return tEntry;
 
@@ -2432,7 +2438,7 @@ local function VUHDO_lnfSkinSnapshotCheckFace(aButton)
 		return nil;
 	end
 
-	tEntry = sNativeCheckFaceState[aButton];
+	tEntry = sNative["checkFaces"][aButton];
 
 	if tEntry then
 		return tEntry;
@@ -2460,7 +2466,7 @@ local function VUHDO_lnfSkinSnapshotCheckFace(aButton)
 		end
 	end
 
-	sNativeCheckFaceState[aButton] = tEntry;
+	sNative["checkFaces"][aButton] = tEntry;
 
 	return tEntry;
 
@@ -2887,7 +2893,7 @@ local function VUHDO_lnfSkinApplyRadioSwatchAnchors(aButton)
 			if not tArrowEntry or tArrowEntry == 0 then
 				VUHDO_lnfSkinRestoreSliderLabelAnchors(tSwatchFrame);
 			else
-				tSliderPoints = sNativeSliderLabelState[tSwatchFrame];
+				tSliderPoints = sNative["sliderLabels"][tSwatchFrame];
 
 				if tSliderPoints and tSliderPoints["points"] and tSliderPoints["points"][1] then
 					tPoint = tSliderPoints["points"][1][1];
@@ -3575,27 +3581,185 @@ function VUHDO_lnfSkinApplyToComponent(aComponent, aLabelName)
 		VUHDO_lnfSkinRefreshTabButton(aComponent);
 	end
 
+	if tObjectType == "Frame" and aComponent:GetAttribute("model") then
+		tName = aComponent:GetName();
+
+		if tName and _G[tName .. "Texture"] and _G[tName .. "TitleString"] then
+			if _G[tName .. "Border"] then
+				VUHDO_lnfColorSwatchInitFromModel(aComponent);
+			else
+				VUHDO_lnfTextureSwatchInitFromModel(aComponent);
+			end
+		end
+	end
+
 	return;
 
 end
 
 
 
---
-function VUHDO_lnfSkinApplyToFrameTree(aFrame)
+do
+	local sSkinQueue = { };
+	local sSkinHiddenQueue = { };
+	local sSkinQueueIndex = 1;
+	local sSkinHiddenQueueIndex = 1;
+	local sSkinUpdateFrame;
+	local sSkinMaxUpdateUs = 7500;
 
-	if not aFrame then
+
+
+	--
+	local function VUHDO_lnfSkinQueueIsPending()
+
+		return sSkinQueueIndex <= #sSkinQueue or sSkinHiddenQueueIndex <= #sSkinHiddenQueue;
+
+	end
+
+
+
+	--
+	local function VUHDO_lnfSkinQueueReset()
+
+		if sSkinQueueIndex > #sSkinQueue then
+			twipe(sSkinQueue);
+
+			sSkinQueueIndex = 1;
+		end
+
+		if sSkinHiddenQueueIndex > #sSkinHiddenQueue then
+			twipe(sSkinHiddenQueue);
+
+			sSkinHiddenQueueIndex = 1;
+		end
+
 		return;
+
 	end
 
-	VUHDO_lnfSkinApplyToComponent(aFrame);
 
-	for _, tChild in ipairs({ aFrame:GetChildren() }) do
-		VUHDO_lnfSkinApplyToFrameTree(tChild);
+
+	--
+	local tChildCount;
+	local tChild;
+	local function VUHDO_lnfSkinEnqueueChildren(aFrame)
+
+		tChildCount = select("#", aFrame:GetChildren());
+
+		for tIdx = 1, tChildCount do
+			tChild = (select(tIdx, aFrame:GetChildren()));
+
+			if tChild:IsVisible() then
+				tinsert(sSkinQueue, tChild);
+			else
+				tinsert(sSkinHiddenQueue, tChild);
+			end
+		end
+
+		return;
+
 	end
 
-	return;
 
+
+	--
+	function VUHDO_lnfSkinEnqueueFrameTree(aFrame)
+
+		if not sSkinReady or not aFrame then
+			return;
+		end
+
+		if aFrame:IsVisible() then
+			tinsert(sSkinQueue, aFrame);
+		else
+			tinsert(sSkinHiddenQueue, aFrame);
+		end
+
+		if not sSkinUpdateFrame then
+			sSkinUpdateFrame = CreateFrame("Frame", "VuhDoLnfSkinUpdateFrame");
+
+			sSkinUpdateFrame:SetScript("OnUpdate", VUHDO_lnfSkinQueueOnUpdate);
+		end
+
+		sSkinUpdateFrame:Show();
+
+		return;
+
+	end
+
+
+
+	--
+	local tFrame;
+	local tStartTime;
+	local tElapsedUs;
+	function VUHDO_lnfSkinQueueOnUpdate()
+
+		if not sSkinReady or not VUHDO_lnfSkinQueueIsPending() then
+			if sSkinUpdateFrame then
+				sSkinUpdateFrame:Hide();
+			end
+
+			return;
+		end
+
+		tStartTime = debugprofilestop();
+
+		while VUHDO_lnfSkinQueueIsPending() do
+			if sSkinQueueIndex <= #sSkinQueue then
+				tFrame = sSkinQueue[sSkinQueueIndex];
+
+				sSkinQueueIndex = sSkinQueueIndex + 1;
+			else
+				tFrame = sSkinHiddenQueue[sSkinHiddenQueueIndex];
+
+				sSkinHiddenQueueIndex = sSkinHiddenQueueIndex + 1;
+			end
+
+			if tFrame then
+				VUHDO_lnfSkinApplyToComponent(tFrame);
+
+				VUHDO_lnfSkinEnqueueChildren(tFrame);
+			end
+
+			tElapsedUs = (debugprofilestop() - tStartTime) * 1000;
+
+			if tElapsedUs >= sSkinMaxUpdateUs then
+				break;
+			end
+		end
+
+		VUHDO_lnfSkinQueueReset();
+
+		if not VUHDO_lnfSkinQueueIsPending() and sSkinUpdateFrame then
+			sSkinUpdateFrame:Hide();
+		end
+
+		return;
+
+	end
+
+
+
+	--
+	local tChildCount;
+	function VUHDO_lnfSkinApplyToFrameTree(aFrame)
+
+		if not aFrame then
+			return;
+		end
+
+		VUHDO_lnfSkinApplyToComponent(aFrame);
+
+		tChildCount = select("#", aFrame:GetChildren());
+
+		for tIdx = 1, tChildCount do
+			VUHDO_lnfSkinApplyToFrameTree((select(tIdx, aFrame:GetChildren())));
+		end
+
+		return;
+
+	end
 end
 
 
@@ -3608,31 +3772,31 @@ function VUHDO_lnfSkinApplyAll()
 	end
 
 	if VuhDoNewOptionsTabbedFrame then
-		VUHDO_lnfSkinApplyToFrameTree(VuhDoNewOptionsTabbedFrame);
+		VUHDO_lnfSkinEnqueueFrameTree(VuhDoNewOptionsTabbedFrame);
 	end
 
 	if VuhDoNewOptionsScaleSlider then
-		VUHDO_lnfSkinApplyToFrameTree(VuhDoNewOptionsScaleSlider);
+		VUHDO_lnfSkinEnqueueFrameTree(VuhDoNewOptionsScaleSlider);
 	end
 
 	if VuhDoOptionsTooltip then
-		VUHDO_lnfSkinApplyToFrameTree(VuhDoOptionsTooltip);
+		VUHDO_lnfSkinEnqueueFrameTree(VuhDoOptionsTooltip);
 	end
 
 	if VuhDoNewColorPicker then
-		VUHDO_lnfSkinApplyToFrameTree(VuhDoNewColorPicker);
+		VUHDO_lnfSkinEnqueueFrameTree(VuhDoNewColorPicker);
 	end
 
 	if VuhDoLnfIconTextDialog then
-		VUHDO_lnfSkinApplyToFrameTree(VuhDoLnfIconTextDialog);
+		VUHDO_lnfSkinEnqueueFrameTree(VuhDoLnfIconTextDialog);
 	end
 
 	if VuhDoLnfShareDialog then
-		VUHDO_lnfSkinApplyToFrameTree(VuhDoLnfShareDialog);
+		VUHDO_lnfSkinEnqueueFrameTree(VuhDoLnfShareDialog);
 	end
 
 	if VuhDoYesNoFrame then
-		VUHDO_lnfSkinApplyToFrameTree(VuhDoYesNoFrame);
+		VUHDO_lnfSkinEnqueueFrameTree(VuhDoYesNoFrame);
 	end
 
 	for tPanelNum = 1, VUHDO_MAX_PANELS do
@@ -4136,7 +4300,6 @@ end
 
 
 --
-local tSkinEntry;
 local function VUHDO_lnfSkinComboTableSort(anA, anotherA)
 
 	return anA[2] < anotherA[2];
@@ -4168,7 +4331,6 @@ end
 
 
 --
-local tFontSize;
 local tFontFlags;
 function VUHDO_lnfSkinInit()
 

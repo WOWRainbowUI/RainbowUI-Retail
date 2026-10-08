@@ -39,6 +39,10 @@
 					<Texture parentKey="BorderEdgeBottom" file="Interface\AddOns\VuhDo\Images\white_square_16_16" hidden="true" />
 					<Texture parentKey="BorderEdgeLeft" file="Interface\AddOns\VuhDo\Images\white_square_16_16" hidden="true" />
 					<Texture parentKey="BorderEdgeRight" file="Interface\AddOns\VuhDo\Images\white_square_16_16" hidden="true" />
+					<Texture parentKey="BorderCornerTopLeft" file="Interface\AddOns\VuhDo\Images\white_square_16_16" hidden="true" />
+					<Texture parentKey="BorderCornerTopRight" file="Interface\AddOns\VuhDo\Images\white_square_16_16" hidden="true" />
+					<Texture parentKey="BorderCornerBottomLeft" file="Interface\AddOns\VuhDo\Images\white_square_16_16" hidden="true" />
+					<Texture parentKey="BorderCornerBottomRight" file="Interface\AddOns\VuhDo\Images\white_square_16_16" hidden="true" />
 					<FontString parentKey="SymbolText" inherits="NumberFontNormalSmall">
 						<Anchors>
 							<Anchor point="CENTER" />
@@ -79,6 +83,10 @@
 					<Texture parentKey="BorderEdgeBottom" file="Interface\AddOns\VuhDo\Images\white_square_16_16" hidden="true" />
 					<Texture parentKey="BorderEdgeLeft" file="Interface\AddOns\VuhDo\Images\white_square_16_16" hidden="true" />
 					<Texture parentKey="BorderEdgeRight" file="Interface\AddOns\VuhDo\Images\white_square_16_16" hidden="true" />
+					<Texture parentKey="BorderCornerTopLeft" file="Interface\AddOns\VuhDo\Images\white_square_16_16" hidden="true" />
+					<Texture parentKey="BorderCornerTopRight" file="Interface\AddOns\VuhDo\Images\white_square_16_16" hidden="true" />
+					<Texture parentKey="BorderCornerBottomLeft" file="Interface\AddOns\VuhDo\Images\white_square_16_16" hidden="true" />
+					<Texture parentKey="BorderCornerBottomRight" file="Interface\AddOns\VuhDo\Images\white_square_16_16" hidden="true" />
 				</Layer>
 			</Layers>
 			<Frames>
@@ -131,6 +139,10 @@
 					<Texture parentKey="BorderEdgeBottom" file="Interface\AddOns\VuhDo\Images\white_square_16_16" hidden="true" />
 					<Texture parentKey="BorderEdgeLeft" file="Interface\AddOns\VuhDo\Images\white_square_16_16" hidden="true" />
 					<Texture parentKey="BorderEdgeRight" file="Interface\AddOns\VuhDo\Images\white_square_16_16" hidden="true" />
+					<Texture parentKey="BorderCornerTopLeft" file="Interface\AddOns\VuhDo\Images\white_square_16_16" hidden="true" />
+					<Texture parentKey="BorderCornerTopRight" file="Interface\AddOns\VuhDo\Images\white_square_16_16" hidden="true" />
+					<Texture parentKey="BorderCornerBottomLeft" file="Interface\AddOns\VuhDo\Images\white_square_16_16" hidden="true" />
+					<Texture parentKey="BorderCornerBottomRight" file="Interface\AddOns\VuhDo\Images\white_square_16_16" hidden="true" />
 				</Layer>
 			</Layers>
 			<Frames>
@@ -170,5 +182,23 @@
 		</AuraButton>
 
 	</ScopedModifier>
+
+	<Frame name="VuhDoMissingBuffBarTemplate" inherits="DisableUntrustedLayoutScriptsTemplate" virtual="true" hidden="true">
+		<Layers>
+			<Layer level="ARTWORK">
+				<Texture parentKey="BarTexture" file="Interface\Buttons\WHITE8X8" setAllPoints="true" texelSnappingBias="0.0" snapToPixelGrid="false" />
+				<MaskTexture parentKey="EmptyMask" texelSnappingBias="0.0" snapToPixelGrid="false">
+					<MaskedTextures>
+						<MaskedTexture childKey="BarTexture" />
+					</MaskedTextures>
+				</MaskTexture>
+				<MaskTexture parentKey="FillMask" texelSnappingBias="0.0" snapToPixelGrid="false">
+					<MaskedTextures>
+						<MaskedTexture childKey="BarTexture" />
+					</MaskedTextures>
+				</MaskTexture>
+			</Layer>
+		</Layers>
+	</Frame>
 
 </Ui>

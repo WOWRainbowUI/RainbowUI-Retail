@@ -23,6 +23,7 @@ local VUHDO_AURA_GROUP_COLOR_OFF;
 local VUHDO_AURA_GROUP_COLOR_DISPEL;
 local VUHDO_AURA_GROUP_COLOR_ALL_DISPEL;
 local VUHDO_AURA_GROUP_COLOR_CUSTOM;
+local VUHDO_UPDATE_DEBUFF;
 local VUHDO_UNIT_AURA_LIST_SLOTS;
 local VUHDO_AURA_GROUP_TYPE_LIST;
 local VUHDO_UNIT_AURA_CACHE;
@@ -38,6 +39,7 @@ local VUHDO_INFERRED_AURA_SYNTHETIC_IDS;
 local VUHDO_INFERRED_AURAS;
 local VUHDO_BUFF_SETTINGS;
 local VUHDO_BOUQUET_TRACKED_AURA_GROUP_IDS;
+local VUHDO_AURA_NAME_MATCH_SPELL_NAMES;
 
 VUHDO_AURA_GROUP_ACTIVE_NO_COLOR = { };
 local VUHDO_AURA_GROUP_ACTIVE_NO_COLOR = VUHDO_AURA_GROUP_ACTIVE_NO_COLOR;
@@ -52,6 +54,7 @@ local VUHDO_isAuraGroupInScopeForUnit;
 local VUHDO_isAuraIgnored;
 local VUHDO_isAuraDataRestricted;
 local VUHDO_isAuraModeContainers;
+local VUHDO_isLegacyMissingBuffBarColor;
 local VUHDO_syncAllOverlayUnits;
 local VUHDO_buildAuraGroupNativeFilterString;
 local VUHDO_auraSourceMatchesFilter;
@@ -59,6 +62,13 @@ local VUHDO_invalidateOverlayBuildKeys;
 local VUHDO_invalidateNativeAuraSoundScanCache;
 local VUHDO_clearNativeAuraSounds;
 local VUHDO_initNativeAuraSounds;
+local VUHDO_invalidateAuraGroupFilterCache;
+local VUHDO_invalidateAuraGroupFilterCacheForGroup;
+local VUHDO_rebuildAuraAnchorsForGroups;
+local VUHDO_processPendingAuraContainerBuilds;
+local VUHDO_timeRebuildAuraGroups;
+local VUHDO_updateBouquetsForEvent;
+local VUHDO_rebuildDefaultAuraNameSpellIds;
 
 local sUnitDispellableAuraId = { };
 local sUnitAuraCanColorBar = { };
@@ -81,6 +91,9 @@ local sAuraGlowWinnerPool;
 local sFilterResultCache = { };
 local sListGroupAnchorIndex = { };
 local sDispellableAuraScanDone = { };
+
+local sDirtyAuraGroupIds = { };
+local sIsAuraGroupSoundsDirty = false;
 
 local sEmpty = { };
 
@@ -231,6 +244,41 @@ end
 
 
 --
+local function VUHDO_auraColorsInitLocalOverridesFunctions()
+
+	VUHDO_getDispelCurveForUnit = _G["VUHDO_getDispelCurveForUnit"];
+	VUHDO_getDispelTextCurveForUnit = _G["VUHDO_getDispelTextCurveForUnit"];
+	VUHDO_hasInferredAura = _G["VUHDO_hasInferredAura"];
+	VUHDO_createTablePool = _G["VUHDO_createTablePool"];
+	VUHDO_auraMatchesFilter = _G["VUHDO_auraMatchesFilter"];
+	VUHDO_getAuraGroupEffectiveUnitScope = _G["VUHDO_getAuraGroupEffectiveUnitScope"];
+	VUHDO_isAuraGroupInScopeForUnit = _G["VUHDO_isAuraGroupInScopeForUnit"];
+	VUHDO_isAuraIgnored = _G["VUHDO_isAuraIgnored"];
+	VUHDO_isAuraDataRestricted = _G["VUHDO_isAuraDataRestricted"];
+	VUHDO_isAuraModeContainers = _G["VUHDO_isAuraModeContainers"];
+	VUHDO_isLegacyMissingBuffBarColor = _G["VUHDO_isLegacyMissingBuffBarColor"];
+	VUHDO_syncAllOverlayUnits = _G["VUHDO_syncAllOverlayUnits"];
+	VUHDO_buildAuraGroupNativeFilterString = _G["VUHDO_buildAuraGroupNativeFilterString"];
+	VUHDO_auraSourceMatchesFilter = _G["VUHDO_auraSourceMatchesFilter"];
+	VUHDO_invalidateOverlayBuildKeys = _G["VUHDO_invalidateOverlayBuildKeys"];
+	VUHDO_invalidateNativeAuraSoundScanCache = _G["VUHDO_invalidateNativeAuraSoundScanCache"];
+	VUHDO_clearNativeAuraSounds = _G["VUHDO_clearNativeAuraSounds"];
+	VUHDO_initNativeAuraSounds = _G["VUHDO_initNativeAuraSounds"];
+	VUHDO_invalidateAuraGroupFilterCache = _G["VUHDO_invalidateAuraGroupFilterCache"];
+	VUHDO_invalidateAuraGroupFilterCacheForGroup = _G["VUHDO_invalidateAuraGroupFilterCacheForGroup"];
+	VUHDO_rebuildAuraAnchorsForGroups = _G["VUHDO_rebuildAuraAnchorsForGroups"];
+	VUHDO_processPendingAuraContainerBuilds = _G["VUHDO_processPendingAuraContainerBuilds"];
+	VUHDO_timeRebuildAuraGroups = _G["VUHDO_timeRebuildAuraGroups"];
+	VUHDO_updateBouquetsForEvent = _G["VUHDO_deferUpdateBouquetsForEvent"];
+	VUHDO_rebuildDefaultAuraNameSpellIds = _G["VUHDO_rebuildDefaultAuraNameSpellIds"];
+
+	return;
+
+end
+
+
+
+--
 function VUHDO_auraColorsInitLocalOverrides()
 
 	VUHDO_CONFIG = _G["VUHDO_CONFIG"];
@@ -242,6 +290,7 @@ function VUHDO_auraColorsInitLocalOverrides()
 	VUHDO_AURA_GROUP_COLOR_DISPEL = _G["VUHDO_AURA_GROUP_COLOR_DISPEL"];
 	VUHDO_AURA_GROUP_COLOR_ALL_DISPEL = _G["VUHDO_AURA_GROUP_COLOR_ALL_DISPEL"];
 	VUHDO_AURA_GROUP_COLOR_CUSTOM = _G["VUHDO_AURA_GROUP_COLOR_CUSTOM"];
+	VUHDO_UPDATE_DEBUFF = _G["VUHDO_UPDATE_DEBUFF"];
 	VUHDO_UNIT_AURA_LIST_SLOTS = _G["VUHDO_UNIT_AURA_LIST_SLOTS"];
 	VUHDO_AURA_GROUP_TYPE_LIST = _G["VUHDO_AURA_GROUP_TYPE_LIST"];
 	VUHDO_UNIT_AURA_CACHE = _G["VUHDO_UNIT_AURA_CACHE"];
@@ -257,24 +306,9 @@ function VUHDO_auraColorsInitLocalOverrides()
 	VUHDO_INFERRED_AURAS = _G["VUHDO_INFERRED_AURAS"];
 	VUHDO_BUFF_SETTINGS = _G["VUHDO_BUFF_SETTINGS"];
 	VUHDO_BOUQUET_TRACKED_AURA_GROUP_IDS = _G["VUHDO_BOUQUET_TRACKED_AURA_GROUP_IDS"];
+	VUHDO_AURA_NAME_MATCH_SPELL_NAMES = _G["VUHDO_AURA_NAME_MATCH_SPELL_NAMES"];
 
-	VUHDO_getDispelCurveForUnit = _G["VUHDO_getDispelCurveForUnit"];
-	VUHDO_getDispelTextCurveForUnit = _G["VUHDO_getDispelTextCurveForUnit"];
-	VUHDO_hasInferredAura = _G["VUHDO_hasInferredAura"];
-	VUHDO_createTablePool = _G["VUHDO_createTablePool"];
-	VUHDO_auraMatchesFilter = _G["VUHDO_auraMatchesFilter"];
-	VUHDO_getAuraGroupEffectiveUnitScope = _G["VUHDO_getAuraGroupEffectiveUnitScope"];
-	VUHDO_isAuraGroupInScopeForUnit = _G["VUHDO_isAuraGroupInScopeForUnit"];
-	VUHDO_isAuraIgnored = _G["VUHDO_isAuraIgnored"];
-	VUHDO_isAuraDataRestricted = _G["VUHDO_isAuraDataRestricted"];
-	VUHDO_isAuraModeContainers = _G["VUHDO_isAuraModeContainers"];
-	VUHDO_syncAllOverlayUnits = _G["VUHDO_syncAllOverlayUnits"];
-	VUHDO_buildAuraGroupNativeFilterString = _G["VUHDO_buildAuraGroupNativeFilterString"];
-	VUHDO_auraSourceMatchesFilter = _G["VUHDO_auraSourceMatchesFilter"];
-	VUHDO_invalidateOverlayBuildKeys = _G["VUHDO_invalidateOverlayBuildKeys"];
-	VUHDO_invalidateNativeAuraSoundScanCache = _G["VUHDO_invalidateNativeAuraSoundScanCache"];
-	VUHDO_clearNativeAuraSounds = _G["VUHDO_clearNativeAuraSounds"];
-	VUHDO_initNativeAuraSounds = _G["VUHDO_initNativeAuraSounds"];
+	VUHDO_auraColorsInitLocalOverridesFunctions();
 
 	sAuraColorWinnerPool = VUHDO_createTablePool("AuraColorWinner", 100, VUHDO_createAuraColorWinnerDelegate, VUHDO_cleanupAuraColorWinnerDelegate);
 	sCanColorBarGroupPool = VUHDO_createTablePool("CanColorBarGroup", 50, VUHDO_createCanColorBarGroupDelegate, VUHDO_cleanupCanColorBarGroupDelegate);
@@ -343,24 +377,31 @@ do
 
 
 
-	function VUHDO_rebuildCanColorBarGroupsCache()
+	function VUHDO_rebuildAuraGroupCaches(anIsFilterCacheDirty, anIsAnchorIndexDirty, anIsSoundsDirty)
 
-		VUHDO_invalidateAuraGroupFilterCache();
+		if anIsFilterCacheDirty then
+			VUHDO_invalidateAuraGroupFilterCache();
+		end
 
-		VUHDO_rebuildListGroupAnchorIndex();
+		if anIsAnchorIndexDirty then
+			VUHDO_rebuildListGroupAnchorIndex();
+		end
 
 		VUHDO_rebuildActiveAuraCaches();
 
 		VUHDO_rebuildAuraModeEventFlags();
-		VUHDO_rebuildSoundEnabledAuraGroups();
 
-		VUHDO_invalidateNativeAuraSoundScanCache();
+		if anIsSoundsDirty then
+			VUHDO_rebuildSoundEnabledAuraGroups();
 
-		if VUHDO_isAuraModeContainers() then
-			VUHDO_clearNativeAuraSounds();
-			VUHDO_initNativeAuraSounds();
-		else
-			VUHDO_clearNativeAuraSounds();
+			VUHDO_invalidateNativeAuraSoundScanCache();
+
+			if VUHDO_isAuraModeContainers() then
+				VUHDO_clearNativeAuraSounds();
+				VUHDO_initNativeAuraSounds();
+			else
+				VUHDO_clearNativeAuraSounds();
+			end
 		end
 
 		VUHDO_collectBouquetAuraGroupIds();
@@ -626,8 +667,19 @@ do
 		VUHDO_invalidateOverlayBuildKeys();
 
 		if VUHDO_isAuraDataRestricted() or VUHDO_isAuraModeContainers() then
-			VUHDO_syncAllOverlayUnits(true);
+			VUHDO_syncAllOverlayUnits(false);
 		end
+
+		return;
+
+	end
+
+
+
+	--
+	function VUHDO_rebuildCanColorBarGroupsCache()
+
+		VUHDO_rebuildAuraGroupCaches(true, true, true);
 
 		return;
 
@@ -641,6 +693,58 @@ do
 		return sCanColorBarGroups;
 
 	end
+end
+
+
+
+--
+function VUHDO_markAuraGroupChanged(aGroupId, anIsAnchorsDirty, anIsSoundsDirty)
+
+	if anIsAnchorsDirty and aGroupId then
+		sDirtyAuraGroupIds[aGroupId] = true;
+	end
+
+	if anIsSoundsDirty then
+		sIsAuraGroupSoundsDirty = true;
+	end
+
+	VUHDO_timeRebuildAuraGroups(0.3);
+
+	return;
+
+end
+
+
+
+--
+function VUHDO_applyAuraGroupChanges()
+
+	VUHDO_rebuildDefaultAuraNameSpellIds();
+
+	for tGroupId, _ in pairs(sDirtyAuraGroupIds) do
+		VUHDO_invalidateAuraGroupFilterCacheForGroup(tGroupId);
+	end
+
+	VUHDO_rebuildAuraGroupCaches(false, false, sIsAuraGroupSoundsDirty);
+
+	if next(sDirtyAuraGroupIds) then
+		VUHDO_rebuildAuraAnchorsForGroups(sDirtyAuraGroupIds);
+	end
+
+	twipe(sDirtyAuraGroupIds);
+
+	sIsAuraGroupSoundsDirty = false;
+
+	VUHDO_processPendingAuraContainerBuilds();
+
+	if not VUHDO_isAuraDataRestricted() then
+		for tUnit, _ in pairs(VUHDO_RAID) do
+			VUHDO_updateBouquetsForEvent(tUnit, VUHDO_UPDATE_DEBUFF);
+		end
+	end
+
+	return;
+
 end
 
 
@@ -662,6 +766,10 @@ do
 			if tEntry["entryType"] == VUHDO_AURA_LIST_ENTRY_SPELL then
 				if tEntry["mine"] or tEntry["others"] then
 					tEntryValue = tEntry["value"];
+
+					if tEntry["isNameMatch"] and type(tEntryValue) == "number" then
+						tEntryValue = VUHDO_AURA_NAME_MATCH_SPELL_NAMES[tEntryValue] or tEntryValue;
+					end
 
 					if tEntryValue and VUHDO_UNIT_AURA_BY_SPELL[aUnit] then
 						tAuraInstances = VUHDO_UNIT_AURA_BY_SPELL[aUnit][tEntryValue];
@@ -1386,6 +1494,10 @@ do
 	local tMissingBuffCategory;
 	local tMissingColor;
 	local function VUHDO_applyMissingBuffColorsForDispellableAura(aUnit)
+
+		if not VUHDO_isLegacyMissingBuffBarColor() then
+			return;
+		end
 
 		if (not tBarWinnerSet or not tTextWinnerSet) and VUHDO_RAID and VUHDO_RAID[aUnit] and VUHDO_RAID[aUnit]["missbuff"] then
 			tBuffConfig = VUHDO_BUFF_SETTINGS["CONFIG"];

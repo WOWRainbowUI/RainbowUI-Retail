@@ -79,6 +79,7 @@ VUHDO_AURA_GROUPS_ADD_SPELL_COMBO_MODEL = { };
 
 VUHDO_SPELL_ENTRY_MINE = true;
 VUHDO_SPELL_ENTRY_OTHERS = false;
+VUHDO_SPELL_ENTRY_IS_NAME_MATCH = false;
 VUHDO_SPELL_ENTRY_DURATION_MODE = VUHDO_SPELL_DURATION_MODE_THRESHOLD;
 VUHDO_SPELL_ENTRY_TIMER_THRESHOLD = 10;
 VUHDO_SPELL_ENTRY_GLOW_STYLE = "none";
@@ -222,6 +223,7 @@ local sRefreshDepth = 0;
 local sAuraGroupEntryItems = { };
 local sSpellEntrySettingsGroupId = nil;
 local sSpellEntrySettingsEntryIdx = nil;
+local sSpellEntryIsNumeric = false;
 
 
 
@@ -2157,6 +2159,8 @@ function VUHDO_auraGroupsOnCloneGroup(aSourceId)
 
 		VUHDO_auraGroupsRefreshList();
 		VUHDO_auraGroupsRefreshRightPanel();
+
+		VUHDO_markAuraGroupChanged(tNewId, false, true);
 	end
 
 	return;
@@ -2171,6 +2175,10 @@ function VUHDO_auraGroupsOnDeleteGroup(aGroupId)
 	if VUHDO_isBuiltInAuraGroup(aGroupId) then
 		return;
 	end
+
+	VUHDO_invalidateAuraGroupFilterCache();
+
+	VUHDO_markAuraGroupChanged(aGroupId, true, true);
 
 	VUHDO_CONFIG["AURA_GROUPS"][aGroupId] = nil;
 	sSelectedGroupId = nil;
@@ -2211,6 +2219,8 @@ function VUHDO_auraGroupsTypeChanged(aComboBox, aValue, anArrayModel)
 	VUHDO_resolveAuraGroupFilter(VUHDO_CONFIG["AURA_GROUPS"][sSelectedGroupId]);
 
 	VUHDO_auraGroupsRefreshRightPanel();
+
+	VUHDO_markAuraGroupChanged(sSelectedGroupId, true, true);
 
 	return;
 
@@ -2277,7 +2287,7 @@ function VUHDO_auraGroupsConditionsChanged(aComboBox, aValue, anArrayModel)
 		VUHDO_lnfComboRefreshItemStates(tNeverShowCombo);
 	end
 
-	VUHDO_timeRebuildAuraGroups(0.3);
+	VUHDO_markAuraGroupChanged(sSelectedGroupId, true, true);
 
 	return;
 
@@ -2304,7 +2314,7 @@ function VUHDO_auraGroupsAurasChanged(aComboBox, aValue, anArrayModel)
 
 	VUHDO_auraGroupsRefreshRightPanel();
 
-	VUHDO_timeRebuildAuraGroups(0.3);
+	VUHDO_markAuraGroupChanged(sSelectedGroupId, true, true);
 
 	return;
 
@@ -2335,7 +2345,7 @@ function VUHDO_auraGroupsPresetChanged(aComboBox, aValue, anArrayModel)
 	VUHDO_AURA_GROUPS_PRESET_SELECTED = aValue;
 
 	VUHDO_auraGroupsRefreshRightPanel();
-	VUHDO_timeRebuildAuraGroups(0.3);
+	VUHDO_markAuraGroupChanged(sSelectedGroupId, true, true);
 
 	return;
 
@@ -2362,7 +2372,7 @@ function VUHDO_auraGroupsDurationChanged(aComboBox, aValue, anArrayModel)
 
 	VUHDO_auraGroupsClearPresetSelection();
 
-	VUHDO_timeRebuildAuraGroups(0.3);
+	VUHDO_markAuraGroupChanged(sSelectedGroupId, true, true);
 
 	return;
 
@@ -2413,7 +2423,7 @@ function VUHDO_auraGroupsPriorityChanged(aComponent, aValue)
 		VUHDO_CONFIG["AURA_GROUPS"][sSelectedGroupId]["priority"] = tonumber(aValue) or 50;
 	end
 
-	VUHDO_timeRebuildAuraGroups(0.3);
+	VUHDO_markAuraGroupChanged(sSelectedGroupId, false, false);
 
 	return;
 
@@ -2433,7 +2443,7 @@ function VUHDO_auraGroupsSoundSelect(aComboBox, aValue, anArrayModel)
 	if sSelectedGroupId and VUHDO_CONFIG["AURA_GROUPS"] and VUHDO_CONFIG["AURA_GROUPS"][sSelectedGroupId] then
 		VUHDO_CONFIG["AURA_GROUPS"][sSelectedGroupId]["sound"] = (aValue ~= nil and aValue ~= "") and aValue or nil;
 
-		VUHDO_timeRebuildAuraGroups(0.3);
+		VUHDO_markAuraGroupChanged(sSelectedGroupId, false, true);
 	end
 
 	if aValue ~= nil and tOldValue ~= aValue then
@@ -2587,9 +2597,9 @@ function VUHDO_auraGroupsIgnoreAdd()
 
 	tEditBox:SetText("");
 
-	VUHDO_invalidateAuraGroupFilterCache();
-
 	VUHDO_auraGroupsRefreshIgnorePanel();
+
+	VUHDO_markAuraGroupChanged(sSelectedGroupId, true, true);
 
 	return;
 
@@ -2660,9 +2670,9 @@ function VUHDO_auraGroupsIgnoreDelete()
 		VUHDO_Msg(string.format(VUHDO_I18N_AURA_DOES_NOT_EXIST_IN_IGNORE_LIST, tDisplayName));
 	end
 
-	VUHDO_invalidateAuraGroupFilterCache();
-
 	VUHDO_auraGroupsRefreshIgnorePanel();
+
+	VUHDO_markAuraGroupChanged(sSelectedGroupId, true, true);
 
 	return;
 
@@ -2682,7 +2692,7 @@ function VUHDO_auraGroupsColorTypeChanged(aComboBox, aValue, anArrayModel)
 	end
 
 	VUHDO_auraGroupsRefreshRightPanel();
-	VUHDO_timeRebuildAuraGroups(0.3);
+	VUHDO_markAuraGroupChanged(sSelectedGroupId, false, false);
 	VUHDO_timeRegisterBouquets(0.3);
 
 	return;
@@ -2713,14 +2723,10 @@ function VUHDO_auraGroupsShowOnChanged(aComboBox, aValue, anArrayModel)
 
 	tShowOnGroup["unitScope"] = tShowOnScope;
 
-	VUHDO_invalidateAuraContainerTemplateCache();
-
 	VUHDO_auraGroupsRefreshRightPanel();
 
-	VUHDO_timeRebuildAuraGroups(0.3);
+	VUHDO_markAuraGroupChanged(sSelectedGroupId, true, true);
 	VUHDO_timeRegisterBouquets(0.3);
-
-	VUHDO_rebuildAuraAnchorsForAllButtons();
 
 	return;
 
@@ -2735,7 +2741,7 @@ function VUHDO_auraGroupsCustomColorChanged(aColorSwatch)
 		return;
 	end
 
-	VUHDO_timeRebuildAuraGroups(0.3);
+	VUHDO_markAuraGroupChanged(sSelectedGroupId, false, false);
 
 	return;
 
@@ -2774,7 +2780,7 @@ function VUHDO_auraGroupsCanColorBarChanged(aParent, aValue)
 		VUHDO_CONFIG["AURA_GROUPS"][sSelectedGroupId]["canColorBar"] = aValue;
 	end
 
-	VUHDO_timeRebuildAuraGroups(0.3);
+	VUHDO_markAuraGroupChanged(sSelectedGroupId, false, false);
 
 	VUHDO_auraGroupsUpdateCustomColorSwatchState();
 
@@ -2795,7 +2801,7 @@ function VUHDO_auraGroupsCanColorTextChanged(aParent, aValue)
 		VUHDO_CONFIG["AURA_GROUPS"][sSelectedGroupId]["canColorText"] = aValue;
 	end
 
-	VUHDO_timeRebuildAuraGroups(0.3);
+	VUHDO_markAuraGroupChanged(sSelectedGroupId, false, false);
 
 	VUHDO_auraGroupsUpdateCustomColorSwatchState();
 
@@ -2819,7 +2825,7 @@ function VUHDO_auraGroupsGlowBarStyleChanged(aParent, aValue)
 
 	VUHDO_AURA_GROUPS_CAN_GLOW_BAR = "none" ~= aValue;
 
-	VUHDO_timeRebuildAuraGroups(0.3);
+	VUHDO_markAuraGroupChanged(sSelectedGroupId, false, false);
 
 	VUHDO_auraGroupsRefreshRightPanel();
 
@@ -2836,7 +2842,7 @@ function VUHDO_auraGroupsGlowColorChanged(aColorSwatch)
 		return;
 	end
 
-	VUHDO_timeRebuildAuraGroups(0.3);
+	VUHDO_markAuraGroupChanged(sSelectedGroupId, false, false);
 
 	return;
 
@@ -2871,12 +2877,11 @@ function VUHDO_auraGroupsEnabledChanged(aParent, aValue)
 		end
 	end
 
-	VUHDO_timeRebuildAuraGroups(0.3);
+	VUHDO_markAuraGroupChanged(sSelectedGroupId, true, true);
 
 	VUHDO_auraGroupsRefreshList();
 
 	VUHDO_timeRegisterBouquets(0.3);
-	VUHDO_timeReloadUI(0.3, true);
 
 	return;
 
@@ -3128,6 +3133,7 @@ local tSpellComboEditBox;
 local tText;
 local tValue;
 local tSpellIdFromMatch;
+local tIsNameMatch;
 function VUHDO_auraGroupsListAddSpell()
 
 	if not sSelectedGroupId or not VUHDO_CONFIG["AURA_GROUPS"] or not VUHDO_CONFIG["AURA_GROUPS"][sSelectedGroupId] then
@@ -3166,6 +3172,12 @@ function VUHDO_auraGroupsListAddSpell()
 		tValue = tonumber(tText) or tText;
 	end
 
+	tIsNameMatch = nil;
+
+	if tSpellIdFromMatch and type(tValue) == "number" then
+		tIsNameMatch = true;
+	end
+
 	if not tGroup["entries"] then
 		tGroup["entries"] = { };
 	end
@@ -3173,6 +3185,7 @@ function VUHDO_auraGroupsListAddSpell()
 	tinsert(tGroup["entries"], {
 		["entryType"] = VUHDO_AURA_LIST_ENTRY_SPELL,
 		["value"] = tValue,
+		["isNameMatch"] = tIsNameMatch,
 		["mine"] = true,
 		["others"] = false,
 		["durationMode"] = VUHDO_SPELL_DURATION_MODE_THRESHOLD,
@@ -3194,6 +3207,8 @@ function VUHDO_auraGroupsListAddSpell()
 	VUHDO_AURA_GROUPS_ADD_SPELL_SELECTED = "";
 
 	VUHDO_auraGroupsRefreshListEntries();
+
+	VUHDO_markAuraGroupChanged(sSelectedGroupId, true, true);
 
 	return;
 
@@ -3232,6 +3247,8 @@ function VUHDO_auraGroupsListAddBouquet()
 
 	VUHDO_auraGroupsRefreshListEntries();
 
+	VUHDO_markAuraGroupChanged(sSelectedGroupId, true, true);
+
 	return;
 
 end
@@ -3261,6 +3278,8 @@ function VUHDO_auraGroupsListAddEmpty()
 	});
 
 	VUHDO_auraGroupsRefreshListEntries();
+
+	VUHDO_markAuraGroupChanged(sSelectedGroupId, true, true);
 
 	return;
 
@@ -3416,6 +3435,10 @@ function VUHDO_spellEntrySettingsInitFromEntry(anEntry)
 
 	VUHDO_SPELL_ENTRY_MINE = tEntry["mine"] ~= false;
 	VUHDO_SPELL_ENTRY_OTHERS = tEntry["others"] == true;
+
+	VUHDO_SPELL_ENTRY_IS_NAME_MATCH = tEntry["isNameMatch"] == true;
+	sSpellEntryIsNumeric = type(tEntry["value"]) == "number";
+
 	VUHDO_SPELL_ENTRY_DURATION_MODE = tEntry["durationMode"] or VUHDO_SPELL_DURATION_MODE_THRESHOLD;
 	VUHDO_SPELL_ENTRY_TIMER_THRESHOLD = tEntry["timerThreshold"] or 10;
 	VUHDO_SPELL_ENTRY_GLOW_STYLE = tEntry["glowIconStyle"] or (tEntry["glowIcon"] == true and VUHDO_DEFAULT_AURA_GLOW_STYLE or "none");
@@ -3468,6 +3491,7 @@ function VUHDO_spellEntrySettingsSaveToEntry()
 
 	tEntry["mine"] = VUHDO_SPELL_ENTRY_MINE;
 	tEntry["others"] = VUHDO_SPELL_ENTRY_OTHERS;
+	tEntry["isNameMatch"] = (VUHDO_SPELL_ENTRY_IS_NAME_MATCH and type(tEntry["value"]) == "number") or nil;
 	tEntry["durationMode"] = VUHDO_SPELL_ENTRY_DURATION_MODE;
 	tEntry["timerThreshold"] = VUHDO_SPELL_ENTRY_TIMER_THRESHOLD;
 	tEntry["glowIcon"] = "none" ~= VUHDO_SPELL_ENTRY_GLOW_STYLE;
@@ -3486,6 +3510,8 @@ function VUHDO_spellEntrySettingsSaveToEntry()
 	VUHDO_initEntrySettingsCache();
 
 	VUHDO_invalidateAuraContainerTemplateCache();
+
+	VUHDO_markAuraGroupChanged(sSpellEntrySettingsGroupId, true, true);
 
 	return;
 
@@ -3606,6 +3632,13 @@ local function VUHDO_initSpellEntrySettingsFromModel(aFrame)
 
 	if tControl then
 		VUHDO_lnfCheckButtonInitFromModel(tControl);
+	end
+
+	tControl = _G[tRootPane:GetName() .. "NameMatchCheckButton"];
+
+	if tControl then
+		VUHDO_lnfCheckButtonInitFromModel(tControl);
+		tControl:SetShown(sSpellEntryIsNumeric);
 	end
 
 	tControl = _G[tRootPane:GetName() .. "FullDurationCheckButton"];
@@ -4008,6 +4041,8 @@ function VUHDO_auraGroupsListRemoveEntry(anIndex)
 
 	VUHDO_auraGroupsRefreshListEntries();
 
+	VUHDO_markAuraGroupChanged(sSelectedGroupId, true, true);
+
 	return;
 
 end
@@ -4040,6 +4075,8 @@ function VUHDO_auraGroupsListMoveEntry(anIndex, aDirection)
 	tEntries[anIndex + aDirection] = tSwap;
 
 	VUHDO_auraGroupsRefreshListEntries();
+
+	VUHDO_markAuraGroupChanged(sSelectedGroupId, true, true);
 
 	return;
 

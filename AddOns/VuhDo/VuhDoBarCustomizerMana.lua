@@ -18,7 +18,6 @@ local InCombatLockdown = InCombatLockdown;
 
 local VUHDO_getUnitButtonsSafe;
 local VUHDO_getHealthBar;
-local VUHDO_getRealParent;
 local VUHDO_isConfigDemoUsers;
 local VUHDO_updateBouquetsForEvent;
 local VUHDO_indicatorTextCallback;
@@ -27,11 +26,12 @@ local VUHDO_applyAllLayersToBar;
 local VUHDO_updateHealthLossBar;
 local VUHDO_syncOverlaysForUnit;
 local VUHDO_updateAuraAnchorHost;
+local VUHDO_positionHealthBar;
+local VUHDO_positionSideBars;
 local VUHDO_repositionAuraFramesForButton;
 
 local sSecretsEnabled = VUHDO_SECRETS_ENABLED;
 local sIsInverted;
-local sIsHealthBarVertical;
 local sManaInterpolation = { };
 local sSideLeftInterpolation = { };
 local sSideRightInterpolation = { };
@@ -50,7 +50,6 @@ function VUHDO_customManaInitLocalOverrides()
 	VUHDO_CONFIG = _G["VUHDO_CONFIG"];
 
 	VUHDO_getHealthBar = _G["VUHDO_getHealthBar"];
-	VUHDO_getRealParent = _G["VUHDO_getRealParent"];
 	VUHDO_isConfigDemoUsers = _G["VUHDO_isConfigDemoUsers"];
 	VUHDO_updateBouquetsForEvent = _G["VUHDO_updateBouquetsForEvent"];
 	VUHDO_indicatorTextCallback = _G["VUHDO_indicatorTextCallback"];
@@ -59,16 +58,15 @@ function VUHDO_customManaInitLocalOverrides()
 	VUHDO_updateHealthLossBar = _G["VUHDO_updateHealthLossBar"];
 	VUHDO_syncOverlaysForUnit = _G["VUHDO_syncOverlaysForUnit"];
 	VUHDO_updateAuraAnchorHost = _G["VUHDO_updateAuraAnchorHost"];
+	VUHDO_positionHealthBar = _G["VUHDO_positionHealthBar"];
+	VUHDO_positionSideBars = _G["VUHDO_positionSideBars"];
 	VUHDO_repositionAuraFramesForButton = _G["VUHDO_repositionAuraFramesForButton"];
 
 	VUHDO_syncOverlaysForUnit = _G["VUHDO_deferSyncOverlaysForUnit"];
 
 	sIsInverted = { };
-	sIsHealthBarVertical = { };
-
 	for tPanelNum = 1, 10 do -- VUHDO_MAX_PANELS
 		sIsInverted[tPanelNum] = VUHDO_INDICATOR_CONFIG[tPanelNum]["CUSTOM"]["MANA_BAR"]["invertGrowth"];
-		sIsHealthBarVertical[tPanelNum] = VUHDO_INDICATOR_CONFIG[tPanelNum]["CUSTOM"]["HEALTH_BAR"]["vertical"];
 
 		sManaInterpolation[tPanelNum] = VUHDO_INDICATOR_CONFIG[tPanelNum]["CUSTOM"]["MANA_BAR"]["smooth"]
 			and Enum.StatusBarInterpolation.ExponentialEaseOut or Enum.StatusBarInterpolation.Immediate;
@@ -155,10 +153,8 @@ end
 
 do
 	--
-	local tLayoutManaBar;
-	local tLayoutHealthBar;
-	local tLayoutRegularHeight;
-	local tLayoutPrevHeight;
+	local tManaBar;
+	local tPrevHeight;
 	function VUHDO_applyManaBarLayout(aButton, aPanelNum, aManaBarHeight, aUnit)
 
 		if InCombatLockdown() then
@@ -173,40 +169,28 @@ do
 
 		sPendingManaBarLayouts[aButton] = nil;
 
-		tLayoutManaBar = VUHDO_getHealthBar(aButton, 2);
-		tLayoutPrevHeight = aButton["manaBarLayoutHeight"];
+		tManaBar = VUHDO_getHealthBar(aButton, 2);
+		tPrevHeight = aButton["manaBarLayoutHeight"];
 
 		aButton["manaBarLayoutHeight"] = aManaBarHeight;
 
 		VUHDO_updateAuraAnchorHost(aButton);
 
 		if aManaBarHeight > 0 then
-			VUHDO_PixelUtil.SetHeight(tLayoutManaBar, aManaBarHeight);
-			VUHDO_PixelUtil.Show(tLayoutManaBar);
+			VUHDO_PixelUtil.SetHeight(tManaBar, aManaBarHeight);
+			VUHDO_PixelUtil.Show(tManaBar);
 		else
-			VUHDO_PixelUtil.Hide(tLayoutManaBar);
+			VUHDO_PixelUtil.Hide(tManaBar);
 		end
 
-		tLayoutRegularHeight = aButton["regularHeight"];
-
-		if tLayoutRegularHeight then
-			tLayoutHealthBar = VUHDO_getHealthBar(aButton, 1);
-
-			VUHDO_PixelUtil.ClearAllPoints(tLayoutHealthBar);
-			VUHDO_PixelUtil.SetPoint(tLayoutHealthBar, "TOPLEFT", VUHDO_getRealParent(tLayoutHealthBar), "TOPLEFT", 0, 0);
-			VUHDO_PixelUtil.SetSize(tLayoutHealthBar, aButton:GetWidth(), tLayoutRegularHeight - aManaBarHeight);
-
-			if not sIsHealthBarVertical[aPanelNum] then
-				VUHDO_PixelUtil.SetHeight(VUHDO_getHealthBar(aButton, 6), tLayoutRegularHeight - aManaBarHeight);
-				VUHDO_PixelUtil.SetHeight(VUHDO_getHealthBar(aButton, 19), tLayoutRegularHeight - aManaBarHeight);
-			end
-		end
+		VUHDO_positionHealthBar(aButton, aPanelNum);
+		VUHDO_positionSideBars(aButton, aPanelNum);
 
 		if VUHDO_CONFIG["SHOW_HEALTH_LOSS_BAR"] then
 			VUHDO_updateHealthLossBar(aUnit);
 		end
 
-		if tLayoutPrevHeight ~= aManaBarHeight then
+		if tPrevHeight ~= aManaBarHeight then
 			VUHDO_repositionAuraFramesForButton(aButton, aPanelNum);
 		end
 

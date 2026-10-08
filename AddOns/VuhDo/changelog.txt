@@ -1,3 +1,34 @@
+Version 3.218  
+  
+  
+Known issues:  
+-- Midnight add-on restrictions mean some features are not yet available:  
+--   Overheal text provider and Life Text highlight are not yet working  
+--   Many Hitpoints option (e.g. Show Effective) are not yet working  
+--   Raid Icon bar and text color filtring are not yet working  
+--   Emergency Mode is not yet working  
+--   Swiftmendable bouquet is not yet working  
+--   Incoming Spell Trace (i.e. targeted spells) is not yet working  
+-- Blizzard continues to have a bug that breaks proper spell targeting.  
+--   Under 'Game Menu > Options > Gameplay > Combat' deselect 'Auto Self Cast'  
+--   and set 'Self Cast Key' to 'None'  
+  
+  
+Bugfixes:  
+-- Fixed missing aura bar color in Buff Watch  
+-- Fixed hostile spell binding with a corresponding friendly macro  
+-- Fixed Inner and Outer Border indicator textures  
+-- Fixed Side Left and Side Right indicator positions  
+  
+  
+Improvements:  
+-- Added Rogue 'Amplifying Poison' to Buff Watch  
+-- Added Evoker 'Source of Magic' to Buff Watch  
+-- Added group header text rotation when panel is horizontal  
+-- Added match by name option for spell entries in aura groups  
+  
+  
+--------------------------------------------------------------  
 Version 3.217  
   
   

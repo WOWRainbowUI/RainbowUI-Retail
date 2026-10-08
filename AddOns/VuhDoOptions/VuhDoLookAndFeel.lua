@@ -712,6 +712,10 @@ do
 			end
 
 			if "table" == type(tLastField) then
+				if tLastField[tLastIndex] == aValue then
+					return;
+				end
+
 				tLastField[tLastIndex] = aValue;
 			else
 				_G[tTableIndices[1]] = aValue;
@@ -728,19 +732,36 @@ do
 					or strfind(aModel, "INTERNAL_MODEL_", 1, true)
 					or strfind(aModel, "VUHDO_BOUQUETS", 1, true) then
 
+					if strfind(aModel, "VUHDO_BOUQUETS", 1, true) then
+						VUHDO_timeRefreshOverlays(0.3);
+					end
+
 				elseif tPanelNum then
 					if (strfind(aModel, "TOOLTIP", 1, true) ~= nil) then
 						VUHDO_demoTooltip(tPanelNum);
 					else
+						if strfind(aModel, "VUHDO_INDICATOR_CONFIG", 1, true) and strfind(aModel, ".CUSTOM.", 1, true) then
+							VUHDO_timeRefreshOverlays(0.3);
+						end
+
 						VUHDO_initDynamicPanelModels();
 						VUHDO_timeRedrawPanel(tPanelNum, 0.3);
 					end
 
 				elseif strfind(aModel, "_BUFF_", 1, true) then
-					VUHDO_reloadBuffPanel();
+					if strfind(aModel, "missingColor.show", 1, true) then
+						VUHDO_invalidateMissingBuffContainerPlans();
+						VUHDO_updateBuffPanel();
+					elseif strfind(aModel, "missingColor", 1, true) then
+						VUHDO_applyMissingBuffContainerColors();
+					else
+						VUHDO_reloadBuffPanel();
+					end
 
 				elseif strfind(aModel, "BLIZZ_UI", 1, true) then
 					VUHDO_initBlizzFrames();
+
+				elseif strfind(aModel, "AURA_GROUPS", 1, true) or strfind(aModel, "VUHDO_SPELL_ENTRY_", 1, true) then
 
 				else
 					if strfind(aModel, "VUHDO_CONFIG.", 1, true) then

@@ -41,8 +41,7 @@ local VUHDO_UNIT_AURA_SOURCE_BOTH;
 
 local VUHDO_AURA_CONDITION_BOOLEAN_KEYS;
 local VUHDO_AURA_MATCH_ANY_FILTER_TOKEN_ORDER;
-local VUHDO_AURA_MATCH_ANY_BOOLEAN_KEYS;
-local VUHDO_AURA_GROUP_CONDITIONS_VERSION;
+local VUHDO_AURA_NAME_MATCH_SPELL_NAMES;
 
 local VUHDO_generateUUID;
 local VUHDO_determineAura;
@@ -62,6 +61,7 @@ local VUHDO_classifyBouquetRestrictedMode;
 local VUHDO_getBouquetLayerTemplate;
 local VUHDO_getUnitButtonsPanel;
 local VUHDO_updateHealthBarsFor;
+local VUHDO_getAuraListEntryMatchValue;
 
 VUHDO_UNIT_AURA_CACHE = VUHDO_UNIT_AURA_CACHE or { };
 local VUHDO_UNIT_AURA_CACHE = VUHDO_UNIT_AURA_CACHE;
@@ -90,7 +90,7 @@ local VUHDO_ACTIVE_AURA_FILTERS = VUHDO_ACTIVE_AURA_FILTERS;
 VUHDO_AURA_SPELL_TO_BOUQUETS = VUHDO_AURA_SPELL_TO_BOUQUETS or { };
 local VUHDO_AURA_SPELL_TO_BOUQUETS = VUHDO_AURA_SPELL_TO_BOUQUETS;
 
-VUHDO_AURA_MIGRATION_VERSION = 10;
+VUHDO_AURA_MIGRATION_VERSION = 11;
 local VUHDO_AURA_MIGRATION_VERSION = VUHDO_AURA_MIGRATION_VERSION;
 
 VUHDO_AURA_GROUP_COLOR_OFF = 1;
@@ -275,8 +275,7 @@ do
 
 		VUHDO_AURA_CONDITION_BOOLEAN_KEYS = _G["VUHDO_AURA_CONDITION_BOOLEAN_KEYS"];
 		VUHDO_AURA_MATCH_ANY_FILTER_TOKEN_ORDER = _G["VUHDO_AURA_MATCH_ANY_FILTER_TOKEN_ORDER"];
-		VUHDO_AURA_MATCH_ANY_BOOLEAN_KEYS = _G["VUHDO_AURA_MATCH_ANY_BOOLEAN_KEYS"];
-		VUHDO_AURA_GROUP_CONDITIONS_VERSION = _G["VUHDO_AURA_GROUP_CONDITIONS_VERSION"];
+		VUHDO_AURA_NAME_MATCH_SPELL_NAMES = _G["VUHDO_AURA_NAME_MATCH_SPELL_NAMES"];
 
 		VUHDO_generateUUID = _G["VUHDO_generateUUID"];
 		VUHDO_determineAura = _G["VUHDO_determineAura"];
@@ -296,6 +295,7 @@ do
 		VUHDO_getBouquetLayerTemplate = _G["VUHDO_getBouquetLayerTemplate"];
 		VUHDO_getUnitButtonsPanel = _G["VUHDO_getUnitButtonsPanel"];
 		VUHDO_updateHealthBarsFor = _G["VUHDO_updateHealthBarsFor"];
+		VUHDO_getAuraListEntryMatchValue = _G["VUHDO_getAuraListEntryMatchValue"];
 
 		VUHDO_updateAuraDisplaysForUnit = _G["VUHDO_deferUpdateAuraDisplaysForUnit"];
 		VUHDO_updateHealthBarsFor = _G["VUHDO_deferUpdateHealthBarsFor"];
@@ -935,7 +935,7 @@ do
 				elseif tGroup["type"] == VUHDO_AURA_GROUP_TYPE_LIST and tGroup["entries"] then
 					for _, tEntry in pairs(tGroup["entries"]) do
 						if tEntry["entryType"] == VUHDO_AURA_LIST_ENTRY_SPELL then
-							tValue = tEntry["value"];
+							tValue = VUHDO_getAuraListEntryMatchValue(tEntry);
 
 							if tValue then
 								VUHDO_ACTIVE_AURA_SPELLS[tValue] = true;
@@ -1129,21 +1129,26 @@ do
 	local tLegacyBoolKey;
 	local tLegacyMatchAnyBooleans;
 	local tNormalizeCandidateBooleans;
+	local tConditionsVersion;
+	local tMatchAnyBooleanKeys;
 	function VUHDO_migrateAuraGroupConditions(aGroup)
 
 		if not aGroup then
 			return;
 		end
 
-		if aGroup["conditionsVersion"] == VUHDO_AURA_GROUP_CONDITIONS_VERSION then
+		tConditionsVersion = _G["VUHDO_AURA_GROUP_CONDITIONS_VERSION"];
+
+		if aGroup["conditionsVersion"] == tConditionsVersion then
 			return;
 		end
 
+		tMatchAnyBooleanKeys = _G["VUHDO_AURA_MATCH_ANY_BOOLEAN_KEYS"];
 		tNormalizeCandidateBooleans = aGroup["candidateBooleans"];
 
 		if tNormalizeCandidateBooleans then
-			for tCnt = 1, #VUHDO_AURA_MATCH_ANY_BOOLEAN_KEYS do
-				tLegacyBoolKey = VUHDO_AURA_MATCH_ANY_BOOLEAN_KEYS[tCnt];
+			for tCnt = 1, #tMatchAnyBooleanKeys do
+				tLegacyBoolKey = tMatchAnyBooleanKeys[tCnt];
 
 				if tNormalizeCandidateBooleans[tLegacyBoolKey] == 1 then
 					tLegacyMatchAnyBooleans = aGroup["matchAnyBooleans"];
@@ -1163,7 +1168,7 @@ do
 			end
 		end
 
-		aGroup["conditionsVersion"] = VUHDO_AURA_GROUP_CONDITIONS_VERSION;
+		aGroup["conditionsVersion"] = tConditionsVersion;
 
 		return;
 
@@ -2856,6 +2861,10 @@ do
 			elseif tEntry["entryType"] == VUHDO_AURA_LIST_ENTRY_SPELL then
 				tLookupKey = tEntry["value"];
 
+				if tEntry["isNameMatch"] and type(tLookupKey) == "number" then
+					tLookupKey = VUHDO_AURA_NAME_MATCH_SPELL_NAMES[tLookupKey] or tLookupKey;
+				end
+
 				tOldSlot = VUHDO_UNIT_AURA_LIST_SLOTS[aUnit][aPanelNum][anAnchorIndex][tEntryIndex];
 
 				if tOldSlot then
@@ -3576,7 +3585,7 @@ do
 
 					if tSpellId then
 						tAuraIgnoreList[tSpellId] = true;
-					else
+					elseif tKey ~= "!" then
 						tAuraIgnoreList[tKey] = true;
 					end
 				end
@@ -3852,6 +3861,7 @@ do
 
 
 	--
+	local tPanelSetup;
 	function VUHDO_migrateAuraDefaultsRangeFade()
 
 		tPanelSetup = _G["VUHDO_PANEL_SETUP"];
@@ -3866,6 +3876,28 @@ do
 
 		if tPanelSetup["AURA_DEFAULTS"]["rangeFade"] == nil then
 			tPanelSetup["AURA_DEFAULTS"]["rangeFade"] = true;
+		end
+
+		return;
+
+	end
+
+
+
+	--
+	local tAuraIgnoreList;
+	local tDebuffBlacklist;
+	function VUHDO_migrateAuraIgnoreListInvalidKeys()
+
+		tAuraIgnoreList = _G["VUHDO_AURA_IGNORE_LIST"];
+		tDebuffBlacklist = _G["VUHDO_DEBUFF_BLACKLIST"];
+
+		if tAuraIgnoreList then
+			tAuraIgnoreList["!"] = nil;
+		end
+
+		if tDebuffBlacklist then
+			tDebuffBlacklist["!"] = nil;
 		end
 
 		return;
@@ -3929,6 +3961,10 @@ do
 
 		if tCurrentMigrationVersion < 10 then
 			VUHDO_migrateAuraGroupListFilters();
+		end
+
+		if tCurrentMigrationVersion < 11 then
+			VUHDO_migrateAuraIgnoreListInvalidKeys();
 		end
 
 		tPanelSetup["AURA_MIGRATION_VERSION"] = VUHDO_AURA_MIGRATION_VERSION;
@@ -4140,6 +4176,8 @@ do
 
 
 	--
+	local tPanelSetup;
+	local tConfig;
 	function VUHDO_migrateKeyLayoutToAuras(aLayout)
 
 		if not aLayout or aLayout["AURAS"] then
@@ -4150,20 +4188,23 @@ do
 			return;
 		end
 
+		tPanelSetup = _G["VUHDO_PANEL_SETUP"];
+		tConfig = _G["VUHDO_CONFIG"];
+
 		aLayout["AURAS"] = { };
 
 		for tPanelNum = 1, VUHDO_MAX_PANELS do
-			if VUHDO_PANEL_SETUP and VUHDO_PANEL_SETUP[tPanelNum] and VUHDO_PANEL_SETUP[tPanelNum]["AURA_ANCHORS"] then
-				aLayout["AURAS"][tPanelNum] = VUHDO_compressTable(VUHDO_PANEL_SETUP[tPanelNum]["AURA_ANCHORS"]);
+			if tPanelSetup and tPanelSetup[tPanelNum] and tPanelSetup[tPanelNum]["AURA_ANCHORS"] then
+				aLayout["AURAS"][tPanelNum] = VUHDO_compressTable(tPanelSetup[tPanelNum]["AURA_ANCHORS"]);
 			end
 		end
 
-		if VUHDO_CONFIG and VUHDO_CONFIG["AURA_GROUPS"] then
-			aLayout["AURA_GROUPS"] = VUHDO_compressTable(VUHDO_CONFIG["AURA_GROUPS"]);
+		if tConfig and tConfig["AURA_GROUPS"] then
+			aLayout["AURA_GROUPS"] = VUHDO_compressTable(tConfig["AURA_GROUPS"]);
 		end
 
-		if VUHDO_CONFIG and VUHDO_CONFIG["AURA_GROUP_DISABLED"] then
-			aLayout["AURA_GROUP_DISABLED"] = VUHDO_compressTable(VUHDO_CONFIG["AURA_GROUP_DISABLED"]);
+		if tConfig and tConfig["AURA_GROUP_DISABLED"] then
+			aLayout["AURA_GROUP_DISABLED"] = VUHDO_compressTable(tConfig["AURA_GROUP_DISABLED"]);
 		end
 
 		aLayout["HOTS"] = nil;

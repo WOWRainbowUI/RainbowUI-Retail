@@ -3422,13 +3422,11 @@ VUHDO_DEFAULT_AURA_GROUPS = {
 	["PRESERVATION_EVOKER_HOTS"] = {
 		["type"] = 2,
 		["entries"] = {
-			{ ["entryType"] = 1, ["value"] = 355941, ["mine"] = true, ["others"] = false },
+			{ ["entryType"] = 1, ["value"] = 355941, ["isNameMatch"] = true, ["mine"] = true, ["others"] = false },
 			{ ["entryType"] = 1, ["value"] = 363502, ["mine"] = true, ["others"] = false },
 			{ ["entryType"] = 1, ["value"] = 364343, ["mine"] = true, ["others"] = false },
-			{ ["entryType"] = 1, ["value"] = 366155, ["mine"] = true, ["others"] = false },
-			{ ["entryType"] = 1, ["value"] = 367364, ["mine"] = true, ["others"] = false },
+			{ ["entryType"] = 1, ["value"] = 366155, ["isNameMatch"] = true, ["mine"] = true, ["others"] = false },
 			{ ["entryType"] = 1, ["value"] = 373267, ["mine"] = true, ["others"] = false },
-			{ ["entryType"] = 1, ["value"] = 376788, ["mine"] = true, ["others"] = false },
 			{ ["entryType"] = 1, ["value"] = 409895, ["mine"] = true, ["others"] = false },
 			{ ["entryType"] = 1, ["value"] = 444490, ["mine"] = true, ["others"] = false },
 		},
@@ -3448,8 +3446,7 @@ VUHDO_DEFAULT_AURA_GROUPS = {
 		["type"] = 2,
 		["entries"] = {
 			{ ["entryType"] = 1, ["value"] = 360827, ["mine"] = true, ["others"] = false },
-			{ ["entryType"] = 1, ["value"] = 395152, ["mine"] = true, ["others"] = false },
-			{ ["entryType"] = 1, ["value"] = 395296, ["mine"] = true, ["others"] = false },
+			{ ["entryType"] = 1, ["value"] = 395152, ["isNameMatch"] = true, ["mine"] = true, ["others"] = false },
 			{ ["entryType"] = 1, ["value"] = 410089, ["mine"] = true, ["others"] = false },
 			{ ["entryType"] = 1, ["value"] = 410263, ["mine"] = true, ["others"] = false },
 			{ ["entryType"] = 1, ["value"] = 410686, ["mine"] = true, ["others"] = false },
@@ -3551,10 +3548,8 @@ VUHDO_DEFAULT_AURA_GROUPS = {
 	["RESTORATION_SHAMAN_HOTS"] = {
 		["type"] = 2,
 		["entries"] = {
-			{ ["entryType"] = 1, ["value"] = 974, ["mine"] = true, ["others"] = false },
-			{ ["entryType"] = 1, ["value"] = 383648, ["mine"] = true, ["others"] = false },
+			{ ["entryType"] = 1, ["value"] = 974, ["isNameMatch"] = true, ["mine"] = true, ["others"] = false },
 			{ ["entryType"] = 1, ["value"] = 61295, ["mine"] = true, ["others"] = false },
-			{ ["entryType"] = 1, ["value"] = 382024, ["mine"] = true, ["others"] = false },
 			{ ["entryType"] = 1, ["value"] = 207400, ["mine"] = true, ["others"] = false },
 		},
 		["displayName"] = nil,
@@ -3594,13 +3589,13 @@ VUHDO_DEFAULT_AURA_GROUPS = {
 	["RAID_BUFFS"] = {
 		["type"] = 2,
 		["entries"] = {
-			{ ["entryType"] = 1, ["value"] = 1126, ["mine"] = true, ["others"] = false },
-			{ ["entryType"] = 1, ["value"] = 1459, ["mine"] = true, ["others"] = false },
+			{ ["entryType"] = 1, ["value"] = 1126, ["isNameMatch"] = true, ["mine"] = true, ["others"] = false },
+			{ ["entryType"] = 1, ["value"] = 1459, ["isNameMatch"] = true, ["mine"] = true, ["others"] = false },
 			{ ["entryType"] = 1, ["value"] = 6673, ["mine"] = true, ["others"] = false },
 			{ ["entryType"] = 1, ["value"] = 21562, ["mine"] = true, ["others"] = false },
 			{ ["entryType"] = 1, ["value"] = 369459, ["mine"] = true, ["others"] = false },
 			{ ["entryType"] = 1, ["value"] = 462854, ["mine"] = true, ["others"] = false },
-			{ ["entryType"] = 1, ["value"] = 474754, ["mine"] = true, ["others"] = false },
+			{ ["entryType"] = 1, ["value"] = 474750, ["isNameMatch"] = true, ["mine"] = true, ["others"] = false },
 		},
 		["displayName"] = nil,
 		["enabled"] = true,
@@ -3617,19 +3612,7 @@ VUHDO_DEFAULT_AURA_GROUPS = {
 	["BLESSING_OF_BRONZE"] = {
 		["type"] = 2,
 		["entries"] = {
-			{ ["entryType"] = 1, ["value"] = 381732, ["mine"] = true, ["others"] = false },
-			{ ["entryType"] = 1, ["value"] = 381741, ["mine"] = true, ["others"] = false },
-			{ ["entryType"] = 1, ["value"] = 381746, ["mine"] = true, ["others"] = false },
-			{ ["entryType"] = 1, ["value"] = 381748, ["mine"] = true, ["others"] = false },
-			{ ["entryType"] = 1, ["value"] = 381749, ["mine"] = true, ["others"] = false },
-			{ ["entryType"] = 1, ["value"] = 381750, ["mine"] = true, ["others"] = false },
-			{ ["entryType"] = 1, ["value"] = 381751, ["mine"] = true, ["others"] = false },
-			{ ["entryType"] = 1, ["value"] = 381752, ["mine"] = true, ["others"] = false },
-			{ ["entryType"] = 1, ["value"] = 381753, ["mine"] = true, ["others"] = false },
-			{ ["entryType"] = 1, ["value"] = 381754, ["mine"] = true, ["others"] = false },
-			{ ["entryType"] = 1, ["value"] = 381756, ["mine"] = true, ["others"] = false },
-			{ ["entryType"] = 1, ["value"] = 381757, ["mine"] = true, ["others"] = false },
-			{ ["entryType"] = 1, ["value"] = 381758, ["mine"] = true, ["others"] = false },
+			{ ["entryType"] = 1, ["value"] = 381732, ["isNameMatch"] = true, ["mine"] = true, ["others"] = false },
 		},
 		["displayName"] = nil,
 		["enabled"] = true,
@@ -3671,12 +3654,9 @@ VUHDO_DEFAULT_AURA_GROUPS = {
 		["entries"] = {
 			{ ["entryType"] = 1, ["value"] = 319773, ["mine"] = true, ["others"] = false },
 			{ ["entryType"] = 1, ["value"] = 319778, ["mine"] = true, ["others"] = false },
-			{ ["entryType"] = 1, ["value"] = 382021, ["mine"] = true, ["others"] = false },
-			{ ["entryType"] = 1, ["value"] = 382022, ["mine"] = true, ["others"] = false },
-			{ ["entryType"] = 1, ["value"] = 457496, ["mine"] = true, ["others"] = false },
-			{ ["entryType"] = 1, ["value"] = 457481, ["mine"] = true, ["others"] = false },
-			{ ["entryType"] = 1, ["value"] = 462757, ["mine"] = true, ["others"] = false },
-			{ ["entryType"] = 1, ["value"] = 462742, ["mine"] = true, ["others"] = false },
+			{ ["entryType"] = 1, ["value"] = 382021, ["isNameMatch"] = true, ["mine"] = true, ["others"] = false },
+			{ ["entryType"] = 1, ["value"] = 457481, ["isNameMatch"] = true, ["mine"] = true, ["others"] = false },
+			{ ["entryType"] = 1, ["value"] = 462742, ["isNameMatch"] = true, ["mine"] = true, ["others"] = false },
 		},
 		["displayName"] = nil,
 		["enabled"] = true,
@@ -3693,8 +3673,8 @@ VUHDO_DEFAULT_AURA_GROUPS = {
 	["PALADIN_WEAPON_IMBUEMENTS"] = {
 		["type"] = 2,
 		["entries"] = {
-			{ ["entryType"] = 1, ["value"] = 433568, ["mine"] = true, ["others"] = false },
-			{ ["entryType"] = 1, ["value"] = 433583, ["mine"] = true, ["others"] = false },
+			{ ["entryType"] = 1, ["value"] = 433550, ["isNameMatch"] = true, ["mine"] = true, ["others"] = false },
+			{ ["entryType"] = 1, ["value"] = 433583, ["isNameMatch"] = true, ["mine"] = true, ["others"] = false },
 		},
 		["displayName"] = nil,
 		["enabled"] = true,
@@ -3762,8 +3742,7 @@ VUHDO_DEFAULT_AURA_GROUPS = {
 	["WARLOCK_METAMORPHOSIS"] = {
 		["type"] = 2,
 		["entries"] = {
-			{ ["entryType"] = 1, ["value"] = 1217607, ["mine"] = true, ["others"] = false },
-			{ ["entryType"] = 1, ["value"] = 1225789, ["mine"] = true, ["others"] = false },
+			{ ["entryType"] = 1, ["value"] = 1217607, ["isNameMatch"] = true, ["mine"] = true, ["others"] = false },
 			{ ["entryType"] = 1, ["value"] = 1227702, ["mine"] = true, ["others"] = false },
 		},
 		["displayName"] = nil,

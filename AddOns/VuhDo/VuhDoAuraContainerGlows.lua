@@ -2,6 +2,7 @@ local _;
 
 local min = math.min;
 local max = math.max;
+local issecretvalue = issecretvalue;
 
 local GetAtlasInfo = C_Texture.GetAtlasInfo;
 
@@ -341,6 +342,11 @@ local function VUHDO_anchorInPlaceGlowTexture(aTexture, aGlowFrame, aGlowVisual,
 	else
 		tGlowWidth = aGlowFrame:GetWidth() or 20;
 		tGlowHeight = aGlowFrame:GetHeight() or tGlowWidth;
+
+		if issecretvalue(tGlowWidth) or issecretvalue(tGlowHeight) then
+			tGlowWidth = 20;
+			tGlowHeight = 20;
+		end
 	end
 
 	tScale = aScale or aGlowVisual["scale"] or sDefaultFlipbookScale;
@@ -667,7 +673,7 @@ local tFrameGlowR;
 local tFrameGlowG;
 local tFrameGlowB;
 local tFrameGlowO;
-function VUHDO_startFrameGlow(aFrame, aStyle, aColorArray, aGlowKey, aFrameLevel, aFieldPrefix)
+function VUHDO_startFrameGlow(aFrame, aStyle, aColorArray, aGlowKey, aFrameLevel, aFieldPrefix, aWidth, aHeight)
 
 	if not aFrame then
 		return;
@@ -757,7 +763,7 @@ function VUHDO_startFrameGlow(aFrame, aStyle, aColorArray, aGlowKey, aFrameLevel
 
 	tFrameGlowTexture = tFrameGlowHost:CreateTexture(nil, "OVERLAY", nil, 1);
 
-	VUHDO_anchorInPlaceGlowTexture(tFrameGlowTexture, tFrameGlowHost, tFrameGlowVisual);
+	VUHDO_anchorInPlaceGlowTexture(tFrameGlowTexture, tFrameGlowHost, tFrameGlowVisual, aWidth, aHeight);
 	VUHDO_applyGlowVisualToTexture(tFrameGlowTexture, tFrameGlowVisual, tFrameGlowR, tFrameGlowG, tFrameGlowB, tFrameGlowO);
 
 	tFrameGlowBodyAnim = VUHDO_playInPlaceFlipbookGlow(tFrameGlowTexture, tFrameGlowVisual);
@@ -797,15 +803,15 @@ local tGlowG;
 local tGlowB;
 local tGlowO;
 local tGlowStyleName;
-function VUHDO_startAuraButtonGlow(aAuraButton, anButtonSetup)
+function VUHDO_startAuraButtonGlow(aAuraButton, aButtonSetup)
 
-	if not aAuraButton or not anButtonSetup or not anButtonSetup["glowIcon"] then
+	if not aAuraButton or not aButtonSetup or not aButtonSetup["glowIcon"] then
 		VUHDO_stopInPlaceFrameGlow(aAuraButton, "vuhdo");
 
 		return;
 	end
 
-	tGlowColor = anButtonSetup["glowColor"];
+	tGlowColor = aButtonSetup["glowColor"];
 
 	if tGlowColor then
 		tGlowR = tGlowColor["R"] or 1;
@@ -826,9 +832,9 @@ function VUHDO_startAuraButtonGlow(aAuraButton, anButtonSetup)
 	sUnitGlowColorArray[3] = tGlowB;
 	sUnitGlowColorArray[4] = tGlowO;
 
-	tGlowStyleName = anButtonSetup["glowStyle"] or VUHDO_DEFAULT_AURA_GLOW_STYLE;
+	tGlowStyleName = aButtonSetup["glowStyle"] or VUHDO_DEFAULT_AURA_GLOW_STYLE;
 
-	VUHDO_startFrameGlow(aAuraButton, tGlowStyleName, sUnitGlowColorArray, nil, nil, "vuhdo");
+	VUHDO_startFrameGlow(aAuraButton, tGlowStyleName, sUnitGlowColorArray, nil, nil, "vuhdo", aButtonSetup["width"], aButtonSetup["height"]);
 
 	return;
 
@@ -945,7 +951,7 @@ local tBarGlowScale;
 local tBarGlowCache;
 local tActiveStyle;
 local tPrevEntry;
-local function VUHDO_startAuraButtonAuraGroupBarGlow(aAuraButton, anButtonSetup, aStyle, aColorR, aColorG, aColorB, aColorO)
+local function VUHDO_startAuraButtonAuraGroupBarGlow(aAuraButton, aButtonSetup, aStyle, aColorR, aColorG, aColorB, aColorO)
 
 	tBarGlowStyle = aStyle or VUHDO_DEFAULT_AURA_GLOW_STYLE;
 	tGlowVisual = VUHDO_resolveGlowVisual(tBarGlowStyle);
@@ -1004,8 +1010,8 @@ local function VUHDO_startAuraButtonAuraGroupBarGlow(aAuraButton, anButtonSetup,
 		return;
 	end
 
-	tBarGlowWidth = anButtonSetup["width"] or 20;
-	tBarGlowHeight = anButtonSetup["height"] or tBarGlowWidth;
+	tBarGlowWidth = aButtonSetup["width"] or 20;
+	tBarGlowHeight = aButtonSetup["height"] or tBarGlowWidth;
 
 	tBarGlowBaseScale = tGlowVisual["scale"] or sDefaultFlipbookScale;
 	tBarGlowScale = VUHDO_getAuraBarGlowScale(tBarGlowBaseScale, tBarGlowWidth, tBarGlowHeight, tBarGlowStyle);
@@ -1113,6 +1119,11 @@ function VUHDO_releaseAuraButtonGlowState(aAuraButton)
 	end
 
 	aAuraButton["vuhdoAuraGroupBarGlowActiveStyle"] = nil;
+	aAuraButton["vuhdoAuraGroupBarGlowAppliedColorType"] = nil;
+	aAuraButton["vuhdoAuraGroupBarGlowAppliedR"] = nil;
+	aAuraButton["vuhdoAuraGroupBarGlowAppliedG"] = nil;
+	aAuraButton["vuhdoAuraGroupBarGlowAppliedB"] = nil;
+	aAuraButton["vuhdoAuraGroupBarGlowAppliedO"] = nil;
 	aAuraButton["vuhdoAuraGroupBarGlowActive"] = nil;
 
 	return;
@@ -1160,97 +1171,180 @@ end
 
 
 
---
-local tUnitButton;
-local tUnitGlowStyle;
-local tUnitGlowColorType;
-local tUnitGlowMetaColor;
-local tUnitDefaultGlow;
-local tBarGlowEntry;
-local tBarGlowCache;
-function VUHDO_applyAuraGroupBarGlowFromAuraButton(aAuraButton, anButtonSetup)
+do
+	--
+	local tR;
+	local tG;
+	local tB;
+	local tO;
+	local tDefaultGlow;
+	function VUHDO_isAuraGroupBarGlowCurrent(aAuraButton, aGlowStyle, aGlowColorType, aGlowMetaColor)
 
-	if not aAuraButton or not anButtonSetup or not anButtonSetup["auraGroupBarGlow"] then
-		return;
-	end
-
-	tUnitButton = anButtonSetup["unitButton"];
-
-	if not tUnitButton then
-		return;
-	end
-
-	tUnitGlowStyle = anButtonSetup["glowStyle"] or VUHDO_DEFAULT_AURA_GLOW_STYLE;
-	tUnitGlowColorType = anButtonSetup["glowColorType"];
-
-	if tUnitGlowColorType == VUHDO_AURA_GROUP_COLOR_DISPEL or tUnitGlowColorType == VUHDO_AURA_GROUP_COLOR_ALL_DISPEL then
-		if tUnitButton["hasAuraGroupBarGlow"] then
-			VUHDO_stopUnitButtonAuraGroupGlow(tUnitButton, VUHDO_CUSTOM_GLOW_AURA_GROUP_KEY);
+		if aAuraButton["vuhdoAuraGroupBarGlowActiveStyle"] ~= aGlowStyle then
+			return false;
 		end
 
-		tBarGlowCache = aAuraButton["vuhdoAuraGroupBarGlow"];
-		tBarGlowEntry = tBarGlowCache and tBarGlowCache[tUnitGlowStyle];
-
-		if tBarGlowEntry and not tBarGlowEntry["stopped"] then
-			if not tBarGlowEntry["dispelTinted"] or aAuraButton:GetDispelTypeTextureCount() == 0 then
-				tBarGlowEntry["dispelTinted"] = false;
-
-				VUHDO_applyDispelTintToAuraGroupBarGlowTextures(aAuraButton);
-			end
-
-			tUnitButton[VUHDO_AURA_GROUP_GLOW_ACTIVE_KEY] = true;
-			aAuraButton["vuhdoAuraGroupBarGlowActive"] = true;
-
-			return;
+		if aAuraButton["vuhdoAuraGroupBarGlowAppliedColorType"] ~= aGlowColorType then
+			return false;
 		end
 
-		VUHDO_startAuraButtonAuraGroupBarGlow(aAuraButton, anButtonSetup, tUnitGlowStyle, 1, 1, 1, 1);
-
-		VUHDO_applyDispelTintToAuraGroupBarGlowTextures(aAuraButton);
-	else
-		if tUnitButton["hasAuraGroupBarGlow"] then
-			VUHDO_stopUnitButtonAuraGroupGlow(tUnitButton, VUHDO_CUSTOM_GLOW_AURA_GROUP_KEY);
+		if aGlowColorType == VUHDO_AURA_GROUP_COLOR_DISPEL or aGlowColorType == VUHDO_AURA_GROUP_COLOR_ALL_DISPEL then
+			return true;
 		end
 
-		tBarGlowCache = aAuraButton["vuhdoAuraGroupBarGlow"];
-		tBarGlowEntry = tBarGlowCache and tBarGlowCache[tUnitGlowStyle];
-
-		if tBarGlowEntry and not tBarGlowEntry["stopped"] then
-			tUnitButton[VUHDO_AURA_GROUP_GLOW_ACTIVE_KEY] = true;
-			aAuraButton["vuhdoAuraGroupBarGlowActive"] = true;
-
-			return;
-		end
-
-		tUnitGlowMetaColor = anButtonSetup["glowColor"];
-
-		if tUnitGlowMetaColor and tUnitGlowMetaColor["R"] then
-			sUnitGlowColorArray[1] = tUnitGlowMetaColor["R"];
-			sUnitGlowColorArray[2] = tUnitGlowMetaColor["G"];
-			sUnitGlowColorArray[3] = tUnitGlowMetaColor["B"];
-			sUnitGlowColorArray[4] = tUnitGlowMetaColor["O"] or 1;
+		if aGlowMetaColor and aGlowMetaColor["R"] then
+			tR = aGlowMetaColor["R"];
+			tG = aGlowMetaColor["G"];
+			tB = aGlowMetaColor["B"];
+			tO = aGlowMetaColor["O"];
 		else
-			tUnitDefaultGlow = VUHDO_PANEL_SETUP and VUHDO_PANEL_SETUP["BAR_COLORS"] and VUHDO_PANEL_SETUP["BAR_COLORS"]["DEBUFF_BAR_GLOW"];
+			tDefaultGlow = VUHDO_PANEL_SETUP and VUHDO_PANEL_SETUP["BAR_COLORS"] and VUHDO_PANEL_SETUP["BAR_COLORS"]["DEBUFF_BAR_GLOW"];
 
-			if tUnitDefaultGlow then
-				sUnitGlowColorArray[1] = tUnitDefaultGlow["R"];
-				sUnitGlowColorArray[2] = tUnitDefaultGlow["G"];
-				sUnitGlowColorArray[3] = tUnitDefaultGlow["B"];
-				sUnitGlowColorArray[4] = tUnitDefaultGlow["O"] or 1;
+			if tDefaultGlow then
+				tR = tDefaultGlow["R"];
+				tG = tDefaultGlow["G"];
+				tB = tDefaultGlow["B"];
+				tO = tDefaultGlow["O"];
 			else
-				sUnitGlowColorArray[1] = 0.95;
-				sUnitGlowColorArray[2] = 0.95;
-				sUnitGlowColorArray[3] = 0.32;
-				sUnitGlowColorArray[4] = 1;
+				tR = 0.95;
+				tG = 0.95;
+				tB = 0.32;
+				tO = 1;
 			end
 		end
 
-		VUHDO_startAuraButtonAuraGroupBarGlow(aAuraButton, anButtonSetup, tUnitGlowStyle, sUnitGlowColorArray[1], sUnitGlowColorArray[2], sUnitGlowColorArray[3], sUnitGlowColorArray[4]);
+		if tO == nil then
+			tO = 1;
+		end
+
+		if aAuraButton["vuhdoAuraGroupBarGlowAppliedR"] ~= tR
+			or aAuraButton["vuhdoAuraGroupBarGlowAppliedG"] ~= tG
+			or aAuraButton["vuhdoAuraGroupBarGlowAppliedB"] ~= tB
+			or aAuraButton["vuhdoAuraGroupBarGlowAppliedO"] ~= tO then
+
+			return false;
+		end
+
+		return true;
+
 	end
+end
 
-	tUnitButton[VUHDO_AURA_GROUP_GLOW_ACTIVE_KEY] = true;
-	aAuraButton["vuhdoAuraGroupBarGlowActive"] = true;
 
-	return;
 
+do
+	--
+	local tUnitButton;
+	local tUnitGlowStyle;
+	local tUnitGlowColorType;
+	local tUnitGlowMetaColor;
+	local tUnitDefaultGlow;
+	local tBarGlowEntry;
+	local tBarGlowCache;
+	function VUHDO_applyAuraGroupBarGlowFromAuraButton(aAuraButton, aButtonSetup)
+
+		if not aAuraButton or not aButtonSetup or not aButtonSetup["auraGroupBarGlow"] then
+			return;
+		end
+
+		tUnitButton = aButtonSetup["unitButton"];
+
+		if not tUnitButton then
+			return;
+		end
+
+		tUnitGlowStyle = aButtonSetup["glowStyle"] or VUHDO_DEFAULT_AURA_GLOW_STYLE;
+		tUnitGlowColorType = aButtonSetup["glowColorType"];
+
+		if tUnitGlowColorType == VUHDO_AURA_GROUP_COLOR_DISPEL or tUnitGlowColorType == VUHDO_AURA_GROUP_COLOR_ALL_DISPEL then
+			if tUnitButton["hasAuraGroupBarGlow"] then
+				VUHDO_stopUnitButtonAuraGroupGlow(tUnitButton, VUHDO_CUSTOM_GLOW_AURA_GROUP_KEY);
+			end
+
+			tBarGlowCache = aAuraButton["vuhdoAuraGroupBarGlow"];
+			tBarGlowEntry = tBarGlowCache and tBarGlowCache[tUnitGlowStyle];
+
+			if tBarGlowEntry and not tBarGlowEntry["stopped"] then
+				if VUHDO_isAuraGroupBarGlowCurrent(aAuraButton, tUnitGlowStyle, tUnitGlowColorType, nil) then
+					if not tBarGlowEntry["dispelTinted"] or aAuraButton:GetDispelTypeTextureCount() == 0 then
+						tBarGlowEntry["dispelTinted"] = false;
+
+						VUHDO_applyDispelTintToAuraGroupBarGlowTextures(aAuraButton);
+					end
+
+					tUnitButton[VUHDO_AURA_GROUP_GLOW_ACTIVE_KEY] = true;
+					aAuraButton["vuhdoAuraGroupBarGlowActive"] = true;
+
+					return;
+				end
+
+				VUHDO_hideAuraButtonAuraGroupBarGlowEntry(tBarGlowEntry);
+			end
+
+			VUHDO_startAuraButtonAuraGroupBarGlow(aAuraButton, aButtonSetup, tUnitGlowStyle, 1, 1, 1, 1);
+
+			VUHDO_applyDispelTintToAuraGroupBarGlowTextures(aAuraButton);
+
+			aAuraButton["vuhdoAuraGroupBarGlowAppliedColorType"] = tUnitGlowColorType;
+			aAuraButton["vuhdoAuraGroupBarGlowAppliedR"] = nil;
+			aAuraButton["vuhdoAuraGroupBarGlowAppliedG"] = nil;
+			aAuraButton["vuhdoAuraGroupBarGlowAppliedB"] = nil;
+			aAuraButton["vuhdoAuraGroupBarGlowAppliedO"] = nil;
+		else
+			if tUnitButton["hasAuraGroupBarGlow"] then
+				VUHDO_stopUnitButtonAuraGroupGlow(tUnitButton, VUHDO_CUSTOM_GLOW_AURA_GROUP_KEY);
+			end
+
+			tBarGlowCache = aAuraButton["vuhdoAuraGroupBarGlow"];
+			tBarGlowEntry = tBarGlowCache and tBarGlowCache[tUnitGlowStyle];
+
+			tUnitGlowMetaColor = aButtonSetup["glowColor"];
+
+			if tBarGlowEntry and not tBarGlowEntry["stopped"] then
+				if VUHDO_isAuraGroupBarGlowCurrent(aAuraButton, tUnitGlowStyle, tUnitGlowColorType, tUnitGlowMetaColor) then
+					tUnitButton[VUHDO_AURA_GROUP_GLOW_ACTIVE_KEY] = true;
+					aAuraButton["vuhdoAuraGroupBarGlowActive"] = true;
+
+					return;
+				end
+
+				VUHDO_hideAuraButtonAuraGroupBarGlowEntry(tBarGlowEntry);
+			end
+
+			if tUnitGlowMetaColor and tUnitGlowMetaColor["R"] then
+				sUnitGlowColorArray[1] = tUnitGlowMetaColor["R"];
+				sUnitGlowColorArray[2] = tUnitGlowMetaColor["G"];
+				sUnitGlowColorArray[3] = tUnitGlowMetaColor["B"];
+				sUnitGlowColorArray[4] = tUnitGlowMetaColor["O"] or 1;
+			else
+				tUnitDefaultGlow = VUHDO_PANEL_SETUP and VUHDO_PANEL_SETUP["BAR_COLORS"] and VUHDO_PANEL_SETUP["BAR_COLORS"]["DEBUFF_BAR_GLOW"];
+
+				if tUnitDefaultGlow then
+					sUnitGlowColorArray[1] = tUnitDefaultGlow["R"];
+					sUnitGlowColorArray[2] = tUnitDefaultGlow["G"];
+					sUnitGlowColorArray[3] = tUnitDefaultGlow["B"];
+					sUnitGlowColorArray[4] = tUnitDefaultGlow["O"] or 1;
+				else
+					sUnitGlowColorArray[1] = 0.95;
+					sUnitGlowColorArray[2] = 0.95;
+					sUnitGlowColorArray[3] = 0.32;
+					sUnitGlowColorArray[4] = 1;
+				end
+			end
+
+			VUHDO_startAuraButtonAuraGroupBarGlow(aAuraButton, aButtonSetup, tUnitGlowStyle, sUnitGlowColorArray[1], sUnitGlowColorArray[2], sUnitGlowColorArray[3], sUnitGlowColorArray[4]);
+
+			aAuraButton["vuhdoAuraGroupBarGlowAppliedColorType"] = tUnitGlowColorType;
+			aAuraButton["vuhdoAuraGroupBarGlowAppliedR"] = sUnitGlowColorArray[1];
+			aAuraButton["vuhdoAuraGroupBarGlowAppliedG"] = sUnitGlowColorArray[2];
+			aAuraButton["vuhdoAuraGroupBarGlowAppliedB"] = sUnitGlowColorArray[3];
+			aAuraButton["vuhdoAuraGroupBarGlowAppliedO"] = sUnitGlowColorArray[4];
+		end
+
+		tUnitButton[VUHDO_AURA_GROUP_GLOW_ACTIVE_KEY] = true;
+		aAuraButton["vuhdoAuraGroupBarGlowActive"] = true;
+
+		return;
+
+	end
 end

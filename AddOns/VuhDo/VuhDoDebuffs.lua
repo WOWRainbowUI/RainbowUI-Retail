@@ -35,7 +35,7 @@ VUHDO_DEBUFF_BLACKLIST = {
 	[GetSpellName(71328)] = true, -- Dungeon Cooldown
 	[GetSpellName(57723)] = true, -- Exhaustion (Heroism)
 	[GetSpellName(80354)] = true, -- Temporal Displacement (Time Warp)
-	[VUHDO_SPELL_ID.DEBUFF_FATIGUED] = true -- Fatigued (Primal Fury)
+	[GetSpellName(264689)] = true, -- Fatigued (Primal Fury)
 };
 
 local VUHDO_CONFIG;
@@ -48,6 +48,8 @@ local VUHDO_INIT_PURGE_ABILITIES;
 local VUHDO_SPEC_TO_DEBUFF_ABIL;
 
 local VUHDO_UNIT_AURA_SOURCE_BOTH;
+
+local VUHDO_isLegacyMissingBuffBarColor;
 
 local VUHDO_DEBUFF_BLACKLIST = { };
 
@@ -93,6 +95,8 @@ function VUHDO_debuffsInitLocalOverrides()
 	VUHDO_BUFF_REMOVAL_CHARM_SPELLS = _G["VUHDO_BUFF_REMOVAL_CHARM_SPELLS"];
 	VUHDO_INIT_PURGE_ABILITIES = _G["VUHDO_INIT_PURGE_ABILITIES"];
 	VUHDO_SPEC_TO_DEBUFF_ABIL = _G["VUHDO_SPEC_TO_DEBUFF_ABIL"];
+
+	VUHDO_isLegacyMissingBuffBarColor = _G["VUHDO_isLegacyMissingBuffBarColor"];
 
 	sIsNotRemovableOnly = not VUHDO_CONFIG["DETECT_DEBUFFS_REMOVABLE_ONLY"];
 	sIsNotRemovableOnlyIcons = not VUHDO_CONFIG["DETECT_DEBUFFS_REMOVABLE_ONLY_ICONS"];
@@ -301,11 +305,11 @@ do
 
 		tSourceColor = VUHDO_BUFF_SETTINGS[anInfo["mibucateg"]]["missingColor"];
 
-		if not tColor["useText"] and VUHDO_BUFF_SETTINGS["CONFIG"]["BAR_COLORS_TEXT"] then
+		if not tColor["useText"] and VUHDO_BUFF_SETTINGS["CONFIG"]["BAR_COLORS_TEXT"] and VUHDO_isLegacyMissingBuffBarColor() then
 			tColor["useText"], tColor["TR"], tColor["TG"], tColor["TB"], tColor["TO"] = true, tSourceColor["TR"], tSourceColor["TG"], tSourceColor["TB"], tSourceColor["TO"];
 		end
 
-		if not tColor["useBackground"] and VUHDO_BUFF_SETTINGS["CONFIG"]["BAR_COLORS_BACKGROUND"] then
+		if not tColor["useBackground"] and VUHDO_BUFF_SETTINGS["CONFIG"]["BAR_COLORS_BACKGROUND"] and VUHDO_isLegacyMissingBuffBarColor() then
 			tColor["useBackground"], tColor["R"], tColor["G"], tColor["B"], tColor["O"] = true, tSourceColor["R"], tSourceColor["G"], tSourceColor["B"], tSourceColor["O"];
 		end
 
@@ -1410,7 +1414,7 @@ function VUHDO_getDeterminedDebuffInfo(aUnit, aDoUpdate)
 		VUHDO_updateCurChosen(aUnit);
 	end
 
-	if sCurChosen[aUnit][1] == VUHDO_DEBUFF_TYPE_NONE and VUHDO_RAID[aUnit]["missbuff"] and (sIsMiBuColorsInFight or not InCombatLockdown()) then
+	if sCurChosen[aUnit][1] == VUHDO_DEBUFF_TYPE_NONE and VUHDO_RAID[aUnit]["missbuff"] and VUHDO_isLegacyMissingBuffBarColor() and (sIsMiBuColorsInFight or not InCombatLockdown()) then
 		sCurChosen[aUnit][1] = VUHDO_DEBUFF_TYPE_MISSING_BUFF;
 	end
 

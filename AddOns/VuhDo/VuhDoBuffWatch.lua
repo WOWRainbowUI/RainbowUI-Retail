@@ -179,6 +179,185 @@ end
 
 
 --
+local function VUHDO_getFirstKnownBuffVariant(aCategName)
+
+	for _, tVariantEntry in pairs(VUHDO_getPlayerClassBuffs()[aCategName] or sEmpty) do
+		if VUHDO_BUFFS[tVariantEntry[1]] then
+			return tVariantEntry;
+		end
+	end
+
+	return nil;
+
+end
+
+
+
+do
+	--
+	local tFirstVariant;
+	local tTargetType;
+	function VUHDO_isMissingBuffCategoryContainerable(aCategName)
+
+		tFirstVariant = VUHDO_getFirstKnownBuffVariant(aCategName);
+
+		if not tFirstVariant then
+			return false;
+		end
+
+		tTargetType = tFirstVariant[2];
+
+		if VUHDO_BUFF_TARGET_ENCHANT == tTargetType
+			or VUHDO_BUFF_TARGET_ENCHANT_OFF == tTargetType
+			or VUHDO_BUFF_TARGET_TOTEM == tTargetType
+			or VUHDO_BUFF_TARGET_HOSTILE == tTargetType then
+			return false;
+		end
+
+		return true;
+
+	end
+
+
+
+	--
+	local tSettings;
+	local tTargetModeStr;
+	local tRoleId;
+	local function VUHDO_getMissingBuffCategoryTargetMode(aCategName, aTargetType)
+
+		if VUHDO_BUFF_TARGET_UNIQUE ~= aTargetType then
+			return VUHDO_BUFF_TARGET_MODE_STANDARD;
+		end
+
+		tSettings = VUHDO_BUFF_SETTINGS[aCategName];
+		tTargetModeStr = tSettings and tSettings["targetMode"];
+
+		if tTargetModeStr and tTargetModeStr ~= "name" then
+			tRoleId = tonumber(tTargetModeStr);
+
+			if tRoleId then
+				return VUHDO_BUFF_TARGET_MODE_ROLE;
+			elseif tTargetModeStr == "target" then
+				return VUHDO_BUFF_TARGET_MODE_TARGET;
+			elseif tTargetModeStr == "focus" then
+				return VUHDO_BUFF_TARGET_MODE_FOCUS;
+			end
+		end
+
+		return VUHDO_BUFF_TARGET_MODE_NAME;
+
+	end
+
+
+
+	--
+	local tFirstVariant;
+	local tTargetType;
+	local tSettings;
+	local tTargetMode;
+	local tInfo;
+	local tIsNotInBattleground;
+	local tRaidList;
+	local tIsInRaidList;
+	local tPlayerGroup;
+	local tRoleId;
+	function VUHDO_isMissingBuffWatchUnit(aCategName, aUnit)
+
+		if not aCategName or not aUnit then
+			return false;
+		end
+
+		tFirstVariant = VUHDO_getFirstKnownBuffVariant(aCategName);
+
+		if not tFirstVariant or not VUHDO_isMissingBuffCategoryContainerable(aCategName) then
+			return false;
+		end
+
+		tTargetType = tFirstVariant[2];
+
+		if UnitOnTaxi("player") and VUHDO_BUFF_TARGET_SELF ~= tTargetType then
+			return false;
+		end
+
+		tInfo = VUHDO_RAID[aUnit];
+
+		if not tInfo then
+			return false;
+		end
+
+		tTargetMode = VUHDO_getMissingBuffCategoryTargetMode(aCategName, tTargetType);
+
+		if (("focus" == aUnit or "target" == aUnit)
+			and VUHDO_BUFF_TARGET_MODE_TARGET ~= tTargetMode
+			and VUHDO_BUFF_TARGET_MODE_FOCUS ~= tTargetMode) then
+			return false;
+		end
+
+		if tInfo["isPet"] then
+			return false;
+		end
+
+		if not tInfo["connected"] or tInfo["dead"] then
+			return false;
+		end
+
+		tIsNotInBattleground = not VUHDO_isInBattleground();
+
+		if "player" ~= aUnit and (not VUHDO_isInSameZone(aUnit) or not (tInfo["visible"] or tIsNotInBattleground)) then
+			return false;
+		end
+
+		if VUHDO_BUFF_TARGET_UNIQUE == tTargetType then
+			tSettings = VUHDO_BUFF_SETTINGS[aCategName];
+
+			if VUHDO_BUFF_TARGET_MODE_ROLE == tTargetMode then
+				tRoleId = tonumber(tSettings and tSettings["targetMode"]);
+
+				if not tRoleId then
+					return false;
+				end
+
+				return VUHDO_isUnitInRoleGroup(aUnit, tRoleId);
+			elseif VUHDO_BUFF_TARGET_MODE_TARGET == tTargetMode then
+				return "target" == aUnit;
+			elseif VUHDO_BUFF_TARGET_MODE_FOCUS == tTargetMode then
+				return "focus" == aUnit;
+			else
+				return VUHDO_RAID_NAMES[(tSettings or sEmpty)["name"] or VUHDO_PLAYER_NAME] == aUnit;
+			end
+
+		elseif VUHDO_BUFF_TARGET_RAID == tTargetType or VUHDO_BUFF_TARGET_SINGLE == tTargetType then
+			tRaidList = VUHDO_BUFF_RAID_FILTERED[aCategName] or VUHDO_BUFF_RAID;
+			tIsInRaidList = false;
+
+			for tCnt = 1, #tRaidList do
+				if tRaidList[tCnt] == aUnit then
+					tIsInRaidList = true;
+
+					break;
+				end
+			end
+
+			return tIsInRaidList;
+
+		elseif VUHDO_BUFF_TARGET_OWN_GROUP == tTargetType then
+			tPlayerGroup = (VUHDO_RAID["player"] or sEmpty)["group"] or 1;
+
+			return VUHDO_isUnitInRoleGroup(aUnit, tPlayerGroup);
+
+		elseif VUHDO_BUFF_TARGET_STANCE == tTargetType or VUHDO_BUFF_TARGET_SELF == tTargetType then
+			return "player" == aUnit;
+		end
+
+		return false;
+
+	end
+end
+
+
+
+--
 local tBuffTex;
 local tBuffGroup;
 local function VUHDO_unitHasBuffVariant(aUnit, aBuffInfo)
@@ -431,7 +610,9 @@ function VUHDO_initBuffsFromSpellBook()
 	-- eg. GetSpellBookItemInfo("Lightning Shield") will return a spell ID only for Lightning Shield, 
 	-- however when a Resto Shaman calls GetSpellInfo("Lightning Shield") it returns the correct 
 	-- information for the derived spell Water Shield
-	VUHDO_BUFFS = { };
+
+	twipe(VUHDO_BUFFS);
+
 	for _, tCateg in pairs(VUHDO_getPlayerClassBuffs()) do
 		for _, tCategSpells in pairs(tCateg) do
 			tParentSpellName = tCategSpells[1];

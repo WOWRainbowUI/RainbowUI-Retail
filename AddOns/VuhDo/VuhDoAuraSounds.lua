@@ -23,6 +23,7 @@ local VUHDO_DEFAULT_AURA_GROUPS;
 local VUHDO_AURA_GROUP_TYPE_FILTER;
 local VUHDO_AURA_GROUP_TYPE_LIST;
 local VUHDO_AURA_LIST_ENTRY_SPELL;
+local VUHDO_AURA_NAME_MATCH_SPELL_NAMES;
 
 local VUHDO_getAuraGroup;
 local VUHDO_getAuraGroupForUnit;
@@ -56,6 +57,7 @@ function VUHDO_auraSoundsInitLocalOverrides()
 	VUHDO_AURA_GROUP_TYPE_FILTER = _G["VUHDO_AURA_GROUP_TYPE_FILTER"];
 	VUHDO_AURA_GROUP_TYPE_LIST = _G["VUHDO_AURA_GROUP_TYPE_LIST"];
 	VUHDO_AURA_LIST_ENTRY_SPELL = _G["VUHDO_AURA_LIST_ENTRY_SPELL"];
+	VUHDO_AURA_NAME_MATCH_SPELL_NAMES = _G["VUHDO_AURA_NAME_MATCH_SPELL_NAMES"];
 
 	VUHDO_getAuraGroup = _G["VUHDO_getAuraGroup"];
 	VUHDO_getAuraGroupForUnit = _G["VUHDO_getAuraGroupForUnit"];
@@ -98,6 +100,7 @@ local tSound;
 local tGroupType;
 local tEntries;
 local tEntry;
+local tValue;
 local function VUHDO_listGroupHasNativeAuraSoundSpellIds(aGroup)
 
 	if not aGroup then
@@ -115,7 +118,13 @@ local function VUHDO_listGroupHasNativeAuraSoundSpellIds(aGroup)
 		tEntry = tEntries[tCnt];
 
 		if tEntry["entryType"] == VUHDO_AURA_LIST_ENTRY_SPELL then
-			VUHDO_addResolvedAuraContainerSpellIds(sNativeResolvedSpellIds, tEntry["value"]);
+			tValue = tEntry["value"];
+
+			if tEntry["isNameMatch"] and type(tValue) == "number" then
+				tValue = VUHDO_AURA_NAME_MATCH_SPELL_NAMES[tValue] or tValue;
+			end
+
+			VUHDO_addResolvedAuraContainerSpellIds(sNativeResolvedSpellIds, tValue);
 		end
 	end
 
@@ -319,7 +328,13 @@ function VUHDO_syncNativeAuraSoundsForUnit(aUnit)
 								tEntry = tEntries[tCnt];
 
 								if tEntry["entryType"] == VUHDO_AURA_LIST_ENTRY_SPELL then
-									VUHDO_addResolvedAuraContainerSpellIds(sNativeResolvedSpellIds, tEntry["value"]);
+									tValue = tEntry["value"];
+
+									if tEntry["isNameMatch"] and type(tValue) == "number" then
+										tValue = VUHDO_AURA_NAME_MATCH_SPELL_NAMES[tValue] or tValue;
+									end
+
+									VUHDO_addResolvedAuraContainerSpellIds(sNativeResolvedSpellIds, tValue);
 								end
 							end
 						end
@@ -456,7 +471,6 @@ end
 
 
 --
-local tValue;
 local tSpellId;
 local tName;
 local function VUHDO_auraMatchesListGroup(anAuraData, aGroup)
@@ -481,6 +495,10 @@ local function VUHDO_auraMatchesListGroup(anAuraData, aGroup)
 	for _, tEntry in ipairs(tEntries) do
 		if tEntry["entryType"] == VUHDO_AURA_LIST_ENTRY_SPELL then
 			tValue = tEntry["value"];
+
+			if tEntry["isNameMatch"] and type(tValue) == "number" then
+				tValue = VUHDO_AURA_NAME_MATCH_SPELL_NAMES[tValue] or tValue;
+			end
 
 			if tValue == tSpellId or tValue == tName then
 				if VUHDO_auraSourceMatchesFilter(anAuraData, tEntry) then

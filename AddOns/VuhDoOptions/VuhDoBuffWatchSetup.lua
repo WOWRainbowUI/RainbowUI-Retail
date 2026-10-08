@@ -744,6 +744,8 @@ function VUHDO_buffUpButtonClicked(aButton)
 	if (tPredec > 0) then
 		VUHDO_BUFF_ORDER[tPreIndex] = tCurrOrder;
 		VUHDO_BUFF_ORDER[tIndex] = tPredec;
+
+		VUHDO_invalidateMissingBuffContainerPlans();
 	end
 
 	VUHDO_buildAllBuffSetupGenerericPanel();
@@ -779,6 +781,8 @@ function VUHDO_buffDownButtonClicked(aButton)
 	if (tPredec < 1000) then
 		VUHDO_BUFF_ORDER[tPreIndex] = tCurrOrder;
 		VUHDO_BUFF_ORDER[tIndex] = tPredec;
+
+		VUHDO_invalidateMissingBuffContainerPlans();
 	end
 
 	VUHDO_buildAllBuffSetupGenerericPanel();

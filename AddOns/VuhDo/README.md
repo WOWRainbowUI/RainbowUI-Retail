@@ -1,11 +1,19 @@
-Get [VuhDo release v3.199](https://www.curseforge.com/wow/addons/vuhdo/download/7770489) now with support for Midnight Season 1 patch 12.0.1!
+[![latest retail](https://img.shields.io/badge/latest%20retail-v3.217-red?style=flat-square)](https://www.curseforge.com/wow/addons/vuhdo/files)
+[![latest cataclysm](https://img.shields.io/badge/latest%20cataclysm-v3.217--catac-orange?style=flat-square)](https://www.curseforge.com/wow/addons/vuhdo/files)
+[![latest wrath](https://img.shields.io/badge/latest%20wrath-v3.164--wotlkc-blue?style=flat-square)](https://www.curseforge.com/wow/addons/vuhdo/download/5305726)
+[![latest burning crusade](https://img.shields.io/badge/latest%20burning%20crusade-v3.217--tbcc-green?style=flat-square)](https://www.curseforge.com/wow/addons/vuhdo/files)
+[![latest classic](https://img.shields.io/badge/latest%20classic-v3.217--vanilla-lightgrey?style=flat-square)](https://www.curseforge.com/wow/addons/vuhdo/files)
+[![discord](https://img.shields.io/discord/632687773526130691?color=7289da&logo=discord&label=discord&style=flat-square)](https://discord.gg/57en44E)
+[![latest mists](https://img.shields.io/badge/latest%20mists-v3.217--mopc-brightgreen?style=flat-square)](https://www.curseforge.com/wow/addons/vuhdo/files)
+
+Get [VuhDo release v3.217](https://www.curseforge.com/wow/addons/vuhdo) now with support for Midnight patch 12.1.0!
 
 To get started read the updated [guide over at Icy-Veins](https://www.icy-veins.com/forums/topic/11805-vuhdo-a-comprehensive-guide/).
 
 Download user created VuhDo profiles, key layouts and custom bouquets over on [wago.io](https://wago.io)!
 
 Keep those feature requests and bug reports coming!
-Please [file VuhDo GitLab issues](https://gitlab.vuhdo.io/vuhdo/vuhdo/issues/new) to report any bugs or to make feature requests.
+Please [file VuhDo GitHub issues](https://github.com/vuhdo-io/VuhDo/issues/new/choose) to report any bugs or to make feature requests.
 
 Further reading:
 
