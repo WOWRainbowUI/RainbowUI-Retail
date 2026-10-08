@@ -1,4 +1,4 @@
-## 6.2.21 (2026-10-05)
+## 6.3.3 (2026-10-08)
 
-- Clicking a shared route that did not fully arrive now shows a chat message asking you to have the route sent again, instead of an error window.
-- Fixed an error window appearing when drawing or setting a new route during a Live Session.
+- Fixed the text cursor and text highlighting not showing while editing a single-line map text with the map zoomed out.
+- The style bar of a selected map text now stays inside the map when the text is scrolled out of view, instead of moving out of the MDT window.
