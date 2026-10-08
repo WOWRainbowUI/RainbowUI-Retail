@@ -44,6 +44,7 @@ local STYLE_FIELDS = {
 	"ColorByDispelType",
 	"BorderWithoutDispelType",
 	"Glow",
+	"GlowStealableOnly",
 	"FontScale",
 	"ShowTooltips",
 	"Pandemic",
@@ -493,6 +494,7 @@ local function StyleDiffersFromStored(instance, style)
 	local pandemic = style.PandemicColor
 	local text = style.TextColor
 	local label = style.LabelColor
+	local stealable = style.StealableColor
 
 	if not stored.Populated
 		or stored.DisableSwipe ~= ((db and db.DisableSwipe) or false)
@@ -513,7 +515,10 @@ local function StyleDiffersFromStored(instance, style)
 		or stored.TextColorB ~= (text and text[3])
 		or stored.LabelColorR ~= (label and label[1])
 		or stored.LabelColorG ~= (label and label[2])
-		or stored.LabelColorB ~= (label and label[3]) then
+		or stored.LabelColorB ~= (label and label[3])
+		or stored.StealableColorR ~= (stealable and stealable[1])
+		or stored.StealableColorG ~= (stealable and stealable[2])
+		or stored.StealableColorB ~= (stealable and stealable[3]) then
 		return true
 	end
 
@@ -543,6 +548,7 @@ local function StoreStyle(instance, style)
 	local pandemic = style.PandemicColor
 	local text = style.TextColor
 	local label = style.LabelColor
+	local stealable = style.StealableColor
 
 	for _, field in ipairs(STYLE_FIELDS) do
 		stored[field] = style[field]
@@ -569,6 +575,9 @@ local function StoreStyle(instance, style)
 	stored.LabelColorR = label and label[1]
 	stored.LabelColorG = label and label[2]
 	stored.LabelColorB = label and label[3]
+	stored.StealableColorR = stealable and stealable[1]
+	stored.StealableColorG = stealable and stealable[2]
+	stored.StealableColorB = stealable and stealable[3]
 	stored.Populated = true
 
 	return true
@@ -587,6 +596,19 @@ end
 ---@return number
 local function TextureWidth(instance)
 	return instance.Style.TextureWidth or instance.Size
+end
+
+---Takes the group shares asked for since the last restyle. Done where Size is, so the two never
+---disagree about what the buttons carry.
+---@param instance AuraContainerDisplay
+local function CommitGroupScales(instance)
+	for _, group in ipairs(instance.Groups) do
+		if group.SizeScalePending then
+			group.SizeScale = group.PendingSizeScale
+			group.PendingSizeScale = nil
+			group.SizeScalePending = nil
+		end
+	end
 end
 
 ---The icon size one group's buttons are drawn at. A group may ask for a share of the display's own
@@ -664,8 +686,10 @@ local function StyleCountdown(instance, button, widgets, size, fontScale)
 	-- countdown's place, so it drops the numbers the same way.
 	-- None of them reach a text-only button, where the countdown is the whole display and
 	-- dropping it would leave an aura that is up with nothing on screen.
+	local group = widgets.Group
 	local hideNumbers = not instance.TextOnly and (style.HideNumbers == true
-		or style.CenterStacks == true or style.DisableNumbers == true)
+		or style.CenterStacks == true or style.DisableNumbers == true
+		or (group ~= nil and group.HideNumbers == true))
 	-- SetCountdownMillisecondsThreshold only works on legacy clock-driven cooldowns. It no-ops for
 	-- 12.1 duration objects, where fractions render through the duration-text binding below, and
 	-- the cooldown's own SetCountdownFormatter does not work there either.
@@ -1499,9 +1523,7 @@ local function LineSize(instance)
 		end
 	end
 
-	-- Every scaled icon a group can land on one line counts, or a full line wraps one icon early.
-	-- Two scaled groups push the premium past a plain icon and its gap, so a full line takes one
-	-- more than PerLine asked for.
+	-- Every scaled icon a group can land on one line counts, or a full line wraps early.
 	return perLine * size + perLine * instance.Spacing + premium
 end
 
@@ -2113,6 +2135,68 @@ function M:SetGroupColorByDispelTypes(groupKeys, enabled)
 	end
 end
 
+---Drops or restores the countdown text on the named groups, restyling once rather than once per
+---group. Only ever adds to the display-wide switches, so false or nil follows the display.
+---@param groupKeys string[]
+---@param hide boolean?
+function M:SetGroupHideNumbers(groupKeys, hide)
+	local changed = false
+
+	for _, groupKey in ipairs(groupKeys) do
+		local group = self.GroupsByKey[groupKey]
+
+		if group and (group.HideNumbers == true) ~= (hide == true) then
+			group.HideNumbers = hide
+			changed = true
+		end
+	end
+
+	if changed then
+		self:RestyleButtons()
+	end
+end
+
+---Sets what the named groups' icons are drawn at, as a share of the display's own size. Nil draws
+---them at the display's size. The share is held back with the size until the restyle lands, so a
+---layout never gets ahead of the buttons.
+---@param groupKeys string[]
+---@param scale number?
+function M:SetGroupSizeScale(groupKeys, scale)
+	local changed = false
+
+	for _, groupKey in ipairs(groupKeys) do
+		local group = self.GroupsByKey[groupKey]
+
+		if group then
+			local current = group.SizeScale
+
+			if group.SizeScalePending then
+				current = group.PendingSizeScale
+			end
+
+			if current ~= scale then
+				group.PendingSizeScale = scale
+				group.SizeScalePending = true
+				changed = true
+			end
+		end
+	end
+
+	if changed then
+		self:RestyleButtons()
+	end
+end
+
+---The share a group's buttons are actually drawn at, which lags the one asked for while a restyle
+---is held back.
+---@param groupKey string
+---@return number? scale Nil when the group draws at the display's size, or is not on this display.
+function M:GetGroupSizeScale(groupKey)
+	local group = self.GroupsByKey[groupKey]
+
+	return group and group.SizeScale
+end
+
 ---A group's current icon budget, for callers that only want to act when it actually moves.
 ---@param groupKey string
 ---@return number? maxIcons Nil when this display has no such group.
@@ -2223,6 +2307,7 @@ function M:GetStyleScratch()
 	styleScratch.PandemicColor = nil
 	styleScratch.TextColor = nil
 	styleScratch.LabelColor = nil
+	styleScratch.StealableColor = nil
 
 	return styleScratch
 end
@@ -2282,6 +2367,7 @@ function M:GetStyleGeneration(key, style, size, spacing)
 	styleStamps:Add(auraCountdownText:GetColorGeneration())
 	styleStamps:AddColor(style.TextColor)
 	styleStamps:AddColor(style.LabelColor)
+	styleStamps:AddColor(style.StealableColor)
 
 	return styleStamps:Commit()
 end
@@ -2340,6 +2426,7 @@ function M:RestyleButtons()
 		if #self.Buttons == 0 then
 			self.Size = self.PendingSize
 			self.Spacing = self.PendingSpacing
+			CommitGroupScales(self)
 			ApplyGroupLayout(self)
 		end
 
@@ -2351,6 +2438,7 @@ function M:RestyleButtons()
 	-- engine creates before this point still sees the size it was actually built at.
 	self.Size = self.PendingSize
 	self.Spacing = self.PendingSpacing
+	CommitGroupScales(self)
 
 	-- Cleared after the commit, so anything returning early between the two leaves the display
 	-- pending rather than claiming a size its buttons never took.
@@ -2439,6 +2527,10 @@ end
 ---@field GlowColor number[]? {r, g, b} tint for every glow on the display. A group's own
 ---GlowColor overrides it, and unset leaves the glow plain white. Resolved from the global db by
 ---StoreStyle, never by a caller.
+---@field GlowStealableOnly boolean? Narrow the glow to buffs the player can steal or purge, in
+---StealableColor. Ignored on a client without the engine's stealable filter.
+---@field StealableColor number[]? {r, g, b} the stealable-only glow takes. Copied component-wise
+---like GlowColor, so callers may pass a reused scratch.
 ---@field LabelFontSize number? Text size for a Label display's fontstrings (default 20). Resolved
 ---from the global db by StoreStyle, never by a caller.
 ---@field LabelFontFlags string? Font flags ("OUTLINE" etc.) for a Label display's fontstrings.
@@ -2473,6 +2565,7 @@ end
 ---@field SortDirection number? AuraContainerSortDirection value (default Normal, Reverse = newest first).
 ---@field SizeScale number? What this group's icons are drawn at, as a share of the display's own
 ---size. Unset draws them at it, which is what every group but a deliberately larger one wants.
+---Changed after creation with SetGroupSizeScale.
 ---@field LayoutIndex number? Where this group sits in the row, for a display whose groups are not
 ---declared in the order they are drawn in. Unset leaves the engine on declaration order.
 ---@field OwnLayout table? The layout table this group is declared and re-declared with, refilled
@@ -2486,6 +2579,8 @@ end
 ---@field ColorByDispelType boolean? Whether this group's borders take the engine's dispel palette,
 ---overriding the display-wide Style.ColorByDispelType so one row can colour a single category.
 ---Unset follows the display. Changed after creation with SetGroupColorByDispelTypes.
+---@field HideNumbers boolean? Drops this group's countdown on top of the display-wide switches.
+---Changed after creation with SetGroupHideNumbers.
 ---@field BorderWithoutDispelType boolean? Whether this group rings an aura with no dispel type at
 ---all, overriding the display-wide Style.BorderWithoutDispelType. No module sets it today, since
 ---every row that rings at all rings a typeless aura. Unset follows the display. Fixed at creation.

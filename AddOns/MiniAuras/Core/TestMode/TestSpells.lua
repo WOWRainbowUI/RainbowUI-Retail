@@ -58,6 +58,8 @@ M.Nameplates = {
 		[408] = DEBUFF_TYPE_NONE_COLOR,
 		[5782] = DEBUFF_TYPE_MAGIC_COLOR,
 	},
+	---The buffs the stealable-only glow lights, keyed by spell id.
+	Purgeable = { [1022] = true },
 }
 
 ---The party and raid frame rows, and the target and focus rows, whose plain icons take bare spell
@@ -92,6 +94,10 @@ M.FrameAuras = {
 	-- One stand-in per flagged category, drawn only while the row is letting that category in.
 	-- The stun carries a tint because the debuff row rings a typeless aura live.
 	CrowdControl = { SpellId = 408, DispelColor = DEBUFF_TYPE_NONE_COLOR }, -- Kidney Shot
+	-- Stands in for a boss or role debuff, which the live row always lets in ahead of the stun.
+	Role = { SpellId = 1259790, DispelColor = DEBUFF_TYPE_MAGIC_COLOR }, -- Unstable Affliction
+	-- Leads the row ahead of both, the way a live kick icon does.
+	Kick = 1766, -- Kick
 	Important = 31884,   -- Avenging Wrath
 	Defensive = 33206,   -- Pain Suppression
 	-- A magic buff worth taking off an enemy, for the purge glow. Leads the buff row in the
@@ -156,18 +162,22 @@ local CLASSIC = {
 			[408] = DEBUFF_TYPE_NONE_COLOR,
 			[5782] = DEBUFF_TYPE_MAGIC_COLOR,
 		},
+		---The buffs the stealable-only glow lights, keyed by spell id.
+		Purgeable = { [1022] = true },
 	},
 	FrameAuras = {
 		Buffs = { 774, 8936, 139, 17 }, -- Rejuvenation, Regrowth, Renew, Power Word: Shield
-		Debuffs = { 12294, 589, 172, 980, 348 }, -- Mortal Strike, Shadow Word: Pain, Corruption, Curse of Agony, Immolate
+		Debuffs = { 12294, 589, 1715, 980, 348 }, -- Mortal Strike, Shadow Word: Pain, Hamstring, Curse of Agony, Immolate
 		DispelColors = {
 			[12294] = DEBUFF_TYPE_NONE_COLOR,
 			[589] = DEBUFF_TYPE_MAGIC_COLOR,
-			[172] = DEBUFF_TYPE_MAGIC_COLOR,
+			[1715] = DEBUFF_TYPE_NONE_COLOR,
 			[980] = DEBUFF_TYPE_CURSE_COLOR,
 			[348] = DEBUFF_TYPE_MAGIC_COLOR,
 		},
 		CrowdControl = { SpellId = 408, DispelColor = DEBUFF_TYPE_NONE_COLOR },
+		Role = { SpellId = 172, DispelColor = DEBUFF_TYPE_MAGIC_COLOR }, -- Corruption
+		Kick = 1766, -- Kick
 		Important = 1719,  -- Recklessness
 		Defensive = 871,   -- Shield Wall
 		Purgeable = 1459,  -- Arcane Intellect
