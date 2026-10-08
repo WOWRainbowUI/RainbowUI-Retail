@@ -201,15 +201,21 @@ function addonTable.Display.AurasManagerNextMixin:OnLoad()
   self.debuffs = CreateFrame("AuraContainer", nil, self, "CustomAuraContainerTemplate")
   self.crowdControl = CreateFrame("AuraContainer", nil, self, "CustomAuraContainerTemplate")
 
+  self.slots = CreateFrame("AuraContainer", nil, self, "CustomAuraContainerTemplate")
+
   self.buffs:SetEnabled(false)
   self.debuffs:SetEnabled(false)
   self.crowdControl:SetEnabled(false)
+  self.slots:SetEnabled(false)
 
   self.initialSetup = true
 
   self.crowdControl.frames = {}
   self.buffs.frames = {}
   self.debuffs.frames = {}
+  self.slots.framesByKey = {}
+  self.slots.occupied = 0
+  self.slots.available = 0
 
   addonTable.CallbackRegistry:RegisterCallback("SpecializationChanged", function()
     if not self.initialSetup then
@@ -382,6 +388,7 @@ function addonTable.Display.AurasManagerNextMixin:InitializeWidgets(parent, aura
   self.buffs:SetEnabled(false)
   self.debuffs:SetEnabled(false)
   self.crowdControl:SetEnabled(false)
+  self.slots:SetEnabled(false)
 
   for kind, details in pairs(auraDetails) do
     local groups, start, tail, deduplicate = self:GetFilters(kind, details)
@@ -454,12 +461,60 @@ local function ApplyStartTailCount(auras, count)
   end
 end
 
+function addonTable.Display.AurasManagerNextMixin:ReleaseSlots()
+  if addonTable.Utilities.IsChangesRestricted() then
+    return
+  end
+
+  if self.slots.occupied > 0 then
+    for i = 1, self.slots.occupied do
+      self.slots:SetAuraSlotFilterString(tostring(i), "")
+    end
+  end
+end
+
+function addonTable.Display.AurasManagerNextMixin:AcquireSlot(height, point, filterString, spellID)
+  self.slots.occupied = self.slots.occupied + 1
+  local key = tostring(self.slots.occupied)
+  if self.slots.available >= self.slots.occupied then
+    local frame = self.slots.framesByKey[key]
+    if not addonTable.Utilities.IsChangesRestricted() then
+      frame.height = height
+      frame:SetHeight(height)
+    end
+    self.slots:SetAuraSlotEnabled(key, true)
+    self.slots:SetAuraSlotFilterString(key, filterString)
+    self.slots:SetAuraSlotCandidateFilters(key, {
+      includeSpellIDs = {[spellID] = true}
+    })
+    return self.slots.framesByKey[key]
+  end
+
+  local frame = self.slots:AddAuraSlot(key, filterString, {initializeFrame = function(auraFrame)
+    auraFrame.key = key
+    auraFrame.height = height
+    auraFrame:SetSize(20, height)
+    auraFrame:SetPoint(unpack(point))
+    auraFrame:SetCollapsesLayout(true)
+  end, candidateFilters = { includeSpellIDs = {[spellID] = true} } })
+
+  if frame.RoundLayoutToNearestPixel then
+    frame:RoundLayoutToNearestPixel(true)
+  end
+  self.slots.framesByKey[key] = frame
+
+  self.slots.available = self.slots.available + 1
+
+  return frame
+end
+
 function addonTable.Display.AurasManagerNextMixin:SetUnit(unit)
   self.unit = unit
   if not unit then
     self.buffs:SetEnabled(false)
     self.debuffs:SetEnabled(false)
     self.crowdControl:SetEnabled(false)
+    self.slots:SetEnabled(false)
     return
   end
 
@@ -496,8 +551,10 @@ function addonTable.Display.AurasManagerNextMixin:SetUnit(unit)
   self.buffs:SetUnit(unit)
   self.debuffs:SetUnit(unit)
   self.crowdControl:SetUnit(unit)
+  self.slots:SetUnit(unit)
 
   self.buffs:SetEnabled(self.buffs.details ~= nil and (not UnitTreatAsPlayerForDisplay(unit) or not addonTable.Display.Utilities.IsInRelevantInstance({delve = true})))
   self.debuffs:SetEnabled(self.debuffs.details ~= nil)
   self.crowdControl:SetEnabled(self.crowdControl.details ~= nil)
+  self.slots:SetEnabled(self.slots.occupied > 0)
 end

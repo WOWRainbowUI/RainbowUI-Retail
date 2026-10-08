@@ -20,6 +20,8 @@ function addonTable.Display.ThreatTextMixin:PostInit()
   end
 
   self.partyOnly = self.details.showWhenGrouped
+
+  self.value = self.details.value
 end
 
 function addonTable.Display.ThreatTextMixin:SetUnit(unit)
@@ -40,6 +42,7 @@ function addonTable.Display.ThreatTextMixin:Strip()
   addonTable.Display.UnregisterForColorEvents(self)
   self:UnregisterAllEvents()
   self.tail = nil
+  self.value = nil
 end
 
 function addonTable.Display.ThreatTextMixin:OnEvent(eventName)
@@ -61,10 +64,18 @@ end
 function addonTable.Display.ThreatTextMixin:Update()
   self.text:SetText("")
   if not self.partyOnly or inInstanceOrParty then
-    local _, _, percentage = UnitDetailedThreatSituation("player", self.unit)
+    local _, _, scaled, raw = UnitDetailedThreatSituation("player", self.unit)
+    local percentToShow = raw
+    local prefix = ""
+    if self.value == "raw" and UnitThreatSituation("player", self.unit) == 3 then
+      percentToShow = UnitThreatPercentageOfLead("player", self.unit)
+      prefix = "+"
+    elseif self.value == "scaled" then
+      percentToShow = scaled
+    end
 
-    if percentage then
-      self.text:SetText(C_StringUtil.RoundToNearestString(percentage) .. self.tail)
+    if percentToShow then
+      self.text:SetText(prefix .. C_StringUtil.RoundToNearestString(percentToShow) .. self.tail)
     end
   end
 end

@@ -3,6 +3,11 @@ local addonTable = select(2, ...)
 
 addonTable.Display.Utilities = {}
 
+local function GetColor(rgb)
+  local color = CreateColorFromRGBHexString(rgb)
+  return {r = color.r, g = color.g, b = color.b}
+end
+
 function addonTable.Display.Utilities.IsNeutralUnit(unit)
   if UnitSelectionType then
     return UnitSelectionType(unit) == 2
@@ -480,6 +485,25 @@ do
       allFilters[specializationID] = {
         buffs = { include = {}, exclude = {} },
         debuffs = { include = {}, exclude = {} },
+      }
+    end
+
+    local allHighlights = addonTable.Config.Get(addonTable.Config.Options.AURA_HIGHLIGHTS)
+
+    if not allHighlights[specializationID] then
+      allHighlights[specializationID] = {
+        buffs = {
+          showAll = {color = GetColor("ff0000"), enabled = false},
+          showNone = {color = GetColor("00ff00"), enabled = false},
+          showIndividualColors = true,
+          auras = {}
+        },
+        debuffs = {
+          showAll = {color = GetColor("ff0000"), enabled = false},
+          showNone = {color = GetColor("00ff00"), enabled = false},
+          showIndividualColors = true,
+          auras = {}
+        }
       }
     end
   end

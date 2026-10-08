@@ -558,6 +558,7 @@ addonTable.CustomiseDialog.DesignWidgets = {
       align = "CENTER",
       shorten = "NONE",
       showPercentSymbol = true,
+      value = "raw",
       autoColors = {
         CopyTable(addonTable.CustomiseDialog.ColorsConfig["threat"].default),
       },
