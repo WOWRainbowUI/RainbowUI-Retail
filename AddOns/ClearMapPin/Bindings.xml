@@ -1,0 +1,3 @@
+<Bindings>
+ <Binding name="CLEARMAPPIN_CLEAR" category="Clear Map Pin">C_Map.ClearUserWaypoint()</Binding>
+</Bindings>
