@@ -10,11 +10,7 @@ local MSBTTriggers = MikSBT.Triggers
 local MSBTProfiles = MikSBT.Profiles
 local L = MikSBT.translations
 local Formatter = MikSBT.Services.Formatter
-local Batcher = MikSBT.Services.Batcher
-local Throttler = MikSBT.Services.Throttler
 local EventRouter = MikSBT.Services.EventRouter
-local EventPipeline = MikSBT.Services.EventPipeline
-local SelfHealTracker = MikSBT.Components.SelfHealTracker
 local IncomingCombat = MikSBT.Components.IncomingCombat
 local OutgoingBatcher = MikSBT.Components.OutgoingBatcher
 local DamageMeterSource = MikSBT.Components.DamageMeterSource
@@ -23,36 +19,24 @@ local ParserNotifications = MikSBT.Components.ParserNotifications
 local UtilityNotifications = MikSBT.Components.UtilityNotifications
 local Client = MikSBT.Compatibility.Client
 
-local table_remove = table.remove
 local string_find = string.find
 local string_gsub = string.gsub
-local string_format = string.format
-local math_floor = math.floor
-local bit_bor = bit.bor
 local FormatLargeNumber = FormatLargeNumber
 local GetTime = GetTime
 
-local EraseTable = MikSBT.EraseTable
-local GetSkillName = MikSBT.GetSkillName
 local GetSpellInfo = MikSBT.GetSpellInfo
 local ShortenNumber = MikSBT.ShortenNumber
 local DisplayEvent = MSBTAnimations.DisplayEvent
 local IsScrollAreaActive = MSBTAnimations.IsScrollAreaActive
 local IsScrollAreaIconShown = MSBTAnimations.IsScrollAreaIconShown
-local TestFlagsAll = MSBTParser.TestFlagsAll
 
-local triggerSuppressions = MSBTTriggers.triggerSuppressions
 local powerTypes = MSBTTriggers.powerTypes
-local classMap = MSBTParser.classMap
 
 local HasModernAPI = Client.hasModernAPI
 
-local MERGE_DELAY_TIME = 0.3
 
-local THROTTLE_UPDATE_TIME = 0.5
 
 local EMOTE_HOLD_TIME = 1
-local ENEMY_BUFF_HOLD_TIME = 5
 
 local DAMAGETYPE_PHYSICAL = 0x1
 local DAMAGETYPE_HOLY = 0x2
@@ -91,18 +75,13 @@ local DAMAGETYPE_CHROMATIC = DAMAGETYPE_FIRE + DAMAGETYPE_NATURE + DAMAGETYPE_FR
 local DAMAGETYPE_MAGIC = DAMAGETYPE_ARCANE + DAMAGETYPE_FIRE + DAMAGETYPE_FROST + DAMAGETYPE_NATURE + DAMAGETYPE_SHADOW + DAMAGETYPE_HOLY
 local DAMAGETYPE_CHAOS = DAMAGETYPE_PHYSICAL + DAMAGETYPE_HOLY + DAMAGETYPE_FIRE + DAMAGETYPE_NATURE + DAMAGETYPE_FROST + DAMAGETYPE_SHADOW + DAMAGETYPE_ARCANE
 
-local SPELLID_AUTOSHOT = 75
 
-local SPELL_BLINK					= GetSkillName(1953)
 
-local SPELL_BLOOD_STRIKE			= not Client.isClassicContent and GetSkillName(60945)
 
-local SPELL_RAIN_OF_FIRE			= GetSkillName(5740)
 
 local _
 
 local eventFrame = CreateFrame("Frame")
-local throttleFrame = CreateFrame("Frame")
 
 local playerClass
 
@@ -110,24 +89,9 @@ local eventRouter = EventRouter:New()
 local damageTypeMap = {}
 local damageColorProfileEntries = {}
 local powerTokens = {}
-local uniquePowerTypes = {}
 
-local lastThrottleUpdate = 0
-
-local eventPipeline = EventPipeline:New({
-	delay = MERGE_DELAY_TIME,
-	getProfile = function()
-		return MSBTProfiles.currentProfile
-	end,
-	batcher = Batcher,
-	formatter = Formatter,
-	display = DisplayEvent,
-	erase = EraseTable,
-})
 
 local isEnglish
-local recentEnemyBuffs = {}
-local ignoreAuras = {}
 local playerGUID
 local AUTOSHOT_SPELL_ID = 6603
 local OUTGOING_GROUP_DELAY = 0.2
@@ -136,8 +100,6 @@ local OUTGOING_FALLBACK_ATTRIBUTION_WINDOW = 0.9
 local OUTGOING_DELAYED_SPELL_ATTRIBUTION_WINDOW = 3.0
 local OUTGOING_SIGNAL_CONFIDENCE_WINDOW = 1.25
 local INCOMING_SELF_HEAL_ICON_ATTRIBUTION_WINDOW = 12.0
-local SELF_HEAL_MATCH_WINDOW = 1.0
-local SELF_HEAL_MATCH_TOLERANCE = 1
 local DAMAGE_METER_FALLBACK_STALE_TIME = 0.35
 local USE_DAMAGE_METER_OUTGOING = true
 local DOT_FALLBACK_DURATION = 18
@@ -145,19 +107,16 @@ local incomingCombat
 local outgoingCombat
 local parserNotifications
 local utilityNotifications
-local IsOutgoingCombatGatedEvent
 local DOT_FALLBACK_SPELLS = {
-	[8921] = {8921}, -- Moonfire
-	[93402] = {93402}, -- Sunfire
-	[106830] = {106830, 405233}, -- Thrash (Cat) cast + periodic aura
-	[77758] = {77758, 405233}, -- Thrash (Bear) cast + periodic aura
+	[8921] = {8921},
+	[93402] = {93402},
+	[106830] = {106830, 405233},
+	[77758] = {77758, 405233},
 }
 local DOT_FALLBACK_TIMED_SPELLS = {
-	[202770] = 8, -- Fury of Elune: periodic area damage window
+	[202770] = 8,
 }
 
-local offHandTrailer
-local offHandPattern
 
 local function CreateDamageMaps()
 
@@ -230,400 +189,32 @@ local function CreateDamageMaps()
 	damageColorProfileEntries[DAMAGETYPE_CHAOS] = "chaos"
 end
 
-local function GetInOutEventData(parserEvent)
-	local eventTypeString, affectedUnitName, affectedUnitClass
-
-	if parserEvent.recipientUnit == "player" then
-		affectedUnitName = parserEvent.sourceName
-		eventTypeString = "INCOMING"
-		affectedUnitClass = classMap[parserEvent.sourceGUID]
-	elseif parserEvent.sourceUnit == "player" then
-		affectedUnitName = parserEvent.recipientName
-		eventTypeString = "OUTGOING"
-		affectedUnitClass = classMap[parserEvent.recipientGUID]
-	elseif parserEvent.recipientUnit == "pet" then
-		affectedUnitName = parserEvent.sourceName
-		eventTypeString = "PET_INCOMING"
-		affectedUnitClass = classMap[parserEvent.sourceGUID]
-	elseif parserEvent.sourceUnit == "pet" then
-		affectedUnitName = parserEvent.recipientName
-		eventTypeString = "PET_OUTGOING"
-		affectedUnitClass = classMap[parserEvent.recipientGUID]
-	end
-
-	return eventTypeString, affectedUnitName, affectedUnitClass
-end
-
-local function DamageHandler(parserEvent, currentProfile)
-
-	local eventTypeString, affectedUnitName, affectedUnitClass = GetInOutEventData(parserEvent)
-
-	if not eventTypeString then
-		return
-	end
-
-	if parserEvent.amount and parserEvent.amount < currentProfile.damageThreshold then
-		return
-	end
-
-	local skillID = parserEvent.skillID
-	if skillID == SPELLID_AUTOSHOT then
-		skillID = nil
-	end
-
-	if skillID then
-		eventTypeString = eventTypeString .. "_SPELL"
-	end
-
-	eventTypeString = eventTypeString .. (parserEvent.isDoT and "_DOT" or parserEvent.isDamageShield and "_DAMAGE_SHIELD" or "_DAMAGE")
-
-	return eventTypeString, parserEvent.skillName, affectedUnitName, affectedUnitClass, true
-end
-
-local function MissHandler(parserEvent, currentProfile)
-
-	local eventTypeString, affectedUnitName, affectedUnitClass = GetInOutEventData(parserEvent)
-
-	if not eventTypeString then
-		return
-	end
-
-	local skillID = parserEvent.skillID
-	if skillID == SPELLID_AUTOSHOT then
-		skillID = nil
-	end
-
-	if skillID then
-		eventTypeString = eventTypeString .. "_SPELL"
-	end
-
-	eventTypeString = eventTypeString .. "_" .. parserEvent.missType
-
-	return eventTypeString, parserEvent.skillName, affectedUnitName, affectedUnitClass, true
-end
-
-local function HealHandler(parserEvent, currentProfile)
-
-	local eventTypeString, affectedUnitName, affectedUnitClass = GetInOutEventData(parserEvent)
-
-	if not eventTypeString then
-		return
-	end
-
-	local isHoT = parserEvent.isHoT
-	local amount = parserEvent.amount
-	if amount then
-
-		if amount < currentProfile.healThreshold then
-			return
-		end
-
-		local overhealAmount = parserEvent.overhealAmount
-		local effectiveHealAmount = overhealAmount and (amount - overhealAmount) or amount
-
-		if effectiveHealAmount == 0 then
-			if not isHoT and currentProfile.hideFullOverheals then
-				return
-			end
-			if isHoT and currentProfile.hideFullHoTOverheals then
-				return
-			end
-		end
-	end
-
-	if parserEvent.sourceName == parserEvent.recipientName then
-		eventTypeString = "SELF"
-	end
-
-	eventTypeString = eventTypeString .. (isHoT and "_HOT" or "_HEAL")
-
-	return eventTypeString, parserEvent.skillName, affectedUnitName, affectedUnitClass, true
-end
-
-local function InterruptHandler(parserEvent, currentProfile)
-
-	local eventTypeString, affectedUnitName, affectedUnitClass = GetInOutEventData(parserEvent)
-
-	if not eventTypeString then
-		return
-	end
-
-	eventTypeString = eventTypeString .. "_SPELL_INTERRUPT"
-
-	return eventTypeString, parserEvent.extraSkillName, affectedUnitName, affectedUnitClass
-end
-
-local function EnvironmentalHandler(parserEvent, currentProfile)
-
-	if parserEvent.recipientUnit ~= "player" then
-		return
-	end
-
-	return "INCOMING_ENVIRONMENTAL", parserEvent.hazardType
-end
-
-local function AuraHandler(parserEvent, currentProfile)
-	local eventTypeString, affectedUnitName, affectedUnitClass
-	local effectName = parserEvent.skillName
-
-	if parserEvent.recipientUnit == "player" then
-
-		if ignoreAuras[parserEvent.skillName] and parserEvent.sourceUnit == "player" then
-			return
-		end
-
-		-- Show all player aura notifications even when a trigger exists for the
-		-- same aura name (for example proc triggers like Clearcasting).
-		if triggerSuppressions[effectName] and parserEvent.isFade then
-			return
-		end
-
-		eventTypeString = "NOTIFICATION_" .. parserEvent.auraType
-
-		if not parserEvent.isFade then
-			if (parserEvent.isDose) then
-				eventTypeString = eventTypeString .. "_STACK"
-			end
-		else
-			eventTypeString = eventTypeString .. "_FADE"
-		end
-
-	else
-
-		if triggerSuppressions[effectName] then
-			return
-		end
-
-		if not TestFlagsAll(parserEvent.recipientFlags, MSBTParser.TARGET_TARGET) then
-			return
-		end
-
-		if not SafeUnitBoolean(UnitIsEnemy, "player", "target") then
-			return
-		end
-
-		if parserEvent.auraType ~= "BUFF" or parserEvent.isFade == true then
-			return
-		end
-
-		local now = GetTime()
-		for buff, cleanupTime in pairs(recentEnemyBuffs) do
-			if (now >= cleanupTime) then
-				recentEnemyBuffs[buff] = nil
-			end
-		end
-
-		if recentEnemyBuffs[effectName] then
-			return
-		end
-
-		recentEnemyBuffs[effectName] = now + ENEMY_BUFF_HOLD_TIME
-
-		eventTypeString = "NOTIFICATION_ENEMY_BUFF"
-		affectedUnitName = parserEvent.recipientName
-		affectedUnitClass = classMap[parserEvent.recipientGUID]
-	end
-
-	return eventTypeString, effectName, affectedUnitName, affectedUnitClass
-end
-
-local function EnchantHandler(parserEvent, currentProfile)
-
-	if parserEvent.recipientUnit ~= "player" then
-		return
-	end
-
-	local eventTypeString = "NOTIFICATION_ITEM_BUFF"
-	if parserEvent.isFade then
-		eventTypeString = eventTypeString .. "_FADE"
-	end
-
-	return eventTypeString, parserEvent.skillName
-end
-
-local function DispelHandler(parserEvent, currentProfile)
-
-	local eventTypeString
-	if parserEvent.sourceUnit == "player" then
-		eventTypeString = "OUTGOING_DISPEL"
-	elseif parserEvent.sourceUnit == "pet" then
-		eventTypeString = "PET_OUTGOING_DISPEL"
-	else
-
-		return
-	end
-
-	return eventTypeString, parserEvent.extraSkillName, parserEvent.recipientName, classMap[parserEvent.recipientGUID]
-end
-
 local function ParserEventsHandler(parserEvent)
-
 	local currentProfile = MSBTProfiles.currentProfile
-
-	local eventTypeString, effectName, affectedUnitName, affectedUnitClass, mergeEligible
-
-	local eventType = parserEvent.eventType
-
-	eventTypeString, effectName, affectedUnitName, affectedUnitClass,
-		mergeEligible = eventRouter:Resolve(parserEvent, currentProfile)
-
+	local eventTypeString, effectName, affectedUnitName, affectedUnitClass =
+		eventRouter:Resolve(parserEvent, currentProfile)
 	if not eventTypeString then
 		return
 	end
-
-	local hideIncomingNames = (eventType == "damage" or eventType == "heal")
-		and string_find(eventTypeString, "INCOMING", 1, true) ~= nil
-
-	if eventType == "heal" and (eventTypeString == "SELF_HEAL" or eventTypeString == "SELF_HOT") then
-		incomingCombat:RecordOutgoingSelfHeal(parserEvent.amount)
-	end
-
-	-- Keep outgoing-only output combat-gated while allowing incoming and
-	-- notification/static output to continue out of combat.
-	if not InCombatLockdown() then
-		if IsOutgoingCombatGatedEvent(eventTypeString) then
-			return
-		end
-	end
-
 	if effectName and currentProfile.abilitySuppressions[effectName] then
 		return
 	end
-
-	local isCrit = parserEvent.isCrit
-	local eventSettings = currentProfile.events[isCrit and eventTypeString .. "_CRIT" or eventTypeString]
-	if not eventSettings or eventSettings.disabled or not IsScrollAreaActive(eventSettings.scrollArea) then
+	local eventSettings = currentProfile.events[eventTypeString]
+	if not eventSettings or eventSettings.disabled
+		or not IsScrollAreaActive(eventSettings.scrollArea) then
 		return
 	end
-
-	local damageType = parserEvent.damageType
-	local skillID = parserEvent.skillID
-
-	if skillID == SPELLID_AUTOSHOT then
-		skillID = nil
-		effectName = nil
-	end
-
-	local ignoreDamageColoring
-	if eventType == "damage" and parserEvent.sourceUnit == "player" and damageType == DAMAGETYPE_PHYSICAL and skillID then
-		ignoreDamageColoring = true
-	end
-
-	if eventType == "miss" and parserEvent.missType == "ABSORB" then
-		damageType = parserEvent.skillSchool or DAMAGETYPE_PHYSICAL
-	end
-
-	local partialEffects
-	if eventType == "damage" or eventType == "environmental" then
-		partialEffects = Formatter:FormatPartialEffects(parserEvent.absorbAmount, parserEvent.blockAmount, parserEvent.resistAmount, parserEvent.isGlancing, parserEvent.isCrushing)
-	end
-
 	local effectTexture
-	if not currentProfile.skillIconsDisabled and IsScrollAreaIconShown(eventSettings.scrollArea) then
-		if skillID then
-			_, _, effectTexture = GetSpellInfo(skillID)
-		end
-
-		if (eventType == "dispel" or eventType == "interrupt" or (eventType == "miss" and parserEvent.missType == "RESIST")) and parserEvent.extraSkillID then
-			_, _, effectTexture = GetSpellInfo(parserEvent.extraSkillID)
-		end
-		if not effectTexture and effectName then
-			_, _, effectTexture = GetSpellInfo(effectName)
-		end
+	if not currentProfile.skillIconsDisabled
+		and IsScrollAreaIconShown(eventSettings.scrollArea) and effectName then
+		_, _, effectTexture = GetSpellInfo(effectName)
 	end
-
-	if not mergeEligible then
-		local outputMessage = Formatter:FormatLegacyEvent(eventSettings.message, parserEvent.amount, damageType, nil, nil, nil, affectedUnitName, affectedUnitClass, effectName, nil, nil, nil, nil, hideIncomingNames, true)
-		DisplayEvent(eventSettings, outputMessage, effectTexture)
-
-	elseif currentProfile.mergeExclusions[effectName] or (not effectName and currentProfile.mergeSwingsDisabled) then
-
-		local hideSkills = effectTexture and not currentProfile.exclusiveSkillsDisabled or currentProfile.hideSkills
-		local outputMessage = Formatter:FormatLegacyEvent(eventSettings.message, parserEvent.amount, damageType, parserEvent.overhealAmount, parserEvent.overkillAmount, parserEvent.powerType, affectedUnitName, affectedUnitClass, effectName, partialEffects, nil, ignoreDamageColoring, hideSkills, currentProfile.hideNames or hideIncomingNames, true)
-		DisplayEvent(eventSettings, outputMessage, effectTexture)
-
-	else
-
-		local combatEvent = eventPipeline:Acquire()
-
-		if effectName and offHandTrailer and string_find(effectName, offHandTrailer, 1, true) then
-			effectName = string_gsub(effectName, offHandPattern, "")
-		end
-
-		combatEvent.eventType = eventTypeString
-		combatEvent.isCrit = isCrit
-		combatEvent.amount = parserEvent.amount
-		combatEvent.effectName = effectName
-		combatEvent.effectTexture = effectTexture
-		combatEvent.name = affectedUnitName
-		combatEvent.class = affectedUnitClass
-		combatEvent.damageType = damageType
-		combatEvent.ignoreDamageColoring = ignoreDamageColoring
-		combatEvent.hideNames = hideIncomingNames
-		combatEvent.partialEffects = partialEffects
-		combatEvent.overhealAmount = parserEvent.overhealAmount
-		combatEvent.overkillAmount = parserEvent.overkillAmount
-		combatEvent.powerType = parserEvent.powerType
-
-		if effectName then
-
-			local throttleDuration = currentProfile.throttleList[effectName]
-
-			if not throttleDuration then
-
-				if parserEvent.isDoT and currentProfile.dotThrottleDuration > 0 then
-					throttleDuration = currentProfile.dotThrottleDuration
-
-				elseif parserEvent.isHoT and currentProfile.hotThrottleDuration > 0 then
-					throttleDuration = currentProfile.hotThrottleDuration
-
-				elseif parserEvent.powerType and currentProfile.powerThrottleDuration > 0 then
-					throttleDuration = currentProfile.powerThrottleDuration
-				end
-			end
-
-			if throttleDuration and throttleDuration > 0 then
-				local wasThrottled, windowStarted = Throttler:Queue(
-					effectName,
-					combatEvent,
-					throttleDuration,
-					GetTime()
-				)
-				if windowStarted and not throttleFrame:IsVisible() then
-					throttleFrame:Show()
-				end
-				if wasThrottled then
-					return
-				end
-			end
-		end
-
-		eventPipeline:Queue(combatEvent)
-
-		if not eventFrame:IsVisible() then
-			eventFrame:Show()
-		end
-	end
-end
-
-local function OnUpdateEventFrame(this, elapsed)
-	if not eventPipeline:Tick(elapsed) then
-		this:Hide()
-	end
-end
-
-local function OnUpdateThrottleFrame(this, elapsed)
-
-	lastThrottleUpdate = lastThrottleUpdate + elapsed
-
-	if lastThrottleUpdate >= THROTTLE_UPDATE_TIME then
-		local hasActiveWindow = Throttler:Tick(lastThrottleUpdate)
-		if not hasActiveWindow then
-			this:Hide()
-		end
-
-		lastThrottleUpdate = 0
-	end
+	local outputMessage = Formatter:FormatLegacyEvent(
+		eventSettings.message, parserEvent.amount, nil, nil, nil, nil,
+		affectedUnitName, affectedUnitClass, effectName,
+		nil, nil, nil, nil, false, true
+	)
+	DisplayEvent(eventSettings, outputMessage, effectTexture)
 end
 
 function eventFrame:UNIT_POWER_UPDATE(unitID, powerToken)
@@ -653,16 +244,6 @@ local function NormalizeNumber(value)
 	return nil
 end
 
-local function SafeStringKey(value)
-	local ok, result = pcall(function()
-		return tostring(value)
-	end)
-	if ok and type(result) == "string" then
-		return result
-	end
-	return nil
-end
-
 local function SafeUnitBoolean(func, ...)
 	if type(func) ~= "function" then
 		return false
@@ -686,7 +267,6 @@ end
 local function IsLikelySpellSchool(schoolMask)
 	local maskType = type(schoolMask)
 	if maskType == "number" then
-		-- Combat school bitmask: 0x1 is physical.
 		return schoolMask ~= 0 and schoolMask ~= 1
 	elseif maskType == "string" then
 		if schoolMask == "" then
@@ -715,7 +295,6 @@ end
 local function CanUseAutoAttackFallback(now, lastAutoAttackTime)
 	local autoActive = false
 
-	-- API compatibility across client variants.
 	if type(IsCurrentSpell) == "function" then
 		local ok, result = pcall(IsCurrentSpell, AUTOSHOT_SPELL_ID)
 		if ok and result then
@@ -729,8 +308,6 @@ local function CanUseAutoAttackFallback(now, lastAutoAttackTime)
 		end
 	end
 	if (not autoActive) and C_Spell and type(C_Spell.IsAutoAttackSpell) == "function" then
-		-- If we can identify the spell as an auto-attack spell but cannot query
-		-- active state on this client, allow timing gate to decide.
 		local ok, result = pcall(C_Spell.IsAutoAttackSpell, AUTOSHOT_SPELL_ID)
 		if ok and result then
 			autoActive = true
@@ -748,14 +325,11 @@ local function CanUseAutoAttackFallback(now, lastAutoAttackTime)
 		swingSpeed = offSpeed
 	end
 
-	-- Prevent rapid false attribution from multiple UNIT_COMBAT target events.
 	local minGap = math.max(0.25, swingSpeed * 0.45)
 	return (now - (lastAutoAttackTime or 0)) >= minGap
 end
 
 local function IsOutgoingTargetContextValid()
-	-- UNIT_COMBAT("target") is ambiguous in group content; only accept it when
-	-- the live target unit is present and attackable by the player.
 	if not SafeUnitBoolean(UnitExists, "target") then
 		return false
 	end
@@ -829,27 +403,6 @@ local function HasPlayerAnyDebuffOnTarget(spellIDs)
 	return false
 end
 
-IsOutgoingCombatGatedEvent = function(eventTypeString)
-	if not eventTypeString then
-		return false
-	end
-
-	-- Allow outgoing heals outside combat; only gate damage/miss-style outgoing.
-	if eventTypeString == "OUTGOING_HEAL"
-		or eventTypeString == "OUTGOING_HEAL_CRIT"
-		or eventTypeString == "OUTGOING_HOT"
-		or eventTypeString == "OUTGOING_HOT_CRIT"
-		or eventTypeString == "PET_OUTGOING_HEAL"
-		or eventTypeString == "PET_OUTGOING_HEAL_CRIT"
-		or eventTypeString == "PET_OUTGOING_HOT"
-		or eventTypeString == "PET_OUTGOING_HOT_CRIT" then
-		return false
-	end
-
-	return string_find(eventTypeString, "OUTGOING", 1, true) == 1
-		or string_find(eventTypeString, "PET_OUTGOING", 1, true) == 1
-end
-
 local function ShouldSplitCritBatch(eventSettings, critSettings, critCount)
 	local normalScrollArea = eventSettings and eventSettings.scrollArea
 	local critScrollArea = critSettings and critSettings.scrollArea
@@ -874,12 +427,10 @@ local function BuildActionMessage(eventSettings, amount)
 		if not message then
 			return message
 		end
-		-- Remove unresolved placeholders that can still leak through.
 		message = string_gsub(message, "%%n", "")
 		message = string_gsub(message, "%%sl", "")
 		message = string_gsub(message, "%%s", "")
 		message = string_gsub(message, "%%e", "")
-		-- Remove dangling separators/wrappers from missing name/skill parts.
 		message = string_gsub(message, "%(%s*%-?%s*%)", "")
 		message = string_gsub(message, "%[%s*%-?%s*%]", "")
 		message = string_gsub(message, "%{%s*%-?%s*%}", "")
@@ -898,8 +449,6 @@ local function BuildActionMessage(eventSettings, amount)
 	local message = eventSettings.message
 	if amount and amount > 0 then
 		message = Formatter:FormatLegacyEvent(message, amount)
-		-- Incoming UNIT_COMBAT paths often lack reliable effect name data.
-		-- Remove unresolved skill placeholders to avoid showing raw %s/%sl/%e.
 		message = string_gsub(message, "<%%sl>%s*", "")
 		message = string_gsub(message, "<%%s>%s*", "")
 		message = string_gsub(message, "<%%e>%s*", "")
@@ -997,14 +546,7 @@ outgoingCombat = OutgoingCombat:New({
 	dotSpells = DOT_FALLBACK_SPELLS,
 	timedDotSpells = DOT_FALLBACK_TIMED_SPELLS,
 })
-local selfHealTracker = SelfHealTracker:New({
-	getTime = GetTime,
-	matchWindow = SELF_HEAL_MATCH_WINDOW,
-	tolerance = SELF_HEAL_MATCH_TOLERANCE,
-})
-
 incomingCombat = IncomingCombat:New({
-	selfHealTracker = selfHealTracker,
 	getProfile = function()
 		return MSBTProfiles.currentProfile
 	end,
@@ -1081,25 +623,12 @@ eventFrame:SetScript("OnEvent", function(self, event, ...)
 		self[event](self, ...)
 	end
 end)
-eventFrame:SetScript("OnUpdate", OnUpdateEventFrame)
 
-throttleFrame:Hide()
-throttleFrame:SetScript("OnUpdate", OnUpdateThrottleFrame)
 
 _, playerClass = UnitClass("player")
 playerGUID = UnitGUID("player")
 
-parserNotifications = ParserNotifications:New({
-	uniquePowerTypes = uniquePowerTypes,
-	alternatePowerType = powerTypes["ALTERNATE_POWER"],
-	testFlagsAll = TestFlagsAll,
-	guardianHumanMask = bit_bor(
-		MSBTParser.UNITTYPE_GUARDIAN,
-		MSBTParser.CONTROL_HUMAN
-	),
-	serverControlMask = MSBTParser.CONTROL_SERVER,
-	classMap = classMap,
-})
+parserNotifications = ParserNotifications:New()
 
 utilityNotifications = UtilityNotifications:New({
 	getProfile = function()
@@ -1121,20 +650,6 @@ utilityNotifications = UtilityNotifications:New({
 	emoteHoldTime = EMOTE_HOLD_TIME,
 })
 
-eventRouter:Register("damage", DamageHandler)
-eventRouter:Register("miss", MissHandler)
-eventRouter:Register("heal", HealHandler)
-eventRouter:Register("interrupt", InterruptHandler)
-eventRouter:Register("environmental", EnvironmentalHandler)
-eventRouter:Register("aura", AuraHandler)
-eventRouter:Register("enchant", EnchantHandler)
-eventRouter:Register("dispel", DispelHandler)
-eventRouter:Register("power", function(...)
-	return parserNotifications:HandlePower(...)
-end)
-eventRouter:Register("kill", function(...)
-	return parserNotifications:HandleKill(...)
-end)
 eventRouter:Register("honor", function(...)
 	return parserNotifications:HandleHonor(...)
 end)
@@ -1147,18 +662,9 @@ end)
 eventRouter:Register("experience", function(...)
 	return parserNotifications:HandleExperience(...)
 end)
-eventRouter:Register("extraattacks", function(...)
-	return parserNotifications:HandleExtraAttacks(...)
-end)
-
 for powerToken, powerType in pairs(powerTypes) do
 	powerTokens[powerType] = powerToken
 end
-
-uniquePowerTypes[Enum.PowerType.HolyPower] = true
-uniquePowerTypes[Enum.PowerType.Chi] = true
-uniquePowerTypes[Enum.PowerType.ComboPoints] = true
-uniquePowerTypes[Enum.PowerType.ArcaneCharges] = true
 
 CreateDamageMaps()
 
@@ -1179,34 +685,6 @@ Formatter:Configure({
 	unknown = UNKNOWN,
 	unknownSchool = STRING_SCHOOL_UNKNOWN,
 })
-
-Batcher:Configure({
-	multipleTargets = L.MSG_MULTIPLE_TARGETS,
-	hits = L.MSG_HITS,
-	crit = L.MSG_CRIT,
-	crits = L.MSG_CRITS,
-	erase = EraseTable,
-	recycle = function(event)
-		eventPipeline:Recycle(event)
-	end,
-})
-
-Throttler:Configure({
-	release = function(event)
-		eventPipeline:Queue(event)
-		if not eventFrame:IsVisible() then
-			eventFrame:Show()
-		end
-	end,
-})
-
-ignoreAuras[SPELL_BLINK] = true
-
-ignoreAuras[SPELL_RAIN_OF_FIRE] = true
-
-if type(SPELL_BLOOD_STRIKE) == "string" and SPELL_BLOOD_STRIKE ~= UNKNOWN then
-	offHandPattern = string.gsub(SPELL_BLOOD_STRIKE, "([%^%(%)%.%[%]%*%+%-%?])", "%%%1")
-end
 
 module.damageTypeMap				= damageTypeMap
 module.damageColorProfileEntries	= damageColorProfileEntries

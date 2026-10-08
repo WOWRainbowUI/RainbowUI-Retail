@@ -1,23 +1,10 @@
--------------------------------------------------------------------------------
--- Title: MSBT Options Italian Localization
--- Author: Mikord
--- Italian Translation by: Kelhar@Runetotem-EU
--------------------------------------------------------------------------------
 
--- Don't do anything if the locale isn't Italian.
 if (GetLocale() ~= "itIT") then return end
 
--- Local reference for faster access.
 local L = MikSBT.translations
 
--------------------------------------------------------------------------------
--- Italian Localization
--------------------------------------------------------------------------------
 
 
-------------------------------
--- Interface messages
-------------------------------
 L.MSG_NEW_PROFILE					= "Nuovo Profilo"
 L.MSG_PROFILE_ALREADY_EXISTS		= "Nome esistente per il profilo."
 L.MSG_INVALID_PROFILE_NAME			= "Nome invalido per il profilo."
@@ -26,28 +13,13 @@ L.MSG_SCROLL_AREA_ALREADY_EXISTS	= "Nome esistente per l'area di scorrimento."
 L.MSG_INVALID_SCROLL_AREA_NAME		= "Nome invalido per l'area di scorrimento."
 L.MSG_ACKNOWLEDGE_TEXT				= "Sei sicuro di voler eseguire questa operazione?"
 L.MSG_NORMAL_PREVIEW_TEXT			= "Normale"
-L.MSG_NEW_TRIGGER					= "Nuovo Innesco"
-L.MSG_TRIGGER_CLASSES				= "Innesco Classi"
-L.MSG_MAIN_EVENTS					= "Evento Principale"
-L.MSG_TRIGGER_EXCEPTIONS			= "Innesco Eccezioni"
-L.MSG_EVENT_CONDITIONS				= "Condizioni Evento"
 L.MSG_DISPLAY_QUALITY				= "Mostra avvisi per oggetti di questa qualita'."
-L.MSG_SKILLS						= "Abilita'"
-L.MSG_SKILL_ALREADY_EXISTS			= "Nome esistente per l'abilita'."
-L.MSG_INVALID_SKILL_NAME			= "Nome per l'abilita' invalido."
-L.MSG_HOSTILE						= "Ostile"
-L.MSG_ANY							= "Qualsiasi"
-L.MSG_CONDITION						= "Condizione"
-L.MSG_CONDITIONS					= "Condizioni"
 L.MSG_ITEM_QUALITIES				= "Qualita' oggetti"
 L.MSG_ITEMS							= "Oggetti"
 L.MSG_ITEM_ALREADY_EXISTS			= "Nome esistente per l'oggetto."
 L.MSG_INVALID_ITEM_NAME				= "Nome invalido per l'oggetto."
 
 
-------------------------------
--- Interface tabs
-------------------------------
 
 obj = L.TABS
 obj["general"]		= { label="Generale", tooltip="Mostra le opzioni generali."}
@@ -56,9 +28,6 @@ obj["events"]		= { label="Eventi", tooltip="Mostra le opzioni per 'in arrivo', '
 obj["lootAlerts"]	= { label="Avvisi bottino", tooltip="Mostra le opzioni per le notifiche inerenti al bottino."}
 
 
-------------------------------
--- Interface checkboxes
-------------------------------
 
 obj = L.CHECKBOXES
 obj["enableMSBT"]				= { label="Abilita Mik's Scrolling Battle Text", tooltip="Abilita MSBT."}
@@ -92,16 +61,12 @@ obj["hideNames"]				= { label="Nascondi Nomi", tooltip="Non mostrare i nomi per 
 obj["hideFullOverheals"]		= { label="Nascondi Intere Sovracure", tooltip="Non mostrare le cure non periodiche che hanno come effettiva cura un ammontare pari a zero."}
 obj["hideFullHoTOverheals"]		= { label="Nascondi Intere CaT Sovracuranti", tooltip="Non mostrare le cure a tempo che hanno come cura effettiva un ammontare pari a zero."}
 obj["hideMergeTrailer"]			= { label="Nascondi Unione Code", tooltip="Non mostrare le code che specificano il numeo di colpi e critici alla fine di un evento unificato."}
-obj["allClasses"]				= { label="Tutte le Classi"}
 obj["lootedItems"]				= { label="Oggetti Raccolti", tooltip="Mostra le notifiche quando un oggetto e' raccolto."}
 obj["moneyGains"]				= { label="Guadagno Monete", tooltip="Attiva la raccolta soldi."}
 obj["alwaysShowQuestItems"]		= { label="Mostra sempre oggetti missione", tooltip="Mostra sempre gli oggetti di missione senza badare alla qualita'."}
 obj["enableIcons"]				= { label="Abilita Icone Abilita'", tooltip="Mostra le icone per gli eventi che hanno una icona quando possibile."}
 
 
-------------------------------
--- Interface dropdowns
-------------------------------
 
 obj = L.DROPDOWNS
 obj["profile"]				= { label="Profilo Corrente:", tooltip="Imposta il profilo corrente."}
@@ -118,15 +83,8 @@ obj["textAlign"]			= { label="Allineamento del testo:", tooltip="L'allineamento 
 obj["iconAlign"]			= { label="Allineamento Icona:", tooltip="L'allineamento per l'icona dell'abilita' relativa al testo."}
 obj["eventCategory"]		= { label="Categoria Evento:", tooltip="La categoria dell'evento da impostare."}
 obj["outputScrollArea"]		= { label="Area di scorrimento 'in uscita':", tooltip="Seleziona l'area di scorrimento per 'in uscita'."}
-obj["mainEvent"]			= { label="Evento Principale:"}
-obj["triggerCondition"]		= { label="Condizione:", tooltip="La condizione da provare."}
-obj["triggerRelation"]		= { label="Relazione:"}
-obj["triggerParameter"]		= { label="Parametro:"}
 
 
-------------------------------
--- Interface buttons
-------------------------------
 
 obj = L.BUTTONS
 obj["copyProfile"]				= { label="Copia Profilo", tooltip="Copia il profilo su un nuovo profilo con il nome specificato."}
@@ -150,32 +108,12 @@ obj["toggleAll"]				= { label="Abilita Tutto", tooltip="Abilita lo stato attivo 
 obj["moveAll"]					= { label="Sposta Tutto", tooltip="Muovi tutti gli eventi nella categoria selezionata dell'area specificata."}
 obj["eventFontSettings"]		= { tooltip="Premere per modificare le impostazioni dei caratteri per l'evento."}
 obj["eventSettings"]			= { tooltip="Premere per editare le impostazioni come l'area 'in uscita', suoni, etc."}
-obj["addTrigger"]				= { label="Aggiungi Nuovo Innesco", tooltip="Aggiungi un nuovo innesco."}
-obj["triggerSettings"]			= { tooltip="Premere per configurare le condizioni dell'innesco."}
-obj["deleteTrigger"]			= { tooltip="Premere per cancellare l'innesco."}
-obj["editTriggerClasses"]		= { tooltip="Premere per modificare le classi a cui si applica l'innesco."}
-obj["addMainEvent"]				= { label="Aggiungi Evento", tooltip=" Quando uno QUALSIASI di questi eventi accade e la loro condizione e' vera, l'innesco si attiva finche uno delle eccezioni specificate e' vera."}
-obj["addTriggerException"]		= { label="Aggiungi Eccezione", tooltip="Quando una QUALSIASI di queste eccezioni e' vera, l'innesco non si attiva."}
-obj["editEventConditions"]		= { tooltip="Premere per modificare le condizioni dell'evento"}
-obj["deleteMainEvent"]			= { tooltip="Premere per cancellare l'evento."}
-obj["addEventCondition"]		= { label="Aggiungi Condizione", tooltip="Quando TUTTE queste condizioni sono vere per l'evento selezionato, l'innesco si attiva finche una eccezione specificata e' vera."}
-obj["editCondition"]			= { tooltip="Premere per modificare la condizione."}
-obj["deleteCondition"]			= { tooltip="Premere per cancellare la condizione."}
-obj["throttleList"]				= { label="Lista di Aggregazione", tooltip="Imposta un numero personalizzato di raggruppamento per i tick (ES: invece di avere Fontana di Mana ripetuto 5 volte con i 5 tick si avra' un solo avviso con il totale dei 5 tick)."}
-obj["mergeExclusions"]			= { label="Unifica Esclusioni", tooltip="Previene che le abilita' specificate vengano unificate."}
-obj["skillSuppressions"]		= { label="Soppressione Abilita'", tooltip="Sopprime le abilita' basato sui nomi."}
-obj["skillSubstitutions"]		= { label="Sostituzione Abilita'", tooltip="Sostituisce i nomi delle abilita' con un valore personalizzato."}
-obj["addSkill"]					= { label="Aggiungi Abilita'", tooltip="Aggiunge una nuova abilita'."}
-obj["deleteSkill"]				= { tooltip="Premere per cancellare l'abilita'."}
 obj["itemsAllowed"]				= { label="Oggetti Permessi", tooltip="Mostra sempre gli oggetti specificati senza badare alla qualita'."}
 obj["itemExclusions"]			= { label="Esclusione Oggetti", tooltip="Previene che gli oggetti specificati vengano mostrati."}
 obj["addItem"]					= { label="Aggiungi Oggetto", tooltip="Aggiungi un nuovo oggetto alla lista."}
 obj["deleteItem"]				= { tooltip="Premere per cancellare l'oggetto."}
 
 
-------------------------------
--- Interface editboxes
-------------------------------
 
 obj = L.EDITBOXES
 obj["copyProfile"]		= { label="Nome Nuovo Profilo:", tooltip="Nome del nuovo profilo in cui copiare l'attuale."}
@@ -185,14 +123,9 @@ obj["xOffset"]			= { label="X Spostamento:", tooltip="Lo spotamento di X per l'a
 obj["yOffset"]			= { label="Y Spostamento:", tooltip="Lo spotamento di Y per l'area selezionata."}
 obj["eventMessage"]		= { label="Messaggio in Uscita:", tooltip="Il messaggio che comparira' quando avviene l'evento."}
 obj["iconSkill"]		= { label="Icona Abilita':", tooltip="Il nome o l'ID dell'abilita' di cui l'icona verra' mostrata quando avviene l'evento.\nMSBT cerchera' automaticamente di figurare l'appropriata icona se una non e' specificata.\nNOTA: Un ID deve essere usato al posto di un nome se l'abilita' non e' nel libro degli incantesimi per la classe che si sta giocando quando l'evento avviene. Molti database online come WoWHead si possono usare per scoprire l'ID."}
-obj["skillName"]		= { label="Nome Abilita':", tooltip="Il nome dell'abilita' da aggiungere."}
-obj["substitutionText"]	= { label="Testo sostitutivo:", tooltip="Il testo da sostituire al nome dell'abilita'."}
 obj["itemName"]			= { label="Nome Oggetto:", tooltip="Il nome dell'oggetto da aggiungere."}
 
 
-------------------------------
--- Interface sliders
-------------------------------
 
 obj = L.SLIDERS
 obj["animationSpeed"]		= { label="Velocita' Animazione", tooltip="Imposta la veocita' dell'animazione principale.\nOgni area di scorrimento puo' essere impostata indipendentemente."}
@@ -209,12 +142,8 @@ obj["damageThreshold"]		= { label="Limite Danno", tooltip="Il limite che il dann
 obj["dotThrottleTime"]		= { label="Tempo Aggregazione DaT", tooltip="Il numero di secondi prima di aggregare i DaT."}
 obj["hotThrottleTime"]		= { label="Tempo Aggregazione CaT", tooltip="Il numero di secondi prima di aggregare le CaT."}
 obj["powerThrottleTime"]	= { label="Tempo Aggregazione Potre", tooltip="Il numero di secondi prima di aggregare i cambi di potere."}
-obj["skillThrottleTime"]	= { label="Tempo Aggregazione", tooltip="Il numero di secondi per aggregare le abilita'."}
 
 
-------------------------------
--- Event categories
-------------------------------
 obj = L.EVENT_CATEGORIES
 obj[1] = "Giocatore 'in entrata'"
 obj[2] = "Famiglio 'in entrata'"
@@ -223,9 +152,6 @@ obj[4] = "Fafmiglio 'in uscita'"
 obj[5] = "Notifiche"
 
 
-------------------------------
--- Event codes
-------------------------------
 
 obj = L.EVENT_CODES
 obj["DAMAGE_TAKEN"]			= "%a - Ammontare di Danni subiti.\n"
@@ -267,9 +193,6 @@ obj["POWER_TYPE"]			= "%p - Il tipo di potere (energia, rabbia, mana).\n"
 obj["TOTAL_ITEMS"]			= "%t - Il numero totale degli oggetti predati nell'inventario."
 
 
-------------------------------
--- Incoming events
-------------------------------
 
 obj = L.INCOMING_PLAYER_EVENTS
 obj["INCOMING_DAMAGE"]						= { label="Corpo a Corpo Colpi", tooltip="Abilita colpi 'in entrata' per Corpo a Corpo."}
@@ -333,9 +256,6 @@ obj["PET_INCOMING_HOT"]							= { label="Cure a Tempo", tooltip="(Famiglio) Abii
 obj["PET_INCOMING_HOT_CRIT"]					= { label="Cure a Tempo Critici", tooltip="(Famiglio) Abiita Citici per cure a Tempo 'in entrata'."}
 
 
-------------------------------
--- Outgoing events
-------------------------------
 
 obj = L.OUTGOING_PLAYER_EVENTS
 obj["OUTGOING_DAMAGE"]						= { label="Corpo a Corpo Colpi", tooltip="Abilita colpi 'in uscita' per Corpo a Corpo."}
@@ -404,9 +324,6 @@ obj["PET_OUTGOING_HOT_CRIT"]					= { label="Cure a Tempo Critici", tooltip="(Fam
 obj["PET_OUTGOING_DISPEL"]						= { label="Dispels", tooltip="Enable your pet's outgoing dispels."}
 
 
-------------------------------
--- Notification events
-------------------------------
 
 obj = L.NOTIFICATION_EVENTS
 obj["NOTIFICATION_DEBUFF"]				= { label="Penalita'", tooltip="Abilita le penalita' da cui sei afflitto."}
@@ -437,159 +354,7 @@ obj["NOTIFICATION_ENEMY_BUFF"]			= { label="Guadagno Miglioramenti Nemico", tool
 obj["NOTIFICATION_MONSTER_EMOTE"]		= { label="Emote Mostri", tooltip="Abiltia emote dal mostro selezionato al momento."}
 
 
-------------------------------
--- Trigger info
-------------------------------
 
--- Main events.
-obj = L.TRIGGER_DATA
-obj["SWING_DAMAGE"]				= "Sferzata Danno"
-obj["RANGE_DAMAGE"]				= "Distanza Danno"
-obj["SPELL_DAMAGE"]				= "Abilita' Danno"
-obj["GENERIC_DAMAGE"]			= "Sferzata/Distanza/Abilita' Danno"
-obj["SPELL_PERIODIC_DAMAGE"]	= "Danno Periodico (DaT)"
-obj["DAMAGE_SHIELD"]			= "Danno Scudo"
-obj["DAMAGE_SPLIT"]				= "Danno Diviso"
-obj["ENVIRONMENTAL_DAMAGE"]		= "Danno Ambientali"
-obj["SWING_MISSED"]				= "Sferzata Miss"
-obj["RANGE_MISSED"]				= "Distanza Miss"
-obj["SPELL_MISSED"]				= "Abilita' Miss"
-obj["GENERIC_MISSED"]			= "Sferzata/Distanza/Abilita' Miss"
-obj["SPELL_PERIODIC_MISSED"]	= "Abilita' Periodica Miss"
-obj["SPELL_DISPEL_FAILED"]		= "Dissipazione Fallita"
-obj["DAMAGE_SHIELD_MISSED"]		= "Scudo Danno Miss"
-obj["SPELL_HEAL"]				= "Cura"
-obj["SPELL_PERIODIC_HEAL"]		= "Cura Periodica (CaT)"
-obj["SPELL_ENERGIZE"]			= "Guadagno Potere"
-obj["SPELL_PERIODIC_ENERGIZE"]	= "Guadagno Periodico Potere"
-obj["SPELL_DRAIN"]				= "Drenaggio Potere"
-obj["SPELL_PERIODIC_DRAIN"]		= "Dreanggio Periodico Potere"
-obj["SPELL_LEECH"]				= "Risuccio Potere"
-obj["SPELL_PERIODIC_LEECH"]		= "Risuccio Periodico Potere"
-obj["SPELL_INTERRUPT"]			= "Interruzione Abilita'"
-obj["SPELL_AURA_APPLIED"]		= "Aura Applicata"
-obj["SPELL_AURA_REMOVED"]		= "Aura Rimossa"
-obj["SPELL_STOLEN"]				= "Aura Rubata"
-obj["SPELL_DISPEL"]				= "Aura Dissolta"
-obj["SPELL_AURA_REFRESH"]		= "Aura Ravvivata"
-obj["SPELL_AURA_BROKEN_SPELL"]	= "Aura Spezzata"
-obj["ENCHANT_APPLIED"]			= "Applicazione Incanto"
-obj["ENCHANT_REMOVED"]			= "Rimozione Incanto"
-obj["SPELL_CAST_START"]			= "Inizio Lancio"
-obj["SPELL_CAST_SUCCESS"]		= "Lancio Riuscito"
-obj["SPELL_CAST_FAILED"]		= "Fallimento di Lancio"
-obj["SPELL_SUMMON"]				= "Evoca"
-obj["SPELL_CREATE"]				= "Crea"
-obj["PARTY_KILL"]				= "Colpo Mortale"
-obj["UNIT_DESTROYED"]			= "Unita' Distrutta"
-obj["SPELL_EXTRA_ATTACKS"]		= "Attacco Extra"
-obj["UNIT_HEALTH"]				= "Cambio Vita"
-obj["UNIT_POWER"]				= "Cambio Potere"
-
--- Main event conditions.
-obj["sourceName"]				= "Nome Unita' Sorgente"
-obj["sourceAffiliation"]		= "Affiliazione Unita' Sorgente"
-obj["sourceReaction"]			= "Reazione Unita' Sorgente"
-obj["sourceControl"]			= "Controllo Unita' Sorgente"
-obj["sourceUnitType"]			= "Tipo Unita' Sorgente"
-obj["recipientName"]			= "Nome Unita' Destinataria"
-obj["recipientAffiliation"]		= "Affiliazione Unita' Destinataria"
-obj["recipientReaction"]		= "Reazione Unita' Destinataria"
-obj["recipientControl"]			= "Controllo Unita' Destinataria"
-obj["recipientUnitType"]		= "Tipo Unita' Destinataria"
-obj["skillID"]					= "ID Abilita'"
-obj["skillName"]				= "Nome Abilita'"
-obj["skillSchool"]				= "Scuola Abilita'"
-obj["extraSkillID"]				= "ID Abilita' Extra"
-obj["extraSkillName"]			= "Nome Abilita' Extra"
-obj["extraSkillSchool"]			= "Scuola Abilita' Extra"
-obj["amount"]					= "Ammontare"
-obj["overkillAmount"]			= "Ammontare Massacro"
-obj["damageType"]				= "Tipo Danno"
-obj["resistAmount"]				= "Ammontare Resistito"
-obj["blockAmount"]				= "Ammontare bloccato"
-obj["absorbAmount"]				= "Ammontare Assorbito"
-obj["isCrit"]					= "Critico"
-obj["isGlancing"]				= "Colpo Deviato"
-obj["isCrushing"]				= "Colpo Devastante"
-obj["extraAmount"]				= "Ammontare Extra"
-obj["missType"]					= "Tipo Mancanto"
-obj["hazardType"]				= "Tipo Pericolo"
-obj["powerType"]				= "Tipo Potere"
-obj["auraType"]					= "Tipo Aura"
-obj["threshold"]				= "Limite"
-obj["unitID"]					= "ID Unita'"
-obj["unitReaction"]				= "Reazione Unita'"
-obj["itemID"]					= "ID Oggetto"
-obj["itemName"]					= "Nome Oggetto"
-
--- Exception conditions.
-obj["activeTalents"]			= "Talenti Attivi"
-obj["buffActive"]				= "Benefici Attivi"
-obj["buffInactive"]				= "Benefici Inattivi"
-obj["currentCP"]				= "Punti Combinazione Correnti"
-obj["currentPower"]				= "Potere Corrente"
-obj["inCombat"]					= "In Combattimento"
-obj["recentlyFired"]			= "Inneschi Recenti"
-obj["trivialTarget"]			= "Bersaglio Facile"
-obj["unavailableSkill"]			= "Abilita' non disponibile"
-obj["warriorStance"]			= "Postura del Guerriero"
-obj["zoneName"]					= "Nome Zona"
-obj["zoneType"]					= "Tipo Zona"
-
--- Relationships.
-obj["eq"]						= "E' UgualeIs A"
-obj["ne"]						= "Non E' Uguale A"
-obj["like"]						= "E' Come"
-obj["unlike"]					= "Non E' Come"
-obj["lt"]						= "E' Meno Di"
-obj["gt"]						= "E' Piu' Di"
-
--- Affiliations.
-obj["affiliationMine"]			= "Mio"
-obj["affiliationParty"]			= "Membro Scorreria"
-obj["affiliationRaid"]			= "Membro Incursione"
-obj["affiliationOutsider"]		= "Straniero"
-obj["affiliationTarget"]		= "Bersaglio"
-obj["affiliationFocus"]			= FOCUS
-obj["affiliationYou"]			= "TE"
-
--- Reactions.
-obj["reactionFriendly"]			= "Amichevole"
-obj["reactionNeutral"]			= "Neutrale"
-obj["reactionHostile"]			= "Ostile"
-
--- Control types.
-obj["controlServer"]			= "Server"
-obj["controlHuman"]				= "Umano"
-
--- Unit types.
-obj["unitTypePlayer"]			= "Giocatore"
-obj["unitTypeNPC"]				= "PNG"
-obj["unitTypePet"]				= "Famiglio"
-obj["unitTypeGuardian"]			= "Guardiano"
-obj["unitTypeObject"]			= "Oggetto"
-
--- Aura types.
-obj["auraTypeBuff"]				= "Miglioramento"
-obj["auraTypeDebuff"]			= "Penalita'"
-
--- Zone types.
-obj["zoneTypeArena"]			= "Arena"
-obj["zoneTypePvP"]				= "Campo di Battaglia"
-obj["zoneTypeParty"]			= "Istanza 5 uomini"
-obj["zoneTypeRaid"]				= "Istanza d'Incursione"
-
--- Booleans
-obj["booleanTrue"]				= "True"
-obj["booleanFalse"]				= "False"
-
-
-------------------------------
--- Font info
-------------------------------
-
--- Font outlines.
 obj = L.OUTLINES
 obj[1] = "Nessuno"
 obj[2] = "Sottile"
@@ -598,24 +363,16 @@ obj[4] = "Monocromo"
 obj[5] = "Monocromo + Sottile"
 obj[6] = "Monocromo + Spesso"
 
--- Text aligns.
 obj = L.TEXT_ALIGNS
 obj[1] = "Sinistra"
 obj[2] = "Centro"
 obj[3] = "Destra"
 
 
-------------------------------
--- Sound info
-------------------------------
 
 
 
-------------------------------
--- Animation style info
-------------------------------
 
--- Animation styles
 obj = L.ANIMATION_STYLE_DATA
 obj["Angled"]		= "Angolare"
 obj["Horizontal"]	= "Orizzontale"
@@ -624,14 +381,12 @@ obj["Straight"]		= "Dritto"
 obj["Static"]		= "Statico"
 obj["Pow"]			= "Pow"
 
--- Animation style directions.
 obj["Alternate"]	= "Alternato"
 obj["Left"]			= "Sinistra"
 obj["Right"]		= "Destra"
 obj["Up"]			= "Su"
 obj["Down"]			= "Giu'"
 
--- Animation style behaviors.
 obj["AngleUp"]			= "Angolato Verso l'Alto"
 obj["AngleDown"]		= "Angolato Verso il Basso"
 obj["GrowUp"]			= "Crescita Verso l'Alto"
@@ -641,7 +396,6 @@ obj["CurvedRight"]		= "Curvato a Destra"
 obj["Jiggle"]			= "Oscillante"
 obj["Normal"]			= "Normale"
 
--- Custom event sounds.
 L.MSG_INVALID_CUSTOM_SOUND_NAME		= "Nome invalido per il suono."
 L.MSG_SOUND_NAME_ALREADY_EXISTS		= "Nome esistente per il Suono."
 L.MSG_INVALID_SOUND_FILE			= "Il suono deve essere un file .ogg."

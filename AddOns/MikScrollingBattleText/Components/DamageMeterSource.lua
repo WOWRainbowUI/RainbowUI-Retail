@@ -87,7 +87,8 @@ function DamageMeterSource:Poll()
 		self.config.unitGUID("vehicle"),
 	}
 	local processedGUIDs = {}
-	for sourceIndex, sourceGUID in ipairs(sourceGUIDs) do
+	for sourceIndex = 1, 3 do
+		local sourceGUID = sourceGUIDs[sourceIndex]
 		if sourceGUID and not WasGUIDProcessed(processedGUIDs, sourceGUID) then
 			processedGUIDs[#processedGUIDs + 1] = sourceGUID
 			local success, source = pcall(

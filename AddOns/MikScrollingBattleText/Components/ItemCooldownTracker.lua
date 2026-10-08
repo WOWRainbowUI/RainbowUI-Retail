@@ -63,7 +63,6 @@ function ItemCooldownTracker:DisplayCompletion(itemID)
 	local itemName, _, _, _, _, _, _, _, _, texture =
 		self.config.getItemInfo(itemID)
 	itemName = itemName or self.config.unknown
-	self.config.handleCooldown("item", itemID, itemName, texture)
 
 	local settings = self.config.getProfile().events.NOTIFICATION_ITEM_COOLDOWN
 	if not settings or settings.disabled then

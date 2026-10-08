@@ -1,26 +1,10 @@
-----------------------------------------------------------------------------
--- Title: MSBT Options Simplified Chinese Localization
--- Author: Mikord
--- Simplified Chinese Translation by:
---	elafor
---	hscui
---	yaroot#gmail_com
--------------------------------------------------------------------------------
 
--- Don't do anything if the locale isn't Simplified Chinese.
 if (GetLocale() ~= "zhCN") then return end
 
--- Local reference for faster access.
 local L = MikSBT.translations
 
--------------------------------------------------------------------------------
--- Simplified Chinese localization
--------------------------------------------------------------------------------
 
 
-------------------------------
--- Interface messages
-------------------------------
 L.MSG_NEW_PROFILE					= "新建配置"
 L.MSG_PROFILE_ALREADY_EXISTS		= "此配置文件已存在"
 L.MSG_INVALID_PROFILE_NAME			= "无效的配置名字"
@@ -29,28 +13,13 @@ L.MSG_SCROLL_AREA_ALREADY_EXISTS	= "此滚动区域已存在"
 L.MSG_INVALID_SCROLL_AREA_NAME		= "无效的滚动区名字"
 L.MSG_ACKNOWLEDGE_TEXT				= "你确定想这样做吗？"
 L.MSG_NORMAL_PREVIEW_TEXT			= "普通文字"
-L.MSG_NEW_TRIGGER					= "新建触发器"
-L.MSG_TRIGGER_CLASSES				= "触发种类"
-L.MSG_MAIN_EVENTS					= "主要事件"
-L.MSG_TRIGGER_EXCEPTIONS			= "触发器例外"
-L.MSG_EVENT_CONDITIONS				= "事件条件"
 L.MSG_DISPLAY_QUALITY				= "当物品为此品质时显示提示"
-L.MSG_SKILLS						= "技能"
-L.MSG_SKILL_ALREADY_EXISTS			= "技能名字已存在"
-L.MSG_INVALID_SKILL_NAME			= "无效的技能名字"
-L.MSG_HOSTILE						= "敌对"
-L.MSG_ANY							= "任何"
-L.MSG_CONDITION						= "条件"
-L.MSG_CONDITIONS					= "条件"
 L.MSG_ITEM_QUALITIES				= "物品品质"
 L.MSG_ITEMS							= "物品"
 L.MSG_ITEM_ALREADY_EXISTS			= "物品名已经存在."
 L.MSG_INVALID_ITEM_NAME				= "无效物品名."
 
 
-------------------------------
--- Interface tabs
-------------------------------
 
 obj = L.TABS
 obj["general"]		= { label="常规", tooltip="常规设置"}
@@ -59,9 +28,6 @@ obj["events"]		= { label="事件", tooltip="设置承受伤害、输出伤害和
 obj["lootAlerts"]	= { label="拾取通告", tooltip="设置与拾取有关的通告"}
 
 
-------------------------------
--- Interface checkboxes
-------------------------------
 
 obj = L.CHECKBOXES
 
@@ -95,16 +61,12 @@ obj["hideNames"]				= { label="隐藏名字", tooltip="在承受伤害和输出�
 obj["hideFullOverheals"]		= { label="隐藏全部过量的治疗", tooltip="不显示全部过量的治疗."}
 obj["hideFullHoTOverheals"]		= { label="隐藏全部溢出的持续治疗", tooltip="不显示全部溢出的储蓄治疗"}
 obj["hideMergeTrailer"]			= { label="隐藏合并攻击细节", tooltip="不在合并攻击后显示被合并的攻击次数及暴击详情"}
-obj["allClasses"]				= { label="所有职业"}
 obj["lootedItems"]				= { label="拾取物品", tooltip="显示物品拾取."}
 obj["moneyGains"]				= { label="获得金钱", tooltip="显示获得的金钱"}
 obj["alwaysShowQuestItems"]		= { label="总是显示任务物品", tooltip="总是显示任务物品, 无论其是何品质."}
 obj["enableIcons"]				= { label="启用技能图标", tooltip="如果可能，在技能旁显示图标"}
 
 
-------------------------------
--- Interface dropdowns
-------------------------------
 
 obj = L.DROPDOWNS
 obj["profile"]				= { label="当前配置文件：", tooltip="设置当前配置文件"}
@@ -121,15 +83,8 @@ obj["textAlign"]			= { label="文本排列：", tooltip="动画中文本的排�
 obj["iconAlign"]			= { label="图标排列:", tooltip="图标相对于文本的位置."}
 obj["eventCategory"]		= { label="事件种类：", tooltip="设置事件种类"}
 obj["outputScrollArea"]		= { label="输出滚动区域：", tooltip="选择输出伤害滚动区域"}
-obj["mainEvent"]			= { label="主要事件:"}
-obj["triggerCondition"]		= { label="条件:", tooltip="测试条件."}
-obj["triggerRelation"]		= { label="关系:"}
-obj["triggerParameter"]		= { label="参数:"}
 
 
-------------------------------
--- Interface buttons
-------------------------------
 
 obj = L.BUTTONS
 obj["copyProfile"]				= { label="复制配置", tooltip="复制配置文件到新建的配置中"}
@@ -153,32 +108,12 @@ obj["toggleAll"]				= { label="开启/关闭所有事件", tooltip="开启/关�
 obj["moveAll"]					= { label="移动所有事件", tooltip="移动所选事件分类中所有事件至指定滚动区域"}
 obj["eventFontSettings"]		= { tooltip="点击设置此事件字体"}
 obj["eventSettings"]			= { tooltip="点击设置事件效果比如输出区域，输出信息，播放声音等"}
-obj["addTrigger"]				= { label="增加新触发器", tooltip="增加新触发器"}
-obj["triggerSettings"]			= { tooltip="点击设置触发条件"}
-obj["deleteTrigger"]			= { tooltip="点击删除触发器"}
-obj["editTriggerClasses"]		= { tooltip="点击编辑触发器使用职业"}
-obj["addMainEvent"]				= { label="增加事件", tooltip="任何事件发生并且条件为真时, 触发器会触发, 除非存在例外条件."}
-obj["addTriggerException"]		= { label="增加例外", tooltip="当任何一个例外成立时, 触发器不会被触发."}
-obj["editEventConditions"]		= { tooltip="点击编辑事件的条件."}
-obj["deleteMainEvent"]			= { tooltip="点击删除事件."}
-obj["addEventCondition"]		= { label="增加条件", tooltip="当所有条件都成立时, 触发器会触发, 除非例外条件成立."}
-obj["editCondition"]			= { tooltip="点击增加条件."}
-obj["deleteCondition"]			= { tooltip="点击删除条件."}
-obj["throttleList"]				= { label="抑制列表", tooltip="设置指定技能的自定义抑制时间"}
-obj["mergeExclusions"]			= { label="防止合并", tooltip="防止指定技能的伤害数值合并"}
-obj["skillSuppressions"]		= { label="技能缩写", tooltip="缩写技能名字"}
-obj["skillSubstitutions"]		= { label="技能替换", tooltip="用自定义名称替换技能名字"}
-obj["addSkill"]					= { label="增加技能", tooltip="增加新技能到列表中"}
-obj["deleteSkill"]				= { tooltip="点击删除技能"}
 obj["itemsAllowed"]				= { label="允许物品", tooltip="总是显示这些物品, 无论其是何物品品质."}
 obj["itemExclusions"]			= { label="排除物品", tooltip="永远不显示这些物品."}
 obj["addItem"]					= { label="增加物品", tooltip="向列表中增加新的物品."}
 obj["deleteItem"]				= { tooltip="点击删除物品."}
 
 
-------------------------------
--- Interface editboxes
-------------------------------
 
 obj = L.EDITBOXES
 obj["copyProfile"]		= { label="新建配置：", tooltip="输入新建配置的名称"}
@@ -188,14 +123,9 @@ obj["xOffset"]			= { label="X值：", tooltip="所选择滚动区域的X值"}
 obj["yOffset"]			= { label="Y值：", tooltip="所选择滚动区域的Y值"}
 obj["eventMessage"]		= { label="输出信息：", tooltip="事件发生时显示的信息"}
 obj["iconSkill"]		= { label="技能图标：", tooltip="事件发生时, 法术的图标会被显示.\n\n如果没有指定, MSBT会自动选择一个合适的图标.\n\n注意: 法术ID必须被用来代替一个不在你法术书中的法术. 大多数数据库网站都可以用来查找."}
-obj["skillName"]		= { label="技能名称：", tooltip="所增加的技能的名字"}
-obj["substitutionText"]	= { label="替代文本：", tooltip="用来代替技能名字的文本"}
 obj["itemName"]			= { label="物品名称:", tooltip="要添加物品的名字."}
 
 
-------------------------------
--- Interface sliders
-------------------------------
 
 obj = L.SLIDERS
 obj["animationSpeed"]		= { label="动画速度", tooltip="设置主动画速度\n每个滚动区域也可以设置自身独有的速度"}
@@ -212,12 +142,8 @@ obj["damageThreshold"]		= { label="伤害阈值", tooltip="伤害量只有超过
 obj["dotThrottleTime"]		= { label="持续伤害抑制显示", tooltip="在设定的秒数中造成的持续伤害将合并为一次显示"}
 obj["hotThrottleTime"]		= { label="持续治疗抑制显示", tooltip="在设定的秒数中造成的持续治疗将合并为一次显示"}
 obj["powerThrottleTime"]	= { label="能量抑制显示", tooltip="在设定的秒数中持续获得的能量将合并为一次显示"}
-obj["skillThrottleTime"]	= { label="技能抑制显示", tooltip="在设定的秒数中持续使用的技能将只显示一次"}
 
 
-------------------------------
--- Event categories
-------------------------------
 obj = L.EVENT_CATEGORIES
 obj[1] = "玩家受到伤害"
 obj[2] = "宠物受到伤害"
@@ -226,9 +152,6 @@ obj[4] = "宠物输出伤害"
 obj[5] = "通告"
 
 
-------------------------------
--- Event codes
-------------------------------
 
 obj = L.EVENT_CODES
 obj["DAMAGE_TAKEN"]			= "%a - 受到伤害总数.\n"
@@ -270,9 +193,6 @@ obj["POWER_TYPE"]			= "%p - 能力类别 (能量, 怒气, 法力).\n"
 obj["TOTAL_ITEMS"]			= "%t - 拾取物品的总数."
 
 
-------------------------------
--- Incoming events
-------------------------------
 
 obj = L.INCOMING_PLAYER_EVENTS
 obj["INCOMING_DAMAGE"]						= { label="近战伤害", tooltip="显示被近战伤害"}
@@ -336,9 +256,6 @@ obj["PET_INCOMING_HOT"]							= { label="持续治疗", tooltip="显示宠物被
 obj["PET_INCOMING_HOT_CRIT"]					= { label="持续治疗暴击", tooltip="显示宠物持续治疗暴击"}
 
 
-------------------------------
--- Outgoing events
-------------------------------
 
 obj = L.OUTGOING_PLAYER_EVENTS
 obj["OUTGOING_DAMAGE"]						= { label="近战伤害", tooltip="显示对敌近战伤害"}
@@ -407,9 +324,6 @@ obj["PET_OUTGOING_HOT_CRIT"]					= { label="持续治疗暴击", tooltip="显示
 obj["PET_OUTGOING_DISPEL"]						= { label="驱散", tooltip="显示宠物的驱散."}
 
 
-------------------------------
--- Notification events
-------------------------------
 
 obj = L.NOTIFICATION_EVENTS
 obj["NOTIFICATION_DEBUFF"]				= { label="Debuff", tooltip="显示你得到的Debuff"}
@@ -440,159 +354,7 @@ obj["NOTIFICATION_ENEMY_BUFF"]			= { label="敌人获得Buff", tooltip="显示�
 obj["NOTIFICATION_MONSTER_EMOTE"]		= { label="怪物表情", tooltip="显示当前目标怪物表情"}
 
 
-------------------------------
--- Trigger info
-------------------------------
 
--- Main events.
-obj = L.TRIGGER_DATA
-obj["SWING_DAMAGE"]				= "平砍伤害"
-obj["RANGE_DAMAGE"]				= "远程伤害"
-obj["SPELL_DAMAGE"]				= "技能伤害"
-obj["GENERIC_DAMAGE"]			= "平砍/远程/技能伤害"
-obj["SPELL_PERIODIC_DAMAGE"]	= "周期性技能伤害(DoT)"
-obj["DAMAGE_SHIELD"]			= "伤害护盾伤害"
-obj["DAMAGE_SPLIT"]				= "分摊伤害"
-obj["ENVIRONMENTAL_DAMAGE"]		= "环境伤害"
-obj["SWING_MISSED"]				= "平砍未命中"
-obj["RANGE_MISSED"]				= "远程未命中"
-obj["SPELL_MISSED"]				= "技能未命中"
-obj["GENERIC_MISSED"]			= "平砍/远程/技能未命中"
-obj["SPELL_PERIODIC_MISSED"]	= "周期性技能未命中"
-obj["SPELL_DISPEL_FAILED"]		= "驱散失败"
-obj["DAMAGE_SHIELD_MISSED"]		= "伤害护盾未命中"
-obj["SPELL_HEAL"]				= "治疗"
-obj["SPELL_PERIODIC_HEAL"]		= "周期性治疗(HoT)"
-obj["SPELL_ENERGIZE"]			= "能量获取"
-obj["SPELL_PERIODIC_ENERGIZE"]	= "周期性能量获取"
-obj["SPELL_DRAIN"]				= "能量消耗"
-obj["SPELL_PERIODIC_DRAIN"]		= "周期性能量消耗"
-obj["SPELL_LEECH"]				= "能量吸取"
-obj["SPELL_PERIODIC_LEECH"]		= "周期性能量吸取"
-obj["SPELL_INTERRUPT"]			= "技能打断"
-obj["SPELL_AURA_APPLIED"]		= "获得光环"
-obj["SPELL_AURA_REMOVED"]		= "光环消失"
-obj["SPELL_STOLEN"]				= "偷取光环"
-obj["SPELL_DISPEL"]				= "光环被驱散"
-obj["SPELL_AURA_REFRESH"]		= "光环刷新"
-obj["SPELL_AURA_BROKEN_SPELL"]	= "光环打破"
-obj["ENCHANT_APPLIED"]			= "附魔效果触发"
-obj["ENCHANT_REMOVED"]			= "附魔效果消失"
-obj["SPELL_CAST_START"]			= "开始施法"
-obj["SPELL_CAST_SUCCESS"]		= "施法成功"
-obj["SPELL_CAST_FAILED"]		= "施法失败"
-obj["SPELL_SUMMON"]				= "召唤"
-obj["SPELL_CREATE"]				= "创造"
-obj["PARTY_KILL"]				= "队友击杀"
-obj["UNIT_DESTROYED"]			= "单位被摧毁"
-obj["SPELL_EXTRA_ATTACKS"]		= "额外攻击"
-obj["UNIT_HEALTH"]				= "生命值改变"
-obj["UNIT_POWER"]				= "法力值改变"
-
--- Main event conditions.
-obj["sourceName"]				= "来源玩家名字"
-obj["sourceAffiliation"]		= "来源玩家联系"
-obj["sourceReaction"]			= "来源玩家反应"
-obj["sourceControl"]			= "来源玩家控制"
-obj["sourceUnitType"]			= "来源玩家类型"
-obj["recipientName"]			= "接受玩家名字"
-obj["recipientAffiliation"]		= "接受玩家联系"
-obj["recipientReaction"]		= "接受玩家反应"
-obj["recipientControl"]			= "接受玩家控制"
-obj["recipientUnitType"]		= "接受玩家类型"
-obj["skillID"]					= "技能 ID"
-obj["skillName"]				= "技能名字"
-obj["skillSchool"]				= "技能类型"
-obj["extraSkillID"]				= "额外技能 ID"
-obj["extraSkillName"]			= "额外技能名字"
-obj["extraSkillSchool"]			= "额外技能类型"
-obj["amount"]					= "总数"
-obj["overkillAmount"]			= "灭绝总数"
-obj["damageType"]				= "伤害类型"
-obj["resistAmount"]				= "抵抗总数"
-obj["blockAmount"]				= "格挡总数"
-obj["absorbAmount"]				= "吸收总数"
-obj["isCrit"]					= "爆击"
-obj["isGlancing"]				= "偏斜"
-obj["isCrushing"]				= "致命攻击"
-obj["extraAmount"]				= "额外总数"
-obj["missType"]					= "未命中类型"
-obj["hazardType"]				= "危害类型"
-obj["powerType"]				= "能量类型"
-obj["auraType"]					= "光环类型"
-obj["threshold"]				= "起点阀值"
-obj["unitID"]					= "玩家 ID"
-obj["unitReaction"]				= "玩家反应"
-obj["itemID"]					= "物品 ID"
-obj["itemName"]					= "物品名字"
-
--- Exception conditions.
-obj["activeTalents"]			= "启用天赋"
-obj["buffActive"]				= "BUFF生效"
-obj["buffInactive"]				= "Buff失效"
-obj["currentCP"]				= "当前连击点"
-obj["currentPower"]				= "当前能量"
-obj["inCombat"]					= "战斗中"
-obj["recentlyFired"]			= "触发器最近被触发"
-obj["trivialTarget"]			= "无效目标"
-obj["unavailableSkill"]			= "不可用技能"
-obj["warriorStance"]			= "战士姿态"
-obj["zoneName"]					= "地区名字"
-obj["zoneType"]					= "地区类型"
-
--- Relationships.
-obj["eq"]						= "相等"
-obj["ne"]						= "不相等"
-obj["like"]						= "像"
-obj["unlike"]					= "不像"
-obj["lt"]						= "少于"
-obj["gt"]						= "多于"
-
--- Affiliations.
-obj["affiliationMine"]			= "我的"
-obj["affiliationParty"]			= "队友"
-obj["affiliationRaid"]			= "团队成员"
-obj["affiliationOutsider"]		= "其他"
-obj["affiliationTarget"]		= TARGET
-obj["affiliationFocus"]			= FOCUS
-obj["affiliationYou"]			= YOU
-
--- Reactions.
-obj["reactionFriendly"]			= "友善"
-obj["reactionNeutral"]			= "中立"
-obj["reactionHostile"]			= HOSTILE
-
--- Control types.
-obj["controlServer"]			= "服务器"
-obj["controlHuman"]				= "玩家"
-
--- Unit types.
-obj["unitTypePlayer"]			= PLAYER
-obj["unitTypeNPC"]				= "NPC"
-obj["unitTypePet"]				= PET
-obj["unitTypeGuardian"]			= "护卫"
-obj["unitTypeObject"]			= "物体"
-
--- Aura types.
-obj["auraTypeBuff"]				= "Buff"
-obj["auraTypeDebuff"]			= "Debuff"
-
--- Zone types.
-obj["zoneTypeArena"]			= "竞技场"
-obj["zoneTypePvP"]				= BATTLEGROUND
-obj["zoneTypeParty"]			= "小队副本"
-obj["zoneTypeRaid"]				= "团队副本"
-
--- Booleans
-obj["booleanTrue"]				= "True"
-obj["booleanFalse"]				= "False"
-
-
-------------------------------
--- Font info
-------------------------------
-
--- Font outlines.
 obj = L.OUTLINES
 obj[1] = "无"
 obj[2] = "细"
@@ -601,24 +363,16 @@ obj[4] = "单线"
 obj[5] = "单线 细"
 obj[6] = "单线 粗"
 
--- Text aligns.
 obj = L.TEXT_ALIGNS
 obj[1] = "左边"
 obj[2] = "中间"
 obj[3] = "右边"
 
 
-------------------------------
--- Sound info
-------------------------------
 
 
 
-------------------------------
--- Animation style info
-------------------------------
 
--- Animation styles
 obj = L.ANIMATION_STYLE_DATA
 obj["Angled"]		= "V型"
 obj["Horizontal"]	= "水平"
@@ -627,14 +381,12 @@ obj["Straight"]		= "直线"
 obj["Static"]		= "静止"
 obj["Pow"]			= "抖动"
 
--- Animation style directions.
 obj["Alternate"]	= "交替"
 obj["Left"]			= "左"
 obj["Right"]		= "右"
 obj["Up"]			= "上"
 obj["Down"]			= "下"
 
--- Animation style behaviors.
 obj["AngleUp"]			= "V型向上"
 obj["AngleDown"]		= "V型向下"
 obj["GrowUp"]			= "向上增长"
@@ -644,7 +396,6 @@ obj["CurvedRight"]		= "向右抛出"
 obj["Jiggle"]			= "摇动"
 obj["Normal"]			= "普通"
 
--- Custom event sounds.
 L.MSG_INVALID_CUSTOM_SOUND_NAME		= "无效声音名"
 L.MSG_SOUND_NAME_ALREADY_EXISTS		= "声音名已经存在"
 L.MSG_INVALID_SOUND_FILE			= "声音必须为OGG文件"

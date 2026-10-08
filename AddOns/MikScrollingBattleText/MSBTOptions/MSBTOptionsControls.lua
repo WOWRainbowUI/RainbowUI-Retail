@@ -1,9 +1,4 @@
--------------------------------------------------------------------------------
--- Title: MSBT Options Controls
--- Author: Mikord
--------------------------------------------------------------------------------
 
--- Create module and set its name.
 local module = {}
 local moduleName = "Controls"
 MSBTOptions[moduleName] = module
@@ -12,33 +7,19 @@ local Client = MikSBT.Compatibility.Client
 local HasModernAPI = Client.hasModernAPI
 
 
--------------------------------------------------------------------------------
--- Private variables.
--------------------------------------------------------------------------------
 
--- Prevent tainting global _.
 local _
 
--- Backdrop table to be reused for sliders.
 local sliderBackdrop
 
--- Emphasis shown when a listbox entry is moused over.
 local emphasizeFrame
 
--- Listbox used for dropdowns.
 local dropdownListboxFrame
 
--- Used for correctly calculating string widths.
 local calcFontString
 
 
--------------------------------------------------------------------------------
--- Listbox functions.
--------------------------------------------------------------------------------
 
--- ****************************************************************************
--- Shows the highlight frame over the passed line.
--- ****************************************************************************
 local function Listbox_ShowHighlight(this, line)
 	local highlight = this.highlightFrame
 	highlight:ClearAllPoints()
@@ -51,11 +32,7 @@ local function Listbox_ShowHighlight(this, line)
 end
 
 
--- ****************************************************************************
--- Shows or hides the scroll bar and resizes the display area as necessary.
--- ****************************************************************************
 local function Listbox_HandleScrollbar(this)
-	-- Show or hide the scroll bar if there are more items than will fit on the page.
 	local display = this.displayFrame
 	local slider = this.sliderFrame
 	if (#this.items <= #this.lines) then
@@ -68,45 +45,28 @@ local function Listbox_HandleScrollbar(this)
 end
 
 
--- ****************************************************************************
--- Returns whether the listbox is fully configured.
--- ****************************************************************************
 local function Listbox_IsConfigured(this)
 	return this.configured and this.lineHandler and this.displayHandler
 end
 
 
--- ****************************************************************************
--- Returns the current offset.
--- ****************************************************************************
 local function Listbox_GetOffset(this)
 	return this.sliderFrame:GetValue()
 end
 
 
--- ****************************************************************************
--- Returns the current offset.
--- ****************************************************************************
 local function Listbox_SetOffset(this, offset)
 	this.sliderFrame:SetValue(offset)
 end
 
 
--- ****************************************************************************
--- Called when the listbox needs to be refreshed.
--- ****************************************************************************
 local function Listbox_Refresh(this)
-	-- Don't do anything if the listbox isn't configured.
 	if (not Listbox_IsConfigured(this)) then return end
 
-	-- Handle scroll bar showing / resizing.
 	Listbox_HandleScrollbar(this)
 
-	-- Hide the highlight.
 	this.highlightFrame:Hide()
 
-	-- Show or hide the correct lines depending on how many items there are and
-	-- apply a highlight to the selected item.
 	local selectedItem = this.selectedItem
 	local isSelected
 	for lineNum, line in ipairs(this.lines) do
@@ -116,7 +76,6 @@ local function Listbox_Refresh(this)
 			line.itemNumber = lineNum + Listbox_GetOffset(this)
 			line:Show()
 
-			-- Move the highlight to the selected line and show it.
 			if (selectedItem == line.itemNumber) then
 				Listbox_ShowHighlight(this, line)
 		isSelected = true
@@ -130,27 +89,18 @@ local function Listbox_Refresh(this)
 end
 
 
--- ****************************************************************************
--- Called when the listbox is scrolled up.
--- ****************************************************************************
 local function Listbox_ScrollUp(this)
 	local slider = this.sliderFrame
 	slider:SetValue(slider:GetValue() - slider:GetValueStep())
 end
 
 
--- ****************************************************************************
--- Called when the listbox is scrolled down.
--- ****************************************************************************
 local function Listbox_ScrollDown(this)
 	local slider = this.sliderFrame
 	slider:SetValue(slider:GetValue() + slider:GetValueStep())
 end
 
 
--- ****************************************************************************
--- Called when one of the lines in the listbox is clicked.
--- ****************************************************************************
 local function Listbox_OnClickLine(this)
 	local listbox = this:GetParent():GetParent()
 	listbox.selectedItem = this.lineNumber + Listbox_GetOffset(listbox)
@@ -161,9 +111,6 @@ local function Listbox_OnClickLine(this)
 end
 
 
--- ****************************************************************************
--- Called when the mouse enters a line.
--- ****************************************************************************
 local function Listbox_OnEnterLine(this)
 	local listbox = this:GetParent():GetParent()
 	if (this.itemNumber ~= listbox.selectedItem) then
@@ -181,18 +128,12 @@ local function Listbox_OnEnterLine(this)
 end
 
 
--- ****************************************************************************
--- Called when the mouse leaves a line.
--- ****************************************************************************
 local function Listbox_OnLeaveLine(this)
 	emphasizeFrame:Hide()
 	GameTooltip:Hide()
 end
 
 
--- ****************************************************************************
--- Called when the scroll up button is pressed.
--- ****************************************************************************
 local function Listbox_OnClickUp(this)
 	local listbox = this:GetParent():GetParent()
 	Listbox_ScrollUp(listbox)
@@ -200,9 +141,6 @@ local function Listbox_OnClickUp(this)
 end
 
 
--- ****************************************************************************
--- Called when the scroll down button is pressed.
--- ****************************************************************************
 local function Listbox_OnClickDown(this)
 	local listbox = this:GetParent():GetParent()
 	Listbox_ScrollDown(listbox)
@@ -210,9 +148,6 @@ local function Listbox_OnClickDown(this)
 end
 
 
--- ****************************************************************************
--- Called when the mouse wheel is scrolled in the display frame.
--- ****************************************************************************
 local function Listbox_OnMouseWheel(this, delta)
 	local listbox = this:GetParent()
 	if (delta < 0) then
@@ -223,20 +158,12 @@ local function Listbox_OnMouseWheel(this, delta)
 end
 
 
--- ****************************************************************************
--- Called when the scroll bar slider is changed.
--- ****************************************************************************
 local function Listbox_OnValueChanged(this, value)
 	Listbox_Refresh(this:GetParent())
 end
 
 
--- ****************************************************************************
--- Creates a new line using the register create line handler.
--- ****************************************************************************
 local function Listbox_CreateLine(this)
-	-- Get a line from cache if there are any otherwise call the registered line
-	-- handler to create a new line.
 	local lineCache = this.lineCache
 	local line = (#lineCache > 0) and table.remove(lineCache) or this:lineHandler()
 
@@ -261,27 +188,19 @@ local function Listbox_CreateLine(this)
 end
 
 
--- ****************************************************************************
--- Reconfigures the listbox if it was already configured.
--- ****************************************************************************
 local function Listbox_Reconfigure(this, width, height, lineHeight)
-	-- Don't allow negative widths.
 	if (width < 0) then width = 0 end
 
-	-- Setup container frame.
 	this:SetWidth(width)
 	this:SetHeight(height)
 
-	-- Setup line calculations.
 	this.lineHeight = lineHeight
 	this.linesPerPage = math.floor(height / lineHeight)
 
-	-- Resize the line height of existing lines.
 	for _, line in ipairs(this.lines) do
 		line:SetHeight(this.lineHeight)
 	end
 
-	-- Add lines if more will fit on the page and they are needed.
 	local lines = this.lines
 	if (#this.items > #lines) then
 		while (#lines < this.linesPerPage and #this.items > #lines) do
@@ -289,14 +208,12 @@ local function Listbox_Reconfigure(this, width, height, lineHeight)
 		end
 	end
 
-	-- Remove and cache lines that will no longer fit on the page.
 	local lineCache = this.lineCache
 	for x = this.linesPerPage+1, #lines do
 		lines[#lines]:Hide()
 		lineCache[#lineCache+1] = table.remove(lines)
 	end
 
-	-- Setup slider frame.
 	local slider = this.sliderFrame
 	slider:Hide()
 	slider:SetMinMaxValues(0, math.max(#this.items - #this.lines, 0))
@@ -306,28 +223,20 @@ local function Listbox_Reconfigure(this, width, height, lineHeight)
 end
 
 
--- ****************************************************************************
--- Configures the listbox.
--- ****************************************************************************
 local function Listbox_Configure(this, width, height, lineHeight)
-	-- Don't do anything if required parameters are invalid.
 	if (not width or not height or not lineHeight) then return end
 
 	if (Listbox_IsConfigured(this)) then Listbox_Reconfigure(this, width, height, lineHeight) return end
 
-	-- Don't allow negative widths.
 	if (width < 0) then width = 0 end
 
-	-- Setup container frame.
 	this:SetWidth(width)
 	this:SetHeight(height)
 
-	-- Setup slider frame.
 	local slider = this.sliderFrame
 	slider:SetMinMaxValues(0, 0)
 	slider:SetValue(0)
 
-	-- Setup line calculations.
 	this.lineHeight = lineHeight
 	this.linesPerPage = math.floor(height / lineHeight)
 
@@ -335,140 +244,90 @@ local function Listbox_Configure(this, width, height, lineHeight)
 end
 
 
--- ****************************************************************************
--- Set the function to be called when a new line needs to be created. The
--- called function must return a "Button" frame.
--- ****************************************************************************
 local function Listbox_SetCreateLineHandler(this, handler)
 	this.lineHandler = handler
 end
 
 
--- ****************************************************************************
--- Set the function to be called when a line is being displayed.
--- It is passed the line frame to be populated, and the value associated
--- with that line.
--- ****************************************************************************
 local function Listbox_SetDisplayHandler(this, handler)
 	this.displayHandler = handler
 end
 
 
--- ****************************************************************************
--- Set the function to be called when a line in the listbox is clicked.
--- It is passed the line frame, and the value associated with that line.
--- ****************************************************************************
 local function Listbox_SetClickHandler(this, handler)
 	this.clickHandler = handler
 end
 
 
--- ****************************************************************************
--- Returns the passed item number from the listbox.
--- ****************************************************************************
 local function Listbox_GetItem(this, itemNumber)
 	return this.items[itemNumber]
 end
 
 
--- ****************************************************************************
--- Adds the passed item to the listbox.
--- ****************************************************************************
 local function Listbox_AddItem(this, key, forceVisible)
-	-- Don't do anything if the listbox isn't configured.
 	if (not Listbox_IsConfigured(this)) then return end
 
-	-- Add the passed key to the items list.
 	local items = this.items
 	items[#items + 1] = key
 
-	-- Create a new line if the max number allowed per page hasn't been reached.
 	local lines = this.lines
 	if (#lines < this.linesPerPage) then
 		Listbox_CreateLine(this)
 	end
 
-	-- Set the new max offset value.
 	local maxOffset = math.max(#items - #lines, 0)
 	this.sliderFrame:SetMinMaxValues(0, maxOffset)
 
-	-- Make sure the newly added item is visible if the force flag is set.
 	if (forceVisible) then Listbox_SetOffset(this, maxOffset) end
 
 	Listbox_Refresh(this)
 end
 
 
--- ****************************************************************************
--- Removes the passed item number from the listbox.
--- ****************************************************************************
 local function Listbox_RemoveItem(this, itemNumber)
-	-- Don't do anything if the listbox isn't configured.
 	if (not Listbox_IsConfigured(this)) then return end
 
 	local items = this.items
 	table.remove(items, itemNumber)
 
-	-- Set the new max offset value.
 	this.sliderFrame:SetMinMaxValues(0, math.max(#items - #this.lines, 0))
 
 	Listbox_Refresh(this)
 end
 
 
--- ****************************************************************************
--- Returns the number of items in the listbox.
--- ****************************************************************************
 local function Listbox_GetNumItems(this)
 	return #this.items
 end
 
 
--- ****************************************************************************
--- Returns the selected item from the listbox.
--- ****************************************************************************
 local function Listbox_GetSelectedItem(this)
 	if (this.selectedItem ~= 0) then return this.items[this.selectedItem] end
 end
 
 
--- ****************************************************************************
--- Sets the selected item for the listbox.
--- ****************************************************************************
 local function Listbox_SetSelectedItem(this, itemNumber)
-	-- Don't do anything if the listbox isn't configured.
 	if (not Listbox_IsConfigured(this)) then return end
 
 	this.selectedItem = itemNumber <= #this.items and itemNumber or 0
 
-	-- Highlight the selected line if it's visible.
 	local line = this.lines[this.selectedItem - this.sliderFrame:GetValue()]
 	if (line) then Listbox_ShowHighlight(this, line) end
 end
 
 
--- ****************************************************************************
--- Returns the line object from the listbox.
--- ****************************************************************************
 local function Listbox_GetLine(this, lineNumber)
 	local lines = this.lines
 	if (lineNumber <= #lines) then return lines[lineNumber] end
 end
 
 
--- ****************************************************************************
--- Returns the number of lines in the listbox.
--- ****************************************************************************
 local function Listbox_GetNumLines(this)
 	return math.min(#this.lines, #this.items)
 end
 
 
--- ****************************************************************************
--- Clears the listbox contents.
--- ****************************************************************************
 local function Listbox_Clear(this)
-	-- Don't do anything if the listbox isn't configured.
 	if (not Listbox_IsConfigured(this)) then return end
 
 	local items = this.items
@@ -476,7 +335,6 @@ local function Listbox_Clear(this)
 		items[k] = nil
 	end
 
-	-- Set the new max offset value.
 	this.sliderFrame:SetMinMaxValues(0, 0)
 
 	this.selectedItem = 0
@@ -485,9 +343,6 @@ local function Listbox_Clear(this)
 end
 
 
--- ****************************************************************************
--- Disables the listbox.
--- ****************************************************************************
 local function Listbox_Disable(this)
 	this.displayFrame:EnableMouseWheel(false)
 	this.sliderFrame:EnableMouse(false)
@@ -496,9 +351,6 @@ local function Listbox_Disable(this)
 end
 
 
--- ****************************************************************************
--- Enables the listbox.
--- ****************************************************************************
 local function Listbox_Enable(this)
 	this.displayFrame:EnableMouseWheel(true)
 	this.sliderFrame:EnableMouse(true)
@@ -507,11 +359,7 @@ local function Listbox_Enable(this)
 end
 
 
--- ****************************************************************************
--- Creates and returns a listbox object ready to be configured.
--- ****************************************************************************
 local function CreateListbox(parent)
-	-- Create the frame used to emphasize the entry the mouse is over.
 	if (not emphasizeFrame) then
 		emphasizeFrame = CreateFrame("Frame")
 
@@ -522,10 +370,8 @@ local function CreateListbox(parent)
 		texture:SetPoint("BOTTOMRIGHT", emphasizeFrame, "BOTTOMRIGHT")
 	end
 
-	-- Create container frame.
 	local listbox = CreateFrame("Frame", nil, parent)
 
-	-- Highlight frame.
 	local highlight = CreateFrame("Frame")
 
 	local texture = highlight:CreateTexture(nil, "ARTWORK")
@@ -534,13 +380,11 @@ local function CreateListbox(parent)
 	texture:SetPoint("TOPLEFT", highlight, "TOPLEFT")
 	texture:SetPoint("BOTTOMRIGHT", highlight, "BOTTOMRIGHT")
 
-	-- Create display area.
 	local display = CreateFrame("Frame", nil, listbox)
 	display:SetPoint("TOPLEFT", listbox, "TOPLEFT")
 	display:SetPoint("BOTTOMRIGHT", listbox, "BOTTOMRIGHT")
 
 
-	-- Create slider to track the position.
 	local slider = CreateFrame("Slider", nil, listbox)
 	slider:Hide()
 	slider:SetWidth(16)
@@ -551,23 +395,19 @@ local function CreateListbox(parent)
 	slider:SetObeyStepOnDrag(true)
 	slider:SetScript("OnValueChanged", Listbox_OnValueChanged)
 
-	-- Up button.
 	local upButton = CreateFrame("Button", nil, slider, "UIPanelScrollUpButtonTemplate")
 	upButton:SetPoint("BOTTOM", slider, "TOP")
 	upButton:SetScript("OnClick", Listbox_OnClickUp)
 
-	-- Down button.
 	local downButton = CreateFrame("Button", nil, slider, "UIPanelScrollDownButtonTemplate")
 	downButton:SetPoint("TOP", slider, "BOTTOM")
 	downButton:SetScript("OnClick", Listbox_OnClickDown)
 
 
-	-- Make it work with the mouse wheel.
 	display:EnableMouseWheel(true)
 	display:SetScript("OnMouseWheel", Listbox_OnMouseWheel)
 
 
-	-- Extension functions.
 	listbox.Configure				= Listbox_Configure
 	listbox.SetCreateLineHandler	= Listbox_SetCreateLineHandler
 	listbox.SetDisplayHandler		= Listbox_SetDisplayHandler
@@ -587,7 +427,6 @@ local function CreateListbox(parent)
 	listbox.Disable				= Listbox_Disable
 	listbox.Enable					= Listbox_Enable
 
-	-- Track internal values.
 	listbox.displayFrame = display
 	listbox.sliderFrame = slider
 	listbox.upButton = upButton
@@ -601,13 +440,7 @@ local function CreateListbox(parent)
 end
 
 
--------------------------------------------------------------------------------
--- Checkbox functions.
--------------------------------------------------------------------------------
 
--- ****************************************************************************
--- Called when the internal checkbutton is clicked.
--- ****************************************************************************
 local function Checkbox_OnClick(this)
 	local isChecked = this:GetChecked() and true or false
 	if (isChecked) then PlaySound(856) else PlaySound(857) end
@@ -617,9 +450,6 @@ local function Checkbox_OnClick(this)
 end
 
 
--- ****************************************************************************
--- Called when the mouse enters the internal checkbutton.
--- ****************************************************************************
 local function Checkbox_OnEnter(this)
 	if (this.tooltip) then
 		GameTooltip:SetOwner(this, this.tooltipAnchor or "ANCHOR_RIGHT")
@@ -628,17 +458,11 @@ local function Checkbox_OnEnter(this)
 end
 
 
--- ****************************************************************************
--- Called when the mouse leaves the internal checkbutton.
--- ****************************************************************************
 local function Checkbox_OnLeave(this)
 	GameTooltip:Hide()
 end
 
 
--- ****************************************************************************
--- Sets the label for the checkbox.
--- ****************************************************************************
 local function Checkbox_SetLabel(this, label)
 	local fontString = this.fontString
 	fontString:SetText(label or "")
@@ -648,30 +472,20 @@ local function Checkbox_SetLabel(this, label)
 end
 
 
--- ****************************************************************************
--- Sets the tooltip for the checkbox.
--- ****************************************************************************
 local function Checkbox_SetTooltip(this, tooltip)
 	this.checkFrame.tooltip = tooltip
 end
 
 
--- ****************************************************************************
--- Configures the checkbox.
--- ****************************************************************************
 local function Checkbox_Configure(this, size, label, tooltip)
-	-- Don't do anything if required parameters are invalid.
 	if (not size) then return end
 
-	-- Setup the container frame.
 	this:SetHeight(size)
 
-	-- Setup the checkbox dimensions.
 	local check = this.checkFrame
 	check:SetWidth(size)
 	check:SetHeight(size)
 
-	-- Setup the label and tooltip.
 	Checkbox_SetLabel(this, label)
 	Checkbox_SetTooltip(this, tooltip)
 
@@ -679,62 +493,40 @@ local function Checkbox_Configure(this, size, label, tooltip)
 end
 
 
--- ****************************************************************************
--- Sets the function to be called when the checkbox is clicked.
--- It is passed the checkbox and whether or not it's checked.
--- ****************************************************************************
 local function Checkbox_SetClickHandler(this, handler)
 	this.clickHandler = handler
 end
 
 
--- ****************************************************************************
--- Returns whether or not the checkbox is checked.
--- ****************************************************************************
 local function Checkbox_GetChecked(this)
 	return this.checkFrame:GetChecked() and true or false
 end
 
 
--- ****************************************************************************
--- Sets the checked state.
--- ****************************************************************************
 local function Checkbox_SetChecked(this, isChecked)
 	this.checkFrame:SetChecked(isChecked)
 end
 
 
--- ****************************************************************************
--- Disables the checkbox.
--- ****************************************************************************
 local function Checkbox_Disable(this)
 	this.checkFrame:Disable()
 	this.fontString:SetTextColor(0.5, 0.5, 0.5)
 end
 
 
--- ****************************************************************************
--- Enables the checkbox.
--- ****************************************************************************
 local function Checkbox_Enable(this)
 	this.checkFrame:Enable()
 	this.fontString:SetTextColor(NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b)
 end
 
 
--- ****************************************************************************
--- Creates and returns a checkbox object ready to be configured.
--- ****************************************************************************
 local function CreateCheckbox(parent)
-	-- XXX Hack to work around apparent WoW API bug not returning correct string width.
 	if (not calcFontString) then
 		calcFontString = UIParent:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
 	end
 
-	-- Create container frame.
 	local checkbox = CreateFrame("Frame", nil, parent)
 
-	-- Create check button.
 	local checkbutton = CreateFrame("CheckButton", nil, checkbox)
 	checkbutton:SetPoint("TOPLEFT")
 	checkbutton:SetNormalTexture("Interface\\Buttons\\UI-CheckBox-Up")
@@ -746,14 +538,12 @@ local function CreateCheckbox(parent)
 	checkbutton:SetScript("OnEnter", Checkbox_OnEnter)
 	checkbutton:SetScript("OnLeave", Checkbox_OnLeave)
 
-	-- Label.
 	local fontString = checkbox:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
 	fontString:SetPoint("LEFT", checkbutton, "RIGHT", 2, 0)
 	fontString:SetPoint("RIGHT", checkbox, "RIGHT", 0, 0)
 	fontString:SetJustifyH("LEFT")
 
 
-	-- Extension functions.
 	checkbox.Configure			= Checkbox_Configure
 	checkbox.SetLabel			= Checkbox_SetLabel
 	checkbox.SetTooltip		= Checkbox_SetTooltip
@@ -763,7 +553,6 @@ local function CreateCheckbox(parent)
 	checkbox.Disable			= Checkbox_Disable
 	checkbox.Enable			= Checkbox_Enable
 
-	-- Track internal values.
 	checkbox.checkFrame = checkbutton
 	checkbox.fontString = fontString
 	return checkbox
@@ -771,22 +560,13 @@ end
 
 
 
--------------------------------------------------------------------------------
--- Button functions.
--------------------------------------------------------------------------------
 
--- ****************************************************************************
--- Called when the button is clicked.
--- ****************************************************************************
 local function Button_OnClick(this)
 	PlaySound(856)
 	if (this.clickHandler) then this:clickHandler() end
 end
 
 
--- ****************************************************************************
--- Called when the mouse enters the button.
--- ****************************************************************************
 local function Button_OnEnter(this)
 	if (this.tooltip) then
 		GameTooltip:SetOwner(this, "ANCHOR_RIGHT")
@@ -795,42 +575,28 @@ local function Button_OnEnter(this)
 end
 
 
--- ****************************************************************************
--- Called when the mouse leaves the button.
--- ****************************************************************************
 local function Button_OnLeave(this)
 	GameTooltip:Hide()
 end
 
 
--- ****************************************************************************
--- Sets the tooltip for the button.
--- ****************************************************************************
 local function Button_SetTooltip(this, tooltip)
 	this.tooltip = tooltip
 end
 
 
--- ****************************************************************************
--- Sets the function to be called when the button is clicked.
--- ****************************************************************************
 local function Button_SetClickHandler(this, handler)
 	this.clickHandler = handler
 end
 
 
 
--- ****************************************************************************
--- Creates and returns a generic button object. Only used internally.
--- ****************************************************************************
 local function CreateButton(parent)
-	-- Create button frame.
 	local button = CreateFrame("Button", nil, parent)
 	button:SetScript("OnClick", Button_OnClick)
 	button:SetScript("OnEnter", Button_OnEnter)
 	button:SetScript("OnLeave", Button_OnLeave)
 
-	-- Extension functions.
 	button.SetClickHandler	= Button_SetClickHandler
 	button.SetTooltip	= Button_SetTooltip
 
@@ -838,22 +604,13 @@ local function CreateButton(parent)
 end
 
 
--------------------------------------------------------------------------------
--- OptionButton functions.
--------------------------------------------------------------------------------
 
--- ****************************************************************************
--- Set the label for the option button.
--- ****************************************************************************
 local function OptionButton_SetLabel(this, label)
 	this:SetText(label or "")
 	this:SetWidth(this:GetFontString():GetStringWidth() + 50)
 end
 
 
--- ****************************************************************************
--- Configures the option button.
--- ****************************************************************************
 local function OptionButton_Configure(this, height, label, tooltip)
 	this:SetHeight(height)
 	OptionButton_SetLabel(this, label)
@@ -861,11 +618,7 @@ local function OptionButton_Configure(this, height, label, tooltip)
 end
 
 
--- ****************************************************************************
--- Creates and returns a push button object ready to be configured.
--- ****************************************************************************
 local function CreateOptionButton(parent)
-	-- Create generic button.
 	local button = CreateButton(parent)
 	local fontString = button:CreateFontString(nil, "OVERLAY")
 	fontString:SetPoint("CENTER")
@@ -883,7 +636,6 @@ local function CreateOptionButton(parent)
 	button:GetHighlightTexture():SetTexCoord(0, 0.625, 0, 0.6875)
 
 
-	-- Extension functions.
 	button.SetLabel			= OptionButton_SetLabel
 	button.Configure		= OptionButton_Configure
 
@@ -891,15 +643,8 @@ local function CreateOptionButton(parent)
 end
 
 
--------------------------------------------------------------------------------
--- IconButton functions.
--------------------------------------------------------------------------------
 
--- ****************************************************************************
--- Creates and returns an icon button object ready to be configured.
--- ****************************************************************************
 local function CreateIconButton(parent, buttonType)
-	-- Create generic button.
 	local button = CreateButton(parent)
 	button:SetWidth(24)
 	button:SetHeight(24)
@@ -911,13 +656,7 @@ local function CreateIconButton(parent, buttonType)
 end
 
 
--------------------------------------------------------------------------------
--- Slider functions.
--------------------------------------------------------------------------------
 
--- ****************************************************************************
--- Called when the value of the slider changes.
--- ****************************************************************************
 local function Slider_OnValueChanged(this, value)
 	local slider = this:GetParent()
 	if (slider.labelText ~= "") then
@@ -929,9 +668,6 @@ local function Slider_OnValueChanged(this, value)
 end
 
 
--- ****************************************************************************
--- Called when the mouse enters the slider.
--- ****************************************************************************
 local function Slider_OnEnter(this)
 	if (this.tooltip) then
 		GameTooltip:SetOwner(this, this.tooltipAnchor or "ANCHOR_RIGHT")
@@ -940,17 +676,11 @@ local function Slider_OnEnter(this)
 end
 
 
--- ****************************************************************************
--- Called when the mouse leaves the slider.
--- ****************************************************************************
 local function Slider_OnLeave(this)
 	GameTooltip:Hide()
 end
 
 
--- ****************************************************************************
--- Sets the label for the slider.
--- ****************************************************************************
 local function Slider_SetLabel(this, label)
 	this.labelText = label or ""
 	if (this.labelText ~= "") then
@@ -961,17 +691,11 @@ local function Slider_SetLabel(this, label)
 end
 
 
--- ****************************************************************************
--- Sets the tooltip for the slider.
--- ****************************************************************************
 local function Slider_SetTooltip(this, tooltip)
 	this.sliderFrame.tooltip = tooltip
 end
 
 
--- ****************************************************************************
--- Configures the slider.
--- ****************************************************************************
 local function Slider_Configure(this, width, label, tooltip)
 	this:SetWidth(width)
 	Slider_SetLabel(this, label)
@@ -979,70 +703,44 @@ local function Slider_Configure(this, width, label, tooltip)
 end
 
 
--- ****************************************************************************
--- Sets the function to be called when the value of the slider is changed.
--- It is passed the slider and the new value.
--- ****************************************************************************
 local function Slider_SetValueChangedHandler(this, handler)
 	this.valueChangedHandler = handler
 end
 
 
--- ****************************************************************************
--- Sets the minimum and maximum values for the slider.
--- ****************************************************************************
 local function Slider_SetMinMaxValues(this, minValue, maxValue)
 	this.sliderFrame:SetMinMaxValues(minValue, maxValue)
 end
 
 
--- ****************************************************************************
--- Sets how far the slider moves with each "tick."
--- ****************************************************************************
 local function Slider_SetValueStep(this, value)
 	this.sliderFrame:SetValueStep(value)
 end
 
 
--- ****************************************************************************
--- Sets the current value of the slider.
--- ****************************************************************************
 local function Slider_GetValue(this)
 	return this.sliderFrame:GetValue()
 end
 
 
--- ****************************************************************************
--- Sets the current value of the slider.
--- ****************************************************************************
 local function Slider_SetValue(this, value)
 	this.sliderFrame:SetValue(value)
 end
 
 
--- ****************************************************************************
--- Disables the slider.
--- ****************************************************************************
 local function Slider_Disable(this)
 	this.sliderFrame:EnableMouse(false)
 	this.labelFontString:SetTextColor(0.5, 0.5, 0.5)
 end
 
 
--- ****************************************************************************
--- Enables the slider.
--- ****************************************************************************
 local function Slider_Enable(this)
 	this.sliderFrame:EnableMouse(true)
 	this.labelFontString:SetTextColor(NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b)
 end
 
 
--- ****************************************************************************
--- Creates and returns a slider object ready to be configured.
--- ****************************************************************************
 local function CreateSlider(parent)
-	-- Create the backdrop table if it hasn't already been so it can be reused.
 	if (not sliderBackdrop) then
 		sliderBackdrop = {
 			bgFile = "Interface\\Buttons\\UI-SliderBar-Background",
@@ -1052,11 +750,9 @@ local function CreateSlider(parent)
 		}
 	end
 
-	-- Create container frame.
 	local slider = CreateFrame("Frame", nil, parent)
 	slider:SetHeight(30)
 
-	-- Create slider.
 	local sliderFrame = CreateFrame("Slider", nil, slider, BackdropTemplateMixin and "BackdropTemplate")
 	sliderFrame:SetOrientation("HORIZONTAL")
 	sliderFrame:SetThumbTexture("Interface\\Buttons\\UI-SliderBar-Button-Horizontal")
@@ -1070,11 +766,9 @@ local function CreateSlider(parent)
 	sliderFrame:SetScript("OnLeave", Slider_OnLeave)
 
 
-	-- Label.
 	local label = slider:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
 	label:SetPoint("BOTTOM", sliderFrame, "TOP", 0, 0)
 
-	-- Extension functions.
 	slider.Configure				= Slider_Configure
 	slider.SetLabel				= Slider_SetLabel
 	slider.SetTooltip				= Slider_SetTooltip
@@ -1087,7 +781,6 @@ local function CreateSlider(parent)
 	slider.Disable					= Slider_Disable
 
 
-	-- Track internal values.
 	slider.sliderFrame = sliderFrame
 	slider.labelFontString = label
 	slider.labelText = ""
@@ -1095,22 +788,13 @@ local function CreateSlider(parent)
 end
 
 
--------------------------------------------------------------------------------
--- Dropdown functions.
--------------------------------------------------------------------------------
 
--- ****************************************************************************
--- Hides the dropdown listbox frame that holds the selections.
--- ****************************************************************************
 local function Dropdown_HideSelections(this)
 	if (dropdownListboxFrame:IsShown() and dropdownListboxFrame.dropdown == this) then
 		dropdownListboxFrame:Hide()
 	end
 end
 
--- ****************************************************************************
--- Called when the mouse enters the dropdown.
--- ****************************************************************************
 local function Dropdown_OnEnter(this)
 	if (this.tooltip) then
 		GameTooltip:SetOwner(this, this.tooltipAnchor or "ANCHOR_RIGHT")
@@ -1119,34 +803,23 @@ local function Dropdown_OnEnter(this)
 end
 
 
--- ****************************************************************************
--- Called when the mouse leaves the dropdown.
--- ****************************************************************************
 local function Dropdown_OnLeave(this)
 	GameTooltip:Hide()
 end
 
 
--- ****************************************************************************
--- Called when the dropdown is hidden.
--- ****************************************************************************
 local function Dropdown_OnHide(this)
 	Dropdown_HideSelections(this)
 end
 
 
--- ****************************************************************************
--- Called when the button for the dropdown is pressed.
--- ****************************************************************************
 local function Dropdown_OnClick(this)
-	-- Close the listbox and exit if it's already open for the dropdown.
 	local dropdown = this:GetParent()
 	if (dropdownListboxFrame:IsShown() and dropdownListboxFrame.dropdown == dropdown) then
 		dropdownListboxFrame:Hide()
 		return
 	end
 
-	-- Resize and move the dropdown listbox frame for the clicked dropdown.
 	local height = #dropdown.items * 20
 	local listboxHeight = dropdown.listboxHeight or 140
 	local listboxWidth = dropdown.listboxWidth or dropdown:GetWidth() + 20
@@ -1158,7 +831,6 @@ local function Dropdown_OnClick(this)
 	dropdownListboxFrame:SetPoint("TOPLEFT", dropdown, "BOTTOMLEFT")
 	dropdownListboxFrame.dropdown = dropdown
 
-	-- Setup the listbox.
 	local listbox = dropdownListboxFrame.listbox
 	Listbox_Clear(listbox)
 	listbox:SetPoint("TOPLEFT", dropdownListboxFrame, "TOPLEFT", 8, -12)
@@ -1175,9 +847,6 @@ local function Dropdown_OnClick(this)
 end
 
 
--- ****************************************************************************
--- Called by listbox to create a line.
--- ****************************************************************************
 local function Dropdown_CreateLine(this)
 	local frame = CreateFrame("Button", nil, this)
 
@@ -1190,9 +859,6 @@ local function Dropdown_CreateLine(this)
 end
 
 
--- ****************************************************************************
--- Called by listbox to display a line.
--- ****************************************************************************
 local function Dropdown_DisplayLine(this, line, key, isSelected)
 	line.fontString:SetText(dropdownListboxFrame.dropdown.items[key])
 	local color = isSelected and HIGHLIGHT_FONT_COLOR or NORMAL_FONT_COLOR
@@ -1200,44 +866,29 @@ local function Dropdown_DisplayLine(this, line, key, isSelected)
 end
 
 
--- ****************************************************************************
--- Called when a line is clicked.
--- ****************************************************************************
 local function Dropdown_OnClickLine(this, line, value)
 	local dropdown = dropdownListboxFrame.dropdown
 	dropdown.selectedFontString:SetText(dropdown.items[value])
 	dropdown.selectedItem = value
 	dropdownListboxFrame:Hide()
 
-	-- Call the registered change handler for the dropdown.
 	if (dropdown.changeHandler) then dropdown:changeHandler(dropdown.itemIDs[value]) end
 end
 
 
--- ****************************************************************************
--- Sets the label for the dropdown.
--- ****************************************************************************
 local function Dropdown_SetLabel(this, label)
 	this.labelFontString:SetText(label or "")
 end
 
 
--- ****************************************************************************
--- Sets the tooltip for the dropdown.
--- ****************************************************************************
 local function Dropdown_SetTooltip(this, tooltip)
 	this.tooltip = tooltip
 end
 
 
--- ****************************************************************************
--- Configures the dropdown.
--- ****************************************************************************
 local function Dropdown_Configure(this, width, label, tooltip)
-	-- Don't do anything if required parameters are invalid.
 	if (not width) then return end
 
-	-- Set the width of the dropdown and the max height of the listbox is shown.
 	this:SetWidth(width)
 
 	Dropdown_SetLabel(this, label)
@@ -1245,49 +896,31 @@ local function Dropdown_Configure(this, width, label, tooltip)
 end
 
 
--- ****************************************************************************
--- Sets the max height the listbox frame can be for the dropdown.
--- ****************************************************************************
 local function Dropdown_SetListboxHeight(this, height)
 	this.listboxHeight = height
 end
 
--- ****************************************************************************
--- Sets the width of the listbox frame for the dropdown.
--- ****************************************************************************
 local function Dropdown_SetListboxWidth(this, width)
 	this.listboxWidth = width
 end
 
 
--- ****************************************************************************
--- Sets the function to be called when one of the dropdown's options is
--- selected. It is passed the ID for the selected item.
--- ****************************************************************************
 local function Dropdown_SetChangeHandler(this, handler)
 	this.changeHandler = handler
 end
 
 
--- ****************************************************************************
--- Adds the passed text and id to the dropdown.
--- ****************************************************************************
 local function Dropdown_AddItem(this, text, id)
 	this.items[#this.items+1] = text
 	this.itemIDs[#this.items] = id
 end
 
 
--- ****************************************************************************
--- Remove the passed item id from the dropdown.
--- ****************************************************************************
 local function Dropdown_RemoveItem(this, id)
 	for itemNum, itemID in ipairs(this.itemIDs) do
 		if (itemID == id) then
-			-- Hide dropdown if it is shown.
 			Dropdown_HideSelections(this)
 
-			-- Clear the selected item if it's the item being removed.
 			if (itemNum == this.selectedItem) then
 				this.selectedItem = 0
 	this.selectedFontString:SetText("")
@@ -1301,9 +934,6 @@ local function Dropdown_RemoveItem(this, id)
 end
 
 
--- ****************************************************************************
--- Clears the dropdown.
--- ****************************************************************************
 local function Dropdown_Clear(this)
 	local items = this.items
 	for k, v in ipairs(items) do
@@ -1319,25 +949,16 @@ local function Dropdown_Clear(this)
 end
 
 
--- ****************************************************************************
--- Gets the selected text from the dropdown.
--- ****************************************************************************
 local function Dropdown_GetSelectedText(this)
 	return this.selectedFontString:GetText()
 end
 
 
--- ****************************************************************************
--- Gets the selected id from the dropdown.
--- ****************************************************************************
 local function Dropdown_GetSelectedID(this)
 	if (this.selectedItem) then return this.itemIDs[this.selectedItem] end
 end
 
 
--- ****************************************************************************
--- Sets the selected item for the listbox.
--- ****************************************************************************
 local function Dropdown_SetSelectedID(this, id)
 	for itemNum, itemID in ipairs(this.itemIDs) do
 		if (itemID == id) then
@@ -1349,13 +970,9 @@ local function Dropdown_SetSelectedID(this, id)
 end
 
 
--- ****************************************************************************
--- Sorts the contents of the dropdown.
--- ****************************************************************************
 local function Dropdown_Sort(this)
 	local selectedID = Dropdown_GetSelectedID(this)
 
-	-- Sort the dropdown items and associated IDs using an insertion sort.
 	local items = this.items
 	local itemIDs = this.itemIDs
 	local tempItem, tempID, j
@@ -1376,9 +993,6 @@ local function Dropdown_Sort(this)
 end
 
 
--- ****************************************************************************
--- Disables the dropdown.
--- ****************************************************************************
 local function Dropdown_Disable(this)
 	Dropdown_HideSelections(this)
 	this.buttonFrame:Disable()
@@ -1388,9 +1002,6 @@ local function Dropdown_Disable(this)
 end
 
 
--- ****************************************************************************
--- Enables the dropdown.
--- ****************************************************************************
 local function Dropdown_Enable(this)
 	this:EnableMouse(true)
 	this.buttonFrame:Enable()
@@ -1399,9 +1010,6 @@ local function Dropdown_Enable(this)
 end
 
 
--- ****************************************************************************
--- Creates the listbox frame that dropdowns use.
--- ****************************************************************************
 local function Dropdown_CreateListboxFrame(parent)
 	dropdownListboxFrame = CreateFrame("Frame", nil, parent, BackdropTemplateMixin and "BackdropTemplate")
 	dropdownListboxFrame:EnableMouse(true)
@@ -1425,15 +1033,10 @@ local function Dropdown_CreateListboxFrame(parent)
 end
 
 
--- ****************************************************************************
--- Creates and returns a dropdown object ready to be configured.
--- ****************************************************************************
 local function CreateDropdown(parent)
-	-- Create dropdown listbox if it hasn't already been.
 	if (not dropdownListboxFrame) then Dropdown_CreateListboxFrame(parent) end
 
 
-	-- Create container frame.
 	local dropdown = CreateFrame("Frame", nil, parent)
 	dropdown:SetHeight(38)
 	dropdown:EnableMouse(true)
@@ -1442,7 +1045,6 @@ local function CreateDropdown(parent)
 	dropdown:SetScript("OnHide", Dropdown_OnHide)
 
 
-	-- Left border.
 	local left = dropdown:CreateTexture(nil, "BACKGROUND")
 	left:SetTexture("Interface\\Glues\\CharacterCreate\\CharacterCreate-LabelFrame")
 	left:SetWidth(9)
@@ -1450,7 +1052,6 @@ local function CreateDropdown(parent)
 	left:SetPoint("BOTTOMLEFT")
 	left:SetTexCoord(0.125, 0.1953125, 0.28125, 0.671875)
 
-	-- Right border.
 	local right = dropdown:CreateTexture(nil, "BACKGROUND")
 	right:SetTexture("Interface\\Glues\\CharacterCreate\\CharacterCreate-LabelFrame")
 	right:SetWidth(9)
@@ -1458,7 +1059,6 @@ local function CreateDropdown(parent)
 	right:SetPoint("BOTTOMRIGHT")
 	right:SetTexCoord(0.7890625, 0.859375, 0.28125, 0.671875)
 
-	-- Middle border.
 	local middle = dropdown:CreateTexture(nil, "BACKGROUND")
 	middle:SetTexture("Interface\\Glues\\CharacterCreate\\CharacterCreate-LabelFrame")
 	middle:SetWidth(76)
@@ -1467,12 +1067,10 @@ local function CreateDropdown(parent)
 	middle:SetPoint("RIGHT", right, "LEFT", 0, 0)
 	middle:SetTexCoord(0.1953125, 0.7890625, 0.28125, 0.671875)
 
-	-- Label.
 	local label = dropdown:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
 	label:SetPoint("BOTTOMLEFT", left, "TOPLEFT", 2, 2)
 
 
-	-- Dropdown button.
 	local button = CreateFrame("Button", nil, dropdown)
 	button:SetWidth(24)
 	button:SetHeight(24)
@@ -1485,14 +1083,12 @@ local function CreateDropdown(parent)
 	button:SetScript("OnClick", Dropdown_OnClick)
 
 
-		-- Selected text.
 	local selected = dropdown:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 	selected:SetPoint("LEFT", left, "RIGHT")
 	selected:SetPoint("RIGHT", button, "LEFT")
 	selected:SetJustifyH("RIGHT")
 
 
-	-- Extension functions.
 	dropdown.Configure			= Dropdown_Configure
 	dropdown.SetListboxHeight	= Dropdown_SetListboxHeight
 	dropdown.SetListboxWidth	= Dropdown_SetListboxWidth
@@ -1510,7 +1106,6 @@ local function CreateDropdown(parent)
 	dropdown.Disable			= Dropdown_Disable
 	dropdown.Enable			= Dropdown_Enable
 
-	-- Track internal values.
 	dropdown.selectedFontString = selected
 	dropdown.buttonFrame = button
 	dropdown.labelFontString = label
@@ -1521,13 +1116,7 @@ local function CreateDropdown(parent)
 end
 
 
--------------------------------------------------------------------------------
--- Editbox functions.
--------------------------------------------------------------------------------
 
--- ****************************************************************************
--- Called when the editbox has focus and escape is pressed.
--- ****************************************************************************
 local function Editbox_OnEscape(this)
 	this:ClearFocus()
 	local editbox = this:GetParent()
@@ -1535,34 +1124,22 @@ local function Editbox_OnEscape(this)
 end
 
 
--- ****************************************************************************
--- Called when the editbox loses focus.
--- ****************************************************************************
 local function Editbox_OnFocusLost(this)
 	this:HighlightText(0, 0)
 end
 
 
--- ****************************************************************************
--- Called when the editbox gains focus.
--- ****************************************************************************
 local function Editbox_OnFocusGained(this)
 	this:HighlightText()
 end
 
 
--- ****************************************************************************
--- Called when the text in the editbox changes.
--- ****************************************************************************
 local function Editbox_OnTextChanged(this)
 	local editbox = this:GetParent()
 	if (editbox.textChangedHandler) then editbox:textChangedHandler() end
 end
 
 
--- ****************************************************************************
--- Called when the mouse enters the editbox.
--- ****************************************************************************
 local function Editbox_OnEnter(this)
 	if (this.tooltip) then
 		GameTooltip:SetOwner(this, this.tooltipAnchor or "ANCHOR_RIGHT")
@@ -1571,35 +1148,22 @@ local function Editbox_OnEnter(this)
 end
 
 
--- ****************************************************************************
--- Called when the mouse leaves the editbox.
--- ****************************************************************************
 local function Editbox_OnLeave(this)
 	GameTooltip:Hide()
 end
 
 
--- ****************************************************************************
--- Sets the label for the editbox.
--- ****************************************************************************
 local function Editbox_SetLabel(this, label)
 	this.labelFontString:SetText(label)
 end
 
 
--- ****************************************************************************
--- Sets the tooltip for the editbox.
--- ****************************************************************************
 local function Editbox_SetTooltip(this, tooltip)
 	this.editboxFrame.tooltip = tooltip
 end
 
 
--- ****************************************************************************
--- Configures the editbox.
--- ****************************************************************************
 local function Editbox_Configure(this, width, label, tooltip)
-	-- Don't do anything if required parameters are invalid.
 	if (not width) then return end
 
 	this:SetWidth(width)
@@ -1608,80 +1172,51 @@ local function Editbox_Configure(this, width, label, tooltip)
 end
 
 
--- ****************************************************************************
--- Sets the handler to be called when the enter button is pressed.
--- ****************************************************************************
 local function Editbox_SetEnterHandler(this, handler)
 	this.editboxFrame:SetScript("OnEnterPressed", handler)
 end
 
 
--- ****************************************************************************
--- Sets the handler to be called when the escape button is pressed.
--- ****************************************************************************
 local function Editbox_SetEscapeHandler(this, handler)
 	this.escapeHandler = handler
 end
 
 
--- ****************************************************************************
--- Sets the handler to be called when the text in the editbox changes.
--- ****************************************************************************
 local function Editbox_SetTextChangedHandler(this, handler)
 	this.textChangedHandler = handler
 end
 
 
--- ****************************************************************************
--- Sets the focus to the editbox.
--- ****************************************************************************
 local function Editbox_SetFocus(this)
 	this.editboxFrame:SetFocus()
 end
 
 
--- ****************************************************************************
--- Gets the text entered in the editbox.
--- ****************************************************************************
 local function Editbox_GetText(this)
 	return this.editboxFrame:GetText()
 end
 
 
--- ****************************************************************************
--- Sets the text entered in the editbox.
--- ****************************************************************************
 local function Editbox_SetText(this, text)
 	return this.editboxFrame:SetText(text or "")
 end
 
 
--- ****************************************************************************
--- Disables the editbox.
--- ****************************************************************************
 local function Editbox_Disable(this)
 	this.editboxFrame:EnableMouse(false)
 	this.labelFontString:SetTextColor(0.5, 0.5, 0.5)
 end
 
--- ****************************************************************************
--- Enables the editbox.
--- ****************************************************************************
 local function Editbox_Enable(this)
 	this.editboxFrame:EnableMouse(true)
 	this.labelFontString:SetTextColor(NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b)
 end
 
 
--- ****************************************************************************
--- Creates and returns an editbox object ready to be configured.
--- ****************************************************************************
 local function CreateEditbox(parent)
-	-- Create container frame.
 	local editbox = CreateFrame("Frame", nil, parent)
 	editbox:SetHeight(32)
 
-	-- Create editbox frame.
 	local editboxFrame = CreateFrame("Editbox", nil, editbox)
 	editboxFrame:SetHeight(20)
 	editboxFrame:SetPoint("BOTTOMLEFT", editbox, "BOTTOMLEFT", 5, 0)
@@ -1695,7 +1230,6 @@ local function CreateEditbox(parent)
 	editboxFrame:SetScript("OnEnter", Editbox_OnEnter)
 	editboxFrame:SetScript("OnLeave", Editbox_OnLeave)
 
-	-- Left border.
 	local left = editboxFrame:CreateTexture(nil, "BACKGROUND")
 	left:SetTexture("Interface\\Common\\Common-Input-Border")
 	left:SetWidth(8)
@@ -1703,7 +1237,6 @@ local function CreateEditbox(parent)
 	left:SetPoint("LEFT", editboxFrame, "LEFT", -5, 0)
 	left:SetTexCoord(0, 0.0625, 0, 0.625)
 
-	-- Right border.
 	local right = editboxFrame:CreateTexture(nil, "BACKGROUND")
 	right:SetTexture("Interface\\Common\\Common-Input-Border")
 	right:SetWidth(8)
@@ -1711,7 +1244,6 @@ local function CreateEditbox(parent)
 	right:SetPoint("RIGHT")
 	right:SetTexCoord(0.9375, 1, 0, 0.625)
 
-	-- Middle border.
 	local middle = editboxFrame:CreateTexture(nil, "BACKGROUND")
 	middle:SetTexture("Interface\\Common\\Common-Input-Border")
 	middle:SetWidth(10)
@@ -1721,14 +1253,12 @@ local function CreateEditbox(parent)
 	middle:SetTexCoord(0.0625, 0.9375, 0, 0.625)
 
 
-	-- Label.
 	local label = editbox:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
 	label:SetPoint("TOPLEFT")
 	label:SetPoint("TOPRIGHT")
 	label:SetJustifyH("LEFT")
 
 
-	-- Extension functions.
 	editbox.Configure				= Editbox_Configure
 	editbox.SetLabel				= Editbox_SetLabel
 	editbox.SetTooltip				= Editbox_SetTooltip
@@ -1742,20 +1272,13 @@ local function CreateEditbox(parent)
 	editbox.Enable					= Editbox_Enable
 
 
-	-- Track internal values.
 	editbox.editboxFrame = editboxFrame
 	editbox.labelFontString = label
 	return editbox
 end
 
 
--------------------------------------------------------------------------------
--- Colorswatch functions.
--------------------------------------------------------------------------------
 
--- ****************************************************************************
--- Sets the color of the colorswatch.
--- ****************************************************************************
 local function Colorswatch_SetColor(this, r, g, b)
 	this.r = r
 	this.g = g
@@ -1764,9 +1287,6 @@ local function Colorswatch_SetColor(this, r, g, b)
 end
 
 
--- ****************************************************************************
--- Called when the color picker values change.
--- ****************************************************************************
 local function Colorswatch_ColorPickerOnChange(this)
 	local colorswatch = ColorPickerFrame.associatedColorSwatch
 	if (not colorswatch) then return end
@@ -1778,9 +1298,6 @@ local function Colorswatch_ColorPickerOnChange(this)
 end
 
 
--- ****************************************************************************
--- Called when the color picker values change.
--- ****************************************************************************
 local function Colorswatch_ColorPickerOnCancel(previousValues)
 	local colorswatch = ColorPickerFrame.associatedColorSwatch
 	if (not colorswatch) then return end
@@ -1792,9 +1309,6 @@ local function Colorswatch_ColorPickerOnCancel(previousValues)
 end
 
 
--- ****************************************************************************
--- Called when the colorswatch is clicked.
--- ****************************************************************************
 local function Colorswatch_OnClick(this)
 	local tempR = this.r or 1
 	local tempG = this.g or 1
@@ -1820,12 +1334,11 @@ local function Colorswatch_OnClick(this)
 		info.cancelFunc = Colorswatch_ColorPickerOnCancel
 		ColorPickerFrame:SetupColorPickerAndShow(info)
 	end
+	ColorPickerFrame:SetFrameStrata("FULLSCREEN_DIALOG")
+	ColorPickerFrame:SetFrameLevel(this:GetFrameLevel() + 3)
 end
 
 
--- ****************************************************************************
--- Called when the mouse enters the colorswatch.
--- ****************************************************************************
 local function Colorswatch_OnEnter(this)
 	if (this.tooltip) then
 		GameTooltip:SetOwner(this, this.tooltipAnchor or "ANCHOR_RIGHT")
@@ -1836,54 +1349,35 @@ local function Colorswatch_OnEnter(this)
 end
 
 
--- ****************************************************************************
--- Called when the mouse leaves the colorswatch.
--- ****************************************************************************
 local function Colorswatch_OnLeave(this)
 	GameTooltip:Hide()
 	this.borderTexture:SetVertexColor(HIGHLIGHT_FONT_COLOR.r, HIGHLIGHT_FONT_COLOR.g, HIGHLIGHT_FONT_COLOR.b)
 end
 
 
--- ****************************************************************************
--- Sets the handler to be called when the color changes.
--- ****************************************************************************
 local function Colorswatch_SetColorChangedHandler(this, handler)
 	this.colorChangedHandler = handler
 end
 
 
--- ****************************************************************************
--- Sets the tooltip for the colorswatch.
--- ****************************************************************************
 local function Colorswatch_SetTooltip(this, tooltip)
 	this.tooltip = tooltip
 end
 
 
--- ****************************************************************************
--- Disables the colorswatch.
--- ****************************************************************************
 local function Colorswatch_Disable(this)
 	this:GetNormalTexture():SetVertexColor(0.5, 0.5, 0.5)
 	this:oldDisableHandler()
 end
 
 
--- ****************************************************************************
--- Enables the colorswatch.
--- ****************************************************************************
 local function Colorswatch_Enable(this)
 	this:oldEnableHandler()
 	this:GetNormalTexture():SetVertexColor(this.r, this.g, this.b)
 end
 
 
--- ****************************************************************************
--- Creates and returns a colorswatch object ready to be configured.
--- ****************************************************************************
 local function CreateColorswatch(parent)
-	-- Create button frame.
 	local colorswatch = CreateFrame("Button", nil, parent)
 	colorswatch:SetWidth(16)
 	colorswatch:SetHeight(16)
@@ -1893,7 +1387,6 @@ local function CreateColorswatch(parent)
 	colorswatch:SetScript("OnLeave", Colorswatch_OnLeave)
 
 
-	-- Border texture.
 	local texture = colorswatch:CreateTexture(nil, "BACKGROUND")
 	texture:SetTexture("Interface\\ChatFrame\\ChatFrameBackground")
 	texture:SetWidth(14)
@@ -1901,18 +1394,15 @@ local function CreateColorswatch(parent)
 	texture:SetPoint("CENTER")
 	texture:SetVertexColor(HIGHLIGHT_FONT_COLOR.r, HIGHLIGHT_FONT_COLOR.g, HIGHLIGHT_FONT_COLOR.b)
 
-	-- Save old disable/enable handlers.
 	colorswatch.oldDisableHandler = colorswatch.Disable
 	colorswatch.oldEnableHandler = colorswatch.Enable
 
-	-- Extension functions.
 	colorswatch.SetColorChangedHandler	= Colorswatch_SetColorChangedHandler
 	colorswatch.SetTooltip				= Colorswatch_SetTooltip
 	colorswatch.SetColor				= Colorswatch_SetColor
 	colorswatch.Disable				= Colorswatch_Disable
 	colorswatch.Enable					= Colorswatch_Enable
 
-	-- Track internal values.
 	colorswatch.borderTexture = texture
 	return colorswatch
 end
@@ -1920,11 +1410,7 @@ end
 
 
 
--------------------------------------------------------------------------------
--- Module interface.
--------------------------------------------------------------------------------
 
--- Protected Functions.
 module.CreateListbox			= CreateListbox
 module.CreateCheckbox			= CreateCheckbox
 module.CreateOptionButton		= CreateOptionButton

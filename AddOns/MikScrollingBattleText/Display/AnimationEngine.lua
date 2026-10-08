@@ -185,7 +185,6 @@ local function Display(message, saSettings, isSticky, colorR, colorG, colorB, fo
 	fontString:SetFont(fontPath, fontSize, fontOutline)
 	fontString:SetTextColor(colorR, colorG, colorB)
 	fontString:SetDrawLayer(isSticky and "OVERLAY" or "ARTWORK")
-	-- Text shadowing is always enabled.
 	fontString:SetShadowColor(0, 0, 0, 1)
 	fontString:SetShadowOffset(1, -1)
 	fontString:SetAlpha(0)
@@ -279,7 +278,7 @@ local function OnUpdateAnimationFrame(this, elapsed)
 
 	for _, animationArray in pairs(animationData) do
 
-		for _, displayEvents in pairs(animationArray) do
+		for areaSettings, displayEvents in pairs(animationArray) do
 			numEvents = #displayEvents
 
 			for i = 1, numEvents do
@@ -310,6 +309,9 @@ local function OnUpdateAnimationFrame(this, elapsed)
 					displayEventCache[#displayEventCache + 1] = displayEvent
 					displayEvent.animationComplete = false
 				end
+			end
+			if #displayEvents == 0 then
+				animationArray[areaSettings] = nil
 			end
 		end
 	end

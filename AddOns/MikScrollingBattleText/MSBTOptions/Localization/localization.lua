@@ -1,18 +1,9 @@
--------------------------------------------------------------------------------
--- Title: MSBT Options English Localization
--- Author: Mikord
--------------------------------------------------------------------------------
 
--- Create options namespace.
 MSBTOptions = {}
 
--- Local reference for faster access.
 local L = MikSBT.translations
 
 
-------------------------------
--- Interface object tables
-------------------------------
 
 L.TABS = {}
 L.CHECKBOXES = {}
@@ -27,20 +18,13 @@ L.INCOMING_PET_EVENTS = {}
 L.OUTGOING_PLAYER_EVENTS = {}
 L.OUTGOING_PET_EVENTS = {}
 L.NOTIFICATION_EVENTS = {}
-L.TRIGGER_DATA = {}
 L.OUTLINES = {}
 L.TEXT_ALIGNS = {}
 L.ANIMATION_STYLE_DATA = {}
 
 
--------------------------------------------------------------------------------
--- English Localization (Default)
--------------------------------------------------------------------------------
 
 
-------------------------------
--- Interface messages
-------------------------------
 L.MSG_NEW_PROFILE					= "New Profile"
 L.MSG_PROFILE_ALREADY_EXISTS		= "Profile already exists."
 L.MSG_INVALID_PROFILE_NAME			= "Invalid profile name."
@@ -48,29 +32,41 @@ L.MSG_NEW_SCROLL_AREA				= "New Scroll Area"
 L.MSG_SCROLL_AREA_ALREADY_EXISTS	= "Scroll area name already exists."
 L.MSG_INVALID_SCROLL_AREA_NAME		= "Invalid scroll area name."
 L.MSG_ACKNOWLEDGE_TEXT				= "Are you sure you wish to perform this action?"
+L.POPUP_CONFIRM_TITLE = "Confirm Action"
 L.MSG_NORMAL_PREVIEW_TEXT			= "Normal"
-L.MSG_NEW_TRIGGER					= "New Trigger"
-L.MSG_TRIGGER_CLASSES				= "Trigger Classes"
-L.MSG_MAIN_EVENTS					= "Main Events"
-L.MSG_TRIGGER_EXCEPTIONS			= "Trigger Exceptions"
-L.MSG_EVENT_CONDITIONS				= "Event Conditions"
 L.MSG_DISPLAY_QUALITY				= "Display alerts for items of this quality."
-L.MSG_SKILLS						= "Skills"
-L.MSG_SKILL_ALREADY_EXISTS			= "Skill name already exists."
-L.MSG_INVALID_SKILL_NAME			= "Invalid skill name."
-L.MSG_HOSTILE						= "Hostile"
-L.MSG_ANY							= "Any"
-L.MSG_CONDITION						= "Condition"
-L.MSG_CONDITIONS					= "Conditions"
 L.MSG_ITEM_QUALITIES				= "Item qualities"
 L.MSG_ITEMS							= "Items"
 L.MSG_ITEM_ALREADY_EXISTS			= "Item name already exists."
 L.MSG_INVALID_ITEM_NAME				= "Invalid item name."
 
+L.PROFILE_TRANSFER = {
+	exportTitle = "Export Profile", importTitle = "Import Profile",
+	export = "Export", import = "Import", close = "Close",
+	selectAll = "Select All", name = "2. Name your new profile",
+	copy = "Copy (Ctrl+C)",
+	exportLabel = "Profile string", importLabel = "1. Paste profile string",
+	importAction = "Import Profile",
+	pasteHint = "Click here and press Ctrl+V to paste your profile string.",
+	exportHelp = "Press Ctrl+C to copy the selected profile string.",
+	importHelp = "Paste a profile string, then give it a new name.\n" ..
+		"Importing creates and selects the new profile.",
+	mediaNote = "Custom font and sound files must be installed separately. " ..
+		"Settings and spells may differ between game versions or languages.",
+	imported = "Profile imported: %s",
+	compatibility = "This profile came from a different game version or " ..
+		"language. Check spell settings, triggers, fonts, and sounds.",
+	errors = {
+		INVALID_NAME = "Enter a profile name (1-64 characters).",
+		PROFILE_EXISTS = "That profile already exists. Choose a new name.",
+		INVALID_TEXT = "Invalid or damaged profile string. Copy the full export.",
+		INVALID_DATA = "The profile contains invalid or unsupported settings.",
+		TOO_LARGE = "The profile exceeds the supported transfer size.",
+		IN_COMBAT = "Wait until combat ends before importing a profile.",
+	},
+}
 
-------------------------------
--- Interface tabs
-------------------------------
+
 
 obj = L.TABS
 obj["profile"]		= { label="Profile", tooltip="Display options for profile management and profile switching."}
@@ -82,9 +78,6 @@ obj["language"]		= { label="Language", tooltip="Shows the current game locale an
 obj["resetBlizzardSCT"] = { label="Reset Blizzard SCT", tooltip="Restore Blizzard scrolling combat text CVars and clear MSBT Blizzard CT overrides."}
 
 
-------------------------------
--- Interface checkboxes
-------------------------------
 
 obj = L.CHECKBOXES
 obj["enableMSBT"]				= { label="Enable Mik's Scrolling Battle Text", tooltip="Enable MSBT."}
@@ -124,7 +117,6 @@ obj["hideNames"]				= { label="Hide Names", tooltip="Don't display unit names fo
 obj["hideFullOverheals"]		= { label="Hide Full Overheals", tooltip="Don't display non periodic heals that have an effective heal amount of zero."}
 obj["hideFullHoTOverheals"]		= { label="Hide Full HoT Overheals", tooltip="Don't display heals over time that have an effective heal amount of zero."}
 obj["hideMergeTrailer"]			= { label="Hide Merge Trailer", tooltip="Don't display the trailer that specifies the number of hits and crits at the end of merged events."}
-obj["allClasses"]				= { label="All Classes"}
 obj["lootedItems"]				= { label="Looted Items", tooltip="Display notifications when items are looted."}
 obj["moneyGains"]				= { label="Money Gains", tooltip="Enable money you gain."}
 obj["currencyGains"]			= { label="Currency Gains", tooltip="Display notifications for gained currency."}
@@ -132,9 +124,6 @@ obj["alwaysShowQuestItems"]		= { label="Always show quest items", tooltip="Alway
 obj["enableIcons"]				= { label="Enable Skill Icons", tooltip="Displays icons for events that have a skill when possible."}
 
 
-------------------------------
--- Interface dropdowns
-------------------------------
 
 obj = L.DROPDOWNS
 obj["profile"]				= { label="Current Profile:", tooltip="Sets the current profile."}
@@ -151,15 +140,8 @@ obj["textAlign"]			= { label="Text Align:", tooltip="The alignment of the text f
 obj["iconAlign"]			= { label="Icon Align:", tooltip="The alignment of skill icons relative to the text."}
 obj["eventCategory"]		= { label="Event Category:", tooltip="The category of events to configure."}
 obj["outputScrollArea"]		= { label="Output Scroll Area:", tooltip="Selects the scroll area to use for output."}
-obj["mainEvent"]			= { label="Main Event:"}
-obj["triggerCondition"]		= { label="Condition:", tooltip="The condition to test."}
-obj["triggerRelation"]		= { label="Relation:"}
-obj["triggerParameter"]		= { label="Parameter:"}
 
 
-------------------------------
--- Interface buttons
-------------------------------
 
 obj = L.BUTTONS
 obj["copyProfile"]				= { label="Copy Profile", tooltip="Copies the profile to a new profile with the name you specify."}
@@ -184,32 +166,12 @@ obj["toggleAll"]				= { label="Toggle All", tooltip="Toggle the enable state of 
 obj["moveAll"]					= { label="Move All", tooltip="Moves all of the events in the selected category to the specified scroll area."}
 obj["eventFontSettings"]		= { tooltip="Click to edit the font settings for the event."}
 obj["eventSettings"]			= { tooltip="Click to edit the event settings such as the output scroll area, output message, sound, etc."}
-obj["addTrigger"]				= { label="Add New Trigger", tooltip="Add a new trigger."}
-obj["triggerSettings"]			= { tooltip="Click to configure the trigger conditions."}
-obj["deleteTrigger"]			= { tooltip="Click to delete the trigger."}
-obj["editTriggerClasses"]		= { tooltip="Click to edit the classes the trigger applies to."}
-obj["addMainEvent"]				= { label="Add Event", tooltip="When ANY of these events occur and their defined conditions are true, the trigger will fire unless one of the specified exceptions is true."}
-obj["addTriggerException"]		= { label="Add Exception", tooltip="When ANY of these exceptions are true, the trigger will not fire."}
-obj["editEventConditions"]		= { tooltip="Click to edit the conditions for the event."}
-obj["deleteMainEvent"]			= { tooltip="Click to delete the event."}
-obj["addEventCondition"]		= { label="Add Condition", tooltip="When ALL of these conditions are true for the selected event, the trigger will fire unless one of the specified exceptions is true."}
-obj["editCondition"]			= { tooltip="Click to edit the condition."}
-obj["deleteCondition"]			= { tooltip="Click to delete the condition."}
-obj["throttleList"]				= { label="Throttle List", tooltip="Set custom throttle times for specified skills."}
-obj["mergeExclusions"]			= { label="Merge Exclusions", tooltip="Prevent specified skills from being merged."}
-obj["skillSuppressions"]		= { label="Skill Suppressions", tooltip="Suppress skills by their name."}
-obj["skillSubstitutions"]		= { label="Skill Substitutions", tooltip="Substitute skill names with customized values."}
-obj["addSkill"]					= { label="Add Skill", tooltip="Add a new skill to the list."}
-obj["deleteSkill"]				= { tooltip="Click to delete the skill."}
 obj["itemsAllowed"]				= { label="Items Allowed", tooltip="Always show specified items regardless of item quality."}
 obj["itemExclusions"]			= { label="Item Exclusions", tooltip="Prevent specified items from being displayed."}
 obj["addItem"]					= { label="Add Item", tooltip="Add a new item to the list."}
 obj["deleteItem"]				= { tooltip="Click to delete the item."}
 
 
-------------------------------
--- Interface editboxes
-------------------------------
 
 obj = L.EDITBOXES
 obj["copyProfile"]		= { label="New profile name:", tooltip="Name of the new profile to copy the currently selected one to."}
@@ -219,14 +181,9 @@ obj["xOffset"]			= { label="X Offset:", tooltip="The X offset of the selected sc
 obj["yOffset"]			= { label="Y Offset:", tooltip="The Y offset of the selected scroll area."}
 obj["eventMessage"]		= { label="Output message:", tooltip="The message that will be displayed when the event occurs."}
 obj["iconSkill"]		= { label="Icon Skill:", tooltip="The name or spell ID of a skill whose icon will be displayed when the event occurs.\n\nMSBT will automatically try to figure out an appropriate icon if one is not specified.\n\nNOTE: A spell ID must be used in place of a name if the skill is not in the spellbook for the class that is playing when the event occurs. Most online databases such as wowhead can be used to discover it."}
-obj["skillName"]		= { label="Skill name:", tooltip="The name of the skill to add."}
-obj["substitutionText"]	= { label="Substition text:", tooltip="The text to be substituted for the skill name."}
 obj["itemName"]			= { label="Item name:", tooltip="The name of the item to add."}
 
 
-------------------------------
--- Interface sliders
-------------------------------
 
 obj = L.SLIDERS
 obj["animationSpeed"]		= { label="Animation Speed", tooltip="Sets the master animation speed.\n\nEach scroll area may also be configured to have its own independent speed."}
@@ -243,12 +200,8 @@ obj["damageThreshold"]		= { label="Damage Threshold", tooltip="The threshold tha
 obj["dotThrottleTime"]		= { label="DoT Throttle Time", tooltip="The number of seconds to throttle DoTs."}
 obj["hotThrottleTime"]		= { label="HoT Throttle Time", tooltip="The number of seconds to throttle HoTs."}
 obj["powerThrottleTime"]	= { label="Power Throttle Time", tooltip="The number of seconds to throttle power changes."}
-obj["skillThrottleTime"]	= { label="Throttle Time", tooltip="The number of seconds to throttle the skill."}
 
 
-------------------------------
--- Event categories
-------------------------------
 obj = L.EVENT_CATEGORIES
 obj[1] = "Incoming Player"
 obj[2] = "Incoming Pet"
@@ -257,9 +210,6 @@ obj[4] = "Outgoing Pet"
 obj[5] = "Notification"
 
 
-------------------------------
--- Event codes
-------------------------------
 
 obj = L.EVENT_CODES
 obj["DAMAGE_TAKEN"]			= "%a - Amount of damage taken.\n"
@@ -274,7 +224,7 @@ obj["AC_AMOUNT"]			= "%a - Amount of arcane power you have.\n"
 obj["CP_AMOUNT"]			= "%a - Amount of combo points you have.\n"
 obj["HOLY_POWER_AMOUNT"]	= "%a - Amount of holy power you have.\n"
 obj["ESSENCE_AMOUNT"]		= "%a - Amount of essence you have.\n"
-obj["SHADOW_ORBS_AMOUNT"]	= "%a - Amount of shadow orbs you have.\n" -- TODO: Add to others
+obj["SHADOW_ORBS_AMOUNT"]	= "%a - Amount of shadow orbs you have.\n"
 obj["HONOR_AMOUNT"]			= "%a - Amount of honor.\n"
 obj["REP_AMOUNT"]			= "%a - Amount of reputation.\n"
 obj["ITEM_AMOUNT"]			= "%a - Amount of the item looted.\n"
@@ -306,9 +256,6 @@ obj["POWER_TYPE"]			= "%p - Type of power (energy, rage, mana).\n"
 obj["TOTAL_ITEMS"]			= "%t - Total number of the looted item in inventory."
 
 
-------------------------------
--- Incoming events
-------------------------------
 
 obj = L.INCOMING_PLAYER_EVENTS
 obj["INCOMING_DAMAGE"]						= { label="Melee Hits", tooltip="Enable incoming melee hits."}
@@ -376,9 +323,6 @@ obj["PET_INCOMING_HOT"]							= { label="Heals Over Time", tooltip="Enable your 
 obj["PET_INCOMING_HOT_CRIT"]					= { label="Crit Heals Over Time", tooltip="Enable your pet's incoming crit heals over time."}
 
 
-------------------------------
--- Outgoing events
-------------------------------
 
 obj = L.OUTGOING_PLAYER_EVENTS
 obj["OUTGOING_DAMAGE"]						= { label="Melee Hits", tooltip="Enable outgoing melee hits."}
@@ -447,9 +391,6 @@ obj["PET_OUTGOING_HOT_CRIT"]					= { label="Crit Heals Over Time", tooltip="Enab
 obj["PET_OUTGOING_DISPEL"]						= { label="Dispels", tooltip="Enable your pet's outgoing dispels."}
 
 
-------------------------------
--- Notification events
-------------------------------
 
 obj = L.NOTIFICATION_EVENTS
 obj["NOTIFICATION_DEBUFF"]				= { label="Debuffs", tooltip="Enable debuffs you are afflicted by."}
@@ -489,159 +430,7 @@ obj["NOTIFICATION_ENEMY_BUFF"]			= { label="Enemy Buff Gains", tooltip="Enable b
 obj["NOTIFICATION_MONSTER_EMOTE"]		= { label="Monster Emotes", tooltip="Enable emotes by the currently targeted monster."}
 
 
-------------------------------
--- Trigger info
-------------------------------
 
--- Main events.
-obj = L.TRIGGER_DATA
-obj["SWING_DAMAGE"]				= "Swing Damage"
-obj["RANGE_DAMAGE"]				= "Range Damage"
-obj["SPELL_DAMAGE"]				= "Skill Damage"
-obj["GENERIC_DAMAGE"]			= "Swing/Range/Skill Damage"
-obj["SPELL_PERIODIC_DAMAGE"]	= "Periodic Skill Damage (DoT)"
-obj["DAMAGE_SHIELD"]			= "Damage Shield Damage"
-obj["DAMAGE_SPLIT"]				= "Split Damage"
-obj["ENVIRONMENTAL_DAMAGE"]		= "Environmental Damage"
-obj["SWING_MISSED"]				= "Swing Miss"
-obj["RANGE_MISSED"]				= "Range Miss"
-obj["SPELL_MISSED"]				= "Skill Miss"
-obj["GENERIC_MISSED"]			= "Swing/Range/Skill Miss"
-obj["SPELL_PERIODIC_MISSED"]	= "Periodic Skill Miss"
-obj["SPELL_DISPEL_FAILED"]		= "Dispel Failed"
-obj["DAMAGE_SHIELD_MISSED"]		= "Damage Shield Miss"
-obj["SPELL_HEAL"]				= "Heal"
-obj["SPELL_PERIODIC_HEAL"]		= "Periodic Heal (HoT)"
-obj["SPELL_ENERGIZE"]			= "Power Gain"
-obj["SPELL_PERIODIC_ENERGIZE"]	= "Periodic Power Gain"
-obj["SPELL_DRAIN"]				= "Power Drain"
-obj["SPELL_PERIODIC_DRAIN"]		= "Periodic Power Drain"
-obj["SPELL_LEECH"]				= "Power Leech"
-obj["SPELL_PERIODIC_LEECH"]		= "Periodic Power Leech"
-obj["SPELL_INTERRUPT"]			= "Skill Interrupt"
-obj["SPELL_AURA_APPLIED"]		= "Aura Application"
-obj["SPELL_AURA_REMOVED"]		= "Aura Removal"
-obj["SPELL_STOLEN"]				= "Aura Stolen"
-obj["SPELL_DISPEL"]				= "Aura Dispel"
-obj["SPELL_AURA_REFRESH"]		= "Aura Refresh"
-obj["SPELL_AURA_BROKEN_SPELL"]	= "Aura Broken"
-obj["ENCHANT_APPLIED"]			= "Enchant Application"
-obj["ENCHANT_REMOVED"]			= "Enchant Removal"
-obj["SPELL_CAST_START"]			= "Cast Start"
-obj["SPELL_CAST_SUCCESS"]		= "Cast Success"
-obj["SPELL_CAST_FAILED"]		= "Cast Failure"
-obj["SPELL_SUMMON"]				= "Summon"
-obj["SPELL_CREATE"]				= "Create"
-obj["PARTY_KILL"]				= "Killing Blow"
-obj["UNIT_DESTROYED"]			= "Unit Destroy"
-obj["SPELL_EXTRA_ATTACKS"]		= "Extra Attacks"
-obj["UNIT_HEALTH"]				= "Health Change"
-obj["UNIT_POWER"]				= "Power Change"
-
--- Main event conditions.
-obj["sourceName"]				= "Source Unit Name"
-obj["sourceAffiliation"]		= "Source Unit Affiliation"
-obj["sourceReaction"]			= "Source Unit Reaction"
-obj["sourceControl"]			= "Source Unit Control"
-obj["sourceUnitType"]			= "Source Unit Type"
-obj["recipientName"]			= "Recipient Unit Name"
-obj["recipientAffiliation"]		= "Recipient Unit Affiliation"
-obj["recipientReaction"]		= "Recipient Unit Reaction"
-obj["recipientControl"]			= "Recipient Unit Control"
-obj["recipientUnitType"]		= "Recipient Unit Type"
-obj["skillID"]					= "Skill ID"
-obj["skillName"]				= "Skill Name"
-obj["skillSchool"]				= "Skill School"
-obj["extraSkillID"]				= "Extra Skill ID"
-obj["extraSkillName"]			= "Extra Skill Name"
-obj["extraSkillSchool"]			= "Extra Skill School"
-obj["amount"]					= "Amount"
-obj["overkillAmount"]			= "Overkill Amount"
-obj["damageType"]				= "Damage Type"
-obj["resistAmount"]				= "Resist Amount"
-obj["blockAmount"]				= "Block Amount"
-obj["absorbAmount"]				= "Absorb Amount"
-obj["isCrit"]					= "Crit"
-obj["isGlancing"]				= "Glancing Hit"
-obj["isCrushing"]				= "Crushing Blow"
-obj["extraAmount"]				= "Extra Amount"
-obj["missType"]					= "Miss Type"
-obj["hazardType"]				= "Hazard Type"
-obj["powerType"]				= "Power Type"
-obj["auraType"]					= "Aura Type"
-obj["threshold"]				= "Threshold"
-obj["unitID"]					= "Unit ID"
-obj["unitReaction"]				= "Unit Reaction"
-obj["itemID"]					= "Item ID"
-obj["itemName"]					= "Item Name"
-
--- Exception conditions.
-obj["activeTalents"]			= "Active Talents"
-obj["buffActive"]				= "Buff Active"
-obj["buffInactive"]				= "Buff Inactive"
-obj["currentCP"]				= "Current Combo Points"
-obj["currentPower"]				= "Current Power"
-obj["inCombat"]					= "In Combat"
-obj["recentlyFired"]			= "Trigger Recently Fired"
-obj["trivialTarget"]			= "Trivial Target"
-obj["unavailableSkill"]			= "Unavailable Skill"
-obj["warriorStance"]			= "Warrior Stance"
-obj["zoneName"]					= "Zone Name"
-obj["zoneType"]					= "Zone Type"
-
--- Relationships.
-obj["eq"]						= "Is Equal To"
-obj["ne"]						= "Is Not Equal To"
-obj["like"]						= "Is Like"
-obj["unlike"]					= "Is Not Like"
-obj["lt"]						= "Is Less Than"
-obj["gt"]						= "Is Greater Than"
-
--- Affiliations.
-obj["affiliationMine"]			= "Mine"
-obj["affiliationParty"]			= "Party Member"
-obj["affiliationRaid"]			= "Raid Member"
-obj["affiliationOutsider"]		= "Outsider"
-obj["affiliationTarget"]		= TARGET
-obj["affiliationFocus"]			= FOCUS
-obj["affiliationYou"]			= YOU
-
--- Reactions.
-obj["reactionFriendly"]			= "Friendly"
-obj["reactionNeutral"]			= "Neutral"
-obj["reactionHostile"]			= HOSTILE
-
--- Control types.
-obj["controlServer"]			= "Server"
-obj["controlHuman"]				= "Human"
-
--- Unit types.
-obj["unitTypePlayer"]			= PLAYER
-obj["unitTypeNPC"]				= "NPC"
-obj["unitTypePet"]				= PET
-obj["unitTypeGuardian"]			= "Guardian"
-obj["unitTypeObject"]			= "Object"
-
--- Aura types.
-obj["auraTypeBuff"]				= "Buff"
-obj["auraTypeDebuff"]			= "Debuff"
-
--- Zone types.
-obj["zoneTypeArena"]			= "Arena"
-obj["zoneTypePvP"]				= BATTLEGROUND
-obj["zoneTypeParty"]			= "5 man instance"
-obj["zoneTypeRaid"]				= "Raid instance"
-
--- Booleans
-obj["booleanTrue"]				= "True"
-obj["booleanFalse"]				= "False"
-
-
-------------------------------
--- Font info
-------------------------------
-
--- Font outlines.
 obj = L.OUTLINES
 obj[1] = "None"
 obj[2] = "Thin"
@@ -650,24 +439,16 @@ obj[4] = "Monochrome"
 obj[5] = "Monochrome + Thin"
 obj[6] = "Monochrome + Thick"
 
--- Text aligns.
 obj = L.TEXT_ALIGNS
 obj[1] = "Left"
 obj[2] = "Center"
 obj[3] = "Right"
 
 
-------------------------------
--- Sound info
-------------------------------
 
 
 
-------------------------------
--- Animation style info
-------------------------------
 
--- Animation styles
 obj = L.ANIMATION_STYLE_DATA
 obj["Angled"]		= "Angled"
 obj["Horizontal"]	= "Horizontal"
@@ -676,14 +457,12 @@ obj["Straight"]		= "Straight"
 obj["Static"]		= "Static"
 obj["Pow"]			= "Pow"
 
--- Animation style directions.
 obj["Alternate"]	= "Alternate"
 obj["Left"]			= "Left"
 obj["Right"]		= "Right"
 obj["Up"]			= "Up"
 obj["Down"]			= "Down"
 
--- Animation style behaviors.
 obj["AngleUp"]			= "Angle Upwards"
 obj["AngleDown"]		= "Angle Downwards"
 obj["GrowUp"]			= "Grow Upwards"
@@ -693,7 +472,6 @@ obj["CurvedRight"]		= "Curved Right"
 obj["Jiggle"]			= "Jiggle"
 obj["Normal"]			= "Normal"
 
--- Custom event sounds.
 L.MSG_SOUND_PLAYBACK_FAILED = "Sound could not be played. Check the file path and restart WoW after adding new sound files."
 L.MSG_INVALID_CUSTOM_SOUND_NAME		= "Invalid sound name."
 L.MSG_SOUND_NAME_ALREADY_EXISTS		= "Sound name already exists."

@@ -36,7 +36,6 @@ end
 function IncomingCombat:Reset()
 	ClearTable(self.damageBatches)
 	ClearTable(self.healBatches)
-	self.config.selfHealTracker:Reset()
 end
 
 local function StripRealm(name, unknown)
@@ -207,7 +206,9 @@ function IncomingCombat:QueueDamage(amount, isCrit, damageSource)
 		}
 		self.damageBatches[batchKey] = batch
 		self.config.after(self.config.groupDelay, function()
-			DisplayDamageBatch(self, batchKey)
+			if self.damageBatches[batchKey] == batch then
+				DisplayDamageBatch(self, batchKey)
+			end
 		end)
 	end
 
@@ -338,7 +339,9 @@ function IncomingCombat:QueueHeal(
 		}
 		self.healBatches[batchKey] = batch
 		self.config.after(self.config.groupDelay, function()
-			DisplayHealBatch(self, batchKey)
+			if self.healBatches[batchKey] == batch then
+				DisplayHealBatch(self, batchKey)
+			end
 		end)
 	end
 
@@ -354,14 +357,6 @@ function IncomingCombat:QueueHeal(
 	if healSourceLabel and healSourceLabel ~= "" then
 		batch.healSourceLabel = healSourceLabel
 	end
-end
-
-function IncomingCombat:RecordOutgoingSelfHeal(amount)
-	self.config.selfHealTracker:Record(amount)
-end
-
-function IncomingCombat:ConsumeMatchingSelfHeal(amount)
-	return self.config.selfHealTracker:Consume(amount)
 end
 
 local function GetLikelyHealSource(self)
@@ -432,10 +427,6 @@ function IncomingCombat:HandleUnitCombat(
 		local isSelfHeal = sourceName == playerName
 		local baseKey = isSelfHeal and "SELF_HEAL" or "INCOMING_HEAL"
 		local critKey = isSelfHeal and "SELF_HEAL_CRIT" or "INCOMING_HEAL_CRIT"
-		if self:ConsumeMatchingSelfHeal(normalizedAmount) then
-			return true
-		end
-
 		local settings = profile.events[baseKey]
 		local critSettings = profile.events[critKey]
 		local normalEnabled = settings and not settings.disabled

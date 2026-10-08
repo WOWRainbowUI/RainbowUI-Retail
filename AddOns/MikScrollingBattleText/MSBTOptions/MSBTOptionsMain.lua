@@ -1,8 +1,3 @@
--------------------------------------------------------------------------------
--- Title: MSBT Options Main
--- Author: Mikord
--------------------------------------------------------------------------------
--- Create module and set its name.
 local module = {}
 local moduleName = "Main"
 MSBTOptions[moduleName] = module
@@ -11,36 +6,22 @@ local Client = MikSBT.Compatibility.Client
 local HasModernAPI = Client.hasModernAPI
 
 
--------------------------------------------------------------------------------
--- Imports.
--------------------------------------------------------------------------------
 
--- Local references to various modules for faster access.
 local MSBTControls = MSBTOptions.Controls
 local L = MikSBT.translations
 
 
--------------------------------------------------------------------------------
--- Constants.
--------------------------------------------------------------------------------
 
 local WINDOW_TITLE = "Mik's Scrolling Battle Text " .. MikSBT.VERSION_STRING
 
 
--------------------------------------------------------------------------------
--- Private variables.
--------------------------------------------------------------------------------
 
--- Prevent tainting global _.
 local _
 
--- The main options frame.
 local mainFrame
 
--- Holds all registered popup frames.
 local popupFrames = {}
 
--- Tab info.
 local tabData = {}
 local tabListbox
 local resetTabListbox
@@ -48,18 +29,11 @@ local languageTabListbox
 local BOTTOM_TAB_ORDER = 9000
 local LANGUAGE_TAB_ORDER = 9500
 
--- Scheduling variables.
 local waitTable = {}
 local waitFrame = nil
 
 
--------------------------------------------------------------------------------
--- Tab functions.
--------------------------------------------------------------------------------
 
--- ****************************************************************************
--- Initializes the frame that is shown when the tab is clicked.
--- ****************************************************************************
 	local function InitTab(tabInfo)
 		local frame = tabInfo.frame
 		frame:SetParent(mainFrame)
@@ -69,10 +43,6 @@ local waitFrame = nil
 	end
 
 
--- ****************************************************************************
--- Adds a new tab to the main options frame that will show the passed frame
--- when selected.
--- ****************************************************************************
 local function AddTab(frame, text, tooltip, order)
 	local tabInfo = {}
 	tabInfo.text = text
@@ -103,9 +73,6 @@ local function AddTab(frame, text, tooltip, order)
 end
 
 
--- ****************************************************************************
--- Refresh all tab containers to update highlight state.
--- ****************************************************************************
 local function RefreshTabContainers()
 	tabListbox:Refresh()
 	if resetTabListbox then
@@ -117,9 +84,6 @@ local function RefreshTabContainers()
 end
 
 
--- ****************************************************************************
--- Sets the selected item on the correct tab container for the passed tab index.
--- ****************************************************************************
 local function SelectTabContainerItem(tabIndex)
 	local tabInfo = tabData[tabIndex]
 	if not tabInfo then
@@ -144,9 +108,6 @@ local function SelectTabContainerItem(tabIndex)
 end
 
 
--- ****************************************************************************
--- Called by listbox to create a line for the tabs on the left.
--- ****************************************************************************
 local function CreateTabLine(this)
 	local frame = CreateFrame("Button", nil, this)
 
@@ -160,9 +121,6 @@ local function CreateTabLine(this)
 end
 
 
--- ****************************************************************************
--- Called by listbox to display a line for the tabs on the left.
--- ****************************************************************************
 local function DisplayTabLine(this, line, key, isSelected)
 	line.fontString:SetText(tabData[key].text)
 	line.tooltip = tabData[key].tooltip
@@ -171,52 +129,34 @@ local function DisplayTabLine(this, line, key, isSelected)
 end
 
 
--- ****************************************************************************
--- Called when a tab line is clicked.
--- ****************************************************************************
 local function OnClickTabLine(this, line, value)
-	-- Hide all the tab frames.
 	for _, info in ipairs(tabData) do
 		info.frame:Hide()
 	end
 
-	-- Hide the registered popup frames.
 	for frame in pairs(popupFrames) do
 		frame:Hide()
 	end
 
-	-- Show the tab's associated frame.
 	local frame = tabData[value].frame
 	if (frame) then frame:Show() end
 
 	SelectTabContainerItem(value)
 
-	-- Force a refresh to the listbox to update the highlight font color.
 	RefreshTabContainers()
 end
 
 
--------------------------------------------------------------------------------
--- Main options frame functions.
--------------------------------------------------------------------------------
 
--- ****************************************************************************
--- Called when the main options frame is hidden.
--- ****************************************************************************
 local function OnHideMainFrame(this)
 	PlaySound(799)
-	-- Hide the registered popup frames.
 	for frame in pairs(popupFrames) do
 		frame:Hide()
 	end
 end
 
 
--- ****************************************************************************
--- Creates the main options frame.
--- ****************************************************************************
 local function CreateMainFrame()
-	-- Main frame.
 	mainFrame = CreateFrame("Frame", "MSBTMainOptionsFrame", UIParent)
 	mainFrame:EnableMouse(true)
 	mainFrame:SetMovable(true)
@@ -239,21 +179,18 @@ local function CreateMainFrame()
 	mainFrame:SetScript("OnDragStop", function(self)
 			self:StopMovingOrSizing()
 	end)
-	-- Scroll Icon.
 	local texture = mainFrame:CreateTexture(nil, "BACKGROUND")
 	texture:SetTexture("Interface\\FriendsFrame\\FriendsFrameScrollIcon")
 	texture:SetWidth(64)
 	texture:SetHeight(64)
 	texture:SetPoint("TOPLEFT", mainFrame, "TOPLEFT", 8, 1)
 
-	-- Top left.
 	texture = mainFrame:CreateTexture(nil, "ARTWORK")
 	texture:SetTexture("Interface\\PaperDollInfoFrame\\UI-Character-General-TopLeft")
 	texture:SetWidth(256)
 	texture:SetHeight(256)
 	texture:SetPoint("TOPLEFT")
 
-	-- Top center left.
 	texture = mainFrame:CreateTexture(nil, "ARTWORK")
 	texture:SetTexture("Interface\\PaperDollInfoFrame\\UI-Character-General-TopLeft")
 	texture:SetWidth(128)
@@ -261,7 +198,6 @@ local function CreateMainFrame()
 	texture:SetPoint("TOPLEFT", mainFrame, "TOPLEFT", 256, 0)
 	texture:SetTexCoord(0.38, 0.88, 0, 1)
 
-	-- Top center right.
 	texture = mainFrame:CreateTexture(nil, "ARTWORK")
 	texture:SetTexture("Interface\\PaperDollInfoFrame\\UI-Character-General-TopLeft")
 	texture:SetHeight(256)
@@ -269,7 +205,6 @@ local function CreateMainFrame()
 	texture:SetPoint("TOPRIGHT", mainFrame, "TOPRIGHT", -100, 0)
 	texture:SetTexCoord(0.45, 0.95, 0, 1)
 
-	-- Top right.
 	texture = mainFrame:CreateTexture(nil, "ARTWORK")
 	texture:SetTexture("Interface\\PaperDollInfoFrame\\UI-Character-General-TopRight")
 	texture:SetWidth(100)
@@ -277,7 +212,6 @@ local function CreateMainFrame()
 	texture:SetPoint("TOPRIGHT")
 	texture:SetTexCoord(0, 0.78125, 0, 1)
 
-	-- Bottom left.
 	texture = mainFrame:CreateTexture(nil, "ARTWORK")
 	texture:SetTexture("Interface\\PaperDollInfoFrame\\UI-Character-General-BottomLeft")
 	texture:SetWidth(256)
@@ -285,7 +219,6 @@ local function CreateMainFrame()
 	texture:SetPoint("BOTTOMLEFT")
 	texture:SetTexCoord(0, 1, 0, 0.71875)
 
-	-- Bottom center left.
 	texture = mainFrame:CreateTexture(nil, "ARTWORK")
 	texture:SetTexture("Interface\\PaperDollInfoFrame\\UI-Character-General-BottomLeft")
 	texture:SetWidth(128)
@@ -293,7 +226,6 @@ local function CreateMainFrame()
 	texture:SetPoint("BOTTOMLEFT", mainFrame, "BOTTOMLEFT", 256, 0)
 	texture:SetTexCoord(0.5, 1, 0, 0.71875)
 
-	-- Bottom center right.
 	texture = mainFrame:CreateTexture(nil, "ARTWORK")
 	texture:SetTexture("Interface\\PaperDollInfoFrame\\UI-Character-General-BottomLeft")
 	texture:SetHeight(234)
@@ -301,7 +233,6 @@ local function CreateMainFrame()
 	texture:SetPoint("BOTTOMRIGHT", mainFrame, "BOTTOMRIGHT", -100, 0)
 	texture:SetTexCoord(0.5, 1, 0, 0.71875)
 
-	-- Bottom right.
 	texture = mainFrame:CreateTexture(nil, "ARTWORK")
 	texture:SetTexture("Interface\\PaperDollInfoFrame\\UI-Character-General-BottomRight")
 	texture:SetWidth(100)
@@ -309,7 +240,6 @@ local function CreateMainFrame()
 	texture:SetPoint("BOTTOMRIGHT")
 	texture:SetTexCoord(0, 0.78125, 0, 0.71875)
 
-	-- Top vertical.
 	texture = mainFrame:CreateTexture(nil, "OVERLAY")
 	texture:SetTexture("Interface\\PaperDollInfoFrame\\UI-Character-General-TopRight")
 	texture:SetWidth(8)
@@ -317,7 +247,6 @@ local function CreateMainFrame()
 	texture:SetPoint("TOPLEFT", mainFrame, "TOPLEFT", 225, -72)
 	texture:SetTexCoord(0.648437, 0.7109375, 0.28125, 1.0)
 
-	-- Bottom vertical.
 	texture = mainFrame:CreateTexture(nil, "OVERLAY")
 	texture:SetTexture("Interface\\PaperDollInfoFrame\\UI-Character-General-TopRight")
 	texture:SetWidth(8)
@@ -325,12 +254,10 @@ local function CreateMainFrame()
 	texture:SetPoint("TOPLEFT", mainFrame, "TOPLEFT", 225, -256)
 	texture:SetTexCoord(0.648437, 0.7109375, 0.3203125, 1.0)
 
-	-- Window title.
 	local fontString = mainFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 	fontString:SetText(WINDOW_TITLE)
 	fontString:SetPoint("TOP", mainFrame, "TOP", 0, -18)
 
-	-- Close Button.
 	local frame = CreateFrame("Button", nil, mainFrame, "UIPanelCloseButton")
 	if not HasModernAPI then
 		frame:SetPoint("TOPRIGHT", mainFrame, "TOPRIGHT", -3, -8)
@@ -339,7 +266,6 @@ local function CreateMainFrame()
 	end
 
 
-	-- Setup the tabs listbox.
 	tabListbox = MSBTControls.CreateListbox(mainFrame)
 	tabListbox:Configure(195, 365, 20)
 	tabListbox:SetPoint("TOPLEFT", mainFrame, "TOPLEFT", 30, -78)
@@ -347,7 +273,6 @@ local function CreateMainFrame()
 	tabListbox:SetDisplayHandler(DisplayTabLine)
 	tabListbox:SetClickHandler(OnClickTabLine)
 
-	-- Setup the reset tab listbox.
 	resetTabListbox = MSBTControls.CreateListbox(mainFrame)
 	resetTabListbox:Configure(195, 20, 20)
 	resetTabListbox:SetPoint("BOTTOMLEFT", mainFrame, "BOTTOMLEFT", 30, 92)
@@ -355,7 +280,6 @@ local function CreateMainFrame()
 	resetTabListbox:SetDisplayHandler(DisplayTabLine)
 	resetTabListbox:SetClickHandler(OnClickTabLine)
 
-	-- Setup the language tab listbox.
 	languageTabListbox = MSBTControls.CreateListbox(mainFrame)
 	languageTabListbox:Configure(195, 20, 20)
 	languageTabListbox:SetPoint("BOTTOMLEFT", mainFrame, "BOTTOMLEFT", 30, 16)
@@ -363,7 +287,6 @@ local function CreateMainFrame()
 	languageTabListbox:SetDisplayHandler(DisplayTabLine)
 	languageTabListbox:SetClickHandler(OnClickTabLine)
 
-	-- Add registered tabs.
 	for k, tabInfo in ipairs(tabData) do
 		InitTab(tabInfo)
 		if tabInfo.order >= LANGUAGE_TAB_ORDER then
@@ -375,7 +298,6 @@ local function CreateMainFrame()
 		end
 	end
 
-	-- Select the general tab.
 	local defaultTabIndex = nil
 	for index, info in ipairs(tabData) do
 		if info.text == L.TABS.general.label then
@@ -397,8 +319,6 @@ local function CreateMainFrame()
 	RefreshTabContainers()
 	tabData[defaultTabIndex].frame:Show()
 
-	-- Insert the frame name into the UISpecialFrames array so it closes when
-	-- the escape key is pressed.
 	local frameName = mainFrame:GetName()
 	local isRegistered = false
 	for _, name in ipairs(UISpecialFrames) do
@@ -413,9 +333,6 @@ local function CreateMainFrame()
 end
 
 
--- ****************************************************************************
--- Shows the main options frame after creating it (if it hasn't already been).
--- ****************************************************************************
 local function ShowMainFrame()
 	if (not mainFrame) then CreateMainFrame() end
 	if (not MSBTScrollAreasConfigFrame or not MSBTScrollAreasConfigFrame:IsShown()) then
@@ -424,33 +341,17 @@ local function ShowMainFrame()
 end
 
 
--- ****************************************************************************
--- Hides the main options frame.
--- ****************************************************************************
 local function HideMainFrame()
 	mainFrame:Hide()
 end
 
 
--- ****************************************************************************
--- Registers frames that float above the main options window.
--- These frames will be hidden when a tab is selected or the main options
--- window is hidden.
--- ****************************************************************************
 local function RegisterPopupFrame(frame)
 	if (not popupFrames[frame]) then popupFrames[frame] = true end
 end
 
 
--------------------------------------------------------------------------------
--- Scheduling functions.
--------------------------------------------------------------------------------
 
--- ****************************************************************************
--- Registers frames that float above the main options window.
--- These frames will be hidden when a tab is selected or the main options
--- window is hidden.
--- ****************************************************************************
 local function ScheduleCallback(delay, func, ...)
 	if (waitFrame == nil) then
 		waitFrame = CreateFrame("Frame", nil, UIParent)
@@ -478,11 +379,7 @@ end
 
 
 
--------------------------------------------------------------------------------
--- Module interface.
--------------------------------------------------------------------------------
 
--- Protected Functions.
 module.ShowMainFrame		= ShowMainFrame
 module.HideMainFrame		= HideMainFrame
 module.RegisterPopupFrame	= RegisterPopupFrame

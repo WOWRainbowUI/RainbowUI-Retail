@@ -2713,7 +2713,7 @@ local function DisableBlizzardCombatText()
 	SetCVar("floatingCombatTextPetMeleeDamage_v2", 0)
 	SetCVar("floatingCombatTextPetSpellDamage_v2", 0)
 	SHOW_COMBAT_TEXT = "0"
-	if (CombatText_UpdateDisplayedMessages) then CombatText_UpdateDisplayedMessages() end
+	if (not Client.hasModernAPI and CombatText_UpdateDisplayedMessages) then CombatText_UpdateDisplayedMessages() end
 end
 
 local function SetBlizzardCombatTextV2Enabled(isEnabled)
@@ -2728,7 +2728,7 @@ local function SetBlizzardCombatTextV2Enabled(isEnabled)
 	SetCVar("floatingCombatTextPetMeleeDamage_v2", value)
 	SetCVar("floatingCombatTextPetSpellDamage_v2", value)
 	SHOW_COMBAT_TEXT = isEnabled and "1" or "0"
-	if (CombatText_UpdateDisplayedMessages) then CombatText_UpdateDisplayedMessages() end
+	if (not Client.hasModernAPI and CombatText_UpdateDisplayedMessages) then CombatText_UpdateDisplayedMessages() end
 end
 
 local function IsInGroupContext()
@@ -2792,7 +2792,7 @@ local function ResetOfficialBlizzardCombatText()
 	SetCVar("floatingCombatTextPetMeleeDamage_v2", 1)
 	SetCVar("floatingCombatTextPetSpellDamage_v2", 1)
 
-	if (CombatText_UpdateDisplayedMessages) then
+	if (not Client.hasModernAPI and CombatText_UpdateDisplayedMessages) then
 		CombatText_UpdateDisplayedMessages()
 	end
 
@@ -2933,6 +2933,34 @@ local function ResetProfile(profileName, showOutput)
 			Print(profileName .. " " .. L.MSG_PROFILE_RESET, 0, 1, 0)
 		end
 	end
+end
+
+local function GetProfileTransfer()
+	return MikSBT.Configuration.ProfileTransfer:New({
+		masterProfile = masterProfile,
+		version = MikSBT.VERSION .. "." .. MikSBT.SVN_REVISION,
+		client = Client.interfaceVersion,
+		locale = GetLocale(),
+	})
+end
+
+local function ExportProfile(profileName)
+	local profile = savedVariables.profiles[profileName]
+	if not profile then return nil, "INVALID_NAME" end
+	return GetProfileTransfer():Export(profileName, profile, {
+		fonts = MikSBT.Media.fonts,
+		sounds = MikSBT.Media.sounds,
+	})
+end
+
+local function ImportProfile(text, profileName)
+	if InCombatLockdown() then return nil, "IN_COMBAT" end
+	local name, details = GetProfileTransfer():Import(
+		text, profileName, savedVariables.profiles, savedMedia)
+	if not name then return nil, details end
+	MikSBT.Media.OnVariablesInitialized()
+	SelectProfile(name)
+	return name, details
 end
 
 local function InitSavedVariables()
@@ -3076,6 +3104,8 @@ module.CopyProfile					= CopyProfile
 module.DeleteProfile				= DeleteProfile
 module.ResetProfile					= ResetProfile
 module.SelectProfile				= SelectProfile
+module.ExportProfile				= ExportProfile
+module.ImportProfile				= ImportProfile
 module.SetOption					= SetOption
 module.SetOptionUserDisabled		= SetOptionUserDisabled
 module.IsModDisabled				= IsModDisabled

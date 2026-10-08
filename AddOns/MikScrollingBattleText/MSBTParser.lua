@@ -9,22 +9,14 @@ local string_gsub = string.gsub
 local string_len = string.len
 local bit_band = bit.band
 local bit_bor = bit.bor
-local GetTime = GetTime
-local UnitClass = UnitClass
 local UnitGUID = UnitGUID
 local UnitName = UnitName
 
-local EraseTable = MikSBT.EraseTable
-local GetSpellInfo = MikSBT.GetSpellInfo
 local Print = MikSBT.Print
 local Client = MikSBT.Compatibility.Client
 
-local Obliterate = GetSpellInfo(49020)
-local FrostStrike = GetSpellInfo(49143)
-local Stormstrike = GetSpellInfo(17364)
 
 local IsRetail = Client.isMainline
-local IsCataClassic = Client.isCataClassic
 
 local AFFILIATION_MINE		= 0x00000001
 local AFFILIATION_PARTY		= 0x00000002
@@ -46,44 +38,25 @@ local OBJECT_NONE			= 0x80000000
 
 local GUID_NONE				= "0x0000000000000000"
 
-local MAX_BUFFS = 40
-local MAX_DEBUFFS = 40
 
-local AURA_TYPE_BUFF = "BUFF"
-local AURA_TYPE_DEBUFF = "DEBUFF"
 
 local UNIT_MAP_UPDATE_DELAY = 0.2
-local PET_UPDATE_DELAY = 1
-local REFLECT_HOLD_TIME = 3
-local CLASS_HOLD_TIME = 300
 
 local FLAGS_ME			= bit_bor(AFFILIATION_MINE, REACTION_FRIENDLY, CONTROL_HUMAN, UNITTYPE_PLAYER)
-local FLAGS_MINE		= bit_bor(AFFILIATION_MINE, REACTION_FRIENDLY, CONTROL_HUMAN)
-local FLAGS_MY_GUARDIAN	= bit_bor(AFFILIATION_MINE, REACTION_FRIENDLY, CONTROL_HUMAN, UNITTYPE_GUARDIAN)
 
-local _
 
 local eventFrame
 local isEnabled
 local eventsRegistered
-local deferredRegisterTicker
-local parserDisabledNoticeShown
 
 local playerName
 local playerGUID
 
 local lastUnitMapUpdate = 0
-local lastPetMapUpdate = 0
 
-local isUnitMapStale
-local isPetMapStale
 
-local unitMap = {}
-local petMap = {}
 
-local captureFuncs
 
-local fullParseEvents
 
 local searchMap
 local searchCaptureFuncs
@@ -96,13 +69,7 @@ local parserEvent = {}
 
 local handlers = {}
 
-local reflectedSkills = {}
-local reflectedTimes = {}
 
-local classMapCleanupTime = 0
-local classMap = {}
-local classTimes = {}
-local arenaUnits = {}
 
 local function RegisterHandler(handler)
 	handlers[handler] = true
@@ -122,46 +89,6 @@ local function TestFlagsAll(unitFlags, testFlags)
 	if bit_band(unitFlags, testFlags) == testFlags then
 		return true
 	end
-end
-
-local function SafeUnitBoolean(func, ...)
-	if type(func) ~= "function" then
-		return false
-	end
-
-	local ok, value = pcall(func, ...)
-	if not ok then
-		return false
-	end
-
-	local okNormalize, normalized = pcall(function()
-		return value and true or false
-	end)
-	if okNormalize then
-		return normalized
-	end
-
-	return false
-end
-
-local function SafeEquals(left, right)
-	local ok, isEqual = pcall(function()
-		return left == right
-	end)
-	if ok then
-		return isEqual
-	end
-	return false
-end
-
-local function SafeNotEquals(left, right)
-	local ok, isDifferent = pcall(function()
-		return left ~= right
-	end)
-	if ok then
-		return isDifferent
-	end
-	return false
 end
 
 local function SendParserEvent()
@@ -321,89 +248,6 @@ local function ParseSearchMessage(event, combatMessage)
 	end
 end
 
-local function ParseLogMessage(timestamp, event, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, recipientGUID, recipientName, recipientFlags, recipientRaidFlags, ...)
-
-	local captureFunc = captureFuncs[event]
-	if not captureFunc then
-		return
-	end
-
-	if sourceGUID == recipientGUID and reflectedTimes[recipientGUID] and event == "SPELL_DAMAGE" then
-		local skillID = ...
-		if skillID == reflectedSkills[recipientGUID] then
-
-			reflectedTimes[recipientGUID] = nil
-			reflectedSkills[recipientGUID] = nil
-
-			sourceGUID = playerGUID
-			sourceName = playerName
-			sourceFlags = FLAGS_ME
-		end
-	end
-
-	local sourceUnit = unitMap[sourceGUID] or petMap[sourceGUID]
-	local recipientUnit = unitMap[recipientGUID] or petMap[recipientGUID]
-
-	if not sourceUnit and TestFlagsAll(sourceFlags, FLAGS_MINE) then
-		sourceUnit = TestFlagsAll(sourceFlags, FLAGS_MY_GUARDIAN) and "pet" or "player"
-	end
-	if not recipientUnit and TestFlagsAll(recipientFlags, FLAGS_MINE) then
-		recipientUnit = TestFlagsAll(recipientFlags, FLAGS_MY_GUARDIAN) and "pet" or "player"
-	end
-
-	if not fullParseEvents[event] and sourceUnit ~= "player" and sourceUnit ~= "pet" and recipientUnit ~= "player" and recipientUnit ~= "pet" then
-		return
-	end
-
-	for k in pairs(parserEvent) do
-		parserEvent[k] = nil
-	end
-
-	parserEvent.sourceGUID = sourceGUID
-	parserEvent.sourceName = sourceName
-	parserEvent.sourceFlags = sourceFlags
-	parserEvent.sourceUnit = sourceUnit
-	parserEvent.recipientGUID = recipientGUID
-	parserEvent.recipientName = recipientName
-	parserEvent.recipientFlags = recipientFlags
-	parserEvent.recipientUnit = recipientUnit
-
-	captureFunc(parserEvent, ...)
-
-	if parserEvent.skillID == 66198 then
-		parserEvent.skillName = Obliterate
-	elseif parserEvent.skillID == 66196 then
-		parserEvent.skillName = FrostStrike
-	elseif parserEvent.skillID == 32175 or parserEvent.skillID == 32176 then
-		parserEvent.skillName = Stormstrike
-	end
-
-	if parserEvent.eventType == "miss" and parserEvent.missType == "REFLECT" and recipientUnit == "player" then
-
-		for guid, reflectTime in pairs(reflectedTimes) do
-			if timestamp - reflectTime > REFLECT_HOLD_TIME then
-				reflectedTimes[guid] = nil
-				reflectedSkills[guid] = nil
-			end
-		end
-
-		reflectedTimes[sourceGUID] = timestamp
-		reflectedSkills[sourceGUID] = parserEvent.skillID
-	end
-
-	SendParserEvent()
-end
-
-local function CreateFullParseList()
-	fullParseEvents = {
-		SPELL_AURA_APPLIED = true,
-		SPELL_AURA_REMOVED = true,
-		SPELL_AURA_APPLIED_DOSE = true,
-		SPELL_AURA_REMOVED_DOSE = true,
-		SPELL_CAST_START = true,
-	}
-end
-
 local function CreateSearchMap()
 	searchMap = {
 
@@ -527,324 +371,56 @@ local function ConvertGlobalStrings()
 	end
 end
 
-local function CreateCaptureFuncs()
-	captureFuncs = {
-
-		SWING_DAMAGE = function(p, ...) p.eventType, p.amount, p.overkillAmount, p.damageType, p.resistAmount, p.blockAmount, p.absorbAmount, p.isCrit, p.isGlancing, p.isCrushing = "damage", ... end,
-		RANGE_DAMAGE = function(p, ...) p.eventType, p.isRange, p.skillID, p.skillName, p.skillSchool, p.amount, p.overkillAmount, p.damageType, p.resistAmount, p.blockAmount, p.absorbAmount, p.isCrit, p.isGlancing, p.isCrushing, p.isOffHand = "damage", true, ... end,
-		SPELL_DAMAGE = function(p, ...) p.eventType, p.skillID, p.skillName, p.skillSchool, p.amount, p.overkillAmount, p.damageType, p.resistAmount, p.blockAmount, p.absorbAmount, p.isCrit, p.isGlancing, p.isCrushing, p.isOffHand = "damage", ... end,
-		SPELL_PERIODIC_DAMAGE = function(p, ...) p.eventType, p.isDoT, p.skillID, p.skillName, p.skillSchool, p.amount, p.overkillAmount, p.damageType, p.resistAmount, p.blockAmount, p.absorbAmount, p.isCrit, p.isGlancing, p.isCrushing, p.isOffHand = "damage", true, ... end,
-		SPELL_BUILDING_DAMAGE = function(p, ...) p.eventType, p.skillID, p.skillName, p.skillSchool, p.amount, p.overkillAmount, p.damageType, p.resistAmount, p.blockAmount, p.absorbAmount, p.isCrit, p.isGlancing, p.isCrushing = "damage", ... end,
-		DAMAGE_SHIELD = function(p, ...) p.eventType, p.isDamageShield, p.skillID, p.skillName, p.skillSchool, p.amount, p.overkillAmount, p.damageType, p.resistAmount, p.blockAmount, p.absorbAmount, p.isCrit, p.isGlancing, p.isCrushing = "damage", true, ... end,
-
-		SWING_MISSED = function(p, ...) p.eventType, p.missType, p.isOffHand, p.amount = "miss", ... end,
-		RANGE_MISSED = function(p, ...) p.eventType, p.isRange, p.skillID, p.skillName, p.skillSchool, p.missType, p.isOffHand, p.amount = "miss", true, ... end,
-		SPELL_MISSED = function(p, ...) p.eventType, p.skillID, p.skillName, p.skillSchool, p.missType, p.isOffHand, p.amount = "miss", ... end,
-		SPELL_PERIODIC_MISSED = function(p, ...) p.eventType, p.skillID, p.skillName, p.skillSchool, p.missType, p.isOffHand, p.amount = "miss", ... end,
-		DAMAGE_SHIELD_MISSED = function(p, ...) p.eventType, p.isDamageShield, p.skillID, p.skillName, p.skillSchool, p.missType, p.isOffHand, p.amount = "miss", true, ... end,
-		SPELL_DISPEL_FAILED = function(p, ...) p.eventType, p.missType, p.skillID, p.skillName, p.skillSchool, p.extraSkillID, p.extraSkillName, p.extraSkillSchool = "miss", "RESIST", ... end,
-
-		SPELL_HEAL = function(p, ...) p.eventType, p.skillID, p.skillName, p.skillSchool, p.amount, p.overhealAmount, p.absorbAmount, p.isCrit = "heal", ... end,
-		SPELL_PERIODIC_HEAL = function(p, ...) p.eventType, p.isHoT, p.skillID, p.skillName, p.skillSchool, p.amount, p.overhealAmount, p.absorbAmount, p.isCrit = "heal", true, ... end,
-
-		ENVIRONMENTAL_DAMAGE = function(p, ...) p.eventType, p.hazardType, p.amount, p.overkillAmount, p.damageType, p.resistAmount, p.blockAmount, p.absorbAmount, p.isCrit, p.isGlancing, p.isCrushing = "environmental", ... end,
-
-		SPELL_ENERGIZE = function(p, ...) p.eventType, p.isGain, p.skillID, p.skillName, p.skillSchool, p.amount, p.overEnergized, p.powerType = "power", true, ... p.amount = floor(p.amount * 10 + 0.5) / 10 end,
-		SPELL_DRAIN = function(p, ...) p.eventType, p.isDrain, p.skillID, p.skillName, p.skillSchool, p.amount, p.powerType, p.extraAmount = "power", true, ... end,
-		SPELL_LEECH = function(p, ...) p.eventType, p.isLeech, p.skillID, p.skillName, p.skillSchool, p.amount, p.powerType, p.extraAmount = "power", true, ... end,
-
-		SPELL_INTERRUPT = function(p, ...) p.eventType, p.skillID, p.skillName, p.skillSchool, p.extraSkillID, p.extraSkillName, p.extraSkillSchool = "interrupt", ... end,
-
-		SPELL_AURA_APPLIED = function(p, ...) p.eventType, p.skillID, p.skillName, p.skillSchool, p.auraType, p.amount = "aura", ... end,
-		SPELL_AURA_APPLIED_DOSE = function(p, ...) p.eventType, p.isDose, p.skillID, p.skillName, p.skillSchool, p.auraType, p.amount = "aura", true, ... end,
-		SPELL_AURA_REMOVED = function(p, ...) p.eventType, p.isFade, p.skillID, p.skillName, p.skillSchool, p.auraType, p.amount = "aura", true, ... end,
-		SPELL_AURA_REMOVED_DOSE = function(p, ...) p.eventType, p.isFade, p.isDose, p.skillID, p.skillName, p.skillSchool, p.auraType, p.amount = "aura", true, true, ... end,
-
-		ENCHANT_APPLIED = function(p, ...) p.eventType, p.skillName, p.itemID, p.itemName = "enchant", ... end,
-		ENCHANT_REMOVED = function(p, ...) p.eventType, p.isFade, p.skillName, p.itemID, p.itemName = "enchant", true, ... end,
-
-		SPELL_DISPEL = function(p, ...) p.eventType, p.skillID, p.skillName, p.skillSchool, p.extraSkillID, p.extraSkillName, p.extraSkillSchool, p.auraType = "dispel", ... end,
-
-		SPELL_CAST_START = function(p, ...) p.eventType, p.skillID, p.skillName, p.skillSchool = "cast", ... end,
-
-		PARTY_KILL = function(p, ...) p.eventType = "kill" end,
-
-		SPELL_EXTRA_ATTACKS = function(p, ...) p.eventType, p.skillID, p.skillName, p.skillSchool, p.amount = "extraattacks", ... end,
-	}
-
-	captureFuncs["DAMAGE_SPLIT"] = captureFuncs["SPELL_DAMAGE"]
-	captureFuncs["SPELL_PERIODIC_MISSED"] = captureFuncs["SPELL_MISSED"]
-	captureFuncs["SPELL_PERIODIC_ENERGIZE"] = captureFuncs["SPELL_ENERGIZE"]
-	captureFuncs["SPELL_PERIODIC_DRAIN"] = captureFuncs["SPELL_DRAIN"]
-	captureFuncs["SPELL_PERIODIC_LEECH"] = captureFuncs["SPELL_LEECH"]
-	captureFuncs["SPELL_STOLEN"] = captureFuncs["SPELL_DISPEL"]
-
-	module.captureFuncs = captureFuncs
-end
-
-local function OnUpdateDelayedInfo(this, elapsed)
-
-	if isUnitMapStale then
-
-		lastUnitMapUpdate = lastUnitMapUpdate + elapsed
-
-		if lastUnitMapUpdate >= UNIT_MAP_UPDATE_DELAY then
-
-			if not playerGUID then
-				playerGUID = UnitGUID("player")
-			end
-			if playerGUID then
-
-				local now = GetTime()
-				for guid in pairs(unitMap) do
-					unitMap[guid] = nil
-					classTimes[guid] = now + CLASS_HOLD_TIME
-				end
-
-				local unitPrefix = IsInRaid() and "raid" or "party"
-				local numGroupMembers = GetNumGroupMembers()
-				for i = 1, numGroupMembers do
-					local unitID = unitPrefix .. i
-
-					local guid = UnitGUID(unitID)
-					if guid then
-						unitMap[guid] = unitID
-						if not classMap[guid] then
-							_, classMap[guid] = UnitClass(unitID)
-						end
-						classTimes[guid] = nil
-					end
-				end
-
-				unitMap[playerGUID] = "player"
-				if not classMap[playerGUID] then
-					_, classMap[playerGUID] = UnitClass("player")
-				end
-				classTimes[playerGUID] = nil
-
-				isUnitMapStale = false
-			end
-
-			lastUnitMapUpdate = 0
-		end
-	end
-
-	if isPetMapStale then
-
-		lastPetMapUpdate = lastPetMapUpdate + elapsed
-
-		if lastPetMapUpdate >= PET_UPDATE_DELAY then
-
-			local petName = UnitName("pet")
-			if not petName or SafeNotEquals(petName, UNKNOWN) then
-
-				local now = GetTime()
-				for guid in pairs(petMap) do
-					petMap[guid] = nil
-					classTimes[guid] = now + CLASS_HOLD_TIME
-				end
-
-				local unitPrefix = IsInRaid() and "raidpet" or "partypet"
-				local numGroupMembers = GetNumGroupMembers()
-				for i = 1, numGroupMembers do
-					local unitID = unitPrefix .. i
-					if SafeUnitBoolean(UnitExists, unitID) then
-
-						local guid = UnitGUID(unitID)
-						if guid ~= nil then
-							local okAssign = pcall(function()
-								petMap[guid] = unitID
-							end)
-							if okAssign then
-								pcall(function()
-									if not classMap[guid] then
-										_, classMap[guid] = UnitClass(unitID)
-									end
-								end)
-								pcall(function()
-									classTimes[guid] = nil
-								end)
-							end
-						end
-					end
-				end
-
-				if petName then
-					local unitID = "pet"
-					local guid = UnitGUID(unitID)
-					if SafeEquals(guid, UnitGUID("vehicle")) then
-						unitID = "player"
-					end
-					local okAssign = pcall(function()
-						petMap[guid] = unitID
-					end)
-					if okAssign then
-						pcall(function()
-							if not classMap[guid] then
-								_, classMap[guid] = UnitClass(unitID)
-							end
-						end)
-						pcall(function()
-							classTimes[guid] = nil
-						end)
-					end
-				end
-
-				isPetMapStale = false
-			end
-
-			lastPetMapUpdate = 0
-		end
-	end
-
-	if not isUnitMapStale and not isPetMapStale then
-		this:Hide()
-	end
-end
-
 local function OnEvent(this, event, arg1, arg2, ...)
 	if not isEnabled then
 		return
 	end
 
-	if event == "COMBAT_LOG_EVENT_UNFILTERED" then
-		ParseLogMessage(CombatLogGetCurrentEventInfo())
-
-	elseif event == "UPDATE_MOUSEOVER_UNIT" then
-
-		local mouseoverGUID = UnitGUID("mouseover")
-		if not mouseoverGUID then
-			return
-		end
-
-		if classMap[mouseoverGUID] and not classTimes[mouseoverGUID] then
-			return
-		end
-
-		classTimes[mouseoverGUID] = GetTime() + CLASS_HOLD_TIME
-		if not classMap[mouseoverGUID] then
-			_, classMap[mouseoverGUID] = UnitClass("mouseover")
-		end
-
-	elseif event == "PLAYER_TARGET_CHANGED" then
-
-		local targetGUID = UnitGUID("target")
-		if not targetGUID then
-			return
-		end
-
-		if classMap[targetGUID] and not classTimes[targetGUID] then
-			return
-		end
-
-		local now = GetTime()
-		classTimes[targetGUID] = now + CLASS_HOLD_TIME
-		if not classMap[targetGUID] then
-			_, classMap[targetGUID] = UnitClass("target")
-		end
-
-		if now >= classMapCleanupTime then
-			for guid, cleanupTime in pairs(classTimes) do
-				if now >= cleanupTime then
-					classMap[guid] = nil
-					classTimes[guid] = nil
-				end
-			end
-
-			classMapCleanupTime = now + CLASS_HOLD_TIME
-		end
-
-	elseif event == "GROUP_ROSTER_UPDATE" then
-
-		isUnitMapStale = true
-		eventFrame:Show()
-
-	elseif event == "UNIT_PET" then
-		isPetMapStale = true
-		eventFrame:Show()
-
-	elseif event == "ARENA_OPPONENT_UPDATE" then
-
-		if arg2 == "seen" then
-			local arenaGUID = UnitGUID(arg1)
-			if not arenaGUID then
-				return
-			end
-			arenaUnits[arg1] = arenaGUID
-			_, classMap[arenaGUID] = UnitClass(arg1)
-
-		elseif arg2 == "cleared" then
-			local arenaGUID = arenaUnits[arg1]
-			if not arenaGUID then
-				return
-			end
-			arenaUnits[arg1] = nil
-			classMap[arenaGUID] = nil
-		end
-
-	else
-		ParseSearchMessage(event, arg1)
-	end
+	ParseSearchMessage(event, arg1)
 end
 
-local function SafeRegisterEvent(frame, event) end
-
-local function TryRegisterEvents()
-	for event in pairs(searchMap) do
-		eventFrame:RegisterEvent(event)
+local function OnUpdatePlayerGUID(this, elapsed)
+	lastUnitMapUpdate = lastUnitMapUpdate + elapsed
+	if lastUnitMapUpdate >= UNIT_MAP_UPDATE_DELAY then
+		if not playerGUID then
+			playerGUID = UnitGUID("player")
+		end
+		if playerGUID then
+			this:Hide()
+		end
+		lastUnitMapUpdate = 0
 	end
-	eventsRegistered = true
-	return true
 end
 
 local function Enable()
 	if not eventsRegistered then
-		local ok = TryRegisterEvents()
-		if not ok then
-			if not parserDisabledNoticeShown then
-				MikSBT.Print("Parser-driven features are disabled due Blizzard protected event restrictions.")
-				parserDisabledNoticeShown = true
-			end
-			isEnabled = false
-			eventFrame:Hide()
-			return
+		for event in pairs(searchMap) do
+			eventFrame:RegisterEvent(event)
 		end
+		eventsRegistered = true
 	end
-
-	isUnitMapStale = true
-	isPetMapStale = true
-
 	isEnabled = true
-
 	eventFrame:Show()
 end
 
 local function Disable()
 	isEnabled = false
-	if deferredRegisterTicker then
-		deferredRegisterTicker:Cancel()
-		deferredRegisterTicker = nil
-	end
 
 	eventFrame:Hide()
 
-	EraseTable(reflectedTimes)
-	EraseTable(reflectedSkills)
 end
 
 eventFrame = CreateFrame("Frame")
 eventFrame:Hide()
 eventFrame:SetScript("OnEvent", OnEvent)
-eventFrame:SetScript("OnUpdate", OnUpdateDelayedInfo)
+eventFrame:SetScript("OnUpdate", OnUpdatePlayerGUID)
 
 playerName = UnitName("player")
 playerGUID = UnitGUID("player")
 
 CreateSearchMap()
 CreateSearchCaptureFuncs()
-CreateCaptureFuncs()
 
-CreateFullParseList()
 
 FindRareWords()
 ValidateRareWords()
@@ -869,8 +445,6 @@ module.TARGET_TARGET		= TARGET_TARGET
 module.TARGET_FOCUS			= TARGET_FOCUS
 module.OBJECT_NONE			= OBJECT_NONE
 
-module.unitMap = unitMap
-module.classMap = classMap
 
 module.RegisterHandler				= RegisterHandler
 module.UnregisterHandler			= UnregisterHandler

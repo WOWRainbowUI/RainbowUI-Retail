@@ -40,61 +40,6 @@ function Formatter:AbbreviateSkillName(skillName)
 	return skillName
 end
 
-function Formatter:FormatPartialEffects(
-	absorbAmount,
-	blockAmount,
-	resistAmount,
-	isGlancing,
-	isCrushing
-)
-	local profile = self:GetProfile()
-	local effectSettings
-	local amount
-	local text = ""
-
-	if absorbAmount then
-		effectSettings = profile.absorb
-		amount = absorbAmount
-	elseif blockAmount then
-		effectSettings = profile.block
-		amount = blockAmount
-	elseif resistAmount then
-		effectSettings = profile.resist
-		amount = resistAmount
-	end
-
-	local trailer = effectSettings and effectSettings.trailer
-	if trailer and not effectSettings.disabled then
-		local formattedAmount = amount
-		if profile.shortenNumbers then
-			formattedAmount = self.config.shortenNumber(
-				amount,
-				profile.shortenNumberPrecision
-			)
-		elseif profile.groupNumbers then
-			formattedAmount = self.config.formatLargeNumber(amount)
-		end
-		trailer = string.gsub(trailer, "%%a", formattedAmount)
-		text = profile.partialColoringDisabled and trailer
-			or ColorText(effectSettings, trailer)
-	end
-
-	effectSettings = nil
-	if isGlancing then
-		effectSettings = profile.glancing
-	elseif isCrushing then
-		effectSettings = profile.crushing
-	end
-
-	trailer = effectSettings and effectSettings.trailer
-	if trailer and not effectSettings.disabled then
-		text = text .. (profile.partialColoringDisabled and trailer
-			or ColorText(effectSettings, trailer))
-	end
-
-	return text
-end
-
 local function FormatPartialAmount(self, event, profile)
 	local amount = event.amount
 	local partialAmount = ""
