@@ -5,13 +5,10 @@
 ## Notes: Scrolls battle information around the character model.
 ## SavedVariables: MSBTProfiles_SavedVars, MSBT_SavedMedia
 ## SavedVariablesPerCharacter: MSBTProfiles_SavedVarsPerChar
+## Dependencies: Ace3
 ## OptionalDeps: LibSharedMedia-3.0
 
-Libs\LibStub.lua
-Libs\LibSerialize.lua
 Libs\LibDeflate.lua
-Libs\CallbackHandler-1.0.lua
-Libs\LibSharedMedia-3.0.lua
 
 MikSBT.lua
 Compatibility\Client.lua
