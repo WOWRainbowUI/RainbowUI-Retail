@@ -1,4 +1,8 @@
-﻿12.1.04 - 9th September 2026
+﻿12.1.08 - 7th October 2026
+- The 'Use default map' option has been removed as it's not needed in Midnight.
+- The 'Show coordinates' setting now uses and modifies Blizzard's built-in coordinates.
+
+12.1.04 - 9th September 2026
 - PTR (12.1.5): Updated for game patch 12.1.5.
 
 12.1.00 - 12th August 2026
