@@ -3,7 +3,7 @@
 ## Notes: Makes Blizzard's experimental Action Camera more usable.
 ## Author: Anorian
 ## SavedVariables: ActionCamPlusDB
-## Version: 0.22
+## Version: 1.11
 ## OptionalDeps: ACP
 ## AddonCompartmentFunc: ActionCamPlus_ToggleConfigFrame
 

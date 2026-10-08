@@ -344,7 +344,9 @@ function ActionCamPlus_EventFrame:ADDON_LOADED(self, addon)
 	if not TabSystemButtonArtMixin then ACP.useClassicUI = true end
 	ACP.ActionCamPlusConfig_Setup()
 
-	UIParent:UnregisterEvent("EXPERIMENTAL_CVAR_CONFIRMATION_NEEDED")
+	UIParent:UnregisterEvent("EXPERIMENTAL_CVAR_CONFIRMATION_NEEDED") 							-- classic
+	if GameEvent then GameEvent.HandleExperimentalCVarConfirmationNeeded = function() end end	-- retail, since 12.1
+
 	local _,class = UnitClass("player")
 	isDruid = class == "DRUID"
 	if class == "SHAMAN" or isDruid then
