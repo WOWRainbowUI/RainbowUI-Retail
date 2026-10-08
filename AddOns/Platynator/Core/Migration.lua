@@ -760,6 +760,14 @@ local function UpgradeDesignv21(design)
   end
 end
 
+local function UpgradeDesignv22(design)
+  for _, text in ipairs(design.texts) do
+    if text.kind == "threat" then
+      text.value = "raw"
+    end
+  end
+end
+
 local designUpgrades = {
   UpgradeDesignv1,
   UpgradeDesignv2,
@@ -782,6 +790,7 @@ local designUpgrades = {
   UpgradeDesignv19,
   UpgradeDesignv20,
   UpgradeDesignv21,
+  UpgradeDesignv22,
 }
 
 function addonTable.Core.UpgradeDesign(design)

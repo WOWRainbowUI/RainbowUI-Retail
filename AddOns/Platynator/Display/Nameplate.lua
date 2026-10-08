@@ -109,6 +109,7 @@ function addonTable.Display.NameplateMixin:InitializeWidgets(design, scaleOffset
 
   if self.widgets then
     addonTable.Display.ReleaseWidgets(self.widgets)
+    self.AurasManager:ReleaseSlots()
     self.widgets = nil
   end
   self.widgets = addonTable.Display.GetWidgets(design, self)
@@ -123,6 +124,12 @@ function addonTable.Display.NameplateMixin:InitializeWidgets(design, scaleOffset
   if not addonTable.Constants.IsSecretsActive then
     addonTable.Display.InitializeWidgetsLegacyAuras(self, designInfo)
   else
+    for _, w in ipairs(self.widgets) do
+      if w.InstallAuras then
+        w:InstallAuras(self.AurasManager)
+      end
+    end
+
     self.AurasManager:InitializeWidgets(self, designInfo)
   end
 
@@ -183,6 +190,9 @@ function addonTable.Display.NameplateMixin:SetUnit(unit)
 
     for _, w in ipairs(self.widgets) do
       w:SetUnit(self.unit)
+      if w.UpdateAuras then
+        w:UpdateAuras(unit, self.AurasManager)
+      end
     end
 
     addonTable.Cache:Get(unit, "mouseover")

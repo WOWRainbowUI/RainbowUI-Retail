@@ -1148,16 +1148,6 @@ addonTable.CustomiseDialog.WidgetsConfig = {
         label = addonTable.Locales.GENERAL,
         entries = {
           {
-            label = addonTable.Locales.SHOW_PERCENT_SYMBOL,
-            kind = "checkbox",
-            setter = function(details, value)
-              details.showPercentSymbol = value
-            end,
-            getter = function(details)
-              return details.showPercentSymbol
-            end,
-          },
-          {
             label = addonTable.Locales.ONLY_SHOW_WHEN_IN_GROUP,
             kind = "checkbox",
             setter = function(details, value)
@@ -1168,6 +1158,40 @@ addonTable.CustomiseDialog.WidgetsConfig = {
             end,
           },
         },
+      },
+      {
+        label = addonTable.Locales.VALUE,
+        entries = {
+          {
+            label = addonTable.Locales.PERCENTAGE,
+            kind = "dropdown",
+            getInitData = function()
+              return {
+                addonTable.Locales.RAW,
+                addonTable.Locales.SCALED,
+              }, {
+                "raw",
+                "scaled",
+              }
+            end,
+            setter = function(details, value)
+              details.value = value
+            end,
+            getter = function(details)
+              return details.value
+            end
+          },
+          {
+            label = addonTable.Locales.SHOW_PERCENT_SYMBOL,
+            kind = "checkbox",
+            setter = function(details, value)
+              details.showPercentSymbol = value
+            end,
+            getter = function(details)
+              return details.showPercentSymbol
+            end,
+          },
+        }
       },
       {
         label = addonTable.Locales.COLORS,

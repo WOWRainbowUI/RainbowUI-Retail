@@ -1,6 +1,7 @@
 # Platynator
 
-## [497](https://github.com/TheMouseNest/Platynator/tree/497) (2026-10-05)
-[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/496...497) 
+## [499](https://github.com/TheMouseNest/Platynator/tree/499) (2026-10-07)
+[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/498...499) 
 
-- Revert "Fix "In combat" check to include current player's pet"  
+- Fix typo  
+- Bar aura colors: Mitigation to avoid leaving widgets visible when deactivated  

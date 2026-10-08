@@ -1,6 +1,6 @@
 ## Interface: 120100, 16001, 50504, 38001, 20506, 11509
 ## Title: Platynator
-## Version: 497
+## Version: 499
 ## Author: plusmouse
 ## SavedVariables: PLATYNATOR_CONFIG
 ## SavedVariablesPerCharacter: PLATYNATOR_CURRENT_PROFILE, PLATYNATOR_LAST_INSTANCE
@@ -103,6 +103,7 @@ CustomiseDialog/ImportExport.lua
 CustomiseDialog/StyleSelection.lua
 CustomiseDialog/Behaviour.lua
 CustomiseDialog/AuraFilters.lua
+CustomiseDialog/AuraHighlights.lua
 CustomiseDialog/Main.lua
 CustomiseDialog/Initialize.lua
 

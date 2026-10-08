@@ -20,6 +20,7 @@ addonTable.Constants = {
   -- Restricted to secrets clients due to MoP bug where the duration objects don't work properly
   IsCooldownFormattingAvailable = CreateFrame("Cooldown").SetCountdownFormatter ~= nil and C_Secrets.HasSecretRestrictions(),
   IsSecretsActive = C_Secrets and C_Secrets.HasSecretRestrictions() or false,
+  IsModernAuras = C_XMLUtil.GetTemplateInfo("CustomAuraButton") ~= nil,
 
   DeathKnightMaxRunes = 6,
 
