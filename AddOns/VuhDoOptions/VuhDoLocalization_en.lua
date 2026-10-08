@@ -173,7 +173,7 @@ VUHDO_I18N_TT.K043 = "Click to change color to indicate players afflicted by mag
 VUHDO_I18N_TT.K044 = "Setup VuhDos basic behaviour.";
 VUHDO_I18N_TT.K045 = "Select what informations VuhDo will scan for.";
 VUHDO_I18N_TT.K048 = "Automatically cleanse before healing out of combat.";
-VUHDO_I18N_TT.K049 = "Automatically resurrect dead players out of combat.";
+VUHDO_I18N_TT.K049 = "Automatically cast your out-of-combat resurrection spell on dead players (e.g. Resurrection, Redemption). Does not use battle rez items.";
 VUHDO_I18N_TT.K053 = "Select general heal visualization. Prefere \"neutral\" unless you do raid healing in big raids.";
 VUHDO_I18N_TT.K054 = "Sets maximum number of players with lowest life shown at once. Irrelevant if mode is set to \"neutral\"";
 VUHDO_I18N_TT.K055 = "Set a max. hitpoint percentage above which players are considered healthy, which means, they will faded out a bit (configurable).";
@@ -432,7 +432,7 @@ VUHDO_I18N_TT.K356 = "Adjust custom debuff icons position in horizontal directio
 VUHDO_I18N_TT.K357 = "Select to display the name of the pet/vehicle owner in name text";
 VUHDO_I18N_TT.K358 = "Select to setup out of combat smart cast functionality";
 VUHDO_I18N_TT.K359 = "Select a modifier key to work with smart cast with.";
-VUHDO_I18N_TT.K360 = "Select this to automatically trigger battle rez on dead players mid-fight, using your class spell and any battle rez items you carry.";
+VUHDO_I18N_TT.K360 = "Automatically battle rez dead players in combat using your class combat resurrection spell and any battle rez items you carry (e.g. Emergency Soul Link).";
 VUHDO_I18N_TT.K361 = "Select to show target bars left of health bars."
 VUHDO_I18N_TT.K362 = "Select to show target bars right of health bars."
 VUHDO_I18N_TT.K363 = "Select damage flash sensivity. A bigger value means more flashing (on lower damage).";
@@ -949,6 +949,7 @@ VUHDO_I18N_TT.K894 = "Exclude Poison auras from this group.";
 VUHDO_I18N_TT.K895 = "Exclude Bleed auras from this group.";
 VUHDO_I18N_TT.K896 = "Limit this aura group to friendly units, hostile units, or both.";
 VUHDO_I18N_TT.K897 = "Exclude Enrage auras from this group.";
+VUHDO_I18N_TT.K898 = "Match every aura with this spell's name (e.g. all ranks) instead of only this exact spell ID.";
 
 -- TBCC game version specific strings (tooltip IDs begin at K900)
 
@@ -1780,3 +1781,4 @@ VUHDO_I18N_SKIN_PROMPT = "Choose a light or dark theme for VuhDo Options. You ca
 VUHDO_I18N_AURA_SHOW_ON = "Show On";
 VUHDO_I18N_AURA_SHOW_ON_FRIENDLY = "Friendly";
 VUHDO_I18N_AURA_SHOW_ON_BOTH = "Both";
+VUHDO_I18N_MATCH_BY_NAME = "Match by name";

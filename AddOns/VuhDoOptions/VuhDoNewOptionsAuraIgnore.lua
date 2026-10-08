@@ -1,6 +1,8 @@
 local _;
 
 local tinsert = table.insert;
+local tsort = table.sort;
+local twipe = table.wipe;
 local strtrim = strtrim;
 
 VUHDO_AURA_IGNORE_SORTABLE = { };
@@ -8,34 +10,55 @@ VUHDO_AURA_IGNORE_COMBO_MODEL = { };
 VUHDO_SELECTED_AURA_IGNORE = "";
 VUHDO_AURA_IGNORE_SHARE_VERSION = 1;
 
+local sAuraIgnoreSortKeys = { };
+
+
+
+--
+local tSortKey;
+local tOtherSortKey;
+local function VUHDO_compareAuraIgnoreKeys(aSpell, anotherSpell)
+
+	tSortKey = sAuraIgnoreSortKeys[aSpell];
+	tOtherSortKey = sAuraIgnoreSortKeys[anotherSpell];
+
+	if tSortKey ~= tOtherSortKey then
+		return tSortKey < tOtherSortKey;
+	end
+
+	return tostring(aSpell) < tostring(anotherSpell);
+
+end
+
 
 
 --
 local tSpellNameById;
 local tDisplayName;
+local tNameKey;
 function VUHDO_initAuraIgnoreComboModel()
 
-	table.wipe(VUHDO_AURA_IGNORE_SORTABLE);
+	twipe(VUHDO_AURA_IGNORE_SORTABLE);
+	twipe(sAuraIgnoreSortKeys);
 
 	for tName, _ in pairs(VUHDO_AURA_IGNORE_LIST) do
+		sAuraIgnoreSortKeys[tName] = tostring(VUHDO_resolveSpellId(tName));
+
 		tinsert(VUHDO_AURA_IGNORE_SORTABLE, tName);
 	end
 
-	table.sort(VUHDO_AURA_IGNORE_SORTABLE,
-	    function(aSpell, anotherSpell)
-		    return VUHDO_resolveSpellId(aSpell) < VUHDO_resolveSpellId(anotherSpell);
-	    end
-	);
+	tsort(VUHDO_AURA_IGNORE_SORTABLE, VUHDO_compareAuraIgnoreKeys);
 
-	table.wipe(VUHDO_AURA_IGNORE_COMBO_MODEL);
+	twipe(VUHDO_AURA_IGNORE_COMBO_MODEL);
 
 	for _, tName in pairs(VUHDO_AURA_IGNORE_SORTABLE) do
 		tSpellNameById = VUHDO_resolveSpellId(tName);
+		tNameKey = tostring(tName);
 
 		if (tSpellNameById ~= tName) then
-			tDisplayName = "[" .. tName .. "] " .. tSpellNameById;
+			tDisplayName = "[" .. tNameKey .. "] " .. tSpellNameById;
 		else
-			tDisplayName = tName;
+			tDisplayName = tNameKey;
 		end
 
 		tinsert(VUHDO_AURA_IGNORE_COMBO_MODEL, { tName, tDisplayName });

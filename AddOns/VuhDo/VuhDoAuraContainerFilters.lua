@@ -21,6 +21,9 @@ local VUHDO_AURA_NAME_TO_SPELL_IDS = VUHDO_AURA_NAME_TO_SPELL_IDS;
 VUHDO_AURA_NAME_PREFERRED_SPELL_ID = { };
 local VUHDO_AURA_NAME_PREFERRED_SPELL_ID = VUHDO_AURA_NAME_PREFERRED_SPELL_ID;
 
+VUHDO_AURA_NAME_MATCH_SPELL_NAMES = { };
+local VUHDO_AURA_NAME_MATCH_SPELL_NAMES = VUHDO_AURA_NAME_MATCH_SPELL_NAMES;
+
 VUHDO_AURA_CONTAINER_MAPPED_SPELL_IDS = {
 	-- [200025] = { 53563 }, -- Beacon of Virtue to Beacon of Light
 };
@@ -55,6 +58,9 @@ local VUHDO_BOUQUET_RESTRICTED_MIXED;
 local VUHDO_SPELL_DURATION_MODE_THRESHOLD;
 local VUHDO_SPELL_NAME_TO_ID;
 local VUHDO_DEFAULT_AURA_GROUPS;
+local VUHDO_BUFF_WATCH_AURA_SPELL_IDS;
+local VUHDO_AURA_SPELL_VARIANTS;
+local VUHDO_CONFIG;
 local VUHDO_AURA_RADIOVALUE_POSITIONS;
 local VUHDO_AURA_FIXED_STRAIGHT_POSITIONS;
 local VUHDO_AURA_FIXED_DIAGONAL_POSITIONS;
@@ -207,6 +213,9 @@ function VUHDO_auraContainerFiltersInitLocalOverrides()
 	VUHDO_SPELL_DURATION_MODE_THRESHOLD = _G["VUHDO_SPELL_DURATION_MODE_THRESHOLD"];
 	VUHDO_SPELL_NAME_TO_ID = _G["VUHDO_SPELL_NAME_TO_ID"];
 	VUHDO_DEFAULT_AURA_GROUPS = _G["VUHDO_DEFAULT_AURA_GROUPS"];
+	VUHDO_BUFF_WATCH_AURA_SPELL_IDS = _G["VUHDO_BUFF_WATCH_AURA_SPELL_IDS"];
+	VUHDO_AURA_SPELL_VARIANTS = _G["VUHDO_AURA_SPELL_VARIANTS"];
+	VUHDO_CONFIG = _G["VUHDO_CONFIG"];
 	VUHDO_AURA_RADIOVALUE_POSITIONS = _G["VUHDO_AURA_RADIOVALUE_POSITIONS"];
 	VUHDO_AURA_FIXED_STRAIGHT_POSITIONS = _G["VUHDO_AURA_FIXED_STRAIGHT_POSITIONS"];
 	VUHDO_AURA_FIXED_DIAGONAL_POSITIONS = _G["VUHDO_AURA_FIXED_DIAGONAL_POSITIONS"];
@@ -262,6 +271,29 @@ function VUHDO_rebuildDefaultAuraNameSpellIds()
 
 	twipe(VUHDO_AURA_NAME_TO_SPELL_IDS);
 	twipe(VUHDO_AURA_NAME_PREFERRED_SPELL_ID);
+	twipe(VUHDO_AURA_NAME_MATCH_SPELL_NAMES);
+
+	for tCanonicalId, tVariantList in pairs(VUHDO_AURA_SPELL_VARIANTS or sEmpty) do
+		tSpellName = GetSpellName(tCanonicalId);
+
+		if tSpellName then
+			tNameIds = VUHDO_AURA_NAME_TO_SPELL_IDS[tSpellName];
+
+			if not tNameIds then
+				tNameIds = { };
+
+				VUHDO_AURA_NAME_TO_SPELL_IDS[tSpellName] = tNameIds;
+			end
+
+			VUHDO_AURA_NAME_PREFERRED_SPELL_ID[tSpellName] = VUHDO_AURA_NAME_PREFERRED_SPELL_ID[tSpellName] or tCanonicalId;
+
+			for tVariantCnt = 1, #tVariantList do
+				tSpellId = tVariantList[tVariantCnt];
+
+				tNameIds[tSpellId] = true;
+			end
+		end
+	end
 
 	for _, tGroup in pairs(VUHDO_DEFAULT_AURA_GROUPS or sEmpty) do
 		if tGroup["type"] == VUHDO_AURA_GROUP_TYPE_LIST and not tGroup["isHarmful"] then
@@ -274,10 +306,15 @@ function VUHDO_rebuildDefaultAuraNameSpellIds()
 						tSpellName = GetSpellName(tSpellId);
 
 						if tSpellName then
+							if tEntry["isNameMatch"] then
+								VUHDO_AURA_NAME_MATCH_SPELL_NAMES[tValue] = tSpellName;
+							end
+
 							tNameIds = VUHDO_AURA_NAME_TO_SPELL_IDS[tSpellName];
 
 							if not tNameIds then
 								tNameIds = { };
+
 								VUHDO_AURA_NAME_TO_SPELL_IDS[tSpellName] = tNameIds;
 							end
 
@@ -287,6 +324,44 @@ function VUHDO_rebuildDefaultAuraNameSpellIds()
 						end
 					end
 				end
+			end
+		end
+	end
+
+	for _, tGroup in pairs((VUHDO_CONFIG and VUHDO_CONFIG["AURA_GROUPS"]) or sEmpty) do
+		if tGroup["type"] == VUHDO_AURA_GROUP_TYPE_LIST then
+			for _, tEntry in ipairs(tGroup["entries"] or sEmpty) do
+				if tEntry["entryType"] == VUHDO_AURA_LIST_ENTRY_SPELL then
+					tValue = tEntry["value"];
+
+					if tEntry["isNameMatch"] and type(tValue) == "number" then
+						tSpellName = GetSpellName(tValue);
+
+						if tSpellName then
+							VUHDO_AURA_NAME_MATCH_SPELL_NAMES[tValue] = tSpellName;
+						end
+					end
+				end
+			end
+		end
+	end
+
+	for tCastSpellId, tAuraSpellIds in pairs(VUHDO_BUFF_WATCH_AURA_SPELL_IDS or sEmpty) do
+		tSpellName = GetSpellName(tCastSpellId);
+
+		if tSpellName then
+			tNameIds = VUHDO_AURA_NAME_TO_SPELL_IDS[tSpellName];
+
+			if not tNameIds then
+				tNameIds = { };
+
+				VUHDO_AURA_NAME_TO_SPELL_IDS[tSpellName] = tNameIds;
+			end
+
+			for _, tAuraSpellId in ipairs(tAuraSpellIds) do
+				tNameIds[tAuraSpellId] = true;
+
+				VUHDO_AURA_NAME_PREFERRED_SPELL_ID[tSpellName] = VUHDO_AURA_NAME_PREFERRED_SPELL_ID[tSpellName] or tAuraSpellId;
 			end
 		end
 	end
@@ -552,6 +627,7 @@ do
 	local tSpellIds;
 	local tDispelTypes;
 	local tDispelSnapshot;
+	local tValue;
 	function VUHDO_isAuraGroupContainerExpressible(aGroup)
 
 		if not aGroup or aGroup["enabled"] == false or aGroup["isInferred"] then
@@ -570,11 +646,13 @@ do
 
 		for _, tEntry in ipairs(aGroup["entries"] or sEmpty) do
 			if tEntry["entryType"] == VUHDO_AURA_LIST_ENTRY_SPELL and tEntry["value"] then
-				if type(tEntry["value"]) == "number" then
+				tValue = VUHDO_getAuraListEntryMatchValue(tEntry);
+
+				if type(tValue) == "number" then
 					return true;
 				end
 
-				tSpellId = VUHDO_resolveAuraContainerSpellId(tEntry["value"]);
+				tSpellId = VUHDO_resolveAuraContainerSpellId(tValue);
 
 				if tSpellId then
 					return true;
@@ -622,7 +700,7 @@ do
 				if tEntry["entryType"] == VUHDO_AURA_LIST_ENTRY_SPELL and tEntry["value"] then
 					tSpellIds = tSpellIds or { };
 
-					VUHDO_addResolvedAuraContainerSpellIds(tSpellIds, tEntry["value"]);
+					VUHDO_addResolvedAuraContainerSpellIds(tSpellIds, VUHDO_getAuraListEntryMatchValue(tEntry));
 				end
 			end
 
@@ -665,6 +743,30 @@ do
 		twipe(sGroupResolvedFilterCache);
 
 		sGlobalIgnoreSpellIds = nil;
+
+		return;
+
+	end
+
+
+
+	--
+	local tGroup;
+	function VUHDO_invalidateAuraGroupFilterCacheForGroup(aGroupId)
+
+		if not aGroupId then
+			return;
+		end
+
+		tGroup = VUHDO_CONFIG and VUHDO_CONFIG["AURA_GROUPS"] and VUHDO_CONFIG["AURA_GROUPS"][aGroupId];
+
+		if not tGroup then
+			tGroup = VUHDO_DEFAULT_AURA_GROUPS and VUHDO_DEFAULT_AURA_GROUPS[aGroupId];
+		end
+
+		if tGroup then
+			sGroupResolvedFilterCache[tGroup] = nil;
+		end
 
 		return;
 
@@ -1136,6 +1238,28 @@ end
 
 
 --
+local tMatchName;
+function VUHDO_getAuraListEntryMatchValue(anEntry)
+
+	if not anEntry then
+		return nil;
+	end
+
+	if anEntry["isNameMatch"] and type(anEntry["value"]) == "number" then
+		tMatchName = VUHDO_AURA_NAME_MATCH_SPELL_NAMES[anEntry["value"]];
+
+		if tMatchName then
+			return tMatchName;
+		end
+	end
+
+	return anEntry["value"];
+
+end
+
+
+
+--
 local tNumVal;
 local tMappedIds;
 local tResolvedSpellIds;
@@ -1388,7 +1512,7 @@ do
 
 		tIncludeSpellIds = { };
 
-		VUHDO_addResolvedAuraContainerSpellIds(tIncludeSpellIds, anEntry["value"]);
+		VUHDO_addResolvedAuraContainerSpellIds(tIncludeSpellIds, VUHDO_getAuraListEntryMatchValue(anEntry));
 
 		if not next(tIncludeSpellIds) then
 			return nil, nil;
@@ -1425,7 +1549,9 @@ do
 			tSlotButtonSetup = { };
 
 			for tKey, tValue in pairs(aAnchorButtonSetup) do
-				tSlotButtonSetup[tKey] = tValue;
+				if "volatileSignature" ~= tKey and "buildSignature" ~= tKey then
+					tSlotButtonSetup[tKey] = tValue;
+				end
 			end
 
 			tSlotButtonSetup["durationMode"] = tSlotEntryDurationMode;
@@ -2188,11 +2314,9 @@ do
 
 			for _, tEntry in ipairs(aGroup["entries"]) do
 				if tEntry["entryType"] == VUHDO_AURA_LIST_ENTRY_SPELL then
-					tValue = tEntry["value"];
-
 					tSpellIds = tSpellIds or { };
 
-					VUHDO_addResolvedAuraContainerSpellIds(tSpellIds, tValue);
+					VUHDO_addResolvedAuraContainerSpellIds(tSpellIds, VUHDO_getAuraListEntryMatchValue(tEntry));
 				end
 			end
 

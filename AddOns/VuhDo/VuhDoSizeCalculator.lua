@@ -329,10 +329,12 @@ end
 
 
 --
-local function VUHDO_isPanelHorizontal(aPanelNum)
-	return VUHDO_PANEL_SETUP[aPanelNum]["SCALING"]["arrangeHorizontal"]
-		and (not VUHDO_IS_PANEL_CONFIG or VUHDO_CONFIG_SHOW_RAID);
+function VUHDO_isPanelHorizontal(aPanelNum)
+
+	return VUHDO_PANEL_SETUP[aPanelNum]["SCALING"]["arrangeHorizontal"] and (not VUHDO_IS_PANEL_CONFIG or VUHDO_CONFIG_SHOW_RAID);
+
 end
+local VUHDO_isPanelHorizontal = VUHDO_isPanelHorizontal;
 
 
 

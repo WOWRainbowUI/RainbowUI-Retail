@@ -84,6 +84,15 @@ end
 
 
 --
+function VUHDO_isLegacyMissingBuffBarColor()
+
+	return not sIsAuraModeContainers;
+
+end
+
+
+
+--
 function VUHDO_rebuildAuraModeEventFlags()
 
 	if not sIsAuraModeContainers then

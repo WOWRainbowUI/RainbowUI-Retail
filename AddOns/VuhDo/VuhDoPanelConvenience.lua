@@ -829,6 +829,7 @@ end
 
 
 --
+local tHlBarLabel;
 local function VUHDO_fastCacheInitButton(aPanelNum, aButtonNum)
 
 	local tButtonName = format("Vd%dH%d", aPanelNum, aButtonNum);
@@ -844,6 +845,12 @@ local function VUHDO_fastCacheInitButton(aPanelNum, aButtonNum)
 	VUHDO_BARS_PER_BUTTON[tButton][1] = _G[tButtonName .. "BgBarHlBar"];
 	VUHDO_BARS_PER_BUTTON[tButton][1]["vuhdo_parent_name"] = tButtonName .. "BgBar";
 	VUHDO_BUTTON_BY_HEALTH_BAR[VUHDO_BARS_PER_BUTTON[tButton][1]] = tButton;
+
+	tHlBarLabel = _G[tButtonName .. "BgBarHlBarLabel"];
+
+	if tHlBarLabel then
+		tHlBarLabel["addLevel"] = 1;
+	end
 	-- Mana
 	VUHDO_BARS_PER_BUTTON[tButton][2] = _G[tButtonName .. "BgBarHlBarMaBar"];
 	-- Background

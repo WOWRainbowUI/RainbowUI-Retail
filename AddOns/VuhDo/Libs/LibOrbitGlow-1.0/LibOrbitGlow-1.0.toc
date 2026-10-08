@@ -1,8 +1,8 @@
-## Interface: 120007, 120100
+## Interface: 120100
 ## Title: LibOrbitGlow-1.0
 ## Notes: Animated frame-glow engine + media-pack glow registry (proc / pandemic highlights).
 ## Author: MoONSHO7
-## Version: 6fcf422
+## Version: 302173e
 ## X-Category: Libraries
 ## X-License: MIT
 ## X-Website: https://github.com/MoONSHO7/LibOrbitGlow

@@ -47,7 +47,11 @@ local sPendingAuraHostUpdates = { };
 
 local tEmptyColor = { };
 
+local VUHDO_INDICATOR_CONFIG;
+
 local VUHDO_LibSharedMedia;
+local VUHDO_PixelUtil;
+
 local VUHDO_getActionPanelOrStub;
 local VUHDO_getPanelButtons;
 local VUHDO_getHealthBarText;
@@ -56,7 +60,7 @@ local VUHDO_isModelInPanel;
 local VUHDO_getResolvedTextProvider;
 local VUHDO_getAuraAnchorHost;
 local VUHDO_getHealthBar;
-local VUHDO_PixelUtil;
+local VUHDO_getRealParent;
 
 -----------------------------------------------------------------------
 --local VUHDO_getNumbersFromString;
@@ -73,7 +77,11 @@ function VUHDO_guiToolboxInitLocalOverrides()
 	VUHDO_PANEL_SETUP = _G["VUHDO_PANEL_SETUP"];
 	VUHDO_USER_CLASS_COLORS = _G["VUHDO_USER_CLASS_COLORS"];
 	VUHDO_ATLAS_TEXTURES = _G["VUHDO_ATLAS_TEXTURES"];
+	VUHDO_INDICATOR_CONFIG = _G["VUHDO_INDICATOR_CONFIG"];
+
 	VUHDO_LibSharedMedia = _G["VUHDO_LibSharedMedia"];
+	VUHDO_PixelUtil = _G["VUHDO_PixelUtil"];
+
 	VUHDO_getActionPanelOrStub = _G["VUHDO_getActionPanelOrStub"];
 	VUHDO_getPanelButtons = _G["VUHDO_getPanelButtons"];
 	VUHDO_getHealthBarText = _G["VUHDO_getHealthBarText"];
@@ -82,7 +90,7 @@ function VUHDO_guiToolboxInitLocalOverrides()
 	VUHDO_getResolvedTextProvider = _G["VUHDO_getResolvedTextProvider"];
 	VUHDO_getAuraAnchorHost = _G["VUHDO_getAuraAnchorHost"];
 	VUHDO_getHealthBar = _G["VUHDO_getHealthBar"];
-	VUHDO_PixelUtil = _G["VUHDO_PixelUtil"];
+	VUHDO_getRealParent = _G["VUHDO_getRealParent"];
 
 	for tPanelNum = 1, 10 do -- VUHDO_MAX_PANELS
 		sIsManaBar[tPanelNum] = VUHDO_INDICATOR_CONFIG[tPanelNum]["BOUQUETS"]["MANA_BAR"] ~= "";
@@ -1802,6 +1810,83 @@ function VUHDO_getOrCreateCachedColor(aR, aG, aB, aO)
 		return tColor;
 	end
 
+end
+
+
+
+do
+	--
+	local tHealthBar;
+	local tParent;
+	local tManaInset;
+	local tHealthHeight;
+	function VUHDO_positionHealthBar(aButton, aPanelNum)
+
+		tHealthBar = VUHDO_getHealthBar(aButton, 1);
+
+		if not tHealthBar then
+			return;
+		end
+
+		tParent = VUHDO_getRealParent(tHealthBar);
+		tManaInset = aButton["manaBarLayoutHeight"] or 0;
+
+		VUHDO_PixelUtil.ClearAllPoints(tHealthBar);
+		VUHDO_PixelUtil.SetPoint(tHealthBar, "TOPLEFT", tParent, "TOPLEFT", VUHDO_getSideBarWidthLeft(aPanelNum), 0);
+		VUHDO_PixelUtil.SetPoint(tHealthBar, "BOTTOMRIGHT", tParent, "BOTTOMRIGHT", -VUHDO_getSideBarWidthRight(aPanelNum), tManaInset);
+
+		if not VUHDO_INDICATOR_CONFIG[aPanelNum]["CUSTOM"]["HEALTH_BAR"]["vertical"] and aButton["regularHeight"] then
+			tHealthHeight = aButton["regularHeight"] - tManaInset;
+
+			VUHDO_PixelUtil.SetHeight(VUHDO_getHealthBar(aButton, 6), tHealthHeight);
+			VUHDO_PixelUtil.SetHeight(VUHDO_getHealthBar(aButton, 19), tHealthHeight);
+		end
+
+		return;
+
+	end
+end
+
+
+
+do
+	--
+	local tSideBar;
+	local tParent;
+	local tManaInset;
+	function VUHDO_positionSideBars(aButton, aPanelNum)
+
+		tManaInset = aButton["manaBarLayoutHeight"] or 0;
+
+		if VUHDO_INDICATOR_CONFIG[aPanelNum]["BOUQUETS"]["SIDE_LEFT"] ~= "" then
+			tSideBar = VUHDO_getHealthBar(aButton, 17);
+
+			if tSideBar then
+				tParent = VUHDO_getRealParent(tSideBar);
+
+				VUHDO_PixelUtil.ClearAllPoints(tSideBar);
+				VUHDO_PixelUtil.SetPoint(tSideBar, "TOPLEFT", tParent, "TOPLEFT", 0, 0);
+				VUHDO_PixelUtil.SetPoint(tSideBar, "BOTTOMLEFT", tParent, "BOTTOMLEFT", 0, tManaInset);
+				VUHDO_PixelUtil.SetWidth(tSideBar, VUHDO_getSideBarWidthLeft(aPanelNum));
+			end
+		end
+
+		if VUHDO_INDICATOR_CONFIG[aPanelNum]["BOUQUETS"]["SIDE_RIGHT"] ~= "" then
+			tSideBar = VUHDO_getHealthBar(aButton, 18);
+
+			if tSideBar then
+				tParent = VUHDO_getRealParent(tSideBar);
+
+				VUHDO_PixelUtil.ClearAllPoints(tSideBar);
+				VUHDO_PixelUtil.SetPoint(tSideBar, "TOPRIGHT", tParent, "TOPRIGHT", 0, 0);
+				VUHDO_PixelUtil.SetPoint(tSideBar, "BOTTOMRIGHT", tParent, "BOTTOMRIGHT", 0, tManaInset);
+				VUHDO_PixelUtil.SetWidth(tSideBar, VUHDO_getSideBarWidthRight(aPanelNum));
+			end
+		end
+
+		return;
+
+	end
 end
 
 
