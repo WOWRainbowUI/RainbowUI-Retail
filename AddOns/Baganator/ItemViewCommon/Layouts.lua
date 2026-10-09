@@ -511,7 +511,7 @@ function BaganatorLiveBagLayoutMixin:RebuildLayout(indexes, indexesToUse, rowWid
       indexFrame:SetID(indexes[index])
       indexFrame:Show()
 
-      local size = C_Container.GetContainerNumSlots(bagID)
+      local size = Syndicator.API.GetContainerNumSlots(bagID)
       for slotIndex = 1, size do
         local button = self.buttonPool:Acquire()
         addonTable.Skins.AddFrame("ItemButton", button)
@@ -539,7 +539,7 @@ end
 
 function BaganatorLiveBagLayoutMixin:CompareButtonIndexes(indexes, indexesToUse)
   for index, bagID in ipairs(indexes) do
-    if indexesToUse[index] and self.bagSizesUsed[index] ~= C_Container.GetContainerNumSlots(bagID) or (self.buttonsByBag[bagID] and not indexesToUse[index]) then
+    if indexesToUse[index] and self.bagSizesUsed[index] ~= Syndicator.API.GetContainerNumSlots(bagID) or (self.buttonsByBag[bagID] and not indexesToUse[index]) then
       return true
     end
   end

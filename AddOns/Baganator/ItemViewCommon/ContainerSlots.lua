@@ -44,7 +44,7 @@ local function ApplyCursor(targetInventorySlot, associatedTargetBag)
             addonTable.NewItems:ClearNewItem(0, 1)
             C_Container.PickupContainerItem(0, 1)
             if not C_Item.DoesItemExist(location) or C_Item.GetItemGUID(location) ~= movedGUID then
-              for index = 1, C_Container.GetContainerNumSlots(bagID) do
+              for index = 1, Syndicator.API.GetContainerNumSlots(bagID) do
                 local potentialLocation = {bagID = bagID, slotIndex = index}
                 if C_Item.DoesItemExist(potentialLocation) then
                   if C_Item.GetItemGUID(potentialLocation) == movedGUID then
