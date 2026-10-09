@@ -417,8 +417,8 @@ function module:Initialize(onlyStyle)
 ---- Create the second button
     local ccsr_btn2 = _G["ccsr_btn2"] or CreateFrame("Button", "ccsr_btn2", PaperDollFrame)
 	ccsr_btn2:SetSize(20, 20)
-	ccsr_btn2:SetPoint("RIGHT", PaperDollSidebarTabs, "RIGHT", -0.5, -15)
-	ccsr_btn2:SetPoint("TOPRIGHT", CharacterFrameCloseButton, "BOTTOMRIGHT", 0, -22)
+	--ccsr_btn2:SetPoint("RIGHT", PaperDollSidebarTabs, "RIGHT", -0.5, -15)
+	ccsr_btn2:SetPoint("TOPRIGHT", CharacterFrameCloseButton, "BOTTOMRIGHT", 0, -21)
 	ccsr_btn2:SetFrameStrata("HIGH")
 
 	ccsr_btn2._ccs_OnEnter = function(self)
@@ -434,7 +434,7 @@ function module:Initialize(onlyStyle)
 	if option("showr_altbtn") then
 		local ccsr_btn2_tex = ccsr_btn2.tex or ccsr_btn2:CreateTexture(nil, "ARTWORK")
 		ccsr_btn2.tex = ccsr_btn2_tex
-		CCS:ApplyIconStyle(ccsr_btn2, "ightarrow", 20)
+		CCS:ApplyIconStyle(ccsr_btn2, "ightarrow", 17)
 		ccsr_btn2.bg:SetTexture("Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\raid.png")
 		ccsr_btn2_tex:SetAllPoints()
 		--ccsr_btn2_tex:Show()

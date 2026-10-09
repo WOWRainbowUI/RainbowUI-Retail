@@ -132,7 +132,6 @@ function CCS.GetCurrentVersion()
     end
 end
 
-
 CCS.CurrentVersion = CCS.GetCurrentVersion()
 
 -- Option definitions table
@@ -191,21 +190,73 @@ ns.optionDefs = {
     { type="slider", cat="GENERAL", ver=bit.bor(CCS.ALL), key="fontshadowy", label=L["Shadow Y Offset"], value=0, default=0, min=-15, max=15, step=1, slots=1 },
     { type="dropdown", cat="GENERAL", ver=bit.bor(CCS.ALL), key="textoutline", label=L["TEXT_OUTLINE"], value="Thin Outline", default="Thin Outline", values={"No Outline", "Thin Outline", "Thick Outline"}, slots=2 },
     { type="checkbox", cat="GENERAL", ver=bit.bor(CCS.RETAIL), key="font_slug", label=L["Slug Rendering"], value=false, default=false, slots=2 },    
-    { type="divider", cat="GENERAL", ver=bit.bor(CCS.ALL), slots=4 },
-    { type="header", cat="GENERAL", ver=bit.bor(CCS.ALL), key=nil, label=L["ADDON COLORS"], slots=4, color={1, 1, 1}, fontSize=16, fontOutline="THICKOUTLINE" },
-    { type="color", cat="GENERAL", ver=bit.bor(CCS.ALL), key="button_color", label=L["Button Foreground Color"], value={0.49, 0.196, 0.659, 1}, default={0.49, 0.196, 0.659, 1}, slots=1 },
-    { type="color", cat="GENERAL", ver=bit.bor(CCS.ALL), key="highlight_color", label=L["Highlight Color"], value={0.8, .2, 1, 1}, default={0.8, .2, 1, 1}, slots=1 },
-    { type="color", cat="GENERAL", ver=bit.bor(CCS.ALL), key="border_color", label=L["Border Color"], value={0.3, 0.1, 0.4, 1}, default={0.3, 0.1, 0.4, 1}, slots=1 },
-    { type="checkbox", cat="GENERAL", ver=bit.bor(CCS.ALL), key="style_class_color", label=L["Use Class Color"], value=true, default=true, slots=1 },
+--======================================================
+--------------------------------------
+-- Style/Colors Settings
+--------------------------------------
+--======================================================
+    { type="divider", cat="STYLE-COLOR", ver=bit.bor(CCS.ALL), slots=4 },
+    { type="header", cat="STYLE-COLOR", ver=bit.bor(CCS.ALL), key=nil, label=L["ADDON COLORS"], slots=4, color={1, 1, 1}, fontSize=18, fontOutline="THICKOUTLINE" },
+    { type="color", cat="STYLE-COLOR", ver=bit.bor(CCS.ALL), key="button_color", label=L["Button Foreground Color"], value={0.49, 0.196, 0.659, 1}, default={0.49, 0.196, 0.659, 1}, slots=1 },
+    { type="color", cat="STYLE-COLOR", ver=bit.bor(CCS.ALL), key="highlight_color", label=L["Highlight Color"], value={0.8, .2, 1, 1}, default={0.8, .2, 1, 1}, slots=1 },
+    { type="color", cat="STYLE-COLOR", ver=bit.bor(CCS.ALL), key="border_color", label=L["Border Color"], value={0.3, 0.1, 0.4, 1}, default={0.3, 0.1, 0.4, 1}, slots=1 },
+    { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.ALL), key="style_class_color", label=L["Use Class Color"], value=true, default=true, slots=1 },
+
+    --------------------------------------
+    -- Character sheet Settings
+    --------------------------------------
+    { type="divider", cat="STYLE-COLOR", ver=bit.bor(CCS.ALL), slots=4 },
+    { type="header", cat="STYLE-COLOR", ver=bit.bor(CCS.ALL), key=nil, label=L["CATEGORY_CHAR-SHEET"], slots=4, color={1,1,1}, fontSize=18, fontOutline="THICKOUTLINE" },
+    { type="dropdown", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL), key="bgtype", label=L["BG_TYPE"], value="Class Crest", default="Class Crest", values={"Default", "Class", "Class Crest", "Race", "Midnight", "Hide"}, slots=2 },
+    { type="dropdown", cat="STYLE-COLOR", ver=bit.bor(CCS.TBC, CCS.MOP, CCS.FOREVER), key="bgtype", label=L["BG_TYPE"], value="Midnight", default="Midnight", values={"Default", "Class Crest", "Race", "Midnight", "Hide"}, slots=2 },
+    { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL), key="showbganimations", label=ANIMATION, value=true, default=true, slots=1 },
+    { type="color", cat="STYLE-COLOR", ver=bit.bor(CCS.ALL), key="bgcolor", label=L["CCS_BG_COLOR"], value={0,0,0,0.89}, default={0,0,0,0.89}, slots=1 },
+    { type="dropdown", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key="tabtex", label=L["Bottom Tab Texture"], value="Steel Beam", default="Steel Beam", values={"Fleur","Hammered","Iron","Onyx","Shiny","Steel Beam"}, slots=2 },
+    { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL), key="showsidebarbg", label=L["Sidebar Background"], value=true, default=true, slots=1 },
+
+
+    --------------------------------------
+    -- Reputation/Currency frame Settings
+    --------------------------------------
+    { type="divider", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), slots=4 },
+    { type="header", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key=nil, label=L["Reputation Currency Frame"], slots=4, color={1, 1, 1}, fontSize=18, fontOutline="THICKOUTLINE" },
+    { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key="showframeheaderbg", label=L["Frame Header Background"], value=true, default=true, slots=4 },
+    { type="dropdown", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key="repheadertex", label=L["Header Bar Texture"], value="Steel Beam", default="Steel Beam", values={"Arch","Castle","Fleur","Star","Steel Beam","Stone"}, slots=2 },
+    { type="color", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key="repheadercolor", label=L["Header Bar Color"], value={.463, .463, .463, 1}, default={.463, .463, .463, 1}, slots=1 },
+    { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key="repaddoncolor", label=L["Use Addon Colors"], value=true, default=true, slots=1 },
+
+    --{ type="dropdown", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL), key="repbartex", label=L["Bar Texture"], value="Steel Beam", default="Steel Beam", values={"Fleur","Hammered","Iron","Onyx","Shiny","Steel Beam"}, slots=2 },
+    --{ type="dropdown", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL), key="repbarbgtex", label=L["Bar Background"], value="Steel Beam", default="Steel Beam", values={"Fleur","Hammered","Iron","Onyx","Shiny","Steel Beam"}, slots=2 },
+
+    --------------------------------------
+    -- Stats frame Settings
+    --------------------------------------
+    { type="divider", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER, CCS.TBC), slots=4 },
+    { type="header", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER, CCS.TBC), key=nil, label=L["CATEGORY_CHAR-STATS"], slots=4, color={1,1,1}, fontSize=18, fontOutline="THICKOUTLINE" },
+    { type="dropdown", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL), key="statheadertex", label=L["Header Texture"], value="Steel Beam", default="Steel Beam", values={"Arch", "Castle", "Fleur", "Line", "Star", "Steel Beam", "Stone"}, slots=2 },
+    { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL), key="stataddoncolor", label=L["Use Addon Colors"], value=true, default=true, slots=1 },
+    { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL), key="showstatborder", label=L["Show Border"], value=true, default=true, slots=1 },
+    { type="color",    cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL), key="attribute_color", label=L["BGCOLOR_ATTRIBUTES"], value={0.90, 0.70, 0.20, 1}, default={0.90, 0.70, 0.20, 1}, slots=2 }, -- Gold
+    { type="color",    cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL), key="secondary_stats_color", label=L["BGCOLOR_SECONDARY_STATS"], value={0.40, 0.80, 0.40, 1}, default={0.40, 0.80, 0.40, 1}, slots=2 }, -- Dark Green
+    { type="color",    cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL), key="attack_stats_color", label=L["BGCOLOR_ATTACK_STATS"], value={0.8, 0.3, .3, 1}, default={0.8, 0.3, .3, 1}, slots=2 }, -- Dark Red
+    { type="color",    cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL), key="defense_stats_color", label=L["BGCOLOR_DEFENSE_STATS"], value={0.29, 0.46, 0.9, 1}, default={0.29, 0.46, 0.9, 1}, slots=2 }, -- Dark Blue
+    { type="color",    cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL), key="general_color", label=L["BGCOLOR_GENERAL_STATS"], value={0.7, 0.7, 0.7, 1}, default={0.7, 0.7, 0.7, 1}, slots=2 }, -- Gray
+    { type="color",    cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL), key="crests_color", label=L["BGCOLOR_CRESTS_STATS"], value={0.85, 0.55, 1, 1}, default={0.85, 0.55, 1, 1}, slots=2 }, -- Gray
+    { type="color",    cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL), key="pvp_color", label=L["BGCOLOR_PVP_STATS"], value={0.95, 0.25, 0.60, 1}, default={0.95, 0.25, 0.60, 1}, slots=2 }, -- Gray
+    { type="color",    cat="STYLE-COLOR", ver=bit.bor(CCS.TBC), key="ccs_basestats_color", label=L["BGCOLOR_BASESTATS"], value={0.64, 0.47, 0.1, 0.4}, default={0.64, 0.47, 0.1, 0.4}, slots=2 }, -- Gold
+    { type="color",    cat="STYLE-COLOR", ver=bit.bor(CCS.TBC), key="ccs_melee_stats_color", label=L["BGCOLOR_MELEE_STATS"], value={0.16, 0.34, 0.08, 0.4}, default={0.16, 0.34, 0.08, 0.4}, slots=2 }, -- Dark Green
+    { type="color",    cat="STYLE-COLOR", ver=bit.bor(CCS.TBC), key="ccs_ranged_stats_color", label=L["BGCOLOR_RANGED_STATS"], value={0.41, 0, 0, 0.4}, default={0.41, 0, 0, 0.4}, slots=2 }, -- Dark Red
+    { type="color",    cat="STYLE-COLOR", ver=bit.bor(CCS.TBC), key="ccs_spell_stats_color", label=L["BGCOLOR_SPELL_STATS"], value={0, 0.13, 0.38, 0.4}, default={0, 0.13, 0.38, 0.4}, slots=2 }, -- Dark Blue
+    { type="color",    cat="STYLE-COLOR", ver=bit.bor(CCS.TBC), key="ccs_defenses_color", label=L["BGCOLOR_DEFENSES_STATS"], value={0.45, 0.45, 0.45, 0.4}, default={0.45, 0.45, 0.45, 0.4}, slots=2 }, -- Gray
+
+    --------------------------------------
+    -- End of Style/Colors Settings
+    --------------------------------------
     
     -- Character Sheet General Display Settings
     { type="divider", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), slots=4 },
     { type="header", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key=nil, label=L["HEADER_GENERAL_DISPLAY"], slots=4, color={1,1,1}, fontSize=20, fontOutline="THICKOUTLINE" },
     { type="divider", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), slots=4 },
-    { type="color", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="bgcolor", label=L["CCS_BG_COLOR"], value={0,0,0,0.89}, default={0,0,0,0.89}, slots=1 },
-    { type="dropdown", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL), key="bgtype", label=L["BG_TYPE"], value="Class Crest", default="Class Crest", values={"Default", "Class", "Class Crest", "Race", "Midnight", "Hide"}, slots=2 },
-    { type="dropdown", cat="CHAR-SHEET", ver=bit.bor(CCS.TBC, CCS.MOP, CCS.FOREVER), key="bgtype", label=L["BG_TYPE"], value="Midnight", default="Midnight", values={"Default", "Class Crest", "Race", "Midnight", "Hide"}, slots=2 },
-    { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL), key="showbganimations", label=ANIMATION, value=true, default=true, slots=1 },
     { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL), key="showparagonmax", label=L["PARAGON_MAX_BAR"], value=false, default=false, slots=1 },
     { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL), key="showtitlesearch", label=L["TITLE_SEARCH"], value=true, default=true, slots=1 },
     { type="divider", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL), slots=4 },
@@ -232,7 +283,8 @@ ns.optionDefs = {
     { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="showsetitems", label=L["SHOW_SET_ITEMS"], value=true, default=true, slots=1 },
     { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="showsetclasscolor", label=L["SHOW_SET_CLASS_COLOR"], value=true, default=true, slots=1 },
     { type="color", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="setitemcolor", label=L["SET_ITEM_COLOR"], value={0.05,0.75,0.45,1}, default={0.05,0.75,0.45,1}, slots=1 },
-    { type="color", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="itemupgradecolor", label=L["ITEM_UPGRADE_COLOR"], value={0.98,0.60,0.35,1}, default={0.98,0.60,0.35,1}, slots=2 },
+    { type="color", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="itemupgradecolor", label=L["ITEM_UPGRADE_COLOR"], value={0.98,0.60,0.35,1}, default={0.98,0.60,0.35,1}, slots=1 },
+    { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL), key="maxupgradehide", label=L["Hide Max Upgraded"], value=false, default=false, slots=2 },
     { type="slider", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="itemcolorbrightness", label=L["Item Background Brightness"], value=1.00, default=1.00, min=0.30, max=1.00, step=0.01, slots=2 },
     { type="slider", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="enchantnamelength", label=L["ENCHANT_NAME_LENGTH"], value=100, default=100, min=20, max=100, step=1, slots=2 },
     { type="divider", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL), slots=4 },
@@ -314,7 +366,6 @@ ns.optionDefs = {
     { type="header", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key=nil, label=L["Attributes"], slots=4, color={1,1,1}, fontSize=20, fontOutline="THICKOUTLINE" },
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="show_attributes", label=L["show_attributes"], value=true, default=true, slots=1 },
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="collapse_attributes", label=L["collapse_attributes"], value=false, default=false, slots=1 },
-    { type="color",    cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="attribute_color", label=L["BGCOLOR_ATTRIBUTES"], value={0.90, 0.70, 0.20, 1}, default={0.90, 0.70, 0.20, 1}, slots=2 }, -- Gold
 
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="attribute_primary",   label=L["attribute_primary"],   value=true, default=true, slots=1 },
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="attribute_stamina",   label=L["attribute_stamina"],   value=true, default=true, slots=1 },
@@ -326,19 +377,16 @@ ns.optionDefs = {
     { type="header", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key=nil, label=L["Secondary"], slots=4, color={1,1,1}, fontSize=20, fontOutline="THICKOUTLINE" },
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="show_secondary", 	label=L["show_secondary"], value=true, default=true, slots=1 },
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="collapse_secondary", label=L["collapse_secondary"], value=false, default=false, slots=1 },
-    { type="color",    cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="secondary_stats_color", label=L["BGCOLOR_SECONDARY_STATS"], value={0.40, 0.80, 0.40, 1}, default={0.40, 0.80, 0.40, 1}, slots=2 }, -- Dark Green
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="secondary_crit",        label=L["secondary_crit"],        value=true, default=true, slots=1 },
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="secondary_haste",       label=L["secondary_haste"],       value=true, default=true, slots=1 },
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="secondary_mastery",     label=L["secondary_mastery"],     value=true, default=true, slots=1 },
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="secondary_versatility", label=L["secondary_versatility"], value=true, default=true, slots=1 },
     { type="dropdown", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="secondary_versatility_display", label=L["Versatility Display"], value="All", default="All", values={"All", "Damage/Healing", "Damage Reduction"}, slots=2 },
 
-
     { type="divider", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), slots=4 },
     { type="header", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key=nil, label=L["Attack"], slots=4, color={1,1,1}, fontSize=20, fontOutline="THICKOUTLINE" },
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="show_attack", label=L["show_attack"], value=true, default=true, slots=1 },
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="collapse_attack", label=L["collapse_attack"], value=false, default=false, slots=1 },
-    { type="color",    cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="attack_stats_color", label=L["BGCOLOR_ATTACK_STATS"], value={0.8, 0.3, .3, 1}, default={0.8, 0.3, .3, 1}, slots=2 }, -- Dark Red
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="attack_power", label=L["attack_power"], value=true, default=true, slots=1 },
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="attack_speed", label=L["attack_speed"], value=true, default=true, slots=1 },
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="attack_spell", label=L["attack_spell"], value=true, default=true, slots=1 },
@@ -347,7 +395,6 @@ ns.optionDefs = {
     { type="header", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key=nil, label=L["Defense"], slots=4, color={1,1,1}, fontSize=20, fontOutline="THICKOUTLINE" },
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="show_defense", label=L["show_defense"], value=true, default=true, slots=1 },
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="collapse_defense", label=L["collapse_defense"], value=false, default=false, slots=1 },
-    { type="color",    cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="defense_stats_color", label=L["BGCOLOR_DEFENSE_STATS"], value={0.29, 0.46, 0.9, 1}, default={0.29, 0.46, 0.9, 1}, slots=2 }, -- Dark Blue
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="defense_armor",   label=L["defense_armor"],   value=true, default=true, slots=1 },
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="defense_dodge",   label=L["defense_dodge"],   value=true, default=true, slots=1 },
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="defense_parry",   label=L["defense_parry"],   value=true, default=true, slots=1 },
@@ -358,7 +405,6 @@ ns.optionDefs = {
     { type="header", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key=nil, label=L["General"], slots=4, color={1,1,1}, fontSize=20, fontOutline="THICKOUTLINE" },
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="show_general", label=L["show_general"], value=true, default=true, slots=1 },
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="collapse_general", label=L["collapse_general"], value=false, default=false, slots=1 },
-    { type="color",    cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="general_color", label=L["BGCOLOR_GENERAL_STATS"], value={0.7, 0.7, 0.7, 1}, default={0.7, 0.7, 0.7, 1}, slots=2 }, -- Gray
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="general_durability", label=L["general_durability"], value=true, default=true, slots=1 },
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="general_leech",      label=L["general_leech"],      value=true, default=true, slots=1 },
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="general_avoidance",  label=L["general_avoidance"],  value=true, default=true, slots=1 },
@@ -369,7 +415,6 @@ ns.optionDefs = {
     { type="header", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key=nil, label=L["Crests"], slots=4, color={1,1,1}, fontSize=20, fontOutline="THICKOUTLINE" },
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="show_crests", label=L["show_crests"], value=false, default=false, slots=1 },
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="collapse_crests", label=L["collapse_crests"], value=false, default=false, slots=1 },
-    { type="color",    cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="crests_color", label=L["BGCOLOR_CRESTS_STATS"], value={0.85, 0.55, 1, 1}, default={0.85, 0.55, 1, 1}, slots=2 }, -- Gray
 --REMOVED BY BLIZ for Midnight S1.  Keeping just in case.    { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="crests_valorstone", label=L["crests_valorstone"], value=true, default=true, slots=1 },
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="crests_myth",       label=L["crests_myth"],       value=true, default=true, slots=1 },
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="crests_hero",       label=L["crests_hero"],       value=true, default=true, slots=1 },
@@ -382,7 +427,6 @@ ns.optionDefs = {
     { type="header", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key=nil, label=L["PvP"], slots=4, color={1,1,1}, fontSize=20, fontOutline="THICKOUTLINE" },
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="show_pvp", label=L["show_pvp"], value=false, default=false, slots=1 },
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="collapse_pvp", label=L["collapse_pvp"], value=false, default=false, slots=1 },
-    { type="color",    cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="pvp_color", label=L["BGCOLOR_PVP_STATS"], value={0.95, 0.25, 0.60, 1}, default={0.95, 0.25, 0.60, 1}, slots=2 }, -- Gray
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="pvp_honorlevel", label=L["pvp_honorlevel"], value=true, default=true, slots=1 },
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="pvp_honor",      label=L["pvp_honor"],      value=true, default=true, slots=1 },
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="pvp_conquest",   label=L["pvp_conquest"],   value=true, default=true, slots=1 },
@@ -396,19 +440,14 @@ ns.optionDefs = {
 
     -- TBC and Classic Stats Options
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.TBC), key="show_basestats", label=L["SHOW_BASESTATS"], value=true, default=true, slots=2 },
-    { type="color",    cat="CHAR-STATS", ver=bit.bor(CCS.TBC), key="ccs_basestats_color", label=L["BGCOLOR_BASESTATS"], value={0.64, 0.47, 0.1, 0.4}, default={0.64, 0.47, 0.1, 0.4}, slots=2 }, -- Gold
 
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.TBC), key="show_melee_stats", label=L["SHOW_MELEE_STATS"], value=true, default=true, slots=2 },
-    { type="color",    cat="CHAR-STATS", ver=bit.bor(CCS.TBC), key="ccs_melee_stats_color", label=L["BGCOLOR_MELEE_STATS"], value={0.16, 0.34, 0.08, 0.4}, default={0.16, 0.34, 0.08, 0.4}, slots=2 }, -- Dark Green
 
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.TBC), key="show_ranged_stats", label=L["SHOW_RANGED_STATS"], value=true, default=true, slots=2 },
-    { type="color",    cat="CHAR-STATS", ver=bit.bor(CCS.TBC), key="ccs_ranged_stats_color", label=L["BGCOLOR_RANGED_STATS"], value={0.41, 0, 0, 0.4}, default={0.41, 0, 0, 0.4}, slots=2 }, -- Dark Red
 
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.TBC), key="show_spell_stats", label=L["SHOW_SPELL_STATS"], value=true, default=true, slots=2 },
-    { type="color",    cat="CHAR-STATS", ver=bit.bor(CCS.TBC), key="ccs_spell_stats_color", label=L["BGCOLOR_SPELL_STATS"], value={0, 0.13, 0.38, 0.4}, default={0, 0.13, 0.38, 0.4}, slots=2 }, -- Dark Blue
 
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.TBC), key="show_defenses_stats", label=L["SHOW_DEFENSES_STATS"], value=true, default=true, slots=2 },
-    { type="color",    cat="CHAR-STATS", ver=bit.bor(CCS.TBC), key="ccs_defenses_color", label=L["BGCOLOR_DEFENSES_STATS"], value={0.45, 0.45, 0.45, 0.4}, default={0.45, 0.45, 0.45, 0.4}, slots=2 }, -- Gray
     
     -- Stats Font Settings
     { type="divider", cat="CHAR-STATS-FONT", ver=bit.bor(CCS.RETAIL, CCS.TBC), slots=4 },

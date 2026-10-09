@@ -168,7 +168,7 @@ local function hookfix()
     PetPaperDollPetModelBg:SetPoint("TOPLEFT", PetModelFrame, "TOPLEFT", 4, -4)
     PetPaperDollPetModelBg:SetPoint("BOTTOMRIGHT", PetModelFrame, "BOTTOMRIGHT", 350, -250)
     InitStats()
-    
+
 end
 
 local function InitializeFrameUpdates()
@@ -214,7 +214,17 @@ local function MOPupdateLocationInfo(unit, slotIndex, framename)
     local itemLoc = isPlayer and ItemLocation:CreateFromEquipmentSlot(slotIndex) or nil
 
     -- Create or reuse UI elements
+
     _G[slotFrameName]:SetFrameStrata("HIGH")
+
+    if isPlayer and C_AddOns.IsAddOnLoaded("Outfitter") then
+        local outfitterSlot = _G[CCS.getSlotFrameName(slotIndex, "OutfitterEnable")]
+        if outfitterSlot then
+            outfitterSlot:SetFrameStrata("HIGH")
+            outfitterSlot:SetFrameLevel(math.max(outfitterSlot:GetFrameLevel(), _G[slotFrameName]:GetFrameLevel() + 1))
+        end
+    end
+
     local nameTxt = _G[slotFrameName.."namefs"] or _G[slotFrameName]:CreateFontString(slotFrameName.."namefs")
     local ilvlTxt = _G[slotFrameName.."ilvlfs"] or _G[slotFrameName]:CreateFontString(slotFrameName.."ilvlfs")
     local enchantTxt = _G[slotFrameName.."enchantfs"] or _G[slotFrameName]:CreateFontString(slotFrameName.."enchantfs")
@@ -1301,7 +1311,13 @@ function CCS.HookSetup()
     if CCS.Hooked then return end
         --== Frame Hooks
     CreateExtraReputationRows(10)
-
+    if C_AddOns.IsAddOnLoaded("Outfitter") == true then
+        if OutfitterButton and OutfitterButtonFrame then
+            OutfitterButton:SetPoint("TOPRIGHT", CharacterFrameCloseButton, "BOTTOMRIGHT", 9, 0)
+            OutfitterButton:SetScale(.8)
+            OutfitterFrame:SetPoint("TOPLEFT", CharacterFrameBg, "TOPRIGHT",0,-2)
+        end
+    end
     hooksecurefunc(ReputationFrame, "Hide", function() ReputationDetailFrame:Hide(); end )
     hooksecurefunc("ReputationFrame_Update", CCSReputationFrame_Update)
 

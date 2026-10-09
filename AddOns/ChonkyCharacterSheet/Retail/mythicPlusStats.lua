@@ -1944,7 +1944,7 @@ function module:Initialize(onlyStyle)
 	-- Create the new button
 	local btn2 = _G["MPlusScoreIconBtn"] or CreateFrame("Button", "MPlusScoreIconBtn", PaperDollFrame)
 	btn2:SetSize(20, 20)
-	btn2:SetPoint("TOPRIGHT", CharacterFrameCloseButton, "BOTTOMRIGHT", 0, -1)
+	btn2:SetPoint("TOPRIGHT", CharacterFrameCloseButton, "BOTTOMRIGHT", 0, 0)
 	btn2:SetFrameStrata("HIGH")
 
 	btn2._ccs_OnEnter = function(self)

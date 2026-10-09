@@ -1362,13 +1362,6 @@ function CCS.initializeinspectframe()
     InspectFrame:SetScale(option("sheetscale_inspect") or 1)
     InspectFrame:SetHeight(479+(7*option("vpad_inspect"))) -- Do not allow the frame to get any smaller than the default bliz frame
     InspectFrame:SetWidth(617)
-
-	if not InspectFrame.ccshooked then
-		-- This may be used if I need to in the future
-		--hooksecurefunc(InspectFrame, "Show", function() print("OPEN") end)
-		--hooksecurefunc(InspectFrame, "Hide", function() print("CLOSE") end)
-		InspectFrame.ccshooked = true
-	end
 	
     local Bgoffset = 209 + (610 - 540)
     
@@ -1630,14 +1623,9 @@ loopitems = function()
 		ilvlTxt:SetShadowOffset(option("fontshadowx") or 0, option("fontshadowy") or 0)
 	end
 		
-    if C_AddOns.IsAddOnLoaded("LoxxInterruptTracker") then
-		ilvlTxt:SetFont(option("fontname_inspect_ilvl") or CCS.fontname, 12, CCS.textoutline)
-		ilvlTxt:SetText("|cFFFFFF00Loxx Interrupt Tracker is Interfering with this addon.|r")
-		ilvlTxt:Show()
-	else
-		ilvlTxt:SetText("|cFF".. color .. format("%.2f", iLvl or "") .. "|r")
-		ilvlTxt:SetShown(option("showilvlinspect"))
-    end
+	ilvlTxt:SetText("|cFF".. color .. format("%.2f", iLvl or "") .. "|r")
+	ilvlTxt:SetShown(option("showilvlinspect"))
+
 	if not InspectFrame.ccsinitload then
 		initmplusframe()
 		initclickframe()

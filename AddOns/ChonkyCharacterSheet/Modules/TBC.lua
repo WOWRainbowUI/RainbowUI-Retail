@@ -263,6 +263,15 @@ local function TBCupdateLocationInfo(unit, slotIndex, framename)
 
     -- Create or reuse UI elements
     _G[slotFrameName]:SetFrameStrata("HIGH")
+
+    if isPlayer and C_AddOns.IsAddOnLoaded("Outfitter") then
+        local outfitterSlot = _G[CCS.getSlotFrameName(slotIndex, "OutfitterEnable")]
+        if outfitterSlot then
+            outfitterSlot:SetFrameStrata("HIGH")
+            outfitterSlot:SetFrameLevel(math.max(outfitterSlot:GetFrameLevel(), _G[slotFrameName]:GetFrameLevel() + 1))
+        end
+    end
+    
     local nameTxt = _G[slotFrameName.."namefs"] or _G[slotFrameName]:CreateFontString(slotFrameName.."namefs")
     local ilvlTxt = _G[slotFrameName.."ilvlfs"] or _G[slotFrameName]:CreateFontString(slotFrameName.."ilvlfs")
     local enchantTxt = _G[slotFrameName.."enchantfs"] or _G[slotFrameName]:CreateFontString(slotFrameName.."enchantfs")
