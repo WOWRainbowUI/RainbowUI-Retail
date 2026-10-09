@@ -1,3 +1,4 @@
+## Dependencies: Ace3
 ## Interface: 120100, 16001, 50504, 38001, 20506, 11509
 ## Title: Baganator
 ## Version: 836
