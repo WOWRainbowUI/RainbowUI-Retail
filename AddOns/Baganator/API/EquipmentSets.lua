@@ -179,7 +179,7 @@ if not addonTable.Constants.IsEra and not addonTable.Constants.IsBC and Syndicat
 end
 
 -- ItemRack Classic
-if not addonTable.Constants.IsRetail and not addonTable.Constants.IsForever then
+if not addonTable.Constants.IsRetail then
   addonTable.Utilities.OnAddonLoaded("ItemRack", function()
     local equipmentSetInfo = {}
     local equipmentSetNames = {}
