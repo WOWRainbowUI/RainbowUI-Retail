@@ -3,7 +3,7 @@
 ## Notes: Shows CC and important spells on frames/nameplates/alerts in PvP.
 ## Category: Mini
 ## Author: Verz
-## Version: 5.43.0
+## Version: 5.43.1
 ## Dependencies: Ace3
 ## SavedVariables: MiniAurasDB
 ## OptionalDeps: ElvUI, Grid2, DandersFrames, FrameSort, Masque, TPerl, TidyPlates_ThreatPlates, VuhDo, BuzzardFrames, NDui, EllesmereUIUnitFrames
@@ -59,6 +59,7 @@ Core\Auras\AuraCountdownText.lua
 Core\Auras\AuraMasque.lua
 Core\Auras\AuraButtonPaint.lua
 Core\Auras\AuraContainerDisplay.lua
+Core\Auras\SpellRanks.lua
 Core\Auras\TrackedBuffs.lua
 Core\Auras\ClassBuffs.lua
 
