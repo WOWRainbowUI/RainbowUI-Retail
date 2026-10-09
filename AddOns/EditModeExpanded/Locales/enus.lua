@@ -131,3 +131,4 @@ L["Selected Layout"] = true
 L["Name Scale"] = true
 L["Reparent Frame"] = true
 L["Allows frames to be reparented to other frames. Use at your own risk. May cause errors if not properly used."] = true
+L["Extras"] = true

@@ -90,3 +90,4 @@ L["Class Powers"] = true
 -- Auto Layout changes
 L["AUTO_LAYOUT_CHANGES_SPECNAME_GROUP_TYPE"] = "%s - "..GROUP..TYPE
 L["AUTO_LAYOUT_CHANGES_RAID_SIZE_OPTION_DESC"] = "You do not need to set a profile for every size, the next-smallest size will be used if nothing is set!"
+L["Extras"] = "额外设置"
