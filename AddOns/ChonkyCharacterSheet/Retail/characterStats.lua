@@ -1612,6 +1612,8 @@ local function UpdateLayout()
     local previousSection = nil
     local sectionSpacing = 7
     local rowSpacing = 2
+    local scrollFrame = _G["CCS_stat_sf"]
+    local scrollChild = _G["CCS_stat_sc"]
 
     -------------------------------------------------
     -- We accumulate scrollable height as we lay out
@@ -1641,7 +1643,7 @@ local function UpdateLayout()
                 -------------------------------------------------
                 sectionFrame:ClearAllPoints()
                 if not previousSection then
-                    sectionFrame:SetPoint("TOPLEFT", _G["CSPilvl"], "BOTTOMLEFT", 0, -sectionSpacing)
+                    sectionFrame:SetPoint("TOPLEFT", scrollChild, "TOPLEFT", 0, -sectionSpacing)
                 else
                     sectionFrame:SetPoint("TOPLEFT", previousSection, "BOTTOMLEFT", 0, -sectionSpacing)
                 end
@@ -1764,7 +1766,6 @@ local function UpdateLayout()
     -------------------------------------------------
     -- APPLY HEIGHT TO SCROLL CHILD
     -------------------------------------------------
-    local scrollChild = _G["CCS_stat_sc"]
     if scrollChild then
         scrollChild:SetHeight(contentHeight)
     end
@@ -1772,7 +1773,6 @@ local function UpdateLayout()
     -------------------------------------------------
     -- UPDATE SCROLLBAR RANGE
     -------------------------------------------------
-    local scrollFrame = _G["CCS_stat_sf"]
     if scrollFrame then
         UpdateStatsScrollRange(scrollFrame)
     end
@@ -1786,6 +1786,15 @@ local function CreateHeaderRow(parent, frameName, section)
 	local title = section.title
 	local color = section.color
 	local secColor_r, secColor_g, secColor_b, secColor_a = unpack(option(section.colorKey))
+	
+	if option("stataddoncolor") then
+		local ncolor = CCS.StyleColor.normal
+		secColor_r = ncolor[1]
+		secColor_g = ncolor[2]
+		secColor_b = ncolor[3] 
+		secColor_a = ncolor[4]
+	end
+	
 	color.r = secColor_r or color.r
 	color.g = secColor_g or color.g
 	color.b = secColor_b or color.b
@@ -1991,6 +2000,7 @@ local function CreateHeaderRow(parent, frameName, section)
 	local header_fontsize = option("fontsize_statheaders") or 14
     local rowH = rowHeight * (header_fontsize / 14)
     row:SetSize(rowWidth, rowH)
+    row:SetSize(parent:GetWidth()+2, rowH)
 
     -------------------------------------------------
     -- Expand/Collapse + Indicator
@@ -2016,7 +2026,7 @@ local function CreateHeaderRow(parent, frameName, section)
     if not row.headerText then
         row.headerText = row:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
     end
-	row.headerText:SetPoint("CENTER")
+	row.headerText:SetPoint("CENTER",0,2)
 	row.headerText:SetFont(option("fontname_statheaders") or "Fonts\\FRIZQT__.TTF", header_fontsize, CCS.textoutline)
 	row.headerText:SetTextColor(
 	option("fontcolor_statheaders")[1] or 1,
@@ -2120,7 +2130,7 @@ local function CreateHeaderRow(parent, frameName, section)
         row.leftTex:SetPoint("LEFT", row, "LEFT", 0, 0)
     end
     row.leftTex:SetGradient("HORIZONTAL", leftStart, leftEnd)
-
+	row.leftTex:Hide()
     -------------------------------------------------
     -- Right Gradient Bar
     -------------------------------------------------
@@ -2132,15 +2142,32 @@ local function CreateHeaderRow(parent, frameName, section)
         row.rightTex:SetPoint("RIGHT", row, "RIGHT", 0, 0)
     end
     row.rightTex:SetGradient("HORIZONTAL", rightStart, rightEnd)
+	row.rightTex:Hide()
 
     -------------------------------------------------
-    -- Background
+    -- Header Background
     -------------------------------------------------
+	--local entry = CCS.headertexture[3]
+	local entry = CCS:GetHeaderTextureByName(option("statheadertex"))
+	local ncolor = CCS.StyleColor.normal
+	
     if not row.bg then
         row.bg = row:CreateTexture(nil, "BACKGROUND")
         row.bg:SetAllPoints()
     end
-    row.bg:SetColorTexture(0.1, 0.1, 0.1, 0.4)
+
+	if entry ~= nil then
+		local texWidth, texHeight, uMin, uMax, vMin, vMax = unpack(entry.map)
+
+		row.bg:SetTexture(entry.texture)
+		row.bg:SetTexCoord(uMin, uMax, vMin, vMax);
+		row.bg:SetVertexColor(color.r, color.g, color.b, 1)
+	else
+		row.bg:SetTexture("Interface\\Masks\\SquareMask.BLP")
+		row.bg:SetVertexColor(0.07, 0.07, 0.07, 0)
+		row.leftTex:Show()
+		row.rightTex:Show()		
+	end
 
 	-- Highlight overlay (for drag target)
 	if not row.highlight then
@@ -2286,15 +2313,17 @@ local function CreateAndUpdateiLvlframe(parent)
 	btn:SetParent(parent)
 	btn:ClearAllPoints()
 	btn:SetSize(rowWidth, rowHeight*(option("fontsize_cilvl") or 20) /20)
-	btn:SetPoint("TOPLEFT", parent, "TOPLEFT", 0, 0)
+	btn:SetPoint("TOPLEFT", parent, "TOPLEFT", 9, -3)
+	btn:SetPoint("RIGHT", parent, "RIGHT", 0, 0)	
 	btn:SetFrameStrata("HIGH")
+	btn:SetFrameLevel(1)
 	btn.throttle = 0;
 	btn:Show()       
 	
 	btntex:ClearAllPoints()
 	btntex:SetAllPoints()
 	btntex:SetTexture("Interface\\Masks\\SquareMask.BLP")
-	btntex:SetGradient("Vertical", CreateColor(0, 0, 0, .2), CreateColor(.1, .1, .1, .4)) -- Dark Gray
+	btntex:SetGradient("Vertical", CreateColor(0, 0, 0, .7), CreateColor(.1, .1, .1, .4)) -- Dark Gray
 	btnfontilvl:SetPoint("CENTER", btn, "CENTER", 0 ,0)
 	btnfontilvl:SetFont(option("fontname_cilvl") or CCS.fontname, (option("fontsize_cilvl") or 20), CCS.textoutline)
 	if option("showfontshadow") == true then
@@ -2359,7 +2388,7 @@ end
 
 UpdateAllStats = function(parent)
     if CCS.initall == true then return end
-    CreateAndUpdateiLvlframe(parent)
+    CreateAndUpdateiLvlframe(CharacterStatsPane)
 
 	if ShouldShowPriority() then
         local _, _, classID = UnitClass("player")
@@ -2607,7 +2636,6 @@ function CCS.SetupScrollBar()
     down.Disabled:SetAtlas("minimal-scrollbar-arrow-bottom", true)
 end
 
-
 local function CreateStatsScrollFrame(rowWidth)
     local scrollFrame = CCS_stat_sf
     if not scrollFrame then
@@ -2618,10 +2646,10 @@ local function CreateStatsScrollFrame(rowWidth)
     end
 
     scrollFrame:ClearAllPoints()
-    scrollFrame:SetPoint("TOPLEFT", CharacterStatsPane, "TOPLEFT", 10, 0)
+    scrollFrame:SetPoint("TOPLEFT", CharacterStatsPane, "TOPLEFT", 10, -32)
     scrollFrame:SetPoint("BOTTOMRIGHT", CharacterStatsPane, "BOTTOMRIGHT", -12, 5)
     scrollFrame:Show()
-
+	CCS.CreateChonkyNineSlice(CharacterStatsPane)
     local scrollChild = CCS_stat_sc
     if not scrollChild then
         scrollChild = CreateFrame("Frame", "CCS_stat_sc", scrollFrame)
@@ -2631,7 +2659,8 @@ local function CreateStatsScrollFrame(rowWidth)
     scrollChild:ClearAllPoints()
     scrollChild:SetPoint("TOPLEFT", scrollFrame, "TOPLEFT", 0, 0)
     scrollChild:SetWidth(rowWidth or scrollFrame:GetWidth())
-    scrollChild:SetHeight(1) -- you’ll set this to total row height later
+    scrollChild:SetHeight(1) 
+	scrollChild:SetFrameLevel(5)
 
     scrollFrame.scrollChild = scrollChild
     return scrollFrame, scrollChild
@@ -2647,7 +2676,7 @@ local function CreateStatsScrollBar(scrollFrame)
         sb:SetObeyStepOnDrag(false)
 
         sb:SetWidth(18)
-        sb:SetPoint("TOPLEFT", scrollFrame, "TOPRIGHT", 0, -21)
+        sb:SetPoint("TOPLEFT", scrollFrame, "TOPRIGHT", 0, -42)
         sb:SetPoint("BOTTOMLEFT", scrollFrame, "BOTTOMRIGHT", 0, 6)
 
         -- Border frame
@@ -2763,7 +2792,10 @@ local function ApplyStyle(self)
             fs:SetShadowColor(0,0,0,0)
         end
     end
-
+	-- Border Texture for the stats panel
+	if CharacterStatsPane.ChonkyStatBG then
+		CharacterStatsPane.ChonkyStatBG:SetShown(option("showstatborder"))
+	end
     -------------------------------------------------
     -- Sections
     -------------------------------------------------
@@ -2775,9 +2807,15 @@ local function ApplyStyle(self)
         -------------------------------------------------
         -- Section background
         -------------------------------------------------
+        --local secColor = CCS.DarkenColor(option(section.colorKey), .2)
         local secColor = option(section.colorKey)
+		
         if frame and frame.bg and secColor then
-            frame.bg:SetColorTexture(secColor[1], secColor[2], secColor[3], 0.2)
+			if option("stataddoncolor") then
+				frame.bg:SetColorTexture(.15, .15, .15, 1)
+			else
+				frame.bg:SetColorTexture(secColor[1], secColor[2], secColor[3], 0.2)
+			end
         end
 
         -------------------------------------------------
@@ -2802,10 +2840,10 @@ local function ApplyStyle(self)
             local rightEnd   = CreateColor(r, g, b, 0.20)
 
             if header.leftTex then
-                header.leftTex:SetGradient("HORIZONTAL", leftStart, leftEnd)
+                --header.leftTex:SetGradient("HORIZONTAL", leftStart, leftEnd)
             end
             if header.rightTex then
-                header.rightTex:SetGradient("HORIZONTAL", rightStart, rightEnd)
+                --header.rightTex:SetGradient("HORIZONTAL", rightStart, rightEnd)
             end
         end
 
@@ -2885,7 +2923,7 @@ function module:Initialize(onlyStyle)
         -------------------------------------------------
         -- iLvl Frame
         -------------------------------------------------
-        local btn = CreateAndUpdateiLvlframe(scrollChild)
+        local btn = CreateAndUpdateiLvlframe(CharacterStatsPane)
         self.iLvlFrame = btn
         self.iLvlFrame.fontString = btn.fontString
 
@@ -2916,7 +2954,7 @@ function module:Initialize(onlyStyle)
             sectionFrame:SetWidth(rowWidth + 4)
 
             if not previousSection then
-                sectionFrame:SetPoint("TOPLEFT", _G["CSPilvl"], "BOTTOMLEFT", 0, -sectionSpacing)
+                sectionFrame:SetPoint("TOPLEFT", scrollChild, "TOPLEFT", 0, -sectionSpacing)
             else
                 sectionFrame:SetPoint("TOPLEFT", previousSection, "BOTTOMLEFT", 0, -sectionSpacing)
             end

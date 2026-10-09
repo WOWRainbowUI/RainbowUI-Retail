@@ -29,6 +29,15 @@ local defaultStrings = {
     ------------------------------------------------------------
     -- General / Common
     ------------------------------------------------------------
+	["CATEGORY_STYLE-COLOR"] = "Style/Colors",  -- enUS / enGB
+	["Bottom Tab Texture"] = "Bottom Tab Texture",   -- enUS / enGB
+	["Header Texture"] = "Header Texture", -- enUS / enGB
+	["Use Addon Colors"] = "Use Addon Colors", -- enUS / enGB
+	["Reputation Currency Frame"] = "Reputation/Currency Frame", -- enUS / enGB
+	["Show Border"] = "Show Border",  -- enUS / enGB
+	["Sidebar Background"] = "Sidebar Background",   -- enUS / enGB
+	["Frame Header Background"] = "Frame Header Background",   -- enUS / enGB
+	["Hide Max Upgraded"] = "Hide Max Upgraded", -- enUS / enGB
 	["TITLE_SEARCH"] = "Show Title Search Box", -- enUS / enGB
     ["SHOW_MYTHIC_SP_ONOPEN_INSPECT"] = "Show Mythic+ Side Panel On Inspect Sheet Open", -- enUS / enGB
 	["Class Crest"] = "Class Crest", -- enUS / enGB
@@ -441,6 +450,15 @@ if locale == "enGB" then
     }
 elseif locale == "deDE" then
     localizedStrings = {
+		["CATEGORY_STYLE-COLOR"] = "Stil/Farben", -- deDE
+		["Bottom Tab Texture"] = "Unteres Tab-Textur", -- deDE
+		["Header Texture"] = "Kopfzeilen-Textur", -- deDE
+		["Use Addon Colors"] = "Addon-Farben verwenden", -- deDE
+		["Reputation Currency Frame"] = "Ruf/Währungs-Rahmen", -- deDE
+		["Show Border"] = "Rand anzeigen", -- deDE
+		["Sidebar Background"] = "Seitenleisten-Hintergrund", -- deDE
+		["Frame Header Background"] = "Rahmen-Kopfzeilen-Hintergrund", -- deDE
+		["Hide Max Upgraded"] = "Maximale Aufwertung ausblenden", -- deDE
 		["TITLE_SEARCH"] = "Titelsuchfeld anzeigen", -- deDE
 		["SHOW_MYTHIC_SP_ONOPEN_INSPECT"] = "Mythic+ Seitenleiste beim Öffnen des Inspektionsfensters anzeigen", -- deDE
         ["Class Crest"] = "Klassenwappen", -- deDE
@@ -824,6 +842,15 @@ elseif locale == "deDE" then
     }	
 elseif locale == "frFR" then
     localizedStrings = {
+		["CATEGORY_STYLE-COLOR"] = "Style/Couleurs", -- frFR
+		["Bottom Tab Texture"] = "Texture de l’onglet inférieur", -- frFR
+		["Header Texture"] = "Texture d’en-tête", -- frFR
+		["Use Addon Colors"] = "Utiliser les couleurs de l’addon", -- frFR
+		["Reputation Currency Frame"] = "Cadre Réputation/Monnaie", -- frFR
+		["Show Border"] = "Afficher la bordure", -- frFR
+		["Sidebar Background"] = "Arrière-plan de la barre latérale", -- frFR
+		["Frame Header Background"] = "Arrière-plan de l’en-tête du cadre", -- frFR
+		["Hide Max Upgraded"] = "Masquer le niveau max amélioré", -- frFR
 		["TITLE_SEARCH"] = "Afficher la boîte de recherche des titres", -- frFR
 		["SHOW_MYTHIC_SP_ONOPEN_INSPECT"] = "Afficher le panneau Mythique+ lors de l’ouverture de la fiche d’inspection", -- frFR
         ["Class Crest"] = "Emblème de classe", -- frFR
@@ -1207,6 +1234,15 @@ elseif locale == "frFR" then
     }
 elseif locale == "esES" then
     localizedStrings = {
+		["CATEGORY_STYLE-COLOR"] = "Estilo/Colores", -- esES
+		["Bottom Tab Texture"] = "Textura de pestaña inferior", -- esES
+		["Header Texture"] = "Textura de encabezado", -- esES
+		["Use Addon Colors"] = "Usar colores del addon", -- esES
+		["Reputation Currency Frame"] = "Marco de Reputación/Moneda", -- esES
+		["Show Border"] = "Mostrar borde", -- esES
+		["Sidebar Background"] = "Fondo de barra lateral", -- esES
+		["Frame Header Background"] = "Fondo del encabezado del marco", -- esES
+		["Hide Max Upgraded"] = "Ocultar mejora máxima", -- esES
 		["TITLE_SEARCH"] = "Mostrar el cuadro de búsqueda de títulos", -- esES
 		["SHOW_MYTHIC_SP_ONOPEN_INSPECT"] = "Mostrar el panel lateral de Míticas+ al abrir la hoja de inspección", -- esMX
         ["Class Crest"] = "Emblema de clase", -- esES
@@ -1590,6 +1626,15 @@ elseif locale == "esES" then
     }
 elseif locale == "esMX" then
     localizedStrings = {
+		["CATEGORY_STYLE-COLOR"] = "Estilo/Colores", -- esMX
+		["Bottom Tab Texture"] = "Textura de pestaña inferior", -- esMX
+		["Header Texture"] = "Textura de encabezado", -- esMX
+		["Use Addon Colors"] = "Usar colores del addon", -- esMX
+		["Reputation Currency Frame"] = "Marco de Reputación/Moneda", -- esMX
+		["Show Border"] = "Mostrar borde", -- esMX
+		["Sidebar Background"] = "Fondo de barra lateral", -- esMX
+		["Frame Header Background"] = "Fondo del encabezado del marco", -- esMX
+		["Hide Max Upgraded"] = "Ocultar mejora máxima", -- esMX
 		["TITLE_SEARCH"] = "Mostrar el cuadro de búsqueda de títulos", -- esMX
 		["SHOW_MYTHIC_SP_ONOPEN_INSPECT"] = "Mostrar el panel lateral de Míticas+ al abrir la hoja de inspección", -- esES
         ["Class Crest"] = "Emblema de clase", -- esMX
@@ -1973,6 +2018,15 @@ elseif locale == "esMX" then
     }
 elseif locale == "ruRU" then
     localizedStrings = {
+		["CATEGORY_STYLE-COLOR"] = "Стиль/Цвета", -- ruRU
+		["Bottom Tab Texture"] = "Текстура нижней вкладки", -- ruRU
+		["Header Texture"] = "Текстура заголовка", -- ruRU
+		["Use Addon Colors"] = "Использовать цвета аддона", -- ruRU
+		["Reputation Currency Frame"] = "Рамка Репутации/Валюты", -- ruRU
+		["Show Border"] = "Показать границу", -- ruRU
+		["Sidebar Background"] = "Фон боковой панели", -- ruRU
+		["Frame Header Background"] = "Фон заголовка рамки", -- ruRU
+		["Hide Max Upgraded"] = "Скрыть максимальное улучшение", -- ruRU
 		["TITLE_SEARCH"] = "Показать окно поиска титулов", -- ruRU
 		["SHOW_MYTHIC_SP_ONOPEN_INSPECT"] = "Показывать боковую панель Mythic+ при открытии окна осмотра персонажа", -- ruRU
         ["Class Crest"] = "Герб класса", -- ruRU
@@ -2357,6 +2411,15 @@ elseif locale == "ruRU" then
     }
 elseif locale == "koKR" then
     localizedStrings = {
+		["CATEGORY_STYLE-COLOR"] = "스타일/색상", -- koKR
+		["Bottom Tab Texture"] = "하단 탭 텍스처", -- koKR
+		["Header Texture"] = "헤더 텍스처", -- koKR
+		["Use Addon Colors"] = "애드온 색상 사용", -- koKR
+		["Reputation Currency Frame"] = "평판/화폐 프레임", -- koKR
+		["Show Border"] = "테두리 표시", -- koKR
+		["Sidebar Background"] = "사이드바 배경", -- koKR
+		["Frame Header Background"] = "프레임 헤더 배경", -- koKR
+		["Hide Max Upgraded"] = "최대 업그레이드 숨기기", -- koKR
 		["TITLE_SEARCH"] = "칭호 검색창 표시", -- koKR
 		["SHOW_MYTHIC_SP_ONOPEN_INSPECT"] = "캐릭터 정보창에서 검사 시 신화+ 사이드 패널 표시", -- koKR
         ["Class Crest"] = "직업 문장", -- koKR
@@ -2740,6 +2803,15 @@ elseif locale == "koKR" then
     }
 elseif locale == "zhCN" then
     localizedStrings = {
+		["CATEGORY_STYLE-COLOR"] = "样式/颜色", -- zhCN
+		["Bottom Tab Texture"] = "底部标签纹理", -- zhCN
+		["Header Texture"] = "标题纹理", -- zhCN
+		["Use Addon Colors"] = "使用插件颜色", -- zhCN
+		["Reputation Currency Frame"] = "声望/货币框架", -- zhCN
+		["Show Border"] = "显示边框", -- zhCN
+		["Sidebar Background"] = "侧边栏背景", -- zhCN
+		["Frame Header Background"] = "框架标题背景", -- zhCN
+		["Hide Max Upgraded"] = "隐藏最高升级", -- zhCN
 		["TITLE_SEARCH"] = "显示头衔搜索框", -- zhCN
 		["SHOW_MYTHIC_SP_ONOPEN_INSPECT"] = "在打开角色检视界面时显示史诗钥石侧边面板", -- zhCN
         ["Class Crest"] = "职业徽章", -- zhCN
@@ -3123,6 +3195,15 @@ elseif locale == "zhCN" then
     }
 elseif locale == "zhTW" then
     localizedStrings = {
+		["CATEGORY_STYLE-COLOR"] = "樣式/顏色", -- zhTW
+		["Bottom Tab Texture"] = "底部標籤材質", -- zhTW
+		["Header Texture"] = "標題材質", -- zhTW
+		["Use Addon Colors"] = "使用插件顏色", -- zhTW
+		["Reputation Currency Frame"] = "聲望/貨幣框架", -- zhTW
+		["Show Border"] = "顯示邊框", -- zhTW
+		["Sidebar Background"] = "側邊欄背景", -- zhTW
+		["Frame Header Background"] = "框架標題背景", -- zhTW
+		["Hide Max Upgraded"] = "隱藏最高升級", -- zhTW
 		["TITLE_SEARCH"] = "顯示頭銜搜尋框", -- zhTW
 		["SHOW_MYTHIC_SP_ONOPEN_INSPECT"] = "開啟檢視角色資訊時顯示傳奇+側邊面板", -- zhTW
         ["Class Crest"] = "職業徽章", -- zhTW
@@ -3507,6 +3588,15 @@ elseif locale == "zhTW" then
     }
 elseif locale == "ptBR" then
     localizedStrings = {
+		["CATEGORY_STYLE-COLOR"] = "Estilo/Cores", -- ptBR
+		["Bottom Tab Texture"] = "Textura da guia inferior", -- ptBR
+		["Header Texture"] = "Textura do cabeçalho", -- ptBR
+		["Use Addon Colors"] = "Usar cores do addon", -- ptBR
+		["Reputation Currency Frame"] = "Quadro de Reputação/Moeda", -- ptBR
+		["Show Border"] = "Mostrar borda", -- ptBR
+		["Sidebar Background"] = "Fundo da barra lateral", -- ptBR
+		["Frame Header Background"] = "Fundo do cabeçalho do quadro", -- ptBR
+		["Hide Max Upgraded"] = "Ocultar melhoria máxima", -- ptBR
 		["TITLE_SEARCH"] = "Mostrar a caixa de pesquisa de títulos", -- ptBR
 		["SHOW_MYTHIC_SP_ONOPEN_INSPECT"] = "Mostrar o painel lateral de Míticas+ ao abrir a janela de inspeção", -- ptBR
         ["Class Crest"] = "Brasão da classe", -- ptBR
@@ -3890,6 +3980,15 @@ elseif locale == "ptBR" then
     }
 elseif locale == "itIT" then
     localizedStrings = {
+		["CATEGORY_STYLE-COLOR"] = "Stile/Colori", -- itIT
+		["Bottom Tab Texture"] = "Texture della scheda inferiore", -- itIT
+		["Header Texture"] = "Texture dell’intestazione", -- itIT
+		["Use Addon Colors"] = "Usa i colori dell’addon", -- itIT
+		["Reputation Currency Frame"] = "Riquadro Reputazione/Valuta", -- itIT
+		["Show Border"] = "Mostra bordo", -- itIT
+		["Sidebar Background"] = "Sfondo della barra laterale", -- itIT
+		["Frame Header Background"] = "Sfondo dell’intestazione del riquadro", -- itIT
+		["Hide Max Upgraded"] = "Nascondi miglioramento massimo", -- itIT
 		["TITLE_SEARCH"] = "Mostra la casella di ricerca dei titoli", -- itIT
 		["SHOW_MYTHIC_SP_ONOPEN_INSPECT"] = "Mostra il pannello Mitiche+ all’apertura della scheda di ispezione", -- itIT
         ["Class Crest"] = "Stemma di classe", -- itIT

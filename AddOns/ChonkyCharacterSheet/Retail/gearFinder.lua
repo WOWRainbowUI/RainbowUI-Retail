@@ -2902,8 +2902,8 @@ function module:Initialize(onlyStyle)
 ---- Create the button
     local ccsgf_btn = _G["ccsgf_btn"] or CreateFrame("Button", "ccsgf_btn", PaperDollFrame)
 	ccsgf_btn:SetSize(20, 20)
-	ccsgf_btn:SetPoint("RIGHT", PaperDollSidebarTabs, "RIGHT", -0.5, -15)
-	ccsgf_btn:SetPoint("TOPRIGHT", CharacterFrameCloseButton, "BOTTOMRIGHT", 0, -44)
+	--ccsgf_btn:SetPoint("RIGHT", PaperDollSidebarTabs, "RIGHT", -0.5, -15)
+	ccsgf_btn:SetPoint("TOPRIGHT", CharacterFrameCloseButton, "BOTTOMRIGHT", 0, -41)
 	ccsgf_btn:SetFrameStrata("HIGH")
 
 	ccsgf_btn._ccs_OnEnter = function(self)

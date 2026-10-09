@@ -91,6 +91,7 @@ local categoryScrollChildren = {}
 
 local categoryList = {
     { name = "GENERAL",         ver=CCS.ALL},
+    { name = "STYLE-COLOR",     ver=CCS.ALL },
     { name = "CHAR-SHEET",      ver=CCS.ALL },
     { name = "CHAR-FONT",       ver=CCS.ALL },
     { name = "CHAR-STATS",      ver=CCS.RETAIL},

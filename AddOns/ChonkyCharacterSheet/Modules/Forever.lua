@@ -24,10 +24,6 @@ local modelbtnfont1 = _G["CCS_clk_Btnfs1"] or modelbtn:CreateFontString("CCS_clk
 local ccs_cshow
 local function hookfix() 
 
-    if C_AddOns.IsAddOnLoaded("ClassCodex") == true and option("showm_sp_onopen") == true then
-        if ClassCodexPanel then ClassCodexPanel:Hide() end
-    end
-
     if not CCS.AreSecretsDisabled() and _G["ccsm_sf"] and (option("showm_sp_onopen") == true) and (UnitLevel("player") == CCS.MaxLevel)then
             _G["ccsm_sf"]:Show()
             _G["ccs_sf"]:Hide()             
@@ -82,9 +78,6 @@ local function MoveModelLeft()
     CharacterModelFrameBackgroundBotLeft:Hide();
     CharacterModelFrameBackgroundTopRight:Hide();
     CharacterModelFrameBackgroundBotRight:Hide();
-    --CharacterModelFrameBackgroundOverlay:ClearAllPoints()
-    --CharacterModelFrameBackgroundOverlay:SetPoint("TOPLEFT", CharacterModelFrameBackgroundTopLeft, "TOPLEFT", 0, 0)
-    --CharacterModelFrameBackgroundOverlay:SetPoint("BOTTOMRIGHT", CharacterModelFrameBackgroundBotRight, "BOTTOMRIGHT", 0, 70)
     CharacterModelScene.BackgroundOverlay:Hide()
     
     modbg:ClearAllPoints()
@@ -146,20 +139,16 @@ local function CreateAndUpdateiLvlframe(parent)
 		Color = color
 
 		avgItemLevelEquipped = format("%s", CCS.round(avgItemLevelEquipped))
-		--avgItemLevel = format("%s", CCS.round(avgItemLevel))
-		--avgItemLevelPvP = format("%s", CCS.round(avgItemLevelPvP))
 
 	if option("show_inbag_ilvl") == true and false then
 		btnfontilvl:SetText(format("|cFF%s%s / %s|r", Color, avgItemLevelEquipped, avgItemLevel))
 	else
 		btnfontilvl:SetText(format("|cFF%s%s|r", Color, avgItemLevelEquipped))            
 	end
-		--tt_name = HIGHLIGHT_FONT_COLOR_CODE..format(PAPERDOLLFRAME_TOOLTIP_FORMAT, STAT_AVERAGE_ITEM_LEVEL).." "..avgItemLevel
 		tt_name = tt_name .. "  " .. format(STAT_AVERAGE_ITEM_LEVEL_EQUIPPED, avgItemLevelEquipped)
 		tt_name = tt_name .. FONT_COLOR_CODE_CLOSE
 
 		tt_desc = STAT_AVERAGE_ITEM_LEVEL_TOOLTIP
-		--tt_desc = tt_desc.."\n\n"..STAT_AVERAGE_PVP_ITEM_LEVEL:format(avgItemLevelPvP)
 
 		btn:SetScript("OnEnter", function(self)
 			CCS.tooltip:SetOwner(self, "ANCHOR_RIGHT")
@@ -200,8 +189,8 @@ local function BlizStatFrame_Update()
 
         for _,stats_child in ipairs(stats_children) do
             if stats_child.Title ~= nil then
-
-                local entry = CCS.headertexture[3]
+                local entry = CCS:GetHeaderTextureByName(option("statheadertex"))
+                --local entry = CCS.headertexture[3]
                 local texWidth, texHeight, uMin, uMax, vMin, vMax = unpack(entry.map)
 
                 stats_child.Background:SetTexture(entry.texture)
@@ -300,12 +289,6 @@ end
 
 ccs_cshow = function()
     MoveModelLeft()
-    if C_AddOns.IsAddOnLoaded("Narcissus") and NarciMiniTalentTree and NarciMiniTalentTree:IsVisible() then -- Just relocate the mini talent tree so it isn't hidden behind the character frame.
-    C_Timer.NewTicker(.1, function() 
-            NarciMiniTalentTree:ClearAllPoints(); 
-            NarciMiniTalentTree:SetPoint("TOPLEFT", CharacterFrameBg, "TOPRIGHT", 0, 0) end, 1)
-    end
-    --if option("hideshowchbtn") == true then modelbtn:Hide() else modelbtn:Show() end
 
     if C_AddOns.IsAddOnLoaded("Leatrix_Plus") then -- relocate the volume slider
             C_Timer.After(0, function()
@@ -404,17 +387,9 @@ local function SkillsFrame_Update()
                         end
                     end
 
-                    -- Apply selected highlight to this row
-                    if self.Background then
-                        --local bcolor = CCS.NormalizeColor(CCS.StyleColor.border)
-                       -- self.Background:SetColorTexture(bcolor[1], bcolor[2], bcolor[3], 0.35)
-                    end
                 end)
-
                 k.CCS_ClickHooked = true
             end
-
-        
         end
         
         for _,k2 in ipairs(ks2) do  
@@ -458,7 +433,6 @@ local function SkillsFrame_Update()
             end
 
             if k2.BackgroundHighlight and false then
-               -- k2.BackgroundHighlight:Hide()
                 k2.BackgroundHighlight:SetAlpha(0)
             end
         end 
@@ -505,42 +479,19 @@ local function StatisticsFrame_Update()
     end
 end
 
-local function DumpHeaderRow(k)
-    print("== Dump for header row ==", k:GetName() or "<unnamed>")
-
-    local regions = { k:GetRegions() }
-    for i, r in ipairs(regions) do
-        local rType = r:GetObjectType()
-        print(string.format("Region %d: %s", i, rType))
-
-        if rType == "Texture" then
-            local tex = r:GetTexture()
-            local uMin, uMax, vMin, vMax = r:GetTexCoord()
-            local hTile = r.GetHorizTile and r:GetHorizTile()
-            local vTile = r.GetVertTile and r:GetVertTile()
-            local w, h = r:GetSize()
-            local layer, sublevel = r:GetDrawLayer()
-
-            print(string.format("  Texture: %s", tex or "nil"))
-            print(string.format("  Layer: %s (%d)", layer or "nil", sublevel or 0))
-            print(string.format("  Size: %.1f x %.1f", w or 0, h or 0))
-            print(string.format("  TexCoord: u(%.3f, %.3f) v(%.3f, %.3f)", uMin or 0, uMax or 0, vMin or 0, vMax or 0))
-            print(string.format("  Tiling: horiz=%s vert=%s", tostring(hTile), tostring(vTile)))
-        elseif rType == "FontString" then
-            print(string.format("  Text: %s", r:GetText() or ""))
-        end
-    end
-end
-
-
 local function ReputationFrame_Update()
     local ks={ReputationFrame.ScrollBox.ScrollTarget:GetChildren()}; 
     local gender = UnitSex("player");
     local xtext, factiontext= "", ""
-    local dcolor = CCS.StyleColor.border
+	local entry = CCS:GetframeHeaderTextureByName(option("repheadertex"))
+	local bcolor = CCS.StyleColor.border
 
     CCS.RepRows =  {}
     if C_AddOns.IsAddOnLoaded("PrettyReps") then return end
+
+	if option("repaddoncolor") == false then
+		bcolor = option("repheadercolor")
+	end
     
     for _,k in ipairs(ks) do -- Individual Row
         local factionData = C_Reputation.GetFactionDataByIndex(k.factionIndex)
@@ -553,9 +504,11 @@ local function ReputationFrame_Update()
 
         if k.Name then 
             k.Name:SetPoint("LEFT", k, "LEFT", 20,0)
-            if ktex ~= nil and dcolor ~= nil then
-                ktex:SetTexture("Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\Frame\\marblebar.png")
-                ktex:SetVertexColor(dcolor[1], dcolor[2], dcolor[3], dcolor[4])
+            if ktex ~= nil and bcolor ~= nil and entry ~= nil then
+                local texWidth, texHeight, uMin, uMax, vMin, vMax = unpack(entry.map)
+                ktex:SetTexture(entry.texture)
+                ktex:SetTexCoord(uMin, uMax, vMin, vMax);
+                ktex:SetVertexColor(bcolor[1], bcolor[2], bcolor[3], bcolor[4] )
                 ktex:SetPoint("TOPLEFT", k, "TOPLEFT",0,-kheight*.15)
                 ktex:SetPoint("BOTTOMRIGHT", k, "BOTTOMRIGHT",0,kheight*.15)
             end
@@ -580,18 +533,10 @@ local function ReputationFrame_Update()
                             end
                         end
                     end
-
-                    -- Apply selected highlight to this row
-                    if self.Background then
-                        --local bcolor = CCS.NormalizeColor(CCS.StyleColor.border)
-                       -- self.Background:SetColorTexture(bcolor[1], bcolor[2], bcolor[3], 0.35)
-                    end
                 end)
 
                 k.CCS_ClickHooked = true
             end
-
-        
         end
         
         if factionData ~= nil then
@@ -604,7 +549,7 @@ local function ReputationFrame_Update()
                 local barValue =  factionData.currentStanding
                 k.Background = k.Background or k:CreateTexture(nil, "BACKGROUND", nil, 2)
 
-                if (k.Background) then
+                if (k.Background ~= nil) then
                     k.Background:SetTexture("Interface\\Masks\\SquareMask.BLP")
                     if standingID == 1 then
                         k.Background:SetColorTexture(.07, .07, .07, 0)
@@ -645,7 +590,6 @@ local function ReputationFrame_Update()
                 end
 
                 if k2.BackgroundHighlight and false then
-                   -- k2.BackgroundHighlight:Hide()
                     k2.BackgroundHighlight:SetAlpha(0)
                 end
                 
@@ -751,7 +695,6 @@ local function ReputationFrame_Update()
                     
                     if (k2.ReputationBar) then
                         local fontName, fontHeight, fontFlags = k2.ReputationBar.Text:GetFont()
-                        --xtext = format("  %-60.60s %-60.60s", factiontext or "", format(REPUTATION_PROGRESS_FORMAT, BreakUpLargeNumbers(barValue) or "", BreakUpLargeNumbers(barMax)) or "")
                         xtext = format("  %-60.60s", factiontext or "")
 
                         if k2.ReputationBar.Text2 == nil then
@@ -787,7 +730,7 @@ local function ReputationFrame_Update()
                             option("fontcolor_repstanding")[3] or 1,
                             option("fontcolor_repstanding")[4] or 1
                         )                            
-                                                                        
+
                         k2.Name:SetFont(option("fontname_reputation") or fontName, option("fontsize_reputation"), CCS.textoutline)
                         if option("showfontshadow") == true then
                             k2.Name:SetShadowColor(unpack(option("fontshadowcolor") or {0,0,0,1}))
@@ -817,8 +760,6 @@ local function ReputationFrame_Update()
                         k2.awi:SetShown(C_Reputation.IsAccountWideReputation(factionID))
                     end 
                 end 
-                
-                
             end 
         end
     end
@@ -826,228 +767,116 @@ end
 
 local function CurrencyFrame_Update()
 
-if true then return end
-            local tf={TokenFrame.ScrollBox.ScrollTarget:GetChildren()}; 
-            
-            for _,t in ipairs(tf) do 
-                if t and t.Name then t.Name:SetFont(t.Name:GetFont(), option("fontsize_currency") or 11, CCS.textoutline)
-                        if option("showfontshadow") == true then
-                            t.Name:SetShadowColor(unpack(option("fontshadowcolor") or {0,0,0,1}))
-                            t.Name:SetShadowOffset(option("fontshadowx") or 0, option("fontshadowy") or 0)
-                        end	                                                                
-                end 
-                if t and t.Count then t.Count:SetFont(t.Count:GetFont(), option("fontsize_currency") or 11, CCS.textoutline)
-                        if option("showfontshadow") == true then
-                            t.Count:SetShadowColor(unpack(option("fontshadowcolor") or {0,0,0,1}))
-                            t.Count:SetShadowOffset(option("fontshadowx") or 0, option("fontshadowy") or 0)
-                        end	                                                
-                end 
+    if TokenFrame == nil or TokenFrame.ScrollBox == nil or TokenFrame.ScrollBox.ScrollTarget == nil then return end
 
-                    if t.Text then
-                        t.Text:SetFont(option("fontname_currency") or fontName, option("fontsize_currency"), CCS.textoutline)
-                        if option("showfontshadow") == true then
-                            t.Text:SetShadowColor(unpack(option("fontshadowcolor") or {0,0,0,1}))
-                            t.Text:SetShadowOffset(option("fontshadowx") or 0, option("fontshadowy") or 0)
-                        end	                                                
-                        
-                        t.Text:SetTextColor(
-                            option("fontcolor_currency")[1] or 1,
-                            option("fontcolor_currency")[2] or 1,
-                            option("fontcolor_currency")[3] or 1,
-                            option("fontcolor_currency")[4] or 1
-                        )                    
-                    end
-
-                local ks2={t:GetChildren()}; 
-                for _,k2 in ipairs(ks2) do  -- Individual Row
-                    k2.Background = k2.Background or k2:CreateTexture(nil, "BACKGROUND", nil, 2)
-                    
-                    if (k2.Background) then
-                        k2.Background:SetTexture("Interface\\Masks\\SquareMask.BLP")
-                        k2.Background:SetColorTexture(.15, .15, .15, 0.90)
-                        k2.Background:ClearAllPoints()
-                        k2.Background:SetPoint("TOPLEFT", k2, "TOPLEFT")
-                        k2.Background:SetPoint("BOTTOMRIGHT", k2, "BOTTOMRIGHT")
-                        k2.Background:Show()
-                    end
-
-                    if k2.Name then
-                        k2.Name:SetFont(option("fontname_currency") or fontName, option("fontsize_currency"), CCS.textoutline)
-                        if option("showfontshadow") == true then
-                            k2.Name:SetShadowColor(unpack(option("fontshadowcolor") or {0,0,0,1}))
-                            k2.Name:SetShadowOffset(option("fontshadowx") or 0, option("fontshadowy") or 0)
-                        end	                                                
-                        
-                        k2.Name:SetTextColor(
-                            option("fontcolor_currency")[1] or 1,
-                            option("fontcolor_currency")[2] or 1,
-                            option("fontcolor_currency")[3] or 1,
-                            option("fontcolor_currency")[4] or 1
-                        )
-                    end
-                    
-                    if k2.Count then
-                        k2.Count:SetFont(option("fontname_currency") or fontName, option("fontsize_currency"), CCS.textoutline)
-                        if option("showfontshadow") == true then
-                            k2.Count:SetShadowColor(unpack(option("fontshadowcolor") or {0,0,0,1}))
-                            k2.Count:SetShadowOffset(option("fontshadowx") or 0, option("fontshadowy") or 0)
-                        end	                                                
-                        
-                        k2.Count:SetTextColor(
-                            option("fontcolor_currency")[1] or 1,
-                            option("fontcolor_currency")[2] or 1,
-                            option("fontcolor_currency")[3] or 1,
-                            option("fontcolor_currency")[4] or 1
-                        )
-
-                    end
-
-                    
-                    if k2.AccountWideIcon then
-                        k2.awi = k2.awi or k2:CreateTexture(nil, "OVERLAY", nil, 2)
-                        k2.awi:SetSize(23, 23)
-                        k2.awi:SetAtlas("warbands-icon", true)
-                        k2.awi:SetScale(0.9)
-                        k2.awi:ClearAllPoints()
-                        k2.awi:SetPoint("TOPLEFT", k2.AccountWideIcon, "TOPLEFT")
-                        k2.awi:SetPoint("BOTTOMRIGHT", k2.AccountWideIcon, "BOTTOMRIGHT")
-                        if t.elementData.isAccountTransferable then
-                            k2.awi:Show()
-                        else
-                            k2.awi:Hide()
-                        end
-                    end 
-                end
-                
-            end
+    local tf={TokenFrame.ScrollBox.ScrollTarget:GetChildren()}; 
+    local entry = CCS:GetframeHeaderTextureByName(option("repheadertex"))
+	local bcolor = CCS.StyleColor.border    
     
-end
+    for _,t in ipairs(tf) do 
+        if t and t.Name then 
+            local ttex = select(1, t:GetRegions())
+            local theight = t:GetHeight()
 
-local function CreateTransmogButton()
-    -- Create the button
-    local btn = CreateFrame("CheckButton", "MyTransmogButton", PaperDollSidebarTabs)
-    btn:SetSize(33, 35)
-
-    local last = _G["PaperDollSidebarTab"..1]
-    btn:SetPoint("RIGHT", last, "LEFT", -4, 0)
-
-    btn.TabBg = btn:CreateTexture(nil, "BACKGROUND")
-    btn.TabBg:SetTexture("Interface\\PaperDollInfoFrame\\PaperDollSidebarTabs")
-    btn.TabBg:SetSize(50, 43)
-    btn.TabBg:SetPoint("BOTTOMLEFT", -9, -2)
-    btn.TabBg:SetTexCoord(0.01562500, 0.79687500, 0.61328125, 0.78125000)
-
-    btn.Icon = btn:CreateTexture(nil, "ARTWORK")
-    btn.Icon:SetTexture("Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\transmog.png")
-    btn.Icon:SetSize(30, 30)
-    btn.Icon:SetPoint("CENTER")
-
-    btn.Highlight = btn:CreateTexture(nil, "HIGHLIGHT")
-    btn.Highlight:SetTexture("Interface\\PaperDollInfoFrame\\PaperDollSidebarTabs")
-    btn.Highlight:SetSize(31, 31)
-    btn.Highlight:SetPoint("TOPLEFT", 2, -3)
-    btn.Highlight:SetTexCoord(0.01562500, 0.50000000, 0.19531250, 0.31640625)
-
-    btn:SetScript("OnClick", function(self, button)
-        if not InCombatLockdown() then
-            if not TransmogFrame then
-
-            else
-                ToggleFrame(TransmogFrame)
+            t.Name:SetFont(t.Name:GetFont(), option("fontsize_currency") or 11, CCS.textoutline)
+            if option("showfontshadow") == true then
+                t.Name:SetShadowColor(unpack(option("fontshadowcolor") or {0,0,0,1}))
+                t.Name:SetShadowOffset(option("fontshadowx") or 0, option("fontshadowy") or 0)
             end
-        else
-				PlaySound(8959)
-				RaidNotice_AddMessage(RaidBossEmoteFrame, format("%s", ERR_AFFECTING_COMBAT), ChatTypeInfo["SYSTEM"])        
+            if ttex ~= nil and bcolor ~= nil and entry ~= nil then
+                local texWidth, texHeight, uMin, uMax, vMin, vMax = unpack(entry.map)
+                ttex:SetTexture(entry.texture)
+                ttex:SetTexCoord(uMin, uMax, vMin, vMax);
+                ttex:SetVertexColor(bcolor[1], bcolor[2], bcolor[3], bcolor[4] )
+                ttex:SetPoint("TOPLEFT", t, "TOPLEFT",0,-theight*.15)
+                ttex:SetPoint("BOTTOMRIGHT", t, "BOTTOMRIGHT",0,theight*.15)
+            end
+            if t.Right then t.Right:Hide() end
+            if t.Middle then t.Middle:Hide() end                
+                
+        end 
+        if t and t.Count then t.Count:SetFont(t.Count:GetFont(), option("fontsize_currency") or 11, CCS.textoutline)
+                if option("showfontshadow") == true then
+                    t.Count:SetShadowColor(unpack(option("fontshadowcolor") or {0,0,0,1}))
+                    t.Count:SetShadowOffset(option("fontshadowx") or 0, option("fontshadowy") or 0)
+                end	                                                
+        end 
+
+            if t.Text then
+                t.Text:SetFont(option("fontname_currency") or fontName, option("fontsize_currency"), CCS.textoutline)
+                if option("showfontshadow") == true then
+                    t.Text:SetShadowColor(unpack(option("fontshadowcolor") or {0,0,0,1}))
+                    t.Text:SetShadowOffset(option("fontshadowx") or 0, option("fontshadowy") or 0)
+                end	                                                
+                
+                t.Text:SetTextColor(
+                    option("fontcolor_currency")[1] or 1,
+                    option("fontcolor_currency")[2] or 1,
+                    option("fontcolor_currency")[3] or 1,
+                    option("fontcolor_currency")[4] or 1
+                )                    
+            end
+
+        local ks2={t:GetChildren()}; 
+        for _,k2 in ipairs(ks2) do  -- Individual Row
+            k2.Background = k2.Background or k2:CreateTexture(nil, "BACKGROUND", nil, 2)
+            
+            if (k2.Background) then
+                k2.Background:SetTexture("Interface\\Masks\\SquareMask.BLP")
+                k2.Background:SetColorTexture(.15, .15, .15, 0.90)
+                k2.Background:ClearAllPoints()
+                k2.Background:SetPoint("TOPLEFT", k2, "TOPLEFT")
+                k2.Background:SetPoint("BOTTOMRIGHT", k2, "BOTTOMRIGHT")
+                k2.Background:Show()
+            end
+
+            if k2.Name then
+                k2.Name:SetFont(option("fontname_currency") or fontName, option("fontsize_currency"), CCS.textoutline)
+                if option("showfontshadow") == true then
+                    k2.Name:SetShadowColor(unpack(option("fontshadowcolor") or {0,0,0,1}))
+                    k2.Name:SetShadowOffset(option("fontshadowx") or 0, option("fontshadowy") or 0)
+                end	                                                
+                
+                k2.Name:SetTextColor(
+                    option("fontcolor_currency")[1] or 1,
+                    option("fontcolor_currency")[2] or 1,
+                    option("fontcolor_currency")[3] or 1,
+                    option("fontcolor_currency")[4] or 1)
+            end
+            
+            if k2.Count then
+                k2.Count:SetFont(option("fontname_currency") or fontName, option("fontsize_currency"), CCS.textoutline)
+                if option("showfontshadow") == true then
+                    k2.Count:SetShadowColor(unpack(option("fontshadowcolor") or {0,0,0,1}))
+                    k2.Count:SetShadowOffset(option("fontshadowx") or 0, option("fontshadowy") or 0)
+                end	                                                
+                
+                k2.Count:SetTextColor(
+                    option("fontcolor_currency")[1] or 1,
+                    option("fontcolor_currency")[2] or 1,
+                    option("fontcolor_currency")[3] or 1,
+                    option("fontcolor_currency")[4] or 1)
+
+            end
+            
+            if k2.AccountWideIcon then
+                k2.awi = k2.awi or k2:CreateTexture(nil, "OVERLAY", nil, 2)
+                k2.awi:SetSize(23, 23)
+                k2.awi:SetAtlas("warbands-icon", true)
+                k2.awi:SetScale(0.9)
+                k2.awi:ClearAllPoints()
+                k2.awi:SetPoint("TOPLEFT", k2.AccountWideIcon, "TOPLEFT")
+                k2.awi:SetPoint("BOTTOMRIGHT", k2.AccountWideIcon, "BOTTOMRIGHT")
+                if t.elementData.isAccountTransferable then
+                    k2.awi:Show()
+                else
+                    k2.awi:Hide()
+                end
+            end 
         end
-    end)
-
-    btn:SetScript("OnEnter", function(self)
-        GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-        GameTooltip:SetText("Transmogrification")
-        GameTooltip:Show()
-    end)
-
-    btn:SetScript("OnLeave", function()
-        GameTooltip:Hide()
-    end)
-
-    return btn
-end
-
-local function PrepTransmogTab()
-    table.insert(PAPERDOLL_SIDEBARS, {
-        name = SPLASH_LEGION_NEW_7_2_FEATURE2_TITLE,
-        icon = "Interface\\Icons\\inv_helm_cloth_raidpriest_k_01",
-        texCoords = {0.01562500, 0.53125000, 0.32421875, 0.46093775},
-        disabledTooltip = nil,
-        IsActive = function() return true end,
-    })
-
-    local index = #PAPERDOLL_SIDEBARS
-
-    local pane = CreateFrame("Frame", "PaperDollTransmogPane", PaperDollFrame)
-    pane:SetPoint("TOPLEFT", CharacterFrameInsetRight, "TOPLEFT", 12, -3)
-    pane:SetPoint("BOTTOMRIGHT", CharacterFrameInsetRight, "BOTTOMRIGHT", -3, 2)
-    pane:Hide()
-    PaperDollFrame.TransmogPane = pane
-
-    local orig_Get = GetPaperDollSideBarFrame
-    function GetPaperDollSideBarFrame(i)
-        if i == index then
-            return PaperDollFrame.TransmogPane
-        end
-        return orig_Get(i)
+        
     end
-
-    local tab = CreateFrame("CheckButton", "PaperDollSidebarTab"..index, PaperDollSidebarTabs)
-    tab:SetID(index)
-    tab:SetSize(33, 35)
-
-    -- Background
-    tab.TabBg = tab:CreateTexture(nil, "BACKGROUND")
-    tab.TabBg:SetTexture("Interface\\PaperDollInfoFrame\\PaperDollSidebarTabs")
-    tab.TabBg:SetSize(50, 43)
-    tab.TabBg:SetPoint("BOTTOMLEFT", -9, -2)
-    tab.TabBg:SetTexCoord(0.01562500, 0.79687500, 0.61328125, 0.78125000)
-
-    -- Icon
-    tab.Icon = tab:CreateTexture(nil, "ARTWORK")
-    tab.Icon:SetSize(30.17143, 32)
-    tab.Icon:SetPoint("BOTTOM", 1, -2)
-
-    -- Hider
-    tab.Hider = tab:CreateTexture(nil, "OVERLAY")
-    tab.Hider:SetTexture("Interface\\PaperDollInfoFrame\\PaperDollSidebarTabs")
-    tab.Hider:SetSize(34, 19)
-    tab.Hider:SetPoint("BOTTOM")
-    tab.Hider:SetTexCoord(0.01562500, 0.54687500, 0.11328125, 0.18750000)
-
-    -- Highlight
-    tab.Highlight = tab:CreateTexture(nil, "HIGHLIGHT")
-    tab.Highlight:SetTexture("Interface\\PaperDollInfoFrame\\PaperDollSidebarTabs")
-    tab.Highlight:SetSize(31, 31)
-    tab.Highlight:SetPoint("TOPLEFT", 2, -3)
-    tab.Highlight:SetTexCoord(0.01562500, 0.50000000, 0.19531250, 0.31640625)
-
-    local data = PAPERDOLL_SIDEBARS[index]
-	tab.Icon:SetAtlas("transmog-icon-ui", false)
-    tab.disabledTooltip = data.disabledTooltip
-
-    local last = _G["PaperDollSidebarTab"..1]
-    tab:SetPoint("RIGHT", last, "LEFT", -4, 0)
-
-	--PaperDollSidebarTabs:SetPoint("LEFT", CharacterFrameInsetRight,"LEFT",0,0)
-	--PaperDollSidebarTabs:SetPoint("BOTTOMRIGHT", CharacterFrameInsetRight,"TOPRIGHT",0,4)
-
-	--local sbtxoffset = (267 - (index * 33)) / 2
-	--PaperDollSidebarTab3:SetPoint("BOTTOMRIGHT", PaperDollSidebarTabs,"BOTTOMRIGHT",-sbtxoffset,0)
-
-    tab:SetScript("OnClick", function(self, button)
-		ToggleFrame(TransmogFrame)
-    end)
-
-    tab:SetScript("OnEnter", PaperDollFrame_SidebarTab_OnEnter)
-    tab:SetScript("OnLeave", function() GameTooltip:Hide() end)
+    
 end
 
 local function CCS_FilterTitles(search)
@@ -1227,9 +1056,6 @@ end
 function CCS.HookSetup()
     if CCS.Hooked then return end
 
-        --== Frame Hooks
-    --CreateTransmogButton()
-
     hooksecurefunc(SkillsFrame, "Show", function() 
         if SkillsFrame.ScrollBar ~= nil then
             SkillsFrame.ScrollBar.Track.Thumb.Begin:SetDesaturated(true)
@@ -1286,10 +1112,7 @@ function CCS.HookSetup()
     end)
 
     if C_AddOns.IsAddOnLoaded("PrettyReps") == false then
-        --hooksecurefunc(ReputationFrame, "Hide", function() ReputationFrame.ReputationDetailFrame:Hide(); end )
         hooksecurefunc(ReputationFrame.ScrollBox, "Update", ReputationFrame_Update)
-        --hooksecurefunc(ReputationFrame.ReputationDetailFrame, "Show", ReputationFrame_Update)
-        --hooksecurefunc(ReputationFrame.ReputationDetailFrame, "Hide", ReputationFrame_Update)
         hooksecurefunc(ReputationFrame, "Show", function() 
                 C_Timer.After(0, hookfix)
                 InitializeFrameUpdates();
@@ -1368,10 +1191,9 @@ function module:SetupBlizzardFrameOverrides()
 	if CharacterFrameInset.Bg == nil then 
 	    CharacterFrameInset.Bg = CreateFrame("Frame", nil, CharacterFrameInset, BackdropTemplateMixin and "BackdropTemplate")
 	end
-    --CharacterFrameBg:SetVertexColor(0,0,0,0);
+
     CharacterFrameBg:ClearAllPoints()
     CharacterFrameBg:SetPoint("TOPLEFT", CharacterFrame, "TOPLEFT", 0, 0);
-    --CharacterFrameBg:SetPoint("BOTTOMRIGHT", CharacterFrame, "BOTTOMRIGHT", 344, 0);    
     CharacterFrameBg:SetPoint("BOTTOMRIGHT", CharacterFrame, "TOPRIGHT", Bgoffset, -(479+(7*option("vpad"))))
 
     CharacterFrameInset:ClearAllPoints()
@@ -1386,9 +1208,18 @@ function module:SetupBlizzardFrameOverrides()
     CharacterFrameInsetRight:SetPoint("TOPLEFT", CharacterFrameInset, "TOPRIGHT", 1, 0);
     CharacterFrameInsetRight:SetPoint("BOTTOMRIGHT", CharacterFrameBg, "BOTTOMRIGHT", -4, 4);    
     CharacterFrameModeTabs:ClearAllPoints()
-    --CharacterFrameModeTabs:SetPoint("TOPLEFT", CharacterFrameInsetRight,"TOPRIGHT", 5, 0)
-    CharacterFrameModeTabs:SetPoint("TOPLEFT", CharacterFrameBg,"TOPRIGHT", 0, -2)
-    CharacterFrameModeTabs:SetScale(.75)
+    CharacterFrameModeTabs:SetPoint("TOPLEFT", CharacterFrameBg,"BOTTOMLEFT", 0, 2)
+    CharacterFrameModeTab2:ClearAllPoints()
+    CharacterFrameModeTab3:ClearAllPoints()
+    CharacterFrameModeTab4:ClearAllPoints()
+    CharacterFrameModeTab5:ClearAllPoints()
+    CharacterFrameModeTab6:ClearAllPoints()
+    CharacterFrameModeTab2:SetPoint("LEFT", CharacterFrameModeTab1, "RIGHT", 1, 0)
+    CharacterFrameModeTab3:SetPoint("LEFT", CharacterFrameModeTab2, "RIGHT", 1, 0)
+    CharacterFrameModeTab4:SetPoint("LEFT", CharacterFrameModeTab3, "RIGHT", 1, 0)
+    CharacterFrameModeTab5:SetPoint("LEFT", CharacterFrameModeTab4, "RIGHT", 1, 0)
+    CharacterFrameModeTab6:SetPoint("LEFT", CharacterFrameModeTab5, "RIGHT", 1, 0)
+    
     CharacterFrameModeTabs:SetFrameLevel(9001)
     
     CharacterFrameLeftPaneHost:Hide()
@@ -1397,6 +1228,7 @@ function module:SetupBlizzardFrameOverrides()
     CharacterFrameRightPaneHost:SetPoint("TOP", CharacterFrameBg, "TOP", 0, -10);    
     CharacterFrameRightPaneHost:SetPoint("BOTTOMRIGHT", CharacterFrameBg, "BOTTOMRIGHT", -4, 4);    
     CharacterFrameRightPaneHostStoneBg:SetPoint("RIGHT", CharacterFrameBg, "RIGHT", -5, 0)
+    CharacterFrameRightPaneHostStoneBg:SetHeight(90)
     CharacterFrameRightPaneToggleButton:Hide()
     local rphl = select(1, CharacterFrameRightPaneHost:GetChildren())
     if rphl ~= CharacterFrameRightPaneHostStoneBg then
@@ -1408,6 +1240,7 @@ function module:SetupBlizzardFrameOverrides()
     CharacterStatsPaneScrollBox.ClassBackground:SetPoint("BOTTOMRIGHT", CharacterStatsPaneScrollBox, "BOTTOMRIGHT", -2, 10)
     CharacterStatsPaneScrollBox.Border:SetPoint("BOTTOMRIGHT", CharacterStatsPaneScrollBox, "BOTTOMRIGHT", 0, 2)    
     CharacterStatsPaneScrollBox:SetFrameLevel(4)
+    
     PaperDollLevelInfo:SetPoint("TOP", CharacterFrame.TitleContainer, "BOTTOM", 0, -10)
     PaperDollSidebarTabs:SetPoint("TOP", CharacterFrameRightPaneHost, "TOP", 0, -5)
     PaperDollSidebarTabs:SetHeight(50)
@@ -1425,7 +1258,6 @@ function module:SetupBlizzardFrameOverrides()
     local charbgtex = _G["CharacterFrameBgbgtex"] or charbg:CreateTexture("CharacterFrameBgbgtex", "BACKGROUND", nil, 1)    
 
     charbg:SetBackdrop({
-        --bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background", -- optional background texture
         edgeFile = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\UI-Tooltip-SquareBorder.blp",        -- thin edge texture
         edgeSize = 16,                                              -- thickness of the border
         insets = { left = 3, right = 3, top = 3, bottom = 3 },      -- inset so content doesn't overlap border
@@ -1479,33 +1311,8 @@ function module:SetupBlizzardFrameOverrides()
 --==========
     
     CharacterFramePortrait:Hide()
-   --[[ 
-    CharacterFrameInsetRight.Bg:Hide();
-    CharacterFrameInsetRight:ClearAllPoints();
-    CharacterFrameInsetRight:SetPoint("TOPLEFT", CharacterFrameInset.Bg, "TOPRIGHT", 4, 0)
-    CharacterFrameInsetRight:SetPoint("BOTTOMRIGHT", CharacterFrameInset.Bg, "BOTTOMRIGHT", 250, 0)
-	CharacterFrameInsetRight:SetPoint("BOTTOMRIGHT", CharacterFrameBg, "BOTTOMRIGHT", -4, 0)    
-    CharacterStatsPane.ClassBackground:Hide()
-    --]]
-	--PaperDollSidebarTabs:SetPoint("LEFT", CharacterFrameInsetRight,"LEFT",0,0)
-	--PaperDollSidebarTabs:SetPoint("BOTTOMRIGHT", CharacterFrameInsetRight,"TOPRIGHT",0,4)
-
-	--local sbtxoffset = (267 - ((#PAPERDOLL_SIDEBARS+1) * 33)) / 2
-	--PaperDollSidebarTab3:SetPoint("BOTTOMRIGHT", PaperDollSidebarTabs,"BOTTOMRIGHT",-sbtxoffset,0)    
-    
+    PaperDollFrame.TopBackgroundStripHost:Hide()
     PaperDollFrame:UnregisterAllEvents()
---[[
-    PaperDollInnerBorderBottom:Hide()
-    PaperDollInnerBorderBottom2:Hide()
-    PaperDollInnerBorderBottomLeft:Hide()
-    PaperDollInnerBorderBottomRight:Hide()
-    PaperDollInnerBorderLeft:Hide()
-    PaperDollInnerBorderRight:Hide()
-    PaperDollInnerBorderTop:Hide()
-    PaperDollInnerBorderTopLeft:Hide()
-    PaperDollInnerBorderTopRight:Hide()
-    CharacterFrameInsetRight.NineSlice:Hide()
---]]    
 
     CharacterBackSlot.BorderFrame:Hide()
     CharacterChestSlot.BorderFrame:Hide()
@@ -1525,8 +1332,7 @@ function module:SetupBlizzardFrameOverrides()
     CharacterTrinket1Slot.BorderFrame:Hide()
     CharacterWaistSlot.BorderFrame:Hide()
     CharacterWristSlot.BorderFrame:Hide()
-    --CharacterAmmoSlot.BorderFrame:Hide()
-    --select(1, CharacterAmmoSlot:GetRegions()):Hide()
+
     for i=1,20 do
         local ammo_region = select(i, CharacterAmmoSlot:GetRegions())
         if ammo_region and ammo_region.GetObjectType and ammo_region:GetObjectType() == "Texture" then
@@ -1535,109 +1341,7 @@ function module:SetupBlizzardFrameOverrides()
     end
     
     CharacterRangedSlot.BorderFrame:Hide()    
---[[
-    select(16, CharacterMainHandSlot:GetRegions()):SetTexCoord(.8,.8,.8,.8,.8,.8,.8,.8)
-    select(17, CharacterMainHandSlot:GetRegions()):SetTexCoord(.8,.8,.8,.8,.8,.8,.8,.8)    
-    select(16, CharacterSecondaryHandSlot:GetRegions()):SetTexCoord(.8,.8,.8,.8,.8,.8,.8,.8)
-    select(17, CharacterSecondaryHandSlot:GetRegions()):SetTexCoord(.8,.8,.8,.8,.8,.8,.8,.8)
---]]
---[[
-    CharacterFrameTab1.Text:SetTextColor(1,1,1,1)
-    CharacterFrameTab2.Text:SetTextColor(1,1,1,1)
-    CharacterFrameTab3.Text:SetTextColor(1,1,1,1)
-
-    CharacterFrameTab1:SetPoint("TOPLEFT", CharacterFrame, "BOTTOMLEFT", 11, 2)
-    CharacterFrameTab1.Left:ClearAllPoints()
-    CharacterFrameTab1.LeftActive:ClearAllPoints()
-    CharacterFrameTab1.LeftHighlight:ClearAllPoints()
-    CharacterFrameTab1.Right:ClearAllPoints()
-    CharacterFrameTab1.RightActive:ClearAllPoints()
-    CharacterFrameTab1.RightHighlight:ClearAllPoints()
-    CharacterFrameTab1.Middle:SetPoint("TOPLEFT", CharacterFrameTab1, "TOPLEFT", 0, 0)
-    CharacterFrameTab1.Middle:SetPoint("TOPRIGHT", CharacterFrameTab1, "TOPRIGHT", 0, 0)
-    CharacterFrameTab1.Middle:SetTexture("Interface\\Masks\\SquareMask.BLP")
-    CharacterFrameTab1.MiddleActive:SetPoint("TOPLEFT", CharacterFrameTab1, 0, 0)
-    CharacterFrameTab1.MiddleActive:SetPoint("TOPRIGHT", CharacterFrameTab1, 0, 0)
-    CharacterFrameTab1.MiddleActive:SetTexture("Interface\\Masks\\SquareMask.BLP")
-    CharacterFrameTab1.MiddleHighlight:SetPoint("TOPLEFT", CharacterFrameTab1, 0, 0)
-    CharacterFrameTab1.MiddleHighlight:SetPoint("TOPRIGHT", CharacterFrameTab1, 0, 0)
-    CharacterFrameTab1.MiddleHighlight:SetGradient("Vertical", CreateColor(0, 0, 0, 1), CreateColor(0, 0, 0, 1)) -- Dark Gray
-    CharacterFrameTab1.MiddleActive:SetGradient("Vertical", CreateColor(0, 0, 0, 1), CreateColor(0, 0, 0, 1)) -- Dark Gray
-    CharacterFrameTab1.Middle:SetGradient("Vertical", CreateColor(0, 0, 0, 1), CreateColor(0, 0, 0, 1)) -- Dark Gray
-
-    CharacterFrameTab2:SetPoint("TOPLEFT", CharacterFrameTab1, "TOPRIGHT", 3, 0)
-    CharacterFrameTab2.Left:ClearAllPoints()
-    CharacterFrameTab2.LeftActive:ClearAllPoints()
-    CharacterFrameTab2.LeftHighlight:ClearAllPoints()
-    CharacterFrameTab2.Right:ClearAllPoints()
-    CharacterFrameTab2.RightActive:ClearAllPoints()
-    CharacterFrameTab2.RightHighlight:ClearAllPoints()
-    CharacterFrameTab2.Middle:SetPoint("TOPLEFT", CharacterFrameTab2, 0, 0)
-    CharacterFrameTab2.Middle:SetPoint("TOPRIGHT", CharacterFrameTab2, 0, 0)
-    CharacterFrameTab2.Middle:SetTexture("Interface\\Masks\\SquareMask.BLP")
-    CharacterFrameTab2.MiddleActive:SetPoint("TOPLEFT", CharacterFrameTab2, 0, 0)
-    CharacterFrameTab2.MiddleActive:SetPoint("TOPRIGHT", CharacterFrameTab2, 0, 0)
-    CharacterFrameTab2.MiddleActive:SetTexture("Interface\\Masks\\SquareMask.BLP")
-    CharacterFrameTab2.MiddleHighlight:SetPoint("TOPLEFT", CharacterFrameTab2, 0, 0)
-    CharacterFrameTab2.MiddleHighlight:SetPoint("TOPRIGHT", CharacterFrameTab2, 0, 0)
-    CharacterFrameTab2.MiddleHighlight:SetGradient("Vertical", CreateColor(0, 0, 0, 1), CreateColor(0, 0, 0, 1)) -- Dark Gray        
-    CharacterFrameTab2.MiddleActive:SetGradient("Vertical", CreateColor(0, 0, 0, 1), CreateColor(0, 0, 0, 1)) -- Dark Gray
-    CharacterFrameTab2.Middle:SetGradient("Vertical", CreateColor(0, 0, 0, 1), CreateColor(0, 0, 0, 1)) -- Dark Gray
-
-    CharacterFrameTab3:SetPoint("TOPLEFT", CharacterFrameTab2, "TOPRIGHT", 3, 0)
-    CharacterFrameTab3.Left:ClearAllPoints()
-    CharacterFrameTab3.LeftActive:ClearAllPoints()
-    CharacterFrameTab3.LeftHighlight:ClearAllPoints()
-    CharacterFrameTab3.Right:ClearAllPoints()
-    CharacterFrameTab3.RightActive:ClearAllPoints()
-    CharacterFrameTab3.RightHighlight:ClearAllPoints()
-    CharacterFrameTab3.Middle:SetPoint("TOPLEFT", CharacterFrameTab3, 0, 0)
-    CharacterFrameTab3.Middle:SetPoint("TOPRIGHT", CharacterFrameTab3, 0, 0)
-    CharacterFrameTab3.Middle:SetTexture("Interface\\Masks\\SquareMask.BLP")
-    CharacterFrameTab3.MiddleActive:SetPoint("TOPLEFT", CharacterFrameTab3, 0, 0)
-    CharacterFrameTab3.MiddleActive:SetPoint("TOPRIGHT", CharacterFrameTab3, 0, 0)
-    CharacterFrameTab3.MiddleActive:SetTexture("Interface\\Masks\\SquareMask.BLP")
-    CharacterFrameTab3.MiddleHighlight:SetPoint("TOPLEFT", CharacterFrameTab3, 0, 0)
-    CharacterFrameTab3.MiddleHighlight:SetPoint("TOPRIGHT", CharacterFrameTab3, 0, 0)
-    CharacterFrameTab3.MiddleHighlight:SetGradient("Vertical", CreateColor(0, 0, 0, 1), CreateColor(0, 0, 0, 1)) -- Dark Gray
-    CharacterFrameTab3.MiddleActive:SetGradient("Vertical", CreateColor(0, 0, 0, 1), CreateColor(0, 0, 0, 1)) -- Dark Gray
-    CharacterFrameTab3.Middle:SetGradient("Vertical", CreateColor(0, 0, 0, 1), CreateColor(0, 0, 0, 1)) -- Dark Gray
- --]]
     PaperDollFrame:SetPoint("BOTTOMRIGHT", CharacterFrameBg, "BOTTOMRIGHT", 0, 0)
-
-    -- [Toast] Create Base Frame
-    local toast = _G["CCS_TOAST"] or CreateFrame("FRAME","CCS_TOAST",UIParent)
-    toast:SetPoint("TOP",UIParent,"TOP",0,-160)
-    toast:SetWidth(302)
-    toast:SetHeight(70)
-    toast:SetMovable(true)
-    toast:SetUserPlaced(false)
-    toast:SetClampedToScreen(true)
-    toast:RegisterForDrag("LeftButton")
-    toast:SetScript("OnDragStart",toast.StartMoving)
-    toast:SetScript("OnDragStop",toast.StopMovingOrSizing)
-    toast:Hide()
-    toast.texture = toast:CreateTexture(nil,"BACKGROUND")
-    toast.texture:SetPoint("TOPLEFT",toast,"TOPLEFT",-6,4)
-    toast.texture:SetPoint("BOTTOMRIGHT",toast,"BOTTOMRIGHT",4,-4)
-    toast.texture:SetTexture("Interface\\Garrison\\GarrisonToast")
-    toast.texture:SetTexCoord(0,.61,.33,.48)
-    toast.title = _G["CCS_TOASTfs1"] or toast:CreateFontString("CCS_TOASTfs1")
-    toast.title:SetPoint("TOPLEFT",toast,"TOPLEFT",23,-10)
-    toast.title:SetWidth(260)
-    toast.title:SetHeight(16)
-    toast.title:SetJustifyV("TOP")
-    toast.title:SetJustifyH("LEFT")
-    toast.title:SetFont(CCS.fontname, 12, CCS.textoutline)
-    toast.title:Show()
-    toast.description = _G["CCS_TOASTfs2"] or toast:CreateFontString("CCS_TOASTfs2")
-    toast.description:SetPoint("TOPLEFT",toast.title,"TOPLEFT",1,-23)
-    toast.description:SetWidth(258)
-    toast.description:SetHeight(32)
-    toast.description:SetJustifyV("TOP")
-    toast.description:SetJustifyH("LEFT")
-    toast.description:SetFont(CCS.fontname, 12, CCS.textoutline)
-    toast.description:Show()
 
     ReputationFrame.ScrollBox:SetPoint("TOPLEFT", CharacterFrameLeftPaneHost, "TOPLEFT", 10, -4)
     ReputationFrame.ScrollBox:SetPoint("BOTTOMRIGHT", CharacterFrameLeftPaneHost, "BOTTOMRIGHT", -25, 15)
@@ -1648,17 +1352,7 @@ function module:SetupBlizzardFrameOverrides()
     StatisticsFrame.ScrollBox:SetPoint("TOPLEFT", CharacterFrameLeftPaneHost, "TOPLEFT", 10, -4)
     StatisticsFrame.ScrollBox:SetPoint("BOTTOMRIGHT", CharacterFrameLeftPaneHost, "BOTTOMRIGHT", -25, 15)
 
-
-
---[[
-    ReputationFrame:ClearAllPoints()
-    ReputationFrame:SetPoint("TOPLEFT", CharacterFrameBg, "TOPLEFT", 0, 0)
-    ReputationFrame:SetPoint("BOTTOMRIGHT", CharacterFrameBg, "BOTTOMRIGHT", 0, 7)
-    ReputationFrame.ScrollBox:ClearAllPoints()
-    ReputationFrame.filterDropdown:ClearAllPoints()
-    ReputationFrame.filterDropdown:SetPoint("TOPRIGHT", ReputationFrame, "TOPRIGHT", -38, -30)    
---]]    
-    local Height = 520  -- Hard code it for now
+    local Height = 520  -- Hard code it for now (apparently, for now means like 7 years and counting)...
     local Left = 120  -- Hard code it for now
    
     CharacterModelScene:ClearAllPoints();
@@ -1670,20 +1364,12 @@ function module:SetupBlizzardFrameOverrides()
     CharacterModelScene:SetFrameLevel(9000)
     CharacterModelScene:Show();
     CharacterModelScene.GearEnchantAnimation:Hide()
-    --CharacterModelScene.GearEnchantAnimation:SetAllPoints(CharacterModelFramebg)
     
     CharacterModelFrameBackgroundTopLeft:Hide();
     CharacterModelFrameBackgroundBotLeft:Hide();
     CharacterModelFrameBackgroundTopRight:Hide();
     CharacterModelFrameBackgroundBotRight:Hide();
---[[
-    CharacterModelFrameBackgroundOverlay:ClearAllPoints()
-    CharacterModelFrameBackgroundOverlay:SetPoint("TOPLEFT", CharacterModelFrameBackgroundTopLeft, "TOPLEFT", 0, 0)
-    CharacterModelFrameBackgroundOverlay:SetPoint("BOTTOMRIGHT", CharacterModelFrameBackgroundBotRight, "BOTTOMRIGHT", 0, 70)
-    CharacterModelFrameBackgroundOverlay:Hide()
-    --]]
---    TokenFramePopup:SetFrameStrata("HIGH")
---    TokenFramePopup.Border.Bg:SetColorTexture(0, 0, 0, 1)
+
     CurrencyTransferLog:SetFrameStrata("HIGH")
     CharacterModelScene.BackgroundOverlay:Hide()
 
@@ -1986,11 +1672,6 @@ function module:ApplyDynamicLayout()
             CharacterWaistSlot.IconBorder:SetTexCoord(1,1,1,1,1,1,1,1)
             CharacterWristSlot.IconBorder:SetTexCoord(1,1,1,1,1,1,1,1)
 			CharacterRangedSlot.IconBorder:SetTexCoord(1,1,1,1,1,1,1,1)
-			--[[CharacterAmmoSlot.IconBorder:SetTexCoord(1,1,1,1,1,1,1,1)
-			local ammo_region = select(14, CharacterAmmoSlot:GetRegions())
-			if ammo_region and ammo_region.GetObjectType and ammo_region:GetObjectType() == "Texture" then
-				ammo_region:SetTexCoord(1,1,1,1,1,1,1,1)
-			end--]]
             
             CharacterBackSlotIconTexture:SetTexCoord(0,0,0,1,1,0,1,1)
             CharacterChestSlotIconTexture:SetTexCoord(0,0,0,1,1,0,1,1)
@@ -2075,31 +1756,6 @@ function module:Initialize(onlyStyle)
         self.StyleSetup = true
     end
 
-    --LootSpecInit()
-    --SpecChangeInit()
-end
-
--- Show the Paragon Toast if a Paragon Reward Quest is accepted.
-local function ShowToast(name, text)
-    local toast = _G["CCS_TOAST"]
-
-    PlaySound(44295, "master", true)
-
-    -- Reset frame state
-    toast:Hide()
-    toast:SetAlpha(0)
-    toast.title:SetAlpha(0)
-    toast.description:SetAlpha(0)
-
-    toast:EnableMouse(false)
-    toast.title:SetText(name)
-    toast.description:SetText(text)
-
-    -- Animate toast and text
-    C_Timer.After(1, function() UIFrameFadeIn(toast, .5, 0, 1) end)
-    C_Timer.After(2, function() UIFrameFadeIn(toast.title, .5, 0, 1) end)
-    C_Timer.After(2, function() UIFrameFadeIn(toast.description, .5, 0, 1) end)
-    C_Timer.After(5, function() UIFrameFadeOut(toast, 1, 1, 0) end)
 end
 
 function CCS.RefreshTitleRows()
@@ -2113,11 +1769,11 @@ function CCS.RefreshTitleRows()
     end)
 end
 
-
 -- Define the event handler function for this module
 function CCS.ForeverCharacterSheetEventHandler(event, ...)
     local arg1 = ...
-
+    --print(date("%H:%M:%S") .. format(".%03d", (GetTime() * 1000) % 1000), "message")
+    
     if CCS.CurrentVersion ~= CCS.FOREVER then return end
 
     if CCS.initall == true then return end
@@ -2172,9 +1828,8 @@ function CCS.ForeverCharacterSheetEventHandler(event, ...)
         CurrencyFrame_Update()
         BlizStatFrame_Update()
         BlizPetStatFrame_Update()
-        --LootSpecInit()
-        --SpecChangeInit()        
-        --print(date("%H:%M:%S") .. format(".%03d", (GetTime() * 1000) % 1000), "message")
+        CCS.SkinCharacterButtons()
+
         if CCS_TitleSearchBox then
             CCS_TitleSearchBox:SetShown(option("showtitlesearch"))
         end
@@ -2193,18 +1848,10 @@ function CCS.ForeverCharacterSheetEventHandler(event, ...)
                 StatisticsFrame_Update()
                 BlizStatFrame_Update()
                 BlizPetStatFrame_Update()
+                CCS.SkinCharacterButtons()
             end)
         end
         return true
-
-    elseif event == "PLAYER_LOOT_SPEC_UPDATED" or event == "PLAYER_SPECIALIZATION_CHANGED" then
-        --LootSpecInit()
-        --SpecChangeInit()
-        CCS.ChangeModelBg(false)
-    elseif event == "QUEST_ACCEPTED" and arg1 and CCS.Paragon_Factions[arg1] and C_Reputation.GetFactionDataByID(CCS.Paragon_Factions[arg1].factionID) then
-        local name = C_Reputation.GetFactionDataByID(CCS.Paragon_Factions[arg1].factionID).name
-        local text = GetQuestLogCompletionText(C_QuestLog.GetLogIndexForQuestID(arg1))
-        ShowToast(name, text)
     else 
 
         if not CCS.characterUpdatePending then
@@ -2214,7 +1861,6 @@ function CCS.ForeverCharacterSheetEventHandler(event, ...)
                 TryLoopItems()
                 BlizStatFrame_Update()
                 BlizPetStatFrame_Update()
-                --loopitems()
             end)
         end
         return true

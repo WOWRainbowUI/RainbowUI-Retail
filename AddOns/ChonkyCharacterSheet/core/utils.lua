@@ -116,7 +116,7 @@ function CCS.RenderSafeTooltip(tooltip, link, unit)
     local itemID = link:match("item:(%d+)")
     local itemName, _, _, _, _, itemType, itemSubType = C_Item.GetItemInfo(itemID)
     local itemQuality = itemID and C_Item.GetItemQualityByID(itemID)
-    local r, g, b = GetItemQualityColor(itemQuality or 1)
+    local r, g, b = C_Item.GetItemQualityColor(itemQuality or 1)
 
     tooltip:ClearLines()
     tooltip:SetFrameStrata("TOOLTIP")
@@ -2055,8 +2055,17 @@ function CCS.updateLocationInfo(unit, slotIndex, framename)
     if _G[slotFrameName].textureSlot2 then _G[slotFrameName].textureSlot2:Hide() end
     if _G[slotFrameName].textureSlotBackdrop2 then _G[slotFrameName].textureSlotBackdrop2:Hide() end
 
-    -- Create or reuse UI elements
+   -- Create or reuse UI elements
     _G[slotFrameName]:SetFrameStrata("HIGH")
+
+    if isPlayer and C_AddOns.IsAddOnLoaded("Outfitter") then
+        local outfitterSlot = _G[CCS.getSlotFrameName(slotIndex, "OutfitterEnable")]
+        if outfitterSlot then
+            outfitterSlot:SetFrameStrata("HIGH")
+            outfitterSlot:SetFrameLevel(math.max(outfitterSlot:GetFrameLevel(), _G[slotFrameName]:GetFrameLevel() + 1))
+        end
+    end
+
     local nameTxt = _G[slotFrameName.."namefs"] or _G[slotFrameName]:CreateFontString(slotFrameName.."namefs")
     local ilvlTxt = _G[slotFrameName.."ilvlfs"] or _G[slotFrameName]:CreateFontString(slotFrameName.."ilvlfs")
     local enchantTxt = _G[slotFrameName.."enchantfs"] or _G[slotFrameName]:CreateFontString(slotFrameName.."enchantfs")
@@ -2344,6 +2353,10 @@ function CCS.updateLocationInfo(unit, slotIndex, framename)
                     if current and max then
                         ItemUpgradeTrack = track
                         ItemUpgradeLevel = track .. " " .. current .. "/" .. max
+                        if current == max and option("maxupgradehide") then
+                            ItemUpgradeTrack = ""
+                            ItemUpgradeLevel = ""
+                        end
                     end
                 end
             end
@@ -2615,11 +2628,14 @@ function CCS.updateLocationInfo(unit, slotIndex, framename)
             if gemCount == 1 then
                 gemIconframe1:ClearAllPoints()
                 gemIconframe1:SetPoint(SubElementSetPoint2, slotFrameName, SubElementSetPoint, -3 * neg, 0)
+                gemIconframe1:SetSize(20, 20)
             elseif gemCount == 2 then
                 gemIconframe1:ClearAllPoints()
                 gemIconframe2:ClearAllPoints()
                 gemIconframe1:SetPoint("TOP"..SubElementSetPoint2, slotFrameName, "TOP"..SubElementSetPoint, -3 * neg, -2)
                 gemIconframe2:SetPoint("BOTTOM"..SubElementSetPoint2, slotFrameName, "BOTTOM"..SubElementSetPoint, -3 * neg, 2)
+                gemIconframe1:SetSize(18, 18)
+                gemIconframe2:SetSize(18, 18)                
             elseif gemCount == 3 then
                 gemIconframe1:ClearAllPoints()
                 gemIconframe2:ClearAllPoints()
