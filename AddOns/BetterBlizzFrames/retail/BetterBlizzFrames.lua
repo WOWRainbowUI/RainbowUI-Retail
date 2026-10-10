@@ -21,6 +21,38 @@ local defaultSettings = {
     enableBigDebuffs = true,
     removeRealmNames = true,
     centerNames = false,
+    mirroredNames = false,
+    moveNames = false,
+    moveNamePlayerX = 0,
+    moveNamePlayerY = 0,
+    moveNamePlayerAlign = "Default",
+    moveNamePlayerMultiLine = false,
+    moveNamePlayerGrowDown = false,
+    moveNamePlayerWidth = 0,
+    moveNameTargetX = 0,
+    moveNameTargetY = 0,
+    moveNameTargetAlign = "Default",
+    moveNameTargetMultiLine = false,
+    moveNameTargetGrowDown = false,
+    moveNameTargetWidth = 0,
+    moveNameFocusX = 0,
+    moveNameFocusY = 0,
+    moveNameFocusAlign = "Default",
+    moveNameFocusMultiLine = false,
+    moveNameFocusGrowDown = false,
+    moveNameFocusWidth = 0,
+    moveNameTargetToTX = 0,
+    moveNameTargetToTY = 0,
+    moveNameTargetToTAlign = "Default",
+    moveNameTargetToTMultiLine = false,
+    moveNameTargetToTGrowDown = false,
+    moveNameTargetToTWidth = 0,
+    moveNameFocusToTX = 0,
+    moveNameFocusToTY = 0,
+    moveNameFocusToTAlign = "Default",
+    moveNameFocusToTMultiLine = false,
+    moveNameFocusToTGrowDown = false,
+    moveNameFocusToTWidth = 0,
     darkModeUi = false,
     darkModeActionBars = true,
     darkModeUiAura = true,
@@ -67,6 +99,9 @@ local defaultSettings = {
     hunterTipOfSpearCombos = false,
     prdResourceScale = 1,
     smoothHealthbars = true,
+    statusTextExtra = false,
+    statusTextExtraHealth = true,
+    statusTextExtraMana = true,
     smoothManabars = true,
     foreverMinimapScale = 1,
     foreverMinimapTitleScale = 1,
@@ -82,6 +117,7 @@ local defaultSettings = {
     hidePvpTimerText = true,
     playerEliteFrameMode = 1,
     hideObjectiveTracker = true,
+    hideObjectiveTrackerArena = true,
     cdManagerBlacklist = {},
     cdManagerPriorityList = {},
     kickPopupFontOutline = "OUTLINE",
@@ -233,6 +269,11 @@ local defaultSettings = {
     auraTimerBaseColor = {1, 0.82, 0, 1},
     auraTimerLowColor = {1, 0.1, 0.1, 1},
     auraTimerLowThreshold = 6,
+    bigDebuffsMilliseconds = true,
+    bigDebuffsLowThreshold = 6,
+    bigDebuffsLowColor = {1, 0.1, 0.1, 1},
+    bigDebuffsBaseColor = {1, 0.82, 0, 1},
+    bigDebuffsTextScale = 1,
     addCooldownFramePlayerAuras = false,
     customImportantAuraSorting = true,
     customLargeSmallAuraSorting = true,
@@ -254,6 +295,7 @@ local defaultSettings = {
     playerAuraDurationOnIcon = false,
     playerAuraDurationColor = false,
     playerAuraDurationColorRGB = {1, 1, 1, 1},
+    hidePlayerWeaponEnchants = false,
     maxBuffFrameBuffs = 32,
     maxDebuffFrameDebuffs = 16,
     printAuraSpellIds = false,
@@ -450,6 +492,10 @@ local function InitializeSavedVariables()
         BetterBlizzFramesDB.playerAuraSpacingX = 5
     end
 
+    if BetterBlizzFramesDB.statusTextExtra == nil and (BetterBlizzFramesDB.statusTextExtraToT or BetterBlizzFramesDB.statusTextExtraParty) then
+        BetterBlizzFramesDB.statusTextExtra = true
+    end
+
     for key, defaultValue in pairs(defaultSettings) do
         if BetterBlizzFramesDB[key] == nil then
             BetterBlizzFramesDB[key] = defaultValue
@@ -538,36 +584,6 @@ BBF.popupBuilders["BBF_COMBAT_WARNING"] = function()
         timeout = 0,
         whileDead = true,
         hideOnEscape = true,
-        preferredIndex = 3,
-    }
-end
-
-BBF.popupBuilders["BBF_MIDNIGHT_121_AURA_UPDATE"] = function()
-    return {
-        text = "|A:gmchat-icon-blizz:16:16|a Better|cff00c0ffBlizz|rFrames:\n\nBetterBlizzFrames has been updated for Midnight 12.1.\n\nThis means new aura settings and you will have to re-do your aura settings within the new systems.\n\nThere is a reset button to restore aura settings to BBF's default if things are looking too wacko from out the gates from your old setup.\n\nThere may be bugs and please use BugSack and BugGrabber to report them.\n\nThank you!",
-        button1 = "OK",
-        timeout = 0,
-        whileDead = true,
-        preferredIndex = 3,
-    }
-end
-
-BBF.popupBuilders["BBF_MIDNIGHT_EDITMODE_SCALE_REMOVED"] = function()
-    return {
-        text = "|A:gmchat-icon-blizz:16:16|a Better|cff00c0ffBlizz|rFrames:\n\nHeadsup:\n\nThe size setting for party frames and loss of control frame was removed due to Blizzard now having added those to edit mode. Adjust them with edit mode instead.",
-        button1 = "OK",
-        timeout = 0,
-        whileDead = true,
-        preferredIndex = 3,
-    }
-end
-
-BBF.popupBuilders["BBF_MIDNIGHT_AURA_FILTER_FIXES"] = function()
-    return {
-        text = "|A:gmchat-icon-blizz:16:16|a Better|cff00c0ffBlizz|rFrames:\n\n|A:services-icon-warning:20:20|a |cffff8800IMPORTANT READ:|r |A:services-icon-warning:20:20|a\n\nLots of aura filter issues fixed. You may have to tweak your aura filter settings again. For a full overview read patch notes. Apologies for the inconvenience.\n\n- Some new filters and fixes to how they act. If you want to see all auras on Target/FocusFrame and on topright player auras make sure you dont have limiting filters enabled.",
-        button1 = "Okay",
-        timeout = 0,
-        whileDead = true,
         preferredIndex = 3,
     }
 end
@@ -1781,6 +1797,14 @@ function RefreshComboPoints(comboPointFrame)
     RepositionIndividualComboPoints(comboPointFrame, cfg.positions, cfg.scale, cfg.expectedClass)
 end
 
+function BBF.RaiseMovedResourceAboveTargetArt()
+    for comboPointFrame in pairs(comboPointConfig) do
+        if comboPointFrame:GetParent() == TargetFrame and not comboPointFrame:IsProtected() then
+            BBF.RaiseAboveTargetArt(comboPointFrame, "HIGH")
+        end
+    end
+end
+
 -- Function to setup combo points for any class
 local function SetupClassComboPoints(comboPointFrame, positions, expectedClass, scale, xPos, yPos, changeDrawLayer)
     if UnitClassBase("player") ~= expectedClass then return end
@@ -1845,7 +1869,7 @@ local function SetupClassComboPoints(comboPointFrame, positions, expectedClass, 
             comboPointFrame:ClearAllPoints()
             comboPointFrame:SetPoint("LEFT", TargetFrame, "RIGHT", xPos, yPos or -2)
             comboPointFrame:SetMouseClickEnabled(false)
-            comboPointFrame:SetFrameStrata("HIGH")
+            BBF.RaiseAboveTargetArt(comboPointFrame, "HIGH")
             RefreshComboPoints(comboPointFrame)
             self.changing = false
         end)
@@ -2056,7 +2080,7 @@ local function HookClassComboPoints()
             bar:ClearAllPoints()
             bar:SetPoint("LEFT", TargetFrame, "RIGHT", xPos, yPos)
             bar:SetMouseClickEnabled(false)
-            bar:SetFrameStrata("HIGH")
+            BBF.RaiseAboveTargetArt(bar, "HIGH")
             RefreshComboPoints(bar)
         end
         if db.moveResourceToTargetHunter and BBF.TipOfSpearBar then
@@ -2071,7 +2095,7 @@ local function HookClassComboPoints()
             bar:ClearAllPoints()
             bar:SetPoint("LEFT", TargetFrame, "RIGHT", xPos, yPos)
             bar:SetMouseClickEnabled(false)
-            bar:SetFrameStrata("HIGH")
+            BBF.RaiseAboveTargetArt(bar, "HIGH")
             RefreshComboPoints(bar)
         end
 
@@ -2602,10 +2626,7 @@ function BBF.MiniFrame(frame)
         reputationColor:SetAlpha(0)
 
         name:SetScale(1.4)
-        name:ClearAllPoints()
-        name:SetJustifyH("RIGHT")
-        name:SetPoint("RIGHT", frame.TargetFrameContainer.Portrait, "LEFT", -9, 10)
-        name:SetWidth(180)
+        BBF.RefreshNameLayouts()
 
         levelText:Hide()
         levelText:ClearAllPoints()
@@ -2691,9 +2712,7 @@ function BBF.MiniFrame(frame)
         end
 
         name:SetScale(1.4)
-        name:ClearAllPoints()
-        name:SetJustifyH("LEFT")
-        name:SetPoint("LEFT", frame.PlayerFrameContainer, "TOP", -16, -26)
+        BBF.RefreshNameLayouts()
     end
 end
 
@@ -2966,6 +2985,9 @@ function BBF.UpdateLegacyComboPosition()
     ComboFrame:ClearAllPoints()
     ComboFrame:SetPoint("TOPRIGHT", TargetFrame, "TOPRIGHT", x+extraOffsetX, y+extraOffsetY)
     ComboFrame:SetScale(scale)
+    if ComboFrame:GetParent() == TargetFrame then
+        BBF.RaiseAboveTargetArt(ComboFrame, "HIGH")
+    end
 end
 
 function BBF.FixLegacyComboPointsLocation()
@@ -3408,6 +3430,7 @@ function BBF.RaiseTargetFrameLevel()
     end
     TargetFrame:SetFrameStrata("MEDIUM")
     TargetFrame:SetFrameLevel(0)
+    BBF.RaiseCombosAboveTargetArt()
 
     BBF.raisingTargetFrameLevel = true
 end
@@ -4410,11 +4433,11 @@ function BBF.SymmetricPlayerFrame()
     local playerManaMask = PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.ManaBarArea.ManaBar.ManaBarMask
     playerManaMask:SetTexture("Interface\\AddOns\\BetterBlizzFrames\\media\\blizzTex\\UIUnitFrameTargetManaMask2x-Flipped")
     playerManaMask:SetWidth(258.5)
-    playerManaMask:SetPoint("TOPLEFT", -64, 2)
+    playerManaMask:SetPoint("TOPLEFT", -63, 3)
     hooksecurefunc(playerManaMask, "SetAtlas", function(self)
         self:SetTexture("Interface\\AddOns\\BetterBlizzFrames\\media\\blizzTex\\UIUnitFrameTargetManaMask2x-Flipped")
         self:SetWidth(258.5)
-        self:SetPoint("TOPLEFT", -64, 2)
+        self:SetPoint("TOPLEFT", -63, 3)
     end)
 
     local healthbarMask = PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.HealthBarsContainer.HealthBarMask
@@ -4999,14 +5022,8 @@ function BBF.FixStupidBlizzPTRShit()
 
     local a, b, c, d, e = TargetFrame.TargetFrameContent.TargetFrameContentMain.ReputationColor:GetPoint()
     TargetFrame.TargetFrameContent.TargetFrameContentMain.ReputationColor:SetPoint(a, b, c, d, -24)
-    if not BBF.ocdAdjusted and TargetFrame.bbfName and FocusFrame.bbfName then
-        local a,b,c,d = TargetFrame.bbfName:GetPoint()
-        local e,f,g,h = FocusFrame.bbfName:GetPoint()
-        if a and e then
-            TargetFrame.bbfName:SetPoint(a,b,c,d,-2)
-            FocusFrame.bbfName:SetPoint(e,f,g,h,-2)
-            BBF.ocdAdjusted = true
-        end
+    if BBF.ApplyNameLayouts then
+        BBF.ApplyNameLayouts()
     end
     local lvlYOffset = BetterBlizzFramesDB.symmetricPlayerFrame and -4 or -4
     --TargetFrame.TargetFrameContent.TargetFrameContentMain.ReputationColor:SetHeight()
@@ -5669,30 +5686,11 @@ First:SetScript("OnEvent", function(_, event, addonName)
             end
             BetterBlizzFramesDB.fontSizeNumFix = true
         end
-        local skipUpdateMsg = BetterBlizzFramesDB.skipUpdateMsg or BBF.skippedUpdateMsg
-        if not BetterBlizzFramesDB.midnight121AuraUpdateMsg then
-            BetterBlizzFramesDB.midnight121AuraUpdateMsg = true
-            if BetterBlizzFramesDB.hasSaved and not skipUpdateMsg then
-                C_Timer.After(7, function()
-                    BBF.ShowPopup("BBF_MIDNIGHT_121_AURA_UPDATE")
-                end)
+        if not BetterBlizzFramesDB.centerNamesMoveNamesMigrated then
+            if BetterBlizzFramesDB.centerNames then
+                BetterBlizzFramesDB.moveNames = true
             end
-        end
-        if not BetterBlizzFramesDB.midnightEditModeScaleRemovedMsg then
-            BetterBlizzFramesDB.midnightEditModeScaleRemovedMsg = true
-            if BetterBlizzFramesDB.hasSaved and not skipUpdateMsg then
-                C_Timer.After(7, function()
-                    BBF.ShowPopup("BBF_MIDNIGHT_EDITMODE_SCALE_REMOVED")
-                end)
-            end
-        end
-        if not BetterBlizzFramesDB.midnightAuraFilterFixesMsg then
-            BetterBlizzFramesDB.midnightAuraFilterFixesMsg = true
-            if BetterBlizzFramesDB.hasSaved and not skipUpdateMsg then
-                C_Timer.After(7, function()
-                    BBF.ShowPopup("BBF_MIDNIGHT_AURA_FILTER_FIXES")
-                end)
-            end
+            BetterBlizzFramesDB.centerNamesMoveNamesMigrated = true
         end
         FetchAndSaveValuesOnFirstLogin()
         TurnTestModesOff()
@@ -5700,6 +5698,7 @@ First:SetScript("OnEvent", function(_, event, addonName)
         BBF.FixLegacyComboPointsLocation()
         BBF.AlwaysShowLegacyComboPoints()
         BBF.LegacyComboActiveOnly()
+        BBF.UpdateComboVisibility()
         BBF.GenericLegacyComboSupport()
         BBF.HDLegacyComboPoints()
         BBF.RaiseTargetFrameLevel()
@@ -5723,6 +5722,7 @@ First:SetScript("OnEvent", function(_, event, addonName)
         BBF.UpdateDefaultTotFrameMana()
         BBF.UpdateBigPlayerHealthbar()
         BBF.CenterCurrentValueOnBars()
+        BBF.StatusBarTextExtra()
         BBF.UpdateAuraCollapseButton()
         BBF.PlayerElite(BetterBlizzFramesDB.playerEliteFrameMode)
         BBF.HidePlayerFrame()

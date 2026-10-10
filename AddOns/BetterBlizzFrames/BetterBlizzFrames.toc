@@ -2,7 +2,7 @@
 ## Title: Better|cff00c0ffBlizz|rFrames
 ## Notes: More options for Blizzard frames. Aura filtering, Party castbars, Combat indicator, Dark Mode etc.
 ## Author: Bodify
-## Version: v2.1.5
+## Version: v2.1.6
 ## SavedVariables: BetterBlizzFramesDB
 ## IconAtlas: gmchat-icon-blizz
 ## X-Curse-Project-ID: 940950
@@ -27,10 +27,13 @@ shared\ImportExport.lua
 shared\minimapTweaks.lua
 shared\smoothBars.lua
 shared\xpBarTexture.lua
+shared\comboVisibility.lua
+shared\statusBarTextExtra.lua
 
 retail\modules\darkmode.lua
 retail\modules\classicFrames.lua
 retail\modules\nameFix.lua
+shared\moveNames.lua
 retail\modules\hideFrames.lua
 retail\modules\auras.lua
 retail\modules\absorb.lua
