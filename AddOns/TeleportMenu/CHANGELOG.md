@@ -1,7 +1,11 @@
 # Teleport Menu
 
-## [v12.8](https://github.com/Justw8/TeleportMenu/tree/v12.8) (2026-08-16)
-[Full Changelog](https://github.com/Justw8/TeleportMenu/compare/v12.7...v12.8) [Previous Releases](https://github.com/Justw8/TeleportMenu/releases)
+## [v13.1](https://github.com/Justw8/TeleportMenu/tree/v13.1) (2026-10-09)
+[Full Changelog](https://github.com/Justw8/TeleportMenu/compare/v13...v13.1) [Previous Releases](https://github.com/Justw8/TeleportMenu/releases)
 
-- Set current season to 2  
-- Set current expansion to the Midnight flyout instead of TWW raids  
+- Update cooldowns on events instead of when opening the window  
+- Add highlights on hover  
+- Improve item equipping by not closing the menus unless you're going to cast  
+- Fix random hearthstones not showing a cooldown  
+- Cleanup some comments and typos  
+- Add Ever-Shifting Mirror  

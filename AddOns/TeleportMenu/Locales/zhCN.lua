@@ -14,7 +14,7 @@ L["Hearthone Reset Error"] = "我们已将你的炉石重置为默认状态，�
 L["The Vortex Pinnacle"] = "旋云"
 L["Throne of the Tides"] = "潮汐"
 L["Grim Batol"] = "格瑞姆"
-L["Temple of the Jade Serpentl"] = "青龙"
+L["Temple of the Jade Serpent"] = "青龙"
 L["Stormstout Brewery"] = "风暴"
 L["Shado-Pan Monastery"] = "影踪"
 L["Mogu'shan Palace"] = "魔古山"
@@ -23,7 +23,7 @@ L["Siege of Niuzao Temple"] = "砮皂寺"
 L["Scarlet Monastery"] = "修道院"
 L["Scarlet Halls"] = "大厅"
 L["Scholomance"] = "通灵"
-L["The Everblooml"] = "永茂"
+L["The Everbloom"] = "永茂"
 L["Shadowmoon Burial Grounds"] = "影月"
 L["Grimrail Depot"] = "恐轨"
 L["Iron Docks"] = "钢铁"
@@ -146,7 +146,6 @@ L["Dornogal"] = "多恩岛"
 L["Silvermoon City"] = "银月"
 
 -- Options
-L["Opening Options Menu"] = "打开选项菜单"
 L["Enabled"] = "启用"
 L["Enable Tooltip"] = "启用/禁用传送菜单"
 L["Auto Close"] = "自动关闭"
@@ -178,13 +177,21 @@ L["Teleports:Items:Filters:Items_To_Be_Obtained"] = "不可用的物品"
 
 -- Settings
 L["ADDON_NAME"] = "TeleportMenu"
-L["TITLE"] = "TeleportMenu设置"
 L["GENERAL"] = "通用设置"
 L["BUTTON_SETTINGS"] = "按键设置"
-L["TELEPORT_SETTINGS"] = "传送设置"
-L["HEARTHSTONE_SETTINGS"] = "炉石设置"
+--L["HEARTHSTONE_SETTINGS"] = "Hearthstone Settings"
 L["BUTTON_FONT_SIZE"] = "按键字体大小"
 L["BUTTON_FONT_SIZE_TOOLTIP"] = "选择传送缩写的大小"
 L["Teleports:Items:Filters"] = "物品过滤器"
 L["ABOUT_ADDON"] = "|CFFFFFFFF此插件将您可用的炉石和传送功能添加到游戏菜单中（按ESC键）。\n\n您可以通过在游戏中输入 /tpm 并按照命令更改使用的炉石。\n\n如果有问题或疑问，或者缺少传送/炉石，请随时在Github上联系我。\n\n支持的物品：\n\n 炉石\n 法师传送门/传送\n 工程虫洞\n 英雄之路\n 所有职业传送（禅宗朝圣、黑锋之门、梦境行者等）\n\n \n\n未来计划支持：\n\n背包中的传送物品（使用、装备）。|r"
 L["ABOUT_CONTRIBUTORS"] = "活跃贡献者：|CFFFFFFFF\n\n%s\n\n|r"
+
+L["Character Settings"] = "角色专用设置"
+
+L["Character Settings Tooltip"] = "为此角色使用独立设置。\n\n第一次启用时，会将当前设置复制到此角色。停用后会切换回共享设置。"
+
+L["Teleports:Hearthstone:Random:Pool"] = "随机炉石"
+
+L["Reset Page Confirm"] = "要将 %s 页面的所有选项重置为默认值吗？"
+
+L["HEARTHSTONE_SETTINGS"] = "炉石设置"

@@ -14,9 +14,12 @@ local MasqueGroup = MSQ and MSQ:Group(L["ADDON_NAME"])
 
 local db = {}
 local APPEND = L["AddonNamePrint"]
-local DEFAULT_ICON = "Interface\\Icons\\INV_Misc_QuestionMark"
 local globalWidth, globalHeight = 40, 40 -- defaults
 tpm.TEXTURE_SCALE = 0
+
+function tpm:GetButtonSize()
+	return globalWidth, globalHeight
+end
 
 local IsSpellKnown = C_SpellBook.IsSpellKnown
 
@@ -29,7 +32,7 @@ end
 -- Teleport Tables
 --------------------------------------
 
-local availableSeasonalTeleports = {}
+tpm.AvailableSeasonalTeleports = {}
 
 local shortNames = {
 	-- CATA
@@ -39,7 +42,7 @@ local shortNames = {
 	-- WLK
 	[1254555] = L["Pit of Saron"],	-- Midnight S1
 	-- MoP
-	[131204] = L["Temple of the Jade Serpentl"],
+	[131204] = L["Temple of the Jade Serpent"],
 	[131205] = L["Stormstout Brewery"],
 	[131206] = L["Shado-Pan Monastery"],
 	[131222] = L["Mogu'shan Palace"],
@@ -49,7 +52,7 @@ local shortNames = {
 	[131231] = L["Scarlet Halls"],
 	[131232] = L["Scholomance"],
 	-- WoD
-	[159901] = L["The Everblooml"],
+	[159901] = L["The Everbloom"],
 	[159899] = L["Shadowmoon Burial Grounds"],
 	[159900] = L["Grimrail Depot"],
 	[159896] = L["Iron Docks"],
@@ -231,409 +234,13 @@ local tpTable = {
 	--{ id = 246, type = "flyout", iconId = 7266215, name = L["Midnight Raids"], subtype = "path", currentExpansion = true }, -- Hero's Path: Midnight Raids
 }
 
-local GetItemCount = C_Item.GetItemCount
-
---------------------------------------
--- Texture Stuff
---------------------------------------
-
-local function SetTextureByItemId(frame, itemId)
-	frame.icon:SetTexture(DEFAULT_ICON) -- Temp while loading
-	local item = Item:CreateFromItemID(tonumber(itemId))
-	item:ContinueOnItemLoad(function()
-		local icon = item:GetItemIcon()
-		frame.icon:SetTexture(icon)
-	end)
-end
-
---------------------------------------
---- Tooltip
---------------------------------------
-
-local function setCombatTooltip(self)
-	GameTooltip:SetOwner(self, "ANCHOR_NONE")
-	local yOffset = globalHeight / 2
-	GameTooltip:SetPoint("BOTTOMLEFT", TeleportMeButtonsFrameRight, "TOPRIGHT", 0, yOffset)
-	GameTooltip:SetText(L["Not In Combat Tooltip"], 1, 1, 1)
-	GameTooltip:Show()
-end
-
-local function setToolTip(self, tpType, id, hs)
-	GameTooltip:SetOwner(self, "ANCHOR_NONE")
-	local yOffset = globalHeight / 2
-	GameTooltip:SetPoint("BOTTOMLEFT", TeleportMeButtonsFrameRight, "TOPRIGHT", 0, yOffset)
-	if hs and db["Teleports:Hearthstone"] and db["Teleports:Hearthstone"] == "rng" then
-		local bindLocation = GetBindLocation()
-		GameTooltip:SetText(L["Random Hearthstone"], 1, 1, 1)
-		GameTooltip:AddLine(L["Random Hearthstone Tooltip"], 1, 1, 1)
-		GameTooltip:AddLine(L["Random Hearthstone Location"]:format(bindLocation), 1, 1, 1, true) -- `false` is supposed to disable text wrapping, but somehow `true` works that way in action
-	elseif tpType == "item" then
-		GameTooltip:SetItemByID(id)
-	elseif tpType == "item_teleports" then
-		GameTooltip:SetText(L["Item Teleports"] .. "\n" .. L["Item Teleports Tooltip"], 1, 1, 1)
-	elseif tpType == "toy" then
-		GameTooltip:SetToyByItemID(id)
-	elseif tpType == "spell" then
-		GameTooltip:SetSpellByID(id)
-	elseif tpType == "flyout" then
-		local name = GetFlyoutInfo(id)
-		GameTooltip:SetText(name, 1, 1, 1)
-	elseif tpType == "profession" then
-		local professionInfo = C_TradeSkillUI.GetProfessionInfoBySkillLineID(id)
-		if professionInfo then
-			GameTooltip:SetText(professionInfo.professionName, 1, 1, 1)
-		end
-	elseif tpType == "seasonalteleport" then
-		local currExpID = GetExpansionLevel()
-		local expName = _G["EXPANSION_NAME" .. currExpID]
-		local title = MYTHIC_DUNGEON_SEASON:format(expName, tpm.settings.current_season)
-		GameTooltip:SetText(title, 1, 1, 1)
-		GameTooltip:AddLine(L["Seasonal Teleports Tooltip"], 1, 1, 1)
-	end
-	GameTooltip:Show()
-end
-
---------------------------------------
--- Frames
---------------------------------------
-
-local flyOutButtons = {}
-local flyOutButtonsPool = {}
-local flyOutFrames = {}
-local flyOutFramesPool = {}
-local secureButtons = {}
-local secureButtonsPool = {}
-
-local function createCooldownFrame(frame)
-	if frame.cooldownFrame then
-		return frame.cooldownFrame
-	end
-	local cooldownFrame = CreateFrame("Cooldown", nil, frame, "CooldownFrameTemplate")
-	cooldownFrame:SetAllPoints()
-
-	function cooldownFrame:CheckCooldown(id, type)
-		if type ~= "housing" and not id then
-			return
-		end
-		local start, duration, enabled
-		if type == "toy" or type == "item" then
-			start, duration, enabled = C_Item.GetItemCooldown(id)
-		elseif type == "housing" then
-			local cdInfo = C_Housing.GetVisitCooldownInfo()
-			start = cdInfo.startTime
-			duration = cdInfo.duration
-			enabled = cdInfo.isEnabled
-		else
-			local cooldown = C_Spell.GetSpellCooldown(id)
-			start = cooldown.startTime
-			duration = cooldown.duration
-			enabled = true
-		end
-		if enabled and not tpm:IsSecret(duration) and duration > 0 then
-			self:SetCooldown(start, duration)
-		else
-			self:Clear()
-		end
-	end
-
-	return cooldownFrame
-end
-
-local function CloseAllFlyouts()
-	for _, frame in ipairs(flyOutFrames) do
-		frame:Hide()
-	end
-end
-
-local function createFlyOutButton(flyOutFrame, flyoutData, tooltipData, side) -- Flyout Data needs: id, name, iconId
-	local flyOutButton
-	if next(flyOutButtonsPool) then
-		flyOutButton = table.remove(flyOutButtonsPool)
-	else
-		flyOutButton = CreateFrame("Button", nil, side == "LEFT" and TeleportMeButtonsFrameLeft or TeleportMeButtonsFrameRight, "SecureActionButtonTemplate")
-
-
-		function flyOutButton:SetFlyOutFrame(frame)
-			self.flyoutFrame = frame
-		end
-
-		function flyOutButton:Recycle()
-			self:ClearAllPoints()
-			self:SetFlyOutFrame(nil)
-			self:Hide()
-			table.insert(flyOutButtonsPool, self)
-
-			if MasqueGroup then
-				MasqueGroup:RemoveButton(self)
-			end
-		end
-
-		-- Text
-		flyOutButton.text = flyOutButton:CreateFontString(nil, "OVERLAY")
-		flyOutButton.text:SetPoint("BOTTOM", flyOutButton, "BOTTOM", 0, 5)
-		flyOutButton.text:SetTextColor(1, 1, 1, 1)
-
-		-- Icon
-		flyOutButton.icon = flyOutButton:CreateTexture(nil, "BACKGROUND")
-		flyOutButton.icon:SetAllPoints()
-
-		-- Frame Levels
-		flyOutButton:SetFrameStrata("HIGH")
-		flyOutButton:SetFrameLevel(101)
-
-		-- Mouse Interaction
-		flyOutButton:EnableMouse(true)
-		flyOutButton:RegisterForClicks("AnyDown", "AnyUp")
-		flyOutButton:SetAttribute("useOnKeyDown", true)
-
-		table.insert(flyOutButtons, flyOutButton)
-	end
-
-	flyOutButton:SetFlyOutFrame(flyOutFrame)
-
-	-- Tooltips
-	local tooltipType = "flyout"
-	local tooltipId = flyoutData.id
-	if tooltipData then
-		tooltipType = tooltipData.type
-		tooltipId = tooltipData.id
-	end
-	flyOutButton:SetScript("OnEnter", function(self)
-		if InCombatLockdown() then
-			setCombatTooltip(self)
-			return
-		end
-		CloseAllFlyouts()
-		setToolTip(self, tooltipType, tooltipId)
-		self.flyoutFrame:Show()
-	end)
-	flyOutButton:SetScript("OnLeave", function(self)
-		GameTooltip:Hide()
-	end)
-
-	-- Text
-	flyOutButton.text:Hide()
-	if db["Button:Text:Show"] == true and flyoutData.name then
-		flyOutButton.text:SetFont(STANDARD_TEXT_FONT, db["Button:Text:Size"], "OUTLINE")
-		flyOutButton.text:SetText(flyoutData.name)
-		flyOutButton.text:Show()
-	end
-
-	-- Texture
-	flyOutButton.icon:SetTexture(flyoutData.iconId)
-	local zoomFactor = tpm.TEXTURE_SCALE
-	local offset = zoomFactor / 2
-	flyOutButton.icon:SetTexCoord(offset, 1-offset, offset, 1-offset)
-
-	-- Size
-	flyOutButton:SetSize(globalWidth, globalHeight)
-	flyOutButton:Show()
-
-	if MasqueGroup then
-		MasqueGroup:AddButton(flyOutButton, { Icon = flyOutButton.icon })
-	end
-
-	return flyOutButton
-end
-
-local function createFlyOutFrame(side)
-	local flyOutFrame
-	if next(flyOutFramesPool) then
-		flyOutFrame = table.remove(flyOutFramesPool)
-	else
-		flyOutFrame = CreateFrame("Frame", "FlyOutFrame" .. #flyOutFrames + 1)
-
-		function flyOutFrame:Recycle()
-			self:ClearAllPoints()
-			self:Hide()
-			table.insert(flyOutFramesPool, self)
-		end
-
-		flyOutFrame:SetFrameStrata("HIGH")
-		flyOutFrame:SetFrameLevel(103)
-		flyOutFrame:SetPropagateMouseClicks(true)
-		flyOutFrame:SetPropagateMouseMotion(true)
-		flyOutFrame:SetScript("OnLeave", function(self)
-			GameTooltip:Hide()
-			if not InCombatLockdown() then -- XXX Needed?
-				self:Hide()
-			end
-		end)
-
-		table.insert(flyOutFrames, flyOutFrame)
-	end
-
-	flyOutFrame:SetParent(side == "LEFT" and TeleportMeButtonsFrameLeft or TeleportMeButtonsFrameRight)
-	flyOutFrame:Hide()
-
-	return flyOutFrame
-end
-
----@param id ItemInfo
----@return boolean
-local function IsItemEquipped(id)
-	return C_Item.IsEquippableItem(id) and C_Item.IsEquippedItem(id)
-end
-
-local function ClearAllInvalidHighlights()
-	for _, button in pairs(secureButtons) do
-		button:ClearHighlightTexture()
-
-		if button:GetAttribute("item") ~= nil then
-			local id = string.match(button:GetAttribute("item"), "%d+")
-			if IsItemEquipped(id) then
-				button:Highlight()
-			end
-		end
-	end
-end
-
-
----@param frame Frame
----@param buttonType string
----@param text string|nil
----@param id integer
----@param hearthstone? boolean
----@return Frame
-local function CreateSecureButton(frame, buttonType, text, id, hearthstone)
-	local button
-
-	if next(secureButtonsPool) then
-		button = table.remove(secureButtonsPool)
-	else
-		button = CreateFrame("Button", nil, nil, "SecureActionButtonTemplate")
-
-		function button:Recycle()
-			self.buttonType = nil
-			self.id = nil
-			self.hearthstone = nil
-
-			self:ClearHighlightTexture()
-			self:SetParent(nil)
-			self:ClearAllPoints()
-			self:Hide()
-			table.insert(secureButtonsPool, self)
-
-			if MasqueGroup then
-				MasqueGroup:RemoveButton(self)
-			end
-		end
-
-		-- Icon
-		button.icon = button:CreateTexture(nil, "BACKGROUND")
-		button.icon:SetAllPoints()
-
-		-- Cooldown Frame
-		button.cooldownFrame = createCooldownFrame(button)
-
-		function button:CheckCooldown()
-			self.cooldownFrame:CheckCooldown(self.id, self.buttonType)
-		end
-
-		-- Text
-		button.text = button:CreateFontString(nil, "OVERLAY")
-		button.text:SetPoint("BOTTOM", button, "BOTTOM", 0, 5)
-		button.text:SetTextColor(1, 1, 1, 1)
-
-		-- Highlighting
-		function button:Highlight()
-			self:SetHighlightAtlas("talents-node-choiceflyout-square-green")
-		end
-		button:LockHighlight()
-
-		-- Mouse Interaction
-		button:EnableMouse(true)
-		button:RegisterForClicks("AnyDown", "AnyUp")
-		button:SetAttribute("useOnKeyDown", true)
-
-		-- Scripts
-		button:SetScript("OnLeave", function(self)
-			GameTooltip:Hide()
-		end)
-
-		button:SetScript("PostClick", function(self)
-			if self.buttonType == "item" and C_Item.IsEquippableItem(id) then
-				C_Timer.After(0.25, function() -- Slight delay due to equipping the item not being instant.
-					if IsItemEquipped(id) then
-						ClearAllInvalidHighlights()
-						self:Highlight()
-					end
-				end)
-				if IsItemEquipped(id) then
-					tpm:CloseMainMenu()
-				end
-			else
-				tpm:CloseMainMenu()
-			end
-		end)
-
-		button:SetScript("OnEnter", function(self)
-			setToolTip(self, self.buttonType, self.id, self.hearthstone)
-		end)
-
-		button:SetScript("OnShow", function(self)
-			self:CheckCooldown()
-		end)
-
-		table.insert(secureButtons, button)
-	end
-
-	-- Properties
-	button.buttonType = buttonType
-	button.id = id
-	button.hearthstone = hearthstone
-
-	-- Text
-	button.text:Hide()
-	if db["Button:Text:Show"] == true and text then
-		button.text:SetFont(STANDARD_TEXT_FONT, db["Button:Text:Size"], "OUTLINE")
-		button.text:SetText(text)
-		button.text:Show()
-	end
-
-	-- Cooldown
-	button:CheckCooldown()
-
-	-- Textures
-	if buttonType == "spell" then
-		local spellTexture = C_Spell.GetSpellTexture(id)
-		button.icon:SetTexture(spellTexture)
-	else -- item or toy
-		SetTextureByItemId(button, id)
-	end
-
-	local zoomFactor = tpm.TEXTURE_SCALE
-	local offset = zoomFactor / 2
-	button.icon:SetTexCoord(offset, 1-offset, offset, 1-offset)
-
-	-- Attributes
-	button:SetAttribute("type", buttonType)
-	if buttonType == "item" then
-		button:SetAttribute(buttonType, "item:" .. id)
-		if C_Item.IsEquippableItem(id) and IsItemEquipped(id) then
-			button:Highlight()
-		end
-	else
-		button:SetAttribute(buttonType, id)
-	end
-
-	-- Positioning/Size
-	button:SetParent(frame)
-	button:SetSize(globalWidth, globalHeight)
-	button:SetFrameStrata("HIGH")
-	button:SetFrameLevel(102) -- This needs to be lower than the flyout frame
-
-	if MasqueGroup then
-		MasqueGroup:AddButton(button, { Icon = button.icon })
-	end
-
-	button:Show()
-	return button
-end
-
 --------------------------------------
 -- Functions
 --------------------------------------
+
+function tpm:GetShortName(spellId)
+	return shortNames[spellId]
+end
 
 function tpm:GetIconText(spellId)
 	local text = shortNames[spellId]
@@ -644,7 +251,7 @@ function tpm:GetIconText(spellId)
 end
 
 function tpm:UpdateAvailableSeasonalTeleports()
-	availableSeasonalTeleports = {}
+	local availableSeasonalTeleports = {}
 
 	local factionTeleports = {
 		Alliance = { siegeOfBoralus = 445418, motherlode = 467553 },
@@ -686,6 +293,7 @@ function tpm:UpdateAvailableSeasonalTeleports()
 			table.insert(availableSeasonalTeleports, spellID)
 		end
 	end
+	tpm.AvailableSeasonalTeleports = availableSeasonalTeleports
 end
 
 function tpm:checkQuestCompletion(quest)
@@ -700,153 +308,11 @@ function tpm:checkQuestCompletion(quest)
 	end
 end
 
-function tpm:CreateFlyout(flyoutData, side)
-	local ButtonFrame = side == "LEFT" and TeleportMeButtonsFrameLeft or TeleportMeButtonsFrameRight
-	if db["Teleports:Seasonal:Only"] and (flyoutData.subtype == "path" and not flyoutData.currentExpansion) then
-		return
-	end
-	local _, _, spells, flyoutKnown = GetFlyoutInfo(flyoutData.id)
-	if not flyoutKnown then
-		return
-	end
-
-	local yOffset = -globalHeight * ButtonFrame:GetButtonAmount()
-	local flyOutFrame = createFlyOutFrame(side)
-	flyOutFrame:SetPoint(side == "LEFT" and "RIGHT" or "LEFT", ButtonFrame, side == "LEFT" and "TOPLEFT" or "TOPRIGHT", side == "LEFT" and globalWidth or 0, yOffset)
-
-	-- Flyout Main Button
-	local button = createFlyOutButton(flyOutFrame, flyoutData, nil, side)
-	button:SetPoint("LEFT", ButtonFrame, "TOPRIGHT", 0, yOffset)
-
-	local childButtons = {}
-	local flyoutsCreated = 0
-	local rowNr = 1
-	local inverse = db["Teleports:Mage:Reverse"] and flyoutData.subtype == "mage"
-	local start, endLoop, step = 1, spells, 1
-	if inverse then -- Inverse loop params
-		start, endLoop, step = spells, 1, -1
-	end
-	for i = start, endLoop, step do
-		local spellId = select(1, GetFlyoutSlotInfo(flyoutData.id, i))
-		if IsSpellKnown(spellId) then
-			if flyoutsCreated == db["Flyout:Max_Per_Row"] then
-				flyoutsCreated = 0
-				rowNr = rowNr + 1
-			end
-			flyoutsCreated = flyoutsCreated + 1
-			local flyOutButton = CreateSecureButton(flyOutFrame, "spell", shortNames[spellId], spellId)
-			local offsetY = (rowNr - 1) * - globalHeight
-			local offsetX = globalWidth * flyoutsCreated
-			if side == "LEFT" then
-				offsetX = -globalWidth * flyoutsCreated
-			end
-			flyOutButton:SetPoint(side == "LEFT" and "TOPRIGHT" or "TOPLEFT", flyOutFrame, side == "LEFT" and "TOPRIGHT" or "TOPLEFT", offsetX, offsetY)
-			table.insert(childButtons, flyOutButton)
-		end
-	end
-
-	local frameWidth = rowNr > 1 and globalWidth * (db["Flyout:Max_Per_Row"] + 1) or globalWidth * (flyoutsCreated + 1)
-	flyOutFrame:SetSize(frameWidth, globalHeight * rowNr)
-	button.childButtons = childButtons
-	return button
-end
-
-function tpm:CreateSeasonalTeleportFlyout()
-	if #availableSeasonalTeleports == 0 then
-		return
-	end
-
-	local tooltipData = { type = "seasonalteleport" }
-	local seasonalFlyOutData = { id = -1, name = L["Season " .. tpm.settings.current_season], iconId = 5927657 }
-	local yOffset = -globalHeight * TeleportMeButtonsFrameRight:GetButtonAmount()
-
-	local flyOutFrame = createFlyOutFrame()
-	flyOutFrame:SetPoint("LEFT", TeleportMeButtonsFrameRight, "TOPRIGHT", 0, yOffset)
-
-	local button = createFlyOutButton(flyOutFrame, seasonalFlyOutData, tooltipData, "RIGHT")
-	button:SetPoint("LEFT", TeleportMeButtonsFrameRight, "TOPRIGHT", 0, yOffset)
-
-	local flyoutsCreated = 0
-	local rowNr = 1
-	for _, spellId in ipairs(availableSeasonalTeleports) do
-		if IsSpellKnown(spellId) then
-			if flyoutsCreated == db["Flyout:Max_Per_Row"] then
-				flyoutsCreated = 0
-				rowNr = rowNr + 1
-			end
-			flyoutsCreated = flyoutsCreated + 1
-			local text = tpm:GetIconText(spellId)
-			local flyOutButton = CreateSecureButton(flyOutFrame, "spell", text, spellId)
-			flyOutButton:SetPoint("TOPLEFT", flyOutFrame, "TOPLEFT", globalWidth * flyoutsCreated, (rowNr - 1) * - globalHeight)
-		end
-	end
-	local frameWidth = rowNr > 1 and globalWidth * (db["Flyout:Max_Per_Row"] + 1) or globalWidth * (flyoutsCreated + 1)
-	flyOutFrame:SetSize(frameWidth, globalHeight * rowNr)
-
-	return button
-end
-
-function tpm:CreateWormholeFlyout(flyoutData)
-	local usableWormholes = tpm.AvailableWormholes:GetUsable()
-	if #usableWormholes == 0 then
-		return
-	end
-
-	local yOffset = -globalHeight * TeleportMeButtonsFrameLeft:GetButtonAmount()
-
-	local flyOutFrame = createFlyOutFrame("LEFT")
-	flyOutFrame:SetPoint("RIGHT", TeleportMeButtonsFrameLeft, "TOPLEFT", globalWidth, yOffset)
-
-	local button = createFlyOutButton(flyOutFrame, flyoutData, { type = "profession", id = 202 }, "LEFT")
-	button:SetPoint("LEFT", TeleportMeButtonsFrameLeft, "TOPRIGHT", 0, yOffset)
-
-	local flyoutsCreated = 0
-	local rowNr = 1
-	for _, wormholeId in ipairs(usableWormholes) do
-		if flyoutsCreated == db["Flyout:Max_Per_Row"] then
-			flyoutsCreated = 0
-			rowNr = rowNr + 1
-		end
-		flyoutsCreated = flyoutsCreated + 1
-		local flyOutButton = CreateSecureButton(flyOutFrame, "toy", nil, wormholeId)
-		flyOutButton:SetPoint("TOPRIGHT", flyOutFrame, "TOPRIGHT", -globalWidth * flyoutsCreated, (rowNr - 1) * - globalHeight)
-	end
-	local frameWidth = rowNr > 1 and globalWidth * (db["Flyout:Max_Per_Row"] + 1) or globalWidth * (flyoutsCreated + 1)
-	flyOutFrame:SetSize(frameWidth, globalHeight * rowNr)
-
-	return button
-end
-
-function tpm:CreateItemTeleportsFlyout(flyoutData)
-	if #tpm.AvailableItemTeleports == 0 then
-		return
-	end
-
-	local yOffset = -globalHeight * TeleportMeButtonsFrameLeft:GetButtonAmount()
-
-	local flyOutFrame = createFlyOutFrame("LEFT")
-	flyOutFrame:SetPoint("RIGHT", TeleportMeButtonsFrameLeft, "TOPLEFT", globalWidth, yOffset)
-
-	local button = createFlyOutButton(flyOutFrame, flyoutData, { type = "item_teleports" }, "LEFT")
-	button:SetPoint("LEFT", TeleportMeButtonsFrameLeft, "TOPRIGHT", 0, yOffset)
-
-	local flyoutsCreated = 0
-	local rowNr = 1
-	for _, itemTeleportId in ipairs(tpm.AvailableItemTeleports) do
-		if flyoutsCreated == db["Flyout:Max_Per_Row"] then
-			flyoutsCreated = 0
-			rowNr = rowNr + 1
-		end
-		flyoutsCreated = flyoutsCreated + 1
-		local isToy = tpm:IsToyTeleport(itemTeleportId)
-		local flyOutButton = CreateSecureButton(flyOutFrame, isToy and "toy" or "item", nil, itemTeleportId)
-		flyOutButton:SetPoint("TOPRIGHT", flyOutFrame, "TOPRIGHT", -globalWidth * flyoutsCreated, (rowNr - 1) * - globalHeight)
-	end
-
-	local frameWidth = rowNr > 1 and globalWidth * (db["Flyout:Max_Per_Row"] + 1) or globalWidth * (flyoutsCreated + 1)
-	flyOutFrame:SetSize(frameWidth, globalHeight * rowNr)
-
-	return button
+function tpm:SetRandomHearthstoneOnButton(button)
+	local randomHearthstone = tpm:GetRandomHearthstone()
+	button.id = randomHearthstone
+	button:SetAttribute("toy", randomHearthstone)
+	button:CheckCooldown()
 end
 
 function tpm:updateHearthstone()
@@ -859,19 +325,19 @@ function tpm:updateHearthstone()
 	end
 
 	if db["Teleports:Hearthstone"] == "rng" then
-		local rng = math.random(#tpm.AvailableHearthstones)
+		hearthstoneButton.pendingIconItem = nil -- Drop any pending toy icon load so it can't overwrite the random icon
 		hearthstoneButton.icon:SetTexture(1669494) -- misc_rune_pvp_random
 		hearthstoneButton:SetAttribute("type", "toy")
-		hearthstoneButton:SetAttribute("toy", tpm.AvailableHearthstones[rng])
+		tpm:SetRandomHearthstoneOnButton(hearthstoneButton)
 	elseif db["Teleports:Hearthstone"] == "disabled" then
 		hearthstoneButton:Hide()
 		return
 	elseif db["Teleports:Hearthstone"] ~= "none" then
-		SetTextureByItemId(hearthstoneButton, db["Teleports:Hearthstone"])
+		tpm.SecureButton:SetTextureByItemId(hearthstoneButton, db["Teleports:Hearthstone"])
 		hearthstoneButton:SetAttribute("type", "toy")
 		hearthstoneButton:SetAttribute("toy", db["Teleports:Hearthstone"])
 		hearthstoneButton:SetScript("OnEnter", function(s)
-			setToolTip(s, "toy", db["Teleports:Hearthstone"], true)
+			tpm.Tooltip:Set(s, "toy", db["Teleports:Hearthstone"], true)
 		end)
 	else
 		if C_Item.GetItemCount(6948) == 0 then
@@ -879,11 +345,11 @@ function tpm:updateHearthstone()
 			hearthstoneButton:Hide()
 			return
 		end
-		SetTextureByItemId(hearthstoneButton, 6948)
+		tpm.SecureButton:SetTextureByItemId(hearthstoneButton, 6948)
 		hearthstoneButton:SetAttribute("type", "item")
 		hearthstoneButton:SetAttribute("item", "item:6948")
 		hearthstoneButton:SetScript("OnEnter", function(s)
-			setToolTip(s, "item", 6948, true)
+			tpm.Tooltip:Set(s, "item", 6948, true)
 		end)
 	end
 
@@ -892,7 +358,7 @@ function tpm:updateHearthstone()
 	hearthstoneButton.icon:SetTexCoord(offset, 1-offset, offset, 1-offset)
 
 	if MasqueGroup then
-		MasqueGroup:AddButton(hearthstoneButton, { Icon = hearthstoneButton.icon })
+		MasqueGroup:AddButton(hearthstoneButton, { Icon = hearthstoneButton.icon, Cooldown = hearthstoneButton.cooldownFrame, Highlight = hearthstoneButton:GetHighlightTexture() })
 	end
 
 	hearthstoneButton:Show()
@@ -923,11 +389,10 @@ local function createAnchors()
 			TeleportMeButtonsFrameLeft:Hide()
 			return
 		end
-		if TeleportMeButtonsFrameLeft:IsVisible() and db["Teleports:Hearthstone"] and db["Teleports:Hearthstone"] == "rng" then
-			local rng = tpm:GetRandomHearthstone()
-			TeleportMeButtonsFrameLeft.hearthstoneButton:SetAttribute("toy", rng)
+		if TeleportMeButtonsFrameLeft:IsVisible() and db["Teleports:Hearthstone"] == "rng" and TeleportMeButtonsFrameLeft.hearthstoneButton then
+			tpm:SetRandomHearthstoneOnButton(TeleportMeButtonsFrameLeft.hearthstoneButton)
 		end
-		ClearAllInvalidHighlights()
+		tpm.SecureButton:UpdateEquippedHighlights()
 		return
 	end
 	if not db["Enabled"] then
@@ -942,6 +407,8 @@ local function createAnchors()
 	buttonsFrameLeft:SetPoint("TOPRIGHT", GameMenuFrame,  "TOPLEFT", -globalHeight - 1, -buttonFrameYOffset + 1)
 	buttonsFrameRight:SetPoint("TOPLEFT", GameMenuFrame,  "TOPRIGHT", 0, -buttonFrameYOffset + 1)
 
+	buttonsFrameLeft.hearthstoneButton = nil -- The previous one was recycled; set again below if created
+
 	for _, teleport in ipairs(tpTable) do
 		local showHearthstone = db["Teleports:Hearthstone"] ~= "disabled"
 		local texture
@@ -955,6 +422,9 @@ local function createAnchors()
 			if db["Teleports:Hearthstone"] == "rng" then
 				texture = 1669494 -- misc_rune_pvp_random
 				teleport.id = tpm:GetRandomHearthstone()
+				-- Toy data can briefly be unavailable (e.g. during a loading screen), leaving nothing to
+				-- pick from. Skip the button then; it's rebuilt on the next TOYS_UPDATED.
+				known = teleport.id ~= nil
 			else
 				teleport.id = db["Teleports:Hearthstone"]
 			end
@@ -975,14 +445,14 @@ local function createAnchors()
 			known = true
 		end
 
-		if showHearthstone and not known and teleport.hearthstone then -- Player has no HS in bags and not set a custom TP.
+		if showHearthstone and not known and teleport.hearthstone and db["Teleports:Hearthstone"] == "none" then -- Player has no HS in bags and not set a custom TP.
 			print(APPEND .. L["No Hearthtone In Bags"])
 		end
 
 		-- Create Stuff
 		if known and (teleport.type == "toy" or teleport.type == "item" or teleport.type == "spell" or (showHearthstone and teleport.hearthstone)) then
 			tpm:DebugPrint(teleport.hearthstone)
-			local button = CreateSecureButton(buttonsFrameLeft, teleport.type, nil, teleport.id --[[@as integer]], teleport.hearthstone)
+			local button = tpm.SecureButton:Create(buttonsFrameLeft, teleport.type, nil, teleport.id --[[@as integer]], teleport.hearthstone)
 			local yOffset = -globalHeight * buttonsFrameLeft:GetButtonAmount()
 			button:SetPoint("LEFT", buttonsFrameLeft, "TOPRIGHT", 0, yOffset)
 			if teleport.hearthstone then -- store to replace item later
@@ -999,17 +469,17 @@ local function createAnchors()
 				buttonsFrameLeft:IncrementButtons()
 			end
 		elseif teleport.type == "wormholes" then
-			local created = tpm:CreateWormholeFlyout(teleport)
+			local created = tpm.Flyout:CreateWormholes(teleport)
 			if created then
 				buttonsFrameLeft:IncrementButtons()
 			end
 		elseif teleport.type == "item_teleports" then
-			local created = tpm:CreateItemTeleportsFlyout(teleport)
+			local created = tpm.Flyout:CreateItemTeleports(teleport)
 			if created then
 				buttonsFrameLeft:IncrementButtons()
 			end
 		elseif teleport.type == "flyout" then
-			local created = tpm:CreateFlyout(teleport, teleport.subtype == "mage" and "LEFT")
+			local created = tpm.Flyout:Create(teleport, teleport.subtype == "mage" and "LEFT")
 			if created then
 				local frameAdded = teleport.subtype == "mage" and buttonsFrameLeft or buttonsFrameRight
 				frameAdded:IncrementButtons()
@@ -1018,7 +488,7 @@ local function createAnchors()
 	end
 
 	local function CreateCurrentSeasonTeleports()
-		local created = tpm:CreateSeasonalTeleportFlyout()
+		local created = tpm.Flyout:CreateSeasonal()
 		if created then
 			buttonsFrameRight:IncrementButtons()
 		end
@@ -1042,15 +512,12 @@ function tpm:ReloadFrames()
 
 	tpm.TEXTURE_SCALE = db["Button:Texture:Zoom"] or 0
 
-	for _, button in ipairs(flyOutButtons) do
-		button:Recycle()
-	end
-	for _, frame in ipairs(flyOutFrames) do
-		frame:Recycle()
-	end
-	for _, secureButton in ipairs(secureButtons) do
-		secureButton:Recycle()
-	end
+	-- Rebuilding closes all flyouts. Remember the open one, e.g. when equipping an item from
+	-- a flyout triggers a bag update and with it a rebuild.
+	local openFlyoutKey = tpm.Flyout:GetOpenFlyoutKey()
+
+	tpm.Flyout:RecycleAll()
+	tpm.SecureButton:RecycleAll()
 	tpm.Housing:RecycleHousingButtons()
 
 	if TeleportMeButtonsFrameRight then
@@ -1062,6 +529,7 @@ function tpm:ReloadFrames()
 	-- housingButtons = {}
 
 	createAnchors()
+	tpm.Flyout:ReopenFlyout(openFlyoutKey)
 end
 
 function tpm:CloseMainMenu()
@@ -1123,16 +591,28 @@ local function checkItemsLoaded(self)
 	allLoaded = self.continuableContainer:ContinueOnLoad(OnItemsLoaded)
 end
 
+-- Recomputes which toy/item-gated teleports are currently available and
+-- redraws frames. Called on login and whenever toy/bag data that these
+-- checks depend on changes, since PlayerHasToy/GetItemCount can still be
+-- stale right after PLAYER_LOGIN.
+function tpm:RefreshAvailableTeleports()
+	tpm:UpdateAvailableHearthstones()
+	tpm:UpdateAvailableWormholes()
+	tpm:UpdateAvailableItemTeleports()
+	if tpm.RefreshHearthstoneOptions then -- Set once the options are loaded
+		tpm:RefreshHearthstoneOptions()
+	end
+	tpm:ReloadFrames()
+end
+
 function tpm:Setup()
 	if db["Button:Size"] then
 		globalWidth = db["Button:Size"]
 		globalHeight = db["Button:Size"]
 	end
 
-	tpm:UpdateAvailableHearthstones()
-	tpm:UpdateAvailableWormholes()
+	tpm:RefreshAvailableTeleports()
 	tpm:UpdateAvailableSeasonalTeleports()
-	tpm:UpdateAvailableItemTeleports()
 	tpm:LoadHouses()
 
 	if
@@ -1156,6 +636,7 @@ local f = CreateFrame("Frame")
 f:RegisterEvent("ADDON_LOADED")
 f:RegisterEvent("PLAYER_LOGIN")
 f:RegisterEvent("BAG_UPDATE_DELAYED")
+f:RegisterEvent("TOYS_UPDATED")
 f:SetScript("OnEvent", function(self, event, ...)
 	events[event](self, ...)
 end)
@@ -1177,26 +658,14 @@ function events:PLAYER_LOGIN()
 	f:UnregisterEvent("PLAYER_LOGIN")
 end
 
+function events:TOYS_UPDATED()
+	tpm:SyncItemPossession()
+	tpm:RefreshAvailableTeleports()
+end
+
 function events:BAG_UPDATE_DELAYED()
-	--- @type Item[]
-	local items_in_possession = CopyTable(tpm.player.items_in_possession)
-
-	--- @type Item[]
-	local items_to_be_obtained = CopyTable(tpm.player.items_to_be_obtained)
-
-	-- Scan bags for items supposedly in possession
-	for _, item in pairs(items_in_possession) do
-		if GetItemCount(item.id) == 0 then
-			tpm:RemoveItemFromPossession(item.id)
-		end
-	end
-
-	-- Scan bags for items supposedly NOT in possession
-	for _, item in pairs(items_to_be_obtained) do
-		if GetItemCount(item.id) > 0 then
-			tpm:AddItemToPossession(item.id)
-		end
-	end
+	tpm:SyncItemPossession()
+	tpm:RefreshAvailableTeleports()
 end
 
 -- Debug Functions
