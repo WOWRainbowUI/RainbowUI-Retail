@@ -54,12 +54,15 @@ end
 function BBF.DarkModeNameplateResources()
     if BetterBlizzPlatesDB and BetterBlizzPlatesDB.darkModeNameplateResource then return end
 
-    local prdClassFrame = PersonalResourceDisplayFrame and PersonalResourceDisplayFrame.classFrame
-    if not prdClassFrame then
-        prdClassFrame = BBF.ComboPointPrdBar
+    local blizzardClassFrame = PersonalResourceDisplayFrame and PersonalResourceDisplayFrame.classFrame
+    for _, prdClassFrame in ipairs({ blizzardClassFrame or false, BBF.ComboPointTargetBar or false }) do
+        if prdClassFrame and not prdClassFrame:IsForbidden() then
+            BBF.DarkModeNameplateResourceFrame(prdClassFrame)
+        end
     end
-    if not prdClassFrame or prdClassFrame:IsForbidden() then return end
+end
 
+function BBF.DarkModeNameplateResourceFrame(prdClassFrame)
     local on = (BetterBlizzFramesDB.darkModeUi and BetterBlizzFramesDB.darkModeNameplateResource) and true or false
     local desaturate = on
     local base = on and BetterBlizzFramesDB.darkModeColor or 1
@@ -88,6 +91,8 @@ function BBF.DarkModeNameplateResources()
         for _, v in pairs({prdClassFrame:GetChildren()}) do
             applySettings(v.BG_Inactive, desaturate, druid)
             applySettings(v.BG_Active, desaturate, druidActive)
+            applySettings(v.BGInactive, desaturate, rogue)
+            applySettings(v.BGActive, desaturate, rogueActive)
         end
     elseif playerClass == "SHAMAN" then
         for _, v in pairs({prdClassFrame:GetChildren()}) do
@@ -623,13 +628,13 @@ function BBF.DarkmodeFrames(bypass)
         rogueComboActive = 0.15
     end
 
-    if ComboFrame then
+    if BBF.LegacyComboFrame then
         local legacyComboColor = color25
         if BetterBlizzFramesDB.legacyComboColor then
             legacyComboColor = legacyComboColor + BetterBlizzFramesDB.legacyComboColor
         end
         for i = 1, 9 do
-            local point = _G["ComboPoint"..i]
+            local point = BBF.LegacyComboFrame.ComboPoints[i]
             if point and point:GetNumRegions() then
                 for j = 1, point:GetNumRegions() do
                     local region = select(j, point:GetRegions())
@@ -1131,6 +1136,14 @@ function BBF.DarkmodeFrames(bypass)
         for _, v in pairs({rogueComboPoints:GetChildren()}) do
             applySettings(v.BGInactive, desaturationValue, rogueCombo)
             applySettings(v.BGActive, desaturationValue, rogueComboActive)
+        end
+    end
+
+    local comboRing = ComboFrame and ComboFrame.ComboPoints
+    if comboRing then
+        for _, v in ipairs(comboRing) do
+            applySettings(v.BGInactive, frameSat, unitFramesOn and rogueCombo or 1)
+            applySettings(v.BGActive, frameSat, unitFramesOn and rogueComboActive or 1)
         end
     end
 

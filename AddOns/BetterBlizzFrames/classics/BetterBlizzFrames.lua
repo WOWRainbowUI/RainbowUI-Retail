@@ -1,6 +1,6 @@
 -- I did not know what a variable was when I started. I know a little bit more now and I am so sorry.
-local L = BBF.L
 
+local L = BBF.L
 local addonVersion = "1.00" --too afraid to to touch for now
 local addonUpdates = C_AddOns.GetAddOnMetadata("BetterBlizzFrames", "Version")
 local sendUpdate = false
@@ -17,6 +17,38 @@ local defaultSettings = {
     -- General
     removeRealmNames = true,
     centerNames = false,
+    mirroredNames = false,
+    moveNames = false,
+    moveNamePlayerX = 0,
+    moveNamePlayerY = 0,
+    moveNamePlayerAlign = "Default",
+    moveNamePlayerMultiLine = false,
+    moveNamePlayerGrowDown = false,
+    moveNamePlayerWidth = 0,
+    moveNameTargetX = 0,
+    moveNameTargetY = 0,
+    moveNameTargetAlign = "Default",
+    moveNameTargetMultiLine = false,
+    moveNameTargetGrowDown = false,
+    moveNameTargetWidth = 0,
+    moveNameFocusX = 0,
+    moveNameFocusY = 0,
+    moveNameFocusAlign = "Default",
+    moveNameFocusMultiLine = false,
+    moveNameFocusGrowDown = false,
+    moveNameFocusWidth = 0,
+    moveNameTargetToTX = 0,
+    moveNameTargetToTY = 0,
+    moveNameTargetToTAlign = "Default",
+    moveNameTargetToTMultiLine = false,
+    moveNameTargetToTGrowDown = false,
+    moveNameTargetToTWidth = 0,
+    moveNameFocusToTX = 0,
+    moveNameFocusToTY = 0,
+    moveNameFocusToTAlign = "Default",
+    moveNameFocusToTMultiLine = false,
+    moveNameFocusToTGrowDown = false,
+    moveNameFocusToTWidth = 0,
     darkModeUi = false,
     darkModeActionBars = true,
     darkModeUiAura = true,
@@ -70,6 +102,9 @@ local defaultSettings = {
     focusEnlargeAuraFriendly = true,
     colorShamansBlue = true,
     smoothHealthbars = true,
+    statusTextExtra = false,
+    statusTextExtraHealth = true,
+    statusTextExtraMana = true,
     smoothManabars = true,
 
     -- Absorb Indicator
@@ -3314,6 +3349,7 @@ First:SetScript("OnEvent", function(_, event, addonName)
             BBF.ReduceEditModeAlpha()
             BBF.RemoveAddonCategories()
             BBF.CenterCurrentValueOnBars()
+            BBF.StatusBarTextExtra()
             BBF.UpdateAuraCollapseButton()
 
             if not BetterBlizzFramesDB.disableHealAbsorbRecolor then
