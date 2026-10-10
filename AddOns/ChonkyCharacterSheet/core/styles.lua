@@ -530,6 +530,47 @@ function CCS:GetCharButtonTextureByName(name)
     return nil
 end
 
+function CCS.CharacterButtonsRevert()
+
+    local function UnSkinTab(tab, index)
+        ------------------------------------------------------------
+        -- Show Blizzard textures
+        ------------------------------------------------------------
+        if tab.Left then tab.Left:Show() end
+        if tab.LeftActive then tab.LeftActive:Show() end
+        if tab.LeftHighlight then tab.LeftHighlight:Show() end
+
+        if tab.Middle then tab.Middle:Show() end
+        if tab.MiddleActive then tab.MiddleActive:Show() end
+        if tab.MiddleHighlight then tab.MiddleHighlight:Show() end
+
+        if tab.Right then tab.Right:Show() end
+        if tab.RightActive then tab.RightActive:Show() end
+        if tab.RightHighlight then tab.RightHighlight:Show() end
+
+        if tab.Text then tab.Text:Show() end
+        
+        if tab.Background then tab.Background:Show() end 
+        if tab.HighlightTexture then tab.HighlightTexture:SetAlpha(1) end
+        if tab.Icon then tab.Icon:Show() end
+        if tab.Mask then tab.Mask:Show() end
+        if tab.SelectedTexture then tab.SelectedTexture:SetAlpha(1) end
+        if tab.TabGlow then tab.TabGlow:Show() end
+        
+        if tab.CCS_BG then tab.CCS_BG:Hide() end
+        if tab.CCS_Icon then tab.CCS_Icon:Hide() end
+        if tab.CCS_Highlight then tab.CCS_Highlight:SetAlpha(0) end
+        if tab.CCS_Mask then tab.CCS_Mask:Hide() end
+        
+        tab:SetSize(72, 24)
+        
+    end
+        UnSkinTab(CharacterFrameTab1, 1)
+        UnSkinTab(CharacterFrameTab2, 2)
+        UnSkinTab(CharacterFrameTab3, 3)
+
+end
+
 function CCS.SkinCharacterButtons()
 
     local RetailIcons = { 
@@ -591,6 +632,7 @@ function CCS.SkinCharacterButtons()
                 tab.CCS_BG:SetTexture(bgTexture)
                 tab.CCS_BG:SetTexCoord(bgMap[3], bgMap[4], bgMap[5], bgMap[6])
                 tab.CCS_BG:SetAllPoints()
+                tab.CCS_BG:Show()
                 
             ------------------------------------------------------------
             -- Create icon texture and apply mask
@@ -598,11 +640,10 @@ function CCS.SkinCharacterButtons()
             if not tab.CCS_Icon then
                 tab.CCS_Icon = tab:CreateTexture(nil, "ARTWORK")
                 tab.CCS_Icon:SetPoint("CENTER", tab, "CENTER")
-
                 -- Apply mask to the frame
                 tab.CCS_mask = tab:CreateMaskTexture()
             end
-
+                
             -- Tab 1 uses the player portrait
             if index == 1 then
                 SetPortraitTexture(tab.CCS_Icon, "player")
@@ -626,7 +667,8 @@ function CCS.SkinCharacterButtons()
             tab.CCS_mask:SetTexture(maskTex)
             tab.CCS_mask:SetAllPoints(tab)
             tab.CCS_Icon:AddMaskTexture(tab.CCS_mask)
-
+            tab.CCS_Icon:Show()
+            tab.CCS_mask:Show()
             ------------------------------------------------------------
             -- Create highlight texture (always bright yellow)
             ------------------------------------------------------------
@@ -637,7 +679,7 @@ function CCS.SkinCharacterButtons()
             tab.CCS_Highlight:SetPoint("CENTER")
             tab.CCS_Highlight:SetSize(38,38)            
             tab.CCS_Highlight:SetVertexColor(1, 1, 0, 1) -- bright yellow
-
+            tab.CCS_Highlight:SetAlpha(1)
             ------------------------------------------------------------
             -- Tinting logic
             ------------------------------------------------------------

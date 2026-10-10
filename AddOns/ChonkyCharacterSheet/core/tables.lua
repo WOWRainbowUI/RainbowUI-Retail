@@ -213,7 +213,7 @@ ns.optionDefs = {
     { type="color", cat="STYLE-COLOR", ver=bit.bor(CCS.ALL), key="bgcolor", label=L["CCS_BG_COLOR"], value={0,0,0,0.89}, default={0,0,0,0.89}, slots=1 },
     { type="dropdown", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key="tabtex", label=L["Bottom Tab Texture"], value="Steel Beam", default="Steel Beam", values={"Fleur","Hammered","Iron","Onyx","Shiny","Steel Beam"}, slots=2 },
     { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL), key="showsidebarbg", label=L["Sidebar Background"], value=true, default=true, slots=1 },
-
+    { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL), key="skinchartabs", label=L["Skin Character Tabs"], value=true, default=true, slots=1 },
 
     --------------------------------------
     -- Reputation/Currency frame Settings

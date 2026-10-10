@@ -197,7 +197,11 @@ ccs_cshow = function()
 
     CCS.ChangeModelBg(false)
     CharacterModelScene.ControlFrame:Hide()
-    CCS.SkinCharacterButtons()
+    if option("skinchartabs") then
+        CCS.SkinCharacterButtons()
+    elseif CharacterFrameTab1 and CharacterFrameTab1.CCS_BG and CharacterFrameTab1.CCS_BG:IsShown() then
+        CCS.CharacterButtonsRevert()
+    end
 end
 
 local function LootSpecInit()
@@ -1619,7 +1623,11 @@ function module:SetupBlizzardFrameOverrides()
     CharacterFrameTab3.MiddleActive:SetGradient("Vertical", CreateColor(0, 0, 0, 1), CreateColor(0, 0, 0, 1)) -- Dark Gray
     CharacterFrameTab3.Middle:SetGradient("Vertical", CreateColor(0, 0, 0, 1), CreateColor(0, 0, 0, 1)) -- Dark Gray
  
-    CCS.SkinCharacterButtons()
+    if option("skinchartabs") then
+        CCS.SkinCharacterButtons()
+    elseif CharacterFrameTab1 and CharacterFrameTab1.CCS_BG and CharacterFrameTab1.CCS_BG:IsShown() then
+        CCS.CharacterButtonsRevert()
+    end
     PaperDollFrame:SetPoint("BOTTOMRIGHT", CharacterFrameBg, "BOTTOMRIGHT", 0, 0)
 
     -- [Toast] Create Base Frame
@@ -2152,7 +2160,11 @@ function CCS.CharacterSheetEventHandler(event, ...)
         CCS.ChangeModelBg(false)
         ReputationFrame_Update()
         CurrencyFrame_Update()
-        CCS.SkinCharacterButtons()
+        if option("skinchartabs") then
+            CCS.SkinCharacterButtons()
+        elseif CharacterFrameTab1 and CharacterFrameTab1.CCS_BG and CharacterFrameTab1.CCS_BG:IsShown() then
+            CCS.CharacterButtonsRevert()
+        end
         LootSpecInit()
         SpecChangeInit()        
         --print(date("%H:%M:%S") .. format(".%03d", (GetTime() * 1000) % 1000), "message")

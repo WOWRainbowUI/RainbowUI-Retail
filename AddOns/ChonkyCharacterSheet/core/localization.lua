@@ -29,6 +29,7 @@ local defaultStrings = {
     ------------------------------------------------------------
     -- General / Common
     ------------------------------------------------------------
+	["Skin Character Tabs"]	= "Skin Character Tabs",  -- enUS / enGB
 	["CATEGORY_STYLE-COLOR"] = "Style/Colors",  -- enUS / enGB
 	["Bottom Tab Texture"] = "Bottom Tab Texture",   -- enUS / enGB
 	["Header Texture"] = "Header Texture", -- enUS / enGB
@@ -450,6 +451,7 @@ if locale == "enGB" then
     }
 elseif locale == "deDE" then
     localizedStrings = {
+		["Skin Character Tabs"] = "Gestaltung der Charakter Tabs", -- deDE
 		["CATEGORY_STYLE-COLOR"] = "Stil/Farben", -- deDE
 		["Bottom Tab Texture"] = "Unteres Tab-Textur", -- deDE
 		["Header Texture"] = "Kopfzeilen-Textur", -- deDE
@@ -842,6 +844,7 @@ elseif locale == "deDE" then
     }	
 elseif locale == "frFR" then
     localizedStrings = {
+		["Skin Character Tabs"] = "Tabs de personnage stylisés", -- frFR
 		["CATEGORY_STYLE-COLOR"] = "Style/Couleurs", -- frFR
 		["Bottom Tab Texture"] = "Texture de l’onglet inférieur", -- frFR
 		["Header Texture"] = "Texture d’en-tête", -- frFR
@@ -1234,6 +1237,7 @@ elseif locale == "frFR" then
     }
 elseif locale == "esES" then
     localizedStrings = {
+		["Skin Character Tabs"] = "Estilo de pestañas de personaje", -- esES
 		["CATEGORY_STYLE-COLOR"] = "Estilo/Colores", -- esES
 		["Bottom Tab Texture"] = "Textura de pestaña inferior", -- esES
 		["Header Texture"] = "Textura de encabezado", -- esES
@@ -1626,6 +1630,7 @@ elseif locale == "esES" then
     }
 elseif locale == "esMX" then
     localizedStrings = {
+		["Skin Character Tabs"] = "Estilo de pestañas de personaje", -- esMX
 		["CATEGORY_STYLE-COLOR"] = "Estilo/Colores", -- esMX
 		["Bottom Tab Texture"] = "Textura de pestaña inferior", -- esMX
 		["Header Texture"] = "Textura de encabezado", -- esMX
@@ -2018,6 +2023,7 @@ elseif locale == "esMX" then
     }
 elseif locale == "ruRU" then
     localizedStrings = {
+		["Skin Character Tabs"] = "Стилизация вкладок персонажа", -- ruRU
 		["CATEGORY_STYLE-COLOR"] = "Стиль/Цвета", -- ruRU
 		["Bottom Tab Texture"] = "Текстура нижней вкладки", -- ruRU
 		["Header Texture"] = "Текстура заголовка", -- ruRU
@@ -2411,6 +2417,7 @@ elseif locale == "ruRU" then
     }
 elseif locale == "koKR" then
     localizedStrings = {
+		["Skin Character Tabs"] = "캐릭터 탭 스킨", -- koKR
 		["CATEGORY_STYLE-COLOR"] = "스타일/색상", -- koKR
 		["Bottom Tab Texture"] = "하단 탭 텍스처", -- koKR
 		["Header Texture"] = "헤더 텍스처", -- koKR
@@ -2803,6 +2810,7 @@ elseif locale == "koKR" then
     }
 elseif locale == "zhCN" then
     localizedStrings = {
+		["Skin Character Tabs"] = "角色标签外观", -- zhCN
 		["CATEGORY_STYLE-COLOR"] = "样式/颜色", -- zhCN
 		["Bottom Tab Texture"] = "底部标签纹理", -- zhCN
 		["Header Texture"] = "标题纹理", -- zhCN
@@ -3195,6 +3203,7 @@ elseif locale == "zhCN" then
     }
 elseif locale == "zhTW" then
     localizedStrings = {
+		["Skin Character Tabs"] = "角色標籤外觀", -- zhTW
 		["CATEGORY_STYLE-COLOR"] = "樣式/顏色", -- zhTW
 		["Bottom Tab Texture"] = "底部標籤材質", -- zhTW
 		["Header Texture"] = "標題材質", -- zhTW
@@ -3586,6 +3595,7 @@ elseif locale == "zhTW" then
     }
 elseif locale == "ptBR" then
     localizedStrings = {
+		["Skin Character Tabs"] = "Tabs de personagem estilizados", -- ptBR
 		["CATEGORY_STYLE-COLOR"] = "Estilo/Cores", -- ptBR
 		["Bottom Tab Texture"] = "Textura da guia inferior", -- ptBR
 		["Header Texture"] = "Textura do cabeçalho", -- ptBR
@@ -3978,6 +3988,7 @@ elseif locale == "ptBR" then
     }
 elseif locale == "itIT" then
     localizedStrings = {
+		["Skin Character Tabs"] = "Schede personaggio decorate", -- itIT
 		["CATEGORY_STYLE-COLOR"] = "Stile/Colori", -- itIT
 		["Bottom Tab Texture"] = "Texture della scheda inferiore", -- itIT
 		["Header Texture"] = "Texture dell’intestazione", -- itIT

@@ -1,7 +1,7 @@
 ## Interface: 120100, 120105, 20506, 50503, 50504, 16001
 ## Title: |cCC33FFFFChonky Character Sheet|r
 ## Author: Cerdia @Area-52
-## Version: 2.4.03
+## Version: 2.4.04
 ## Notes: Chonky Character Sheet. Enhanced character sheet with options and profiles. Track stats, gear, and progress. Discord: https://discord.gg/bSyqqa7RC4
 ## SavedVariables: ChonkyCharacterSheetDB
 ## IconTexture: Interface\AddOns\ChonkyCharacterSheet\Media\Textures\chonky.tga
@@ -35,6 +35,7 @@ Libs\LibSharedMedia-3.0\lib.xml
 # -----------------------------
 core\localization.lua
 core\tables.lua
+#core\themesdb.lua
 core\wrappers.lua
 core\utils.lua
 core\styles.lua
