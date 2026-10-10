@@ -54,6 +54,7 @@ local function InitBar(frame, details)
   frame.border:SetScale(borderSliceDetails.scaleModifier * details.scale)
   frame.border:SetVertexColor(details.border.color.r, details.border.color.g, details.border.color.b, details.border.color.a)
   frame.border:SetTextureSliceMargins(borderSliceDetails.margins.left, borderSliceDetails.margins.top, borderSliceDetails.margins.right, borderSliceDetails.margins.bottom)
+  frame.statusBar:GetStatusBarTexture():RemoveMaskTexture(frame.edgeMask)
   if details.marker.asset ~= "none" then
     frame.marker:Show()
     local markerDetails = addonTable.Assets.BarPositionHighlights[details.marker.asset]
@@ -62,12 +63,9 @@ local function InitBar(frame, details)
       frame.edgeMask:SetBlockingLoadsRequested(true)
       frame.edgeMask:SetTexture(markerDetails.mask, "CLAMPTOWHITE", "CLAMPTOWHITE")
       frame.statusBar:GetStatusBarTexture():AddMaskTexture(frame.edgeMask)
-    else
-      frame.statusBar:GetStatusBarTexture():RemoveMaskTexture(frame.edgeMask)
     end
   else
     frame.marker:Hide()
-    frame.statusBar:GetStatusBarTexture():RemoveMaskTexture(frame.edgeMask)
   end
 
   frame.statusBar:GetStatusBarTexture():RemoveMaskTexture(frame.mask)
@@ -111,6 +109,8 @@ end
 function addonTable.Display.GetHealthBar(frame, parent)
   frame = frame or CreateFrame("Frame", nil, parent or UIParent)
 
+  frame:SetFlattensRenderLayers(true)
+
   frame.statusBarAbsorb = CreateFrame("StatusBar", nil, frame)
 
   frame.statusBarCutaway = CreateFrame("StatusBar", nil, frame)
@@ -131,7 +131,7 @@ function addonTable.Display.GetHealthBar(frame, parent)
 
   frame.statusBarCutaway:SetAllPoints(frame.statusBar)
 
-  frame.marker = frame.statusBar:CreateTexture(nil, "OVERLAY", nil, 5)
+  frame.marker = frame.statusBar:CreateTexture(nil, "OVERLAY", nil, 7)
   frame.marker:SetSnapToPixelGrid(false)
 
   local borderHolder = CreateFrame("Frame", nil, frame)
@@ -235,10 +235,10 @@ function addonTable.Display.GetHealthBar(frame, parent)
     frame.auras[kind].active = true
     local foreground = LSM:Fetch("statusbar", frame.details.foreground.asset, true) or LSM:Fetch("statusbar", "Platy: Solid White")
 
-    local limit = #settings.auras + 2
+    local limit = #settings.auras + (settings.showAll.enabled and 1 or 0) + (settings.showNone.enabled and 1 or 0)
     if #frame.auras[kind].textures < limit then
       for i = #frame.auras[kind].textures + 1, limit do
-        local t = frame.statusBar:CreateTexture(nil, "ARTWORK", nil, 5)
+        local t = frame.statusBar:CreateTexture(nil, "OVERLAY", nil, 5)
         local m = frame.auras[kind].submaskWrapper:CreateMaskTexture()
         t:SetAllPoints(frame.statusBar)
         m:SetBlockingLoadsRequested(true)
@@ -247,8 +247,18 @@ function addonTable.Display.GetHealthBar(frame, parent)
         m:SetPoint("RIGHT", frame.statusBar:GetStatusBarTexture(), 0, 0)
         t:AddMaskTexture(m)
         t:AddMaskTexture(frame.mask)
-        t:AddMaskTexture(frame.edgeMask)
         table.insert(frame.auras[kind].textures, {texture = t, mask = m})
+      end
+    end
+
+    for _, details in ipairs(frame.auras[kind].textures) do
+      details.texture:RemoveMaskTexture(frame.edgeMask)
+    end
+
+    local markerDetails = addonTable.Assets.BarPositionHighlights[frame.details.marker.asset]
+    if markerDetails and markerDetails.mask then
+      for _, details in ipairs(frame.auras[kind].textures) do
+        details.texture:AddMaskTexture(frame.edgeMask)
       end
     end
 

@@ -559,7 +559,7 @@ local TabSetups = {
   {callback = addonTable.CustomiseDialog.GetMainDesigner, name = addonTable.Locales.DESIGNER, include = true},
   {callback = addonTable.CustomiseDialog.GetStyleSelection, name = addonTable.Locales.STYLE_SELECT, restricted = true, include = true},
   {callback = addonTable.CustomiseDialog.GetBehaviour, name = addonTable.Locales.BEHAVIOUR, include = true},
-  {callback = SetupAuras, name = addonTable.Locales.AURAS, include = true},
+  {callback = SetupAuras, name = addonTable.Locales.AURAS, include = true, restricted = true},
   {callback = SetupFont, name = addonTable.Locales.FONT, include = true},
 }
 
@@ -667,15 +667,14 @@ function addonTable.CustomiseDialog.Toggle()
           if container:IsShown() then
             Tabs[1]:Click()
           end
+        end
+      end
+      for index, tab in ipairs(Tabs) do
+        local details = TabSetups[index]
+        local container = containers[index]
+        if details.restricted then
           tab:Disable()
           tab:SetAlpha(0.5)
-        else
-          if not container:IsShown() then
-            tab:Enable()
-          else
-            PanelTemplates_SetTab(frame, index)
-          end
-          tab:SetAlpha(1)
         end
       end
     else

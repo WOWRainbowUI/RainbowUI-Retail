@@ -298,57 +298,61 @@ function addonTable.Display.AurasManagerNextMixin:GetFilters(kind, settings)
   end
 
   if kind == "buffs" then
-    table.insert(output, {"HELPFUL|PLAYER", {excludeSpellIDs = exclude}})
-    if settings.filters.defensive then
-      table.insert(output, {"HELPFUL|BIG_DEFENSIVE|!PLAYER", {excludeSpellIDs = exclude}})
-      table.insert(output, {"HELPFUL|EXTERNAL_DEFENSIVE|!BIG_DEFENSIVE|!PLAYER", {excludeSpellIDs = exclude}})
-      table.insert(output, {"HELPFUL|RAID_IN_COMBAT|!EXTERNAL_DEFENSIVE|!BIG_DEFENSIVE|!PLAYER", {excludeSpellIDs = exclude}})
-    elseif settings.filters.important then
+    local maxDuration = 300
+    if settings.filters.showLongDurations then
+      maxDuration = nil
+    end
+    local dispelTypes = nil
+    if settings.filters.enrage or settings.filters.magic then
+      dispelTypes = {}
       if settings.filters.enrage then
-        table.insert(output, {"HELPFUL|!PLAYER", {isBossOrRoleAura = true, isFromPlayerOrPlayerPet = false}})
-        table.insert(output, {"HELPFUL|IMPORTANT|!PLAYER", {excludeSpellIDs = exclude, isBossOrRoleAura = false}})
+        dispelTypes["Enrage"] = true
+      end
+      if settings.filters.magic then
+        dispelTypes["Magic"] = true
+      end
+    end
+
+    table.insert(output, {"HELPFUL|PLAYER", {excludeSpellIDs = exclude, maxDuration = maxDuration}})
+    if settings.filters.defensive then
+      table.insert(output, {"HELPFUL|BIG_DEFENSIVE|!PLAYER", {excludeSpellIDs = exclude, maxDuration = maxDuration}})
+      table.insert(output, {"HELPFUL|EXTERNAL_DEFENSIVE|!BIG_DEFENSIVE|!PLAYER", {excludeSpellIDs = exclude, maxDuration = maxDuration}})
+      table.insert(output, {"HELPFUL|RAID_IN_COMBAT|!EXTERNAL_DEFENSIVE|!BIG_DEFENSIVE|!PLAYER", {excludeSpellIDs = exclude, maxDuration = maxDuration}})
+    elseif settings.filters.important then
+      table.insert(output, {"HELPFUL|!PLAYER", {excludeSpellIDs = exclude, isBossOrRoleAura = true, isFromPlayerOrPlayerPet = false, maxDuration = maxDuration}})
+      table.insert(output, {"HELPFUL|IMPORTANT|!PLAYER", {excludeSpellIDs = exclude, isBossOrRoleAura = false, maxDuration = maxDuration}})
+      if dispelTypes then
         table.insert(output, {"HELPFUL|!IMPORTANT|!PLAYER", {
-          includeDispelTypes = {["Enrage"] = true},
+          includeDispelTypes = dispelTypes,
           excludeSpellIDs = exclude,
           isBossOrRoleAura = false,
         }})
-        if settings.filters.dispellable then
-          table.insert(output, {"HELPFUL|!IMPORTANT|!PLAYER", {excludeSpellIDs = exclude, excludeDispelTypes = {["Enrage"] = true}, isStealable = true}})
-        end
-      else
-        table.insert(output, {"HELPFUL|!PLAYER", {isBossOrRoleAura = true, isFromPlayerOrPlayerPet = false}})
-        table.insert(output, {"HELPFUL|IMPORTANT|!PLAYER", {excludeSpellIDs = exclude, isBossOrRoleAura = false}})
-        if settings.filters.dispellable then
-          table.insert(output, {"HELPFUL|!IMPORTANT|!PLAYER", {excludeSpellIDs = exclude, isStealable = true, isBossOrRoleAura = false}})
-        end
+      end
+      if settings.filters.dispellable then
+        table.insert(output, {"HELPFUL|!IMPORTANT|!PLAYER", {excludeSpellIDs = exclude, excludeDispelTypes = dispelTypes, isStealable = true, maxDuration = maxDuration}})
       end
     else
-      if settings.filters.enrage then
-        table.insert(output, {"HELPFUL|!PLAYER", {includeDispelTypes = {["Enrage"] = true}}})
-        if settings.filters.dispellable then
-          table.insert(output, {"HELPFUL|!PLAYER", {excludeSpellIDs = exclude, isStealable = true, excludeDispelTypes = {["Enrage"] = true}}})
+      if settings.filters.dispellable or settings.filters.enrage or settings.filters.magic then
+        if dispelTypes then
+          table.insert(output, {"HELPFUL|!PLAYER", {excludeSpellIDs = exclude, includeDispelTypes = dispelTypes, maxDuration = maxDuration}})
         end
-      elseif settings.filters.dispellable then
-        table.insert(output, {"HELPFUL|!PLAYER", {excludeSpellIDs = exclude, isStealable = true}})
+        if settings.filters.dispellable then
+          table.insert(output, {"HELPFUL|!PLAYER", {excludeSpellIDs = exclude, isStealable = true, excludeDispelTypes = dispelTypes, maxDuration = maxDuration}})
+        end
       else
-        table.insert(output, {"HELPFUL|!PLAYER", {excludeSpellIDs = exclude}})
+        table.insert(output, {"HELPFUL|!PLAYER", {excludeSpellIDs = exclude}, maxDuration = maxDuration})
       end
     end
   elseif kind == "debuffs" then
+    local playerFilter = ""
     if settings.filters.fromYou then
-      if settings.filters.important then
-        table.insert(output, {"HARMFUL|IMPORTANT|PLAYER|!CROWD_CONTROL", {excludeSpellIDs = exclude}})
-        table.insert(output, {"HARMFUL|!IMPORTANT|PLAYER|!CROWD_CONTROL", {excludeSpellIDs = exclude, nameplateShowPersonal = true}})
-      else
-        table.insert(output, {"HARMFUL|PLAYER|!CROWD_CONTROL", {excludeSpellIDs = exclude}})
-      end
+      playerFilter = "|PLAYER"
+    end
+    if settings.filters.important then
+      table.insert(output, {"HARMFUL|IMPORTANT|!CROWD_CONTROL" .. playerFilter, {excludeSpellIDs = exclude}})
+      table.insert(output, {"HARMFUL|!IMPORTANT|!CROWD_CONTROL" .. playerFilter, {excludeSpellIDs = exclude, nameplateShowPersonal = true}})
     else
-      if settings.filters.important then
-        table.insert(output, {"HARMFUL|IMPORTANT|!CROWD_CONTROL", {excludeSpellIDs = exclude}})
-        table.insert(output, {"HARMFUL|!IMPORTANT|!CROWD_CONTROL", {excludeSpellIDs = exclude, nameplateShowPersonal = true}})
-      else
-        table.insert(output, {"HARMFUL|!CROWD_CONTROL", {excludeSpellIDs = exclude}})
-      end
+      table.insert(output, {"HARMFUL|!CROWD_CONTROL" .. playerFilter, {excludeSpellIDs = exclude}})
     end
   elseif kind == "crowdControl" then
     if settings.filters.fromYou then
