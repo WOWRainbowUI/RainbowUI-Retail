@@ -1774,3 +1774,6 @@ L["Show_Health_Text"] = "顯示生命值文字"
 L["Show_Mana_Text"] = "顯示法力值文字"
 L["Unclamp_Minimap"] = "取消小地圖螢幕限制"
 L["Tooltip_Unclamp_Minimap_Desc"] = "取消小地圖的螢幕邊緣限制，使其可以放置得更靠近螢幕邊緣。部分使用小地圖插件的玩家回報此設定會導致小地圖消失到螢幕外。通常不會發生，僅作提醒。"
+
+L["Better|cff00c0ffBlizz|rFrames |A:gmchat-icon-blizz:16:16|a"] = "Better|cff00c0ffBlizz|rFrames |A:gmchat-icon-blizz:16:16|a"
+L["|cff808080(If you want to completely reset BBF there\nis a button in Advanced Settings)|r\n\n"] = "|cff808080（若要完全重設 BBF，進階設定中\n有重設按鈕）|r\n\n"
