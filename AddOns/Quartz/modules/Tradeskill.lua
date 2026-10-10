@@ -23,7 +23,7 @@ local MODNAME = "Tradeskill"
 local Tradeskill = Quartz3:NewModule(MODNAME, "AceEvent-3.0", "AceHook-3.0")
 local Player = Quartz3:GetModule("Player")
 
-local WoWRetail = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE)
+local WoWRetail = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) or Quartz3.IsForever
 
 local TimeFmt = Quartz3.Util.TimeFormat
 

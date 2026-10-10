@@ -42,6 +42,7 @@ local locked = true
 local db, getOptions, castBar
 local barColorObj, noInterruptColorObj
 
+
 local defaults = {
 	profile = {
 		icons = true,
@@ -403,6 +404,8 @@ function Enemy:OnEnable()
 	self:RegisterEvent("PLAYER_DEAD")
 	-- Refresh bars when raid markers change
 	self:RegisterEvent("RAID_TARGET_UPDATE")
+	-- No API exposes channel targets, best effort via the current target
+	self:RegisterEvent("UNIT_TARGET")
 	
 	media.RegisterCallback(self, "LibSharedMedia_SetGlobal", function(mtype, override)
 		if mtype == "statusbar" then
@@ -439,6 +442,38 @@ end
 
 function Enemy:RAID_TARGET_UPDATE()
 	self:UpdateBars()
+end
+
+local function setCastText(bar, unit, spellName, isChannel)
+	local targetName
+	if db.targetname then
+		if isChannel then
+			targetName = UnitName(unit .. "target")
+		elseif UnitShouldDisplaySpellTargetName(unit) then
+			targetName = UnitSpellTargetName(unit)
+		end
+		if issecretvalue(targetName) or targetName then
+			targetName = Ambiguate(targetName, "short")
+		end
+	end
+	if issecretvalue(targetName) or (targetName ~= nil and targetName ~= "") then
+		if db.targetnamestyle == "on" then
+			bar.Text:SetFormattedText(L["%s on %s"], spellName, targetName)
+		else
+			bar.Text:SetFormattedText("%s -> %s", spellName, targetName)
+		end
+	else
+		bar.Text:SetText(spellName)
+	end
+end
+
+function Enemy:UNIT_TARGET(event, unit)
+	if not db.targetname or not unit:match("^nameplate") then return end
+	for _, bar in pairs(castbars) do
+		if bar:IsShown() and bar.isChannel and bar.castUnit == unit then
+			setCastText(bar, unit, bar.spellName, true)
+		end
+	end
 end
 
 -- Clean up when nameplate is removed
@@ -538,16 +573,10 @@ do
 					barIndex = barIndex + 1
 					local bar = castbars[barIndex]
 					
-					local targetName = db.targetname and UnitName(unit .. "target") or nil
-					if targetName and (issecretvalue(targetName) or targetName ~= "") then
-						if db.targetnamestyle == "on" then
-							bar.Text:SetFormattedText(L["%s on %s"], spellName, targetName)
-						else
-							bar.Text:SetFormattedText("%s -> %s", spellName, targetName)
-						end
-					else
-						bar.Text:SetText(spellName)
-					end
+					bar.castUnit = unit
+					bar.spellName = spellName
+					bar.isChannel = isChannel
+					setCastText(bar, unit, spellName, isChannel)
 					bar.Icon:SetTexture(texture)
 					bar:SetMinMaxValues(0, 1)
 					bar:SetTimerDuration(durationObj)

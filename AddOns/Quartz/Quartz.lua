@@ -21,9 +21,9 @@ local L = LibStub("AceLocale-3.0"):GetLocale("Quartz3")
 local media = LibStub("LibSharedMedia-3.0")
 local db
 
--- Forever (game type "camelot") is classed as mainline but reports a 1.60.x interface number.
+-- Forever runs the mainline UI but sets WOW_PROJECT_ID to WOW_PROJECT_CAMELOT (18) and reports a 1.60.x interface number.
 local tocVersion = select(4, GetBuildInfo())
-Quartz3.IsForever = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE and tocVersion > 16000 and tocVersion < 20000
+Quartz3.IsForever = WOW_PROJECT_ID == WOW_PROJECT_CAMELOT or (tocVersion > 16000 and tocVersion < 20000)
 
 ----------------------------
 -- Upvalues
