@@ -34,6 +34,7 @@ local contextCriteria = {
 
   {title = addonTable.Locales.LOCATION},
   {key = "loc-world", label = addonTable.Locales.WORLD},
+  {key = "loc-resting", label = addonTable.Locales.RESTING},
   {key = "loc-dungeon", label = addonTable.Locales.DUNGEON},
   {key = "loc-raid", label = addonTable.Locales.RAID},
   {key = "loc-pvp", label = addonTable.Locales.PVP},

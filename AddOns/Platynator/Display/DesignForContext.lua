@@ -69,6 +69,7 @@ local assignmentsPossibilities = {
   ["loc-raid"] = { check = function(state) return state.location == "raid" end },
   ["loc-pvp"] = { check = function(state) return state.location == "pvp" end },
   ["loc-delve"] = { check = function(state) return state.location == "delve" end },
+  ["loc-resting"] = { updates = "resting", check = function(state) return state.resting end },
 
   ["elite-boss"] = { updates = "classification", check = function(state) return state.eliteType == "boss" end },
   ["elite-miniboss"] = { updates = "classification", check = function(state) return state.eliteType == "miniboss" end },
@@ -105,7 +106,6 @@ end)
 
 local function GenerateState(unit)
   local isMinion = IsMinion(unit)
-  local isPet = UnitIsOtherPlayersPet(unit) or UnitIsUnit(unit, "pet")
   return {
     canAttack = addonTable.Cache:Get(unit, "canAttack"),
     inCombat = addonTable.Cache:Get(unit, "combat"),
@@ -117,6 +117,7 @@ local function GenerateState(unit)
     location = location,
     eliteType = GetEliteType(unit),
     delveType = GetDelveType(unit),
+    resting = IsResting(),
 
     updates = {},
   }
@@ -137,11 +138,13 @@ function addonTable.Display.DesignForContextMixin:OnLoad()
 
   self:RegisterEvent("NAME_PLATE_UNIT_REMOVED")
   self:RegisterEvent("UNIT_CLASSIFICATION_CHANGED")
+  self:RegisterEvent("PLAYER_UPDATE_RESTING")
   self:SetScript("OnEvent", self.OnEvent)
 end
 
-function addonTable.Display.DesignForContextMixin:OnEvent(event, unit)
+function addonTable.Display.DesignForContextMixin:OnEvent(event, ...)
   if event == "UNIT_CLASSIFICATION_CHANGED" then
+    local unit = ...
     if self.unitStates[unit] then
       local changes = self.unitStates[unit].updates.classification
       self.unitStates[unit].classification = UnitClassification(unit)
@@ -150,14 +153,28 @@ function addonTable.Display.DesignForContextMixin:OnEvent(event, unit)
       end
     end
   elseif event == "UNIT_FACTION" then
-    if self.unitStates[unit] then
-      local changes = self.unitStates[unit].updates.alignment
-      self.unitStates[unit].alignment = GetAlignment(unit)
-      if changes then
+    local unit = ...
+    local state = self.unitStates[unit]
+    if state then
+      local changes = state.updates.alignment
+      local oldAlignment = self.unitStates[unit].alignment
+      state.alignment = GetAlignment(unit)
+      if changes and state.alignment ~= oldAlignment then
+        addonTable.CallbackRegistry:TriggerEvent("UnitDesignChange", unit)
+      end
+    end
+  elseif event == "PLAYER_UPDATE_RESTING" then
+    local resting = IsResting()
+    for unit, state in pairs(self.unitStates) do
+      local changes = state.updates.resting
+      local oldResting = state.resting
+      state.resting = resting
+      if changes and oldResting ~= state.resting then
         addonTable.CallbackRegistry:TriggerEvent("UnitDesignChange", unit)
       end
     end
   elseif event == "NAME_PLATE_UNIT_REMOVED" then
+    local unit = ...
     self.unitStates[unit] = nil
     self.unitsListening[unit] = nil
   end
@@ -211,6 +228,7 @@ function addonTable.Display.DesignForContextMixin:GetDefaultEnemyNPCDesign()
     location = "world",
     eliteType = "trival",
     delveType = "melee",
+    isResting = false,
 
     updates = {},
   })
@@ -228,6 +246,7 @@ function addonTable.Display.DesignForContextMixin:GetDefaultFriendlyPlayerDesign
     location = "dungeon",
     eliteType = nil,
     delveType = nil,
+    isResting = false,
 
     updates = {},
   })

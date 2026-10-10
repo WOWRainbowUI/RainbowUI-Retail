@@ -376,7 +376,7 @@ local function GetAurasTextPositioning(rootParent, iconID)
   local titleText = container:CreateFontString(nil, nil, "GameFontHighlightLarge")
   titleText:SetPoint("TOP", previewInset, "BOTTOM", 0, -10)
   titleText:SetJustifyH("RIGHT")
-  titleText:SetPoint("RIGHT", -40, 0)
+  titleText:SetPoint("RIGHT", -20, 0)
   titleText:SetShadowOffset(1, -1)
 
   local titleMap = {
@@ -932,7 +932,7 @@ function addonTable.CustomiseDialog.GetMainDesigner(parent)
   local titleText = container:CreateFontString(nil, nil, "GameFontHighlightLarge")
   titleText:SetPoint("TOP", previewInset, "BOTTOM", 0, -15)
   titleText:SetJustifyH("RIGHT")
-  titleText:SetPoint("RIGHT", -40, 0)
+  titleText:SetPoint("RIGHT", -20, 0)
   titleText:SetShadowOffset(1, -1)
 
   local suggestionToClick = container:CreateFontString(nil, nil, "GameFontHighlightLarge")
@@ -1682,7 +1682,7 @@ function addonTable.CustomiseDialog.GetMainDesigner(parent)
             tabButton:Hide()
           end
         end
-        titleText:SetPoint("LEFT", lastTab, "RIGHT", 10, 0)
+        titleText:SetPoint("LEFT", lastTab, "RIGHT", 5, 0)
         tabManager:SetTab(tabs[settingsContainer.tabIndex].button.label)
       end
       if details["*"] then

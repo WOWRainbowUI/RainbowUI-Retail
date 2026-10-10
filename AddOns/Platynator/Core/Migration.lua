@@ -768,6 +768,15 @@ local function UpgradeDesignv22(design)
   end
 end
 
+local function UpgradeDesignv23(design)
+  for _, auras in ipairs(design.auras) do
+    if auras.kind == "buffs" then
+      auras.filters.showLongDurations = true
+      auras.filters.magic = false
+    end
+  end
+end
+
 local designUpgrades = {
   UpgradeDesignv1,
   UpgradeDesignv2,
@@ -791,6 +800,8 @@ local designUpgrades = {
   UpgradeDesignv20,
   UpgradeDesignv21,
   UpgradeDesignv22,
+  UpgradeDesignv23,
+  UpgradeDesignv23,
 }
 
 function addonTable.Core.UpgradeDesign(design)
@@ -981,6 +992,13 @@ local function MigrateSettingsv8()
   end
 end
 
+local function MigrateSettingsv9()
+  local filters = addonTable.Config.Get(addonTable.Config.Options.AURA_FILTERS)
+  if not filters.crowdControl then
+    filters.crowdControl = {include = {}, exclude = {}}
+  end
+end
+
 local settingUpgrades = {
   MigrateSettingsv1,
   MigrateSettingsv2,
@@ -991,6 +1009,7 @@ local settingUpgrades = {
   MigrateSettingsv6,
   MigrateSettingsv7,
   MigrateSettingsv8,
+  MigrateSettingsv9,
 }
 function addonTable.Core.MigrateSettings()
   if #settingUpgrades + 1 ~= addonTable.Config.Get(addonTable.Config.Options.MIGRATION) then

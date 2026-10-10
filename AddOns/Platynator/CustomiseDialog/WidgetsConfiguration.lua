@@ -1405,6 +1405,21 @@ addonTable.CustomiseDialog.WidgetsConfig = {
             end,
           },
           {
+            label = addonTable.Locales.SHOW_TOOLTIPS,
+            kind = "checkbox",
+            setter = function(details, value)
+              details.showTooltips = value
+            end,
+            getter = function(details)
+              return details.showTooltips
+            end,
+          },
+        },
+      },
+      {
+        label = addonTable.Locales.VISUAL,
+        entries = {
+          {
             label = addonTable.Locales.SHOW_TYPE_BORDER,
             kind = "checkbox",
             setter = function(details, value)
@@ -1424,17 +1439,7 @@ addonTable.CustomiseDialog.WidgetsConfig = {
               return details.showSwipe
             end,
           },
-          {
-            label = addonTable.Locales.SHOW_TOOLTIPS,
-            kind = "checkbox",
-            setter = function(details, value)
-              details.showTooltips = value
-            end,
-            getter = function(details)
-              return details.showTooltips
-            end,
-          },
-        },
+        }
       },
       {
         label = addonTable.Locales.TEXTS,
@@ -1517,7 +1522,7 @@ addonTable.CustomiseDialog.WidgetsConfig = {
         }
       },
       {
-        label = addonTable.Locales.PANDEMIC,
+        label = addonTable.Locales.VISUAL,
         entries = {
           {
             label = addonTable.Locales.SHOW_PANDEMIC,
@@ -1571,6 +1576,16 @@ addonTable.CustomiseDialog.WidgetsConfig = {
             end,
           },
           {
+            label = addonTable.Locales.MAGIC,
+            kind = "checkbox",
+            setter = function(details, value)
+              details.filters.magic = value
+            end,
+            getter = function(details)
+              return details.filters.magic
+            end,
+          },
+          {
             label = addonTable.Locales.DISPELLABLE,
             kind = "checkbox",
             setter = function(details, value)
@@ -1604,10 +1619,21 @@ addonTable.CustomiseDialog.WidgetsConfig = {
             end,
             hide = addonTable.Constants.IsClassic,
           },
+          {
+            label = addonTable.Locales.SHOW_LONG_DURATION_AURAS,
+            kind = "checkbox",
+            setter = function(details, value)
+              details.filters.showLongDurations = value
+            end,
+            getter = function(details)
+              return details.filters.showLongDurations
+            end,
+            hide = addonTable.Constants.IsClassic,
+          },
         }
       },
       {
-        label = addonTable.Locales.PURGEABLE,
+        label = addonTable.Locales.VISUAL,
         entries = {
           {
             label = addonTable.Locales.SHOW_PURGEABLE_BORDER,
