@@ -22,7 +22,7 @@ local L = LibStub("AceLocale-3.0"):GetLocale("Quartz3")
 local MODNAME = "Pet"
 local Pet = Quartz3:NewModule(MODNAME, "AceEvent-3.0")
 
-local WoWRetail = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE)
+local WoWRetail = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) or Quartz3.IsForever
 
 ----------------------------
 -- Upvalues

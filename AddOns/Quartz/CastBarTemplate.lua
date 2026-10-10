@@ -23,7 +23,7 @@ local LibWindow = LibStub("LibWindow-1.1")
 local media = LibStub("LibSharedMedia-3.0")
 local lsmlist = AceGUIWidgetLSMlists
 
-local WoWRetail = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE)
+local WoWRetail = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) or Quartz3.IsForever
 local WoWClassic = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
 
 local LibClassicCasterino = WoWClassic and LibStub("LibClassicCasterino", true)
@@ -247,7 +247,7 @@ end
 -- Template Methods
 
 function CastBarTemplate:SetNameText(name)
-	if self.config.targetname and self.targetName and (issecretvalue(self.targetName) or self.targetName ~= "") then
+	if self.config.targetname and (issecretvalue(self.targetName) or (self.targetName and self.targetName ~= "")) then
 		if self.config.targetnamestyle == "on" then
 			self.Text:SetFormattedText(L["%s on %s"], name, self.targetName)
 		else

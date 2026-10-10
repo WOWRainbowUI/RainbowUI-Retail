@@ -25,7 +25,7 @@ local Player = Quartz3:NewModule(MODNAME, "AceEvent-3.0", "AceHook-3.0")
 
 local UnitCastingInfo, UnitChannelInfo = UnitCastingInfo, UnitChannelInfo
 
-local WoWRetail = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE)
+local WoWRetail = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) or Quartz3.IsForever
 local WoWClassicEra = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
 local WoWBC = (WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC)
 local WoWWrath = (WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC)
@@ -507,6 +507,13 @@ local function getChannelingTicks(spell, spellid)
 	if spell and not issecretvalue(spell) then
 		local ticks = channelingTicks[spell]
 		if ticks then return ticks end
+		-- Entries keyed by ID could not resolve their name at load; match them by name now and cache the key.
+		for key, ticks in pairs(channelingTicks) do
+			if type(key) == "number" and GetSpellName(key) == spell then
+				channelingTicks[spell] = ticks
+				return ticks
+			end
+		end
 	end
 	return 0
 end

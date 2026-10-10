@@ -29,7 +29,7 @@ local Focus = Quartz3:NewModule(MODNAME, "AceEvent-3.0")
 -- Upvalues
 local UnitIsEnemy, UnitIsFriend, UnitIsUnit = UnitIsEnemy, UnitIsFriend, UnitIsUnit
 
-local WoWRetail = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE)
+local WoWRetail = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) or Quartz3.IsForever
 
 local db, getOptions
 
