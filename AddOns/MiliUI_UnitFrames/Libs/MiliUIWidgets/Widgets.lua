@@ -1177,16 +1177,21 @@ function W.CreateColorPicker(parent, label, hasAlpha, onConfirm)
                 b:SetColor({ r = r, g = g, b = bl, a = a })
                 if onConfirm then onConfirm(r, g, bl, a) end
             end,
+            -- 暴雪按「確定」時不管 hasOpacity 一律叫 opacityFunc，而沒開透明度時它不重設滑桿，
+            -- GetColorAlpha 回的是上一個選色器（可能是別支插件）留下的值 ⇒ 沒開透明度就沿用原值
             opacityFunc = function()
                 local r, g, bl = ColorPickerFrame:GetColorRGB()
-                local a = ColorPickerFrame:GetColorAlpha()
+                local a = hasAlpha and ColorPickerFrame:GetColorAlpha() or c.a
                 b:SetColor({ r = r, g = g, b = bl, a = a })
                 if onConfirm then onConfirm(r, g, bl, a) end
             end,
+            -- 取消（取消鈕、ESC、**點選色器外面**都算）：暴雪給的舊值是 { r, g, b, a }，透明度在 a 不在 opacity。
+            -- 讀錯欄位會把透明度寫成 nil ⇒ 讀取端退回預設值，畫面當下常常還留著拖過的值，重載／換專精才露出來
             cancelFunc = function(prev)
                 if prev then
-                    b:SetColor({ r = prev.r, g = prev.g, b = prev.b, a = prev.opacity })
-                    if onConfirm then onConfirm(prev.r, prev.g, prev.b, prev.opacity) end
+                    local a = prev.a or prev.opacity or c.a
+                    b:SetColor({ r = prev.r, g = prev.g, b = prev.b, a = a })
+                    if onConfirm then onConfirm(prev.r, prev.g, prev.b, a) end
                 end
             end,
         }
@@ -1755,9 +1760,11 @@ function W.CreateChoicePopup(parent, width, text, choices)
     fs:SetText(text)
     popup.text = fs
 
+    -- 高度貼著字長：上緣 12＋字高＋字與按鈕間距 14＋按鈕 22＋下緣 12（固定 96 的話一行字中間空一大塊）
     popup:SetScript("OnShow", function(self)
         mask:Show()
-        GrowPopupForText(self, fs, 96, 22, 12, 12)
+        local textH = fs:GetStringHeight() or 0
+        if textH > 0 then P.Height(self, 12 + textH + 14 + 22 + 12) end
     end)
     popup:SetScript("OnHide", function() mask:Hide() end)
 
