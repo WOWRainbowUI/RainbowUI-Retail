@@ -1,0 +1,9 @@
+## Interface: 120100, 120000, 120001, 110205, 50500, 40402, 30401, 20505, 11507, 16001
+## Title: Masque Skinner: Blizz Buffs
+## Version: 12.1.0
+## Author: Cybeloras of Aerie Peak
+## Notes: Skins the Blizzard buff and debuff frames with Masque
+## RequiredDeps: Masque
+## Category: Masque
+
+BlizzBuffsFacade.lua

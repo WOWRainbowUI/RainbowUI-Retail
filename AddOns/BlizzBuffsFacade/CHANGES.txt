@@ -1,0 +1,10 @@
+lightweight tag 413c5006e036523cfc11c621d5c475f36e352737 12.1.0
+Author:	Andrew Scott <ascott18@gmail.com>
+Date:	Sat Oct 10 16:16:12 2026 -0700
+
+commit 413c5006e036523cfc11c621d5c475f36e352737
+Author: Andrew Scott <ascott18@gmail.com>
+Date:   Sat Oct 10 15:55:18 2026 -0700
+
+    fix: can't skin unit frame auras anymore in 12.1 - those frames are completely unreachable by addons now. can't do dispel vertex color anymore because addons can't query auras at all.
+
