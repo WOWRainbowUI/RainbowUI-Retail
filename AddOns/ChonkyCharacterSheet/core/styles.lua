@@ -29,6 +29,8 @@ CCS.StyleColor = {
     border    = {0.3, 0.1, 0.4, 1},         --4D1A66
 }
 
+CCS.CurrentTheme = CCS.Themes["Darkmoon Faire"]
+
 local function GetLuminance(r, g, b)
     return 0.2126 * r + 0.7152 * g + 0.0722 * b
 end
@@ -114,7 +116,12 @@ function CCS.RefreshStyleColors()
     local newBorder    = option("border_color")
     local cr, cg, cb = GetClassColor(select(2, UnitClass("player")))
 
-    if option("style_class_color") == true then
+    if CCS.Themes ~= nil and CCS.Themes.enabled == true and option("theme") ~= "None" then
+        newNormal = CCS.CurrentTheme.ncolor
+        newBorder = CCS.CurrentTheme.bcolor
+        newHighlight = CCS.CurrentTheme.hcolor
+        
+    elseif option("style_class_color") == true then
         newNormal = {cr, cg, cb, 1}
         newBorder = CCS.DarkenColor(newNormal, .25)
         newHighlight = CCS.LightenColor(newNormal, .25)
@@ -406,26 +413,46 @@ end
 ---------------------------
 function CCS.CreateChonkyNineSlice(parent)
     -- Reuse existing frame if present
-    if parent.ChonkyStatBG then
-        parent.ChonkyStatBG:ClearAllPoints()
-		parent.ChonkyStatBG:SetPoint("TOPLEFT", parent, "TOPLEFT", 5, -27)
-		parent.ChonkyStatBG:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", 2, 2)
+    if parent.ChonkyNS then
+        parent.ChonkyNS:ClearAllPoints()
+		parent.ChonkyNS:SetPoint("TOPLEFT", parent, "TOPLEFT", 5, -27)
+		parent.ChonkyNS:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", 2, 2)
 		
-        return parent.ChonkyStatBG
+        return parent.ChonkyNS
     end
 
     local atlas = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\Frame\\statbg.png"
-
     local frame = CreateFrame("Frame", nil, parent)
-    parent.ChonkyStatBG = frame
+    local size = 24
+    parent.ChonkyNS = frame
 
     if parent == PaperDollFrame.TitleManagerPane.ScrollBox then
         frame:SetPoint("TOPLEFT", parent, "TOPLEFT", -2, 0)
         frame:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", 12, 0)
+    elseif parent == CharacterModelFramebg then
+    	frame:SetPoint("TOPLEFT", parent, "TOPLEFT", -3, 3)
+        frame:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", 3, -3)
+        size = 24
     else
-    	frame:SetPoint("TOPLEFT", parent, "TOPLEFT", 5, -27)
+        frame:SetPoint("TOPLEFT", parent, "TOPLEFT", 5, -27)
         frame:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", 2, 2)
     end
+    frame:SetFrameLevel(2)
+    ------------------------------------------------------------
+    -- Background texture
+    ------------------------------------------------------------
+    if not frame.BG then
+        frame.BG = frame:CreateTexture(nil, "BACKGROUND", nil, -1)
+        frame.BG:SetTexture("Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\Frame\\vparch.png")
+        frame.BG:SetPoint("TOPLEFT", frame, "TOPLEFT", 2, -2)
+        frame.BG:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -2, 2)   
+        frame.BG:Hide()
+    end
+    local testcolor = {0.137, 0.118, 0.094, 1.0}
+    --local lcolor = CCS.LightenColor(testcolor, .1)
+    --frame.BG:SetVertexColor(lcolor[1],lcolor[2],lcolor[3],lcolor[4] ) -- Test Color
+    --frame.BG:SetVertexColor(0.137, 0.118, 0.094, 1.0 ) -- Test Color
+
     ------------------------------------------------------------
     -- Create slice textures only if they don't already exist
     ------------------------------------------------------------
@@ -466,38 +493,38 @@ function CCS.CreateChonkyNineSlice(parent)
     -- Anchor corners (fixed size)
     ------------------------------------------------------------
     TL:SetPoint("TOPLEFT")
-    TL:SetSize(24, 24)
+    TL:SetSize(size, size)
 
     TR:SetPoint("TOPRIGHT")
-    TR:SetSize(24, 24)
+    TR:SetSize(size, size)
 
     BL:SetPoint("BOTTOMLEFT")
-    BL:SetSize(24, 24)
+    BL:SetSize(size, size)
 
     BR:SetPoint("BOTTOMRIGHT")
-    BR:SetSize(24, 24)
+    BR:SetSize(size, size)
 
     ------------------------------------------------------------
     -- Top and bottom edges (fixed height, fixed width)
     ------------------------------------------------------------
     T:SetPoint("TOPLEFT", TL, "TOPRIGHT")
     T:SetPoint("TOPRIGHT", TR, "TOPLEFT")
-    T:SetHeight(24)
+    T:SetHeight(size)
 
     B:SetPoint("BOTTOMLEFT", BL, "BOTTOMRIGHT")
     B:SetPoint("BOTTOMRIGHT", BR, "BOTTOMLEFT")
-    B:SetHeight(24)
+    B:SetHeight(size)
 
     ------------------------------------------------------------
     -- Left and right edges (stretch vertically)
     ------------------------------------------------------------
     L:SetPoint("TOPLEFT", TL, "BOTTOMLEFT")
     L:SetPoint("BOTTOMLEFT", BL, "TOPLEFT")
-    L:SetWidth(24)
+    L:SetWidth(size)
 
     R:SetPoint("TOPRIGHT", TR, "BOTTOMRIGHT")
     R:SetPoint("BOTTOMRIGHT", BR, "TOPRIGHT")
-    R:SetWidth(24)
+    R:SetWidth(size)
 
     return frame
 end
@@ -561,13 +588,38 @@ function CCS.CharacterButtonsRevert()
         if tab.CCS_Icon then tab.CCS_Icon:Hide() end
         if tab.CCS_Highlight then tab.CCS_Highlight:SetAlpha(0) end
         if tab.CCS_Mask then tab.CCS_Mask:Hide() end
-        
-        tab:SetSize(72, 24)
+        if CCS.CurrentVersion ~= CCS.FOREVER then
+            tab:SetSize(72, 24)  
+        else                
+            tab:SetSize(48, 48)  
+        end
         
     end
+    
+    if CCS.CurrentVersion == CCS.FOREVER then 
+        CharacterFrameModeTabs:ClearAllPoints()
+        CharacterFrameModeTabs:SetPoint("TOPLEFT", CharacterFrameBgbg,"TOPRIGHT", 2, -30)
+        CharacterFrameModeTab2:ClearAllPoints()
+        CharacterFrameModeTab3:ClearAllPoints()
+        CharacterFrameModeTab4:ClearAllPoints()
+        CharacterFrameModeTab5:ClearAllPoints()
+        CharacterFrameModeTab6:ClearAllPoints()
+        CharacterFrameModeTab2:SetPoint("TOPLEFT", CharacterFrameModeTab1, "BOTTOMLEFT", 0, -4)
+        CharacterFrameModeTab3:SetPoint("TOPLEFT", CharacterFrameModeTab2, "BOTTOMLEFT", 0, -4)
+        CharacterFrameModeTab4:SetPoint("TOPLEFT", CharacterFrameModeTab3, "BOTTOMLEFT", 0, -4)
+        CharacterFrameModeTab5:SetPoint("TOPLEFT", CharacterFrameModeTab4, "BOTTOMLEFT", 0, -4)
+        CharacterFrameModeTab6:SetPoint("TOPLEFT", CharacterFrameModeTab5, "BOTTOMLEFT", 0, -4)
+        UnSkinTab(CharacterFrameModeTab1, 1)
+        UnSkinTab(CharacterFrameModeTab2, 2)
+        UnSkinTab(CharacterFrameModeTab3, 3)
+        UnSkinTab(CharacterFrameModeTab4, 4)
+        UnSkinTab(CharacterFrameModeTab5, 5)
+        UnSkinTab(CharacterFrameModeTab6, 6)
+    else
         UnSkinTab(CharacterFrameTab1, 1)
         UnSkinTab(CharacterFrameTab2, 2)
         UnSkinTab(CharacterFrameTab3, 3)
+    end
 
 end
 
@@ -789,7 +841,7 @@ function CCS.SkinCharacterButtons()
     end
    
     ------------------------------------------------------------
-    -- Apply to all three tabs
+    -- Apply to all tabs
     ------------------------------------------------------------
 
     if CCS.CurrentVersion == CCS.FOREVER then 
@@ -799,11 +851,165 @@ function CCS.SkinCharacterButtons()
         SkinTab(CharacterFrameModeTab4, 4)
         SkinTab(CharacterFrameModeTab5, 5)
         SkinTab(CharacterFrameModeTab6, 6)    
-    
+
+        CharacterFrameModeTabs:ClearAllPoints()
+        CharacterFrameModeTabs:SetPoint("TOPLEFT", CharacterFrameBg,"BOTTOMLEFT", 0, 2)
+        CharacterFrameModeTab2:ClearAllPoints()
+        CharacterFrameModeTab3:ClearAllPoints()
+        CharacterFrameModeTab4:ClearAllPoints()
+        CharacterFrameModeTab5:ClearAllPoints()
+        CharacterFrameModeTab6:ClearAllPoints()
+        CharacterFrameModeTab2:SetPoint("LEFT", CharacterFrameModeTab1, "RIGHT", 1, 0)
+        CharacterFrameModeTab3:SetPoint("LEFT", CharacterFrameModeTab2, "RIGHT", 1, 0)
+        CharacterFrameModeTab4:SetPoint("LEFT", CharacterFrameModeTab3, "RIGHT", 1, 0)
+        CharacterFrameModeTab5:SetPoint("LEFT", CharacterFrameModeTab4, "RIGHT", 1, 0)
+        CharacterFrameModeTab6:SetPoint("LEFT", CharacterFrameModeTab5, "RIGHT", 1, 0)
     else
         SkinTab(CharacterFrameTab1, 1)
         SkinTab(CharacterFrameTab2, 2)
         SkinTab(CharacterFrameTab3, 3)
     end
+    
+end
+
+function CCS.CreateChonkyCharacterBG()
+    local parent = CharacterFrame
+
+    -- If theme disabled, use original backdrop and exit
+    if CCS.Themes == nil or CCS.Themes.enabled == false or option("theme") == "None" then
+        local charbg = _G["CharacterFrameBgbg"] or CreateFrame("Frame", "CharacterFrameBgbg", parent, BackdropTemplateMixin and "BackdropTemplate")
+        charbg:SetAllPoints(parent)
+        charbg:SetBackdrop({
+            bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
+            edgeFile = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\UI-Tooltip-SquareBorder.blp",
+            edgeSize = 16,
+            insets = { left = 3, right = 3, top = 3, bottom = 3 },
+        })
+        return
+    end
+    --------------------------------------------------------------------
+    -- THEMED VERSION (NineSlice)
+    --------------------------------------------------------------------
+    local frame = _G["CharacterFrameBgbg"] or CreateFrame("Frame", "CharacterFrameBgbg", parent)
+    frame:ClearAllPoints()
+    frame:SetPoint("TOPLEFT", parent, "TOPLEFT", 5, -27)
+    frame:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", 2, 2)
+    frame:SetFrameStrata("MEDIUM")
+    frame:SetFrameLevel(2)
+
+    --------------------------------------------------------------------
+    -- Background texture (created once)
+    --------------------------------------------------------------------
+    if not frame.BG then
+        frame.BG = frame:CreateTexture(nil, "BACKGROUND")
+        frame.BG:SetTexture("Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\Frame\\vparch.png")
+        frame.BG:SetAllPoints(frame)
+    end
+
+    --------------------------------------------------------------------
+    -- NineSlice atlas
+    --------------------------------------------------------------------
+    local atlas = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\Frame\\statbg.png"
+
+    local function EnsureTex(name)
+        if not frame[name] then
+            frame[name] = frame:CreateTexture(nil, "BORDER")
+            frame[name]:SetTexture(atlas)
+        end
+        return frame[name]
+    end
+
+    local TL = EnsureTex("TL")
+    local T  = EnsureTex("T")
+    local TR = EnsureTex("TR")
+
+    local L  = EnsureTex("L")
+    local R  = EnsureTex("R")
+
+    local BL = EnsureTex("BL")
+    local B  = EnsureTex("B")
+    local BR = EnsureTex("BR")
+
+    --------------------------------------------------------------------
+    -- TexCoords
+    --------------------------------------------------------------------
+    TL:SetTexCoord(0/108, 24/108, 0/107, 24/107)
+    T:SetTexCoord(24/108, 84/108, 0/107, 24/107)
+    TR:SetTexCoord(84/108, 108/108, 0/107, 24/107)
+
+    L:SetTexCoord(0/108, 24/108, 24/107, 83/107)
+    R:SetTexCoord(84/108, 108/108, 24/107, 83/107)
+
+    BL:SetTexCoord(0/108, 24/108, 83/107, 107/107)
+    B:SetTexCoord(24/108, 84/108, 83/107, 107/107)
+    BR:SetTexCoord(84/108, 108/108, 83/107, 107/107)
+
+    --------------------------------------------------------------------
+    -- Corners
+    --------------------------------------------------------------------
+    TL:SetPoint("TOPLEFT", frame, "TOPLEFT")
+    TL:SetSize(24, 24)
+
+    TR:SetPoint("TOPRIGHT", frame, "TOPRIGHT")
+    TR:SetSize(24, 24)
+
+    BL:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT")
+    BL:SetSize(24, 24)
+
+    BR:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT")
+    BR:SetSize(24, 24)
+
+    --------------------------------------------------------------------
+    -- Top / Bottom edges
+    --------------------------------------------------------------------
+    T:SetPoint("TOPLEFT", TL, "TOPRIGHT")
+    T:SetPoint("TOPRIGHT", TR, "TOPLEFT")
+    T:SetHeight(24)
+
+    B:SetPoint("BOTTOMLEFT", BL, "BOTTOMRIGHT")
+    B:SetPoint("BOTTOMRIGHT", BR, "BOTTOMLEFT")
+    B:SetHeight(24)
+
+    --------------------------------------------------------------------
+    -- Left / Right edges
+    --------------------------------------------------------------------
+    L:SetPoint("TOPLEFT", TL, "BOTTOMLEFT")
+    L:SetPoint("BOTTOMLEFT", BL, "TOPLEFT")
+    L:SetWidth(24)
+
+    R:SetPoint("TOPRIGHT", TR, "BOTTOMRIGHT")
+    R:SetPoint("BOTTOMRIGHT", BR, "TOPRIGHT")
+    R:SetWidth(24)
+
+    --------------------------------------------------------------------
+    -- Overlay artwork textures (created once)
+    --------------------------------------------------------------------
+    -- Top overlay (centered horizontally on T)
+    frame = PaperDollFrame
+    if not frame.TopOverlay then
+        frame.TopOverlay = frame:CreateTexture(nil, "ARTWORK")
+        frame.TopOverlay:SetTexture("Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\Frame\\frame_top_img.png")
+        frame.TopOverlay:SetSize(300, 99) -- dummy size
+    end
+    frame.TopOverlay:ClearAllPoints()
+    frame.TopOverlay:SetPoint("BOTTOM", CharacterModelFramebg, "TOP", 0, 0)
+
+    -- Left overlay (centered vertically on L)
+    if not frame.LeftOverlay then
+        frame.LeftOverlay = frame:CreateTexture(nil, "ARTWORK")
+        frame.LeftOverlay:SetTexture("Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\Frame\\frame_left_img.png")
+        frame.LeftOverlay:SetSize(50, 300) -- dummy size
+    end
+    frame.LeftOverlay:ClearAllPoints()
+    frame.LeftOverlay:SetPoint("CENTER", L, "LEFT", -12, 0)
+
+    -- Right overlay (centered vertically on R)
+    if not frame.RightOverlay then
+        frame.RightOverlay = frame:CreateTexture(nil, "ARTWORK")
+        frame.RightOverlay:SetTexture("Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\Frame\\frame_right_img.png")
+        frame.RightOverlay:SetSize(50, 300) -- dummy size
+    end
+    frame.RightOverlay:ClearAllPoints()
+    frame.RightOverlay:SetPoint("CENTER", R, "RIGHT", 12, 0)
     
 end
