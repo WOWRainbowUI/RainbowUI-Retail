@@ -16,6 +16,8 @@ CCS.Modules[module.Name] = module
 
 local rowWidth, rowHeight, rowSpacing = 234, 23, 2
 local fontsize = 10
+local charbg = _G["CharacterFrameBgbg"] or CreateFrame("Frame", "CharacterFrameBgbg", CharacterFrame, BackdropTemplateMixin and "BackdropTemplate")
+local charbgtex = _G["CharacterFrameBgbgtex"] or charbg:CreateTexture("CharacterFrameBgbgtex", "BACKGROUND", nil, 1)    
 local modbg = _G["CharacterModelFramebg"] or CreateFrame("Frame", "CharacterModelFramebg", CharacterModelScene)
 local modtex = _G["CharacterModelFramebgtex"] or modbg:CreateTexture("CharacterModelFramebgtex", "BACKGROUND")    
 local modtex2 = _G["CharacterModelFramebgtex2"] or modbg:CreateTexture("CharacterModelFramebgtex2", "ARTWORK")    
@@ -1207,20 +1209,29 @@ function module:SetupBlizzardFrameOverrides()
     CharacterFrameInsetRight:ClearAllPoints()
     CharacterFrameInsetRight:SetPoint("TOPLEFT", CharacterFrameInset, "TOPRIGHT", 1, 0);
     CharacterFrameInsetRight:SetPoint("BOTTOMRIGHT", CharacterFrameBg, "BOTTOMRIGHT", -4, 4);    
-    CharacterFrameModeTabs:ClearAllPoints()
-    CharacterFrameModeTabs:SetPoint("TOPLEFT", CharacterFrameBg,"BOTTOMLEFT", 0, 2)
-    CharacterFrameModeTab2:ClearAllPoints()
-    CharacterFrameModeTab3:ClearAllPoints()
-    CharacterFrameModeTab4:ClearAllPoints()
-    CharacterFrameModeTab5:ClearAllPoints()
-    CharacterFrameModeTab6:ClearAllPoints()
-    CharacterFrameModeTab2:SetPoint("LEFT", CharacterFrameModeTab1, "RIGHT", 1, 0)
-    CharacterFrameModeTab3:SetPoint("LEFT", CharacterFrameModeTab2, "RIGHT", 1, 0)
-    CharacterFrameModeTab4:SetPoint("LEFT", CharacterFrameModeTab3, "RIGHT", 1, 0)
-    CharacterFrameModeTab5:SetPoint("LEFT", CharacterFrameModeTab4, "RIGHT", 1, 0)
-    CharacterFrameModeTab6:SetPoint("LEFT", CharacterFrameModeTab5, "RIGHT", 1, 0)
-    
+
+    CharacterFrameModeTabs:SetScale(.8)
     CharacterFrameModeTabs:SetFrameLevel(9001)
+
+    if option("skinchartabs") then
+        CharacterFrameModeTabs:ClearAllPoints()
+        CharacterFrameModeTabs:SetPoint("TOPLEFT", CharacterFrameBg,"BOTTOMLEFT", 0, 2)
+        CharacterFrameModeTab2:ClearAllPoints()
+        CharacterFrameModeTab3:ClearAllPoints()
+        CharacterFrameModeTab4:ClearAllPoints()
+        CharacterFrameModeTab5:ClearAllPoints()
+        CharacterFrameModeTab6:ClearAllPoints()
+        CharacterFrameModeTab2:SetPoint("LEFT", CharacterFrameModeTab1, "RIGHT", 1, 0)
+        CharacterFrameModeTab3:SetPoint("LEFT", CharacterFrameModeTab2, "RIGHT", 1, 0)
+        CharacterFrameModeTab4:SetPoint("LEFT", CharacterFrameModeTab3, "RIGHT", 1, 0)
+        CharacterFrameModeTab5:SetPoint("LEFT", CharacterFrameModeTab4, "RIGHT", 1, 0)
+        CharacterFrameModeTab6:SetPoint("LEFT", CharacterFrameModeTab5, "RIGHT", 1, 0)
+        CCS.SkinCharacterButtons()
+    elseif CharacterFrameModeTab1 and CharacterFrameModeTab1.CCS_BG and CharacterFrameModeTab1.CCS_BG:IsShown() then
+        CCS.CharacterButtonsRevert()
+    else
+        CharacterFrameModeTabs:SetPoint("TOPLEFT", _G["CharacterFrameBgbg"],"TOPRIGHT", 2, -30)
+    end                    
     
     CharacterFrameLeftPaneHost:Hide()
     CharacterFrameRightPaneHost:ClearAllPoints()
@@ -1253,9 +1264,6 @@ function module:SetupBlizzardFrameOverrides()
         ReputationFrame.ScrollBar.Track.Thumb.Middle:SetVertexColor(.6,.6,.6,.9)
         ReputationFrame.ScrollBar.Track.Thumb.End:SetVertexColor(.6,.6,.6,.9)
     end
-
-    local charbg = _G["CharacterFrameBgbg"] or CreateFrame("Frame", "CharacterFrameBgbg", CharacterFrame, BackdropTemplateMixin and "BackdropTemplate")
-    local charbgtex = _G["CharacterFrameBgbgtex"] or charbg:CreateTexture("CharacterFrameBgbgtex", "BACKGROUND", nil, 1)    
 
     charbg:SetBackdrop({
         edgeFile = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\UI-Tooltip-SquareBorder.blp",        -- thin edge texture
@@ -1440,8 +1448,6 @@ function module:SetupBlizzardFrameOverrides()
 end
 
 function module:UpdateStyle()
-    local charbg = _G["CharacterFrameBgbg"] or CreateFrame("Frame", "CharacterFrameBgbg", CharacterFrameBg, BackdropTemplateMixin and "BackdropTemplate")
-    local charbgtex = _G["CharacterFrameBgbgtex"] or charbg:CreateTexture("CharacterFrameBgbgtex", "BACKGROUND", nil, 1)    
     local bgr, bgg, bgb, bgalpha = option("bgcolor")[1], option("bgcolor")[2], option("bgcolor")[3], option("bgcolor")[4];
 
     local borderColor = CCS.StyleColor.border
@@ -1828,7 +1834,12 @@ function CCS.ForeverCharacterSheetEventHandler(event, ...)
         CurrencyFrame_Update()
         BlizStatFrame_Update()
         BlizPetStatFrame_Update()
-        CCS.SkinCharacterButtons()
+
+        if option("skinchartabs") then
+            CCS.SkinCharacterButtons()
+        elseif CharacterFrameModeTab1 and CharacterFrameModeTab1.CCS_BG and CharacterFrameModeTab1.CCS_BG:IsShown() then
+            CCS.CharacterButtonsRevert()
+        end                    
 
         if CCS_TitleSearchBox then
             CCS_TitleSearchBox:SetShown(option("showtitlesearch"))
@@ -1848,7 +1859,12 @@ function CCS.ForeverCharacterSheetEventHandler(event, ...)
                 StatisticsFrame_Update()
                 BlizStatFrame_Update()
                 BlizPetStatFrame_Update()
-                CCS.SkinCharacterButtons()
+                if option("skinchartabs") then
+                    CCS.SkinCharacterButtons()
+                elseif CharacterFrameTab1 and CharacterFrameTab1.CCS_BG and CharacterFrameTab1.CCS_BG:IsShown() then
+                    CCS.CharacterButtonsRevert()
+                end                    
+
             end)
         end
         return true

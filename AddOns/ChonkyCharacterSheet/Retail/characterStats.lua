@@ -2793,8 +2793,8 @@ local function ApplyStyle(self)
         end
     end
 	-- Border Texture for the stats panel
-	if CharacterStatsPane.ChonkyStatBG then
-		CharacterStatsPane.ChonkyStatBG:SetShown(option("showstatborder"))
+	if CharacterStatsPane.ChonkyNS then
+		CharacterStatsPane.ChonkyNS:SetShown(option("showstatborder"))
 	end
     -------------------------------------------------
     -- Sections

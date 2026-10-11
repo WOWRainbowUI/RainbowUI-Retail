@@ -171,12 +171,6 @@ local function initializeinspectframe(optupdate)
     InspectFrameCloseButton:SetSize(32, 32)
     InspectFrameCloseButton:SetScale(.5)
     
-    if InspectPVPFrame then
-        InspectPVPFrame.BG:SetPoint("BOTTOMRIGHT", InspectFrameBg, "BOTTOMRIGHT", -5, 30)
-        InspectPVPFrame.HonorLevel:SetPoint("TOP", InspectPVPFrame, "TOP", 0, -70)
-        InspectPVPFrame.HKs:SetPoint("TOP", InspectPVPFrame, "TOP", 0, -100)
-    end
-    
     local charbg = _G["InspectFrameBgbg"] or CreateFrame("Frame", "InspectFrameBgbg", InspectFrame, BackdropTemplateMixin and "BackdropTemplate")
     local charbgtex = _G["InspectFrameBgbgtex"] or charbg:CreateTexture("InspectFrameBgbgtex", "BACKGROUND", nil, 1)    
     local ccsbg = option("bgcolor_inspect")

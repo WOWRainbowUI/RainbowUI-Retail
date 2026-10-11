@@ -1,635 +1,607 @@
 local addonName, ns = ...
 local CCS = ns.CCS
 
---[[  
-Theme Layout/Instructions
-
-ChonkyCharacterSheet\Themes\<ThemeName>\
-
--- Character Frame
-character_frame_borders.png              -- all 8 character frame border slices in one file
-character_frame_top_image.png
-character_frame_left_image.png
-character_frame_right_image.png
-character_background_texture.png
-character_frame_item_container_texture.png
-
--- Character Tabs
-character_tab_texture.png
-character_tab_highlight.png
-character_tab_border.png
-character_tab_active.png
-
--- Character Stats
-character_stats_borders.png              -- all 8 stats border slices in one file
-character_stats_section_bg_texture.png
-character_stats_header_texture.png
-character_stats_row_texture.png
-
--- Paperdoll
-paperdoll_borders.png                    -- all 8 paperdoll border slices in one file
-
--- Reputation + Token (shared)
-rep_token_frame_header_texture.png
-rep_token_header_bar_texture.png
-rep_token_main_bar_texture.png
-rep_token_rep_bar_texture.png
-
---]]
-
 CCS.Themes = {
-
+    enabled = false,
     --========================================================--
-    -- 1. Darkmoon Faire
+    -- Darkmoon Faire
     --========================================================--
     ["Darkmoon Faire"] = {
-        ["Character Frame Top Left"] = { texture = nil, map = nil },
-        ["Character Frame Top"] = { texture = nil, map = nil },
-        ["Character Frame Top Right"] = { texture = nil, map = nil },
-        ["Character Frame Right"] = { texture = nil, map = nil },
-        ["Character Frame Bottom Right"] = { texture = nil, map = nil },
-        ["Character Frame Bottom"] = { texture = nil, map = nil },
-        ["Character Frame Bottom Left"] = { texture = nil, map = nil },
-        ["Character Frame Left"] = { texture = nil, map = nil },
-        ["Character Frame Top Image"] = { texture = nil, map = nil },
-        ["Character Frame Left Image"] = { texture = nil, map = nil },
-        ["Character Frame Right Image"] = { texture = nil, map = nil },
-        ["Character Background Texture"] = { texture = nil, map = nil },
-        ["Character Tab Texture"] = { texture = nil, map = nil },
-        ["Character Tab Highlight"] = { texture = nil, map = nil },
-        ["Character Tab Border"] = { texture = nil, map = nil },
-        ["Character Tab Active"] = { texture = nil, map = nil },
-        ["Character Frame Item Container Texture"] = { texture = nil, map = nil },
+        enabled = false,
+        path = "Interface\\AddOns\\ChonkyCharacterSheet\\Themes\\DarkMoonFaire\\",
+        statbgcolor = { 0.137, 0.118, 0.094, 1.0 }, -- Color behind the stats scrollframe 
+        bcolor = { 0.486, 0.333, 0.137, 1.0 }, -- Border Color
+        hcolor = { 0.671, 0.529, 0.263, 1.0 }, -- Highlight Color (for buttons/etc)
+        ncolor = { 0.486, 0.333, 0.137, 1.0 }, -- Normal Color (for buttons/etc)
+        -- Character Frame Borders (8 slices)
+        -- Width, Height, Left, Right, Top, Bottom
+        frame_tl      = { texture = "char_frame_border.png", map = {} },  -- top-left
+        frame_t       = { texture = "char_frame_border.png", map = {} },  -- top
+        frame_tr      = { texture = "char_frame_border.png", map = {} },  -- top-right
+        frame_r       = { texture = "char_frame_border.png", map = {} },  -- right
+        frame_br      = { texture = "char_frame_border.png", map = {} },  -- bottom-right
+        frame_b       = { texture = "char_frame_border.png", map = {} },  -- bottom
+        frame_bl      = { texture = "char_frame_border.png", map = {} },  -- bottom-left
+        frame_l       = { texture = "char_frame_border.png", map = {} },  -- left
 
-        ["Character Stats Border Top Left"] = { texture = nil, map = nil },
-        ["Character Stats Border Top"] = { texture = nil, map = nil },
-        ["Character Stats Border Top Right"] = { texture = nil, map = nil },
-        ["Character Stats Border Right"] = { texture = nil, map = nil },
-        ["Character Stats Border Bottom Right"] = { texture = nil, map = nil },
-        ["Character Stats Border Bottom"] = { texture = nil, map = nil },
-        ["Character Stats Border Bottom Left"] = { texture = nil, map = nil },
-        ["Character Stats Border Left"] = { texture = nil, map = nil },
-        ["Character Stats Section Bg Texture"] = { texture = nil, map = nil },
-        ["Character Stats Header Texture"] = { texture = nil, map = nil },
-        ["Character Stats Row Texture"] = { texture = nil, map = nil },
+        -- Character Frame Images
+        frame_top_img = { texture = "frame_top_img.png", w = nil, h = nil, cx = 20, cy = -30 },
+        frame_left_img = { texture = "frame_left_img.png", w = nil, h = nil, cx = -12, cy = 0 },
+        frame_right_img = { texture = "frame_right_img.png", w = nil, h = nil, cx = 12, cy = 0 },
+        frame_bg       = { texture = "frame_bg.png", map = nil },
+        frame_item     = { texture = "frame_item.png", map = nil },
 
-        ["Paperdoll Border Top Left"] = { texture = nil, map = nil },
-        ["Paperdoll Border Top"] = { texture = nil, map = nil },
-        ["Paperdoll Border Top Right"] = { texture = nil, map = nil },
-        ["Paperdoll Border Right"] = { texture = nil, map = nil },
-        ["Paperdoll Border Bottom Right"] = { texture = nil, map = nil },
-        ["Paperdoll Border Bottom"] = { texture = nil, map = nil },
-        ["Paperdoll Border Bottom Left"] = { texture = nil, map = nil },
-        ["Paperdoll Border Left"] = { texture = nil, map = nil },
+        -- Stats Borders (8 slices)
+        -- Width, Height, Left, Right, Top, Bottom        
+        stats_tl       = { texture = "stats_border.png", map = nil },
+        stats_t        = { texture = "stats_border.png", map = nil },
+        stats_tr       = { texture = "stats_border.png", map = nil },
+        stats_r        = { texture = "stats_border.png", map = nil },
+        stats_br       = { texture = "stats_border.png", map = nil },
+        stats_b        = { texture = "stats_border.png", map = nil },
+        stats_bl       = { texture = "stats_border.png", map = nil },
+        stats_l        = { texture = "stats_border.png", map = nil },
 
-        ["Reputation Frame Header Texture"] = { texture = nil, map = nil },
-        ["Reputation Header bar texture"] = { texture = nil, map = nil },
-        ["Reputation Main bar texture"] = { texture = nil, map = nil },
-        ["Reputation Rep bar texture"] = { texture = nil, map = nil },
+        -- Stats Textures
+        stats_header   = { texture = "stats_header.png", map = nil },
 
-        ["Token Frame Header Texture"] = { texture = nil, map = nil },
-        ["Token Header bar texture"] = { texture = nil, map = nil },
-        ["Token Main bar texture"] = { texture = nil, map = nil },
-        ["Token Rep bar texture"] = { texture = nil, map = nil },
+        -- Paperdoll Borders (8 slices)
+        -- Width, Height, Left, Right, Top, Bottom        
+        paper_tl       = { texture = "paperdoll_border.png", map = nil },
+        paper_t        = { texture = "paperdoll_border.png", map = nil },
+        paper_tr       = { texture = "paperdoll_border.png", map = nil },
+        paper_r        = { texture = "paperdoll_border.png", map = nil },
+        paper_br       = { texture = "paperdoll_border.png", map = nil },
+        paper_b        = { texture = "paperdoll_border.png", map = nil },
+        paper_bl       = { texture = "paperdoll_border.png", map = nil },
+        paper_l        = { texture = "paperdoll_border.png", map = nil },
+
+        -- Reputation + Token (shared)
+        rep_header     = { texture = nil, map = nil },
+        rep_bar_header = { texture = nil, map = nil },
+        rep_bar_main   = { texture = nil, map = nil },
+        rep_bar_rep    = { texture = nil, map = nil },
     },
 
     --========================================================--
-    -- 2. Alliance
+    -- Alliance
     --========================================================--
     ["Alliance"] = {
-        ["Character Frame Top Left"] = { texture = nil, map = nil },
-        ["Character Frame Top"] = { texture = nil, map = nil },
-        ["Character Frame Top Right"] = { texture = nil, map = nil },
-        ["Character Frame Right"] = { texture = nil, map = nil },
-        ["Character Frame Bottom Right"] = { texture = nil, map = nil },
-        ["Character Frame Bottom"] = { texture = nil, map = nil },
-        ["Character Frame Bottom Left"] = { texture = nil, map = nil },
-        ["Character Frame Left"] = { texture = nil, map = nil },
-        ["Character Frame Top Image"] = { texture = nil, map = nil },
-        ["Character Frame Left Image"] = { texture = nil, map = nil },
-        ["Character Frame Right Image"] = { texture = nil, map = nil },
-        ["Character Background Texture"] = { texture = nil, map = nil },
-        ["Character Tab Texture"] = { texture = nil, map = nil },
-        ["Character Tab Highlight"] = { texture = nil, map = nil },
-        ["Character Tab Border"] = { texture = nil, map = nil },
-        ["Character Tab Active"] = { texture = nil, map = nil },
-        ["Character Frame Item Container Texture"] = { texture = nil, map = nil },
+        enabled = false,
+        path = "Interface\\AddOns\\ChonkyCharacterSheet\\Themes\\DarkMoonFaire\\",
+        statbgcolor = { 0.137, 0.118, 0.094, 1.0 },
+        -- Character Frame Borders (8 slices)
+        frame_tl      = { texture = "char_frame_border.png", map = nil },  -- top-left
+        frame_t       = { texture = "char_frame_border.png", map = nil },  -- top
+        frame_tr      = { texture = "char_frame_border.png", map = nil },  -- top-right
+        frame_r       = { texture = "char_frame_border.png", map = nil },  -- right
+        frame_br      = { texture = "char_frame_border.png", map = nil },  -- bottom-right
+        frame_b       = { texture = "char_frame_border.png", map = nil },  -- bottom
+        frame_bl      = { texture = "char_frame_border.png", map = nil },  -- bottom-left
+        frame_l       = { texture = "char_frame_border.png", map = nil },  -- left
 
-        ["Character Stats Border Top Left"] = { texture = nil, map = nil },
-        ["Character Stats Border Top"] = { texture = nil, map = nil },
-        ["Character Stats Border Top Right"] = { texture = nil, map = nil },
-        ["Character Stats Border Right"] = { texture = nil, map = nil },
-        ["Character Stats Border Bottom Right"] = { texture = nil, map = nil },
-        ["Character Stats Border Bottom"] = { texture = nil, map = nil },
-        ["Character Stats Border Bottom Left"] = { texture = nil, map = nil },
-        ["Character Stats Border Left"] = { texture = nil, map = nil },
-        ["Character Stats Section Bg Texture"] = { texture = nil, map = nil },
-        ["Character Stats Header Texture"] = { texture = nil, map = nil },
-        ["Character Stats Row Texture"] = { texture = nil, map = nil },
+        -- Character Frame Images
+        frame_top_img = { texture = "frame_top_img.png", w = nil, h = nil, cx = nil, cy = nil },
+        frame_left_img = { texture = "frame_left_img.png", w = nil, h = nil, cx = nil, cy = nil },
+        frame_right_img = { texture = "frame_right_img.png", w = nil, h = nil, cx = nil, cy = nil },
+        frame_bg       = { texture = "frame_bg.png", map = nil },
+        frame_item     = { texture = "frame_item.png", map = nil },
 
-        ["Paperdoll Border Top Left"] = { texture = nil, map = nil },
-        ["Paperdoll Border Top"] = { texture = nil, map = nil },
-        ["Paperdoll Border Top Right"] = { texture = nil, map = nil },
-        ["Paperdoll Border Right"] = { texture = nil, map = nil },
-        ["Paperdoll Border Bottom Right"] = { texture = nil, map = nil },
-        ["Paperdoll Border Bottom"] = { texture = nil, map = nil },
-        ["Paperdoll Border Bottom Left"] = { texture = nil, map = nil },
-        ["Paperdoll Border Left"] = { texture = nil, map = nil },
+        -- Stats Borders (8 slices)
+        stats_tl       = { texture = "stats_border.png", map = nil },
+        stats_t        = { texture = "stats_border.png", map = nil },
+        stats_tr       = { texture = "stats_border.png", map = nil },
+        stats_r        = { texture = "stats_border.png", map = nil },
+        stats_br       = { texture = "stats_border.png", map = nil },
+        stats_b        = { texture = "stats_border.png", map = nil },
+        stats_bl       = { texture = "stats_border.png", map = nil },
+        stats_l        = { texture = "stats_border.png", map = nil },
 
-        ["Reputation Frame Header Texture"] = { texture = nil, map = nil },
-        ["Reputation Header bar texture"] = { texture = nil, map = nil },
-        ["Reputation Main bar texture"] = { texture = nil, map = nil },
-        ["Reputation Rep bar texture"] = { texture = nil, map = nil },
+        -- Stats Textures
+        stats_header   = { texture = "stats_header.png", map = nil },
 
-        ["Token Frame Header Texture"] = { texture = nil, map = nil },
-        ["Token Header bar texture"] = { texture = nil, map = nil },
-        ["Token Main bar texture"] = { texture = nil, map = nil },
-        ["Token Rep bar texture"] = { texture = nil, map = nil },
+        -- Paperdoll Borders (8 slices)
+        paper_tl       = { texture = "paperdoll_border.png", map = nil },
+        paper_t        = { texture = "paperdoll_border.png", map = nil },
+        paper_tr       = { texture = "paperdoll_border.png", map = nil },
+        paper_r        = { texture = "paperdoll_border.png", map = nil },
+        paper_br       = { texture = "paperdoll_border.png", map = nil },
+        paper_b        = { texture = "paperdoll_border.png", map = nil },
+        paper_bl       = { texture = "paperdoll_border.png", map = nil },
+        paper_l        = { texture = "paperdoll_border.png", map = nil },
+
+        -- Reputation + Token (shared)
+        rep_header     = { texture = nil, map = nil },
+        rep_bar_header = { texture = nil, map = nil },
+        rep_bar_main   = { texture = nil, map = nil },
+        rep_bar_rep    = { texture = nil, map = nil },
     },
 
     --========================================================--
-    -- 3. Horde
+    -- Horde
     --========================================================--
     ["Horde"] = {
-        ["Character Frame Top Left"] = { texture = nil, map = nil },
-        ["Character Frame Top"] = { texture = nil, map = nil },
-        ["Character Frame Top Right"] = { texture = nil, map = nil },
-        ["Character Frame Right"] = { texture = nil, map = nil },
-        ["Character Frame Bottom Right"] = { texture = nil, map = nil },
-        ["Character Frame Bottom"] = { texture = nil, map = nil },
-        ["Character Frame Bottom Left"] = { texture = nil, map = nil },
-        ["Character Frame Left"] = { texture = nil, map = nil },
-        ["Character Frame Top Image"] = { texture = nil, map = nil },
-        ["Character Frame Left Image"] = { texture = nil, map = nil },
-        ["Character Frame Right Image"] = { texture = nil, map = nil },
-        ["Character Background Texture"] = { texture = nil, map = nil },
-        ["Character Tab Texture"] = { texture = nil, map = nil },
-        ["Character Tab Highlight"] = { texture = nil, map = nil },
-        ["Character Tab Border"] = { texture = nil, map = nil },
-        ["Character Tab Active"] = { texture = nil, map = nil },
-        ["Character Frame Item Container Texture"] = { texture = nil, map = nil },
+        enabled = false,
+        path = "Interface\\AddOns\\ChonkyCharacterSheet\\Themes\\DarkMoonFaire\\",
+        statbgcolor = { 0.137, 0.118, 0.094, 1.0 },
+        -- Character Frame Borders (8 slices)
+        frame_tl      = { texture = "char_frame_border.png", map = nil },  -- top-left
+        frame_t       = { texture = "char_frame_border.png", map = nil },  -- top
+        frame_tr      = { texture = "char_frame_border.png", map = nil },  -- top-right
+        frame_r       = { texture = "char_frame_border.png", map = nil },  -- right
+        frame_br      = { texture = "char_frame_border.png", map = nil },  -- bottom-right
+        frame_b       = { texture = "char_frame_border.png", map = nil },  -- bottom
+        frame_bl      = { texture = "char_frame_border.png", map = nil },  -- bottom-left
+        frame_l       = { texture = "char_frame_border.png", map = nil },  -- left
 
-        ["Character Stats Border Top Left"] = { texture = nil, map = nil },
-        ["Character Stats Border Top"] = { texture = nil, map = nil },
-        ["Character Stats Border Top Right"] = { texture = nil, map = nil },
-        ["Character Stats Border Right"] = { texture = nil, map = nil },
-        ["Character Stats Border Bottom Right"] = { texture = nil, map = nil },
-        ["Character Stats Border Bottom"] = { texture = nil, map = nil },
-        ["Character Stats Border Bottom Left"] = { texture = nil, map = nil },
-        ["Character Stats Border Left"] = { texture = nil, map = nil },
-        ["Character Stats Section Bg Texture"] = { texture = nil, map = nil },
-        ["Character Stats Header Texture"] = { texture = nil, map = nil },
-        ["Character Stats Row Texture"] = { texture = nil, map = nil },
+        -- Character Frame Images
+        frame_top_img = { texture = "frame_top_img.png", w = nil, h = nil, cx = nil, cy = nil },
+        frame_left_img = { texture = "frame_left_img.png", w = nil, h = nil, cx = nil, cy = nil },
+        frame_right_img = { texture = "frame_right_img.png", w = nil, h = nil, cx = nil, cy = nil },
+        frame_bg       = { texture = "frame_bg.png", map = nil },
+        frame_item     = { texture = "frame_item.png", map = nil },
 
-        ["Paperdoll Border Top Left"] = { texture = nil, map = nil },
-        ["Paperdoll Border Top"] = { texture = nil, map = nil },
-        ["Paperdoll Border Top Right"] = { texture = nil, map = nil },
-        ["Paperdoll Border Right"] = { texture = nil, map = nil },
-        ["Paperdoll Border Bottom Right"] = { texture = nil, map = nil },
-        ["Paperdoll Border Bottom"] = { texture = nil, map = nil },
-        ["Paperdoll Border Bottom Left"] = { texture = nil, map = nil },
-        ["Paperdoll Border Left"] = { texture = nil, map = nil },
+        -- Stats Borders (8 slices)
+        stats_tl       = { texture = "stats_border.png", map = nil },
+        stats_t        = { texture = "stats_border.png", map = nil },
+        stats_tr       = { texture = "stats_border.png", map = nil },
+        stats_r        = { texture = "stats_border.png", map = nil },
+        stats_br       = { texture = "stats_border.png", map = nil },
+        stats_b        = { texture = "stats_border.png", map = nil },
+        stats_bl       = { texture = "stats_border.png", map = nil },
+        stats_l        = { texture = "stats_border.png", map = nil },
 
-        ["Reputation Frame Header Texture"] = { texture = nil, map = nil },
-        ["Reputation Header bar texture"] = { texture = nil, map = nil },
-        ["Reputation Main bar texture"] = { texture = nil, map = nil },
-        ["Reputation Rep bar texture"] = { texture = nil, map = nil },
+        -- Stats Textures
+        stats_header   = { texture = "stats_header.png", map = nil },
 
-        ["Token Frame Header Texture"] = { texture = nil, map = nil },
-        ["Token Header bar texture"] = { texture = nil, map = nil },
-        ["Token Main bar texture"] = { texture = nil, map = nil },
-        ["Token Rep bar texture"] = { texture = nil, map = nil },
+        -- Paperdoll Borders (8 slices)
+        paper_tl       = { texture = "paperdoll_border.png", map = nil },
+        paper_t        = { texture = "paperdoll_border.png", map = nil },
+        paper_tr       = { texture = "paperdoll_border.png", map = nil },
+        paper_r        = { texture = "paperdoll_border.png", map = nil },
+        paper_br       = { texture = "paperdoll_border.png", map = nil },
+        paper_b        = { texture = "paperdoll_border.png", map = nil },
+        paper_bl       = { texture = "paperdoll_border.png", map = nil },
+        paper_l        = { texture = "paperdoll_border.png", map = nil },
+
+        -- Reputation + Token (shared)
+        rep_header     = { texture = nil, map = nil },
+        rep_bar_header = { texture = nil, map = nil },
+        rep_bar_main   = { texture = nil, map = nil },
+        rep_bar_rep    = { texture = nil, map = nil },
     },
 
+
     --========================================================--
-    -- 4. Void / Old God
+    -- Old God
     --========================================================--
-    ["Void"] = {
-        ["Character Frame Top Left"] = { texture = nil, map = nil },
-        ["Character Frame Top"] = { texture = nil, map = nil },
-        ["Character Frame Top Right"] = { texture = nil, map = nil },
-        ["Character Frame Right"] = { texture = nil, map = nil },
-        ["Character Frame Bottom Right"] = { texture = nil, map = nil },
-        ["Character Frame Bottom"] = { texture = nil, map = nil },
-        ["Character Frame Bottom Left"] = { texture = nil, map = nil },
-        ["Character Frame Left"] = { texture = nil, map = nil },
-        ["Character Frame Top Image"] = { texture = nil, map = nil },
-        ["Character Frame Left Image"] = { texture = nil, map = nil },
-        ["Character Frame Right Image"] = { texture = nil, map = nil },
-        ["Character Background Texture"] = { texture = nil, map = nil },
-        ["Character Tab Texture"] = { texture = nil, map = nil },
-        ["Character Tab Highlight"] = { texture = nil, map = nil },
-        ["Character Tab Border"] = { texture = nil, map = nil },
-        ["Character Tab Active"] = { texture = nil, map = nil },
-        ["Character Frame Item Container Texture"] = { texture = nil, map = nil },
+    ["Old God"] = {
+        enabled = false,
+        path = "Interface\\AddOns\\ChonkyCharacterSheet\\Themes\\DarkMoonFaire\\",
+        statbgcolor = { 0.137, 0.118, 0.094, 1.0 },
+        -- Character Frame Borders (8 slices)
+        frame_tl      = { texture = "char_frame_border.png", map = nil },  -- top-left
+        frame_t       = { texture = "char_frame_border.png", map = nil },  -- top
+        frame_tr      = { texture = "char_frame_border.png", map = nil },  -- top-right
+        frame_r       = { texture = "char_frame_border.png", map = nil },  -- right
+        frame_br      = { texture = "char_frame_border.png", map = nil },  -- bottom-right
+        frame_b       = { texture = "char_frame_border.png", map = nil },  -- bottom
+        frame_bl      = { texture = "char_frame_border.png", map = nil },  -- bottom-left
+        frame_l       = { texture = "char_frame_border.png", map = nil },  -- left
 
-        ["Character Stats Border Top Left"] = { texture = nil, map = nil },
-        ["Character Stats Border Top"] = { texture = nil, map = nil },
-        ["Character Stats Border Top Right"] = { texture = nil, map = nil },
-        ["Character Stats Border Right"] = { texture = nil, map = nil },
-        ["Character Stats Border Bottom Right"] = { texture = nil, map = nil },
-        ["Character Stats Border Bottom"] = { texture = nil, map = nil },
-        ["Character Stats Border Bottom Left"] = { texture = nil, map = nil },
-        ["Character Stats Border Left"] = { texture = nil, map = nil },
-        ["Character Stats Section Bg Texture"] = { texture = nil, map = nil },
-        ["Character Stats Header Texture"] = { texture = nil, map = nil },
-        ["Character Stats Row Texture"] = { texture = nil, map = nil },
+        -- Character Frame Images
+        frame_top_img = { texture = "frame_top_img.png", w = nil, h = nil, cx = nil, cy = nil },
+        frame_left_img = { texture = "frame_left_img.png", w = nil, h = nil, cx = nil, cy = nil },
+        frame_right_img = { texture = "frame_right_img.png", w = nil, h = nil, cx = nil, cy = nil },
+        frame_bg       = { texture = "frame_bg.png", map = nil },
+        frame_item     = { texture = "frame_item.png", map = nil },
 
-        ["Paperdoll Border Top Left"] = { texture = nil, map = nil },
-        ["Paperdoll Border Top"] = { texture = nil, map = nil },
-        ["Paperdoll Border Top Right"] = { texture = nil, map = nil },
-        ["Paperdoll Border Right"] = { texture = nil, map = nil },
-        ["Paperdoll Border Bottom Right"] = { texture = nil, map = nil },
-        ["Paperdoll Border Bottom"] = { texture = nil, map = nil },
-        ["Paperdoll Border Bottom Left"] = { texture = nil, map = nil },
-        ["Paperdoll Border Left"] = { texture = nil, map = nil },
+        -- Stats Borders (8 slices)
+        stats_tl       = { texture = "stats_border.png", map = nil },
+        stats_t        = { texture = "stats_border.png", map = nil },
+        stats_tr       = { texture = "stats_border.png", map = nil },
+        stats_r        = { texture = "stats_border.png", map = nil },
+        stats_br       = { texture = "stats_border.png", map = nil },
+        stats_b        = { texture = "stats_border.png", map = nil },
+        stats_bl       = { texture = "stats_border.png", map = nil },
+        stats_l        = { texture = "stats_border.png", map = nil },
 
-        ["Reputation Frame Header Texture"] = { texture = nil, map = nil },
-        ["Reputation Header bar texture"] = { texture = nil, map = nil },
-        ["Reputation Main bar texture"] = { texture = nil, map = nil },
-        ["Reputation Rep bar texture"] = { texture = nil, map = nil },
+        -- Stats Textures
+        stats_header   = { texture = "stats_header.png", map = nil },
 
-        ["Token Frame Header Texture"] = { texture = nil, map = nil },
-        ["Token Header bar texture"] = { texture = nil, map = nil },
-        ["Token Main bar texture"] = { texture = nil, map = nil },
-        ["Token Rep bar texture"] = { texture = nil, map = nil },
+        -- Paperdoll Borders (8 slices)
+        paper_tl       = { texture = "paperdoll_border.png", map = nil },
+        paper_t        = { texture = "paperdoll_border.png", map = nil },
+        paper_tr       = { texture = "paperdoll_border.png", map = nil },
+        paper_r        = { texture = "paperdoll_border.png", map = nil },
+        paper_br       = { texture = "paperdoll_border.png", map = nil },
+        paper_b        = { texture = "paperdoll_border.png", map = nil },
+        paper_bl       = { texture = "paperdoll_border.png", map = nil },
+        paper_l        = { texture = "paperdoll_border.png", map = nil },
+
+        -- Reputation + Token (shared)
+        rep_header     = { texture = nil, map = nil },
+        rep_bar_header = { texture = nil, map = nil },
+        rep_bar_main   = { texture = nil, map = nil },
+        rep_bar_rep    = { texture = nil, map = nil },
     },
-
+    
     --========================================================--
-    -- 5. Monster Hunter (Witcher Inspired)
+    -- Monster Hunter (Witcher Inspired)
     --========================================================--
     ["Monster Hunter"] = {
-        ["Character Frame Top Left"] = { texture = nil, map = nil },
-        ["Character Frame Top"] = { texture = nil, map = nil },
-        ["Character Frame Top Right"] = { texture = nil, map = nil },
-        ["Character Frame Right"] = { texture = nil, map = nil },
-        ["Character Frame Bottom Right"] = { texture = nil, map = nil },
-        ["Character Frame Bottom"] = { texture = nil, map = nil },
-        ["Character Frame Bottom Left"] = { texture = nil, map = nil },
-        ["Character Frame Left"] = { texture = nil, map = nil },
-        ["Character Frame Top Image"] = { texture = nil, map = nil },
-        ["Character Frame Left Image"] = { texture = nil, map = nil },
-        ["Character Frame Right Image"] = { texture = nil, map = nil },
-        ["Character Background Texture"] = { texture = nil, map = nil },
-        ["Character Tab Texture"] = { texture = nil, map = nil },
-        ["Character Tab Highlight"] = { texture = nil, map = nil },
-        ["Character Tab Border"] = { texture = nil, map = nil },
-        ["Character Tab Active"] = { texture = nil, map = nil },
-        ["Character Frame Item Container Texture"] = { texture = nil, map = nil },
+        enabled = false,
+        path = "Interface\\AddOns\\ChonkyCharacterSheet\\Themes\\DarkMoonFaire\\",
+        statbgcolor = { 0.137, 0.118, 0.094, 1.0 },
+        -- Character Frame Borders (8 slices)
+        frame_tl      = { texture = "char_frame_border.png", map = nil },  -- top-left
+        frame_t       = { texture = "char_frame_border.png", map = nil },  -- top
+        frame_tr      = { texture = "char_frame_border.png", map = nil },  -- top-right
+        frame_r       = { texture = "char_frame_border.png", map = nil },  -- right
+        frame_br      = { texture = "char_frame_border.png", map = nil },  -- bottom-right
+        frame_b       = { texture = "char_frame_border.png", map = nil },  -- bottom
+        frame_bl      = { texture = "char_frame_border.png", map = nil },  -- bottom-left
+        frame_l       = { texture = "char_frame_border.png", map = nil },  -- left
 
-        ["Character Stats Border Top Left"] = { texture = nil, map = nil },
-        ["Character Stats Border Top"] = { texture = nil, map = nil },
-        ["Character Stats Border Top Right"] = { texture = nil, map = nil },
-        ["Character Stats Border Right"] = { texture = nil, map = nil },
-        ["Character Stats Border Bottom Right"] = { texture = nil, map = nil },
-        ["Character Stats Border Bottom"] = { texture = nil, map = nil },
-        ["Character Stats Border Bottom Left"] = { texture = nil, map = nil },
-        ["Character Stats Border Left"] = { texture = nil, map = nil },
-        ["Character Stats Section Bg Texture"] = { texture = nil, map = nil },
-        ["Character Stats Header Texture"] = { texture = nil, map = nil },
-        ["Character Stats Row Texture"] = { texture = nil, map = nil },
+        -- Character Frame Images
+        frame_top_img = { texture = "frame_top_img.png", w = nil, h = nil, cx = nil, cy = nil },
+        frame_left_img = { texture = "frame_left_img.png", w = nil, h = nil, cx = nil, cy = nil },
+        frame_right_img = { texture = "frame_right_img.png", w = nil, h = nil, cx = nil, cy = nil },
+        frame_bg       = { texture = "frame_bg.png", map = nil },
+        frame_item     = { texture = "frame_item.png", map = nil },
 
-        ["Paperdoll Border Top Left"] = { texture = nil, map = nil },
-        ["Paperdoll Border Top"] = { texture = nil, map = nil },
-        ["Paperdoll Border Top Right"] = { texture = nil, map = nil },
-        ["Paperdoll Border Right"] = { texture = nil, map = nil },
-        ["Paperdoll Border Bottom Right"] = { texture = nil, map = nil },
-        ["Paperdoll Border Bottom"] = { texture = nil, map = nil },
-        ["Paperdoll Border Bottom Left"] = { texture = nil, map = nil },
-        ["Paperdoll Border Left"] = { texture = nil, map = nil },
+        -- Stats Borders (8 slices)
+        stats_tl       = { texture = "stats_border.png", map = nil },
+        stats_t        = { texture = "stats_border.png", map = nil },
+        stats_tr       = { texture = "stats_border.png", map = nil },
+        stats_r        = { texture = "stats_border.png", map = nil },
+        stats_br       = { texture = "stats_border.png", map = nil },
+        stats_b        = { texture = "stats_border.png", map = nil },
+        stats_bl       = { texture = "stats_border.png", map = nil },
+        stats_l        = { texture = "stats_border.png", map = nil },
 
-        ["Reputation Frame Header Texture"] = { texture = nil, map = nil },
-        ["Reputation Header bar texture"] = { texture = nil, map = nil },
-        ["Reputation Main bar texture"] = { texture = nil, map = nil },
-        ["Reputation Rep bar texture"] = { texture = nil, map = nil },
+        -- Stats Textures
+        stats_header   = { texture = "stats_header.png", map = nil },
 
-        ["Token Frame Header Texture"] = { texture = nil, map = nil },
-        ["Token Header bar texture"] = { texture = nil, map = nil },
-        ["Token Main bar texture"] = { texture = nil, map = nil },
-        ["Token Rep bar texture"] = { texture = nil, map = nil },
+        -- Paperdoll Borders (8 slices)
+        paper_tl       = { texture = "paperdoll_border.png", map = nil },
+        paper_t        = { texture = "paperdoll_border.png", map = nil },
+        paper_tr       = { texture = "paperdoll_border.png", map = nil },
+        paper_r        = { texture = "paperdoll_border.png", map = nil },
+        paper_br       = { texture = "paperdoll_border.png", map = nil },
+        paper_b        = { texture = "paperdoll_border.png", map = nil },
+        paper_bl       = { texture = "paperdoll_border.png", map = nil },
+        paper_l        = { texture = "paperdoll_border.png", map = nil },
+
+        -- Reputation + Token (shared)
+        rep_header     = { texture = nil, map = nil },
+        rep_bar_header = { texture = nil, map = nil },
+        rep_bar_main   = { texture = nil, map = nil },
+        rep_bar_rep    = { texture = nil, map = nil },
     },
 
     --========================================================--
-    -- 6. Sanctum of the Fallen (Diablo Inspired)
+    -- Fallen Sanctum (Diablo Inspired)
     --========================================================--
-    ["Sanctum of the Fallen"] = {
-        ["Character Frame Top Left"] = { texture = nil, map = nil },
-        ["Character Frame Top"] = { texture = nil, map = nil },
-        ["Character Frame Top Right"] = { texture = nil, map = nil },
-        ["Character Frame Right"] = { texture = nil, map = nil },
-        ["Character Frame Bottom Right"] = { texture = nil, map = nil },
-        ["Character Frame Bottom"] = { texture = nil, map = nil },
-        ["Character Frame Bottom Left"] = { texture = nil, map = nil },
-        ["Character Frame Left"] = { texture = nil, map = nil },
-        ["Character Frame Top Image"] = { texture = nil, map = nil },
-        ["Character Frame Left Image"] = { texture = nil, map = nil },
-        ["Character Frame Right Image"] = { texture = nil, map = nil },
-        ["Character Background Texture"] = { texture = nil, map = nil },
-        ["Character Tab Texture"] = { texture = nil, map = nil },
-        ["Character Tab Highlight"] = { texture = nil, map = nil },
-        ["Character Tab Border"] = { texture = nil, map = nil },
-        ["Character Tab Active"] = { texture = nil, map = nil },
-        ["Character Frame Item Container Texture"] = { texture = nil, map = nil },
+    ["Fallen Sanctum"] =  {
+        enabled = false,
+        path = "Interface\\AddOns\\ChonkyCharacterSheet\\Themes\\DarkMoonFaire\\",
+        statbgcolor = { 0.137, 0.118, 0.094, 1.0 },
+        -- Character Frame Borders (8 slices)
+        frame_tl      = { texture = "char_frame_border.png", map = nil },  -- top-left
+        frame_t       = { texture = "char_frame_border.png", map = nil },  -- top
+        frame_tr      = { texture = "char_frame_border.png", map = nil },  -- top-right
+        frame_r       = { texture = "char_frame_border.png", map = nil },  -- right
+        frame_br      = { texture = "char_frame_border.png", map = nil },  -- bottom-right
+        frame_b       = { texture = "char_frame_border.png", map = nil },  -- bottom
+        frame_bl      = { texture = "char_frame_border.png", map = nil },  -- bottom-left
+        frame_l       = { texture = "char_frame_border.png", map = nil },  -- left
 
-        ["Character Stats Border Top Left"] = { texture = nil, map = nil },
-        ["Character Stats Border Top"] = { texture = nil, map = nil },
-        ["Character Stats Border Top Right"] = { texture = nil, map = nil },
-        ["Character Stats Border Right"] = { texture = nil, map = nil },
-        ["Character Stats Border Bottom Right"] = { texture = nil, map = nil },
-        ["Character Stats Border Bottom"] = { texture = nil, map = nil },
-        ["Character Stats Border Bottom Left"] = { texture = nil, map = nil },
-        ["Character Stats Border Left"] = { texture = nil, map = nil },
-        ["Character Stats Section Bg Texture"] = { texture = nil, map = nil },
-        ["Character Stats Header Texture"] = { texture = nil, map = nil },
-        ["Character Stats Row Texture"] = { texture = nil, map = nil },
+        -- Character Frame Images
+        frame_top_img = { texture = "frame_top_img.png", w = nil, h = nil, cx = nil, cy = nil },
+        frame_left_img = { texture = "frame_left_img.png", w = nil, h = nil, cx = nil, cy = nil },
+        frame_right_img = { texture = "frame_right_img.png", w = nil, h = nil, cx = nil, cy = nil },
+        frame_bg       = { texture = "frame_bg.png", map = nil },
+        frame_item     = { texture = "frame_item.png", map = nil },
 
-        ["Paperdoll Border Top Left"] = { texture = nil, map = nil },
-        ["Paperdoll Border Top"] = { texture = nil, map = nil },
-        ["Paperdoll Border Top Right"] = { texture = nil, map = nil },
-        ["Paperdoll Border Right"] = { texture = nil, map = nil },
-        ["Paperdoll Border Bottom Right"] = { texture = nil, map = nil },
-        ["Paperdoll Border Bottom"] = { texture = nil, map = nil },
-        ["Paperdoll Border Bottom Left"] = { texture = nil, map = nil },
-        ["Paperdoll Border Left"] = { texture = nil, map = nil },
+        -- Stats Borders (8 slices)
+        stats_tl       = { texture = "stats_border.png", map = nil },
+        stats_t        = { texture = "stats_border.png", map = nil },
+        stats_tr       = { texture = "stats_border.png", map = nil },
+        stats_r        = { texture = "stats_border.png", map = nil },
+        stats_br       = { texture = "stats_border.png", map = nil },
+        stats_b        = { texture = "stats_border.png", map = nil },
+        stats_bl       = { texture = "stats_border.png", map = nil },
+        stats_l        = { texture = "stats_border.png", map = nil },
 
-        ["Reputation Frame Header Texture"] = { texture = nil, map = nil },
-        ["Reputation Header bar texture"] = { texture = nil, map = nil },
-        ["Reputation Main bar texture"] = { texture = nil, map = nil },
-        ["Reputation Rep bar texture"] = { texture = nil, map = nil },
+        -- Stats Textures
+        stats_header   = { texture = "stats_header.png", map = nil },
 
-        ["Token Frame Header Texture"] = { texture = nil, map = nil },
-        ["Token Header bar texture"] = { texture = nil, map = nil },
-        ["Token Main bar texture"] = { texture = nil, map = nil },
-        ["Token Rep bar texture"] = { texture = nil, map = nil },
+        -- Paperdoll Borders (8 slices)
+        paper_tl       = { texture = "paperdoll_border.png", map = nil },
+        paper_t        = { texture = "paperdoll_border.png", map = nil },
+        paper_tr       = { texture = "paperdoll_border.png", map = nil },
+        paper_r        = { texture = "paperdoll_border.png", map = nil },
+        paper_br       = { texture = "paperdoll_border.png", map = nil },
+        paper_b        = { texture = "paperdoll_border.png", map = nil },
+        paper_bl       = { texture = "paperdoll_border.png", map = nil },
+        paper_l        = { texture = "paperdoll_border.png", map = nil },
+
+        -- Reputation + Token (shared)
+        rep_header     = { texture = nil, map = nil },
+        rep_bar_header = { texture = nil, map = nil },
+        rep_bar_main   = { texture = nil, map = nil },
+        rep_bar_rep    = { texture = nil, map = nil },
     },
 
     --========================================================--
-    -- 7. Minimalist Black
+    -- Minimalist Black
     --========================================================--
-    ["Minimalist Black"] = {
-        ["Character Frame Top Left"] = { texture = nil, map = nil },
-        ["Character Frame Top"] = { texture = nil, map = nil },
-        ["Character Frame Top Right"] = { texture = nil, map = nil },
-        ["Character Frame Right"] = { texture = nil, map = nil },
-        ["Character Frame Bottom Right"] = { texture = nil, map = nil },
-        ["Character Frame Bottom"] = { texture = nil, map = nil },
-        ["Character Frame Bottom Left"] = { texture = nil, map = nil },
-        ["Character Frame Left"] = { texture = nil, map = nil },
-        ["Character Frame Top Image"] = { texture = nil, map = nil },
-        ["Character Frame Left Image"] = { texture = nil, map = nil },
-        ["Character Frame Right Image"] = { texture = nil, map = nil },
-        ["Character Background Texture"] = { texture = nil, map = nil },
-        ["Character Tab Texture"] = { texture = nil, map = nil },
-        ["Character Tab Highlight"] = { texture = nil, map = nil },
-        ["Character Tab Border"] = { texture = nil, map = nil },
-        ["Character Tab Active"] = { texture = nil, map = nil },
-        ["Character Frame Item Container Texture"] = { texture = nil, map = nil },
+    ["Minimalist Black"] =  {
+        enabled = false,
+        path = "Interface\\AddOns\\ChonkyCharacterSheet\\Themes\\DarkMoonFaire\\",
+        statbgcolor = { 0.137, 0.118, 0.094, 1.0 },
+        -- Character Frame Borders (8 slices)
+        frame_tl      = { texture = "char_frame_border.png", map = nil },  -- top-left
+        frame_t       = { texture = "char_frame_border.png", map = nil },  -- top
+        frame_tr      = { texture = "char_frame_border.png", map = nil },  -- top-right
+        frame_r       = { texture = "char_frame_border.png", map = nil },  -- right
+        frame_br      = { texture = "char_frame_border.png", map = nil },  -- bottom-right
+        frame_b       = { texture = "char_frame_border.png", map = nil },  -- bottom
+        frame_bl      = { texture = "char_frame_border.png", map = nil },  -- bottom-left
+        frame_l       = { texture = "char_frame_border.png", map = nil },  -- left
 
-        ["Character Stats Border Top Left"] = { texture = nil, map = nil },
-        ["Character Stats Border Top"] = { texture = nil, map = nil },
-        ["Character Stats Border Top Right"] = { texture = nil, map = nil },
-        ["Character Stats Border Right"] = { texture = nil, map = nil },
-        ["Character Stats Border Bottom Right"] = { texture = nil, map = nil },
-        ["Character Stats Border Bottom"] = { texture = nil, map = nil },
-        ["Character Stats Border Bottom Left"] = { texture = nil, map = nil },
-        ["Character Stats Border Left"] = { texture = nil, map = nil },
-        ["Character Stats Section Bg Texture"] = { texture = nil, map = nil },
-        ["Character Stats Header Texture"] = { texture = nil, map = nil },
-        ["Character Stats Row Texture"] = { texture = nil, map = nil },
+        -- Character Frame Images
+        frame_top_img = { texture = "frame_top_img.png", w = nil, h = nil, cx = nil, cy = nil },
+        frame_left_img = { texture = "frame_left_img.png", w = nil, h = nil, cx = nil, cy = nil },
+        frame_right_img = { texture = "frame_right_img.png", w = nil, h = nil, cx = nil, cy = nil },
+        frame_bg       = { texture = "frame_bg.png", map = nil },
+        frame_item     = { texture = "frame_item.png", map = nil },
 
-        ["Paperdoll Border Top Left"] = { texture = nil, map = nil },
-        ["Paperdoll Border Top"] = { texture = nil, map = nil },
-        ["Paperdoll Border Top Right"] = { texture = nil, map = nil },
-        ["Paperdoll Border Right"] = { texture = nil, map = nil },
-        ["Paperdoll Border Bottom Right"] = { texture = nil, map = nil },
-        ["Paperdoll Border Bottom"] = { texture = nil, map = nil },
-        ["Paperdoll Border Bottom Left"] = { texture = nil, map = nil },
-        ["Paperdoll Border Left"] = { texture = nil, map = nil },
+        -- Stats Borders (8 slices)
+        stats_tl       = { texture = "stats_border.png", map = nil },
+        stats_t        = { texture = "stats_border.png", map = nil },
+        stats_tr       = { texture = "stats_border.png", map = nil },
+        stats_r        = { texture = "stats_border.png", map = nil },
+        stats_br       = { texture = "stats_border.png", map = nil },
+        stats_b        = { texture = "stats_border.png", map = nil },
+        stats_bl       = { texture = "stats_border.png", map = nil },
+        stats_l        = { texture = "stats_border.png", map = nil },
 
-        ["Reputation Frame Header Texture"] = { texture = nil, map = nil },
-        ["Reputation Header bar texture"] = { texture = nil, map = nil },
-        ["Reputation Main bar texture"] = { texture = nil, map = nil },
-        ["Reputation Rep bar texture"] = { texture = nil, map = nil },
+        -- Stats Textures
+        stats_header   = { texture = "stats_header.png", map = nil },
 
-        ["Token Frame Header Texture"] = { texture = nil, map = nil },
-        ["Token Header bar texture"] = { texture = nil, map = nil },
-        ["Token Main bar texture"] = { texture = nil, map = nil },
-        ["Token Rep bar texture"] = { texture = nil, map = nil },
+        -- Paperdoll Borders (8 slices)
+        paper_tl       = { texture = "paperdoll_border.png", map = nil },
+        paper_t        = { texture = "paperdoll_border.png", map = nil },
+        paper_tr       = { texture = "paperdoll_border.png", map = nil },
+        paper_r        = { texture = "paperdoll_border.png", map = nil },
+        paper_br       = { texture = "paperdoll_border.png", map = nil },
+        paper_b        = { texture = "paperdoll_border.png", map = nil },
+        paper_bl       = { texture = "paperdoll_border.png", map = nil },
+        paper_l        = { texture = "paperdoll_border.png", map = nil },
+
+        -- Reputation + Token (shared)
+        rep_header     = { texture = nil, map = nil },
+        rep_bar_header = { texture = nil, map = nil },
+        rep_bar_main   = { texture = nil, map = nil },
+        rep_bar_rep    = { texture = nil, map = nil },
     },
 
     --========================================================--
-    -- 8. Silverframe
+    -- Silverframe
     --========================================================--
-    ["Silverframe"] = {
-        ["Character Frame Top Left"] = { texture = nil, map = nil },
-        ["Character Frame Top"] = { texture = nil, map = nil },
-        ["Character Frame Top Right"] = { texture = nil, map = nil },
-        ["Character Frame Right"] = { texture = nil, map = nil },
-        ["Character Frame Bottom Right"] = { texture = nil, map = nil },
-        ["Character Frame Bottom"] = { texture = nil, map = nil },
-        ["Character Frame Bottom Left"] = { texture = nil, map = nil },
-        ["Character Frame Left"] = { texture = nil, map = nil },
-        ["Character Frame Top Image"] = { texture = nil, map = nil },
-        ["Character Frame Left Image"] = { texture = nil, map = nil },
-        ["Character Frame Right Image"] = { texture = nil, map = nil },
-        ["Character Background Texture"] = { texture = nil, map = nil },
-        ["Character Tab Texture"] = { texture = nil, map = nil },
-        ["Character Tab Highlight"] = { texture = nil, map = nil },
-        ["Character Tab Border"] = { texture = nil, map = nil },
-        ["Character Tab Active"] = { texture = nil, map = nil },
-        ["Character Frame Item Container Texture"] = { texture = nil, map = nil },
+    ["Silverframe"] =  {
+        enabled = false,
+        path = "Interface\\AddOns\\ChonkyCharacterSheet\\Themes\\DarkMoonFaire\\",
+        statbgcolor = { 0.137, 0.118, 0.094, 1.0 },
+        -- Character Frame Borders (8 slices)
+        frame_tl      = { texture = "char_frame_border.png", map = nil },  -- top-left
+        frame_t       = { texture = "char_frame_border.png", map = nil },  -- top
+        frame_tr      = { texture = "char_frame_border.png", map = nil },  -- top-right
+        frame_r       = { texture = "char_frame_border.png", map = nil },  -- right
+        frame_br      = { texture = "char_frame_border.png", map = nil },  -- bottom-right
+        frame_b       = { texture = "char_frame_border.png", map = nil },  -- bottom
+        frame_bl      = { texture = "char_frame_border.png", map = nil },  -- bottom-left
+        frame_l       = { texture = "char_frame_border.png", map = nil },  -- left
 
-        ["Character Stats Border Top Left"] = { texture = nil, map = nil },
-        ["Character Stats Border Top"] = { texture = nil, map = nil },
-        ["Character Stats Border Top Right"] = { texture = nil, map = nil },
-        ["Character Stats Border Right"] = { texture = nil, map = nil },
-        ["Character Stats Border Bottom Right"] = { texture = nil, map = nil },
-        ["Character Stats Border Bottom"] = { texture = nil, map = nil },
-        ["Character Stats Border Bottom Left"] = { texture = nil, map = nil },
-        ["Character Stats Border Left"] = { texture = nil, map = nil },
-        ["Character Stats Section Bg Texture"] = { texture = nil, map = nil },
-        ["Character Stats Header Texture"] = { texture = nil, map = nil },
-        ["Character Stats Row Texture"] = { texture = nil, map = nil },
+        -- Character Frame Images
+        frame_top_img = { texture = "frame_top_img.png", w = nil, h = nil, cx = nil, cy = nil },
+        frame_left_img = { texture = "frame_left_img.png", w = nil, h = nil, cx = nil, cy = nil },
+        frame_right_img = { texture = "frame_right_img.png", w = nil, h = nil, cx = nil, cy = nil },
+        frame_bg       = { texture = "frame_bg.png", map = nil },
+        frame_item     = { texture = "frame_item.png", map = nil },
 
-        ["Paperdoll Border Top Left"] = { texture = nil, map = nil },
-        ["Paperdoll Border Top"] = { texture = nil, map = nil },
-        ["Paperdoll Border Top Right"] = { texture = nil, map = nil },
-        ["Paperdoll Border Right"] = { texture = nil, map = nil },
-        ["Paperdoll Border Bottom Right"] = { texture = nil, map = nil },
-        ["Paperdoll Border Bottom"] = { texture = nil, map = nil },
-        ["Paperdoll Border Bottom Left"] = { texture = nil, map = nil },
-        ["Paperdoll Border Left"] = { texture = nil, map = nil },
+        -- Stats Borders (8 slices)
+        stats_tl       = { texture = "stats_border.png", map = nil },
+        stats_t        = { texture = "stats_border.png", map = nil },
+        stats_tr       = { texture = "stats_border.png", map = nil },
+        stats_r        = { texture = "stats_border.png", map = nil },
+        stats_br       = { texture = "stats_border.png", map = nil },
+        stats_b        = { texture = "stats_border.png", map = nil },
+        stats_bl       = { texture = "stats_border.png", map = nil },
+        stats_l        = { texture = "stats_border.png", map = nil },
 
-        ["Reputation Frame Header Texture"] = { texture = nil, map = nil },
-        ["Reputation Header bar texture"] = { texture = nil, map = nil },
-        ["Reputation Main bar texture"] = { texture = nil, map = nil },
-        ["Reputation Rep bar texture"] = { texture = nil, map = nil },
+        -- Stats Textures
+        stats_header   = { texture = "stats_header.png", map = nil },
 
-        ["Token Frame Header Texture"] = { texture = nil, map = nil },
-        ["Token Header bar texture"] = { texture = nil, map = nil },
-        ["Token Main bar texture"] = { texture = nil, map = nil },
-        ["Token Rep bar texture"] = { texture = nil, map = nil },
+        -- Paperdoll Borders (8 slices)
+        paper_tl       = { texture = "paperdoll_border.png", map = nil },
+        paper_t        = { texture = "paperdoll_border.png", map = nil },
+        paper_tr       = { texture = "paperdoll_border.png", map = nil },
+        paper_r        = { texture = "paperdoll_border.png", map = nil },
+        paper_br       = { texture = "paperdoll_border.png", map = nil },
+        paper_b        = { texture = "paperdoll_border.png", map = nil },
+        paper_bl       = { texture = "paperdoll_border.png", map = nil },
+        paper_l        = { texture = "paperdoll_border.png", map = nil },
+
+        -- Reputation + Token (shared)
+        rep_header     = { texture = nil, map = nil },
+        rep_bar_header = { texture = nil, map = nil },
+        rep_bar_main   = { texture = nil, map = nil },
+        rep_bar_rep    = { texture = nil, map = nil },
     },
 
     --========================================================--
-    -- 9. Arcane Glass
+    -- Arcane Glass
     --========================================================--
-    ["Arcane Glass"] = {
-        ["Character Frame Top Left"] = { texture = nil, map = nil },
-        ["Character Frame Top"] = { texture = nil, map = nil },
-        ["Character Frame Top Right"] = { texture = nil, map = nil },
-        ["Character Frame Right"] = { texture = nil, map = nil },
-        ["Character Frame Bottom Right"] = { texture = nil, map = nil },
-        ["Character Frame Bottom"] = { texture = nil, map = nil },
-        ["Character Frame Bottom Left"] = { texture = nil, map = nil },
-        ["Character Frame Left"] = { texture = nil, map = nil },
-        ["Character Frame Top Image"] = { texture = nil, map = nil },
-        ["Character Frame Left Image"] = { texture = nil, map = nil },
-        ["Character Frame Right Image"] = { texture = nil, map = nil },
-        ["Character Background Texture"] = { texture = nil, map = nil },
-        ["Character Tab Texture"] = { texture = nil, map = nil },
-        ["Character Tab Highlight"] = { texture = nil, map = nil },
-        ["Character Tab Border"] = { texture = nil, map = nil },
-        ["Character Tab Active"] = { texture = nil, map = nil },
-        ["Character Frame Item Container Texture"] = { texture = nil, map = nil },
+    ["Arcane Glass"] =  {
+        enabled = false,
+        path = "Interface\\AddOns\\ChonkyCharacterSheet\\Themes\\DarkMoonFaire\\",
+        statbgcolor = { 0.137, 0.118, 0.094, 1.0 },
+        -- Character Frame Borders (8 slices)
+        frame_tl      = { texture = "char_frame_border.png", map = nil },  -- top-left
+        frame_t       = { texture = "char_frame_border.png", map = nil },  -- top
+        frame_tr      = { texture = "char_frame_border.png", map = nil },  -- top-right
+        frame_r       = { texture = "char_frame_border.png", map = nil },  -- right
+        frame_br      = { texture = "char_frame_border.png", map = nil },  -- bottom-right
+        frame_b       = { texture = "char_frame_border.png", map = nil },  -- bottom
+        frame_bl      = { texture = "char_frame_border.png", map = nil },  -- bottom-left
+        frame_l       = { texture = "char_frame_border.png", map = nil },  -- left
 
-        ["Character Stats Border Top Left"] = { texture = nil, map = nil },
-        ["Character Stats Border Top"] = { texture = nil, map = nil },
-        ["Character Stats Border Top Right"] = { texture = nil, map = nil },
-        ["Character Stats Border Right"] = { texture = nil, map = nil },
-        ["Character Stats Border Bottom Right"] = { texture = nil, map = nil },
-        ["Character Stats Border Bottom"] = { texture = nil, map = nil },
-        ["Character Stats Border Bottom Left"] = { texture = nil, map = nil },
-        ["Character Stats Border Left"] = { texture = nil, map = nil },
-        ["Character Stats Section Bg Texture"] = { texture = nil, map = nil },
-        ["Character Stats Header Texture"] = { texture = nil, map = nil },
-        ["Character Stats Row Texture"] = { texture = nil, map = nil },
+        -- Character Frame Images
+        frame_top_img = { texture = "frame_top_img.png", w = nil, h = nil, cx = nil, cy = nil },
+        frame_left_img = { texture = "frame_left_img.png", w = nil, h = nil, cx = nil, cy = nil },
+        frame_right_img = { texture = "frame_right_img.png", w = nil, h = nil, cx = nil, cy = nil },
+        frame_bg       = { texture = "frame_bg.png", map = nil },
+        frame_item     = { texture = "frame_item.png", map = nil },
 
-        ["Paperdoll Border Top Left"] = { texture = nil, map = nil },
-        ["Paperdoll Border Top"] = { texture = nil, map = nil },
-        ["Paperdoll Border Top Right"] = { texture = nil, map = nil },
-        ["Paperdoll Border Right"] = { texture = nil, map = nil },
-        ["Paperdoll Border Bottom Right"] = { texture = nil, map = nil },
-        ["Paperdoll Border Bottom"] = { texture = nil, map = nil },
-        ["Paperdoll Border Bottom Left"] = { texture = nil, map = nil },
-        ["Paperdoll Border Left"] = { texture = nil, map = nil },
+        -- Stats Borders (8 slices)
+        stats_tl       = { texture = "stats_border.png", map = nil },
+        stats_t        = { texture = "stats_border.png", map = nil },
+        stats_tr       = { texture = "stats_border.png", map = nil },
+        stats_r        = { texture = "stats_border.png", map = nil },
+        stats_br       = { texture = "stats_border.png", map = nil },
+        stats_b        = { texture = "stats_border.png", map = nil },
+        stats_bl       = { texture = "stats_border.png", map = nil },
+        stats_l        = { texture = "stats_border.png", map = nil },
 
-        ["Reputation Frame Header Texture"] = { texture = nil, map = nil },
-        ["Reputation Header bar texture"] = { texture = nil, map = nil },
-        ["Reputation Main bar texture"] = { texture = nil, map = nil },
-        ["Reputation Rep bar texture"] = { texture = nil, map = nil },
+        -- Stats Textures
+        stats_header   = { texture = "stats_header.png", map = nil },
 
-        ["Token Frame Header Texture"] = { texture = nil, map = nil },
-        ["Token Header bar texture"] = { texture = nil, map = nil },
-        ["Token Main bar texture"] = { texture = nil, map = nil },
-        ["Token Rep bar texture"] = { texture = nil, map = nil },
+        -- Paperdoll Borders (8 slices)
+        paper_tl       = { texture = "paperdoll_border.png", map = nil },
+        paper_t        = { texture = "paperdoll_border.png", map = nil },
+        paper_tr       = { texture = "paperdoll_border.png", map = nil },
+        paper_r        = { texture = "paperdoll_border.png", map = nil },
+        paper_br       = { texture = "paperdoll_border.png", map = nil },
+        paper_b        = { texture = "paperdoll_border.png", map = nil },
+        paper_bl       = { texture = "paperdoll_border.png", map = nil },
+        paper_l        = { texture = "paperdoll_border.png", map = nil },
+
+        -- Reputation + Token (shared)
+        rep_header     = { texture = nil, map = nil },
+        rep_bar_header = { texture = nil, map = nil },
+        rep_bar_main   = { texture = nil, map = nil },
+        rep_bar_rep    = { texture = nil, map = nil },
     },
 
     --========================================================--
-    -- 10. Leatherbound
+    -- Leatherbound
     --========================================================--
-    ["Leatherbound"] = {
-        ["Character Frame Top Left"] = { texture = nil, map = nil },
-        ["Character Frame Top"] = { texture = nil, map = nil },
-        ["Character Frame Top Right"] = { texture = nil, map = nil },
-        ["Character Frame Right"] = { texture = nil, map = nil },
-        ["Character Frame Bottom Right"] = { texture = nil, map = nil },
-        ["Character Frame Bottom"] = { texture = nil, map = nil },
-        ["Character Frame Bottom Left"] = { texture = nil, map = nil },
-        ["Character Frame Left"] = { texture = nil, map = nil },
-        ["Character Frame Top Image"] = { texture = nil, map = nil },
-        ["Character Frame Left Image"] = { texture = nil, map = nil },
-        ["Character Frame Right Image"] = { texture = nil, map = nil },
-        ["Character Background Texture"] = { texture = nil, map = nil },
-        ["Character Tab Texture"] = { texture = nil, map = nil },
-        ["Character Tab Highlight"] = { texture = nil, map = nil },
-        ["Character Tab Border"] = { texture = nil, map = nil },
-        ["Character Tab Active"] = { texture = nil, map = nil },
-        ["Character Frame Item Container Texture"] = { texture = nil, map = nil },
+    ["Leatherbound"] =  {
+        enabled = false,
+        path = "Interface\\AddOns\\ChonkyCharacterSheet\\Themes\\DarkMoonFaire\\",
+        statbgcolor = { 0.137, 0.118, 0.094, 1.0 },
+        -- Character Frame Borders (8 slices)
+        frame_tl      = { texture = "char_frame_border.png", map = nil },  -- top-left
+        frame_t       = { texture = "char_frame_border.png", map = nil },  -- top
+        frame_tr      = { texture = "char_frame_border.png", map = nil },  -- top-right
+        frame_r       = { texture = "char_frame_border.png", map = nil },  -- right
+        frame_br      = { texture = "char_frame_border.png", map = nil },  -- bottom-right
+        frame_b       = { texture = "char_frame_border.png", map = nil },  -- bottom
+        frame_bl      = { texture = "char_frame_border.png", map = nil },  -- bottom-left
+        frame_l       = { texture = "char_frame_border.png", map = nil },  -- left
 
-        ["Character Stats Border Top Left"] = { texture = nil, map = nil },
-        ["Character Stats Border Top"] = { texture = nil, map = nil },
-        ["Character Stats Border Top Right"] = { texture = nil, map = nil },
-        ["Character Stats Border Right"] = { texture = nil, map = nil },
-        ["Character Stats Border Bottom Right"] = { texture = nil, map = nil },
-        ["Character Stats Border Bottom"] = { texture = nil, map = nil },
-        ["Character Stats Border Bottom Left"] = { texture = nil, map = nil },
-        ["Character Stats Border Left"] = { texture = nil, map = nil },
-        ["Character Stats Section Bg Texture"] = { texture = nil, map = nil },
-        ["Character Stats Header Texture"] = { texture = nil, map = nil },
-        ["Character Stats Row Texture"] = { texture = nil, map = nil },
+        -- Character Frame Images
+        frame_top_img = { texture = "frame_top_img.png", w = nil, h = nil, cx = nil, cy = nil },
+        frame_left_img = { texture = "frame_left_img.png", w = nil, h = nil, cx = nil, cy = nil },
+        frame_right_img = { texture = "frame_right_img.png", w = nil, h = nil, cx = nil, cy = nil },
+        frame_bg       = { texture = "frame_bg.png", map = nil },
+        frame_item     = { texture = "frame_item.png", map = nil },
 
-        ["Paperdoll Border Top Left"] = { texture = nil, map = nil },
-        ["Paperdoll Border Top"] = { texture = nil, map = nil },
-        ["Paperdoll Border Top Right"] = { texture = nil, map = nil },
-        ["Paperdoll Border Right"] = { texture = nil, map = nil },
-        ["Paperdoll Border Bottom Right"] = { texture = nil, map = nil },
-        ["Paperdoll Border Bottom"] = { texture = nil, map = nil },
-        ["Paperdoll Border Bottom Left"] = { texture = nil, map = nil },
-        ["Paperdoll Border Left"] = { texture = nil, map = nil },
+        -- Stats Borders (8 slices)
+        stats_tl       = { texture = "stats_border.png", map = nil },
+        stats_t        = { texture = "stats_border.png", map = nil },
+        stats_tr       = { texture = "stats_border.png", map = nil },
+        stats_r        = { texture = "stats_border.png", map = nil },
+        stats_br       = { texture = "stats_border.png", map = nil },
+        stats_b        = { texture = "stats_border.png", map = nil },
+        stats_bl       = { texture = "stats_border.png", map = nil },
+        stats_l        = { texture = "stats_border.png", map = nil },
 
-        ["Reputation Frame Header Texture"] = { texture = nil, map = nil },
-        ["Reputation Header bar texture"] = { texture = nil, map = nil },
-        ["Reputation Main bar texture"] = { texture = nil, map = nil },
-        ["Reputation Rep bar texture"] = { texture = nil, map = nil },
+        -- Stats Textures
+        stats_header   = { texture = "stats_header.png", map = nil },
 
-        ["Token Frame Header Texture"] = { texture = nil, map = nil },
-        ["Token Header bar texture"] = { texture = nil, map = nil },
-        ["Token Main bar texture"] = { texture = nil, map = nil },
-        ["Token Rep bar texture"] = { texture = nil, map = nil },
+        -- Paperdoll Borders (8 slices)
+        paper_tl       = { texture = "paperdoll_border.png", map = nil },
+        paper_t        = { texture = "paperdoll_border.png", map = nil },
+        paper_tr       = { texture = "paperdoll_border.png", map = nil },
+        paper_r        = { texture = "paperdoll_border.png", map = nil },
+        paper_br       = { texture = "paperdoll_border.png", map = nil },
+        paper_b        = { texture = "paperdoll_border.png", map = nil },
+        paper_bl       = { texture = "paperdoll_border.png", map = nil },
+        paper_l        = { texture = "paperdoll_border.png", map = nil },
+
+        -- Reputation + Token (shared)
+        rep_header     = { texture = nil, map = nil },
+        rep_bar_header = { texture = nil, map = nil },
+        rep_bar_main   = { texture = nil, map = nil },
+        rep_bar_rep    = { texture = nil, map = nil },
     },
 
     --========================================================--
-    -- 11. Stone Tablet
+    -- Titans
     --========================================================--
-    ["Stone Tablet"] = {
-        ["Character Frame Top Left"] = { texture = nil, map = nil },
-        ["Character Frame Top"] = { texture = nil, map = nil },
-        ["Character Frame Top Right"] = { texture = nil, map = nil },
-        ["Character Frame Right"] = { texture = nil, map = nil },
-        ["Character Frame Bottom Right"] = { texture = nil, map = nil },
-        ["Character Frame Bottom"] = { texture = nil, map = nil },
-        ["Character Frame Bottom Left"] = { texture = nil, map = nil },
-        ["Character Frame Left"] = { texture = nil, map = nil },
-        ["Character Frame Top Image"] = { texture = nil, map = nil },
-        ["Character Frame Left Image"] = { texture = nil, map = nil },
-        ["Character Frame Right Image"] = { texture = nil, map = nil },
-        ["Character Background Texture"] = { texture = nil, map = nil },
-        ["Character Tab Texture"] = { texture = nil, map = nil },
-        ["Character Tab Highlight"] = { texture = nil, map = nil },
-        ["Character Tab Border"] = { texture = nil, map = nil },
-        ["Character Tab Active"] = { texture = nil, map = nil },
-        ["Character Frame Item Container Texture"] = { texture = nil, map = nil },
+    ["Titans"] =  {
+        enabled = false,
+        path = "Interface\\AddOns\\ChonkyCharacterSheet\\Themes\\DarkMoonFaire\\",
+        statbgcolor = { 0.137, 0.118, 0.094, 1.0 },
+        -- Character Frame Borders (8 slices)
+        frame_tl      = { texture = "char_frame_border.png", map = nil },  -- top-left
+        frame_t       = { texture = "char_frame_border.png", map = nil },  -- top
+        frame_tr      = { texture = "char_frame_border.png", map = nil },  -- top-right
+        frame_r       = { texture = "char_frame_border.png", map = nil },  -- right
+        frame_br      = { texture = "char_frame_border.png", map = nil },  -- bottom-right
+        frame_b       = { texture = "char_frame_border.png", map = nil },  -- bottom
+        frame_bl      = { texture = "char_frame_border.png", map = nil },  -- bottom-left
+        frame_l       = { texture = "char_frame_border.png", map = nil },  -- left
 
-        ["Character Stats Border Top Left"] = { texture = nil, map = nil },
-        ["Character Stats Border Top"] = { texture = nil, map = nil },
-        ["Character Stats Border Top Right"] = { texture = nil, map = nil },
-        ["Character Stats Border Right"] = { texture = nil, map = nil },
-        ["Character Stats Border Bottom Right"] = { texture = nil, map = nil },
-        ["Character Stats Border Bottom"] = { texture = nil, map = nil },
-        ["Character Stats Border Bottom Left"] = { texture = nil, map = nil },
-        ["Character Stats Border Left"] = { texture = nil, map = nil },
-        ["Character Stats Section Bg Texture"] = { texture = nil, map = nil },
-        ["Character Stats Header Texture"] = { texture = nil, map = nil },
-        ["Character Stats Row Texture"] = { texture = nil, map = nil },
+        -- Character Frame Images
+        frame_top_img = { texture = "frame_top_img.png", w = nil, h = nil, cx = nil, cy = nil },
+        frame_left_img = { texture = "frame_left_img.png", w = nil, h = nil, cx = nil, cy = nil },
+        frame_right_img = { texture = "frame_right_img.png", w = nil, h = nil, cx = nil, cy = nil },
+        frame_bg       = { texture = "frame_bg.png", map = nil },
+        frame_item     = { texture = "frame_item.png", map = nil },
 
-        ["Paperdoll Border Top Left"] = { texture = nil, map = nil },
-        ["Paperdoll Border Top"] = { texture = nil, map = nil },
-        ["Paperdoll Border Top Right"] = { texture = nil, map = nil },
-        ["Paperdoll Border Right"] = { texture = nil, map = nil },
-        ["Paperdoll Border Bottom Right"] = { texture = nil, map = nil },
-        ["Paperdoll Border Bottom"] = { texture = nil, map = nil },
-        ["Paperdoll Border Bottom Left"] = { texture = nil, map = nil },
-        ["Paperdoll Border Left"] = { texture = nil, map = nil },
+        -- Stats Borders (8 slices)
+        stats_tl       = { texture = "stats_border.png", map = nil },
+        stats_t        = { texture = "stats_border.png", map = nil },
+        stats_tr       = { texture = "stats_border.png", map = nil },
+        stats_r        = { texture = "stats_border.png", map = nil },
+        stats_br       = { texture = "stats_border.png", map = nil },
+        stats_b        = { texture = "stats_border.png", map = nil },
+        stats_bl       = { texture = "stats_border.png", map = nil },
+        stats_l        = { texture = "stats_border.png", map = nil },
 
-        ["Reputation Frame Header Texture"] = { texture = nil, map = nil },
-        ["Reputation Header bar texture"] = { texture = nil, map = nil },
-        ["Reputation Main bar texture"] = { texture = nil, map = nil },
-        ["Reputation Rep bar texture"] = { texture = nil, map = nil },
+        -- Stats Textures
+        stats_header   = { texture = "stats_header.png", map = nil },
 
-        ["Token Frame Header Texture"] = { texture = nil, map = nil },
-        ["Token Header bar texture"] = { texture = nil, map = nil },
-        ["Token Main bar texture"] = { texture = nil, map = nil },
-        ["Token Rep bar texture"] = { texture = nil, map = nil },
+        -- Paperdoll Borders (8 slices)
+        paper_tl       = { texture = "paperdoll_border.png", map = nil },
+        paper_t        = { texture = "paperdoll_border.png", map = nil },
+        paper_tr       = { texture = "paperdoll_border.png", map = nil },
+        paper_r        = { texture = "paperdoll_border.png", map = nil },
+        paper_br       = { texture = "paperdoll_border.png", map = nil },
+        paper_b        = { texture = "paperdoll_border.png", map = nil },
+        paper_bl       = { texture = "paperdoll_border.png", map = nil },
+        paper_l        = { texture = "paperdoll_border.png", map = nil },
+
+        -- Reputation + Token (shared)
+        rep_header     = { texture = nil, map = nil },
+        rep_bar_header = { texture = nil, map = nil },
+        rep_bar_main   = { texture = nil, map = nil },
+        rep_bar_rep    = { texture = nil, map = nil },
     },
+
 }

@@ -1452,14 +1452,18 @@ function module:SetupBlizzardFrameOverrides()
     ReputationFrame.ReputationDetailFrame.Border.Bg:SetColorTexture(0,0,0,1)
     ReputationFrame.ReputationDetailFrame:SetPoint("TOPLEFT", ReputationFrame, "TOPRIGHT", 27, 0)
 
-    local charbg = _G["CharacterFrameBgbg"] or CreateFrame("Frame", "CharacterFrameBgbg", CharacterFrame, BackdropTemplateMixin and "BackdropTemplate")
+    if _G["CharacterFrameBgbg"] == nil then CCS.CreateChonkyCharacterBG() end
+    local charbg = _G["CharacterFrameBgbg"] 
+    --local charbg _G["CharacterFrameBgbg"] or CreateFrame("Frame", "CharacterFrameBgbg", CharacterFrame, BackdropTemplateMixin and "BackdropTemplate")
+    
     local charbgtex = _G["CharacterFrameBgbgtex"] or charbg:CreateTexture("CharacterFrameBgbgtex", "BACKGROUND", nil, 1)    
-    charbg:SetBackdrop({
+    
+    --[[charbg:SetBackdrop({
         bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background", -- optional background texture
         edgeFile = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\UI-Tooltip-SquareBorder.blp",        -- thin edge texture
         edgeSize = 16,                                              -- thickness of the border
         insets = { left = 3, right = 3, top = 3, bottom = 3 },      -- inset so content doesn't overlap border
-    })
+    })--]]
     GearManagerPopupFrame:SetFrameStrata("DIALOG")
     GearManagerPopupFrame.IconSelector:SetFrameStrata("FULLSCREEN")
     
@@ -1702,7 +1706,10 @@ function module:SetupBlizzardFrameOverrides()
     CharacterModelFrameBackgroundOverlay:SetPoint("TOPLEFT", CharacterModelFrameBackgroundTopLeft, "TOPLEFT", 0, 0)
     CharacterModelFrameBackgroundOverlay:SetPoint("BOTTOMRIGHT", CharacterModelFrameBackgroundBotRight, "BOTTOMRIGHT", 0, 70)
     CharacterModelFrameBackgroundOverlay:Hide()
-    
+    if CCS.Themes ~= nil and CCS.Themes.enabled == true and option("theme") ~= "None" then
+        CCS.CreateChonkyNineSlice(modbg)
+    end
+
     TokenFramePopup:SetFrameStrata("HIGH")
     TokenFramePopup.Border.Bg:SetColorTexture(0, 0, 0, 1)
     CurrencyTransferLog:SetFrameStrata("HIGH")
@@ -1786,13 +1793,17 @@ function module:SetupBlizzardFrameOverrides()
 end
 
 function module:UpdateStyle()
-    local charbg = _G["CharacterFrameBgbg"] or CreateFrame("Frame", "CharacterFrameBgbg", CharacterFrame, BackdropTemplateMixin and "BackdropTemplate")
+    if _G["CharacterFrameBgbg"] == nil then CCS.CreateChonkyCharacterBG() end
+    local charbg = _G["CharacterFrameBgbg"] 
+    --local charbg = _G["CharacterFrameBgbg"] or CreateFrame("Frame", "CharacterFrameBgbg", CharacterFrame, BackdropTemplateMixin and "BackdropTemplate")
     local charbgtex = _G["CharacterFrameBgbgtex"] or charbg:CreateTexture("CharacterFrameBgbgtex", "BACKGROUND", nil, 1)    
     local bgr, bgg, bgb, bgalpha = option("bgcolor")[1], option("bgcolor")[2], option("bgcolor")[3], option("bgcolor")[4];
 
     local borderColor = CCS.StyleColor.border
-    charbg:SetBackdropBorderColor(unpack(borderColor))   -- purple border    
-    charbg:SetBackdropColor(bgr,bgg,bgb,bgalpha)   -- purple border    
+    if charbg.SetBackdrop and charbg.SetBackdropColor and charbg.SetBackdropBorderColor then
+        charbg:SetBackdropBorderColor(unpack(borderColor))   -- purple border    
+        charbg:SetBackdropColor(bgr,bgg,bgb,bgalpha)   -- purple border    
+    end
     charbgtex:SetVertexColor(bgr,bgg,bgb,bgalpha);
     CharacterFrameInsetRight.Bg:SetShown(option("showsidebarbg"))
     CCS:SkinBlizzardButton(CharacterFrameCloseButton, "x", 26)
