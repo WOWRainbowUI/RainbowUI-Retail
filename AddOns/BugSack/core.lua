@@ -232,15 +232,15 @@ end
 
 do
 	local function colorStack(ret)
-		ret = ret:gsub("[%.I][%.n][%.t][%.e][%.r]face/", "")
-		ret = ret:gsub("%.?%.?%.?/?AddOns/", "")
-		ret = ret:gsub("%.%.%.dOns/", "")
-		ret = ret:gsub("|([^chHr])", "||%1"):gsub("|$", "||") -- Pipes
-		ret = ret:gsub("<([^>]+)>", "|cffffea00<%1>|r") -- Things wrapped in <>
-		ret = ret:gsub("%[(.-)%]", "|cffffea00[%1]|r") -- Things wrapped in []
-		ret = ret:gsub("([\"`'])(.-)%1", "|cff8888ff%0|r") -- Quotes
-		ret = ret:gsub(":(%d+)([%S\n])", ":|cff00ff00%1|r%2") -- Line numbers
-		ret = ret:gsub("([^/]+%.lua)", "|cffffffff%1|r") -- Lua files
+		ret = ret:gsub("Interface/AddOns/", "")
+		ret = ret:gsub("^%.%.%.[^/]+/AddOns/", "")
+		ret = ret:gsub("^%.%.%.[^/]*dOns/", "")
+		ret = ret:gsub("<([^>]+:)(%d+)>", "|cffffea00<%1|cff00ff00%2|r>|r") -- File paths wrapped in <> e.g. <Addon/Module.lua:188>
+		ret = ret:gsub("%[([^%]]+)%]:(%d+):", "|cffffea00[%1]:|cff00ff00%2|r:|r") -- File paths wrapped in [] e.g. [Addon/Module.lua]:69:
+		ret = ret:gsub("\"[^\"\n]-\"", "|cff8888ff%0|r") -- Quotes ""
+		ret = ret:gsub("'[^'\n ]-'", "|cff8888ff%0|r") -- Quotes ''
+		ret = ret:gsub("`[^`\n ]-`", "|cff8888ff%0|r") -- Quotes ``
+		ret = ret:gsub("'%(for generator%)'", "|cff8888ff%0|r") -- Quote '(for generator)'
 		return ret
 	end
 	addon.ColorStack = colorStack
