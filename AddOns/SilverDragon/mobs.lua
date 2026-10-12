@@ -41,6 +41,20 @@ local function toggle_source(source)
 end
 
 local mob_names = {}
+-- Mobs seen or ignored this session stay listed under Ignore once unticked, so
+-- an accidental untick is easy to undo.
+local listed = {}
+local customListed = {
+	-- [uiMapID] = {[id] = true}
+}
+
+ns.RegisterIDListWidget("SilverDragonMobList", {
+	label = function(id) return core:GetMobLabel(id) end,
+	tooltip = function(tooltip, id)
+		tooltip:SetText(core:GetMobLabel(id))
+		tooltip:AddLine(toggle_mob_desc(id), 1, 1, 1, true)
+	end,
+})
 local function input_to_mobid(value)
 	if not value then return end
 	value = value:trim()
@@ -87,19 +101,12 @@ function module:Seen(callback, id, zone, x, y, dead, source)
 	if name then
 		mob_names[name] = id
 	end
-	local config = core:GetModule("Config", true)
-	if config and config.options.plugins.mobs then
-		local args = config.options.plugins.mobs.mobs.args.ignore.args.mobs.args
-		args["mob"..id] = args["mob"..id] or toggle_mob(id)
-	end
+	listed[id] = true
 end
 
 function module:IgnoreChanged(callback, id, ignored)
 	if not ignored then return end
-	local config = core:GetModule("Config", true)
-	if config and config.options.plugins.mobs then
-		config.options.plugins.mobs.mobs.args.ignore.args.mobs.args["mob"..id] = toggle_mob(id)
-	end
+	listed[id] = true
 end
 function module:CustomChanged(callback, id, watched, uiMapID)
 	-- Deliberately left in place when unwatched: the toggle goes unchecked, and
@@ -108,10 +115,10 @@ function module:CustomChanged(callback, id, watched, uiMapID)
 	local config = core:GetModule("Config", true)
 	if config and config.options.plugins.mobs then
 		local args = config.options.plugins.mobs.mobs.args.custom.args.zones.args
+		customListed[uiMapID] = customListed[uiMapID] or {}
+		customListed[uiMapID][id] = true
 		if not args["map"..uiMapID] then
 			self:BuildCustomList(config.options)
-		else
-			args["map"..uiMapID].args["mob"..id] = toggle_mob(id)
 		end
 	end
 end
@@ -210,18 +217,31 @@ function module:OptionsRequested(callback, options)
 						add = mob_input(ADD, "要加入稀有怪，輸入 ID、名稱，\"將滑鼠指向牠\" 或 \"選為目標\"。", 1, function(info, id)
 							core:SetIgnore(id, true)
 						end),
+						about = core:GetModule("Config").desc("This will fill in as rare mobs are seen in the current session.", 0),
 						mobs = {
-							type = "group",
+							type = "multiselect",
 							name = REMOVE,
-							inline = true,
-							get = function(info) return core.db.global.ignore[info.arg] end,
-							set = function(info, value)
-								core:SetIgnore(info.arg, not core.db.global.ignore[info.arg])
+							dialogControl = "SilverDragonMobList",
+							arg = "ignore",
+							width = "full",
+							order = 10,
+							values = function()
+								local values = {}
+								for id in pairs(listed) do
+									values[id] = true
+								end
+								for id, ignored in pairs(core.db.global.ignore) do
+									if ignored then
+										values[id] = true
+									end
+								end
+								return values
 							end,
-							args = {
-								desc = core:GetModule("Config").desc("這裡會列出此次登入後曾看到過的稀有怪。", 0),
-							},
-						}
+							get = function(info, id) return core.db.global.ignore[id] end,
+							set = function(info, id, value)
+								core:SetIgnore(id, value)
+							end,
+						},
 					},
 					order = 2,
 				},
@@ -229,7 +249,6 @@ function module:OptionsRequested(callback, options)
 		},
 	}
 	self:BuildSourceList(options)
-	self:BuildIgnoreList(options)
 	self:BuildCustomList(options)
 
 	core.UnregisterCallback(self, "OptionsRequested")
@@ -243,31 +262,12 @@ function module:BuildSourceList(options)
 	end
 end
 
-function module:BuildIgnoreList(options)
-	-- wipe(options.plugins.mobs.mobs.args.ignore.args.mobs.args)
-	local args = options.plugins.mobs.mobs.args.ignore.args.mobs.args
-	for id, ignored in pairs(core.db.global.ignore) do
-		if ignored then
-			args["mob"..id] = args["mob"..id] or toggle_mob(id)
-		end
-	end
-	for name, id in pairs(mob_names) do
-		args["mob"..id] = args["mob"..id] or toggle_mob(id)
-	end
-end
-
 function module:BuildCustomList(options)
 	-- wipe(options.plugins.mobs.mobs.args.custom.args.mobs.args)
 	local args = options.plugins.mobs.mobs.args.custom.args.zones.args
 	for uiMapID, mobs in pairs(core.db.global.custom) do
 		args["map"..uiMapID] = {
 			type = "group",
-			get = function(info)
-				return core.db.global.custom[uiMapID][info.arg]
-			end,
-			set = function(info, value)
-				core:SetCustom(uiMapID, info.arg, value)
-			end,
 			inline = false,
 			name = uiMapID == "any" and ALL or core.zone_names[uiMapID] or ("map"..uiMapID),
 			desc = "ID: " .. uiMapID,
@@ -275,13 +275,32 @@ function module:BuildCustomList(options)
 				add = mob_input(ADD, "要加入稀有怪，輸入 ID、名稱，\"將滑鼠指向牠\" 或 \"選為目標\"。", 1, function(info, id)
 					core:SetCustom(uiMapID, id, true)
 				end),
+				mobs = {
+					type = "multiselect",
+					name = "Mobs",
+					dialogControl = "SilverDragonMobList",
+					arg = "custom" .. uiMapID,
+					width = "full",
+					order = 10,
+					values = function()
+						local values = {}
+						for id in pairs(customListed[uiMapID] or {}) do
+							values[id] = true
+						end
+						for id, enabled in pairs(core.db.global.custom[uiMapID]) do
+							if enabled then
+								values[id] = true
+							end
+						end
+						return values
+					end,
+					get = function(info, id) return core.db.global.custom[uiMapID][id] end,
+					set = function(info, id, value)
+						core:SetCustom(uiMapID, id, value)
+					end,
+				},
 			},
 			order = uiMapID == "any" and 0 or uiMapID,
 		}
-		for mobid, enabled in pairs(mobs) do
-			if enabled then
-				args["map"..uiMapID].args["mob"..mobid] = toggle_mob(mobid)
-			end
-		end
 	end
 end

@@ -1,9 +1,7 @@
-## Changed in v2026.37
+## Changed in v2026.38
 
-* Forever:
-    * Stop trying to set raid markers on rares, which the client blocks (this showed a "blocked from an action only available to the Blizzard UI" popup, repeatedly)
-    * Keep working with the retail-style UI after the client gave Forever its own game type
-    * RangeExtender no longer loads, since it isn't meant for it
-* Fix an error in the Ignore tab if an ignore list had a non-numeric key
-* Do less work on every vignette update and every minimap refresh
+* Various mob-list configs now use a custom widget rather than plain aceconfig toggles, to avoid horrible performance if you've e.g. ignored thousands of mobs
+* Dragonflight: the Stormed Off mobs get vignette and quest IDs
+* Gorgrond: don't show the Sunken Tresure, which doesn't exist any more, thanks SwiftMint!
+* Revendreth: give better instructions for summoning the Amalgamation of Filth, thanks again SwiftMint!
 
