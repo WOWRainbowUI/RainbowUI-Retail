@@ -1095,7 +1095,9 @@ local LSM = LibStub("LibSharedMedia-3.0")
 
 if LSM then
     for label, path in pairs(CCS.fonts) do
-        LSM:Register("font", CCS.fontPathsLocalized[path], path)
+        if C_UIFileAsset.IsKnownFile(path) then
+            LSM:Register("font", CCS.fontPathsLocalized[path], path)
+        end
     end
 end
 
