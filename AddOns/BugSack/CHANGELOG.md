@@ -1,6 +1,8 @@
 # BugSack
 
-## [v12.1.5](https://github.com/funkydude/BugSack/tree/v12.1.5) (2026-10-10)
-[Full Changelog](https://github.com/funkydude/BugSack/compare/v12.1.4...v12.1.5) [Previous Releases](https://github.com/funkydude/BugSack/releases)
+## [v12.1.6](https://github.com/funkydude/BugSack/tree/v12.1.6) (2026-10-11)
+[Full Changelog](https://github.com/funkydude/BugSack/compare/v12.1.5...v12.1.6) [Previous Releases](https://github.com/funkydude/BugSack/releases)
 
-- Improve text decoration  
+- Cleanups  
+- Remove Blizz panel  
+- Move settings into a tab on the bugsack popup (#213)  
