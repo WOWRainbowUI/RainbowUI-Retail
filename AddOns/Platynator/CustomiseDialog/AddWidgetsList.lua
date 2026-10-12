@@ -6,6 +6,10 @@ local function GetColor(rgb, a)
   return {r = color.r, g = color.g, b = color.b, a = a}
 end
 
+local threatForDifferential = CopyTable(addonTable.CustomiseDialog.ColorsConfig["threat"].default)
+threatForDifferential.enabled.safe = true
+threatForDifferential.colors.safe = GetColor("00FF00")
+
 addonTable.CustomiseDialog.DesignWidgets = {
   {
     name = addonTable.Locales.BARS,
@@ -561,6 +565,24 @@ addonTable.CustomiseDialog.DesignWidgets = {
       value = "raw",
       autoColors = {
         CopyTable(addonTable.CustomiseDialog.ColorsConfig["threat"].default),
+      },
+      showWhenGrouped = true,
+    },
+  },
+  {
+    name = addonTable.Locales.THREAT_DIFFERENTIAL,
+    kind = "texts",
+    default = {
+      kind = "threatDifferential",
+      scale = 1,
+      layer = 2,
+      anchor = {"TOPLEFT", -140, 50},
+      color = GetColor("FFFFFF"),
+      maxWidth = 0,
+      align = "CENTER",
+      shorten = "NONE",
+      autoColors = {
+        threatForDifferential,
       },
       showWhenGrouped = true,
     },

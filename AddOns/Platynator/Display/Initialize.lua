@@ -244,7 +244,11 @@ function addonTable.Display.ManagerMixin:GeneratePoolForIndex(index)
 end
 
 function addonTable.Display.ManagerMixin:GeneratePools()
-  self:RestylePoolsStaggered(1)
+  if addonTable.Constants.IsForever or addonTable.Constants.IsMidnightNext then
+    self:RestylePools()
+  else
+    self:RestylePoolsStaggered(1)
+  end
 end
 
 function addonTable.Display.ManagerMixin:AllocateEnoughPools()

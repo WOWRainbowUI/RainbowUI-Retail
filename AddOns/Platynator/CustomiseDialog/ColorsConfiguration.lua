@@ -1183,6 +1183,48 @@ addonTable.CustomiseDialog.ColorsConfig = {
       },
     },
   },
+  ["inRangeMelee"] = {
+    label = addonTable.Locales.IN_RANGE_MELEE,
+    default = {
+      kind = "inRangeMelee",
+      colors = {
+        inRange = GetColor("34edd1"),
+      },
+    },
+    entries = {
+      {
+        label = addonTable.Locales.IN_RANGE,
+        kind = "colorPicker",
+        setter = function(details, value)
+          details.colors.inRange = value
+        end,
+        getter = function(details)
+          return details.colors.inRange
+        end,
+      },
+    },
+  },
+  ["outOfRangeMelee"] = {
+    label = addonTable.Locales.OUT_OF_RANGE_MELEE,
+    default = {
+      kind = "outOfRangeMelee",
+      colors = {
+        outOfRange = GetColor("34edd1"),
+      },
+    },
+    entries = {
+      {
+        label = addonTable.Locales.OUT_OF_RANGE,
+        kind = "colorPicker",
+        setter = function(details, value)
+          details.colors.outOfRange = value
+        end,
+        getter = function(details)
+          return details.colors.outOfRange
+        end,
+      },
+    },
+  },
   ["party"] = {
     label = addonTable.Locales.PARTY,
     default = {
@@ -1241,6 +1283,8 @@ addonTable.CustomiseDialog.ColorsConfigOrder = {
   "inCombat",
   "inRange",
   "outOfRange",
+  "inRangeMelee",
+  "outOfRangeMelee",
   "isCast",
   "notCast",
   "delveType",

@@ -78,6 +78,10 @@ local getter = {
     local result = addonTable.Display.Utilities.GetRangeChecker()(unit)
     return result, result ~= oldState
   end,
+  ["rangeMelee"] = function(oldState, unit)
+    local result = addonTable.Display.Utilities.GetMeleeRangeChecker()(unit)
+    return result, result ~= oldState
+  end,
   ["combat"] = function(oldState, unit)
     local inCombat = IsInCombatWith(unit)
     return inCombat, inCombat ~= oldState
@@ -303,6 +307,16 @@ function addonTable.Display.CacheMixin:OnUpdate(elapsed)
 
     if details.range then
       local kind = "range"
+      local data, update = getter[kind](state[kind], unit)
+      state[kind] = data
+      if update then
+        for _, callback in ipairs(self.registeredCallbacks[unit][kind]) do
+          callback(data)
+        end
+      end
+    end
+    if details.rangeMelee then
+      local kind = "rangeMelee"
       local data, update = getter[kind](state[kind], unit)
       state[kind] = data
       if update then

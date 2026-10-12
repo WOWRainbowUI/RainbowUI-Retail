@@ -1199,7 +1199,38 @@ addonTable.CustomiseDialog.WidgetsConfig = {
           {
             label = "",
             kind = "autoColors",
-            lockedElements = {reaction = true},
+            lockedElements = {},
+            setter = function() end,
+            getter = function(details)
+              return details.autoColors
+            end,
+          },
+        },
+      },
+    },
+    ["threatDifferential"] = {
+      {
+        label = addonTable.Locales.GENERAL,
+        entries = {
+          {
+            label = addonTable.Locales.ONLY_SHOW_WHEN_IN_GROUP,
+            kind = "checkbox",
+            setter = function(details, value)
+              details.showWhenGrouped = value
+            end,
+            getter = function(details)
+              return details.showWhenGrouped
+            end,
+          },
+        },
+      },
+      {
+        label = addonTable.Locales.COLORS,
+        entries = {
+          {
+            label = "",
+            kind = "autoColors",
+            lockedElements = {},
             setter = function() end,
             getter = function(details)
               return details.autoColors

@@ -407,11 +407,14 @@ do
   local rangeLimit = 0
   local lastSpecializationIndex = 0
   local specializationID = 0
-  local harmChecker
+  local harmChecker, harmMeleeChecker
   local _, playerClass = UnitClass("player")
 
   local RangeCheck = LibStub("LibRangeCheck-3.0")
-  RangeCheck.RegisterCallback("Platynator", RangeCheck.CHECKERS_CHANGED, function() harmChecker = RangeCheck:GetHarmMaxChecker(addonTable.Display.Utilities.GetRangedLimit() or RangeCheck.MeleeRange) end)
+  RangeCheck.RegisterCallback("Platynator", RangeCheck.CHECKERS_CHANGED, function()
+    harmChecker = RangeCheck:GetHarmMaxChecker(addonTable.Display.Utilities.GetRangedLimit() or RangeCheck.MeleeRange) or function() return nil end
+    harmMeleeChecker = RangeCheck:GetHarmMaxChecker(RangeCheck.MeleeRange) or function() return nil end
+  end)
 
   local isDiscovery = C_Seasons and C_Seasons.GetActiveSeason() == Enum.SeasonID.SeasonOfDiscovery or false
 
@@ -476,7 +479,8 @@ do
         end
       end
     end
-    harmChecker = RangeCheck:GetHarmMaxChecker(addonTable.Display.Utilities.GetRangedLimit() or RangeCheck.MeleeRange)
+    harmChecker = RangeCheck:GetHarmMaxChecker(addonTable.Display.Utilities.GetRangedLimit() or RangeCheck.MeleeRange) or function() return nil end
+    harmMeleeChecker = RangeCheck:GetHarmMaxChecker(RangeCheck.MeleeRange) or function() return nil end
   end
 
   local function UpdateAuraFilters()
@@ -577,6 +581,10 @@ do
 
   function addonTable.Display.Utilities.GetRangeChecker()
     return harmChecker
+  end
+
+  function addonTable.Display.Utilities.GetMeleeRangeChecker()
+    return harmMeleeChecker
   end
 
   function addonTable.Display.Utilities.GetSpecializationID()
@@ -829,5 +837,20 @@ do
 
   function addonTable.Display.Utilities.Get01HiddenCurve()
     return curve
+  end
+end
+
+do
+  local inInstanceOrParty = false
+  local instanceTracker = CreateFrame("Frame")
+  instanceTracker:RegisterEvent("PLAYER_ENTERING_WORLD")
+  instanceTracker:RegisterEvent("ZONE_CHANGED_NEW_AREA")
+  instanceTracker:RegisterEvent("INSTANCE_GROUP_SIZE_CHANGED")
+  instanceTracker:SetScript("OnEvent", function(_, event)
+    inInstanceOrParty = addonTable.Display.Utilities.IsInRelevantInstance({dungeon = true, raid = true, delve = true, pvp = true}) or IsInGroup()
+  end)
+
+  function addonTable.Display.Utilities.IsInInstanceOrParty()
+    return inInstanceOrParty
   end
 end
