@@ -41,7 +41,7 @@
 ## X-BugGrabber-Display: BugSack
 
 ## Title-zhTW: |cffffffee[系統]|r 錯誤訊息袋
-## Notes-zhTW: BugSack |n|n集中顯示錯誤訊息，避免中斷遊戲。|n|n|cffffd200使用方法: |r點小地圖按鈕的紅色小袋子查看錯誤訊息。從Esc>選項>插件>錯誤訊息，開關錯誤提示音效和進行設定。
+## Notes-zhTW: BugSack |n|n集中顯示錯誤訊息，避免中斷遊戲。|n|n|cffffd200使用方法: |r點小地圖按鈕的紅色小袋子查看錯誤訊息。右鍵點小地圖按鈕，或從插件控制台的設定選項開啟錯誤訊息視窗中的選項分頁。
 ## Category-zhTW: 系統
 
 

@@ -57,6 +57,7 @@ L.useMasterDesc = "Play the chosen error sound over the 'Master' sound channel i
 L.addonCompartment = "Addon compartment icon"
 L.addonCompartment_desc = "Creates a menu entry in the 'Addon Compartment' for BugSack."
 
+L["BugSack"] = "BugSack"
 local locale = GetLocale()
 if locale == "zhCN" then
 	L["%d bugs have been sent to %s. He must have BugSack to be able to examine them."] = "%d个错误已经发送给%s。他必须安装 BugSack 插件才能查看错误信息。"

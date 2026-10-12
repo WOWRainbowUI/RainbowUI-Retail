@@ -60,7 +60,7 @@ local function updateSackDisplay(forceRefresh)
 	wipeButton:SetShown(isOptions)
 	if isOptions then
 		wipeButton:SetEnabled(#addon:GetErrors() > 0)
-		sessionLabel:SetText(addonName .. " " .. OPTIONS)
+		sessionLabel:SetText((L["BugSack"] or addonName) .. " " .. OPTIONS)
 		countLabel:SetText()
 		return
 	end
