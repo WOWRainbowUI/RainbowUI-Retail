@@ -1,2 +1,1 @@
-Translation updates - Thank you Leandro and Maple
-Added Mycomancer's Hearthstone
+Removed Shadeweaver's Hearthstone - Pending confirmation hearthstone is live.

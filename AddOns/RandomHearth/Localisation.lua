@@ -108,3 +108,30 @@ if locale == "ptBR" then
     L["OPT_MACRO_NAME"] = "Nome da macro"
     L["LOGIN_MESSAGE"] = "|cff42E400Pedra de Regresso Instável|r - Nome da macro pode ser customizada. Digite /rh para as opções."
 end
+
+-- ruRU ZamestoTV
+if locale == "ruRU" then
+    L = L or {}
+    L["ADDON_NAME"] = "Random Hearthstone"
+    L["NO_VALID_CHOSEN"] = "|cff42E400Random Hearthstone|r - Не выбрана подходящая игрушка. Макрос настроен на обычный Камень возвращения"
+    L["MACRO_NAME"] = "Случайный камень"
+    L["RENOWN_LOCKED"] = "Требуется уровень известности"
+    L["THANKS"] = "Спасибо за использование моего аддона"
+    L["DESCRIPTION"] = "Добавление или удаление камней возвращения из ротации"
+    L["SELECT_ALL"] = "Выбрать все"
+    L["DESELECT_ALL"] = "Снять выделение"
+    L["OPT_MACRO_ICON"] = "Иконка макроса"
+    L["COV_ONLY"] = "Разрешить только камень возвращения текущего ковенанта"
+    L["DAL_R_CLICK"] = "Даларанский камень на ПКМ"
+    L["GAR_M_CLICK"] = "Гарнизонный камень на СКМ"
+    L["SETUP_1"] = "Настройка базы данных Random Hearthstone."
+    L["SETUP_2"] = "Теперь вы можете использовать Даларанский камень на ПКМ, а Гарнизонный камень на СКМ."
+    L["SETUP_3"] = "Эти параметры можно изменить в настройках, введите /rh"
+    L["RANDOM"] = "Случайный"
+    L["HEARTHSTONE"] = "Камень возвращения"
+    L["MACRO_NOT_FOUND"] = "|cff42E400Random Hearthstone|r - Макрос не найден, создание макроса с именем '"
+    L["UPDATE_MACRO_NAME"] = "|cff42E400Random Hearthstone|r - Обновление имени макроса на '"
+    L["UNIQUE_NAME_ERROR"] = "Имя макроса уже используется!\nПожалуйста, выберите уникальное имя."
+    L["OPT_MACRO_NAME"] = "Имя макроса"
+    L["LOGIN_MESSAGE"] = "|cff42E400Random Hearthstone|r - Теперь имя макроса можно настроить. Введите /rh, чтобы открыть параметры."
+end
