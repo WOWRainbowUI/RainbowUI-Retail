@@ -54,6 +54,7 @@ addonTable.AudioTimeline = {
         }
     },
 
+
     [2606] = { -- 柯姬雅·焰蹄
         interval = 40, 
         startOffset = 0, 

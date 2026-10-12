@@ -23,6 +23,9 @@ local JOBS = {
         { unit = "boss1", min = 40, max = 46 },
         { unit = "boss2", min = 40, max = 46 },
     } },
+    [3201] = { units = { -- 夺目3
+        { unit = "boss1", min = 70, max = 76 },
+    } },
     -- [3429] = { units = { -- 烈毒7
     --     { unit = "boss1", min = 0, max = 5 },
     --     { unit = "boss2", min = 0, max = 5 },

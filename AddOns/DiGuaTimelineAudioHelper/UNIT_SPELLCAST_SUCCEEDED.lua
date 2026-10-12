@@ -132,6 +132,45 @@ frame:SetScript("OnEvent", function(self, event, ...)
             end
 
 
+
+
+
+
+
+
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 爆破重击（工具）
+            and select(8, GetInstanceInfo()) == 1762 -- 副本ID (诸王之眠)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 1004 -- 地图ID
+            and (GetSubZoneText() == "达哈基圣墓" or GetSubZoneText() == "達哈茲之墓") 
+            and IsIndoors() == true -- 在室内
+            and UnitLevel(unitTarget) == UnitLevel("player") + 1
+            and UnitPowerType(unitTarget) == 1
+            and UnitClassification(unitTarget) == "elite" -- 精英怪
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and not select(2, UnitCreatureFamily(unitTarget)) -- 不是生物家族
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
+            and UnitSpellTargetName(unitTarget) -- 法术有目标
+            then 
+                -- 确保时间表已初始化，且该单位有记录起始时间
+                local startTime = addonTable.SpellCastStartTime and addonTable.SpellCastStartTime[unitTarget]
+                if startTime then
+                    addonTable.SpellCastDuration[unitTarget] = GetTime() - startTime
+                    if addonTable.SpellCastDuration[unitTarget] >= 2.9 and addonTable.SpellCastDuration[unitTarget] <= 3.1 then
+                        addonTable.TiMaJiDaWang = true
+                    end
+                end
+            end
+
+
+
+
+
+
+
+
+
         if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 嗜血飞斧 (工具) -- 灵魂碾压 (工具)
             and select(8, GetInstanceInfo()) == 1762 -- 副本ID (诸王之眠)
             and (C_Map.GetBestMapForUnit("player") or 0) == 1004 -- 地图ID

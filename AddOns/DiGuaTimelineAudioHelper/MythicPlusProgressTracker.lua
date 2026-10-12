@@ -3,6 +3,11 @@ local addonName, addonTable = ...
 
 addonTable.XuChuFaShi = false
 addonTable.LuMangJianDuZhe = false
+addonTable.PaTeLaNvWang = false
+addonTable.AKuErDaWang = false
+addonTable.HaiGuShouLieXunMengLong = false
+addonTable.XueShiCiKe = false
+addonTable.TiMaJiDaWang = false
 -- 1. 将防抖锁挂载到 addonTable，供其他 Lua 文件共享
 addonTable.isAudioDebounced = false
 
@@ -55,6 +60,21 @@ frame:SetScript("OnEvent", function(self, event, criteriaID)
         elseif criteriaID == 115500 then -- 虚触法师
             addonTable.XuChuFaShi = true
 
+        -- elseif criteriaID == 40366 then -- 骸骨狩猎迅猛龙
+        --     C_Timer.After(12, function()
+        --         addonTable.isAudioDebounced = false
+        --     end)
+                        
+
+        elseif criteriaID == 40361 then -- 阿库尔大王
+            addonTable.AKuErDaWang = true
+
+        elseif criteriaID == 40365 then -- 帕特拉女王
+            addonTable.PaTeLaNvWang = true
+
+        elseif criteriaID == 40367 then -- 提玛吉大王
+            addonTable.TiMaJiDaWang = false
+
         elseif criteriaID == 115501 then -- 鲁莽监督者
             addonTable.LuMangJianDuZhe = true
 
@@ -75,6 +95,10 @@ frame:SetScript("OnEvent", function(self, event, criteriaID)
     elseif event == "CHALLENGE_MODE_START" or event == "PLAYER_ENTERING_WORLD" then
         addonTable.XuChuFaShi = false
         addonTable.LuMangJianDuZhe = false
+        addonTable.HaiGuShouLieXunMengLong = false
+        addonTable.XueShiCiKe = false
+        addonTable.TiMaJiDaWang = false
+        addonTable.PaTeLaNvWang = false
         addonTable.isAudioDebounced = false
     end
 end)

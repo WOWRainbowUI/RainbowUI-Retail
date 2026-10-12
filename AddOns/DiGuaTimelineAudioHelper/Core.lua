@@ -81,6 +81,19 @@ frame:SetScript("OnEvent", function(self, event, ...)
             if db.normalAuraSoundEnabled == nil then db.normalAuraSoundEnabled = true end -- 光环音效总开关（默认开：光环有声）
             if db.jingBaoSoundEnabled == nil then db.jingBaoSoundEnabled = true end -- 踩地板警报音（默认开：JingBao 警报音正常注册）
             if db.cinematicSkipEnabled == nil then db.cinematicSkipEnabled = true end -- 自动跳过过场动画（默认勾选=跳过；取消勾选=动画正常播放）
+            if db.autoGossipEnabled == nil then db.autoGossipEnabled = true end -- 赛季五人本自动对话（AutoGossip.lua 开关，默认勾选=开启）
+            if db.coTankGrowLeft == nil then db.coTankGrowLeft = false end -- 副坦减益图标向左生长（默认不勾 = 向右生长）
+            if db.playerDebuffGrowLeft == nil then db.playerDebuffGrowLeft = false end -- 玩家减益图标向左生长（默认不勾 = 向右生长）
+            -- boss1 护盾条总开关（**默认关**；勾选后才显示 —— 护盾条和它的定位框是一体的，一起开关）
+            --   一次性迁移：上一版（同日短命版本）默认写成了 true，靠标记键把那次自动写入纠正回 false；
+            --   之后玩家手动勾选的值不会再被覆盖。
+            if db.targetAbsorbBarEnabled == nil or db.targetAbsorbBarMigrated == nil then
+                db.targetAbsorbBarEnabled = false
+                db.targetAbsorbBarMigrated = true
+            end
+            db.targetAbsorbAnchorEnabled = nil -- 旧键（以前只控制定位框），已并入上面的总开关，清掉免得成孤儿
+            if db.targetAbsorbX == nil then db.targetAbsorbX = 0 end -- boss1 护盾条位置 X（拖动后保存）
+            if db.targetAbsorbY == nil or db.targetAbsorbY == 370 then db.targetAbsorbY = 223 end -- 默认位置（旧的 370 一并迁移到 223）
 
             self:UnregisterEvent("ADDON_LOADED")
         end
@@ -136,6 +149,10 @@ frame:SetScript("OnEvent", function(self, event, ...)
             DiGuaTimelineJingBaoSoundCheck:SetChecked(not DiGuaTimelineAudioHelper.jingBaoSoundEnabled) -- 同步“关闭踩地板警报音”（勾选=关）
             DiGuaTimelineBossHealthPctCheck:SetChecked(DiGuaTimelineAudioHelper.bossHealthCenterEnabled) -- 同步首领转阶段血量百分比
             DiGuaTimelineCinematicSkipCheck:SetChecked(DiGuaTimelineAudioHelper.cinematicSkipEnabled) -- 同步自动跳过过场动画
+            DiGuaTimelineAutoGossipCheck:SetChecked(DiGuaTimelineAudioHelper.autoGossipEnabled) -- 同步赛季五人本自动对话
+            DiGuaTimelineCoTankGrowLeftCheck:SetChecked(DiGuaTimelineAudioHelper.coTankGrowLeft) -- 同步副坦减益「向左生长」
+            DiGuaTimelinePlayerDebuffGrowLeftCheck:SetChecked(DiGuaTimelineAudioHelper.playerDebuffGrowLeft) -- 同步玩家减益「向左生长」
+            DiGuaTimelineTargetAbsorbAnchorCheck:SetChecked(DiGuaTimelineAudioHelper.targetAbsorbBarEnabled == true) -- 同步 boss1 护盾条总开关（默认关）
         end
 
     elseif event == "PLAYER_ENTERING_WORLD" then
@@ -151,9 +168,10 @@ end)
 
 -- 4. 控制台 UI 界面构建
 local f = CreateFrame("Frame", "DiGuaTimelineMainFrame", UIParent, "BasicFrameTemplateWithInset")
-f:SetSize(470, 560) -- 加宽为左右两栏布局：左听觉 / 右视觉
--- 高度 560：右栏含 3 组「勾选项 + 大小滑块」，滑块竖直占位恒为 SLIDER_H(46px)，
--- 末尾控件到 -465，留出 60px 底部空间（含标题栏）
+f:SetSize(470, 590) -- 加宽为左右两栏布局：左听觉 / 右视觉
+-- 高度 590：右栏含 3 组「勾选项 + 大小滑块」，滑块竖直占位恒为 SLIDER_H(46px)，
+-- 末尾控件到 -525（「boss1 护盾条定位框」），留出约 44px 底部空间（含标题栏）
+-- （原来是 560，但 -500 那行已经贴到底边，-525 这条会被窗口下边框切掉一截 → 加高 30px）
 f:SetPoint("CENTER")
 f:SetMovable(true)
 f:EnableMouse(true)
@@ -373,11 +391,26 @@ end)
 
 local cbCoTank = CreateCheckButton("DiGuaTimelineCoTankCheck", "副坦减益监控", 250, -80, function(self)
     DiGuaTimelineAudioHelper.coTankAuraEnabled = self:GetChecked()
-    print("|cffffd100[DiGua]|r 副坦减益监控: " .. (DiGuaTimelineAudioHelper.coTankAuraEnabled and "|cff00ff00已开启|r" or "|cffff0000已关闭|r"))
+    print("|cffffd100[DiGua]|r 副坦减益图标: " .. (DiGuaTimelineAudioHelper.coTankAuraEnabled and "|cff00ff00已开启|r" or "|cffff0000已关闭|r"))
     
     if addonTable.RefreshAnchorState then addonTable.RefreshAnchorState(f:IsShown()) end
     if addonTable.UpdateRaidTankAuras then addonTable.UpdateRaidTankAuras() end
 end)
+
+-- 副坦减益：生长方向（勾选 = 图标向左生长；默认不勾 = 向右生长）
+-- 放在「副坦减益监控」同一行的右侧
+-- ⚠️ ChatConfigCheckButtonTemplate 自带 HitRectInsets right = -145（隐形命中区向右侧多出 145px，
+--    本来是为了方便点标签），同行两个勾选框就会互相抢鼠标：悬停/点击右边的「向左生长」
+--    会被左边的「副坦减益监控」吃掉（实测就是这现象）。所以把两侧的命中区收窄：
+--    左边那个 -95（仍盖住它自己的标签）、右边这个 -65（盖住自己的标签、且不超出面板）。
+local cbCoTankGrowLeft = CreateCheckButton("DiGuaTimelineCoTankGrowLeftCheck", "向左生长", 375, -80, function(self)
+    local isEnabled = self:GetChecked()
+    DiGuaTimelineAudioHelper.coTankGrowLeft = isEnabled
+    if addonTable.SetCoTankGrowLeft then addonTable.SetCoTankGrowLeft(isEnabled) end
+    print("|cffffd100[DiGua]|r 副坦减益图标生长方向: " .. (isEnabled and "|cff00ff00向左|r" or "|cff00ff00向右|r"))
+end)
+cbCoTank:SetHitRectInsets(0, -95, 0, 0)
+cbCoTankGrowLeft:SetHitRectInsets(0, -65, 0, 0)
 
 -- 副坦减益图标大小滑块（-2~9 档，0 档 = 100%=48px，负档更小、正档更大；图标/间距一起缩放）
 -- 放在“副坦减益监控”勾选项正下方，竖直占位恒为 SLIDER_H(34px)
@@ -422,11 +455,23 @@ local cbCenterCountdown = CreateCheckButton("DiGuaTimelineCenterCountdownCheck",
     print("|cffffd100[DiGua]|r 技能剩余5秒中央倒计时: " .. (isEnabled and "|cff00ff00已开启|r" or "|cffff0000已关闭|r"))
 end)
 
-local cbPlayerDebuff = CreateCheckButton("DiGuaTimelinePlayerDebuffCheck", "显示玩家减益图标", 250, -285, function(self)
+local cbPlayerDebuff = CreateCheckButton("DiGuaTimelinePlayerDebuffCheck", "玩家减益图标", 250, -285, function(self)
     DiGuaTimelineAudioHelper.playerDebuffEnabled = self:GetChecked()
     print("|cffffd100[DiGua]|r 玩家减益图标: " .. (DiGuaTimelineAudioHelper.playerDebuffEnabled and "|cff00ff00已开启|r" or "|cffff0000已关闭|r"))
     if addonTable.SetPlayerDebuffEnabled then addonTable.SetPlayerDebuffEnabled(self:GetChecked()) end
 end)
+
+-- 玩家减益：生长方向（勾选 = 图标向左生长；默认不勾 = 向右生长）
+-- 放在「玩家减益图标」同一行的右侧
+-- ⚠️ 同上的命中区问题：两个都要收窄，否则悬停/点击会被左边的「玩家减益图标」吃掉
+local cbPlayerDebuffGrowLeft = CreateCheckButton("DiGuaTimelinePlayerDebuffGrowLeftCheck", "向左生长", 375, -285, function(self)
+    local isEnabled = self:GetChecked()
+    DiGuaTimelineAudioHelper.playerDebuffGrowLeft = isEnabled
+    if addonTable.SetPlayerDebuffGrowLeft then addonTable.SetPlayerDebuffGrowLeft(isEnabled) end
+    print("|cffffd100[DiGua]|r 玩家减益图标生长方向: " .. (isEnabled and "|cff00ff00向左|r" or "|cff00ff00向右|r"))
+end)
+cbPlayerDebuff:SetHitRectInsets(0, -95, 0, 0)
+cbPlayerDebuffGrowLeft:SetHitRectInsets(0, -65, 0, 0)
 
 -- 玩家减益图标大小滑块（-2~9 档，0 档 = 100%=48px，负档更小、正档更大；图标/间距/名字一起缩放）
 -- 放在“显示玩家减益图标”勾选项正下方
@@ -480,6 +525,26 @@ local cbCinematicSkip = CreateCheckButton("DiGuaTimelineCinematicSkipCheck", "�
     local isEnabled = self:GetChecked()
     DiGuaTimelineAudioHelper.cinematicSkipEnabled = isEnabled
     print("|cffffd100[DiGua]|r 自动跳过过场动画: " .. (isEnabled and "|cff00ff00已开启（指定副本内自动跳过）|r" or "|cffff0000已关闭（动画正常播放）|r"))
+end)
+
+-- 赛季五人本自动对话（AutoGossip.lua 总开关；默认勾选=在赛季 8 个五人本里自动点掉所有对话选项）
+local cbAutoGossip = CreateCheckButton("DiGuaTimelineAutoGossipCheck", "赛季五人本自动对话", 250, -500, function(self)
+    local isEnabled = self:GetChecked()
+    DiGuaTimelineAudioHelper.autoGossipEnabled = isEnabled
+    print("|cffffd100[DiGua]|r 赛季五人本自动对话: " .. (isEnabled and "|cff00ff00已开启|r" or "|cffff0000已关闭|r"))
+end)
+
+-- boss1 护盾条总开关（**默认关**；勾选才显示，条和定位框是一体的，一起开关：
+--   勾选 = 显示护盾条，且打开控制台时定位框出现、可拖动；取消勾选 = 两个一起消失）
+local cbTargetAbsorbAnchor = CreateCheckButton("DiGuaTimelineTargetAbsorbAnchorCheck", "boss1 护盾条", 250, -525, function(self)
+    local isEnabled = self:GetChecked()
+    DiGuaTimelineAudioHelper.targetAbsorbBarEnabled = isEnabled
+    if addonTable.SetTargetAbsorbBarEnabled then
+        addonTable.SetTargetAbsorbBarEnabled(isEnabled)
+    elseif addonTable.RefreshTargetAbsorbAnchor then
+        addonTable.RefreshTargetAbsorbAnchor(f:IsShown())
+    end
+    print("|cffffd100[DiGua]|r boss1 护盾条: " .. (isEnabled and "|cff00ff00已开启（含定位框）|r" or "|cffff0000已关闭|r"))
 end)
 
 -- 主音量滑块（映射魔兽系统主音量 Sound_MasterVolume，范围 0-1，显示 0%-100%）
@@ -548,6 +613,7 @@ f:SetScript("OnShow", function()
         UpdateCoTankSizeLabel(coTankSizeSlider:GetValue())
     end
     if addonTable.RefreshFocusCastBarState then addonTable.RefreshFocusCastBarState(true) end
+    if addonTable.RefreshTargetAbsorbAnchor then addonTable.RefreshTargetAbsorbAnchor(true) end
     if addonTable.RefreshPlayerDebuffAnchor then addonTable.RefreshPlayerDebuffAnchor(true) end
     if addonTable.RefreshBossHealthPctAnchor then addonTable.RefreshBossHealthPctAnchor(true) end
     if addonTable.RefreshRingAnchor then addonTable.RefreshRingAnchor(true) end
@@ -576,6 +642,7 @@ end)
 f:SetScript("OnHide", function()
     if addonTable.RefreshAnchorState then addonTable.RefreshAnchorState(false) end
     if addonTable.RefreshFocusCastBarState then addonTable.RefreshFocusCastBarState(false) end
+    if addonTable.RefreshTargetAbsorbAnchor then addonTable.RefreshTargetAbsorbAnchor(false) end
     if addonTable.RefreshPlayerDebuffAnchor then addonTable.RefreshPlayerDebuffAnchor(false) end
     if addonTable.RefreshBossHealthPctAnchor then addonTable.RefreshBossHealthPctAnchor(false) end
     if addonTable.RefreshRingAnchor then addonTable.RefreshRingAnchor(false) end

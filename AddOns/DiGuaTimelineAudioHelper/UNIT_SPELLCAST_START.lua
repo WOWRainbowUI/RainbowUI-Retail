@@ -8,6 +8,7 @@ addonTable.SpellCastCounter = addonTable.SpellCastCounter or {}
 addonTable.SpellCastStartTime = addonTable.SpellCastStartTime or {}
 addonTable.SpellCastAudioTriggered = nil
 addonTable.DuoKaiTouQianLock = nil -- 躲开头前防抖锁
+addonTable.CaiJueChongJiLock = nil -- 采掘冲击防抖锁
 addonTable.SpellCastDuration = addonTable.SpellCastDuration or {}
 addonTable.HasCastFearRoar = addonTable.HasCastFearRoar or {} -- 记录已施放过"恐惧咆哮"的单位（作为"残杀"播报资格）
 
@@ -330,7 +331,10 @@ frame:SetScript("OnEvent", function(self, event, ...)
             and not select(2, UnitCreatureFamily(unitTarget)) -- 不是生物家族
             and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == false -- Boss1
             and not UnitSpellTargetName(unitTarget) -- 法术没目标
+            and not addonTable.CaiJueChongJiLock -- 4 秒防抖锁
             then 
+                addonTable.CaiJueChongJiLock = true
+                C_Timer.After(4, function() addonTable.CaiJueChongJiLock = nil end)
                 C_Timer.After(0.1, function() 
                     if UnitExists(unitTarget) and UnitExists(unitTarget .. "target") then
                         addonTable.CustomEncounterBar(136025, 28, "准备AOE", unitTarget)
@@ -408,6 +412,20 @@ frame:SetScript("OnEvent", function(self, event, ...)
             end            
             return
             end
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 火热冲击
+            and select(8, GetInstanceInfo()) == 2521 -- 副本ID (红玉新生法池)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 2094 -- 地图ID
+            and IsIndoors() == false -- 在室外
+            and UnitLevel(unitTarget) == UnitLevel("player") + 1
+            and UnitPowerType(unitTarget) == 0
+            and UnitClassification(unitTarget) == "elite" -- 精英怪
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
+            and UnitSpellTargetName(unitTarget) -- 法术有目标
+            and UnitGroupRolesAssigned(unitTarget .. "target") ~= "HEALER"
+            then addonTable.CustomEncounterBar(1387354, 15, "打断大怪", unitTarget) end
 
         if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 地狱烈火
             and select(8, GetInstanceInfo()) == 2521 -- 副本ID (红玉新生法池)
@@ -499,7 +517,8 @@ frame:SetScript("OnEvent", function(self, event, ...)
             and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
             and UnitSpellTargetName(unitTarget) -- 法术有目标
             and UnitGroupRolesAssigned("player") ~= "HEALER"
-            then PlaySoundFile(MEDIA_PATH .. "DaDuanDaGuai.ogg", DiGuaTimelineAudioHelper.audioChannel) end
+            then addonTable.CustomEncounterBar(463562, 18.2, "打断大怪", unitTarget)
+            PlaySoundFile(MEDIA_PATH .. "DaDuanDaGuai.ogg", DiGuaTimelineAudioHelper.audioChannel) end
         
         -- ============================
         -- ==      塞塔里斯神庙      ==
@@ -1194,7 +1213,72 @@ frame:SetScript("OnEvent", function(self, event, ...)
             and not UnitSpellTargetName(unitTarget) -- 法术无目标
             then PlaySoundFile(MEDIA_PATH .. "JinZhanDaQuan.ogg", DiGuaTimelineAudioHelper.audioChannel) return end
 
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 兽性狂暴
+            and select(8, GetInstanceInfo()) == 1762 -- 副本ID (诸王之眠)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 1004 -- 地图ID
+            and (GetSubZoneText() == "达哈基圣墓" or GetSubZoneText() == "達哈茲之墓") 
+            and IsIndoors() == true -- 在室内
+            and UnitLevel(unitTarget) == UnitLevel("player") + 1
+            and UnitPowerType(unitTarget) == 1
+            and UnitClassification(unitTarget) == "elite" -- 精英怪
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and not select(2, UnitCreatureFamily(unitTarget)) -- 不是生物家族
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
+            and not UnitSpellTargetName(unitTarget) -- 法术无目标
+            and addonTable.HaiGuShouLieXunMengLong == true
+            and addonTable.PaTeLaNvWang == false
+            then PlaySoundFile(MEDIA_PATH .. "ZhunBeiJiNu.ogg", DiGuaTimelineAudioHelper.audioChannel) end
 
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 鲜血吸取
+            and select(8, GetInstanceInfo()) == 1762 -- 副本ID (诸王之眠)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 1004 -- 地图ID
+            and (GetSubZoneText() == "达哈基圣墓" or GetSubZoneText() == "達哈茲之墓") 
+            and IsIndoors() == true -- 在室内
+            and UnitLevel(unitTarget) == UnitLevel("player") + 1
+            and UnitPowerType(unitTarget) == 1
+            and UnitClassification(unitTarget) == "elite" -- 精英怪
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and not select(2, UnitCreatureFamily(unitTarget)) -- 不是生物家族
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
+            and not UnitSpellTargetName(unitTarget) -- 法术无目标
+            and addonTable.XueShiCiKe == true
+            and addonTable.AKuErDaWang == false
+            then 
+            addonTable.CustomEncounterBar(132334, 25.3, "大怪吸血", unitTarget)
+            PlaySoundFile(MEDIA_PATH .. "DaGuaiXiXue.ogg", DiGuaTimelineAudioHelper.audioChannel)
+            end
+
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 爆破重击（工具）
+            and select(8, GetInstanceInfo()) == 1762 -- 副本ID (诸王之眠)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 1004 -- 地图ID
+            and (GetSubZoneText() == "达哈基圣墓" or GetSubZoneText() == "達哈茲之墓") 
+            and IsIndoors() == true -- 在室内
+            and UnitLevel(unitTarget) == UnitLevel("player") + 1
+            and UnitPowerType(unitTarget) == 1
+            and UnitClassification(unitTarget) == "elite" -- 精英怪
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and not select(2, UnitCreatureFamily(unitTarget)) -- 不是生物家族
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
+            and UnitSpellTargetName(unitTarget) -- 法术有目标
+            then addonTable.SpellCastStartTime[unitTarget] = GetTime() end
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 爆破重击 -- 剑刃风暴
+            and select(8, GetInstanceInfo()) == 1762 -- 副本ID (诸王之眠)
+            and (C_Map.GetBestMapForUnit("player") or 0) == 1004 -- 地图ID
+            and (GetSubZoneText() == "达哈基圣墓" or GetSubZoneText() == "達哈茲之墓") 
+            and IsIndoors() == true -- 在室内
+            and UnitLevel(unitTarget) == UnitLevel("player") + 1
+            and UnitPowerType(unitTarget) == 1
+            and UnitClassification(unitTarget) == "elite" -- 精英怪
+            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
+            and not select(2, UnitCreatureFamily(unitTarget)) -- 不是生物家族
+            and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
+            and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
+            and UnitSpellTargetName(unitTarget) -- 法术有目标
+            and addonTable.TiMaJiDaWang == true
+            then PlaySoundFile(MEDIA_PATH .. "ZhuYiDianMing.ogg", DiGuaTimelineAudioHelper.audioChannel) return end
 
 
         if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 净化打击

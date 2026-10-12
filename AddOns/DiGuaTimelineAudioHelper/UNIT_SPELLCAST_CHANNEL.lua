@@ -198,6 +198,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
             and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
             and not UnitSpellTargetName(unitTarget) -- 法术无目标
             then 
+                addonTable.CustomEncounterBar(237589, 19.2, "闪电涌流", unitTarget)
                 C_Timer.After(0.3, function() 
                     -- addonTable.StartCircleTimerBySeconds(4)
 
@@ -227,7 +228,8 @@ frame:SetScript("OnEvent", function(self, event, ...)
             and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == true -- Boss2
             and (C_ScenarioInfo.GetCriteriaInfo(3) and C_ScenarioInfo.GetCriteriaInfo(3).completed or false) == false -- Boss3
             and UnitSpellTargetName(unitTarget)
-            then 
+            then
+                addonTable.CustomEncounterBar(237589, 19.2, "闪电涌流", unitTarget)
                 C_Timer.After(0.3, function() 
                     if addonTable.IsMobTargetAndPlayerFingerprintMatch(unitTarget) == true
                     then

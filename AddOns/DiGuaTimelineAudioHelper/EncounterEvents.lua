@@ -18,10 +18,10 @@ addonTable.EventSoundData = {
     -- 护光者鲁伊亚
     [181] = { {"ZhuYiDianMing.ogg", 1}}, -- 光明之火 (1239824) , {"JiHeFangFeng.ogg", 0}
     [182] = { {"WuMiaoZhuYiDuoQuan.ogg", 2} }, -- 光明坠落 (1240098)
-    [184] = { {"ZhunBeiLiuXue.ogg", 1}, {"WuMiaoHouLiuXue.ogg", 2, {HEALER = true}} }, -- 凶残痛击 (1241058)
+    [184] = { {"ZhunBeiAOE.ogg", 1}, {"WuMiaoHouAOE.ogg", 2} }, -- 凶残痛击 (1241058)
     [188] = { {"JieDuanZhuanHuan.ogg", 1} }, -- 峡谷之灵 (1241067)
     [115] = { {"TanKeChengShang.ogg", 1, {TANK = true, HEALER = true}} }, -- 撕裂之爪 (1258136)
-    [183] = { {"ZhuYiDianMing.ogg", 1} }, -- 粉碎打击 (1240210)
+    [183] = { {"ZhuYiTouQian.ogg", 1} }, -- 粉碎打击 (1240210)
 
     -- 兹欧凯特
     [192] = { {"ZhunBeiChiQiu.ogg", 1} }, -- 光绽精华 (1246858)
@@ -100,14 +100,20 @@ addonTable.EventSoundData = {
         {"ZhunBeiDianMing.ogg", 1, {NOT_CLASS = "WARRIOR"}},
         {"ZhunBeiDunFanSanErYiDunFan.ogg", 2, {CLASS = "WARRIOR"}},
         {"WuMiaoHouDianMing.ogg", 2, {NOT_CLASS = "WARRIOR"}},
-    }, -- , {"WuMaFenSan.ogg", 0}
+    },
     [798] = { {"DuoKaiTouQian.ogg", 1} }, -- 反刍 (1296050)
     [899] = { {"ZhunBeiAOE.ogg", 1} }, -- 贪婪践踏 (1307894)
     -- [902] = { {".ogg", 1} }, -- 进食狂热 (1307765)
     [901] = { {"TanKeDaiWei.ogg", 0, {TANK = true}} }, -- 鲜肉 (1307921)
 
     -- 扭缠盘蛇
-    [813] = { {"ZhunBeiAOE.ogg", 1} }, -- 同步毒液 (1299154)
+    -- [813] = { {"ZhunBeiAOE.ogg", 1} }, -- 同步毒液 (1299154)
+
+    [813] = { -- 同步毒液 (1299154)
+        {"ZhunBeiAOE.ogg", 1, {NOT_CLASS = "WARRIOR"}},
+        {"FaShuFanShe.ogg", 1, {CLASS = "WARRIOR"}},
+    },
+    
     [814] = { {"TanKeJianCi.ogg", 1, {TANK = true, HEALER = true}} }, -- 镰尾 (1298949)
     [815] = { {"DuoKaiChongFengSiDianLiuMiaoDuoKaiTouQian.ogg", 1} }, -- 复仇猛攻 (1299940)
     [816] = { {"ZhunBeiLaXian.ogg", 1} }, -- 濒死喘息 (1299053)
