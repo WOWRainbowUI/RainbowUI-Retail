@@ -36,7 +36,20 @@ local GetTargetTradeMoney = GetTargetTradeMoney or (C_TradeCard and C_TradeCard.
 local GetSendMailItem = GetSendMailItem or (C_Mail and C_Mail.GetSendMailItem)
 local GetSendMailItemLink = GetSendMailItemLink or (C_Mail and C_Mail.GetSendMailItemLink)
 local GetSendMailMoney = GetSendMailMoney or (C_Mail and C_Mail.GetSendMailMoney)
-local GetInboxHeaderInfo = GetInboxHeaderInfo or (C_Mail and C_Mail.GetInboxHeaderInfo)
+-- 正式服 11.x 起 GetInboxHeaderInfo 改为返回单一 MailInboxHeader 结构体(table)，
+-- 这里做自适应包装：结构体则展开为旧版多返回值格式，否则(经典服)原样透传，保证下游解构写法不变
+local RawGetInboxHeaderInfo = GetInboxHeaderInfo or (C_Mail and C_Mail.GetInboxHeaderInfo)
+local GetInboxHeaderInfo = function(Index)
+	if not RawGetInboxHeaderInfo then
+		return nil
+	end
+	local PackageIcon, StationeryIcon, Sender, Subject, Money, CODAmount, DaysLeft, ItemCount, WasRead, Text, CanReply, IsGM = RawGetInboxHeaderInfo(Index)
+	if type(PackageIcon) == "table" then -- 11.x：返回结构体，展开为旧版格式
+		local Header = PackageIcon
+		return Header.packageIcon, Header.stationeryIcon, Header.sender, Header.subject, Header.money, Header.codAmount, Header.daysLeft, Header.numItems, Header.wasRead, Header.isGM
+	end
+	return PackageIcon, StationeryIcon, Sender, Subject, Money, CODAmount, DaysLeft, ItemCount, WasRead, Text, CanReply, IsGM
+end
 local GetInboxItem = GetInboxItem or (C_Mail and C_Mail.GetInboxItem)
 local GetInboxItemLink = GetInboxItemLink or (C_Mail and C_Mail.GetInboxItemLink)
 
@@ -717,8 +730,9 @@ local function RecordMailItemInfo(Index, ItemSlot) -- 公共方法，獲取郵�
 	local _, _, Sender, _, _, CODAmount = GetInboxHeaderInfo(Index)
 	local ItemName, _, _, Quantity = GetInboxItem(Index, ItemSlot)
 	local ItemLink = GetInboxItemLink(Index, ItemSlot)
+	local SenderName = (Sender or L["MAILLOGGER_TEXT_UNKNOWN"]) .. "-" .. GetRealmName()
 
-	if not TradeLog[#TradeLog] or TradeLog[#TradeLog].Result ~= "received" or (TradeLog[#TradeLog].TargetName and TradeLog[#TradeLog].TargetName ~= Sender .. "-" .. GetRealmName()) or Addon:CompareTime(TradeLog[#TradeLog].Time, 5) then
+	if not TradeLog[#TradeLog] or TradeLog[#TradeLog].Result ~= "received" or (TradeLog[#TradeLog].TargetName and TradeLog[#TradeLog].TargetName ~= SenderName) or Addon:CompareTime(TradeLog[#TradeLog].Time, 5) then
 		if #TradeLog > 0 and TradeLog[#TradeLog] and TradeLog[#TradeLog].Result == "received" then
 			Addon:MergeItemList(TradeLog[#TradeLog].ReceiveItems)
 		end
@@ -727,7 +741,7 @@ local function RecordMailItemInfo(Index, ItemSlot) -- 公共方法，獲取郵�
 	
 	local entry = TradeLog[#TradeLog]
 	if not entry.TargetName or not entry.Result then
-		entry["TargetName"] = Sender .. "-" .. GetRealmName()
+		entry["TargetName"] = SenderName
 		entry["Reason"] = Index
 		entry["Result"] = "received"
 		entry["Location"] = GetRealZoneText()
@@ -740,7 +754,7 @@ local function RecordMailItemInfo(Index, ItemSlot) -- 公共方法，獲取郵�
 		["ItemLink"] = ItemLink,
 	})
 	
-	entry["GiveMoney"] = entry["GiveMoney"] + CODAmount
+	entry["GiveMoney"] = entry["GiveMoney"] + (CODAmount or 0)
 	entry["Date"] = date("%Y-%m-%d")
 	entry["Time"] = date("%H:%M:%S")
 end
@@ -760,13 +774,14 @@ do -- Hook AutoLootMailItem, 獲取快速收取的郵件信息
 		end
 		-- 記錄郵件中的金錢
 		local _, _, Sender, _, Money = GetInboxHeaderInfo(MailIndex)
+		local SenderName = (Sender or L["MAILLOGGER_TEXT_UNKNOWN"]) .. "-" .. GetRealmName()
 		if Money and Money > 0 then
-			if not TradeLog[#TradeLog] or TradeLog[#TradeLog].Result ~= "received" or (TradeLog[#TradeLog].TargetName and TradeLog[#TradeLog].TargetName ~= Sender) or Addon:CompareTime(TradeLog[#TradeLog].Time, 5) then
+			if not TradeLog[#TradeLog] or TradeLog[#TradeLog].Result ~= "received" or (TradeLog[#TradeLog].TargetName and TradeLog[#TradeLog].TargetName ~= SenderName) or Addon:CompareTime(TradeLog[#TradeLog].Time, 5) then
 				t_insert(TradeLog, Addon:NewMail())
 			end
 			local entry = TradeLog[#TradeLog]
 			if not entry.TargetName or not entry.Result then
-				entry["TargetName"] = Sender .. "-" .. GetRealmName()
+				entry["TargetName"] = SenderName
 				entry["Reason"] = MailIndex
 				entry["Result"] = "received"
 				entry["Location"] = GetRealZoneText()
@@ -790,16 +805,17 @@ do -- Hook TakeIndexMoney，获取邮件取出的金钱信息
 			return
 		end
 		local _, _, Sender, _, Money = GetInboxHeaderInfo(MailIndex)
-		if not TradeLog[#TradeLog] or TradeLog[#TradeLog].Result ~= "received" or (TradeLog[#TradeLog].TargetName and TradeLog[#TradeLog].TargetName ~= Sender) or Addon:CompareTime(TradeLog[#TradeLog].Time, 5) then
+		local SenderName = (Sender or L["MAILLOGGER_TEXT_UNKNOWN"]) .. "-" .. GetRealmName()
+		if not TradeLog[#TradeLog] or TradeLog[#TradeLog].Result ~= "received" or (TradeLog[#TradeLog].TargetName and TradeLog[#TradeLog].TargetName ~= SenderName) or Addon:CompareTime(TradeLog[#TradeLog].Time, 5) then
 			t_insert(TradeLog, Addon:NewMail())
 		end
 		if not TradeLog[#TradeLog].TargetName or not TradeLog[#TradeLog].Result then
-			TradeLog[#TradeLog]["TargetName"] = Sender .. "-" .. GetRealmName()
+			TradeLog[#TradeLog]["TargetName"] = SenderName
 			TradeLog[#TradeLog]["Reason"] = MailIndex
 			TradeLog[#TradeLog]["Result"] = "received"
 			TradeLog[#TradeLog]["Location"] = GetRealZoneText()
 		end
-		TradeLog[#TradeLog]["ReceiveMoney"] = TradeLog[#TradeLog]["ReceiveMoney"] + Money
+		TradeLog[#TradeLog]["ReceiveMoney"] = TradeLog[#TradeLog]["ReceiveMoney"] + (Money or 0)
 		TradeLog[#TradeLog]["Date"] = date("%Y-%m-%d")
 		TradeLog[#TradeLog]["Time"] = date("%H:%M:%S")
 	end
