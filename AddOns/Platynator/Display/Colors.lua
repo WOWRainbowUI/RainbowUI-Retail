@@ -59,6 +59,7 @@ local kindToCache = {
   notCast = {"cast"},
   isCast = {"cast"},
   inRange = {"range"},
+  inRangeMelee = {"rangeMelee"},
   outOfRange = {"range"},
   target = {"target"},
   notTarget = {"target"},
@@ -477,8 +478,20 @@ function addonTable.Display.GetColor(settings, state, unit)
         table.insert(colorQueue, {color = s.colors.inRange})
         break
       end
+    elseif s.kind == "inRangeMelee" then
+      local range = addonTable.Cache:Get(unit, "rangeMelee")
+      if range then
+        table.insert(colorQueue, {color = s.colors.inRange})
+        break
+      end
     elseif s.kind == "outOfRange" then
       local range = addonTable.Cache:Get(unit, "range")
+      if not range then
+        table.insert(colorQueue, {color = s.colors.outOfRange})
+        break
+      end
+    elseif s.kind == "outOfRangeMelee" then
+      local range = addonTable.Cache:Get(unit, "rangeMelee")
       if not range then
         table.insert(colorQueue, {color = s.colors.outOfRange})
         break

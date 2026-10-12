@@ -1,14 +1,7 @@
 ---@class addonTablePlatynator
 local addonTable = select(2, ...)
 
-local inInstanceOrParty = false
-local instanceTracker = CreateFrame("Frame")
-instanceTracker:RegisterEvent("PLAYER_ENTERING_WORLD")
-instanceTracker:RegisterEvent("ZONE_CHANGED_NEW_AREA")
-instanceTracker:RegisterEvent("INSTANCE_GROUP_SIZE_CHANGED")
-instanceTracker:SetScript("OnEvent", function(_, event)
-  inInstanceOrParty = addonTable.Display.Utilities.IsInRelevantInstance({dungeon = true, raid = true, delve = true, pvp = true}) or IsInGroup()
-end)
+local InstanceOrParty = addonTable.Display.Utilities.IsInInstanceOrParty
 
 addonTable.Display.ThreatTextMixin = {}
 
@@ -63,7 +56,7 @@ end
 
 function addonTable.Display.ThreatTextMixin:Update()
   self.text:SetText("")
-  if not self.partyOnly or inInstanceOrParty then
+  if not self.partyOnly or InstanceOrParty() then
     local _, _, scaled, raw = UnitDetailedThreatSituation("player", self.unit)
     local percentToShow = raw
     local prefix = ""

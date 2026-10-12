@@ -1132,6 +1132,8 @@ function addonTable.Display.GetText(frame, parent)
       Mixin(frame, addonTable.Display.EnergyTextMixin)
     elseif details.kind == "threat" then
       Mixin(frame, addonTable.Display.ThreatTextMixin)
+    elseif details.kind == "threatDifferential" then
+      Mixin(frame, addonTable.Display.ThreatDifferentialTextMixin)
     else
       assert(false)
     end

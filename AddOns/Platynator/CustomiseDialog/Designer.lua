@@ -1327,6 +1327,8 @@ function addonTable.CustomiseDialog.GetMainDesigner(parent)
           if w.details.showPercentSymbol then
             display = display .. "%"
           end
+        elseif w.details.kind == "threatDifferential" then
+          display = "+597"
         end
         if display then
           w.text:SetText(display)

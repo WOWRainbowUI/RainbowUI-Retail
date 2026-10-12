@@ -1,14 +1,15 @@
 # Platynator
 
-## [500](https://github.com/TheMouseNest/Platynator/tree/500) (2026-10-10)
-[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/499...500) 
+## [501](https://github.com/TheMouseNest/Platynator/tree/501) (2026-10-11)
+[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/500...501) 
 
-- Lock auras tab in combat  
-- Fix aura colours when bar edge hidden  
-- Default "Show long duration auras" to true  
-- Fixes  
-- Add migration step to patch broken profile  
-- Forever+Midnight: Auras: Options to hide long-duration buffs + show magic buffs  
-- Tweaks  
-- Organise aura widget options  
-- Add "Resting" a criteria for a style selection  
+- Update toc ready for 12.1.5  
+- Forever + 12.1.5: Frontload nameplate caching to happen in loading screen  
+- Mitigation against range checkers not being immediately available on reload  
+- Automatic Colors: Add "In/Out of Range (Melee)"  
+- Forgot to abbreviate large values in the negatives for threat differential  
+- Add "Threat Differential" widget to show the threat lead as raw threat  
+    Current target only  
+- Include players on energy bar if showing for everything  
+- Auto-enable energy bar for all (with a non-zero max) if no mob types selected  
+- Update Libs  
