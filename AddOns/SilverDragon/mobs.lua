@@ -217,7 +217,7 @@ function module:OptionsRequested(callback, options)
 						add = mob_input(ADD, "要加入稀有怪，輸入 ID、名稱，\"將滑鼠指向牠\" 或 \"選為目標\"。", 1, function(info, id)
 							core:SetIgnore(id, true)
 						end),
-						about = core:GetModule("Config").desc("This will fill in as rare mobs are seen in the current session.", 0),
+						about = core:GetModule("Config").desc("這裡會列出此次登入後曾看到過的稀有怪。", 0),
 						mobs = {
 							type = "multiselect",
 							name = REMOVE,

@@ -596,7 +596,7 @@ ns.RegisterPoints(1525, {
             183729, -- Filth-Splattered Headcover
             {182704, quest=62180, covenant=Enum.CovenantType.Venthyr}, -- Green Muck Dye
         },
-        note="Use a Rubbish Box and use {spell:324115:Throw Rubbish} into the water to summon {npc:166318:Violent Muckmare}; kill until the rare spawns",
+        note="使用垃圾箱，將 {spell:324115:Throw Rubbish} 丟入水中以召喚 {npc:166318:Violent Muckmare}；持續擊殺直到稀有怪出現。",
     },
     [25304850] = { label="Amalgamation of Light",
         achievement=14310, criteria=48811,

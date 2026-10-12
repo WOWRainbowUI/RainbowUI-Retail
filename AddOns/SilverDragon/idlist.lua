@@ -164,7 +164,7 @@ function ns.RegisterIDListWidget(widgetType, hooks)
 		local filter = CreateFrame("EditBox", nil, frame, "SearchBoxTemplate")
 		filter:SetSize(140, 20)
 		filter:SetPoint("TOPRIGHT", -SCROLLBAR_WIDTH - 4, 0)
-		filter.Instructions:SetText("search...")
+		filter.Instructions:SetText("搜尋...")
 		-- hooked, not replaced: the template uses this to drive its placeholder and clear button.
 		-- The clear button empties the box without it counting as user input.
 		filter:HookScript("OnTextChanged", function()
@@ -207,7 +207,7 @@ function ns.RegisterIDListWidget(widgetType, hooks)
 
 		local empty = frame:CreateFontString(nil, "OVERLAY", "GameFontDisable")
 		empty:SetPoint("TOPLEFT", 4, -HEADER_HEIGHT - 4)
-		empty:SetText("Nothing to show.")
+		empty:SetText("沒有可顯示的項目。")
 		widget.empty = empty
 
 		for i = 1, ROWS do
