@@ -45,8 +45,8 @@ L["Throttle at excessive amount"] = "Throttle at excessive amount"
 L["throttleDesc"] = "Sometimes addons can generate hundreds of bugs per second, which can lock up the game. Enabling this option will throttle bug grabbing, preventing lockup when this happens."
 L["Today"] = "Today"
 L["Toggle the minimap icon."] = "Toggle the minimap icon."
-L["Quick tips"] = "Quick tips"
-L["quickTipsDesc"] = "|cff44ff44Double-click|r to filter bug reports. After you are done with the search results, return to the full sack by selecting a tab at the bottom. |cff44ff44Left-click|r and drag to move the window. |cff44ff44Right-click|r to close the sack and open the interface options for BugSack."
+L.quickTipsDoubleClick = "|cff44ff44Double-click|r to filter bug reports. After you are done with the search results, return to the full sack by selecting a tab at the bottom."
+L.quickTipsLeftClick = "|cff44ff44Left-click|r and drag to move the window."
 L["wipeDesc"] = "Exterminates all stored bugs from the database."
 L["Wipe saved bugs"] = "Wipe saved bugs"
 L["X-Large"] = "X-Large"
@@ -57,7 +57,6 @@ L.useMasterDesc = "Play the chosen error sound over the 'Master' sound channel i
 L.addonCompartment = "Addon compartment icon"
 L.addonCompartment_desc = "Creates a menu entry in the 'Addon Compartment' for BugSack."
 
-L["BugSack"] = "BugSack"
 local locale = GetLocale()
 if locale == "zhCN" then
 	L["%d bugs have been sent to %s. He must have BugSack to be able to examine them."] = "%d个错误已经发送给%s。他必须安装 BugSack 插件才能查看错误信息。"
@@ -103,8 +102,6 @@ if locale == "zhCN" then
 	L["throttleDesc"] = "一些插件可能每秒生成成百个错误，从而影响了正常游戏。启用此选项，将会截流错误，防止发生影响正常游戏。"
 	L["Today"] = "今日"
 	L["Toggle the minimap icon."] = "切换小地图按钮。"
-	L["Quick tips"] = "快速提示"
-	L["quickTipsDesc"] = "|cff44ff44双击|r 过滤错误报告。完成搜索结果后，通过选择底部的选项卡返回完整汇总。|cff44ff44点击|r 并拖动窗口。|cff44ff44右击|r 关闭汇总并打开 BugSack 界面选项。"
 	L["Wipe saved bugs"] = "清除已保存错误"
 	L["wipeDesc"] = "清除数据库中所有已保存错误。"
 	L["X-Large"] = "超大"
@@ -114,6 +111,9 @@ if locale == "zhCN" then
 	L.useMasterDesc = "通过“主”声道而不是默认声道播放所选的错误音效。"
 	L.addonCompartment = "插件抽屉图标"
 	L.addonCompartment_desc = "在“插件抽屉”中为 BugSack 创建一个菜单。"
+
+	L.quickTipsDoubleClick = "|cff44ff44双击|r可以筛选错误报告。查看完搜索结果后，点击底部标签页返回完整列表。"
+	L.quickTipsLeftClick = "|cff44ff44左键点击|r并拖动可移动窗口。"
 elseif locale == "zhTW" then
 	L["%d bugs have been sent to %s. He must have BugSack to be able to examine them."] = "%d 個錯誤已經傳送給 %s。他必須使用 BugSack 插件查看錯誤訊息。"
 	L.minimapHint = "|cffeda55f左鍵:|r 顯示最新的錯誤訊息。\n|cffeda55fShift+左鍵:|r 重新載入介面。\n|cffeda55f右鍵:|r 設定選項。"
@@ -158,8 +158,6 @@ elseif locale == "zhTW" then
 	L["throttleDesc"] = "有時插件可能每秒產生上百個錯誤，進而影響遊戲。啟用此設定，將會扼殺錯誤，防止發生影響遊戲。"
 	L["Today"] = "今天"
 	L["Toggle the minimap icon."] = "切換顯示小地圖按鈕。"
-	L["Quick tips"] = "快速提示"
-	L["quickTipsDesc"] = "|cff44ff44點兩下|r來過濾錯誤報告。使用完搜尋結果後，選擇底部的標籤頁返回全部的錯誤訊息。|cff44ff44左鍵|r拖曳來移動視窗。|cff44ff44右鍵|r關閉錯誤訊息視窗，並且打開設定選項。"
 	L["Wipe saved bugs"] = "清空保留的錯誤"
 	L["wipeDesc"] = "清除資料庫中所有保留的錯誤。"
 	L["X-Large"] = "超大"
@@ -171,6 +169,9 @@ elseif locale == "zhTW" then
 	L.addonCompartment_desc = "在 '插件選單' 建立錯誤訊息袋 BugSack 的選單項目。"
 	
 	L["BugSack"] = "錯誤訊息"
+	L.quickTipsDoubleClick = "|cff44ff44點兩下|r可以篩選錯誤報告。查看完搜尋結果後，點擊底部標籤頁返回完整列表。"
+	L.quickTipsLeftClick = "|cff44ff44左鍵點擊|r並拖曳可移動視窗。"
+
 end
 
 addon.L = L
