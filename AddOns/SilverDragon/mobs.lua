@@ -277,7 +277,7 @@ function module:BuildCustomList(options)
 				end),
 				mobs = {
 					type = "multiselect",
-					name = "Mobs",
+					name = "稀有怪",
 					dialogControl = "SilverDragonMobList",
 					arg = "custom" .. uiMapID,
 					width = "full",
