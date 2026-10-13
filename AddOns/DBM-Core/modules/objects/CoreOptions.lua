@@ -443,6 +443,7 @@ DBM.DefaultOptions = {
 	PrivateAurasPlayerStackYOffset = 1,
 	PrivateAurasPlayerShowStacks = true,
 	PrivateAurasPlayerShowDispelBorder = true,
+	PrivateAurasPlayerShowAuraGlow = false,
 	PrivateAurasShowCooldownSwipe = true,
 	PrivateAurasBossOrRoleAurasOnly = false,
 	PrivateAurasPlayerAnchor = "CENTER",--NYI
@@ -474,6 +475,7 @@ DBM.DefaultOptions = {
 	PrivateAurasCoTankStackYOffset = 1,
 	PrivateAurasCoTankShowStacks = true,
 	PrivateAurasCoTankShowDispelBorder = true,
+	PrivateAurasCoTankShowAuraGlow = false,
 	PrivateAurasCoTankAnchor = "CENTER",--NYI
 	PrivateAurasCoTankRelativeTo = "CENTER",--NYI
 	PrivateAurasCoTankXOffset = -196,--Partial (drag and drop only, no UI slider/editbox)
@@ -707,7 +709,6 @@ function DBM:LoadModOptions(modId, inCombat, first)
 		---@class DBMMod
 		local mod = self:GetModByName(id)
 		modInstance = mod
-		mod.showTestUI = DBM_ModsToLoadWithFullTestSupport.bossModsWithTests[id]
 		-- migrate old option
 		if _G[oldSavedVarsName] and _G[oldSavedVarsName][id] then
 			self:Debug("LoadModOptions: Found old options, importing", 2)

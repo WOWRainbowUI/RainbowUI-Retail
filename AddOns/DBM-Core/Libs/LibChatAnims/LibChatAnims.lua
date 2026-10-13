@@ -1,5 +1,5 @@
 --@curseforge-project-slug: libchatanims@
-local MAJOR, MINOR = "LibChatAnims", 6 -- Bump minor on changes
+local MAJOR, MINOR = "LibChatAnims", 7 -- Bump minor on changes
 local LCA = LibStub:NewLibrary(MAJOR, MINOR)
 if not LCA then return end -- No upgrade needed
 
@@ -12,6 +12,10 @@ function LCA:IsAlerting(tab)
 	if alerting[tab] then
 		return true
 	end
+end
+
+if WOW_PROJECT_ID == 1 or WOW_PROJECT_ID == 18 then
+	return -- Taint issue doesn't appear to be FULLY fixed, but just disable for now until we have time to re-evaluate the situation
 end
 
 ----------------------------------------------------

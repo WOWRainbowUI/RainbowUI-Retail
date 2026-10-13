@@ -1,6 +1,6 @@
 ## Interface: 120100
 ## AllowLoadGameType: standard
-## Version: 12.1.12
+## Version: 12.1.13
 ## Category: DBM
 
 ## Title:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffff6010Raids (Midnight)|r
@@ -32,8 +32,7 @@
 ## X-Wago-ID: qv633o6b
 
 localization.en.lua
-localization.kr.lua
-localization.ru.lua
+localization.tw.lua
 localization.cn.lua
 
 TheVenomousAbyss\NekzalitheSoulcoiler.lua

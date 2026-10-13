@@ -43,7 +43,6 @@ local CL = DBM_COMMON_L
 
 local tableUtils = private:GetPrototype("TableUtils")
 local difficulties = private:GetPrototype("Difficulties")
-local test = private:GetPrototype("DBMTest")
 
 -------------------------------
 --  Globals/Default Options  --
@@ -76,16 +75,14 @@ local function showRealDate(curseDate)
 	end
 end
 
-DBM.Revision = parseCurseDate("20260929225800")
-DBM.TaintedByTests = false -- Tests may mess with some internal state, you probably don't want to rely on DBM for an important boss fight after running it in test mode
-
+DBM.Revision = parseCurseDate("20261012172152")
 private.fakeBWVersion, private.fakeBWHash = 424, "754bdce"--424.7
 
 -- The string that is shown as version
-DBM.DisplayVersion = "12.1.12"--Core version
+DBM.DisplayVersion = "12.1.13"--Core version
 DBM.classicSubVersion = 0
 DBM.dungeonSubVersion = 0
-DBM.ReleaseRevision = releaseDate(2026, 9, 29) -- the date of the latest stable version that is available, optionally pass hours, minutes, and seconds for multiple releases in one day
+DBM.ReleaseRevision = releaseDate(2026, 10, 12) -- the date of the latest stable version that is available, optionally pass hours, minutes, and seconds for multiple releases in one day
 DBM.HighestRelease = DBM.ReleaseRevision --Updated if newer version is detected, used by update nags to reflect critical fixes user is missing on boss pulls
 
 -- support for github downloads, which doesn't support curse keyword expansion
@@ -289,8 +286,6 @@ local PlaySoundFile = PlaySoundFile
 local Ambiguate = Ambiguate
 local C_TimerAfter = C_Timer.After
 
--- Store globals that can be hooked/overriden by tests in private
-private.GetInstanceInfo = GetInstanceInfo
 private.IsEncounterInProgress = C_InstanceEncounter and C_InstanceEncounter.IsEncounterInProgress or IsEncounterInProgress
 
 -- this is not technically a lib and instead a standalone addon but the api is available via LibStub
@@ -1139,8 +1134,6 @@ do
 			end
 		end
 	end
-	private.mainEventHandler = handleEvent -- Only for testing.
-
 	local registerUnitEvent, unregisterUnitEvent, registerSpellId, unregisterSpellId, registerCLEUEvent, unregisterCLEUEvent
 	do
 		local frames = {} -- frames that are being used for unit events, one frame per unit id (this could be optimized, as it currently creates a new frame even for a different event, but that's not worth the effort as 90% of all calls are just boss1 anyways)
@@ -1250,7 +1243,6 @@ do
 
 		---@param mod DBMModOrDBM
 		function unregisterCLEUEvent(mod, event)
-			test:Trace(mod, "UnregisterEvents", "Regular", event)
 			local argTable = {strsplit(" ", event)}
 			local eventCleared = false
 			-- filtered cleu event. save information in registeredSpellIds table.
@@ -1314,7 +1306,6 @@ do
 	---@param self DBMModOrDBM
 	---@param ... DBMEvent|string
 	function DBM:RegisterEvents(...)
-		test:Trace(self, "RegisterEvents", "Regular", ...)
 		for i = 1, select('#', ...) do
 			local event = select(i, ...)
 			if not self:IsRestricted() or self:IsRestricted() and not (restrictedEvents[event] or event:sub(0, 5) == "UNIT_") then
@@ -1365,7 +1356,6 @@ do
 	---@param ... DBMEvent|string
 	--This is a custom handler used for midnight prepatch and later that does NOT restrict event but rather trusts module to only register safe events
 	function DBM:RegisterSafeEvents(...)
-		test:Trace(self, "RegisterEvents", "Regular", ...)
 		for i = 1, select('#', ...) do
 			local event = select(i, ...)
 			-- spell events with special care.
@@ -1411,7 +1401,6 @@ do
 	---@param mod DBMModOrDBM
 	local function unregisterUEvent(mod, event)
 		if event:sub(0, 5) == "UNIT_" and event ~= "UNIT_DIED" and event ~= "UNIT_DESTROYED" then
-			test:Trace(mod, "UnregisterEvents", "Regular", event)
 			local eventName, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8 = strsplit(" ", event)
 			if eventName:sub(-11) == "_UNFILTERED" then
 				mainFrame:UnregisterEvent(eventName:sub(0, -12))
@@ -1462,7 +1451,6 @@ do
 				local match = false
 				for i = #mods, 1, -1 do
 					if mods[i] == self and (self.inCombatOnlyEvents and checkEntry(self.inCombatOnlyEvents, event) or self.inCombatOnlySafeEvents and checkEntry(self.inCombatOnlySafeEvents, event)) then
-						test:Trace(self, "UnregisterEvents", "InCombat", event)
 						tremove(mods, i)
 						match = true
 					end
@@ -1481,7 +1469,6 @@ do
 	---@param ... DBMEvent|string
 	function DBM:RegisterShortTermEvents(...)
 		DBM:Debug("RegisterShortTermEvents fired", 3)
-		test:Trace(self, "RegisterEvents", "ShortTerm", ...)
 		local _shortTermRegisterEvents = {...}
 		for k, v in pairs(_shortTermRegisterEvents) do
 			if v:sub(0, 5) == "UNIT_" and v:sub(-11) ~= "_UNFILTERED" and not v:find(" ") and v ~= "UNIT_DIED" and v ~= "UNIT_DESTROYED" then
@@ -1523,7 +1510,6 @@ do
 					local match = false
 					for i = #mods, 1, -1 do
 						if mods[i] == self and checkEntry(self.shortTermRegisterEvents, event) then
-							test:Trace(self, "UnregisterEvents", "ShortTerm", event)
 							tremove(mods, i)
 							match = true
 						end
@@ -1547,7 +1533,6 @@ do
 	---Don't Use this to unregister short term events or "InCombat" events most mods use.
 	---This is strictly for Core events boss mods do NOT use.
 	function DBM:UnregisterEvents(...)
-		test:Trace(self, "UnregisterEvents", "Regular", ...)
 		for i = 1, select('#', ...) do
 			local event = select(i, ...)
 			-- spell events with special care.
@@ -1640,14 +1625,7 @@ do
 		end
 	end
 	mainFrame:SetScript("OnEvent", handleEvent)
-
-	test:RegisterLocalHook("CombatLogGetCurrentEventInfo", function(val)
-		local old = CombatLogGetCurrentEventInfo
-		CombatLogGetCurrentEventInfo = val
-		return old
-	end)
 end
-
 --------------
 --  OnLoad  --
 --------------
@@ -1828,9 +1806,6 @@ do
 			end
 			private:ClearPlayerNameCallbacks()
 			self:LoadOptions()
-			DBM_ModsToLoadWithFullTestSupport = DBM_ModsToLoadWithFullTestSupport or {} -- Separate saved var because tests mess with the usual saved vars temporarily
-			DBM_ModsToLoadWithFullTestSupport.bossModsWithTests = DBM_ModsToLoadWithFullTestSupport.bossModsWithTests or {}
-			DBM_ModsToLoadWithFullTestSupport.addonsWithTests = DBM_ModsToLoadWithFullTestSupport.addonsWithTests or {}
 			DBT:LoadOptions("DBM")
 			if self.TextTimers then
 				self.TextTimers:SyncOptions()
@@ -2269,8 +2244,7 @@ end
 --  Callbacks  --
 -----------------
 do
-	---@alias DBMCallbackEvent DBMTestEvent
-	--- |"BossMod_ShowNameplateAura"
+	---@alias DBMCallbackEvent "BossMod_ShowNameplateAura"
 	--- |"BossMod_HideNameplateAura"
 	--- |"BossMod_EnableHostileNameplates"
 	--- |"BossMod_EnableFriendlyNameplates"
@@ -3660,7 +3634,6 @@ do
 			end
 			fireEvent("DBM_PlaySound", path)
 		end
-		test:Trace(self, "PlaySound", path)
 	end
 
 	local validFontFlags = {
@@ -4434,7 +4407,11 @@ function DBM:AddMsg(text, prefix, useSound, allowHiddenChatFrame, isDebug, custo
 		red, green, blue = 0.41, 0.8, 0.94
 	end
 	if prefix ~= false then
-		frame:AddMessage(("|cffff7d0a<|r|cffffd200%s|r|cffff7d0a>|r %s"):format(tostring(tag), tostring(text)), red, green, blue)
+		if DBM:issecretvalue(text) then
+			frame:AddMessage(("|cffff7d0a<|r|cffffd200%s|r|cffff7d0a>|r %s"):format(tostring(tag), text), red, green, blue)
+		else
+			frame:AddMessage(("|cffff7d0a<|r|cffffd200%s|r|cffff7d0a>|r %s"):format(tostring(tag), tostring(text)), red, green, blue)
+		end
 	else
 		frame:AddMessage(text, red, green, blue)
 	end
@@ -4581,15 +4558,13 @@ function DBM:AntiSpam(time, id, targetName)
 	id = id or "(nil)"
 	if targetName then
 		-- Yes, mods could just piece together an id like this themselves
-		-- The actual point of this is tests: targetName may refer to the real player replaying the log due to combat log rewriting and hence needs to be filtered in the report.
+		-- Allow separate spam throttling for each target.
 		id = id .. " on " .. targetName
 	end
 	if GetTime() - (self["lastAntiSpam" .. tostring(id)] or -math.huge) > (time or 2.5) then
 		self["lastAntiSpam" .. tostring(id)] = GetTime()
-		test:Trace(self, "AntiSpam", id, targetName or false, true)
 		return true
 	end
-	test:Trace(self, "AntiSpam", id, targetName or false, false)
 	return false
 end
 
@@ -5337,7 +5312,7 @@ function bossModPrototype:ReceiveSync(event, sender, revision, ...)
 	end
 end
 
----@param revision number|string Either a number in the format "202101010000" (year, month, day, hour, minute) or string "20260929225709" to be auto set by packager
+---@param revision number|string Either a number in the format "202101010000" (year, month, day, hour, minute) or string "20261012172152" to be auto set by packager
 function bossModPrototype:SetRevision(revision)
 	revision = parseCurseDate(revision or "")
 	if not revision or type(revision) == "string" then
@@ -5358,32 +5333,3 @@ function bossModPrototype:SetHotfixNoticeRev(revision)
 	self.hotfixNoticeRev = (type(revision or "") == "number") and revision or parseCurseDate(revision)
 end
 
--- Expose some file-local data to private for testing purposes only.
-
---[[
-test:RegisterLocalHook("GetTime", function(val)
-	local old = GetTime
-	GetTime = val
-	return old
-end)
-
-test:RegisterLocalHook("UnitDetailedThreatSituation", function(val)
-	local old = UnitDetailedThreatSituation
-	UnitDetailedThreatSituation = val
-	return old
-end)
-
-test:RegisterLocalHook("UnitAffectingCombat", function(val)
-	local old = UnitAffectingCombat
-	UnitAffectingCombat = val
-	return old
-end)
-
-test:RegisterLocalHook("UnitGUID", function(val)
-	local old = UnitGUID
-	UnitGUID = val
-	return old
-end)
-
-private.mainFrame = mainFrame
---]]

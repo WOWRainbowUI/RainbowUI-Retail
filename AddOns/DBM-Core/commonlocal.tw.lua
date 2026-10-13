@@ -137,3 +137,7 @@ CL.BRONZE	= "黃"
 -- Conjunctions, used to join words, e.g., "Spell1 *and* Spell2 on you!"
 CL.AND						= "以及"
 CL.OR						= "或"
+
+CL.BIG_CIRCLE = "大圈"
+
+CL.PLATFORM_BREAK = "平台破裂"

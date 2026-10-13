@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2849, "DBM-Lairs-Midnight", 2, 1317)
 --local L		= mod:GetLocalizedStrings()--Nothing to localize for blank mods
 
-mod:SetRevision("20260914201948")
+mod:SetRevision("20261008002304")
 mod:SetCreatureID(252959)
 mod:SetEncounterID(3379)
 --mod:SetHotfixNoticeRev(20250823000000)
@@ -73,7 +73,7 @@ function mod:OnLimitedCombatStart()
 	self:TLCountReset()
 	self:TLActiveEventReset()
 	self.vb.tankWaterCount = 1
-	self.vb.alluringBubbleCount = 2--1276710 is the combined initial/recast Bubble count 2
+	self.vb.alluringBubbleCount = 1
 	self.vb.ChillingFrostCount = 1
 	self.vb.tidepiercersRushCount = 1
 	self.vb.abyssalRainCount = 1
@@ -138,9 +138,9 @@ do
 			timerAlluringBubbleCD:TLStart(timerExact, eventID, eventCount)
 			--Bubble completes with a state 3 roughly five seconds late; finish its count and show its alert at the bar's natural expiry instead.
 			self:Schedule(timerExact, AlluringBubbleCheck, self, eventID)
-		elseif timer == 18 then--1257717 initial Alluring Bubble setup; it has no corresponding alert
+		elseif timer == 18 then--1257717 initial Alluring Bubble setup, doesn't spawn adds so we don't need a bar
 			handled = true
-			timerAlluringBubbleCD:TLStart(timerExact, eventID, 1)
+--			timerAlluringBubbleCD:TLStart(timerExact, eventID, 1)
 		elseif timer == 35 or timer == 17 then--Chilling Frost
 			handled = true
 			timerChillingFrostCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "frost", "ChillingFrostCount"))

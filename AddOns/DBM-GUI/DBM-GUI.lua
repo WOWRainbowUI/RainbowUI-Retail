@@ -154,35 +154,11 @@ do
 			LSM:Register("sound", "Blakbyrd Alert 2", [[Interface\AddOns\DBM-Core\sounds\BlakbyrdAlerts\Alert2.ogg]])
 			LSM:Register("sound", "Blakbyrd Alert 3", [[Interface\AddOns\DBM-Core\sounds\BlakbyrdAlerts\Alert3.ogg]])
 			-- User Media
-			if DBM.Options.CustomSounds >= 1 then
-				LSM:Register("sound", "DBM: Custom 1", [[Interface\AddOns\DBM-CustomSounds\Custom1.ogg]])
+			if DBM.Options.CustomSounds > 9 then
+				DBM.Options.CustomSounds = 9
 			end
-			if DBM.Options.CustomSounds >= 2 then
-				LSM:Register("sound", "DBM: Custom 2", [[Interface\AddOns\DBM-CustomSounds\Custom2.ogg]])
-			end
-			if DBM.Options.CustomSounds >= 3 then
-				LSM:Register("sound", "DBM: Custom 3", [[Interface\AddOns\DBM-CustomSounds\Custom3.ogg]])
-			end
-			if DBM.Options.CustomSounds >= 4 then
-				LSM:Register("sound", "DBM: Custom 4", [[Interface\AddOns\DBM-CustomSounds\Custom4.ogg]])
-			end
-			if DBM.Options.CustomSounds >= 5 then
-				LSM:Register("sound", "DBM: Custom 5", [[Interface\AddOns\DBM-CustomSounds\Custom5.ogg]])
-			end
-			if DBM.Options.CustomSounds >= 6 then
-				LSM:Register("sound", "DBM: Custom 6", [[Interface\AddOns\DBM-CustomSounds\Custom6.ogg]])
-			end
-			if DBM.Options.CustomSounds >= 7 then
-				LSM:Register("sound", "DBM: Custom 7", [[Interface\AddOns\DBM-CustomSounds\Custom7.ogg]])
-			end
-			if DBM.Options.CustomSounds >= 8 then
-				LSM:Register("sound", "DBM: Custom 8", [[Interface\AddOns\DBM-CustomSounds\Custom8.ogg]])
-			end
-			if DBM.Options.CustomSounds >= 9 then
-				LSM:Register("sound", "DBM: Custom 9", [[Interface\AddOns\DBM-CustomSounds\Custom9.ogg]])
-				if DBM.Options.CustomSounds > 9 then
-					DBM.Options.CustomSounds = 9
-				end
+			for i = 1, DBM.Options.CustomSounds do
+				LSM:Register("sound", "DBM: Custom " .. i, "Interface\\AddOns\\DBM-CustomSounds\\Custom" .. i .. ".ogg")
 			end
 		end
 		-- Sort LibSharedMedia keys alphabetically (case-insensitive)
@@ -614,8 +590,6 @@ local function addOptions(mod, catpanel, v)
 	end
 end
 
-local isFirstModPanel = true
-
 local function isGTFOAbilityGroup(options)
 	if type(options) ~= "table" then
 		return false
@@ -800,26 +774,22 @@ local function importAddonProfile(addon, importTable)
 end
 
 ---@param mod DBMMod
-function DBM_GUI:CreateBossModPanel(mod, isTestView)
-	local panel = isTestView and mod.testPanel or mod.panel
+function DBM_GUI:CreateBossModPanel(mod)
+	local panel = mod.panel
 	if not panel then
 		DBM:AddMsg("Couldn't create boss mod panel for " .. mod.localization.general.name)
 		return false
 	end
 
-	local extraOffset = 0
-	if isTestView then
-		extraOffset = extraOffset + DBM_GUI:AddModTestOptionsAbove(panel, mod)
-	end
 	if not DBM:IsRestricted() then
 		local iconstat = panel.frame:CreateFontString("DBM_GUI_Mod_Icons" .. mod.localization.general.name, "ARTWORK")
-		iconstat:SetPoint("TOP", panel.frame, 0, -10 - extraOffset)
+		iconstat:SetPoint("TOP", panel.frame, 0, -10)
 		iconstat:SetFontObject(GameFontNormal)
 		iconstat:SetText(L.IconsInUse)
 		for i = 1, 8 do
 			local icon = panel.frame:CreateTexture()
 			icon:SetTexture(137009) -- "Interface\\TargetingFrame\\UI-RaidTargetingIcons.blp"
-			icon:SetPoint("TOP", panel.frame, 81 - (i * 18), -26 - extraOffset)
+			icon:SetPoint("TOP", panel.frame, 81 - (i * 18), -26)
 			icon:SetSize(16, 16)
 			if not mod.usedIcons or not mod.usedIcons[i] then
 				icon:SetAlpha(0.25)
@@ -847,23 +817,13 @@ function DBM_GUI:CreateBossModPanel(mod, isTestView)
 
 	local reset = panel:CreateButton(L.Mod_Reset, 155, 28, nil, GameFontNormalSmall)
 	reset.myheight = 40
-	reset:SetPoint("TOPRIGHT", panel.frame, "TOPRIGHT", -24, -2 - extraOffset)
+	reset:SetPoint("TOPRIGHT", panel.frame, "TOPRIGHT", -24, -2)
 	reset:SetScript("OnClick", function()
 		DBM:LoadModDefaultOption(mod)
 	end)
-	if not isTestView and not DBM:IsRestricted() then
-		local playground = panel:CreateButton(L.EnterTestMode, 155, 28, nil, GameFontNormalSmall)
-		playground.myheight = 0
-		playground:SetPoint("TOPLEFT", reset, "BOTTOMLEFT", 0, -2)
-		playground:SetScript("OnClick", function()
-			mod.showTestUI = true
-			DBM_GUI:UpdateModList()
-			DBM_GUI_OptionsFrame:LoadAndShowFrame(mod.testPanel.frame)
-		end)
-	end
 	local exportMod = panel:CreateButton(L.ButtonExportMod, 120, 20, nil, GameFontNormalSmall)
 	exportMod.myheight = 24
-	exportMod:SetPoint("TOPLEFT", panel.frame, "TOPLEFT", 8, -10 - extraOffset)
+	exportMod:SetPoint("TOPLEFT", panel.frame, "TOPLEFT", 8, -10)
 	exportMod:SetScript("OnClick", function()
 		local fullname, profileNum = DBM:GetProfileID()
 		local savedVars = _G[mod.addon.modId:gsub("-", "") .. "_AllSavedVars"]
@@ -982,12 +942,6 @@ function DBM_GUI:CreateBossModPanel(mod, isTestView)
 		end
 	end
 
-	-- For some reason the options aren't loaded in properly if the very first mod view you load is a test view
-	-- But just forcing a call to show fixes this
-	if isFirstModPanel and isTestView then
-		DBM_GUI:ShowHide(true)
-	end
-	isFirstModPanel = true
 end
 
 function DBM_GUI:CreateBossModTab(addon, panel, subtab)
@@ -1451,14 +1405,8 @@ do
 					if mod and (not addon.subTabs or (addon.subPanels and (addon.subPanels[mod.subTab] or mod.subTab == 0))) then
 						if addon.subTabs and addon.subPanels[mod.subTab] then
 							mod.panel = mod.panel or addon.subPanels[mod.subTab]:CreateNewPanel(mod.id or "Error: DBM.Mods", addon.type, nil, mod.localization.general.name)
-							if mod.showTestUI then
-								mod.testPanel = mod.testPanel or addon.subPanels[mod.subTab]:CreateNewPanel(mod.id or "Error: DBM.Mods", addon.type, nil, L.TestModEntry:format(mod.localization.general.name), nil, nil, nil, true)
-							end
 						else
 							mod.panel = mod.panel or currentSeasons[mod.id] or addon.panel:CreateNewPanel(mod.id or "Error: DBM.Mods", addon.type, nil, mod.localization.general.name)
-							if mod.showTestUI then
-								mod.testPanel = mod.testPanel or currentSeasons[mod.id] or addon.panel:CreateNewPanel(mod.id or "Error: DBM.Mods", addon.type, nil, L.TestModEntry:format(mod.localization.general.name), nil, nil, nil, true)
-							end
 						end
 					end
 				end

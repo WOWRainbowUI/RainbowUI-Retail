@@ -225,6 +225,31 @@ L.PIZZA_ERROR_USAGE				= "사용법: /dbm [broadcast] timer <시간> <텍스트>
 
 L.MINIMAP_TOOLTIP_FOOTER		= "쉬프트 누르고 드래그로 이동"
 
+L.RANGE_TEST_READY			= "아이템 거리 테스트 (%s): 아이템 %d개의 데이터를 요청합니다. 선택한 유닛을 유지하고 전투에 들어가지 마세요."
+L.RANGE_TEST_INVALID		= "아이템 거리 테스트에는 살아 있고 화면에 보이는 우호적 또는 적대적 유닛이 필요하며, 비전투 상태에서 실행해야 합니다."
+L.RANGE_TEST_UNSUPPORTED	= "아이템 거리 테스트: 이 클라이언트에서는 아이템 거리 또는 아이템 캐시 API를 사용할 수 없습니다."
+L.RANGE_TEST_ABORTED		= "아이템 거리 테스트 취소됨: 유닛이 바뀌었거나 사용할 수 없거나 전투/로딩이 시작되었습니다."
+L.RANGE_TEST_PASS			= "%d미터: 아이템 %d개 (%s), IsItemInRange=%s%s"
+L.RANGE_TEST_FAIL			= "%d미터: 사용 효과 아이템 없음 (캐시 nil: %d, 캐시 실패/시간 초과: %d)"
+L.RANGE_TEST_INCOMPLETE		= "%d미터: 미완료 (캐시 nil: %d, 캐시 실패/시간 초과: %d)"
+L.RANGE_TEST_PARTIAL		= " (이전의 후보 아이템을 캐시하지 못함)"
+L.RANGE_TEST_HEADER			= "DBM 아이템 거리 결과입니다. (%s) 이 문자열을 복사하세요. 거리에는 +3미터가 포함되어 있습니다."
+L.RANGE_TEST_NODATA			= "완료된 아이템 거리 테스트가 없습니다. 먼저 DBM:TestRanges를 실행하세요."
+L.RANGE_TEST_DONE			= "아이템 거리 테스트 완료: 성공 %d개, 실패 %d개, 미완료 %d개 입니다. DBM:ShowRangeTestResults()를 사용해 결과를 복사하세요."
+L.RANGE_TEST_SELF			= "자기 자신을 테스트하더라도 이 아이템이 다른 플레이어에게 작동한다는 것을 입증하지는 못합니다."
+L.RANGE_DISTANCE_NOCANDIDATES	= "먼저 DBM:TestRanges를 실행하고 거리 측정을 위한 사용 효과 아이템을 준비하세요."
+L.RANGE_DISTANCE_INVALID		= "거리 보정에는 살아 있고 화면에 보이는 유닛이 필요하며 비전투 상태의 API 제한 없는 지역에 있어야 합니다. 야외의 파티/공격대 플레이어를 권장합니다."
+L.RANGE_DISTANCE_UNAVAILABLE	= "거리 보정: 값이 확인됐고 비밀 상태가 아닌 UnitDistanceSquared를 읽거나 아이템 거리 API를 사용할 수 없습니다. 야외의 파티/공격대 플레이어로 시도하세요."
+L.RANGE_DISTANCE_READY		= "아이템 %d개를 측정 중입니다. (허용 오차 +/-0.5미터) 다른 플레이어들을 세워놓으세요. 아이템 거리 경계선에서 천천히 걸으면서 나갔다 들어오게 하세요. DBM:StopRangeDistances(true)로 중지/내보내기하세요."
+L.RANGE_DISTANCE_ABORTED		= "거리 보정 중단: 유닛, 전투, 로딩, API 제한 또는 거리 가용성이 변경되었습니다. 부분 기록은 보존되며 성공 결과는 표시되지 않습니다."
+L.RANGE_DISTANCE_NODATA		= "중지된 거리 보정이 없습니다. DBM:TestRangeDistances를 실행한 뒤 DBM:StopRangeDistances를 실행하세요."
+L.RANGE_DISTANCE_HEADER		= "DBM 거리 보정. 이 문자열을 복사하세요. 예상 거리에 +3미터가 포함되며 허용 오차는 +/-0.5미터입니다."
+L.RANGE_DISTANCE_ROW			= "%d미터: 아이템 %d개 (%s), %s; 가장 멈 true=%s, 가장 가까움 false=%s; true/false=%d/%d, 불일치=%d개, 사용 불가=%d%개"
+L.RANGE_DISTANCE_PASS		= "성공"
+L.RANGE_DISTANCE_FAIL		= "실패"
+L.RANGE_DISTANCE_INCOMPLETE	= "미완료 (경계 범위 부족, 모순된 값, 사용 불가 표본 또는 테스트 중단됨)"
+L.RANGE_DISTANCE_DONE			= "거리 보정 중지됨: 성공 %d개, 실패 %d개, 미완료 %d개 입니다. DBM:ShowRangeDistanceResults()를 사용해 결과를 복사하세요."
+
 L.RANGECHECK_HEADER			= "탐지 거리 (%dm)"
 L.RANGECHECK_HEADERT			= "탐지 거리 (%dm-%d명)"
 L.RANGECHECK_RHEADER			= "반전-탐지 거리 (%dm)"
@@ -249,6 +274,9 @@ L.RANGECHECK_IN_RANGE_TEXT	= "거리 내 %d명"--Text based doesn't need (%dyd),
 L.RANGERADAR_IN_RANGE_TEXTONE	= "%s (%0.1fm)"--One target
 
 L.INFOFRAME_TITLE				= "DBM 정보 창"
+L.INFOFRAME_BOSS_DISTANCE			= "보스 거리"
+L.INFOFRAME_BOSS_DISTANCE_RANGE		= "%dm - %dm"
+L.INFOFRAME_BOSS_DISTANCE_OVER		= "> %dm"
 L.INFOFRAME_SHOW_SELF			= "항상 내 자원 표시"		-- Always show your own power value even if you are below the threshold
 L.INFOFRAME_SETLINES			= "최대 줄 설정"
 L.INFOFRAME_SETCOLS				= "최대 열 설정"
@@ -412,7 +440,6 @@ L.AUTO_SPEC_WARN_TEXTS.blizzyou		= "%s (%%s): 당신"
 L.AUTO_SPEC_WARN_TEXTS.link		= "%s|1이;가; >%%s<랑 연결됨"
 L.AUTO_SPEC_WARN_TEXTS.defensive		= "%s - 생존기 켜세요"
 L.AUTO_SPEC_WARN_TEXTS.taunt		= "%s: >%%s< - 지금 도발"
-L.AUTO_SPEC_WARN_TEXTS.tauntsecret	= "%s: %%s - 지금 도발"
 L.AUTO_SPEC_WARN_TEXTS.close		= "근처의 >%%2$s<에게 %1$s"
 L.AUTO_SPEC_WARN_TEXTS.move		= "%s - 피하세요"
 L.AUTO_SPEC_WARN_TEXTS.keepmove		= "%s - 계속 이동"
@@ -708,7 +735,6 @@ L.DBM_INSTALL_PACKAGE_MOP		= "판다리아의 안개 패키지"
 L.DBM_INSTALL_PACKAGE_DUNGEON	= "던전, 구렁, 도전 및 이벤트 패키지"
 
 -- Tests
-L.DBM_TAINTED_BY_TESTS			= "DBM이 이번 접속에서 시간을 왜곡한 테스트 모드로 사용되고 있습니다. 보스 전투에서 DBM을 사용하기에 앞서 UI 재시작을 권장합니다. 모든 기능이 여전히 의도대로 작동해야 하나, 장담할 순 없습니다!"
 
 -- Boss tooltip
 L.TOOLTIP_DBM					= L.DBM .. " 정보"
