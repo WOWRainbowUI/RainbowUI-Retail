@@ -23,7 +23,6 @@ GMFONTS = GMFONTS or {}
 
 -- setup shared media
 local LSM = LibStub and LibStub:GetLibrary("LibSharedMedia-3.0", true)
-local PCD = LibStub("PhanxConfig-Dropdown")
 -- local fontpath = "Interface\\Addons\\"..ADDON.."\\fonts\\"
 
 -- function taken by PhanxFont, by Phanx
@@ -333,47 +332,7 @@ dropdown:SetupMenu(function(self, rootDescription)
 		end, fontName)
 	end
 end)
---[[
-local textgmfonts = options:CreateFontString("$parentTitle", "ARTWORK", "GameFontNormal")
-textgmfonts:SetPoint("TOPLEFT", 230, -80)
-textgmfonts:SetText("gmFonts sets")
-options.textgmfonts = textgmfonts
- 
-local gmlistfonts = {} 
-local gmlistfonts = {"Ubuntu", "Ubuntu Mono", "Ubuntu Light","Carlito", "PT Sans", "ComicNeue", "Candara", "Verdana", "Laurel", "Lato", "Noto", "Noto Sans", "Roboto", "OpenDyslexic"}
 
-local dropdown2 = PCD:New(options)
-dropdown2:SetPoint("TOPLEFT", 230, -80)
-dropdown2:SetList(gmlistfonts)
-function dropdown2:OnValueChanged(text)
-   
-   	local gmfontset = {}
-	gmfontset["Ubuntu"] = 		{"Ubuntu-R.ttf", "Ubuntu-B.ttf", "Ubuntu-BI.ttf", "Ubuntu-RI.ttf"}
-	gmfontset["Ubuntu Mono"] = 	{"UbuntuMono-R.ttf", "UbuntuMono-B.ttf", "UbuntuMono-BI.ttf", "UbuntuMono-RI.ttf"}
-	gmfontset["Ubuntu Light"] = {"Ubuntu-L.ttf", "Ubuntu-M.ttf", "Ubuntu-MI.ttf", "Ubuntu-L.ttf"}
-	gmfontset["Carlito"] = 		{"Carlito-Regular.ttf", "Carlito-Bold.ttf", "Carlito-BoldItalic.ttf", "Carlito-Italic.ttf"}
-	gmfontset["PT Sans"] = 		{"PT_Sans-Web-Regular.ttf", "PT_Sans-Web-Bold.ttf", "PT_Sans-Web-BoldItalic.ttf", "PT_Sans-Web-Italic.ttf"}
-	gmfontset["ComicNeue"] = 	{"ComicNeue-Regular.ttf", "ComicNeue-Bold.ttf", "ComicNeue-Bold.ttf", "ComicNeue-Regular.ttf"}
-	gmfontset["Candara"] = 		{"Candara.ttf", "Candarab.ttf", "Candaraz.ttf", "Candarai.ttf"}
-	gmfontset["Verdana"] = 		{"Verdana.TTF", "Verdanab.TTF", "Verdanaz.TTF", "Verdanai.TTF"}
-	gmfontset["Laurel"] = 		{"lauren-normal.ttf", "lauren-bold.ttf", "lauren-italic.ttf", "lauren-bold-italic.ttf"}
-	gmfontset["Lato"] = 		{"Lato-Regular.ttf", "Lato-Bold.ttf", "Lato-Italic.ttf", "Lato-BoldItalic.ttf"}
-	gmfontset["Noto"] = 		{"NotoSerif-Regular.ttf", "NotoSerif-Bold.ttf", "NotoSerif-Italic.ttf", "NotoSerif-BoldItalic.ttf"}
-	gmfontset["Noto Sans"] = 	{"NotoSans-Regular.ttf", "NotoSans-Bold.ttf", "NotoSans-Italic.ttf", "NotoSans-BoldItalic.ttf"}
-	gmfontset["Roboto"] = 		{"Roboto-Regular.ttf", "Roboto-Bold.ttf", "Roboto-Italic.ttf", "Roboto-BoldItalic.ttf"}
-	gmfontset["OpenDyslexic"] = {"OpenDyslexic-Regular.otf", "OpenDyslexic-Bold.otf", "OpenDyslexic-Italic.otf", "OpenDyslexic-Bold-Italic.otf"}
-	
-	GMFONTS["N"] 	= fontpath .. gmfontset[text][1]
-	GMFONTS["B"] 	= fontpath .. gmfontset[text][2]
-	GMFONTS["BI"] 	= fontpath .. gmfontset[text][3]
-	GMFONTS["I"] 	= fontpath .. gmfontset[text][4]
-	GMFONTS["NR"] 	= fontpath .. gmfontset[text][1]
-   
-	UpdateFonts()
-	options.refresh()
-   
-end
---]]
 -- print the default values
 local textdefaultn = options:CreateFontString("$parentTitle", "ARTWORK", "GameFontNormal")
 textdefaultn:SetPoint("TOPLEFT", 16, -160)
@@ -455,7 +414,7 @@ gmfonts_rld_button:SetScript("OnClick",
 --- credits 
 local credits = options:CreateFontString("$parentTitle", "ARTWORK", "SystemFont_Small")
 credits:SetPoint("BOTTOMRIGHT", -16, 16)
-credits:SetText("Font engine: |cffffd200tekticles|r by tekkub      Widget engine: |cffffd200PhanxConfig-Dropdown|r by phanx")
+credits:SetText("Font engine: |cffffd200tekticles|r by tekkub")
 options.credits = credits	
 	
 function options.refresh()
