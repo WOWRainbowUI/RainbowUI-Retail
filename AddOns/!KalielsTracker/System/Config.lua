@@ -30,7 +30,7 @@ local defaults = {
         bgrInset = 4,
         progressBar = "Blizzard",
 
-        font = LSM:GetDefault("font"),
+        font = " 方正准圓123",
         fontSize = 16,
         fontFlag = "",
         fontShadow = 1,

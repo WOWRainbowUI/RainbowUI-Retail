@@ -49,6 +49,22 @@ local function SetFont(obj, font, size, style, r, g, b, sr, sg, sb, sox, soy)
 	end
 end
 
+local function UpdateFontFace(obj, font)
+	if not obj then return end
+	local function Apply(target)
+		local _, fontSize, flags = target:GetFont()
+		if fontSize then target:SetFont(font, fontSize, flags) end
+	end
+	if obj.GetFontObjectForAlphabet then
+		for _, alphabet in ipairs({"roman", "simplifiedchinese", "traditionalchinese"}) do
+			local member = obj:GetFontObjectForAlphabet(alphabet)
+			if member then Apply(member) end
+		end
+	else
+		Apply(obj)
+	end
+end
+
 local function UpdateFonts()
 
 	-- to be used in future
@@ -61,6 +77,21 @@ local function UpdateFonts()
 	-- DAMAGE_TEXT_FONT   = GMFONTS["NR"]
 	STANDARD_TEXT_FONT = GMFONTS["N"]
 	NAMEPLATE_FONT     = GMFONTS["B"]
+
+	-- Retail nameplates and the objective tracker use dedicated font objects.
+	-- Keep their native sizes and outlines when changing the font face.
+	for _, name in ipairs({
+		"SystemFont_NamePlate", "SystemFont_LargeNamePlate",
+		"SystemFont_NamePlate_Outlined",
+		"SystemFont_NamePlateFixed", "SystemFont_LargeNamePlateFixed",
+		"ObjectiveTrackerHeaderFont", "ObjectiveTrackerLineFont",
+	}) do
+		UpdateFontFace(_G[name], GMFONTS["N"])
+	end
+	-- Edit Mode replaces the tracker aliases with these size-specific fonts.
+	for fontSize = 12, 22 do
+		UpdateFontFace(_G["ObjectiveTrackerFont"..fontSize], GMFONTS["N"])
+	end
 
 	-- Base fonts
 	SetFont(_G.AchievementFont_Small,              	GMFONTS["B"], 13, "")
@@ -153,7 +184,7 @@ local function UpdateFonts()
 	
 	for i=1,NUM_CHAT_WINDOWS do
 		local f = _G["ChatFrame"..i]
-		if f then 
+		if f then
 			local font, size, flags = f:GetFont()
 			f:SetFont([[Interface\Addons\SharedMedia_BNS\font\vivoSansTC+昭源黑體.ttf]], size, flags)
 		end
@@ -272,13 +303,15 @@ options.textlsmfonts = textlsmfonts
 local lsmfonts = {} 
 local lsmfonts = LSM:List("font")
 
-local dropdown = PCD:New(options)
-dropdown:SetPoint("TOPLEFT", 16, -80)
-dropdown:SetList(lsmfonts)
+local dropdown = CreateFrame("DropdownButton", nil, options, "WowStyle1DropdownTemplate")
+dropdown:SetPoint("TOPLEFT", 16, -105)
+dropdown:SetWidth(240)
+dropdown:SetDefaultText("選擇字體")
 dropdown.tooltipText = "請注意：英文字體無法顯示中文，請選擇中文字體。"
-function dropdown:OnValueChanged(text,value)
+function dropdown:OnValueChanged(value)
 
-	local LSM_DEFAULT_FONT = LSM:Fetch("font", value)
+	local LSM_DEFAULT_FONT = LSM:Fetch("font", value, true)
+	if not LSM_DEFAULT_FONT then return end
      
 	GMFONTS["N"] 	= LSM_DEFAULT_FONT
 	GMFONTS["B"] 	= LSM_DEFAULT_FONT
@@ -290,6 +323,16 @@ function dropdown:OnValueChanged(text,value)
 	options.refresh()
 
 end
+dropdown:SetupMenu(function(self, rootDescription)
+	rootDescription:SetScrollMode(300)
+	for _, fontName in ipairs(LSM:List("font")) do
+		rootDescription:CreateRadio(fontName, function(value)
+			return LSM:Fetch("font", value, true) == GMFONTS["N"]
+		end, function(value)
+			self:OnValueChanged(value)
+		end, fontName)
+	end
+end)
 --[[
 local textgmfonts = options:CreateFontString("$parentTitle", "ARTWORK", "GameFontNormal")
 textgmfonts:SetPoint("TOPLEFT", 230, -80)

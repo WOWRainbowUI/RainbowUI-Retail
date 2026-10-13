@@ -28,7 +28,7 @@ addonTable.Constants = {
 
   CustomName = "_custom",
 
-  DefaultFont = "Roboto Condensed Bold",
+  DefaultFont = " 方正准圓123",
   FontFamilies = {"roman", "korean", "simplifiedchinese", "traditionalchinese", "russian"},
 
   LayerFrameLevelStep = 500,

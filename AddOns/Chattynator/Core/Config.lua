@@ -98,14 +98,14 @@ local settings = {
   SHOW_TIMESTAMP_SEPARATOR = {key = "show_timestamp_separator", default = true, refresh = {addonTable.Constants.RefreshReason.MessageWidget}},
   TIMESTAMP_SPACING = {key = "timestamp_spacing", default = 1},
 
-  MESSAGE_FONT = {key = "message_font", default = "default", refresh = {addonTable.Constants.RefreshReason.MessageFont}},
+  MESSAGE_FONT = {key = "message_font", default = " 昭源黑體123", refresh = {addonTable.Constants.RefreshReason.MessageFont}},
   MESSAGE_FONT_SIZE = {key = "message_font_size", default = 14, refresh = {addonTable.Constants.RefreshReason.MessageFont}},
   MESSAGE_FONT_OUTLINE = {key = "message_font_outline", default = "none", refresh = {addonTable.Constants.RefreshReason.MessageFont}},
   MESSAGE_FADE_TIME = {key = "message_fade_time", default = 25},
   ENABLE_MESSAGE_FADE = {key = "enable_message_fade", default = true},
   ENABLE_SMOOTH_SCROLLING_COMBAT = {key = "enable_smooth_scrolling_combat", default = false},
   TAB_FLASH_ON = {key = "tab_flash_on", default = "all"},
-  SHOW_FONT_SHADOW = {key = "show_font_shadow", default = false, refresh = {addonTable.Constants.RefreshReason.MessageFont}},
+  SHOW_FONT_SHADOW = {key = "show_font_shadow", default = true, refresh = {addonTable.Constants.RefreshReason.MessageFont}},
 
   SHORTEN_FORMAT = {key = "shorten_format", default = "none", refresh = {addonTable.Constants.RefreshReason.MessageModifier}},
   CLASS_COLORS = {key = "class_colors", default = true, refresh = {addonTable.Constants.RefreshReason.MessageModifier}},
