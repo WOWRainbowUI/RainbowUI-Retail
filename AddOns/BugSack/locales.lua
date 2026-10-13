@@ -8,7 +8,7 @@ L["altWipeDesc"] = "Allows an alt-click on the minimap icon to wipe all stored b
 L["autoDesc"] = "Makes the BugSack open automatically when an error is encountered, but not while you are in combat."
 L["Auto popup"] = "Auto popup"
 L.minimapHint = "|cffeda55fClick|r to open BugSack with the last bug. |cffeda55fShift-Click|r to reload the user interface. |cffeda55fRight-Click|r to open options."
-L["|cffff4411BugSack requires the |r|cff44ff44!BugGrabber|r|cffff4411 addon, which you can download from the same place you got BugSack. Happy bug hunting!|r"] = "|cffff4411BugSack requires the |r|cff44ff44!BugGrabber|r|cffff4411 addon, which you can download from the same place you got BugSack. Happy bug hunting!|r"
+L.bugGrabberMissing = "BugSack requires the |cFF33FF99!BugGrabber|r addon, which you can download from the same place you got BugSack. Happy bug hunting!"
 L["chatFrameDesc"] = "Prints a reminder to the chat frame when an error is encountered. Doesn't print the whole error, just a reminder!"
 L["Chatframe output"] = "Chatframe output"
 L["Current session"] = "Current session"
@@ -62,7 +62,7 @@ local locale = GetLocale()
 if locale == "zhCN" then
 	L["%d bugs have been sent to %s. He must have BugSack to be able to examine them."] = "%d个错误已经发送给%s。他必须安装 BugSack 插件才能查看错误信息。"
 	L.minimapHint = "|cffeda55f点击|r打开 BugSack 及最后一错误信息。|cffeda55fShift-点击|r重新加载用户界面。|cffeda55f右击|r 打开选项。"
-	L["|cffff4411BugSack requires the |r|cff44ff44!BugGrabber|r|cffff4411 addon, which you can download from the same place you got BugSack. Happy bug hunting!|r"] = "|cffff4411BugSack 需要 |r|cff44ff44!BugGrabber|r|cffff4411 插件, 你可以从相同地方下载 BugSack。猎虫愉快！|r"
+	L.bugGrabberMissing = "错误信息袋需要 |cFF33FF99!BugGrabber|r 插件，请从下载错误信息袋的同一个地方下载。祝你除错愉快！"
 	L["< Previous"] = "<前一个"
 	L["All bugs"] = "全部错误"
 	L["All stored bugs have been exterminated painfully."] = "所有已保存的错误已经被清除。"
@@ -118,7 +118,7 @@ if locale == "zhCN" then
 elseif locale == "zhTW" then
 	L["%d bugs have been sent to %s. He must have BugSack to be able to examine them."] = "%d 個錯誤已經傳送給 %s。他必須使用 BugSack 插件查看錯誤訊息。"
 	L.minimapHint = "|cffeda55f左鍵:|r 顯示最新的錯誤訊息。\n|cffeda55fShift+左鍵:|r 重新載入介面。\n|cffeda55f右鍵:|r 設定選項。"
-	L["|cffff4411BugSack requires the |r|cff44ff44!BugGrabber|r|cffff4411 addon, which you can download from the same place you got BugSack. Happy bug hunting!|r"] = "|cffff4411錯誤訊息袋需要|r|cff44ff44 !BugGrabber |r|cffff4411插件，可以從下載 BugSack 相同的地方來下載。獵蟲愉快!|r"
+	L.bugGrabberMissing = "錯誤訊息袋需要 |cFF33FF99!BugGrabber|r 插件，請從下載錯誤訊息袋的同一個地方下載。祝你除錯愉快！"
 	L["< Previous"] = "< 上一個"
 	L["All bugs"] = "所有錯誤"
 	L["All stored bugs have been exterminated painfully."] = "所有保留的錯誤都已清除。"
