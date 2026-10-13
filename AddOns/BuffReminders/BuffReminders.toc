@@ -1,9 +1,9 @@
 ## Interface: 120100
-# WOW_INTERFACE_TARGETS: mainline
+# WOW_INTERFACE_TARGETS: standard
 ## Title: BuffReminders
 ## Notes: Track missing buffs at a glance
 ## Author: zerbi
-## Version: v6.8.4
+## Version: v6.8.5
 ## SavedVariables: BuffRemindersDB
 ## X-Curse-Project-ID: 1441094
 ## X-Wago-ID: qGYZZjNg
