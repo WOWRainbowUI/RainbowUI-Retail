@@ -1,3 +1,7 @@
+# v3.2
+
+- Updated for 12.1.5
+
 # v3.1
 
 - Fixed Curse of Ula'tek campaign questlines not being flagged as major

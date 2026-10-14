@@ -45,7 +45,7 @@ function BtWQuestsQuestPinMixin:SetName(value)
     self.itemName = value
 end
 function BtWQuestsQuestPinMixin:IsMouseWithin()
-    return MouseIsOver(self)
+    return self:IsMouseOver()
 end
 function BtWQuestsQuestPinMixin:OnUpdate()
     local x, y = GetCursorPosition()
