@@ -1,6 +1,6 @@
 # Baganator
 
-## [836](https://github.com/TheMouseNest/Baganator/tree/836) (2026-10-08)
-[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/835...836) 
+## [837](https://github.com/TheMouseNest/Baganator/tree/837) (2026-10-13)
+[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/836...837) 
 
-- Forever + Mainline: Update for new Syndicator API for bag slot counts  
+- Update toc for 12.1.5  
