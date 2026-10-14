@@ -1,6 +1,6 @@
-## Interface: 120100, 16001, 50504, 38001, 20506, 11509
+## Interface: 120100, 120105, 16001, 50504, 38001, 20506, 11509
 ## Title: Syndicator
-## Version: 286
+## Version: 287
 ## Author: plusmouse
 ## SavedVariables: SYNDICATOR_CONFIG, SYNDICATOR_DATA, SYNDICATOR_SUMMARIES
 ## IconTexture: Interface\AddOns\Syndicator\Assets\logo.tga
@@ -32,6 +32,8 @@ Core\Initialize.lua
 
 Options\Initialize.lua
 
+API\Main.lua
+
 Tracking\BagCache.lua
 Tracking\MailCache.lua
 Tracking\EquippedCache.lua
@@ -55,5 +57,3 @@ Search\OfflineList.xml
 Search\SearchEverywhere.lua
 Search\UI\Builder.lua
 Search\Utilities.lua
-
-API\Main.lua

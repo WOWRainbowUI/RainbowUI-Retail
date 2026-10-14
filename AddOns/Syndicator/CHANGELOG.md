@@ -1,6 +1,6 @@
 # Syndicator
 
-## [286](https://github.com/TheMouseNest/Syndicator/tree/286) (2026-10-08)
-[Full Changelog](https://github.com/TheMouseNest/Syndicator/compare/285...286) 
+## [287](https://github.com/TheMouseNest/Syndicator/tree/287) (2026-10-13)
+[Full Changelog](https://github.com/TheMouseNest/Syndicator/compare/286...287) 
 
-- Forever: Correct slots for keyring  
+- Commit forgotten file and update toc for 12.1.5  

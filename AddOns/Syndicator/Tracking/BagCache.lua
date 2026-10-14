@@ -17,6 +17,8 @@ for index, key in ipairs(addonTable.Constants.AllWarbandIndexes) do
   warbandBags[key] = index
 end
 
+local GetBagNumSlots = Syndicator.API.GetContainerNumSlots
+
 local function GetEmptyPending()
   return {
     bags = {},
@@ -438,7 +440,7 @@ function SyndicatorBagCacheMixin:OnUpdate()
     local bagIndex = bagBags[bagID]
     bags[bagIndex] = {}
     local bagData = bags[bagIndex]
-    for slotID = 1, C_Container.GetContainerNumSlots(bagID) do
+    for slotID = 1, GetBagNumSlots(bagID) do
       DoSlot(bagID, slotID, bagData)
     end
   end
