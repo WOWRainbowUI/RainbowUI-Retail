@@ -37,9 +37,8 @@ local BUFF_FILTER = "HELPFUL"
 local BUFF_FILTER_MINE = "HELPFUL|PLAYER"
 local DEBUFF_FILTER = "HARMFUL"
 -- The flagged categories Important Auras draws its own row of. Kept out by negating the game's own
--- token, which is the only filter weighed on every unit. A spell-id map would be skipped for a
--- helpful aura on an enemy and for a harmful one on a friendly, and these frames are the friendly
--- half.
+-- token, which is the only filter weighed on every unit. A spell-id map rejects every harmful aura
+-- on a friendly, and these frames are the friendly half.
 local EXCLUDE_IMPORTANT = "|!IMPORTANT"
 local EXCLUDE_DEFENSIVE = "|!BIG_DEFENSIVE|!EXTERNAL_DEFENSIVE"
 local EXCLUDE_CROWD_CONTROL = "|!CROWD_CONTROL"
@@ -246,10 +245,10 @@ local function BlizzardFrames()
 	return frameScratch
 end
 
----The unit a frame is showing, or nil when the client will not say.
+---The unit token a frame holds, pet or not, or nil when the client will not say.
 ---@param frame table
 ---@return string?
-local function UnitFor(frame)
+local function RawUnitFor(frame)
 	local unit = frame.unit or (frame.GetAttribute and frame:GetAttribute("unit"))
 
 	if unit == nil or mini:IsSecret(unit) or type(unit) ~= "string" then
@@ -257,6 +256,26 @@ local function UnitFor(frame)
 	end
 
 	return unit
+end
+
+---Whether a frame is showing a pet, which never gets a row.
+---@param frame table
+---@return boolean
+local function IsPetFrame(frame)
+	local unit = RawUnitFor(frame)
+
+	return unit ~= nil and string.find(unit, "pet", 1, true) ~= nil
+end
+
+---The unit a frame is showing, or nil when the client will not say or it is a pet.
+---@param frame table
+---@return string?
+local function UnitFor(frame)
+	if IsPetFrame(frame) then
+		return nil
+	end
+
+	return RawUnitFor(frame)
 end
 
 ---Whether a frame's unit is really there. All forty raid frames exist from the moment the client
@@ -1186,8 +1205,7 @@ local function SyncKick(entry, wanted)
 
 	entry.DebuffsWanted = wanted
 
-	-- A pet never shows one, so its row never has to chain past it.
-	if entry.Debuffs and ShowsKicks() and unit and (entry.KickUnit == unit or not units:IsPetOrMinion(unit)) then
+	if entry.Debuffs and ShowsKicks() and unit then
 		EnsureKickContainer(entry)
 
 		if entry.KickUnit ~= unit then
@@ -1613,7 +1631,7 @@ local function EnsureEntry(frame, occupantMoved)
 		local buildable
 
 		if testModeActive then
-			buildable = frames:IsAnchorUsable(frame)
+			buildable = not IsPetFrame(frame) and frames:IsAnchorUsable(frame)
 		else
 			buildable = HasUnitForSure(unit)
 		end
