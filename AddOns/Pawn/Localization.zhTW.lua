@@ -691,6 +691,7 @@ PawnLocal.TooltipParsing = {
 	["SpellDamageAndHealingEnchant"] = "^%+#治療和%+#法術傷害",
 	["SpellDamageAndHealingShort"] = "^%+#治療法術和%+#傷害法術",
 	["SpellDamageAndHealingShort2"] = "^UNUSED$",
+	["SpellDamageForever"] = "^UNUSED$",
 	["SpellHasteClassic"] = "^裝備： 你的施法速度提高#%%。$",
 	["SpellHasteRating"] = "^裝備: 提高#點法術加速。$",
 	["SpellHasteRatingShort"] = "^%+?#法術加速等級$",
@@ -741,7 +742,7 @@ PawnLocal.TooltipParsing = {
 
 -- Special case: weapons actually use different text on live versus classic.
 -- So, patch things up here.
-if VgerCore.IsClassic then
+if VgerCore.IsClassic or VgerCore.IsForever then
 
 	local TooltipParsing_Classic =
 	{
