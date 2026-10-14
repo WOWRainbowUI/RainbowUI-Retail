@@ -1505,7 +1505,7 @@ local options = {
         { keystring = "general.bgfile",             type = "dropdown", dropdata = widgets.bgfileDropdata, allowRawValue = true },
         { keystring = "general.anchor",             type = "anchor", dropdata = {"default","cursorRight","cursor","static"} },
         { keystring = "general.anchor.modifierShowInCombatKey", type = "combatmod", labelKeystring = "general.anchor.modifierShowInCombat", enableKeystring = "general.anchor.hiddenInCombat", dropdata = {"none", "alt", "ctrl", "shift"} },
-        { keystring = "general.announcementMode",   type = "dropdown", labelKeystring = "general.annoucements", localePrefix = "general.annoucements.dropdown.", dropdata = {"noticeNever", "noticeSnooze", "noticeAlways"} },
+        { keystring = "general.announcementMode",   type = "dropdown", labelKeystring = "general.annoucements", localePrefix = "general.annoucements.dropdown.", dropdata = {"noticeNever", "noticeSnooze"} },
         { keystring = "quest.coloredQuestBorder",   type = "checkbox" },
         { keystring = "quest.showQuestId",          type = "checkbox" },
         { keystring = "general.SavedVariablesPerCharacter",   type = "checkbox" },

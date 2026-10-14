@@ -191,12 +191,19 @@ LibEvent:attachEvent("PLAYER_LOGIN", function()
     local title = addon.L["about.announcement.title"] or ""
     local chatKey = addon.L["about.announcement.chatKey"] or ""
     local chatContent = addon.L["about.announcement.chat"] or ""
-    local mode = general.announcementMode or "noticeAlways"
+    local mode = general.announcementMode or "noticeSnooze"
+    if (mode == "noticeAlways") then
+        general.announcementMode = "noticeSnooze"
+    end
 
     if (mode == "noticeNever" or chatKey == "") then
         return
     end
-    if (mode == "noticeSnooze" and general.announcementLastSeen == chatKey) then
+    local version = (C_AddOns and C_AddOns.GetAddOnMetadata and C_AddOns.GetAddOnMetadata("TinyTooltip-Remake", "Version"))
+        or (GetAddOnMetadata and GetAddOnMetadata("TinyTooltip-Remake", "Version"))
+        or chatKey
+    -- Use the account-wide database so changing characters does not repeat the notice.
+    if (TinyTooltipRemakeDB.announcementLastSeenVersion == version) then
         return
     end
 
@@ -207,6 +214,7 @@ LibEvent:attachEvent("PLAYER_LOGIN", function()
         print(chatContent)
     end
     general.announcementLastSeen = chatKey
+    TinyTooltipRemakeDB.announcementLastSeenVersion = version
 end)
 
 LibEvent:attachTrigger("tooltip:cleared, tooltip:hide", function(self, tip)
