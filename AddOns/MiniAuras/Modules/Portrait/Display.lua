@@ -100,9 +100,9 @@ local function BuildPortraitStyle()
 	return style
 end
 
----The disarm layer's only real filter is its spell-ID map, which the engine skips for debuffs on
----assistable units, leaving the layer showing whatever debuff is newest. Budgeted away while the
----occupant is assistable, and re-checked whenever the token's occupant changes.
+---The disarm layer's only real filter is its spell-ID map, which the engine refuses for debuffs on
+---assistable units, so the layer can show nothing there. Budgeted away while the occupant is
+---assistable, and re-checked whenever the token's occupant changes.
 ---@param auraDisplay { DisarmDisplay: AuraContainerDisplay }
 ---@param unit string
 local function ApplyDisarmBudget(auraDisplay, unit)
@@ -373,7 +373,7 @@ end
 ---Returns nil when the portrait's dimensions are secret, which is the tainted-frame case.
 ---@param portraitLayer table? demoted layer from CreatePortraitLayer. The container goes inside
 ---it and matches the portrait rect exactly, since the border art now covers the icon's edges.
----@param flush boolean? match the portrait rect exactly, for a portrait whose border sits outside it.
+---@param flush boolean? match the portrait rect exactly, for a portrait with no border art over it.
 ---@return IconSlotContainer?
 function M:CreateContainer(unitFrame, portrait, unit, texCoord, mask, portraitLayer, flush)
 	-- One slot with multiple layers, and no border for portrait icons.
