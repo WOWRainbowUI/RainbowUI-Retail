@@ -25,7 +25,7 @@
 ## X-DBM-Mod-MinExpansion: 10
 ## X-Curse-Project-ID: 314994
 ## X-Wago-ID: xZKxZENk
-## Version: r264
+## Version: r265
 
 localization.en.lua
 localization.kr.lua

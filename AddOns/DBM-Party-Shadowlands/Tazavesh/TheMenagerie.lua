@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2454, "DBM-Party-Shadowlands", 9, 1194)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260709014625")
+mod:SetRevision("20261002062552")
 mod:SetCreatureID(176556, 176555, 176705)
 mod:SetEncounterID(2441)
 mod:SetUsedIcons(1)
@@ -181,7 +181,7 @@ function mod:SPELL_AURA_APPLIED(args)
 			self:SetIcon(args.destName, 1)
 		end
 	elseif spellId == 349933 then
-		if self.Options.InfoFrame and not DBM.Test.testRunning then
+		if self.Options.InfoFrame then
 			local bossUnitID = self:GetUnitIdFromGUID(args.destGUID)
 			DBM.InfoFrame:SetHeader(args.spellName)
 			DBM.InfoFrame:Show(2, "enemyabsorb", nil, args.amount, bossUnitID)

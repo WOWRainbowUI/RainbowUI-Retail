@@ -1,6 +1,6 @@
 ## Interface: 50504, 120100
 ## AllowLoadGameType: mists, standard
-## Version: r264
+## Version: r265
 ## Category: DBM
 ## Title:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0Challenges|r
 ## Title-deDE:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0Herausforderungen|r

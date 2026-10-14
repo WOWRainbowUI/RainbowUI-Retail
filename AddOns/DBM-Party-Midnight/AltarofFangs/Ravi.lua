@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2878, "DBM-Party-Midnight", 9, 1322)
 --local L		= mod:GetLocalizedStrings()--Nothing to localize for blank mods
 
-mod:SetRevision("20260831213150")
+mod:SetRevision("20260921230256")
 --mod:SetCreatureID(231631)
 mod:SetEncounterID(3456)
 --mod:SetHotfixNoticeRev(20250823000000)
@@ -138,10 +138,8 @@ do
 	end
 
 	function mod:ENCOUNTER_TIMELINE_EVENT_STATE_CHANGED(eventID)
-		local eventState = C_EncounterTimeline.GetEventState(eventID)
-		if not eventID or not eventState then return end
+		local eventState, eventType, eventCount = self:TLHandleStateChanged(eventID)
 		if eventState == 2 then
-			local eventType, eventCount = self:TLCountFinish(eventID)
 			if eventType == "ssscavenging" then
 				nextTwentyFourIsStomp = true
 			end
@@ -159,8 +157,6 @@ do
 					specWarnRavenousStomp:Play("watchstep")
 				end
 			end
-		elseif eventState == 3 then
-			self:TLCountCancel(eventID)
 		end
 	end
 end

@@ -7,10 +7,10 @@ else
 	mod.statTypes = "normal"
 end
 
-mod:SetRevision("20260905035030")
+mod:SetRevision("20261001040934")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(3586)
---mod:SetEncounterID(1144)--Doesn't have Encounter ID
+mod:SetEncounterID(3676)--Encounter ID added in forever
 mod:SetModelID(556)
 mod:SetZone(36)
 

@@ -2,7 +2,7 @@ if not DBM:IsSeasonal("SeasonOfDiscovery") then return end
 local mod	= DBM:NewMod("DarkRider", "DBM-Party-Vanilla", 22)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260905035030")
+mod:SetRevision("20261002062552")
 mod:DisableHardcodedOptions()
 mod:SetEncounterID(3145)
 mod:SetModelID(126912)
@@ -86,7 +86,6 @@ else
 		end
 	end
 	f:SetScript("OnEvent", handler)
-	DBM:RegisterCallback("DBMTest_Event", function(_, ...) handler(f, ...) end)
 
 	local lastZone = nil
 	function mod:CheckInstance()

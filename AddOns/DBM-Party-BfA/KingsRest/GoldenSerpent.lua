@@ -3,7 +3,7 @@ local L		= mod:GetLocalizedStrings()
 
 mod.statTypes = "normal,heroic,mythic,challenge,timewalker"
 
-mod:SetRevision("20260919193459")
+mod:SetRevision("20260922035347")
 mod:SetCreatureID(135322)
 mod:SetEncounterID(2139)
 mod:SetZone(1762)
@@ -48,7 +48,7 @@ if DBM:IsRestricted() then
 			else
 				specWarnLucreCall:SetAlert(893, "killmob", 2)
 			end
-			specWarnSerpentine:SetAlert(892, "justrun", 2)
+			specWarnSerpentine:SetAlert(892, "pushbackincoming", 13)
 		end
 		local onlyColor = not DBM.Options.HideDBMBars and not badStateDetected
 		timerTailThrashCD:SetTimeline(891, onlyColor)
@@ -146,7 +146,7 @@ if DBM:IsRestricted() then
 					end
 				elseif eventType == "serpentine" and eventCount then
 					specWarnSerpentine:Show(eventCount)
-					specWarnSerpentine:Play("justrun")
+					specWarnSerpentine:Play("pushbackincoming")
 				end
 			elseif eventState == 3 then
 				self:TLCountCancel(eventID)
