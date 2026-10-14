@@ -54,6 +54,10 @@ local contextCriteria = {
   {key = "delve-caster", label = addonTable.Locales.CASTER},
   {key = "delve-melee", label = addonTable.Locales.MELEE},
   {key = "delve-trivial", label = addonTable.Locales.TRIVIAL},
+
+  {title = addonTable.Locales.TARGET},
+  {key = "is-target", label = addonTable.Locales.IS_TARGET},
+  {key = "not-target", label = addonTable.Locales.NOT_TARGET},
 }
 
 local function AddCriteria(rootDescription, isSet, onSet)
@@ -463,14 +467,12 @@ local function GetCustomOptions(container)
 
     local offsetY = 0
     for _, entry in ipairs(assignments) do
-      if addonTable.Constants.IsSimplifiedAvailable or not entry.simplified then
-        local holder = holderPool:Acquire()
-        holder:SetEntry(entry)
-        holder:SetPoint("TOP", 0, offsetY)
-        holder:SetPoint("LEFT", 30, 0)
-        holder:SetPoint("RIGHT", -30, 0)
-        offsetY = offsetY - holder:GetHeight()
-      end
+      local holder = holderPool:Acquire()
+      holder:SetEntry(entry)
+      holder:SetPoint("TOP", 0, offsetY)
+      holder:SetPoint("LEFT", 30, 0)
+      holder:SetPoint("RIGHT", -30, 0)
+      offsetY = offsetY - holder:GetHeight()
     end
 
     ScrollChild:SetHeight(-offsetY)

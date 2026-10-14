@@ -348,17 +348,27 @@ function addonTable.Display.AurasManagerNextMixin:GetFilters(kind, settings)
     if settings.filters.fromYou then
       playerFilter = "|PLAYER"
     end
+    local nameplateShowAll = nil
+    if not settings.filters.includeExtras then
+      nameplateShowAll = false
+    end
     if settings.filters.important then
-      table.insert(output, {"HARMFUL|IMPORTANT|!CROWD_CONTROL" .. playerFilter, {excludeSpellIDs = exclude}})
-      table.insert(output, {"HARMFUL|!IMPORTANT|!CROWD_CONTROL" .. playerFilter, {excludeSpellIDs = exclude, nameplateShowPersonal = true}})
+      table.insert(output, {"HARMFUL|IMPORTANT|!CROWD_CONTROL" .. playerFilter, {excludeSpellIDs = exclude, nameplateShowAll = nameplateShowAll}})
+      table.insert(output, {"HARMFUL|!IMPORTANT|!CROWD_CONTROL" .. playerFilter, {excludeSpellIDs = exclude, nameplateShowAll = nameplateShowAll, nameplateShowPersonal = true}})
     else
-      table.insert(output, {"HARMFUL|!CROWD_CONTROL" .. playerFilter, {excludeSpellIDs = exclude}})
+      table.insert(output, {"HARMFUL|!CROWD_CONTROL" .. playerFilter, {excludeSpellIDs = exclude, nameplateShowAll = nameplateShowAll}})
     end
   elseif kind == "crowdControl" then
     if settings.filters.fromYou then
       table.insert(output, {"HARMFUL|CROWD_CONTROL|PLAYER", {excludeSpellIDs = exclude}})
+      if settings.filters.includeExtras then
+        table.insert(output, {"HARMFUL|!CROWD_CONTROL|PLAYER", {nameplateShowAll = true}})
+      end
     else
       table.insert(output, {"HARMFUL|CROWD_CONTROL", {excludeSpellIDs = exclude}})
+      if settings.filters.includeExtras then
+        table.insert(output, {"HARMFUL|!CROWD_CONTROL", {nameplateShowAll = true}})
+      end
     end
   end
 

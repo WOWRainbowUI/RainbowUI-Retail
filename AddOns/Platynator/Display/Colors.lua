@@ -61,6 +61,7 @@ local kindToCache = {
   inRange = {"range"},
   inRangeMelee = {"rangeMelee"},
   outOfRange = {"range"},
+  outOfRangeMelee = {"rangeMelee"},
   target = {"target"},
   notTarget = {"target"},
   softTarget = {"softTarget"},

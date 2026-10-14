@@ -48,8 +48,10 @@ end
 function addonTable.Display.HealthTextMixin:SetUnit(unit)
   self.unit = unit
   if self.unit then
-    self:RegisterUnitEvent("UNIT_HEALTH", self.unit)
-    self:UpdateText()
+    self:UpdateText(addonTable.Cache:Get(self.unit, "health"))
+    addonTable.Cache:RegisterCallback(self.unit, "health", function(state)
+      self:UpdateText(state)
+    end)
   else
     self:UnregisterAllEvents()
   end
@@ -65,13 +67,7 @@ function addonTable.Display.HealthTextMixin:Strip()
   self.text:SetAlpha(1)
 end
 
-function addonTable.Display.HealthTextMixin:OnEvent()
-  self:UpdateText()
-end
-
-local AbbreviateNumbersAlt = addonTable.Display.Utilities.AbbreviateNumbersAlt
-
-function addonTable.Display.HealthTextMixin:UpdateText()
+function addonTable.Display.HealthTextMixin:UpdateText(state)
   if UnitIsDeadOrGhost(self.unit) then
     self.text:SetText("0")
     if self.hideAuto then
@@ -80,23 +76,16 @@ function addonTable.Display.HealthTextMixin:UpdateText()
   else
     local values = {
       percentage = "",
-      absolute = (AbbreviateNumbersAlt or AbbreviateNumbers)(UnitHealth(self.unit)),
+      absolute = (addonTable.Display.Utilities.AbbreviateNumbersAlt or AbbreviateNumbers)(state.absolute),
     }
     local types = self.details.displayTypes
-    if UnitHealthPercent then -- Midnight APIs
-      local value = UnitHealthPercent(self.unit, true, CurveConstants.ScaleTo100)
-      if self.abbreviateData then
-        values.percentage = AbbreviateNumbers(value, self.abbreviateData) .. self.percentTail
-      else
-        values.percentage = C_StringUtil.RoundToNearestString(value) .. self.percentTail
-      end
+    local value = state.percent
+    if self.abbreviateData then
+      values.percentage = AbbreviateNumbers(value, self.abbreviateData) .. self.percentTail
+    elseif self.abbreviateCallback then
+      values.percentage = self.abbreviateCallback(value) .. self.percentTail
     else
-      local value = UnitHealth(self.unit, true)/UnitHealthMax(self.unit)*100
-      if self.abbreviateCallback then
-        values.percentage = self.abbreviateCallback(value) .. self.percentTail
-      else
-        values.percentage = Round(value) .. self.percentTail
-      end
+      values.percentage = (C_StringUtil and C_StringUtil.RoundToNearestString and C_StringUtil.RoundToNearestString(value) or Round(value)) .. self.percentTail
     end
     if #types == 2 then
       self.text:SetFormattedText(self.formatMultiple, values[types[1]], values[types[2]])
@@ -105,7 +94,7 @@ function addonTable.Display.HealthTextMixin:UpdateText()
     end
 
     if self.hideAuto then
-      self.text:SetAlpha(UnitHealthPercent(self.unit, true, curve))
+      self.text:SetAlpha(state.markerAlpha)
     end
   end
 end

@@ -106,6 +106,103 @@ local function AnchorBar(frame, details)
   end
 end
 
+local function ArrangeAuras(frame, auraManager, height, kind, filterString)
+  local settings = GetAuraSettings()[kind]
+  local allocated = 0
+  if settings.showAll.enabled or settings.showNone.enabled then
+    local lastAura
+    local firstAura
+    for i = 1, #settings.auras do
+      local point = {"BOTTOM", lastAura, "TOP"}
+      if not lastAura then
+        point = {"BOTTOM", frame, "BOTTOM", 0, - height * #settings.auras}
+      end
+      local aura = auraManager:AcquireSlot(height, point, filterString, settings.auras[i].spellID)
+      if not firstAura then
+        firstAura = aura
+      end
+      lastAura = aura
+    end
+
+    if settings.showAll.enabled then
+      allocated = allocated + 1
+      local current = frame.auras[kind].textures[allocated]
+      current.mask:SetHeight(height)
+      local color = settings.showAll.color
+      current.texture:SetVertexColor(color.r, color.g, color.b)
+      current.texture:SetDrawLayer("OVERLAY", 6)
+      current.mask:SetPoint("BOTTOM", lastAura, "TOP")
+    end
+
+    if settings.showNone.enabled then
+      allocated = allocated + 1
+      local current = frame.auras[kind].textures[allocated]
+      current.mask:SetHeight(height)
+      current.texture:SetDrawLayer("OVERLAY", 6)
+      local color = settings.showNone.color
+      current.texture:SetVertexColor(color.r, color.g, color.b)
+      frame.auras[kind].pillar:SetSize(10, #settings.auras * height)
+      frame.auras[kind].pillar:SetPoint("BOTTOM", lastAura, "TOP")
+      current.mask:SetPoint("BOTTOM", frame.auras[kind].pillar, "TOP")
+      frame.auras[kind].showNone = current.texture
+    end
+  end
+
+  if settings.showIndividualColors then
+    for index, details in ipairs(settings.auras) do
+      allocated = allocated + 1
+      local current = frame.auras[kind].textures[allocated]
+      current.mask:SetHeight(height)
+      local aura = auraManager:AcquireSlot(height, {"BOTTOM", frame, "BOTTOM", 0, -height}, filterString, details.spellID)
+      local color = details.color
+      current.texture:SetVertexColor(color.r, color.g, color.b)
+      current.texture:SetDrawLayer("OVERLAY", math.max(-8, (6 - index)))
+      current.mask:SetPoint("BOTTOM", aura, "TOP")
+    end
+  end
+
+  frame.auras[kind].allocated = allocated
+end
+
+local function UpdateAurasForKind(frame, kind, unit)
+  local settings = GetAuraSettings()[kind]
+  for i = 1, frame.auras[kind].allocated do
+    frame.auras[kind].textures[i].texture:Show()
+  end
+  if frame.auras[kind].allocated < #frame.auras[kind].textures then
+    for i = frame.auras[kind].allocated + 1, #frame.auras[kind].textures do
+      frame.auras[kind].textures[i].texture:Hide()
+    end
+  end
+  if settings.showNone.enabled then
+    frame.auras[kind].showNone:SetShown(addonTable.Cache:Get(unit, "combat"))
+    addonTable.Cache:RegisterCallback(unit, "combat", function(state)
+      frame.auras[kind].showNone:SetShown(state)
+    end)
+  end
+end
+
+local function UpdateAuras(frame, unit, auraManager)
+  if frame.auras.debuffs and frame.auras.debuffs.active then
+    if not UnitCanAssist("player", unit, true, true) then
+      UpdateAurasForKind(frame, "debuffs", unit)
+    else
+      for _, details in ipairs(frame.auras.debuffs.textures) do
+        details.texture:Hide()
+      end
+    end
+  end
+  if frame.auras.buffs and frame.auras.buffs.active then
+    if UnitCanAssist("player", unit, true, true) then
+      UpdateAurasForKind(frame, "buffs", unit)
+    else
+      for _, details in ipairs(frame.auras.buffs.textures) do
+        details.texture:Hide()
+      end
+    end
+  end
+end
+
 function addonTable.Display.GetHealthBar(frame, parent)
   frame = frame or CreateFrame("Frame", nil, parent or UIParent)
 
@@ -217,7 +314,7 @@ function addonTable.Display.GetHealthBar(frame, parent)
       return
     end
     local settings = GetAuraSettings()[kind]
-    if #settings.auras == 0 then
+    if #settings.auras == 0 or settings.mode ~= "health" then
       if frame.auras[kind] then
         frame.auras[kind].active = false
         for _, details in ipairs(frame.auras[kind].textures) do
@@ -251,8 +348,9 @@ function addonTable.Display.GetHealthBar(frame, parent)
       end
     end
 
-    for _, details in ipairs(frame.auras[kind].textures) do
+    for index, details in ipairs(frame.auras[kind].textures) do
       details.texture:RemoveMaskTexture(frame.edgeMask)
+      details.texture:SetTexture(foreground)
     end
 
     local markerDetails = addonTable.Assets.BarPositionHighlights[frame.details.marker.asset]
@@ -263,63 +361,7 @@ function addonTable.Display.GetHealthBar(frame, parent)
     end
 
     local height = PixelUtil.ConvertPixelsToUIForRegion(frame.rawHeight * frame.details.scale, frame) + 1
-    local allocated = 0
-    if settings.showAll.enabled or settings.showNone.enabled then
-      local lastAura
-      local firstAura
-      for i = 1, #settings.auras do
-        local point = {"BOTTOM", lastAura, "TOP"}
-        if not lastAura then
-          point = {"BOTTOM", frame, "BOTTOM", 0, - height * #settings.auras}
-        end
-        local aura = auraManager:AcquireSlot(height, point, filterString, settings.auras[i].spellID)
-        if not firstAura then
-          firstAura = aura
-        end
-        lastAura = aura
-      end
-
-      if settings.showAll.enabled then
-        allocated = allocated + 1
-        local current = frame.auras[kind].textures[allocated]
-        current.mask:SetHeight(height)
-        current.texture:SetTexture(foreground)
-        local color = settings.showAll.color
-        current.texture:SetVertexColor(color.r, color.g, color.b)
-        current.texture:SetDrawLayer("OVERLAY", 6)
-        current.mask:SetPoint("BOTTOM", lastAura, "TOP")
-      end
-
-      if settings.showNone.enabled then
-        allocated = allocated + 1
-        local current = frame.auras[kind].textures[allocated]
-        current.mask:SetHeight(height)
-        current.texture:SetTexture(foreground)
-        current.texture:SetDrawLayer("OVERLAY", 6)
-        local color = settings.showNone.color
-        current.texture:SetVertexColor(color.r, color.g, color.b)
-        frame.auras[kind].pillar:SetSize(10, #settings.auras * height)
-        frame.auras[kind].pillar:SetPoint("BOTTOM", lastAura, "TOP")
-        current.mask:SetPoint("BOTTOM", frame.auras[kind].pillar, "TOP")
-        frame.auras[kind].showNone = current.texture
-      end
-    end
-
-    if settings.showIndividualColors then
-      for index, details in ipairs(settings.auras) do
-        allocated = allocated + 1
-        local current = frame.auras[kind].textures[allocated]
-        current.mask:SetHeight(height)
-        current.texture:SetTexture(foreground)
-        local aura = auraManager:AcquireSlot(height, {"BOTTOM", frame, "BOTTOM", 0, -height}, filterString, details.spellID)
-        local color = details.color
-        current.texture:SetVertexColor(color.r, color.g, color.b)
-        current.texture:SetDrawLayer("OVERLAY", math.max(-8, (6 - index)))
-        current.mask:SetPoint("BOTTOM", aura, "TOP")
-      end
-    end
-
-    frame.auras[kind].allocated = allocated
+    ArrangeAuras(frame, auraManager, height, kind, filterString)
   end
 
   function frame:InstallAuras(auraManager)
@@ -327,44 +369,7 @@ function addonTable.Display.GetHealthBar(frame, parent)
     self:InstallAurasForKind(auraManager, "buffs", "HELPFUL|PLAYER")
   end
 
-  function frame:UpdateAurasForKind(kind, unit)
-    local settings = GetAuraSettings()[kind]
-    for i = 1, frame.auras[kind].allocated do
-      frame.auras[kind].textures[i].texture:Show()
-    end
-    if frame.auras[kind].allocated < #frame.auras[kind].textures then
-      for i = frame.auras[kind].allocated + 1, #frame.auras[kind].textures do
-        frame.auras[kind].textures[i].texture:Hide()
-      end
-    end
-    if settings.showNone.enabled then
-      frame.auras[kind].showNone:SetShown(addonTable.Cache:Get(unit, "combat"))
-      addonTable.Cache:RegisterCallback(unit, "combat", function(state)
-        frame.auras[kind].showNone:SetShown(state)
-      end)
-    end
-  end
-
-  function frame:UpdateAuras(unit, auraManager)
-    if frame.auras.debuffs and frame.auras.debuffs.active then
-      if not UnitCanAssist("player", unit, true, true) then
-        self:UpdateAurasForKind("debuffs", unit)
-      else
-        for _, details in ipairs(frame.auras.debuffs.textures) do
-          details.texture:Hide()
-        end
-      end
-    end
-    if frame.auras.buffs and frame.auras.buffs.active then
-      if UnitCanAssist("player", unit, true, true) then
-        self:UpdateAurasForKind("buffs", unit)
-      else
-        for _, details in ipairs(frame.auras.buffs.textures) do
-          details.texture:Hide()
-        end
-      end
-    end
-  end
+  frame.UpdateAuras = UpdateAuras
 
   return frame
 end
@@ -725,6 +730,8 @@ function addonTable.Display.GetHighlight(frame, parent)
       Mixin(frame, addonTable.Display.AutomaticHighlightMixin)
     elseif details.kind == "fixed" then
       Mixin(frame, addonTable.Display.FixedHighlightMixin)
+    elseif details.kind == "auras" then
+      Mixin(frame, addonTable.Display.FixedHighlightMixin)
     else
       assert(false)
     end
@@ -746,10 +753,12 @@ function addonTable.Display.GetHighlight(frame, parent)
     assert(highlightDetails)
     if details.sliced then
       local width, height = details.width * addonTable.Assets.BarBordersSize.width, details.height * addonTable.Assets.BarBordersSize.height
-      PixelUtil.SetSize(frame, width * details.scale, height * details.scale)
+      frame.rawWidth, frame.rawHeight = width * details.scale, height * details.scale
+      PixelUtil.SetSize(frame, frame.rawWidth, frame.rawHeight)
       PixelUtil.SetSize(frame.highlight, (width + (highlightDetails.padding.left + highlightDetails.padding.right) / 2) / highlightDetails.scaleModifier, (height + (highlightDetails.padding.top + highlightDetails.padding.bottom) / 2) / highlightDetails.scaleModifier)
     else
-      PixelUtil.SetSize(frame, highlightDetails.width * details.width * details.scale, highlightDetails.height * details.height * details.scale)
+      frame.rawWidth, frame.rawHeight = highlightDetails.width * details.width * details.scale, highlightDetails.height * details.height * details.scale
+      PixelUtil.SetSize(frame, frame.rawWidth, frame.rawHeight)
       PixelUtil.SetSize(frame.highlight, highlightDetails.width * details.width, highlightDetails.height * details.height)
     end
   end
@@ -1008,6 +1017,73 @@ function addonTable.Display.GetBorderedHighlight(frame, parent)
   return frame
 end
 
+function addonTable.Display.GetAuraHighlight(frame, parent)
+  local frame = addonTable.Display.GetHighlight(frame, parent)
+
+  frame.auras = {}
+
+  function frame:InstallAurasForKind(auraManager, kind, filterString)
+    frame.highlight:Hide()
+    if addonTable.Utilities.IsChangesRestricted() then
+      return
+    end
+    local settings = GetAuraSettings()[kind]
+    if #settings.auras == 0 or settings.mode ~= "highlight" then
+      if frame.auras[kind] then
+        frame.auras[kind].active = false
+        for _, details in ipairs(frame.auras[kind].textures) do
+          details.texture:Hide()
+        end
+      end
+      return
+    end
+    if not frame.auras[kind] then
+      frame.auras[kind] = {textures = {}}
+      frame.auras[kind].maskWrapper = CreateFrame("Frame", nil, frame, "DisableUntrustedLayoutScriptsTemplate")
+      frame.auras[kind].maskWrapper:SetAllPoints()
+      frame.auras[kind].pillar = CreateFrame("Frame", nil, frame, "DisableUntrustedLayoutScriptsTemplate")
+    end
+    frame.auras[kind].active = true
+    local highlightDetails = (frame.details.sliced and (LSM:Fetch("nineslice", frame.details.asset, true) or LSM:Fetch("nineslice", "Platy: 7px"))) or (LSM:Fetch("platynator/sizedtexture", frame.details.asset, true) or LSM:Fetch("platynator/sizedtexture", "Platy: Glow"))
+
+    local limit = #settings.auras + (settings.showAll.enabled and 1 or 0) + (settings.showNone.enabled and 1 or 0)
+    if #frame.auras[kind].textures < limit then
+      for i = #frame.auras[kind].textures + 1, limit do
+        local t = frame:CreateTexture(nil, "OVERLAY", nil, 5)
+        local m = frame.auras[kind].maskWrapper:CreateMaskTexture()
+        t:SetAllPoints(frame.highlight)
+        m:SetBlockingLoadsRequested(true)
+        m:SetTexture("Interface/AddOns/Platynator/Assets/Special/white.png", "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE", "NEAREST")
+        m:SetPoint("LEFT", frame, 0, 0)
+        m:SetPoint("RIGHT", frame, 0, 0)
+        t:AddMaskTexture(m)
+        table.insert(frame.auras[kind].textures, {texture = t, mask = m})
+      end
+    end
+
+    for _, details in ipairs(frame.auras[kind].textures) do
+      details.texture:SetTexture(highlightDetails.file)
+      details.texture:SetVertexColor(frame.details.color.r, frame.details.color.g, frame.details.color.b, frame.details.color.a)
+      details.texture:SetScale(frame.details.scale)
+
+      if frame.details.sliced then
+        details.texture:SetScale(highlightDetails.scaleModifier * frame.details.scale)
+        details.texture:SetTextureSliceMargins(highlightDetails.margins.left, highlightDetails.margins.top, highlightDetails.margins.right, highlightDetails.margins.bottom)
+      else
+        details.texture:ClearTextureSlice()
+      end
+    end
+
+    ArrangeAuras(frame, auraManager, frame.rawHeight, kind, filterString)
+  end
+  function frame:InstallAuras(auraManager)
+    self:InstallAurasForKind(auraManager, "debuffs", "HARMFUL|PLAYER")
+    self:InstallAurasForKind(auraManager, "buffs", "HELPFUL|PLAYER")
+  end
+
+  frame.UpdateAuras = UpdateAuras
+end
+
 function addonTable.Display.GetMarker(frame, parent)
   frame = frame or CreateFrame("Frame", nil, parent or UIParent)
 
@@ -1257,6 +1333,7 @@ local livePools = {
   animatedBorderHighlights = CreateFramePool("Frame", UIParent, nil, nil, false, addonTable.Display.GetAnimatedBorderHighlight),
   flashingHighlights = CreateFramePool("Frame", UIParent, nil, nil, false, addonTable.Display.GetFlashingHighlight),
   fixedBorderedHighlights = CreateFramePool("Frame", UIParent, nil, nil, false, addonTable.Display.GetBorderedHighlight),
+  aurasHighlights = CreateFramePool("Frame", UIParent, nil, nil, false, addonTable.Display.GetAuraHighlight),
   markers = CreateFramePool("Frame", UIParent, nil, nil, false, addonTable.Display.GetMarker),
 }
 

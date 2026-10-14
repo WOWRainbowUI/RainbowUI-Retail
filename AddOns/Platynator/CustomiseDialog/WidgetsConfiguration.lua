@@ -1550,6 +1550,17 @@ addonTable.CustomiseDialog.WidgetsConfig = {
               return details.filters.fromYou
             end,
           },
+          { kind = "spacer" },
+          {
+            label = addonTable.Locales.EXTRAS,
+            kind = "checkbox",
+            setter = function(details, value)
+              details.filters.includeExtras = value
+            end,
+            getter = function(details)
+              return details.filters.includeExtras
+            end,
+          },
         }
       },
       {
@@ -1707,6 +1718,17 @@ addonTable.CustomiseDialog.WidgetsConfig = {
               return details.filters.fromYou
             end,
           },
+          { kind = "spacer" },
+          {
+            label = addonTable.Locales.EXTRAS,
+            kind = "checkbox",
+            setter = function(details, value)
+              details.filters.includeExtras = value
+            end,
+            getter = function(details)
+              return details.filters.includeExtras
+            end,
+          },
         }
       }
     },
@@ -1774,6 +1796,9 @@ addonTable.CustomiseDialog.WidgetsConfig = {
       mouseoverHighlight
     },
     ["fixed"] = {
+      defaultHighlight,
+    },
+    ["auras"] = {
       defaultHighlight,
     },
     ["fixedBordered"] = {
