@@ -1,3 +1,8 @@
+# v2.64.0
+
+- Fixed error with world map pins
+- Updated for 12.1.5
+
 # v2.63.2
 
 - Fixed Curse of Ula'tek campaign questlines not being flagged as major
