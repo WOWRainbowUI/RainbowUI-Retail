@@ -8,49 +8,93 @@ function AccWideUIAceAddon:ToBoolean(str)
 	return bool
 end
 
+-- Only call SetCVar when the value actually differs. Saved values come from GetCVar, so on a typical
+-- load most of them already match and the write (and any UI refresh it triggers) can be skipped.
+-- Anything that doesn't compare equal as a string still goes through a normal SetCVar.
+function AccWideUIAceAddon:SetCVarIfChanged(cvarName, value)
+	if (value == nil) then
+		return
+	end
+	local current = GetCVar(cvarName)
+	if (current ~= nil and tostring(current) == tostring(value)) then
+		return
+	end
+	SetCVar(cvarName, value)
+end
+
+function AccWideUIAceAddon:GetPlayerName()
+	if (NameUtil and NameUtil.GetUnmodifiedUnitFullName) then
+		return(NameUtil.GetUnmodifiedUnitFullName("player"))
+	elseif (UnitFullName and UnitFullName("player")) then
+		local thisCharName, thisRealm = UnitFullName("player")
+		if (thisCharName and thisRealm) then
+			return(string.join("-", thisCharName, thisRealm))
+		elseif (thisCharName) then
+			return(thisCharName)
+		else
+			return CHARACTER
+		end
+	else
+		return CHARACTER
+	end
+end
+
 function AccWideUIAceAddon:GetInterfaceVersion()
 	local thisInterface, _, _ = select(4, GetBuildInfo())
 	return thisInterface
 end
 
-function AccWideUIAceAddon:IsMainline()
+function AccWideUIAceAddon:IsRetail() -- Retail
 	return (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) or false
 end
 
-function AccWideUIAceAddon:IsClassicAny()
-	return (WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE) or false
+function AccWideUIAceAddon:IsForever() -- Forever
+	return (WOW_PROJECT_ID == WOW_PROJECT_CAMELOT) or false
 end
 
-function AccWideUIAceAddon:IsClassicProgression()
+function AccWideUIAceAddon:IsModern() -- Mainline, either Retail or Forever
+	return (self:IsRetail() or self:IsForever())
+end
+
+function AccWideUIAceAddon:IsMainline() -- Alias for above
+	return (self:IsModern())
+end
+
+function AccWideUIAceAddon:IsClassicAny() -- Not Retail or Forever
+	return (not self:IsModern()) or false
+end
+
+function AccWideUIAceAddon:IsClassicProgression() -- MoP Classic
 	return (WOW_PROJECT_ID == WOW_PROJECT_MISTS_CLASSIC) or false
 end
 
-function AccWideUIAceAddon:IsClassicWrath()
+function AccWideUIAceAddon:IsClassicWrath() -- Wrath Classic
 	return (WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC) or false
 end
 
-function AccWideUIAceAddon:IsClassicTBC()
+function AccWideUIAceAddon:IsClassicTBC() -- TBC Classic
 	return (WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC) or false
 end
 
-function AccWideUIAceAddon:IsClassicVanilla()
+function AccWideUIAceAddon:IsClassicVanilla() -- Era
 	return (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC) or false
 end
 
-function AccWideUIAceAddon:IsClassicEra()
+function AccWideUIAceAddon:IsClassicEra() -- Era
 	return (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC) or false
 end
 
 
 -- China WoW Specific
-function AccWideUIAceAddon:IsClassicTitan()
-	return (self:GetInterfaceVersion() >= 30800 and self:GetInterfaceVersion() < 40000) or false
-end
-
 function AccWideUIAceAddon:IsClassicWrathChina()
 	return (WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC and self:GetInterfaceVersion() < 30800) or false
 end
 -- EO China WoW Specific
+
+
+function AccWideUIAceAddon:IsUsingGamepadUI()
+	return(InputUtil and InputUtil.IsGamepadUIEnabled and InputUtil.IsGamepadUIEnabled() == true)
+end
 
 
 function AccWideUIAceAddon:SupportsGameFunction(functionName)
@@ -60,27 +104,31 @@ function AccWideUIAceAddon:SupportsGameFunction(functionName)
 	if (functionName == "editModeLayout") then -- Edit Mode (C_EditMode)
 		return (C_AddOns.DoesAddOnExist("Blizzard_EditMode"))
 	elseif (functionName == "arenaFrames") then -- Arena Frames
-		return (not self:IsClassicEra())
+		return (not self:IsClassicEra() and not self:IsForever())
 	elseif (functionName == "spellOverlay") then -- Spell Overlay (C_SpellActivationOverlay)
 		return (not self:IsClassicTBC() and not self:IsClassicEra())
 	elseif (functionName == "empowerTap") then -- Empower Tap
-		return (self:IsMainline())
+		return (self:IsModern())
 	elseif (functionName == "assistedCombat") then -- Rotation Assist (C_AssistedCombat)
-		return (self:IsMainline())
+		return (self:IsRetail())
 	elseif (functionName == "locationVisibility") then -- Location Visibility Toggle (SetAllowRecentAlliesSeeLocation)
-		return (self:IsMainline())
+		return (self:IsModern())
 	elseif (functionName == "blockNeighborhoodInvites") then -- Block Neighborhood Invites (SetAutoDeclineNeighborhoodInvites)
-		return (self:IsMainline())
+		return (self:IsRetail())
 	elseif (functionName == "bagOrganisation") then -- Bag Organisation (C_Container.SetBankAutosortDisabled)
-		return (self:IsMainline())
+		return (self:IsRetail())
 	elseif (functionName == "damageMeter") then -- Damage Meter (C_DamageMeter)
-		return (self:IsMainline())
+		return (self:IsModern())
 	elseif (functionName == "cooldownViewer") then -- Cooldown Manager (C_CooldownViewer)
-		return (self:IsMainline())
+		return (self:IsModern())
 	elseif (functionName == "externalDefensives") then -- External Defensives
-		return (self:IsMainline())
+		return (self:IsModern())
 	elseif (functionName == "encounterTimeline") then -- Encounter Timeline
-		return (self:IsMainline())
+		return (self:IsRetail())
+	elseif (functionName == "gamepad") then -- Gamepad
+		return (self:IsForever())
+	elseif (functionName == "actionBars") then
+		return (not self:IsUsingGamepadUI()) -- Modifying action bars breaks if Gamepad UI is enabled
 	else
 		return true
 	end

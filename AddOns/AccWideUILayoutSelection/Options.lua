@@ -14,6 +14,7 @@ function AccWideUIAceAddon:GenerateDefaultDB()
 			useScreenSizeSpecificSettings = false,
 			allowCustomCVars = false,
 			allowExperimentalSyncs = false,
+			addFCFCloseProtection = false,
 			minimapButton = {
 				hide = true
 			}
@@ -27,7 +28,7 @@ function AccWideUIAceAddon:GenerateDefaultDB()
 			syncToggles = {
 				editModeLayout = true,
 				editModeOnByDefault = true,
-				actionBars = true,
+				actionBars = (not self:IsForever() and true or false), -- Breaks in Forever unless UI is reloaded
 				nameplates = true,
 				raidFrames = true,
 				blockChannelInvites = true,
@@ -54,6 +55,7 @@ function AccWideUIAceAddon:GenerateDefaultDB()
 				minimap = true,
 				calendarFilters = true,
 				camera = true,
+				gamepad = true,
 				combatMisc = true,
 				uiMisc = true,
 				chatWindow = true,
@@ -64,7 +66,8 @@ function AccWideUIAceAddon:GenerateDefaultDB()
 				systemModifierKeys = false
 			},
 			syncData = {
-				editModeLayoutID = "unset",
+				editModeLayoutID = nil,
+				editModeLayoutIDGamepad = nil,
 				actionBars = {
 					visible = {},
 					cvars = {}
@@ -162,6 +165,9 @@ function AccWideUIAceAddon:GenerateDefaultDB()
 				camera = {
 					cvars = {}
 				},
+				gamepad = {
+					cvars = {}
+				},
 				combatMisc = {
 					cvars = {}
 				},
@@ -196,7 +202,7 @@ function AccWideUIAceAddon:GenerateDefaultDB()
 						}
 					},
 					special = {
-						channelManagerFrame = (self:IsMainline() == true and 0 or 1)
+						channelManagerFrame = (self:IsModern() == true and 0 or 1)
 					}
 				},
 				bagOrganisation = {
@@ -211,7 +217,8 @@ function AccWideUIAceAddon:GenerateDefaultDB()
 				},
 				screenResolutionSpecific = {
 					['**'] = {
-						editModeLayoutID = "unset",
+						editModeLayoutID = nil,
+						editModeLayoutIDGamepad = nil,
 						chat = {
 							windows = {
 								['**'] = {}
@@ -327,10 +334,10 @@ function AccWideUIAceAddon:GenerateOptions()
 									},
 									autoLoot = {
 										type = "toggle",
-										name = (self:IsMainline() and L["ACCWUI_OPT_MODULES_CHK_AUTOLOOT_RATE"] or L["ACCWUI_OPT_MODULES_CHK_AUTOLOOT"]),
+										name = (self:IsModern() and L["ACCWUI_OPT_MODULES_CHK_AUTOLOOT_RATE"] or L["ACCWUI_OPT_MODULES_CHK_AUTOLOOT"]),
 										order = 50,
 										width = thisCheckboxWidth,
-										desc = (self:IsMainline() and L["ACCWUI_OPT_MODULES_CHK_AUTOLOOT_RATE_DESC"] or L["ACCWUI_OPT_MODULES_CHK_AUTOLOOT_DESC"]),
+										desc = (self:IsModern() and L["ACCWUI_OPT_MODULES_CHK_AUTOLOOT_RATE_DESC"] or L["ACCWUI_OPT_MODULES_CHK_AUTOLOOT_DESC"]),
 										hidden = (not self:SupportsGameFunction("autoLoot"))
 									},
 									empowerTap = {
@@ -475,6 +482,7 @@ function AccWideUIAceAddon:GenerateOptions()
 										width = thisCheckboxWidth,
 										--disabled = "ShouldChatOptsDisable",
 										desc = L["ACCWUI_OPT_MODULES_CHK_CHATCHANNELS_DESC"],
+										hidden = (not self:SupportsGameFunction("customChatChannels"))
 									},
 									locationVisibility = {
 										type = "toggle",
@@ -542,6 +550,14 @@ function AccWideUIAceAddon:GenerateOptions()
 										width = thisCheckboxWidth,
 										desc = L["ACCWUI_OPT_MODULES_CHK_EXTERNALDEF_DESC"],
 										hidden = (not self:SupportsGameFunction("externalDefensives"))
+									},
+									gamepad = {
+										type = "toggle",
+										name = L["ACCWUI_OPT_MODULES_CHK_GAMEPAD"],
+										order = 130,
+										width = thisCheckboxWidth,
+										desc = L["ACCWUI_OPT_MODULES_CHK_GAMEPAD_DESC"],
+										hidden = (not self:SupportsGameFunction("gamepad"))
 									},
 									minimap = {
 										type = "toggle",
@@ -690,7 +706,7 @@ function AccWideUIAceAddon:GenerateOptions()
 							},
 							header1 = {
 								type = "header",
-								name = string.format(L["ACCWUI_CHARSPECIFIC_TITLE"], UnitNameUnmodified("player")),
+								name = string.format(L["ACCWUI_CHARSPECIFIC_TITLE"], self:GetPlayerName()),
 								order = 3,
 								hidden = ((GetNumSpecializations(false, false) == 0) and true or false)
 							},
@@ -774,7 +790,7 @@ function AccWideUIAceAddon:GenerateOptions()
 						type = "select",
 						name = string.format(L["ACCWUI_BLOCKBLIZZ_CHANNEL"], self.chatChannelNames.general or "General"),
 						width = 1,
-						order = 3,
+						order = 10,
 						desc = string.format(L["ACCWUI_BLOCKBLIZZ_CHECKBOX_DESC"], self.chatChannelNames.general or "General"),
 						style = "radio",
 						values = {
@@ -789,7 +805,7 @@ function AccWideUIAceAddon:GenerateOptions()
 						type = "select",
 						name = string.format(L["ACCWUI_BLOCKBLIZZ_CHANNEL"], self.chatChannelNames.trade or "Trade"),
 						width = 1,
-						order = 4,
+						order = 20,
 						desc = string.format(L["ACCWUI_BLOCKBLIZZ_CHECKBOX_DESC"], self.chatChannelNames.trade or "Trade"),
 						style = "radio",
 						values = {
@@ -800,11 +816,26 @@ function AccWideUIAceAddon:GenerateOptions()
 						sorting = {"join", "block", "default"},
 						hidden = (not self.chatChannelNames.trade)
 					},
+					tradeLocal = {
+						type = "select",
+						name = string.format(L["ACCWUI_BLOCKBLIZZ_CHANNEL"], self.chatChannelNames.tradeLocal or "Trade (Local)"),
+						width = 1,
+						order = 30,
+						desc = string.format(L["ACCWUI_BLOCKBLIZZ_CHECKBOX_DESC"], self.chatChannelNames.tradeLocal or "Trade (Local)"),
+						style = "radio",
+						values = {
+							join = L["ACCWUI_BLOCKBLIZZ_CHECKBOX_ALLOW"],
+							block = L["ACCWUI_BLOCKBLIZZ_CHECKBOX_BLOCK"],
+							default = L["ACCWUI_BLOCKBLIZZ_CHECKBOX_DEFAULT"]
+						},
+						sorting = {"join", "block", "default"},
+						hidden = (not self.chatChannelNames.tradeLocal)
+					},
 					localDefense = {
 						type = "select",
 						name = string.format(L["ACCWUI_BLOCKBLIZZ_CHANNEL"], self.chatChannelNames.localDefense or "LocalDefense"),
 						width = 1,
-						order = 5,
+						order = 40,
 						desc = string.format(L["ACCWUI_BLOCKBLIZZ_CHECKBOX_DESC"], self.chatChannelNames.localDefense or "LocalDefense"),
 						style = "radio",
 						values = {
@@ -819,7 +850,7 @@ function AccWideUIAceAddon:GenerateOptions()
 						type = "select",
 						name = string.format(L["ACCWUI_BLOCKBLIZZ_CHANNEL"], self.chatChannelNames.lookingForGroup or "LookingForGroup"),
 						width = 1,
-						order = 6,
+						order = 50,
 						desc = string.format(L["ACCWUI_BLOCKBLIZZ_CHECKBOX_DESC"], self.chatChannelNames.lookingForGroup or "LookingForGroup"),
 						style = "radio",
 						values = {
@@ -834,7 +865,7 @@ function AccWideUIAceAddon:GenerateOptions()
 						type = "select",
 						name = string.format(L["ACCWUI_BLOCKBLIZZ_CHANNEL"], self.chatChannelNames.services or "Services"),
 						width = 1,
-						order = 7,
+						order = 60,
 						desc = string.format(L["ACCWUI_BLOCKBLIZZ_CHECKBOX_DESC"], self.chatChannelNames.services or "Services"),
 						style = "radio",
 						values = {
@@ -849,7 +880,7 @@ function AccWideUIAceAddon:GenerateOptions()
 						type = "select",
 						name = string.format(L["ACCWUI_BLOCKBLIZZ_CHANNEL"], self.chatChannelNames.guildRecruitment or "GuildRecruitment"),
 						width = 1,
-						order = 8,
+						order = 70,
 						desc = string.format(L["ACCWUI_BLOCKBLIZZ_CHECKBOX_DESC"], self.chatChannelNames.guildRecruitment or "GuildRecruitment"),
 						style = "radio",
 						values = {
@@ -864,7 +895,7 @@ function AccWideUIAceAddon:GenerateOptions()
 						type = "select",
 						name = string.format(L["ACCWUI_BLOCKBLIZZ_CHANNEL"], self.chatChannelNames.worldDefense or "WorldDefense"),
 						width = 1,
-						order = 9,
+						order = 80,
 						desc = string.format(L["ACCWUI_BLOCKBLIZZ_CHECKBOX_DESC"], self.chatChannelNames.worldDefense or "WorldDefense"),
 						style = "radio",
 						values = {
@@ -879,7 +910,7 @@ function AccWideUIAceAddon:GenerateOptions()
 						type = "select",
 						name = string.format(L["ACCWUI_BLOCKBLIZZ_CHANNEL"], self.chatChannelNames.hardcoreDeaths or "HardcoreDeaths"),
 						width = 1,
-						order = 10,
+						order = 90,
 						desc = string.format(L["ACCWUI_BLOCKBLIZZ_CHECKBOX_DESC"], self.chatChannelNames.hardcoreDeaths or "HardcoreDeaths"),
 						style = "radio",
 						values = {
@@ -897,7 +928,7 @@ function AccWideUIAceAddon:GenerateOptions()
 				name = L["ACCWUI_TAINTABLES_TITLE"],
 				desc = L["ACCWUI_TAINTABLES_DESC_SHORT"],
 				order = 30,
-				hidden = (not self:IsMainline()),
+				hidden = (not self:IsModern()),
 				args = {
 					desc = {
 						type = "description",
@@ -1035,7 +1066,7 @@ function AccWideUIAceAddon:GenerateOptions()
 								width = thisCheckboxWidth2,
 								order = 3,
 								desc = L["ACCWUI_ADVANCED_ALLOW_EXP_DESC"],
-								hidden = (not self:IsMainline())
+								hidden = (not self:IsModern())
 							},
 							hideMinimapButton = {
 								type = "toggle",
@@ -1056,17 +1087,29 @@ function AccWideUIAceAddon:GenerateOptions()
 									
 								end,
 							},
+							addFCFCloseProtection = {
+								type = "toggle",
+								name = L["ACCWUI_ADVANCED_FCF_CLOSE_PROTECTION"],
+								width = thisCheckboxWidth2,
+								order = 5,
+								desc = L["ACCWUI_ADVANCED_FCF_CLOSE_PROTECTION_DESC"],
+								--hidden = (self:IsModern()),
+								set = function(info, value)
+									self.db.global.addFCFCloseProtection = value
+									StaticPopup_Show("ACCWIDEUI_ACTION_REQUIREDRELOAD")
+								end
+							},
 							headerDiv1 = {
 								type = "header",
 								name = "",
-								order = 5,
+								order = 6,
 								width = "full",
 							},
 							disableAutoSaveLoad = {
 								type = "toggle",
 								name = L["ACCWUI_ADVANCED_DISABLE_AUTO"],
 								width = thisCheckboxWidth2,
-								order = 6,
+								order = 7,
 								desc = L["ACCWUI_ADVANCED_DISABLE_AUTO_DESC"],
 								set = function(info, value)
 									self.db.global[info[#info]] = value
@@ -1079,7 +1122,7 @@ function AccWideUIAceAddon:GenerateOptions()
 								type = "toggle",
 								name = L["ACCWUI_ADVANCED_DISABLE_AUTOSAVE"],
 								width = thisCheckboxWidth2,
-								order = 7,
+								order = 8,
 								desc = L["ACCWUI_ADVANCED_DISABLE_AUTOSAVE_DESC"],
 								set = function(info, value)
 									self.db.global[info[#info]] = value
@@ -1093,7 +1136,7 @@ function AccWideUIAceAddon:GenerateOptions()
 								name = L["ACCWUI_DEBUG_BTN_FORCELOAD"],
 								desc = L["ACCWUI_DEBUG_BTN_FORCELOAD_DESC"],
 								width = thisCheckboxWidth2,
-								order = 8,
+								order = 9,
 								func = function()
 									self:ForceLoadSettings()
 								end,
@@ -1103,7 +1146,7 @@ function AccWideUIAceAddon:GenerateOptions()
 								name = L["ACCWUI_DEBUG_BTN_FORCESAVE"],
 								desc = L["ACCWUI_DEBUG_BTN_FORCESAVE_DESC"],
 								width = thisCheckboxWidth2,
-								order = 9,
+								order = 10,
 								func = function()
 									self:ForceSaveSettings()
 								end,
@@ -1201,6 +1244,8 @@ function AccWideUIAceAddon:GenerateOptions()
 								order = 6,
 								desc = L["ACCWUI_DEBUG_CHK_SHOWDEBUGPRINT_DESC"],
 							},
+							
+
 
 						}
 					},
@@ -1217,6 +1262,7 @@ function AccWideUIAceAddon:GenerateOptions()
 								width = thisCheckboxWidth2,
 								order = 1,
 								func = function()
+									AccWideUIAceAddon:EnsureBattlefieldMapLoaded() -- the zone map is no longer always preloaded
 									BattlefieldMapTab:ClearAllPoints()
 									BattlefieldMapTab:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
 									--BattlefieldMapTab:Show()
@@ -1285,7 +1331,7 @@ function AccWideUIAceAddon:GenerateOptions()
 				--width = "full",
 				get = "GetEditModeSpec",
 				set = "SetEditModeSpec",
-				desc = string.format(L["ACCWUI_CHARSPECIFIC_CHECK_DESC"], UnitNameUnmodified("player"), thisSpecName),
+				desc = string.format(L["ACCWUI_CHARSPECIFIC_CHECK_DESC"], self:GetPlayerName(), thisSpecName),
 			}
 		end
 
@@ -1360,7 +1406,7 @@ function AccWideUIAceAddon:ShouldCustomCVarListBeHidden()
 end
 
 function AccWideUIAceAddon:ShouldExperimentalSyncsListBeHidden()
-	if self:IsMainline() then
+	if self:IsModern() then
 		return not self.db.global.allowExperimentalSyncs
 	else
 		return true

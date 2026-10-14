@@ -1,7 +1,7 @@
 AccWideUIAceAddon = LibStub("AceAddon-3.0"):NewAddon("AccWideUIAceAddon", "AceEvent-3.0", "AceConsole-3.0", "AceHook-3.0", "AceTimer-3.0")
 AccWideUIAceAddon.AceGUI = LibStub("AceGUI-3.0")
-AccWideUIAceAddon.LibSerialize = LibStub("LibSerialize")
-AccWideUIAceAddon.LibDeflate = LibStub:GetLibrary("LibDeflate")
+--AccWideUIAceAddon.LibSerialize = LibStub("LibSerialize")
+--AccWideUIAceAddon.LibDeflate = LibStub:GetLibrary("LibDeflate")
 local L = LibStub("AceLocale-3.0"):GetLocale("AccWideUIAceAddonLocale")
 local AC = LibStub("AceConfig-3.0")
 local ACD = LibStub("AceConfigDialog-3.0")
@@ -13,19 +13,13 @@ AccWideUIAceAddon.TempData = {
 	IsCurrentlyLoadingSettings = false,
 	HasPartiallyLoaded = false,
 	LoadSettingsAfterCombat = false,
-	ProfileSaveVer = 3
+	ProfileSaveVer = 5
 }
 
 
 function AccWideUIAceAddon:OnInitialize()
 
 	self.db = LibStub("AceDB-3.0"):New("AccWideUIAceDB", AccWideUIAceAddon:GenerateDefaultDB(), true)
-
-	if (AccWideUI_AccountData ~= nil and AccWideUI_AccountData.HasDoneV1Migration ~= true) then
-		AccWideUIAceAddon:MigrateFromV1()
-	end
-
-	AccWideUI_AccountData = nil
 	
 end
 
@@ -33,7 +27,7 @@ function AccWideUIAceAddon:OnEnable()
 
 	local thisScreenWidth, thisScreenHeight = GetPhysicalScreenSize()
 	self.TempData.ScreenRes = thisScreenWidth .. "x" .. thisScreenHeight
-	self.TempData.ThisCharacter = UnitNameUnmodified("player") .. "-" .. GetNormalizedRealmName()
+	self.TempData.ThisCharacter = self:GetPlayerName() or UNKNOWN
 
 	self:GenerateOptions()
 	local profiles = LibStub("AceDBOptions-3.0"):GetOptionsTable(self.db)
@@ -64,12 +58,13 @@ function AccWideUIAceAddon:OnEnable()
 	self:RegisterEvent("ENABLE_DECLINE_GUILD_INVITE")
 	self:RegisterEvent("LOADING_SCREEN_DISABLED")
 	self:RegisterEvent("ZONE_CHANGED_NEW_AREA")
+	self:RegisterEvent("CINEMATIC_START")
 	self:RegisterEvent("CINEMATIC_STOP")
 	self:RegisterEvent("PLAYER_REGEN_ENABLED")
 	self:RegisterEvent("PLAYER_REGEN_DISABLED")
 	self:RegisterEvent("CHAT_MSG_CHANNEL_NOTICE_USER")
 
-	if (AccWideUIAceAddon:IsMainline()) then
+	if (AccWideUIAceAddon:IsModern()) then
 		self:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
 		self:RegisterEvent("BAG_SLOT_FLAGS_UPDATED")
 		self:RegisterEvent("BANK_BAG_SLOT_FLAGS_UPDATED")
@@ -77,27 +72,16 @@ function AccWideUIAceAddon:OnEnable()
 	end
 
 
-	C_AddOns.LoadAddOn("Blizzard_BattlefieldMap")
-
-	self:SecureHook(BattlefieldMapTab, "StopMovingOrSizing", function()
-		if (self.db.global.printDebugTextToChat == true) then
-			self:Print("[Zone Map] Saving Map Coords.")
-		end
-
-		-- Save Zone Map Coords
-		if ((self:SupportsGameFunction("battlefieldMap")) and (self.db.profile.syncToggles.battlefieldMap == true) and (self.db.global.hasDoneFirstTimeSetup == true)) then
-			if self.db.global.useScreenSizeSpecificSettings == true then
-				self.db.profile.syncData.screenResolutionSpecific[self.TempData.ScreenRes].battlefieldMap.options.position = {}
-				self.db.profile.syncData.screenResolutionSpecific[self.TempData.ScreenRes].battlefieldMap.options.position.x, self.db.profile.syncData.battlefieldMap.options.position.y = BattlefieldMapTab:GetCenter()
-			else
-				self.db.profile.syncData.battlefieldMap.options.position = {}
-				self.db.profile.syncData.battlefieldMap.options.position.x, self.db.profile.syncData.battlefieldMap.options.position.y = BattlefieldMapTab:GetCenter()
-			end
-			
-			--self.db.profile.syncData.battlefieldMap.options.opacity = OpacityFrameSlider:GetValue() or BattlefieldMapOptions.opacity or 0.7
-			
-		end
-	end)
+	-- Only force-load Blizzard_BattlefieldMap when zone map sync is on; otherwise hook it whenever
+	-- it does load (Shift+M, another addon, or the sync being turned on later).
+	if (self.db.profile.syncToggles.battlefieldMap == true) then
+		self:EnsureBattlefieldMapLoaded()
+	elseif (C_AddOns.IsAddOnLoaded("Blizzard_BattlefieldMap")) then
+		self:HookBattlefieldMap()
+	end
+	if (not (BattlefieldMapTab and self:IsHooked(BattlefieldMapTab, "StopMovingOrSizing"))) then
+		self:RegisterEvent("ADDON_LOADED")
+	end
 
 
 	if (self:SupportsGameFunction("editModeLayout")) then
@@ -180,21 +164,45 @@ function AccWideUIAceAddon:OnEnable()
 	
 	-- Minimap Button
 	self.LDBIcon:Register("AWI", self.LDB, self.db.global.minimapButton)
-
+	
+	-- FCF Close Protection
+	if (self.db.global.addFCFCloseProtection == true) then
+	
+		if (self.db.global.printDebugTextToChat == true) then
+			self:Print("[Advanced] Adding FCF Close Protection.")
+		end
+		
+		FCF_Close_Original = FCF_Close
+		
+		function FCF_Close(frame, fallback)
+			if (InCombatLockdown()) then
+				if (self.db.global.printDebugTextToChat == true) then
+					self:Print("[Advanced] Not Closing tab in Combat.")
+				end
+				return
+			else
+				return FCF_Close_Original(frame, fallback)
+			end
+		end
+		
+	end
 
 end
 
 function AccWideUIAceAddon:DoProfileInit(event, db, profileKey)
 
 	-- Profile Upgrade
-	if (self.db.profile.profileSaveVer and self.db.profile.profileSaveVer < 3) then
+	if (self.db.profile.profileSaveVer and self.db.profile.profileSaveVer < 5) then
 	
 		if (GetCVar("spellActivationOverlayOpacity") == "0") then
 			SetCVar("spellActivationOverlayOpacity", GetCVarDefault("spellActivationOverlayOpacity"))
 		end
 	
-	end
+		if (self:IsForever()) then
+			self.db.profile.syncToggles.actionBars = false -- Disable Action Bar sync by default in Forever as it can cause taint if user doesn't /reload.
+		end
 	
+	end
 	
 	
 	-- Edit Mode Spec Settings
@@ -239,24 +247,8 @@ function AccWideUIAceAddon:DoProfileInit(event, db, profileKey)
 		end
 
 		
-		if (self:SupportsGameFunction("editModeLayout")) then
-			-- Edit Mode
-			if (type(self.db.profile.syncData.editModeLayoutID) ~= "number") then
-				local getLayoutsTable = C_EditMode.GetLayouts()
-				local currentActiveLayout = getLayoutsTable["activeLayout"]
-
-				self.db.profile.syncData.editModeLayoutID = currentActiveLayout or 1
-
-				if self.db.global.useScreenSizeSpecificSettings == true then
-					self.db.profile.syncData.screenResolutionSpecific[AccWideUIAceAddon.TempData.ScreenRes].editModeLayoutID = currentActiveLayout or 1
-				end
-
-				if (self.db.global.printDebugTextToChat == true) then
-					self:Print("[Debug] Setting default Edit Mode.")
-				end
-
-			end
-		end
+		--Edit Mode
+		self:SaveEditModeSettings()
 
 
 	end
@@ -293,7 +285,7 @@ function AccWideUIAceAddon:DoProfileInit(event, db, profileKey)
 		self:CancelAllTimers()
 	end
 	
-	AccWideUIAceAddon.LDB.text = AccWideUIAceAddon.db:GetCurrentProfile()
+	self.LDB.text = self.db:GetCurrentProfile()
 	
 	self.db.profile.profileSaveVer = self.TempData.ProfileSaveVer
 
@@ -329,6 +321,19 @@ end
 function AccWideUIAceAddon:BlizzChannelManager()
 
 	if (C_AddOns.IsAddOnLoaded("BlockBlizzChatChannels") == false) then
+	
+		if (self.db.global.printDebugTextToChat == true) then
+			self:Print("[Channel Manager] Channel Manager Triggered.")
+		end
+		
+		if (IsInInstance()) then
+		
+			if (self.db.global.printDebugTextToChat == true) then
+				self:Print("[Channel Manager] Not managing Chat Channels while in an Instance.")
+			end
+		
+			return
+		end
 	
 		if (C_ChatInfo and C_ChatInfo.InChatMessagingLockdown and C_ChatInfo.InChatMessagingLockdown()) then
 		
@@ -397,7 +402,22 @@ function AccWideUIAceAddon:BlizzChannelManager()
 					end
 				end
 			end
-
+			
+			if (self.chatChannelNames.tradeLocal and self.db.profile.blizzChannels.tradeLocal == "join" and IsResting()) then
+				if (((GetChannelName(self.chatChannelNames.tradeLocal))) == 0) then
+					JoinChannelByName(self.chatChannelNames.tradeLocal)
+					if (thisChatFrameVar) then
+						if (ChatFrame_AddChannel) then
+							ChatFrame_AddChannel(thisChatFrameVar, self.chatChannelNames.tradeLocal)
+						else
+							ChatFrameMixin.AddChannel(thisChatFrameVar, self.chatChannelNames.tradeLocal) -- 12.0.0
+						end
+					end
+					if (self.db.global.printBlizzChatChanges == true) then
+						self:Printf(L["ACCWUI_JOINING_CHANNEL"], self.chatChannelNames.tradeLocal, self.TempData.TextSlash)
+					end
+				end
+			end
 
 			if (self.chatChannelNames.lookingForGroup and self.db.profile.blizzChannels.lookingForGroup == "join") then
 				if (((GetChannelName(self.chatChannelNames.lookingForGroup))) == 0) then
@@ -514,6 +534,15 @@ function AccWideUIAceAddon:BlizzChannelManager()
 					end
 				end
 			end
+			
+			if (self.chatChannelNames.tradeLocal and self.db.profile.blizzChannels.tradeLocal == "block") then
+				if (GetChannelName((GetChannelName(self.chatChannelNames.tradeLocal))) > 0) then
+					LeaveChannelByName(self.chatChannelNames.tradeLocal)
+					if (self.db.global.printBlizzChatChanges == true) then
+						self:Printf(L["ACCWUI_LEAVING_CHANNEL"], self.chatChannelNames.tradeLocal, self.TempData.TextSlash)
+					end
+				end
+			end
 
 
 			if (self.chatChannelNames.lookingForGroup and self.db.profile.blizzChannels.lookingForGroup == "block") then
@@ -592,7 +621,7 @@ function AccWideUIAceAddon:LOADING_SCREEN_DISABLED(event, arg1, arg2)
 					self:Printf(L["ACCWUI_LOAD_REGULAR"], self.TempData.TextSlash)
 				end
 
-				if (not InCombatLockdown() and not IsEncounterInProgress()) then
+				if (not InCombatLockdown() and not IsEncounterInProgress() and not InCinematic() and not IsInCinematicScene()) then
 					self:ScheduleTimer(function()
 						self:LoadUISettings()
 					end, 5)
@@ -604,7 +633,6 @@ function AccWideUIAceAddon:LOADING_SCREEN_DISABLED(event, arg1, arg2)
 			else
 
 				StaticPopup_Show("ACCWIDEUI_FIRSTTIMEPOPUP")
-				--self:Print("Show First Time Popup")
 
 			end
 
@@ -619,16 +647,86 @@ end
 
 
 
+function AccWideUIAceAddon:HookBattlefieldMap()
+	if (not BattlefieldMapTab or self:IsHooked(BattlefieldMapTab, "StopMovingOrSizing")) then
+		return
+	end
+
+	self:SecureHook(BattlefieldMapTab, "StopMovingOrSizing", function()
+		if (self.db.global.printDebugTextToChat == true) then
+			self:Print("[Zone Map] Saving Map Coords.")
+		end
+
+		-- Save Zone Map Coords
+		if ((self:SupportsGameFunction("battlefieldMap")) and (self.db.profile.syncToggles.battlefieldMap == true) and (self.db.global.hasDoneFirstTimeSetup == true)) then
+			-- Read both coordinates first so x and y always land in the same table
+			local thisCenterX, thisCenterY = BattlefieldMapTab:GetCenter()
+			if self.db.global.useScreenSizeSpecificSettings == true then
+				self.db.profile.syncData.screenResolutionSpecific[self.TempData.ScreenRes].battlefieldMap.options.position = { x = thisCenterX, y = thisCenterY }
+			else
+				self.db.profile.syncData.battlefieldMap.options.position = { x = thisCenterX, y = thisCenterY }
+			end
+			
+			--self.db.profile.syncData.battlefieldMap.options.opacity = OpacityFrameSlider:GetValue() or BattlefieldMapOptions.opacity or 0.7
+			
+		end
+	end)
+end
+
+function AccWideUIAceAddon:EnsureBattlefieldMapLoaded()
+	if (not C_AddOns.IsAddOnLoaded("Blizzard_BattlefieldMap")) then
+		C_AddOns.LoadAddOn("Blizzard_BattlefieldMap")
+	end
+	self:HookBattlefieldMap()
+end
+
+function AccWideUIAceAddon:ADDON_LOADED(event, addonName)
+	if (addonName == "Blizzard_BattlefieldMap") then
+		self:HookBattlefieldMap()
+		self:UnregisterEvent("ADDON_LOADED")
+	end
+end
+
+
+-- Debounced channel manager. CHANNEL_UI_UPDATE fires in bursts (e.g. at login as each channel joins), and each
+-- zone change used to add another 5s timer without cancelling the last. Keep at most one pending run: a new
+-- request only replaces it if it asks for a later time, so a burst collapses into one run at its end.
+-- Uses C_Timer rather than AceTimer so the CancelAllTimers() calls elsewhere can't drop a queued run.
+function AccWideUIAceAddon:QueueBlizzChannelManager(delay)
+	local runAt = GetTime() + delay
+	if (self.TempData.ChannelManagerTimer) then
+		if (self.TempData.ChannelManagerRunAt and self.TempData.ChannelManagerRunAt >= runAt) then
+			return
+		end
+		self.TempData.ChannelManagerTimer:Cancel()
+	end
+	self.TempData.ChannelManagerRunAt = runAt
+	self.TempData.ChannelManagerTimer = C_Timer.NewTimer(delay, function()
+		self.TempData.ChannelManagerTimer = nil
+		self.TempData.ChannelManagerRunAt = nil
+		self:BlizzChannelManager()
+	end)
+end
+
 function AccWideUIAceAddon:CHANNEL_UI_UPDATE(event, arg1, arg2)
-	self:BlizzChannelManager()
+	self:QueueBlizzChannelManager(1)
 end
 
 function AccWideUIAceAddon:ZONE_CHANGED_NEW_AREA(event, arg1, arg2)
-	self:ScheduleTimer(function()
-		self:BlizzChannelManager()
-	end, 5)
+	self:QueueBlizzChannelManager(5)
 end
 
+function AccWideUIAceAddon:CINEMATIC_START(event, arg1, arg2)
+	if (self.TempData.IsCurrentlyLoadingSettings == true) then
+		self.TempData.IsCurrentlyLoadingSettings = false
+		self.TempData.HasPartiallyLoaded = true
+		self.TempData.LoadSettingsAfterCombat = true
+		self:CancelAllTimers();
+		if (self.db.global.printDebugTextToChat == true) then
+			self:Print(L["ACCWUI_WAIT_TILL_COMBAT"])
+		end
+	end
+end
 
 function AccWideUIAceAddon:CINEMATIC_STOP(event, arg1, arg2)
 
@@ -637,6 +735,14 @@ function AccWideUIAceAddon:CINEMATIC_STOP(event, arg1, arg2)
 		C_Timer.After(5, function()
 			if (self.db.global.hasDoneFirstTimeSetup ~= true and not self.TempData.HasDimissedFTPAlready) then
 				StaticPopup_Show("ACCWIDEUI_FIRSTTIMEPOPUP")
+			else
+				if (self.TempData.LoadSettingsAfterCombat == true and not InCombatLockdown()) then
+					self.TempData.LoadSettingsAfterCombat = false
+					self:CancelAllTimers();
+					self:ScheduleTimer(function()
+						self:LoadUISettings()
+					end, 3)
+				end
 			end
 		end)
 

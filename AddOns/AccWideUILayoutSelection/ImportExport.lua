@@ -3,6 +3,39 @@ local L = LibStub("AceLocale-3.0"):GetLocale("AccWideUIAceAddonLocale")
 -- C_EncodingUtil.EncodeBase64(C_EncodingUtil.CompressString(C_EncodingUtil.SerializeCBOR(TableHere)))
 -- C_EncodingUtil.DeserializeCBOR(C_EncodingUtil.DecompressString(C_EncodingUtil.DecodeBase64(Table)))
 
+
+-- Merge an imported (untrusted) table into an existing one in place.
+-- Only string/number keys and string/number/boolean/table values are taken. A table is never
+-- replaced by a non-table or the reverse, so a bad or older string can't turn a structure the addon
+-- indexes into (e.g. syncData.chat) into a plain value. Anything the import lacks keeps the existing
+-- (default) value.
+function AccWideUIAceAddon:MergeImportedTable(target, imported, depth)
+	depth = depth or 0
+	if (depth > 12) then
+		return
+	end
+	for k, v in pairs(imported) do
+		local keyType = type(k)
+		if (keyType == "string" or keyType == "number") then
+			local valueType = type(v)
+			local existing = target[k]
+			if (valueType == "table") then
+				if (existing == nil) then
+					existing = {}
+					target[k] = existing
+					self:MergeImportedTable(existing, v, depth + 1)
+				elseif (type(existing) == "table") then
+					self:MergeImportedTable(existing, v, depth + 1)
+				end
+			elseif (valueType == "string" or valueType == "number" or valueType == "boolean") then
+				if (type(existing) ~= "table") then
+					target[k] = v
+				end
+			end
+		end
+	end
+end
+
 function AccWideUIAceAddon:ExportProfile()
 
 	if not InCombatLockdown() then
@@ -32,23 +65,34 @@ function AccWideUIAceAddon:ExportProfile()
 		thisExportTable.syncData.tutorialTooltips.cvars = {}
 		thisExportTable.syncData.systemGraphics.cvars = {}
 		thisExportTable.syncData.systemAudio.cvars = {}
-		thisExportTable.syncData.editModeLayoutID = "unset"
-		if (thisExportTable.syncData.screenResolutionSpecific and #thisExportTable.syncData.screenResolutionSpecific > 0) then
+		-- Edit Mode layout IDs are indexes into this account's own layout list, so don't export them.
+		-- nil matches the defaults; LoadEditModeSettings only switches layout for a stored ID.
+		thisExportTable.syncData.editModeLayoutID = nil
+		thisExportTable.syncData.editModeLayoutIDGamepad = nil
+		-- screenResolutionSpecific is keyed by strings ("1920x1080"), so the # operator is always 0 here; use pairs()
+		if (type(thisExportTable.syncData.screenResolutionSpecific) == "table") then
 			for k, v in pairs(thisExportTable.syncData.screenResolutionSpecific) do
-				thisExportTable.syncData.screenResolutionSpecific[k].editModeLayoutID = "unset"
+				if (type(v) == "table") then
+					v.editModeLayoutID = nil
+					v.editModeLayoutIDGamepad = nil
+				end
 			end
 		end
-		if (thisExportTable.syncData.chat.windows and #thisExportTable.syncData.chat.windows > 0) then
+		if (type(thisExportTable.syncData.chat.windows) == "table") then
 			for k, v in pairs(thisExportTable.syncData.chat.windows) do
-				thisExportTable.syncData.chat.windows[k].ChatChannelsVisible = nil
+				if (type(v) == "table") then
+					v.ChatChannelsVisible = nil
+				end
 			end
 		end
 		
 		-- Serialize and compress the profile table
-		local thisExportTableEx = self.LibSerialize:Serialize(thisExportTable)
-		local thisExportTableExCD = self.LibDeflate:CompressDeflate(thisExportTableEx)
-		local thisExportTableExCDPT = self.LibDeflate:EncodeForPrint(thisExportTableExCD)
-
+		--local thisExportTableEx = self.LibSerialize:Serialize(thisExportTable)
+		--local thisExportTableExCD = self.LibDeflate:CompressDeflate(thisExportTableEx)
+		--local thisExportTableExCDPT = self.LibDeflate:EncodeForPrint(thisExportTableExCD)
+		local thisExportTableEx = C_EncodingUtil.SerializeCBOR(thisExportTable)
+		local thisExportTableExCD = C_EncodingUtil.CompressString(thisExportTableEx, Enum.CompressionMethod.Deflate, Enum.CompressionLevel.Default)
+		local thisExportTableExCDPT = C_EncodingUtil.EncodeBase64(thisExportTableExCD)
 
 		-- Description Text
 		thisExportWindow.TextLine1 = AccWideUIAceAddon.AceGUI:Create("Label")
@@ -133,19 +177,26 @@ function AccWideUIAceAddon:ImportProfile()
 		
 			if not InCombatLockdown() then
 			
-				local thisImportTableExCDPT = self.LibDeflate:DecodeForPrint(thisImportWindow.BigTextBox:GetText())
+				--local thisImportTableExCDPT = self.LibDeflate:DecodeForPrint(thisImportWindow.BigTextBox:GetText())
+				local thisImportTableExCDPTResult, thisImportTableExCDPT = pcall(C_EncodingUtil.DecodeBase64,thisImportWindow.BigTextBox:GetText())
 
-				local thisImportTableExCD = self.LibDeflate:DecompressDeflate(thisImportTableExCDPT) or nil
+				--local thisImportTableExCD = self.LibDeflate:DecompressDeflate(thisImportTableExCDPT) or nil
+				local thisImportTableExCDResult, thisImportTableExCD = pcall(C_EncodingUtil.DecompressString,thisImportTableExCDPT, Enum.CompressionMethod.Deflate)
 
 				if thisImportTableExCD then
-					local thisImportTableEx, thisImportTableExData = self.LibSerialize:Deserialize(thisImportTableExCD)
+					--local thisImportTableEx, thisImportTableExData = self.LibSerialize:Deserialize(thisImportTableExCD)
+					local thisImportTableExResult, thisImportTableEx = pcall(C_EncodingUtil.DeserializeCBOR,thisImportTableExCD)
 					
 					if thisImportTableEx then
 					
-						if type(thisImportTableExData) == "table" and thisImportTableExData.profileSaveVer then
+						if type(thisImportTableEx) == "table" and type(thisImportTableEx.profileSaveVer) == "number" and type(thisImportTableEx.syncData) == "table" and type(thisImportTableEx.syncToggles) == "table" then
 						
 							--Import it!
-							self.db.profile = thisImportTableExData
+							-- Assigning to self.db.profile only replaces AceDB's reference; the saved table
+							-- (db.sv.profiles[key]) is untouched, so the import was lost on reload. Reset the real
+							-- profile in place (re-applying defaults, no callbacks), then merge the import over it.
+							self.db:ResetProfile(true, true)
+							self:MergeImportedTable(self.db.profile, thisImportTableEx)
 							
 							self:Print(L["ACCWUI_IE_IMPORT_SUCCESS"])
 							
@@ -217,10 +268,12 @@ function AccWideUIAceAddon:ExportGraphicsSoundSettings()
 
 		
 		-- Serialize and compress the settings table
-		local thisExportTableEx = self.LibSerialize:Serialize(thisExportTable)
-		local thisExportTableExCD = self.LibDeflate:CompressDeflate(thisExportTableEx)
-		local thisExportTableExCDPT = self.LibDeflate:EncodeForPrint(thisExportTableExCD)
-
+		--local thisExportTableEx = self.LibSerialize:Serialize(thisExportTable)
+		--local thisExportTableExCD = self.LibDeflate:CompressDeflate(thisExportTableEx)
+		--local thisExportTableExCDPT = self.LibDeflate:EncodeForPrint(thisExportTableExCD)
+		local thisExportTableEx = C_EncodingUtil.SerializeCBOR(thisExportTable)
+		local thisExportTableExCD = C_EncodingUtil.CompressString(thisExportTableEx, Enum.CompressionMethod.Deflate, Enum.CompressionLevel.Default)
+		local thisExportTableExCDPT = C_EncodingUtil.EncodeBase64(thisExportTableExCD)
 
 		-- Description Text
 		thisExportWindow.TextLine1 = AccWideUIAceAddon.AceGUI:Create("Label")
@@ -300,19 +353,35 @@ function AccWideUIAceAddon:ImportGraphicsSoundSettings()
 		
 			if not InCombatLockdown() then
 			
-				local thisImportTableExCDPT = self.LibDeflate:DecodeForPrint(thisImportWindow.BigTextBox:GetText())
+				--local thisImportTableExCDPT = self.LibDeflate:DecodeForPrint(thisImportWindow.BigTextBox:GetText())
+				local thisImportTableExCDPTResult, thisImportTableExCDPT = pcall(C_EncodingUtil.DecodeBase64,thisImportWindow.BigTextBox:GetText())
 
-				local thisImportTableExCD = self.LibDeflate:DecompressDeflate(thisImportTableExCDPT) or nil
+				--local thisImportTableExCD = self.LibDeflate:DecompressDeflate(thisImportTableExCDPT) or nil
+				local thisImportTableExCDResult, thisImportTableExCD = pcall(C_EncodingUtil.DecompressString,thisImportTableExCDPT, Enum.CompressionMethod.Deflate)
 
 				if thisImportTableExCD then
-					local thisImportTableEx, thisImportTableExData = self.LibSerialize:Deserialize(thisImportTableExCD)
+					--local thisImportTableEx, thisImportTableExData = self.LibSerialize:Deserialize(thisImportTableExCD)
+					local thisImportTableExResult, thisImportTableEx = pcall(C_EncodingUtil.DeserializeCBOR,thisImportTableExCD)
+					
 					
 					if thisImportTableEx then
 					
-						if type(thisImportTableExData) == "table" and thisImportTableExData.AWIGSData then
+						if type(thisImportTableEx) == "table" and thisImportTableEx.AWIGSData and type(thisImportTableEx.values) == "table" then
 						
-							for k, v in pairs(thisImportTableExData.values) do
-								SetCVar(k, v)
+							-- Only apply CVars this addon exports (the graphics and audio lists) that exist in this client
+							local allowedCVars = {}
+							for _, cvarName in pairs(self.CVars.System_Graphics) do
+								allowedCVars[cvarName] = true
+							end
+							for _, cvarName in pairs(self.CVars.System_Audio) do
+								allowedCVars[cvarName] = true
+							end
+						
+							for k, v in pairs(thisImportTableEx.values) do
+								local valueType = type(v)
+								if (allowedCVars[k] and GetCVar(k) ~= nil and (valueType == "string" or valueType == "number" or valueType == "boolean")) then
+									self:SetCVarIfChanged(k, v)
+								end
 							end
 												
 							self:Print(L["ACCWUI_GS_IMPORT_SUCCESS"])

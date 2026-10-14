@@ -3,13 +3,14 @@ local L = LibStub("AceLocale-3.0"):GetLocale("AccWideUIAceAddonLocale")
 -- Popups for first time set up
 StaticPopupDialogs["ACCWIDEUI_FIRSTTIMEPOPUP"] = {
 	text = FAIR_DIFFICULTY_COLOR:WrapTextInColorCode(L["ACCWUI_ADDONNAME"] .. "\n--------------------------------") .. "\n\n" .. L["ACCWUI_FIRSTTIME_LINE1"] .. "\n" .. L["ACCWUI_FIRSTTIME_LINE2"],
-	button1 = string.format(L["ACCWUI_FIRSTTIME_BTN1"], UnitName("player")),
+	button1 = string.format(L["ACCWUI_FIRSTTIME_BTN1"], AccWideUIAceAddon:GetPlayerName()),
 	button2 = L["ACCWUI_FIRSTTIME_BTN2"],
 	verticalButtonLayout = true,
 	OnAccept  = function()
 		AccWideUIAceAddon.db.global.hasDoneFirstTimeSetup = true
 		AccWideUIAceAddon:SaveUISettings()
 		AccWideUIAceAddon.TempData.HasDoneInitialLoad = true
+		AccWideUIAceAddon.TempData.LoadSettingsAfterCombat = false
 		if (AccWideUIAceAddon:SupportsGameFunction("editModeLayout")) then
 			AccWideUIAceAddon:SaveEditModeSettings()
 		end
@@ -49,7 +50,33 @@ StaticPopupDialogs["ACCWIDEUI_FIRSTTIMEPOPUP_DECLINED"] = {
 }
 
 StaticPopupDialogs["ACCWIDEUI_LOAD_REQUIREDRELOAD"] = {
-	text = FAIR_DIFFICULTY_COLOR:WrapTextInColorCode(L["ACCWUI_ADDONNAME"] .. "\n--------------------------------") .. "\n\n" .. L["ACCWUI_TAINTABLES_RELOADNOW"],
+	text = FAIR_DIFFICULTY_COLOR:WrapTextInColorCode(L["ACCWUI_ADDONNAME"] .. "\n--------------------------------") .. "\n\n" .. L["ACCWUI_TAINTABLES_SETTINGSLOADED"] .. " " .. L["ACCWUI_TAINTABLES_RELOADNOW"],
+	button1 = RELOADUI,
+	button2 = CLOSE,
+	timeout = 0,
+	sound = SOUNDKIT.TUTORIAL_POPUP,
+	whileDead = true,
+	hideOnEscape = false,
+	OnAccept  = function()
+		ReloadUI()
+	end,
+}
+
+StaticPopupDialogs["ACCWIDEUI_LOAD_ACTIONBAR_REQUIREDRELOAD"] = {
+	text = FAIR_DIFFICULTY_COLOR:WrapTextInColorCode(L["ACCWUI_ADDONNAME"] .. "\n--------------------------------") .. "\n\n" .. L["ACCWUI_TAINTABLES_ACTIONBARLOADED"] .. " " .. L["ACCWUI_TAINTABLES_RELOADNOW"],
+	button1 = RELOADUI,
+	button2 = CLOSE,
+	timeout = 0,
+	sound = SOUNDKIT.TUTORIAL_POPUP,
+	whileDead = true,
+	hideOnEscape = false,
+	OnAccept  = function()
+		ReloadUI()
+	end,
+}
+
+StaticPopupDialogs["ACCWIDEUI_ACTION_REQUIREDRELOAD"] = {
+	text = FAIR_DIFFICULTY_COLOR:WrapTextInColorCode(L["ACCWUI_ADDONNAME"] .. "\n--------------------------------") .. "\n\n" .. REQUIRES_RELOAD,
 	button1 = RELOADUI,
 	button2 = CLOSE,
 	timeout = 0,

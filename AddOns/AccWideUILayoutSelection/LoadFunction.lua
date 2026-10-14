@@ -39,6 +39,10 @@ function AccWideUIAceAddon:LoadUISettings(doNotLoadChatOrBagSettings, doNotLoadS
 			
 			-- Use Action Bars
 			if (self:SupportsGameFunction("actionBars") and self.db.profile.syncToggles.actionBars == true and not self.TempData.HasPartiallyLoaded) then
+			
+				local haveActionBarsChanged
+				local existingBars = {}
+				existingBars.Bar2, existingBars.Bar3, existingBars.Bar4, existingBars.Bar5, existingBars.Bar6, existingBars.Bar7, existingBars.Bar8  = GetActionBarToggles()
 					
 				if (self.db.global.printDebugTextToChat == true) then
 					self:Print("[Action Bars] Loading Settings.")
@@ -47,16 +51,23 @@ function AccWideUIAceAddon:LoadUISettings(doNotLoadChatOrBagSettings, doNotLoadS
 				
 				for k, v in pairs(AccWideUIAceAddon.CVars.ActionBars) do
 					if (self.db.profile.syncData.actionBars.cvars[v] ~= nil) then
-						SetCVar(v, self.db.profile.syncData.actionBars.cvars[v])
+						self:SetCVarIfChanged(v, self.db.profile.syncData.actionBars.cvars[v])
 					end
 				end
 				
 				
 				if (type(self.db.profile.syncData.actionBars.visible.Bar2) == "boolean") then
 				
-					self:ScheduleTimer(function() 
+					self:ScheduleTimer(function()
+					
 				
 						if self:SupportsGameFunction("editModeLayout") then
+							
+							for k,v in pairs(existingBars) do
+								if (self.db.profile.syncData.actionBars.visible[k] ~= v) then
+									haveActionBarsChanged = true
+								end
+							end
 							
 							SetActionBarToggles(self.db.profile.syncData.actionBars.visible.Bar2, self.db.profile.syncData.actionBars.visible.Bar3, self.db.profile.syncData.actionBars.visible.Bar4, self.db.profile.syncData.actionBars.visible.Bar5, self.db.profile.syncData.actionBars.visible.Bar6, self.db.profile.syncData.actionBars.visible.Bar7, self.db.profile.syncData.actionBars.visible.Bar8)
 						
@@ -73,7 +84,11 @@ function AccWideUIAceAddon:LoadUISettings(doNotLoadChatOrBagSettings, doNotLoadS
 				
 				self:ScheduleTimer(function() 
 					if (not InCombatLockdown()) then
-						securecall(MultiActionBar_Update)
+						securecall(MultiActionBar_Update) -- Settings.SetValue("PROXY_SHOW_ACTIONBAR_2", false);
+						
+						if (self:IsForever() and haveActionBarsChanged) then
+							StaticPopup_Show("ACCWIDEUI_LOAD_ACTIONBAR_REQUIREDRELOAD")
+						end
 					end
 				end, 5)
 			
@@ -90,7 +105,7 @@ function AccWideUIAceAddon:LoadUISettings(doNotLoadChatOrBagSettings, doNotLoadS
 				
 				for k, v in pairs(self.CVars.RaidFrames) do
 					if (self.db.profile.syncData.raidFrames.cvars[v] ~= nil) then
-						SetCVar(v, self.db.profile.syncData.raidFrames.cvars[v])
+						self:SetCVarIfChanged(v, self.db.profile.syncData.raidFrames.cvars[v])
 					end
 				end
 			
@@ -223,7 +238,7 @@ function AccWideUIAceAddon:LoadUISettings(doNotLoadChatOrBagSettings, doNotLoadS
 							
 				for k, v in pairs(self.CVars.BlockChannelInvites) do
 					if (self.db.profile.syncData.blockChannelInvites.cvars[v] ~= nil) then
-						SetCVar(v, self.db.profile.syncData.blockChannelInvites.cvars[v])
+						self:SetCVarIfChanged(v, self.db.profile.syncData.blockChannelInvites.cvars[v])
 					end
 				end
 				
@@ -239,7 +254,7 @@ function AccWideUIAceAddon:LoadUISettings(doNotLoadChatOrBagSettings, doNotLoadS
 							
 				for k, v in pairs(self.CVars.BlockTrades) do
 					if (self.db.profile.syncData.blockTrades.cvars[v] ~= nil) then
-						SetCVar(v, self.db.profile.syncData.blockTrades.cvars[v])
+						self:SetCVarIfChanged(v, self.db.profile.syncData.blockTrades.cvars[v])
 					end
 				end
 				
@@ -273,7 +288,7 @@ function AccWideUIAceAddon:LoadUISettings(doNotLoadChatOrBagSettings, doNotLoadS
 			
 				for k, v in pairs(self.CVars.TutorialTooltip) do
 					if (self.db.profile.syncData.tutorialTooltips.cvars[v] ~= nil) then
-						SetCVar(v, self.db.profile.syncData.tutorialTooltips.cvars[v])
+						self:SetCVarIfChanged(v, self.db.profile.syncData.tutorialTooltips.cvars[v])
 					end
 				end
 			end 
@@ -290,7 +305,7 @@ function AccWideUIAceAddon:LoadUISettings(doNotLoadChatOrBagSettings, doNotLoadS
 			
 				for k, v in pairs(self.CVars.AutoLoot) do
 					if (self.db.profile.syncData.autoLoot.cvars[v] ~= nil) then
-						SetCVar(v, self.db.profile.syncData.autoLoot.cvars[v])
+						self:SetCVarIfChanged(v, self.db.profile.syncData.autoLoot.cvars[v])
 					end
 				end
 			
@@ -307,7 +322,7 @@ function AccWideUIAceAddon:LoadUISettings(doNotLoadChatOrBagSettings, doNotLoadS
 			
 				for k, v in pairs(self.CVars.SoftTarget) do
 					if (self.db.profile.syncData.softTarget.cvars[v] ~= nil) then
-						SetCVar(v, self.db.profile.syncData.softTarget.cvars[v])
+						self:SetCVarIfChanged(v, self.db.profile.syncData.softTarget.cvars[v])
 					end
 				end
 			
@@ -322,11 +337,11 @@ function AccWideUIAceAddon:LoadUISettings(doNotLoadChatOrBagSettings, doNotLoadS
 					self:Print("[Zone Map] Loading Settings.")
 				end
 				
-				C_AddOns.LoadAddOn("Blizzard_BattlefieldMap")
+				self:EnsureBattlefieldMapLoaded() -- also installs the move hook if needed
 				
 				for k, v in pairs(self.CVars.BattlefieldMap) do
 					if (self.db.profile.syncData.battlefieldMap.cvars[v] ~= nil) then
-						SetCVar(v, self.db.profile.syncData.battlefieldMap.cvars[v])
+						self:SetCVarIfChanged(v, self.db.profile.syncData.battlefieldMap.cvars[v])
 					end
 				end
 				
@@ -464,7 +479,7 @@ function AccWideUIAceAddon:LoadUISettings(doNotLoadChatOrBagSettings, doNotLoadS
 			
 				for k, v in pairs(self.CVars.SelfCast) do
 					if (self.db.profile.syncData.selfCast.cvars[v] ~= nil) then
-						SetCVar(v, self.db.profile.syncData.selfCast.cvars[v])
+						self:SetCVarIfChanged(v, self.db.profile.syncData.selfCast.cvars[v])
 					end
 				end
 			
@@ -482,7 +497,7 @@ function AccWideUIAceAddon:LoadUISettings(doNotLoadChatOrBagSettings, doNotLoadS
 			
 				for k, v in pairs(self.CVars.WorldMap) do
 					if (self.db.profile.syncData.worldMap.cvars[v] ~= nil) then
-						SetCVar(v, self.db.profile.syncData.worldMap.cvars[v])
+						self:SetCVarIfChanged(v, self.db.profile.syncData.worldMap.cvars[v])
 					end
 				end
 			
@@ -500,7 +515,7 @@ function AccWideUIAceAddon:LoadUISettings(doNotLoadChatOrBagSettings, doNotLoadS
 			
 				for k, v in pairs(self.CVars.Minimap) do
 					if (self.db.profile.syncData.minimap.cvars[v] ~= nil) then
-						SetCVar(v, self.db.profile.syncData.minimap.cvars[v])
+						self:SetCVarIfChanged(v, self.db.profile.syncData.minimap.cvars[v])
 					end
 				end
 				
@@ -524,7 +539,7 @@ function AccWideUIAceAddon:LoadUISettings(doNotLoadChatOrBagSettings, doNotLoadS
 			
 				for k, v in pairs(self.CVars.CalendarFilters) do
 					if (self.db.profile.syncData.calendarFilters.cvars[v] ~= nil) then
-						SetCVar(v, self.db.profile.syncData.calendarFilters.cvars[v])
+						self:SetCVarIfChanged(v, self.db.profile.syncData.calendarFilters.cvars[v])
 					end
 				end
 			
@@ -541,7 +556,7 @@ function AccWideUIAceAddon:LoadUISettings(doNotLoadChatOrBagSettings, doNotLoadS
 			
 				for k, v in pairs(self.CVars.Camera) do
 					if (self.db.profile.syncData.camera.cvars[v] ~= nil) then
-						SetCVar(v, self.db.profile.syncData.camera.cvars[v])
+						self:SetCVarIfChanged(v, self.db.profile.syncData.camera.cvars[v])
 					end
 				end
 			
@@ -558,13 +573,15 @@ function AccWideUIAceAddon:LoadUISettings(doNotLoadChatOrBagSettings, doNotLoadS
 			
 				for k, v in pairs(self.CVars.Nameplates) do
 					if (self.db.profile.syncData.nameplates.cvars[v] ~= nil) then
-						SetCVar(v, self.db.profile.syncData.nameplates.cvars[v])
+						self:SetCVarIfChanged(v, self.db.profile.syncData.nameplates.cvars[v])
 					end
 				end
 				
 				if (C_NamePlate.SetNamePlateSize) then -- New Nameplate Size Func
 					if (self.db.profile.syncData.nameplates.special.NamePlateSize) then
-						C_NamePlate.SetNamePlateSize(self.db.profile.syncData.nameplates.special.NamePlateSize[1], self.db.profile.syncData.nameplates.special.NamePlateSize[2])
+						if (not self:IsForever()) then-- Breaks Edit Mode
+							C_NamePlate.SetNamePlateSize(self.db.profile.syncData.nameplates.special.NamePlateSize[1], self.db.profile.syncData.nameplates.special.NamePlateSize[2])
+						end
 					end
 				else -- Old Nameplate Size Func
 					if (self.db.profile.syncData.nameplates.special.NamePlateEnemyClickThrough) then
@@ -606,7 +623,21 @@ function AccWideUIAceAddon:LoadUISettings(doNotLoadChatOrBagSettings, doNotLoadS
 				
 			end
 			
-
+			
+			-- Gamepad Variables
+			if (self:SupportsGameFunction("gamepad") and self.db.profile.syncToggles.gamepad == true and not self.TempData.HasPartiallyLoaded) then
+			
+				if (self.db.global.printDebugTextToChat == true) then
+					self:Print("[Gamepad] Loading Settings.")
+				end
+			
+				for k, v in pairs(self.CVars.Gamepad) do
+					if (self.db.profile.syncData.gamepad.cvars[v] ~= nil) then
+						self:SetCVarIfChanged(v, self.db.profile.syncData.gamepad.cvars[v])
+					end
+				end
+			
+			end 
 			
 			
 			-- Misc. Combat Variables
@@ -618,7 +649,7 @@ function AccWideUIAceAddon:LoadUISettings(doNotLoadChatOrBagSettings, doNotLoadS
 			
 				for k, v in pairs(self.CVars.CombatMisc) do
 					if (self.db.profile.syncData.combatMisc.cvars[v] ~= nil) then
-						SetCVar(v, self.db.profile.syncData.combatMisc.cvars[v])
+						self:SetCVarIfChanged(v, self.db.profile.syncData.combatMisc.cvars[v])
 					end
 				end
 			
@@ -634,7 +665,7 @@ function AccWideUIAceAddon:LoadUISettings(doNotLoadChatOrBagSettings, doNotLoadS
 			
 				for k, v in pairs(self.CVars.UIMisc) do
 					if (self.db.profile.syncData.uiMisc.cvars[v] ~= nil) then
-						SetCVar(v, self.db.profile.syncData.uiMisc.cvars[v])
+						self:SetCVarIfChanged(v, self.db.profile.syncData.uiMisc.cvars[v])
 					end
 				end
 			
@@ -650,7 +681,7 @@ function AccWideUIAceAddon:LoadUISettings(doNotLoadChatOrBagSettings, doNotLoadS
 			
 				for k, v in pairs(self.CVars.LossOfControl) do
 					if (self.db.profile.syncData.lossOfControl.cvars[v] ~= nil) then
-						SetCVar(v, self.db.profile.syncData.lossOfControl.cvars[v])
+						self:SetCVarIfChanged(v, self.db.profile.syncData.lossOfControl.cvars[v])
 					end
 				end
 			
@@ -667,7 +698,7 @@ function AccWideUIAceAddon:LoadUISettings(doNotLoadChatOrBagSettings, doNotLoadS
 			
 				for k, v in pairs(self.CVars.ExternalDefensives) do
 					if (self.db.profile.syncData.externalDefensives.cvars[v] ~= nil) then
-						SetCVar(v, self.db.profile.syncData.externalDefensives.cvars[v])
+						self:SetCVarIfChanged(v, self.db.profile.syncData.externalDefensives.cvars[v])
 					end
 				end
 			
@@ -684,7 +715,7 @@ function AccWideUIAceAddon:LoadUISettings(doNotLoadChatOrBagSettings, doNotLoadS
 			
 				for k, v in pairs(self.CVars.MouseoverCast) do
 					if (self.db.profile.syncData.mouseoverCast.cvars[v] ~= nil) then
-						SetCVar(v, self.db.profile.syncData.mouseoverCast.cvars[v])
+						self:SetCVarIfChanged(v, self.db.profile.syncData.mouseoverCast.cvars[v])
 					end
 				end
 			
@@ -701,7 +732,7 @@ function AccWideUIAceAddon:LoadUISettings(doNotLoadChatOrBagSettings, doNotLoadS
 			
 				for k, v in pairs(self.CVars.EmpowerTap) do
 					if (self.db.profile.syncData.empowerTap.cvars[v] ~= nil) then
-						SetCVar(v, self.db.profile.syncData.empowerTap.cvars[v])
+						self:SetCVarIfChanged(v, self.db.profile.syncData.empowerTap.cvars[v])
 					end
 				end
 			
@@ -718,7 +749,7 @@ function AccWideUIAceAddon:LoadUISettings(doNotLoadChatOrBagSettings, doNotLoadS
 			
 				for k, v in pairs(self.CVars.AssistedCombat) do
 					if (self.db.profile.syncData.assistedCombat.cvars[v] ~= nil) then
-						SetCVar(v, self.db.profile.syncData.assistedCombat.cvars[v])
+						self:SetCVarIfChanged(v, self.db.profile.syncData.assistedCombat.cvars[v])
 					end
 				end
 			
@@ -735,7 +766,7 @@ function AccWideUIAceAddon:LoadUISettings(doNotLoadChatOrBagSettings, doNotLoadS
 			
 				for k, v in pairs(self.CVars.CooldownViewer) do
 					if (self.db.profile.syncData.cooldownViewer.cvars[v] ~= nil) then
-						SetCVar(v, self.db.profile.syncData.cooldownViewer.cvars[v])
+						self:SetCVarIfChanged(v, self.db.profile.syncData.cooldownViewer.cvars[v])
 					end
 				end
 				
@@ -848,7 +879,7 @@ function AccWideUIAceAddon:LoadUISettings(doNotLoadChatOrBagSettings, doNotLoadS
 				
 				for k, v in pairs(self.CVars.DamageMeter) do
 					if (self.db.profile.syncData.damageMeter.cvars[v] ~= nil) then
-						SetCVar(v, self.db.profile.syncData.damageMeter.cvars[v])
+						self:SetCVarIfChanged(v, self.db.profile.syncData.damageMeter.cvars[v])
 					end
 				end
 				
@@ -864,8 +895,8 @@ function AccWideUIAceAddon:LoadUISettings(doNotLoadChatOrBagSettings, doNotLoadS
 				end
 			
 				for k, v in pairs(self.CVars.SpellOverlay) do
-					if (self.db.profile.syncData.spellOverlay.cvars ~= nil) then
-						SetCVar(v, self.db.profile.syncData.spellOverlay.cvars[v])
+					if (self.db.profile.syncData.spellOverlay.cvars[v] ~= nil) then
+						self:SetCVarIfChanged(v, self.db.profile.syncData.spellOverlay.cvars[v])
 					end
 				end
 				
@@ -882,7 +913,7 @@ function AccWideUIAceAddon:LoadUISettings(doNotLoadChatOrBagSettings, doNotLoadS
 			
 				for k, v in pairs(self.CVars.ArenaFrames) do
 					if (self.db.profile.syncData.arenaFrames.cvars[v] ~= nil) then
-						SetCVar(v, self.db.profile.syncData.arenaFrames.cvars[v])
+						self:SetCVarIfChanged(v, self.db.profile.syncData.arenaFrames.cvars[v])
 					end
 				end
 			
@@ -900,7 +931,7 @@ function AccWideUIAceAddon:LoadUISettings(doNotLoadChatOrBagSettings, doNotLoadS
 				for line in self.db.profile.syncData.customCVars.cvarList:gmatch("([^\n]*)\n?") do
 					line = line:gsub("[^%w]+", "")
 					if (line ~= "" and GetCVar(line) ~= nil and self.db.profile.syncData.customCVars.cvarData[line] ~= nil) then
-						SetCVar(line, self.db.profile.syncData.customCVars.cvarData[line])
+						self:SetCVarIfChanged(line, self.db.profile.syncData.customCVars.cvarData[line])
 					end
 				end
 			
@@ -910,14 +941,14 @@ function AccWideUIAceAddon:LoadUISettings(doNotLoadChatOrBagSettings, doNotLoadS
 
 			
 			-- Custom Chat Channels
-			if (self.db.profile.syncToggles.chatChannels == true) then
+			if (self:SupportsGameFunction("customChatChannels") and self.db.profile.syncToggles.chatChannels == true) then
 				
 				self:ScheduleTimer(function() 
 					if (self.db.global.printDebugTextToChat == true) then
 						self:Print("[Chat Channels] Joining Channels.")
 					end
 					
-					AccWideUIAceAddon:BlizzChannelManager()
+					self:BlizzChannelManager()
 					
 					
 					for k, v in pairs(self.db.profile.syncData.chat.channelsJoined) do
@@ -938,7 +969,7 @@ function AccWideUIAceAddon:LoadUISettings(doNotLoadChatOrBagSettings, doNotLoadS
 				
 
 				
-				if (self:IsMainline() ~= true) then -- 12.0.1 Sometimes Taints in Combat
+				if (self:IsModern() ~= true) then -- 12.0.1 Sometimes Taints in Combat
 				
 					self:ScheduleTimer(function() 
 						
@@ -979,7 +1010,7 @@ function AccWideUIAceAddon:LoadUISettings(doNotLoadChatOrBagSettings, doNotLoadS
 				
 				
 				-- Newcomer Chat Exception
-				if (self:IsMainline() and self.chatChannelNames.newcomerChat) then
+				if (self:IsRetail() and self.chatChannelNames.newcomerChat) then
 					local id, name, instanceID, isCommunitiesChannel = GetChannelName(self.chatChannelNames.newcomerChat)
 					if (id ~= 0) then
 						self:ScheduleTimer(function()
@@ -1010,20 +1041,28 @@ function AccWideUIAceAddon:LoadUISettings(doNotLoadChatOrBagSettings, doNotLoadS
 				
 				
 				-- Individual Chat Window/Tab Settings
+				local dockUpdateScheduled = false -- one FCF_DockUpdate covers every window changed below
 				for thisChatFrame = 1, NUM_CHAT_WINDOWS do -- 12.0.0 Constants.ChatFrameConstants.MaxChatWindows
 					
 					--local thisChatFrameVar = _G["ChatFrame" .. thisChatFrame]
 					local thisChatFrameVar = FCF_GetChatFrameByID(thisChatFrame);
 					local thisChatFrameTab =  _G["ChatFrame"..thisChatFrame.."Tab"];
+					local isThisChatFrameVisible = nil
+					local hasThisChatFrameChanged = nil
 					
+					local name, size, r, g, b, a, isShown, isLocked, isDocked, isUninteractable = GetChatWindowInfo(thisChatFrame);
+					local point, xOffset, yOffset = GetChatWindowSavedPosition(thisChatFrame);
+					local width, height = GetChatWindowSavedDimensions(thisChatFrame);
 					
 					if (type(self.db.profile.syncData.chat.windows[thisChatFrame]) == "table") then
 					
 						if(type(self.db.profile.syncData.chat.windows[thisChatFrame].ChatWindowInfo) == "table") then
-												
-	
+
+							isThisChatFrameVisible = self.db.profile.syncData.chat.windows[thisChatFrame].ChatWindowInfo.isDocked or self.db.profile.syncData.chat.windows[thisChatFrame].ChatWindowInfo.isShown
+							
 							self:ScheduleTimer(function()
-								if (self.db.profile.syncData.chat.windows[thisChatFrame].ChatWindowInfo.a) then
+																						
+								if (RoundToSignificantDigits(self.db.profile.syncData.chat.windows[thisChatFrame].ChatWindowInfo.a, 5) ~= RoundToSignificantDigits(a, 5)) then
 								
 									SetChatWindowAlpha(
 										thisChatFrame, 
@@ -1034,10 +1073,18 @@ function AccWideUIAceAddon:LoadUISettings(doNotLoadChatOrBagSettings, doNotLoadS
 											thisChatFrameVar, 
 											self.db.profile.syncData.chat.windows[thisChatFrame].ChatWindowInfo.a
 									) ]]
+									
+									if (self.db.global.printDebugTextToChat == true) then
+										self:Print("[Chat Window " .. thisChatFrame .. "] Setting Window Alpha.")
+									end
+											
+									hasThisChatFrameChanged = true
 								
 								end
 								
-								if (self.db.profile.syncData.chat.windows[thisChatFrame].ChatWindowInfo.r) then
+								if ((self.db.profile.syncData.chat.windows[thisChatFrame].ChatWindowInfo.r ~= r)
+									and (self.db.profile.syncData.chat.windows[thisChatFrame].ChatWindowInfo.g ~= g)
+									and (self.db.profile.syncData.chat.windows[thisChatFrame].ChatWindowInfo.b ~= b)) then
 								
 									SetChatWindowColor(
 										thisChatFrame,
@@ -1052,87 +1099,167 @@ function AccWideUIAceAddon:LoadUISettings(doNotLoadChatOrBagSettings, doNotLoadS
 										self.db.profile.syncData.chat.windows[thisChatFrame].ChatWindowInfo.g,
 										self.db.profile.syncData.chat.windows[thisChatFrame].ChatWindowInfo.b
 									) ]]
+									
+									if (self.db.global.printDebugTextToChat == true) then
+										self:Print("[Chat Window " .. thisChatFrame .. "] Setting Window Color.")
+									end
+											
+									hasThisChatFrameChanged = true
 								
 								end
 								
-								SetChatWindowDocked(
-									thisChatFrame,
-									(self.db.profile.syncData.chat.windows[thisChatFrame].ChatWindowInfo.isDocked or false)
-								)
 								
-								--[[ if (self.db.profile.syncData.chat.windows[thisChatFrame].ChatWindowInfo.isDocked and self.db.profile.syncData.chat.windows[thisChatFrame].ChatWindowInfo.isDocked == true) then
-									FCF_DockFrame(
-										thisChatFrameVar,
-										(#FCFDock_GetChatFrames(GENERAL_CHAT_DOCK)+1),
+								if (self.db.profile.syncData.chat.windows[thisChatFrame].ChatWindowInfo.isDocked ~= isDocked) then
+								
+									SetChatWindowDocked(
+										thisChatFrame,
 										(self.db.profile.syncData.chat.windows[thisChatFrame].ChatWindowInfo.isDocked or false)
 									)
-								else
-									FCF_UnDockFrame(
-										thisChatFrameVar
-									)
-								end ]]
+									
+									--[[ if (self.db.profile.syncData.chat.windows[thisChatFrame].ChatWindowInfo.isDocked and self.db.profile.syncData.chat.windows[thisChatFrame].ChatWindowInfo.isDocked == true) then
+										FCF_DockFrame(
+											thisChatFrameVar,
+											(#FCFDock_GetChatFrames(GENERAL_CHAT_DOCK)+1),
+											(self.db.profile.syncData.chat.windows[thisChatFrame].ChatWindowInfo.isDocked or false)
+										)
+									else
+										FCF_UnDockFrame(
+											thisChatFrameVar
+										)
+									end ]]
+									
+									if (self.db.global.printDebugTextToChat == true) then
+										self:Print("[Chat Window " .. thisChatFrame .. "] Setting Window Docked.")
+									end
+											
+									hasThisChatFrameChanged = true
 								
-								SetChatWindowLocked(
-									thisChatFrame,
-									(self.db.profile.syncData.chat.windows[thisChatFrame].ChatWindowInfo.isLocked or false)
-								)
-								
-								--[[ FCF_SetLocked(
-									thisChatFrameVar,
-									(self.db.profile.syncData.chat.windows[thisChatFrame].ChatWindowInfo.isLocked or false)
-								) ]]
-								
-								SetChatWindowShown(
-									thisChatFrame,
-									(self.db.profile.syncData.chat.windows[thisChatFrame].ChatWindowInfo.isShown or false)
-								)
-								
-								--[[ if (self.db.profile.syncData.chat.windows[thisChatFrame].ChatWindowInfo.isShown == true) then
-									thisChatFrameVar:Show()
-								else
-									thisChatFrameVar:Hide()
-								end ]]
+								end
 								
 								
-								SetChatWindowUninteractable(
-									thisChatFrame,
-									(self.db.profile.syncData.chat.windows[thisChatFrame].ChatWindowInfo.isUninteractable or false)
-								)
 								
-								--[[ FCF_SetUninteractable(
-									thisChatFrameVar,
-									(self.db.profile.syncData.chat.windows[thisChatFrame].ChatWindowInfo.isUninteractable or false)
-								) ]]
+								if (self.db.profile.syncData.chat.windows[thisChatFrame].ChatWindowInfo.isLocked ~= isLocked) then
 								
-								SetChatWindowName(
-									thisChatFrame,
-									self.db.profile.syncData.chat.windows[thisChatFrame].ChatWindowInfo.name
-								)
-								
-								FCF_SetWindowName(
-									thisChatFrameVar,
-									self.db.profile.syncData.chat.windows[thisChatFrame].ChatWindowInfo.name
-								)
-								
-								if (self.db.profile.syncData.chat.windows[thisChatFrame].ChatWindowInfo.size and self.db.profile.syncData.chat.windows[thisChatFrame].ChatWindowInfo.size >= 10) then
-								
-									SetChatWindowSize(
+									SetChatWindowLocked(
 										thisChatFrame,
-										self.db.profile.syncData.chat.windows[thisChatFrame].ChatWindowInfo.size
+										(self.db.profile.syncData.chat.windows[thisChatFrame].ChatWindowInfo.isLocked or false)
 									)
 									
-									if (self:IsMainline()) then
-										FCF_SetChatWindowFontSize(
-											nil,
+									--[[ FCF_SetLocked(
+										thisChatFrameVar,
+										(self.db.profile.syncData.chat.windows[thisChatFrame].ChatWindowInfo.isLocked or false)
+									) ]]
+								
+									if (self.db.global.printDebugTextToChat == true) then
+										self:Print("[Chat Window " .. thisChatFrame .. "] Setting Window Locked.")
+									end
+											
+									hasThisChatFrameChanged = true
+								
+								end
+								
+								
+								
+								if (self.db.profile.syncData.chat.windows[thisChatFrame].ChatWindowInfo.isShown ~= isShown) then
+								
+									SetChatWindowShown(
+										thisChatFrame,
+										(self.db.profile.syncData.chat.windows[thisChatFrame].ChatWindowInfo.isShown or false)
+									)
+									
+									--[[ if (self.db.profile.syncData.chat.windows[thisChatFrame].ChatWindowInfo.isShown == true) then
+										thisChatFrameVar:Show()
+									else
+										thisChatFrameVar:Hide()
+									end ]]
+									
+									if (self.db.global.printDebugTextToChat == true) then
+										self:Print("[Chat Window " .. thisChatFrame .. "] Setting Window Shown.")
+									end
+											
+									hasThisChatFrameChanged = true
+								
+								end
+								
+								if (self.db.profile.syncData.chat.windows[thisChatFrame].ChatWindowInfo.isUninteractable ~= isUninteractable) then
+								
+									SetChatWindowUninteractable(
+										thisChatFrame,
+										(self.db.profile.syncData.chat.windows[thisChatFrame].ChatWindowInfo.isUninteractable or false)
+									)
+									
+									--[[ FCF_SetUninteractable(
+										thisChatFrameVar,
+										(self.db.profile.syncData.chat.windows[thisChatFrame].ChatWindowInfo.isUninteractable or false)
+									) ]]
+									
+									if (self.db.global.printDebugTextToChat == true) then
+										self:Print("[Chat Window " .. thisChatFrame .. "] Setting Window Uninteractable.")
+									end
+											
+									hasThisChatFrameChanged = true
+								
+								end
+								
+								
+								if (self.db.profile.syncData.chat.windows[thisChatFrame].ChatWindowInfo.name ~= name) then
+								
+									if (not self:IsModern()) then
+									
+										SetChatWindowName(
+											thisChatFrame,
+											self.db.profile.syncData.chat.windows[thisChatFrame].ChatWindowInfo.name
+										)
+										
+									else
+									
+										FCF_SetWindowName(
 											thisChatFrameVar,
+											self.db.profile.syncData.chat.windows[thisChatFrame].ChatWindowInfo.name
+										)
+									
+									end
+									
+									if (self.db.global.printDebugTextToChat == true) then
+										self:Print("[Chat Window " .. thisChatFrame .. "] Setting Window Name.")
+									end
+											
+									hasThisChatFrameChanged = true
+									
+								end
+								
+								
+								
+								if (self.db.profile.syncData.chat.windows[thisChatFrame].ChatWindowInfo.size 
+								and self.db.profile.syncData.chat.windows[thisChatFrame].ChatWindowInfo.size >= 10) then
+								
+									if (self.db.profile.syncData.chat.windows[thisChatFrame].ChatWindowInfo.size ~= size) then
+								
+										SetChatWindowSize(
+											thisChatFrame,
 											self.db.profile.syncData.chat.windows[thisChatFrame].ChatWindowInfo.size
 										)
+										
+										if (self:IsModern()) then
+											FCF_SetChatWindowFontSize(
+												nil,
+												thisChatFrameVar,
+												self.db.profile.syncData.chat.windows[thisChatFrame].ChatWindowInfo.size
+											)
+										end
+										
+										if (self.db.global.printDebugTextToChat == true) then
+											self:Print("[Chat Window " .. thisChatFrame .. "] Setting Chat Size.")
+										end
+												
+										hasThisChatFrameChanged = true
+									
 									end
 								
 								else
 								
 									if (self.db.global.printDebugTextToChat == true) then
-										self:Print("[Chat Window] Invalid Chat Text Size.")
+										self:Print("[Chat Window " .. thisChatFrame .. "] Invalid Chat Text Size.")
 									end
 								
 								end
@@ -1144,7 +1271,9 @@ function AccWideUIAceAddon:LoadUISettings(doNotLoadChatOrBagSettings, doNotLoadS
 							
 						
 						self:ScheduleTimer(function()
-							if (self.db.profile.syncToggles.chatWindowPosition == true) then
+							if (self.db.profile.syncToggles.chatWindowPosition == true 
+							and isThisChatFrameVisible
+							and (self:SupportsGameFunction("editModeLayout") and DEFAULT_CHAT_FRAME ~= thisChatFrameVar)) then
 							
 									if self.db.global.useScreenSizeSpecificSettings == true then
 										--Res Specific
@@ -1200,50 +1329,76 @@ function AccWideUIAceAddon:LoadUISettings(doNotLoadChatOrBagSettings, doNotLoadS
 								--FCF_RestorePositionAndDimensions(thisChatFrameVar)
 							end
 						end, 3)
-
-						self:ScheduleTimer(function()
-							FloatingChatFrame_Update(thisChatFrame, true)
-							
-							--[[if (self.db.profile.syncData.chat.windows[thisChatFrame].ChatWindowInfo.isDocked) then
-								FCF_UnDockFrame(thisChatFrameVar)
-								FCF_DockFrame(thisChatFrameVar, self.db.profile.syncData.chat.windows[thisChatFrame].ChatWindowInfo.isDocked, thisChatFrame)
-							end]]
-							
-							if (not self:IsMainline()) then
-								--Triggering this in Retail causes secret errors when chat lockdown is enabled
-								local f = _G["ChatFrame" .. thisChatFrame];
-								f:GetScript("OnEvent")(f, "UPDATE_FLOATING_CHAT_WINDOWS");
-							
-							end
-							
-						end, 4)
+						
+						
+						
 						
 						self:ScheduleTimer(function()
-							FCF_DockUpdate()
-						end, 5.5)
+							if (hasThisChatFrameChanged) then
+							
+								FloatingChatFrame_Update(thisChatFrame, true)
+
+								--[[self:ScheduleTimer(function()							
+									if (not self:IsModern()) then
+										--Triggering this in Retail causes secret errors when chat lockdown is enabled
+										local f = _G["ChatFrame" .. thisChatFrame];
+										f:GetScript("OnEvent")(f, "UPDATE_FLOATING_CHAT_WINDOWS");
+									else 
+										
+									end
+									
+								end, 4)]]
+								
+								if (not dockUpdateScheduled) then
+									dockUpdateScheduled = true
+									self:ScheduleTimer(function()
+										FCF_DockUpdate()
+									end, 5.5)
+								end
+								
+								if (self.db.global.printDebugTextToChat == true) then
+									self:Print("[Chat Window " .. thisChatFrame .. "] Triggering FCF Update.")
+								end
+								
+							else
+								
+								--[[if (not IsBuiltinChatWindow(thisChatFrameVar) then)
+									FCF_Close(thisChatFrameVar)
+								end]]
+								
+								--[[if (self.db.global.printDebugTextToChat == true) then
+									self:Print("[Chat Window] Closing Chat Frame " .. thisChatFrame .. ".")
+								end]]
+							
+							end
+						
+						end, 4)
 						
 					
 					
 					end
 					
-					self:ScheduleTimer(function()
+					-- Not per-window work: schedule it once, not once per pass of the loop
+					if (thisChatFrame == 1) then
+						self:ScheduleTimer(function()
 					
-						if (C_AddOns.IsAddOnLoaded("ElvUI") == true) then
-							-- Redock chat windows in ElvUI if panel docking is enabled
-							local E, L, V, P, G = unpack(ElvUI);
-							local CH = E:GetModule('Chat');
+							if (C_AddOns.IsAddOnLoaded("ElvUI") == true) then
+								-- Redock chat windows in ElvUI if panel docking is enabled
+								local E, L, V, P, G = unpack(ElvUI);
+								local CH = E:GetModule('Chat');
 							
-							if (CH.LeftChatWindow ~= nil) then
-								CH:PositionChat(CH.LeftChatWindow);
+								if (CH.LeftChatWindow ~= nil) then
+									CH:PositionChat(CH.LeftChatWindow);
+								end
+							
+								if (CH.RightChatWindow ~= nil) then
+									CH:PositionChat(CH.RightChatWindow);
+								end
+							
 							end
-							
-							if (CH.RightChatWindow ~= nil) then
-								CH:PositionChat(CH.RightChatWindow);
-							end
-							
-						end
 						
-					end, 5)
+						end, 5)
+					end
 					
 					
 					
@@ -1251,7 +1406,7 @@ function AccWideUIAceAddon:LoadUISettings(doNotLoadChatOrBagSettings, doNotLoadS
 					self:ScheduleTimer(function() 
 					
 						-- Duplicated in Taintables below
-						if (not self:IsMainline()) then
+						if (not self:IsModern()) then
 					
 							if (self.db.profile.syncData.chat.windows[thisChatFrame]) then
 								if (type(self.db.profile.syncData.chat.windows[thisChatFrame].ChatChannelsVisible) == "table") then
@@ -1311,6 +1466,8 @@ function AccWideUIAceAddon:LoadUISettings(doNotLoadChatOrBagSettings, doNotLoadS
 									if (self.db.global.printDebugTextToChat == true) then
 										self:Print("[Chat Window] Setting Chat Types for Window " .. thisChatFrame .. ".")
 									end
+									
+									thisChatFrameVar:ReceiveAllPrivateMessages()
 								
 									if (type(self.db.profile.syncData.chat.windows[thisChatFrame].MessageTypes) == "table") then
 									
@@ -1394,7 +1551,7 @@ function AccWideUIAceAddon:LoadUISettings(doNotLoadChatOrBagSettings, doNotLoadS
 					
 					for k, v in pairs(self.CVars.System_Graphics) do
 						if (self.db.profile.syncData.systemGraphics.cvars[v] ~= nil) then
-							SetCVar(v, self.db.profile.syncData.systemGraphics.cvars[v])
+							self:SetCVarIfChanged(v, self.db.profile.syncData.systemGraphics.cvars[v])
 						end
 					end
 					
@@ -1410,7 +1567,7 @@ function AccWideUIAceAddon:LoadUISettings(doNotLoadChatOrBagSettings, doNotLoadS
 					
 					for k, v in pairs(self.CVars.System_Audio) do
 						if (self.db.profile.syncData.systemAudio.cvars[v] ~= nil) then
-							SetCVar(v, self.db.profile.syncData.systemAudio.cvars[v])
+							self:SetCVarIfChanged(v, self.db.profile.syncData.systemAudio.cvars[v])
 						end
 					end
 					
@@ -1463,29 +1620,58 @@ function AccWideUIAceAddon:LoadEditModeSettings()
 		
 		if (self.db.profile.syncToggles.editModeLayout == true) and (self.db.char.useEditModeLayout["specialization" .. currentSpec] == true) then
 		
-			local thisEditModeLayoutID = self.db.profile.syncData.editModeLayoutID or 1
+			local thisEditModeLayoutID = self.db.profile.syncData.editModeLayoutID or (C_EditMode.GetEditModeDefaultLayout and C_EditMode.GetEditModeDefaultLayout() or 1)
+			local thisEditModeLayoutIDGamepad = self.db.profile.syncData.editModeLayoutIDGamepad or (C_EditMode.GetEditModeDefaultLayout and C_EditMode.GetEditModeDefaultLayout() or 1)
+
+			local currentLayout = C_EditMode.GetLayouts().activeLayout
 			
-			if self.db.global.useScreenSizeSpecificSettings == true then
+			if (self:IsUsingGamepadUI()) then
+			
+				-- Gamepad Screen Specific Size
+				if self.db.global.useScreenSizeSpecificSettings == true then
+					if (self.db.profile.syncData.screenResolutionSpecific[self.TempData.ScreenRes].editModeLayoutIDGamepad
+					and self.db.profile.syncData.screenResolutionSpecific[self.TempData.ScreenRes].editModeLayoutIDGamepad ~= currentLayout) then
+						C_EditMode.SetActiveLayout(self.db.profile.syncData.screenResolutionSpecific[self.TempData.ScreenRes].editModeLayoutIDGamepad)
+						if (self.db.global.printDebugTextToChat == true) then
+							self:Print("[Debug] Loading Screen Specific Gamepad Edit Mode Layout (ID: " .. self.db.profile.syncData.screenResolutionSpecific[self.TempData.ScreenRes].editModeLayoutIDGamepad .. ").")
+						end
+					end	
+				else -- Gamepad Layout
+					if (self.db.profile.syncData.editModeLayoutIDGamepad 
+					and self.db.profile.syncData.editModeLayoutIDGamepad ~= currentLayout) then
+						C_EditMode.SetActiveLayout(self.db.profile.syncData.editModeLayoutIDGamepad)
+						if (self.db.global.printDebugTextToChat == true) then
+							self:Print("[Debug] Loading Gamepad Edit Mode Layout (ID: " .. self.db.profile.syncData.editModeLayoutIDGamepad .. ").")
+						end
+					end	
+				end
 				
-				if (self.db.profile.syncData.screenResolutionSpecific[self.TempData.ScreenRes].editModeLayoutID ~= "unset") then
-				
-					thisEditModeLayoutID = self.db.profile.syncData.screenResolutionSpecific[self.TempData.ScreenRes].editModeLayoutID or thisEditModeLayoutID
-					
+			else
+			
+				-- Desktop Screen Specific Size Layout
+				if self.db.global.useScreenSizeSpecificSettings == true then
+					if (self.db.profile.syncData.screenResolutionSpecific[self.TempData.ScreenRes].editModeLayoutID 
+					and self.db.profile.syncData.screenResolutionSpecific[self.TempData.ScreenRes].editModeLayoutID ~= currentLayout) then
+						C_EditMode.SetActiveLayout(self.db.profile.syncData.screenResolutionSpecific[self.TempData.ScreenRes].editModeLayoutID)
+						if (self.db.global.printDebugTextToChat == true) then
+							self:Print("[Debug] Loading Screen Specific Desktop Edit Mode Layout (ID: " .. self.db.profile.syncData.screenResolutionSpecific[self.TempData.ScreenRes].editModeLayoutID .. ").")
+						end
+					end	
+				else -- Desktop Layout
+					if (self.db.profile.syncData.editModeLayoutID
+					and self.db.profile.syncData.editModeLayoutID ~= currentLayout) then
+						C_EditMode.SetActiveLayout(self.db.profile.syncData.editModeLayoutID)
+						if (self.db.global.printDebugTextToChat == true) then
+							self:Print("[Debug] Loading Desktop Edit Mode Layout (ID: " .. self.db.profile.syncData.editModeLayoutID .. ").")
+						end
+					end	
 				end
 			
-				
 			end
 
-			if (self.db.global.printDebugTextToChat == true) then
-				self:Print("[Debug] Loading Chosen Edit Mode Layout (ID: " .. thisEditModeLayoutID .. ").")
-			end
-
-			--Set the spec
-			C_EditMode.SetActiveLayout(thisEditModeLayoutID)
 			
 			-- If CooldownManagerCentered is installed, changing the EditMode Layout this way makes any custom CD bars visible, whether they should do or not.
 			-- So let's refresh their visibility status. https://www.curseforge.com/wow/addons/cooldown-manager-centered
-			
 			if (C_AddOns.IsAddOnLoaded("CooldownManagerCentered") == true) then
 			
 				self:ScheduleTimer(function() 
@@ -1527,7 +1713,7 @@ end
 
 function AccWideUIAceAddon:RetailTaintableLoadAll() 
 	
-	if (self:IsMainline() and not InCombatLockdown() and not IsEncounterInProgress()) then
+	if (self:IsModern() and not InCombatLockdown() and not IsEncounterInProgress()) then
 		self:RetailTaintableLoadDamageMeter(true) 
 		self:RetailTaintableLoadChat(true)
 		self:Print("[Midnight] Loaded all Midnight Settings.")
@@ -1538,7 +1724,7 @@ end
 
 function AccWideUIAceAddon:RetailTaintableLoadDamageMeter(skipLoadMessage) 
 
-	if (self:IsMainline() and not InCombatLockdown() and not IsEncounterInProgress()) then
+	if (self:IsModern() and not InCombatLockdown() and not IsEncounterInProgress()) then
 	
 		if (self.db.profile.syncData.retailTaintables.damageMeter.special.settings) then
 		
@@ -1661,7 +1847,7 @@ end
 
 function AccWideUIAceAddon:RetailTaintableLoadChat(skipLoadMessage)
 	
-	if (self:IsMainline() and not InCombatLockdown() and not IsEncounterInProgress()) then
+	if (self:IsModern() and not InCombatLockdown() and not IsEncounterInProgress()) then
 	
 		-- Visible Chat Channels
 		for thisChatFrame = 1, NUM_CHAT_WINDOWS do -- 12.0.0 Constants.ChatFrameConstants.MaxChatWindows

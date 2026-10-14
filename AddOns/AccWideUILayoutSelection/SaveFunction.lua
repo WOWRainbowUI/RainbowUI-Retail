@@ -29,7 +29,7 @@ function AccWideUIAceAddon:SaveUISettings(doNotSaveEditMode, isForced)
 			self.db.global.hasDoneFirstTimeSetup = true
 
 
-			self.db.profile.lastSaved.character = AccWideUIAceAddon.TempData.ThisCharacter
+			self.db.profile.lastSaved.character = self:GetPlayerName()
 			self.db.profile.lastSaved.unixTime = GetServerTime()
 
 			
@@ -215,24 +215,31 @@ function AccWideUIAceAddon:SaveUISettings(doNotSaveEditMode, isForced)
 				
 				--self.db.profile.syncData.battlefieldMap.options = {}
 				
-				if (type(BattlefieldMapOptions.locked) == "boolean") then
-					self.db.profile.syncData.battlefieldMap.options.locked = BattlefieldMapOptions.locked 
-				end
+				if (BattlefieldMapOptions) then
 				
-				if (type(BattlefieldMapOptions.opacity) == "number") then
-					self.db.profile.syncData.battlefieldMap.options.opacity = BattlefieldMapOptions.opacity or 0.7
-				end
+					if (type(BattlefieldMapOptions.locked) == "boolean") then
+						self.db.profile.syncData.battlefieldMap.options.locked = BattlefieldMapOptions.locked 
+					end
+					
+					if (type(BattlefieldMapOptions.opacity) == "number") then
+						self.db.profile.syncData.battlefieldMap.options.opacity = BattlefieldMapOptions.opacity or 0.7
+					end
+					
+					if (type(BattlefieldMapOptions.showPlayers) == "boolean") then
+						self.db.profile.syncData.battlefieldMap.options.showPlayers = BattlefieldMapOptions.showPlayers 
+					end
+					
+					-- Read both coordinates first so x and y always land in the same table.
+					-- BattlefieldMapTab only exists once Blizzard_BattlefieldMap has loaded.
+					if (BattlefieldMapTab) then
+						local thisCenterX, thisCenterY = BattlefieldMapTab:GetCenter()
+						if self.db.global.useScreenSizeSpecificSettings == true then
+							self.db.profile.syncData.screenResolutionSpecific[self.TempData.ScreenRes].battlefieldMap.options.position = { x = thisCenterX, y = thisCenterY }
+						else
+							self.db.profile.syncData.battlefieldMap.options.position = { x = thisCenterX, y = thisCenterY }
+						end
+					end
 				
-				if (type(BattlefieldMapOptions.showPlayers) == "boolean") then
-					self.db.profile.syncData.battlefieldMap.options.showPlayers = BattlefieldMapOptions.showPlayers 
-				end
-				
-				if self.db.global.useScreenSizeSpecificSettings == true then
-					self.db.profile.syncData.screenResolutionSpecific[self.TempData.ScreenRes].battlefieldMap.options.position = {}
-					self.db.profile.syncData.screenResolutionSpecific[self.TempData.ScreenRes].battlefieldMap.options.position.x, self.db.profile.syncData.battlefieldMap.options.position.y = BattlefieldMapTab:GetCenter()
-				else 
-					self.db.profile.syncData.battlefieldMap.options.position = {}
-					self.db.profile.syncData.battlefieldMap.options.position.x, self.db.profile.syncData.battlefieldMap.options.position.y = BattlefieldMapTab:GetCenter()
 				end
 			
 			end
@@ -305,6 +312,20 @@ function AccWideUIAceAddon:SaveUISettings(doNotSaveEditMode, isForced)
 			
 				for k, v in pairs(self.CVars.Camera) do
 					self.db.profile.syncData.camera.cvars[v] = GetCVar(v) or nil
+				end
+			
+			end
+			
+			
+			-- Save Gamepad Settings
+			if (self:SupportsGameFunction("gamepad") and self.db.profile.syncToggles.gamepad == true) then
+			
+				if (self.db.global.printDebugTextToChat == true) then
+					self:Print("[Gamepad] Saving Settings.")
+				end
+			
+				for k, v in pairs(self.CVars.Gamepad) do
+					self.db.profile.syncData.gamepad.cvars[v] = GetCVar(v) or nil
 				end
 			
 			end
@@ -408,7 +429,7 @@ function AccWideUIAceAddon:SaveUISettings(doNotSaveEditMode, isForced)
 					self.db.profile.syncData.cooldownViewer.cvars[v] = GetCVar(v) or nil
 				end
 				
-				--[[if (self:IsMainline() == true) then
+				--[[if (self:IsModern() == true) then
 					if (C_CooldownViewer.IsCooldownViewerAvailable()) then
 						local thisClass = UnitClassBase("player")
 						self.db.profile.syncData.cooldownViewer.classes[thisClass] = C_CooldownViewer.GetLayoutData()
@@ -534,7 +555,7 @@ function AccWideUIAceAddon:SaveUISettings(doNotSaveEditMode, isForced)
 						
 						local isCustomChannel = true
 						
-						if (self:IsMainline() ~= true) then -- 12.0.1 Sometimes Taints in Combat
+						if (self:IsModern() ~= true) then -- 12.0.1 Sometimes Taints in Combat
 							self.db.profile.syncData.chat.channelOrder[id] = name
 						end
 						
@@ -643,7 +664,7 @@ function AccWideUIAceAddon:SaveUISettings(doNotSaveEditMode, isForced)
 					
 					
 					--Chat Channels
-					if (not self:IsMainline()) then -- 12.0.0 Taints in Midnight
+					if (not self:IsModern()) then -- 12.0.0 Taints in Midnight
 						self.db.profile.syncData.chat.windows[thisChatFrame].ChatChannelsVisible = {}
 						
 						local thisWindowChannels = {GetChatWindowChannels(thisChatFrame)}
@@ -672,7 +693,7 @@ function AccWideUIAceAddon:SaveUISettings(doNotSaveEditMode, isForced)
 				
 				
 				-- Newcomer Chat Exception
-				if (self:IsMainline() and self.chatChannelNames.newcomerChat) then
+				if (self:IsRetail() and self.chatChannelNames.newcomerChat) then
 				
 					if (((GetChannelName(self.chatChannelNames.newcomerChat))) ~= 0) then
 					
@@ -713,10 +734,10 @@ function AccWideUIAceAddon:SaveUISettings(doNotSaveEditMode, isForced)
 				end
 				
 				if (C_NamePlate.GetNamePlateSize) then
-				
-					self.db.profile.syncData.nameplates.special.NamePlateSize = {}
-					self.db.profile.syncData.nameplates.special.NamePlateSize[1], self.db.profile.syncData.nameplates.special.NamePlateSize[2] = C_NamePlate.GetNamePlateSize()
-				
+					if (not self:IsForever()) then -- Breaks Edit Mode
+						self.db.profile.syncData.nameplates.special.NamePlateSize = {}
+						self.db.profile.syncData.nameplates.special.NamePlateSize[1], self.db.profile.syncData.nameplates.special.NamePlateSize[2] = C_NamePlate.GetNamePlateSize()
+					end
 				else
 				
 					self.db.profile.syncData.nameplates.special.NamePlateEnemyClickThrough = C_NamePlate.GetNamePlateEnemyClickThrough()
@@ -797,24 +818,36 @@ function AccWideUIAceAddon:SaveEditModeSettings()
 
 	if (self:SupportsGameFunction("editModeLayout") and not InCombatLockdown() and self.db.global.hasDoneFirstTimeSetup == true) then
 	
-		local getLayoutsTable = C_EditMode.GetLayouts()
-		local currentActiveLayout = getLayoutsTable["activeLayout"]
+		local currentActiveLayout = C_EditMode.GetLayouts().activeLayout
 		local currentSpec = tostring(C_SpecializationInfo.GetSpecialization())
 
 		if (self.db.profile.syncToggles.editModeLayout == true) and (self.db.char.useEditModeLayout["specialization" .. currentSpec] == true) then
 		
 			if (self.db.global.printDebugTextToChat == true) then
-				self:Print("[Debug] Saving Chosen Edit Mode Layout (ID: " .. currentActiveLayout .. ").")
+				self:Print("[Debug] Saving Chosen Edit Mode Layout " .. (self:IsUsingGamepadUI() and "[Gamepad]" or "[Desktop]") .. " (ID: " .. currentActiveLayout .. ").")
 			end
 
 			if (self.db.char.useEditModeLayout["specialization" .. currentSpec] == true) then
-
-				--Set the spec
-				if self.db.global.useScreenSizeSpecificSettings == true then
-					self.db.profile.syncData.screenResolutionSpecific[self.TempData.ScreenRes].editModeLayoutID = currentActiveLayout
+			
+				if (self:IsUsingGamepadUI()) then
+					
+					if self.db.global.useScreenSizeSpecificSettings == true then
+						self.db.profile.syncData.screenResolutionSpecific[self.TempData.ScreenRes].editModeLayoutIDGamepad = currentActiveLayout
+					else
+						self.db.profile.syncData.editModeLayoutIDGamepad = currentActiveLayout
+					end
+					
 				else
-					self.db.profile.syncData.editModeLayoutID = currentActiveLayout
+				
+					if self.db.global.useScreenSizeSpecificSettings == true then
+						self.db.profile.syncData.screenResolutionSpecific[self.TempData.ScreenRes].editModeLayoutID = currentActiveLayout
+					else
+						self.db.profile.syncData.editModeLayoutID = currentActiveLayout
+					end
+				
 				end
+
+				
 			
 			end
 			
@@ -827,7 +860,7 @@ end
 
 function AccWideUIAceAddon:SaveBagFlagSettings()
 
-	if (self:IsMainline() and self.db.global.allowExperimentalSyncs == true) then
+	if (self:IsModern() and self.db.global.allowExperimentalSyncs == true) then
 		if (self.db.profile.syncToggles.bagOrganisation == true) then
 					
 			-- C_Container.GetBagSlotFlag always seems to return -false- when logging out. So save this only when BAG_SLOT_FLAGS_UPDATED or BANK_BAG_SLOT_FLAGS_UPDATED is triggered.
@@ -876,7 +909,7 @@ function AccWideUIAceAddon:ForceSaveSettings()
 	self:SaveBagFlagSettings(); 
 	self.db.profile.syncData.blockGuildInvites.special.blockGuildInvites = GetAutoDeclineGuildInvites()
 	
-	if (self:IsMainline()) then
+	if (self:IsModern()) then
 		self.db.profile.syncData.blockNeighborhoodInvites.special.blockNeighborhoodInvites = GetAutoDeclineNeighborhoodInvites()
 	
 		self.db.profile.syncData.bagOrganisation.settings.sortBagsRightToLeft = C_Container.GetSortBagsRightToLeft()
@@ -892,7 +925,7 @@ end
 
 function AccWideUIAceAddon:RetailTaintableSaveAll() 
 	
-	if (self:IsMainline() and not InCombatLockdown() and not IsEncounterInProgress()) then
+	if (self:IsModern() and not InCombatLockdown() and not IsEncounterInProgress()) then
 		self:RetailTaintableSaveDamageMeter(true) 
 		self:RetailTaintableSaveChat(true)
 		self:Print("[Midnight] Saved all Midnight Settings.")
@@ -902,7 +935,7 @@ end
 
 function AccWideUIAceAddon:RetailTaintableSaveDamageMeter(skipSaveMessage) 
 
-	if (self:IsMainline() and not InCombatLockdown() and not IsEncounterInProgress()) then
+	if (self:IsModern() and not InCombatLockdown() and not IsEncounterInProgress()) then
 	
 			
 		self.db.profile.syncData.retailTaintables.damageMeter.special.settings = {
@@ -951,7 +984,7 @@ end
 
 function AccWideUIAceAddon:RetailTaintableSaveChat(skipSaveMessage)
 	
-	if (self:IsMainline() and not InCombatLockdown() and not IsEncounterInProgress()) then
+	if (self:IsModern() and not InCombatLockdown() and not IsEncounterInProgress()) then
 	
 		-- Visible Chat Channels
 		for thisChatFrame = 1, NUM_CHAT_WINDOWS do -- 12.0.0 Constants.ChatFrameConstants.MaxChatWindows
