@@ -82,6 +82,7 @@ RGX.moduleAliases = {
   petbattles = "RGXPetBattles",
   sharedmedia = "RGXSharedMedia",
   design = "RGXDesign",
+  display = "RGXDisplay",
   combat = "RGXCombat",
   reputation = "RGXReputation",
   databroker = "RGXDataBroker",
@@ -195,6 +196,7 @@ function RGX:GetMinimap()      return self:GetModule("minimap")      end
 function RGX:GetPetBattles()   return self:GetModule("petbattles")   end
 function RGX:GetSharedMedia()  return self:GetModule("sharedmedia")  end
 function RGX:GetDesign()       return self:GetModule("design")       end
+function RGX:GetDisplay()      return self:GetModule("display")      end
 function RGX:GetCombat()       return self:GetModule("combat")       end
 function RGX:GetReputation()   return self:GetModule("reputation")   end
 function RGX:GetAuras()        return self:GetModule("auras")        end
@@ -246,6 +248,15 @@ function RGX:SetTheme(config)
     local Design = self:GetDesign()
     if Design and type(Design.SetTheme) == "function" then
         Design:SetTheme(config)
+    end
+end
+
+-- Dismiss the shared color picker popup without firing its callback.
+-- Tab and page switches call this so a popup never outlives its opener page.
+function RGX:DismissColorPicker()
+    local ok, CP = pcall(self.GetColorPicker, self)
+    if ok and CP and type(CP.Cancel) == "function" then
+        pcall(CP.Cancel, CP)
     end
 end
 
@@ -403,6 +414,66 @@ end
 
 -- ── RGX.Addon — one call spins up an addon ────────────────────────────────────
 
+-- Compile before registering resources; malformed strings must not silently
+-- disappear when a lazy tab is first opened. Tooling mirrors this grammar.
+local function ParseInlineControl(raw, owner)
+    raw = raw:gsub("%s+$", "")
+    local function invalid()
+        error("RGXAddon: invalid control string: " .. tostring(raw), 3)
+    end
+    local kind, rest = raw:match("^(%l+)%s+(.+)$")
+    if not kind then return invalid() end
+    if kind == "header" or kind == "label" then
+        local text = rest:match("^'([^']*)'%s*$")
+        if not text then return invalid() end
+        return { section = text }
+    elseif kind == "button" then
+        local text, method = rest:match("^'([^']*)'%s+([%a_][%w_]*)%s*$")
+        if not text then return invalid() end
+        return { button = text, action = function()
+            local fn = owner[method]
+            if type(fn) ~= "function" then error("RGXAddon: missing button method '" .. method .. "'") end
+            return fn(owner)
+        end }
+    end
+    local core, label = rest:match("^(.-)%s+'([^']*)'%s*$")
+    core = core or rest
+    if kind == "toggle" or kind == "color" or kind == "font" then
+        local key = core:match("^([^%s'\"]+)$")
+        if not key then return invalid() end
+        return { [kind] = key, label = label }
+    elseif kind == "slider" then
+        local key, range, step = core:match("^([^%s'\"]+)%s+(%S+)%s*(%S*)$")
+        local low, high
+        if range then low, high = range:match("^([+-]?%d*%.?%d+)%-([+-]?%d*%.?%d+)$") end
+        low, high = tonumber(low), tonumber(high)
+        local increment = step == "" and 1 or tonumber(step)
+        if not key or not low or not high or low > high or high >= math.huge or low <= -math.huge
+            or not increment or increment <= 0 or increment >= math.huge
+            or (step ~= "" and not step:match("^[+-]?%d*%.?%d+$")) then return invalid() end
+        return { slider = key, min = low, max = high, step = increment, label = label }
+    elseif kind == "dropdown" then
+        local key, list = core:match("^([^%s'\"]+)%s+([^%s'\"]+)$")
+        if not key or list:sub(1, 1) == "|" or list:sub(-1) == "|" or list:find("||", 1, true) then return invalid() end
+        local items = {}
+        for value in list:gmatch("[^|]+") do items[#items + 1] = value end
+        return { dropdown = key, label = label, items = items }
+    end
+    return invalid()
+end
+
+-- options.columns selects the tab content grid (1-3); anything else is
+-- rejected before the addon registers, like every other declaration error.
+local function CompileDeclarativeColumns(options)
+    if type(options) ~= "table" then return 1 end
+    local columns = options.columns
+    if columns == nil then return 1 end
+    if columns ~= 1 and columns ~= 2 and columns ~= 3 then
+        error("RGXAddon: options.columns must be 1, 2, or 3", 3)
+    end
+    return columns
+end
+
 function RGX.Addon(name, opts)
     if type(name) ~= "string" or name == "" then return end
     if opts == nil then
@@ -412,6 +483,7 @@ function RGX.Addon(name, opts)
     end
     local RGX = _G.RGXFramework
     local declarativeEvery = CompileDeclarativeEvery(opts.every)
+    local declarativeColumns = CompileDeclarativeColumns(opts.options)
 
     if RGX._addons and RGX._addons[name] then
         error("RGXAddon: addon '" .. name .. "' is already registered", 2)
@@ -421,6 +493,22 @@ function RGX.Addon(name, opts)
     end
 
     local addon = opts.table or {}
+    local compiledOptions
+    local compiledStrings = {}
+    if type(opts.options) == "table" then
+        compiledOptions = {}
+        for tab, controls in pairs(opts.options) do
+            if tab ~= "columns" then
+                if type(controls) ~= "table" then error("RGXAddon: options tab '" .. tostring(tab) .. "' must be a control list", 2) end
+                for _, control in ipairs(controls) do
+                    if type(control) == "string" then compiledStrings[control] = ParseInlineControl(control, addon) end
+                end
+                -- Keep the existing table list live: imperative setup may
+                -- append/replace table controls before lazy tab construction.
+                compiledOptions[tab] = controls
+            end
+        end
+    end
     addon.name = name
     RGX._addons = RGX._addons or {}
     RGX._addons[name] = addon
@@ -620,50 +708,14 @@ function RGX.Addon(name, opts)
 
         if type(opts.options) == "table" and addon.db then
             local UI = RGX:GetUI()
-            local Drops = RGX:GetDropdowns()
             if UI and UI.CreateOptionsPanel then
-                local tabs = {}
-                for tabName, controls in pairs(opts.options) do
-                    tabs[#tabs + 1] = {
-                        text = tabName,
-                        content = function(frame)
-                            -- Scroll page + flow layout: controls render in
-                            -- declaration order with no overlap and scroll
-                            -- when the page is taller than the content area.
-                            local canvas = UI:CreateScrollPage(frame)
-                            local flow = UI:CreateFlowLayout(canvas)
-                            for _, ctrl in ipairs(controls) do
-                                if type(ctrl) == "table" then
-                                    local w
-                                    if type(ctrl.toggle) == "string" then
-                                        w = UI:CreateToggle(canvas, { key = ctrl.toggle, label = ctrl.label or ctrl.toggle:gsub("^%l", string.upper), storage = addon.db, default = ctrl.default })
-                                    elseif type(ctrl.slider) == "string" then
-                                        w = UI:CreateSlider(canvas, { key = ctrl.slider, label = ctrl.label or ctrl.slider:gsub("^%l", string.upper), storage = addon.db, min = ctrl.min or 0, max = ctrl.max or 100, step = ctrl.step or 1, suffix = ctrl.suffix, progress = ctrl.progress, valueDisplay = ctrl.valueDisplay })
-                                    elseif type(ctrl.color) == "string" then
-                                        w = UI:CreateColorPicker(canvas, { key = ctrl.color, label = ctrl.label or ctrl.color:gsub("^%l", string.upper), storage = addon.db, default = ctrl.default or addon.db[ctrl.color], onChange = function(r, g, b) addon.db[ctrl.color] = { r = r, g = g, b = b } end })
-                                    elseif type(ctrl.dropdown) == "string" and Drops then
-                                        local items = {}
-                                        for _, v in ipairs(ctrl.items or {}) do items[#items + 1] = { text = tostring(v), value = v } end
-                                        w = Drops:CreateNestedDropdown(canvas, { label = ctrl.label or ctrl.dropdown:gsub("^%l", string.upper), items = items, width = ctrl.width or 260, value = addon.db[ctrl.dropdown], onChange = function(v) addon.db[ctrl.dropdown] = v end })
-                                    elseif type(ctrl.button) == "string" and type(ctrl.action) == "function" then
-                                        w = UI:CreateButton(canvas, { text = ctrl.button, width = ctrl.width, height = ctrl.height, onClick = ctrl.action })
-                                    elseif type(ctrl.section) == "string" then
-                                        w = UI:CreateLabel(canvas, { text = ctrl.section, size = "normal", color = "accent" })
-                                    end
-                                    if w then flow:Add(w) end
-                                end
-                            end
-                            local function reflow()
-                                if canvas:GetWidth() <= 0 then return end
-                                local used = flow:Apply()
-                                canvas:SetHeight(math.max(1, used))
-                            end
-                            reflow()
-                            canvas:HookScript("OnShow", reflow)
-                            canvas:HookScript("OnSizeChanged", reflow)
-                        end,
-                    }
+                local function resolveControl(control)
+                    if type(control) == "string" then
+                        return compiledStrings[control] or ParseInlineControl(control, addon)
+                    end
+                    return control
                 end
+                local tabs = UI:_BuildAddonOptionTabs(addon, compiledOptions, declarativeColumns, resolveControl)
                 -- Append any tabs a second file registered via RGX:AddOptionsTab
                 -- (e.g. RGX-Hello's bundled visual-test suite) so they share this
                 -- one panel instead of opening a separate window.
@@ -679,6 +731,16 @@ function RGX.Addon(name, opts)
                     if hint and hint > 0 then return hint end
                     return nil
                 end
+                -- The brand color selected for chat also themes the panel
+                -- (tabs, header emphasis) so bare declarative addons get their
+                -- brand look without writing theme tables.
+                local theme = opts.theme or opts.colors
+                if not theme and type(opts.brand) == "string" and #opts.brand == 6 then
+                    local r = tonumber(opts.brand:sub(1, 2), 16) / 255
+                    local g = tonumber(opts.brand:sub(3, 4), 16) / 255
+                    local b = tonumber(opts.brand:sub(5, 6), 16) / 255
+                    theme = { primary = { r, g, b } }
+                end
                 addon.panel = UI:CreateOptionsPanel({
                     addonName = name,
                     title     = opts.title or name,
@@ -686,7 +748,16 @@ function RGX.Addon(name, opts)
                     width     = pick(opts.panelWidth,  geom.width),
                     height    = pick(opts.panelHeight, geom.height),
                     maxPerRow = pick(opts.maxPerRow,   geom.maxPerRow),
+                    theme     = theme,
                 })
+                if addon.db.OnProfileChanged then
+                    addon.db:OnProfileChanged(function()
+                        if addon.panel then
+                            addon.panel:InvalidateAllTabs()
+                            addon.panel:Refresh()
+                        end
+                    end)
+                end
             end -- UI check
         end -- addon.db check
 

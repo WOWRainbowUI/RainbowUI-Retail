@@ -3,7 +3,7 @@
 
     Algorithmic placement for option pages. Pure geometry only: this module
     never touches textures, fonts, or colors. Visual styling lives in
-    modules/design/design.lua and the section factory in controls.lua
+    libraries/design/design.lua and the section factory in controls.lua
     (UI:CreateSection). Layout and skin stay separate modules.
 
     Usage:
@@ -221,7 +221,29 @@ function UI:CreateFlowLayout(host, opts)
                     -- Set allocated widths before measuring wrapped labels.
                     for _, e in ipairs(leftGroup) do
                         if not widths[e] then widths[e] = fillWidth end
-                        if e.fill or e.width then e.child:SetWidth(widths[e]) end
+                        if e.fill or e.width then
+                            e.child:SetWidth(widths[e])
+                        else
+                            -- Wrappable children (FontStrings) wider than their
+                            -- own available room are clamped and word-wrapped
+                            -- instead of bleeding past the host edge. The
+                            -- pre-clamp natural width is remembered so a later,
+                            -- wider Apply restores the single-line form.
+                            local contribution = widths[e]
+                            local stored = e.child._rgxFlowNaturalWidth
+                            if stored then widths[e] = stored end
+                            local wrappable = type(e.child.SetWordWrap) == "function"
+                            local ownRoom = avail - (fixedTotal - contribution) - rightTotal
+                                - gap * math.max(0, #children - 1)
+                            if wrappable and ownRoom > 0 and widths[e] > ownRoom then
+                                e.child._rgxFlowNaturalWidth = stored or widths[e]
+                                widths[e] = ownRoom
+                                e.child:SetWordWrap(true)
+                                e.child:SetWidth(ownRoom)
+                            elseif stored and wrappable then
+                                e.child:SetWidth(widths[e])
+                            end
+                        end
                     end
 
                     -- Row height.
@@ -359,6 +381,8 @@ function UI:CreatePager(parent, opts)
         SetPage = function(self, n)
             n = math.min(math.max(1, n or self.page), pageCount)
             local changed = n ~= self.page
+            -- A color popup belongs to the page that opened it.
+            RGX:DismissColorPicker()
             self.page = n
             for i = 1, pageCount do
                 frames[i]:SetShown(i == n)

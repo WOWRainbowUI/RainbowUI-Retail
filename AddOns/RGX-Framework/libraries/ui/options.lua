@@ -10,7 +10,7 @@
 --       icon      = "Interface\\AddOns\\MyAddon\\icon.tga",
 --       version   = nil,            -- auto-read from TOC if nil
 --       author    = "Me",
---       website   = "discord.gg/...",
+--       website   = "https://realmgx.com",
 --       closeButton = true,         -- standard window close button (hidden when embedded in Settings)
 --       maxPerRow = 6,              -- tabs per row before wrapping
 --       tabs = {
@@ -97,6 +97,27 @@ local function GetTabPrimary(panelRef, D)
         end
     end
     return D:Unpack('primary')
+end
+
+local function GetTabAccent(panelRef, D)
+    local theme = panelRef.theme
+    if type(theme) == "table" then
+        local c = theme.accent or theme.secondary or theme.secondaryHighlight
+        if type(c) == "table" and type(c[1]) == "number" then
+            return c[1], c[2] or 1, c[3] or 1
+        end
+    end
+    return D:Unpack('accent')
+end
+
+-- The header line stays primary unless the panel theme opts in with
+-- accentHeader: existing consumers keep the chrome they already had.
+local function GetHeaderLineColor(panelRef, D)
+    local theme = panelRef.theme
+    if type(theme) == "table" and theme.accentHeader then
+        return GetTabAccent(panelRef, D)
+    end
+    return GetTabPrimary(panelRef, D)
 end
 
 local function CreateTabButton(parent, text, tabIndex, row, col, panelRef, icon, addonKey)
@@ -280,6 +301,88 @@ local function ClearContent(frame)
     frame.Refresh = nil
 end
 
+-- ── Declarative options compositor (private addon-factory seam) ───────────────
+-- Core validates declarations and owns lifecycle/storage. UI owns widget
+-- construction and layout; resolveControl preserves the existing string grammar
+-- and live table-list behavior without creating a second interpreter here.
+local function BuildAddonOptionTabs(UI, addon, options, columns, resolveControl)
+    local Drops = RGX:GetDropdowns()
+    local tabs = {}
+    for tabName, controls in pairs(options) do
+        tabs[#tabs + 1] = {
+            text = tabName,
+            content = function(frame)
+                local canvas = UI:CreateScrollPage(frame)
+                local hosts, flows
+                if columns > 1 and UI.CreateColumns then
+                    hosts = { UI:CreateColumns(canvas, columns) }
+                    flows = {}
+                    for _, host in ipairs(hosts) do
+                        flows[#flows + 1] = UI:CreateFlowLayout(host)
+                    end
+                else
+                    hosts = { canvas }
+                    flows = { UI:CreateFlowLayout(canvas) }
+                end
+                local perColumn, remainder = math.floor(#controls / #flows), #controls % #flows
+                local boundaries, start = {}, 1
+                for i = 1, #flows do
+                    local size = perColumn + (i <= remainder and 1 or 0)
+                    boundaries[i] = { start = start, stop = start + size - 1 }
+                    start = start + size
+                end
+                local index = 0
+                for _, rawControl in ipairs(controls) do
+                    index = index + 1
+                    local slot = #flows
+                    for i = 1, #flows do
+                        if index <= boundaries[i].stop then slot = i break end
+                    end
+                    local host, flow = hosts[slot], flows[slot]
+                    local ctrl = resolveControl(rawControl)
+                    if ctrl and type(ctrl) == "table" then
+                        local w
+                        if type(ctrl.toggle) == "string" then
+                            w = UI:CreateToggle(host, { key = ctrl.toggle, label = ctrl.label or ctrl.toggle:gsub("^%l", string.upper), storage = addon.db, default = ctrl.default })
+                        elseif type(ctrl.slider) == "string" then
+                            w = UI:CreateSlider(host, { key = ctrl.slider, label = ctrl.label or ctrl.slider:gsub("^%l", string.upper), storage = addon.db, min = ctrl.min or 0, max = ctrl.max or 100, step = ctrl.step or 1, suffix = ctrl.suffix, progress = ctrl.progress, valueDisplay = ctrl.valueDisplay })
+                        elseif type(ctrl.color) == "string" then
+                            w = UI:CreateColorPicker(host, { key = ctrl.color, label = ctrl.label or ctrl.color:gsub("^%l", string.upper), storage = addon.db, default = ctrl.default or addon.db[ctrl.color], onChange = function(r, g, b) addon.db[ctrl.color] = { r = r, g = g, b = b } end })
+                        elseif type(ctrl.font) == "string" then
+                            local Fonts = RGX:GetFonts()
+                            if Fonts and Fonts.AttachFontSelector then
+                                w = Fonts:AttachFontSelector(host, addon.db, ctrl.font, { label = ctrl.label or "Font" })
+                                if w and w.HookScript then
+                                    w:HookScript("OnShow", function() w:RefreshFromDB() end)
+                                end
+                            end
+                        elseif type(ctrl.dropdown) == "string" and Drops then
+                            local items = {}
+                            for _, v in ipairs(ctrl.items or {}) do items[#items + 1] = { text = tostring(v), value = v } end
+                            w = Drops:CreateNestedDropdown(host, { label = ctrl.label or ctrl.dropdown:gsub("^%l", string.upper), items = items, width = ctrl.width or 260, value = addon.db[ctrl.dropdown], onChange = function(v) addon.db[ctrl.dropdown] = v end })
+                        elseif type(ctrl.button) == "string" and type(ctrl.action) == "function" then
+                            w = UI:CreateButton(host, { text = ctrl.button, width = ctrl.width, height = ctrl.height, onClick = ctrl.action })
+                        elseif type(ctrl.section) == "string" then
+                            w = UI:CreateLabel(host, { text = ctrl.section, size = "normal", color = "accent" })
+                        end
+                        if w then flow:Add(w) end
+                    end
+                end
+                local function reflow()
+                    if canvas:GetWidth() <= 0 then return end
+                    local used = 0
+                    for _, flow in ipairs(flows) do used = math.max(used, flow:Apply()) end
+                    canvas:SetHeight(math.max(1, used))
+                end
+                reflow()
+                canvas:HookScript("OnShow", reflow)
+                canvas:HookScript("OnSizeChanged", reflow)
+            end,
+        }
+    end
+    return tabs
+end
+
 -- ── CreateOptionsPanel ────────────────────────────────────────────────────────
 
 local _panelCounter = 0
@@ -288,7 +391,7 @@ local function CreateOptionsPanel(UI, opts)
     opts = opts or {}
     local D = GetDesign()
     -- Apply the requested theme for the build, then restore the previous
-    -- global theme so addons do not leak brand colors into later panels.
+    -- global theme so addons do not leak theme colors into later panels.
     -- Tab buttons honor panel.theme at runtime via GetTabPrimary.
     local _prevPrimary = D and D.Theme and D.Theme.primary
     local _prevAccent  = D and D.Theme and D.Theme.accent
@@ -358,7 +461,8 @@ local function CreateOptionsPanel(UI, opts)
     accent:SetHeight(2)
     accent:SetPoint("BOTTOMLEFT",  8, 0)
     accent:SetPoint("BOTTOMRIGHT", -8, 0)
-    accent:SetColorTexture(D:Unpack("primary"))
+    accent:SetColorTexture(GetHeaderLineColor(panel, D))
+    panel._accentLine = accent
 
     -- Icon
     if opts.icon then
@@ -405,6 +509,7 @@ local function CreateOptionsPanel(UI, opts)
         ver:SetJustifyH("RIGHT")
         ver:SetTextColor(D:Unpack("primary"))
         ApplyDefaultFont(ver)
+        panel._versionText = ver
     end
 
     if opts.author then
@@ -585,6 +690,18 @@ local function RunSoon(delay, fn)
   end
 end
 
+    -- Run a build/refresh callback under the panel's own theme, then restore
+    -- the shared global theme so later panels/addons are unaffected. Falls
+    -- back to a direct call when the panel carries no theme. Content callbacks
+    -- keep their own pcall isolation; this only scopes the color surface.
+    local function withPanelTheme(fn)
+        if type(panel.theme) == "table" then
+            D:WithTheme(panel.theme, fn)
+        else
+            fn()
+        end
+    end
+
     local bannerQueued = false
 
     local function BuildBanner()
@@ -594,8 +711,10 @@ end
 
         panel._bannerBuilt = true
         if panel.bannerFrame and type(opts.banner) == "function" then
-            local ok, err = pcall(opts.banner, panel.bannerFrame)
-            if not ok then RGX:Debug("[RGXOptions] Banner build error: " .. tostring(err)) end
+            withPanelTheme(function()
+                local ok, err = pcall(opts.banner, panel.bannerFrame)
+                if not ok then RGX:Debug("[RGXOptions] Banner build error: " .. tostring(err)) end
+            end)
         end
     end
 
@@ -629,6 +748,8 @@ end
 
     function panel:SelectTab(index)
         QueueBannerBuild()
+        -- A color popup belongs to the page that opened it.
+        RGX:DismissColorPicker()
 
         for i = 1, #self.tabs do
             if self.tabs[i] then
@@ -640,25 +761,29 @@ end
                     local content = self.contents[i]
                     local tabInfo = self.tabs[i] and self.tabs[i]._tabInfo
                     if not content._built or content._dirty then
-                        if content._dirty then
-                            ClearContent(content)
-                            content._dirty = nil
-                        end
-                        if tabInfo and type(tabInfo.content) == "function" then
-                            local ok, err = pcall(tabInfo.content, CreateAddHelper(content))
-                            if ok then
-                                content._built = true
-                            else
-                                RGX:Error("[RGXOptions] " .. tostring(tabInfo.text) .. " tab build failed: " .. tostring(err))
+                        withPanelTheme(function()
+                            if content._dirty then
                                 ClearContent(content)
+                                content._dirty = nil
                             end
-                        else
-                            content._built = true
-                        end
-                        ReflowScrollContent(content)
+                            if tabInfo and type(tabInfo.content) == "function" then
+                                local ok, err = pcall(tabInfo.content, CreateAddHelper(content))
+                                if ok then
+                                    content._built = true
+                                else
+                                    RGX:Error("[RGXOptions] " .. tostring(tabInfo.text) .. " tab build failed: " .. tostring(err))
+                                    ClearContent(content)
+                                end
+                            else
+                                content._built = true
+                            end
+                            ReflowScrollContent(content)
+                        end)
                     elseif type(content.Refresh) == "function" then
-                        pcall(content.Refresh, content)
-                        ReflowScrollContent(content)
+                        withPanelTheme(function()
+                            pcall(content.Refresh, content)
+                            ReflowScrollContent(content)
+                        end)
                     end
                     if tabInfo and type(tabInfo.onSelect) == "function" then
                         pcall(tabInfo.onSelect)
@@ -693,23 +818,56 @@ end
     function panel:Refresh()
         QueueBannerBuild()
 
-        for i, content in ipairs(self.contents) do
-            if content:IsShown() then
-                if content._dirty then
-                    local tabInfo = self.tabs[i] and self.tabs[i]._tabInfo
-                    if tabInfo then
-                        ClearContent(content)
-                        content._dirty = nil
-                        if type(tabInfo.content) == "function" then
-                            local ok = pcall(tabInfo.content, CreateAddHelper(content))
-                            content._built = ok == true
-                            if not ok then ClearContent(content) end
+        withPanelTheme(function()
+            for i, content in ipairs(self.contents) do
+                if content:IsShown() then
+                    if content._dirty then
+                        local tabInfo = self.tabs[i] and self.tabs[i]._tabInfo
+                        if tabInfo then
+                            ClearContent(content)
+                            content._dirty = nil
+                            if type(tabInfo.content) == "function" then
+                                local ok = pcall(tabInfo.content, CreateAddHelper(content))
+                                content._built = ok == true
+                                if not ok then ClearContent(content) end
+                            end
                         end
+                    elseif type(content.Refresh) == "function" then
+                        pcall(content.Refresh, content)
                     end
-                elseif type(content.Refresh) == "function" then
-                    pcall(content.Refresh, content)
+                    ReflowScrollContent(content)
                 end
-                ReflowScrollContent(content)
+            end
+        end)
+    end
+
+    -- Apply a theme at runtime and repaint the panel's own chrome without
+    -- leaking it into the shared global theme: the theme is scoped (save/apply/
+    -- restore) exactly like construction, then the accent line (accent color
+    -- only when the theme opts in with accentHeader, else primary), version
+    -- label and tab styling (primary color) are re-derived from the panel's
+    -- normalized theme. Bound color controls repaint through their own
+    -- Refresh; content rebuilds pick up the theme through withPanelTheme.
+    function panel:SetTheme(theme)
+        if not D then return end
+        local prevPrimary = D.Theme.primary
+        local prevAccent  = D.Theme.accent
+        D:SetTheme(theme)
+        self.theme = { primary = D.Theme.primary, accent = D.Theme.accent }
+        if type(theme) == "table" and theme.accentHeader then
+            self.theme.accentHeader = true
+        end
+        D.Theme.primary = prevPrimary
+        D.Theme.accent  = prevAccent
+
+        local pr, pg, pb = GetTabPrimary(self, D)
+        if self._versionText then self._versionText:SetTextColor(pr, pg, pb) end
+        if self._accentLine then self._accentLine:SetColorTexture(GetHeaderLineColor(self, D)) end
+
+        local active = self._activeTab or -1
+        for i, tab in ipairs(self.tabs) do
+            if tab and type(tab.SetActive) == "function" then
+                tab:SetActive(i == active)
             end
         end
     end
@@ -928,6 +1086,13 @@ end
         panel._category = panel
     end
 
+    -- Normalize and cache the panel's theme (accepting named or array colors)
+    -- now that all tabs and chrome exist, so runtime SetTheme and tab styling
+    -- have a canonical value before the global theme is restored below.
+    if type(panel.theme) == "table" then
+        panel:SetTheme(panel.theme)
+    end
+
     panel:Hide()
 
     if type(UISpecialFrames) == "table" and panel.GetName and panel:GetName() then
@@ -950,6 +1115,7 @@ local function Inject()
     UI.CreateOptionsPanel = function(self, opts)
         return CreateOptionsPanel(self, opts)
     end
+    UI._BuildAddonOptionTabs = BuildAddonOptionTabs
     return true
 end
 

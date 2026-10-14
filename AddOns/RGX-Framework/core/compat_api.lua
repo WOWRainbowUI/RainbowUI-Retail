@@ -6,6 +6,10 @@
     RGX.API.functionName(...) instead of the raw global, and the framework
     handles the fallback chain.
 
+    Every RGX.API name has exactly one defining file. core/compat.lua owns the
+    normalized implementations of names it defines; this file only adds names
+    compat.lua does not define. tools/ci/api-ownership-check.mjs enforces it.
+
     Usage:
         local GetItemInfoSafe = RGX.API.GetItemInfo
         local name, link = GetItemInfoSafe(itemID)
@@ -39,15 +43,9 @@ local function Nil() return nil end
 -- Item system
 --------------------------------------------------------------------------------
 
-RGX.API.GetItemInfo = FirstAvailable(
-    _G.C_Item and _G.C_Item.GetItemInfo,
-    _G.GetItemInfo
-) or Nil
-
-RGX.API.GetItemIcon = FirstAvailable(
-    _G.C_Item and _G.C_Item.GetItemIconByID,
-    _G.GetItemIcon
-) or function() return "Interface\\Icons\\INV_Misc_QuestionMark" end
+-- GetItemInfo/GetItemIcon are intentionally not defined here: core/compat.lua
+-- owns their normalized implementations and loads first. Duplicating them
+-- here made the raw aliases win by load order and discard the normalization.
 
 RGX.API.GetItemInfoFromHyperlink = _G.GetItemInfoFromHyperlink
     or function(link)

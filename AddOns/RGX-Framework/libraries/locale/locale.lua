@@ -23,7 +23,7 @@ blocks are guarded by a locale match and return nil when not active, so a
 caller can write `if L then ... end` (or simply skip when nil).
 
 This module never changes the frozen consumer SetLocale/GetLocale contract
-exposed by modules/sound/sound.lua:249-253 (Handle:SetLocale(localeTable) /
+exposed by libraries/sound/sound.lua:249-253 (Handle:SetLocale(localeTable) /
 Handle:GetLocale()); consumer addons keep their own per-addon locale tables.
 
 Usage inside the framework:
@@ -124,7 +124,7 @@ L["COMMAND_FONTS_AVAILABLE"]      = "available"
 L["COMMAND_FONT_DEBUG_ON"]        = "ON"
 L["COMMAND_FONT_DEBUG_OFF"]       = "OFF"
 L["COMMAND_FONT_DEBUG_PREFIX"]    = "Font debug:"
-L["COMMAND_DB_TESTS_MISSING"]     = "DB Tests not loaded."
+L["COMMAND_DB_TESTS_RELOCATED"]   = "DB test harness moved to tests/ (run via CI: npm --prefix tools/ci run lua-runtime-check)."
 L["COMMAND_LOGIN_MESSAGES_PREFIX"]= "Login messages:"
 L["COMMAND_LOGIN_USAGE"]          = "Usage: /rgx login on|off|status"
 L["COMMAND_VERSION_PREFIX"]       = "RGX-Framework v"
@@ -134,12 +134,12 @@ L["COMMAND_LIST"]                 = "Commands: modules, fonts, debug, dbtest, lo
 -- Login line (core/initialization.lua)
 L["LOGIN_LOADED_FORMAT"]          = "RGX-Framework v%s loaded."
 
--- UI control fallback labels (modules/ui/controls.lua)
+-- UI control fallback labels (libraries/ui/controls.lua)
 L["UI_COLORPICKER_NOT_LOADED"]    = "RGX ColorPicker not loaded"
 L["UI_COLOR_DEFAULT_LABEL"]       = "Color"
 L["UI_SLIDER_DEFAULT_LABEL"]      = "Slider"
 
--- Reputation module (modules/reputation/reputation.lua)
+-- Reputation module (game/reputation/reputation.lua)
 L["REP_RANK_1"]                   = "Hated"
 L["REP_RANK_2"]                   = "Hostile"
 L["REP_RANK_3"]                   = "Unfriendly"

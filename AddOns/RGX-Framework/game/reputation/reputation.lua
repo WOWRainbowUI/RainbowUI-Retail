@@ -35,7 +35,7 @@ local addonName, RGX = ...
 
 local Rep = {}
 
--- Locale strings (modules/locale/locale.lua + overrides.lua) must load before
+-- Locale strings (libraries/locale/locale.lua + overrides.lua) must load before
 -- this module via RGX-Framework.xml; fall back to English if absent so the
 -- framework still boots during isolated tooling linting.
 local LocaleMod = RGX:GetModule("locale")

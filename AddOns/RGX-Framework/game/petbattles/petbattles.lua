@@ -138,7 +138,7 @@ end
     Returns nil/0 when the underlying API is unavailable.
 ============================================================================]]
 
-function PetBattles:GetNumPets(team)
+function PetBattles:GetNumBattlePets(team)
     if type(C_PetBattles) ~= "table" or type(C_PetBattles.GetNumPets) ~= "function" then return 0 end
     return C_PetBattles.GetNumPets(team) or 0
 end

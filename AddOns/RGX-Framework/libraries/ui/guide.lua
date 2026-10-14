@@ -41,9 +41,37 @@ local function BuildGuide(content)
                 themeDD:SetPoint("TOPRIGHT", theme.content, "TOPRIGHT", -8, -8)
             end
         end
+        if Design and Design.STYLES then
+            local Drops = _G.RGXDropdowns
+            if Drops and type(Drops.CreateNestedDropdown) == "function" then
+                local items = {}
+                for name, style in pairs(Design.STYLES) do
+                    items[#items + 1] = {
+                        text = (type(style) == "table" and style.label) or name,
+                        value = name,
+                    }
+                end
+                table.sort(items, function(a, b) return a.value < b.value end)
+                local styleDD = Drops:CreateNestedDropdown(theme.content, {
+                    label = "Interface style",
+                    width = 300, buttonWidth = 290, triggerStyle = "retail",
+                    value = Design:GetStyle() or "framework",
+                    items = items,
+                    onChange = function(value)
+                        if Design:SetStyle(value) then
+                            RGX.db.style = value
+                        end
+                    end,
+                })
+                if styleDD then
+                    styleDD:SetPoint("TOPLEFT", 8, -38)
+                    styleDD:SetPoint("TOPRIGHT", theme.content, "TOPRIGHT", -8, -38)
+                end
+            end
+        end
         local corners = UI:CreateButtonGroup(theme.content, { "Rounded", "Square" },
             { buttonWidth = 100, height = 22 })
-        corners:SetPoint("TOPLEFT", 8, -52)
+        corners:SetPoint("TOPLEFT", 8, -68)
         local function UpdateCornerButtons()
             local square = Design.cornerStyle == "square"
             corners.buttons[1]:SetAlpha(square and 0.6 or 1)
@@ -61,10 +89,10 @@ local function BuildGuide(content)
             UpdateCornerButtons()
         end)
         local note = UI:CreateLabel(theme.content, {
-            text = "Applies to every RGX panel; reload to re-skin already-open windows.",
+            text = "Style owns corners and palette; main color stays independent. Applies to every RGX panel; reload to re-skin already-open windows.",
             size = "small", color = "muted", width = 292,
         })
-        theme.flow:AddSpacer(74)
+        theme.flow:AddSpacer(90)
         theme.flow:Add(note)
     end
     theme:AutoHeight()
@@ -118,7 +146,7 @@ local function BuildGuide(content)
     debugCard:SetPoint("TOPRIGHT", modulesCard, "BOTTOMRIGHT", 0, -8)
     AddLine(UI, debugCard, "/rgx modules - inspect available modules")
     AddLine(UI, debugCard, "/rgx debug - toggle framework diagnostics")
-    AddLine(UI, debugCard, "/rgx dbtest - check profile persistence")
+    AddLine(UI, debugCard, "Database tests run via CI, not in-game")
     AddLine(UI, debugCard, "/rgxvisual - RGX-Hello's visual suite (if installed)")
     debugCard:AutoHeight()
 end

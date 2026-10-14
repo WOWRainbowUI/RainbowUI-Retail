@@ -107,6 +107,9 @@ RGX:RegisterEvent("ADDON_LOADED", function(_, addon)
         -- module builds UI. Stored by the framework settings panel.
         local Design = type(RGX.GetDesign) == "function" and RGX:GetDesign() or nil
         if Design then
+            if RGX.db.style and type(Design.SetStyle) == "function" then
+                pcall(Design.SetStyle, Design, RGX.db.style)
+            end
             if RGX.db.themePreset and type(Design.SetThemePreset) == "function" then
                 pcall(Design.SetThemePreset, Design, RGX.db.themePreset)
             end

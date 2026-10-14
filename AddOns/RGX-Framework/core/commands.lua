@@ -35,11 +35,12 @@ RGX:RegisterSlashCommand("rgx", function(msg)
             RGX:Print(L["COMMAND_FONT_DEBUG_PREFIX"] or "Font debug:", state)
         end
     elseif cmd == "dbtest" then
-        if type(RGX.RunDBTests) == "function" then
-            RGX:RunDBTests()
-        else
-            RGX:Print(L["COMMAND_DB_TESTS_MISSING"] or "DB Tests not loaded.")
-        end
+        -- The database test harness relocated out of the runtime package
+        -- (tests/database_test.lua) so the shipped runtime stays clean; it is
+        -- now exercised by the headless CI harness
+        -- (tools/ci/database-runtime-test.mjs) rather than in-game. See #79.
+        RGX:Print(L["COMMAND_DB_TESTS_RELOCATED"]
+            or "DB test harness moved to tests/ (run via CI: npm --prefix tools/ci run lua-runtime-check).")
     elseif cmd == "login" then
         local arg = strtrim(rest):lower()
         if arg == "on" then

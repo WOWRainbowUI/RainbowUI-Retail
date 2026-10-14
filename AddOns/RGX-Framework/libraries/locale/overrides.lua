@@ -14,7 +14,7 @@ exemption.
 local _, RGX = ...
 local Locale = _G.RGXLocale
 if not Locale then
-    error("RGX Locale overrides loaded before modules/locale/locale.lua")
+    error("RGX Locale overrides loaded before libraries/locale/locale.lua")
     return
 end
 

@@ -316,7 +316,7 @@ end
 --   _raw        → the SavedVariables global table (has .profiles, .global, .char, .activeProfile)
 --   _defaults   → fallback values when a key is missing from the profile
 --   _charDefaults → fallback values for per-character data
---   _charKey    → current "Name - Realm" key
+--   _charKey    → current character key ("Name - Realm", or full name on Forever)
 --   _callbacks       → functions registered via OnProfileChanged
 --   _onSwitch        → opt-in callback from opts.onSwitch
 --   _guard           → lock to prevent re-entrant notification
@@ -325,8 +325,15 @@ end
 local DB = {} -- method table
 
 -- ── Internal: build "Name - Realm" character key ──────────────────────────
+-- Forever has no stable realms (GetRealmName is advisory) and UnitName
+-- returns firstName + surname: the full name is the unique, stable key.
 
 local function CharKey()
+    if RGX and RGX.isForever then
+        local first, last = UnitName("player")
+        if first and last then return first .. " " .. last end
+        return first or "Unknown"
+    end
     local name = UnitName("player") or "Unknown"
     local realm = GetRealmName() or "Unknown"
     return name .. " - " .. realm
