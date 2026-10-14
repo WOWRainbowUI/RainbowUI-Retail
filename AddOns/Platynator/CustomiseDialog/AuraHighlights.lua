@@ -209,6 +209,32 @@ local function GetAuraOptions(parent, kind)
     end)
   end
 
+  local individualColors = addonTable.CustomiseDialog.Components.GetCheckbox(container, addonTable.Locales.SHOW_INDIVIDUAL_COLORS, 28, function(newValue)
+    local settings = GetSettings(kind)
+    if settings.showIndividualColors ~= newValue then
+      settings.showIndividualColors = newValue
+      Announce()
+    end
+  end)
+  individualColors:SetPoint("BOTTOM", 0, 60)
+  local modeDropdown = addonTable.CustomiseDialog.Components.GetBasicDropdown(container, addonTable.Locales.DISPLAY_MODE, function(value)
+    return value == GetSettings(kind).mode
+  end, function(value)
+    local settings = GetSettings(kind)
+    if settings.mode ~= value then
+      GetSettings(kind).mode = value
+      Announce()
+    end
+  end)
+  modeDropdown:Init({
+    addonTable.Locales.HEALTH_BAR,
+    addonTable.Locales.AURA_HIGHLIGHT,
+  }, {
+      "health",
+      "highlight"
+  })
+  modeDropdown:SetPoint("BOTTOM", 0, 20)
+
   Refresh = function()
     staticRows[1]:SetPoint("TOP", container)
     staticRows[2]:SetPoint("TOP", staticRows[1], "BOTTOM")
@@ -236,6 +262,8 @@ local function GetAuraOptions(parent, kind)
       row:SetPoint("LEFT")
       row:SetPoint("RIGHT")
     end
+    individualColors:SetValue(settings.showIndividualColors)
+    modeDropdown:SetValue(settings.mode)
   end
 
   container:SetScript("OnShow", Refresh)

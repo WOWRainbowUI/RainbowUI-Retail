@@ -71,7 +71,7 @@ addonTable.Assets.BarBordersSliced = {
   ["Platy: GW2"] = {file = "Interface/AddOns/Platynator/Assets/Special/BarBorders/gw2.png", width = 33, height = 33, masked = false, margin = 0.3, extra = 12, modifier = 1},
 
   ["Platy: Blizzard Health"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarBorders/blizzard-health-square.png", width = 48, height = 48, has4k = true, margin = 0.4, extra = 0, modifier = 0.3, DPIScale = 1/2},
-  ["Platy: Blizzard Midnight"] = {file = "Interface/AddOns/Platynator/Assets/Special/BarBorders/blizzard-midnight.png", width = 34, height = 34, margin = 0.35, extra = 12, modifier = 0.40},
+  ["Platy: Blizzard Midnight"] = {file = "Interface/AddOns/Platynator/Assets/Special/BarBorders/blizzard-midnight.png", width = 34, height = 34, margin = 0.35, extra = 9, modifier = 0.40},
   ["Platy: Blizzard Midnight Selected"] = {file = "Interface/AddOns/Platynator/Assets/Special/BarBorders/blizzard-midnight-selected.png", width = 33, height = 33, margin = 0.4, extra = 12, modifier = 0.35},
   ["Platy: Blizzard Cast Bar"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarBorders/blizzard-cast-bar-square.png", width = 48, height = 48, has4k = true, margin = 0.40, extra = 0, modifier = 0.35, DPIScale = 1/2},
   ["Platy: Blizzard Classic"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarBorders/blizzard-classic-square.png", width = 48, height = 48, has4k = true, margin = 0.4, extra = 0, modifier = 0.3, DPIScale = 1/2},
@@ -93,6 +93,7 @@ addonTable.Assets.BarMasks = {
   ["Platy: Soft"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarBorders/soft-square-mask.png", width = 48, height = 48, has4k = true, margin = 0.33},
 
   ["Platy: Blizzard Health"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarBorders/blizzard-health-square-mask.png", width = 48, height = 48, has4k = true, margin = 0.49},
+  ["Platy: Blizzard Midnight"] = {file = "Interface/AddOns/Platynator/Assets/Special/BarBorders/blizzard-midnight-mask.png", width = 24, height = 24, margin = 0.49},
   ["Platy: Blizzard Classic"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarBorders/blizzard-classic-square-mask.png", width = 48, height = 48, has4k = true, margin = 0.35},
   ["Platy: Blizzard Cast Bar"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarBorders/blizzard-cast-bar-square-mask.png", width = 48, height = 48, has4k = true, margin = 0.35},
   ["Platy: Blizzard Gray Inset"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarBorders/blizzard-grey-inset-mask.png", width = 52, height = 52, has4k = true, margin = 0.35},

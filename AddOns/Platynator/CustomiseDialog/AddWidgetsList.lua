@@ -289,6 +289,21 @@ addonTable.CustomiseDialog.DesignWidgets = {
     },
   },
   {
+    name = addonTable.Locales.AURAS,
+    kind = "highlights",
+    default = {
+      anchor = {"TOPLEFT", -140, 50},
+      kind = "auras",
+      asset = "Platy: Soft Glow",
+      sliced = true,
+      width = 1.07,
+      height = 1.54,
+      color = GetColor("FFFFFF", 1),
+      scale = 1,
+      layer = 3,
+    },
+  },
+  {
     name = addonTable.Locales.ANIMATED_BORDER,
     kind = "highlights",
     default = {

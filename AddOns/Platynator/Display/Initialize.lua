@@ -571,7 +571,7 @@ function addonTable.Display.ManagerMixin:Install(unit)
   if unit == "preview" then
     return
   end
-  local nameplate = C_NamePlate.GetNamePlateForUnit(unit, issecure())
+  local nameplate = C_NamePlate.GetNamePlateForUnit(unit)
   -- NOTE: the nameplate _name_ does not correspond to the unit
   if nameplate and unit and (addonTable.Constants.IsRetail or not UnitIsUnit("player", unit)) then
     addonTable.Cache:AddUnit(unit)
@@ -586,9 +586,7 @@ function addonTable.Display.ManagerMixin:Install(unit)
     local design = addonTable.Core.GetDesignByName(designName)
     local nameplateIndex = tonumber(nameplate:GetName():match("%d+"))
     local newDisplay = self.preallocatedDisplaysByIndex[self.seenStyleIndexes[StyleSettingsKey(settings)]][nameplateIndex]
-    if C_NamePlateManager and C_NamePlateManager.SetNamePlateSimplified then
-      C_NamePlateManager.SetNamePlateSimplified(unit, shouldSimplify)
-    end
+    C_NamePlateManager.SetNamePlateSimplified(unit, shouldSimplify)
     self.nameplateDisplays[unit] = newDisplay
     if nameplate.SetStackingBoundsFrame then
       if not self.nameplateStackRegions[nameplate:GetName()].parented then
@@ -617,10 +615,10 @@ function addonTable.Display.ManagerMixin:Install(unit)
   end
 end
 
-function addonTable.Display.ManagerMixin:Uninstall(unit)
+function addonTable.Display.ManagerMixin:Uninstall(unit, removed)
   local display = self.nameplateDisplays[unit]
   if display then
-    addonTable.Cache:RemoveUnit(unit)
+    addonTable.Cache:RemoveUnit(unit, removed)
     addonTable.Display.Context:RevokedUnitListeners(unit)
     display:SetUnit(nil)
     display:ClearAllPoints()
@@ -895,7 +893,7 @@ function addonTable.Display.ManagerMixin:OnEvent(eventName, ...)
     self:Install(unit)
   elseif eventName == "NAME_PLATE_UNIT_REMOVED" then
     local unit = ...
-    self:Uninstall(unit)
+    self:Uninstall(unit, true)
   elseif eventName == "NAME_PLATE_CREATED" then
     local nameplate = ...
     local index = tonumber(nameplate:GetName():match("%d+"))

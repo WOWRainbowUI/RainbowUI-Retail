@@ -777,6 +777,16 @@ local function UpgradeDesignv23(design)
   end
 end
 
+local function UpgradeDesignv24(design)
+  for _, auras in ipairs(design.auras) do
+    if auras.kind == "debuffs" then
+      auras.filters.includeExtras = true
+    elseif auras.kind == "crowdControl" then
+      auras.filters.includeExtras = false
+    end
+  end
+end
+
 local designUpgrades = {
   UpgradeDesignv1,
   UpgradeDesignv2,
@@ -802,6 +812,7 @@ local designUpgrades = {
   UpgradeDesignv22,
   UpgradeDesignv23,
   UpgradeDesignv23,
+  UpgradeDesignv24,
 }
 
 function addonTable.Core.UpgradeDesign(design)
@@ -999,6 +1010,14 @@ local function MigrateSettingsv9()
   end
 end
 
+local function MigrateSettingsv10()
+  local filters = addonTable.Config.Get(addonTable.Config.Options.AURA_HIGHLIGHTS)
+  for _, details in pairs(filters) do
+    details.debuffs.mode = "health"
+    details.buffs.mode = "health"
+  end
+end
+
 local settingUpgrades = {
   MigrateSettingsv1,
   MigrateSettingsv2,
@@ -1010,6 +1029,7 @@ local settingUpgrades = {
   MigrateSettingsv7,
   MigrateSettingsv8,
   MigrateSettingsv9,
+  MigrateSettingsv10,
 }
 function addonTable.Core.MigrateSettings()
   if #settingUpgrades + 1 ~= addonTable.Config.Get(addonTable.Config.Options.MIGRATION) then

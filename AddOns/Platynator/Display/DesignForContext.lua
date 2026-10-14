@@ -46,8 +46,11 @@ local assignmentsPossibilities = {
   ["can-attack"] = { frequent = true, updates = "canAttack", check = function(state) return state.canAttack end },
   ["cannot-attack"] = { frequent = true, updates = "canAttack", check = function(state) return not state.canAttack end },
 
-  ["in-combat"] = { frequent = true, updates = "inCombat", check = function(state) return state.inCombat end },
-  ["out-combat"] = { frequent = true, updates = "inCombat", check = function(state) return not state.inCombat end },
+  ["in-combat"] = { frequent = true, updates = "combat", check = function(state) return state.combat end },
+  ["out-combat"] = { frequent = true, updates = "combat", check = function(state) return not state.combat end },
+
+  ["is-target"] = { frequent = true, updates = "target", check = function(state) return state.target end },
+  ["not-target"] = { frequent = true, updates = "target", check = function(state) return not state.target end },
 
   ["friend"] = { updates = "alignment", check = function(state) return state.alignment == "friend" end},
   ["hostile"] = { updates = "alignment", check = function(state) return state.alignment == "hostile" end},
@@ -108,7 +111,8 @@ local function GenerateState(unit)
   local isMinion = IsMinion(unit)
   return {
     canAttack = addonTable.Cache:Get(unit, "canAttack"),
-    inCombat = addonTable.Cache:Get(unit, "combat"),
+    combat = addonTable.Cache:Get(unit, "combat"),
+    target = addonTable.Cache:Get(unit, "target"),
     alignment = GetAlignment(unit),
     isPlayer = IsPlayer(unit),
     isNPC = IsNPC(unit),
@@ -119,6 +123,7 @@ local function GenerateState(unit)
     delveType = GetDelveType(unit),
     resting = IsResting(),
 
+    unit = unit,
     updates = {},
   }
 end
@@ -186,26 +191,8 @@ end
 
 function addonTable.Display.DesignForContextMixin:GetAssignedDesign(unit)
   if not self.unitsListening[unit] then
-    addonTable.Cache:RegisterCallback(unit, "combat", function(inCombat)
-      local state = self.unitStates[unit]
-      if state then
-        state.inCombat = inCombat
-        if state.updates.inCombat then
-          addonTable.CallbackRegistry:TriggerEvent("UnitDesignChange", unit)
-        end
-      end
-    end)
-    addonTable.Cache:RegisterCallback(unit, "canAttack", function(canAttack)
-      local state = self.unitStates[unit]
-      if state then
-        state.canAttack = canAttack
-        if state.updates.canAttack then
-          addonTable.CallbackRegistry:TriggerEvent("UnitDesignChange", unit)
-        end
-      end
-    end)
     self.unitStates[unit] = GenerateState(unit) -- Necessary to trigger registration
-    self.unitsListening[unit] = true
+    self.unitsListening[unit] = {}
   end
   if not self.unitStates[unit] then
     self.unitStates[unit] = GenerateState(unit)
@@ -219,7 +206,7 @@ end
 function addonTable.Display.DesignForContextMixin:GetDefaultEnemyNPCDesign()
   return self:GetDesignFromState({
     canAttack = true,
-    inCombat = true,
+    combat = true,
     alignment = "hostile",
     isPlayer = false,
     isNPC = true,
@@ -237,7 +224,7 @@ end
 function addonTable.Display.DesignForContextMixin:GetDefaultFriendlyPlayerDesign()
   return self:GetDesignFromState({
     canAttack = false,
-    inCombat = false,
+    combat = false,
     alignment = "friend",
     isPlayer = true,
     isNPC = false,
@@ -252,6 +239,29 @@ function addonTable.Display.DesignForContextMixin:GetDefaultFriendlyPlayerDesign
   })
 end
 
+function addonTable.Display.DesignForContextMixin:AddUpdate(originState, updates)
+  if not originState.unit then
+    return
+  end
+
+  originState.updates[updates] = true
+  local unit = originState.unit
+  if (updates == "combat" or updates == "canAttack" or updates == "target") and not self.unitsListening[unit][updates] then
+    self.unitsListening[unit][updates] = true
+    addonTable.Cache:RegisterCallback(unit, updates, function(newValue)
+      local state = self.unitStates[unit]
+      if state then
+        state[updates] = newValue
+        if state.updates[updates] then
+          C_Timer.After(0, function()
+            addonTable.CallbackRegistry:TriggerEvent("UnitDesignChange", unit)
+          end)
+        end
+      end
+    end)
+  end
+end
+
 function addonTable.Display.DesignForContextMixin:GetDesignFromState(state)
   local assignments = addonTable.Config.Get(addonTable.Config.Options.DESIGN_ASSIGNMENTS)
   for index, settings in ipairs(assignments) do
@@ -259,7 +269,7 @@ function addonTable.Display.DesignForContextMixin:GetDesignFromState(state)
     for _, criteria in ipairs(settings.criteria) do
       local details = assignmentsPossibilities[criteria]
       if details.updates then
-        state.updates[details.updates] = true
+        self:AddUpdate(state, details.updates)
       end
       if not details.check(state) then
         hit = false
@@ -267,7 +277,7 @@ function addonTable.Display.DesignForContextMixin:GetDesignFromState(state)
       end
     end
 
-    if hit and (addonTable.Constants.IsSimplifiedAvailable or not settings.simplified) then
+    if hit then
       return settings.style, settings.scale, settings.simplified or false, settings
     end
   end
@@ -283,13 +293,13 @@ function addonTable.Display.DesignForContextMixin:GetClickRegion(unit)
 
   local tmp = CopyTable(state)
   tmp.canAttack = tmp.canAttack or tmp.alignment ~= "friend"
-  tmp.inCombat = true
+  tmp.combat = true
 
   if tmp.alignment == "neutral" then
     tmp.alignment = "hostile"
   end
 
-  local style, scale = addonTable.Display.DesignForContextMixin:GetDesignFromState(tmp)
+  local style, scale = self:GetDesignFromState(tmp)
 
   local design = addonTable.Core.GetDesignByName(style)
 

@@ -162,10 +162,11 @@ function addonTable.Display.NameplateMixin:SetUnit(unit)
   self.SoftTargetIcon:Hide()
 
   self.interactUnit = unit
-  if unit and (not UnitNameplateShowsWidgetsOnly or not UnitNameplateShowsWidgetsOnly(unit)) and not UnitIsGameObject(unit) then
+  if unit and not UnitNameplateShowsWidgetsOnly(unit) and not UnitIsGameObject(unit) then
     self.unit = unit
 
-    if UnitCanAttack("player", self.unit) and addonTable.Config.Get(addonTable.Config.Options.OUT_OF_RANGE_ALPHA) ~= 1 then
+    local canAttack = addonTable.Cache:Get(unit, "canAttack")
+    if canAttack and addonTable.Config.Get(addonTable.Config.Options.OUT_OF_RANGE_ALPHA) ~= 1 then
       addonTable.Cache:RegisterCallback(self.unit, "range", function(state)
         self.inRange = state
         self:UpdateVisual()
@@ -175,7 +176,7 @@ function addonTable.Display.NameplateMixin:SetUnit(unit)
       self.inRange = true
     end
 
-    if UnitCanAttack("player", self.unit) and addonTable.Config.Get(addonTable.Config.Options.NOT_IN_PULL_ALPHA) ~= 1 then
+    if canAttack and addonTable.Config.Get(addonTable.Config.Options.NOT_IN_PULL_ALPHA) ~= 1 then
       self:RegisterEvent("PLAYER_REGEN_ENABLED")
       self:RegisterEvent("PLAYER_REGEN_DISABLED")
 
@@ -346,25 +347,4 @@ function addonTable.Display.NameplateMixin:UpdateSoftInteract()
     hasCursorTexture = SetUnitCursorTexture(self.SoftTargetIcon, self.interactUnit)
   end
   self.SoftTargetIcon:SetShown(hasCursorTexture)
-end
-
-local pandemicPercentage = 0.3
-local pandemicCurve
-if C_CurveUtil then
-  pandemicCurve = C_CurveUtil.CreateCurve()
-  pandemicCurve:SetType(Enum.LuaCurveType.Step)
-  pandemicCurve:AddPoint(0, 1)
-  pandemicCurve:AddPoint(pandemicPercentage, 0)
-end
-function addonTable.Display.NameplateMixin:UpdateAurasForPandemic()
-  local time = GetTime()
-  if self.DebuffDisplay.details and self.DebuffDisplay.details.showPandemic and self.DebuffDisplay.Wrapped.items then
-    for _, item in ipairs(self.DebuffDisplay.Wrapped.items) do
-      if item.durationSecret then
-        item.Pandemic:SetAlpha(C_CurveUtil.EvaluateColorValueFromBoolean(item.durationSecret:IsZero(), 0, item.durationSecret:EvaluateRemainingPercent(pandemicCurve)))
-      elseif item.expirationTime then
-        item.Pandemic:SetAlpha(item.duration > 0 and item.expirationTime - time <= item.duration * pandemicPercentage and 1 or 0)
-      end
-    end
-  end
 end

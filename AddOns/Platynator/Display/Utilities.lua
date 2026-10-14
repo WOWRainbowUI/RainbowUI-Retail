@@ -467,7 +467,7 @@ do
     end
   end
 
-  local function AssignRange()
+  local function AssignRange(isPEW)
     if addonTable.Constants.IsEra or addonTable.Constants.IsBC or addonTable.Constants.IsWrath or addonTable.Constants.IsForever then
       rangeLimit = addonTable.Constants.DefaultRange[playerClass]
     else
@@ -479,8 +479,18 @@ do
         end
       end
     end
-    harmChecker = RangeCheck:GetHarmMaxChecker(addonTable.Display.Utilities.GetRangedLimit() or RangeCheck.MeleeRange) or function() return nil end
-    harmMeleeChecker = RangeCheck:GetHarmMaxChecker(RangeCheck.MeleeRange) or function() return nil end
+    local newHarmChecker = RangeCheck:GetHarmMaxChecker(addonTable.Display.Utilities.GetRangedLimit() or RangeCheck.MeleeRange)
+    local newHarmMeleeChecker = RangeCheck:GetHarmMaxChecker(RangeCheck.MeleeRange)
+
+    -- Avoid overwriting harm checker when changing zone
+
+    if newHarmChecker or not isPEW and not newHarmChecker or not harmChecker then
+      harmChecker = newHarmChecker or function() return false end
+    end
+
+    if newHarmMeleeChecker or not isPEW and not newHarmMeleeChecker or not harmMeleeChecker then
+      harmMeleeChecker = newHarmMeleeChecker or function() return false end
+    end
   end
 
   local function UpdateAuraFilters()
@@ -497,12 +507,14 @@ do
     if not allHighlights[specializationID] then
       allHighlights[specializationID] = {
         buffs = {
+          mode = "health",
           showAll = {color = GetColor("ff0000"), enabled = false},
           showNone = {color = GetColor("00ff00"), enabled = false},
           showIndividualColors = true,
           auras = {}
         },
         debuffs = {
+          mode = "health",
           showAll = {color = GetColor("ff0000"), enabled = false},
           showNone = {color = GetColor("00ff00"), enabled = false},
           showIndividualColors = true,
@@ -553,7 +565,7 @@ do
         specializationID = C_SpecializationInfo.GetSpecializationInfo(specIndex)
       end
 
-      AssignRange()
+      AssignRange(e == "PLAYER_ENTERING_WORLD")
       UpdateAuraFilters()
 
       if e ~= "SPELLS_CHANGED" then

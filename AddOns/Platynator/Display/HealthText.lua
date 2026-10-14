@@ -32,8 +32,10 @@ end
 function addonTable.Display.HealthTextMixin:SetUnit(unit)
   self.unit = unit
   if self.unit then
-    self:RegisterUnitEvent("UNIT_HEALTH", self.unit)
-    self:UpdateText()
+    self:UpdateText(addonTable.Cache:Get(self.unit, "health"))
+    addonTable.Cache:RegisterCallback(self.unit, "health", function(state)
+      self:UpdateText(state)
+    end)
   else
     self:UnregisterAllEvents()
   end
@@ -49,11 +51,7 @@ function addonTable.Display.HealthTextMixin:Strip()
   self.text:SetAlpha(1)
 end
 
-function addonTable.Display.HealthTextMixin:OnEvent()
-  self:UpdateText()
-end
-
-function addonTable.Display.HealthTextMixin:UpdateText()
+function addonTable.Display.HealthTextMixin:UpdateText(state)
   if UnitIsDeadOrGhost(self.unit) then
     self.text:SetText("0")
     if self.hideAuto then
@@ -62,10 +60,10 @@ function addonTable.Display.HealthTextMixin:UpdateText()
   else
     local values = {
       percentage = "",
-      absolute = AbbreviateNumbers(UnitHealth(self.unit)),
+      absolute = AbbreviateNumbers(state.absolute),
     }
     local types = self.details.displayTypes
-    local value = UnitHealthPercent(self.unit, true, CurveConstants.ScaleTo100)
+    local value = state.percent
     if self.abbreviateData then
       values.percentage = AbbreviateNumbers(value, self.abbreviateData) .. self.percentTail
     else
@@ -78,7 +76,7 @@ function addonTable.Display.HealthTextMixin:UpdateText()
     end
 
     if self.hideAuto then
-      self.text:SetAlpha(UnitHealthPercent(self.unit, true, curve))
+      self.text:SetAlpha(state.markerAlpha)
     end
   end
 end

@@ -28,6 +28,12 @@ end
 
 addonTable.Display.CacheMixin = {}
 
+local healthCalculator = CreateUnitHealPredictionCalculator()
+healthCalculator:SetMaximumHealthMode(Enum.UnitMaximumHealthMode.WithAbsorbs)
+healthCalculator:SetDamageAbsorbClampMode(Enum.UnitDamageAbsorbClampMode.MaximumHealth)
+
+local healthCurve = addonTable.Display.Utilities.Get01HiddenCurve()
+
 local getter = {
   ["cast"] = function(oldState, unit, eventName, ...)
     if eventName == "UNIT_SPELLCAST_INTERRUPTED" then
@@ -106,6 +112,26 @@ local getter = {
     local focus = UnitIsUnit("focus", unit)
     return focus, focus ~= oldState
   end,
+  ["health"] = function(oldState, unit)
+    local result = {
+      percent = 0,
+      absolute = 0,
+      absorbs = 0,
+      maxWithAbsorbs = 0,
+      markerAlpha = 1,
+    }
+    if not UnitIsDeadOrGhost(unit) then
+      UnitGetDetailedHealPrediction(unit, nil, healthCalculator)
+      healthCalculator:SetMaximumHealthMode(Enum.UnitMaximumHealthMode.WithAbsorbs)
+      result.absolute = healthCalculator:GetCurrentHealth()
+      result.absorbs = healthCalculator:GetDamageAbsorbs()
+      result.maxWithAbsorbs = healthCalculator:GetMaximumHealth()
+      result.markerAlpha = healthCalculator:EvaluateCurrentHealthPercent(healthCurve)
+      healthCalculator:SetMaximumHealthMode(Enum.UnitMaximumHealthMode.Default)
+      result.percent = healthCalculator:EvaluateCurrentHealthPercent(CurveConstants.ScaleTo100)
+    end
+    return result, true
+  end,
 }
 
 local eventsFromKind = {
@@ -123,6 +149,11 @@ local eventsFromKind = {
   },
   ["threat"] = {
     "UNIT_THREAT_LIST_UPDATE",
+  },
+  ["health"] = {
+    "UNIT_HEALTH",
+    "UNIT_MAXHEALTH",
+    "UNIT_ABSORB_AMOUNT_CHANGED",
   },
 }
 if addonTable.Constants.IsRetail then
@@ -187,7 +218,9 @@ end
 
 function addonTable.Display.CacheMixin:AddUnit(unit)
   self.monitoring[unit] = {}
-  self.state[unit] = {}
+  if not self.state[unit] then
+    self.state[unit] = {}
+  end
   self.registeredCallbacks[unit] = {}
   table.insert(self.monitoringOrder, unit)
   for kind in pairs(getter) do
@@ -199,9 +232,11 @@ function addonTable.Display.CacheMixin:RegisterCallback(unit, kind, callback)
   table.insert(self.registeredCallbacks[unit][kind], callback)
 end
 
-function addonTable.Display.CacheMixin:RemoveUnit(unit)
+function addonTable.Display.CacheMixin:RemoveUnit(unit, removed)
   self.monitoring[unit] = nil
-  self.state[unit] = nil
+  if removed then -- Reinstantiating
+    self.state[unit] = nil
+  end
   self.registeredCallbacks[unit] = nil
   local index = tIndexOf(self.monitoringOrder, unit)
   if index then
@@ -211,6 +246,9 @@ end
 
 function addonTable.Display.CacheMixin:Get(unit, kind)
   if self.monitoring[unit][kind] then
+    return self.state[unit][kind]
+  elseif self.state[unit][kind] ~= nil then
+    self.monitoring[unit][kind] = true
     return self.state[unit][kind]
   else
     local newState = getter[kind](nil, unit)
