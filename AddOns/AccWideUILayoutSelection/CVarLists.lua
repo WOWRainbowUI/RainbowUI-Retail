@@ -80,7 +80,10 @@ AccWideUIAceAddon.CVars = {
 		"nameplatePlayRemovalAnimation",
 		"nameplateNotSelectedAlpha",
 		"nameplateForceShowUnitName",
-		"nameplateCheckDistanceForTarget"
+		"nameplateCheckDistanceForTarget",
+		"nameplateBottomInset",
+		"nameplateMotionSpeed",
+		"nameplateTopInset"
 	},
 
 	RaidFrames = {
@@ -111,6 +114,7 @@ AccWideUIAceAddon.CVars = {
 		"threatWarning",
 		"noBuffDebuffFilterOnTarget",
 		"raidFramesCenterBigDefensive",
+		"raidFramesDispelIndicatorAnimatedBorder",
 		"raidFramesDispelIndicatorOverlayAnimation",
 		"raidFramesDispelIndicatorOverlay",
 		"raidFramesDispelIndicatorType",
@@ -190,7 +194,7 @@ AccWideUIAceAddon.CVars = {
 	},
 
 	ActionBars = {
-		--"enableMultiActionBars",
+		"enableMultiActionBars",
 		"multiBarRightVerticalLayout"
 	},
 
@@ -281,6 +285,35 @@ AccWideUIAceAddon.CVars = {
 	ExternalDefensives = {
 		"externalDefensivesEnabled"
 	},
+	
+	Gamepad = {
+		"GamepadShowActionBarHighlight",
+		"GamepadCompassCustomFilterBoss",
+		"GamepadFocusStateColor",
+		"GamepadFocusStateOpacity",
+		"GamepadHudModifierUsesToggle",
+		"GamepadPossessBarOverride",
+		"GamepadPreferScreenTargeting",
+		"GamepadRaidTargetingStyle",
+		"GamepadRaidTargetingHoverMode",
+		"GamepadStanceBarOverride",
+		"GamepadShowEmptyActionbars",
+		"GamepadShowActionBarScaling",
+		"GamepadShowActionBarHighlight",
+		"GamepadShowPersistentInputLegend",
+		"GamepadShowActionBarButtonPrompts",
+		"GamepadTargetingModifierVisualDelay",
+		"GamepadUseCompactActionBar",
+		"GamepadCameraSavedDistance",
+		"GamepadCameraSavedPitch",
+		"GamepadCameraSavedPetBattleDistance",
+		"GamepadCompassCustomFilterBoss",
+		"GamepadCompassCustomFilterCritter",
+		"GamepadCompassCustomFilterEnemy",
+		"GamepadCompassCustomFilterFriendly",
+		"GamepadCompassCustomFilterParty",
+		
+	},
 		
 	CombatMisc = {
 		"assistAttack",
@@ -313,7 +346,11 @@ AccWideUIAceAddon.CVars = {
 		"showCustomSetDetails",
 		"pvpLocklistMaps0",
 		"pvpLocklistMaps1",
-		"missingTransmogSourceInItemTooltips"
+		"missingTransmogSourceInItemTooltips",
+		"displayFreeBagSlots",
+		"showOutfitDetails",
+		"showQuestDifficultyColor",
+		"showQuestLevel"
 	},
 	
 	System_Graphics = {
@@ -609,7 +646,28 @@ AccWideUIAceAddon.CVars = {
 		"graphicsSunshafts",
 		"raidGraphicsSunshafts",
 		"UseOldVolumeFog",
-		"userFontScale"
+		"userFontScale",
+		"bloomEnable",
+		"bloomUserMult",
+		"giQuality",
+		"graphicsBloomUserMult",
+		"graphicsLightMode",
+		"graphicsPBRLiquidDetail",
+		"GxCompatLowLatencyCallbacks",
+		"HDRBrightness",
+		"HDRFactor",
+		"HDROutput",
+		"HDRPeakBrightness",
+		"minFontHeight",
+		"pbrLiquidDetail",
+		"RAIDbloomUserMult",
+		"RAIDgiQuality",
+		"raidGraphicsBloomUserMult",
+		"raidGraphicsLightMode",
+		"raidGraphicsPBRLiquidDetail",
+		"RAIDpbrLiquidDetail",
+		"useHDRBrightness",
+		"useHDRPeakBrightness"
 	},
 	
 	System_Audio = {

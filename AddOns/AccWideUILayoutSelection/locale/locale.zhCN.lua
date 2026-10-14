@@ -1,6 +1,7 @@
 local L = LibStub("AceLocale-3.0"):NewLocale("AccWideUIAceAddonLocale", "zhCN", false)
 if not L then return end
 
+WOWLABS_MAINLINE = WOWLABS_MAINLINE or "正式服"
 L["ACCWUI_ADDONNAME"] = "Account Wide Interface Settings"
 L["ACCWUI_ADDONNAME_SHORT"] = "Account Wide Interface"
 
@@ -78,7 +79,7 @@ L["ACCWUI_OPT_MODULES_CHK_SELFCAST_DESC"] = "勾选后，自我施法设置将�
 L["ACCWUI_OPT_MODULES_CHK_NAMEPLATES"] = "姓名板设置"
 L["ACCWUI_OPT_MODULES_CHK_NAMEPLATES_DESC"] = "勾选后，您的姓名板设置将与此配置文件同步。\n\n如果使用 Plater，启用此选项可能会干扰您的 Plater 配置文件。"
 L["ACCWUI_OPT_MODULES_CHK_PARTYRAID"] = "小队/团队框体设置"
-L["ACCWUI_OPT_MODULES_CHK_PARTYRAID_DESC"] = "勾选后，您的小队和团队框体设置将与此配置文件同步。\n\n在经典旧世客户端中，这也会同步您的团队框架配置文件。"
+L["ACCWUI_OPT_MODULES_CHK_PARTYRAID_DESC"] = "勾选后，您的小队和团队框体设置将与此配置文件同步。"
 L["ACCWUI_OPT_MODULES_CHK_SPELLOVERLAY"] = "法术警报覆盖设置"
 L["ACCWUI_OPT_MODULES_CHK_SPELLOVERLAY_DESC"] = "勾选后，法术警报覆盖的开关和透明度将与此配置文件同步。"
 L["ACCWUI_OPT_MODULES_CHK_TUTTOOLTIP"] = "已查看的教程提示"
@@ -103,6 +104,8 @@ L["ACCWUI_OPT_MODULES_CHK_CALENDAR"] = "日历过滤器设置"
 L["ACCWUI_OPT_MODULES_CHK_CALENDAR_DESC"] = "勾选后，游戏内日历上选中的过滤器将与此配置文件同步。"
 L["ACCWUI_OPT_MODULES_CHK_CAMERA"] = "镜头设置"
 L["ACCWUI_OPT_MODULES_CHK_CAMERA_DESC"] = "勾选后，多个镜头设置将与此配置文件同步。"
+L["ACCWUI_OPT_MODULES_CHK_GAMEPAD"] = "GamePad设置"
+L["ACCWUI_OPT_MODULES_CHK_GAMEPAD_DESC"] = "勾选后，部分GamePad设置将与此配置方案同步。"
 L["ACCWUI_OPT_MODULES_CHK_COMBATMISC"] = "杂项战斗设置"
 L["ACCWUI_OPT_MODULES_CHK_COMBATMISC_DESC"] = "勾选后，多个不属于其他类别的战斗设置将与此配置文件同步。"
 L["ACCWUI_OPT_MODULES_CHK_UIMISC"] = "杂项界面设置"
@@ -111,6 +114,8 @@ L["ACCWUI_OPT_MODULES_CHK_SYSGRAPHICS"] = "图形设置"
 L["ACCWUI_OPT_MODULES_CHK_SYSGRAPHICS_DESC"] = "勾选后，您当前的系统图形设置将与此配置文件同步。"
 L["ACCWUI_OPT_MODULES_CHK_SYSAUDIO"] = "音频设置"
 L["ACCWUI_OPT_MODULES_CHK_SYSAUDIO_DESC"] = "勾选后，您当前的系统音频设置将与此配置文件同步。"
+L["ACCWUI_OPT_MODULES_CHK_SYSMODKEYS"] = "快捷键设置"
+L["ACCWUI_OPT_MODULES_CHK_SYSMODKEYS_DESC"] = "勾选后，你的快捷键设置（例如自动拾取和自我施法）将与此配置文件同步。"
 
 L["ACCWUI_OPT_MODULES_CVARS"] = "自定义 CVar 列表"
 L["ACCWUI_OPT_MODULES_CVARS_DESC"] = "输入您想与此配置文件同步的自定义 CVar 列表。\n\n每行输入一个准确的 CVar 名称。"
@@ -160,6 +165,8 @@ L["ACCWUI_ADVANCED_DISABLE_AUTOSAVE"] = "仅禁用自动保存"
 L["ACCWUI_ADVANCED_DISABLE_AUTOSAVE_DESC"] = "勾选后，插件将不会在注销、更改配置文件或退出编辑模式时自动保存您的设置。\n\n登录或更改配置文件时仍会自动加载。\n\n如果您想加载设置但防止意外覆盖，请使用此选项。"
 L["ACCWUI_ADVANCED_DISABLE_MINIMAPBTN"] = "隐藏小地图按钮"
 L["ACCWUI_ADVANCED_DISABLE_MINIMAPBTN_DESC"] = "勾选后，插件将不会向小地图添加 AWI 的小地图按钮。"
+L["ACCWUI_ADVANCED_FCF_CLOSE_PROTECTION"] = "启用聊天标签页关闭保护"
+L["ACCWUI_ADVANCED_FCF_CLOSE_PROTECTION_DESC"] = "勾选后，将在战斗中禁止关闭聊天标签页，以避免界面报错。\r\n\r\n需重载界面后生效。"
 
 L["ACCWUI_DEBUG_TITLE"] = BINDING_HEADER_DEBUG
 
@@ -214,10 +221,12 @@ L["ACCWUI_GS_IMPORT_DESC"] = "将导入字符串粘贴到下面的框中，然�
 L["ACCWUI_GS_IMPORT_SUCCESS"] = "导入完成！"
 L["ACCWUI_GS_IMPORT_FAIL"] = "导入失败。您输入的字符串无效。"
 
-L["ACCWUI_TAINTABLES_TITLE"] = "至暗之夜 专属"
-L["ACCWUI_TAINTABLES_DESC"] = "此选项卡包含 至暗之夜 特有的各种可同步设置，这些设置只能手动保存或加载，因为在战斗中加载它们会不可逆地污染界面，直到您 /reload 界面。\n您需要为每个希望使用这些设置的角色手动加载这些设置。"
-L["ACCWUI_TAINTABLES_DESC_SHORT"] = "包含 至暗之夜 特有的各种可同步设置，只能手动保存或加载"
-L["ACCWUI_TAINTABLES_RELOADNOW"] = "设置已加载。您应立即重载界面，以防止战斗中出现任何界面污染问题。"
+L["ACCWUI_TAINTABLES_TITLE"] = WOWLABS_MAINLINE .. "专属"
+L["ACCWUI_TAINTABLES_DESC"] = "此选项卡包含" .. WOWLABS_MAINLINE .. "特有的各种可同步设置，这些设置只能手动保存或加载，因为在战斗中加载它们会不可逆地污染界面，直到您 /reload 界面。\n您需要为每个希望使用这些设置的角色手动加载这些设置。"
+L["ACCWUI_TAINTABLES_DESC_SHORT"] = "包含" .. WOWLABS_MAINLINE .. "特有的各种可同步设置，只能手动保存或加载"
+L["ACCWUI_TAINTABLES_SETTINGSLOADED"] = "设置已加载。"
+L["ACCWUI_TAINTABLES_ACTIONBARLOADED"] = "动作条显示设置已更改。"
+L["ACCWUI_TAINTABLES_RELOADNOW"] = "你应该立即重载界面，以防止在战斗中发生任何界面污染问题。"
 L["ACCWUI_TAINTABLES_GROUPTITLE"] = "保存/加载设置"
 L["ACCWUI_TAINTABLES_BTN_LOADALL"] = "加载所有设置"
 L["ACCWUI_TAINTABLES_BTN_LOADALL_DESC"] = "加载此选项卡中所有可用的设置。需要重新加载界面。"
