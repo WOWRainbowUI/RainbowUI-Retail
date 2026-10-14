@@ -1,6 +1,6 @@
-## Interface: 120100, 16001
+## Interface: 120100, 120105, 16001
 ## Title: Coolinator
-## Version: 156
+## Version: 157
 ## Author: plusmouse
 ## OptionalDeps: Masque
 ## SavedVariables: COOLINATOR_CONFIG
@@ -29,8 +29,6 @@ Locales.lua
 
 Core/Objects.lua
 Core/Locales.lua
-Core/Constants.lua
-Core/Config.lua
 
 Data/Forever/Druid.lua [AllowLoadGameType camelot][ExcludeLoadGameType standard]
 Data/Forever/Hunter.lua [AllowLoadGameType camelot][ExcludeLoadGameType standard]
@@ -41,6 +39,9 @@ Data/Forever/Rogue.lua [AllowLoadGameType camelot][ExcludeLoadGameType standard]
 Data/Forever/Shaman.lua [AllowLoadGameType camelot][ExcludeLoadGameType standard]
 Data/Forever/Warlock.lua [AllowLoadGameType camelot][ExcludeLoadGameType standard]
 Data/Forever/Warrior.lua [AllowLoadGameType camelot][ExcludeLoadGameType standard]
+
+Core/Constants.lua
+Core/Config.lua
 
 Core/Utilities.lua
 Core/Dialogs.lua

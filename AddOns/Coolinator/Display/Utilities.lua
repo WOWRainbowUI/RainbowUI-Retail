@@ -341,6 +341,14 @@ do
   local queued
   local indexes = {}
 
+  local function ApplySpellRanks(target, spellID, index)
+    if addonTable.Constants.IsForever and addonTable.Constants.TotemsRankMapping[spellID] then
+      for _, altSpellID in pairs(addonTable.Constants.TotemsRankMapping[spellID]) do
+        target[altSpellID] = index
+      end
+    end
+  end
+
   totemMonitor:SetScript("OnEvent", function(_, eventName, ...)
     if eventName == "UNIT_SPELLCAST_SUCCEEDED" then
       local _, _, spellID = ...
@@ -373,6 +381,7 @@ do
           if GetTotemDuration(index) ~= nil then
             if queued then
               spellIDToIndex[queued] = index
+              ApplySpellRanks(spellIDToIndex, queued, index)
               queued = addonTable.Constants.TotemSequenceOverrides[queued]
             elseif addonTable.Constants.ProcTotems[class] then
               spellIDToIndex[addonTable.Constants.ProcTotems[class]] = index
@@ -390,6 +399,7 @@ do
           return
         elseif spellID then
           tmp[spellID] = i
+          ApplySpellRanks(tmp, spellID, i)
         end
       end
       spellIDToIndex = tmp

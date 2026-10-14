@@ -608,9 +608,13 @@ L["LOCATION"] = "Location"
 --[[Translation missing --]]
 L["MAELSTROM_WEAPON"] = "Maelstrom Weapon"
 --[[Translation missing --]]
+L["MAIN_HAND"] = "Main Hand"
+--[[Translation missing --]]
 L["MAKE_NEW"] = "Make new"
 --[[Translation missing --]]
 L["MARCHING_ANTS_GLOW"] = "Marching Ants Glow"
+--[[Translation missing --]]
+L["MAX"] = "Max"
 --[[Translation missing --]]
 L["MISSING_DESIGN_X"] = "Missing design \"%s\""
 --[[Translation missing --]]
@@ -640,9 +644,15 @@ L["NOTHING"] = "Nothing"
 --[[Translation missing --]]
 L["NOTHING_IN_SLOT"] = "Nothing in slot"
 --[[Translation missing --]]
+L["NUMBER_PAD_X"] = "N%s"
+--[[Translation missing --]]
+L["OFF_HAND"] = "Off Hand"
+--[[Translation missing --]]
 L["OFF_MOUNT"] = "Off Mount"
 --[[Translation missing --]]
 L["ON_MOUNT"] = "On Mount"
+--[[Translation missing --]]
+L["ONLY_SHOW_FOR_AURAS_FROM_YOU"] = "Only show for auras from you"
 --[[Translation missing --]]
 L["OPEN_OPTIONS"] = "Open Options"
 --[[Translation missing --]]
@@ -678,6 +688,8 @@ L["RAID"] = "Raid"
 --[[Translation missing --]]
 L["RANGE_CHECKING"] = "Range checking"
 --[[Translation missing --]]
+L["RANGED"] = "Ranged"
+--[[Translation missing --]]
 L["READY_BORDER_COLOR"] = "Ready border color"
 --[[Translation missing --]]
 L["READY_FOREGROUND_COLOR"] = "Ready foreground color"
@@ -695,6 +707,8 @@ L["REVERSE"] = "Reverse"
 L["REVERSE_GLOW"] = "Reverse glow"
 --[[Translation missing --]]
 L["RIGHT"] = "Right"
+--[[Translation missing --]]
+L["ROTATE"] = "Rotate"
 --[[Translation missing --]]
 L["SAFE"] = "Safe"
 --[[Translation missing --]]
@@ -758,6 +772,8 @@ L["SPACER"] = "Spacer"
 --[[Translation missing --]]
 L["SPEC_MISMATCH_IN_BLIZZARD_CDM"] = "Specialization data mismatch in Blizzard CDM"
 --[[Translation missing --]]
+L["SPELL_RANK"] = "Spell rank"
+--[[Translation missing --]]
 L["SQUARE"] = "Square"
 --[[Translation missing --]]
 L["STACK"] = "Stack"
@@ -771,6 +787,8 @@ L["START"] = "Start"
 L["STATIC_GLOW"] = "Static Glow"
 --[[Translation missing --]]
 L["STYLE"] = "Style"
+--[[Translation missing --]]
+L["SWING"] = "Swing"
 --[[Translation missing --]]
 L["SWIPE_COLOR"] = "Swipe color"
 --[[Translation missing --]]
@@ -1054,9 +1072,13 @@ L["LOCATION"] = "Location"
 --[[Translation missing --]]
 L["MAELSTROM_WEAPON"] = "Maelstrom Weapon"
 --[[Translation missing --]]
+L["MAIN_HAND"] = "Main Hand"
+--[[Translation missing --]]
 L["MAKE_NEW"] = "Make new"
 --[[Translation missing --]]
 L["MARCHING_ANTS_GLOW"] = "Marching Ants Glow"
+--[[Translation missing --]]
+L["MAX"] = "Max"
 --[[Translation missing --]]
 L["MISSING_DESIGN_X"] = "Missing design \"%s\""
 --[[Translation missing --]]
@@ -1086,9 +1108,15 @@ L["NOTHING"] = "Nothing"
 --[[Translation missing --]]
 L["NOTHING_IN_SLOT"] = "Nothing in slot"
 --[[Translation missing --]]
+L["NUMBER_PAD_X"] = "N%s"
+--[[Translation missing --]]
+L["OFF_HAND"] = "Off Hand"
+--[[Translation missing --]]
 L["OFF_MOUNT"] = "Off Mount"
 --[[Translation missing --]]
 L["ON_MOUNT"] = "On Mount"
+--[[Translation missing --]]
+L["ONLY_SHOW_FOR_AURAS_FROM_YOU"] = "Only show for auras from you"
 --[[Translation missing --]]
 L["OPEN_OPTIONS"] = "Open Options"
 --[[Translation missing --]]
@@ -1124,6 +1152,8 @@ L["RAID"] = "Raid"
 --[[Translation missing --]]
 L["RANGE_CHECKING"] = "Range checking"
 --[[Translation missing --]]
+L["RANGED"] = "Ranged"
+--[[Translation missing --]]
 L["READY_BORDER_COLOR"] = "Ready border color"
 --[[Translation missing --]]
 L["READY_FOREGROUND_COLOR"] = "Ready foreground color"
@@ -1141,6 +1171,8 @@ L["REVERSE"] = "Reverse"
 L["REVERSE_GLOW"] = "Reverse glow"
 --[[Translation missing --]]
 L["RIGHT"] = "Right"
+--[[Translation missing --]]
+L["ROTATE"] = "Rotate"
 --[[Translation missing --]]
 L["SAFE"] = "Safe"
 --[[Translation missing --]]
@@ -1204,6 +1236,8 @@ L["SPACER"] = "Spacer"
 --[[Translation missing --]]
 L["SPEC_MISMATCH_IN_BLIZZARD_CDM"] = "Specialization data mismatch in Blizzard CDM"
 --[[Translation missing --]]
+L["SPELL_RANK"] = "Spell rank"
+--[[Translation missing --]]
 L["SQUARE"] = "Square"
 --[[Translation missing --]]
 L["STACK"] = "Stack"
@@ -1217,6 +1251,8 @@ L["START"] = "Start"
 L["STATIC_GLOW"] = "Static Glow"
 --[[Translation missing --]]
 L["STYLE"] = "Style"
+--[[Translation missing --]]
+L["SWING"] = "Swing"
 --[[Translation missing --]]
 L["SWIPE_COLOR"] = "Swipe color"
 --[[Translation missing --]]
@@ -1438,8 +1474,10 @@ L["LEFT"] = "Слева"
 L["LINK"] = "Ссылка"
 L["LOCATION"] = "Местоположение"
 L["MAELSTROM_WEAPON"] = "Оружие водоворота"
+L["MAIN_HAND"] = "Главная рука"
 L["MAKE_NEW"] = "Создать новый"
 L["MARCHING_ANTS_GLOW"] = "Свечение \"марширующих муравьёв\""
+L["MAX"] = "Макс"
 L["MISSING_DESIGN_X"] = "Отсутствует дизайн \"%s\""
 L["MOUNT"] = "Транспорт"
 L["MOUSE_BUTTON_X"] = "M%s"
@@ -1454,8 +1492,11 @@ L["NONE"] = "Нет"
 L["NONE_SET"] = "Не установлено"
 L["NOTHING"] = "Ничего"
 L["NOTHING_IN_SLOT"] = "В слоте ничего нет"
+L["NUMBER_PAD_X"] = "№%s"
+L["OFF_HAND"] = "Нерабочая рука"
 L["OFF_MOUNT"] = "Без транспорта"
 L["ON_MOUNT"] = "На транспорте"
+L["ONLY_SHOW_FOR_AURAS_FROM_YOU"] = "Показывать только ваши ауры"
 L["OPEN_OPTIONS"] = "Открыть настройки"
 L["OPTIONS"] = "Настройки"
 L["OUT_OF_COMBAT"] = "Вне боя"
@@ -1473,6 +1514,7 @@ L["PROFILES"] = "Профили"
 L["PVP"] = "PvP"
 L["RAID"] = "Рейд"
 L["RANGE_CHECKING"] = "Проверка дальности"
+L["RANGED"] = "Выстраивать в ряд"
 L["READY_BORDER_COLOR"] = "Цвет рамки при готовности"
 L["READY_FOREGROUND_COLOR"] = "Цвет готовности переднего плана"
 L["REMAINING"] = "Оставшийся "
@@ -1482,6 +1524,7 @@ L["RESTED"] = "Отдых"
 L["REVERSE"] = "Реверс"
 L["REVERSE_GLOW"] = "Обратное свечение"
 L["RIGHT"] = "Справа"
+L["ROTATE"] = "Чередовать"
 L["SAFE"] = "Безопасный"
 L["SAFE_COLOR"] = "Безопасный цвет"
 L["SAFE_COLOR_FADED"] = "Блеклый безопасный цвет"
@@ -1513,6 +1556,7 @@ L["SLASH_RESET_HELP"] = "Сбросьте все настройки Coolinator �
 L["SLASH_UNKNOWN_COMMAND"] = "Неизвестная команда '%s'"
 L["SPACER"] = "Разделитель"
 L["SPEC_MISMATCH_IN_BLIZZARD_CDM"] = "Несоответствие данных о специализации в Blizzard CDM"
+L["SPELL_RANK"] = "Ранг заклинания"
 L["SQUARE"] = "Квадратный"
 L["STACK"] = "Стопка"
 L["STACKS_BAR"] = "Стаки (Бар)"
@@ -1520,6 +1564,7 @@ L["STACKS_PIPS"] = "Стаки (пипсы)"
 L["START"] = "Запустить"
 L["STATIC_GLOW"] = "Статическое свечение"
 L["STYLE"] = "Стиль"
+L["SWING"] = "Размах"
 L["SWIPE_COLOR"] = "Цвет взмаха"
 L["TARGET"] = "Цель"
 L["TEXTS"] = "Тексты"
@@ -1853,9 +1898,13 @@ L["LOCATION"] = "Location"
 --[[Translation missing --]]
 L["MAELSTROM_WEAPON"] = "Maelstrom Weapon"
 --[[Translation missing --]]
+L["MAIN_HAND"] = "Main Hand"
+--[[Translation missing --]]
 L["MAKE_NEW"] = "Make new"
 --[[Translation missing --]]
 L["MARCHING_ANTS_GLOW"] = "Marching Ants Glow"
+--[[Translation missing --]]
+L["MAX"] = "Max"
 --[[Translation missing --]]
 L["MISSING_DESIGN_X"] = "Missing design \"%s\""
 --[[Translation missing --]]
@@ -1885,9 +1934,15 @@ L["NOTHING"] = "Nothing"
 --[[Translation missing --]]
 L["NOTHING_IN_SLOT"] = "Nothing in slot"
 --[[Translation missing --]]
+L["NUMBER_PAD_X"] = "N%s"
+--[[Translation missing --]]
+L["OFF_HAND"] = "Off Hand"
+--[[Translation missing --]]
 L["OFF_MOUNT"] = "Off Mount"
 --[[Translation missing --]]
 L["ON_MOUNT"] = "On Mount"
+--[[Translation missing --]]
+L["ONLY_SHOW_FOR_AURAS_FROM_YOU"] = "Only show for auras from you"
 --[[Translation missing --]]
 L["OPEN_OPTIONS"] = "Open Options"
 --[[Translation missing --]]
@@ -1923,6 +1978,8 @@ L["RAID"] = "Raid"
 --[[Translation missing --]]
 L["RANGE_CHECKING"] = "Range checking"
 --[[Translation missing --]]
+L["RANGED"] = "Ranged"
+--[[Translation missing --]]
 L["READY_BORDER_COLOR"] = "Ready border color"
 --[[Translation missing --]]
 L["READY_FOREGROUND_COLOR"] = "Ready foreground color"
@@ -1940,6 +1997,8 @@ L["REVERSE"] = "Reverse"
 L["REVERSE_GLOW"] = "Reverse glow"
 --[[Translation missing --]]
 L["RIGHT"] = "Right"
+--[[Translation missing --]]
+L["ROTATE"] = "Rotate"
 --[[Translation missing --]]
 L["SAFE"] = "Safe"
 --[[Translation missing --]]
@@ -2003,6 +2062,8 @@ L["SPACER"] = "Spacer"
 --[[Translation missing --]]
 L["SPEC_MISMATCH_IN_BLIZZARD_CDM"] = "Specialization data mismatch in Blizzard CDM"
 --[[Translation missing --]]
+L["SPELL_RANK"] = "Spell rank"
+--[[Translation missing --]]
 L["SQUARE"] = "Square"
 --[[Translation missing --]]
 L["STACK"] = "Stack"
@@ -2016,6 +2077,8 @@ L["START"] = "Start"
 L["STATIC_GLOW"] = "Static Glow"
 --[[Translation missing --]]
 L["STYLE"] = "Style"
+--[[Translation missing --]]
+L["SWING"] = "Swing"
 --[[Translation missing --]]
 L["SWIPE_COLOR"] = "Swipe color"
 --[[Translation missing --]]
@@ -2386,9 +2449,13 @@ L["LOCATION"] = "Location"
 --[[Translation missing --]]
 L["MAELSTROM_WEAPON"] = "Maelstrom Weapon"
 --[[Translation missing --]]
+L["MAIN_HAND"] = "Main Hand"
+--[[Translation missing --]]
 L["MAKE_NEW"] = "Make new"
 --[[Translation missing --]]
 L["MARCHING_ANTS_GLOW"] = "Marching Ants Glow"
+--[[Translation missing --]]
+L["MAX"] = "Max"
 --[[Translation missing --]]
 L["MISSING_DESIGN_X"] = "Missing design \"%s\""
 --[[Translation missing --]]
@@ -2418,9 +2485,15 @@ L["NOTHING"] = "Nothing"
 --[[Translation missing --]]
 L["NOTHING_IN_SLOT"] = "Nothing in slot"
 --[[Translation missing --]]
+L["NUMBER_PAD_X"] = "N%s"
+--[[Translation missing --]]
+L["OFF_HAND"] = "Off Hand"
+--[[Translation missing --]]
 L["OFF_MOUNT"] = "Off Mount"
 --[[Translation missing --]]
 L["ON_MOUNT"] = "On Mount"
+--[[Translation missing --]]
+L["ONLY_SHOW_FOR_AURAS_FROM_YOU"] = "Only show for auras from you"
 --[[Translation missing --]]
 L["OPEN_OPTIONS"] = "Open Options"
 --[[Translation missing --]]
@@ -2456,6 +2529,8 @@ L["RAID"] = "Raid"
 --[[Translation missing --]]
 L["RANGE_CHECKING"] = "Range checking"
 --[[Translation missing --]]
+L["RANGED"] = "Ranged"
+--[[Translation missing --]]
 L["READY_BORDER_COLOR"] = "Ready border color"
 --[[Translation missing --]]
 L["READY_FOREGROUND_COLOR"] = "Ready foreground color"
@@ -2473,6 +2548,8 @@ L["REVERSE"] = "Reverse"
 L["REVERSE_GLOW"] = "Reverse glow"
 --[[Translation missing --]]
 L["RIGHT"] = "Right"
+--[[Translation missing --]]
+L["ROTATE"] = "Rotate"
 --[[Translation missing --]]
 L["SAFE"] = "Safe"
 --[[Translation missing --]]
@@ -2536,6 +2613,8 @@ L["SPACER"] = "Spacer"
 --[[Translation missing --]]
 L["SPEC_MISMATCH_IN_BLIZZARD_CDM"] = "Specialization data mismatch in Blizzard CDM"
 --[[Translation missing --]]
+L["SPELL_RANK"] = "Spell rank"
+--[[Translation missing --]]
 L["SQUARE"] = "Square"
 --[[Translation missing --]]
 L["STACK"] = "Stack"
@@ -2549,6 +2628,8 @@ L["START"] = "Start"
 L["STATIC_GLOW"] = "Static Glow"
 --[[Translation missing --]]
 L["STYLE"] = "Style"
+--[[Translation missing --]]
+L["SWING"] = "Swing"
 --[[Translation missing --]]
 L["SWIPE_COLOR"] = "Swipe color"
 --[[Translation missing --]]
@@ -2919,9 +3000,13 @@ L["LOCATION"] = "Location"
 --[[Translation missing --]]
 L["MAELSTROM_WEAPON"] = "Maelstrom Weapon"
 --[[Translation missing --]]
+L["MAIN_HAND"] = "Main Hand"
+--[[Translation missing --]]
 L["MAKE_NEW"] = "Make new"
 --[[Translation missing --]]
 L["MARCHING_ANTS_GLOW"] = "Marching Ants Glow"
+--[[Translation missing --]]
+L["MAX"] = "Max"
 --[[Translation missing --]]
 L["MISSING_DESIGN_X"] = "Missing design \"%s\""
 --[[Translation missing --]]
@@ -2951,9 +3036,15 @@ L["NOTHING"] = "Nothing"
 --[[Translation missing --]]
 L["NOTHING_IN_SLOT"] = "Nothing in slot"
 --[[Translation missing --]]
+L["NUMBER_PAD_X"] = "N%s"
+--[[Translation missing --]]
+L["OFF_HAND"] = "Off Hand"
+--[[Translation missing --]]
 L["OFF_MOUNT"] = "Off Mount"
 --[[Translation missing --]]
 L["ON_MOUNT"] = "On Mount"
+--[[Translation missing --]]
+L["ONLY_SHOW_FOR_AURAS_FROM_YOU"] = "Only show for auras from you"
 --[[Translation missing --]]
 L["OPEN_OPTIONS"] = "Open Options"
 --[[Translation missing --]]
@@ -2989,6 +3080,8 @@ L["RAID"] = "Raid"
 --[[Translation missing --]]
 L["RANGE_CHECKING"] = "Range checking"
 --[[Translation missing --]]
+L["RANGED"] = "Ranged"
+--[[Translation missing --]]
 L["READY_BORDER_COLOR"] = "Ready border color"
 --[[Translation missing --]]
 L["READY_FOREGROUND_COLOR"] = "Ready foreground color"
@@ -3006,6 +3099,8 @@ L["REVERSE"] = "Reverse"
 L["REVERSE_GLOW"] = "Reverse glow"
 --[[Translation missing --]]
 L["RIGHT"] = "Right"
+--[[Translation missing --]]
+L["ROTATE"] = "Rotate"
 --[[Translation missing --]]
 L["SAFE"] = "Safe"
 --[[Translation missing --]]
@@ -3069,6 +3164,8 @@ L["SPACER"] = "Spacer"
 --[[Translation missing --]]
 L["SPEC_MISMATCH_IN_BLIZZARD_CDM"] = "Specialization data mismatch in Blizzard CDM"
 --[[Translation missing --]]
+L["SPELL_RANK"] = "Spell rank"
+--[[Translation missing --]]
 L["SQUARE"] = "Square"
 --[[Translation missing --]]
 L["STACK"] = "Stack"
@@ -3082,6 +3179,8 @@ L["START"] = "Start"
 L["STATIC_GLOW"] = "Static Glow"
 --[[Translation missing --]]
 L["STYLE"] = "Style"
+--[[Translation missing --]]
+L["SWING"] = "Swing"
 --[[Translation missing --]]
 L["SWIPE_COLOR"] = "Swipe color"
 --[[Translation missing --]]
@@ -3164,11 +3263,9 @@ L["ABILITY_BAR"] = "技能量條"
 L["ABILITY_CHARGE"] = "技能充能"
 L["ABILITY_CHARGES"] = "技能充能層數"
 L["ACTION"] = "動作"
---[[Translation missing --]]
-L["ACTIVE"] = "Active"
+L["ACTIVE"] = "啟用"
 L["ADD"] = "新增"
---[[Translation missing --]]
-L["ADD_ID"] = "Add ID"
+L["ADD_ID"] = "新增 ID"
 L["ALIGN_X"] = "對齊%s"
 L["ALIGNMENT"] = "對齊方式"
 --[[Translation missing --]]
@@ -3178,12 +3275,9 @@ L["ARE_YOU_SURE_CLEAR_ANCHORS"] = "確認要清除定位點嗎？"
 L["AURA"] = "光環"
 L["AURA_BAR"] = "光環量條"
 L["AURA_BARS"] = "光環量條"
---[[Translation missing --]]
-L["AURA_MISSING"] = "Aura (missing)"
---[[Translation missing --]]
-L["AURA_STACK_PIP"] = "Aura Stack Pip"
---[[Translation missing --]]
-L["AURA_STACKS"] = "Aura Stacks"
+L["AURA_MISSING"] = "光環 (遺失)"
+L["AURA_STACK_PIP"] = "光環疊層點"
+L["AURA_STACKS"] = "光環疊層"
 L["AURAS"] = "光環"
 L["AUTO_SIZE"] = "自動縮放"
 L["BACKGROUND"] = "背景"
@@ -3199,8 +3293,7 @@ L["BOTTOM"] = "下方"
 L["BOTTOM_LEFT"] = "左下"
 L["BOTTOM_RIGHT"] = "右下"
 L["BY_PLUSMOUSE"] = "作者：plusmouse"
---[[Translation missing --]]
-L["CANNOT_CHANGE_DESIGN_DUE_TO_RESTRICTIONS"] = "Cannot change design due to restrictions"
+L["CANNOT_CHANGE_DESIGN_DUE_TO_RESTRICTIONS"] = "由於限制無法變更設計"
 L["CAST"] = "施法"
 L["CAST_BAR"] = "施法條"
 L["CASTING"] = "施放中"
@@ -3244,8 +3337,7 @@ L["DANGER_COLOR_FADED"] = "危險顏色（淡）"
 L["DEFAULT"] = "預設值"
 L["DELETE"] = "刪除"
 L["DELVE"] = "探究"
---[[Translation missing --]]
-L["DESATURATE"] = "Desaturate"
+L["DESATURATE"] = "褪色變灰"
 L["DESATURATE_ON_COOLDOWN"] = "冷卻時變灰 "
 L["DESIGN"] = "設計"
 L["DESIGNER"] = "設計模式"
@@ -3276,15 +3368,13 @@ L["EXPORT"] = "匯出"
 L["FADE"] = "淡出"
 L["FADE_OUT_OF_COMBAT"] = "非戰鬥時淡出"
 L["FADE_WHEN_MOUNTED"] = "騎乘坐騎時淡出"
---[[Translation missing --]]
-L["FLASH_GLOW"] = "Flash Glow"
+L["FLASH_GLOW"] = "閃爍發光"
 L["FONT"] = "字型"
 L["FONT_SIZE"] = "字型大小"
 L["FOREGROUND"] = "前景"
 L["FOREGROUND_COLOR"] = "前景顏色"
 L["GENERAL"] = "一般"
---[[Translation missing --]]
-L["GLOW_COLOR"] = "Glow color"
+L["GLOW_COLOR"] = "發光顏色"
 L["GROUP"] = "群組"
 L["GROW_FROM"] = "增長方向"
 L["HAS_TARGET"] = "有目標時"
@@ -3302,8 +3392,7 @@ L["HORIZONTAL"] = "水平"
 L["ICICLES"] = "冰柱"
 L["ICON"] = "圖示"
 L["ICON_POSITION"] = "圖示位置"
---[[Translation missing --]]
-L["ICON_WHEN_MISSING"] = "Icon (when missing)"
+L["ICON_WHEN_MISSING"] = "圖示 (遺失時)"
 L["IMPORT"] = "匯入"
 L["IMPORTED_X"] = "已匯入\"%s\""
 L["IN_COMBAT"] = "戰鬥中"
@@ -3321,11 +3410,12 @@ L["LEFT"] = "左"
 L["LINK"] = "連結"
 L["LOCATION"] = "位置"
 L["MAELSTROM_WEAPON"] = "漩渦武器"
+L["MAIN_HAND"] = "主手"
 L["MAKE_NEW"] = "新建"
+L["MARCHING_ANTS_GLOW"] = "虛線發光"
 --[[Translation missing --]]
-L["MARCHING_ANTS_GLOW"] = "Marching Ants Glow"
---[[Translation missing --]]
-L["MISSING_DESIGN_X"] = "Missing design \"%s\""
+L["MAX"] = "Max"
+L["MISSING_DESIGN_X"] = "\"%s\" 設計不存在"
 L["MOUNT"] = "坐騎"
 L["MOUSE_BUTTON_X"] = "M%s"
 L["NAME"] = "名稱"
@@ -3342,8 +3432,12 @@ L["NONE_SET"] = "未設定"
 --[[Translation missing --]]
 L["NOTHING"] = "Nothing"
 L["NOTHING_IN_SLOT"] = "格子為空"
+--[[Translation missing --]]
+L["NUMBER_PAD_X"] = "N%s"
+L["OFF_HAND"] = "副手"
 L["OFF_MOUNT"] = "不在坐騎上"
 L["ON_MOUNT"] = "騎乘坐騎中"
+L["ONLY_SHOW_FOR_AURAS_FROM_YOU"] = "僅顯示來自你的光環"
 L["OPEN_OPTIONS"] = "打開選項"
 L["OPTIONS"] = "選項"
 L["OUT_OF_COMBAT"] = "非戰鬥時"
@@ -3352,8 +3446,7 @@ L["OVERWRITE_CURRENT_PROFILE"] = "覆寫目前的設定？"
 L["PADDING"] = "間距"
 L["PARENT"] = "上層"
 L["PASTE_YOUR_IMPORT_STRING_HERE"] = "在這裡貼上您的匯入字串"
---[[Translation missing --]]
-L["PIXEL_GLOW"] = "Pixel Glow"
+L["PIXEL_GLOW"] = "像素發光"
 L["PLEASE_RELOAD_TO_GET_COOLINATOR_WORKING_REASON_X"] = "請重載您的介面以確保 Coolinator 順利運行。理由：(%s)"
 L["POTION_EFFECT"] = "藥水效果"
 L["PRESET"] = "預設"
@@ -3363,17 +3456,19 @@ L["PVP"] = "PvP"
 L["RAID"] = "團隊副本"
 --[[Translation missing --]]
 L["RANGE_CHECKING"] = "Range checking"
+--[[Translation missing --]]
+L["RANGED"] = "Ranged"
 L["READY_BORDER_COLOR"] = "準備就緒的邊框顏色"
 L["READY_FOREGROUND_COLOR"] = "準備就緒的前景顏色"
 L["REMAINING"] = "剩餘"
 L["REMOVE_SPACING_FOR_HIDDEN_ICONS"] = "圖示隱藏時不佔位"
 L["RESET_SAVED_ANCHORS"] = "重置已儲存的定位點"
---[[Translation missing --]]
-L["RESTED"] = "Rested"
+L["RESTED"] = "休息狀態"
 L["REVERSE"] = "反轉"
---[[Translation missing --]]
-L["REVERSE_GLOW"] = "Reverse glow"
+L["REVERSE_GLOW"] = "反向發光"
 L["RIGHT"] = "右"
+--[[Translation missing --]]
+L["ROTATE"] = "Rotate"
 L["SAFE"] = "安全"
 L["SAFE_COLOR"] = "安全顏色"
 L["SAFE_COLOR_FADED"] = "安全顏色（淡）"
@@ -3394,10 +3489,8 @@ L["SHOW_SWIPE"] = "顯示過渡動畫"
 L["SHOW_TOOLTIPS"] = "顯示提示訊息"
 L["SITUATION"] = "狀態"
 L["SKYRIDING_ZONE"] = "天空騎術區域"
---[[Translation missing --]]
-L["SLASH_CHANGE_DESIGN"] = "changedesign"
---[[Translation missing --]]
-L["SLASH_CHANGE_DESIGN_HELP"] = "Change currently used design to the name specified"
+L["SLASH_CHANGE_DESIGN"] = "變更設計"
+L["SLASH_CHANGE_DESIGN_HELP"] = "將目前使用的設計變更為指定名稱"
 L["SLASH_DESIGN"] = "設計"
 L["SLASH_DESIGN_HELP"] = "進入/退出 Coolinator 設計模式"
 L["SLASH_HELP"] = "打開 Coolinator 設定。"
@@ -3409,16 +3502,16 @@ L["SLASH_UNKNOWN_COMMAND"] = "未知指令 '%s'"
 --[[Translation missing --]]
 L["SPACER"] = "Spacer"
 L["SPEC_MISMATCH_IN_BLIZZARD_CDM"] = "暴雪冷卻管理器中的專精資料不符"
+L["SPELL_RANK"] = "法術等級"
 L["SQUARE"] = "方形"
 L["STACK"] = "疊層 "
---[[Translation missing --]]
-L["STACKS_BAR"] = "Stacks (Bar)"
---[[Translation missing --]]
-L["STACKS_PIPS"] = "Stacks (Pips)"
+L["STACKS_BAR"] = "疊層 (條狀)"
+L["STACKS_PIPS"] = "疊層 (點狀)"
 L["START"] = "起始"
---[[Translation missing --]]
-L["STATIC_GLOW"] = "Static Glow"
+L["STATIC_GLOW"] = "靜態發光"
 L["STYLE"] = "樣式"
+--[[Translation missing --]]
+L["SWING"] = "Swing"
 L["SWIPE_COLOR"] = "過渡動畫顏色"
 L["TARGET"] = "目標"
 L["TEXTS"] = "文字"
@@ -3438,8 +3531,7 @@ L["UNINTERRUPTABLE"] = "無法中斷"
 L["UNLEARNED"] = "未習得"
 L["USE_BLIZZARD_WIDGETS"] = "使用暴雪元件（無樣式）"
 L["USE_MASQUE"] = "使用 Masque"
---[[Translation missing --]]
-L["USE_PERCENTAGE"] = "Use percentage"
+L["USE_PERCENTAGE"] = "使用百分比"
 L["UTILITY"] = "通用"
 L["VALUE"] = "數值"
 L["VERSION_COLON_X"] = "版本：%s"
@@ -3450,14 +3542,10 @@ L["WARNING"] = "警告"
 L["WARNING_COLOR"] = "警告顏色"
 L["WARNING_COLOR_FADED"] = "警告顏色（淡）"
 L["WHAT_TO_EXPORT"] = "匯出什麼？"
---[[Translation missing --]]
-L["WHEN_ACTIVE"] = "When active"
---[[Translation missing --]]
-L["WHEN_INACTIVE"] = "When inactive"
---[[Translation missing --]]
-L["WHEN_ON_COOLDOWN"] = "When on cooldown"
---[[Translation missing --]]
-L["WHEN_READY"] = "When ready"
+L["WHEN_ACTIVE"] = "當啟用時"
+L["WHEN_INACTIVE"] = "當未啟用時"
+L["WHEN_ON_COOLDOWN"] = "當冷缺中時"
+L["WHEN_READY"] = "準備就緒時"
 L["WIDTH"] = "寬度"
 L["WIDTH_RESTRICTION"] = "寬度限制"
 L["WORLD"] = "世界"
@@ -3610,8 +3698,12 @@ L["LEFT"] = "左"
 L["LINK"] = "链接"
 L["LOCATION"] = "位置"
 L["MAELSTROM_WEAPON"] = "漩涡武器"
+--[[Translation missing --]]
+L["MAIN_HAND"] = "Main Hand"
 L["MAKE_NEW"] = "新建"
 L["MARCHING_ANTS_GLOW"] = "行军蚁发光"
+--[[Translation missing --]]
+L["MAX"] = "Max"
 L["MISSING_DESIGN_X"] = "缺少设计“%s”"
 L["MOUNT"] = "坐骑"
 L["MOUSE_BUTTON_X"] = "M%s"
@@ -3626,8 +3718,14 @@ L["NONE"] = "无"
 L["NONE_SET"] = "未设置"
 L["NOTHING"] = "无"
 L["NOTHING_IN_SLOT"] = "格子为空"
+--[[Translation missing --]]
+L["NUMBER_PAD_X"] = "N%s"
+--[[Translation missing --]]
+L["OFF_HAND"] = "Off Hand"
 L["OFF_MOUNT"] = "非骑乘"
 L["ON_MOUNT"] = "骑乘中"
+--[[Translation missing --]]
+L["ONLY_SHOW_FOR_AURAS_FROM_YOU"] = "Only show for auras from you"
 L["OPEN_OPTIONS"] = "打开设置"
 L["OPTIONS"] = "设置"
 L["OUT_OF_COMBAT"] = "非战斗"
@@ -3645,6 +3743,8 @@ L["PROFILES"] = "配置"
 L["PVP"] = "PvP"
 L["RAID"] = "团队"
 L["RANGE_CHECKING"] = "距离检测"
+--[[Translation missing --]]
+L["RANGED"] = "Ranged"
 L["READY_BORDER_COLOR"] = "就绪边框颜色"
 L["READY_FOREGROUND_COLOR"] = "就绪前景色"
 L["REMAINING"] = "剩余"
@@ -3654,6 +3754,8 @@ L["RESTED"] = "休息状态"
 L["REVERSE"] = "反向"
 L["REVERSE_GLOW"] = "反向发光"
 L["RIGHT"] = "右"
+--[[Translation missing --]]
+L["ROTATE"] = "Rotate"
 L["SAFE"] = "安全"
 L["SAFE_COLOR"] = "安全颜色"
 L["SAFE_COLOR_FADED"] = "安全颜色（淡化）"
@@ -3685,6 +3787,8 @@ L["SLASH_RESET_HELP"] = "重置所有 Coolinator 设置，然后重载。"
 L["SLASH_UNKNOWN_COMMAND"] = "未知命令 “%s”"
 L["SPACER"] = "间隔"
 L["SPEC_MISMATCH_IN_BLIZZARD_CDM"] = "暴雪冷却管理器中专精数据不匹配"
+--[[Translation missing --]]
+L["SPELL_RANK"] = "Spell rank"
 L["SQUARE"] = "方形"
 L["STACK"] = "堆叠"
 L["STACKS_BAR"] = "层数（条）"
@@ -3692,6 +3796,8 @@ L["STACKS_PIPS"] = "层数（光点）"
 L["START"] = "开始"
 L["STATIC_GLOW"] = "静态发光"
 L["STYLE"] = "样式"
+--[[Translation missing --]]
+L["SWING"] = "Swing"
 L["SWIPE_COLOR"] = "滑动颜色"
 L["TARGET"] = "目标"
 L["TEXTS"] = "文本"
@@ -3878,8 +3984,12 @@ L["LEFT"] = "왼쪽"
 L["LINK"] = "링크"
 L["LOCATION"] = "위치"
 L["MAELSTROM_WEAPON"] = "소용돌이 치는 무기"
+--[[Translation missing --]]
+L["MAIN_HAND"] = "Main Hand"
 L["MAKE_NEW"] = "새로 만들기"
 L["MARCHING_ANTS_GLOW"] = "움직이는 점선 강조"
+--[[Translation missing --]]
+L["MAX"] = "Max"
 L["MISSING_DESIGN_X"] = "\"%s\" 디자인이 없습니다."
 L["MOUNT"] = "탑승"
 L["MOUSE_BUTTON_X"] = "M%s"
@@ -3894,8 +4004,14 @@ L["NONE"] = "없음"
 L["NONE_SET"] = "미설정"
 L["NOTHING"] = "없음"
 L["NOTHING_IN_SLOT"] = "슬롯 비어 있음"
+--[[Translation missing --]]
+L["NUMBER_PAD_X"] = "N%s"
+--[[Translation missing --]]
+L["OFF_HAND"] = "Off Hand"
 L["OFF_MOUNT"] = "탈것 하차"
 L["ON_MOUNT"] = "탑승중"
+--[[Translation missing --]]
+L["ONLY_SHOW_FOR_AURAS_FROM_YOU"] = "Only show for auras from you"
 L["OPEN_OPTIONS"] = "설정 열기"
 L["OPTIONS"] = "설정"
 L["OUT_OF_COMBAT"] = "전투에서 벗어남"
@@ -3913,6 +4029,8 @@ L["PROFILES"] = "프로필"
 L["PVP"] = "PvP"
 L["RAID"] = "레이드"
 L["RANGE_CHECKING"] = "거리 확인"
+--[[Translation missing --]]
+L["RANGED"] = "Ranged"
 L["READY_BORDER_COLOR"] = "준비상태 테두리 색상"
 L["READY_FOREGROUND_COLOR"] = "대기상태 전경 색상"
 L["REMAINING"] = "남은시간"
@@ -3923,6 +4041,8 @@ L["RESTED"] = "Rested"
 L["REVERSE"] = "반전"
 L["REVERSE_GLOW"] = "강조 반전"
 L["RIGHT"] = "오른쪽"
+--[[Translation missing --]]
+L["ROTATE"] = "Rotate"
 L["SAFE"] = "안전"
 L["SAFE_COLOR"] = "안전 색상"
 L["SAFE_COLOR_FADED"] = "안전 색상 (흐림)"
@@ -3957,6 +4077,8 @@ L["SLASH_RESET_HELP"] = "모든 Coolinator 설정을 초기화한 뒤 다시 불
 L["SLASH_UNKNOWN_COMMAND"] = "알 수 없는 명령어 '%s'"
 L["SPACER"] = "공백추가"
 L["SPEC_MISMATCH_IN_BLIZZARD_CDM"] = "블리자드 CDM의 전문화 데이터 불일치"
+--[[Translation missing --]]
+L["SPELL_RANK"] = "Spell rank"
 L["SQUARE"] = "사각형"
 L["STACK"] = "중첩"
 L["STACKS_BAR"] = "스택 (바)"
@@ -3965,6 +4087,8 @@ L["START"] = "시작"
 --[[Translation missing --]]
 L["STATIC_GLOW"] = "Static Glow"
 L["STYLE"] = "스타일"
+--[[Translation missing --]]
+L["SWING"] = "Swing"
 L["SWIPE_COLOR"] = "효과 색상"
 L["TARGET"] = "대상"
 L["TEXTS"] = "텍스트"
@@ -4298,9 +4422,13 @@ L["LOCATION"] = "Location"
 --[[Translation missing --]]
 L["MAELSTROM_WEAPON"] = "Maelstrom Weapon"
 --[[Translation missing --]]
+L["MAIN_HAND"] = "Main Hand"
+--[[Translation missing --]]
 L["MAKE_NEW"] = "Make new"
 --[[Translation missing --]]
 L["MARCHING_ANTS_GLOW"] = "Marching Ants Glow"
+--[[Translation missing --]]
+L["MAX"] = "Max"
 --[[Translation missing --]]
 L["MISSING_DESIGN_X"] = "Missing design \"%s\""
 --[[Translation missing --]]
@@ -4330,9 +4458,15 @@ L["NOTHING"] = "Nothing"
 --[[Translation missing --]]
 L["NOTHING_IN_SLOT"] = "Nothing in slot"
 --[[Translation missing --]]
+L["NUMBER_PAD_X"] = "N%s"
+--[[Translation missing --]]
+L["OFF_HAND"] = "Off Hand"
+--[[Translation missing --]]
 L["OFF_MOUNT"] = "Off Mount"
 --[[Translation missing --]]
 L["ON_MOUNT"] = "On Mount"
+--[[Translation missing --]]
+L["ONLY_SHOW_FOR_AURAS_FROM_YOU"] = "Only show for auras from you"
 --[[Translation missing --]]
 L["OPEN_OPTIONS"] = "Open Options"
 --[[Translation missing --]]
@@ -4368,6 +4502,8 @@ L["RAID"] = "Raid"
 --[[Translation missing --]]
 L["RANGE_CHECKING"] = "Range checking"
 --[[Translation missing --]]
+L["RANGED"] = "Ranged"
+--[[Translation missing --]]
 L["READY_BORDER_COLOR"] = "Ready border color"
 --[[Translation missing --]]
 L["READY_FOREGROUND_COLOR"] = "Ready foreground color"
@@ -4385,6 +4521,8 @@ L["REVERSE"] = "Reverse"
 L["REVERSE_GLOW"] = "Reverse glow"
 --[[Translation missing --]]
 L["RIGHT"] = "Right"
+--[[Translation missing --]]
+L["ROTATE"] = "Rotate"
 --[[Translation missing --]]
 L["SAFE"] = "Safe"
 --[[Translation missing --]]
@@ -4448,6 +4586,8 @@ L["SPACER"] = "Spacer"
 --[[Translation missing --]]
 L["SPEC_MISMATCH_IN_BLIZZARD_CDM"] = "Specialization data mismatch in Blizzard CDM"
 --[[Translation missing --]]
+L["SPELL_RANK"] = "Spell rank"
+--[[Translation missing --]]
 L["SQUARE"] = "Square"
 --[[Translation missing --]]
 L["STACK"] = "Stack"
@@ -4461,6 +4601,8 @@ L["START"] = "Start"
 L["STATIC_GLOW"] = "Static Glow"
 --[[Translation missing --]]
 L["STYLE"] = "Style"
+--[[Translation missing --]]
+L["SWING"] = "Swing"
 --[[Translation missing --]]
 L["SWIPE_COLOR"] = "Swipe color"
 --[[Translation missing --]]

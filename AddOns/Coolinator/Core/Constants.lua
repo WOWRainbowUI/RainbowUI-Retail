@@ -36,10 +36,6 @@ addonTable.Constants.Events = {
   "SettingChanged",
   "RefreshStateChange",
 
-  "AuraBarsChanged",
-  "MissingCDMWidgets",
-  "CDMUpdating",
-
   "Layout",
   "Update.SpellIcons",
   "Update.KeyBindings",
@@ -274,36 +270,52 @@ addonTable.Constants.PushedItemIcons = {
   [538745] = true, -- Healthstone
 }
 
-addonTable.Constants.Totems = {
-  --Shaman
-  [2484] = 0, -- Earthbind
-  [5394] = 0, -- Healing Stream
-  [8143] = 0, -- Tremor
-  [383013] = 0, -- Poison Cleansing
-  [51485] = 0, -- Earthgrab
-  [192058] = 0, -- Capacitor
-  [192077] = 0, -- Wind Rush
-  [98008] = 0, -- Spirit Link
-  [108280] = 0, -- Healing Tide
-  [444995] = 0, -- Surging
-  [198103] = 0, -- Earth Elemental
-  [188592] = 114050, -- Fire Elemental (Ascendance)
-  [191717] = 191634, -- Storm Elemental (Stormkeeper)
-  -- Warlock
-  [1251781] = 0, -- Vilefiend (sequenced)
-  [104316] = 0, -- Dreadstalkers
-  [265187] = 0, -- Demonic Tyrant
-  [205180] = 0, -- Darkglare
-  [1122] = 0, -- Infernal
-  -- Priest
-  [34433] = 0, -- Shadowfiend
-  -- Paladin
-  [26573] = 0, -- Consecration
-  -- Monk
-  [132578] = 0, -- Invoke Niuzao, the Black Ox
-  [325197] = 0, -- Invoke Chi-Ji the Red Crane
-  [322118] = 0, -- Invoke Yu'lon the Jade Serpent
-}
+if addonTable.Constants.IsRetail then
+  addonTable.Constants.Totems = {
+    --Shaman
+    [2484] = 0, -- Earthbind
+    [5394] = 0, -- Healing Stream
+    [8143] = 0, -- Tremor
+    [383013] = 0, -- Poison Cleansing
+    [51485] = 0, -- Earthgrab
+    [192058] = 0, -- Capacitor
+    [192077] = 0, -- Wind Rush
+    [98008] = 0, -- Spirit Link
+    [108280] = 0, -- Healing Tide
+    [444995] = 0, -- Surging
+    [198103] = 0, -- Earth Elemental
+    [188592] = 114050, -- Fire Elemental (Ascendance)
+    [191717] = 191634, -- Storm Elemental (Stormkeeper)
+    -- Warlock
+    [1251781] = 0, -- Vilefiend (sequenced)
+    [104316] = 0, -- Dreadstalkers
+    [265187] = 0, -- Demonic Tyrant
+    [205180] = 0, -- Darkglare
+    [1122] = 0, -- Infernal
+    -- Priest
+    [34433] = 0, -- Shadowfiend
+    -- Paladin
+    [26573] = 0, -- Consecration
+    -- Monk
+    [132578] = 0, -- Invoke Niuzao, the Black Ox
+    [325197] = 0, -- Invoke Chi-Ji the Red Crane
+    [322118] = 0, -- Invoke Yu'lon the Jade Serpent
+  }
+elseif addonTable.Constants.IsForever then
+  addonTable.Constants.Totems = {}
+  addonTable.Constants.TotemsRankMapping = {}
+
+  if UnitClassBase("player") == "SHAMAN" then
+    for _, details in ipairs(addonTable.Data.Spells.SHAMAN) do
+      if details.name:match(" Totem$") then
+        for _, spellID in pairs(details.spells) do
+          addonTable.Constants.Totems[spellID] = 0
+          addonTable.Constants.TotemsRankMapping[spellID] = details.spells
+        end
+      end
+    end
+  end
+end
 
 addonTable.Constants.TotemTalentOverrides = {
   [114050] = { -- Primal Fire Elemental

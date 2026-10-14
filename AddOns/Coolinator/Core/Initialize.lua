@@ -65,7 +65,6 @@ function addonTable.Core.Initialize()
 end
 
 local function TriggerUpdate()
-  addonTable.CallbackRegistry:TriggerEvent("CDMUpdating", true)
   addonTable.CurrentNumberFont = addonTable.Core.GetFont()
 
   addonTable.Core.AutoGenerateLayout()
@@ -76,7 +75,6 @@ local function TriggerUpdate()
     addonTable.Core.ApplyPresets(layout)
     addonTable.State.CDM = {auraMap = addonTable.Core.GetCDMMappingAuras()}
     addonTable.State.Bindings = addonTable.Core.StoreKeyBindings()
-    addonTable.CallbackRegistry:TriggerEvent("CDMUpdating", false)
     addonTable.CallbackRegistry:TriggerEvent("Layout")
     addonTable.CallbackRegistry:TriggerEvent("Designer.Layout")
   end

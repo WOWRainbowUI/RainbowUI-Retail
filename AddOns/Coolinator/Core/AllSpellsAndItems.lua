@@ -5,10 +5,10 @@ function addonTable.Core.GetSpellFromCDMInfo(info)
   return info.overrideTooltipSpellID or info.overrideSpellID or info.spellID
 end
 
-function addonTable.Core.GetAllAuras()
-  local result = {}
+if addonTable.Constants.IsRetail then
+  function addonTable.Core.GetAllAuras()
+    local result = {}
 
-  if C_CooldownViewer then
     local auraTracked = C_CooldownViewer.GetCooldownViewerCategorySet(Enum.CooldownViewerCategory.TrackedBuff, true)
     local auraBars = C_CooldownViewer.GetCooldownViewerCategorySet(Enum.CooldownViewerCategory.TrackedBar, true)
 
@@ -18,9 +18,49 @@ function addonTable.Core.GetAllAuras()
     for _, aura in ipairs(auraBars) do
       table.insert(result, addonTable.Core.GetSpellFromCDMInfo(C_CooldownViewer.GetCooldownViewerCooldownInfo(aura)))
     end
-  end
 
-  return result
+    return result
+  end
+elseif addonTable.Constants.IsForever then
+  function addonTable.Core.GetAllAuras()
+    local result = {}
+    local seen = {}
+
+    for _, entry in ipairs(addonTable.Data.Spells[UnitClassBase("player")]) do
+      for _, spellID in ipairs(entry.spells) do
+        seen[spellID] = true
+      end
+      local spellID = entry.spells[#entry.spells]
+      seen[spellID] = nil
+    end
+
+    local auraTracked = C_CooldownViewer.GetCooldownViewerCategorySet(Enum.CooldownViewerCategory.TrackedBuff, true)
+    local auraBars = C_CooldownViewer.GetCooldownViewerCategorySet(Enum.CooldownViewerCategory.TrackedBar, true)
+
+    for _, aura in ipairs(auraTracked) do
+      local spellID = addonTable.Core.GetSpellFromCDMInfo(C_CooldownViewer.GetCooldownViewerCooldownInfo(aura))
+      if spellID and not seen[spellID] then
+        table.insert(result, spellID)
+        seen[spellID] = true
+      end
+    end
+    for _, aura in ipairs(auraBars) do
+      local spellID = addonTable.Core.GetSpellFromCDMInfo(C_CooldownViewer.GetCooldownViewerCooldownInfo(aura))
+      if spellID and not seen[spellID] then
+        table.insert(result, spellID)
+        seen[spellID] = true
+      end
+    end
+
+    for spellID in pairs(addonTable.Constants.Totems) do
+      if not seen[spellID] then
+        table.insert(result, spellID)
+        seen[spellID] = true
+      end
+    end
+
+    return result
+  end
 end
 
 local pandaRacial = 107079
@@ -49,9 +89,6 @@ end
 
 local function GetCDMAbilities(seen)
   local result = {}
-  if not C_CooldownViewer then
-    return result
-  end
 
   local function AutoIncludeBase(spellID)
     local base = C_Spell.GetBaseSpell(spellID)
