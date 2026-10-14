@@ -1,9 +1,5 @@
-<<<<<<< HEAD
 ## Dependencies: Ace3
-## Interface: 120100, 16001, 50504, 38001, 20506, 11509
-=======
 ## Interface: 120100, 120105, 16001, 50504, 38001, 20506, 11509
->>>>>>> c2c12c4ca (更新 Chattynator 227)
 ## Title: Chattynator
 ## Version: 227
 ## Author: plusmouse
