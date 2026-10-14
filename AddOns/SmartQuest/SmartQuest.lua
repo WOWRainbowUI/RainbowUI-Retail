@@ -433,7 +433,7 @@ end
 function SmartQuest.OnLoad()
 	SmartQuestFrame:RegisterEvent("CHAT_MSG_ADDON");
 	SmartQuestFrame:RegisterEvent("VARIABLES_LOADED");
-	SmartQuest.ChatPrint("SmartQuest v"..SmartQuest.Version.." 已載入。");
+	--SmartQuest.ChatPrint("SmartQuest v"..SmartQuest.Version.." 已載入。");
 
 	SlashCmdList["SQ"] = SmartQuest.Command;
 	SLASH_SQ1 = "/SQ";
