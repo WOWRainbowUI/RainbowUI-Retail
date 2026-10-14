@@ -662,6 +662,7 @@ PawnLocal.TooltipParsing = {
 	["SpellDamageAndHealingEnchant"] = "^%+# aux soins et %+# aux dégâts des sorts$",
 	["SpellDamageAndHealingShort"] = "^%+# aux sorts de soins et %+# aux dégâts des sorts$",
 	["SpellDamageAndHealingShort2"] = "^UNUSED$",
+	["SpellDamageForever"] = "^UNUSED$",
 	["SpellHasteClassic"] = "^Equipé : Augmente votre vitesse d’incantation de # %%%.$",
 	["SpellHasteRating"] = "^Équipé : Augmente de # le score de hâte des sorts%.$",
 	["SpellHasteRatingShort"] = "^%+?# au score de hâte des sorts$",
@@ -713,7 +714,7 @@ PawnLocal.TooltipParsing = {
 -- Special case: wands actually use different text on live versus classic.
 -- So, patch things up here.
 
-if VgerCore.IsClassic or VgerCore.IsBurningCrusade then
+if VgerCore.IsClassic or VgerCore.IsForever or VgerCore.IsBurningCrusade then
 	PawnLocal.ThousandsSeparator = "NBSP"
 	PawnLocal.DecimalSeparator = "."
 elseif VgerCore.IsWrath then
@@ -724,7 +725,7 @@ elseif VgerCore.IsCataclysm or VgerCore.IsMists then
 	PawnLocal.DecimalSeparator = ","
 end
 
-if VgerCore.IsClassic or VgerCore.IsBurningCrusade or VgerCore.IsWrath or VgerCore.IsCataclysm or VgerCore.IsMists then
+if VgerCore.IsClassic or VgerCore.IsForever or VgerCore.IsBurningCrusade or VgerCore.IsWrath or VgerCore.IsCataclysm or VgerCore.IsMists then
 	local TooltipParsing_Classic =
 	{
 		["WeaponDamageArcane"] = "^Dégâts %(Arcanes%) : # %- #$",

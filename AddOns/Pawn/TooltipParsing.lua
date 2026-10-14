@@ -61,8 +61,8 @@ PawnSeparatorIgnorePrefixes =
 PawnNormalizationRegexes =
 {
 	{"^|c........(.+)$", "%1"}, -- "|cFF 0FF 0Heroic" --> "Heroic"
-	{"^([%w%s%.]+) %+(%d+)%%?$", "+%2 %1"}, -- "Stamina +5" --> "+5 Stamina"
 	{L.NormalizationEnchant, "%1"}, -- "Enchanted: +50 Strength" --> "+50 Strength" (ENCHANTED_TOOLTIP_LINE)
+	{"^([%w%s%.]+) %+(%d+)%%?$", "+%2 %1"}, -- "Stamina +5" --> "+5 Stamina"
 }
 
 -- These regular expressions are used to parse item tooltips.
@@ -325,6 +325,7 @@ PawnRegexes =
 	{L.SpellDamage4, "SpellDamage", 1, PawnMultipleStatsExtract, "Healing", 1, PawnMultipleStatsExtract}, -- Simplified Chinese on Classic uses many different wordings:  /pawn compare 16923 vs. /pawn compare 18608
 	{L.SpellDamage5, "SpellDamage", 1, PawnMultipleStatsExtract, "Healing", 1, PawnMultipleStatsExtract}, -- Burning Crusade, /pawn compare item:789::::::-36
 	{L.SpellDamage6, "SpellDamage", 1, PawnMultipleStatsExtract, "Healing", 1, PawnMultipleStatsExtract}, -- Burning Crusade, /pawn compare 33467
+	{L.SpellDamageForever, "SpellDamage"}, -- Forever, /pawn compare 273807
 	{L.SpellDamageAndHealing, "Healing", 1, PawnMultipleStatsExtract, "SpellDamage", 2, PawnMultipleStatsExtract}, -- Burning Crusade, /pawn compare 34360
 	{L.SpellDamageAndHealing2, "Healing", 1, PawnMultipleStatsExtract, "SpellDamage", 2, PawnMultipleStatsExtract}, -- Burning Crusade, /pawn compare 28304
 	{L.SpellDamageAndHealingEnchant, "Healing", 1, PawnMultipleStatsExtract, "SpellDamage", 2, PawnMultipleStatsExtract}, -- Burning Crusade, /script PawnUIGetAllTextForItem("item:16943:2566") (matches Short in some locales; don't double-dip)

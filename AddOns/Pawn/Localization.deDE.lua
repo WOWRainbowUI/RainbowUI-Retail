@@ -500,7 +500,7 @@ PawnLocal.TooltipParsing = {
 	["CooldownRemaining"] = "^Verbleibende Abklingzeit:",
 	["Corruption"] = "^%+?# Verderbnis$",
 	["Crit"] = "^%+?# [Kk]ritischer Trefferwert%.?$",
-	["Crit2"] = "^UNUSED$",
+	["Crit2"] = "^Anlegen: Erhöht Eure kritische Trefferchance um #%%%.$", -- Forever, /pawn compare 12640
 	["CritPercent"] = "^Anlegen: Erhöht Eure Chance, einen kritischen Treffer zu erzielen, um #%%%.$",
 	["CritPercentCombined"] = "^Anlegen: Erhöht Eure kritische Trefferchance aller Eurer Angriffe und Zauber um #%%%.$",
 	["CritRating"] = "^Anlegen: Erhöht Eure kritische Trefferwertung um #%.$",
@@ -653,6 +653,7 @@ PawnLocal.TooltipParsing = {
 	["SpellDamageAndHealingEnchant"] = "^%+# Heilung %+# Zauberschaden$",
 	["SpellDamageAndHealingShort"] = "^%+# Heilzauber und %+# Schadenszauber$",
 	["SpellDamageAndHealingShort2"] = "^UNUSED$",
+	["SpellDamageForever"] = "^UNUSED$",
 	["SpellHasteClassic"] = "^Anlegen: Erhöht Euer Zaubertempo um #%%%.$",
 	["SpellHasteRating"] = "^Anlegen: Erhöht d?i?e?E?u?r?e? Zaubertempowertung um #%.$",
 	["SpellHasteRatingShort"] = "^%+?# Zaubertempowertung$",
@@ -703,12 +704,12 @@ PawnLocal.TooltipParsing = {
 
 -- Special case: weapon speed and Mail use different words on Classic.
 -- So, patch things up here.
-if VgerCore.IsClassic or VgerCore.IsBurningCrusade or VgerCore.IsWrath or VgerCore.IsCataclysm then
+if VgerCore.IsClassic or VgerCore.IsForever or VgerCore.IsBurningCrusade or VgerCore.IsWrath or VgerCore.IsCataclysm then
 	PawnLocal.Mail = "Schwere Rüstung"
 	PawnLocal.MailInfo = "Punkte, die zugewiesen werden sollen, wenn der Gegenstand Schwere Rüstung ist."
 	PawnLocal.TooltipParsing.Mail = "^Schwere Rüstung$"
 end
-if VgerCore.IsClassic or VgerCore.IsBurningCrusade or VgerCore.IsWrath or VgerCore.IsCataclysm or VgerCore.IsMists then
+if VgerCore.IsClassic or VgerCore.IsForever or VgerCore.IsBurningCrusade or VgerCore.IsWrath or VgerCore.IsCataclysm or VgerCore.IsMists then
 	PawnLocal.TooltipParsing.Speed = "^Tempo #$"
 end
 PawnLocal.Specs =

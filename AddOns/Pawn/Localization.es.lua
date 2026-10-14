@@ -716,6 +716,7 @@ PawnLocal.TooltipParsing = {
 	["SpellDamageAndHealingEnchant"] = "^BUG IN GAME$",
 	["SpellDamageAndHealingShort"] = "^BUG IN GAME$",
 	["SpellDamageAndHealingShort2"] = "^UNUSED$",
+	["SpellDamageForever"] = "^UNUSED$",
 	["SpellHasteClassic"] = "^Equipar: Aumenta un #%% la velocidad de lanzamiento%.$",
 	["SpellHasteRating"] = "^Equipar: Aumenta el índice de celeridad con hechizos e?n? ?# p%.$",
 	["SpellHasteRatingShort"] = "^%+?# índice de celeridad con hechizos$",
@@ -867,7 +868,7 @@ if GetLocale() == "esES" then
 		PawnLocal.TooltipParsing[Key] = NewString
 	end
 
-	if VgerCore.IsClassic then
+	if VgerCore.IsClassic or VgerCore.IsForever then
 
 		local TooltipParsing_ClassicEra =
 		{
@@ -896,7 +897,7 @@ if GetLocale() == "esES" then
 		end
 	end
 
-	if VgerCore.IsClassic or VgerCore.IsBurningCrusade or VgerCore.IsWrath or VgerCore.IsCataclysm or VgerCore.IsMists then
+	if VgerCore.IsClassic or VgerCore.IsForever or VgerCore.IsBurningCrusade or VgerCore.IsWrath or VgerCore.IsCataclysm or VgerCore.IsMists then
 
 		local TooltipParsing_Classic =
 		{
@@ -965,7 +966,7 @@ if GetLocale() == "esES" then
 		end
 	end
 
-	if VgerCore.IsMainline or VgerCore.IsBurningCrusade or VgerCore.IsWrath or VgerCore.IsCataclysm or VgerCore.IsMists then
+	if VgerCore.IsDraenorOrLater or VgerCore.IsBurningCrusade or VgerCore.IsWrath or VgerCore.IsCataclysm or VgerCore.IsMists then
 		PawnLocal.TooltipParsing.Block = "^%+?# bloqueo$"
 	end
 
