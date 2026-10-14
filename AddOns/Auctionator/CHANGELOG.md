@@ -1,8 +1,6 @@
 # Auctionator
 
-## [340](https://github.com/TheMouseNest/Auctionator/tree/340) (2026-10-02)
-[Full Changelog](https://github.com/TheMouseNest/Auctionator/compare/339...340) 
+## [341](https://github.com/TheMouseNest/Auctionator/tree/341) (2026-10-13)
+[Full Changelog](https://github.com/TheMouseNest/Auctionator/compare/340...341) 
 
-- Update libs  
-- Forever: Updated constant  
-- Forever: Separate PvE, PvP, HC and RP auction houses  
+- Update toc for 12.1.5  
