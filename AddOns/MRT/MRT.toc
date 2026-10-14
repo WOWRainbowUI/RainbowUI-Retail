@@ -1,3 +1,4 @@
+## Dependencies: Ace3
 ## Interface: 11509, 40402, 120100, 120105, 50504, 20506, 38002, 16001
 ## Title: Method Raid Tools
 ## Author: ykiigor

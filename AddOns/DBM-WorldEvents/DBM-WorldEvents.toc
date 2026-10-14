@@ -5,9 +5,11 @@
 ## Title-esMX:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cff10ff10Eventos del mundo|r
 ## Title-koKR:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cff10ff10월드 이벤트|r
 ## Title-ruRU:|cffffe00a<|r|cffff7d0aDBM Мод|r|cffffe00a>|r |cff10ff10Игровые события|r
+## Title-zhCN:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cff10ff10世界事件|r
 ## Title-deDE:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cff10ff10Weltereignisse|r
 ## Title-ptBR:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cff10ff10Eventos Mundiais|r
 ## Title-frFR:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cff10ff10Évènements Mondiaux|r
+## Title-zhTW:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cff10ff10世界事件|r
 ## Title-itIT:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cff10ff10Eventi Mondiali|r
 ## Author: MysticalOS
 ## LoadOnDemand: 1
@@ -76,18 +78,11 @@
 ## X-DBM-Mod-MinCoreRevision: 20260522000000
 
 localization.en.lua
-localization.ru.lua
-localization.fr.lua
 localization.tw.lua
-localization.kr.lua
-localization.de.lua
-localization.es.lua
 localization.cn.lua
-localization.br.lua
-localization.it.lua
 Holidays\ApothecaryTrio.lua [AllowLoadGameType cata, standard, mists, wrath]
 Holidays\Ahune.lua [AllowLoadGameType cata, standard, mists, tbc, wrath]
-Holidays\CorenDirebrew.lua [AllowLoadGameType cata, standard, mists, tbc, wrath]
+Holidays\CorenDirebrew.lua [AllowLoadGameType cata, mists, tbc, wrath]
 Holidays\HeadlessHorseman.lua [AllowLoadGameType cata, standard, mists, tbc, wrath]
 Quests\Plants.lua [AllowLoadGameType cata, standard, mists]
 Quests\EscortQuests.lua [AllowLoadGameType cata, standard, mists, tbc, wrath]
@@ -114,5 +109,4 @@ Events\DMF\Moonfang.lua [AllowLoadGameType standard]
 Events\DMF\CannonClassic.lua [AllowLoadGameType vanilla]
 
 ## Title-zhCN:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cff10ff10世界事件|r
-
 ## Title-zhTW:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cff10ff10世界事件|r
