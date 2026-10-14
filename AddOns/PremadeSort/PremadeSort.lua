@@ -109,9 +109,9 @@ end
 
 function SortSearchResults(result)
     -- No longer sort anything on unsecured accounts due taints
-    if not IsAccountSecured() then return end
-    if not result or (result and next(result) == nil or next(result.results) == nil) then return end
 
+    if not IsAccountSecured() then return end
+    if not result or (result and next(result) == nil or next(result.results) == nil) or issecrettable(result.results) then return end
     if LFGListFrame.SearchPanel.categoryID ~= 2 then
         table.sort(result.results, SortRules)
     end
@@ -142,7 +142,7 @@ local function OnLFGListSearchEntryUpdate(self)
 
     local searchResultInfo = C_LFGList.GetSearchResultInfo(self.resultID);
     local activityInfo = C_LFGList.GetActivityInfoTable(searchResultInfo.activityIDs[1], nil, searchResultInfo.isWarMode);
-    if not activityInfo then return end
+    if not activityInfo or issecrettable(activityInfo) then return end
 
     local fullName = activityInfo.fullName
     if (searchResultInfo.isWarMode and (searchResultInfo.activityIDs[1] == 16 or searchResultInfo.activityIDs[1] == 17)) then
