@@ -1,3 +1,6 @@
+- v1.4.14
+	- TOC for 12.1.5.
+	- Deprecated: GetItemInfo changed to C_Item.GetItemInfo
 - v1.4.13
 	- TOC for 12.1.0.
 	- Deprecated function replaced: UIParentLoadAddOn.

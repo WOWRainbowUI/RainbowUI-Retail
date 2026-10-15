@@ -89,7 +89,7 @@ function CalReminder:OnEnable()
     end
 
 	local witnessItemId = 118427
-	local witnessItem = select(2, GetItemInfo(witnessItemId))
+	local witnessItem = select(2, C_Item.GetItemInfo(witnessItemId))
 	if witnessItem then
 		CalReminderFinishLoad()
 	else
