@@ -1,8 +1,9 @@
 # Myslot
 
-## [v6.2.0](https://github.com/tg123/myslot/tree/v6.2.0) (2026-09-29)
-[Full Changelog](https://github.com/tg123/myslot/commits/v6.2.0) 
+## [v6.2.1](https://github.com/tg123/myslot/tree/v6.2.1) (2026-10-14)
+[Full Changelog](https://github.com/tg123/myslot/commits/v6.2.1) 
 
-- Make /myslot clear options table local (#138)  
-    The clear command assigned a global 'opt', which luacheck allowed via the globals whitelist. Declare it local and drop it from .luacheckrc so luacheck catches any future leak.  
+- Update TOC interface versions to latest builds (#141)  
+    Retail 12.1.5 (120105), Classic Era 1.15.9 (11509), Anniversary 2.5.6 (20506), Titan 3.80.2 (38002).  
     Co-authored-by: Copilot App <223556219+Copilot@users.noreply.github.com>  
+    Copilot-Session: a58cf9cb-4234-4f13-97a2-f8c50a39b826  
