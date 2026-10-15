@@ -1,10 +1,10 @@
-## Interface: 120100, 120007
+## Interface: 120105
 ## Title: |cff9d5db8KeystoneLoot|r
 ## Notes: Shows the items from the mythic plus instances in a compact overview
 ## Notes-ruRU: Отображает уровни предметов из подземелий М+
 ## Author: Selina Ruesch
 ## X-Email: selina.ruesch@gmail.com
-## Version: 2.18.3
+## Version: 2.18.4
 ## IconTexture: Interface\Icons\INV_Relics_Hourglass_02
 ## Category-enUS: Dungeons & Raids
 ## Category-deDE: Dungeons & Schlachtzüge
