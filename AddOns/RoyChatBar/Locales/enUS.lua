@@ -71,6 +71,9 @@ L["定位到聊天框"] = "Chat Frame"
 L["水平移动"] = "Position X"
 L["垂直移动"] = "Position Y"
 L["changelog"] = [[
+[2026.10.14] v1.9.6
+- Update toc for 12.1.5
+
 [2026.8.14] v1.9.5
 - Fixed certain errors when cycling channels with TAB
 - Fixed certain errors with anchor mode

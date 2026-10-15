@@ -78,6 +78,62 @@ do
 end
 
 -- ========================================================================
+-- 【频道名简写】
+-- ========================================================================
+do
+    local str_find = string.find
+    local str_len = string.len
+    local str_upper = string.upper
+    local C_ColorUtil_WrapTextInColor = C_ColorUtil and C_ColorUtil.WrapTextInColor
+
+    local channelAbbreviations = {
+        { "大脚世界频道", L["世界"] },
+        { "综合", L["综合"] },
+        { "交易", L["交易"] },
+        { "寻求组队", L["组队"] },
+    }
+
+    local function shortenChannelName(chatFrame, event, msg, playerName, languageName, channelName, playerName2, specialFlags, zoneChannelID, channelIndex, channelBaseName, unused1, unused2, lineID, senderGUID, ...)
+        if not RoyChatBarDB or not RoyChatBarDB.isShortChannelName then return end
+        local inInstance, instanceType = IsInInstance()
+        if inInstance and (instanceType == "pvp" or instanceType == "arena" or instanceType == "raid" or instanceType == "party") then return end
+        for i = 1, #channelAbbreviations do
+            local full, short = channelAbbreviations[i][1], channelAbbreviations[i][2]
+            if channelName and str_find(channelName, full) then
+                local channelLength = str_len(channelName)
+                local prefix = channelName:match("(%d+%. )(.*)")
+                for index, value in ipairs(chatFrame.channelList) do
+                    if channelLength > str_len(value) then
+                        if ((zoneChannelID > 0) and (chatFrame.zoneChannelList[index] == zoneChannelID)) or (str_upper(value) == str_upper(channelBaseName)) then
+                            local infoType = "CHANNEL" .. channelIndex
+                            local info = ChatTypeInfo[infoType]
+                            local newName
+                            if info and C_ColorUtil_WrapTextInColor then
+                                local color = CreateColor(info.r, info.g, info.b)
+                                newName = prefix .. C_ColorUtil_WrapTextInColor(short, color)
+                            else
+                                newName = prefix .. short
+                            end
+                            if str_len(newName) > str_len(value) then
+                                return false, msg, playerName, languageName, newName, playerName2, specialFlags, zoneChannelID, channelIndex, channelBaseName, unused1, unused2, lineID, senderGUID, ...
+                            end
+                            return
+                        end
+                    end
+                end
+                break
+            end
+        end
+    end
+
+    function ns.OnShortChannelNameChanged(value) end
+
+    EventUtil.ContinueOnAddOnLoaded(addonName, function()
+        ChatFrameUtil.AddMessageEventFilter("CHAT_MSG_CHANNEL", shortenChannelName)
+    end)
+end
+
+-- ========================================================================
 -- 【快捷聊天条】
 -- ========================================================================
 do
@@ -182,7 +238,7 @@ do
             id = "Dice",
             var = "isDiceButton",
             shortName = L["骰"],
-            color = { 1, 0.9, 0.4 },
+            color = { 0.7, 0.7, 0.7 },
             tooltip = L["左键：投掷点数\n右键：掷骰记录"],
             onClick = function(_, button)
                 if button == "LeftButton" then
