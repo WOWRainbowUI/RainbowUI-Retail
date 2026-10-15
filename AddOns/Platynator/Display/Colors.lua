@@ -45,6 +45,7 @@ local kindToEvent = {
 local kindToCallback = {
   quest = {"QuestInfoUpdate"},
   threat = {"RoleChange"},
+  eliteType = {"DungeonLevelUpdate"},
 }
 local kindToCache = {
   threat = {"combat", "threat"},
