@@ -42,8 +42,6 @@
 ## Version: r266
 
 localization.en.lua
-localization.kr.lua
-localization.ru.lua
 localization.cn.lua
 localization.tw.lua
 DarkflameCleft\OlWaxbeard.lua

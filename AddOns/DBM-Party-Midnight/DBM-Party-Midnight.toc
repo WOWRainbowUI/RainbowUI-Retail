@@ -43,8 +43,6 @@
 ## Version: r266
 
 localization.en.lua
-localization.kr.lua
-localization.ru.lua
 WindrunnerSpire\Emberdawn.lua
 WindrunnerSpire\DerelictDuo.lua
 WindrunnerSpire\CommanderKroluk.lua

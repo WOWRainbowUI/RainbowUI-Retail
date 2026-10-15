@@ -1,4 +1,4 @@
-﻿local _, addon = ...
+local _, addon = ...
 local L = addon.L
 
 -- Lua
@@ -65,3 +65,11 @@ L["TYPE_WAR_EFFORT"] = "前线战役"
 L["TYPE_WORLD_QUEST"] = "世界任务"
 L["YOU_LOST"] = "你损失了"
 L["YOU_RECEIVED"] = "你获得了"
+
+L["GROWTH"] = "堆叠"
+
+L["IMPORT_INSTRUCTIONS"] = "导入的布局数据将绑定当前启用的编辑模式布局。"
+
+L["LAYOUT"] = "布局"
+
+L["PROFILE_AND_LAYOUT"] = "配置文件与布局"

@@ -1,3 +1,4 @@
+## Dependencies: Ace3
 ## Interface: 120105, 120100, 120007, 110207, 16001
 ## X-Curse-Project-ID: 48863
 ## X-Wago-ID: BKpq0BGE
@@ -25,7 +26,6 @@
 ## DefaultState: disabled
 
 
-libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
 
 libs\base64.lua
 libs\crc32.lua

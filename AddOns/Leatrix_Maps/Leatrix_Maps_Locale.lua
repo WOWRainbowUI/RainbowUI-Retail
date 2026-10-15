@@ -1813,3 +1813,13 @@ L["The Ruins of Lordaeron"] = "洛丹伦废墟"
 L["Use simple map frame"] = "使用简洁地图窗口"
 L["If checked, the map will use a simple frame with a compact title bar."] = "勾选时，地图会使用带有精简标题栏的简洁窗口。"
 end
+
+if GameLocale == "zhTW" then
+L["Hide blackout frame"] = "隱藏地圖遮罩"
+L["If checked, the blackout frame will be hidden."] = "勾選時，將會隱藏地圖的黑色遮罩。"
+end
+
+if GameLocale == "zhCN" then
+L["Hide blackout frame"] = "隐藏地图遮罩"
+L["If checked, the blackout frame will be hidden."] = "勾选时，将隐藏地图的黑色遮罩。"
+end

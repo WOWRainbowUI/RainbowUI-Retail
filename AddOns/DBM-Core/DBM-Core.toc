@@ -10,7 +10,7 @@
 ## Title-esMX:|cffffe00a<|r|cffff7d0aDBM Core|r|cffffe00a>|r |cff69ccf0Núcleo|r
 ## Title-frFR:|cffffe00a<|r|cffff7d0aDBM Core|r|cffffe00a>|r |cff69ccf0Noyau|r
 ## Notes: Deadly Boss Mods
-## Dependencies: DBM-StatusBarTimers
+## Dependencies: DBM-StatusBarTimers, Ace3
 ## OptionalDependencies: LibStub, CallbackHandler-1.0, LibSharedMedia-3.0, LibChatAnims, LibDBIcon-1.0, LibSpecialization, LibKeystone, CustomNames, Masque, ChatThrottleLib
 ## SavedVariables: DBM_AllSavedOptions, DBM_MinimapIcon, DBM_AnnoyingPopupDisables, DBM_Keystones
 ## SavedVariablesPerCharacter: DBM_UsedProfile, DBM_UseDualProfile, DBM_CharSavedRevision
@@ -23,41 +23,21 @@
 ## X-Wago-ID: qv633o6b
 ## X-Website: https://deadlybossmods.com
 
-Libs\LibStub\LibStub.lua
-Libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
 Libs\ChatThrottleLib\ChatThrottleLib.lua
 Libs\LibChatAnims\LibChatAnims.xml [AllowLoadGameType standard, classic]
-Libs\LibSharedMedia-3.0\lib.xml
 Libs\LibLatency\LibLatency.xml
 Libs\LibDurability\LibDurability.xml
 Libs\LibKeystone\LibKeystone.lua [AllowLoadGameType standard]
-Libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
-Libs\LibDBIcon-1.0\lib.xml
 Libs\LibSpecialization\LibSpecialization.lua [AllowLoadGameType standard, classic]
 Libs\LibDropDownMenu\LibDropDownMenu.xml [AllowLoadGameType tbc, wrath]
-Libs\LibCustomGlow-1.0\LibCustomGlow-1.0.xml
 
 localization.en.lua
-localization.br.lua
 localization.cn.lua
-localization.de.lua
-localization.es.lua
-localization.fr.lua
-localization.it.lua
-localization.kr.lua
-localization.ru.lua
 localization.tw.lua
 
 commonlocal.en.lua
 commonlocal.tw.lua
-commonlocal.br.lua
 commonlocal.cn.lua
-commonlocal.de.lua
-commonlocal.es.lua
-commonlocal.fr.lua
-commonlocal.it.lua
-commonlocal.kr.lua
-commonlocal.ru.lua
 
 # Pre-core modules
 modules\objects\PrototypeRegistry.lua

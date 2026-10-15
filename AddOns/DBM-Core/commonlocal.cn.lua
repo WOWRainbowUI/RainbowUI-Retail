@@ -145,3 +145,7 @@ CL.OR		= "或"
 CL.BIG_CIRCLE = "大圈"
 
 CL.PLATFORM_BREAK = "平台破裂"
+
+CL.OVER = "结束"
+
+CL.FEAR = "恐惧"

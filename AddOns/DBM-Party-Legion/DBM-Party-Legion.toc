@@ -42,14 +42,7 @@
 
 localization.en.lua
 localization.cn.lua
-localization.de.lua
 localization.tw.lua
-localization.es.lua
-localization.kr.lua
-localization.ru.lua
-localization.br.lua
-localization.it.lua
-localization.fr.lua
 BlackRookHold\AmalgamSouls.lua
 BlackRookHold\Illysanna.lua
 BlackRookHold\Smashspite.lua

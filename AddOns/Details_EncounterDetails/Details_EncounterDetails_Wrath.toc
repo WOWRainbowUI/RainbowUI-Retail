@@ -7,7 +7,6 @@
 ## IconTexture: Interface\AddOns\Details\images\minimap
 
 enUS.lua
-ptBR.lua
 
 Details_EncounterDetails.lua
 frames_chart.lua

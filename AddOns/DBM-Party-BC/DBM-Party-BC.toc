@@ -44,10 +44,6 @@
 ## Version: r266
 
 localization.en.lua
-localization.de.lua
-localization.kr.lua
-localization.ru.lua
-localization.es.lua
 localization.tw.lua
 Hellfire_Ramp\Gargolmar.lua
 Hellfire_Ramp\Omor.lua

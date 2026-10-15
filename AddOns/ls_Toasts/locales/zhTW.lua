@@ -1,4 +1,4 @@
-﻿local _, addon = ...
+local _, addon = ...
 local L = addon.L
 
 -- Lua
@@ -78,3 +78,11 @@ L["YOU_RECEIVED"] = "你收到"
 
 -- 自行加入
 L["ADDON_NAME"] = "通知面板增強"
+
+L["GROWTH"] = "堆疊"
+
+L["IMPORT_INSTRUCTIONS"] = "匯入的配置資料將綁定目前啟用的編輯模式配置。"
+
+L["LAYOUT"] = "配置"
+
+L["PROFILE_AND_LAYOUT"] = "設定檔與配置"

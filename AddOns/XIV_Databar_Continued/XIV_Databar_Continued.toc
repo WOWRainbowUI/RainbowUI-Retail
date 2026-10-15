@@ -1,3 +1,4 @@
+## Dependencies: Ace3
 ## Interface: 120105, 16001, 50504, 20506, 11509
 ## Title: XIV_Databar Continued
 ## Author: ZelionGG
@@ -17,7 +18,6 @@
 
 ## embeds.xml
 Libs\LibQTip-2.0\LibQTip-2.0.xml
-Libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
 
 locales\locales.xml
 core.lua

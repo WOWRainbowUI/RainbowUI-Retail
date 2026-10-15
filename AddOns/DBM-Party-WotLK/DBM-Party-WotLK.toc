@@ -43,12 +43,7 @@
 
 localization.en.lua
 localization.cn.lua
-localization.ru.lua
-localization.fr.lua
 localization.tw.lua
-localization.kr.lua
-localization.de.lua
-localization.es.lua
 AhnKahet\Taldaram.lua
 AhnKahet\Nadox.lua
 AhnKahet\JedogaShadowseeker.lua

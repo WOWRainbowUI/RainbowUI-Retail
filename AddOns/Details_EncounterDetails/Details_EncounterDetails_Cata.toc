@@ -9,7 +9,6 @@
 ## X-Wago-ID: 7nGvv0Gx
 
 enUS.lua
-ptBR.lua
 
 Details_EncounterDetails.lua
 frames_chart.lua

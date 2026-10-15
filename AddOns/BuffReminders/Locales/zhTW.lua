@@ -1175,3 +1175,18 @@ L["Content.Battlegrounds"] = "戰場"
 -- 自行加入
 L["BuffReminders"] = "增益提醒"
 L["|cffffffffBuff|r|cffffcc00Reminders|r"] = "|cffffffff增益|r|cffffcc00提醒|r"
+L["Loadout.EquipFailed"] = "無法穿上裝備套裝，請確認套裝中的每件裝備都在背包裡。"
+
+L["Loadout.OpenTalentsFailed"] = "無法開啟天賦視窗，請手動開啟以修正提醒。"
+
+L["Label.Imp"] = "小鬼"
+
+L["Label.Voidwalker"] = "虛無行者"
+
+L["Label.Felhunter"] = "惡魔獵犬"
+
+L["Label.Sayaad"] = "薩亞德"
+
+L["Label.Ghoul"] = "食屍鬼"
+
+L["Label.WaterElemental"] = "水元素"

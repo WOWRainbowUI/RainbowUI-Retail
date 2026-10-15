@@ -1026,3 +1026,19 @@ L["Content.MythicRaids"] = "史诗团队副本"
 -- PvP types
 L["Content.Arena"] = "竞技场"
 L["Content.Battlegrounds"] = "战场"
+
+L["Loadout.EquipFailed"] = "无法穿上装备套装，请确认套装中的每件装备都在背包里。"
+
+L["Loadout.OpenTalentsFailed"] = "无法打开天赋窗口，请手动打开以修正提醒。"
+
+L["Label.Imp"] = "小鬼"
+
+L["Label.Voidwalker"] = "虚空行者"
+
+L["Label.Felhunter"] = "地狱猎犬"
+
+L["Label.Sayaad"] = "萨亚德"
+
+L["Label.Ghoul"] = "食尸鬼"
+
+L["Label.WaterElemental"] = "水元素"

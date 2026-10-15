@@ -5,8 +5,6 @@
 <Include file="lib\ChatThrottleLib\ChatThrottleLib.xml"/>
 <Include file="lib\LibSink-2.0\lib.xml"/>
 
-<Script file="lib\LibDataBroker-1.1\LibDataBroker-1.1.lua"/>
-<Script file="lib\LibWindow-1.1\LibWindow-1.1.lua"/>
 
 <Include file="lib\LibTextDump-1.0\lib.xml"/>
 <!--@end-non-debug@-->

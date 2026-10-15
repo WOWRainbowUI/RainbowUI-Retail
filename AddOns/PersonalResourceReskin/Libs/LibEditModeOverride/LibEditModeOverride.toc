@@ -4,6 +4,5 @@
 ## Author: plusmouse
 ## OptionalDeps: LibStub
 
-LibStub\LibStub.lua
 
 LibEditModeOverride.xml

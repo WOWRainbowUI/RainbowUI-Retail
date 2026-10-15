@@ -432,3 +432,7 @@ L["MAGE_TELEPORTS"] = "傳送"
 L["MAGE_PORTAL_SPELLS"] = "傳送門"
 
 L["CHANGE_MAGE_PORT_OPTION"] = "變更法師傳送門"
+
+L["SHOW_SECONDARY_PROFESSIONS"] = "顯示次要專業"
+
+L["SHOW_PROFESSION_NAMES"] = "顯示專業名稱"

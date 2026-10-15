@@ -9,6 +9,5 @@
 ## Version: 1.3.5
 ## OptionalDeps: Masque
 
-LibStub\LibStub.lua
 
 LibButtonGlow-1.0.lua

@@ -1,7 +1,7 @@
 ## Interface: 16001
 ## Title: Details!: Tiny Threat (plugin)
 ## Notes: Threat meter plugin, show threat for group members in the window. Select it from the Plugin menu in the Orange Cogwheel.
-## RequiredDeps: Details
+## RequiredDeps: Details, Ace3
 ## OptionalDeps: Ace3
 ## IconTexture: Interface\AddOns\Details\images\minimap
 
@@ -9,6 +9,5 @@
 
 
 enUS.lua
-ptBR.lua
 
 Details_TinyThreat.lua

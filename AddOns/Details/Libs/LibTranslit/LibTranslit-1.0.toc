@@ -8,6 +8,5 @@
 ## DefaultState: Enabled
 ## LoadOnDemand: 0
 
-LibStub\LibStub.lua
 
 LibTranslit-1.0.xml

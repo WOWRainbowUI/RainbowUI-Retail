@@ -33,8 +33,6 @@
 ## Version: r266
 
 localization.en.lua
-localization.kr.lua
-localization.ru.lua
 localization.cn.lua
 Nemesis\ZekvirsLair.lua
 Nemesis\UnderpinsLair.lua

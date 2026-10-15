@@ -384,3 +384,7 @@ L["MAGE_TELEPORTS"] = "传送"
 L["MAGE_PORTAL_SPELLS"] = "传送门"
 
 L["CHANGE_MAGE_PORT_OPTION"] = "更改法师传送门"
+
+L["SHOW_SECONDARY_PROFESSIONS"] = "显示次要专业"
+
+L["SHOW_PROFESSION_NAMES"] = "显示专业名称"

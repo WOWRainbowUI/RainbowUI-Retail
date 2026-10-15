@@ -41,14 +41,8 @@
 ## X-DBM-Mod-MinExpansion: 5
 
 localization.en.lua
-localization.kr.lua
-localization.de.lua
-localization.es.lua
-localization.ru.lua
 localization.tw.lua
 localization.cn.lua
-localization.fr.lua
-localization.br.lua
 Auchindoun\AuchTrash.lua
 Auchindoun\ProtectorOfAuch.lua
 Auchindoun\Nyami.lua

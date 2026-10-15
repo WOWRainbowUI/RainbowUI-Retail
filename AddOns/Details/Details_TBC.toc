@@ -1,3 +1,4 @@
+## Dependencies: Ace3
 ## Interface: 20506
 ## X-Min-Interface: 20504
 ## Title: Details! Damage Meter

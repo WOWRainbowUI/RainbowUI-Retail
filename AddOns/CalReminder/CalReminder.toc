@@ -1,3 +1,4 @@
+## Dependencies: Ace3
 ## Interface: 120105
 ## Title: CalReminder
 ## Version: 1.4.14

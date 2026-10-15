@@ -1,3 +1,4 @@
+## Dependencies: Ace3
 ## Interface: 16001
 ## Title: Details! Damage Meter
 ## Notes: Essential tool to impress that chick in your raid.

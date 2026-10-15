@@ -226,8 +226,8 @@ L['ancient_chest_suffix'] = '已發現遠古寶箱'
 L['mislaid_oddity'] = '遺失的奇物'
 
 L['options_icons_hexmask'] = '{achievement:63720}'
-L['options_icons_hexmask_desc'] = nil
-L['thundering_hexmask'] = nil
-L['fiery_hexmask'] = nil
-L['frozen_hexmask'] = nil
+L["options_icons_hexmask_desc"] = "顯示 {achievement:63720} 成就的位置。"
+L["thundering_hexmask"] = "雷鳴妖術面具"
+L["fiery_hexmask"] = "烈焰妖術面具"
+L["frozen_hexmask"] = "寒冰妖術面具"
 L['c_underneath_bridge'] = '在橋下。'
