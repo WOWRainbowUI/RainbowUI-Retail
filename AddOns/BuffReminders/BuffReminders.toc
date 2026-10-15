@@ -1,9 +1,9 @@
-## Interface: 120100
+## Interface: 120105
 # WOW_INTERFACE_TARGETS: standard
 ## Title: BuffReminders
 ## Notes: Track missing buffs at a glance
 ## Author: zerbi
-## Version: v6.8.5
+## Version: v6.8.7
 ## SavedVariables: BuffRemindersDB
 ## X-Curse-Project-ID: 1441094
 ## X-Wago-ID: qGYZZjNg
@@ -49,6 +49,7 @@ Core\Restrictions.lua
 Core\TextPositions.lua
 Core\Profiles.lua
 Core\Migrations.lua
+Core\GameContext.lua
 Data\Buffs.lua
 Data\Defaults.lua
 Data\Beneficiaries.lua

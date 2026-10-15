@@ -791,6 +791,7 @@ local function RefreshConsumableCache()
                         if not buckets[category] then
                             buckets[category] = {}
                         end
+                        -- A failed count skips the item until the next bag scan.
                         local ok, count = pcall(C_Item.GetItemCount, itemID, false, true)
                         count = (ok and count) or 0
                         if count > 0 then
@@ -814,7 +815,7 @@ local function RefreshConsumableCache()
                                 end
                             end
                             -- ConsumableMemory looks the item up by the spell it casts.
-                            local okSpell, _, useSpellID = pcall(GetItemSpell, itemID)
+                            local okSpell, _, useSpellID = pcall(C_Item.GetItemSpell, itemID)
                             if okSpell and useSpellID then
                                 bucket.useSpellID = useSpellID
                             end
@@ -1760,3 +1761,5 @@ BR.SecureButtons = {
     BADGE_COLORS = BADGE_COLORS,
     ReapplyPetSpecIconIfHovered = ReapplyPetSpecIconIfHovered,
 }
+
+BR.GameContext.RegisterCache("consumables", InvalidateConsumableCache)

@@ -20,7 +20,7 @@ local ListEditor = BR.Options.Helpers.ListEditor
 
 local UpdateDisplay = BR.Display.Update
 
-local GetBuffIcons = BR.Helpers.GetBuffIcons
+local GetBuffIcons = BR.Icons.GetBuffIcons
 
 local TEXCOORD_INSET = BR.TEXCOORD_INSET
 

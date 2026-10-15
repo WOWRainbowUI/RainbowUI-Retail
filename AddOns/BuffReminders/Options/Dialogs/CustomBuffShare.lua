@@ -21,7 +21,7 @@ local CreatePanel = BR.CreatePanel
 local CreateBuffIcon = BR.CreateBuffIcon
 
 local ImportExport = BR.ImportExport
-local GetBuffTexture = BR.Helpers.GetBuffTexture
+local GetBuffTexture = BR.Icons.GetBuffTexture
 
 local DIALOG_W = 460
 local MARGIN = 16

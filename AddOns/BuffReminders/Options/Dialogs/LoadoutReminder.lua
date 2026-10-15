@@ -354,7 +354,9 @@ local function Show(existingKey, refreshPanelCallback)
     -- as the difficulty / instance content grows and shrinks.
     local readyToggle = Components.Toggle(body, {
         label = L["CustomBuff.ReadyCheckOnly"],
-        checked = readyCheckOnly,
+        get = function()
+            return readyCheckOnly
+        end,
         onChange = function(checked)
             readyCheckOnly = checked
         end,

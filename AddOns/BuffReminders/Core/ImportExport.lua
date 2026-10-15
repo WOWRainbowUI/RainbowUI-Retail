@@ -17,6 +17,17 @@ local CUSTOM_BUFF_PREFIX = "!BR_CB_"
 local TAG_PATTERN = "^!BR_(%a+)_(.*)$"
 local DEFLATE_CONFIG = { level = 9 }
 
+-- Shareable profile settings with no entry in BR.defaults. A profile string carries
+-- these keys too, and an import replaces them. Runtime memory (rememberedConsumables)
+-- and debugMode stay local.
+local EXTRA_PROFILE_KEYS = {
+    "customBuffs",
+    "detachedIcons",
+    "buffSounds",
+    "readyCheckOnlyOverrides",
+    "customAnchorFrames",
+}
+
 -- A tag names both the payload encoding and the kind of data it carries, so an
 -- import entry point can refuse a string meant for a different one.
 local TAGS = {
@@ -53,14 +64,15 @@ local function StripPrefix(str)
 end
 
 -- Serialize a Lua table to a deflate-compressed, print-encoded payload (no prefix).
+-- On failure, returns nil and the error text.
 local function SerializeTable(tbl)
     local success, cbor = pcall(C_EncodingUtil.SerializeCBOR, tbl)
     if not success then
-        return nil
+        return nil, tostring(cbor)
     end
     local compressed = LibDeflate:CompressDeflate(cbor, DEFLATE_CONFIG)
     if not compressed then
-        return nil
+        return nil, "compression failed"
     end
     return LibDeflate:EncodeForPrint(compressed)
 end
@@ -124,17 +136,15 @@ local function ExportSettings(sourceProfile)
         end
     end
 
-    if prof.customBuffs then
-        export.customBuffs = DeepCopy(prof.customBuffs)
+    for _, key in ipairs(EXTRA_PROFILE_KEYS) do
+        if prof[key] ~= nil then
+            export[key] = DeepCopy(prof[key])
+        end
     end
 
-    if prof.detachedIcons then
-        export.detachedIcons = DeepCopy(prof.detachedIcons)
-    end
-
-    local result = SerializeTable(export)
+    local result, err = SerializeTable(export)
     if not result then
-        return nil, "Failed to serialize settings"
+        return nil, "Failed to serialize settings: " .. tostring(err)
     end
     return COMPRESSED_PREFIX .. result
 end
@@ -154,8 +164,9 @@ local function ImportSettings(prefixedStr)
             BR.profile[key] = nil
         end
     end
-    BR.profile.customBuffs = nil
-    BR.profile.detachedIcons = nil
+    for _, key in ipairs(EXTRA_PROFILE_KEYS) do
+        BR.profile[key] = nil
+    end
 
     for k, v in pairs(data) do
         BR.profile[k] = DeepCopy(v)
@@ -186,6 +197,15 @@ local function ImportSettings(prefixedStr)
         p.optionsPanelZoom = BR.ZoomFromLegacyScale(p.optionsPanelScale)
     end
     p.optionsPanelScale = nil
+
+    -- Pre-v55 strings carry a runtime icon cache on each custom buff (migration [55]).
+    if type(p.customBuffs) == "table" then
+        for _, buff in pairs(p.customBuffs) do
+            if type(buff) == "table" then
+                buff._iconsCache = nil
+            end
+        end
+    end
 
     -- Ensure defaults sub-table exists and has the metatable (DeepCopy produces
     -- a plain table, and old export strings can omit the defaults key).
@@ -381,9 +401,9 @@ local function ExportCustomBuff(key)
     local payload = DeepCopy(buff)
     payload.key = nil
 
-    local result = SerializeTable(payload)
+    local result, err = SerializeTable(payload)
     if not result then
-        return nil, "Failed to serialize custom buff"
+        return nil, "Failed to serialize custom buff: " .. tostring(err)
     end
     return CUSTOM_BUFF_PREFIX .. result
 end
@@ -428,9 +448,6 @@ local function ImportCustomBuff(str)
     db.enabledBuffs[key] = true
 
     BR.CustomBuffs.CreateRuntime(buff)
-    -- requireItemMode decides how ownership is read, so the cached answer for a
-    -- shared item ID can be wrong for the new entry.
-    BR.BuffState.InvalidateItemCache()
     return key
 end
 
