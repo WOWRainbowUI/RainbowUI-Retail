@@ -147,6 +147,7 @@ L.SEC_FMT	= "%s sec"
 
 L.GENERIC_WARNING_OTHERS	= "e un altro"
 L.GENERIC_WARNING_OTHERS2	= "e %d altri"
+L.GENERIC_TRASH_TARGET	= "%s: %s"
 L.GENERIC_WARNING_BERSERK	= "Furia tra %s %s"
 L.GENERIC_TIMER_BERSERK		= "Furia"
 L.OPTION_TIMER_BERSERK		= "Visualizza Temporizzatore $spell:26662"
@@ -428,6 +429,7 @@ L.AUTO_ANNOUNCE_OPTIONS.moveto			= "Mostra avvisi per muoverti da qualcuno o qua
 
 L.AUTO_SPEC_WARN_TEXTS.spell			= "%s!"
 L.AUTO_SPEC_WARN_TEXTS.ends				= "%s terminata"
+L.AUTO_SPEC_WARN_TEXTS.endtarget		= "%s terminata: >%%s<"
 L.AUTO_SPEC_WARN_TEXTS.fades			= "%s svanita"
 L.AUTO_SPEC_WARN_TEXTS.soon				= "%s a breve"
 L.AUTO_SPEC_WARN_TEXTS.sooncount		= "%s (%%s) a breve"
@@ -478,6 +480,7 @@ L.AUTO_SPEC_WARN_TEXTS.targetchange	= "Cambio Bersaglio - passa a %%s"
 -- Auto-generated Special Warning Localizations
 L.AUTO_SPEC_WARN_OPTIONS.spell			= "Mostra avviso speciale per $spell:%s"
 L.AUTO_SPEC_WARN_OPTIONS.ends			= "Mostra avviso speciale al termine di $spell:%s"
+L.AUTO_SPEC_WARN_OPTIONS.endtarget		= "Mostra avviso speciale (con bersaglio) al termine di $spell:%s"
 L.AUTO_SPEC_WARN_OPTIONS.fades			= "Mostra avviso speciale allo svanire di $spell:%s"
 L.AUTO_SPEC_WARN_OPTIONS.soon			= "Mostra preavviso speciale per $spell:%s"
 L.AUTO_SPEC_WARN_OPTIONS.sooncount		= "Mostra preavviso speciale (con conteggio) per $spell:%s"

@@ -1,6 +1,6 @@
-## Interface: 120100
+## Interface: 120100, 120105
 ## AllowLoadGameType: standard
-## Version: 12.1.13
+## Version: 12.1.14
 ## Category: DBM
 
 ## Title:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffff6010Lairs (Midnight)|r
@@ -26,14 +26,17 @@
 ## X-DBM-Mod-Name-zhCN: 巢穴（至暗之夜）
 ## X-DBM-Mod-Sort: 91
 ## X-DBM-Mod-MapID: 3095, 2987, 1592
-## X-DBM-Mod-MapIDNameOverrides: 3095 = "Unbinding of Kithix"
 ## X-DBM-Mod-MinCoreRevision: 20260522000000
 ## X-DBM-Mod-MinExpansion: 11
 ## X-Curse-Project-ID: 3358
 ## X-Wago-ID: qv633o6b
 
 localization.en.lua
+localization.kr.lua
 
 UnbindingofKithix\Kithix.lua
 TideboundGrotto\NymrissaWavecaller.lua
 Sporefall\Rotmire.lua
+
+## Title-zhTW:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffff6010巢穴 (至暗之夜)|r
+## IconTexture: Interface\AddOns\DBM-Core\textures\dbm_airhorn

@@ -1,6 +1,6 @@
-## Interface: 120100
+## Interface: 120100, 120105
 ## AllowLoadGameType: standard
-## Version: 12.1.13
+## Version: 12.1.14
 ## Category: DBM
 
 ## Title:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffff6010Raids (Midnight)|r
@@ -32,7 +32,8 @@
 ## X-Wago-ID: qv633o6b
 
 localization.en.lua
-localization.tw.lua
+localization.kr.lua
+localization.ru.lua
 localization.cn.lua
 
 TheVenomousAbyss\NekzalitheSoulcoiler.lua
@@ -55,3 +56,6 @@ TheDreamrift\ChimaerustheUndreamtGod.lua
 
 MarchonQuelDanas\BelorenChildofAlar.lua
 MarchonQuelDanas\MidnightFalls.lua
+
+## Title-zhTW:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffff6010團隊副本 (至暗之夜)|r
+## IconTexture: Interface\AddOns\DBM-Core\textures\dbm_airhorn

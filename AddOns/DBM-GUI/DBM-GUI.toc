@@ -1,4 +1,4 @@
-## Interface: 11509, 16001, 20506, 30405, 38002, 40402, 50504, 120100
+## Interface: 11509, 16001, 20506, 30405, 38002, 40402, 50504, 120100, 120105
 ## Category: DBM
 ## Title:|cffffe00a<|r|cffff7d0aDBM Core|r|cffffe00a>|r |cff69ccf0Options GUI|r
 ## Title-deDE:|cffffe00a<|r|cffff7d0aDBM Core|r|cffffe00a>|r |cff69ccf0GUI für Einstellungen|r
@@ -27,7 +27,7 @@
 ## LoadOnDemand: 1
 ## DefaultState: enabled
 ## Author: MysticalOS, QartemisT
-## Version: 12.1.13
+## Version: 12.1.14
 ## X-Website: https://deadlybossmods.com
 
 localization.en.lua
@@ -83,3 +83,8 @@ modules\options\frames\InfoFrame.lua
 modules\options\frames\Nameplate.lua [AllowLoadGameType classic]
 
 modules\options\tools.lua
+
+## Title-zhTW:|cffffe00a<|r|cffff7d0aDBM Core|r|cffffe00a>|r |cff69ccf0使用者介面|r
+## Notes-zhTW: Deadly Boss Mods的使用者介面
+## IconTexture: Interface\AddOns\DBM-Core\textures\dbm_airhorn
+## DefaultState: enabled

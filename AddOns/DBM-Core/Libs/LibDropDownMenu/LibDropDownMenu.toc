@@ -28,3 +28,6 @@ libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
 
 LibDropDownMenu.xml
 
+
+## IconTexture: 986485
+## Category-zhTW: 函式庫

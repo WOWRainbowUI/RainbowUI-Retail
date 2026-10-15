@@ -75,14 +75,14 @@ local function showRealDate(curseDate)
 	end
 end
 
-DBM.Revision = parseCurseDate("20261012172152")
-private.fakeBWVersion, private.fakeBWHash = 424, "754bdce"--424.7
+DBM.Revision = parseCurseDate("20261014191453")
+private.fakeBWVersion, private.fakeBWHash = 427, "fe75de4"--427.7
 
 -- The string that is shown as version
-DBM.DisplayVersion = "12.1.13"--Core version
+DBM.DisplayVersion = "12.1.14"--Core version
 DBM.classicSubVersion = 0
 DBM.dungeonSubVersion = 0
-DBM.ReleaseRevision = releaseDate(2026, 10, 12) -- the date of the latest stable version that is available, optionally pass hours, minutes, and seconds for multiple releases in one day
+DBM.ReleaseRevision = releaseDate(2026, 10, 14) -- the date of the latest stable version that is available, optionally pass hours, minutes, and seconds for multiple releases in one day
 DBM.HighestRelease = DBM.ReleaseRevision --Updated if newer version is detected, used by update nags to reflect critical fixes user is missing on boss pulls
 
 -- support for github downloads, which doesn't support curse keyword expansion
@@ -1465,18 +1465,28 @@ do
 		end
 	end
 
+	---Pass true before the event list to use RegisterSafeEvents for audited, secret-safe handlers.
 	---@param self DBMModOrDBM
 	---@param ... DBMEvent|string
+	---@overload fun(self: DBMModOrDBM, safeEvents: boolean, ...: DBMEvent|string)
 	function DBM:RegisterShortTermEvents(...)
 		DBM:Debug("RegisterShortTermEvents fired", 3)
 		local _shortTermRegisterEvents = {...}
+		local safeEvents = false
+		if type(_shortTermRegisterEvents[1]) == "boolean" then
+			safeEvents = tremove(_shortTermRegisterEvents, 1)
+		end
 		for k, v in pairs(_shortTermRegisterEvents) do
 			if v:sub(0, 5) == "UNIT_" and v:sub(-11) ~= "_UNFILTERED" and not v:find(" ") and v ~= "UNIT_DIED" and v ~= "UNIT_DESTROYED" then
 				-- legacy event, oh noes
 				_shortTermRegisterEvents[k] = v .. " boss1 boss2 boss3 boss4 boss5 target focus"
 			end
 		end
-		self:RegisterEvents(unpack(_shortTermRegisterEvents))
+		if safeEvents then
+			self:RegisterSafeEvents(unpack(_shortTermRegisterEvents))
+		else
+			self:RegisterEvents(unpack(_shortTermRegisterEvents))
+		end
 		-- Fix so we can register multiple short term events. Use at your own risk, as unsucribing will cause
 		-- all short term events to unregister.
 		if not self.shortTermRegisterEvents then
@@ -5312,7 +5322,7 @@ function bossModPrototype:ReceiveSync(event, sender, revision, ...)
 	end
 end
 
----@param revision number|string Either a number in the format "202101010000" (year, month, day, hour, minute) or string "20261012172152" to be auto set by packager
+---@param revision number|string Either a number in the format "202101010000" (year, month, day, hour, minute) or string "20261014191453" to be auto set by packager
 function bossModPrototype:SetRevision(revision)
 	revision = parseCurseDate(revision or "")
 	if not revision or type(revision) == "string" then

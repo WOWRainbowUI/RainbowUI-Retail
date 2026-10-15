@@ -147,6 +147,7 @@ L.SEC_FMT						= "%s秒"
 
 L.GENERIC_WARNING_OTHERS		= "與一個其他"
 L.GENERIC_WARNING_OTHERS2		= "與其他%d"
+L.GENERIC_TRASH_TARGET		= "%s：%s"
 L.GENERIC_WARNING_BERSERK		= "%s%s後狂暴"
 L.GENERIC_TIMER_BERSERK			= "狂暴"
 L.OPTION_TIMER_BERSERK			= "為$spell:26662顯示計時器"
@@ -416,6 +417,7 @@ L.AUTO_ANNOUNCE_OPTIONS.moveto				= "提示：$spell:%s需要移動到某人或�
 
 L.AUTO_SPEC_WARN_TEXTS.spell				= "%s!"
 L.AUTO_SPEC_WARN_TEXTS.ends 				= "%s結束"
+L.AUTO_SPEC_WARN_TEXTS.endtarget			= "%s結束:>%%s<"
 L.AUTO_SPEC_WARN_TEXTS.fades				= "%s消退"
 L.AUTO_SPEC_WARN_TEXTS.soon					= "%s即將到來"
 L.AUTO_SPEC_WARN_TEXTS.sooncount			= "%s (%%s)即將到來"
@@ -466,6 +468,7 @@ L.AUTO_SPEC_WARN_TEXTS.targetchange			= "更換目標 - 轉火 %%s"
 
 L.AUTO_SPEC_WARN_OPTIONS.spell				= "特別提示：$spell:%s"
 L.AUTO_SPEC_WARN_OPTIONS.ends				= "特別提示：$spell:%s結束"
+L.AUTO_SPEC_WARN_OPTIONS.endtarget			= "特別提示：$spell:%s結束(包含目標)"
 L.AUTO_SPEC_WARN_OPTIONS.fades				= "特別提示：$spell:%s消退"
 L.AUTO_SPEC_WARN_OPTIONS.soon				= "特別提示：$spell:%s即將到來"
 L.AUTO_SPEC_WARN_OPTIONS.sooncount			= "特別提示：$spell:%s (包含計數)即將到來"

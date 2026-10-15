@@ -1,4 +1,4 @@
-## Interface: 120100
+## Interface: 120100, 120105
 ## AllowLoadGameType: standard
 ## Category: DBM
 ## Title:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cff4565ffBrawlers|r
@@ -53,3 +53,6 @@ Rank7.lua
 BrawlRumble.lua
 BrawlLegacy.lua
 BrawlChallenges.lua
+
+## Title-zhTW:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cff4565ff鬥陣俱樂部|r
+## IconTexture: Interface\AddOns\DBM-Core\textures\dbm_airhorn

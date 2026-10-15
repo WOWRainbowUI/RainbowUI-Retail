@@ -145,6 +145,7 @@ L.SEC_FMT					= "%s seg"
 
 L.GENERIC_WARNING_OTHERS	= "y otro"
 L.GENERIC_WARNING_OTHERS2	= "y otros %d"
+L.GENERIC_TRASH_TARGET	= "%s: %s"
 L.GENERIC_WARNING_BERSERK	= "Rabia en %s %s"
 L.GENERIC_TIMER_BERSERK		= "Rabia"
 L.OPTION_TIMER_BERSERK		= "Mostrar tiempo restante para $spell:26662"
@@ -416,6 +417,7 @@ L.AUTO_ANNOUNCE_OPTIONS.moveto			= "Mostrar anuncio para juntarse con alguien o 
 
 L.AUTO_SPEC_WARN_TEXTS.spell		= "¡%s!"
 L.AUTO_SPEC_WARN_TEXTS.ends			= "%s se ha terminado"
+L.AUTO_SPEC_WARN_TEXTS.endtarget	= "%s se ha terminado: >%%s<"
 L.AUTO_SPEC_WARN_TEXTS.fades		= "%s se ha desvanecido"
 L.AUTO_SPEC_WARN_TEXTS.soon			= "%s en breve"
 L.AUTO_SPEC_WARN_TEXTS.sooncount	= "%s (%%s) en breve"
@@ -467,6 +469,7 @@ L.AUTO_SPEC_WARN_TEXTS.targetchange	= "¡Cambia de objetivo a %%s!"
 -- Auto-generated Special Warning Localizations
 L.AUTO_SPEC_WARN_OPTIONS.spell 			= "Mostrar anuncio especial para $spell:%s"
 L.AUTO_SPEC_WARN_OPTIONS.ends 			= "Mostrar anuncio especial cuando $spell:%s termine"
+L.AUTO_SPEC_WARN_OPTIONS.endtarget		= "Mostrar anuncio especial (con objetivo) cuando $spell:%s termine"
 L.AUTO_SPEC_WARN_OPTIONS.fades 			= "Mostrar anuncio especial cuando $spell:%s se desvanezca"
 L.AUTO_SPEC_WARN_OPTIONS.soon 			= "Mostrar anuncio anticipado especial para $spell:%s"
 L.AUTO_SPEC_WARN_OPTIONS.sooncount		= "Mostrar anuncio anticipado especial (con contador) para $spell:%s"

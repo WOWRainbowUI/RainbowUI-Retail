@@ -1,6 +1,6 @@
-## Interface: 120100
+## Interface: 120100, 120105
 ## AllowLoadGameType: standard
-## Version: 12.1.13
+## Version: 12.1.14
 ## Category: DBM
 
 ## Title:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cff10ff10World Bosses (Midnight)|r
@@ -30,3 +30,5 @@ Cragpine.lua
 Luashal.lua
 Predaxas.lua
 Thormbelan.lua
+
+## IconTexture: Interface\AddOns\DBM-Core\textures\dbm_airhorn
