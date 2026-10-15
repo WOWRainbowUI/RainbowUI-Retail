@@ -1,2 +1,2 @@
-## Improvements
-- Loot specialization is restored after leaving the dungeon
+## Other Changes
+- Update to 12.1.5
