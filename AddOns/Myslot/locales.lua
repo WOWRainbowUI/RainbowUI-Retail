@@ -32,6 +32,7 @@ L["Addon messages are restricted right now (combat, encounter, Mythic+ or PvP). 
 L["All slots were restored"] = true
 L["Allow"] = true
 L["Already requesting '%s' from %s..."] = true
+L["Apply now"] = true
 L["Apply talents"] = true
 L["'Apply talents' can still load it, but talents changed since it was saved: check the loadout in the talent window before clicking 'Apply Changes'."] = true
 L["Applying..."] = true
@@ -49,8 +50,12 @@ L["By name"] = true
 L["CLEAR"] = true
 L["Click Cast Bindings"] = true
 L["Cooldown Manager"] = true
+L["Cooldown Manager changes take effect after you reload the UI. Reload now?"] = true
+L["Cooldown Manager layout saved. It takes effect the next time you log in or /reload."] = true
 L["Copy this string and import it in the talent window"] = true
+L["Could not clear the Cooldown Manager layout"] = true
 L["Could not delete %d 'Myslot' talent loadout(s)"] = true
+L["Could not import the Cooldown Manager layout"] = true
 L["Could not send the request, try again later."] = true
 L["DANGEROUS"] = true
 L["Deleted %d 'Myslot' talent loadout(s)"] = true
@@ -74,6 +79,7 @@ L["Import is not allowed when you are in combat"] = true
 L["Importing..."] = true
 L["Kept your text, discarded the received profile '%s'."] = true
 L["Key Binding"] = true
+L["Later"] = true
 L["Link in chat"] = true
 L["Macro %s was ignored, check if there is enough space to create"] = true
 L["Main Action Bar Page"] = true
@@ -82,6 +88,7 @@ L["Myslot"] = true
 L["Name of exported text"] = true
 L["No response from %s. They may be offline, busy, or not running Myslot."] = true
 L["No talent string in this profile"] = true
+L["Nothing to apply: the imported profile has no Cooldown Manager layout for your current specialization."] = true
 L["Nothing to import"] = true
 L["Nothing to share, save the profile first"] = true
 L["Only my class"] = true
@@ -106,6 +113,7 @@ L["Select a profile"] = true
 L["Select a saved profile to share it."] = true
 L["Sending profile '%s' to %s..."] = true
 L["Skip bad CRC32"] = true
+L["Skipped %d Cooldown Manager layout(s): this character already has the maximum number of layouts."] = true
 L["Skyriding Bar"] = true
 L["Sort by"] = true
 L["Stance Action Bar"] = true
@@ -120,18 +128,21 @@ L["Talents for another spec"] = true
 L["Talents match"] = true
 L["Talents out of date"] = true
 L["That Battle.net friend is not online in World of Warcraft."] = true
+L["The profile has no Cooldown Manager layout for your class"] = true
 L["The talents of this profile are different from your current talents."] = true
 L["These talents are for %s, switch to that specialization first"] = true
 L["These talents were saved from an older talent tree, check them before applying"] = true
 L["This profile is no longer shared, link it again."] = true
 L["Time"] = true
 L["Timed out applying talents"] = true
+L["To apply your current specialization's Cooldown Manager layout now: copy the text below (Ctrl+C), open the Cooldown Manager (/cdm), choose Import Layout from its settings menu, paste it, name it, then select it and click Save. Otherwise the whole imported layout takes effect the next time you log in or /reload."] = true
 L["TOC_NOTES"] = "Myslot is for transferring settings between accounts. Feedback farmer1992@gmail.com"
 L["Too many profiles, please delete before create new one."] = true
 L["Too many saved talent loadouts, delete one first"] = true
 L["Try force importing"] = true
 L["Unsaved"] = true
 L["Use random mount instead of an unattained mount"] = true
+L["You saved changes in the Cooldown Manager, so the layout Myslot saved earlier will not be applied."] = true
 
 elseif locale == 'deDE' then
 L[" before Import"] = " vor dem Importieren"
@@ -148,6 +159,8 @@ L["Addon messages are restricted right now (combat, encounter, Mythic+ or PvP). 
 L["All slots were restored"] = "Alle Slots wurden wiederhergestellt"
 L["Allow"] = "Erlauben"
 L["Already requesting '%s' from %s..."] = "Profil '%s' wird bereits von %s angefordert..."
+--[[Translation missing --]]
+--[[ L["Apply now"] = "Apply now"--]] 
 L["Apply talents"] = "Talente anwenden"
 L["'Apply talents' can still load it, but talents changed since it was saved: check the loadout in the talent window before clicking 'Apply Changes'."] = "Mit 'Talente anwenden' kann es trotzdem geladen werden, aber die Talente haben sich seit dem Speichern geändert: Überprüfen Sie die Konfiguration im Talentfenster, bevor Sie auf 'Änderungen anwenden' klicken."
 L["Applying..."] = "Wird angewendet..."
@@ -165,8 +178,16 @@ L["By name"] = "Nach Name"
 L["CLEAR"] = "LÖSCHEN"
 L["Click Cast Bindings"] = "Klickzauber-Belegungen"
 L["Cooldown Manager"] = "Abklingzeitmanager"
+--[[Translation missing --]]
+--[[ L["Cooldown Manager changes take effect after you reload the UI. Reload now?"] = "Cooldown Manager changes take effect after you reload the UI. Reload now?"--]] 
+--[[Translation missing --]]
+--[[ L["Cooldown Manager layout saved. It takes effect the next time you log in or /reload."] = "Cooldown Manager layout saved. It takes effect the next time you log in or /reload."--]] 
 L["Copy this string and import it in the talent window"] = "Kopieren Sie diesen Code und importieren Sie ihn im Talentfenster"
+--[[Translation missing --]]
+--[[ L["Could not clear the Cooldown Manager layout"] = "Could not clear the Cooldown Manager layout"--]] 
 L["Could not delete %d 'Myslot' talent loadout(s)"] = "Konnte %d 'Myslot'-Talentkonfiguration(en) nicht löschen"
+--[[Translation missing --]]
+--[[ L["Could not import the Cooldown Manager layout"] = "Could not import the Cooldown Manager layout"--]] 
 L["Could not send the request, try again later."] = "Die Anfrage konnte nicht gesendet werden, versuchen Sie es später erneut."
 L["DANGEROUS"] = "GEFÄHRLICH"
 L["Deleted %d 'Myslot' talent loadout(s)"] = "%d 'Myslot'-Talentkonfiguration(en) gelöscht"
@@ -190,6 +211,8 @@ L["Import is not allowed when you are in combat"] = "Importieren ist im Kampf ni
 L["Importing..."] = "Importiere..."
 L["Kept your text, discarded the received profile '%s'."] = "Ihr Text wurde beibehalten, das empfangene Profil '%s' wurde verworfen."
 L["Key Binding"] = "Tastenbelegung"
+--[[Translation missing --]]
+--[[ L["Later"] = "Later"--]] 
 L["Link in chat"] = "Im Chat verlinken"
 L["Macro %s was ignored, check if there is enough space to create"] = "Makro %s wurde ignoriert, prüfen Sie, ob genügend Platz vorhanden ist"
 L["Main Action Bar Page"] = "Haupt-Aktionsleisten-Seite"
@@ -198,6 +221,8 @@ L["Myslot"] = "Myslot"
 L["Name of exported text"] = "Name des exportierten Textes"
 L["No response from %s. They may be offline, busy, or not running Myslot."] = "Keine Antwort von %s. Der Spieler ist möglicherweise offline, beschäftigt oder verwendet Myslot nicht."
 L["No talent string in this profile"] = "Kein Talentcode in diesem Profil"
+--[[Translation missing --]]
+--[[ L["Nothing to apply: the imported profile has no Cooldown Manager layout for your current specialization."] = "Nothing to apply: the imported profile has no Cooldown Manager layout for your current specialization."--]] 
 L["Nothing to import"] = "Nichts zu importieren"
 L["Nothing to share, save the profile first"] = "Nichts zu teilen, speichern Sie zuerst das Profil"
 L["Only my class"] = "Nur meine Klasse"
@@ -222,6 +247,8 @@ L["Select a profile"] = "Profil auswählen"
 L["Select a saved profile to share it."] = "Wählen Sie ein gespeichertes Profil aus, um es zu teilen."
 L["Sending profile '%s' to %s..."] = "Profil '%s' wird an %s gesendet..."
 L["Skip bad CRC32"] = "Fehlerhafte CRC32 überspringen"
+--[[Translation missing --]]
+--[[ L["Skipped %d Cooldown Manager layout(s): this character already has the maximum number of layouts."] = "Skipped %d Cooldown Manager layout(s): this character already has the maximum number of layouts."--]] 
 L["Skyriding Bar"] = "Himmelsreiten-Leiste"
 L["Sort by"] = "Sortieren nach"
 L["Stance Action Bar"] = "Haltungs-Aktionsleiste"
@@ -236,18 +263,24 @@ L["Talents for another spec"] = "Talente einer anderen Spezialisierung"
 L["Talents match"] = "Talente stimmen überein"
 L["Talents out of date"] = "Talente veraltet"
 L["That Battle.net friend is not online in World of Warcraft."] = "Dieser Battle.net-Freund ist nicht in World of Warcraft online."
+--[[Translation missing --]]
+--[[ L["The profile has no Cooldown Manager layout for your class"] = "The profile has no Cooldown Manager layout for your class"--]] 
 L["The talents of this profile are different from your current talents."] = "Die Talente dieses Profils unterscheiden sich von Ihren aktuellen Talenten."
 L["These talents are for %s, switch to that specialization first"] = "Diese Talente sind für %s, wechseln Sie zuerst zu dieser Spezialisierung"
 L["These talents were saved from an older talent tree, check them before applying"] = "Diese Talente wurden mit einem älteren Talentbaum gespeichert, überprüfen Sie sie vor dem Anwenden"
 L["This profile is no longer shared, link it again."] = "Dieses Profil wird nicht mehr geteilt, verlinken Sie es erneut."
 L["Time"] = "Zeit"
 L["Timed out applying talents"] = "Zeitüberschreitung beim Anwenden der Talente"
+--[[Translation missing --]]
+--[[ L["To apply your current specialization's Cooldown Manager layout now: copy the text below (Ctrl+C), open the Cooldown Manager (/cdm), choose Import Layout from its settings menu, paste it, name it, then select it and click Save. Otherwise the whole imported layout takes effect the next time you log in or /reload."] = "To apply your current specialization's Cooldown Manager layout now: copy the text below (Ctrl+C), open the Cooldown Manager (/cdm), choose Import Layout from its settings menu, paste it, name it, then select it and click Save. Otherwise the whole imported layout takes effect the next time you log in or /reload."--]] 
 L["TOC_NOTES"] = "Myslot dient zum Übertragen von Einstellungen zwischen Konten. Feedback farmer1992@gmail.com"
 L["Too many profiles, please delete before create new one."] = "Zu viele Profile, bitte löschen Sie eines, bevor Sie ein neues erstellen."
 L["Too many saved talent loadouts, delete one first"] = "Zu viele gespeicherte Talentkonfigurationen, löschen Sie zuerst eine"
 L["Try force importing"] = "Versuchen Sie, den Import zu erzwingen"
 L["Unsaved"] = "Nicht gespeichert"
 L["Use random mount instead of an unattained mount"] = "Verwenden Sie ein zufälliges Reittier anstelle eines nicht erhaltenen"
+--[[Translation missing --]]
+--[[ L["You saved changes in the Cooldown Manager, so the layout Myslot saved earlier will not be applied."] = "You saved changes in the Cooldown Manager, so the layout Myslot saved earlier will not be applied."--]] 
 
 elseif locale == 'esES' then
 L[" before Import"] = " antes de importar"
@@ -264,6 +297,8 @@ L["Addon messages are restricted right now (combat, encounter, Mythic+ or PvP). 
 L["All slots were restored"] = "Todas las ranuras fueron restauradas"
 L["Allow"] = "Permitir"
 L["Already requesting '%s' from %s..."] = "Ya se está solicitando '%s' a %s..."
+--[[Translation missing --]]
+--[[ L["Apply now"] = "Apply now"--]] 
 L["Apply talents"] = "Aplicar talentos"
 L["'Apply talents' can still load it, but talents changed since it was saved: check the loadout in the talent window before clicking 'Apply Changes'."] = "'Aplicar talentos' aún puede cargarlo, pero los talentos han cambiado desde que se guardó: revisa la configuración en la ventana de talentos antes de pulsar 'Aplicar cambios'."
 L["Applying..."] = "Aplicando..."
@@ -281,8 +316,16 @@ L["By name"] = "Por nombre"
 L["CLEAR"] = "LIMPIAR"
 L["Click Cast Bindings"] = "Asignaciones de lanzamiento con clic"
 L["Cooldown Manager"] = "Gestor de tiempos de reutilización"
+--[[Translation missing --]]
+--[[ L["Cooldown Manager changes take effect after you reload the UI. Reload now?"] = "Cooldown Manager changes take effect after you reload the UI. Reload now?"--]] 
+--[[Translation missing --]]
+--[[ L["Cooldown Manager layout saved. It takes effect the next time you log in or /reload."] = "Cooldown Manager layout saved. It takes effect the next time you log in or /reload."--]] 
 L["Copy this string and import it in the talent window"] = "Copia este código e impórtalo en la ventana de talentos"
+--[[Translation missing --]]
+--[[ L["Could not clear the Cooldown Manager layout"] = "Could not clear the Cooldown Manager layout"--]] 
 L["Could not delete %d 'Myslot' talent loadout(s)"] = "No se pudieron eliminar %d configuraciones de talentos 'Myslot'"
+--[[Translation missing --]]
+--[[ L["Could not import the Cooldown Manager layout"] = "Could not import the Cooldown Manager layout"--]] 
 L["Could not send the request, try again later."] = "No se pudo enviar la solicitud, inténtalo de nuevo más tarde."
 L["DANGEROUS"] = "PELIGROSO"
 L["Deleted %d 'Myslot' talent loadout(s)"] = "Se eliminaron %d configuraciones de talentos 'Myslot'"
@@ -306,6 +349,8 @@ L["Import is not allowed when you are in combat"] = "No se permite importar mien
 L["Importing..."] = "Importando..."
 L["Kept your text, discarded the received profile '%s'."] = "Se ha conservado tu texto y se ha descartado el perfil recibido '%s'."
 L["Key Binding"] = "Atajo de teclado"
+--[[Translation missing --]]
+--[[ L["Later"] = "Later"--]] 
 L["Link in chat"] = "Enlace al chat"
 L["Macro %s was ignored, check if there is enough space to create"] = "La macro %s fue ignorada, verifica si hay suficiente espacio para crearla"
 L["Main Action Bar Page"] = "Página de barra de acción principal"
@@ -314,6 +359,8 @@ L["Myslot"] = "Myslot"
 L["Name of exported text"] = "Nombre del texto exportado"
 L["No response from %s. They may be offline, busy, or not running Myslot."] = "Sin respuesta de %s. Puede que esté desconectado, ocupado o que no use Myslot."
 L["No talent string in this profile"] = "Este perfil no tiene código de talentos"
+--[[Translation missing --]]
+--[[ L["Nothing to apply: the imported profile has no Cooldown Manager layout for your current specialization."] = "Nothing to apply: the imported profile has no Cooldown Manager layout for your current specialization."--]] 
 L["Nothing to import"] = "Nada que importar"
 L["Nothing to share, save the profile first"] = "Nada que compartir, guarda primero el perfil"
 L["Only my class"] = "Solo mi clase"
@@ -338,6 +385,8 @@ L["Select a profile"] = "Selecciona un perfil"
 L["Select a saved profile to share it."] = "Selecciona un perfil guardado para compartirlo."
 L["Sending profile '%s' to %s..."] = "Enviando el perfil '%s' a %s..."
 L["Skip bad CRC32"] = "Saltar CRC32 erróneo"
+--[[Translation missing --]]
+--[[ L["Skipped %d Cooldown Manager layout(s): this character already has the maximum number of layouts."] = "Skipped %d Cooldown Manager layout(s): this character already has the maximum number of layouts."--]] 
 L["Skyriding Bar"] = "Barra de vuelo"
 L["Sort by"] = "Ordenar por"
 L["Stance Action Bar"] = "Barra de acción de postura"
@@ -352,18 +401,24 @@ L["Talents for another spec"] = "Talentos de otra especialización"
 L["Talents match"] = "Talentos coinciden"
 L["Talents out of date"] = "Talentos desactualizados"
 L["That Battle.net friend is not online in World of Warcraft."] = "Ese amigo de Battle.net no está conectado en World of Warcraft."
+--[[Translation missing --]]
+--[[ L["The profile has no Cooldown Manager layout for your class"] = "The profile has no Cooldown Manager layout for your class"--]] 
 L["The talents of this profile are different from your current talents."] = "Los talentos de este perfil son distintos de tus talentos actuales."
 L["These talents are for %s, switch to that specialization first"] = "Estos talentos son para %s, cambia primero a esa especialización"
 L["These talents were saved from an older talent tree, check them before applying"] = "Estos talentos se guardaron con un árbol de talentos anterior, revísalos antes de aplicarlos"
 L["This profile is no longer shared, link it again."] = "Este perfil ya no se comparte, vuelve a enlazarlo."
 L["Time"] = "Tiempo"
 L["Timed out applying talents"] = "Se agotó el tiempo al aplicar los talentos"
+--[[Translation missing --]]
+--[[ L["To apply your current specialization's Cooldown Manager layout now: copy the text below (Ctrl+C), open the Cooldown Manager (/cdm), choose Import Layout from its settings menu, paste it, name it, then select it and click Save. Otherwise the whole imported layout takes effect the next time you log in or /reload."] = "To apply your current specialization's Cooldown Manager layout now: copy the text below (Ctrl+C), open the Cooldown Manager (/cdm), choose Import Layout from its settings menu, paste it, name it, then select it and click Save. Otherwise the whole imported layout takes effect the next time you log in or /reload."--]] 
 L["TOC_NOTES"] = "Myslot es para transferir configuraciones entre cuentas. Comentarios: farmer1992@gmail.com"
 L["Too many profiles, please delete before create new one."] = "Demasiados perfiles, por favor elimina antes de crear uno nuevo."
 L["Too many saved talent loadouts, delete one first"] = "Demasiadas configuraciones de talentos guardadas, elimina una primero"
 L["Try force importing"] = "Intentar forzar la importación"
 L["Unsaved"] = "No guardado"
 L["Use random mount instead of an unattained mount"] = "Usar montura aleatoria en lugar de una no obtenida"
+--[[Translation missing --]]
+--[[ L["You saved changes in the Cooldown Manager, so the layout Myslot saved earlier will not be applied."] = "You saved changes in the Cooldown Manager, so the layout Myslot saved earlier will not be applied."--]] 
 
 elseif locale == 'esMX' then
 L[" before Import"] = " antes de importar"
@@ -380,6 +435,8 @@ L["Addon messages are restricted right now (combat, encounter, Mythic+ or PvP). 
 L["All slots were restored"] = "Todas las ranuras fueron restauradas"
 L["Allow"] = "Permitir"
 L["Already requesting '%s' from %s..."] = "Ya se está solicitando '%s' a %s..."
+--[[Translation missing --]]
+--[[ L["Apply now"] = "Apply now"--]] 
 L["Apply talents"] = "Aplicar talentos"
 L["'Apply talents' can still load it, but talents changed since it was saved: check the loadout in the talent window before clicking 'Apply Changes'."] = "'Aplicar talentos' aún puede cargarlo, pero los talentos han cambiado desde que se guardó: revisa la selección en la ventana de talentos antes de hacer clic en 'Aplicar cambios'."
 L["Applying..."] = "Aplicando..."
@@ -397,8 +454,16 @@ L["By name"] = "Por nombre"
 L["CLEAR"] = "LIMPIAR"
 L["Click Cast Bindings"] = "Asignaciones de lanzamiento con clic"
 L["Cooldown Manager"] = "Administrador de habilidades"
+--[[Translation missing --]]
+--[[ L["Cooldown Manager changes take effect after you reload the UI. Reload now?"] = "Cooldown Manager changes take effect after you reload the UI. Reload now?"--]] 
+--[[Translation missing --]]
+--[[ L["Cooldown Manager layout saved. It takes effect the next time you log in or /reload."] = "Cooldown Manager layout saved. It takes effect the next time you log in or /reload."--]] 
 L["Copy this string and import it in the talent window"] = "Copia este código e impórtalo en la ventana de talentos"
+--[[Translation missing --]]
+--[[ L["Could not clear the Cooldown Manager layout"] = "Could not clear the Cooldown Manager layout"--]] 
 L["Could not delete %d 'Myslot' talent loadout(s)"] = "No se pudieron eliminar %d selecciones de talentos 'Myslot'"
+--[[Translation missing --]]
+--[[ L["Could not import the Cooldown Manager layout"] = "Could not import the Cooldown Manager layout"--]] 
 L["Could not send the request, try again later."] = "No se pudo enviar la solicitud, inténtalo de nuevo más tarde."
 L["DANGEROUS"] = "PELIGROSO"
 L["Deleted %d 'Myslot' talent loadout(s)"] = "Se eliminaron %d selecciones de talentos 'Myslot'"
@@ -422,6 +487,8 @@ L["Import is not allowed when you are in combat"] = "No se permite importar mien
 L["Importing..."] = "Importando..."
 L["Kept your text, discarded the received profile '%s'."] = "Se ha conservado tu texto y se ha descartado el perfil recibido '%s'."
 L["Key Binding"] = "Atajo de teclado"
+--[[Translation missing --]]
+--[[ L["Later"] = "Later"--]] 
 L["Link in chat"] = "Enlace al chat"
 L["Macro %s was ignored, check if there is enough space to create"] = "La macro %s fue ignorada, verifica si hay suficiente espacio para crearla"
 L["Main Action Bar Page"] = "Página de barra de acción principal"
@@ -430,6 +497,8 @@ L["Myslot"] = "Myslot"
 L["Name of exported text"] = "Nombre del texto exportado"
 L["No response from %s. They may be offline, busy, or not running Myslot."] = "Sin respuesta de %s. Puede que esté desconectado, ocupado o que no use Myslot."
 L["No talent string in this profile"] = "Este perfil no tiene código de talentos"
+--[[Translation missing --]]
+--[[ L["Nothing to apply: the imported profile has no Cooldown Manager layout for your current specialization."] = "Nothing to apply: the imported profile has no Cooldown Manager layout for your current specialization."--]] 
 L["Nothing to import"] = "Nada que importar"
 L["Nothing to share, save the profile first"] = "Nada que compartir, guarda primero el perfil"
 L["Only my class"] = "Solo mi clase"
@@ -454,6 +523,8 @@ L["Select a profile"] = "Selecciona un perfil"
 L["Select a saved profile to share it."] = "Selecciona un perfil guardado para compartirlo."
 L["Sending profile '%s' to %s..."] = "Enviando el perfil '%s' a %s..."
 L["Skip bad CRC32"] = "Saltar CRC32 erróneo"
+--[[Translation missing --]]
+--[[ L["Skipped %d Cooldown Manager layout(s): this character already has the maximum number of layouts."] = "Skipped %d Cooldown Manager layout(s): this character already has the maximum number of layouts."--]] 
 L["Skyriding Bar"] = "Barra de vuelo"
 L["Sort by"] = "Ordenar por"
 L["Stance Action Bar"] = "Barra de acción de postura"
@@ -468,18 +539,24 @@ L["Talents for another spec"] = "Talentos de otra especialización"
 L["Talents match"] = "Talentos coinciden"
 L["Talents out of date"] = "Talentos desactualizados"
 L["That Battle.net friend is not online in World of Warcraft."] = "Ese amigo de Battle.net no está conectado en World of Warcraft."
+--[[Translation missing --]]
+--[[ L["The profile has no Cooldown Manager layout for your class"] = "The profile has no Cooldown Manager layout for your class"--]] 
 L["The talents of this profile are different from your current talents."] = "Los talentos de este perfil son distintos de tus talentos actuales."
 L["These talents are for %s, switch to that specialization first"] = "Estos talentos son para %s, cambia primero a esa especialización"
 L["These talents were saved from an older talent tree, check them before applying"] = "Estos talentos se guardaron con un árbol de talentos anterior, revísalos antes de aplicarlos"
 L["This profile is no longer shared, link it again."] = "Este perfil ya no se comparte, vuelve a enlazarlo."
 L["Time"] = "Tiempo"
 L["Timed out applying talents"] = "Se agotó el tiempo al aplicar los talentos"
+--[[Translation missing --]]
+--[[ L["To apply your current specialization's Cooldown Manager layout now: copy the text below (Ctrl+C), open the Cooldown Manager (/cdm), choose Import Layout from its settings menu, paste it, name it, then select it and click Save. Otherwise the whole imported layout takes effect the next time you log in or /reload."] = "To apply your current specialization's Cooldown Manager layout now: copy the text below (Ctrl+C), open the Cooldown Manager (/cdm), choose Import Layout from its settings menu, paste it, name it, then select it and click Save. Otherwise the whole imported layout takes effect the next time you log in or /reload."--]] 
 L["TOC_NOTES"] = "Myslot es para transferir configuraciones entre cuentas. Comentarios: farmer1992@gmail.com"
 L["Too many profiles, please delete before create new one."] = "Demasiados perfiles, por favor elimina antes de crear uno nuevo."
 L["Too many saved talent loadouts, delete one first"] = "Demasiadas selecciones de talentos guardadas, elimina una primero"
 L["Try force importing"] = "Intentar forzar la importación"
 L["Unsaved"] = "No guardado"
 L["Use random mount instead of an unattained mount"] = "Usar montura aleatoria en lugar de una no obtenida"
+--[[Translation missing --]]
+--[[ L["You saved changes in the Cooldown Manager, so the layout Myslot saved earlier will not be applied."] = "You saved changes in the Cooldown Manager, so the layout Myslot saved earlier will not be applied."--]] 
 
 elseif locale == 'frFR' then
 L[" before Import"] = " avant l'importation"
@@ -496,6 +573,8 @@ L["Addon messages are restricted right now (combat, encounter, Mythic+ or PvP). 
 L["All slots were restored"] = "Tous les emplacements ont été restaurés"
 L["Allow"] = "Autoriser"
 L["Already requesting '%s' from %s..."] = "Demande de '%s' à %s déjà en cours..."
+--[[Translation missing --]]
+--[[ L["Apply now"] = "Apply now"--]] 
 L["Apply talents"] = "Appliquer les talents"
 L["'Apply talents' can still load it, but talents changed since it was saved: check the loadout in the talent window before clicking 'Apply Changes'."] = "'Appliquer les talents' peut encore la charger, mais les talents ont changé depuis la sauvegarde : vérifiez la configuration dans la fenêtre des talents avant de cliquer sur 'Appliquer changements'."
 L["Applying..."] = "Application..."
@@ -513,8 +592,16 @@ L["By name"] = "Par nom"
 L["CLEAR"] = "EFFACER"
 L["Click Cast Bindings"] = "Raccourcis des sorts à la souris"
 L["Cooldown Manager"] = "Gestionnaire de temps de recharge"
+--[[Translation missing --]]
+--[[ L["Cooldown Manager changes take effect after you reload the UI. Reload now?"] = "Cooldown Manager changes take effect after you reload the UI. Reload now?"--]] 
+--[[Translation missing --]]
+--[[ L["Cooldown Manager layout saved. It takes effect the next time you log in or /reload."] = "Cooldown Manager layout saved. It takes effect the next time you log in or /reload."--]] 
 L["Copy this string and import it in the talent window"] = "Copiez ce code et importez-le dans la fenêtre des talents"
+--[[Translation missing --]]
+--[[ L["Could not clear the Cooldown Manager layout"] = "Could not clear the Cooldown Manager layout"--]] 
 L["Could not delete %d 'Myslot' talent loadout(s)"] = "Impossible de supprimer %d configuration(s) de talents 'Myslot'"
+--[[Translation missing --]]
+--[[ L["Could not import the Cooldown Manager layout"] = "Could not import the Cooldown Manager layout"--]] 
 L["Could not send the request, try again later."] = "Impossible d'envoyer la demande, réessayez plus tard."
 L["DANGEROUS"] = "DANGEREUX"
 L["Deleted %d 'Myslot' talent loadout(s)"] = "%d configuration(s) de talents 'Myslot' supprimée(s)"
@@ -538,6 +625,8 @@ L["Import is not allowed when you are in combat"] = "L'importation n'est pas aut
 L["Importing..."] = "Importation..."
 L["Kept your text, discarded the received profile '%s'."] = "Votre texte a été conservé, le profil reçu '%s' a été ignoré."
 L["Key Binding"] = "Raccourci clavier"
+--[[Translation missing --]]
+--[[ L["Later"] = "Later"--]] 
 L["Link in chat"] = "Poster le lien"
 L["Macro %s was ignored, check if there is enough space to create"] = "La macro %s a été ignorée, vérifiez s'il y a suffisamment d'espace pour la créer"
 L["Main Action Bar Page"] = "Page de la barre d'action principale"
@@ -546,6 +635,8 @@ L["Myslot"] = "Myslot"
 L["Name of exported text"] = "Nom du texte exporté"
 L["No response from %s. They may be offline, busy, or not running Myslot."] = "Aucune réponse de %s. Ce joueur est peut-être hors ligne, occupé ou n'utilise pas Myslot."
 L["No talent string in this profile"] = "Aucun code de talents dans ce profil"
+--[[Translation missing --]]
+--[[ L["Nothing to apply: the imported profile has no Cooldown Manager layout for your current specialization."] = "Nothing to apply: the imported profile has no Cooldown Manager layout for your current specialization."--]] 
 L["Nothing to import"] = "Rien à importer"
 L["Nothing to share, save the profile first"] = "Rien à partager, enregistrez d'abord le profil"
 L["Only my class"] = "Seulement ma classe"
@@ -570,6 +661,8 @@ L["Select a profile"] = "Sélectionnez un profil"
 L["Select a saved profile to share it."] = "Sélectionnez un profil enregistré pour le partager."
 L["Sending profile '%s' to %s..."] = "Envoi du profil '%s' à %s..."
 L["Skip bad CRC32"] = "Ignorer les CRC32 incorrects"
+--[[Translation missing --]]
+--[[ L["Skipped %d Cooldown Manager layout(s): this character already has the maximum number of layouts."] = "Skipped %d Cooldown Manager layout(s): this character already has the maximum number of layouts."--]] 
 L["Skyriding Bar"] = "Barre de vol"
 L["Sort by"] = "Trier par"
 L["Stance Action Bar"] = "Barre d'action de posture"
@@ -584,18 +677,24 @@ L["Talents for another spec"] = "Talents d'une autre spécialisation"
 L["Talents match"] = "Talents identiques"
 L["Talents out of date"] = "Talents obsolètes"
 L["That Battle.net friend is not online in World of Warcraft."] = "Cet ami Battle.net n'est pas connecté à World of Warcraft."
+--[[Translation missing --]]
+--[[ L["The profile has no Cooldown Manager layout for your class"] = "The profile has no Cooldown Manager layout for your class"--]] 
 L["The talents of this profile are different from your current talents."] = "Les talents de ce profil sont différents de vos talents actuels."
 L["These talents are for %s, switch to that specialization first"] = "Ces talents sont pour %s, passez d'abord à cette spécialisation"
 L["These talents were saved from an older talent tree, check them before applying"] = "Ces talents ont été enregistrés avec un ancien arbre de talents, vérifiez-les avant de les appliquer"
 L["This profile is no longer shared, link it again."] = "Ce profil n'est plus partagé, publiez à nouveau le lien."
 L["Time"] = "Temps"
 L["Timed out applying talents"] = "Délai dépassé lors de l'application des talents"
+--[[Translation missing --]]
+--[[ L["To apply your current specialization's Cooldown Manager layout now: copy the text below (Ctrl+C), open the Cooldown Manager (/cdm), choose Import Layout from its settings menu, paste it, name it, then select it and click Save. Otherwise the whole imported layout takes effect the next time you log in or /reload."] = "To apply your current specialization's Cooldown Manager layout now: copy the text below (Ctrl+C), open the Cooldown Manager (/cdm), choose Import Layout from its settings menu, paste it, name it, then select it and click Save. Otherwise the whole imported layout takes effect the next time you log in or /reload."--]] 
 L["TOC_NOTES"] = "Myslot permet de transférer des paramètres entre comptes. Retour : farmer1992@gmail.com"
 L["Too many profiles, please delete before create new one."] = "Trop de profils, veuillez en supprimer avant d'en créer un nouveau."
 L["Too many saved talent loadouts, delete one first"] = "Trop de configurations de talents enregistrées, supprimez-en une d'abord"
 L["Try force importing"] = "Essayer de forcer l'importation"
 L["Unsaved"] = "Non sauvegardé"
 L["Use random mount instead of an unattained mount"] = "Utiliser une monture aléatoire au lieu d'une non obtenue"
+--[[Translation missing --]]
+--[[ L["You saved changes in the Cooldown Manager, so the layout Myslot saved earlier will not be applied."] = "You saved changes in the Cooldown Manager, so the layout Myslot saved earlier will not be applied."--]] 
 
 elseif locale == 'itIT' then
 L[" before Import"] = " prima dell'importazione"
@@ -612,6 +711,8 @@ L["Addon messages are restricted right now (combat, encounter, Mythic+ or PvP). 
 L["All slots were restored"] = "Tutti gli slot sono stati ripristinati"
 L["Allow"] = "Permetti"
 L["Already requesting '%s' from %s..."] = "Richiesta di '%s' a %s già in corso..."
+--[[Translation missing --]]
+--[[ L["Apply now"] = "Apply now"--]] 
 L["Apply talents"] = "Applica talenti"
 L["'Apply talents' can still load it, but talents changed since it was saved: check the loadout in the talent window before clicking 'Apply Changes'."] = "'Applica talenti' può comunque caricarlo, ma i talenti sono cambiati da quando è stato salvato: controlla la configurazione nella finestra dei talenti prima di fare clic su 'Applica modifiche'."
 L["Applying..."] = "Applicazione..."
@@ -629,8 +730,16 @@ L["By name"] = "Per nome"
 L["CLEAR"] = "CANCELLA"
 L["Click Cast Bindings"] = "Assegnazioni lancio al clic"
 L["Cooldown Manager"] = "Gestore tempi di recupero"
+--[[Translation missing --]]
+--[[ L["Cooldown Manager changes take effect after you reload the UI. Reload now?"] = "Cooldown Manager changes take effect after you reload the UI. Reload now?"--]] 
+--[[Translation missing --]]
+--[[ L["Cooldown Manager layout saved. It takes effect the next time you log in or /reload."] = "Cooldown Manager layout saved. It takes effect the next time you log in or /reload."--]] 
 L["Copy this string and import it in the talent window"] = "Copia questo codice e importalo nella finestra dei talenti"
+--[[Translation missing --]]
+--[[ L["Could not clear the Cooldown Manager layout"] = "Could not clear the Cooldown Manager layout"--]] 
 L["Could not delete %d 'Myslot' talent loadout(s)"] = "Impossibile eliminare %d configurazioni dei talenti 'Myslot'"
+--[[Translation missing --]]
+--[[ L["Could not import the Cooldown Manager layout"] = "Could not import the Cooldown Manager layout"--]] 
 L["Could not send the request, try again later."] = "Impossibile inviare la richiesta, riprova più tardi."
 L["DANGEROUS"] = "PERICOLOSO"
 L["Deleted %d 'Myslot' talent loadout(s)"] = "Eliminate %d configurazioni dei talenti 'Myslot'"
@@ -654,6 +763,8 @@ L["Import is not allowed when you are in combat"] = "L'importazione non è conse
 L["Importing..."] = "Importazione..."
 L["Kept your text, discarded the received profile '%s'."] = "Il tuo testo è stato mantenuto, il profilo ricevuto '%s' è stato scartato."
 L["Key Binding"] = "Assegnazione tasti"
+--[[Translation missing --]]
+--[[ L["Later"] = "Later"--]] 
 L["Link in chat"] = "Crea link in chat"
 L["Macro %s was ignored, check if there is enough space to create"] = "La macro %s è stata ignorata, verifica se c'è spazio sufficiente per crearla"
 L["Main Action Bar Page"] = "Pagina principale della barra delle azioni"
@@ -662,6 +773,8 @@ L["Myslot"] = "Myslot"
 L["Name of exported text"] = "Nome del testo esportato"
 L["No response from %s. They may be offline, busy, or not running Myslot."] = "Nessuna risposta da %s. Potrebbe essere offline, occupato o non usare Myslot."
 L["No talent string in this profile"] = "Nessun codice dei talenti in questo profilo"
+--[[Translation missing --]]
+--[[ L["Nothing to apply: the imported profile has no Cooldown Manager layout for your current specialization."] = "Nothing to apply: the imported profile has no Cooldown Manager layout for your current specialization."--]] 
 L["Nothing to import"] = "Niente da importare"
 L["Nothing to share, save the profile first"] = "Niente da condividere, salva prima il profilo"
 L["Only my class"] = "Solo la mia classe"
@@ -686,6 +799,8 @@ L["Select a profile"] = "Seleziona un profilo"
 L["Select a saved profile to share it."] = "Seleziona un profilo salvato per condividerlo."
 L["Sending profile '%s' to %s..."] = "Invio del profilo '%s' a %s..."
 L["Skip bad CRC32"] = "Ignora CRC32 errati"
+--[[Translation missing --]]
+--[[ L["Skipped %d Cooldown Manager layout(s): this character already has the maximum number of layouts."] = "Skipped %d Cooldown Manager layout(s): this character already has the maximum number of layouts."--]] 
 L["Skyriding Bar"] = "Barra di volo"
 L["Sort by"] = "Ordina per"
 L["Stance Action Bar"] = "Barra azioni postura"
@@ -700,18 +815,24 @@ L["Talents for another spec"] = "Talenti di un'altra specializzazione"
 L["Talents match"] = "Talenti corrispondenti"
 L["Talents out of date"] = "Talenti obsoleti"
 L["That Battle.net friend is not online in World of Warcraft."] = "Quell'amico Battle.net non è online in World of Warcraft."
+--[[Translation missing --]]
+--[[ L["The profile has no Cooldown Manager layout for your class"] = "The profile has no Cooldown Manager layout for your class"--]] 
 L["The talents of this profile are different from your current talents."] = "I talenti di questo profilo sono diversi dai tuoi talenti attuali."
 L["These talents are for %s, switch to that specialization first"] = "Questi talenti sono per %s, passa prima a quella specializzazione"
 L["These talents were saved from an older talent tree, check them before applying"] = "Questi talenti sono stati salvati con un albero dei talenti precedente, controllali prima di applicarli"
 L["This profile is no longer shared, link it again."] = "Questo profilo non è più condiviso, crea di nuovo il link."
 L["Time"] = "Tempo"
 L["Timed out applying talents"] = "Tempo scaduto durante l'applicazione dei talenti"
+--[[Translation missing --]]
+--[[ L["To apply your current specialization's Cooldown Manager layout now: copy the text below (Ctrl+C), open the Cooldown Manager (/cdm), choose Import Layout from its settings menu, paste it, name it, then select it and click Save. Otherwise the whole imported layout takes effect the next time you log in or /reload."] = "To apply your current specialization's Cooldown Manager layout now: copy the text below (Ctrl+C), open the Cooldown Manager (/cdm), choose Import Layout from its settings menu, paste it, name it, then select it and click Save. Otherwise the whole imported layout takes effect the next time you log in or /reload."--]] 
 L["TOC_NOTES"] = "Myslot serve per trasferire impostazioni tra account. Feedback: farmer1992@gmail.com"
 L["Too many profiles, please delete before create new one."] = "Troppi profili, eliminane uno prima di crearne uno nuovo."
 L["Too many saved talent loadouts, delete one first"] = "Troppe configurazioni dei talenti salvate, eliminane prima una"
 L["Try force importing"] = "Prova a forzare l'importazione"
 L["Unsaved"] = "Non salvato"
 L["Use random mount instead of an unattained mount"] = "Usa una cavalcatura casuale invece di una non ottenuta"
+--[[Translation missing --]]
+--[[ L["You saved changes in the Cooldown Manager, so the layout Myslot saved earlier will not be applied."] = "You saved changes in the Cooldown Manager, so the layout Myslot saved earlier will not be applied."--]] 
 
 elseif locale == 'koKR' then
 L[" before Import"] = " 가져오기 전"
@@ -728,6 +849,8 @@ L["Addon messages are restricted right now (combat, encounter, Mythic+ or PvP). 
 L["All slots were restored"] = "모든 슬롯이 복원되었습니다."
 L["Allow"] = "허용"
 L["Already requesting '%s' from %s..."] = "이미 '%s' 프로필을 %s 님에게 요청하는 중입니다..."
+--[[Translation missing --]]
+--[[ L["Apply now"] = "Apply now"--]] 
 L["Apply talents"] = "특성 적용"
 L["'Apply talents' can still load it, but talents changed since it was saved: check the loadout in the talent window before clicking 'Apply Changes'."] = "'특성 적용'으로 불러올 수는 있지만 저장 이후 특성이 변경되었습니다. '변경 사항 적용'을 누르기 전에 특성 창에서 구성을 확인하세요."
 L["Applying..."] = "적용 중..."
@@ -745,8 +868,16 @@ L["By name"] = "이름별"
 L["CLEAR"] = "지우기"
 L["Click Cast Bindings"] = "클릭 시전 설정"
 L["Cooldown Manager"] = "재사용 대기시간 관리자"
+--[[Translation missing --]]
+--[[ L["Cooldown Manager changes take effect after you reload the UI. Reload now?"] = "Cooldown Manager changes take effect after you reload the UI. Reload now?"--]] 
+--[[Translation missing --]]
+--[[ L["Cooldown Manager layout saved. It takes effect the next time you log in or /reload."] = "Cooldown Manager layout saved. It takes effect the next time you log in or /reload."--]] 
 L["Copy this string and import it in the talent window"] = "이 문자열을 복사하여 특성 창에서 가져오세요"
+--[[Translation missing --]]
+--[[ L["Could not clear the Cooldown Manager layout"] = "Could not clear the Cooldown Manager layout"--]] 
 L["Could not delete %d 'Myslot' talent loadout(s)"] = "'Myslot' 특성 구성 %d개를 삭제하지 못했습니다"
+--[[Translation missing --]]
+--[[ L["Could not import the Cooldown Manager layout"] = "Could not import the Cooldown Manager layout"--]] 
 L["Could not send the request, try again later."] = "요청을 보낼 수 없습니다. 나중에 다시 시도하세요."
 L["DANGEROUS"] = "위험"
 L["Deleted %d 'Myslot' talent loadout(s)"] = "'Myslot' 특성 구성 %d개를 삭제했습니다"
@@ -770,6 +901,8 @@ L["Import is not allowed when you are in combat"] = "전투 중에는 가져오�
 L["Importing..."] = "가져오는 중..."
 L["Kept your text, discarded the received profile '%s'."] = "입력한 텍스트를 유지하고 받은 프로필 '%s'을(를) 버렸습니다."
 L["Key Binding"] = "키 설정"
+--[[Translation missing --]]
+--[[ L["Later"] = "Later"--]] 
 L["Link in chat"] = "대화창에 링크"
 L["Macro %s was ignored, check if there is enough space to create"] = "매크로 %s이 무시되었습니다. 생성할 공간이 충분한지 확인하세요."
 L["Main Action Bar Page"] = "주 행동바 페이지"
@@ -778,6 +911,8 @@ L["Myslot"] = "Myslot"
 L["Name of exported text"] = "내보낸 텍스트의 이름"
 L["No response from %s. They may be offline, busy, or not running Myslot."] = "%s 님의 응답이 없습니다. 오프라인이거나 바쁘거나 Myslot을 사용하지 않을 수 있습니다."
 L["No talent string in this profile"] = "이 프로필에 특성 문자열이 없습니다"
+--[[Translation missing --]]
+--[[ L["Nothing to apply: the imported profile has no Cooldown Manager layout for your current specialization."] = "Nothing to apply: the imported profile has no Cooldown Manager layout for your current specialization."--]] 
 L["Nothing to import"] = "가져올 항목이 없습니다"
 L["Nothing to share, save the profile first"] = "공유할 항목이 없습니다. 먼저 프로필을 저장하세요"
 L["Only my class"] = "내 직업만"
@@ -802,6 +937,8 @@ L["Select a profile"] = "프로필 선택"
 L["Select a saved profile to share it."] = "공유할 저장된 프로필을 선택하세요."
 L["Sending profile '%s' to %s..."] = "'%s' 프로필을 %s 님에게 보내는 중..."
 L["Skip bad CRC32"] = "잘못된 CRC32 건너뛰기"
+--[[Translation missing --]]
+--[[ L["Skipped %d Cooldown Manager layout(s): this character already has the maximum number of layouts."] = "Skipped %d Cooldown Manager layout(s): this character already has the maximum number of layouts."--]] 
 L["Skyriding Bar"] = "비행바"
 L["Sort by"] = "정렬 기준"
 L["Stance Action Bar"] = "태세 행동바"
@@ -816,18 +953,24 @@ L["Talents for another spec"] = "다른 전문화의 특성"
 L["Talents match"] = "특성 일치"
 L["Talents out of date"] = "오래된 특성"
 L["That Battle.net friend is not online in World of Warcraft."] = "해당 Battle.net 친구는 World of Warcraft에 접속 중이 아닙니다."
+--[[Translation missing --]]
+--[[ L["The profile has no Cooldown Manager layout for your class"] = "The profile has no Cooldown Manager layout for your class"--]] 
 L["The talents of this profile are different from your current talents."] = "이 프로필의 특성이 현재 특성과 다릅니다."
 L["These talents are for %s, switch to that specialization first"] = "이 특성은 %s 전문화용입니다. 먼저 해당 전문화로 변경하세요"
 L["These talents were saved from an older talent tree, check them before applying"] = "이전 특성 트리에서 저장된 특성입니다. 적용하기 전에 확인하세요"
 L["This profile is no longer shared, link it again."] = "이 프로필은 더 이상 공유되지 않습니다. 다시 링크하세요."
 L["Time"] = "시간"
 L["Timed out applying talents"] = "특성 적용 시간 초과"
+--[[Translation missing --]]
+--[[ L["To apply your current specialization's Cooldown Manager layout now: copy the text below (Ctrl+C), open the Cooldown Manager (/cdm), choose Import Layout from its settings menu, paste it, name it, then select it and click Save. Otherwise the whole imported layout takes effect the next time you log in or /reload."] = "To apply your current specialization's Cooldown Manager layout now: copy the text below (Ctrl+C), open the Cooldown Manager (/cdm), choose Import Layout from its settings menu, paste it, name it, then select it and click Save. Otherwise the whole imported layout takes effect the next time you log in or /reload."--]] 
 L["TOC_NOTES"] = "Myslot은 계정 간 설정 전송에 사용됩니다. 피드백: farmer1992@gmail.com"
 L["Too many profiles, please delete before create new one."] = "프로필이 너무 많습니다. 새로 만들기 전에 삭제하세요."
 L["Too many saved talent loadouts, delete one first"] = "저장된 특성 구성이 너무 많습니다. 먼저 하나를 삭제하세요"
 L["Try force importing"] = "강제 가져오기 시도"
 L["Unsaved"] = "저장되지 않음"
 L["Use random mount instead of an unattained mount"] = "획득하지 않은 탈것 대신 랜덤 탈것 사용"
+--[[Translation missing --]]
+--[[ L["You saved changes in the Cooldown Manager, so the layout Myslot saved earlier will not be applied."] = "You saved changes in the Cooldown Manager, so the layout Myslot saved earlier will not be applied."--]] 
 
 elseif locale == 'ptBR' then
 L[" before Import"] = " antes da importação"
@@ -844,6 +987,8 @@ L["Addon messages are restricted right now (combat, encounter, Mythic+ or PvP). 
 L["All slots were restored"] = "Todos os slots foram restaurados"
 L["Allow"] = "Permitir"
 L["Already requesting '%s' from %s..."] = "Já solicitando '%s' de %s..."
+--[[Translation missing --]]
+--[[ L["Apply now"] = "Apply now"--]] 
 L["Apply talents"] = "Aplicar talentos"
 L["'Apply talents' can still load it, but talents changed since it was saved: check the loadout in the talent window before clicking 'Apply Changes'."] = "'Aplicar talentos' ainda pode carregá-lo, mas os talentos mudaram desde que foi salvo: confira o equipamento na janela de talentos antes de clicar em 'Aplicar mudanças'."
 L["Applying..."] = "Aplicando..."
@@ -861,8 +1006,16 @@ L["By name"] = "Por nome"
 L["CLEAR"] = "LIMPAR"
 L["Click Cast Bindings"] = "Atalhos de lançar com clique"
 L["Cooldown Manager"] = "Gerenciador de recarga"
+--[[Translation missing --]]
+--[[ L["Cooldown Manager changes take effect after you reload the UI. Reload now?"] = "Cooldown Manager changes take effect after you reload the UI. Reload now?"--]] 
+--[[Translation missing --]]
+--[[ L["Cooldown Manager layout saved. It takes effect the next time you log in or /reload."] = "Cooldown Manager layout saved. It takes effect the next time you log in or /reload."--]] 
 L["Copy this string and import it in the talent window"] = "Copie este código e importe-o na janela de talentos"
+--[[Translation missing --]]
+--[[ L["Could not clear the Cooldown Manager layout"] = "Could not clear the Cooldown Manager layout"--]] 
 L["Could not delete %d 'Myslot' talent loadout(s)"] = "Não foi possível excluir %d equipamento(s) de talentos 'Myslot'"
+--[[Translation missing --]]
+--[[ L["Could not import the Cooldown Manager layout"] = "Could not import the Cooldown Manager layout"--]] 
 L["Could not send the request, try again later."] = "Não foi possível enviar a solicitação, tente novamente mais tarde."
 L["DANGEROUS"] = "PERIGOSO"
 L["Deleted %d 'Myslot' talent loadout(s)"] = "%d equipamento(s) de talentos 'Myslot' excluído(s)"
@@ -886,6 +1039,8 @@ L["Import is not allowed when you are in combat"] = "A importação não é perm
 L["Importing..."] = "Importando..."
 L["Kept your text, discarded the received profile '%s'."] = "Seu texto foi mantido e o perfil recebido '%s' foi descartado."
 L["Key Binding"] = "Atalho de Tecla"
+--[[Translation missing --]]
+--[[ L["Later"] = "Later"--]] 
 L["Link in chat"] = "Link no bate-papo"
 L["Macro %s was ignored, check if there is enough space to create"] = "A macro %s foi ignorada, verifique se há espaço suficiente para criar"
 L["Main Action Bar Page"] = "Página da Barra de Ações Principal"
@@ -894,6 +1049,8 @@ L["Myslot"] = "Myslot"
 L["Name of exported text"] = "Nome do texto exportado"
 L["No response from %s. They may be offline, busy, or not running Myslot."] = "Sem resposta de %s. O jogador pode estar desconectado, ocupado ou sem o Myslot."
 L["No talent string in this profile"] = "Nenhum código de talentos neste perfil"
+--[[Translation missing --]]
+--[[ L["Nothing to apply: the imported profile has no Cooldown Manager layout for your current specialization."] = "Nothing to apply: the imported profile has no Cooldown Manager layout for your current specialization."--]] 
 L["Nothing to import"] = "Nada para importar"
 L["Nothing to share, save the profile first"] = "Nada para compartilhar, salve o perfil primeiro"
 L["Only my class"] = "Apenas minha classe"
@@ -918,6 +1075,8 @@ L["Select a profile"] = "Selecione um perfil"
 L["Select a saved profile to share it."] = "Selecione um perfil salvo para compartilhá-lo."
 L["Sending profile '%s' to %s..."] = "Enviando o perfil '%s' para %s..."
 L["Skip bad CRC32"] = "Pular CRC32 inválido"
+--[[Translation missing --]]
+--[[ L["Skipped %d Cooldown Manager layout(s): this character already has the maximum number of layouts."] = "Skipped %d Cooldown Manager layout(s): this character already has the maximum number of layouts."--]] 
 L["Skyriding Bar"] = "Barra de Voo"
 L["Sort by"] = "Classificar por"
 L["Stance Action Bar"] = "Barra de Ações de Postura"
@@ -932,18 +1091,24 @@ L["Talents for another spec"] = "Talentos de outra especialização"
 L["Talents match"] = "Talentos correspondem"
 L["Talents out of date"] = "Talentos desatualizados"
 L["That Battle.net friend is not online in World of Warcraft."] = "Esse amigo da Battle.net não está on-line no World of Warcraft."
+--[[Translation missing --]]
+--[[ L["The profile has no Cooldown Manager layout for your class"] = "The profile has no Cooldown Manager layout for your class"--]] 
 L["The talents of this profile are different from your current talents."] = "Os talentos deste perfil são diferentes dos seus talentos atuais."
 L["These talents are for %s, switch to that specialization first"] = "Estes talentos são para %s, mude para essa especialização primeiro"
 L["These talents were saved from an older talent tree, check them before applying"] = "Estes talentos foram salvos em uma árvore de talentos antiga, confira-os antes de aplicar"
 L["This profile is no longer shared, link it again."] = "Este perfil não está mais compartilhado, crie o link novamente."
 L["Time"] = "Tempo"
 L["Timed out applying talents"] = "Tempo esgotado ao aplicar os talentos"
+--[[Translation missing --]]
+--[[ L["To apply your current specialization's Cooldown Manager layout now: copy the text below (Ctrl+C), open the Cooldown Manager (/cdm), choose Import Layout from its settings menu, paste it, name it, then select it and click Save. Otherwise the whole imported layout takes effect the next time you log in or /reload."] = "To apply your current specialization's Cooldown Manager layout now: copy the text below (Ctrl+C), open the Cooldown Manager (/cdm), choose Import Layout from its settings menu, paste it, name it, then select it and click Save. Otherwise the whole imported layout takes effect the next time you log in or /reload."--]] 
 L["TOC_NOTES"] = "Myslot é para transferir configurações entre contas. Feedback: farmer1992@gmail.com"
 L["Too many profiles, please delete before create new one."] = "Perfis demais, exclua antes de criar um novo."
 L["Too many saved talent loadouts, delete one first"] = "Equipamentos de talentos salvos demais, exclua um primeiro"
 L["Try force importing"] = "Tentar forçar a importação"
 L["Unsaved"] = "Não Salvo"
 L["Use random mount instead of an unattained mount"] = "Usar montaria aleatória em vez de uma não obtida"
+--[[Translation missing --]]
+--[[ L["You saved changes in the Cooldown Manager, so the layout Myslot saved earlier will not be applied."] = "You saved changes in the Cooldown Manager, so the layout Myslot saved earlier will not be applied."--]] 
 
 elseif locale == 'ruRU' then
 L[" before Import"] = " перед импортом"
@@ -960,6 +1125,8 @@ L["Addon messages are restricted right now (combat, encounter, Mythic+ or PvP). 
 L["All slots were restored"] = "Все слоты восстановлены"
 L["Allow"] = "Разрешить"
 L["Already requesting '%s' from %s..."] = "Профиль '%s' уже запрашивается у %s..."
+--[[Translation missing --]]
+--[[ L["Apply now"] = "Apply now"--]] 
 L["Apply talents"] = "Применить таланты"
 L["'Apply talents' can still load it, but talents changed since it was saved: check the loadout in the talent window before clicking 'Apply Changes'."] = "'Применить таланты' всё ещё может загрузить его, но таланты изменились с момента сохранения: проверьте макет в окне талантов, прежде чем нажать 'Применить изменения'."
 L["Applying..."] = "Применение..."
@@ -977,8 +1144,16 @@ L["By name"] = "По имени"
 L["CLEAR"] = "ОЧИСТИТЬ"
 L["Click Cast Bindings"] = "Привязки заклинаний к кнопкам мыши"
 L["Cooldown Manager"] = "Трекер восстановления"
+--[[Translation missing --]]
+--[[ L["Cooldown Manager changes take effect after you reload the UI. Reload now?"] = "Cooldown Manager changes take effect after you reload the UI. Reload now?"--]] 
+--[[Translation missing --]]
+--[[ L["Cooldown Manager layout saved. It takes effect the next time you log in or /reload."] = "Cooldown Manager layout saved. It takes effect the next time you log in or /reload."--]] 
 L["Copy this string and import it in the talent window"] = "Скопируйте эту строку и импортируйте её в окне талантов"
+--[[Translation missing --]]
+--[[ L["Could not clear the Cooldown Manager layout"] = "Could not clear the Cooldown Manager layout"--]] 
 L["Could not delete %d 'Myslot' talent loadout(s)"] = "Не удалось удалить макеты талантов 'Myslot': %d"
+--[[Translation missing --]]
+--[[ L["Could not import the Cooldown Manager layout"] = "Could not import the Cooldown Manager layout"--]] 
 L["Could not send the request, try again later."] = "Не удалось отправить запрос, повторите попытку позже."
 L["DANGEROUS"] = "ОПАСНО"
 L["Deleted %d 'Myslot' talent loadout(s)"] = "Удалено макетов талантов 'Myslot': %d"
@@ -1002,6 +1177,8 @@ L["Import is not allowed when you are in combat"] = "Импорт запреще
 L["Importing..."] = "Импорт..."
 L["Kept your text, discarded the received profile '%s'."] = "Ваш текст сохранён, полученный профиль '%s' отброшен."
 L["Key Binding"] = "Привязка клавиш"
+--[[Translation missing --]]
+--[[ L["Later"] = "Later"--]] 
 L["Link in chat"] = "Поделиться в чате"
 L["Macro %s was ignored, check if there is enough space to create"] = "Макрос %s пропущен, проверьте, достаточно ли места для создания"
 L["Main Action Bar Page"] = "Основная панель действий"
@@ -1010,6 +1187,8 @@ L["Myslot"] = "Myslot"
 L["Name of exported text"] = "Имя экспортированного текста"
 L["No response from %s. They may be offline, busy, or not running Myslot."] = "Нет ответа от %s. Возможно, игрок не в сети, занят или не использует Myslot."
 L["No talent string in this profile"] = "В этом профиле нет строки талантов"
+--[[Translation missing --]]
+--[[ L["Nothing to apply: the imported profile has no Cooldown Manager layout for your current specialization."] = "Nothing to apply: the imported profile has no Cooldown Manager layout for your current specialization."--]] 
 L["Nothing to import"] = "Нечего импортировать"
 L["Nothing to share, save the profile first"] = "Нечем делиться, сначала сохраните профиль"
 L["Only my class"] = "Только мой класс"
@@ -1034,6 +1213,8 @@ L["Select a profile"] = "Выберите профиль"
 L["Select a saved profile to share it."] = "Выберите сохранённый профиль, чтобы поделиться им."
 L["Sending profile '%s' to %s..."] = "Отправка профиля '%s' игроку %s..."
 L["Skip bad CRC32"] = "Пропустить неверный CRC32"
+--[[Translation missing --]]
+--[[ L["Skipped %d Cooldown Manager layout(s): this character already has the maximum number of layouts."] = "Skipped %d Cooldown Manager layout(s): this character already has the maximum number of layouts."--]] 
 L["Skyriding Bar"] = "Панель полета"
 L["Sort by"] = "Сортировка"
 L["Stance Action Bar"] = "Панель действий стоек"
@@ -1048,18 +1229,24 @@ L["Talents for another spec"] = "Таланты другой специализ�
 L["Talents match"] = "Таланты совпадают"
 L["Talents out of date"] = "Таланты устарели"
 L["That Battle.net friend is not online in World of Warcraft."] = "Этот друг из Battle.net не в сети в World of Warcraft."
+--[[Translation missing --]]
+--[[ L["The profile has no Cooldown Manager layout for your class"] = "The profile has no Cooldown Manager layout for your class"--]] 
 L["The talents of this profile are different from your current talents."] = "Таланты этого профиля отличаются от ваших текущих талантов."
 L["These talents are for %s, switch to that specialization first"] = "Эти таланты для %s, сначала переключитесь на эту специализацию"
 L["These talents were saved from an older talent tree, check them before applying"] = "Эти таланты сохранены для старого дерева талантов, проверьте их перед применением"
 L["This profile is no longer shared, link it again."] = "Этот профиль больше не доступен, поделитесь ссылкой снова."
 L["Time"] = "Время"
 L["Timed out applying talents"] = "Время ожидания применения талантов истекло"
+--[[Translation missing --]]
+--[[ L["To apply your current specialization's Cooldown Manager layout now: copy the text below (Ctrl+C), open the Cooldown Manager (/cdm), choose Import Layout from its settings menu, paste it, name it, then select it and click Save. Otherwise the whole imported layout takes effect the next time you log in or /reload."] = "To apply your current specialization's Cooldown Manager layout now: copy the text below (Ctrl+C), open the Cooldown Manager (/cdm), choose Import Layout from its settings menu, paste it, name it, then select it and click Save. Otherwise the whole imported layout takes effect the next time you log in or /reload."--]] 
 L["TOC_NOTES"] = "Myslot предназначен для передачи настроек между учетными записями. Обратная связь: farmer1992@gmail.com"
 L["Too many profiles, please delete before create new one."] = "Слишком много профилей, удалите один перед созданием нового."
 L["Too many saved talent loadouts, delete one first"] = "Слишком много сохранённых макетов талантов, сначала удалите один"
 L["Try force importing"] = "Попробовать принудительный импорт"
 L["Unsaved"] = "Не сохранено"
 L["Use random mount instead of an unattained mount"] = "Использовать случайное средство передвижения вместо недоступного"
+--[[Translation missing --]]
+--[[ L["You saved changes in the Cooldown Manager, so the layout Myslot saved earlier will not be applied."] = "You saved changes in the Cooldown Manager, so the layout Myslot saved earlier will not be applied."--]] 
 
 elseif locale == 'zhCN' then
 L[" before Import"] = " 导入前"
@@ -1076,6 +1263,8 @@ L["Addon messages are restricted right now (combat, encounter, Mythic+ or PvP). 
 L["All slots were restored"] = "所有插槽已恢复"
 L["Allow"] = "允许"
 L["Already requesting '%s' from %s..."] = "已在请求'%s'（来自 %s）..."
+--[[Translation missing --]]
+--[[ L["Apply now"] = "Apply now"--]] 
 L["Apply talents"] = "应用天赋"
 L["'Apply talents' can still load it, but talents changed since it was saved: check the loadout in the talent window before clicking 'Apply Changes'."] = "仍可通过'应用天赋'加载，但保存后天赋已发生变化：点击'应用改动'前请在天赋窗口中检查配置。"
 L["Applying..."] = "正在应用..."
@@ -1093,8 +1282,16 @@ L["By name"] = "按名称"
 L["CLEAR"] = "清除"
 L["Click Cast Bindings"] = "点击施法绑定"
 L["Cooldown Manager"] = "冷却管理器"
+--[[Translation missing --]]
+--[[ L["Cooldown Manager changes take effect after you reload the UI. Reload now?"] = "Cooldown Manager changes take effect after you reload the UI. Reload now?"--]] 
+--[[Translation missing --]]
+--[[ L["Cooldown Manager layout saved. It takes effect the next time you log in or /reload."] = "Cooldown Manager layout saved. It takes effect the next time you log in or /reload."--]] 
 L["Copy this string and import it in the talent window"] = "复制此字符串并在天赋窗口中导入"
+--[[Translation missing --]]
+--[[ L["Could not clear the Cooldown Manager layout"] = "Could not clear the Cooldown Manager layout"--]] 
 L["Could not delete %d 'Myslot' talent loadout(s)"] = "无法删除 %d 个'Myslot'天赋配置"
+--[[Translation missing --]]
+--[[ L["Could not import the Cooldown Manager layout"] = "Could not import the Cooldown Manager layout"--]] 
 L["Could not send the request, try again later."] = "无法发送请求，请稍后再试。"
 L["DANGEROUS"] = "危险"
 L["Deleted %d 'Myslot' talent loadout(s)"] = "已删除 %d 个'Myslot'天赋配置"
@@ -1118,6 +1315,8 @@ L["Import is not allowed when you are in combat"] = "战斗中无法导入"
 L["Importing..."] = "正在导入..."
 L["Kept your text, discarded the received profile '%s'."] = "已保留你的文本，丢弃收到的配置文件'%s'。"
 L["Key Binding"] = "按键绑定"
+--[[Translation missing --]]
+--[[ L["Later"] = "Later"--]] 
 L["Link in chat"] = "链接至聊天栏"
 L["Macro %s was ignored, check if there is enough space to create"] = "宏 %s 被忽略，请检查是否有足够空间创建"
 L["Main Action Bar Page"] = "主动作条页面"
@@ -1126,6 +1325,8 @@ L["Myslot"] = "Myslot"
 L["Name of exported text"] = "导出文本的名称"
 L["No response from %s. They may be offline, busy, or not running Myslot."] = "%s 没有响应。对方可能离线、忙碌或未运行Myslot。"
 L["No talent string in this profile"] = "此配置文件中没有天赋字符串"
+--[[Translation missing --]]
+--[[ L["Nothing to apply: the imported profile has no Cooldown Manager layout for your current specialization."] = "Nothing to apply: the imported profile has no Cooldown Manager layout for your current specialization."--]] 
 L["Nothing to import"] = "没有可导入的内容"
 L["Nothing to share, save the profile first"] = "没有可分享的内容，请先保存配置文件"
 L["Only my class"] = "仅限我的职业"
@@ -1150,6 +1351,8 @@ L["Select a profile"] = "选择配置文件"
 L["Select a saved profile to share it."] = "选择一个已保存的配置文件进行分享。"
 L["Sending profile '%s' to %s..."] = "正在发送配置文件'%s'给 %s..."
 L["Skip bad CRC32"] = "跳过无效的 CRC32"
+--[[Translation missing --]]
+--[[ L["Skipped %d Cooldown Manager layout(s): this character already has the maximum number of layouts."] = "Skipped %d Cooldown Manager layout(s): this character already has the maximum number of layouts."--]] 
 L["Skyriding Bar"] = "飞行栏"
 L["Sort by"] = "排序"
 L["Stance Action Bar"] = "姿态动作条"
@@ -1164,18 +1367,24 @@ L["Talents for another spec"] = "其他专精的天赋"
 L["Talents match"] = "天赋一致"
 L["Talents out of date"] = "天赋已过时"
 L["That Battle.net friend is not online in World of Warcraft."] = "该战网好友未在魔兽世界中在线。"
+--[[Translation missing --]]
+--[[ L["The profile has no Cooldown Manager layout for your class"] = "The profile has no Cooldown Manager layout for your class"--]] 
 L["The talents of this profile are different from your current talents."] = "此配置文件的天赋与你当前的天赋不同。"
 L["These talents are for %s, switch to that specialization first"] = "这些天赋属于%s，请先切换到该专精"
 L["These talents were saved from an older talent tree, check them before applying"] = "这些天赋保存自旧版天赋树，应用前请检查"
 L["This profile is no longer shared, link it again."] = "此配置文件已不再分享，请重新链接。"
 L["Time"] = "时间"
 L["Timed out applying talents"] = "应用天赋超时"
+--[[Translation missing --]]
+--[[ L["To apply your current specialization's Cooldown Manager layout now: copy the text below (Ctrl+C), open the Cooldown Manager (/cdm), choose Import Layout from its settings menu, paste it, name it, then select it and click Save. Otherwise the whole imported layout takes effect the next time you log in or /reload."] = "To apply your current specialization's Cooldown Manager layout now: copy the text below (Ctrl+C), open the Cooldown Manager (/cdm), choose Import Layout from its settings menu, paste it, name it, then select it and click Save. Otherwise the whole imported layout takes effect the next time you log in or /reload."--]] 
 L["TOC_NOTES"] = "Myslot 用于在账户之间传输设置。反馈: farmer1992@gmail.com"
 L["Too many profiles, please delete before create new one."] = "配置文件过多，请删除后再创建新文件。"
 L["Too many saved talent loadouts, delete one first"] = "已保存的天赋配置过多，请先删除一个"
 L["Try force importing"] = "尝试强制导入"
 L["Unsaved"] = "未保存"
 L["Use random mount instead of an unattained mount"] = "使用随机坐骑替代未获得的坐骑"
+--[[Translation missing --]]
+--[[ L["You saved changes in the Cooldown Manager, so the layout Myslot saved earlier will not be applied."] = "You saved changes in the Cooldown Manager, so the layout Myslot saved earlier will not be applied."--]] 
 
 elseif locale == 'zhTW' then
 L[" before Import"] = " 匯入前"
@@ -1192,6 +1401,8 @@ L["Addon messages are restricted right now (combat, encounter, Mythic+ or PvP). 
 L["All slots were restored"] = "所有插槽已恢復"
 L["Allow"] = "允許"
 L["Already requesting '%s' from %s..."] = "已在請求'%s'（來自 %s）..."
+--[[Translation missing --]]
+--[[ L["Apply now"] = "Apply now"--]] 
 L["Apply talents"] = "套用天賦"
 L["'Apply talents' can still load it, but talents changed since it was saved: check the loadout in the talent window before clicking 'Apply Changes'."] = "仍可透過'套用天賦'載入，但儲存後天賦已變更：點擊'套用變更'前請在天賦視窗中檢查配置。"
 L["Applying..."] = "正在套用..."
@@ -1209,8 +1420,16 @@ L["By name"] = "依名稱"
 L["CLEAR"] = "清除"
 L["Click Cast Bindings"] = "點擊施放綁定"
 L["Cooldown Manager"] = "技能監控"
+--[[Translation missing --]]
+--[[ L["Cooldown Manager changes take effect after you reload the UI. Reload now?"] = "Cooldown Manager changes take effect after you reload the UI. Reload now?"--]] 
+--[[Translation missing --]]
+--[[ L["Cooldown Manager layout saved. It takes effect the next time you log in or /reload."] = "Cooldown Manager layout saved. It takes effect the next time you log in or /reload."--]] 
 L["Copy this string and import it in the talent window"] = "複製此字串並在天賦視窗中匯入"
+--[[Translation missing --]]
+--[[ L["Could not clear the Cooldown Manager layout"] = "Could not clear the Cooldown Manager layout"--]] 
 L["Could not delete %d 'Myslot' talent loadout(s)"] = "無法刪除 %d 個'Myslot'天賦配置"
+--[[Translation missing --]]
+--[[ L["Could not import the Cooldown Manager layout"] = "Could not import the Cooldown Manager layout"--]] 
 L["Could not send the request, try again later."] = "無法傳送請求，請稍後再試。"
 L["DANGEROUS"] = "危險"
 L["Deleted %d 'Myslot' talent loadout(s)"] = "已刪除 %d 個'Myslot'天賦配置"
@@ -1234,6 +1453,8 @@ L["Import is not allowed when you are in combat"] = "戰鬥中無法匯入"
 L["Importing..."] = "正在匯入..."
 L["Kept your text, discarded the received profile '%s'."] = "已保留你的文本，捨棄收到的設定檔'%s'。"
 L["Key Binding"] = "按鍵綁定"
+--[[Translation missing --]]
+--[[ L["Later"] = "Later"--]] 
 L["Link in chat"] = "分享到對話窗"
 L["Macro %s was ignored, check if there is enough space to create"] = "巨集 %s 被忽略，請檢查是否有足夠空間創建"
 L["Main Action Bar Page"] = "主動作條頁面"
@@ -1242,6 +1463,8 @@ L["Myslot"] = "我的設定檔"
 L["Name of exported text"] = "匯出文本名稱"
 L["No response from %s. They may be offline, busy, or not running Myslot."] = "%s 沒有回應。對方可能離線、忙碌或未執行Myslot。"
 L["No talent string in this profile"] = "此設定檔中沒有天賦字串"
+--[[Translation missing --]]
+--[[ L["Nothing to apply: the imported profile has no Cooldown Manager layout for your current specialization."] = "Nothing to apply: the imported profile has no Cooldown Manager layout for your current specialization."--]] 
 L["Nothing to import"] = "沒有可匯入的內容"
 L["Nothing to share, save the profile first"] = "沒有可分享的內容，請先儲存設定檔"
 L["Only my class"] = "僅限我的職業"
@@ -1266,6 +1489,8 @@ L["Select a profile"] = "選擇設定檔"
 L["Select a saved profile to share it."] = "選擇一個已儲存的設定檔進行分享。"
 L["Sending profile '%s' to %s..."] = "正在傳送設定檔'%s'給 %s..."
 L["Skip bad CRC32"] = "跳過無效的 CRC32"
+--[[Translation missing --]]
+--[[ L["Skipped %d Cooldown Manager layout(s): this character already has the maximum number of layouts."] = "Skipped %d Cooldown Manager layout(s): this character already has the maximum number of layouts."--]] 
 L["Skyriding Bar"] = "飛行欄"
 L["Sort by"] = "分類方式"
 L["Stance Action Bar"] = "姿態動作條"
@@ -1280,17 +1505,23 @@ L["Talents for another spec"] = "其他專精的天賦"
 L["Talents match"] = "天賦一致"
 L["Talents out of date"] = "天賦已過時"
 L["That Battle.net friend is not online in World of Warcraft."] = "該Battle.net好友未在魔獸世界中上線。"
+--[[Translation missing --]]
+--[[ L["The profile has no Cooldown Manager layout for your class"] = "The profile has no Cooldown Manager layout for your class"--]] 
 L["The talents of this profile are different from your current talents."] = "此設定檔的天賦與你目前的天賦不同。"
 L["These talents are for %s, switch to that specialization first"] = "這些天賦屬於%s，請先切換到該專精"
 L["These talents were saved from an older talent tree, check them before applying"] = "這些天賦儲存自舊版天賦樹，套用前請檢查"
 L["This profile is no longer shared, link it again."] = "此設定檔已不再分享，請重新連結。"
 L["Time"] = "時間"
 L["Timed out applying talents"] = "套用天賦逾時"
+--[[Translation missing --]]
+--[[ L["To apply your current specialization's Cooldown Manager layout now: copy the text below (Ctrl+C), open the Cooldown Manager (/cdm), choose Import Layout from its settings menu, paste it, name it, then select it and click Save. Otherwise the whole imported layout takes effect the next time you log in or /reload."] = "To apply your current specialization's Cooldown Manager layout now: copy the text below (Ctrl+C), open the Cooldown Manager (/cdm), choose Import Layout from its settings menu, paste it, name it, then select it and click Save. Otherwise the whole imported layout takes effect the next time you log in or /reload."--]] 
 L["TOC_NOTES"] = "Myslot 用於在帳號之間傳輸設定。反饋: farmer1992@gmail.com"
 L["Too many profiles, please delete before create new one."] = "設定檔過多，請刪除後再創建新的。"
 L["Too many saved talent loadouts, delete one first"] = "已儲存的天賦配置過多，請先刪除一個"
 L["Try force importing"] = "嘗試強制匯入"
 L["Unsaved"] = "未保存"
 L["Use random mount instead of an unattained mount"] = "使用隨機坐騎替代未獲得的坐騎"
+--[[Translation missing --]]
+--[[ L["You saved changes in the Cooldown Manager, so the layout Myslot saved earlier will not be applied."] = "You saved changes in the Cooldown Manager, so the layout Myslot saved earlier will not be applied."--]] 
 
 end
