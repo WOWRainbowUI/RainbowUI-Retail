@@ -1,16 +1,44 @@
-﻿## Interface: 120100
-## Version: 1.7.1
+﻿## Interface: 120105, 50504
+## Version: 1.7.2
 ## Title: Achievements Back Button
-## IconAtlas: questlog-questtypeicon-story
+## IconAtlas: questlog-questtypeicon-story [AllowLoadGameType mainline]
+## IconAtlas: StoryHeader-CheevoIcon [AllowLoadGameType mists]
 ## Author: LudiusMaximus
+
 ## Notes: Adds a back button to the achievements frame that works like a browser history.
+## Notes-deDE: Fügt dem Erfolgsfenster eine Zurück-Schaltfläche hinzu, die wie ein Browserverlauf funktioniert.
+## Notes-esES: Añade un botón de retroceso a la ventana de logros que funciona como el historial de un navegador.
+## Notes-esMX: Agrega un botón de retroceso a la ventana de logros que funciona como el historial de un navegador.
+## Notes-frFR: Ajoute un bouton de retour à la fenêtre des hauts faits qui fonctionne comme l'historique d'un navigateur.
+## Notes-itIT: Aggiunge un pulsante indietro alla finestra delle imprese che funziona come la cronologia di un browser.
+## Notes-koKR: 업적 창에 브라우저 기록처럼 작동하는 뒤로 가기 버튼을 추가합니다.
+## Notes-ptBR: Adiciona um botão de voltar à janela de conquistas que funciona como o histórico de um navegador.
+## Notes-ruRU: Добавляет в окно достижений кнопку «Назад», которая работает как история браузера.
+## Notes-zhCN: 为成就面板添加一个返回按钮，其功能类似于浏览器历史记录。
+## Notes-zhTW: 為成就介面添加一個返回按鈕，其功能類似於瀏覽器歷史紀錄。
+
+## Category: Collections
+## Category-deDE: Kriegsmeutesammlungen
+## Category-esES: Colecciones de banda guerrera
+## Category-esMX: Colecciones de tropa
+## Category-frFR: Collections du bataillon
+## Category-itIT: Collezioni della Brigata
+## Category-koKR: 수집
+## Category-ptBR: Coleções do Bando de Guerra
+## Category-ruRU: Коллекции отряда
+## Category-zhCN: 战团藏品
+## Category-zhTW: 戰隊收藏
+
 ## OptionalDeps: ElvUI, Krowi_AchievementFilter
+## SavedVariables: ABB_config
+
 ## X-Curse-Project-ID: 1007342
 ## X-WoWI-ID: 26723
 ## X-Wago-ID: ZKxq4yGk
+
 ## X-Donate: PayPal:ludiusmaximus@gmail.com
 ## X-License: The MIT License (MIT)
-## SavedVariables: ABB_config
+
 
 options.lua
 main.lua

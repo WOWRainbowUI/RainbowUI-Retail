@@ -90,6 +90,20 @@ local function BackButtonEnterFunction(button, anchor)
 end
 
 
+-- Only hide the tooltip while it is still ours. A frame that gets hidden or
+-- covered under the cursor can make OnLeave fire after something else has taken
+-- GameTooltip over, and hiding it then would both steal somebody else's tooltip
+-- and run Blizzard's OnHide from our insecure handler, which taints whatever
+-- GameTooltip hands on to its next owner.
+local function BackButtonLeaveFunction()
+  local owner = GameTooltip:GetOwner()
+  if (backButton and owner == backButton)
+     or (blizzardBackButton and owner == blizzardBackButton) then
+    GameTooltip:Hide()
+  end
+end
+
+
 -- Keep an open tooltip up to date while its button changes state.
 local function RefreshBackButtonTooltip()
   local owner = GameTooltip:GetOwner()
@@ -494,7 +508,7 @@ local function SetupBlizzardBackButton()
     BackButtonEnterFunction(blizzardBackButton, "ANCHOR_RIGHT")
   end)
   blizzardBackButtonOverlay:SetScript("OnLeave", function()
-    GameTooltip:Hide()
+    BackButtonLeaveFunction()
   end)
 
   blizzardBackButton:RegisterForClicks("LeftButtonUp", "RightButtonUp")
@@ -536,7 +550,7 @@ local function SetupBlizzardBackButton()
   end)
   blizzardBackButton:HookScript("OnLeave", function(self)
     if Addon.GetMode() ~= Addon.MODE_REPLACE_BLIZZARD then return end
-    GameTooltip:Hide()
+    BackButtonLeaveFunction()
   end)
 
   -- AchievementFrame_RefreshBackButton() and AchievementFrame_SetComparisonMode()
@@ -824,7 +838,7 @@ eventFrame:SetScript("OnEvent", function(self, event, name)
         BackButtonEnterFunction(self, "ANCHOR_TOP")
       end)
     backButton:SetScript("OnLeave", function(self)
-        GameTooltip:Hide()
+        BackButtonLeaveFunction()
       end)
 
 
