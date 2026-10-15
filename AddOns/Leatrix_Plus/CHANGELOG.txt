@@ -1,4 +1,19 @@
-﻿12.1.07 - 30th September 2026
+﻿12.1.10 - 14th October 2026
+- For 'Enhance minimap' ('Interface'), enabling 'Square minimap' will no longer prevent the map from being rotated.  Instead, an advisory note has been added to the option tooltp.
+
+12.1.09 - 14th October 2026
+- Updated for game patch 12.1.5.
+- Added 'Show range coloring' ('Interface').  If checked, action button icons will be colored red for out of range and blue for not enough mana.
+- Added a new 'Sound Finder' feature to the 'Mute custom sounds' ('System') configuration panel.  You can use it to find sound file IDs for sounds that you can hear in-game.
+- Added a new option 'Hide starter tutorials' ('Settings').  If checked, Exile's Reach banner tutorials will no longer show.
+- Added a search options box to the main configuration panel.  Search for an option, click on a result and it will show you where the option is.
+- The 'Show Wowhead links' option ('Interface') now supports the new 'Simple map frame' setting in Leatrix Maps.
+- For 'Enhance minimap' ('Interface'), added an effect dropdown menu so you can choose a visual effect for the minimap.  Enabling 'Square minimap' will prevent 'Rotate minimap' (a setting in Edit Mode) from being applied.  You cannot have both a square minimap and rotation.
+- For 'Enhance tooltip' ('Interface'), tooltips will now show whatever information they can within secrets rules instead of bypassing the tooltip entirely.  Also fixed an issue which caused creature tooltips to show the creature type twice.
+- Removed the 'Disable bag automation' option ('System') due to issues with it.
+- For dropdown menus in the addon configuration panel, you can now use the mousewheel to cycle through the items, by pointing over an open menu or a closed one.
+
+12.1.07 - 30th September 2026
 - For 'Enhance tooltip' ('Interface'), fixed a secrets issue.
 - Fixed an issue with the media player which caused the media player panel to remain hidden after a movie stopped playing.
 
