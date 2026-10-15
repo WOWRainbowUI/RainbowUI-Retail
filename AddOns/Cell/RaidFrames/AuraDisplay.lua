@@ -53,10 +53,37 @@ local function SameUnit(a, b)
     return same == true
 end
 
+-- ============================================================
+-- 容器時間線  ->  /cell aura inspect 印出來
+--
+-- 卡住的光環很少見，而且 /reload 就清掉了，所以平常就記，發作時才有前因可看。
+-- 只記容器自己的生命週期：建置、換單位、顯示／隱藏、身分閘、重讀（彈跳）。
+-- 不記 UNIT_AURA —— 量太大，光環內容在秘密視窗裡也讀不到；容器的增量更新本來就會處理
+-- 移除，會卡幾乎都是「該重讀的時候沒重讀」，那正是這條線記的東西。
+-- 參數一律先 tostring，再擋秘密值：格式化秘密值會直接報錯。
+-- ============================================================
+local TRACE_MAX = 30
+local function TraceArg(v)
+    if issecretvalue(v) then return "(秘密)" end
+    return tostring(v)
+end
+local function Trace(h, fmt, ...)
+    if not h then return end
+    local n = select("#", ...)
+    local args = { ... }
+    for i = 1, n do args[i] = TraceArg(args[i]) end
+    local ok, text = pcall(string.format, fmt, unpack(args, 1, n))
+    local log = h._trace
+    if not log then log = {}; h._trace = log; h._traceHead = 0 end
+    h._traceHead = h._traceHead % TRACE_MAX + 1
+    log[h._traceHead] = date("%H:%M:%S") .. (InCombatLockdown() and " [戰]" or "") .. " " .. (ok and text or fmt)
+end
+
 -- How many single-spell effect slots one indicator may declare before it collapses back to
 -- a single shared slot. Each slot is an AuraButton on EVERY unit button, so this is a real
--- per-frame cost, not a config nicety.
-local EFFECT_PER_SPELL_CAP = 8
+-- per-frame cost, not a config nicety. bars (one row per spell, see BuildEffectBar) gets
+-- the manual path's ten -- that is how many rows CreateAura_Bars ever built.
+local EFFECT_PER_SPELL_CAP = { default = 8, bars = 10 }
 
 -- Blizzard filter tokens (defensive: names differ slightly across PTR builds).
 local TOKEN_CC   = "CROWD_CONTROL"
@@ -242,11 +269,17 @@ local function BuildRecordsRaw(opts)
         -- Capped: each slot is a real AuraButton on every unit button, and past a handful the
         -- indicator is really a list, not a highlight. Over the cap it collapses to one slot
         -- in the first spell's colour rather than refusing to render.
+        -- bars (one row per spell) is the same shape: a flow group per spell, each one
+        -- row wide (GroupBudget), declared in the LIST's order -- on a row display the
+        -- order is visible, and the options page promises "priority decreases from top to
+        -- bottom". effectSpellOrder carries that order; without it (border) the records
+        -- are sorted by key, which is all a single overlapping slot needs.
         local perSpell = opts.effectSpellColors
         if type(perSpell) == "table" then
-            local recs = {}
-            for id in pairs(ids) do
-                if type(id) == "number" then
+            local recs, seen = {}, {}
+            local function add(id)
+                if type(id) == "number" and ids[id] and not seen[id] then
+                    seen[id] = true
                     recs[#recs + 1] = {
                         key = "eff" .. id, filter = f,
                         candidateFilters = { includeSpellIDs = { [id] = true } },
@@ -254,9 +287,16 @@ local function BuildRecordsRaw(opts)
                     }
                 end
             end
-            if #recs > 0 and #recs <= EFFECT_PER_SPELL_CAP then
+            local order = opts.effectSpellOrder
+            if type(order) == "table" then
+                for _, id in ipairs(order) do add(id) end
+            else
+                for id in pairs(ids) do add(id) end
                 -- stable order so a park key built from these records does not churn
                 table.sort(recs, function(a, b) return a.key < b.key end)
+            end
+            local cap = EFFECT_PER_SPELL_CAP[opts.customStyle] or EFFECT_PER_SPELL_CAP.default
+            if #recs > 0 and #recs <= cap then
                 return recs
             end
         end
@@ -272,7 +312,8 @@ local function BuildRecordsRaw(opts)
         -- records, and a band's formatter is frozen once bound, so a parked container must
         -- never come back to a config asking for a different threshold or colour.
         local rb = opts.effectBands
-        if type(rb) == "table" and (opts.customStyle == "rect" or opts.customStyle == "block") then
+        if type(rb) == "table" and (opts.customStyle == "rect" or opts.customStyle == "block"
+            or opts.customStyle == "bar") then
             local function csig(c)
                 return string.format("%.3f,%.3f,%.3f,%.3f", tonumber(c[1]) or 1, tonumber(c[2]) or 1,
                     tonumber(c[3]) or 1, tonumber(c[4]) or 1)
@@ -641,6 +682,9 @@ local EFFECT_SLOT_STYLES = {
     border  = true,   -- ring around the unit button
     rect    = true,   -- filled rectangle with a border
     texture = true,   -- arbitrary texture / atlas
+    bar     = true,   -- progress bar: an engine-driven StatusBar (see BuildEffectBar)
+    -- NOT here: bars (進度條組). It draws the same bar per aura, but as a FLOW of one-row
+    -- groups (one per spell, see BuildRecords), so it is a grid like icons, not a slot.
 }
 AD.EFFECT_SLOT_STYLES = EFFECT_SLOT_STYLES
 
@@ -705,7 +749,9 @@ end
 -- Shared by the block/text custom styles; the default icon branch keeps its OWN inline copy
 -- because there it interleaves with icon/cooldown frame-level assignment.
 -- durColorOpt (optional): SetDurationText textColor { curve, property } for colour-by-time.
-local function BindDurStack(button, cfg, base, durColorOpt)
+-- keepAnchor: place the number at the font's own anchor/offset instead of the icon's forced
+-- centre (the bar's duration font carries one: RIGHT by default, opposite the stack's LEFT).
+local function BindDurStack(button, cfg, base, durColorOpt, keepAnchor)
     if not button.dfDur then
         button.dfDurHolder = CreateFrame("Frame", nil, button)
         button.dfDurHolder:SetAllPoints(button)
@@ -713,7 +759,7 @@ local function BindDurStack(button, cfg, base, durColorOpt)
         button.dfDur:SetPoint("CENTER")
     end
     button.dfDurHolder:SetFrameLevel(base + 6)
-    ApplyFont(button.dfDur, button.dfDurHolder, cfg.durationFont, true)
+    ApplyFont(button.dfDur, button.dfDurHolder, cfg.durationFont, not keepAnchor)
 
     if not button.dfStack then
         button.dfStackHolder = CreateFrame("Frame", nil, button)
@@ -897,6 +943,26 @@ end
 -- ============================================================
 local EFFECT_LAYER = { border = 1, pct = 2, pandemic = 3, sec = 4, swipe = 5 }
 
+-- The part of an engine-driven bar that is still to run (the bar custom style, see
+-- BuildEffectBar). The StatusBar is handed over with the default direction (elapsed time)
+-- and ReverseFill, so its own texture is the ELAPSED part growing in from the far end; what
+-- remains is the span from the bar's near edge to that texture's near edge. Pure anchoring:
+-- the engine moves the texture every frame, the anchor follows, and nothing here ever
+-- reads a value. Shared by the bar's own fill and by its colour bands (BuildBandSlot), so
+-- a band recolours the remaining part only -- which is what the manual bar did.
+local function AnchorBarRemaining(region, bar, tex, vertical)
+    region:ClearAllPoints()
+    if vertical then
+        -- ReverseFill + VERTICAL = the elapsed texture hangs from the top (same recipe as
+        -- block's shadow); the remainder is the bottom span
+        region:SetPoint("BOTTOMLEFT", bar, "BOTTOMLEFT")
+        region:SetPoint("TOPRIGHT", tex, "BOTTOMRIGHT")
+    else
+        region:SetPoint("TOPLEFT", bar, "TOPLEFT")
+        region:SetPoint("BOTTOMRIGHT", tex, "BOTTOMLEFT")
+    end
+end
+
 local BuildBandSlot
 do  -- local-budget block: the band helpers are only reachable through BuildBandSlot
     -- plain white (Cell/Media/white.tga is 128x128). The |T texWidth/texHeight and the uv
@@ -975,6 +1041,19 @@ do  -- local-budget block: the band helpers are only reachable through BuildBand
             button.dfBand = fs
         end
         button.dfBandHolder:SetFrameLevel(button:GetFrameLevel() + (EFFECT_LAYER[band.kind] or 2))
+        -- bar: the band covers the REMAINING span of the main slot's bar, not the box. The
+        -- main slot is the first record, so its bar is already built when this companion
+        -- is styled (AddAuraSlot creates its frame synchronously; Restyle walks the buttons
+        -- in creation order). Re-anchored every pass like the level above, so an
+        -- orientation change follows.
+        if cfg.customStyle == "bar" then
+            local bf = handle._barFill
+            if bf then
+                AnchorBarRemaining(button.dfBandHolder, bf.bar, bf.tex, bf.vertical)
+            else
+                Err(handle, "band " .. tostring(band.kind) .. ": bar not built before its band")
+            end
+        end
 
         -- the |T is asked for at inner box x overscan and clipped by the holder; sizes come
         -- from config, never from the button
@@ -1111,11 +1190,96 @@ local function BuildEffectTexture(handle, button, cfg)
     tex:SetVertexColor(r, g, b, a)
 end
 
+-- Bar (進度條) custom style, buff only. The manual bar is a Lua OnUpdate countdown
+-- (Base.lua Bar_OnUpdate), and that is exactly what froze in combat: the aura's start and
+-- duration are secret there, so the value, the colour bands and the number all stopped at
+-- whatever they showed when the pull started (2026-10-08 report). Here the ENGINE is the
+-- clock: a StatusBar handed over with SetDurationBar, and every visual is geometry hung
+-- off it -- nothing on our side reads a remaining time.
+--
+-- Recipe: the same hand-over as block's vertical shadow (default direction = elapsed time,
+-- ReverseFill, NO options table), so the bar's own texture is the elapsed part growing in
+-- from the far end -- painted with nothing, so the backdrop shows through it exactly as
+-- on the manual bar. The remaining part is our own texture anchored between the near edge
+-- and that texture's near edge (AnchorBarRemaining); the colour bands are companion
+-- slots anchored to the same span (BuildBandSlot), so "< N%" / "< N sec" recolour the
+-- remaining part only. Countdown number and stack are blind-rendered (BindDurStack) at
+-- the font's own anchor, as the manual bar placed them.
+--
+-- Not carried over: 設置進度條最大值. The engine owns the bar's min/max (the aura's full
+-- duration), so a fixed scale cannot be imposed on it; Custom.lua neutralises the setting
+-- on the preview as well so the two agree, and the options page hides it for buff bars.
+--
+-- bars (進度條組, 2026-10-15) draws the same bar once per aura: not a slot but a flow of
+-- one-row groups, one group per spell in the list (BuildRecords' per-spell path, as
+-- border uses), each capped at one row (GroupBudget), laid out by the icon grid options.
+-- No colour bands and no companion slots: the row's colour is the spell's. `num` is only
+-- the line-wrap budget there (there is no cross-group total; a spell past `num` wraps to
+-- the next line rather than vanishing).
+local function BuildEffectBar(handle, button, cfg)
+    local holder = button.dfEffHolder
+    if not holder then
+        -- backdrop (colors[5]) + edge (colors[4]) on a holder of our own, the StatusBar
+        -- inset inside it: the elapsed/remaining geometry never touches the edge
+        holder = CreateFrame("Frame", nil, button, "BackdropTemplate")
+        holder:SetAllPoints(button)
+        holder:SetBackdrop({ bgFile = Cell.vars.whiteTexture, edgeFile = Cell.vars.whiteTexture, edgeSize = CELL_BORDER_SIZE })
+        button.dfEffHolder = holder
+        local bar = CreateFrame("StatusBar", nil, holder)
+        bar:SetPoint("TOPLEFT", holder, "TOPLEFT", CELL_BORDER_SIZE, -CELL_BORDER_SIZE)
+        bar:SetPoint("BOTTOMRIGHT", holder, "BOTTOMRIGHT", -CELL_BORDER_SIZE, CELL_BORDER_SIZE)
+        -- a texture must be set BEFORE GetStatusBarTexture is read (it is nil until then)
+        bar:SetStatusBarTexture(ACC.WHITE)
+        bar:GetStatusBarTexture():SetVertexColor(0, 0, 0, 0) -- the elapsed part: invisible
+        bar:SetReverseFill(true)
+        button.dfBar = bar
+        button.dfEffTex = bar:CreateTexture(nil, "ARTWORK")
+    end
+    holder:SetFrameLevel(button:GetFrameLevel() + EFFECT_LAYER.border)
+
+    local bar = button.dfBar
+    local multi = cfg.customStyle == "bars"
+    -- bars: `orientation` is the GRID's (top-to-bottom...), and every row is horizontal,
+    -- as the manual rows were (CreateAura_Bars never turned one on its side)
+    local vertical = not multi and type(cfg.orientation) == "string" and strlower(cfg.orientation) == "vertical"
+    bar:SetOrientation(vertical and "VERTICAL" or "HORIZONTAL")
+    local tex = bar:GetStatusBarTexture()
+    AnchorBarRemaining(button.dfEffTex, bar, tex, vertical)
+
+    local colors = cfg.effectColors
+    if multi then
+        -- one row per spell: the fill is the spell's colour from the list (stamped on the
+        -- button by its record, see AddGroups), the backdrop that colour at 0.2 and the
+        -- edge black -- Bars_SetCooldown's recipe, since bars has no colours table of its
+        -- own. effectColors is the fallback for the over-cap collapse (the first row's).
+        local r, g, b, a = ColorOr(button._adEffColor or colors, 0, 1, 0, 1)
+        button.dfEffTex:SetColorTexture(r, g, b, a)
+        holder:SetBackdropBorderColor(0, 0, 0, 1)
+        holder:SetBackdropColor(r * 0.2, g * 0.2, b * 0.2, a)
+    else
+        -- for the band companions styled after this button (see BuildBandSlot)
+        handle._barFill = { bar = bar, tex = tex, vertical = vertical }
+        local fr, fg, fb, fa = ColorOr(colors and colors[1], 0, 1, 0, 1)
+        button.dfEffTex:SetColorTexture(fr, fg, fb, fa)
+        local br, bg, bb, ba = ColorOr(colors and colors[4], 0, 0, 0, 1)
+        holder:SetBackdropBorderColor(br, bg, bb, ba)
+        local gr, gg, gb, ga = ColorOr(colors and colors[5], 0.07, 0.07, 0.07, 0.9)
+        holder:SetBackdropColor(gr, gg, gb, ga)
+    end
+
+    if button.SetDurationBar and not button._boundBar then
+        button:SetDurationBar(bar)
+        button._boundBar = true
+    end
+end
+
 local EFFECT_BUILDERS = {
     color   = BuildEffectColor,
     border  = BuildEffectBorder,
     rect    = BuildEffectRect,
     texture = BuildEffectTexture,
+    bar     = BuildEffectBar,
+    bars    = BuildEffectBar, -- one row per spell; same drawing, per-spell colour
 }
 
 -- ============================================================
@@ -1362,9 +1526,12 @@ local function StyleButton(handle, button)
         -- rect is the one effect with room for text, and Blizzard renders both blind, so it
         -- keeps its countdown and stack -- more than the manual path could show in an
         -- instance. The others are pure fills with nowhere sensible to put a number.
-        if cfg.customStyle == "rect" then
-            BindDurStack(button, cfg, button:GetFrameLevel(), BuildDurColorOpt(cfg))
-            if button.dfDur then
+        -- bar keeps both too, at the font's own anchors (number RIGHT, stack LEFT by
+        -- default) -- the manual bar never centred them.
+        local st = cfg.customStyle
+        if st == "rect" or st == "bar" or st == "bars" then
+            BindDurStack(button, cfg, button:GetFrameLevel(), BuildDurColorOpt(cfg), st ~= "rect")
+            if cfg.customStyle == "rect" and button.dfDur then
                 local colors = cfg.effectColors
                 local nb = (cfg.durationColors and cfg.durationColors.base)
                     or (type(colors) == "table" and colors[4])
@@ -1808,12 +1975,19 @@ end
 -- display for its ordering, not for its share: with it first and flexible, the boss/role
 -- group would drop to 1 and the common case above would break again. `flexIndex` is the
 -- position among the flexible groups only (see FlexCount).
+--
+-- bars (one flow group PER SPELL, see BuildRecords): every group is exactly one row, in
+-- declaration order -- there the first group must NOT take the whole `num`, or the first
+-- spell would be allowed `num` rows and the others one each. `num` is the line-wrap
+-- budget only (ApplyLayout). The over-cap collapse is a single group and keeps `num`.
 local FIXED_BUDGET = { short = 1 }
 
-local function GroupBudget(key, flexIndex, total, wanted)
+local function GroupBudget(cfg, key, flexIndex, total)
+    local wanted = cfg.num or 3
     if total <= 1 then return wanted end
     local fixed = FIXED_BUDGET[key]
     if fixed then return fixed end
+    if cfg.customStyle == "bars" then return 1 end
     return flexIndex == 1 and wanted or 1
 end
 
@@ -1994,7 +2168,6 @@ local function AddGroups(handle, host, c, records, slotMode, strict)
     -- category groups, so num=3 meant "up to 15 icons" and made Blizzard pre-allocate a
     -- batch of 10 buttons PER GROUP (50 for three visible icons). The budget is handed out
     -- per group by GroupBudget -- read the note above it before changing the shape.
-    local wanted = handle.config.num or 3
     local first = true
 
     for _, rec in ipairs(records) do
@@ -2047,7 +2220,7 @@ local function AddGroups(handle, host, c, records, slotMode, strict)
         else
             okG, errG = pcall(c.AddAuraGroup, c, rec.key, rec.filter, {
                 -- position among flexible groups added so far (+1 = this one, if flexible)
-                maxFrameCount = GroupBudget(rec.key, FlexCount(handle._groupKeys) + 1, #records, wanted),
+                maxFrameCount = GroupBudget(handle.config, rec.key, FlexCount(handle._groupKeys) + 1, #records),
                 initializeFrame = initFn,
                 layout = groupLayout,
                 candidateFilters = rec.candidateFilters,
@@ -2092,9 +2265,11 @@ local function Build(handle, why)
         if AD._probe and AD._probe.CombatBuild(handle, why) then return end
         handle._pendingBuild = true
         if AD._defer then AD._defer(handle, why or "build") end
+        Trace(handle, "建置延到脫戰 why=%s", why or "build")
         return
     end
     handle._pendingBuild = nil
+    Trace(handle, "建置 why=%s unit=%s", why or "build", handle.unit)
 
     -- Tear down the previous native container (add-only topology -> recreate on change).
     -- ⚠ The AuraContainer carries Forbidden Aspects, so Hide()/SetParent() ON IT can be
@@ -2211,7 +2386,12 @@ local function Build(handle, why)
 
     -- diagnostics: what filters/cf this container actually built with
     handle._recordInfo = {}
+    -- 原始 filter 字串，給 inspect 拿去對照單位身上實際的光環
+    handle._recordFilters = {}
     for _, rec in ipairs(records) do
+        handle._recordFilters[#handle._recordFilters + 1] = {
+            key = rec.key, filter = rec.filter, cf = rec.candidateFilters ~= nil,
+        }
         local cfDesc = ""
         if rec.candidateFilters then
             local keys = {}
@@ -2586,7 +2766,7 @@ function Handle:SetNum(n)
         local flex = 0
         for _, key in ipairs(self._groupKeys) do
             if not FIXED_BUDGET[key] then flex = flex + 1 end
-            local per = GroupBudget(key, flex, total, n)
+            local per = GroupBudget(self.config, key, flex, total)
             if not pcall(c.SetAuraGroupMaxFrameCount, c, key, per) then allOK = false end
         end
         if allOK then
@@ -2795,6 +2975,7 @@ end
 function Handle:SetUnit(unit)
     if issecretvalue(unit) then return end
     if self.unit == unit then return end
+    Trace(self, "換單位 %s → %s", self.unit, unit)
     self.unit = unit
 
     -- Nothing built yet, disabled, or unbinding entirely: those are Build's paths (a nil
@@ -2807,6 +2988,7 @@ function Handle:SetUnit(unit)
     -- Refused: fall back to the old behaviour rather than leave the container rendering the
     -- PREVIOUS unit's auras, which is the one failure mode worse than the cost of a rebuild.
     if not pcall(function() self.container:SetUnit(unit) end) then
+        Trace(self, "容器拒絕換單位 → 重建")
         self:Rebuild("setunit-refused")
         return
     end
@@ -2839,6 +3021,12 @@ end
 -- touched here -- so it stays combat-safe.
 function Handle:_ApplyVisibility()
     local want = (self.shown ~= false) and not self._gateHidden and not self._cineLatched
+    if self._traceWant ~= want then
+        self._traceWant = want
+        Trace(self, "%s（指示器=%s 身分閘藏=%s 過場鎖=%s）", want and "顯示" or "隱藏",
+            self.shown ~= false and "開" or "關", self._gateHidden and "是" or "否",
+            self._cineLatched and "是" or "否")
+    end
     self.frame:SetShown(want)
     if self.container then pcall(function() self.container:SetShown(want) end) end
     -- a shell revealed by its own gate/latch/consumer: the button's OnShow never fires for that
@@ -2938,6 +3126,7 @@ function Handle:ReassertEnable()
     if not self.frame:IsVisible() then return end
     if self._enabledWhileVisible then return end
     self._enabledWhileVisible = true
+    Trace(self, "顯示後重新啟用＋彈跳")
     pcall(function() c:SetEnabled(true) end)
     -- partition kick -> force a fresh scan. Host first, for the same reason as GateRefresh:
     -- a Hide() on the container itself can be refused and the pcall would eat the refusal.
@@ -2969,6 +3158,7 @@ function Handle:GateRefresh()
         return
     end
     if not CombatGateOpen(self) then
+        Trace(self, "重讀：戰鬥中只能標記，脫戰補彈")
         self._pendingGateKick = true
         AD._defer(self, "gatekick")
         if type(c.UpdateAllAuras) == "function" then pcall(function() c:UpdateAllAuras() end) end
@@ -2984,6 +3174,8 @@ function Handle:GateRefresh()
     -- exactly this reason. The container bounce stays as a fallback for handles built before
     -- the host existed.
     local host = self.host
+    Trace(self, "重讀：彈跳%s%s", host and "宿主框" or "容器（無宿主，可能被拒）",
+        self.frame:IsVisible() and "" or "（框不可見，OnShow 不會觸發）")
     if host then
         if InCombatLockdown() then AD.stats.combatBounces = AD.stats.combatBounces + 1 end
         pcall(function() host:Hide(); host:Show() end)
@@ -3123,6 +3315,7 @@ function Handle:ApplyIdentityGate()
     end
 
     if recovered then
+        Trace(self, "身分閘恢復（assist／visible 回來）→ 重讀")
         -- ⚠ Un-latch BEFORE the bounce. Show() on a frame whose parent chain is hidden
         -- never fires OnShow, and OnShow is the entire mechanism of the bounce -- bouncing
         -- while still hidden would silently do nothing, which is the bug we are fixing.
@@ -3135,6 +3328,7 @@ function Handle:ApplyIdentityGate()
 end
 
 function Handle:Destroy()
+    Trace(self, "銷毀")
     self._destroyed = true -- Build/Rebuild must not resurrect it
     self._pendingBuild = nil
     AD._pending[self] = nil
@@ -3429,6 +3623,7 @@ do
                     -- is near-free here; a genuine recovery edge escalates to a full
                     -- bounce on its own regardless of the channel chosen below.
                     pcall(function() h:ApplyIdentityGate() end)
+                    Trace(h, "戰後補彈（%s）", AD.SETTLE_CHEAP and "只標髒" or "彈跳")
                     if AD.SETTLE_CHEAP then
                         local c = h.container
                         if c then pcall(function() c:UpdateAllAuras() end) end
@@ -3760,7 +3955,7 @@ function AD.Ghosts()
 end
 
 -- ============================================================
--- INSPECT  ->  /cab inspect [unit]
+-- INSPECT  ->  /cab inspect [unit]   (no unit = target, or player when nothing is targeted)
 --
 -- Dumps every container on one unit's button: what filter/candidateFilters it actually
 -- built with, how many spell IDs its include map holds, and its duration-text state.
@@ -3768,8 +3963,69 @@ end
 -- shows EVERY buff -- that is the difference between "filtered" and "everything".
 -- ============================================================
 
+-- Containers are bound to group tokens ("raid5"), never to "target"/"focus"/"mouseover":
+-- map an alias onto the group token of the same person, or nothing would match.
+local function ResolveInspectUnit(unitToken)
+    local bound = {}
+    for h in pairs(AD._instances or {}) do
+        if type(h.unit) == "string" and not h._destroyed then bound[h.unit] = true end
+    end
+    if bound[unitToken] then return unitToken end
+    for u in pairs(bound) do
+        if SameUnit(u, unitToken) then return u end
+    end
+    return unitToken
+end
+
+-- What is ACTUALLY on the unit, straight from C_UnitAuras -- the ground truth to hold the
+-- icons against. Only readable out of combat (in combat the fields come back secret and
+-- print as "(秘密)"). The filter string is evaluated, candidateFilters are not: there is no
+-- API for those, so this is an UPPER bound of what a row may show.
+local function ScanAuras(unit, filter)
+    local out = {}
+    if not (C_UnitAuras and C_UnitAuras.GetAuraDataByIndex) then return out, "API 不存在" end
+    for i = 1, 40 do
+        local ok, a = pcall(C_UnitAuras.GetAuraDataByIndex, unit, i, filter)
+        if not ok then return out, "讀取被拒（" .. tostring(a) .. "）" end
+        if a == nil then break end
+        local function v(x) if issecretvalue(x) then return nil end return x end
+        local remain
+        local exp, dur = v(a.expirationTime), v(a.duration)
+        if exp and dur then remain = (exp > 0 and dur > 0) and math.max(0, exp - GetTime()) or -1 end
+        out[#out + 1] = {
+            name = v(a.name), spellId = v(a.spellId), dispel = v(a.dispelName),
+            icon = v(a.icon), remain = remain, secret = v(a.name) == nil,
+        }
+    end
+    return out
+end
+
+local function AuraLine(a)
+    if a.secret then return "(秘密，戰鬥中讀不到)" end
+    local r = a.remain == nil and "?" or (a.remain < 0 and "永久" or ("%.0f秒"):format(a.remain))
+    return ("%s(%s) 驅散=%s 剩=%s icon=%s"):format(tostring(a.name), tostring(a.spellId),
+        tostring(a.dispel or "無"), r, tostring(a.icon))
+end
+
 function AD.Inspect(unitToken)
     unitToken = unitToken or "player"
+    local asked = unitToken
+    unitToken = ResolveInspectUnit(unitToken)
+    local okName, uname = pcall(UnitName, unitToken)
+    if not okName or issecretvalue(uname) then uname = nil end
+    p(("=== inspect %s%s（%s）%s ==="):format(asked, asked ~= unitToken and (" → " .. unitToken) or "",
+        tostring(uname or "?"), InCombatLockdown() and " ⚠ 戰鬥中，光環內容大多讀不到，脫戰再打一次" or ""))
+
+    -- ground truth first: everything on the unit, buffs and debuffs
+    local truthIcons = {}
+    for _, f in ipairs({ "HARMFUL", "HELPFUL" }) do
+        local list, err = ScanAuras(unitToken, f)
+        p(("  實際%s %d 個%s"):format(f == "HARMFUL" and "減益" or "增益", #list, err and ("｜" .. err) or ""))
+        for _, a in ipairs(list) do
+            p("    · " .. AuraLine(a))
+            if a.icon then truthIcons[a.icon] = a end
+        end
+    end
     -- assist=false here is the whole answer to "why did my whitelist row fill up after I
     -- got on that boat"; assist=true means the fail-open came from somewhere else
     if AD._gateVehicleLog then p("最近一次載具轉場：" .. AD._gateVehicleLog) end
@@ -3798,6 +4054,75 @@ function AD.Inspect(unitToken)
             -- "HARMFUL|RAID" as "HARMFULAID", which reads like a broken filter string
             for _, ri in ipairs(h._recordInfo or {}) do p("    record:", (ri:gsub("|", "||"))) end
             if h._recordInfo and #h._recordInfo == 0 then p("    record: (none -- container shows nothing)") end
+
+            -- 卡住判定：畫面上亮著幾顆 vs 這些 filter 字串在單位身上實際對得到幾顆。
+            -- candidateFilters 只會再刪，不會加，所以「亮的 > 對得到的」就一定有殘影。
+            local c = h.container
+            local function q(fn, ...)
+                if not c or type(c[fn]) ~= "function" then return "?" end
+                local ok, a = pcall(c[fn], c, ...)
+                if not ok then return "拒" end
+                return TraceArg(a)
+            end
+            p(("    容器：unit=%s visible=%s enabled=%s｜框 visible=%s｜重讀閂=%s 待補彈=%s 待建=%s")
+                :format(q("GetUnit"), q("IsVisible"), q("IsEnabled"), tostring(h.frame:IsVisible()),
+                    tostring(h._enabledWhileVisible), tostring(h._pendingGateKick or false),
+                    tostring(h._pendingBuild or false)))
+            if c and q("GetUnit") ~= "?" and q("GetUnit") ~= "拒" and q("GetUnit") ~= "(秘密)"
+                and q("GetUnit") ~= tostring(h.unit) then
+                p(("    ⚠ 容器綁的單位（%s）跟 Cell 以為的（%s）不同 —— 畫的是別人的光環")
+                    :format(q("GetUnit"), tostring(h.unit)))
+            end
+            local lit, unknown, litIcons = 0, 0, {}
+            for _, b in ipairs(h.buttons or {}) do
+                -- IsVisible, not IsShown: a hidden row keeps its buttons "shown"
+                local okS, shown = pcall(b.IsVisible, b)
+                if not okS or issecretvalue(shown) then
+                    unknown = unknown + 1
+                elseif shown then
+                    lit = lit + 1
+                    local tex = b.dfIcon
+                    if tex then
+                        local okT, id = pcall(tex.GetTexture, tex)
+                        litIcons[#litIcons + 1] = (okT and not issecretvalue(id)) and id or "(秘密)"
+                    end
+                end
+            end
+            local expect, expectSecret, expectErr = 0, false, false
+            for _, rf in ipairs(h._recordFilters or {}) do
+                local list, err = ScanAuras(unitToken, rf.filter)
+                local names = {}
+                for _, a in ipairs(list) do
+                    if a.secret then expectSecret = true end
+                    names[#names + 1] = a.secret and "?" or tostring(a.name)
+                end
+                expect = expect + #list
+                if err then expectErr = true end
+                p(("    對得到 %s：%d 顆%s%s%s"):format(rf.key, #list, rf.cf and "（未計 cf，實際可能更少）" or "",
+                    #names > 0 and (" " .. table.concat(names, "、")) or "", err and ("｜" .. err) or ""))
+            end
+            local iconDesc = {}
+            for _, id in ipairs(litIcons) do
+                local a = truthIcons[id]
+                iconDesc[#iconDesc + 1] = a and (tostring(a.name) .. "(" .. tostring(a.spellId) .. ")")
+                    or (tostring(id) .. (id ~= "(秘密)" and "＝單位身上沒有這個圖示" or ""))
+            end
+            p(("    亮著 %d 顆%s%s"):format(lit, unknown > 0 and ("（另 %d 顆讀不到）"):format(unknown) or "",
+                #iconDesc > 0 and ("：" .. table.concat(iconDesc, "、")) or ""))
+            local stuck = not expectSecret and not expectErr and not InCombatLockdown() and lit > expect
+            if stuck then
+                p(("    ⚠⚠ 卡住：亮著 %d 顆，但 filter 對得到的只有 %d 顆 —— 多出來的是殘影。先別 reload，把整段貼出來；/cell aura gate 可以手動解")
+                    :format(lit, expect))
+            end
+            -- 時間線只印有東西亮著的列，不然一個按鈕十幾個容器會把聊天框洗掉
+            if h._trace and (lit > 0 or unknown > 0 or stuck) then
+                p("    時間線（舊→新）：")
+                local head = h._traceHead or 0
+                for i = 1, TRACE_MAX do
+                    local line = h._trace[(head + i - 1) % TRACE_MAX + 1]
+                    if line then p("      " .. line) end
+                end
+            end
             -- the fail-open state: "assist=false" IS the "why is my whitelist showing
             -- every buff" answer, and it is invisible from anywhere else
             if h._gateVulnerable or h._gateSourceRelative or h._gateCFDependent then
@@ -4309,7 +4634,9 @@ SlashCmdList["CELLAURACONTAINER"] = function(msg)
     elseif cmd == "ghosts" then
         AD.Ghosts()
     elseif cmd == "inspect" then
-        AD.Inspect(arg and strtrim(arg) ~= "" and strtrim(arg) or "player")
+        -- 沒給單位就查目標（要查的通常是「畫面上那個人」），沒有目標才退回自己
+        AD.Inspect(arg and strtrim(arg) ~= "" and strtrim(arg)
+            or (UnitExists("target") and "target" or "player"))
     elseif cmd == "overdraw" then
         AD.Overdraw(arg and strtrim(arg) ~= "" and strtrim(arg) or "player")
     elseif cmd == "gate" then
@@ -4457,7 +4784,7 @@ SlashCmdList["CELLAURACONTAINER"] = function(msg)
     else
         p("supported =", tostring(AD.IsSupported()), "|", tostring(ACC.Failure() or "OK"))
         AD.Debug()
-        p("其他：/cab list | stats | ghosts | report [n] | bounce on|off | inspect [unit] | overdraw [unit] | spell [id｜名稱｜連結]（旗標分析視窗） | gate | test | probe [anim｜build｜reloadbuild on|off]")
+        p("其他（/cell aura 或簡寫 /cab 都可以）：/cell aura list | stats | ghosts | report [n] | bounce on|off | inspect [unit，預設目標] | overdraw [unit] | spell [id｜名稱｜連結]（旗標分析視窗） | gate | test | probe [anim｜build｜reloadbuild on|off]")
     end
 end
 
