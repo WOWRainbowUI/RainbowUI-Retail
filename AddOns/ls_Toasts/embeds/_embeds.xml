@@ -1,0 +1,5 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/">
+<Script file="LibEditMode\namespaced.lua"/>
+<Include file="LibEditMode\embed.xml"/>
+<Include file="AceGUI-3.0-LSWidgets\_widgets.xml"/>
+</Ui>

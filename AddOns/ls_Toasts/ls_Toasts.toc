@@ -1,9 +1,10 @@
-## Interface: 120100, 120007
+## Interface: 120105
 ## Author: lightspark
-## Version: 120100.01
+## Version: 120105.01
 ## Title: LS: |cff1cd3a2Toasts|r
 ## Notes: Better toasts, cheers!
 ## IconTexture: Interface\AddOns\ls_Toasts\assets\logo-64
+## Dependencies: Ace3
 ## SavedVariables: LS_TOASTS_GLOBAL_CONFIG
 ## LoadSavedVariablesFirst: 1
 ## X-Curse-Project-ID: 101604
@@ -12,7 +13,7 @@
 ## Notes-zhTW: LS: |cff00cc99Toasts|r |n|n可以完全自訂彈出式通知面板，移動位置、調整大小、選擇要顯示哪些通知，還有更多自訂選項。讓彈出的通知不會再擋住快捷列或重要的畫面。|n|n|cffffd200使用方法: |r從Esc>選項>插件>通知面板，進行設定。
 ## Category-zhTW: 介面
 
-embeds\AceGUI-3.0-LSWidgets\_widgets.xml
+embeds\_embeds.xml
 core\_core.xml
 locales\_locales.xml
 skins\_skins.xml
