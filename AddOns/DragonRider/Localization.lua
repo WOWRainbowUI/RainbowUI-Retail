@@ -3179,22 +3179,22 @@ if LOCALE == "zhCN" then
 	L["SpeedTextScale"] = "速度计文字大小"
 	L["SpeedTextScaleTT"] = "调整速度计上文字的大小。"
 	L["Version"] = "版本 %s"
-	L["ResetAllSettings"] = "重置所有龙骑士设置"
+	L["ResetAllSettings"] = "重置所有设置"
 	L["ResetAllSettingsTT"] = "专门为此插件重置所有设置。 这将包括自定义颜色值。"
 	L["ResetAllSettingsConfirm"] = "您确定要重置《龙骑士》的设置吗？"
 	L["Low"] = "低"
 	L["High"] = "高"
 	L["ProgressBar"] = "速度计" -- Deprecated
 	L["ProgressBarColor"] = "速度计颜色" -- Deprecated
-	L["ColorPickerLowProgTT"] = "为速度计的低速值选择自定义颜色。 当玩家没有获得任何精力时就会发生这种情况。" -- Deprecated
-	L["ColorPickerMidProgTT"] = "为速度计的精力速度值标准时选择自定义颜色。 当玩家在标准速度范围内获得精力时，就会发生这种情况。" -- Deprecated
-	L["ColorPickerHighProgTT"] = "为速度计的高速值选择自定义颜色。 当玩家精力充沛但速度高于标准速度范围时，就会发生这种情况。" -- Deprecated
-	L["ColorPickerLowTextTT"] = "为速度计的低速度值选择自定义颜色。 当玩家没有获得任何精力时就会发生这种情况。" -- Deprecated
-	L["ColorPickerMidTextTT"] = "为速度计的精力速度值选择自定义颜色。 当玩家在标准速度范围内获得精力时，就会发生这种情况。" -- Deprecated
-	L["ColorPickerHighTextTT"] = "为速度计的高速值选择自定义颜色。 当玩家精力充沛但速度高于标准速度范围时，就会发生这种情况。" -- Deprecated
-	L["DragonridingTalents"] = "龙骑天赋" -- translated 11.0 -- Changed in 11.2.7
-	L["OpenDragonridingTalents"] = "打开龙骑天赋窗口" -- translated 11.0 -- Changed in 11.2.7
-	L["OpenDragonridingTalentsTT"] = "打开龙骑天赋窗口。" -- translated 11.0 -- Changed in 11.2.7
+	L["ColorPickerLowProgTT"] = "为速度计的低速值选择自定义颜色。当玩家没有获得任何精力时就会发生这种情况。" -- Deprecated
+	L["ColorPickerMidProgTT"] = "为速度计的精力速度值标准时选择自定义颜色。当玩家在标准速度范围内获得精力时，就会发生这种情况。" -- Deprecated
+	L["ColorPickerHighProgTT"] = "为速度计的高速值选择自定义颜色。当玩家精力充沛但速度高于标准速度范围时，就会发生这种情况。" -- Deprecated
+	L["ColorPickerLowTextTT"] = "为速度计的低速度值选择自定义颜色。当玩家没有获得任何精力时就会发生这种情况。" -- Deprecated
+	L["ColorPickerMidTextTT"] = "为速度计的精力速度值选择自定义颜色。当玩家在标准速度范围内获得精力时，就会发生这种情况。" -- Deprecated
+	L["ColorPickerHighTextTT"] = "为速度计的高速值选择自定义颜色。当玩家精力充沛但速度高于标准速度范围时，就会发生这种情况。" -- Deprecated
+	L["DragonridingTalents"] = "驭空术技能" -- translated 11.0 -- Changed in 11.2.7
+	L["OpenDragonridingTalents"] = "打开驭空术技能" -- translated 11.0 -- Changed in 11.2.7
+	L["OpenDragonridingTalentsTT"] = "打开驭空术天赋窗口。" -- translated 11.0 -- Changed in 11.2.7
 	L["SideArtName"] = "侧面美化"
 	L["SideArtTT"] = "切换主精力条两侧的美化。"
 	L["BugfixesName"] = "Bug修复"
@@ -3260,7 +3260,7 @@ if LOCALE == "zhCN" then
 	L["SpeedometerHeightTT"] = "设置速度表框架高度。"
 	L["LockFrame"] = LOCK_FRAME
 	L["UnlockFrame"] = UNLOCK_FRAME
-	L["DynamicFOV_CaveatTT"] = "需要关闭设置并着陆后才能生效。\n\n与“动态眩晕”选项不兼容."
+	L["DynamicFOV_CaveatTT"] = "需要关闭设置并着陆后才能生效。\n\n与“动态眩晕”选项不兼容。"
 	L["DynamicFOVNewTT"] = "根据滑翔和 D.R.I.V.E. 速度调整相机视野。"
 	L["StaticChargeOffset"] = "静电充能偏移"
 	L["StaticChargeSpacing"] = "静电充能间距"
@@ -3300,40 +3300,40 @@ if LOCALE == "zhCN" then
 	L["SpeedometerSpark_ColorPickerTT"] = "选择速度表末端火花颜色。"
 
 	-- New Vigor Bar Settings
-	L["VigorTheme"] = "活力主题"
-	L["VigorThemeTT"] = "设置活力面板主题。"
-	L["VigorPosXName"] = "活力面板X轴位置"
-	L["VigorPosXNameTT"] = "设置活力面板水平位置。"
-	L["VigorPosYName"] = "活力面板Y轴位置"
-	L["VigorPosYNameTT"] = "设置活力面板垂直位置。"
-	L["VigorBarWidthName"] = "活力格宽度"
-	L["VigorBarWidthNameTT"] = "设置每个活力格的宽度。"
-	L["VigorBarHeightName"] = "活力格高度"
-	L["VigorBarHeightNameTT"] = "设置每个活力格的高度。"
-	L["VigorBarSpacingName"] = "格间距"
-	L["VigorBarSpacingNameTT"] = "设置活力格之间的间距。"
-	L["VigorBarOrientationName"] = "活力面板方向"
-	L["VigorBarOrientationNameTT"] = "设置面板整体方向。"
+	L["VigorTheme"] = "精力主题"
+	L["VigorThemeTT"] = "设置精力条主题。"
+	L["VigorPosXName"] = "精力条X轴位置"
+	L["VigorPosXNameTT"] = "设置精力条水平位置。"
+	L["VigorPosYName"] = "精力条Y轴位置"
+	L["VigorPosYNameTT"] = "设置精力条垂直位置。"
+	L["VigorBarWidthName"] = "精力充能宽度"
+	L["VigorBarWidthNameTT"] = "设置每个精力充能的宽度。"
+	L["VigorBarHeightName"] = "精力充能高度"
+	L["VigorBarHeightNameTT"] = "设置每个精力充能的高度。"
+	L["VigorBarSpacingName"] = "精力充能间距"
+	L["VigorBarSpacingNameTT"] = "设置精力充能之间的间距。"
+	L["VigorBarOrientationName"] = "精力充能排列方向"
+	L["VigorBarOrientationNameTT"] = "控制精力条的整体排列方向。"
 	L["Orientation_Vertical"] = HUD_EDIT_MODE_SETTING_ACTION_BAR_ORIENTATION_VERTICAL
 	L["Orientation_Horizontal"] = HUD_EDIT_MODE_SETTING_ACTION_BAR_ORIENTATION_HORIZONTAL
-	L["VigorBarDirectionName"] = "格子排列方向"
-	L["VigorBarDirectionNameTT"] = "设置活力格排列方向。"
+	L["VigorBarDirectionName"] = "精力充能增长方向"
+	L["VigorBarDirectionNameTT"] = "控制精力充能的增长方向。"
 	L["Direction_DownRight"] = "从上到下 / 从左到右"
 	L["Direction_UpLeft"] = "从下到上 / 从右到左"
-	L["VigorWrapName"] = "每行/列格数"
-	L["VigorWrapNameTT"] = "设置每行或每列显示的格数。"
-	L["VigorBarFillDirectionName"] = "格填充方向"
-	L["VigorBarFillDirectionNameTT"] = "设置格内部填充方向。"
+	L["VigorWrapName"] = "精力充能上限"
+	L["VigorWrapNameTT"] = "设置换行或换列前显示的充能数量。"
+	L["VigorBarFillDirectionName"] = "精力充能填充方向"
+	L["VigorBarFillDirectionNameTT"] = "设置精力充能填充方向。"
 	L["Direction_Vertical"] = HUD_EDIT_MODE_SETTING_ACTION_BAR_ORIENTATION_VERTICAL
 	L["Direction_Horizontal"] = HUD_EDIT_MODE_SETTING_ACTION_BAR_ORIENTATION_HORIZONTAL
-	L["VigorSparkThicknessName"] = "火花厚度"
-	L["VigorSparkThicknessNameTT"] = "设置活力格火花厚度。"
+	L["VigorSparkThicknessName"] = "填充火花厚度"
+	L["VigorSparkThicknessNameTT"] = "设置精力充能火花厚度。"
 	L["ToggleFlashFullName"] = "满格闪烁"
 	L["ToggleFlashFullNameTT"] = "格满时启用闪烁。"
 	L["ToggleFlashProgressName"] = "恢复格脉动"
 	L["ToggleFlashProgressNameTT"] = "格恢复中时启用脉动效果。"
-	L["ModelThemeName"] = "模型主题"
-	L["ModelThemeNameTT"] = "更改活力模型主题。"
+	L["ModelThemeName"] = "精力模型主题"
+	L["ModelThemeNameTT"] = "更改精力模型的视觉特效。"
 	L["SideArtStyleName"] = "侧边装饰主题"
 	L["SideArtStyleNameTT"] = "更改侧边装饰风格。"
 	L["SideArtPosX"] = "侧边装饰X轴位置"
@@ -3347,30 +3347,30 @@ if LOCALE == "zhCN" then
 	L["DesaturatedOptionTT"] = "部分选项被去饱和，这可使颜色选择器更好地应用颜色。未去饱和的选项在颜色选择器设为白色 (#FFFFFF) 时视觉效果最佳。"
 
 	-- Vigor Colors
-	L["VigorBar_Full_ColorPicker"] = "满格颜色"
-	L["VigorBar_Full_ColorPickerTT"] = "选择满格颜色。"
-	L["VigorBar_Empty_ColorPicker"] = "空格颜色"
-	L["VigorBar_Empty_ColorPickerTT"] = "选择空格颜色。"
-	L["VigorBar_Progress_ColorPicker"] = "恢复格颜色"
-	L["VigorBar_Progress_ColorPickerTT"] = "选择恢复格颜色。"
-	L["VigorBarCover_ColorPicker"] = "格覆盖颜色"
-	L["VigorBarCover_ColorPickerTT"] = "选择格覆盖颜色。"
+	L["VigorBar_Full_ColorPicker"] = "精力充满颜色"
+	L["VigorBar_Full_ColorPickerTT"] = "为精力充能充满时选择颜色。"
+	L["VigorBar_Empty_ColorPicker"] = "精力耗尽颜色"
+	L["VigorBar_Empty_ColorPickerTT"] = "为精力充能耗尽时选择颜色。"
+	L["VigorBar_Progress_ColorPicker"] = "精力恢复颜色"
+	L["VigorBar_Progress_ColorPickerTT"] = "为精力充能恢复时选择颜色。"
+	L["VigorBarCover_ColorPicker"] = "精力充能遮罩颜色"
+	L["VigorBarCover_ColorPickerTT"] = "为精力充能遮罩选择颜色。"
 	L["VigorBarBackground_ColorPicker"] = "背景颜色"
-	L["VigorBarBackground_ColorPickerTT"] = "选择活力格背景颜色。"
+	L["VigorBarBackground_ColorPickerTT"] = "为精力条背景选择颜色。"
 	L["VigorBarSpark_ColorPicker"] = "火花颜色"
-	L["VigorBarSpark_ColorPickerTT"] = "选择活力格火花颜色。"
+	L["VigorBarSpark_ColorPickerTT"] = "为精力充能火花选择颜色。这是当前进度条边缘的纹理。"
 	L["VigorBarFlash_ColorPicker"] = "闪烁颜色"
-	L["VigorBarFlash_ColorPickerTT"] = "选择恢复或满格时闪烁颜色。"
+	L["VigorBarFlash_ColorPickerTT"] = "为精力充能在充满或恢复时闪烁选择颜色。"
 	L["VigorBarDecor_ColorPicker"] = "装饰颜色"
-	L["VigorBarDecor_ColorPickerTT"] = "选择侧边装饰颜色。"
+	L["VigorBarDecor_ColorPickerTT"] = "为精力条上的侧边装饰选择颜色。"
 
 	-- Additional Toggles
 	L["ToggleTopper"] = "显示顶部装饰"
 	L["ToggleTopperTT"] = "显示速度表顶部装饰。"
 	L["ToggleFooter"] = "显示底部装饰"
 	L["ToggleFooterTT"] = "显示速度表底部装饰。"
-	L["ToggleVigor"] = "显示活力面板"
-	L["ToggleVigorTT"] = "显示6格活力面板。"
+	L["ToggleVigor"] = "显示精力条"
+	L["ToggleVigorTT"] = "切换与“向前突进”和“冲天升腾”法术充能相关的 6 个精力条。"
 	
 	-- Themes
 	L["ThemeAlgari_Gold"] = "阿加里 - 金色"
@@ -3395,7 +3395,7 @@ if LOCALE == "zhCN" then
 
 	-- TOC translations
 	L["DR_Title"] = "Dragon Rider: 龙骑士"
-	L["DR_Notes"] = "显示与活力条和其他一些与龙骑术相关的选项配对的速度计。"
+	L["DR_Notes"] = "显示速度计，并与精力条及其他驭空术相关选项搭配。"
 
 	L["SpeedometerTexture"] = "速度计进度纹理"
 	L["SpeedometerTextureTT"] = "自定义速度计进度条纹理。"
@@ -3425,20 +3425,20 @@ if LOCALE == "zhCN" then
 	L["Font_Morpheus"] = "ARKai_T"
 	L["Font_Skurri"] = "ARKai_C"
 
-	L["HousingDashboard"] = "住房面板"
+	L["HousingDashboard"] = "家宅面板"
 	L["ChallengeModeTimer"] = "挑战模式计时器"
 	L["Cosmic"] = "宇宙"
-	L["DelvesDashboard"] = "地下探险面板"
-	L["HousingAdvMode"] = "住房高级模式"
+	L["DelvesDashboard"] = "地下堡面板"
+	L["HousingAdvMode"] = "家宅高级模式"
 	L["AzeriteIslands"] = "艾泽里特群岛"
 	L["JourneysRenown"] = "旅程声望"
-	L["LegionfallConstruction"] = "军团再临建设"
+	L["LegionfallConstruction"] = "抗魔联军建设"
 	L["ActivitiesBar"] = "活动"
 	L["ActivitiesBarBonus"] = "活动加成"
 	L["ProfessionsSkillBar"] = "专业技能"
 	L["ProfessionsQualityBar"] = "专业品质"
 	L["JunkyardScore"] = "垃圾场评分"
-	L["JailersTowerScore"] = "典狱长之塔评分"
+	L["JailersTowerScore"] = "罪魂之塔评分"
 	L["CastBarEmpower"] = "施法条 – 强化"
 	L["CastBarInterrupted"] = "施法条 – 被打断"
 	L["CastBarStandard"] = "施法条 – 标准"
@@ -3486,7 +3486,7 @@ if LOCALE == "zhCN" then
 
 	L["GroundSkimming"] = "掠地滑翔"
 	L["GroundSkimming_Toggle"] = "显示掠地滑翔"
-	L["GroundSkimming_ToggleTT"] = "切换与掠地滑翔光环关联的活力组件下方的发光效果。"
+	L["GroundSkimming_ToggleTT"] = "切换与掠地滑翔光环关联的精力组件下方的发光效果。"
 	L["GroundSkimming_ColorPicker"] = "掠地滑翔颜色"
 	L["GroundSkimming_ColorPickerTT"] = "选择掠地滑翔的颜色。"
 	L["ProfileLoaded"] = "配置文件“%s”已加载！"
