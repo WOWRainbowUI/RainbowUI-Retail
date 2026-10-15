@@ -664,7 +664,7 @@ function addonTable.Display.ManagerMixin:UpdateNamePlateSize()
   self.baseOffsetFriendly = - height / 2 - bottom * globalScale + verticalOffset * globalScale / 2
   self.baseOffsetEnemy = self.baseOffsetFriendly
   if addonTable.Config.Get(addonTable.Config.Options.NAMEPLATE_POSITION) == "bottom" then
-    self.baseOffsetEnemy = - self.baseOffsetEnemy
+    self.baseOffsetEnemy = height / 2 - top * globalScale + verticalOffset * globalScale / 2
   end
 
   height = height + verticalOffset * globalScale

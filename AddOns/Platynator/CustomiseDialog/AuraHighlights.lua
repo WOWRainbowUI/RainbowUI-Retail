@@ -179,13 +179,19 @@ local function GetAuraOptions(parent, kind)
     addonTable.Skins.AddFrame("EditBox", editBox)
     local addForColor = CreateFrame("Button", nil, container, "UIPanelDynamicResizeButtonTemplate")
     addForColor:SetText(addonTable.Locales.COLOR)
+    addForColor:Disable()
     DynamicResizeButton_Resize(addForColor)
     addForColor:SetPoint("LEFT", editBox, "RIGHT", 10, 0)
     addonTable.Skins.AddFrame("Button", addForColor)
 
     editBox:SetScript("OnTextChanged", function()
       local spellID = tonumber(editBox:GetText()) or 0
-      addForColor:SetEnabled(C_Spell.DoesSpellExist(spellID))
+      addForColor:SetEnabled(C_Spell.DoesSpellExist(spellID) and #GetSettings(kind).auras < 5)
+    end)
+    editBox:SetScript("OnEnterPressed", function()
+      if addForColor:IsEnabled() then
+        addForColor:Click()
+      end
     end)
 
     addForColor:SetScript("OnClick", function()
@@ -194,6 +200,7 @@ local function GetAuraOptions(parent, kind)
         addonTable.Dialogs.ShowAcknowledge(addonTable.Locales.THAT_SPELL_DOESNT_EXIST)
         return
       end
+      editBox:SetText("")
       table.insert(GetSettings(kind).auras, {spellID = spellID, color = GetColor("ffffff"), enabled = true})
       Announce()
       Refresh()

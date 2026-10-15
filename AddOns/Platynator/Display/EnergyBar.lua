@@ -18,6 +18,12 @@ function addonTable.Display.EnergyBarMixin:SetUnit(unit)
       return
     end
 
+    addonTable.CallbackRegistry:RegisterCallback("DungeonLevelUpdate", function()
+      if self.unit then
+        self:SetUnit(self.unit)
+      end
+    end, self)
+
     local numKind = UnitPowerType(self.unit)
 
     local isDelveRelevant = false
@@ -68,6 +74,7 @@ function addonTable.Display.EnergyBarMixin:StripInternal()
   self:UnregisterAllEvents()
   addonTable.Display.UnregisterForColorEvents(self)
   addonTable.CallbackRegistry:UnregisterCallback("EncounterUpdate", self)
+  addonTable.CallbackRegistry:UnregisterCallback("DungeonLevelUpdate", self)
 
   self.powerKind = nil
 end

@@ -138,6 +138,17 @@ function addonTable.Display.DesignForContextMixin:OnLoad()
     end
   end)
 
+  addonTable.CallbackRegistry:RegisterCallback("DungeonLevelUpdate", function()
+    for unit, state in pairs(self.unitStates) do
+      local changes = state.updates.classification
+      local oldType = state.eliteType
+      state.eliteType = addonTable.Display.Utilities.GetEliteType(unit)
+      if changes and oldType ~= state.eliteType then
+        addonTable.CallbackRegistry:TriggerEvent("UnitDesignChange", unit)
+      end
+    end
+  end)
+
   self.unitStates = {}
   self.unitsListening = {}
 

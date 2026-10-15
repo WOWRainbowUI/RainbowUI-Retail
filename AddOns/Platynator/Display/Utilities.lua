@@ -614,31 +614,6 @@ do
 end
 
 do
-  local instanceTracker = CreateFrame("Frame")
-  instanceTracker:RegisterEvent("PLAYER_ENTERING_WORLD")
-  instanceTracker:RegisterEvent("PLAYER_LEVEL_UP")
-  instanceTracker:RegisterEvent("ZONE_CHANGED_NEW_AREA")
-  instanceTracker:RegisterEvent("INSTANCE_GROUP_SIZE_CHANGED")
-  instanceTracker:SetScript("OnEvent", function(_, event)
-    local inInstance = addonTable.Display.Utilities.IsInRelevantInstance({dungeon = true, raid = true, delve = true, pvp = true})
-    local _, _, _, _, _, _, _, _, _, lfgDungeonID = GetInstanceInfo()
-    if PLATYNATOR_LAST_INSTANCE == nil
-      or inInstance ~= PLATYNATOR_LAST_INSTANCE.inInstance
-      or PLATYNATOR_LAST_INSTANCE.lastLFGInstanceID ~= lfgDungeonID
-      or not inInstance then
-      PLATYNATOR_LAST_INSTANCE = {
-        lastLFGInstanceID = lfgDungeonID,
-        inInstance = inInstance,
-        instanceLieutenantLevel = nil,
-      }
-      if lfgDungeonID and addonTable.Display.Utilities.IsInRelevantInstance({dungeon = true}) then
-        PLATYNATOR_LAST_INSTANCE.level = GetMaxLevelForExpansionLevel(GetMaximumExpansionLevel())
-      else
-        PLATYNATOR_LAST_INSTANCE.level = UnitEffectiveLevel("player")
-      end
-    end
-  end)
-
   local HasMana
   if UnitHasPowerType then
     HasMana = function(unit)
@@ -650,17 +625,10 @@ do
     end
   end
 
-  function addonTable.Display.Utilities.GetEliteType(unit, casterOverride)
+  local function GetRaidEliteType(unit, casterOverride)
     local classification = UnitClassification(unit)
     if classification == "elite" then
-      local level = UnitEffectiveLevel(unit)
-      local dungeonLevel = PLATYNATOR_LAST_INSTANCE.level
-      local isRetail = addonTable.Constants.IsRetail
-      local lieutentantLevel = PLATYNATOR_LAST_INSTANCE.instanceLieutenantLevel
-      if isRetail and (level == dungeonLevel + 1 or UnitIsLieutenant(unit)) then
-        PLATYNATOR_LAST_INSTANCE.instanceLieutenantLevel = level
-        return "miniboss"
-      elseif isRetail and (level == dungeonLevel + 2 or lieutentantLevel and level == lieutentantLevel + 1) or level == -1 then
+      if UnitIsBossMob(unit) then
         return "boss"
       else
         return HasMana(unit) and "caster" or "melee"
@@ -669,6 +637,83 @@ do
       return casterOverride and HasMana(unit) and "caster" or "trivial"
     end
   end
+
+  local function GetDungeonEliteType(unit, casterOverride)
+    local classification = UnitClassification(unit)
+    if classification == "elite" then
+      local level = UnitEffectiveLevel(unit)
+      local dungeonLevel = PLATYNATOR_LAST_INSTANCE.level
+      local lieutentantLevel = PLATYNATOR_LAST_INSTANCE.instanceLieutenantLevel
+      if level == dungeonLevel + 1 or UnitIsLieutenant and UnitIsLieutenant(unit) then
+        PLATYNATOR_LAST_INSTANCE.instanceLieutenantLevel = level
+        return "miniboss"
+      elseif (level == dungeonLevel + 2 or lieutentantLevel and level == lieutentantLevel + 1) or level == -1 then
+        return "boss"
+      else
+        return HasMana(unit) and "caster" or "melee"
+      end
+    elseif classification == "normal" or classification == "trivial" or classification == "minus" then
+      return casterOverride and HasMana(unit) and "caster" or "trivial"
+    end
+  end
+
+  local instanceTracker = CreateFrame("Frame")
+  instanceTracker:RegisterEvent("PLAYER_ENTERING_WORLD")
+  instanceTracker:RegisterEvent("PLAYER_LEVEL_UP")
+  instanceTracker:RegisterEvent("ZONE_CHANGED_NEW_AREA")
+  instanceTracker:RegisterEvent("INSTANCE_GROUP_SIZE_CHANGED")
+  instanceTracker:SetScript("OnEvent", function(_, event)
+    local inInstance = addonTable.Display.Utilities.IsInRelevantInstance({dungeon = true, raid = true, delve = true, pvp = true})
+
+    local inRaid = addonTable.Display.Utilities.IsInRelevantInstance({raid = true})
+    local inDungeon = addonTable.Display.Utilities.IsInRelevantInstance({dungeon = true})
+    local inDelve = addonTable.Display.Utilities.IsInRelevantInstance({delve = true})
+    if inRaid then
+      addonTable.Display.Utilities.GetEliteType = GetRaidEliteType
+    else
+      addonTable.Display.Utilities.GetEliteType = GetDungeonEliteType
+    end
+
+    local _, _, _, _, _, _, _, _, _, lfgDungeonID = GetInstanceInfo()
+    if PLATYNATOR_LAST_INSTANCE == nil
+      or inInstance ~= PLATYNATOR_LAST_INSTANCE.inInstance
+      or PLATYNATOR_LAST_INSTANCE.lastLFGInstanceID ~= lfgDungeonID
+      or not inInstance then
+      PLATYNATOR_LAST_INSTANCE = {
+        lastLFGInstanceID = lfgDungeonID,
+        inInstance = inInstance,
+        instanceLieutenantLevel = nil,
+        inRaid = inRaid,
+        inDelve = inDelve,
+        inDungeon = inDungeon,
+      }
+      if lfgDungeonID and addonTable.Display.Utilities.IsInRelevantInstance({dungeon = true}) then
+        PLATYNATOR_LAST_INSTANCE.level = GetMaxLevelForExpansionLevel(GetMaximumExpansionLevel())
+      else
+        PLATYNATOR_LAST_INSTANCE.level = UnitEffectiveLevel("player")
+      end
+    end
+  end)
+  local levelTracker = CreateFrame("Frame")
+  levelTracker:RegisterEvent("NAME_PLATE_UNIT_ADDED")
+  local delveInvalid = {
+    ["trival"] = true,
+    ["minus"] = true,
+  }
+  levelTracker:SetScript("OnEvent", function(_, _, unit)
+    if (PLATYNATOR_LAST_INSTANCE.inDelve and not delveInvalid[UnitClassification(unit)] or PLATYNATOR_LAST_INSTANCE.inDungeon and UnitClassification(unit) == "elite") and
+      not (UnitIsPlayer(unit) or UnitTreatAsPlayerForDisplay and UnitTreatAsPlayerForDisplay(unit))
+    then
+      local level = UnitLevel(unit)
+      local prev = PLATYNATOR_LAST_INSTANCE.level
+      if level < prev then
+        PLATYNATOR_LAST_INSTANCE.level = level
+        addonTable.CallbackRegistry:TriggerEvent("DungeonLevelUpdate")
+      end
+    end
+  end)
+
+  addonTable.Display.Utilities.GetEliteType = GetDungeonEliteType
 
   function addonTable.Display.Utilities.GetDelveType(unit)
     local classification = UnitClassification(unit)
