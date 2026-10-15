@@ -76,6 +76,7 @@ L['quest_repeatable'] = '可重複任務'
 L['achievement'] = '成就'
 L['decor_owned'] = '已擁有：%s'
 
+-------------------------------------------------------------------------------
 ----------------------------------- LOCATION ----------------------------------
 L['in_cave'] = '在洞穴。'
 L['in_small_cave'] = '在小洞穴。'
@@ -84,10 +85,13 @@ L['in_waterfall_cave'] = '在瀑布後面洞穴內。'
 L['in_water'] = '在水下。'
 L['in_building'] = '在建築內。'
 
+-------------------------------------------------------------------------------
 ------------------------------------- TIME ------------------------------------
-L['starts_in'] = nil
-L['time_remaining'] = nil
-L['next_time'] = nil
+-------------------------------------------------------------------------------
+
+L['starts_in'] = '開始於：'
+L['time_remaining'] = '剩餘時間：'
+L['next_time'] = '下一次：'
 L['hourly'] = '每小時'
 L['daily'] = '每日'
 L['weekly'] = '每週'
@@ -97,7 +101,10 @@ L['time_format_24hrs'] = '%m/%d - %H:%M'
 L['local_time'] = '本機時間'
 L['server_time'] = '伺服器時間'
 
+-------------------------------------------------------------------------------
 ----------------------------------- REWARDS -----------------------------------
+-------------------------------------------------------------------------------
+
 L['decor'] = '房屋裝飾'
 L['heirloom'] = '傳家寶'
 L['item'] = '物品'
@@ -113,12 +120,18 @@ L['buff'] = '增益'
 L['transmog'] = '塑形'
 L['hunter_pet'] = '獵人寵物'
 
+-------------------------------------------------------------------------------
 ---------------------------------- FOLLOWERS ----------------------------------
+-------------------------------------------------------------------------------
+
 L['follower_type_follower'] = '追隨者'
 L['follower_type_champion'] = '勇士'
 L['follower_type_companion'] = '夥伴'
 
+-------------------------------------------------------------------------------
 ---------------------------------- REPUTATION ---------------------------------
+-------------------------------------------------------------------------------
+
 L['rep_honored'] = '尊敬'
 L['rep_revered'] = '崇敬'
 L['rep_exalted'] = '崇拜'
@@ -169,7 +182,9 @@ L['options_open_settings_panel'] = '打開設定選項...'
 L['options_open_world_map'] = '打開世界地圖'
 L['options_open_world_map_desc'] = '打開世界地圖的此區域。'
 
+-------------------------------------------------------------------------------
 ------------------------------------ ICONS ------------------------------------
+-------------------------------------------------------------------------------
 
 L['options_icon_settings'] = '圖示設定'
 L['options_scale'] = '圖示大小'
@@ -177,7 +192,9 @@ L['options_scale_desc'] = '1 = 100%'
 L['options_opacity'] = '透明度'
 L['options_opacity_desc'] = '0 = 全透明, 1 = 不透明'
 
+-------------------------------------------------------------------------------
 ---------------------------------- VISIBILITY ---------------------------------
+-------------------------------------------------------------------------------
 
 L['options_show_worldmap_button'] = '顯示世界地圖按鈕'
 L['options_show_worldmap_button_desc'] = '在世界地圖的右上角加入一個可以快速切換顯示的下拉選單。'
@@ -192,8 +209,8 @@ L['options_toggle_hide_done_treasure'] = '隱藏獎勵全部都拿到的寶藏'
 L['options_toggle_hide_done_treasure_desc'] = '如果寶藏拾取的物品都已收藏，隱藏這些寶藏。'
 L['options_toggle_hide_minimap'] = '隱藏小地圖的所有圖示'
 L['options_toggle_hide_minimap_desc'] = '隱藏小地圖上來自此插件的所有圖示，只顯示在大地圖上。'
-L['options_toggle_interval_enlarged'] = nil
-L['options_toggle_interval_enlarged_desc'] = nil
+L['options_toggle_interval_enlarged'] = '在出現時段內放大週期圖示'
+L['options_toggle_interval_enlarged_desc'] = '週期或計時節點在出現時段內時放大其圖示。停用後所有圖示維持正常大小。'
 L['options_toggle_maximized_enlarged'] = '放大最大化世界地圖上的圖示'
 L['options_toggle_maximized_enlarged_desc'] = '當世界地圖為最大化時，放大所有圖示。'
 L['options_toggle_use_char_achieves'] = '使用角色成就'
@@ -227,9 +244,8 @@ L['options_transmog_rewards'] = '顯示塑形外觀獎勵'
 L['options_transmog_rewards_desc'] = '在浮動提示資訊中顯示塑形外觀獎勵，並且追蹤收藏狀態。'
 L['options_all_transmog_rewards'] = '顯示無法取得的塑形外觀獎勵'
 L['options_all_transmog_rewards_desc'] = '顯示其他職業才能取得的塑形外觀獎勵。'
-L['options_shared_appearances'] = nil
-L['options_shared_appearances_desc'] = nil
-L['options_rep_rewards'] = '顯示聲望獎勵'
+L['options_shared_appearances'] = '共用模型的外觀視為已收集'
+L['options_shared_appearances_desc'] = '啟用後，從其他物品收集到共用模型的外觀時，此獎勵也會標記為已收集。'L['options_rep_rewards'] = '顯示聲望獎勵'
 L['options_rep_rewards_desc'] = '在浮動提示資訊中顯示聲望獎勵，並且追蹤目前狀態。'
 L['options_claimed_rep_rewards'] = '顯示已取得的聲望獎勵'
 L['options_claimed_rep_rewards_desc'] = '顯示已由戰隊取得的聲望獎勵。'
@@ -246,7 +262,9 @@ L['options_icons_vendors_desc'] = '顯示商人的位置。'
 L['options_icons_vendors'] = '商人'
 
 
+-------------------------------------------------------------------------------
 ------------------------------------ FOCUS ------------------------------------
+-------------------------------------------------------------------------------
 
 L['options_focus_settings'] = '有趣的地點 (POI)'
 L['options_poi_color'] = '有趣的地點顏色'
@@ -256,7 +274,9 @@ L['options_path_color_desc'] = '當圖示被點選/追蹤時，設定路徑的�
 L['options_reset_poi_colors'] = '重置顏色'
 L['options_reset_poi_colors_desc'] = '重置上面的顏色，恢復成預設值。'
 
+-------------------------------------------------------------------------------
 ----------------------------------- TOOLTIP -----------------------------------
+-------------------------------------------------------------------------------
 
 L['options_tooltip_settings'] = '浮動提示資訊'
 L['options_toggle_show_loot'] = '顯示戰利品'
@@ -266,7 +286,9 @@ L['options_toggle_show_notes_desc'] = '在浮動提示中顯示有用的註記�
 L['options_toggle_show_npc_id'] = '顯示 NPC ID'
 L['options_toggle_show_npc_id_desc'] = '顯示 NPC 的 ID，以便在稀有怪通知插件中使用。'
 
+-------------------------------------------------------------------------------
 --------------------------------- DEVELOPMENT ---------------------------------
+-------------------------------------------------------------------------------
 
 L['options_dev_settings'] = '開發'
 L['options_toggle_show_debug_currency'] = '除錯貨幣 IDs'
