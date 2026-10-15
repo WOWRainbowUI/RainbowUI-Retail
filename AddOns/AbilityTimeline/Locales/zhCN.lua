@@ -7,12 +7,11 @@ if L then
 
 -- LocalisationData[""] =
 L["AccessOptionsMessage"] = "输入 /at 命令打开选项"
-L["AddCooldownColorChangeTooltip"] = "添加一个新的冷却颜色变化。"
---[[Translation missing --]]
-L["AdditionalSettings"] = "Additional Information"
+L["AddCooldownColorChangeTooltip"] = "添加一条新的冷却颜色变化规则。"
+L["AdditionalSettings"] = "附加信息"
 L["addonOptions"] = "Ability Timeline选项"
 L["BigIconMargin"] = "间距"
-L["BigIconMarginDescription"] = "设置大图标的间隔距离。"
+L["BigIconMarginDescription"] = "设置大图标之间的间隔距离。"
 L["BleedEffect"] = "流血|TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:158:192:32:64|t"
 L["CollapseTravelSettings"] = "收起移动设置"
 L["CollapseVisualSettings"] = "收起视觉设置"
@@ -42,42 +41,28 @@ L["DeadlyEffect"] = "灭团技 |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::
 L["debugMode"] = "调试模式"
 L["debugModeDescription"] = "启用调试模式，将在聊天窗口输出额外信息。"
 L["DefaultCooldownColor"] = "冷却颜色"
---[[Translation missing --]]
-L["disableAllBlizzTimers"] = "Disable All Blizzard Timers"
---[[Translation missing --]]
-L["disableAllBlizzTimersDescription"] = "Disables all Blizzard timers, including the ready check, pull timer, and encounter timers. This is useful if you want to use fully custom timers e.g. from Viserio."
+L["disableAllBlizzTimers"] = "禁用所有暴雪计时器"
+L["disableAllBlizzTimersDescription"] = "禁用所有暴雪计时器，包括就位确认、开怪计时器和首领战计时器。如果你想完全使用自定义计时器（例如来自 Viserio 的计时器），此选项非常有用。"
 L["disableAllOnEncounterEnd"] = "禁用所有提醒信息"
 L["disableAllOnEncounterEndDescription"] = "在首领战结束时，禁用所有的事件提醒信息。"
---[[Translation missing --]]
-L["disableBossModsBars"] = "Disable Boss Mods Bars"
---[[Translation missing --]]
-L["disableBossModsBarsDescription"] = "Hides the bars of boss mods."
---[[Translation missing --]]
-L["disableBossModsEmphasisedBars"] = "Disable Boss Mods Emphasised Bars"
---[[Translation missing --]]
-L["disableBossModsEmphasisedBarsDescription"] = "Hides the emphasised bars of boss mods."
+L["disableBossModsBars"] = "禁用 Boss Mods 条"
+L["disableBossModsBarsDescription"] = "隐藏 Boss Mods 的计时条。"
+L["disableBossModsEmphasisedBars"] = "禁用 Boss Mods 强调条"
+L["disableBossModsEmphasisedBarsDescription"] = "隐藏 Boss Mods 的强调计时条。"
 L["disableLoginMessage"] = "禁用登录信息"
 L["disableLoginMessageDescription"] = "禁用登录时显示的如何打开选项的提示信息。"
 L["disableReadyCheck"] = "禁用就位确认"
 L["disableReadyCheckDescription"] = "禁用在时间轴中显示就位确认。"
 L["DiscordDescription"] = "加入我的Discord服务器获取支持和更新信息"
 L["DiseaseEffect"] = "疾病效果 |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:71:89:39:57|t"
---[[Translation missing --]]
-L["DispellIconAnchor"] = "Dispell Icon Anchor"
---[[Translation missing --]]
-L["DispellIconAnchorDescription"] = "Sets the anchor point of the dispell type icon relative to the spell icon."
---[[Translation missing --]]
-L["DispellIconOffsetX"] = "Dispell Icon Offset X"
---[[Translation missing --]]
-L["DispellIconOffsetXDescription"] = "Sets the X offset of the dispell type icon relative to its anchor point."
---[[Translation missing --]]
-L["DispellIconOffsetY"] = "Dispell Icon Offset Y"
---[[Translation missing --]]
-L["DispellIconOffsetYDescription"] = "Sets the Y offset of the dispell type icon relative to its anchor point."
---[[Translation missing --]]
-L["DispellIconSize"] = "Dispell Icon Size"
---[[Translation missing --]]
-L["DispellIconSizeDescription"] = "Sets the size of the dispell type icon on the spell icon."
+L["DispellIconAnchor"] = "驱散图标锚点"
+L["DispellIconAnchorDescription"] = "设置驱散类型图标相对于法术图标的锚点位置。"
+L["DispellIconOffsetX"] = "驱散图标 X 偏移"
+L["DispellIconOffsetXDescription"] = "设置驱散类型图标相对于其锚点的 X 轴偏移。"
+L["DispellIconOffsetY"] = "驱散图标 Y 偏移"
+L["DispellIconOffsetYDescription"] = "设置驱散类型图标相对于其锚点的 Y 轴偏移。"
+L["DispellIconSize"] = "驱散图标大小"
+L["DispellIconSizeDescription"] = "设置法术图标上驱散类型图标的大小。"
 L["DispellTextColor"] = "驱散文字颜色"
 L["DispellTextColorDescription"] = "启用根据驱散类型对法术名称文字进行着色。"
 L["DpsRole"] = "伤害输出 |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:39:57:7:25|t"
@@ -113,16 +98,11 @@ L["GrowDirectionLeft"] = "左"
 L["GrowDirectionRight"] = "右"
 L["GrowDirectionUp"] = "上"
 L["HealerRole"] = "治疗 |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:71:89:7:25|t"
---[[Translation missing --]]
-L["IconBorder"] = "Icon Border"
---[[Translation missing --]]
-L["IconBorderDescription"] = "Selects the type of border to be used. Dispell will show a border based on the dispell type of the spell, Boss Mods will show a border based on the color set by boss mods (e.g. Bar color for bw) and None will disable borders."
---[[Translation missing --]]
-L["IconBorderWidth"] = "Border Width"
---[[Translation missing --]]
-L["IconBorderWidthDescription"] = "Sets the thickness (in pixels) of the icon border."
---[[Translation missing --]]
-L["IconBossModsBorder"] = "Boss Mods Border"
+L["IconBorder"] = "图标边框"
+L["IconBorderDescription"] = "选择要使用的边框类型。驱散会根据法术的驱散类型显示边框，Boss Mods 会根据 Boss Mods 设置的颜色显示边框（例如 BW 的计时条颜色），无则禁用边框。"
+L["IconBorderWidth"] = "边框宽度"
+L["IconBorderWidthDescription"] = "设置图标边框的厚度（单位：像素）。"
+L["IconBossModsBorder"] = "Boss Mods 边框"
 L["IconDangerIcon"] = "启用“危险”图标"
 L["IconDangerIconDescription"] = "在时间线上为暴雪标记为“致命”效果的显示“危险”图标 |TInterface\\\\\\\\EncounterJournal\\\\\\\\UI-EJ-Icons:::::256:64:135:153:7:25|t 。"
 L["IconDispellBorder"] = "驱散类型边框"
@@ -131,8 +111,7 @@ L["IconDispellIconDescription"] = "切换法术图标上叠加的驱散类型图
 L["IconGrowDirectionDescription"] = "设置不同图标元素的增长方向。"
 L["IconMargin"] = "图标间距"
 L["IconMarginDescription"] = "设置法术图标之间的间距。"
---[[Translation missing --]]
-L["IconNoneBorder"] = "No Border"
+L["IconNoneBorder"] = "无边框"
 L["IconPreview"] = "图标预览"
 L["IconRoleIcons"] = "职责图标"
 L["IconRoleIconsDescription"] = "切换法术图标上的职责图标 |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:7:25:7:25|t|TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:71:89:7:25|t|TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:39:57:7:25|t 的显示。"
@@ -159,8 +138,7 @@ L["InvalidTextPosition"] = "文本锚点位置无效，请通知作者。"
 L["InverseTravelDirection"] = "反转时间轴行进方向"
 L["InverseTravelDirectionDescription"] = "反转时间轴的行进方向。"
 L["MagicEffect"] = "法术效果 |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:231:249:7:25|t"
---[[Translation missing --]]
-L["NoRemindersHint"] = "You haven't created any reminders yet. Open the Encounter Journal, pick an encounter and use the AbilityTimeline button to create reminders to get started."
+L["NoRemindersHint"] = "你还没有创建任何提醒。打开首领手册，选择一个首领，然后使用 AbilityTimeline 按钮创建提醒即可开始。"
 L["OpenIconEditor"] = "编辑图标"
 L["OpenSelectedReminderEditor"] = "打开提醒编辑器"
 L["OpenSelectedReminderEditorDescription"] = "为所选首领战打开提醒编辑器。"
@@ -198,22 +176,14 @@ L["ReminderSeverityLabel"] = "严重程度"
 L["ReminderSpellIdLabel"] = "法术ID"
 L["RemoveCooldownColorChangeTooltip"] = "移除此冷却颜色变化。"
 L["RerollKey"] = "重掷史诗钥石"
---[[Translation missing --]]
-L["RoleIconAnchor"] = "Role Icon Anchor"
---[[Translation missing --]]
-L["RoleIconAnchorDescription"] = "Sets the anchor point of the role icons relative to the spell icon."
---[[Translation missing --]]
-L["RoleIconOffsetX"] = "Role Icon Offset X"
---[[Translation missing --]]
-L["RoleIconOffsetXDescription"] = "Sets the X offset of the role icons relative to their anchor point."
---[[Translation missing --]]
-L["RoleIconOffsetY"] = "Role Icon Offset Y"
---[[Translation missing --]]
-L["RoleIconOffsetYDescription"] = "Sets the Y offset of the role icons relative to their anchor point."
---[[Translation missing --]]
-L["RoleIconSize"] = "Role Icon Size"
---[[Translation missing --]]
-L["RoleIconSizeDescription"] = "Sets the size of the role icons on the spell icon."
+L["RoleIconAnchor"] = "职责图标锚点"
+L["RoleIconAnchorDescription"] = "设置职责图标相对于法术图标的锚点位置。"
+L["RoleIconOffsetX"] = "职责图标 X 偏移"
+L["RoleIconOffsetXDescription"] = "设置职责图标相对于其锚点的 X 轴偏移。"
+L["RoleIconOffsetY"] = "职责图标 Y 偏移"
+L["RoleIconOffsetYDescription"] = "设置职责图标相对于其锚点的 Y 轴偏移。"
+L["RoleIconSize"] = "职责图标大小"
+L["RoleIconSizeDescription"] = "设置法术图标上职责图标的大小。"
 L["SpellIconSettings"] = "法术图标设置"
 L["SpellnameBackground"] = "启用文本背景"
 L["SpellnameBackgroundDescription"] = "启用法术名称的背景。"
@@ -221,22 +191,16 @@ L["SpellnameBackgroundTexture"] = "文本背景材质"
 L["SpellnameBackgroundTextureDescription"] = "设置法术名称的背景材质。"
 L["SpellnameDefaultColor"] = "默认文本颜色"
 L["SpellnameDefaultColorDescription"] = "设置图标旁文本的默认颜色（当未受特定信息影响时，例如中毒等减益类型）。"
---[[Translation missing --]]
-L["SpellnameEnableShadow"] = "Enable Text Shadow"
---[[Translation missing --]]
-L["SpellnameEnableShadowDescription"] = "Enables or disables the shadow effect on the text."
+L["SpellnameEnableShadow"] = "启用文本阴影"
+L["SpellnameEnableShadowDescription"] = "启用或禁用文本的阴影效果。"
 L["SpellnameFont"] = "字体"
 L["SpellnameFontDescription"] = "设置图标旁文本的字体。"
---[[Translation missing --]]
-L["SpellnameFontFlag"] = "Additional Font Settings"
---[[Translation missing --]]
-L["SpellnameFontFlagDescription"] = "Sets additional font settings of the text besides the icon."
+L["SpellnameFontFlag"] = "附加字体设置"
+L["SpellnameFontFlagDescription"] = "设置图标旁文本的附加字体样式。"
 L["SpellnameFontSize"] = "字体大小"
 L["SpellnameFontSizeDescription"] = "设置图标旁文本的字体大小。"
---[[Translation missing --]]
-L["SpellnameUseEventColor"] = "Use Event Color"
---[[Translation missing --]]
-L["SpellnameUseEventColorDescription"] = "Colors the text based on the color set for the event by Bossmods/Blizzard. The default will be set to an (according to Blizzard) appropriate color."
+L["SpellnameUseEventColor"] = "使用事件颜色"
+L["SpellnameUseEventColorDescription"] = "根据 Boss Mods/暴雪为事件设置的颜色为文本着色。默认将设置为（暴雪认为）合适的颜色。"
 L["StartTimerAfterDescription"] = "首领战开始后，提醒信息在时间轴上开始显示前的延迟时间（秒）。"
 L["StartTimerAfterLabel"] = "开始延迟（秒）"
 L["Strata"] = "框体层级"
@@ -266,18 +230,12 @@ L["TextOffsetXDescription"] = "设置文本相对于图标的X轴位置。"
 L["TextOffsetY"] = "文本Y轴"
 L["TextOffsetYDescription"] = "设置文本相对于图标的Y轴位置。"
 L["TextSettings"] = "文本设置"
---[[Translation missing --]]
-L["TimelineBorder"] = "Timeline Border Texture"
---[[Translation missing --]]
-L["TimelineBorderColor"] = "Timeline Border Color"
---[[Translation missing --]]
-L["TimelineBorderColorDescription"] = "Sets the color of the timeline border."
---[[Translation missing --]]
-L["TimelineBorderDescription"] = "Sets the border texture of the timeline frame. Select 'None' to disable the border."
---[[Translation missing --]]
-L["TimelineBorderSize"] = "Timeline Border Size"
---[[Translation missing --]]
-L["TimelineBorderSizeDescription"] = "Sets the thickness of the timeline border."
+L["TimelineBorder"] = "时间轴边框材质"
+L["TimelineBorderColor"] = "时间轴边框颜色"
+L["TimelineBorderColorDescription"] = "设置时间轴边框的颜色。"
+L["TimelineBorderDescription"] = "设置时间轴框体的边框材质。选择“无”以禁用边框。"
+L["TimelineBorderSize"] = "时间轴边框大小"
+L["TimelineBorderSizeDescription"] = "设置时间轴边框的厚度。"
 L["TimelineNotEnabledMessage"] = "时间轴功能未启用。"
 L["TimelineNotSupportedMessage"] = "此版本不支持时间轴功能。"
 L["TimelineOtherSize"] = "时间轴次要尺寸"
@@ -288,10 +246,8 @@ L["TimelineTextureColorDescription"] = "设置时间轴背景颜色。注意：�
 L["TimelineTextureDescription"] = "设置时间轴背景的材质。"
 L["TimelineTravelSize"] = "时间轴行进尺寸"
 L["TimelineTravelSizeDescription"] = "设置时间轴的行进尺寸。（水平方向时为高度，垂直方向时为宽度）"
---[[Translation missing --]]
-L["TimelineWindow"] = "Timeline Window (seconds)"
---[[Translation missing --]]
-L["TimelineWindowDescription"] = "How many seconds ahead the timeline shows. Abilities further out than this wait at the far edge until they enter the window."
+L["TimelineWindow"] = "时间轴窗口（秒）"
+L["TimelineWindowDescription"] = "时间轴向前显示多少秒。超出此范围的技能会停留在最远边缘，直到进入窗口。"
 L["TimingsEditorAddEntryButton"] = "添加提醒信息"
 L["TimingsEditorTitle"] = "计时编辑器："
 L["TravelDirection"] = "行进方向"
@@ -301,10 +257,8 @@ L["TravelDirectionVertical"] = "垂直"
 L["TravelSettingsDescription"] = "自定义图标在时间轴上移动方式的设置。"
 L["useAudioCountdowns"] = "使用语音倒计时"
 L["useAudioCountdownsDescription"] = "为即将到来的事件启用最后5秒的语音倒计时。"
---[[Translation missing --]]
-L["UseTooltip"] = "Use Tooltip"
---[[Translation missing --]]
-L["UseTooltipDescription"] = "Select the type of the tooltip when hovering over the icon."
+L["UseTooltip"] = "使用鼠标提示"
+L["UseTooltipDescription"] = "选择鼠标悬停在图标上时显示的提示类型。"
 L["VisualSettingsDescription"] = "自定义时间轴视觉外观的设置。"
 L["WrongWoWVersionMessage"] = "AbilityTimeline 需要《魔兽世界》12.0.0（至暗之夜）或更高版本才能运行。"
 
