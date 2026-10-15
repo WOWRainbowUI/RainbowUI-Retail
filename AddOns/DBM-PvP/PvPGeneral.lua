@@ -4,16 +4,16 @@ local L		= mod:GetLocalizedStrings()
 local DBM = DBM
 local GetPlayerFactionGroup = GetPlayerFactionGroup or UnitFactionGroup -- Classic Compat fix
 
-local isRetail = WOW_PROJECT_ID == (WOW_PROJECT_MAINLINE or 1)
-local isClassic = WOW_PROJECT_ID == (WOW_PROJECT_CLASSIC or 2)
-local isBCC = WOW_PROJECT_ID == (WOW_PROJECT_BURNING_CRUSADE_CLASSIC or 5)
-local isWrath = WOW_PROJECT_ID == (WOW_PROJECT_WRATH_CLASSIC or 11)
+local isRetail = DBM:IsRetail()
+local isClassic = DBM:IsVanilla()
+local isBCC = DBM:IsTBC()
+local isWrath = DBM:IsWrath()
 local playerFaction = GetPlayerFactionGroup("player")
 
 local DBM5Protocol = "1" -- DBM protocol version
 local DBM5Prefix = UnitName("player") .. "-" .. GetRealmName() .. "\t" .. DBM5Protocol .. "\t" -- Name-Realm\tProtocol version\t
 
-mod:SetRevision("20260726160011")
+mod:SetRevision("20260920050208")
 mod:SetZone(DBM_DISABLE_ZONE_DETECTION)
 mod:RegisterEvents(
 	"ZONE_CHANGED_NEW_AREA",

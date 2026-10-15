@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("z30", "DBM-PvP")
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20240923210554")
+mod:SetRevision("20260919193510")
 mod:SetZone(DBM_DISABLE_ZONE_DETECTION)
 mod:RegisterEvents(
 	"LOADING_SCREEN_DISABLED",
@@ -26,7 +26,7 @@ do
 			)
 			local assaultID
 			if zoneID == 30 then
-				assaultID = WOW_PROJECT_ID ~= (WOW_PROJECT_MAINLINE or 1) and 1459 or 91
+				assaultID = not DBM:IsRetail() and 1459 or 91
 			elseif zoneID == 2197 then
 				assaultID = 1537
 			end

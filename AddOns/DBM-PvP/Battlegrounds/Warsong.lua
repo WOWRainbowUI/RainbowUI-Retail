@@ -1,6 +1,6 @@
-local mod = DBM:NewMod(WOW_PROJECT_ID ~= (WOW_PROJECT_MAINLINE or 1) and "z489" or "z2106", "DBM-PvP")
+local mod = DBM:NewMod(not DBM:IsRetail() and "z489" or "z2106", "DBM-PvP")
 
-mod:SetRevision("20240515181211")
+mod:SetRevision("20260919193510")
 mod:SetZone(DBM_DISABLE_ZONE_DETECTION)
 mod:RegisterEvents(
 	"LOADING_SCREEN_DISABLED",

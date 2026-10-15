@@ -1,21 +1,16 @@
 # <DBM Mod> PvP
 
-## [r192](https://github.com/DeadlyBossMods/DBM-PvP/tree/r192) (2026-07-26)
-[Full Changelog](https://github.com/DeadlyBossMods/DBM-PvP/compare/r191...r192) [Previous Releases](https://github.com/DeadlyBossMods/DBM-PvP/releases)
+## [r193](https://github.com/DeadlyBossMods/DBM-PvP/tree/r193) (2026-10-14)
+[Full Changelog](https://github.com/DeadlyBossMods/DBM-PvP/compare/r192...r193) [Previous Releases](https://github.com/DeadlyBossMods/DBM-PvP/releases)
 
-- Fix LuaLS  
-- Fix https://github.com/DeadlyBossMods/DBM-Vanilla/issues/527  
-    Fixes the gametime comparison code for Era  
-- do vanilla toc as well  
-- Missed a toc bump for TBC  
-- toc bumps  
-- cleanup obsolete mop game version  
-- Fix checkout misbehaving  
-- 12.0.7 toc  
-- forgot to bump these before tag, oops  
-- remove 12.0.1 toc, take 2 (CN and KR updated now)  
-- Mist toc bumps for PTR  
-- wrath titan toc bump  
-- Update to checkout versoin 5  
-- toc updates  
+- forgot to actually add 12.1.5 toc  
+- toc fixes  
 - toc cleanup  
+- classification fixes  
+-  update API usage with core changes  
+- fix error  
+- Migrate toc  
+- revert toc change  
+- switch from using mainline to standard, since forever is also mainline  
+- toc cleanup  
+- wrath toc bump  

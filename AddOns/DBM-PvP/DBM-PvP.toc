@@ -1,4 +1,4 @@
-## Interface: 120007, 120100
+## Interface: 11509, 16001, 20506, 30405, 38002, 40402, 50504, 120100, 120105
 ## Category: DBM
 ## Title:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffff0000PvP|r
 ## Title-deDE:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffff0000PvP|r
@@ -29,12 +29,13 @@
 ## X-DBM-Mod-Name-esES: JcJ
 ## X-DBM-Mod-Name-esMX: JcJ
 ## X-DBM-Mod-Name-ptBR: JxJ
-## X-DBM-Mod-MapID: 30,489,529,559,562,566,572,607,617,618,628,726,727,761,968,980,998,1105,1134,1170,1504,1505,1552,1672,1681,1803,1825,1911,2106,2107,2118,2167,2177,2197,2245,2373,2509,2511,2547,2563
+## X-DBM-Mod-MapID: 30,489,529,559,562,566,572,607,617,618,628,726,727,761,968,980,998,1105,1134,1170,1504,1505,1552,1672,1681,1803,1825,1911,2106,2107,2118,2167,2177,2197,2245,2373,2509,2511,2547,2563,m1440,m1434 [AllowLoadGameType vanilla]
+## X-DBM-Mod-MapID: 30,489,529,559,562,566,572,607,617,618,628,726,727,761,968,980,998,1105,1134,1170,1504,1505,1552,1672,1681,1803,1825,1911,2106,2107,2118,2167,2177,2197,2245,2373,2509,2511,2547,2563 [ExcludeLoadGameType vanilla]
 ## X-DBM-Mod-MinCoreRevision: 20260522000000
 ## X-DBM-Mod-Sort: 254
 ## X-Curse-Project-ID: 61882
 ## X-Wago-ID: Xb6Xe0Kp
-## Version: r192
+## Version: r193
 
 localization.en.lua
 localization.br.lua
@@ -48,16 +49,22 @@ localization.tw.lua
 
 PvPGeneral.lua
 
+Ashenvale.lua [AllowLoadGameType vanilla]
 Battlegrounds\Alterac.lua
 Battlegrounds\Arathi.lua
-Battlegrounds\Ashran.lua
-Battlegrounds\Deepwind.lua
-Battlegrounds\EyeofTheStorm.lua
-Battlegrounds\Gilneas.lua
-Battlegrounds\IsleOfConquest.lua
-Battlegrounds\SeethingShore.lua
-Battlegrounds\SilvershardMines.lua
-Battlegrounds\TempleOfKotmogu.lua
-Battlegrounds\TwinPeaks.lua
+Battlegrounds\Ashran.lua [AllowLoadGameType standard]
+Battlegrounds\Deepwind.lua [AllowLoadGameType mists, standard]
+Battlegrounds\EyeofTheStorm.lua [AllowLoadGameType tbc, wrath, cata, mists, standard]
+Battlegrounds\Gilneas.lua [AllowLoadGameType cata, mists, standard]
+Battlegrounds\IsleOfConquest.lua [AllowLoadGameType wrath, cata, mists, standard]
+Battlegrounds\SeethingShore.lua [AllowLoadGameType standard]
+Battlegrounds\SilvershardMines.lua [AllowLoadGameType mists, standard]
+#Battlegrounds\StrandOfTheAncients.lua [AllowLoadGameType wrath, cata, mists]
+Battlegrounds\TempleOfKotmogu.lua [AllowLoadGameType mists, standard]
+Battlegrounds\TwinPeaks.lua [AllowLoadGameType cata, mists, standard]
 Battlegrounds\Warsong.lua
-#Battlegrounds\Wintergrasp.lua
+#Battlegrounds\Wintergrasp.lua [AllowLoadGameType wrath, cata, mists, standard]
+BloodMoon.lua [AllowLoadGameType vanilla]
+
+## Title-zhTW:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffff0000PvP|r
+## IconTexture: Interface\AddOns\DBM-Core\textures\dbm_airhorn
