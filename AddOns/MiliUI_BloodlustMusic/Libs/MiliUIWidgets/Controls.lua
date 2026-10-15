@@ -24,6 +24,8 @@
 --   space    { h }                                         空行
 --   custom   { label, build, h }                           宿主自畫的一列（見下方分支）
 -- 共通：sub / sub2 / index 決定 ctx 取值路徑；ctx = { get, set, apply }
+--   maxW = 數字              控件欄最多多寬（從控件起點算）：說明文字在這個寬度裡換行、下拉與輸入框
+--                             不撐過它。預設＝表單剩下的寬度；列被宿主框在比表單窄的卡片裡時用
 --   requires = { key, ... }   （目前只有 toggle 支援）依賴另一個勾選：那一個沒勾時
 --                             這一列變暗、點不動。表本身就是一條 spec，照 ctx.get 解析，
 --                             所以 root／sub 這些路徑欄位跟一般 spec 寫法相同。
@@ -153,6 +155,13 @@ function Controls.Build(parent, controls, ctx, startX, startY, width)
         for _, g in ipairs(gates) do g() end
     end
 
+    -- 控件欄可用寬：表單剩下的寬度，spec.maxW 再收窄
+    local function Avail(spec)
+        local w = width - cx - ROW_PAD_R
+        if spec.maxW then w = math.min(w, spec.maxW) end
+        return w
+    end
+
     for _, spec in ipairs(controls) do
         local rowTop = y
         if spec.type == "header" then
@@ -174,7 +183,7 @@ function Controls.Build(parent, controls, ctx, startX, startY, width)
             local fs = parent:CreateFontString(nil, "OVERLAY")
             fs:SetFontObject(W.fontSmall)
             fs:SetPoint("TOPLEFT", parent, "TOPLEFT", cx, y - 4)
-            fs:SetWidth(width - cx - ROW_PAD_R)
+            fs:SetWidth(Avail(spec))
             fs:SetJustifyH("LEFT")
             fs:SetText(spec.label)
             y = y - math.max(ROW_H, fs:GetStringHeight() + 10)
@@ -190,7 +199,7 @@ function Controls.Build(parent, controls, ctx, startX, startY, width)
             -- hint 原本不換行也不截，長譯文一路衝出視窗右緣，連點擊熱區一起延伸出去。
             -- 夾在這一列剩下的寬度裡（扣掉勾選框本身與它到文字的間距）換行。
             local hintExtra = cb:SetLabelMaxWidth(
-                width - cx - ROW_PAD_R - (cb.width or 18) - (cb.labelGap or 6))
+                Avail(spec) - (cb.width or 18) - (cb.labelGap or 6))
             local rowH, labelFS = MakeLabel(parent, spec.label, x0, y, ROW_H + hintExtra)
             cb:SetPoint("LEFT", parent, "TOPLEFT", cx, y - rowH / 2)
             tinsert(refreshers, function()
@@ -247,8 +256,10 @@ function Controls.Build(parent, controls, ctx, startX, startY, width)
                 -- ⚠ root 一定要一起帶過去：ctx 靠它決定寫進 udb / udb.frame / udb.elements。
                 -- 漏掉的話「位置」「尺寸」那兩條（唯二帶 root="frame" 的 spec）會 fall-through
                 -- 到 elements ⇒ 四個數字框永遠顯示 0、改不動框，還在 elements 裡塞孤兒鍵。
+                -- 欄位自己的 get／set（有給就優先，跟單一控件的 spec.get／spec.set 同一個約定）：
+                -- 逐列的文字偏移要顯示「沒存就退回全域」的值，光靠 path 讀不到
                 local sub = { root = spec.root, sub = spec.sub, sub2 = spec.sub2,
-                              index = spec.index, key = field.key }
+                              index = spec.index, key = field.key, get = field.get, set = field.set }
                 local tag = parent:CreateFontString(nil, "OVERLAY")
                 tag:SetFontObject(W.fontSmall)
                 tag:SetTextColor(0.6, 0.6, 0.6)
@@ -298,7 +309,7 @@ function Controls.Build(parent, controls, ctx, startX, startY, width)
             -- 選中的文字超過下拉寬度就被截成「…」（材質名、字型名、角色名都很長）。
             -- 表單是一列一個控件、右邊沒有別的東西，讓它在剩下的空間裡自己撐寬。
             -- 還是放不下的話 CreateDropdown 的滑鼠提示會補上全文。
-            dd:SetMaxWidth(width - cx - ROW_PAD_R)
+            dd:SetMaxWidth(Avail(spec))
             dd:SetPoint("LEFT", parent, "TOPLEFT", cx, y - rowH / 2)
             tinsert(refreshers, function()
                 dd:SetSelectedValue(ctx.get(spec))
@@ -332,7 +343,7 @@ function Controls.Build(parent, controls, ctx, startX, startY, width)
 
         elseif spec.type == "input" then
             local rowH = MakeLabel(parent, spec.label, x0, y, ROW_H_TALL)
-            local eb = W.CreateEditBox(parent, width - cx - ROW_PAD_R, 20)
+            local eb = W.CreateEditBox(parent, Avail(spec), 20)
             eb:SetPoint("LEFT", parent, "TOPLEFT", cx, y - rowH / 2)
             eb:SetScript("OnEnterPressed", function(self)
                 ctx.set(spec, self:GetText())
@@ -373,7 +384,7 @@ function Controls.Build(parent, controls, ctx, startX, startY, width)
                 local h = MakeLabel(parent, spec.label, x0, y, minH)
                 if h > minH then labelH = h end
             end
-            local h, refresh = spec.build(parent, cx, y, width - cx - ROW_PAD_R, ctx)
+            local h, refresh = spec.build(parent, cx, y, Avail(spec), ctx)
             if refresh then tinsert(refreshers, refresh) end
             y = y - math.max(h or spec.h or ROW_H_TALL, labelH)
         end
