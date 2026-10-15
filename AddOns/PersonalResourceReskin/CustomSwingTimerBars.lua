@@ -17,6 +17,9 @@ frame-stack debug tool):
 This module:
     - Hides Blizzard's own Background/Border on each bar
     - Draws our own 1px border + a color-pickable background instead
+      (optionally, per bar, you can flip "Use Default Border/Background" to
+      keep Blizzard's original background/border instead - bar texture/color
+      and font settings still apply on top of it)
     - Lets you retexture / recolor the status bar fill
     - Lets you set the font (family/size/outline/color) used for the bar's
       text (TypeLabel + TypeLabelShadow, plus any other FontString Blizzard
@@ -59,6 +62,7 @@ local function GetBarDefaults()
         texture = "White8x8",           -- LSM statusbar key
         useCustomBarColor = false,
         barColor = {1, 1, 1, 1},
+        useDefaultBorderBackground = false, -- true = keep Blizzard's own Background/Border, skip our custom backdrop entirely
         bgColor = {0, 0, 0, 0.5},
         showCustomBorder = true,
         borderColor = {0, 0, 0, 1},
@@ -67,6 +71,21 @@ local function GetBarDefaults()
         fontSize = 12,
         fontFlags = "OUTLINE",          -- "", "OUTLINE", "THICKOUTLINE", "OUTLINE, MONOCHROME"
         fontColor = {1, 1, 1, 1},
+
+        -- Name text (TypeLabel + its shadow), e.g. "Main Hand".
+        -- Off by default = Blizzard's own position is left alone.
+        customNamePosition = false,
+        namePoint = "LEFT",             -- point on the text that gets anchored
+        nameRelPoint = "LEFT",          -- point on the bar it attaches to
+        nameX = 4,
+        nameY = 0,
+
+        -- Timer text (TimeLabel), e.g. "1.2".
+        customTimerPosition = false,
+        timerPoint = "RIGHT",
+        timerRelPoint = "RIGHT",
+        timerX = -4,
+        timerY = 0,
     }
 end
 
@@ -142,6 +161,131 @@ local function ApplyBarFonts(statusBar, settings)
             end
         end
     end
+end
+
+-- ----------------------------------------------------------------------------
+-- Text positioning (name label + timer label)
+-- ----------------------------------------------------------------------------
+-- Blizzard anchors these FontStrings itself and has no option to move them,
+-- so when a custom position is enabled we ClearAllPoints + SetPoint them to
+-- our own anchor, and hook SetPoint so that if Blizzard re-anchors them
+-- (layout refresh, OnShow, etc.) we immediately put them back. When the
+-- option is turned off (or the bar's reskin is disabled) the original
+-- Blizzard anchors we captured beforehand are restored.
+
+local originalLayout = {}   -- [region] = { points = {...}, justify = "LEFT" }
+local positionOwner = {}    -- [region] = { key = "mainhand", kind = "name"|"nameShadow"|"timer", anchorTo = statusBar }
+local positionHooked = {}   -- [region] = true
+local applyingPosition = false
+
+local ANCHOR_POINTS = {
+    TOPLEFT = "Top Left", TOP = "Top", TOPRIGHT = "Top Right",
+    LEFT = "Left", CENTER = "Center", RIGHT = "Right",
+    BOTTOMLEFT = "Bottom Left", BOTTOM = "Bottom", BOTTOMRIGHT = "Bottom Right",
+}
+local ANCHOR_ORDER = {
+    "TOPLEFT", "TOP", "TOPRIGHT", "LEFT", "CENTER", "RIGHT", "BOTTOMLEFT", "BOTTOM", "BOTTOMRIGHT",
+}
+
+local function JustifyForPoint(point)
+    if point == "LEFT" or point == "TOPLEFT" or point == "BOTTOMLEFT" then return "LEFT" end
+    if point == "RIGHT" or point == "TOPRIGHT" or point == "BOTTOMRIGHT" then return "RIGHT" end
+    return "CENTER"
+end
+
+-- Returns active, point, relPoint, x, y for a given text element.
+local function GetPositionSpec(settings, kind)
+    if kind == "timer" then
+        return settings.customTimerPosition, settings.timerPoint, settings.timerRelPoint,
+               settings.timerX or 0, settings.timerY or 0
+    end
+    -- The shadow sits 1px down/right of the label, like a normal drop shadow.
+    local dx, dy = 0, 0
+    if kind == "nameShadow" then dx, dy = 1, -1 end
+    return settings.customNamePosition, settings.namePoint, settings.nameRelPoint,
+           (settings.nameX or 0) + dx, (settings.nameY or 0) + dy
+end
+
+local function CaptureOriginalLayout(region)
+    if originalLayout[region] then return end
+    local layout = { points = {} }
+    local ok = pcall(function()
+        for i = 1, region:GetNumPoints() do
+            local point, relTo, relPoint, x, y = region:GetPoint(i)
+            layout.points[i] = { point, relTo, relPoint, x, y }
+        end
+        if region.GetJustifyH then layout.justify = region:GetJustifyH() end
+    end)
+    if ok then originalLayout[region] = layout end
+end
+
+local function RestoreOriginalLayout(region)
+    local layout = originalLayout[region]
+    if not layout then return end
+    originalLayout[region] = nil
+    if #layout.points == 0 then return end
+    applyingPosition = true
+    pcall(function()
+        region:ClearAllPoints()
+        for _, p in ipairs(layout.points) do
+            region:SetPoint(p[1], p[2], p[3], p[4], p[5])
+        end
+        if layout.justify and region.SetJustifyH then region:SetJustifyH(layout.justify) end
+    end)
+    applyingPosition = false
+end
+
+local function PlaceRegion(region)
+    local owner = positionOwner[region]
+    if not owner then return end
+    local settings = CustomSwingTimerBarDB[owner.key]
+    if not settings or not settings.enabled then return end
+    local active, point, relPoint, x, y = GetPositionSpec(settings, owner.kind)
+    if not active or not point then return end
+
+    CaptureOriginalLayout(region)
+    applyingPosition = true
+    pcall(function()
+        region:ClearAllPoints()
+        region:SetPoint(point, owner.anchorTo, relPoint or point, x, y)
+        if region.SetJustifyH then region:SetJustifyH(JustifyForPoint(point)) end
+    end)
+    applyingPosition = false
+end
+
+local function RefreshRegionPosition(region)
+    local owner = positionOwner[region]
+    if not owner then return end
+    local settings = CustomSwingTimerBarDB[owner.key]
+    local active = false
+    if settings and settings.enabled then
+        active = GetPositionSpec(settings, owner.kind)
+    end
+    if active then
+        PlaceRegion(region)
+    else
+        RestoreOriginalLayout(region)
+    end
+end
+
+local function SetupRegionPosition(region, statusBar, key, kind)
+    if not region or not region.SetPoint then return end
+    positionOwner[region] = { key = key, kind = kind, anchorTo = statusBar }
+    if not positionHooked[region] then
+        positionHooked[region] = true
+        hooksecurefunc(region, "SetPoint", function(self)
+            if applyingPosition then return end
+            PlaceRegion(self)
+        end)
+    end
+    RefreshRegionPosition(region)
+end
+
+local function ApplyBarTextPositions(statusBar, key)
+    if not statusBar then return end
+    SetupRegionPosition(statusBar.TypeLabel, statusBar, key, "name")
+    SetupRegionPosition(statusBar.TypeLabelShadow, statusBar, key, "nameShadow")
+    SetupRegionPosition(statusBar.TimeLabel, statusBar, key, "timer")
 end
 
 local function ApplyStatusBarSkin(statusBar, key, settings)
@@ -236,13 +380,22 @@ local function ApplySwingBarSkin(key)
     if not settings.enabled then
         ShowBlizzardChrome(frame)
         RemoveCustomBackdrop(frame)
+        ApplyBarTextPositions(statusBar, key) -- restores Blizzard's text anchors
         return
     end
 
-    HideBlizzardChrome(frame)
-    ApplyCustomBackdrop(frame, settings)
+    if settings.useDefaultBorderBackground then
+        -- User wants Blizzard's own background/border kept, but still wants
+        -- the bar texture/color and font reskinned below.
+        ShowBlizzardChrome(frame)
+        RemoveCustomBackdrop(frame)
+    else
+        HideBlizzardChrome(frame)
+        ApplyCustomBackdrop(frame, settings)
+    end
     ApplyStatusBarSkin(statusBar, key, settings)
     ApplyBarFonts(statusBar, settings)
+    ApplyBarTextPositions(statusBar, key)
     ProtectTexture(statusBar, key)
 end
 
@@ -348,9 +501,73 @@ local FONT_FLAG_VALUES = {
     ["OUTLINE, MONOCHROME"] = "Monochrome Outline",
 }
 
+-- Builds the "custom position" option block (toggle + anchor points + X/Y)
+-- for one text element. `p` names the saved-variable fields to use.
+local function BuildPositionArgs(key, p, title, baseOrder)
+    local function s() return EnsureBarDefaults(key) end
+    local function off() return not s()[p.toggle] end
+    local function setter(field)
+        return function(_, val)
+            s()[field] = val
+            ApplySwingBarSkin(key)
+        end
+    end
+    return {
+        [p.toggle .. "Header"] = { type = "header", name = title, order = baseOrder },
+        [p.toggle] = {
+            type = "toggle",
+            order = baseOrder + 1,
+            name = "Custom Position",
+            desc = "Move this text yourself instead of using Blizzard's position. Turn off to restore the default.",
+            get = function() return s()[p.toggle] end,
+            set = setter(p.toggle),
+        },
+        [p.point] = {
+            type = "select",
+            order = baseOrder + 2,
+            name = "Text Anchor Point",
+            desc = "Which point of the text gets attached to the bar.",
+            values = ANCHOR_POINTS,
+            sorting = ANCHOR_ORDER,
+            disabled = off,
+            get = function() return s()[p.point] end,
+            set = setter(p.point),
+        },
+        [p.rel] = {
+            type = "select",
+            order = baseOrder + 3,
+            name = "Bar Anchor Point",
+            desc = "Which point of the bar the text attaches to.",
+            values = ANCHOR_POINTS,
+            sorting = ANCHOR_ORDER,
+            disabled = off,
+            get = function() return s()[p.rel] end,
+            set = setter(p.rel),
+        },
+        [p.x] = {
+            type = "range",
+            order = baseOrder + 4,
+            name = "X Offset",
+            min = -200, max = 200, step = 1,
+            disabled = off,
+            get = function() return s()[p.x] end,
+            set = setter(p.x),
+        },
+        [p.y] = {
+            type = "range",
+            order = baseOrder + 5,
+            name = "Y Offset",
+            min = -100, max = 100, step = 1,
+            disabled = off,
+            get = function() return s()[p.y] end,
+            set = setter(p.y),
+        },
+    }
+end
+
 local function BuildBarOptionsGroup(key, order)
     local info = BAR_INFO[key]
-    return {
+    local group = {
         type = "group",
         name = info.label,
         order = order,
@@ -402,12 +619,24 @@ local function BuildBarOptionsGroup(key, order)
                 end,
             },
             bgHeader = { type = "header", name = "Background && Border", order = 6 },
+            useDefaultBorderBackground = {
+                type = "toggle",
+                order = 7,
+                name = "Use Default Border/Background",
+                desc = "Keep Blizzard's own background and border on this bar instead of our custom ones. Bar texture/color and font settings still apply.",
+                get = function() return EnsureBarDefaults(key).useDefaultBorderBackground end,
+                set = function(_, val)
+                    EnsureBarDefaults(key).useDefaultBorderBackground = val
+                    ApplySwingBarSkin(key)
+                end,
+            },
             bgColor = {
                 type = "color",
                 hasAlpha = true,
-                order = 7,
+                order = 8,
                 name = "Background Color",
                 desc = "Replaces Blizzard's background with this color.",
+                disabled = function() return EnsureBarDefaults(key).useDefaultBorderBackground end,
                 get = function() return unpack(EnsureBarDefaults(key).bgColor) end,
                 set = function(_, r, g, b, a)
                     EnsureBarDefaults(key).bgColor = {r, g, b, a}
@@ -416,9 +645,10 @@ local function BuildBarOptionsGroup(key, order)
             },
             showCustomBorder = {
                 type = "toggle",
-                order = 8,
+                order = 9,
                 name = "Show Border",
                 desc = "Replaces Blizzard's border with a plain 1px border.",
+                disabled = function() return EnsureBarDefaults(key).useDefaultBorderBackground end,
                 get = function() return EnsureBarDefaults(key).showCustomBorder end,
                 set = function(_, val)
                     EnsureBarDefaults(key).showCustomBorder = val
@@ -428,9 +658,12 @@ local function BuildBarOptionsGroup(key, order)
             borderColor = {
                 type = "color",
                 hasAlpha = true,
-                order = 9,
+                order = 10,
                 name = "Border Color",
-                disabled = function() return not EnsureBarDefaults(key).showCustomBorder end,
+                disabled = function()
+                    local s = EnsureBarDefaults(key)
+                    return s.useDefaultBorderBackground or not s.showCustomBorder
+                end,
                 get = function() return unpack(EnsureBarDefaults(key).borderColor) end,
                 set = function(_, r, g, b, a)
                     EnsureBarDefaults(key).borderColor = {r, g, b, a}
@@ -439,20 +672,23 @@ local function BuildBarOptionsGroup(key, order)
             },
             borderSize = {
                 type = "range",
-                order = 10,
+                order = 11,
                 name = "Border Thickness",
                 min = 1, max = 4, step = 1,
-                disabled = function() return not EnsureBarDefaults(key).showCustomBorder end,
+                disabled = function()
+                    local s = EnsureBarDefaults(key)
+                    return s.useDefaultBorderBackground or not s.showCustomBorder
+                end,
                 get = function() return EnsureBarDefaults(key).borderSize end,
                 set = function(_, val)
                     EnsureBarDefaults(key).borderSize = val
                     ApplySwingBarSkin(key)
                 end,
             },
-            fontHeader = { type = "header", name = "Text (Label / Timer)", order = 11 },
+            fontHeader = { type = "header", name = "Text (Label / Timer)", order = 12 },
             font = {
                 type = "select",
-                order = 12,
+                order = 13,
                 name = "Font",
                 values = function() return BuildMediaValues("font") end,
                 get = function() return MediaKeyToFilename("font", EnsureBarDefaults(key).font) end,
@@ -463,7 +699,7 @@ local function BuildBarOptionsGroup(key, order)
             },
             fontSize = {
                 type = "range",
-                order = 13,
+                order = 14,
                 name = "Font Size",
                 min = 6, max = 32, step = 1,
                 get = function() return EnsureBarDefaults(key).fontSize end,
@@ -474,7 +710,7 @@ local function BuildBarOptionsGroup(key, order)
             },
             fontFlags = {
                 type = "select",
-                order = 14,
+                order = 15,
                 name = "Font Outline",
                 values = FONT_FLAG_VALUES,
                 get = function() return EnsureBarDefaults(key).fontFlags end,
@@ -486,7 +722,7 @@ local function BuildBarOptionsGroup(key, order)
             fontColor = {
                 type = "color",
                 hasAlpha = true,
-                order = 15,
+                order = 16,
                 name = "Font Color",
                 get = function() return unpack(EnsureBarDefaults(key).fontColor) end,
                 set = function(_, r, g, b, a)
@@ -494,10 +730,10 @@ local function BuildBarOptionsGroup(key, order)
                     ApplySwingBarSkin(key)
                 end,
             },
-            copyHeader = { type = "header", name = " ", order = 16 },
+            copyHeader = { type = "header", name = " ", order = 60 },
             copyToOthers = {
                 type = "execute",
-                order = 17,
+                order = 61,
                 name = "Copy to Other Bars",
                 desc = "Copy this bar's settings to the other two swing timer bars.",
                 confirm = true,
@@ -521,6 +757,19 @@ local function BuildBarOptionsGroup(key, order)
             },
         },
     }
+
+    local nameArgs = BuildPositionArgs(key, {
+        toggle = "customNamePosition", point = "namePoint", rel = "nameRelPoint",
+        x = "nameX", y = "nameY",
+    }, "Name Text Position", 20)
+    local timerArgs = BuildPositionArgs(key, {
+        toggle = "customTimerPosition", point = "timerPoint", rel = "timerRelPoint",
+        x = "timerX", y = "timerY",
+    }, "Timer Text Position", 40)
+    for k, v in pairs(nameArgs) do group.args[k] = v end
+    for k, v in pairs(timerArgs) do group.args[k] = v end
+
+    return group
 end
 
 local CustomSwingTimerBarOptions = {

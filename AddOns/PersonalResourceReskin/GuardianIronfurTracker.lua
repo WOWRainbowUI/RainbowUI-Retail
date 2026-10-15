@@ -1,3 +1,15 @@
+-- Ironfur (and Guardian spec / GetSpecialization) only exist on Retail.
+-- WoW Classic Forever (interface 16001) and the other Classic clients don't
+-- have them, which caused "attempt to call a nil value" spam from
+-- GetSpecialization every frame. Bail out of the whole module there.
+-- Retail interface numbers are 100000+; every Classic flavour is below that.
+local _, _, _, IRONFUR_TOC = GetBuildInfo()
+if IRONFUR_TOC and IRONFUR_TOC < 100000 then
+    -- Keep the global the rest of the addon may call so nothing errors on nil.
+    _G.GuardianIronfurTracker_Update = function() end
+    return
+end
+
 local LSM = LibStub("LibSharedMedia-3.0")
 
 local IRONFUR_SPELL_ID = 192081

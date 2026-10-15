@@ -1,4 +1,42 @@
 ------------------------------------------------------------------------
+r1419 | nevcairiel | 2026-09-25 11:47:59 +0000 (Fri, 25 Sep 2026) | 1 line
+Changed paths:
+   M /trunk
+   M /trunk/AceDB-3.0/AceDB-3.0.lua
+
+AceDB-3.0: Remove leftover build info
+------------------------------------------------------------------------
+r1418 | nevcairiel | 2026-09-25 11:46:16 +0000 (Fri, 25 Sep 2026) | 4 lines
+Changed paths:
+   M /trunk
+   M /trunk/AceDB-3.0/AceDB-3.0.lua
+
+AceDB-3.0: Have the name generation API more closely match Blizzards name generation
+
+If no surname is available, don't try to append an empty one. Maybe
+they'll make them optional for unique singular names at some point.
+------------------------------------------------------------------------
+r1417 | nevcairiel | 2026-09-25 11:46:09 +0000 (Fri, 25 Sep 2026) | 1 line
+Changed paths:
+   M /trunk
+   M /trunk/.luacheckrc
+   M /trunk/AceDB-3.0/AceDB-3.0.lua
+
+AceDB-3.0: Check for region-wide names using the appropriate API
+------------------------------------------------------------------------
+r1416 | funkehdude | 2026-09-25 11:37:05 +0000 (Fri, 25 Sep 2026) | 1 line
+Changed paths:
+   M /trunk/AceDB-3.0/AceDB-3.0.lua
+
+AceDB-3.0: Remove `realmKey` from `charKey` in WoW Forever as names are unique across all rulesets (PvE/PvP/etc)
+------------------------------------------------------------------------
+r1415 | funkehdude | 2026-09-25 11:12:28 +0000 (Fri, 25 Sep 2026) | 1 line
+Changed paths:
+   M /trunk/.luacheckrc
+   M /trunk/AceDB-3.0/AceDB-3.0.lua
+
+AceDB-3.0: Swap UnitName for UnitNameUnmodified. Fix compatibility with WoW Forever's latest beta update (once again includes the surname in the profile).
+------------------------------------------------------------------------
 r1414 | funkehdude | 2026-09-18 01:23:16 +0000 (Fri, 18 Sep 2026) | 1 line
 Changed paths:
    M /trunk/.luacheckrc

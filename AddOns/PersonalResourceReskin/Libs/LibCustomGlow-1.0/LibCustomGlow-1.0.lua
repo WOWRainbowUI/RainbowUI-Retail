@@ -6,7 +6,7 @@ https://www.wowace.com/projects/libbuttonglow-1-0
 -- luacheck: globals CreateFromMixins ObjectPoolMixin CreateTexturePool CreateFramePool
 
 local MAJOR_VERSION = "LibCustomGlow-1.0"
-local MINOR_VERSION = 21
+local MINOR_VERSION = 19
 if not LibStub then error(MAJOR_VERSION .. " requires LibStub.") end
 local lib, oldversion = LibStub:NewLibrary(MAJOR_VERSION, MINOR_VERSION)
 if not lib then return end
@@ -18,6 +18,9 @@ local textureList = {
     white = [[Interface\BUTTONS\WHITE8X8]],
     shine = [[Interface\ItemSocketingFrame\UI-ItemSockets]]
 }
+
+-- Throttle expensive glow OnUpdate handlers to lower CPU usage.
+local GLOW_UPDATE_INTERVAL = 1 / 20
 
 local shineCoords = {0.3984375, 0.4453125, 0.40234375, 0.44921875}
 if isRetail then
@@ -193,6 +196,14 @@ local pCalc2 = function(progress,s,th,p)
 end
 
 local  pUpdate = function(self,elapsed)
+    if elapsed and elapsed > 0 then
+        self._updateAccum = (self._updateAccum or 0) + elapsed
+        if self._updateAccum < GLOW_UPDATE_INTERVAL then
+            return
+        end
+        elapsed = self._updateAccum
+        self._updateAccum = 0
+    end
     self.timer = self.timer+elapsed/self.info.period
     if self.timer>1 or self.timer <-1 then
         self.timer = self.timer%1
@@ -358,6 +369,14 @@ lib.stopList["Pixel Glow"] = lib.PixelGlow_Stop
 
 --Autocast Glow Functions--
 local function acUpdate(self,elapsed)
+    if elapsed and elapsed > 0 then
+        self._updateAccum = (self._updateAccum or 0) + elapsed
+        if self._updateAccum < GLOW_UPDATE_INTERVAL then
+            return
+        end
+        elapsed = self._updateAccum
+        self._updateAccum = 0
+    end
     local width,height = self:GetSize()
     if width ~= self.info.width or height ~= self.info.height then
         if width*height == 0 then return end -- Avoid division by zero
@@ -432,7 +451,6 @@ function lib.AutoCastGlow_Start(r,color,N,frequency,scale,xOffset,yOffset,key,fr
     f.info.N = N
     f.info.period = period
     f:SetScript("OnUpdate",acUpdate)
-    acUpdate(f, 0)
 end
 
 function lib.AutoCastGlow_Stop(r,key)
@@ -539,14 +557,21 @@ local function bgHide(self)
     end
 end
 
+local AnimateTexCoordsSafe = AnimateTexCoords or (TextureUtil and TextureUtil.AnimateTexCoords)
+
 local function bgUpdate(self, elapsed)
-    AnimateTexCoords(self.ants, 256, 256, 48, 48, 22, elapsed, self.throttle);
-    local cooldown = self:GetParent().cooldown;
-    if(cooldown and cooldown:IsShown() and cooldown:GetCooldownDuration() > 3000) then
-        self:SetAlpha(0.5);
-    else
-        self:SetAlpha(1.0);
+    if elapsed and elapsed > 0 then
+        self._updateAccum = (self._updateAccum or 0) + elapsed
+        if self._updateAccum < GLOW_UPDATE_INTERVAL then
+            return
+        end
+        elapsed = self._updateAccum
+        self._updateAccum = 0
     end
+    if AnimateTexCoordsSafe then
+        AnimateTexCoordsSafe(self.ants, 256, 256, 48, 48, 22, elapsed, self.throttle)
+    end
+    self:SetAlpha(1.0);
 end
 
 local function configureButtonGlow(f,alpha)
@@ -736,9 +761,7 @@ end
 
 function lib.ButtonGlow_Stop(r)
     if r._ButtonGlow then
-        if r._ButtonGlow.animOut:IsPlaying() then
-            -- Do nothing the animOut finishing will release
-        elseif r._ButtonGlow.animIn:IsPlaying() then
+        if r._ButtonGlow.animIn:IsPlaying() then
             r._ButtonGlow.animIn:Stop()
             ButtonGlowPool:Release(r._ButtonGlow)
         elseif r:IsVisible() then

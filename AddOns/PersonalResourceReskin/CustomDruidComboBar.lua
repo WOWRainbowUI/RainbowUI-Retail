@@ -1,9 +1,59 @@
 
+local CAT_FORM_SPELL_ID = 768
+
+-- Cat Form detection that doesn't depend on the shapeshift *index* (which
+-- differs per client: Retail Bear 1 / Cat 2, Classic Bear 1 / Aquatic 2 / Cat 3
+-- and it also shifts with which forms you've learned). Three independent
+-- checks are tried, any one of them is enough:
+--   1. GetShapeshiftFormID() == 1   (Cat Form's fixed ID)
+--   2. the active form on the shapeshift bar is the Cat Form spell (768)
+--   3. the player has the Cat Form buff
+local function IsInCatForm()
+    -- 1) form ID
+    if GetShapeshiftFormID then
+        local ok, id = pcall(GetShapeshiftFormID)
+        if ok and id == 1 then return true end
+    end
+
+    -- 2) walk the shapeshift bar for the active form
+    if GetNumShapeshiftForms and GetShapeshiftFormInfo then
+        local catName
+        if C_Spell and C_Spell.GetSpellName then
+            catName = C_Spell.GetSpellName(CAT_FORM_SPELL_ID)
+        elseif GetSpellInfo then
+            catName = GetSpellInfo(CAT_FORM_SPELL_ID)
+        end
+        for i = 1, GetNumShapeshiftForms() do
+            local ok, icon, b, c, d = pcall(GetShapeshiftFormInfo, i)
+            if ok then
+                local active, spellID, name
+                if type(b) == "string" then
+                    -- old layout: icon, name, active, castable
+                    name, active = b, c
+                else
+                    -- new layout: icon, active, castable, spellID
+                    active, spellID = b, d
+                end
+                if active and (spellID == CAT_FORM_SPELL_ID or (name and catName and name == catName)) then
+                    return true
+                end
+            end
+        end
+    end
+
+    -- 3) buff check
+    if C_UnitAuras and C_UnitAuras.GetPlayerAuraBySpellID then
+        local ok, aura = pcall(C_UnitAuras.GetPlayerAuraBySpellID, CAT_FORM_SPELL_ID)
+        if ok and aura then return true end
+    end
+
+    return false
+end
+
 function ShouldShowComboPointBar()
     local _, class = UnitClass("player")
     if class ~= "DRUID" then return false end
-    local form = GetShapeshiftForm and GetShapeshiftForm() or 0
-    return form == 2 -- Cat Form
+    return IsInCatForm()
 end
 
 function UpdateDruidComboBarEnabled()
@@ -12,7 +62,7 @@ function UpdateDruidComboBarEnabled()
         comboPointBar:Hide()
         return
     end
-    local showBar = ShouldShowComboPointBar() and CustomDruidComboBarDB.enabled
+    local showBar = (ShouldShowComboPointBar() or _G.CDCB_TestPoints ~= nil) and CustomDruidComboBarDB.enabled
     if showBar then
         comboPointBar:Show()
     else
@@ -35,6 +85,44 @@ end
 local COMBO_POINT_TYPE = Enum and Enum.PowerType and Enum.PowerType.ComboPoints or 4 -- fallback to 4 if Enum not loaded
 
 local chargedComboPoints = {}
+
+-- In newer clients some values (e.g. UnitPower) come back as "secret" values
+-- while our addon code is tainted. Secret values can't be compared or used in
+-- arithmetic (that was the "attempt to compare local 'current'" error), but
+-- they CAN be handed to StatusBar:SetValue. So combo points are drawn with
+-- StatusBars and never compared against the raw number.
+local issecret = _G.issecretvalue or function() return false end
+
+-- Returns the current combo points (may be a secret value on some clients).
+-- On Classic, combo points belong to the *target* you built them on, and are
+-- read with GetComboPoints. This bar is a free-standing custom bar, so we read
+-- that value and simply display it; it doesn't need Blizzard's target-frame
+-- combo display at all. Retail-style clients expose combo points as a player
+-- power instead, which is the fallback.
+local function GetCurrentComboPoints()
+    if _G.CDCB_TestPoints then return _G.CDCB_TestPoints end -- /cdcbtest preview
+    if GetComboPoints then
+        -- ("player","target") = points on your current target,
+        -- ("player") = points on whatever unit currently holds them.
+        for _, target in ipairs({ "target", false }) do
+            local ok, value
+            if target then
+                ok, value = pcall(GetComboPoints, "player", target)
+            else
+                ok, value = pcall(GetComboPoints, "player")
+            end
+            -- A secret value is fine: it goes straight into StatusBar:SetValue.
+            if ok and type(value) == "number" and (issecret(value) or value > 0) then
+                return value
+            end
+        end
+        -- Both returned 0/nothing: fall through and ask the power API too, in
+        -- case this client reports combo points as a player power.
+    end
+    local ok, power = pcall(UnitPower, "player", COMBO_POINT_TYPE)
+    if ok and type(power) == "number" then return power end
+    return 0
+end
 
 -- Early exit if not a Druid
 local _, playerClass = UnitClass("player")
@@ -115,7 +203,11 @@ comboPointBar = CreateFrame("Frame", "CustomDruidComboBar", UIParent)
 comboPointBar.comboPoints = {}
 
 local function GetMaxComboPoints()
-    return UnitPowerMax("player", COMBO_POINT_TYPE) or 5
+    -- Druids always have 5. UnitPowerMax can be 0 out of cat form on Classic,
+    -- or a secret value, so never trust it below 5.
+    local max = UnitPowerMax("player", COMBO_POINT_TYPE)
+    if issecret(max) or type(max) ~= "number" or max < 5 then return 5 end
+    return math.min(max, 7) -- 7 = number of fill colors we store
 end
 
 local function GetComboPointWidth(numPoints)
@@ -149,30 +241,41 @@ local function CreateComboPoints()
         comboPoint.bg = comboPoint:CreateTexture(nil, "BACKGROUND")
         comboPoint.bg:SetAllPoints()
 
-        comboPoint.fill = comboPoint:CreateTexture(nil, "ARTWORK")
-        comboPoint.fill:SetPoint("BOTTOMLEFT", comboPoint, "BOTTOMLEFT")
-        comboPoint.fill:SetPoint("BOTTOMRIGHT", comboPoint, "BOTTOMRIGHT")
-        comboPoint.fill:SetHeight(height)
+        -- The fill is a StatusBar spanning (i-1)..i so it shows full once the
+        -- combo point count reaches i, even if that count is a secret value.
+        comboPoint.fill = CreateFrame("StatusBar", nil, comboPoint)
+        comboPoint.fill:SetAllPoints(comboPoint)
+        comboPoint.fill:SetStatusBarTexture("Interface\\Buttons\\WHITE8X8")
+        comboPoint.fill:SetMinMaxValues(i - 1, i)
+        comboPoint.fill:SetValue(0)
+        comboPoint.fill:EnableMouse(false)
 
-        comboPoint.borderTop = comboPoint:CreateTexture(nil, "OVERLAY")
+        -- Borders live on their own frame above the fill so the fill can't cover them.
+        local overlay = CreateFrame("Frame", nil, comboPoint)
+        overlay:SetAllPoints(comboPoint)
+        overlay:SetFrameLevel(comboPoint.fill:GetFrameLevel() + 1)
+        overlay:EnableMouse(false)
+        comboPoint.overlay = overlay
+
+        comboPoint.borderTop = overlay:CreateTexture(nil, "OVERLAY")
         comboPoint.borderTop:SetColorTexture(0, 0, 0, 1)
         comboPoint.borderTop:SetPoint("TOPLEFT", comboPoint, "TOPLEFT", 0, 0)
         comboPoint.borderTop:SetPoint("TOPRIGHT", comboPoint, "TOPRIGHT", 0, 0)
         comboPoint.borderTop:SetHeight(1)
 
-        comboPoint.borderBottom = comboPoint:CreateTexture(nil, "OVERLAY")
+        comboPoint.borderBottom = overlay:CreateTexture(nil, "OVERLAY")
         comboPoint.borderBottom:SetColorTexture(0, 0, 0, 1)
         comboPoint.borderBottom:SetPoint("BOTTOMLEFT", comboPoint, "BOTTOMLEFT", 0, 0)
         comboPoint.borderBottom:SetPoint("BOTTOMRIGHT", comboPoint, "BOTTOMRIGHT", 0, 0)
         comboPoint.borderBottom:SetHeight(1)
 
-        comboPoint.borderLeft = comboPoint:CreateTexture(nil, "OVERLAY")
+        comboPoint.borderLeft = overlay:CreateTexture(nil, "OVERLAY")
         comboPoint.borderLeft:SetColorTexture(0, 0, 0, 1)
         comboPoint.borderLeft:SetPoint("TOPLEFT", comboPoint, "TOPLEFT", 0, 0)
         comboPoint.borderLeft:SetPoint("BOTTOMLEFT", comboPoint, "BOTTOMLEFT", 0, 0)
         comboPoint.borderLeft:SetWidth(1)
 
-        comboPoint.borderRight = comboPoint:CreateTexture(nil, "OVERLAY")
+        comboPoint.borderRight = overlay:CreateTexture(nil, "OVERLAY")
         comboPoint.borderRight:SetColorTexture(0, 0, 0, 1)
         comboPoint.borderRight:SetPoint("TOPRIGHT", comboPoint, "TOPRIGHT", 0, 0)
         comboPoint.borderRight:SetPoint("BOTTOMRIGHT", comboPoint, "BOTTOMRIGHT", 0, 0)
@@ -239,11 +342,15 @@ end
 
 local function UpdateComboPoints()
     UpdateChargedComboPoints()
-    CreateComboPoints()
+    -- Only rebuild the frames when the number of points changed (this runs on
+    -- every power/target event, so rebuilding each time leaked frames).
+    if #comboPointBar.comboPoints ~= GetMaxComboPoints() then
+        CreateComboPoints()
+    end
     UpdateComboPointBarSize()
     ApplyComboBarSettings()
 
-    local current = UnitPower("player", COMBO_POINT_TYPE)
+    local current = GetCurrentComboPoints() -- may be a secret value: never compare/do math on it
     local numPoints = GetMaxComboPoints()
     local width = GetComboPointWidth(numPoints)
     local height = CustomDruidComboBarDB.comboPointHeight or 24
@@ -261,28 +368,22 @@ local function UpdateComboPoints()
             comboPoint.bg:SetColorTexture(bgR, bgG, bgB, bgA)
         end
 
-        local fillAmount = (i <= current) and 1 or 0
-        if fillAmount > 0 then
-            comboPoint.fill:Show()
-            comboPoint.fill:SetHeight(height * fillAmount)
-            comboPoint.fill:ClearAllPoints()
-            comboPoint.fill:SetPoint("BOTTOMLEFT", comboPoint, "BOTTOMLEFT")
-            comboPoint.fill:SetPoint("BOTTOMRIGHT", comboPoint, "BOTTOMRIGHT")
-
-            local color
-            if chargedComboPoints[i] then
-                color = CustomDruidComboBarDB.chargedComboPointColor or {0.2, 0.6, 1, 1}
-            elseif CustomDruidComboBarDB.gradientColoringEnabled then
-                local t = (numPoints == 1) and 0 or (i-1)/(numPoints-1)
-                color = {LerpColor(CustomDruidComboBarDB.gradientColorStart, CustomDruidComboBarDB.gradientColorEnd, t)}
-            else
-                color = CustomDruidComboBarDB.comboPointFillColors[i] or {1, 0.7, 0.2, 1}
-            end
-            comboPoint.fill:SetColorTexture(unpack(color))
-            comboPoint.fill:SetAlpha(1)
+        local color
+        if chargedComboPoints[i] then
+            color = CustomDruidComboBarDB.chargedComboPointColor or {0.2, 0.6, 1, 1}
+        elseif CustomDruidComboBarDB.gradientColoringEnabled then
+            local t = (numPoints == 1) and 0 or (i-1)/(numPoints-1)
+            color = {LerpColor(CustomDruidComboBarDB.gradientColorStart, CustomDruidComboBarDB.gradientColorEnd, t)}
         else
-            comboPoint.fill:Hide()
+            color = (CustomDruidComboBarDB.comboPointFillColors and CustomDruidComboBarDB.comboPointFillColors[i]) or {1, 0.7, 0.2, 1}
         end
+        comboPoint.fill:SetStatusBarColor(SafeUnpackColor(color, {1, 0.7, 0.2, 1}))
+
+        -- Point i is full when current >= i and empty otherwise; the StatusBar
+        -- does that comparison for us, so a secret value is fine here.
+        comboPoint.fill:SetMinMaxValues(i - 1, i)
+        comboPoint.fill:SetValue(current)
+        comboPoint:Show()
     end
 
     for i = numPoints+1, #comboPointBar.comboPoints do
@@ -366,6 +467,14 @@ comboPointBar:RegisterEvent("PLAYER_LOGIN")
 comboPointBar:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
 comboPointBar:RegisterEvent("UPDATE_SHAPESHIFT_FORM")
 comboPointBar:RegisterEvent("PLAYER_MOUNT_DISPLAY_CHANGED")
+-- Classic tracks combo points on the target and fires these instead of (or as
+-- well as) UNIT_POWER_UPDATE. pcall'd since not every client has every event.
+pcall(comboPointBar.RegisterEvent, comboPointBar, "PLAYER_COMBO_POINTS")   -- Classic Era name
+pcall(comboPointBar.RegisterEvent, comboPointBar, "UNIT_COMBO_POINTS")     -- TBC+ Classic name
+pcall(comboPointBar.RegisterEvent, comboPointBar, "PLAYER_TARGET_CHANGED")
+-- Stance fallbacks: some clients don't fire UPDATE_SHAPESHIFT_FORM reliably.
+pcall(comboPointBar.RegisterEvent, comboPointBar, "UPDATE_SHAPESHIFT_FORMS")
+pcall(comboPointBar.RegisterUnitEvent, comboPointBar, "UNIT_AURA", "player")
 comboPointBar:SetScript("OnEvent", function(self, event, ...)
     if event == "UNIT_POWER_POINT_CHARGE" then
         UpdateChargedComboPoints()
@@ -375,9 +484,12 @@ comboPointBar:SetScript("OnEvent", function(self, event, ...)
         if unit == "player" and (powerType == "COMBO_POINTS" or powerType == COMBO_POINT_TYPE) then
             UpdateComboPoints()
         end
-    elseif event == "PLAYER_ENTERING_WORLD" or event == "PLAYER_LOGIN" or event == "PLAYER_SPECIALIZATION_CHANGED" or event == "UPDATE_SHAPESHIFT_FORM" or event == "PLAYER_MOUNT_DISPLAY_CHANGED" then
+    elseif event == "PLAYER_ENTERING_WORLD" or event == "PLAYER_LOGIN" or event == "PLAYER_SPECIALIZATION_CHANGED" or event == "UPDATE_SHAPESHIFT_FORM" or event == "UPDATE_SHAPESHIFT_FORMS" or event == "PLAYER_MOUNT_DISPLAY_CHANGED" then
         UpdateDruidComboBarEnabled()
         UpdateComboPoints()
+    elseif event == "UNIT_AURA" then
+        -- Only a stance/visibility re-check; combo points don't change on aura events.
+        UpdateDruidComboBarEnabled()
     else
         UpdateComboPoints()
     end
@@ -396,3 +508,60 @@ end
 
 _G.UpdateComboPoints = UpdateComboPoints
 _G.UpdateDruidComboBarSettings = UpdateDruidComboBarSettings
+
+-- /cdcbdebug : prints what THIS client reports for stance + combo points, so
+-- the detection can be tuned if something doesn't line up.
+local function SafeStr(v)
+    if issecret(v) then return "<secret>" end
+    return tostring(v)
+end
+
+local function SafeCall(fn, ...)
+    if not fn then return "n/a" end
+    local ok, a, b, c, d = pcall(fn, ...)
+    if not ok then return "error" end
+    return SafeStr(a) .. (b ~= nil and (", " .. SafeStr(b)) or "") ..
+           (c ~= nil and (", " .. SafeStr(c)) or "") .. (d ~= nil and (", " .. SafeStr(d)) or "")
+end
+
+-- /cdcbtest 0-5 : force the bar visible with that many points filled, so you
+-- can check look/position without being in Cat Form. /cdcbtest off to stop.
+SLASH_CDCBTEST1 = "/cdcbtest"
+SlashCmdList["CDCBTEST"] = function(msg)
+    local n = tonumber(msg)
+    if n then
+        _G.CDCB_TestPoints = math.max(0, math.min(5, math.floor(n)))
+        print("|cff66ccff[CDCB]|r preview:", _G.CDCB_TestPoints, "points. '/cdcbtest off' to stop.")
+    else
+        _G.CDCB_TestPoints = nil
+        print("|cff66ccff[CDCB]|r preview off.")
+    end
+    UpdateDruidComboBarEnabled()
+    UpdateComboPoints()
+end
+
+SLASH_CDCBDEBUG1 = "/cdcbdebug"
+SlashCmdList["CDCBDEBUG"] = function()
+    local toc = select(4, GetBuildInfo())
+    print("|cff66ccff[CDCB debug]|r interface", toc)
+    print(" GetShapeshiftForm():", SafeCall(GetShapeshiftForm))
+    print(" GetShapeshiftFormID():", SafeCall(GetShapeshiftFormID))
+    print(" GetNumShapeshiftForms():", SafeCall(GetNumShapeshiftForms))
+    print(" level:", SafeCall(UnitLevel, "player"))
+    print(" Cat Form buff (768):", C_UnitAuras and C_UnitAuras.GetPlayerAuraBySpellID
+        and SafeCall(function() return C_UnitAuras.GetPlayerAuraBySpellID(768) ~= nil end) or "n/a")
+    print(" Cat Form known (768):", SafeCall(function()
+        if C_SpellBook and C_SpellBook.IsSpellKnown then return C_SpellBook.IsSpellKnown(768) end
+        if IsSpellKnown then return IsSpellKnown(768) end
+    end))
+    if GetNumShapeshiftForms and GetShapeshiftFormInfo then
+        for i = 1, GetNumShapeshiftForms() do
+            print(" form bar slot", i, ":", SafeCall(GetShapeshiftFormInfo, i))
+        end
+    end
+    print(" IsInCatForm():", tostring(IsInCatForm()))
+    print(" GetComboPoints('player','target'):", SafeCall(GetComboPoints, "player", "target"))
+    print(" GetComboPoints('player'):", SafeCall(GetComboPoints, "player"))
+    print(" UnitPower(combo):", SafeCall(UnitPower, "player", COMBO_POINT_TYPE))
+    print(" UnitPowerMax(combo):", SafeCall(UnitPowerMax, "player", COMBO_POINT_TYPE))
+end
