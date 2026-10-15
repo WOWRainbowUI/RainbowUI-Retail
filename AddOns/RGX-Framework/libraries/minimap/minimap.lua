@@ -79,6 +79,7 @@ end
 
 local function PlaceButton(frame, angleDeg)
     if not _G.Minimap then return end
+    if frame._rgxSecure and InCombatLockdown() then return end
     -- A collector owns layout after reparenting; keep its anchors intact.
     if frame.GetParent and frame:GetParent() ~= _G.Minimap then return end
     local rad = math.rad(angleDeg or 220)
@@ -171,11 +172,13 @@ function Button:IsShown()
 end
 
 function Button:Show()
+    if self._secure and InCombatLockdown() then return false end
     self:PlaceAtAngle()
     self.frame:Show()
 end
 
 function Button:Hide()
+    if self._secure and InCombatLockdown() then return false end
     self.frame:Hide()
 end
 
@@ -188,6 +191,7 @@ function Button:Toggle()
 end
 
 function Button:SetVisible(show)
+    if self._secure and InCombatLockdown() then return false end
     if show then
         self:Show()
     else
@@ -207,6 +211,17 @@ function Button:GetEnabled()
         local v = self._storage[self._enabledKey]
         return v ~= false
     end
+    return true
+end
+
+-- Secure preparation applies to the next hardware left-click, never right-click.
+function Button:SetItemAction(itemID)
+    if not self._secure or InCombatLockdown() then return false end
+    if itemID ~= nil and (type(itemID) ~= "number" or itemID <= 0 or itemID % 1 ~= 0) then
+        return false
+    end
+    self.frame:SetAttribute("type1", itemID and "item" or nil)
+    self.frame:SetAttribute("item1", itemID and ("item:" .. itemID) or nil)
     return true
 end
 
@@ -263,6 +278,8 @@ end
         iconSize       (number)  — icon texture size (default 19)
         iconOffsetX    (number)  — icon center x offset (default 0)
         iconOffsetY    (number)  — icon center y offset (default -1)
+        secure         (boolean) — opt-in secure item action button (default false)
+                                   SetItemAction(itemID/nil), out of combat only
 
         -- Storage (flat table)
         storage        (table)
@@ -310,13 +327,24 @@ function Minimap:Create(opts)
     local iconOffY     = opts.iconOffsetY  or -1
 
     -- Build the WoW Button frame
-    local frame = CreateFrame("Button", opts.name, _G.Minimap)
+    local secure = opts.secure == true
+    if secure and InCombatLockdown() then return nil end
+    local frame = CreateFrame("Button", opts.name, _G.Minimap,
+        secure and "SecureActionButtonTemplate" or nil)
+    frame._rgxSecure = secure
     frame:SetFrameStrata("MEDIUM")
     frame:SetFrameLevel((_G.Minimap:GetFrameLevel() or 1) + 8)
     frame:SetSize(buttonSize, buttonSize)
     frame:SetMovable(true)
     frame:EnableMouse(true)
-    frame:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+    if secure then
+        -- Release-edge actions preserve drag behavior and two-click ordering
+        -- regardless of the player's action-bar key-down preference.
+        frame:SetAttribute("useOnKeyDown", false)
+        frame:RegisterForClicks("AnyDown", "AnyUp")
+    else
+        frame:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+    end
     frame:RegisterForDrag("LeftButton")
 
     -- Circular background (dark circle)
@@ -352,6 +380,7 @@ function Minimap:Create(opts)
     -- Build the wrapper object
     local btn = setmetatable({}, Button)
     btn.frame          = frame
+    btn._secure        = secure
     btn._name         = opts.name
     btn._defaultAngle  = defaultAngle
     btn._storage       = opts.storage
@@ -382,7 +411,8 @@ function Minimap:Create(opts)
         if type(ShowTooltip) == "function" then ShowTooltip(self, opts) end
     end
 
-    frame:SetScript("OnClick", function(_, mouseButton)
+    local function OnClick(_, mouseButton, down)
+        if secure and (down or InCombatLockdown()) then return end
         if frame.isDragging then return end
 
         if mouseButton == "RightButton" and IsControlKeyDown() then
@@ -397,12 +427,21 @@ function Minimap:Create(opts)
         else
             if type(onLeftClick) == "function" then onLeftClick(btn) end
         end
-    end)
+    end
+    if secure then
+        -- Preserve the template's secure OnClick; prepare after its action.
+        frame:HookScript("PostClick", OnClick)
+    else
+        frame:SetScript("OnClick", OnClick)
+    end
 
     frame:SetScript("OnDragStart", function()
+        if secure and InCombatLockdown() then return end
         frame.isDragging = true
         if GameTooltip then GameTooltip:Hide() end
         frame:SetScript("OnUpdate", function()
+            if not frame.isDragging then return end
+            if secure and InCombatLockdown() then return end
             local deg = AngleFromCursor()
             btn:SetAngle(deg)
             PlaceButton(frame, deg)
@@ -411,6 +450,7 @@ function Minimap:Create(opts)
 
     frame:SetScript("OnDragStop", function()
         frame.isDragging = false
+        if secure and InCombatLockdown() then return end
         frame:SetScript("OnUpdate", nil)
         btn:PlaceAtAngle()
     end)

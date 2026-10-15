@@ -357,6 +357,16 @@ local function ActiveProfile(self)
         end
         profiles = {}
         raw.profiles = profiles
+        -- Recovery must leave a writable active profile, not just fallback
+        -- reads: otherwise __newindex silently drops every later setting.
+        local active = type(raw.activeProfile) == "string" and raw.activeProfile or PROTECTED_PROFILE
+        raw.activeProfile = active
+        local profile = {}
+        profiles[active] = profile
+        if type(self._defaults) == "table" then
+            MergeTable(profile, self._defaults)
+        end
+        profile.currentProfile = active
     end
     local profile = profiles[raw.activeProfile]
     if type(profile) ~= "table" then return nil end
@@ -474,6 +484,14 @@ end
 -- fill-only defaults and fires the switch callbacks. No-op when bound.
 function DB:Adopt()
     local g = _G[self._globalName]
+    -- A consumer may mistakenly publish the handle/live view as SavedVariables.
+    -- Neither is storage: rebinding _raw to either closes a proxy cycle before
+    -- ActiveProfile can reach its nested-table guards. Restore the existing
+    -- plain owner without losing saved values or changing captured views.
+    if g == self or (self._globalView ~= nil and g == self._globalView) then
+        _G[self._globalName] = self._raw
+        return false
+    end
     if type(g) == "nil" then
         -- A saved file may explicitly assign nil after pre-load construction.
         -- Reattach the initialized store so later writes reach the TOC global.
