@@ -1,0 +1,5 @@
+<Bindings>
+    <Binding name="RELOADUI_RELOAD" header="RELOADUI" category="ADDONS">
+        ReloadUIAddon_DoReload()
+    </Binding>
+</Bindings>
