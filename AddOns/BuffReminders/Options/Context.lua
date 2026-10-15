@@ -283,7 +283,8 @@ function Helpers.AddOverrideRow(parent, layout, opts)
         end
     end
     refreshState()
-    table.insert(BR.RefreshableComponents, { Refresh = refreshState })
+    stateText.Refresh = refreshState
+    table.insert(BR.RefreshableComponents, stateText)
 
     layout:Add(holder, nil, COMPONENT_GAP)
     return holder
@@ -767,28 +768,6 @@ function Helpers.CreateDialog(config)
     end
 
     return controller
-end
-
--- SingletonDialog wraps a builder so the dialog frame is created on first show
--- and reused after that, with Components.RefreshAll() to resync. The builder
--- receives the args passed to Show and must return the dialog frame.
---
--- Use it only for a dialog whose content depends on profile data alone. A
--- dialog whose body varies per invocation must rebuild its body on each Show.
-function Helpers.SingletonDialog(builder)
-    local cached
-    return {
-        Show = function(...)
-            if cached then
-                BR.Components.RefreshAll()
-                cached:Show()
-                return cached
-            end
-            cached = builder(...)
-            cached:Show()
-            return cached
-        end,
-    }
 end
 
 function Helpers.LayoutSeparator(layout, parent)

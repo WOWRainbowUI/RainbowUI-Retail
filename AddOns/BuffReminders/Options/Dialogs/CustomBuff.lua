@@ -31,6 +31,11 @@ local UpdateCustomBuffFrame = BR.CustomBuffs.UpdateFrame
 local tinsert = table.insert
 local ceil, floor, max = math.ceil, math.floor, math.max
 
+-- The request only warms the item cache. On failure, the row keeps its "not found" text.
+local function RequestItemData(itemID)
+    pcall(C_Item.RequestLoadItemDataByID, itemID)
+end
+
 local COMPONENT_GAP = BR.Options.Constants.COMPONENT_GAP
 local BEFORE_HEADER_GAP = 16
 local AFTER_HEADER_GAP = 8
@@ -621,7 +626,7 @@ local function BuildRulesTab(ctx, frame)
             else
                 itemIcon:Hide()
                 itemName:SetText("|cffff4d4d" .. L["CustomBuff.NotFoundRetry"] .. "|r")
-                pcall(C_Item.RequestLoadItemDataByID, itemID)
+                RequestItemData(itemID)
             end
         end
         if hadItem ~= draft.hasItem then
@@ -883,7 +888,7 @@ local function BuildClickTab(ctx, frame)
     local itemRow = BuildLookupRow(L["CustomBuff.Action.ItemID"], ctx.editing and ctx.editing.castItemID, function(id)
         local valid, name, iconID = ValidateItemID(id)
         if not valid then
-            pcall(C_Item.RequestLoadItemDataByID, id)
+            RequestItemData(id)
         end
         return valid, name, iconID
     end)
@@ -1031,8 +1036,6 @@ local function SaveBuff(ctx)
         CreateCustomBuffFrameRuntime(customBuff)
     end
 
-    -- requireItemMode can change on save, so the ownership cache must go.
-    BR.BuffState.InvalidateItemCache()
     return true
 end
 
