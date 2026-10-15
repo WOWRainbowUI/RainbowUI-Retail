@@ -1,3 +1,7 @@
+# v2.65.0
+
+- Fixed some issues with handling items
+
 # v2.64.0
 
 - Fixed error with world map pins

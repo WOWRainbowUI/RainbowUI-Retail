@@ -2661,6 +2661,8 @@ function ProfessionItemMixin:IsCompleted(database, item, character)
     end
 end
 
+local GetItemInfo = C_Item and C_Item.GetItemInfo or GetItemInfo
+local IsEquippedItem = C_Item and C_Item.IsEquippedItem or IsEquippedItem
 local ItemItemMixin = CreateFromMixins(ItemMixin);
 function ItemItemMixin:GetName(database, item, character, variation)
     if item.name then
@@ -2689,7 +2691,7 @@ function EquippedItemMixin:GetName(database, item, character, variation)
     
     local id = self:GetID(database, item);
     local name = GetItemInfo(id);
-    return string.format(L["BTWQUESTS_EQUIP"], name);
+    return string.format(L["BTWQUESTS_EQUIP"], name or L["UNKNOWN"]);
 end
 function EquippedItemMixin:IsCompleted(database, item, character)
     if character:IsPlayer() then

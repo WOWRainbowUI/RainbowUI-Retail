@@ -693,6 +693,8 @@ if not TooltipDataProcessor or not TooltipDataProcessor.AddTooltipPostCall then
         end
     end)
 end
+local GetItemInfoInstant = C_Item and C_Item.GetItemInfoInstant or GetItemInfoInstant
+local GetItemGem = C_Item and C_Item.GetItemGem or GetItemGem
 local function PlayerXPModifier()
     local modifier = 0;
     if GetItemGem then
