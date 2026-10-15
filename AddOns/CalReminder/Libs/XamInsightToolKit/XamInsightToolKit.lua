@@ -1,4 +1,4 @@
-local MAJOR, MINOR = "XamInsightToolKit-2.0", 2
+local MAJOR, MINOR = "XamInsightToolKit-2.0", 3
 local XITK = LibStub:NewLibrary(MAJOR, MINOR)
 if not XITK then
     -- A newer version is already loaded
@@ -38,6 +38,15 @@ function XITK:GetMouseFocus()
 		frame = GetMouseFocus()
 	end
 	return frame
+end
+
+function XITK:MouseIsOver(frame)
+	if MouseIsOver then
+		return MouseIsOver(frame)
+	elseif frame and frame.IsMouseOver then
+		return frame:IsMouseOver()
+	end
+	return null
 end
 
 ---------------------------------------------------------------------------------------------------
@@ -299,3 +308,4 @@ function XITK:DoEmote(emote)
 		DoEmote(emote)
 	end
 end
+
