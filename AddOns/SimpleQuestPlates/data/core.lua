@@ -83,7 +83,7 @@ local function GetAddOnMetadataCompat(name, field)
     return nil
 end
 
-SQP.VERSION = "2.1.9" -- Addon version (also in TOC file)
+SQP.VERSION = "2.1.10" -- Addon version (also in TOC file)
 SQP.NAME = GetAddOnMetadataCompat(addonName, "Title") or addonName or "SimpleQuestPlates"
 SQP.AUTHOR = GetAddOnMetadataCompat(addonName, "Author") or "DonnieDice"
 SQP.LOCALE = GetLocale()
@@ -531,7 +531,7 @@ end
 -- Initialize default settings (now handled by RGX:NewDatabase)
 function SQP:InitializeSettings()
 	-- Database is auto-initialized by RGX:NewDatabase
-	-- SQPSettings global already points to db.global
+	-- Module-local SQPSettings points to db.global; the TOC global stays raw.
 end
 
 -- Backwards-compatible alias used by events.lua
