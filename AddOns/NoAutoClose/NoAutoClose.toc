@@ -1,6 +1,6 @@
-## Interface: 120100, 120100, 16001, 50504, 40402, 30403, 20506, 11509
+## Interface: 120105, 120105, 16001, 50504, 40402, 30403, 20506, 11509
 ## Title: NoAutoClose
-## Version: v1.3.46
+## Version: v1.3.47
 ## Notes: Stop frames from auto-closing when you open a new one
 ## Author: Numy
 ## X-GameType: [Game]
