@@ -1,3 +1,2 @@
-- Added source information for caged battle pets. Disabled by default; enable "Show Battle Pet Source" under Items in the settings.
-- Fixed a secret value error that could occur when displaying bag items.
+- Updated compatibility with the API changes in 12.1.5.
 
