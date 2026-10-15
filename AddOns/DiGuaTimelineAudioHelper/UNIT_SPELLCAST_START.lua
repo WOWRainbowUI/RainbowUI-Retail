@@ -50,7 +50,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
 
 
         -- local events = {}
-        -- for i = 950, 1050 do
+        -- for i = 838, 950 do
         --     table.insert(events, i)
         -- end
         -- local privateAuras = {1297649, 1297648},
@@ -424,7 +424,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
             and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
             and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
             and UnitSpellTargetName(unitTarget) -- 法术有目标
-            and UnitGroupRolesAssigned(unitTarget .. "target") ~= "HEALER"
+            and UnitGroupRolesAssigned("player") ~= "HEALER"
             then addonTable.CustomEncounterBar(1387354, 15, "打断大怪", unitTarget) end
 
         if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) -- 地狱烈火
@@ -472,7 +472,6 @@ frame:SetScript("OnEvent", function(self, event, ...)
             and UnitLevel(unitTarget) == UnitLevel("player") + 1
             and UnitPowerType(unitTarget) == 0
             and UnitClassification(unitTarget) == "elite" -- 精英怪
-            and UnitAffectingCombat(unitTarget) == true -- 在战斗中
             and (C_ScenarioInfo.GetCriteriaInfo(1) and C_ScenarioInfo.GetCriteriaInfo(1).completed or false) == true -- Boss1
             and (C_ScenarioInfo.GetCriteriaInfo(2) and C_ScenarioInfo.GetCriteriaInfo(2).completed or false) == false -- Boss2
             and UnitSpellTargetName(unitTarget) -- 法术有目标

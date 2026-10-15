@@ -201,8 +201,9 @@ addonTable.AudioTimeline = {
                 [188]  = { circle = 4 }, -- 03分08秒 4秒圆环
                 [266]  = { file = "GeRenJianShang.ogg", role = {"HEALER", "DAMAGER"} }, -- 4分26秒 个人减伤（仅治疗/DPS，坦克不播）
                 [272]  = { circle = 4 }, -- 04分32秒 4秒圆环
-                [350]  = { file = "GeRenJianShang.ogg", role = {"HEALER", "DAMAGER"} }, -- 5分50秒 个人减伤（仅治疗/DPS，坦克不播）
+                [300]  = { file = "GeRenJianShang.ogg", role = {"HEALER", "DAMAGER"} }, -- 5分 个人减伤（仅治疗/DPS，坦克不播）
                 [356]  = { circle = 4 }, -- 05分56秒 4秒圆环
+                [357]  = { file = "GeRenJianShang.ogg", role = {"HEALER", "DAMAGER"} }, -- 5分 个人减伤（仅治疗/DPS，坦克不播）
             }
         },
     },

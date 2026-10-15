@@ -350,6 +350,23 @@ addonTable.RaidEventSoundData = {
     [745] = { {"ShouLingKuangBao.ogg", 1} }, -- 无尽潮汐 (1294867)
     [976] = { {"ZhuYiDianMing.ogg", 1}, {"WuMiaoHouDianMing.ogg", 2} }, -- 刺骨寒霜 (1313393)
     -- [977] = { {"ZhuanHuoXiaoGuai.ogg", 0} }, -- 诱人水泡 (1257717)
+
+
+
+    -- 基希克斯破封（基希克斯 / Kith'ix）
+    -- [838] = { {".ogg", 1} }, -- 不可名状之怖 (1304045)
+    [858] = { {"TanKeChengShang.ogg", 1} }, -- 黑暗毁灭 (1304930)
+    [859] = { {"ZhunBeiXiaoGuai.ogg", 1} }, -- 虚空虫群 (1301511)
+    [860] = { {"JieDuanZhuanHuan.ogg", 1} }, -- 窒息黑暗 (1302951)
+    [861] = { {"ZhunBeiChiQiu.ogg", 1} }, -- 熄灭 (1304424)
+    [862] = { {"ZhuYiJiaoXia.ogg", 1} }, -- 扭曲的附肢 (1303681)
+    [864] = { {"ShuaXiNaiDun.ogg", 1, {HEALER = true}} }, -- 深渊攫取 (1303406)
+    [903] = { {"ZhunBeiDianMing.ogg", 2} }, -- 虚无之门 (1308873)
+    [951] = { {"JieDuanZhuanHuan.ogg", 1} }, -- 神圣光辉 (1303169)
+    [1002] = { {"TanKeChengShang.ogg", 1} }, -- 湮消 (1318467)
+    [1003] = { {"ShouLingKuangBao.ogg", 1} }, -- 八重蚀日 (1301479)
+
+
 }
 
 -- ==================================================================
