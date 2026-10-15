@@ -1,4 +1,4 @@
-## Interface: 120100
+## Interface: 120100, 120105
 ## AllowLoadGameType: standard
 ## Category: DBM
 ## Title:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0Dungeons (Legion)|r
@@ -38,11 +38,18 @@
 ## X-DBM-Mod-MinCoreRevision: 20260522000000
 ## X-DBM-Mod-MinExpansion: 6
 ## X-Curse-Project-ID: 314994
-## Version: r265
+## Version: r266
 
 localization.en.lua
 localization.cn.lua
+localization.de.lua
 localization.tw.lua
+localization.es.lua
+localization.kr.lua
+localization.ru.lua
+localization.br.lua
+localization.it.lua
+localization.fr.lua
 BlackRookHold\AmalgamSouls.lua
 BlackRookHold\Illysanna.lua
 BlackRookHold\Smashspite.lua
@@ -122,5 +129,6 @@ SeatofTriumvirate\ViceroyNezhar.lua
 SeatofTriumvirate\Lura.lua
 SeatofTriumvirate\SoTTrash.lua
 
+## Title-zhTW:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0地下城 (軍臨天下)|r
+## IconTexture: Interface\AddOns\DBM-Core\textures\dbm_airhorn
 ## Title-zhTW:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0隊伍首領-軍臨天下|r
-## Title-zhCN:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0队伍首领 (军团再临)|r

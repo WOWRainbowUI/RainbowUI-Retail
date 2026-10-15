@@ -1,4 +1,4 @@
-## Interface: 120100
+## Interface: 120100, 120105
 ## AllowLoadGameType: standard
 ## Category: DBM
 ## Title:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0Dungeons (SL)|r
@@ -39,8 +39,11 @@
 ## X-DBM-Mod-MinExpansion: 8
 
 localization.en.lua
+localization.kr.lua
 localization.tw.lua
 localization.cn.lua
+localization.es.lua
+localization.ru.lua
 TheNecroticWake\Blightbone.lua
 TheNecroticWake\Amarth.lua
 TheNecroticWake\SurgeonStitchflesh.lua
@@ -91,5 +94,6 @@ Tazavesh\TimecapnHooktail.lua
 Tazavesh\Soleah.lua
 Tazavesh\TazaveshTrash.lua
 
+## Title-zhTW:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0地下城 (暗影之境)|r
+## IconTexture: Interface\AddOns\DBM-Core\textures\dbm_airhorn
 ## Title-zhTW:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0隊伍首領-暗影之境|r
-## Title-zhCN:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0队伍首领 (暗影国度)|r

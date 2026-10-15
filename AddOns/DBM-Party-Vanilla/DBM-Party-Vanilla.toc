@@ -1,4 +1,4 @@
-## Interface: 11509, 16001, 20506, 30405, 38002, 40402, 50504, 120100
+## Interface: 11509, 16001, 20506, 30405, 38002, 40402, 50504, 120100, 120105
 ## Category: DBM
 ## Title:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0Dungeons (Vanilla)|r
 ## Title-deDE:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0Dungeons (Vanilla)|r
@@ -64,7 +64,7 @@
 ## X-DBM-Mod-MinExpansion: 0
 ## X-Curse-Project-ID: 314994
 ## X-Wago-ID: xZKxZENk
-## Version: r265
+## Version: r266
 ## IconTexture: Interface\AddOns\DBM-Core\textures\dbm_airhorn [AllowLoadGameType cata, standard, mists]
 
 locale.generated.lua
@@ -234,6 +234,7 @@ Shared\Stratholme\MalekithePallid.lua
 Shared\Stratholme\MagistrateBarthilas.lua
 Shared\Stratholme\RamsteintheGorger.lua
 Shared\Stratholme\LordAuriusRivendare.lua
+Shared\SunkenTemple\Atalalarion.lua [ExcludeLoadGameType standard, vanilla, cata, mists]
 Shared\SunkenTemple\AvatarofHakkar.lua
 Shared\SunkenTemple\JammalantheProphet.lua
 Shared\SunkenTemple\Dreamscythe.lua
@@ -310,5 +311,6 @@ Retail\StormwindStockaid\Moloch.lua [AllowLoadGameType cata, standard, mists]
 
 Shared\Stratholme\PostmasterMalown.lua [AllowLoadGameType standard]
 
+## Title-zhTW:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0地下城 (傳統)|r
+## IconTexture: Interface\AddOns\DBM-Core\textures\dbm_airhorn [AllowLoadGameType cata, standard, mists]
 ## Title-zhTW:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0隊伍首領-傳統|r
-## Title-zhCN:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0队伍首领 (经典旧世)|r

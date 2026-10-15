@@ -1,4 +1,4 @@
-## Interface: 120100
+## Interface: 120100, 120105
 ## AllowLoadGameType: standard
 ## Category: DBM
 ## Title:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0Dungeons (DF)|r
@@ -39,9 +39,11 @@
 ## X-DBM-Mod-MinExpansion: 9
 ## X-Curse-Project-ID: 314994
 ## X-Wago-ID: xZKxZENk
-## Version: r265
+## Version: r266
 
 localization.en.lua
+localization.kr.lua
+localization.ru.lua
 localization.cn.lua
 localization.tw.lua
 BrackenhideHollow\HackclawsWarBand.lua
@@ -94,5 +96,6 @@ DawnoftheInfinite\TimeLostBattlefield.lua
 DawnoftheInfinite\ChronoLordDeios.lua
 DawnoftheInfinite\DawnoftheInfiniteTrash.lua
 
-## Title-zhCN:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0队伍首领 (巨龙时代)|r
+## Title-zhTW:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0地下城 (巨龍崛起)|r
+## IconTexture: Interface\AddOns\DBM-Core\textures\dbm_airhorn
 ## Title-zhTW:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0隊伍首領-巨龍崛起|r

@@ -1,8 +1,7 @@
 local mod	= DBM:NewMod("GhamooRa", "DBM-Party-Vanilla", 1)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260905035030")
-mod:DisableHardcodedOptions()
+mod:SetRevision("20261013200352")
 mod:SetCreatureID(4887)
 mod:SetEncounterID(2761)
 mod:SetModelID(5027)

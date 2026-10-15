@@ -1,6 +1,6 @@
-## Interface: 50504, 120100
+## Interface: 50504, 120100, 120105
 ## AllowLoadGameType: mists, standard
-## Version: r265
+## Version: r266
 ## Category: DBM
 ## Title:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0Challenges|r
 ## Title-deDE:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0Herausforderungen|r
@@ -38,8 +38,12 @@
 ## X-Wago-ID: Rn6VLLGd
 
 localization.en.lua
+localization.de.lua
+localization.es.lua
+localization.kr.lua
 localization.tw.lua
 localization.cn.lua
+localization.ru.lua
 Shadowlands\Torghast.lua [AllowLoadGameType standard]
 Shadowlands\PoA_Echthra.lua [AllowLoadGameType standard]
 Shadowlands\PoA_Nuuminuuru.lua [AllowLoadGameType standard]
@@ -63,4 +67,5 @@ Legion\Tank.lua [AllowLoadGameType standard]
 MoP\PGWhiteTiger.lua
 
 ## Title-zhTW:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0挑戰|r
-## Title-zhCN:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0白虎试练场|r
+## IconTexture: Interface\AddOns\DBM-Core\textures\dbm_airhorn
+## Title-zhTW:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0挑戰|r

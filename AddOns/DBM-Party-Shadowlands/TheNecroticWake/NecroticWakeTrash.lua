@@ -2,8 +2,7 @@ if DBM:IsRestricted() then return end
 local mod	= DBM:NewMod("NecroticWakeTrash", "DBM-Party-Shadowlands", 1)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260919193459")
-mod:DisableHardcodedOptions()
+mod:SetRevision("20261013200352")
 --mod:SetModelID(47785)
 
 mod.isTrashMod = true

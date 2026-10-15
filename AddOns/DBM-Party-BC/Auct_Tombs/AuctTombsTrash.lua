@@ -1,8 +1,7 @@
 if DBM:IsRestricted() then return end
 local mod	= DBM:NewMod("AuctTombsTrash", "DBM-Party-BC", 8, 250)
 
-mod:SetRevision("20260919193459")
-mod:DisableHardcodedOptions()
+mod:SetRevision("20261013200352")
 mod:SetZone(557)
 
 mod.isTrashMod = true

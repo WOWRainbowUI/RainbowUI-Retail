@@ -1,4 +1,4 @@
-## Interface: 50504, 120100
+## Interface: 50504, 120100, 120105
 ## AllowLoadGameType: mists, standard
 ## Category: DBM
 ## Title:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0Dungeons (MoP)|r
@@ -39,11 +39,17 @@
 ## X-DBM-Mod-MinCoreRevision: 20260522000000
 ## X-DBM-Mod-MinExpansion: 4
 ## X-Curse-Project-ID: 314994
-## Version: r265
+## Version: r266
 
 localization.en.lua
+localization.de.lua
+localization.es.lua
+localization.fr.lua
+localization.kr.lua
+localization.ru.lua
 localization.tw.lua
 localization.cn.lua
+localization.br.lua
 JadeSerpentTemple\WiseMari.lua
 JadeSerpentTemple\LibraryEvent.lua
 JadeSerpentTemple\LiuFlameheart.lua
@@ -79,5 +85,6 @@ ScarletCathedral\ThalnosSoulrender.lua
 ScarletCathedral\Korlof.lua
 ScarletCathedral\Durand.lua
 
-## Title-zhCN:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0队伍首领 (熊猫人之谜)|r
+## Title-zhTW:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0地下城 (潘達利亞之謎)|r
+## IconTexture: Interface\AddOns\DBM-Core\textures\dbm_airhorn
 ## Title-zhTW:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0隊伍首領-潘達利亞之謎|r

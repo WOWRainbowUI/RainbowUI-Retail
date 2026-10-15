@@ -2,8 +2,7 @@ if DBM:IsRestricted() then return end
 local mod	= DBM:NewMod("MawTrash", "DBM-Party-Legion", 8)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260919193459")
-mod:DisableHardcodedOptions()
+mod:SetRevision("20261013200352")
 --mod:SetEncounterID(1823)
 
 mod.isTrashMod = true

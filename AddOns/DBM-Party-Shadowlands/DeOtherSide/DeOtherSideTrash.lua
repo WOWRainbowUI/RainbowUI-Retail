@@ -2,8 +2,7 @@ if DBM:IsRestricted() then return end
 local mod	= DBM:NewMod("DeOtherSideTrash", "DBM-Party-Shadowlands", 7)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260919193459")
-mod:DisableHardcodedOptions()
+mod:SetRevision("20261013200352")
 mod:SetZone(2291)
 --mod:SetModelID(47785)
 

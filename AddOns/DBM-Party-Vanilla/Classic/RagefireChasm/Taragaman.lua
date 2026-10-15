@@ -1,8 +1,7 @@
 local mod	= DBM:NewMod("Taragaman", "DBM-Party-Vanilla", 9)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260905035030")
-mod:DisableHardcodedOptions()
+mod:SetRevision("20261013200352")
 mod:SetCreatureID(11520)
 --mod:SetEncounterID(1446)
 mod:SetModelID(7970)

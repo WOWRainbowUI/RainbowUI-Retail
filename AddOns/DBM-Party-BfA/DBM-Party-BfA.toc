@@ -1,4 +1,4 @@
-## Interface: 120100
+## Interface: 120100, 120105
 ## AllowLoadGameType: standard
 ## Category: DBM
 ## Title:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0Dungeons (BfA)|r
@@ -39,8 +39,13 @@
 ## X-DBM-Mod-MinExpansion: 7
 
 localization.en.lua
+localization.de.lua
+localization.kr.lua
 localization.cn.lua
+localization.es.lua
 localization.tw.lua
+localization.it.lua
+localization.ru.lua
 AtalDazar\Alunza.lua
 AtalDazar\Volkaal.lua
 AtalDazar\Rezan.lua
@@ -102,5 +107,6 @@ Mechagon\MachinistGarden.lua
 Mechagon\KingMechagon.lua
 Mechagon\MechagonTrash.lua
 
+## Title-zhTW:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0地下城 (決戰艾澤拉斯)|r
+## IconTexture: Interface\AddOns\DBM-Core\textures\dbm_airhorn
 ## Title-zhTW:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0隊伍首領-決戰艾澤拉斯|r
-## Title-zhCN:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0队伍首领 (争霸艾泽拉斯)|r

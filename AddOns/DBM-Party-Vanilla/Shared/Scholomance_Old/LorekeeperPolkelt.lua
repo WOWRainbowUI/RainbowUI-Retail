@@ -1,8 +1,7 @@
 local mod	= DBM:NewMod("LorekeeperPolkelt", "DBM-Party-Vanilla", DBM:IsPostCata() and 16 or 13)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260905035030")
-mod:DisableHardcodedOptions()
+mod:SetRevision("20261013200352")
 mod:SetCreatureID(10901)
 mod:SetEncounterID(mod:IsClassic() and 2808 or 459)
 mod:SetModelID(11492)

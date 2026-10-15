@@ -1,8 +1,7 @@
 local mod	= DBM:NewMod("Ragglesnout", "DBM-Party-Vanilla", 10)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260905035030")
-mod:DisableHardcodedOptions()
+mod:SetRevision("20261013200352")
 mod:SetCreatureID(7354)
 --mod:SetEncounterID(585)
 mod:SetModelID(11382)

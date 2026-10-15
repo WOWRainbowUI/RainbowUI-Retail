@@ -1,4 +1,4 @@
-## Interface: 40402, 50504, 120100
+## Interface: 40402, 50504, 120100, 120105
 ## AllowLoadGameType: cata, mists, standard
 ## Category: DBM
 ## Title:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0Dungeons (Cata)|r
@@ -40,11 +40,17 @@
 ## X-DBM-Mod-MinCoreRevision: 20260522000000
 ## X-DBM-Mod-MinExpansion: 3
 ## X-Curse-Project-ID: 314994
-## Version: r265
+## Version: r266
 
 localization.en.lua
+localization.de.lua
+localization.es.lua
+localization.fr.lua
+localization.kr.lua
+localization.ru.lua
 localization.tw.lua
 localization.cn.lua
+localization.br.lua
 BlackrockCaverns\RomoggBonecrusher.lua
 BlackrockCaverns\Corla.lua
 BlackrockCaverns\KarshSteelbender.lua
@@ -120,5 +126,6 @@ HourOfTwilight\AsiraDawnslayer.lua
 HourOfTwilight\Benedictus.lua
 GrimBatol\GrimBatolTrash.lua [AllowLoadGameType standard]
 
+## Title-zhTW:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0地下城 (浩劫與重生)|r
+## IconTexture: Interface\AddOns\DBM-Core\textures\dbm_airhorn
 ## Title-zhTW:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0隊伍首領-浩劫與重生|r
-## Title-zhCN:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0队伍首领 (大地的裂变)|r

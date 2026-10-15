@@ -2,8 +2,7 @@ if not DBM:IsSeasonal("SeasonOfDiscovery") then return end
 local mod	= DBM:NewMod("DarkRider", "DBM-Party-Vanilla", 22)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20261002062552")
-mod:DisableHardcodedOptions()
+mod:SetRevision("20261013200352")
 mod:SetEncounterID(3145)
 mod:SetModelID(126912)
 --mod:SetCreatureID()

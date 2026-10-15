@@ -2,8 +2,7 @@ if not DBM:IsSeasonal("SeasonOfDiscovery") then return end
 local mod	= DBM:NewMod("KCTrash", "DBM-Party-Vanilla", 22)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260917064033")
-mod:DisableHardcodedOptions()
+mod:SetRevision("20261013200352")
 mod:SetZone(2875)
 
 mod.isTrashMod = true

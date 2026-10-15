@@ -1,4 +1,4 @@
-## Interface: 120100
+## Interface: 120100, 120105
 ## AllowLoadGameType: standard
 ## Category: DBM
 ## Title:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0Dungeons (WW)|r
@@ -39,9 +39,11 @@
 ## X-DBM-Mod-MinExpansion: 10
 ## X-Curse-Project-ID: 314994
 ## X-Wago-ID: xZKxZENk
-## Version: r265
+## Version: r266
 
 localization.en.lua
+localization.kr.lua
+localization.ru.lua
 localization.cn.lua
 localization.tw.lua
 DarkflameCleft\OlWaxbeard.lua
@@ -90,5 +92,6 @@ EcoDomeAldani\TaahbatandAwazj.lua
 EcoDomeAldani\SoulScribe.lua
 EcoDomeAldani\EcoDomeAldaniTrash.lua
 
-## Title-zhCN:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0队伍首领 (地心之战)|r
+## Title-zhTW:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0地下城 (地心之戰)|r
+## IconTexture: Interface\AddOns\DBM-Core\textures\dbm_airhorn
 ## Title-zhTW:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0隊伍首領 (地心之戰)|r

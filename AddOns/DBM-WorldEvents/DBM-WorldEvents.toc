@@ -1,4 +1,4 @@
-## Interface: 11509, 20506, 30405, 38002, 40402, 50504, 120100
+## Interface: 11509, 20506, 30405, 38002, 40402, 50504, 120100, 120105
 ## Category: DBM
 ## Title:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cff10ff10World Events|r
 ## Title-esES:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cff10ff10Eventos del mundo|r
@@ -78,8 +78,15 @@
 ## X-DBM-Mod-MinCoreRevision: 20260522000000
 
 localization.en.lua
+localization.ru.lua
+localization.fr.lua
 localization.tw.lua
+localization.kr.lua
+localization.de.lua
+localization.es.lua
 localization.cn.lua
+localization.br.lua
+localization.it.lua
 Holidays\ApothecaryTrio.lua [AllowLoadGameType cata, standard, mists, wrath]
 Holidays\Ahune.lua [AllowLoadGameType cata, standard, mists, tbc, wrath]
 Holidays\CorenDirebrew.lua [AllowLoadGameType cata, mists, tbc, wrath]
@@ -108,5 +115,6 @@ Events\DMF\Rabbit.lua [AllowLoadGameType standard]
 Events\DMF\Moonfang.lua [AllowLoadGameType standard]
 Events\DMF\CannonClassic.lua [AllowLoadGameType vanilla]
 
-## Title-zhCN:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cff10ff10世界事件|r
+## Title-zhTW:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cff10ff10世界事件|r
+## IconTexture: Interface\AddOns\DBM-Core\textures\dbm_airhorn
 ## Title-zhTW:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cff10ff10世界事件|r

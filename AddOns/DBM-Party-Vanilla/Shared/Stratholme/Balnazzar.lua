@@ -1,8 +1,7 @@
 local mod	= DBM:NewMod(449, "DBM-Party-Vanilla", DBM:IsPostCata() and 10 or 16, 236)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260905035030")
-mod:DisableHardcodedOptions()
+mod:SetRevision("20261013200352")
 if DBM:IsRetail() then
 	mod:SetCreatureID(10813)--10812 Grand Crusader Dathrohan (stage 1 classic, on live the boss starts out as Balnazzar)
 else

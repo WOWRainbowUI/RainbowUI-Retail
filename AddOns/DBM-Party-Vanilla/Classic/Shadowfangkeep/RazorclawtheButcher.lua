@@ -1,8 +1,7 @@
 local mod	= DBM:NewMod("RazorclawtheButcher", "DBM-Party-Vanilla", 14)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260905035030")
-mod:DisableHardcodedOptions()
+mod:SetRevision("20261013200352")
 mod:SetCreatureID(3886)
 mod:SetZone(33)
 mod:SetModelID(524)

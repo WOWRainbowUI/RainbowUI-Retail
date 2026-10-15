@@ -1,4 +1,4 @@
-## Interface: 20506, 30405, 38002, 40402, 50504, 120100
+## Interface: 20506, 30405, 38002, 40402, 50504, 120100, 120105
 ## AllowLoadGameType: tbc, wrath, cata, mists, standard
 ## Category: DBM
 ## Title:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0Dungeons (BC)|r
@@ -41,9 +41,13 @@
 ## X-DBM-Mod-MinExpansion: 1
 ## X-Curse-Project-ID: 314994
 ## X-Wago-ID: xZKxZENk
-## Version: r265
+## Version: r266
 
 localization.en.lua
+localization.de.lua
+localization.kr.lua
+localization.ru.lua
+localization.es.lua
 localization.tw.lua
 Hellfire_Ramp\Gargolmar.lua
 Hellfire_Ramp\Omor.lua
@@ -105,5 +109,6 @@ MagistersTerrace\Vexallus.lua
 MagistersTerrace\Delrissa.lua
 MagistersTerrace\Kael'thas.lua
 
+## Title-zhTW:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0地下城 (燃燒的遠征)|r
+## IconTexture: Interface\AddOns\DBM-Core\textures\dbm_airhorn
 ## Title-zhTW:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0隊伍首領-燃燒的遠征|r
-## Title-zhCN:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0队伍首领 (燃烧的远征)|r

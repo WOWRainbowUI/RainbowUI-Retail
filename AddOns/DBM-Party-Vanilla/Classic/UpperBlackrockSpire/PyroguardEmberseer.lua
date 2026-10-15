@@ -1,8 +1,7 @@
 local mod	= DBM:NewMod("PyroguardEmberseer", "DBM-Party-Vanilla", DBM:IsCata() and 18 or 4)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260905035030")
-mod:DisableHardcodedOptions()
+mod:SetRevision("20261013200352")
 mod:SetCreatureID(9816)
 mod:SetZone(229)
 mod:SetModelID(2172)

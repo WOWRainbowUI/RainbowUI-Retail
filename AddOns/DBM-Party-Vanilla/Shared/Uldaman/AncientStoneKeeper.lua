@@ -1,8 +1,7 @@
 local mod	= DBM:NewMod(470, "DBM-Party-Vanilla", DBM:IsPostCata() and 13 or 18, 239)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260905035030")
-mod:DisableHardcodedOptions()
+mod:SetRevision("20261013200352")
 mod:SetCreatureID(7206)
 mod:SetEncounterID(551)
 mod:SetModelID(10798)

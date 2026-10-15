@@ -1,8 +1,7 @@
 local mod	= DBM:NewMod("d287", "DBM-WorldEvents", 1)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260919193459")
-mod:DisableHardcodedOptions()
+mod:SetRevision("20261013200352")
 mod:SetCreatureID(23872)
 mod:SetModelID(21824)
 mod:SetZone(230)

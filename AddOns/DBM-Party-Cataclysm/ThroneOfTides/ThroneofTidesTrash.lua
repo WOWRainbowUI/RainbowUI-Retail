@@ -3,8 +3,7 @@ if (DBM:GetTOC() < 100200) then return end--DO NOT DELETE DO NOT DELETE DO NOT D
 local mod	= DBM:NewMod("ThroneofTidesTrash", "DBM-Party-Cataclysm", 9)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260919193459")
-mod:DisableHardcodedOptions()
+mod:SetRevision("20261013200352")
 --mod:SetModelID(47785)
 mod:SetZone(643)
 

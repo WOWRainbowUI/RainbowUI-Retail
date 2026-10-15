@@ -1,4 +1,4 @@
-## Interface: 30405, 38002, 40402, 50504, 120100
+## Interface: 30405, 38002, 40402, 50504, 120100, 120105
 ## AllowLoadGameType: wrath, cata, mists, standard
 ## Category: DBM
 ## Title:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0Dungeons (WotLK)|r
@@ -39,11 +39,16 @@
 ## X-DBM-Mod-MapID: 619,601,595,600,604,602,599,576,578,574,575,608,658,632,668,650,2849 [AllowLoadGameType standard]
 ## X-DBM-Mod-MinCoreRevision: 20260522000000
 ## X-DBM-Mod-MinExpansion: 2
-## Version: r265
+## Version: r266
 
 localization.en.lua
 localization.cn.lua
+localization.ru.lua
+localization.fr.lua
 localization.tw.lua
+localization.kr.lua
+localization.de.lua
+localization.es.lua
 AhnKahet\Taldaram.lua
 AhnKahet\Nadox.lua
 AhnKahet\JedogaShadowseeker.lua
@@ -113,5 +118,6 @@ PitofSaron\ForgemasterGarfrost.lua
 PitofSaron\ScourgelordTyrannus.lua
 PitofSaron\PitOfSaronTrash.lua [AllowLoadGameType standard]
 
+## Title-zhTW:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0地下城 (巫妖王之怒)|r
+## IconTexture: Interface\AddOns\DBM-Core\textures\dbm_airhorn
 ## Title-zhTW:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0隊伍首領-巫妖王之怒|r
-## Title-zhCN:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0队伍首领 (巫妖王之怒)|r
