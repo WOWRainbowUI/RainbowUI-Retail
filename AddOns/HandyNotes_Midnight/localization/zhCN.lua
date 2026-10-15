@@ -182,7 +182,6 @@ L['floating_egg_note'] = '{npc:263805} 顺河漂流。在沿途抓住它。'
 
 L['sturdy_chest'] = '坚固宝箱'
 L['sturdy_chest_suffix'] = '已找到坚固宝箱'
-
 L['gulf_of_memory_chest_note'] = '沿着树的根部向上攀爬以到达宝藏。'
 
 -------------------------------------------------------------------------------
@@ -217,3 +216,18 @@ L['options_icons_mysterious_mixing'] = '{achievement:63432}'
 L['options_icons_mysterious_mixing_desc'] = '显示 {achievement:63432} 成就的位置。'
 L['mysterious_mixing_note'] = '完成 {npc:263327} 的 {quest:97016} 日常，以调配所需的供奉：\n\n{note:材料可从地图中的 {object:开裂的骨灰罐}、{object:毒液凝结的小饰品}、{object:吟歌海螺} 中获取，或从拍卖行购买。}'
 L['curse_surge_note'] = '诅咒狂潮事件每%d分钟轮换一次。\n\n{note:如果未完成，可跨服组队完成——其他服务器的事件可能仍在进行中。}'
+
+-------------------------------------------------------------------------------
+----------------------------- LABYRINTH OF KINDO'JAN --------------------------
+-------------------------------------------------------------------------------
+
+L['ancient_chest'] = '远古宝箱'
+L['ancient_chest_suffix'] = '已找到远古宝箱'
+L['mislaid_oddity'] = '遗失的奇物'
+
+L['options_icons_hexmask'] = '{achievement:63720}'
+L['options_icons_hexmask_desc'] = '显示 {achievement:63720} 成就的位置。'
+L['thundering_hexmask'] = '雷霆妖术面具'
+L['fiery_hexmask'] = '炽焰妖术面具'
+L['frozen_hexmask'] = '冰冻妖术面具'
+L['c_underneath_bridge'] = '在桥下。'

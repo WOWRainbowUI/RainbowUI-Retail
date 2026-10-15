@@ -51,7 +51,7 @@ L['on_flying_platform'] = 'Sur une plate-forme volante.'
 L['gift_of_the_phoenix_note'] = 'Attrapez 5x Cendres de phénix tombant au sol après avoir interagi avec le {object:Réceptacle de Haut-Soleil}.'
 L['triple_locked_safebox_note'] = 'Requiert 3x clés de coffre-fort cachées. Prenez la {object:Torche ardente} à côté du coffre pour les faire apparaître.'
 L['incomplete_book_of_sonnets'] = 'Livret de sonnets incomplet'
-L['ensorcelled_cryptid_note'] = nil
+L['ensorcelled_cryptid_note'] = 'Cliquez sur le {npc:273760} et restez à proximité pendant que ses charges d\'{spell:1313802} diminuent, en esquivant les tourbillons arcaniques. Interagissez ensuite avec {npc:273775} pour recevoir le {item:282417}.\n\nIl réapparaît à l\'un des trois emplacements après environ 10 minutes.'
 
 -------------------------------------------------------------------------------
 ----------------------------------- HARANDAR ----------------------------------
@@ -140,10 +140,9 @@ L['share_a_drink_note'] = 'Achetez des {item:251039} auprès de {npc:250495} à 
 L['highly_decorated_note'] = 'Terminez les quêtes de reliques en rotation temporaire, puis récupérez leurs objets de décorations liés et placez-les à l’Arcantina.'
 
 -------------------------------------------------------------------------------
--------------------------------------------------------------------------------
--------------------------------------------------------------------------------
 --------------------------------- RITUAL SITES --------------------------------
 -------------------------------------------------------------------------------
+
 L['options_icons_ritual_site'] = 'Sites rituels'
 L['options_icons_ritual_site_desc'] = 'Afficher les récompenses des {location:Sites rituels} dans les infobulles.'
 
@@ -177,12 +176,13 @@ L['washed_up_kelp'] = 'Varech échoué'
 L['washed_up_kelp_note'] = 'Fouillez les {object:Varechs échoués} pour avoir une chance d\'attirer le {npc:263617}. Trouvables à plusieurs endroits dans la zone.'
 
 L['floating_egg_note'] = 'Un {npc:263805} qui descend la rivière à la dérive. Attrapez-le pendant son trajet.'
+
+-------------------------------------------------------------------------------
 ------------------------------------ DELVES -----------------------------------
 -------------------------------------------------------------------------------
 
 L['sturdy_chest'] = 'Coffre solide'
 L['sturdy_chest_suffix'] = 'Coffre solide trouvé'
-
 L['gulf_of_memory_chest_note'] = 'Grimpez le long des racines de l\'arbre pour atteindre le trésor.'
 
 -------------------------------------------------------------------------------
@@ -217,3 +217,18 @@ L['options_icons_mysterious_mixing'] = '{achievement:63432}'
 L['options_icons_mysterious_mixing_desc'] = 'Afficher les emplacements pour le haut-fait {achievement:63432}.'
 L['mysterious_mixing_note'] = 'Terminez la quête journalière {quest:97016} donnée par {npc:263327} afin de pouvoir fabriquer des offrandes :\n\n{note:Les ingrédients sont obtenables dans les {object:Jarres canope fissurées}, {object:Babioles en venin coagulé}, et {object:Carapaces chantantes} que l\'on trouve sur l\'île, ou achetés directement à l\'hôtel des ventes.}'
 L['curse_surge_note'] = 'Les événements de Vague de malédiction alternent toutes les %d minutes.\n\n{note:Il est possible de rejoindre un groupe inter-royaumes si vous avez manqué l\'événement, il sera peut-être encore en cours sur cette phase-là.}'
+
+-------------------------------------------------------------------------------
+----------------------------- LABYRINTH OF KINDO'JAN --------------------------
+-------------------------------------------------------------------------------
+
+L['ancient_chest'] = 'Coffre ancien'
+L['ancient_chest_suffix'] = 'Coffre ancien trouvé'
+L['mislaid_oddity'] = 'Étrangeté fourvoyée'
+
+L['options_icons_hexmask'] = '{achievement:63720}'
+L['options_icons_hexmask_desc'] = 'Afficher les emplacements pour le haut-fait {achievement:63720}.'
+L['thundering_hexmask'] = 'Masque maléficieux foudroyant'
+L['fiery_hexmask'] = 'Masque maléficieux ardent'
+L['frozen_hexmask'] = 'Masque maléficieux gelé'
+L['c_underneath_bridge'] = 'Sous le pont.'

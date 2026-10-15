@@ -2,6 +2,7 @@ local ADDON_NAME, ns = ...
 local L = ns.NewLocale('esES')
 if not L then return end
 -- Spanish Translation by Krovikan EU-Minahonda
+
 -------------------------------------------------------------------------------
 ------------------------------------ COMMON -----------------------------------
 -------------------------------------------------------------------------------
@@ -50,7 +51,7 @@ L['on_flying_platform'] = 'En una plataforma voladora.'
 L['gift_of_the_phoenix_note'] = 'Atrapa 5 cenizas de los fénix que aparecen después de usar el Regalo del Fénix.'
 L['triple_locked_safebox_note'] = 'Requiere 3 llaves ocultas de caja fuerte. Coge la antorcha morada al lado del cofre para verlas.'
 L['incomplete_book_of_sonnets'] = 'Libro de sonetos incompleto.'
-L['ensorcelled_cryptid_note'] = nil
+L['ensorcelled_cryptid_note'] = 'Haz click en el {npc:273760} y quédate cerca hasta que las acumulaciones de {spell:1313802} se agoten, mientras vas esquivando los remolinos arcanos. Interactúa con {npc:273775} después de conseguir el {item:282417}.\n\nReaparece en uno de los tres puntos después de unos 10 minutos.'
 
 -------------------------------------------------------------------------------
 ----------------------------------- HARANDAR ----------------------------------
@@ -182,7 +183,6 @@ L['floating_egg_note'] = 'El {npc:263805} está flotando río abajo. Atrápalo e
 
 L['sturdy_chest'] = 'Cofre robusto'
 L['sturdy_chest_suffix'] = 'Cofre robusto encontrado'
-
 L['gulf_of_memory_chest_note'] = 'Sube por las raíces del árbol para llegar al tesoro.'
 
 -------------------------------------------------------------------------------
@@ -217,3 +217,18 @@ L['options_icons_mysterious_mixing'] = '{achievement:63432}'
 L['options_icons_mysterious_mixing_desc'] = 'Muestra dónde están las ubicaciones para el logro {achievement:63432}.'
 L['mysterious_mixing_note'] = 'Completa la misión diaria {quest:97016} de {npc:263327} para crear ofrendas:\n\n{note:Los ingredientes se pueden conseguir de {object:Vaso canope agrietado}, {object:Adorno con coágulos venenosos}, y {object:Caparazón cantarín} a lo largo de la isla, o comprarse en la Casa de apuestas.}'
 L['curse_surge_note'] = 'Los eventos de Oleada Maldita rotan cada %d minutos.\n\n{note:Si te lo perdiste, forma grupo con jugadores de otros reinos — el evento puede seguir activo en otros reinos.}'
+
+-------------------------------------------------------------------------------
+----------------------------- LABYRINTH OF KINDO'JAN --------------------------
+-------------------------------------------------------------------------------
+
+L['ancient_chest'] = 'Cofre antiguo'
+L['ancient_chest_suffix'] = 'Cofre antiguo encontrado'
+L['mislaid_oddity'] = 'Rareza extraviada'
+
+L['options_icons_hexmask'] = '{achievement:63720}'
+L['options_icons_hexmask_desc'] = 'Muestra todas las ubicaciones para el logro {achievement:63720}.'
+L['thundering_hexmask'] = 'Máscara de maleficios atronadora'
+L['fiery_hexmask'] = 'Máscara de maleficios ígnea'
+L['frozen_hexmask'] = 'Máscara de maleficios helada'
+L['c_underneath_bridge'] = 'Debajo del puente.'
