@@ -240,6 +240,9 @@ local function CreateMainFrame()
 
     if not rawget(ns.L, "changelog") then
         ns.L["changelog"] = [[
+【2026.10.14】v1.9.6
+・添加12.1.5支持
+
 【2026.8.14】v1.9.5
 ・修复tab切换频道时的某些错误
 ・修复定位模式的某些错误

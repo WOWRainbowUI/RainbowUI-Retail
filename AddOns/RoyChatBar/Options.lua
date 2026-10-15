@@ -32,7 +32,7 @@ ns.ChatOptions = {
         type = "checkbox",
         key = "isChatBar",
         name = L["启用功能"],
-        default = true,
+        default = false,
         tooltip = nil,
         onChange = function(_, value)
             if ns.OnChatBarToggle then ns.OnChatBarToggle(value) end
@@ -42,7 +42,7 @@ ns.ChatOptions = {
         type = "checkbox",
         key = "isWorldChannel",
         name = L["世"],
-        default = false,
+        default = true,
         tooltip = L["大脚世界频道"],
         onChange = function(_, _)
             if ns.OnChatBarChanged then ns.OnChatBarChanged() end
@@ -175,6 +175,16 @@ ns.ChatOptions = {
             if ns.OnTabSwitchChanged then ns.OnTabSwitchChanged(value) end
         end,
     },
+    {
+        type = "checkbox",
+        key = "isShortChannelName",
+        name = L["频道名简写"],
+        default = false,
+        tooltip = nil,
+        onChange = function(_, value)
+            if ns.OnShortChannelNameChanged then ns.OnShortChannelNameChanged(value) end
+        end,
+    },
 
     --聊天条渐隐
     {
@@ -249,7 +259,7 @@ ns.ChatOptions = {
         type = "slider",
         key = "chatTextFontSize",
         name = L["文本大小"],
-        default = 20,
+        default = 16,
         min = 12,
         max = 30,
         step = 1,
@@ -304,7 +314,7 @@ ns.ChatOptions = {
         type = "slider",
         key = "chatButtonSpacing",
         name = L["调整间距"],
-        default = 2,
+        default = 0,
         min = 0,
         max = 20,
         step = 1,
@@ -317,7 +327,7 @@ ns.ChatOptions = {
         type = "dropdown",
         key = "chatBarAnchorMode",
         name = L["定位模式"],
-        default = "ANCHOR",
+        default = "FREE",
         tooltip = nil,
         options = function()
             local c = Settings.CreateControlTextContainer()
@@ -335,7 +345,7 @@ ns.ChatOptions = {
         type = "slider",
         key = "chatBarPositionX",
         name = L["水平移动"],
-        default = 10,
+        default = 0,
         min = -2000,
         max = 2000,
         step = 1,
@@ -358,7 +368,7 @@ ns.ChatOptions = {
         type = "slider",
         key = "chatBarPositionY",
         name = L["垂直移动"],
-        default = -10,
+        default = 0,
         min = -2000,
         max = 2000,
         step = 1,
