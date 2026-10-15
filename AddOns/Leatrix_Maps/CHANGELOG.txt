@@ -1,4 +1,13 @@
-﻿12.1.08 - 7th October 2026
+﻿12.1.11 - 14th October 2026
+- Fixed a minor issue which caused the M key to always open the map without the quest log.
+
+12.1.09 - 14th October 2026
+- Updated for game patch 12.1.5.
+- Added a new option 'Use simple map frame' (taken from Forever).  If checked, the map will use a simple frame with a compact title bar.  It's enabled by default.
+- Added a new option 'Hide blackout frame'.  If checked, the blackout frame will be hidden.
+- Added a 'Reset map layout' button.  If clicked, the map position and scale will be reset to the game default values.
+
+12.1.08 - 7th October 2026
 - The 'Use default map' option has been removed as it's not needed in Midnight.
 - The 'Show coordinates' setting now uses and modifies Blizzard's built-in coordinates.
 
