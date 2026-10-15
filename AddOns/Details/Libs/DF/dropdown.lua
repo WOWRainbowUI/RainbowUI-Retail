@@ -744,7 +744,8 @@ function DropDownMetaFunctions:Selected(thisOption)
 				local fontFace, fontSize, fontFlags = GameFontHighlightSmall:GetFont()
 				DF:SetFont(self.label, fontFace, fontSize, fontFlags)
 			else
-				self.label:SetFont("GameFontHighlightSmall", 14)
+				local fontFace, _, fontFlags = GameFontHighlightSmall:GetFont()
+				self.label:SetFont(fontFace, 14, fontFlags)
 			end
 		end
 	end
@@ -1009,8 +1010,8 @@ function DetailsFrameworkDropDownOnMouseDown(button, buttontype)
 						thisOptionFrame.label:SetFont(thisOption.font, 14.5)
 
 					else
-						thisOptionFrame.label:SetFontObject(_G["GameFontHighlightSmall"])
-						local font, _, flags = thisOptionFrame.label:GetFont()
+						--read the default font from the font object, the label keeps the font of the previous option it showed
+						local font, _, flags = GameFontHighlightSmall:GetFont()
 						thisOptionFrame.label:SetFont(font, 14.5, flags)
 					end
 
