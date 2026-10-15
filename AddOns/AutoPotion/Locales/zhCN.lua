@@ -86,3 +86,5 @@ L["An automatic journal of your adventures: level ups, dungeon runs, first boss 
 L["Installed"] = "已安装"
 L["Click and press %s to copy"] = "点击后按 %s 复制"
 L["Ctrl+C"] = "Ctrl+C"
+
+L["Small quality of life features in one addon: a smaller viewport, junk selling and repairs, quests accepted and turned in for you, IDs and vendor prices in tooltips, a square minimap and dungeons on the world map."] = "整合多项便捷功能：缩小游戏视野、出售垃圾与修理、自动接受及交付任务、提示信息显示 ID 与售价、方形小地图，以及世界地图上的副本。"
