@@ -2,7 +2,7 @@
 ## X-Wago-ID: ANz0AwK4
 ## Title: |cff58be81S|r|cffffffffimple|r |cff58be81Q|r|cffffffffuest|r |cff58be81P|r|cfffffffflates|r|cff58be81!|r
 ## Notes: Displays quest progress icons on enemy nameplates.|nType |cff58be81/sqp|r for options.
-## Version: 2.1.9
+## Version: 2.1.10
 ## Author: DonnieDice
 ## Category: RealmGX
 ## Group: RealmGX
@@ -10,7 +10,7 @@
 ## IconTexture: Interface\AddOns\SimpleQuestPlates\media\logo.tga
 ## DefaultState: Enabled
 ## RequiredDeps: RGX-Framework
-## X-RGX-Framework-MinVersion: 2.7.14-beta.1
+## X-RGX-Framework-MinVersion: 2.7.18
 
 ## X-Category: UI Media, Questing & Leveling, Miscellaneous
 ## X-Localizations: enUS, enGB, deDE, esES, esMX, frFR, itIT, koKR, ptBR, ptPT, ruRU, zhCN, zhTW
