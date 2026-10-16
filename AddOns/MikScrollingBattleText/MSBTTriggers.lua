@@ -266,7 +266,7 @@ local function CategorizeTrigger(triggerSettings)
 	for mainEvent, conditionsString in string_gmatch(triggerSettings.mainEvents .. "&&", "(.-)%{(.-)%}&&") do
 		if IsCLEUTriggerMainEvent(mainEvent) then
 			if not cleuTriggerDisableNoticeShown then
-				Print("CLEU-based triggers are disabled.")
+				-- Print("CLEU-based triggers are disabled.")
 				cleuTriggerDisableNoticeShown = true
 			end
 		else
