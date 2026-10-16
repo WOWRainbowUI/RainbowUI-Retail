@@ -21,6 +21,21 @@
 BIT = BIT or {}
 BIT.CHANGELOG = {
     {
+        version = "4.2.4",
+        date    = "2026-10-15",
+        bullets = {
+            "Thanks: to Exxos for finding and fixing the keystone list position and border bugs below, with a clear repro and the exact causes.",
+            "Fixed (Exxos): the keystone list came back about four rows lower after test mode or a reload. After a drag the game kept the frame anchored at its bottom edge and stored that in its own layout cache, so the list dropped when it shrank. It is now re-anchored at the saved edge right after every drag and when test mode ends, and the game's layout cache no longer owns it.",
+            "Fixed (Exxos): switching profiles, including the automatic spec switch, did not move the keystone list, and the next drag saved into the wrong profile. A profile switch now repositions it.",
+            "Fixed (Exxos): a gap between the Solid border and the keystone icon at any list scale other than 100%. Rows, icon box and border now sit on whole screen pixels. With Solid, Border Offset now counts screen pixels.",
+            "Added: redesigned settings window. Tabs on the larger module pages, Enabled / Test Mode / Locked chips in the page header, a grouped sidebar, a short description on every page and the search field at the top with a message when nothing matches.",
+            "Added: an on/off switch for every module in the sidebar. Switched-off modules are dimmed, so you can see at a glance what is running.",
+            "Fixed: settings borders vanishing at some UI scales and scroll positions, and slider values staying empty until the slider was moved once.",
+            "Changed: the unit frame defensive overlay and the received-defensive sound are temporarily unavailable while they are being reworked for the combat restrictions of patch 12.x. They now have their own page in the settings and are listed under Unavailable. Your settings are kept.",
+            "Changed: Party CDs and PI Caller are listed under Unavailable at the bottom of the settings sidebar, in orange and without an on/off switch, since neither can run right now. Their pages open read-only with the reason shown. Your settings are kept.",
+        },
+    },
+    {
         version = "4.2.3",
         date    = "2026-08-31",
         bullets = {

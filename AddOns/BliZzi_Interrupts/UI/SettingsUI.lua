@@ -11,7 +11,11 @@ BIT.SettingsUI = BIT.SettingsUI or {}
 ------------------------------------------------------------
 -- ── Style constants ──────────────────────────────────────
 ------------------------------------------------------------
-local ACCENT    = { 0, 0.75, 0.85 }      -- cyan (DEFAULT theme)
+local ACCENT_DEFAULT = { 0, 0.75, 0.85 } -- cyan (DEFAULT theme)
+-- Live widget accent. Mutated IN PLACE by ApplyTheme so every widget
+-- that reads ACCENT (toggles, highlights, focus borders …) follows the
+-- active theme instead of staying cyan under Horde / Alliance.
+local ACCENT    = { ACCENT_DEFAULT[1], ACCENT_DEFAULT[2], ACCENT_DEFAULT[3] }
 local ACCENT2   = { 0.90, 0.55, 0.10 }   -- orange (DEFAULT secondary)
 
 -- Custom faction crests bundled with the addon (Media/alliance.tga
@@ -54,17 +58,22 @@ local FACTION_TEX_HORDE    = "Interface\\AddOns\\BliZzi_Interrupts\\Media\\horde
 -- look and the faction tints.
 local TITLE_LINE_GREY = { 0.20, 0.20, 0.24, 1.0 }
 
+-- `ui` = widget accent (switches, selection, focus). Kept a touch
+-- brighter than `accent` so small accent-coloured text stays legible
+-- on the dark backgrounds.
 local THEME_DEFAULT = {
-    accent     = ACCENT,
+    accent     = ACCENT_DEFAULT,
+    ui         = ACCENT_DEFAULT,
     bg         = { 0.06, 0.06, 0.08 },           -- mirror of BG
     titleBg    = { 0.08, 0.08, 0.10 },
     sidebarBg  = { 0.09, 0.09, 0.11 },           -- mirror of SIDEBAR
     titleLine  = TITLE_LINE_GREY,
-    glow       = { ACCENT[1] * 0.25, ACCENT[2] * 0.25, ACCENT[3] * 0.25, 0.5 },    -- faded cyan halo
+    glow       = { ACCENT_DEFAULT[1] * 0.25, ACCENT_DEFAULT[2] * 0.25, ACCENT_DEFAULT[3] * 0.25, 0.5 },    -- faded cyan halo
     factionTex = nil,
 }
 local THEME_ALLIANCE = {
     accent     = { 0.20, 0.50, 0.95 },           -- bright Alliance blue (border)
+    ui         = { 0.35, 0.62, 1.00 },
     bg         = { 0.04, 0.06, 0.10 },           -- dark blue-tinted content area
     titleBg    = { 0.06, 0.11, 0.24 },           -- mid-dark blue title bar
     sidebarBg  = { 0.05, 0.07, 0.13 },           -- slight blue tint on the sidebar
@@ -74,6 +83,7 @@ local THEME_ALLIANCE = {
 }
 local THEME_HORDE = {
     accent     = { 0.85, 0.14, 0.14 },           -- bright Horde red (border)
+    ui         = { 0.95, 0.32, 0.27 },
     bg         = { 0.08, 0.03, 0.03 },           -- dark red-tinted content area
     titleBg    = { 0.22, 0.05, 0.05 },           -- mid-dark red title bar
     sidebarBg  = { 0.10, 0.04, 0.04 },           -- slight red tint on the sidebar
@@ -119,7 +129,10 @@ local WIDGET_H    = 28
 local SECTION_H   = 32
 local GAP         = 6
 local WIN_W       = 780
-local WIN_H       = 560
+local WIN_H       = 610
+local TITLE_H     = 40     -- window title bar
+local HEADER_H    = 56     -- page title + description above the scroll area
+local SECTION_GAP = 10     -- extra breathing room above every section after the first
 
 ------------------------------------------------------------
 -- ── Helpers ──────────────────────────────────────────────
@@ -144,7 +157,12 @@ end
 
 --- Locale-safe string lookup.  Uses rawget so the metatable
 --- fallback (which returns the key itself) is bypassed.
+-- key -> English fallback, recorded on every lookup. The page-layout specs
+-- (PAGE_SPECS) identify widgets by locale key; this lets them resolve the
+-- exact label a widget was built with, whatever the active language.
+local _lsFallback = {}
 local function LS(key, fb)
+    if key and fb ~= nil then _lsFallback[key] = fb end
     if not L then return fb end
     local v = rawget(L, key)
     return v or fb
@@ -346,16 +364,132 @@ local function MediaOpts(getListFn, previewKind)
     return opts
 end
 
+-- Exactly one PHYSICAL pixel, in UI units. A "1 unit" line is only 0.71 px
+-- at a 0.71 UI scale; the renderer then rounds it to 0 px at some scroll
+-- positions and borders/lines vanish. A size that is a whole number of
+-- pixels keeps its thickness wherever it lands, at any UI scale.
+local function OnePx(region)
+    local scale = (region and region.GetEffectiveScale and region:GetEffectiveScale())
+        or (UIParent and UIParent:GetEffectiveScale()) or 1
+    if scale <= 0 then scale = 1 end
+    if PixelUtil and PixelUtil.GetNearestPixelSize then
+        return PixelUtil.GetNearestPixelSize(1, scale, 1)
+    end
+    local _, ph = GetPhysicalScreenSize()
+    return (ph and ph > 0) and (768 / ph / scale) or 1
+end
+local function PxInsets(px)
+    return { left = px, right = px, top = px, bottom = px }
+end
+
 local function MakeBg(f, r, g, b, a)
-    f:SetBackdrop({ bgFile = WHITE8, edgeFile = WHITE8, edgeSize = 1,
-                     insets = { left = 1, right = 1, top = 1, bottom = 1 } })
+    local px = OnePx(f)
+    f:SetBackdrop({ bgFile = WHITE8, edgeFile = WHITE8, edgeSize = px,
+                     insets = PxInsets(px) })
     f:SetBackdropColor(r, g, b, a or 0.95)
     f:SetBackdropBorderColor(RGB(BORDER))
+end
+
+-- Closures that repaint static accent-coloured surfaces (section bars,
+-- sidebar indicator …). ApplyTheme runs every entry after it updated
+-- the live ACCENT table.
+local _themedRepaints = {}
+local function OnThemeChange(fn)
+    _themedRepaints[#_themedRepaints + 1] = fn
+    fn()
+end
+
+-- Round shapes use pre-anti-aliased textures shipped in Media/ (a circle
+-- mask scaled down to 12 px aliases into visible stair steps). Pixel
+-- snapping is turned off on them so the soft edge is filtered smoothly
+-- instead of being snapped (and squared off) to the pixel grid.
+local MEDIA       = "Interface\\AddOns\\BliZzi_Interrupts\\Media\\"
+local TEX_CIRCLE  = MEDIA .. "ui_circle"
+local TEX_DOT     = MEDIA .. "ui_dot8"   -- 8x8, meant to be shown at exactly 8 physical px
+
+local function Smooth(t)
+    if t.SetSnapToPixelGrid then t:SetSnapToPixelGrid(false) end
+    if t.SetTexelSnappingBias then t:SetTexelSnappingBias(0) end
+    return t
+end
+
+-- Anti-aliased solid circle, tinted with SetVertexColor.
+local function RoundTexture(frame, layer, size, sublevel, file)
+    local t = frame:CreateTexture(nil, layer or "ARTWORK", nil, sublevel)
+    t:SetTexture(file or TEX_CIRCLE)
+    t:SetSize(size, size)
+    return Smooth(t)
+end
+
+-- Vector chevron drawn with two lines (no texture assets needed, crisp
+-- at any UI scale). :SetDir("down" | "right" | "up"), :SetColor(r,g,b,a).
+local function CreateChevron(parent, size, thickness)
+    local holder = CreateFrame("Frame", nil, parent)
+    holder:SetSize(size or 10, size or 10)
+    local a = holder:CreateLine(nil, "OVERLAY")
+    local b = holder:CreateLine(nil, "OVERLAY")
+    a:SetThickness(thickness or 1.6)
+    b:SetThickness(thickness or 1.6)
+    local s = (size or 10) / 2
+    function holder:SetDir(dir)
+        if dir == "right" then
+            a:SetStartPoint("CENTER", holder, -s * 0.4,  s * 0.8)
+            a:SetEndPoint  ("CENTER", holder,  s * 0.4,  0)
+            b:SetStartPoint("CENTER", holder,  s * 0.4,  0)
+            b:SetEndPoint  ("CENTER", holder, -s * 0.4, -s * 0.8)
+        elseif dir == "up" then
+            a:SetStartPoint("CENTER", holder, -s * 0.8, -s * 0.4)
+            a:SetEndPoint  ("CENTER", holder,  0,        s * 0.4)
+            b:SetStartPoint("CENTER", holder,  0,        s * 0.4)
+            b:SetEndPoint  ("CENTER", holder,  s * 0.8, -s * 0.4)
+        else
+            a:SetStartPoint("CENTER", holder, -s * 0.8,  s * 0.4)
+            a:SetEndPoint  ("CENTER", holder,  0,       -s * 0.4)
+            b:SetStartPoint("CENTER", holder,  0,       -s * 0.4)
+            b:SetEndPoint  ("CENTER", holder,  s * 0.8,  s * 0.4)
+        end
+    end
+    function holder:SetColor(r, g, bl, al)
+        a:SetColorTexture(r, g, bl, al or 1)
+        b:SetColorTexture(r, g, bl, al or 1)
+    end
+    holder:SetDir("down")
+    holder:SetColor(RGB(TEXT_DIM))
+    return holder
+end
+
+-- Subtle full-row hover highlight for a settings row. `children` are
+-- the row's own mouse-enabled controls: hovering them keeps the row lit
+-- (a child takes the mouse focus, which would otherwise fire the row's
+-- OnLeave and make the highlight flicker).
+local function HoverRow(f, ...)
+    local hl = f:CreateTexture(nil, "BACKGROUND")
+    hl:SetPoint("TOPLEFT", -8, 1)
+    hl:SetPoint("BOTTOMRIGHT", 8, -1)
+    hl:SetColorTexture(1, 1, 1, 0.035)
+    hl:Hide()
+    local function upd() hl:SetShown(f:IsMouseOver() and true or false) end
+    f:EnableMouse(true)
+    f:HookScript("OnEnter", upd)
+    f:HookScript("OnLeave", upd)
+    for i = 1, select("#", ...) do
+        local c = select(i, ...)
+        if c then
+            c:HookScript("OnEnter", upd)
+            c:HookScript("OnLeave", upd)
+        end
+    end
+    f._hoverHl = hl
+    return hl
 end
 
 local function Refresh()
     if activePage and pages[activePage] and pages[activePage].refresh then
         pages[activePage].refresh()
+    end
+    -- A module's enable toggle may just have flipped: repaint the sidebar.
+    if BIT.SettingsUI.SyncModuleSwitches then
+        pcall(BIT.SettingsUI.SyncModuleSwitches, BIT.SettingsUI)
     end
     -- Rebuild the interrupt tracker bars (handles size, font, color, layout changes)
     if BIT.UI then
@@ -403,64 +537,105 @@ local function CreateToggle(parent, label, getter, setter, indent, disabled, ico
     local f = CreateFrame("Frame", nil, parent)
     f:SetSize(parent:GetWidth() - CONTENT_PAD * 2, WIDGET_H)
 
-    -- track
+    -- Square switch: flat track with a 1px black frame, a white square
+    -- knob (also framed) that slides from left (off) to right (on).
+    -- All geometry in WHOLE physical pixels: at a fractional UI scale a
+    -- "2 unit" gap is 1.4 px and rounds to 1 or 2 px depending on where
+    -- the switch sits, so the knob hugs the frame on some rows and not on
+    -- others. Whole-pixel sizes/offsets round identically everywhere.
+    local px = OnePx(f)
+    local function Px(units) return math.max(1, math.floor(units / px + 0.5)) end
+    local wP, hP, gapP = Px(34), Px(18), 2
+    local thumbP = hP - 2 * gapP
+    local TRACK_W, TRACK_H, THUMB = wP * px, hP * px, thumbP * px
+    local THUMB_OFF, THUMB_ON = gapP * px, (wP - thumbP - gapP) * px
     local track = CreateFrame("Frame", nil, f, "BackdropTemplate")
-    track:SetSize(36, 18)
+    track:SetSize(TRACK_W, TRACK_H)
     track:SetPoint("LEFT", indent or 0, 0)
-    MakeBg(track, 0.18, 0.18, 0.20, 1)
+    MakeBg(track, 0.22, 0.22, 0.25, 1)
+    track:SetBackdropBorderColor(0, 0, 0, 1)
 
-    -- thumb
-    local thumb = track:CreateTexture(nil, "OVERLAY")
-    thumb:SetSize(14, 14)
-    thumb:SetColorTexture(RGB(ACCENT))
+    local thumb = CreateFrame("Frame", nil, track, "BackdropTemplate")
+    thumb:SetSize(THUMB, THUMB)
+    thumb:SetFrameLevel(track:GetFrameLevel() + 2)
+    MakeBg(thumb, 1, 1, 1, 1)
+    thumb:SetBackdropBorderColor(0, 0, 0, 1)
+    thumb:SetPoint("LEFT", track, "LEFT", THUMB_OFF, 0)
+    thumb:EnableMouse(false)
+    -- Same colour API as before for the paint code below.
+    function thumb:SetVertexColor(r, g, b, a) self:SetBackdropColor(r, g, b, a or 1) end
+    local pill = {}
+    function pill:SetColor(r, g, b, a) track:SetBackdropColor(r, g, b, a or 1) end
+    local thumbX, thumbTarget = THUMB_OFF, THUMB_OFF
+    local function PlaceThumb(x)
+        thumbX = x
+        thumb:ClearAllPoints()
+        thumb:SetPoint("LEFT", track, "LEFT", x, 0)
+    end
+    -- Glide handler is installed only while the thumb is travelling.
+    local function Glide(self, e)
+        local d = thumbTarget - thumbX
+        if math.abs(d) < 0.5 then
+            PlaceThumb(thumbTarget)
+            self:SetScript("OnUpdate", nil)
+        else
+            PlaceThumb(thumbX + d * math.min(1, e * 18))
+        end
+    end
 
-    local function UpdateVisual()
+    local function UpdateVisual(animate)
         if disabled then
-            thumb:ClearAllPoints()
-            thumb:SetPoint("LEFT", track, "LEFT", 2, 0)
-            thumb:SetColorTexture(0.3, 0.3, 0.3)
-            track:SetBackdropColor(0.12, 0.12, 0.13, 1)
+            PlaceThumb(THUMB_OFF); thumbTarget = THUMB_OFF
+            thumb:SetVertexColor(0.30, 0.30, 0.32, 1)
+            pill:SetColor(0.13, 0.13, 0.15, 1)
             return
         end
         local on = getter()
-        if on then
-            thumb:ClearAllPoints()
-            thumb:SetPoint("LEFT", track, "LEFT", 20, 0)
-            thumb:SetColorTexture(RGB(ACCENT))
-            track:SetBackdropColor(ACCENT[1] * 0.3, ACCENT[2] * 0.3, ACCENT[3] * 0.3, 1)
+        thumbTarget = on and THUMB_ON or THUMB_OFF
+        -- Only glide on a user click; a refresh / page show snaps so the
+        -- switches never visibly "move" when a page opens.
+        if animate then
+            track:SetScript("OnUpdate", Glide)
         else
-            thumb:ClearAllPoints()
-            thumb:SetPoint("LEFT", track, "LEFT", 2, 0)
-            thumb:SetColorTexture(0.45, 0.45, 0.48)
-            track:SetBackdropColor(0.18, 0.18, 0.20, 1)
+            track:SetScript("OnUpdate", nil)
+            PlaceThumb(thumbTarget)
+        end
+        if on then
+            thumb:SetVertexColor(1, 1, 1, 1)
+            pill:SetColor(ACCENT[1], ACCENT[2], ACCENT[3], 1)
+        else
+            thumb:SetVertexColor(0.55, 0.55, 0.60, 1)
+            pill:SetColor(0.18, 0.18, 0.21, 1)
         end
     end
     UpdateVisual()
 
-    -- click
+    -- click: the whole row (switch + label) toggles
     if not disabled then
-        track:EnableMouse(true)
-        track:SetScript("OnMouseDown", function()
-            setter(not getter())
-            UpdateVisual()
-            Refresh()
+        HoverRow(f)
+        f:SetScript("OnMouseUp", function(self, button)
+            if button ~= "LeftButton" or not self:IsMouseOver() then return end
+            self._toggle()
         end)
     end
 
     -- optional icon (e.g. spell texture for per-spell PI Caller rows)
-    local labelOffsetX = 8
+    local labelOffsetX = 10
     if iconTexture then
         local ico = f:CreateTexture(nil, "OVERLAY")
         ico:SetSize(16, 16)
-        ico:SetPoint("LEFT", track, "RIGHT", 6, 0)
+        ico:SetPoint("LEFT", track, "RIGHT", 8, 0)
         ico:SetTexture(iconTexture)
         ico:SetTexCoord(0.08, 0.92, 0.08, 0.92)
-        labelOffsetX = 6 + 16 + 4   -- track-gap + icon-width + label-gap
+        labelOffsetX = 8 + 16 + 6   -- track-gap + icon-width + label-gap
     end
     -- label
     local lbl = f:CreateFontString(nil, "OVERLAY")
     ApplyFont(lbl, 12)
     lbl:SetPoint("LEFT", track, "RIGHT", labelOffsetX, 0)
+    lbl:SetPoint("RIGHT", f, "RIGHT", -4, 0)
+    lbl:SetJustifyH("LEFT")
+    lbl:SetWordWrap(false)
     if disabled then
         lbl:SetTextColor(0.4, 0.4, 0.4)
     else
@@ -480,19 +655,36 @@ local function CreateToggle(parent, label, getter, setter, indent, disabled, ico
         hint:SetText("|cffff8800Under Construction|r")
     end
 
-    -- Optional hover tooltip on the switch. Shown on the track (which is
-    -- mouse-enabled whenever the toggle isn't disabled).
+    -- Optional hover tooltip, shown while the row is hovered (anchored to
+    -- the switch).
     if tooltip and not disabled then
-        track:SetScript("OnEnter", function(self)
-            GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+        f:HookScript("OnEnter", function(self)
+            GameTooltip:SetOwner(track, "ANCHOR_RIGHT")
             GameTooltip:SetText(label, 1, 1, 1)
             GameTooltip:AddLine(tooltip, 0.8, 0.8, 0.8, true)
             GameTooltip:Show()
         end)
-        track:SetScript("OnLeave", function() GameTooltip:Hide() end)
+        f:HookScript("OnLeave", function() GameTooltip:Hide() end)
+        -- Small "(?)" marker after the label so it's discoverable that the
+        -- option carries an explanation.
+        local info = f:CreateFontString(nil, "OVERLAY")
+        ApplyFont(info, 10)
+        info:SetPoint("LEFT", lbl, "LEFT", math.min(lbl:GetStringWidth() + 6, f:GetWidth() - 60), 0)
+        info:SetTextColor(RGB(TEXT_DIM))
+        info:SetText("(?)")
     end
 
-    f._update = UpdateVisual
+    f._update = function() UpdateVisual() end
+    -- Exposed for the page-header chips, which drive this exact toggle
+    -- (same setter, same side effects) from the header bar.
+    f._get      = getter
+    f._disabled = disabled and true or false
+    f._toggle   = function()
+        if disabled then return end
+        setter(not getter())
+        UpdateVisual(true)
+        Refresh()
+    end
     f._searchLabel = label
     f._searchKind  = "toggle"
     return f
@@ -503,12 +695,16 @@ end
 ------------------------------------------------------------
 local function CreateSlider(parent, label, minV, maxV, step, getter, setter, fmt)
     local f = CreateFrame("Frame", nil, parent)
-    f:SetSize(parent:GetWidth() - CONTENT_PAD * 2, WIDGET_H + 4)
+    f:SetSize(parent:GetWidth() - CONTENT_PAD * 2, WIDGET_H + 10)
 
+    -- Top line: label left, editable value box right.
     local lbl = f:CreateFontString(nil, "OVERLAY")
-    ApplyFont(lbl, 11)
-    lbl:SetPoint("TOPLEFT", 0, 0)
-    lbl:SetTextColor(RGB(TEXT_DIM))
+    ApplyFont(lbl, 12)
+    lbl:SetPoint("TOPLEFT", 0, -3)
+    lbl:SetPoint("RIGHT", f, "RIGHT", -66, 0)
+    lbl:SetJustifyH("LEFT")
+    lbl:SetWordWrap(false)
+    lbl:SetTextColor(RGB(TEXT))
     lbl:SetText(label)
 
     -- value text
@@ -517,24 +713,138 @@ local function CreateSlider(parent, label, minV, maxV, step, getter, setter, fmt
     valTxt:SetPoint("TOPRIGHT", 0, 0)
     valTxt:SetTextColor(RGB(TEXT))
 
-    -- slider
-    local sl = CreateFrame("Slider", nil, f, "MinimalSliderTemplate")
-    sl:SetSize(f:GetWidth() - 60, 14)
+    -- edit box (top right)
+    local eb = CreateFrame("EditBox", nil, f, "BackdropTemplate")
+    eb:SetSize(56, 18)
+    eb:SetPoint("TOPRIGHT", 0, 0)
+    MakeBg(eb, RGB(WIDGET_BG))
+    eb:SetAutoFocus(false)
+    ApplyFont(eb, 11)
+    eb:SetJustifyH("CENTER")
+    -- The value is DISPLAYED by a plain FontString; the EditBox shows its
+    -- own text only while focused. An EditBox that gets SetText before it
+    -- is laid out keeps a stale horizontal scroll and renders the text
+    -- out of view until the next change ("numbers appear only after the
+    -- slider was moved once"). A FontString has no such state.
+    local valFs = eb:CreateFontString(nil, "OVERLAY")
+    ApplyFont(valFs, 11)
+    valFs:SetPoint("CENTER", 0, 0)
+    valFs:SetTextColor(RGB(TEXT))
+    eb:SetTextColor(TEXT[1], TEXT[2], TEXT[3], 0)
+    local rawSetText = eb.SetText
+    eb.SetText = function(self, t)
+        rawSetText(self, t)
+        valFs:SetText(t)
+        if not self:HasFocus() then self:SetCursorPosition(0) end
+    end
+    eb:SetScript("OnEditFocusGained", function(self)
+        valFs:Hide()
+        self:SetTextColor(TEXT[1], TEXT[2], TEXT[3], 1)
+        self:SetBackdropBorderColor(RGB(ACCENT)); self:HighlightText()
+    end)
+    eb:SetScript("OnEditFocusLost", function(self)
+        self:SetTextColor(TEXT[1], TEXT[2], TEXT[3], 0)
+        self:SetBackdropBorderColor(RGB(BORDER)); self:HighlightText(0, 0)
+        -- Show the committed value (an unconfirmed edit is discarded).
+        self:SetText(valFs:GetText() or "")
+        valFs:Show()
+    end)
+
+    -- slider (full width, bottom line). Plain Slider frame with our own
+    -- flat track / accent fill / round knob instead of the Blizzard art.
+    local sl = CreateFrame("Slider", nil, f)
+    sl:SetOrientation("HORIZONTAL")
+    sl:SetHeight(18)
     sl:SetPoint("BOTTOMLEFT", 0, 0)
+    sl:SetPoint("BOTTOMRIGHT", -2, 0)
+    sl:EnableMouse(true)
+    sl:SetHitRectInsets(0, 0, -4, -4)
+    -- The real thumb is an invisible 16px hit area; the visible knob is
+    -- drawn in its own frame ABOVE the rail / fill frames (child frames
+    -- always render over their parent's textures, so a knob drawn on the
+    -- slider itself would vanish behind the bar).
+    sl:SetThumbTexture(WHITE8)
+    local thumb = sl:GetThumbTexture()
+    thumb:SetSize(16, 16)
+    thumb:SetColorTexture(0, 0, 0, 0)
+
+    -- Square style: flat 6px rail with a 1px dark frame, flat accent fill
+    -- (dark → bright gradient) up to the knob.
+    local rail = CreateFrame("Frame", nil, sl, "BackdropTemplate")
+    rail:SetHeight(6)
+    rail:SetPoint("LEFT", 0, 0)
+    rail:SetPoint("RIGHT", 0, 0)
+    rail:SetFrameLevel(sl:GetFrameLevel() + 1)
+    MakeBg(rail, 0.16, 0.16, 0.19, 1)
+    rail:SetBackdropBorderColor(0, 0, 0, 1)
+
+    local px = OnePx(sl)
+    local fill = CreateFrame("Frame", nil, sl)
+    fill:SetFrameLevel(sl:GetFrameLevel() + 2)
+    fill:SetPoint("TOPLEFT", rail, "TOPLEFT", px, -px)
+    fill:SetPoint("BOTTOM", rail, "BOTTOM", 0, px)
+    fill:SetPoint("RIGHT", thumb, "CENTER", 0, 0)
+    local fillTex = fill:CreateTexture(nil, "ARTWORK")
+    fillTex:SetAllPoints()
+    fillTex:SetTexture(WHITE8)
+
+    -- Knob: white block with a 1px black outline, on top of everything.
+    local knob = CreateFrame("Frame", nil, sl, "BackdropTemplate")
+    knob:SetFrameLevel(sl:GetFrameLevel() + 5)
+    knob:SetPoint("CENTER", thumb, "CENTER", 0, 0)
+    MakeBg(knob, 1, 1, 1, 1)
+    knob:SetBackdropBorderColor(0, 0, 0, 1)
+    knob:EnableMouse(false)
+
+    local function PaintFill()
+        local r, g, b = ACCENT[1], ACCENT[2], ACCENT[3]
+        if fillTex.SetGradient and CreateColor then
+            fillTex:SetVertexColor(1, 1, 1, 1)
+            local ok = pcall(fillTex.SetGradient, fillTex, "HORIZONTAL",
+                CreateColor(r * 0.55, g * 0.55, b * 0.55, 1), CreateColor(r, g, b, 1))
+            if not ok then fillTex:SetVertexColor(r, g, b, 1) end
+        else
+            fillTex:SetVertexColor(r, g, b, 1)
+        end
+    end
+    PaintFill()
+
+    -- Value bubble above the knob while hovering / dragging.
+    local bubble = CreateFrame("Frame", nil, sl, "BackdropTemplate")
+    bubble:SetFrameLevel(sl:GetFrameLevel() + 20)
+    bubble:SetHeight(18)
+    bubble:SetPoint("BOTTOM", thumb, "TOP", 0, 6)
+    MakeBg(bubble, 0.05, 0.05, 0.07, 0.96)
+    local bubbleTxt = bubble:CreateFontString(nil, "OVERLAY")
+    ApplyFont(bubbleTxt, 11)
+    bubbleTxt:SetPoint("CENTER", 0, 0)
+    bubbleTxt:SetTextColor(1, 1, 1)
+    bubble:Hide()
+    local function ShowBubble()
+        local v = sl:GetValue()
+        bubbleTxt:SetText(fmt and fmt(v) or tostring(math.floor(v + 0.5)))
+        bubble:SetWidth(math.max(28, (bubbleTxt:GetStringWidth() or 20) + 14))
+        bubble:SetBackdropBorderColor(RGB(ACCENT))
+        bubble:Show()
+    end
+
+    -- 16 = resting, 18 = hovered / dragging (hovered knob takes the accent outline).
+    local function KnobSize(s)
+        knob:SetSize(s == 18 and 10 or 8, s)
+        if s == 18 then knob:SetBackdropBorderColor(RGB(ACCENT))
+        else knob:SetBackdropBorderColor(0, 0, 0, 1) end
+    end
+    KnobSize(16)
+    sl:SetScript("OnEnter", function() KnobSize(18); ShowBubble() end)
+    sl:SetScript("OnLeave", function()
+        if not sl._dragging then KnobSize(16); bubble:Hide() end
+    end)
+
     sl:SetMinMaxValues(minV, maxV)
     sl:SetValueStep(step)
     sl:SetObeyStepOnDrag(true)
     sl:SetValue(getter())
-
-    -- edit box (right of slider)
-    local eb = CreateFrame("EditBox", nil, f, "BackdropTemplate")
-    eb:SetSize(50, 18)
-    eb:SetPoint("LEFT", sl, "RIGHT", 6, 0)
-    MakeBg(eb, RGB(WIDGET_BG))
-    eb:SetAutoFocus(false)
-    ApplyFont(eb, 11)
-    eb:SetTextColor(RGB(TEXT))
-    eb:SetJustifyH("CENTER")
+    HoverRow(f, sl, eb)
     local initVal = getter()
     eb:SetText(fmt and fmt(initVal) or tostring(math.floor(initVal + 0.5)))
 
@@ -556,13 +866,17 @@ local function CreateSlider(parent, label, minV, maxV, step, getter, setter, fmt
     -- Live update during drag: OnValueChanged may not fire on every frame,
     -- so poll the slider value while mouse is held down.
     sl:HookScript("OnMouseDown", function()
+        sl._dragging = true
         sl:SetScript("OnUpdate", function()
             UpdateVal(sl:GetValue())
+            if bubble:IsShown() then ShowBubble() end
         end)
     end)
     sl:HookScript("OnMouseUp", function()
+        sl._dragging = false
         sl:SetScript("OnUpdate", nil)
         UpdateVal(sl:GetValue())
+        if not sl:IsMouseOver() then KnobSize(16); bubble:Hide() end
     end)
     eb:SetScript("OnEnterPressed", function(self)
         local raw = self:GetText():gsub("[^%d%.%-]", "")  -- strip px, %, etc.
@@ -576,6 +890,7 @@ local function CreateSlider(parent, label, minV, maxV, step, getter, setter, fmt
     -- Stable value-refresh (registerAttached overwrites f._update with its
     -- visibility sync, so SetWidgetEnabled uses this directly instead).
     f._refreshValue = function()
+        PaintFill()
         sl:SetValue(getter())
         eb:SetText(fmt and fmt(getter()) or tostring(math.floor(getter() + 0.5)))
     end
@@ -612,28 +927,37 @@ local function CreateDropdown(parent, label, options, getter, setter)
     local f = CreateFrame("Frame", nil, parent)
     f:SetSize(parent:GetWidth() - CONTENT_PAD * 2, WIDGET_H)
 
-    local lbl = f:CreateFontString(nil, "OVERLAY")
-    ApplyFont(lbl, 11)
-    lbl:SetPoint("LEFT", 0, 0)
-    lbl:SetTextColor(RGB(TEXT_DIM))
-    lbl:SetText(label)
-
     -- button
     local btn = CreateFrame("Button", nil, f, "BackdropTemplate")
-    btn:SetSize(180, 22)
+    btn:SetSize(200, 24)
     btn:SetPoint("RIGHT", 0, 0)
     MakeBg(btn, RGB(WIDGET_BG))
 
+    local lbl = f:CreateFontString(nil, "OVERLAY")
+    ApplyFont(lbl, 12)
+    lbl:SetPoint("LEFT", 0, 0)
+    lbl:SetPoint("RIGHT", btn, "LEFT", -10, 0)
+    lbl:SetJustifyH("LEFT")
+    lbl:SetWordWrap(false)
+    lbl:SetTextColor(RGB(TEXT))
+    lbl:SetText(label)
+
     local btnText = btn:CreateFontString(nil, "OVERLAY")
     ApplyFont(btnText, 11)
-    btnText:SetPoint("LEFT", 6, 0)
+    btnText:SetPoint("LEFT", 8, 0)
+    btnText:SetPoint("RIGHT", -24, 0)
+    btnText:SetJustifyH("LEFT")
+    btnText:SetWordWrap(false)
     btnText:SetTextColor(RGB(TEXT))
 
-    local arrow = btn:CreateFontString(nil, "OVERLAY")
-    ApplyFont(arrow, 10)
-    arrow:SetPoint("RIGHT", -6, 0)
-    arrow:SetTextColor(RGB(TEXT_DIM))
-    arrow:SetText("v")
+    local arrow = CreateChevron(btn, 8, 1.5)
+    arrow:SetPoint("RIGHT", -9, 0)
+
+    HoverRow(f, btn)
+    -- Clicking anywhere on the row (e.g. the label) opens the list too.
+    f:SetScript("OnMouseUp", function(self, button)
+        if button == "LeftButton" and self:IsMouseOver() and not btn:IsMouseOver() then btn:Click() end
+    end)
 
     local function UpdateText()
         local cur = getter()
@@ -683,8 +1007,8 @@ local function CreateDropdown(parent, label, options, getter, setter)
             SkinScrollFrame(sf, { rightOffset = 13, topPad = -2, bottomPad = 2 })
 
             local child = CreateFrame("Frame", nil, sf)
-            child:SetWidth(1) -- set dynamically
-            child:SetHeight(1)
+            child:SetWidth(OnePx()) -- set dynamically
+            child:SetHeight(OnePx())
             sf:SetScrollChild(child)
             dropdownPopup.scrollChild = child
 
@@ -776,9 +1100,14 @@ local function CreateDropdown(parent, label, options, getter, setter)
         end
 
         popup:ClearAllPoints()
-        popup:SetPoint("TOP", btn, "BOTTOM", 0, -2)
-        MakeBg(popup, 0.10, 0.10, 0.12, 0.98)
-        popup:SetBackdropBorderColor(RGB(ACCENT))
+        popup:SetPoint("TOPRIGHT", btn, "BOTTOMRIGHT", 0, -2)
+        MakeBg(popup, 0.09, 0.09, 0.11, 0.98)
+        popup:SetBackdropBorderColor(0.28, 0.28, 0.32, 1)
+        -- Arrow flips up while the list is open.
+        arrow:SetDir("up"); arrow:SetColor(RGB(ACCENT))
+        popup:SetScript("OnHide", function()
+            arrow:SetDir("down"); arrow:SetColor(RGB(TEXT_DIM))
+        end)
 
         -- (Re)build the visible rows from a filtered view of the options.
         -- Runs on open and on every search keystroke (via popup._rebuild).
@@ -820,12 +1149,21 @@ local function CreateDropdown(parent, label, options, getter, setter)
             else
                 ApplyFont(itxt, 11)
             end
-            itxt:SetPoint("LEFT", 6, 0)
+            itxt:SetPoint("LEFT", 10, 0)
             itxt:SetTextColor(RGB(TEXT))
             itxt:SetText(opt.label)
-            -- highlight current selection
+            -- highlight current selection: accent text + accent edge bar
+            -- + faint accent fill, so the active entry is obvious at a glance
             if opt.value == getter() then
                 itxt:SetTextColor(RGB(ACCENT))
+                local selBg = item:CreateTexture(nil, "BACKGROUND")
+                selBg:SetAllPoints()
+                selBg:SetColorTexture(ACCENT[1], ACCENT[2], ACCENT[3], 0.10)
+                local selBar = item:CreateTexture(nil, "ARTWORK")
+                selBar:SetPoint("TOPLEFT", 0, -3)
+                selBar:SetPoint("BOTTOMLEFT", 0, 3)
+                selBar:SetWidth(2)
+                selBar:SetColorTexture(RGB(ACCENT))
             end
             -- Bar Texture dropdown preview: render the texture as a
             -- small bar swatch on the right half of the row so the user
@@ -862,7 +1200,7 @@ local function CreateDropdown(parent, label, options, getter, setter)
                         bgFile   = "Interface\\BUTTONS\\WHITE8X8",
                         edgeFile = opt.borderTextureEdge,
                         edgeSize = edgeSize,
-                        insets   = { left = 1, right = 1, top = 1, bottom = 1 },
+                        insets   = PxInsets(OnePx()),
                     })
                 end)
                 if okBd then
@@ -943,9 +1281,11 @@ local function CreateDropdown(parent, label, options, getter, setter)
 
     btn:SetScript("OnEnter", function(self)
         self:SetBackdropBorderColor(RGB(ACCENT))
+        self:SetBackdropColor(WIDGET_BG[1] + 0.03, WIDGET_BG[2] + 0.03, WIDGET_BG[3] + 0.04, 0.95)
     end)
     btn:SetScript("OnLeave", function(self)
         self:SetBackdropBorderColor(RGB(BORDER))
+        self:SetBackdropColor(WIDGET_BG[1], WIDGET_BG[2], WIDGET_BG[3], 0.95)
     end)
 
     f._update = UpdateText
@@ -968,29 +1308,35 @@ local function CreateMultiSelectDropdown(parent, label, options, getter, setter)
     local f = CreateFrame("Frame", nil, parent)
     f:SetSize(parent:GetWidth() - CONTENT_PAD * 2, WIDGET_H)
 
-    local lbl = f:CreateFontString(nil, "OVERLAY")
-    ApplyFont(lbl, 11)
-    lbl:SetPoint("LEFT", 0, 0)
-    lbl:SetTextColor(RGB(TEXT_DIM))
-    lbl:SetText(label)
-
     local btn = CreateFrame("Button", nil, f, "BackdropTemplate")
-    btn:SetSize(180, 22)
+    btn:SetSize(200, 24)
     btn:SetPoint("RIGHT", 0, 0)
     MakeBg(btn, RGB(WIDGET_BG))
 
+    local lbl = f:CreateFontString(nil, "OVERLAY")
+    ApplyFont(lbl, 12)
+    lbl:SetPoint("LEFT", 0, 0)
+    lbl:SetPoint("RIGHT", btn, "LEFT", -10, 0)
+    lbl:SetJustifyH("LEFT")
+    lbl:SetWordWrap(false)
+    lbl:SetTextColor(RGB(TEXT))
+    lbl:SetText(label)
+
     local btnText = btn:CreateFontString(nil, "OVERLAY")
     ApplyFont(btnText, 11)
-    btnText:SetPoint("LEFT", 6, 0)
-    btnText:SetPoint("RIGHT", -16, 0)
+    btnText:SetPoint("LEFT", 8, 0)
+    btnText:SetPoint("RIGHT", -24, 0)
     btnText:SetJustifyH("LEFT")
+    btnText:SetWordWrap(false)
     btnText:SetTextColor(RGB(TEXT))
 
-    local arrow = btn:CreateFontString(nil, "OVERLAY")
-    ApplyFont(arrow, 10)
-    arrow:SetPoint("RIGHT", -6, 0)
-    arrow:SetTextColor(RGB(TEXT_DIM))
-    arrow:SetText("v")
+    local arrow = CreateChevron(btn, 8, 1.5)
+    arrow:SetPoint("RIGHT", -9, 0)
+
+    HoverRow(f, btn)
+    f:SetScript("OnMouseUp", function(self, button)
+        if button == "LeftButton" and self:IsMouseOver() and not btn:IsMouseOver() then btn:Click() end
+    end)
 
     local function summarize()
         local sel = getter() or {}
@@ -1016,9 +1362,14 @@ local function CreateMultiSelectDropdown(parent, label, options, getter, setter)
             popup:SetFrameStrata("TOOLTIP")
             popup:SetFrameLevel(200)
             popup:SetClampedToScreen(true)
-            MakeBg(popup, 0.06, 0.06, 0.08, 0.97)
+            MakeBg(popup, 0.09, 0.09, 0.11, 0.98)
+            popup:SetBackdropBorderColor(0.28, 0.28, 0.32, 1)
             popup.items = {}
+            popup:SetScript("OnHide", function()
+                arrow:SetDir("down"); arrow:SetColor(RGB(TEXT_DIM))
+            end)
         end
+        arrow:SetDir("up"); arrow:SetColor(RGB(ACCENT))
         local ITEM_H = 22
         local W = btn:GetWidth()
         popup:SetSize(W, ITEM_H * #options + 8)
@@ -1033,15 +1384,32 @@ local function CreateMultiSelectDropdown(parent, label, options, getter, setter)
             local item = popup.items[i]
             if not item then
                 item = CreateFrame("Button", nil, popup)
-                local check = item:CreateFontString(nil, "OVERLAY")
-                ApplyFont(check, 13)
-                check:SetPoint("LEFT", 8, 0)
-                check:SetTextColor(RGB(ACCENT))
-                item.check = check
+                -- Checkbox: 12px box with a 1px frame; filled with the
+                -- accent (plus an inner dark inset) when selected.
+                local box = item:CreateTexture(nil, "ARTWORK")
+                box:SetSize(12, 12)
+                box:SetPoint("LEFT", 8, 0)
+                box:SetColorTexture(0.32, 0.32, 0.36, 1)
+                local boxIn = item:CreateTexture(nil, "ARTWORK", nil, 1)
+                boxIn:SetPoint("TOPLEFT", box, "TOPLEFT", 1, -1)
+                boxIn:SetPoint("BOTTOMRIGHT", box, "BOTTOMRIGHT", -1, 1)
+                boxIn:SetColorTexture(0.08, 0.08, 0.10, 1)
+                local fill = item:CreateTexture(nil, "ARTWORK", nil, 2)
+                fill:SetPoint("TOPLEFT", box, "TOPLEFT", 3, -3)
+                fill:SetPoint("BOTTOMRIGHT", box, "BOTTOMRIGHT", -3, 3)
+                item.check = {
+                    SetText = function(_, t)
+                        local on = (t == "x")
+                        fill:SetColorTexture(ACCENT[1], ACCENT[2], ACCENT[3], 1)
+                        fill:SetShown(on)
+                        if on then box:SetColorTexture(RGB(ACCENT))
+                        else box:SetColorTexture(0.32, 0.32, 0.36, 1) end
+                    end,
+                }
 
                 local itxt = item:CreateFontString(nil, "OVERLAY")
                 ApplyFont(itxt, 11)
-                itxt:SetPoint("LEFT", 26, 0)
+                itxt:SetPoint("LEFT", 28, 0)
                 itxt:SetTextColor(RGB(TEXT))
                 item.itxt = itxt
 
@@ -1083,8 +1451,14 @@ local function CreateMultiSelectDropdown(parent, label, options, getter, setter)
         end)
     end)
 
-    btn:SetScript("OnEnter", function(self) self:SetBackdropBorderColor(RGB(ACCENT)) end)
-    btn:SetScript("OnLeave", function(self) self:SetBackdropBorderColor(RGB(BORDER)) end)
+    btn:SetScript("OnEnter", function(self)
+        self:SetBackdropBorderColor(RGB(ACCENT))
+        self:SetBackdropColor(WIDGET_BG[1] + 0.03, WIDGET_BG[2] + 0.03, WIDGET_BG[3] + 0.04, 0.95)
+    end)
+    btn:SetScript("OnLeave", function(self)
+        self:SetBackdropBorderColor(RGB(BORDER))
+        self:SetBackdropColor(WIDGET_BG[1], WIDGET_BG[2], WIDGET_BG[3], 0.95)
+    end)
 
     f._update = UpdateText
     f._searchLabel = label
@@ -1100,18 +1474,23 @@ local function CreateColorSwatch(parent, label, getR, getG, getB, setColor, getA
     f:SetSize(parent:GetWidth() - CONTENT_PAD * 2, WIDGET_H)
 
     local lbl = f:CreateFontString(nil, "OVERLAY")
-    ApplyFont(lbl, 11)
+    ApplyFont(lbl, 12)
     lbl:SetPoint("LEFT", 0, 0)
-    lbl:SetTextColor(RGB(TEXT_DIM))
+    lbl:SetTextColor(RGB(TEXT))
     lbl:SetText(label)
 
-    -- swatch
+    -- swatch: 1px frame, 1px dark gap, then the colour — the gap keeps
+    -- very dark / very light colours readable against the frame.
     local sw = CreateFrame("Button", nil, f, "BackdropTemplate")
-    sw:SetSize(60, 20)
+    sw:SetSize(48, 20)
     sw:SetPoint("RIGHT", 0, 0)
-    sw:SetBackdrop({ bgFile = WHITE8, edgeFile = WHITE8, edgeSize = 1,
-                      insets = { left = 1, right = 1, top = 1, bottom = 1 } })
-    sw:SetBackdropBorderColor(0.3, 0.3, 0.3)
+    sw:SetBackdrop({ bgFile = WHITE8, edgeFile = WHITE8, edgeSize = OnePx(),
+                      insets = PxInsets(OnePx()) })
+    sw:SetBackdropColor(0.05, 0.05, 0.06, 1)
+    sw:SetBackdropBorderColor(0.3, 0.3, 0.34)
+    local swFill = sw:CreateTexture(nil, "ARTWORK")
+    swFill:SetPoint("TOPLEFT", 2, -2)
+    swFill:SetPoint("BOTTOMRIGHT", -2, 2)
 
     -- hex text
     local hex = f:CreateFontString(nil, "OVERLAY")
@@ -1119,9 +1498,14 @@ local function CreateColorSwatch(parent, label, getR, getG, getB, setColor, getA
     hex:SetPoint("RIGHT", sw, "LEFT", -8, 0)
     hex:SetTextColor(RGB(TEXT_DIM))
 
+    HoverRow(f, sw)
+    f:SetScript("OnMouseUp", function(self, button)
+        if button == "LeftButton" and self:IsMouseOver() and not sw:IsMouseOver() then sw:Click() end
+    end)
+
     local function UpdateSwatch()
         local r, g, b = getR(), getG(), getB()
-        sw:SetBackdropColor(r, g, b, 1)
+        swFill:SetColorTexture(r, g, b, 1)
         hex:SetText(string.format("#%02X%02X%02X", math.floor(r * 255 + 0.5), math.floor(g * 255 + 0.5), math.floor(b * 255 + 0.5)))
     end
     UpdateSwatch()
@@ -1153,7 +1537,7 @@ local function CreateColorSwatch(parent, label, getR, getG, getB, setColor, getA
     end)
 
     sw:SetScript("OnEnter", function(self) self:SetBackdropBorderColor(RGB(ACCENT)) end)
-    sw:SetScript("OnLeave", function(self) self:SetBackdropBorderColor(0.3, 0.3, 0.3) end)
+    sw:SetScript("OnLeave", function(self) self:SetBackdropBorderColor(0.3, 0.3, 0.34) end)
 
     f._update = UpdateSwatch
     f._searchLabel = label
@@ -1191,8 +1575,8 @@ local function _cpSkinButton(btn)
     bd:SetPoint("TOPLEFT", 1, -1)
     bd:SetPoint("BOTTOMRIGHT", -1, 1)
     bd:SetFrameLevel(math.max(0, (btn:GetFrameLevel() or 1) - 1))
-    bd:SetBackdrop({ bgFile = WHITE8, edgeFile = WHITE8, edgeSize = 1,
-                     insets = { left = 1, right = 1, top = 1, bottom = 1 } })
+    bd:SetBackdrop({ bgFile = WHITE8, edgeFile = WHITE8, edgeSize = OnePx(),
+                     insets = PxInsets(OnePx()) })
     btn._bitBd = bd
 
     btn:HookScript("OnEnter", function()
@@ -1237,8 +1621,8 @@ local function _cpSkinEditBox(eb)
     bd:SetPoint("TOPLEFT", -2, 2)
     bd:SetPoint("BOTTOMRIGHT", 2, -2)
     bd:SetFrameLevel(math.max(0, (eb:GetFrameLevel() or 1) - 1))
-    bd:SetBackdrop({ bgFile = WHITE8, edgeFile = WHITE8, edgeSize = 1,
-                     insets = { left = 1, right = 1, top = 1, bottom = 1 } })
+    bd:SetBackdrop({ bgFile = WHITE8, edgeFile = WHITE8, edgeSize = OnePx(),
+                     insets = PxInsets(OnePx()) })
     bd:SetBackdropColor(WIDGET_BG[1], WIDGET_BG[2], WIDGET_BG[3], 1)
     bd:SetBackdropBorderColor(RGB(BORDER))
     eb._bitBd = bd
@@ -1310,8 +1694,8 @@ function BIT.SettingsUI:SkinColorPicker()
     bd:SetPoint("TOPLEFT", 0, 0)
     bd:SetPoint("BOTTOMRIGHT", 0, 0)
     bd:SetFrameLevel(math.max(0, (cp:GetFrameLevel() or 1) - 1))
-    bd:SetBackdrop({ bgFile = WHITE8, edgeFile = WHITE8, edgeSize = 1,
-                     insets = { left = 1, right = 1, top = 1, bottom = 1 } })
+    bd:SetBackdrop({ bgFile = WHITE8, edgeFile = WHITE8, edgeSize = OnePx(),
+                     insets = PxInsets(OnePx()) })
     local glow = CreateFrame("Frame", nil, bd, "BackdropTemplate")
     glow:SetPoint("TOPLEFT", -1, 1)
     glow:SetPoint("BOTTOMRIGHT", 1, -1)
@@ -1359,29 +1743,43 @@ local function CreateSectionHeader(parent, label, stateKey)
     local f = CreateFrame("Button", nil, parent)
     f:SetSize(parent:GetWidth() - CONTENT_PAD * 2, SECTION_H)
 
-    local line = f:CreateTexture(nil, "BACKGROUND")
-    line:SetHeight(1)
-    line:SetPoint("BOTTOMLEFT", 0, 0)
-    line:SetPoint("BOTTOMRIGHT", 0, 0)
-    line:SetColorTexture(ACCENT[1], ACCENT[2], ACCENT[3], 0.3)
+    -- Header surface: faint fill + hairline at the bottom; brightens on hover.
+    local bg = f:CreateTexture(nil, "BACKGROUND")
+    bg:SetPoint("TOPLEFT", -8, -2)
+    bg:SetPoint("BOTTOMRIGHT", 8, 0)
+    bg:SetColorTexture(1, 1, 1, 0.025)
 
-    local arrowFs = f:CreateFontString(nil, "OVERLAY")
-    ApplyFont(arrowFs, 10)
-    arrowFs:SetPoint("LEFT", 0, 0)
-    arrowFs:SetTextColor(RGB(ACCENT))
+    local line = f:CreateTexture(nil, "BORDER")
+    line:SetHeight(OnePx())
+    line:SetPoint("BOTTOMLEFT", -8, 0)
+    line:SetPoint("BOTTOMRIGHT", 8, 0)
+    line:SetColorTexture(BORDER[1], BORDER[2], BORDER[3], 1)
+
+    -- Accent bar in front of the title.
+    local bar = f:CreateTexture(nil, "ARTWORK")
+    bar:SetSize(3, 14)
+    bar:SetPoint("LEFT", 0, -1)
+    OnThemeChange(function() bar:SetColorTexture(RGB(ACCENT)) end)
 
     local lbl = f:CreateFontString(nil, "OVERLAY")
-    ApplyFont(lbl, 13, "OUTLINE")
-    lbl:SetPoint("LEFT", 16, 0)
+    ApplyFont(lbl, 13)
+    lbl:SetPoint("LEFT", bar, "RIGHT", 9, 0)
     lbl:SetTextColor(RGB(TEXT))
     lbl:SetText(label)
+
+    -- Expand / collapse chevron on the right edge.
+    local chev = CreateChevron(f, 9, 1.6)
+    chev:SetPoint("RIGHT", -4, -1)
 
     f._expanded = (BIT.db and BIT.db.sectionExpanded and BIT.db.sectionExpanded[stateKey] ~= false) or true
     f._children = {}
     f._stateKey = stateKey
-    -- Stash the arrow FontString on the frame so external code (e.g.
-    -- the changelog page's single-section-open accordion logic) can
-    -- refresh the v/> glyph after programmatically collapsing a peer.
+    -- External code (search, the changelog accordion) refreshes the
+    -- arrow through `_arrowFs:SetText("v" | ">")`; this proxy keeps that
+    -- contract and maps it onto the vector chevron.
+    local arrowFs = {
+        SetText = function(_, t) chev:SetDir(t == "v" and "down" or "right") end,
+    }
     f._arrowFs  = arrowFs
 
     local function UpdateArrow()
@@ -1409,11 +1807,22 @@ local function CreateSectionHeader(parent, label, stateKey)
         end
     end)
 
-    f:SetScript("OnEnter", function() lbl:SetTextColor(RGB(ACCENT)) end)
-    f:SetScript("OnLeave", function() lbl:SetTextColor(RGB(TEXT)) end)
+    f:SetScript("OnEnter", function()
+        bg:SetColorTexture(1, 1, 1, 0.055)
+        chev:SetColor(RGB(ACCENT))
+    end)
+    f:SetScript("OnLeave", function()
+        bg:SetColorTexture(1, 1, 1, 0.025)
+        chev:SetColor(RGB(TEXT_DIM))
+    end)
 
     f._searchLabel = label
     f._searchKind  = "section"
+    -- Lets a page-layout spec rename a section it regroups.
+    f._setLabel = function(t)
+        lbl:SetText(t)
+        f._searchLabel = t
+    end
     return f
 end
 
@@ -1455,10 +1864,10 @@ local function CreateSectionDivider(parent)
     local f = CreateFrame("Frame", nil, parent)
     f:SetSize(parent:GetWidth() - CONTENT_PAD * 2, 10)
     local line = f:CreateTexture(nil, "ARTWORK")
-    line:SetHeight(1)
+    line:SetHeight(OnePx())
     line:SetPoint("LEFT", 0, 0)
     line:SetPoint("RIGHT", 0, 0)
-    line:SetColorTexture(0.3, 0.5, 1.0, 0.6)
+    OnThemeChange(function() line:SetColorTexture(ACCENT[1], ACCENT[2], ACCENT[3], 0.35) end)
     return f
 end
 
@@ -1589,7 +1998,7 @@ local function CreateSpellFilterPanel(parent, spells, getter, setter, tabs)
                 local icoBg = CreateFrame("Frame", nil, row, "BackdropTemplate")
                 icoBg:SetSize(ICON_SZ + 2, ICON_SZ + 2)
                 icoBg:SetPoint("CENTER", ico)
-                icoBg:SetBackdrop({ edgeFile = WHITE8, edgeSize = 1 })
+                icoBg:SetBackdrop({ edgeFile = WHITE8, edgeSize = OnePx() })
                 icoBg:SetBackdropBorderColor(0, 0, 0, 0.8)
             end
 
@@ -1774,7 +2183,7 @@ local function CreateEditBox(parent, label, getter, setter, width, lines)
     f:SetSize(parent:GetWidth() - CONTENT_PAD * 2, frameHeight)
 
     local lbl = f:CreateFontString(nil, "OVERLAY")
-    ApplyFont(lbl, 11)
+    ApplyFont(lbl, 12)
     -- For multi-line, anchor the label to the top-left so it doesn't
     -- visually hover in the middle of a tall edit-box. Single-line keeps
     -- the original LEFT-centered anchor.
@@ -1783,7 +2192,7 @@ local function CreateEditBox(parent, label, getter, setter, width, lines)
     else
         lbl:SetPoint("LEFT", 0, 0)
     end
-    lbl:SetTextColor(RGB(TEXT_DIM))
+    lbl:SetTextColor(RGB(TEXT))
     lbl:SetText(label)
 
     local eb = CreateFrame("EditBox", nil, f, "BackdropTemplate")
@@ -1829,8 +2238,20 @@ local function CreateEditBox(parent, label, getter, setter, width, lines)
         end)
         eb:SetScript("OnEscapePressed", function(self) self:ClearFocus() end)
     end
+    -- Focus ring in the accent colour so it's clear where typing goes.
+    eb:HookScript("OnEditFocusGained", function(self) self:SetBackdropBorderColor(RGB(ACCENT)) end)
+    eb:HookScript("OnEditFocusLost",   function(self) self:SetBackdropBorderColor(RGB(BORDER)) end)
+    -- Text set before the box was laid out can sit scrolled out of view;
+    -- reset the scroll whenever the box (re)appears.
+    eb:HookScript("OnShow", function(self)
+        if not self:HasFocus() then self:SetCursorPosition(0) end
+    end)
+    HoverRow(f, eb)
 
-    f._update = function() eb:SetText(getter() or "") end
+    f._update = function()
+        eb:SetText(getter() or "")
+        if not eb:HasFocus() then eb:SetCursorPosition(0) end
+    end
     f._searchLabel = label
     f._searchKind  = "editbox"
     return f
@@ -1858,8 +2279,8 @@ local function CreateMainFrame()
     mainFrame:SetBackdrop({
         bgFile = WHITE8,
         edgeFile = WHITE8,
-        edgeSize = 1,
-        insets = { left = 1, right = 1, top = 1, bottom = 1 },
+        edgeSize = OnePx(),
+        insets = PxInsets(OnePx()),
     })
     mainFrame:SetBackdropColor(RGB(BG))
     mainFrame:SetBackdropBorderColor(ACCENT[1] * 0.5, ACCENT[2] * 0.5, ACCENT[3] * 0.5, 0.8)
@@ -1889,7 +2310,7 @@ local function CreateMainFrame()
 
     -- ── Title bar ────────────────────────────────────────
     local titleBar = CreateFrame("Frame", nil, mainFrame)
-    titleBar:SetHeight(36)
+    titleBar:SetHeight(TITLE_H)
     titleBar:SetPoint("TOPLEFT", 0, 0)
     titleBar:SetPoint("TOPRIGHT", 0, 0)
 
@@ -1899,7 +2320,7 @@ local function CreateMainFrame()
     mainFrame._titleBg = titleBg
 
     local titleLine = titleBar:CreateTexture(nil, "ARTWORK")
-    titleLine:SetHeight(1)
+    titleLine:SetHeight(OnePx())
     titleLine:SetPoint("BOTTOMLEFT")
     titleLine:SetPoint("BOTTOMRIGHT")
     titleLine:SetColorTexture(ACCENT[1] * 0.4, ACCENT[2] * 0.4, ACCENT[3] * 0.4, 0.8)
@@ -1918,39 +2339,57 @@ local function CreateMainFrame()
     -- logo icon
     local logo = titleBar:CreateTexture(nil, "ARTWORK")
     logo:SetSize(24, 24)
-    logo:SetPoint("LEFT", 8, 0)
+    logo:SetPoint("LEFT", 12, 0)
     logo:SetTexture("Interface\\AddOns\\BliZzi_Interrupts\\Media\\icon")
     logo:SetTexCoord(0.05, 0.95, 0.05, 0.95)
 
     local titleText = titleBar:CreateFontString(nil, "OVERLAY")
     ApplyFont(titleText, 14, "OUTLINE")
-    titleText:SetPoint("LEFT", logo, "RIGHT", 6, 0)
-    titleText:SetText("|cff0091edBliZzi|r |cffffa300Party Tools|r  |cff666666" .. LS("UI_SETTINGS_SUFFIX", "Settings") .. "|r")
+    titleText:SetPoint("LEFT", logo, "RIGHT", 8, 0)
+    titleText:SetText("|cff0091edBliZzi|r |cffffa300Party Tools|r")
 
-    -- version
+    -- "Settings" as a quiet secondary label after the product name.
+    local titleSub = titleBar:CreateFontString(nil, "OVERLAY")
+    ApplyFont(titleSub, 12)
+    titleSub:SetPoint("LEFT", titleText, "RIGHT", 8, -1)
+    titleSub:SetTextColor(0.45, 0.45, 0.50)
+    titleSub:SetText(LS("UI_SETTINGS_SUFFIX", "Settings"))
+
+    -- close button: vector X on a square that turns red on hover
+    local closeBtn = CreateFrame("Button", nil, titleBar)
+    closeBtn:SetSize(TITLE_H - 10, TITLE_H - 10)
+    closeBtn:SetPoint("RIGHT", -6, 0)
+    local closeBg = closeBtn:CreateTexture(nil, "BACKGROUND")
+    closeBg:SetAllPoints()
+    closeBg:SetColorTexture(0.85, 0.20, 0.20, 0)
+    local x1 = closeBtn:CreateLine(nil, "OVERLAY")
+    local x2 = closeBtn:CreateLine(nil, "OVERLAY")
+    for _, l in ipairs({ x1, x2 }) do l:SetThickness(1.6) end
+    x1:SetStartPoint("CENTER", closeBtn, -5,  5); x1:SetEndPoint("CENTER", closeBtn, 5, -5)
+    x2:SetStartPoint("CENTER", closeBtn, -5, -5); x2:SetEndPoint("CENTER", closeBtn, 5,  5)
+    local function paintX(r, g, b)
+        x1:SetColorTexture(r, g, b, 1); x2:SetColorTexture(r, g, b, 1)
+    end
+    paintX(0.6, 0.6, 0.64)
+    closeBtn:SetScript("OnEnter", function() closeBg:SetColorTexture(0.85, 0.20, 0.20, 0.85); paintX(1, 1, 1) end)
+    closeBtn:SetScript("OnLeave", function() closeBg:SetColorTexture(0.85, 0.20, 0.20, 0);    paintX(0.6, 0.6, 0.64) end)
+    closeBtn:SetScript("OnClick", function() mainFrame:Hide() end)
+
+    -- version: small pill left of the close button
     local verText = titleBar:CreateFontString(nil, "OVERLAY")
     ApplyFont(verText, 10)
-    verText:SetPoint("RIGHT", -40, 0)
+    verText:SetPoint("RIGHT", closeBtn, "LEFT", -14, 0)
     verText:SetTextColor(RGB(TEXT_DIM))
     verText:SetText("v" .. (BIT.VERSION or "?"))
-
-    -- close button
-    local closeBtn = CreateFrame("Button", nil, titleBar)
-    closeBtn:SetSize(28, 28)
-    closeBtn:SetPoint("RIGHT", -4, 0)
-    local closeX = closeBtn:CreateFontString(nil, "OVERLAY")
-    ApplyFont(closeX, 16)
-    closeX:SetPoint("CENTER")
-    closeX:SetText("X")
-    closeX:SetTextColor(0.6, 0.6, 0.6)
-    closeBtn:SetScript("OnEnter", function() closeX:SetTextColor(1, 0.3, 0.3) end)
-    closeBtn:SetScript("OnLeave", function() closeX:SetTextColor(0.6, 0.6, 0.6) end)
-    closeBtn:SetScript("OnClick", function() mainFrame:Hide() end)
+    local verBg = titleBar:CreateTexture(nil, "ARTWORK")
+    verBg:SetPoint("TOPLEFT", verText, "TOPLEFT", -7, 4)
+    verBg:SetPoint("BOTTOMRIGHT", verText, "BOTTOMRIGHT", 7, -4)
+    verBg:SetColorTexture(1, 1, 1, 0.06)
 
     -- ── Sidebar ──────────────────────────────────────────
     local sidebar = CreateFrame("Frame", nil, mainFrame)
     sidebar:SetWidth(SIDEBAR_W)
-    sidebar:SetPoint("TOPLEFT", 0, -36)
+    sidebar:SetPoint("TOPLEFT", 0, -TITLE_H)
     sidebar:SetPoint("BOTTOMLEFT", 0, 0)
 
     local sbBg = sidebar:CreateTexture(nil, "BACKGROUND")
@@ -1959,7 +2398,7 @@ local function CreateMainFrame()
     mainFrame._sidebarBg = sbBg
 
     local sbLine = sidebar:CreateTexture(nil, "ARTWORK")
-    sbLine:SetWidth(1)
+    sbLine:SetWidth(OnePx())
     sbLine:SetPoint("TOPRIGHT", 0, 0)
     sbLine:SetPoint("BOTTOMRIGHT", 0, 0)
     sbLine:SetColorTexture(RGB(BORDER))
@@ -1987,8 +2426,8 @@ local function CreateMainFrame()
             f:SetBackdrop({
                 bgFile   = "Interface\\BUTTONS\\WHITE8X8",
                 edgeFile = "Interface\\BUTTONS\\WHITE8X8",
-                edgeSize = 1,
-                insets   = { left = 1, right = 1, top = 1, bottom = 1 },
+                edgeSize = OnePx(),
+                insets   = PxInsets(OnePx()),
             })
             f:SetBackdropColor(0.10, 0.10, 0.12, 1)
             f:SetBackdropBorderColor(RGB(ACCENT))
@@ -2094,7 +2533,7 @@ local function CreateMainFrame()
 
     -- Separator line above links
     local linkSep = sidebar:CreateTexture(nil, "ARTWORK")
-    linkSep:SetHeight(1)
+    linkSep:SetHeight(OnePx())
     linkSep:SetPoint("BOTTOMLEFT", 12, 54)
     linkSep:SetPoint("BOTTOMRIGHT", -12, 54)
     linkSep:SetColorTexture(RGB(BORDER))
@@ -2102,21 +2541,41 @@ local function CreateMainFrame()
     -- ── Search field (above the separator) ───────────────────────────
     -- Live-filter the settings on the right by typing here. Empty string
     -- restores whichever page was active before the search began.
+    -- Sits at the TOP of the sidebar (the page list starts below it).
     local searchBg = CreateFrame("Frame", nil, sidebar, "BackdropTemplate")
-    searchBg:SetHeight(24)
-    searchBg:SetPoint("BOTTOMLEFT", 12, 64)
-    searchBg:SetPoint("BOTTOMRIGHT", -12, 64)
+    searchBg:SetHeight(26)
+    searchBg:SetPoint("TOPLEFT", 10, -10)
+    searchBg:SetPoint("TOPRIGHT", -10, -10)
+    searchBg:EnableMouse(true)
     searchBg:SetBackdrop({
         bgFile   = "Interface\\BUTTONS\\WHITE8X8",
         edgeFile = "Interface\\BUTTONS\\WHITE8X8",
-        edgeSize = 1,
-        insets   = { left = 1, right = 1, top = 1, bottom = 1 },
+        edgeSize = OnePx(),
+        insets   = PxInsets(OnePx()),
     })
-    searchBg:SetBackdropColor(0.10, 0.10, 0.12, 1)
+    searchBg:SetBackdropColor(0.06, 0.06, 0.08, 0.9)
     searchBg:SetBackdropBorderColor(RGB(BORDER))
 
+    -- Magnifier glyph drawn from a ring + handle (no texture asset needed).
+    local glass = CreateFrame("Frame", nil, searchBg)
+    glass:SetSize(12, 12)
+    glass:SetPoint("LEFT", 8, 0)
+    local ringO = RoundTexture(glass, "ARTWORK", 8)
+    ringO:SetPoint("TOPLEFT", 0, 0)
+    ringO:SetVertexColor(0.5, 0.5, 0.55, 1)
+    local ringI = RoundTexture(glass, "ARTWORK", 5, 1)
+    ringI:SetPoint("CENTER", ringO, "CENTER", 0, 0)
+    ringI:SetVertexColor(0.06, 0.06, 0.08, 1)
+    local handle = glass:CreateLine(nil, "ARTWORK")
+    handle:SetThickness(1.6)
+    handle:SetColorTexture(0.5, 0.5, 0.55, 1)
+    handle:SetStartPoint("TOPLEFT", glass, 7, -7)
+    handle:SetEndPoint("TOPLEFT", glass, 11, -11)
+    -- Clicking anywhere on the field focuses it.
+    searchBg:SetScript("OnMouseDown", function() mainFrame._searchEditBox:SetFocus() end)
+
     local searchEB = CreateFrame("EditBox", nil, searchBg)
-    searchEB:SetPoint("LEFT", 6, 0)
+    searchEB:SetPoint("LEFT", 24, 0)
     searchEB:SetPoint("RIGHT", -6, 0)
     searchEB:SetHeight(20)
     searchEB:SetAutoFocus(false)
@@ -2128,7 +2587,7 @@ local function CreateMainFrame()
     -- Placeholder hint (fades when text is present)
     local searchHint = searchBg:CreateFontString(nil, "OVERLAY")
     ApplyFont(searchHint, 11)
-    searchHint:SetPoint("LEFT", 8, 0)
+    searchHint:SetPoint("LEFT", 25, 0)
     searchHint:SetTextColor(0.5, 0.5, 0.55, 1)
     searchHint:SetText(LS("SEARCH_PLACEHOLDER", "Search settings..."))
 
@@ -2190,17 +2649,53 @@ local function CreateMainFrame()
         "discord.gg/QDNpjqJFPC")
 
     -- ── Content area ─────────────────────────────────────
+    -- Page header: title of the active page + a one-line description of
+    -- what lives there. Filled in by ShowPage / ApplySearch.
+    local pageHeader = CreateFrame("Frame", nil, mainFrame)
+    pageHeader:SetPoint("TOPLEFT", SIDEBAR_W + 1, -TITLE_H)
+    pageHeader:SetPoint("TOPRIGHT", 0, -TITLE_H)
+    pageHeader:SetHeight(HEADER_H)
+
+    local phTitle = pageHeader:CreateFontString(nil, "OVERLAY")
+    ApplyFont(phTitle, 17)
+    phTitle:SetPoint("TOPLEFT", CONTENT_PAD + 2, -12)
+    phTitle:SetPoint("RIGHT", pageHeader, "RIGHT", -CONTENT_PAD, 0)
+    phTitle:SetJustifyH("LEFT")
+    phTitle:SetWordWrap(false)
+    phTitle:SetTextColor(1, 1, 1)
+
+    local phDesc = pageHeader:CreateFontString(nil, "OVERLAY")
+    ApplyFont(phDesc, 11)
+    phDesc:SetPoint("TOPLEFT", phTitle, "BOTTOMLEFT", 0, -4)
+    phDesc:SetPoint("RIGHT", pageHeader, "RIGHT", -CONTENT_PAD, 0)
+    phDesc:SetJustifyH("LEFT")
+    phDesc:SetWordWrap(false)
+    phDesc:SetTextColor(RGB(TEXT_DIM))
+
+    local phLine = pageHeader:CreateTexture(nil, "ARTWORK")
+    phLine:SetHeight(OnePx())
+    phLine:SetPoint("BOTTOMLEFT", 0, 0)
+    phLine:SetPoint("BOTTOMRIGHT", 0, 0)
+    phLine:SetColorTexture(RGB(BORDER))
+
+    mainFrame._pageHeader = pageHeader
+    mainFrame._pageTitle  = phTitle
+    mainFrame._pageDesc   = phDesc
+
+    -- Content hangs off the header's bottom edge, so a page with a tab
+    -- bar (taller header) pushes the content down automatically.
     local contentArea = CreateFrame("Frame", nil, mainFrame)
-    contentArea:SetPoint("TOPLEFT", SIDEBAR_W + 1, -36)
+    contentArea:SetPoint("TOPLEFT", pageHeader, "BOTTOMLEFT", 0, 0)
     contentArea:SetPoint("BOTTOMRIGHT", 0, 0)
 
+    mainFrame._contentArea = contentArea
     contentScroll = CreateFrame("ScrollFrame", nil, contentArea, "UIPanelScrollFrameTemplate")
     contentScroll:SetPoint("TOPLEFT", 0, 0)
     contentScroll:SetPoint("BOTTOMRIGHT", -24, 0)
 
     contentChild = CreateFrame("Frame", nil, contentScroll)
     contentChild:SetWidth(contentArea:GetWidth() - 24)
-    contentChild:SetHeight(1) -- auto-resized
+    contentChild:SetHeight(OnePx()) -- auto-resized
     contentScroll:SetScrollChild(contentChild)
 
     -- Re-pin the (sticky) interrupt preview whenever the view scrolls.
@@ -2260,8 +2755,8 @@ local function CreateMainFrame()
     -- the 1px-overhanging outer glow line. Without the glow the
     -- footer reads one pixel narrower than the window and its
     -- border looks like a different style.
-    cpuFooter:SetBackdrop({ bgFile = WHITE8, edgeFile = WHITE8, edgeSize = 1,
-                            insets = { left = 1, right = 1, top = 1, bottom = 1 } })
+    cpuFooter:SetBackdrop({ bgFile = WHITE8, edgeFile = WHITE8, edgeSize = OnePx(),
+                            insets = PxInsets(OnePx()) })
     -- Per-side glow lines (bottom, left, right) — no TOP line, the
     -- seam to the window above stays open so both frames share one
     -- continuous outline.
@@ -2285,7 +2780,7 @@ local function CreateMainFrame()
     -- Divider at the seam — same subtle grey as the sidebar's
     -- socials/search separator, full width.
     local cpuSep = cpuFooter:CreateTexture(nil, "ARTWORK")
-    cpuSep:SetHeight(1)
+    cpuSep:SetHeight(OnePx())
     cpuSep:SetPoint("TOPLEFT", 0, 0)
     cpuSep:SetPoint("TOPRIGHT", 0, 0)
     cpuSep:SetColorTexture(RGB(BORDER))
@@ -2413,27 +2908,69 @@ end
 -- sidebarBtns[label] / activePage tracking — must stay stable).
 -- `displayLabel` is the user-visible text rendered on the button; if
 -- omitted, falls back to `label` so existing callers keep working.
-local function CreateSidebarBtn(idx, label, iconPath, displayLabel)
+-- `yOff` is the button's top offset inside the sidebar (Init stacks the
+-- buttons and the group captions).
+-- Modules that currently cannot run at all (game restriction / not
+-- finished). Listed at the very bottom of the sidebar in orange, without
+-- an on/off switch, and their page opens read-only (greyed out).
+-- Page name -> { locale key, English fallback } of the reason.
+local UNAVAILABLE_MODULES = {
+    ["Party CDs"] = { "UNAVAIL_PARTY_CDS",
+        "Not available: this game version no longer lets addons read group members' cooldowns. Your settings are kept." },
+    ["PI Caller"] = { "UNAVAIL_PI_CALLER",
+        "Not available: this module is still in development and does not work yet. Your settings are kept." },
+    ["Defensives"] = { "UNAVAIL_DEFENSIVES",
+        "Not available: the defensive overlay and sound are being reworked. Your settings are kept." },
+}
+local UNAVAIL_COLOR = { 1.00, 0.55, 0.15 }
+
+-- Sidebar label colour: selected page white, hovered brighter, a module
+-- that is switched off clearly dimmed, an unavailable one orange,
+-- everything else the normal grey.
+local function SidebarTextColor(btn, selected, hover)
+    if btn._unavailable then
+        local k = selected and 1 or (hover and 0.95 or 0.8)
+        btn._text:SetTextColor(UNAVAIL_COLOR[1] * k, UNAVAIL_COLOR[2] * k, UNAVAIL_COLOR[3] * k)
+        return
+    end
+    if selected then
+        btn._text:SetTextColor(1, 1, 1)
+    elseif hover then
+        btn._text:SetTextColor(RGB(TEXT))
+    elseif btn._moduleOff then
+        btn._text:SetTextColor(0.36, 0.36, 0.40)
+    else
+        btn._text:SetTextColor(RGB(TEXT_DIM))
+    end
+end
+
+local function CreateSidebarBtn(yOff, label, iconPath, displayLabel)
     local sidebar = mainFrame._sidebar
     local btn = CreateFrame("Button", nil, sidebar)
-    btn:SetSize(SIDEBAR_W - 2, 32)
-    btn:SetPoint("TOPLEFT", 1, -(idx - 1) * 33 - 8)
+    btn:SetSize(SIDEBAR_W - 16, 30)
+    btn:SetPoint("TOPLEFT", 8, yOff)
 
-    -- active indicator (cyan left line)
+    -- active indicator (accent bar, inset from top/bottom)
     local indicator = btn:CreateTexture(nil, "ARTWORK")
     indicator:SetWidth(3)
-    indicator:SetPoint("TOPLEFT", 0, 0)
-    indicator:SetPoint("BOTTOMLEFT", 0, 0)
-    indicator:SetColorTexture(RGB(ACCENT))
+    indicator:SetPoint("TOPLEFT", 0, -6)
+    indicator:SetPoint("BOTTOMLEFT", 0, 6)
     indicator:Hide()
     btn._indicator = indicator
 
-    -- bg highlight
+    -- bg highlight (accent tint when selected, neutral when hovered)
     local bgHl = btn:CreateTexture(nil, "BACKGROUND")
     bgHl:SetAllPoints()
-    bgHl:SetColorTexture(ACCENT[1], ACCENT[2], ACCENT[3], 0.08)
     bgHl:Hide()
     btn._bgHl = bgHl
+    OnThemeChange(function()
+        indicator:SetColorTexture(RGB(ACCENT))
+        bgHl:SetColorTexture(ACCENT[1], ACCENT[2], ACCENT[3], 0.12)
+    end)
+    local hoverHl = btn:CreateTexture(nil, "BACKGROUND", nil, -1)
+    hoverHl:SetAllPoints()
+    hoverHl:SetColorTexture(1, 1, 1, 0.04)
+    hoverHl:Hide()
 
     -- Sidebar icons removed per user preference — labels alone read
     -- cleaner in a vertical menu. The iconPath parameter is kept on
@@ -2442,21 +2979,25 @@ local function CreateSidebarBtn(idx, label, iconPath, displayLabel)
     -- 12px left padding now (was iconPath and 34 or 12).
     local text = btn:CreateFontString(nil, "OVERLAY")
     ApplyFont(text, 12)
-    text:SetPoint("LEFT", 12, 0)
+    text:SetPoint("LEFT", 14, 0)
+    text:SetPoint("RIGHT", -6, 0)
+    text:SetJustifyH("LEFT")
+    text:SetWordWrap(false)
     text:SetTextColor(RGB(TEXT_DIM))
     text:SetText(displayLabel or label)
     btn._text = text
+    btn._displayLabel = displayLabel or label
 
     btn:SetScript("OnEnter", function()
         if activePage ~= label then
-            bgHl:Show()
-            text:SetTextColor(RGB(TEXT))
+            hoverHl:Show()
+            SidebarTextColor(btn, false, true)
         end
     end)
     btn:SetScript("OnLeave", function()
+        hoverHl:Hide()
         if activePage ~= label then
-            bgHl:Hide()
-            text:SetTextColor(RGB(TEXT_DIM))
+            SidebarTextColor(btn, false, false)
         end
     end)
     btn:SetScript("OnClick", function()
@@ -2467,14 +3008,106 @@ local function CreateSidebarBtn(idx, label, iconPath, displayLabel)
     return btn
 end
 
+-- ── Module on/off switches in the sidebar ─────────────────
+-- Each module entry carries a mini switch showing (and flipping) whether
+-- the module runs. It drives the SAME toggle widget the module's own page
+-- uses (its "Enable …" switch), so setter and side effects are identical.
+-- Page name -> locale keys of that page's enable toggle(s). Defensives has
+-- two independent features: "on" when either runs, a click flips both.
+local MODULE_SWITCHES = {
+    ["Interrupts"]      = { "INT_ENABLE" },
+    ["Keystone List"]   = { "KEY_ENABLED" },
+    ["Smart Misdirect"] = { "SMD_ENABLED" },
+    -- Party CDs / PI Caller: none — see UNAVAILABLE_MODULES.
+}
+local _moduleSwitches = {}   -- page name -> switch
+
+-- Square mini switch in the same style as the page toggles, all geometry
+-- in whole physical pixels. :Paint(on, locked).
+local function CreateMiniSwitch(parent)
+    local px = OnePx(parent)
+    local function Px(units) return math.max(1, math.floor(units / px + 0.5)) end
+    local wP, hP, gapP = Px(24), Px(12), 2
+    local knobP = hP - 2 * gapP
+    local sw = CreateFrame("Button", nil, parent, "BackdropTemplate")
+    sw:SetSize(wP * px, hP * px)
+    MakeBg(sw, 0.18, 0.18, 0.21, 1)
+    sw:SetBackdropBorderColor(0, 0, 0, 1)
+    local knob = CreateFrame("Frame", nil, sw, "BackdropTemplate")
+    knob:SetSize(knobP * px, knobP * px)
+    knob:SetFrameLevel(sw:GetFrameLevel() + 2)
+    MakeBg(knob, 1, 1, 1, 1)
+    knob:SetBackdropBorderColor(0, 0, 0, 1)
+    knob:EnableMouse(false)
+    function sw:Paint(on, locked)
+        knob:ClearAllPoints()
+        if on then
+            knob:SetPoint("RIGHT", sw, "RIGHT", -gapP * px, 0)
+            sw:SetBackdropColor(ACCENT[1], ACCENT[2], ACCENT[3], 1)
+            knob:SetBackdropColor(1, 1, 1, 1)
+        else
+            knob:SetPoint("LEFT", sw, "LEFT", gapP * px, 0)
+            sw:SetBackdropColor(0.18, 0.18, 0.21, 1)
+            knob:SetBackdropColor(0.55, 0.55, 0.60, 1)
+        end
+        sw:SetAlpha(locked and 0.4 or 1)
+    end
+    return sw
+end
+
+-- Put a switch on a sidebar entry (module pages only).
+local function AttachModuleSwitch(btn, pageName)
+    if not MODULE_SWITCHES[pageName] then return end
+    local sw = CreateMiniSwitch(btn)
+    sw:SetPoint("RIGHT", btn, "RIGHT", -6, 0)
+    -- keep the label clear of the switch
+    btn._text:SetPoint("RIGHT", btn, "RIGHT", -38, 0)
+    sw:SetScript("OnClick", function()
+        BIT.SettingsUI:ToggleModule(pageName)
+    end)
+    sw:SetScript("OnEnter", function(self)
+        GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+        GameTooltip:SetText(btn._displayLabel, 1, 1, 1)
+        if self._locked then
+            GameTooltip:AddLine(LS("NAV_MODULE_LOCKED", "Not available for this character or game version."), 1, 0.5, 0.3, true)
+        else
+            GameTooltip:AddLine(self._on and LS("NAV_MODULE_ON", "Active — click to disable")
+                                          or LS("NAV_MODULE_OFF", "Disabled — click to enable"), 0.8, 0.8, 0.8, true)
+        end
+        GameTooltip:Show()
+    end)
+    sw:SetScript("OnLeave", function() GameTooltip:Hide() end)
+    sw:Paint(false, false)
+    btn._moduleSwitch = sw
+    _moduleSwitches[pageName] = sw
+end
+
+-- Small uppercase group caption between sidebar buttons ("MODULES" …).
+local function CreateSidebarCaption(yOff, text)
+    local fs = mainFrame._sidebar:CreateFontString(nil, "OVERLAY")
+    ApplyFont(fs, 10)
+    fs:SetPoint("TOPLEFT", 22, yOff)
+    fs:SetTextColor(0.42, 0.42, 0.47)
+    fs:SetText(text)
+    return fs
+end
+
 ------------------------------------------------------------
 -- ── Page System ──────────────────────────────────────────
 ------------------------------------------------------------
-local function LayoutWidgets(widgetList)
+-- `tab`/`pageMode` apply only to a normal page view: widgets tagged for
+-- another tab (`_tabSet`) and widgets that live in the page header
+-- (`_headerOnly`) are hidden. Search results pass neither, so every
+-- matching widget shows regardless of its tab.
+local function LayoutWidgets(widgetList, tab, pageMode)
     local y = -CONTENT_PAD
     local currentSection = nil
     for _, w in ipairs(widgetList) do
-        if w._isPageBanner then
+        if pageMode and (w._headerOnly or (tab and w._tabSet and not w._tabSet[tab])) then
+            -- Raw Hide for header widgets so their "wanted" visibility
+            -- (tracked for the header chips) isn't overwritten.
+            if w._rawHide then w._rawHide(w) else w:Hide() end
+        elseif w._isPageBanner then
             -- Search-results page-context banner. Top-level item, resets
             -- the section context so the next real section header starts
             -- a fresh group beneath the banner. Slightly more vertical
@@ -2494,10 +3127,13 @@ local function LayoutWidgets(widgetList)
             if w._dynamic and not w:IsShown() then
                 -- Entire section hidden — no layout slot, no gap.
             else
+                -- Breathing room between sections (not above the first
+                -- element on the page).
+                if y < -CONTENT_PAD then y = y - SECTION_GAP end
                 w:ClearAllPoints()
                 w:SetPoint("TOPLEFT", contentChild, "TOPLEFT", CONTENT_PAD, y)
                 w:Show()
-                y = y - SECTION_H - 2
+                y = y - SECTION_H - 6
             end
         elseif currentSection then
             -- child of a section
@@ -2540,8 +3176,389 @@ end
 
 local _pageOrder = {}  -- registration order, used by the search index for
                         -- deterministic display order independent of pairs()
+------------------------------------------------------------
+-- ── Page layout specs ────────────────────────────────────
+-- The Build* functions below create every widget exactly as before
+-- (same getters / setters / side effects). A spec only REARRANGES the
+-- finished widget list: which tab a section sits on, which widgets move
+-- to another section, and which toggles go into the page header chips.
+-- Widgets are identified by the locale key of their label.
+--
+--   header = { enable = {key, fromSection}, test = {…}, lock = {…} }
+--   tabs   = { { key, label = {locKey, fallback}, items = { … } }, … }
+--   items  = (page without tabs) same item list as a tab
+--   pre    = { tabKeyList, … }  tab set per widget placed above the
+--            first section (info banners, previews), by position
+--
+-- Item forms:
+--   { sec  = stateKey [, label = {k, fb}] }  section header + its remaining widgets
+--   { head = stateKey }                      only the section header
+--   { rest = stateKey }                      remaining widgets of a section
+--   { new  = stateKey, label = {k, fb} }     a brand-new section header
+--   { w = locKey, from = stateKey }          one widget (+ the unlabeled info
+--                                            rows / buttons directly after it)
+--   { range = stateKey, start = locKey }     from that widget to the section end
+--
+-- Sharing one widget build between two pages (Party CDs / Defensives):
+--   omit      = { stateKey, … }            sections that belong to the other page
+--   omitRange = { { stateKey, locKey }, … } widget ranges that belong to the other page
+--   only      = true                        take ONLY the listed items (no pre
+--                                           widgets, no safety net)
+--
+-- Nothing can get lost: sections a spec doesn't mention are appended to
+-- the last tab; sections left without any widget are dropped.
+------------------------------------------------------------
+local PAGE_SPECS = {}
+
+PAGE_SPECS["General"] = {
+    items = {
+        { head = "sui_gen_general" },
+        { rest = "sui_gen_general" },
+        { w = "SEC_LANGUAGE", from = "sui_gen_lang" },
+        { new = "sui_gen_look", label = { "SEC_APPEARANCE", "Appearance" } },
+        { w = "DD_THEME", from = "sui_gen_theme" },
+        { w = "DD_FONT",  from = "sui_gen_font" },
+        { sec = "sui_gen_cnames" },
+    },
+}
+
+PAGE_SPECS["Interrupts"] = {
+    header = {
+        enable = { "INT_ENABLE",       "sui_int_gen" },
+        test   = { "SEC_TEST_MODE",    "sui_int_gen" },
+        lock   = { "CB_LOCK_POSITION", "sui_int_displaymode" },
+    },
+    -- rework banner + spacer | sticky bar preview + spacer
+    pre = { { "general" }, { "general" },
+            { "layout", "look", "text" }, { "layout", "look", "text" } },
+    tabs = {
+        { key = "general", label = { "TAB_GENERAL", "General" }, items = {
+            { head = "sui_int_gen" },
+            { w = "SEC_SOLO_MODE",         from = "sui_int_gen" },
+            { w = "CB_HIDE_OUT_OF_COMBAT", from = "sui_int_gen" },
+            { w = "CB_INTERRUPT_TOOLTIP",  from = "sui_int_gen" },
+            { w = "CB_FAILED_KICK",        from = "sui_int_fk" },
+            { rest = "sui_int_gen" },
+            { sec = "sui_int_vis" },
+        } },
+        { key = "layout", label = { "TAB_LAYOUT", "Layout" }, items = {
+            { new = "sui_int_pos", label = { "SEC_POSITION", "Position" } },
+            { w = "CB_GROW_UPWARD",   from = "sui_int_displaymode" },
+            { w = "SEC_SORT_ORDER",   from = "sui_int_displaymode" },
+            { w = "CB_FREE_ANCHOR",   from = "sui_int_displaymode" },
+            { w = "FREE_ANCHOR_OFFX", from = "sui_int_displaymode" },
+            { w = "FREE_ANCHOR_OFFY", from = "sui_int_displaymode" },
+            { w = "DD_FRAME_STRATA",  from = "sui_int_gen" },
+            { sec = "sui_sf_frame" },
+        } },
+        { key = "look", label = { "TAB_LOOK", "Appearance" }, items = {
+            { sec = "sui_int_displaymode", label = { "SEC_BAR_ICON", "Bar & Icon" } },
+            { w = "SL_OPACITY", from = "sui_int_gen" },
+            { sec = "sui_sf_bartex" },
+            { sec = "sui_sf_border" },
+            { sec = "sui_col_all" },
+        } },
+        { key = "text", label = { "TAB_TEXT", "Text" }, items = {
+            { sec = "sui_sf_title" },
+            { sec = "sui_sf_name" },
+            { sec = "sui_sf_cd" },
+            { sec = "sui_sf_outline" },
+        } },
+        { key = "sound", label = { "TAB_SOUNDS", "Sounds" }, items = {
+            { sec = "sui_int_snd" },
+            { sec = "sui_int_snd_own" },
+        } },
+    },
+}
+
+PAGE_SPECS["Party CDs"] = {
+    header = {
+        enable = { "PCD_ENABLE",          "sui_pcd_gen" },
+        test   = { "PCD_TEST_LAYOUT",     "sui_pcd_anchor" },
+        lock   = { "PCD_STANDALONE_LOCK", "sui_pcd_standalone" },
+    },
+    -- Overlay, defensive sound and the shared glow style live on the
+    -- "Defensives" page: they run independently of Party CDs.
+    omit      = { "sui_pcd_overlay", "sui_def_vis", "sui_pcd_extsound" },
+    omitRange = { { "sui_pcd_gen", "PCD_GLOW_CUSTOM" } },
+    pre = { { "general" }, { "general" } },
+    tabs = {
+        { key = "general", label = { "TAB_GENERAL", "General" }, items = {
+            { sec = "sui_pcd_gen" },
+            { sec = "sui_pcd_vis" },
+        } },
+        { key = "layout", label = { "TAB_LAYOUT", "Layout" }, items = {
+            { sec = "sui_pcd_anchor" },
+            { sec = "sui_pcd_standalone" },
+        } },
+        { key = "look", label = { "TAB_LOOK", "Appearance" }, items = {
+            { sec = "sui_pcd_icon" },
+            { w = "PCD_SHOW_GLOW_COUNTDOWN", from = "sui_pcd_gen" },
+            { sec = "sui_pcd_cdtext" },
+            { sec = "sui_pcd_charge" },
+        } },
+        { key = "spells", label = { "TAB_SPELLS", "Spells" }, items = {
+            { sec = "sui_pcd_spells" },
+        } },
+    },
+}
+
+-- Built from the same widget set as Party CDs (see BuildPartyCDsShared).
+PAGE_SPECS["Defensives"] = {
+    only = true,
+    tabs = {
+        { key = "overlay", label = { "TAB_OVERLAY", "Overlay" }, items = {
+            { sec = "sui_pcd_overlay" },
+            { sec = "sui_def_vis" },
+        } },
+        { key = "look", label = { "TAB_LOOK", "Appearance" }, items = {
+            { new = "sui_def_glow", label = { "SEC_PCD_GLOW", "Glow" } },
+            { range = "sui_pcd_gen", start = "PCD_GLOW_CUSTOM" },
+        } },
+        { key = "sound", label = { "TAB_SOUNDS", "Sounds" }, items = {
+            { sec = "sui_pcd_extsound" },
+        } },
+    },
+}
+
+PAGE_SPECS["Keystone List"] = {
+    header = {
+        enable = { "KEY_ENABLED",     "sui_kl_gen" },
+        test   = { "KEY_TEST_LAYOUT", "sui_kl_gen" },
+        lock   = { "KEY_LOCKED",      "sui_kl_gen" },
+    },
+    tabs = {
+        { key = "general", label = { "TAB_GENERAL", "General" }, items = {
+            { sec = "sui_kl_gen" },
+            { sec = "sui_kl_disp" },
+            { sec = "sui_kl_vis" },
+        } },
+        { key = "look", label = { "TAB_LOOK", "Appearance" }, items = {
+            { new = "sui_kl_layout", label = { "SEC_KL_LAYOUT", "Layout" } },
+            { w = "KEY_GROW_UPWARD", from = "sui_kl_gen" },
+            { w = "KEY_MIRROR",      from = "sui_kl_gen" },
+            { w = "KEY_ROW_GAP",     from = "sui_kl_gen" },
+            { sec = "sui_kl_text" },
+            { sec = "sui_kl_border" },
+        } },
+        { key = "chat", label = { "TAB_CHAT", "Chat" }, items = {
+            { sec = "sui_kl_portcd" },
+            { sec = "sui_kl_post" },
+        } },
+    },
+}
+
+PAGE_SPECS["PI Caller"] = {
+    header = { enable = { "CB_ENABLE_PI_CALLER", "sui_oca_gen" } },
+}
+
+PAGE_SPECS["Smart Misdirect"] = {
+    header = { enable = { "SMD_ENABLED", "sui_smd_gen" } },
+}
+
+-- Resolved label of a locale key, as the widget was built with it.
+local function LabelOf(key)
+    return (L and rawget(L, key)) or _lsFallback[key]
+end
+
+-- Rearrange a freshly built widget list according to `spec`. Returns the
+-- new list; tab / header metadata rides on it as string keys (ipairs
+-- ignores them).
+local function ApplyPageSpec(list, spec)
+    if not spec then return list end
+
+    -- 1) Split into the widgets above the first section and per-section chunks.
+    local pre, chunks, order, cur = {}, {}, {}, nil
+    for _, wd in ipairs(list) do
+        if wd._stateKey and wd._searchKind == "section" then
+            cur = { header = wd, kids = {} }
+            chunks[wd._stateKey] = cur
+            order[#order + 1] = wd._stateKey
+        elseif cur then
+            cur.kids[#cur.kids + 1] = wd
+        else
+            pre[#pre + 1] = wd
+        end
+    end
+
+    local taken = {}
+    local function findIdx(kids, key)
+        local target = LabelOf(key)
+        if not target then return nil end
+        for i, wd in ipairs(kids) do
+            if not taken[wd] and wd._searchLabel == target then return i end
+        end
+        -- Labels with an appended hint ("Solo Mode (…)") match by prefix.
+        for i, wd in ipairs(kids) do
+            local s = wd._searchLabel
+            if not taken[wd] and type(s) == "string" and s:sub(1, #target) == target then return i end
+        end
+        return nil
+    end
+    -- One widget plus the unlabeled rows right after it (info text,
+    -- picker rows, spacers belong to the setting above them).
+    local function pull(secKey, key, withFollowers)
+        local ch = chunks[secKey]
+        if not ch then return {} end
+        local i = findIdx(ch.kids, key)
+        if not i then return {} end
+        local out = { ch.kids[i] }
+        taken[ch.kids[i]] = true
+        if withFollowers then
+            for j = i + 1, #ch.kids do
+                local nx = ch.kids[j]
+                if taken[nx] or nx._searchLabel then break end
+                out[#out + 1] = nx
+                taken[nx] = true
+            end
+        end
+        return out
+    end
+    local function pullRange(secKey, key)
+        local ch = chunks[secKey]
+        if not ch then return {} end
+        local i = findIdx(ch.kids, key)
+        if not i then return {} end
+        local out = {}
+        for j = i, #ch.kids do
+            if not taken[ch.kids[j]] then
+                out[#out + 1] = ch.kids[j]
+                taken[ch.kids[j]] = true
+            end
+        end
+        return out
+    end
+
+    -- 2) Header chips: pull the toggles out of the flow.
+    local result, chips = {}, {}
+    for _, role in ipairs({ "enable", "test", "lock" }) do
+        local h = spec.header and spec.header[role]
+        if h then
+            local wd = pull(h[2], h[1], false)[1]
+            if wd and wd._toggle then
+                wd._headerOnly = true
+                -- Track the visibility the page code WANTS for this row
+                -- (dynamic toggles show/hide themselves by mode); the
+                -- layout pass hides the row itself via _rawHide.
+                local rawShow, rawHide, rawSetShown = wd.Show, wd.Hide, wd.SetShown
+                wd._wantShown = true
+                wd.Show    = function(self) self._wantShown = true;  rawShow(self) end
+                wd.Hide    = function(self) self._wantShown = false; rawHide(self) end
+                wd.SetShown = function(self, s) self._wantShown = s and true or false; rawSetShown(self, s) end
+                wd._rawHide = rawHide
+                chips[role] = wd
+                result[#result + 1] = wd
+            end
+        end
+    end
+
+    -- 3) Resolve every pull first (so a section's "rest" excludes widgets a
+    --    later item moves away), then emit in spec order.
+    local tabs = spec.tabs or { { key = nil, items = spec.items } }
+    local resolved = {}
+    for ti, tab in ipairs(tabs) do
+        resolved[ti] = {}
+        for ii, it in ipairs(tab.items or {}) do
+            if it.w then
+                resolved[ti][ii] = pull(it.from, it.w, true)
+            elseif it.range then
+                resolved[ti][ii] = pullRange(it.range, it.start)
+            end
+        end
+    end
+
+    local used = {}
+    -- Parts that live on another page: mark them consumed so neither the
+    -- section "rest" nor the safety net picks them up here.
+    for _, k in ipairs(spec.omit or {}) do
+        used[k] = true
+        local ch = chunks[k]
+        if ch then for _, wd in ipairs(ch.kids) do taken[wd] = true end end
+    end
+    for _, r in ipairs(spec.omitRange or {}) do pullRange(r[1], r[2]) end
+
+    local function emit(wd, tabKey)
+        if tabKey then wd._tabSet = { [tabKey] = true } end
+        result[#result + 1] = wd
+    end
+    local function emitRest(secKey, tabKey)
+        local ch = chunks[secKey]
+        if not ch then return end
+        for _, wd in ipairs(ch.kids) do
+            if not taken[wd] then taken[wd] = true; emit(wd, tabKey) end
+        end
+    end
+
+    -- Widgets above the first section keep their place at the top.
+    for i, wd in ipairs(spec.only and {} or pre) do
+        local set = spec.pre and spec.pre[i]
+        if set and spec.tabs then
+            wd._tabSet = {}
+            for _, k in ipairs(set) do wd._tabSet[k] = true end
+        elseif spec.tabs then
+            wd._tabSet = { [tabs[1].key] = true }
+        end
+        result[#result + 1] = wd
+    end
+
+    -- Emitted list: header chip rows (never laid out in page view), the
+    -- pre widgets, then every tab's items in spec order.
+    for ti, tab in ipairs(tabs) do
+        for ii, it in ipairs(tab.items or {}) do
+            if it.sec or it.head then
+                local k = it.sec or it.head
+                local ch = chunks[k]
+                if ch then
+                    used[k] = true
+                    if it.label and ch.header._setLabel then
+                        ch.header._setLabel(LS(it.label[1], it.label[2]))
+                    end
+                    emit(ch.header, tab.key)
+                    if it.sec then emitRest(k, tab.key) end
+                end
+            elseif it.rest then
+                used[it.rest] = true
+                emitRest(it.rest, tab.key)
+            elseif it.new then
+                local hdr = CreateSectionHeader(contentChild, LS(it.label[1], it.label[2]), it.new)
+                hdr:Hide()
+                emit(hdr, tab.key)
+            elseif resolved[ti][ii] then
+                for _, wd in ipairs(resolved[ti][ii]) do emit(wd, tab.key) end
+            end
+        end
+    end
+
+    -- 4) Safety net: anything the spec didn't place goes to the last tab;
+    --    a section that ended up empty is dropped (its header hidden).
+    local lastKey = tabs[#tabs].key
+    for _, k in ipairs(spec.only and {} or order) do
+        local ch = chunks[k]
+        local left = 0
+        for _, wd in ipairs(ch.kids) do if not taken[wd] then left = left + 1 end end
+        if not used[k] then
+            if left > 0 then
+                emit(ch.header, lastKey)
+                emitRest(k, lastKey)
+            else
+                ch.header:Hide()
+            end
+        elseif left > 0 then
+            emitRest(k, lastKey)   -- stragglers of a used section
+        end
+    end
+
+    result._tabs  = spec.tabs
+    result._chips = chips
+    return result
+end
+
 local function RegisterPage(name, buildFunc)
-    pages[name] = { build = buildFunc, widgets = nil }
+    pages[name] = {
+        build   = function() return ApplyPageSpec(buildFunc(), PAGE_SPECS[name]) end,
+        widgets = nil,
+        _unavailable = UNAVAILABLE_MODULES[name] and true or nil,
+    }
     _pageOrder[#_pageOrder + 1] = name
 end
 
@@ -2588,8 +3605,8 @@ local function BuildGeneral()
         pop:SetBackdrop({
             bgFile   = "Interface\\BUTTONS\\WHITE8X8",
             edgeFile = "Interface\\BUTTONS\\WHITE8X8",
-            edgeSize = 1,
-            insets   = { left = 1, right = 1, top = 1, bottom = 1 },
+            edgeSize = OnePx(),
+            insets   = PxInsets(OnePx()),
         })
         pop:SetBackdropColor(0.10, 0.10, 0.12, 1)
         pop:SetBackdropBorderColor(RGB(BORDER))
@@ -2871,7 +3888,7 @@ local function BuildInterrupts()
         local _pal = GetThemePalette()
         pvBg:SetColorTexture(_pal.sidebarBg[1], _pal.sidebarBg[2], _pal.sidebarBg[3], 0.9)
         local pvLine = pv:CreateTexture(nil, "ARTWORK")
-        pvLine:SetHeight(1)
+        pvLine:SetHeight(OnePx())
         pvLine:SetPoint("BOTTOMLEFT",  pv, "BOTTOMLEFT",  -CONTENT_PAD, 0)
         pvLine:SetPoint("BOTTOMRIGHT", pv, "BOTTOMRIGHT",  CONTENT_PAD, 0)
         pvLine:SetColorTexture(ACCENT[1], ACCENT[2], ACCENT[3], 0.5)
@@ -2967,6 +3984,8 @@ local function BuildInterrupts()
         local function _navigateTo(stateKey)
             local sec = _findSection(stateKey)
             if not sec then return end
+            -- The target may sit on another settings tab — switch there first.
+            BIT.SettingsUI:RevealWidget(sec)
             if sec._stateKey and not sec._expanded then
                 sec._expanded = true
                 if BIT.db and BIT.db.sectionExpanded then
@@ -3023,7 +4042,7 @@ local function BuildInterrupts()
             local hl = CreateFrame("Frame", nil, btn, "BackdropTemplate")
             hl:SetPoint("TOPLEFT", -2, 2)
             hl:SetPoint("BOTTOMRIGHT", 2, -2)
-            hl:SetBackdrop({ edgeFile = WHITE8, edgeSize = 1 })
+            hl:SetBackdrop({ edgeFile = WHITE8, edgeSize = OnePx() })
             hl:SetBackdropBorderColor(ACCENT[1], ACCENT[2], ACCENT[3], 1)
             hl:Hide()
             btn:SetScript("OnEnter", function() hl:Show() end)
@@ -4465,8 +5484,8 @@ local function BuildPartyCDs()
 
         local mock = CreateFrame("Frame", nil, pv, "BackdropTemplate")
         mock:SetPoint("CENTER", 0, -6)
-        mock:SetBackdrop({ bgFile = WHITE8, edgeFile = WHITE8, edgeSize = 1,
-                           insets = { left = 1, right = 1, top = 1, bottom = 1 } })
+        mock:SetBackdrop({ bgFile = WHITE8, edgeFile = WHITE8, edgeSize = OnePx(),
+                           insets = PxInsets(OnePx()) })
         mock:SetBackdropColor(0, 0, 0, 0.9)
         mock:SetBackdropBorderColor(RGB(BORDER))
 
@@ -4572,6 +5591,32 @@ local function BuildPartyCDs()
         w[#w+1] = pv
     end
 
+    -- ── Overlay visibility ──────────────────────────────────────────
+    -- Content types the unit-frame overlay runs in. Outside them its aura
+    -- containers are switched off entirely (the module does no work
+    -- there). Own keys, independent of the Party CDs visibility.
+    do
+        local function ovlVis(labelKey, fb, dbKey, defaultOn)
+            return CreateToggle(p, LS(labelKey, fb),
+                function()
+                    if defaultOn then return BIT.db[dbKey] ~= false end
+                    return BIT.db[dbKey] == true
+                end,
+                function(v)
+                    BIT.db[dbKey] = v
+                    if BIT.DefensiveOverlay and BIT.DefensiveOverlay.RefreshAll then
+                        BIT.DefensiveOverlay:RefreshAll()
+                    end
+                end)
+        end
+        w[#w+1] = CreateSectionHeader(p, LS("OVL_SEC_VISIBILITY", "Overlay Visibility"), "sui_def_vis")
+        w[#w+1] = ovlVis("CB_SHOW_DUNGEON", "Show in Dungeon",       "defensiveOverlayShowInDungeon",   true)
+        w[#w+1] = ovlVis("CB_SHOW_RAID",    "Show in Raid",          "defensiveOverlayShowInRaid",      false)
+        w[#w+1] = ovlVis("CB_SHOW_WORLD",   "Show in Open World",    "defensiveOverlayShowInOpenWorld", true)
+        w[#w+1] = ovlVis("CB_SHOW_ARENA",   "Show in Arena",         "defensiveOverlayShowInArena",     false)
+        w[#w+1] = ovlVis("CB_SHOW_BG",      "Show in Battleground",  "defensiveOverlayShowInBG",        false)
+    end
+
     -- ── Received-External Sound ─────────────────────────────────────
     -- One sound whenever an external defensive lands on YOU (Pain
     -- Suppression, Sacrifice, Ironbark, ...). No per-spell setup —
@@ -4589,7 +5634,13 @@ local function BuildPartyCDs()
     w[#w+1] = CreateDropdown(p, LS("EXTSOUND_SOUND", "Sound"),
         MediaOpts(function() return BIT.Media:GetAvailableSounds() end, "sound"),
         function() return BIT.db.externalSound or "None" end,
-        function(v) BIT.db.externalSound = v end)
+        function(v)
+            BIT.db.externalSound = v
+            -- 12.1+ the engine plays this sound: re-register it with the new file.
+            if BIT.ExternalSound and BIT.ExternalSound.ApplyEnabled then
+                BIT.ExternalSound:ApplyEnabled()
+            end
+        end)
 
     -- ── Anchor & Position ───────────────────────────────────────────
     -- Where the icon row attaches and how it’s nudged. Provider picks
@@ -6054,7 +7105,7 @@ local function BuildOffensiveCDAlert()
             nameFs:SetText(localizedName)
 
             local hoverLine = header:CreateTexture(nil, "BACKGROUND")
-            hoverLine:SetHeight(1)
+            hoverLine:SetHeight(OnePx())
             hoverLine:SetPoint("BOTTOMLEFT", 0, 0)
             hoverLine:SetPoint("BOTTOMRIGHT", 0, 0)
             hoverLine:SetColorTexture(cc[1], cc[2], cc[3], 0.25)
@@ -7273,8 +8324,8 @@ local function BuildProfiles()
             pop:SetBackdrop({
                 bgFile   = "Interface\\BUTTONS\\WHITE8X8",
                 edgeFile = "Interface\\BUTTONS\\WHITE8X8",
-                edgeSize = 1,
-                insets   = { left = 1, right = 1, top = 1, bottom = 1 },
+                edgeSize = OnePx(),
+                insets   = PxInsets(OnePx()),
             })
             pop:SetBackdropColor(0.10, 0.10, 0.12, 1)
             pop:SetBackdropBorderColor(RGB(BORDER))
@@ -7328,8 +8379,8 @@ local function BuildProfiles()
             pop:SetBackdrop({
                 bgFile   = "Interface\\BUTTONS\\WHITE8X8",
                 edgeFile = "Interface\\BUTTONS\\WHITE8X8",
-                edgeSize = 1,
-                insets   = { left = 1, right = 1, top = 1, bottom = 1 },
+                edgeSize = OnePx(),
+                insets   = PxInsets(OnePx()),
             })
             pop:SetBackdropColor(0.10, 0.10, 0.12, 1)
             pop:SetBackdropBorderColor(RGB(BORDER))
@@ -7576,7 +8627,7 @@ local function BuildProfiles()
 
             -- Subtle hover line under the header so it reads as a button
             local hoverLine = header:CreateTexture(nil, "BACKGROUND")
-            hoverLine:SetHeight(1)
+            hoverLine:SetHeight(OnePx())
             hoverLine:SetPoint("BOTTOMLEFT", 0, 0)
             hoverLine:SetPoint("BOTTOMRIGHT", 0, 0)
             hoverLine:SetColorTexture(cc[1], cc[2], cc[3], 0.25)
@@ -7701,8 +8752,356 @@ end
 -- in the Search section further down; the upvalue is shared.
 local _pageBanners = {}
 
+-- One-line description shown under the page title: { localeKey, English fallback }.
+local PAGE_DESC = {
+    ["General"]         = { "PAGE_DESC_GENERAL",    "Language, theme, font and nicknames." },
+    ["Interrupts"]      = { "PAGE_DESC_INTERRUPTS", "Your own interrupt bar and the recent-interrupt history of your group." },
+    ["Party CDs"]       = { "PAGE_DESC_PARTY_CDS",  "Defensive and offensive cooldowns of your group members." },
+    ["Defensives"]      = { "PAGE_DESC_DEFENSIVES", "Active defensives on your unit frames and a sound when you receive one — works independently of Party CDs." },
+    ["Smart Misdirect"] = { "PAGE_DESC_SMART_MD",   "Automatic Misdirection / Tricks of the Trade target for Hunters and Rogues." },
+    ["PI Caller"]       = { "PAGE_DESC_PI_CALLER",  "Highlights a party frame when a teammate uses a burst cooldown." },
+    ["Keystone List"]   = { "PAGE_DESC_KEYSTONES",  "Keystones of your group, shared with one click." },
+    ["Profiles"]        = { "PAGE_DESC_PROFILES",   "Create, switch, import and export settings profiles." },
+    ["Changelog"]       = { "PAGE_DESC_CHANGELOG",  "What changed in each version." },
+}
+
+-- ── Page header controls: tab bar + module chips ─────────────
+local TAB_BAR_H = 30
+
+-- Tab bar along the bottom edge of the page header (one per page, built
+-- on first show). Active tab = white label + accent underline.
+local function BuildTabBar(page)
+    local bar = CreateFrame("Frame", nil, mainFrame._pageHeader)
+    bar:SetPoint("BOTTOMLEFT", CONTENT_PAD - 4, 0)
+    bar:SetPoint("BOTTOMRIGHT", -CONTENT_PAD, 0)
+    bar:SetHeight(TAB_BAR_H)
+    bar._btns = {}
+    local x = 0
+    for _, t in ipairs(page.widgets._tabs) do
+        local b = CreateFrame("Button", nil, bar)
+        local fs = b:CreateFontString(nil, "OVERLAY")
+        ApplyFont(fs, 12)
+        fs:SetPoint("CENTER", 0, 1)
+        fs:SetText(LS(t.label[1], t.label[2]))
+        local bw = math.floor((fs:GetStringWidth() or 40) + 24)
+        b:SetSize(bw, TAB_BAR_H)
+        b:SetPoint("BOTTOMLEFT", x, 0)
+        x = x + bw + 2
+        local ul = b:CreateTexture(nil, "OVERLAY")
+        ul:SetHeight(2)
+        ul:SetPoint("BOTTOMLEFT", 8, 0)
+        ul:SetPoint("BOTTOMRIGHT", -8, 0)
+        local hov = b:CreateTexture(nil, "BACKGROUND")
+        hov:SetPoint("TOPLEFT", 0, -4)
+        hov:SetPoint("BOTTOMRIGHT", 0, 2)
+        hov:SetColorTexture(1, 1, 1, 0.04)
+        hov:Hide()
+        b._fs, b._ul, b._key = fs, ul, t.key
+        b:SetScript("OnEnter", function()
+            if page.activeTab ~= t.key then hov:Show(); fs:SetTextColor(RGB(TEXT)) end
+        end)
+        b:SetScript("OnLeave", function()
+            hov:Hide()
+            if page.activeTab ~= t.key then fs:SetTextColor(RGB(TEXT_DIM)) end
+        end)
+        b:SetScript("OnClick", function() hov:Hide(); BIT.SettingsUI:SelectTab(t.key) end)
+        bar._btns[#bar._btns + 1] = b
+    end
+    function bar:Paint()
+        for _, b in ipairs(self._btns) do
+            if b._key == page.activeTab then
+                b._fs:SetTextColor(1, 1, 1)
+                b._ul:SetColorTexture(RGB(ACCENT))
+                b._ul:Show()
+            else
+                b._fs:SetTextColor(RGB(TEXT_DIM))
+                b._ul:Hide()
+            end
+        end
+    end
+    return bar
+end
+
+-- Module chips (Enabled · Test Mode · Locked) in the top-right corner of
+-- the page header. Each chip drives the page's own toggle widget, so the
+-- setter and all its side effects are exactly the original ones.
+local CHIP_TEXT = {
+    enable = { { "HDR_ON",     "Enabled"   }, { "HDR_OFF",      "Disabled" } },
+    test   = { { "HDR_TEST",   "Test Mode" }, { "HDR_TEST",     "Test Mode" } },
+    lock   = { { "HDR_LOCKED", "Locked"    }, { "HDR_UNLOCKED", "Unlocked" } },
+}
+local CHIP_ORDER = { "enable", "test", "lock" }
+
+local function BuildChips(page)
+    local holder = CreateFrame("Frame", nil, mainFrame._pageHeader)
+    holder:SetPoint("TOPRIGHT", -CONTENT_PAD, -12)
+    holder:SetSize(1, 22)
+    holder._chips = {}
+    for _, role in ipairs(CHIP_ORDER) do
+        local wd = page.widgets._chips[role]
+        if wd then
+            local c = CreateFrame("Button", nil, holder, "BackdropTemplate")
+            c:SetHeight(22)
+            MakeBg(c, RGB(WIDGET_BG))
+            -- Status dot: an 8x8 texture shown at exactly 8 physical pixels
+            -- (pixel-snapped, 1:1 texels) so it stays perfectly round at any
+            -- UI scale — a large circle scaled down to ~4 px turns lumpy.
+            local dot = c:CreateTexture(nil, "OVERLAY")
+            dot:SetTexture(TEX_DOT)
+            local dpx = OnePx(c) * 8
+            dot:SetSize(dpx, dpx)
+            dot:SetPoint("LEFT", 8, 0)
+            local fs = c:CreateFontString(nil, "OVERLAY")
+            ApplyFont(fs, 11)
+            fs:SetPoint("LEFT", dot, "RIGHT", 6, 0)
+            c._role, c._wd, c._fs, c._dot = role, wd, fs, dot
+            c:SetScript("OnClick", function()
+                if wd._disabled then return end
+                wd._toggle()
+            end)
+            c:SetScript("OnEnter", function(self)
+                GameTooltip:SetOwner(self, "ANCHOR_BOTTOM")
+                GameTooltip:SetText(wd._searchLabel or "", 1, 1, 1)
+                if not wd._disabled then
+                    GameTooltip:AddLine(LS("HDR_CLICK_TOGGLE", "Click to toggle"), 0.7, 0.7, 0.7)
+                end
+                GameTooltip:Show()
+                if not wd._disabled then self:SetBackdropBorderColor(RGB(ACCENT)) end
+            end)
+            c:SetScript("OnLeave", function(self)
+                GameTooltip:Hide()
+                self._paint()
+            end)
+            c._paint = function()
+                local on = wd._get() and true or false
+                local txt = CHIP_TEXT[role][on and 1 or 2]
+                fs:SetText(LS(txt[1], txt[2]))
+                c:SetWidth(math.floor((fs:GetStringWidth() or 40) + 9 + 6 + 6 + 10))
+                if on then
+                    c:SetBackdropColor(ACCENT[1] * 0.22, ACCENT[2] * 0.22, ACCENT[3] * 0.22, 0.95)
+                    c:SetBackdropBorderColor(ACCENT[1] * 0.8, ACCENT[2] * 0.8, ACCENT[3] * 0.8, 1)
+                    dot:SetVertexColor(ACCENT[1], ACCENT[2], ACCENT[3], 1)
+                    fs:SetTextColor(1, 1, 1)
+                else
+                    c:SetBackdropColor(WIDGET_BG[1], WIDGET_BG[2], WIDGET_BG[3], 0.95)
+                    c:SetBackdropBorderColor(RGB(BORDER))
+                    dot:SetVertexColor(0.40, 0.40, 0.44, 1)
+                    fs:SetTextColor(RGB(TEXT_DIM))
+                end
+                c:SetAlpha(wd._disabled and 0.45 or 1)
+            end
+            holder._chips[#holder._chips + 1] = c
+        end
+    end
+    return holder
+end
+
+-- Title + description end left of the chips (with a gap) instead of
+-- running underneath them. The description may wrap onto a second line;
+-- the header grows by that line so nothing overlaps the tab bar.
+-- `chipsW` = total width of the visible chips (0 = none).
+local DESC_LINE_H = 13
+local function FitHeaderText(chipsW)
+    local hdr   = mainFrame._pageHeader
+    local title = mainFrame._pageTitle
+    local desc  = mainFrame._pageDesc
+    local w = (WIN_W - SIDEBAR_W - 1) - (CONTENT_PAD + 2) - CONTENT_PAD
+    if chipsW and chipsW > 0 then w = w - chipsW - 16 end
+    if w < 120 then w = 120 end
+
+    title:ClearAllPoints()
+    title:SetPoint("TOPLEFT", hdr, "TOPLEFT", CONTENT_PAD + 2, -12)
+    title:SetWidth(w)
+    desc:ClearAllPoints()
+    desc:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -4)
+    desc:SetWidth(w)
+    desc:SetWordWrap(true)
+    if desc.SetMaxLines then desc:SetMaxLines(2) end
+
+    local extra = ((desc:GetStringHeight() or 0) > DESC_LINE_H + 4) and DESC_LINE_H or 0
+    hdr:SetHeight(HEADER_H + extra + (mainFrame._hdrHasTabs and (TAB_BAR_H - 6) or 0))
+end
+
+-- Repaint the chips and re-flow them right-to-left; a chip whose toggle
+-- the page currently hides (mode-dependent) is hidden too.
+local function SyncHeaderChips(page)
+    local holder = page and page.chipBar
+    if not holder or not holder:IsShown() then FitHeaderText(0); return end
+    local prev, total = nil, 0
+    for i = #holder._chips, 1, -1 do
+        local c = holder._chips[i]
+        local wd = c._wd
+        local visible = (not wd._dynamic) or wd._wantShown
+        c:SetShown(visible and true or false)
+        if visible then
+            c._paint()
+            c:ClearAllPoints()
+            if prev then c:SetPoint("RIGHT", prev, "LEFT", -6, 0)
+            else c:SetPoint("RIGHT", holder, "RIGHT", 0, 0) end
+            total = total + c:GetWidth() + (prev and 6 or 0)
+            prev = c
+        end
+    end
+    FitHeaderText(total)
+end
+
+local _headerPages = {}   -- pages that own a tab bar / chip bar
+
+-- Show the header controls of `page` (nil = none, e.g. search results)
+-- and size the header so the content starts right below them.
+local function ShowPageHeaderControls(page)
+    for _, pg in ipairs(_headerPages) do
+        if pg.tabBar  then pg.tabBar:Hide()  end
+        if pg.chipBar then pg.chipBar:Hide() end
+    end
+    local hasTabs = page and page.widgets and page.widgets._tabs
+    if page and page.widgets then
+        if hasTabs and not page.tabBar then page.tabBar = BuildTabBar(page) end
+        if page._unavailable then
+            -- no Enabled / Test / Locked chips: the module cannot run
+        elseif next(page.widgets._chips or {}) and not page.chipBar then
+            page.chipBar = BuildChips(page)
+        end
+        if (page.tabBar or page.chipBar) and not page._inHeaderList then
+            page._inHeaderList = true
+            _headerPages[#_headerPages + 1] = page
+        end
+        if page.tabBar  then page.tabBar:Show(); page.tabBar:Paint() end
+        if page.chipBar and not page._unavailable then page.chipBar:Show() end
+    end
+    -- Pages without chips (and search results) get the full width back;
+    -- pages with chips are re-fitted by SyncHeaderChips after the refresh.
+    -- Size the header now; pages with chips are re-fitted (narrower text)
+    -- by SyncHeaderChips once the page refresh has run.
+    mainFrame._hdrHasTabs = hasTabs and true or false
+    FitHeaderText(0)
+end
+
+-- The enable toggle widgets behind a module's sidebar switch. A page that
+-- was never opened is built (and hidden) on demand, exactly as the search
+-- index does, so its real toggles exist.
+local _moduleToggleCache = {}
+local function ModuleToggles(pageName)
+    if _moduleToggleCache[pageName] then return _moduleToggleCache[pageName] end
+    local keys, page = MODULE_SWITCHES[pageName], pages[pageName]
+    if not (keys and page) then return {} end
+    if not page.widgets then
+        page.widgets = page.build()
+        for _, w in ipairs(page.widgets) do
+            if w._rawHide then w._rawHide(w) else w:Hide() end
+        end
+    end
+    local out = {}
+    for _, key in ipairs(keys) do
+        local target = LabelOf(key)
+        if target then
+            for _, w in ipairs(page.widgets) do
+                local lbl = w._searchLabel
+                if w._toggle and type(lbl) == "string" and lbl:sub(1, #target) == target then
+                    out[#out + 1] = w
+                    break
+                end
+            end
+        end
+    end
+    if #out > 0 then _moduleToggleCache[pageName] = out end
+    return out
+end
+
+local function ModuleState(pageName)
+    local ts = ModuleToggles(pageName)
+    local on, locked = false, #ts > 0
+    for _, w in ipairs(ts) do
+        if w._get() then on = true end
+        if not w._disabled then locked = false end
+    end
+    return on, locked, ts
+end
+
+-- Repaint every sidebar switch and dim the labels of modules that are off.
+function BIT.SettingsUI:SyncModuleSwitches()
+    for pageName, sw in pairs(_moduleSwitches) do
+        local okS, on, locked = pcall(ModuleState, pageName)
+        if okS then
+            sw._on, sw._locked = on, locked
+            sw:Paint(on, locked)
+            local btn = sidebarBtns[pageName]
+            if btn then
+                btn._moduleOff = not on
+                SidebarTextColor(btn, activePage == pageName, false)
+            end
+        end
+    end
+end
+
+-- Sidebar switch click: on -> every running part off; off -> all parts on.
+function BIT.SettingsUI:ToggleModule(pageName)
+    local on, locked, ts = ModuleState(pageName)
+    if locked then return end
+    for _, w in ipairs(ts) do
+        if (w._get() and true or false) == on and not w._disabled then w._toggle() end
+    end
+    -- The module page may be on screen: re-read its widgets.
+    if activePage and pages[activePage] and pages[activePage].refresh then
+        pages[activePage].refresh()
+        if pages[activePage].layout then pages[activePage].layout() end
+    end
+    self:SyncModuleSwitches()
+end
+
+-- Read-only page view for unavailable modules: content dimmed, and a
+-- transparent blocker over the scroll area swallows clicks / hovers while
+-- passing the mouse wheel on, so the page can still be browsed.
+function BIT.SettingsUI:SetPageReadOnly(on)
+    if not contentScroll then return end
+    local blk = mainFrame._readOnlyBlocker
+    if on and not blk then
+        blk = CreateFrame("Frame", nil, mainFrame._contentArea or mainFrame)
+        blk:SetAllPoints(contentScroll)
+        blk:SetFrameLevel((contentScroll:GetFrameLevel() or 1) + 200)
+        blk:EnableMouse(true)
+        blk:EnableMouseWheel(true)
+        blk:SetScript("OnMouseWheel", function(_, delta)
+            local f = contentScroll:GetScript("OnMouseWheel")
+            if f then f(contentScroll, delta) end
+        end)
+        mainFrame._readOnlyBlocker = blk
+    end
+    if blk then blk:SetShown(on and true or false) end
+    if contentChild then contentChild:SetAlpha(on and 0.4 or 1) end
+end
+
+function BIT.SettingsUI:SelectTab(key)
+    local page = activePage and pages[activePage]
+    if not page or not page.widgets or not page.widgets._tabs then return end
+    page.activeTab = key
+    if BIT.db then
+        BIT.db.settingsActiveTab = BIT.db.settingsActiveTab or {}
+        BIT.db.settingsActiveTab[activePage] = key
+    end
+    if page.tabBar then page.tabBar:Paint() end
+    -- Refresh first: dynamic widgets re-decide their visibility, which the
+    -- previous tab's layout pass overwrote by hiding them.
+    page.refresh()
+    page.layout()
+    contentScroll._wheelGliding = false
+    contentScroll:SetVerticalScroll(0)
+end
+
+-- Switch to the tab that holds `widget` (used by jump links such as the
+-- interrupt bar preview). No-op when it's already visible.
+function BIT.SettingsUI:RevealWidget(widget)
+    local page = activePage and pages[activePage]
+    if not page or not page.activeTab or not widget or not widget._tabSet then return end
+    if widget._tabSet[page.activeTab] then return end
+    for _, t in ipairs(page.widgets._tabs) do
+        if widget._tabSet[t.key] then self:SelectTab(t.key); return end
+    end
+end
+
 function BIT.SettingsUI:ShowPage(name)
     if not pages[name] then return end
+    if self._noResults then self._noResults:Hide() end
 
     -- Clear search field when navigating to a real page so the search
     -- UI state stays consistent with what's displayed.
@@ -7732,29 +9131,56 @@ function BIT.SettingsUI:ShowPage(name)
         if k == name then
             btn._indicator:Show()
             btn._bgHl:Show()
-            btn._text:SetTextColor(RGB(TEXT))
         else
             btn._indicator:Hide()
             btn._bgHl:Hide()
-            btn._text:SetTextColor(RGB(TEXT_DIM))
         end
+        SidebarTextColor(btn, k == name, false)
     end
 
     activePage = name
     local page = pages[name]
+
+    -- page header
+    if mainFrame and mainFrame._pageTitle then
+        local sb = sidebarBtns[name]
+        mainFrame._pageTitle:SetText(sb and sb._displayLabel or name)
+        local un = UNAVAILABLE_MODULES[name]
+        if un then
+            mainFrame._pageDesc:SetText(LS(un[1], un[2]))
+            mainFrame._pageDesc:SetTextColor(UNAVAIL_COLOR[1], UNAVAIL_COLOR[2], UNAVAIL_COLOR[3])
+        else
+            mainFrame._pageDesc:SetText(PAGE_DESC[name] and LS(PAGE_DESC[name][1], PAGE_DESC[name][2]) or "")
+            mainFrame._pageDesc:SetTextColor(RGB(TEXT_DIM))
+        end
+        BIT.SettingsUI:SetPageReadOnly(un ~= nil)
+    end
 
     -- build on first show
     if not page.widgets then
         page.widgets = page.build()
     end
 
+    -- Active tab: last one used on this page (remembered), else the first.
+    local tabs = page.widgets._tabs
+    if tabs and not page.activeTab then
+        local saved = BIT.db and BIT.db.settingsActiveTab and BIT.db.settingsActiveTab[name]
+        page.activeTab = tabs[1].key
+        for _, t in ipairs(tabs) do
+            if t.key == saved then page.activeTab = saved end
+        end
+    end
+
     -- layout
-    page.layout = function() LayoutWidgets(page.widgets) end
+    page.layout = function() LayoutWidgets(page.widgets, page.activeTab, true) end
     page.refresh = function()
         for _, w in ipairs(page.widgets) do
             if w._update then w._update() end
         end
+        SyncHeaderChips(page)
     end
+
+    ShowPageHeaderControls(page)
 
     -- Run every widget's `_update` callback now that `page.layout` exists.
     -- This is essential for `_dynamic` widgets whose visibility depends on
@@ -7805,7 +9231,7 @@ local function GetPageBanner(pageName)
     -- it's only pinned at LEFT), so the line grows / shrinks with the
     -- page name instead of using a fixed width.
     local underline = f:CreateTexture(nil, "ARTWORK")
-    underline:SetHeight(1)
+    underline:SetHeight(OnePx())
     underline:SetPoint("TOPLEFT",  lbl, "BOTTOMLEFT",  0, -1)
     underline:SetPoint("TOPRIGHT", lbl, "BOTTOMRIGHT", 0, -1)
     underline:SetColorTexture(ACCENT[1], ACCENT[2], ACCENT[3], 0.8)
@@ -7896,6 +9322,13 @@ function BIT.SettingsUI:ApplySearch(query, previousPage)
         for _, w in ipairs(pages[activePage].widgets) do w:Hide() end
     end
     activePage = "_search"
+    if mainFrame and mainFrame._pageTitle then
+        mainFrame._pageTitle:SetText(LS("SEARCH_TITLE", "Search"))
+        mainFrame._pageDesc:SetText(string.format(LS("SEARCH_RESULTS_FOR", "Results for \"%s\""), query))
+    end
+    ShowPageHeaderControls(nil)   -- after the text: it measures the description
+    self:SetPageReadOnly(false)
+    if mainFrame and mainFrame._pageDesc then mainFrame._pageDesc:SetTextColor(RGB(TEXT_DIM)) end
     -- Note: sidebar selection stays on previousPage's button — when search
     -- is dismissed (empty input) we restore that page, so showing it as
     -- the selected tab keeps the UX consistent.
@@ -7980,8 +9413,34 @@ function BIT.SettingsUI:ApplySearch(query, previousPage)
     for _, w in ipairs(displayList) do
         if w._update then pcall(w._update) end
     end
+    -- Some _update callbacks re-show sibling widgets (mode-visibility
+    -- syncs); anything not in the result list must stay hidden, or it
+    -- lingers at its old page position on top of the results.
+    local inResults = {}
+    for _, w in ipairs(displayList) do inResults[w] = true end
+    for _, pg in pairs(pages) do
+        if pg.widgets then
+            for _, w in ipairs(pg.widgets) do
+                if not inResults[w] and w:IsShown() then
+                    if w._rawHide then w._rawHide(w) else w:Hide() end
+                end
+            end
+        end
+    end
 
     LayoutWidgets(displayList)
+
+    -- Empty state instead of a blank panel.
+    if not self._noResults then
+        local fs = contentChild:CreateFontString(nil, "OVERLAY")
+        ApplyFont(fs, 12)
+        fs:SetPoint("TOP", contentChild, "TOP", 0, -40)
+        fs:SetTextColor(RGB(TEXT_DIM))
+        self._noResults = fs
+    end
+    self._noResults:SetText(string.format(LS("SEARCH_NO_RESULTS", "No settings match \"%s\"."), query))
+    self._noResults:SetShown(#displayList == 0)
+
     if contentScroll and contentScroll.SetVerticalScroll then
         contentScroll._wheelGliding = false
         contentScroll:SetVerticalScroll(0)
@@ -8031,8 +9490,8 @@ function BIT.SettingsUI:ShowImportExportPopup()
     pop:SetBackdrop({
         bgFile   = "Interface\\BUTTONS\\WHITE8X8",
         edgeFile = "Interface\\BUTTONS\\WHITE8X8",
-        edgeSize = 1,
-        insets   = { left = 1, right = 1, top = 1, bottom = 1 },
+        edgeSize = OnePx(),
+        insets   = PxInsets(OnePx()),
     })
     -- Themed surfaces: every accent-coloured element registers a paint
     -- callback; applyPopupTheme() runs them with the CURRENT palette so
@@ -8062,7 +9521,7 @@ function BIT.SettingsUI:ShowImportExportPopup()
     local titleLine = pop:CreateTexture(nil, "ARTWORK")
     titleLine:SetPoint("TOPLEFT", 1, -TITLE_H)
     titleLine:SetPoint("TOPRIGHT", -1, -TITLE_H)
-    titleLine:SetHeight(1)
+    titleLine:SetHeight(OnePx())
     addThemed(function(p)
         titleBg:SetColorTexture(p.titleBg[1], p.titleBg[2], p.titleBg[3], 0.9)
         titleLine:SetColorTexture(p.titleLine[1], p.titleLine[2], p.titleLine[3], p.titleLine[4])
@@ -8095,7 +9554,7 @@ function BIT.SettingsUI:ShowImportExportPopup()
     expLbl:SetPoint("TOPLEFT", 16, -46)
     expLbl:SetText(string.upper(LS("IMEX_EXPORT", "Export Profile")))
     local expUnder = pop:CreateTexture(nil, "ARTWORK")
-    expUnder:SetHeight(1)
+    expUnder:SetHeight(OnePx())
     expUnder:SetPoint("TOPLEFT",  expLbl, "BOTTOMLEFT",  0, -2)
     expUnder:SetPoint("TOPRIGHT", expLbl, "BOTTOMRIGHT", 0, -2)
     addThemed(function(p)
@@ -8384,7 +9843,7 @@ function BIT.SettingsUI:ShowImportExportPopup()
     -- Full-width divider separates the two halves of the popup; the header
     -- repeats the export section's banner style (uppercase + underline).
     local impDiv = pop:CreateTexture(nil, "ARTWORK")
-    impDiv:SetHeight(1)
+    impDiv:SetHeight(OnePx())
     impDiv:SetPoint("TOPLEFT",  16, impTop + 14)
     impDiv:SetPoint("TOPRIGHT", -16, impTop + 14)
     impDiv:SetColorTexture(RGB(BORDER))
@@ -8394,7 +9853,7 @@ function BIT.SettingsUI:ShowImportExportPopup()
     impLbl:SetPoint("TOPLEFT", 16, impTop)
     impLbl:SetText(string.upper(LS("IMEX_IMPORT_HEADER", "Import Profile")))
     local impUnder = pop:CreateTexture(nil, "ARTWORK")
-    impUnder:SetHeight(1)
+    impUnder:SetHeight(OnePx())
     impUnder:SetPoint("TOPLEFT",  impLbl, "BOTTOMLEFT",  0, -2)
     impUnder:SetPoint("TOPRIGHT", impLbl, "BOTTOMRIGHT", 0, -2)
     addThemed(function(p)
@@ -8735,6 +10194,9 @@ function BIT.SettingsUI:Toggle()
         -- sessions, or a setting flip via the dropdown without the
         -- window having been re-opened yet, lands correctly.
         BIT.SettingsUI:ApplyTheme()
+        -- Modules can be switched outside this window (slash commands,
+        -- profile switch): show their current state.
+        BIT.SettingsUI:SyncModuleSwitches()
     end
 end
 
@@ -8758,8 +10220,8 @@ function BIT.SettingsUI:EnterPickerMode()
         prompt:SetBackdrop({
             bgFile   = "Interface\\BUTTONS\\WHITE8X8",
             edgeFile = "Interface\\BUTTONS\\WHITE8X8",
-            edgeSize = 1,
-            insets   = { left = 1, right = 1, top = 1, bottom = 1 },
+            edgeSize = OnePx(),
+            insets   = PxInsets(OnePx()),
         })
         prompt:SetBackdropColor(0.08, 0.09, 0.11, 0.95)
         prompt:SetBackdropBorderColor(RGB(ACCENT))
@@ -8853,6 +10315,15 @@ end
 function BIT.SettingsUI:ApplyTheme()
     if not mainFrame then return end
     local p = GetThemePalette()
+    -- Widget accent follows the theme (in place: every closure that
+    -- captured ACCENT sees the new colour on its next paint).
+    local ui = p.ui or p.accent
+    local changed = ACCENT[1] ~= ui[1] or ACCENT[2] ~= ui[2] or ACCENT[3] ~= ui[3]
+    ACCENT[1], ACCENT[2], ACCENT[3] = ui[1], ui[2], ui[3]
+    for _, fn in ipairs(_themedRepaints) do pcall(fn) end
+    if changed and activePage and pages[activePage] and pages[activePage].refresh then
+        pcall(pages[activePage].refresh)
+    end
     -- Main content backdrop. The 1px backdrop border is painted in
     -- the BACKGROUND color (not removed — the backdrop insets would
     -- otherwise leave a 1px see-through ring): the visible outline
@@ -8928,22 +10399,40 @@ function BIT.SettingsUI:Init()
     -- builders (BuildSizeFont / BuildColors) still exist further up in
     -- this file and are now called from inside BuildInterrupts, so the
     -- DB keys, widgets and locale strings all keep working unchanged.
+    -- Registration order = search-result order; kept identical to the
+    -- sidebar order below.
     RegisterPage("General",        BuildGeneral)
     RegisterPage("Interrupts",     BuildInterrupts)
-    RegisterPage("Party CDs",      BuildPartyCDs)
-    RegisterPage("Smart Misdirect",BuildSmartMisdirect)
-    RegisterPage("PI Caller",      BuildOffensiveCDAlert)
+    -- Party CDs and Defensives are two views of ONE widget build (the
+    -- overlay / sound / glow widgets share closures with the Party CD
+    -- page code); each page's spec takes its own part of it.
+    local _pcdShared
+    local function BuildPartyCDsShared()
+        if not _pcdShared then _pcdShared = BuildPartyCDs() end
+        return _pcdShared
+    end
+    RegisterPage("Party CDs",      BuildPartyCDsShared)
+    RegisterPage("Defensives",     BuildPartyCDsShared)
     RegisterPage("Keystone List",  BuildKeystoneList)
+    RegisterPage("PI Caller",      BuildOffensiveCDAlert)
+    RegisterPage("Smart Misdirect",BuildSmartMisdirect)
     RegisterPage("Profiles",       BuildProfiles)
     RegisterPage("Changelog",      BuildChangelog)
 
-    -- Create sidebar buttons. All pages are always visible; pages that
-    -- require a specific class (Smart Misdirect) show an informational
-    -- note on their own page when the feature isn't applicable.
-    CreateSidebarBtn(1, "General",        136243, LS("PANEL_GENERAL",     "General"))         -- Interface/misc
-    CreateSidebarBtn(2, "Interrupts",     236281, LS("PANEL_INTERRUPTS",  "Interrupts"))      -- Ability_kick
-    CreateSidebarBtn(3, "Party CDs",      236440, LS("PANEL_PARTY_CDS",   "Party CDs"))       -- Spell_holy_powerwordbarrier
-    CreateSidebarBtn(4, "Smart Misdirect", 132180, LS("PANEL_SMART_MD",   "Smart Misdirect")) -- ability_hunter_misdirection
+    -- Sidebar: General on top, then the feature modules, then addon
+    -- management — each group under a small caption. All pages are always
+    -- visible; class-gated pages (Smart Misdirect) explain themselves.
+    local y = -48                       -- below the search field
+    local BTN_STEP, CAP_H = 32, 22
+    local function btn(name, icon, key, fb)
+        CreateSidebarBtn(y, name, icon, LS(key, fb))
+        y = y - BTN_STEP
+    end
+    local function caption(key, fb)
+        y = y - 6
+        CreateSidebarCaption(y - 6, LS(key, fb))
+        y = y - CAP_H
+    end
     -- Pull the live Power Infusion (id 10060) texture instead of a
     -- hard-coded FileDataID — survives art swaps in future patches.
     local piIcon
@@ -8951,11 +10440,29 @@ function BIT.SettingsUI:Init()
         local ok, tex = pcall(C_Spell.GetSpellTexture, 10060)
         if ok and tex then piIcon = tex end
     end
-    CreateSidebarBtn(5, "PI Caller",       piIcon or 135932, LS("PANEL_PI_CALLER", "PI Caller"))
-    -- Keystone icon: inv_relics_hourglass_02 (golden hourglass)
-    CreateSidebarBtn(6, "Keystone List",   525134, LS("PANEL_KEYSTONE_LIST", "Keystone List"))
-    CreateSidebarBtn(7, "Profiles",        134400, LS("PANEL_PROFILES", "Profiles"))           -- inv_misc_note_05
-    CreateSidebarBtn(8, "Changelog",       413587, LS("PANEL_CHANGELOG", "Changelog"))         -- inv_misc_book_07
+
+    btn("General",          136243, "PANEL_GENERAL",       "General")
+    caption("NAV_MODULES", "MODULES")
+    btn("Interrupts",       236281, "PANEL_INTERRUPTS",    "Interrupts")
+    btn("Keystone List",    525134, "PANEL_KEYSTONE_LIST", "Keystone List")
+    btn("Smart Misdirect",  132180, "PANEL_SMART_MD",      "Smart Misdirect")
+    caption("NAV_MANAGE", "MANAGE")
+    btn("Profiles",         134400, "PANEL_PROFILES",      "Profiles")
+    btn("Changelog",        413587, "PANEL_CHANGELOG",     "Changelog")
+    -- Modules that cannot run right now: bottom of the list, orange, no switch.
+    caption("NAV_UNAVAILABLE", "UNAVAILABLE")
+    btn("Party CDs",        236440, "PANEL_PARTY_CDS",     "Party CDs")
+    btn("PI Caller",        piIcon or 135932, "PANEL_PI_CALLER", "PI Caller")
+    btn("Defensives",       135940, "PANEL_DEFENSIVES",    "Defensives")
+    for pageName in pairs(UNAVAILABLE_MODULES) do
+        local b = sidebarBtns[pageName]
+        if b then b._unavailable = true; SidebarTextColor(b, false, false) end
+    end
+
+    -- On/off switch on every module entry.
+    for pageName in pairs(MODULE_SWITCHES) do
+        if sidebarBtns[pageName] then AttachModuleSwitch(sidebarBtns[pageName], pageName) end
+    end
 
     -- Adjust contentChild width after frame is visible
     mainFrame:HookScript("OnShow", function()
@@ -9246,8 +10753,8 @@ function BIT.SettingsUI:ShowReworkNotice()
     pop:SetBackdrop({
         bgFile   = "Interface\\BUTTONS\\WHITE8X8",
         edgeFile = "Interface\\BUTTONS\\WHITE8X8",
-        edgeSize = 1,
-        insets   = { left = 1, right = 1, top = 1, bottom = 1 },
+        edgeSize = OnePx(),
+        insets   = PxInsets(OnePx()),
     })
     pop:SetBackdropColor(0.10, 0.10, 0.12, 0.9)  -- slightly transparent panel
     pop:SetBackdropBorderColor(RGB(BORDER))

@@ -616,11 +616,18 @@ BIT.DEFAULTS = {
     -- Unit-frame overlay: mirrors the currently ACTIVE defensive as an
     -- icon centered on the member's unit frame while the buff runs.
     -- On by default (26px, centered).
-    defensiveOverlayEnabled          = true,
+    defensiveOverlayEnabled          = false,   -- opt-in
     defensiveOverlaySize             = 26,
     defensiveOverlayOffsetX          = 0,
     defensiveOverlayOffsetY          = 0,
     defensiveOverlayGlow             = true,
+    -- Where the overlay runs. Outside these contexts its aura containers
+    -- are switched off entirely (not just hidden).
+    defensiveOverlayShowInDungeon    = true,
+    defensiveOverlayShowInRaid       = false,
+    defensiveOverlayShowInOpenWorld  = true,
+    defensiveOverlayShowInArena      = false,
+    defensiveOverlayShowInBG         = false,
     -- User-toggled spell filter. Keyed by cast spellID; `true` =
     -- disabled (don't render an icon for this spell). The settings
     -- UI's Spell Filter panel lets users turn off specific spells

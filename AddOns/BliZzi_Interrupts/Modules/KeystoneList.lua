@@ -1213,6 +1213,19 @@ end)
 -- dungeon name (large, bottom). The resilient indicator is inlined into
 -- the dungeon name via |T...|t.
 ------------------------------------------------------------
+-- One physical pixel in `frame`'s own units (same formula as _onePixel in
+-- UI/UI.lua), and a value rounded to whole pixels (at least one).
+local function _onePx(frame)
+    local _, physH = GetPhysicalScreenSize()
+    local es = frame and frame:GetEffectiveScale() or 1
+    if not physH or physH <= 0 or not es or es <= 0 then return 1 end
+    return (768 / physH) / es
+end
+local function _snapPx(frame, v)
+    local px = _onePx(frame)
+    return math.max(px, math.floor(v / px + 0.5) * px)
+end
+
 local function createRow(parent)
     local row = CreateFrame("Frame", nil, parent)
     row:SetSize(FRAME_WIDTH - FRAME_PAD * 2, ROW_HEIGHT)
@@ -1248,6 +1261,11 @@ local function createRow(parent)
     row.dungeonIcon:SetAllPoints()
     -- Crop the corner artifacts off square Blizzard icons
     row.dungeonIcon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
+    -- Unsnapped like the Solid border edges, so both share one grid.
+    if row.dungeonIcon.SetSnapToPixelGrid then
+        row.dungeonIcon:SetSnapToPixelGrid(false)
+        row.dungeonIcon:SetTexelSnappingBias(0)
+    end
 
     -- Square invisible target for LibButtonGlow. The iconBox itself is
     -- rectangular (LEVEL_BOX_W × ROW_HEIGHT = 42 × 38), so anchoring the
@@ -1266,6 +1284,10 @@ local function createRow(parent)
     row.iconDim = row.iconBox:CreateTexture(nil, "ARTWORK")
     row.iconDim:SetAllPoints()
     row.iconDim:SetColorTexture(0, 0, 0, 0.35)
+    if row.iconDim.SetSnapToPixelGrid then
+        row.iconDim:SetSnapToPixelGrid(false)
+        row.iconDim:SetTexelSnappingBias(0)
+    end
 
     -- Teleport cast-progress overlay. Triggers when the player clicks
     -- a teleport icon: a "fill from left" green texture grows from
@@ -1451,6 +1473,10 @@ local function configureRow(row, keystone)
     local mirror        = BIT.db and BIT.db.keystoneListMirror == true
     local showResilient = BIT.db and BIT.db.keystoneListShowResilient ~= false
 
+    -- Whole-pixel row height and icon box width (border alignment).
+    row:SetHeight(_snapPx(row, ROW_HEIGHT))
+    row.iconBox:SetWidth(_snapPx(row, LEVEL_BOX_W))
+
     -- iconBox: pinned to the chosen edge, full row height
     row.iconBox:ClearAllPoints()
     if mirror then
@@ -1561,6 +1587,15 @@ local function configureRow(row, keystone)
         -- icon's outermost edge pixels are usually low-information
         -- (we already crop 8% via SetTexCoord above).
         local outward  = edgeSize + offset
+        -- Solid draws its edges round(size) PHYSICAL pixels thick, so the
+        -- overlay must be pushed out by the same whole-pixel amount, or a
+        -- gap opens at any effective scale other than 1.0. (With Solid the
+        -- offset therefore counts physical pixels; decorative textures keep
+        -- UI units.)
+        if BIT.db and BIT.db.borderTextureName == "Solid" then
+            local px = _onePx(row.iconBox)
+            outward = (math.floor(edgeSize + 0.5) + math.floor(offset + 0.5)) * px
+        end
 
         bo:ClearAllPoints()
         if edgeFile and edgeFile ~= "" and edgeSize > 0 then
@@ -1689,6 +1724,18 @@ local function applyFramePosition()
     local x = (BIT.db and BIT.db.keystoneListPosX) or 200
     local y = (BIT.db and BIT.db.keystoneListPosY) or 200
     local growUp = BIT.db and BIT.db.keystoneListGrowUpward == true
+    -- Snap the origin to whole physical pixels (SetPoint offsets are in the
+    -- frame's own scale, so one pixel is 768/physH/effectiveScale units).
+    -- Keeps the pixel-exact border below flush with the icon.
+    do
+        local _, physH = GetPhysicalScreenSize()
+        local es = mainFrame:GetEffectiveScale()
+        if physH and physH > 0 and es and es > 0 then
+            local px = (768 / physH) / es
+            x = math.floor(x / px + 0.5) * px
+            y = math.floor(y / px + 0.5) * px
+        end
+    end
     mainFrame:ClearAllPoints()
     -- (x, y) is the position of the LOCAL PLAYER's row anchor edge:
     --   grow-down → user's row TOP edge — frame's TOPLEFT to UIParent's BOTTOMLEFT
@@ -1736,9 +1783,18 @@ local function ensureMainFrame()
             BIT.db.keystoneListPosX = x
             BIT.db.keystoneListPosY = y
         end
+        -- StopMovingOrSizing leaves the frame anchored at a corner WoW
+        -- picks (seen: BOTTOMLEFT) and flags it user-placed, so it lands
+        -- in layout-local.txt. Re-anchor at the saved edge right away —
+        -- otherwise a later height change (test mode 5 rows -> 1) moves
+        -- the list towards that foreign anchor.
+        self:SetUserPlaced(false)
+        applyFramePosition()
     end)
 
     f:Hide()
+    -- Position comes from the profile only, never from WoW's layout cache.
+    f:SetUserPlaced(false)
     mainFrame = f
 
     -- Not registered with Blizzard Edit Mode by design — the frame has its
@@ -1970,8 +2026,10 @@ local function rebuildDisplays()
     local count = #entries
     local rowGap = (BIT.db and BIT.db.keystoneListRowGap) or 1
     if rowGap < 0 then rowGap = 0 end
-    local h = (count > 0) and (ROW_HEIGHT * count + rowGap * (count - 1)) or ROW_HEIGHT
-    mainFrame:SetSize(FRAME_WIDTH, h)
+    local rowH = _snapPx(mainFrame, ROW_HEIGHT)
+    if rowGap > 0 then rowGap = _snapPx(mainFrame, rowGap) end
+    local h = (count > 0) and (rowH * count + rowGap * (count - 1)) or rowH
+    mainFrame:SetSize(_snapPx(mainFrame, FRAME_WIDTH), h)
 
     -- Grow direction: top→down anchors row 1 at frame's TOP; bottom→up
     -- anchors row 1 at frame's BOTTOM. Subsequent rows stack in the
@@ -3366,6 +3424,7 @@ function KL:ToggleTestMode()
         self:ShowJoinBannerPreview()
     end
     self:RebuildDisplays()
+    applyFramePosition()
 end
 
 -- CPU-footer attribution for the teleport-cast fill ticker (top-level

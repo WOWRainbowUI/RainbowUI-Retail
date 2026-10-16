@@ -712,3 +712,59 @@ L["IMEX_ERR_NO_SELECTION"]   = "Mindestens ein Modul auswählen."
 L["IMEX_MODULE_HINT"]        = "Modul-Export erkannt (%s) — dieser String enthält nur die Einstellungen dieses Moduls. Das Profilnamen-Feld wird ignoriert."
 L["IMEX_MODULE_WARN"]        = "Dieser String ist ein MODUL-Export (%s), kein ganzes Profil. Der Import übernimmt nur die Einstellungen dieses Moduls in dein AKTUELLES Profil. Klicke erneut auf Importieren zum Bestätigen."
 L["IMEX_OK_MODULE"]          = "Modul-Einstellungen importiert (%s)."
+
+-- ── Settings window: page headers + search ─────────────────────────────────
+L["PAGE_DESC_GENERAL"]   = "Sprache, Design, Schriftart und Spitznamen."
+L["PAGE_DESC_INTERRUPTS"] = "Deine eigene Kick-Leiste und der Unterbrechungs-Verlauf deiner Gruppe."
+L["PAGE_DESC_PARTY_CDS"] = "Defensive und offensive Cooldowns deiner Gruppenmitglieder."
+L["PAGE_DESC_SMART_MD"]  = "Automatisches Ziel für Irreführung / Schurkenhandel (Jäger und Schurken)."
+L["PAGE_DESC_PI_CALLER"] = "Hebt einen Gruppenrahmen hervor, wenn ein Mitspieler einen Burst-Cooldown nutzt."
+L["PAGE_DESC_KEYSTONES"] = "Schlüsselsteine deiner Gruppe, mit einem Klick geteilt."
+L["PAGE_DESC_PROFILES"]  = "Profile anlegen, wechseln, importieren und exportieren."
+L["PAGE_DESC_CHANGELOG"] = "Was sich in jeder Version geändert hat."
+L["SEARCH_TITLE"]        = "Suche"
+L["SEARCH_RESULTS_FOR"]  = "Ergebnisse für \"%s\""
+L["SEARCH_NO_RESULTS"]   = "Keine Einstellung passt zu \"%s\"."
+
+-- ── Settings window: tabs, sidebar groups, header chips ────────────────────
+L["TAB_GENERAL"]         = "Allgemein"
+L["TAB_LAYOUT"]          = "Layout"
+L["TAB_LOOK"]            = "Aussehen"
+L["TAB_TEXT"]            = "Text"
+L["TAB_SOUNDS"]          = "Sounds"
+L["TAB_ALERTS"]          = "Hinweise"
+L["TAB_SPELLS"]          = "Zauber"
+L["TAB_CHAT"]            = "Chat"
+L["SEC_POSITION"]        = "Position"
+L["SEC_APPEARANCE"]      = "Darstellung"
+L["SEC_BAR_ICON"]        = "Leiste & Icon"
+L["SEC_PCD_GLOW"]        = "Leuchten"
+L["SEC_KL_LAYOUT"]       = "Layout"
+L["NAV_MODULES"]         = "MODULE"
+L["NAV_MANAGE"]          = "VERWALTUNG"
+L["HDR_ON"]              = "Aktiviert"
+L["HDR_OFF"]             = "Deaktiviert"
+L["HDR_TEST"]            = "Testmodus"
+L["HDR_LOCKED"]          = "Gesperrt"
+L["HDR_UNLOCKED"]        = "Entsperrt"
+L["HDR_CLICK_TOGGLE"]    = "Klicken zum Umschalten"
+
+-- ── Settings window: Defensives page ───────────────────────────────────────
+L["PANEL_DEFENSIVES"]    = "Defensives"
+L["PAGE_DESC_DEFENSIVES"] = "Aktive Defensives auf deinen Unitframes und ein Sound, wenn du eins erhältst – unabhängig von Party CDs."
+
+L["TAB_OVERLAY"]         = "Overlay"
+
+L["OVL_SEC_VISIBILITY"]  = "Overlay-Sichtbarkeit"
+
+-- ── Settings window: sidebar module switches ───────────────────────────────
+L["NAV_MODULE_ON"]       = "Aktiv – klicken zum Deaktivieren"
+L["NAV_MODULE_OFF"]      = "Deaktiviert – klicken zum Aktivieren"
+L["NAV_MODULE_LOCKED"]   = "Für diesen Charakter oder diese Spielversion nicht verfügbar."
+
+-- ── Settings window: unavailable modules ───────────────────────────────────
+L["NAV_UNAVAILABLE"]     = "NICHT VERFÜGBAR"
+L["UNAVAIL_PARTY_CDS"]   = "Nicht verfügbar: Diese Spielversion lässt Addons die Cooldowns von Gruppenmitgliedern nicht mehr lesen. Deine Einstellungen bleiben erhalten."
+L["UNAVAIL_PI_CALLER"]   = "Nicht verfügbar: Dieses Modul ist noch in Entwicklung und funktioniert noch nicht. Deine Einstellungen bleiben erhalten."
+
+L["UNAVAIL_DEFENSIVES"]  = "Nicht verfügbar: Overlay und Sound für Defensives werden gerade überarbeitet. Deine Einstellungen bleiben erhalten."

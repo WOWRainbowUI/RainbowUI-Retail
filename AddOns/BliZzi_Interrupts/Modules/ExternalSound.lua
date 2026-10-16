@@ -36,8 +36,88 @@ local _frame
 -- persisted through it) never ring retroactively.
 local _priming = true
 
+-- Module switched off as a whole (listed as "Unavailable" in the settings,
+-- together with the defensive overlay) while it is being reworked. The
+-- saved settings are untouched; set this to false to bring it back.
+EXT.UNAVAILABLE = true
+
 local function IsEnabled()
+    if EXT.UNAVAILABLE then return false end
     return BIT.db and BIT.db.externalSoundEnabled == true
+end
+
+------------------------------------------------------------------------
+-- Engine-played sounds (12.1+): C_UnitAuras.AddAuraSound
+--
+-- In combat the game refuses every addon aura read (secret auras), so the
+-- scan below can only ring out of combat — useless for externals, which
+-- land mid-fight. 12.1 lets an addon register "play this file when spell X
+-- is applied to unit Y"; the ENGINE then plays it, in and out of combat,
+-- without the addon ever seeing the aura. It is keyed by spell ID (there
+-- is no category filter for it), hence the list of common externals.
+-- Registration itself is done out of combat and re-done whenever the
+-- chosen sound changes.
+------------------------------------------------------------------------
+local EXTERNAL_SPELLS = {
+    33206,   -- Pain Suppression
+    47788,   -- Guardian Spirit
+    197268,  -- Ray of Hope
+    102342,  -- Ironbark
+    116849,  -- Life Cocoon
+    357170,  -- Time Dilation
+    1022,    -- Blessing of Protection
+    6940,    -- Blessing of Sacrifice
+    204018,  -- Blessing of Spellwarding
+    3411,    -- Intervene
+    147833,  -- Intervene (alternate id)
+    223658,  -- Safeguard
+    53480,   -- Roar of Sacrifice
+}
+
+local AddSoundNew = C_UnitAuras and C_UnitAuras.AddAuraSound
+local AddSoundOld = C_UnitAuras and C_UnitAuras.AddAuraAppliedSound
+local RemoveSound = C_UnitAuras and (C_UnitAuras.RemoveAuraSound or C_UnitAuras.RemoveAuraAppliedSound)
+local ENGINE_SOUNDS = (AddSoundNew or AddSoundOld) and RemoveSound and true or false
+
+local _soundIDs = {}      -- handles returned by AddAuraSound
+local _soundSig           -- what is registered right now ("" = nothing)
+local _soundPending = false
+
+local function ClearEngineSounds()
+    for i = #_soundIDs, 1, -1 do
+        pcall(RemoveSound, _soundIDs[i])
+        _soundIDs[i] = nil
+    end
+    _soundSig = ""
+end
+
+-- Register (or re-register on a sound change). Deferred to the end of
+-- combat when called during it. Returns true when the engine path is in
+-- charge (so the addon-side scan must stay off to avoid double rings).
+local function SyncEngineSounds()
+    if not ENGINE_SOUNDS then return false end
+    local path = IsEnabled() and BIT.Media and BIT.Media.GetSoundPath
+        and BIT.Media:GetSoundPath(BIT.db.externalSound) or nil
+    local sig = path or ""
+    if sig == _soundSig then _soundPending = false; return true end
+    if InCombatLockdown and InCombatLockdown() then
+        _soundPending = true
+        return true
+    end
+    _soundPending = false
+    ClearEngineSounds()
+    if not path then return true end
+    local trigger = (Enum and Enum.UnitAuraSoundTrigger and Enum.UnitAuraSoundTrigger.Added) or 0
+    for _, id in ipairs(EXTERNAL_SPELLS) do
+        local info = { unitToken = "player", spellID = id,
+                       soundFileName = path, outputChannel = "Master" }
+        local ok, handle
+        if AddSoundNew then ok, handle = pcall(AddSoundNew, trigger, info)
+        else ok, handle = pcall(AddSoundOld, info) end
+        if ok and handle then _soundIDs[#_soundIDs + 1] = handle end
+    end
+    _soundSig = sig
+    return true
 end
 
 -- Enumerate the player's currently-active external defensives by aura
@@ -46,9 +126,30 @@ end
 -- returns a clean boolean even for secret auras, and auraInstanceID is
 -- a clean number. Everything is pcall'd (these APIs are the throw-prone
 -- ones under taint).
-local function ForEachExternal(fn)
+-- Reused list for the index-walk fallback below.
+local _walk = {}
+
+-- GetUnitAuras first; when it fails (seen live: it errors in combat,
+-- exactly when externals land) fall back to walking the auras with
+-- GetAuraDataByIndex — same fallback as the defensive overlay.
+local function ReadHelpful()
     local ok, list = pcall(C_UnitAuras.GetUnitAuras, "player", "HELPFUL")
-    if not ok or type(list) ~= "table" then return end
+    if ok and type(list) == "table" and pcall(function() local _ = list[1] end) then
+        return list
+    end
+    wipe(_walk)
+    pcall(function()
+        for i = 1, 60 do
+            local a = C_UnitAuras.GetAuraDataByIndex("player", i, "HELPFUL")
+            if not a then break end
+            _walk[#_walk + 1] = a
+        end
+    end)
+    return _walk
+end
+
+local function ForEachExternal(fn)
+    local list = ReadHelpful()
     for _, aura in ipairs(list) do
         if aura and aura.auraInstanceID then
             local okE, filteredOut = pcall(C_UnitAuras.IsAuraFilteredOutByInstanceID,
@@ -93,6 +194,10 @@ local function Scan()
 end
 
 local function OnEvent(_, event, unit)
+    if event == "PLAYER_REGEN_ENABLED" then
+        if _soundPending then SyncEngineSounds() end
+        return
+    end
     if event == "UNIT_AURA" then
         if unit == "player" then Scan() end
     else
@@ -106,12 +211,22 @@ end
 
 -- Arm / disarm according to the enable toggle. Idempotent.
 function EXT:ApplyEnabled()
+    if not _frame then
+        _frame = CreateFrame("Frame")
+        _frame:SetScript("OnEvent",
+            (BIT.Prof and BIT.Prof.Wrap) and BIT.Prof.Wrap("PARTY_CDS", OnEvent) or OnEvent)
+    end
+    -- 12.1+: the engine plays the sound (works in combat). The addon-side
+    -- scan stays off so nothing rings twice.
+    if ENGINE_SOUNDS then
+        _frame:UnregisterAllEvents()
+        _priming = true
+        wipe(_seen)
+        SyncEngineSounds()   -- registers, re-registers or clears (when disabled)
+        if _soundPending then _frame:RegisterEvent("PLAYER_REGEN_ENABLED") end
+        return
+    end
     if IsEnabled() then
-        if not _frame then
-            _frame = CreateFrame("Frame")
-            _frame:SetScript("OnEvent",
-                (BIT.Prof and BIT.Prof.Wrap) and BIT.Prof.Wrap("PARTY_CDS", OnEvent) or OnEvent)
-        end
         -- RegisterUnitEvent is fine here: this only ever watches the
         -- LOCAL player, whose UNIT_AURA delivery is reliable (the
         -- party-slot delivery gap that forces broad registration

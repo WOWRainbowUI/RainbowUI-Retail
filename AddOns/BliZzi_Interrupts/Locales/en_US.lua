@@ -718,3 +718,59 @@ L["PRV_HINT"]                = "Tip: click a part of the bar above to jump to it
 L["SL_ICON_GAP"]             = "Icon Gap"
 L["SL_ICON_SIZE"]            = "Icon Size"
 L["SL_RECORD_DURATION"]      = "Interrupt history — entry duration"
+
+-- ── Settings window: page headers + search ─────────────────────────────────
+L["PAGE_DESC_GENERAL"]   = "Language, theme, font and nicknames."
+L["PAGE_DESC_INTERRUPTS"] = "Your own interrupt bar and the recent-interrupt history of your group."
+L["PAGE_DESC_PARTY_CDS"] = "Defensive and offensive cooldowns of your group members."
+L["PAGE_DESC_SMART_MD"]  = "Automatic Misdirection / Tricks of the Trade target for Hunters and Rogues."
+L["PAGE_DESC_PI_CALLER"] = "Highlights a party frame when a teammate uses a burst cooldown."
+L["PAGE_DESC_KEYSTONES"] = "Keystones of your group, shared with one click."
+L["PAGE_DESC_PROFILES"]  = "Create, switch, import and export settings profiles."
+L["PAGE_DESC_CHANGELOG"] = "What changed in each version."
+L["SEARCH_TITLE"]        = "Search"
+L["SEARCH_RESULTS_FOR"]  = "Results for \"%s\""
+L["SEARCH_NO_RESULTS"]   = "No settings match \"%s\"."
+
+-- ── Settings window: tabs, sidebar groups, header chips ────────────────────
+L["TAB_GENERAL"]         = "General"
+L["TAB_LAYOUT"]          = "Layout"
+L["TAB_LOOK"]            = "Appearance"
+L["TAB_TEXT"]            = "Text"
+L["TAB_SOUNDS"]          = "Sounds"
+L["TAB_ALERTS"]          = "Alerts"
+L["TAB_SPELLS"]          = "Spells"
+L["TAB_CHAT"]            = "Chat"
+L["SEC_POSITION"]        = "Position"
+L["SEC_APPEARANCE"]      = "Appearance"
+L["SEC_BAR_ICON"]        = "Bar & Icon"
+L["SEC_PCD_GLOW"]        = "Glow"
+L["SEC_KL_LAYOUT"]       = "Layout"
+L["NAV_MODULES"]         = "MODULES"
+L["NAV_MANAGE"]          = "MANAGE"
+L["HDR_ON"]              = "Enabled"
+L["HDR_OFF"]             = "Disabled"
+L["HDR_TEST"]            = "Test Mode"
+L["HDR_LOCKED"]          = "Locked"
+L["HDR_UNLOCKED"]        = "Unlocked"
+L["HDR_CLICK_TOGGLE"]    = "Click to toggle"
+
+-- ── Settings window: Defensives page ───────────────────────────────────────
+L["PANEL_DEFENSIVES"]    = "Defensives"
+L["PAGE_DESC_DEFENSIVES"] = "Active defensives on your unit frames and a sound when you receive one — works independently of Party CDs."
+
+L["TAB_OVERLAY"]         = "Overlay"
+
+L["OVL_SEC_VISIBILITY"]  = "Overlay Visibility"
+
+-- ── Settings window: sidebar module switches ───────────────────────────────
+L["NAV_MODULE_ON"]       = "Active — click to disable"
+L["NAV_MODULE_OFF"]      = "Disabled — click to enable"
+L["NAV_MODULE_LOCKED"]   = "Not available for this character or game version."
+
+-- ── Settings window: unavailable modules ───────────────────────────────────
+L["NAV_UNAVAILABLE"]     = "UNAVAILABLE"
+L["UNAVAIL_PARTY_CDS"]   = "Not available: this game version no longer lets addons read group members' cooldowns. Your settings are kept."
+L["UNAVAIL_PI_CALLER"]   = "Not available: this module is still in development and does not work yet. Your settings are kept."
+
+L["UNAVAIL_DEFENSIVES"]  = "Not available: the defensive overlay and sound are being reworked. Your settings are kept."

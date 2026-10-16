@@ -16,7 +16,7 @@
 ]]
 
 BIT = BIT or {}
-BIT.VERSION    = "4.2.3"
+BIT.VERSION    = "4.2.4"
 BIT.SyncCD      = BIT.SyncCD      or {}
 BIT.SyncCD.users = BIT.SyncCD.users or {}  -- name → {class, specID} — only HELLO senders, never touched by interrupt system
 BIT.syncCdState = BIT.syncCdState or {}
