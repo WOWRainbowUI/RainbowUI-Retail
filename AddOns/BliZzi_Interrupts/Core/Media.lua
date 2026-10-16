@@ -559,6 +559,25 @@ function BIT.Media:PlayKickSound(soundName)
     end
 end
 
+-- File path behind a sound name, resolved in the same order as
+-- PlayKickSound (user file → LibSharedMedia → built-in). For APIs that
+-- play the sound themselves (C_UnitAuras.AddAuraSound). nil = unknown.
+function BIT.Media:GetSoundPath(soundName)
+    if not soundName or soundName == "" or soundName == "None" then return nil end
+    for _, s in ipairs(self:GetUserSounds()) do
+        if s.name == soundName and s.file then return s.file end
+    end
+    local lsm = GetLSM()
+    if lsm then
+        local path = lsm:Fetch("sound", soundName, true)
+        if path then return path end
+    end
+    for _, s in ipairs(BUILTIN_SOUNDS) do
+        if s.name == soundName and s.file then return s.file end
+    end
+    return nil
+end
+
 ------------------------------------------------------------
 -- /bitsound — manage the user's own sound files from chat
 --

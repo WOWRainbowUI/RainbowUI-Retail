@@ -343,6 +343,18 @@ function P:NotifyAllChanged()
         end
         if BIT.UI.ApplyFramePosition then BIT.UI.ApplyFramePosition() end
     end
+    -- Modules that keep their own frames / registrations must re-read the
+    -- new profile too (position, enable state, sound, zones), or the
+    -- previous profile's state lingers until /reload.
+    if BIT.KeystoneList and BIT.KeystoneList.OnSettingsChanged then
+        pcall(BIT.KeystoneList.OnSettingsChanged, BIT.KeystoneList)
+    end
+    if BIT.DefensiveOverlay and BIT.DefensiveOverlay.ApplyEnabled then
+        pcall(BIT.DefensiveOverlay.ApplyEnabled, BIT.DefensiveOverlay)
+    end
+    if BIT.ExternalSound and BIT.ExternalSound.ApplyEnabled then
+        pcall(BIT.ExternalSound.ApplyEnabled, BIT.ExternalSound)
+    end
     if BIT.SyncCD and BIT.SyncCD.Rebuild then BIT.SyncCD:Rebuild() end
     if BIT.OffensiveCDAlert and BIT.OffensiveCDAlert.Refresh then
         BIT.OffensiveCDAlert:Refresh()

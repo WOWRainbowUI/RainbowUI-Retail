@@ -315,6 +315,9 @@ local SKIP_KEYS  = { rotationIndex = true,
                      -- exported string differ and UI-pack tooling then reported this
                      -- addon as edited when nothing about it had been configured.
                      sectionExpanded = true,
+                     -- Last-opened tab per settings page. Same UI-state reasoning
+                     -- as sectionExpanded above.
+                     settingsActiveTab = true,
                      -- Cached talent data of every group member ever seen, keyed by
                      -- GUID. Pure runtime data that grows with each dungeon, so it
                      -- changed the exported string constantly — and it is worthless to

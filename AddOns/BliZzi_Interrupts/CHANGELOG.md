@@ -1,3 +1,24 @@
+# BliZzi Party Tools 4.2.4
+
+Thanks to **Exxos** for finding and fixing the keystone list position and border bugs, with a clear repro and the exact causes.
+
+## Added
+
+* Redesigned settings window: tabs on the larger module pages, Enabled / Test Mode / Locked chips in the page header, a grouped sidebar, a short description on every page and the search field at the top with a message when nothing matches
+* On/off switch for every module in the sidebar. Switched-off modules are dimmed, so you can see at a glance what is running
+
+## Changed
+
+* The unit frame defensive overlay and the received-defensive sound are temporarily unavailable while they are being reworked for the combat restrictions of patch 12.x. They now have their own page in the settings and are listed under Unavailable. Your settings are kept
+* Party CDs and PI Caller are listed under Unavailable at the bottom of the settings sidebar, in orange and without an on/off switch, since neither can run right now. Their pages open read-only with the reason shown. Your settings are kept
+
+## Fixed
+
+* Keystone list came back about four rows lower after test mode or a reload (found and fixed by Exxos). After a drag the game kept the frame anchored at its bottom edge and stored that in its own layout cache, so the list dropped when it shrank. It is now re-anchored at the saved edge after every drag and when test mode ends, and the game's layout cache no longer owns it
+* Switching profiles, including the automatic spec switch, did not move the keystone list, and the next drag saved into the wrong profile (found and fixed by Exxos)
+* Gap between the Solid border and the keystone icon at any list scale other than 100% (found and fixed by Exxos). Rows, icon box and border now sit on whole screen pixels. With Solid, Border Offset now counts screen pixels
+* Settings: borders vanishing at some UI scales and scroll positions, and slider values staying empty until the slider was moved once
+
 # BliZzi Party Tools 4.2.3
 
 ## Added
