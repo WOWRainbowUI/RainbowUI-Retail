@@ -1,4 +1,4 @@
-## Interface: 11509, 40402, 50504, 120100
+## Interface: 11509, 40402, 50504, 120105
 ## AllowLoadGameType: vanilla, cata, mists, standard
 ## Category: DBM
 ## Title:|cffffe00a<|r|cffff7d0aDBM Tests|r|cffffe00a>|r |cff69ccf0Test runner for DBM|r
