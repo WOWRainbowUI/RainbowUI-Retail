@@ -1,3 +1,4 @@
+local GetCoinTextureString = (C_CurrencyInfo and C_CurrencyInfo.GetCoinTextureString) or _G.GetCoinTextureString
 local addonName, lv = ... -- 'lv' is our shared namespace
 local L = lv.L
 

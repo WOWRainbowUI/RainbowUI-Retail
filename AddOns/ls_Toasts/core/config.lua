@@ -492,7 +492,7 @@ function addon:CreateAceConfig()
 
 	C.options.args.layouts = addon.LayoutManager:GetOptionsTable(200)
 
-	LibStub("AceConfigDialog-3.0"):AddToBlizOptions(addonName, C.options.args.layouts.name, addon:GetBlizzCategory():GetID(), "layouts")
+	-- 未建立暴雪設定頁；版面配置保留於獨立 AceConfig 視窗。
 
 	function addon:OpenAceConfig()
 		if not InCombatLockdown() then

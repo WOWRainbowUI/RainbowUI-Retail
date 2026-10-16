@@ -1,3 +1,4 @@
+local GetCoinTextureString = (C_CurrencyInfo and C_CurrencyInfo.GetCoinTextureString) or _G.GetCoinTextureString
 -- List.lua (Enhanced Edition)
 local addonName, lv = ...
 local L = lv.L
