@@ -1,4 +1,4 @@
-## Interface: 11509, 16001, 20506, 50504, 120100
+## Interface: 11509, 16001, 20506, 50504, 120105
 ## Title: Accountant Classic
 ## Notes: Tracks gold earned and spent across your characters
 ## Title-deDE: Accountant Classic
@@ -22,7 +22,7 @@
 ## Title-zhTW: 個人會計經典版
 ## Notes-zhTW: 記錄所有角色的金幣收支
 ## Author: arith, kamusis
-## Version: v2.21.02
+## Version: v2.21.03
 ## AddonCompartmentFunc: AccountantClassic_ButtonOnClick
 ## IconTexture: Interface\AddOns\Accountant_Classic\Images\AccountantClassicButton-Up
 ## Category: Other
@@ -39,7 +39,7 @@
 ## OptionalDeps: LibStub, CallbackHandler-1.0, Ace3, LibDBIcon-1.0, !LibUIDropDownMenu
 ## SavedVariables: Accountant_ClassicSaveData, Accountant_ClassicDB, Accountant_Classic_NewDB, Accountant_ClassicZoneDB
 ## X-Credits: Sabaki, Shadow, Rophy
-## X-Date: 2026-10-06T17:28:32Z
+## X-Date: 2026-10-15T04:13:32Z
 ## X-Website: https://www.curseforge.com/wow/addons/accountant-classic
 ## X-License: GPLv2
 ## X-Category: Information
