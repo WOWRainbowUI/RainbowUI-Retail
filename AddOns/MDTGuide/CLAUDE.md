@@ -1,1 +1,0 @@
-Agents instructions: @AGENTS.md

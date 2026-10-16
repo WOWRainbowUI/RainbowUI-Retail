@@ -1,3 +1,11 @@
+Version 2.08
+
+- Update ToC version for patch 12.1
+- Restore guide mode for MDT 6.2, which moved its interface into a separate addon, thanks to damdam-gold
+- Fix guide mode buttons erroring while MDT is still building its window
+- Keep the season dropdown and dungeon buttons hidden in guide mode
+- Shorten the bottom bar in guide mode, so it no longer sticks out to the left
+
 Version 2.07
 
 - Fix boss kill tracking in Seat of the Triumvirate
