@@ -265,7 +265,7 @@ local function RegisterPRDEditMode()
         },
         {
             kind = LibEditMode.SettingType.Slider,
-            name = "Power Text Font Size",
+            name = "能量文字大小",
             default = 14,
             get = function()
                 if _G.PlayerPowerTextDB and _G.PlayerPowerTextDB.fontSize then
@@ -296,7 +296,7 @@ local function RegisterPRDEditMode()
         },
         {
             kind = LibEditMode.SettingType.Slider,
-            name = "Health Text Scale",
+            name = "血量文字縮放",
             default = 100,
             get = function()
                 local p = GetProfile()

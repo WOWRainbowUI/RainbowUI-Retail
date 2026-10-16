@@ -8,7 +8,7 @@ Each of those frames follows the same layout (confirmed in-game via the UI
 frame-stack debug tool):
     <FrameName>                     -- container
         .StatusBar                  -- the actual progress bar
-            .TypeLabel               -- FontString, e.g. "Main Hand"
+            .TypeLabel               -- FontString, e.g. "主手"
             .TypeLabelShadow         -- FontString, drop-shadow copy of TypeLabel
             .Pip                     -- (Main Hand only) swing marker, left untouched
         .Background                 -- Blizzard's background texture
@@ -17,7 +17,7 @@ frame-stack debug tool):
 This module:
     - Hides Blizzard's own Background/Border on each bar
     - Draws our own 1px border + a color-pickable background instead
-      (optionally, per bar, you can flip "Use Default Border/Background" to
+      (optionally, per bar, you can flip "使用預設邊框與背景" to
       keep Blizzard's original background/border instead - bar texture/color
       and font settings still apply on top of it)
     - Lets you retexture / recolor the status bar fill
@@ -48,9 +48,9 @@ local AceConfigDialog = LibStub and LibStub("AceConfigDialog-3.0", true)
 CustomSwingTimerBarDB = CustomSwingTimerBarDB or {}
 
 local BAR_INFO = {
-    mainhand = { frameName = "SwingTimerMainHandFrame", label = "Main Hand" },
-    offhand  = { frameName = "SwingTimerOffHandFrame",  label = "Off Hand"  },
-    ranged   = { frameName = "SwingTimerRangedFrame",   label = "Ranged"    },
+    mainhand = { frameName = "SwingTimerMainHandFrame", label = "主手" },
+    offhand  = { frameName = "SwingTimerOffHandFrame",  label = "副手"  },
+    ranged   = { frameName = "SwingTimerRangedFrame",   label = "遠程"    },
 }
 
 -- Order kept stable for iteration in the UI / copy-to-others logic
@@ -72,7 +72,7 @@ local function GetBarDefaults()
         fontFlags = "OUTLINE",          -- "", "OUTLINE", "THICKOUTLINE", "OUTLINE, MONOCHROME"
         fontColor = {1, 1, 1, 1},
 
-        -- Name text (TypeLabel + its shadow), e.g. "Main Hand".
+        -- Name text (TypeLabel + its shadow), e.g. "主手".
         -- Off by default = Blizzard's own position is left alone.
         customNamePosition = false,
         namePoint = "LEFT",             -- point on the text that gets anchored
@@ -179,9 +179,9 @@ local positionHooked = {}   -- [region] = true
 local applyingPosition = false
 
 local ANCHOR_POINTS = {
-    TOPLEFT = "Top Left", TOP = "Top", TOPRIGHT = "Top Right",
-    LEFT = "Left", CENTER = "Center", RIGHT = "Right",
-    BOTTOMLEFT = "Bottom Left", BOTTOM = "Bottom", BOTTOMRIGHT = "Bottom Right",
+    TOPLEFT = "左上", TOP = "上方", TOPRIGHT = "右上",
+    LEFT = "左側", CENTER = "中央", RIGHT = "右側",
+    BOTTOMLEFT = "左下", BOTTOM = "下方", BOTTOMRIGHT = "右下",
 }
 local ANCHOR_ORDER = {
     "TOPLEFT", "TOP", "TOPRIGHT", "LEFT", "CENTER", "RIGHT", "BOTTOMLEFT", "BOTTOM", "BOTTOMRIGHT",
@@ -495,10 +495,10 @@ local function MediaFilenameToKey(mediaType, filename)
 end
 
 local FONT_FLAG_VALUES = {
-    NONE = "None",
-    OUTLINE = "Outline",
-    THICKOUTLINE = "Thick Outline",
-    ["OUTLINE, MONOCHROME"] = "Monochrome Outline",
+    NONE = "無",
+    OUTLINE = "描邊",
+    THICKOUTLINE = "粗描邊",
+    ["OUTLINE, MONOCHROME"] = "單色描邊",
 }
 
 -- Builds the "custom position" option block (toggle + anchor points + X/Y)
@@ -517,16 +517,16 @@ local function BuildPositionArgs(key, p, title, baseOrder)
         [p.toggle] = {
             type = "toggle",
             order = baseOrder + 1,
-            name = "Custom Position",
-            desc = "Move this text yourself instead of using Blizzard's position. Turn off to restore the default.",
+            name = "自訂位置",
+            desc = "自行調整文字位置，停用後恢復暴雪預設位置。",
             get = function() return s()[p.toggle] end,
             set = setter(p.toggle),
         },
         [p.point] = {
             type = "select",
             order = baseOrder + 2,
-            name = "Text Anchor Point",
-            desc = "Which point of the text gets attached to the bar.",
+            name = "文字對齊點",
+            desc = "選擇文字上用來對齊計量條的位置。",
             values = ANCHOR_POINTS,
             sorting = ANCHOR_ORDER,
             disabled = off,
@@ -536,8 +536,8 @@ local function BuildPositionArgs(key, p, title, baseOrder)
         [p.rel] = {
             type = "select",
             order = baseOrder + 3,
-            name = "Bar Anchor Point",
-            desc = "Which point of the bar the text attaches to.",
+            name = "計量條對齊點",
+            desc = "選擇計量條上用來對齊文字的位置。",
             values = ANCHOR_POINTS,
             sorting = ANCHOR_ORDER,
             disabled = off,
@@ -547,7 +547,7 @@ local function BuildPositionArgs(key, p, title, baseOrder)
         [p.x] = {
             type = "range",
             order = baseOrder + 4,
-            name = "X Offset",
+            name = "水平偏移",
             min = -200, max = 200, step = 1,
             disabled = off,
             get = function() return s()[p.x] end,
@@ -556,7 +556,7 @@ local function BuildPositionArgs(key, p, title, baseOrder)
         [p.y] = {
             type = "range",
             order = baseOrder + 5,
-            name = "Y Offset",
+            name = "垂直偏移",
             min = -100, max = 100, step = 1,
             disabled = off,
             get = function() return s()[p.y] end,
@@ -575,19 +575,19 @@ local function BuildBarOptionsGroup(key, order)
             enabled = {
                 type = "toggle",
                 order = 1,
-                name = "Enable Reskin",
-                desc = "Reskin the " .. info.label .. " swing timer bar. Turn off to restore Blizzard's default look.",
+                name = "啟用外觀增強",
+                desc = "調整" .. info.label .. "攻擊計時條的外觀。停用後恢復暴雪預設外觀。",
                 get = function() return EnsureBarDefaults(key).enabled end,
                 set = function(_, val)
                     EnsureBarDefaults(key).enabled = val
                     ApplySwingBarSkin(key)
                 end,
             },
-            textureHeader = { type = "header", name = "Bar", order = 2 },
+            textureHeader = { type = "header", name = "計量條", order = 2 },
             texture = {
                 type = "select",
                 order = 3,
-                name = "Bar Texture",
+                name = "計量條材質",
                 values = function() return BuildMediaValues("statusbar") end,
                 get = function() return MediaKeyToFilename("statusbar", EnsureBarDefaults(key).texture) end,
                 set = function(_, val)
@@ -598,8 +598,8 @@ local function BuildBarOptionsGroup(key, order)
             useCustomBarColor = {
                 type = "toggle",
                 order = 4,
-                name = "Custom Bar Color",
-                desc = "Tint the bar fill with the color below instead of its default color.",
+                name = "自訂計量條顏色",
+                desc = "使用下方顏色取代計量條的預設填充顏色。",
                 get = function() return EnsureBarDefaults(key).useCustomBarColor end,
                 set = function(_, val)
                     EnsureBarDefaults(key).useCustomBarColor = val
@@ -610,7 +610,7 @@ local function BuildBarOptionsGroup(key, order)
                 type = "color",
                 hasAlpha = true,
                 order = 5,
-                name = "Bar Color",
+                name = "計量條顏色",
                 disabled = function() return not EnsureBarDefaults(key).useCustomBarColor end,
                 get = function() return unpack(EnsureBarDefaults(key).barColor) end,
                 set = function(_, r, g, b, a)
@@ -618,12 +618,12 @@ local function BuildBarOptionsGroup(key, order)
                     ApplySwingBarSkin(key)
                 end,
             },
-            bgHeader = { type = "header", name = "Background && Border", order = 6 },
+            bgHeader = { type = "header", name = "背景與邊框", order = 6 },
             useDefaultBorderBackground = {
                 type = "toggle",
                 order = 7,
-                name = "Use Default Border/Background",
-                desc = "Keep Blizzard's own background and border on this bar instead of our custom ones. Bar texture/color and font settings still apply.",
+                name = "使用預設邊框與背景",
+                desc = "保留暴雪原有的背景及邊框；計量條材質、顏色及字體設定仍然生效。",
                 get = function() return EnsureBarDefaults(key).useDefaultBorderBackground end,
                 set = function(_, val)
                     EnsureBarDefaults(key).useDefaultBorderBackground = val
@@ -634,8 +634,8 @@ local function BuildBarOptionsGroup(key, order)
                 type = "color",
                 hasAlpha = true,
                 order = 8,
-                name = "Background Color",
-                desc = "Replaces Blizzard's background with this color.",
+                name = "背景顏色",
+                desc = "使用此顏色取代暴雪預設背景。",
                 disabled = function() return EnsureBarDefaults(key).useDefaultBorderBackground end,
                 get = function() return unpack(EnsureBarDefaults(key).bgColor) end,
                 set = function(_, r, g, b, a)
@@ -646,8 +646,8 @@ local function BuildBarOptionsGroup(key, order)
             showCustomBorder = {
                 type = "toggle",
                 order = 9,
-                name = "Show Border",
-                desc = "Replaces Blizzard's border with a plain 1px border.",
+                name = "顯示邊框",
+                desc = "使用簡單的 1 像素邊框取代暴雪預設邊框。",
                 disabled = function() return EnsureBarDefaults(key).useDefaultBorderBackground end,
                 get = function() return EnsureBarDefaults(key).showCustomBorder end,
                 set = function(_, val)
@@ -659,7 +659,7 @@ local function BuildBarOptionsGroup(key, order)
                 type = "color",
                 hasAlpha = true,
                 order = 10,
-                name = "Border Color",
+                name = "邊框顏色",
                 disabled = function()
                     local s = EnsureBarDefaults(key)
                     return s.useDefaultBorderBackground or not s.showCustomBorder
@@ -673,7 +673,7 @@ local function BuildBarOptionsGroup(key, order)
             borderSize = {
                 type = "range",
                 order = 11,
-                name = "Border Thickness",
+                name = "邊框粗細",
                 min = 1, max = 4, step = 1,
                 disabled = function()
                     local s = EnsureBarDefaults(key)
@@ -685,11 +685,11 @@ local function BuildBarOptionsGroup(key, order)
                     ApplySwingBarSkin(key)
                 end,
             },
-            fontHeader = { type = "header", name = "Text (Label / Timer)", order = 12 },
+            fontHeader = { type = "header", name = "文字（名稱／計時）", order = 12 },
             font = {
                 type = "select",
                 order = 13,
-                name = "Font",
+                name = "字體",
                 values = function() return BuildMediaValues("font") end,
                 get = function() return MediaKeyToFilename("font", EnsureBarDefaults(key).font) end,
                 set = function(_, val)
@@ -700,7 +700,7 @@ local function BuildBarOptionsGroup(key, order)
             fontSize = {
                 type = "range",
                 order = 14,
-                name = "Font Size",
+                name = "字體大小",
                 min = 6, max = 32, step = 1,
                 get = function() return EnsureBarDefaults(key).fontSize end,
                 set = function(_, val)
@@ -711,7 +711,7 @@ local function BuildBarOptionsGroup(key, order)
             fontFlags = {
                 type = "select",
                 order = 15,
-                name = "Font Outline",
+                name = "字體描邊",
                 values = FONT_FLAG_VALUES,
                 get = function() return EnsureBarDefaults(key).fontFlags end,
                 set = function(_, val)
@@ -723,7 +723,7 @@ local function BuildBarOptionsGroup(key, order)
                 type = "color",
                 hasAlpha = true,
                 order = 16,
-                name = "Font Color",
+                name = "字體顏色",
                 get = function() return unpack(EnsureBarDefaults(key).fontColor) end,
                 set = function(_, r, g, b, a)
                     EnsureBarDefaults(key).fontColor = {r, g, b, a}
@@ -734,10 +734,10 @@ local function BuildBarOptionsGroup(key, order)
             copyToOthers = {
                 type = "execute",
                 order = 61,
-                name = "Copy to Other Bars",
-                desc = "Copy this bar's settings to the other two swing timer bars.",
+                name = "複製到其他計量條",
+                desc = "將此計量條的設定複製到另外兩個攻擊計時條。",
                 confirm = true,
-                confirmText = "Copy " .. info.label .. "'s settings to the other swing timer bars?",
+                confirmText = "將" .. info.label .. "設定複製到其他攻擊計時條？",
                 func = function()
                     local src = EnsureBarDefaults(key)
                     for _, otherKey in ipairs(BAR_ORDER) do
@@ -761,11 +761,11 @@ local function BuildBarOptionsGroup(key, order)
     local nameArgs = BuildPositionArgs(key, {
         toggle = "customNamePosition", point = "namePoint", rel = "nameRelPoint",
         x = "nameX", y = "nameY",
-    }, "Name Text Position", 20)
+    }, "名稱文字位置", 20)
     local timerArgs = BuildPositionArgs(key, {
         toggle = "customTimerPosition", point = "timerPoint", rel = "timerRelPoint",
         x = "timerX", y = "timerY",
-    }, "Timer Text Position", 40)
+    }, "計時文字位置", 40)
     for k, v in pairs(nameArgs) do group.args[k] = v end
     for k, v in pairs(timerArgs) do group.args[k] = v end
 
@@ -774,7 +774,7 @@ end
 
 local CustomSwingTimerBarOptions = {
     type = "group",
-    name = "Swing Timer Bars",
+    name = "攻擊計時條",
     childGroups = "tab",
     args = {
         mainhand = BuildBarOptionsGroup("mainhand", 1),

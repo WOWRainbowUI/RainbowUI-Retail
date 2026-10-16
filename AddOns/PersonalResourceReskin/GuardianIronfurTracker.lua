@@ -281,8 +281,8 @@ GuardianIronfurTrackerOptions = {
         enabled = {
             order = 1,
             type = "toggle",
-            name = "Enable Ironfur Tracker",
-            desc = "Enable or disable the Guardian Ironfur Tracker.",
+            name = "啟用鐵鬃監控",
+            desc = "啟用或停用守護者德魯伊的鐵鬃監控。",
             get = function() return GuardianIronfurTrackerDB.enabled ~= false end,
             set = function(_, val)
                 GuardianIronfurTrackerDB.enabled = val

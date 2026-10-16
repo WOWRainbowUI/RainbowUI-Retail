@@ -1448,8 +1448,8 @@ function PersonalResourceReskin:OnInitialize()
                 order = 0.6,
             },
             powerTextFontSize = {
-                name = "Power Text Font Size",
-                desc = "Adjust the font size of the power text on the Personal Resource Display.",
+                name = "能量文字大小",
+                desc = "調整個人資源條的能量文字大小。",
                 type = "range",
                 min = 8,
                 max = 100,
@@ -1792,8 +1792,8 @@ function PersonalResourceReskin:OnInitialize()
             end,
         },
         healthBgTexture = {
-            name = "Health Bar Background Texture",
-            desc = "Select the texture for the health bar background.",
+            name = "血量條背景材質",
+            desc = "選擇血量條的背景材質。",
             type = "select",
             values = function()
                 local list = LSM:List("statusbar")
@@ -1820,8 +1820,8 @@ function PersonalResourceReskin:OnInitialize()
             end,
         },
         altPowerBgTexture = {
-            name = "Alt Power Bar Background Texture",
-            desc = "Select the texture for the alternate power bar background.",
+            name = "替代能量條背景材質",
+            desc = "選擇替代能量條的背景材質。",
             type = "select",
             values = function()
                 local list = LSM:List("statusbar")
@@ -1848,8 +1848,8 @@ function PersonalResourceReskin:OnInitialize()
             end,
         },
         powerBgTexture = {
-            name = "Power Bar Background Texture",
-            desc = "Select the texture for the power bar background.",
+            name = "能量條背景材質",
+            desc = "選擇能量條的背景材質。",
             type = "select",
             values = function()
                 local list = LSM:List("statusbar")
@@ -1865,10 +1865,10 @@ function PersonalResourceReskin:OnInitialize()
             width = 2,
         },
         widthMode = {
-            name = "Width Mode",
-            desc = "Manual: set widths yourself. Match Essential/Utility Viewer: auto-sync all PRD bar widths to the selected cooldown viewer.",
+            name = "寬度模式",
+            desc = "手動：自行設定寬度。符合主要／輔助冷卻管理器：將所有個人資源條寬度自動同步到所選的冷卻管理器。",
             type = "select",
-            values = { MANUAL = "Manual", ESSENTIAL = "Match Essential Viewer", UTILITY = "Match Utility Viewer" },
+            values = { MANUAL = "手動", ESSENTIAL = "符合主要冷卻管理器", UTILITY = "符合輔助冷卻管理器" },
             get = function() return GetProfile().widthMode or "MANUAL" end,
             set = function(_, val)
                 GetProfile().widthMode = val
@@ -2233,8 +2233,8 @@ function PersonalResourceReskin:OnInitialize()
             order = 0.844,
         },
         hideBarBorders = {
-            name = "Hide Bar Borders",
-            desc = "Hide the borders Blizzard added around the Health, Power and Alternate Power bars (patch 12.0.7+).",
+            name = "隱藏計量條邊框",
+            desc = "隱藏暴雪在血量條、能量條及替代能量條周圍加入的邊框（12.0.7 及之後版本）。",
             type = "toggle",
             get = function() return GetProfile().hideBarBorders end,
             set = function(_, val)
