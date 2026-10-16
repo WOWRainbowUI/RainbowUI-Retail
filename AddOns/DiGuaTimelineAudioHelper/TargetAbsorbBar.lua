@@ -474,7 +474,7 @@ moveFrame:SetBackdrop({
 moveFrame:SetBackdropColor(0.25, 0.65, 1, 0.4) -- 淡蓝色底（跟焦点施法条定位框完全一致）
 moveFrame.text = moveFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
 moveFrame.text:SetPoint("CENTER")
-moveFrame.text:SetText("boss1 护盾条")
+moveFrame.text:SetText("首領護盾條")
 moveFrame.text:SetTextColor(1, 1, 1, 0.9)
 moveFrame.text:SetJustifyH("CENTER")
 ApplySavedPosition(moveFrame)

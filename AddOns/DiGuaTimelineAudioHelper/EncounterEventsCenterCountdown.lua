@@ -161,7 +161,7 @@ Base.bg:Hide()
 -- 拖拽时的文字提示（跟着黄框挪到框体正中：高 58 → 中心在 +29）
 Base.txt = Base:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
 Base.txt:SetPoint("CENTER", Base, "CENTER", 0, 29)
-Base.txt:SetText("剩余5秒\n倒计时")
+Base.txt:SetText("剩餘5秒\n倒數計時")
 Base.txt:SetTextColor(1, 1, 1, 0.9)
 Base.txt:Hide()
 

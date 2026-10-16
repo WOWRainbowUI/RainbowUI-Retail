@@ -595,7 +595,7 @@ RingEditFrame.bg:SetColorTexture(0.4, 1, 0.8, 0.25) -- 与圆环同主题的青�
 
 RingEditFrame.text = RingEditFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
 RingEditFrame.text:SetPoint("CENTER")
-RingEditFrame.text:SetText("倒计时\n圆环")
+RingEditFrame.text:SetText("倒數計時\n圓環")
 RingEditFrame.text:SetTextColor(1, 1, 1, 0.9)
 RingEditFrame.text:SetJustifyH("CENTER")
 RingEditFrame.text:SetSpacing(2)

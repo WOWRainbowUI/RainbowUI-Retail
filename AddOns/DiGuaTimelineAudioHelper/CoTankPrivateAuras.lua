@@ -142,7 +142,7 @@ HostFrame.bg:Hide() -- 默认隐藏
 
 HostFrame.text = HostFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
 HostFrame.text:SetPoint("CENTER", HostFrame, "CENTER", 0, 0)
-HostFrame.text:SetText("副坦\n减益")
+HostFrame.text:SetText("副坦\n減益")
 HostFrame.text:SetTextColor(1, 1, 1, 0.9)
 HostFrame.text:SetJustifyH("CENTER")
 HostFrame.text:SetSpacing(2)

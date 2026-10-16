@@ -183,7 +183,7 @@ HostFrame.bg:Hide()
 
 HostFrame.text = HostFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
 HostFrame.text:SetPoint("CENTER")
-HostFrame.text:SetText("首领\n转阶段\n血量%")
+HostFrame.text:SetText("首領\n階段轉換\n血量%")
 HostFrame.text:SetTextColor(1, 1, 1, 0.95)
 HostFrame.text:SetJustifyH("CENTER")
 HostFrame.text:SetSpacing(2)
@@ -210,7 +210,7 @@ for i = 1, #Labels do
     local c = HostFrame:CreateFontString(nil, "OVERLAY")
     c:SetPoint("BOTTOM", Labels[i], "TOP", 0, 3)
     c:SetFont(STANDARD_TEXT_FONT or "Fonts\\FRIZQT__.TTF", 40, "OUTLINE")
-    c:SetText("转阶段")
+    c:SetText("階段轉換")
     c:SetTextColor(1, 0.82, 0, 1) -- 金色
     c:SetShadowOffset(1, -1)
     c:SetShadowColor(0, 0, 0, 0.85)
