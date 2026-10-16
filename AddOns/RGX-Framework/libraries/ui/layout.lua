@@ -340,9 +340,9 @@ function UI:CreatePager(parent, opts)
     nav:SetWidth(buttonWidth * 2 + 8 + 110)
     nav:SetPoint("TOPRIGHT", parent, "TOPRIGHT", -8, -4)
 
-    local nextBtn = UI:CreateButton(nav, "Next", buttonWidth, buttonHeight)
+    local nextBtn = UI:CreateButton(nav, GetLocale() == "zhTW" and "下一頁" or "Next", buttonWidth, buttonHeight)
     nextBtn:SetPoint("TOPRIGHT", nav, "TOPRIGHT", 0, 0)
-    local prevBtn = UI:CreateButton(nav, "Prev", buttonWidth, buttonHeight)
+    local prevBtn = UI:CreateButton(nav, GetLocale() == "zhTW" and "上一頁" or "Prev", buttonWidth, buttonHeight)
     prevBtn:SetPoint("TOPRIGHT", nextBtn, "TOPLEFT", -8, 0)
 
     local label = nav:CreateFontString(nil, "OVERLAY", "GameFontNormal")
@@ -351,7 +351,7 @@ function UI:CreatePager(parent, opts)
     label:SetTextColor(D:Unpack("subtext"))
 
     local function UpdateNav()
-        label:SetText(format("Page %d of %d", pager.page, pageCount))
+        label:SetText(format(GetLocale() == "zhTW" and "第 %d / %d 頁" or "Page %d of %d", pager.page, pageCount))
         local tr, tg, tb = D:Unpack("text")
         local sr, sg, sb = D:Unpack("subtext")
         if pager.page > 1 then
