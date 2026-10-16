@@ -340,10 +340,14 @@ local AceConfigDialog = LibStub("AceConfigDialog-3.0")
 local PersonalResourceReskin = AceAddon:NewAddon("PersonalResourceReskin", "AceConsole-3.0")
 _G["PersonalResourceReskin"] = PersonalResourceReskin
 
-LSM:Register("statusbar", "White8x8", "Interface\\AddOns\\Personal Resource Display\\media\\White8x8.tga")
+-- 臨時修正：使用隨包材質；作者修正後優先採用作者實作。
+LSM:Register("statusbar", "White8x8", "Interface\\AddOns\\PersonalResourceReskin\\Media\\white8x8.tga")
 
 -- Register shrub.tga as a custom texture
-LSM:Register("statusbar", "Shrub", "Interface\\AddOns\\PersonalResourceReskin\\Media\\shrub.tga")
+local shrubTexture = "Interface\\AddOns\\PersonalResourceReskin\\Media\\shrub.tga"
+if C_UIFileAsset.IsKnownFile(shrubTexture) then
+    LSM:Register("statusbar", "Shrub", shrubTexture)
+end
 
 local defaults = {
     profile = {
