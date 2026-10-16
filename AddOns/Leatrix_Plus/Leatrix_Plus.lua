@@ -1,5 +1,5 @@
 ﻿----------------------------------------------------------------------
--- 	Leatrix Plus 12.1.10 (14th October 2026)
+-- 	Leatrix Plus 12.1.11 (15th October 2026)
 ----------------------------------------------------------------------
 
 --	01:Functions 02:Locks,  03:Restart 40:Player
@@ -18,7 +18,7 @@
 	local void
 
 	-- Version
-	LeaPlusLC["AddonVer"] = "12.1.10"
+	LeaPlusLC["AddonVer"] = "12.1.11"
 
 	-- Get locale table
 	local void, Leatrix_Plus = ...
@@ -599,7 +599,6 @@
 		LeaPlusLC:LockOption("MuteCustomSounds", "MuteCustomSoundsBtn", false)		-- Mute custom sounds
 		LeaPlusLC:LockOption("FasterLooting", "FasterLootingBtn", true)				-- Faster auto loot
 		LeaPlusLC:LockOption("NoTransforms", "NoTransformsBtn", false)				-- Remove transforms
-		LeaPlusLC:LockOption("SetAddtonOptions", "SetAddtonOptionsBtn", true)		-- Set additional options
 		LeaPlusLC:LockOption("SetEditModeLayout", "SetEditModeLayoutBtn", false)	-- Set edit mode layout
 	end
 
@@ -680,9 +679,6 @@
 		or	(LeaPlusLC["FasterMovieSkip"]		~= LeaPlusDB["FasterMovieSkip"])		-- Faster movie skip
 		or	(LeaPlusLC["CombatPlates"]			~= LeaPlusDB["CombatPlates"])			-- Combat plates
 		or	(LeaPlusLC["EasyItemDestroy"]		~= LeaPlusDB["EasyItemDestroy"])		-- Easy item destroy
-		or	(LeaPlusLC["SetAddtonOptions"]		~= LeaPlusDB["SetAddtonOptions"])		-- Set additional options
-		or	(LeaPlusLC["AddOptNoCombatBox"]		~= LeaPlusDB["AddOptNoCombatBox"])		-- Uncheck combat animation checkbox
-		or	(LeaPlusLC["AddOptNoMountBox"]		~= LeaPlusDB["AddOptNoMountBox"])		-- Uncheck mount special animation checkbox
 
 		-- Settings
 		or	(LeaPlusLC["UseEnglishLanguage"]	~= LeaPlusDB["UseEnglishLanguage"])		-- Use English language
@@ -1116,84 +1112,6 @@
 					LeaPlusLC:HideFrames()
 				end
 			end)
-
-		end
-
-		----------------------------------------------------------------------
-		-- Set additional options
-		----------------------------------------------------------------------
-
-		if LeaPlusLC["SetAddtonOptions"] == "On" then
-
-			-- Create scrolling configuration panel
-			local addOptPanel = LeaPlusLC:CreatePanel("Set additional options", "addOptPanel", true)
-
-			-- Initialise row count
-			local row = -1
-
-			-- Add checkboxes
-			row = row + 2; LeaPlusLC:MakeTx(addOptPanel.scrollChild, "Trading post", 16, -((row - 1) * 20) - 2)
-			row = row + 1; LeaPlusLC:MakeCB(addOptPanel.scrollChild, "AddOptNoCombatBox", "Uncheck combat animation checkbox", 16, -((row - 1) * 20) - 2, true, "If checked, the trading post combat animation checkbox will be unchecked by default.")
-			row = row + 1; LeaPlusLC:MakeCB(addOptPanel.scrollChild, "AddOptNoMountBox", "Uncheck mount special animation checkbox", 16, -((row - 1) * 20) - 2, true, "If checked, the mount special animation checkbox will be unchecked by default.")
-
-			-- Help button hidden
-			addOptPanel.h:Hide()
-
-			-- Back button handler
-			addOptPanel.b:SetScript("OnClick", function()
-				addOptPanel:Hide(); LeaPlusLC["PageF"]:Show(); LeaPlusLC["Page7"]:Show()
-				return
-			end)
-
-			-- Reset button handler
-			addOptPanel.r:SetScript("OnClick", function()
-
-				-- Refresh panel
-				addOptPanel:Hide(); addOptPanel:Show()
-
-			end)
-
-			-- Reset button hidden
-			addOptPanel.r:Hide()
-
-			-- Show panal when options panel button is clicked
-			LeaPlusCB["SetAddtonOptionsBtn"]:SetScript("OnClick", function()
-				if IsShiftKeyDown() and IsControlKeyDown() then
-					-- Preset profile
-				else
-					addOptPanel:Show()
-					LeaPlusLC:HideFrames()
-				end
-			end)
-
-			-- Run options on startup
-			do
-
-				-- Uncheck combat animation checkbox
-				if LeaPlusLC["AddOptNoCombatBox"] == "On" then
-					EventUtil.ContinueOnAddOnLoaded("Blizzard_PerksProgram", function()
-						hooksecurefunc(PerksProgramFrame.FooterFrame.ToggleAttackAnimation, "SetChecked", function(self)
-							if self:GetChecked() then self:Click() end
-						end)
-					end)
-				end
-
-				-- Uncheck mount special animation checkbox
-				if LeaPlusLC["AddOptNoMountBox"] == "On" then
-					EventUtil.ContinueOnAddOnLoaded("Blizzard_PerksProgram", function()
-						hooksecurefunc(PerksProgramFrame.FooterFrame.ToggleMountSpecial, "SetChecked", function(self)
-							if self:GetChecked() then
-								self:Click()
-								PerksProgramFrame:SetMountSpecialPreviewOnClick(false)
-								RunNextFrame(function()
-									PerksProgramFrame:SetMountSpecialPreviewOnClick(false)
-								end)
-							end
-						end)
-					end)
-				end
-
-			end
 
 		end
 
@@ -6553,6 +6471,47 @@
 				-- Mask texture
 				Minimap:SetMaskTexture('Interface\\ChatFrame\\ChatFrameBackground')
 
+				-- Keep the square look (rotation, FarmHud and other addons can change the mask or show the rings)
+				local SQUARE_MASK = "Interface\\ChatFrame\\ChatFrameBackground"
+				local applyingMask = false
+
+				-- Hide the compass rings and apply the square mask
+				local function ApplySquareLook()
+					MinimapCompassTexture:Hide()
+					if MinimapCompassTextureUnderlay then MinimapCompassTextureUnderlay:Hide() end
+					applyingMask = true
+					Minimap:SetMaskTexture(SQUARE_MASK)
+					applyingMask = false
+				end
+
+				-- Apply the square look now and again after Blizzard's own code has finished running
+				local function ReapplySquare()
+					ApplySquareLook()
+					C_Timer.After(0, ApplySquareLook)
+				end
+
+				-- Put the square mask back if anything changes it
+				hooksecurefunc(Minimap, "SetMaskTexture", function()
+					if not applyingMask then ApplySquareLook() end
+				end)
+
+				-- Keep the rings hidden if anything shows them
+				hooksecurefunc(MinimapCompassTexture, "Show", ApplySquareLook)
+				if MinimapCompassTextureUnderlay then
+					hooksecurefunc(MinimapCompassTextureUnderlay, "Show", ApplySquareLook)
+				end
+
+				-- Reapply the square look on loading screens and when minimap rotation is toggled
+				local squareWatcher = CreateFrame("Frame")
+				squareWatcher:RegisterEvent("CVAR_UPDATE")
+				squareWatcher:RegisterEvent("PLAYER_ENTERING_WORLD")
+				squareWatcher:SetScript("OnEvent", function(self, event, cvar)
+					if event == "PLAYER_ENTERING_WORLD" or (cvar and strlower(cvar) == "rotateminimap") then
+						ReapplySquare()
+					end
+				end)
+				ReapplySquare()
+
 				-- Fix textures
 				Minimap:SetArchBlobRingScalar(0)
 				Minimap:SetArchBlobRingAlpha(0)
@@ -11188,9 +11147,6 @@
 				LeaPlusLC:LoadVarChk("CombatPlates", "Off")					-- Combat plates
 				LeaPlusLC:LoadVarChk("EasyItemDestroy", "Off")				-- Easy item destroy
 				LeaPlusLC:LoadVarChk("NoTransforms", "Off")					-- Remove transforms
-				LeaPlusLC:LoadVarChk("SetAddtonOptions", "Off")				-- Set additional options
-				LeaPlusLC:LoadVarChk("AddOptNoCombatBox", "Off")			-- Uncheck combat animation checkbox
-				LeaPlusLC:LoadVarChk("AddOptNoMountBox", "Off")				-- Uncheck mount special animation checkbox
 
 				-- Settings
 				LeaPlusLC:LoadVarChk("ShowMinimapIcon", "On")				-- Show minimap button
@@ -11534,9 +11490,6 @@
 			LeaPlusDB["CombatPlates"]			= LeaPlusLC["CombatPlates"]
 			LeaPlusDB["EasyItemDestroy"]		= LeaPlusLC["EasyItemDestroy"]
 			LeaPlusDB["NoTransforms"] 			= LeaPlusLC["NoTransforms"]
-			LeaPlusDB["SetAddtonOptions"] 		= LeaPlusLC["SetAddtonOptions"]
-			LeaPlusDB["AddOptNoCombatBox"] 		= LeaPlusLC["AddOptNoCombatBox"]
-			LeaPlusDB["AddOptNoMountBox"] 		= LeaPlusLC["AddOptNoMountBox"]
 
 			-- Settings
 			LeaPlusDB["ShowMinimapIcon"] 		= LeaPlusLC["ShowMinimapIcon"]
@@ -14263,9 +14216,6 @@
 				LeaPlusDB["CombatPlates"] = "On"				-- Combat plates
 				LeaPlusDB["EasyItemDestroy"] = "On"				-- Easy item destroy
 				LeaPlusDB["NoTransforms"] = "On"				-- Remove transforms
-				LeaPlusDB["SetAddtonOptions"] = "On"			-- Set additional options
-				LeaPlusDB["AddOptNoCombatBox"] = "On"			-- Uncheck combat animation checkbox
-				LeaPlusDB["AddOptNoMountBox"] = "On"			-- Uncheck mount special animation checkbox
 
 				LeaPlusDB["UseEnglishLanguage"] = "On"			-- Use English language
 				LeaPlusDB["SetEditModeLayout"] = "On"			-- Set edit mode layout
@@ -15216,7 +15166,6 @@
 	LeaPlusLC:MakeCB(LeaPlusLC[pg], "CombatPlates"				, 	"Combat plates"					,	340, -192, 	true,	"If checked, enemy nameplates will be shown during combat and hidden when combat ends.")
 	LeaPlusLC:MakeCB(LeaPlusLC[pg], "EasyItemDestroy"			, 	"Easy item destroy"				,	340, -212, 	true,	"If checked, you will no longer need to type delete when destroying a superior quality item.|n|nIn addition, item links will be shown in all item destroy confirmation windows.")
 	LeaPlusLC:MakeCB(LeaPlusLC[pg], "NoTransforms"				, 	"Remove transforms"				, 	340, -232, 	false, 	"If checked, you will be able to have certain transforms removed automatically when they are applied to your character.|n|nYou can choose the transforms in the configuration panel.|n|nExamples include Weighted Jack-o'-Lantern and Hallowed Wand.|n|nTransforms applied during combat will be removed when combat ends.")
-	LeaPlusLC:MakeCB(LeaPlusLC[pg], "SetAddtonOptions"			, 	"Set additional options"		, 	340, -252, 	true, 	"If checked, you will be able to set some additional options.")
 
 	LeaPlusLC:CfgBtn("SetWeatherDensityBtn", LeaPlusCB["SetWeatherDensity"])
 	LeaPlusLC:CfgBtn("MuteGameSoundsBtn", LeaPlusCB["MuteGameSounds"])
@@ -15224,7 +15173,6 @@
 	LeaPlusLC:CfgBtn("MuteCustomSoundsBtn", LeaPlusCB["MuteCustomSounds"])
 	LeaPlusLC:CfgBtn("FasterLootingBtn", LeaPlusCB["FasterLooting"])
 	LeaPlusLC:CfgBtn("NoTransformsBtn", LeaPlusCB["NoTransforms"])
-	LeaPlusLC:CfgBtn("SetAddtonOptionsBtn", LeaPlusCB["SetAddtonOptions"])
 
 ----------------------------------------------------------------------
 -- 	LC8: Settings
