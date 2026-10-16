@@ -114,6 +114,12 @@ function addon:OnInitialize()
     self.db.RegisterCallback(self, "OnProfileChanged", "OnProfileChanged")
     self.db.RegisterCallback(self, "OnProfileCopied", "OnProfileChanged")
     self.db.RegisterCallback(self, "OnProfileReset", "OnProfileChanged")
+    -- 臨時修正：AceDB 清除預設值前停止事件與更新；作者修正後優先採作者實作。
+    self.db.RegisterCallback(self, "OnDatabaseShutdown", function()
+        AssistedCombatIconFrame:Stop()
+        AssistedCombatIconFrame:UnregisterAllEvents()
+        AssistedCombatIconFrame:SetScript("OnUpdate", nil)
+    end)
 
     self:SetupOptions()
 

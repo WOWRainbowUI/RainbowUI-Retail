@@ -572,6 +572,9 @@ function AssistedCombatIconMixin:OnAddonLoaded()
 end
 
 function AssistedCombatIconMixin:OnEvent(event, ...)
+    -- 設定尚未就緒或已移除預設值時，不處理依賴設定的事件。
+    if not self.db or not self.db.position then return end
+
     if event == "SPELL_UPDATE_COOLDOWN" then
         self:UpdateCooldown()
     elseif event == "SPELL_RANGE_CHECK_UPDATE" then
@@ -685,6 +688,8 @@ function AssistedCombatIconMixin:Tick()
 end
 
 function AssistedCombatIconMixin:OnUpdate()
+    if not self.db or not self.db.position then return end
+
     if self.db.position.parentFrame == "__cursor" then
         self:UpdateAnchorPoint()
     end
