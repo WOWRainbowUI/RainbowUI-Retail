@@ -659,16 +659,16 @@
 		"|Cffffffff" .. L["Undermined"] .. " |r#6641605#77", -- interface/cinematics/tww_111_bro.mp3 (1029)
 		"|Cffffffff" .. L["A Shadowy Invitation"] .. " |r#7242305#91", -- interface/cinematics/tww_112_kid.mp3 (1033)
 		"|Cffffffff" .. L["Dimensius Defeat"] .. " |r#6938026#111", -- interface/cinematics/tww_112_lws.mp3 (1034)
-		"|Cffffffff" .. L["Voidstorm"] .. " |r#7435350#138", --
+		"|Cffffffff" .. L["Voidstorm"] .. " |r#7435350#138", -- interface/cinematics/movie_1040/movie_1040_audio_7435350.mp3
 		"|Cffffffff" .. L["The Radiant Visions"] .. " |r#7464910#89", -- interface/cinematics/tww_1127_scd.mp3 (1052)
 
 		-- Cinematic Music: Midnight (movie.dbc)
 		"|cffffd800", "|cffffd800" .. L["Midnight"],
-		"|Cffffffff" .. L["Midnight"] .. " |r#7569816#266", -- (1051)
-		"|Cffffffff" .. L["Supremacy"] .. " |r#7671194#252", -- (1061)
-		"|Cffffffff" .. L["Immolation"] .. " |r#7728589#122", -- (1062)
-		"|Cffffffff" .. L["The Story So Far (Midnight)"] .. " |r#7728181#219", -- (1066)
-
+		"|Cffffffff" .. L["Midnight"] .. " |r#7569816#266", -- (1051) -- interface/cinematics/mdn_1200_qm.mp3
+		"|Cffffffff" .. L["Supremacy"] .. " |r#7671194#252", -- (1061) -- interface/cinematics/mdn_1200_md.mp3
+		"|Cffffffff" .. L["Immolation"] .. " |r#7728589#122", -- (1062) -- interface/cinematics/mdn_1200_am.mp3
+		"|Cffffffff" .. L["The Story So Far (Midnight)"] .. " |r#7728181#219", -- (1066) -- interface/cinematics/mdn_1201_ssf.mp3
+		"|Cffffffff" .. L["Xal'atath Corrupts the World Soul"] .. " |r#8173104#263", -- (1093) -- interface/cinematics/movie_1093/movie_1093_audio_8173104.mp3
 	})
 
 	Zn(L["Various"], L["Various"], L["Class Trials"]							, {	"|cffffd800" .. L["Various"] .. ": " .. L["Class Trials"], prefol, "MUS_70_ClassTrial_Horde_BattleWalk#71954", "MUS_70_ClassTrial_Alliance_BattleWalk#71959",})
@@ -740,6 +740,7 @@
 		L["Supremacy"] .. " |r(1061)",
 		L["Immolation"] .. " |r(1062)",
 		L["The Story So Far (Midnight)"] .. " |r(1066)",
+		L["Xal'atath Corrupts the World Soul"] .. " |r(1093)",
 	})
 
 	----------------------------------------------------------------------

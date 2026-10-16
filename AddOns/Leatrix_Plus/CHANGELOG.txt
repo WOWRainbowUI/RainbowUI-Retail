@@ -1,4 +1,9 @@
-﻿12.1.10 - 14th October 2026
+﻿12.1.11 - 15th October 2026
+- For 'Enhance minimap' ('Interface'), 'Square minimap' will now stay square with the compass rings hidden if the minimap shape is changed by rotation or another addon (such as FarmHud).
+- The 'Set additional options' option ('System') has been removed now that the default UI remembers the trading post checkboxes (at least until the end of the current session).
+- For 'Media', added movie 'Xal'atath Corrupts the World Soul' (Midnight).  Watch in 'Movies' or listen in 'Various > Cinematics'.
+
+12.1.10 - 14th October 2026
 - For 'Enhance minimap' ('Interface'), enabling 'Square minimap' will no longer prevent the map from being rotated.  Instead, an advisory note has been added to the option tooltp.
 
 12.1.09 - 14th October 2026
