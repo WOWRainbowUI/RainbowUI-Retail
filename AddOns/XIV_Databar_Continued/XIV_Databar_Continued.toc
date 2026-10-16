@@ -2,7 +2,7 @@
 ## Interface: 120105, 16001, 50504, 20506, 11509
 ## Title: XIV_Databar Continued
 ## Author: ZelionGG
-## Version: 5.9
+## Version: 5.9-fix1
 ## IconTexture: Interface\Addons\XIV_Databar_Continued\icon.png
 ## AddonCompartmentFunc: XIV_Databar_Continued_OnAddonCompartmentClick
 
