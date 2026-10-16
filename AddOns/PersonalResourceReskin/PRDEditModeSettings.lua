@@ -581,7 +581,7 @@ local function RegisterPRDEditMode()
     end
 
     registered = true
-    Debug("PRD settings box registered next to the Personal Resource Display.")
+    -- Debug("PRD settings box registered next to the Personal Resource Display.")
 end
 
 -- Defer registration until after PersonalResourceReskin:OnInitialize has run.
