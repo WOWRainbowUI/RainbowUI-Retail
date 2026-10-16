@@ -1,4 +1,8 @@
+<<<<<<< E:\GPT-Work\彩虹UI插件更新檢查\outputs\20261016-090211-351\ours.toc.tmp
 ## Interface: 11509, 16001, 20506, 50504, 120100, 120007
+=======
+## Interface: 11509, 16001, 20506, 50504, 120105
+>>>>>>> E:\GPT-Work\彩虹UI插件更新檢查\outputs\20261016-090211-351\theirs.toc.tmp
 ## Title: Accountant Classic
 ## Notes: Tracks gold earned and spent across your characters
 ## Title-deDE: Accountant Classic
@@ -18,8 +22,12 @@
 ## Title-ruRU: Accountant Classic
 ## Notes-ruRU: Отслеживает заработанное и потраченное золото ваших персонажей
 ## Author: arith, kamusis
+<<<<<<< E:\GPT-Work\彩虹UI插件更新檢查\outputs\20261016-090211-351\ours.toc.tmp
 ## Version: v2.21.02
 ## Dependencies: Ace3
+=======
+## Version: v2.21.03
+>>>>>>> E:\GPT-Work\彩虹UI插件更新檢查\outputs\20261016-090211-351\theirs.toc.tmp
 ## AddonCompartmentFunc: AccountantClassic_ButtonOnClick
 ## IconTexture: Interface\AddOns\Accountant_Classic\Images\AccountantClassicButton-Up
 ## Category: Other
@@ -34,7 +42,7 @@
 ## OptionalDeps: LibStub, CallbackHandler-1.0, Ace3, LibDBIcon-1.0, !LibUIDropDownMenu
 ## SavedVariables: Accountant_ClassicSaveData, Accountant_ClassicDB, Accountant_Classic_NewDB, Accountant_ClassicZoneDB
 ## X-Credits: Sabaki, Shadow, Rophy
-## X-Date: 2026-10-06T17:28:32Z
+## X-Date: 2026-10-15T04:13:32Z
 ## X-Website: https://www.curseforge.com/wow/addons/accountant-classic
 ## X-License: GPLv2
 ## X-Category: Information

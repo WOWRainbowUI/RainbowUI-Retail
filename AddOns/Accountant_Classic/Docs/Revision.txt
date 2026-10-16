@@ -5,6 +5,10 @@
 Revision History:
 =================
 
+* v2.21.03 (Oct. 15, 2026)
+==========================
+- ToC update to support WoW 12.1.5
+
 * v2.21.02 (Oct. 07, 2026)
 ==========================
 - Forever client now has its own WOW_PROJECT_ID which is WOW_PROJECT_CAMELOT
