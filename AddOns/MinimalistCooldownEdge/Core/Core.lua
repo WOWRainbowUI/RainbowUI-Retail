@@ -689,7 +689,7 @@ function MCE:WarnBetterBlizzFramesUnitFrameConflict()
     if self.betterBlizzFramesUnitFrameConflictWarned then return end
 
     self.betterBlizzFramesUnitFrameConflictWarned = true
-    self:Print("|cffff7a1a" .. L["BETTERBLIZZFRAMES_UNITFRAME_CONFLICT_WARNING"] .. "|r")
+    -- self:Print("|cffff7a1a" .. L["BETTERBLIZZFRAMES_UNITFRAME_CONFLICT_WARNING"] .. "|r")
 end
 
 function MCE:WarnBetterBlizzPlatesNameplateConflict()
