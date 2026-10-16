@@ -51,8 +51,8 @@ local rhToys = {
 	265100, -- Corewarden's Hearthstone
 	263933, -- Preyseeker's Hearthstone
 	264367, -- Mycomancer's Hearthstone
-	-- Removed Shadeweavers until able to get confirmation it's live?!
-	-- 281615, -- Shadeweaver's Hearthstone
+	281136, -- Hiveborne Hearthstone
+	281615, -- Shadeweaver's Hearthstone
 }
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------
