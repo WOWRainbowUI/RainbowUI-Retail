@@ -6,6 +6,7 @@ local _G = getfenv(0)
 local hooksecurefunc = _G.hooksecurefunc
 local next = _G.next
 local print = _G.print
+local s_lower = _G.string.lower
 local tonumber = _G.tonumber
 
 -- Mine
@@ -145,6 +146,7 @@ E:RegisterEvent("ADDON_LOADED", function(arg1)
 		SLASH_LSTOASTS1 = "/lstoasts"
 		SLASH_LSTOASTS2 = "/lst"
 		SlashCmdList["LSTOASTS"] = function(msg)
+			msg = s_lower(msg)
 			if msg == "" then
 				addon:OpenAceConfig()
 			elseif msg == "test" then
@@ -184,6 +186,17 @@ E:RegisterEvent("ADDON_LOADED", function(arg1)
 				-- toast:Spawn(1, false)
 			elseif msg == "ie" then
 				addon:OpenImportExport()
+			elseif msg == "reparentanchors" then
+				for i = 1, addon:GetNumAnchorConfigs() do
+					local config = addon:GetAnchorConfigByID(i)
+					config.point = {
+						point = "TOPLEFT",
+						x = 26,
+						y = -14,
+					}
+				end
+
+				addon:UpdateLayoutSettings()
 			end
 		end
 	end)
