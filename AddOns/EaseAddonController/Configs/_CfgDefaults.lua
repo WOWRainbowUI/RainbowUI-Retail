@@ -1999,7 +1999,7 @@ D["WaypointUI"] = {
     {
         text = "設定選項",
 		callback = function()
-			Settings.OpenToCategory(WaypointDB_Global.categoryID)
+			WaypointUIAPI.OpenSettingsUI()
 		end,
     },
 	{
