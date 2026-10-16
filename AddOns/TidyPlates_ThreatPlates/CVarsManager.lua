@@ -296,7 +296,7 @@ local function SetCVarHook(name, value, c)
       Addon.Transparency.UpdateSettings()
       --Addon:ForceUpdate()
     elseif invalid then
-      Addon.Logging.Warning(L["Transparency for occluded units is being disabled as certain console variables (CVars) related to nameplate transparency are set in a way to prevent this feature from working."])
+      -- Addon.Logging.Warning(L["Transparency for occluded units is being disabled as certain console variables (CVars) related to nameplate transparency are set in a way to prevent this feature from working."])
     end
   end
 end
