@@ -2211,3 +2211,4 @@ if GameLocale == "zhCN" then
 L["Hide blackout frame"] = "隐藏地图遮罩"
 L["If checked, the blackout frame will be hidden."] = "勾选时，将隐藏地图的黑色遮罩。"
 end
+

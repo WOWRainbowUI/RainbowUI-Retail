@@ -72,3 +72,11 @@ L["IMPORT_INSTRUCTIONS"] = "导入的布局数据将绑定当前启用的编辑�
 L["LAYOUT"] = "布局"
 
 L["PROFILE_AND_LAYOUT"] = "配置文件与布局"
+
+-- 本次作者新增顯示詞彙
+L["COPY_LAYOUT_DESC"] = "将其他布局的设置复制到当前布局。"
+L["DELETE_LAYOUT_DESC"] = "删除其他布局的设置。"
+L["LAYOUTS"] = "布局"
+L["LAYOUTS_DESC"] = "在这里可以重置、复制和删除与编辑模式布局关联的设置。\n请注意，这些数据均保存在当前配置文件中。"
+L["RESET_LAYOUT"] = "重置 |cffffffff\"%s\"|r"
+L["RESET_LAYOUT_DESC"] = "将当前布局的设置重置为默认值。"

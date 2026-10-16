@@ -85,3 +85,11 @@ L["IMPORT_INSTRUCTIONS"] = "匯入的配置資料將綁定目前啟用的編輯�
 L["LAYOUT"] = "配置"
 
 L["PROFILE_AND_LAYOUT"] = "設定檔與配置"
+
+-- 本次作者新增顯示詞彙
+L["COPY_LAYOUT_DESC"] = "將其他版面配置的設定複製到目前版面配置。"
+L["DELETE_LAYOUT_DESC"] = "刪除其他版面配置的設定。"
+L["LAYOUTS"] = "版面配置"
+L["LAYOUTS_DESC"] = "可在這裡重置、複製與刪除編輯模式版面配置的設定。\n請注意，這些資料都儲存在目前的設定檔中。"
+L["RESET_LAYOUT"] = "重置 |cffffffff\"%s\"|r"
+L["RESET_LAYOUT_DESC"] = "將目前版面配置的設定重置為預設值。"

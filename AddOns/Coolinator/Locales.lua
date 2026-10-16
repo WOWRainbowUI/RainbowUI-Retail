@@ -585,6 +585,8 @@ L["HAS_TARGET_ATTACK"] = "Has Target (Attack)"
 L["NO_TARGET_ATTACK"] = "No Target (Attack)"
 L["THANKS_FOR_USING_COOLINATOR_DONATE"] = "感謝使用 Coolinator。請考慮贊助以支持開發"
 
+
+L["WHEN_MISSING_RESOURCES"] = "資源不足時"
 local L = Locales.zhCN
 
 L["ROTATE"] = "旋转"
@@ -870,3 +872,5 @@ L["WHAT_TO_EXPORT"] = "导出什么？"
 L["WIDTH"] = "宽度"
 L["WIDTH_RESTRICTION"] = "宽度限制"
 L["WORLD"] = "世界"
+
+L["WHEN_MISSING_RESOURCES"] = "资源不足时"

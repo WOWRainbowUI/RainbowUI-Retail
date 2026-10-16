@@ -824,6 +824,8 @@ L["SHOW_INDIVIDUAL_COLORS"] = "顯示個別顏色"
 L["EXTRAS"] = "額外項目"
 L["IS_TARGET"] = "是目前目標"
 
+
+L["PANDEMIC_COLOR"] = "持續時間延長提示顏色"
 local L = Locales.zhCN
 
 L["ENABLE"] = "启用"
@@ -1221,3 +1223,5 @@ L["AURA_HIGHLIGHT"] = "光环高亮"
 L["SHOW_INDIVIDUAL_COLORS"] = "显示单独颜色"
 L["EXTRAS"] = "额外项目"
 L["IS_TARGET"] = "是当前目标"
+
+L["PANDEMIC_COLOR"] = "持续时间延长提示颜色"

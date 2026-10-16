@@ -3788,3 +3788,11 @@ L["Then click Start."] = "然后点击开始。"
 L["Visual effect"] = "视觉效果"
 L["Vortex"] = "漩涡"
 end
+
+if GameLocale == "zhTW" then
+L["Xal'atath Corrupts the World Soul"] = "薩拉塔斯腐化世界之魂"
+end
+
+if GameLocale == "zhCN" then
+L["Xal'atath Corrupts the World Soul"] = "萨拉塔斯腐化世界之魂"
+end

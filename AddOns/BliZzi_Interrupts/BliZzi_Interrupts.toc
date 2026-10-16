@@ -17,6 +17,7 @@
 ## IconTexture: Interface\AddOns\BliZzi_Interrupts\Media\icon
 ## SavedVariables: BliZziInterruptsSavedVars, BliZziInterruptsMinimapDB
 ## SavedVariablesPerCharacter: BliZziInterruptsSavedVarsChar
+## Dependencies: Ace3
 ## OptionalDeps: LibDBIcon-1.0, LibSpecialization
 
 ## Title-zhTW: |cffFF2D2D[戰鬥]|r 隊友技能和斷法監控
