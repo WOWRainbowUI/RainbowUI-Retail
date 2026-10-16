@@ -1289,6 +1289,15 @@ local function processDefaultEnable()
     end
 end
 
+-- Apply defaults before reloading so Blizzard uses them for the next load pass.
+function U1RestoreDefaultAddonStates()
+    db.addons = {}
+    for name, info in pairs(addonInfo) do
+        info.originEnabled = C_AddOns.GetAddOnEnableState(name, U1PlayerGUID) >= 2
+    end
+    processDefaultEnable()
+end
+
 local EnableOrLoadDependencies
 
 function U1:ADDON_LOADED(event, name)

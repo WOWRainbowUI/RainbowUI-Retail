@@ -27,6 +27,7 @@ StaticPopupDialogs['U1PROFILE_RESETDB'] = { preferredIndex = 3,
 	button2 = NO,
 	OnAccept = function(self)
         U1Profiles:BackupSession(L["Before Restore"])
+        U1RestoreDefaultAddonStates()
         U1DB = nil
         _G[U1_FRAME_NAME]:SetUserPlaced(false)
         ReloadUI()
