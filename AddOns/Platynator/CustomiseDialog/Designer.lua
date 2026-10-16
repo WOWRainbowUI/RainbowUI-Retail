@@ -528,7 +528,7 @@ local function GetAurasTextPositioning(rootParent, iconID)
       end
       text:SetPoint(textDetails.anchor[1] or "CENTER")
       text:SetTextColor(textDetails.color.r, textDetails.color.g, textDetails.color.b)
-      if key == "countdown" and addonTable.Constants.IsCooldownFormattingAvailable then
+      if key == "countdown" then
         if textDetails.showFractions then
           text:SetText("2.9")
         else

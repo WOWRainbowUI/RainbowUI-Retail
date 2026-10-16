@@ -122,17 +122,21 @@ local function StyleAura(auraFrame, details, container)
   local texBase = 0.95 * (1 - details.height) / 2
   auraFrame.Icon:SetTexCoord(0.05, 0.95, 0.05 + texBase, 0.95 - texBase)
 
-  if addonTable.Constants.IsMidnightNext or addonTable.Constants.IsForever then
-    auraFrame:ClearPandemicActiveAnimations()
-    auraFrame:ClearPandemicRegions()
-    auraFrame.Pandemic:SetShown(details.showPandemic)
-    if details.showPandemic then
-      auraFrame:AddPandemicRegion(auraFrame.Pandemic.Top)
-      auraFrame:AddPandemicRegion(auraFrame.Pandemic.Left)
-      auraFrame:AddPandemicRegion(auraFrame.Pandemic.Right)
-      auraFrame:AddPandemicRegion(auraFrame.Pandemic.Bottom)
-      auraFrame:AddPandemicActiveAnimation(auraFrame.Pandemic.Animation)
-    end
+  auraFrame:ClearPandemicActiveAnimations()
+  auraFrame:ClearPandemicRegions()
+  auraFrame.Pandemic:SetShown(details.pandemic and details.pandemic.show)
+  if details.pandemic and details.pandemic.show then
+    local color = details.pandemic.color
+    local Pandemic = auraFrame.Pandemic
+    Pandemic.Top:SetVertexColor(color.r, color.g, color.b, color.a)
+    Pandemic.Left:SetVertexColor(color.r, color.g, color.b, color.a)
+    Pandemic.Right:SetVertexColor(color.r, color.g, color.b, color.a)
+    Pandemic.Bottom:SetVertexColor(color.r, color.g, color.b, color.a)
+    auraFrame:AddPandemicRegion(Pandemic.Top)
+    auraFrame:AddPandemicRegion(Pandemic.Left)
+    auraFrame:AddPandemicRegion(Pandemic.Right)
+    auraFrame:AddPandemicRegion(Pandemic.Bottom)
+    auraFrame:AddPandemicActiveAnimation(Pandemic.Animation)
   end
 
   auraFrame.Dispel:SetShown(details.showType)
@@ -178,10 +182,8 @@ local function GetAurasInitializerModern(container)
       frame.Dispel.Border = dispelTexture
     end
 
-    if addonTable.Constants.IsMidnightNext or addonTable.Constants.IsForever then
-      addonTable.Display.GeneratePandemicAnimation(frame)
-      PixelUtil.SetRoundLayoutToNearestPixelRecursively(frame.Pandemic, true)
-    end
+    addonTable.Display.GeneratePandemicAnimation(frame)
+    PixelUtil.SetRoundLayoutToNearestPixelRecursively(frame.Pandemic, true)
 
     frame:SetApplicationCount(frame.TextsContainer.Applications, {})
     frame:SetIcon(frame.Icon)

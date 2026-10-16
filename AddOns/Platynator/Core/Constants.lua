@@ -13,10 +13,8 @@ addonTable.Constants = {
   IsEra = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC,
   IsClassic = WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE,
 
-  IsMidnightNext = select(4, GetBuildInfo()) >= 120105,
+  IsMidnightNext = select(4, GetBuildInfo()) >= 120107,
   IsCVarsBack = C_CVar.GetCVarInfo("nameplateMotionSpeed") ~= nil,
-  -- Restricted to secrets clients due to MoP bug where the duration objects don't work properly
-  IsCooldownFormattingAvailable = CreateFrame("Cooldown").SetCountdownFormatter ~= nil and C_Secrets.HasSecretRestrictions(),
   IsSecretsActive = C_Secrets and C_Secrets.HasSecretRestrictions() or false,
 
   DeathKnightMaxRunes = 6,

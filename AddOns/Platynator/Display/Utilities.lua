@@ -625,38 +625,6 @@ do
     end
   end
 
-  local function GetRaidEliteType(unit, casterOverride)
-    local classification = UnitClassification(unit)
-    if classification == "elite" then
-      if UnitIsBossMob(unit) then
-        return "boss"
-      else
-        return HasMana(unit) and "caster" or "melee"
-      end
-    elseif classification == "normal" or classification == "trivial" or classification == "minus" then
-      return casterOverride and HasMana(unit) and "caster" or "trivial"
-    end
-  end
-
-  local function GetDungeonEliteType(unit, casterOverride)
-    local classification = UnitClassification(unit)
-    if classification == "elite" then
-      local level = UnitEffectiveLevel(unit)
-      local dungeonLevel = PLATYNATOR_LAST_INSTANCE.level
-      local lieutentantLevel = PLATYNATOR_LAST_INSTANCE.instanceLieutenantLevel
-      if level == dungeonLevel + 1 or UnitIsLieutenant and UnitIsLieutenant(unit) then
-        PLATYNATOR_LAST_INSTANCE.instanceLieutenantLevel = level
-        return "miniboss"
-      elseif (level == dungeonLevel + 2 or lieutentantLevel and level == lieutentantLevel + 1) or level == -1 then
-        return "boss"
-      else
-        return HasMana(unit) and "caster" or "melee"
-      end
-    elseif classification == "normal" or classification == "trivial" or classification == "minus" then
-      return casterOverride and HasMana(unit) and "caster" or "trivial"
-    end
-  end
-
   local instanceTracker = CreateFrame("Frame")
   instanceTracker:RegisterEvent("PLAYER_ENTERING_WORLD")
   instanceTracker:RegisterEvent("PLAYER_LEVEL_UP")
@@ -668,11 +636,6 @@ do
     local inRaid = addonTable.Display.Utilities.IsInRelevantInstance({raid = true})
     local inDungeon = addonTable.Display.Utilities.IsInRelevantInstance({dungeon = true})
     local inDelve = addonTable.Display.Utilities.IsInRelevantInstance({delve = true})
-    if inRaid then
-      addonTable.Display.Utilities.GetEliteType = GetRaidEliteType
-    else
-      addonTable.Display.Utilities.GetEliteType = GetDungeonEliteType
-    end
 
     local _, _, _, _, _, _, _, _, _, lfgDungeonID = GetInstanceInfo()
     if PLATYNATOR_LAST_INSTANCE == nil
@@ -713,7 +676,45 @@ do
     end
   end)
 
-  addonTable.Display.Utilities.GetEliteType = GetDungeonEliteType
+  local function GetRaidEliteType(unit, casterOverride)
+    local classification = UnitClassification(unit)
+    if classification == "elite" then
+      if UnitIsBossMob(unit) then
+        return "boss"
+      else
+        return HasMana(unit) and "caster" or "melee"
+      end
+    elseif classification == "normal" or classification == "trivial" or classification == "minus" then
+      return casterOverride and HasMana(unit) and "caster" or "trivial"
+    end
+  end
+
+  local function GetDungeonEliteType(unit, casterOverride)
+    local classification = UnitClassification(unit)
+    if classification == "elite" then
+      local level = UnitEffectiveLevel(unit)
+      local dungeonLevel = PLATYNATOR_LAST_INSTANCE.level
+      local lieutentantLevel = PLATYNATOR_LAST_INSTANCE.instanceLieutenantLevel
+      if level == dungeonLevel + 1 or UnitIsLieutenant and UnitIsLieutenant(unit) then
+        PLATYNATOR_LAST_INSTANCE.instanceLieutenantLevel = level
+        return "miniboss"
+      elseif (level == dungeonLevel + 2 or lieutentantLevel and level == lieutentantLevel + 1) or level == -1 then
+        return "boss"
+      else
+        return HasMana(unit) and "caster" or "melee"
+      end
+    elseif classification == "normal" or classification == "trivial" or classification == "minus" then
+      return casterOverride and HasMana(unit) and "caster" or "trivial"
+    end
+  end
+
+  function addonTable.Display.Utilities.GetEliteType(...)
+    if PLATYNATOR_LAST_INSTANCE.inRaid then
+      return GetRaidEliteType(...)
+    else
+      return GetDungeonEliteType(...)
+    end
+  end
 
   function addonTable.Display.Utilities.GetDelveType(unit)
     local classification = UnitClassification(unit)

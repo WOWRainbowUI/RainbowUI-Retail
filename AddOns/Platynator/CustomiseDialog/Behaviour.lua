@@ -380,7 +380,7 @@ local function GetMovementOptions(parent)
   bottomInsetSlider:SetPoint("TOP", allFrames[#allFrames], "BOTTOM", 0, 0)
   table.insert(allFrames, bottomInsetSlider)
 
-  local motionSpeedSlider = addonTable.CustomiseDialog.Components.GetSlider(container, addonTable.Locales.MOTION_SPEED, 0, 10, function(value) return ("%d%%"):format(value * 10) end, function(value)
+  local motionSpeedSlider = addonTable.CustomiseDialog.Components.GetSlider(container, addonTable.Locales.MOTION_SPEED, 1, 10, function(value) return ("%d%%"):format(value * 10) end, function(value)
     addonTable.Config.Set(addonTable.Config.Options.STACK_MOTION_SPEED, value / 10)
     addonTable.CallbackRegistry:TriggerEvent("RefreshStateChange", {[addonTable.Constants.RefreshReason.Movement] = true})
   end)
