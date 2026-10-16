@@ -3405,7 +3405,7 @@ eventHandlers["PLAYER_LOGIN"] = function()
         BIT.UI:RebuildBars()
     end
     if BIT.db and BIT.db.showWelcome ~= false then
-        print(string.format(BIT.L["MSG_WELCOME"] or "|cff0091edBliZzi|r |cffffa300Party Tools|r v%s — type |cFFFFD700/blizzi|r to open settings.", BIT.VERSION))
+        -- print(string.format(BIT.L["MSG_WELCOME"] or "|cff0091edBliZzi|r |cffffa300Party Tools|r v%s — type |cFFFFD700/blizzi|r to open settings.", BIT.VERSION))
     end
 end
 
