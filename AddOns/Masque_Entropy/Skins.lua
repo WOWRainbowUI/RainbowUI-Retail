@@ -28,7 +28,7 @@ local L = Core.Locale
 local API_VERSION = 120000
 
 -- Skin Info
-local Version = "12.1.1"
+local Version = "12.1.5"
 local Websites = {
 	"https://github.com/SFX-WoW/Masque_Entropy",
 	"https://www.curseforge.com/wow/addons/masque-entropy",
