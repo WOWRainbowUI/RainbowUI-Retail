@@ -38,7 +38,7 @@ function AbilityTimeline:OnInitialize()
         }
     }
     if not private.db.profile.disableLoginMessage then
-        AbilityTimeline:Print(private.getLocalisation("AccessOptionsMessage"))
+        -- AbilityTimeline:Print(private.getLocalisation("AccessOptionsMessage"))
     end
     AceConfig:RegisterOptionsTable(appName, OptionTable) --
     AceConfigDialog:AddToBlizOptions(appName, private.getLocalisation(appName)) -- 修改選項名稱
