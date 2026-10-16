@@ -747,6 +747,10 @@ D["DiGuaTimelineAudioHelper"] = {
 	tags = { "BOSSRAID" },
 	title = "神秘地瓜副本語音助手",
 	desc = "戰鬥通知插件，透過戰鬥時間軸系統在首領戰中提供精準的語音提示。``相較於傳統僅依靠視覺計時器的模組，它能根據戰鬥節奏自動播放自訂音效，並支援私有光環機制、角色/專精過濾，以及事件驅動的智慧觸發。``這讓玩家能在激烈戰鬥中專注於戰場，不必分心盯著進度條，同時也非常適合團隊領隊用來建立節奏感或提醒重要技能。`",
+    {
+        text = "設定選項",
+        callback = function() SlashCmdList["DIGUA"]("") end,
+    },
 };
 D["Dominos"] = {
 	defaultEnable = 1,
