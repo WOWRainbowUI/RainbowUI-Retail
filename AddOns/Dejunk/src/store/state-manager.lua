@@ -149,7 +149,7 @@ end
 -- ============================================================================
 
 local function onActiveProfileChanged()
-  Addon:Print(L.ACTIVE_PROFILE, Colors.Yellow(StateManager:GetProfileState().name))
+  -- Addon:Print(L.ACTIVE_PROFILE, Colors.Yellow(StateManager:GetProfileState().name))
 end
 
 EventManager:Once(E.StoreCreated, onActiveProfileChanged)
