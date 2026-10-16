@@ -1,3 +1,8 @@
+-- 臨時修正：使用新版物品 API，作者修正後優先採作者實作。
+local GetItemInfo = (C_Item and C_Item.GetItemInfo) or _G.GetItemInfo
+local GetItemInfoInstant = (C_Item and C_Item.GetItemInfoInstant) or _G.GetItemInfoInstant
+-- 臨時修正：使用新版物品 API，作者修正後優先採作者實作。
+local GetItemQualityColor = (C_Item and C_Item.GetItemQualityColor) or _G.GetItemQualityColor
 local _, lv = ...
 
 local PANEL_WIDTH = 446

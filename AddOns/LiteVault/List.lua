@@ -1,3 +1,5 @@
+-- 臨時修正：使用新版物品 API，作者修正後優先採作者實作。
+local GetItemIcon = (C_Item and C_Item.GetItemIconByID) or _G.GetItemIcon
 local GetCoinTextureString = (C_CurrencyInfo and C_CurrencyInfo.GetCoinTextureString) or _G.GetCoinTextureString
 -- List.lua (Enhanced Edition)
 local addonName, lv = ...

@@ -1,3 +1,8 @@
+-- 臨時修正：使用新版物品 API，作者修正後優先採作者實作。
+local GetItemInfo = (C_Item and C_Item.GetItemInfo) or _G.GetItemInfo
+local GetItemInfoInstant = (C_Item and C_Item.GetItemInfoInstant) or _G.GetItemInfoInstant
+-- 臨時修正：使用新版物品 API，作者修正後優先採作者實作。
+local GetItemCount = (C_Item and C_Item.GetItemCount) or _G.GetItemCount
 local GetCoinTextureString = (C_CurrencyInfo and C_CurrencyInfo.GetCoinTextureString) or _G.GetCoinTextureString
 local addonName, lv = ... -- 'lv' is our shared namespace
 local L = lv.L

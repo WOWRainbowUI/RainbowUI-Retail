@@ -1,3 +1,5 @@
+-- 臨時修正：使用新版物品 API，作者修正後優先採作者實作。
+local GetItemQualityColor = (C_Item and C_Item.GetItemQualityColor) or _G.GetItemQualityColor
 -- Utils.lua
 local addonName, lv = ...
 local L = lv.L

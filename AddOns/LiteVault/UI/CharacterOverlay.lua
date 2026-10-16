@@ -1,3 +1,7 @@
+-- 臨時修正：使用新版物品 API，作者修正後優先採作者實作。
+local GetDetailedItemLevelInfo = (C_Item and C_Item.GetDetailedItemLevelInfo) or _G.GetDetailedItemLevelInfo
+local GetItemInfo = (C_Item and C_Item.GetItemInfo) or _G.GetItemInfo
+local GetItemInfoInstant = (C_Item and C_Item.GetItemInfoInstant) or _G.GetItemInfoInstant
 local addonName, lv = ...
 
 local SLOT_LAYOUT_RIGHT = {"LEFT", "RIGHT", 10, 0}
