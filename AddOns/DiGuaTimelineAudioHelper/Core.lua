@@ -124,7 +124,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
 
         -- 打印欢迎信息
         C_Timer.After(2, function()
-            print("感謝使用|cFF00FF00[神秘地瓜副本語音助手]|r/digua 可開啟控制台")
+            -- print("感謝使用|cFF00FF00[神秘地瓜副本語音助手]|r/digua 可開啟控制台")
         end)
 
         -- 同步 UI 控件勾选状态
