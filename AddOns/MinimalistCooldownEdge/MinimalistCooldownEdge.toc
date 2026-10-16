@@ -1,4 +1,4 @@
-## Interface: 120100, 120007
+## Interface: 120105, 120100
 ## AllowLoadGameType: mainline
 ## Title: |cff00ccffMiniCE|r (Minimalist Cooldown Edge)
 ## Notes: Clean cooldowns with category-specific styles.

@@ -1,4 +1,4 @@
-## Interface: 120100, 120007
+## Interface: 120105, 120100
 ## Title: |cFF74D06CRE|rPorter
 ## Notes: Provide battleground map.
 ## Version: 3.1.1

@@ -1,4 +1,4 @@
-## Interface: 120100, 120007
+## Interface: 120105, 120100
 ## Title: MiliUI Aura Enhance
 ## Title-zhTW: |cff33A3FF[光環]|r 光環時間美化
 ## Title-zhCN: |cff4488FF[MiliUI]|r 米利的光环美化

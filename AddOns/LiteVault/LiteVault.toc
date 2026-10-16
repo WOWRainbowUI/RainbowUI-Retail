@@ -1,4 +1,4 @@
-## Interface: 120100, 120007
+## Interface: 120105, 120100
 ## Title: LiteVault
 ## Notes: Lightweight Warband Tracker
 ## Author: Dragon

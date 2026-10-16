@@ -1,5 +1,5 @@
 ## Dependencies: Ace3
-## Interface: 120105, 120100, 120007, 110207, 16001
+## Interface: 120105, 120105, 120100, 110207, 16001
 ## X-Curse-Project-ID: 48863
 ## X-Wago-ID: BKpq0BGE
 ## Title: Myslot

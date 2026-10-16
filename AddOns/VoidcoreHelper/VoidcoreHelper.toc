@@ -1,4 +1,4 @@
-## Interface: 120100, 120007
+## Interface: 120105, 120100
 ## Title: VoidcoreHelper
 ## Author: York
 ## Notes: 随时查看虚空核心掉落池

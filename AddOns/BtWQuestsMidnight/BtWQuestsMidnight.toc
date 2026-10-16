@@ -1,4 +1,4 @@
-## Interface: 120007, 120100, 120105
+## Interface: 120105, 120100, 120105
 ## Title: BtWQuests: Midnight
 ## Version: 3.1
 ## Notes: Midnight quest data for BtWQuests

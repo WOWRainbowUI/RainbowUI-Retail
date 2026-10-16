@@ -1,4 +1,4 @@
-## Interface: 120100, 120007
+## Interface: 120105, 120100
 ## Title: Details! Skin Midnight
 ## Notes: Adds the Midnight skin to Details!
 ## Author: Midnight
