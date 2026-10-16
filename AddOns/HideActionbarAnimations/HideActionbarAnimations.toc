@@ -1,4 +1,4 @@
-## Interface: 11509, 16001, 20506, 30404, 38002, 40404, 50504, 120100
+## Interface: 11509, 16001, 20506, 30404, 38002, 40404, 50504, 120105, 120100
 ## Title: HideActionbarAnimations
 ## Notes: Hides the Actionbar Animations added in 10.1.5 and restores Classic Spell Activation Alerts
 ## IconTexture: Interface\Addons\HideActionbarAnimations\HideActionbarAnimationsIcon
