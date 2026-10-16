@@ -1570,10 +1570,20 @@ addonTable.CustomiseDialog.WidgetsConfig = {
             label = addonTable.Locales.SHOW_PANDEMIC,
             kind = "checkbox",
             setter = function(details, value)
-              details.showPandemic = value
+              details.pandemic.show = value
             end,
             getter = function(details)
-              return details.showPandemic
+              return details.pandemic.show
+            end,
+          },
+          {
+            label = addonTable.Locales.PANDEMIC_COLOR,
+            kind = "colorPicker",
+            setter = function(details, value)
+              details.pandemic.color = value
+            end,
+            getter = function(details)
+              return details.pandemic.color
             end,
           },
         },
@@ -2206,7 +2216,6 @@ addonTable.CustomiseDialog.AurasTextsConfig = {
       getter = function(details)
         return details.showFractions
       end,
-      hide = not addonTable.Constants.IsCooldownFormattingAvailable,
     },
   },
   ["stacks"] = {

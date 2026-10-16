@@ -1,9 +1,9 @@
 ---@class addonTablePlatynator
 local addonTable = select(2, ...)
 
-local function GetColor(rgb)
+local function GetColor(rgb, a)
   local color = CreateColorFromRGBHexString(rgb)
-  return {r = color.r, g = color.g, b = color.b}
+  return {r = color.r, g = color.g, b = color.b, a = a}
 end
 
 local truncateMap = {
@@ -787,6 +787,18 @@ local function UpgradeDesignv24(design)
   end
 end
 
+local function UpgradeDesignv25(design)
+  for _, auras in ipairs(design.auras) do
+    if auras.kind == "debuffs" then
+      auras.pandemic = {
+        show = auras.showPandemic,
+        color = GetColor("FFFFFF", 1),
+      }
+      auras.showPandemic = nil
+    end
+  end
+end
+
 local designUpgrades = {
   UpgradeDesignv1,
   UpgradeDesignv2,
@@ -813,6 +825,7 @@ local designUpgrades = {
   UpgradeDesignv23,
   UpgradeDesignv23,
   UpgradeDesignv24,
+  UpgradeDesignv25,
 }
 
 function addonTable.Core.UpgradeDesign(design)

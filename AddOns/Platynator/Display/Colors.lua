@@ -295,7 +295,7 @@ function addonTable.Display.GetColor(settings, state, unit)
     elseif s.kind == "classColors" then
       if state.isPlayer then
         local _, class = UnitClass(unit)
-        if addonTable.Constants.IsForever or addonTable.Constants.IsMidnightNext then
+        if addonTable.Constants.IsForever or addonTable.Constants.IsRetail then
           local color = C_ClassColor.GetClassColor(class, s.colors.class)
           table.insert(colorQueue, {color = color})
         elseif issecretvalue(class) then

@@ -109,13 +109,11 @@ local function StyleAura(auraFrame, details)
     end
     local c2 = details.texts.countdown.color
     auraFrame.Cooldown.Text:SetTextColor(c2.r, c2.g, c2.b)
-    if addonTable.Constants.IsCooldownFormattingAvailable then
-      if details.texts.countdown.showFractions then
-        auraFrame.Cooldown:SetCountdownFormatter(auraFormatter)
-      else
-        auraFrame.Cooldown:SetCountdownFormatter(nil)
-        auraFrame.Cooldown:SetCountdownAbbrevThreshold(20)
-      end
+    if details.texts.countdown.showFractions then
+      auraFrame.Cooldown:SetCountdownFormatter(auraFormatter)
+    else
+      auraFrame.Cooldown:SetCountdownFormatter(nil)
+      auraFrame.Cooldown:SetCountdownAbbrevThreshold(20)
     end
   end
 
