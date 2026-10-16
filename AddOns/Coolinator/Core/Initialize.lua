@@ -154,6 +154,7 @@ EventUtil.ContinueOnPlayerLogin(function()
     addonTable.Core.ApplyPresets(layout)
   end
 
+  addonTable.Display.AbilityTracking = addonTable.Utilities.InitFrameWithMixin(UIParent, addonTable.Display.AbilityTrackingMixin)
   addonTable.Display.LayoutManager = addonTable.Utilities.InitFrameWithMixin(UIParent, addonTable.Display.LayoutManagerNextMixin)
   addonTable.Designer.LayoutManager = addonTable.Utilities.InitFrameWithMixin(UIParent, addonTable.Designer.LayoutManagerMixin)
 end)

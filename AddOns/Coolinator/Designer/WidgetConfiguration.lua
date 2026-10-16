@@ -450,6 +450,27 @@ local activeAbilityOptions = {
       end,
     },
     {
+      label = addonTable.Locales.WHEN_MISSING_RESOURCES,
+      kind = "dropdown",
+      getInitData = function(details)
+        return {
+          addonTable.Locales.NOTHING,
+          addonTable.Locales.DESATURATE,
+          addonTable.Locales.HIDE,
+        }, {
+            "none",
+            "desaturate",
+            "hide",
+          }
+      end,
+      setter = function(details, value)
+        details.whenResources = value
+      end,
+      getter = function(details)
+        return details.whenResources
+      end,
+    },
+    {
       label = addonTable.Locales.WHEN_READY,
       kind = "dropdown",
       getInitData = function(details)

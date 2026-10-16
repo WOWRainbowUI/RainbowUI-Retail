@@ -26,14 +26,6 @@ elseif addonTable.Constants.IsForever then
     local result = {}
     local seen = {}
 
-    for _, entry in ipairs(addonTable.Data.Spells[UnitClassBase("player")]) do
-      for _, spellID in ipairs(entry.spells) do
-        seen[spellID] = true
-      end
-      local spellID = entry.spells[#entry.spells]
-      seen[spellID] = nil
-    end
-
     local auraTracked = C_CooldownViewer.GetCooldownViewerCategorySet(Enum.CooldownViewerCategory.TrackedBuff, true)
     local auraBars = C_CooldownViewer.GetCooldownViewerCategorySet(Enum.CooldownViewerCategory.TrackedBar, true)
 

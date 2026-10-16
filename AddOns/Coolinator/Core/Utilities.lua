@@ -115,14 +115,16 @@ local function BasicIsAbilitySpellKnown(spellID)
   return nil
 end
 
+local function AurasFromCDM(spellID)
+  if addonTable.State.CDM.auraMap[spellID] then
+    local cooldownInfo = C_CooldownViewer.GetCooldownViewerCooldownInfo(addonTable.State.CDM.auraMap[spellID])
+    return cooldownInfo.linkedSpellIDs
+  end
+end
+
 if addonTable.Constants.IsRetail then
   addonTable.Utilities.IsAbilitySpellKnown = BasicIsAbilitySpellKnown
-  function addonTable.Utilities.GetAltAuras(spellID)
-    if addonTable.State.CDM.auraMap[spellID] then
-      local cooldownInfo = C_CooldownViewer.GetCooldownViewerCooldownInfo(addonTable.State.CDM.auraMap[spellID])
-      return cooldownInfo.linkedSpellIDs
-    end
-  end
+  addonTable.Utilities.GetAltAuras = AurasFromCDM
 else
   local rankData = addonTable.Data.Spells[UnitClassBase("player")]
   local rankMap = {}
@@ -132,23 +134,31 @@ else
     end
   end
   function addonTable.Utilities.IsAbilitySpellKnown(spellID, rank)
-    if rankMap[spellID] then
+    local spells
+    if addonTable.State.CDM.abilityMap[spellID] then
+      local cooldownInfo = C_CooldownViewer.GetCooldownViewerCooldownInfo(addonTable.State.CDM.abilityMap[spellID])
+      spells = cooldownInfo.linkedSpellIDs
+    elseif rankMap[spellID] then
       local index = rankMap[spellID]
-      local spells = rankData[index].spells
-      local limit = rank and math.min(rank, #spells) or #spells
-      for j = limit, 1, -1 do
-        local newSpellID = BasicIsAbilitySpellKnown(spells[j])
-        if newSpellID then
-          return newSpellID
-        end
-      end
+      spells = rankData[index].spells
     else
       return BasicIsAbilitySpellKnown(spellID)
+    end
+
+    local limit = rank and math.min(rank, #spells) or #spells
+    for j = limit, 1, -1 do
+      local newSpellID = BasicIsAbilitySpellKnown(spells[j])
+      if newSpellID then
+        return newSpellID
+      end
     end
   end
 
   function addonTable.Utilities.GetAltAuras(spellID)
-    if rankMap[spellID] then
+    local fromCDM = AurasFromCDM(spellID)
+    if fromCDM then
+      return fromCDM
+    elseif rankMap[spellID] then
       return rankData[rankMap[spellID]].spells
     end
   end

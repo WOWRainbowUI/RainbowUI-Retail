@@ -45,6 +45,8 @@ function addonTable.Display.LayoutManagerSharedMixin:Delayout()
     p:ReleaseAll()
   end
 
+  addonTable.Display.AbilityTracking:Reset()
+
   self.toArrange = {}
 
   self.pending = oldPending
