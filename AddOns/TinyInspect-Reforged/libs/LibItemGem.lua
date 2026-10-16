@@ -1,3 +1,6 @@
+-- 臨時修正：使用新版 C_Item API，作者修正後優先採作者實作。
+local GetItemInfo = (C_Item and C_Item.GetItemInfo) or _G.GetItemInfo
+local GetItemGem = (C_Item and C_Item.GetItemGem) or _G.GetItemGem
 
 local MAJOR, MINOR = "LibItemGem.7000", 1
 local lib = LibStub:NewLibrary(MAJOR, MINOR)

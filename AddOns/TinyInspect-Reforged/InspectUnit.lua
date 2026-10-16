@@ -1,9 +1,11 @@
+-- 臨時修正：使用新版 C_Item API，作者修正後優先採作者實作。
+local GetItemQualityColor = (C_Item and C_Item.GetItemQualityColor) or _G.GetItemQualityColor
 
 local LibEvent = LibStub:GetLibrary("LibEvent.7000")
 local LibItemInfo = LibStub:GetLibrary("LibItemInfo.7000")
 
 --bliz func
-local IsCorruptedItem = IsCorruptedItem or function(link) return false end
+local IsCorruptedItem = (C_Item and C_Item.IsCorruptedItem) or _G.IsCorruptedItem or function(link) return false end
 
 local slots = {
     { index = 1, name = HEADSLOT, },

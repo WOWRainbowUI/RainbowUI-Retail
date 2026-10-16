@@ -1,3 +1,6 @@
+-- 臨時修正：使用新版 C_Item API，作者修正後優先採作者實作。
+local GetItemInfo = (C_Item and C_Item.GetItemInfo) or _G.GetItemInfo
+local GetItemQualityColor = (C_Item and C_Item.GetItemQualityColor) or _G.GetItemQualityColor
 
 local addon, ns = ...
 

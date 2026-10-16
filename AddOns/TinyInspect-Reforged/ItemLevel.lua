@@ -1,3 +1,7 @@
+-- 臨時修正：使用新版 C_Item API，作者修正後優先採作者實作。
+local GetItemInfo = (C_Item and C_Item.GetItemInfo) or _G.GetItemInfo
+local GetItemQualityColor = (C_Item and C_Item.GetItemQualityColor) or _G.GetItemQualityColor
+local IsCorruptedItem = (C_Item and C_Item.IsCorruptedItem) or _G.IsCorruptedItem
 local LibEvent = LibStub:GetLibrary("LibEvent.7000")
 local LibItemGem = LibStub:GetLibrary("LibItemGem.7000")
 local LibSchedule = LibStub:GetLibrary("LibSchedule.7000")
@@ -23,12 +27,9 @@ if (C_Container and C_Container.GetContainerItemInfo) then
     end
 end
 
-if not IsArtifactRelicItem then
-    IsArtifactRelicItem = function(link)
-        if not link then return false end
-        return C_ArtifactUI and C_ArtifactUI.IsArtifactRelicItem and C_ArtifactUI.IsArtifactRelicItem(link)
-    end
-end
+-- 臨時修正：使用新版物品 API，作者修正後優先採用作者實作。
+local IsArtifactRelicItem = (C_ItemSocketInfo and C_ItemSocketInfo.IsArtifactRelicItem) or _G.IsArtifactRelicItem
+local IsArtifactPowerItem = (C_Item and C_Item.IsArtifactPowerItem) or _G.IsArtifactPowerItem
 
 local function GetItemLevelFrame(self, category)
     if (not self.ItemLevelFrame) then
