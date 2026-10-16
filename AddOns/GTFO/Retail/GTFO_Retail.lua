@@ -604,10 +604,10 @@ function GTFO.GetCurrentMapChain()
 	return currentMapId, mapChain;
 end
 
-function GTFO.AddAuraSound(spellId, trigger, soundFileName, soundFileID, soundChannel, unitToken)
+function GTFO.AddAuraSound(spellId, trigger, soundFileName, soundFileID, soundChannel)
 	local soundInfo = {
 		spellID = spellId,
-		unitToken = unitToken or "player",
+		unitToken = "player",
 		soundFileName = soundFileName,
 		soundFileID = soundFileID,
 		outputChannel = soundChannel
@@ -626,12 +626,12 @@ function GTFO.RemoveAuraSound(soundId)
 	end
 end
 
-function GTFO.RegisterAuraSoundTrigger(spellId, trigger, alertLevel, registration, unitToken)
+function GTFO.RegisterAuraSoundTrigger(spellId, trigger, alertLevel, registration)
 	local soundFileName, soundChannel, soundLevel, altSoundFileName = GTFO_GetSoundData(alertLevel);
 	if (soundLevel and soundLevel > 0) then
 		for i = 1, soundLevel do
 			local soundFileId = tonumber(soundFileName);
-			local soundId = GTFO.AddAuraSound(spellId, trigger, (soundFileId and nil or soundFileName), soundFileId, soundChannel, unitToken);
+			local soundId = GTFO.AddAuraSound(spellId, trigger, (soundFileId and nil or soundFileName), soundFileId, soundChannel);
 			if (soundId) then
 				GTFO.AddUnique(registration.SoundIds, soundId);
 			end
@@ -641,7 +641,7 @@ function GTFO.RegisterAuraSoundTrigger(spellId, trigger, alertLevel, registratio
 			if (altSoundFileName) then
 				local altSoundFileId = tonumber(altSoundFileName);
 				
-				local altSoundId = GTFO.AddAuraSound(spellId, trigger, (altSoundFileId and nil or altSoundFileName), altSoundFileId, soundChannel, unitToken);
+				local altSoundId = GTFO.AddAuraSound(spellId, trigger, (altSoundFileId and nil or altSoundFileName), altSoundFileId, soundChannel);
 				if (altSoundId) then
 					GTFO.AddUnique(registration.SoundIds, altSoundId);
 				end
@@ -714,17 +714,16 @@ function GTFO.RegisterSpellList(spells, registration)
 			--GTFO_DebugPrint("Won't alert "..GTFO.SpellTooltip(spellId).." - Trivial level");
 		else
 			local alertLevel = GTFO_GetAlertID(spell);
-			local unitToken = spell.vehicle and "vehicle" or "player";
 			if (spell.test) then
 				GTFO_ErrorPrint("TEST ALERT: Spell ID #"..spellId.." "..GTFO_GetSpellLink(spellId));
 			end
 			GTFO.AddUnique(registration.SpellIds, spellId);
-			GTFO.RegisterAuraSoundTrigger(spellId, GTFO.AuraSoundTrigger and GTFO.AuraSoundTrigger.Added, alertLevel, registration, unitToken);
+			GTFO.RegisterAuraSoundTrigger(spellId, GTFO.AuraSoundTrigger and GTFO.AuraSoundTrigger.Added, alertLevel, registration);
 
 			if (GTFO.AuraSoundTrigger) then
 				local stackAlertLevel = GTFO_GetAlertID(spell, true);
 				if (stackAlertLevel and stackAlertLevel > 0) then
-					GTFO.RegisterAuraSoundTrigger(spellId, GTFO.AuraSoundTrigger.ApplicationsIncreased, stackAlertLevel, registration, unitToken);
+					GTFO.RegisterAuraSoundTrigger(spellId, GTFO.AuraSoundTrigger.ApplicationsIncreased, stackAlertLevel, registration);
 				end
 			end
 		end

@@ -285,7 +285,6 @@ GTFO.SpellID["446646"] = {
 
 GTFO.SpellID["452204"] = {
   --desc = "Light Burst (Ravenous Glowmite)";
-  maps = { 2274, 2413 }; -- Khaz Algar, Harandar
   applicationOnly = true;
   sound = 3;
 };
