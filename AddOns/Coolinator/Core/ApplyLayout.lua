@@ -37,15 +37,11 @@ function addonTable.Core.GetCDMLayoutName()
   return "Coolinator (" .. CooldownViewerUtil.GetCurrentClassAndSpecTag() .. ")"
 end
 
-function addonTable.Core.GetCDMMappingAuras(activeOnly)
+function addonTable.Core.GetCDMMappingAuras()
   local allAuras = {}
 
-  if not C_CooldownViewer then
-    return allAuras
-  end
-
-  tAppendAll(allAuras, C_CooldownViewer.GetCooldownViewerCategorySet(Enum.CooldownViewerCategory.TrackedBuff, not activeOnly))
-  tAppendAll(allAuras, C_CooldownViewer.GetCooldownViewerCategorySet(Enum.CooldownViewerCategory.TrackedBar, not activeOnly))
+  tAppendAll(allAuras, C_CooldownViewer.GetCooldownViewerCategorySet(Enum.CooldownViewerCategory.TrackedBuff, true))
+  tAppendAll(allAuras, C_CooldownViewer.GetCooldownViewerCategorySet(Enum.CooldownViewerCategory.TrackedBar, true))
   local auraMapping = {}
   for _, cdmID in ipairs(allAuras) do
     local info = C_CooldownViewer.GetCooldownViewerCooldownInfo(cdmID)
@@ -68,13 +64,37 @@ function addonTable.Core.GetCDMMappingAuras(activeOnly)
     auraMapping[spellID] = nil
   end
 
-  return auraMapping, allAuras
+  return auraMapping
+end
+
+function addonTable.Core.GetCDMMappingAbilities()
+  local allAbilities = {}
+
+  tAppendAll(allAbilities, C_CooldownViewer.GetCooldownViewerCategorySet(Enum.CooldownViewerCategory.Essential, true))
+  tAppendAll(allAbilities, C_CooldownViewer.GetCooldownViewerCategorySet(Enum.CooldownViewerCategory.Utility, true))
+  local abilityMapping = {}
+  for _, cdmID in ipairs(allAbilities) do
+    local info = C_CooldownViewer.GetCooldownViewerCooldownInfo(cdmID)
+    abilityMapping[info.spellID] = cdmID
+    abilityMapping[C_Spell.GetBaseSpell(info.spellID)] = cdmID
+    if info.overrideSpellID then
+      abilityMapping[info.overrideSpellID] = cdmID
+      abilityMapping[C_Spell.GetBaseSpell(info.overrideSpellID)] = cdmID
+    end
+    if info.overrideTooltipSpellID then
+      abilityMapping[info.overrideTooltipSpellID] = cdmID
+      abilityMapping[C_Spell.GetBaseSpell(info.overrideTooltipSpellID)] = cdmID
+    end
+    for _, spellID in ipairs(info.linkedSpellIDs) do
+      abilityMapping[spellID] = cdmID
+    end
+  end
+
+  return abilityMapping
 end
 
 function addonTable.Core.GetCDMOrderAurasOnly(layout)
-  local auraMappingActive = addonTable.Core.GetCDMMappingAuras(true)
-
-  return {auraMap = auraMappingActive}
+  return {auraMap = addonTable.Core.GetCDMMappingAuras(), abilityMap = addonTable.Constants.IsForever and addonTable.Core.GetCDMMappingAbilities()}
 end
 
 function addonTable.Core.GetExistingLayoutName()

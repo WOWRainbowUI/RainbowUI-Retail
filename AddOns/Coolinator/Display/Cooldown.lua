@@ -46,6 +46,18 @@ function addonTable.Display.CooldownMixin:OnLoad()
   self:SetScript("OnLeave", self.OnLeave)
 
   self:SetAttribute("ping-receiver", true);
+
+  self.spellCallback = function(kind)
+    if kind == "cooldown" then
+      self:UpdateSpellCooldowns()
+    elseif kind == "chargesValue" then
+      self:UpdateSpellCharges()
+    elseif kind == "usable" then
+      self:UpdateUsable()
+    elseif kind == "range" then
+      self:UpdateRange()
+    end
+  end
 end
 
 function addonTable.Display.CooldownMixin:Style()
@@ -84,12 +96,13 @@ end
 function addonTable.Display.CooldownMixin:OnEvent(eventName, ...)
   local data = ...
   if eventName == "SPELL_UPDATE_COOLDOWN" then
-    if self.spellID then
-      self:UpdateSpellCooldowns()
-    elseif self.itemID then
-      self:UpdateItemCooldowns()
-    elseif self.equipmentSlot then
-      self:UpdateEquipmentCooldowns()
+    local _, _, _, _, itemID = ...
+    if itemID then
+      if self.itemID then
+        self:UpdateItemCooldowns()
+      elseif self.equipmentSlot then
+        self:UpdateEquipmentCooldowns()
+      end
     end
   elseif eventName == "BAG_UPDATE_COOLDOWN" then
     if self.itemID then
@@ -99,21 +112,6 @@ function addonTable.Display.CooldownMixin:OnEvent(eventName, ...)
     self:SetActivationAlert(true)
   elseif eventName == "SPELL_ACTIVATION_OVERLAY_GLOW_HIDE" and self.spellID and C_Spell.GetBaseSpell(data) == C_Spell.GetBaseSpell(self.spellID) then
     self:SetActivationAlert(false)
-  elseif eventName == "SPELL_RANGE_CHECK_UPDATE" and self.spellID and data == self.spellID then
-    local spellID, isInRange, checkedRange = ...
-    if spellID == self.spellID and self.details.showRange then
-      if not checkedRange or isInRange then
-        self.Icon:SetVertexColor(1, 1, 1, 1)
-      else
-        self.Icon:SetVertexColor(0.8, 0, 0, 1)
-      end
-    end
-  elseif eventName == "SPELL_UPDATE_USABLE" and self.spellID then
-    self:UpdateUsable()
-  elseif eventName == "SPELL_UPDATE_CHARGES" and self.spellID then
-    self:UpdateSpellCharges()
-  elseif eventName == "SPELL_UPDATE_USES" and self.spellID == data then
-    self:UpdateSpellCharges()
   elseif eventName == "ITEM_COUNT_CHANGED" and data == self.itemID then
     self:UpdateItemByID(self.itemID)
   end
@@ -146,15 +144,8 @@ function addonTable.Display.CooldownMixin:Enable()
   self.spellID = nil
   self.equipmentSlot = nil
 
-  self:RegisterEvent("SPELL_UPDATE_COOLDOWN")
   self:RegisterEvent("SPELL_ACTIVATION_OVERLAY_GLOW_SHOW")
   self:RegisterEvent("SPELL_ACTIVATION_OVERLAY_GLOW_HIDE")
-  self:RegisterEvent("SPELL_RANGE_CHECK_UPDATE")
-  self:RegisterEvent("SPELL_UPDATE_USABLE")
-  self:RegisterEvent("SPELL_UPDATE_CHARGES")
-  self:RegisterEvent("SPELL_UPDATE_USES")
-  self:RegisterEvent("ITEM_COUNT_CHANGED")
-  self:RegisterEvent("BAG_UPDATE_COOLDOWN")
 
   addonTable.CallbackRegistry:RegisterCallback("Update.SpellIcons", function(_, spellID)
     if self.spellID and (not spellID or C_Spell.GetBaseSpell(self.spellID) == spellID) then
@@ -164,21 +155,19 @@ function addonTable.Display.CooldownMixin:Enable()
   addonTable.CallbackRegistry:RegisterCallback("Update.KeyBindings", function(_, spellID)
     self:UpdateBindingText()
   end, self)
-  addonTable.CallbackRegistry:RegisterCallback("Update.SpellsDisplay", function(_, spellID)
+  addonTable.CallbackRegistry:RegisterCallback("Update.SpellsDisplay", function()
     if not self.spellID then
       return
     end
     local override = C_Spell.GetOverrideSpell(self.details.resource.spellID)
     if override ~= self.spellID then
+      addonTable.Display.AbilityTracking:UnregisterCallback(self.spellID, self.spellCallback)
       self:UpdateSpellByID(override)
     end
   end, self)
 end
 
 function addonTable.Display.CooldownMixin:Disable()
-  if self.spellID then
-    C_Spell.EnableSpellRangeCheck(self.spellID, false)
-  end
   self.itemID = nil
   self.spellID = nil
 
@@ -256,36 +245,28 @@ function addonTable.Display.CooldownMixin:ApplyVisual(visual)
 end
 
 function addonTable.Display.CooldownMixin:UpdateForState(state, notUsable)
-  if state ~= self.wasReady then
+  local newState = tostring(state) .. " " .. tostring(notUsable)
+  if newState ~= self.wasReady then
     local details = self.details
-    self:ApplyVisual(state and details.whenCooldown or notUsable and "none" or details.whenReady)
+    self:ApplyVisual(state and details.whenCooldown or notUsable and details.whenResources or details.whenReady)
   end
-  self.wasReady = state
+  self.wasReady = newState
 end
 
 function addonTable.Display.CooldownMixin:UpdateSpellCooldowns()
-  local chargesInfo = C_Spell.GetSpellCharges(self.spellID)
-  local cooldownInfo = C_Spell.GetSpellCooldown(self.spellID)
+  local state = addonTable.Display.AbilityTracking:Get(self.spellID)
 
-  if chargesInfo and chargesInfo.isActive  then
-    local chargeDuration = C_Spell.GetSpellChargeDuration(self.spellID)
-    self.ChargesCooldown:SetCooldownFromDurationObject(chargeDuration)
-    self.ChargesCooldown:SetAlphaFromBoolean(C_Spell.GetSpellCharges(self.spellID))
-    self.ChargesCooldown:SetHideCountdownNumbers(not self.details.texts.cooldown.visible or cooldownInfo.isActive and not cooldownInfo.isOnGCD)
+  if state.charge then
+    self.ChargesCooldown:SetCooldownFromDurationObject(state.charge.duration)
+    self.ChargesCooldown:SetHideCountdownNumbers(not self.details.texts.cooldown.visible or not state.charge.focus)
   else
     self.ChargesCooldown:Clear()
   end
 
-  self.spellCooldownState = cooldownInfo.isActive and not cooldownInfo.isOnGCD
-  self:UpdateForState(self.spellCooldownState, not C_Spell.IsSpellUsable(self.spellID))
-  if cooldownInfo.isActive then
-    local baseDuration = C_Spell.GetSpellCooldownDuration(self.spellID, self.ignoreGCD)
-    self.BaseCooldown:SetCooldownFromDurationObject(baseDuration)
-    self.BaseCooldown:SetHideCountdownNumbers(not self.details.texts.cooldown.visible or cooldownInfo.isOnGCD)
-    self.BaseCooldown:SetScript("OnCooldownDone", function()
-      self.spellCooldownState = false
-      self:UpdateForState(false)
-    end)
+  self:UpdateForState(state.cooldown and state.cooldown.focus or false, not state.usable)
+  if state.cooldown then
+    self.BaseCooldown:SetCooldownFromDurationObject(state.cooldown.duration)
+    self.BaseCooldown:SetHideCountdownNumbers(not self.details.texts.cooldown.visible or not state.cooldown.focus)
   else
     self.BaseCooldown:Clear()
   end
@@ -302,30 +283,29 @@ function addonTable.Display.CooldownMixin:UpdateSpellByID(spellID, activationOff
   if not activationOff then
     self:SetActivationAlert(C_SpellActivationOverlay.IsSpellOverlayed(spellID))
   end
-  if self.details.showRange then
-    C_Spell.EnableSpellRangeCheck(self.spellID, true)
-  end
-  if self.details.showRange and C_Spell.IsSpellInRange(self.spellID, "target") == false then
+  self:UpdateRange()
+  self:UpdateUsable()
+
+  addonTable.Display.AbilityTracking:RegisterCallback(self.spellID, self.spellCallback)
+end
+
+function addonTable.Display.CooldownMixin:UpdateRange()
+  if self.details.showRange and not addonTable.Display.AbilityTracking:Get(self.spellID).inRange then
     self.Icon:SetVertexColor(0.8, 0, 0, 1)
   else
     self.Icon:SetVertexColor(1, 1, 1, 1)
   end
-  self:UpdateUsable()
 end
 
 function addonTable.Display.CooldownMixin:UpdateUsable()
-  local usable = C_Spell.IsSpellUsable(self.spellID)
-  self.NotUsable:SetShown(not usable and self.details.showIcon)
-  self:UpdateForState(self.spellCooldownState, not usable)
+  local state = addonTable.Display.AbilityTracking:Get(self.spellID)
+  self.NotUsable:SetShown(not state.usable and self.details.showIcon)
+  self:UpdateForState(state.cooldown and state.cooldown.focus or false, not state.usable)
 end
 
 function addonTable.Display.CooldownMixin:UpdateSpellCharges()
-  local binding = addonTable.State.Bindings.spells[C_Spell.GetBaseSpell(self.spellID)]
-  if binding then
-    self.TextsContainer.count:SetText(C_ActionBar.GetActionDisplayCount(binding.action))
-  else
-    self.TextsContainer.count:SetText(C_Spell.GetSpellDisplayCount(self.spellID))
-  end
+  local state = addonTable.Display.AbilityTracking:Get(self.spellID)
+  self.TextsContainer.count:SetText(state.chargesValue)
 end
 
 function addonTable.Display.CooldownMixin:UpdateItemCooldowns()
@@ -341,6 +321,10 @@ function addonTable.Display.CooldownMixin:UpdateItemCooldowns()
 end
 
 function addonTable.Display.CooldownMixin:UpdateItemByID(itemID)
+  self:RegisterEvent("SPELL_UPDATE_COOLDOWN")
+  self:RegisterEvent("ITEM_COUNT_CHANGED")
+  self:RegisterEvent("BAG_UPDATE_COOLDOWN")
+
   self.itemID = itemID
   self.Icon:SetTexture(C_Item.GetItemIconByID(self.itemID))
   self.ChargesCooldown:Clear()
@@ -375,6 +359,9 @@ function addonTable.Display.CooldownMixin:UpdateEquipmentCooldowns()
 end
 
 function addonTable.Display.CooldownMixin:UpdateItemByEquipmentSlot(equipmentSlot)
+  self:RegisterEvent("SPELL_UPDATE_COOLDOWN")
+  self:RegisterEvent("ITEM_COUNT_CHANGED")
+
   self.equipmentSlot = equipmentSlot
 
   local location = ItemLocation:CreateFromEquipmentSlot(equipmentSlot)

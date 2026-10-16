@@ -421,6 +421,17 @@ local function Iconsv27(group)
   end
 end
 
+local function Iconsv28(group)
+  for i = #group.entries, 1, -1 do
+    local entry = group.entries[i]
+    if entry.kind == "group" or entry.kind == "stack" then
+      Iconsv27(entry)
+    elseif entry.kind == "icon" and (entry.resource.kind == "ability" or entry.resource.kind == "item" or entry.resource.kind == "equipment") then
+      entry.whenResources = "none"
+    end
+  end
+end
+
 local steps = {
   AddAlignment,
   addonTable.Core.RemoveDeadGroups,
@@ -453,6 +464,7 @@ local steps = {
   Combov26,
   Combov26,
   Iconsv27,
+  Iconsv28,
 }
 addonTable.Constants.CurrentLayoutVersion = #steps
 
