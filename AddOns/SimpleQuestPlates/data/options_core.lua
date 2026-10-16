@@ -25,7 +25,11 @@ function SQP:CreateOptionsPanel()
     end
     if Fonts and type(Fonts.SetDefault) == "function" then
         pcall(function()
-            Fonts:SetDefault("FrizQuadrata")
+            Fonts:Register("SQPStandardText", STANDARD_TEXT_FONT, {
+                displayName = "遊戲預設字體",
+                category = "WoW Defaults",
+            })
+            Fonts:SetDefault("SQPStandardText")
         end)
     end
     local UI = RGX and RGX:GetUI() or _G.RGXUI

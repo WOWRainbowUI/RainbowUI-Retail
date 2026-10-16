@@ -549,7 +549,7 @@ end
 
 function SQP:CreateGlobalOptions(content)
     if not self.optionControls then self.optionControls = {} end
-    local contentArea, header = SQP:CreatePageArea(content, "Global")
+    local contentArea, header = SQP:CreatePageArea(content, SQP.L["Global"])
     local typeSwitches = {}
     for _, typeKey in ipairs({ "kill", "loot", "percent" }) do
         local switch = SQP:CreateHeaderSwitch(header, typeKey .. "Enabled")
@@ -567,7 +567,7 @@ function SQP:CreateGlobalOptions(content)
     function pager:SetPage(n)
         self.page = n
         local titles = { "Global", "Kill", "Loot", "Percent" }
-        if header.label then header.label:SetText(titles[n]) end
+        if header.label then header.label:SetText(SQP.L[titles[n]]) end
         for i, switch in ipairs(typeSwitches) do switch:SetShown(n == i + 1) end
         for i, page in ipairs(self.frames) do page:SetShown(i == n) end
     end
@@ -597,7 +597,7 @@ end
 
 function SQP:CreateAnimationOptions(content)
     if not self.optionControls then self.optionControls = {} end
-    local contentArea, header = SQP:CreatePageArea(content, "Animation")
+    local contentArea, header = SQP:CreatePageArea(content, SQP.L["Animation"])
     SQP:CreateHeaderSwitch(header, "animationsEnabled")
     BuildAnimationPage(contentArea)
 end

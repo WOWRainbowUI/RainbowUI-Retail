@@ -647,7 +647,7 @@ function SQP:CreatePreviewSection(parent)
                     if value == nil then value = SQPSettings.showIconBackground end
                     styleText = value == false and "Text" or "Classic"
                 end
-                self.modeCaption:SetText(SQP.L["|cff9a9a9aPreview — |r|cff58be81"] .. styleText .. "|r")
+                self.modeCaption:SetText(SQP.L["|cff9a9a9aPreview — |r|cff58be81"] .. SQP.L[styleText] .. "|r")
             end
         end
 
