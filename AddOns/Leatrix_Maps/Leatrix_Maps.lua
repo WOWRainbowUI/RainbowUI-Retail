@@ -1,6 +1,6 @@
 ﻿
 	----------------------------------------------------------------------
-	-- 	Leatrix Maps 12.1.11 (14th October 2026)
+	-- 	Leatrix Maps 12.1.12 (15th October 2026)
 	----------------------------------------------------------------------
 
 	-- 10:Func, 20:Comm, 30:Evnt, 40:Panl
@@ -9,10 +9,10 @@
 	_G.LeaMapsDB = _G.LeaMapsDB or {}
 
 	-- Create local tables
-	local LeaMapsLC, LeaMapsCB, LeaConfigList = {}, {}, {}
+	local LeaMapsLC, LeaMapsCB, LeaConfigList, LeaLockList = {}, {}, {}, {}
 
 	-- Version
-	LeaMapsLC["AddonVer"] = "12.1.10"
+	LeaMapsLC["AddonVer"] = "12.1.12"
 
 	-- Get locale table
 	local void, Leatrix_Maps = ...
@@ -83,7 +83,7 @@
 		-- Simple map frame
 		----------------------------------------------------------------------
 
-		if LeaMapsLC["SimpleMapFrame"] == "On" then
+		if LeaMapsLC["SimpleMapFrame"] == "On" and not LeaLockList["SimpleMapFrame"] then
 
 			-- Function to check if a frame can be changed (protected frames cannot be changed during combat)
 			local function CanChange(frame)
@@ -2406,7 +2406,7 @@
 
 		if event == "ADDON_LOADED" and arg1 == "Leatrix_Maps" then
 			-- Load settings or set defaults
-			LeaMapsLC:LoadVarChk("SimpleMapFrame", "On")				-- Simple map frame
+			LeaMapsLC:LoadVarChk("SimpleMapFrame", "Off")				-- Simple map frame
 			LeaMapsLC:LoadVarChk("UnlockMap", "Off")					-- Unlock map frame
 			LeaMapsLC:LoadVarChk("EnableMovement", "On")				-- Enable frame movement
 			LeaMapsLC:LoadVarChk("ScaleWorldMap", "Off")				-- Scale the map
@@ -2464,6 +2464,37 @@
 			-- Set initial minimum button position
 			if not LeaMapsDB["minimapPos"] then
 				LeaMapsDB["minimapPos"] = 204
+			end
+
+			-- Lock conflicting options
+			do
+
+				-- Function to disable and lock an option and add a note to the tooltip
+				local function Lock(option, reason, optmodule)
+					LeaLockList[option] = LeaMapsLC[option]
+					LeaMapsLC:LockItem(LeaMapsCB[option], true)
+					LeaMapsCB[option].tiptext = LeaMapsCB[option].tiptext .. "|n|n|cff00AAFF" .. L[reason]
+					if optmodule then
+						LeaMapsCB[option].tiptext = LeaMapsCB[option].tiptext .. " " .. L[optmodule] .. " " .. L["module"]
+					end
+					LeaMapsCB[option].tiptext = LeaMapsCB[option].tiptext .. "."
+					-- Remove hover from configuration button if there is one
+					local temp = {LeaMapsCB[option]:GetChildren()}
+					if temp and temp[1] and temp[1].t and temp[1].t:GetTexture() == "Interface\\WorldMap\\Gear_64.png" then
+						temp[1]:SetHighlightTexture(0)
+						temp[1]:SetScript("OnEnter", nil)
+					end
+				end
+
+				-- Disable items that conflict with ElvUI
+				if LeaMapsLC.ElvUI then
+					local E, S = LeaMapsLC.ElvUI
+					local reason = L["Cannot be used with ElvUI"]
+					if E.private.skins.blizzard.enable and E.private.skins.blizzard.worldmap then
+						Lock("SimpleMapFrame", reason, "Skins: World Map") -- Use simple map frame
+					end
+					C_AddOns.EnableAddOn("Leatrix_Maps")
+				end
 			end
 
 		elseif event == "PLAYER_LOGIN" then

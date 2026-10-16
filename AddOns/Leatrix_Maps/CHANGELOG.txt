@@ -1,4 +1,8 @@
-﻿12.1.11 - 14th October 2026
+﻿12.1.12 - 15th October 2026
+- To use 'Simple map frame' with ElvUI, you need to disable the ElvUI World Map skin. 
+- Updated translations.
+
+12.1.11 - 14th October 2026
 - Fixed a minor issue which caused the M key to always open the map without the quest log.
 
 12.1.09 - 14th October 2026
