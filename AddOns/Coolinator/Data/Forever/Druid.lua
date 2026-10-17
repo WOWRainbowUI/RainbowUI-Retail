@@ -1,5 +1,9 @@
 local addonTable = select(2, ...)
-addonTable.Data.Spells.DRUID = {
+local class = "DRUID"
+if UnitClassBase("player") ~= class then
+    return
+end
+addonTable.Data.Spells[class] = {
   [1] = {
     ['spells'] = {
       [1] = 5185,
@@ -44,6 +48,7 @@ addonTable.Data.Spells.DRUID = {
     ['isRanked'] = true
   },
   [4] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 8921,
       [2] = 8924,
@@ -70,13 +75,13 @@ addonTable.Data.Spells.DRUID = {
       [7] = 8910,
       [8] = 9839,
       [9] = 9840,
-      [10] = 9841,
-      [11] = 25299
+      [10] = 9841
     },
     ['name'] = 'Rejuvenation',
     ['isRanked'] = true
   },
   [6] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 467,
       [2] = 782,
@@ -89,6 +94,7 @@ addonTable.Data.Spells.DRUID = {
     ['isRanked'] = true
   },
   [7] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 339,
       [2] = 1062,
@@ -101,6 +107,7 @@ addonTable.Data.Spells.DRUID = {
     ['isRanked'] = true
   },
   [8] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 99,
       [2] = 1735,
@@ -112,6 +119,7 @@ addonTable.Data.Spells.DRUID = {
     ['isRanked'] = true
   },
   [9] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 16689,
       [2] = 16810,
@@ -131,6 +139,7 @@ addonTable.Data.Spells.DRUID = {
     ['isRanked'] = false
   },
   [11] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 8936,
       [2] = 8938,
@@ -177,6 +186,7 @@ addonTable.Data.Spells.DRUID = {
     ['isRanked'] = true
   },
   [15] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 770,
       [2] = 778,
@@ -187,6 +197,7 @@ addonTable.Data.Spells.DRUID = {
     ['isRanked'] = true
   },
   [16] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 2637,
       [2] = 18657,
@@ -228,6 +239,17 @@ addonTable.Data.Spells.DRUID = {
   },
   [20] = {
     ['spells'] = {
+      [1] = 5221,
+      [2] = 6800,
+      [3] = 8992,
+      [4] = 9829,
+      [5] = 9830
+    },
+    ['name'] = 'Shred',
+    ['isRanked'] = true
+  },
+  [21] = {
+    ['spells'] = {
       [1] = 2912,
       [2] = 8949,
       [3] = 8950,
@@ -238,18 +260,8 @@ addonTable.Data.Spells.DRUID = {
     ['name'] = 'Starfire',
     ['isRanked'] = true
   },
-  [21] = {
-    ['spells'] = {
-      [1] = 5221,
-      [2] = 6800,
-      [3] = 8992,
-      [4] = 9829,
-      [5] = 9830
-    },
-    ['name'] = 'Shred',
-    ['isRanked'] = true
-  },
   [22] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 2908,
       [2] = 8955,
@@ -259,6 +271,7 @@ addonTable.Data.Spells.DRUID = {
     ['isRanked'] = true
   },
   [23] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 1822,
       [2] = 1823,
@@ -277,19 +290,13 @@ addonTable.Data.Spells.DRUID = {
   },
   [25] = {
     ['spells'] = {
-      [1] = 5217
-    },
-    ['name'] = 'Tiger\'s Fury',
-    ['isRanked'] = false
-  },
-  [26] = {
-    ['spells'] = {
       [1] = 2893
     },
     ['name'] = 'Abolish Poison',
     ['isRanked'] = false
   },
-  [27] = {
+  [26] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 1850,
       [2] = 9821
@@ -297,14 +304,14 @@ addonTable.Data.Spells.DRUID = {
     ['name'] = 'Dash',
     ['isRanked'] = true
   },
-  [28] = {
+  [27] = {
     ['spells'] = {
       [1] = 5209
     },
     ['name'] = 'Challenging Roar',
     ['isRanked'] = false
   },
-  [29] = {
+  [28] = {
     ['spells'] = {
       [1] = 1082,
       [2] = 3029,
@@ -315,7 +322,7 @@ addonTable.Data.Spells.DRUID = {
     ['name'] = 'Claw',
     ['isRanked'] = true
   },
-  [30] = {
+  [29] = {
     ['spells'] = {
       [1] = 8998,
       [2] = 9000,
@@ -324,7 +331,8 @@ addonTable.Data.Spells.DRUID = {
     ['name'] = 'Cower',
     ['isRanked'] = true
   },
-  [31] = {
+  [30] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 1079,
       [2] = 9492,
@@ -336,7 +344,8 @@ addonTable.Data.Spells.DRUID = {
     ['name'] = 'Rip',
     ['isRanked'] = true
   },
-  [32] = {
+  [31] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 5570,
       [2] = 24974,
@@ -347,7 +356,8 @@ addonTable.Data.Spells.DRUID = {
     ['name'] = 'Insect Swarm',
     ['isRanked'] = true
   },
-  [33] = {
+  [32] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 740,
       [2] = 8918,
@@ -357,14 +367,15 @@ addonTable.Data.Spells.DRUID = {
     ['name'] = 'Tranquility',
     ['isRanked'] = true
   },
-  [34] = {
+  [33] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 783
     },
     ['name'] = 'Travel Form',
     ['isRanked'] = false
   },
-  [35] = {
+  [34] = {
     ['spells'] = {
       [1] = 22568,
       [2] = 22827,
@@ -374,7 +385,7 @@ addonTable.Data.Spells.DRUID = {
     ['name'] = 'Ferocious Bite',
     ['isRanked'] = true
   },
-  [36] = {
+  [35] = {
     ['spells'] = {
       [1] = 6785,
       [2] = 6787,
@@ -384,21 +395,23 @@ addonTable.Data.Spells.DRUID = {
     ['name'] = 'Ravage',
     ['isRanked'] = true
   },
-  [37] = {
+  [36] = {
     ['spells'] = {
       [1] = 5225
     },
     ['name'] = 'Track Humanoids',
     ['isRanked'] = false
   },
-  [38] = {
+  [37] = {
     ['spells'] = {
-      [1] = 22842
+      [1] = 22842,
+      [2] = 22845
     },
     ['name'] = 'Frenzied Regeneration',
     ['isRanked'] = false
   },
-  [39] = {
+  [38] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 9005,
       [2] = 9823,
@@ -407,7 +420,18 @@ addonTable.Data.Spells.DRUID = {
     ['name'] = 'Pounce',
     ['isRanked'] = true
   },
+  [39] = {
+    ['spells'] = {
+      [1] = 407995,
+      [2] = 1238069,
+      [3] = 1238070,
+      [4] = 1238073
+    },
+    ['name'] = 'Primal Bite',
+    ['isRanked'] = true
+  },
   [40] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 9634
     },
@@ -450,7 +474,8 @@ addonTable.Data.Spells.DRUID = {
     ['spells'] = {
       [1] = 414644,
       [2] = 1235826,
-      [3] = 1235827
+      [3] = 1235827,
+      [4] = 414647
     },
     ['name'] = 'Lacerate',
     ['isRanked'] = true
@@ -463,6 +488,7 @@ addonTable.Data.Spells.DRUID = {
     ['isRanked'] = false
   },
   [47] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 408120,
       [2] = 1238214,
@@ -479,6 +505,7 @@ addonTable.Data.Spells.DRUID = {
     ['isRanked'] = false
   },
   [49] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 17116
     },
@@ -486,6 +513,7 @@ addonTable.Data.Spells.DRUID = {
     ['isRanked'] = false
   },
   [50] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 24858
     },
@@ -494,20 +522,19 @@ addonTable.Data.Spells.DRUID = {
   },
   [51] = {
     ['spells'] = {
-      [1] = 1238122
+      [1] = 1238122,
+      [2] = 19675,
+      [3] = 414923
     },
     ['name'] = 'Feral Charge',
     ['isRanked'] = false
   },
   [52] = {
     ['spells'] = {
-      [1] = 407995,
-      [2] = 1238069,
-      [3] = 1238070,
-      [4] = 1238073
+      [1] = 1322605
     },
-    ['name'] = 'Mangle',
-    ['isRanked'] = true
+    ['name'] = 'Shifting Power',
+    ['isRanked'] = false
   },
   [53] = {
     ['spells'] = {
@@ -517,45 +544,163 @@ addonTable.Data.Spells.DRUID = {
     ['isRanked'] = false
   },
   [54] = {
+    ['auraTag'] = 'HELPAURA',
     ['spells'] = {
-      [1] = 6795
+      [1] = 16870
     },
-    ['name'] = 'Growl',
+    ['name'] = 'Clearcasting',
     ['isRanked'] = false
   },
   [55] = {
+    ['auraTag'] = 'HELPAURA',
     ['spells'] = {
-      [1] = 408248
+      [1] = 408255
     },
     ['name'] = 'Eclipse',
     ['isRanked'] = false
   },
   [56] = {
+    ['auraTag'] = 'HELPAURA',
     ['spells'] = {
-      [1] = 16880
+      [1] = 16886
     },
     ['name'] = 'Nature\'s Grace',
     ['isRanked'] = false
   },
   [57] = {
+    ['auraTag'] = 'HARMAURA',
     ['spells'] = {
-      [1] = 16850
+      [1] = 16922
     },
-    ['name'] = 'Improved Starfire',
+    ['name'] = 'Starfire Stun',
     ['isRanked'] = false
   },
   [58] = {
+    ['auraTag'] = 'HELPAURA',
     ['spells'] = {
-      [1] = 1319289
+      [1] = 5215,
+      [2] = 6783,
+      [3] = 9913
     },
-    ['name'] = 'Druid Forms',
-    ['isRanked'] = false
+    ['name'] = 'Prowl',
+    ['isRanked'] = true
   },
   [59] = {
+    ['auraTag'] = 'HARMAURA',
     ['spells'] = {
-      [1] = 1319309
+      [1] = 414647,
+      [2] = 1235826,
+      [3] = 1235827
     },
-    ['name'] = 'Druidic Auras',
+    ['name'] = 'Lacerate',
+    ['isRanked'] = true
+  },
+  [60] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 22845
+    },
+    ['name'] = 'Frenzied Regeneration',
+    ['isRanked'] = false
+  },
+  [61] = {
+    ['auraTag'] = 'HARMAURA',
+    ['spells'] = {
+      [1] = 19675,
+      [2] = 414923
+    },
+    ['name'] = 'Feral Charge',
+    ['isRanked'] = false
+  },
+  [62] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 1324487,
+      [2] = 1324488,
+      [3] = 1324490
+    },
+    ['name'] = 'Bash',
+    ['isRanked'] = false
+  },
+  [63] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 1126,
+      [2] = 5232,
+      [3] = 5287,
+      [4] = 5234,
+      [5] = 8907,
+      [6] = 9884,
+      [7] = 9885
+    },
+    ['name'] = 'Mark of the Wild',
+    ['isRanked'] = true
+  },
+  [64] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 21849,
+      [2] = 21850
+    },
+    ['name'] = 'Gift of the Wild',
+    ['isRanked'] = true
+  },
+  [65] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 774,
+      [2] = 1058,
+      [3] = 1430,
+      [4] = 2090,
+      [5] = 2091,
+      [6] = 3627,
+      [7] = 8910,
+      [8] = 9839,
+      [9] = 9840,
+      [10] = 9841,
+      [11] = 25299
+    },
+    ['name'] = 'Rejuvenation',
+    ['isRanked'] = true
+  },
+  [66] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 5487
+    },
+    ['name'] = 'Bear Form',
+    ['isRanked'] = false
+  },
+  [67] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 768
+    },
+    ['name'] = 'Cat Form',
+    ['isRanked'] = false
+  },
+  [68] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 1066
+    },
+    ['name'] = 'Aquatic Form',
+    ['isRanked'] = false
+  },
+  [69] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 24932
+    },
+    ['name'] = 'Leader of the Pack',
+    ['isRanked'] = false
+  },
+  [70] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 24907
+    },
+    ['name'] = 'Moonkin Aura',
     ['isRanked'] = false
   }
 }

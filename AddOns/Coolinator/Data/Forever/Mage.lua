@@ -1,6 +1,11 @@
 local addonTable = select(2, ...)
-addonTable.Data.Spells.MAGE = {
+local class = "MAGE"
+if UnitClassBase("player") ~= class then
+    return
+end
+addonTable.Data.Spells[class] = {
   [1] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 168,
       [2] = 7300,
@@ -10,6 +15,7 @@ addonTable.Data.Spells.MAGE = {
     ['isRanked'] = true
   },
   [2] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 133,
       [2] = 143,
@@ -27,6 +33,7 @@ addonTable.Data.Spells.MAGE = {
     ['isRanked'] = true
   },
   [3] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 1459,
       [2] = 1460,
@@ -60,8 +67,7 @@ addonTable.Data.Spells.MAGE = {
       [7] = 8408,
       [8] = 10179,
       [9] = 10180,
-      [10] = 10181,
-      [11] = 25304
+      [10] = 10181
     },
     ['name'] = 'Frostbolt',
     ['isRanked'] = true
@@ -116,13 +122,13 @@ addonTable.Data.Spells.MAGE = {
       [1] = 118,
       [2] = 12824,
       [3] = 12825,
-      [4] = 12826,
-      [0] = 1320379
+      [4] = 12826
     },
     ['name'] = 'Polymorph',
     ['isRanked'] = true
   },
   [11] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 122,
       [2] = 865,
@@ -133,6 +139,7 @@ addonTable.Data.Spells.MAGE = {
     ['isRanked'] = true
   },
   [12] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 604,
       [2] = 8450,
@@ -175,6 +182,7 @@ addonTable.Data.Spells.MAGE = {
     ['isRanked'] = true
   },
   [16] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 1008,
       [2] = 8455,
@@ -218,6 +226,7 @@ addonTable.Data.Spells.MAGE = {
     ['isRanked'] = false
   },
   [21] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 543,
       [2] = 8457,
@@ -229,6 +238,7 @@ addonTable.Data.Spells.MAGE = {
     ['isRanked'] = true
   },
   [22] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 1463,
       [2] = 8494,
@@ -241,6 +251,7 @@ addonTable.Data.Spells.MAGE = {
     ['isRanked'] = true
   },
   [23] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 6143,
       [2] = 8461,
@@ -273,6 +284,16 @@ addonTable.Data.Spells.MAGE = {
   },
   [26] = {
     ['spells'] = {
+      [1] = 1326053,
+      [2] = 1326054,
+      [3] = 1326055
+    },
+    ['name'] = 'Frost Blast',
+    ['isRanked'] = true
+  },
+  [27] = {
+    ['auraTag'] = 'ABILITYANDAURA',
+    ['spells'] = {
       [1] = 11366,
       [2] = 12505,
       [3] = 12522,
@@ -285,7 +306,8 @@ addonTable.Data.Spells.MAGE = {
     ['name'] = 'Pyroblast',
     ['isRanked'] = true
   },
-  [27] = {
+  [28] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 120,
       [2] = 8492,
@@ -296,14 +318,14 @@ addonTable.Data.Spells.MAGE = {
     ['name'] = 'Cone of Cold',
     ['isRanked'] = true
   },
-  [28] = {
+  [29] = {
     ['spells'] = {
       [1] = 759
     },
     ['name'] = 'Conjure Mana Agate',
     ['isRanked'] = false
   },
-  [29] = {
+  [30] = {
     ['spells'] = {
       [1] = 1312002,
       [2] = 400640,
@@ -315,7 +337,7 @@ addonTable.Data.Spells.MAGE = {
     ['name'] = 'Ice Lance',
     ['isRanked'] = true
   },
-  [30] = {
+  [31] = {
     ['spells'] = {
       [1] = 400574,
       [2] = 1239696,
@@ -326,7 +348,8 @@ addonTable.Data.Spells.MAGE = {
     ['name'] = 'Arcane Blast',
     ['isRanked'] = true
   },
-  [31] = {
+  [32] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 7302,
       [2] = 7320,
@@ -336,7 +359,8 @@ addonTable.Data.Spells.MAGE = {
     ['name'] = 'Ice Armor',
     ['isRanked'] = true
   },
-  [32] = {
+  [33] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 6117,
       [2] = 22782,
@@ -345,7 +369,18 @@ addonTable.Data.Spells.MAGE = {
     ['name'] = 'Mage Armor',
     ['isRanked'] = true
   },
-  [33] = {
+  [34] = {
+    ['spells'] = {
+      [1] = 1326079,
+      [2] = 1326080,
+      [3] = 1326081,
+      [4] = 1326082
+    },
+    ['name'] = 'Arcane Wrath',
+    ['isRanked'] = true
+  },
+  [35] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 11113,
       [2] = 13018,
@@ -356,14 +391,15 @@ addonTable.Data.Spells.MAGE = {
     ['name'] = 'Blast Wave',
     ['isRanked'] = true
   },
-  [34] = {
+  [36] = {
     ['spells'] = {
       [1] = 3552
     },
     ['name'] = 'Conjure Mana Jade',
     ['isRanked'] = false
   },
-  [35] = {
+  [37] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 401502,
       [2] = 1237312,
@@ -372,7 +408,8 @@ addonTable.Data.Spells.MAGE = {
     ['name'] = 'Frostfire Bolt',
     ['isRanked'] = true
   },
-  [36] = {
+  [38] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 11426,
       [2] = 13031,
@@ -382,152 +419,187 @@ addonTable.Data.Spells.MAGE = {
     ['name'] = 'Ice Barrier',
     ['isRanked'] = true
   },
-  [37] = {
+  [39] = {
     ['spells'] = {
       [1] = 10053
     },
     ['name'] = 'Conjure Mana Citrine',
     ['isRanked'] = false
   },
-  [38] = {
+  [40] = {
     ['spells'] = {
       [1] = 10054
     },
     ['name'] = 'Conjure Mana Ruby',
     ['isRanked'] = false
   },
-  [39] = {
+  [41] = {
     ['spells'] = {
       [1] = 12472
     },
     ['name'] = 'Cold Snap',
     ['isRanked'] = false
   },
-  [40] = {
+  [42] = {
     ['spells'] = {
       [1] = 11958
     },
     ['name'] = 'Ice Block',
     ['isRanked'] = false
   },
-  [41] = {
+  [43] = {
     ['spells'] = {
       [1] = 11129,
-      [0] = 28682
+      [2] = 28682
     },
     ['name'] = 'Combustion',
     ['isRanked'] = false
   },
-  [42] = {
+  [44] = {
     ['spells'] = {
       [1] = 12042
     },
     ['name'] = 'Arcane Power',
     ['isRanked'] = false
   },
-  [43] = {
+  [45] = {
     ['spells'] = {
       [1] = 12043
     },
     ['name'] = 'Presence of Mind',
     ['isRanked'] = false
   },
-  [44] = {
-    ['spells'] = {
-      [1] = 1318827
-    },
-    ['name'] = 'Mana Gems',
-    ['isRanked'] = false
-  },
-  [45] = {
-    ['spells'] = {
-      [1] = 400624
-    },
-    ['name'] = 'Hot Streak',
-    ['isRanked'] = false
-  },
   [46] = {
+    ['auraTag'] = 'HELPAURA',
     ['spells'] = {
-      [1] = 11078
+      [1] = 1320379,
+      [2] = 1324187,
+      [3] = 1324188,
+      [4] = 1324189
     },
-    ['name'] = 'Wake of Fire',
+    ['name'] = 'Polymorph',
     ['isRanked'] = false
   },
   [47] = {
+    ['auraTag'] = 'HELPAURA',
     ['spells'] = {
-      [1] = 11213
+      [1] = 400625
     },
-    ['name'] = 'Arcane Concentration',
+    ['name'] = 'Heating Up',
     ['isRanked'] = false
   },
   [48] = {
+    ['auraTag'] = 'HELPAURA',
     ['spells'] = {
-      [1] = 400588
+      [1] = 12536
+    },
+    ['name'] = 'Clearcasting',
+    ['isRanked'] = false
+  },
+  [49] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 400589
     },
     ['name'] = 'Missile Barrage',
     ['isRanked'] = false
   },
-  [49] = {
+  [50] = {
+    ['auraTag'] = 'HELPAURA',
     ['spells'] = {
-      [1] = 11119
+      [1] = 400573
+    },
+    ['name'] = 'Arcane Blast',
+    ['isRanked'] = false
+  },
+  [51] = {
+    ['auraTag'] = 'HARMAURA',
+    ['spells'] = {
+      [1] = 412538
     },
     ['name'] = 'Ignite',
     ['isRanked'] = false
   },
-  [50] = {
+  [52] = {
+    ['auraTag'] = 'HELPAURA',
     ['spells'] = {
-      [1] = 400647
+      [1] = 400670
     },
     ['name'] = 'Fingers of Frost',
     ['isRanked'] = false
   },
-  [51] = {
+  [53] = {
+    ['auraTag'] = 'HARMAURA',
     ['spells'] = {
-      [1] = 11071
+      [1] = 12494
     },
     ['name'] = 'Frostbite',
     ['isRanked'] = false
   },
-  [52] = {
+  [54] = {
+    ['auraTag'] = 'HARMAURA',
     ['spells'] = {
-      [1] = 11180
+      [1] = 12579
     },
     ['name'] = 'Winter\'s Chill',
     ['isRanked'] = false
   },
-  [53] = {
-    ['spells'] = {
-      [1] = 11095
-    },
-    ['name'] = 'Improved Scorch',
-    ['isRanked'] = false
-  },
-  [54] = {
-    ['spells'] = {
-      [1] = 11255
-    },
-    ['name'] = 'Improved Counterspell',
-    ['isRanked'] = false
-  },
   [55] = {
+    ['auraTag'] = 'HARMAURA',
     ['spells'] = {
-      [1] = 11103
+      [1] = 22959
+    },
+    ['name'] = 'Fire Vulnerability',
+    ['isRanked'] = false
+  },
+  [56] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 1324401
+    },
+    ['name'] = 'Counterspell - Silenced',
+    ['isRanked'] = false
+  },
+  [57] = {
+    ['auraTag'] = 'HARMAURA',
+    ['spells'] = {
+      [1] = 12355
     },
     ['name'] = 'Impact',
     ['isRanked'] = false
   },
-  [56] = {
+  [58] = {
+    ['auraTag'] = 'HARMAURA',
     ['spells'] = {
-      [1] = 11185
-    },
-    ['name'] = 'Improved Blizzard',
-    ['isRanked'] = false
-  },
-  [57] = {
-    ['spells'] = {
-      [1] = 6136
+      [1] = 12484
     },
     ['name'] = 'Chilled',
+    ['isRanked'] = false
+  },
+  [59] = {
+    ['auraTag'] = 'HARMAURA',
+    ['spells'] = {
+      [1] = 116,
+      [2] = 205,
+      [3] = 837,
+      [4] = 7322,
+      [5] = 8406,
+      [6] = 8407,
+      [7] = 8408,
+      [8] = 10179,
+      [9] = 10180,
+      [10] = 10181,
+      [11] = 25304
+    },
+    ['name'] = 'Frostbolt',
     ['isRanked'] = true
+  },
+  [60] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 23028
+    },
+    ['name'] = 'Arcane Brilliance',
+    ['isRanked'] = false
   }
 }
