@@ -1,5 +1,9 @@
 local addonTable = select(2, ...)
-addonTable.Data.Spells.SHAMAN = {
+local class = "SHAMAN"
+if UnitClassBase("player") ~= class then
+    return
+end
+addonTable.Data.Spells[class] = {
   [1] = {
     ['spells'] = {
       [1] = 331,
@@ -65,6 +69,7 @@ addonTable.Data.Spells.SHAMAN = {
     ['isRanked'] = false
   },
   [6] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 324,
       [2] = 325,
@@ -78,6 +83,7 @@ addonTable.Data.Spells.SHAMAN = {
     ['isRanked'] = true
   },
   [7] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 5730,
       [2] = 6390,
@@ -90,12 +96,14 @@ addonTable.Data.Spells.SHAMAN = {
     ['isRanked'] = true
   },
   [8] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 8050,
       [2] = 8052,
       [3] = 8053,
       [4] = 10447,
-      [5] = 10448
+      [5] = 10448,
+      [6] = 29228
     },
     ['name'] = 'Flame Shock',
     ['isRanked'] = true
@@ -113,11 +121,13 @@ addonTable.Data.Spells.SHAMAN = {
     ['isRanked'] = true
   },
   [10] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 8075,
       [2] = 8160,
       [3] = 8161,
-      [4] = 10442
+      [4] = 10442,
+      [5] = 25361
     },
     ['name'] = 'Strength of Earth Totem',
     ['isRanked'] = true
@@ -186,6 +196,7 @@ addonTable.Data.Spells.SHAMAN = {
     ['isRanked'] = false
   },
   [18] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 8056,
       [2] = 8058,
@@ -273,6 +284,7 @@ addonTable.Data.Spells.SHAMAN = {
     ['isRanked'] = false
   },
   [28] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 8181,
       [2] = 10478,
@@ -309,6 +321,7 @@ addonTable.Data.Spells.SHAMAN = {
     ['isRanked'] = true
   },
   [32] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 8184,
       [2] = 10537,
@@ -419,6 +432,7 @@ addonTable.Data.Spells.SHAMAN = {
     ['isRanked'] = false
   },
   [45] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 15107,
       [2] = 15111,
@@ -435,13 +449,24 @@ addonTable.Data.Spells.SHAMAN = {
     ['isRanked'] = false
   },
   [47] = {
+    ['auraTag'] = 'ABILITYANDAURA',
+    ['spells'] = {
+      [1] = 16190,
+      [2] = 17354,
+      [3] = 17359,
+      [4] = 1325256
+    },
+    ['name'] = 'Mana Tide Totem',
+    ['isRanked'] = true
+  },
+  [48] = {
     ['spells'] = {
       [1] = 66844
     },
     ['name'] = 'Call of the Spirits',
     ['isRanked'] = false
   },
-  [48] = {
+  [49] = {
     ['spells'] = {
       [1] = 1064,
       [2] = 10622,
@@ -450,40 +475,35 @@ addonTable.Data.Spells.SHAMAN = {
     ['name'] = 'Chain Heal',
     ['isRanked'] = true
   },
-  [49] = {
+  [50] = {
+    ['spells'] = {
+      [1] = 408490,
+      [2] = 1238299,
+      [3] = 1238300,
+      [4] = 1326047
+    },
+    ['name'] = 'Lava Burst',
+    ['isRanked'] = true
+  },
+  [51] = {
     ['spells'] = {
       [1] = 8737
     },
     ['name'] = 'Mail',
     ['isRanked'] = false
   },
-  [50] = {
+  [52] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 8835,
-      [2] = 10627
+      [2] = 10627,
+      [3] = 25359
     },
     ['name'] = 'Grace of Air Totem',
     ['isRanked'] = true
   },
-  [51] = {
-    ['spells'] = {
-      [1] = 16190,
-      [2] = 17354,
-      [3] = 17359
-    },
-    ['name'] = 'Mana Tide Totem',
-    ['isRanked'] = true
-  },
-  [52] = {
-    ['spells'] = {
-      [1] = 408490,
-      [2] = 1238299,
-      [3] = 1238300
-    },
-    ['name'] = 'Lava Burst',
-    ['isRanked'] = true
-  },
   [53] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 408521,
       [2] = 1239242,
@@ -493,6 +513,7 @@ addonTable.Data.Spells.SHAMAN = {
     ['isRanked'] = true
   },
   [54] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 16188
     },
@@ -500,6 +521,7 @@ addonTable.Data.Spells.SHAMAN = {
     ['isRanked'] = false
   },
   [55] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 408510
     },
@@ -507,6 +529,7 @@ addonTable.Data.Spells.SHAMAN = {
     ['isRanked'] = false
   },
   [56] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 425336
     },
@@ -519,5 +542,306 @@ addonTable.Data.Spells.SHAMAN = {
     },
     ['name'] = 'Stormstrike',
     ['isRanked'] = false
+  },
+  [58] = {
+    ['spells'] = {
+      [1] = 16166
+    },
+    ['name'] = 'Elemental Mastery',
+    ['isRanked'] = false
+  },
+  [59] = {
+    ['auraTag'] = false,
+    ['spells'] = {
+      [1] = 8836,
+      [2] = 10626,
+      [3] = 25360
+    },
+    ['name'] = 'Grace of Air',
+    ['isRanked'] = true
+  },
+  [60] = {
+    ['auraTag'] = false,
+    ['spells'] = {
+      [1] = 8076,
+      [2] = 8162,
+      [3] = 8163,
+      [4] = 10441,
+      [5] = 25362
+    },
+    ['name'] = 'Strength of Earth',
+    ['isRanked'] = true
+  },
+  [61] = {
+    ['auraTag'] = false,
+    ['spells'] = {
+      [1] = 8185,
+      [2] = 10534,
+      [3] = 10535
+    },
+    ['name'] = 'Fire Resistance',
+    ['isRanked'] = true
+  },
+  [62] = {
+    ['auraTag'] = false,
+    ['spells'] = {
+      [1] = 8172
+    },
+    ['name'] = 'Disease Cleansing Totem Passive',
+    ['isRanked'] = false
+  },
+  [63] = {
+    ['auraTag'] = false,
+    ['spells'] = {
+      [1] = 8182,
+      [2] = 10476,
+      [3] = 10477
+    },
+    ['name'] = 'Frost Resistance',
+    ['isRanked'] = true
+  },
+  [64] = {
+    ['auraTag'] = false,
+    ['spells'] = {
+      [1] = 8179
+    },
+    ['name'] = 'Grounding Totem Passive',
+    ['isRanked'] = false
+  },
+  [65] = {
+    ['auraTag'] = false,
+    ['spells'] = {
+      [1] = 15108,
+      [2] = 15109,
+      [3] = 15110
+    },
+    ['name'] = 'Windwall',
+    ['isRanked'] = true
+  },
+  [66] = {
+    ['auraTag'] = false,
+    ['spells'] = {
+      [1] = 8167
+    },
+    ['name'] = 'Poison Cleansing Totem Passive',
+    ['isRanked'] = false
+  },
+  [67] = {
+    ['auraTag'] = false,
+    ['spells'] = {
+      [1] = 5677,
+      [2] = 10491,
+      [3] = 10493,
+      [4] = 10494
+    },
+    ['name'] = 'Mana Spring',
+    ['isRanked'] = true
+  },
+  [68] = {
+    ['auraTag'] = false,
+    ['spells'] = {
+      [1] = 8145
+    },
+    ['name'] = 'Tremor Totem Passive',
+    ['isRanked'] = false
+  },
+  [69] = {
+    ['auraTag'] = false,
+    ['spells'] = {
+      [1] = 6474
+    },
+    ['name'] = 'Earthbind Totem Passive',
+    ['isRanked'] = false
+  },
+  [70] = {
+    ['auraTag'] = false,
+    ['spells'] = {
+      [1] = 16191,
+      [2] = 17355,
+      [3] = 17360,
+      [4] = 1325257
+    },
+    ['name'] = 'Mana Tide',
+    ['isRanked'] = true
+  },
+  [71] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 30160,
+      [2] = 30165
+    },
+    ['name'] = 'Elemental Devastation',
+    ['isRanked'] = false
+  },
+  [72] = {
+    ['auraTag'] = 'HARMAURA',
+    ['spells'] = {
+      [1] = 1238289
+    },
+    ['name'] = 'Earthbound',
+    ['isRanked'] = false
+  },
+  [73] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 2645,
+      [2] = 1238640
+    },
+    ['name'] = 'Ghost Wolf',
+    ['isRanked'] = false
+  },
+  [74] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 1223031
+    },
+    ['name'] = 'Improved Stormstrike',
+    ['isRanked'] = false
+  },
+  [75] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 16256
+    },
+    ['name'] = 'Flurry',
+    ['isRanked'] = false
+  },
+  [76] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 16246
+    },
+    ['name'] = 'Clearcasting',
+    ['isRanked'] = false
+  },
+  [77] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 16177
+    },
+    ['name'] = 'Ancestral Fortitude',
+    ['isRanked'] = false
+  },
+  [78] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 5678,
+      [2] = 10495,
+      [3] = 10496,
+      [4] = 10497
+    },
+    ['name'] = 'Mana Spring Totem',
+    ['isRanked'] = true
+  },
+  [79] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 5677,
+      [2] = 10491,
+      [3] = 10493,
+      [4] = 10494
+    },
+    ['name'] = 'Mana Spring',
+    ['isRanked'] = true
+  },
+  [80] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 15108,
+      [2] = 15109,
+      [3] = 15110
+    },
+    ['name'] = 'Windwall',
+    ['isRanked'] = true
+  },
+  [81] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 8179
+    },
+    ['name'] = 'Grounding Totem Passive',
+    ['isRanked'] = false
+  },
+  [82] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 8178
+    },
+    ['name'] = 'Grounding Totem',
+    ['isRanked'] = true
+  },
+  [83] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 8182,
+      [2] = 10476,
+      [3] = 10477
+    },
+    ['name'] = 'Frost Resistance',
+    ['isRanked'] = true
+  },
+  [84] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 8185,
+      [2] = 10534,
+      [3] = 10535
+    },
+    ['name'] = 'Fire Resistance',
+    ['isRanked'] = true
+  },
+  [85] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 8512,
+      [2] = 10609,
+      [3] = 10612
+    },
+    ['name'] = 'Windfury Totem',
+    ['isRanked'] = true
+  },
+  [86] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 8076,
+      [2] = 8162,
+      [3] = 8163,
+      [4] = 10441,
+      [5] = 25362
+    },
+    ['name'] = 'Strength of Earth',
+    ['isRanked'] = true
+  },
+  [87] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 8836,
+      [2] = 10626,
+      [3] = 25360
+    },
+    ['name'] = 'Grace of Air',
+    ['isRanked'] = true
+  },
+  [88] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 8230,
+      [2] = 8250,
+      [3] = 10521,
+      [4] = 16387
+    },
+    ['name'] = 'Flametongue Totem',
+    ['isRanked'] = true
+  },
+  [89] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 16191,
+      [2] = 17355,
+      [3] = 17360,
+      [4] = 1325257
+    },
+    ['name'] = 'Mana Tide',
+    ['isRanked'] = true
   }
 }

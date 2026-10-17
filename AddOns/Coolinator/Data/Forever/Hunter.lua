@@ -1,5 +1,9 @@
 local addonTable = select(2, ...)
-addonTable.Data.Spells.HUNTER = {
+local class = "HUNTER"
+if UnitClassBase("player") ~= class then
+    return
+end
+addonTable.Data.Spells[class] = {
   [1] = {
     ['spells'] = {
       [1] = 2973,
@@ -29,6 +33,7 @@ addonTable.Data.Spells.HUNTER = {
     ['isRanked'] = false
   },
   [4] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 13163
     },
@@ -36,6 +41,7 @@ addonTable.Data.Spells.HUNTER = {
     ['isRanked'] = false
   },
   [5] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 1978,
       [2] = 13549,
@@ -44,7 +50,8 @@ addonTable.Data.Spells.HUNTER = {
       [5] = 13552,
       [6] = 13553,
       [7] = 13554,
-      [8] = 13555
+      [8] = 13555,
+      [9] = 25295
     },
     ['name'] = 'Serpent Sting',
     ['isRanked'] = true
@@ -64,6 +71,7 @@ addonTable.Data.Spells.HUNTER = {
     ['isRanked'] = true
   },
   [7] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 1130,
       [2] = 14323,
@@ -88,6 +96,7 @@ addonTable.Data.Spells.HUNTER = {
     ['isRanked'] = false
   },
   [10] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 13165,
       [2] = 14318,
@@ -132,6 +141,7 @@ addonTable.Data.Spells.HUNTER = {
     ['isRanked'] = true
   },
   [14] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 2974,
       [2] = 14267,
@@ -189,7 +199,7 @@ addonTable.Data.Spells.HUNTER = {
       [1] = 2643
     },
     ['name'] = 'Multi-Shot',
-    ['isRanked'] = true
+    ['isRanked'] = false
   },
   [21] = {
     ['spells'] = {
@@ -211,6 +221,7 @@ addonTable.Data.Spells.HUNTER = {
     ['isRanked'] = true
   },
   [23] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 5118
     },
@@ -247,7 +258,7 @@ addonTable.Data.Spells.HUNTER = {
       [1] = 3043
     },
     ['name'] = 'Scorpid Sting',
-    ['isRanked'] = true
+    ['isRanked'] = false
   },
   [28] = {
     ['spells'] = {
@@ -279,12 +290,14 @@ addonTable.Data.Spells.HUNTER = {
   },
   [32] = {
     ['spells'] = {
-      [1] = 13809
+      [1] = 13809,
+      [2] = 13810
     },
     ['name'] = 'Frost Trap',
     ['isRanked'] = false
   },
   [33] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 13161,
       [2] = 1299445,
@@ -295,6 +308,7 @@ addonTable.Data.Spells.HUNTER = {
     ['isRanked'] = true
   },
   [34] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 19306,
       [2] = 1242634,
@@ -326,6 +340,7 @@ addonTable.Data.Spells.HUNTER = {
     ['isRanked'] = false
   },
   [38] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 1299346,
       [2] = 1299348,
@@ -356,6 +371,7 @@ addonTable.Data.Spells.HUNTER = {
     ['isRanked'] = true
   },
   [41] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 3034,
       [2] = 14279,
@@ -365,6 +381,7 @@ addonTable.Data.Spells.HUNTER = {
     ['isRanked'] = true
   },
   [42] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 13159
     },
@@ -395,6 +412,7 @@ addonTable.Data.Spells.HUNTER = {
     ['isRanked'] = true
   },
   [46] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 20043,
       [2] = 20190
@@ -403,6 +421,7 @@ addonTable.Data.Spells.HUNTER = {
     ['isRanked'] = true
   },
   [47] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 1310687,
       [2] = 1310785,
@@ -419,6 +438,7 @@ addonTable.Data.Spells.HUNTER = {
     ['isRanked'] = false
   },
   [49] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 19574
     },
@@ -437,7 +457,7 @@ addonTable.Data.Spells.HUNTER = {
       [1] = 1317257
     },
     ['name'] = 'Strider Kick',
-    ['isRanked'] = true
+    ['isRanked'] = false
   },
   [52] = {
     ['spells'] = {
@@ -451,6 +471,118 @@ addonTable.Data.Spells.HUNTER = {
       [1] = 19503
     },
     ['name'] = 'Scatter Shot',
+    ['isRanked'] = false
+  },
+  [54] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 1299448
+    },
+    ['name'] = 'Quick Strikes',
+    ['isRanked'] = false
+  },
+  [55] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 6150
+    },
+    ['name'] = 'Quick Shots',
+    ['isRanked'] = false
+  },
+  [56] = {
+    ['auraTag'] = 'HARMAURA',
+    ['spells'] = {
+      [1] = 19185
+    },
+    ['name'] = 'Entrapment',
+    ['isRanked'] = false
+  },
+  [57] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 1310726
+    },
+    ['name'] = 'Expose Prey',
+    ['isRanked'] = false
+  },
+  [58] = {
+    ['auraTag'] = 'HARMAURA',
+    ['spells'] = {
+      [1] = 1310536
+    },
+    ['name'] = 'Lacerating Strikes',
+    ['isRanked'] = false
+  },
+  [59] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 415407
+    },
+    ['name'] = 'Rapid Killing',
+    ['isRanked'] = false
+  },
+  [60] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 1242512
+    },
+    ['name'] = 'Rapid Recuperation',
+    ['isRanked'] = false
+  },
+  [61] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 1324499
+    },
+    ['name'] = 'Scatter Shot',
+    ['isRanked'] = false
+  },
+  [62] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 1324511
+    },
+    ['name'] = 'Improved Concussive Shot',
+    ['isRanked'] = false
+  },
+  [63] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 1324506,
+      [2] = 1324507,
+      [3] = 1324510
+    },
+    ['name'] = 'Scare Beast',
+    ['isRanked'] = false
+  },
+  [64] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 1324500,
+      [2] = 1324501,
+      [3] = 1324502
+    },
+    ['name'] = 'Freezing Trap',
+    ['isRanked'] = false
+  },
+  [65] = {
+    ['auraTag'] = 'HARMAURA',
+    ['spells'] = {
+      [1] = 13797,
+      [2] = 14298,
+      [3] = 14299,
+      [4] = 14300,
+      [5] = 14301
+    },
+    ['name'] = 'Immolation Trap',
+    ['isRanked'] = true
+  },
+  [66] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 1324494
+    },
+    ['name'] = 'Intimidation',
     ['isRanked'] = false
   }
 }

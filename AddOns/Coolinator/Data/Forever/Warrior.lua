@@ -1,6 +1,7 @@
 local addonTable = select(2, ...)
 addonTable.Data.Spells.WARRIOR = {
   [1] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 2457
     },
@@ -17,7 +18,7 @@ addonTable.Data.Spells.WARRIOR = {
       [6] = 11565,
       [7] = 11566,
       [8] = 11567,
-      [9] = 25286,
+      [9] = 25286
     },
     ['name'] = 'Heroic Strike',
     ['isRanked'] = true
@@ -29,13 +30,13 @@ addonTable.Data.Spells.WARRIOR = {
       [3] = 6192,
       [4] = 11549,
       [5] = 11550,
-      [6] = 11551,
-      [7] = 25289,
+      [6] = 11551
     },
     ['name'] = 'Battle Shout',
     ['isRanked'] = true
   },
   [4] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 100,
       [2] = 6178,
@@ -45,6 +46,7 @@ addonTable.Data.Spells.WARRIOR = {
     ['isRanked'] = true
   },
   [5] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 772,
       [2] = 6546,
@@ -65,6 +67,7 @@ addonTable.Data.Spells.WARRIOR = {
     ['isRanked'] = false
   },
   [7] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 6343,
       [2] = 8198,
@@ -77,6 +80,7 @@ addonTable.Data.Spells.WARRIOR = {
     ['isRanked'] = true
   },
   [8] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 1715,
       [2] = 7372,
@@ -87,7 +91,8 @@ addonTable.Data.Spells.WARRIOR = {
   },
   [9] = {
     ['spells'] = {
-      [1] = 2687
+      [1] = 2687,
+      [2] = 29131
     },
     ['name'] = 'Bloodrage',
     ['isRanked'] = false
@@ -112,6 +117,7 @@ addonTable.Data.Spells.WARRIOR = {
     ['isRanked'] = true
   },
   [12] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 1160,
       [2] = 6190,
@@ -129,7 +135,7 @@ addonTable.Data.Spells.WARRIOR = {
       [3] = 7379,
       [4] = 11600,
       [5] = 11601,
-      [6] = 25288,
+      [6] = 25288
     },
     ['name'] = 'Revenge',
     ['isRanked'] = true
@@ -142,6 +148,7 @@ addonTable.Data.Spells.WARRIOR = {
     ['isRanked'] = false
   },
   [15] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 694,
       [2] = 7400,
@@ -153,6 +160,7 @@ addonTable.Data.Spells.WARRIOR = {
     ['isRanked'] = true
   },
   [16] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 2565
     },
@@ -185,6 +193,7 @@ addonTable.Data.Spells.WARRIOR = {
     ['isRanked'] = false
   },
   [20] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 20230
     },
@@ -217,6 +226,7 @@ addonTable.Data.Spells.WARRIOR = {
     ['isRanked'] = false
   },
   [24] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 7386,
       [2] = 7405,
@@ -239,6 +249,7 @@ addonTable.Data.Spells.WARRIOR = {
     ['isRanked'] = true
   },
   [26] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 1161
     },
@@ -246,6 +257,7 @@ addonTable.Data.Spells.WARRIOR = {
     ['isRanked'] = false
   },
   [27] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 871
     },
@@ -253,6 +265,7 @@ addonTable.Data.Spells.WARRIOR = {
     ['isRanked'] = false
   },
   [28] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 18499
     },
@@ -282,6 +295,7 @@ addonTable.Data.Spells.WARRIOR = {
     ['isRanked'] = false
   },
   [32] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 20252,
       [2] = 20616,
@@ -291,6 +305,7 @@ addonTable.Data.Spells.WARRIOR = {
     ['isRanked'] = true
   },
   [33] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 23881,
       [2] = 23892,
@@ -301,6 +316,7 @@ addonTable.Data.Spells.WARRIOR = {
     ['isRanked'] = true
   },
   [34] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 12294,
       [2] = 21551,
@@ -321,6 +337,7 @@ addonTable.Data.Spells.WARRIOR = {
     ['isRanked'] = true
   },
   [36] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 1719
     },
@@ -328,6 +345,7 @@ addonTable.Data.Spells.WARRIOR = {
     ['isRanked'] = false
   },
   [37] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 12328
     },
@@ -335,6 +353,7 @@ addonTable.Data.Spells.WARRIOR = {
     ['isRanked'] = false
   },
   [38] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 12323
     },
@@ -342,6 +361,7 @@ addonTable.Data.Spells.WARRIOR = {
     ['isRanked'] = false
   },
   [39] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 12292
     },
@@ -364,9 +384,153 @@ addonTable.Data.Spells.WARRIOR = {
   },
   [42] = {
     ['spells'] = {
-      [1] = 12975
+      [1] = 12975,
+      [2] = 12976
     },
     ['name'] = 'Last Stand',
+    ['isRanked'] = false
+  },
+  [43] = {
+    ['auraTag'] = false,
+    ['spells'] = {
+      [1] = 355
+    },
+    ['name'] = 'Taunt',
+    ['isRanked'] = false
+  },
+  [44] = {
+    ['auraTag'] = 'HARMAURA',
+    ['spells'] = {
+      [1] = 412609
+    },
+    ['name'] = 'Deep Wound',
+    ['isRanked'] = false
+  },
+  [45] = {
+    ['auraTag'] = 'HARMAURA',
+    ['spells'] = {
+      [1] = 1289681
+    },
+    ['name'] = 'Bloodthrill',
+    ['isRanked'] = false
+  },
+  [46] = {
+    ['auraTag'] = 'HARMAURA',
+    ['spells'] = {
+      [1] = 23694
+    },
+    ['name'] = 'Improved Hamstring',
+    ['isRanked'] = false
+  },
+  [47] = {
+    ['auraTag'] = 'HARMAURA',
+    ['spells'] = {
+      [1] = 5246,
+      [2] = 20511
+    },
+    ['name'] = 'Intimidating Shout',
+    ['isRanked'] = false
+  },
+  [48] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 16488
+    },
+    ['name'] = 'Blood Craze',
+    ['isRanked'] = false
+  },
+  [49] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 12880
+    },
+    ['name'] = 'Enrage',
+    ['isRanked'] = false
+  },
+  [50] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 12966
+    },
+    ['name'] = 'Flurry',
+    ['isRanked'] = false
+  },
+  [51] = {
+    ['auraTag'] = 'HARMAURA',
+    ['spells'] = {
+      [1] = 355
+    },
+    ['name'] = 'Taunt',
+    ['isRanked'] = false
+  },
+  [52] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 29131
+    },
+    ['name'] = 'Bloodrage',
+    ['isRanked'] = false
+  },
+  [53] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 1324558
+    },
+    ['name'] = 'Disarm',
+    ['isRanked'] = false
+  },
+  [54] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 12976
+    },
+    ['name'] = 'Last Stand',
+    ['isRanked'] = false
+  },
+  [55] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 1324556
+    },
+    ['name'] = 'Concussion Blow',
+    ['isRanked'] = false
+  },
+  [56] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 1324551
+    },
+    ['name'] = 'Silenced',
+    ['isRanked'] = false
+  },
+  [57] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 6673,
+      [2] = 5242,
+      [3] = 6192,
+      [4] = 11549,
+      [5] = 11550,
+      [6] = 11551,
+      [7] = 25289
+    },
+    ['name'] = 'Battle Shout',
+    ['isRanked'] = true
+  },
+  [58] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 71
+    },
+    ['name'] = 'Defensive Stance',
+    ['isRanked'] = false
+  },
+  [59] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 2458
+    },
+    ['name'] = 'Berserker Stance',
     ['isRanked'] = false
   }
 }

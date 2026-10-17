@@ -37,8 +37,6 @@ function addonTable.Display.AbilityTrackingMixin:ApplyCooldownToState(spellID)
   local chargesInfo = C_Spell.GetSpellCharges(spellID)
   local cooldownInfo = C_Spell.GetSpellCooldown(spellID)
 
-  state.hasChargesValue = chargesInfo ~= nil
-
   if cooldownInfo.isActive then
     state.cooldown = {
       focus = not cooldownInfo.isOnGCD,
@@ -129,11 +127,9 @@ end
 
 function addonTable.Display.AbilityTrackingMixin:UpdateCharges()
   for spellID, state in pairs(self.abilities) do
-    if state.hasChargesValue then
-      state.chargesValue = self:GetCharges(spellID)
-      for _, callback in pairs(self.callbacks[spellID]) do
-        callback("chargesValue")
-      end
+    state.chargesValue = self:GetCharges(spellID)
+    for _, callback in pairs(self.callbacks[spellID]) do
+      callback("chargesValue")
     end
   end
 end

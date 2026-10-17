@@ -1,6 +1,11 @@
 local addonTable = select(2, ...)
-addonTable.Data.Spells.WARLOCK = {
+local class = "WARLOCK"
+if UnitClassBase("player") ~= class then
+    return
+end
+addonTable.Data.Spells[class] = {
   [1] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 687,
       [2] = 696
@@ -18,13 +23,13 @@ addonTable.Data.Spells.WARLOCK = {
       [6] = 7641,
       [7] = 11659,
       [8] = 11660,
-      [9] = 11661,
-      [10] = 25307,
+      [9] = 11661
     },
     ['name'] = 'Shadow Bolt',
     ['isRanked'] = true
   },
   [3] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 348,
       [2] = 707,
@@ -33,12 +38,13 @@ addonTable.Data.Spells.WARLOCK = {
       [5] = 11665,
       [6] = 11667,
       [7] = 11668,
-      [8] = 25309,
+      [8] = 25309
     },
     ['name'] = 'Immolate',
     ['isRanked'] = true
   },
   [4] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 172,
       [2] = 6222,
@@ -46,12 +52,13 @@ addonTable.Data.Spells.WARLOCK = {
       [4] = 7648,
       [5] = 11671,
       [6] = 11672,
-      [7] = 25311,
+      [7] = 25311
     },
     ['name'] = 'Corruption',
     ['isRanked'] = true
   },
   [5] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 702,
       [2] = 1108,
@@ -76,6 +83,7 @@ addonTable.Data.Spells.WARLOCK = {
     ['isRanked'] = true
   },
   [7] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 980,
       [2] = 1014,
@@ -131,6 +139,7 @@ addonTable.Data.Spells.WARLOCK = {
     ['isRanked'] = true
   },
   [12] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 704,
       [2] = 7658,
@@ -183,6 +192,7 @@ addonTable.Data.Spells.WARLOCK = {
     ['isRanked'] = true
   },
   [17] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 440892,
       [2] = 1311676,
@@ -193,6 +203,7 @@ addonTable.Data.Spells.WARLOCK = {
     ['isRanked'] = true
   },
   [18] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 706,
       [2] = 1086,
@@ -245,6 +256,7 @@ addonTable.Data.Spells.WARLOCK = {
     ['isRanked'] = false
   },
   [24] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 17877,
       [2] = 18867,
@@ -257,6 +269,7 @@ addonTable.Data.Spells.WARLOCK = {
     ['isRanked'] = true
   },
   [25] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 1714,
       [2] = 11719
@@ -265,6 +278,7 @@ addonTable.Data.Spells.WARLOCK = {
     ['isRanked'] = true
   },
   [26] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 132,
       [2] = 2970,
@@ -322,11 +336,11 @@ addonTable.Data.Spells.WARLOCK = {
     ['isRanked'] = true
   },
   [32] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 6229,
       [2] = 11739,
-      [3] = 11740,
-      [4] = 28610,
+      [3] = 11740
     },
     ['name'] = 'Shadow Ward',
     ['isRanked'] = true
@@ -341,6 +355,7 @@ addonTable.Data.Spells.WARLOCK = {
     ['isRanked'] = true
   },
   [34] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 18265,
       [2] = 18879,
@@ -351,6 +366,7 @@ addonTable.Data.Spells.WARLOCK = {
     ['isRanked'] = true
   },
   [35] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 5484,
       [2] = 17928
@@ -393,7 +409,8 @@ addonTable.Data.Spells.WARLOCK = {
   },
   [40] = {
     ['spells'] = {
-      [1] = 1225228
+      [1] = 1225228,
+      [2] = 1324473
     },
     ['name'] = 'Bane of Havoc',
     ['isRanked'] = false
@@ -427,6 +444,7 @@ addonTable.Data.Spells.WARLOCK = {
     ['isRanked'] = true
   },
   [45] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 18223
     },
@@ -434,10 +452,227 @@ addonTable.Data.Spells.WARLOCK = {
     ['isRanked'] = false
   },
   [46] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 18288
     },
     ['name'] = 'Amplify Curse',
+    ['isRanked'] = false
+  },
+  [47] = {
+    ['auraTag'] = false,
+    ['spells'] = {
+      [1] = 1122
+    },
+    ['name'] = 'Inferno',
+    ['isRanked'] = false
+  },
+  [48] = {
+    ['auraTag'] = false,
+    ['spells'] = {
+      [1] = 6262
+    },
+    ['name'] = 'Minor Healthstone',
+    ['isRanked'] = false
+  },
+  [49] = {
+    ['auraTag'] = false,
+    ['spells'] = {
+      [1] = 6263
+    },
+    ['name'] = 'Lesser Healthstone',
+    ['isRanked'] = false
+  },
+  [50] = {
+    ['auraTag'] = false,
+    ['spells'] = {
+      [1] = 5720
+    },
+    ['name'] = 'Healthstone',
+    ['isRanked'] = false
+  },
+  [51] = {
+    ['auraTag'] = false,
+    ['spells'] = {
+      [1] = 5723
+    },
+    ['name'] = 'Greater Healthstone',
+    ['isRanked'] = false
+  },
+  [52] = {
+    ['auraTag'] = false,
+    ['spells'] = {
+      [1] = 11732
+    },
+    ['name'] = 'Major Healthstone',
+    ['isRanked'] = false
+  },
+  [53] = {
+    ['auraTag'] = false,
+    ['spells'] = {
+      [1] = 20707,
+      [2] = 20762,
+      [3] = 20763,
+      [4] = 20764,
+      [5] = 20765
+    },
+    ['name'] = 'Soulstone Resurrection',
+    ['isRanked'] = false
+  },
+  [54] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 1242853,
+      [2] = 437032
+    },
+    ['name'] = 'Soul Harvest',
+    ['isRanked'] = false
+  },
+  [55] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 17941
+    },
+    ['name'] = 'Shadow Trance',
+    ['isRanked'] = false
+  },
+  [56] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 18094
+    },
+    ['name'] = 'Nightfall',
+    ['isRanked'] = false
+  },
+  [57] = {
+    ['auraTag'] = 'HARMAURA',
+    ['spells'] = {
+      [1] = 17794
+    },
+    ['name'] = 'Shadow Vulnerability',
+    ['isRanked'] = false
+  },
+  [58] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 18119
+    },
+    ['name'] = 'Aftermath',
+    ['isRanked'] = false
+  },
+  [59] = {
+    ['auraTag'] = 'HARMAURA',
+    ['spells'] = {
+      [1] = 18118
+    },
+    ['name'] = 'Aftermath',
+    ['isRanked'] = false
+  },
+  [60] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 1293816
+    },
+    ['name'] = 'Shadow',
+    ['isRanked'] = false
+  },
+  [61] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 426311
+    },
+    ['name'] = 'Flame',
+    ['isRanked'] = false
+  },
+  [62] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 440870
+    },
+    ['name'] = 'Decimation',
+    ['isRanked'] = false
+  },
+  [63] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 18792
+    },
+    ['name'] = 'Fel Energy',
+    ['isRanked'] = false
+  },
+  [64] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 18789
+    },
+    ['name'] = 'Burning Shadow',
+    ['isRanked'] = false
+  },
+  [65] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 18790
+    },
+    ['name'] = 'Fel Stamina',
+    ['isRanked'] = false
+  },
+  [66] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 18791
+    },
+    ['name'] = 'Touch of Fire',
+    ['isRanked'] = false
+  },
+  [67] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 25228
+    },
+    ['name'] = 'Soul Link',
+    ['isRanked'] = false
+  },
+  [68] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 1324448,
+      [2] = 1324451,
+      [3] = 1324453
+    },
+    ['name'] = 'Fear',
+    ['isRanked'] = false
+  },
+  [69] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 1324459
+    },
+    ['name'] = 'Death Coil',
+    ['isRanked'] = false
+  },
+  [70] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 1324462,
+      [2] = 1324463
+    },
+    ['name'] = 'Banish',
+    ['isRanked'] = false
+  },
+  [71] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 1324468
+    },
+    ['name'] = 'Subjugate Demon',
+    ['isRanked'] = false
+  },
+  [72] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 1324473
+    },
+    ['name'] = 'Bane of Havoc',
     ['isRanked'] = false
   }
 }
