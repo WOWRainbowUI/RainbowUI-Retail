@@ -1,9 +1,9 @@
 if DBM:GetTOC() < 120105 then return end
 local mod	= DBM:NewMod(2896, "DBM-Lairs-Midnight", 1, 1324)--Change order when 12.1.5 ships
 
-mod.statTypes = "story,normal,heroic,mythic"
+mod.statTypes = "story,lfr,normal,heroic,mythic"
 
-mod:SetRevision("20261014185057")
+mod:SetRevision("20261015054122")
 mod:SetCreatureID(267861)
 mod:SetEncounterID(3513)
 --mod:SetHotfixNoticeRev(20250823000000)
@@ -55,7 +55,7 @@ mod:AddAuraSoundOption(1303406, true, 1302951, 1, 1, "absorbyou", 19)--Abyssal G
 mod:AddAuraSoundOption(1308873, true, 1308873, 1, 1, "runout", 2)--Null gate (make custom audio later?)
 mod:AddAuraSoundOption(1318467, true, 1318467, 1, 1, "movetogate", 20)--Negation
 mod:AddAuraSoundOption(1304040, true, 1301511, 1, 1, "stunyou", 19)--Mindsting
-mod:AddAuraSoundOption(1302334, true, 1301511, 1, 1, "beamyou", 19)--Voidweave
+mod:AddAuraSoundOption(1302334, false, 1301511, 1, 1, "beamyou", 19)--Voidweave
 mod:AddAuraSoundOption(1304434, true, 1301511, 1, 1, "fixateyou", 19)--Fixate (verify ID)
 --mod:AddAuraSoundOption(1303257, true, 1302951, 1, 2, "findshelter", 2)--Suffocation (debuff from not being in barrier)
 
@@ -194,28 +194,29 @@ do
 	end
 
 	---@param self DBMMod
-	local function timersStory(self, timer, timerExact, eventID)
-		if timer == 121 then--Story has no Null Gate; the Eclipse timer identifies stage 2.
-			if not self:GetStage(2) then
-				addWindowActive = false
-				resetScheduledEvents(self)
-				self:Stop()
-				self:TLCountReset()
-				self:SetStage(2)
-			end
+	local function timersEasy(self, timer, timerExact, eventID)
+		--Story transitions on Eclipse; LFR/Normal transition on their first Null Gate.
+		if ((self:IsStory() and timer == 121) or (not self:IsStory() and timer == 3)) and not self:GetStage(2) then
+			addWindowActive = false
+			resetScheduledEvents(self)
+			self:Stop()
+			self:TLCountReset()
+			self:SetStage(2)
+		end
+		if self:IsStory() and timer == 121 then
 			timerEightfoldEclipseCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "eclipse", "eclipseCount"))
 		elseif self:GetStage(1) then
 			if timer == 5 then
 				timerVoidswarmCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "voidswarm", "voidswarmCount"))
 			elseif timer == 15 or timer == 21 or timer == 34 then
 				timerTwistedAppendageCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "appendage", "appendageCount"))
-			elseif timer == 20 or timer == 22 or timer == 77 then
+			elseif timer == 20 or timer == 22 or timer == 77 or (self:IsNormal() and (timer == 23 or timer == 54)) then
 				timerDarkDevastationCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "devastation", "devastationCount"))
 			elseif timer == 31 or timer == 62 then
 				timerExtinguishCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "extinguish", "extinguishCount"))
-			elseif timer == 45 then--Identical raw 45: opening Devastation, then Radiance.
+			elseif timer == 45 then--Story/LFR: opening Devastation, then Radiance. Normal: Radiance only.
 				storyFortyFiveCount = storyFortyFiveCount + 1
-				if storyFortyFiveCount == 1 then
+				if storyFortyFiveCount == 1 and not self:IsNormal() then
 					timerDarkDevastationCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "devastation", "devastationCount"))
 				else
 					timerDivineRadianceCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "radiance", "radianceCount"))
@@ -234,6 +235,31 @@ do
 				else
 					timerSuffocatingDarknessCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "darkness", "darknessCount"))
 				end
+			elseif not self:IsStory() and timer == 40 then
+				timerUnspeakableHorrorsCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "horrors", "horrorsCount"))
+			elseif not self:IsStory() and (timer == 37 or timer == 82) then
+				startScheduledEvent(self, timerUnspeakableHorrorsCD, timerExact, eventID, "horrors", "horrorsCount")
+			elseif not self:IsStory() and timer == 67 then
+				timerAbyssalGraspCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "grasp", "graspCount"))
+			elseif not self:IsStory() and (timer == 30 or timer == 89) then
+				startScheduledEvent(self, timerAbyssalGraspCD, timerExact, eventID, "grasp", "graspCount")
+			else
+				return false
+			end
+		elseif self:GetStage(2) and not self:IsStory() then
+			if timer == 3 then
+				timerNullgateCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "nullGate", "nullGateCount"))
+			elseif timer == 15 and self:IsNormal() then
+				timerNegationCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "negation", "negationCount"))
+			elseif timer == 10 then--Normal opens with Negation; LFR has only premature-finished Null Gate recasts.
+				stage2TenCount = stage2TenCount + 1
+				if self:IsNormal() and stage2TenCount == 1 then
+					timerNegationCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "negation", "negationCount"))
+				else
+					startScheduledEvent(self, timerNullgateCD, timerExact, eventID, "nullGate", "nullGateCount")
+				end
+			elseif timer == 61 then
+				timerEightfoldEclipseCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "eclipse", "eclipseCount"))
 			else
 				return false
 			end
@@ -341,8 +367,8 @@ do
 		self.vb.nullGateCount = 1
 		self.vb.negationCount = 1
 		self.vb.eclipseCount = 1
-		--Story and Heroic have been verified against complete 12.1 Week9 pulls.
-		if DBM.Options.HardcodedTimer and (self:IsStory() or self:IsHeroic()) and not badStateDetected then
+		--Story, LFR, Normal and Heroic have been verified against complete 12.1 Week9 pulls.
+		if DBM.Options.HardcodedTimer and (self:IsStory() or self:IsLFR() or self:IsNormal() or self:IsHeroic()) and not badStateDetected then
 			self:IgnoreBlizzardAPI()
 			self:RegisterShortTermEvents(true,
 				"ENCOUNTER_TIMELINE_EVENT_ADDED",
@@ -387,8 +413,8 @@ do
 		local timerExact = eventInfo.duration
 		local timer = math.floor(timerExact + 0.5)
 		local handled
-		if self:IsStory() then
-			handled = timersStory(self, timer, timerExact, eventID)
+		if self:IsStory() or self:IsLFR() or self:IsNormal() then
+			handled = timersEasy(self, timer, timerExact, eventID)
 		else
 			handled = timersHeroic(self, timer, timerExact, eventID)
 		end
