@@ -49,11 +49,11 @@ local function satedBlacklist()
     return t
 end
 
--- 小圖示（團標／隊長／休息戰鬥／PvP）的框架層級。
--- 必須高於滑鼠移過的高亮邊框（Core/UnitFrame.lua 的 HIGHLIGHT_LEVEL = 19）與
--- 驅散類型高亮（ns.DISPEL_HIGHLIGHT_LEVEL = 20）：
--- 這些圖示故意突出框體上緣，邊框壓在上面的話頂線會從圖示中間劃過去。它們是浮在
--- 框上的徽章，本來就該蓋過邊框。改這個數字要連 UnitFrame.lua 那個常數一起看。
+-- 小圖示（團標／隊長／休息戰鬥／PvP）的層級：覆蓋層裡最高的一階（文字 10／11 <
+-- 觀察鈕 17 < 小圖示 21）。它們是浮在框上的徽章，壓過其他覆蓋層元件。
+-- ⚠ 這是覆蓋層**內部**的相對值：文字／觀察鈕／小圖示實際的 frame level 都經
+-- Core/UnitFrame.lua 的 ns.OverlayLevel 再加 OVERLAY_LEVEL_BASE（21），整層一律高於
+-- 滑鼠高亮（19）與驅散高亮（20）邊框。
 local ICON_LEVEL = 21
 
 ------------------------------------------------------------
@@ -75,6 +75,7 @@ local ICON_LEVEL = 21
 --   highlight         滑鼠移過時畫一圈高亮邊框
 --   dispelHighlight   身上有魔法／詛咒／疾病／中毒／流血減益（敵方：激怒）時，
 --                     框體畫一圈該類型顏色的邊框（Elements/DispelHighlight.lua）
+--   targetHighlight   這個單位是你的目標時畫一圈邊框（預設只有首領框開；目標框不給）
 ------------------------------------------------------------
 local function frameDef(o)
     if o.scale == nil then o.scale = 100 end
@@ -93,6 +94,7 @@ local function frameDef(o)
     if o.oocShowWithTarget == nil then o.oocShowWithTarget = false end
     if o.highlight == nil then o.highlight = true end
     if o.dispelHighlight == nil then o.dispelHighlight = true end
+    if o.targetHighlight == nil then o.targetHighlight = false end
     return o
 end
 
@@ -108,6 +110,7 @@ local function textDef(o)
     --   * 超出距離的暗色遮罩最高到 9，低於它的文字會跟著被蓋暗（使用者要的是
     --     「條變暗、數字保持清晰」）
     -- 10 之上還留 11 給需要再壓一層的（既有的幾條文字就是用 11）。
+    -- 這是覆蓋層內的相對值：實際 frame level 經 ns.OverlayLevel 墊到邊框之上。
     o.level    = o.level or 10
     o.color    = o.color or white(1)
     return o
@@ -122,9 +125,10 @@ end
 -- 專注／寵物／首領的施法條不疊在頭像上，維持 1.0 且不畫亮點。
 local function bigCastbar(own)
     return {
-        -- ⚠ 層級要**高於文字**（文字預設 10、部分 11）。施法條是暫時蓋住框內容的
-        -- 覆蓋層，唱法時本來就該把底下的名字／血量數字遮住。
-        -- 文字預設從 5 提到 10 之後（見 textDef），6 就變成在文字**底下**了。
+        -- 施法條是暫時蓋住框內容的覆蓋層，唱法時本來就該把底下的名字／血量數字遮住。
+        -- 2026-10-18 起這不靠層級（文字已墊到邊框之上，施法條留在邊框底下，驅散邊框唱法時
+        -- 才看得到）：施法條顯示時自己把版面上蓋到的文字調透明（Castbar.lua 的 SetCoveredAlpha）。
+        -- 12 仍要高於所有條（0–6）與超出距離暗色層（最高 9）。
         -- 高度 = 血條的 50：施法條蓋的是血條／頭像那塊，再高就會在
         -- 魔力條沒墊到的那一側露出去（玩家的魔力條右移 8、目標左移 8）
         enabled = true, x = 0, y = 0, w = 200, h = 50, level = 12,
@@ -245,6 +249,10 @@ function DB.BuildDefaults()
             -- 滑鼠移過的高亮邊框（開關在每單位的 frame.highlight）
             highlightColor = white(0.7),
             highlightSize  = 1,
+            -- 選中目標的邊框（開關在每單位的 frame.targetHighlight）。比滑鼠高亮亮一階、
+            -- 粗一格：兩個同時出現時要分得出哪一個是「選中」
+            targetHighlightColor = white(1),
+            targetHighlightSize  = 2,
             -- 驅散類型高亮（開關在每單位的 frame.dispelHighlight）。
             -- 預設比滑鼠高亮粗一格：它是警示，1px 的深藍／紫壓在黑邊框上不容易看到。
             dispelHighlightSize = 2,
@@ -530,7 +538,7 @@ function DB.BuildDefaults()
                     -- 圖本身帶描邊與投影，亮背景上也撐得住
                     -- ⚠ 層級要在施法條**之上**：施法條本體 12，內部子框（條／圖示／文字／盾）
                     -- 疊到 12+4=16，按鈕壓不過去的話唱法時就點不到。17 剛好在它上面、
-                    -- 又在小圖示（ICON_LEVEL 21）下面。
+                    -- 又在小圖示（ICON_LEVEL 21）下面。整層再經 ns.OverlayLevel 墊到邊框之上。
                     inspect = { enabled = true, x = 180, y = 5, w = 25, h = 25, level = 17, alpha = 1,
                                 style = "glass", border = false, bgColor = black(0),
                                 iconPadding = 0,
@@ -942,7 +950,7 @@ function DB.BuildDefaults()
                 -- 我們自己畫首領框、暴雪的已隱藏，所以位置與暴雪首領框無關。
                 enabled = true,
                 frame = frameDef{ x = 499, y = 319, w = 220, h = 32, growth = "DOWN", spacing = 80,
-                                 fadeOutOfRange = true },
+                                 hSpacing = 10, fadeOutOfRange = true, targetHighlight = true },
                 elements = {
                     portrait = { enabled = true, x = 37, y = 50, w = 66, h = 66, mode = "3d",
                                  bg = { r = 0, g = 0, b = 0, a = 0 },
@@ -1047,7 +1055,7 @@ function DB.BuildDefaults()
             bosstarget = {
                 enabled = false,
                 frame = frameDef{ x = 671, y = 323, w = 120, h = 24, growth = "DOWN", spacing = 80,
-                                  fadeOutOfRange = true },
+                                  hSpacing = 10, fadeOutOfRange = true },
                 elements = {
                     -- 條寬 119 不是 120：底下那排光環 6 顆 × 19 ＋ 5 個 1px 間距 = 119
                     hpbar = { enabled = true, x = 0, y = 0, w = 119, h = 14, level = 4,
