@@ -846,10 +846,8 @@ local L = Locales.deDE
 L["ABSOLUTE"] = "Absolut"
 L["ABSORB"] = "Absorbieren"
 L["ABSORB_COLOR"] = "Absorbieren Farbe"
---[[Translation missing --]]
-L["ACTIVATION"] = "Activation"
---[[Translation missing --]]
-L["ADD"] = "Add"
+L["ACTIVATION"] = "Aktivierung"
+L["ADD"] = "Hinzufügen"
 L["ADD_COLORS"] = "Farben hinzufügen"
 L["ALIGNMENT"] = "Ausrichtung"
 L["ALWAYS_ALL"] = "Immer (alles)"
@@ -863,8 +861,7 @@ L["APPLY_ABSORB_COLOR"] = "Apply absorb color"
 L["APPLY_MAIN_COLOR_TO_BACKGROUND"] = "Hauptfarbe auf Hintergrund anwenden"
 L["APPLY_OTHER_CVARS"] = "Weitere CVars anwenden"
 L["ARCANE_FLURRY"] = "Arkane Schwall"
---[[Translation missing --]]
-L["ATTACK"] = "Attack"
+L["ATTACK"] = "Angreifen"
 --[[Translation missing --]]
 L["AURA_COLORS"] = "Aura colors"
 L["AURAS"] = "Auren"
@@ -878,8 +875,7 @@ L["BAD_CUSTOM_STYLE_SELECT"] = "Platynator: Your \"Custom\" style select setting
 L["BARS"] = "Balken"
 L["BEAVER"] = "Biber"
 L["BEHAVIOUR"] = "Verhalten"
---[[Translation missing --]]
-L["BLANK"] = "Blank"
+L["BLANK"] = "Leer"
 L["BLIZZARD"] = "Blizzard"
 L["BLIZZARD_CLASSIC"] = "Blizzard Classic"
 L["BLIZZARD_EXTRA_WIDGETS_SCALE"] = "Blizzard Extra Widget Skalierung"
@@ -918,8 +914,7 @@ L["CLASS"] = "Klasse"
 L["CLASS_COLORED"] = "Nach Klasse gefärbt"
 L["CLASS_COLORS"] = "Klassenfarben"
 L["CLEAR_SELECTION"] = "Auswahl löschen"
---[[Translation missing --]]
-L["CLICK"] = "Click"
+L["CLICK"] = "Klick"
 L["CLICK_ON_A_WIDGET"] = "Widget anklicken"
 L["CLICK_REGION_HEIGHT"] = "Klickbereich-Höhe"
 L["CLICK_REGION_WIDTH"] = "Klickbereich-Breite"
@@ -943,21 +938,18 @@ L["CROWD_CONTROL_ENEMY"] = "Crowd Control (Enemy)"
 L["CTRL_C_TO_COPY"] = "STRG+C zum Kopieren"
 L["CUSTOM"] = "Benutzerdefiniert"
 L["CUSTOMISE_PLATYNATOR"] = "Platynator anpassen"
---[[Translation missing --]]
-L["DAMAGE"] = "Damage"
+L["DAMAGE"] = "Schaden"
 L["DAMAGE_ABSORB_VALUE"] = "Schadensabsorbtionswert"
 L["DEBUFFS"] = "Debuffs"
 --[[Translation missing --]]
 L["DEBUFFS_ENEMY"] = "Debuffs (Enemy)"
---[[Translation missing --]]
-L["DEDUPLICATE"] = "Deduplicate"
+L["DEDUPLICATE"] = "Deduplizieren"
 L["DEER"] = "Reh"
 L["DEFAULT"] = "Standard"
 L["DEFAULT_BRACKETS"] = "(Standard)"
 --[[Translation missing --]]
 L["DEFENSIVE_ONLY"] = "Defensive ONLY"
---[[Translation missing --]]
-L["DELETE"] = "Delete"
+L["DELETE"] = "Löschen"
 --[[Translation missing --]]
 L["DELVE"] = "Delve"
 L["DELVE_TYPE"] = "Tiefen Typ"
@@ -988,8 +980,7 @@ L["ENABLE_OVERRIDE_WORLD"] = "Weltüberschreibung aktivieren"
 L["ENEMIES"] = "Feinde"
 L["ENEMY"] = "Gegner"
 L["ENEMY_PLAYER"] = "Gegnerischer Spieler"
---[[Translation missing --]]
-L["ENERGY"] = "Energy"
+L["ENERGY"] = "Energie"
 --[[Translation missing --]]
 L["ENERGY_PERCENTAGE"] = "Energy Percentage"
 L["ENLARGE_NAMEPLATE"] = "Namensplakette vergrößern"
@@ -1030,15 +1021,13 @@ L["FRIENDLY_PLAYERS"] = "Freundliche Spieler"
 L["FROM_YOU"] = "Von Dir"
 L["GENERAL"] = "Allgemein"
 L["GLOBAL_SCALE"] = "Globale Skalierung"
---[[Translation missing --]]
-L["GUARDIANS"] = "Guardians"
+L["GUARDIANS"] = "Wächter"
 L["GUILD"] = "Gilde"
 L["HARE"] = "Hase"
 L["HARE_SIMPLIFIED"] = "Vereinfachter Hase"
 --[[Translation missing --]]
 L["HAS_THREAT"] = "Has threat"
---[[Translation missing --]]
-L["HEALER"] = "Healer"
+L["HEALER"] = "Heiler"
 L["HEALTH"] = "Gesundheit"
 --[[Translation missing --]]
 L["HEALTH_FILL_TEXT"] = "Health Fill Text"
@@ -1085,12 +1074,9 @@ L["LEVEL"] = "Level"
 --[[Translation missing --]]
 L["LIMIT_TO"] = "Limit to"
 L["LINK"] = "Link"
---[[Translation missing --]]
-L["LOCATION"] = "Location"
---[[Translation missing --]]
-L["MAGIC"] = "Magic"
+L["LOCATION"] = "Ort"
+L["MAGIC"] = "Magie"
 L["MAKE_NEW"] = "Erstelle neues"
---[[Translation missing --]]
 L["MANA"] = "Mana"
 L["MARK_INTERRUPT_READY_POINT"] = "Markieren wenn Unterbrechung bereit"
 L["MELEE"] = "Nahkampf"
@@ -1108,8 +1094,7 @@ L["MOBS"] = "Mobs"
 L["MOTION_SPEED"] = "Motion speed"
 L["MOUSEOVER"] = "Mouseover"
 L["MOVE"] = "Bewegen"
---[[Translation missing --]]
-L["MOVEMENT"] = "Movement"
+L["MOVEMENT"] = "Bewegung"
 L["MULTIPLE_SELECTED"] = "Mehrere ausgewählt"
 L["MULTIPLE_VALUES_DISPLAY"] = "Anzeige mehrerer Werte"
 --[[Translation missing --]]
@@ -1168,8 +1153,7 @@ L["OVERWRITE_CURRENT_PROFILE"] = "Aktuelles Profil überschreiben?"
 L["PADDING"] = "Padding"
 --[[Translation missing --]]
 L["PANDEMIC"] = "Pandemic"
---[[Translation missing --]]
-L["PARTY"] = "Party"
+L["PARTY"] = "Gruppe"
 L["PASTE_YOUR_IMPORT_STRING_HERE"] = [=[Füge hier Deinen Import-String ein
 ]=]
 L["PERCENT_BRACKETS"] = "(%d%%)"
@@ -1178,16 +1162,14 @@ L["PETS"] = "Haustiere"
 --[[Translation missing --]]
 L["PLACE_ENEMY_NAMEPLATES_AT"] = "Place enemy nameplates at"
 L["PLATYNATOR"] = "Platynator"
---[[Translation missing --]]
-L["PLAYER"] = "Player"
+L["PLAYER"] = "Spieler"
 --[[Translation missing --]]
 L["PLAYER_FACTION"] = "Player Faction"
 L["PLAYER_GUILD"] = "Spieler Gilde"
 --[[Translation missing --]]
 L["PLAYER_POWER"] = "Player Power"
 L["PLAYERS_AND_FRIENDS"] = "Spieler und Freunde"
---[[Translation missing --]]
-L["PRIORITY"] = "Priority"
+L["PRIORITY"] = "Priorität"
 L["PROFILE"] = "Profil"
 L["PROFILES"] = "Profile"
 --[[Translation missing --]]
@@ -1198,10 +1180,8 @@ L["PVP_FLAG_CARRIER"] = "PvP Flag Carrier"
 L["QUEST"] = "Quest"
 L["QUEST_OBJECTIVE"] = "Questziel"
 L["RABBIT"] = "Kanichen"
---[[Translation missing --]]
-L["RAGE"] = "Rage"
---[[Translation missing --]]
-L["RAID"] = "Raid"
+L["RAGE"] = "Wut"
+L["RAID"] = "Schlachtzug"
 L["RAID_MARKER"] = "Schlachtzug-Marker"
 L["RARE"] = "Selten"
 L["RARE_ELITE"] = "Selten Elite"
@@ -1210,8 +1190,7 @@ L["RARITY"] = "Seltenheit"
 L["RAW"] = "Raw"
 L["REACTION"] = "Reaktion"
 L["READY"] = "Bereit"
---[[Translation missing --]]
-L["REGIONS"] = "Regions"
+L["REGIONS"] = "Regionen"
 --[[Translation missing --]]
 L["RESTING"] = "Resting"
 L["REVERSED"] = "Invertiert"
@@ -1221,8 +1200,7 @@ L["SAFE"] = "Sicher"
 L["SAVE_AS"] = "Speichern als"
 L["SAVE_CUSTOM_AS"] = "Benutzerdefiniert speichern als"
 L["SCALE"] = "Skalierung"
---[[Translation missing --]]
-L["SCALED"] = "Scaled"
+L["SCALED"] = "skaliert"
 --[[Translation missing --]]
 L["SCREEN_BOTTOM_INSET"] = "Screen bottom inset"
 --[[Translation missing --]]
@@ -1268,8 +1246,7 @@ L["SORTING"] = "Sortieren"
 --[[Translation missing --]]
 L["SPECIAL"] = "Special"
 L["SPECIAL_BRACKETS"] = "(Spezial)"
---[[Translation missing --]]
-L["SPEED"] = "Speed"
+L["SPEED"] = "Geschwindigkeit"
 L["SQUARE"] = "Quadrat"
 L["SQUIRREL"] = "Eichhörnchen"
 --[[Translation missing --]]
@@ -1285,7 +1262,6 @@ L["STANDARD"] = "Standard"
 L["STYLE"] = "Stil"
 L["STYLE_SCALE"] = "Stilskalierung"
 L["STYLE_SELECT"] = "Stil auswählen"
---[[Translation missing --]]
 L["TANK"] = "Tank"
 L["TAPPED"] = "Getappt"
 L["TARGET"] = "Ziel"
@@ -1306,7 +1282,6 @@ L["THREAT_PERCENTAGE"] = "Threat Percentage"
 L["TO_OPEN_OPTIONS_X"] = "Einstelllungen mit '/platy' öffnen"
 --[[Translation missing --]]
 L["TOP"] = "Top"
---[[Translation missing --]]
 L["TOTEMS"] = "Totems"
 L["TRANSITION"] = "Übergang"
 L["TRIVIAL"] = "Trivial"
@@ -1328,15 +1303,13 @@ L["USE_FIXED_COLOR"] = "Use fixed color"
 L["USE_IN_DELVES"] = "In Tiefen verwenden"
 L["USE_NAMEPLATES_FOR"] = "Namensplaketten verwenden für"
 L["USE_OUTSIDE_INSTANCES"] = "Außerhalb von Instanzen verwenden"
---[[Translation missing --]]
-L["VALUE"] = "Value"
+L["VALUE"] = "Wert"
 L["VALUES"] = "Werte"
 L["VERSION_COLON_X"] = "Version: %s"
 --[[Translation missing --]]
 L["VERTICAL_OFFSET"] = "Vertical offset"
 L["VERY_DIFFICULT"] = "Sehr schwierig"
---[[Translation missing --]]
-L["VISIBLE"] = "Visible"
+L["VISIBLE"] = "Sichtbar"
 L["VISUAL"] = "Visuell"
 L["WARNING"] = "Warnung"
 L["WHAT_TO_EXPORT"] = "Was soll exportiert werden?"
@@ -1346,8 +1319,7 @@ L["WHEN_ALL_APPLIED"] = "When all applied"
 L["WHEN_NONE_APPLIED"] = "When none applied"
 L["WIDTH"] = "Breite"
 L["WIDTH_RESTRICTION"] = "Breitenbegrenzung"
---[[Translation missing --]]
-L["WORLD"] = "World"
+L["WORLD"] = "Welt"
 --[[Translation missing --]]
 L["WORLD_BOSS"] = "World Boss"
 --[[Translation missing --]]
