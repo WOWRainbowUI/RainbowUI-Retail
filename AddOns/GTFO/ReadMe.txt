@@ -2502,3 +2502,13 @@ Change Log:
 * Added Midnight spells (world)
 * Added Midnight spells for Windrunner Spire
 * Added Midnight spells for The Venomous Abyss
+
+6.12.1
+* Updated for patch 12.1.5
+* Added Midnight spells (world)
+* Added Midnight spells (prey)
+* Added Midnight spells for The Unbinding of Kith'ix
+
+6.12.2
+* Fixed an issue where an older version was accidentally uploaded
+* Added Midnight spells for The Labyrinth of Kindo'jan

@@ -221,6 +221,12 @@ GTFO.SpellID["1251426"] = {
   sound = 1;
 };
 
+GTFO.SpellID["1243009"] = {
+  --desc = "Slow";
+  maps = { 2395, 2405, 2413, 2437, 2512 }; -- Eversong Woods, Voidstorm, Harandar, Zul'Aman, The Coiled Isle
+  sound = 2;
+};
+
 
 --- *********************
 --- * Midnight (Delves) *
@@ -682,7 +688,7 @@ GTFO.SpellID["??????"] = {
 
 GTFO.SpellID["1297338"] = {
   --desc = "Deadly Venom";
-  instance = 3004;
+  instances = { 3004, 3095 }; -- also used in The Unbinding of Kith'ix
   sound = 1;
 };
 
@@ -1001,5 +1007,48 @@ GTFO.SpellID["1247367"] = {
 };
 
 
-end
+--- ***********************************
+--- * The Unbinding of Kith'ix (3095) *
+--- ***********************************
 
+GTFO.SpellID["1319270"] = {
+  --desc = "Toxic Gunk";
+  instance = 3095;
+  sound = 1;
+};
+
+
+GTFO.SpellID["1308670"] = {
+  --desc = "Blood of the Old Ones";
+  instance = 3095;
+  sound = 1;
+};
+
+GTFO.SpellID["1303257"] = {
+  --desc = "Suffocation (Kith'ix)";
+  instance = 3095;
+  encounter = 3513;
+  sound = 1;
+};
+
+GTFO.SpellID["1308875"] = {
+  --desc = "Nullify (Kith'ix)";
+  instance = 3095;
+  encounter = 3513;
+  sound = 1;
+  stackSound = 1;
+  applicationOnly = true;
+};
+
+--- *************************************
+--- * The Labyrinth of Kindo'jan (3043) *
+--- *************************************
+
+GTFO.SpellID["1300767"] = {
+  --desc = "Erratic Mojo (Kindo'jan)";
+  instance = 3043;
+  encounter = 3548;
+  sound = 1;
+};
+
+end

@@ -176,6 +176,27 @@ GTFO.SpellID["399061"] = {
   sound = 3;
 };
 
+GTFO.SpellID["1261202"] = {
+  --desc = "Earthquake (Annulus the Worldshaker)";
+  applicationOnly = true;
+  map = 2413; -- Harandar
+  sound = 3;
+};
+
+GTFO.SpellID["1261070"] = {
+  --desc = "Volatile Eruption (Annulus the Worldshaker)";
+  applicationOnly = true;
+  map = 2413; -- Harandar
+  sound = 3;
+};
+
+GTFO.SpellID["1244468"] = {
+  --desc = "Erratic Ritual (Far'thana the Mad)";
+  applicationOnly = true;
+  map = 2405; -- Voidstorm
+  sound = 3;
+};
+
 --- *******************
 --- * Midnight (Prey) *
 --- *******************
@@ -739,6 +760,13 @@ GTFO.SpellID["1294605"] = {
   sound = 3;
 };
 
+GTFO.SpellID["1305386"] = {
+  --desc = "Corrosive Tempest (Venomweaver Vexhiss)";
+  applicationOnly = true;
+  map = 2607; -- The Venomous Abyss
+  sound = 3;
+};
+
 GTFO.SpellID["1292403"] = {
   --desc = "Caustic Waves (Ula'tek)";
   instance = 3004;
@@ -1049,6 +1077,88 @@ GTFO.SpellID["1297797"] = {
 };
 
 
+--- ***********************************
+--- * The Unbinding of Kith'ix (3095) *
+--- ***********************************
+
+GTFO.SpellID["1316354"] = {
+  --desc = "Toxic Whirl";
+  instance = 3095;
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["1304040"] = {
+  --desc = "Mindsting (Kith'ix)";
+  instance = 3095;
+  encounter = 3513;
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["1303685"] = {
+  --desc = "Twisted Appendage (Kith'ix)";
+  instance = 3095;
+  encounter = 3513;
+  sound = 3;
+};
+
+GTFO.SpellID["1304950"] = {
+  --desc = "Voidscar (Kith'ix)";
+  instance = 3095;
+  encounter = 3513;
+  sound = 3;
+};
+
+GTFO.SpellID["1304946"] = {
+  --desc = "Dark Devastation (Kith'ix)";
+  instance = 3095;
+  encounter = 3513;
+  sound = 3;
+  tankSound = 0;
+};
+
+GTFO.SpellID["1304947"] = {
+  --desc = "Dark Devastation (Kith'ix)";
+  instance = 3095;
+  encounter = 3513;
+  sound = 3;
+  tankSound = 0;
+};
+
+GTFO.SpellID["1302914"] = {
+  --desc = "Venom Roar (Venomous Hulk)";
+  instance = 3095;
+  encounter = 3513;
+  sound = 3;
+  tankSound = 0;
+};
+
+GTFO.SpellID["1302917"] = {
+  --desc = "Venom Roar (Venomous Hulk)";
+  instance = 3095;
+  encounter = 3513;
+  sound = 3;
+  tankSound = 0;
+};
+
+--- ****************************************
+--- * The Labyrinth of Kindo'jan (3043) *
+--- ****************************************
+
+GTFO.SpellID["1289267"] = {
+  --desc = "Rotten Cascade";
+  instance = 3043;
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["1303494"] = {
+  --desc = "Disgraceful Display (Kindo'jan)";
+  instance = 3043;
+  encounter = 3548;
+  sound = 3;
+  stackSound = 3;
+};
 
 end
-
