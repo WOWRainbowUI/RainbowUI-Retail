@@ -86,6 +86,7 @@ else
 	return
 end
 
+local IS_WOW_PROJECT_MODERN = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE or WOW_PROJECT_ID == WOW_PROJECT_CAMELOT)
 local BUTTON_TEX = 'Interface\\Buttons\\UI-SpellbookIcon-%sPage-%s'
 local Frames = Lib.frames
 local frameBorderLeft = 7
@@ -275,7 +276,7 @@ local function UpdateFrame(frame, i)
 	frame:ClearAllPoints()
 	frame:SetPoint(data.point, data.anchor, data.relPoint, data.x, data.y)
 	frame:SetWidth(data.width + frameBorderLeft + frameBorderRight)
-	local titleText = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE and frame.TitleContainer.TitleText or frame.TitleText
+	local titleText = IS_WOW_PROJECT_MODERN and frame.TitleContainer.TitleText or frame.TitleText
 	titleText:SetPoint('TOP', 0, -5)
 	titleText:SetText(data.title)
 
@@ -451,15 +452,15 @@ end
 
 local function NewFrame(data)
 	local frame = CreateFrame('Frame', 'Tutorials'..Lib.numFrames, UIParent, 'ButtonFrameTemplate')
-	local portrait = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE and frame:GetPortrait() or frame.portrait
+	local portrait = IS_WOW_PROJECT_MODERN and frame:GetPortrait() or frame.portrait
 	portrait:SetPoint('TOPLEFT', -3, 5)
 	portrait:SetTexture(data.icon or 'Interface\\TutorialFrame\\UI-HELP-PORTRAIT')
 	frame.Inset:SetPoint('TOPLEFT', 4, -23)
 	frame.Inset.Bg:SetColorTexture(0, 0, 0)
 
-	local template = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE and "ScrollFrameTemplate" or "UIPanelScrollFrameTemplate"
+	local template = IS_WOW_PROJECT_MODERN and "ScrollFrameTemplate" or "UIPanelScrollFrameTemplate"
 	frame.scroll = CreateFrame("ScrollFrame", nil, frame, template)
-	if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then
+	if IS_WOW_PROJECT_MODERN then
 		frame.scroll.ScrollBar:SetHideIfUnscrollable(true)
 	end
 

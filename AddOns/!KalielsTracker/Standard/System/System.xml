@@ -1,0 +1,26 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\..\FrameXML\UI.xsd">
+    <Script file="Constants.lua"/>
+    <Script file="Utils.lua"/>
+    <Script file="Safe.lua"/>
+    <Script file="Media.lua"/>
+    <Script file="Config.lua"/>
+    <Script file="Storage.lua"/>
+    <Script file="Addon.lua"/>
+    <Script file="Tracker.lua"/>
+    <Script file="API.lua"/>
+
+    <Script file="Subsystems\Telemetry.lua"/>
+    <Script file="Subsystems\IncompatibleAddons.lua"/>
+    <Script file="Subsystems\Hooks.lua"/>
+    <Script file="Subsystems\Quests.lua"/>
+    <Script file="Subsystems\Achievements.lua"/>
+    <Script file="Subsystems\Modules.lua"/>
+    <Script file="Subsystems\QuestButtons.lua"/>
+    <Script file="Subsystems\OpenService.lua"/>
+    <Script file="Subsystems\Menu.lua"/>
+    <Script file="Subsystems\ProgressBar.lua"/>
+    <Script file="Subsystems\StaticPopup.lua"/>
+    <Script file="Subsystems\Visibility.lua"/>
+    <Script file="Subsystems\AddonCompartment.lua"/>
+</Ui>

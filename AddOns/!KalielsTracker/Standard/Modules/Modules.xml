@@ -1,0 +1,36 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\..\FrameXML\UI.xsd">
+	<Script file="Hacks.lua"/>
+
+	<Script file="Tracker\Scenario.lua"/>
+	<Script file="Tracker\UIWidget.lua"/>
+	<Script file="Tracker\Quests.lua"/>
+	<Script file="Tracker\Achievements.lua"/>
+	<Script file="Tracker\Tasks.lua"/>
+	<Script file="Tracker\Collections.lua"/>
+	<Script file="Tracker\TravelersLog.lua"/>
+	<Script file="Tracker\Endeavors.lua"/>
+	<Script file="Tracker\Profession.lua"/>
+	<Script file="Tracker\Events.lua"/>
+	<Include file="Tracker\Events.xml"/>
+
+	<Script file="Addons\Auctionator.lua"/>
+	<Script file="Addons\BattlePetCompletionist.lua"/>
+	<Include file="Addons\BattlePetCompletionist.xml"/>
+	<Script file="Addons\BtWQuests.lua"/>
+	<Script file="Addons\Masque.lua"/>
+	<Script file="Addons\Narcissus.lua"/>
+	<Script file="Addons\PetTracker.lua"/>
+	<Include file="Addons\PetTracker.xml"/>
+	<Script file="Addons\RareScanner.lua"/>
+	<Include file="Addons\RareScanner.xml"/>
+	<Script file="Addons\TomTom.lua"/>
+	<Script file="Addons\ElvUI.lua"/>
+	<Script file="Addons\Tukui.lua"/>
+
+	<Script file="Filters.lua"/>
+	<Script file="ActiveButton.lua"/>
+	<Script file="QuestLog.lua"/>
+	<Script file="Help.lua"/>
+	<Script file="Options.lua"/>
+</Ui>

@@ -8,7 +8,7 @@
 -- Frame names are version-dependent and are not part of the public API.
 -- Do not access frames directly by name, always use the library-provided interface.
 
-local name, version = "MSA-DropDownMenu-1.0", 21
+local name, version = "MSA-DropDownMenu-1.0", 22
 
 local lib, oldVersion = LibStub:NewLibrary(name, version)
 if not lib then return end
@@ -49,6 +49,8 @@ MSA_DROPDOWNMENU_DEFAULT_TEXT_HEIGHT = nil;
 MSA_DROPDOWNMENU_DEFAULT_WIDTH_PADDING = 25;
 -- List of open menus
 MSA_OPEN_DROPDOWNMENUS = {};
+
+local IS_WOW_PROJECT_MODERN = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE or WOW_PROJECT_ID == WOW_PROJECT_CAMELOT)
 
 lib.delegate = lib.delegate or CreateFrame("Frame");
 local MSA_DropDownMenuDelegate = lib.delegate;
@@ -242,7 +244,7 @@ local function CreateDropDownList(name, parent)
     frame:SetFrameStrata("DIALOG")
     frame:EnableMouse(true)
 
-    if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then
+    if IS_WOW_PROJECT_MODERN then
         frame.Border = CreateFrame("Frame", name.."Backdrop", frame, "DialogBorderDarkTemplate")
 
         local menuBackdrop = CreateFrame("Frame", name.."MenuBackdrop", frame, "TooltipBackdropTemplate")
@@ -1661,7 +1663,7 @@ function MSA_ToggleDropDownMenu(level, value, dropDownFrame, anchorName, xOffset
             if ( listFrame:GetRight() > GetScreenWidth() ) then
                 offscreenX = 1;
             end
-            if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then
+            if IS_WOW_PROJECT_MODERN then
                 local menuOffset = displayMode == "MENU" and 8 or 0  -- MSA
                 if ( offscreenY and offscreenX ) then
                     point = gsub(point, "TOP(.*)", "BOTTOM%1");

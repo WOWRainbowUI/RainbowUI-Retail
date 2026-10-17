@@ -1,0 +1,545 @@
+--- Kaliel's Tracker
+--- Copyright (c) 2012-2026, Marouan Sabbagh <mar.sabbagh@gmail.com>
+--- All Rights Reserved.
+---
+--- This file is part of addon Kaliel's Tracker.
+
+---@type KT
+local _, KT = ...
+
+---@class Help
+local M = KT:NewModule("Help")
+KT.Help = M
+
+local T = LibStub("MSA-Tutorials-1.0")
+local _DBG = function(...) if _DBG then _DBG("KT", ...) end end
+
+local HELP_TITLE = KT.TITLE.." |cffffffff"..KT.VERSION.."|r"
+local HELP_PATH = KT.MEDIA_PATH.."Help\\"
+local ICON_URL = HELP_PATH.."help_icon-url"
+local ICON_HEART = "|T"..HELP_PATH.."help_patreon:14:14:2:0:256:32:174:190:0:16|t"
+
+local db, dbChar
+local helpName = "help"
+local helpNumPages = 15
+local supportersName = "supporters"
+local supportersNumPages = 1
+local cTitle = "|cffffd200"
+local cBold = "|cff00ffe3"
+local cWarning = "|cffff7f00"
+local cWarning2 = "|cffff4200"
+local cDots = "|cff808080"
+local offs = "\n|T:1:9|t"
+local offs2 = "\n|T:1:21|t"
+local offs3 = "|T:1:9|t"
+local ebSpace = "|T:16:1|t\n"
+
+local KTF = KT.frame
+
+-- Internal ------------------------------------------------------------------------------------------------------------
+
+local function AddonInfo(name, title)
+	title = title or name
+	local info = "\nAddon "..title
+	if C_AddOns.IsAddOnLoaded(name) then
+		info = info.." |cff00ff00is installed|r. Support you can enable/disable in Options.\n"..ebSpace
+	else
+		info = info.." |cffff0000is not installed|r.\n"..ebSpace
+	end
+	return info
+end
+
+local function SetFormatedPatronName(tier, name, realm, note)
+	if realm then
+		realm = " @"..realm
+	else
+		realm = ""
+	end
+	if note then
+		note = " ... "..note
+	else
+		note = ""
+	end
+	return format("- |cff%s%s|r|cff7f7f7f%s%s|r\n", KT.QUALITY_COLORS[tier], name, realm, note)
+end
+
+local function SetFormatedPlayerName(name, realm, note)
+	if realm then
+		realm = " @"..realm
+	else
+		realm = ""
+	end
+	if note then
+		note = " ... "..note
+	else
+		note = ""
+	end
+	return format("- %s|cff7f7f7f%s%s|r\n", name, realm, note)
+end
+
+local function SetupTutorials()
+	T.RegisterTutorial(helpName, {
+		savedvariable = KT.db.global,
+		key = "helpTutorial",
+		title = HELP_TITLE,
+		icon = HELP_PATH.."KT_logo",
+		font = "Fonts\\FRIZQT__.TTF",
+		width = 582,
+		height = 632,
+		paddingX = 35,
+		paddingTop = 26,
+		paddingBottom = 24,
+		imageWidth = 512,
+		imageHeight = 256,
+		{	-- 1
+			image = HELP_PATH.."help_kaliels-tracker",
+			text = cTitle..KT.TITLE.."|r is improved default Blizzard Objective Tracker.\n\n"..
+					"Some features:\n"..
+					"- Change tracker position\n"..
+					"- Expand / Collapse tracker relative to selected position (direction)\n"..
+					"- Auto set trackers height by content with max. height limit\n"..
+					"- Scrolling when content is greater than max. height\n"..
+					"- Remember collapsed tracker after logout/exit game\n\n"..
+					"... and many other enhancements (see next pages).",
+			shine = KTF.Background,
+			shineTop = 5,
+			shineBottom = -5,
+			shineLeft = -6,
+			shineRight = 6,
+		},
+		{	-- 2
+			image = HELP_PATH.."help_header-buttons",
+			imageHeight = 128,
+			heading = "Header buttons",
+			text = "Minimize button:                                Other buttons:\n"..
+					"|T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:-1:2:32:64:0:14:0:14:209:170:0|t "..cDots.."...|r Expand Tracker                           "..
+					"|T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:-1:2:32:64:16:30:0:14:209:170:0|t "..cDots.."...|r Open Quest Log\n"..
+					"|T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:-1:2:32:64:0:14:16:30:209:170:0|t "..cDots.."...|r Collapse Tracker                         "..
+					"|T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:-1:2:32:64:16:30:16:30:209:170:0|t "..cDots.."...|r Open Achievements\n"..
+					"|T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:-1:2:32:64:0:14:32:46:209:170:0|t "..cDots.."...|r when is tracker empty                "..
+					"|T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:-1:2:32:64:16:30:32:46:209:170:0|t "..cDots.."...|r Open Filters menu\n\n"..
+					"Buttons |T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:-1:2:32:64:16:30:0:14:209:170:0|t and "..
+					"|T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:-1:2:32:64:16:30:16:30:209:170:0|t you can disable in Options.\n\n"..
+					"You can set "..cBold.."[key bind]|r for Minimize button.\n"..
+					cBold.."Right Click|r on Minimize button - Focus closest Quest.\n"..
+					cBold.."Alt + Left Click|r on Minimize button - Open "..KT.TITLE.." Options.",
+			paddingBottom = 18,
+			shine = KTF.MinimizeButton,
+			shineTop = 13,
+			shineBottom = -14,
+			shineRight = 15,
+		},
+		{	-- 3
+			image = HELP_PATH.."help_quests",
+			imageHeight = 128,
+			heading = "Quests",
+			text = cTitle.."Module header|r\n\n"..
+					"Header text can show quest counts "..cDots.."...|r "..cBold.."Quests (14/"..MAX_QUESTS.." +3)|r.\n\n"..
+					"    "..cBold.."14|r "..cDots.."...|r Current number of quests in Quest Log\n"..
+					"    "..cBold..MAX_QUESTS.."|r "..cDots.."...|r Maximum number of quests in Quest Log\n"..
+					"    "..cBold.."+3|r "..cDots.."...|r Account/Calling quests (not counted toward the limit)\n\n"..
+					cTitle.."Title tags|r\n\n"..
+					"At the start of quest titles you see tags like this |cffff8000[90|r|cff00b3ff•!!|r|cffff8000]|r.\n\n"..
+					"    |cff00b3ff•|r "..cDots..".......|r Account/Warband quest\n"..
+					"    |cff00b3ff!|r|T:14:3|t "..cDots..".......|r Daily quest\n"..
+					"    |cff00b3ff!!|r "..cDots.."......|r Weekly quest\n"..
+					"    |cff00b3ffg3|r "..cDots..".....|r Group quest with group size\n"..
+					"    |cff00b3ffd|r "..cDots..".......|r Dungeon quest\n"..
+					"    |cff00b3ffhc|r "..cDots..".....|r Heroic quest\n"..
+					"    |cff00b3ffr|r "..cDots.."........|r Raid quest\n"..
+					"    |cff00b3ffr10|r "..cDots.."...|r 10-man raid quest\n"..
+					"    |cff00b3ffr25|r "..cDots.."...|r 25-man raid quest\n"..
+					"    |cff00b3ffde|r "..cDots..".....|r Delve quest\n"..
+					"    |cff00b3ffs|r "..cDots..".......|r Scenario quest\n"..
+					"    |cff00b3ffpvp|r "..cDots.."...|r PvP quest\n"..
+					"    |cff00b3ffleg|r "..cDots.."....|r Legendary quest",
+			paddingBottom = 16,
+			shineTop = 11,
+			shineBottom = -9,
+			shineLeft = -11,
+			shineRight = 13,
+		},
+		{	-- 4
+			image = HELP_PATH.."help_tracker-filters",
+			heading = "Tracker Filters",
+			text = "For open Filters menu "..cBold.."Click|r on the button |T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:-1:1:32:64:16:30:32:46:209:170:0|t.\n\n"..
+					"There are two types of filters:\n"..
+					cTitle.."Static filter|r - adds quests/achievements to tracker by criterion (e.g. \"Daily\") and then you can add/remove items by hand.\n"..
+					cTitle.."Dynamic filter|r - automatically adding quests/achievements to tracker by criterion (e.g. \"|cff00ff00Auto|r Zone\") "..
+					"and continuously changing them. This type doesn't allow add/remove items by hand."..
+					"When is some Dynamic filter active, header button is green |T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:-1:1:32:64:16:30:32:46:0:255:0|t.\n\n"..
+					"|cff009bffFavorites|r - Quests or Achievements now you can mark as favorites and then filter according to them.\n\n"..
+					"For Achievements can change searched categories, it will affect the outcome of the filter.\n\n"..
+					"This menu displays other options affecting the content of the tracker (e.g. options for addon PetTracker).",
+			shine = KTF.FilterButton,
+			shineTop = 9,
+			shineBottom = -10,
+			shineLeft = -10,
+			shineRight = 11,
+		},
+		{	-- 5
+			image = HELP_PATH.."help_quest-item-buttons",
+			heading = "Quest Item buttons",
+			text = "Buttons are out of the tracker, because Blizzard doesn't allow to work with the action buttons in the default UI.\n\n"..
+					"|T"..HELP_PATH.."help_quest-item-buttons_2:32:32:0:0:64:32:0:32:0:32|t "..cDots.."...|r  This tag indicates quest item in quest. The number inside is for\n"..
+					"              identification moved quest item button.\n\n"..
+					"|T"..HELP_PATH.."help_quest-item-buttons_2:32:32:0:3:64:32:32:64:0:32|t "..cDots.."...|r  Real quest item button is moved out of the tracker to the left/right\n"..
+					"              side (by selected anchor point). The number is the same as for the tag.\n\n"..
+					cWarning.."Warning:|r\n"..
+					"In some situation during combat, actions around the quest item buttons paused and carried it up after a player is out of combat.",
+			shineTop = 3,
+			shineBottom = -2,
+			shineLeft = -4,
+			shineRight = 3,
+		},
+		{	-- 6
+			image = HELP_PATH.."help_active-button",
+			heading = "Active Button",
+			text = "Active Button is for a better use of quest items. Displays quest item button for CLOSEST quest as Extra Action Button (like Draenor zone ability).\n\n"..
+					"Features:\n"..
+					"- "..cBold.."Auto display|r of Active Button, when you approach the place of performance"..
+					offs.."of the quest.\n"..
+					"- "..cBold.."Manual display|r of Active Button, when selecting the quest using the POI"..
+					offs.."button on the Map or in the Tracker.\n"..
+					"- You can set "..cBold.."[key bind]|r to use quest item. Key set up in "..KT.TITLE..
+					offs.."Options. Active Button uses the same key bind as the Extra Action Button.\n"..
+					"- Button is movable using own mover. See Options > section \"Quest item"..
+					offs.."buttons\" > button \"Unlock\".\n\n"..
+					cWarning.."Warning:|r\n"..
+					"- Active Button works only for tracked quests.\n"..
+					"- When tracker is collapsed, Active Button feature is paused.",
+			shineTop = 30,
+			shineBottom = -30,
+			shineLeft = -80,
+			shineRight = 80,
+		},
+		{	-- 7
+			image = HELP_PATH.."help_tracker-modules",
+			heading = "Modules",
+			text = cTitle.."Order of Modules|r\n\n"..
+					"Allows to change the order of modules inside the tracker. Supports all modules including external (e.g. PetTracker).\n\n\n"..
+					cTitle.."Collapsible Modules|r\n\n"..
+					"All modules, including external ones, can be collapsed by clicking on the module header.",
+			shine = KTF.Background,
+			shineTop = 5,
+			shineBottom = -5,
+			shineLeft = -6,
+			shineRight = 6,
+		},
+		{	-- 8
+			image = HELP_PATH.."help_events",
+			heading = "Events",
+			text = "The Events module displays active ongoing events in the tracker. They are normally available on the World Map.\n\n"..
+					"Filter |T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:-1:2:32:64:16:30:32:46:209:170:0|t menu options:\n"..
+					"- "..cBold.."Track Events|r – Enables or disables Events module in the tracker.\n"..
+					"- "..cBold.."Show Long Events|r – In addition to active ongoing events, also shows those that"..
+					offs.."last 24 hours or more.",
+		},
+		{	-- 9
+			image = HELP_PATH.."help_addon-masque",
+			heading = "Support addon Masque",
+			text = "Masque adds skinning support for Quest Item buttons. It also affects the Active Button (see prev page).\n"..
+					AddonInfo("Masque"),
+			editbox = {
+				{
+					icon = ICON_URL,
+					text = "https://www.curseforge.com/wow/addons/masque",
+					width = 510,
+					bottom = 2,
+				}
+			},
+		},
+		{	-- 10
+			image = HELP_PATH.."help_addon-pettracker",
+			heading = "Support addon PetTracker",
+			text = "PetTracker support adds zone pet tracking to "..KT.TITLE.." with a custom layout and improved "..
+					"visual presentation.\n\n"..
+					"Filter |T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:-1:2:32:64:16:30:32:46:209:170:0|t menu options:\n"..
+					"- "..cBold.."Track Pets|r – Enables or disables Pets module in the tracker.\n"..
+					"- "..cBold.."Show Captured|r – Show or hide captured zone pets.\n"..
+					AddonInfo("PetTracker"),
+			editbox = {
+				{
+					icon = ICON_URL,
+					text = "https://www.curseforge.com/wow/addons/pettracker",
+					width = 510,
+					bottom = 2,
+				}
+			},
+		},
+        {	-- 11
+            image = HELP_PATH.."help_addon-tomtom",
+            heading = "Support addon TomTom",
+            text = "TomTom support combines Blizzard's POI and TomTom's arrow.\n\n"..
+                    "|TInterface\\WorldMap\\UI-QuestPoi-NumberIcons:32:32:-2:0:256:256:128:160:96:128|t+"..
+                    "|T"..KT.MEDIA_PATH.."KT-TomTomTag:32:32:-8:0:32:16:0:16:0:16|t"..cDots.."...|r   Active POI button with TomTom waypoint.\n"..
+                    "|TInterface\\WorldMap\\UI-QuestPoi-NumberIcons:32:32:-2:0:256:256:128:160:96:128|t+"..
+                    "|T"..KT.MEDIA_PATH.."KT-TomTomTag:32:32:-8:0:32:16:16:32:0:16|t"..cDots.."...|r   Active POI button without TomTom waypoint (no data).\n\n"..
+                    "Features:\n"..
+                    "- Available for Quests and World Quests, but waypoints are only for current"..
+                    offs.."continent (TomTom and Blizzard limitations).\n"..
+                    "- Other map POIs can also have a waypoint (see page 13).\n"..
+                    "- "..cBold.."Left Click|r on POI button (in the tracker or on World Map) to set a waypoint.\n"..
+                    "- The newly tracked or closest quest automatically gets a waypoint.\n"..
+                    "- Waypoint of untracked or abandoned quest will be removed.\n"..
+                    "- "..cBold.."Left Click|r on arrow - opens World Map.\n"..
+                    "- "..cBold.."Right Click|r on arrow - removes the waypoint from the arrow, clears the POI"..
+					offs.."selection and deletes the waypoint (if created by "..KT.TITLE..").\n"..
+                    "- "..cBold.."Shift + Right Click|r or arrow - opens the TomTom context menu.\n"..
+					AddonInfo("TomTom"),
+			editbox = {
+				{
+					icon = ICON_URL,
+					text = "https://www.curseforge.com/wow/addons/tomtom",
+					width = 510,
+					bottom = 4,
+				}
+			},
+			shineTop = 10,
+			shineBottom = -10,
+			shineLeft = -11,
+			shineRight = 11,
+		},
+		{	-- 12
+			image = HELP_PATH.."help_addon-rarescanner",
+			heading = "Support addon RareScanner",
+			text = "RareScanner support replaces the original RareScanner button and displays detected Rare NPCs "..
+					"inside "..KT.TITLE.." as a separate module.\n\n"..
+					"Features:\n"..
+					"- Displays only Rare NPCs - model and name. Treasures/Chests are not shown.\n"..
+					"- Shows loot icons including tooltip (if enabled in RareScanner).\n"..
+					"- "..cBold.."Left Click|r - creates a TomTom waypoint (if enabled in RareScanner).\n"..
+					"- "..cBold.."Right Click|r - removes detected NPCs from the tracker.\n"..
+					"- Targeting NPC via Left Click is not supported due to Blizzard restrictions."..
+					offs.."Use RareScanner’s keybinding for targeting.\n"..
+					"- All other RareScanner settings are reflected in the behavior of this module.\n"..
+					AddonInfo("RareScanner"),
+			editbox = {
+				{
+					icon = ICON_URL,
+					text = "https://www.curseforge.com/wow/addons/rarescanner",
+					width = 510,
+					bottom = 2,
+				}
+			},
+		},
+		{	-- 13
+			image = HELP_PATH.."help_map-waypoints",
+			heading = "Map Waypoints",
+			text = KT.TITLE.." allows setting TomTom waypoints on any POI on the map. This includes new quests, "..
+					"events, dungeons, raids, delves, flight points, portals, and more.\n\n"..
+					cTitle.."Navigation Examples|r\n"..
+					"The image above shows the supported navigation modes.\n\n"..
+					"1 - "..cBold.."Direct navigation|r - The TomTom arrow points directly at the target that is in"..
+					offs2.."the same navigational area (same zone and continent).\n"..
+					"2 - "..cBold.."Direct navigation within the continent|r - The TomTom arrow points at a target"..
+					offs2.."in a different zone on the same continent. Additionally, a \"Travel to ...\""..
+					offs2.."instruction is shown.\n"..
+					"3 - "..cBold.."Intercontinental navigation|r - The TomTom arrow points at the nearest transfer"..
+					offs2.."point (e.g. a portal). After moving to the correct continent, the navigation"..
+					offs2.."updates automatically. Additionally, an instruction leading to the transfer"..
+					offs2.."point is shown. This mode is reliably available only for quests.\n"..
+					"4 - "..cBold.."Indirect navigation (without a TomTom arrow)|r - Only a \"Travel to ...\""..
+					offs2.."instruction is shown because the target is outside the currently navigable"..
+					offs2.."world. The TomTom arrow appears only after entering the correct continent"..
+					offs2.."or zone.",
+			shineTop = 10,
+			shineBottom = -10,
+			shineLeft = -11,
+			shineRight = 11,
+		},
+		{	-- 14
+			image = HELP_PATH.."help_addon-battlepetcompletionist",
+			heading = "Support addon Battle Pet Completionist",
+			text = "Battle Pet Completionist support adds zone pet tracking to "..KT.TITLE.." with\na custom layout "..
+					"and improved visual presentation.\n\n"..
+					"Features:\n"..
+					"- Individual pet rows are clickable and open the selected pet in Pet Journal.\n\n"..
+					"Filter |T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:-1:1:32:64:16:30:32:46:209:170:0|t menu options:\n"..
+					"- "..cBold.."Track Pets|r – Enables or disables Pets module in the tracker.\n"..
+					"- "..cBold.."Show Captured|r – Show or hide captured zone pets.\n"..
+					AddonInfo("BattlePetCompletionist", "Battle Pet Completionist"),
+			editbox = {
+				{
+					icon = ICON_URL,
+					text = "https://www.curseforge.com/wow/addons/battle-pet-completionist",
+					width = 510,
+					bottom = 2,
+				}
+			},
+		},
+		{	-- 15
+			image = HELP_PATH.."help_whats-new_logo",
+			imageWidth = 512,
+			imageHeight = 128,
+			imageTexCoords = { 0, 1, 0, 1 },
+			imagePoint = "TOPRIGHT",
+			imageX = -9,
+			imageY = -26,
+			imageAbsolute = true,
+			heading = "     What's New",
+			headingFont = "Fonts\\MORPHEUS.ttf",
+			headingSize = 26,
+			text = "|cff66ff66"..KT.TITLE.." is developed and maintained by one person.|r\n"..ebSpace.."\n"..
+
+					(cTitle.."Version 8.8.0|r\n"..
+					"- ADDED - support for WoW 12.1.5.70391\n"..
+					"- ADDED - Libs - add ElvUI skinning support for custom Ace widgets\n"..
+					"- CHANGED - TomTom - improve waypoints and update logic\n"..
+					"- CHANGED - Active Patrons\n"..
+					"- CHANGED - addon support - TomTom 4.3.12\n"..
+					"- CHANGED - addon support - RareScanner 12.1.5\n"..
+					"- CHANGED - addon support - Battle Pet Completionist 12.1.5-20261014-1\n"..
+					"- CHANGED - addon support - Masque 12.1.0\n"..
+					"- CHANGED - addon support - BtWQuests 2.65.0\n"..
+					"- CHANGED - addon support - Auctionator 341\n"..
+					"- CHANGED - addon support - ElvUI 16.00\n"..
+					"- CHANGED - Libs\n"..
+					"- CHANGED - Edit Mode - improve Active Button positioning\n"..
+					"- CHANGED - Quest Item/Spell Button improvements\n"..
+					"- PERFORMANCE - skip unnecessary processing when no quest buttons are present\n"..
+					"\n")..
+
+					cTitle.."Issue reporting|r\n"..
+					"For reporting please use "..cBold.."Tickets|r instead of Comments on CurseForge.\n"..ebSpace.."\n"..
+
+					cWarning.."Before reporting of error, please deactivate all other addons and make sure the bug is not caused by a collision with another addon.|r",
+			editbox = {
+				{
+					icon = ICON_URL,
+					text = "https://patreon.com/kalielstracker",
+					width = 510,
+					top = 52,
+				},
+				{
+					icon = ICON_URL,
+					text = "https://www.curseforge.com/wow/addons/kaliels-tracker/issues",
+					width = 510,
+					bottom = 39,
+				}
+			},
+			shine = KTF.Background,
+			shineTop = 5,
+			shineBottom = -5,
+			shineLeft = -6,
+			shineRight = 6,
+		},
+		onShow = function(self, i)
+			KT:Tracker_Expand()
+			if i == 2 then
+				if KTF.FilterButton then
+					self[i].shineLeft = db.hdrOtherButtons and -74 or -34
+				else
+					self[i].shineLeft = db.hdrOtherButtons and -54 or -14
+				end
+			elseif i == 3 then
+				local block = KT_QuestObjectiveTracker.firstBlock
+				if block then
+					self[i].shine = block
+				end
+			elseif i == 5 then
+				self[i].shine = KTF.Buttons
+			elseif i == 11 then
+				local block = KT_QuestObjectiveTracker.firstBlock
+				local superTrackedQuestID = C_SuperTrack.GetSuperTrackedQuestID() or 0
+				if superTrackedQuestID > 0 then
+					block = KT_QuestObjectiveTracker:GetExistingBlock(superTrackedQuestID)
+				end
+				if block and block.poiButton then
+					self[i].shine = block.poiButton
+				end
+			end
+		end,
+		onHide = function()
+			T.TriggerTutorial("supporters", 1)
+		end
+	})
+
+	T.RegisterTutorial("supporters", {
+		savedvariable = KT.db.global,
+		key = "supportersTutorial",
+		title = HELP_TITLE,
+		icon = HELP_PATH.."KT_logo",
+		font = "Fonts\\FRIZQT__.TTF",
+		width = 582,
+		height = 610,
+		paddingX = 35,
+		paddingTop = 26,
+		paddingBottom = 24,
+		{	-- 1
+			heading = "      Become a Patron",
+			text = KT.TITLE.." is developed and maintained by one person.\n\n\n\n"..
+					"The addon was developed for more than 10 years before Patreon was created. Over time, it grew from "..
+					"a small personal project into a large time-intensive system that requires continuous work.\n\n"..
+					"Many thanks to all supporters who help keep the project alive "..ICON_HEART.."\n\n\n"..
+					cTitle.."Active Patrons|r\n"..
+					SetFormatedPatronName("Epic", "Liothen", "Emerald Dream")..
+                    SetFormatedPatronName("Rare", "David Blanchard")..
+					SetFormatedPatronName("Rare", "Ian F")..
+					SetFormatedPatronName("Rare", "Sal")..
+					SetFormatedPatronName("Rare", "Spence")..
+					SetFormatedPatronName("Uncommon", "Anaara", "Auchindoun")..
+					SetFormatedPatronName("Uncommon", "Camalus")..
+					SetFormatedPatronName("Uncommon", "Charles Howarth")..
+					SetFormatedPatronName("Uncommon", "Cool Blue")..
+					SetFormatedPatronName("Uncommon", "Harry J Hightower")..
+					SetFormatedPatronName("Uncommon", "Illidanclone", "Kazzak")..
+					SetFormatedPatronName("Uncommon", "Jason Brown")..
+					SetFormatedPatronName("Uncommon", "Mystekal")..
+					SetFormatedPatronName("Uncommon", "Naturegurl")..
+                    SetFormatedPatronName("Uncommon", "Papus", "Ulduar")..
+					SetFormatedPatronName("Uncommon", "Paul Westervelt")..
+					SetFormatedPatronName("Uncommon", "Scott Ingram")..
+					SetFormatedPatronName("Uncommon", "Semy", "Ravencrest")..
+					SetFormatedPatronName("Uncommon", "Veratais")..
+					SetFormatedPatronName("Common", "Darren Divecha")..
+					"\n"..
+					cTitle.."Testers|r\n"..
+					SetFormatedPlayerName("Asimeria", "Drak'thul"),
+			editbox = {
+				{
+					icon = ICON_URL,
+					text = "https://patreon.com/kalielstracker",
+					width = 510,
+					top = 52,
+				}
+			},
+		},
+	})
+end
+
+-- External ------------------------------------------------------------------------------------------------------------
+
+function M:OnInitialize()
+	_DBG("|cffffff00Init|r - "..self:GetName(), true)
+	db = KT.db.profile
+	dbChar = KT.db.char
+    self.isAvailable = true
+end
+
+function M:OnEnable()
+	_DBG("|cff00ff00Enable|r - "..self:GetName(), true)
+	SetupTutorials()
+	local last = false
+	if KT.VERSION ~= KT.db.global.version then
+		local data = T.GetTutorial(helpName)
+		local index = data.savedvariable[data.key]
+		if index then
+			last = index < helpNumPages and index or true
+			T.ResetTutorial(helpName)
+		end
+	end
+	T.TriggerTutorial(helpName, helpNumPages, last)
+end
+
+function M:ShowHelp(index)
+	HideUIPanel(SettingsPanel)
+	T.ResetTutorial(helpName)
+	T.TriggerTutorial(helpName, helpNumPages, index or false)
+end
+
+function M:ShowSupporters()
+	HideUIPanel(SettingsPanel)
+	T.ResetTutorial(supportersName)
+	T.TriggerTutorial(supportersName, supportersNumPages)
+end
