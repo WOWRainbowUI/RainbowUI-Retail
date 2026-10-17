@@ -147,7 +147,7 @@ L['options_icons_ritual_site_desc'] = '在提示中顯示 {location:儀式地點
 
 L['ritual_site_broken_throne'] = '儀式地點：破碎王座'
 L['ritual_site_daggerspine_point'] = '儀式地點：刺脊崗哨'
-L['ritual_site_opens_in'] = nil
+L['ritual_site_opens_in'] = "%s後開放。"
 
 L['chewed_meat'] = '被咬過的肉'
 L['chewed_meat_note'] = '在 {object:被咬過的肉} 處召喚 {spell:1286634}。擊敗 {npc:263381}，待牠轉為友善後，餵牠 5x {item:242639}。'
@@ -219,7 +219,7 @@ L['curse_surge_note'] = '詛咒狂潮事件每 %d 分鐘輪換一次。\n\n{note
 ----------------------------- LABYRINTH OF KINDO'JAN --------------------------
 -------------------------------------------------------------------------------
 
-L['mislaid_treasure'] = '遺失的奇物'
+L['mislaid_treasure'] = "遺失的寶藏"
 
 L['options_icons_hexmask'] = '{achievement:63720}'
 L["options_icons_hexmask_desc"] = "顯示 {achievement:63720} 成就的位置。"
@@ -232,4 +232,4 @@ L['c_underneath_bridge'] = '在橋下。'
 --------------------------------- AQIR INVASION -------------------------------
 -------------------------------------------------------------------------------
 
-L['aqir_invasion_running'] = nil
+L['aqir_invasion_running'] = "入侵進行中"
