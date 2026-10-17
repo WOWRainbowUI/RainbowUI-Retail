@@ -17,7 +17,7 @@
 ## Category-zhTW: 任務
 
 ## SavedVariables: KalielsTrackerDB, KalielsTrackerCache
-## Dependencies: Blizzard_MawBuffs, Blizzard_TieredEntranceTraits, Blizzard_TransmogShared
+## Dependencies: Blizzard_MawBuffs, Blizzard_TieredEntranceTraits, Blizzard_TransmogShared, Ace3
 ## OptionalDeps: Blizzard_UIWidgets, Ace3, LibSharedMedia-3.0, AceGUI-3.0-SharedMediaWidgets, LibSink-2.0, MSA-DropDownMenu-1.0
 ## OptionalDeps: Masque, PetTracker, BattlePetCompletionist, TomTom, RareScanner
 
@@ -30,4 +30,3 @@ Libs\Libs.xml
 ## Title-zhTW: |cff00FFFF[任務]|r 追蹤清單增強
 ## Notes-zhTW: Kaliel's Tracker |n|n增強畫面右方任務追蹤清單的功能。|n|n|cffffd200使用方法: |r從Esc>選項>插件>任務-追蹤清單，進行設定和移動位置。
 ## Category-zhTW: 任務
-## RequiredDeps: Ace3
