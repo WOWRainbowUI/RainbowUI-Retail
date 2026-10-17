@@ -4,12 +4,13 @@ local L		= mod:GetLocalizedStrings()
 mod.statTypes = "normal,mythic"
 mod.soloChallenge = true
 
-mod:SetRevision("20260810190825")
+mod:SetRevision("20261015203616")
 --mod:SetCreatureID(244752)--Not known which 2 are nemesis boss yet and which 2 are random spawns
 mod:SetEncounterID(3372, 3430)
 mod:SetHotfixNoticeRev(20250220000000)
 mod:SetMinSyncRevision(20250220000000)
 mod:SetZone(2966)
+mod:IgnoreGenericTrash()
 
 mod:RegisterCombat("combat")
 
