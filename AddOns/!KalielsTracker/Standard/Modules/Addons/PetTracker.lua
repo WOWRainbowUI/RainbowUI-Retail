@@ -1,0 +1,402 @@
+--- Kaliel's Tracker
+--- Copyright (c) 2012-2026, Marouan Sabbagh <mar.sabbagh@gmail.com>
+--- All Rights Reserved.
+---
+--- This file is part of addon Kaliel's Tracker.
+
+---@type KT
+local _, KT = ...
+
+---@class AddonPetTracker
+local M = KT:NewModule("AddonPetTracker")
+KT.AddonPetTracker = M
+
+local LSM = LibStub("LibSharedMedia-3.0")
+local _DBG = function(...) if _DBG then _DBG("KT", ...) end end
+
+local db, dbChar
+local PetTracker = PetTracker
+
+local content
+local contentWidth = 237
+
+local settings = {
+	headerText = PETS,
+	events = { "PET_JOURNAL_LIST_UPDATE" },
+	blockOffsetX = 10
+}
+KT_PetTrackerObjectiveTrackerMixin = CreateFromMixins(KT_ObjectiveTrackerModuleMixin, settings)
+
+local texts = {
+	TrackPets = C_Spell.GetSpellName(122026),
+	CapturedPets = "顯示已有的",
+	DisplayCondition = "顯示條件",
+	DisplayAlways = "Always",
+	DisplayMissingRares = "缺少的稀有",
+	DisplayMissingPets = "缺少的寵物"
+}
+
+-- Internal ------------------------------------------------------------------------------------------------------------
+
+local function SetHeaderText()
+	local suffix
+	if db.pettrackerHeaderSuffix then
+		local _, numPetsOwned = C_PetJournal.GetNumPets()
+		suffix = numPetsOwned
+	end
+	KT_PetTrackerObjectiveTracker:SetHeaderSuffix(suffix)
+end
+
+local function SetupOptions(versionText)
+	if not KT:Addon_IsModule(KT.Options) then return end
+
+	KT.Options.AddAddonOption("addons", {
+		addonPetTracker = {
+			name = "PetTracker",
+			desc = "版本："..versionText,
+			descStyle = "inline",
+			type = "toggle",
+			width = 1.05,
+			confirm = true,
+			confirmText = KT.TEXT.OPTION_WARNING,
+			disabled = function()
+				return not C_AddOns.IsAddOnLoaded("PetTracker")
+			end,
+			set = function()
+				db.addonPetTracker = not db.addonPetTracker
+				if PetTracker.sets then
+					PetTracker.sets.zoneTracker = db.addonPetTracker
+				end
+				ReloadUI()
+			end,
+			order = 6.1,
+		},
+		addonPetTrackerDesc = {
+			name = "在追蹤器中啟用區域寵物追蹤，並提供自訂版面與更佳的視覺呈現。",
+			type = "description",
+			width = "double",
+			order = 6.2,
+		}
+	})
+end
+
+local function SetupOptions_Module()
+	if not KT:Addon_IsModule(KT.Options) then return end
+
+	KT.Options.AddAddonTab("pettracker", {
+		name = "PetTracker",
+		type = "group",
+		order = 6,
+		args = {
+			header = {
+				name = "標題列",
+				type = "group",
+				inline = true,
+				order = 1,
+				args = {
+					pettrackerHeaderSuffix = {
+						name = "顯示已擁有寵物數量",
+						desc = "在 PetTracker 標題中顯示已擁有的寵物數量。",
+						type = "toggle",
+						width = "normal+half",
+						set = function()
+							db.pettrackerHeaderSuffix = not db.pettrackerHeaderSuffix
+							SetHeaderText()
+						end,
+						order = 1,
+					},
+				},
+			},
+		},
+	})
+end
+
+local function SetHooks_Init()
+	if PetTracker then
+		if db.addonPetTracker then
+			function PetTracker.Objectives:OnLoad()  -- R
+				self:RegisterEvent("ZONE_CHANGED_NEW_AREA", "Layout")
+				self:RegisterEvent("ZONE_CHANGED_INDOORS")
+				self:RegisterEvent("ZONE_CHANGED")
+				self:RegisterSignal("COLLECTION_CHANGED", "Layout")
+				self:RegisterSignal("OPTIONS_CHANGED", "Layout")
+
+				self.MaxEntries = 200
+			end
+
+			function PetTracker.Objectives:ZONE_CHANGED_INDOORS()  -- N
+				self:UnregisterEvent("ZONE_CHANGED")
+				self:RegisterEvent("ZONE_CHANGED")
+			end
+
+			function PetTracker.Objectives:ZONE_CHANGED()  -- N
+				self:Layout()
+				self:UnregisterEvent("ZONE_CHANGED")
+			end
+
+			function PetTracker.Objectives:Layout()  -- R
+				local hasContent = false
+				if PetTracker.sets.zoneTracker then
+					self:Hide()
+					self:Update()
+					hasContent = not self.Bar:IsMaximized()
+				end
+				KT_PetTrackerObjectiveTracker.PThasContent = hasContent
+				KT_PetTrackerObjectiveTracker:MarkDirty()
+			end
+		else
+			PetTracker.Objectives.OnLoad = function() end
+		end
+	end
+end
+
+local function SetHooks()
+	local bck_PetTracker_SpecieLine_New = PetTracker.SpecieLine.New
+	function PetTracker.SpecieLine:New(parent, text, icon, subicon, r, g, b)
+		local line = bck_PetTracker_SpecieLine_New(self, parent, text, icon, subicon, r, g, b)
+		if line.KTskinID ~= KT.skinID then
+			line:SetWidth(contentWidth)
+			line.SubIcon:ClearAllPoints()
+			line.SubIcon:SetPoint("TOPLEFT", 0, -1)
+			line.Icon:ClearAllPoints()
+			line.Icon:SetPoint("LEFT", line.SubIcon, "RIGHT", 5, 0)
+			line.Text:ClearAllPoints()
+			line.Text:SetPoint("LEFT", line.Icon, "RIGHT", 5, 0)
+			line.Text:SetPoint("RIGHT")
+			line.Text:SetFont(KT.font, db.fontSize, db.fontFlag)
+			line.Text:SetShadowColor(0, 0, 0, db.fontShadow)
+			line.Text:SetWordWrap(false)
+			line.KTskinID = KT.skinID
+		end
+		return line
+	end
+
+	local bck_PetTracker_Pet_Display = PetTracker.Pet.Display
+	function PetTracker.Pet:Display()
+		if not KT.InCombatBlocked() then
+			bck_PetTracker_Pet_Display(self)
+		end
+	end
+
+	hooksecurefunc(PetTracker.ProgressBar, "SetProgress", function(self, progress)
+		if self.KTskinID ~= KT.skinID then
+			for _, bar in ipairs(self.Bars) do
+				bar:SetStatusBarTexture(LSM:Fetch("statusbar", db.progressBar))
+			end
+			self.KTskinID = KT.skinID
+		end
+	end)
+end
+
+local function SetHooks_PetTracker_Journal()
+	if not db.addonPetTracker and PetTracker then
+		PetTrackerTrackToggle:Disable()
+		PetTrackerTrackToggle.Text:SetTextColor(0.5, 0.5, 0.5)
+		local infoFrame = CreateFrame("Frame", nil, PetJournal)
+		infoFrame:SetSize(PetTrackerTrackToggle:GetWidth() + PetTrackerTrackToggle.Text:GetWidth(), PetTrackerTrackToggle:GetHeight())
+		infoFrame:SetPoint("TOPLEFT", PetTrackerTrackToggle, 0, 0)
+		infoFrame:SetFrameLevel(PetTrackerTrackToggle:GetFrameLevel() + 1)
+		infoFrame:SetScript("OnEnter", function(self)
+			GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT")
+			GameTooltip:AddLine(texts.TrackPets, 1, 1, 1)
+			GameTooltip:AddLine("可在插件內啟用支援："..KT.TITLE, 1, 0, 0, true)
+			GameTooltip:Show()
+		end)
+		infoFrame:SetScript("OnLeave", function(self)
+			GameTooltip:Hide()
+		end)
+	else
+		PetTrackerTrackToggle:HookScript("OnClick", function()
+			if PetTracker.sets.zoneTracker then
+				KT:Tracker_Expand()
+			end
+		end)
+	end
+end
+
+local function SetEvents_Init()
+	if not C_AddOns.IsAddOnLoaded("PetTracker_Journal") then
+		KT:RegEvent("ADDON_LOADED", function(eventID, addon)
+			if addon == "PetTracker_Journal" then
+				SetHooks_PetTracker_Journal()
+				KT:UnregEvent(eventID)
+			end
+		end, M)
+	else
+		SetHooks_PetTracker_Journal()
+	end
+end
+
+local function SetFrames()
+	-- Content frame
+	content = CreateFrame("Frame")
+	Mixin(content, KT_PetTrackerBlockMixin)
+	content:Hide()
+
+	-- Objectives
+	local objectives = PetTracker.Objectives
+	objectives:SetParent(content)
+
+	-- Progress bar
+	objectives.Bar:SetSize(contentWidth - 4, 13)
+	objectives.Bar:SetPoint("TOPLEFT", content, 2, -3)
+	objectives.Bar.xOff = -2
+	objectives.Bar:EnableMouse(false)
+
+	objectives.Bar.Overlay.BorderLeft:Hide()
+	objectives.Bar.Overlay.BorderRight:Hide()
+	objectives.Bar.Overlay.BorderCenter:Hide()
+
+	local border1 = objectives.Bar:CreateTexture(nil, "BACKGROUND", nil, -2)
+	border1:SetPoint("TOPLEFT", -1, 1)
+	border1:SetPoint("BOTTOMRIGHT", 1, -1)
+	border1:SetColorTexture(0, 0, 0)
+
+	local border2 = objectives.Bar:CreateTexture(nil, "BACKGROUND", nil, -3)
+	border2:SetPoint("TOPLEFT", -2, 2)
+	border2:SetPoint("BOTTOMRIGHT", 2, -2)
+	border2:SetColorTexture(0.4, 0.4, 0.4)
+
+	objectives.Bar.Overlay.Text:SetPoint("CENTER", 0, 0.5)
+	objectives.Bar.Overlay.Text:SetFont(LSM:Fetch("font", "Arial Narrow"), 13, "")
+end
+
+local function FilterMenu_Extend(self, info, level)
+	if MSA_DROPDOWNMENU_MENU_LEVEL == 1 then
+		KT.Menu_AddSeparator()
+
+		KT.Menu_AddTitle(PETS)
+		info.notCheckable = false
+
+		KT.Menu_AddCheck(texts.TrackPets, { PetTracker.sets, "zoneTracker" }, function()
+			PetTracker.ToggleOption("zoneTracker")
+			if PetTracker.sets.zoneTracker then
+				KT:Tracker_Expand()
+				KT:Module_Expand(KT_PetTrackerObjectiveTracker)
+			end
+		end)
+
+		info.keepShownOnClick = true
+
+		KT.Menu_AddCheck(texts.CapturedPets, { PetTracker.sets, "capturedPets" }, function()
+			PetTracker.ToggleOption("capturedPets")
+			KT:Module_Expand(KT_PetTrackerObjectiveTracker)
+		end)
+
+		info.notCheckable = true
+
+		info.hasArrow = true
+		info.value = 3
+		info.func = nil
+		KT.Menu_AddButton(texts.DisplayCondition)
+	elseif MSA_DROPDOWNMENU_MENU_LEVEL == 2 then
+		if MSA_DROPDOWNMENU_MENU_VALUE == 3 then
+			info.keepShownOnClick = true
+			info.notCheckable = false
+			info.isNotRadio = false
+			info.func = function(obj, arg)
+				PetTracker.SetOption("targetQuality", arg)
+				MSA_DropDownMenu_Refresh(KT.DropDown, nil, obj:GetParent():GetID())
+			end
+
+			KT.Menu_AddRadio(texts.DisplayAlways, { PetTracker.sets, "targetQuality" }, PetTracker.MaxQuality)
+			KT.Menu_AddRadio(texts.DisplayMissingRares, { PetTracker.sets, "targetQuality" }, PetTracker.MaxPlayerQuality)
+			KT.Menu_AddRadio(texts.DisplayMissingPets, { PetTracker.sets, "targetQuality" }, 1)
+		end
+	end
+end
+
+-- External ------------------------------------------------------------------------------------------------------------
+
+function KT_PetTrackerObjectiveTrackerMixin:OnEvent(event, ...)
+	if event == "PET_JOURNAL_LIST_UPDATE" then
+		SetHeaderText()
+	end
+end
+
+function KT_PetTrackerObjectiveTrackerMixin:InitModule()
+	self.PThasContent = false
+
+	local block = content
+	block:SetParent(self.ContentsFrame)
+	block.parentModule = self
+	block:Init()
+end
+
+function KT_PetTrackerObjectiveTrackerMixin:GetBlock(id)
+	local block = content
+	block.id = id
+	block:Reset()
+
+	self:AnchorBlock(block)
+
+	return block
+end
+
+function KT_PetTrackerObjectiveTrackerMixin:MarkBlocksUnused()
+	content.used = nil
+end
+
+function KT_PetTrackerObjectiveTrackerMixin:FreeUnusedBlocks()
+	if not content.used then
+		content:Hide()
+	end
+end
+
+function KT_PetTrackerObjectiveTrackerMixin:LayoutContents()
+	if self.PThasContent then
+		local block = self:GetBlock("pettracker")
+		block.height = PetTracker.Objectives:GetHeight() - 42
+		local blockAdded = self:LayoutBlock(block)
+		PetTracker.Objectives:SetShown(blockAdded)
+	end
+end
+
+KT_PetTrackerBlockMixin = CreateFromMixins(KT_ObjectiveTrackerBlockMixin)
+
+function KT_PetTrackerBlockMixin:Init()
+	self.usedLines = {}  -- unused, needed throughout KT_ObjectiveTrackerBlockMixin
+end
+
+function M:Update(forced)
+	self:SetForced(forced)
+	PetTracker.Objectives:Update()
+end
+
+function M:OnInitialize()
+	_DBG("|cffffff00初始化|r - "..self:GetName(), true)
+	db = KT.db.profile
+	dbChar = KT.db.char
+	self.isAvailable = true
+
+	if self.isAvailable then
+		local defaults = KT.MergeTables({
+			profile = {
+				pettrackerHeaderSuffix = true,
+			}
+		}, KT.db.defaults)
+		KT.db:RegisterDefaults(defaults)
+	end
+
+	SetEvents_Init()
+	SetHooks_Init()
+end
+
+function M:OnEnable()
+	_DBG("|cff00ff00啟用|r - "..self:GetName(), true)
+	local loaded, versionText = KT.CheckAddOn("PetTracker", "12.0.0")
+
+	SetupOptions(versionText)
+	if loaded and db.addonPetTracker then
+		KT:Alert_IncompatibleAddon("PetTracker", "11.1.10")
+
+		KT:Tracker_RegisterModule("KT_PetTrackerObjectiveTracker", not self.isAvailable)
+
+		SetupOptions_Module()
+		SetFrames()
+		SetHooks()
+
+		KT:RegSignal("OPTIONS_CHANGED", "Update", self)
+		KT:RegSignal("FILTER_MENU_UPDATE", FilterMenu_Extend, self)
+	end
+end

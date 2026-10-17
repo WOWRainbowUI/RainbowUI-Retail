@@ -10,7 +10,7 @@ local AceGUI = LibStub("AceGUI-3.0")
 local math_max = math.max
 local xpcall = xpcall
 
-local width_multiplier = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE and 184 or 170  -- MSA
+local width_multiplier = 184  -- MSA
 local margin_left = 16
 
 -- Internal ------------------------------------------------------------------------------------------------------------

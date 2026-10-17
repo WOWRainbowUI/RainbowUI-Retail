@@ -1,0 +1,236 @@
+--- Kaliel's Tracker
+--- Copyright (c) 2012-2026, Marouan Sabbagh <mar.sabbagh@gmail.com>
+--- All Rights Reserved.
+---
+--- This file is part of addon Kaliel's Tracker.
+
+---@type KT
+local _, KT = ...
+
+---@class AddonBattlePetCompletionist
+local M = KT:NewModule("AddonBattlePetCompletionist")
+KT.AddonBattlePetCompletionist = M
+
+local _DBG = function(...) if _DBG then _DBG("KT", ...) end end
+
+local db, dbChar
+local BattlePetCompletionist = BattlePetCompletionist
+local BPC_ObjectiveTrackerModule, BPC_Profile
+
+local settings = {
+    headerText = PETS,
+    events = { "PET_JOURNAL_LIST_UPDATE", "ZONE_CHANGED", "ZONE_CHANGED_NEW_AREA" },
+    blockTemplate = "KT_ObjectiveTrackerStaticBlockTemplate",
+    lineTemplate = "KT_ObjectiveTrackerClickLineWithIconTemplate"
+}
+KT_BattlePetCompletionistObjectiveTrackerMixin = CreateFromMixins(KT_ObjectiveTrackerModuleMixin, settings)
+
+local texts = {
+    TrackPets = C_Spell.GetSpellName(122026),
+    CapturedPets = "顯示已有的"
+}
+
+-- Internal ------------------------------------------------------------------------------------------------------------
+
+local function BPC_Setup()
+    BPC_ObjectiveTrackerModule = BattlePetCompletionist:GetModule("ObjectiveTrackerModule")
+    BPC_Profile = BattlePetCompletionist:GetModule("DBModule"):GetProfile()
+end
+
+local function SetHeaderText()
+    local suffix
+    if db.bpcHeaderSuffix then
+        local _, numPetsOwned = C_PetJournal.GetNumPets()
+        suffix = numPetsOwned
+    end
+    KT_BattlePetCompletionistObjectiveTracker:SetHeaderSuffix(suffix)
+end
+
+function M:GetHeaderAppendText()
+    if db.bpcHeaderSuffix then
+        local _, numPetsOwned = C_PetJournal.GetNumPets()
+        return numPetsOwned
+    end
+end
+
+local function SetupOptions(versionText)
+    if not KT:Addon_IsModule(KT.Options) then return end
+
+    KT.Options.AddAddonOption("addons", {
+        addonBattlePetCompletionist = {
+            name = "Battle Pet Completionist",
+            desc = "版本："..versionText,
+            descStyle = "inline",
+            type = "toggle",
+            width = 1.05,
+            confirm = true,
+            confirmText = KT.TEXT.OPTION_WARNING,
+            disabled = function()
+                return not C_AddOns.IsAddOnLoaded("BattlePetCompletionist")
+            end,
+            set = function()
+                db.addonBattlePetCompletionist = not db.addonBattlePetCompletionist
+                ReloadUI()
+            end,
+            order = 2.1,
+        },
+        addonBattlePetCompletionistDesc = {
+            name = "在追蹤器中啟用區域寵物追蹤，並提供自訂版面與更佳的視覺呈現。",
+            type = "description",
+            width = "double",
+            order = 2.2,
+        }
+    })
+end
+
+local function SetupOptions_Module()
+    if not KT:Addon_IsModule(KT.Options) then return end
+
+    KT.Options.AddAddonTab("battlepetcompletionist", {
+        name = "Battle Pet Completionist",
+        type = "group",
+        order = 2,
+        args = {
+            header = {
+                name = "標題列",
+                type = "group",
+                inline = true,
+                order = 1,
+                args = {
+                    bpcHeaderSuffix = {
+                        name = "顯示已擁有寵物數量",
+                        desc = "在 Battle Pet Completionist 標題中顯示已擁有的寵物數量。",
+                        type = "toggle",
+                        width = "normal+half",
+                        set = function()
+                            db.bpcHeaderSuffix = not db.bpcHeaderSuffix
+                            SetHeaderText()
+                        end,
+                        order = 1,
+                    },
+                },
+            },
+        },
+    })
+end
+
+local function FilterMenu_Extend(self, info, level)
+    if MSA_DROPDOWNMENU_MENU_LEVEL == 1 then
+        KT.Menu_AddSeparator()
+
+        KT.Menu_AddTitle(PETS)
+        info.notCheckable = false
+
+        KT.Menu_AddCheck(texts.TrackPets, { BPC_Profile, "objectiveTrackerEnabled" }, function()
+            BPC_Profile.objectiveTrackerEnabled = not BPC_Profile.objectiveTrackerEnabled
+            KT_BattlePetCompletionistObjectiveTracker:MarkDirty()
+            if BPC_Profile.objectiveTrackerEnabled then
+                KT:Tracker_Expand()
+                KT:Module_Expand(KT_BattlePetCompletionistObjectiveTracker)
+            end
+        end)
+
+        info.keepShownOnClick = true
+
+        KT.Menu_AddCheck(texts.CapturedPets, { BPC_Profile, "objectiveTrackerFilter", _BattlePetCompletionist.Enums.MapPinFilter.ALL }, function(_, _, _, _, value)
+            BPC_Profile.objectiveTrackerFilter = value and _BattlePetCompletionist.Enums.MapPinFilter.ALL or _BattlePetCompletionist.Enums.MapPinFilter.MISSING
+            KT_BattlePetCompletionistObjectiveTracker:MarkDirty()
+            KT:Module_Expand(KT_BattlePetCompletionistObjectiveTracker)
+        end)
+    end
+end
+
+-- External ------------------------------------------------------------------------------------------------------------
+
+function KT_BattlePetCompletionistObjectiveTrackerMixin:OnEvent(event, ...)
+    if event == "PET_JOURNAL_LIST_UPDATE" then
+        SetHeaderText()
+    end
+
+    self:MarkDirty()
+end
+
+function KT_BattlePetCompletionistObjectiveTrackerMixin:OnLineClick(line, mouseButton)
+    if mouseButton == "LeftButton" then
+        if KT.InCombatBlocked() then return end
+
+        if not CollectionsJournal or not CollectionsJournal:IsShown() then
+            ToggleCollectionsJournal()
+        end
+        CollectionsJournal_SetTab(CollectionsJournal, COLLECTIONS_JOURNAL_TAB_INDEX_PETS)
+
+        local speciesID, petID = C_PetJournal.FindPetIDByName(line.name)
+        if petID then
+            PetJournal_SelectPet(PetJournal, petID)
+        else
+            PetJournal_SelectSpecies(PetJournal, speciesID)
+        end
+    end
+end
+
+function KT_BattlePetCompletionistObjectiveTrackerMixin:OnLineFree(line)
+    line.name = nil
+end
+
+function KT_BattlePetCompletionistObjectiveTrackerMixin:LayoutContents()
+    local filteredPets, mapID = BPC_ObjectiveTrackerModule:GetFilteredPetList()
+    if not filteredPets then return end
+
+    local mapInfo = C_Map.GetMapInfo(mapID)
+    local zoneName = mapInfo and mapInfo.name
+
+    local block = self:GetBlock("battlepets")
+    block:SetHeader(zoneName)
+
+    for _, petInfo in ipairs(filteredPets) do
+        self:AddBattlePet(block, petInfo)
+    end
+
+    self:LayoutBlock(block)
+end
+
+function KT_BattlePetCompletionistObjectiveTrackerMixin:AddBattlePet(block, petInfo)
+    if not petInfo.speciesName then return end
+
+    local objectiveKey = "battlepet-" .. petInfo.speciesId
+    local _, icon = C_PetJournal.GetPetInfoBySpeciesID(petInfo.speciesId)
+    local colorStyle
+    if petInfo.numCollected > 0 then
+        colorStyle = KT_OBJECTIVE_TRACKER_COLOR["Complete"]
+    end
+
+    local line = block:AddObjective(objectiveKey, petInfo.speciesName, nil, nil, KT_OBJECTIVE_DASH_STYLE_HIDE_AND_COLLAPSE, colorStyle, nil, 16)
+    line:SetIcon(icon)
+    line.name = petInfo.speciesName
+end
+
+function M:OnInitialize()
+    _DBG("|cffffff00初始化|r - "..self:GetName(), true)
+    db = KT.db.profile
+    dbChar = KT.db.char
+    self.isAvailable = true
+
+    if self.isAvailable then
+        local defaults = KT.MergeTables({
+            profile = {
+                bpcHeaderSuffix = true,
+            }
+        }, KT.db.defaults)
+        KT.db:RegisterDefaults(defaults)
+    end
+end
+
+function M:OnEnable()
+    _DBG("|cff00ff00啟用|r - "..self:GetName(), true)
+    local loaded, versionText = KT.CheckAddOn("BattlePetCompletionist", "12.1.5-20261014-1")
+
+    SetupOptions(versionText)
+    if loaded and db.addonBattlePetCompletionist then
+        KT:Tracker_RegisterModule("KT_BattlePetCompletionistObjectiveTracker", not self.isAvailable)
+
+        SetupOptions_Module()
+        BPC_Setup()
+
+        KT:RegSignal("FILTER_MENU_UPDATE", FilterMenu_Extend, self)
+    end
+end

@@ -7,7 +7,7 @@ local LibStub = LibStub
 local gui = LibStub("AceGUI-3.0")
 local reg = LibStub("AceConfigRegistry-3.0")
 
-local MAJOR, MINOR = "MSA-AceConfigDialog-3.0", 92  -- MSA
+local MAJOR, MINOR = "MSA-AceConfigDialog-3.0", 93  -- MSA
 local AceConfigDialog, oldminor = LibStub:NewLibrary(MAJOR, MINOR)
 
 if not AceConfigDialog then return end
@@ -15,6 +15,7 @@ if not AceConfigDialog then return end
 AceConfigDialog.OpenFrames = AceConfigDialog.OpenFrames or {}
 AceConfigDialog.Status = AceConfigDialog.Status or {}
 AceConfigDialog.frame = AceConfigDialog.frame or CreateFrame("Frame")
+AceConfigDialog.tooltip = AceConfigDialog.tooltip or CreateFrame("GameTooltip", "MSA-AceConfigDialogTooltip", UIParent, "GameTooltipTemplate")  -- MSA
 
 AceConfigDialog.frame.apps = AceConfigDialog.frame.apps or {}
 AceConfigDialog.frame.closing = AceConfigDialog.frame.closing or {}
@@ -45,7 +46,7 @@ local function safecall(func, ...)
 	end
 end
 
-local width_multiplier = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE and 184 or 170  -- MSA
+local width_multiplier = 184 -- MSA
 
 --[[
 Group Types
@@ -500,13 +501,14 @@ local function OptionOnMouseOver(widget, event)
 	local options = user.options
 	local path = user.path
 	local appName = user.appName
+	local tooltip = AceConfigDialog.tooltip
 
-	GameTooltip:SetOwner(widget.frame, "ANCHOR_TOPRIGHT")
+	tooltip:SetOwner(widget.frame, "ANCHOR_TOPRIGHT")
 
 	local tooltipHyperlink = GetOptionsMemberValue("tooltipHyperlink", opt, options, path, appName)
 	if tooltipHyperlink then
-		GameTooltip:SetHyperlink(tooltipHyperlink)
-		GameTooltip:Show()
+		tooltip:SetHyperlink(tooltipHyperlink)
+		tooltip:Show()
 		return
 	end
 
@@ -517,23 +519,23 @@ local function OptionOnMouseOver(widget, event)
 
 	if descStyle and descStyle ~= "tooltip" then return end
 
-	GameTooltip:SetText(name, 1, .82, 0, 1, true)
+	tooltip:SetText(name, 1, .82, 0, 1, true)
 
 	if opt.type == "multiselect" then
-		GameTooltip:AddLine(user.text, 0.5, 0.5, 0.8, true)
+		tooltip:AddLine(user.text, 0.5, 0.5, 0.8, true)
 	end
 	if type(desc) == "string" then
-		GameTooltip:AddLine(desc, 1, 1, 1, true)
+		tooltip:AddLine(desc, 1, 1, 1, true)
 	end
 	if type(usage) == "string" then
-		GameTooltip:AddLine(usage, NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b, true)
+		tooltip:AddLine(usage, NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b, true)
 	end
 
-	GameTooltip:Show()
+	tooltip:Show()
 end
 
 local function OptionOnMouseLeave(widget, event)
-	GameTooltip:Hide()
+	AceConfigDialog.tooltip:Hide()
 end
 
 local function GetFuncName(option)
@@ -1370,7 +1372,14 @@ local function FeedOptions(appName, options,container,rootframe,path,group,inlin
 					control.width = "fill"
 
 				elseif v.type == "description" then
-					control = CreateControl(v.dialogControl or v.control, "Label")
+					control = CreateControl(v.dialogControl or v.control, "MSA-Label")  -- MSA
+
+					-- MSA
+					local marginLeft = GetOptionsMemberValue("marginLeft", v, options, path, appName)
+					if marginLeft and control.SetMarginLeft then
+						control:SetMarginLeft(marginLeft)
+					end
+
 					control:SetText(name)
 
 					local fontSize = GetOptionsMemberValue("fontSize",v, options, path, appName)
@@ -1473,6 +1482,7 @@ local function TreeOnButtonEnter(widget, event, uniquevalue, button)
 	local option = user.option
 	local path = user.path
 	local appName = user.appName
+	local tooltip = AceConfigDialog.tooltip
 
 	local feedpath = new()
 	for i = 1, #path do
@@ -1489,25 +1499,25 @@ local function TreeOnButtonEnter(widget, event, uniquevalue, button)
 	local name = GetOptionsMemberValue("name", group, options, feedpath, appName)
 	local desc = GetOptionsMemberValue("desc", group, options, feedpath, appName)
 
-	GameTooltip:SetOwner(button, "ANCHOR_NONE")
-	GameTooltip:ClearAllPoints()
+	tooltip:SetOwner(button, "ANCHOR_NONE")
+	tooltip:ClearAllPoints()
 	if widget.type == "TabGroup" then
-		GameTooltip:SetPoint("BOTTOM",button,"TOP")
+		tooltip:SetPoint("BOTTOM",button,"TOP")
 	else
-		GameTooltip:SetPoint("LEFT",button,"RIGHT")
+		tooltip:SetPoint("LEFT",button,"RIGHT")
 	end
 
-	GameTooltip:SetText(name, 1, .82, 0, 1, true)
+	tooltip:SetText(name, 1, .82, 0, 1, true)
 
 	if type(desc) == "string" then
-		GameTooltip:AddLine(desc, 1, 1, 1, true)
+		tooltip:AddLine(desc, 1, 1, 1, true)
 	end
 
-	GameTooltip:Show()
+	tooltip:Show()
 end
 
 local function TreeOnButtonLeave(widget, event, value, button)
-	GameTooltip:Hide()
+	AceConfigDialog.tooltip:Hide()
 end
 
 
@@ -1820,7 +1830,7 @@ reg.RegisterCallback(AceConfigDialog, "ConfigTableChange", "ConfigTableChanged")
 -- @param height The default height
 -- @param widget The optional frame widget
 -- @param onClose The optional frame onClose function
-function AceConfigDialog:SetDefault(appName, width, height, widget, onClose)
+function AceConfigDialog:SetDefault(appName, width, height, widget, onClose)  -- MSA
 	local status = AceConfigDialog:GetStatusTable(appName)
 	if type(width) == "number" and type(height) == "number" then
 		status.width = width
@@ -1909,16 +1919,15 @@ function AceConfigDialog:Open(appName, container, ...)
 			f:SetTitle(name or "")
 		end
 	else
-		-- MSA (mod)
-		local status = AceConfigDialog:GetStatusTable(appName)
+		local status = AceConfigDialog:GetStatusTable(appName)  -- MSA (moved)
 		if not self.OpenFrames[appName] then
-			f = gui:Create(status.widget or "Frame")
+			f = gui:Create(status.widget or "Frame")  -- MSA
 			self.OpenFrames[appName] = f
 		else
 			f = self.OpenFrames[appName]
 		end
 		f:ReleaseChildren()
-		f:SetCallback("OnClose", status.onClose or FrameOnClose)
+		f:SetCallback("OnClose", status.onClose or FrameOnClose)  -- MSA
 		f:SetUserData("appName", appName)
 		if #path > 0 then
 			f:SetUserData("basepath", copy(path))

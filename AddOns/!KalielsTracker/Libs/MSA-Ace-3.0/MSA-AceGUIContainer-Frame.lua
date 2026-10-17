@@ -75,7 +75,7 @@ local methods = {
 
 	["OnWidthSet"] = function(self, width)
 		local content = self.content
-		local contentwidth = width - 34
+		local contentwidth = width - 54
 		if contentwidth < 0 then
 			contentwidth = 0
 		end

@@ -1,0 +1,33 @@
+## Interface: 120105
+## Title: Kaliel's Tracker
+## Notes: |nWoW Retail Objective Tracker|n|cff999999by Kaliel (Marouan Sabbagh)|n|n
+## Version: 8.8.1
+## Author: Kaliel (Marouan Sabbagh)
+## IconTexture: Interface\Addons\!KalielsTracker\Media\KT_logo
+## Category-enUS: Quests
+## Category-deDE: Quests
+## Category-esES: Misiones
+## Category-esMX: Misiones
+## Category-frFR: Quêtes
+## Category-itIT: Missioni
+## Category-koKR: 퀘스트
+## Category-ptBR: Missões
+## Category-ruRU: Задания
+## Category-zhCN: 任务
+## Category-zhTW: 任務
+
+## SavedVariables: KalielsTrackerDB, KalielsTrackerCache
+## Dependencies: Blizzard_MawBuffs, Blizzard_TieredEntranceTraits, Blizzard_TransmogShared
+## OptionalDeps: Blizzard_UIWidgets, Ace3, LibSharedMedia-3.0, AceGUI-3.0-SharedMediaWidgets, LibSink-2.0, MSA-DropDownMenu-1.0
+## OptionalDeps: Masque, PetTracker, BattlePetCompletionist, TomTom, RareScanner
+
+Libs\Libs.xml
+[Family]\Setup.xml
+[Game]\Core\Core.xml
+[Game]\System\System.xml
+[Game]\Modules\Modules.xml
+## Category-zhTW: 任務
+## Title-zhTW: |cff00FFFF[任務]|r 追蹤清單增強
+## Notes-zhTW: Kaliel's Tracker |n|n增強畫面右方任務追蹤清單的功能。|n|n|cffffd200使用方法: |r從Esc>選項>插件>任務-追蹤清單，進行設定和移動位置。
+## Category-zhTW: 任務
+## RequiredDeps: Ace3
