@@ -1,6 +1,13 @@
 local LibEvent = LibStub:GetLibrary("LibEvent.7000")
 local LibSchedule = LibStub:GetLibrary("LibSchedule.7000")
 
+-- Temporary fix: restricted item-button sizes cannot be used by Backdrop's arithmetic.
+local function SetupItemBorderTextureCoordinates(self)
+    local width, height = self:GetSize()
+    if issecretvalue(width) or issecretvalue(height) then return end
+    BackdropTemplateMixin.SetupTextureCoordinates(self)
+end
+
 local function SetItemAngularBorderScheduled(button, quality, itemIDOrLink)
     if (button.angularFrame) then return end
     LibSchedule:AddTask({
@@ -17,8 +24,14 @@ local function SetItemAngularBorderScheduled(button, quality, itemIDOrLink)
                     anchor = self.button.Icon or self.button.icon or self.button
                     w, h = anchor:GetSize()
                 else
-                    w, h = min(w, ww), min(h, hh)
+                    if issecretvalue(w) or issecretvalue(h) then
+                        w, h = ww, hh
+                    else
+                        w, h = min(w, ww), min(h, hh)
+                    end
                 end
+                if issecretvalue(w) or issecretvalue(h) then return end
+                if w <= 2 or h <= 2 then return end
                 if (w > h * 1.28) then
                     w = h
                 end
@@ -28,11 +41,13 @@ local function SetItemAngularBorderScheduled(button, quality, itemIDOrLink)
                 self.button.angularFrame:SetPoint("CENTER", anchor, "CENTER", 0, 0)
                 self.button.angularFrame:Hide()
                 self.button.angularFrame.mask = CreateFrame("Frame", nil, self.button.angularFrame, BackdropTemplateMixin and "BackdropTemplate" or nil)
+                self.button.angularFrame.mask.SetupTextureCoordinates = SetupItemBorderTextureCoordinates
                 self.button.angularFrame.mask:SetSize(w-2, h-2)
                 self.button.angularFrame.mask:SetPoint("CENTER")
                 self.button.angularFrame.mask:SetBackdrop({edgeFile = "Interface\\Tooltips\\UI-Tooltip-Background", edgeSize = 2})
                 self.button.angularFrame.mask:SetBackdropBorderColor(0, 0, 0)
                 self.button.angularFrame.border = CreateFrame("Frame", nil, self.button.angularFrame, BackdropTemplateMixin and "BackdropTemplate" or nil)
+                self.button.angularFrame.border.SetupTextureCoordinates = SetupItemBorderTextureCoordinates
                 self.button.angularFrame.border:SetSize(w, h)
                 self.button.angularFrame.border:SetPoint("CENTER")
                 self.button.angularFrame.border:SetBackdrop({edgeFile = "Interface\\Buttons\\WHITE8X8", edgeSize = 1})
