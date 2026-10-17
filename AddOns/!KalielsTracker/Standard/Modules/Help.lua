@@ -83,7 +83,7 @@ local function SetupTutorials()
 		key = "helpTutorial",
 		title = HELP_TITLE,
 		icon = HELP_PATH.."KT_logo",
-		font = "Fonts\\FRIZQT__.TTF",
+		font = STANDARD_TEXT_FONT,
 		width = 582,
 		height = 632,
 		paddingX = 35,
@@ -132,15 +132,15 @@ local function SetupTutorials()
 		{	-- 3
 			image = HELP_PATH.."help_quests",
 			imageHeight = 128,
-			heading = "Quests",
+			heading = "任務",
 			text = cTitle.."模組標題|r\n\n"..
 					"標題文字可顯示任務數量 "..cDots.."...|r "..cBold.."任務 (14/"..MAX_QUESTS.." +3)|r.\n\n"..
 					"    "..cBold.."14|r "..cDots.."...|r 任務日誌中的目前任務數量\n"..
 					"    "..cBold..MAX_QUESTS.."|r "..cDots.."...|r 任務日誌的最大任務數量\n"..
 					"    "..cBold.."+3|r "..cDots.."...|r 帳號/召喚任務（不計入上限）\n\n"..
 					cTitle.."標題標籤|r\n\n"..
-					"在任務標題開頭，你會看到像這樣的標籤 |cffff8000[90|r|cff00b3ff•!!|r|cffff8000]|r。\n\n"..
-					"    |cff00b3ff•|r "..cDots..".......|r 帳號/戰團任務\n"..
+					"在任務標題開頭，你會看到像這樣的標籤 |cffff8000[90|r|cff00b3ff*!!|r|cffff8000]|r。\n\n"..
+					"    |cff00b3ff*|r "..cDots..".......|r 帳號/戰團任務\n"..
 					"    |cff00b3ff!|r|T:14:3|t "..cDots..".......|r 每日任務\n"..
 					"    |cff00b3ff!!|r "..cDots.."......|r 每週任務\n"..
 					"    |cff00b3ffg3|r "..cDots..".....|r 組隊任務（附組隊人數）\n"..
@@ -215,7 +215,7 @@ local function SetupTutorials()
 		},
 		{	-- 7
 			image = HELP_PATH.."help_tracker-modules",
-			heading = "Modules",
+			heading = "模組",
 			text = cTitle.."模組順序|r\n\n"..
 					"允許更改模組在追蹤清單中的順序。支援所有模組，也包含外部插件 (例如：戰寵助手)。\n\n\n"..
 					cTitle.."可收合的模組|r\n\n"..
@@ -228,7 +228,7 @@ local function SetupTutorials()
 		},
 		{	-- 8
 			image = HELP_PATH.."help_events",
-			heading = "Events",
+			heading = "事件",
 			text = "事件模組會在追蹤清單中顯示當前進行中的事件。它們通常可在世界地圖上看到。\n\n"..
 					"篩選 |T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:-1:2:32:64:16:30:32:46:209:170:0|t 下拉選單選項：\n"..
 					"- "..cBold.."追蹤事件|r – 啟用或停用在追蹤清單中追蹤事件。\n"..
@@ -327,7 +327,7 @@ local function SetupTutorials()
 			image = HELP_PATH.."help_map-waypoints",
 			heading = "地圖導航",
 			text = KT.TITLE.." 允許在地圖上的任何 POI 設定 TomTom 導航路線。包括新任務、"..
-					"事件、副本、團隊、副洞窟、飛行點、傳送門等等。\n\n"..
+					"事件、地城、團隊副本、深淵、飛行點、傳送門等等。\n\n"..
 					cTitle.."導航範例|r\n"..
 					"上方圖片顯示了支援的導航模式。\n\n"..
 					"1 - "..cBold.."直接導航|r - TomTom 箭頭會直接指向位於"..
@@ -378,11 +378,11 @@ local function SetupTutorials()
 			imageY = -26,
 			imageAbsolute = true,
 			heading = "     最新功能",
-			headingFont = "Fonts\\MORPHEUS.ttf",
+			headingFont = STANDARD_TEXT_FONT,
 			headingSize = 26,
 			text = "|cff66ff66"..KT.TITLE.." 是由一人獨自開發與維護的。|r\n"..ebSpace.."\n"..
 
-					(cTitle.."Version 8.8.0|r\n"..
+					(cTitle.."版本 8.8.0|r\n"..
 					"- 新增 - 支援 WoW 12.1.5.70391\n"..
 					"- 新增 - 函式庫：自訂 Ace 控制項支援 ElvUI 外觀。\n"..
 					"- 變更 - TomTom：改良導航點及更新邏輯。\n"..
@@ -415,7 +415,7 @@ local function SetupTutorials()
 					icon = ICON_URL,
 					text = "https://www.curseforge.com/wow/addons/kaliels-tracker/issues",
 					width = 510,
-					bottom = 39,
+					bottom = 19,
 				}
 			},
 			shine = KTF.Background,
@@ -460,7 +460,7 @@ local function SetupTutorials()
 		key = "supportersTutorial",
 		title = HELP_TITLE,
 		icon = HELP_PATH.."KT_logo",
-		font = "Fonts\\FRIZQT__.TTF",
+		font = STANDARD_TEXT_FONT,
 		width = 582,
 		height = 610,
 		paddingX = 35,
@@ -494,7 +494,7 @@ local function SetupTutorials()
 					SetFormatedPatronName("Uncommon", "Veratais")..
 					SetFormatedPatronName("Common", "Darren Divecha")..
 					"\n"..
-					cTitle.."Testers|r\n"..
+					cTitle.."測試人員|r\n"..
 					SetFormatedPlayerName("Asimeria", "Drak'thul"),
 			editbox = {
 				{

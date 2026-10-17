@@ -27,7 +27,7 @@ local function SetupOptions()
     if not KT:Addon_IsModule(KT.Options) then return end
 
     KT.Options.AddModuleTab("scenario", {
-        name = "任務型地下城",
+        name = "任務型地城",
         type = "group",
         order = 5,
         args = {

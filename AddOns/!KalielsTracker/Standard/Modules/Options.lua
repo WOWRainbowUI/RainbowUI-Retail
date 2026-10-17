@@ -29,13 +29,14 @@ local db, dbChar
 local defaults
 local anchors = { ["TOPLEFT"] = "左上", ["TOPRIGHT"] = "右上", ["BOTTOMLEFT"] = "左下", ["BOTTOMRIGHT"] = "右下" }
 local strata = { "BACKGROUND", "LOW", "MEDIUM", "HIGH" }
+local strataLabels = { BACKGROUND = "背景", LOW = "低", MEDIUM = "中", HIGH = "高" }
 local flags = { [""] = "無", ["OUTLINE"] = "外框", ["OUTLINE, MONOCHROME"] = "無消除鋸齒外框" }
-local textures = { "None", "預設 (暴雪)", "單線", "雙線" }
+local textures = { "無", "預設 (暴雪)", "單線", "雙線" }
 local modifiers = { [""] = "無", ["ALT"] = "Alt", ["CTRL"] = "Ctrl", ["ALT-CTRL"] = "Alt + Ctrl" }
 local SOUND_CHANNELS = { "Master", "Music", "SFX", "Ambience" }
-local SOUND_CHANNELS_LOCALIZED = { Master = "Master", Music = MUSIC_VOLUME, SFX = FX_VOLUME, Ambience = AMBIENCE_VOLUME }
+local SOUND_CHANNELS_LOCALIZED = { Master = "主聲道", Music = MUSIC_VOLUME, SFX = FX_VOLUME, Ambience = AMBIENCE_VOLUME }
 local VISIBILITY_OPTIONS = { "show", "hide", "expand", "collapse" }
-local VISIBILITY_OPTIONS_LOCALIZED = { show = "Show", hide = "Hide", expand = "顯示 + 展開", collapse = "顯示 + 收合" }
+local VISIBILITY_OPTIONS_LOCALIZED = { show = "顯示", hide = "隱藏", expand = "顯示 + 展開", collapse = "顯示 + 收合" }
 local realmZones = { ["EU"] = "歐洲", ["NA"] = "北美" }
 local ICON_HEART = "|T"..KT.MEDIA_PATH.."Help\\help_patreon:14:14:0:0:256:32:174:190:0:16|t"
 
@@ -317,10 +318,10 @@ trackerOptions = {
 		frameStrata = {
 			name = "框架層級",
 			desc = function()
-				return "- 預設值: "..defaults.profile.frameStrata
+				return "- 預設值: "..(strataLabels[defaults.profile.frameStrata] or defaults.profile.frameStrata)
 			end,
 			type = "select",
-			values = strata,
+			values = { strataLabels.BACKGROUND, strataLabels.LOW, strataLabels.MEDIUM, strataLabels.HIGH },
 			get = function()
 				for k, v in ipairs(strata) do
 					if db.frameStrata == v then
@@ -349,7 +350,7 @@ moverOptions = {
 			args = {
 				intro = {
 					name = "\n"..KT.GetUiIcon("MouseLeft", "markup")..cBold.."左鍵|r 點擊方塊來拖曳移動追蹤清單。\n"..
-							KT.GetUiIcon("MouseRight", "markup")..cBold.."Right Click|r on mover to restore the default position and size.",
+							KT.GetUiIcon("MouseRight", "markup")..cBold.."右鍵|r點擊移動框，還原預設位置與大小。",
 					type = "description",
 					justifyH = "CENTER",
 					order = 0,
@@ -367,7 +368,7 @@ end
 
 -- Options
 local options = {
-	name = "|T"..KT.MEDIA_PATH.."KT_logo:22:22:-1:7|t任務追蹤清單增強"..KT.TITLE,
+	name = "|T"..KT.MEDIA_PATH.."KT_logo:22:22:-1:7|t任務追蹤清單增強",
 	type = "group",
 	get = function(info) return db[info[#info]] end,
 	args = {
@@ -389,15 +390,15 @@ local options = {
 							order = 1.1,
 						},
 						build = {
-							name = " |cffffd100Build:|r  "..KT.FLAVOR.name,
+							name = " |cffffd100版本類型：|r  "..KT.FLAVOR.name,
 							type = "description",
 							width = "normal",
 							fontSize = "medium",
 							order = 1.2,
 						},
 						about = {
-							name = "  Made with "..ICON_HEART.." since 2012\n"..
-									"                             |cff999999by "..KT.AUTHOR,
+							name = "  自 2012 年起用 "..ICON_HEART.." 製作\n"..
+									"                             |cff999999作者："..KT.AUTHOR,
 							type = "description",
 							width = "double",
 							order = 3,
@@ -961,7 +962,7 @@ local options = {
 							order = 2,
 						},
 						addonMasqueLabel = {
-							name = " Skin options for Quest item buttons",
+							name = " 任務物品按鈕的外觀選項",
 							type = "description",
 							width = "double",
 							fontSize = "medium",
@@ -1295,7 +1296,7 @@ local options = {
 							args = {
 								tooltipShow = {
 									name = "顯示浮動提示資訊",
-									desc = "顯示任務 / 世界任務 / 成就 / 任務型地下城的浮動提示資訊。",
+									desc = "顯示任務 / 世界任務 / 成就 / 任務型地城的浮動提示資訊。",
 									type = "toggle",
 									set = function()
 										db.tooltipShow = not db.tooltipShow
@@ -1679,11 +1680,11 @@ local function Alert_TrackedQuests()
 				order = 2.1,
 			},
 			alertText2 = {
-				name = "1. Go to the directory:  World of Warcraft\\"..game.."\\WTF\\Account\\...ID...\\"..realm.."\\"..character.."\n"..
-						"2. Open the file:  "..cBold.."config-cache.wtf|r\n"..
-						"3. Find the line:  "..cBold.."SET trackedQuests \""..trackedQuests.."\"|r\n"..
-						"4. Change it to:  "..cBold.."SET trackedQuests \""..trackedQuestsVersion.."\"|r\n"..
-						"5. Restart WoW",
+				name = "1. 前往資料夾：World of Warcraft\\"..game.."\\WTF\\Account\\...ID...\\"..realm.."\\"..character.."\n"..
+						"2. 開啟檔案："..cBold.."config-cache.wtf|r\n"..
+						"3. 找到這一行："..cBold.."SET trackedQuests \""..trackedQuests.."\"|r\n"..
+						"4. 改為："..cBold.."SET trackedQuests \""..trackedQuestsVersion.."\"|r\n"..
+						"5. 重新啟動魔獸世界",
 				type = "description",
 				width = 2.8,
 				order = 2.2,

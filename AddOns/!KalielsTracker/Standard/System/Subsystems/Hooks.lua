@@ -82,7 +82,7 @@ local function CreateQuestTags(quest)
         end
 
         if C_QuestLog.IsAccountQuest(questID) then
-            tag = "•"..tag
+            tag = "*"..tag
         end
 
         local frequency = quest.frequency

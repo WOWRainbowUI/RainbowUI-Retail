@@ -31,7 +31,7 @@ local texts = {
 	TrackPets = C_Spell.GetSpellName(122026),
 	CapturedPets = "顯示已有的",
 	DisplayCondition = "顯示條件",
-	DisplayAlways = "Always",
+	DisplayAlways = "總是顯示",
 	DisplayMissingRares = "缺少的稀有",
 	DisplayMissingPets = "缺少的寵物"
 }

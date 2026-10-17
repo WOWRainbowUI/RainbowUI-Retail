@@ -70,7 +70,7 @@ local function SetupAchievementsButton()
         self:GetNormalTexture():SetVertexColor(1, 1, 1)
         GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
         GameTooltip:AddLine(MicroButtonTooltipText(ACHIEVEMENT_BUTTON, "CLICK Narci_Achievement_MinimapButton:LeftButton"), 1, 1, 1)
-        GameTooltip:AddLine("via Narcissus", 0.57, 0.57, 0.57)
+        GameTooltip:AddLine("透過 Narcissus", 0.57, 0.57, 0.57)
         GameTooltip:Show()
     end)
 end

@@ -21,7 +21,7 @@ local function ContextMenu_Extend(_, info, arg1, arg2, arg3)
             info.KTmenuExtended = true
         end
 
-        KT.Menu_AddButton("|cff33ff99Wowhead|r URL", KT.Alert_WowheadURL, arg1, arg2, arg3)
+        KT.Menu_AddButton("|cff33ff99Wowhead|r 網址", KT.Alert_WowheadURL, arg1, arg2, arg3)
     end
 
     if db.menuYouTubeURL then

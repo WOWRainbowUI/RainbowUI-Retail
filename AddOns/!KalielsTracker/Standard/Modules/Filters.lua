@@ -122,7 +122,7 @@ local function ContextMenu_Extend(_, info, type, id)
 		info.notCheckable = false
 
 		info.colorCode = "|cff009bff"
-		KT.Menu_AddCheck("Favorite", IsFavorite(favoriteType, id), ToggleFavorite, favoriteType, id)
+		KT.Menu_AddCheck("最愛", IsFavorite(favoriteType, id), ToggleFavorite, favoriteType, id)
 	end
 end
 
@@ -959,17 +959,17 @@ local function FilterMenu_AddQuests(info)
 		info.hasArrow = false
 
 		info.colorCode = "|cff009bff"
-		KT.Menu_AddButton("Favorites", "favorites", (dbChar.filterAuto[1] ~= nil or #dbChar.quests.favorites == 0))
+		KT.Menu_AddButton("最愛", "favorites", (dbChar.filterAuto[1] ~= nil or #dbChar.quests.favorites == 0))
 
 		info.colorCode = nil
 		info.disabled = (dbChar.filterAuto[1] ~= nil)
 
-		KT.Menu_AddButton("Zone", "zone")
-		KT.Menu_AddButton("Campaign", "campaign")
+		KT.Menu_AddButton("區域", "zone")
+		KT.Menu_AddButton("戰役", "campaign")
 		KT.Menu_AddButton("每日 / 每週", "daily")
-		KT.Menu_AddButton("Instance", "instance")
-		KT.Menu_AddButton("Unfinished", "unfinished")
-		KT.Menu_AddButton("Completed", "completed")
+		KT.Menu_AddButton("副本", "instance")
+		KT.Menu_AddButton("未完成", "unfinished")
+		KT.Menu_AddButton("已完成", "completed")
 		KT.Menu_AddButton("全部取消追蹤", "", (dbChar.filterAuto[1] ~= nil or C_QuestLog.GetNumQuestWatches() == 0))
 
 		info.disabled = false
@@ -978,7 +978,7 @@ local function FilterMenu_AddQuests(info)
 		info.hasArrow = true
 		info.value = "sorting"
 		info.func = nil
-		KT.Menu_AddButton("Sorting")
+		KT.Menu_AddButton("排序")
 
 		info.hasArrow = false
 		info.notCheckable = false
@@ -1031,7 +1031,7 @@ local function FilterMenu_AddQuests(info)
 				MSA_DropDownMenu_Refresh(KT.DropDown, nil, obj:GetParent():GetID())
 			end
 
-			KT.Menu_AddRadio("Disabled", { dbChar.filter.quests, "sort" })
+			KT.Menu_AddRadio("停用", { dbChar.filter.quests, "sort" })
 			KT.Menu_AddRadio("最新", { dbChar.filter.quests, "sort" }, "newest")
 			KT.Menu_AddRadio("區域", { dbChar.filter.quests, "sort" }, "zone")
 			KT.Menu_AddRadio("等級", { dbChar.filter.quests, "sort" }, "level")
@@ -1070,19 +1070,19 @@ local function FilterMenu_AddAchievements(info)
 		info.hasArrow = true
 		info.value = "achievementCategories"
 		info.func = nil
-		KT.Menu_AddButton("Categories")
+		KT.Menu_AddButton("類別")
 
 		info.keepShownOnClick = false
 		info.hasArrow = false
 		info.func = Filter_Menu_Achievements
 
 		info.colorCode = "|cff009bff"
-		KT.Menu_AddButton("Favorites", "favorites", (dbChar.filterAuto[2] ~= nil or #dbChar.achievements.favorites == 0))
+		KT.Menu_AddButton("最愛", "favorites", (dbChar.filterAuto[2] ~= nil or #dbChar.achievements.favorites == 0))
 
 		info.colorCode = nil
 		info.disabled = (dbChar.filterAuto[2] ~= nil)
 
-		KT.Menu_AddButton("Zone", "zone")
+		KT.Menu_AddButton("區域", "zone")
 		KT.Menu_AddButton("世界事件", "wevent")
 		KT.Menu_AddButton("全部取消追蹤", "", (dbChar.filterAuto[2] ~= nil or KT.GetNumTrackedAchievements() == 0))
 
@@ -1209,9 +1209,9 @@ local function SetFrames()
 	button:SetScript("OnEnter", function(self)
 		self:GetNormalTexture():SetVertexColor(1, 1, 1)
 		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-		GameTooltip:AddLine("Filter", 1, 1, 1)
-		GameTooltip:AddLine(dbChar.filterAuto[1] and "- "..dbChar.filterAuto[1].." Quests", 0, 1, 0)
-		GameTooltip:AddLine(dbChar.filterAuto[2] and "- "..dbChar.filterAuto[2].." Achievements", 0, 1, 0)
+		GameTooltip:AddLine("篩選", 1, 1, 1)
+		GameTooltip:AddLine(dbChar.filterAuto[1] and "- "..dbChar.filterAuto[1].." 任務", 0, 1, 0)
+		GameTooltip:AddLine(dbChar.filterAuto[2] and "- "..dbChar.filterAuto[2].." 成就", 0, 1, 0)
 		GameTooltip:Show()
 	end)
 	button:SetScript("OnLeave", function(self)
