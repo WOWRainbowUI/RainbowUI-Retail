@@ -163,6 +163,18 @@ GTFO.SpellID["1285630"] = {
   sound = 1;
 };
 
+GTFO.SpellID["1282656"] = {
+  --desc = "Tainted Ground (Malevolent Force)";
+  instance = 3014; -- The Broken Throne
+  sound = 1;
+};
+
+GTFO.SpellID["1278901"] = {
+  --desc = "Wild Flames (Faithbreaker Ger'lok)";
+  instance = 3014; -- The Broken Throne
+  sound = 1;
+};
+
 --- *******************
 --- * Midnight (Prey) *
 --- *******************
@@ -207,6 +219,12 @@ GTFO.SpellID["1251426"] = {
   --desc = "Flamestrike (Magister Sunbreaker)";
   maps = { 2395, 2405, 2413, 2437, 2512 }; -- Eversong Woods, Voidstorm, Harandar, Zul'Aman, The Coiled Isle
   sound = 1;
+};
+
+GTFO.SpellID["1243009"] = {
+  --desc = "Slow";
+  maps = { 2395, 2405, 2413, 2437, 2512 }; -- Eversong Woods, Voidstorm, Harandar, Zul'Aman, The Coiled Isle
+  sound = 2;
 };
 
 
@@ -309,11 +327,30 @@ GTFO.SpellID["473784"] = {
   instance = 2805; 
 };
 
+GTFO.SpellID["473789"] = {
+  --desc = "Fetid Bile (Flesh Behemoth)";
+  instance = 2805;
+  sound = 1;
+};
+
+GTFO.SpellID["1216834"] = {
+  --desc = "Acidic Demise";
+  instance = 2805;
+  sound = 1;
+};
+
 GTFO.SpellID["472118"] = {
   --desc = "Ignited Embers (Emberdawn)";
   sound = 1;
   instance = 2805; 
   test = true;
+};
+
+--- * Lingering Marauder (Windrunner Spire) *
+GTFO.SpellID["1216643"] = {
+  --desc = "Gore Whirl (Lingering Marauder)";
+  instance = 2805;
+  sound = 1;
 };
 
 GTFO.SpellID["468924"] = {
@@ -651,7 +688,7 @@ GTFO.SpellID["??????"] = {
 
 GTFO.SpellID["1297338"] = {
   --desc = "Deadly Venom";
-  instance = 3004;
+  instances = { 3004, 3095 }; -- also used in The Unbinding of Kith'ix
   sound = 1;
 };
 
@@ -722,6 +759,13 @@ GTFO.SpellID["1292552"] = {
   --desc = "Congealed Gore (The Twin Fangs)";
   instance = 3004;
   encounter = 3421;
+  sound = 1;
+};
+
+GTFO.SpellID["1306925"] = {
+  --desc = "Congealed Gore (Ithraz)";
+  instance = 3004; -- The Venomous Abyss
+  encounter = 3421; -- The Twin Fangs
   sound = 1;
 };
 
@@ -963,5 +1007,48 @@ GTFO.SpellID["1247367"] = {
 };
 
 
-end
+--- ***********************************
+--- * The Unbinding of Kith'ix (3095) *
+--- ***********************************
 
+GTFO.SpellID["1319270"] = {
+  --desc = "Toxic Gunk";
+  instance = 3095;
+  sound = 1;
+};
+
+
+GTFO.SpellID["1308670"] = {
+  --desc = "Blood of the Old Ones";
+  instance = 3095;
+  sound = 1;
+};
+
+GTFO.SpellID["1303257"] = {
+  --desc = "Suffocation (Kith'ix)";
+  instance = 3095;
+  encounter = 3513;
+  sound = 1;
+};
+
+GTFO.SpellID["1308875"] = {
+  --desc = "Nullify (Kith'ix)";
+  instance = 3095;
+  encounter = 3513;
+  sound = 1;
+  stackSound = 1;
+  applicationOnly = true;
+};
+
+--- *************************************
+--- * The Labyrinth of Kindo'jan (3043) *
+--- *************************************
+
+GTFO.SpellID["1300767"] = {
+  --desc = "Erratic Mojo (Kindo'jan)";
+  instance = 3043;
+  encounter = 3548;
+  sound = 1;
+};
+
+end
