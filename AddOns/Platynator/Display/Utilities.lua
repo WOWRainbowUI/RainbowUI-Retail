@@ -679,8 +679,11 @@ do
   local function GetRaidEliteType(unit, casterOverride)
     local classification = UnitClassification(unit)
     if classification == "elite" then
-      if UnitIsBossMob(unit) then
+      local level = UnitEffectiveLevel(unit)
+      if level == -1 or UnitIsBossMob and UnitIsBossMob(unit) then
         return "boss"
+      elseif UnitIsLieutenant and UnitIsLieutenant(unit) then
+        return "miniboss"
       else
         return HasMana(unit) and "caster" or "melee"
       end

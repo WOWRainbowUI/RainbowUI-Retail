@@ -70,7 +70,7 @@ local getter = {
   end,
   ["threat"] = function(oldState, unit)
     local result
-    if not PlayerIsInCombat() then -- Fix for Blizzard API glitch
+    if PlayerIsInCombat and not PlayerIsInCombat() then -- Fix for Blizzard API glitch
       result = {situation = nil, otherTankAggro = false}
     else
       result = {situation = UnitThreatSituation("player", unit), otherTankAggro = false}
