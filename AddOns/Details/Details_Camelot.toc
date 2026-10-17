@@ -20,14 +20,6 @@ Libs\libs.xml
 core\parser_nocleu.xml
 
 locales\Details-enUS.lua
-locales\Details-deDE.lua
-locales\Details-esES.lua
-locales\Details-esMX.lua
-locales\Details-frFR.lua
-locales\Details-itIT.lua
-locales\Details-koKR.lua
-locales\Details-ptBR.lua
-locales\Details-ruRU.lua
 locales\Details-zhCN.lua
 locales\Details-zhTW.lua
 
