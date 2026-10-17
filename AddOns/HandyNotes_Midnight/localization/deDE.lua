@@ -148,9 +148,7 @@ L['options_icons_ritual_site_desc'] = 'Zeige {location:Ritualstätten} Belohnung
 
 L['ritual_site_broken_throne'] = 'Ritualstätte: Zerschlagener Thron'
 L['ritual_site_daggerspine_point'] = 'Ritualstätte: Säbelflossenspitze'
-
-L['broken_throne_entry_note'] = 'Der Zerschlagene Thron, auch bekannt als Atal\'Kaldan, ist eine Amani ruine die von der Zwielichtklinge übernommen wurde. Klicke auf {npc:260103} die Ritualstätte zu betreten.\n\nWechselt wöchentlich mit {location:Ritualstätte: Säbelflossenspitze}.'
-L['daggerspine_point_entry_note'] = 'Die Säbelflossenspitze ist eine Insel, die von den Säbelflossen Naga besetzt ist und früher Insel Shalandis hieß. Klicke auf {npc:260103} die Ritualstätte zu betreten.\n\nWechselt wöchentlich mit {location:Ritualstätte: Zerschlagener Thron}.'
+L['ritual_site_opens_in'] = nil
 
 L['chewed_meat'] = 'Angekautes Fleisch'
 L['chewed_meat_note'] = 'Beschwöre {spell:1286634} beim {object:Angekauten Fleisch}. Besiege {npc:263381}. Sobald er wieder friedlich ist, füttere ihm 5x {item:242639}.'
@@ -222,9 +220,7 @@ L['curse_surge_note'] = 'Fluchwellen-Ereignisse wechseln alle %d Minuten.\n\n{no
 ----------------------------- LABYRINTH OF KINDO'JAN --------------------------
 -------------------------------------------------------------------------------
 
-L['ancient_chest'] = 'Alte Truhe'
-L['ancient_chest_suffix'] = 'Alte Truhe geöffnet'
-L['mislaid_oddity'] = 'Verlegte Kuriosität'
+L['mislaid_treasure'] = 'Verlegte Kuriosität'
 
 L['options_icons_hexmask'] = '{achievement:63720}'
 L['options_icons_hexmask_desc'] = nil
@@ -232,3 +228,9 @@ L['thundering_hexmask'] = nil
 L['fiery_hexmask'] = nil
 L['frozen_hexmask'] = nil
 L['c_underneath_bridge'] = 'Unter der Brücke.'
+
+-------------------------------------------------------------------------------
+--------------------------------- AQIR INVASION -------------------------------
+-------------------------------------------------------------------------------
+
+L['aqir_invasion_running'] = nil

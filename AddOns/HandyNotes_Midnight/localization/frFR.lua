@@ -148,9 +148,7 @@ L['options_icons_ritual_site_desc'] = 'Afficher les récompenses des {location:S
 
 L['ritual_site_broken_throne'] = 'Site rituel : Trône brisé'
 L['ritual_site_daggerspine_point'] = 'Site rituel : Pointe des Daguéchines'
-
-L['broken_throne_entry_note'] = 'Le Trône brisé, également connu sous le nom d’Atal’Kaldan, est une ruine Amani prise d’assaut par la Lame du Crépuscule. Cliquez sur l\'{npc:260103} pour y entrer.\n\nAlterne chaque semaine avec le {location:Site rituel : Pointe des Daguéchines}.'
-L['daggerspine_point_entry_note'] = 'La Pointe des Daguéchines est une île revendiquée par les Nagas Daguéchine, elle était anciennement appelée l\'Île de Shalandis. Cliquez sur l\'{npc:260103} pour y entrer.\n\nAlterne chaque semaine avec le {location:Site rituel : Trône Brisé}.'
+L['ritual_site_opens_in'] = nil
 
 L['chewed_meat'] = 'Viande mâchonnée'
 L['chewed_meat_note'] = 'Invoquez {spell:1286634} à l\'emplacement de la {object:Viande mâchonnée}. Vainquez l\'{npc:263381}. Une fois qu\'il sera devenu amical, donnez-lui 5x {item:242639} à manger.'
@@ -222,9 +220,7 @@ L['curse_surge_note'] = 'Les événements de Vague de malédiction alternent tou
 ----------------------------- LABYRINTH OF KINDO'JAN --------------------------
 -------------------------------------------------------------------------------
 
-L['ancient_chest'] = 'Coffre ancien'
-L['ancient_chest_suffix'] = 'Coffre ancien trouvé'
-L['mislaid_oddity'] = 'Étrangeté fourvoyée'
+L['mislaid_treasure'] = 'Étrangeté fourvoyée'
 
 L['options_icons_hexmask'] = '{achievement:63720}'
 L['options_icons_hexmask_desc'] = 'Afficher les emplacements pour le haut-fait {achievement:63720}.'
@@ -232,3 +228,9 @@ L['thundering_hexmask'] = 'Masque maléficieux foudroyant'
 L['fiery_hexmask'] = 'Masque maléficieux ardent'
 L['frozen_hexmask'] = 'Masque maléficieux gelé'
 L['c_underneath_bridge'] = 'Sous le pont.'
+
+-------------------------------------------------------------------------------
+--------------------------------- AQIR INVASION -------------------------------
+-------------------------------------------------------------------------------
+
+L['aqir_invasion_running'] = nil
