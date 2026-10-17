@@ -1,7 +1,5 @@
 
-	local Version, _, _, tocVersion = GetBuildInfo()
-
-	if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE or (tocVersion >= 16000 and tocVersion < 17000) then -- Both Retail and Forever unregister properly
+	if not (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE or WOW_PROJECT_ID == WOW_PROJECT_CAMELOT) then return end
 
 		local ActionBarAnimationEvents = {
 			"UNIT_SPELLCAST_INTERRUPTED",
@@ -28,9 +26,7 @@
 			end
 		end)
 
-	end
-
-	if (tocVersion >= 16000 and tocVersion < 17000) then -- Forever specific fix for mousing over an active cast, might come to Retail later
+	if not (WOW_PROJECT_ID == WOW_PROJECT_CAMELOT) then return end -- Forever specific fix for mousing over an active cast, might come to Retail later
 
 		local function HideActionButtonCast(self)
 			if not (self.SpellCastAnimFrame and self.SpellCastAnimFrame.Fill and self.SpellCastAnimFrame.Fill.CastingAnim) then 
@@ -47,34 +43,32 @@
 			if not button then return end
 
 			HideActionButtonCast(button) -- Hide initial cast (/reload when channeling for example)
-			if button.PlaySpellCastAnim then
+			if type(button.PlaySpellCastAnim) == "function" then
 				hooksecurefunc(button, "PlaySpellCastAnim", function(self)
 					HideActionButtonCast(self)
 				end)
 			end
 		end
 
-		for i = 1, 12 do
-			StyleButton(_G["ActionButton"..i])
-			StyleButton(_G["MultiBarBottomLeftButton"..i])
-			StyleButton(_G["MultiBarBottomRightButton"..i])
-			StyleButton(_G["MultiBarLeftButton"..i])
-			StyleButton(_G["MultiBarRightButton"..i])
-			StyleButton(_G["MultiBar5Button"..i])
-			StyleButton(_G["MultiBar6Button"..i])
-			StyleButton(_G["MultiBar7Button"..i])
-		end
-		for i = 1, 6 do
-			StyleButton(_G["OverrideActionBarButton"..i])
-		end
-		-- Don't think these are needed
-		-- for i = 1, 10 do
-			-- StyleButton(_G["StanceButton"..i])
-			-- StyleButton(_G["PetActionButton"..i])
-		-- end 
-		-- for i = 1, 2 do 
-			-- StyleButton(_G["PossessButton"..i])
-		-- end
-		StyleButton(ExtraActionButton1)
+		local barPrefixes = {
+			"ActionButton",
+			"MultiBarBottomLeftButton",
+			"MultiBarBottomRightButton",
+			"MultiBarLeftButton",
+			"MultiBarRightButton",
+			"MultiBar5Button",
+			"MultiBar6Button",
+			"MultiBar7Button",
+			"OverrideActionBarButton",
+			--"StanceButton",
+			--"PetActionButton",
+			--"PossessButton",
+		}
 
-	end
+		for _, prefix in ipairs(barPrefixes) do
+			for i = 1, 12 do
+				StyleButton(_G[prefix .. i])
+			end
+		end
+
+		StyleButton(ExtraActionButton1)

@@ -1,15 +1,16 @@
 
 	local addonName, addonNameSpace = ...
 
--- Ensure we have the correct button size by waiting on login
 local ApplyActionBarSkinOnLogin = CreateFrame("Frame")
-ApplyActionBarSkinOnLogin:RegisterEvent("PLAYER_LOGIN")
+ApplyActionBarSkinOnLogin:RegisterEvent("PLAYER_LOGIN") -- Wait for login to have correct button size if another AddOn changes it
 ApplyActionBarSkinOnLogin:SetScript("OnEvent", function()
 
 	local IsAddOnEnabled = C_AddOns and C_AddOns.IsAddOnLoaded or IsAddOnLoaded
 	if IsAddOnEnabled("HideButtonGlow") then return end
 
-	local MediaPath = "Interface\\AddOns\\" .. addonName .. "\\"
+	local MediaPath = "Interface\\AddOns\\" .. addonName .. "\\Media\\"
+	local IconAlertTexture = MediaPath .. "IconAlert.png" -- "Interface\\SpellActivationOverlay\\IconAlert"
+	local IconAlertAntsTexture = MediaPath .. "IconAlertAnts.png" -- "Interface\\SpellActivationOverlay\\IconAlertAnts"
 
 	local issecretvalue = issecretvalue or function() return false end
 
@@ -34,39 +35,39 @@ ApplyActionBarSkinOnLogin:SetScript("OnEvent", function()
 		overlay.Spark = overlay:CreateTexture(nil, "BACKGROUND")
 		overlay.Spark:SetPoint("CENTER")
 		overlay.Spark:SetAlpha(0)
-		overlay.Spark:SetTexture(MediaPath .. "IconAlert.png") -- "Interface\\SpellActivationOverlay\\IconAlert"
+		overlay.Spark:SetTexture(IconAlertTexture)
 		overlay.Spark:SetTexCoord(0.00781250, 0.61718750, 0.00390625, 0.26953125)
 
 		overlay.InnerGlow = overlay:CreateTexture(nil, "ARTWORK")
 		overlay.InnerGlow:SetPoint("CENTER")
 		overlay.InnerGlow:SetAlpha(0)
-		overlay.InnerGlow:SetTexture(MediaPath .. "IconAlert.png") -- "Interface\\SpellActivationOverlay\\IconAlert"
+		overlay.InnerGlow:SetTexture(IconAlertTexture)
 		overlay.InnerGlow:SetTexCoord(0.00781250, 0.50781250, 0.27734375, 0.52734375)
 
 		overlay.InnerGlowOver = overlay:CreateTexture(nil, "ARTWORK")
 		overlay.InnerGlowOver:SetPoint("TOPLEFT", overlay.InnerGlow, "TOPLEFT")
 		overlay.InnerGlowOver:SetPoint("BOTTOMRIGHT", overlay.InnerGlow, "BOTTOMRIGHT")
 		overlay.InnerGlowOver:SetAlpha(0)
-		overlay.InnerGlowOver:SetTexture(MediaPath .. "IconAlert.png") -- "Interface\\SpellActivationOverlay\\IconAlert"
+		overlay.InnerGlowOver:SetTexture(IconAlertTexture)
 		overlay.InnerGlowOver:SetTexCoord(0.00781250, 0.50781250, 0.53515625, 0.78515625)
 
 		overlay.OuterGlow = overlay:CreateTexture(nil, "ARTWORK")
 		overlay.OuterGlow:SetPoint("CENTER")
 		overlay.OuterGlow:SetAlpha(0)
-		overlay.OuterGlow:SetTexture(MediaPath .. "IconAlert.png") -- "Interface\\SpellActivationOverlay\\IconAlert"
+		overlay.OuterGlow:SetTexture(IconAlertTexture)
 		overlay.OuterGlow:SetTexCoord(0.00781250, 0.50781250, 0.27734375, 0.52734375)
 
 		overlay.OuterGlowOver = overlay:CreateTexture(nil, "ARTWORK")
 		overlay.OuterGlowOver:SetPoint("TOPLEFT", overlay.OuterGlow, "TOPLEFT")
 		overlay.OuterGlowOver:SetPoint("BOTTOMRIGHT", overlay.OuterGlow, "BOTTOMRIGHT")
 		overlay.OuterGlowOver:SetAlpha(0)
-		overlay.OuterGlowOver:SetTexture(MediaPath .. "IconAlert.png") -- "Interface\\SpellActivationOverlay\\IconAlert"
+		overlay.OuterGlowOver:SetTexture(IconAlertTexture)
 		overlay.OuterGlowOver:SetTexCoord(0.00781250, 0.50781250, 0.53515625, 0.78515625)
 
 		overlay.Ants = overlay:CreateTexture(nil, "OVERLAY")
 		overlay.Ants:SetPoint("CENTER")
 		overlay.Ants:SetAlpha(0)
-		overlay.Ants:SetTexture(MediaPath .. "IconAlertAnts.png") -- "Interface\\SpellActivationOverlay\\IconAlertAnts"
+		overlay.Ants:SetTexture(IconAlertAntsTexture)
 
 		overlay.frame = 1
 		overlay.throttle = 0.02 -- match the previous 0.01 look, higher = slower, lower = faster
@@ -150,7 +151,7 @@ ApplyActionBarSkinOnLogin:SetScript("OnEvent", function()
 
 			local OuterGlowOverAlpha = overlay.animOut:CreateAnimation("Alpha") OuterGlowOverAlpha:SetTarget(overlay.OuterGlowOver) OuterGlowOverAlpha:SetDuration(0.2) OuterGlowOverAlpha:SetFromAlpha(0) OuterGlowOverAlpha:SetToAlpha(1) OuterGlowOverAlpha:SetOrder(1)
 			local AntsAlpha = overlay.animOut:CreateAnimation("Alpha") AntsAlpha:SetTarget(overlay.Ants) AntsAlpha:SetDuration(0.2) AntsAlpha:SetFromAlpha(1) AntsAlpha:SetToAlpha(0) AntsAlpha:SetOrder(1)
-			local OuterGlowOverAlpha = overlay.animOut:CreateAnimation("Alpha") OuterGlowOverAlpha:SetTarget(overlay.OuterGlowOver) OuterGlowOverAlpha:SetDuration(0.2) OuterGlowOverAlpha:SetFromAlpha(1) OuterGlowOverAlpha:SetToAlpha(0) OuterGlowOverAlpha:SetOrder(2)
+			local OuterGlowOverAlpha2 = overlay.animOut:CreateAnimation("Alpha") OuterGlowOverAlpha2:SetTarget(overlay.OuterGlowOver) OuterGlowOverAlpha2:SetDuration(0.2) OuterGlowOverAlpha2:SetFromAlpha(1) OuterGlowOverAlpha2:SetToAlpha(0) OuterGlowOverAlpha2:SetOrder(2)
 			local OuterGlowAlpha = overlay.animOut:CreateAnimation("Alpha") OuterGlowAlpha:SetTarget(overlay.OuterGlow) OuterGlowAlpha:SetDuration(0.2) OuterGlowAlpha:SetFromAlpha(1) OuterGlowAlpha:SetToAlpha(0) OuterGlowAlpha:SetOrder(2)
 
 		overlay.animOut:SetScript("OnFinished", function(button)
@@ -158,7 +159,7 @@ ApplyActionBarSkinOnLogin:SetScript("OnEvent", function()
 			overlay:Hide()
 		end)
 
-	end --end)
+	end
 
 	local function ShowSpellActivationAlert(button)
 		if button.HideActionbarAnimations_SpellActivationAlert then
@@ -179,8 +180,7 @@ ApplyActionBarSkinOnLogin:SetScript("OnEvent", function()
 			button.HideActionbarAnimations_SpellActivationAlert:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", frameWidth * 0.2, -frameHeight * 0.2)
 			button.HideActionbarAnimations_SpellActivationAlert.animIn:Play()
 		end
-		-- Hide the 10.1.5 ones
-		if button.SpellActivationAlert then
+		if button.SpellActivationAlert then -- Hide the 10.1.5 ones
 			button.SpellActivationAlert:Hide() --button.SpellActivationAlert.ProcStartFlipbook:Hide() button.SpellActivationAlert.ProcLoopFlipbook:Hide()
 		end
 	end
@@ -199,24 +199,24 @@ ApplyActionBarSkinOnLogin:SetScript("OnEvent", function()
         end
 	end
 
-	if ActionButtonSpellAlertManager and ActionButtonSpellAlertManager.ShowAlert and type(ActionButtonSpellAlertManager.ShowAlert) == "function" then
+	if ActionButtonSpellAlertManager and type(ActionButtonSpellAlertManager.ShowAlert) == "function" then
 		hooksecurefunc(ActionButtonSpellAlertManager, "ShowAlert", function(self, button)
 			if issecretvalue(button) then return end
 			ShowSpellActivationAlert(button)
 		end)
-	elseif ActionButton_ShowOverlayGlow and type(ActionButton_ShowOverlayGlow) == "function" then
+	elseif type(ActionButton_ShowOverlayGlow) == "function" then
 		hooksecurefunc("ActionButton_ShowOverlayGlow", function(button)
 			if issecretvalue(button) then return end
 			ShowSpellActivationAlert(button)
 		end)
 	end
 
-	if ActionButtonSpellAlertManager and ActionButtonSpellAlertManager.HideAlert and type(ActionButtonSpellAlertManager.HideAlert) == "function" then
+	if ActionButtonSpellAlertManager and type(ActionButtonSpellAlertManager.HideAlert) == "function" then
 		hooksecurefunc(ActionButtonSpellAlertManager, "HideAlert", function(self, button)
 			if issecretvalue(button) then return end
 			HideSpellActivationAlert(button)
 		end)
-	elseif ActionButton_HideOverlayGlow and type(ActionButton_HideOverlayGlow) == "function" then
+	elseif type(ActionButton_HideOverlayGlow) == "function" then
 		hooksecurefunc("ActionButton_HideOverlayGlow", function(button)
 			if issecretvalue(button) then return end
 			HideSpellActivationAlert(button)
