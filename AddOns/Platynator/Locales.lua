@@ -428,6 +428,7 @@ L["BAD_CUSTOM_STYLE_SELECT"] = "Platynator: Your \"Custom\" style select setting
 
 
 local L = Locales.zhTW
+L["BAR_EDGE_COLOR"] = "血條邊緣顏色"
 
 L["ENABLE"] = "啟用"
 L["WHEN_NONE_APPLIED"] = "未套用任何光環時"
@@ -828,6 +829,7 @@ L["IS_TARGET"] = "是目前目標"
 
 L["PANDEMIC_COLOR"] = "持續時間延長提示顏色"
 local L = Locales.zhCN
+L["BAR_EDGE_COLOR"] = "血条边缘颜色"
 
 L["ENABLE"] = "启用"
 L["WHEN_NONE_APPLIED"] = "均未生效"
