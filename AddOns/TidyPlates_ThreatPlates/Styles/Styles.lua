@@ -90,7 +90,7 @@ local REMAP_UNSUPPORTED_UNIT_TYPES = {
 
 local IsTotemUnit, IsPlayerPetUnit
 
-if Addon.ExpansionIsAtLeastMidnight then
+if Addon.HAS_MIDNIGHT_API then
   IsTotemUnit = function(unitid)
     -- creature type ID was only added with TWW
     local _, creature_type_id = UnitCreatureType(unitid)
@@ -257,7 +257,7 @@ local function ProcessNameTriggers(unit)
 
   local plate_style, custom_style
   
-  if not Addon.ExpansionIsAtLeastMidnight then 
+  if not Addon.HAS_MIDNIGHT_API then 
     local name_custom_style = NameTriggers[unit.name] or NameTriggers[unit.NPCID] or NameTriggers[unit.basename]
     if name_custom_style and name_custom_style.Enable.UnitReaction[unit.reaction] then
       custom_style = name_custom_style
@@ -351,8 +351,8 @@ function StyleModule.AuraTriggerCheckIfActive(unit, aura_id, aura_name, aura_cas
     unit.CustomStyleAura = (unique_settings.showNameplate and "unique") or (unique_settings.ShowHeadlineView and "NameOnly-Unique") or "etotem"
     unit.CustomPlateSettingsAura = unique_settings
 
-    local icon = GetSpellInfo(aura_id).iconID
-    unique_settings.AutomaticIcon = icon
+    local spell_info = GetSpellInfo(aura_id)
+    unique_settings.AutomaticIcon = spell_info and spell_info.iconID
   end
 end
 
@@ -363,13 +363,13 @@ function StyleModule.CastTriggerCheckIfActive(unit, spell_id, spell_name)
   unit.PreviousCustomStyleCast = unit.CustomStyleCast
   unit.CustomStyleCast = nil
 
-  local unique_settings = CastTriggers[spell_id] or CastTriggers[spell_name] or NameTriggers["Test"]
+  local unique_settings = CastTriggers[spell_id] or CastTriggers[spell_name]
   if unique_settings and unique_settings.useStyle and unique_settings.Enable.UnitReaction[unit.reaction] then
     unit.CustomStyleCast = (unique_settings.showNameplate and "unique") or (unique_settings.ShowHeadlineView and "NameOnly-Unique") or "etotem"
     unit.CustomPlateSettingsCast = unique_settings
 
-    local icon = GetSpellInfo(spell_id).iconID
-    unique_settings.AutomaticIcon = icon
+    local spell_info = GetSpellInfo(spell_id)
+    unique_settings.AutomaticIcon = spell_info and spell_info.iconID
   end
 end
 

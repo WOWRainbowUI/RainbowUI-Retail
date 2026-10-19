@@ -62,6 +62,11 @@ end
 local function SetPortraitTexture(icon, unitid)
   local icon_texture = icon:GetIconTexture()
   _G.SetPortraitTexture(icon_texture, unitid)
+  -- Masque sizes the skin's regions from the button size at skinning time, so re-skin after size changes.
+  -- Re-skin before setting the tex coords, as Masque resets them for the icon region.
+  if icon.MasqueGroup then
+    icon.MasqueGroup:ReSkin(icon)
+  end
   icon_texture:SetTexCoord(0.14644660941, 0.85355339059, 0.14644660941, 0.85355339059)
 end
 
@@ -81,9 +86,6 @@ end
 
 function Widget:OnEnable()
   self:SubscribeEvent("UNIT_PORTRAIT_UPDATE")
-  -- Update the unique icon widget and style may be the same, but a different trigger might be active, e.g.,
-  -- if two aura triggers fired
-  self:SubscribeEvent("StyleUpdate")
 
   RegisterMasqueGroup(self, "Custom Style")
 end
@@ -194,13 +196,6 @@ function Widget:OnUnitAdded(widget_frame, unit)
   else
     widget_frame.HighlightStop(widget_frame.Highlight)
     widget_frame.Highlight:Hide()
-  end
-end
-
-function Widget:StyleUpdate(tp_frame, unit)
-  local widget_frame = tp_frame.widgets.UniqueIcon
-  if widget_frame and widget_frame.Active then
-    Widget:OnUnitAdded(widget_frame, unit)
   end
 end
 

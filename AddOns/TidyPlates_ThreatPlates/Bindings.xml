@@ -2,6 +2,12 @@
     <Binding name="THREATPLATES_NAMEPLATE_MODE_FOR_FRIENDLY_UNITS" header = "THREATPLATES" category ="ADDONS">
       TidyPlatesThreat:ToggleNameplateModeFriendlyUnits()
     </Binding>
+    <Binding name="THREATPLATES_NAMEPLATE_MODE_FOR_FRIENDLY_PLAYERS" category ="ADDONS">
+      TidyPlatesThreat:ToggleNameplateModeFriendlyPlayers()
+    </Binding>
+    <Binding name="THREATPLATES_NAMEPLATE_MODE_FOR_FRIENDLY_NPCS" category ="ADDONS">
+      TidyPlatesThreat:ToggleNameplateModeFriendlyNPCs()
+    </Binding>
     <Binding name="THREATPLATES_NAMEPLATE_MODE_FOR_NEUTRAL_UNITS" category ="ADDONS">
         TidyPlatesThreat:ToggleNameplateModeNeutralUnits()
     </Binding>
