@@ -439,6 +439,10 @@ english["Options.TextOutline.Thick"] = "Thick Outline"
 english["Options.TextOutline.Monochrome"] = "Monochrome"
 english["Options.TextOutline.OutlineMono"] = "Outline + Monochrome"
 english["Options.TextOutline.ThickMono"] = "Thick + Monochrome"
+english["Options.SlugOutline"] = "Smooth outline"
+english["Options.SlugOutline.Desc"] =
+    "Draws the outline with the client's Slug text renderer. The edges are smoother, but the outline can look slightly thicker."
+english["Options.SlugOutline.Disabled"] = 'Only applies to the "Outline" and "Thick Outline" styles.'
 
 -- ============================================================================
 -- OPTIONS: GLOW SETTINGS
@@ -760,6 +764,14 @@ english["BuffPanel.MageFoodContent"] = "Where"
 english["BuffPanel.MageFoodContent.All"] = "All instances"
 english["BuffPanel.MageFoodContent.Dungeon"] = "Dungeons only"
 english["BuffPanel.MageFoodContent.Raid"] = "Raids only"
+english["BuffPanel.WarlockDemon.Warn"] = "Warn when a different demon is out"
+english["BuffPanel.WarlockDemon.Warn.Desc"] = "Show a Wrong Demon reminder if the active demon is not the one selected for this content."
+english["BuffPanel.WarlockDemon.World"] = "World"
+english["BuffPanel.WarlockDemon.Dungeon"] = "Dungeon"
+english["BuffPanel.WarlockDemon.Dungeon.Desc"] = "Also covers scenarios and Delves."
+english["BuffPanel.WarlockDemon.Raid"] = "Raid"
+english["BuffPanel.WarlockDemon.PvP"] = "PvP"
+english["BuffPanel.WarlockDemon.Felguard"] = "Demonology always summons Felguard if talented."
 english["BuffPanel.Sound"] = "Sound"
 english["BuffPanel.Sound.None"] = "None"
 english["BuffPanel.Detached"] = "Own frame (detached)"

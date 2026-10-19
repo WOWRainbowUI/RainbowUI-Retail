@@ -5,7 +5,7 @@ local _, BR = ...
 -- entry, PvP prep), the dismount pause for pet checks and the action-bar glow state.
 -- The Display event dispatcher calls HandleEvent before the Display handler runs, so each
 -- handler reads fresh values.
--- GameContextChanged asks for the render that a change needs; urgent = true asks for it now.
+-- RenderRequested asks for the render that a change needs. urgent = true asks for it now.
 
 ---@class GameContextEventSpec
 ---@field caches? string[] Cache ids to clear, in order
@@ -31,7 +31,7 @@ local petDismountSuppressed = false
 
 -- Each window is open while its timer exists.
 local readyCheckTimer
-local instanceEntryTimer
+local dungeonEntryTimer
 local delveEntryTimer
 
 local READY_CHECK_SECONDS = 15
@@ -58,15 +58,15 @@ local GameContext = {}
 ---@param urgent boolean
 ---@param reason? "zoneSettled" Lets a subscriber run work for one transition
 local function NotifyChanged(urgent, reason)
-    BR.CallbackRegistry:TriggerEvent("GameContextChanged", urgent, reason)
+    BR.CallbackRegistry:TriggerEvent("RenderRequested", urgent, reason)
 end
 
 local spellcastFrame = CreateFrame("Frame")
 
-local function ClearInstanceEntry()
-    if instanceEntryTimer then
-        instanceEntryTimer:Cancel()
-        instanceEntryTimer = nil
+local function ClearDungeonEntry()
+    if dungeonEntryTimer then
+        dungeonEntryTimer:Cancel()
+        dungeonEntryTimer = nil
     end
     spellcastFrame:UnregisterEvent("UNIT_SPELLCAST_SUCCEEDED")
     spellcastFrame:UnregisterEvent("UNIT_SPELLCAST_START")
@@ -74,19 +74,19 @@ end
 
 spellcastFrame:SetScript("OnEvent", function(_, _, _, _, spellID)
     if SOULWELL_SPELL_IDS[spellID] then
-        ClearInstanceEntry()
+        ClearDungeonEntry()
         NotifyChanged(true)
     end
 end)
 
-local function StartInstanceEntry()
-    if instanceEntryTimer then
-        instanceEntryTimer:Cancel()
+local function StartDungeonEntry()
+    if dungeonEntryTimer then
+        dungeonEntryTimer:Cancel()
     end
     spellcastFrame:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player")
     spellcastFrame:RegisterUnitEvent("UNIT_SPELLCAST_START", "player")
-    instanceEntryTimer = C_Timer.NewTimer(ENTRY_WINDOW_SECONDS, function()
-        ClearInstanceEntry()
+    dungeonEntryTimer = C_Timer.NewTimer(ENTRY_WINDOW_SECONDS, function()
+        ClearDungeonEntry()
         NotifyChanged(true)
     end)
     NotifyChanged(true)
@@ -129,9 +129,9 @@ end
 
 local function OnEnteredWorldSettled()
     if BR.BuffState.ShouldTriggerDungeonEntry() then
-        StartInstanceEntry()
+        StartDungeonEntry()
     else
-        ClearInstanceEntry()
+        ClearDungeonEntry()
     end
     UpdateDelveEntry()
 end
@@ -400,9 +400,9 @@ function GameContext.IsInReadyCheck()
     return readyCheckTimer ~= nil
 end
 
----@return boolean inInstanceEntry True for 30 seconds after a grouped dungeon entry, until a soulwell cast
-function GameContext.IsInInstanceEntry()
-    return instanceEntryTimer ~= nil
+---@return boolean inDungeonEntry True for 30 seconds after a grouped dungeon entry, until a soulwell cast
+function GameContext.IsInDungeonEntry()
+    return dungeonEntryTimer ~= nil
 end
 
 ---@return boolean inDelveEntry True for 30 seconds after a delve entry, until combat starts
