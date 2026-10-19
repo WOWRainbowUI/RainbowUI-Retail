@@ -1,2 +1,2 @@
-## Other Changes
-- Update to 12.1.5
+## Bugfixes
+- Missing equip effects on item tooltips (#74)
