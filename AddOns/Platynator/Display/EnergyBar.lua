@@ -67,7 +67,9 @@ function addonTable.Display.EnergyBarMixin:SetColor(...)
       self.background:SetVertexColor(r, g, b, mod.a)
     end
   end
-  self.marker:SetVertexColor(...)
+  if self.details.marker.applyColor then
+    self.marker:SetVertexColor(...)
+  end
 end
 
 function addonTable.Display.EnergyBarMixin:StripInternal()

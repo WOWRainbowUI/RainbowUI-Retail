@@ -44,6 +44,8 @@ addonTable.CustomiseDialog.DesignWidgets = {
       },
       marker = {
         asset = "none",
+        applyColor = true,
+        color = GetColor("FFFFFF"),
       },
       autoColors = {
         CopyTable(addonTable.CustomiseDialog.ColorsConfig["classColors"].default),
@@ -92,6 +94,8 @@ addonTable.CustomiseDialog.DesignWidgets = {
       },
       marker = {
         asset = "none",
+        applyColor = true,
+        color = GetColor("FFFFFF"),
       },
       interruptMarker = {
         asset = "none",
@@ -135,6 +139,8 @@ addonTable.CustomiseDialog.DesignWidgets = {
       },
       marker = {
         asset = "none",
+        applyColor = true,
+        color = GetColor("FFFFFF"),
       },
       background = {
         asset = "Platy: Fade Bottom",

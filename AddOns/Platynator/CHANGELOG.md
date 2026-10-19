@@ -1,7 +1,13 @@
 # Platynator
 
-## [510](https://github.com/TheMouseNest/Platynator/tree/510) (2026-10-16)
-[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/509...510) 
+## [513](https://github.com/TheMouseNest/Platynator/tree/513) (2026-10-18)
+[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/512...513) 
 
-- Use miniboss colouring (for the cases where Blizzard reports it) in raids  
-- MoP: Fix for missing function  
+- Remove tooltip from aura colors  
+- Fix typo  
+- Fixes  
+- Fix default color for bar edge highlights  
+- Add option to have a static color for the bar edge highlight  
+- Add options to bar edge highlight  
+- Fix comment (it was the Shield Bash spells I added)  
+- Forever: Add "Pummel" as a Warrior interrupt spell and fix mapping  

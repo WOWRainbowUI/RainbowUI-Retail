@@ -541,32 +541,37 @@ addonTable.CustomiseDialog.WidgetsConfig = {
           },
           {
             label = addonTable.Locales.BACKGROUND_COLOR,
-            kind = "colorPicker",
+            kind = "colorPickerWithCheckbox",
             setter = function(details, value)
-              details.background.color = value
+              details.background.color = value.color
+              details.background.applyColor = not value.enabled
             end,
             getter = function(details)
-              return details.background.color
-            end,
-          },
-          {
-            label = addonTable.Locales.APPLY_MAIN_COLOR_TO_BACKGROUND,
-            kind = "checkbox",
-            setter = function(details, value)
-              details.background.applyColor = value
-            end,
-            getter = function(details)
-              return details.background.applyColor or false
+              return {color = details.background.color, enabled = not details.background.applyColor}
             end,
           },
           {
             label = addonTable.Locales.HIGHLIGHT_BAR_EDGE,
-            kind = "checkbox",
+            kind = "dropdown",
+            getInitData = function(details)
+              return GetLabelsValues(addonTable.Assets.BarPositionHighlights, function(a) return true end)
+            end,
             setter = function(details, value)
-              details.marker.asset = value and "wide/glow" or "none"
+              details.marker.asset = value
             end,
             getter = function(details)
-              return details.marker.asset ~= "none"
+              return details.marker.asset
+            end,
+          },
+          {
+            label = addonTable.Locales.BAR_EDGE_COLOR,
+            kind = "colorPickerWithCheckbox",
+            setter = function(details, value)
+              details.marker.color = value.color
+              details.marker.applyColor = not value.enabled
+            end,
+            getter = function(details)
+              return {color = details.marker.color, enabled = not details.marker.applyColor}
             end,
           },
         }

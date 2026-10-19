@@ -799,6 +799,19 @@ local function UpgradeDesignv25(design)
   end
 end
 
+local function UpgradeDesignv26(design)
+  for _, bar in ipairs(design.bars) do
+    bar.marker.applyColor = true
+    bar.marker.color = GetColor("FFFFFF")
+  end
+end
+
+local function UpgradeDesignv27(design)
+  for _, bar in ipairs(design.bars) do
+    bar.marker.color.a = nil
+  end
+end
+
 local designUpgrades = {
   UpgradeDesignv1,
   UpgradeDesignv2,
@@ -826,6 +839,8 @@ local designUpgrades = {
   UpgradeDesignv23,
   UpgradeDesignv24,
   UpgradeDesignv25,
+  UpgradeDesignv26,
+  UpgradeDesignv27,
 }
 
 function addonTable.Core.UpgradeDesign(design)

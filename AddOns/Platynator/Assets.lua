@@ -143,9 +143,10 @@ addonTable.Assets.Highlights = {
 }
 
 addonTable.Assets.BarPositionHighlights = {
-  ["none"] = {file = "", width = 0, height = 0},
-  ["wide/glow"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarPosition/highlight.png", width = 54, height = 125, mask = "Interface/AddOns/Platynator/Assets/%s/BarPosition/highlight-mask.png", offset = 0.25, has4k = true},
-  ["gw2"] = {file = "Interface/AddOns/Platynator/Assets/Special/BarPosition/gw2.png", width = 137, height = 125, offset = 0.5},
+  ["none"] = {file = "", width = 0, height = 0, isTransparent = true, order = 1},
+  ["wide/glow"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarPosition/highlight.png", width = 54, height = 125, mask = "Interface/AddOns/Platynator/Assets/%s/BarPosition/highlight-mask.png", offset = 0.25, has4k = true, order = 2},
+  ["streak"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarPosition/streak.png", width = 143, height = 125, offset = 0, has4k = true, order = 3},
+  ["gw2"] = {file = "Interface/AddOns/Platynator/Assets/Special/BarPosition/gw2.png", width = 137, height = 125, offset = 0.5, order = 4},
 }
 
 addonTable.Assets.PowerBars = {
