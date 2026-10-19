@@ -107,7 +107,7 @@ local function UpdateNonBNetFriendList()
 	for i = 1, C_FriendList.GetNumOnlineFriends() do
 		local friendInfo = C_FriendList.GetFriendInfoByIndex(i)
 		local name = friendInfo.name
-		if not name.find('-') then
+		if not name:find('-', 1, true) then -- 暫時修正：字串方法須傳入 name 本身
 			name = strformat('%s-%s', friendInfo.name, addon.PlayerRealm())
 		end
 		NonBNFriend_List[name] = {isConnected = friendInfo.connected}
