@@ -494,6 +494,7 @@ function MCE:IsMiniAurasAvailable()
 end
 
 function MCE:IsHealerCCAvailable()
+    if addon.ClientCompat.IsForever then return false end
     if _G.HealerCCAnchor or _G.HealerCCEnemyAnchor then
         self:SetAddonLoadState(C.Addon.HealerCCName, true)
         return true
@@ -523,6 +524,7 @@ function MCE:IsBartender4Available()
 end
 
 function MCE:IsSArenaAvailable()
+    if addon.ClientCompat.IsForever then return false end
     return self:IsAddonLoadedCached(C.Addon.SArenaName)
 end
 
@@ -880,6 +882,7 @@ local function CategoryDefaults(categoryKey, enabled, fontSize)
         enabled = enabled,
         font = defaults.Font,
         fontSize = fontSize or defaults.FontSize,
+        fitTextToFrame = false,
         fontStyle = defaults.FontStyle,
         textColor = CopyTable(defaults.TextColor),
         textAnchor = defaults.TextAnchor,
@@ -906,6 +909,7 @@ end
 local PLAYER_AURA_STYLE_FIELDS = {
     "font",
     "fontSize",
+    "fitTextToFrame",
     "fontStyle",
     "textColor",
     "timerInsideIcon",
@@ -979,6 +983,7 @@ local function DurationTextColorDefaults()
 end
 
 local actionbarDefaults = CategoryDefaults(C.Categories.Actionbar, true, 18)
+actionbarDefaults.stanceButtonEnabled = C.Defaults.Actionbar.StanceButtonEnabled
 actionbarDefaults.hideChargeTimers = C.Defaults.Actionbar.HideChargeTimers
 actionbarDefaults.reverseSwipe = C.Defaults.Actionbar.ReverseSwipe
 actionbarDefaults.swipeAlpha = C.Defaults.Actionbar.SwipeAlpha
@@ -1114,6 +1119,9 @@ local function EnsureActionbarConfig(config)
         return CopyTable(actionbarDefaults)
     end
 
+    if config.stanceButtonEnabled == nil then
+        config.stanceButtonEnabled = C.Defaults.Actionbar.StanceButtonEnabled
+    end
     if config.hideChargeTimers == nil then
         config.hideChargeTimers = C.Defaults.Actionbar.HideChargeTimers
     end

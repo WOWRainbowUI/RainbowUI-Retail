@@ -15,6 +15,7 @@ local Registry
 local trackedCooldowns = setmetatable({}, addon.weakMeta)
 
 function Adapter:OnEnable()
+    if addon.ClientCompat.IsForever then return end
     Registry = MCE:GetModule("TargetRegistry")
     Registry:RegisterAdapter(CATEGORY.HealerCC, self)
 end

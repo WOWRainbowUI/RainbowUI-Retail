@@ -710,6 +710,12 @@ local function BuildPlayerAuraTypeOptions(typeKey, title, order)
             typographyHeader = {
                 type = "header", name = L["Typography (Cooldown Numbers)"], order = 1,
             },
+            fitTextToFrame = {
+                type = "toggle", order = 3.5, width = "full",
+                name = L["Shrink text to fit icons"], desc = L["FIT_TEXT_DESC"],
+                get = PlayerAuraTypeGet(typeKey, "fitTextToFrame", false),
+                set = PlayerAuraTypeSet(typeKey, "fitTextToFrame"),
+            },
             font = {
                 type = "select", order = 2, width = 1.5,
                 name = L["Font Face"], values = GetFontOptions,
@@ -922,7 +928,8 @@ local function CreateCategoryOptions(order, name, key, desc)
     return {
         type = "group",
         hidden = function()
-            return (isHealerCC and not MCE:IsHealerCCAvailable())
+            return (addon.ClientCompat.IsForever and (isHealerCC or isSArena))
+                or (isHealerCC and not MCE:IsHealerCCAvailable())
                 or (isMiniAuras and not MCE:IsMiniAurasAvailable())
                 or (isMyDRs and not MCE:IsMyDRsAvailable())
                 or (isSArena and not MCE:IsSArenaAvailable())
@@ -962,6 +969,19 @@ local function CreateCategoryOptions(order, name, key, desc)
                             return IsCategoryStylingBlocked(key)
                         end,
                     },
+                    stanceButtonEnabled = isActionbar and {
+                        type = "toggle", order = 2, width = "full",
+                        name = L["Enable Stance Button Styling"],
+                        desc = L["Styles Blizzard stance button cooldowns using the Action Bars settings. Threshold colors are never applied to stance buttons."],
+                        get = CatGet(key, "stanceButtonEnabled", C.Defaults.Actionbar.StanceButtonEnabled),
+                        set = function(_, value)
+                            MCE.db.profile.categories[key].stanceButtonEnabled = value and true or false
+                            MCE:MarkReloadRequired()
+                            MCE:ForceUpdateAll(true)
+                            NotifyOptionsChanged()
+                        end,
+                        disabled = disabledFn,
+                    } or nil,
                     miniAurasTestToggle = isMiniAuras and {
                         type = "execute", order = 2, width = "1",
                         name = L["Toggle Test Icons"],
@@ -1149,6 +1169,12 @@ local function CreateCategoryOptions(order, name, key, desc)
                 type = "group", name = "|cffffd100" .. L["Typography (Cooldown Numbers)"] .. "|r",
                 inline = true, order = 10, disabled = disabledFn,
                 args = {
+                    fitTextToFrame = {
+                        type = "toggle", order = 3.5, width = "full",
+                        name = L["Shrink text to fit icons"], desc = L["FIT_TEXT_DESC"],
+                        get = CatGet(key, "fitTextToFrame", false),
+                        set = CatSet(key, "fitTextToFrame"),
+                    },
                     font = {
                         type = "select", order = 1, width = 1.5,
                         name = L["Font Face"], values = GetFontOptions,

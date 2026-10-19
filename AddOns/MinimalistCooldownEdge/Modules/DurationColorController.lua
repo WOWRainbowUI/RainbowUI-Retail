@@ -20,6 +20,7 @@ local GetParentSafe = addon.GetParentSafe
 local issecretvalue = issecretvalue
 
 local CATEGORY = C.Categories
+local ACTIONBAR_FRAME_TYPE = C.ActionBarFrameTypes
 local VIEWER_TYPE = C.CooldownManagerViewers
 local STYLER_CONSTANTS = C.Styler
 local CLASSIFIER_CONSTANTS = C.Classifier
@@ -632,9 +633,16 @@ local function GetStateOverrideTextColor(cdFrame, sourceKey, config)
     return config.auraColor or config.textColor
 end
 
+local function IsStanceButtonCooldown(cdFrame, sourceKey)
+    return sourceKey == CATEGORY.Actionbar
+        and Registry ~= nil
+        and Registry:GetSubtype(cdFrame) == ACTIONBAR_FRAME_TYPE.StanceButton
+end
+
 local function IsDurationColorEnabledForSource(cdFrame, sourceKey, config)
     local durationConfig = GetDurationTextColorsConfig()
     if not durationConfig or not durationConfig.enabled or not config then return false end
+    if IsStanceButtonCooldown(cdFrame, sourceKey) then return false end
     if sourceKey == CATEGORY.SArena then
         return false
     end
@@ -650,6 +658,7 @@ function DurationColor:NeedsDurationUpdate(cdFrame, sourceKey, categoryIsActive)
        or (categoryIsActive ~= true and not MCE:IsCategoryActive(sourceKey)) then
         return false
     end
+    if IsStanceButtonCooldown(cdFrame, sourceKey) then return false end
 
     local durationConfig = GetDurationTextColorsConfig()
     local config = GetDurationTextSourceConfig(sourceKey)

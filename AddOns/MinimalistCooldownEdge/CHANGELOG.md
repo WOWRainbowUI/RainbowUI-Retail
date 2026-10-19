@@ -1,4 +1,18 @@
-# Changelog
+## 4.7.0 - Cooldown Performance and Text Sizing
+- Reduced work during repeated cooldown clears.
+- Added optional timer text shrinking for small icons.
+- Updated MiniAuras module detection for current module names.
+
+## 4.7.0-beta.1 - Experimental WoW Forever Support
+- Added experimental WoW Forever support.
+- Added optional Blizzard stance button cooldown styling.
+- Stance buttons use the static Action Bars text color.
+
+
+
+## 4.6.5 - Stance Bar Cooldown Styling
+- Added an Action Bars option for Blizzard Stance Button cooldown styling.
+- Stance Button cooldowns now use the static Action Bars text color instead of threshold colors.
 
 ## 4.6.4 - Action Bar Cooldown Lua Error Fix
 - Fixed repeated Action Bar Lua errors when cooldown values are protected.

@@ -50,6 +50,8 @@ local NESTED_UNIT_TOKEN_KEYS = {
 local frameState = addon.frameState
 local fontState = addon.fontState
 local hookedFontStrings = setmetatable({}, addon.weakMeta)
+-- Keep provider sizes across the style-cache wipes caused by option changes.
+local fitSourceSizes = setmetatable({}, addon.weakMeta)
 
 -- Lazy module references (resolved on first use in OnEnable)
 local Registry, DurationColor, Classifier
@@ -972,9 +974,15 @@ local function EnsureFontStringSetFontHook(region)
         if not s or s.suppressSetFont or not s.enforceFont then return end
 
         local desiredFontSize = s.fontSize
-        if s.preserveFontSize and type(fontSize) == "number" then
-            desiredFontSize = fontSize
-            s.fontSize = fontSize
+        if s.preserveFontSize and not issecretvalue(fontSize) and type(fontSize) == "number" then
+            desiredFontSize = addon.GetFittedFontSize(s.fitRelativeFrame, s.fontPath,
+                fontSize, s.fontStyle, s.fitTextToFrame == true)
+            local source = fitSourceSizes[self]
+            if s.fitTextToFrame or source then
+                if not source then source = {}; fitSourceSizes[self] = source end
+                source.base, source.applied = fontSize, desiredFontSize
+            end
+            s.fontSize = desiredFontSize
         end
 
         if (not issecretvalue(fontPath) and fontPath == s.fontPath)
@@ -1021,6 +1029,28 @@ local function GetCurrentFontSize(region, fallback)
     end
 
     return fallback
+end
+
+local function QueueFittedCooldown(frame)
+    local state = MCE:SafeTableGet(frameState, frame)
+    if not state then return end
+    state.forceTextRegionRefresh = true
+    local batch = MCE:GetModule("BatchProcessor", true)
+    if batch then batch:QueueUpdate(frame) end
+end
+
+function StyleEngine:GetFittedCooldownFontSize(region, frame, font, size, flags, enabled, preserve)
+    if preserve then
+        size = GetCurrentFontSize(region, size)
+        local source = fitSourceSizes[region]
+        if source and size == source.applied then size = source.base end
+        if not enabled and not source then return size end
+        local fitted = addon.GetFittedFontSize(frame, font, size, flags, enabled)
+        if not source then source = {}; fitSourceSizes[region] = source end
+        source.base, source.applied = size, fitted
+        return fitted
+    end
+    return addon.GetFittedFontSize(frame, font, size, flags, enabled)
 end
 
 function StyleEngine:ApplyFontStringStyle(region, relativeFrame, fontPath, fontSize, fontStyle,
@@ -1775,7 +1805,8 @@ function StyleEngine:ApplyStyle(cdFrame, forcedCategory)
     end
 
     -- Font styling (only when category/viewer changed or text regions changed)
-    if needsFullRestyle or textRegionsChanged then
+    addon.WatchTextFit(cdFrame, config.fitTextToFrame == true, QueueFittedCooldown)
+    if needsFullRestyle or textRegionsChanged or needsDeferredTextRefresh then
         fs.appliedTextColor = nil
         local fontStyle = MCE.NormalizeFontStyle(config.fontStyle)
         local resolvedFont = MCE.ResolveFontPath(config.font)
@@ -1823,7 +1854,11 @@ function StyleEngine:ApplyStyle(cdFrame, forcedCategory)
             local regionColor = isMiniAurasDurationText and nil or cooldownTextColor
             local regionEnforceColor = enforceMiniAurasColor
                 and not isMiniAurasDurationText
-            local regionFontSize = preserveFontSize and GetCurrentFontSize(region, fontSize) or fontSize
+            local fontRecord = self:GetFontState(region)
+            fontRecord.fitTextToFrame = config.fitTextToFrame == true
+            fontRecord.fitRelativeFrame = cdFrame
+            local regionFontSize = self:GetFittedCooldownFontSize(region, cdFrame, resolvedFont,
+                fontSize, fontStyle, config.fitTextToFrame == true, preserveFontSize)
             self:ApplyFontStringStyle(
                 region, cdFrame,
                 resolvedFont, regionFontSize, fontStyle,
