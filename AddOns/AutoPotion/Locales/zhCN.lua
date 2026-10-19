@@ -86,3 +86,5 @@ L["Click and press %s to copy"] = "点击后按 %s 复制"
 L["Ctrl+C"] = "Ctrl+C"
 
 L["Small quality of life features in one addon: a smaller viewport, junk selling and repairs, quests accepted and turned in for you, IDs and vendor prices in tooltips, a square minimap and dungeons on the world map."] = "整合多项便捷功能：缩小游戏视野、出售垃圾与修理、自动接受及交付任务、提示信息显示 ID 与售价、方形小地图，以及世界地图上的副本。"
+
+L["Couldn't create the %s macro: your general macros are full. Delete one of them and it will be created."] = "无法创建 %s 宏：通用宏栏位已满。删除一个宏后便会自动创建。"
