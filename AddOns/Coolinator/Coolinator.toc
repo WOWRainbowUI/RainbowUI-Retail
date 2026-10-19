@@ -1,7 +1,7 @@
 ## Dependencies: Ace3
 ## Interface: 120100, 120105, 16001
 ## Title: Coolinator
-## Version: 160
+## Version: 161
 ## Author: plusmouse
 ## OptionalDeps: Masque
 ## SavedVariables: COOLINATOR_CONFIG

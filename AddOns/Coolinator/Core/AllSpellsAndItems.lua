@@ -216,7 +216,7 @@ else
 
     for _, entry in ipairs(addonTable.Data.Spells[UnitClassBase("player")]) do
       local spellID = entry.spells[#entry.spells]
-      if not C_Spell.IsSpellPassive(spellID) then
+      if not C_Spell.IsSpellPassive(spellID) and (not entry.auraTag or entry.auraTag == "ABILITYANDAURA") then
         table.insert(result, spellID)
       end
       for _, spellID in ipairs(entry.spells) do

@@ -519,7 +519,7 @@ addonTable.Data.Spells[class] = {
   [50] = {
     ['auraTag'] = 'HELPAURA',
     ['spells'] = {
-      [5] = 15326
+      [1] = 15326
     },
     ['name'] = 'Blackout',
     ['isRanked'] = true

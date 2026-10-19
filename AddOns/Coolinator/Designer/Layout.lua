@@ -351,7 +351,7 @@ function addonTable.Designer.LayoutManagerMixin:OnLoad()
     self.keyboardTrap:SetPropagateKeyboardInput(false)
     local amount = 0.5
     if IsShiftKeyDown() then
-      amount = amount * 4
+      amount = 10
     end
     local result
     if key == "LEFT" then
