@@ -1,5 +1,9 @@
 # Changelog
 
+### 41
+- Doesn't sort Raid/Raid Legacy anymore
+- Added new `/premadesort sort` option to disable sort where it currently sorts
+
 ### 40
 - Version update
 
