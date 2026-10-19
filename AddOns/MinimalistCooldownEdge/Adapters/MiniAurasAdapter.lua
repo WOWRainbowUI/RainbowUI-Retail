@@ -27,6 +27,12 @@ local MINIAURAS_PREFIX = CLASSIFIER_CONSTANTS.MiniAurasNamePrefix
 local NP_PATTERNS = CLASSIFIER_CONSTANTS.NameplatePatterns
 local UF_PATTERNS = CLASSIFIER_CONSTANTS.UnitFramePatterns
 local MINIAURAS_MODULE_TO_FRAME_TYPE = {
+    -- Public tags used by MiniAuras 5.43.8 on Retail and Forever.
+    ["Crowd Control"] = MINIAURAS_FRAME_TYPE.CC,
+    ["Important Auras"] = MINIAURAS_FRAME_TYPE.Overlay,
+    ["Healer Crowd Control"] = MINIAURAS_FRAME_TYPE.Overlay,
+    ["Enemy Kicks"] = MINIAURAS_FRAME_TYPE.Overlay,
+    ["Personal Auras"] = MINIAURAS_FRAME_TYPE.Overlay,
     Alerts = MINIAURAS_FRAME_TYPE.Overlay,
     CC = MINIAURAS_FRAME_TYPE.CC,
     ["Enemy CDs"] = MINIAURAS_FRAME_TYPE.LegacyEnemyCD,

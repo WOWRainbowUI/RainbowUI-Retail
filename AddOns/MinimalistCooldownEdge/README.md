@@ -1,3 +1,5 @@
+Experimental WoW Forever support is available in this development branch. See [FOREVER.md](FOREVER.md) for the supported behavior, draft packages and pending in-game checks.
+
 # Minimalist Cooldown Edge (MiniCE)
 
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
@@ -8,7 +10,7 @@ The addon is built around an adapter-driven registry. Cooldowns are discovered b
 
 ## What it supports
 
-- Action bars, including charge cooldowns and assisted combat actions.
+- Action bars, including optional stance-bar styling, charge cooldowns, and assisted combat actions. Stance buttons always use the static Action Bars text color rather than threshold colors.
 - Nameplate auras.
 - Blizzard and third-party unit frames.
 - CooldownManager viewers.
@@ -102,6 +104,19 @@ That sequence reduces startup ambiguity and keeps `Registry:TryClaim()` useful a
 - The registry is the source of truth for category and subtype routing.
 - `Styler` is the orchestration layer; `StyleEngine` is the styling layer.
 - `HookBridge` keeps Blizzard from silently reverting edge, swipe, or countdown state between style passes.
+
+## Shrink timer text on small icons
+
+Enable **Shrink text to fit icons** in a category's Typography options. Player
+Auras has a separate toggle for each aura type. The configured font size stays
+the maximum; larger icons do not enlarge it. Sizing uses fixed timer examples,
+so the font does not jump as the countdown changes. The option is off by default.
+
+Current MiniAuras tags such as Crowd Control, Important Auras, Healer Crowd
+Control, Enemy Kicks, and Personal Auras use their corresponding MiniCE groups.
+Crowd Control uses CC Frames Text Size; the standalone alert groups use
+Alerts / Trackers / Custom Auras Text Size. Portraits retains its own control. MiniAuras nameplate modules remain
+outside this integration.
 
 ## Support and community
 

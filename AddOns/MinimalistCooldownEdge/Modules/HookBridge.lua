@@ -492,41 +492,11 @@ local function ProcessCooldownUpdate(cooldown, inputKind, value1, value2, value3
 end
 
 local function ProcessCooldownClear(cooldown)
-    if IsLossOfControlCooldown(cooldown) then
-        ClearUnmanagedAuraClaimRetry(cooldown)
-        if EnsureDependencies() then
-            DurationColor:ClearTrackedDurationColor(cooldown)
-        end
-        return
-    end
-
-    if not EnsureDependencies() then
-        return
-    end
-    if IsInternalVisualCooldown(cooldown) then
-        Registry:Unregister(cooldown)
-        ClearUnmanagedAuraClaimRetry(cooldown)
-        return
-    end
-
-    local category, isNegative = Registry:GetCategoryAndNegative(cooldown)
-    if category then
-        ClearUnmanagedAuraClaimRetry(cooldown)
-        if not MCE:IsCategoryActive(category) then
-            return
-        end
-        DurationColor:ClearTrackedDurationColor(cooldown)
-        return
-    end
-
-    if isNegative or IsRestrictedCooldown(cooldown) then
-        return
-    end
-
-    if ShouldIgnoreCooldown(cooldown) then
-        return
-    end
-
+    -- Clear is housekeeping, never discovery. Hidden action bars can broadcast
+    -- thousands of clears per spell; walking their ancestors on each one stalls
+    -- the UI. Clearing our own records is safe even after ownership changes and
+    -- must not install a negative claim that could prevent later discovery.
+    if IsRestrictedCooldown(cooldown) or not EnsureDependencies() then return end
     ClearUnmanagedAuraClaimRetry(cooldown)
     DurationColor:ClearTrackedDurationColor(cooldown)
 end
@@ -570,13 +540,6 @@ function HookBridge:SetupHooks()
 
     if type(cooldownAPI.Clear) == "function" then
         hooksecurefunc(cooldownAPI, "Clear", function(cooldown)
-            if IsLossOfControlCooldown(cooldown) then
-                ClearUnmanagedAuraClaimRetry(cooldown)
-                if EnsureDependencies() then
-                    DurationColor:ClearTrackedDurationColor(cooldown)
-                end
-                return
-            end
             ProcessCooldownClear(cooldown)
         end)
     end

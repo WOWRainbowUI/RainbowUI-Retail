@@ -2,6 +2,9 @@
 local L = LibStub("AceLocale-3.0"):NewLocale("MinimalistCooldownEdge", "enUS", true)
 if not L then return end
 
+L["Shrink text to fit icons"] = true
+L["FIT_TEXT_DESC"] = "Treats the configured text size as a maximum and shrinks timer text on small icons. Uses fixed timer samples, so text size stays stable as the countdown changes."
+
 L["MINIAURAS_COUNTDOWN_COLORS_NOTICE"] = "MiniAuras owns countdown threshold colours. Configure them in MiniAuras > Misc > Countdown Colours."
 L["MYDRS_SWIPE_ALPHA_DESC"] = "0% = transparent, 100% = full dark. Replaces the MyDRs Cooldown Swipe Alpha setting while this category is enabled; 100% matches the swipe MyDRs draws itself."
 L["MINIAURAS_SWIPE_ALPHA_DESC"] = "0% = transparent, 100% = full dark. Applies to every MiniAuras module group; 80% matches the swipe MiniAuras draws itself."
@@ -60,6 +63,8 @@ L["Style External Defensive Buffs"] = true
 L["Style Blizzard's default player buff buttons."] = true
 L["Style Blizzard's default player debuff buttons."] = true
 L["Style Blizzard's external defensive buff buttons."] = true
+L["Enable Stance Button Styling"] = true
+L["Styles Blizzard stance button cooldowns using the Action Bars settings. Threshold colors are never applied to stance buttons."] = true
 L["Font Face"] = true
 L["Font"] = true
 L["Size"] = true

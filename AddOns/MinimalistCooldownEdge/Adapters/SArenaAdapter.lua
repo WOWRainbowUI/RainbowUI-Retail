@@ -15,6 +15,7 @@ local SA = C.Adapter.SArena
 local Registry
 
 function Adapter:OnEnable()
+    if addon.ClientCompat.IsForever then return end
     Registry = MCE:GetModule("TargetRegistry")
     Registry:RegisterAdapter(CATEGORY.SArena, self)
 end

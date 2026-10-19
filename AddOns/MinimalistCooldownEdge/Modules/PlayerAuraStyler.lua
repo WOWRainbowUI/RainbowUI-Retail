@@ -664,6 +664,7 @@ local function GetVisibleAuraCount(button, countRegion)
 end
 
 local function RestoreButton(button)
+    addon.WatchTextFit(button, false)
     if not managedButtons[button] then
         return
     end
@@ -692,7 +693,12 @@ local function RestoreButton(button)
     managedAuraTypes[button] = nil
 end
 
+local function RestyleFittedPlayerAura(button)
+    PlayerAuraStyler:StyleAuraButton(button)
+end
+
 local function StyleDuration(button, config)
+    addon.WatchTextFit(button, config.fitTextToFrame == true, RestyleFittedPlayerAura)
     local duration = button.Duration
     if not duration then return end
 
@@ -710,7 +716,8 @@ local function StyleDuration(button, config)
         duration,
         button.Icon or button,
         MCE.ResolveFontPath(config.font),
-        config.fontSize,
+        addon.GetFittedFontSize(button.Icon or button, MCE.ResolveFontPath(config.font),
+            config.fontSize, MCE.NormalizeFontStyle(config.fontStyle), config.fitTextToFrame == true),
         MCE.NormalizeFontStyle(config.fontStyle),
         config.textColor,
         point,
@@ -1040,6 +1047,7 @@ local function ResetElvUISwipe(cooldown)
 end
 
 local function RestoreElvUIButton(button)
+    addon.WatchTextFit(button, false)
     if not elvuiManagedButtons[button] then
         return
     end
@@ -1067,7 +1075,12 @@ local function RestoreElvUIButton(button)
     elvuiManagedButtons[button] = nil
 end
 
-local function StyleElvUIAuraButton(button)
+local StyleElvUIAuraButton
+local function RestyleFittedElvUIAura(button)
+    StyleElvUIAuraButton(button)
+end
+
+StyleElvUIAuraButton = function(button)
     if not button or IsForbidden(button) then
         return true
     end
@@ -1132,7 +1145,8 @@ local function StyleElvUIAuraButton(button)
         fontString,
         cooldown,
         MCE.ResolveFontPath(styleConfig.font),
-        styleConfig.fontSize,
+        addon.GetFittedFontSize(cooldown, MCE.ResolveFontPath(styleConfig.font),
+            styleConfig.fontSize, MCE.NormalizeFontStyle(styleConfig.fontStyle), styleConfig.fitTextToFrame == true),
         MCE.NormalizeFontStyle(styleConfig.fontStyle),
         styleConfig.textColor,
         "CENTER",
@@ -1140,6 +1154,7 @@ local function StyleElvUIAuraButton(button)
         styleConfig.textOffsetX or 0,
         styleConfig.textOffsetY or 0)
 
+    addon.WatchTextFit(button, styleConfig.fitTextToFrame == true, RestyleFittedElvUIAura)
     return true
 end
 

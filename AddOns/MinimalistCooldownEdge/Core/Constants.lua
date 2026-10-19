@@ -54,6 +54,10 @@ C.CooldownManagerViewers = {
     BuffIcon = "bufficon",
 }
 
+C.ActionBarFrameTypes = {
+    StanceButton = "stancebutton",
+}
+
 C.PlayerAuraTypes = {
     Buff = "buff",
     Debuff = "debuff",
@@ -179,6 +183,7 @@ C.Defaults = {
         StackOffsetY = 3,
     },
     Actionbar = {
+        StanceButtonEnabled = true,
         HideChargeTimers = true,
         ReverseSwipe = false,
         SwipeAlpha = 80,
@@ -492,6 +497,11 @@ C.Adapter = {
             { prefix = "MultiBar5Button", count = 12 },
             { prefix = "MultiBar6Button", count = 12 },
             { prefix = "MultiBar7Button", count = 12 },
+            {
+                prefix = "StanceButton",
+                count = 10,
+                subtype = C.ActionBarFrameTypes.StanceButton,
+            },
         },
         ThirdPartyPrefixes = {},
         ThirdPartyMaxIndex = 180,

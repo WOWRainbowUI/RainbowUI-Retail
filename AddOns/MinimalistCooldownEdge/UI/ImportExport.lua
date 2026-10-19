@@ -7,6 +7,10 @@ local AceSerializer = LibStub("AceSerializer-3.0")
 
 local EXPORT_PREFIX = C.ImportExport.Prefix
 local COMPRESSION_MODE = C.ImportExport.CompressionMode
+local CompressString = C_Compression and C_Compression.CompressString
+    or C_EncodingUtil and C_EncodingUtil.CompressString
+local DecompressString = C_Compression and C_Compression.DecompressString
+    or C_EncodingUtil and C_EncodingUtil.DecompressString
 
 local MAX_IMPORT_STRING_LENGTH = 262144
 local MAX_DECODED_LENGTH = 196608
@@ -114,7 +118,7 @@ local function DecodeBase64(value)
 end
 
 local function CompressPayload(value)
-    local ok, compressed = pcall(C_Compression.CompressString, value)
+    local ok, compressed = pcall(CompressString, value)
     if ok and type(compressed) == "string" and compressed ~= "" then
         return COMPRESSION_MODE.Compressed, compressed
     end
@@ -124,7 +128,7 @@ end
 
 local function DecompressPayload(mode, value)
     if mode == COMPRESSION_MODE.Compressed then
-        local ok, decompressed = pcall(C_Compression.DecompressString, value)
+        local ok, decompressed = pcall(DecompressString, value)
         if ok and type(decompressed) == "string" and decompressed ~= "" then
             return decompressed
         end
