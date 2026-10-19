@@ -120,7 +120,7 @@ L['songseeker_ikaja_note'] = 'Encima del templo.'
 -------------------------------------------------------------------------------
 
 L['sleepy_mandrake_note'] = 'Encuentra y alimenta 5 setas rojas únicas al {npc:267910} en la Gruta del Durmiente. Cada seta tiene un origen diferente en la zona.'
-L['partially_digested_redcap_note'] = 'Loot de {npc:264340}, {npc:264315}, y raros similares en la zona.'
+L['partially_digested_redcap_note'] = 'Se despoja de {npc:264340}, {npc:264315}, y raros similares en la zona.'
 L['ancient_crypt_reliquary'] = 'Relicario de la cripta antigua'
 L['squirming_mollusk'] = 'Molusco retorcido'
 L['spiked_shell'] = 'Caparazón con púas'
@@ -148,7 +148,8 @@ L['options_icons_ritual_site_desc'] = 'Mostrar las recompensas de {location:Luga
 
 L['ritual_site_broken_throne'] = 'Lugares de ritual: Trono Destrozado'
 L['ritual_site_daggerspine_point'] = 'Lugares de ritual: Punto de Espinadaga'
-L['ritual_site_opens_in'] = nil
+L['broken_throne_entry_note'] = 'Trono Destrozado, también conocido como Atal\'Kaldan, es una ruina Amani tomada durante la Hoja Crepuscular. Haz click en el {npc:260103} para entrar.\n\nSe alterna semanalmente con {location:Lugares de ritual: Punto de Espinadaga}.'
+L['daggerspine_point_entry_note'] = 'Punto de Espinadaga es una isla tomada por las nagas Espinadaga, llamada formalmente Shalandis Isle. Haz click en el {npc:260103} para entrar.\n\nSe alterna semanalmente con {location:Lugares de ritual: Trono Destrozado}.'
 
 L['chewed_meat'] = 'Carne mordisqueada'
 L['chewed_meat_note'] = 'Invoca a {spell:1286634} en la {object:Carne mordisqueada}. Derrota al {npc:263381}. Una vez que se vuelva amigable, aliméntalo con 5x {item:242639}.'
@@ -221,6 +222,9 @@ L['curse_surge_note'] = 'Los eventos de Oleada Maldita rotan cada %d minutos.\n\
 -------------------------------------------------------------------------------
 
 L['mislaid_treasure'] = 'Rareza extraviada'
+L['locked_door_note'] = 'No tiene requisito de dificultad. Derrota a {npc:273788} y usa la {item:282402} para abrirla.\n\n{note:O ábrela directamente con un pícaro o con la {item:260232}.}'
+L['flooded_chamber'] = 'Entrada submarina'
+L['flooded_chamber_note'] = 'Dentro está el {npc:270937}, que se puede romper con la {npc:271605} o con hechizos de fuego.'
 
 L['options_icons_hexmask'] = '{achievement:63720}'
 L['options_icons_hexmask_desc'] = 'Muestra todas las ubicaciones para el logro {achievement:63720}.'
@@ -233,4 +237,4 @@ L['c_underneath_bridge'] = 'Debajo del puente.'
 --------------------------------- AQIR INVASION -------------------------------
 -------------------------------------------------------------------------------
 
-L['aqir_invasion_running'] = nil
+L['aqir_invasion_running'] = 'Invasión en curso'

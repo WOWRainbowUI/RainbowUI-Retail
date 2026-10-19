@@ -5,8 +5,8 @@ local ADDON_NAME, ns = ...
 local L = ns.locale
 local Map = ns.Map
 
+local Node = ns.node.Node
 local RitualCollectible = ns.node.RitualCollectible
-local RitualSiteEntry = ns.node.RitualSiteEntry
 
 local Mount = ns.reward.Mount
 local Pet = ns.reward.Pet
@@ -14,7 +14,7 @@ local POI = ns.poi.POI
 
 -------------------------------------------------------------------------------
 
-local map = Map({id = 2585, settings = true})
+local map = Map({id = 2585, settings = true, secret = true})
 local zulaman = ns.maps[2437]
 
 -------------------------------------------------------------------------------
@@ -87,24 +87,18 @@ map.nodes[40906760] = RitualCollectible({
 }) -- Rustling Fern (Broken Throne)
 
 -------------------------------------------------------------------------------
------------------------------ PARENT MAP ENTRY --------------------------------
+------------------------------- PARENT MAP ENTRY ------------------------------
 -------------------------------------------------------------------------------
 
--- visible only while the site is closed (Blizzard's pin takes over once it
--- opens); right clicking it switches to the site map
-zulaman.nodes[66507600] = RitualSiteEntry({
+zulaman.nodes[29567930] = Node({
     label = L['ritual_site_broken_throne'],
+    note = L['broken_throne_entry_note'],
+    icon = 'portal_pp',
+    scale = 2,
+    group = ns.groups.RITUAL_SITE,
     areaPOI = 8614, -- Ritual Site: Broken Throne
-    OnClick = function() WorldMapFrame:SetMapID(map.id) end,
+    OnClick = function()
+        if not InCombatLockdown() then C_Map.OpenWorldMap(2585) end
+    end,
     clabel = L['change_map']
 }) -- Curious Obelisk (always-visible entry)
-
--------------------------------------------------------------------------------
---------------------------------- MAP SHORTCUT --------------------------------
--------------------------------------------------------------------------------
-
--- Right clicking the Ritual Site pin on the world map opens this map, and the
--- tooltip shows when the site is up next
-ns.hooks.areapoi.Add(ns.groups.RITUAL_SITE, {
-    [8614] = {map = map.id, interval = true} -- Ritual Site: Broken Throne
-})

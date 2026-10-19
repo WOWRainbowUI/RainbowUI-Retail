@@ -147,7 +147,8 @@ L['options_icons_ritual_site_desc'] = 'Display {location:Ritual Site} rewards on
 
 L['ritual_site_broken_throne'] = 'Ritual Site: Broken Throne'
 L['ritual_site_daggerspine_point'] = 'Ritual Site: Daggerspine Point'
-L['ritual_site_opens_in'] = 'Opens in %s.'
+L['broken_throne_entry_note'] = 'The Broken Throne also known as Atal\'Kaldan, is an Amani ruin taken over by the Twilight\'s Blade. Click {npc:260103} to enter.\n\nAlternates weekly with {location:Ritual Site: Daggerspine Point}.'
+L['daggerspine_point_entry_note'] = 'Daggerspine Point is an island claimed by the Daggerspine naga, formerly named Shalandis Isle. Click {npc:260103} to enter.\n\nAlternates weekly with {location:Ritual Site: Broken Throne}.'
 
 L['chewed_meat'] = 'Chewed Meat'
 L['chewed_meat_note'] = 'Summon {spell:1286634} at {object:Chewed Meat}. Defeat {npc:263381}. Once it turns friendly, feed it 5x {item:242639}.'
@@ -220,6 +221,9 @@ L['curse_surge_note'] = 'Cursed Surge events rotate every %d minutes.\n\n{note:I
 -------------------------------------------------------------------------------
 
 L['mislaid_treasure'] = 'Mislaid Treasure'
+L['locked_door_note'] = 'No difficulty requirement. Defeat {npc:273788} and use {item:282402} to open it.\n\n{note:Or open it directly as a rogue or with {item:260232}.}'
+L['flooded_chamber'] = 'Underwater Entrance'
+L['flooded_chamber_note'] = 'Inside is {npc:270937}, which can be broken with the {npc:271605} or fire spells.'
 
 L['options_icons_hexmask'] = '{achievement:63720}'
 L['options_icons_hexmask_desc'] = 'Display the locations for the {achievement:63720} achievement.'

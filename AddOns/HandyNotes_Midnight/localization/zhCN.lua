@@ -147,7 +147,8 @@ L['options_icons_ritual_site_desc'] = '在提示中显示 {location:仪式场地
 
 L['ritual_site_broken_throne'] = '仪式场地：残破神庙'
 L['ritual_site_daggerspine_point'] = '仪式场地：刺脊营'
-L['ritual_site_opens_in'] = '%s后开放。'
+L['broken_throne_entry_note'] = '残破神庙又称阿塔尔卡丹，是一座被暮光之刃占据的阿曼尼废墟。点击 {npc:260103} 进入。\n\n与 {location:仪式场地：刺脊营} 每周轮换开放。'
+L['daggerspine_point_entry_note'] = '刺脊营是一座被匕脊纳迦占据的岛屿，原名沙兰蒂斯岛。点击 {npc:260103} 进入。\n\n与 {location:仪式场地：残破神庙} 每周轮换开放。'
 
 L['chewed_meat'] = '碎烂的肉'
 L['chewed_meat_note'] = '在 {object:碎烂的肉} 处召唤 {spell:1286634}，击败 {npc:263381} 后喂食5个 {item:242639}。'
@@ -220,6 +221,9 @@ L['curse_surge_note'] = '诅咒狂潮事件每%d分钟轮换一次。\n\n{note:�
 -------------------------------------------------------------------------------
 
 L['mislaid_treasure'] = '错放的宝藏'
+L['locked_door_note'] = '无难度要求。击败 {npc:273788}，拿到 {item:282402} 后才能开启。\n\n{note:或使用潜行者职业、使用 {item:260232} 直接开门。}'
+L['flooded_chamber'] = '水下入口'
+L['flooded_chamber_note'] = '进去后有 {npc:270937}，可用 {npc:271605} 或火焰系法术打破。'
 
 L['options_icons_hexmask'] = '{achievement:63720}'
 L['options_icons_hexmask_desc'] = '显示 {achievement:63720} 成就的位置。'
