@@ -28,11 +28,12 @@ local strsub = string.sub
 local db, dbChar
 local defaults
 local anchors = { ["TOPLEFT"] = "左上", ["TOPRIGHT"] = "右上", ["BOTTOMLEFT"] = "左下", ["BOTTOMRIGHT"] = "右下" }
-local strata = { "BACKGROUND", "LOW", "MEDIUM", "高" }
+local strata = { "BACKGROUND", "LOW", "MEDIUM", "HIGH" }
+local strataLabels = { BACKGROUND = "背景", LOW = "低", MEDIUM = "中", HIGH = "高" }
 local flags = { [""] = "無", ["OUTLINE"] = "外框", ["OUTLINE, MONOCHROME"] = "無消除鋸齒外框" }
 local textures = { "無", "預設 (暴雪)", "單線", "雙線" }
 local modifiers = { [""] = "無", ["ALT"] = "Alt", ["CTRL"] = "Ctrl", ["ALT-CTRL"] = "Alt + Ctrl" }
-local SOUND_CHANNELS = { "主聲道", "Music", "SFX", "Ambience" }
+local SOUND_CHANNELS = { "Master", "Music", "SFX", "Ambience" }
 local SOUND_CHANNELS_LOCALIZED = { Master = "主聲道", Music = MUSIC_VOLUME, SFX = FX_VOLUME, Ambience = AMBIENCE_VOLUME }
 local VISIBILITY_OPTIONS = { "show", "hide", "expand", "collapse" }
 local VISIBILITY_OPTIONS_LOCALIZED = { show = "顯示", hide = "隱藏", expand = "顯示 + 展開", collapse = "顯示 + 收合" }
@@ -373,7 +374,7 @@ end
 
 -- Options
 local options = {
-	name = "|T"..KT.MEDIA_PATH.."KT_logo:22:22:-1:7|t任務追蹤清單增強"..KT.TITLE,
+	name = "|T"..KT.MEDIA_PATH.."KT_logo:22:22:-1:7|t任務追蹤清單增強",
 	type = "group",
 	get = function(info) return db[info[#info]] end,
 	args = {
