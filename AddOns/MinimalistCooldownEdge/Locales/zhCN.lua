@@ -322,3 +322,7 @@ L["PERF_WARNING_DESC"] = "此功能可能影响性能并导致帧率下降，请
 
 -- Font Options
 L["Game Default"] = "游戏默认"
+
+L["Shrink text to fit icons"] = "缩小文字以适应图标大小"
+
+L["FIT_TEXT_DESC"] = "将设置的文字大小作为上限，并在较小的图标上缩小计时文字。使用固定的计时样本，让字号不随倒计时变化。"

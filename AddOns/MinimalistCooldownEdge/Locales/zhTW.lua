@@ -372,3 +372,7 @@ L["Game Default"] = "遊戲預設"
 -- 自行加入
 L["MiniCE"] = "極簡冷卻時間"
 L["MinimalistCooldownEdge"] = "冷卻時間"
+
+L["Shrink text to fit icons"] = "縮小文字以符合圖示大小"
+
+L["FIT_TEXT_DESC"] = "將設定的文字大小作為上限，並在較小的圖示上縮小倒數文字。使用固定的計時樣本，讓字級不隨倒數變化。"
