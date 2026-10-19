@@ -503,7 +503,9 @@ function ns.CreateGroupOptions(map, group)
                             HideUIPanel(SettingsPanel)
                             HideUIPanel(GameMenuFrame)
                         end
-                        OpenWorldMap(map.id)
+                        if not InCombatLockdown() then
+                            C_Map.OpenWorldMap(map.id)
+                        end
                     end
                 },
                 IconsGroup = {

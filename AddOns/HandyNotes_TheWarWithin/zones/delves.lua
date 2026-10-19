@@ -17,29 +17,29 @@ local Path = ns.poi.Path
 
 -------------------------------------------------------------------------------
 
-local kvr = Map({id = 2250, settings = false}) -- Kriegval's Rest
-local tuk = Map({id = 2299, settings = false}) -- The Underkeep
-local ecm = Map({id = 2269, settings = false}) -- Earthcrawl Mines
-local mmc = Map({id = 2312, settings = false}) -- Mycomancer Cavern
-local tdp = Map({id = 2302, settings = false}) -- The Dread Pit
-local tww = Map({id = 2251, settings = false}) -- The Waterworks
-local tsw = Map({id = 2347, settings = false}) -- The Spiral Weave
-local tsh = Map({id = 2301, settings = false}) -- The Sinkhole
-local fol = Map({id = 2249, settings = false}) -- Fungal Folly
-local ski = Map({id = 2310, settings = false}) -- Skittering Breach
-local nfs = Map({id = 2277, settings = false}) -- Nightfall Sanctum
-local tra = Map({id = 2259, settings = false}) -- Tak-Rethan Abyss
+local kvr = Map({id = 2250, settings = false, secret = true}) -- Kriegval's Rest
+local tuk = Map({id = 2299, settings = false, secret = true}) -- The Underkeep
+local ecm = Map({id = 2269, settings = false, secret = true}) -- Earthcrawl Mines
+local mmc = Map({id = 2312, settings = false, secret = true}) -- Mycomancer Cavern
+local tdp = Map({id = 2302, settings = false, secret = true}) -- The Dread Pit
+local tww = Map({id = 2251, settings = false, secret = true}) -- The Waterworks
+local tsw = Map({id = 2347, settings = false, secret = true}) -- The Spiral Weave
+local tsh = Map({id = 2301, settings = false, secret = true}) -- The Sinkhole
+local fol = Map({id = 2249, settings = false, secret = true}) -- Fungal Folly
+local ski = Map({id = 2310, settings = false, secret = true}) -- Skittering Breach
+local nfs = Map({id = 2277, settings = false, secret = true}) -- Nightfall Sanctum
+local tra = Map({id = 2259, settings = false, secret = true}) -- Tak-Rethan Abyss
 
-local esn = Map({id = 2396, settings = false}) -- Excavation Site 9
+local esn = Map({id = 2396, settings = false, secret = true}) -- Excavation Site 9
 
-local pit = Map({id = 2420, settings = false}) -- Sidestreet Sluice - The Pits
-local thd = Map({id = 2422, settings = false}) -- Sidestreet Sluice - The High Decks
+local pit = Map({id = 2420, settings = false, secret = true}) -- Sidestreet Sluice - The Pits
+local thd = Map({id = 2422, settings = false, secret = true}) -- Sidestreet Sluice - The High Decks
 
 -- local upc = Map({id = 2452, settings = false}) -- Archival Assault -- Upper Chamber
-local arc = Map({id = 2452, settings = false}) -- Archival Assault -- The Arcane Conservatory
+local arc = Map({id = 2452, settings = false, secret = true}) -- Archival Assault -- The Arcane Conservatory
 -- local mol = Map({id = 2455, settings = false}) -- Archival Assault -- Mausoleum of Legends
-local low = Map({id = 2455, settings = false}) -- Archival Assault -- Lower Chamber
-local cch = Map({id = 2476, settings = false}) -- Archival Assault -- Crystal Chambers
+local low = Map({id = 2455, settings = false, secret = true}) -- Archival Assault -- Lower Chamber
+local cch = Map({id = 2476, settings = false, secret = true}) -- Archival Assault -- Crystal Chambers
 
 -------------------------------------------------------------------------------
 
@@ -731,37 +731,37 @@ local DELVE_REWARDS = {
 
 local DELVE_AREA_POIS = {
     -- NORMAL DELVES ----------------------------------------------------------
-    [7863] = {map = ecm.id, rewards = DELVE_REWARDS['earthcrawl_mines']},
-    [7864] = {map = fol.id, rewards = DELVE_REWARDS['fungal_folly']},
-    [7865] = {map = kvr.id, rewards = DELVE_REWARDS['kriegvals_rest']},
-    [7866] = {map = tww.id, rewards = DELVE_REWARDS['the_waterworks']},
-    [7867] = {map = tdp.id, rewards = DELVE_REWARDS['the_dread_pit']},
-    [7868] = {map = nfs.id, rewards = DELVE_REWARDS['nightfall_sanctum']},
-    [7869] = {map = mmc.id, rewards = DELVE_REWARDS['mycomancer_cavern']},
-    [7870] = {map = tsh.id, rewards = DELVE_REWARDS['the_sinkhole']},
-    [7871] = {map = ski.id, rewards = DELVE_REWARDS['skittering_breach']},
-    [7872] = {map = tuk.id, rewards = DELVE_REWARDS['the_underkeep']},
-    [7873] = {map = tra.id, rewards = DELVE_REWARDS['tek_rethan_abyss']},
-    [7874] = {map = tsw.id, rewards = DELVE_REWARDS['the_spiral_weave']},
-    [8143] = {map = esn.id, rewards = DELVE_REWARDS['excavation_site_9']},
-    [8140] = {map = thd.id, rewards = DELVE_REWARDS['sidestreet_sluice']},
-    [8274] = {map = arc.id, rewards = DELVE_REWARDS['archival_assault']},
+    [7863] = DELVE_REWARDS['earthcrawl_mines'],
+    [7864] = DELVE_REWARDS['fungal_folly'],
+    [7865] = DELVE_REWARDS['kriegvals_rest'],
+    [7866] = DELVE_REWARDS['the_waterworks'],
+    [7867] = DELVE_REWARDS['the_dread_pit'],
+    [7868] = DELVE_REWARDS['nightfall_sanctum'],
+    [7869] = DELVE_REWARDS['mycomancer_cavern'],
+    [7870] = DELVE_REWARDS['the_sinkhole'],
+    [7871] = DELVE_REWARDS['skittering_breach'],
+    [7872] = DELVE_REWARDS['the_underkeep'],
+    [7873] = DELVE_REWARDS['tek_rethan_abyss'],
+    [7874] = DELVE_REWARDS['the_spiral_weave'],
+    [8143] = DELVE_REWARDS['excavation_site_9'],
+    [8140] = DELVE_REWARDS['sidestreet_sluice'],
+    [8274] = DELVE_REWARDS['archival_assault'],
     -- BOUNTIFUL DELVES -------------------------------------------------------
-    [7779] = {map = fol.id, rewards = DELVE_REWARDS['fungal_folly']},
-    [7780] = {map = mmc.id, rewards = DELVE_REWARDS['mycomancer_cavern']},
-    [7781] = {map = kvr.id, rewards = DELVE_REWARDS['kriegvals_rest']},
-    [7782] = {map = tww.id, rewards = DELVE_REWARDS['the_waterworks']},
-    [7783] = {map = tsh.id, rewards = DELVE_REWARDS['the_sinkhole']},
-    [7784] = {map = tra.id, rewards = DELVE_REWARDS['tek_rethan_abyss']},
-    [7785] = {map = nfs.id, rewards = DELVE_REWARDS['nightfall_sanctum']},
-    [7786] = {map = tuk.id, rewards = DELVE_REWARDS['the_underkeep']},
-    [7787] = {map = ecm.id, rewards = DELVE_REWARDS['earthcrawl_mines']},
-    [7788] = {map = tdp.id, rewards = DELVE_REWARDS['the_dread_pit']},
-    [7789] = {map = ski.id, rewards = DELVE_REWARDS['skittering_breach']},
-    [7790] = {map = tsw.id, rewards = DELVE_REWARDS['the_spiral_weave']},
-    [8181] = {map = esn.id, rewards = DELVE_REWARDS['excavation_site_9']},
-    [8246] = {map = thd.id, rewards = DELVE_REWARDS['sidestreet_sluice']},
-    [8273] = {map = arc.id, rewards = DELVE_REWARDS['archival_assault']}
+    [7779] = DELVE_REWARDS['fungal_folly'],
+    [7780] = DELVE_REWARDS['mycomancer_cavern'],
+    [7781] = DELVE_REWARDS['kriegvals_rest'],
+    [7782] = DELVE_REWARDS['the_waterworks'],
+    [7783] = DELVE_REWARDS['the_sinkhole'],
+    [7784] = DELVE_REWARDS['tek_rethan_abyss'],
+    [7785] = DELVE_REWARDS['nightfall_sanctum'],
+    [7786] = DELVE_REWARDS['the_underkeep'],
+    [7787] = DELVE_REWARDS['earthcrawl_mines'],
+    [7788] = DELVE_REWARDS['the_dread_pit'],
+    [7789] = DELVE_REWARDS['skittering_breach'],
+    [7790] = DELVE_REWARDS['the_spiral_weave'],
+    [8181] = DELVE_REWARDS['excavation_site_9'],
+    [8246] = DELVE_REWARDS['sidestreet_sluice'],
+    [8273] = DELVE_REWARDS['archival_assault']
 }
 
 ns.hooks.delve.Add(ns.groups.DELVE_REWARDS, DELVE_AREA_POIS)
