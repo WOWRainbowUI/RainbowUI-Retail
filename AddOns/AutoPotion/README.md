@@ -53,7 +53,7 @@ You never have to edit these macros yourself – Auto Potion keeps them updated 
   - Can optionally include `/stopcasting` at the top of the macro if you enable that in the settings.
   - Uses a `reset=` condition that can factor in the shortest cooldown of your selected healing spells if you enable the **CD reset** option.
 - **Performance-friendly**:
-  - Bag events are debounced so the macro is not rebuilt excessively when your bags change rapidly.
+  - The macros are rebuilt once a burst of bag changes has settled, not for every change, and other players' pets cause no work.
   - Macro updates are postponed while in combat to comply with WoW's secure execution rules.
 
 ## Installation & Quick Start
@@ -61,7 +61,7 @@ You never have to edit these macros yourself – Auto Potion keeps them updated 
 1. **Install the addon**
    - Install via CurseForge/Wago or manually drop the `AutoPotion` folder into your `Interface/AddOns` directory.
 2. **Log in or reload once**
-   - The addon creates its macros (`AutoPotion`, `AutoManaPotion`, `AutoFood`, `AutoDrink`, `AutoBandage`) under **General Macros** (`/macro`). If all your general macro slots are full, delete one first.
+   - The addon creates its macros (`AutoPotion`, `AutoManaPotion`, `AutoFood`, `AutoDrink`, `AutoBandage`) under **General Macros** (`/macro`). If all your general macro slots are full, AutoPotion says in chat which macro it couldn't create; delete one of your general macros and it appears.
 3. **Place them on your bars**
    - Drag the `AutoPotion` macro to your action bar and bind it to a comfortable key.
    - Do the same for any of the other macros you want to use.

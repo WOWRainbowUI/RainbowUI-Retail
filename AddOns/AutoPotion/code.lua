@@ -13,29 +13,6 @@ local function isInInstancedPvP()
 end
 ham.isInInstancedPvP = isInInstancedPvP
 
--- Configuration options
--- Use in-memory options as HAMDB updates are not persisted instantly.
--- We'll also use lazy initialization to prevent early access issues.
-setmetatable(ham, {
-  __index = function(t, k)
-    if k == "options" then
-      t.options = {
-        cdReset = HAMDB.cdReset or false,
-        stopCast = HAMDB.stopCast or false,
-        raidStone = HAMDB.raidStone or false,
-        witheringPotion = HAMDB.witheringPotion or false,
-        witheringDreamsPotion = HAMDB.witheringDreamsPotion or false,
-        cavedwellerDelight = HAMDB.cavedwellerDelight or true,
-        heartseekingInjector = HAMDB.heartseekingInjector or false,
-        includeBuffFood = HAMDB.includeBuffFood or false,
-        includeRejuvenation = HAMDB.includeRejuvenation ~= false, -- on by default
-        soulburn = HAMDB.soulburn or false,
-      }
-      return t.options
-    end
-  end
-})
-
 ham.debug = false
 ham.tinkerSlot = nil
 ham.myPlayer = ham.Player.new()
@@ -45,9 +22,7 @@ local itemsMacroString = ''
 local macroStr = ''
 local resetType = "combat"
 local shortestCD = nil
-local bagUpdates = false -- debounce watcher for BAG_UPDATE events
-local debounceTime = 3   -- seconds
-local combatRetry = 0    -- number of combat retries
+local megaMacroRetryTime = 3 -- seconds between MegaMacro checks
 
 -- MegaMacro addon compatibility
 local megaMacro = {
@@ -60,13 +35,27 @@ local megaMacro = {
 
 -- Slots to check for tinkers
 -- As of 2024-10-27, only Head, Wrist and Guns can have tinkers.
-local tinkerSlots = {
+local TINKER_SLOTS = {
   1,  -- Head
   9,  -- Wrist
   18, -- Gun
-  14, -- Trinket 2 (for debugging)
 }
+-- in debug mode Trinket 2 counts too, so a trinket with a use effect can stand in for a tinker
+local DEBUG_TINKER_SLOTS = { 1, 9, 18, 14 }
 
+local function tinkerSlots()
+  return ham.debug and DEBUG_TINKER_SLOTS or TINKER_SLOTS
+end
+
+local function isTinkerSlot(slot)
+  for _, tinkerSlot in ipairs(tinkerSlots()) do
+    if slot == tinkerSlot then return true end
+  end
+  return false
+end
+
+-- Takes a finished message; a caller that builds one from parts checks ham.debug first, so
+-- logging builds no string while debug mode is off.
 local function log(message)
   if ham.debug then
     print("|cffb48ef9AutoPotion:|r " .. message)
@@ -117,7 +106,7 @@ local function addPotIfAvailable(useDelightPots)
   useDelightPots = useDelightPots or false
   local pots = useDelightPots and ham.getDelightPots() or ham.getPots()
   for i, value in ipairs(pots) do
-    log("Item: " .. tostring(value.getId()) .. " Count: " .. tostring(value.getCount()))
+    if ham.debug then log("Item: " .. tostring(value.getId()) .. " Count: " .. tostring(value.getCount())) end
     if value.getCount() > 0 then
       table.insert(ham.itemIdList, value.getId())
       --we break because all Pots share a cd so we only want the highest healing one
@@ -154,61 +143,6 @@ function ham.updateHeals()
   -- Priority 5: Add Healthstone if set to lower priority
   if ham.options.raidStone then
     addHealthstoneIfAvailable()
-  end
-end
-
-local function createMacroIfMissing()
-  -- dont create macro if MegaMacro is installed and loaded
-  if megaMacro.installed and megaMacro.loaded then
-    return
-  end
-  local name = GetMacroInfo(macroName)
-  if name == nil then
-    CreateMacro(macroName, "INV_Misc_QuestionMark")
-  end
-end
-
-local function createBandageMacroIfMissing()
-  -- dont create macro if MegaMacro is installed and loaded
-  if megaMacro.installed and megaMacro.loaded then
-    return
-  end
-  local name = GetMacroInfo(bandageMacroName)
-  if name == nil then
-    CreateMacro(bandageMacroName, "INV_Misc_QuestionMark")
-  end
-end
-
-local function createFoodMacroIfMissing()
-  -- dont create macro if MegaMacro is installed and loaded
-  if megaMacro.installed and megaMacro.loaded then
-    return
-  end
-  local name = GetMacroInfo(foodMacroName)
-  if name == nil then
-    CreateMacro(foodMacroName, "INV_Misc_QuestionMark")
-  end
-end
-
-local function createDrinkMacroIfMissing()
-  -- dont create macro if MegaMacro is installed and loaded
-  if megaMacro.installed and megaMacro.loaded then
-    return
-  end
-  local name = GetMacroInfo(drinkMacroName)
-  if name == nil then
-    CreateMacro(drinkMacroName, "INV_Misc_QuestionMark")
-  end
-end
-
-local function createManaPotionMacroIfMissing()
-  -- dont create macro if MegaMacro is installed and loaded
-  if megaMacro.installed and megaMacro.loaded then
-    return
-  end
-  local name = GetMacroInfo(manaPotionMacroName)
-  if name == nil then
-    CreateMacro(manaPotionMacroName, "INV_Misc_QuestionMark")
   end
 end
 
@@ -303,29 +237,62 @@ local function buildItemMacroString()
   end
 end
 
-local function UpdateMegaMacro(newCode)
-  for _, macro in pairs(MegaMacroGlobalData.Macros) do
-    if macro.DisplayName == macroName then
-      MegaMacro.UpdateCode(macro, newCode)
-      log("MegaMacro updated with: " .. newCode)
-      return
-    end
-  end
-  print(
-    "|cffff0000AutoPotion Error:|r Missing global 'AutoPotion' macro in MegaMacro. Please create it then reload your game.")
-end
-
-local function UpdateMegaMacroByName(name, newCode)
+-- Hands the text to the MegaMacro macro with this display name. Returns false when the player
+-- hasn't created it.
+local function updateMegaMacro(name, text)
   for _, macro in pairs(MegaMacroGlobalData.Macros) do
     if macro.DisplayName == name then
-      MegaMacro.UpdateCode(macro, newCode)
-      log("MegaMacro updated (" .. name .. ") with: " .. newCode)
+      MegaMacro.UpdateCode(macro, text)
+      if ham.debug then log("MegaMacro updated (" .. name .. ") with: " .. text) end
       return true
     end
   end
   print("|cffff0000AutoPotion Error:|r Missing global '" ..
     tostring(name) .. "' macro in MegaMacro. Please create it then reload your game.")
   return false
+end
+
+local writtenText = {}   -- [macro name] = the text last written to it this session
+local reportedFull = {}  -- [macro name] = true once the player was told it didn't fit
+
+-- Retail and Forever list the limit in Constants.MacroConsts, the older clients in a global.
+local function maxGeneralMacros()
+  local consts = Constants and Constants.MacroConsts
+  return consts and consts.MAX_ACCOUNT_MACROS or MAX_ACCOUNT_MACROS
+end
+
+-- Creates the macro unless the general macro slots are full; then it tells the player, once per
+-- session for each macro, and returns false.
+local function createMacro(name, text)
+  if GetNumMacros() >= maxGeneralMacros() then
+    if not reportedFull[name] then
+      reportedFull[name] = true
+      local message =
+        L["Couldn't create the %s macro: your general macros are full. Delete one of them and it will be created."]
+      print("|cffb48ef9AutoPotion:|r " .. format(message, name))
+    end
+    return false
+  end
+  CreateMacro(name, "INV_Misc_QuestionMark", text)
+  return true
+end
+
+-- The one writer for all five macros, standard or MegaMacro-managed. Writing a macro makes the
+-- action bars refresh, so it only writes text that differs from what it wrote last.
+local function writeMacro(name, text)
+  if megaMacro.installed and megaMacro.loaded then
+    if writtenText[name] ~= text and updateMegaMacro(name, text) then writtenText[name] = text end
+    return
+  end
+  if GetMacroInfo(name) == nil then
+    if not createMacro(name, text) then return end
+  elseif writtenText[name] ~= text then
+    EditMacro(name, name, nil, text)
+  else
+    return
+  end
+  writtenText[name] = text
+  if ham.debug then log(name .. " macro updated.") end
 end
 
 local function checkMegaMacroAddon()
@@ -355,7 +322,11 @@ local function checkMegaMacroAddon()
   -- Retry loading if not yet loaded
   if megaMacro.retries < 3 then
     megaMacro.retries = megaMacro.retries + 1
-    C_Timer.After(debounceTime, checkMegaMacroAddon)
+    C_Timer.After(megaMacroRetryTime, function()
+      checkMegaMacroAddon()
+      -- the macros wait for this check
+      if megaMacro.checked then ham.requestMacroUpdate() end
+    end)
   else
     megaMacro.checked = true
   end
@@ -454,7 +425,7 @@ end
 function ham.checkTinker()
   if not ham.isRetail then return end
   ham.tinkerSlot = nil -- always reset
-  for _, slot in ipairs(tinkerSlots) do
+  for _, slot in ipairs(tinkerSlots()) do
     local itemID = GetInventoryItemID("player", slot)
     if itemID then
       local spellName, spellID = C_Item.GetItemSpell(itemID)
@@ -534,179 +505,132 @@ function ham.updateMacro()
     return
   end
 
-  if megaMacro.installed and megaMacro.loaded then
-    UpdateMegaMacro(macroStr)
-    return
-  end
-
-  log('MegaMacro not in use. Creating default macro.')
-  createMacroIfMissing()
-
-  -- Use pcall to suppress LUA errors
-  local success, err = pcall(function()
-    EditMacro(macroName, macroName, nil, macroStr)
-  end)
-  if success then
-    log('Macro updated.')
-  end
+  writeMacro(macroName, macroStr)
 end
 
 function ham.updateBandageMacro()
-  local bandageMacroStr = buildBandageMacroString()
-  if megaMacro.installed and megaMacro.loaded then
-    UpdateMegaMacroByName(bandageMacroName, bandageMacroStr)
-  else
-    createBandageMacroIfMissing()
-    local success, err = pcall(function()
-      EditMacro(bandageMacroName, bandageMacroName, nil, bandageMacroStr)
-    end)
-    if success then
-      log('Bandage macro updated.')
-    end
-  end
+  writeMacro(bandageMacroName, buildBandageMacroString())
 end
 
 function ham.updateFoodMacro()
-  local foodMacroStr = buildFoodMacroString()
-  if megaMacro.installed and megaMacro.loaded then
-    UpdateMegaMacroByName(foodMacroName, foodMacroStr)
-  else
-    createFoodMacroIfMissing()
-    local success, err = pcall(function()
-      EditMacro(foodMacroName, foodMacroName, nil, foodMacroStr)
-    end)
-    if success then
-      log('Food macro updated.')
-    end
-  end
+  writeMacro(foodMacroName, buildFoodMacroString())
 end
 
 function ham.updateDrinkMacro()
-  local drinkMacroStr = buildDrinkMacroString()
-  if megaMacro.installed and megaMacro.loaded then
-    UpdateMegaMacroByName(drinkMacroName, drinkMacroStr)
-  else
-    createDrinkMacroIfMissing()
-    local success, err = pcall(function()
-      EditMacro(drinkMacroName, drinkMacroName, nil, drinkMacroStr)
-    end)
-    if success then
-      log('Drink macro updated.')
-    end
-  end
+  writeMacro(drinkMacroName, buildDrinkMacroString())
 end
 
 function ham.updateManaPotionMacro()
-  local manaPotionMacroStr = buildManaPotionMacroString()
-  if megaMacro.installed and megaMacro.loaded then
-    UpdateMegaMacroByName(manaPotionMacroName, manaPotionMacroStr)
-  else
-    createManaPotionMacroIfMissing()
-    local success, err = pcall(function()
-      EditMacro(manaPotionMacroName, manaPotionMacroName, nil, manaPotionMacroStr)
-    end)
-    if success then
-      log('Mana potion macro updated.')
-    end
-  end
+  writeMacro(manaPotionMacroName, buildManaPotionMacroString())
 end
 
-local function MakeMacro()
-  -- dont attempt to create macro until MegaMacro addon is checked
-  if not megaMacro.checked then
-    log("MegaMacro not checked or loaded. Retrying.")
-    checkMegaMacroAddon()
-    return
-  end
+-- A hidden page's preview is left alone: its OnShow refreshes it when the player opens it.
+local function isShown(page)
+  return page.panel ~= nil and page.panel:IsVisible()
+end
 
-  -- retry if player is still in combat
-  if InCombatLockdown() then
-    if combatRetry < 4 then
-      combatRetry = combatRetry + 1
-      log("Player in combat. Retry attempt: " .. combatRetry)
-      C_Timer.After(0.5, MakeMacro)
-    else
-      log("Failed to update macro after 4 attempts.")
-    end
-    return
-  end
-
-  -- safe to update macro
-  combatRetry = 0
+-- Works out the current priorities from the bags and shows them on the settings pages that are
+-- open. It makes no protected calls, so it also runs in combat.
+function ham.refreshPreviews()
   ham.checkTinker()
   ham.updateHeals()
+  if isShown(ham.settingsFrame) then ham.settingsFrame:updatePrio() end
+  if isShown(ham.bandageSettingsFrame) then ham.bandageSettingsFrame:updateBandagePrio() end
+  if isShown(ham.foodSettingsFrame) then ham.foodSettingsFrame:updateFoodPrio() end
+  if isShown(ham.drinkSettingsFrame) then ham.drinkSettingsFrame:updateDrinkPrio() end
+  if isShown(ham.manaPotionSettingsFrame) then ham.manaPotionSettingsFrame:updateManaPotionPrio() end
+end
+
+local function rebuildMacros()
+  ham.refreshPreviews()
   ham.updateMacro()
   ham.updateBandageMacro()
   ham.updateFoodMacro()
   ham.updateDrinkMacro()
   ham.updateManaPotionMacro()
-
-  ham.settingsFrame:updatePrio()
-  ham.bandageSettingsFrame:updateBandagePrio()
-  ham.foodSettingsFrame:updateFoodPrio()
-  ham.drinkSettingsFrame:updateDrinkPrio()
-  ham.manaPotionSettingsFrame:updateManaPotionPrio()
 end
 
--- debounce handler for BAG_UPDATE events which can fire very rapidly
-local function onBagUpdate()
-  if bagUpdates then
-    return
+local updatePending = false -- an update was requested and hasn't run yet
+local flushArmed = false    -- a next-frame flush is waiting
+
+-- Runs a pending update unless combat lockdown blocks it; PLAYER_REGEN_ENABLED runs it then.
+local function flushMacroUpdate()
+  if not updatePending or InCombatLockdown() then return end
+  -- dont attempt to create macro until MegaMacro addon is checked; the check requests an update
+  if not megaMacro.checked then
+    log("MegaMacro not checked or loaded. Retrying.")
+    checkMegaMacroAddon()
+    if not megaMacro.checked then return end
   end
-  log("event: BAG_UPDATE")
-  bagUpdates = true
-  C_Timer.After(debounceTime, function()
-    MakeMacro()
-    bagUpdates = false
-  end)
+  updatePending = false
+  rebuildMacros()
 end
+
+local function onNextFrame()
+  flushArmed = false
+  flushMacroUpdate()
+end
+
+-- The one way to get the macros rebuilt. Requests made in the same frame lead to one rebuild on
+-- the next frame; a request made in combat waits until combat ends.
+function ham.requestMacroUpdate()
+  updatePending = true
+  if flushArmed or InCombatLockdown() then return end
+  flushArmed = true
+  C_Timer.After(0, onNextFrame)
+end
+
+-- `message` is a constant, so it costs nothing while debug mode is off
+local function requestOn(message)
+  return function()
+    log(message)
+    ham.requestMacroUpdate()
+  end
+end
+
+local eventHandlers = {
+  ADDON_LOADED = function(self, name)
+    if name ~= addonName then return end
+    self:UnregisterEvent("ADDON_LOADED")
+    log("event: ADDON_LOADED")
+    ham.requestMacroUpdate()
+  end,
+  -- fires once a burst of BAG_UPDATEs has settled
+  BAG_UPDATE_DELAYED = requestOn("event: BAG_UPDATE_DELAYED"),
+  UNIT_PET = requestOn("event: UNIT_PET"),
+  -- also on zoning: the instanced-PvP rules depend on the zone
+  PLAYER_ENTERING_WORLD = requestOn("event: PLAYER_ENTERING_WORLD"),
+  -- only a tinker slot can change what the macros use; a gear set fires this once per slot
+  PLAYER_EQUIPMENT_CHANGED = function(_, slot)
+    if isTinkerSlot(slot) then
+      log("event: PLAYER_EQUIPMENT_CHANGED")
+      ham.requestMacroUpdate()
+    end
+  end,
+  TRAIT_CONFIG_UPDATED = requestOn("event: TRAIT_CONFIG_UPDATED"),
+  -- run what was requested during combat
+  PLAYER_REGEN_ENABLED = function()
+    log("event: PLAYER_REGEN_ENABLED")
+    flushMacroUpdate()
+  end,
+}
 
 local updateFrame = CreateFrame("Frame")
 updateFrame:RegisterEvent("ADDON_LOADED")
-updateFrame:RegisterEvent("BAG_UPDATE")
+updateFrame:RegisterEvent("BAG_UPDATE_DELAYED")
 updateFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
-updateFrame:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
-if ham.isClassic == false then
+-- tinkers are Retail content
+if ham.isRetail then
+  updateFrame:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
+end
+-- talents (trait configs) can teach or remove healing spells; only clients that have them know
+-- the event, and registering an unknown event is a Lua error
+if C_EventUtils.IsEventValid("TRAIT_CONFIG_UPDATED") then
   updateFrame:RegisterEvent("TRAIT_CONFIG_UPDATED")
 end
 updateFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
-updateFrame:RegisterEvent("UNIT_PET")
-updateFrame:SetScript("OnEvent", function(self, event, arg1, ...)
-  -- when addon is loaded
-  if event == "ADDON_LOADED" and arg1 == addonName then
-    updateFrame:UnregisterEvent("ADDON_LOADED")
-    log("event: ADDON_LOADED")
-    MakeMacro()
-    return
-  end
-  -- player is in combat, do nothing
-  if InCombatLockdown() then
-    return
-  end
-  -- bag update events
-  if event == "BAG_UPDATE" then
-    onBagUpdate()
-    -- on loading/reloading
-  elseif event == "UNIT_PET" then
-    log("event: UNIT_PET")
-    MakeMacro()
-    -- when pet is called
-  elseif event == "PLAYER_ENTERING_WORLD" then
-    log("event: PLAYER_ENTERING_WORLD")
-    MakeMacro()
-    -- on exiting combat
-  elseif event == "PLAYER_REGEN_ENABLED" then
-    log("event: PLAYER_REGEN_ENABLED")
-    -- Wait a second after combat ends to update the macro
-    -- as the UI may still be cleaning up a protected state.
-    C_Timer.After(0.5, MakeMacro)
-    -- when talents change and classic is false
-  elseif ham.isClassic == false and event == "TRAIT_CONFIG_UPDATED" then
-    log("event: TRAIT_CONFIG_UPDATED")
-    MakeMacro()
-    -- when player changes equipment
-  elseif event == "PLAYER_EQUIPMENT_CHANGED" then
-    log("event: PLAYER_EQUIPMENT_CHANGED")
-    MakeMacro()
-  end
+-- only the player's own pet, not every group member's
+updateFrame:RegisterUnitEvent("UNIT_PET", "player")
+updateFrame:SetScript("OnEvent", function(self, event, ...)
+  eventHandlers[event](self, ...)
 end)
