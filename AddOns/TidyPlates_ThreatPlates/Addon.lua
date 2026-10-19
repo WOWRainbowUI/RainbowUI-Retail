@@ -127,7 +127,7 @@ local function ShowIncompatibleAddonDialog(text)
     IncompatibleAddonDialog = dialog
   end
 
-  dialog.Text:SetText("|cffFFA500" .. Meta("title") .. " Warning|r \n---------------------------------------\n" .. text)
+  dialog.Text:SetText("|cffFFA500" .. Meta("title") .. L[" Warning|r \n---------------------------------------\n"] .. text)
   dialog:SetHeight(dialog.Text:GetStringHeight() + 76)
   dialog:Show()
 end
