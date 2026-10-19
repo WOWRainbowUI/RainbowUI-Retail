@@ -59,6 +59,8 @@ local function InitBar(frame, details)
     frame.marker:Show()
     local markerDetails = addonTable.Assets.BarPositionHighlights[details.marker.asset]
     frame.marker:SetTexture(markerDetails.file)
+    local color = details.marker.color
+    frame.marker:SetVertexColor(color.r, color.g, color.b)
     if markerDetails.mask then
       frame.edgeMask:SetBlockingLoadsRequested(true)
       frame.edgeMask:SetTexture(markerDetails.mask, "CLAMPTOWHITE", "CLAMPTOWHITE")

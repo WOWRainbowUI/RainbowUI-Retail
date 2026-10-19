@@ -512,6 +512,7 @@ function addonTable.Display.AurasManagerNextMixin:AcquireSlot(height, point, fil
     auraFrame:SetSize(20, height)
     auraFrame:SetPoint(unpack(point))
     auraFrame:SetCollapsesLayout(true)
+    auraFrame:EnableMouseMotion(false)
   end, candidateFilters = { includeSpellIDs = {[spellID] = true} } })
 
   if frame.RoundLayoutToNearestPixel then

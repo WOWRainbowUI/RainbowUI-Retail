@@ -71,7 +71,6 @@ function addonTable.Display.CastBarMixin:SetColor(r, g, b)
   end
 
   self.statusBar:GetStatusBarTexture():SetVertexColor(r, g, b)
-  self.marker:SetVertexColor(r, g, b)
   if self.details.background.applyColor then
     local mod = self.details.background.color
     if self.modColors then
@@ -79,6 +78,9 @@ function addonTable.Display.CastBarMixin:SetColor(r, g, b)
     else
       self.background:SetVertexColor(r, g, b, mod.a)
     end
+  end
+  if self.details.marker.applyColor then
+    self.marker:SetVertexColor(r, g, b)
   end
 end
 

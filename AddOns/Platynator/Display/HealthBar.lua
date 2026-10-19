@@ -65,7 +65,9 @@ function addonTable.Display.HealthBarMixin:SetColor(r, g, b, a)
       self.background:SetVertexColor(r, g, b, mod.a)
     end
   end
-  self.marker:SetVertexColor(r, g, b)
+  if self.details.marker.applyColor then
+    self.marker:SetVertexColor(r, g, b)
+  end
 end
 
 function addonTable.Display.HealthBarMixin:UpdateHealth(state)

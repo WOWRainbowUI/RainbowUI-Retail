@@ -102,10 +102,10 @@ function addonTable.Display.Utilities.IsInRelevantInstance(state)
 end
 
 local interruptMap
-if addonTable.Constants.IsClassic then
+if addonTable.Constants.IsClassic or addonTable.Constants.IsForever then
   interruptMap = {
     ["DEATHKNIGHT"] = {47528},
-    ["WARRIOR"] = {6552},
+    ["WARRIOR"] = {1672, --[[Shield Bash, ranks 3-1]] 1671, 72, 6552},
     ["WARLOCK"] = {19647, 89766},
     ["SHAMAN"] = {57994, --[[Earth Shock, ranks 10-1:]] 49231, 49230, 25454, 10414, 10413, 10412, 8046, 8045, 8044, 8042},
     ["ROGUE"] = {1766},
@@ -659,17 +659,19 @@ do
   end)
   local levelTracker = CreateFrame("Frame")
   levelTracker:RegisterEvent("NAME_PLATE_UNIT_ADDED")
+  levelTracker:RegisterEvent("UNIT_LEVEL")
   local delveInvalid = {
     ["trival"] = true,
     ["minus"] = true,
   }
   levelTracker:SetScript("OnEvent", function(_, _, unit)
-    if (PLATYNATOR_LAST_INSTANCE.inDelve and not delveInvalid[UnitClassification(unit)] or PLATYNATOR_LAST_INSTANCE.inDungeon and UnitClassification(unit) == "elite") and
+    if unit:match("nameplate%d+") and (PLATYNATOR_LAST_INSTANCE.inDelve and not delveInvalid[UnitClassification(unit)] or PLATYNATOR_LAST_INSTANCE.inDungeon and UnitClassification(unit) == "elite") and
       not (UnitIsPlayer(unit) or UnitTreatAsPlayerForDisplay and UnitTreatAsPlayerForDisplay(unit))
+      and not UnitIsFriend("player", unit)
     then
       local level = UnitLevel(unit)
       local prev = PLATYNATOR_LAST_INSTANCE.level
-      if level < prev then
+      if level < prev and level > 0 then
         PLATYNATOR_LAST_INSTANCE.level = level
         addonTable.CallbackRegistry:TriggerEvent("DungeonLevelUpdate")
       end
@@ -680,9 +682,10 @@ do
     local classification = UnitClassification(unit)
     if classification == "elite" then
       local level = UnitEffectiveLevel(unit)
+      local dungeonLevel = PLATYNATOR_LAST_INSTANCE.level
       if level == -1 or UnitIsBossMob and UnitIsBossMob(unit) then
         return "boss"
-      elseif UnitIsLieutenant and UnitIsLieutenant(unit) then
+      elseif level >= dungeonLevel + 2 then
         return "miniboss"
       else
         return HasMana(unit) and "caster" or "melee"
