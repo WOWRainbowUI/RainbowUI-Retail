@@ -1,5 +1,5 @@
 		-------------------------------------------------
-		-- Paragon Reputation 1.78 by Fail US-Ragnaros --
+		-- Paragon Reputation 1.79 by Fail US-Ragnaros --
 		-------------------------------------------------
 
 		  --[[	  Special thanks to Ammako for
@@ -248,12 +248,8 @@ end
 -- [Reputation Frame] Hook the Reputation Frame.
 for _,children in ipairs({ReputationFrame.ScrollBox.ScrollTarget:GetChildren()}) do
 	if children.Initialize then
-		hooksecurefunc(children,"Initialize",function(self)
-			UpdateBar(self)
-		end)
+		hooksecurefunc(children,"Initialize",UpdateBar)
 	end
 	UpdateBar(children)
 end
-hooksecurefunc(ReputationEntryMixin,"Initialize",function(self)
-	UpdateBar(self)
-end)
+hooksecurefunc(ReputationEntryMixin,"Initialize",UpdateBar)
