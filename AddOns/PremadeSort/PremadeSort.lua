@@ -109,10 +109,10 @@ end
 
 function SortSearchResults(result)
     -- No longer sort anything on unsecured accounts due taints
-
+    if Settings.SortDisabled then return end
     if not IsAccountSecured() then return end
     if not result or (result and next(result) == nil or next(result.results) == nil) or issecrettable(result.results) then return end
-    if LFGListFrame.SearchPanel.categoryID ~= 2 then
+    if LFGListFrame.SearchPanel.categoryID ~= 2 and LFGListFrame.SearchPanel.categoryID ~= 3 then
         table.sort(result.results, SortRules)
     end
 end
@@ -193,6 +193,7 @@ SlashCmdList.PREMADESORT = function(msg)
     local ShowDefault = function()
         AddMessage("|cffEEE4AEPremade Sort: /ps /premadesort|r")
         AddMessage("   Tip: Set a Keybind to refresh LFG under Game Options > Key Bindings > Premade Sort")
+        AddMessage("   Enable/Disable Sorting - /ps sort (Toggle)")
         AddMessage("   Show Friends at the top - /ps friends (Toggle)")
         AddMessage("   Sort the Warmode you are not in to the bottom - /ps wm (Toggle)")
         AddMessage("   Hide timestamp - /ps timestamp (Toggle)")
@@ -200,6 +201,13 @@ SlashCmdList.PREMADESORT = function(msg)
 
     if not cmd or cmd == "" or cmd == "help" then
         ShowDefault()
+    elseif cmd == "sort" then
+        if Settings.SortDisabled then
+            AddMessage("|cffEEE4AEPremade Sort:|r Sorting disabled.")
+        else
+            AddMessage("|cffEEE4AEPremade Sort:|r Sorting enabled.")
+        end
+        Settings.SortDisabled = not Settings.SortDisabled
     elseif cmd == "friends" then
         if not Settings.FriendsEnabled then
             AddMessage("|cffEEE4AEPremade Sort:|r Friends take priority")
