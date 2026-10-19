@@ -7,53 +7,6 @@
 local _, UI = ...
 local RGX = _G.RGXFramework
 
--- Translate display labels only; database profile names and action keys stay intact.
-local zhTW = {
-    ["Profiles"] = "設定檔",
-    ["Create, switch, and manage your saved profiles."] = "建立、切換及管理已儲存的設定檔。",
-    ["OK"] = "確定",
-    ["Cancel"] = "取消",
-    ["Enter a profile name."] = "請輸入設定檔名稱。",
-    ["That profile already exists."] = "此設定檔已存在。",
-    ["Profile updated."] = "設定檔已更新。",
-    ["Profile could not be changed."] = "無法變更設定檔。",
-    ["Profile action failed: "] = "設定檔操作失敗：",
-    ["Create Profile"] = "新增設定檔",
-    ["Rename Profile"] = "重新命名設定檔",
-    ["Active"] = "使用中",
-    ["Character: "] = "角色：",
-    ["Profile"] = "設定檔",
-    ["Delete Profile"] = "刪除設定檔",
-    ["Delete"] = "刪除",
-    ["Profile deleted."] = "設定檔已刪除。",
-    ["Presets"] = "預設樣式",
-    ["Preset could not be applied."] = "無法套用預設樣式。",
-    ["Create"] = "新增",
-    ["Rename"] = "重新命名",
-    ["Reset"] = "重置",
-    ["Copy"] = "複製",
-    ["Classic"] = "經典",
-    ["Text Mode"] = "文字模式",
-    ["Coin"] = "硬幣",
-    ["Default"] = "預設",
-    ["Future Preset 1"] = "預留樣式 1",
-    ["Future Preset 2"] = "預留樣式 2",
-    ["Future Preset 3"] = "預留樣式 3",
-    ["Future Preset 4"] = "預留樣式 4",
-    ["Future Preset 5"] = "預留樣式 5",
-    ["Future Preset 6"] = "預留樣式 6",
-    ["Future Preset 7"] = "預留樣式 7",
-    ["Future Preset 8"] = "預留樣式 8",
-    ["Future Preset 9"] = "預留樣式 9",
-}
-local function T(text)
-    return GetLocale() == "zhTW" and (zhTW[text] or text) or text
-end
-local function ProfileName(name)
-    name = name or "Default"
-    return name == "Default" and T(name) or name
-end
-
 if not RGX then
     error("RGX UI Profiles: RGX-Framework not loaded")
     return
@@ -69,11 +22,11 @@ function UI:CreateProfilesPanel(parent, opts)
     local dropdowns = assert(RGX:GetModule("dropdowns"), "RGX UI: dropdowns unavailable")
 
     -- Title band + intro line.
-    local header = D:CreateSectionHeader(parent, opts.title or T("Profiles"), opts.icon)
+    local header = D:CreateSectionHeader(parent, opts.title or "Profiles", opts.icon)
     header:SetPoint("TOPLEFT", parent, "TOPLEFT", 0, 0)
     header:SetPoint("TOPRIGHT", parent, "TOPRIGHT", 0, 0)
     local intro = self:CreateLabel(parent, {
-        text = opts.description or T("Create, switch, and manage your saved profiles."),
+        text = opts.description or "Create, switch, and manage your saved profiles.",
         color = "muted",
         width = 544,
     })
@@ -84,7 +37,7 @@ function UI:CreateProfilesPanel(parent, opts)
     -- Main card: highlight box (left), dropdown column (middle),
     -- stacked actions (right). Fixed zones like the reference layout;
     -- middle content is anchored, never measured.
-    local card = self:CreateCard(parent, { title = opts.title or T("Profiles"), height = opts.height or 214 })
+    local card = self:CreateCard(parent, { title = opts.title or "Profiles", height = opts.height or 214 })
     card:ClearAllPoints()
     card:SetPoint("TOPLEFT", intro, "BOTTOMLEFT", 0, -8)
     card:SetPoint("TOPRIGHT", intro, "BOTTOMRIGHT", 0, -8)
@@ -121,30 +74,30 @@ function UI:CreateProfilesPanel(parent, opts)
             local feedback = self:CreateLabel(nameDialog, { text = "", width = 288, color = "muted" })
             feedback:SetPoint("TOPLEFT", nameInput, "BOTTOMLEFT", 0, -4)
             nameDialog.feedback = feedback
-            local okBtn = self:CreateButton(nameDialog, { text = T("OK"), width = 80, height = 22, onClick = function()
+            local okBtn = self:CreateButton(nameDialog, { text = "OK", width = 80, height = 22, onClick = function()
                 local name = (nameInput:GetText() or ""):gsub("^%s+", ""):gsub("%s+$", "")
                 if name == "" then
-                    status:SetText(T("Enter a profile name."))
-                    feedback:SetText(T("Enter a profile name."))
+                    status:SetText("Enter a profile name.")
+                    feedback:SetText("Enter a profile name.")
                     return
                 end
                 for _, existing in ipairs(db:ListProfiles()) do
                     if existing == name then
-                        status:SetText(T("That profile already exists."))
-                        feedback:SetText(T("That profile already exists."))
+                        status:SetText("That profile already exists.")
+                        feedback:SetText("That profile already exists.")
                         return
                     end
                 end
                 nameDialog:Hide()
                 if nameCommit(name) then
-                    status:SetText(T("Profile updated."))
+                    status:SetText("Profile updated.")
                     changed()
                 else
-                    status:SetText(T("Profile could not be changed."))
+                    status:SetText("Profile could not be changed.")
                 end
             end })
             okBtn:SetPoint("BOTTOMLEFT", nameDialog, "BOTTOMLEFT", 16, 14)
-            local cancelBtn = self:CreateButton(nameDialog, { text = T("Cancel"), width = 80, height = 22, onClick = function() nameDialog:Hide() end })
+            local cancelBtn = self:CreateButton(nameDialog, { text = "Cancel", width = 80, height = 22, onClick = function() nameDialog:Hide() end })
             cancelBtn:SetPoint("LEFT", okBtn, "RIGHT", 8, 0)
             nameDialog.okButton, nameDialog.cancelButton = okBtn, cancelBtn
             nameDialog.input = nameInput
@@ -183,22 +136,22 @@ function UI:CreateProfilesPanel(parent, opts)
         return function()
             local ok, result = pcall(commit)
             if not ok then
-                status:SetText(T("Profile action failed: ") .. tostring(result))
+                status:SetText("Profile action failed: " .. tostring(result))
                 RGX:Error("[RGXUI] profile action failed: " .. tostring(result))
                 return
             end
             -- Opening a name dialog is not a completed database operation.
             if result == nil then return end
-            status:SetText(result == false and T("Profile could not be changed.") or T("Profile updated."))
+            status:SetText(result == false and "Profile could not be changed." or "Profile updated.")
             if result then changed() end
         end
     end
     local actionSpecs = {
-        { "Create", makeAction("create", function() openNameDialog(T("Create Profile"), function(name)
+        { "Create", makeAction("create", function() openNameDialog("Create Profile", function(name)
             if opts.createFromCurrent then return db:CopyProfile(db:GetActiveProfile(), name) end
             return db:CreateProfile(name)
         end) end) },
-        { "Rename", makeAction("rename", function() openNameDialog(T("Rename Profile"), function(name)
+        { "Rename", makeAction("rename", function() openNameDialog("Rename Profile", function(name)
             return db:RenameProfile(db:GetActiveProfile(), name)
         end) end) },
         { "Reset",  makeAction("reset",  function() return db:ResetProfile(db:GetActiveProfile()) end) },
@@ -207,7 +160,7 @@ function UI:CreateProfilesPanel(parent, opts)
     local buttonY = -8
     for _, spec in ipairs(actionSpecs) do
         local button = self:CreateButton(content, {
-                text = T(spec[1]), width = 84, height = 22, onClick = spec[2],
+                text = spec[1], width = 84, height = 22, onClick = spec[2],
             })
         button:SetPoint("TOPRIGHT", content, "TOPRIGHT", -8, buttonY)
         card.buttons[spec[1]:lower()] = button
@@ -220,21 +173,21 @@ function UI:CreateProfilesPanel(parent, opts)
     highlight:SetPoint("BOTTOMLEFT", content, "BOTTOMLEFT", 8, 8)
     highlight:SetWidth(170)
     D:ApplyBackdrop(highlight, "dark", 0.60)
-    local activeLabel = self:CreateLabel(highlight, { text = T("Active"), color = "muted" })
+    local activeLabel = self:CreateLabel(highlight, { text = "Active", color = "muted" })
     activeLabel:SetPoint("TOPLEFT", highlight, "TOPLEFT", 12, -12)
     local activeValue = self:CreateLabel(highlight, {
-        text = ProfileName(db:GetActiveProfile()), width = 146,
+        text = db:GetActiveProfile() or "Default", width = 146,
     })
     activeValue:SetPoint("TOPLEFT", activeLabel, "BOTTOMLEFT", 0, -2)
     activeValue:SetTextColor(D:Unpack("primary"))
     local characterValue = self:CreateLabel(highlight, {
-        text = T("Character: ") .. tostring(db:GetCharKey()), color = "muted", width = 146,
+        text = "Character: " .. tostring(db:GetCharKey()), color = "muted", width = 146,
     })
     characterValue:SetPoint("TOPLEFT", activeValue, "BOTTOMLEFT", 0, -10)
 
     -- MIDDLE: dropdown → count → status, each chained under the previous
     -- element so dropdown height never needs measuring.
-    local profileLabel = self:CreateLabel(content, { text = T("Profile"), color = "accent" })
+    local profileLabel = self:CreateLabel(content, { text = "Profile", color = "accent" })
     profileLabel:SetPoint("TOPLEFT", highlight, "TOPRIGHT", 8, 0)
     local deleteDialog, pendingDelete
     local function requestDelete(name)
@@ -242,28 +195,28 @@ function UI:CreateProfilesPanel(parent, opts)
         if type(RGX.SafeCloseDropDownMenus) == "function" then RGX:SafeCloseDropDownMenus() end
         pendingDelete = name
         if not deleteDialog then
-            deleteDialog = self:CreateConfigDialog(parent, { title = T("Delete Profile"), width = 320, height = 140 })
+            deleteDialog = self:CreateConfigDialog(parent, { title = "Delete Profile", width = 320, height = 140 })
             deleteDialog:SetFrameStrata("FULLSCREEN_DIALOG")
             deleteDialog:SetPoint("CENTER", parent, "CENTER", 0, 0)
             deleteDialog.message = self:CreateLabel(deleteDialog, { text = "", width = 288 })
             deleteDialog.message:SetPoint("TOPLEFT", deleteDialog, "TOPLEFT", 16, -44)
-            local confirm = self:CreateButton(deleteDialog, { text = T("Delete"), width = 84, height = 22,
+            local confirm = self:CreateButton(deleteDialog, { text = "Delete", width = 84, height = 22,
                 onClick = function()
                     local nameToDelete = pendingDelete
                     deleteDialog:Hide()
                     if nameToDelete and nameToDelete ~= "Default" and db:DeleteProfile(nameToDelete) then
-                        status:SetText(T("Profile deleted."))
+                        status:SetText("Profile deleted.")
                         changed()
                     end
                 end })
             confirm:SetPoint("BOTTOMLEFT", deleteDialog, "BOTTOMLEFT", 16, 14)
-            local cancel = self:CreateButton(deleteDialog, { text = T("Cancel"), width = 84, height = 22,
+            local cancel = self:CreateButton(deleteDialog, { text = "Cancel", width = 84, height = 22,
                 onClick = function() deleteDialog:Hide() end })
             cancel:SetPoint("LEFT", confirm, "RIGHT", 8, 0)
             deleteDialog.confirmButton, deleteDialog.cancelButton = confirm, cancel
             card._deleteDialog = deleteDialog
         end
-        deleteDialog.message:SetText(GetLocale() == "zhTW" and ("刪除設定檔「" .. name .. "」？") or ("Delete profile " .. name .. "?"))
+        deleteDialog.message:SetText("Delete profile \"" .. name .. "\"?")
         deleteDialog:Show()
     end
     -- Reference-styled dropdown trigger from the shared dropdowns module.
@@ -274,18 +227,18 @@ function UI:CreateProfilesPanel(parent, opts)
             opts = { inlineKeys = { "rgxProfileDelete" }, compactRight = true } },
         items = function()
             local items = {}
-            for _, name in ipairs(db:ListProfiles()) do items[#items + 1] = { text = ProfileName(name), value = name } end
+            for _, name in ipairs(db:ListProfiles()) do items[#items + 1] = { text = name, value = name } end
             return items
         end,
         value = db:GetActiveProfile(),
-        getValueText = function(value) return ProfileName(value) end,
+        getValueText = function(value) return value or "Default" end,
         onChange = function(value) if db:LoadProfile(value) then changed() end end,
         onButtonCreated = function(row, item)
             if row.rgxProfileDelete then row.rgxProfileDelete:Hide() end
             if not item or item.value == "Default" or not item.value then return end
             local name = item.value
             local button = dropdowns:AddInlineButton(row, {
-                key = "rgxProfileDelete", text = T("Delete"), width = 44, height = 16,
+                key = "rgxProfileDelete", text = "Delete", width = 44, height = 16,
                 onClick = function() requestDelete(name) end,
             })
             button:ClearAllPoints()
@@ -300,7 +253,6 @@ function UI:CreateProfilesPanel(parent, opts)
 
     local function profileCountText()
         local n = #db:ListProfiles()
-        if GetLocale() == "zhTW" then return n .. " 個設定檔" end
         return n == 1 and "1 profile" or (n .. " profiles")
     end
 
@@ -318,7 +270,7 @@ function UI:CreateProfilesPanel(parent, opts)
         local visibleRows = opts.pagedPresets and math.ceil(math.min(#opts.presets, perPage) / 3) or rows
         -- Titled-card insets (42 top, 12 bottom) + 12px pad + one 30px row each.
         local presetsCard = self:CreateCard(parent, {
-            title = T("Presets"), height = 66 + visibleRows * 30,
+            title = "Presets", height = 66 + visibleRows * 30,
         })
         presetsCard:ClearAllPoints()
         presetsCard:SetPoint("TOPLEFT", card, "BOTTOMLEFT", 0, -8)
@@ -346,12 +298,12 @@ function UI:CreateProfilesPanel(parent, opts)
             local row = math.floor(localIndex / 3)
             local host = pager and pager.frames[math.floor((i - 1) / perPage) + 1] or presetsCard.content
             local button = self:CreateButton(host, {
-                text = T(preset.name or ("Preset " .. i)), width = 170, height = 22,
+                text = preset.name or ("Preset " .. i), width = 170, height = 22,
                 onClick = function()
                     if preset.disabled then return end
                     local ok, err = pcall(opts.onPreset, preset, db)
                     if not ok then
-                        status:SetText(T("Preset could not be applied."))
+                        status:SetText("Preset could not be applied.")
                         RGX:Error("[RGXUI] preset failed: " .. tostring(err))
                     else
                         changed()
@@ -367,8 +319,8 @@ function UI:CreateProfilesPanel(parent, opts)
     function card:Refresh()
         local active = db:GetActiveProfile()
         picker:Refresh(active)
-        activeValue:SetText(ProfileName(active))
-        characterValue:SetText(T("Character: ") .. tostring(db:GetCharKey()))
+        activeValue:SetText(active or "Default")
+        characterValue:SetText("Character: " .. tostring(db:GetCharKey()))
         count:SetText(profileCountText())
         local protected = active == "Default"
         if self.buttons.delete then setButtonEnabled(self.buttons.delete, not protected) end

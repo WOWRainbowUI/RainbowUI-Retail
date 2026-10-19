@@ -42,6 +42,7 @@
 <Script file="libraries/ui/profiles.lua" />
  <Script file="libraries/ui/guide.lua" />
 <Script file="libraries/minimap/minimap.lua" />
+<Script file="libraries/timers/timers.lua" />
   <Script file="libraries/sharedmedia/sharedmedia.lua" />
   <Script file="game/combat/combat.lua" />
   <Script file="game/petbattles/petbattles.lua" />
@@ -60,6 +61,7 @@
   <Script file="game/prey/prey.lua" />
   <Script file="game/collectibles/collectibles.lua" />
   <Script file="game/loot/loot.lua" />
+  <Script file="game/worldmap/worldmap.lua" />
 
   <!-- Commands -->
 <Script file="core/commands.lua" />

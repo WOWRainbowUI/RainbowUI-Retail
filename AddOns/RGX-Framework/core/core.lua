@@ -97,6 +97,8 @@ RGX.moduleAliases = {
   housing = "RGXHousing",
   tradingpost = "RGXTradingPost",
   prey = "RGXPrey",
+  timers = "RGXTimers",
+  worldmap = "RGXWorldMap",
 }
 
 local function ResolveModuleAlias(self, normalizedName)
@@ -193,6 +195,7 @@ function RGX:GetDropdowns()   return self:GetModule("dropdowns")   end
 function RGX:GetUI()          return self:GetModule("ui")          end
 function RGX:GetColorPicker() return self:GetModule("colorpicker") end
 function RGX:GetMinimap()      return self:GetModule("minimap")      end
+function RGX:GetTimers()       return self:GetModule("timers")       end
 function RGX:GetPetBattles()   return self:GetModule("petbattles")   end
 function RGX:GetSharedMedia()  return self:GetModule("sharedmedia")  end
 function RGX:GetDesign()       return self:GetModule("design")       end
@@ -213,6 +216,7 @@ function RGX:GetDelves()       return self:GetModule("delves")       end
 function RGX:GetHousing()      return self:GetModule("housing")      end
 function RGX:GetTradingPost()  return self:GetModule("tradingpost")  end
 function RGX:GetPrey()         return self:GetModule("prey")         end
+function RGX:GetWorldMap()     return self:GetModule("worldmap")   end
 
 -- Addon registry -- every RGX.Addon is recorded here so other files (or the
 -- same addon's advanced-pattern files) can reach its object and panel by name.
@@ -696,7 +700,7 @@ function RGX.Addon(name, opts)
                 mmOpts.icon = mmOpts.icon
                     or (type(opts.minimap) == "string" and opts.minimap)
                     or "Interface\\Icons\\inv_misc_questionmark"
-                mmOpts.storage = mmOpts.storage or addon.db
+                mmOpts.storage = mmOpts.storage or addon.db or RGX.db
                 if not mmOpts.onLeftClick then
                     mmOpts.onLeftClick = function()
                         if addon.panel then addon.panel:Open() end

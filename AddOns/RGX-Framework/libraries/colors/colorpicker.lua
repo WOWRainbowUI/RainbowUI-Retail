@@ -506,7 +506,7 @@ function ColorPicker:GetFrame()
 
     local Design = RGX:GetDesign()
 
-    local f = CreateFrame("Frame", "RGXColorPicker", UIParent, "BackdropTemplate")
+    local f = CreateFrame("Frame", "RGXColorPickerDialog", UIParent, "BackdropTemplate")
     f:SetSize(PANEL_W, PANEL_H)
     f:SetPoint("CENTER")
     f:SetFrameStrata("DIALOG")
@@ -532,7 +532,7 @@ function ColorPicker:GetFrame()
     -- ESC closes the dialog like every other RGX window. The frame carries
     -- a global name so it can join the standard close-on-escape set.
     if type(UISpecialFrames) == "table" then
-        table.insert(UISpecialFrames, "RGXColorPicker")
+        table.insert(UISpecialFrames, "RGXColorPickerDialog")
     end
 
     -- Title
@@ -1147,9 +1147,9 @@ function ColorPicker:Show(color, callback, opts)
     if type(UISpecialFrames) == "table" then
         local listed = false
         for _, name in ipairs(UISpecialFrames) do
-            if name == "RGXColorPicker" then listed = true break end
+            if name == "RGXColorPickerDialog" then listed = true break end
         end
-        if not listed then table.insert(UISpecialFrames, "RGXColorPicker") end
+        if not listed then table.insert(UISpecialFrames, "RGXColorPickerDialog") end
     end
     -- Compact consumers scale the whole dialog. The frame is a
     -- singleton shared across consumers, so the scale resets every Show.

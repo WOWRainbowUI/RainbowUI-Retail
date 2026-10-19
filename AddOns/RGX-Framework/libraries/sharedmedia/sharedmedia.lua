@@ -58,7 +58,7 @@ local MAX_TABLES_PER_SOURCE = 1500
 local MAX_SCAN_DEPTH        = 8
 
 local IGNORED_GLOBALS = {
-    ["_G"] = true, ["RGXFramework"] = true,
+    ["_G"] = true, ["RGXFramework"] = true, ["RGXSharedMedia"] = true,
     ["math"] = true, ["string"] = true, ["table"] = true,
     ["coroutine"] = true, ["debug"] = true, ["bit"] = true,
     ["bit32"] = true, ["utf8"] = true, ["io"] = true,
@@ -579,11 +579,25 @@ function SM:Scan(includeGeneric)
             end
         end
     end
-    -- Reset path dedup for sounds so bridge re-registration works
+    -- Reset path dedup for sounds so bridge re-registration works, but keep
+    -- dedup state for paths still claimed by a live registry entry (e.g.
+    -- paths registered directly by consumers). Real bridge ids are
+    -- `bridge:<pack>:<hash>`, so the registry must be probed by path, not by
+    -- a synthesized id — otherwise every key here is dropped and directly
+    -- registered paths can be re-registered after any Scan. One pass builds
+    -- a live-path set so the reset stays linear in registry size.
     self._seenPaths["sound"] = self._seenPaths["sound"] or {}
+    local livePaths = nil
+    if soundReg then
+        livePaths = {}
+        for _, entry in pairs(soundReg) do
+            if type(entry.path) == "string" then
+                livePaths[string.lower(entry.path)] = true
+            end
+        end
+    end
     for lp, _ in pairs(self._seenPaths["sound"]) do
-        local entry = soundReg and soundReg["bridge:" .. lp]
-        if not entry then
+        if not (livePaths and livePaths[lp]) then
             self._seenPaths["sound"][lp] = nil
         end
     end
