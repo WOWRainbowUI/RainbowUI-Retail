@@ -8,7 +8,7 @@
 local addonName, KT = ...
 
 ---@class Options
-local M = KT:NewModule("Options")
+local M = KT:NewModule("選項")
 KT.Options = M
 
 local ACD = LibStub("MSA-AceConfigDialog-3.0")
@@ -28,12 +28,11 @@ local strsub = string.sub
 local db, dbChar
 local defaults
 local anchors = { ["TOPLEFT"] = "左上", ["TOPRIGHT"] = "右上", ["BOTTOMLEFT"] = "左下", ["BOTTOMRIGHT"] = "右下" }
-local strata = { "BACKGROUND", "LOW", "MEDIUM", "HIGH" }
-local strataLabels = { BACKGROUND = "背景", LOW = "低", MEDIUM = "中", HIGH = "高" }
+local strata = { "BACKGROUND", "LOW", "MEDIUM", "高" }
 local flags = { [""] = "無", ["OUTLINE"] = "外框", ["OUTLINE, MONOCHROME"] = "無消除鋸齒外框" }
 local textures = { "無", "預設 (暴雪)", "單線", "雙線" }
 local modifiers = { [""] = "無", ["ALT"] = "Alt", ["CTRL"] = "Ctrl", ["ALT-CTRL"] = "Alt + Ctrl" }
-local SOUND_CHANNELS = { "Master", "Music", "SFX", "Ambience" }
+local SOUND_CHANNELS = { "主聲道", "Music", "SFX", "Ambience" }
 local SOUND_CHANNELS_LOCALIZED = { Master = "主聲道", Music = MUSIC_VOLUME, SFX = FX_VOLUME, Ambience = AMBIENCE_VOLUME }
 local VISIBILITY_OPTIONS = { "show", "hide", "expand", "collapse" }
 local VISIBILITY_OPTIONS_LOCALIZED = { show = "顯示", hide = "隱藏", expand = "顯示 + 展開", collapse = "顯示 + 收合" }
@@ -55,320 +54,326 @@ local KTSetHeight = KTF.SetHeight
 
 local Module_Move, SetSharedColor  -- functions
 
--- Edit Mode - Mover
-local moverOptions
-local trackerOptions
-local mover = KT:Mover_Create(addonName, KTF, "tracker")
-mover.editAnchors = true
+-- ---------------------------------------------------------------------------------------------------------------------
 
-local function Mover_UpdateOptions()
-	local opt = trackerOptions.args
-	local screenWidth = round(GetScreenWidth())
-	local screenHeight = round(GetScreenHeight())
-	local xOffsetMax = round(screenWidth - (db.width * db.frameScale))
-	local yOffsetMax = round(screenHeight - (opt.maxHeight.min * db.frameScale))
-	local anchorLeft = (db.anchorPoint == "TOPLEFT" or db.anchorPoint == "BOTTOMLEFT")
-	local directionUp = (db.anchorPoint == "BOTTOMLEFT" or db.anchorPoint == "BOTTOMRIGHT")
-
-	if anchorLeft then
-		opt.xOffset.min = 0
-		opt.xOffset.max = xOffsetMax
-	else
-		opt.xOffset.min = xOffsetMax * -1
-		opt.xOffset.max = 0
+-- Edit Mode
+local function EditMode_Setup()
+	local editmodeOptions = {
+		name = "|T"..KT.MEDIA_PATH.."KT_logo:22:22:0:0|t"..KT.TITLE.."|cffffffff - 編輯模式",
+		type = "group",
+		get = function(info) return db[info[#info]] end,
+		args = {
+			editMode = {
+				name = "編輯模式",
+				type = "group",
+				childGroups = "tab",
+				args = {
+					intro = {
+						name = "\n"..KT.GetUiIcon("MouseLeft", "markup")..cBold.."左鍵|r 點擊方塊來拖曳移動追蹤清單。\n"..
+								KT.GetUiIcon("MouseRight", "markup")..cBold.."右鍵|r點擊移動框，還原預設位置與大小。",
+						type = "description",
+						justifyH = "CENTER",
+						order = 0,
+					},
+				},
+			},
+		},
+	}
+	KT.EditMode = KT:EditMode_Create(addonName, editmodeOptions, "editMode", 465, 465)
+	KT.EditMode.OnOpen = function()
+		KT:Tracker_SetHidden(false)
 	end
+end
 
-	if directionUp then
-		opt.yOffset.min = 0
-		opt.yOffset.max = yOffsetMax
-	else
-		opt.yOffset.min = yOffsetMax * -1
-		opt.yOffset.max = 0
-	end
+local function EditMode_SetupMover()
+	local mover = KT:Mover_Create(addonName, KTF, "tracker")
+	mover.editAnchors = true
 
-	opt.maxHeight.max = round((screenHeight - abs(db.yOffset)) / db.frameScale)
-	if opt.maxHeight.max < opt.maxHeight.min then
-		opt.maxHeight.max = opt.maxHeight.min
-	end
+	local moverOptions
 
-	if round(abs(db.xOffset) + (db.width * db.frameScale)) > screenWidth then
-		if opt.width.min == opt.width.max then
-			db.xOffset = anchorLeft and opt.xOffset.max or opt.xOffset.min
+	local function Mover_UpdateOptions()
+		local opt = moverOptions.args
+		local screenWidth = round(GetScreenWidth())
+		local screenHeight = round(GetScreenHeight())
+		local xOffsetMax = round(screenWidth - (db.width * db.frameScale))
+		local yOffsetMax = round(screenHeight - (opt.maxHeight.min * db.frameScale))
+		local anchorLeft = (db.anchorPoint == "TOPLEFT" or db.anchorPoint == "BOTTOMLEFT")
+		local directionUp = (db.anchorPoint == "BOTTOMLEFT" or db.anchorPoint == "BOTTOMRIGHT")
+
+		if anchorLeft then
+			opt.xOffset.min = 0
+			opt.xOffset.max = xOffsetMax
+		else
+			opt.xOffset.min = xOffsetMax * -1
+			opt.xOffset.max = 0
+		end
+
+		if directionUp then
+			opt.yOffset.min = 0
+			opt.yOffset.max = yOffsetMax
+		else
+			opt.yOffset.min = yOffsetMax * -1
+			opt.yOffset.max = 0
+		end
+
+		opt.maxHeight.max = round((screenHeight - abs(db.yOffset)) / db.frameScale)
+		if opt.maxHeight.max < opt.maxHeight.min then
+			opt.maxHeight.max = opt.maxHeight.min
+		end
+
+		if round(abs(db.xOffset) + (db.width * db.frameScale)) > screenWidth then
+			if opt.width.min == opt.width.max then
+				db.xOffset = anchorLeft and opt.xOffset.max or opt.xOffset.min
+			end
+		end
+
+		if round(abs(db.yOffset) + (db.maxHeight * db.frameScale)) > screenHeight then
+			db.maxHeight = opt.maxHeight.max
+			if opt.maxHeight.min == opt.maxHeight.max then
+				db.yOffset = directionUp and opt.yOffset.max or opt.yOffset.min
+			end
 		end
 	end
 
-	if round(abs(db.yOffset) + (db.maxHeight * db.frameScale)) > screenHeight then
-		db.maxHeight = opt.maxHeight.max
-		if opt.maxHeight.min == opt.maxHeight.max then
-			db.yOffset = directionUp and opt.yOffset.max or opt.yOffset.min
+	local function Mover_UpdateOptionsUI()
+		Mover_UpdateOptions()
+		KT.EditMode:NotifyChange()
+	end
+
+	local function Mover_SetScale()
+		if db.pixelPerfectScale then
+			db.frameScale = KT.GetPixelPerfectScale(KTF)
+			KT:Tracker_SetScale(db.frameScale)
 		end
-	end
-end
-
-local function Mover_UpdateOptionsUI()
-	Mover_UpdateOptions()
-	KT.EditMode:NotifyChange()
-end
-
-local function Mover_SetScale()
-	if db.pixelPerfectScale then
-		db.frameScale = KT.GetPixelPerfectScale(KTF)
-		KT:Tracker_SetScale(db.frameScale)
-	end
-	Mover_UpdateOptions()
-	KT:Tracker_Move()
-	KT:Tracker_Update()
-	mover:Update()
-end
-
-function mover:Anchor_OnEnter(frame)
-	local anchor = frame.value
-	local leftText = "- 追蹤清單展開方向:\n- 浮動提示資訊位置:\n- 任務物品按鈕位置:"
-	local rightText = ""
-
-	if anchor == "TOPLEFT" then
-		rightText = "向下\n右側\n右側"
-	elseif anchor == "TOPRIGHT" then
-		rightText = "向下\n左側\n左側"
-	elseif anchor == "BOTTOMLEFT" then
-		rightText = "向上\n右側\n右側"
-	elseif anchor == "BOTTOMRIGHT" then
-		rightText = "向上\n左側\n左側"
+		Mover_UpdateOptions()
+		KT:Tracker_Move()
+		KT:Tracker_Update()
+		mover:Update()
 	end
 
-	GameTooltip:AddDoubleLine(leftText, rightText, 1, 1, 1, 0, 1, 0.89)
-	GameTooltip:Show()
-end
+	function mover:Anchor_OnEnter(frame)
+		local anchor = frame.value
+		local leftText = "- 追蹤清單展開方向:\n- 浮動提示資訊位置:\n- 任務物品按鈕位置:"
+		local rightText = ""
 
-function mover:Anchor_OnClick(frame)
-	db.anchorPoint = frame.value
-	db.xOffset, db.yOffset = self:GetPosition(db.anchorPoint, db.frameScale)
+		if anchor == "TOPLEFT" then
+			rightText = "向下\n右側\n右側"
+		elseif anchor == "TOPRIGHT" then
+			rightText = "向下\n左側\n左側"
+		elseif anchor == "BOTTOMLEFT" then
+			rightText = "向上\n右側\n右側"
+		elseif anchor == "BOTTOMRIGHT" then
+			rightText = "向上\n左側\n左側"
+		end
 
-	Mover_UpdateOptionsUI()
-	KT:Tracker_Move()
-	KTF.height = 0  -- force update
-	KT:Tracker_Update()
-end
-
-function mover:OnDragStart(frame)
-	if frame.Buttons.num > 0 then
-		frame.Buttons:Hide()
+		GameTooltip:AddDoubleLine(leftText, rightText, 1, 1, 1, 0, 1, 0.89)
+		GameTooltip:Show()
 	end
-	if not db.directionUp then
-		KTSetHeight(KTF, KTF.height)
-	end
-end
 
-function mover:OnDragStop(frame)
-	if frame.Buttons.num > 0 then
-		frame.Buttons:Show()
-	end
-	db.xOffset, db.yOffset = self:GetPosition(db.anchorPoint, db.frameScale)
-
-	Mover_UpdateOptionsUI()
-	KT:Tracker_Move()
-	KT:Tracker_SetSize(true)
-end
-
-function mover:OnMouseUp(frame, button)
-	if button == "RightButton" then
-		db.anchorPoint = defaults.profile.anchorPoint
-		db.xOffset = defaults.profile.xOffset
-		db.yOffset = defaults.profile.yOffset
-		db.maxHeight = defaults.profile.maxHeight
+	function mover:Anchor_OnClick(frame)
+		db.anchorPoint = frame.value
+		db.xOffset, db.yOffset = self:GetPosition(db.anchorPoint, db.frameScale)
 
 		Mover_UpdateOptionsUI()
 		KT:Tracker_Move()
 		KTF.height = 0  -- force update
 		KT:Tracker_Update()
 	end
-end
 
-function mover:OnScaleChanged()
-	Mover_SetScale()
-end
-
-function mover:Update()
-	self.anchorPoint = db.anchorPoint
-	self.mixin.Update(self)
-
-	local frame = self.mover
-	if frame then
-		frame:SetSize(db.width, db.maxHeight)
-		frame:ClearAllPoints()
-		frame:SetPoint(db.anchorPoint)
+	function mover:OnDragStart(frame)
+		if frame.Buttons.num > 0 then
+			frame.Buttons:Hide()
+		end
+		if not db.directionUp then
+			KTSetHeight(KTF, KTF.height)
+		end
 	end
-end
 
--- Edit Mode - Options
-trackerOptions = {
-	name = "追蹤清單",
-	type = "group",
-	order = 1,
-	args = {
-		xOffset = {
-			name = "水平位置",
-			desc = function()
-				return "水平位置\n- 預設值: "..defaults.profile.xOffset.."\n- 每次: 1"
-			end,
-			type = "range",
-			min = 0,
-			max = 0,
-			step = 1,
-			set = function(_, value)
-				db.xOffset = value
-				KT:Tracker_Move()
-				mover:Update()
-			end,
-			order = 1,
-		},
-		yOffset = {
-			name = "垂直位移",
-			desc = function()
-				return "垂直位置\n- 預設值: "..defaults.profile.yOffset.."\n- 每次: 1"
-			end,
-			type = "range",
-			min = 0,
-			max = 0,
-			step = 1,
-			set = function(_, value)
-				db.yOffset = value
-				Mover_UpdateOptions()
-				KT:Tracker_Move()
-				KT:Tracker_SetSize(true)
-				mover:Update()
-			end,
-			order = 2,
-		},
-		width = {
-			name = "寬度",
-			desc = function()
-				return "- 預設值: "..defaults.profile.width.."\n- 每次: 1"
-			end,
-			type = "range",
-			min = function() return defaults.profile.width end,
-			max = function() return defaults.profile.width end,
-			step = 1,
-			disabled = true,
-			set = function(_, value)
-				db.width = value
-				KT:Tracker_SetSize()
-				mover:Update()
-			end,
-			order = 3,
-		},
-		maxHeight = {
-			name = "最大高度",
-			desc = function()
-				return "- 預設值: "..defaults.profile.maxHeight.."\n- 每次: 1"
-			end,
-			type = "range",
-			min = 130,
-			max = 130,
-			step = 1,
-			set = function(_, value)
-				db.maxHeight = value
-				KT:Tracker_SetSize(true)
-				mover:Update()
-			end,
-			order = 4,
-		},
-		notes = {
-			name = cBold.." 寬度|r目前無法使用，因為尚未實裝。\n\n"..
-					cBold.." 最大高度|r和清單的垂直位移 (上/下) 有關。\n"..
-					" - 內容較少 ... 清單高度會自動增加。\n"..
-					" - 內容較多 ... 清單會啟用捲動功能。",
-			type = "description",
-			order = 5,
-		},
-		frameScale = {
-			name = "縮放大小",
-			desc = function()
-				return "- 預設值: "..defaults.profile.frameScale.."\n- 每次: 0.001"
-			end,
-			type = "range",
-			min = 0.4,
-			max = 1.7,
-			step = 0.001,
-			isRaw = true,
-			disabled = function()
-				return db.pixelPerfectScale
-			end,
-			set = function(_, value)
-				db.frameScale = value
-				KT:Tracker_SetScale(db.frameScale)
-				Mover_UpdateOptions()
-				KT:Tracker_Move()
-				KTF.height = 0  -- force update
-				KT:Tracker_Update()
-				mover:Update()
-			end,
-			order = 6,
-		},
-		pixelPerfectScale = {
-			name = "像素精確縮放",
-			desc = "內容使用像素精確縮放，相對於整體介面縮放。",
-			type = "toggle",
-			set = function()
-				db.pixelPerfectScale = not db.pixelPerfectScale
-				Mover_SetScale()
-			end,
-			order = 7,
-		},
-		frameStrata = {
-			name = "框架層級",
-			desc = function()
-				return "- 預設值: "..(strataLabels[defaults.profile.frameStrata] or defaults.profile.frameStrata)
-			end,
-			type = "select",
-			values = { strataLabels.BACKGROUND, strataLabels.LOW, strataLabels.MEDIUM, strataLabels.HIGH },
-			get = function()
-				for k, v in ipairs(strata) do
-					if db.frameStrata == v then
-						return k
+	function mover:OnDragStop(frame)
+		if frame.Buttons.num > 0 then
+			frame.Buttons:Show()
+		end
+		db.xOffset, db.yOffset = self:GetPosition(db.anchorPoint, db.frameScale)
+
+		Mover_UpdateOptionsUI()
+		KT:Tracker_Move()
+		KT:Tracker_SetSize(true)
+	end
+
+	function mover:OnMouseUp(frame, button)
+		if button == "RightButton" then
+			db.anchorPoint = defaults.profile.anchorPoint
+			db.xOffset = defaults.profile.xOffset
+			db.yOffset = defaults.profile.yOffset
+			db.maxHeight = defaults.profile.maxHeight
+
+			Mover_UpdateOptionsUI()
+			KT:Tracker_Move()
+			KTF.height = 0  -- force update
+			KT:Tracker_Update()
+		end
+	end
+
+	function mover:OnScaleChanged()
+		Mover_SetScale()
+	end
+
+	function mover:Update()
+		self.anchorPoint = db.anchorPoint
+		self.mixin.Update(self)
+
+		local frame = self.mover
+		if frame then
+			frame:SetSize(db.width, db.maxHeight)
+			frame:ClearAllPoints()
+			frame:SetPoint(db.anchorPoint)
+		end
+	end
+
+	moverOptions = {
+		name = "追蹤清單",
+		type = "group",
+		order = 1,
+		args = {
+			xOffset = {
+				name = "水平位置",
+				desc = function()
+					return "水平位置\n- 預設值: "..defaults.profile.xOffset.."\n- 每次: 1"
+				end,
+				type = "range",
+				min = 0,
+				max = 0,
+				step = 1,
+				set = function(_, value)
+					db.xOffset = value
+					KT:Tracker_Move()
+					mover:Update()
+				end,
+				order = 1,
+			},
+			yOffset = {
+				name = "垂直位移",
+				desc = function()
+					return "垂直位置\n- 預設值: "..defaults.profile.yOffset.."\n- 每次: 1"
+				end,
+				type = "range",
+				min = 0,
+				max = 0,
+				step = 1,
+				set = function(_, value)
+					db.yOffset = value
+					Mover_UpdateOptions()
+					KT:Tracker_Move()
+					KT:Tracker_SetSize(true)
+					mover:Update()
+				end,
+				order = 2,
+			},
+			width = {
+				name = "寬度",
+				desc = function()
+					return "- 預設值: "..defaults.profile.width.."\n- 每次: 1"
+				end,
+				type = "range",
+				min = function() return defaults.profile.width end,
+				max = function() return defaults.profile.width end,
+				step = 1,
+				disabled = true,
+				set = function(_, value)
+					db.width = value
+					KT:Tracker_SetSize()
+					mover:Update()
+				end,
+				order = 3,
+			},
+			maxHeight = {
+				name = "最大高度",
+				desc = function()
+					return "- 預設值: "..defaults.profile.maxHeight.."\n- 每次: 1"
+				end,
+				type = "range",
+				min = 130,
+				max = 130,
+				step = 1,
+				set = function(_, value)
+					db.maxHeight = value
+					KT:Tracker_SetSize(true)
+					mover:Update()
+				end,
+				order = 4,
+			},
+			notes = {
+				name = cBold.." 寬度|r目前無法使用，因為尚未實裝。\n\n"..
+						cBold.." 最大高度|r和清單的垂直位移 (上/下) 有關。\n"..
+						" - 內容較少 ... 清單高度會自動增加。\n"..
+						" - 內容較多 ... 清單會啟用捲動功能。",
+				type = "description",
+				order = 5,
+			},
+			frameScale = {
+				name = "縮放大小",
+				desc = function()
+					return "- 預設值: "..defaults.profile.frameScale.."\n- 每次: 0.001"
+				end,
+				type = "range",
+				min = 0.4,
+				max = 1.7,
+				step = 0.001,
+				isRaw = true,
+				disabled = function()
+					return db.pixelPerfectScale
+				end,
+				set = function(_, value)
+					db.frameScale = value
+					KT:Tracker_SetScale(db.frameScale)
+					Mover_UpdateOptions()
+					KT:Tracker_Move()
+					KTF.height = 0  -- force update
+					KT:Tracker_Update()
+					mover:Update()
+				end,
+				order = 6,
+			},
+			pixelPerfectScale = {
+				name = "像素精確縮放",
+				desc = "內容使用像素精確縮放，相對於整體介面縮放。",
+				type = "toggle",
+				set = function()
+					db.pixelPerfectScale = not db.pixelPerfectScale
+					Mover_SetScale()
+				end,
+				order = 7,
+			},
+			frameStrata = {
+				name = "框架層級",
+				desc = function()
+					return "- 預設值: "..(strataLabels[defaults.profile.frameStrata] or defaults.profile.frameStrata)
+				end,
+				type = "select",
+				values = { strataLabels.BACKGROUND, strataLabels.LOW, strataLabels.MEDIUM, strataLabels.HIGH },
+				get = function()
+					for k, v in ipairs(strata) do
+						if db.frameStrata == v then
+							return k
+						end
 					end
-				end
-			end,
-			set = function(_, value)
-				db.frameStrata = strata[value]
-				KT:Tracker_SetFrameStrata(db.frameStrata)
-			end,
-			order = 8,
-		},
-	},
-}
-
-moverOptions = {
-	name = "|T"..KT.MEDIA_PATH.."KT_logo:22:22:0:0|t"..KT.TITLE.."|cffffffff - 編輯模式",
-	type = "group",
-	get = function(info) return db[info[#info]] end,
-	args = {
-		editMode = {
-			name = "編輯模式",
-			type = "group",
-			childGroups = "tab",
-			args = {
-				intro = {
-					name = "\n"..KT.GetUiIcon("MouseLeft", "markup")..cBold.."左鍵|r 點擊方塊來拖曳移動追蹤清單。\n"..
-							KT.GetUiIcon("MouseRight", "markup")..cBold.."右鍵|r點擊移動框，還原預設位置與大小。",
-					type = "description",
-					justifyH = "CENTER",
-					order = 0,
-				},
+				end,
+				set = function(_, value)
+					db.frameStrata = strata[value]
+					KT:Tracker_SetFrameStrata(db.frameStrata)
+				end,
+				order = 8,
 			},
 		},
-	},
-}
-
-KT.EditMode = KT:EditMode_Create(addonName, moverOptions, "editMode", 465, 465)
-KT.EditMode:RegisterOptions("tracker", trackerOptions)
-KT.EditMode.OnOpen = function()
-    KT:Tracker_SetHidden(false)
+	}
+	KT.EditMode:RegisterOptions("tracker", moverOptions)
 end
+
+-- ---------------------------------------------------------------------------------------------------------------------
 
 -- Options
 local options = {
-	name = "|T"..KT.MEDIA_PATH.."KT_logo:22:22:-1:7|t任務追蹤清單增強",
+	name = "|T"..KT.MEDIA_PATH.."KT_logo:22:22:-1:7|t任務追蹤清單增強"..KT.TITLE,
 	type = "group",
 	get = function(info) return db[info[#info]] end,
 	args = {
@@ -1904,6 +1909,10 @@ function M:OnInitialize()
 	self.isAvailable = true
 
 	db.questsAutoFocusClosest = false
+
+	if self.isAvailable then
+		EditMode_Setup()
+	end
 end
 
 function M:OnEnable()
@@ -1911,6 +1920,7 @@ function M:OnEnable()
 	questsEnabled = KT:Addon_IsModule(KT.Quests)
 	achievementsEnabled = KT:Addon_IsModule(KT.Achievements)
 
+	EditMode_SetupMover()
 	Setup()
 	SetHooks()
 

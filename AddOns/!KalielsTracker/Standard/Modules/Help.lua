@@ -382,6 +382,14 @@ local function SetupTutorials()
 			headingSize = 26,
 			text = "|cff66ff66"..KT.TITLE.." 是由一人獨自開發與維護的。|r\n"..ebSpace.."\n"..
 
+					(cTitle.."版本 8.8.2|r\n"..
+					"- 修正 - 追蹤清單初始化前變更介面縮放時發生錯誤。\n"..
+					"\n")..
+
+					(cTitle.."版本 8.8.1|r\n"..
+					"- 修正 - 新增供 CurseForge 驗證使用的純資訊 TOC。\n"..
+					"\n")..
+
 					(cTitle.."版本 8.8.0|r\n"..
 					"- 新增 - 支援 WoW 12.1.5.70391\n"..
 					"- 新增 - 函式庫：自訂 Ace 控制項支援 ElvUI 外觀。\n"..

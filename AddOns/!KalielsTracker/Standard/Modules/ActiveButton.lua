@@ -22,11 +22,10 @@ local activeFrameWidth = 256
 local activeFrameHeight = 128
 local strata = { "BACKGROUND", "LOW", "MEDIUM", "HIGH" }
 local defaults
-local activeButtonOptions
 
 local KTF = KT.frame
 local eventFrame
-local activeFrame, abutton, mover
+local activeFrame, abutton
 local blizzardButtonIconID = 0
 
 local buttons = KT.QuestButtons_GetButtons()
@@ -46,73 +45,224 @@ local function ActiveFrame_Move()
 	activeFrame:SetPoint(anchor, UIParent, anchor, xOffset, yOffset)
 end
 
-local function ActiveFrame_SetScale(scale)
-	activeFrame:SetScale(scale)
-end
-
 local function ActiveFrame_SetFrameStrata(strata)
 	activeFrame:SetFrameStrata(strata)
 end
 
-local function Mover_UpdateOptions()
-	local opt = activeButtonOptions.args
-	local screenWidth = round(GetScreenWidth())
-	local screenHeight = round(GetScreenHeight())
-	local halfWidth = round(activeFrameWidth * db.activeButton.scale / 2)
-	local halfHeight = round(activeFrameHeight * db.activeButton.scale / 2)
-	local xOffsetMax = round(screenWidth - halfWidth)
-	local xOffsetCenterMax = round(screenWidth / 2)
-	local yOffsetMax = round(screenHeight - halfHeight)
-	local anchorLeft = (db.activeButton.anchor == "TOPLEFT" or db.activeButton.anchor == "BOTTOMLEFT")
-	local anchorCenter = (db.activeButton.anchor == "TOP" or db.activeButton.anchor == "BOTTOM")
-	local anchorBottom = (db.activeButton.anchor == "BOTTOM" or db.activeButton.anchor == "BOTTOMLEFT" or db.activeButton.anchor == "BOTTOMRIGHT")
-
-	if anchorCenter then
-		opt.xOffset.min = xOffsetCenterMax * -1
-		opt.xOffset.max = xOffsetCenterMax
-	elseif anchorLeft then
-		opt.xOffset.min = halfWidth * -1
-		opt.xOffset.max = xOffsetMax
-	else
-		opt.xOffset.min = xOffsetMax * -1
-		opt.xOffset.max = halfWidth
-	end
-
-	if anchorBottom then
-		opt.yOffset.min = halfHeight * -1
-		opt.yOffset.max = yOffsetMax
-	else
-		opt.yOffset.min = yOffsetMax * -1
-		opt.yOffset.max = halfHeight
-	end
-
-	if db.activeButton.xOffset < opt.xOffset.min then
-		db.activeButton.xOffset = opt.xOffset.min
-	elseif db.activeButton.xOffset > opt.xOffset.max then
-		db.activeButton.xOffset = opt.xOffset.max
-	end
-
-	if db.activeButton.yOffset < opt.yOffset.min then
-		db.activeButton.yOffset = opt.yOffset.min
-	elseif db.activeButton.yOffset > opt.yOffset.max then
-		db.activeButton.yOffset = opt.yOffset.max
-	end
+local function ActiveFrame_SetScale(scale)
+	activeFrame:SetScale(scale)
 end
 
-local function Mover_UpdateOptionsUI()
-	Mover_UpdateOptions()
-	KT.EditMode:NotifyChange()
-end
+-- Edit Mode
+local function EditMode_SetupMover()
+	if not KT.EditMode then return end
 
-local function Mover_SetScale()
-	if db.activeButton.pixelPerfectScale then
-		db.activeButton.scale = KT.GetPixelPerfectScale(activeFrame)
-		ActiveFrame_SetScale(db.activeButton.scale)
+	local mover = KT:Mover_Create(addonName, KTF.ActiveFrame, "activeButton")
+	mover.editAnchors = true
+	mover.enabledAnchors = { "TOP", "TOPLEFT", "TOPRIGHT", "BOTTOM", "BOTTOMLEFT", "BOTTOMRIGHT" }
+
+	local activeButtonOptions
+
+	local function Mover_UpdateOptions()
+		local opt = activeButtonOptions.args
+		local screenWidth = round(GetScreenWidth())
+		local screenHeight = round(GetScreenHeight())
+		local halfWidth = round(activeFrameWidth * db.activeButton.scale / 2)
+		local halfHeight = round(activeFrameHeight * db.activeButton.scale / 2)
+		local xOffsetMax = round(screenWidth - halfWidth)
+		local xOffsetCenterMax = round(screenWidth / 2)
+		local yOffsetMax = round(screenHeight - halfHeight)
+		local anchorLeft = (db.activeButton.anchor == "TOPLEFT" or db.activeButton.anchor == "BOTTOMLEFT")
+		local anchorCenter = (db.activeButton.anchor == "TOP" or db.activeButton.anchor == "BOTTOM")
+		local anchorBottom = (db.activeButton.anchor == "BOTTOM" or db.activeButton.anchor == "BOTTOMLEFT" or db.activeButton.anchor == "BOTTOMRIGHT")
+
+		if anchorCenter then
+			opt.xOffset.min = xOffsetCenterMax * -1
+			opt.xOffset.max = xOffsetCenterMax
+		elseif anchorLeft then
+			opt.xOffset.min = halfWidth * -1
+			opt.xOffset.max = xOffsetMax
+		else
+			opt.xOffset.min = xOffsetMax * -1
+			opt.xOffset.max = halfWidth
+		end
+
+		if anchorBottom then
+			opt.yOffset.min = halfHeight * -1
+			opt.yOffset.max = yOffsetMax
+		else
+			opt.yOffset.min = yOffsetMax * -1
+			opt.yOffset.max = halfHeight
+		end
+
+		if db.activeButton.xOffset < opt.xOffset.min then
+			db.activeButton.xOffset = opt.xOffset.min
+		elseif db.activeButton.xOffset > opt.xOffset.max then
+			db.activeButton.xOffset = opt.xOffset.max
+		end
+
+		if db.activeButton.yOffset < opt.yOffset.min then
+			db.activeButton.yOffset = opt.yOffset.min
+		elseif db.activeButton.yOffset > opt.yOffset.max then
+			db.activeButton.yOffset = opt.yOffset.max
+		end
 	end
-	Mover_UpdateOptions()
-	ActiveFrame_Move()
+
+	local function Mover_UpdateOptionsUI()
+		Mover_UpdateOptions()
+		KT.EditMode:NotifyChange()
+	end
+
+	local function Mover_SetScale()
+		if db.activeButton.pixelPerfectScale then
+			db.activeButton.scale = KT.GetPixelPerfectScale(activeFrame)
+			ActiveFrame_SetScale(db.activeButton.scale)
+		end
+		Mover_UpdateOptions()
+		ActiveFrame_Move()
+	end
+
+	function mover:Show()
+		self.mixin.Show(self)
+		self.frame:Show()
+	end
+
+	function mover:Hide()
+		self.mixin.Hide(self)
+		Update()
+	end
+
+	function mover:Anchor_OnClick(frame)
+		db.activeButton.anchor = frame.value
+		db.activeButton.xOffset, db.activeButton.yOffset = self:GetPosition(db.activeButton.anchor, db.activeButton.scale)
+
+		Mover_UpdateOptionsUI()
+		ActiveFrame_Move()
+	end
+
+	function mover:OnDragStop(frame)
+		db.activeButton.xOffset, db.activeButton.yOffset = self:GetPosition(db.activeButton.anchor, db.activeButton.scale)
+
+		Mover_UpdateOptionsUI()
+		ActiveFrame_Move()
+	end
+
+	function mover:OnMouseUp(frame, button)
+		if button == "RightButton" then
+			db.activeButton.anchor = defaults.profile.activeButton.anchor
+			db.activeButton.xOffset = defaults.profile.activeButton.xOffset
+			db.activeButton.yOffset = defaults.profile.activeButton.yOffset
+
+			Mover_UpdateOptionsUI()
+			ActiveFrame_Move()
+		end
+	end
+
+	function mover:OnScaleChanged()
+		Mover_SetScale()
+	end
+
+	function mover:Update()
+		self.anchorPoint = db.activeButton.anchor
+		self.mixin.Update(self)
+	end
+
+	defaults = KT.db.defaults
+	activeButtonOptions = {
+		name = "當前任務物品按鈕",
+		type = "group",
+		get = function(info)
+			return db.activeButton[info[#info]]
+		end,
+		order = 2,
+		args = {
+			xOffset = {
+				name = "水平位置",
+				desc = function()
+					return "水平位置\n- 預設值: "..defaults.profile.activeButton.xOffset.."\n- 每次: 1"
+				end,
+				type = "range",
+				min = 0,
+				max = 0,
+				step = 1,
+				set = function(_, value)
+					db.activeButton.xOffset = value
+					ActiveFrame_Move()
+				end,
+				order = 1,
+			},
+			yOffset = {
+				name = "垂直位移",
+				desc = function()
+					return "垂直位置\n- 預設值: "..defaults.profile.activeButton.yOffset.."\n- 每次: 1"
+				end,
+				type = "range",
+				min = 0,
+				max = 0,
+				step = 1,
+				set = function(_, value)
+					db.activeButton.yOffset = value
+					ActiveFrame_Move()
+				end,
+				order = 2,
+			},
+			scale = {
+				name = "縮放大小",
+				desc = function()
+					return "- 預設值: "..defaults.profile.activeButton.scale.."\n- 每次: 0.001"
+				end,
+				type = "range",
+				min = 0.4,
+				max = 1.7,
+				step = 0.001,
+				isRaw = true,
+				disabled = function()
+					return db.activeButton.pixelPerfectScale
+				end,
+				set = function(_, value)
+					db.activeButton.scale = value
+					ActiveFrame_SetScale(db.activeButton.scale)
+					Mover_UpdateOptions()
+					ActiveFrame_Move()
+				end,
+				order = 3,
+			},
+			pixelPerfectScale = {
+				name = "像素精確縮放",
+				desc = "內容使用像素精確縮放，相對於整體介面縮放。",
+				type = "toggle",
+				set = function()
+					db.activeButton.pixelPerfectScale = not db.activeButton.pixelPerfectScale
+					Mover_SetScale()
+				end,
+				order = 4,
+			},
+			strata = {
+				name = "框架層級",
+				desc = function()
+					return "- 預設值: "..defaults.profile.activeButton.strata
+				end,
+				type = "select",
+				values = strata,
+				get = function()
+					for k, v in ipairs(strata) do
+						if db.activeButton.strata == v then
+							return k
+						end
+					end
+				end,
+				set = function(_, value)
+					db.activeButton.strata = strata[value]
+					ActiveFrame_SetFrameStrata(db.activeButton.strata)
+				end,
+				order = 5,
+			},
+		},
+	}
+	KT.EditMode:RegisterOptions("activeButton", activeButtonOptions)
 end
 
+-- Options
 local function SetupOptions()
 	if not KT:Addon_IsModule(KT.Options) then return end
 
@@ -214,104 +364,6 @@ local function SetupOptions()
 	})
 end
 
-local function SetupEditMode()
-	if not KT.EditMode then return end
-
-	defaults = KT.db.defaults
-	activeButtonOptions = {
-		name = "當前任務物品按鈕",
-		type = "group",
-		get = function(info)
-			return db.activeButton[info[#info]]
-		end,
-		order = 2,
-		args = {
-			xOffset = {
-				name = "水平位置",
-				desc = function()
-					return "水平位置\n- 預設值: "..defaults.profile.activeButton.xOffset.."\n- 每次: 1"
-				end,
-				type = "range",
-				min = 0,
-				max = 0,
-				step = 1,
-				set = function(_, value)
-					db.activeButton.xOffset = value
-					ActiveFrame_Move()
-				end,
-				order = 1,
-			},
-			yOffset = {
-				name = "垂直位移",
-				desc = function()
-					return "垂直位置\n- 預設值: "..defaults.profile.activeButton.yOffset.."\n- 每次: 1"
-				end,
-				type = "range",
-				min = 0,
-				max = 0,
-				step = 1,
-				set = function(_, value)
-					db.activeButton.yOffset = value
-					ActiveFrame_Move()
-				end,
-				order = 2,
-			},
-			scale = {
-				name = "縮放大小",
-				desc = function()
-					return "- 預設值: "..defaults.profile.activeButton.scale.."\n- 每次: 0.001"
-				end,
-				type = "range",
-				min = 0.4,
-				max = 1.7,
-				step = 0.001,
-				isRaw = true,
-				disabled = function()
-					return db.activeButton.pixelPerfectScale
-				end,
-				set = function(_, value)
-					db.activeButton.scale = value
-					ActiveFrame_SetScale(db.activeButton.scale)
-					Mover_UpdateOptions()
-					ActiveFrame_Move()
-				end,
-				order = 3,
-			},
-			pixelPerfectScale = {
-				name = "像素精確縮放",
-				desc = "內容使用像素精確縮放，相對於整體介面縮放。",
-				type = "toggle",
-				set = function()
-					db.activeButton.pixelPerfectScale = not db.activeButton.pixelPerfectScale
-					Mover_SetScale()
-				end,
-				order = 4,
-			},
-			strata = {
-				name = "框架層級",
-				desc = function()
-					return "- 預設值: "..defaults.profile.activeButton.strata
-				end,
-				type = "select",
-				values = strata,
-				get = function()
-					for k, v in ipairs(strata) do
-						if db.activeButton.strata == v then
-							return k
-						end
-					end
-				end,
-				set = function(_, value)
-					db.activeButton.strata = strata[value]
-					ActiveFrame_SetFrameStrata(db.activeButton.strata)
-				end,
-				order = 5,
-			},
-		},
-	}
-	KT.EditMode:RegisterOptions("activeButton", activeButtonOptions)
-end
-
 -- ---------------------------------------------------------------------------------------------------------------------
 
 local function UpdateBlizzardButtonIconID()
@@ -410,56 +462,6 @@ local function SetFrames()
 	end
 
 	ActiveFrame_Move()
-
-	-- Mover
-	mover = KT:Mover_Create(addonName, KTF.ActiveFrame, "activeButton")
-	mover.editAnchors = true
-	mover.enabledAnchors = { "TOP", "TOPLEFT", "TOPRIGHT", "BOTTOM", "BOTTOMLEFT", "BOTTOMRIGHT" }
-
-	function mover:Show()
-		self.mixin.Show(self)
-		self.frame:Show()
-	end
-
-	function mover:Hide()
-		self.mixin.Hide(self)
-		Update()
-	end
-
-	function mover:Anchor_OnClick(frame)
-		db.activeButton.anchor = frame.value
-		db.activeButton.xOffset, db.activeButton.yOffset = self:GetPosition(db.activeButton.anchor, db.activeButton.scale)
-
-		Mover_UpdateOptionsUI()
-		ActiveFrame_Move()
-	end
-
-	function mover:OnDragStop(frame)
-		db.activeButton.xOffset, db.activeButton.yOffset = self:GetPosition(db.activeButton.anchor, db.activeButton.scale)
-
-		Mover_UpdateOptionsUI()
-		ActiveFrame_Move()
-	end
-
-	function mover:OnMouseUp(frame, button)
-		if button == "RightButton" then
-			db.activeButton.anchor = defaults.profile.activeButton.anchor
-			db.activeButton.xOffset = defaults.profile.activeButton.xOffset
-			db.activeButton.yOffset = defaults.profile.activeButton.yOffset
-
-			Mover_UpdateOptionsUI()
-			ActiveFrame_Move()
-		end
-	end
-
-	function mover:OnScaleChanged()
-		Mover_SetScale()
-	end
-
-	function mover:Update()
-		self.anchorPoint = db.activeButton.anchor
-		self.mixin.Update(self)
-	end
 
 	-- Button frame
 	if not KTF.ActiveButton then
@@ -619,8 +621,8 @@ function M:OnEnable()
 	SetupOptions()
 
 	if db.activeButtonEnable then
-		SetupEditMode()
 		SetFrames()
+		EditMode_SetupMover()
 
 		KT:RegSignal("BUTTONS_UPDATED", Update, self)
 	end
