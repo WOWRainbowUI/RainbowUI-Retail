@@ -19,7 +19,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
     if event == "UNIT_SPELLCAST_START" then
         local unitTarget = ...
         -- local specID = PlayerUtil.GetCurrentSpecID()
-
+        
         -- print(specID)
         -- 获取主文件的路径与声道配置
         -- encounterEventIDs = C_EncounterEvents.GetEventList()
@@ -89,7 +89,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
 
         local MEDIA_PATH = addonTable.GetMediaPath and addonTable.GetMediaPath() or ""
         local audioChannel = DiGuaTimelineAudioHelper and DiGuaTimelineAudioHelper.audioChannel or "Master"
-        
+        -- PlaySoundFile(MEDIA_PATH .. "[4]54321.ogg", DiGuaTimelineAudioHelper.audioChannel)
         -- if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) then
         --     addonTable.GenerateAllSpecsCodeBlock(unitTarget)
         -- end
