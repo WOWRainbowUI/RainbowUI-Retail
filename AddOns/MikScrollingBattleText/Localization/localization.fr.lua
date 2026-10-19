@@ -45,9 +45,7 @@ L.MSG_STATIC			= "Statique"
 L.MSG_COMBAT					= "Combat"
 L.MSG_DISPEL					= "Dissiper"
 
-L.MSG_CP						= "CP"
 L.CP_FULL						= "Finissez-le"
-L.MSG_HOLY_POWER_FULL			= "Full Holy Power"
 
 L.MSG_KILLING_BLOW				= "Coup Fatal"
 L.MSG_TRIGGER_LOW_HEALTH		= "Vie Faible"

@@ -32,6 +32,34 @@ function Formatter:FormatDisplayAmount(amount, profile)
 	return self.config.formatLargeNumber(amount)
 end
 
+function Formatter:FormatRestrictedAmount(amount, profile)
+	profile = profile or self:GetProfile()
+	local formatter = profile.shortenNumbers and AbbreviateNumbers
+		or BreakUpLargeNumbers
+	if type(formatter) == "function" then
+		local ok, isString, formatted = pcall(function()
+			local result = formatter(amount)
+			return type(result) == "string", result
+		end)
+		if ok and isString then
+			return formatted
+		end
+	end
+	return amount
+end
+
+local RESTRICTED_AMOUNT_TOKEN = "\001"
+
+function Formatter:BuildRestrictedTemplate(message, suffix)
+	message = string.gsub(message, "%%a", RESTRICTED_AMOUNT_TOKEN, 1)
+	message = string.gsub(message, "%%a", "")
+	if suffix then
+		message = message .. suffix
+	end
+	message = string.gsub(message, "%%", "%%%%")
+	return (string.gsub(message, RESTRICTED_AMOUNT_TOKEN, "%%s"))
+end
+
 function Formatter:AbbreviateSkillName(skillName)
 	if string.find(skillName, "[%s%-]") then
 		return string.gsub(skillName, "(%a)[%l%p]*[%s%-]*", "%1")

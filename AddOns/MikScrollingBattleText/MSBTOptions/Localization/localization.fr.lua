@@ -156,9 +156,6 @@ obj["DAMAGE_DONE"]			= "%a - Dommages infligés.\n"
 obj["HEALING_DONE"]			= "%a - Quantité de soins.\n"
 obj["ABSORBED_AMOUNT"]		= "%a - Quantité de dommages absorbés.\n"
 obj["AURA_AMOUNT"]			= "%a - Nombre de la pile pour cet aura.\n"
-obj["ENERGY_AMOUNT"]		= "%a - Quantité de pouvoir.\n"
-obj["CP_AMOUNT"]			= "%a - Nombre de points de combo.\n"
-obj["HOLY_POWER_AMOUNT"]	= "%a - Amount of holy power you have.\n"
 obj["HONOR_AMOUNT"]			= "%a - Quantité d'honneur.\n"
 obj["REP_AMOUNT"]			= "%a - Quantité de réputation.\n"
 obj["ITEM_AMOUNT"]			= "%a - Quantité de l'item ramassé.\n"
@@ -185,7 +182,6 @@ obj["FACTION_NAME"]			= "%e - Faction.\n"
 obj["EMOTE_TEXT"]			= "%e - Le texte de l'emote.\n"
 obj["MONEY_TEXT"]			= "%e - Le texte de l'argent gagné.\n"
 obj["ITEM_NAME"]			= "%e - Le nom de l'item ramassé.\n"
-obj["POWER_TYPE"]			= "%p - Type de pouvoir (énergie, rage, mana).\n"
 obj["TOTAL_ITEMS"]			= "%t - Nombre total de l'item ramassé dans l'inventaire."
 
 
@@ -317,10 +313,6 @@ obj["NOTIFICATION_BUFF_FADE"]			= { label="Fin des buffs", tooltip="Afficher la 
 obj["NOTIFICATION_ITEM_BUFF_FADE"]		= { label="Fin des buffs d'objets", tooltip="Afficher quand un de vos buffs d'objet se termine."}
 obj["NOTIFICATION_COMBAT_ENTER"]		= { label="Début combat", tooltip="Afficher l'entrée en combat."}
 obj["NOTIFICATION_COMBAT_LEAVE"]		= { label="Sortie combat", tooltip="Afficher la fin du combat."}
-obj["NOTIFICATION_POWER_GAIN"]			= { label="Gains de puissance", tooltip="Afficher les gains de mana, rage et énergie."}
-obj["NOTIFICATION_POWER_LOSS"]			= { label="Pertes de puissance", tooltip="Afficher les pertes de mana, rage et énergie par des drains."}
-obj["NOTIFICATION_CP_GAIN"]				= { label="Gain de points de combo", tooltip="Afficher les points de combo."}
-obj["NOTIFICATION_CP_FULL"]				= { label="5 points de combo", tooltip="Afficher quand vous avez atteint 5 points de combo."}
 obj["NOTIFICATION_HONOR_GAIN"]			= { label="Gains d'honneur", tooltip="Afficher les gains d'honneur."}
 obj["NOTIFICATION_REP_GAIN"]			= { label="Gains de réputation", tooltip="Afficher les gains de réputation."}
 obj["NOTIFICATION_REP_LOSS"]			= { label="Pertes de réputation", tooltip="Afficher les pertes de réputation."}

@@ -18,6 +18,7 @@ local OutgoingCombat = MikSBT.Components.OutgoingCombat
 local ParserNotifications = MikSBT.Components.ParserNotifications
 local UtilityNotifications = MikSBT.Components.UtilityNotifications
 local Client = MikSBT.Compatibility.Client
+local RestrictedValue = MikSBT.API.RestrictedValue
 
 local string_find = string.find
 local string_gsub = string.gsub
@@ -83,7 +84,6 @@ local _
 
 local eventFrame = CreateFrame("Frame")
 
-local playerClass
 
 local eventRouter = EventRouter:New()
 local damageTypeMap = {}
@@ -94,6 +94,7 @@ local powerTokens = {}
 local isEnglish
 local playerGUID
 local AUTOSHOT_SPELL_ID = 6603
+local AUTO_REPEAT_SPELL_IDS = {75, 5019}
 local OUTGOING_GROUP_DELAY = 0.2
 local INCOMING_GROUP_DELAY = 0.12
 local OUTGOING_FALLBACK_ATTRIBUTION_WINDOW = 0.9
@@ -217,17 +218,13 @@ local function ParserEventsHandler(parserEvent)
 	DisplayEvent(eventSettings, outputMessage, effectTexture)
 end
 
-function eventFrame:UNIT_POWER_UPDATE(unitID, powerToken)
-	utilityNotifications:HandlePowerUpdate(unitID, powerToken)
-end
-
 function eventFrame:PLAYER_REGEN_ENABLED()
-	incomingCombat:Reset()
+	incomingCombat:ResetDamage()
 	outgoingCombat:ResetCombatState()
 	utilityNotifications:HandleCombatLeave()
 end
 function eventFrame:PLAYER_REGEN_DISABLED()
-	incomingCombat:Reset()
+	incomingCombat:ResetDamage()
 	outgoingCombat:ResetCombatState()
 	utilityNotifications:HandleCombatEnter()
 end
@@ -292,41 +289,53 @@ local function IsAutoAttackSpellID(spellID)
 	return spellID == AUTOSHOT_SPELL_ID
 end
 
-local function CanUseAutoAttackFallback(now, lastAutoAttackTime)
-	local autoActive = false
-
+local function IsPlayerAutoAttacking()
 	if type(IsCurrentSpell) == "function" then
 		local ok, result = pcall(IsCurrentSpell, AUTOSHOT_SPELL_ID)
-		if ok and result then
-			autoActive = true
+		if ok and RestrictedValue:Value(result) then
+			return true
 		end
 	end
-	if (not autoActive) and type(IsAutoRepeatSpell) == "function" then
-		local ok, result = pcall(IsAutoRepeatSpell)
-		if ok and result then
-			autoActive = true
+	if type(IsAutoRepeatSpell) == "function" then
+		for _, spellID in ipairs(AUTO_REPEAT_SPELL_IDS) do
+			local spellName = GetSpellInfo(spellID)
+			if spellName then
+				local ok, result = pcall(IsAutoRepeatSpell, spellName)
+				if ok and RestrictedValue:Value(result) then
+					return true
+				end
+			end
 		end
 	end
-	if (not autoActive) and C_Spell and type(C_Spell.IsAutoAttackSpell) == "function" then
-		local ok, result = pcall(C_Spell.IsAutoAttackSpell, AUTOSHOT_SPELL_ID)
-		if ok and result then
-			autoActive = true
-		end
-	end
-	if not autoActive then
-		return false
-	end
+	return false
+end
 
-	local okSpeed, mainSpeedRaw, offSpeedRaw = pcall(UnitAttackSpeed, "player")
+local function GetSwingSpeed(unit)
+	local okSpeed, mainSpeedRaw, offSpeedRaw = pcall(UnitAttackSpeed, unit)
 	local mainSpeed = okSpeed and NormalizeNumber(mainSpeedRaw) or nil
 	local offSpeed = okSpeed and NormalizeNumber(offSpeedRaw) or nil
 	local swingSpeed = mainSpeed or offSpeed or 2
-	if offSpeed and offSpeed < swingSpeed then
+	if offSpeed and offSpeed > 0 and offSpeed < swingSpeed then
 		swingSpeed = offSpeed
 	end
+	if swingSpeed <= 0 then
+		swingSpeed = 2
+	end
+	return swingSpeed
+end
 
-	local minGap = math.max(0.25, swingSpeed * 0.45)
+local function CanUseAutoAttackFallback(now, lastAutoAttackTime)
+	if not IsPlayerAutoAttacking() then
+		return false
+	end
+
+	local minGap = math.max(0.25, GetSwingSpeed("player") * 0.45)
 	return (now - (lastAutoAttackTime or 0)) >= minGap
+end
+
+local function IsPetEngaged()
+	return SafeUnitBoolean(UnitExists, "pet")
+		and SafeUnitBoolean(UnitIsUnit, "pettarget", "target")
 end
 
 local function IsOutgoingTargetContextValid()
@@ -391,6 +400,58 @@ local function HasPlayerDebuffOnTarget(spellID)
 	return false
 end
 
+local function CallBoolean(func, ...)
+	if type(func) ~= "function" then
+		return nil
+	end
+	local ok, result = pcall(func, ...)
+	if not ok then
+		return nil
+	end
+	local boolean = RestrictedValue:Boolean(result)
+	if boolean ~= nil then
+		return boolean
+	end
+	local number = RestrictedValue:Number(result)
+	if number then
+		return number == 1
+	end
+end
+
+local function IsHelpfulSpellID(spellID)
+	local C_Spell = C_Spell
+	local helpful = CallBoolean(C_Spell and C_Spell.IsSpellHelpful, spellID)
+	if helpful ~= nil then
+		return helpful
+	end
+	local harmful = CallBoolean(C_Spell and C_Spell.IsSpellHarmful, spellID)
+	if harmful ~= nil then
+		return not harmful
+	end
+	local spellName = GetSpellInfo(spellID)
+	harmful = spellName and CallBoolean(IsHarmfulSpell, spellName)
+	if harmful ~= nil then
+		return not harmful
+	end
+	return true
+end
+
+local function PlayerHasAura(spellID)
+	if C_UnitAuras and C_UnitAuras.GetPlayerAuraBySpellID then
+		local ok, aura = pcall(C_UnitAuras.GetPlayerAuraBySpellID, spellID)
+		return ok and RestrictedValue:Table(aura) ~= nil
+	end
+	if AuraUtil and AuraUtil.FindAuraBySpellID then
+		local ok, aura = pcall(AuraUtil.FindAuraBySpellID, spellID, "player", "HELPFUL")
+		return ok and RestrictedValue:Value(aura) ~= nil
+	end
+	return false
+end
+
+local function IsPlayerSolo()
+	return not ((IsInGroup and IsInGroup()) or (IsInRaid and IsInRaid()))
+end
+
 local function HasPlayerAnyDebuffOnTarget(spellIDs)
 	if not spellIDs then
 		return false
@@ -422,33 +483,55 @@ local function ResolveBatchDisplaySettings(eventSettings, critSettings, hitCount
 	return eventSettings
 end
 
-local function BuildActionMessage(eventSettings, amount)
-	local function CleanupActionMessage(message)
-		if not message then
-			return message
-		end
-		message = string_gsub(message, "%%n", "")
-		message = string_gsub(message, "%%sl", "")
-		message = string_gsub(message, "%%s", "")
-		message = string_gsub(message, "%%e", "")
-		message = string_gsub(message, "%(%s*%-?%s*%)", "")
-		message = string_gsub(message, "%[%s*%-?%s*%]", "")
-		message = string_gsub(message, "%{%s*%-?%s*%}", "")
-		message = string_gsub(message, "%<%s*%-?%s*%>", "")
-		message = string_gsub(message, "^%s*%-%s*", "")
-		message = string_gsub(message, "%s*%-%s*$", "")
-		message = string_gsub(message, "%s%s+", " ")
-		message = string_gsub(message, "^%s+", "")
-		message = string_gsub(message, "%s+$", "")
+local function CleanupActionMessage(message)
+	if not message then
 		return message
 	end
+	message = string_gsub(message, "%%n", "")
+	message = string_gsub(message, "%%sl", "")
+	message = string_gsub(message, "%%s", "")
+	message = string_gsub(message, "%%e", "")
+	message = string_gsub(message, "%s+%-%s*([%)%]%}>])", "%1")
+	message = string_gsub(message, "([%(%[%{<])%s*%-%s+", "%1")
+	message = string_gsub(message, "%(%s*%-?%s*%)", "")
+	message = string_gsub(message, "%[%s*%-?%s*%]", "")
+	message = string_gsub(message, "%{%s*%-?%s*%}", "")
+	message = string_gsub(message, "%<%s*%-?%s*%>", "")
+	message = string_gsub(message, "^%s*%-%s*", "")
+	message = string_gsub(message, "%s*%-%s*$", "")
+	message = string_gsub(message, "%s%s+", " ")
+	message = string_gsub(message, "^%s+", "")
+	message = string_gsub(message, "%s+$", "")
+	return message
+end
 
+local function DisplayRestrictedAmount(eventSettings, amount, texturePath, message, suffix)
+	if not eventSettings or eventSettings.disabled then
+		return
+	end
+	local template = Formatter:BuildRestrictedTemplate(
+		CleanupActionMessage(message or eventSettings.message or "%a"),
+		suffix
+	)
+	DisplayEvent(
+		eventSettings,
+		template,
+		texturePath,
+		nil,
+		Formatter:FormatRestrictedAmount(amount, MSBTProfiles.currentProfile)
+	)
+end
+
+local function BuildActionMessage(eventSettings, amount, overhealAmount, effectName)
 	if not eventSettings or not eventSettings.message then
 		return nil
 	end
 	local message = eventSettings.message
 	if amount and amount > 0 then
-		message = Formatter:FormatLegacyEvent(message, amount)
+		message = Formatter:FormatLegacyEvent(
+			message, amount, nil, overhealAmount,
+			nil, nil, nil, nil, effectName
+		)
 		message = string_gsub(message, "<%%sl>%s*", "")
 		message = string_gsub(message, "<%%s>%s*", "")
 		message = string_gsub(message, "<%%e>%s*", "")
@@ -476,7 +559,15 @@ local outgoingBatcher = OutgoingBatcher:New({
 	formatAmount = function(amount, profile)
 		return Formatter:FormatDisplayAmount(amount, profile)
 	end,
+	formatEventMessage = function(eventSettings, amount, spellID)
+		local spellName = spellID and not IsAutoAttackSpellID(spellID)
+			and GetSpellInfo(spellID) or nil
+		return CleanupActionMessage(Formatter:FormatLegacyEvent(
+			eventSettings.message, amount, nil, nil, nil, nil, nil, nil, spellName
+		))
+	end,
 	display = DisplayEvent,
+	displayRestricted = DisplayRestrictedAmount,
 	after = C_Timer.After,
 	getSpellTexture = function(spellID)
 		local _, _, texture = GetSpellInfo(spellID)
@@ -485,8 +576,6 @@ local outgoingBatcher = OutgoingBatcher:New({
 	isAutoAttack = IsAutoAttackSpellID,
 	autoAttackSpellID = AUTOSHOT_SPELL_ID,
 	delay = OUTGOING_GROUP_DELAY,
-	shouldSplitCritBatch = ShouldSplitCritBatch,
-	resolveBatchDisplaySettings = ResolveBatchDisplaySettings,
 })
 
 local damageMeterSource = DamageMeterSource:New({
@@ -507,9 +596,8 @@ local damageMeterSource = DamageMeterSource:New({
 			sourceGUID
 		)
 	end,
-	normalizeNumber = NormalizeNumber,
-	queue = function(...)
-		outgoingBatcher:Queue(...)
+	queue = function(spellID, amount, isPet)
+		outgoingBatcher:Queue(spellID, amount, false, nil, nil, isPet)
 	end,
 	newTicker = C_Timer.NewTicker,
 	damageType = Enum and Enum.DamageMeterType
@@ -535,8 +623,13 @@ outgoingCombat = OutgoingCombat:New({
 		return texture
 	end,
 	isAutoAttack = IsAutoAttackSpellID,
+	isHelpfulSpell = IsHelpfulSpellID,
 	canUseAutoAttackFallback = CanUseAutoAttackFallback,
+	isPlayerAutoAttacking = IsPlayerAutoAttacking,
+	isPetEngaged = IsPetEngaged,
+	getSwingSpeed = GetSwingSpeed,
 	hasPlayerDebuff = HasPlayerAnyDebuffOnTarget,
+	isPlayerSolo = IsPlayerSolo,
 	isLikelySpellSchool = IsLikelySpellSchool,
 	autoAttackSpellID = AUTOSHOT_SPELL_ID,
 	fallbackAttributionWindow = OUTGOING_FALLBACK_ATTRIBUTION_WINDOW,
@@ -555,6 +648,7 @@ incomingCombat = IncomingCombat:New({
 	shouldSplitCritBatch = ShouldSplitCritBatch,
 	resolveBatchDisplaySettings = ResolveBatchDisplaySettings,
 	display = DisplayEvent,
+	displayRestricted = DisplayRestrictedAmount,
 	after = C_Timer.After,
 	getTime = GetTime,
 	unitName = UnitName,
@@ -563,6 +657,10 @@ incomingCombat = IncomingCombat:New({
 	safeUnitBoolean = SafeUnitBoolean,
 	getSpellInfo = GetSpellInfo,
 	isAutoAttackSpellID = IsAutoAttackSpellID,
+	isHelpfulSpell = IsHelpfulSpellID,
+	playerHasAura = PlayerHasAura,
+	unitHealth = UnitHealth,
+	unitHealthMax = UnitHealthMax,
 	unknown = UNKNOWN,
 	groupDelay = INCOMING_GROUP_DELAY,
 	selfHealIconWindow = INCOMING_SELF_HEAL_ICON_ATTRIBUTION_WINDOW,
@@ -571,8 +669,20 @@ incomingCombat = IncomingCombat:New({
 	end,
 })
 
+function eventFrame:UNIT_HEALTH(unitID)
+	incomingCombat:HandleHealthUpdate(unitID)
+end
+
 function eventFrame:UNIT_SPELLCAST_SUCCEEDED(unitID, lineID, spellID)
 	outgoingCombat:HandleSpellcastSucceeded(unitID, spellID)
+end
+
+function eventFrame:COMBAT_TEXT_UPDATE(eventType)
+	eventType = RestrictedValue:String(eventType)
+	if not eventType then
+		return
+	end
+	incomingCombat:HandleCombatText(eventType, C_CombatText.GetCurrentEventInfo())
 end
 
 function eventFrame:UNIT_COMBAT(unitTarget, action, flagText, amount, schoolMask)
@@ -596,12 +706,15 @@ function eventFrame:UNIT_COMBAT(unitTarget, action, flagText, amount, schoolMask
 end
 
 local function Enable()
-	eventFrame:RegisterEvent("UNIT_POWER_UPDATE")
 	eventFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
 	eventFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
 	eventFrame:RegisterEvent("CHAT_MSG_MONSTER_EMOTE")
 	eventFrame:RegisterEvent("UNIT_COMBAT")
+	eventFrame:RegisterUnitEvent("UNIT_HEALTH", "player")
 	eventFrame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+	if C_CombatText and C_CombatText.GetCurrentEventInfo then
+		eventFrame:RegisterEvent("COMBAT_TEXT_UPDATE")
+	end
 	outgoingCombat:Start()
 
 	MSBTParser.RegisterHandler(ParserEventsHandler)
@@ -625,7 +738,6 @@ eventFrame:SetScript("OnEvent", function(self, event, ...)
 end)
 
 
-_, playerClass = UnitClass("player")
 playerGUID = UnitGUID("player")
 
 parserNotifications = ParserNotifications:New()
@@ -638,15 +750,8 @@ utilityNotifications = UtilityNotifications:New({
 	format = function(...)
 		return Formatter:FormatLegacyEvent(...)
 	end,
-	powerTypes = powerTypes,
-	unitPower = UnitPower,
-	unitPowerMax = UnitPowerMax,
-	getPlayerClass = function()
-		return playerClass
-	end,
 	unitName = UnitName,
 	getTime = GetTime,
-	unknown = UNKNOWN,
 	emoteHoldTime = EMOTE_HOLD_TIME,
 })
 

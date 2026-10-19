@@ -37,6 +37,14 @@ function RestrictedValue:CanAccessTable(value)
 	return true
 end
 
+function RestrictedValue:IsRestricted(value)
+	return not self:CanAccess(value)
+end
+
+function RestrictedValue:Equals(value, expected)
+	return self:CanAccess(value) and value == expected
+end
+
 function RestrictedValue:Value(value)
 	if self:CanAccess(value) then
 		return value

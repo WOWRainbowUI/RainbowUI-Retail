@@ -38,9 +38,6 @@ L.MSG_STATIC			= "Статический"
 L.MSG_COMBAT					= "Бой"
 L.MSG_DISPEL					= "Рассеяно"
 
-L.MSG_CP						= "Приём в Серии"
-L.MSG_CP_FULL					= "Прикончи!"
-L.MSG_HOLY_POWER_FULL			= "Энергия Света полна"
 
 L.MSG_KILLING_BLOW				= "Победный удар!"
 L.MSG_TRIGGER_LOW_HEALTH		= "Малый запас здоровья"

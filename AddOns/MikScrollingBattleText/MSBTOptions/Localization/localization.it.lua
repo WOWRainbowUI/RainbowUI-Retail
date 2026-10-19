@@ -160,9 +160,6 @@ obj["DAMAGE_DONE"]			= "%a - Ammontare di Danni inflitti.\n"
 obj["HEALING_DONE"]			= "%a - Ammontare di Cure imposte.\n"
 obj["ABSORBED_AMOUNT"]		= "%a - Ammontare di danni assorbiti.\n"
 obj["AURA_AMOUNT"]			= "%a - Ammontare di quantita' per l'aura.\n"
-obj["ENERGY_AMOUNT"]		= "%a - Ammontare di Energia.\n"
-obj["CP_AMOUNT"]			= "%a - Ammontare di Punti Combinazione che hai.\n"
-obj["HOLY_POWER_AMOUNT"]	= "%a - Ammontare di Potere Divino che hai.\n"
 obj["HONOR_AMOUNT"]			= "%a - Ammontare di onore.\n"
 obj["REP_AMOUNT"]			= "%a - Ammontare di reputazione.\n"
 obj["ITEM_AMOUNT"]			= "%a - Ammontare di oggetti predati.\n"
@@ -189,7 +186,6 @@ obj["FACTION_NAME"]			= "%e - Nome della fazione.\n"
 obj["EMOTE_TEXT"]			= "%e - Il testo dell'emote.\n"
 obj["MONEY_TEXT"]			= "%e - Testo delle monete guadagnate.\n"
 obj["ITEM_NAME"]			= "%e - Il nome dell'oggetto predato.\n"
-obj["POWER_TYPE"]			= "%p - Il tipo di potere (energia, rabbia, mana).\n"
 obj["TOTAL_ITEMS"]			= "%t - Il numero totale degli oggetti predati nell'inventario."
 
 
@@ -336,12 +332,6 @@ obj["NOTIFICATION_BUFF_FADE"]			= { label="Dissipazione Miglioramento", tooltip=
 obj["NOTIFICATION_ITEM_BUFF_FADE"]		= { label="Dissipazione Miglioramento Oggetto", tooltip="Abilita la visione di un miglioramento che si dissipa da un tuo oggetto."}
 obj["NOTIFICATION_COMBAT_ENTER"]		= { label="Entri in Combattimento", tooltip="Abilita il messaggio di quando entri in combattimento."}
 obj["NOTIFICATION_COMBAT_LEAVE"]		= { label="Lasci il Combattimento", tooltip="Abilita il messaggio di quando lasci un combattimento."}
-obj["NOTIFICATION_POWER_GAIN"]			= { label="Guadagno Potere", tooltip="Abilita la visione di quando guadagni mana, rabbia o energia."}
-obj["NOTIFICATION_POWER_LOSS"]			= { label="Perdita Potere", tooltip="Abilita la visione di quando perdi potere mana, rabbia, or energia per un prosciugamento."}
-obj["NOTIFICATION_CP_GAIN"]				= { label="Guadagno Punti Combinazione", tooltip="Abilita quando guadagni PC."}
-obj["NOTIFICATION_CP_FULL"]				= { label="Punti Combinazione Pieni", tooltip="Abilita quando ottieni pieni PC."}
-obj["NOTIFICATION_HOLY_POWER_CHANGE"]	= { label="Carica Potere Divino", tooltip="Abilita quando cambia il tuo potere divino."}
-obj["NOTIFICATION_HOLY_POWER_FULL"]		= { label="Potere Divino Pieno", tooltip="Abilita quando il potere divino e' pieno (3 cariche)."}
 obj["NOTIFICATION_HONOR_GAIN"]			= { label="Guadagno Onore", tooltip="Abilita quando guadagni onore."}
 obj["NOTIFICATION_REP_GAIN"]			= { label="Guadagno Reputazione", tooltip="Abilita quando guadagni reputazione."}
 obj["NOTIFICATION_REP_LOSS"]			= { label="Perdita Reputazione", tooltip="Abiltia quando perdi reputazione."}

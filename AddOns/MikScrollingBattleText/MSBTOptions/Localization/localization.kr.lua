@@ -161,10 +161,6 @@ obj["DAMAGE_DONE"]			= "%a - 피해량.\n"
 obj["HEALING_DONE"]			= "%a - 치유량.\n"
 obj["ABSORBED_AMOUNT"]		= "%a - 피해 흡수량.\n"
 obj["AURA_AMOUNT"]			= "%a - 오라에 대한 중첩량.\n"
-obj["ENERGY_AMOUNT"]		= "%a - 기력.\n"
-obj["CP_AMOUNT"]			= "%a - 연계 점수.\n"
-obj["HOLY_POWER_AMOUNT"]	= "%a - 보유한 신성한 힘.\n"
-obj["ESSENCE_AMOUNT"]		= "%a - 보유한 정수.\n"
 obj["HONOR_AMOUNT"]			= "%a - 명예 점수.\n"
 obj["REP_AMOUNT"]			= "%a - 평판 수치.\n"
 obj["ITEM_AMOUNT"]			= "%a - 획득한 아이템 수량.\n"
@@ -191,7 +187,6 @@ obj["FACTION_NAME"]			= "%e - 평판 이름.\n"
 obj["EMOTE_TEXT"]			= "%e - 감정 표현 텍스트.\n"
 obj["MONEY_TEXT"]			= "%e - 획득한 금전의 텍스트.\n"
 obj["ITEM_NAME"]			= "%e - 획득한 아이템의 이름.\n"
-obj["POWER_TYPE"]			= "%p - 마력의 유형 (마나, 분노, 기력, 룬마력).\n"
 obj["TOTAL_ITEMS"]			= "%t - 소지품 속 획득한 아이템의 합계."
 
 
@@ -338,16 +333,6 @@ obj["NOTIFICATION_BUFF_FADE"]			= { label="버프 사라짐", tooltip="사라진
 obj["NOTIFICATION_ITEM_BUFF_FADE"]		= { label="아이템 버프 사라짐", tooltip="사라진 아이템 버프를 알려줍니다."}
 obj["NOTIFICATION_COMBAT_ENTER"]		= { label="전투 시작", tooltip="전투 상태 시작을 알려줍니다."}
 obj["NOTIFICATION_COMBAT_LEAVE"]		= { label="전투 종료", tooltip="전투 상태 종료를 알려줍니다."}
-obj["NOTIFICATION_POWER_GAIN"]			= { label="마력 (마나/분노 등) 획득", tooltip="추가적인 마나, 분노, 기력, 룬 마력 획득을 알려줍니다."}
-obj["NOTIFICATION_POWER_LOSS"]			= { label="마력 (마나/분노 등) 손실", tooltip="유출에 의한 마나, 분노, 기력, 룬 마력 손실을 알려줍니다."}
-obj["NOTIFICATION_CHI_CHANGE"]			= { label="기 변경", tooltip="기가 변경될 때 알려줍니다."}
-obj["NOTIFICATION_CHI_FULL"]			= { label="기 최대", tooltip="최대 기에 도달하면 알려줍니다."}
-obj["NOTIFICATION_CP_GAIN"]				= { label="연계 점수 획득", tooltip="연계 점수 획득을 알려줍니다."}
-obj["NOTIFICATION_CP_FULL"]				= { label="연계 점수 마무리", tooltip="연계 점수가 절정 (5 포인트)에 도달했음을 알려줍니다."}
-obj["NOTIFICATION_HOLY_POWER_CHANGE"]	= { label="신성한 힘 변경", tooltip="신성한 힘이 변경되면 알려줍니다."}
-obj["NOTIFICATION_HOLY_POWER_FULL"]		= { label="신성한 힘 최대", tooltip="최대 신성한 힘에 도달하면 알려줍니다."}
-obj["NOTIFICATION_ESSENCE_CHANGE"]	= { label="정수 변경", tooltip="정수가 변경될 때 알려줍니다."}
-obj["NOTIFICATION_ESSENCE_FULL"]		= { label="정수 최대", tooltip="최대 정수에 도달하면 알려줍니다."}
 obj["NOTIFICATION_HONOR_GAIN"]			= { label="명예 획득", tooltip="명예 점수 획득을 알려줍니다.."}
 obj["NOTIFICATION_REP_GAIN"]			= { label="평판 상승", tooltip="평판 수치 획득을 알려줍니다.."}
 obj["NOTIFICATION_REP_LOSS"]			= { label="평판 하락", tooltip="평판 수치 감소를 알려줍니다."}

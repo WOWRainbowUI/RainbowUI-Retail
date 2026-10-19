@@ -160,9 +160,6 @@ obj["DAMAGE_DONE"]			= "%a - Значение нанесённого урона.
 obj["HEALING_DONE"]			= "%a - Значение нанесённого лечения.\n"
 obj["ABSORBED_AMOUNT"]		= "%a - Значение поглот. урона.\n"
 obj["AURA_AMOUNT"]			= "%a - Значение стеков ауры.\n"
-obj["ENERGY_AMOUNT"]		= "%a - Значение энергии.\n"
-obj["CP_AMOUNT"]			= "%a - Значение сколько приёмов в серии.\n"
-obj["HOLY_POWER_AMOUNT"]	= "%a - Значение вашей энергии Света.\n"
 obj["HONOR_AMOUNT"]			= "%a - Значение чести.\n"
 obj["REP_AMOUNT"]			= "%a - Значение репутации.\n"
 obj["ITEM_AMOUNT"]			= "%a - Значение добытого предмета.\n"
@@ -189,7 +186,6 @@ obj["FACTION_NAME"]			= "%e - Название фракции.\n"
 obj["EMOTE_TEXT"]			= "%e - Текст эмоций.\n"
 obj["MONEY_TEXT"]			= "%e - Текст получения денег.\n"
 obj["ITEM_NAME"]			= "%e - Название добытого предмета.\n"
-obj["POWER_TYPE"]			= "%p - Тип энергии (энергия, ярость, мана).\n"
 obj["TOTAL_ITEMS"]			= "%t - Общее количество добытых предметов в инвентаре."
 
 
@@ -336,12 +332,6 @@ obj["NOTIFICATION_BUFF_FADE"]			= { label="Пропад. полож. эффек�
 obj["NOTIFICATION_ITEM_BUFF_FADE"]		= { label="Пропад. полож. эф. предметов", tooltip="Вкл/Выкл оповещение о пропадание с предметов положительных эффектов."}
 obj["NOTIFICATION_COMBAT_ENTER"]		= { label="Начало боя", tooltip="Вкл/Выкл оповещение о том когда вы начинаете бой."}
 obj["NOTIFICATION_COMBAT_LEAVE"]		= { label="Выход из боя", tooltip="Вкл/Выкл оповещение о том когда вы выходите из бой."}
-obj["NOTIFICATION_POWER_GAIN"]			= { label="Получ. энергии", tooltip="Вкл/Выкл оповещение когда вы получаете дополнительную ману, ярость, или энергию."}
-obj["NOTIFICATION_POWER_LOSS"]			= { label="Потеря энергии", tooltip="Вкл/Выкл оповещение когда теряете ману, ярость, или энергию от похищения."}
-obj["NOTIFICATION_CP_GAIN"]				= { label="Получ. Приёма в Серии", tooltip="Вкл/Выкл оповещение когда вы получаете приём в серии."}
-obj["NOTIFICATION_CP_FULL"]				= { label="Макс. Приёмов в Серии", tooltip="Вкл/Выкл оповещение когда вы достигаете максимального количества приемов в серии."}
-obj["NOTIFICATION_HOLY_POWER_CHANGE"]	= { label="Изменение энергии Света", tooltip="Вкл/Выкл оповещение изменения вашей энергии Света."}
-obj["NOTIFICATION_HOLY_POWER_FULL"]		= { label="Полная энергия Света", tooltip="Вкл/Выкл оповещение когда вы достигаете полной энергии Света."}
 obj["NOTIFICATION_HONOR_GAIN"]			= { label="Получ. чести", tooltip="Вкл/Выкл оповещение когда вы получаете очки чести."}
 obj["NOTIFICATION_REP_GAIN"]			= { label="Получ. репутации", tooltip="Вкл/Выкл оповещение когда вы получаете очки репутации."}
 obj["NOTIFICATION_REP_LOSS"]			= { label="Потеря репутации", tooltip="Вкл/Выкл оповещение когда вы теряете очки репутации."}

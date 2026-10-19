@@ -132,6 +132,7 @@ GeneralTab_Populate = function()
 	controls.enableCheckbox:SetChecked(not MSBTProfiles.IsModDisabled())
 	controls.disableOutgoingInGroupCheckbox:SetChecked(not not currentProfile.disableOutgoingInGroup)
 	controls.disableIncomingInGroupCheckbox:SetChecked(not not currentProfile.disableIncomingInGroup)
+	controls.disableBlizzardIncomingCheckbox:SetChecked(not not currentProfile.disableBlizzardIncoming)
 	controls.disableNotificationInGroupCheckbox:SetChecked(not not currentProfile.disableNotificationInGroup)
 	controls.disableStaticInGroupCheckbox:SetChecked(not not currentProfile.disableStaticInGroup)
 	controls.stickyCritsCheckbox:SetChecked(not currentProfile.stickyCritsDisabled)
@@ -299,6 +300,20 @@ local function GeneralTab_Create()
 		end
 	)
 	controls.blizzardCombatTextV2InGroupCheckbox = checkbox
+
+	checkbox = MSBTControls.CreateCheckbox(tabFrame)
+	objLocale = L.CHECKBOXES["disableBlizzardIncoming"] or { label = "Disable Blizzard incoming", tooltip = "Disable Blizzard incoming combat text while keeping Blizzard outgoing combat text controlled by the options above." }
+	checkbox:Configure(28, objLocale.label, objLocale.tooltip)
+	checkbox:SetPoint("TOPLEFT", controls.blizzardCombatTextV2InGroupCheckbox, "BOTTOMLEFT", 0, -5)
+	checkbox:SetClickHandler(
+		function (this, isChecked)
+			MSBTProfiles.SetOption(nil, "disableBlizzardIncoming", isChecked)
+			if MSBTProfiles.ApplyContextOptions then
+				MSBTProfiles.ApplyContextOptions()
+			end
+		end
+	)
+	controls.disableBlizzardIncomingCheckbox = checkbox
 
 	checkbox = MSBTControls.CreateCheckbox(tabFrame)
 	objLocale = L.CHECKBOXES["enableSounds"]
@@ -1096,20 +1111,6 @@ local function EventsTab_SetupEvents()
 	EventsTab_AddEvent(category, "NOTIFICATION_ITEM_COOLDOWN", c.ITEM_COOLDOWN_NAME)
 	EventsTab_AddEvent(category, "NOTIFICATION_COMBAT_ENTER", "")
 	EventsTab_AddEvent(category, "NOTIFICATION_COMBAT_LEAVE", "")
-	EventsTab_AddEvent(category, "NOTIFICATION_POWER_GAIN", c.ENERGY_AMOUNT .. c.POWER_TYPE .. c.SKILL_NAME .. c.SKILL_LONG)
-	EventsTab_AddEvent(category, "NOTIFICATION_POWER_LOSS", c.ENERGY_AMOUNT .. c.POWER_TYPE .. c.SKILL_NAME .. c.SKILL_LONG)
-	EventsTab_AddEvent(category, "NOTIFICATION_ALT_POWER_GAIN", c.ENERGY_AMOUNT .. c.POWER_TYPE .. c.SKILL_NAME .. c.SKILL_LONG)
-	EventsTab_AddEvent(category, "NOTIFICATION_ALT_POWER_LOSS", c.ENERGY_AMOUNT .. c.POWER_TYPE .. c.SKILL_NAME .. c.SKILL_LONG)
-	EventsTab_AddEvent(category, "NOTIFICATION_CHI_CHANGE", c.CHI_AMOUNT)
-	EventsTab_AddEvent(category, "NOTIFICATION_CHI_FULL", c.CHI_AMOUNT)
-	EventsTab_AddEvent(category, "NOTIFICATION_AC_CHANGE", c.AC_AMOUNT)
-	EventsTab_AddEvent(category, "NOTIFICATION_AC_FULL", c.AC_AMOUNT)
-	EventsTab_AddEvent(category, "NOTIFICATION_CP_GAIN", c.CP_AMOUNT)
-	EventsTab_AddEvent(category, "NOTIFICATION_CP_FULL", c.CP_AMOUNT)
-	EventsTab_AddEvent(category, "NOTIFICATION_HOLY_POWER_CHANGE", c.HOLY_POWER_AMOUNT)
-	EventsTab_AddEvent(category, "NOTIFICATION_HOLY_POWER_FULL", c.HOLY_POWER_AMOUNT)
-	EventsTab_AddEvent(category, "NOTIFICATION_ESSENCE_CHANGE", c.ESSENCE_AMOUNT)
-	EventsTab_AddEvent(category, "NOTIFICATION_ESSENCE_FULL", c.ESSENCE_AMOUNT)
 	EventsTab_AddEvent(category, "NOTIFICATION_HONOR_GAIN", c.HONOR_AMOUNT)
 	EventsTab_AddEvent(category, "NOTIFICATION_REP_GAIN", c.REP_AMOUNT)
 	EventsTab_AddEvent(category, "NOTIFICATION_REP_LOSS", c.REP_AMOUNT)

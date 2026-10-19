@@ -159,9 +159,6 @@ obj["DAMAGE_DONE"]			= "%a - Menge des Schadens.\n"
 obj["HEALING_DONE"]			= "%a - Geheilte Menge.\n"
 obj["ABSORBED_AMOUNT"]		= "%a - Menge des absobierten Schadens.\n"
 obj["AURA_AMOUNT"]			= "%a - Menge der Stapel für eine Aura.\n"
-obj["ENERGY_AMOUNT"]		= "%a - Menge der Energie.\n"
-obj["CP_AMOUNT"]			= "%a - Menge der momentanen Combo-Punkte.\n"
-obj["HOLY_POWER_AMOUNT"]	= "%a - Menge der heiligen Kraft.\n"
 obj["HONOR_AMOUNT"]			= "%a - Menge der Ehre.\n"
 obj["REP_AMOUNT"]			= "%a - Menge des Rufs.\n"
 obj["ITEM_AMOUNT"]			= "%a - Menge des geplünderten Gegenstands.\n"
@@ -188,7 +185,6 @@ obj["FACTION_NAME"]			= "%e - Name der Fraktion.\n"
 obj["EMOTE_TEXT"]			= "%e - Der Text der Geste.\n"
 obj["MONEY_TEXT"]			= "%e - Der Text des erhaltenen Geldes.\n"
 obj["ITEM_NAME"]			= "%e - Der Name des geplünderten Gegenstands.\n"
-obj["POWER_TYPE"]			= "%p - Art der Energie (Energie, Wut, Mana, Runenmacht, usw.).\n"
 obj["TOTAL_ITEMS"]			= "%t - Gesamte Anzahl der geplünderten Gegenstände im Inventar."
 
 
@@ -335,12 +331,6 @@ obj["NOTIFICATION_BUFF_FADE"]			= { label="Buff verblasst", tooltip="Aktiviert B
 obj["NOTIFICATION_ITEM_BUFF_FADE"]		= { label="Gegenstands-Buff verblasst", tooltip="Aktiviert Gegenstands-Buffs, die von dir verblassen."}
 obj["NOTIFICATION_COMBAT_ENTER"]		= { label="Kampfeintritt", tooltip="Aktiviert, wenn du in den Kampf eintrittst."}
 obj["NOTIFICATION_COMBAT_LEAVE"]		= { label="Kampfaustritt", tooltip="Aktiviert, wenn du in den Kampf verlässt."}
-obj["NOTIFICATION_POWER_GAIN"]			= { label="Energie erhalten", tooltip="Aktiviert, wenn du zusätzliches Mana, Wut oder Energie erhälst."}
-obj["NOTIFICATION_POWER_LOSS"]			= { label="Energie verloren", tooltip="Aktiviert, wenn du durch Abzug Mana, Wut oder Energie verlierst."}
-obj["NOTIFICATION_CP_GAIN"]				= { label="Combo-Punkte erhalten", tooltip="Aktiviert, wenn du Combo-Punkte bekommst."}
-obj["NOTIFICATION_CP_FULL"]				= { label="Combo-Punkte komplett", tooltip="Aktiviert, wenn du alle Combo-Punkte erreicht hast."}
-obj["NOTIFICATION_HOLY_POWER_CHANGE"]	= { label="Heilige Kraft verändert", tooltip="Aktiviert, wenn sich deine Heilige Kraft verändert."}
-obj["NOTIFICATION_HOLY_POWER_FULL"]		= { label="Heilige Kraft komplett", tooltip="Aktiviert, wenn deine Heilige Kraft voll ist."}
 obj["NOTIFICATION_HONOR_GAIN"]			= { label="Ehre erhalten", tooltip="Aktiviert, wenn du Ehre erhälst."}
 obj["NOTIFICATION_REP_GAIN"]			= { label="Ruf erhalten", tooltip="Aktiviert, wenn du Ruf erhälst."}
 obj["NOTIFICATION_REP_LOSS"]			= { label="Ruf verloren", tooltip="Aktiviert, wenn du Ruf verlierst."}

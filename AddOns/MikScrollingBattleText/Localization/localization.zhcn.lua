@@ -34,8 +34,6 @@ L.MSG_STATIC			= "静态信息"
 L.MSG_COMBAT					= "战斗"
 L.MSG_DISPEL					= "驱散"
 
-L.MSG_CP_FULL					= "终结技"
-L.MSG_HOLY_POWER_FULL			= "满圣能"
 
 L.MSG_KILLING_BLOW				= "击杀"
 L.MSG_TRIGGER_LOW_HEALTH		= "生命值低"

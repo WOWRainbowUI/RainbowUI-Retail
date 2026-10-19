@@ -83,6 +83,7 @@ obj = L.CHECKBOXES
 obj["enableMSBT"]				= { label="Enable Mik's Scrolling Battle Text", tooltip="Enable MSBT."}
 obj["disableOutgoingInGroup"]	= { label="Disable Outgoing In Group", tooltip="While in a party or raid, hide events assigned to the Outgoing scroll area."}
 obj["disableIncomingInGroup"]	= { label="Disable Incoming In Group", tooltip="While in a party or raid, hide events assigned to the Incoming scroll area."}
+obj["disableBlizzardIncoming"] = { label="Disable Blizzard incoming", tooltip="Disable Blizzard incoming combat text while keeping Blizzard outgoing combat text controlled by the options above." }
 obj["disableNotificationInGroup"]= { label="Disable Notification In Group", tooltip="While in a party or raid, hide events assigned to the Notification scroll area."}
 obj["disableStaticInGroup"]		= { label="Disable Static In Group", tooltip="While in a party or raid, hide events assigned to the Static scroll area."}
 obj["enableBlizzardV2CombatText"]= { label="Disable Blizzard CT While Solo", tooltip="When checked, disables Blizzard floating combat text damage/healing while solo." }
@@ -218,12 +219,6 @@ obj["DAMAGE_DONE"]			= "%a - Amount of damage done.\n"
 obj["HEALING_DONE"]			= "%a - Amount of healing done.\n"
 obj["ABSORBED_AMOUNT"]		= "%a - Amount of damage absorbed.\n"
 obj["AURA_AMOUNT"]			= "%a - Amount of stacks for the aura.\n"
-obj["ENERGY_AMOUNT"]		= "%a - Amount of energy.\n"
-obj["CHI_AMOUNT"]			= "%a - Amount of chi you have.\n"
-obj["AC_AMOUNT"]			= "%a - Amount of arcane power you have.\n"
-obj["CP_AMOUNT"]			= "%a - Amount of combo points you have.\n"
-obj["HOLY_POWER_AMOUNT"]	= "%a - Amount of holy power you have.\n"
-obj["ESSENCE_AMOUNT"]		= "%a - Amount of essence you have.\n"
 obj["SHADOW_ORBS_AMOUNT"]	= "%a - Amount of shadow orbs you have.\n"
 obj["HONOR_AMOUNT"]			= "%a - Amount of honor.\n"
 obj["REP_AMOUNT"]			= "%a - Amount of reputation.\n"
@@ -252,7 +247,6 @@ obj["FACTION_NAME"]			= "%e - Name of the faction.\n"
 obj["EMOTE_TEXT"]			= "%e - The text of the emote.\n"
 obj["MONEY_TEXT"]			= "%e - The money gained text.\n"
 obj["ITEM_NAME"]			= "%e - The name of the looted item.\n"
-obj["POWER_TYPE"]			= "%p - Type of power (energy, rage, mana).\n"
 obj["TOTAL_ITEMS"]			= "%t - Total number of the looted item in inventory."
 
 
@@ -404,20 +398,6 @@ obj["NOTIFICATION_ITEM_BUFF_FADE"]		= { label="Item Buff Fades", tooltip="Enable
 obj["NOTIFICATION_ITEM_COOLDOWN"] = { label="Item Ready", tooltip="Notify when a used trinket or potion cooldown finishes."}
 obj["NOTIFICATION_COMBAT_ENTER"]		= { label="Enter Combat", tooltip="Enable when you have entered combat."}
 obj["NOTIFICATION_COMBAT_LEAVE"]		= { label="Leave Combat", tooltip="Enable when you have left combat."}
-obj["NOTIFICATION_POWER_GAIN"]			= { label="Power Gains", tooltip="Enable when you gain extra mana, rage, or energy."}
-obj["NOTIFICATION_POWER_LOSS"]			= { label="Power Losses", tooltip="Enable when you lose mana, rage, or energy from drains."}
-obj["NOTIFICATION_ALT_POWER_GAIN"]		= { label="Alternate Power Gains", tooltip="Enable when you gain alternate power such as sound level on Atramedes."}
-obj["NOTIFICATION_ALT_POWER_LOSS"]		= { label="Alternate Power Losses", tooltip="Enable when you lose alternate power from drains."}
-obj["NOTIFICATION_CHI_CHANGE"]			= { label="Chi Changes", tooltip="Enable when you change chi."}
-obj["NOTIFICATION_CHI_FULL"]			= { label="Chi Full", tooltip="Enable when you attain full chi."}
-obj["NOTIFICATION_AC_CHANGE"]			= { label="Arcane Charges Changes", tooltip="Enable when you change arcane power."}
-obj["NOTIFICATION_AC_FULL"]				= { label="Arcane Charges Full", tooltip="Enable when you attain full arcane power."}
-obj["NOTIFICATION_CP_GAIN"]				= { label="Combo Point Gains", tooltip="Enable when you gain combo points."}
-obj["NOTIFICATION_CP_FULL"]				= { label="Combo Points Full", tooltip="Enable when you attain full combo points."}
-obj["NOTIFICATION_HOLY_POWER_CHANGE"]	= { label="Holy Power Changes", tooltip="Enable when you change holy power."}
-obj["NOTIFICATION_HOLY_POWER_FULL"]		= { label="Holy Power Full", tooltip="Enable when you attain full holy power."}
-obj["NOTIFICATION_ESSENCE_CHANGE"]		= { label="Essence Changes", tooltip="Enable when you change essence."}
-obj["NOTIFICATION_ESSENCE_FULL"]		= { label="Essence Full", tooltip="Enable when you attain full essence."}
 obj["NOTIFICATION_HONOR_GAIN"]			= { label="Honor Gains", tooltip="Enable when you gain honor."}
 obj["NOTIFICATION_REP_GAIN"]			= { label="Reputation Gains", tooltip="Enable when you gain reputation."}
 obj["NOTIFICATION_REP_LOSS"]			= { label="Reputation Losses", tooltip="Enable when you lose reputation."}

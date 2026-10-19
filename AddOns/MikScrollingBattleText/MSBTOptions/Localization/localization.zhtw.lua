@@ -160,9 +160,6 @@ obj["DAMAGE_DONE"]			= "%a - 輸出傷害總數.\n"
 obj["HEALING_DONE"]			= "%a - 輸出治療總數.\n"
 obj["ABSORBED_AMOUNT"]		= "%a - 吸收傷害總數.\n"
 obj["AURA_AMOUNT"]			= "%a - 光環的堆疊數量.\n"
-obj["ENERGY_AMOUNT"]		= "%a - 能量總數.\n"
-obj["CP_AMOUNT"]			= "%a - 你的連擊點總數.\n"
-obj["HOLY_POWER_AMOUNT"]	= "%a - Amount of holy power you have.\n"
 obj["HONOR_AMOUNT"]			= "%a - 榮譽總數.\n"
 obj["REP_AMOUNT"]			= "%a - 聲望總數.\n"
 obj["ITEM_AMOUNT"]			= "%a - 拾取物品的數量.\n"
@@ -189,7 +186,6 @@ obj["FACTION_NAME"]			= "%e - 聲望陣營名.\n"
 obj["EMOTE_TEXT"]			= "%e - 表情文字.\n"
 obj["MONEY_TEXT"]			= "%e - 獲取金錢文字.\n"
 obj["ITEM_NAME"]			= "%e - 拾取物品的名稱.\n"
-obj["POWER_TYPE"]			= "%p - 能力類別 (能量, 怒氣, 法力).\n"
 obj["TOTAL_ITEMS"]			= "%t - 拾取物品的總數."
 
 
@@ -336,12 +332,6 @@ obj["NOTIFICATION_BUFF_FADE"]			= { label="Buff消失", tooltip="顯示從你身
 obj["NOTIFICATION_ITEM_BUFF_FADE"]		= { label="物品Buff消失", tooltip="顯示從你身上消失的物品Buff"}
 obj["NOTIFICATION_COMBAT_ENTER"]		= { label="戰鬥開始", tooltip="顯示你已經開始戰鬥"}
 obj["NOTIFICATION_COMBAT_LEAVE"]		= { label="戰鬥結束", tooltip="顯示你已經結束了戰鬥"}
-obj["NOTIFICATION_POWER_GAIN"]			= { label="能量獲得", tooltip="顯示你額外獲得的法力，怒氣或者能量"}
-obj["NOTIFICATION_POWER_LOSS"]			= { label="能量失去", tooltip="顯示你失去的法力，怒氣或者能量"}
-obj["NOTIFICATION_CP_GAIN"]				= { label="連擊點獲得", tooltip="顯示你獲得的連擊點"}
-obj["NOTIFICATION_CP_FULL"]				= { label="連擊點全滿", tooltip="顯示你的連擊點已滿"}
-obj["NOTIFICATION_HOLY_POWER_CHANGE"]	= { label="神聖能量變化", tooltip="顯示你神聖能量的變化"}
-obj["NOTIFICATION_HOLY_POWER_FULL"]		= { label="神聖能量已滿", tooltip="顯示你神聖能量已滿"}
 obj["NOTIFICATION_HONOR_GAIN"]			= { label="獲得榮譽", tooltip="顯示你獲得榮譽"}
 obj["NOTIFICATION_REP_GAIN"]			= { label="聲望提高", tooltip="顯示你的聲望提高"}
 obj["NOTIFICATION_REP_LOSS"]			= { label="聲望下降", tooltip="顯示你的聲望下降"}

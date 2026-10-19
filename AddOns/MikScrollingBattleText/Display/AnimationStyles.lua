@@ -22,6 +22,7 @@ local MOVEMENT_SPEED = (3 / 260)
 
 local MIN_VERTICAL_SPACING = 8
 local MIN_HORIZONTAL_SPACING = 10
+local RESTRICTED_TEXT_WIDTH_FACTOR = 3
 
 local _
 
@@ -472,7 +473,8 @@ local function InitHorizontal(newDisplayEvent, activeDisplayEvents, direction, b
 		newDisplayEvent.elapsedTime = newDisplayEvent.scrollTime / 2
 	end
 
-	local fontStringWidth = newDisplayEvent.fontString:GetStringWidth()
+	local fontStringWidth = MikSBT.API.RestrictedValue:Number(newDisplayEvent.fontString:GetStringWidth())
+		or newDisplayEvent.fontSize * RESTRICTED_TEXT_WIDTH_FACTOR
 	if anchorPoint == "BOTTOMLEFT" then
 		newDisplayEvent.offsetLeft = 0
 		newDisplayEvent.offsetRight = fontStringWidth

@@ -51,9 +51,6 @@ L.MSG_STATIC			= "Statico"
 L.MSG_COMBAT					= "Combattimento"
 L.MSG_DISPEL					= "Dissipare"
 
-L.MSG_CP						= "PC"
-L.MSG_CP_FULL					= "FINISCILO"
-L.MSG_HOLY_POWER_FULL			= "Potere Benedetto Pieno"
 
 L.MSG_KILLING_BLOW				= "Colpo Mortale"
 L.MSG_TRIGGER_LOW_HEALTH		= "Vita Bassa"

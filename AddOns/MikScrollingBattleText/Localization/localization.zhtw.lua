@@ -34,9 +34,6 @@ L.MSG_STATIC			= "靜態訊息"
 L.MSG_COMBAT					= "戰鬥"
 L.MSG_DISPEL					= "驅散魔法"
 
-L.MSG_CP						= "連擊點"
-L.MSG_CP_FULL					= "終結技"
-L.MSG_HOLY_POWER_FULL			= "滿聖能"
 
 L.MSG_KILLING_BLOW				= "擊殺"
 L.MSG_TRIGGER_LOW_HEALTH		= "生命值偏低"

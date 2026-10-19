@@ -47,15 +47,8 @@ L.MSG_STATIC			= "정적 메시지"
 
 L.MSG_COMBAT					= "전투 상태"
 L.MSG_DISPEL					= "해제"
-L.MSG_AC						= "비전 충전물"
-L.MSG_AC_FULL					= "비전 충전물 최대"
 
-L.MSG_CP						= "연계 점수"
-L.MSG_CP_FULL					= "마무리 공격"
-L.MSG_HOLY_POWER_FULL			= "신성한 힘 최대"
 
-L.MSG_ESSENCE					= "정수"
-L.MSG_ESSENCE_FULL				= "정수 최대"
 L.MSG_KILLING_BLOW				= "결정타"
 L.MSG_TRIGGER_LOW_HEALTH		= "생명력 낮음"
 L.MSG_TRIGGER_LOW_MANA			= "마나 낮음"

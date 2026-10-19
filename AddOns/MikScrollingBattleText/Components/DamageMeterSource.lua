@@ -1,6 +1,10 @@
 local DamageMeterSource = {}
 DamageMeterSource.__index = DamageMeterSource
 
+local RestrictedValue = MikSBT.API.RestrictedValue
+
+local PET_SOURCE_INDEX = 2
+
 function DamageMeterSource:New(config)
 	return setmetatable({
 		config = config,
@@ -28,6 +32,7 @@ function DamageMeterSource:Reset()
 	end
 	self.lastPollTime = 0
 	self.lastDeltaTime = 0
+	self.wasRestricted = false
 end
 
 local function WasGUIDProcessed(processedGUIDs, sourceGUID)
@@ -42,10 +47,15 @@ local function WasGUIDProcessed(processedGUIDs, sourceGUID)
 	return false
 end
 
-function DamageMeterSource:ProcessSpell(sourceIndex, damageSpell)
+function DamageMeterSource:ProcessSpell(sourceIndex, damageSpell, baselineOnly)
 	pcall(function()
-		local spellID = self.config.normalizeNumber(damageSpell.spellID)
 		local totalAmount = damageSpell.totalAmount
+		if RestrictedValue:IsRestricted(damageSpell.spellID)
+			or RestrictedValue:IsRestricted(totalAmount) then
+			self.wasRestricted = true
+			return
+		end
+		local spellID = RestrictedValue:Number(damageSpell.spellID)
 		if not spellID or totalAmount == nil then
 			return
 		end
@@ -61,8 +71,8 @@ function DamageMeterSource:ProcessSpell(sourceIndex, damageSpell)
 		if delta < 0 then
 			delta = normalizedTotal
 		end
-		if delta > 0 then
-			self.config.queue(spellID, delta, false)
+		if delta > 0 and not baselineOnly then
+			self.config.queue(spellID, delta, sourceIndex == PET_SOURCE_INDEX)
 			self.lastDeltaTime = self.lastPollTime
 		end
 		self.lastTotals[key] = normalizedTotal
@@ -75,6 +85,8 @@ function DamageMeterSource:Poll()
 	end
 
 	self.lastPollTime = self.config.getTime()
+	local baselineOnly = self.wasRestricted
+	self.wasRestricted = false
 	local playerGUID = self.config.unitGUID("player")
 		or self.config.getPlayerGUID()
 	if not playerGUID then
@@ -98,12 +110,24 @@ function DamageMeterSource:Poll()
 			)
 			if success and source then
 				pcall(function()
+					if not RestrictedValue:CanAccessTable(source) then
+						self.wasRestricted = true
+						return
+					end
 					local combatSpells = source.combatSpells
+					if RestrictedValue:IsRestricted(combatSpells) then
+						self.wasRestricted = true
+						return
+					end
 					if type(combatSpells) ~= "table" then
 						return
 					end
+					if not RestrictedValue:CanAccessTable(combatSpells) then
+						self.wasRestricted = true
+						return
+					end
 					for _, damageSpell in ipairs(combatSpells) do
-						self:ProcessSpell(sourceIndex, damageSpell)
+						self:ProcessSpell(sourceIndex, damageSpell, baselineOnly)
 					end
 				end)
 			end
