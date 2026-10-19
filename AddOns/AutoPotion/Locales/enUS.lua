@@ -43,8 +43,6 @@ L["Shows the food that will currently be used, based on what is in your bags."] 
 "Shows the food that will currently be used, based on what is in your bags."
 L["Shows the drink that will currently be used, based on what is in your bags."] =
 "Shows the drink that will currently be used, based on what is in your bags."
-L["The Settings of AutoPotion were reset due to breaking changes."] =
-"The Settings of AutoPotion were reset due to breaking changes."
 L["Useful for casters."] = "Useful for casters."
 
 -- InfoOptionsFrame
@@ -95,3 +93,6 @@ L["AutoDrink Settings"] = "AutoDrink"
 L["AutoManaPotion"] = "AutoManaPotion" -- DO NOT TRANSLATE
 
 L["AutoManaPotion Settings"] = "AutoManaPotion"
+-- code.lua
+L["Couldn't create the %s macro: your general macros are full. Delete one of them and it will be created."] =
+"Couldn't create the %s macro: your general macros are full. Delete one of them and it will be created."
