@@ -118,7 +118,6 @@ function BaganatorCategoryViewBankViewCharacterTabsAsBagsViewMixin:ShowTab(chara
     table.insert(bagData, tab.slots)
     table.insert(bagTypes, 0)
   end
-  bagWidth = bagWidth * 2
   bagIndexes = Syndicator.Constants.AllBankIndexes
   self.LayoutManager:Layout(bagData, bagWidth, bagTypes, bagIndexes, sideSpacing, topSpacing, function(maxWidth, maxHeight)
     self.Container:SetSize(

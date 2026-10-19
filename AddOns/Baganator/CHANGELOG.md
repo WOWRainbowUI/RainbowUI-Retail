@@ -1,6 +1,6 @@
 # Baganator
 
-## [837](https://github.com/TheMouseNest/Baganator/tree/837) (2026-10-13)
-[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/836...837) 
+## [838](https://github.com/TheMouseNest/Baganator/tree/838) (2026-10-17)
+[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/837...838) 
 
-- Update toc for 12.1.5  
+- Forever: Bank: Fix extra line doubling column count on categories  
