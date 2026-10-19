@@ -1,4 +1,8 @@
 # Kaliel's Tracker changelog
+### 8.8.2
+- FIXED - error when UI scale changes before tracker initialization
+### 8.8.1
+- FIXED - add metadata-only TOC for CurseForge validation
 ### 8.8.0
 - ADDED - support for WoW 12.1.5.70391
 - ADDED - Libs - add ElvUI skinning support for custom Ace widgets

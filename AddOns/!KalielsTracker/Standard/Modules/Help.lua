@@ -382,6 +382,14 @@ local function SetupTutorials()
 			headingSize = 26,
 			text = "|cff66ff66"..KT.TITLE.." is developed and maintained by one person.|r\n"..ebSpace.."\n"..
 
+					(cTitle.."Version 8.8.2|r\n"..
+					"- FIXED - error when UI scale changes before tracker initialization\n"..
+					"\n")..
+
+					(cTitle.."Version 8.8.1|r\n"..
+					"- FIXED - add metadata-only TOC for CurseForge validation\n"..
+					"\n")..
+
 					(cTitle.."Version 8.8.0|r\n"..
 					"- ADDED - support for WoW 12.1.5.70391\n"..
 					"- ADDED - Libs - add ElvUI skinning support for custom Ace widgets\n"..
