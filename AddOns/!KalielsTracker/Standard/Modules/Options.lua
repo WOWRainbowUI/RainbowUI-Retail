@@ -8,7 +8,7 @@
 local addonName, KT = ...
 
 ---@class Options
-local M = KT:NewModule("選項")
+local M = KT:NewModule("Options")
 KT.Options = M
 
 local ACD = LibStub("MSA-AceConfigDialog-3.0")
