@@ -32,14 +32,26 @@ local LANGUAGE_TAB_ORDER = 9500
 local waitTable = {}
 local waitFrame = nil
 
+local MAIN_FRAME_WIDTH = 790
+local MAIN_FRAME_HEIGHT = 490
+local TAB_OFFSET_X = 235
+local TAB_OFFSET_Y = -78
+local TAB_WIDTH = 535
+local TAB_HEIGHT = 400
+local DOCK_PADDING = 16
+local DOCK_MAX_SCALE = 1.6
+local dockedParent
+local dockedReopen
+local pendingReopen
+
 
 
 	local function InitTab(tabInfo)
 		local frame = tabInfo.frame
 		frame:SetParent(mainFrame)
-		frame:SetPoint("TOPLEFT", mainFrame, "TOPLEFT", 235, -78)
-		frame:SetWidth(535)
-		frame:SetHeight(400)
+		frame:SetPoint("TOPLEFT", mainFrame, "TOPLEFT", TAB_OFFSET_X, TAB_OFFSET_Y)
+		frame:SetWidth(TAB_WIDTH)
+		frame:SetHeight(TAB_HEIGHT)
 	end
 
 
@@ -149,9 +161,27 @@ end
 
 
 local function OnHideMainFrame(this)
-	PlaySound(799)
+	if not dockedParent then
+		PlaySound(799)
+	end
 	for frame in pairs(popupFrames) do
 		frame:Hide()
+	end
+end
+
+
+local function SetSpecialFrame(isSpecial)
+	local frameName = mainFrame:GetName()
+	for index, name in ipairs(UISpecialFrames) do
+		if name == frameName then
+			if not isSpecial then
+				table.remove(UISpecialFrames, index)
+			end
+			return
+		end
+	end
+	if isSpecial then
+		table.insert(UISpecialFrames, frameName)
 	end
 end
 
@@ -163,18 +193,22 @@ local function CreateMainFrame()
 	mainFrame:RegisterForDrag("LeftButton")
 	mainFrame:SetClampedToScreen(true)
 	mainFrame:SetFrameStrata("DIALOG")
-	mainFrame:SetWidth(790)
-	mainFrame:SetHeight(490)
+	mainFrame:SetWidth(MAIN_FRAME_WIDTH)
+	mainFrame:SetHeight(MAIN_FRAME_HEIGHT)
 	mainFrame:SetPoint("CENTER")
 	mainFrame:SetHitRectInsets(0, 0, 0, 0)
 	mainFrame:SetScript("OnHide", OnHideMainFrame)
 
 	mainFrame:SetScript("OnShow", function(self)
 			self:SetFrameLevel((self:GetParent() and self:GetParent():GetFrameLevel() or 0) + 50)
-			PlaySound(SOUNDKIT.IG_MAINMENU_OPTION)
+			if not dockedParent then
+				PlaySound(SOUNDKIT.IG_MAINMENU_OPTION)
+			end
 	end)
 	mainFrame:SetScript("OnDragStart", function(self)
-			self:StartMoving()
+			if not dockedParent then
+				self:StartMoving()
+			end
 	end)
 	mainFrame:SetScript("OnDragStop", function(self)
 			self:StopMovingOrSizing()
@@ -264,6 +298,8 @@ local function CreateMainFrame()
 	else
 		frame:SetPoint("TOPRIGHT", mainFrame, "TOPRIGHT", -7, -12)
 	end
+	mainFrame.closeButton = frame
+	mainFrame.chromeRegions = { mainFrame:GetRegions() }
 
 
 	tabListbox = MSBTControls.CreateListbox(mainFrame)
@@ -319,21 +355,127 @@ local function CreateMainFrame()
 	RefreshTabContainers()
 	tabData[defaultTabIndex].frame:Show()
 
-	local frameName = mainFrame:GetName()
-	local isRegistered = false
-	for _, name in ipairs(UISpecialFrames) do
-		if name == frameName then
-			isRegistered = true
-			break
-		end
+	SetSpecialFrame(true)
+end
+
+
+local function SetChromeShown(isShown)
+	for _, region in ipairs(mainFrame.chromeRegions) do
+		region:SetShown(isShown)
 	end
-	if not isRegistered then
-		table.insert(UISpecialFrames, frameName)
+	mainFrame.closeButton:SetShown(isShown)
+end
+
+
+local function SetTabListsShown(isShown)
+	tabListbox:SetShown(isShown)
+	resetTabListbox:SetShown(isShown)
+	languageTabListbox:SetShown(isShown)
+end
+
+
+local function SelectTab(tabIndex)
+	if (not mainFrame) then CreateMainFrame() end
+	if tabData[tabIndex] then
+		OnClickTabLine(nil, nil, tabIndex)
 	end
 end
 
 
+local function UpdateDockedLayout()
+	if not dockedParent then
+		return
+	end
+	local width, height = dockedParent:GetWidth(), dockedParent:GetHeight()
+	local scale = 1
+	if width and width > DOCK_PADDING * 2 and height and height > DOCK_PADDING * 2 then
+		scale = math.min(
+			DOCK_MAX_SCALE,
+			(width - DOCK_PADDING * 2) / TAB_WIDTH,
+			(height - DOCK_PADDING * 2) / TAB_HEIGHT
+		)
+	end
+	mainFrame:SetScale(scale)
+	mainFrame:ClearAllPoints()
+	mainFrame:SetPoint(
+		"TOPLEFT",
+		dockedParent,
+		"TOPLEFT",
+		DOCK_PADDING / scale - TAB_OFFSET_X,
+		-DOCK_PADDING / scale - TAB_OFFSET_Y
+	)
+end
+
+
+local function DockMainFrame(parent, reopen, tabIndex)
+	if (not mainFrame) then CreateMainFrame() end
+	dockedParent = parent
+	dockedReopen = reopen
+	pendingReopen = nil
+	mainFrame:SetParent(parent)
+	mainFrame:SetFrameStrata(parent:GetFrameStrata())
+	mainFrame:EnableMouse(false)
+	SetChromeShown(false)
+	SetTabListsShown(false)
+	SetSpecialFrame(false)
+	UpdateDockedLayout()
+	if not parent.msbtLayoutHooked then
+		parent.msbtLayoutHooked = true
+		parent:HookScript("OnSizeChanged", function(this)
+			if dockedParent == this then
+				UpdateDockedLayout()
+			end
+		end)
+	end
+	mainFrame:Show()
+	if tabIndex then
+		SelectTab(tabIndex)
+	end
+end
+
+
+local function UndockMainFrame(parent)
+	if not mainFrame or not dockedParent then
+		return
+	end
+	if parent and parent ~= dockedParent then
+		return
+	end
+	mainFrame:Hide()
+	dockedParent = nil
+	dockedReopen = nil
+	mainFrame:SetParent(UIParent)
+	mainFrame:SetFrameStrata("DIALOG")
+	mainFrame:EnableMouse(true)
+	mainFrame:SetScale(1)
+	mainFrame:ClearAllPoints()
+	mainFrame:SetPoint("CENTER")
+	SetChromeShown(true)
+	SetTabListsShown(true)
+	SetSpecialFrame(true)
+end
+
+
+local function GetTabs()
+	local tabs = {}
+	for index, info in ipairs(tabData) do
+		tabs[#tabs + 1] = {
+			index = index,
+			text = info.text,
+			isGeneral = info.text == L.TABS.general.label,
+		}
+	end
+	return tabs
+end
+
+
 local function ShowMainFrame()
+	if pendingReopen then
+		local reopen = pendingReopen
+		pendingReopen = nil
+		reopen()
+		return
+	end
 	if (not mainFrame) then CreateMainFrame() end
 	if (not MSBTScrollAreasConfigFrame or not MSBTScrollAreasConfigFrame:IsShown()) then
 		mainFrame:Show()
@@ -342,6 +484,13 @@ end
 
 
 local function HideMainFrame()
+	if dockedParent then
+		pendingReopen = dockedReopen
+		local settingsFrame = SettingsPanel or InterfaceOptionsFrame
+		if settingsFrame and settingsFrame:IsShown() then
+			HideUIPanel(settingsFrame)
+		end
+	end
 	mainFrame:Hide()
 end
 
@@ -382,6 +531,9 @@ end
 
 module.ShowMainFrame		= ShowMainFrame
 module.HideMainFrame		= HideMainFrame
+module.DockMainFrame		= DockMainFrame
+module.UndockMainFrame		= UndockMainFrame
+module.GetTabs				= GetTabs
 module.RegisterPopupFrame	= RegisterPopupFrame
 module.AddTab				= AddTab
 module.ScheduleCallback		= ScheduleCallback

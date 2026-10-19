@@ -6,7 +6,7 @@ function DisplayService:Configure(config)
 	self.config = config
 end
 
-function DisplayService:DisplayEvent(eventSettings, message, texturePath, muteSound)
+function DisplayService:DisplayEvent(eventSettings, message, texturePath, muteSound, formatArg)
 	if eventSettings.disabled or self.config.isModDisabled() then return end
 	local profile = self.config.getProfile()
 	local scrollAreas = self.config.scrollAreas
@@ -54,7 +54,8 @@ function DisplayService:DisplayEvent(eventSettings, message, texturePath, muteSo
 		self.config.fonts[fontName],
 		outlineIndex,
 		fontAlpha,
-		texturePath
+		texturePath,
+		formatArg
 	)
 	if not muteSound and not profile.soundsDisabled and eventSettings.soundFile
 		and eventSettings.soundFile ~= "" and self.config.playSound then

@@ -8,6 +8,7 @@ local MSBTProfiles = MikSBT.Profiles
 local L = MikSBT.translations
 local ScrollAreas = MikSBT.Display.ScrollAreas
 local DisplayService = MikSBT.Display.Service
+local RestrictedValue = MikSBT.API.RestrictedValue
 
 local table_remove = table.remove
 local string_find = string.find
@@ -119,7 +120,7 @@ local function LoadFont(fontName)
 	fontLoaderFrame:Hide()
 end
 
-local function Display(message, saSettings, isSticky, colorR, colorG, colorB, fontSize, fontPath, outlineIndex, fontAlpha, texturePath)
+local function Display(message, saSettings, isSticky, colorR, colorG, colorB, fontSize, fontPath, outlineIndex, fontAlpha, texturePath, formatArg)
 
 	local animStyleSettings, direction, behavior, textAlignIndex
 	if isSticky then
@@ -188,7 +189,11 @@ local function Display(message, saSettings, isSticky, colorR, colorG, colorB, fo
 	fontString:SetShadowColor(0, 0, 0, 1)
 	fontString:SetShadowOffset(1, -1)
 	fontString:SetAlpha(0)
-	fontString:SetText(message)
+	if RestrictedValue:IsRestricted(formatArg) or formatArg ~= nil then
+		fontString:SetFormattedText(message, formatArg)
+	else
+		fontString:SetText(message)
+	end
 
 	if texturePath and texturePath ~= TEMP_TEXTURE_PATH and not saSettings.skillIconsDisabled and not currentProfile.skillIconsDisabled then
 

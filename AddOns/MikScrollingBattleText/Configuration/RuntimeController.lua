@@ -37,7 +37,8 @@ function RuntimeController:ApplyBlizzardState()
 		shouldEnable = not profile.enableBlizzardV2CombatText
 	end
 
-	self.setBlizzardEnabled(shouldEnable)
+	local incomingEnabled = shouldEnable and not profile.disableBlizzardIncoming
+	self.setBlizzardEnabled(shouldEnable, incomingEnabled)
 end
 
 function RuntimeController:Apply()
