@@ -37,6 +37,8 @@ local PET_SPEC_ICONS = {
 }
 
 local SUMMON_DEMON_FLYOUT = 10
+local SUMMON_FELHUNTER = 691
+local SUMMON_FELGUARD = 30146
 
 -- Warlock summon spell ID -> short pet name (fallback: full spell name)
 local WARLOCK_PET_NAMES = {
@@ -45,6 +47,16 @@ local WARLOCK_PET_NAMES = {
     [691] = L["Label.Felhunter"],
     [366222] = L["Label.Sayaad"],
     [30146] = L["Label.Felguard"],
+}
+
+-- Warlock summon spell ID -> creature family IDs that UnitCreatureFamily reports for
+-- the pet. Cosmetic reskins (Wrathguard, Incubus, ...) report their own family.
+local WARLOCK_DEMON_FAMILIES = {
+    [688] = { [23] = true, [100] = true }, -- Imp
+    [697] = { [16] = true, [101] = true }, -- Voidwalker
+    [691] = { [15] = true, [103] = true }, -- Felhunter
+    [366222] = { [17] = true, [102] = true, [302] = true }, -- Sayaad
+    [30146] = { [29] = true, [104] = true }, -- Felguard
 }
 
 -- Resolve Spirit Beast family name from Blizzard's creature family data (localized)
@@ -129,26 +141,47 @@ local function BuildWarlockActions()
         end
     end
 
-    if #actions == 0 then
-        return nil
-    end
+    return #actions > 0 and actions or nil
+end
 
-    -- Demonology: default to Felguard if known
-    if BR.StateHelpers.GetPlayerSpecId() == 266 and IsPlayerSpell(30146) then
-        actions.genericIndex = #actions
-    end
-
-    -- All specs: prefer Felhunter (interrupt) over first entry
-    if not actions.genericIndex then
-        for idx, action in ipairs(actions) do
-            if action.spellID == 691 then -- Felhunter
-                actions.genericIndex = idx
-                break
-            end
+---@param actions PetActionList
+---@param spellID number
+---@return number?
+local function IndexOfSpell(actions, spellID)
+    for idx, action in ipairs(actions) do
+        if action.spellID == spellID then
+            return idx
         end
     end
+    return nil
+end
 
-    return actions
+-- Content type -> warlockDemon row. Other content uses the world row.
+local DEMON_ROW_BY_CONTENT = { dungeon = "dungeon", scenario = "dungeon", raid = "raid", pvp = "pvp" }
+local DEFAULT_WARLOCK_DEMON = BR.defaults.defaults.warlockDemon
+
+---Summon spell ID that the player wants for the current content type.
+---@return number
+local function GetPreferredDemonSpell()
+    local row = DEMON_ROW_BY_CONTENT[BR.StateHelpers.GetCurrentContentType()] or "world"
+    local defaults = BR.profile.defaults
+    local prefs = defaults and defaults.warlockDemon
+    return prefs and prefs[row] or DEFAULT_WARLOCK_DEMON[row]
+end
+
+---Felguard on Demonology overrides the preferred demon. A preferred demon that
+---is not in the flyout falls back to Felhunter (interrupt).
+---@param actions PetActionList
+---@param preferred number
+---@return number?
+local function ResolveWarlockGenericIndex(actions, preferred)
+    if BR.StateHelpers.GetPlayerSpecId() == 266 then
+        local idx = IndexOfSpell(actions, SUMMON_FELGUARD)
+        if idx then
+            return idx
+        end
+    end
+    return IndexOfSpell(actions, preferred) or IndexOfSpell(actions, SUMMON_FELHUNTER)
 end
 
 -- These classes summon one pet with one spell. The name is the short name a
@@ -186,31 +219,13 @@ local function BuildSingleAction(spellID)
     }
 end
 
----Build a single Felguard summon action for "wrong pet" click-to-cast
----@return PetAction[]?
-local function BuildFelguardAction()
-    local spellID = 30146
-    if not IsPlayerSpell(spellID) then
-        return nil
-    end
-    local info = C_Spell.GetSpellInfo(spellID)
-    if not info then
-        return nil
-    end
-    return {
-        {
-            key = "pet_action_" .. spellID,
-            spellID = spellID,
-            spellName = info.name,
-            icon = info.iconID,
-            label = L["Label.Felguard"],
-            sortOrder = 1,
-        },
-    }
-end
-
+---@type PetActionList?
 local cachedActions = nil
 local cacheValid = false
+local resolvedPreferredPet = nil
+-- Single-entry list for the wrong-demon reminder: click summons the desired demon.
+---@type PetActionList?
+local cachedDesiredDemonList = nil
 
 local CLASS_PET_BUILDERS = {
     HUNTER = BuildHunterActions,
@@ -227,28 +242,55 @@ end
 ---@param class ClassName
 ---@return PetActionList?
 local function GetPetActions(class)
-    if cacheValid then
-        return cachedActions
+    if not cacheValid then
+        local builder = CLASS_PET_BUILDERS[class]
+        cachedActions = builder and builder() or nil
+        resolvedPreferredPet = nil
+        cachedDesiredDemonList = nil
+        cacheValid = true
     end
 
-    local builder = CLASS_PET_BUILDERS[class]
-    cachedActions = builder and builder() or nil
-
-    cacheValid = true
+    -- Keyed on the preferred spell, so a content change, a profile switch or an
+    -- import also re-resolves.
+    if cachedActions and class == "WARLOCK" then
+        local preferred = GetPreferredDemonSpell()
+        if preferred ~= resolvedPreferredPet then
+            local gi = ResolveWarlockGenericIndex(cachedActions, preferred)
+            cachedActions.genericIndex = gi
+            cachedDesiredDemonList = gi and { cachedActions[gi], genericIndex = 1 } or nil
+            resolvedPreferredPet = preferred
+        end
+    end
     return cachedActions
+end
+
+---The warlock demon that the player wants out now, or nil if none can be summoned.
+---@return PetAction?
+local function GetDesiredWarlockDemon()
+    local actions = GetPetActions("WARLOCK")
+    return actions and actions.genericIndex and actions[actions.genericIndex] or nil
+end
+
+---@return PetActionList?
+local function GetDesiredWarlockDemonList()
+    GetPetActions("WARLOCK")
+    return cachedDesiredDemonList
 end
 
 ---Invalidate cached pet actions (call on spec/talent/stable changes).
 local function InvalidatePetActions()
     cacheValid = false
     cachedActions = nil
+    cachedDesiredDemonList = nil
 end
 
 -- Export
 BR.PetHelpers = {
     REVIVE_PET_ID = REVIVE_PET,
     GetPetActions = GetPetActions,
-    GetFelguardAction = BuildFelguardAction,
+    WARLOCK_DEMON_FAMILIES = WARLOCK_DEMON_FAMILIES,
+    GetDesiredWarlockDemon = GetDesiredWarlockDemon,
+    GetDesiredWarlockDemonList = GetDesiredWarlockDemonList,
     InvalidatePetActions = InvalidatePetActions,
 }
 

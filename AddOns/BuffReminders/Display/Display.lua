@@ -51,6 +51,7 @@ local _, BR = ...
 ---@field missingGlowYOffset? number
 ---@field fontFace? string
 ---@field textOutline? "NONE"|"OUTLINE"|"THICKOUTLINE"|"MONOCHROME"|"OUTLINE, MONOCHROME"|"THICKOUTLINE, MONOCHROME"
+---@field slugOutline? boolean
 ---@field showConsumablesWithoutItems? boolean
 ---@field showWithoutItemsOnlyOnReadyCheck? boolean
 ---@field delveFoodOnly? boolean
@@ -2303,7 +2304,9 @@ local function ApplyPetDisplayMode(frame, entry, frameList)
     else
         local gi = entry.petActions.genericIndex or 1
         local preferredAction = entry.petActions[gi]
-        local texture = ResolveFrameTexture(frame)
+        -- A list with genericIndex names one pet to summon, so the icon shows that pet.
+        local texture = entry.petActions.genericIndex and preferredAction and preferredAction.icon
+            or ResolveFrameTexture(frame)
         if texture then
             frame.icon:SetTexture(texture)
         end
@@ -3166,7 +3169,7 @@ CallbackRegistry:RegisterCallback("VisibilityRefresh", function()
     UpdateDisplay()
 end)
 
-CallbackRegistry:RegisterCallback("GameContextChanged", function(_, urgent)
+CallbackRegistry:RegisterCallback("RenderRequested", function(_, urgent)
     if urgent then
         UpdateDisplay()
     else
@@ -3484,7 +3487,7 @@ end
 
 -- Instance-group state can flip on a zone change without GROUP_ROSTER_UPDATE
 -- (delves and follower dungeons have no loading screen).
-CallbackRegistry:RegisterCallback("GameContextChanged", function(_, _, reason)
+CallbackRegistry:RegisterCallback("RenderRequested", function(_, _, reason)
     if reason == "zoneSettled" then
         UpdateAuraEventRegistration()
         RefreshRepairAction()

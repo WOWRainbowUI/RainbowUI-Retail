@@ -228,9 +228,27 @@ local function Build(content)
         },
         width = TEXT_DD_W,
         get = MakeDefaultsGetter("textOutline", "OUTLINE"),
-        onChange = MakeDefaultsSetter("textOutline"),
+        onChange = function(value)
+            BR.Config.Set("defaults.textOutline", value)
+            Components.RefreshAll()
+        end,
     })
     layout:Add(defOutlineHolder, nil, COMPONENT_GAP)
+
+    local slugOutlineHolder = Components.Checkbox(defOutlineHolder, {
+        label = L["Options.SlugOutline"],
+        tooltip = { title = L["Options.SlugOutline"], desc = L["Options.SlugOutline.Desc"] },
+        get = function()
+            return Helpers.GetDefaultSetting("slugOutline", true) ~= false
+        end,
+        enabled = function()
+            local outline = Helpers.GetDefaultSetting("textOutline", "OUTLINE")
+            return outline == "OUTLINE" or outline == "THICKOUTLINE"
+        end,
+        disabledReason = L["Options.SlugOutline.Disabled"],
+        onChange = MakeDefaultsSetter("slugOutline"),
+    })
+    slugOutlineHolder:SetPoint("LEFT", defOutlineHolder, "RIGHT", 2, 0)
 
     local mainTextPosRow = CreateFrame("Frame", nil, content)
     mainTextPosRow:SetSize(content:GetWidth(), 26)

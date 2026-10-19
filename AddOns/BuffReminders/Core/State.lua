@@ -220,9 +220,9 @@ local cachedLoadoutState = {}
 -- so every satisfied rule can hold this one table.
 local SATISFIED_LOADOUT_STATE = { satisfied = true }
 
--- Wrong-demon-pet cache (nil = unknown/unresolved, recomputed next Refresh).
----@type boolean|nil
-local cachedWrongPetStatus = nil
+-- Creature family of the current pet (false = no pet, nil = unresolved).
+---@type number|false|nil
+local cachedPetFamily = nil
 
 -- Warrior stance spell IDs (single source of truth).
 local STANCE_BATTLE = 386164
@@ -296,6 +296,20 @@ local currentWeaponEnchants = {
     permanentMH = nil, -- permanent enchant ID from item link (MH)
     permanentOH = nil, -- permanent enchant ID from item link (OH)
 }
+
+---Seconds left on a temporary weapon enchant, from whichever hand carries it.
+---Weapon enchant info is not an aura read, so it is safe in restricted contexts.
+---@param enchantID number
+---@return number? remaining nil when neither hand carries the enchant
+local function GetWeaponEnchantRemaining(enchantID)
+    local expiration
+    if currentWeaponEnchants.mainHandID == enchantID then
+        expiration = currentWeaponEnchants.mainHandExpiration
+    elseif currentWeaponEnchants.offHandID == enchantID then
+        expiration = currentWeaponEnchants.offHandExpiration
+    end
+    return expiration and expiration / 1000 or nil
+end
 
 -- Valid group members for current refresh cycle (set once per BuffState.Refresh()).
 -- Includes phased / out-of-broadcast-range allies (tagged via `isPhased`) so an
@@ -2185,7 +2199,7 @@ local function RefreshSelf(isAuraRestricted, hideExpiring)
             -- Self buff shown only briefly on zone-in - no normal buff checks.
             -- customCheck makes an API call, so it runs after every other gate.
             if
-                GameContext.IsInInstanceEntry()
+                GameContext.IsInDungeonEntry()
                 and selfVisible
                 and (not buff.class or buff.class == playerClass)
                 and IsBuffEnabled(settingKey)
@@ -2225,13 +2239,16 @@ local function RefreshSelf(isAuraRestricted, hideExpiring)
                         elseif
                             shouldShow == false
                             and not wantPresent
-                            and not buff.enchantID
                             and not buff.noExpirationGlow
                             and not hideExpiring
                         then
                             -- Buff present: check whether it expires soon.
+                            -- Weapon imbues (paladin rites, shaman imbues) time
+                            -- out on the enchant, not an aura.
                             local remaining, expiringCastID
-                            if buff.getExpirationInfo then
+                            if buff.enchantID then
+                                remaining = GetWeaponEnchantRemaining(buff.enchantID)
+                            elseif buff.getExpirationInfo then
                                 remaining, expiringCastID = buff.getExpirationInfo()
                             elseif buff.buffIdOverride or buff.spellID then
                                 _, remaining = UnitHasBuff("player", buff.buffIdOverride or buff.spellID)
@@ -2258,7 +2275,7 @@ local function RefreshUtility(db, trackingMode, isAuraRestricted)
     for i, buff in ipairs(UtilityBuffs) do
         local entry = GetOrCreateEntry(buff.key, "utility", i)
         local settingKey = buff.groupId or buff.key
-        local entryOk = not buff.showOnInstanceEntry or GameContext.IsInInstanceEntry()
+        local entryOk = not buff.showOnInstanceEntry or GameContext.IsInDungeonEntry()
         if
             entryOk
             and not (repairHiddenInCombat and buff.key == "repairGear")
@@ -2294,8 +2311,8 @@ local function RefreshPresence(db, trackingMode, isAuraRestricted, hideExpiring)
                 HasCasterForBuff(buff.class, buff.levelRequired),
                 buff.castOnOthers
             )
-            local instanceEntryOk = buff.showOnInstanceEntry
-                and GameContext.IsInInstanceEntry()
+            local dungeonEntryOk = buff.showOnInstanceEntry
+                and GameContext.IsInDungeonEntry()
                 and (not buff.casterClass or buff.casterClass == playerClass)
             local readyCheckOk = not buff.readyCheckOnly or GameContext.IsInReadyCheck()
             -- Soulstone visibility mode overrides readyCheckOnly
@@ -2307,13 +2324,13 @@ local function RefreshPresence(db, trackingMode, isAuraRestricted, hideExpiring)
                     readyCheckOk = playerClass == "WARLOCK"
                 end
             end
-            if not readyCheckOk and not instanceEntryOk then
+            if not readyCheckOk and not dungeonEntryOk then
                 local overrides = db.readyCheckOnlyOverrides
                 local overrideKey = buff.groupId or buff.key
                 readyCheckOk = overrides and overrides[overrideKey] == false
             end
             local showBuff = presenceVisible
-                and (readyCheckOk or instanceEntryOk)
+                and (readyCheckOk or dungeonEntryOk)
                 and scope.show
                 and (not buff.groupOnly or #currentValidUnits > 1) -- solo = 1 entry (player only)
             -- castOnOthers target memory (e.g. Soulstone) updates on every refresh
@@ -3208,38 +3225,36 @@ function BuffState.InvalidateLoadoutCache()
     cachedLoadoutState = {}
 end
 
----Check whether the player's current pet is not a Felguard (cached).
----Returns false when there is no pet or the pet is a Felguard. If the compare
----hits a secret value, the result stays uncached so later refreshes retry.
+---Check whether the player's current pet is not the desired demon. Returns false
+---when there is no pet or no desired demon. If the family read hits a secret
+---value, the result stays uncached so later refreshes retry.
 ---@return boolean
 function BuffState.IsWrongDemonPet()
-    if cachedWrongPetStatus ~= nil then
-        return cachedWrongPetStatus
-    end
-    if not UnitExists("pet") then
-        cachedWrongPetStatus = false
+    local desired = BR.PetHelpers.GetDesiredWarlockDemon()
+    local families = desired and BR.PetHelpers.WARLOCK_DEMON_FAMILIES[desired.spellID]
+    if not families then
         return false
     end
-    local name, familyID = UnitCreatureFamily("pet")
-    familyID = Plain(familyID)
-    if type(familyID) ~= "number" then
-        -- Pet data is not resolved yet, or is a secret value. Do not cache, so the
-        -- next Refresh retries.
-        return false
+    if cachedPetFamily == nil then
+        if not UnitExists("pet") then
+            cachedPetFamily = false
+        else
+            local _, familyID = UnitCreatureFamily("pet")
+            familyID = Plain(familyID)
+            if type(familyID) ~= "number" then
+                -- Pet data is not resolved yet, or is a secret value. Do not cache, so the
+                -- next Refresh retries.
+                return false
+            end
+            cachedPetFamily = familyID
+        end
     end
-    name = Plain(name)
-    if name == nil then
-        -- The name resolved to a secret. Leave it uncached and treat the pet as
-        -- "not wrong" this pass (fail-closed).
-        return false
-    end
-    cachedWrongPetStatus = familyID ~= 29 and name ~= "Felguard"
-    return cachedWrongPetStatus
+    return cachedPetFamily ~= false and not families[cachedPetFamily]
 end
 
 ---Invalidate wrong-pet cache
 function BuffState.InvalidatePetCache()
-    cachedWrongPetStatus = nil
+    cachedPetFamily = nil
 end
 
 ---Resolve the active stance's spell ID, or nil if unstanced/unresolved (cached).
@@ -3478,7 +3493,7 @@ if LibSpec then
         allySpecCache[sender] = specId
         -- A known ally's spec change alters beneficiary counts, so ask for a render.
         if oldSpec then
-            BR.CallbackRegistry:TriggerEvent("GameContextChanged", false)
+            BR.CallbackRegistry:TriggerEvent("RenderRequested", false)
         end
     end)
 end

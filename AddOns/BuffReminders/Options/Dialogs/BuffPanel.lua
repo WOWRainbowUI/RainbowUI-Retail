@@ -124,6 +124,138 @@ local function AddSpecialCheckbox(layout, opts)
     return holder
 end
 
+local DEMON_ROWS = {
+    { key = "world", label = L["BuffPanel.WarlockDemon.World"] },
+    { key = "dungeon", label = L["BuffPanel.WarlockDemon.Dungeon"], desc = L["BuffPanel.WarlockDemon.Dungeon.Desc"] },
+    { key = "raid", label = L["BuffPanel.WarlockDemon.Raid"] },
+    { key = "pvp", label = L["BuffPanel.WarlockDemon.PvP"] },
+}
+local DEMON_CHOICES = {
+    { spellID = 688, label = L["Label.Imp"] },
+    { spellID = 697, label = L["Label.Voidwalker"] },
+    { spellID = 691, label = L["Label.Felhunter"] },
+    { spellID = 366222, label = L["Label.Sayaad"] },
+}
+local DEMON_CELL = 24
+local DEMON_GAP = 4
+local DEMON_INFO_ICON = 14
+
+-- Class-colored header above controls that apply to one class only.
+local function AddClassHeader(layout, classToken)
+    local color = C_ClassColor.GetClassColor(classToken)
+    local r, g, b = 1, 1, 1
+    if color then
+        r, g, b = color:GetRGB()
+    end
+
+    local head = CreateFrame("Frame", nil, body)
+    head:SetSize(bodyW, 14)
+    local name = head:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    name:SetPoint("LEFT")
+    name:SetText(LOCALIZED_CLASS_NAMES_MALE[classToken] or classToken)
+    name:SetTextColor(r, g, b)
+    local rule = head:CreateTexture(nil, "ARTWORK")
+    rule:SetHeight(1)
+    rule:SetPoint("LEFT", name, "RIGHT", 6, 0)
+    rule:SetPoint("RIGHT", head, "RIGHT")
+    rule:SetColorTexture(r, g, b, 0.25)
+    layout:Add(head, 14, COMPONENT_GAP)
+end
+
+-- One radio row of demon portraits per content row.
+local function AddWarlockDemonGrid(layout)
+    local rowLabels = {}
+    for i, row in ipairs(DEMON_ROWS) do
+        rowLabels[i] = row.label
+    end
+    local labelW = Components.MeasureSharedLabelWidth(rowLabels, "GameFontHighlightSmall", DRAWER_LABEL_W)
+    for _, row in ipairs(DEMON_ROWS) do
+        if row.desc then
+            local w = Components.MeasureSharedLabelWidth({ row.label }, "GameFontHighlightSmall", 0)
+            labelW = math.max(labelW, w + DEMON_INFO_ICON)
+        end
+    end
+
+    local holder = CreateFrame("Frame", nil, body)
+    holder:SetSize(bodyW, #DEMON_ROWS * (DEMON_CELL + DEMON_GAP) - DEMON_GAP)
+    local cells = {}
+
+    function holder:Refresh()
+        local defaultDemon = BR.defaults.defaults.warlockDemon
+        for _, cell in ipairs(cells) do
+            local current = BR.Config.Get("defaults.warlockDemon." .. cell.row) or defaultDemon[cell.row]
+            local selected = current == cell.spellID
+            cell.icon:SetDesaturated(not selected)
+            cell.icon:SetAlpha(selected and 1 or 0.45)
+            cell:SetBackdropBorderColor(unpack(selected and BR.Colors.Accent or BR.Colors.Border))
+        end
+    end
+
+    for r, row in ipairs(DEMON_ROWS) do
+        local y = -(r - 1) * (DEMON_CELL + DEMON_GAP)
+        local label = holder:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+        label:SetPoint("LEFT", holder, "TOPLEFT", 0, y - DEMON_CELL / 2)
+        label:SetWidth(labelW)
+        label:SetJustifyH("LEFT")
+        label:SetWordWrap(false)
+        label:SetText(row.label)
+        if row.desc then
+            local info = holder:CreateTexture(nil, "ARTWORK")
+            info:SetSize(DEMON_INFO_ICON, DEMON_INFO_ICON)
+            info:SetAtlas("QuestNormal")
+            info:SetPoint("LEFT", holder, "TOPLEFT", label:GetStringWidth() + 2, y - DEMON_CELL / 2)
+            local hit = CreateFrame("Frame", nil, holder)
+            hit:SetPoint("TOPLEFT", label, "TOPLEFT")
+            hit:SetPoint("BOTTOMRIGHT", info, "BOTTOMRIGHT")
+            hit:EnableMouse(true)
+            hit:SetScript("OnEnter", function(self)
+                BR.ShowTooltip(self, row.label, row.desc, "ANCHOR_TOP")
+            end)
+            hit:SetScript("OnLeave", BR.HideTooltip)
+        end
+
+        for c, demon in ipairs(DEMON_CHOICES) do
+            local cell = CreateFrame("Button", nil, holder, "BackdropTemplate")
+            cell:SetSize(DEMON_CELL, DEMON_CELL)
+            cell:SetPoint("TOPLEFT", labelW + DEMON_GAP + (c - 1) * (DEMON_CELL + DEMON_GAP), y)
+            cell:SetBackdrop({ edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1 })
+            cell.icon = BR.CreateBuffIcon(cell, DEMON_CELL - 2, C_Spell.GetSpellTexture(demon.spellID))
+            cell.icon:SetPoint("CENTER")
+            cell.row = row.key
+            cell.spellID = demon.spellID
+            cell:SetScript("OnClick", function()
+                BR.Config.Set("defaults.warlockDemon." .. row.key, demon.spellID)
+                holder:Refresh()
+            end)
+            cell:SetScript("OnEnter", function(self)
+                self.icon:SetAlpha(1)
+                BR.ShowTooltip(self, demon.label, nil, "ANCHOR_TOP")
+            end)
+            cell:SetScript("OnLeave", function()
+                BR.HideTooltip()
+                holder:Refresh()
+            end)
+            cells[#cells + 1] = cell
+        end
+    end
+
+    holder:Refresh()
+    tinsert(BR.RefreshableComponents, holder)
+    tinsert(bodyHolders, holder)
+    layout:Add(holder, holder:GetHeight(), DEMON_GAP + 2)
+
+    local felguard = CreateFrame("Frame", nil, body)
+    felguard:SetSize(bodyW, 16)
+    local fgIcon = BR.CreateBuffIcon(felguard, 16, C_Spell.GetSpellTexture(30146))
+    fgIcon:SetPoint("LEFT")
+    local fgText = felguard:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
+    fgText:SetPoint("LEFT", fgIcon, "RIGHT", 6, 0)
+    fgText:SetPoint("RIGHT", felguard, "RIGHT")
+    fgText:SetJustifyH("LEFT")
+    fgText:SetText(L["BuffPanel.WarlockDemon.Felguard"])
+    layout:Add(felguard, 16, COMPONENT_GAP)
+end
+
 -- Render a buff's inline editor at the layout cursor, then advance the layout
 -- past it. The builder parents its frames to `body` and registers its holders
 -- for teardown.
@@ -337,6 +469,7 @@ local SPECIAL_SECTIONS = {
 
     pets = {
         build = function(layout)
+            AddClassHeader(layout, "WARLOCK")
             AddSpecialCheckbox(layout, {
                 label = L["Options.FelDomination"],
                 get = function()
@@ -345,6 +478,17 @@ local SPECIAL_SECTIONS = {
                 tooltip = { title = L["Options.FelDomination.Title"], desc = L["Options.FelDomination.Desc"] },
                 onChange = function(checked)
                     BR.Config.Set("defaults.useFelDomination", checked)
+                end,
+            })
+            AddWarlockDemonGrid(layout)
+            AddSpecialCheckbox(layout, {
+                label = L["BuffPanel.WarlockDemon.Warn"],
+                get = function()
+                    return BR.Config.Get("defaults.warlockWrongDemon") ~= false
+                end,
+                tooltip = { title = L["BuffPanel.WarlockDemon.Warn"], desc = L["BuffPanel.WarlockDemon.Warn.Desc"] },
+                onChange = function(checked)
+                    BR.Config.Set("defaults.warlockWrongDemon", checked)
                 end,
             })
         end,
