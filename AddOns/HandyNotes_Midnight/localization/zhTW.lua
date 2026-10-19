@@ -147,7 +147,6 @@ L['options_icons_ritual_site_desc'] = '在提示中顯示 {location:儀式地點
 
 L['ritual_site_broken_throne'] = '儀式地點：破碎王座'
 L['ritual_site_daggerspine_point'] = '儀式地點：刺脊崗哨'
-L['ritual_site_opens_in'] = "%s後開放。"
 L['broken_throne_entry_note'] = '破碎王座又名阿塔卡爾丹，是一座被暮光之刃佔領的阿曼尼遺跡。點擊 {npc:260103} 進入。\n\n與 {location:儀式地點：刺脊崗哨} 每週輪替開放。'
 L['daggerspine_point_entry_note'] = '刺脊崗哨是一座被刺脊納迦佔據的島嶼，舊名薩藍迪斯島。點擊 {npc:260103} 進入。\n\n與 {location:儀式地點：破碎王座} 每週輪替開放。'
 
@@ -228,9 +227,9 @@ L["options_icons_hexmask_desc"] = "顯示 {achievement:63720} 成就的位置。
 L["thundering_hexmask"] = "雷鳴妖術面具"
 L["fiery_hexmask"] = "烈焰妖術面具"
 L["frozen_hexmask"] = "寒冰妖術面具"
-L['locked_door_note'] = nil
-L['flooded_chamber'] = nil
-L['flooded_chamber_note'] = nil
+L["locked_door_note"] = "沒有難度限制。擊敗 {npc:273788}，使用 {item:282402} 開門。\n\n{note:也可由盜賊直接開啟，或使用 {item:260232}。}"
+L["flooded_chamber"] = "水下入口"
+L["flooded_chamber_note"] = "裡面有 {npc:270937}，可使用 {npc:271605} 或火焰法術打破。"
 L['c_underneath_bridge'] = '在橋下。'
 
 -------------------------------------------------------------------------------
