@@ -1,6 +1,8 @@
 # Coolinator
 
-## [160](https://github.com/TheMouseNest/Coolinator/tree/160) (2026-10-16)
-[Full Changelog](https://github.com/TheMouseNest/Coolinator/compare/159...160) 
+## [161](https://github.com/TheMouseNest/Coolinator/tree/161) (2026-10-18)
+[Full Changelog](https://github.com/TheMouseNest/Coolinator/compare/160...161) 
 
-- Forever: Fix missing } and fix racials  
+- Forever: Fix auras appearing in ability list  
+- Fix data for priest spells  
+- Designer: Increase distance moved when holding shift  
