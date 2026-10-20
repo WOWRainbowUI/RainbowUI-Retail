@@ -704,3 +704,8 @@ L.Test								= "测试"
 L.BossModTColor						= "条颜色"
 L.BossModCVoice						= "倒数语音"
 L.BossModSWSound					= "警报声音"
+
+-- 12.1.16 readiness checks
+L.Tools_ConsumablesCheck = "消耗品检查"
+L.Tools_ConsumablesArea = "消耗品检查"
+L.Tools_ShowConsumablesOnReadyCheck = "开始就位确认时，自动显示消耗品检查窗口"

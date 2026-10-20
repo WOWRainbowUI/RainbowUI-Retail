@@ -700,3 +700,8 @@ L.Test								= "測試"
 L.BossModTColor						= "計時條顏色"
 L.BossModCVoice						= "倒數語音"
 L.BossModSWSound					= "警報聲音"
+
+-- 12.1.16 readiness checks
+L.Tools_ConsumablesCheck = "消耗品檢查"
+L.Tools_ConsumablesArea = "消耗品檢查"
+L.Tools_ShowConsumablesOnReadyCheck = "開始就緒確認時，自動顯示消耗品檢查視窗"
