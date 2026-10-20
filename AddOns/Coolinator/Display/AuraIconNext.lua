@@ -179,7 +179,7 @@ function addonTable.Display.AuraIconNextMixin:Setup(details)
     self.SetBorders(self.harmfulButton, details)
     self.StyleButton(self.harmfulButton, details)
 
-    addonTable.Display.SetAuraSlotsFilters(self.index, self.include, self.include)
+    addonTable.Display.SetAuraSlotsFilters(self.index, self.include, self.include, self.details.playerSourced)
   end
 end
 
@@ -201,13 +201,13 @@ end
 
 function addonTable.Display.AuraIconNextMixin:OnShow()
   if self.index then
-    addonTable.Display.SetAuraSlotsEnabled(self.index, true, self.details.playerSourced)
+    addonTable.Display.SetAuraSlotsEnabled(self.index, true)
   end
 end
 
 function addonTable.Display.AuraIconNextMixin:OnHide()
   if self.index then
-    addonTable.Display.SetAuraSlotsEnabled(self.index, false, self.details.playerSourced)
+    addonTable.Display.SetAuraSlotsEnabled(self.index, false)
   end
 end
 

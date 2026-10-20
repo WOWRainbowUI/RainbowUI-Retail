@@ -96,18 +96,13 @@ end
 function addonTable.Display.CooldownMixin:OnEvent(eventName, ...)
   local data = ...
   if eventName == "SPELL_UPDATE_COOLDOWN" then
-    local _, _, _, _, itemID = ...
-    if itemID then
-      if self.itemID then
-        self:UpdateItemCooldowns()
-      elseif self.equipmentSlot then
-        self:UpdateEquipmentCooldowns()
-      end
+    if self.itemID then
+      self:UpdateItemCooldowns()
+    elseif self.equipmentSlot then
+      self:UpdateEquipmentCooldowns()
     end
   elseif eventName == "BAG_UPDATE_COOLDOWN" then
-    if self.itemID then
-      self:UpdateItemUses()
-    end
+    self:UpdateItemUses()
   elseif eventName == "SPELL_ACTIVATION_OVERLAY_GLOW_SHOW" and self.spellID and C_Spell.GetBaseSpell(data) == C_Spell.GetBaseSpell(self.spellID) then
     self:SetActivationAlert(true)
   elseif eventName == "SPELL_ACTIVATION_OVERLAY_GLOW_HIDE" and self.spellID and C_Spell.GetBaseSpell(data) == C_Spell.GetBaseSpell(self.spellID) then
@@ -189,6 +184,7 @@ function addonTable.Display.CooldownMixin:Setup(details)
     self.Glow:SetAsset(addonTable.Constants.GlowsMap[details.whenReady], details.glowColor, details.glowReverse)
   end
 
+  self.BaseCooldown:SetScript("OnCooldownDone", nil)
   if details.resource.spellID then
     self.ignoreGCD = details.resource.spellID ~= addonTable.Constants.GCD and not addonTable.Config.Get(addonTable.Config.Options.SHOW_GCD_SWIPE)
     self:UpdateSpellByID(addonTable.Utilities.IsAbilitySpellKnown(details.resource.spellID, details.resource.rank) or details.resource.spellID)
@@ -198,7 +194,6 @@ function addonTable.Display.CooldownMixin:Setup(details)
     self:UpdateItemByEquipmentSlot(details.resource.equipmentSlot)
   end
 
-  self.BaseCooldown:SetScript("OnCooldownDone", nil)
   self.BaseCooldown:SetDrawSwipe(details.showSwipe)
   self.ChargesCooldown:SetDrawEdge(details.showSwipe)
   self.BaseCooldown:SetCountdownFormatter(addonTable.Display.GetDurationFormatter(details.texts.cooldown.showFractions))
@@ -333,6 +328,10 @@ function addonTable.Display.CooldownMixin:UpdateItemByID(itemID)
   self:UpdateItemUses()
 
   self.NotUsable:Hide()
+
+  self.BaseCooldown:SetScript("OnCooldownDone", function()
+    self:UpdateItemCooldowns()
+  end)
 end
 
 function addonTable.Display.CooldownMixin:UpdateItemUses()
@@ -377,6 +376,10 @@ function addonTable.Display.CooldownMixin:UpdateItemByEquipmentSlot(equipmentSlo
   self.Icon:SetTexture(C_Item.GetItemIcon(location))
 
   self.NotUsable:Hide()
+
+  self.BaseCooldown:SetScript("OnCooldownDone", function()
+    self:UpdateEquipmentCooldowns()
+  end)
 end
 
 function addonTable.Display.CooldownMixin:HasAction()

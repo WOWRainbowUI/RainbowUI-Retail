@@ -193,8 +193,10 @@ function addonTable.Display.AbilityTrackingMixin:OnEvent(eventName, ...)
       return
     end
     for spellID in pairs(self.abilities) do
+      local wasActive = self.active[spellID]
       self:ApplyCooldownToState(spellID)
-      if self.active[spellID] then
+      local newActive = self.active[spellID]
+      if newActive or wasActive ~= newActive then
         for _, callback in pairs(self.callbacks[spellID]) do
           callback("cooldown")
         end

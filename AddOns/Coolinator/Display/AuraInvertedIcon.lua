@@ -115,7 +115,7 @@ function addonTable.Display.AuraInvertedIconMixin:Setup(details)
   end
 
   if self.helpfulButton then
-    addonTable.Display.SetAuraSlotsFilters(self.index, self.include, self.include)
+    addonTable.Display.SetAuraSlotsFilters(self.index, self.include, self.include, self.details.playerSourced)
   end
 
   self.Icon:SetTexture(C_Spell.GetSpellTexture(self.details.resource.spellID))
@@ -138,13 +138,13 @@ end
 
 function addonTable.Display.AuraInvertedIconMixin:OnShow()
   if self.index then
-    addonTable.Display.SetAuraSlotsEnabled(self.index, true, self.details.playerSourced)
+    addonTable.Display.SetAuraSlotsEnabled(self.index, true)
   end
 end
 
 function addonTable.Display.AuraInvertedIconMixin:OnHide()
   if self.index then
-    addonTable.Display.SetAuraSlotsEnabled(self.index, false, self.details.playerSourced)
+    addonTable.Display.SetAuraSlotsEnabled(self.index, false)
   end
 end
 
