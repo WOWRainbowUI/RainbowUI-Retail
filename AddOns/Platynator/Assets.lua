@@ -144,12 +144,12 @@ addonTable.Assets.Highlights = {
 
 addonTable.Assets.BarPositionHighlights = {
   ["none"] = {file = "", width = 0, height = 0, isTransparent = true, order = 1},
-  ["wide/glow"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarPosition/highlight.png", width = 54, height = 125, mask = "Interface/AddOns/Platynator/Assets/%s/BarPosition/highlight-mask.png", offset = 0.25, has4k = true, order = 2, text = "Blur"},
-  ["streak"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarPosition/streak.png", width = 143, height = 125, offset = 0, has4k = true, order = 3, text = "Streak"},
-  ["curved"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarPosition/curved.png", mask = "Interface/AddOns/Platynator/Assets/%s/BarPosition/curved-mask.png", width = 63, height = 125, offset = 0.3, has4k = true, order = 5, text = "Curved"},
-  ["curved-half"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarPosition/curved-half.png", mask = "Interface/AddOns/Platynator/Assets/%s/BarPosition/curved-half-mask.png", width = 63, height = 125, offset = 0.3, has4k = true, order = 5, text = "Curved Half"},
-  ["curved-reverse"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarPosition/curved-reverse.png", mask = "Interface/AddOns/Platynator/Assets/%s/BarPosition/curved-mask.png", width = 63, height = 125, offset = 0.4, has4k = true, order = 7, text = "Curved Reverse"},
-  ["curved-reverse-half"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarPosition/curved-reverse-half.png", mask = "Interface/AddOns/Platynator/Assets/%s/BarPosition/curved-half-mask.png", width = 63, height = 125, offset = 0.4, has4k = true, order = 7, text = "Curved Half Reverse"},
+  ["wide/glow"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarPosition/highlight.png", width = 54, height = 125, mask = "Interface/AddOns/Platynator/Assets/%s/BarPosition/highlight-mask.png", offset = 0.25, has4k = true, order = 2, text = addonTable.Locales.BAR_POSITION_BLUR},
+  ["streak"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarPosition/streak.png", width = 143, height = 125, offset = 0, has4k = true, order = 3, text = addonTable.Locales.BAR_POSITION_STREAK},
+  ["curved"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarPosition/curved.png", mask = "Interface/AddOns/Platynator/Assets/%s/BarPosition/curved-mask.png", width = 63, height = 125, offset = 0.3, has4k = true, order = 5, text = addonTable.Locales.BAR_POSITION_CURVED},
+  ["curved-half"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarPosition/curved-half.png", mask = "Interface/AddOns/Platynator/Assets/%s/BarPosition/curved-half-mask.png", width = 63, height = 125, offset = 0.3, has4k = true, order = 5, text = addonTable.Locales.BAR_POSITION_CURVED_HALF},
+  ["curved-reverse"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarPosition/curved-reverse.png", mask = "Interface/AddOns/Platynator/Assets/%s/BarPosition/curved-mask.png", width = 63, height = 125, offset = 0.4, has4k = true, order = 7, text = addonTable.Locales.BAR_POSITION_CURVED_REVERSE},
+  ["curved-reverse-half"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarPosition/curved-reverse-half.png", mask = "Interface/AddOns/Platynator/Assets/%s/BarPosition/curved-half-mask.png", width = 63, height = 125, offset = 0.4, has4k = true, order = 7, text = addonTable.Locales.BAR_POSITION_CURVED_HALF_REVERSE},
   ["gw2"] = {file = "Interface/AddOns/Platynator/Assets/Special/BarPosition/gw2.png", width = 137, height = 125, offset = 0.5, order = 10, text = "GW2"},
 }
 
