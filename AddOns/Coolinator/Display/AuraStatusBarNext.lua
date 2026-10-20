@@ -176,7 +176,7 @@ function addonTable.Display.AuraStatusBarNextMixin:Setup(details)
     self.StyleButton(self.helpfulPetButton, details, self.durationFormat)
     self.StyleButton(self.harmfulButton, details, self.durationFormat)
 
-    addonTable.Display.SetAuraSlotsFilters(self.index, self.include, self.include)
+    addonTable.Display.SetAuraSlotsFilters(self.index, self.include, self.include, self.details.playerSourced)
   end
 end
 
@@ -241,13 +241,13 @@ end
 
 function addonTable.Display.AuraStatusBarNextMixin:OnShow()
   if self.index then
-    addonTable.Display.SetAuraSlotsEnabled(self.index, true, self.details.playerSourced)
+    addonTable.Display.SetAuraSlotsEnabled(self.index, true)
   end
 end
 
 function addonTable.Display.AuraStatusBarNextMixin:OnHide()
   if self.index then
-    addonTable.Display.SetAuraSlotsEnabled(self.index, false, self.details.playerSourced)
+    addonTable.Display.SetAuraSlotsEnabled(self.index, false)
   end
 end
 

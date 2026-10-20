@@ -459,16 +459,20 @@ do
     return key, helpful:AddAuraSlot(key, playerSourced and "HELPFUL|PLAYER" or "HELPFUL", selfSettings), harmful:AddAuraSlot(key, playerSourced and "HARMFUL|PLAYER" or "HARMFUL", targetSettings), helpfulPet:AddAuraSlot(key, "HELPFUL", selfSettings)
   end
 
-  function addonTable.Display.SetAuraSlotsFilters(key, selfSettings, targetSettings)
+  function addonTable.Display.SetAuraSlotsFilters(key, selfSettings, targetSettings, playerSourced)
+    helpful:SetAuraSlotFilterString(key, playerSourced and "HELPFUL|PLAYER" or "HELPFUL")
+    helpfulPet:SetAuraSlotFilterString(key, "HELPFUL" or "")
+    harmful:SetAuraSlotFilterString(key, playerSourced and "HARMFUL|PLAYER" or "HARMFUL")
+
     helpful:SetAuraSlotCandidateFilters(key, selfSettings)
     helpfulPet:SetAuraSlotCandidateFilters(key, selfSettings)
     harmful:SetAuraSlotCandidateFilters(key, targetSettings)
   end
 
-  function addonTable.Display.SetAuraSlotsEnabled(key, enabled, playerSourced)
-    helpful:SetAuraSlotFilterString(key, enabled and (playerSourced and "HELPFUL|PLAYER" or "HELPFUL") or "")
-    helpfulPet:SetAuraSlotFilterString(key, enabled and "HELPFUL" or "")
-    harmful:SetAuraSlotFilterString(key, enabled and (playerSourced and "HARMFUL|PLAYER" or "HARMFUL") or "")
+  function addonTable.Display.SetAuraSlotsEnabled(key, enabled)
+    helpful:SetAuraSlotEnabled(key, enabled)
+    helpfulPet:SetAuraSlotEnabled(key, enabled)
+    harmful:SetAuraSlotEnabled(key, enabled)
   end
 end
 

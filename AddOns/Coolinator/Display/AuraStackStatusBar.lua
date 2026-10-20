@@ -92,7 +92,7 @@ function addonTable.Display.AuraStacksBaseMixin:Setup(details)
     self.StyleButton(self.helpfulPetButton, details)
     self.StyleButton(self.harmfulButton, details)
 
-    addonTable.Display.SetAuraSlotsFilters(self.index, self.include, self.include)
+    addonTable.Display.SetAuraSlotsFilters(self.index, self.include, self.include, self.details.playerSourced)
   end
 
   local borderDetails = LSM:Fetch("ninesliceborder", details.border.asset, true) or LSM:Fetch("ninesliceborder", "Cooli: 1px")
@@ -223,13 +223,13 @@ end
 
 function addonTable.Display.AuraStacksBaseMixin:OnShow()
   if self.index then
-    addonTable.Display.SetAuraSlotsEnabled(self.index, true, self.details.playerSourced)
+    addonTable.Display.SetAuraSlotsEnabled(self.index, true)
   end
 end
 
 function addonTable.Display.AuraStacksBaseMixin:OnHide()
   if self.index then
-    addonTable.Display.SetAuraSlotsEnabled(self.index, false, self.details.playerSourced)
+    addonTable.Display.SetAuraSlotsEnabled(self.index, false)
   end
 end
 
