@@ -268,6 +268,36 @@ local ICON_EXTRA     = 14   -- iconSize = barHeight + ICON_EXTRA
 local FRAME_VPADDING = 10   -- extra frame height above bar (for text overlap)
 local FRAME_HPADDING = 4    -- gap between icon and bar
 
+-- 1px 黑框：實體像素（P.Pixel；寫死 1 在 1440p 以上是 2px），圖示／條身的內縮用同一個值。
+-- 條在檔案載入時就建（給編輯模式找），那時 UI 縮放還沒定 ⇒ 每次顯示前（UpdateBarSize）重算，
+-- 跟上次一樣就不動；框、圖示、條身都關像素貼齊。規則全文：.claude/notes/wow-1px-border-rules.md
+local BORDER_BACKDROP_BG = "Interface\\Buttons\\WHITE8X8"
+local barBorderPx = 0
+
+local function SetPixelBackdrop(f, px, br, bg, bb, ba)
+    f:SetBackdrop({ bgFile = BORDER_BACKDROP_BG, edgeFile = BORDER_BACKDROP_BG, edgeSize = px })
+    ns.P.NoSnapBackdrop(f)
+    f:SetBackdropColor(br, bg, bb, ba)
+    f:SetBackdropBorderColor(0, 0, 0, 1)
+end
+
+local function LayoutBarBorders()
+    if not barFrame then return barBorderPx end
+    local px = ns.P.Pixel(1)
+    if barBorderPx == px then return px end
+    barBorderPx = px
+    local iconBorder, barBorder = barFrame.iconBorder, barFrame.barBorder
+    SetPixelBackdrop(iconBorder, px, 0, 0, 0, 1)
+    SetPixelBackdrop(barBorder, px, 0, 0, 0, 0.5)
+    barIcon:ClearAllPoints()
+    barIcon:SetPoint("TOPLEFT",     iconBorder, "TOPLEFT",      px, -px)
+    barIcon:SetPoint("BOTTOMRIGHT", iconBorder, "BOTTOMRIGHT", -px,  px)
+    barStatusBar:ClearAllPoints()
+    barStatusBar:SetPoint("TOPLEFT",     barBorder, "TOPLEFT",      px, -px)
+    barStatusBar:SetPoint("BOTTOMRIGHT", barBorder, "BOTTOMRIGHT", -px,  px)
+    return px
+end
+
 local function ComputeFrameSize(bw, bh)
     local iconSize = bh + ICON_EXTRA
     return bw + iconSize + FRAME_HPADDING, iconSize + FRAME_VPADDING, iconSize
@@ -298,17 +328,9 @@ local function CreateBarFrame()
     local iconBorder = CreateFrame("Frame", nil, barFrame, "BackdropTemplate")
     iconBorder:SetSize(iconSize, iconSize)
     iconBorder:SetPoint("BOTTOMLEFT", barFrame, "BOTTOMLEFT", 0, 0)
-    iconBorder:SetBackdrop({
-        bgFile   = "Interface\\Buttons\\WHITE8X8",
-        edgeFile = "Interface\\Buttons\\WHITE8X8",
-        edgeSize = 1,
-    })
-    iconBorder:SetBackdropColor(0, 0, 0, 1)
-    iconBorder:SetBackdropBorderColor(0, 0, 0, 1)
+    -- backdrop 與圖示內縮在 LayoutBarBorders 設
 
-    barIcon = iconBorder:CreateTexture(nil, "ARTWORK")
-    barIcon:SetPoint("TOPLEFT",     iconBorder, "TOPLEFT",      1, -1)
-    barIcon:SetPoint("BOTTOMRIGHT", iconBorder, "BOTTOMRIGHT", -1,  1)
+    barIcon = ns.P.NoSnap(iconBorder:CreateTexture(nil, "ARTWORK"))
     barIcon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
     barIcon:SetTexture(DEFAULT_LUST_ICON)
     barFrame.iconBorder = iconBorder
@@ -317,23 +339,18 @@ local function CreateBarFrame()
     local barBorder = CreateFrame("Frame", nil, barFrame, "BackdropTemplate")
     barBorder:SetPoint("BOTTOMLEFT",  iconBorder, "BOTTOMRIGHT", 2, 0)
     barBorder:SetPoint("BOTTOMRIGHT", barFrame,   "BOTTOMRIGHT", 0, 0)
-    barBorder:SetHeight(bh + 2)
-    barBorder:SetBackdrop({
-        bgFile   = "Interface\\Buttons\\WHITE8X8",
-        edgeFile = "Interface\\Buttons\\WHITE8X8",
-        edgeSize = 1,
-    })
-    barBorder:SetBackdropColor(0, 0, 0, 0.5)
-    barBorder:SetBackdropBorderColor(0, 0, 0, 1)
+    -- backdrop、條身內縮與高度（bh＋上下兩條邊）在 LayoutBarBorders／UpdateBarSize 設
     barFrame.barBorder = barBorder
 
     barStatusBar = CreateFrame("StatusBar", nil, barBorder)
-    barStatusBar:SetPoint("TOPLEFT",     barBorder, "TOPLEFT",      1, -1)
-    barStatusBar:SetPoint("BOTTOMRIGHT", barBorder, "BOTTOMRIGHT", -1,  1)
     barStatusBar:SetStatusBarTexture(barTexture)
+    ns.P.NoSnap(barStatusBar)   -- 填充貼圖跟 1px 框相接，一起不貼齊
     barStatusBar:SetStatusBarColor(0.345, 0.545, 1, 1)
     barStatusBar:SetMinMaxValues(0, 1)
     barStatusBar:SetValue(1)
+
+    local px = LayoutBarBorders()
+    barBorder:SetHeight(bh + 2 * px)
 
     barSpark = barStatusBar:CreateTexture(nil, "OVERLAY")
     barSpark:SetSize(12, bh * 3)
@@ -362,46 +379,22 @@ local function CreateBarFrame()
 
     barText:SetPoint("RIGHT", barTimeText, "LEFT", -2, 0)
 
-    -- Drag support (Edit Mode only)
+    -- 編輯模式拖曳（Libs/MiliUIEditMode.lua）：選取框、手動拖曳、格線吸附、戰鬥閘都在共用層；
+    -- 這裡只給「放手怎麼存」（CENTER 偏移）與「中斷怎麼放回」
     barFrame:SetMovable(true)
     barFrame:SetUserPlaced(false)
     barFrame:SetClampedToScreen(true)
-    barFrame:RegisterForDrag("LeftButton")
-    barFrame:SetScript("OnDragStart", function(self)
-        if self.unlocked then self:StartMoving() end
-    end)
-    barFrame:SetScript("OnDragStop", function(self)
-        self:StopMovingOrSizing()
-        self:SetUserPlaced(false)
-        local cx, cy = UIParent:GetCenter()
-        local fx, fy = self:GetCenter()
-        db.barX = math.floor(fx - cx + 0.5)
-        db.barY = math.floor(fy - cy + 0.5)
-    end)
-
-    -- Edit Mode selection overlay
-    local editSelection = CreateFrame("Frame", nil, barFrame, "EditModeSystemSelectionTemplate")
-    -- The template's XML binds OnMouseDown -> EditModeManagerFrame:SelectSystem(self.parent).
-    -- We are not a real Edit Mode system: a click without a drag lets Blizzard run that
-    -- selection pass tainted by us across EVERY registered system (action bars included).
-    -- Silent at click time; it surfaces later as blocked action buttons in combat.
-    editSelection:SetScript("OnMouseDown", function() end)
-    editSelection:SetAllPoints()
-    editSelection:Hide()
-    editSelection:RegisterForDrag("LeftButton")
-    editSelection:SetScript("OnDragStart", function() barFrame:StartMoving() end)
-    editSelection:SetScript("OnDragStop", function()
-        barFrame:StopMovingOrSizing()
-        barFrame:SetUserPlaced(false)
-        local cx, cy = UIParent:GetCenter()
-        local fx, fy = barFrame:GetCenter()
-        db.barX = math.floor(fx - cx + 0.5)
-        db.barY = math.floor(fy - cy + 0.5)
-    end)
-    editSelection.system = {
-        GetSystemName = function() return L["ADDON_TITLE"] end,
-    }
-    barFrame.editSelection = editSelection
+    local EM = ns.MiliUIEditMode
+    EM.Attach(barFrame, {
+        name    = function() return L["ADDON_TITLE"] end,
+        enabled = function() return db and db.barEnabled end,
+        save    = function(f)
+            local x, y = EM.CenterOffset(f)
+            if x then db.barX, db.barY = x, y end
+            ns.UpdateBarPosition()
+        end,
+        restore = function() ns.UpdateBarPosition() end,
+    })
 
     -- OnUpdate: ratio every frame (cheap GPU redraw), text+color at 10 Hz
     barFrame:SetScript("OnUpdate", function(self, dt)
@@ -452,35 +445,28 @@ local function UpdateBarSize()
     local fw, fh, iconSize = ComputeFrameSize(bw, bh)
     barFrame:SetSize(fw, fh)
     if barFrame.iconBorder then barFrame.iconBorder:SetSize(iconSize, iconSize) end
-    if barFrame.barBorder  then barFrame.barBorder:SetHeight(bh + 2) end
+    local px = LayoutBarBorders()   -- 顯示前都會經過這裡：1px 邊重算
+    if barFrame.barBorder  then barFrame.barBorder:SetHeight(bh + 2 * px) end
     if barSpark            then barSpark:SetSize(12, bh * 3) end
 end
 
+-- 進出編輯模式：樣板內容與顯示／隱藏。選取框的亮／收由共用層（Libs/MiliUIEditMode.lua）管
 local function UpdateEditModeState()
     if isInEditMode then
         if not (db and db.barEnabled) then
-            if barFrame then
-                barFrame.editSelection:Hide()
-                barFrame:Hide()
-            end
+            if barFrame then barFrame:Hide() end
             return
         end
         CreateBarFrame()
-        barFrame.unlocked = true
-        barFrame:EnableMouse(true)
         barStatusBar:SetValue(0.7)
         barText:SetText(DEFAULT_LUST_NAME)
         barTimeText:SetText("30.0")
         barIcon:SetTexture(DEFAULT_LUST_ICON)
-        barFrame.editSelection:ShowHighlighted()
         UpdateBarPosition()
         UpdateBarSize()
         barFrame:Show()
     else
         if not barFrame then return end
-        barFrame.unlocked = false
-        barFrame:EnableMouse(false)
-        barFrame.editSelection:Hide()
         if not activeLustSpellID then
             barFrame:Hide()
         end
@@ -488,35 +474,12 @@ local function UpdateEditModeState()
 end
 
 ----------------------------------------------------------------------
--- EditMode hook (three tiers: file-scope, AddOn-loaded, PLAYER_LOGIN)
+-- 編輯模式進出訊號：共用層負責三重掛勾與登入保底，狀態改變時（下一幀）通知這裡
 ----------------------------------------------------------------------
-local editModeHooked = false
-local function HookEditMode()
-    if editModeHooked then return end
-    if not EditModeManagerFrame then return end
-    editModeHooked = true
-    DebugPrint("EditMode HOOKED successfully")
-
-    EditModeManagerFrame:HookScript("OnShow", function()
-        isInEditMode = true
-        UpdateEditModeState()
-    end)
-    EditModeManagerFrame:HookScript("OnHide", function()
-        isInEditMode = false
-        UpdateEditModeState()
-    end)
-
-    if EditModeManagerFrame:IsShown() then
-        isInEditMode = true
-        UpdateEditModeState()
-    end
-end
-
-HookEditMode()  -- Tier 1
-
-if not editModeHooked and EventUtil and EventUtil.ContinueOnAddOnLoaded then
-    EventUtil.ContinueOnAddOnLoaded("Blizzard_EditMode", HookEditMode)  -- Tier 2
-end
+ns.MiliUIEditMode.OnChange("music", function(active)
+    isInEditMode = active
+    UpdateEditModeState()
+end)
 
 CreateBarFrame()  -- create eagerly so EditMode can find it
 
@@ -803,7 +766,6 @@ eventFrame:SetScript("OnEvent", function(self, event, ...)
             end
         end
 
-        HookEditMode()    -- Tier 3
         CreateBarFrame()
 
         -- At login: figure out if we're already inside a lust window.
