@@ -136,10 +136,7 @@ RGX.API.UnitInRaid = _G.UnitInRaid or function() return false end
 RGX.API.UnitInParty = _G.UnitInParty or function() return false end
 RGX.API.UnitIsGroupLeader = _G.UnitIsGroupLeader or function() return false end
 
-RGX.API.UninviteUnit = FirstAvailable(
-    _G.C_PartyInfo and _G.C_PartyInfo.RemoveFromParty,
-    _G.UninviteUnit
-) or Nil
+RGX.API.UninviteUnit = _G.C_PartyInfo and _G.C_PartyInfo.UninviteUnit or Nil
 
 RGX.API.LeaveParty = FirstAvailable(
     _G.C_PartyInfo and _G.C_PartyInfo.LeaveParty,

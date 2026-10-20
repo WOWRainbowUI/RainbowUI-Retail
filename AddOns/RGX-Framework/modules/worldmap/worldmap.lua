@@ -1,8 +1,10 @@
 --=============================================================================
 -- RGX-Framework | RGXWorldMap
 --
--- World-map pin and waypoint primitives that replace HereBeDragons-Pins
--- semantics for RGX consumers (e.g. realmgx-guides Phase 5 map pins).
+-- World-map pin and waypoint primitives for RGX consumers (e.g.
+-- realmgx-guides map pins), implemented entirely over the native WoW
+-- C_Map API. The framework writes its own libraries: no external
+-- coordinate libraries are referenced or embedded.
 --
 -- Provides:
 --   Pin lifecycle on world map and minimap:
@@ -10,37 +12,28 @@
 --     AddMinimapIcon, RemoveMinimapIcon, UpdateMinimapIcon
 --     RemoveAllWorldMapIcons, RemoveAllMinimapIcons
 --
---   Zone-data isolation adapter:
---     All coordinate calls go through the WoW C_Map API with HereBeDragons
---     zone data isolated behind a single adapter (RGXWorldMap.Coords) so
---     consumers never embed the full library. If the retail C_Map layer
---     is unavailable (Classic era / Wrath), the adapter transparently
---     falls back to LibStub("HereBeDragons-2.0") when it is present.
+--   Zone-data adapter (the only supported coordinate seam):
+--     All coordinate conversions route through one adapter,
+--     RGXWorldMap:GetCoordsAdapter(), so consumers never call C_Map
+--     directly. Every call is capability-gated: a flavor that lacks an
+--     API yields nils, never errors.
 --
 --   Coordinate helpers:
 --     GetPlayerWorldPosition, GetPlayerZone, GetZoneSize,
 --     GetWorldCoordinatesFromZone, GetZoneCoordinatesFromWorld,
 --     GetWorldVector, GetWorldDistance
 --
--- The public module surface mirrors HereBeDragons-Pins argument shapes so
--- realmgx-guides call sites can be ported 1:1.
+-- Argument shapes follow the legacy pin call sites realmgx-guides already
+-- ships so its port stays 1:1.
 --
--- Flavors:
---   Retail (120105+) — C_Map native path, no fallback required.
---   Classic / Wrath / TBC / Cata / Mists — C_Map is partial; the adapter
---   falls back to HereBeDragons-2.0 when a C_Map call returns nil.
+-- Flavors (verified against the client API dumps):
+--   Retail / Forever - full coverage (incl. C_Map.GetMapWorldSize).
+--   Classic-era / TBC / Mists - C_Map without GetMapWorldSize; zone size
+--     returns nils there (documented capability difference).
+--   Wrath / Cata - C_Map per client capability; every call is nil-guarded.
 --=============================================================================
 
 local addonName, RGX = ...
-
-local WOW_PROJECT_MAINLINE = WOW_PROJECT_MAINLINE or 1
-local WOW_PROJECT_CLASSIC = WOW_PROJECT_CLASSIC or 2
-local WOW_PROJECT_BURNING_CRUSADE_CLASSIC = WOW_PROJECT_BURNING_CRUSADE_CLASSIC or 3
-local WOW_PROJECT_WRATH_CLASSIC = WOW_PROJECT_WRATH_CLASSIC or 4
-local WOW_PROJECT_CATACLYSM_CLASSIC = WOW_PROJECT_CATACLYSM_CLASSIC or 5
-local WOW_PROJECT_MISTS_CLASSIC = WOW_PROJECT_MISTS_CLASSIC or 6
-
-local isRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
 
 --=============================================================================
 -- Internal state
@@ -56,7 +49,6 @@ local WorldMap = {
     _worldMapFrame = nil,
     _minimapFrame = nil,
     _coordsAdapter = nil,
-    _hbd = nil,
 }
 
 -- Unique pin ID counter for registry keys.
@@ -68,119 +60,105 @@ local function genId()
 end
 
 --=============================================================================
--- Coordinate adapter — isolates HereBeDragons zone data behind one seam.
+-- Coordinate adapter - our own C_Map-native seam (no external libraries).
 --=============================================================================
 
--- Lazy-load HereBeDragons-2.0 if available (Classic fallbacks).
-local function loadHBD()
-    if WorldMap._hbd ~= nil then return WorldMap._hbd end
-    WorldMap._hbd = false
-    if LibStub then
-        local ok, hbd = pcall(LibStub, "HereBeDragons-2.0")
-        if ok and hbd then
-            WorldMap._hbd = hbd
-        end
-    end
-    return WorldMap._hbd
-end
+-- Real APIs (verified against the client API dumps and Blizzard's generated
+-- API documentation; signatures must not be guessed):
+--   C_Map.GetBestMapForUnit(unitToken) -> uiMapID
+--   C_Map.GetPlayerMapPosition(uiMapID, unitToken) -> vector2 (0-1 map coords)
+--   C_Map.GetWorldPosFromMapPos(uiMapID, mapPosition) -> continentID, worldPosition
+--   C_Map.GetMapPosFromWorldPos(continentID, worldPosition [, overrideUiMapID])
+--     -> uiMapID, mapPosition
+--   C_Map.GetMapWorldSize(uiMapID) -> width, height (yards)
+--   CreateVector2D(x, y) -> vector2 (FrameXML global)
 
--- Get the active coordinate adapter (C_Map first, HBD fallback).
+-- Get the active coordinate adapter (native C_Map, capability-gated).
 function WorldMap:GetCoordsAdapter()
     if self._coordsAdapter then return self._coordsAdapter end
 
     local adapter = {}
 
-    -- C_Map path — Retail and Mists+ Classic have full C_Map coverage.
-    -- Zone-data isolation: we wrap each C_Map call so consumers never
-    -- need to know whether HBD is present.
-    function adapter.GetPlayerWorldPosition()
-        if C_Map and C_Map.GetPlayerInfoInWorldMap then
-            local r = C_Map.GetPlayerInfoInWorldMap()
-            if r and r.position then
-                local x, y = r.position:GetXY()
-                return x or 0, y or 0, r.instanceID or 0
-            end
-        end
-        local hbd = loadHBD()
-        if hbd and hbd.GetPlayerWorldPosition then
-            return hbd:GetPlayerWorldPosition()
-        end
-        return nil, nil, nil
-    end
-
     function adapter.GetPlayerZone()
         if C_Map and C_Map.GetBestMapForUnit then
-            local mapID = C_Map.GetBestMapForUnit("player")
-            if mapID then return mapID end
-        end
-        local hbd = loadHBD()
-        if hbd and hbd.GetPlayerZone then
-            return hbd:GetPlayerZone()
+            return C_Map.GetBestMapForUnit("player")
         end
         return nil
     end
 
-    function adapter.GetZoneSize(mapID)
-        local hbd = loadHBD()
-        if hbd and hbd.GetZoneSize then
-            return hbd:GetZoneSize(mapID)
-        end
-        -- C_Map does not expose zone width/height directly; HBD is the
-        -- zone-data source of record. Without HBD we cannot resolve it.
-        return nil, nil
-    end
-
-    function adapter.GetWorldCoordinatesFromZone(zoneX, zoneY, mapID, floor)
-        -- C_Map.GetWorldPosFromMapPos takes a UiMapPoint; construct from floats.
-        if C_Map and C_Map.GetWorldPosFromMapPos and uiMapPoint then
-            local point = uiMapPoint(zoneX / 100, zoneY / 100)
-            local pos = C_Map.GetWorldPosFromMapPos(mapID, point)
+    -- Player position in world coordinates (continent yards).
+    -- Returns worldX, worldY, continentID; nils when unresolvable.
+    function adapter.GetPlayerWorldPosition()
+        local mapID = adapter.GetPlayerZone()
+        if mapID and C_Map.GetPlayerMapPosition and C_Map.GetWorldPosFromMapPos
+            and CreateVector2D then
+            local pos = C_Map.GetPlayerMapPosition(mapID, "player")
             if pos then
-                return pos:GetXYZ()
+                local x, y = pos:GetXY()
+                local continentID, worldPos =
+                    C_Map.GetWorldPosFromMapPos(mapID, CreateVector2D(x, y))
+                if worldPos then
+                    local wx, wy = worldPos:GetXY()
+                    return wx, wy, continentID
+                end
             end
-        end
-        local hbd = loadHBD()
-        if hbd and hbd.GetWorldCoordinatesFromZone then
-            return hbd:GetWorldCoordinatesFromZone(zoneX, zoneY, mapID, floor)
         end
         return nil, nil, nil
     end
 
-    function adapter.GetZoneCoordinatesFromWorld(worldX, worldY, mapID)
-        if C_Map and C_Map.GetMapPosFromWorldPos then
-            local pos = C_Map.GetMapPosFromWorldPos(mapID, worldX, worldY)
-            if pos then
-                local x, y = pos:GetXY()
-                return x * 100, y * 100
-            end
-        end
-        local hbd = loadHBD()
-        if hbd and hbd.GetZoneCoordinatesFromWorld then
-            return hbd:GetZoneCoordinatesFromWorld(worldX, worldY, mapID)
+    function adapter.GetZoneSize(mapID)
+        -- C_Map.GetMapWorldSize ships on Retail and Forever; Classic-era,
+        -- TBC and Mists do not expose zone dimensions (capability
+        -- difference: nils, never errors).
+        if mapID and C_Map and C_Map.GetMapWorldSize then
+            return C_Map.GetMapWorldSize(mapID)
         end
         return nil, nil
     end
 
-    function adapter.GetWorldVector(instance, x1, y1, x2, y2)
-        local hbd = loadHBD()
-        if hbd and hbd.GetWorldVector then
-            return hbd:GetWorldVector(instance, x1, y1, x2, y2)
+    -- zoneX/zoneY are 0-100 zone coordinates (legacy pin call shape).
+    -- 'floor' is accepted for call-shape compatibility only; C_Map has no
+    -- floor concept. Returns worldX, worldY, continentID.
+    function adapter.GetWorldCoordinatesFromZone(zoneX, zoneY, mapID, floor)
+        if mapID and zoneX and zoneY and C_Map and C_Map.GetWorldPosFromMapPos
+            and CreateVector2D then
+            local continentID, worldPos = C_Map.GetWorldPosFromMapPos(
+                mapID, CreateVector2D(zoneX / 100, zoneY / 100))
+            if worldPos then
+                local wx, wy = worldPos:GetXY()
+                return wx, wy, continentID
+            end
         end
-        -- Compute from raw distance formula as a last resort.
+        return nil, nil, nil
+    end
+
+    -- continentID is the continent the world coordinates live in (the
+    -- first return of GetWorldPosFromMapPos). Returns zoneX, zoneY (0-100)
+    -- and the resolved uiMapID.
+    function adapter.GetZoneCoordinatesFromWorld(worldX, worldY, continentID)
+        if continentID and worldX and worldY and C_Map and C_Map.GetMapPosFromWorldPos
+            and CreateVector2D then
+            local uiMapID, mapPos = C_Map.GetMapPosFromWorldPos(
+                continentID, CreateVector2D(worldX, worldY))
+            if mapPos then
+                local x, y = mapPos:GetXY()
+                return x * 100, y * 100, uiMapID
+            end
+        end
+        return nil, nil
+    end
+
+    -- 'instance' is accepted for call-shape compatibility; unused. World
+    -- coordinates are per continent, so planar math is exact within one.
+    function adapter.GetWorldVector(instance, x1, y1, x2, y2)
         if x1 and y1 and x2 and y2 then
             local dx, dy = x2 - x1, y2 - y1
-            local dist = math.sqrt(dx * dx + dy * dy)
-            local angle = math.atan2(dy, dx)
-            return angle, dist
+            return math.atan2(dy, dx), math.sqrt(dx * dx + dy * dy)
         end
         return nil, nil
     end
 
     function adapter.GetWorldDistance(instance, x1, y1, x2, y2)
-        local hbd = loadHBD()
-        if hbd and hbd.GetWorldDistance then
-            return hbd:GetWorldDistance(instance, x1, y1, x2, y2)
-        end
         if x1 and y1 and x2 and y2 then
             local dx, dy = x2 - x1, y2 - y1
             return math.sqrt(dx * dx + dy * dy)
@@ -416,8 +394,8 @@ function WorldMap:GetWorldCoordinatesFromZone(zoneX, zoneY, mapID, floor)
     return self:GetCoordsAdapter().GetWorldCoordinatesFromZone(zoneX, zoneY, mapID, floor)
 end
 
-function WorldMap:GetZoneCoordinatesFromWorld(worldX, worldY, mapID)
-    return self:GetCoordsAdapter().GetZoneCoordinatesFromWorld(worldX, worldY, mapID)
+function WorldMap:GetZoneCoordinatesFromWorld(worldX, worldY, continentID)
+    return self:GetCoordsAdapter().GetZoneCoordinatesFromWorld(worldX, worldY, continentID)
 end
 
 function WorldMap:GetWorldVector(instance, x1, y1, x2, y2)

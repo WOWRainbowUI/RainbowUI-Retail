@@ -139,7 +139,7 @@ L["UI_COLORPICKER_NOT_LOADED"]    = "RGX ColorPicker not loaded"
 L["UI_COLOR_DEFAULT_LABEL"]       = "Color"
 L["UI_SLIDER_DEFAULT_LABEL"]      = "Slider"
 
--- Reputation module (game/reputation/reputation.lua)
+-- Reputation module (modules/reputation/reputation.lua)
 L["REP_RANK_1"]                   = "Hated"
 L["REP_RANK_2"]                   = "Hostile"
 L["REP_RANK_3"]                   = "Unfriendly"

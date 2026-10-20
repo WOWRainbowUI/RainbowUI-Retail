@@ -356,7 +356,7 @@ function Minimap:Create(opts)
         backdrop:SetMask("Interface\\CharacterFrame\\TempPortraitAlphaMaskSmall")
     end
     backdrop:SetVertexColor(0.03, 0.03, 0.03, 0.98)
-    -- ElvUI/collectors reserve .backdrop for a Frame, never a Texture.
+    -- Collector addons reserve .backdrop for a Frame, never a Texture.
     frame.backgroundTexture = backdrop
 
     -- Tracking border ring overlay

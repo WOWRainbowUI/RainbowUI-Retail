@@ -247,6 +247,36 @@ local function CreateAddHelper(frame)
         return w
     end
 
+    function frame:Textbox(label, storage, key, default, opts)
+        opts = opts or {}
+        local w = UI:CreateTextInput(canvas, {
+            label       = label,
+            storage     = storage,
+            key         = key,
+            default     = default or "",
+            width       = opts.width,
+            placeholder = opts.placeholder,
+            onChange    = opts.onChange,
+        })
+        Add(w)
+        return w
+    end
+
+    function frame:PanelAlpha(label, storage, key, default, opts)
+        opts = opts or {}
+        local w = UI:CreatePanelAlpha(canvas, {
+            label    = label,
+            storage  = storage,
+            key      = key,
+            default  = default or 100,
+            width    = opts.width,
+            presets  = opts.presets,
+            onChange = opts.onChange,
+        })
+        Add(w)
+        return w
+    end
+
     function frame:Slider(label, storage, key, min, max, default, suffix)
         local w = UI:CreateSlider(canvas, {
             label   = label,
@@ -308,75 +338,157 @@ end
 local function BuildAddonOptionTabs(UI, addon, options, columns, resolveControl)
     local Drops = RGX:GetDropdowns()
     local tabs = {}
+
+    local function Boundaries(count, buckets)
+        local perColumn, remainder = math.floor(count / buckets), count % buckets
+        local boundaries, start = {}, 1
+        for i = 1, buckets do
+            local size = perColumn + (i <= remainder and 1 or 0)
+            boundaries[i] = { start = start, stop = start + size - 1 }
+            start = start + size
+        end
+        return boundaries
+    end
+
+    local function SlotFor(index, boundaries)
+        for i = 1, #boundaries do
+            if index <= boundaries[i].stop then return i end
+        end
+        return #boundaries
+    end
+
+    local function AddControl(host, flow, rawControl)
+        local ctrl = resolveControl(rawControl)
+        if not (ctrl and type(ctrl) == "table") then return end
+        local w
+        if type(ctrl.toggle) == "string" then
+            -- Canonical on/off element: the declarative toggle renders the
+            -- consumer-proven switch. CreateToggle stays as a legacy helper.
+            w = UI:CreateSwitch(host, { key = ctrl.toggle, label = ctrl.label or ctrl.toggle:gsub("^%l", string.upper), storage = addon.db, default = ctrl.default })
+            if w and w.HookScript and w.Refresh then
+                w:HookScript("OnShow", function() w:Refresh() end)
+            end
+        elseif type(ctrl.slider) == "string" then
+            w = UI:CreateSlider(host, { key = ctrl.slider, label = ctrl.label or ctrl.slider:gsub("^%l", string.upper), storage = addon.db, min = ctrl.min or 0, max = ctrl.max or 100, step = ctrl.step or 1, suffix = ctrl.suffix, progress = ctrl.progress, valueDisplay = ctrl.valueDisplay })
+        elseif type(ctrl.panel_alpha) == "string" then
+            w = UI:CreatePanelAlpha(host, { key = ctrl.panel_alpha, label = ctrl.label or ctrl.panel_alpha:gsub("^%l", string.upper), storage = addon.db, default = ctrl.default or 100, presets = ctrl.presets })
+        elseif type(ctrl.textbox) == "string" then
+            w = UI:CreateTextInput(host, { key = ctrl.textbox, label = ctrl.label or ctrl.textbox:gsub("^%l", string.upper), storage = addon.db, default = ctrl.default or "", placeholder = ctrl.placeholder })
+        elseif type(ctrl.color) == "string" then
+            w = UI:CreateColorPicker(host, { key = ctrl.color, label = ctrl.label or ctrl.color:gsub("^%l", string.upper), storage = addon.db, default = ctrl.default or addon.db[ctrl.color], onChange = function(r, g, b) addon.db[ctrl.color] = { r = r, g = g, b = b } end })
+        elseif type(ctrl.font) == "string" then
+            local Fonts = RGX:GetFonts()
+            if Fonts and Fonts.AttachFontSelector then
+                w = Fonts:AttachFontSelector(host, addon.db, ctrl.font, { label = ctrl.label or "Font" })
+                if w and w.HookScript then
+                    w:HookScript("OnShow", function() w:RefreshFromDB() end)
+                end
+            end
+        elseif type(ctrl.dropdown) == "string" and Drops then
+            local items = {}
+            for _, v in ipairs(ctrl.items or {}) do items[#items + 1] = { text = tostring(v), value = v } end
+            w = Drops:CreateNestedDropdown(host, { label = ctrl.label or ctrl.dropdown:gsub("^%l", string.upper), items = items, width = ctrl.width or 260, value = addon.db[ctrl.dropdown], onChange = function(v) addon.db[ctrl.dropdown] = v end })
+        elseif type(ctrl.button) == "string" and type(ctrl.action) == "function" then
+            w = UI:CreateButton(host, { text = ctrl.button, width = ctrl.width, height = ctrl.height, onClick = ctrl.action })
+        elseif type(ctrl.section) == "string" then
+            w = UI:CreateLabel(host, { text = ctrl.section, size = "normal", color = "accent" })
+        end
+        if w then flow:Add(w) end
+    end
+
+    local function RenderLegacyControls(frame, controls)
+        local canvas = UI:CreateScrollPage(frame)
+        local hosts, flows
+        if columns > 1 and UI.CreateColumns then
+            hosts = { UI:CreateColumns(canvas, columns) }
+            flows = {}
+            for _, host in ipairs(hosts) do
+                flows[#flows + 1] = UI:CreateFlowLayout(host)
+            end
+        else
+            hosts = { canvas }
+            flows = { UI:CreateFlowLayout(canvas) }
+        end
+        local boundaries = Boundaries(#controls, #flows)
+        for index, rawControl in ipairs(controls) do
+            local slot = SlotFor(index, boundaries)
+            AddControl(hosts[slot], flows[slot], rawControl)
+        end
+        local function reflow()
+            if canvas:GetWidth() <= 0 then return end
+            local used = 0
+            for _, flow in ipairs(flows) do used = math.max(used, flow:Apply()) end
+            canvas:SetHeight(math.max(1, used))
+        end
+        reflow()
+        canvas:HookScript("OnShow", reflow)
+        canvas:HookScript("OnSizeChanged", reflow)
+    end
+
+    local function RenderPageLayout(frame, pages)
+        local pager = UI:CreatePager(frame, { pages = #pages })
+        for pageIndex, page in ipairs(pages) do
+            local pageFrame = pager.frames[pageIndex]
+            local pageCanvas = UI:CreateScrollPage(pageFrame)
+            local grid = page.grid or 1
+            local hosts
+            if grid > 1 and UI.CreateColumns then
+                hosts = { UI:CreateColumns(pageCanvas, grid) }
+            else
+                hosts = { pageCanvas }
+            end
+            local flows = {}
+            for _, host in ipairs(hosts) do
+                flows[#flows + 1] = UI:CreateFlowLayout(host)
+            end
+
+            local cardBoundaries = Boundaries(#page.cards, #flows)
+            for cardIndex, cardNode in ipairs(page.cards) do
+                local slot = SlotFor(cardIndex, cardBoundaries)
+                local card = UI:CreateCard(hosts[slot], {
+                    title = cardNode.card,
+                    columns = cardNode.columns,
+                })
+                local cardFlows = card.flows
+                local controlBoundaries = Boundaries(#cardNode.controls, #cardFlows)
+                for controlIndex, rawControl in ipairs(cardNode.controls) do
+                    local cardSlot = SlotFor(controlIndex, controlBoundaries)
+                    AddControl(card.columns and card.columns[cardSlot] or card.flow, cardFlows[cardSlot], rawControl)
+                end
+                card:AutoHeight()
+                flows[slot]:Add(card)
+            end
+
+            local function reflow()
+                if pageCanvas:GetWidth() <= 0 then return end
+                local used = 0
+                for _, flow in ipairs(flows) do used = math.max(used, flow:Apply()) end
+                pageCanvas:SetHeight(math.max(1, used))
+            end
+            reflow()
+            pageCanvas:HookScript("OnShow", reflow)
+            pageCanvas:HookScript("OnSizeChanged", reflow)
+        end
+        return pager
+    end
+
+    local function IsPageNode(entry)
+        return type(entry) == "table" and type(entry.page) == "string"
+    end
+
     for tabName, controls in pairs(options) do
         tabs[#tabs + 1] = {
             text = tabName,
             content = function(frame)
-                local canvas = UI:CreateScrollPage(frame)
-                local hosts, flows
-                if columns > 1 and UI.CreateColumns then
-                    hosts = { UI:CreateColumns(canvas, columns) }
-                    flows = {}
-                    for _, host in ipairs(hosts) do
-                        flows[#flows + 1] = UI:CreateFlowLayout(host)
-                    end
-                else
-                    hosts = { canvas }
-                    flows = { UI:CreateFlowLayout(canvas) }
+                local pageCount = 0
+                for _, entry in ipairs(controls) do
+                    if IsPageNode(entry) then pageCount = pageCount + 1 end
                 end
-                local perColumn, remainder = math.floor(#controls / #flows), #controls % #flows
-                local boundaries, start = {}, 1
-                for i = 1, #flows do
-                    local size = perColumn + (i <= remainder and 1 or 0)
-                    boundaries[i] = { start = start, stop = start + size - 1 }
-                    start = start + size
+                if pageCount > 0 then
+                    RenderPageLayout(frame, controls)
+                    return
                 end
-                local index = 0
-                for _, rawControl in ipairs(controls) do
-                    index = index + 1
-                    local slot = #flows
-                    for i = 1, #flows do
-                        if index <= boundaries[i].stop then slot = i break end
-                    end
-                    local host, flow = hosts[slot], flows[slot]
-                    local ctrl = resolveControl(rawControl)
-                    if ctrl and type(ctrl) == "table" then
-                        local w
-                        if type(ctrl.toggle) == "string" then
-                            w = UI:CreateToggle(host, { key = ctrl.toggle, label = ctrl.label or ctrl.toggle:gsub("^%l", string.upper), storage = addon.db, default = ctrl.default })
-                        elseif type(ctrl.slider) == "string" then
-                            w = UI:CreateSlider(host, { key = ctrl.slider, label = ctrl.label or ctrl.slider:gsub("^%l", string.upper), storage = addon.db, min = ctrl.min or 0, max = ctrl.max or 100, step = ctrl.step or 1, suffix = ctrl.suffix, progress = ctrl.progress, valueDisplay = ctrl.valueDisplay })
-                        elseif type(ctrl.color) == "string" then
-                            w = UI:CreateColorPicker(host, { key = ctrl.color, label = ctrl.label or ctrl.color:gsub("^%l", string.upper), storage = addon.db, default = ctrl.default or addon.db[ctrl.color], onChange = function(r, g, b) addon.db[ctrl.color] = { r = r, g = g, b = b } end })
-                        elseif type(ctrl.font) == "string" then
-                            local Fonts = RGX:GetFonts()
-                            if Fonts and Fonts.AttachFontSelector then
-                                w = Fonts:AttachFontSelector(host, addon.db, ctrl.font, { label = ctrl.label or "Font" })
-                                if w and w.HookScript then
-                                    w:HookScript("OnShow", function() w:RefreshFromDB() end)
-                                end
-                            end
-                        elseif type(ctrl.dropdown) == "string" and Drops then
-                            local items = {}
-                            for _, v in ipairs(ctrl.items or {}) do items[#items + 1] = { text = tostring(v), value = v } end
-                            w = Drops:CreateNestedDropdown(host, { label = ctrl.label or ctrl.dropdown:gsub("^%l", string.upper), items = items, width = ctrl.width or 260, value = addon.db[ctrl.dropdown], onChange = function(v) addon.db[ctrl.dropdown] = v end })
-                        elseif type(ctrl.button) == "string" and type(ctrl.action) == "function" then
-                            w = UI:CreateButton(host, { text = ctrl.button, width = ctrl.width, height = ctrl.height, onClick = ctrl.action })
-                        elseif type(ctrl.section) == "string" then
-                            w = UI:CreateLabel(host, { text = ctrl.section, size = "normal", color = "accent" })
-                        end
-                        if w then flow:Add(w) end
-                    end
-                end
-                local function reflow()
-                    if canvas:GetWidth() <= 0 then return end
-                    local used = 0
-                    for _, flow in ipairs(flows) do used = math.max(used, flow:Apply()) end
-                    canvas:SetHeight(math.max(1, used))
-                end
-                reflow()
-                canvas:HookScript("OnShow", reflow)
-                canvas:HookScript("OnSizeChanged", reflow)
+                RenderLegacyControls(frame, controls)
             end,
         }
     end

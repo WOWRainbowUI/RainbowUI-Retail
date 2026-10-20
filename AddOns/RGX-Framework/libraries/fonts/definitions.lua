@@ -3,7 +3,7 @@ local Fonts = {}
 addon._fontsModule = Fonts
 _G.RGXFonts = Fonts
 
-Fonts.fontPath = "Interface/AddOns/RGX-Framework/media/fonts/"
+Fonts.fontPath = "Interface/AddOns/RGX-Framework/libraries/fonts/media/"
 
 Fonts.unavailableFonts = {
 	["Audiowide-Regular"] = true,

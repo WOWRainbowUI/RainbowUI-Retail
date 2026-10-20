@@ -1,7 +1,7 @@
 --=====================================================================================
 -- RGX-Framework | RGXAuras
 -- Aura scanning and watching through an accessible-only boundary.
--- Generalizes the PlayerHasAuraSpellID pattern proven in BattlePetUtility and is
+-- Generalizes the PlayerHasAuraSpellID pattern proven in production consumers and is
 -- the core aura-trigger primitive for rgx-mod.
 --
 -- Built against the six pinned client-source baselines documented in AURAS.md.
@@ -12,7 +12,7 @@
 -- Usage (zero boilerplate):
 --   local Auras = RGX:GetAuras()
 --
---   -- Player fast path (always taint-safe, BPU pattern)
+--   -- Player fast path (always taint-safe)
 --   if Auras:HasPlayerAura(33264) then ... end
 --   local data = Auras:GetPlayerAura(160599)
 --

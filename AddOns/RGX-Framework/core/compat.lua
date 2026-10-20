@@ -186,18 +186,12 @@ function RGX.API.GetQuestObjectives(questID)
     if C_QuestLog and C_QuestLog.GetQuestObjectives then
         return C_QuestLog.GetQuestObjectives(questID)
     end
-    if C_TaskQuest and C_TaskQuest.GetQuestObjectives then
-        return C_TaskQuest.GetQuestObjectives(questID)
-    end
     return nil
 end
 
 function RGX.API.IsQuestTask(questID)
     if C_QuestLog and C_QuestLog.IsQuestTask then
         return C_QuestLog.IsQuestTask(questID)
-    end
-    if C_TaskQuest and C_TaskQuest.IsQuestTask then
-        return C_TaskQuest.IsQuestTask(questID)
     end
     return false
 end

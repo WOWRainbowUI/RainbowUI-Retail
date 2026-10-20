@@ -1,7 +1,7 @@
 --=====================================================================================
 -- RGX-Framework | RGXTooltip
 -- Tooltip composition and native-tooltip augmentation for any RGX-Framework addon.
--- Generalizes the pattern used across BattlePetUtility's 71 GameTooltip call sites
+-- Generalizes the pattern used across a large consumer's 71 GameTooltip call sites
 -- (SetOwner -> ClearLines -> AddLine/AddDoubleLine x N -> Show, and Hide on leave)
 -- into one call, and wraps Blizzard's TooltipDataProcessor so a consumer's hook
 -- cannot break every tooltip in the game if it errors (verified against

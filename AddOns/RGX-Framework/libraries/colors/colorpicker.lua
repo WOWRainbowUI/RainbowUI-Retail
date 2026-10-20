@@ -175,8 +175,8 @@ local BUTTON_W, BUTTON_H, BUTTON_GAP, BOTTOM_MARGIN = 80, 28, 16, 20
     surface (contract/schemas/rgx-api.catalog.json) must not grow.
 ============================================================================]]
 
-local HEX_FILL = "Interface\\AddOns\\RGX-Framework\\media\\hexmask.tga"
-local HEX_RING = "Interface\\AddOns\\RGX-Framework\\media\\hexring.tga"
+local HEX_FILL = "Interface\\AddOns\\RGX-Framework\\libraries\\colors\\hexmask.tga"
+local HEX_RING = "Interface\\AddOns\\RGX-Framework\\libraries\\colors\\hexring.tga"
 local HEX_RINGS = 4
 local SQRT3 = 1.7320508
 

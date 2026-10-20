@@ -453,15 +453,16 @@ function Combat:Init()
         end
     end)
 
-    -- PvP victory
-    RGX:RegisterEvent("PVP_MATCH_COMPLETE", function()
-        local isWinner = false
-        if C_PvP and C_PvP.GetActiveMatchResults then
-            local results = C_PvP.GetActiveMatchResults()
-            isWinner = results and results.isWinner or false
-        end
-        if isWinner then
-            Fire(Combat._onPvPVictory)
+    -- PvP victory. PVP_MATCH_COMPLETE passes the winning team index
+    -- (Retail/Forever; the event is absent on Classic flavors). The
+    -- outcome pattern is the one Blizzard ships in Blizzard_PVPMatch: the
+    -- player's team index is GetBattlefieldArenaFaction(); the enemy is
+    -- the opposite index; anything else is a draw and fires nothing.
+    RGX:RegisterEvent("PVP_MATCH_COMPLETE", function(_, winner)
+        if winner ~= nil and GetBattlefieldArenaFaction then
+            if winner == GetBattlefieldArenaFaction() then
+                Fire(Combat._onPvPVictory)
+            end
         end
     end)
 

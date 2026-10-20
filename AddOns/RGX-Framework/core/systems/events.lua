@@ -650,7 +650,7 @@ end
 
 -- Do not auto-register ADDON_ACTION_BLOCKED/FORBIDDEN diagnostics here.
 -- Subscribing to those diagnostics can itself be attributed to RGX during
--- restricted startup/reload phases, creating recursive BugGrabber noise.
+-- restricted startup/reload phases, creating recursive error-handler noise.
 
 function RGX:CreateEmitter(name)
     local emitter = {

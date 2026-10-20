@@ -221,7 +221,7 @@ Design.Colors = {
 -- Rounded panel rendering -----------------------------------------------------
 
 Design.Radius = 12
-Design.PANEL_TEX = "Interface\\AddOns\\RGX-Framework\\media\\panel_rounded.tga"
+Design.PANEL_TEX = "Interface\\AddOns\\RGX-Framework\\libraries\\design\\panel_rounded.tga"
 
 -- 128px texture with 32px corners: corner slice covers a quarter of the UVs.
 local PANEL_TC = 0.25

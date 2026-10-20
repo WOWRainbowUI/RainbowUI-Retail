@@ -3,7 +3,7 @@
 local _, RGX = ...
 local L = (RGX:GetModule("locale") or {}).L or {}
 
-RGX:RegisterSlashCommand("rgx", function(msg)
+RGX:RegisterSlashCommand({ "rgx", "rgxframework", "rgxf" }, function(msg)
     local input = strtrim(msg or "")
     local cmd, rest = input:match("^(%S+)%s*(.-)$")
     cmd = (cmd or ""):lower()
@@ -63,7 +63,7 @@ RGX:RegisterSlashCommand("rgx", function(msg)
                 or  (L["COMMAND_FONT_DEBUG_OFF"] or "OFF")
             RGX:Print(L["COMMAND_LOGIN_MESSAGES_PREFIX"] or "Login messages:", state)
         else
-            RGX:Print(L["COMMAND_LOGIN_USAGE"] or "Usage: /rgx login on|off|status")
+            RGX:Print(L["COMMAND_LOGIN_USAGE"] or "Usage: /rgxf login on|off|status")
         end
     elseif cmd == "editor" then
         RGX:OpenDefinitionEditor()
@@ -73,4 +73,4 @@ RGX:RegisterSlashCommand("rgx", function(msg)
     else
         RGX:Print(L["COMMAND_LIST"] or "Commands: modules, fonts, debug, dbtest, login, editor, version")
     end
-end, "RGX")
+end, "RGXFRAMEWORK")

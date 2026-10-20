@@ -8,14 +8,14 @@ to reimplement it.
 Quick start:
 local Sound = RGX:GetSound()
 
-local handle = Sound:Register("FFLU", {
+local handle = Sound:Register("MyAddon", {
     sounds = {
-        high   = "Interface\\Addons\\FFLU\\sounds\\final_fantasy_high.ogg",
-        medium = "Interface\\Addons\\FFLU\\sounds\\final_fantasy_med.ogg",
-        low    = "Interface\\Addons\\FFLU\\sounds\\final_fantasy_low.ogg",
+        high   = "Interface\\Addons\\MyAddon\\sounds\\levelup_high.ogg",
+        medium = "Interface\\Addons\\MyAddon\\sounds\\levelup_med.ogg",
+        low    = "Interface\\Addons\\MyAddon\\sounds\\levelup_low.ogg",
     },
     defaultSoundId = 569593,
-    savedVar       = "FFLUSettings",
+    savedVar       = "MyAddonSettings",
     defaults       = {
         enabled      = true,
         soundVariant = "medium",

@@ -188,6 +188,19 @@ function Fonts:FindByPath(path)
 		return fontName, self.registry[fontName]
 	end
 
+	-- Legacy bundled font paths (media/fonts/...) resolve by basename after
+	-- the library-owned assets moved under libraries/fonts/media/.
+	local basename = normalizedPath and normalizedPath:match("([^/]+)$")
+	if basename and self.registry then
+		for name, entry in pairs(self.registry) do
+			local entryPath = entry.path and self:_NormalizeFontPath(entry.path)
+			if entryPath and entryPath:match("([^/]+)$") == basename then
+				self._findByPathCache[path] = name
+				return name, entry
+			end
+		end
+	end
+
 	self._findByPathCache[path] = false
 	return nil
 end

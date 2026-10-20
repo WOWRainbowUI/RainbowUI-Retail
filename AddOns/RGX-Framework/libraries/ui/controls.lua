@@ -429,6 +429,78 @@ function UI:CreateSlider(parent, options)
 end
 
 --[[============================================================================
+PANEL TRANSPARENCY CONTROL
+
+0-100 slider bound to a storage key, with optional named snap presets. Reuses
+the shipped slider mechanics (drag, scroll, reset, OnShow re-position) so the
+consumer applies one plain number (usually SetAlpha(value / 100)).
+
+Usage:
+	UI:CreatePanelAlpha(parent, {
+		key = "panelAlpha",
+		label = "Panel Opacity",
+		default = 100,
+		storage = myDB,
+		presets = {
+			{ label = "Low", value = 25 },
+			{ label = "Med", value = 50 },
+			{ label = "High", value = 100 },
+		},
+		onChange = function(value) end,
+	})
+============================================================================]]
+
+function UI:CreatePanelAlpha(parent, options)
+	options = options or {}
+	local container = self:CreateSlider(parent, {
+		key          = options.key,
+		label        = options.label,
+		min          = 0,
+		max          = 100,
+		step         = options.step or 1,
+		default      = options.default or 100,
+		storage      = options.storage,
+		suffix       = "%",
+		width        = options.width,
+		progress     = options.progress,
+		valueDisplay = options.valueDisplay,
+		onChange     = options.onChange,
+	})
+
+	container.presetButtons = {}
+	local presets = options.presets
+	if type(presets) == "table" and #presets > 0 then
+		local presetWidth = options.presetWidth or 44
+		local row = CreateFrame("Frame", nil, container)
+		row:SetPoint("TOPLEFT", container, "BOTTOMLEFT", 0, -2)
+		row:SetHeight(18)
+		local x = 0
+		for i = 1, #presets do
+			local preset = presets[i]
+			local value = type(preset) == "table" and tonumber(preset.value) or nil
+			assert(preset and preset.label ~= nil and value,
+				"RGX UI: panel alpha presets must be { label, value } entries")
+			assert(value >= 0 and value <= 100,
+				"RGX UI: panel alpha preset values must be between 0 and 100")
+			local button = self:CreateButton(row, {
+				text    = tostring(preset.label),
+				width   = presetWidth,
+				height  = 18,
+				onClick = function() container:SetValue(value) end,
+			})
+			button:SetPoint("LEFT", row, "LEFT", x, 0)
+			x = x + presetWidth + 4
+			container.presetButtons[#container.presetButtons + 1] = button
+		end
+		row:SetWidth(math.max(1, x - 4))
+		container.presetRow = row
+		container:SetHeight((container:GetHeight() or 38) + 20)
+	end
+
+	return container
+end
+
+--[[============================================================================
 VOLUME SLIDER CONTROL
 
 3-position discrete slider (Low / Medium / High) using RGX theme colors.
@@ -610,7 +682,25 @@ local function AttachCheckboxLabel(frame, checkbox, label)
     frame.labelButton = target
 end
 
-function UI:CreateCheckbox(parent, text)
+-- Hover callbacks compose with the skin instead of replacing scripts, and a
+-- consumer error can never break unrelated rows or later hooks.
+local function AttachHoverCallbacks(frame, opts, kind)
+    if type(opts) ~= "table" then return end
+    for _, entry in ipairs({ { "OnEnter", "onEnter" }, { "OnLeave", "onLeave" } }) do
+        local callback = opts[entry[2]]
+        if type(callback) == "function" then
+            local script = entry[1]
+            frame:HookScript(script, function(self, ...)
+                local ok, err = pcall(callback, self, ...)
+                if not ok and RGX and type(RGX.Error) == "function" then
+                    RGX:Error("[RGXUI] " .. kind .. " " .. script .. " failed: " .. tostring(err))
+                end
+            end)
+        end
+    end
+end
+
+function UI:CreateCheckbox(parent, text, opts)
     local frame = CreateFrame("Frame", nil, parent)
     frame:SetSize(300, 20)
     local checkbox = CreateFrame("CheckButton", nil, frame)
@@ -625,6 +715,7 @@ function UI:CreateCheckbox(parent, text)
     frame.checkbox = checkbox
     frame.label = label
     AttachCheckboxLabel(frame, checkbox, label)
+    AttachHoverCallbacks(checkbox, opts, "checkbox")
     return frame
 end
 
@@ -660,6 +751,7 @@ function UI:CreateToggle(parent, options)
         storage[key] = enabled
         onChange(enabled)
     end)
+    AttachHoverCallbacks(check, options, "toggle")
     
     -- Reset
     local reset = self:CreateResetButton(container, function()
@@ -670,6 +762,124 @@ function UI:CreateToggle(parent, options)
     reset:SetPoint("LEFT", container.label, "RIGHT", 10, 0)
     
     container.check = check
+    return container
+end
+
+--[[============================================================================
+    TEXT INPUT
+============================================================================]]
+
+function UI:CreateTextInput(parent, options)
+    options = options or {}
+    local key = options.key or "text"
+    local label = options.label or key
+    local default = options.default or ""
+    if type(default) ~= "string" then default = tostring(default) end
+    local storage = options.storage or {}
+    local onChange = options.onChange or function() end
+    local inputWidth = options.width or 200
+    local placeholder = options.placeholder
+
+    local container = CreateFrame("Frame", nil, parent)
+    container:SetSize(320, 24)
+
+    -- Label
+    local labelText = self:CreateLabel(container, {
+        text = label,
+        size = "normal"
+    })
+    labelText:SetPoint("LEFT", 0, 0)
+
+    -- Input
+    local input = CreateFrame("EditBox", nil, container, "InputBoxTemplate")
+    input:SetSize(inputWidth, 22)
+    input:SetPoint("LEFT", labelText, "RIGHT", 8, 0)
+    if type(input.SetAutoFocus) == "function" then input:SetAutoFocus(false) end
+    ApplyDefaultFont(input)
+
+    local D = RGX:GetDesign()
+    local nr, ng, nb, mr, mg, mb = 1, 1, 1, 0.6, 0.6, 0.6
+    if D and type(D.Unpack) == "function" then
+        nr, ng, nb = D:Unpack("text")
+        mr, mg, mb = D:Unpack("subtext")
+    end
+
+    local function storedValue()
+        local value = storage[key]
+        if value == nil then value = default end
+        return value
+    end
+
+    -- Placeholder text is display-only: it renders in the muted color while
+    -- the stored value is empty and is never written back to storage. An
+    -- empty commit resolves to the default (the Reset target).
+    local showingPlaceholder = false
+    local function project()
+        local value = storedValue()
+        showingPlaceholder = placeholder ~= nil and value == ""
+        if showingPlaceholder then
+            input:SetText(placeholder)
+            input:SetTextColor(mr, mg, mb)
+        else
+            input:SetText(tostring(value))
+            input:SetTextColor(nr, ng, nb)
+        end
+    end
+
+    local function commit(text)
+        text = text or ""
+        if text == "" then text = default end
+        storage[key] = text
+        project()
+        onChange(text)
+    end
+
+    local function commitAndBlur(widget)
+        local text = widget:GetText()
+        if showingPlaceholder then text = "" end
+        commit(text)
+        widget:ClearFocus()
+    end
+
+    input:SetScript("OnEditFocusGained", function()
+        if showingPlaceholder then
+            showingPlaceholder = false
+            input:SetText("")
+            input:SetTextColor(nr, ng, nb)
+        end
+    end)
+    input:SetScript("OnEditFocusLost", function()
+        project()
+    end)
+    input:SetScript("OnEnterPressed", commitAndBlur)
+    input:SetScript("OnEscapePressed", commitAndBlur)
+
+    -- Reset
+    local reset = self:CreateResetButton(container, function()
+        commit(default)
+    end)
+    reset:SetPoint("LEFT", input, "RIGHT", 10, 0)
+
+    project()
+
+    container.SetValue = function(first, maybe)
+        -- Support both control:SetValue(v) and control.SetValue(v)
+        local value
+        if maybe ~= nil and first == container then
+            value = maybe
+        elseif maybe == nil then
+            value = first
+        else
+            value = maybe
+        end
+        commit(tostring(value or ""))
+    end
+    container.GetValue = function() return storedValue() end
+    container.Refresh = function() project() end
+
+    container.label = labelText
+    container.input = input
+    container.resetButton = reset
     return container
 end
 
