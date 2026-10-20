@@ -32,8 +32,6 @@ obj["lootAlerts"]	= { label="拾取通告", tooltip="设置与拾取有关的通
 obj = L.CHECKBOXES
 
 obj["disableMSBTInGroup"]		= { label="Disable MSBT In Group", tooltip="Automatically disable MSBT while in a party or raid."}
-obj["enableBlizzardV2CombatText"]= { label="Enable Blizzard Combat Text", tooltip="Enable Blizzard floating combat text damage/healing for player and pet (v2)." }
-obj["enableBlizzardV2InGroup"]	= { label="Enable Blizzard Combat Text In Group", tooltip="Only enable Blizzard Combat Text while in a party or raid." }
 obj["stickyCrits"]				= { label="爆击粘滞显示", tooltip="使用粘滞样式显示爆击"}
 obj["colorPartialEffects"]		= { label="特效着色", tooltip="给某些特殊战斗效果的信息着色"}
 obj["crushing"]					= { label="碾压", tooltip="显示碾压提示"}
@@ -59,7 +57,6 @@ obj["mergeSwings"]				= { label="合并普通攻击", tooltip="合并极短时�
 obj["hideSkills"]				= { label="隐藏技能", tooltip="在承受伤害和输出伤害中不显示技能名字。开启此选项将使你失去某些事件自定义功能，因为它会忽略“%s”代码"}
 obj["hideNames"]				= { label="隐藏名字", tooltip="在承受伤害和输出伤害中不显示单位名字。开启此选项将使你失去某些事件自定义功能，因为它会忽略“%n”代码"}
 obj["hideFullOverheals"]		= { label="隐藏全部过量的治疗", tooltip="不显示全部过量的治疗."}
-obj["hideFullHoTOverheals"]		= { label="隐藏全部溢出的持续治疗", tooltip="不显示全部溢出的储蓄治疗"}
 obj["hideMergeTrailer"]			= { label="隐藏合并攻击细节", tooltip="不在合并攻击后显示被合并的攻击次数及暴击详情"}
 obj["lootedItems"]				= { label="拾取物品", tooltip="显示物品拾取."}
 obj["moneyGains"]				= { label="获得金钱", tooltip="显示获得的金钱"}
@@ -136,9 +133,6 @@ obj["critFontOpacity"]		= { label="爆击字体不透明度", tooltip="设置爆
 obj["scrollHeight"]			= { label="滚动高度", tooltip="滚动区域高度"}
 obj["scrollWidth"]			= { label="滚动宽度", tooltip="滚动区域宽度"}
 obj["scrollAnimationSpeed"]	= { label="动画速度", tooltip="设置滚动区域内动画速度"}
-obj["powerThreshold"]		= { label="能量阈值", tooltip="能量获得只有超过此值才会被显示"}
-obj["healThreshold"]		= { label="治疗阈值", tooltip="治疗量只有超过此值才会被显示"}
-obj["damageThreshold"]		= { label="伤害阈值", tooltip="伤害量只有超过此值才会被显示"}
 obj["dotThrottleTime"]		= { label="持续伤害抑制显示", tooltip="在设定的秒数中造成的持续伤害将合并为一次显示"}
 obj["hotThrottleTime"]		= { label="持续治疗抑制显示", tooltip="在设定的秒数中造成的持续治疗将合并为一次显示"}
 obj["powerThrottleTime"]	= { label="能量抑制显示", tooltip="在设定的秒数中持续获得的能量将合并为一次显示"}

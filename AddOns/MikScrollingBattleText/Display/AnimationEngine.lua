@@ -64,8 +64,6 @@ ScrollAreas:Configure({
 	getMasterProfile = function()
 		return MSBTProfiles.masterProfile
 	end,
-	isInGroup = IsInGroup,
-	isInRaid = IsInRaid,
 	defaultArea = DEFAULT_SCROLL_AREA,
 })
 

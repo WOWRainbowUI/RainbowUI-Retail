@@ -32,8 +32,6 @@ obj["lootAlerts"]	= { label="Оповещения добычи", tooltip="Нас
 obj = L.CHECKBOXES
 
 obj["disableMSBTInGroup"]		= { label="Disable MSBT In Group", tooltip="Automatically disable MSBT while in a party or raid."}
-obj["enableBlizzardV2CombatText"]= { label="Enable Blizzard Combat Text", tooltip="Enable Blizzard floating combat text damage/healing for player and pet (v2)." }
-obj["enableBlizzardV2InGroup"]	= { label="Enable Blizzard Combat Text In Group", tooltip="Only enable Blizzard Combat Text while in a party or raid." }
 obj["stickyCrits"]				= { label="Закреплённый крит", tooltip="Отображение критов используя стиль закрепления."}
 obj["colorPartialEffects"]		= { label="Цвет частичных эффектов", tooltip="Применяет установленные цвета для частичных эффектов."}
 obj["crushing"]					= { label="Сокрушительные удары", tooltip="Отображение трейлера сокрушительных ударов."}
@@ -59,7 +57,6 @@ obj["mergeSwings"]				= { label="Объединить удары", tooltip="Об
 obj["hideSkills"]				= { label="Скрыть навыки", tooltip="Не отображать названия навыков в входящих и исходящих событиях.\n\nYou will give up some customization capability at the event level if you choose to use this option since it causes the %s event code to be ignored."}
 obj["hideNames"]				= { label="Скрыть имена", tooltip="Не отображать названия юнитов в входящих и исходящих событиях.\n\nYou will give up some customization capability at the event level if you choose to use this option since it causes the %n event code to be ignored."}
 obj["hideFullOverheals"]		= { label="Скрыть избыточное исц.", tooltip="Не показывать исцеление которого эффективное значение лечения равно нулю."}
-obj["hideFullHoTOverheals"]		= { label="Скрыть полное избыточное ИзВ", tooltip="Не показывать исцеление за время которого эффективное значение лечения равно нулю."}
 obj["hideMergeTrailer"]			= { label="Скрыть трейлер объединенных", tooltip="Не показывать трейлер, который определяет количество попаданий и критов в конце объединенных событий."}
 obj["lootedItems"]				= { label="Добыча предметов", tooltip="Выводит оповещение когда вы подбераете предметы."}
 obj["moneyGains"]				= { label="Получ. денег", tooltip="Вкл/Выкл оповещение когда вы получаете деньги."}
@@ -136,9 +133,6 @@ obj["critFontOpacity"]		= { label="Прозрачность Крита", tooltip
 obj["scrollHeight"]			= { label="Высота прокрутки", tooltip="Регулировка высоты области прокрутки."}
 obj["scrollWidth"]			= { label="Ширина прокрутки", tooltip="Регулировка ширины области прокрутки."}
 obj["scrollAnimationSpeed"]	= { label="Скорость анимации", tooltip="Регулировка скорости анимации в области прокрутки."}
-obj["powerThreshold"]		= { label="Порог. вел. энергии", tooltip="Порог величины энергии, привысев который она будет отображаться."}
-obj["healThreshold"]		= { label="Порог. вел. исцеления", tooltip="Порог величины исцеления, привысев который она будет отображаться."}
-obj["damageThreshold"]		= { label="Порог. вел. урона", tooltip="Порог величины урона, привысев который она будет отображаться."}
 obj["dotThrottleTime"]		= { label="Регулятор УзВ", tooltip="Число секунд, чтобы замедлить отображение Урона за Время."}
 obj["hotThrottleTime"]		= { label="Регулятор ИзВ", tooltip="Число секунд, чтобы замедлить отображение Исцеления за Время."}
 obj["powerThrottleTime"]	= { label="Регулятор времени энергии", tooltip="Число секунд, чтобы замедлить отображение изменения энергии."}

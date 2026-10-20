@@ -13,4 +13,5 @@ MSBTOptionsPopups.lua
 MSBTOptionsMain.lua
 MSBTOptionsSounds.lua
 MSBTOptionsProfileTransfer.lua
+MSBTOptionsAuras.lua
 MSBTOptionsTabs.lua

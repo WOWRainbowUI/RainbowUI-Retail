@@ -17,7 +17,7 @@ end
 function OutgoingBatcher:BuildMessage(amount, hitCount, batch, settings)
 	local profile = self.config.getProfile()
 	local formattedAmount
-	if batch and batch.isPet then
+	if batch and (batch.isPet or batch.eventKey) then
 		formattedAmount = self.config.formatEventMessage(settings, amount, batch.spellID)
 	else
 		formattedAmount = self.config.formatAmount(amount, profile)
@@ -34,8 +34,13 @@ function OutgoingBatcher:BuildMessage(amount, hitCount, batch, settings)
 		translations and translations.MSG_HITS or "Hits")
 end
 
-function OutgoingBatcher:ResolveSettings(isSpell, isPet, isDot)
+function OutgoingBatcher:ResolveSettings(isSpell, isPet, isDot, eventKey)
 	local profile = self.config.getProfile()
+	if eventKey then
+		local settings = profile.events[eventKey]
+		if settings and not settings.disabled then return eventKey, settings end
+		return nil
+	end
 	local prefix = isPet and "PET_" or ""
 	if isDot then
 		local dotKey = prefix .. "OUTGOING_SPELL_DOT"
@@ -69,7 +74,9 @@ function OutgoingBatcher:Flush(batchKey)
 	end
 	self.batches[batchKey] = nil
 
-	local eventKey, settings = self:ResolveSettings(batch.isSpell, batch.isPet, batch.isDot)
+	local eventKey, settings = self:ResolveSettings(
+		batch.isSpell, batch.isPet, batch.isDot, batch.eventKey
+	)
 	if not settings then
 		return
 	end
@@ -93,22 +100,24 @@ function OutgoingBatcher:DisplayRestricted(
 	effectTexture,
 	forceIsSpell,
 	isPet,
-	isDot
+	isDot,
+	eventKey
 )
-	if not effectTexture and not isDot then
+	if not effectTexture and not isDot and not eventKey then
 		spellID = spellID or self.config.autoAttackSpellID
 		effectTexture = self.config.getSpellTexture(spellID)
 	end
 	local isSpell = isDot or forceIsSpell or not self.config.isAutoAttack(spellID)
-	local eventKey, settings = self:ResolveSettings(isSpell, isPet, isDot)
+	local resolvedKey, settings = self:ResolveSettings(isSpell, isPet, isDot, eventKey)
 	if not settings then
 		return
 	end
-	local critSettings = self.config.getProfile().events[eventKey .. "_CRIT"]
+	local critSettings = self.config.getProfile().events[resolvedKey .. "_CRIT"]
 	if isCrit and critSettings and not critSettings.disabled then
 		settings = critSettings
 	end
-	self.config.displayRestricted(settings, amount, effectTexture, not isPet and "%a" or nil)
+	local message = not eventKey and not isPet and "%a" or nil
+	self.config.displayRestricted(settings, amount, effectTexture, message)
 end
 
 function OutgoingBatcher:Queue(
@@ -118,24 +127,26 @@ function OutgoingBatcher:Queue(
 	effectTexture,
 	forceIsSpell,
 	isPet,
-	isDot
+	isDot,
+	eventKey
 )
 	if not amount or amount <= 0 then
 		return
 	end
 
-	if not effectTexture and (spellID or not isDot) then
+	if not effectTexture and (spellID or (not isDot and not eventKey)) then
 		effectTexture = self.config.getSpellTexture(
 			spellID or self.config.autoAttackSpellID
 		)
 	end
-	if not effectTexture and not isDot then
+	if not effectTexture and not isDot and not eventKey then
 		spellID = self.config.autoAttackSpellID
 		effectTexture = self.config.getSpellTexture(spellID)
 	end
 
 	local batchKey = (isPet and "pet:" or "") .. (isDot and "dot:" or "")
 		.. tostring(spellID or 0) .. (isCrit and ":crit" or "")
+	if eventKey then batchKey = eventKey .. ":" .. batchKey end
 	local batch = self.batches[batchKey]
 	if not batch then
 		local isSpell = forceIsSpell or isDot
@@ -150,6 +161,7 @@ function OutgoingBatcher:Queue(
 			isSpell = isSpell,
 			isPet = isPet,
 			isDot = isDot,
+			eventKey = eventKey,
 			effectTexture = effectTexture,
 		}
 		self.batches[batchKey] = batch

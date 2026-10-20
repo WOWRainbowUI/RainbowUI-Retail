@@ -32,8 +32,6 @@ obj["lootAlerts"]	= { label="Plündernachrichten", tooltip="Optionen für die Pl
 obj = L.CHECKBOXES
 obj["enableMSBT"]				= { label="Mik's Scrolling Battle Text aktivieren", tooltip="MSBT aktivieren."}
 obj["disableMSBTInGroup"]		= { label="MSBT in Gruppen deaktivieren", tooltip="MSBT automatisch in Gruppe oder Schlachtzug deaktivieren."}
-obj["enableBlizzardV2CombatText"]= { label="Blizzard-Kampftext aktivieren", tooltip="Blizzard Kampftext (v2) fuer Spieler und Begleiter aktivieren." }
-obj["enableBlizzardV2InGroup"]	= { label="Blizzard-Kampftext in Gruppen", tooltip="Blizzard Kampftext nur in Gruppe oder Schlachtzug aktivieren." }
 obj["stickyCrits"]				= { label="Sticky-Krits", tooltip="Bei kritischen Treffern den 'Sticky'-Stil verwenden."}
 obj["colorPartialEffects"]		= { label="Teileffekte einfärben", tooltip="Fügt den Teileffekten festgelegte Farben hinzu."}
 obj["crushing"]					= { label="Schmetternde Stöße", tooltip="Zeigt den Anhang bei schmetternden Treffern an."}
@@ -59,7 +57,6 @@ obj["mergeSwings"]				= { label="Schwünge verbinden", tooltip="Verbindet normal
 obj["hideSkills"]				= { label="Fähigkeiten verstecken", tooltip="Keine Fähigkeitsnamen für eingehende und ausgehende Ereignisse anzeigen.\n\nDu gibst ein wenig Anpassungsmöglichkeit auf Ereignisebene auf, da der Ereigniscode %s nun ignoriert wird."}
 obj["hideNames"]				= { label="Namen verstecken", tooltip="Keine Namen für eingehende und ausgehende Ereignisse anzeigen.\n\nDu gibst ein wenig Anpassungsmöglichkeit auf Ereignisebene auf, da der Ereigniscode %n nun ignoriert wird."}
 obj["hideFullOverheals"]		= { label="Überheilungen verstecken", tooltip="Heilungen, die eine effektive Heilung von null haben, werden nicht angezeigt."}
-obj["hideFullHoTOverheals"]		= { label="HoT Überheilungen verstecken", tooltip="Heilungen über Zeit, die eine effektive Heilung von null haben, werden nicht angezeigt."}
 obj["hideMergeTrailer"]			= { label="Verbinden-Anhang verstecken", tooltip="Der Anhang, der die Anzahl der miteinander verbundenen Treffer und Krits am Ende jedes Ereignisses darstellt, wird nicht angezeigt."}
 obj["lootedItems"]				= { label="Geplünderte Gegenstände", tooltip="Zeigt Benachrichtigungen, wenn Gegenstände geplündert wurden."}
 obj["moneyGains"]				= { label="Gold erhalten", tooltip="Zeigt Benachrichtigungen, wenn Gold erhalten wurde."}
@@ -135,9 +132,6 @@ obj["critFontOpacity"]		= { label="Kritische Transparenz", tooltip="Die Schriftt
 obj["scrollHeight"]			= { label="Scroll-Höhe", tooltip="Die Höhe des Scroll-Bereichs."}
 obj["scrollWidth"]			= { label="Scroll-Weite", tooltip="Die Weite des Scroll-Bereichs."}
 obj["scrollAnimationSpeed"]	= { label="Geschwindigkeit", tooltip="Die Geschwindigkeit der Animation des Scroll-Bereichs."}
-obj["powerThreshold"]		= { label="Energiesschwelle", tooltip="Die Schwelle, die die Energie überschreiten muss, um angezeigt zu werden."}
-obj["healThreshold"]		= { label="Heilungsschwelle", tooltip="Die Schwelle, die die Heilung überschreiten muss, um angezeigt zu werden."}
-obj["damageThreshold"]		= { label="Schadensschwelle", tooltip="Die Schwelle, die der Schaden überschreiten muss, um angezeigt zu werden."}
 obj["dotThrottleTime"]		= { label="DoTs drosseln", tooltip="Die Nummer in Sekunden, die DoTs gedrosselt werden sollen."}
 obj["hotThrottleTime"]		= { label="HoTs drosseln", tooltip="Die Nummer in Sekunden, die HoTs gedrosselt werden sollen."}
 obj["powerThrottleTime"]	= { label="Energie drosseln", tooltip="Die Nummer in Sekunden, die Energieänderungen gedrosselt werden sollen."}

@@ -4,13 +4,6 @@ local ScrollAreas = {
 	names = {},
 }
 
-local GROUP_SETTING_BY_AREA = {
-	Outgoing = "disableOutgoingInGroup",
-	Incoming = "disableIncomingInGroup",
-	Notification = "disableNotificationInGroup",
-	Static = "disableStaticInGroup",
-}
-
 local function Clear(values)
 	for key in pairs(values) do
 		values[key] = nil
@@ -76,16 +69,6 @@ end
 function ScrollAreas:IsIconShown(identifier)
 	local settings = self:Resolve(identifier)
 	return settings ~= nil and not settings.skillIconsDisabled
-end
-
-function ScrollAreas:IsSuppressedInGroup(areaKey)
-	if not self.config.isInGroup() and not self.config.isInRaid() then
-		return false
-	end
-
-	local profile = self.config.getProfile()
-	local setting = GROUP_SETTING_BY_AREA[areaKey]
-	return setting ~= nil and profile ~= nil and not not profile[setting]
 end
 
 function ScrollAreas:Iterate()

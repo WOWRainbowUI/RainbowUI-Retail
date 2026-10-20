@@ -12,7 +12,7 @@ function DisplayService:DisplayEvent(eventSettings, message, texturePath, muteSo
 	local scrollAreas = self.config.scrollAreas
 	local areaKey = eventSettings.scrollArea or self.config.defaultArea
 	local area = scrollAreas:Resolve(areaKey)
-	if not area or area.disabled or scrollAreas:IsSuppressedInGroup(areaKey) then
+	if not area or area.disabled then
 		return
 	end
 
@@ -90,12 +90,6 @@ function DisplayService:DisplayMessage(
 	local scrollAreas = self.config.scrollAreas
 	local area = scrollAreas:Resolve(scrollArea)
 	if not area or area.disabled then
-		return
-	end
-
-	local areaKey = scrollAreas.areas[scrollArea]
-		and scrollArea or scrollAreas:ResolveKey(area)
-	if scrollAreas:IsSuppressedInGroup(areaKey) then
 		return
 	end
 

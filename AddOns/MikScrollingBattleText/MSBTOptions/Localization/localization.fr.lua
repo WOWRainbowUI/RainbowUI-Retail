@@ -32,8 +32,6 @@ obj["lootAlerts"]	= { label="Alertes Loot", tooltip="Affiche les options des not
 obj = L.CHECKBOXES
 obj["enableMSBT"]			= { label="Activer Mik's Scrolling Battle Text", tooltip="Activer MSBT."}
 obj["disableMSBTInGroup"]	= { label="Desactiver MSBT en groupe", tooltip="Desactive automatiquement MSBT en groupe ou en raid."}
-obj["enableBlizzardV2CombatText"]= { label="Activer le texte de combat Blizzard", tooltip="Active le texte de combat flottant Blizzard (v2) pour joueur et familier." }
-obj["enableBlizzardV2InGroup"]= { label="Texte Blizzard en groupe", tooltip="Active le texte de combat Blizzard uniquement en groupe ou en raid." }
 obj["stickyCrits"]			= { label="Critiques persistants", tooltip="Utiliser le style persistant pour les coups critiques."}
 obj["colorPartialEffects"]	= { label="Colorer les effets partiels", tooltip="Assigner des couleurs aux effets partiels."}
 obj["crushing"]				= { label="Ecrasements", tooltip="Afficher les écrasements."}
@@ -132,9 +130,6 @@ obj["critFontOpacity"]		= { label="Opacité critique", tooltip="Définit l'opaci
 obj["scrollHeight"]			= { label="Hauteur de défilement", tooltip="La hauteur de la zone de défilement."}
 obj["scrollWidth"]			= { label="Largeur de défilement", tooltip="La largeur de la zone de défilement."}
 obj["scrollAnimationSpeed"]	= { label="Vitesse d'animation", tooltip="La vitesse de l'animation pour la zone de défilement."}
-obj["powerThreshold"]		= { label="Seuil de l'énergie", tooltip="Le seuil que les gains d'énergie doivent dépasser pour être affichés."}
-obj["healThreshold"]		= { label="Seuil des soins", tooltip="Le seuil que les soins doivent dépasser pour être affichés."}
-obj["damageThreshold"]		= { label="Seuil des dommages", tooltip="Le seuil que les dommages doivent dépasser pour être affichés."}
 obj["dotThrottleTime"]		= { label="Temps de spam des DoT", tooltip="Le nombre de secondes à prendre en compte pour afficher les DoT."}
 obj["hotThrottleTime"]		= { label="Temps de spam des HoT", tooltip="Le nombre de secondes à prendre en compte pour afficher les HoT."}
 obj["powerThrottleTime"]	= { label="Temps de spam des Gains", tooltip="Le nombre de secondes à prendre en compte pour afficher les gains de puissance."}

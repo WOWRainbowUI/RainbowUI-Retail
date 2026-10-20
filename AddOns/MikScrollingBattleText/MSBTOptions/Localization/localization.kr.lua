@@ -33,8 +33,6 @@ obj["lootAlerts"]	= { label="획득 알림", tooltip="전리품 획득 안내에
 obj = L.CHECKBOXES
 
 obj["disableMSBTInGroup"]		= { label="Disable MSBT In Group", tooltip="Automatically disable MSBT while in a party or raid."}
-obj["enableBlizzardV2CombatText"]= { label="Enable Blizzard Combat Text", tooltip="Enable Blizzard floating combat text damage/healing for player and pet (v2)." }
-obj["enableBlizzardV2InGroup"]	= { label="Enable Blizzard Combat Text In Group", tooltip="Only enable Blizzard Combat Text while in a party or raid." }
 obj["stickyCrits"]				= { label="치명타 고정", tooltip="치명타를 고정 스타일로 표시합니다."}
 obj["colorPartialEffects"]		= { label="부분 속성 색상", tooltip="부분 속성을 선택한 색상으로 표시합니다."}
 obj["crushing"]					= { label="강타", tooltip="강타를 표시합니다."}
@@ -60,7 +58,6 @@ obj["mergeSwings"]				= { label="타격 병합", tooltip="짧은 시간 내에 �
 obj["hideSkills"]				= { label="기술 이름 숨김", tooltip="받은, 대상이 받은 이벤트에서 기술 이름을 표시하지 않습니다.\n\n이 옵션을 사용하면 %s 이벤트 코드를 무시하므로 이벤트에 대한 사용자 설정이 무시되어질 것입니다."}
 obj["hideNames"]				= { label="유닛 이름 숨김", tooltip="받은, 대상이 받은 이벤트에서 유닛 이름을 표시하지 않는다.\n\n이 옵션을 사용하면 %n 이벤트 코드를 무시하므로 이벤트에 대한 사용자 설정이 무시되어질 것입니다."}
 obj["hideFullOverheals"]		= { label="최대 초과치유 숨김", tooltip="0의 치유량 효과를 가진 치유는 표시하지 않습니다."}
-obj["hideFullHoTOverheals"]		= { label="최대 순간 초과치유 숨김", tooltip="0의 치유량 효과를 가진 시간이 지난 치유는 표시하지 않습니다."}
 obj["hideMergeTrailer"]			= { label="요약 병합 숨김", tooltip="적중 및 치명타로 병합된 이벤트 마지막에 특정한 숫자 요약을 표시하지 않습니다."}
 obj["lootedItems"]				= { label="획득한 아이템", tooltip="아이템을 획득했을때 알림 메세지를 표시합니다."}
 obj["moneyGains"]				= { label="금전 획득", tooltip="당신의 금전 획득 사용."}
@@ -137,9 +134,6 @@ obj["critFontOpacity"]		= { label="치명타 폰트 간격", tooltip="치명타�
 obj["scrollHeight"]			= { label="스크롤 높이", tooltip="스크롤 영역의 높이."}
 obj["scrollWidth"]			= { label="스크롤 넓이", tooltip="스크롤 영역의 넓이."}
 obj["scrollAnimationSpeed"]	= { label="애니메이션 속도", tooltip="스크롤 영역의 애니메이션 속도를 설정합니다."}
-obj["powerThreshold"]		= { label="마력 변화 표시 기준", tooltip="마력 (마나, 분노, 기력, 룬 마력) 획득이 표시되기 위해 초과되어야 하는 기준 수치."}
-obj["healThreshold"]		= { label="치유량 표시 기준", tooltip="치유량이 표시되기 위해 초과되어야 하는 기준 수치."}
-obj["damageThreshold"]		= { label="피해량 표시 기준", tooltip="피해량이 표시되기 위해 초과되어야 하는 기준 수치."}
 obj["dotThrottleTime"]		= { label="지속적인 피해량 (DoT) 출력시간", tooltip="지속적인 피해량 (DoT)을 출력하는 단위시간 (초)."}
 obj["hotThrottleTime"]		= { label="지속적인 치유량 (HoT) 출력시간", tooltip="지속적인 치유량 (HoT)을 출력하는 단위시간 (초)."}
 obj["powerThrottleTime"]	= { label="마력 변화 출력시간", tooltip="마력 (마나, 분노, 기력, 룬 마력) 변화를 출력하는 단위시간 (초)"}

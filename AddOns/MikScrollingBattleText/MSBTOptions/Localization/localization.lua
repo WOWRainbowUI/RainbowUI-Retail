@@ -33,6 +33,14 @@ L.MSG_SCROLL_AREA_ALREADY_EXISTS	= "Scroll area name already exists."
 L.MSG_INVALID_SCROLL_AREA_NAME		= "Invalid scroll area name."
 L.MSG_ACKNOWLEDGE_TEXT				= "Are you sure you wish to perform this action?"
 L.POPUP_CONFIRM_TITLE = "Confirm Action"
+L.AURA_TRACKING_TITLE = "Custom auras appear above. Uncheck to hide."
+L.AURA_TRACKING_INPUT = "Aura spell ID or name"
+L.AURA_TRACKING_ADD = "Add aura"
+L.AURA_TRACKING_HELP = "Add an aura to hide its gained and faded notifications. Tick its checkbox to show it again. Unlisted auras keep showing. Individual filtering requires a readable aura identity."
+L.AURA_TRACKING_CHECKBOX = "Show this aura's gained and faded notifications."
+L.AURA_TRACKING_REMOVE = "Remove this custom rule and track the aura normally."
+L.AURA_TRACKING_UNKNOWN = "Unknown aura"
+L.AURA_TRACKING_INVALID = "Aura not found. Enter a valid spell ID or exact spell name."
 L.MSG_NORMAL_PREVIEW_TEXT			= "Normal"
 L.MSG_DISPLAY_QUALITY				= "Display alerts for items of this quality."
 L.MSG_ITEM_QUALITIES				= "Item qualities"
@@ -75,19 +83,19 @@ obj["scrollAreas"]	= { label="Scroll Areas", tooltip="Display options for creati
 obj["events"]		= { label="Events", tooltip="Display options for incoming, outgoing, and notification events.\n\nMouse over the icon buttons for more information."}
 obj["lootAlerts"]	= { label="Loot Alerts", tooltip="Display options for loot related notifications."}
 obj["language"]		= { label="Language", tooltip="Shows the current game locale and how language selection works for MSBT."}
-obj["resetBlizzardSCT"] = { label="Reset Blizzard SCT", tooltip="Restore Blizzard scrolling combat text CVars and clear MSBT Blizzard CT overrides."}
+obj["resetBlizzardSCT"] = { label="Reset Blizzard SCT", tooltip="Enable Blizzard damage and turn off MSBT."}
 
 
 
 obj = L.CHECKBOXES
-obj["enableMSBT"]				= { label="Enable Mik's Scrolling Battle Text", tooltip="Enable MSBT."}
-obj["disableOutgoingInGroup"]	= { label="Disable Outgoing In Group", tooltip="While in a party or raid, hide events assigned to the Outgoing scroll area."}
-obj["disableIncomingInGroup"]	= { label="Disable Incoming In Group", tooltip="While in a party or raid, hide events assigned to the Incoming scroll area."}
-obj["disableBlizzardIncoming"] = { label="Disable Blizzard incoming", tooltip="Disable Blizzard incoming combat text while keeping Blizzard outgoing combat text controlled by the options above." }
-obj["disableNotificationInGroup"]= { label="Disable Notification In Group", tooltip="While in a party or raid, hide events assigned to the Notification scroll area."}
-obj["disableStaticInGroup"]		= { label="Disable Static In Group", tooltip="While in a party or raid, hide events assigned to the Static scroll area."}
-obj["enableBlizzardV2CombatText"]= { label="Disable Blizzard CT While Solo", tooltip="When checked, disables Blizzard floating combat text damage/healing while solo." }
-obj["enableBlizzardV2InGroup"]	= { label="Enable Blizzard CT In Group", tooltip="Enable Blizzard Combat Text only while in a party or raid. This overrides Disable Blizzard CT While Solo while grouped." }
+obj["enableMSBT"] = {
+	label = "Enable Mik's Scrolling Battle Text",
+	tooltip = "Enable MSBT and turn off all Blizzard combat text.",
+}
+obj["enableBlizzardDamage"] = {
+	label = "Enable Blizzard Damage",
+	tooltip = "Show Blizzard damage numbers for the player and pet, both solo and in groups.",
+}
 obj["stickyCrits"]				= { label="Sticky Crits", tooltip="Display crits using the sticky style."}
 obj["colorPartialEffects"]		= { label="Color Partial Effects", tooltip="Apply specified colors to partial effects."}
 obj["crushing"]					= { label="Crushing Blows", tooltip="Display the crushing blows trailer."}
@@ -116,7 +124,6 @@ obj["groupNumbers"]				= { label="Group By Thousands", tooltip="Display numbers 
 obj["hideSkills"]				= { label="Hide Skills", tooltip="Don't display skill names for incoming and outgoing events.\n\nYou will give up some customization capability at the event level if you choose to use this option since it causes the %s event code to be ignored."}
 obj["hideNames"]				= { label="Hide Names", tooltip="Don't display unit names for incoming and outgoing events.\n\nYou will give up some customization capability at the event level if you choose to use this option since it causes the %n event code to be ignored."}
 obj["hideFullOverheals"]		= { label="Hide Full Overheals", tooltip="Don't display non periodic heals that have an effective heal amount of zero."}
-obj["hideFullHoTOverheals"]		= { label="Hide Full HoT Overheals", tooltip="Don't display heals over time that have an effective heal amount of zero."}
 obj["hideMergeTrailer"]			= { label="Hide Merge Trailer", tooltip="Don't display the trailer that specifies the number of hits and crits at the end of merged events."}
 obj["lootedItems"]				= { label="Looted Items", tooltip="Display notifications when items are looted."}
 obj["moneyGains"]				= { label="Money Gains", tooltip="Enable money you gain."}
@@ -195,9 +202,6 @@ obj["critFontOpacity"]		= { label="Crit Opacity", tooltip="Sets the font opacity
 obj["scrollHeight"]			= { label="Scroll Height", tooltip="The height of the scroll area."}
 obj["scrollWidth"]			= { label="Scroll Width", tooltip="The width of the scroll area."}
 obj["scrollAnimationSpeed"]	= { label="Animation Speed", tooltip="Sets the animation speed for the scroll area."}
-obj["powerThreshold"]		= { label="Power Threshold", tooltip="The threshold that power gains must exceed to be displayed."}
-obj["healThreshold"]		= { label="Heal Threshold", tooltip="The threshold that heals must exceed to be displayed."}
-obj["damageThreshold"]		= { label="Damage Threshold", tooltip="The threshold that damage must exceed to be displayed."}
 obj["dotThrottleTime"]		= { label="DoT Throttle Time", tooltip="The number of seconds to throttle DoTs."}
 obj["hotThrottleTime"]		= { label="HoT Throttle Time", tooltip="The number of seconds to throttle HoTs."}
 obj["powerThrottleTime"]	= { label="Power Throttle Time", tooltip="The number of seconds to throttle power changes."}
@@ -406,6 +410,9 @@ obj["NOTIFICATION_EXPERIENCE_GAIN"]		= { label="Experience Gains", tooltip="Enab
 obj["NOTIFICATION_PC_KILLING_BLOW"]		= { label="Player Killing Blows", tooltip="Enable when you get a killing blow against a hostile player."}
 obj["NOTIFICATION_NPC_KILLING_BLOW"]	= { label="NPC Killing Blows", tooltip="Enable when you get a killing blow against an NPC."}
 obj["NOTIFICATION_EXTRA_ATTACK"]		= { label="Extra Attacks", tooltip="Enable when you gain extra attacks such as windfury, thrash, sword spec, etc."}
+obj["NOTIFICATION_PROC"] = { label="Ability Procs", tooltip="Show highlighted ability procs." }
+obj["NOTIFICATION_REACTIVE"] = { label="Reactive Abilities", tooltip="Show abilities becoming available in combat." }
+obj["NOTIFICATION_CROWD_CONTROL"] = { label="Crowd Control", tooltip="Show crowd control and interrupted control effects." }
 obj["NOTIFICATION_ENEMY_BUFF"]			= { label="Enemy Buff Gains", tooltip="Enable buffs your currently targeted enemy gains."}
 obj["NOTIFICATION_MONSTER_EMOTE"]		= { label="Monster Emotes", tooltip="Enable emotes by the currently targeted monster."}
 
