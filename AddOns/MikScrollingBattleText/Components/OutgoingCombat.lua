@@ -39,22 +39,9 @@ function OutgoingCombat:ResetCombatState()
 	self.dotExpires = 0
 	self.lastAutoAttackTime = 0
 	self.lastPetMeleeTime = 0
-	if self.config.damageMeter then
-		self.config.damageMeter:Reset()
-	end
 end
 
-function OutgoingCombat:Start()
-	if self.config.damageMeter then
-		self.config.damageMeter:Start()
-	end
-end
 
-function OutgoingCombat:Stop()
-	if self.config.damageMeter then
-		self.config.damageMeter:Stop()
-	end
-end
 
 function OutgoingCombat:HandleSpellcastSucceeded(unitID, spellID)
 	if unitID == "pet" and spellID then
@@ -224,10 +211,6 @@ function OutgoingCombat:HandlePetHit(action, spellID, isSpell, isCrit, amount, n
 	if not normalizedAmount or normalizedAmount <= 0 then
 		return true
 	end
-	if self.config.damageMeter and self.config.damageMeter:IsActive()
-		and self.config.damageMeter:IsDeltaFresh(now) then
-		return true
-	end
 	self.config.batcher:Queue(spellID, normalizedAmount, isCrit, texture, isSpell, true)
 	return true
 end
@@ -264,9 +247,6 @@ function OutgoingCombat:HandleUnitCombat(
 	if not RestrictedValue:Equals(unitTarget, "target") then
 		return false
 	end
-	if not self.config.inCombat() or not self.config.isTargetValid() then
-		return true
-	end
 
 	action = RestrictedValue:String(action)
 	if not action then
@@ -288,10 +268,6 @@ function OutgoingCombat:HandleUnitCombat(
 
 	local spellID, texture, isDot = self:ResolveAttribution(now, isDamage, schoolMask)
 	if isDot then
-		if self.config.damageMeter and self.config.damageMeter:IsActive()
-			and self.config.damageMeter:IsDeltaFresh(now) then
-			return true
-		end
 		if RestrictedValue:IsRestricted(amount) then
 			self.config.batcher:DisplayRestricted(spellID, amount, isCrit, texture, true, nil, true)
 		elseif normalizedAmount and normalizedAmount > 0 then
@@ -322,11 +298,6 @@ function OutgoingCombat:HandleUnitCombat(
 	end
 	if isDamage then
 		if not normalizedAmount or normalizedAmount <= 0 then
-			return true
-		end
-		if self.config.damageMeter and self.config.damageMeter:IsActive()
-			and self.config.damageMeter:IsDeltaFresh(now)
-			and spellID ~= self.dotSpellID then
 			return true
 		end
 		self:QueueDamage(

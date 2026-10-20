@@ -4,7 +4,6 @@ RuntimeController.__index = RuntimeController
 function RuntimeController:New(options)
 	local controller = setmetatable({}, self)
 
-	controller.isInGroup = options.isInGroup
 	controller.isAddonDisabled = options.isAddonDisabled
 	controller.getProfile = options.getProfile
 	controller.setAddonEnabled = options.setAddonEnabled
@@ -30,15 +29,10 @@ function RuntimeController:ApplyBlizzardState()
 		return
 	end
 
-	local shouldEnable
-	if self.isInGroup() then
-		shouldEnable = not not profile.enableBlizzardV2CombatTextInGroup
-	else
-		shouldEnable = not profile.enableBlizzardV2CombatText
-	end
-
-	local incomingEnabled = shouldEnable and not profile.disableBlizzardIncoming
-	self.setBlizzardEnabled(shouldEnable, incomingEnabled)
+	self.setBlizzardEnabled(
+		not not profile.blizzardDamageEnabled,
+		not self.isAddonDisabled()
+	)
 end
 
 function RuntimeController:Apply()

@@ -13,8 +13,10 @@ local Formatter = MikSBT.Services.Formatter
 local EventRouter = MikSBT.Services.EventRouter
 local IncomingCombat = MikSBT.Components.IncomingCombat
 local OutgoingBatcher = MikSBT.Components.OutgoingBatcher
-local DamageMeterSource = MikSBT.Components.DamageMeterSource
 local OutgoingCombat = MikSBT.Components.OutgoingCombat
+local CombatLogFilter = MikSBT.Components.CombatLogFilter
+local CombatEngine = MikSBT.Components.CombatEngine
+local CombatPresentation = MikSBT.Components.CombatPresentation
 local ParserNotifications = MikSBT.Components.ParserNotifications
 local UtilityNotifications = MikSBT.Components.UtilityNotifications
 local Client = MikSBT.Compatibility.Client
@@ -33,7 +35,6 @@ local IsScrollAreaIconShown = MSBTAnimations.IsScrollAreaIconShown
 
 local powerTypes = MSBTTriggers.powerTypes
 
-local HasModernAPI = Client.hasModernAPI
 
 
 
@@ -92,20 +93,19 @@ local powerTokens = {}
 
 
 local isEnglish
-local playerGUID
 local AUTOSHOT_SPELL_ID = 6603
 local AUTO_REPEAT_SPELL_IDS = {75, 5019}
-local OUTGOING_GROUP_DELAY = 0.2
+local OUTGOING_GROUP_DELAY = 0.3
+local INCOMING_DAMAGE_GROUP_DELAY = 0.2
 local INCOMING_GROUP_DELAY = 0.12
 local OUTGOING_FALLBACK_ATTRIBUTION_WINDOW = 0.9
 local OUTGOING_DELAYED_SPELL_ATTRIBUTION_WINDOW = 3.0
 local OUTGOING_SIGNAL_CONFIDENCE_WINDOW = 1.25
 local INCOMING_SELF_HEAL_ICON_ATTRIBUTION_WINDOW = 12.0
-local DAMAGE_METER_FALLBACK_STALE_TIME = 0.35
-local USE_DAMAGE_METER_OUTGOING = true
 local DOT_FALLBACK_DURATION = 18
 local incomingCombat
 local outgoingCombat
+local combatEngine
 local parserNotifications
 local utilityNotifications
 local DOT_FALLBACK_SPELLS = {
@@ -338,16 +338,6 @@ local function IsPetEngaged()
 		and SafeUnitBoolean(UnitIsUnit, "pettarget", "target")
 end
 
-local function IsOutgoingTargetContextValid()
-	if not SafeUnitBoolean(UnitExists, "target") then
-		return false
-	end
-	if not SafeUnitBoolean(UnitCanAttack, "player", "target") then
-		return false
-	end
-	return true
-end
-
 local function HasPlayerDebuffOnTarget(spellID)
 	if not spellID or not SafeUnitBoolean(UnitExists, "target") then
 		return false
@@ -497,7 +487,6 @@ local function CleanupActionMessage(message)
 	message = string_gsub(message, "%[%s*%-?%s*%]", "")
 	message = string_gsub(message, "%{%s*%-?%s*%}", "")
 	message = string_gsub(message, "%<%s*%-?%s*%>", "")
-	message = string_gsub(message, "^%s*%-%s*", "")
 	message = string_gsub(message, "%s*%-%s*$", "")
 	message = string_gsub(message, "%s%s+", " ")
 	message = string_gsub(message, "^%s+", "")
@@ -563,7 +552,9 @@ local outgoingBatcher = OutgoingBatcher:New({
 		local spellName = spellID and not IsAutoAttackSpellID(spellID)
 			and GetSpellInfo(spellID) or nil
 		return CleanupActionMessage(Formatter:FormatLegacyEvent(
-			eventSettings.message, amount, nil, nil, nil, nil, nil, nil, spellName
+			eventSettings.message, amount, nil, nil, nil, nil,
+			nil, nil, spellName, nil, nil, nil,
+			MSBTProfiles.currentProfile.hideSkills
 		))
 	end,
 	display = DisplayEvent,
@@ -578,37 +569,8 @@ local outgoingBatcher = OutgoingBatcher:New({
 	delay = OUTGOING_GROUP_DELAY,
 })
 
-local damageMeterSource = DamageMeterSource:New({
-	isAvailable = function()
-		return USE_DAMAGE_METER_OUTGOING and HasModernAPI and C_DamageMeter
-			and Enum and Enum.DamageMeterType
-	end,
-	inCombat = InCombatLockdown,
-	getTime = GetTime,
-	unitGUID = UnitGUID,
-	getPlayerGUID = function()
-		return playerGUID
-	end,
-	getSessionSource = function(sourceGUID, damageType)
-		return C_DamageMeter.GetCombatSessionSourceFromType(
-			0,
-			damageType,
-			sourceGUID
-		)
-	end,
-	queue = function(spellID, amount, isPet)
-		outgoingBatcher:Queue(spellID, amount, false, nil, nil, isPet)
-	end,
-	newTicker = C_Timer.NewTicker,
-	damageType = Enum and Enum.DamageMeterType
-		and Enum.DamageMeterType.DamageDone,
-	pollInterval = 0.1,
-	freshDuration = DAMAGE_METER_FALLBACK_STALE_TIME,
-})
-
 outgoingCombat = OutgoingCombat:New({
 	batcher = outgoingBatcher,
-	damageMeter = damageMeterSource,
 	getProfile = function()
 		return MSBTProfiles.currentProfile
 	end,
@@ -616,8 +578,6 @@ outgoingCombat = OutgoingCombat:New({
 	buildActionMessage = BuildActionMessage,
 	display = DisplayEvent,
 	getTime = GetTime,
-	inCombat = InCombatLockdown,
-	isTargetValid = IsOutgoingTargetContextValid,
 	getSpellTexture = function(spellID)
 		local _, _, texture = GetSpellInfo(spellID)
 		return texture
@@ -669,6 +629,54 @@ incomingCombat = IncomingCombat:New({
 	end,
 })
 
+if Client.isMainline or Client.isForever then
+	local presentation = CombatPresentation:New({
+		getProfile = function() return MSBTProfiles.currentProfile end,
+		getTime = GetTime,
+		batcher = outgoingBatcher,
+		after = C_Timer.After,
+		delay = INCOMING_GROUP_DELAY,
+		damageDelay = INCOMING_DAMAGE_GROUP_DELAY,
+		getSpellTexture = function(spellID)
+			local _, _, texture = GetSpellInfo(spellID)
+			return texture
+		end,
+		formatMessage = function(settings, record)
+			local name = RestrictedValue:String(record.sourceName)
+			local effect = RestrictedValue:String(record.name)
+				or (record.spell and GetSpellInfo(record.spell))
+			local hideSkills = record.event and MSBTProfiles.currentProfile.hideSkills
+			local useEventColor = record.event == "damage" or record.event == "heal"
+			local message = Formatter:FormatLegacyEvent(
+				settings.message or "", record.amount, record.school,
+				nil, nil, nil, name, nil, effect,
+				nil, nil, useEventColor, hideSkills
+			)
+			message = CleanupActionMessage(message)
+			if record.hitCount and record.hitCount > 1
+				and MSBTProfiles.currentProfile.stackSimilarHits then
+				message = message .. " [" .. record.hitCount .. " "
+					.. (L.MSG_HITS or "Hits") .. "]"
+			end
+			return message
+		end,
+		display = DisplayEvent,
+		displayRestricted = DisplayRestrictedAmount,
+	})
+	combatEngine = CombatEngine:New({
+		presentation = presentation,
+		log = CombatLogFilter:New({
+			getSaved = function() return Blizzard_CombatLog_Filters end,
+			getTemplate = function() return DEFAULT_COMBATLOG_FILTER_TEMPLATE end,
+			mineFlag = COMBATLOG_FILTER_MINE,
+			petFlag = COMBATLOG_FILTER_MY_PET,
+		}),
+		getSaved = function() return MSBTCombatEngine_SavedVars end,
+		setSaved = function(saved) MSBTCombatEngine_SavedVars = saved end,
+		notify = function(message) MikSBT.Print(message) end,
+	})
+end
+
 function eventFrame:UNIT_HEALTH(unitID)
 	incomingCombat:HandleHealthUpdate(unitID)
 end
@@ -706,26 +714,28 @@ function eventFrame:UNIT_COMBAT(unitTarget, action, flagText, amount, schoolMask
 end
 
 local function Enable()
-	eventFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
-	eventFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
 	eventFrame:RegisterEvent("CHAT_MSG_MONSTER_EMOTE")
-	eventFrame:RegisterEvent("UNIT_COMBAT")
-	eventFrame:RegisterUnitEvent("UNIT_HEALTH", "player")
-	eventFrame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
-	if C_CombatText and C_CombatText.GetCurrentEventInfo then
-		eventFrame:RegisterEvent("COMBAT_TEXT_UPDATE")
+	if combatEngine then
+		combatEngine:Start()
+	else
+		eventFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+		eventFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
+		eventFrame:RegisterEvent("UNIT_COMBAT")
+		eventFrame:RegisterUnitEvent("UNIT_HEALTH", "player")
+		eventFrame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+		if C_CombatText and C_CombatText.GetCurrentEventInfo then
+			eventFrame:RegisterEvent("COMBAT_TEXT_UPDATE")
+		end
 	end
-	outgoingCombat:Start()
-
 	MSBTParser.RegisterHandler(ParserEventsHandler)
 end
 
 local function Disable()
+	if combatEngine then combatEngine:Stop() end
 	eventFrame:Hide()
 	eventFrame:UnregisterAllEvents()
 	incomingCombat:Reset()
 	outgoingCombat:Reset()
-	outgoingCombat:Stop()
 
 	MSBTParser.UnregisterHandler(ParserEventsHandler)
 end
@@ -738,7 +748,6 @@ eventFrame:SetScript("OnEvent", function(self, event, ...)
 end)
 
 
-playerGUID = UnitGUID("player")
 
 parserNotifications = ParserNotifications:New()
 

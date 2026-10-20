@@ -1404,6 +1404,7 @@ local function CreateColorswatch(parent)
 	colorswatch.Enable					= Colorswatch_Enable
 
 	colorswatch.borderTexture = texture
+	Colorswatch_SetColor(colorswatch, 1, 1, 1)
 	return colorswatch
 end
 

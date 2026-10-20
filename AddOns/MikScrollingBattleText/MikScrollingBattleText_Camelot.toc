@@ -1,9 +1,9 @@
 ## Interface: 16001
-## Version: 12.031
+## Version: 12.038
 ## Title: Mik's Scrolling Battle Text
 ## Author: Mikord
 ## Notes: Scrolls battle information around the character model.
-## SavedVariables: MSBTProfiles_SavedVars, MSBT_SavedMedia
+## SavedVariables: MSBTProfiles_SavedVars, MSBT_SavedMedia, MSBTCombatEngine_SavedVars
 ## SavedVariablesPerCharacter: MSBTProfiles_SavedVarsPerChar
 ## Dependencies: Ace3
 ## OptionalDeps: LibSharedMedia-3.0
@@ -22,11 +22,20 @@ API\Spells.lua
 API\Units.lua
 API\Cooldowns.lua
 Compatibility\LegacyAPI.lua
+Configuration\AuraTracking.lua
 Services\Formatter.lua
 Services\EventRouter.lua
 Components\IncomingCombat.lua
 Components\OutgoingBatcher.lua
-Components\DamageMeterSource.lua
+Combat\Context.lua
+Combat\Helpers.lua
+Combat\Mine.lua
+Combat\Spells.lua
+Combat\Healing.lua
+Combat\Reader.lua
+Components\CombatLogFilter.lua
+Components\CombatPresentation.lua
+Components\CombatEngine.lua
 Components\OutgoingCombat.lua
 Components\ParserNotifications.lua
 Components\UtilityNotifications.lua
@@ -50,4 +59,5 @@ MSBTOptions\MSBTOptionsPopups.lua
 MSBTOptions\MSBTOptionsMain.lua
 MSBTOptions\MSBTOptionsSounds.lua
 MSBTOptions\MSBTOptionsProfileTransfer.lua
+MSBTOptions\MSBTOptionsAuras.lua
 MSBTOptions\MSBTOptionsTabs.lua

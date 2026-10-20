@@ -37,8 +37,6 @@ obj["lootAlerts"]	= { label="拾取通告", tooltip="設置與拾取有關的通
 obj = L.CHECKBOXES
 
 obj["disableMSBTInGroup"]		= { label="Disable MSBT In Group", tooltip="Automatically disable MSBT while in a party or raid."}
-obj["enableBlizzardV2CombatText"]= { label="Enable Blizzard Combat Text", tooltip="Enable Blizzard floating combat text damage/healing for player and pet (v2)." }
-obj["enableBlizzardV2InGroup"]	= { label="Enable Blizzard Combat Text In Group", tooltip="Only enable Blizzard Combat Text while in a party or raid." }
 obj["stickyCrits"]				= { label="爆擊特效顯示", tooltip="使用爆擊特效來顯示致命一擊"}
 obj["colorPartialEffects"]		= { label="特效著色", tooltip="設定是否開啟為部分特效指定顏色"}
 obj["crushing"]					= { label="碾壓", tooltip="設定是否顯示碾壓訊息"}
@@ -64,7 +62,6 @@ obj["mergeSwings"]				= { label="合併普通攻擊", tooltip="合併極短時�
 obj["hideSkills"]				= { label="隱藏技能", tooltip="在承受傷害和輸出傷害中不顯示技能名稱。開啟此選項將使你失去某些事件自定義功能，因為它會忽略「%s」代碼"}
 obj["hideNames"]				= { label="隱藏名稱", tooltip="在承受傷害和輸出傷害中不顯示單位名稱。開啟此選項將使你失去某些事件自定義功能，因為它會忽略「%n」代碼"}
 obj["hideFullOverheals"]		= { label="隱藏全部過量的治療", tooltip="不顯示全部過量的治療."}
-obj["hideFullHoTOverheals"]		= { label="隱藏全部溢出的持續治療", tooltip="不顯示全部溢出的儲蓄治療"}
 obj["hideMergeTrailer"]			= { label="隱藏合併攻擊細節", tooltip="不在合併攻擊後顯示被合併的攻擊次數及暴擊詳情"}
 obj["lootedItems"]				= { label="拾取物品", tooltip="顯示物品拾取."}
 obj["moneyGains"]				= { label="獲得金錢", tooltip="顯示獲得的金錢"}
@@ -141,9 +138,6 @@ obj["critFontOpacity"]		= { label="爆擊字型不透明度", tooltip="設定爆
 obj["scrollHeight"]			= { label="滾動高度", tooltip="滾動區域高度"}
 obj["scrollWidth"]			= { label="滾動寬度", tooltip="滾動區域寬度"}
 obj["scrollAnimationSpeed"]	= { label="動畫速度", tooltip="設定滾動區域內動畫速度"}
-obj["powerThreshold"]		= { label="能量門檻", tooltip="能量獲得只有超過此值才會被顯示"}
-obj["healThreshold"]		= { label="治療門檻", tooltip="治療量只有超過此值才會被顯示"}
-obj["damageThreshold"]		= { label="傷害門檻", tooltip="傷害量只有超過此值才會被顯示"}
 obj["dotThrottleTime"]		= { label="持續傷害抑制顯示", tooltip="在設定的秒數中造成的持續傷害將合併為一次顯示"}
 obj["hotThrottleTime"]		= { label="持續治療抑制顯示", tooltip="在設定的秒數中造成的持續治療將合併為一次顯示"}
 obj["powerThrottleTime"]	= { label="能量抑制顯示", tooltip="在設定的秒數中持續獲得的能量將合併為一次顯示"}
