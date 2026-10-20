@@ -29,7 +29,6 @@ local reminderHideTimer        = nil
 local watchingDebuffExpiry     = false
 local watchedDebuffInstanceID  = nil
 local firstPullPending         = false
-local isInEditMode             = false
 
 local eventFrame = CreateFrame("Frame")
 
@@ -117,6 +116,28 @@ ns.PlayReminderSound = PlayReminderSound
 ----------------------------------------------------------------------
 -- Frame creation
 ----------------------------------------------------------------------
+-- 圖示的 1px 黑框：實體像素（P.Pixel），圖示內縮用同一個值。框在檔案載入時就建，那時 UI 縮放
+-- 還沒定 ⇒ 每次顯示前重算、跟上次一樣就不動；框與圖示關像素貼齊（.claude/notes/wow-1px-border-rules.md）
+local reminderBorderPx
+local function LayoutReminderBorder()
+    local iconBorder = reminderFrame and reminderFrame.iconBorder
+    if not iconBorder then return end
+    local px = ns.P.Pixel(1)
+    if reminderBorderPx == px then return end
+    reminderBorderPx = px
+    iconBorder:SetBackdrop({
+        bgFile   = "Interface\\Buttons\\WHITE8X8",
+        edgeFile = "Interface\\Buttons\\WHITE8X8",
+        edgeSize = px,
+    })
+    ns.P.NoSnapBackdrop(iconBorder)
+    iconBorder:SetBackdropColor(0, 0, 0, 0.6)
+    iconBorder:SetBackdropBorderColor(0, 0, 0, 1)
+    reminderIcon:ClearAllPoints()
+    reminderIcon:SetPoint("TOPLEFT",     iconBorder, "TOPLEFT",      px, -px)
+    reminderIcon:SetPoint("BOTTOMRIGHT", iconBorder, "BOTTOMRIGHT", -px,  px)
+end
+
 local function CreateReminderFrame()
     if reminderFrame then return end
 
@@ -134,19 +155,11 @@ local function CreateReminderFrame()
     iconBorder:SetSize(42, 42)
     iconBorder:SetPoint("LEFT", reminderFrame, "LEFT", 0, 0)
     iconBorder:SetFrameLevel(reminderFrame:GetFrameLevel() + 1)
-    iconBorder:SetBackdrop({
-        bgFile   = "Interface\\Buttons\\WHITE8X8",
-        edgeFile = "Interface\\Buttons\\WHITE8X8",
-        edgeSize = 1,
-    })
-    iconBorder:SetBackdropColor(0, 0, 0, 0.6)
-    iconBorder:SetBackdropBorderColor(0, 0, 0, 1)
 
-    reminderIcon = iconBorder:CreateTexture(nil, "ARTWORK")
-    reminderIcon:SetPoint("TOPLEFT",     iconBorder, "TOPLEFT",      1, -1)
-    reminderIcon:SetPoint("BOTTOMRIGHT", iconBorder, "BOTTOMRIGHT", -1,  1)
+    reminderIcon = ns.P.NoSnap(iconBorder:CreateTexture(nil, "ARTWORK"))
     reminderIcon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
     reminderFrame.iconBorder = iconBorder
+    LayoutReminderBorder()   -- backdrop 與圖示內縮
 
     -- Text
     reminderText = reminderFrame:CreateFontString(nil, "OVERLAY")
@@ -156,31 +169,19 @@ local function CreateReminderFrame()
     reminderText:SetShadowOffset(2, -2)
     reminderText:SetShadowColor(0, 0, 0, 0.8)
 
-    -- EditMode selection highlight
-    local editSelection = CreateFrame("Frame", nil, reminderFrame, "EditModeSystemSelectionTemplate")
-    -- The template's XML binds OnMouseDown -> EditModeManagerFrame:SelectSystem(self.parent).
-    -- We are not a real Edit Mode system: a click without a drag lets Blizzard run that
-    -- selection pass tainted by us across EVERY registered system (action bars included).
-    -- Silent at click time; it surfaces later as blocked action buttons in combat.
-    editSelection:SetScript("OnMouseDown", function() end)
-    editSelection:SetAllPoints()
-    editSelection:Hide()
-    editSelection:RegisterForDrag("LeftButton")
-    editSelection:SetScript("OnDragStart", function() reminderFrame:StartMoving() end)
-    editSelection:SetScript("OnDragStop", function()
-        reminderFrame:StopMovingOrSizing()
-        reminderFrame:SetUserPlaced(false)
-        local cx, cy = UIParent:GetCenter()
-        local fx, fy = reminderFrame:GetCenter()
-        if db then
-            db.reminderX = math.floor(fx - cx + 0.5)
-            db.reminderY = math.floor(fy - cy + 0.5)
-        end
-    end)
-    editSelection.system = {
-        GetSystemName = function() return L["ADDON_TITLE_REMINDER"] or "Lust Reminder" end,
-    }
-    reminderFrame.editSelection = editSelection
+    -- 編輯模式拖曳（Libs/MiliUIEditMode.lua）：選取框、手動拖曳、格線吸附、戰鬥閘都在共用層；
+    -- 這裡只給「放手怎麼存」（CENTER 偏移）與「中斷怎麼放回」
+    local EM = ns.MiliUIEditMode
+    EM.Attach(reminderFrame, {
+        name    = function() return L["ADDON_TITLE_REMINDER"] or "Lust Reminder" end,
+        enabled = function() return db and db.reminderEnabled end,
+        save    = function(f)
+            local x, y = EM.CenterOffset(f)
+            if x and db then db.reminderX, db.reminderY = x, y end
+            ns.UpdateReminderPosition()
+        end,
+        restore = function() ns.UpdateReminderPosition() end,
+    })
 
     -- Centralized cleanup: whatever hides the frame (timer, event, edit-mode
     -- exit, manual), state resets here. No per-frame OnUpdate polling.
@@ -198,7 +199,6 @@ end
 
 local function UpdateReminderPosition()
     if not reminderFrame then return end
-    if isInEditMode and reminderFrame.unlocked then return end
 
     reminderFrame:ClearAllPoints()
     local rx = (db and db.reminderX) or DB_DEFAULTS.reminderX
@@ -208,45 +208,27 @@ end
 ns.UpdateReminderPosition = UpdateReminderPosition
 
 ----------------------------------------------------------------------
--- EditMode
+-- EditMode：樣板內容與顯示／隱藏。選取框的亮／收、進出訊號的三重掛勾與登入保底
+-- 都在共用層（Libs/MiliUIEditMode.lua），狀態改變時（下一幀）通知這裡
 ----------------------------------------------------------------------
 local function UpdateEditModeState(entering)
-    isInEditMode = entering
     if not db then db = ns.GetDB() end
     CreateReminderFrame()
 
     if entering and db and db.reminderEnabled then
         if reminderIcon then reminderIcon:SetTexture(ns.DEFAULT_LUST_ICON) end
         reminderText:SetText(L["REMINDER_EDITMODE_TEXT"] or "Lust available!")
-        reminderFrame.editSelection:ShowHighlighted()
         UpdateReminderPosition()
-        reminderFrame.unlocked = true
+        LayoutReminderBorder()
         reminderFrame:Show()
     else
         if reminderFrame then
-            reminderFrame.editSelection:Hide()
-            reminderFrame.unlocked = false
             reminderFrame:Hide()
         end
     end
 end
 
-local editModeHooked = false
-local function HookReminderEditMode()
-    if editModeHooked then return end
-    if not EditModeManagerFrame then return end
-    editModeHooked = true
-
-    EditModeManagerFrame:HookScript("OnShow", function() UpdateEditModeState(true)  end)
-    EditModeManagerFrame:HookScript("OnHide", function() UpdateEditModeState(false) end)
-
-    if EditModeManagerFrame:IsShown() then UpdateEditModeState(true) end
-end
-
-HookReminderEditMode()  -- Tier 1
-if not editModeHooked and EventUtil and EventUtil.ContinueOnAddOnLoaded then
-    EventUtil.ContinueOnAddOnLoaded("Blizzard_EditMode", HookReminderEditMode)  -- Tier 2
-end
+ns.MiliUIEditMode.OnChange("reminder", UpdateEditModeState)
 CreateReminderFrame()
 
 ----------------------------------------------------------------------
@@ -280,6 +262,7 @@ local function ShowReminder()
         if reminderFrame then reminderFrame:Hide() end  -- OnHide handles cleanup
     end)
 
+    LayoutReminderBorder()
     reminderFrame:Show()
 end
 ns.ShowReminder = ShowReminder
@@ -303,7 +286,6 @@ eventFrame:SetScript("OnEvent", function(self, event, ...)
         self:RegisterEvent("CHALLENGE_MODE_START")
         self:RegisterEvent("PLAYER_REGEN_DISABLED")
 
-        HookReminderEditMode()  -- Tier 3
         CreateReminderFrame()
 
     elseif event == "PLAYER_ENTERING_WORLD" then
