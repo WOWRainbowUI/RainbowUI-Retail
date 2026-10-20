@@ -1,7 +1,10 @@
 local mod	= DBM:NewMod("OverlordRamtusk", "DBM-Party-Vanilla", 11)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20261013200352")
+mod:SetRevision("20261019224209")
+if DBM:IsForever() then
+	mod:EnableGenericTrash()
+end
 mod:SetCreatureID(4420)
 --mod:SetEncounterID(1659)
 mod:SetModelID(4652)

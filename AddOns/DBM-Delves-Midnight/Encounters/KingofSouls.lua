@@ -4,7 +4,8 @@ local mod	= DBM:NewMod("KingofSouls", "DBM-Delves-Midnight", 2)
 mod.statTypes = "normal"
 mod.soloChallenge = true
 
-mod:SetRevision("20261013182813")
+mod:SetRevision("20261019224209")
+mod:EnableGenericTrash()
 --mod:SetCreatureID(0)--TODO
 mod:SetEncounterID(3648)
 mod:SetZone()

@@ -7,7 +7,10 @@ else
 	mod.statTypes = "normal"
 end
 
-mod:SetRevision("20261013200352")
+mod:SetRevision("20261019224209")
+if DBM:IsForever() then
+	mod:EnableGenericTrash()
+end
 mod:SetCreatureID(639)
 mod:SetEncounterID(2972)--Retail Encounter ID
 mod:SetModelID(2029)

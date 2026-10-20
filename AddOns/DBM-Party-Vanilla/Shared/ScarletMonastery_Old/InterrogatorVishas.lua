@@ -1,7 +1,10 @@
 local mod	= DBM:NewMod("InterrogatorVishas", "DBM-Party-Vanilla", DBM:IsPostCata() and 17 or 12)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20261013200352")
+mod:SetRevision("20261019224209")
+if DBM:IsForever() then
+	mod:EnableGenericTrash()
+end
 mod:SetCreatureID(3983)
 mod:SetEncounterID(444)
 mod:SetModelID(2044)

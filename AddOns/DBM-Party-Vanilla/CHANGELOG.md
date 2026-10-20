@@ -1,7 +1,7 @@
 # DBM - Dungeons, Delves, & Events
 
-## [r267](https://github.com/DeadlyBossMods/DBM-Dungeons/tree/r267) (2026-10-15)
-[Full Changelog](https://github.com/DeadlyBossMods/DBM-Dungeons/compare/r266...r267) [Previous Releases](https://github.com/DeadlyBossMods/DBM-Dungeons/releases)
+## [r268](https://github.com/DeadlyBossMods/DBM-Dungeons/tree/r268) (2026-10-19)
+[Full Changelog](https://github.com/DeadlyBossMods/DBM-Dungeons/compare/r267...r268) [Previous Releases](https://github.com/DeadlyBossMods/DBM-Dungeons/releases)
 
-- change mod category  
-- Flag delve bosses that have actual timeline or disambiguated warnings as exempt from generic boss alerts  
+- Enable Generic trash on holiday bosses on retail and all bosses in forever  
+- Add missing gossip ID, fix auto gossip not working  

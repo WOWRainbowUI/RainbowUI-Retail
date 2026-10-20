@@ -1,7 +1,10 @@
 local mod	= DBM:NewMod(420, "DBM-Party-Vanilla", DBM:IsPostCata() and 4 or 7, 231)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20261013200352")
+mod:SetRevision("20261019224209")
+if DBM:IsForever() then
+	mod:EnableGenericTrash()
+end
 mod:SetCreatureID(7079)
 mod:SetEncounterID(mod:IsClassic() and 2769 or 378)
 mod:SetModelID(5497)

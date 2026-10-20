@@ -1,7 +1,10 @@
 local mod	= DBM:NewMod("Vectus", "DBM-Party-Vanilla", DBM:IsPostCata() and 16 or 13)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20261013200352")
+mod:SetRevision("20261019224209")
+if DBM:IsForever() then
+	mod:EnableGenericTrash()
+end
 mod:SetCreatureID(10432)
 mod:SetEncounterID(mod:IsClassic() and 2813 or 455)
 mod:SetModelID(2606)

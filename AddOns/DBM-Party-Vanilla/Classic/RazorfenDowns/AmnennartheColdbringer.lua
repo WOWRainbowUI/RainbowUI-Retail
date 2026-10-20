@@ -1,7 +1,10 @@
 local mod	= DBM:NewMod("AmnennartheColdbringer", "DBM-Party-Vanilla", 10)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20261013200352")
+mod:SetRevision("20261019224209")
+if DBM:IsForever() then
+	mod:EnableGenericTrash()
+end
 mod:SetCreatureID(7358)
 --mod:SetEncounterID(585)
 mod:SetModelID(7971)
