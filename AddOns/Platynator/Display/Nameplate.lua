@@ -257,6 +257,9 @@ function addonTable.Display.NameplateMixin:SetUnit(unit)
   end
 
   self:UpdateVisual()
+  if self.interactUnit then
+    self:UpdateSoftInteract()
+  end
 end
 
 function addonTable.Display.NameplateMixin:AnchorAuras(designInfo)
@@ -334,11 +337,19 @@ function addonTable.Display.NameplateMixin:UpdateVisual()
   self:SetAlpha(alpha)
 end
 
+local doEnemyIcon, doFriendIcon, doInteractIcon
+
+local cvarMonitor = CreateFrame("Frame")
+cvarMonitor:RegisterEvent("CVAR_UPDATE")
+cvarMonitor:RegisterEvent("VARIABLES_LOADED")
+cvarMonitor:SetScript("OnEvent", function()
+  doEnemyIcon = GetCVarBool("SoftTargetIconEnemy")
+  doFriendIcon = GetCVarBool("SoftTargetIconFriend")
+  doInteractIcon = GetCVarBool("SoftTargetIconInteract")
+end)
+
 function addonTable.Display.NameplateMixin:UpdateSoftInteract()
   -- From Blizzard code, modified
-  local doEnemyIcon = GetCVarBool("SoftTargetIconEnemy")
-  local doFriendIcon = GetCVarBool("SoftTargetIconFriend")
-  local doInteractIcon = GetCVarBool("SoftTargetIconInteract")
   local hasCursorTexture = false
   if ((doEnemyIcon and UnitIsUnit(self.interactUnit, "softenemy")) or
     (doFriendIcon and UnitIsUnit(self.interactUnit, "softfriend")) or

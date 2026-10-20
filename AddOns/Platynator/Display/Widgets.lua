@@ -1121,6 +1121,8 @@ function addonTable.Display.GetMarker(frame, parent)
       Mixin(frame, addonTable.Display.PvPMarkerMixin)
     elseif details.kind == "faction" then
       Mixin(frame, addonTable.Display.FactionMarkerMixin)
+    elseif details.kind == "boss" then
+      Mixin(frame, addonTable.Display.BossMarkerMixin)
     else
       assert(false)
     end

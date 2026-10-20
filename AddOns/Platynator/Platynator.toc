@@ -1,7 +1,7 @@
 ## Dependencies: Ace3
 ## Interface: 120100, 120105, 16001, 50504, 38001, 20506, 11509
 ## Title: Platynator
-## Version: 513
+## Version: 514
 ## Author: plusmouse
 ## SavedVariables: PLATYNATOR_CONFIG
 ## SavedVariablesPerCharacter: PLATYNATOR_CURRENT_PROFILE, PLATYNATOR_LAST_INSTANCE
@@ -86,6 +86,7 @@ Display/RareMarker.lua
 Display/RaidMarker.lua
 Display/PvPMarker.lua
 Display/FactionMarker.lua
+Display/BossMarker.lua
 Display/Widgets.lua
 
 API/Main.lua
