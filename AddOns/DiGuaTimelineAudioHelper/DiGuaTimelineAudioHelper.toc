@@ -1,8 +1,8 @@
-## Interface: 120105, 120100
+## Interface: 120105
 ## Title: [神秘地瓜] 副本语音助手
 ## Notes: 副本怪物技能语音播报插件，帮助新手快速熟悉副本机制。
 ## Author: 神秘地瓜
-## Version: 2.0.7
+## Version: 2.0.8
 ## SavedVariables: DiGuaTimelineAudioHelper
 
 Utils.lua
