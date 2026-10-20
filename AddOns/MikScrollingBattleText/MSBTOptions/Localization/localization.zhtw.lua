@@ -425,3 +425,19 @@ L.PROFILE_TRANSFER = {
     IN_COMBAT = "請等到戰鬥結束後再匯入設定檔。",
   },
 }
+
+-- 12.038 combat engine options
+L.AURA_TRACKING_TITLE = "自訂光環顯示於上方，取消勾選可隱藏。"
+L.AURA_TRACKING_INPUT = "光環法術 ID 或名稱"
+L.AURA_TRACKING_ADD = "新增光環"
+L.AURA_TRACKING_HELP = "新增光環以隱藏其獲得與消失通知。重新勾選即可恢復顯示；未列出的光環仍會顯示。個別篩選需要可讀取的光環識別資訊。"
+L.AURA_TRACKING_CHECKBOX = "顯示此光環的獲得與消失通知。"
+L.AURA_TRACKING_REMOVE = "移除此自訂規則，恢復正常追蹤光環。"
+L.AURA_TRACKING_UNKNOWN = "未知光環"
+L.AURA_TRACKING_INVALID = "找不到光環。請輸入有效的法術 ID 或完整法術名稱。"
+L.TABS["resetBlizzardSCT"] = { label="重設暴雪戰鬥文字", tooltip="啟用暴雪傷害數字並停用 MSBT。" }
+L.CHECKBOXES["enableMSBT"] = { label="啟用 MSBT 捲動戰鬥文字", tooltip="啟用 MSBT 並關閉所有暴雪戰鬥文字。" }
+L.CHECKBOXES["enableBlizzardDamage"] = { label="啟用暴雪傷害數字", tooltip="單人與組隊時皆顯示玩家與寵物的暴雪傷害數字。" }
+L.NOTIFICATION_EVENTS["NOTIFICATION_PROC"] = { label="技能觸發", tooltip="顯示發光提示的技能觸發。" }
+L.NOTIFICATION_EVENTS["NOTIFICATION_REACTIVE"] = { label="反應技能", tooltip="顯示戰鬥中變為可用的技能。" }
+L.NOTIFICATION_EVENTS["NOTIFICATION_CROWD_CONTROL"] = { label="控場效果", tooltip="顯示控場與被打斷的控制效果。" }
