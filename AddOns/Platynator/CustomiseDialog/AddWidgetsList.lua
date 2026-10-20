@@ -839,6 +839,18 @@ addonTable.CustomiseDialog.DesignWidgets = {
     },
   },
   {
+    name = addonTable.Locales.BOSS,
+    kind = "markers",
+    default = {
+      kind = "boss",
+      scale = 1,
+      layer = 3,
+      asset = "boss-torghast",
+      color = GetColor("ffffff"),
+      anchor = {"TOPLEFT", -140, 50},
+    },
+  },
+  {
     name = addonTable.Locales.REGIONS,
     special = "header",
   },

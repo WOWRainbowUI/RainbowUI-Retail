@@ -244,7 +244,9 @@ function addonTable.CustomiseDialog.Components.GetColorPicker(parent, label, off
   end
 
   function holder:GetValue()
-    return CopyTable(swatch.pendingColor or swatch.currentColor)
+    local raw = swatch.pendingColor or swatch.currentColor
+    local hasAlpha = swatch.currentColor.a ~= nil
+    return {r = raw.r, g = raw.g, b = raw.b, a = hasAlpha and raw.a or nil}
   end
 
   holder:SetScript("OnEnter", function()

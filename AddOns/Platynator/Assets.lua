@@ -144,9 +144,13 @@ addonTable.Assets.Highlights = {
 
 addonTable.Assets.BarPositionHighlights = {
   ["none"] = {file = "", width = 0, height = 0, isTransparent = true, order = 1},
-  ["wide/glow"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarPosition/highlight.png", width = 54, height = 125, mask = "Interface/AddOns/Platynator/Assets/%s/BarPosition/highlight-mask.png", offset = 0.25, has4k = true, order = 2},
-  ["streak"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarPosition/streak.png", width = 143, height = 125, offset = 0, has4k = true, order = 3},
-  ["gw2"] = {file = "Interface/AddOns/Platynator/Assets/Special/BarPosition/gw2.png", width = 137, height = 125, offset = 0.5, order = 4},
+  ["wide/glow"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarPosition/highlight.png", width = 54, height = 125, mask = "Interface/AddOns/Platynator/Assets/%s/BarPosition/highlight-mask.png", offset = 0.25, has4k = true, order = 2, text = "Blur"},
+  ["streak"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarPosition/streak.png", width = 143, height = 125, offset = 0, has4k = true, order = 3, text = "Streak"},
+  ["curved"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarPosition/curved.png", mask = "Interface/AddOns/Platynator/Assets/%s/BarPosition/curved-mask.png", width = 63, height = 125, offset = 0.3, has4k = true, order = 5, text = "Curved"},
+  ["curved-half"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarPosition/curved-half.png", mask = "Interface/AddOns/Platynator/Assets/%s/BarPosition/curved-half-mask.png", width = 63, height = 125, offset = 0.3, has4k = true, order = 5, text = "Curved Half"},
+  ["curved-reverse"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarPosition/curved-reverse.png", mask = "Interface/AddOns/Platynator/Assets/%s/BarPosition/curved-mask.png", width = 63, height = 125, offset = 0.4, has4k = true, order = 7, text = "Curved Reverse"},
+  ["curved-reverse-half"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarPosition/curved-reverse-half.png", mask = "Interface/AddOns/Platynator/Assets/%s/BarPosition/curved-half-mask.png", width = 63, height = 125, offset = 0.4, has4k = true, order = 7, text = "Curved Half Reverse"},
+  ["gw2"] = {file = "Interface/AddOns/Platynator/Assets/Special/BarPosition/gw2.png", width = 137, height = 125, offset = 0.5, order = 10, text = "GW2"},
 }
 
 addonTable.Assets.PowerBars = {
@@ -204,6 +208,10 @@ addonTable.Assets.Markers = {
   ["faction-icon"] = {preview = "Interface/AddOns/Platynator/Assets/%s/Markers/faction-icon-horde.png", alliance = "Interface/AddOns/Platynator/Assets/%s/Markers/faction-icon-alliance.png", horde = "Interface/AddOns/Platynator/Assets/%s/Markers/faction-icon-horde.png", width = 200, height = 200, tag = "faction", text = "Icon", has4k = true},
   ["faction-shield"] = {preview = "Interface/AddOns/Platynator/Assets/%s/Markers/faction-shield-horde.png", alliance = "Interface/AddOns/Platynator/Assets/%s/Markers/faction-shield-alliance.png", horde = "Interface/AddOns/Platynator/Assets/%s/Markers/faction-shield-horde.png", width = 200, height = 200, tag = "faction", text = "Shield", has4k = true},
   ["faction-grey"] = {preview = "Interface/AddOns/Platynator/Assets/%s/Markers/faction-grey-horde.png", alliance = "Interface/AddOns/Platynator/Assets/%s/Markers/faction-grey-alliance.png", horde = "Interface/AddOns/Platynator/Assets/%s/Markers/faction-grey-horde.png", width = 200, height = 200, tag = "faction", text = "Grey", has4k = true},
+
+  ["boss-skull"] = {file = "Interface/AddOns/Platynator/Assets/Special/Markers/boss-skull.png", width = 150, height = 150, tag = "boss", text = "Skull"},
+  ["boss-vignette"] = {file = "Interface/AddOns/Platynator/Assets/Special/Markers/boss-vignette.png", width = 150, height = 150, tag = "boss", text = "Vignette"},
+  ["boss-torghast"] = {file = "Interface/AddOns/Platynator/Assets/Special/Markers/boss-torghast.png", width = 150, height = 150, tag = "boss", text = "Torghast"},
 }
 
 addonTable.Assets.SpecialBars = {
