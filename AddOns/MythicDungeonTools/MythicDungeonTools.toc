@@ -1,9 +1,9 @@
 ## Dependencies: Ace3
-## Interface: 120105, 120100
+## Interface: 120107, 120105
 # WOW_INTERFACE_TARGETS: standard-test, standard
 ## Title: Mythic Dungeon Tools (MDT)
 ## Author: Nnoggie
-## Version: 6.3.9
+## Version: 6.3.10
 ## X-Curse-Project-ID: 288981
 ## X-Wago-ID: rN4VrAKD
 ## Notes: Tool for planning and optimizing Mythic+ dungeon runs
@@ -27,6 +27,8 @@
 ## Category-zhTW: 團隊
 ## DefaultState: disabled
 
+libs\load_core_libs.xml
 BuildCheck.lua
+Core\Localization.lua
 Core\Bootstrap.lua
 Core\CombatLogging.lua

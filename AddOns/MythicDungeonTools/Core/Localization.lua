@@ -1,0 +1,38 @@
+local _, MDT = ...
+local L = MDT.L
+local locale = GAME_LOCALE or GetLocale()
+if locale == "zhTW" then
+  L["Click to toggle AddOn Window"] = "左鍵: 開啟/關閉主視窗"
+  L["Enable and Reload"] = "啟用並重新載入"
+  L["Enemy Info NPC Enemy Forces"] = "敵方部隊"
+  L["MDT Set Focus Macro"] = "MDT 設定專注目標巨集"
+  L["MDT: Use /mdt minimap to show the minimap icon again"] = "MDT：輸入 /mdt minimap 可再次顯示小地圖按鈕"
+  L["Middle-click to disable Minimap Button"] = "中鍵: 停用小地圖按鈕"
+  L["MythicDungeonTools UI is disabled. Enable it and reload the interface?"] = "地城規劃工具的介面模組已停用。要啟用並重新載入介面嗎？"
+  L["Right-click to lock Minimap Button"] = "右鍵: 鎖定小地圖按鈕"
+  L["Toggle MDT"] = "切換顯示 MDT"
+  L["chatNoninteractiveWarning"] = "聊天視窗目前設定為無法互動，你將無法點擊 MDT 路線。"
+  L["dungeonResetAnnouncement"] = "<地城已重置！>"
+  L["focusMarkerChatAnnouncement"] = "我的專注目標標記是 {rt%d}"
+  L["incompatibleVersionError"] = "此版本的《魔獸世界》與 Mythic Dungeon Tools 不相容。"
+  L["unknown error"] = "未知錯誤"
+  L["|cffffd100MDT:|r Failed to load UI%s: %s"] = "|cffffd100MDT:|r 無法載入介面%s：%s"
+  L["|cffffd100MDT:|r UI method unavailable: "] = "|cffffd100MDT:|r 介面方法無法使用："
+elseif locale == "zhCN" then
+  L["Click to toggle AddOn Window"] = "点击打开/关闭插件窗口"
+  L["Enable and Reload"] = "启用并重新加载"
+  L["Enemy Info NPC Enemy Forces"] = "敌方部队"
+  L["MDT Set Focus Macro"] = "MDT 设置焦点宏"
+  L["MDT: Use /mdt minimap to show the minimap icon again"] = "MDT：输入 /mdt minimap 可再次显示小地图按钮"
+  L["Middle-click to disable Minimap Button"] = "鼠标中键点击禁用小地图按钮"
+  L["MythicDungeonTools UI is disabled. Enable it and reload the interface?"] = "地城规划工具的界面模块已禁用。要启用并重新加载界面吗？"
+  L["Right-click to lock Minimap Button"] = "右键单击锁定小地图按钮"
+  L["Toggle MDT"] = "打开/关闭 MDT"
+  L["chatNoninteractiveWarning"] = "警告：你的聊天窗口启用了“使其不可交互”，你将无法点击聊天信息内的MDT路线。"
+  L["dungeonResetAnnouncement"] = "<地下城已重置！>"
+  L["focusMarkerChatAnnouncement"] = "我的焦点标记是 {rt%d}"
+  L["incompatibleVersionError"] = "此Mythic Dungeon Tools(MDT)与你当前魔兽世界版本不兼容。"
+  L["unknown error"] = "未知错误"
+  L["|cffffd100MDT:|r Failed to load UI%s: %s"] = "|cffffd100MDT:|r 无法加载界面%s：%s"
+  L["|cffffd100MDT:|r UI method unavailable: "] = "|cffffd100MDT:|r 界面方法不可用："
+end

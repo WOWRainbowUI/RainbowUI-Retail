@@ -94,6 +94,23 @@ function API:RegisterUIInitializer(initializer)
   end
 end
 
+local routeChangedCallbacks = {}
+
+---Registers a callback fired with (dungeonIdx, presetIdx) whenever the current route changes:
+---a route or dungeon switch, an import, a new or duplicated route, a delete, or a live session preset change.
+function API:RegisterRouteChangedCallback(callback)
+  assert(type(callback) == "function", "MythicDungeonTools route changed callback must be a function")
+  routeChangedCallbacks[#routeChangedCallbacks + 1] = callback
+end
+
+function MDT:FireRouteChanged(dungeonIdx, presetIdx)
+  for _, callback in ipairs(routeChangedCallbacks) do
+    xpcall(callback, geterrorhandler(), dungeonIdx, presetIdx)
+  end
+end
+
+MDT:ExportAPI("FireRouteChanged")
+
 function API:AttachUI(handlers, pluginAPI)
   assert(not uiHandlers, "MythicDungeonTools UI already attached")
   assert(type(handlers) == "table", "MythicDungeonTools UI handlers must be a table")
@@ -101,7 +118,7 @@ function API:AttachUI(handlers, pluginAPI)
     assert(type(handlers[methodName]) == "function", "Missing MythicDungeonTools UI handler: "..methodName)
   end
   assert(type(pluginAPI) == "table", "MythicDungeonTools UI plugin API must be a table")
-  for _, methodName in ipairs({ "RegisterNavigationSection", "GetCurrentSection", "SetCurrentSection", "GetNavigationSectionContentFrame", "HideAllDialogs", "RegisterDungeonData" }) do
+  for _, methodName in ipairs({ "GetCurrentSection", "SetCurrentSection", "HideAllDialogs", "RegisterDungeonData" }) do
     assert(type(pluginAPI[methodName]) == "function", "Missing MythicDungeonTools UI plugin method: "..methodName)
   end
   uiHandlers = handlers
@@ -137,8 +154,8 @@ local function hideUILoading()
 end
 
 StaticPopupDialogs[UI_DISABLED_POPUP] = {
-  text = "MythicDungeonTools UI is disabled. Enable it and reload the interface?",
-  button1 = "Enable and Reload",
+  text = L["MythicDungeonTools UI is disabled. Enable it and reload the interface?"],
+  button1 = L["Enable and Reload"],
   button2 = _G.CANCEL,
   OnAccept = function()
     C_AddOns.EnableAddOn(UI_ADDON_NAME)
@@ -161,7 +178,7 @@ function MDT:LoadUI(reason)
     if loadError == "DISABLED" then
       StaticPopup_Show(UI_DISABLED_POPUP)
     end
-    print(("|cffffd100MDT:|r Failed to load UI%s: %s"):format(reason and " ("..reason..")" or "", loadError or "unknown error"))
+    print((L["|cffffd100MDT:|r Failed to load UI%s: %s"]):format(reason and " ("..reason..")" or "", loadError or L["unknown error"]))
     return false
   end
   return true
@@ -181,7 +198,7 @@ local function callUI(methodName, ...)
   end
   local implementation = uiHandlers and uiHandlers[methodName]
   if type(implementation) ~= "function" then
-    print("|cffffd100MDT:|r UI method unavailable: "..methodName)
+    print(L["|cffffd100MDT:|r UI method unavailable: "]..methodName)
     return
   end
   return implementation(...)
@@ -269,7 +286,7 @@ function MDT:HideMinimapButton()
   db.minimap.hide = true
   minimapIcon:Hide("MythicDungeonTools")
   if uiHandlers and uiHandlers.OnMinimapVisibilityChanged then uiHandlers.OnMinimapVisibilityChanged(false) end
-  print("MDT: Use /mdt minimap to show the minimap icon again")
+  print(L["MDT: Use /mdt minimap to show the minimap icon again"])
 end
 
 function MDT:ShowMinimapButton()
