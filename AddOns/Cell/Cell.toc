@@ -1,6 +1,6 @@
 ## Interface: 120105, 120100
 ## Title: Cell
-## Version: r310_MiliUI
+## Version: r311_MiliUI
 ## Author: enderneko
 ## X-Flavor: Mainline
 ## SavedVariables: CellDB, CellDBBackup, CellDebugLog
