@@ -27,13 +27,19 @@ D["AAgmFonts"] = {
 };
 D["AbilityTimeline"] = {
 	defaultEnable = 0,
-	tags = { "BOSSRAID" }, 
-	title = "首領時間線增強",
-	desc = "優化並擴展遊戲內建的首領時間線顯示功能。它的特色是和 WA 的風格一致，同時加入更多實用的提示與自訂選項，讓玩家在團隊副本或地城中能更清晰掌握技能冷卻與戰鬥節奏。`",
-	modifier = "彩虹ui",
+	tags = { "BOSSRAID" },
+	title = "(請刪除) 首領時間線增強",
+	desc = "這個插件已替換成 '米利的首領時間軸' 插件。``請自行刪除 AddOns 裡面的 AbilityTimeline 資料夾。`",
+};
+D["MiliUI_BossTimeline"] = {
+	defaultEnable = 1,
+	tags = { "BOSSRAID" },
+	title = "米利的首領時間軸",
+	desc = "重新繪製暴雪內建的首領時間軸，可調整直式或橫式排列、文字、描邊、顏色與方形圖示。``顯示時間軸事件的來源（暴雪、其他插件或自己的提示），並可為首領建立自訂提示與時間軸計畫。``使用方法：輸入 /mbt 或點下方按鈕開啟設定。`",
+	modifier = "米利",
     {
         text = "設定選項",
-        callback = function() SlashCmdList["ACECONSOLE_AT"]("") end,
+        callback = function() SlashCmdList["MILIUIBT"]("") end,
     },
 };
 D["AccWideUILayoutSelection"] = {
