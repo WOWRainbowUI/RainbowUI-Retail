@@ -864,3 +864,5 @@ L["update available"] = "有可用更新"
 L["zoomIn"] = "放大"
 L["zoomOut"] = "缩小"
 L["Clone forces override (blank = default)"] = "克隆敌方部队覆盖值（留空使用默认值）"
+
+L["Inspect"] = "检查"

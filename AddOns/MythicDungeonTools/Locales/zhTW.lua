@@ -871,3 +871,5 @@ L["MythicDungeonTools"] = "地城規劃工具"
 L["Set Target Marker"] = "設定目標圖示"
 L["Open Enemy Info"] = "打開敵人資訊"
 L["None"] = "無"
+
+L["Inspect"] = "檢查"

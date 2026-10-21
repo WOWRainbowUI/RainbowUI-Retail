@@ -423,7 +423,7 @@ function MDT:MakeMapTexture(frame)
   MDT.contextMenuList = {}
 
   tinsert(MDT.contextMenuList, {
-    text = "Close",
+    text = L["Close"],
     notCheckable = 1,
     func = frame.contextDropdown:Hide()
   })

@@ -865,3 +865,5 @@ L["Clone forces override (blank = default)"] = "Clone forces override (blank = d
 -- 自行加入
 L["Mythic Dungeon Tools"] = "Mythic Dungeon Tools"
 L["MythicDungeonTools"] = "Mythic Dungeon Tools"
+
+L["Inspect"] = "Inspect"

@@ -106,7 +106,7 @@ function MDT:OpenImportPresetDialog()
       local row = UI.Row(content, { gap = "sm", align = "end" })
       UI.Button(row, { id = "import", text = L["Import"], variant = "primary", onClick = function() import(dialog) end })
       if db.devMode then
-        UI.Button(row, { text = "Inspect", onClick = function()
+        UI.Button(row, { text = L["Inspect"], onClick = function()
           if not DevTool or not DevTool.AddData then
             print("MDT: Install Dev Tool to inspect route")
           else
