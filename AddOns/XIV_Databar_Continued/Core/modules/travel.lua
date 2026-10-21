@@ -59,6 +59,7 @@ end
 local function SupportsMagePorts()
     return compat.features and compat.features.travel and compat.features.travel.magePortals
         and xb.constants.playerClass == 'MAGE'
+        and xb.MagePortals ~= nil
 end
 
 --------------------------------------------------------------------------------
