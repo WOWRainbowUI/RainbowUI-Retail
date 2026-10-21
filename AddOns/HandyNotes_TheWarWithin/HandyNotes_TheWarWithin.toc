@@ -3,7 +3,7 @@
 ## Version: 166
 ## Notes: The War Within Notes
 ## OptionalDeps: Ace3
-## RequiredDeps: HandyNotes
+## RequiredDeps: HandyNotes, Ace3
 ## X-Embeds: Ace3
 ## SavedVariables: HandyNotes_TheWarWithinDB
 ## IconTexture: 5770811
