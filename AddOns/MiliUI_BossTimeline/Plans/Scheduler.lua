@@ -1,0 +1,300 @@
+------------------------------------------------------------
+-- 自訂時間軸的執行：開戰後照秒數把提示寫進暴雪的時間軸、到點播音效／朗讀
+--
+-- 寫進暴雪時間軸（AddScriptEvent）而不是只畫在自己的框上：這樣暴雪自己的時間軸、
+-- DBM 的計時條（它會把 Script 來源的事件也畫成條）、本插件的重畫，三邊看到的都是同一條。
+--
+-- 每一條是一個 job：
+--   * 在「t − lead」秒時放上時間軸、倒數 lead 秒；t 比 lead 小就開戰當下放、倒數剩下的秒數
+--   * 音效／朗讀／首領警告在 soundWhen（「提醒時機」，三樣共用）那一刻：show＝放上時間軸時、soon＝t − 5、due＝t（預設）
+--   * entry.noTimeline：不放上暴雪時間軸，只做上面那三樣；「放上時間軸時」照樣是 t − lead 那一刻
+--   * 首領警告（entry.warn）畫在自己的框上（Timeline/Warnings.lua），不經過暴雪
+--   * 錨點（entry.anchor = { spell, n, offset }）：戰鬥中 Identify 認出這個技能的第 n 次施放時，
+--     把 t 改成「那一次會發生的秒數 ＋ offset」，已經放上時間軸的撤掉重放、計時器重排。
+--     認不出來就照原本的 t 跑（備援）。換階段時間每場會漂，錨點就是為了跟著漂。
+--   * 「每一次」（entry.anchor = { spell, every = true, offset }，沒有 t）：開戰時不排程，只登記成範本；
+--     Identify 每認出這個技能的新一次施放（連發合併後），就照範本建一個動態 job（t＝那一次的秒數＋offset），
+--     走同一個 Schedule。同一次施放不重複建（範本 × 第 n 次 當 key）。動態 job 跟一般 job 放在同一張表，
+--     Stop／ENCOUNTER_END 一起收掉。認不出來就不會出現；測試時沒有首領事件可認，所以測試不跑它們。
+-- 條件（職責／職業）不合的那條整條不跑（Plans.EntryApplies）。
+-- 開戰跑的是合併清單：這隻首領所有「生效中、適用這個難度」的設定檔（Plans.Active，重複的已經去掉）。
+-- 首領戰結束（ENCOUNTER_END）把還沒放的計時器取消、已經在時間軸上的撤掉。
+--
+-- 測試：Scheduler.Test(profileID) 不必開戰就把**這一份**設定檔照同樣的節奏跑一遍
+-- （不是合併後的；錨點不會動，因為沒有首領事件可認），
+-- Scheduler.Stop() 結束。
+------------------------------------------------------------
+local _, ns = ...
+
+local S = ns.Secret
+
+ns.Scheduler = {}
+local Sch = ns.Scheduler
+
+local SOON = 5            -- 「快到時」＝到點前幾秒
+local REPOST_MIN = 0.3    -- 錨點修正小於這個秒數就不動
+local COUNT_MERGE = 3     -- 同一技能幾秒內連發算同一次（跟 MRTData 的合併規則一樣）
+
+local jobs = {}           -- 這一場的 job
+local running             -- { id, test, start }：id 測試時是 profileID、開戰時是 encounterID
+local spellCount = {}     -- [spellID] = 認到第幾次
+local spellLast = {}      -- [spellID] = 上一次的秒數（合併連發用）
+local templates = {}      -- 「每一次」的條目（開戰時登記，認出施放才建 job）
+local made = {}           -- [範本 entry] = { [n] = true }：這一次施放已經建過 job
+
+------------------------------------------------------------
+-- 音效、朗讀、首領警告
+------------------------------------------------------------
+-- 朗讀：語音／語速／音量走 db.tts（全域一組）。
+-- C_VoiceChat.SpeakText(voiceID, text, rate, volume, overlap) 是 12.x 的簽章（MRT 的 isMN 分支、
+-- MiliUI_CooldownManager/Core/Sound.lua 同寫法；舊版中間多一個 destination，12.x 已拿掉）。
+-- 玩家選的語音可能已經不在（換了系統語音包）：SpeakText 報錯就換遊戲預設再念一次。
+local function DefaultVoice()
+    if C_TTSSettings and C_TTSSettings.GetVoiceOptionID then
+        local v = S.PlainNumber(S.SafeCall(C_TTSSettings.GetVoiceOptionID, Enum.TtsVoiceType and Enum.TtsVoiceType.Standard or 0))
+        if v then return v end
+    end
+    return 0
+end
+
+function Sch.Speak(text)
+    if not (C_VoiceChat and C_VoiceChat.SpeakText) or type(text) ~= "string" or text == "" then return end
+    local cfg = ns.db and ns.db.tts or {}
+    local rate = math.max(-10, math.min(10, tonumber(cfg.rate) or 0))
+    local volume = math.max(0, math.min(100, tonumber(cfg.volume) or 100))
+    local voice = tonumber(cfg.voice)     -- "" ＝ 遊戲預設（下拉的值原樣存進來時）
+    if voice then
+        if pcall(C_VoiceChat.SpeakText, voice, text, rate, volume, true) then return end
+    end
+    pcall(C_VoiceChat.SpeakText, DefaultVoice(), text, rate, volume, true)
+end
+
+-- icon：首領警告兩側的圖示（選填；job 的圖示）
+function Sch.Alert(entry, text, icon)
+    local path = entry.sound and ns.Media.Sound(entry.sound)
+    if path then
+        ns.playingOwnSound = true      -- Recorder 的 PlaySoundFile 掛勾不要把自己的提示音記成別人的語音
+        PlaySoundFile(path, "Master")
+        ns.playingOwnSound = false
+    end
+    if entry.tts then Sch.Speak(entry.ttsText or text) end
+    if entry.warn and ns.Warnings then
+        if icon == nil then icon = select(1, ns.Plans.Resolve(entry)) end
+        ns.Warnings.Show({
+            text     = text,
+            icon     = icon,
+            severity = entry.warn,
+            duration = entry.warnDur or 3,
+            -- 這條自己選了音效就不再疊暴雪的警告音
+            sound    = ns.db.warnings.blizzardSound and not path,
+        })
+    end
+end
+
+------------------------------------------------------------
+-- 放上時間軸
+------------------------------------------------------------
+local function Post(job, duration)
+    if not C_EncounterTimeline or not C_EncounterTimeline.AddScriptEvent or duration <= 0 then return end
+    local ok, id = pcall(C_EncounterTimeline.AddScriptEvent, {
+        spellID          = job.spell or 0,
+        iconFileID       = job.icon,
+        duration         = duration,
+        overrideName     = job.text,
+        maxQueueDuration = 0,
+        paused           = false,
+    })
+    if ok and id then
+        job.eventID = id
+        ns.Events.MarkMine(id)
+    elseif not ok then
+        ns.ReportError(id)
+    end
+end
+
+local function Unpost(job)
+    if job.eventID and C_EncounterTimeline and C_EncounterTimeline.CancelScriptEvent then
+        pcall(C_EncounterTimeline.CancelScriptEvent, job.eventID)
+    end
+    job.eventID = nil
+end
+
+local function CancelTimers(job)
+    for _, t in ipairs(job.timers) do t:Cancel() end
+    wipe(job.timers)
+end
+
+local function After(job, delay, fn)
+    if delay <= 0 then
+        fn()
+    else
+        job.timers[#job.timers + 1] = C_Timer.NewTimer(delay, fn)
+    end
+end
+
+-- 依 job.t 排這一條的所有計時器（第一次與錨點修正都走這裡）
+local function Schedule(job)
+    CancelTimers(job)
+    local elapsed = GetTime() - running.start
+    local untilDue = job.t - elapsed
+    if untilDue <= 0 then return end
+    local e = job.entry
+
+    if e.noTimeline then
+        -- 不上時間軸：「放上時間軸時」照樣是 t − lead 那一刻（已經過了就不補）
+        if e.soundWhen == "show" and untilDue - job.lead >= 0 and not job.shown then
+            After(job, untilDue - job.lead, function()
+                job.shown = true
+                Sch.Alert(e, job.text, job.icon)
+            end)
+        end
+    elseif job.eventID then
+        -- 已經在時間軸上（錨點修正）：撤掉重放成正確的剩餘秒數
+        Unpost(job)
+        Post(job, untilDue)
+    else
+        local showIn = untilDue - job.lead
+        After(job, showIn, function()
+            Post(job, math.min(job.lead, job.t - (GetTime() - running.start)))
+            if e.soundWhen == "show" then Sch.Alert(e, job.text, job.icon) end
+        end)
+    end
+
+    local when = e.soundWhen or "due"
+    if when == "soon" then
+        After(job, untilDue - SOON, function() Sch.Alert(e, job.text, job.icon) end)
+    elseif when == "due" then
+        After(job, untilDue, function() Sch.Alert(e, job.text, job.icon) end)
+    end
+end
+
+function Sch.Stop()
+    for _, job in ipairs(jobs) do
+        CancelTimers(job)
+        Unpost(job)
+    end
+    wipe(jobs)
+    wipe(spellCount)
+    wipe(spellLast)
+    wipe(templates)
+    wipe(made)
+    running = nil
+    ns.Fire("SchedulerChanged")
+end
+
+-- 這一條會不會照秒數跑：有秒數、條件（職責／職業／停用）也合。「每一次」的不算（沒有秒數，認出施放才建）
+local function Runnable(e)
+    return not ns.Plans.IsEvery(e) and (e.t or 0) > 0 and ns.Plans.EntryApplies(e)
+end
+
+-- 這份設定檔有幾條會照秒數跑（設定頁拿來決定「立即測試」能不能按；「每一次」的測試認不到技能，不算）
+function Sch.RunnableCount(profile)
+    local n = 0
+    for _, e in ipairs(profile and profile.entries or {}) do
+        if Runnable(e) then n = n + 1 end
+    end
+    return n
+end
+
+-- 建一個 job 並排程（開戰的固定秒數、「每一次」認出施放時的動態 job 共用）
+local function AddJob(e, t)
+    local icon, text = ns.Plans.Resolve(e)
+    local job = {
+        entry = e, t = t, lead = math.max(1, e.lead or ns.Plans.DEFAULT_LEAD),
+        icon = icon, text = text, spell = e.spell, timers = {},
+    }
+    jobs[#jobs + 1] = job
+    Schedule(job)
+    return job
+end
+
+-- entries：要跑的條目清單（開戰＝合併後的、測試＝單一設定檔的）
+local function Run(id, entries, test)
+    Sch.Stop()
+    running = { id = id, test = test, start = GetTime() }
+    for _, e in ipairs(entries) do
+        if Runnable(e) then
+            AddJob(e, e.t)
+        elseif not test and ns.Plans.IsEvery(e) and ns.Plans.EntryApplies(e) then
+            templates[#templates + 1] = e
+        end
+    end
+    ns.Fire("SchedulerChanged")
+end
+
+function Sch.Test(pid)
+    local profile = ns.Plans.Get(pid)
+    if Sch.RunnableCount(profile) == 0 then return false end
+    Run(pid, profile.entries, true)
+    return true
+end
+
+function Sch.Running()
+    return running
+end
+
+------------------------------------------------------------
+-- 錨點：Identify 認出首領技能 → 算第幾次 → 修正掛在它上面的提示
+------------------------------------------------------------
+ns.RegisterCallback("TimelineIdentified", "scheduler", function(rec)
+    -- 首領技能的語音（Plans/Abilities.lua）：跟有沒有生效中的提示設定檔無關，所以排在下面的提前返回之前
+    if ns.Abilities and ns.Abilities.OnIdentified and rec.ident and rec.ident.spell then
+        local rem0 = S.PlainNumber(S.SafeCall(C_EncounterTimeline.GetEventTimeRemaining, rec.id)) or rec.duration
+        if rem0 then ns.Abilities.OnIdentified(rec.ident.spell, rem0) end
+    end
+    if not running or running.test or not rec.ident or not rec.ident.spell then return end
+    local spell = rec.ident.spell
+    local rem = S.PlainNumber(S.SafeCall(C_EncounterTimeline.GetEventTimeRemaining, rec.id)) or rec.duration
+    if not rem then return end
+    local due = GetTime() - running.start + rem
+    -- 連發（多段、分批點名）算同一次
+    if spellLast[spell] and due - spellLast[spell] <= COUNT_MERGE then return end
+    spellLast[spell] = due
+    local n = (spellCount[spell] or 0) + 1
+    spellCount[spell] = n
+
+    for _, job in ipairs(jobs) do
+        local a = job.entry.anchor
+        if a and not a.every and a.spell == spell and a.n == n then
+            local newT = due + (a.offset or 0)
+            if math.abs(newT - job.t) >= REPOST_MIN then
+                job.t = newT
+                Schedule(job)
+            end
+        end
+    end
+
+    -- 「每一次」：這一次施放照範本各建一個 job（上面那圈跑完才加，不會被當成第 n 次的錨點再改一次）
+    for _, e in ipairs(templates) do
+        local a = e.anchor
+        if a.spell == spell then
+            local done = made[e] or {}
+            made[e] = done
+            if not done[n] then
+                done[n] = true
+                AddJob(e, due + (a.offset or 0))
+            end
+        end
+    end
+end)
+
+------------------------------------------------------------
+-- 事件
+------------------------------------------------------------
+local frame = CreateFrame("Frame")
+frame:RegisterEvent("ENCOUNTER_START")
+frame:RegisterEvent("ENCOUNTER_END")
+frame:SetScript("OnEvent", function(_, event, encounterID, encounterName, difficultyID)
+    if not ns.db then return end
+    if event == "ENCOUNTER_START" then
+        ns.db.lastEncounter = { id = encounterID, name = S.PlainText(encounterName), difficulty = difficultyID }
+        local entries = ns.Plans.Active(encounterID, difficultyID)
+        if entries then
+            Run(encounterID, entries, false)
+        elseif running and running.test then
+            Sch.Stop()     -- 測試跑到一半開戰了：收掉，免得跟真的混在一起
+        end
+    elseif event == "ENCOUNTER_END" then
+        if running and not running.test then Sch.Stop() end
+    end
+end)
