@@ -3,7 +3,7 @@
 ## Version: 166
 ## Notes: Midnight Notes
 ## OptionalDeps: Ace3
-## RequiredDeps: HandyNotes
+## RequiredDeps: HandyNotes, Ace3
 ## X-Embeds: Ace3
 ## SavedVariables: HandyNotes_MidnightDB
 ## IconTexture: 236762
