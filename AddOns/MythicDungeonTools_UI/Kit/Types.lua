@@ -11,6 +11,8 @@
 ---| "bg.hover"
 ---| "bg.pressed"
 ---| "bg.selected"
+---| "bg.hoverTint"
+---| "bg.selectedTint"
 ---| "border.normal"
 ---| "border.strong"
 ---| "border.divider"
@@ -56,6 +58,9 @@
 ---| "heading"
 ---| "number"
 ---| "display"
+---| "bodyCompact"
+---| "smallCompact"
+---| "titleCompact"
 
 ---@alias MDT.UI.Variant
 ---| "default"
