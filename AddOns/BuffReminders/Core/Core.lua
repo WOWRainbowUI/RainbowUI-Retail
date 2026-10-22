@@ -500,8 +500,8 @@ local function ValidatePath(segments)
         if segments[2] == "textSizes" and #segments == 3 then
             return true, "VisualsRefresh"
         end
-        -- defaults.warlockDemon.<world|dungeon|raid|pvp>
-        if segments[2] == "warlockDemon" and #segments == 3 then
+        -- defaults.warlockDemons.<world|dungeon|raid|pvp>.<demon>
+        if segments[2] == "warlockDemons" and #segments == 4 then
             return true, "DisplayRefresh"
         end
         return false, nil

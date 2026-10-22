@@ -22,7 +22,7 @@ local max = math.max
 
 BR.Migrations = {}
 
-BR.Migrations.DB_VERSION = 55
+BR.Migrations.DB_VERSION = 56
 
 -- Run pending migrations against the profile `db`, using code `defaults` for
 -- fallbacks. `ctx` carries the Display.lua file-scope values the migrations
@@ -1105,6 +1105,40 @@ function BR.Migrations.Run(db, defaults, ctx)
                             buff._iconsCache = nil
                         end
                     end
+                end
+            end
+        end,
+
+        -- [56] defaults.warlockDemon (one summon spell ID per row) becomes
+        -- defaults.warlockDemons (a set of allowed demons per row). Every key is
+        -- written, because a missing key follows the default, which allows Felhunter.
+        [56] = function()
+            local profiles = BR.aceDB and BR.aceDB.sv and BR.aceDB.sv.profiles
+            if not profiles then
+                return
+            end
+            local demonKeys = { [688] = "imp", [697] = "voidwalker", [691] = "felhunter", [366222] = "sayaad" }
+            for _, profile in pairs(profiles) do
+                local profileDefaults = type(profile) == "table" and profile.defaults
+                if type(profileDefaults) == "table" then
+                    local old = rawget(profileDefaults, "warlockDemon")
+                    if type(old) == "table" then
+                        local new = rawget(profileDefaults, "warlockDemons")
+                        if type(new) ~= "table" then
+                            new = {}
+                            profileDefaults.warlockDemons = new
+                        end
+                        for row, spellID in pairs(old) do
+                            if type(row) == "string" and demonKeys[spellID] then
+                                local accepted = {}
+                                for id, key in pairs(demonKeys) do
+                                    accepted[key] = id == spellID
+                                end
+                                new[row] = accepted
+                            end
+                        end
+                    end
+                    profileDefaults.warlockDemon = nil
                 end
             end
         end,

@@ -162,9 +162,14 @@ BR.defaults = {
             MAGE = true,
         },
         useFelDomination = false,
-        -- Summon spell ID of the desired warlock demon per content row. Demonology
-        -- with Felguard talented ignores it.
-        warlockDemon = { world = 691, dungeon = 691, raid = 691, pvp = 691 },
+        -- Allowed warlock demons per content row (WARLOCK_DEMON_CHOICES keys). A row
+        -- with none allows all demons. Demonology with Felguard talented ignores it.
+        warlockDemons = {
+            world = { felhunter = true },
+            dungeon = { felhunter = true },
+            raid = { imp = true, felhunter = true, sayaad = true },
+            pvp = { felhunter = true },
+        },
         warlockWrongDemon = true,
         -- Per-text-item size override, as a percentage of the icon size. An
         -- absent key follows consumableTextScale. Like every key in this table,

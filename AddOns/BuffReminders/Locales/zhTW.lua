@@ -1190,3 +1190,7 @@ L["Label.Sayaad"] = "薩亞德"
 L["Label.Ghoul"] = "食屍鬼"
 
 L["Label.WaterElemental"] = "水元素"
+
+L["BuffPanel.WarlockDemon.Warn.Desc"] = "目前召喚的惡魔不在此內容允許的惡魔之列時，顯示「錯誤的惡魔」提醒。"
+
+L["BuffPanel.WarlockDemon.Hint"] = "點擊惡魔以允許召喚，可同時允許多個。清空某一列時，該內容將允許所有惡魔。"
