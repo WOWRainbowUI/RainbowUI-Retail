@@ -1,4 +1,9 @@
-﻿12.1.12 - 15th October 2026
+﻿12.1.14 - 21st October 2026
+- Added a language dropdown menu ('Settings') so you can choose which language you want the addon to use.
+- Removed the 'Use English language' option now that the addon has a language dropdown menu.
+- Updated translations.
+
+12.1.12 - 15th October 2026
 - To use 'Simple map frame' with ElvUI, you need to disable the ElvUI World Map skin. 
 - Updated translations.
 

@@ -1,6 +1,6 @@
 
 	----------------------------------------------------------------------
-	-- 	Leatrix Maps 12.1.12 (15th October 2026)
+	-- 	Leatrix Maps 12.1.14 (21st October 2026)
 	----------------------------------------------------------------------
 
 	-- 10:Func, 20:Comm, 30:Evnt, 40:Panl
@@ -12,7 +12,7 @@
 	local LeaMapsLC, LeaMapsCB, LeaConfigList, LeaLockList = {}, {}, {}, {}
 
 	-- Version
-	LeaMapsLC["AddonVer"] = "12.1.12"
+	LeaMapsLC["AddonVer"] = "12.1.14"
 
 	-- Get locale table
 	local void, Leatrix_Maps = ...
@@ -52,6 +52,74 @@
 			name = table.concat(parts)
 		until not _G[name] -- Make sure the name is not already in use
 		return name
+	end
+
+	-- Create a dropdown menu (using standard dropdown template)
+	function LeaMapsLC:CreateDropdown(frame, label, width, anchor, parent, relative, x, y, reload, items)
+
+		local RadioDropdown = CreateFrame("DropdownButton", nil, parent, "WowStyle1DropdownTemplate")
+		LeaMapsCB[frame] = RadioDropdown
+		RadioDropdown:SetPoint(anchor, parent, relative, x, y)
+		RadioDropdown:SetWidth(width)
+
+		local function IsSelected(value)
+			return value == LeaMapsLC[frame]
+		end
+
+		local function SetSelected(value)
+			LeaMapsLC[frame] = value
+		end
+
+		MenuUtil.CreateRadioMenu(RadioDropdown, IsSelected, SetSelected, unpack(items))
+
+		local lf = RadioDropdown:CreateFontString(nil, "OVERLAY", "GameFontNormal"); lf:SetPoint("TOPLEFT", RadioDropdown, 0, 20); lf:SetPoint("TOPRIGHT", RadioDropdown, -5, 20); lf:SetJustifyH("LEFT"); lf:SetText(L[label])
+
+		-- Cycle through the options with the mousewheel while the menu is closed (scroll down for the next option, up for the previous one)
+		RadioDropdown:EnableMouseWheel(true)
+
+		-- Apply the new option in the same way as choosing it from the menu (runs anything hooked to the menu closing)
+		RadioDropdown:HookScript("OnMouseWheel", function(self)
+			self:TriggerEvent(DropdownButtonMixin.Event.OnMenuClose, self)
+		end)
+
+		-- Cycle through the options with the mousewheel while the menu is open (an invisible layer over the menu takes the mousewheel but lets clicks through)
+		local wheel
+		RadioDropdown:RegisterCallback("OnMenuOpen", function()
+			local menu = RadioDropdown.menu
+			if not menu then return end
+			if not wheel then
+				wheel = CreateFrame("Frame", nil, UIParent)
+				wheel:EnableMouse(false)
+				wheel:EnableMouseWheel(true)
+				wheel:SetScript("OnMouseWheel", function(self, delta)
+					-- Find the current option and step to the next or previous one (stops at either end)
+					local index = 1
+					for i = 1, #items do
+						if items[i][2] == LeaMapsLC[frame] then index = i; break end
+					end
+					index = index + (delta < 0 and 1 or -1)
+					if index < 1 or index > #items then return end
+					LeaMapsLC[frame] = items[index][2]
+					-- Move the tick in the open menu, update the dropdown text and apply the option
+					if RadioDropdown.menu then RadioDropdown.menu:ReinitializeAll() end
+					RadioDropdown:SignalUpdate()
+					RadioDropdown:TriggerEvent(DropdownButtonMixin.Event.OnMenuClose, RadioDropdown)
+				end)
+			end
+			wheel:SetAllPoints(menu)
+			wheel:SetFrameStrata(menu:GetFrameStrata())
+			wheel:SetFrameLevel(menu:GetFrameLevel() + 50)
+			wheel:Show()
+		end)
+
+		-- Hide the layer when the menu really closes (the mousewheel also signals the menu closing so options apply, but without a menu)
+		RadioDropdown:RegisterCallback("OnMenuClose", function(owner, dropdown, menu)
+			if menu and wheel then wheel:Hide() end
+			if reload then
+				LeaMapsLC:ReloadCheck()
+			end
+		end)
+
 	end
 
 	----------------------------------------------------------------------
@@ -2028,14 +2096,14 @@
 		if	(LeaMapsLC["SimpleMapFrame"] ~= LeaMapsDB["SimpleMapFrame"])			-- Simple map frame
 		or	(LeaMapsLC["UnlockMap"] ~= LeaMapsDB["UnlockMap"])						-- Unlock map
 		or	(LeaMapsLC["ScaleWorldMap"] ~= LeaMapsDB["ScaleWorldMap"])				-- Scale the map
-		or	(LeaMapsLC["HideBlackoutFrame"] ~= LeaMapsDB["HideBlackoutFrame"])			-- Hide blackout frame
+		or	(LeaMapsLC["HideBlackoutFrame"] ~= LeaMapsDB["HideBlackoutFrame"])		-- Hide blackout frame
+		or	(LeaMapsLC["AddonLanguage"] ~= LeaMapsDB["AddonLanguage"])					-- Addon language
 		or	(LeaMapsLC["RevealMap"] ~= LeaMapsDB["RevealMap"])						-- Show unexplored areas
 		or	(LeaMapsLC["ShowCoords"] ~= LeaMapsDB["ShowCoords"])					-- Show coordinates
 		or	(LeaMapsLC["ShowIcons"] ~= LeaMapsDB["ShowIcons"])						-- Show additional icons
 		or	(LeaMapsLC["HideTownCity"] ~= LeaMapsDB["HideTownCity"])				-- Hide town and city icons
 		or	(LeaMapsLC["EnhanceBattleMap"] ~= LeaMapsDB["EnhanceBattleMap"])		-- Enhance battlefield map
 		or	(LeaMapsLC["NoFilterResetBtn"] ~= LeaMapsDB["NoFilterResetBtn"])		-- Hide filte reset button
-		or	(LeaMapsLC["UseEnglishLanguage"] ~= LeaMapsDB["UseEnglishLanguage"])	-- Use English language
 		then
 			-- Enable the reload button
 			LeaMapsLC:LockItem(LeaMapsCB["ReloadUIButton"], false)
@@ -2313,6 +2381,7 @@
 				LeaMapsDB["MapScale"] = 1.0
 				LeaMapsDB["MaxMapScale"] = 0.9
 				LeaMapsDB["HideBlackoutFrame"] = "On"
+				LeaMapsDB["AddonLanguage"] = 1
 				LeaMapsDB["NoMapFade"] = "On"
 				LeaMapsDB["NoMapEmote"] = "On"
 				LeaMapsDB["NoFilterResetBtn"] = "On"
@@ -2352,7 +2421,6 @@
 
 				LeaMapsDB["ShowMinimapIcon"] = "On"
 				LeaMapsDB["minimapPos"] = 204 -- LeaMapsDB
-				LeaMapsDB["UseEnglishLanguage"] = "On"
 
 				ReloadUI()
 			elseif str == "help" then
@@ -2413,6 +2481,7 @@
 			LeaMapsLC:LoadVarNum("MapScale", 1.2, 0.5, 2)				-- Map scale
 			LeaMapsLC:LoadVarNum("MaxMapScale", 1.0, 0.5, 2)			-- Maximised map scale
 			LeaMapsLC:LoadVarChk("HideBlackoutFrame", "On")				-- Hide blackout frame
+			LeaMapsLC:LoadVarNum("AddonLanguage", 1, 1, 12)				-- Addon language
 			LeaMapsLC:LoadVarChk("NoMapFade", "On")						-- Disable map fade
 			LeaMapsLC:LoadVarChk("NoMapEmote", "On")					-- Disable map emote
 			LeaMapsLC:LoadVarChk("NoFilterResetBtn", "On")				-- Hide filter reset button
@@ -2450,8 +2519,7 @@
 			LeaMapsLC:LoadVarNum("BattleMapX", -47, -5000, 5000)		-- Battlefield map X axis
 			LeaMapsLC:LoadVarNum("BattleMapY", 83, -5000, 5000)			-- Battlefield map Y axis
 
-			LeaMapsLC:LoadVarChk("ShowMinimapIcon", "Off")				-- Show minimap button
-			LeaMapsLC:LoadVarChk("UseEnglishLanguage", "Off")			-- Use English language
+			LeaMapsLC:LoadVarChk("ShowMinimapIcon", "Off") -- 保留自訂預設
 
 			-- Panel
 			LeaMapsLC:LoadVarAnc("MainPanelA", "CENTER")				-- Panel anchor
@@ -2510,6 +2578,7 @@
 			LeaMapsDB["MapScale"] = LeaMapsLC["MapScale"]
 			LeaMapsDB["MaxMapScale"] = LeaMapsLC["MaxMapScale"]
 			LeaMapsDB["HideBlackoutFrame"] = LeaMapsLC["HideBlackoutFrame"]
+			LeaMapsDB["AddonLanguage"] = LeaMapsLC["AddonLanguage"]
 			LeaMapsDB["NoMapFade"] = LeaMapsLC["NoMapFade"]
 			LeaMapsDB["NoMapEmote"] = LeaMapsLC["NoMapEmote"]
 			LeaMapsDB["NoFilterResetBtn"] = LeaMapsLC["NoFilterResetBtn"]
@@ -2548,7 +2617,6 @@
 			LeaMapsDB["BattleMapY"] = LeaMapsLC["BattleMapY"]
 
 			LeaMapsDB["ShowMinimapIcon"] = LeaMapsLC["ShowMinimapIcon"]
-			LeaMapsDB["UseEnglishLanguage"] = LeaMapsLC["UseEnglishLanguage"]
 
 			-- Panel
 			LeaMapsDB["MainPanelA"] = LeaMapsLC["MainPanelA"]
@@ -2647,6 +2715,8 @@
 	LeaMapsLC:MakeCB(PageF, "ScaleWorldMap", "Scale the map", 16, -132, true, "If checked, you will be able to scale the map.")
 	LeaMapsLC:MakeCB(PageF, "HideBlackoutFrame", "Hide blackout frame", 16, -152, true, "If checked, the blackout frame will be hidden.")
 
+	LeaMapsLC:CreateDropdown("AddonLanguage", "Language", 146, "TOPLEFT", PageF, "TOPLEFT", 16, -212, true, {{L["Automatic"], 1}, {L["English"], 2}, {L["Deutsch"], 3}, {L["Español (EU)"], 4}, {L["Español (AL)"], 5}, {L["Français"], 6}, {L["Italiano"], 7}, {L["Português"], 8}, {L["Русский"], 9}, {L["한국어"], 10}, {L["简体中文"], 11}, {L["繁體中文"], 12}})
+
 	LeaMapsLC:MakeTx(PageF, "Elements", 225, -72)
 	LeaMapsLC:MakeCB(PageF, "RevealMap", "Show unexplored areas", 225, -92, true, "If checked, unexplored areas of the map will be shown on the world map and the battlefield map.")
 	LeaMapsLC:MakeCB(PageF, "ShowCoords", "Show coordinates", 225, -112, true, "If checked, coordinates will be shown.")
@@ -2659,7 +2729,6 @@
 	LeaMapsLC:MakeCB(PageF, "NoMapEmote", "Disable reading emote", 225, -252, false, "If checked, your character will not perform the reading emote when you open the map.")
 	LeaMapsLC:MakeCB(PageF, "NoFilterResetBtn", "Hide filter reset button", 225, -272, true, "If checked, the world map filter reset button will be hidden.")
 	LeaMapsLC:MakeCB(PageF, "ShowMinimapIcon", "Show minimap button", 225, -292, false, "If checked, the minimap button will be shown.")
-	LeaMapsLC:MakeCB(PageF, "UseEnglishLanguage", "Use English language", 225, -312, true, "If checked, text used throughout the addon will be shown in English regardless of your game locale.")
 
 	LeaMapsLC:CfgBtn("ScaleWorldMapBtn", LeaMapsCB["ScaleWorldMap"])
 	LeaMapsLC:CfgBtn("RevTintBtn", LeaMapsCB["RevealMap"])
