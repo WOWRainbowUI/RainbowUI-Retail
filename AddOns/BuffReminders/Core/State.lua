@@ -3225,14 +3225,12 @@ function BuffState.InvalidateLoadoutCache()
     cachedLoadoutState = {}
 end
 
----Check whether the player's current pet is not the desired demon. Returns false
+---Check whether the player's current pet is not an allowed demon. Returns false
 ---when there is no pet or no desired demon. If the family read hits a secret
 ---value, the result stays uncached so later refreshes retry.
 ---@return boolean
 function BuffState.IsWrongDemonPet()
-    local desired = BR.PetHelpers.GetDesiredWarlockDemon()
-    local families = desired and BR.PetHelpers.WARLOCK_DEMON_FAMILIES[desired.spellID]
-    if not families then
+    if not BR.PetHelpers.GetDesiredWarlockDemon() then
         return false
     end
     if cachedPetFamily == nil then
@@ -3249,7 +3247,7 @@ function BuffState.IsWrongDemonPet()
             cachedPetFamily = familyID
         end
     end
-    return cachedPetFamily ~= false and not families[cachedPetFamily]
+    return cachedPetFamily ~= false and not BR.PetHelpers.IsAllowedWarlockFamily(cachedPetFamily)
 end
 
 ---Invalidate wrong-pet cache

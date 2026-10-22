@@ -156,17 +156,58 @@ local function IndexOfSpell(actions, spellID)
     return nil
 end
 
--- Content type -> warlockDemon row. Other content uses the world row.
+-- Content type -> warlockDemons row. Other content uses the world row.
 local DEMON_ROW_BY_CONTENT = { dungeon = "dungeon", scenario = "dungeon", raid = "raid", pvp = "pvp" }
-local DEFAULT_WARLOCK_DEMON = BR.defaults.defaults.warlockDemon
+local DEFAULT_WARLOCK_DEMONS = BR.defaults.defaults.warlockDemons
 
----Summon spell ID that the player wants for the current content type.
----@return number
-local function GetPreferredDemonSpell()
-    local row = DEMON_ROW_BY_CONTENT[BR.StateHelpers.GetCurrentContentType()] or "world"
+-- Demons that the content rows can allow, in grid order. `key` is the saved-variable key.
+local WARLOCK_DEMON_CHOICES = {
+    { spellID = 688, key = "imp", label = L["Label.Imp"] },
+    { spellID = 697, key = "voidwalker", label = L["Label.Voidwalker"] },
+    { spellID = 691, key = "felhunter", label = L["Label.Felhunter"] },
+    { spellID = 366222, key = "sayaad", label = L["Label.Sayaad"] },
+}
+
+---@return string
+local function GetWarlockDemonRow()
+    return DEMON_ROW_BY_CONTENT[BR.StateHelpers.GetCurrentContentType()] or "world"
+end
+
+---A saved row holds only the keys that the user toggled, and an unchecked demon
+---is stored as false. A missing key follows the code default.
+---@param row string
+---@param key string
+---@return boolean
+local function IsWarlockDemonAllowed(row, key)
     local defaults = BR.profile.defaults
-    local prefs = defaults and defaults.warlockDemon
-    return prefs and prefs[row] or DEFAULT_WARLOCK_DEMON[row]
+    local prefs = defaults and defaults.warlockDemons
+    local saved = type(prefs) == "table" and prefs[row]
+    local allowed
+    if type(saved) == "table" then
+        allowed = saved[key]
+    end
+    if allowed == nil then
+        local defaultRow = DEFAULT_WARLOCK_DEMONS[row]
+        allowed = defaultRow and defaultRow[key]
+    end
+    return allowed == true
+end
+
+---Summon spell ID for the current content row: Felhunter (interrupt) if allowed,
+---else the first allowed demon in the flyout, else Felhunter.
+---@param actions PetActionList
+---@return number
+local function GetPreferredDemonSpell(actions)
+    local row = GetWarlockDemonRow()
+    if IsWarlockDemonAllowed(row, "felhunter") then
+        return SUMMON_FELHUNTER
+    end
+    for _, demon in ipairs(WARLOCK_DEMON_CHOICES) do
+        if IsWarlockDemonAllowed(row, demon.key) and IndexOfSpell(actions, demon.spellID) then
+            return demon.spellID
+        end
+    end
+    return SUMMON_FELHUNTER
 end
 
 ---Felguard on Demonology overrides the preferred demon. A preferred demon that
@@ -253,7 +294,7 @@ local function GetPetActions(class)
     -- Keyed on the preferred spell, so a content change, a profile switch or an
     -- import also re-resolves.
     if cachedActions and class == "WARLOCK" then
-        local preferred = GetPreferredDemonSpell()
+        local preferred = GetPreferredDemonSpell(cachedActions)
         if preferred ~= resolvedPreferredPet then
             local gi = ResolveWarlockGenericIndex(cachedActions, preferred)
             cachedActions.genericIndex = gi
@@ -269,6 +310,32 @@ end
 local function GetDesiredWarlockDemon()
     local actions = GetPetActions("WARLOCK")
     return actions and actions.genericIndex and actions[actions.genericIndex] or nil
+end
+
+---Whether a pet of this creature family is allowed for the current content row. Felguard
+---on Demonology allows only Felguard. A row with no allowed demon allows all demons.
+---@param familyID number
+---@return boolean
+local function IsAllowedWarlockFamily(familyID)
+    local desired = GetDesiredWarlockDemon()
+    local desiredFamilies = desired and WARLOCK_DEMON_FAMILIES[desired.spellID]
+    if not desired or not desiredFamilies or desiredFamilies[familyID] then
+        return true
+    end
+    if desired.spellID == SUMMON_FELGUARD then
+        return false
+    end
+    local row = GetWarlockDemonRow()
+    local anyAllowed = false
+    for _, demon in ipairs(WARLOCK_DEMON_CHOICES) do
+        if IsWarlockDemonAllowed(row, demon.key) then
+            if WARLOCK_DEMON_FAMILIES[demon.spellID][familyID] then
+                return true
+            end
+            anyAllowed = true
+        end
+    end
+    return not anyAllowed
 end
 
 ---@return PetActionList?
@@ -289,6 +356,9 @@ BR.PetHelpers = {
     REVIVE_PET_ID = REVIVE_PET,
     GetPetActions = GetPetActions,
     WARLOCK_DEMON_FAMILIES = WARLOCK_DEMON_FAMILIES,
+    WARLOCK_DEMON_CHOICES = WARLOCK_DEMON_CHOICES,
+    IsWarlockDemonAllowed = IsWarlockDemonAllowed,
+    IsAllowedWarlockFamily = IsAllowedWarlockFamily,
     GetDesiredWarlockDemon = GetDesiredWarlockDemon,
     GetDesiredWarlockDemonList = GetDesiredWarlockDemonList,
     InvalidatePetActions = InvalidatePetActions,

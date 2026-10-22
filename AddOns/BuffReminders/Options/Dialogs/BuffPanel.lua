@@ -130,12 +130,7 @@ local DEMON_ROWS = {
     { key = "raid", label = L["BuffPanel.WarlockDemon.Raid"] },
     { key = "pvp", label = L["BuffPanel.WarlockDemon.PvP"] },
 }
-local DEMON_CHOICES = {
-    { spellID = 688, label = L["Label.Imp"] },
-    { spellID = 697, label = L["Label.Voidwalker"] },
-    { spellID = 691, label = L["Label.Felhunter"] },
-    { spellID = 366222, label = L["Label.Sayaad"] },
-}
+local DEMON_CHOICES = BR.PetHelpers.WARLOCK_DEMON_CHOICES
 local DEMON_CELL = 24
 local DEMON_GAP = 4
 local DEMON_INFO_ICON = 14
@@ -162,8 +157,14 @@ local function AddClassHeader(layout, classToken)
     layout:Add(head, 14, COMPONENT_GAP)
 end
 
--- One radio row of demon portraits per content row.
+-- One row of demon toggles per content row.
 local function AddWarlockDemonGrid(layout)
+    local hint = body:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
+    hint:SetWidth(bodyW)
+    hint:SetJustifyH("LEFT")
+    hint:SetText(L["BuffPanel.WarlockDemon.Hint"])
+    layout:AddText(hint, math.max(12, math.ceil(hint:GetStringHeight())), DEMON_GAP + 2)
+
     local rowLabels = {}
     for i, row in ipairs(DEMON_ROWS) do
         rowLabels[i] = row.label
@@ -181,12 +182,11 @@ local function AddWarlockDemonGrid(layout)
     local cells = {}
 
     function holder:Refresh()
-        local defaultDemon = BR.defaults.defaults.warlockDemon
         for _, cell in ipairs(cells) do
-            local current = BR.Config.Get("defaults.warlockDemon." .. cell.row) or defaultDemon[cell.row]
-            local selected = current == cell.spellID
+            local selected = BR.PetHelpers.IsWarlockDemonAllowed(cell.row, cell.demonKey)
             cell.icon:SetDesaturated(not selected)
             cell.icon:SetAlpha(selected and 1 or 0.45)
+            cell.check:SetShown(selected)
             cell:SetBackdropBorderColor(unpack(selected and BR.Colors.Accent or BR.Colors.Border))
         end
     end
@@ -221,10 +221,16 @@ local function AddWarlockDemonGrid(layout)
             cell:SetBackdrop({ edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1 })
             cell.icon = BR.CreateBuffIcon(cell, DEMON_CELL - 2, C_Spell.GetSpellTexture(demon.spellID))
             cell.icon:SetPoint("CENTER")
+            cell.check = cell:CreateTexture(nil, "OVERLAY")
+            cell.check:SetSize(14, 14)
+            cell.check:SetPoint("BOTTOMRIGHT", 4, -4)
+            cell.check:SetTexture("Interface\\Buttons\\UI-CheckBox-Check")
+            cell.check:SetVertexColor(unpack(BR.Colors.Accent))
             cell.row = row.key
-            cell.spellID = demon.spellID
+            cell.demonKey = demon.key
             cell:SetScript("OnClick", function()
-                BR.Config.Set("defaults.warlockDemon." .. row.key, demon.spellID)
+                local allowed = BR.PetHelpers.IsWarlockDemonAllowed(row.key, demon.key)
+                BR.Config.Set("defaults.warlockDemons." .. row.key .. "." .. demon.key, not allowed)
                 holder:Refresh()
             end)
             cell:SetScript("OnEnter", function(self)
