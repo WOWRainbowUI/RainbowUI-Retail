@@ -68,3 +68,12 @@ L["Show options button Desc"] = "显示/隐藏商人窗口中的设置按钮。"
 L["Token Banner"] = "代币窗口"
 L["Token Format"] = "代币格式"
 L["Toys"] = "玩具"
+L["Plugin_EllesmereUI_Name"] = "EllesmereUI"
+
+L["Plugin_GW2UI_Name"] = "GW2 UI"
+
+L["Plugin_EllesmereUI_Desc"] = "此整合会将 EllesmereUI 的商人外观与物品等级应用到商人物品。\n\n没有可调整的选项。"
+
+L["Plugin_EllesmereUI_ListModeNotLoaded"] = "商人界面增强无法搭配 EllesmereUI 的商人列表模式使用，因此未加载。\n\n若要使用商人界面增强，请关闭 EllesmereUI 商人选项中的「Show As List」。"
+
+L["Plugin_GW2UI_Desc"] = "此整合会将 GW2 UI 的商人外观应用到商人物品。\n\n没有可调整的选项。"

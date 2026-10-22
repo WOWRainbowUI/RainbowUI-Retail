@@ -82,3 +82,12 @@ L["Toys"] = "玩具"
 L["Vendor has"] = "商人擁有"
 L["You can afford"] = "您可負擔"
 L["You can fit"] = "您可容納"
+L["Plugin_EllesmereUI_Name"] = "EllesmereUI"
+
+L["Plugin_GW2UI_Name"] = "GW2 UI"
+
+L["Plugin_EllesmereUI_Desc"] = "此整合會將 EllesmereUI 的商人外觀與物品等級套用至商人物品。\n\n沒有可調整的選項。"
+
+L["Plugin_EllesmereUI_ListModeNotLoaded"] = "商人介面增強無法搭配 EllesmereUI 的商人清單模式使用，因此未載入。\n\n若要使用商人介面增強，請關閉 EllesmereUI 商人選項中的「Show As List」。"
+
+L["Plugin_GW2UI_Desc"] = "此整合會將 GW2 UI 的商人外觀套用至商人物品。\n\n沒有可調整的選項。"

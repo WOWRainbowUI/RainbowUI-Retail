@@ -1,5 +1,6 @@
 -- [[ Namespaces ]] --
 local _, addon = ...
+if addon.NotLoaded then return end
 
 KrowiEVU_BulkPurchaseMixin = {}
 local mixin = KrowiEVU_BulkPurchaseMixin
@@ -11,21 +12,10 @@ local GetItemFamily_  = C_Item.GetItemFamily
 local GetItemCount_   = C_Item.GetItemCount
 
 local function GetMerchantItemInfoNormalized(index)
-    if addon.Util.IsMainline then
-        local info = C_MerchantFrame.GetItemInfo(index)
-        if not info then return nil end
-        return info
-    else
-        local name, texture, price, stackCount, numAvailable, isUsable, extendedCost = GetMerchantItemInfo(index)
-        if not name then return nil end
-        return {
-            name             = name,
-            price            = price,
-            stackCount       = stackCount,
-            numAvailable     = numAvailable,
-            hasExtendedCost  = extendedCost,
-        }
-    end
+    local info = addon.Gui.MerchantItemSlot.GetItemInfo(index)
+    if not info then return nil end
+    if not addon.Util.IsMainline and not info.name then return nil end
+    return info
 end
 
 StaticPopupDialogs['KEVU_BULK_CONFIRM'] = {

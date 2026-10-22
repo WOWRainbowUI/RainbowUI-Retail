@@ -80,8 +80,8 @@ end
 
 
 function options:Open()
-    local name = MERCHANT -- 自行修改
-    if addon.Util.IsWrathClassic then
+    local name = MERCHANT -- 保留中文設定頁名稱
+    if not (Settings and Settings.OpenToCategory) then -- a client without the settings panel; decided by the API, not the version flag
         InterfaceAddOnsList_Update() -- This way the correct category will be shown when calling InterfaceOptionsFrame_OpenToCategory
         InterfaceOptionsFrame_OpenToCategory(name)
         for _, button in next, InterfaceOptionsFrameAddOns.buttons do
