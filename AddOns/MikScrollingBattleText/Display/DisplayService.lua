@@ -9,6 +9,8 @@ end
 function DisplayService:DisplayEvent(eventSettings, message, texturePath, muteSound, formatArg)
 	if eventSettings.disabled or self.config.isModDisabled() then return end
 	local profile = self.config.getProfile()
+	local category = eventSettings.textCategory or "Notifications"
+	if profile["msbt" .. category .. "Disabled"] then return end
 	local scrollAreas = self.config.scrollAreas
 	local areaKey = eventSettings.scrollArea or self.config.defaultArea
 	local area = scrollAreas:Resolve(areaKey)

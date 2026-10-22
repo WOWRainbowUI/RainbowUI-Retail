@@ -8,7 +8,9 @@ function Engine:New(config)
 end
 
 function Engine:MaintainLog()
-	if not self.active or not ns.EventAvailable("COMBAT_LOG_MESSAGE") then return end
+	if not self.active then return end
+	if ns.mine then ns.mine:Tidy(GetTime()) end
+	if not ns.EventAvailable("COMBAT_LOG_MESSAGE") then return end
 	if self.config.log:IsReady() then
 		self.warned = false
 		ns.KeepCombatLog(true)
@@ -82,6 +84,7 @@ function Engine:Stop()
 	ns.active = false
 	ns.generation = ns.generation + 1
 	ns.StopReader()
+	ns.Dispatch = nil
 	ns.liveRouter = nil
 	if self.ticker then self.ticker:Cancel(); self.ticker = nil end
 	if self.config.presentation.Reset then self.config.presentation:Reset() end

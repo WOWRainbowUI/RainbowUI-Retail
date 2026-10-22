@@ -136,6 +136,12 @@ GeneralTab_Populate = function()
 	controls.enableSoundsCheckbox:SetChecked(not currentProfile.soundsDisabled)
 	controls.enableIconsCheckbox:SetChecked(not currentProfile.skillIconsDisabled)
 	controls.blizzardDamageCheckbox:SetChecked(currentProfile.blizzardDamageEnabled)
+	for _, side in ipairs({ "msbt", "blizzard" }) do
+		for _, category in ipairs({ "Outgoing", "Notifications", "Incoming" }) do
+			controls[side .. category .. "Checkbox"]:SetChecked(
+				not not currentProfile[side .. category .. "Disabled"])
+		end
+	end
 	controls.animationSpeedSlider:SetValue(currentProfile.animationSpeed)
 end
 
@@ -208,6 +214,11 @@ local function GeneralTab_Create()
 	)
 	controls.enableCheckbox = checkbox
 
+	local divider = tabFrame:CreateTexture(nil, "ARTWORK")
+	divider:SetColorTexture(0.6, 0.6, 0.6, 0.8)
+	divider:SetSize(1, 108)
+	divider:SetPoint("TOPLEFT", controls.enableCheckbox, "TOPRIGHT", 15, 0)
+
 	checkbox = MSBTControls.CreateCheckbox(tabFrame)
 	objLocale = L.CHECKBOXES["enableBlizzardDamage"]
 	checkbox:Configure(28, objLocale.label, objLocale.tooltip)
@@ -219,6 +230,28 @@ local function GeneralTab_Create()
 		end
 	)
 	controls.blizzardDamageCheckbox = checkbox
+
+	local categories = {
+		{ name = "Outgoing", locale = "disableOutgoing" },
+		{ name = "Notifications", locale = "disableNotifications" },
+		{ name = "Incoming", locale = "disableIncoming" },
+	}
+	for _, side in ipairs({ "msbt", "blizzard" }) do
+		local anchor = side == "msbt" and controls.enableCheckbox
+			or controls.blizzardDamageCheckbox
+		for index, category in ipairs(categories) do
+			local key = side .. category.name .. "Disabled"
+			local control = MSBTControls.CreateCheckbox(tabFrame)
+			local locale = L.CHECKBOXES[category.locale]
+			control:Configure(24, locale.label, locale.tooltip)
+			control:SetPoint("TOPLEFT", anchor, "TOPLEFT", 15, -30 - (index - 1) * 24)
+			control:SetClickHandler(function(_, checked)
+				MSBTProfiles.SetOption(nil, key, checked)
+				MSBTProfiles.ApplyContextOptions()
+			end)
+			controls[side .. category.name .. "Checkbox"] = control
+		end
+	end
 
 	checkbox = MSBTControls.CreateCheckbox(tabFrame)
 	objLocale = L.CHECKBOXES["enableSounds"]

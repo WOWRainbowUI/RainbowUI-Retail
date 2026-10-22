@@ -850,7 +850,13 @@ end
 -- an aura would be secret (SecretPredicateAPIDocumentation); a hidden one is
 -- skipped, and the combat text notices stand in for it as in combat.
 local function AuraSecret(check, ...)
-    if not (C_Secrets and C_Secrets[check]) then return false end
+    if not C_Secrets then return false end
+    -- Individual predicates do not establish general aura access.
+    if C_Secrets.ShouldAurasBeSecret then
+        local secret = C_Secrets.ShouldAurasBeSecret()
+        if not ns.Bool(secret) or secret then return true end
+    end
+    if not C_Secrets[check] then return true end
     local secret = C_Secrets[check](...)
     return not ns.Bool(secret) or secret
 end
@@ -1190,15 +1196,18 @@ local function SampleGap(record, gap)
     local gaps = reader.gaps
     gaps[#gaps + 1] = gap
     if #gaps > SAMPLES then table.remove(gaps, 1) end
+    reader.pairWindow = nil
 end
 local function PairWindow()
     local gaps = reader.gaps
     if #gaps < MIN_SAMPLES then return LOG_PAIR end
+    if reader.pairWindow then return reader.pairWindow end
     local sorted = {}
     for index, gap in ipairs(gaps) do sorted[index] = gap end
     table.sort(sorted)
     local middle = sorted[math.ceil(#sorted / 2)]
-    return math.min(LOG_PAIR, math.max(0.004, middle * 2 + 0.004))
+    reader.pairWindow = math.min(LOG_PAIR, math.max(0.004, middle * 2 + 0.004))
+    return reader.pairWindow
 end
 ns.PairWindow = PairWindow
 local function Close(hit) return hit.line ~= nil and (hit.gap or 0) <= PairWindow() end
@@ -1354,6 +1363,7 @@ local EVENTS = {
     "UNIT_COMBAT", "UNIT_SPELLCAST_SUCCEEDED", "UNIT_SPELLCAST_INTERRUPTED", "PLAYER_SWING", "PLAYER_TARGET_CHANGED",
     "NAME_PLATE_UNIT_ADDED", "NAME_PLATE_UNIT_REMOVED", "LOSS_OF_CONTROL_ADDED", "SPELL_ACTIVATION_OVERLAY_GLOW_SHOW",
     "COMBAT_TEXT_UPDATE",
+    "UNIT_SPELLCAST_CHANNEL_START", "UNIT_SPELLCAST_CHANNEL_STOP",
     "PLAYER_REGEN_DISABLED", "PLAYER_REGEN_ENABLED",
     "PLAYER_ENTERING_WORLD", "COMBAT_LOG_MESSAGE", "SPELL_TEXT_UPDATE",
     "PLAYER_EQUIPMENT_CHANGED",
@@ -1366,6 +1376,16 @@ local function OnEvent(_, event, ...)
     elseif event == "UNIT_SPELLCAST_SUCCEEDED" then
         local unit, _, spell = ...
         if unit == "player" or unit == "pet" then OnCast(unit, spell) end
+    elseif event == "UNIT_SPELLCAST_CHANNEL_START" then
+        local unit, _, spell = ...
+        if (unit == "player" or unit == "pet") and ns.Number(spell, 1) then
+            ns.mine:StartChannel(unit, spell, ns.TargetKey(), Now())
+        end
+    elseif event == "UNIT_SPELLCAST_CHANNEL_STOP" then
+        local unit, _, spell = ...
+        if unit == "player" or unit == "pet" then
+            ns.mine:StopChannel(unit, ns.Number(spell, 1) and spell or nil, Now())
+        end
     elseif event == "UNIT_SPELLCAST_INTERRUPTED" then
         local unit, _, _, interruptedBy = ...
         OnInterrupted(unit, interruptedBy)
@@ -1443,7 +1463,7 @@ ns.ReaderEvent = OnEvent
 local initialReader = {}
 for key, value in pairs(reader) do initialReader[key] = value end
 
-function ns.StartReader()
+local function ResetReader()
     if ns.ResetHealing then ns.ResetHealing() end
     local frame = reader.frame
     for key in pairs(reader) do reader[key] = nil end
@@ -1453,6 +1473,10 @@ function ns.StartReader()
     reader.frame = frame
     lastCast, lastInterrupt = nil, 0
     beats = {}
+end
+
+function ns.StartReader()
+    ResetReader()
     ns.mine = ns.NewMine(ns.Learned, ns.Learn, ns.SpellFacts)
     local frame = reader.frame or CreateFrame("Frame")
     -- Event availability differs between Retail and Classic clients.
@@ -1473,6 +1497,11 @@ end
 
 -- MSBT owns enable/disable and invalidates all delayed work in Context.lua.
 function ns.StopReader()
-    if reader.frame then reader.frame:UnregisterAllEvents() end
+    if reader.frame then
+        reader.frame:UnregisterAllEvents()
+        reader.frame:SetScript("OnEvent", nil)
+    end
     ns.KeepCombatLog(false)
+    ResetReader()
+    ns.mine = nil
 end

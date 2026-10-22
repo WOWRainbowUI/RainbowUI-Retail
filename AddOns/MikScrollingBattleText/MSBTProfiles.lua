@@ -2402,7 +2402,22 @@ masterProfile.scrollAreas.IncomingPet = CreatePetScrollArea(
 masterProfile.scrollAreas.OutgoingPet = CreatePetScrollArea(
 	masterProfile.scrollAreas.Outgoing)
 
+for _, side in ipairs({ "msbt", "blizzard" }) do
+	for _, category in ipairs({ "Outgoing", "Notifications", "Incoming" }) do
+		masterProfile[side .. category .. "Disabled"] = false
+	end
+end
+
 for eventType, settings in pairs(masterProfile.events) do
+	local categoryType = eventType:gsub("^PET_", "")
+	if categoryType:match("^OUTGOING_") then
+		settings.textCategory = "Outgoing"
+	elseif categoryType:match("^INCOMING_")
+		or categoryType:match("^SELF_HEAL") or categoryType:match("^SELF_HOT") then
+		settings.textCategory = "Incoming"
+	else
+		settings.textCategory = "Notifications"
+	end
 	if eventType:match("^PET_INCOMING_") then
 		settings.scrollArea = "IncomingPet"
 	elseif eventType:match("^PET_OUTGOING_") then
@@ -2576,20 +2591,76 @@ local function SetupBlizzardOptions()
 	end
 end
 
-local function SetBlizzardCombatTextV2Enabled(isEnabled, suppressOtherText)
+local blizzardCategoryState = { original = {} }
+local BLIZZARD_INCOMING_TYPES = {
+	DAMAGE = true, DAMAGE_CRIT = true, SPELL_DAMAGE = true,
+	SPELL_DAMAGE_CRIT = true, DAMAGE_SHIELD = true, SPLIT_DAMAGE = true,
+	HEAL = true, HEAL_CRIT = true, PERIODIC_HEAL = true,
+	PERIODIC_HEAL_CRIT = true, HEAL_ABSORB = true, HEAL_CRIT_ABSORB = true,
+	PERIODIC_HEAL_ABSORB = true, PERIODIC_HEAL_CRIT_ABSORB = true,
+	ABSORB_ADDED = true,
+	MISS = true, DODGE = true, PARRY = true, EVADE = true, IMMUNE = true,
+	DEFLECT = true, RESIST = true, BLOCK = true, ABSORB = true,
+	SPELL_MISS = true, SPELL_DODGE = true, SPELL_PARRY = true,
+	SPELL_EVADE = true, SPELL_IMMUNE = true, SPELL_DEFLECT = true,
+	SPELL_REFLECT = true, SPELL_RESIST = true, SPELL_BLOCK = true,
+	SPELL_ABSORB = true,
+}
+
+local function UpdateBlizzardTextCategories(refreshed)
+	local types = CombatTextTypeInfo or COMBAT_TEXT_TYPE_INFO
+	if type(types) ~= "table" then return end
+	local state = blizzardCategoryState
+	if refreshed then
+		-- Blizzard refreshes CVar-backed types only. Preserve fixed defaults.
+		for kind, original in pairs(state.original) do
+			local info = types[kind]
+			if info and not info.cvar then info.show = original.show end
+		end
+		state.original = {}
+	end
+	for kind, info in pairs(types) do
+		local disabled
+		if BLIZZARD_INCOMING_TYPES[kind] then
+			disabled = state.incomingDisabled
+		else
+			disabled = state.notificationsDisabled
+		end
+		if disabled then
+			if not state.original[kind] then
+				state.original[kind] = { show = info.show }
+			end
+			info.show = nil
+		elseif state.original[kind] then
+			info.show = state.original[kind].show
+			state.original[kind] = nil
+		end
+	end
+end
+
+local function SetBlizzardCombatTextV2Enabled(isEnabled, suppressOtherText, profile)
 	-- PLAYER_REGEN_ENABLED reapplies the current profile after combat.
 	if InCombatLockdown and InCombatLockdown() then
 		return
 	end
 
-	local value = isEnabled and 1 or 0
-	if suppressOtherText then
-		SetCVar("enableFloatingCombatText", 0)
-		if not IsClassic then
-			SetCVar("floatingCombatTextCombatHealing", 0)
+	local masterEnabled = isEnabled
+	local outgoingEnabled = isEnabled
+		and not (profile and profile.blizzardOutgoingDisabled)
+	local value = outgoingEnabled and 1 or 0
+	if suppressOtherText or profile then
+		-- MSBT needs this feed for aura notices when UNIT_AURA is secret.
+		-- Hide Blizzard's frame below without disabling the event source.
+		if not CombatText then
+			local loadAddon = C_AddOns and C_AddOns.LoadAddOn or LoadAddOn
+			if loadAddon then loadAddon("Blizzard_CombatText") end
 		end
-		SetCVar("floatingCombatTextCombatHealing_v2", 0)
-		SHOW_COMBAT_TEXT = "0"
+		SetCVar("enableFloatingCombatText", 1)
+		if not IsClassic then
+			SetCVar("floatingCombatTextCombatHealing", profile and value or 0)
+		end
+		SetCVar("floatingCombatTextCombatHealing_v2", profile and value or 0)
+		SHOW_COMBAT_TEXT = "1"
 	end
 
 	SetCVar("floatingCombatTextCombatDamage", value)
@@ -2598,6 +2669,34 @@ local function SetBlizzardCombatTextV2Enabled(isEnabled, suppressOtherText)
 	SetCVar("floatingCombatTextPetMeleeDamage_v2", value)
 	SetCVar("floatingCombatTextPetSpellDamage_v2", value)
 	if (not Client.hasModernAPI and CombatText_UpdateDisplayedMessages) then CombatText_UpdateDisplayedMessages() end
+	if profile then
+		local state = blizzardCategoryState
+		state.incomingDisabled = profile.blizzardIncomingDisabled
+		state.notificationsDisabled = profile.blizzardNotificationsDisabled
+		if hooksecurefunc and not state.hooked then
+			local function Refreshed() UpdateBlizzardTextCategories(true) end
+			if CombatText and CombatText.UpdateDisplayedMessages then
+				hooksecurefunc(CombatText, "UpdateDisplayedMessages", Refreshed)
+				state.hooked = true
+			elseif CombatText_UpdateDisplayedMessages then
+				hooksecurefunc("CombatText_UpdateDisplayedMessages", Refreshed)
+				state.hooked = true
+			end
+		end
+		UpdateBlizzardTextCategories()
+	end
+	if CombatText then
+		local hide = suppressOtherText
+		if profile then
+			hide = not masterEnabled or (profile.blizzardIncomingDisabled
+				and profile.blizzardNotificationsDisabled)
+		end
+		if hide then
+			CombatText:Hide()
+		else
+			CombatText:Show()
+		end
+	end
 end
 
 local function SetAddonEnabled(isEnabled)

@@ -29,9 +29,6 @@ local languageTabListbox
 local BOTTOM_TAB_ORDER = 9000
 local LANGUAGE_TAB_ORDER = 9500
 
-local waitTable = {}
-local waitFrame = nil
-
 local MAIN_FRAME_WIDTH = 790
 local MAIN_FRAME_HEIGHT = 490
 local TAB_OFFSET_X = 235
@@ -501,34 +498,6 @@ end
 
 
 
-local function ScheduleCallback(delay, func, ...)
-	if (waitFrame == nil) then
-		waitFrame = CreateFrame("Frame", nil, UIParent)
-		waitFrame:SetScript("OnUpdate",function (self, elapsed)
-			local count = #waitTable
-			local i = 1
-			while (i <= count) do
-				local waitRecord = tremove(waitTable, i)
-				local duration = tremove(waitRecord, 1)
-				local func = tremove(waitRecord, 1)
-				local params = tremove(waitRecord, 1)
-				if (duration > elapsed) then
-					tinsert(waitTable, i, {duration - elapsed, func, params})
-					i = i + 1
-				else
-					count = count - 1
-					func(unpack(params))
-				end
-			end
-		end)
-	end
-	tinsert(waitTable, {delay, func, {...}})
-	return true
-end
-
-
-
-
 module.ShowMainFrame		= ShowMainFrame
 module.HideMainFrame		= HideMainFrame
 module.DockMainFrame		= DockMainFrame
@@ -536,4 +505,3 @@ module.UndockMainFrame		= UndockMainFrame
 module.GetTabs				= GetTabs
 module.RegisterPopupFrame	= RegisterPopupFrame
 module.AddTab				= AddTab
-module.ScheduleCallback		= ScheduleCallback

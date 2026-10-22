@@ -93,8 +93,20 @@ obj["enableMSBT"] = {
 	tooltip = "Enable MSBT and turn off all Blizzard combat text.",
 }
 obj["enableBlizzardDamage"] = {
-	label = "Enable Blizzard Damage",
-	tooltip = "Show Blizzard damage numbers for the player and pet, both solo and in groups.",
+	label = "Enable Blizzard Text",
+	tooltip = "Enable Blizzard combat text with the category choices below.",
+}
+obj["disableOutgoing"] = {
+	label = "Disable outgoing",
+	tooltip = "Hide outgoing damage and healing text for this system.",
+}
+obj["disableNotifications"] = {
+	label = "Disable notifications",
+	tooltip = "Hide buffs, combat notices, and other notifications for this system.",
+}
+obj["disableIncoming"] = {
+	label = "Disable incoming",
+	tooltip = "Hide incoming damage and healing text for this system.",
 }
 obj["stickyCrits"]				= { label="Sticky Crits", tooltip="Display crits using the sticky style."}
 obj["colorPartialEffects"]		= { label="Color Partial Effects", tooltip="Apply specified colors to partial effects."}

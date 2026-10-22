@@ -31,7 +31,8 @@ function RuntimeController:ApplyBlizzardState()
 
 	self.setBlizzardEnabled(
 		not not profile.blizzardDamageEnabled,
-		not self.isAddonDisabled()
+		not self.isAddonDisabled(),
+		profile
 	)
 end
 

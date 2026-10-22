@@ -21,7 +21,20 @@ local ns = MikSBT.CombatEngine
 -- time when given }
 -- or nil when nothing can be said.
 
-local SCHOOLS = { physical = 1, holy = 2, fire = 4, nature = 8, frost = 16, shadow = 32, arcane = 64 }
+local SCHOOLS = {
+    physical = 1, holy = 2, fire = 4, nature = 8,
+    frost = 16, shadow = 32, arcane = 64,
+    holystrike = 3, flamestrike = 5, stormstrike = 9,
+    froststrike = 17, shadowstrike = 33, spellstrike = 65,
+    holyfire = 6, holystorm = 10, holyfrost = 18,
+    shadowholy = 34, divine = 66,
+    firestorm = 12, frostfire = 20, shadowflame = 36, spellfire = 68,
+    froststorm = 24, shadowstorm = 40, spellstorm = 72,
+    shadowfrost = 48, spellfrost = 80, spellshadow = 96,
+    elemental = 28, cosmic = 106, chromatic = 124, magic = 126, chaos = 127,
+    -- Tooltip names for schools whose display constants use older names.
+    radiant = 6, twilight = 34, plague = 40, astral = 72, volcanic = 5,
+}
 -- Words of spells that harm or drain without saying "<school> damage".
 local HARM = { "health every", "from the target", "drains" }
 
