@@ -1,6 +1,7 @@
 # Chattynator
 
-## [227](https://github.com/TheMouseNest/Chattynator/tree/227) (2026-10-13)
-[Full Changelog](https://github.com/TheMouseNest/Chattynator/compare/226...227) 
+## [228](https://github.com/TheMouseNest/Chattynator/tree/228) (2026-10-17)
+[Full Changelog](https://github.com/TheMouseNest/Chattynator/compare/227...228) 
 
-- Update toc for 12.1.5  
+- Forever: Fix player level up message  
+- Libs update  

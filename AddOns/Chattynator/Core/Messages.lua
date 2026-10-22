@@ -535,6 +535,19 @@ function addonTable.MessagesMonitorMixin:OnEvent(eventName, ...)
   end
 end
 
+function addonTable.MessagesMonitorMixin:PlayerLevelUp(...)
+  if addonTable.Constants.IsForever then
+    ChatFrameUtil.DisplayLevelUp(self, ...);
+  end
+end
+
+function addonTable.MessagesMonitorMixin:PlayerLevelChanged(...)
+  if addonTable.Constants.IsRetail then
+    local oldLevel, newLevel, real = ...;
+    ChatFrameUtil.DisplayLevelUp(self, oldLevel, newLevel, real);
+  end
+end
+
 function addonTable.MessagesMonitorMixin:ReplaceColors()
   self:ImportChannelColors()
   local colors = addonTable.Config.Get(addonTable.Config.Options.CHAT_COLORS)
