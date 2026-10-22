@@ -1,5 +1,5 @@
 ﻿----------------------------------------------------------------------
--- 	Leatrix Plus 12.1.11 (15th October 2026)
+-- 	Leatrix Plus 12.1.14 (21st October 2026)
 ----------------------------------------------------------------------
 
 --	01:Functions 02:Locks,  03:Restart 40:Player
@@ -18,7 +18,7 @@
 	local void
 
 	-- Version
-	LeaPlusLC["AddonVer"] = "12.1.11"
+	LeaPlusLC["AddonVer"] = "12.1.14"
 
 	-- Get locale table
 	local void, Leatrix_Plus = ...
@@ -582,7 +582,6 @@
 		LeaPlusLC:LockOption("AutoRepairGear", "AutoRepairBtn", false)				-- Repair automatically
 		LeaPlusLC:LockOption("InviteFromWhisper", "InvWhisperBtn", false)			-- Invite from whispers
 		LeaPlusLC:LockOption("NoChatButtons", "NoChatButtonsBtn", true)				-- Hide chat buttons
-		LeaPlusLC:LockOption("SetChatFontSize", "SetChatFontSizeBtn", true)			-- Set chat font size
 		LeaPlusLC:LockOption("FilterChatMessages", "FilterChatMessagesBtn", true)	-- Filter chat messages
 		LeaPlusLC:LockOption("QuestFontChange", "QuestTextBtn", true)				-- Resize quest text
 		LeaPlusLC:LockOption("MinimapModder", "ModMinimapBtn", true)				-- Enhance minimap
@@ -619,7 +618,7 @@
 		or	(LeaPlusLC["NoSocialButton"]		~= LeaPlusDB["NoSocialButton"])			-- Hide social button
 		or	(LeaPlusLC["UnclampChat"]			~= LeaPlusDB["UnclampChat"])			-- Unclamp chat frame
 		or	(LeaPlusLC["MoveChatEditBoxToTop"]	~= LeaPlusDB["MoveChatEditBoxToTop"])	-- Move editbox to top
-		or	(LeaPlusLC["SetChatFontSize"]		~= LeaPlusDB["SetChatFontSize"])		-- Set chat font size
+		or	(LeaPlusLC["MoreChatFontSizes"]		~= LeaPlusDB["MoreChatFontSizes"])		-- More chat font sizes
 		or	(LeaPlusLC["NoStickyChat"]			~= LeaPlusDB["NoStickyChat"])			-- Disable sticky chat
 		or	(LeaPlusLC["UseArrowKeysInChat"]	~= LeaPlusDB["UseArrowKeysInChat"])		-- Use arrow keys in chat
 		or	(LeaPlusLC["NoChatFade"]			~= LeaPlusDB["NoChatFade"])				-- Disable chat fade
@@ -681,7 +680,7 @@
 		or	(LeaPlusLC["EasyItemDestroy"]		~= LeaPlusDB["EasyItemDestroy"])		-- Easy item destroy
 
 		-- Settings
-		or	(LeaPlusLC["UseEnglishLanguage"]	~= LeaPlusDB["UseEnglishLanguage"])		-- Use English language
+		or	(LeaPlusLC["AddonLanguage"]			~= LeaPlusDB["AddonLanguage"])			-- Addon language
 		or	(LeaPlusLC["SimpleAddonListing"]	~= LeaPlusDB["SimpleAddonListing"])		-- Simple addon listing
 		or	(LeaPlusLC["HideStarterTutorials"]	~= LeaPlusDB["HideStarterTutorials"])	-- Hide starter tutorials
 
@@ -814,7 +813,7 @@
 				buttonIcons[button] = icon
 				-- Reapply color after Blizzard sets usable color
 				if type(button.UpdateUsable) == "function" then
-					hooksecurefunc(button, "UpdateUsable", UsableHook)
+					button:HookScript("OnShow", function(self) UpdateButton(self, true) end)
 				else
 					needGlobalUsableHook = true
 				end
@@ -846,6 +845,30 @@
 			if needGlobalUsableHook and type(ActionButton_UpdateUsable) == "function" then
 				hooksecurefunc("ActionButton_UpdateUsable", UsableHook)
 			end
+
+			-- Reapply color after Blizzard updates usable state (registered after Blizzard so this runs last)
+			local usableFrame = CreateFrame("Frame")
+			for void, event in pairs({"ACTION_USABLE_CHANGED", "ACTIONBAR_UPDATE_USABLE", "SPELL_UPDATE_USABLE", "SPELL_UPDATE_ICON", "ACTIONBAR_SLOT_CHANGED", "UPDATE_BONUS_ACTIONBAR", "ACTIONBAR_PAGE_CHANGED", "UPDATE_OVERRIDE_ACTIONBAR", "UPDATE_VEHICLE_ACTIONBAR", "UPDATE_POSSESS_BAR", "UPDATE_SHAPESHIFT_FORM", "PLAYER_MOUNT_DISPLAY_CHANGED", "PLAYER_ENTERING_WORLD"}) do
+				pcall(usableFrame.RegisterEvent, usableFrame, event)
+			end
+			usableFrame:SetScript("OnEvent", function(self, event, changes)
+				if event == "ACTION_USABLE_CHANGED" and type(changes) == "table" then
+					-- Only update buttons for the slots that changed
+					local slots = {}
+					for void, change in ipairs(changes) do
+						if change.slot then slots[change.slot] = true end
+					end
+					for button in pairs(buttonIcons) do
+						if slots[button.action] then
+							UpdateButton(button, true)
+						end
+					end
+				else
+					for button in pairs(buttonIcons) do
+						UpdateButton(button, true)
+					end
+				end
+			end)
 
 			-- Range updates
 			if globalRangeHook then
@@ -979,7 +1002,9 @@
 
 					if filter == "" or searchable:find(filter, 1, true) then
 						groups[group] = groups[group] or {parent = {addonIndex = i}, children = {}}
-						if name ~= group then
+						if name == group then
+							groups[group].parent = {addonIndex = i}
+						else
 							table.insert(groups[group].children, {addonIndex = i})
 						end
 					end
@@ -1033,20 +1058,43 @@
 
 			-- Apply the layout on login if it is not already active
 			if LeaPlusLC["SetEditModeLayout"] == "On" then
-				if EditModeManagerFrame then
-					local activeLayoutInfo = EditModeManagerFrame:GetActiveLayoutInfo()
-					local success, layouts = pcall(function() return EditModeManagerFrame:GetLayouts() end)
-					if success and layouts and type(layouts) == "table" then
-						for index, layout in ipairs(layouts) do
-							if layout.layoutName and layout.layoutName:lower() == LeaPlusLC["EditModeLayoutName"]:lower() then
-								if activeLayoutInfo.layoutName and activeLayoutInfo.layoutName:lower() ~= LeaPlusLC["EditModeLayoutName"]:lower() then
-									pcall(C_EditMode.SetActiveLayout, index)
-									LeaPlusLC:Print(L["Edit Mode layout"] .. " '" .. layout.layoutName .. "' " .. L["applied"])
-								end
+
+				local function TryApplyLayout()
+					local wanted = strtrim(tostring(LeaPlusLC["EditModeLayoutName"] or "")):lower()
+					if wanted == "" then return true end
+					if not EditModeManagerFrame or not EditModeManagerFrame.layoutInfo then return false end
+					local layouts = EditModeManagerFrame:GetLayouts()
+					if type(layouts) ~= "table" or #layouts == 0 then return false end
+					local active = EditModeManagerFrame:GetActiveLayoutInfo()
+					for index, layout in ipairs(layouts) do
+						if layout.layoutName and layout.layoutName:lower() == wanted then
+							if not (active and active.layoutName and active.layoutName:lower() == wanted) then
+								C_EditMode.SetActiveLayout(index)
+								LeaPlusLC:Print(L["Edit Mode layout"] .. " '" .. layout.layoutName .. "' " .. L["applied"])
 							end
+							return true
 						end
 					end
+					return true
 				end
+
+				-- Layouts already loaded (e.g. after /reload)
+				if not TryApplyLayout() then
+					-- Cold login: wait until the layouts arrive, then apply once
+					local f = CreateFrame("Frame")
+					local done = false
+					f:RegisterEvent("EDIT_MODE_LAYOUTS_UPDATED")
+					f:SetScript("OnEvent", function(self)
+						C_Timer.After(0, function()
+							if done then return end
+							if TryApplyLayout() then
+								done = true
+								self:UnregisterAllEvents()
+							end
+						end)
+					end)
+				end
+
 			end
 
 			-- Function to save the keyword
@@ -1092,7 +1140,7 @@
 			end)
 
 			-- Ensure keyword is a string on startup
-			LeaPlusLC["EditModeLayoutName"] = tostring(LeaPlusLC["EditModeLayoutName"]) or ""
+			LeaPlusLC["EditModeLayoutName"] = tostring(LeaPlusLC["EditModeLayoutName"] or "")
 
 			-- Set editbox value when shown
 			LayoutBox:HookScript("OnShow", function()
@@ -3158,7 +3206,7 @@
 			LeaPlusLC:MakeCB(QuestPanel, "AutoQuestShift", "Require override key for quest automation", 16, -172, false, "If checked, you will need to hold the override key down for quests to be automated.|n|nIf unchecked, holding the override key will prevent quests from being automated.")
 
 			-- Add dropdown menu
-			LeaPlusLC:CreateDropdown("AutoQuestKeyMenu", "Override key", 146, "TOPLEFT", QuestPanel, "TOPLEFT", 356, -92, {{L["SHIFT"], 1}, {L["ALT"], 2}, {L["CONTROL"], 3}, {L["CMD (MAC)"], 4}})
+			LeaPlusLC:CreateDropdown("AutoQuestKeyMenu", "Override key", 146, "TOPLEFT", QuestPanel, "TOPLEFT", 356, -92, false, {{L["SHIFT"], 1}, {L["ALT"], 2}, {L["CONTROL"], 3}, {L["CMD (MAC)"], 4}})
 
 			-- Help button hidden
 			QuestPanel.h:Hide()
@@ -4249,7 +4297,7 @@
 			local ChainPanel = LeaPlusLC:CreatePanel("Show player chain", "ChainPanel")
 
 			-- Add dropdown menu
-			LeaPlusLC:CreateDropdown("PlayerChainMenu", "Chain style", 146, "TOPLEFT", ChainPanel, "TOPLEFT", 16, -92, {{L["ELITE"], 1}, {L["BOSS"], 2}, {L["RARE"], 3}})
+			LeaPlusLC:CreateDropdown("PlayerChainMenu", "Chain style", 146, "TOPLEFT", ChainPanel, "TOPLEFT", 16, -92, false, {{L["ELITE"], 1}, {L["BOSS"], 2}, {L["RARE"], 3}})
 
 			-- Set chain style
 			local function SetChainStyle()
@@ -5652,99 +5700,53 @@
 		end
 
 		----------------------------------------------------------------------
-		-- Set chat font size
+		--	More chat font sizes
 		----------------------------------------------------------------------
 
-		if LeaPlusLC["SetChatFontSize"] == "On" and not LeaLockList["SetChatFontSize"] then
+		if LeaPlusLC["MoreChatFontSizes"] == "On" and not LeaLockList["MoreChatFontSizes"] then
 
-			-- Function to set chat font size of existing chat frames
-			local function SetFontSizeFunc()
-				-- Existing chat frames
-				for i = 1, 50 do
-					if _G["ChatFrame" .. i] then
-						local fontFile, unused, fontFlags = _G["ChatFrame" .. i]:GetFont()
-						_G["ChatFrame" .. i]:SetFont(fontFile, LeaPlusLC["LeaPlusChatFontSize"], fontFlags)
+			local extraSizes = {22, 26, 28, 30, 32, 34, 36, 38, 40}
+
+			Menu.ModifyMenu("MENU_FCF_TAB", function(owner, rootDescription)
+				local chatFrame = FCF_GetChatFrameByID(owner:GetID())
+				if not chatFrame then return end
+
+				-- Find Blizzard's font size submenu (it contains a radio for the first chat font size)
+				local fontMenu
+				for void, element in rootDescription:EnumerateElementDescriptions() do
+					for void, child in element:EnumerateElementDescriptions() do
+						if child.IsRadio and child:IsRadio() and child:GetData() == CHAT_FONT_HEIGHTS[1] then
+							fontMenu = element
+							break
+						end
 					end
+					if fontMenu then break end
 				end
-				-- Special frames
-				local fontFile, unused, fontFlags = DEFAULT_CHAT_FRAME:GetFont()
-				if GMChatFrame then
-					GMChatFrame:SetFont(fontFile, LeaPlusLC["LeaPlusChatFontSize"], fontFlags)
+				if not fontMenu then return end
+
+				-- Tick the size in use (font height is checked for secrets before it is compared)
+				local function IsSelected(size)
+					local void, height = chatFrame:GetFont()
+					if not height or (issecretvalue and issecretvalue(height)) then return false end
+					return math.floor(height + 0.5) == size
 				end
-				if CommunitiesFrame then
-					CommunitiesFrame.Chat.MessageFrame:SetFont(fontFile, LeaPlusLC["LeaPlusChatFontSize"], fontFlags)
+
+				-- Set and save the font size the same way Blizzard's own options do
+				local function SetSelected(size)
+					FCF_SetChatWindowFontSize(nil, chatFrame, size)
 				end
-				SetChatWindowSize(DEFAULT_CHAT_FRAME:GetID(), LeaPlusLC["LeaPlusChatFontSize"])
-			end
 
-			-- Set chat font size of temporary chat frames
-			hooksecurefunc("FCF_OpenTemporaryWindow", function()
-				local cf = FCF_GetCurrentChatFrame():GetName() or nil
-				if cf then
-					-- Temporary frames
-					local fontFile, unused, fontFlags = _G[cf]:GetFont()
-					_G[cf]:SetFont(fontFile, LeaPlusLC["LeaPlusChatFontSize"], fontFlags)
-				end
-			end)
-
-			-- Set chat font size whenever the game sets it
-			hooksecurefunc("FCF_SetChatWindowFontSize", function(self, chatFrame, fontSize)
-				if not chatFrame then
-					chatFrame = FCF_GetCurrentChatFrame()
-				end
-				-- Temporary frames
-				local fontFile, unused, fontFlags = chatFrame:GetFont()
-				chatFrame:SetFont(fontFile, LeaPlusLC["LeaPlusChatFontSize"], fontFlags)
-				-- Special frames
-				if GMChatFrame then
-					GMChatFrame:SetFont(fontFile, LeaPlusLC["LeaPlusChatFontSize"], fontFlags)
-				end
-				if CommunitiesFrame then
-					CommunitiesFrame.Chat.MessageFrame:SetFont(fontFile, LeaPlusLC["LeaPlusChatFontSize"], fontFlags)
-				end
-				SetChatWindowSize(chatFrame:GetID(), LeaPlusLC["LeaPlusChatFontSize"])
-			end)
-
-			-- Create configuration panel
-			local ChatFontSizePanel = LeaPlusLC:CreatePanel("Set chat font size", "ChatFontSizePanel")
-
-			LeaPlusLC:MakeTx(ChatFontSizePanel, "Text size", 16, -72)
-			LeaPlusLC:MakeSL(ChatFontSizePanel, "LeaPlusChatFontSize", "Drag to set the chat font size.", 12, 48, 1, 16, -92, "%.0f")
-
-			-- Set text size when slider changes and on startup
-			LeaPlusCB["LeaPlusChatFontSize"]:HookScript("OnValueChanged", SetFontSizeFunc)
-			SetFontSizeFunc()
-
-			-- Help button hidden
-			ChatFontSizePanel.h:Hide()
-
-			-- Back button handler
-			ChatFontSizePanel.b:SetScript("OnClick", function()
-				ChatFontSizePanel:Hide(); LeaPlusLC["PageF"]:Show(); LeaPlusLC["Page3"]:Show()
-				return
-			end)
-
-			-- Reset button handler
-			ChatFontSizePanel.r:SetScript("OnClick", function()
-
-				-- Reset slider
-				LeaPlusLC["LeaPlusChatFontSize"] = 20
-				SetFontSizeFunc()
-
-				-- Refresh side panel
-				ChatFontSizePanel:Hide(); ChatFontSizePanel:Show()
-
-			end)
-
-			-- Show configuration panal when options panel button is clicked
-			LeaPlusCB["SetChatFontSizeBtn"]:SetScript("OnClick", function()
-				if IsShiftKeyDown() and IsControlKeyDown() then
-					-- Preset profile
-					LeaPlusLC["LeaPlusChatFontSize"] = 20
-					SetFontSizeFunc()
-				else
-					ChatFontSizePanel:Show()
-					LeaPlusLC:HideFrames()
+				-- Insert each extra size in order, skipping any size Blizzard already has
+				for void, size in ipairs(extraSizes) do
+					local index, exists = 1, false
+					for i, child in fontMenu:EnumerateElementDescriptions() do
+						local data = child:GetData()
+						if data == size then exists = true; break end
+						if type(data) == "number" and data < size then index = i + 1 end
+					end
+					if not exists then
+						fontMenu:Insert(MenuUtil.CreateRadio(format(FONT_SIZE_TEMPLATE, size), IsSelected, SetSelected, size), index)
+					end
 				end
 			end)
 
@@ -5834,7 +5836,7 @@
 			SetExcludeButtonsFunc()
 
 			-- Add effects dropdown
-			LeaPlusLC:CreateDropdown("MinimapEffect", "Visual effect", 150, "TOPLEFT", SideMinimap, "TOPLEFT", 356, -92, {{L["None"], 1}, {L["Arcane Orbit"], 2}, {L["Rune Ward"], 3}, {L["Vortex"], 4}, {L["Inferno"], 5}, {L["Snow Globe"], 6}, {L["Storm"], 7}, {L["Corona"], 8}, {L["Aurora"], 9}, {L["Starfield"], 10}, {L["Chronometer"], 11}, {L["Heartbeat"], 12}, {L["Fireworks"], 13}, {L["Crystals"], 14}, {L["Neon"], 15}, {L["Marquee"], 16}, {L["Glitch"], 17}, {L["Lava"], 18}, {L["Fuse"], 19}, {L["Digital Rain"], 20}, {L["Prism"], 21}, {L["Candy Party"], 22}})
+			LeaPlusLC:CreateDropdown("MinimapEffect", "Visual effect", 150, "TOPLEFT", SideMinimap, "TOPLEFT", 356, -92, false, {{L["None"], 1}, {L["Arcane Orbit"], 2}, {L["Rune Ward"], 3}, {L["Vortex"], 4}, {L["Inferno"], 5}, {L["Snow Globe"], 6}, {L["Storm"], 7}, {L["Corona"], 8}, {L["Aurora"], 9}, {L["Starfield"], 10}, {L["Chronometer"], 11}, {L["Heartbeat"], 12}, {L["Fireworks"], 13}, {L["Crystals"], 14}, {L["Neon"], 15}, {L["Marquee"], 16}, {L["Glitch"], 17}, {L["Lava"], 18}, {L["Fuse"], 19}, {L["Digital Rain"], 20}, {L["Prism"], 21}, {L["Candy Party"], 22}})
 
 			LeaPlusLC:MakeTx(SideMinimap, "Border width", 356, -132)
 			LeaPlusLC:MakeSL(SideMinimap, "MinimapBorderWidth", "Drag to set the square minimap border width.", 1, 10, 1, 356, -142, "%.0f")
@@ -9179,7 +9181,7 @@
 			LeaPlusCB["TipHideInCombat"]:HookScript("OnClick", SetTipHideShiftOverrideFunc)
 			SetTipHideShiftOverrideFunc()
 
-			LeaPlusLC:CreateDropdown("TooltipAnchorMenu", "Anchor", 146, "TOPLEFT", SideTip, "TOPLEFT", 356, -92, {{L["None"], 1}, {L["Cursor"], 2}, {L["Cursor Left"], 3}, {L["Cursor Right"], 4}})
+			LeaPlusLC:CreateDropdown("TooltipAnchorMenu", "Anchor", 146, "TOPLEFT", SideTip, "TOPLEFT", 356, -92, false, {{L["None"], 1}, {L["Cursor"], 2}, {L["Cursor Left"], 3}, {L["Cursor Right"], 4}})
 
 			local XOffsetHeading = LeaPlusLC:MakeTx(SideTip, "X Offset", 356, -132)
 			LeaPlusLC:MakeSL(SideTip, "TipCursorX", "Drag to set the cursor X offset.", -128, 128, 1, 356, -152, "%.0f")
@@ -10924,51 +10926,7 @@
 					if LeaPlusDB[oldvar] and not LeaPlusDB[newvar] then LeaPlusDB[newvar] = LeaPlusDB[oldvar]; LeaPlusDB[oldvar] = nil end
 				end
 
-				UpdateVars("CombineAddonButtons", "MinimapButtonBag")		-- 12.0.00 (24th January 2026)
-				UpdateVars("MinimapMod", "MinimapModder")					-- 9.2.26 (24th August 2022)
-				UpdateVars("RestorechatMessages", "RestoreChatMessages")	-- 9.2.36 (20th September 2022)
-
-				-- Minimum faster auto loot delay changed from 0.0 to 0.1 in 10.0.20
-				if LeaPlusDB["LeaPlusFasterLootDelay"] and LeaPlusDB["LeaPlusFasterLootDelay"] == 0 then
-					LeaPlusDB["LeaPlusFasterLootDelay"] = 0.1
-				end
-
-				if LeaPlusDB["AutoQuestNoDaily"] and not LeaPlusDB["AutoQuestDaily"] then
-					if LeaPlusDB["AutoQuestNoDaily"] == "On" then
-						LeaPlusDB["AutoQuestDaily"] = "Off"
-					else
-						LeaPlusDB["AutoQuestDaily"] = "On"
-					end
-					LeaPlusDB["AutoQuestNoDaily"] = nil
-				end
-
-				-- Mute game sounds split with Mute mount sounds
-				if LeaPlusDB["MuteGameSounds"] == "On" and not LeaPlusDB["MuteMountSounds"] then
-					if LeaPlusDB["MuteAerials"] == "On"
-					or LeaPlusDB["MuteAirships"] == "On"
-					or LeaPlusDB["MuteBanLu"] == "On"
-					or LeaPlusDB["MuteBikes"] == "On"
-					or LeaPlusDB["MuteBrooms"] == "On"
-					or LeaPlusDB["MuteDragonriding"] == "On"
-					or LeaPlusDB["MuteFurlines"] == "On"
-					or LeaPlusDB["MuteGyrocopters"] == "On"
-					or LeaPlusDB["MuteHovercraft"] == "On"
-					or LeaPlusDB["MuteMechSteps"] == "On"
-					or LeaPlusDB["MuteMechsuits"] == "On"
-					or LeaPlusDB["MuteOttuks"] == "On"
-					or LeaPlusDB["MuteRazorwings"] == "On"
-					or LeaPlusDB["MuteRockets"] == "On"
-					or LeaPlusDB["MuteSoulEaters"] == "On"
-					or LeaPlusDB["MuteSoulseekers"] == "On"
-					or LeaPlusDB["MuteStriders"] == "On"
-					or LeaPlusDB["MuteTravelers"] == "On"
-					or LeaPlusDB["MuteUnicorns"] == "On"
-					or LeaPlusDB["MuteZeppelins"] == "On"
-					then
-						LeaPlusLC["MuteMountSounds"] = "On"
-						LeaPlusDB["MuteMountSounds"] = "On"
-					end
-				end
+				UpdateVars("SetChatFontSize", "MoreChatFontSizes")			-- 12.1.15 (18th October 2026)
 
 				-- Automation
 				LeaPlusLC:LoadVarChk("AutomateQuests", "Off")				-- Automate quests
@@ -11025,8 +10983,7 @@
 				LeaPlusLC:LoadVarChk("NoSocialButton", "Off")				-- Hide social button
 				LeaPlusLC:LoadVarChk("UnclampChat", "Off")					-- Unclamp chat frame
 				LeaPlusLC:LoadVarChk("MoveChatEditBoxToTop", "Off")			-- Move editbox to top
-				LeaPlusLC:LoadVarChk("SetChatFontSize", "Off")				-- Set chat font size
-				LeaPlusLC:LoadVarNum("LeaPlusChatFontSize", 20, 12, 48)		-- Chat font size value
+				LeaPlusLC:LoadVarChk("MoreChatFontSizes", "Off")			-- More chat font sizes
 
 				LeaPlusLC:LoadVarChk("NoStickyChat", "Off")					-- Disable sticky chat
 				LeaPlusLC:LoadVarChk("UseArrowKeysInChat", "On")			-- Use arrow keys in chat
@@ -11149,8 +11106,8 @@
 				LeaPlusLC:LoadVarChk("NoTransforms", "Off")					-- Remove transforms
 
 				-- Settings
+				LeaPlusLC:LoadVarNum("AddonLanguage", 1, 1, 12)				-- Addon language
 				LeaPlusLC:LoadVarChk("ShowMinimapIcon", "On")				-- Show minimap button
-				LeaPlusLC:LoadVarChk("UseEnglishLanguage", "Off")			-- Use English language
 				LeaPlusLC:LoadVarChk("SetEditModeLayout", "Off")			-- Set edit mode layout
 				LeaPlusLC["EditModeLayoutName"]	= LeaPlusDB["EditModeLayoutName"] or ""			-- Edit mode layout name
 				LeaPlusLC:LoadVarChk("SimpleAddonListing", "Off")			-- Simple addon listing
@@ -11202,7 +11159,7 @@
 						Lock("NoSocialButton", reason) -- Hide social button
 						Lock("UnclampChat", reason) -- Unclamp chat frame
 						Lock("MoveChatEditBoxToTop", reason) -- Move editbox to top
-						Lock("SetChatFontSize", reason) -- Set chat font size
+						Lock("MoreChatFontSizes", reason) -- More chat font sizes
 						Lock("NoChatFade", reason) --  Disable chat fade
 						Lock("RecentChatWindow", reason) -- Recent chat window
 					end
@@ -11221,7 +11178,7 @@
 								Lock("NoChatButtons", reason, "Chat") -- Hide chat buttons
 								Lock("NoSocialButton", reason, "Chat") -- Hide social button
 								Lock("UnclampChat", reason, "Chat") -- Unclamp chat frame
-								Lock("SetChatFontSize", reason, "Chat") --  Set chat font size
+								Lock("MoreChatFontSizes", reason, "Chat") -- More chat font sizes
 								Lock("NoStickyChat", reason, "Chat") -- Disable sticky chat
 								Lock("UseArrowKeysInChat", reason, "Chat") -- Use arrow keys in chat
 								Lock("NoChatFade", reason, "Chat") -- Disable chat fade
@@ -11368,8 +11325,7 @@
 			LeaPlusDB["NoSocialButton"]			= LeaPlusLC["NoSocialButton"]
 			LeaPlusDB["UnclampChat"]			= LeaPlusLC["UnclampChat"]
 			LeaPlusDB["MoveChatEditBoxToTop"]	= LeaPlusLC["MoveChatEditBoxToTop"]
-			LeaPlusDB["SetChatFontSize"]		= LeaPlusLC["SetChatFontSize"]
-			LeaPlusDB["LeaPlusChatFontSize"]	= LeaPlusLC["LeaPlusChatFontSize"]
+			LeaPlusDB["MoreChatFontSizes"]		= LeaPlusLC["MoreChatFontSizes"]
 
 			LeaPlusDB["NoStickyChat"] 			= LeaPlusLC["NoStickyChat"]
 			LeaPlusDB["UseArrowKeysInChat"]		= LeaPlusLC["UseArrowKeysInChat"]
@@ -11492,8 +11448,8 @@
 			LeaPlusDB["NoTransforms"] 			= LeaPlusLC["NoTransforms"]
 
 			-- Settings
+			LeaPlusDB["AddonLanguage"] 			= LeaPlusLC["AddonLanguage"]
 			LeaPlusDB["ShowMinimapIcon"] 		= LeaPlusLC["ShowMinimapIcon"]
-			LeaPlusDB["UseEnglishLanguage"] 	= LeaPlusLC["UseEnglishLanguage"]
 			LeaPlusDB["SetEditModeLayout"] 		= LeaPlusLC["SetEditModeLayout"]
 			LeaPlusDB["EditModeLayoutName"] 	= LeaPlusLC["EditModeLayoutName"]
 			LeaPlusDB["SimpleAddonListing"] 	= LeaPlusLC["SimpleAddonListing"]
@@ -11598,18 +11554,6 @@
 		if LeaPlusDB["NoRestedEmotes"] == "On" then
 			if wipe or (not wipe and LeaPlusLC["NoRestedEmotes"] == "Off") then
 				SetCVar("Sound_EnableEmoteSounds", "1")
-			end
-		end
-
-		-- Set chat font size
-		if LeaPlusDB["SetChatFontSize"] == "On" and not LeaLockList["SetChatFontSize"] then
-			if wipe or (not wipe and LeaPlusLC["SetChatFontSize"] == "Off") then
-				for i = 1, 50 do
-					if _G["ChatFrame" .. i] then
-						LeaPlusLC["LeaPlusChatFontSize"] = CHAT_FRAME_DEFAULT_FONT_SIZE
-						FCF_SetChatWindowFontSize(self, _G["ChatFrame" .. i], CHAT_FRAME_DEFAULT_FONT_SIZE)
-					end
-				end
 			end
 		end
 
@@ -12006,7 +11950,7 @@
 	end
 
 	-- Create a dropdown menu (using standard dropdown template)
-	function LeaPlusLC:CreateDropdown(frame, label, width, anchor, parent, relative, x, y, items)
+	function LeaPlusLC:CreateDropdown(frame, label, width, anchor, parent, relative, x, y, reload, items)
 
 		local RadioDropdown = CreateFrame("DropdownButton", nil, parent, "WowStyle1DropdownTemplate")
 		LeaPlusCB[frame] = RadioDropdown
@@ -12065,6 +12009,9 @@
 		-- Hide the layer when the menu really closes (the mousewheel also signals the menu closing so options apply, but without a menu)
 		RadioDropdown:RegisterCallback("OnMenuClose", function(owner, dropdown, menu)
 			if menu and wheel then wheel:Hide() end
+			if reload then
+				LeaPlusLC:ReloadCheck()
+			end
 		end)
 
 	end
@@ -14115,8 +14062,7 @@
 				LeaPlusDB["NoSocialButton"] = "On"				-- Hide social button
 				LeaPlusDB["UnclampChat"] = "On"					-- Unclamp chat frame
 				LeaPlusDB["MoveChatEditBoxToTop"] = "On"		-- Move editbox to top
-				LeaPlusDB["SetChatFontSize"] = "On"				-- Set chat font size
-				LeaPlusDB["LeaPlusChatFontSize"] = 20			-- Chat font size value
+				LeaPlusDB["MoreChatFontSizes"] = "On"			-- More chat font sizes
 
 				LeaPlusDB["NoStickyChat"] = "On"				-- Disable sticky chat
 				LeaPlusDB["UseArrowKeysInChat"] = "On"			-- Use arrow keys in chat
@@ -14217,7 +14163,6 @@
 				LeaPlusDB["EasyItemDestroy"] = "On"				-- Easy item destroy
 				LeaPlusDB["NoTransforms"] = "On"				-- Remove transforms
 
-				LeaPlusDB["UseEnglishLanguage"] = "On"			-- Use English language
 				LeaPlusDB["SetEditModeLayout"] = "On"			-- Set edit mode layout
 				LeaPlusDB["EditModeLayoutName"] = "Main"		-- Edit mode layout name
 				LeaPlusDB["SimpleAddonListing"] = "On"			-- Simple addon listing
@@ -14841,7 +14786,6 @@
 		----------------------------------------------------------------------
 
 		local eb = LeaPlusLC:CreateEditBox("OptionsSearchBox", PageF, 180, 40, "TOPRIGHT", -36, -12, "OptionsSearchBox", "OptionsSearchBox")
-		eb:SetFrameLevel(PageF:GetFrameLevel() + 20)
 		eb:SetHeight(25)
 		eb:SetFontObject("GameFontHighlight")
 		eb:SetTextInsets(8, 22, 0, 0)
@@ -15054,7 +14998,7 @@
 	LeaPlusLC:MakeCB(LeaPlusLC[pg], "NoSocialButton"			,	"Hide social button"			,	146, -152,	true,	"If checked, the social button and quick-join notification will be hidden.")
 	LeaPlusLC:MakeCB(LeaPlusLC[pg], "UnclampChat"				,	"Unclamp chat frame"			,	146, -172,	true,	"If checked, you will be able to drag the chat frame to the edge of the screen.")
 	LeaPlusLC:MakeCB(LeaPlusLC[pg], "MoveChatEditBoxToTop" 		, 	"Move editbox to top"			,	146, -192, 	true,	"If checked, the editbox will be moved to the top of the chat frame.")
-	LeaPlusLC:MakeCB(LeaPlusLC[pg], "SetChatFontSize"		 	, 	"Set chat font size"			,	146, -212, 	true,	"If checked, you will be able to set the chat font size.|n|nThis option offers a greater range of chat font sizes than the default UI and your chosen chat font size is saved account-wide.|n|nNote that enabling this option will prevent you from using the default UI to change the chat font size.")
+	LeaPlusLC:MakeCB(LeaPlusLC[pg], "MoreChatFontSizes"		 	, 	"More chat font sizes"			,	146, -212, 	true,	"If checked, additional chat font sizes will be available in the chat font size menu.")
 
 	LeaPlusLC:MakeTx(LeaPlusLC[pg], "Mechanics"					, 	340, -72)
 	LeaPlusLC:MakeCB(LeaPlusLC[pg], "NoStickyChat"				, 	"Disable sticky chat"			,	340, -92,	true,	"If checked, sticky chat will be disabled.|n|nNote that this does not apply to temporary chat windows.")
@@ -15066,7 +15010,6 @@
 	LeaPlusLC:MakeCB(LeaPlusLC[pg], "RestoreChatMessages"		, 	"Restore chat messages"			,	340, -212, 	true,	"If checked, recent chat will be restored when you reload your interface.")
 
 	LeaPlusLC:CfgBtn("NoChatButtonsBtn", LeaPlusCB["NoChatButtons"])
-	LeaPlusLC:CfgBtn("SetChatFontSizeBtn", LeaPlusCB["SetChatFontSize"])
 	LeaPlusLC:CfgBtn("FilterChatMessagesBtn", LeaPlusCB["FilterChatMessages"])
 
 ----------------------------------------------------------------------
@@ -15182,17 +15125,18 @@
 
 	LeaPlusLC:MakeTx(LeaPlusLC[pg], "Addon"						, 146, -72)
 	LeaPlusLC:MakeCB(LeaPlusLC[pg], "ShowMinimapIcon"			, "Show minimap button"				, 146, -92,		false,	"If checked, a minimap button will be available.|n|nClick - Toggle options panel.|n|nSHIFT-click - Toggle music.|n|nCTRL-click - Toggle minimap target tracking.|n|nALT-click - Toggle errors (if enabled).|n|nCTRL/SHIFT-click - Toggle windowed mode.|n|nCTRL/ALT-click - Toggle Zygor (if installed).")
-	LeaPlusLC:MakeCB(LeaPlusLC[pg], "UseEnglishLanguage"		, "Use English language"			, 146, -112,	true,	"If checked, text used throughout the addon will be shown in English regardless of your game locale.")
 
-	LeaPlusLC:MakeTx(LeaPlusLC[pg], "Miscellaneous"				, 146, -152)
-	LeaPlusLC:MakeCB(LeaPlusLC[pg], "SetEditModeLayout"			, "Set edit mode layout"			, 146, -172,	false,	"If checked, you can specify an edit mode layout that will always be applied when you login to any character.")
-	LeaPlusLC:MakeCB(LeaPlusLC[pg], "SimpleAddonListing"		, "Simple addon listing"			, 146, -192,	true,	"If checked, the addon listing will be shown in alphabetical order without categories.")
-	LeaPlusLC:MakeCB(LeaPlusLC[pg], "HideStarterTutorials"		, "Hide starter tutorials"			, 146, -212,	true,	"If checked, the Exile's Reach banner tutorials will be hidden.")
+	LeaPlusLC:MakeTx(LeaPlusLC[pg], "Miscellaneous"				, 146, -132)
+	LeaPlusLC:MakeCB(LeaPlusLC[pg], "SetEditModeLayout"			, "Set edit mode layout"			, 146, -152,	false,	"If checked, you can specify an edit mode layout that will always be applied when you login to any character.")
+	LeaPlusLC:MakeCB(LeaPlusLC[pg], "SimpleAddonListing"		, "Simple addon listing"			, 146, -172,	true,	"If checked, the addon listing will be shown in alphabetical order without categories.")
+	LeaPlusLC:MakeCB(LeaPlusLC[pg], "HideStarterTutorials"		, "Hide starter tutorials"			, 146, -192,	true,	"If checked, the Exile's Reach banner tutorials will be hidden.")
 
-	LeaPlusLC:MakeTx(LeaPlusLC[pg], "Scale", 340, -72)
-	LeaPlusLC:MakeSL(LeaPlusLC[pg], "PlusPanelScale", "Drag to set the scale of the Leatrix Plus panel.", 1, 2, 0.1, 340, -92, "%.1f")
+	LeaPlusLC:CreateDropdown("AddonLanguage", "Language", 146, "TOPLEFT", LeaPlusLC[pg], "TOPLEFT", 340, -92, true, {{L["Automatic"], 1}, {L["English"], 2}, {L["Deutsch"], 3}, {L["Español (EU)"], 4}, {L["Español (AL)"], 5}, {L["Français"], 6}, {L["Italiano"], 7}, {L["Português"], 8}, {L["Русский"], 9}, {L["한국어"], 10}, {L["简体中文"], 11}, {L["繁體中文"], 12}})
 
-	LeaPlusLC:MakeTx(LeaPlusLC[pg], "Transparency", 340, -132)
-	LeaPlusLC:MakeSL(LeaPlusLC[pg], "PlusPanelAlpha", "Drag to set the transparency of the Leatrix Plus panel.", 0, 1, 0.1, 340, -152, "%.1f")
+	LeaPlusLC:MakeTx(LeaPlusLC[pg], "Scale", 340, -142)
+	LeaPlusLC:MakeSL(LeaPlusLC[pg], "PlusPanelScale", "Drag to set the scale of the Leatrix Plus panel.", 1, 2, 0.1, 340, -162, "%.1f")
+
+	LeaPlusLC:MakeTx(LeaPlusLC[pg], "Transparency", 340, -202)
+	LeaPlusLC:MakeSL(LeaPlusLC[pg], "PlusPanelAlpha", "Drag to set the transparency of the Leatrix Plus panel.", 0, 1, 0.1, 340, -222, "%.1f")
 
 	LeaPlusLC:CfgBtn("SetEditModeLayoutBtn", LeaPlusCB["SetEditModeLayout"])
