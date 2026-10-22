@@ -1,3 +1,6 @@
+3.1.4
+- Update toc for midnight 
+
 3.1.3
 - Add toc for WoW Forever beta
 
