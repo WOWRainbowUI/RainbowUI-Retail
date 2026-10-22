@@ -1,4 +1,12 @@
-﻿12.1.11 - 15th October 2026
+﻿12.1.14 - 21st October 2026
+- The 'Set chat font size' option ('Chat') is now 'More chat font sizes'.  It now adds additional font sizes to the chat font size menu.
+- Added a language dropdown menu ('Settings') so you can choose which language you want the addon to use.
+- For 'Show range coloring' ('Interface'), fixed a Lua error.
+- For 'Simple addon listing' ('Settings'), fixed a situational issue which could have caused some addons to not show in the listing.
+- For 'Set edit mode layout' ('Settings'), fixed a situational issue which may have caused your chosen edit mode layout to not load under certain circumstances.
+- Updated translations.
+
+12.1.11 - 15th October 2026
 - For 'Enhance minimap' ('Interface'), 'Square minimap' will now stay square with the compass rings hidden if the minimap shape is changed by rotation or another addon (such as FarmHud).
 - The 'Set additional options' option ('System') has been removed now that the default UI remembers the trading post checkboxes (at least until the end of the current session).
 - For 'Media', added movie 'Xal'atath Corrupts the World Soul' (Midnight).  Watch in 'Movies' or listen in 'Various > Cinematics'.
