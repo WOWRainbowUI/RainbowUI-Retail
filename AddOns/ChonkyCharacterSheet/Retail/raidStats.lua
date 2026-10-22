@@ -452,7 +452,7 @@ function module:Initialize(onlyStyle)
 		if C_AddOns.IsAddOnLoaded("ClassCodex") == true then
 			if ClassCodexPanel and ClassCodexPanel:IsVisible() then ClassCodexPanel:Hide() end
 		end
-
+		CCS.MoveModelLeft()
 		if not InCombatLockdown() then
 			--CCS.Clicky("LEFT")
 			if _G["ccsm_sf"] and _G["ccsm_sf"]:IsShown() then _G["ccsm_sf"]:Hide() end
@@ -516,8 +516,9 @@ function module:Initialize(onlyStyle)
     rf_topbar:SetPoint("TOPLEFT", ccsrf_sf, "TOPLEFT")
     rf_topbar:SetPoint("TOPRIGHT", ccsrf_sf, "TOPRIGHT")
     rf_topbar:SetHeight(16)
-    rf_topbar:SetTexture("1723833")
-    rf_topbar:SetTexCoord(0, 1, 0.586, .734)
+	rf_topbar:SetTexture("Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\Frame\\parchment.png")
+    --rf_topbar:SetTexture("1723833")
+    --rf_topbar:SetTexCoord(0, 1, 0.586, .734)
 
     rf_topstreaks:ClearAllPoints()
     rf_topstreaks:SetPoint("TOPLEFT", rf_topbar, "BOTTOMLEFT")
@@ -531,9 +532,13 @@ function module:Initialize(onlyStyle)
     rf_bottombar:SetPoint("BOTTOMRIGHT", ccsrf_sf, "BOTTOMRIGHT")
     rf_bottombar:SetHeight(16)
 
-    rf_bottombar:SetTexture("4556093")
-    rf_bottombar:SetTexCoord(0, .75, 0, .082) 
-	
+	rf_bottombar:SetTexture("Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\Frame\\parchment.png")
+    --rf_bottombar:SetTexture("4556093")
+    --rf_bottombar:SetTexCoord(0, .75, 0, .082) 
+
+	rf_topbar:SetVertexColor(unpack(CCS.StyleColor.highlight))
+	rf_bottombar:SetVertexColor(unpack(CCS.StyleColor.highlight))
+
 	local totalRows = 0
 	local maxHeight = 600
 	local rowSpacing = 2

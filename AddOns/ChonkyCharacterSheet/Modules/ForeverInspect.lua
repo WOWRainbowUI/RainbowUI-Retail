@@ -108,7 +108,7 @@ local function initclickframe()
     btn:SetHighlightTexture("Interface\\Buttons\\ButtonHilight-Square.blp", "ADD")
     btn:SetPushedTexture("Interface\\Buttons\\UI-Quickslot-Depress.blp")
     btn:SetHitRectInsets(0, 0, 0, 0)
-    btn:SetPoint("BOTTOMRIGHT", InspectFrame, "BOTTOMRIGHT", -4, 4)    
+    btn:SetPoint("BOTTOMRIGHT", InspectFrame, "BOTTOMRIGHT", -40, 6)    
     btn:SetFrameStrata("HIGH")
 
     local btnfont1 = _G[btn:GetName().."fs1"]
@@ -174,6 +174,7 @@ local function initializeinspectframe(optupdate)
     local charbg = _G["InspectFrameBgbg"] or CreateFrame("Frame", "InspectFrameBgbg", InspectFrame, BackdropTemplateMixin and "BackdropTemplate")
     local charbgtex = _G["InspectFrameBgbgtex"] or charbg:CreateTexture("InspectFrameBgbgtex", "BACKGROUND", nil, 1)    
     local ccsbg = option("bgcolor_inspect")
+--[[
     charbg:SetBackdrop({
         bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background", -- optional background texture
         edgeFile = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\UI-Tooltip-SquareBorder.blp",        -- thin edge texture
@@ -182,12 +183,15 @@ local function initializeinspectframe(optupdate)
     })
     charbg:ClearAllPoints()
     charbg:SetAllPoints(InspectFrameBg)
+	charbg:SetBackdropBorderColor(unpack(bcolor))
+    --]]
     charbg:SetFrameStrata("BACKGROUND")
+
+
     charbgtex:ClearAllPoints()
     charbgtex:SetAllPoints()
     charbgtex:SetTexture("Interface\\Masks\\SquareMask.BLP")
     charbgtex:SetVertexColor(ccsbg[1], ccsbg[2], ccsbg[3], ccsbg[4]);
-	charbg:SetBackdropBorderColor(unpack(bcolor))
     
     InspectFrameTitleText:ClearAllPoints();
     InspectFrameTitleText:SetPoint("TOP", InspectFrame, "TOP", 0, -7)
@@ -409,7 +413,7 @@ loopitems = function()
 	
     color = CCS:GetAverageEquippedRarityHex(unit) or "ffffff"
     
-    ilvlTxt:SetPoint("TOP", _G["InspectLevelText"], "BOTTOM", 0, -5) 
+    ilvlTxt:SetPoint("TOPLEFT", _G["InspectLevelText"], "RIGHT", 30, 0) 
     ilvlTxt:SetFont(option("fontname_inspect_ilvl") or CCS.fontname, option("fontsize_inspect_ilvl") or 20, CCS.textoutline)
 	if option("showfontshadow") == true then
 		ilvlTxt:SetShadowColor(unpack(option("fontshadowcolor") or {0,0,0,1}))
@@ -433,6 +437,7 @@ function CCS.ForeverInspectSheetEventHandler(event, ...)
     if not InspectFrame or not option("show_inspect") then return end
 
 	if not InspectFrame.loaded then
+        CCS.CreateChonkyCharacterBG(true)
 		initializeinspectframe()
 	end
 	
@@ -456,7 +461,8 @@ function CCS.ForeverInspectSheetEventHandler(event, ...)
 	
 	if not InspectFrame.unit or InspectFrame.unit == "mouseover" then return end
 	
-	if event == "INSPECT_READY" then 
+	if event == "INSPECT_READY" then
+        CCS.CreateChonkyCharacterBG(true)
 		CCS.ChangeModelBg(true)
 		loopitems()
 	end

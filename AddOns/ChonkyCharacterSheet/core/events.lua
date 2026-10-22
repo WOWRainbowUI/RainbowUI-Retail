@@ -368,7 +368,10 @@ local eventHandlers = {
                 end
                 CCS:UpdateOption(def, value)
             end
-        end    
+        end 
+
+        CCS.CurrentTheme = CCS.Themes[option("theme")] or CCS.Themes["Darkmoon Faire"]
+        
         CCS.fontname = CCS:GetOptionValue("default_font") or CCS:GetDefaultFontForLocale() or "Fonts\\FRIZQT__.TTF"
         CCS:Initialize()
         CCS:LoadBlizzardAddOns()

@@ -9,14 +9,14 @@ local locale = GetLocale()
 
 --Testing info
 --locale = "enUS", --	English (United States) enGB clients return enUS
---locale = "koKR", --	Korean (Korea)
---locale = "frFR", --	French (France)
 --locale = "deDE", --	German (Germany)
---locale = "zhCN", --	Chinese (Simplified, PRC)
+--locale = "frFR", --	French (France)
 --locale = "esES", --	Spanish (Spain)
---locale = "zhTW", --	Chinese (Traditional, Taiwan)
 --locale = "esMX", --	Spanish (Mexico)
 --locale = "ruRU", --	Russian (Russia)
+--locale = "koKR", --	Korean (Korea)
+--locale = "zhCN", --	Chinese (Simplified, PRC)
+--locale = "zhTW", --	Chinese (Traditional, Taiwan)
 --locale = "ptBR", --	Portuguese (Brazil)
 --locale = "itIT", --	Italian (Italy)
 ------------------------------------------------------------
@@ -26,11 +26,48 @@ local midnightName = "Midnight"
 local DAM_HEAL = DAMAGE .."/".. (DAMAGE_METER_CATEGORY_HEALING or SHOW_COMBAT_HEALING_TEXT)
 
 local defaultStrings = {
+	------------------------------------------------------------
+	-- Themes
+	------------------------------------------------------------
+	["Darkmoon Faire"] = "Darkmoon Faire",  -- enUS / enGB
+	["Alliance"] =  "Alliance",  -- enUS / enGB
+	["Horde"] = "Horde",  -- enUS / enGB
+	["Dusklight"] = "Dusklight",  -- enUS / enGB
+	["High Heavens"] = "High Heavens",  -- enUS / enGB
+	["Fallen Sanctum"] = "Fallen Sanctum",  -- enUS / enGB
+	["Explorer"] = "Explorer",  -- enUS / enGB
+	["Hearthstone Tavern"] = "Hearthstone Tavern",  -- enUS / enGB
+	["Witcher"] = "Witcher",  -- enUS / enGB
+	["Moonlit Silver"] = "Moonlit Silver",  -- enUS / enGB
+	["Arcane Glass"] = "Arcane Glass",  -- enUS / enGB
+	["Titans"] = "Titans",  -- enUS / enGB
+	["Old Gods"] = "Old Gods",  -- enUS / enGB
+    ------------------------------------------------------------
+    -- Themes Related
+    ------------------------------------------------------------
+	["CATEGORY_STYLE-COLOR"] = "Themes/Style",  -- enUS / enGB
+	["THEME SETTINGS"] = "Theme Settings",
+	["THEME_WARNING"] = "Overrides Style Settings",  -- enUS / enGB
+	["THEME"] = "Theme", -- enUS / enGB
+	["Character Frame Border"] = "Character Frame Border",  -- enUS / enGB
+	["Model Border"] = "Model Border",  -- enUS / enGB
+	["Top Texture"] = "Top Texture",  -- enUS / enGB
+	["Left Texture"] = "Left Texture",  -- enUS / enGB
+	["Right Texture"] = "Right Texture",  -- enUS / enGB
+	["Item Frame"] = "Item Frame",  -- enUS / enGB
+	["Stats Border"] = "Stats Border",  -- enUS / enGB
+	["Stats Headers"] = "Stats Headers",  -- enUS / enGB
+	["Stats Background"] = "Stats Background",  -- enUS / enGB
+	["Inspect Frame Border"] = "Inspect Frame Border",  -- enUS / enGB
+	["Inspect Model Border"] = "Inspect Model Border",  -- enUS / enGB
+	["Inspect M+ Border"] = "Inspect M+ Border",  -- enUS / enGB
+	["M+ Panel Border"] = "M+ Panel Border",  -- enUS / enGB
+	["Raid Panel Border"] = "Raid Panel Border",  -- enUS / enGB
+	["Gear Panel Border"] = "Gear Panel Border",  -- enUS / enGB
     ------------------------------------------------------------
     -- General / Common
     ------------------------------------------------------------
 	["Skin Character Tabs"]	= "Skin Character Tabs",  -- enUS / enGB
-	["CATEGORY_STYLE-COLOR"] = "Style/Colors",  -- enUS / enGB
 	["Bottom Tab Texture"] = "Bottom Tab Texture",   -- enUS / enGB
 	["Header Texture"] = "Header Texture", -- enUS / enGB
 	["Use Addon Colors"] = "Use Addon Colors", -- enUS / enGB
@@ -451,8 +488,43 @@ if locale == "enGB" then
     }
 elseif locale == "deDE" then
     localizedStrings = {
+		------------------------------------------------------------
+		-- Themes
+		------------------------------------------------------------
+		["Darkmoon Faire"] = "Dunkelmond-Jahrmarkt", -- deDE
+		["Alliance"] = "Allianz", -- deDE
+		["Horde"] = "Horde", -- deDE
+		["Dusklight"] = "Dämmerlicht", -- deDE
+		["High Heavens"] = "Hohe Himmel", -- deDE
+		["Fallen Sanctum"] = "Gefallenes Sanktum", -- deDE
+		["Explorer"] = "Forscher", -- deDE
+		["Hearthstone Tavern"] = "Gasthaus Hearthstone", -- deDE
+		["Witcher"] = "Hexer", -- deDE
+		["Moonlit Silver"] = "Mondschein-Silber", -- deDE
+		["Arcane Glass"] = "Arkanglas", -- deDE
+		["Titans"] = "Titanen", -- deDE
+		["Old Gods"] = "Alte Götter", -- deDE
+		------------------------------------------------------------
+		["CATEGORY_STYLE-COLOR"] = "Themen/Stil", -- deDE
+		["THEME SETTINGS"] = "Themen-Einstellungen", -- deDE
+		["THEME_WARNING"] = "Überschreibt Stileinstellungen", -- deDE
+		["THEME"] = "Thema", -- deDE
+		["Character Frame Border"] = "Charakterrahmenrand", -- deDE
+		["Model Border"] = "Modellrahmenrand", -- deDE
+		["Top Texture"] = "Obere Textur", -- deDE
+		["Left Texture"] = "Linke Textur", -- deDE
+		["Right Texture"] = "Rechte Textur", -- deDE
+		["Item Frame"] = "Gegenstandsrahmen", -- deDE
+		["Stats Border"] = "Attributrahmenrand", -- deDE
+		["Stats Headers"] = "Attributüberschriften", -- deDE
+		["Stats Background"] = "Attributhintergrund", -- deDE
+		["Inspect Frame Border"] = "Inspektionsrahmenrand", -- deDE
+		["Inspect Model Border"] = "Inspektionsmodellrand", -- deDE
+		["Inspect M+ Border"] = "M+ Inspektionsrand", -- deDE
+		["M+ Panel Border"] = "M+ Panelrand", -- deDE
+		["Raid Panel Border"] = "Raidpanelrand", -- deDE
+		["Gear Panel Border"] = "Ausrüstungspanelrand", -- deDE
 		["Skin Character Tabs"] = "Gestaltung der Charakter Tabs", -- deDE
-		["CATEGORY_STYLE-COLOR"] = "Stil/Farben", -- deDE
 		["Bottom Tab Texture"] = "Unteres Tab-Textur", -- deDE
 		["Header Texture"] = "Kopfzeilen-Textur", -- deDE
 		["Use Addon Colors"] = "Addon-Farben verwenden", -- deDE
@@ -844,8 +916,43 @@ elseif locale == "deDE" then
     }	
 elseif locale == "frFR" then
     localizedStrings = {
+		------------------------------------------------------------
+		-- Themes
+		------------------------------------------------------------
+		["Darkmoon Faire"] = "Foire de Sombrelune", -- frFR
+		["Alliance"] = "Alliance", -- frFR
+		["Horde"] = "Horde", -- frFR
+		["Dusklight"] = "Lueur du Crépuscule", -- frFR
+		["High Heavens"] = "Hauts Cieux", -- frFR
+		["Fallen Sanctum"] = "Sanctuaire Déchu", -- frFR
+		["Explorer"] = "Explorateur", -- frFR
+		["Hearthstone Tavern"] = "Taverne d'Auberge de Hearthstone", -- frFR
+		["Witcher"] = "Sorceleur", -- frFR
+		["Moonlit Silver"] = "Argent au Clair de Lune", -- frFR
+		["Arcane Glass"] = "Verre Arcanique", -- frFR
+		["Titans"] = "Titans", -- frFR
+		["Old Gods"] = "Dieux Très Anciens", -- frFR
+		------------------------------------------------------------
+		["CATEGORY_STYLE-COLOR"] = "Thèmes/Style", -- frFR
+		["THEME SETTINGS"] = "Paramètres du thème", -- frFR
+		["THEME_WARNING"] = "Remplace les paramètres de style", -- frFR
+		["THEME"] = "Thème", -- frFR
+		["Character Frame Border"] = "Bordure du cadre du personnage", -- frFR
+		["Model Border"] = "Bordure du modèle", -- frFR
+		["Top Texture"] = "Texture supérieure", -- frFR
+		["Left Texture"] = "Texture gauche", -- frFR
+		["Right Texture"] = "Texture droite", -- frFR
+		["Item Frame"] = "Cadre d'objet", -- frFR
+		["Stats Border"] = "Bordure des caractéristiques", -- frFR
+		["Stats Headers"] = "En-têtes des caractéristiques", -- frFR
+		["Stats Background"] = "Fond des caractéristiques", -- frFR
+		["Inspect Frame Border"] = "Bordure de l'inspection", -- frFR
+		["Inspect Model Border"] = "Bordure du modèle d'inspection", -- frFR
+		["Inspect M+ Border"] = "Bordure M+ d'inspection", -- frFR
+		["M+ Panel Border"] = "Bordure du panneau M+", -- frFR
+		["Raid Panel Border"] = "Bordure du panneau de raid", -- frFR
+		["Gear Panel Border"] = "Bordure du panneau d'équipement", -- frFR
 		["Skin Character Tabs"] = "Tabs de personnage stylisés", -- frFR
-		["CATEGORY_STYLE-COLOR"] = "Style/Couleurs", -- frFR
 		["Bottom Tab Texture"] = "Texture de l’onglet inférieur", -- frFR
 		["Header Texture"] = "Texture d’en-tête", -- frFR
 		["Use Addon Colors"] = "Utiliser les couleurs de l’addon", -- frFR
@@ -1237,8 +1344,43 @@ elseif locale == "frFR" then
     }
 elseif locale == "esES" then
     localizedStrings = {
+		------------------------------------------------------------
+		-- Themes
+		------------------------------------------------------------
+		["Darkmoon Faire"] = "Feria de Luna Negra", -- esES / esMX
+		["Alliance"] = "Alianza", -- esES / esMX
+		["Horde"] = "Horda", -- esES / esMX
+		["Dusklight"] = "Luz del Ocaso", -- esES / esMX
+		["High Heavens"] = "Altos Cielos", -- esES / esMX
+		["Fallen Sanctum"] = "Santuario Caído", -- esES / esMX
+		["Explorer"] = "Explorador", -- esES / esMX
+		["Hearthstone Tavern"] = "Taberna de Hearthstone", -- esES / esMX
+		["Witcher"] = "Brujo", -- esES / esMX
+		["Moonlit Silver"] = "Plata a la Luz de la Luna", -- esES / esMX
+		["Arcane Glass"] = "Cristal Arcano", -- esES / esMX
+		["Titans"] = "Titanes", -- esES / esMX
+		["Old Gods"] = "Dioses Antiguos", -- esES / esMX
+		------------------------------------------------------------
+		["CATEGORY_STYLE-COLOR"] = "Temas/Estilo", -- esES / esMX
+		["THEME SETTINGS"] = "Ajustes del tema", -- esES / esMX
+		["THEME_WARNING"] = "Sobrescribe la configuración de estilo", -- esES / esMX
+		["THEME"] = "Tema", -- esES / esMX
+		["Character Frame Border"] = "Borde del marco del personaje", -- esES / esMX
+		["Model Border"] = "Borde del modelo", -- esES / esMX
+		["Top Texture"] = "Textura superior", -- esES / esMX
+		["Left Texture"] = "Textura izquierda", -- esES / esMX
+		["Right Texture"] = "Textura derecha", -- esES / esMX
+		["Item Frame"] = "Marco de objeto", -- esES / esMX
+		["Stats Border"] = "Borde de estadísticas", -- esES / esMX
+		["Stats Headers"] = "Encabezados de estadísticas", -- esES / esMX
+		["Stats Background"] = "Fondo de estadísticas", -- esES / esMX
+		["Inspect Frame Border"] = "Borde del marco de inspección", -- esES / esMX
+		["Inspect Model Border"] = "Borde del modelo de inspección", -- esES / esMX
+		["Inspect M+ Border"] = "Borde M+ de inspección", -- esES / esMX
+		["M+ Panel Border"] = "Borde del panel M+", -- esES / esMX
+		["Raid Panel Border"] = "Borde del panel de banda", -- esES / esMX
+		["Gear Panel Border"] = "Borde del panel de equipo", -- esES / esMX
 		["Skin Character Tabs"] = "Estilo de pestañas de personaje", -- esES
-		["CATEGORY_STYLE-COLOR"] = "Estilo/Colores", -- esES
 		["Bottom Tab Texture"] = "Textura de pestaña inferior", -- esES
 		["Header Texture"] = "Textura de encabezado", -- esES
 		["Use Addon Colors"] = "Usar colores del addon", -- esES
@@ -1630,8 +1772,43 @@ elseif locale == "esES" then
     }
 elseif locale == "esMX" then
     localizedStrings = {
+		------------------------------------------------------------
+		-- Themes
+		------------------------------------------------------------
+		["Darkmoon Faire"] = "Feria de Luna Negra", -- esES / esMX
+		["Alliance"] = "Alianza", -- esES / esMX
+		["Horde"] = "Horda", -- esES / esMX
+		["Dusklight"] = "Luz del Ocaso", -- esES / esMX
+		["High Heavens"] = "Altos Cielos", -- esES / esMX
+		["Fallen Sanctum"] = "Santuario Caído", -- esES / esMX
+		["Explorer"] = "Explorador", -- esES / esMX
+		["Hearthstone Tavern"] = "Taberna de Hearthstone", -- esES / esMX
+		["Witcher"] = "Brujo", -- esES / esMX
+		["Moonlit Silver"] = "Plata a la Luz de la Luna", -- esES / esMX
+		["Arcane Glass"] = "Cristal Arcano", -- esES / esMX
+		["Titans"] = "Titanes", -- esES / esMX
+		["Old Gods"] = "Dioses Antiguos", -- esES / esMX
+		------------------------------------------------------------
+		["CATEGORY_STYLE-COLOR"] = "Temas/Estilo", -- esES / esMX
+		["THEME SETTINGS"] = "Ajustes del tema", -- esES / esMX
+		["THEME_WARNING"] = "Sobrescribe la configuración de estilo", -- esES / esMX
+		["THEME"] = "Tema", -- esES / esMX
+		["Character Frame Border"] = "Borde del marco del personaje", -- esES / esMX
+		["Model Border"] = "Borde del modelo", -- esES / esMX
+		["Top Texture"] = "Textura superior", -- esES / esMX
+		["Left Texture"] = "Textura izquierda", -- esES / esMX
+		["Right Texture"] = "Textura derecha", -- esES / esMX
+		["Item Frame"] = "Marco de objeto", -- esES / esMX
+		["Stats Border"] = "Borde de estadísticas", -- esES / esMX
+		["Stats Headers"] = "Encabezados de estadísticas", -- esES / esMX
+		["Stats Background"] = "Fondo de estadísticas", -- esES / esMX
+		["Inspect Frame Border"] = "Borde del marco de inspección", -- esES / esMX
+		["Inspect Model Border"] = "Borde del modelo de inspección", -- esES / esMX
+		["Inspect M+ Border"] = "Borde M+ de inspección", -- esES / esMX
+		["M+ Panel Border"] = "Borde del panel M+", -- esES / esMX
+		["Raid Panel Border"] = "Borde del panel de banda", -- esES / esMX
+		["Gear Panel Border"] = "Borde del panel de equipo", -- esES / esMX
 		["Skin Character Tabs"] = "Estilo de pestañas de personaje", -- esMX
-		["CATEGORY_STYLE-COLOR"] = "Estilo/Colores", -- esMX
 		["Bottom Tab Texture"] = "Textura de pestaña inferior", -- esMX
 		["Header Texture"] = "Textura de encabezado", -- esMX
 		["Use Addon Colors"] = "Usar colores del addon", -- esMX
@@ -2023,8 +2200,43 @@ elseif locale == "esMX" then
     }
 elseif locale == "ruRU" then
     localizedStrings = {
+		------------------------------------------------------------
+		-- Themes
+		------------------------------------------------------------
+		["Darkmoon Faire"] = "Ярмарка Новолуния", -- ruRU
+		["Alliance"] = "Альянс", -- ruRU
+		["Horde"] = "Орда", -- ruRU
+		["Dusklight"] = "Сумеречный Свет", -- ruRU
+		["High Heavens"] = "Высокие Небеса", -- ruRU
+		["Fallen Sanctum"] = "Павший Святилище", -- ruRU
+		["Explorer"] = "Исследователь", -- ruRU
+		["Hearthstone Tavern"] = "Таверна Hearthstone", -- ruRU
+		["Witcher"] = "Ведьмак", -- ruRU
+		["Moonlit Silver"] = "Лунное Серебро", -- ruRU
+		["Arcane Glass"] = "Аркановое Стекло", -- ruRU
+		["Titans"] = "Титаны", -- ruRU
+		["Old Gods"] = "Древние Боги", -- ruRU
+		------------------------------------------------------------
+		["CATEGORY_STYLE-COLOR"] = "Темы/Стиль", -- ruRU
+		["THEME SETTINGS"] = "Настройки темы", -- ruRU
+		["THEME_WARNING"] = "Перезаписывает параметры стиля", -- ruRU
+		["THEME"] = "Тема", -- ruRU
+		["Character Frame Border"] = "Рамка персонажа", -- ruRU
+		["Model Border"] = "Рамка модели", -- ruRU
+		["Top Texture"] = "Верхняя текстура", -- ruRU
+		["Left Texture"] = "Левая текстура", -- ruRU
+		["Right Texture"] = "Правая текстура", -- ruRU
+		["Item Frame"] = "Рамка предмета", -- ruRU
+		["Stats Border"] = "Рамка характеристик", -- ruRU
+		["Stats Headers"] = "Заголовки характеристик", -- ruRU
+		["Stats Background"] = "Фон характеристик", -- ruRU
+		["Inspect Frame Border"] = "Рамка осмотра", -- ruRU
+		["Inspect Model Border"] = "Рамка модели осмотра", -- ruRU
+		["Inspect M+ Border"] = "Рамка M+ осмотра", -- ruRU
+		["M+ Panel Border"] = "Рамка панели M+", -- ruRU
+		["Raid Panel Border"] = "Рамка панели рейда", -- ruRU
+		["Gear Panel Border"] = "Рамка панели экипировки", -- ruRU
 		["Skin Character Tabs"] = "Стилизация вкладок персонажа", -- ruRU
-		["CATEGORY_STYLE-COLOR"] = "Стиль/Цвета", -- ruRU
 		["Bottom Tab Texture"] = "Текстура нижней вкладки", -- ruRU
 		["Header Texture"] = "Текстура заголовка", -- ruRU
 		["Use Addon Colors"] = "Использовать цвета аддона", -- ruRU
@@ -2417,8 +2629,43 @@ elseif locale == "ruRU" then
     }
 elseif locale == "koKR" then
     localizedStrings = {
+		------------------------------------------------------------
+		-- Themes
+		------------------------------------------------------------
+		["Darkmoon Faire"] = "다크문 축제", -- koKR
+		["Alliance"] = "얼라이언스", -- koKR
+		["Horde"] = "호드", -- koKR
+		["Dusklight"] = "황혼의 빛", -- koKR
+		["High Heavens"] = "고천상", -- koKR
+		["Fallen Sanctum"] = "타락한 성소", -- koKR
+		["Explorer"] = "탐험가", -- koKR
+		["Hearthstone Tavern"] = "하스스톤 여관", -- koKR
+		["Witcher"] = "위쳐", -- koKR
+		["Moonlit Silver"] = "달빛 은광", -- koKR
+		["Arcane Glass"] = "비전 유리", -- koKR
+		["Titans"] = "티탄", -- koKR
+		["Old Gods"] = "고대 신들", -- koKR
+		------------------------------------------------------------
+		["CATEGORY_STYLE-COLOR"] = "테마/스타일", -- koKR
+		["THEME SETTINGS"] = "테마 설정", -- koKR
+		["THEME_WARNING"] = "스타일 설정을 덮어씁니다", -- koKR
+		["THEME"] = "테마", -- koKR
+		["Character Frame Border"] = "캐릭터 프레임 테두리", -- koKR
+		["Model Border"] = "모델 테두리", -- koKR
+		["Top Texture"] = "상단 텍스처", -- koKR
+		["Left Texture"] = "왼쪽 텍스처", -- koKR
+		["Right Texture"] = "오른쪽 텍스처", -- koKR
+		["Item Frame"] = "아이템 프레임", -- koKR
+		["Stats Border"] = "능력치 테두리", -- koKR
+		["Stats Headers"] = "능력치 제목", -- koKR
+		["Stats Background"] = "능력치 배경", -- koKR
+		["Inspect Frame Border"] = "살펴보기 프레임 테두리", -- koKR
+		["Inspect Model Border"] = "살펴보기 모델 테두리", -- koKR
+		["Inspect M+ Border"] = "살펴보기 M+ 테두리", -- koKR
+		["M+ Panel Border"] = "M+ 패널 테두리", -- koKR
+		["Raid Panel Border"] = "공격대 패널 테두리", -- koKR
+		["Gear Panel Border"] = "장비 패널 테두리", -- koKR
 		["Skin Character Tabs"] = "캐릭터 탭 스킨", -- koKR
-		["CATEGORY_STYLE-COLOR"] = "스타일/색상", -- koKR
 		["Bottom Tab Texture"] = "하단 탭 텍스처", -- koKR
 		["Header Texture"] = "헤더 텍스처", -- koKR
 		["Use Addon Colors"] = "애드온 색상 사용", -- koKR
@@ -2810,8 +3057,43 @@ elseif locale == "koKR" then
     }
 elseif locale == "zhCN" then
     localizedStrings = {
+		------------------------------------------------------------
+		-- Themes
+		------------------------------------------------------------
+		["Darkmoon Faire"] = "暗月马戏团", -- zhCN
+		["Alliance"] = "联盟", -- zhCN
+		["Horde"] = "部落", -- zhCN
+		["Dusklight"] = "暮光之光", -- zhCN
+		["High Heavens"] = "至高天界", -- zhCN
+		["Fallen Sanctum"] = "堕落圣所", -- zhCN
+		["Explorer"] = "探险者", -- zhCN
+		["Hearthstone Tavern"] = "炉石旅店", -- zhCN
+		["Witcher"] = "猎魔人", -- zhCN
+		["Moonlit Silver"] = "月光银辉", -- zhCN
+		["Arcane Glass"] = "奥术之玻", -- zhCN
+		["Titans"] = "泰坦", -- zhCN
+		["Old Gods"] = "上古之神", -- zhCN
+		------------------------------------------------------------
+		["CATEGORY_STYLE-COLOR"] = "主题/样式", -- zhCN
+		["THEME SETTINGS"] = "主题设置", -- zhCN
+		["THEME_WARNING"] = "覆盖样式设置", -- zhCN
+		["THEME"] = "主题", -- zhCN
+		["Character Frame Border"] = "角色界面边框", -- zhCN
+		["Model Border"] = "模型边框", -- zhCN
+		["Top Texture"] = "顶部材质", -- zhCN
+		["Left Texture"] = "左侧材质", -- zhCN
+		["Right Texture"] = "右侧材质", -- zhCN
+		["Item Frame"] = "物品框架", -- zhCN
+		["Stats Border"] = "属性边框", -- zhCN
+		["Stats Headers"] = "属性标题", -- zhCN
+		["Stats Background"] = "属性背景", -- zhCN
+		["Inspect Frame Border"] = "观察界面边框", -- zhCN
+		["Inspect Model Border"] = "观察模型边框", -- zhCN
+		["Inspect M+ Border"] = "观察 M+ 边框", -- zhCN
+		["M+ Panel Border"] = "M+ 面板边框", -- zhCN
+		["Raid Panel Border"] = "团队面板边框", -- zhCN
+		["Gear Panel Border"] = "装备面板边框", -- zhCN
 		["Skin Character Tabs"] = "角色标签外观", -- zhCN
-		["CATEGORY_STYLE-COLOR"] = "样式/颜色", -- zhCN
 		["Bottom Tab Texture"] = "底部标签纹理", -- zhCN
 		["Header Texture"] = "标题纹理", -- zhCN
 		["Use Addon Colors"] = "使用插件颜色", -- zhCN
@@ -3203,8 +3485,43 @@ elseif locale == "zhCN" then
     }
 elseif locale == "zhTW" then
     localizedStrings = {
+		------------------------------------------------------------
+		-- Themes
+		------------------------------------------------------------
+		["Darkmoon Faire"] = "暗月馬戲團", -- zhTW
+		["Alliance"] = "聯盟", -- zhTW
+		["Horde"] = "部落", -- zhTW
+		["Dusklight"] = "暮光之光", -- zhTW
+		["High Heavens"] = "至高天界", -- zhTW
+		["Fallen Sanctum"] = "墮落聖所", -- zhTW
+		["Explorer"] = "探險者", -- zhTW
+		["Hearthstone Tavern"] = "爐石旅店", -- zhTW
+		["Witcher"] = "獵魔人", -- zhTW
+		["Moonlit Silver"] = "月光銀輝", -- zhTW
+		["Arcane Glass"] = "奧術玻璃", -- zhTW
+		["Titans"] = "泰坦", -- zhTW
+		["Old Gods"] = "上古之神", -- zhTW
+		------------------------------------------------------------
+		["CATEGORY_STYLE-COLOR"] = "主題/樣式", -- zhTW
+		["THEME SETTINGS"] = "主題設定", -- zhTW
+		["THEME_WARNING"] = "覆蓋樣式設定", -- zhTW
+		["THEME"] = "主題", -- zhTW
+		["Character Frame Border"] = "角色介面邊框", -- zhTW
+		["Model Border"] = "模型邊框", -- zhTW
+		["Top Texture"] = "頂部材質", -- zhTW
+		["Left Texture"] = "左側材質", -- zhTW
+		["Right Texture"] = "右側材質", -- zhTW
+		["Item Frame"] = "物品框架", -- zhTW
+		["Stats Border"] = "屬性邊框", -- zhTW
+		["Stats Headers"] = "屬性標題", -- zhTW
+		["Stats Background"] = "屬性背景", -- zhTW
+		["Inspect Frame Border"] = "觀察介面邊框", -- zhTW
+		["Inspect Model Border"] = "觀察模型邊框", -- zhTW
+		["Inspect M+ Border"] = "觀察 M+ 邊框", -- zhTW
+		["M+ Panel Border"] = "M+ 面板邊框", -- zhTW
+		["Raid Panel Border"] = "團隊面板邊框", -- zhTW
+		["Gear Panel Border"] = "裝備面板邊框", -- zhTW
 		["Skin Character Tabs"] = "角色標籤外觀", -- zhTW
-		["CATEGORY_STYLE-COLOR"] = "樣式/顏色", -- zhTW
 		["Bottom Tab Texture"] = "底部標籤材質", -- zhTW
 		["Header Texture"] = "標題材質", -- zhTW
 		["Use Addon Colors"] = "使用插件顏色", -- zhTW
@@ -3597,8 +3914,43 @@ elseif locale == "zhTW" then
     }
 elseif locale == "ptBR" then
     localizedStrings = {
+		------------------------------------------------------------
+		-- Themes
+		------------------------------------------------------------
+		["Darkmoon Faire"] = "Feira de Negraluna", -- ptBR
+		["Alliance"] = "Aliança", -- ptBR
+		["Horde"] = "Horda", -- ptBR
+		["Dusklight"] = "Luz do Crepúsculo", -- ptBR
+		["High Heavens"] = "Altos Céus", -- ptBR
+		["Fallen Sanctum"] = "Santuário Caído", -- ptBR
+		["Explorer"] = "Explorador", -- ptBR
+		["Hearthstone Tavern"] = "Taverna Hearthstone", -- ptBR
+		["Witcher"] = "Bruxo", -- ptBR
+		["Moonlit Silver"] = "Prata ao Luar", -- ptBR
+		["Arcane Glass"] = "Vidro Arcano", -- ptBR
+		["Titans"] = "Titãs", -- ptBR
+		["Old Gods"] = "Deuses Antigos", -- ptBR
+		------------------------------------------------------------
+		["CATEGORY_STYLE-COLOR"] = "Temas/Estilo", -- ptBR
+		["THEME SETTINGS"] = "Configurações do tema", -- ptBR
+		["THEME_WARNING"] = "Substitui as configurações de estilo", -- ptBR
+		["THEME"] = "Tema", -- ptBR
+		["Character Frame Border"] = "Borda da moldura do personagem", -- ptBR
+		["Model Border"] = "Borda do modelo", -- ptBR
+		["Top Texture"] = "Textura superior", -- ptBR
+		["Left Texture"] = "Textura esquerda", -- ptBR
+		["Right Texture"] = "Textura direita", -- ptBR
+		["Item Frame"] = "Moldura de item", -- ptBR
+		["Stats Border"] = "Borda das estatísticas", -- ptBR
+		["Stats Headers"] = "Cabeçalhos das estatísticas", -- ptBR
+		["Stats Background"] = "Fundo das estatísticas", -- ptBR
+		["Inspect Frame Border"] = "Borda da inspeção", -- ptBR
+		["Inspect Model Border"] = "Borda do modelo de inspeção", -- ptBR
+		["Inspect M+ Border"] = "Borda M+ da inspeção", -- ptBR
+		["M+ Panel Border"] = "Borda do painel M+", -- ptBR
+		["Raid Panel Border"] = "Borda do painel de raide", -- ptBR
+		["Gear Panel Border"] = "Borda do painel de equipamento", -- ptBR
 		["Skin Character Tabs"] = "Tabs de personagem estilizados", -- ptBR
-		["CATEGORY_STYLE-COLOR"] = "Estilo/Cores", -- ptBR
 		["Bottom Tab Texture"] = "Textura da guia inferior", -- ptBR
 		["Header Texture"] = "Textura do cabeçalho", -- ptBR
 		["Use Addon Colors"] = "Usar cores do addon", -- ptBR
@@ -3990,8 +4342,44 @@ elseif locale == "ptBR" then
     }
 elseif locale == "itIT" then
     localizedStrings = {
+		------------------------------------------------------------
+		-- Themes
+		------------------------------------------------------------
+		["Darkmoon Faire"] = "Fiera di Lunacupa", -- itIT
+		["Alliance"] = "Alleanza", -- itIT
+		["Horde"] = "Orda", -- itIT
+		["Dusklight"] = "Luce del Vespro", -- itIT
+		["High Heavens"] = "Alti Cieli", -- itIT
+		["Fallen Sanctum"] = "Santuario Caduto", -- itIT
+		["Explorer"] = "Esploratore", -- itIT
+		["Hearthstone Tavern"] = "Taverna di Hearthstone", -- itIT
+		["Witcher"] = "Strigo", -- itIT
+		["Moonlit Silver"] = "Argento Lunare", -- itIT
+		["Arcane Glass"] = "Vetro Arcano", -- itIT
+		["Titans"] = "Titani", -- itIT
+		["Old Gods"] = "Antichi Dei", -- itIT
+		------------------------------------------------------------
+
+		["CATEGORY_STYLE-COLOR"] = "Temi/Stile", -- itIT
+		["THEME SETTINGS"] = "Impostazioni tema", -- itIT
+		["THEME_WARNING"] = "Sovrascrive le impostazioni di stile", -- itIT
+		["THEME"] = "Tema", -- itIT
+		["Character Frame Border"] = "Bordo del riquadro personaggio", -- itIT
+		["Model Border"] = "Bordo del modello", -- itIT
+		["Top Texture"] = "Texture superiore", -- itIT
+		["Left Texture"] = "Texture sinistra", -- itIT
+		["Right Texture"] = "Texture destra", -- itIT
+		["Item Frame"] = "Riquadro oggetto", -- itIT
+		["Stats Border"] = "Bordo statistiche", -- itIT
+		["Stats Headers"] = "Intestazioni statistiche", -- itIT
+		["Stats Background"] = "Sfondo statistiche", -- itIT
+		["Inspect Frame Border"] = "Bordo ispezione", -- itIT
+		["Inspect Model Border"] = "Bordo modello ispezione", -- itIT
+		["Inspect M+ Border"] = "Bordo M+ ispezione", -- itIT
+		["M+ Panel Border"] = "Bordo pannello M+", -- itIT
+		["Raid Panel Border"] = "Bordo pannello incursione", -- itIT
+		["Gear Panel Border"] = "Bordo pannello equipaggiamento", -- itIT
 		["Skin Character Tabs"] = "Schede personaggio decorate", -- itIT
-		["CATEGORY_STYLE-COLOR"] = "Stile/Colori", -- itIT
 		["Bottom Tab Texture"] = "Texture della scheda inferiore", -- itIT
 		["Header Texture"] = "Texture dell’intestazione", -- itIT
 		["Use Addon Colors"] = "Usa i colori dell’addon", -- itIT

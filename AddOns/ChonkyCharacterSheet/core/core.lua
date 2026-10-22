@@ -367,6 +367,43 @@ SlashCmdList["CHONKYCHARACTERSHEET"] = function(msg)
         CCS.testExportImport()
         return
     end
+    
+    if msg == "ss" then
+        -- Create screenshot frame if it doesn't exist
+        if not CCS_ScreenshotFrame then
+            local parent = _G["CharacterFrameBgbg"] or CharacterFrame
+
+            CCS_ScreenshotFrame = CreateFrame("Frame", "CCS_ScreenshotFrame", parent, "BackdropTemplate")
+            local f = CCS_ScreenshotFrame
+
+            f:SetFrameStrata("BACKGROUND")
+            f:SetFrameLevel(0)
+
+            --f:SetPoint("TOPLEFT", parent, "TOPLEFT", -70, 80)
+            --f:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", 70, -60)
+
+            f:SetPoint("TOPLEFT", UIParent, "TOPLEFT", 0, 0)
+            f:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOMRIGHT", 0, 0)
+
+
+            f:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8x8" })
+            f:SetBackdropColor(0, 0, 0, 1)
+            CCS_ScreenshotFrame:Show()
+        else
+
+            -- Toggle visibility
+            if CCS_ScreenshotFrame:IsShown() then
+                CCS_ScreenshotFrame:Hide()
+            else
+                CCS_ScreenshotFrame:Show()
+            end
+
+            
+        end
+
+
+        return
+    end
 
     if msg == "eventstats reset" then
         wipe(CCS.EventStats)

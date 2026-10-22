@@ -2182,8 +2182,8 @@ function CCS.updateLocationInfo(unit, slotIndex, framename)
     bgfader:SetPoint(SubElementSetPoint, slotFrameName, SubElementSetPoint2, -38 * neg, 0)        
     bgfader:SetFrameLevel(1)
     bgfadertex:SetAllPoints()
-    bgfadertex:SetTexture("Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\Square_AlphaGradient.tga") -- last remnant from WeakAuras.
-
+    --bgfadertex:SetTexture("Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\Square_AlphaGradient.tga") -- last remnant from WeakAuras.
+    bgfadertex:SetTexture("Interface\\Masks\\SquareMask.BLP")
     ccsStat:SetSize(100, 39)
     ccsStat:SetPoint(SubElementSetPoint, slotFrameName, SubElementSetPoint2, 3* neg, 0)        
     ccsStaticon:SetSize(24,24)
@@ -2194,17 +2194,17 @@ function CCS.updateLocationInfo(unit, slotIndex, framename)
     ccsStattext:SetText("9,999")
     ccsStat:Hide()
     
-    gemIconframe1:SetSize(15, 15)
+    gemIconframe1:SetSize(13, 13)
     gemIconframe1:SetPoint("TOP"..SubElementSetPoint2, slotFrameName, "TOP"..SubElementSetPoint, -3 * neg, 6)
     gemIconframe1:SetFrameStrata("HIGH")
     gemIconframe1:SetFrameLevel(10)
     
-    gemIconframe2:SetSize(15, 15)
+    gemIconframe2:SetSize(13, 13)
     gemIconframe2:SetPoint(SubElementSetPoint2, slotFrameName, SubElementSetPoint, -3 * neg, 0)
     gemIconframe2:SetFrameStrata("HIGH")
     gemIconframe2:SetFrameLevel(10)
     
-    gemIconframe3:SetSize(15, 15)
+    gemIconframe3:SetSize(13, 13)
     gemIconframe3:SetPoint("BOTTOM"..SubElementSetPoint2, slotFrameName, "BOTTOM"..SubElementSetPoint, -3 * neg, -6)
     gemIconframe3:SetFrameStrata("HIGH")
     gemIconframe3:SetFrameLevel(10)
@@ -2627,13 +2627,13 @@ function CCS.updateLocationInfo(unit, slotIndex, framename)
             
             if gemCount == 1 then
                 gemIconframe1:ClearAllPoints()
-                gemIconframe1:SetPoint(SubElementSetPoint2, slotFrameName, SubElementSetPoint, -3 * neg, 0)
-                gemIconframe1:SetSize(20, 20)
+                gemIconframe1:SetPoint(SubElementSetPoint2, slotFrameName, SubElementSetPoint, -8 * neg, 0)
+                gemIconframe1:SetSize(18, 18)
             elseif gemCount == 2 then
                 gemIconframe1:ClearAllPoints()
                 gemIconframe2:ClearAllPoints()
-                gemIconframe1:SetPoint("TOP"..SubElementSetPoint2, slotFrameName, "TOP"..SubElementSetPoint, -3 * neg, -2)
-                gemIconframe2:SetPoint("BOTTOM"..SubElementSetPoint2, slotFrameName, "BOTTOM"..SubElementSetPoint, -3 * neg, 2)
+                gemIconframe1:SetPoint("TOP"..SubElementSetPoint2, slotFrameName, "TOP"..SubElementSetPoint, -8 * neg, 0)
+                gemIconframe2:SetPoint("BOTTOM"..SubElementSetPoint2, slotFrameName, "BOTTOM"..SubElementSetPoint, -8 * neg, 0)
                 gemIconframe1:SetSize(18, 18)
                 gemIconframe2:SetSize(18, 18)                
             elseif gemCount == 3 then
@@ -2641,9 +2641,9 @@ function CCS.updateLocationInfo(unit, slotIndex, framename)
                 gemIconframe2:ClearAllPoints()
                 gemIconframe3:ClearAllPoints()
                 gemIconframe2:ClearAllPoints()
-                gemIconframe1:SetPoint("TOP"..SubElementSetPoint2, slotFrameName, "TOP"..SubElementSetPoint, -3 * neg, 4)
-                gemIconframe2:SetPoint(SubElementSetPoint2, slotFrameName, SubElementSetPoint, -3 * neg, 0)
-                gemIconframe3:SetPoint("BOTTOM"..SubElementSetPoint2, slotFrameName, "BOTTOM"..SubElementSetPoint, -3 * neg, -4)
+                gemIconframe1:SetPoint("TOP"..SubElementSetPoint2, slotFrameName, "TOP"..SubElementSetPoint, -8 * neg, 2)
+                gemIconframe2:SetPoint(SubElementSetPoint2, slotFrameName, SubElementSetPoint, -8 * neg, 0)
+                gemIconframe3:SetPoint("BOTTOM"..SubElementSetPoint2, slotFrameName, "BOTTOM"..SubElementSetPoint, -8 * neg, -2)
             end
             
             local Gem1type, Gem2type, Gem3type = 0,0,0
@@ -2722,10 +2722,12 @@ function CCS.updateLocationInfo(unit, slotIndex, framename)
         if option("showitemcolor"..suffix) then
             local setr, setg, setb, setalpha = option("setitemcolor"..suffix)[1], option("setitemcolor"..suffix)[2], option("setitemcolor"..suffix)[3], option("setitemcolor"..suffix)[4];
             local brt = option("itemcolorbrightness") or 1
+            local bra_h = option("itemcoloralpha") or 1
+            local bra_l = (option("itemcoloralpha") or 1) * 0.25
             
             if displaytoleft then 
                 bgfadertex:SetTexCoord(1,0,0,1)
-                
+                --[[
                 if itemRarity == 1 then bgfadertex:SetGradient("Horizontal", CreateColor(.5*brt, .5*brt, .5*brt, .8), CreateColor(1*brt, 1*brt, 1*brt, 1))  -- white (Common)
                 elseif itemRarity == 2 then bgfadertex:SetGradient("Horizontal", CreateColor(.06*brt, .5*brt, 0*brt, .8), CreateColor(0.12*brt, 1*brt, 0*brt, 1))  -- green (Uncommon)
                 elseif itemRarity == 3 then bgfadertex:SetGradient("Horizontal", CreateColor(0*brt, .22*brt, .435*brt, .8), CreateColor(0*brt, 0.44*brt, 0.87*brt, 1)) -- Blue (Rare)
@@ -2734,17 +2736,29 @@ function CCS.updateLocationInfo(unit, slotIndex, framename)
                 elseif itemRarity == 6 then bgfadertex:SetGradient("Horizontal", CreateColor(.45*brt, .4*brt, .25*brt, .8), CreateColor(0.9*brt, 0.8*brt, 0.5*brt, 1)) -- Tan (Artifact)
                 elseif itemRarity == 7 then bgfadertex:SetGradient("Horizontal", CreateColor(0*brt, .4*brt, .5*brt, .8), CreateColor(0*brt, 0.8*brt, 1*brt, 1)) -- Light Blue (Heirloom)   
                 else bgfadertex:SetGradient("Horizontal", CreateColor(.31*brt, .31*brt, .31*brt, .8), CreateColor(0.62*brt, 0.62*brt, 0.62*brt, 1)) -- gray / poor    
+                end--]]
+
+                if itemRarity == 1 then bgfadertex:SetGradient("Horizontal", CreateColor(.5*brt, .5*brt, .5*brt, bra_l), CreateColor(1*brt, 1*brt, 1*brt, bra_h))  -- white (Common)
+                elseif itemRarity == 2 then bgfadertex:SetGradient("Horizontal", CreateColor(.06*brt, .5*brt, 0*brt, bra_l), CreateColor(0.12*brt, 1*brt, 0*brt, bra_h))  -- green (Uncommon)
+                elseif itemRarity == 3 then bgfadertex:SetGradient("Horizontal", CreateColor(0*brt, .22*brt, .435*brt, bra_l), CreateColor(0*brt, 0.44*brt, 0.87*brt, bra_h)) -- Blue (Rare)
+                elseif itemRarity == 4 then bgfadertex:SetGradient("Horizontal", CreateColor(.32*brt, .105*brt, .465*brt, bra_l), CreateColor(0.64*brt, 0.21*brt, 0.93*brt, bra_h)) -- Purple (Epic)
+                elseif itemRarity == 5 then bgfadertex:SetGradient("Horizontal", CreateColor(.5*brt, .25*brt, 0*brt, bra_l), CreateColor(1*brt, 0.5*brt, 0*brt, bra_h)) -- Orange (Legendary)
+                elseif itemRarity == 6 then bgfadertex:SetGradient("Horizontal", CreateColor(.45*brt, .4*brt, .25*brt, bra_l), CreateColor(0.9*brt, 0.8*brt, 0.5*brt, bra_h)) -- Tan (Artifact)
+                elseif itemRarity == 7 then bgfadertex:SetGradient("Horizontal", CreateColor(0*brt, .4*brt, .5*brt, bra_l), CreateColor(0*brt, 0.8*brt, 1*brt, bra_h)) -- Light Blue (Heirloom)   
+                else bgfadertex:SetGradient("Horizontal", CreateColor(.31*brt, .31*brt, .31*brt, bra_l), CreateColor(0.62*brt, 0.62*brt, 0.62*brt, bra_h)) -- gray / poor    
                 end
+
                 
                 if option("showsetitems"..suffix) and setID then 
                     if option("showsetclasscolor"..suffix) then
                         setr, setg, setb = GetClassColor(select(2, UnitClass(unit)))
-                        setalpha = .8
+                        --setalpha = bra_l
                     end
-                    bgfadertex:SetGradient("Horizontal", CreateColor(setr/2*brt, setg/2*brt, setb/2*brt, .8), CreateColor(setr*brt, setg*brt, setb*brt, setalpha)) -- Set Item Color Left Display
+                    bgfadertex:SetGradient("Horizontal", CreateColor(setr/2*brt, setg/2*brt, setb/2*brt, bra_l), CreateColor(setr*brt, setg*brt, setb*brt, bra_h)) -- Set Item Color Left Display
                 end
                 
             else
+            --[[
                 if itemRarity == 1 then bgfadertex:SetGradient("Horizontal", CreateColor(1*brt, 1*brt, 1*brt, 1), CreateColor(.5*brt, .5*brt, .5*brt, .8))  -- white (Common)
                 elseif itemRarity == 2 then bgfadertex:SetGradient("Horizontal", CreateColor(0.12*brt, 1*brt, 0*brt, 1), CreateColor(.06*brt, .5*brt, 0*brt, .8))  -- green (Uncommon)
                 elseif itemRarity == 3 then bgfadertex:SetGradient("Horizontal", CreateColor(0*brt, 0.44*brt, 0.87*brt, 1), CreateColor(0*brt, .22*brt, .435*brt, .8)) -- Blue (Rare)
@@ -2753,14 +2767,24 @@ function CCS.updateLocationInfo(unit, slotIndex, framename)
                 elseif itemRarity == 6 then bgfadertex:SetGradient("Horizontal", CreateColor(0.9*brt, 0.8*brt, 0.5*brt, 1), CreateColor(.45*brt, .4*brt, .25*brt, .8)) -- Tan (Artifact)
                 elseif itemRarity == 7 then bgfadertex:SetGradient("Horizontal", CreateColor(0*brt, 0.8*brt, 1*brt, 1), CreateColor(0*brt, .4*brt, .5*brt, .4)) -- Light Blue (Heirloom)   
                 else bgfadertex:SetGradient("Horizontal", CreateColor(0.62*brt, 0.62*brt, 0.62*brt, 1), CreateColor(0.62*brt, 0.62*brt, 0.62*brt, .8)) -- gray / poor    
-                end
+                end--]]
+                
+                if itemRarity == 1 then bgfadertex:SetGradient("Horizontal", CreateColor(1*brt, 1*brt, 1*brt, bra_h), CreateColor(.5*brt, .5*brt, .5*brt, bra_l))  -- white (Common)
+                elseif itemRarity == 2 then bgfadertex:SetGradient("Horizontal", CreateColor(0.12*brt, 1*brt, 0*brt, bra_h), CreateColor(.06*brt, .5*brt, 0*brt, bra_l))  -- green (Uncommon)
+                elseif itemRarity == 3 then bgfadertex:SetGradient("Horizontal", CreateColor(0*brt, 0.44*brt, 0.87*brt, bra_h), CreateColor(0*brt, .22*brt, .435*brt, bra_l)) -- Blue (Rare)
+                elseif itemRarity == 4 then bgfadertex:SetGradient("Horizontal", CreateColor(0.64*brt, 0.21*brt, 0.93*brt, bra_h), CreateColor(.32*brt, .105*brt, .465*brt, bra_l)) -- Purple (Epic)
+                elseif itemRarity == 5 then bgfadertex:SetGradient("Horizontal", CreateColor(1*brt, 0.5*brt, 0*brt, bra_h), CreateColor(.5*brt, .25*brt, 0*brt, bra_l)) -- Orange (Legendary)
+                elseif itemRarity == 6 then bgfadertex:SetGradient("Horizontal", CreateColor(0.9*brt, 0.8*brt, 0.5*brt, bra_h), CreateColor(.45*brt, .4*brt, .25*brt, bra_l)) -- Tan (Artifact)
+                elseif itemRarity == 7 then bgfadertex:SetGradient("Horizontal", CreateColor(0*brt, 0.8*brt, 1*brt, bra_h), CreateColor(0*brt, .4*brt, .5*brt, bra_l)) -- Light Blue (Heirloom)   
+                else bgfadertex:SetGradient("Horizontal", CreateColor(0.62*brt, 0.62*brt, 0.62*brt, bra_h), CreateColor(0.62*brt, 0.62*brt, 0.62*brt, bra_l)) -- gray / poor    
+                end				
                 
                 if option("showsetitems"..suffix) and setID then 
                     if option("showsetclasscolor"..suffix) then
                         setr, setg, setb = GetClassColor(select(2, UnitClass(unit)))
-                        setalpha = .8
+                        --setalpha = .8
                     end
-                    bgfadertex:SetGradient("Horizontal", CreateColor(setr*brt, setg*brt, setb*brt, setalpha), CreateColor(setr/2*brt, setg/2*brt, setb/2*brt, .8)) -- Set Item Color Right Display
+                    bgfadertex:SetGradient("Horizontal", CreateColor(setr*brt, setg*brt, setb*brt, bra_h), CreateColor(setr/2*brt, setg/2*brt, setb/2*brt, bra_l)) -- Set Item Color Right Display
                 end
             end
             bgfader:Show()
@@ -2970,6 +2994,7 @@ function CCS.ChangeModelBg(isInspect)
     local prefix = isInspect and "Inspect" or "Character"
     local parent  = isInspect and InspectModelScene or CharacterModelScene
     local bgtype_lookup = isInspect and "bgtype_inspect" or "bgtype"
+    local themeatlas
     modbg  = _G[prefix.."ModelFramebg"]  or CreateFrame("Frame", prefix.."ModelFramebg", parent)
     modtex = _G[prefix.."ModelFramebgtex"]  or modbg:CreateTexture(prefix.."ModelFramebgtex", "BACKGROUND")
     modtex2 = _G[prefix.."ModelFramebgtex2"] or modbg:CreateTexture(prefix.."ModelFramebgtex2", "ARTWORK")
@@ -3025,7 +3050,13 @@ function CCS.ChangeModelBg(isInspect)
     end
 
     -- Determine which type of background to display.
-    if option(bgtype_lookup) == "Class Crest" then
+	if (CCS.CurrentVersion == CCS.RETAIL or CCS.CurrentVersion == CCS.FOREVER) and CCS.CurrentTheme ~= nil and CCS.Themes.enabled ~= false and option("theme") ~= nil and option("theme") ~= "None" then
+        local theme = CCS.CurrentTheme	
+		themeatlas = theme.path .. theme.frame_bg.texture
+		entry = CCS.CurrentTheme.frame_bg
+		modtex:SetVertexColor(1,1,1,1)
+
+    elseif option(bgtype_lookup) == "Class Crest" then
         entry = CCS.Class_Bg[classID] and CCS.Class_Bg[classID][0]
         modtex:SetVertexColor(1, 1, 1, 1)
     elseif option(bgtype_lookup) == "Class" then
@@ -3048,7 +3079,17 @@ function CCS.ChangeModelBg(isInspect)
 
         modtex:SetTexture(entry.texture)
         
-        if option(bgtype_lookup) == "Class Crest" then
+        if (CCS.CurrentVersion == CCS.RETAIL or CCS.CurrentVersion == CCS.FOREVER) and CCS.CurrentTheme ~= nil and CCS.Themes.enabled ~= false and option("theme") ~= nil and option("theme") ~= "None" then 
+            -- Race: horizontally centered
+            local visibleWidth = frameWidth / (frameHeight / texHeight)
+            local uRange = uMax - uMin
+            local uOffset = (uRange - (visibleWidth / texWidth) * uRange) / 2
+            local left = CCS.clamp(uMin + uOffset, uMin, uMax)
+            local right = CCS.clamp(uMax - uOffset, uMin, uMax)
+            modtex:SetTexture(themeatlas)
+            modtex:SetTexCoord(left, right, vMin, vMax)
+            
+        elseif option(bgtype_lookup) == "Class Crest" then
             local crestWidth, crestHeight, crestuMin, crestuMax, crestvMin, crestvMax = unpack(entry.crestmap)
             local visibleWidth = frameWidth / (frameHeight / texHeight)
             local left = uMin + ((texWidth - visibleWidth) / texWidth) * (uMax - uMin)
@@ -3212,4 +3253,197 @@ function CCS.UnitHasMana(unit)
 		return 1;
 	end
 	return nil;
+end
+
+function CCS.SkinItems()
+    -- Bail early if we don't have theming.
+    if CCS.CurrentTheme == nil or CCS.Themes.enabled == false or option("theme") == nil then return end
+
+    if option("theme") == "None" or option("show_item_frame") == false then -- We reset the icon info
+            CharacterBackSlotNormalTexture:Hide()
+            CharacterChestSlotNormalTexture:Hide()
+            CharacterFeetSlotNormalTexture:Hide()
+            CharacterFinger0SlotNormalTexture:Hide()
+            CharacterFinger1SlotNormalTexture:Hide()
+            CharacterHandsSlotNormalTexture:Hide()
+            CharacterHeadSlotNormalTexture:Hide()
+            CharacterLegsSlotNormalTexture:Hide()
+            CharacterMainHandSlotNormalTexture:Hide()
+            CharacterNeckSlotNormalTexture:Hide()
+            CharacterSecondaryHandSlotNormalTexture:Hide()
+            CharacterShirtSlotNormalTexture:Hide()
+            CharacterShoulderSlotNormalTexture:Hide()
+            CharacterTabardSlotNormalTexture:Hide()
+            CharacterTrinket0SlotNormalTexture:Hide()
+            CharacterTrinket1SlotNormalTexture:Hide()
+            CharacterWaistSlotNormalTexture:Hide()
+            CharacterWristSlotNormalTexture:Hide()
+            if CharacterRangedSlotNormalTexture then CharacterRangedSlotNormalTexture:Hide() end
+
+            CharacterBackSlotNormalTexture:SetTexture(130841)
+            CharacterChestSlotNormalTexture:SetTexture(130841)
+            CharacterFeetSlotNormalTexture:SetTexture(130841)
+            CharacterFinger0SlotNormalTexture:SetTexture(130841)
+            CharacterFinger1SlotNormalTexture:SetTexture(130841)
+            CharacterHandsSlotNormalTexture:SetTexture(130841)
+            CharacterHeadSlotNormalTexture:SetTexture(130841)
+            CharacterLegsSlotNormalTexture:SetTexture(130841)
+            CharacterMainHandSlotNormalTexture:SetTexture(130841)
+            CharacterNeckSlotNormalTexture:SetTexture(130841)
+            CharacterSecondaryHandSlotNormalTexture:SetTexture(130841)
+            CharacterShirtSlotNormalTexture:SetTexture(130841)
+            CharacterShoulderSlotNormalTexture:SetTexture(130841)
+            CharacterTabardSlotNormalTexture:SetTexture(130841)
+            CharacterTrinket0SlotNormalTexture:SetTexture(130841)
+            CharacterTrinket1SlotNormalTexture:SetTexture(130841)
+            CharacterWaistSlotNormalTexture:SetTexture(130841)
+            CharacterWristSlotNormalTexture:SetTexture(130841)
+            if CharacterRangedSlotNormalTexture then CharacterRangedSlotNormalTexture:SetTexture(130841) end
+            
+            CharacterBackSlot.PushedTexture:SetTexture(130839)
+            CharacterChestSlot.PushedTexture:SetTexture(130839)
+            CharacterFeetSlot.PushedTexture:SetTexture(130839)
+            CharacterFinger0Slot.PushedTexture:SetTexture(130839)
+            CharacterFinger1Slot.PushedTexture:SetTexture(130839)
+            CharacterHandsSlot.PushedTexture:SetTexture(130839)
+            CharacterHeadSlot.PushedTexture:SetTexture(130839)
+            CharacterLegsSlot.PushedTexture:SetTexture(130839)
+            CharacterMainHandSlot.PushedTexture:SetTexture(130839)
+            CharacterNeckSlot.PushedTexture:SetTexture(130839)
+            CharacterSecondaryHandSlot.PushedTexture:SetTexture(130839)
+            CharacterShirtSlot.PushedTexture:SetTexture(130839)
+            CharacterShoulderSlot.PushedTexture:SetTexture(130839)
+            CharacterTabardSlot.PushedTexture:SetTexture(130839)
+            CharacterTrinket0Slot.PushedTexture:SetTexture(130839)
+            CharacterTrinket1Slot.PushedTexture:SetTexture(130839)
+            CharacterWaistSlot.PushedTexture:SetTexture(130839)
+            CharacterWristSlot.PushedTexture:SetTexture(130839)
+            if CharacterRangedSlot ~= nil and  CharacterRangedSlot.PushedTexture then CharacterRangedSlot.PushedTexture:SetTexture(130839) end
+
+            CharacterBackSlot.PushedTexture:Hide()
+            CharacterChestSlot.PushedTexture:Hide()
+            CharacterFeetSlot.PushedTexture:Hide()
+            CharacterFinger0Slot.PushedTexture:Hide()
+            CharacterFinger1Slot.PushedTexture:Hide()
+            CharacterHandsSlot.PushedTexture:Hide()
+            CharacterHeadSlot.PushedTexture:Hide()
+            CharacterLegsSlot.PushedTexture:Hide()
+            CharacterMainHandSlot.PushedTexture:Hide()
+            CharacterNeckSlot.PushedTexture:Hide()
+            CharacterSecondaryHandSlot.PushedTexture:Hide()
+            CharacterShirtSlot.PushedTexture:Hide()
+            CharacterShoulderSlot.PushedTexture:Hide()
+            CharacterTabardSlot.PushedTexture:Hide()
+            CharacterTrinket0Slot.PushedTexture:Hide()
+            CharacterTrinket1Slot.PushedTexture:Hide()
+            CharacterWaistSlot.PushedTexture:Hide()
+            CharacterWristSlot.PushedTexture:Hide()
+            if CharacterRangedSlot ~= nil and  CharacterRangedSlot.PushedTexture then CharacterRangedSlot.PushedTexture:Hide() end            
+        return
+    end
+
+    local theme = CCS.CurrentTheme	
+    local themeatlas = theme.path .. theme.frame_item.texture
+
+        CharacterBackSlotNormalTexture:Show()
+        CharacterChestSlotNormalTexture:Show()
+        CharacterFeetSlotNormalTexture:Show()
+        CharacterFinger0SlotNormalTexture:Show()
+        CharacterFinger1SlotNormalTexture:Show()
+        CharacterHandsSlotNormalTexture:Show()
+        CharacterHeadSlotNormalTexture:Show()
+        CharacterLegsSlotNormalTexture:Show()
+        CharacterMainHandSlotNormalTexture:Show()
+        CharacterNeckSlotNormalTexture:Show()
+        CharacterSecondaryHandSlotNormalTexture:Show()
+        CharacterShirtSlotNormalTexture:Show()
+        CharacterShoulderSlotNormalTexture:Show()
+        CharacterTabardSlotNormalTexture:Show()
+        CharacterTrinket0SlotNormalTexture:Show()
+        CharacterTrinket1SlotNormalTexture:Show()
+        CharacterWaistSlotNormalTexture:Show()
+        CharacterWristSlotNormalTexture:Show()
+        if CharacterRangedSlotNormalTexture then CharacterRangedSlotNormalTexture:Show() end            
+
+        CharacterBackSlotNormalTexture:SetTexture(themeatlas)
+        CharacterChestSlotNormalTexture:SetTexture(themeatlas)
+        CharacterFeetSlotNormalTexture:SetTexture(themeatlas)
+        CharacterFinger0SlotNormalTexture:SetTexture(themeatlas)
+        CharacterFinger1SlotNormalTexture:SetTexture(themeatlas)
+        CharacterHandsSlotNormalTexture:SetTexture(themeatlas)
+        CharacterHeadSlotNormalTexture:SetTexture(themeatlas)
+        CharacterLegsSlotNormalTexture:SetTexture(themeatlas)
+        CharacterMainHandSlotNormalTexture:SetTexture(themeatlas)
+        CharacterNeckSlotNormalTexture:SetTexture(themeatlas)
+        CharacterSecondaryHandSlotNormalTexture:SetTexture(themeatlas)
+        CharacterShirtSlotNormalTexture:SetTexture(themeatlas)
+        CharacterShoulderSlotNormalTexture:SetTexture(themeatlas)
+        CharacterTabardSlotNormalTexture:SetTexture(themeatlas)
+        CharacterTrinket0SlotNormalTexture:SetTexture(themeatlas)
+        CharacterTrinket1SlotNormalTexture:SetTexture(themeatlas)
+        CharacterWaistSlotNormalTexture:SetTexture(themeatlas)
+        CharacterWristSlotNormalTexture:SetTexture(themeatlas)
+
+        if CharacterRangedSlotNormalTexture then CharacterRangedSlotNormalTexture:SetTexture(themeatlas) end            
+        
+        CharacterBackSlot.PushedTexture:SetTexture(themeatlas)
+        CharacterChestSlot.PushedTexture:SetTexture(themeatlas)
+        CharacterFeetSlot.PushedTexture:SetTexture(themeatlas)
+        CharacterFinger0Slot.PushedTexture:SetTexture(themeatlas)
+        CharacterFinger1Slot.PushedTexture:SetTexture(themeatlas)
+        CharacterHandsSlot.PushedTexture:SetTexture(themeatlas)
+        CharacterHeadSlot.PushedTexture:SetTexture(themeatlas)
+        CharacterLegsSlot.PushedTexture:SetTexture(themeatlas)
+        CharacterMainHandSlot.PushedTexture:SetTexture(themeatlas)
+        CharacterNeckSlot.PushedTexture:SetTexture(themeatlas)
+        CharacterSecondaryHandSlot.PushedTexture:SetTexture(themeatlas)
+        CharacterShirtSlot.PushedTexture:SetTexture(themeatlas)
+        CharacterShoulderSlot.PushedTexture:SetTexture(themeatlas)
+        CharacterTabardSlot.PushedTexture:SetTexture(themeatlas)
+        CharacterTrinket0Slot.PushedTexture:SetTexture(themeatlas)
+        CharacterTrinket1Slot.PushedTexture:SetTexture(themeatlas)
+        CharacterWaistSlot.PushedTexture:SetTexture(themeatlas)
+        CharacterWristSlot.PushedTexture:SetTexture(themeatlas)
+        if CharacterRangedSlot and CharacterRangedSlot.PushedTexture then CharacterRangedSlot.PushedTexture:SetTexture(themeatlas) end            
+        
+        -- Set the size
+        CharacterBackSlotNormalTexture:SetSize(40,40)
+        CharacterChestSlotNormalTexture:SetSize(40,40)
+        CharacterFeetSlotNormalTexture:SetSize(40,40)
+        CharacterFinger0SlotNormalTexture:SetSize(40,40)
+        CharacterFinger1SlotNormalTexture:SetSize(40,40)
+        CharacterHandsSlotNormalTexture:SetSize(40,40)
+        CharacterHeadSlotNormalTexture:SetSize(40,40)
+        CharacterLegsSlotNormalTexture:SetSize(40,40)
+        CharacterMainHandSlotNormalTexture:SetSize(40,40)
+        CharacterNeckSlotNormalTexture:SetSize(40,40)
+        CharacterSecondaryHandSlotNormalTexture:SetSize(40,40)
+        CharacterShirtSlotNormalTexture:SetSize(40,40)
+        CharacterShoulderSlotNormalTexture:SetSize(40,40)
+        CharacterTabardSlotNormalTexture:SetSize(40,40)
+        CharacterTrinket0SlotNormalTexture:SetSize(40,40)
+        CharacterTrinket1SlotNormalTexture:SetSize(40,40)
+        CharacterWaistSlotNormalTexture:SetSize(40,40)
+        CharacterWristSlotNormalTexture:SetSize(40,40)
+        if CharacterRangedSlotNormalTexture then CharacterRangedSlotNormalTexture:SetSize(40,40) end            
+        
+        CharacterBackSlot.PushedTexture:SetSize(40,40)
+        CharacterChestSlot.PushedTexture:SetSize(40,40)
+        CharacterFeetSlot.PushedTexture:SetSize(40,40)
+        CharacterFinger0Slot.PushedTexture:SetSize(40,40)
+        CharacterFinger1Slot.PushedTexture:SetSize(40,40)
+        CharacterHandsSlot.PushedTexture:SetSize(40,40)
+        CharacterHeadSlot.PushedTexture:SetSize(40,40)
+        CharacterLegsSlot.PushedTexture:SetSize(40,40)
+        CharacterMainHandSlot.PushedTexture:SetSize(40,40)
+        CharacterNeckSlot.PushedTexture:SetSize(40,40)
+        CharacterSecondaryHandSlot.PushedTexture:SetSize(40,40)
+        CharacterShirtSlot.PushedTexture:SetSize(40,40)
+        CharacterShoulderSlot.PushedTexture:SetSize(40,40)
+        CharacterTabardSlot.PushedTexture:SetSize(40,40)
+        CharacterTrinket0Slot.PushedTexture:SetSize(40,40)
+        CharacterTrinket1Slot.PushedTexture:SetSize(40,40)
+        CharacterWaistSlot.PushedTexture:SetSize(40,40)
+        CharacterWristSlot.PushedTexture:SetSize(40,40)
+        if CharacterRangedSlot ~= nil and CharacterRangedSlot.PushedTexture then CharacterRangedSlot.PushedTexture:SetSize(40,40) end                    
 end

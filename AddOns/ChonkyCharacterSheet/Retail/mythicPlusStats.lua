@@ -832,43 +832,72 @@ local function CreateRewardFrame(name, anchorPoint, anchorFrame, relativePoint, 
     frame:SetFrameLevel(10)
     frame:SetShown(option(opts.showToggle) == true)
 
-    -- Background
     local bg = _G[name.."_bg"] or frame:CreateTexture(name.."_bg", "BACKGROUND", nil, 0)
-    bg:SetPoint("TOPLEFT", frame, "TOPLEFT", -4, 0)
-    bg:SetSize(200, 80)
-    bg:SetTexture("Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\steelboxbg.png")
-    bg:Show()
+    local bgtex = _G[name.."_bgtex"] or frame:CreateTexture(name.."_bgtex", "BACKGROUND", nil, 1) -- Gradient at top
+    local tex1 = _G[name.."_tex1"] or frame:CreateTexture(name.."_tex1", "ARTWORK") -- Check
+    local tex2 = _G[name.."_tex2"] or frame:CreateTexture(name.."_tex2", "ARTWORK") -- Lock
+    local tex3 = _G[name.."_tex3"] or frame:CreateTexture(name.."_tex3", "ARTWORK", nil, 0) -- Banner
+    local tex4 = _G[name.."_tex4"] or frame:CreateTexture(name.."_tex4", "ARTWORK", nil, 2) -- Item Icon
+	
+	CCS.CreateChonkyNineSlice(frame)
 
-    local bgtex = _G[name.."_bgtex"] or frame:CreateTexture(name.."_bgtex", "BACKGROUND", nil, 1)
-    bgtex:SetPoint("TOPLEFT", frame, "TOPLEFT", 5, -5)
-    bgtex:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -10, 5)
-    bgtex:SetTexture("Interface\\Masks\\SquareMask.BLP")
-    bgtex:SetGradient("Vertical", CreateColor(0, 0, 0, .4), CreateColor(bgc[1] or 0.2, bgc[2] or 0, bgc[3] or 0.3, bgc[4] or 1))
-    bgtex:Show()
+    -- Background
+	bg:ClearAllPoints()
+    bg:SetPoint("TOPLEFT", frame, "TOPLEFT", 4, -4)
+	bg:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -4, 4)
 
     -- Icon Textures
-    local tex1 = _G[name.."_tex1"] or frame:CreateTexture(name.."_tex1", "ARTWORK")
-    tex1:SetPoint("TOP", frame, "TOPLEFT", 0, 3)
-    tex1:SetTexture("Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\shieldcheck.png")
-    tex1:SetSize(35, 35)
+    tex1:SetPoint("CENTER", frame, "TOPLEFT", 8, -13)
+    tex2:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 40, 8)
+    tex3:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 4, 10)
+    tex3:SetPoint("RIGHT", frame, "RIGHT", -4, 10)	
+    tex4:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 28, 10)
+
+	if CCS.Themes ~= nil and CCS.Themes.enabled == true and option("theme") ~= "None" then
+		local bcolor = CCS.CurrentTheme.bcolor
+		local hcolor = CCS.CurrentTheme.bncolor
+	
+		bg:SetTexture("Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\Frame\\vparch.png")	
+		bg:SetVertexColor(bcolor[1],bcolor[2],bcolor[3],.5)
+		bgtex:SetGradient("Vertical", CreateColor(0, 0, 0, .4), CreateColor(bcolor[1],bcolor[2],bcolor[3],.5))
+		bgtex:SetPoint("TOPLEFT", frame, "TOPLEFT", 0, 0)
+		bgtex:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", 0, 0)
+		frame.ChonkyNS:Show()
+		bgtex:Hide()
+		tex3:SetGradient("Horizontal", CreateColor(hcolor[1], hcolor[2], hcolor[3], .5), CreateColor(0,0,0,.4))		
+		tex1:SetTexture(CCS.CurrentTheme.path .. CCS.CurrentTheme.frame_check.texture)		
+		tex2:SetTexture(CCS.CurrentTheme.path .. CCS.CurrentTheme.frame_lock.texture)		
+	else
+		bg:ClearAllPoints()
+		bg:SetTexture("Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\steelboxbg.png")
+		bg:SetVertexColor(1,1,1,1)		
+		bgtex:SetGradient("Vertical", CreateColor(0, 0, 0, .4), CreateColor(bgc[1] or 0.2, bgc[2] or 0, bgc[3] or 0.3, bgc[4] or 1))
+		bg:SetPoint("TOPLEFT", frame, "TOPLEFT", -4, 0)
+	    bg:SetSize(200, 80)
+		frame.ChonkyNS:Hide()
+		bgtex:Show()		
+		bgtex:SetPoint("TOPLEFT", frame, "TOPLEFT", 5, -5)
+		bgtex:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -10, 5)
+		local ilvlc = option("wc_ilvlbannercolor") or {}
+		tex3:SetGradient("Horizontal", CreateColor(ilvlc[1] or 0.64, ilvlc[2] or 0.21, ilvlc[3] or 0.93, ilvlc[4] or 1), CreateColor(0, 0, 0, 1))
+		tex1:SetTexture("Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\shieldcheck.png")		
+		tex2:SetTexture("Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\lock.png")
+	end
+
+    bg:Show()
+
+    bgtex:SetTexture("Interface\\Masks\\SquareMask.BLP")
+
+    tex1:SetSize(30, 30)
     tex1:Hide()
 
-    local tex2 = _G[name.."_tex2"] or frame:CreateTexture(name.."_tex2", "ARTWORK")
-    tex2:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 40, 8)
-    tex2:SetTexture("Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\lock.png")
-    tex2:SetSize(40, 40)
+    tex2:SetSize(38, 38)
     tex2:Show()
 
-    local tex3 = _G[name.."_tex3"] or frame:CreateTexture(name.."_tex3", "ARTWORK", nil, 0)
-    tex3:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 4, 10)
     tex3:SetTexture("Interface\\Masks\\SquareMask.BLP")
-	local ilvlc = option("wc_ilvlbannercolor") or {}
-    tex3:SetGradient("Horizontal", CreateColor(ilvlc[1] or 0.64, ilvlc[2] or 0.21, ilvlc[3] or 0.93, ilvlc[4] or 1), CreateColor(0, 0, 0, 1))
     tex3:SetSize(140, 32)
     tex3:Hide()
 
-    local tex4 = _G[name.."_tex4"] or frame:CreateTexture(name.."_tex4", "ARTWORK", nil, 2)
-    tex4:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 28, 10)
     tex4:SetTexture("Interface\\Masks\\SquareMask.BLP")
     tex4:SetSize(32, 32)
     tex4:Hide()
@@ -906,7 +935,7 @@ local function CreateRewardFrame(name, anchorPoint, anchorFrame, relativePoint, 
     fs2:Hide()
 
     local fs3 = _G[name.."_fs3"] or frame:CreateFontString(name.."_fs3")
-    fs3:SetPoint("RIGHT", frame, "RIGHT", -12, -6)
+    fs3:SetPoint("RIGHT", frame, "RIGHT", -12, -8)
     fs3:SetFont(option("fontname_wc_diff") or CCS.fontname, option("fontsize_wc_diff") or 10, CCS.textoutline)
 	if option("showfontshadow") == true then
 		fs3:SetShadowColor(unpack(option("fontshadowcolor") or {0,0,0,1}))
@@ -922,7 +951,7 @@ local function CreateRewardFrame(name, anchorPoint, anchorFrame, relativePoint, 
 	fs3:Show()
 
     local fs4 = _G[name.."_fs4"] or frame:CreateFontString(name.."_fs4")
-    fs4:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -12, 6)
+    fs4:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -12, 8)
     fs4:SetFont(option("fontname_wc_prog") or CCS.fontname, option("fontsize_wc_prog") or 10, CCS.textoutline)
 	if option("showfontshadow") == true then
 		fs4:SetShadowColor(unpack(option("fontshadowcolor") or {0,0,0,1}))
@@ -1015,7 +1044,6 @@ local function initializeframes()
 		ccsm_sf.hooked = true
 	end
 
-
 	local hpad = option("hpad") or 279
 	local sheetscale = option("sheetscale") or 1
 	_G["ccsm_sf"]:SetScale(option("mplus_sp_scale"))
@@ -1061,8 +1089,9 @@ local function initializeframes()
 	sf_topbar:SetPoint("TOPLEFT", ccsm_sf, "TOPLEFT")
 	sf_topbar:SetPoint("TOPRIGHT", ccsm_sf, "TOPRIGHT")
 	sf_topbar:SetHeight(16)
-	sf_topbar:SetTexture("1723833")
-	sf_topbar:SetTexCoord(0, 1, 0.586, .734)
+	sf_topbar:SetTexture("Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\Frame\\parchment.png")
+	--sf_topbar:SetTexture("1723833")
+	--sf_topbar:SetTexCoord(0, 1, 0.586, .734)
 	
 	sf_topstreaks:SetPoint("TOPLEFT", sf_topbar, "BOTTOMLEFT")
 	sf_topstreaks:SetPoint("TOPRIGHT", sf_topbar, "BOTTOMRIGHT")
@@ -1194,29 +1223,29 @@ local function initializeframes()
 	CacheReward("ccms_raid3", ccms_raid3)
 
 	-- World Rewards Row
-	ccms_world1:SetPoint("BOTTOMLEFT", ccsm_sf, "BOTTOMLEFT", 28, 7)
-	ccms_world2:SetPoint("BOTTOMLEFT", ccms_world1, "BOTTOMRIGHT", 5, 0)
-	ccms_world3:SetPoint("BOTTOMLEFT", ccms_world2, "BOTTOMRIGHT", 5, 0)
+	ccms_world1:SetPoint("BOTTOMLEFT", ccsm_sf, "BOTTOMLEFT", 19, 7)
+	ccms_world2:SetPoint("BOTTOMLEFT", ccms_world1, "BOTTOMRIGHT", 12, 0)
+	ccms_world3:SetPoint("BOTTOMLEFT", ccms_world2, "BOTTOMRIGHT", 12, 0)
 
 	-- Dungeon Rewards Row
 	if showWorld then
 		ccms_r1:SetPoint("BOTTOMLEFT", ccms_world1, "TOPLEFT", 0, 3)
 	else
-		ccms_r1:SetPoint("BOTTOMLEFT", ccsm_sf, "BOTTOMLEFT", 28, 7)
+		ccms_r1:SetPoint("BOTTOMLEFT", ccsm_sf, "BOTTOMLEFT", 7, 7)
 	end
-	ccms_r2:SetPoint("BOTTOMLEFT", ccms_r1, "BOTTOMRIGHT", 5, 0)
-	ccms_r3:SetPoint("BOTTOMLEFT", ccms_r2, "BOTTOMRIGHT", 5, 0)
+	ccms_r2:SetPoint("BOTTOMLEFT", ccms_r1, "BOTTOMRIGHT", 12, 0)
+	ccms_r3:SetPoint("BOTTOMLEFT", ccms_r2, "BOTTOMRIGHT", 12, 0)
 
 	-- Raid Rewards Row
 	if showWorld and not showMPlus then
 		ccms_raid1:SetPoint("BOTTOMLEFT", ccms_world1, "TOPLEFT", 0, 3)
 	elseif not showWorld and not showMPlus then
-		ccms_raid1:SetPoint("BOTTOMLEFT", ccsm_sf, "BOTTOMLEFT", 28, 7)
+		ccms_raid1:SetPoint("BOTTOMLEFT", ccsm_sf, "BOTTOMLEFT", 7, 7)
 	else
 		ccms_raid1:SetPoint("BOTTOMLEFT", ccms_r1, "TOPLEFT", 0, 3)
 	end
-	ccms_raid2:SetPoint("BOTTOMLEFT", ccms_raid1, "BOTTOMRIGHT", 5, 0)
-	ccms_raid3:SetPoint("BOTTOMLEFT", ccms_raid2, "BOTTOMRIGHT", 5, 0)
+	ccms_raid2:SetPoint("BOTTOMLEFT", ccms_raid1, "BOTTOMRIGHT", 12, 0)
+	ccms_raid3:SetPoint("BOTTOMLEFT", ccms_raid2, "BOTTOMRIGHT", 12, 0)
 	
 	-- This is where the bars are made
 	for x=1,8 do
@@ -1909,7 +1938,7 @@ function module:Initialize(onlyStyle)
 	end	                                                                
 	
 	btnfont1:SetText(textstring)
-	btnfont1:SetJustifyH("CENTER")
+	btnfont1:SetJustifyH("LEFT")
 
 	btn:SetScript("OnClick", function() 
 			PlaySound(SOUNDKIT.GS_LOGIN_CHANGE_REALM_OK);
@@ -1989,7 +2018,7 @@ function module:Initialize(onlyStyle)
 		if C_AddOns.IsAddOnLoaded("ClassCodex") == true then
 			if ClassCodexPanel and ClassCodexPanel:IsVisible() then ClassCodexPanel:Hide() end
 		end
-		
+		CCS.MoveModelLeft()
 		if _G["ccsrf_sf"] and _G["ccsrf_sf"]:IsShown() then _G["ccsrf_sf"]:Hide() end
 		if _G["ccsgf_sf"] and _G["ccsgf_sf"]:IsShown() then _G["ccsgf_sf"]:Hide() end
 		

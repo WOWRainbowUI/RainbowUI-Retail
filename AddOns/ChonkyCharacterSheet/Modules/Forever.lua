@@ -192,16 +192,22 @@ local function BlizStatFrame_Update()
         for _,stats_child in ipairs(stats_children) do
             if stats_child.Title ~= nil then
                 local entry = CCS:GetHeaderTextureByName(option("statheadertex"))
+                local theme = CCS.CurrentTheme	
                 --local entry = CCS.headertexture[3]
-                local texWidth, texHeight, uMin, uMax, vMin, vMax = unpack(entry.map)
-
-                stats_child.Background:SetTexture(entry.texture)
-                stats_child.Background:SetTexCoord(uMin, uMax, vMin, vMax);
-                stats_child.Background:SetPoint("TOPLEFT", stats_child, "TOPLEFT",0 , -15)
-                stats_child.Background:SetPoint("BOTTOMRIGHT", stats_child, "BOTTOMRIGHT",0 , 0)
-                stats_child.Background:SetVertexColor(ncolor[1], ncolor[2], ncolor[3], ncolor[4])
-                stats_child.Title:SetAllPoints(stats_child.Background)
-                
+                if CCS.CurrentTheme ~= nil and CCS.Themes.enabled ~= false and option("theme") ~= "None" then
+                    local themeatlas = theme.path .. theme.stats_header.texture
+                    stats_child.Background:SetTexture(themeatlas)
+                    stats_child.Background:SetTexCoord(0,1,0,1);
+                    stats_child.Background:SetVertexColor(1,1,1,1)
+                elseif entry ~= nil then
+                    local texWidth, texHeight, uMin, uMax, vMin, vMax = unpack(entry.map)
+                    stats_child.Background:SetTexture(entry.texture)
+                    stats_child.Background:SetTexCoord(uMin, uMax, vMin, vMax);
+                    stats_child.Background:SetPoint("TOPLEFT", stats_child, "TOPLEFT",0 , -15)
+                    stats_child.Background:SetPoint("BOTTOMRIGHT", stats_child, "BOTTOMRIGHT",0 , 0)
+                    stats_child.Background:SetVertexColor(ncolor[1], ncolor[2], ncolor[3], ncolor[4])
+                    stats_child.Title:SetAllPoints(stats_child.Background)
+                end
                 if CCS.stats_child_texture == nil then
                     CCS.stats_child_texture = stats_child.Background:GetTexture()
                 end
@@ -1193,7 +1199,7 @@ function module:SetupBlizzardFrameOverrides()
 	if CharacterFrameInset.Bg == nil then 
 	    CharacterFrameInset.Bg = CreateFrame("Frame", nil, CharacterFrameInset, BackdropTemplateMixin and "BackdropTemplate")
 	end
-
+    
     CharacterFrameBg:ClearAllPoints()
     CharacterFrameBg:SetPoint("TOPLEFT", CharacterFrame, "TOPLEFT", 0, 0);
     CharacterFrameBg:SetPoint("BOTTOMRIGHT", CharacterFrame, "TOPRIGHT", Bgoffset, -(479+(7*option("vpad"))))
@@ -1215,7 +1221,7 @@ function module:SetupBlizzardFrameOverrides()
 
     if option("skinchartabs") then
         CharacterFrameModeTabs:ClearAllPoints()
-        CharacterFrameModeTabs:SetPoint("TOPLEFT", CharacterFrameBg,"BOTTOMLEFT", 0, 2)
+        CharacterFrameModeTabs:SetPoint("TOPLEFT", CharacterFrameBg,"BOTTOMLEFT", 50, 2)
         CharacterFrameModeTab2:ClearAllPoints()
         CharacterFrameModeTab3:ClearAllPoints()
         CharacterFrameModeTab4:ClearAllPoints()
@@ -1230,7 +1236,7 @@ function module:SetupBlizzardFrameOverrides()
     elseif CharacterFrameModeTab1 and CharacterFrameModeTab1.CCS_BG and CharacterFrameModeTab1.CCS_BG:IsShown() then
         CCS.CharacterButtonsRevert()
     else
-        CharacterFrameModeTabs:SetPoint("TOPLEFT", _G["CharacterFrameBgbg"],"TOPRIGHT", 2, -30)
+        CharacterFrameModeTabs:SetPoint("TOPLEFT", _G["CharacterFrameBgbg"],"TOPRIGHT", 2, -2)
     end                    
     
     CharacterFrameLeftPaneHost:Hide()
@@ -1461,7 +1467,7 @@ function module:UpdateStyle()
     CCS:ApplyIconStyle(CCSsetbtn, "gear", 32)
 
     local ttfontsize = option("fontsize_nametitle") or 12
-    CharacterFrameTitleText:SetPoint("TOP", CharacterFrameBg, "TOP", 0, -5*ttfontsize/12)
+    CharacterFrameTitleText:SetPoint("TOP", CharacterFrame, "TOP", 0, -(10+5*ttfontsize/12))    
     CharacterFrameTitleText:SetFont( option("fontname_nametitle") or CCS.fontname, ttfontsize , CCS.textoutline)
     if option("showfontshadow") == true then
         CharacterFrameTitleText:SetShadowColor(unpack(option("fontshadowcolor") or {0,0,0,1}))
@@ -1722,6 +1728,26 @@ function module:ApplyDynamicLayout()
 			CharacterAmmoSlotNormalTexture:Show()
               
         end
+            CharacterBackSlotNormalTexture:SetPoint("CENTER",0,0)
+            CharacterChestSlotNormalTexture:SetPoint("CENTER",0,0)
+            CharacterFeetSlotNormalTexture:SetPoint("CENTER",0,0)
+            CharacterFinger0SlotNormalTexture:SetPoint("CENTER",0,0)
+            CharacterFinger1SlotNormalTexture:SetPoint("CENTER",0,0)
+            CharacterHandsSlotNormalTexture:SetPoint("CENTER",0,0)
+            CharacterHeadSlotNormalTexture:SetPoint("CENTER",0,0)
+            CharacterLegsSlotNormalTexture:SetPoint("CENTER",0,0)
+            CharacterMainHandSlotNormalTexture:SetPoint("CENTER",0,0)
+            CharacterNeckSlotNormalTexture:SetPoint("CENTER",0,0)
+            CharacterSecondaryHandSlotNormalTexture:SetPoint("CENTER",0,0)
+            CharacterShirtSlotNormalTexture:SetPoint("CENTER",0,0)
+            CharacterShoulderSlotNormalTexture:SetPoint("CENTER",0,0)
+            CharacterTabardSlotNormalTexture:SetPoint("CENTER",0,0)
+            CharacterTrinket0SlotNormalTexture:SetPoint("CENTER",0,0)
+            CharacterTrinket1SlotNormalTexture:SetPoint("CENTER",0,0)
+            CharacterWaistSlotNormalTexture:SetPoint("CENTER",0,0)
+            CharacterWristSlotNormalTexture:SetPoint("CENTER",0,0)
+            if CharacterRangedSlotNormalTexture then CharacterRangedSlotNormalTexture:SetPoint("CENTER",0,0) end            
+
     end
 end
 -- Module Initialization
@@ -1740,6 +1766,7 @@ function module:Initialize(onlyStyle)
     if onlyStyle and self.BlizzardCleanup then
         self:ApplyDynamicLayout()
         self:UpdateStyle()
+        CCS.SkinItems()
         return
     end
 
@@ -1759,6 +1786,7 @@ function module:Initialize(onlyStyle)
 
     if not self.StyleSetup then
         self:UpdateStyle()
+        CCS.SkinItems()
         self.StyleSetup = true
     end
 
@@ -1834,7 +1862,7 @@ function CCS.ForeverCharacterSheetEventHandler(event, ...)
         CurrencyFrame_Update()
         BlizStatFrame_Update()
         BlizPetStatFrame_Update()
-
+        CCS.SkinItems()
         if option("skinchartabs") then
             CCS.SkinCharacterButtons()
         elseif CharacterFrameModeTab1 and CharacterFrameModeTab1.CCS_BG and CharacterFrameModeTab1.CCS_BG:IsShown() then
