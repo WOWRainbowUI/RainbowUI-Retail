@@ -10,37 +10,63 @@ local tinsert, CreateFrame, tonumber, max, min, abs, pairs, ipairs, GetCursorPos
 local sizex = 840
 local sizey = 555
 local defaultSavedVars = MDT:GetDefaultSavedVariables()
-local defaultNonFullscreenScale = defaultSavedVars.global.nonFullscreenScale
-local minNonFullscreenScale = 0.9
+local minNonFullscreenScale = MDT:GetMinNonFullscreenScale()
 local sidePanelWidth = 251
 local panelHeight = 30
-local screenEdgePadding = 10
 local framesInitialized
 local frameInitializedCallbacks = {}
 
 local db
 
-function MDT:RegisterMainFrameDragHandle(dragHandle, frame)
-  frame = frame or MDT.main_frame
-  if not dragHandle or not frame then return end
+---How far the window must move for all of it (sidebar, side panel and both bars) to lie inside the Root.
+---@return number dx, number dy
+local function onScreenShift(f)
+  local width, height = MDT.UI.Root:GetSize()
+  local dx = max(0, -f.navigationSidebar:GetLeft()) + min(0, width - f.sidePanel:GetRight())
+  local dy = max(0, -f.bottomPanel:GetBottom()) + min(0, height - f.topPanel:GetTop())
+  return dx, dy
+end
+
+---Anchors the window's saved point to the same named point of the Root, offset by x, y.
+local function anchorWindow(x, y)
+  local f = MDT.main_frame
+  f:ClearAllPoints()
+  f:SetPoint(db.anchorFrom, MDT.UI.Root, db.anchorTo, x, y)
+end
+
+---Saves where the user moved or resized the normal window to, after moving it fully on screen.
+local function saveWindowPlacement()
+  local f, Root = MDT.main_frame, MDT.UI.Root
+  local point, relativeTo, relativePoint, x, y = f:GetPoint()
+  -- The client may leave a moved or sized window anchored to another frame, or by two different points.
+  if point ~= relativePoint or (relativeTo ~= Root and relativeTo ~= UIParent) then
+    point, relativePoint = "TOPLEFT", "TOPLEFT"
+    x, y = f:GetLeft() - Root:GetLeft(), f:GetTop() - Root:GetTop()
+  end
+  local dx, dy = onScreenShift(f)
+  db.anchorFrom, db.anchorTo = point, relativePoint
+  db.xoffset, db.yoffset = x + dx, y + dy
+  anchorWindow(db.xoffset, db.yoffset)
+end
+
+local moving
+function MDT:RegisterMainFrameDragHandle(dragHandle)
+  if not dragHandle then return end
 
   dragHandle:EnableMouse(true)
   dragHandle:RegisterForDrag("LeftButton")
   dragHandle:SetScript("OnDragStart", function()
-    frame:SetMovable(true)
-    frame:StartMoving()
+    moving = not db.maximized
+    if not moving then return end
+    MDT.main_frame:SetMovable(true)
+    MDT.main_frame:StartMoving()
   end)
   dragHandle:SetScript("OnDragStop", function()
-    frame:StopMovingOrSizing()
-    frame:SetMovable(false)
-    if MDT:IsFrameOffScreen() then
-      MDT:ResetMainFramePos(true)
-    else
-      local from, _, to, x, y = frame:GetPoint()
-      db.anchorFrom = from
-      db.anchorTo = to
-      db.xoffset, db.yoffset = x, y
-    end
+    if not moving then return end
+    moving = false
+    MDT.main_frame:StopMovingOrSizing()
+    MDT.main_frame:SetMovable(false)
+    saveWindowPlacement()
   end)
 end
 
@@ -136,10 +162,6 @@ function MDT:CreateMenu()
   })
   maximizeButton:SetPoint("RIGHT", closeButton, "LEFT", -3, 0)
   maximizeButton:SetFrameLevel(10)
-  ---Leaves fullscreen if needed; kept for callers that reset the window.
-  function maximizeButton:Minimize()
-    if MDT:GetDB().maximized then MDT:Minimize() end
-  end
   self.main_frame.maximizeButton = maximizeButton
 
   --Resize Handle
@@ -160,6 +182,8 @@ function MDT:CreateMenu()
   end)
   resizer:SetScript("OnMouseUp", function()
     self.main_frame:StopMovingOrSizing()
+    self:SetScale(self.main_frame:GetHeight() / sizey)
+    saveWindowPlacement()
     self:UpdateEnemyInfoFrame()
     self:UpdateMap()
     self:UpdateBottomText()
@@ -252,34 +276,41 @@ function MDT:GetFullScreenSizes()
   return newSizex, newSizey, scale, isNarrow
 end
 
-function MDT:GetDefaultNonFullscreenScale(xoffset, yoffset)
-  xoffset = xoffset or defaultSavedVars.global.xoffset
-  yoffset = yoffset or defaultSavedVars.global.yoffset
+---The normal (not maximized) window's scale as shown: the saved one, shrunk to fit the Root. The saved scale stays as
+---the user left it, so the window grows back when the Root does.
+function MDT:GetNormalWindowScale()
+  local _, _, fullscreenScale = MDT:GetFullScreenSizes()
+  return min(db.nonFullscreenScale, fullscreenScale)
+end
 
-  local screenWidth, screenHeight = MDT.UI.Root:GetWidth(), MDT.UI.Root:GetHeight()
-  if not screenWidth or not screenHeight or screenWidth <= 0 or screenHeight <= 0 then
-    return defaultNonFullscreenScale
+---Anchors the normal window at the saved position, moved just enough for all of it to lie inside the Root. The saved
+---position stays as the user left it.
+function MDT:PlaceNormalWindow()
+  anchorWindow(db.xoffset, db.yoffset)
+  local dx, dy = onScreenShift(MDT.main_frame)
+  anchorWindow(db.xoffset + dx, db.yoffset + dy)
+end
+
+---Refits the window to the Root, whose size in its own units changes with the MDT scale and the screen's aspect ratio.
+local function fitToRoot()
+  local f = MDT.main_frame
+  local fullWidth, fullHeight, fullscreenScale = MDT:GetFullScreenSizes()
+  local minScale = min(minNonFullscreenScale, fullscreenScale)
+  f:SetResizeBounds(sizex * minScale, sizey * minScale, sizex * fullscreenScale, sizey * fullscreenScale)
+  -- /mdt reset clears db.maximized and leaves the layout to this refit.
+  local shownMaximized = MDT:IsShownMaximized()
+  if db.maximized then
+    if not shownMaximized or abs(f:GetWidth() - fullWidth) > 0.5 or abs(f:GetHeight() - fullHeight) > 0.5 then MDT:Maximize() end
+  elseif shownMaximized or abs(f:GetHeight() - sizey * MDT:GetNormalWindowScale()) > 0.5 then
+    MDT:Minimize()
+  else
+    MDT:PlaceNormalWindow()
   end
-
-  local navigationSidebarWidth = MDT:GetNavigationSidebarWidth()
-  local maxLeftScale = ((screenWidth / 2) + xoffset - navigationSidebarWidth - screenEdgePadding) * 2 / sizex
-  local maxRightScale = ((screenWidth / 2) - sidePanelWidth - xoffset - screenEdgePadding) * 2 / sizex
-  local maxHeightScale = (screenHeight + yoffset - panelHeight - screenEdgePadding) / sizey
-  local maxScale = min(maxLeftScale, maxRightScale, maxHeightScale)
-
-  return min(defaultNonFullscreenScale, max(minNonFullscreenScale, maxScale))
 end
 
-function MDT:IsFrameOffScreen()
-  local topPanel = MDT.main_frame.topPanel
-  local bottomPanel = MDT.main_frame.bottomPanel
-  local width, height = MDT.UI.Root:GetWidth(), MDT.UI.Root:GetHeight()
-  local left = MDT.main_frame.navigationSidebar and MDT.main_frame.navigationSidebar:GetLeft() or topPanel:GetLeft() -->width
-  local right = topPanel:GetRight()                                                                                  --<0
-  local bottom = topPanel:GetBottom()                                                                                --<0
-  local top = bottomPanel:GetTop()                                                                                   -->height
-  return left > width or right < 0 or bottom < 0 or top > height
-end
+MDT.UI.OnRootResized(function()
+  if framesInitialized then fitToRoot() end
+end)
 
 local bottomTips = {
   [1] = L["Please report any bugs on https://github.com/Nnoggie/MythicDungeonTools/issues"],
@@ -343,7 +374,7 @@ function MDT:MakeTopBottomTextures(frame)
   frame.topPanel:SetPoint("BOTTOMLEFT", frame, "TOPLEFT")
   frame.topPanel:SetPoint("BOTTOMRIGHT", frame, "TOPRIGHT")
 
-  MDT:RegisterMainFrameDragHandle(frame.topPanel, frame)
+  MDT:RegisterMainFrameDragHandle(frame.topPanel)
 
   if frame.bottomPanel == nil then
     frame.bottomPanel = CreateFrame("Frame", "MDTBottomPanel", frame)
@@ -413,7 +444,7 @@ function MDT:MakeTopBottomTextures(frame)
   frame.statusString:SetTextColor(1, 1, 1, 1)
   frame.statusString:Hide()
 
-  MDT:RegisterMainFrameDragHandle(frame.bottomPanel, frame)
+  MDT:RegisterMainFrameDragHandle(frame.bottomPanel)
 end
 
 function MDT:MakeCopyHelper(frame)
@@ -477,7 +508,7 @@ function MDT:MakeSidePanel(frame)
     frame.sidePanelTex:SetColorTexture(unpack(MDT.BackdropColor))
     frame.sidePanelTex:Show()
   end
-  MDT:RegisterMainFrameDragHandle(frame.sidePanel, frame)
+  MDT:RegisterMainFrameDragHandle(frame.sidePanel)
 
   frame.sidePanel:ClearAllPoints()
   frame.sidePanel:SetWidth(sidePanelWidth)
@@ -486,25 +517,21 @@ function MDT:MakeSidePanel(frame)
 
 end
 
-function MDT:ResetMainFramePos(soft)
+---Leaves fullscreen and restores the default window position and size and MDT scale 100%.
+function MDT:ResetMainFramePos()
   MDT:Async(function()
-    --soft reset just redraws the window with existing coordinates from db
     if not framesInitialized then MDT:StartMainFrameInitialization() end
-    local f = self.main_frame
-    if not soft then
-      db.maximized = false
-      if not framesInitialized then MDT:StartMainFrameInitialization() end
-      if not framesInitialized then return end
-      db.xoffset = defaultSavedVars.global.xoffset
-      db.yoffset = defaultSavedVars.global.yoffset
-      db.anchorFrom = "TOP"
-      db.anchorTo = "TOP"
-      db.nonFullscreenScale = MDT:GetDefaultNonFullscreenScale(db.xoffset, db.yoffset)
-      db.scale = db.nonFullscreenScale
-      f.maximizeButton:Minimize()
-    end
-    f:ClearAllPoints()
-    f:SetPoint(db.anchorTo, MDT.UI.Root, db.anchorFrom, db.xoffset, db.yoffset)
+    if not framesInitialized then return end
+    local defaults = defaultSavedVars.global
+    db.maximized = false
+    db.nonFullscreenScale = defaults.nonFullscreenScale
+    db.anchorFrom, db.anchorTo = defaults.anchorFrom, defaults.anchorTo
+    db.xoffset, db.yoffset = defaults.xoffset, defaults.yoffset
+    local rescaled
+    db.uiScale, rescaled = MDT.UI.SetUserScale(defaults.uiScale)
+    -- A rescaled Root changes size, and its refit lays the window out.
+    if not rescaled then MDT:Minimize() end
+    MDT:Settings_Refresh()
   end, 'resetMainFramePos')
 end
 
@@ -551,14 +578,10 @@ function MDT:InitializeMainFrame()
 
   if MDT.InitializeDevModeCache then MDT:InitializeDevModeCache() end
 
-  db.nonFullscreenScale = db.nonFullscreenScale or MDT:GetDefaultNonFullscreenScale(db.xoffset, db.yoffset)
-  if db.nonFullscreenScale == defaultNonFullscreenScale and db.anchorFrom == "TOP" and db.anchorTo == "TOP" then
-    db.nonFullscreenScale = MDT:GetDefaultNonFullscreenScale(db.xoffset, db.yoffset)
-  end
-  if not db.maximized then db.scale = db.nonFullscreenScale end
+  db.scale = db.maximized and select(3, MDT:GetFullScreenSizes()) or MDT:GetNormalWindowScale()
   main_frame:SetFrameStrata(mainFrameStrata)
   main_frame:SetFrameLevel(1)
-  MDT:RegisterMainFrameDragHandle(main_frame, main_frame)
+  MDT:RegisterMainFrameDragHandle(main_frame)
   main_frame.background = main_frame:CreateTexture(nil, "BACKGROUND", nil, 0)
   main_frame.background:SetAllPoints()
   main_frame.background:SetDrawLayer(canvasDrawLayer, 1)
@@ -566,8 +589,6 @@ function MDT:InitializeMainFrame()
   main_frame.background:SetAlpha(0)
   main_frame:SetSize(sizex * db.scale, sizey * db.scale)
   main_frame:SetResizable(true)
-  local _, _, fullscreenScale = MDT:GetFullScreenSizes()
-  main_frame:SetResizeBounds(sizex * 0.9, sizey * 0.9, sizex * fullscreenScale, sizey * fullscreenScale)
   MDT.main_frame = main_frame
 
   main_frame.mainFrametex = main_frame:CreateTexture(nil, "BACKGROUND", nil, 0)
@@ -579,8 +600,7 @@ function MDT:InitializeMainFrame()
   local version = C_AddOns.GetAddOnMetadata(MDT.AddonName, "Version"):gsub("%.", "")
   db.version = tonumber(version)
   -- Set frame position
-  main_frame:ClearAllPoints()
-  main_frame:SetPoint(db.anchorTo, MDT.UI.Root, db.anchorFrom, db.xoffset, db.yoffset)
+  anchorWindow(db.xoffset, db.yoffset)
   main_frame.contextDropdown = CreateFrame("frame", "MDTContextDropDown", nil, "UIDropDownMenuTemplate")
   MDT:CheckCurrentZone(true)
   MDT:EnsureDBTables()
@@ -637,13 +657,10 @@ function MDT:InitializeMainFrame()
   MDT:UpdateSectionVisibility()
   coroutine.yield()
 
-  if MDT:IsFrameOffScreen() then
-    MDT:ResetMainFramePos()
-  end
-
   framesInitialized = true
   --Maximize if needed
   if db.maximized then MDT:Maximize() end
+  fitToRoot()
   initSpinner:Hide()
   initSpinner.Anim:Stop()
   local callbacks = frameInitializedCallbacks
