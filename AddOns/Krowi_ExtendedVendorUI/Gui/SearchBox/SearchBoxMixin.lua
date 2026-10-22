@@ -1,4 +1,5 @@
 local _, addon = ...
+if addon.NotLoaded then return end
 
 KrowiEVU_SearchBoxMixin = {}
 
@@ -11,7 +12,7 @@ end
 function KrowiEVU_SearchBoxMixin:OnLoad()
     self.clearButton:SetScript('OnClick', function(selfFunc)
         SearchBoxTemplateClearButton_OnClick(selfFunc)
-        if GetMerchantFilter() == _G[addon.Metadata.Prefix .. '_LE_LOOT_FILTER_SEARCH'] then
+        if addon.Filters:GetFilter() == _G[addon.Metadata.Prefix .. '_LE_LOOT_FILTER_SEARCH'] then
             RestorePreviousFilter()
         end
     end)
@@ -33,10 +34,10 @@ function KrowiEVU_SearchBoxMixin:OnEditFocusGained()
     if self:GetText() ~= '' then
         return
     end
-    previousFilter = GetMerchantFilter()
+    previousFilter = addon.Filters:GetFilter()
 end
 
-hooksecurefunc('MerchantFrame_SetFilter', function(self, filter)
+addon.Filters:RegisterListener(function(filter)
 	if not filter then
 		return
 	end
@@ -65,7 +66,7 @@ MerchantFrame:HookScript('OnShow', function(self)
     previousUnitName = currentNpcName
     if KrowiEVU_SearchBox:GetText() ~= '' then
         KrowiEVU_SearchBox:ClearSearchBox()
-        if GetMerchantFilter() == _G[addon.Metadata.Prefix .. '_LE_LOOT_FILTER_SEARCH'] then
+        if addon.Filters:GetFilter() == _G[addon.Metadata.Prefix .. '_LE_LOOT_FILTER_SEARCH'] then
             RestorePreviousFilter()
         end
     end

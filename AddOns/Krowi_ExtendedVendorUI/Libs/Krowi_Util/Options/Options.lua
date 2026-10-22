@@ -80,7 +80,7 @@ end
 
 
 function options:Open()
-    if addon.Util.IsWrathClassic then
+    if not (Settings and Settings.OpenToCategory) then -- a client without the settings panel; decided by the API, not the version flag
         InterfaceAddOnsList_Update() -- This way the correct category will be shown when calling InterfaceOptionsFrame_OpenToCategory
         InterfaceOptionsFrame_OpenToCategory(name)
         for _, button in next, InterfaceOptionsFrameAddOns.buttons do

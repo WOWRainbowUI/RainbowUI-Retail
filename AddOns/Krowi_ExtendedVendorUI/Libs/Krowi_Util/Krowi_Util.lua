@@ -5,7 +5,7 @@
 
 ---@diagnostic disable: undefined-global
 
-local lib = KROWI_LIBMAN:NewLibrary('Krowi_Util_2', 3, {
+local lib = KROWI_LIBMAN:NewLibrary('Krowi_Util_2', 4, {
     SetCurrent = true,
     -- InitLocalization = true, -- Handled in LocalizationHelper sub module
 })
@@ -17,8 +17,10 @@ local version = (GetBuildInfo())
 local majorVersion = string.match(version, '(%d+)%.(%d+)%.(%d+)(%w?)')
 lib.IsClassicEra = majorVersion == '1'
 lib.IsBCCClassic = majorVersion == '2'
+lib.IsWrathClassic = majorVersion == '3'
+lib.IsCataClassic = majorVersion == '4'
 lib.IsMistsClassic = majorVersion == '5'
-lib.IsClassicWithAchievements = lib.IsMistsClassic
+lib.IsClassicWithAchievements = lib.IsWrathClassic or lib.IsCataClassic or lib.IsMistsClassic
 lib.IsTheWarWithin = majorVersion == '11'
 lib.IsMidnight = majorVersion == '12'
 lib.IsMainline = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
