@@ -107,9 +107,31 @@ local categoryList = {
 }
 
 -- Create scroll frame
-local scrollFrame = CreateFrame("ScrollFrame", nil, frame, "UIPanelScrollFrameTemplate")
+local scrollFrame = CreateFrame("ScrollFrame", frame:GetName().."ScrollFrame", frame, "UIPanelScrollFrameTemplate")
 scrollFrame:SetPoint("TOPLEFT", frame, "TOPLEFT", 200, -24)
 scrollFrame:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -30, 3)
+------------------------------------------------------------
+-- Track background
+------------------------------------------------------------
+local osb = CCS_OptionsScrollFrameScrollBar
+if not scrollFrame.TrackBG then
+    osb.TrackBG = osb:CreateTexture(nil, "BACKGROUND")
+    osb.TrackBG:SetTexture("Interface\\Masks\\SquareMask.BLP")
+    osb.TrackBG:SetColorTexture(0.2, 0.2, 0.2, 1)
+end
+local osbname = osb:GetName()
+osb:SetPoint("TOPLEFT", CCS_OptionsScrollFrame, "TOPRIGHT", 13, -20)
+osb:SetPoint("BOTTOMLEFT", CCS_OptionsScrollFrame, "BOTTOMRIGHT", 13, 20)
+osb:SetWidth(12)
+-- Position the background so it fills the track area
+osb.TrackBG:ClearAllPoints()
+osb.TrackBG:SetPoint("TOPLEFT", osbname.."ScrollUpButton", "BOTTOMLEFT", 0, 0)
+osb.TrackBG:SetPoint("BOTTOMRIGHT", osbname.."ScrollDownButton", "TOPRIGHT", 0, 0)
+_G[osbname.."ScrollUpButton"]:SetWidth(12)
+_G[osbname.."ScrollDownButton"]:SetWidth(12)
+_G[osbname.."ThumbTexture"]:SetWidth(8)
+osb.TrackBG:Show()
+
 
 local currentVersion = CCS.GetCurrentVersion()
 
@@ -245,7 +267,11 @@ function CCS.InitializeModules()
             CCS.textoutline = CCS.textoutline .. ", SLUG"
         end
     end
+    -----------------
+    -- Update the selected theme prior to doing any other updates
+    -----------------
 
+    CCS.CurrentTheme = CCS.Themes[option("theme")] or CCS.Themes["Darkmoon Faire"]
     CCS.RefreshStyleColors()
 
 ---------------------------
@@ -271,7 +297,8 @@ function CCS.InitializeModules()
        CCS.lastChangedOption == "button_color" or
        CCS.lastChangedOption == "hightlight_color" or
        CCS.lastChangedOption == "border_color" or
-       CCS.lastChangedOption == "style_class_color" 
+       CCS.lastChangedOption == "style_class_color" or
+       CCS.lastChangedOption == "theme"        
     then
         frame:SetScale(option("optionsheetscale") or 1)
         CCS.UpdateOptionsFrame()
@@ -610,7 +637,7 @@ local function newHeader(def, parent, rowHeight)
     -- Set text/color/font size/options
     fs:SetText(def.label)
     fs:SetTextColor(unpack(def.color or {1,1,1}))
-
+    fs:SetWidth(GlobalSlotWidth * def.slots)
     local fontSize = def.fontSize or 20
 
     local outline = def.fontOutline or "NONE"  -- "NONE", "THIN", or "THICK"
@@ -619,8 +646,7 @@ local function newHeader(def, parent, rowHeight)
         fs:SetShadowColor(unpack(option("fontshadowcolor") or {0,0,0,1}))
         fs:SetShadowOffset(option("fontshadowx") or 0, option("fontshadowy") or 0)
     end	                                                
-    
-    fs:SetJustifyH("CENTER")
+    fs:SetJustifyH(def.justify or "CENTER")
     
     return fs
 end
@@ -751,9 +777,20 @@ local function newDropdown(def, parent, rowHeight)
     UIDropDownMenu_Initialize(dd, function(self, level)
         local selected = CCS.CurrentProfile[key]
 
+        -- Dynamic theme list
+        if def.key == "theme" then
+            def.values = CCS.GetEnabledThemeList()
+
+            -- Ensure current value is valid
+            if not tContains(def.values, currentValue) then
+                currentValue = "None"
+                CCS.CurrentProfile[key] = "None"
+            end
+        end
+
         for _, v in ipairs(def.values) do
             local info = UIDropDownMenu_CreateInfo()
-            info.text = L[v]
+            info.text = L[v] or v
             info.value = v
             info.checked = (v == selected)   -- REQUIRED for radio dot
             info.func = function()
@@ -769,6 +806,15 @@ local function newDropdown(def, parent, rowHeight)
 
     -- Set initial selected value
     UIDropDownMenu_SetSelectedValue(dd, currentValue)
+
+    -- Temporarily disable the theme control.
+    if false and def.key == "theme" then
+        dd.Button:Disable()
+        dd.Button:SetAlpha(0.3)
+
+        local text = _G[dd:GetName().."Text"]
+        text:SetAlpha(0.3)
+    end
 
     return frame, dd
 end
@@ -2225,7 +2271,7 @@ frame:SetScript("OnShow", function(self)
                     })
                     state.currentX = state.currentX + wSlots
 
-                    if state.currentX >= maxSlots or def.type == "header" or def.type == "divider" then
+                    if state.currentX >= maxSlots  or def.type == "divider" then -- or def.type == "header"
                         placeRow(cat)
                     end
                 end -- end: priority_slots_section else
@@ -2402,4 +2448,5 @@ do
         Settings.RegisterAddOnCategory(category)
     end
 end
+
 

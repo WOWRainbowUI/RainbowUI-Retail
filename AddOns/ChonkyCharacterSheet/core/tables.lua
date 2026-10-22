@@ -76,6 +76,16 @@ CCS.Champion = 4
 CCS.Hero = 5
 CCS.Myth = 6
 
+-- Creating these here now so it quits being an ass to me.
+local ccsrf_af = _G["ccsrf_af"] or CreateFrame("Frame", "ccsrf_af", CharacterFrame, "SecureHandlerBaseTemplate");
+local ccsrf_sf = _G["ccsrf_sf"] or CreateFrame("Frame", "ccsrf_sf", CharacterFrame, "SecureHandlerBaseTemplate");
+local ccsm_af = _G["ccsm_af"] or CreateFrame("Frame", "ccsm_af", CharacterFrame, "SecureHandlerBaseTemplate");
+local ccsm_sf = _G["ccsm_sf"] or CreateFrame("Frame", "ccsm_sf", CharacterFrame, "SecureHandlerBaseTemplate");
+local ccsgf_af = _G["ccsgf_af"] or CreateFrame("Frame", "ccsgf_af", CharacterFrame, "SecureHandlerBaseTemplate");
+local ccsgf_sf = _G["ccsgf_sf"] or CreateFrame("Frame", "ccsgf_sf", CharacterFrame, "SecureHandlerBaseTemplate");
+local ccsgf_gf = _G["ccsgf_gf"] or CreateFrame("Frame", "ccsgf_gf", ccsgf_sf, "SecureHandlerBaseTemplate")
+
+
 function CCS:GetDefaultFontForLocale()
 
 --Testing info
@@ -141,7 +151,7 @@ ns.optionDefs = {
     { type="checkbox", cat="IGNORE", ver=bit.bor(CCS.ALL), key="globalprofile", label=L["GLOBAL_PROFILE"], value=true, default=true, slots=1 },
     -- Character Sheet Modules
     { type="divider", cat="GENERAL", ver=bit.bor(CCS.ALL), slots=4 }, -- color={1,1,1}
-    { type="header", cat="GENERAL", ver=bit.bor(CCS.ALL), key=nil, label=L["HEADER_MODULE_SIZE"], slots=4, color={1, 1, 1}, fontSize=20, fontOutline="THICKOUTLINE" },
+    { type="header", cat="GENERAL", ver=bit.bor(CCS.ALL), key=nil, label=L["HEADER_MODULE_SIZE"], slots=4, color={1, 1, 1}, fontSize=20, fontOutline="THICKOUTLINE", justify="LEFT" },
     { type="divider", cat="GENERAL", ver=bit.bor(CCS.ALL), slots=4 },
     { type="checkbox", cat="GENERAL", ver=bit.bor(CCS.RETAIL, CCS.TBC), key="showcharacterstats", label=L["SHOW_CHARACTER_STATS"], value=true, default=true, slots=1 },
     { type="checkbox", cat="GENERAL", ver=bit.bor(CCS.ALL), key="show_inspect", label=L["SHOW_INSPECT"], value=true, default=true, slots=1 },
@@ -195,8 +205,39 @@ ns.optionDefs = {
 -- Style/Colors Settings
 --------------------------------------
 --======================================================
+    --------------------------------------
+    -- Addon Theme Settings
+    --------------------------------------
+    { type="divider",  cat="STYLE-COLOR", ver=bit.bor(CCS.ALL), slots=4 },
+    { type="header",   cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key=nil, label=L["THEME SETTINGS"], slots=4, color={1, 1, 1}, fontSize=18, fontOutline="THICKOUTLINE", justify="LEFT" },
+    { type="dropdown", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key="theme", label=L["THEME"].." |cff33ccff("..L["THEME_WARNING"]..")|r", value="Explorer", default="Explorer", values={"None", "Explorer"}, slots=2 },
+    { type="header",   cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key=nil, label="", slots=2, color={1, 1, 1}, fontSize=18, fontOutline="THICKOUTLINE", justify="LEFT" },
+
+    { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key="show_char_frame", label=L["Character Frame Border"], value=true, default=true, slots=1 },
+    { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key="show_top_texture", label=L["Top Texture"], value=true, default=true, slots=1 },
+    { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key="show_left_texture", label=L["Left Texture"], value=true, default=true, slots=1 },
+    { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key="show_right_texture", label=L["Right Texture"], value=true, default=true, slots=1 },
+
+    { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key="show_item_frame", label=L["Item Frame"], value=true, default=true, slots=1 },
+    { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL), key="showstatborder", label=L["Stats Border"], value=true, default=true, slots=1 },
+    { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL), key="show_mplus_frame_border", label=L["M+ Panel Border"], value=true, default=true, slots=1 },
+    { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key="show_inspect_frame", label=L["Inspect Frame Border"], value=true, default=true, slots=1 },
+
+    { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key="show_paperdoll_border", label=L["Model Border"], value=true, default=true, slots=1 },
+    { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL), key="show_stats_background", label=L["Stats Background"], value=true, default=true, slots=1 },
+    { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL), key="show_raid_frame_border", label=L["Raid Panel Border"], value=true, default=true, slots=1 },
+    { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key="show_paperdolli_border", label=L["Inspect Model Border"], value=true, default=true, slots=1 },
+
+    { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL), key="showsidebarbg", label=L["Sidebar Background"], value=true, default=true, slots=1 },
+    { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL), key="show_headers", label=L["Stats Headers"], value=true, default=true, slots=1 },
+    { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL), key="show_gear_frame_border", label=L["Gear Panel Border"], value=true, default=true, slots=1 },
+    { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL), key="show_mplusi_frame_border", label=L["Inspect M+ Border"], value=true, default=true, slots=1 },
+   
+    --------------------------------------
+    -- Addon Style (non-theme)
+    --------------------------------------
     { type="divider", cat="STYLE-COLOR", ver=bit.bor(CCS.ALL), slots=4 },
-    { type="header", cat="STYLE-COLOR", ver=bit.bor(CCS.ALL), key=nil, label=L["ADDON COLORS"], slots=4, color={1, 1, 1}, fontSize=18, fontOutline="THICKOUTLINE" },
+    { type="header", cat="STYLE-COLOR", ver=bit.bor(CCS.ALL), key=nil, label=L["ADDON COLORS"].." |cff33ccff("..L["Themes Override"]..")|r", slots=4, color={1, 1, 1}, fontSize=18, fontOutline="THICKOUTLINE", justify="LEFT" },
     { type="color", cat="STYLE-COLOR", ver=bit.bor(CCS.ALL), key="button_color", label=L["Button Foreground Color"], value={0.49, 0.196, 0.659, 1}, default={0.49, 0.196, 0.659, 1}, slots=1 },
     { type="color", cat="STYLE-COLOR", ver=bit.bor(CCS.ALL), key="highlight_color", label=L["Highlight Color"], value={0.8, .2, 1, 1}, default={0.8, .2, 1, 1}, slots=1 },
     { type="color", cat="STYLE-COLOR", ver=bit.bor(CCS.ALL), key="border_color", label=L["Border Color"], value={0.3, 0.1, 0.4, 1}, default={0.3, 0.1, 0.4, 1}, slots=1 },
@@ -206,20 +247,19 @@ ns.optionDefs = {
     -- Character sheet Settings
     --------------------------------------
     { type="divider", cat="STYLE-COLOR", ver=bit.bor(CCS.ALL), slots=4 },
-    { type="header", cat="STYLE-COLOR", ver=bit.bor(CCS.ALL), key=nil, label=L["CATEGORY_CHAR-SHEET"], slots=4, color={1,1,1}, fontSize=18, fontOutline="THICKOUTLINE" },
+    { type="header", cat="STYLE-COLOR", ver=bit.bor(CCS.ALL), key=nil, label=L["CATEGORY_CHAR-SHEET"], slots=4, color={1,1,1}, fontSize=18, fontOutline="THICKOUTLINE", justify="LEFT" },
     { type="dropdown", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL), key="bgtype", label=L["BG_TYPE"], value="Class Crest", default="Class Crest", values={"Default", "Class", "Class Crest", "Race", "Midnight", "Hide"}, slots=2 },
     { type="dropdown", cat="STYLE-COLOR", ver=bit.bor(CCS.TBC, CCS.MOP, CCS.FOREVER), key="bgtype", label=L["BG_TYPE"], value="Midnight", default="Midnight", values={"Default", "Class Crest", "Race", "Midnight", "Hide"}, slots=2 },
     { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL), key="showbganimations", label=ANIMATION, value=true, default=true, slots=1 },
     { type="color", cat="STYLE-COLOR", ver=bit.bor(CCS.ALL), key="bgcolor", label=L["CCS_BG_COLOR"], value={0,0,0,0.89}, default={0,0,0,0.89}, slots=1 },
     { type="dropdown", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key="tabtex", label=L["Bottom Tab Texture"], value="Steel Beam", default="Steel Beam", values={"Fleur","Hammered","Iron","Onyx","Shiny","Steel Beam"}, slots=2 },
-    { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL), key="showsidebarbg", label=L["Sidebar Background"], value=true, default=true, slots=1 },
     { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key="skinchartabs", label=L["Skin Character Tabs"], value=true, default=true, slots=1 },
 
     --------------------------------------
     -- Reputation/Currency frame Settings
     --------------------------------------
     { type="divider", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), slots=4 },
-    { type="header", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key=nil, label=L["Reputation Currency Frame"], slots=4, color={1, 1, 1}, fontSize=18, fontOutline="THICKOUTLINE" },
+    { type="header", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key=nil, label=L["Reputation Currency Frame"], slots=4, color={1, 1, 1}, fontSize=18, fontOutline="THICKOUTLINE", justify="LEFT" },
     { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key="showframeheaderbg", label=L["Frame Header Background"], value=true, default=true, slots=4 },
     { type="dropdown", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key="repheadertex", label=L["Header Bar Texture"], value="Steel Beam", default="Steel Beam", values={"Arch","Castle","Fleur","Star","Steel Beam","Stone"}, slots=2 },
     { type="color", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key="repheadercolor", label=L["Header Bar Color"], value={.463, .463, .463, 1}, default={.463, .463, .463, 1}, slots=1 },
@@ -232,10 +272,9 @@ ns.optionDefs = {
     -- Stats frame Settings
     --------------------------------------
     { type="divider", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER, CCS.TBC), slots=4 },
-    { type="header", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER, CCS.TBC), key=nil, label=L["CATEGORY_CHAR-STATS"], slots=4, color={1,1,1}, fontSize=18, fontOutline="THICKOUTLINE" },
+    { type="header", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER, CCS.TBC), key=nil, label=L["CATEGORY_CHAR-STATS"], slots=4, color={1,1,1}, fontSize=18, fontOutline="THICKOUTLINE", justify="LEFT" },
     { type="dropdown", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL), key="statheadertex", label=L["Header Texture"], value="Steel Beam", default="Steel Beam", values={"Arch", "Castle", "Fleur", "Line", "Star", "Steel Beam", "Stone"}, slots=2 },
     { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL), key="stataddoncolor", label=L["Use Addon Colors"], value=true, default=true, slots=1 },
-    { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL), key="showstatborder", label=L["Show Border"], value=true, default=true, slots=1 },
     { type="color",    cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL), key="attribute_color", label=L["BGCOLOR_ATTRIBUTES"], value={0.90, 0.70, 0.20, 1}, default={0.90, 0.70, 0.20, 1}, slots=2 }, -- Gold
     { type="color",    cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL), key="secondary_stats_color", label=L["BGCOLOR_SECONDARY_STATS"], value={0.40, 0.80, 0.40, 1}, default={0.40, 0.80, 0.40, 1}, slots=2 }, -- Dark Green
     { type="color",    cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL), key="attack_stats_color", label=L["BGCOLOR_ATTACK_STATS"], value={0.8, 0.3, .3, 1}, default={0.8, 0.3, .3, 1}, slots=2 }, -- Dark Red
@@ -255,12 +294,12 @@ ns.optionDefs = {
     
     -- Character Sheet General Display Settings
     { type="divider", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), slots=4 },
-    { type="header", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key=nil, label=L["HEADER_GENERAL_DISPLAY"], slots=4, color={1,1,1}, fontSize=20, fontOutline="THICKOUTLINE" },
+    { type="header", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key=nil, label=L["HEADER_GENERAL_DISPLAY"], slots=4, color={1,1,1}, fontSize=20, fontOutline="THICKOUTLINE", justify="LEFT" },
     { type="divider", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), slots=4 },
     { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL), key="showparagonmax", label=L["PARAGON_MAX_BAR"], value=false, default=false, slots=1 },
     { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL), key="showtitlesearch", label=L["TITLE_SEARCH"], value=true, default=true, slots=1 },
     { type="divider", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL), slots=4 },
-    { type="header", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key=nil, label=L["HEADER_ITEM_DISPLAY"], slots=4, color={1,1,1}, fontSize=16, fontOutline="THICKOUTLINE" },
+    { type="header", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key=nil, label=L["HEADER_ITEM_DISPLAY"], slots=4, color={1,1,1}, fontSize=16, fontOutline="THICKOUTLINE", justify="LEFT" },
     { type="divider", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), slots=4 },
     { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="showitemname", label=L["SHOW_ITEM_NAME"], value=true, default=true, slots=1 },
     { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="itemcolorwhite", label=L["ITEM_COLOR_WHITE"], value=false, default=false, slots=1 },
@@ -287,8 +326,9 @@ ns.optionDefs = {
     { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL), key="maxupgradehide", label=L["Hide Max Upgraded"], value=false, default=false, slots=2 },
     { type="slider", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="itemcolorbrightness", label=L["Item Background Brightness"], value=1.00, default=1.00, min=0.30, max=1.00, step=0.01, slots=2 },
     { type="slider", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="enchantnamelength", label=L["ENCHANT_NAME_LENGTH"], value=100, default=100, min=20, max=100, step=1, slots=2 },
+    { type="slider", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="itemcoloralpha", label=L["Item Alpha Adjustment"], value=0.75, default=0.75, min=0.30, max=1.00, step=0.01, slots=2 },
     { type="divider", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL), slots=4 },
-    { type="header", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL), key=nil, label=L["Upgrade Color by Rarity"], slots=4, color={1,1,1}, fontSize=16, fontOutline="THICKOUTLINE" },
+    { type="header", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL), key=nil, label=L["Upgrade Color by Rarity"], slots=4, color={1,1,1}, fontSize=16, fontOutline="THICKOUTLINE", justify="LEFT" },
     { type="divider", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL), slots=4 },
     { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL), key="customupgradecolor", label=L["Custom Upgrade Color"], value=true, default=true, slots=2 },
     { type="color", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL), key="custom_color_explorer", label=L["Explorer"], value={0.62, 0.62, 0.62, 1}, default={0.62, 0.62, 0.62, 1}, slots=1 },
@@ -300,7 +340,7 @@ ns.optionDefs = {
 
     -- Spec Display Options
     { type="divider", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL, CCS.MOP), slots=4 },
-    { type="header", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL, CCS.MOP), key=nil, label=L["HEADER_SPEC_DISPLAY"], slots=4, color={1,1,1}, fontSize=16, fontOutline="THICKOUTLINE" },
+    { type="header", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL, CCS.MOP), key=nil, label=L["HEADER_SPEC_DISPLAY"], slots=4, color={1,1,1}, fontSize=16, fontOutline="THICKOUTLINE", justify="LEFT" },
     { type="divider", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL, CCS.MOP), slots=4 },
     { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL, CCS.MOP), key="showspec", label=L["SHOW_SPEC"], value=true, default=true, slots=1 },
     { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL, CCS.MOP), key="showspectitle", label=L["SHOW_SPEC_TITLE"], value=true, default=true, slots=1 },
@@ -309,7 +349,7 @@ ns.optionDefs = {
 
     -- Character Sheet Font Settings
     { type="divider", cat="CHAR-FONT", ver=bit.bor(CCS.ALL), slots=4 },
-    { type="header", cat="CHAR-FONT", ver=bit.bor(CCS.ALL), key=nil, label=L["HEADER_FONT_SETTINGS"], slots=4, color={1,1,1}, fontSize=20, fontOutline="THICKOUTLINE" },
+    { type="header", cat="CHAR-FONT", ver=bit.bor(CCS.ALL), key=nil, label=L["HEADER_FONT_SETTINGS"], slots=4, color={1,1,1}, fontSize=20, fontOutline="THICKOUTLINE", justify="LEFT" },
     { type="divider", cat="CHAR-FONT", ver=bit.bor(CCS.ALL), slots=4 },
     { type="font", cat="CHAR-FONT", ver=bit.bor(CCS.ALL), key="fontname_nametitle", label=L["FONT_NAME_NAMETITLE"], value="Fonts\\FRIZQT__.TTF", default="Fonts\\FRIZQT__.TTF", slots=2},
     { type="slider", cat="CHAR-FONT", ver=bit.bor(CCS.ALL), key="fontsize_nametitle", label=FONT_SIZE, value=12, default=12, min=3, max=36, step=1, slots=1 },
@@ -350,9 +390,9 @@ ns.optionDefs = {
 
     -- Character Stats Section
     { type="divider", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL, CCS.TBC), slots=4 },
-    { type="header", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL, CCS.TBC), key=nil, label=L["HEADER_STATS_MODULE"], slots=4, color={1,1,1}, fontSize=20, fontOutline="THICKOUTLINE" },
+    { type="header", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL, CCS.TBC), key=nil, label=L["HEADER_STATS_MODULE"], slots=4, color={1,1,1}, fontSize=20, fontOutline="THICKOUTLINE", justify="LEFT" },
     { type="divider", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL, CCS.TBC), slots=4 },
-    { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL, CCS.TBC), key="show_headers", label=L["SHOW_HEADERS"], value=true, default=true, slots=1 },
+    { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.TBC), key="show_headers", label=L["SHOW_HEADERS"], value=true, default=true, slots=1 },
     { type="slider", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL, CCS.TBC), key="round", label=L["STATS_ROUNDING"], value=2, default=2, min=0, max=2, step=1, slots=1 },
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="show_inbag_ilvl", label=L["SHOW_INBAG_ILVL"], value=true, default=true, slots=1 },
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="show_stat_icons", label=L["show_stat_icons"], value=true, default=true, slots=1 },
@@ -363,7 +403,7 @@ ns.optionDefs = {
     { type="dropdown", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="long_text_handling", label=L["Long Text Handling"], value="Truncate", default="Truncate", values={"Full Text", "Truncate", "Wrap Text"}, slots=2 },
 
     { type="divider", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), slots=4 },
-    { type="header", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key=nil, label=L["Attributes"], slots=4, color={1,1,1}, fontSize=20, fontOutline="THICKOUTLINE" },
+    { type="header", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key=nil, label=L["Attributes"], slots=4, color={1,1,1}, fontSize=20, fontOutline="THICKOUTLINE", justify="LEFT" },
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="show_attributes", label=L["show_attributes"], value=true, default=true, slots=1 },
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="collapse_attributes", label=L["collapse_attributes"], value=false, default=false, slots=1 },
 
@@ -374,7 +414,7 @@ ns.optionDefs = {
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="attribute_gcd",       label=L["attribute_gcd"],       value=true, default=true, slots=1 },
 
     { type="divider", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), slots=4 },
-    { type="header", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key=nil, label=L["Secondary"], slots=4, color={1,1,1}, fontSize=20, fontOutline="THICKOUTLINE" },
+    { type="header", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key=nil, label=L["Secondary"], slots=4, color={1,1,1}, fontSize=20, fontOutline="THICKOUTLINE", justify="LEFT" },
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="show_secondary", 	label=L["show_secondary"], value=true, default=true, slots=1 },
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="collapse_secondary", label=L["collapse_secondary"], value=false, default=false, slots=1 },
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="secondary_crit",        label=L["secondary_crit"],        value=true, default=true, slots=1 },
@@ -384,7 +424,7 @@ ns.optionDefs = {
     { type="dropdown", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="secondary_versatility_display", label=L["Versatility Display"], value="All", default="All", values={"All", "Damage/Healing", "Damage Reduction"}, slots=2 },
 
     { type="divider", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), slots=4 },
-    { type="header", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key=nil, label=L["Attack"], slots=4, color={1,1,1}, fontSize=20, fontOutline="THICKOUTLINE" },
+    { type="header", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key=nil, label=L["Attack"], slots=4, color={1,1,1}, fontSize=20, fontOutline="THICKOUTLINE", justify="LEFT" },
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="show_attack", label=L["show_attack"], value=true, default=true, slots=1 },
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="collapse_attack", label=L["collapse_attack"], value=false, default=false, slots=1 },
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="attack_power", label=L["attack_power"], value=true, default=true, slots=1 },
@@ -392,7 +432,7 @@ ns.optionDefs = {
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="attack_spell", label=L["attack_spell"], value=true, default=true, slots=1 },
 
     { type="divider", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), slots=4 },
-    { type="header", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key=nil, label=L["Defense"], slots=4, color={1,1,1}, fontSize=20, fontOutline="THICKOUTLINE" },
+    { type="header", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key=nil, label=L["Defense"], slots=4, color={1,1,1}, fontSize=20, fontOutline="THICKOUTLINE", justify="LEFT" },
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="show_defense", label=L["show_defense"], value=true, default=true, slots=1 },
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="collapse_defense", label=L["collapse_defense"], value=false, default=false, slots=1 },
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="defense_armor",   label=L["defense_armor"],   value=true, default=true, slots=1 },
@@ -402,7 +442,7 @@ ns.optionDefs = {
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="defense_stagger", label=L["defense_stagger"], value=true, default=true, slots=1 },
 
     { type="divider", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), slots=4 },
-    { type="header", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key=nil, label=L["General"], slots=4, color={1,1,1}, fontSize=20, fontOutline="THICKOUTLINE" },
+    { type="header", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key=nil, label=L["General"], slots=4, color={1,1,1}, fontSize=20, fontOutline="THICKOUTLINE", justify="LEFT" },
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="show_general", label=L["show_general"], value=true, default=true, slots=1 },
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="collapse_general", label=L["collapse_general"], value=false, default=false, slots=1 },
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="general_durability", label=L["general_durability"], value=true, default=true, slots=1 },
@@ -412,7 +452,7 @@ ns.optionDefs = {
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="general_movespeed",  label=L["general_movespeed"],  value=true, default=true, slots=1 },
 
     { type="divider", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), slots=4 },
-    { type="header", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key=nil, label=L["Crests"], slots=4, color={1,1,1}, fontSize=20, fontOutline="THICKOUTLINE" },
+    { type="header", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key=nil, label=L["Crests"], slots=4, color={1,1,1}, fontSize=20, fontOutline="THICKOUTLINE", justify="LEFT" },
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="show_crests", label=L["show_crests"], value=false, default=false, slots=1 },
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="collapse_crests", label=L["collapse_crests"], value=false, default=false, slots=1 },
 --REMOVED BY BLIZ for Midnight S1.  Keeping just in case.    { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="crests_valorstone", label=L["crests_valorstone"], value=true, default=true, slots=1 },
@@ -424,7 +464,7 @@ ns.optionDefs = {
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="crests_catalyst", label=L["crests_catalyst"], value=true, default=true, slots=1 },
 
     { type="divider", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), slots=4 },
-    { type="header", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key=nil, label=L["PvP"], slots=4, color={1,1,1}, fontSize=20, fontOutline="THICKOUTLINE" },
+    { type="header", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key=nil, label=L["PvP"], slots=4, color={1,1,1}, fontSize=20, fontOutline="THICKOUTLINE", justify="LEFT" },
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="show_pvp", label=L["show_pvp"], value=false, default=false, slots=1 },
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="collapse_pvp", label=L["collapse_pvp"], value=false, default=false, slots=1 },
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="pvp_honorlevel", label=L["pvp_honorlevel"], value=true, default=true, slots=1 },
@@ -435,23 +475,19 @@ ns.optionDefs = {
 
     -- Custom Priority Profiles (dynamic section - UI managed by options.lua)
     { type="divider", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), slots=4 },
-    { type="header",  cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key=nil, label=L["Custom Priority Profiles"], slots=4, color={1,1,1}, fontSize=16, fontOutline="THICKOUTLINE" },
+    { type="header",  cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key=nil, label=L["Custom Priority Profiles"], slots=4, color={1,1,1}, fontSize=16, fontOutline="THICKOUTLINE", justify="LEFT" },
     { type="priority_slots_section", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key=nil, slots=4 },
 
     -- TBC and Classic Stats Options
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.TBC), key="show_basestats", label=L["SHOW_BASESTATS"], value=true, default=true, slots=2 },
-
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.TBC), key="show_melee_stats", label=L["SHOW_MELEE_STATS"], value=true, default=true, slots=2 },
-
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.TBC), key="show_ranged_stats", label=L["SHOW_RANGED_STATS"], value=true, default=true, slots=2 },
-
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.TBC), key="show_spell_stats", label=L["SHOW_SPELL_STATS"], value=true, default=true, slots=2 },
-
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.TBC), key="show_defenses_stats", label=L["SHOW_DEFENSES_STATS"], value=true, default=true, slots=2 },
     
     -- Stats Font Settings
     { type="divider", cat="CHAR-STATS-FONT", ver=bit.bor(CCS.RETAIL, CCS.TBC), slots=4 },
-    { type="header", cat="CHAR-STATS-FONT", ver=bit.bor(CCS.RETAIL, CCS.TBC), key=nil, label=L["HEADER_STATS_FONT"], slots=4, color={1,1,1}, fontSize=20, fontOutline="THICKOUTLINE" },
+    { type="header", cat="CHAR-STATS-FONT", ver=bit.bor(CCS.RETAIL, CCS.TBC), key=nil, label=L["HEADER_STATS_FONT"], slots=4, color={1,1,1}, fontSize=20, fontOutline="THICKOUTLINE", justify="LEFT" },
     { type="divider", cat="CHAR-STATS-FONT", ver=bit.bor(CCS.RETAIL, CCS.TBC), slots=4 },
     { type="font",   cat="CHAR-STATS-FONT", ver=bit.bor(CCS.RETAIL, CCS.TBC),   key="fontname_cilvl", label=L["FONT_NAME_CILVL"], value="Fonts\\FRIZQT__.TTF", default="Fonts\\FRIZQT__.TTF", slots=2 },
     { type="slider", cat="CHAR-STATS-FONT", ver=bit.bor(CCS.RETAIL, CCS.TBC), key="fontsize_cilvl", label=FONT_SIZE, value=20, default=20, min=3, max=34, step=1, slots=1 },
@@ -474,7 +510,7 @@ ns.optionDefs = {
 
     -- Mythic+ Side Panel
     { type="divider", cat="CHAR-MPLUS", ver=bit.bor(CCS.RETAIL), slots=4 },
-    { type="header", cat="CHAR-MPLUS", ver=bit.bor(CCS.RETAIL), key=nil, label=L["HEADER_MYTHIC_PANEL"], slots=4, color={1,1,1}, fontSize=20, fontOutline="THICKOUTLINE" },
+    { type="header", cat="CHAR-MPLUS", ver=bit.bor(CCS.RETAIL), key=nil, label=L["HEADER_MYTHIC_PANEL"], slots=4, color={1,1,1}, fontSize=20, fontOutline="THICKOUTLINE", justify="LEFT" },
     { type="divider", cat="CHAR-MPLUS", ver=bit.bor(CCS.RETAIL), slots=4 },
     { type="checkbox", cat="CHAR-MPLUS", ver=bit.bor(CCS.RETAIL), key="showmythicplusscore", label=L["SHOW_MYTHIC_SCORE"], value=true, default=true, slots=1 },
     { type="checkbox", cat="CHAR-MPLUS", ver=bit.bor(CCS.RETAIL), key="showm_overundertime", label=L["SHOW_M_OVERUNDER"], value=true, default=true, slots=1 },
@@ -511,7 +547,7 @@ ns.optionDefs = {
     -- Weekly Rewards
     ------------------
     { type="divider", cat="CHAR-REWARDS", ver=bit.bor(CCS.RETAIL), slots=4 },
-    { type="header", cat="CHAR-REWARDS", ver=bit.bor(CCS.RETAIL), key=nil, label=L["HEADER_REWARDS"], slots=4, color={1,1,1}, fontSize=20, fontOutline="THICKOUTLINE" },
+    { type="header", cat="CHAR-REWARDS", ver=bit.bor(CCS.RETAIL), key=nil, label=L["HEADER_REWARDS"], slots=4, color={1,1,1}, fontSize=20, fontOutline="THICKOUTLINE", justify="LEFT" },
     { type="divider", cat="CHAR-REWARDS", ver=bit.bor(CCS.RETAIL), slots=4 },
     { type="checkbox", cat="CHAR-REWARDS", ver=bit.bor(CCS.RETAIL), key="showm_mplusrewards", label=L["SHOW_M_MPLUS_REWARDS"], value=true, default=true, slots=1 },
     { type="checkbox", cat="CHAR-REWARDS", ver=bit.bor(CCS.RETAIL), key="showm_raidrewards", label=L["SHOW_M_RAID_REWARDS"], value=true, default=true, slots=1 },
@@ -545,9 +581,9 @@ ns.optionDefs = {
 
     -- Raid Progress Module Font Settings
     { type="divider", cat="CHAR-RAID", ver=bit.bor(CCS.RETAIL), slots=4 },
-    { type="header", cat="CHAR-RAID", ver=bit.bor(CCS.RETAIL), key=nil, label=L["HEADER_RAID_PROGRESS"], slots=4, color={1,1,1}, fontSize=20, fontOutline="THICKOUTLINE" },
+    { type="header", cat="CHAR-RAID", ver=bit.bor(CCS.RETAIL), key=nil, label=L["HEADER_RAID_PROGRESS"], slots=4, color={1,1,1}, fontSize=20, fontOutline="THICKOUTLINE", justify="LEFT" },
     { type="divider", cat="CHAR-RAID", ver=bit.bor(CCS.RETAIL), slots=4 },
-    { type="color", cat="CHAR-RAID", ver=bit.bor(CCS.RETAIL), key="bgcolor_raid", label=L["RAID_BG_COLOR"], value={0.0039, 0.0, 0.1451,1}, default={0.0039, 0.0, 0.1451,1}, slots=2 },
+    { type="color", cat="CHAR-RAID", ver=bit.bor(CCS.RETAIL), key="bgcolor_raid", label=L["RAID_BG_COLOR"], value={0,0,0,1}, default={0,0,0,1}, slots=2 },
     { type="checkbox", cat="CHAR-RAID", ver=bit.bor(CCS.RETAIL), key="showr_altbtn", label=L["ALTERNATE_SIDE_BUTTON"], value=false, default=false, slots=2 },
 
     { type="font",   cat="CHAR-RAID", ver=bit.bor(CCS.RETAIL), key="fontname_raidtitle", label=L["FONT_NAME_RAID_TITLE"], value="Fonts\\FRIZQT__.TTF", default="Fonts\\FRIZQT__.TTF", slots=2 },
@@ -557,14 +593,14 @@ ns.optionDefs = {
 	{ type="font",   cat="CHAR-RAID", ver=bit.bor(CCS.RETAIL), key="fontname_raidboss", label=L["FONT_NAME_RAID_BOSS"], value="Fonts\\FRIZQT__.TTF", default="Fonts\\FRIZQT__.TTF", slots=2 },
     { type="slider", cat="CHAR-RAID", ver=bit.bor(CCS.RETAIL), key="fontsize_raidboss", label=L["FONT_SIZE_RAID_BOSS"], value=14, default=14, min=3, max=34, step=1, slots=2 },
     { type="divider", cat="CHAR-RAID", ver=bit.bor(CCS.RETAIL), slots=4 },
-    { type="header", cat="CHAR-RAID", ver=bit.bor(CCS.RETAIL), key=nil, label=L["ON_CHARACTER_SHEET"], slots=4, color={1,1,1}, fontSize=16, fontOutline="THICKOUTLINE" },
+    { type="header", cat="CHAR-RAID", ver=bit.bor(CCS.RETAIL), key=nil, label=L["ON_CHARACTER_SHEET"], slots=4, color={1,1,1}, fontSize=16, fontOutline="THICKOUTLINE", justify="LEFT" },
     { type="divider", cat="CHAR-RAID", ver=bit.bor(CCS.RETAIL), slots=4 },
     { type="font",   cat="CHAR-RAID", ver=bit.bor(CCS.RETAIL), key="fontname_raid", label=L["FONT_NAME_RAID"], value="Fonts\\FRIZQT__.TTF", default="Fonts\\FRIZQT__.TTF", slots=2 },
     { type="slider", cat="CHAR-RAID", ver=bit.bor(CCS.RETAIL), key="fontsize_raid", label=L["FONT_SIZE_RAID"], value=11, default=11, min=3, max=34, step=1, slots=2 },
 
     -- Inspect Sheet Display Options
     { type="divider", cat="INSPECT-SHEET", ver=bit.bor(CCS.ALL), slots=4 },
-    { type="header", cat="INSPECT-SHEET", ver=bit.bor(CCS.ALL), key=nil, label=L["HEADER_INSPECT_DISPLAY"], slots=4, color={1,1,1}, fontSize=20, fontOutline="THICKOUTLINE" },
+    { type="header", cat="INSPECT-SHEET", ver=bit.bor(CCS.ALL), key=nil, label=L["HEADER_INSPECT_DISPLAY"], slots=4, color={1,1,1}, fontSize=20, fontOutline="THICKOUTLINE", justify="LEFT" },
     { type="divider", cat="INSPECT-SHEET", ver=bit.bor(CCS.ALL), slots=4 },
     { type="color", cat="INSPECT-SHEET", ver=bit.bor(CCS.ALL), key="bgcolor_inspect", label=L["INSPECT_BG_COLOR"], value={0,0,0,0.89}, default={0,0,0,0.89}, slots=2 },
     { type="dropdown", cat="INSPECT-SHEET", ver=bit.bor(CCS.RETAIL), key="bgtype_inspect", label=L["INSPECT_BG_TYPE"], value="Default", default="Default", values={"Default", "Class", "Class Crest", "Race", "Hide"}, slots=2 },
@@ -600,7 +636,7 @@ ns.optionDefs = {
 
     -- Inspect Font Settings
     { type="divider", cat="INSPECT-FONT", ver=bit.bor(CCS.ALL), slots=4 },
-    { type="header", cat="INSPECT-FONT", ver=bit.bor(CCS.ALL), key=nil, label=L["HEADER_INSPECT_FONT"], slots=4, color={1,1,1}, fontSize=20, fontOutline="THICKOUTLINE" },
+    { type="header", cat="INSPECT-FONT", ver=bit.bor(CCS.ALL), key=nil, label=L["HEADER_INSPECT_FONT"], slots=4, color={1,1,1}, fontSize=20, fontOutline="THICKOUTLINE", justify="LEFT" },
     { type="divider", cat="INSPECT-FONT", ver=bit.bor(CCS.ALL), slots=4 },
 
     { type="font", cat="INSPECT-FONT", ver=bit.bor(CCS.ALL), key="fontname_nametitle_inspect", label=L["FONT_NAME_INSPECT_NAME"], value="Fonts\\FRIZQT__.TTF", default="Fonts\\FRIZQT__.TTF", slots=2},
@@ -631,7 +667,7 @@ ns.optionDefs = {
     -- Gear Finder
     ------------------
     { type="divider", cat="GEAR-FINDER", ver=bit.bor(CCS.RETAIL), slots=4 },
-    { type="header", cat="GEAR-FINDER", ver=bit.bor(CCS.RETAIL), key=nil, label=L["CATEGORY_GEAR-FINDER"], slots=4, color={1,1,1}, fontSize=20, fontOutline="THICKOUTLINE" },
+    { type="header", cat="GEAR-FINDER", ver=bit.bor(CCS.RETAIL), key=nil, label=L["CATEGORY_GEAR-FINDER"], slots=4, color={1,1,1}, fontSize=20, fontOutline="THICKOUTLINE", justify="LEFT" },
     { type="divider", cat="GEAR-FINDER", ver=bit.bor(CCS.RETAIL), slots=4 },
     { type="color", cat="GEAR-FINDER", ver=bit.bor(CCS.RETAIL), key="bgcolor_gearfinder", label=L["BG_COLOR"], value={0,0,0,.85}, default={0,0,0,.85}, slots=1 },
     { type="color", cat="GEAR-FINDER", ver=bit.bor(CCS.RETAIL), key="bgcolor_gearfinderfooter", label=L["FOOTER_COLOR"], value={0.0039, 0.0, 0.1451, 0.85}, default={0, 0, 0, 0.85}, slots=1 },
@@ -648,7 +684,7 @@ ns.optionDefs = {
 
     { type="font",   cat="GEAR-FINDER", ver=bit.bor(CCS.RETAIL), key="fontname_gf_itemname", label=L["FONT_NAME_INAME"], value="Fonts\\FRIZQT__.TTF", default="Fonts\\FRIZQT__.TTF", slots=2 },
     { type="slider", cat="GEAR-FINDER", ver=bit.bor(CCS.RETAIL), key="fontsize_gf_itemname", label=FONT_SIZE, value=11, default=11, min=3, max=34, step=1, slots=1 },
-    { type="header", cat="GEAR-FINDER", ver=bit.bor(CCS.RETAIL), key=nil, label="", slots=1, color={1,1,1}, fontSize=20, fontOutline="THICKOUTLINE" },
+    { type="header", cat="GEAR-FINDER", ver=bit.bor(CCS.RETAIL), key=nil, label="", slots=1, color={1,1,1}, fontSize=20, fontOutline="THICKOUTLINE", justify="LEFT" },
 
     { type="font",   cat="GEAR-FINDER", ver=bit.bor(CCS.RETAIL), key="fontname_gf_itemslot", label=L["FONT_NAME_GF_ITEMSLOT"], value="Fonts\\FRIZQT__.TTF", default="Fonts\\FRIZQT__.TTF", slots=2 },
     { type="slider", cat="GEAR-FINDER", ver=bit.bor(CCS.RETAIL), key="fontsize_gf_itemslot", label=FONT_SIZE, value=10, default=10, min=3, max=34, step=1, slots=1 },
@@ -656,7 +692,7 @@ ns.optionDefs = {
 
     { type="font",   cat="GEAR-FINDER", ver=bit.bor(CCS.RETAIL), key="fontname_gf_stats", label=L["FONT_NAME_STATS"], value="Fonts\\FRIZQT__.TTF", default="Fonts\\FRIZQT__.TTF", slots=2 },
     { type="slider", cat="GEAR-FINDER", ver=bit.bor(CCS.RETAIL), key="fontsize_gf_stats", label=FONT_SIZE, value=11, default=11, min=3, max=34, step=1, slots=1 },
-    { type="header", cat="GEAR-FINDER", ver=bit.bor(CCS.RETAIL), key=nil, label="", slots=1, color={1,1,1}, fontSize=20, fontOutline="THICKOUTLINE" },
+    { type="header", cat="GEAR-FINDER", ver=bit.bor(CCS.RETAIL), key=nil, label="", slots=1, color={1,1,1}, fontSize=20, fontOutline="THICKOUTLINE", justify="LEFT" },
 
     { type="font",   cat="GEAR-FINDER", ver=bit.bor(CCS.RETAIL), key="fontname_gf_dungeon", label=L["FONT_NAME_GF_DRAID"], value="Fonts\\FRIZQT__.TTF", default="Fonts\\FRIZQT__.TTF", slots=2 },
     { type="slider", cat="GEAR-FINDER", ver=bit.bor(CCS.RETAIL), key="fontsize_gf_dungeon", label=FONT_SIZE, value=11, default=11, min=3, max=34, step=1, slots=1 },

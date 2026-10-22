@@ -1998,7 +1998,7 @@ local function CreateHeaderRow(parent, frameName, section)
     -- Size
     -------------------------------------------------
 	local header_fontsize = option("fontsize_statheaders") or 14
-    local rowH = rowHeight * (header_fontsize / 14)
+    local rowH = (rowHeight+2) * (header_fontsize / 14)
     row:SetSize(rowWidth, rowH)
     row:SetSize(parent:GetWidth()+2, rowH)
 
@@ -2026,7 +2026,7 @@ local function CreateHeaderRow(parent, frameName, section)
     if not row.headerText then
         row.headerText = row:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
     end
-	row.headerText:SetPoint("CENTER",0,2)
+	row.headerText:SetPoint("CENTER",0,1)
 	row.headerText:SetFont(option("fontname_statheaders") or "Fonts\\FRIZQT__.TTF", header_fontsize, CCS.textoutline)
 	row.headerText:SetTextColor(
 	option("fontcolor_statheaders")[1] or 1,
@@ -2150,13 +2150,19 @@ local function CreateHeaderRow(parent, frameName, section)
 	--local entry = CCS.headertexture[3]
 	local entry = CCS:GetHeaderTextureByName(option("statheadertex"))
 	local ncolor = CCS.StyleColor.normal
+	local theme = CCS.CurrentTheme	
 	
     if not row.bg then
         row.bg = row:CreateTexture(nil, "BACKGROUND")
         row.bg:SetAllPoints()
-    end
 
-	if entry ~= nil then
+    end
+	if CCS.CurrentTheme ~= nil and CCS.Themes.enabled ~= false and option("theme") ~= "None" then
+		local themeatlas = theme.path .. theme.stats_header.texture
+		row.bg:SetTexture(themeatlas)
+		row.bg:SetTexCoord(0,1,0,1);
+		row.bg:SetVertexColor(1,1,1,1)
+	elseif entry ~= nil then
 		local texWidth, texHeight, uMin, uMax, vMin, vMax = unpack(entry.map)
 
 		row.bg:SetTexture(entry.texture)
@@ -2611,10 +2617,10 @@ function CCS.SetupScrollBar()
     local thumb = sb:GetThumbTexture()
     thumb:SetTexture("Interface\\Buttons\\WHITE8x8")
     thumb:SetColorTexture(.4, .4, .4, 0.7)
-    thumb:SetSize(12, 24)
+    thumb:SetSize(8, 24)
 
     -- UP BUTTON
-    up:SetSize(17, 11)
+    up:SetSize(12, 11)
     up.Normal:SetAllPoints()
     up.Normal:SetAtlas("minimal-scrollbar-arrow-top", true)
     up.Highlight:SetAllPoints()
@@ -2625,7 +2631,7 @@ function CCS.SetupScrollBar()
     up.Disabled:SetAtlas("minimal-scrollbar-arrow-top", true)
 
     -- DOWN BUTTON
-    down:SetSize(17, 11)
+    down:SetSize(12, 11)
     down.Normal:SetAllPoints()
     down.Normal:SetAtlas("minimal-scrollbar-arrow-bottom", true)
     down.Highlight:SetAllPoints()
@@ -2647,7 +2653,7 @@ local function CreateStatsScrollFrame(rowWidth)
 
     scrollFrame:ClearAllPoints()
     scrollFrame:SetPoint("TOPLEFT", CharacterStatsPane, "TOPLEFT", 10, -32)
-    scrollFrame:SetPoint("BOTTOMRIGHT", CharacterStatsPane, "BOTTOMRIGHT", -12, 5)
+    scrollFrame:SetPoint("BOTTOMRIGHT", CharacterStatsPane, "BOTTOMRIGHT", -12, 15)
     scrollFrame:Show()
 	CCS.CreateChonkyNineSlice(CharacterStatsPane)
     local scrollChild = CCS_stat_sc
@@ -2675,7 +2681,7 @@ local function CreateStatsScrollBar(scrollFrame)
         sb:SetValueStep(1)
         sb:SetObeyStepOnDrag(false)
 
-        sb:SetWidth(18)
+        sb:SetWidth(12)
         sb:SetPoint("TOPLEFT", scrollFrame, "TOPRIGHT", 0, -42)
         sb:SetPoint("BOTTOMLEFT", scrollFrame, "BOTTOMRIGHT", 0, 6)
 
@@ -2696,7 +2702,7 @@ local function CreateStatsScrollBar(scrollFrame)
         -- UP button
         local up = CreateFrame("Button", "CCS_stat_sfScrollBarScrollUpButton", sb)
         up:SetPoint("BOTTOM", sb, "TOP", 0, 0)
-        up:SetSize(17, 11)
+        up:SetSize(12, 11)
 
         up.Normal    = up:CreateTexture(nil, "ARTWORK")
         up.Highlight = up:CreateTexture(nil, "HIGHLIGHT")
@@ -2711,7 +2717,7 @@ local function CreateStatsScrollBar(scrollFrame)
         -- DOWN button
         local down = CreateFrame("Button", "CCS_stat_sfScrollBarScrollDownButton", sb)
         down:SetPoint("TOP", sb, "BOTTOM", 0, 0)
-        down:SetSize(17, 11)
+        down:SetSize(12, 11)
 
         down.Normal    = down:CreateTexture(nil, "ARTWORK")
         down.Highlight = down:CreateTexture(nil, "HIGHLIGHT")
@@ -2744,7 +2750,7 @@ local function CreateStatsScrollBar(scrollFrame)
         sb:SetThumbTexture(thumb)
         thumb:SetTexture("Interface\\Buttons\\WHITE8x8")
         thumb:SetColorTexture(.8, .8, .8, 0.9)
-        thumb:SetSize(12, 24)  -- minimum thumb height
+        thumb:SetSize(6, 24)  -- minimum thumb height
 
         -- Scroll logic
         sb:SetScript("OnValueChanged", function(self, value)
@@ -2793,9 +2799,16 @@ local function ApplyStyle(self)
         end
     end
 	-- Border Texture for the stats panel
-	if CharacterStatsPane.ChonkyNS then
-		CharacterStatsPane.ChonkyNS:SetShown(option("showstatborder"))
-	end
+	
+	if CharacterStatsPane.ChonkyNS then CharacterStatsPane.ChonkyNS:SetShown(option("showstatborder")) end
+	if CharacterStatsPane.BG ~= nil then CharacterStatsPane.BG:SetShown(option("show_stats_background")) end        
+--[[
+	    if option("theme") ~= "None" and CCS.Themes.enabled then
+			CharacterStatsPane.ChonkyNS:Show()
+		else
+			CharacterStatsPane.ChonkyNS:SetShown(option("showstatborder"))
+		end
+	end--]]
     -------------------------------------------------
     -- Sections
     -------------------------------------------------
@@ -3036,10 +3049,6 @@ function CCS.CharacterStatsEventHandler(event, ...)
 
     if (event == "UNIT_DAMAGE" or event == "UNIT_ATTACK_SPEED" or event == "UNIT_MAXHEALTH") and arg1 ~= "player" then return end
 
-    if CharacterFrame and not CharacterFrame:IsVisible() 
-        and event ~= "PLAYER_LOOT_SPEC_UPDATED" and event ~= "PLAYER_SPECIALIZATION_CHANGED" and event ~= "PLAYER_LOOT_SPEC_UPDATED" and event ~= "CCS_EVENT_CSHOW"
-    then return end
-
     if event == "CCS_EVENT_OPTIONS" then
         if not option("showcharacterstats") then
             CCS:RestoreCharacterStatsPane()
@@ -3047,6 +3056,10 @@ function CCS.CharacterStatsEventHandler(event, ...)
         module:Initialize()
         return true
     end
+
+    if CharacterFrame and not CharacterFrame:IsVisible() 
+        and event ~= "PLAYER_LOOT_SPEC_UPDATED" and event ~= "PLAYER_SPECIALIZATION_CHANGED" and event ~= "PLAYER_LOOT_SPEC_UPDATED" and event ~= "CCS_EVENT_CSHOW"
+    then return end
 
 	if not option("showcharacterstats") then return end
     

@@ -778,8 +778,8 @@ local function initializemplusplanelframe()
 	local sf_topstreaks = _G["ccsmi_sf_ts"] or ccsmi_sf:CreateTexture("ccsmi_sf_ts", "BACKGROUND", nil, 2)
 	local sf_bottombar = _G["ccsmi_sf_bb"] or ccsmi_sf:CreateTexture("ccsmi_sf_bb", "BACKGROUND", nil, 2)
 	
-	ccsmi_af:SetPoint("TOPLEFT", InspectFrame, "TOPRIGHT", -5, 0);
-	ccsmi_af:SetPoint("BOTTOMLEFT", InspectFrame, "BOTTOMRIGHT", -5, 0);
+	ccsmi_af:SetPoint("TOPLEFT", InspectFrame, "TOPRIGHT", 0, 0);
+	ccsmi_af:SetPoint("BOTTOMLEFT", InspectFrame, "BOTTOMRIGHT", 0, 0);
 	ccsmi_sf:SetSize(1, 1)
 	
 	ccsmi_sf:SetPoint("TOPLEFT", ccsmi_af, "TOPRIGHT", 0, 0); 
@@ -787,16 +787,19 @@ local function initializemplusplanelframe()
 	ccsmi_sf:SetSize(660, 640)
 	ccsmi_sf.throttle = 0;
 	ccsmi_sf:SetShown(option("showm_sp_onopen_inspect"))
+	
+	CCS.CreateChonkyNineSlice(ccsmi_sf)
 
+	if ccsmi_sf ~= nil and ccsmi_sf.ChonkyNS ~= nil then ccsmi_sf.ChonkyNS:SetShown(option("show_mplusi_frame_border"))  end
+	
 	sf_bg:SetAllPoints()
 	sf_bg:SetTexture("Interface\\Masks\\SquareMask.BLP")
 	sf_bg:SetColorTexture(bgr,bgg,bgb,bgalpha)
-	
-	sf_topbar:SetPoint("TOPLEFT", ccsmi_sf, "TOPLEFT")
-	sf_topbar:SetPoint("TOPRIGHT", ccsmi_sf, "TOPRIGHT")
+
+	sf_topbar:SetPoint("TOPLEFT", ccsmi_sf, "TOPLEFT",0,-3)
+	sf_topbar:SetPoint("TOPRIGHT", ccsmi_sf, "TOPRIGHT",0,-3)
 	sf_topbar:SetHeight(16)
-	sf_topbar:SetTexture("1723833")
-	sf_topbar:SetTexCoord(0, 1, 0.586, .734)
+	sf_topbar:SetTexture("Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\Frame\\parchment.png")
 	
 	sf_topstreaks:SetPoint("TOPLEFT", sf_topbar, "BOTTOMLEFT")
 	sf_topstreaks:SetPoint("TOPRIGHT", sf_topbar, "BOTTOMRIGHT")
@@ -804,13 +807,15 @@ local function initializemplusplanelframe()
 	sf_topstreaks:SetTexture("1723833")
 	sf_topstreaks:SetTexCoord(0, 1, 0, .328)
 	
-	sf_bottombar:SetPoint("BOTTOMLEFT", ccsmi_sf, "BOTTOMLEFT")
-	sf_bottombar:SetPoint("BOTTOMRIGHT", ccsmi_sf, "BOTTOMRIGHT")
+	sf_bottombar:SetPoint("BOTTOMLEFT", ccsmi_sf, "BOTTOMLEFT",0,3)
+	sf_bottombar:SetPoint("BOTTOMRIGHT", ccsmi_sf, "BOTTOMRIGHT",0,3)
 	
-	local bottomheight = 60
+	sf_bottombar:SetVertexColor(unpack(CCS.StyleColor.highlight))
+	sf_topbar:SetVertexColor(unpack(CCS.StyleColor.highlight))
+	
+	local bottomheight = 18
 	sf_bottombar:SetHeight(bottomheight)
-	sf_bottombar:SetTexture("4556093")
-	sf_bottombar:SetTexCoord(0, .75, 0, .082) 
+	sf_bottombar:SetTexture("Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\Frame\\parchment.png")
 
 	local ccsmi_fs2 = _G["ccsmi_fs2"] or  ccsmi_sf:CreateFontString("ccsmi_fs2")
 	ccsmi_fs2:SetPoint("TOP", sf_topbar, "BOTTOM", 0, -35);
@@ -955,7 +960,7 @@ local function initializemplusplanelframe()
 		ccsmi_bx_fs7:SetJustifyH("RIGHT")
 		ccsmi_bx_fs7:Show()
 	end
-	_G["ccsmi_b8"]:SetPoint("BOTTOMLEFT", ccsmi_sf, "BOTTOMLEFT", 5, sf_bottombar:GetHeight()+3)
+	_G["ccsmi_b8"]:SetPoint("BOTTOMLEFT", ccsmi_sf, "BOTTOMLEFT", 5, 80)
 	_G["ccsmi_b7"]:SetPoint("BOTTOMLEFT", _G["ccsmi_b8"], "TOPLEFT", 0, 2)
 	_G["ccsmi_b6"]:SetPoint("BOTTOMLEFT", _G["ccsmi_b7"], "TOPLEFT", 0, 2)
 	_G["ccsmi_b5"]:SetPoint("BOTTOMLEFT", _G["ccsmi_b6"], "TOPLEFT", 0, 2)
@@ -1159,11 +1164,12 @@ local function initmplusframe()
     
 ----
 ---- Create the second button
-----
+----seansean
 	-- Create the new button
 	local btn2 = _G["InspectMPlusScoreIconBtn"] or CreateFrame("Button", "InspectMPlusScoreIconBtn", InspectPaperDollItemsFrame)
 	btn2:SetSize(32, 32)
-	btn2:SetPoint("TOPRIGHT", InspectPaperDollItemsFrame, "TOPRIGHT", -7, -24)
+	btn2:SetScale(.7)
+	btn2:SetPoint("TOPRIGHT", InspectFrameCloseButton, "BOTTOMRIGHT", 0, -3)
 	btn2:SetFrameStrata("HIGH")
 
 	btn2._ccs_OnEnter = function(self)
@@ -1370,7 +1376,7 @@ function CCS.initializeinspectframe()
     InspectFrameInset:SetPoint("BOTTOMRIGHT", InspectFrame, "BOTTOMLEFT", 610, 0)
     InspectFrameInset:Hide();
     InspectPaperDollFrame.ViewButton:ClearAllPoints()
-    InspectPaperDollFrame.ViewButton:SetPoint("BOTTOMLEFT", InspectFrameBg, "BOTTOMLEFT", 5, 5)
+    InspectPaperDollFrame.ViewButton:SetPoint("BOTTOMLEFT", InspectFrameBg, "BOTTOMLEFT", 23, 5)
     
     InspectFrameBg:SetVertexColor(0,0,0,0);
     InspectFrameBg:ClearAllPoints()
@@ -1407,11 +1413,14 @@ function CCS.initializeinspectframe()
     charbgtex:SetVertexColor(ccsbg[1], ccsbg[2], ccsbg[3], ccsbg[4]);
     
     InspectFrameTitleText:ClearAllPoints();
-    InspectFrameTitleText:SetPoint("TOP", InspectFrame, "TOP", 0, 0)
+	local ttfontsize = option("fontsize_nametitle_inspect") or 12
+    InspectFrameTitleText:SetPoint("TOP", InspectFrame, "TOP", 0, -(5*ttfontsize/12))
+	
+    --InspectFrameTitleText:SetPoint("TOP", InspectFrame, "TOP", 0, -4)
     InspectFrameTitleText:SetPoint("LEFT", InspectFrame, "LEFT", 50, 0)
     InspectFrameTitleText:SetPoint("RIGHT", InspectFrameInset, "RIGHT", -40, 0)
     
-    InspectFrameTitleText:SetFont(option("fontname_nametitle_inspect") or CCS.fontname, option("fontsize_nametitle_inspect") or 12, CCS.textoutline)
+    InspectFrameTitleText:SetFont(option("fontname_nametitle_inspect") or CCS.fontname, ttfontsize, CCS.textoutline)
 	if option("showfontshadow") == true then
 		InspectFrameTitleText:SetShadowColor(unpack(option("fontshadowcolor") or {0,0,0,1}))
 		InspectFrameTitleText:SetShadowOffset(option("fontshadowx") or 0, option("fontshadowy") or 0)
@@ -1558,7 +1567,7 @@ function CCS.initializeinspectframe()
         Mixin(InspectPaperDollItemsFrame.InspectTalents, BackdropTemplateMixin)
         CCS.SkinButton(InspectPaperDollItemsFrame.InspectTalents)
 		InspectPaperDollItemsFrame.InspectTalents:ClearAllPoints()
-		InspectPaperDollItemsFrame.InspectTalents:SetPoint("BOTTOMRIGHT", InspectFrame, "BOTTOMRIGHT", -4, 4)
+		InspectPaperDollItemsFrame.InspectTalents:SetPoint("BOTTOMRIGHT", InspectFrame, "BOTTOMRIGHT", -23, 4)
     end
     
 	if InspectGuildFrame ~= nil and InspectGuildFrameBG ~= nil then
@@ -1616,7 +1625,7 @@ loopitems = function()
 
     color = CCS:GetAverageEquippedRarityHex(unit) or "ffffff"
     
-    ilvlTxt:SetPoint("TOP", _G["InspectLevelText"], "BOTTOM", 0, -10) 
+    ilvlTxt:SetPoint("TOPLEFT", _G["InspectLevelText"], "RIGHT", 30, 0) 
     ilvlTxt:SetFont(option("fontname_inspect_ilvl") or CCS.fontname, option("fontsize_inspect_ilvl") or 20, CCS.textoutline)
 	if option("showfontshadow") == true then
 		ilvlTxt:SetShadowColor(unpack(option("fontshadowcolor") or {0,0,0,1}))
@@ -1642,29 +1651,55 @@ function CCS.InspectSheetEventHandler(event, ...)
 
     -- Retail-only inspect frame updates
     if CCS.CurrentVersion ~= CCS.RETAIL then return end
+	
+	if CCS.lastChangedOption == "show_inspect" and not option("show_inspect") then
+		local msg = REQUIRES_RELOAD .. ". (" .. SLASH_RELOAD1 .. ")"
+		print(msg)
+		PlaySound(8959)
+		RaidNotice_AddMessage(RaidBossEmoteFrame, msg, ChatTypeInfo["SYSTEM"])
+		ReloadUI()
+	end
+	
     if not InspectFrame or not InspectFrame.unit or not option("show_inspect") or InspectFrame.unit == "mouseover" then return end
 
 	if not InspectFrame.loaded then
+        CCS.CreateChonkyCharacterBG(true)
 		CCS.initializeinspectframe()
 	end
     if event == "CCS_EVENT_OPTIONS" then
-        if not option("show_inspect") then
-            local msg = REQUIRES_RELOAD .. ". (" .. SLASH_RELOAD1 .. ")"
-            print(msg)
-            PlaySound(8959)
-            RaidNotice_AddMessage(RaidBossEmoteFrame, msg, ChatTypeInfo["SYSTEM"])
-            ReloadUI()
-        end
+		initmplusframe()
+		CCS.CreateChonkyCharacterBG(true)
+		CCS.ChangeModelBg(true)			
+		CCS.initializeinspectframe()
+		initializemplusplanelframe()
+		
+		if CCS_iclk_Btn2 ~= nil then CCS.SkinButton(CCS_iclk_Btn2) end
+		if InspectMPlusScoreIconBtn ~= nil then CCS:ApplyIconStyle(InspectMPlusScoreIconBtn, "rightarrow", 24) end
+		
+		if InspectPaperDollItemsFrame ~= nil and 
+			InspectPaperDollItemsFrame.InspectTalents ~= nil and 
+			InspectPaperDollItemsFrame.InspectTalents.backdropInfo ~= nil then 
+				CCS.SkinButton(InspectPaperDollItemsFrame.InspectTalents) 
+		end
+
+		if InspectPaperDollFrame ~= nil and 
+			InspectPaperDollFrame.ViewButton ~= nil and 
+			InspectPaperDollFrame.ViewButton.backdropInfo ~= nil then 
+				CCS.SkinButton(InspectPaperDollFrame.ViewButton) 
+		end
+		
+		if InspectFrameCloseButton ~= nil then 
+			CCS:SkinBlizzardButton(InspectFrameCloseButton, "x", 26) 
+		end
 		
 		if InspectFrame:IsVisible() == true then
-			CCS.initializeinspectframe()
-			initializemplusplanelframe()
 			loopitems()			
         end
 
 		InspectFrame.loaded = false
         return true
 	elseif event == "INSPECT_READY" then 
+        CCS.CreateChonkyCharacterBG(true)
 		CCS.ChangeModelBg(true)
 		initializemplusplanelframe()
 		updatemplussideframe()
