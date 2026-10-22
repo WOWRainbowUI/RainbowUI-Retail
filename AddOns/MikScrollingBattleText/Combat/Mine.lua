@@ -111,6 +111,8 @@ local PET_GAP = 1.0           -- a pet swings at most this often
 local RHYTHM_SLACK = 0.15
 local VOTES = 3               -- casts that must agree on an untrusted school
 local MAX = 32                -- of each list
+local CAST_HISTORY_WINDOW = 30
+local RHYTHM_WINDOW = 3.3
 ns.LATE_SWING = LATE_SWING
 
 -- learned "direct": what a spell does.
@@ -158,49 +160,134 @@ end
 -- facts(id): what the spell's description says (Spells.lua), or nil.
 function ns.NewMine(learned, learn, facts)
     return setmetatable({ pending = {}, dots = {}, swings = {}, held = {}, rhythm = {}, petLast = {}, evidence = {}, votes = {},
-        casts = {}, amounts = {},
+        casts = {}, amounts = {}, channels = {},
         learned = learned or function() end, learn = learn or function() end, facts = facts or function() end }, Mine)
 end
 
-local function Prune(list, keep)
+local function Prune(list, keep, now, tracker)
     for index = #list, 1, -1 do
-        if not keep(list[index]) then table.remove(list, index) end
+        if not keep(list[index], now, tracker) then
+            table.remove(list, index)
+        end
     end
     while #list > MAX do table.remove(list, 1) end
 end
 
+local function KeepPending(entry, now)
+    return not entry.used and now - entry.at <= DIRECT_WINDOW
+end
+
+local function KeepSwing(entry, now)
+    return not entry.used and now - entry.at <= PairedWindow(entry)
+end
+
+local function KeepHeld(entry, now)
+    return not entry.claimed and now - entry.at <= LATE_SWING
+end
+
+local function KeepDot(dot, now, tracker)
+    if dot.period then
+        -- Allow up to three skipped ticks before discarding a known rhythm.
+        while now > dot.next + TICK_SLACK and (dot.skipped or 0) < 3 do
+            dot.next = dot.next + dot.period
+            dot.skipped = (dot.skipped or 0) + 1
+        end
+        return now <= dot.next + TICK_SLACK + 0.3
+    end
+    if now - dot.castAt <= FIRST_WAIT then return true end
+    -- Keep a possible first tick until its timing can be confirmed.
+    if dot.directAt and now - dot.directAt <= FIRST_WAIT then return true end
+    if dot.candidate
+        and now <= dot.candidate.at + dot.candidate.period + TICK_SLACK then
+        return true
+    end
+    -- Two direct hits without a tick establish a direct-only spell.
+    if dot.direct and tracker.learned("period", dot.spell) == nil
+        and tracker.learned("school", dot.spell) ~= nil then
+        local seen = (tracker.evidence[dot.spell] or 0) + 1
+        tracker.evidence[dot.spell] = seen
+        if seen >= 2 then tracker.learn("direct", dot.spell, DIRECT_ONLY) end
+    end
+    return false
+end
+
 function Mine:Tidy(now)
-    Prune(self.pending, function(entry) return not entry.used and now - entry.at <= DIRECT_WINDOW end)
-    Prune(self.swings, function(entry) return not entry.used and now - entry.at <= PairedWindow(entry) end)
-    Prune(self.held, function(entry) return not entry.claimed and now - entry.at <= LATE_SWING end)
-    Prune(self.dots, function(dot)
-        if dot.period then
-            -- A tick that did not come (out of sight, a wrong interval kept
-            -- from earlier fights): the next is expected an interval later,
-            -- up to three times (0.3.9: Corruption kept as 1.5 s was dropped
-            -- at 2 s and its real tick at 3 s matched nothing).
-            while now > dot.next + TICK_SLACK and (dot.skipped or 0) < 3 do
-                dot.next, dot.skipped = dot.next + dot.period, (dot.skipped or 0) + 1
+    for caster, channel in pairs(self.channels) do
+        if now - channel.at > CAST_HISTORY_WINDOW
+            or (channel.stoppedAt and now - channel.stoppedAt > 0.5) then
+            self.channels[caster] = nil
+        end
+    end
+    for key, schools in pairs(self.rhythm) do
+        for school, beat in pairs(schools) do
+            if now - beat.last > RHYTHM_WINDOW then schools[school] = nil end
+        end
+        if next(schools) == nil then self.rhythm[key] = nil end
+    end
+    for key, last in pairs(self.petLast) do
+        if now - last >= PET_GAP then self.petLast[key] = nil end
+    end
+    for spell, casts in pairs(self.casts) do
+        for index = #casts, 1, -1 do
+            if now - casts[index].at > CAST_HISTORY_WINDOW then
+                table.remove(casts, index)
             end
-            return now <= dot.next + TICK_SLACK + 0.3
         end
-        if now - dot.castAt <= FIRST_WAIT then return true end
-        -- Still waiting to re-time a first tick taken for a hit, or to
-        -- confirm a first tick.
-        if dot.directAt and now - dot.directAt <= FIRST_WAIT then return true end
-        if dot.candidate and now <= dot.candidate.at + dot.candidate.period + TICK_SLACK then return true end
-        -- It hit at once and never ticked: twice so, and it is a direct spell.
-        if dot.direct and self.learned("period", dot.spell) == nil and self.learned("school", dot.spell) ~= nil then
-            local seen = (self.evidence[dot.spell] or 0) + 1
-            self.evidence[dot.spell] = seen
-            if seen >= 2 then self.learn("direct", dot.spell, DIRECT_ONLY) end
-        end
-        return false
-    end)
+        if #casts == 0 then self.casts[spell] = nil end
+    end
+
+    Prune(self.pending, KeepPending, now)
+    Prune(self.swings, KeepSwing, now)
+    Prune(self.held, KeepHeld, now)
+    Prune(self.dots, KeepDot, now, self)
 end
 
 local function SchoolFits(known, school)
     return known == nil or school == nil or known == school
+end
+
+local function ChannelFits(channel, key, school, now)
+    return channel.key == key and SchoolFits(channel.school, school)
+        and now >= channel.at
+        and (not channel.stoppedAt or now <= channel.stoppedAt)
+end
+
+function Mine:StartChannel(caster, spell, key, now)
+    caster = caster == "pet" and "pet" or "you"
+    self.channels[caster] = nil
+    local facts = self.facts(spell)
+    if type(facts) ~= "table" or facts.damages ~= true then return end
+
+    -- A channel's hits follow its lifecycle, not a guessed DoT interval.
+    -- Remove its ordinary cast records so they cannot claim later damage.
+    for _, list in ipairs({ self.pending, self.dots }) do
+        for index = #list, 1, -1 do
+            local entry = list[index]
+            if entry.caster == caster and entry.spell == spell then
+                table.remove(list, index)
+            end
+        end
+    end
+    local casts = self.casts[spell]
+    if casts then
+        for index = #casts, 1, -1 do
+            if casts[index].caster == caster then table.remove(casts, index) end
+        end
+        if #casts == 0 then self.casts[spell] = nil end
+    end
+    self.channels[caster] = {
+        caster = caster, spell = spell, key = key, at = now,
+        school = facts.school or self.learned("school", spell),
+    }
+end
+
+function Mine:StopChannel(caster, spell, now)
+    caster = caster == "pet" and "pet" or "you"
+    local channel = self.channels[caster]
+    if channel and (spell == nil or channel.spell == spell) then
+        -- Buffered hits retain their event time, including the final tick.
+        channel.stoppedAt = now
+    end
 end
 
 local function LearnSchool(self, spell, school)
@@ -272,6 +359,10 @@ end
 function Mine:Cast(caster, spell, key, now)
     if type(spell) ~= "number" then return end
     caster = caster == "pet" and "pet" or "you"
+    local channel = self.channels[caster]
+    if channel and not channel.stoppedAt and channel.spell == spell then
+        return
+    end
     local facts = self.facts(spell)
     -- With no unit, only a spell of yours whose description says it deals
     -- damage counts (opening a chest is a cast with no target too).
@@ -283,7 +374,7 @@ function Mine:Cast(caster, spell, key, now)
     local list = self.casts[spell] or {}
     self.casts[spell] = list
     list[#list + 1] = { at = now, caster = caster }
-    while #list > 6 or (list[1] and now - list[1].at > 30) do table.remove(list, 1) end
+    while #list > 6 do table.remove(list, 1) end
     -- 0.3.42: a cast of yours with nothing targeted (an Arcane Explosion)
     -- has no unit to wait on, but stays in that list, so a hit or resist
     -- of yours on any enemy in its moment is its (Likeliest, and a miss in
@@ -541,6 +632,13 @@ end
 
 local function Yours(self, key, kind, school, now)
     local allowed, sure = Allowed(self.restrictNow), self.restrictNow == "tick"
+    if kind == "damage" and allowed.casts then
+        for _, channel in pairs(self.channels) do
+            if ChannelFits(channel, key, school, now) then
+                return Result(channel.caster, channel.spell, sure)
+            end
+        end
+    end
     -- 1. A DoT's next tick; of several due now, the one whose time and
     -- amount fit best. 0.3.49: a tick that healed you for its amount in the
     -- same moment (leechNow, from the reader) is a draining DoT's, one that
@@ -725,6 +823,11 @@ function Mine:Fit(key, kind, school, now, amount, restrict)
     if restrict == "shield" then return (kind == "damage" or kind == "miss") and 0.7 or nil end
     local allowed = Allowed(restrict)
     local function Take(score) if not best or score < best then best = score end end
+    if kind == "damage" and allowed.casts then
+        for _, channel in pairs(self.channels) do
+            if ChannelFits(channel, key, school, now) then Take(0.1) end
+        end
+    end
     for _, entry in ipairs(allowed.casts and self.pending or {}) do
         if not entry.used and entry.key == key and now >= entry.at - 0.05 and now - entry.at <= DIRECT_WINDOW then
             if kind == "miss" then Take(0.5)

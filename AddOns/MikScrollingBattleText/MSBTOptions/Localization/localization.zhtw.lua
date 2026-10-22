@@ -437,7 +437,14 @@ L.AURA_TRACKING_UNKNOWN = "未知光環"
 L.AURA_TRACKING_INVALID = "找不到光環。請輸入有效的法術 ID 或完整法術名稱。"
 L.TABS["resetBlizzardSCT"] = { label="重設暴雪戰鬥文字", tooltip="啟用暴雪傷害數字並停用 MSBT。" }
 L.CHECKBOXES["enableMSBT"] = { label="啟用 MSBT 捲動戰鬥文字", tooltip="啟用 MSBT 並關閉所有暴雪戰鬥文字。" }
-L.CHECKBOXES["enableBlizzardDamage"] = { label="啟用暴雪傷害數字", tooltip="單人與組隊時皆顯示玩家與寵物的暴雪傷害數字。" }
 L.NOTIFICATION_EVENTS["NOTIFICATION_PROC"] = { label="技能觸發", tooltip="顯示發光提示的技能觸發。" }
 L.NOTIFICATION_EVENTS["NOTIFICATION_REACTIVE"] = { label="反應技能", tooltip="顯示戰鬥中變為可用的技能。" }
 L.NOTIFICATION_EVENTS["NOTIFICATION_CROWD_CONTROL"] = { label="控場效果", tooltip="顯示控場與被打斷的控制效果。" }
+
+L.CHECKBOXES["enableBlizzardDamage"] = { label="啟用暴雪戰鬥文字", tooltip="依下方選擇的類別啟用暴雪戰鬥文字。" }
+
+L.CHECKBOXES["disableOutgoing"] = { label="停用輸出文字", tooltip="隱藏此系統造成的傷害與治療文字。" }
+
+L.CHECKBOXES["disableNotifications"] = { label="停用通知", tooltip="隱藏此系統的增益、戰鬥提示及其他通知。" }
+
+L.CHECKBOXES["disableIncoming"] = { label="停用承受文字", tooltip="隱藏此系統受到的傷害與治療文字。" }
