@@ -1,4 +1,4 @@
-﻿-- Pawn by Vger-Azjol-Nerub
+-- Pawn by Vger-Azjol-Nerub
 -- www.vgermods.com
 -- © 2006-2026 Travis Spomer.  This mod is released under the Creative Commons Attribution-NonCommercial-NoDerivs 3.0 license.
 -- See Readme.md for more information.
@@ -91,7 +91,7 @@ PawnLocal =
 		["ClothInfo"] = "此物若為布甲，則增計多少分數。",
 		["CorruptionInfo"] = "恩若司的腐化。腐化值為負值時，會根據腐化程度從物品評分中刪除分數。",
 		["Crit"] = "致命一擊",
-		["CritInfo"] = "致命一擊: 影響近戰攻擊，遠程攻擊，法術。",
+		["CritInfo"] = "致命一擊。提高攻擊與法術造成更強效果的機率。（在經典時代與燃燒的遠征經典版中，只影響物理攻擊。）",
 		["DefenseInfo"] = "Defense skill.  Decreases the chance that you'll be hit by boss attacks.",
 		["DodgeInfo"] = "Dodge.  Increases the chance that you'll dodge attacks entirely.",
 		["DominationSocketInfo"] = "平均統御裂片插槽數值。",
@@ -106,10 +106,10 @@ PawnLocal =
 		["FrostResistInfo"] = "Frost Resistance.  Reduces the damage taken from frost-based attacks.",
 		["FrostSpellDamage"] = "冰霜法術傷害",
 		["FrostSpellDamageInfo"] = "Frost damage.  Increases the damage dealt by your frost spells.",
-		["HasteInfo"] = "加速: 影響近戰攻擊，遠程攻擊，法術。",
+		["HasteInfo"] = "加速。提高攻擊速度與施法速度。在正式服中，加速也會提高資源恢復速度。",
 		["Healing"] = "治療法術",
 		["HealingInfo"] = "Spell healing.  Increases the power of your healing spells.",
-		["HitInfo"] = "Hit.  Increases the chance that your physical attacks hit the target, especially bosses.",
+		["HitInfo"] = "命中。提高攻擊與法術命中目標的機率，尤其是首領。（在經典時代與燃燒的遠征經典版中，只影響物理攻擊。）",
 		["HolySpellDamage"] = "Holy Damage",
 		["HolySpellDamageInfo"] = "Holy damage.  Increases the damage dealt by your holy spells.",
 		["Hp5Info"] = "Health regeneration per 5 seconds.  Increases the rate at which you regenerate health.",
@@ -574,6 +574,7 @@ PawnLocal.TooltipParsing = {
 	["Equip"] = "裝備: ",
 	["Expertise"] = "^%+?#熟練$",
 	["ExpertiseClassic"] = "^裝備： 使你的攻擊被閃躲或招架的機率降低#%%。$",
+	["ExpertiseForever"] = "^裝備：被閃躲或招架的機率降低#%%。$",
 	["ExpertiseRating"] = "^裝備: 提高#點熟練。$",
 	["ExpertiseRatingShort"] = "^%+?#熟練等級$",
 	["FeralAp"] = "^裝備： 在獵豹、熊或巨熊形態下的攻擊強度提高#點。$",
@@ -593,6 +594,7 @@ PawnLocal.TooltipParsing = {
 	["Haste"] = "^%+?#加速$",
 	["Haste2"] = "^裝備: 提高#點加速。$",
 	["HasteClassic"] = "^裝備： 你的攻擊速度提高#%%。$",
+	["HasteCombined"] = "^UNUSED$",
 	["HasteRating"] = "^裝備: 提高#點加速。$",
 	["HasteRating2"] = "^UNUSED$",
 	--[[Translation missing --]]
@@ -691,7 +693,7 @@ PawnLocal.TooltipParsing = {
 	["SpellDamageAndHealingEnchant"] = "^%+#治療和%+#法術傷害",
 	["SpellDamageAndHealingShort"] = "^%+#治療法術和%+#傷害法術",
 	["SpellDamageAndHealingShort2"] = "^UNUSED$",
-	["SpellDamageForever"] = "^UNUSED$",
+	["SpellDamageNoHealing"] = "^裝備：使法術和魔法效果所造成的傷害最多提高#點。$",
 	["SpellHasteClassic"] = "^裝備： 你的施法速度提高#%%。$",
 	["SpellHasteRating"] = "^裝備: 提高#點法術加速。$",
 	["SpellHasteRatingShort"] = "^%+?#法術加速等級$",
@@ -826,6 +828,28 @@ if VgerCore.IsWrath or VgerCore.IsCataclysm or VgerCore.IsMists then
 
 	local Key, NewString
 	for Key, NewString in pairs(TooltipParsing_Wrath) do
+		PawnLocal.TooltipParsing[Key] = NewString
+	end
+end
+
+if VgerCore.IsForever then
+
+	local TooltipParsing_Forever =
+	{
+		["Ap2"] = "^裝備：%+#點攻擊強度。$",
+		["BlockPercent"] = "^裝備：使你用盾牌格擋攻擊的機率提高#%%。$",
+		["CritPercentCombined"] = "^裝備：使你造成致命一擊的機率提高#%%。$",
+		["DefenseSkill"] = "^裝備：防禦提高#點。$",
+		["DodgePercent"] = "^裝備：使你閃躲攻擊的機率提高#%%。$",
+		["HitPercentCombined"] = "^裝備：使你的命中率提高#%%。$",
+		["Hp5"] = "^裝備：每5秒恢復#點生命力。$",
+		["Mp5"] = "^裝備：每5秒恢復#點法力。$",
+		["ParryPercent"] = "^裝備：使你招架攻擊的機率提高#%%。$",
+		["Rap"] = "^裝備：%+#點遠程攻擊強度。$",
+	}
+
+	local Key, NewString
+	for Key, NewString in pairs(TooltipParsing_Forever) do
 		PawnLocal.TooltipParsing[Key] = NewString
 	end
 end

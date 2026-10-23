@@ -1,4 +1,4 @@
-﻿-- Pawn by Vger-Azjol-Nerub
+-- Pawn by Vger-Azjol-Nerub
 -- www.vgermods.com
 -- © 2006-2026 Travis Spomer.  This mod is released under the Creative Commons Attribution-NonCommercial-NoDerivs 3.0 license.
 -- See Readme.md for more information.
@@ -90,7 +90,7 @@ PawnLocal =
 		["ClothInfo"] = "物品类型为布甲。",
 		["CorruptionInfo"] = "恩佐斯的腐蚀。此项腐蚀的属性将根据装备腐蚀等级来扣除相应的评分。",
 		["Crit"] = "爆击",
-		["CritInfo"] = "爆击等级，影响近战、远程和法术的爆击几率。(在经典旧世中, 仅对物理攻击生效。)",
+		["CritInfo"] = "爆击。提高攻击与法术产生更强效果的几率。（在经典旧世与燃烧的远征经典版中，只影响物理攻击。）",
 		["DefenseInfo"] = "防御技能: 减少被首领攻击命中的几率。",
 		["DodgeInfo"] = "闪避: 增加完全闪避攻击的几率。",
 		["DpsInfo"] = "武器的每秒伤害。(如果你想要给不同类型的武器估分，前往 \"特殊武器属性\" 部分。)",
@@ -102,10 +102,10 @@ PawnLocal =
 		["FrostResistInfo"] = "冰霜抗性: 减少受到的冰霜伤害。",
 		["FrostSpellDamage"] = "冰霜法术伤害",
 		["FrostSpellDamageInfo"] = "冰霜法术伤害: 增加释放冰霜法术所造成的伤害。",
-		["HasteInfo"] = "急速等级，影响近战、远程和法术的攻击速度",
+		["HasteInfo"] = "急速。提高攻击速度与施法速度。在正式服中，急速也会提高资源恢复速度。",
 		["Healing"] = "治疗量",
 		["HealingInfo"] = "治疗量: 增加治疗法术的效果。",
-		["HitInfo"] = "命中: 增加物理攻击命中目标的几率 (对于首领而言尤为重要)。",
+		["HitInfo"] = "命中。提高攻击与法术命中目标的几率，尤其是首领。（在经典旧世与燃烧的远征经典版中，只影响物理攻击。）",
 		["HolySpellDamage"] = "神圣法术伤害",
 		["HolySpellDamageInfo"] = "神圣法术伤害: 增加释放神圣法术所造成的伤害。",
 		["Hp5Info"] = "每5秒恢复的生命值: 增加恢复率。",
@@ -550,6 +550,7 @@ PawnLocal.TooltipParsing = {
 	["Equip"] = "装备：",
 	["Expertise"] = "^%+?# 精准$",
 	["ExpertiseClassic"] = "^装备： 使你的攻击被躲闪或招架的几率降低#%%。$",
+	["ExpertiseForever"] = "^装备：使你的攻击被躲闪或招架的几率降低#%%。$",
 	["ExpertiseRating"] = "^装备： 使你的精准等级提高#点。$",
 	["ExpertiseRatingShort"] = "^%+?# 精准等级$",
 	["FeralAp"] = "^装备： ?在猎豹、熊和巨熊形态下的攻击强度提高#点。$",
@@ -569,6 +570,7 @@ PawnLocal.TooltipParsing = {
 	["Haste"] = "^%+?# 急速$",
 	["Haste2"] = "^UNUSED$",
 	["HasteClassic"] = "^装备： 使你的攻击速度提高#%%。$",
+	["HasteCombined"] = "^UNUSED$",
 	["HasteRating"] = "^装备： 急速等级提高#点。$",
 	["HasteRating2"] = "^UNUSED$",
 	["HasteRatingShort"] = "^%+?# 急速等级$",
@@ -667,7 +669,7 @@ PawnLocal.TooltipParsing = {
 	["SpellDamageAndHealingEnchant"] = "^UNUSED$",
 	["SpellDamageAndHealingShort"] = "^%+# 法术治疗，%+# 法术伤害$",
 	["SpellDamageAndHealingShort2"] = "^UNUSED$",
-	["SpellDamageForever"] = "^UNUSED$",
+	["SpellDamageNoHealing"] = "^装备：使法术和魔法效果所造成的伤害提高最多#点。$",
 	["SpellHasteClassic"] = "^装备： 你的施法速度提高#%%。$",
 	["SpellHasteRating"] = "^装备： 法术急速等级提高#点。$",
 	["SpellHasteRatingShort"] = "^%+?# 法术急速等级$",
@@ -755,6 +757,23 @@ if VgerCore.IsBurningCrusade or VgerCore.IsWrath or VgerCore.IsCataclysm or Vger
 
 	local Key, NewString
 	for Key, NewString in pairs(TooltipParsing_BurningCrusade) do
+		PawnLocal.TooltipParsing[Key] = NewString
+	end
+end
+
+if VgerCore.IsForever then
+
+	local TooltipParsing_Forever =
+	{
+		["CritPercentCombined"] = "^装备：使你造成爆击的几率提高#%%。$",
+		["DefenseSkill"] = "^装备：防御提高#。$",
+		["Hp5"] = "^装备：每5秒恢复#生命值。$",
+		["Mp5"] = "^装备：每5秒恢复#法力值。$",
+		["ParryPercent"] = "^装备：使你招架攻击的几率提高#%%。$",
+	}
+
+	local Key, NewString
+	for Key, NewString in pairs(TooltipParsing_Forever) do
 		PawnLocal.TooltipParsing[Key] = NewString
 	end
 end
