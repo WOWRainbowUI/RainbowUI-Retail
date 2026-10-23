@@ -118,7 +118,7 @@ local function LoadFont(fontName)
 	fontLoaderFrame:Hide()
 end
 
-local function Display(message, saSettings, isSticky, colorR, colorG, colorB, fontSize, fontPath, outlineIndex, fontAlpha, texturePath, formatArg)
+local function Display(message, saSettings, isSticky, colorR, colorG, colorB, fontSize, fontPath, outlineIndex, fontAlpha, texturePath, formatArg, ...)
 
 	local animStyleSettings, direction, behavior, textAlignIndex
 	if isSticky then
@@ -188,7 +188,7 @@ local function Display(message, saSettings, isSticky, colorR, colorG, colorB, fo
 	fontString:SetShadowOffset(1, -1)
 	fontString:SetAlpha(0)
 	if RestrictedValue:IsRestricted(formatArg) or formatArg ~= nil then
-		fontString:SetFormattedText(message, formatArg)
+		fontString:SetFormattedText(message, formatArg, ...)
 	else
 		fontString:SetText(message)
 	end

@@ -19,7 +19,9 @@ local function MissAction(word)
 end
 
 function Presentation:New(config)
-	return setmetatable({ config = config, batches = {}, generation = 0 }, self)
+	return setmetatable({
+		config = config, batches = {}, generation = 0,
+	}, self)
 end
 
 function Presentation:Reset()
@@ -42,13 +44,30 @@ function Presentation:Emit(key, record, eventSettings)
 	local icon = record.icon or (record.spell
 		and self.config.getSpellTexture(record.spell))
 	if RestrictedValue:IsRestricted(record.amount) then
-		self.config.displayRestricted(settings, record.amount, icon)
+		self.config.displayRestricted(settings, record.amount, icon, record.message)
 		return
 	end
-	local message = self.config.formatMessage(settings, record)
+	local message
+	if record.event == "miss" and record.amount == nil
+		and MissAction(record.missWord) == "ABSORB" then
+		message = (_G.ABSORB or "Absorb") .. "!"
+	else
+		message = self.config.formatMessage(settings, record, record.message)
+	end
 	if message and message ~= "" then
 		self.config.display(settings, message, icon)
 	end
+end
+
+function Presentation:Resource(amount, powerToken)
+	local settings = self:Settings("NOTIFICATION_RESOURCE_GAIN")
+	if not settings then return end
+	if not RestrictedValue:IsRestricted(amount) then
+		local amountText = RestrictedValue:String(amount)
+		local readableAmount = RestrictedValue:Number(amount) or tonumber(amountText)
+		if not readableAmount or readableAmount <= 0 then return end
+	end
+	self.config.displayResource(settings, amount, powerToken)
 end
 
 function Presentation:RememberIncomingHeal(record)

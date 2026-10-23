@@ -935,6 +935,10 @@ if IsClassic then
 				colorB		= 0.698,
 				message		= "+%a " .. HONOR,
 			},
+			NOTIFICATION_RESOURCE_GAIN = {
+				colorR = 0.5, colorG = 0.5, colorB = 1,
+				message = "%a - %p", scrollArea = "Notification",
+			},
 			NOTIFICATION_REP_GAIN = {
 				colorR		= 0.5,
 				colorG		= 0.5,
@@ -2031,6 +2035,10 @@ else
 				colorB		= 0.698,
 				message		= "+%a " .. HONOR,
 			},
+			NOTIFICATION_RESOURCE_GAIN = {
+				colorR = 0.5, colorG = 0.5, colorB = 1,
+				message = "%a - %p", scrollArea = "Notification",
+			},
 			NOTIFICATION_REP_GAIN = {
 				colorR		= 0.5,
 				colorG		= 0.5,
@@ -2668,6 +2676,14 @@ local function SetBlizzardCombatTextV2Enabled(isEnabled, suppressOtherText, prof
 	SetCVar("floatingCombatTextCombatLogPeriodicSpells_v2", value)
 	SetCVar("floatingCombatTextPetMeleeDamage_v2", value)
 	SetCVar("floatingCombatTextPetSpellDamage_v2", value)
+	local resourceSettings = profile and profile.events
+		and profile.events.NOTIFICATION_RESOURCE_GAIN
+	if Client.hasModernAPI and suppressOtherText and resourceSettings
+		and not resourceSettings.disabled and not profile.msbtNotificationsDisabled then
+		-- Resource notices need their own feed even when Blizzard text is hidden.
+		SetCVar("floatingCombatTextEnergyGains_v2", 1)
+		SetCVar("floatingCombatTextPeriodicEnergyGains_v2", 1)
+	end
 	if (not Client.hasModernAPI and CombatText_UpdateDisplayedMessages) then CombatText_UpdateDisplayedMessages() end
 	if profile then
 		local state = blizzardCategoryState
