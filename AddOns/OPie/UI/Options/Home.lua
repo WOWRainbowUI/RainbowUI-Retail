@@ -1,5 +1,5 @@
 local ADDON, T = ...
-local H, PC, TS, XU, config, L = {}, T.OPieCore, T.TenSettings, T.exUI, T.config, T.L
+local H, EV, PC, TS, XU, config, L = {}, T.Evie, T.OPieCore, T.TenSettings, T.exUI, T.config, T.L
 
 local frame = TS:CreateOptionsPanel("OPie", nil, {
 	forceRootVersion=true,
@@ -16,6 +16,27 @@ t:SetPoint("TOP", 0, oy)
 oy, t = oy - 32, frame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 t:SetPoint("TOP", 0, oy)
 t:SetText("|cffb0b0b0" .. GAME_VERSION_LABEL .. "|r " .. frame.version:GetText())
+
+local function openToBookmark(...)
+	openToBookmark = nil
+	return TS:OpenToBookmark(...)
+end
+function EV:PLAYER_ENTERING_WORLD(_isLogin, isReload)
+	local mark = isReload and openToBookmark and PC:GetGlobalData("options-m")
+	if mark then
+		local l, b = PC:GetGlobalData("options-l"), PC:GetGlobalData("options-b")
+		securecall(openToBookmark, frame, mark, l, b)
+	end
+	return "remove"
+end
+PC:RegisterUnloadCallback(function()
+	PC:SetGlobalData("options-m", nil)
+	local mark, pan, isStandalone = TS:GetActiveBookmark(frame)
+	local ok = mark and pan and isStandalone or nil
+	PC:SetGlobalData("options-m", ok and mark)
+	PC:SetGlobalData("options-l", ok and pan:GetLeft())
+	PC:SetGlobalData("options-b", ok and pan:GetBottom())
+end)
 
 local hlink = {} do
 	local isLinkCursorSet
@@ -245,14 +266,29 @@ function H.ShowWhatsNew()
 	if not frame:IsVisible() then
 		clipBar:SetValue(0)
 		frame:OpenPanel()
+	else
+		PlaySound(SOUNDKIT.U_CHAT_SCROLL_BUTTON)
 	end
 	navView:Hide()
 	logView:Show()
+	TS:SetCanvasEscapeCommand(frame, "/opie new")
+end
+local function packVersionData()
+	local av = (C_AddOns.GetAddOnMetadata(ADDON, "Version") or ""):match("[%d.%-%a+]+")
+	local loc, gv, gb = GetLocale(), GetBuildInfo()
+	gv = (gv .. "." .. gb .. "-" .. (loc or "XX") .. (IsPublicTestClient() and "-TEST" or "")):gsub("[^%d%.%-%a_]", "")
+	return (av and "#av:" .. av .. ";gv:" or "#gv:") .. gv
 end
 function H.ShowReportIssuePrompt()
+	local ex = securecall(packVersionData)
 	local text = L"If something in OPie does not behave correctly (or if you'd like it to behave differently), create an issue by visiting:"
-	local url = "https://www.townlong-yak.com/addons/opie/issues"
+	local url = "https://www.townlong-yak.com/addons/opie/issues" .. (ex or "")
 	local hint = L"Copy the URL shown above and visit it using a web browser."
+	if not (GetCVarBool("scriptErrors") or ERROR_DISPLAY_ADDON or not issecurevariable("seterrorhandler")) then
+		text = "|TInterface/EncounterJournal/UI-EJ-WarningTextIcon:0|t |cffd0d0d0"
+		    .. (L"To enable WoW's built-in error display, type %s in chat. This may help diagnose problems."):format("\n|cffa0ff00" .. SLASH_CONSOLE1 .. " scriptErrors 1|r\n")
+		    .. "|r\n\n" .. text
+	end
 	TS:ShowCopyOverlay(frame, L"Report an Issue", text, url, hint, OKAY, 0.85)
 end
 function H.ShowTranslatePrompt()
@@ -270,10 +306,24 @@ end
 function H.ShowCustomRingsPanel()
 	T.ShowCustomRingsPanel()
 end
+function H.SaveBookmark(_panel)
+	return logView:IsShown() and (clipBar:GetValue() .. "\30new") or "0\30nav"
+end
+function H.ShowBookmark(_panel, bdat)
+	local o, view = bdat:match("^(%-?%d+%.?%d*)\30([^\30]*)")
+	if view == "new" then
+		H.ShowWhatsNew()
+		clipBar:SetValue(o+0, true)
+	else
+		frame.refresh()
+	end
+end
+TS:SetBookmarkImpl(frame, "home", H.SaveBookmark, H.ShowBookmark)
 
 function frame.refresh()
 	navView:Show()
 	logView:Hide()
+	TS:SetCanvasEscapeCommand(frame, "/opie")
 end
 
 T.AddSlashSuffix(H.ShowWhatsNew, "w", "new")

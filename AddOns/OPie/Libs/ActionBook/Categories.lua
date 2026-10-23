@@ -2,7 +2,8 @@ local COMPAT, _, T = select(4,GetBuildInfo()), ...
 if T.SkipLocalActionBook then return end
 if T.TenEnv then T.TenEnv() end
 
-local MODERN, CF_WRATH, CF_CATA, CF_MISTS, CI_ERA = COMPAT > 10e4, COMPAT < 10e4 and COMPAT >= 3e4, COMPAT < 10e4 and COMPAT >= 4e4, COMPAT < 10e4 and COMPAT > 5e4, COMPAT < 160e2
+local MODERN, CI_ERA, CI_4E = COMPAT > 10e4, COMPAT < 160e2, COMPAT > 160e2 and COMPAT < 2e4
+local CF_WRATH, CF_CATA, CF_MISTS = COMPAT < 10e4 and COMPAT >= 3e4, COMPAT < 10e4 and COMPAT >= 4e4, COMPAT < 10e4 and COMPAT > 5e4
 local MODERN_BATTLEPETS = MODERN or CF_MISTS
 local AB = T.ActionBook:compatible(2,21)
 local RW = T.ActionBook:compatible("Rewire", 1,27)
@@ -277,7 +278,7 @@ if MODERN then
 end
 AB:AugmentCategory(L"Raid markers", function(_, add)
 	local NUM_WORLD_MARKERS = CF_CATA and NUM_WORLD_RAID_MARKERS_CATA == 5 and 5 or 8
-	for k=0, (MODERN or CF_CATA) and 1 or 0 do
+	for k=0, (MODERN or CF_CATA or CI_4E) and 1 or 0 do
 		k = k == 0 and "raidmark" or "worldmark"
 		for i=0, k == "worldmark" and NUM_WORLD_MARKERS or 8 do
 			add(k, i)

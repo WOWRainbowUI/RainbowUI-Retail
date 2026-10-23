@@ -14,9 +14,9 @@ local KR = T.ActionBook:compatible("Kindred", 1,14)
 local IM = T.ActionBook:compatible("Imp", 1,0)
 assert(EV and AB and RW and KR and IM and 1, "Incompatible library bundle")
 local L = T.ActionBook.L
-local FORCED_MOUNT_SPELLS = {}
+local smatch = string.match
+local FORCED_MOUNT_SPELLS, RAND_MOUNT_SID = {}, 150544
 local spellFeedback, itemHint, toyHint, mountHint
-local RAND_MOUNT_SID = 150544
 
 local NormalizeInRange = {[0]=0, 1, [true]=1, [false]=0}
 local _, CLASS = UnitClass("player")
@@ -50,7 +50,7 @@ local getCachedItemName, peekCachedItemName do
 		end
 	end
 	function getCachedItemName(ident)
-		local iid = tonumber(ident) or tonumber(type(ident) == "string" and ident:match("item:(%d+)"))
+		local iid = tonumber(ident) or tonumber(type(ident) == "string" and smatch(ident, "item:(%d+)"))
 		if iid then
 			local c, f = itemNames[iid], C_Item.GetItemInfo(iid)
 			itemNames[iid] = f or c or false
@@ -58,7 +58,7 @@ local getCachedItemName, peekCachedItemName do
 		end
 	end
 	function peekCachedItemName(ident)
-		return itemNames[tonumber(ident) or tonumber(type(ident) == "string" and ident:match("item:(%d+)"))]
+		return itemNames[tonumber(ident) or tonumber(type(ident) == "string" and smatch(ident, "item:(%d+)"))]
 	end
 end
 local getTradeSkillItemQuality, pQualityAtlasOverride if MODERN then
@@ -290,7 +290,7 @@ securecall(function() -- spell: spell ID + mount spell ID
 	local getSpellIDFromName = CI_ERA and function(n)
 		return (select(7, GetSpellInfo(n or "")))
 	end or function(n)
-		return tonumber(((GetSpellLink(n) or ""):match("spell:(%d+)")))
+		return tonumber((smatch(GetSpellLink(n) or "", "spell:(%d+)")))
 	end
 	local RUNE_BASESPELL_CACHE, RUNE_SPELLS = {}, {} if CI_ERA then
 		for sid in ("399967 417346 399954 417347 415450 417345 399966 417348 415449"):gmatch("%d+") do
@@ -497,7 +497,7 @@ securecall(function() -- item: items ID/inventory slot
 		else
 			return
 		end
-		local iid, cdLeft, cdLength, cdEnabled = (link and tonumber(link:match("item:([x%x]+)"))) or itemIdMap[ident]
+		local iid, cdLeft, cdLength, cdEnabled = (link and tonumber((smatch(link, "item:([x%x]+)")))) or itemIdMap[ident]
 		if MODERN and iid and PlayerHasToy(iid) and C_Item.GetItemCount(iid) == 0 then
 			return toyHint(iid, nil, target)
 		elseif iid then
@@ -566,7 +566,7 @@ securecall(function() -- item: items ID/inventory slot
 		end
 	end)
 	RW:SetCommandHint(SLASH_EQUIP_TO_SLOT1, 70, function(_, _, clause)
-		local item = clause and clause:match("^%s*%d+%s+(.*)")
+		local item = clause and smatch(clause, "^%s*%d+%s+(.*)")
 		if item then
 			return RW:GetCommandAction(SLASH_EQUIP1, item)
 		end
@@ -586,7 +586,7 @@ securecall(function() -- peq: slot token
 		back="BACKSLOT", tabard="TABARDSLOT",
 	}
 	for tk, sk in pairs(slots) do
-		local sn, suf, ok, slot = _G[sk], tk:match("%d+$"), pcall(GetInventorySlotInfo, sk)
+		local sn, suf, ok, slot = _G[sk], smatch(tk, "%d+$"), pcall(GetInventorySlotInfo, sk)
 		slots[tk] = ok and slot and {sk, sn and suf and (sn .. " " .. suf) or sn or sk} or nil
 		if ok and slot then
 			RW:SetCastAlias(tk, tostring(slot), false)
@@ -654,7 +654,7 @@ securecall(function() -- macrotext
 		if isItemReturn then
 			return checkCountReturn(90, itemHint(link, nil, target, nil, bag, slot))
 		end
-		local sid = clause:match("^spell:(%d+)$")
+		local sid = smatch(clause, "^spell:(%d+)$")
 		if sid or not tonumber(clause, 10) then
 			return checkReturn(true, spellFeedback(sid or clause, target))
 		end
@@ -662,7 +662,7 @@ securecall(function() -- macrotext
 	RW:SetCommandHint("/cast", 100, function(_, _, clause, target, _, _, msg)
 		if not clause or clause == "" then return end
 		local sex = DoesSpellExist(clause) and not tonumber(clause, 10)
-		local sid = not sex and clause:match("^spell:(%d+)$")
+		local sid = not sex and smatch(clause, "^spell:(%d+)$")
 		if sex or sid then
 			return checkReturn(true, spellFeedback(sid or clause, target))
 		else
@@ -724,7 +724,7 @@ securecall(function() -- macrotext
 		local getNextCast do -- (kind, v, target) -> (v, target)
 			local senv = GetManagedEnvironment(f)
 			local uenv = setmetatable({qsState={}, crState={}, newtable=function() return {} end}, {__index=senv})
-			local initF = setfenv(loadstring("return function(isRand, v)\n" .. f:GetAttribute("RunSlashCmd"):match("[^\n]+@init_clause_start.-@init_clause_end") .. "\nreturn iv end"), {})
+			local initF = setfenv(loadstring("return function(isRand, v)\n" .. smatch(f:GetAttribute("RunSlashCmd"), "[^\n]+@init_clause_start.-@init_clause_end") .. "\nreturn iv end"), {})
 			initF = setfenv(initF(), uenv)
 			function getNextCast(k, c, target)
 				local t1, ucache, tv, i, v, vt = senv[k][c], uenv[k]
@@ -951,7 +951,7 @@ securecall(function() -- equipmentset: equipment sets by name
 	local function createEquipSet(name)
 		local sid = type(name) == "string" and C_EquipmentSet.GetEquipmentSetID(name)
 		if not sid then return end
-		if not setMap[name] and (MODERN or name:match("^[^%[;%]]*$")) then
+		if not setMap[name] and (MODERN or smatch(name, "^[^%[;%]]*$")) then
 			setMap[name] = AB:CreateActionSlot(equipmentsetHint, name, equipSetActionSpec(name))
 		end
 		return setMap[name]
@@ -996,7 +996,7 @@ securecall(function() -- raidmark
 	end
 	local tmcMark = {}
 	local function parseRaidMark(clause)
-		local d = string.match('^[!~].-(%d+)')
+		local d = smatch(clause, '^[!~].-(%d+)')
 		local r = d and d+0 or false
 		tmcMark[clause] = r
 		return r
@@ -1010,7 +1010,7 @@ securecall(function() -- raidmark
 	end)
 end)
 securecall(function() -- worldmarker
-	if not (MODERN or CF_CATA) then
+	if not (MODERN or CF_CATA or CI_4E) then
 		return
 	end
 	local wmPHS = SECRETS and AB:ReservePartialHintSuffix({active=IsRaidMarkerActive})
@@ -1718,7 +1718,7 @@ securecall(function() -- uipanel: token
 		end)
 		ex:SetScript("PostClick", function(_, b)
 			local i, bp, pm = panels[b]
-			bp = i and i.cpreamble and b or b:match("^post%-(.*)")
+			bp = i and i.cpreamble and b or smatch(b, "^post%-(.*)")
 			i = panels[bp]
 			pm = i and i.postMessage
 			if pm ~= nil and i.post then
@@ -1973,7 +1973,7 @@ securecall(function() -- outfit: id
 		tip:SetText(HIGHLIGHT_FONT_COLOR_CODE .. (name or ""))
 		tip:AddLine(HIGHLIGHT_FONT_COLOR_CODE .. SPELL_CAST_TIME_INSTANT)
 		local dt = C_Spell.GetSpellDescription(id == 0 and CTO_SID or UTO_SID)
-		dt = dt and dt:match("^[^\r\n]+")
+		dt = dt and smatch(dt, "^[^\r\n]+")
 		if dt then
 			tip:AddLine(dt, nil, nil, nil, true)
 		end
