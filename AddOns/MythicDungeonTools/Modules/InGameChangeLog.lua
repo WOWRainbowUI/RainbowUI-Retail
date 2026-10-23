@@ -2,30 +2,29 @@ local _, MDT = ...
 
 MDT.changeLog = {
   {
-    tag = "6.3.12",
-    date = "2026-10-21",
+    tag = "6.3.16",
+    date = "2026-10-23",
     notes = {
-      "Hover highlights across the AddOn are now easier to see.",
+      "You can now pick MDT's font in Settings.",
+      "Pull numbers on the map are now bigger and easier to read on every pull color.",
     },
   },
   {
-    tag = "6.3.11",
-    date = "2026-10-21",
+    tag = "6.3.15",
+    date = "2026-10-23",
     notes = {
-      "Added an MDT Scale setting under Settings > General to make MDT bigger or smaller. /mdt reset sets it back to 100%.",
-      "Fixed MDT appearing much too small on 4K and other high-resolution screens.",
-      "The enemy info card is more compact. Pin it to also see more info.",
-      "Stealth and stealth detection now show as icons on the enemy info card.",
+      "You can now export several routes in one string, also from different dungeons. In Export, switch to Multiple Routes, pick your routes and create the string.",
+      "Importing a string with several routes lists them so you choose which to import, and whether each one overwrites the matching route you already have or comes in as a copy.",
+      "Pull numbers on the map now show the pull's forces. Hover one for the pull's details, and drag it onto another pull to merge them.",
+      "Murder Row's snitches are now numbered and can be assigned to players.",
+      "Flourishing Stride, Overload Golems, Proofs, Mutating Elixir, Warding Incense and Rune of Anchoring can now be assigned to players.",
     },
   },
   {
-    tag = "6.3.10",
-    date = "2026-10-21",
+    tag = "6.3.14",
+    date = "2026-10-22",
     notes = {
-      "MDT has a new look. Every window, menu, dialog and settings page was rebuilt with a cleaner design and a new font.",
-      "The sidebar now lists every route for the dungeon with a search box. Click a route to open it, or right-click it to rename, duplicate, export, send to party, start a live session or delete it.",
-      "Hovering an enemy now shows an enemy info card with its model, health, forces and spells. Click the pin button to keep it open.",
-      "Fixed icons in map texts becoming far too large in fullscreen.",
+      "Fixed the enemy info card staying open while the cursor rests between the enemy and the card.",
     },
   },
 }

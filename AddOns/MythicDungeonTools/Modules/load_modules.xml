@@ -8,9 +8,13 @@
 	<Script file='PullRows.lua'/>
 	<Script file='Sidebar.lua'/>
 	<Script file='PresetDialogs.lua'/>
+	<Script file='RouteBatch.lua'/>
 	<Script file='FramePools.lua'/>
 	<Include file='DungeonEnemies.xml'/>
 	<Script file='PullOutlines.lua'/>
+	<Script file='PullLabelLayout.lua'/>
+	<Script file='PullLabels.lua'/>
+	<Script file='PullLabelSizeSlider.lua'/>
 	<Script file='EnemyInfo.lua'/>
 	<Script file='Pointsofinterest.lua'/>
 	<Script file='PresetObjects.lua'/>
