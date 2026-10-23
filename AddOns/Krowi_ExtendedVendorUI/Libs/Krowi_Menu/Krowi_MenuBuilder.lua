@@ -8,11 +8,12 @@
 
 -- Krowi_MenuBuilder: Cross-version menu builder for WoW Classic and Modern
 
-local sub, parent = KROWI_LIBMAN:NewSubmodule('MenuBuilder', 1)
+local sub, parent = KROWI_LIBMAN:NewSubmodule('MenuBuilder', 2)
 if not sub or not parent then return end
 
 local menuBuilder = {}
 menuBuilder.__index = menuBuilder
+local modernMenuBuilder -- the methods up to the client split, for builders made with config.modern
 
 -- Utility: Binds object methods to callback functions (see Description.md for usage)
 function sub.BindCallbacks(obj, methodNames)
@@ -50,8 +51,9 @@ local function SetupDefaultTranslations(instance)
 end
 
 function sub:New(config)
-    local instance = setmetatable({}, menuBuilder)
-    instance.config = config or {}
+    config = config or {}
+    local instance = setmetatable({}, config.modern and modernMenuBuilder or menuBuilder)
+    instance.config = config
     instance.callbacks = config.callbacks or {}
     instance.translations = config.translations or {}
 
@@ -273,9 +275,18 @@ function menuBuilder:CreateButtonAndAdd(menu, text, func, isEnabled)
 end
 
 if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then
+    modernMenuBuilder = menuBuilder
     sub.MenuBuilder = menuBuilder
     return
 end
+
+-- Every other client: a builder made with config.modern keeps Blizzard's menus (WoW Forever runs Retail's interface). This copies
+-- the methods defined so far, so a method both halves share goes above this point; below it only the Classic half redefines them
+modernMenuBuilder = {}
+for name, method in next, menuBuilder do
+    modernMenuBuilder[name] = method
+end
+modernMenuBuilder.__index = modernMenuBuilder
 
 -- Classic Implementation (non-Mainline)
 
