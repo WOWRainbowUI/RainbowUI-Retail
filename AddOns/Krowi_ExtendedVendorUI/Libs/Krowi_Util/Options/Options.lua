@@ -20,7 +20,7 @@ local options = addon.Options
 local name = addon.Metadata.Title
 
 options.OptionsTables = {}
-options.WidthMultiplier = addon.Util.IsMainline and 200 / 170 or 1 -- 170 comes from AceConfigDialog-3.0.lua, 200 fits better on the screen in DF
+options.WidthMultiplier = addon.Util.IsModern and 200 / 170 or 1 -- 170 comes from AceConfigDialog-3.0.lua, 200 fits better on the screen in DF
 
 options.OptionsTable = {
     name = name,

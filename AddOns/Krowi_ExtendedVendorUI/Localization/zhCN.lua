@@ -77,3 +77,7 @@ L["Plugin_EllesmereUI_Desc"] = "此整合会将 EllesmereUI 的商人外观与�
 L["Plugin_EllesmereUI_ListModeNotLoaded"] = "商人界面增强无法搭配 EllesmereUI 的商人列表模式使用，因此未加载。\n\n若要使用商人界面增强，请关闭 EllesmereUI 商人选项中的「Show As List」。"
 
 L["Plugin_GW2UI_Desc"] = "此整合会将 GW2 UI 的商人外观应用到商人物品。\n\n没有可调整的选项。"
+
+L["ForeverGamepadNotLoaded"] = "商人界面增强不支持 WoW Forever 的手柄界面，因此未加载。若要使用，请在游戏选项的手柄页面关闭手柄界面，然后输入 /reload。"
+
+L["ForeverGamepadReload"] = "WoW Forever 的手柄界面已启用，商人界面增强不支持此界面。请输入 /reload，改用暴雪商人窗口。"

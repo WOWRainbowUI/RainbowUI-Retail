@@ -5,7 +5,7 @@
 
 ---@diagnostic disable: undefined-global
 
-local lib = KROWI_LIBMAN:NewLibrary('Krowi_Util_2', 4, {
+local lib = KROWI_LIBMAN:NewLibrary('Krowi_Util_2', 5, {
     SetCurrent = true,
     -- InitLocalization = true, -- Handled in LocalizationHelper sub module
 })
@@ -24,6 +24,8 @@ lib.IsClassicWithAchievements = lib.IsWrathClassic or lib.IsCataClassic or lib.I
 lib.IsTheWarWithin = majorVersion == '11'
 lib.IsMidnight = majorVersion == '12'
 lib.IsMainline = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
+lib.IsForever = WOW_PROJECT_ID == WOW_PROJECT_CAMELOT -- WoW Forever; WOW_PROJECT_CAMELOT exists only there, so this is false elsewhere
+lib.IsModern = lib.IsMainline or lib.IsForever -- runs Retail's interface: Retail and WoW Forever
 
 function lib.ConcatTables(t1, t2)
     if t2 then
