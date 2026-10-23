@@ -9,7 +9,7 @@
 ## Category-zhTW: 團隊
 ## Category-zhCN: 地下城和团队副本
 ## Author: Mili
-## Version: 1.0.1
+## Version: 1.0.2
 ## X-Website: https://github.com/MiliUIPackage/MiliUI
 ## IconTexture: Interface\Icons\Spell_Holy_BorrowedTime
 ## DefaultState: disabled
