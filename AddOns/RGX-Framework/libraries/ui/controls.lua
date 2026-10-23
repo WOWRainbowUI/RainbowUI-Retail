@@ -313,7 +313,7 @@ function UI:CreateSlider(parent, options)
 
 	local function percentToValue(pct)
 		local raw = min + pct * (max - min)
-		local snapped = math.floor(raw / step + 0.5) * step
+		local snapped = min + math.floor((raw - min) / step + 0.5) * step
 		return math.max(min, math.min(max, snapped))
 	end
 
@@ -347,7 +347,7 @@ function UI:CreateSlider(parent, options)
 	end
 
 	local function apply(value)
-		value = math.floor(value / step + 0.5) * step
+		value = min + math.floor((value - min) / step + 0.5) * step
 		value = math.max(min, math.min(max, value))
 		storage[key] = value
 		container.valueLabel:SetText(value .. suffix)

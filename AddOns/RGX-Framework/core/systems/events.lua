@@ -15,7 +15,6 @@ RGX.unitEvents = RGX.unitEvents or {}
 RGX.messages = RGX.messages or {}
 RGX.pendingFrameEvents = RGX.pendingFrameEvents or {}
 RGX.registeredFrameEvents = RGX.registeredFrameEvents or {}
-RGX.allFrameEventsRegistered = RGX.allFrameEventsRegistered or false
 RGX.wakeFrameEvents = RGX.wakeFrameEvents or {
     PLAYER_LOGIN = true,
     PLAYER_ENTERING_WORLD = true,
@@ -65,31 +64,16 @@ local function reportDispatchError(channel, name, id, err)
         safeErrorText(err)
     )
 
+    -- A misbehaving error-display addon can install a handler that itself
+    -- throws. This call must never propagate: an unprotected report wedged
+    -- dispatch (remaining handlers skipped, _dispatchDepth latched above 0)
+    -- for the rest of the session. Fall back to the internal log instead.
     if type(_G.geterrorhandler) == "function" then
-        _G.geterrorhandler()(message)
-        return
+        local reportOk = pcall(_G.geterrorhandler(), message)
+        if reportOk then return end
     end
 
     -- The framework never writes to chat; errors are captured for diagnostics.
-    RGX._errorLog = RGX._errorLog or {}
-    local log = RGX._errorLog
-    log[#log + 1] = message
-    if #log > 50 then table.remove(log, 1) end
-end
-
-local function reportEventRegistrationError(action, event, err)
-    local message = string.format(
-        "[RGX:event] %s failed for '%s': %s",
-        tostring(action),
-        tostring(event),
-        safeErrorText(err)
-    )
-
-    if type(_G.geterrorhandler) == "function" then
-        _G.geterrorhandler()(message)
-        return
-    end
-
     RGX._errorLog = RGX._errorLog or {}
     local log = RGX._errorLog
     log[#log + 1] = message
@@ -189,11 +173,6 @@ end
 local function safeUnregisterFrameEvent(frame, event)
     if not frame or type(event) ~= "string" or event == "" then
         return false
-    end
-
-    if RGX.allFrameEventsRegistered then
-        RGX.registeredFrameEvents[event] = nil
-        return true
     end
 
     if RGX.wakeFrameEvents and RGX.wakeFrameEvents[event] then
@@ -306,7 +285,14 @@ local function dispatchHandlers(container, channel, key, ...)
 
         local ok, err
         if entry.callbackType == "string" then
-            ok, err = pcall(entry.owner[entry.callback], entry.owner, key, ...)
+            -- Resolve the method inside the pcall: a poisoned owner __index
+            -- is a handler fault, not a framework one, and must stay
+            -- isolated like any other handler error.
+            local method
+            ok, err, method = pcall(function() return entry.owner[entry.callback] end)
+            if ok then
+                ok, err = pcall(method, entry.owner, key, ...)
+            end
         else
             ok, err = pcall(entry.callback, key, ...)
         end
@@ -553,43 +539,70 @@ end
 function RGX:FireEvent(event, ...)
   self._dispatchDepth = (self._dispatchDepth or 0) + 1
 
-  local count = dispatchHandlers(self.events, "event", event, ...)
+  -- The dispatch body is isolated so a non-callback error inside the
+  -- pipeline (a framework fault, corrupted state) can never skip the
+  -- decrement below: a latched depth wedges every later registration
+  -- pending for the rest of the session. Such errors are reported through
+  -- the same failure-isolated reporter as handler errors, not propagated.
+  local ok, count = pcall(function(...)
+    local count = dispatchHandlers(self.events, "event", event, ...)
 
-  local unitBucket = self.unitEvents[event]
-  if unitBucket then
-    local unitToken = select(1, ...)
-    if canAccessValue(unitToken) then
-      for id, entry in pairs(unitBucket) do
-        local match = false
-        if entry.units then
-          for _, u in ipairs(entry.units) do
-            if canAccessValue(u) and u == unitToken then
-              match = true
-              break
+    local unitBucket = self.unitEvents[event]
+    if unitBucket then
+      local unitToken = select(1, ...)
+      if canAccessValue(unitToken) then
+        -- Snapshot like the plain-event path: iterating the live bucket ran
+        -- handlers registered mid-dispatch in the same dispatch and made
+        -- unregister-during-dispatch undefined.
+        local queued = {}
+        for id, entry in pairs(unitBucket) do
+          queued[#queued + 1] = { id = id, entry = entry }
+        end
+        for index = 1, #queued do
+          local item = queued[index]
+          local entry = item.entry
+          local match = false
+          if entry.units then
+            for _, u in ipairs(entry.units) do
+              if canAccessValue(u) and u == unitToken then
+                match = true
+                break
+              end
             end
           end
-        end
-        if match then
-          local ok, err
-          if entry.callbackType == "string" then
-            ok, err = pcall(entry.owner[entry.callback], entry.owner, event, ...)
-          else
-            ok, err = pcall(entry.callback, event, ...)
+          if match then
+            local ok, err
+            if entry.callbackType == "string" then
+              local method
+              ok, err, method = pcall(function() return entry.owner[entry.callback] end)
+              if ok then
+                ok, err = pcall(method, entry.owner, event, ...)
+              end
+            else
+              ok, err = pcall(entry.callback, event, ...)
+            end
+            if not ok then
+              reportDispatchError("unitEvent", event, item.id, err)
+            end
+            count = count + 1
           end
-          if not ok then
-            reportDispatchError("unitEvent", event, id, err)
-          end
-          count = count + 1
         end
       end
     end
-  end
+
+    return count
+  end, ...)
 
   self._dispatchDepth = math.max(0, (self._dispatchDepth or 1) - 1)
   -- No native registration here: this is still Blizzard's event-dispatch stack.
   -- The anonymous registration driver drains pending events on the next frame.
 
-  return count
+  if not ok then
+    reportDispatchError("event", event, "dispatch", count)
+    return 0
+  end
+
+  return count or 0
 end
 
 function RGX:RegisterMessage(message, callback, id, owner)
@@ -613,40 +626,6 @@ RGX.UnregisterCallback = RGX.UnregisterMessage
 RGX.UnregisterAllCallbacks = RGX.UnregisterAllMessages
 RGX.FireMessage = RGX.SendMessage
 
-local lastBlockedReport = 0
-local function reportActionBlock(event, blockedAddon, blockedFunction)
-    local blocked = tostring(blockedAddon or "UNKNOWN")
-    if blocked ~= "UNKNOWN"
-        and blocked ~= addonName
-        and blocked ~= "RGX-Framework"
-        and not string.find(blocked, "RGX", 1, true) then
-        return
-    end
-
-    local now = type(GetTimePreciseSec) == "function" and GetTimePreciseSec()
-        or (type(GetTime) == "function" and GetTime())
-        or 0
-    if lastBlockedReport + 1 > now then
-        return
-    end
-
-    lastBlockedReport = now
-    local message = string.format(
-        "[RGX:blocked] event=%s addon=%s function=%s",
-        tostring(event),
-        blocked,
-        tostring(blockedFunction or "UNKNOWN")
-    )
-
-    if DEFAULT_CHAT_FRAME then
-        DEFAULT_CHAT_FRAME:AddMessage("|cffff5555" .. message .. "|r")
-    end
-
-    reportDispatchError("blocked", event, blocked, string.format(
-        "function=%s",
-        tostring(blockedFunction or "UNKNOWN")
-    ))
-end
 
 -- Do not auto-register ADDON_ACTION_BLOCKED/FORBIDDEN diagnostics here.
 -- Subscribing to those diagnostics can itself be attributed to RGX during

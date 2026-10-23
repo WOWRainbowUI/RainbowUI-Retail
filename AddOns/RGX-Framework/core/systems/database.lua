@@ -102,17 +102,6 @@ end
 
 -- ── RGX own database ───────────────────────────────────────────────────────────
 
-function RGX:InitDatabase()
-    _G.RGXFrameworkDB = _G.RGXFrameworkDB or {}
-    self.db = _G.RGXFrameworkDB
-    _G.RGXFrameworkDBChar = _G.RGXFrameworkDBChar or {}
-    self.dbChar = _G.RGXFrameworkDBChar
- if type(self.defaults) == "table" and type(self.defaults.global) == "table" then
- MergeTable(self.db, self.defaults.global)
- end
-    self:Debug("Database initialized")
-end
-
 function RGX:GetDB()
     return self.db
 end
@@ -147,22 +136,66 @@ function RGX:MigrateDB(db, name, currentVersion, migrations)
         if type(migrations[v]) == "function" then
             local ok, err = pcall(migrations[v], db)
             if not ok then
+                -- Each completed step already persisted above; a failing step
+                -- must not re-run earlier migrations on the next login.
                 self:Error(string.format("DB migration %s v%d failed: %s", name, v, tostring(err)))
                 return
             end
         end
+        db._dbVersion = v
     end
-    db._dbVersion = currentVersion
 end
 
 -- ── Serialization (Recursive) ──────────────────────────────────────────────────
 
+-- Escape alphabet: \ ; = { } become \\ \s \e \l \r. The backslash itself is
+-- escaped first on encode and restored first on decode, so no sequence can
+-- ever be mistaken for a literal character.
+local function EscapeSequences(s)
+    return (s:gsub("\\", "\\\\"):gsub(";", "\\s"):gsub("=", "\\e"):gsub("{", "\\l"):gsub("}", "\\r"))
+end
+
+-- Single left-to-right decode pass. Sequential gsub chains corrupted wire
+-- data: the \\ pair inside a literal "BLU\\sounds" matched the \\s pattern
+-- first and came back as "\\;ounds". This scanner reads \\ before anything
+-- else, so every escape resolves exactly once, in order.
+local function UnescapeSequences(s)
+    local out = {}
+    local index = 1
+    local length = #s
+    while index <= length do
+        local char = s:sub(index, index)
+        if char == "\\" then
+            local nextChar = s:sub(index + 1, index + 1)
+            if nextChar == "\\" then
+                out[#out + 1] = "\\"
+            elseif nextChar == "s" then
+                out[#out + 1] = ";"
+            elseif nextChar == "e" then
+                out[#out + 1] = "="
+            elseif nextChar == "l" then
+                out[#out + 1] = "{"
+            elseif nextChar == "r" then
+                out[#out + 1] = "}"
+            else
+                -- Unknown tail (a lone backslash or a future escape):
+                -- keep the backslash literally and continue after it.
+                out[#out + 1] = char
+                index = index + 1
+            end
+            index = index + 2
+        else
+            out[#out + 1] = char
+            index = index + 1
+        end
+    end
+    return table.concat(out)
+end
+
 local function SerializeValue(val)
     local t = type(val)
     if t == "string" then
-        -- Escape special characters for our simple parser
-        local s = val:gsub("\\", "\\\\"):gsub(";", "\\s"):gsub("=", "\\e"):gsub("{", "\\l"):gsub("}", "\\r")
-        return "S" .. s
+        return "S" .. EscapeSequences(val)
     elseif t == "number" then
         return "N" .. tostring(val)
     elseif t == "boolean" then
@@ -173,7 +206,11 @@ local function SerializeValue(val)
             if type(k) == "string" or type(k) == "number" then
                 local sv = SerializeValue(v)
                 if sv then
-                    table.insert(parts, tostring(k) .. "=" .. sv)
+                    -- Keys share the value escape map: a key containing '='
+                    -- or ';' previously corrupted the T{...} parse. A key
+                    -- that is a pure numeric string still round-trips as a
+                    -- number key (legacy wire compatibility).
+                    table.insert(parts, EscapeSequences(tostring(k)) .. "=" .. sv)
                 end
             end
         end
@@ -188,7 +225,7 @@ local function DeserializeValue(str)
     local body = str:sub(2)
 
     if prefix == "S" then
-        return body:gsub("\\r", "}"):gsub("\\l", "{"):gsub("\\e", "="):gsub("\\s", ";"):gsub("\\\\", "\\")
+        return UnescapeSequences(body)
     elseif prefix == "N" then
         return tonumber(body)
     elseif prefix == "B" then
@@ -204,7 +241,12 @@ local function DeserializeValue(str)
             local eq = content:find("=", pos)
             if not eq then break end
             local k = content:sub(pos, eq - 1)
-            if tonumber(k) then k = tonumber(k) end
+            local kNumber = tonumber(k)
+            if kNumber then
+                k = kNumber
+            else
+                k = UnescapeSequences(k)
+            end
 
             pos = eq + 1
             local valStr
@@ -565,6 +607,9 @@ end
 function DB:CreateProfile(name)
     if not name or name == "" or name == PROTECTED_PROFILE then return false end
     self._raw.profiles = self._raw.profiles or {}
+    -- Never wipe an existing profile: a duplicate create is a caller bug and
+    -- must be refused, not silently reset the user's settings.
+    if self._raw.profiles[name] then return false end
     local profile = {}
     FillDefaults(self, profile)
     profile.currentProfile = name
@@ -584,10 +629,14 @@ function DB:DeleteProfile(name)
     if not self._raw.profiles or not self._raw.profiles[name] then return false end
     self._raw.profiles[name] = nil
     if self._raw.activeProfile == name then
+        -- Deleting the active profile falls back to the protected Default
+        -- profile deterministically; the previous pairs() scan picked an
+        -- arbitrary remaining profile.
         local fallback = PROTECTED_PROFILE
-        for pname in pairs(self._raw.profiles) do
-            if pname ~= PROTECTED_PROFILE then
-                fallback = pname; break
+        if not self._raw.profiles[PROTECTED_PROFILE] then
+            for pname in pairs(self._raw.profiles) do
+                fallback = pname
+                break
             end
         end
         SwitchTo(self, fallback)
@@ -600,7 +649,13 @@ end
 function DB:RenameProfile(oldName, newName)
     if not oldName or not newName then return false end
     if oldName == PROTECTED_PROFILE or newName == PROTECTED_PROFILE then return false end
+    -- Same-name rename previously deleted the profile and then threw while
+    -- trying to update it; refuse before any mutation happens.
+    if oldName == newName then return false end
     if not self._raw.profiles or not self._raw.profiles[oldName] then return false end
+    -- Renaming onto an existing name previously overwrote the target's data
+    -- silently; refuse instead.
+    if self._raw.profiles[newName] then return false end
     self._raw.profiles[newName] = self._raw.profiles[oldName]
     self._raw.profiles[oldName] = nil
     if self._raw.activeProfile == oldName then

@@ -114,18 +114,23 @@ function Quest:OnComplete(fn) return AddCb(self._onComplete, fn) end
 function Quest:OnTurnedIn(fn) return AddCb(self._onTurnedIn, fn) end
 function Quest:OnProgress(fn) return AddCb(self._onProgress, fn) end
 
-function Quest:_FireProgress(questID, source)
+-- Returns true when the progress event fired, false when the cooldown
+-- suppressed it. A suppressed fire must NOT consume an already-advanced
+-- snapshot: callers keep the pre-increment cache so the increment still
+-- fires on the next update instead of being lost forever.
+function Quest:_FireProgress(questID, source, prebuilt)
     questID = ResolveQuestID(questID)
-    if type(questID) ~= "number" or questID <= 0 then return end
+    if type(questID) ~= "number" or questID <= 0 then return false end
 
     local now = GetTime and GetTime() or 0
     local last = self._progressCooldowns[questID]
-    if last and (now - last) < PROGRESS_COOLDOWN_SECONDS then return end
+    if last and (now - last) < PROGRESS_COOLDOWN_SECONDS then return false end
     self._progressCooldowns[questID] = now
 
-    local snapshot = BuildObjectiveSnapshot(questID)
+    local snapshot = prebuilt or BuildObjectiveSnapshot(questID)
     self._objectiveCache[questID] = snapshot or self._objectiveCache[questID]
     Fire(self._onProgress, questID, snapshot, source)
+    return true
 end
 
 function Quest:Init()
@@ -163,9 +168,18 @@ function Quest:Init()
             if type(questID) == "number" and questID > 0 then
                 local current = BuildObjectiveSnapshot(questID)
                 local previous = Quest._objectiveCache[questID]
-                Quest._objectiveCache[questID] = current or previous
-                if current and previous and DidProgressIncrease(previous, current) then
-                    Quest:_FireProgress(questID, "QUEST_LOG_UPDATE")
+                local progressed = current and previous and DidProgressIncrease(previous, current)
+                if progressed then
+                    -- _FireProgress checks the cooldown before this call
+                    -- advances the cache: a suppressed fire (rapid successive
+                    -- QUEST_LOG_UPDATE within the 0.25s window) leaves the
+                    -- cache at the pre-increment snapshot so the increment
+                    -- is delivered late instead of being dropped.
+                    if not Quest:_FireProgress(questID, "QUEST_LOG_UPDATE", current) then
+                        Quest._objectiveCache[questID] = previous
+                    end
+                else
+                    Quest._objectiveCache[questID] = current or previous
                 end
             end
         end

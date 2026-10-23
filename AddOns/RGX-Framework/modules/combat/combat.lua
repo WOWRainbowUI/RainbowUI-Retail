@@ -294,61 +294,40 @@ handlers["SPELL_PERIODIC_HEAL"] = handlers["SPELL_HEAL"]
 -- Player takes damage
 handlers["SWING_DAMAGE_LANDED_PLAYER"] = function() end  -- placeholder
 
-local function OnCombatLogEvent(...)
-    -- CombatLogGetCurrentEventInfo is the retail API; the vararg form works on both
-    local _, subEvent, _, sourceGUID, _, _, _, destGUID, destName, destFlags, _,
-          spellId, spellName, spellSchool, amount, _, _, _, _, _, critical
+local function OnCombatLogEvent()
+    -- Capture the payload exactly once per event. Calling
+    -- CombatLogGetCurrentEventInfo repeatedly ran the API up to nine times
+    -- per combat-log line on Classic flavors, which are the highest
+    -- event-rate clients.
+    local info = { CombatLogGetCurrentEventInfo() }
 
-    local ok, info = pcall(CombatLogGetCurrentEventInfo)
-    if not ok then return end
-
-    subEvent    = info and select(2, CombatLogGetCurrentEventInfo()) or select(2, ...)
-    sourceGUID  = info and select(4, CombatLogGetCurrentEventInfo()) or select(4, ...)
-    destGUID    = info and select(8, CombatLogGetCurrentEventInfo()) or select(8, ...)
-    destName    = info and select(9, CombatLogGetCurrentEventInfo()) or select(9, ...)
-    destFlags   = info and select(10, CombatLogGetCurrentEventInfo()) or select(10, ...)
+    local subEvent   = info[2]
+    local sourceGUID = info[4]
+    local destGUID   = info[8]
 
     local handler = handlers[subEvent]
     if handler then
-        handler(CombatLogGetCurrentEventInfo())
+        handler(unpack(info))
     end
 
     -- Player receives damage
     if destGUID == GetPlayerGUID() then
         if subEvent == "SWING_DAMAGE" or subEvent == "SPELL_DAMAGE"
             or subEvent == "SPELL_PERIODIC_DAMAGE" or subEvent == "RANGE_DAMAGE" then
-            local dmgAmount = select(12, CombatLogGetCurrentEventInfo())
-            -- For SWING_DAMAGE, amount is at index 12; for SPELL it's 15.
-            -- Use pcall to avoid index errors
-            local ok2, dmg, sn
-            ok2, dmg = pcall(function()
-                if subEvent == "SWING_DAMAGE" then
-                    return (select(12, CombatLogGetCurrentEventInfo()))
-                else
-                    return (select(15, CombatLogGetCurrentEventInfo()))
-                end
-            end)
-            ok2, sn = pcall(function()
-                if subEvent == "SWING_DAMAGE" then return "Melee"
-                else return (select(13, CombatLogGetCurrentEventInfo()))
-                end
-            end)
-            if ok2 and dmg and dmg > 0 then
+            -- For SWING_DAMAGE the amount is at index 12; for spell/range
+            -- events it is at 15, with the spell name at 13.
+            local dmg = subEvent == "SWING_DAMAGE" and info[12] or info[15]
+            local sn  = subEvent == "SWING_DAMAGE" and "Melee" or info[13]
+            if dmg and dmg > 0 then
                 Fire(Combat._onPlayerDamaged, dmg, sn)
             end
         end
 
         if subEvent == "SPELL_HEAL" or subEvent == "SPELL_PERIODIC_HEAL" then
-            local ok3, healAmt, _, overheal = pcall(function()
-                return select(15, CombatLogGetCurrentEventInfo()),
-                       select(16, CombatLogGetCurrentEventInfo()),
-                       select(17, CombatLogGetCurrentEventInfo())
-            end)
-            local healName
-            pcall(function() healName = select(13, CombatLogGetCurrentEventInfo()) end)
-            if ok3 then
-                Fire(Combat._onPlayerHealed, healAmt, healName, overheal)
-            end
+            -- Heal payload: 15 amount, 16 overheal, 17 absorbed. The old
+            -- code selected 16 into a throwaway and passed the absorbed
+            -- amount (17) to consumers as overheal.
+            Fire(Combat._onPlayerHealed, info[15], info[13], info[16])
         end
     end
 end

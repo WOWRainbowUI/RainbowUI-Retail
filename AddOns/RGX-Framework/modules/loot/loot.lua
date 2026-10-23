@@ -105,19 +105,28 @@ function Loot:Init()
         ScanBagsForRareLoot()
     end)
 
-    RGX:RegisterEvent("CURRENCY_DISPLAY_UPDATE", function(_, currencyID)
+    RGX:RegisterEvent("CURRENCY_DISPLAY_UPDATE", function(_, currencyID, quantity, quantityChange)
         if not currencyID then return end
 
-        local newAmount = 0
-        if C_CurrencyInfo and C_CurrencyInfo.GetCurrencyInfo then
-            local info = C_CurrencyInfo.GetCurrencyInfo(currencyID)
+        local newAmount
+        if type(quantity) == "number" then
+            newAmount = quantity
+        else
+            local info = C_CurrencyInfo and C_CurrencyInfo.GetCurrencyInfo and C_CurrencyInfo.GetCurrencyInfo(currencyID)
             newAmount = (info and info.quantity) or 0
         end
 
         local oldAmount = Loot._currencyCache[currencyID]
         Loot._currencyCache[currencyID] = newAmount
 
-        if oldAmount ~= nil and newAmount > oldAmount then
+        -- The event carries its own delta where the client provides it. The
+        -- cache starts empty, so a pure cache-diff gate silently swallowed
+        -- the first gain of every session; prefer quantityChange when it is
+        -- a positive number and only fall back to the diff on flavors that
+        -- do not report one (guarded by elseif so a delta never fires twice).
+        if type(quantityChange) == "number" and quantityChange > 0 then
+            Fire(Loot._onCurrencyGained, currencyID, quantityChange, newAmount)
+        elseif oldAmount ~= nil and newAmount > oldAmount then
             Fire(Loot._onCurrencyGained, currencyID, newAmount - oldAmount, newAmount)
         end
     end)

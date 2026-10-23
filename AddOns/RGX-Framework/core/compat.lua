@@ -128,13 +128,13 @@ function RGX:CreateCompatibleFrame(frameType, name, parent, preferredTemplate, f
     return CreateFrame(frameType, name, parent, fallbackTemplate), false
 end
 
--- API shims for Classic (Retail APIs that don't exist on Classic)
-if not C_AddOns then
-    C_AddOns = {}
-    C_AddOns.GetAddOnMetadata = GetAddOnMetadata
-    C_AddOns.LoadAddOn = LoadAddOn
-    C_AddOns.IsAddOnLoaded = IsAddOnLoaded
-end
+-- API shims for Classic (Retail APIs that don't exist on Classic).
+-- Deliberately NO C_AddOns global polyfill: creating _G.C_AddOns on clients
+-- without it made other addons misdetect the client (the only global leak the
+-- audit found). Every framework call site that reads C_AddOns.* carries its
+-- own legacy fallback (GetAddOnMetadata / LoadAddOn / IsAddOnLoaded /
+-- GetNumAddOns / GetAddOnInfo), so those branches own the Classic paths and
+-- the unified RGX.API wrappers below resolve identically either way.
 
 -- Safe API wrappers (return nil if API doesn't exist). Preserve any wrappers
 -- an earlier compat file already installed; this table is shared state.

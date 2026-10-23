@@ -51,9 +51,11 @@ end
 local function reportRuntimeError(scope, err)
     local message = string.format("[RGX:%s] %s", tostring(scope), tostring(err))
 
+    -- A throwing error-display addon must not turn an error report into a
+    -- second error; fall back to the plain print below.
     if type(_G.geterrorhandler) == "function" then
-        _G.geterrorhandler()(message)
-        return
+        local reportOk = pcall(_G.geterrorhandler(), message)
+        if reportOk then return end
     end
 
     print("|cFFFF4444" .. message .. "|r")
@@ -196,7 +198,10 @@ function RGX:QueueForCombat(func, ...)
         args = args,
     }
     self:EnsureCombatQueueEvent()
-    return false
+    -- Second return distinguishes "deferred to combat end" from an
+    -- immediate execution result; queued operations are fire-and-forget
+    -- when the queue flushes.
+    return false, "queued"
 end
 
 function RGX:ProcessCombatQueue()

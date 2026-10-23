@@ -47,13 +47,6 @@ The goal is to ship a curated, popular font pack for addon authors instead of re
 - **License:** Open Font License 1.1
 - **Type:** Sans-serif
 
-### Montserrat (OFL 1.1) â€” Currently Unavailable
-- **Files:** Montserrat-Regular.ttf, Montserrat-Bold.ttf
-- **Status:** Corrupted asset files (HTML placeholders) â€” blocked in `unavailableFonts`
-- **Source:** https://fonts.google.com/specimen/Montserrat
-- **License:** Open Font License 1.1
-- **Type:** Sans-serif
-
 ### Lato (OFL 1.1)
 - **Files:** Lato-Regular.ttf, Lato-Bold.ttf
 - **Source:** https://fonts.google.com/specimen/Lato
@@ -65,20 +58,6 @@ The goal is to ship a curated, popular font pack for addon authors instead of re
 - **Source:** https://fonts.google.com/specimen/Rajdhani
 - **License:** Open Font License 1.1
 - **Type:** Sans-serif
-
-### Merriweather (OFL 1.1) â€” Currently Unavailable
-- **Files:** Merriweather-Regular.ttf, Merriweather-Bold.ttf
-- **Status:** Corrupted asset files (HTML placeholders) â€” blocked in `unavailableFonts`
-- **Source:** https://fonts.google.com/specimen/Merriweather
-- **License:** Open Font License 1.1
-- **Type:** Serif
-
-### Playfair Display (OFL 1.1) â€” Currently Unavailable
-- **Files:** PlayfairDisplay-Regular.ttf, PlayfairDisplay-Bold.ttf
-- **Status:** Corrupted asset files (HTML placeholders) â€” blocked in `unavailableFonts`
-- **Source:** https://fonts.google.com/specimen/Playfair+Display
-- **License:** Open Font License 1.1
-- **Type:** Serif
 
 ### Bebas Neue (OFL 1.1)
 - **Files:** BebasNeue-Regular.ttf
@@ -98,27 +77,6 @@ The goal is to ship a curated, popular font pack for addon authors instead of re
 - **License:** Open Font License 1.1
 - **Type:** Display
 
-### Oswald (OFL 1.1) â€” Currently Unavailable
-- **Files:** Oswald-Regular.ttf
-- **Status:** Corrupted asset file (HTML placeholder) â€” blocked in `unavailableFonts`
-- **Source:** https://fonts.google.com/specimen/Oswald
-- **License:** Open Font License 1.1
-- **Type:** Display
-
-### Orbitron (OFL 1.1) â€” Currently Unavailable
-- **Files:** Orbitron-Regular.ttf
-- **Status:** Corrupted asset file (HTML placeholder) â€” blocked in `unavailableFonts`
-- **Source:** https://fonts.google.com/specimen/Orbitron
-- **License:** Open Font License 1.1
-- **Type:** Display
-
-### Audiowide (OFL 1.1) â€” Currently Unavailable
-- **Files:** Audiowide-Regular.ttf
-- **Status:** Corrupted asset file (HTML placeholder) â€” blocked in `unavailableFonts`
-- **Source:** https://fonts.google.com/specimen/Audiowide
-- **License:** Open Font License 1.1
-- **Type:** Display
-
 ### Anton (OFL 1.1)
 - **Files:** Anton-Regular.ttf
 - **Source:** https://fonts.google.com/specimen/Anton
@@ -134,13 +92,6 @@ The goal is to ship a curated, popular font pack for addon authors instead of re
 ### Uncial Antiqua (OFL 1.1)
 - **Files:** UncialAntiqua-Regular.ttf
 - **Source:** https://fonts.google.com/specimen/Uncial+Antiqua
-- **License:** Open Font License 1.1
-- **Type:** Fantasy
-
-### Cinzel (OFL 1.1) â€” Currently Unavailable
-- **Files:** Cinzel-Regular.ttf
-- **Status:** Corrupted asset file (HTML placeholder) â€” blocked in `unavailableFonts`
-- **Source:** https://fonts.google.com/specimen/Cinzel
 - **License:** Open Font License 1.1
 - **Type:** Fantasy
 

@@ -216,7 +216,7 @@ local function EnsureType(self, mediaType)
 end
 
 -- Internal: register a single entry, returns true if newly added
-function SM:_Put(mediaType, id, name, path, packId, packName, isBridge)
+function SM:_Put(mediaType, id, name, path, packId, packName, isBridge, scanSource)
     EnsureType(self, mediaType)
 
     local lowerPath = string.lower(path)
@@ -230,6 +230,7 @@ function SM:_Put(mediaType, id, name, path, packId, packName, isBridge)
         packId   = packId,
         packName = packName,
         isBridge = isBridge or false,
+        scanSource = scanSource,
     }
 
     if packId then
@@ -403,7 +404,7 @@ function SM:_IsExcludedPath(lowerPath)
     return false
 end
 
-function SM:_BridgePath(path, preferredPackName, preferredDisplayName)
+function SM:_BridgePath(path, preferredPackName, preferredDisplayName, scanSource)
     if not IsAudioPath(path) then return false end
 
     local normalizedPath = NormalizePath(path)
@@ -423,7 +424,7 @@ function SM:_BridgePath(path, preferredPackName, preferredDisplayName)
     local displayName = preferredDisplayName or FileNameFromPath(normalizedPath)
     local id = string.format("bridge:%s:%08x", string.gsub(lowerPack, "[^%w]", "_"), HashString(lowerPath))
 
-    return self:_Put("sound", id, displayName, normalizedPath, packName, packName, true)
+    return self:_Put("sound", id, displayName, normalizedPath, packName, packName, true, scanSource)
 end
 
 -- Collect audio paths from a value recursively
@@ -498,7 +499,7 @@ function SM:_ScanKnownAddons()
         if IsAddonLoaded(addon) and type(data.sounds) == "table" then
             for _, entry in ipairs(data.sounds) do
                 if type(entry.path) == "string" then
-                    if self:_BridgePath(entry.path, data.packName, entry.name) then
+                    if self:_BridgePath(entry.path, data.packName, entry.name, "known") then
                         count = count + 1
                     end
                 end
@@ -557,19 +558,26 @@ function SM:_ScanAddonGlobals()
 
     local count = 0
     for _, p in pairs(found) do
-        if self:_BridgePath(p) then count = count + 1 end
+        if self:_BridgePath(p, nil, nil, "generic") then count = count + 1 end
     end
     return count
 end
 
--- Wipe all bridge-discovered sounds and re-run scanners.
+-- Wipe bridge-discovered sounds and re-run scanners.
 -- includeGeneric=true enables the expensive fallback scan over addon globals.
 function SM:Scan(includeGeneric)
-    -- Remove existing bridge entries for sounds
+    -- Only wipe the categories this pass actually rebuilds: a light scan
+    -- re-bridges known addons only, so wiping generic-scan results there
+    -- made every post-login ADDON_LOADED (any name containing "media",
+    -- "pack", "sound", ...) erase the full login scan until the next full
+    -- scan. Untagged bridge entries (e.g. DBM registrar output, which is
+    -- invoke-once and not re-bridged by a light pass) survive light scans.
+    local wipeOnLightScan = { known = true }
     local soundReg = self.registry["sound"]
     if soundReg then
         for id, entry in pairs(soundReg) do
-            if entry.isBridge then
+            if entry.isBridge
+                and (includeGeneric or wipeOnLightScan[entry.scanSource]) then
                 soundReg[id] = nil
                 if entry.packId and self.packs["sound"] and self.packs["sound"][entry.packId] then
                     self.packs["sound"][entry.packId].count = self.packs["sound"][entry.packId].count - 1

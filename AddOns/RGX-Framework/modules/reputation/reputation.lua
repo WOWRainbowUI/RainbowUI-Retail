@@ -129,13 +129,14 @@ function Rep:Scan()
             local id   = d.factionID or 0
             local name = d.name
 
-            self._factions[name] = {
+            local entry = {
                 id       = id,
                 standing = d.reaction,
                 value    = d.currentStanding or 0,
             }
-
+            self._factions[name] = entry
             if id and id > 0 then
+                self._factions[id] = entry
                 self._factionsById[id] = {
                     name     = name,
                     standing = d.reaction,
@@ -174,32 +175,41 @@ function Rep:CheckChanges()
         if d and d.name and d.reaction then
             local id   = d.factionID or 0
             local name = d.name
-            local old  = self._factions[name]
-
-            local oldStanding = old and old.standing or 0
-            local oldValue    = old and old.value    or 0
+            -- Duplicate faction names exist (Classic is full of them), so
+            -- change tracking keys by the faction ID whenever the client
+            -- provides one; the name key stays as an alias for GetByName.
+            local key  = (id and id > 0) and id or name
             local newStanding = d.reaction
             local newValue    = d.currentStanding or 0
+            local old = self._factions[key]
 
-            -- Rep gained (value went up within same rank, or rank changed)
-            if newValue > oldValue or newStanding > oldStanding then
-                local gained = newValue - oldValue
-                if newStanding > oldStanding then
-                    -- crossed a threshold; gained = (max of old rank - old value) + new value
-                    gained = newValue
-                end
+            if old then
+                -- currentStanding is on the absolute reputation scale
+                -- (negative below Neutral), so the raw delta is the true
+                -- gain, including across a rank-up boundary. The old code
+                -- reported the absolute standing as the gain on a rank-up
+                -- and dropped negative-faction gains entirely.
+                local gained = newValue - old.value
                 if gained > 0 then
                     Fire(self._onGain, name, id, gained, newValue)
                 end
+
+                -- Rank up
+                if newStanding > old.standing then
+                    Fire(self._onRankUp, name, id, old.standing, newStanding)
+                end
+
+                self._factions[key] = { id = id, standing = newStanding, value = newValue }
+                self._factions[name] = self._factions[key]
+            else
+                -- First sighting (startup, a newly discovered faction, or a
+                -- Classic header expanding to reveal its children): seed the
+                -- cache without firing spurious gain/rank-up events from an
+                -- implicit zero baseline.
+                self._factions[key] = { id = id, standing = newStanding, value = newValue }
+                self._factions[name] = self._factions[key]
             end
 
-            -- Rank up
-            if newStanding > oldStanding then
-                Fire(self._onRankUp, name, id, oldStanding, newStanding)
-            end
-
-            -- Update cache
-            self._factions[name] = { id = id, standing = newStanding, value = newValue }
             if id and id > 0 then
                 self._factionsById[id] = {
                     name     = name,

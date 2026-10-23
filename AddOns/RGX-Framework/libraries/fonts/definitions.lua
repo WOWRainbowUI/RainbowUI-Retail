@@ -133,24 +133,6 @@ Fonts.definitions = {
 		category = "Sans-serif",
 		license = "OFL 1.1",
 	},
-	["Montserrat-Regular"] = {
-		file = "Montserrat-Regular.ttf",
-		family = "Montserrat",
-		category = "Sans-serif",
-		license = "OFL 1.1",
-	},
-	["Montserrat-Bold"] = {
-		file = "Montserrat-Bold.ttf",
-		family = "Montserrat",
-		category = "Sans-serif",
-		license = "OFL 1.1",
-	},
-	["Oswald-Regular"] = {
-		file = "Oswald-Regular.ttf",
-		family = "Oswald",
-		category = "Display",
-		license = "OFL 1.1",
-	},
 	["Rajdhani-Regular"] = {
 		file = "Rajdhani-Regular.ttf",
 		family = "Rajdhani",
@@ -181,30 +163,6 @@ Fonts.definitions = {
 		category = "Monospace",
 		license = "OFL 1.1",
 	},
-	["Merriweather-Regular"] = {
-		file = "Merriweather-Regular.ttf",
-		family = "Merriweather",
-		category = "Serif",
-		license = "OFL 1.1",
-	},
-	["Merriweather-Bold"] = {
-		file = "Merriweather-Bold.ttf",
-		family = "Merriweather",
-		category = "Serif",
-		license = "OFL 1.1",
-	},
-	["PlayfairDisplay-Regular"] = {
-		file = "PlayfairDisplay-Regular.ttf",
-		family = "Playfair Display",
-		category = "Serif",
-		license = "OFL 1.1",
-	},
-	["PlayfairDisplay-Bold"] = {
-		file = "PlayfairDisplay-Bold.ttf",
-		family = "Playfair Display",
-		category = "Serif",
-		license = "OFL 1.1",
-	},
 	["BebasNeue-Regular"] = {
 		file = "BebasNeue-Regular.ttf",
 		family = "Bebas Neue",
@@ -223,18 +181,6 @@ Fonts.definitions = {
 		category = "Display",
 		license = "OFL 1.1",
 	},
-	["Orbitron-Regular"] = {
-		file = "Orbitron-Regular.ttf",
-		family = "Orbitron",
-		category = "Display",
-		license = "OFL 1.1",
-	},
-	["Audiowide-Regular"] = {
-		file = "Audiowide-Regular.ttf",
-		family = "Audiowide",
-		category = "Display",
-		license = "OFL 1.1",
-	},
 	["Anton-Regular"] = {
 		file = "Anton-Regular.ttf",
 		family = "Anton",
@@ -250,12 +196,6 @@ Fonts.definitions = {
 	["UncialAntiqua-Regular"] = {
 		file = "UncialAntiqua-Regular.ttf",
 		family = "Uncial Antiqua",
-		category = "Fantasy",
-		license = "OFL 1.1",
-	},
-	["Cinzel-Regular"] = {
-		file = "Cinzel-Regular.ttf",
-		family = "Cinzel",
 		category = "Fantasy",
 		license = "OFL 1.1",
 	},
