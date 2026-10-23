@@ -7,7 +7,7 @@
 -- Main non-UI code
 ------------------------------------------------------------
 
-PawnVersion = 2.1317
+PawnVersion = 2.1400
 
 -- Remove the two hyphens from the next line to re-enable upgrade information and Pawn scores on world quest rewards. (You'll have to /reload after you save the file.)
 -- local ShowWorldQuestUpgrades = true
@@ -138,6 +138,11 @@ local PawnStatFriendlyNames = -- Currently only contains stat names used for ref
 	["Spirit"] = ITEM_MOD_SPIRIT_SHORT,
 }
 
+-- Some translations of WoW Forever need a special hack when parsing numbers that could be percentages.
+-- It has a runtime cost, so only activate it when it's necessary.
+local PercentageHackLocale = GetLocale()
+local NeedsPercentageHack = VgerCore.IsForever and (PercentageHackLocale == "deDE" or PercentageHackLocale == "esES" or PercentageHackLocale == "ptBR")
+
 -- Don't taint the global variable "_".
 local _
 
@@ -216,12 +221,6 @@ function PawnInitialize()
 		local WrongLocaleMessage = "Sorry, this version of Pawn is for English, French, German, Italian, Korean, Portuguese, Russian, Spanish, Simplified Chinese, and Traditional Chinese only."
 		VgerCore.Message(VgerCore.Color.Salmon .. WrongLocaleMessage)
 		SetBasicMessageDialogText(WrongLocaleMessage)
-	end
-
-	-- Warn about Forever.
-	if VgerCore.IsForever then
-		local ForeverNotSupportedMessage = "Pawn for WoW Forever is a work in progress. Expect some broken features."
-		VgerCore.Message(VgerCore.Color.Salmon .. ForeverNotSupportedMessage)
 	end
 
 	-- Set up slash commands
@@ -777,7 +776,7 @@ end
 -- Once per new version of Pawn that adds keybindings, bind the new actions to default keys.
 function PawnSetDefaultKeybindings()
 	-- SaveBindings doesn't work on WoW Classic.
-	if not VgerCore.IsDraenorOrLater then return end
+	if not VgerCore.IsForever and not VgerCore.IsDraenorOrLater then return end
 
 	-- It's possible that this will happen before the main initialization code, so we need to ensure that the
 	-- default Pawn options have been set already.  Doing this multiple times is harmless.
@@ -2584,8 +2583,9 @@ function PawnLookForSingleStat(RegexTable, Stats, ThisString, DebugMessages)
 					ExtractedValue = 0
 				end
 				-- Percentages are never large enough to need a thousands separator, but Forever shows them with a period
-				-- as the decimal separator even in German ("2.0%"), so don't strip periods from them.
-				local IsPercentage = strfind(Props[1], ")%%", 1, true)
+				-- decimal separator ("2.0%") even in languages that should use commas, so don't strip periods IF there's a percent sign in the regex.
+				-- FUTURE: Instead of strfind, just include "%%" in what "#" expands to, and then check the last character of ExtractedValue for "%" and strip it if present.
+				local IsPercentage = NeedsPercentageHack and strfind(Props[1], ")%%", 1, true)
 				if Stat ~= "Speed" and not IsPercentage and (PawnLocal.ThousandsSeparator ~= "" or (PawnLocal.ThousandsSeparator == PawnLocal.DecimalSeparator)) then
 					-- Skip this for Speed because Spanish uses the wrong character for speed, and speed would never be >=1,000
 					-- In 7.0, Russian also used the comma for both thousands and decimal separators, so use the same logic then.
@@ -3298,9 +3298,12 @@ function PawnCorrectScaleErrors(ScaleName)
 	ThisScale.DominationSocket = nil
 
 	-- Wrath Classic merges SpellDamage and Healing into SpellPower, and melee and spell ratings.
+	-- Forever uses merged melee and spell ratings too, but not merged spell power.
 	if VgerCore.IsWrath or VgerCore.IsCataclysm or VgerCore.IsMists or VgerCore.IsDraenorOrLater then
 		PawnCombineStats(ThisScale, "SpellPower", "SpellDamage")
 		PawnCombineStats(ThisScale, "SpellPower", "Healing")
+	end
+	if VgerCore.IsForever or VgerCore.IsWrath or VgerCore.IsCataclysm or VgerCore.IsMists or VgerCore.IsDraenorOrLater then
 		PawnCombineStats(ThisScale, "HitRating", "SpellHitRating")
 		PawnCombineStats(ThisScale, "CritRating", "SpellCritRating")
 		PawnCombineStats(ThisScale, "HasteRating", "SpellHasteRating")
