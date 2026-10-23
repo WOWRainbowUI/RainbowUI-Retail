@@ -615,7 +615,7 @@ securecall(function() -- pet:stable id; havepet:stable id
 	KR:SetStateConditionalValue("havepet", false)
 	EV.PLAYER_LOGIN, EV.PET_STABLE_UPDATE, EV.PET_INFO_UPDATE, EV.LOCALPLAYER_PET_RENAMED = syncPet, syncPet, syncPet, syncPet
 end)
-securecall(function() -- game:modern/remix/era/sod/classic + era/hc
+securecall(function() -- game:modern/remix/era/sod/forever/fresh/classic + hc
 	KR:SetStateConditionalValue("game", "daze")
 	function EV.PLAYER_LOGIN()
 		local s
@@ -625,6 +625,11 @@ securecall(function() -- game:modern/remix/era/sod/classic + era/hc
 			    season == st.SeasonOfDiscovery and "sod" or
 			    (season == st.Fresh or season == st.FreshHardcore) and "fresh" or
 			    "era"
+			if C_GameRules.IsHardcoreActive() then
+				s = s and s .. "/hc" or "hc"
+			end
+		elseif CI_4E then
+			s = "forever"
 			if C_GameRules.IsHardcoreActive() then
 				s = s and s .. "/hc" or "hc"
 			end

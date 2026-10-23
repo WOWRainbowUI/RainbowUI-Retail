@@ -1,8 +1,8 @@
 local COMPAT, _, T = select(4,GetBuildInfo()), ...
 local L, R = T.L, OPie.CustomRings
 if not (R and R.AddDefaultRing) then return end
-local MODERN, CF_WRATH, CF_CATA = COMPAT > 10e4 or nil, COMPAT < 10e4 and COMPAT > 3e4 or nil, COMPAT < 10e4 and COMPAT > 4e4 or nil
-local CF_TBC = COMPAT < 10e4 and COMPAT > 2e4 or nil
+local MODERN, CI_4E = COMPAT > 10e4 or nil, COMPAT > 160e2 and COMPAT < 2e4 or nil
+local CF_TBC, CF_WRATH, CF_CATA = COMPAT > 2e4 and not MODERN or nil, COMPAT > 3e4 and not MODERN or nil, COMPAT > 4e4 and not MODERN or nil
 
 R:AddDefaultRing("RaidSymbols", {
 	{"raidmark", 1, _u="y"}, -- yellow star
@@ -54,9 +54,9 @@ R:AddDefaultRing("OPieAutoQuest", {
 	{"opie.autoquest", 1, _u="AC"},
 	name=L"Quest Items", hotkey="ALT-Q", _u="OPbQI", v=4
 })
-if MODERN or CF_CATA then
+if MODERN or CF_CATA or CI_4E then
 	local clearMark = {"worldmark", 0, c="ccd8e5", _u="c"}
-	local FULL_WORLD_MARKERS = MODERN or NUM_WORLD_RAID_MARKERS_CATA ~= 5
+	local FULL_WORLD_MARKERS = MODERN or CI_4E or NUM_WORLD_RAID_MARKERS_CATA ~= 5
 	R:AddDefaultRing("WorldMarkers", {
 		{"worldmark", 1, _u="b"},
 		{"worldmark", 2, _u="g"},

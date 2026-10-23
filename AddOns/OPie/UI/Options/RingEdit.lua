@@ -124,6 +124,7 @@ end
 
 local ringContainer, ringDetail, sliceDetail, newSlice, newRing, editorHost
 local panel = TS:CreateOptionsPanel(L"Custom Rings", L"OPie")
+	TS:SetCanvasEscapeCommand(panel, "/opie custom")
 	panel.desc:SetText(L"Customize OPie by modifying existing rings, or creating your own.")
 local ringDropDown = XU:Create("DropDown", nil, panel)
 	ringDropDown:SetPoint("TOP", -70, -60)
@@ -403,8 +404,13 @@ ringContainer = CreateFrame("Frame", nil, panel) do
 					uiHintTip:ClearAllPoints()
 					uiHintTip:SetFrameStrata("TOOLTIP")
 					uiHintTip:SetPoint("TOPLEFT", dz, "TOPRIGHT", -2, -20)
-					uiHintTip:SetText(L"Add to ring", nc.r, nc.g, nc.b)
-					uiHintTip:AddLine(L"Drop actions onto the slice list to add them to the ring.", hc.r, hc.g, hc.b, 1)
+					uiHintTip:SetText(L"Add to ring", hc.r, hc.g, hc.b)
+					uiHintTip:AddLine(L"Drop actions onto the slice list to add them to the ring.", nc.r, nc.g, nc.b, 1)
+					if newSlice.dragIsIncompleteFlyout then
+						local text = L"Hold %s to also add not-yet-learned abilities in this flyout."
+						text = text:format(("|cff%02x%02x%02x"):format(255*hc.r, 255*hc.g, 255*hc.b) .. ALT_KEY_TEXT .. "|r")
+						uiHintTip:AddLine(text, nc.r, nc.g, nc.b, 1)
+					end
 					uiHintTip:Show()
 				elseif owned and not accept then
 					uiHintTip:Hide()
@@ -446,23 +452,17 @@ ringContainer = CreateFrame("Frame", nil, panel) do
 			if newSlice:IsShown() then
 				return api.closeActionPicker("add-new-slice-button")
 			end
-			if sliceDetail:IsShown() then
-				api.selectSlice()
-				for i=1,#ringContainer.slices do
-					ringContainer.slices[i]:SetChecked(nil)
-				end
-			end
-			ringDetail:Hide()
-			api.endSliceRepick()
-			newSlice:Show()
+			api.beginNewSlicePick()
 		end)
 		b:SetScript("OnEnter", function(self)
 			if ringContainer.dropZoneTex:IsShown() then
 				return
 			end
+			local nc = NORMAL_FONT_COLOR
 			GameTooltip:SetOwner(self, "ANCHOR_NONE")
 			GameTooltip:SetPoint("LEFT", self, "RIGHT", 2, 0)
 			GameTooltip:AddLine(L"Add a new slice", 1, 1, 1)
+			GameTooltip:AddLine(L"Click to view a list of actions to select from, or drag an item, ability, macro, etc., here to add it to the ring.", nc.r, nc.g, nc.b, 1)
 			GameTooltip:Show()
 		end)
 		b:SetScript("OnLeave", config.ui.HideTooltip)
@@ -825,6 +825,16 @@ sliceDetail = CreateFrame("Frame", nil, ringContainer) do
 			isd:SetFirstAsset(atlas or plainTexture)
 			isd:SetSelectedAsset(forced)
 		end
+		function api.getIconSelectorBookmark()
+			if isd:IsShown() then
+				local filter, ofs = isd:GetViewBookmark()
+				return filter and ofs and filter .. "\30" .. ofs
+			end
+		end
+		function api.showIconSelectorBookmark(filter, ofs)
+			isd:Show()
+			isd:ShowViewBookmark(filter, ofs)
+		end
 	end
 	sliceDetail.fastClick = TS:CreateOptionsCheckButton(nil, sliceDetail) do
 		local e = sliceDetail.fastClick
@@ -954,7 +964,7 @@ newSlice = CreateFrame("Frame", nil, ringContainer) do
 		s:SetStyle("common")
 	end
 	
-	local cats, actions, searchCat, selectCategory, selectedCategory, selectedCategoryId = {}, {}
+	local cats, actions, searchCat, selectCategory, selectedCategory, selectedCategoryId, searchCatId = {}, {}
 	local performSearch do
 		local function matchAction(q, ...)
 			local _, aname = AB:GetActionDescription(...)
@@ -964,6 +974,7 @@ newSlice = CreateFrame("Frame", nil, ringContainer) do
 		end
 		function performSearch(query, inCurrentCategory)
 			searchCat = selectedCategory
+			searchCatId = inCurrentCategory and selectedCategoryId or -1
 			if not inCurrentCategory then
 				searchCat = AB:GetCategoryContents(1)
 				for i=2,AB:GetNumCategories() do
@@ -1223,6 +1234,27 @@ newSlice = CreateFrame("Frame", nil, ringContainer) do
 		self.slider:SetMinMaxValues(0, math.max(0, AB:GetNumCategories() - #cats))
 		self.slider:SetValue(0)
 	end)
+	function api.getNewSliceBookmark()
+		if newSlice:IsShown() then
+			local search = newSlice.search:GetText()
+			local cat = selectedCategoryId == -1 and (searchCatId or -1) or selectedCategoryId
+			local co, vo = newSlice.slider:GetValue(), newSlice.slider2:GetValue()
+			return (search or "") .. "\30" .. cat .. "\30" .. co .. "\30" .. vo
+		end
+	end
+	function api.showNewSliceBookmark(search, catidx, co, vo)
+		if catidx > 0 then
+			selectCategory(catidx)
+		end
+		if search ~= "" then
+			newSlice.search:SetText(search)
+			newSlice.search.label:Hide()
+			performSearch(search, catidx ~= -1)
+		end
+		newSlice.slider:SetValue(co)
+		newSlice.slider2:SetValue(vo)
+	end
+	
 end
 
 local PLAYER_CLASS, PLAYER_CLASS_UC = UnitClass("player")
@@ -1344,13 +1376,25 @@ local cursorAC = {} do
 		end
 		return "mount", ix
 	end
+	function cursorAC:flyout(ix)
+		for j=1, select(3,GetFlyoutInfo(ix)) do
+			local sid, _, isKnown, sname = GetFlyoutSlotInfo(ix, j)
+			if sid and type(sname) == "string" and not isKnown and not C_Spell.IsSpellPassive(sid) then
+				newSlice.dragIsIncompleteFlyout = true
+				break
+			end
+		end
+		return "flyout", ix
+	end
 	local function identityAC(ct, ix)
 		return ct, ix
 	end
-	cursorAC.outfit, cursorAC.equipmentset, cursorAC.flyout = identityAC, identityAC, identityAC
+	cursorAC.outfit, cursorAC.equipmentset = identityAC, identityAC
 end
 
-local ringNameMap, ringOrderMap, ringTypeMap, ringNames, currentRing, currentRingName, sliceBaseIndex, currentSliceIndex, repickSlice, skipResetErrors = {}, {}, {}, {}
+local ringNameMap, ringOrderMap, ringTypeMap, ringNames = {}, {}, {}, {}
+local currentRing, currentRingName, sliceBaseIndex, currentSliceIndex, repickSlice
+local skipResetErrors, skipRefresh
 local typePrefix = {
 	MINE="|cff25bdff|TInterface/FriendsFrame/UI-Toast-FriendOnlineIcon:14:14:0:1:32:32:8:24:8:24:30:190:255|t ",
 	PERSONAL="|cffd659ff|TInterface/FriendsFrame/UI-Toast-FriendOnlineIcon:14:14:0:1:32:32:8:24:8:24:180:0:255|t ",
@@ -1805,6 +1849,17 @@ function api.deleteSlice(id)
 		api.updateRingLine(true)
 	end
 end
+function api.beginNewSlicePick()
+	if sliceDetail:IsShown() then
+		api.selectSlice()
+		for i=1,#ringContainer.slices do
+			ringContainer.slices[i]:SetChecked(nil)
+		end
+	end
+	ringDetail:Hide()
+	api.endSliceRepick()
+	newSlice:Show()
+end
 function api.beginSliceRepick()
 	repickSlice = currentRing[currentSliceIndex]
 	api.hideSliceDetail()
@@ -1885,6 +1940,7 @@ end
 function api.convertCursorInfo(...)
 	local ct, ix = ...
 	local f = ix and cursorAC[ct]
+	newSlice.dragIsIncompleteFlyout = nil
 	if f then
 		return f(...)
 	end
@@ -2006,6 +2062,43 @@ function api.showExternalEditor(which)
 		T.ShowOPieOptionsPanel(currentRingName)
 	end
 end
+function api.saveBookmark(_panel)
+	local stk = currentRing and currentRing[currentSliceIndex] and currentRing[currentSliceIndex].sliceToken
+	local rest = api.getNewSliceBookmark()
+	rest = rest and ((repickSlice and "\30repick\30" or "\30new\30") .. rest)
+	local ir = not rest and api.getIconSelectorBookmark()
+	rest = rest or ir and ("\30ico\30" .. ir)
+	return (sliceBaseIndex or 0) .. "\30" .. (stk or "") .. "\30" .. (currentRingName or "") .. (rest or "")
+end
+function api.showBookmark(_panel, dat)
+	local sb, stk, ring, rcmd, rest = dat:match("^(%d+)\30([^\30]*)\30([^\30]*)\30?(%a*)\30?(.-)$")
+	if ring and ring ~= "" then
+		api:selectRing(ring)
+		if currentRingName == ring then
+			sliceBaseIndex = sb + 0
+			for i=1, stk ~= "" and #currentRing or 0 do
+				if currentRing[i].sliceToken == stk then
+					api.selectSlice(i-sliceBaseIndex, true)
+					break
+				end
+			end
+			api.updateRingLine()
+		end
+	end
+	if rcmd == "repick" or rcmd == "new" then
+		local search, catidx, co, vo = rest:match("^([^\30]*)\30(%-?%d+%.?%d*)\30(%-?%d+%.?%d*)\30(%-?%d+%.?%d*)")
+		if rcmd == "repick" and currentSliceIndex then
+			api.beginSliceRepick()
+			api.showNewSliceBookmark(search, catidx+0, co+0, vo+0)
+		elseif rcmd == "new" and not currentSliceIndex then
+			api.beginNewSlicePick()
+			api.showNewSliceBookmark(search, catidx+0, co+0, vo+0)
+		end
+	elseif rcmd == "ico" then
+		local search, ofs = rest:match("^([^\30]*)\30(%-?%d+%.?%d*)")
+		api.showIconSelectorBookmark(search, ofs+0)
+	end
+end
 
 ringDetail:SetScript("OnShow", function()
 	local _,_, isDefaultAvailable, isDefaultOverriden = RK:GetRingInfo(currentRingName)
@@ -2019,6 +2112,10 @@ local function resetView()
 	skipResetErrors = nil
 end
 function panel:refresh()
+	if skipRefresh then
+		skipRefresh = nil
+		return
+	end
 	local oRingName, oBaseIndex, oSliceIndex = currentRingName, sliceBaseIndex, currentSliceIndex
 	local oSliceToken = currentRing and currentRing[currentSliceIndex] and currentRing[currentSliceIndex].sliceToken
 	currentRingName, currentRing, currentSliceIndex, ringNames = nil
@@ -2064,9 +2161,12 @@ function panel:okay()
 end
 panel.cancel = resetView
 panel:SetScript("OnShow", config.checkSVState)
+TS:SetBookmarkImpl(panel, "custom", api.saveBookmark, api.showBookmark)
 
 function T.ShowCustomRingsPanel()
-	panel:OpenPanel()
+	skipRefresh = panel:IsVisible()
+	securecall(panel.OpenPanel, panel)
+	skipRefresh = nil
 end
 SLASH_OPIE_CUSTOM_RINGS1, SlashCmdList.OPIE_CUSTOM_RINGS = "/rk", T.ShowCustomRingsPanel
 T.AddSlashSuffix(SlashCmdList.OPIE_CUSTOM_RINGS, "c", "cr", "custom", "rings")

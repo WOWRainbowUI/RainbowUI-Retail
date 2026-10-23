@@ -3,6 +3,8 @@ local _, T = ...
 function T.WhatsNewData(vh, uv, li)
 	vh("v8.10")
 	uv("<tt>/pingspell</tt> and <tt>/pingitem</tt> now provide feedback when used in OPie macros.")
+	li("Added additional hints throughout OPie's Options UI.")
+	li("<tt>[game:forever]</tt> is satisfied on Forever realms.")
 	vh("v8.8")
 	uv("You can now add slices to rings by dragging actions from the spell book, bags, toy box, mount journal, etc, onto the slice list in the <tt>/opie rings</tt> editor.")
 	li("<b>Path of the Seasoned Hero</b> updated for Midnight Season 2.")

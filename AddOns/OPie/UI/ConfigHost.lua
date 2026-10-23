@@ -44,6 +44,7 @@ if TS and TS.Localize then
 		REVERT_CANCEL_HINT=L"You can cancel or revert to previous settings later.",
 		DEFAULTS_ALL=L("All Settings", ALL_SETTINGS),
 		DEFAULTS_VISIBLE=L("These Settings", CURRENT_SETTINGS),
+		CANVAS_ESCAPE_HINT=L"Type %s in chat to open this panel outside the game's Options UI."
 	})
 end
 

@@ -64,6 +64,18 @@ end
 function IconSelector:IsSearchPossible()
 	return not not (ICON_FILE_NAMES or LookupIconName and LookupIconName(0) or ICON_FILE_NAMES)
 end
+function IconSelector:GetViewBookmark()
+	local d = assert(getWidgetData(self, IconSelectorData), "Invalid object type")
+	return d.filter or "", d.scrollBar:GetValue()
+end
+function IconSelector:ShowViewBookmark(filter, offset)
+	local d = assert(getWidgetData(self, IconSelectorData), "Invalid object type")
+	assert(type(filter) == "string" and type(offset) == "number", 'Syntax: IconSelector:ShowViewBookmark(filter, offset)')
+	if IconSelector.IsSearchPossible(self) then
+		internal.FilterIcons(d, filter, d.manualInput)
+	end
+	d.scrollBar:SetValue(offset, true)
+end
 
 local GetAllIcons do
 	local function GetAbilityIcons(into)
@@ -351,7 +363,9 @@ local function CreateIconSelector(name, parent, outerTemplate, id)
 	t:SetScript("OnEscapePressed", internal.OnEscapePressed)
 	d.manualInputFS = t:GetRegions()
 	a, d.manualInput = t:CreateFontString(nil, "OVERLAY", "GameFontHighlight"), t
-	a:SetPoint("CENTER")
+	a:SetPoint("LEFT", 4)
+	a:SetPoint("RIGHT", -4)
+	a:SetMaxLines(1)
 	a:SetTextColor(0.85, 0.85, 0.85)
 	d.manualInputHint = a
 	t = CreateFrame("Button", nil, f, "UIPanelCloseButton")

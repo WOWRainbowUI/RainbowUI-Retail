@@ -282,6 +282,7 @@ local function updatePanelContent()
 	bindZone.OnBindingAltClick = currentOwner.altClick
 	bindZone.OnBindingShiftClick = currentOwner.shiftClick
 	bindSet:SetText(currentOwner.name .. (currentOwner.nameSuffix or ""))
+	TS:SetCanvasEscapeCommand(frame, currentOwner == ringBindings and "/opie bind" or "/opie irbind")
 end
 function bindZone.SetBinding(buttonOrId, binding)
 	local id, bidx = type(buttonOrId) == "number" and buttonOrId or buttonOrId:GetID()
@@ -311,10 +312,15 @@ function bindSet:initialize(level)
 		end
 	end
 end
-function bindSet:set(owner, scope)
+function bindSet:set(owner, scope, keepScroll)
+	keepScroll = keepScroll and owner == currentOwner
 	currentOwner, bindZone.AllowWheelBinding = owner, owner and owner.allowWheel
-	bindZoneBar:SetValue(0)
-	if owner.refresh then owner:refresh(scope) end
+	if not keepScroll then
+		bindZoneBar:SetValue(0)
+	end
+	if owner.refresh then
+		owner:refresh(scope)
+	end
 	updatePanelContent()
 	CloseDropDownMenus()
 	frame.resetOnHide = nil
@@ -349,16 +355,39 @@ frame:SetScript("OnHide", function()
 		resetView()
 	end
 end)
+local function saveBookmark()
+	local d = bindZoneBar:GetValue()
+	return d .. "\30" .. (currentOwner == subBindings and (subBindings.scope or "*") or "")
+end
+local function showBookmark(_, dat)
+	local o, scope = dat:match("^(%-?%d+%.?%d*)\30([^\30]*)$")
+	if not o then
+		return
+	elseif scope == "" then
+		bindSet.set(nil, ringBindings)
+		bindZoneBar:SetValue(o+0)
+	else
+		local ringKey = scope ~= "*" and PC:GetRingInfo(scope) and scope or nil
+		bindSet.set(nil, subBindings, ringKey)
+		bindZoneBar:SetValue(o+0)
+	end
+	updatePanelContent()
+end
+TS:SetBookmarkImpl(frame, "bind", saveBookmark, showBookmark)
 
 function T.ShowRingBindingPanel()
 	frame:OpenPanel()
 	bindSet.set(nil, ringBindings)
 end
 function T.ShowSliceBindingPanel(ringKey)
+	local noop = frame:IsVisible() and currentOwner == subBindings
+	if not noop then
+		bindSet:Pulse()
+	end
+	frame.resetOnHide = nil
 	frame:OpenPanel()
-	bindSet.set(nil, subBindings, ringKey)
+	bindSet.set(nil, subBindings, ringKey, noop)
 	frame.resetOnHide = true
-	bindSet:Pulse()
 end
 
 T.AddSlashSuffix(T.ShowRingBindingPanel, "b", "bind", "binding", "bindings")
