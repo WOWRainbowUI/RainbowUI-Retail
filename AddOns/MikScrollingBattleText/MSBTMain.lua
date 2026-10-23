@@ -641,14 +641,35 @@ if Client.isMainline or Client.isForever then
 			local _, _, texture = GetSpellInfo(spellID)
 			return texture
 		end,
-		formatMessage = function(settings, record)
+		displayResource = function(settings, amount, powerName)
+			local hasRestrictedValues = RestrictedValue:IsRestricted(amount)
+				or RestrictedValue:IsRestricted(powerName)
+			local arguments = {}
+			local template = (settings.message or "%a - %p"):gsub(
+				"%%([ap])", function(token)
+					if token == "a" then
+						arguments[#arguments + 1] = amount
+					else
+						arguments[#arguments + 1] = powerName
+					end
+					return "\001"
+				end)
+			template = template:gsub("%%", "%%%%"):gsub("\001", "%%s")
+			if hasRestrictedValues then
+				DisplayEvent(settings, template, nil, nil, unpack(arguments))
+			else
+				DisplayEvent(settings, string.format(template, unpack(arguments)))
+			end
+		end,
+		formatMessage = function(settings, record, messageOverride)
 			local name = RestrictedValue:String(record.sourceName)
 			local effect = RestrictedValue:String(record.name)
 				or (record.spell and GetSpellInfo(record.spell))
 			local hideSkills = record.event and MSBTProfiles.currentProfile.hideSkills
 			local useEventColor = record.event == "damage" or record.event == "heal"
 			local message = Formatter:FormatLegacyEvent(
-				settings.message or "", record.amount, record.school,
+				messageOverride or settings.message or "",
+				record.amount, record.school,
 				nil, nil, nil, name, nil, effect,
 				nil, nil, useEventColor, hideSkills
 			)

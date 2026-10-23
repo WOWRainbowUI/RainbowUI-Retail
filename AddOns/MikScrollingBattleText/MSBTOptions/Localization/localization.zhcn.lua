@@ -443,3 +443,7 @@ L.CHECKBOXES["disableOutgoing"] = { label="停用输出文字", tooltip="隐藏�
 L.CHECKBOXES["disableNotifications"] = { label="停用通知", tooltip="隐藏此系统的增益、战斗提示及其他通知。" }
 
 L.CHECKBOXES["disableIncoming"] = { label="停用承受文字", tooltip="隐藏此系统受到的伤害与治疗文字。" }
+
+L.EVENT_CODES["RESOURCE_AMOUNT"] = "%a - 获得的资源数量。\n"
+L.EVENT_CODES["RESOURCE_NAME"] = "%p - 资源名称。\n"
+L.NOTIFICATION_EVENTS["NOTIFICATION_RESOURCE_GAIN"] = { label="获得资源", tooltip="显示技能与效果提供的资源。" }

@@ -1010,6 +1010,9 @@ local function OnCombatText(kind)
             if ns.Bool(harmful) and not harmful then return end
         end
         router:Healer(name)
+    elseif kind == "ENERGIZE" or kind == "PERIODIC_ENERGIZE" then
+        local amount, powerToken = C_CombatText.GetCurrentEventInfo()
+        router:Resource(amount, powerToken)
     elseif kind == "SPELL_ACTIVE" then
         if reader.anyGlow and Now() - reader.anyGlow < 0.5 then return end
         local name = C_CombatText.GetCurrentEventInfo()

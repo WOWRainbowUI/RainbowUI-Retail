@@ -6,7 +6,7 @@ function DisplayService:Configure(config)
 	self.config = config
 end
 
-function DisplayService:DisplayEvent(eventSettings, message, texturePath, muteSound, formatArg)
+function DisplayService:DisplayEvent(eventSettings, message, texturePath, muteSound, formatArg, ...)
 	if eventSettings.disabled or self.config.isModDisabled() then return end
 	local profile = self.config.getProfile()
 	local category = eventSettings.textCategory or "Notifications"
@@ -57,7 +57,8 @@ function DisplayService:DisplayEvent(eventSettings, message, texturePath, muteSo
 		outlineIndex,
 		fontAlpha,
 		texturePath,
-		formatArg
+		formatArg,
+		...
 	)
 	if not muteSound and not profile.soundsDisabled and eventSettings.soundFile
 		and eventSettings.soundFile ~= "" and self.config.playSound then

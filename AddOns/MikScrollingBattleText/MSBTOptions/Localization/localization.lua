@@ -238,6 +238,8 @@ obj["ABSORBED_AMOUNT"]		= "%a - Amount of damage absorbed.\n"
 obj["AURA_AMOUNT"]			= "%a - Amount of stacks for the aura.\n"
 obj["SHADOW_ORBS_AMOUNT"]	= "%a - Amount of shadow orbs you have.\n"
 obj["HONOR_AMOUNT"]			= "%a - Amount of honor.\n"
+obj["RESOURCE_AMOUNT"] = "%a - Amount of resource gained.\n"
+obj["RESOURCE_NAME"] = "%p - Resource name.\n"
 obj["REP_AMOUNT"]			= "%a - Amount of reputation.\n"
 obj["ITEM_AMOUNT"]			= "%a - Amount of the item looted.\n"
 obj["SKILL_AMOUNT"]			= "%a - Amount of points you have in the skill.\n"
@@ -416,6 +418,10 @@ obj["NOTIFICATION_ITEM_COOLDOWN"] = { label="Item Ready", tooltip="Notify when a
 obj["NOTIFICATION_COMBAT_ENTER"]		= { label="Enter Combat", tooltip="Enable when you have entered combat."}
 obj["NOTIFICATION_COMBAT_LEAVE"]		= { label="Leave Combat", tooltip="Enable when you have left combat."}
 obj["NOTIFICATION_HONOR_GAIN"]			= { label="Honor Gains", tooltip="Enable when you gain honor."}
+obj["NOTIFICATION_RESOURCE_GAIN"] = {
+	label = "Resource Gains",
+	tooltip = "Show resource gains reported by abilities and effects.",
+}
 obj["NOTIFICATION_REP_GAIN"]			= { label="Reputation Gains", tooltip="Enable when you gain reputation."}
 obj["NOTIFICATION_REP_LOSS"]			= { label="Reputation Losses", tooltip="Enable when you lose reputation."}
 obj["NOTIFICATION_SKILL_GAIN"]			= { label="Skill Gains", tooltip="Enable when you gain skill points."}
