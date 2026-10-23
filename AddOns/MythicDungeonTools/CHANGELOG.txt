@@ -1,3 +1,4 @@
-## 6.3.12 (2026-10-21)
+## 6.3.16 (2026-10-23)
 
-- Hover highlights across the AddOn are now easier to see.
+- You can now pick MDT's font in Settings.
+- Pull numbers on the map are now bigger and easier to read on every pull color.

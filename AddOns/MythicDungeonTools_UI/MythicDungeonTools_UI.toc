@@ -2,7 +2,7 @@
 # WOW_INTERFACE_TARGETS: standard-test, standard
 ## Title: Mythic Dungeon Tools (MDT) - UI
 ## Author: Nnoggie
-## Version: 6.3.12
+## Version: 6.3.16
 ## Notes: Load-on-demand interface for Mythic Dungeon Tools
 ## Dependencies: MythicDungeonTools
 ## LoadOnDemand: 1
@@ -10,6 +10,7 @@
 
 ..\MythicDungeonTools\libs\load_libs.xml
 Bootstrap.lua
+Font.lua
 ..\MythicDungeonTools\locales.xml
 Kit\load_kit.xml
 ..\MythicDungeonTools\Utility.lua

@@ -7,13 +7,20 @@ local PAGE_TOP = 45
 local PAGE_BOTTOM = 15
 local SWATCH_WIDTH = 56
 
+local LSM = LibStub("LibSharedMedia-3.0")
+---MDT's own font in LibSharedMedia, where other addons can pick it too.
+local DEFAULT_FONT = "Archivo Narrow Bold"
+LSM:Register("font", DEFAULT_FONT, UI.Fonts.defaultFile)
+
+---The palette the user colors themselves.
+local CUSTOM_PALETTE = 6
 local paletteItems = UI.MenuModel.FromList({
   [1] = L["Rainbow"],
   [2] = L["Black and Yellow"],
   [3] = L["Red, Green and Blue"],
   [4] = L["High Contrast"],
   [5] = L["Color Blind Friendly"],
-  [6] = L["Custom"],
+  [CUSTOM_PALETTE] = L["Custom"],
 }, { 1, 2, 3, 4, 5, 6 })
 
 local enemyForcesTooltipIcon = "|TInterface\\AddOns\\MythicDungeonTools\\Textures\\MDTMinimap:0:0|t"
@@ -30,18 +37,19 @@ local enemyForcesTooltipItems = UI.MenuModel.FromList({
 
 local db
 local page
----@type {control: MDT.UI.Control, value: (fun(): any)?, disabled: (fun(): boolean)?}[]
+---@type {control: MDT.UI.Control, value: (fun(): any)?, disabled: (fun(): boolean)?, hidden: (fun(): boolean)?}[]
 local bindings = {}
 
 local function sync()
   for _, binding in ipairs(bindings) do
     if binding.value then binding.control:SetValue(binding.value()) end
     if binding.disabled then binding.control:SetDisabled(binding.disabled()) end
+    if binding.hidden then binding.control:SetHidden(binding.hidden()) end
   end
 end
 
-local function bind(control, value, disabled)
-  bindings[#bindings + 1] = { control = control, value = value, disabled = disabled }
+local function bind(control, value, disabled, hidden)
+  bindings[#bindings + 1] = { control = control, value = value, disabled = disabled, hidden = hidden }
   return control
 end
 
@@ -59,6 +67,39 @@ local function recolorPulls(force)
   MDT:SetPresetColorPaletteInfo()
   MDT:RefreshSidebar()
   MDT:DrawAllHulls(nil, force)
+end
+
+---The user's font pick, else Archivo. A pick whose addon is missing stays picked and shows here: MDT draws in Archivo
+---meanwhile and goes back to the pick once its addon returns. Nothing but the user's own pick changes it.
+---@return string
+local function currentFont()
+  return db.font or DEFAULT_FONT
+end
+
+---Every font in LibSharedMedia, each name drawn in its font. LibSharedMedia only lists fonts made for the client's
+---alphabet, so Archivo joins on other clients, and so does a pick whose addon is missing.
+local function fontItems()
+  local names = CopyTable(LSM:List("font"))
+  if not tContains(names, DEFAULT_FONT) then table.insert(names, 1, DEFAULT_FONT) end
+  if db.font and not tContains(names, db.font) then table.insert(names, 1, db.font) end
+  local items = {}
+  for _, name in ipairs(names) do
+    local file = name == DEFAULT_FONT and UI.Fonts.defaultFile or LSM:Fetch("font", name, true)
+    items[#items + 1] = { kind = "choice", key = name, text = name, value = name, font = file }
+  end
+  return items
+end
+
+---Saves the font pick. MDT builds its fonts once as it loads, so another font shows after a reload.
+---@param name string
+local function pickFont(name)
+  db.font = name ~= DEFAULT_FONT and name or nil
+  local file = name == DEFAULT_FONT and UI.Fonts.defaultFile or LSM:Fetch("font", name, true)
+  if file == UI.Fonts.files.roman then return end
+  UI.Dialogs.Confirm({
+    key = "fontReload", title = L["Font"], text = L["fontReloadPrompt"],
+    confirm = { text = L["Reload UI"], onClick = function() MDT:ReloadAndOpen() end }, cancel = { text = L["Later"] },
+  })
 end
 
 local function fillCustomColors(row)
@@ -87,6 +128,9 @@ local function buildGeneral(column)
     format = function(value) return ("%d%%"):format(math.floor(value * 100 + 0.5)) end,
     onCommit = function(value) db.uiScale = UI.SetUserScale(value) end,
   }), function() return db.uiScale end)
+  bind(UI.Dropdown(column, {
+    id = "font", label = L["Font"], items = fontItems(), value = currentFont(), search = true, onChange = pickFont,
+  }), currentFont)
   checkbox(column, "minimap", L["Enable Minimap Button"], function() return not db.minimap.hide end, function(value)
     if value then MDT:ShowMinimapButton() else MDT:HideMinimapButton() end
   end)
@@ -168,6 +212,7 @@ local function buildColors(column)
     onChange = function(value)
       db.colorPaletteInfo.colorPaletteIdx = value
       recolorPulls(true)
+      sync()
     end,
   }), function() return db.colorPaletteInfo.colorPaletteIdx end)
   -- Re-applies the palette to an imported route without toggling auto coloring or switching palettes back and forth.
@@ -180,9 +225,12 @@ local function buildColors(column)
     end,
   })
 
-  UI.Heading(column, { text = L["Custom Color Palette"] })
+  -- Only for the custom palette, the one these colors make up.
+  local customHidden = function() return db.colorPaletteInfo.colorPaletteIdx ~= CUSTOM_PALETTE end
+  local custom = bind(UI.Stack(column, { id = "customPalette", gap = "md", hidden = customHidden() }), nil, nil, customHidden)
+  UI.Heading(custom, { text = L["Custom Color Palette"] })
   local swatches
-  UI.Slider(column, {
+  UI.Slider(custom, {
     id = "customColorCount", label = L["Choose number of colors"], min = 2, max = 20, step = 1,
     value = db.colorPaletteInfo.numberCustomColors,
     onCommit = function(value)
@@ -191,7 +239,7 @@ local function buildColors(column)
       fillCustomColors(swatches)
     end,
   })
-  swatches = UI.Row(column, { id = "customColors", wrap = true, gap = "sm" })
+  swatches = UI.Row(custom, { id = "customColors", wrap = true, gap = "sm" })
   fillCustomColors(swatches)
 end
 
