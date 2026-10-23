@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2849, "DBM-Lairs-Midnight", 2, 1317)
 --local L		= mod:GetLocalizedStrings()--Nothing to localize for blank mods
 
-mod:SetRevision("20261008002304")
+mod:SetRevision("20261022030920")
 mod:SetCreatureID(252959)
 mod:SetEncounterID(3379)
 --mod:SetHotfixNoticeRev(20250823000000)
@@ -211,7 +211,8 @@ do
 				specWarnAlluringBubble:Show(eventCount)
 				specWarnAlluringBubble:Play("killmob")
 			elseif eventType == "frost" then
-				specWarnChillingFrost:Show(eventCount, "orbrun")
+				--The personal warning arrives after the three-second cast; ignore competing severity-2 warnings.
+				specWarnChillingFrost:Show(eventCount, "orbrun", 4, 1)
 			elseif eventType == "rush" then
 				specWarnTidepiercersRush:Show(eventCount)
 				specWarnTidepiercersRush:Play("watchstep")

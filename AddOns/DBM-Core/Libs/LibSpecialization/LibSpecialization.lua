@@ -6,7 +6,7 @@ local isMists = wowID == 19
 local isForever = wowID == 18
 if not isRetail and not isCata and not isMists and not isForever then return end -- Retail, Cata, Mists, Forever
 
-local LS, oldminor = LibStub:NewLibrary("LibSpecialization", 28)
+local LS, oldminor = LibStub:NewLibrary("LibSpecialization", 29)
 if not LS then return end -- No upgrade needed
 
 LS.callbackMapGroup = LS.callbackMapGroup or {}
@@ -406,7 +406,13 @@ end
 LS.MySpecialization = GetInfo
 
 local throttleTimer = 3 -- Seconds
-local pName = UnitNameUnmodified("player")
+local pName
+if RegionalUniqueNamesEnabled and RegionalUniqueNamesEnabled() then
+	local name, surname = UnitNameUnmodified("player")
+	pName = name .. " " .. surname
+else
+	pName = UnitNameUnmodified("player")
+end
 local SendAddonMessage = C_ChatInfo.SendAddonMessage
 local IsInGroup = IsInGroup
 local CTimerNewTimer = C_Timer.NewTimer
