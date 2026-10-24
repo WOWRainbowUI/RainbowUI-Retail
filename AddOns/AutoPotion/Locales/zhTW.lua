@@ -84,3 +84,9 @@ L["Ctrl+C"] = "Ctrl+C"
 L["Small quality of life features in one addon: a smaller viewport, junk selling and repairs, quests accepted and turned in for you, IDs and vendor prices in tooltips, a square minimap and dungeons on the world map."] = "整合多項便利功能：縮小遊戲視野、出售垃圾與修理、自動接受及回報任務、提示資訊顯示 ID 與售價、方形小地圖，以及世界地圖上的副本。"
 
 L["Couldn't create the %s macro: your general macros are full. Delete one of them and it will be created."] = "無法建立 %s 巨集：一般巨集欄位已滿。刪除一個巨集後便會自動建立。"
+
+L["Use Rapid Regeneration (Troll racial) before bandages"] = "在繃帶之前使用快速再生（食人妖種族技能）"
+
+L["Only when the buff is missing"] = "僅在缺少增益時優先使用"
+
+L["Eat buff food first while you don't have its buff (\"Well Fed\" for food, \"Relaxed\" for drinks), even before conjured food. While you have it, buff food comes last and is only eaten when nothing else is left."] = "缺少食物的「充分進食」或飲品的「放鬆」增益時，優先使用增益食物或飲品，順序排在魔法製造的食物之前。已有增益時，增益食物會排在最後，僅在沒有其他選擇時使用。"

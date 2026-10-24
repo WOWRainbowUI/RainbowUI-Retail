@@ -7,7 +7,7 @@ L["Auto Potion Settings"] = "Auto Potion 设置"
 L["Cavedweller's Delight"] = "洞穴住民的挚爱"
 L["Refreshing Serum"] = "复苏血清"
 L["Class/Racial Spells"] = "职业/种族技能"
-L["Configure the behavior of the addon. IE: if you want to include class spells"] = 
+L["Configure the behavior of the addon. IE: if you want to include class spells"] =
 "您可以在此设置技能。例如：是否包含职业/种族回血技能"
 L["Current Priority"] = "当前优先级"
 L["Bandage Priority"] = "绷带优先级"
@@ -35,7 +35,7 @@ L["Potion of Withering Vitality"] = "枯萎活力药水"
 L["Prioritize health potions over a healthstone."] = "治疗药水优先于治疗石使用。"
 L["Reset successful!"] = "重置成功！"
 L["Reset to Default"] = "重置为默认"
-L["Shows the bandage that will currently be used, based on what is in your bags."] = 
+L["Shows the bandage that will currently be used, based on what is in your bags."] =
 "显示当前将使用的绷带（依据背包物品）。"
 L["Shows the food that will currently be used, based on what is in your bags."] =
 "显示当前将使用的食物（依据背包物品）。"
@@ -88,3 +88,9 @@ L["Ctrl+C"] = "Ctrl+C"
 L["Small quality of life features in one addon: a smaller viewport, junk selling and repairs, quests accepted and turned in for you, IDs and vendor prices in tooltips, a square minimap and dungeons on the world map."] = "整合多项便捷功能：缩小游戏视野、出售垃圾与修理、自动接受及交付任务、提示信息显示 ID 与售价、方形小地图，以及世界地图上的副本。"
 
 L["Couldn't create the %s macro: your general macros are full. Delete one of them and it will be created."] = "无法创建 %s 宏：通用宏栏位已满。删除一个宏后便会自动创建。"
+
+L["Use Rapid Regeneration (Troll racial) before bandages"] = "在绷带之前使用快速再生（巨魔种族技能）"
+
+L["Only when the buff is missing"] = "仅在缺少增益时优先使用"
+
+L["Eat buff food first while you don't have its buff (\"Well Fed\" for food, \"Relaxed\" for drinks), even before conjured food. While you have it, buff food comes last and is only eaten when nothing else is left."] = "缺少食物的“进食充分”或饮品的“放松”增益时，优先使用增益食物或饮品，顺序排在魔法制造的食物之前。已有增益时，增益食物会排在最后，仅在没有其他选择时使用。"

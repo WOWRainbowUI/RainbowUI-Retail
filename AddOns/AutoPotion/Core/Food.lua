@@ -158,6 +158,8 @@ ham.worldRootsBanquet = ham.Item.new(260287, "World Roots Banquet")
 
 -- Classic - vendor/cooked food (no stats)
 ham.toughJerky = ham.Item.new(117, "Tough Jerky")
+-- Forever's Boiled Clams cast plain Food and give no food buff
+ham.boiledClamsForever = ham.Item.new(5525, "Boiled Clams")
 ham.haunchOfMeat = ham.Item.new(2287, "Haunch of Meat")
 ham.muttonChop = ham.Item.new(3770, "Mutton Chop")
 ham.wildHogShank = ham.Item.new(3771, "Wild Hog Shank")
@@ -838,18 +840,7 @@ local function getRawFood()
   return {}
 end
 
--- Return a prioritized list of food items for the current client, excluding
--- "buff food" (situational Well Fed stat food) unless the user opted in.
+-- Return a prioritized list of food items for the current client, buff food placed by the food buff.
 function ham.getFood()
-  local list = getRawFood()
-  if ham.options.includeBuffFood then
-    return list
-  end
-  local filtered = {}
-  for _, item in ipairs(list) do
-    if not item.hasTag("buffFood") then
-      table.insert(filtered, item)
-    end
-  end
-  return filtered
+  return ham.orderBuffFood(getRawFood(), ham.hasFoodBuff)
 end

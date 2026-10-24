@@ -332,6 +332,9 @@ local function checkMegaMacroAddon()
   end
 end
 
+-- Rapid Regeneration's cooldown in seconds: the bandage spell's castsequence starts over after it
+local BANDAGE_SPELL_COOLDOWN = 180
+
 -- Build bandage macro string (highest available bandage first)
 local function buildBandageMacroString()
   local sequence = {}
@@ -341,6 +344,16 @@ local function buildBandageMacroString()
       table.insert(sequence, "item:" .. tostring(item.getId()))
       break
     end
+  end
+
+  -- Neither the spell nor the bandage triggers the global cooldown, so two lines would fire both
+  -- on one press: a castsequence takes the bandage while the spell is on its cooldown
+  local spell = ham.getBandageSpell()
+  if spell then
+    if #sequence == 0 then
+      return "#showtooltip\n/cast " .. spell.getName()
+    end
+    return "#showtooltip\n/castsequence [@player] reset=combat/" .. BANDAGE_SPELL_COOLDOWN .. " " .. spell.getName() .. ", " .. sequence[1]
   end
 
   if #sequence == 0 then
@@ -608,6 +621,14 @@ local eventHandlers = {
     end
   end,
   TRAIT_CONFIG_UPDATED = requestOn("event: TRAIT_CONFIG_UPDATED"),
+  -- the food buff, for "only when the buff is missing"
+  UNIT_AURA = function(_, _, updateInfo)
+    ham.onPlayerAura(updateInfo)
+  end,
+  -- encounters, M+ and PvP hide auras from addons; after one, they can be read again
+  ADDON_RESTRICTION_STATE_CHANGED = function()
+    ham.onRestrictionChanged()
+  end,
   -- run what was requested during combat
   PLAYER_REGEN_ENABLED = function()
     log("event: PLAYER_REGEN_ENABLED")
@@ -628,9 +649,13 @@ end
 if C_EventUtils.IsEventValid("TRAIT_CONFIG_UPDATED") then
   updateFrame:RegisterEvent("TRAIT_CONFIG_UPDATED")
 end
+if C_EventUtils.IsEventValid("ADDON_RESTRICTION_STATE_CHANGED") then
+  updateFrame:RegisterEvent("ADDON_RESTRICTION_STATE_CHANGED")
+end
 updateFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
 -- only the player's own pet, not every group member's
 updateFrame:RegisterUnitEvent("UNIT_PET", "player")
+updateFrame:RegisterUnitEvent("UNIT_AURA", "player")
 updateFrame:SetScript("OnEvent", function(self, event, ...)
   eventHandlers[event](self, ...)
 end)
