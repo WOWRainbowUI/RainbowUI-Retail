@@ -134,6 +134,7 @@ GeneralTab_Populate = function()
 	controls.shortenNumbersCheckbox:SetChecked(currentProfile.shortenNumbers)
 	controls.stackSimilarHitsCheckbox:SetChecked(currentProfile.stackSimilarHits)
 	controls.enableSoundsCheckbox:SetChecked(not currentProfile.soundsDisabled)
+	controls.enableNamesCheckbox:SetChecked(not currentProfile.hideSkills)
 	controls.enableIconsCheckbox:SetChecked(not currentProfile.skillIconsDisabled)
 	controls.blizzardDamageCheckbox:SetChecked(currentProfile.blizzardDamageEnabled)
 	for _, side in ipairs({ "msbt", "blizzard" }) do
@@ -306,10 +307,19 @@ local function GeneralTab_Create()
 	)
 	controls.enableIconsCheckbox = checkbox
 
+	checkbox = MSBTControls.CreateCheckbox(tabFrame)
+	objLocale = L.CHECKBOXES["enableNames"]
+	checkbox:Configure(28, objLocale.label, objLocale.tooltip)
+	checkbox:SetPoint("BOTTOMLEFT", controls.enableIconsCheckbox, "TOPLEFT", 0, 0)
+	checkbox:SetClickHandler(function(this, isChecked)
+		MSBTProfiles.SetOption(nil, "hideSkills", not isChecked)
+	end)
+	controls.enableNamesCheckbox = checkbox
+
 	local slider = MSBTControls.CreateSlider(tabFrame)
 	objLocale = L.SLIDERS["animationSpeed"]
 	slider:Configure(180, objLocale.label, objLocale.tooltip)
-	slider:SetPoint("BOTTOMRIGHT", controls.enableIconsCheckbox, "TOPRIGHT", 0, 10)
+	slider:SetPoint("BOTTOMRIGHT", controls.enableNamesCheckbox, "TOPRIGHT", 0, 10)
 	slider:SetMinMaxValues(20, 250)
 	slider:SetValueStep(10)
 	slider:SetValueChangedHandler(

@@ -28,9 +28,6 @@ local TARGET_TARGET				= 0x00010000
 local REACTION_HOSTILE			= 0x00000040
 
 local SPELLID_ELUSIVE_BREW		= 126453
-local SPELLID_EXECUTE			= 5308
-local SPELLID_FIRST_AID			= 3273
-local SPELLID_HAMMER_OF_WRATH	= 24275
 
 local SPELLID_LAVA_SURGE		= not IsClassic and 77762
 local SPELLID_REVENGE			= 6572
@@ -39,10 +36,8 @@ local SPELLID_VICTORY_RUSH		= not IsClassic and 34428
 local SPELL_CLEARCASTING			= GetSkillName(16870)
 
 local SPELL_ELUSIVE_BREW			= not IsClassic and GetSkillName(128939)
-local SPELL_EXECUTE					= GetSkillName(SPELLID_EXECUTE)
 local SPELL_FINGERS_OF_FROST		= not IsClassic and GetSkillName(112965)
 local SPELL_FREEZING_FOG			= not IsClassic and GetSkillName(59052)
-local SPELL_HAMMER_OF_WRATH			= GetSkillName(SPELLID_HAMMER_OF_WRATH)
 
 local SPELL_KILLING_MACHINE			= not IsClassic and GetSkillName(51124)
 local SPELL_LAVA_SURGE				= not IsClassic and GetSkillName(SPELLID_LAVA_SURGE)
@@ -1031,59 +1026,8 @@ if IsClassic then
 				mainEvents		= "SPELL_AURA_APPLIED{skillName;;eq;;" .. SPELL_CLEARCASTING .. ";;recipientAffiliation;;eq;;" .. FLAG_YOU .. "}",
 			},
 
-			MSBT_TRIGGER_EXECUTE = {
-				colorB			= 0,
-				message			= SPELL_EXECUTE .. "!",
-				alwaysSticky	= true,
-				fontSize		= 26,
-				classes			= "WARRIOR",
-				mainEvents		= "UNIT_HEALTH{unitID;;eq;;target;;threshold;;lt;;20;;unitReaction;;eq;;" .. REACTION_HOSTILE .. "}",
-				exceptions		= "unavailableSkill;;eq;;" .. SPELL_EXECUTE,
-				iconSkill		= SPELLID_EXECUTE,
-			},
 
-			MSBT_TRIGGER_HAMMER_OF_WRATH = {
-				colorB			= 0,
-				message			= SPELL_HAMMER_OF_WRATH .. "!",
-				alwaysSticky	= true,
-				fontSize		= 26,
-				classes			= "PALADIN",
-				mainEvents		= "UNIT_HEALTH{unitID;;eq;;target;;threshold;;lt;;20;;unitReaction;;eq;;" .. REACTION_HOSTILE .. "}",
-				exceptions		= "unavailableSkill;;eq;;" .. SPELL_HAMMER_OF_WRATH,
-				iconSkill		= SPELLID_HAMMER_OF_WRATH,
-			},
 
-			MSBT_TRIGGER_LOW_HEALTH = {
-				disabled		= true,
-				colorG			= 0.5,
-				colorB			= 0.5,
-				message			= L.MSG_TRIGGER_LOW_HEALTH .. "! (%a)",
-				alwaysSticky	= true,
-				fontSize		= 26,
-				mainEvents		= "UNIT_HEALTH{unitID;;eq;;player;;threshold;;lt;;35}",
-				exceptions		= "recentlyFired;;lt;;5",
-				iconSkill		= SPELLID_FIRST_AID,
-			},
-			MSBT_TRIGGER_LOW_MANA = {
-				disabled		= true,
-				colorR			= 0.5,
-				colorG			= 0.5,
-				message			= L.MSG_TRIGGER_LOW_MANA .. "! (%a)",
-				alwaysSticky	= true,
-				fontSize		= 26,
-				classes			= "DRUID,MAGE,PALADIN,PRIEST,SHAMAN,WARLOCK",
-				mainEvents		= "UNIT_POWER_UPDATE{powerType;;eq;;0;;unitID;;eq;;player;;threshold;;lt;;35}",
-				exceptions		= "recentlyFired;;lt;;5",
-			},
-			MSBT_TRIGGER_LOW_PET_HEALTH = {
-				colorG			= 0.5,
-				colorB			= 0.5,
-				message			= L.MSG_TRIGGER_LOW_PET_HEALTH .. "! (%a)",
-				fontSize		= 26,
-				classes			= "HUNTER,MAGE,WARLOCK",
-				mainEvents		= "UNIT_HEALTH{unitID;;eq;;pet;;threshold;;lt;;40}",
-				exceptions		= "recentlyFired;;lt;;5",
-			},
 
 			MSBT_TRIGGER_REVENGE = {
 				colorB			= 0,
@@ -2141,16 +2085,6 @@ else
 								"SPELL_AURA_APPLIED{skillName;;eq;;" .. SPELL_ELUSIVE_BREW .. ";;amount;;eq;;10;;recipientAffiliation;;eq;;" .. FLAG_YOU .. "}&&" ..
 								"SPELL_AURA_APPLIED{skillName;;eq;;" .. SPELL_ELUSIVE_BREW .. ";;amount;;eq;;15;;recipientAffiliation;;eq;;" .. FLAG_YOU .. "}",
 			},
-			MSBT_TRIGGER_EXECUTE = {
-				colorB			= 0,
-				message			= SPELL_EXECUTE .. "!",
-				alwaysSticky	= true,
-				fontSize		= 26,
-				classes			= "WARRIOR",
-				mainEvents		= "UNIT_HEALTH{unitID;;eq;;target;;threshold;;lt;;20;;unitReaction;;eq;;" .. REACTION_HOSTILE .. "}",
-				exceptions		= "unavailableSkill;;eq;;" .. SPELL_EXECUTE,
-				iconSkill		= SPELLID_EXECUTE,
-			},
 			MSBT_TRIGGER_FINGERS_OF_FROST = {
 				colorR			= 0.118,
 				colorG			= 0.882,
@@ -2160,16 +2094,6 @@ else
 				classes			= "MAGE",
 				mainEvents		= "SPELL_AURA_APPLIED{skillName;;eq;;" .. SPELL_FINGERS_OF_FROST .. ";;recipientAffiliation;;eq;;" .. FLAG_YOU .. "}",
 				exceptions		= "recentlyFired;;lt;;2",
-			},
-			MSBT_TRIGGER_HAMMER_OF_WRATH = {
-				colorB			= 0,
-				message			= SPELL_HAMMER_OF_WRATH .. "!",
-				alwaysSticky	= true,
-				fontSize		= 26,
-				classes			= "PALADIN",
-				mainEvents		= "UNIT_HEALTH{unitID;;eq;;target;;threshold;;lt;;20;;unitReaction;;eq;;" .. REACTION_HOSTILE .. "}",
-				exceptions		= "unavailableSkill;;eq;;" .. SPELL_HAMMER_OF_WRATH,
-				iconSkill		= SPELLID_HAMMER_OF_WRATH,
 			},
 
 			MSBT_TRIGGER_KILLING_MACHINE = {
@@ -2191,37 +2115,6 @@ else
 				mainEvents		= "SPELL_CAST_SUCCESS{sourceAffiliation;;eq;;" .. FLAG_YOU .. ";;skillID;;eq;;" .. SPELLID_LAVA_SURGE .. "}",
 			},
 
-			MSBT_TRIGGER_LOW_HEALTH = {
-				disabled		= true,
-				colorG			= 0.5,
-				colorB			= 0.5,
-				message			= L.MSG_TRIGGER_LOW_HEALTH .. "! (%a)",
-				alwaysSticky	= true,
-				fontSize		= 26,
-				mainEvents		= "UNIT_HEALTH{unitID;;eq;;player;;threshold;;lt;;35}",
-				exceptions		= "recentlyFired;;lt;;5",
-				iconSkill		= SPELLID_FIRST_AID,
-			},
-			MSBT_TRIGGER_LOW_MANA = {
-				disabled		= true,
-				colorR			= 0.5,
-				colorG			= 0.5,
-				message			= L.MSG_TRIGGER_LOW_MANA .. "! (%a)",
-				alwaysSticky	= true,
-				fontSize		= 26,
-				classes			= "DRUID,MAGE,PALADIN,PRIEST,SHAMAN,WARLOCK",
-				mainEvents		= "UNIT_POWER_UPDATE{powerType;;eq;;0;;unitID;;eq;;player;;threshold;;lt;;35}",
-				exceptions		= "recentlyFired;;lt;;5",
-			},
-			MSBT_TRIGGER_LOW_PET_HEALTH = {
-				colorG			= 0.5,
-				colorB			= 0.5,
-				message			= L.MSG_TRIGGER_LOW_PET_HEALTH .. "! (%a)",
-				fontSize		= 26,
-				classes			= "HUNTER,MAGE,WARLOCK",
-				mainEvents		= "UNIT_HEALTH{unitID;;eq;;pet;;threshold;;lt;;40}",
-				exceptions		= "recentlyFired;;lt;;5",
-			},
 
 			MSBT_TRIGGER_MISSILE_BARRAGE = {
 				colorG			= 0.725,
