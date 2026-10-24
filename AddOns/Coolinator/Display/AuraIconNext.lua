@@ -82,6 +82,7 @@ function addonTable.Display.AuraIconNextMixin:OnLoad()
   end
 
   self.SetBorders = function(auraButton, details)
+    auraButton.TypeBorder:SetShown(details.harmfulTypeBorder)
     if details.style == "square" then
       local asset = addonTable.Assets.IconBorders["Cooli: 1px"]
       auraButton.TypeBorder.texture:SetTexture(asset.file)

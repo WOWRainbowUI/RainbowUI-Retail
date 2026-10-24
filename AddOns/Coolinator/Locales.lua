@@ -221,6 +221,7 @@ L["SPELL_RANK"] = "Spell rank"
 L["MAX"] = "Max"
 L["ROTATE"] = "Rotate"
 L["ONLY_SHOW_FOR_AURAS_FROM_YOU"] = "Only show for auras from you"
+L["SHOW_HARMFUL_TYPE_BORDER"] = "Show harmful type border"
 
 L["SETTING_CHANGED_THAT_REQUIRES_A_RELOAD"] = "Setting changed that requires a reload."
 
@@ -309,6 +310,7 @@ L["THANKS_FOR_USING_COOLINATOR_DONATE"] = "Thanks for using Coolinator. Consider
 
 
 local L = Locales.zhTW
+L["SHOW_HARMFUL_TYPE_BORDER"] = "顯示減益類型邊框"
 
 L["ROTATE"] = "旋轉"
 L["ONLY_SHOW_FOR_AURAS_FROM_YOU"] = "只顯示你施放的光環"
@@ -588,6 +590,7 @@ L["THANKS_FOR_USING_COOLINATOR_DONATE"] = "感謝使用 Coolinator。請考慮�
 
 L["WHEN_MISSING_RESOURCES"] = "資源不足時"
 local L = Locales.zhCN
+L["SHOW_HARMFUL_TYPE_BORDER"] = "显示减益类型边框"
 
 L["ROTATE"] = "旋转"
 L["ONLY_SHOW_FOR_AURAS_FROM_YOU"] = "只显示你施放的光环"

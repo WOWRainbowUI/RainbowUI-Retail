@@ -27,15 +27,15 @@ local function GetPrimaryClassResource(resource, fgColor, bgColor, t1, t2, t3)
     layout = "horizontal",
     direction = "left",
     foreground = {
-      asset = "Cooli: Fade Right",
+      asset = "MM: Fade Right",
       color = fgColor,
     },
     background = {
-      asset = "Cooli: Solid White",
+      asset = "MM: Solid White",
       color = bgColor,
     },
     border = {
-      asset = "Cooli: 1px",
+      asset = "MM: 1px",
       color = {r = 0, g = 0, b = 0},
     },
     thresholdColors = {
@@ -144,15 +144,15 @@ local function GetClassPipGroup(resource, limit, ready, fill, empty)
     alpha = 1,
     layout = "horizontal",
     foreground = {
-      asset = "Cooli: Fade Bottom",
+      asset = "MM: Fade Bottom",
       color = fill,
     },
     background = {
-      asset = "Cooli: Solid White",
+      asset = "MM: Solid White",
       color = empty,
     },
     border = {
-      asset = "Cooli: 7px",
+      asset = "MM: 7px",
       color = GetColor("9d9d9d"),
       readyColor = ready,
     },
@@ -201,15 +201,15 @@ local function GetChargeGroup(fill, empty)
     alpha = 1,
     layout = "horizontal",
     foreground = {
-      asset = "Cooli: Fade Bottom",
+      asset = "MM: Fade Bottom",
       color = fill,
     },
     background = {
-      asset = "Cooli: Solid White",
+      asset = "MM: Solid White",
       color = empty,
     },
     border = {
-      asset = "Cooli: 7px",
+      asset = "MM: 7px",
       color = GetColor("9d9d9d"),
     },
     showEmpty = true,
@@ -234,15 +234,15 @@ local function GetAuraStackGroup(fill, empty)
     alpha = 1,
     layout = "horizontal",
     foreground = {
-      asset = "Cooli: Fade Bottom",
+      asset = "MM: Fade Bottom",
       color = fill,
     },
     background = {
-      asset = "Cooli: Solid White",
+      asset = "MM: Solid White",
       color = empty,
     },
     border = {
-      asset = "Cooli: 7px",
+      asset = "MM: 7px",
       color = GetColor("9d9d9d"),
     },
     showEmpty = true,
@@ -352,15 +352,15 @@ addonTable.Designer.Defaults = {
     icon = {show = true, position = "left"},
     alpha = 1,
     foreground = {
-      asset = "Cooli: Fade Bottom",
+      asset = "MM: Fade Bottom",
       color = {r = 0, g = 1, b = 0},
     },
     background = {
-      asset = "Cooli: Solid White",
+      asset = "MM: Solid White",
       color = GetColor("94ff21", 0.3),
     },
     border = {
-      asset = "Cooli: Blizzard Midnight",
+      asset = "MM: Blizzard Midnight",
       color = {r = 1, g = 1, b = 1},
     },
     texts = spellBarTexts,
@@ -377,15 +377,15 @@ addonTable.Designer.Defaults = {
     icon = {show = true, position = "left"},
     alpha = 1,
     foreground = {
-      asset = "Cooli: Fade Bottom",
+      asset = "MM: Fade Bottom",
       color = {r = 0, g = 1, b = 0},
     },
     background = {
-      asset = "Cooli: Solid White",
+      asset = "MM: Solid White",
       color = GetColor("94ff21", 0.3),
     },
     border = {
-      asset = "Cooli: Blizzard Midnight",
+      asset = "MM: Blizzard Midnight",
       color = {r = 1, g = 1, b = 1},
     },
     texts = spellBarTexts,
@@ -402,15 +402,15 @@ addonTable.Designer.Defaults = {
     direction = "right",
     alpha = 1,
     foreground = {
-      asset = "Cooli: Fade Bottom",
+      asset = "MM: Fade Bottom",
       color = {r = 0, g = 1, b = 0},
     },
     background = {
-      asset = "Cooli: Solid White",
+      asset = "MM: Solid White",
       color = GetColor("94ff21", 0.3),
     },
     border = {
-      asset = "Cooli: Blizzard Midnight",
+      asset = "MM: Blizzard Midnight",
       color = {r = 1, g = 1, b = 1},
     },
     texts = auraStacksTexts,
@@ -427,15 +427,15 @@ addonTable.Designer.Defaults = {
       layout = "horizontal",
       direction = "left",
       foreground = {
-        asset = "Cooli: Fade Right",
+        asset = "MM: Fade Right",
         color = {r = 0, g = 0, b = 1},
       },
       background = {
-        asset = "Cooli: Solid White",
+        asset = "MM: Solid White",
         color = GetColor("6bcbff", 0.3),
       },
       border = {
-        asset = "Cooli: 1px",
+        asset = "MM: 1px",
         color = {r = 0, g = 0, b = 0},
       },
     },
@@ -459,15 +459,15 @@ addonTable.Designer.Defaults = {
       layout = "horizontal",
       direction = "left",
       foreground = {
-        asset = "Cooli: Fade Bottom",
+        asset = "MM: Fade Bottom",
         color = {r = 0, g = 1, b = 0},
       },
       background = {
-        asset = "Cooli: Solid White",
+        asset = "MM: Solid White",
         color = GetColor("6bcbff", 0.3),
       },
       border = {
-        asset = "Platy: Round Thin",
+        asset = "MM: Round Thin",
         color = {r = 0, g = 0, b = 0},
       },
       thresholdColors = {
@@ -499,15 +499,15 @@ addonTable.Designer.Defaults = {
     hideDelay = 0.5,
     preset = "DEFAULT",
     foreground = {
-      asset = "Cooli: Fade Left",
+      asset = "MM: Fade Left",
       color = {r = 0, g = 1, b = 0},
     },
     background = {
-      asset = "Cooli: Solid White",
+      asset = "MM: Solid White",
       color = GetColor("94ff21", 0.3),
     },
     border = {
-      asset = "Cooli: Blizzard Midnight",
+      asset = "MM: Blizzard Midnight",
       color = {r = 1, g = 1, b = 1},
     },
     texts = castBarTexts,
@@ -534,15 +534,15 @@ addonTable.Designer.Defaults = {
     direction = "right",
     alpha = 1,
     foreground = {
-      asset = "Cooli: Fade Bottom",
+      asset = "MM: Fade Bottom",
       color = {r = 0, g = 1, b = 0},
     },
     background = {
-      asset = "Cooli: Solid White",
+      asset = "MM: Solid White",
       color = GetColor("94ff21", 0.3),
     },
     border = {
-      asset = "Cooli: Blizzard Midnight",
+      asset = "MM: Blizzard Midnight",
       color = {r = 1, g = 1, b = 1},
     },
     texts = spellBarTextsFractions,

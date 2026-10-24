@@ -339,30 +339,6 @@ function addonTable.Core.GenerateCoolinatorLayoutFromExisting(layoutName)
 
   table.insert(result.entries, barGroups)
 
-  --[[table.insert(result.entries, {
-    kind = "bar",
-    resource = {kind = "class", resource = "icicles"},
-    width = 2, --0, -- widest of the entries just above or just below in the layout
-    height = 0.65,
-    scale = 1.5,
-    alpha = 1,
-    layout = "horizontal",
-    direction = "left",
-    icon = {show = true, position = "right"},
-    foreground = {
-      asset = "Cooli: Fade Right",
-      color = {r = 0, g = 0, b = 1},
-    },
-    background = {
-      asset = "Cooli: Solid White",
-      color = GetColor("6bcbff", 0.3),
-    },
-    border = {
-      asset = "Platy: Round Thin",
-      color = {r = 0, g = 0, b = 0},
-    },
-  })]]
-
   local final = {
     kind = "group",
     version = 2,

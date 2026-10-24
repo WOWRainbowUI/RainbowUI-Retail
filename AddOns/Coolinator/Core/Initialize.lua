@@ -52,8 +52,6 @@ function addonTable.Core.Initialize()
 
   addonTable.Core.MigrateSettings()
 
-  addonTable.Assets.Initialize()
-
   addonTable.CustomiseDialog.Initialize()
   addonTable.Designer.Initialize()
 
