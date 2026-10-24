@@ -1,5 +1,5 @@
 ## Interface: 40402
-## Version: 4.0.0
+## Version: 4.0.1
 ## Title: Auto Potion
 ## Author: ollidiemaus
 ## Notes: Updates the Macro AutoPotion to use either Healthstone or the highest Potion found in Bags 
@@ -60,6 +60,7 @@ Core/Food/Wrath.lua
 Core/Food/Cata.lua
 Core/Food/Mists.lua
 Core/Food/Forever.lua
+Core/FoodBuff.lua
 Core/Drink.lua
 Core/Drink/Retail.lua
 Core/Drink/Classic.lua
