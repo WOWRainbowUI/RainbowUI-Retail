@@ -287,7 +287,7 @@ local function Reset_FlipBooks(Region, Button, Width, Height)
 			Start_Flipbook:ClearAllPoints()
 			Start_Flipbook:SetPoint(STR_CENTER)
 
-			local Button_Width, Button_Height = Button:GetSize()
+			local Button_Width, Button_Height = Button._MSQ_CFG:GetFrameSize()
 
 			-- Default + Skin Size
 			if Width and Height then
@@ -349,7 +349,7 @@ local function Skin_FlipBooks(Region, Button, Skin, UpdateUID)
 		-- [ Alert Frame ]
 
 		-- Get the frame's skin size relative to scaling.
-		Width, Height = _mcfg:GetSize(Style_Skin.Width, Style_Skin.Height)
+		Width, Height = _mcfg:GetScaleSize(Style_Skin.Width, Style_Skin.Height)
 
 		-- Set the frame size relative to the button.
 		Width = Width * 1.4
@@ -436,7 +436,7 @@ local function Skin_FlipBooks(Region, Button, Skin, UpdateUID)
 
 				AltGlow:SetTexture(Glow_Style.Texture)
 				AltGlow:SetTexCoord(0, 1, 0, 1)
-				AltGlow:SetSize(_mcfg:GetSize(Glow_Width, Glow_Height))
+				AltGlow:SetSize(_mcfg:GetScaleSize(Glow_Width, Glow_Height))
 			end
 		end
 	end

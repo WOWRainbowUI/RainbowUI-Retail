@@ -30,11 +30,11 @@ local SetSkinPoint = Core.SetSkinPoint
 function Core.Skin_Text(Layer, Region, Button, Skin)
 	local _mcfg = Button._MSQ_CFG
 
-	Skin = _mcfg:GetTypeSkin(Button, Skin)
+	Skin = _mcfg:GetTypeSkin(Skin)
 
 	local Default = SkinRoot[Layer]
 
-	Default = Default[_mcfg.bType] or Default
+	Default = Default[_mcfg.SubType] or Default
 
 	local Skin_Wrap = (Skin.Wrap and true) or false
 
@@ -42,7 +42,7 @@ function Core.Skin_Text(Layer, Region, Button, Skin)
 	Region:SetJustifyV(Skin.JustifyV or Default.JustifyV)
 	Region:SetWordWrap(Skin_Wrap)
 	Region:SetDrawLayer(Skin.DrawLayer or Default.DrawLayer)
-	Region:SetSize(_mcfg:GetSize(Skin.Width or Default.Width, Skin.Height or Default.Height))
+	Region:SetSize(_mcfg:GetScaleSize(Skin.Width or Default.Width, Skin.Height or Default.Height))
 
 	SetSkinPoint(Region, Button, Skin, nil, Button, Default)
 end

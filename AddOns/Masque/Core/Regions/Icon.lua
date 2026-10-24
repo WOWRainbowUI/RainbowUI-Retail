@@ -134,9 +134,9 @@ Core.SetEmpty = SetEmpty
 function Core.Skin_Icon(Region, Button, Skin, Hide)
 	local _mcfg = Button._MSQ_CFG
 
-	local bType = _mcfg.bType
+	local subType = _mcfg.SubType
 
-	if bType == TYPE_BACKPACK then
+	if subType == TYPE_BACKPACK then
 		if Hide then
 			Region:SetTexture()
 		else
@@ -144,17 +144,17 @@ function Core.Skin_Icon(Region, Button, Skin, Hide)
 		end
 	end
 
-	local Layer = (bType == TYPE_ITEM and STR_BORDER) or BASE_LAYER
+	local Layer = (subType == TYPE_ITEM and STR_BORDER) or BASE_LAYER
 
 	Region._MSQ_Button = Button
 
 	-- Skin
-	Skin = _mcfg:GetTypeSkin(Button, Skin)
+	Skin = _mcfg:GetTypeSkin(Skin)
 
 	Region:SetTexCoord(GetTexCoords(Skin.TexCoords))
 	Region:SetDrawLayer(Layer, BASE_LEVEL)
 
-	Region:SetSize(_mcfg:GetSize(Skin.Width, Skin.Height))
+	Region:SetSize(_mcfg:GetScaleSize(Skin.Width, Skin.Height))
 
 	local SetAllPoints = Skin.SetAllPoints
 
@@ -162,7 +162,7 @@ function Core.Skin_Icon(Region, Button, Skin, Hide)
 		local Width = Skin.Width or BASE_SIZE
 		local Height = Skin.Height or BASE_SIZE
 
-		Region:SetSize(_mcfg:GetSize(Width, Height))
+		Region:SetSize(_mcfg:GetScaleSize(Width, Height))
 	end
 
 	SetSkinPoint(Region, Button, Skin, SetAllPoints)
@@ -174,13 +174,13 @@ function Core.Skin_Icon(Region, Button, Skin, Hide)
 		Region._MSQ_Button = nil
 	end
 
-	if _mcfg.IsEmptyType then
+	if _mcfg.isEmptyType then
 		local IsEmpty = (not Region:IsShown()) or (Region:GetAlpha() == 0)
 
 		SetEmpty(Button, IsEmpty)
 
 		-- Hooks
-		if Hook_Icon[bType] and (not Region._MSQ_Hooked) then
+		if Hook_Icon[subType] and (not Region._MSQ_Hooked) then
 			hooksecurefunc(Region, STR_HIDE, Hook_Hide)
 			hooksecurefunc(Region, STR_SHOW, Hook_Show)
 

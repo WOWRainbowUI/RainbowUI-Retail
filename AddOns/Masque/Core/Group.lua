@@ -22,6 +22,9 @@ local error, pairs, select, type = error, pairs, select, type
 -- Internal
 ---
 
+-- @ Masque
+local HasSecrets = Core.HasSecrets
+
 -- @ Skins\Skins
 local Skins = Core.Skins
 
@@ -29,10 +32,10 @@ local Skins = Core.Skins
 local DEFAULT_SKIN = Core.DEFAULT_SKIN
 
 -- @ Skins\Regions
-local ActionTypes, RegTypes = Core.ActionTypes, Core.RegTypes
+local TypeConfig = Core.TypeConfig
 
 -- @ Core\Utility
-local GetColor = Core.GetColor
+local GetColor, GetFrameType = Core.GetColor, Core.GetFrameType
 
 -- @ Core\Core
 local GetMasqueConfig, GetRegion = Core.GetMasqueConfig, Core.GetRegion
@@ -67,65 +70,47 @@ local C_Layers = {
 -- Group Metatable
 ---
 
--- Frame Validation
-local IsFrame = {
-	Button = true,
-	CheckButton = true,
-	Frame = true,
-}
-
 -- Adds or reassigns a button to the group.
 function GMT:AddButton(Button, Regions, Type, Strict)
-	local FrameType
 
-	if type(Button) == "table" then
-		local oType = Button.GetObjectType and Button:GetObjectType()
+	-- Validation
+	local frameType = GetFrameType(Button)
 
-		if oType and IsFrame[oType] then
-			FrameType = oType
-		end
-	end
-
-	if not FrameType then
+	if not frameType then
 		if Core.Debug then
 			error("Bad argument to group method 'AddButton'. 'Button' must be a Button, CheckButton or Frame object.", 2)
 		end
 		return
-
-	elseif FrameType == "Frame" then
-		Strict = true
 	end
 
-	local _mcfg = GetMasqueConfig(Button)
-	_mcfg.oType = FrameType
+	local parent = Group[Button]
 
-	local bType = _mcfg:GetType(Button, Type)
+	if parent == self then return end
+
+	-- Reassignment
+	if parent then
+		Regions = Regions or parent.Buttons[Button]
+		parent.Buttons[Button] = nil
+	end
+
+	-- Configuration
+	local _mcfg = GetMasqueConfig(Button)
+
+	_mcfg.FrameType = frameType
+
+	local _, subType = _mcfg:GetConfigTypes(Type)
 
 	Regions = Regions or _mcfg.Regions
 
-	local Parent = Group[Button]
-
-	if Parent then
-		if Parent == self then
-			return
-		else
-			Regions = Regions or Parent.Buttons[Button]
-			Parent.Buttons[Button] = nil
-		end
-	end
-
 	Group[Button] = self
-
-	if ActionTypes[bType] then
-		self.ActionButtons = true
-	end
 
 	if type(Regions) ~= "table" then
 		Regions = {}
 	end
 
-	if not Strict then
-		local Layers = RegTypes[bType]
+	-- Don't iterate layers for generic frames.
+	if not Strict and frameType ~= "Frame" then
+		local Layers = TypeConfig[subType]
 
 		for Layer, Info in pairs(Layers) do
 			local Region = Regions[Layer]
@@ -133,8 +118,6 @@ function GMT:AddButton(Button, Regions, Type, Strict)
 			if Region == nil and not Info.Ignore then
 				if Layer == "AutoCastShine" then
 					Region = Regions.Shine or Regions.AutoCast or GetRegion(Button, Info)
-				elseif Layer == "Backdrop" then
-					Region = Regions.FloatingBG or GetRegion(Button, Info)
 				else
 					Region = GetRegion(Button, Info)
 				end
@@ -152,7 +135,7 @@ function GMT:AddButton(Button, Regions, Type, Strict)
 	local db = self.db
 
 	if not self.Queued then
-		if Parent and not Parent.db.Disabled and db.Disabled then
+		if parent and not parent.db.Disabled and db.Disabled then
 			SkinButton(Button, Regions, false)
 		elseif not db.Disabled then
 			SkinButton(Button, Regions, db.SkinID, db.Backdrop, db.Shadow, db.Gloss, db.Colors, db.Scale, db.Pulse)
@@ -259,23 +242,53 @@ end
 -- Reskins the group with its current settings.
 function GMT:ReSkin(Button)
 	local db = self.db
+	if db.Disabled then return end
 
-	if not db.Disabled then
-		if type(Button) == "table" then
-			local Regions = self.Buttons[Button]
+	local SkinID, Backdrop, Shadow = db.SkinID, db.Backdrop, db.Shadow
+	local Gloss, Colors, Pulse = db.Gloss, db.Colors, db.Pulse
 
-			if Regions then
-				SkinButton(Button, Regions, db.SkinID, db.Backdrop, db.Shadow, db.Gloss, db.Colors, db.Scale, db.Pulse)
-			end
-		else
-			local SkinID, Backdrop, Shadow = db.SkinID, db.Backdrop, db.Shadow
-			local Gloss, Colors, Pulse = db.Gloss, db.Colors, db.Pulse
+	local Regions = type(Button) == "table" and self.Buttons[Button]
 
-			for Button, Regions in pairs(self.Buttons) do
-				SkinButton(Button, Regions, SkinID, Backdrop, Shadow, Gloss, Colors, db.Scale, Pulse)
-			end
+	if Regions then
+		SkinButton(Button, Regions, db.SkinID, db.Backdrop, db.Shadow, db.Gloss, db.Colors, db.Scale, db.Pulse)
+
+	else
+		for frame, regions in pairs(self.Buttons) do
+			SkinButton(frame, regions, SkinID, Backdrop, Shadow, Gloss, Colors, db.Scale, Pulse)
 		end
 	end
+end
+
+-- Sets the frame's size values so Masque can use them.
+-- Note: This only needs to be called if the values from Frame:GetSize() are secret.
+function GMT:SetFrameSize(Width, Height, Button, Mutable, SetOnly)
+	if type(Width) ~= "number" or type(Height) ~= "number" then
+		if Core.Debug then
+			error("Bad argument to group method 'SetFrameSize'. 'Width' and `Height` must be numbers.", 2)
+		end
+		return
+	end
+
+	if HasSecrets(Width, Height) then
+		if Core.Debug then
+			error("Bad argument to group method 'SetFrameSize'. 'Width' and `Height` cannot contain secret values.", 2)
+		end
+		return
+	end
+
+	if type(Button) == "table" and self.Buttons[Button] then
+		Button._MSQ_CFG:SetFrameSize(Width, Height, Mutable)
+
+	else
+		Button = nil
+
+		for frame in pairs(self.Buttons) do
+			frame._MSQ_CFG:SetFrameSize(Width, Height, Mutable)
+		end
+
+	end
+
+	if not SetOnly then self:ReSkin(Button) end
 end
 
 -- Renames the group.

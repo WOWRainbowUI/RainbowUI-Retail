@@ -9,8 +9,7 @@
 
 	[ Notes ]
 
-	To help with translations, use the localization system on CurseForge (https://www.curseforge.com/wow/addons/masque/localization)
-	or contribute directly on GitHub (https://github.com/SFX-WoW/Masque).
+	To help with translations, use the localization system on CurseForge (https://www.curseforge.com/wow/addons/masque/localization).
 
 ]]
 
@@ -19,105 +18,21 @@ if GetLocale() ~= "ruRU" then return end
 local _, Core = ...
 local L = Core.Locale
 
-----------------------------------------
--- About Masque
----
-
+-- Info
 L["About Masque"] = "О Masque"
 L["API"] = "API"
-L["For more information, please visit one of the sites listed below."] = "Для получения подробной информации, пожалуйста посетите один из сайтов расположенных ниже."
-L["Masque is a skinning engine for button-based add-ons."] = "Masque - это аддон для изменения внешнего вида кнопок."
-L["Select to view."] = "Выберите, чтобы посмотреть."
-L["Supporters"] = "Поддержка"
-L["You must have an add-on that supports Masque installed to use it."] = "У Вас должны быть установлены аддоны, поддерживающие Masque"
-
-----------------------------------------
--- Advanced Settings
----
-
-L["Advanced"] = "Дополнительно"
-L["Advanced Settings"] = "Расширенные настройки"
-L["Cast Animations"] = "Анимации произнесения"
-L["Cooldown Animations"] = "Анимации перезарядки"
-L["Enable animations when action button cooldowns finish."] = "Включить анимацию по окончании времени восстановления кнопок действий."
-L["Enable cast animations on action buttons."] = "Включить отображение анимации на кнопках действий."
-L["Enable interrupt animations on action buttons."] = "Включить анимации прерывания на кнопках действий."
-L["Enable targeting reticles on action buttons."] = "Включить прицелы наведения на кнопках действий."
-L["Flash and Loop"] = "Мигание и зацикливание"
-L["Interrupt Animations"] = "Анимация прерывания"
-L["Loop Only"] = "Только зацикливание"
-L["Select the spell alert style."] = "Выберите стиль оповещения о заклинании."
-L["Select which spell alert animations are enabled."] = "Выберите, какие анимации оповещений о заклинаниях включить."
-L["Spell Alert Animations"] = "Анимации оповещений о заклинаниях"
-L["Spell Alert Style"] = "Стиль оповещения о заклинании"
-L["Targeting Reticles"] = "Прицелы наведения"
-L["This section will allow you to adjust button settings for the default interface."] = "В этом разделе вы сможете настроить параметры кнопок для интерфейса по умолчанию."
-
-----------------------------------------
--- Blizzard Classic Skin
----
-
-L["The default classic button style."] = "Классический стиль кнопок по умолчанию."
-
-----------------------------------------
--- Blizzard Modern Skin
----
-
-L["The default modern button style."] = "Современный стиль кнопок по умолчанию."
-
-----------------------------------------
--- Classic Enhanced Skin
----
-
-L["An enhanced version of the classic button style."] = "Усовершенствованная версия классического стиля кнопок."
-
-----------------------------------------
--- Core Settings
----
-
-L["About"] = "Об аддоне"
-L["This section will allow you to view information about Masque and any skins you have installed."] = "Этот раздел позволяет смотреть информацию о Masque и любом скине, который установлен."
-
-----------------------------------------
--- Developer Settings
----
-
-L["Causes Masque to throw Lua errors whenever it encounters a problem with an add-on or skin."] = "Заставляет Masque выдавать ошибки Lua каждый раз, когда он сталкивается с проблемой с аддоном или скином."
-L["Clean Database"] = "Очистить базу"
-L["Click to purge the settings of all unused add-ons and groups."] = "Нажмите для очистки настроек всех неиспользованных аддонов и групп."
-L["Debug Mode"] = "Режим отладки"
-L["Developer"] = "Разработка"
-L["Developer Settings"] = "Настройки разработчика"
-L["Masque debug mode disabled."] = "Режим отладки Masque отключен."
-L["Masque debug mode enabled."] = "Режим отладки Masque включен."
-L["This action cannot be undone. Continue?"] = "Действие необратимо. Продолжить?"
-L["This section will allow you to adjust settings that affect working with Masque's API."] = "Этот раздел позволяет настраивать Masque для работы с API."
-
-----------------------------------------
--- Dream Skin
----
-
-L["A square skin with trimmed icons and a semi-transparent background."] = "Квадратный скин с обрезанными иконками и полупрозрачным фоном."
-
-----------------------------------------
--- General Settings
----
-
-L["General Settings"] = "Общие настройки"
-L["This section will allow you to adjust Masque's interface and performance settings."] = "Этот раздел позволяет изменять настройки интерфейса и производительности Masque."
-
-----------------------------------------
--- Installed Skins
----
-
 L["Author"] = "Автор"
 L["Authors"] = "Авторы"
 L["Compatible"] = "Совместим"
 L["Description"] = "Описание"
 L["Discord"] = "Discord"
+L["For more information, please visit one of the sites listed below."] = "Для получения подробной информации, пожалуйста посетите один из сайтов расположенных ниже."
 L["Installed Skins"] = "Установленные скины"
+L["Masque is a skinning engine for button-based add-ons."] = "Masque - это аддон для изменения внешнего вида кнопок."
 L["No description available."] = "Нет описания."
+L["Select to view."] = "Выберите, чтобы посмотреть."
 L["Status"] = "Статус"
+L["Supporters"] = "Поддержка"
 L["The status of this skin is unknown."] = "Статус скина неизвестен."
 L["This section provides information on any skins you have installed."] = "В этом разделе показана информация об установленных скинах."
 L["This skin is compatible with Masque."] = "Скин совместим с Masque."
@@ -126,78 +41,73 @@ L["Unknown"] = "Неизвестно"
 L["Version"] = "Версия"
 L["Website"] = "Сайт"
 L["Websites"] = "Сайты"
+L["You must have an add-on that supports Masque installed to use it."] = "У Вас должны быть установлены аддоны, поддерживающие Masque"
 
-----------------------------------------
--- Interface Settings
----
-
+-- Settings
+L["About"] = "Об аддоне"
 L["Add-On Compartment"] = "Отсек аддонов"
-L["Alternate Sorting"] = "Альтернативная сортировка"
-L["Causes the skins included with Masque to be listed above third-party skins."] = "Приводит к тому, что скины, входящие в состав Masque, отображаются выше сторонних скинов."
-L["Click to reload the interface."] = "Нажмите для перезагрузки интерфейса."
-L["Increases the font size of the text on Ace3 profile panels."] = "Увеличивает размер шрифта текста на панелях профилей Ace3."
-L["Interface"] = "Интерфейс"
-L["Interface Settings"] = "Настройки интерфейса"
-L["Load the skin information panel."] = "Загрузить информационную панель скинов."
-L["Menu Icon"] = "Значок меню"
-L["Minimap"] = "Миникарта"
-L["None"] = "Нет"
-L["Profile Panel Font Fix"] = "Исправление шрифта панели профиля"
-L["Reload Interface"] = "Перезагрузить интерфейс"
-L["Requires an interface reload."] = "Требует перезагрузки интерфейса"
-L["Select where Masque's menu icon is displayed."] = "Выберите, где будет отображаться значок меню Masque."
-L["Skin Information"] = "Информация о скинах"
-L["Stand-Alone GUI"] = "Внешний фрейм настроек"
-L["This section will allow you to adjust settings that affect Masque's interface."] = "Этот раздел позволяет настраивать то, как Masque влияет на интерфейс."
-L["Use a resizable, stand-alone options window."] = "Использовать отдельное окно настроек."
-
-----------------------------------------
--- LDB Launcher
----
-
-L["Click to open Masque's settings."] = "Нажмите для открытия настроек Masque."
-L["Unavailable in combat."] = "Недоступно в бою."
-
-----------------------------------------
--- Modern Enhanced Skin
----
-
-L["An enhanced version of the modern button style."] = "Усовершенствованная версия современного стиля кнопок."
-
-----------------------------------------
--- Profile Settings
----
-
-L["Profile Settings"] = "Настройки профиля"
-
-----------------------------------------
--- Skin Settings
----
-
 L["Adjust the scale of this group's skin."] = "Отрегулируйте масштаб скина этой группы."
+L["Advanced"] = "Дополнительно"
+L["Advanced Settings"] = "Расширенные настройки"
+L["Alternate Sorting"] = "Альтернативная сортировка"
 L["Backdrop"] = "Фон"
+L["Cast Animations"] = "Анимации произнесения"
+L["Causes Masque to throw Lua errors whenever it encounters a problem with an add-on or skin."] = "Заставляет Masque выдавать ошибки Lua каждый раз, когда он сталкивается с проблемой с аддоном или скином."
+L["Causes the skins included with Masque to be listed above third-party skins."] = "Приводит к тому, что скины, входящие в состав Masque, отображаются выше сторонних скинов."
 L["Checked"] = "При выделении"
+L["Clean Database"] = "Очистить базу"
+L["Click to open Masque's settings."] = "Нажмите для открытия настроек Masque."
+L["Click to purge the settings of all unused add-ons and groups."] = "Нажмите для очистки настроек всех неиспользованных аддонов и групп."
+L["Click to reload the interface."] = "Нажмите для перезагрузки интерфейса."
 L["Color"] = "Цвет"
 L["Colors"] = "Цвета"
 L["Cooldown"] = "Анимация перезарядки способности"
+L["Cooldown Animations"] = "Анимации перезарядки"
+L["Debug Mode"] = "Режим отладки"
+L["Developer"] = "Разработка"
+L["Developer Settings"] = "Настройки разработчика"
 L["Disable"] = "Отключить"
 L["Disable the skinning of this group."] = "Отключить скины для этой группы."
 L["Enable"] = "Включить"
+L["Enable animations when action button cooldowns finish."] = "Включить анимацию по окончании времени восстановления кнопок действий."
+L["Enable cast animations on action buttons."] = "Включить отображение анимации на кнопках действий."
+L["Enable interrupt animations on action buttons."] = "Включить анимации прерывания на кнопках действий."
 L["Enable skin scaling."] = "Включить масштабирование скина."
+L["Enable targeting reticles on action buttons."] = "Включить прицелы наведения на кнопках действий."
 L["Enable the Backdrop texture."] = "Включить настройки фона текстуры."
 L["Enable the Gloss texture."] = "Включить настройки глянцевой текстуры."
 L["Enable the Shadow texture."] = "Включить настройки текстуры тени."
 L["Flash"] = "Мигание"
+L["Flash and Loop"] = "Мигание и зацикливание"
+L["General Settings"] = "Общие настройки"
 L["Global"] = "Общее"
 L["Global Settings"] = "Настройки"
 L["Gloss"] = "Глянец"
 L["Highlight"] = "При наведении"
+L["Increases the font size of the text on Ace3 profile panels."] = "Увеличивает размер шрифта текста на панелях профилей Ace3."
+L["Interface"] = "Интерфейс"
+L["Interface Settings"] = "Настройки интерфейса"
+L["Interrupt Animations"] = "Анимация прерывания"
+L["Load the skin information panel."] = "Загрузить информационную панель скинов."
+L["Loop Only"] = "Только зацикливание"
+L["Masque debug mode disabled."] = "Режим отладки Masque отключен."
+L["Masque debug mode enabled."] = "Режим отладки Masque включен."
+L["Menu Icon"] = "Значок меню"
+L["Minimap"] = "Миникарта"
+L["None"] = "Нет"
 L["Normal"] = "Нормальный"
+L["Profile Panel Font Fix"] = "Исправление шрифта панели профиля"
+L["Profile Settings"] = "Настройки профиля"
 L["Pulse"] = "Импульс"
 L["Pushed"] = "При нажатии"
+L["Reload Interface"] = "Перезагрузить интерфейс"
+L["Requires an interface reload."] = "Требует перезагрузки интерфейса"
 L["Reset all skin options to the defaults."] = "Установить значения цветов по умолчанию."
 L["Reset Skin"] = "Сбросить скин"
 L["Scale"] = "Масштаб"
+L["Select the spell alert style."] = "Выберите стиль оповещения о заклинании."
+L["Select where Masque's menu icon is displayed."] = "Выберите, где будет отображаться значок меню Masque."
+L["Select which spell alert animations are enabled."] = "Выберите, какие анимации оповещений о заклинаниях включить."
 L["Set the color of the Backdrop texture."] = "Установить цвет фона текстуры."
 L["Set the color of the Checked texture."] = "Установить цвет текстуры при выделении."
 L["Set the color of the Cooldown animation."] = "Установить цвет анимации перезарядки способностей."
@@ -211,14 +121,30 @@ L["Set the skin for this group."] = "Установить скин для дан
 L["Shadow"] = "Тень"
 L["Show the pulse effect when a cooldown finishes."] = "Показывать эффект пульсации после окончания перезарядки."
 L["Skin"] = "Скины"
+L["Skin Information"] = "Информация о скинах"
 L["Skin Settings"] = "Настройки скинов"
+L["Spell Alert Animations"] = "Анимации оповещений о заклинаниях"
+L["Spell Alert Style"] = "Стиль оповещения о заклинании"
+L["Stand-Alone GUI"] = "Внешний фрейм настроек"
+L["Targeting Reticles"] = "Прицелы наведения"
+L["This action cannot be undone. Continue?"] = "Действие необратимо. Продолжить?"
+L["This section will allow you to adjust button settings for the default interface."] = "В этом разделе вы сможете настроить параметры кнопок для интерфейса по умолчанию."
+L["This section will allow you to adjust Masque's interface and performance settings."] = "Этот раздел позволяет изменять настройки интерфейса и производительности Masque."
+L["This section will allow you to adjust settings that affect Masque's interface."] = "Этот раздел позволяет настраивать то, как Masque влияет на интерфейс."
+L["This section will allow you to adjust settings that affect working with Masque's API."] = "Этот раздел позволяет настраивать Masque для работы с API."
 L["This section will allow you to adjust the skin settings of all buttons registered to %s."] = "Этот раздел позволяет менять настройки сразу для всех кнопок %s."
 L["This section will allow you to adjust the skin settings of all buttons registered to %s. This will overwrite any per-group settings."] = "Этот раздел позволяет менять настройки сразу для всех кнопок %s. Изменения будут важнее любых, сделанных в подгруппах этого аддона."
 L["This section will allow you to adjust the skin settings of all registered buttons. This will overwrite any per-add-on settings."] = "Этот раздел позволяет менять настройки сразу для всех кнопок. Изменения будут важнее любых, сделанных где-либо ещё."
 L["This section will allow you to skin the buttons of the add-ons and add-on groups registered with Masque."] = "Этот раздел позволяет настроить скины для панелей команд аддонов и групп аддонов, использующих Masque."
+L["This section will allow you to view information about Masque and any skins you have installed."] = "Этот раздел позволяет смотреть информацию о Masque и любом скине, который установлен."
+L["Unavailable in combat."] = "Недоступно в бою."
+L["Use a resizable, stand-alone options window."] = "Использовать отдельное окно настроек."
 
-----------------------------------------
--- Zoomed Skin
----
-
+-- Skins
+L["A square skin with trimmed icons and a semi-transparent background."] = "Квадратный скин с обрезанными иконками и полупрозрачным фоном."
 L["A square skin with zoomed icons and a semi-transparent background."] = "Квадратный скин с увеличенными иконками и полупрозрачным фоном."
+L["An enhanced version of the classic button style."] = "Усовершенствованная версия классического стиля кнопок."
+L["An enhanced version of the modern button style."] = "Усовершенствованная версия современного стиля кнопок."
+L["The default classic button style."] = "Классический стиль кнопок по умолчанию."
+L["The default modern button style."] = "Современный стиль кнопок по умолчанию."
+

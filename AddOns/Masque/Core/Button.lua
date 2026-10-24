@@ -36,8 +36,7 @@ local DEF_SKIN = Core.DEFAULT_SKIN
 local Skin_Data = Core.Skins
 
 -- @ Skins\Regions
-local ActionTypes, AuraTypes, EmptyTypes = Core.ActionTypes, Core.AuraTypes, Core.EmptyTypes
-local ItemTypes, RegTypes = Core.ItemTypes, Core.RegTypes
+local TypeConfig = Core.TypeConfig
 
 -- @ Core\Core
 local GetMasqueConfig = Core.GetMasqueConfig
@@ -248,7 +247,7 @@ function Core.SkinButton(Button, Regions, SkinID, Backdrop, Shadow, Gloss, Color
 	-- Force an update.
 	_mcfg:ForceUpdate()
 
-	local bType = _mcfg.bType
+	local subType = _mcfg.SubType
 	local Enabled = true
 	local Skin
 
@@ -277,14 +276,6 @@ function Core.SkinButton(Button, Regions, SkinID, Backdrop, Shadow, Gloss, Color
 
 	_mcfg:UpdateScale(Button, Scale)
 
-	local IsActionType = ActionTypes[bType]
-
-	-- Set/remove type flags.
-	_mcfg.IsAction = IsActionType
-	_mcfg.IsAura = AuraTypes[bType]
-	_mcfg.IsItem = ItemTypes[bType]
-	_mcfg.IsEmptyType = EmptyTypes[bType]
-
 	local Disabled = not Enabled
 
 	if Disabled or type(Colors) ~= "table" then
@@ -297,7 +288,7 @@ function Core.SkinButton(Button, Regions, SkinID, Backdrop, Shadow, Gloss, Color
 
 	if Mask_Skin then
 		if type(Mask_Skin) == "table" then
-			Mask_Skin = _mcfg:GetTypeSkin(Button, Mask_Skin)
+			Mask_Skin = _mcfg:GetTypeSkin(Mask_Skin)
 		end
 
 		Skin_Mask(Button, Mask_Skin)
@@ -305,20 +296,15 @@ function Core.SkinButton(Button, Regions, SkinID, Backdrop, Shadow, Gloss, Color
 
 	-- [[ Backdrop ]]
 
-	local FloatingBG = Button.FloatingBG or Regions.Backdrop
-
-	if Disabled then
-		Backdrop = (FloatingBG and true) or false
-	end
-
-	Skin_Backdrop(Backdrop, FloatingBG, Button, Skin.Backdrop, Colors.Backdrop)
+	Backdrop = (Backdrop and Enabled) or nil
+	Skin_Backdrop(Backdrop, Button, Skin.Backdrop, Colors.Backdrop)
 
 	-- [[ Icon ]]
 
 	local Hide_Icon
 
-	if bType == "Backpack" then
-		local Normal_Skin = _mcfg:GetTypeSkin(Button, Skin.Normal)
+	if subType == "Backpack" then
+		local Normal_Skin = _mcfg:GetTypeSkin(Skin.Normal)
 		local Normal_Atlas = Normal_Skin.Atlas
 
 		if (type(Normal_Atlas) == "string") and (Normal_Atlas:lower() == "bag-main") then
@@ -377,20 +363,20 @@ function Core.SkinButton(Button, Regions, SkinID, Backdrop, Shadow, Gloss, Color
 
 	-- [[ Iteration ]]
 
-	local Layers = RegTypes[bType] or RegTypes.Legacy
+	local typeConfig = TypeConfig[subType] or TypeConfig.Default
 
-	for Layer, Info in pairs(Layers) do
-		if Info.Iterate then
-			local Region = Regions[Layer]
+	for layer, config in pairs(typeConfig) do
+		if config.Iterate then
+			local region = Regions[layer]
 
-			if Region then
+			if region then
 				-- Text
-				if Info.Type == "FontString" then
-					Skin_Text(Layer, Region, Button, Skin[Layer])
+				if config.Type == "FontString" then
+					Skin_Text(layer, region, Button, Skin[layer])
 
 				-- Texture
 				else
-					Skin_Texture(Layer, Region, Button, Skin[Layer], Colors[Layer])
+					Skin_Texture(layer, region, Button, Skin[layer], Colors[layer])
 				end
 			end
 		end
@@ -442,14 +428,19 @@ function Core.SkinButton(Button, Regions, SkinID, Backdrop, Shadow, Gloss, Color
 		Skin_Cooldown(Cooldown, Button, Skin.Cooldown, Colors.Cooldown, Pulse)
 	end
 
-	-- [[ LoC Cooldown ]]
+	if _mcfg.isActionType then
 
-	if IsActionType then
+		-- [[ LoC Cooldown ]]
+
 		local CooldownLoC = Regions.CooldownLoC
 
 		if CooldownLoC then
 			Skin_Cooldown(CooldownLoC, Button, Skin.CooldownLoC, nil, nil, true)
 		end
+
+		-- [[ AutoCast ]]
+
+		Skin_AutoCast(Button, Skin)
 	end
 
 	-- [[ ChargeCooldown ]]
@@ -461,12 +452,6 @@ function Core.SkinButton(Button, Regions, SkinID, Backdrop, Shadow, Gloss, Color
 
 	if ChargeCooldown then
 		Skin_Cooldown(ChargeCooldown, Button, ChargeCooldown_Skin)
-	end
-
-	-- [[ AutoCast ]]
-
-	if IsActionType then
-		Skin_AutoCast(Button, Skin)
 	end
 
 	-- [[ SpellAlert ]]

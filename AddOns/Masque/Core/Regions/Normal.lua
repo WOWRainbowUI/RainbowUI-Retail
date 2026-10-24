@@ -72,7 +72,7 @@ local function Update_Normal(Button, IsEmpty)
 		local Color = _mcfg.Color_Normal
 		local Coords
 
-		local UseEmpty = _mcfg.IsEmptyType and IsEmpty
+		local UseEmpty = _mcfg.isEmptyType and IsEmpty
 
 		Color = (UseEmpty and Skin.EmptyColor) or Color
 
@@ -140,7 +140,7 @@ function Core.SetColor_Normal(Region, Button, Skin, Color)
 	Region = Region or _mcfg.Normal
 
 	if Region then
-		Skin = _mcfg:GetTypeSkin(Button, Skin)
+		Skin = _mcfg:GetTypeSkin(Skin)
 		_mcfg.Color_Normal = Color or Skin.Color
 
 		Update_Normal(Button)
@@ -164,7 +164,7 @@ function Core.Skin_Normal(Region, Button, Skin, Color)
 		Region = Region or Old_Normal
 	end
 
-	Skin = _mcfg:GetTypeSkin(Button, Skin)
+	Skin = _mcfg:GetTypeSkin(Skin)
 
 	-- States Enabled
 	if Skin.UseStates then
@@ -231,14 +231,14 @@ function Core.Skin_Normal(Region, Button, Skin, Color)
 		local Width = Skin.Width or BASE_SIZE
 		local Height = Skin.Height or BASE_SIZE
 
-		Region:SetSize(_mcfg:GetSize(Width, Height))
+		Region:SetSize(_mcfg:GetScaleSize(Width, Height))
 	end
 
 	SetSkinPoint(Region, Button, Skin, SetAllPoints)
 
 	Region:Show()
 
-	if IsButton and _mcfg.IsEmptyType and (not _mcfg.Normal_Hook) then
+	if IsButton and _mcfg.isEmptyType and (not _mcfg.Normal_Hook) then
 		hooksecurefunc(Button, STR_SETATLAS, Hook_SetNormal)
 		hooksecurefunc(Button, STR_SETTEXTURE, Hook_SetNormal)
 
