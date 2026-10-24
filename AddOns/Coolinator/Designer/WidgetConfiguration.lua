@@ -12,13 +12,12 @@ local function GetLabelsValuesBackgrounds()
   local height = textureHeight
   local width = addonTable.Assets.BarBordersSize.width * height / addonTable.Assets.BarBordersSize.height
 
-  local allKeys = GetKeysArray(addonTable.Assets.BarBackgrounds)
-  table.sort(allKeys)
-  for _, key in ipairs(allKeys) do
-    local details = addonTable.Assets.BarBackgrounds[key]
+  local mouseAssets = tFilter(assets, function(a) return a:match("^MM: ") end, true)
+  table.sort(mouseAssets)
+  for _, key in ipairs(mouseAssets) do
     local file = LSM:Fetch("statusbar", key)
-    local text = "|T".. file .. ":" .. (height - 1) .. ":" .. (width - 1) .. "|t " .. (key:gsub("Cooli: ", ""))
-    if details.isTransparent then
+    local text = "|T".. file .. ":" .. (height - 1) .. ":" .. (width - 1) .. "|t " .. (key:gsub("MM: ", ""))
+    if key == "MM: Solid Transparency" then
       text = addonTable.Locales.NONE
     end
 
@@ -26,14 +25,14 @@ local function GetLabelsValuesBackgrounds()
     table.insert(values, key)
   end
 
-  for _, key in ipairs(assets) do
-    if not addonTable.Assets.BarBackgrounds[key] then
-      local file = LSM:Fetch("statusbar", key)
-      local text = "|T".. file .. ":" .. (height - 1) .. ":" .. (width - 1) .. "|t [Custom] " .. key
+  local otherAssets = tFilter(assets, function(a) return not a:match("^MM: ") end, true)
+  table.sort(otherAssets)
+  for _, key in ipairs(otherAssets) do
+    local file = LSM:Fetch("statusbar", key)
+    local text = "|T".. file .. ":" .. (height - 1) .. ":" .. (width - 1) .. "|t [Custom] " .. key
 
-      table.insert(labels, text)
-      table.insert(values, key)
-    end
+    table.insert(labels, text)
+    table.insert(values, key)
   end
 
   return labels, values
@@ -45,13 +44,12 @@ local function GetLabelsValuesBorders()
 
   local height = textureHeight
 
-  local allKeys = GetKeysArray(addonTable.Assets.BarBordersSliced)
-  table.sort(allKeys)
-  for _, key in ipairs(allKeys) do
-    local details = addonTable.Assets.BarBordersSliced[key]
+  local mouseAssets = tFilter(assets, function(a) return a:match("^MM: ") end, true)
+  table.sort(mouseAssets)
+  for _, key in ipairs(mouseAssets) do
     local file = LSM:Fetch("nineslice", LSM:Fetch("ninesliceborder", key).nineslice).file
-    local text = "|T".. file .. ":" .. (height - 1) .. ":" .. (height - 1) .. "|t " .. (key:gsub("Cooli: ", ""))
-    if details.isTransparent then
+    local text = "|T".. file .. ":" .. (height - 1) .. ":" .. (height - 1) .. "|t " .. (key:gsub("MM: ", ""))
+    if key == "MM: Transparent" then
       text = addonTable.Locales.NONE
     end
 
@@ -59,9 +57,13 @@ local function GetLabelsValuesBorders()
     table.insert(values, key)
   end
 
-  for _, key in ipairs(assets) do
-    if not addonTable.Assets.BarBordersSliced[key] then
-      local file = LSM:Fetch("nineslice", LSM:Fetch("ninesliceborder", key).nineslice).file
+  local otherAssets = tFilter(assets, function(a) return not a:match("^MM: ") end, true)
+  table.sort(otherAssets)
+  for _, key in ipairs(otherAssets) do
+    local border = LSM:Fetch("ninesliceborder", key)
+    local slice = LSM:Fetch("nineslice", border.nineslice)
+    if slice then
+      local file = slice.file
       local text = "|T".. file .. ":" .. (height - 1) .. ":" .. (height - 1) .. "|t [Custom] " .. key
 
       table.insert(labels, text)
@@ -608,6 +610,18 @@ local auraGeneralSelf = {
   },
 }
 
+local auraIconSelf = CopyTable(auraGeneralSelf)
+table.insert(auraIconSelf.entries, {
+  label = addonTable.Locales.SHOW_HARMFUL_TYPE_BORDER,
+  kind = "checkbox",
+  setter = function(details, value)
+    details.harmfulTypeBorder = value
+  end,
+  getter = function(details)
+    return details.harmfulTypeBorder
+  end,
+})
+
 addonTable.Designer.WidgetConfiguration = {
   ["icon"] = {
     ["*"] = {
@@ -717,7 +731,7 @@ addonTable.Designer.WidgetConfiguration = {
     },
     ["aura"] = {
       ["*"] = {
-        auraGeneralSelf,
+        auraIconSelf,
         iconTexts,
         iconCooldown,
         {

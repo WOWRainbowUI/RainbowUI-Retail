@@ -29,7 +29,7 @@ function addonTable.Display.AbilityChargesPipMixin:Setup(details)
   self.statusBar:SetMinMaxValues(self.index - 1, self.index)
 
   self.chargingStatusBar:SetScale(1/self.lowerScale * details.scale)
-  local foregroundAsset = LSM:Fetch("statusbar", details.foreground.asset, true) or LSM:Fetch("statusbar", "Cooli: Solid White")
+  local foregroundAsset = LSM:Fetch("statusbar", details.foreground.asset, true) or LSM:Fetch("statusbar", "MM: Solid White")
   self.chargingStatusBar:SetStatusBarTexture(foregroundAsset)
   self.chargingStatusBar:SetAlpha(0.6)
   self.chargingStatusBar:GetStatusBarTexture():SetVertexColor(details.foreground.color.r, details.foreground.color.g, details.foreground.color.b)

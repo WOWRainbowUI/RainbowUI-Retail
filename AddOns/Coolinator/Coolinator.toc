@@ -1,7 +1,8 @@
 ## Interface: 120100, 120105, 16001
 ## Title: Coolinator
-## Version: 163
+## Version: 164
 ## Author: plusmouse
+## Dependencies: MouseMedia
 ## OptionalDeps: Masque
 ## SavedVariables: COOLINATOR_CONFIG
 ## SavedVariablesPerCharacter: COOLINATOR_CURRENT_PROFILE, COOLINATOR_LAST_INSTANCE

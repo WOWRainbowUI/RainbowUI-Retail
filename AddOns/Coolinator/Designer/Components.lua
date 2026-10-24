@@ -114,7 +114,7 @@ addonTable.Designer.BarMixin = {}
 
 function addonTable.Designer.BarMixin:OnLoad()
   self.statusBar = CreateFrame("StatusBar", nil, self)
-  self.statusBar:SetStatusBarTexture(LSM:Fetch("statusbar", "Cooli: Solid Transparency"))
+  self.statusBar:SetStatusBarTexture(LSM:Fetch("statusbar", "MM: Solid Transparency"))
   self.statusBar:SetMinMaxValues(0, 5)
   self.statusBar:SetValue(3)
   self.statusBar:SetAllPoints()

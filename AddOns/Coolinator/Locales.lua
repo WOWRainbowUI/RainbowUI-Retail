@@ -229,6 +229,7 @@ L["SPELL_RANK"] = "Spell rank"
 L["MAX"] = "Max"
 L["ROTATE"] = "Rotate"
 L["ONLY_SHOW_FOR_AURAS_FROM_YOU"] = "Only show for auras from you"
+L["SHOW_HARMFUL_TYPE_BORDER"] = "Show harmful type border"
 
 L["SETTING_CHANGED_THAT_REQUIRES_A_RELOAD"] = "Setting changed that requires a reload."
 

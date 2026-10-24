@@ -432,6 +432,33 @@ local function Iconsv28(group)
   end
 end
 
+local function MouseMediav29(group)
+  local function Convert(asset)
+    return asset:gsub("^Platy: ", "MM: "):gsub("^Cooli: ", "MM: ")
+  end
+  for i = #group.entries, 1, -1 do
+    local entry = group.entries[i]
+    if entry.kind == "group" or entry.kind == "stack" then
+      MouseMediav29(entry)
+    elseif entry.kind == "bar" then
+      entry.background.asset = Convert(entry.background.asset)
+      entry.foreground.asset = Convert(entry.foreground.asset)
+      entry.border.asset = Convert(entry.border.asset)
+    end
+  end
+end
+
+local function Iconsv30(group)
+  for i = #group.entries, 1, -1 do
+    local entry = group.entries[i]
+    if entry.kind == "group" or entry.kind == "stack" then
+      Iconsv27(entry)
+    elseif entry.kind == "icon" and (entry.resource.kind == "aura") then
+      entry.harmfulTypeBorder = true
+    end
+  end
+end
+
 local steps = {
   AddAlignment,
   addonTable.Core.RemoveDeadGroups,
@@ -465,6 +492,8 @@ local steps = {
   Combov26,
   Iconsv27,
   Iconsv28,
+  MouseMediav29,
+  Iconsv30,
 }
 addonTable.Constants.CurrentLayoutVersion = #steps
 

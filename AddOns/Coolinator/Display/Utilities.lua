@@ -97,7 +97,7 @@ function addonTable.Display.GenerateStatusBar(self)
 
   self.statusBar = CreateFrame("StatusBar", nil, self)
   self.statusBar:SetPoint("CENTER")
-  self.statusBar:SetStatusBarTexture(LSM:Fetch("statusbar", "Cooli: Solid Transparency"))
+  self.statusBar:SetStatusBarTexture(LSM:Fetch("statusbar", "MM: Solid Transparency"))
   self.statusBar:SetMinMaxValues(0, 5)
 
   self.background = self.statusBar:CreateTexture(nil, "BACKGROUND")
@@ -113,12 +113,12 @@ function addonTable.Display.GenerateStatusBar(self)
 end
 
 function addonTable.Display.ApplyStatusBar(details, statusBar, border, borderMask, background)
-  local borderDetails = LSM:Fetch("ninesliceborder", details.border.asset, true) or LSM:Fetch("ninesliceborder", "Cooli: 1px")
+  local borderDetails = LSM:Fetch("ninesliceborder", details.border.asset, true) or LSM:Fetch("ninesliceborder", "MM: 1px")
   assert(borderDetails)
   local borderSliceDetails = LSM:Fetch("nineslice", borderDetails.nineslice)
   assert(borderSliceDetails)
-  local foregroundAsset = LSM:Fetch("statusbar", details.foreground.asset, true) or LSM:Fetch("statusbar", "Cooli: Solid White")
-  local backgroundAsset = LSM:Fetch("statusbar", details.background.asset, true) or LSM:Fetch("statusbar", "Cooli: Solid White")
+  local foregroundAsset = LSM:Fetch("statusbar", details.foreground.asset, true) or LSM:Fetch("statusbar", "MM: Solid White")
+  local backgroundAsset = LSM:Fetch("statusbar", details.background.asset, true) or LSM:Fetch("statusbar", "MM: Solid White")
 
   local rawWidth, rawHeight = details.width * addonTable.Assets.BarBordersSize.width, details.height * addonTable.Assets.BarBordersSize.height
   if details.layout == "vertical" then
@@ -430,6 +430,7 @@ do
   monitor:RegisterEvent("UPDATE_BONUS_ACTIONBAR")
   monitor:RegisterEvent("UPDATE_VEHICLE_ACTIONBAR")
   monitor:RegisterEvent("UPDATE_OVERRIDE_ACTIONBAR")
+  monitor:RegisterEvent("PLAYER_ENTERING_WORLD")
   monitor:SetScript("OnEvent", function(_, eventName, data)
     if eventName == "PLAYER_TARGET_CHANGED" then
       harmful:SetEnabled(not UnitCanAssist("player", "target"))

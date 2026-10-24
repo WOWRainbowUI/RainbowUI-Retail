@@ -28,12 +28,12 @@ function addonTable.Display.AuraStacksBaseMixin:OnLoad()
     auraButton:SetIgnoringChildrenForBounds(true)
     auraButton.statusBar = CreateFrame("StatusBar", nil, auraButton)
     auraButton.statusBar:SetPoint("CENTER")
-    auraButton.statusBar:SetStatusBarTexture(LSM:Fetch("statusbar", "Cooli: Solid Transparency"))
+    auraButton.statusBar:SetStatusBarTexture(LSM:Fetch("statusbar", "MM: Solid Transparency"))
 
     auraButton.mask = auraButton:CreateMaskTexture()
     auraButton.mask:SetAllPoints(auraButton.statusBar:GetStatusBarTexture())
     auraButton.mask:SetBlockingLoadsRequested(true)
-    auraButton.mask:SetTexture(LSM:Fetch("statusbar", "Cooli: Solid White"), "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
+    auraButton.mask:SetTexture(LSM:Fetch("statusbar", "MM: Solid White"), "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
 
     auraButton.foreground = auraButton:CreateTexture(nil, "ARTWORK")
     auraButton.foreground:SetPoint("CENTER")
@@ -50,11 +50,11 @@ function addonTable.Display.AuraStacksBaseMixin:OnLoad()
     auraButton:SetMouseMotionEnabled(addonTable.Config.Get(addonTable.Config.Options.SHOW_TOOLTIPS))
     auraButton.details = details
 
-    local borderDetails = LSM:Fetch("ninesliceborder", details.border.asset, true) or LSM:Fetch("ninesliceborder", "Cooli: 1px")
+    local borderDetails = LSM:Fetch("ninesliceborder", details.border.asset, true) or LSM:Fetch("ninesliceborder", "MM: 1px")
     assert(borderDetails)
     local borderSliceDetails = LSM:Fetch("nineslice", borderDetails.nineslice)
     assert(borderSliceDetails)
-    local foregroundAsset = LSM:Fetch("statusbar", details.foreground.asset, true) or LSM:Fetch("statusbar", "Cooli: Solid White")
+    local foregroundAsset = LSM:Fetch("statusbar", details.foreground.asset, true) or LSM:Fetch("statusbar", "MM: Solid White")
 
     auraButton:SetApplicationBar(auraButton.statusBar, {maxApplications = self.applicationLimit})
 
@@ -95,11 +95,11 @@ function addonTable.Display.AuraStacksBaseMixin:Setup(details)
     addonTable.Display.SetAuraSlotsFilters(self.index, self.include, self.include, self.details.playerSourced)
   end
 
-  local borderDetails = LSM:Fetch("ninesliceborder", details.border.asset, true) or LSM:Fetch("ninesliceborder", "Cooli: 1px")
+  local borderDetails = LSM:Fetch("ninesliceborder", details.border.asset, true) or LSM:Fetch("ninesliceborder", "MM: 1px")
   assert(borderDetails)
   local borderSliceDetails = LSM:Fetch("nineslice", borderDetails.nineslice)
   assert(borderSliceDetails)
-  local backgroundAsset = LSM:Fetch("statusbar", details.background.asset, true) or LSM:Fetch("statusbar", "Cooli: Solid White")
+  local backgroundAsset = LSM:Fetch("statusbar", details.background.asset, true) or LSM:Fetch("statusbar", "MM: Solid White")
 
   local rawWidth, rawHeight = details.width * addonTable.Assets.BarBordersSize.width, details.height * addonTable.Assets.BarBordersSize.height
   if details.layout == "vertical" then
@@ -250,12 +250,12 @@ function addonTable.Display.AuraStacksPipMixin:OnLoad()
     auraButton:SetIgnoringChildrenForBounds(true)
     auraButton.statusBar = CreateFrame("StatusBar", nil, auraButton)
     auraButton.statusBar:SetPoint("CENTER")
-    auraButton.statusBar:SetStatusBarTexture(LSM:Fetch("statusbar", "Cooli: Solid Transparency"))
+    auraButton.statusBar:SetStatusBarTexture(LSM:Fetch("statusbar", "MM: Solid Transparency"))
 
     auraButton.mask = auraButton:CreateMaskTexture()
     auraButton.mask:SetAllPoints(auraButton.statusBar:GetStatusBarTexture())
     auraButton.mask:SetBlockingLoadsRequested(true)
-    auraButton.mask:SetTexture(LSM:Fetch("statusbar", "Cooli: Solid White"), "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
+    auraButton.mask:SetTexture(LSM:Fetch("statusbar", "MM: Solid White"), "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
 
     auraButton.foreground = auraButton:CreateTexture(nil, "ARTWORK")
     auraButton.foreground:SetPoint("CENTER")
@@ -272,11 +272,11 @@ function addonTable.Display.AuraStacksPipMixin:OnLoad()
     auraButton:SetMouseMotionEnabled(addonTable.Config.Get(addonTable.Config.Options.SHOW_TOOLTIPS))
     auraButton.details = details
 
-    local borderDetails = LSM:Fetch("ninesliceborder", details.border.asset, true) or LSM:Fetch("ninesliceborder", "Cooli: 1px")
+    local borderDetails = LSM:Fetch("ninesliceborder", details.border.asset, true) or LSM:Fetch("ninesliceborder", "MM: 1px")
     assert(borderDetails)
     local borderSliceDetails = LSM:Fetch("nineslice", borderDetails.nineslice)
     assert(borderSliceDetails)
-    local foregroundAsset = LSM:Fetch("statusbar", details.foreground.asset, true) or LSM:Fetch("statusbar", "Cooli: Solid White")
+    local foregroundAsset = LSM:Fetch("statusbar", details.foreground.asset, true) or LSM:Fetch("statusbar", "MM: Solid White")
 
     auraButton:SetApplicationBar(auraButton.statusBar, {maxApplications = self.applicationLimit})
 
@@ -326,7 +326,7 @@ function addonTable.Display.AuraStacksBarMixin:OnLoad()
     auraButton:SetIgnoringChildrenForBounds(true)
     auraButton.statusBar = CreateFrame("StatusBar", nil, auraButton)
     auraButton.statusBar:SetPoint("CENTER")
-    auraButton.statusBar:SetStatusBarTexture(LSM:Fetch("statusbar", "Cooli: Solid Transparency"))
+    auraButton.statusBar:SetStatusBarTexture(LSM:Fetch("statusbar", "MM: Solid Transparency"))
     auraButton.statusBar:GetStatusBarTexture():AddMaskTexture(self.borderMask)
 
     auraButton.statusBar:SetPoint("CENTER")
@@ -343,11 +343,11 @@ function addonTable.Display.AuraStacksBarMixin:OnLoad()
     auraButton:SetMouseMotionEnabled(addonTable.Config.Get(addonTable.Config.Options.SHOW_TOOLTIPS))
     auraButton.details = details
 
-    local borderDetails = LSM:Fetch("ninesliceborder", details.border.asset, true) or LSM:Fetch("ninesliceborder", "Cooli: 1px")
+    local borderDetails = LSM:Fetch("ninesliceborder", details.border.asset, true) or LSM:Fetch("ninesliceborder", "MM: 1px")
     assert(borderDetails)
     local borderSliceDetails = LSM:Fetch("nineslice", borderDetails.nineslice)
     assert(borderSliceDetails)
-    local foregroundAsset = LSM:Fetch("statusbar", details.foreground.asset, true) or LSM:Fetch("statusbar", "Cooli: Solid White")
+    local foregroundAsset = LSM:Fetch("statusbar", details.foreground.asset, true) or LSM:Fetch("statusbar", "MM: Solid White")
 
     auraButton:SetApplicationBar(auraButton.statusBar, {maxApplications = self.applicationLimit, interpolation = Enum.StatusBarInterpolation.ExponentialEaseOut})
 
