@@ -1,0 +1,24 @@
+## Dependencies: Coolinator
+## DefaultState: enabled
+## Title-zhTW: Mouse Media 共用材質
+## Notes-zhTW: 提供冷卻管家使用的共用背景、邊框及圖像材質，隨冷卻管家一起載入。
+## Interface: 120100, 120105, 16001, 50504, 38001, 20506, 11509
+## Title: Mouse Media (borders/backgrounds/visuals)
+## Version: 5
+## Author: plusmouse
+## IconTexture: Interface\AddOns\MouseMedia\Assets\logo.tga
+
+## Category: Media
+## Category-deDE: Medien
+## Category-esES: Medios
+## Category-esMX: Medios
+## Category-frFR: Médias
+## Category-itIT: Media
+## Category-koKR: 미디어
+## Category-ptBR: Mídia
+## Category-ruRU: Медиа
+## Category-zhCN: 材质
+## Category-zhTW: 材質
+
+
+Main.lua
