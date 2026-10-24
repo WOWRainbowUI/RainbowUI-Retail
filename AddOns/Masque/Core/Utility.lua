@@ -35,21 +35,15 @@ local BASE_RELPOINT = SkinRoot.RelPoint
 local BASE_OFFSETX = SkinRoot.OffsetX
 local BASE_OFFSETY = SkinRoot.OffsetY
 
--- Misc Strings
+-- Strings
 local STR_ANIMKEY = "FlipAnim"
 
--- Type Strings
-local TYPE_FLIPBOOK = "FlipBook"
-local TYPE_FUNCTION = "function"
-local TYPE_TABLE = "table"
-
-----------------------------------------
--- Miscellaneous
----
-
--- An empty function.
-local function NoOp() end
-Core.NoOp = NoOp
+-- Valid Frame Types
+local isValidFrame = {
+	Button = true,
+	CheckButton = true,
+	Frame = true,
+}
 
 ----------------------------------------
 -- Animation
@@ -62,7 +56,7 @@ function Core.GetFlipBookAnimation(AnimGroup)
 	if FlipAnim then return FlipAnim end
 
 	for _, Animation in ipairs({AnimGroup:GetAnimations()}) do
-		if Animation and (Animation:GetObjectType() == TYPE_FLIPBOOK) then
+		if Animation and (Animation:GetObjectType() == "FlipBook") then
 			Animation:SetParentKey(STR_ANIMKEY)
 			return Animation
 		end
@@ -75,10 +69,25 @@ end
 
 -- Returns a set of color values.
 function Core.GetColor(Color, Alpha)
-	if type(Color) == TYPE_TABLE then
+	if type(Color) == "table" then
 		return Color[1] or 1, Color[2] or 1, Color[3] or 1, Alpha or Color[4] or 1
 	else
 		return 1, 1, 1, Alpha or 1
+	end
+end
+
+----------------------------------------
+-- Frame Validation
+---
+
+-- Validates a frame.
+function Core.GetFrameType(Frame)
+	if type(Frame) == "table" and Frame.GetObjectType then
+		local frameType = Frame:GetObjectType()
+
+		if isValidFrame[frameType] then
+			return frameType
+		end
 	end
 end
 
@@ -96,7 +105,7 @@ function Core.SetSkinPoint(Region, Button, Skin, SetAllPoints, Anchor, Default)
 		local _mcfg = Button._MSQ_CFG
 		local Regions = _mcfg and _mcfg.Regions
 
-		if type(Regions) == TYPE_TABLE then
+		if type(Regions) == "table" then
 			Anchor = Regions[Skin_Anchor] or Anchor
 		end
 	end
@@ -112,7 +121,7 @@ function Core.SetSkinPoint(Region, Button, Skin, SetAllPoints, Anchor, Default)
 	local OffsetX, OffsetY = BASE_OFFSETX, BASE_OFFSETY
 
 	-- Account for iterated layers.
-	if type(Default) == TYPE_TABLE then
+	if type(Default) == "table" then
 		Point = Default.Point or Point
 		RelPoint = Default.RelPoint or RelPoint
 	end
@@ -133,7 +142,7 @@ end
 
 -- Returns a set of texture coordinates.
 function Core.GetTexCoords(Coords)
-	if type(Coords) == TYPE_TABLE then
+	if type(Coords) == "table" then
 		return Coords[1] or 0, Coords[2] or 1, Coords[3] or 0, Coords[4] or 1
 	else
 		return 0, 1, 0, 1
@@ -183,10 +192,10 @@ function Core.GetRegion(Button, Info)
 	if Key then
 		local Parent = (Info.Parent and Button[Info.Parent]) or Button
 
-		if type(Parent) == TYPE_TABLE then
+		if type(Parent) == "table" then
 			local Region = Parent[Key]
 
-			if type(Region) == TYPE_TABLE then
+			if type(Region) == "table" then
 				local rType = Region.GetObjectType and Region:GetObjectType()
 
 				if rType == Info.Type then
@@ -202,7 +211,7 @@ function Core.GetRegion(Button, Info)
 	if Func then
 		local Method = Button[Func]
 
-		if type(Method) == TYPE_FUNCTION then
+		if type(Method) == "function" then
 			return Method(Button)
 		end
 	end
@@ -218,9 +227,3 @@ function Core.GetRegion(Button, Info)
 		end
 	end
 end
-
-----------------------------------------
--- API - Deprecated
----
-
-Core.API.Register = NoOp

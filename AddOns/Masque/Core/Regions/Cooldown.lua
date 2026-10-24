@@ -120,7 +120,7 @@ end
 local function Skin_Cooldown(Region, Button, Skin, Color, Pulse, IsLoC)
 	local _mcfg = Button._MSQ_CFG
 
-	Skin = _mcfg:GetTypeSkin(Button, Skin)
+	Skin = _mcfg:GetTypeSkin(Skin)
 
 	local Enabled = _mcfg.Enabled
 	local IsRound = (_mcfg.Shape == STR_CIRCLE) or Skin.IsRound
@@ -206,7 +206,7 @@ local function Skin_Cooldown(Region, Button, Skin, Color, Pulse, IsLoC)
 		local Width = Skin.Width or BASE_SIZE
 		local Height = Skin.Height or BASE_SIZE
 
-		Region:SetSize(_mcfg:GetSize(Width, Height))
+		Region:SetSize(_mcfg:GetScaleSize(Width, Height))
 	end
 
 	SetSkinPoint(Region, Button, Skin, SetAllPoints)
@@ -245,7 +245,7 @@ function Core.SetColor_Cooldown(Region, Button, Skin, Color)
 		local _mcfg = Button._MSQ_CFG
 
 		if _mcfg.Enabled then
-			Skin = _mcfg:GetTypeSkin(Button, Skin)
+			Skin = _mcfg:GetTypeSkin(Skin)
 			Region._MSQ_Color = Color or Skin.Color or BASE_COLOR
 
 			Hook_SetSwipeColor(Region)

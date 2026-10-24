@@ -99,7 +99,7 @@ local function Skin_RegionMask(Region, Button, Skin)
 			Region_Mask:SetAtlas(Atlas, UseSize)
 
 			if not UseSize then
-				Region_Mask:SetSize(_mcfg:GetSize(Mask_Skin.Width, Mask_Skin.Height))
+				Region_Mask:SetSize(_mcfg:GetScaleSize(Mask_Skin.Width, Mask_Skin.Height))
 			end
 
 			SetSkinPoint(Region_Mask, Region, Mask_Skin, Mask_Skin.SetAllPoints)
@@ -109,7 +109,7 @@ local function Skin_RegionMask(Region, Button, Skin)
 			local WrapV = Mask_Skin.WrapV or BASE_WRAP
 
 			Region_Mask:SetTexture(Texture, WrapH, WrapV)
-			Region_Mask:SetSize(_mcfg:GetSize(Mask_Skin.Width, Mask_Skin.Height))
+			Region_Mask:SetSize(_mcfg:GetScaleSize(Mask_Skin.Width, Mask_Skin.Height))
 
 			SetSkinPoint(Region_Mask, Region, Mask_Skin, Mask_Skin.SetAllPoints)
 		end
@@ -149,7 +149,7 @@ local function Skin_ButtonMask(Button, Skin)
 			Button_Mask:SetAtlas(Atlas, UseSize)
 
 			if not UseSize then
-				Button_Mask:SetSize(_mcfg:GetSize(Skin.Width, Skin.Height))
+				Button_Mask:SetSize(_mcfg:GetScaleSize(Skin.Width, Skin.Height))
 			end
 
 			SetSkinPoint(Button_Mask, Button, Skin, Skin.SetAllPoints)
@@ -159,7 +159,7 @@ local function Skin_ButtonMask(Button, Skin)
 			local WrapV = Skin.WrapV or BASE_WRAP
 
 			Button_Mask:SetTexture(Texture, WrapH, WrapV)
-			Button_Mask:SetSize(_mcfg:GetSize(Skin.Width, Skin.Height))
+			Button_Mask:SetSize(_mcfg:GetScaleSize(Skin.Width, Skin.Height))
 
 			SetSkinPoint(Button_Mask, Button, Skin, Skin.SetAllPoints)
 		end
@@ -180,7 +180,7 @@ function Core.Skin_Mask(Button, Skin, Region)
 	local _mcfg = Button._MSQ_CFG
 	local CircleMask = Button.CircleMask
 
-	if CircleMask and _mcfg.IsItem then
+	if CircleMask and _mcfg.isItemType then
 		if Region then
 			Region:RemoveMaskTexture(CircleMask)
 		end

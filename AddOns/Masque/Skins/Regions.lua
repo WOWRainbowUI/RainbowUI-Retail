@@ -33,30 +33,37 @@ local WOW_CLASSIC = not WOW_RETAIL
 -- * Iterate - Include in iteration. @ Core\Button
 ---
 
-local Legacy = {
-	Backdrop = { -- [ ActionButtonTemplate / Custom ][ BACKGROUND, -1 ]
-		Name = "FloatingBG",
-		Type = "Texture",
+----------------------------------------
+-- Base Configuration
+---
+
+local baseConfig = {
+	--IconMask = {}, -- [ ActionButtonTemplate ]
+
+	-- [ BACKGROUND, -1 ]
+
+	Backdrop = { -- [ Custom ]
 		CanHide = true,
-		CanMask = true,
-		UseColor = true,
+		Ignore = true,
 	},
-	Icon = { -- [ ActionButtonTemplate ][ BACKGROUND, 0 ]
+
+	-- [ BACKGROUND, 0 ]
+
+	Icon = { -- [ ActionButtonTemplate ]
 		Key = "icon",
 		Name = "Icon",
 		Type = "Texture",
 		CanMask = true,
 		NoColor = true,
 		NoTexture = true,
-		Aura = { -- [ AuraButtonArtTemplate / AuraButtonTemplate ][ BACKGROUND, 0 ]
-			Key = (WOW_RETAIL and "Icon") or nil, -- Retail Only
-			Name = "Icon",
+		Aura = { -- [ AuraButtonArtTemplate ]
+			Key = "Icon",
 			Type = "Texture",
 			CanMask = true,
 			NoColor = true,
 			NoTexture = true,
 		},
-		Item = { -- [ ItemButtonTemplate ][ BORDER, 0 ]
+		Item = { -- [ ItemButtonTemplate ]
 			Key = "icon",
 			Name = "IconTexture",
 			Type = "Texture",
@@ -65,144 +72,173 @@ local Legacy = {
 			NoTexture = true,
 		},
 	},
-	Shadow = { -- [ Custom ][ ARTWORK, -1 ]
+	--SlotBackground = {} -- [ ActionButtonTemplate ]
+	--SlotArt = {}, -- [ ActionButtonTemplate ][ RETAIL_ONLY ]
+
+	-- [ BACKGROUND, Text ]
+
+	Duration = { -- [ AuraButtonArtTemplate ]
+		Key = "Duration",
+		Type = "FontString",
+		Iterate = true,
+		NoColor = true,
+	},
+
+	-- [ ARTWORK, -1 ]
+
+	Shadow = { -- [ Custom ]
 		CanHide = true,
 		Ignore = true,
 	},
-	Normal = { -- [ Button ][ ARTWORK, 0 ]
+
+	-- [ ARTWORK, 0 ]
+
+	Normal = { -- [ Button, ActionButtonTemplate ]
 		Func = "GetNormalTexture",
 		--Key = "NormalTexture", -- Conflicts with some add-ons and button types.
 		Name = "NormalTexture",
 		Type = "Texture",
 		CanHide = true,
+		Item = { -- [ Button, ItemButtonTemplate ]
+			Func = "GetNormalTexture",
+			Key = (WOW_RETAIL and "NormalTexture") or nil,
+			Name = "NormalTexture",
+			Type = "Texture",
+			CanHide = true,
+		},
 	},
-	Disabled = { -- [ Button ][ ARTWORK, 0 ]
+	Disabled = { -- [ Button ]
 		Func = "GetDisabledTexture",
 		Type = "Texture",
 		CanHide = true,
 		Hide = true,
 		Iterate = true,
 	},
-	Pushed = { -- [ Button ][ ARTWORK, 0 ]
+	Pushed = { -- [ Button, ActionButtonTemplate ]
 		Func = "GetPushedTexture",
-		Key = (WOW_RETAIL and "PushedTexture") or nil,
+		Key = "PushedTexture",
 		Type = "Texture",
 		CanMask = true,
 		Iterate = true,
 		UseColor = true,
+		Item = { -- [ ItemButtonTemplate ]
+			Func = "GetPushedTexture",
+			Key = (WOW_RETAIL and "PushedTexture") or nil,
+			Type = "Texture",
+			CanMask = true,
+			Iterate = true,
+			UseColor = true,
+		},
 	},
-	Flash = { -- [ ActionButtonTemplate ][ ARTWORK, 1 ]
-		-- Key = "Flash", -- Conflicts with item buttons.
+	Checked = { -- [ CheckButton, ActionButtonTemplate ]
+		Func = "GetCheckedTexture",
+		Key = "CheckedTexture",
+		Type = "Texture",
+		Iterate = true,
+	},
+
+	-- [ ARTWORK, 1 ]
+
+	Flash = { -- [ ActionButtonTemplate ]
+		Key = "Flash",
 		Name = "Flash",
 		Type = "Texture",
 		CanMask = true,
 		Iterate = true,
 		UseColor = true,
+		Item = { -- [ ItemButtonTemplate ][TEST]
+			Key = "flash",
+			Type = "Texture",
+			CanMask = true,
+			Iterate = true,
+			UseColor = true,
+		},
 	},
-	Checked = { -- [ CheckButton ][ ARTWORK, 0 ]
-		Func = "GetCheckedTexture",
-		Key = (WOW_RETAIL and "CheckedTexture") or nil,
-		Type = "Texture",
-		Iterate = true,
-	},
-	SlotHighlight = { -- [ BaseBagSlotButtonTemplate ][ OVERLAY, 6 ][ RETAIL_ONLY ]
-		Key = "SlotHighlightTexture",
-		Type = "Texture",
-		Iterate = true,
-	},
-	Border = { -- [ ActionButtonTemplate ][ OVERLAY, 0 ]
+
+	-- [ OVERLAY, 0 ]
+
+	Border = { -- [ ActionButtonTemplate ]
 		Key = "Border",
 		Name = "Border",
 		Type = "Texture",
 		Iterate = true,
 		NoColor = true,
-		Aura = { -- [ Fallback ][ OVERLAY, 0 ]
-			Name = "Border",
-			Type = "Texture",
-			Iterate = true,
-			NoColor = true,
-		},
-		Debuff = { -- [ DebuffButtonTemplate ][ OVERLAY, 0 ][ CLASSIC_ONLY ]
-			Name = "Border",
-			Type = "Texture",
-			Iterate = true,
-			NoColor = true,
-		},
-		Enchant = { -- [ TempEnchantButtonTemplate ][ OVERLAY, 0 ][ CLASSIC_ONLY ]
+		Aura = { -- [ Fallback, Unused Natively ]
+			Key = "Border",
 			Name = "Border",
 			Type = "Texture",
 			Iterate = true,
 			NoColor = true,
 		},
 	},
-	DebuffBorder = { -- [ AuraButtonArtTemplate ][ OVERLAY, 0 ][ RETAIL_ONLY ]
+	DebuffBorder = { -- [ AuraButtonArtTemplate ]
 		Key = "DebuffBorder",
 		Type = "Texture",
 		Iterate = true,
 		NoColor = true,
 	},
-	EnchantBorder = { -- [ AuraButtonArtTemplate ][ OVERLAY, 0 ][ RETAIL_ONLY ]
+	EnchantBorder = { -- [ AuraButtonArtTemplate ]
 		Key = "TempEnchantBorder",
 		Type = "Texture",
 		Iterate = true,
 		NoColor = true,
 	},
-	IconBorder = { -- [ ItemButtonTemplate ][ OVERLAY, 0 ]
+	IconBorder = { -- [ ItemButtonTemplate ]
 		Key = "IconBorder",
 		Type = "Texture",
 		NoColor = true,
 	},
-	Gloss = { -- [ Custom ][ OVERLAY, 1 ]
-		Ignore = true,
-		CanHide = true,
-	},
-	NewAction = { -- [ ActionButtonTemplate ][ OVERLAY, 1 ]
+
+	-- [ OVERLAY, 1 ]
+
+	NewAction = { -- [ ActionButtonTemplate ]
 		Key = "NewActionTexture",
 		Type = "Texture",
 		Iterate = true,
 	},
-	SpellHighlight = { -- [ ActionButtonTemplate ][ OVERLAY, 1 ]
+	SpellHighlight = { -- [ ActionButtonTemplate ]
 		Key = "SpellHighlightTexture",
 		Type = "Texture",
 		Iterate = true,
 	},
-	IconOverlay = { -- [ ItemButtonTemplate ][ OVERLAY, 1 ]
+	IconOverlay = { -- [ ItemButtonTemplate ]
 		Key = "IconOverlay",
 		Type = "Texture",
 		Iterate = true,
 		NoColor = true,
 		NoTexture = true,
 	},
-	IconOverlay2 = { -- [ ItemButtonTemplate ][ OVERLAY, 2 ][ RETAIL_ONLY ]
+	UpgradeIcon = { -- [ ContainerFrameItemButtonTemplate ]
+		Key = "UpgradeIcon",
+		Type = "Texture",
+		Iterate = true,
+	},
+	Gloss = { -- [ Custom ]
+		Ignore = true,
+		CanHide = true,
+	},
+
+	IconOverlay2 = { -- [ ItemButtonTemplate ][ RETAIL_ONLY ]
 		Key = "IconOverlay2",
 		Type = "Texture",
 		Iterate = true,
 		NoColor = true,
 		NoTexture = true,
 	},
-	NewItem = { -- [ ContainerFrameItemButtonTemplate ][ OVERLAY, 2 ]
+	NewItem = { -- [ ContainerFrameItemButtonTemplate ]
 		Key = "NewItemTexture",
 		Type = "Texture",
 		NoColor = true,
 	},
-	QuestBorder = { -- [ ContainerFrameItemButtonTemplate ][ OVERLAY, 2 ]
+	QuestBorder = { -- [ ContainerFrameItemButtonTemplate ]
 		Key = (WOW_RETAIL and "IconQuestTexture") or nil,
 		Name = "IconQuestTexture",
 		Type = "Texture",
 	},
-	UpgradeIcon = { -- [ ContainerFrameItemButtonTemplate ][ OVERLAY, 1 ]
-		Key = "UpgradeIcon",
-		Type = "Texture",
-		Iterate = true,
-	},
-	ContextOverlay = { -- [ ItemButtonTemplate ][ OVERLAY, 5 ][ RETAIL_ONLY ]
-		Key = "ItemContextOverlay",
-		Type = "Texture",
-		CanMask = true,
-		Iterate = true,
-		UseColor = true,
-	},
-	SearchOverlay = { -- [ ItemButtonTemplate ][ OVERLAY, 4 ]
+
+	-- [ OVERLAY, 4 ]
+
+	SearchOverlay = { -- [ ItemButtonTemplate ]
 		Key = "searchOverlay",
 		Name = "SearchOverlay",
 		Type = "Texture",
@@ -210,106 +246,125 @@ local Legacy = {
 		Iterate = true,
 		UseColor = true,
 	},
-	JunkIcon = { -- [ ContainerFrameItemButtonTemplate ][ OVERLAY, 5/1 ]
+
+	-- [ OVERLAY, 5 ]
+
+	ContextOverlay = { -- [ ItemButtonTemplate ][ RETAIL_ONLY ]
+		Key = "ItemContextOverlay",
+		Type = "Texture",
+		CanMask = true,
+		Iterate = true,
+		UseColor = true,
+	},
+	JunkIcon = { -- [ ContainerFrameItemButtonTemplate ]
 		Key = "JunkIcon",
 		Type = "Texture",
 		Iterate = true,
 	},
-	Duration = { -- [ AuraButtonArtTemplate / AuraButtonTemplate ][ BACKGROUND ]
-		Key = (WOW_RETAIL and "Duration") or "duration",
-		Name = (WOW_CLASSIC and "Duration") or nil,
-		Type = "FontString",
+
+	-- [ OVERLAY, 6 ]
+
+	SlotHighlight = { -- [ ItemButton, BaseBagSlotButtonTemplate ][ RETAIL_ONLY ]
+		Key = "SlotHighlightTexture",
+		Type = "Texture",
 		Iterate = true,
-		NoColor = true,
 	},
-	Name = { -- [ ActionButtonTemplate ][ OVERLAY ]
+
+	-- [ OVERLAY, Text ]
+
+	Name = { -- [ ActionButtonTemplate ]
 		Key = "Name",
 		Name = "Name",
 		Type = "FontString",
 		Iterate = true,
 		NoColor = true,
 	},
-	Highlight = { -- [ Button ][ HIGHLIGHT, 0 ]
-		Key = (WOW_RETAIL and "HighlightTexture") or nil,
+
+	-- [ HIGHLIGHT, 0 ]
+
+	Highlight = { -- [ Button, ActionButtonTemplate ]
 		Func = "GetHighlightTexture",
+		Key = "HighlightTexture",
 		Type = "Texture",
 		CanMask = true,
 		Iterate = true,
 		UseColor = true,
 		Item = {
 			Func = "GetHighlightTexture",
+			Key = (WOW_RETAIL and "HighlightTexture") or nil,
 			Type = "Texture",
 			CanMask = true,
 			Iterate = true,
 			UseColor = true,
 		},
 	},
+
 	-- [ TextOverlayContainer ]
-	Count = { -- [ ActionButtonTemplate ][ OVERLAY / ARTWORK ]
+
+	Count = { -- [ ActionButtonTemplate, ItemButtonTemplate ]
 		Key = "Count",
 		Name = "Count",
 		Type = "FontString",
 		Iterate = true,
 		NoColor = true,
-		Aura = { -- [ AuraButtonArtTemplate/AuraButtonTemplate ][ BACKGROUND ]
-			Key = (WOW_RETAIL and "Count") or "count",
-			Name = (WOW_CLASSIC and "Count") or nil,
-			Type = "FontString",
-			Iterate = true,
-			NoColor = true,
-		},
-		Item = { -- [ ItemButtonTemplate ][ ARTWORK ]
+		Aura = { -- [ AuraButtonArtTemplate ]
 			Key = "Count",
-			Name = "Count",
 			Type = "FontString",
 			Iterate = true,
 			NoColor = true,
 		},
 	},
-	HotKey = { -- [ ActionButtonTemplate ][ OVERLAY / ARTWORK ]
+	HotKey = { -- [ ActionButtonTemplate ]
 		Key = "HotKey",
 		Name = "HotKey",
 		Type = "FontString",
 		Iterate = true,
 		NoColor = true,
 	},
-	-- [ AutoCast (Classic) ]
-	AutoCastable = { -- [ ActionButtonTemplate ][ OVERLAY, 1 ]
+
+	-- [ AutoCastOverlay ]
+
+	-- AutoCast (Classic)
+	AutoCastable = { -- [ ActionButtonTemplate ][DEPRECATED]
 		Key = "AutoCastable",
 		Type = "Texture",
 		Iterate = true,
 	},
-	AutoCastShine = { -- [ ActionButtonTemplate ]
+	AutoCastShine = { -- [ ActionButtonTemplate ][DEPRECATED]
 		--Key = "AutoCastShine", -- Causes issues with Pet bars.
 		Name = "Shine",
 		Type = "Frame",
 	},
-	-- [ AutoCast (Retail) ]
+
+	-- AutoCast (Retail)
 	AutoCast_Frame = { -- [ AutoCastOverlayTemplate ]
 		Key = "AutoCastOverlay",
 		Type = "Frame",
 	},
-	AutoCast_Shine = { -- [ AutoCastOverlayTemplate ][ OVERLAY, 0 ]
+	AutoCast_Shine = { -- [ AutoCastOverlayTemplate ][ RETAIL_ONLY ]
 		Key = "Shine",
 		Parent = "AutoCastOverlay",
 		Type = "Texture",
 	},
-	AutoCast_Mask = { -- [ AutoCastOverlayTemplate ]
+	AutoCast_Mask = { -- [ AutoCastOverlayTemplate ][ RETAIL_ONLY ]
 		Key = "Shine",
 		Parent = "AutoCastOverlay",
 		Type = "Texture",
 	},
-	AutoCast_Corners = { -- [ AutoCastOverlayTemplate ][ OVERLAY, 1 ]
+	AutoCast_Corners = { -- [ AutoCastOverlayTemplate ]
 		Key = "Shine",
 		Parent = "AutoCastOverlay",
 		Type = "Texture",
 	},
+
 	-- [ Cooldowns ]
+
 	Cooldown = {
 		Key = "cooldown",
 		Name = "Cooldown",
 		Type = "Cooldown",
 		Item = {
+			Key = (WOW_RETAIL and "Cooldown") or nil,
 			Name = "Cooldown",
 			Type = "Cooldown",
 		},
@@ -325,214 +380,216 @@ local Legacy = {
 }
 
 ----------------------------------------
--- "Action" Types
+-- Action Button Configuration
 ---
 
-local Action = {
-	Backdrop = Legacy.Backdrop,
-	Icon = Legacy.Icon,
-	Normal = Legacy.Normal,
-	Disabled = Legacy.Disabled, -- Unused
-	Pushed = Legacy.Pushed,
-	Flash = Legacy.Flash,
-	HotKey = Legacy.HotKey,
-	Count = Legacy.Count,
-	Checked = Legacy.Checked,
-	Border = Legacy.Border,
-	AutoCastable = Legacy.AutoCastable,
-	NewAction = Legacy.NewAction,
-	SpellHighlight = Legacy.SpellHighlight,
-	Name = Legacy.Name,
-	Highlight = Legacy.Highlight,
-	AutoCast_Frame = Legacy.AutoCast_Frame,
-	AutoCast_Shine = Legacy.AutoCast_Shine,
-	AutoCast_Mask = Legacy.AutoCast_Mask,
-	AutoCast_Corners = Legacy.AutoCast_Corners,
-	AutoCastShine = Legacy.AutoCastShine,
-	Cooldown = Legacy.Cooldown,
-	CooldownLoC = Legacy.CooldownLoC,
-	ChargeCooldown = Legacy.ChargeCooldown,
+local actionConfig = {
+	Backdrop = baseConfig.Backdrop,
+	Icon = baseConfig.Icon,
+	Normal = baseConfig.Normal,
+	Disabled = baseConfig.Disabled, -- Unused
+	Pushed = baseConfig.Pushed,
+	Checked = baseConfig.Checked,
+	Flash = baseConfig.Flash,
+	Border = baseConfig.Border,
+	NewAction = baseConfig.NewAction,
+	SpellHighlight = baseConfig.SpellHighlight,
+	Name = baseConfig.Name,
+	Highlight = baseConfig.Highlight,
+	Count = baseConfig.Count,
+	HotKey = baseConfig.HotKey,
+	AutoCastable = baseConfig.AutoCastable,
+	AutoCastShine = baseConfig.AutoCastShine,
+	AutoCast_Frame = baseConfig.AutoCast_Frame,
+	AutoCast_Shine = baseConfig.AutoCast_Shine,
+	AutoCast_Mask = baseConfig.AutoCast_Mask,
+	AutoCast_Corners = baseConfig.AutoCast_Corners,
+	Cooldown = baseConfig.Cooldown,
+	CooldownLoC = baseConfig.CooldownLoC,
+	ChargeCooldown = baseConfig.ChargeCooldown,
 }
 
 ----------------------------------------
--- "Aura" Types
+-- Aura Button Configuration
 ---
 
-local Aura = {
-	Icon = Legacy.Icon.Aura,
-	Normal = Legacy.Normal, -- Unused
-	Disabled = Legacy.Disabled, -- Unused
-	Pushed = Legacy.Pushed, -- Unused
-	Count = Legacy.Count.Aura,
-	Duration = Legacy.Duration,
-	Border = Legacy.Border.Aura,
-	DebuffBorder = (WOW_RETAIL and Legacy.DebuffBorder) or nil, -- Retail Only
-	EnchantBorder = (WOW_RETAIL and Legacy.EnchantBorder) or nil, -- Retail Only
-	Highlight = Legacy.Highlight, -- Unused
-	Cooldown = Legacy.Cooldown,
-	ChargeCooldown = Legacy.ChargeCooldown,
-}
-
-local Debuff = {
-	Icon = Legacy.Icon.Aura,
-	Normal = Legacy.Normal, -- Unused
-	Disabled = Legacy.Disabled, -- Unused
-	Pushed = Legacy.Pushed, -- Unused
-	Count = Legacy.Count.Aura,
-	Duration = Legacy.Duration,
-	Border = Legacy.Border.Debuff,
-	DebuffBorder = (WOW_RETAIL and Legacy.DebuffBorder) or nil, -- Retail Only
-	Highlight = Legacy.Highlight, -- Unused
-	Cooldown = Legacy.Cooldown,
-	ChargeCooldown = Legacy.ChargeCooldown,
-}
-
-local Enchant = {
-	Icon = Legacy.Icon.Aura,
-	Normal = Legacy.Normal, -- Unused
-	Disabled = Legacy.Disabled, -- Unused
-	Pushed = Legacy.Pushed, -- Unused
-	Count = Legacy.Count.Aura,
-	Duration = Legacy.Duration,
-	Border = Legacy.Border.Enchant,
-	EnchantBorder = (WOW_RETAIL and Legacy.EnchantBorder) or nil, -- Retail Only
-	Highlight = Legacy.Highlight, -- Unused
-	Cooldown = Legacy.Cooldown,
-	ChargeCooldown = Legacy.ChargeCooldown,
+local auraConfig = {
+	Icon = baseConfig.Icon.Aura,
+	Duration = baseConfig.Duration,
+	Normal = baseConfig.Normal, -- Unused
+	Disabled = baseConfig.Disabled, -- Unused
+	Pushed = baseConfig.Pushed, -- Unused
+	Border = baseConfig.Border.Aura,
+	DebuffBorder = baseConfig.DebuffBorder,
+	EnchantBorder = baseConfig.EnchantBorder,
+	Highlight = baseConfig.Highlight, -- Unused
+	Count = baseConfig.Count.Aura,
+	Cooldown = baseConfig.Cooldown,
+	ChargeCooldown = baseConfig.ChargeCooldown,
 }
 
 ----------------------------------------
--- "Item" Types
+-- Item Button Configuration
 ---
 
-local Item = {
-	Icon = Legacy.Icon,
-	Normal = Legacy.Normal,
-	Disabled = Legacy.Disabled,
-	Pushed = Legacy.Pushed,
-	Count = Legacy.Count,
-	Checked = Legacy.Checked, -- Some ItemButtons are CheckButtons
-	Border = Legacy.Border, -- Backwards-Compatibility
-	IconBorder = Legacy.IconBorder,
-	SlotHighlight = (WOW_RETAIL and Legacy.SlotHighlight) or nil, -- Retail Only
-	UpgradeIcon = Legacy.UpgradeIcon,
-	IconOverlay = Legacy.IconOverlay,
-	IconOverlay2 = (WOW_RETAIL and Legacy.IconOverlay2) or nil, -- Retail Only
-	QuestBorder = Legacy.QuestBorder,
-	NewItem = Legacy.NewItem,
-	SearchOverlay = Legacy.SearchOverlay,
-	ContextOverlay = (WOW_RETAIL and Legacy.ContextOverlay) or nil, -- Retail Only
-	JunkIcon = Legacy.JunkIcon,
-	Highlight = Legacy.Highlight.Item,
-	Cooldown = Legacy.Cooldown.Item,
-	ChargeCooldown = Legacy.ChargeCooldown,
+local itemConfig = {
+	Icon = baseConfig.Icon,
+	Normal = baseConfig.Normal.Item,
+	Disabled = baseConfig.Disabled,
+	Pushed = baseConfig.Pushed.Item,
+	Checked = baseConfig.Checked, -- Classic Bag Buttons
+	Border = baseConfig.Border, -- Backwards-Compatibility
+	IconBorder = baseConfig.IconBorder,
+	IconOverlay = baseConfig.IconOverlay,
+	UpgradeIcon = baseConfig.UpgradeIcon,
+	IconOverlay2 = (WOW_RETAIL and baseConfig.IconOverlay2) or nil, -- Retail Only
+	NewItem = baseConfig.NewItem,
+	QuestBorder = baseConfig.QuestBorder,
+	SearchOverlay = baseConfig.SearchOverlay,
+	ContextOverlay = (WOW_RETAIL and baseConfig.ContextOverlay) or nil, -- Retail Only
+	JunkIcon = baseConfig.JunkIcon,
+	SlotHighlight = (WOW_RETAIL and baseConfig.SlotHighlight) or nil, -- Retail Only
+	Highlight = baseConfig.Highlight.Item,
+	Count = baseConfig.Count,
+	Cooldown = baseConfig.Cooldown.Item,
+	ChargeCooldown = baseConfig.ChargeCooldown,
 }
 
 ----------------------------------------
 -- Types Tables
 ---
 
-local Types = {
-	Legacy = Legacy,
-	Action = Action,
-	Aura = Aura,
-	Backpack = Item,
-	BagSlot = Item,
-	Buff = Aura,
-	Debuff = Debuff,
-	Enchant = Enchant,
-	Item = Item,
-	KeyRing = Item,
-	Pet = Action,
-	Possess = Action,
-	ReagentBag = Item,
-	Stance = Action,
+-- Registered Types
+local typeConfig = {
+	-- Base
+	Default = baseConfig,
+	-- Action
+	Action = actionConfig,
+	Pet = actionConfig,
+	Possess = actionConfig,
+	Stance = actionConfig,
+	-- Aura
+	Aura = auraConfig,
+	Buff = auraConfig,
+	Debuff = auraConfig,
+	Enchant = auraConfig,
+	-- Item
+	Backpack = itemConfig,
+	BagSlot = itemConfig,
+	Item = itemConfig,
+	KeyRing = itemConfig,
+	ReagentBag = itemConfig,
 }
 
-local BaseTypes = {
+-- Base Types
+local isBaseType = {
 	Action = true,
 	Aura = true,
 	Item = true,
 }
 
-local EmptyTypes = {
+-- Empty Types
+local isEmptyType = {
 	Action = true,
 	BagSlot = true,
 	Item = true,
 	Pet = true,
 	ReagentBag = true,
+}
+
+-- Custom Types
+local isCustomType = {}
+
+-- Type Validation
+local isType = {
+	Action = {
+		Action = true,
+		Pet = true,
+		Possess = true,
+		Stance = true,
+	},
+	Aura = {
+		Aura = true,
+		Buff = true,
+		Debuff = true,
+		Enchant = true,
+	},
+	Item = {
+		Backpack = true,
+		BagSlot = true,
+		Item = true,
+		KeyRing = true,
+		ReagentBag = true,
+	},
 }
 
 ----------------------------------------
 -- Core
 ---
 
-Core.RegTypes = Types
-Core.BaseTypes = BaseTypes
-Core.EmptyTypes = EmptyTypes
+Core.TypeConfig = typeConfig
 
-Core.ActionTypes = {
-	Action = true,
-	Pet = true,
-	Possess = true,
-	Stance = true,
-}
-Core.AuraTypes = {
-	Aura = true,
-	Buff = true,
-	Debuff = true,
-	Enchant = true,
-}
-Core.ItemTypes = {
-	Backpack = true,
-	BagSlot = true,
-	Item = true,
-	KeyRing = true,
-	ReagentBag = true,
-}
+Core.isBaseType = isBaseType
+Core.isActionType = isType.Action
+Core.isAuraType = isType.Aura
+Core.isItemType = isType.Item
+Core.isEmptyType = isEmptyType
+Core.isCustomType = isCustomType
 
 ----------------------------------------
 -- API
 ---
 
 -- Adds a custom button type.
-function Core.API:AddType(Name, List, Type)
-	if type(Name) ~= "string" or Types[Name] then
+-- * `Name` must be a unique string.
+-- * `List` must be an indexed table of string region names.
+-- * `BaseType` must be "Action", "Aura", "Item" or nil.
+function Core.API:AddType(Name, List, BaseType)
+	if type(Name) ~= "string" or typeConfig[Name] then
 		if Core.Debug then
 			error("Bad argument to API method 'AddType'. 'Name' must be a unique string.", 2)
 		end
 		return
+
 	elseif type(List) ~= "table" or #List < 1 then
 		if Core.Debug then
 			error("Bad argument to API method 'AddType'. 'List' must be an indexed table.", 2)
 		end
 		return
-	elseif Type and type(Type) ~= "string" then
-		if Core.Debug then
-			error("Bad argument to API method 'AddType'. 'Type' must be a string.", 2)
+
+	elseif BaseType then
+		if type(BaseType) ~= "string" then
+			if Core.Debug then
+				error("Bad argument to API method 'AddType'. 'BaseType' must be a string.", 2)
+			end
+			return
+
+		elseif not isBaseType[BaseType] then
+			if Core.Debug then
+				error("Bad argument to API method 'AddType'. 'BaseType' must be a valid type.", 2)
+			end
+			return
 		end
-		return
 	end
 
-	local Cache = {}
+	local cache = {}
 
 	for i = 1, #List do
-		local Key = List[i]
-		local Root = Legacy[Key]
+		local key = List[i]
+		local base = baseConfig[key]
 
-		if Root then
-			Cache[Key] = (Type and Root[Type]) or Root
+		if base then
+			cache[key] = (BaseType and base[BaseType]) or base
 		end
 	end
 
-	Types[Name] = Cache
+	typeConfig[Name] = cache
+	isCustomType[Name] = true
 
-	if Type then
-		if BaseTypes[Type] then
-			local TypeList = Core[Type.."Types"]
-			TypeList[Name] = true
-		end
+	if BaseType then
+		local typeList = isType[BaseType]
 
-		EmptyTypes[Name] = EmptyTypes[Type]
+		typeList[Name] = true
+		isEmptyType[Name] = isEmptyType[BaseType]
 	end
 end

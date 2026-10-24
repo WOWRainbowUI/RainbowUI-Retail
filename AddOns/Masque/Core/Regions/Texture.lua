@@ -20,7 +20,7 @@ local _, Core = ...
 local SkinRoot = Core.SKIN_BASE
 
 -- @ Skins\Regions
-local Settings = Core.RegTypes.Legacy
+local Settings = Core.TypeConfig.Default
 
 -- @ Core\Utility
 local GetColor, GetTexCoords, SetSkinPoint = Core.GetColor, Core.GetTexCoords, Core.SetSkinPoint
@@ -55,12 +55,12 @@ local Store_Color = {
 function Core.SetColor_Texture(Layer, Region, Button, Skin, Color)
 	if Region then
 		local _mcfg = Button._MSQ_CFG
-		local bType = _mcfg.bType
+		local subType = _mcfg.SubType
 		local Config = Settings[Layer]
 
-		Skin = _mcfg:GetTypeSkin(Button, Skin)
+		Skin = _mcfg:GetTypeSkin(Skin)
 
-		Config = Config[bType] or Config
+		Config = Config[subType] or Config
 		Color = Color or Skin.Color
 
 		if Skin.UseColor and Config.UseColor then
@@ -75,12 +75,12 @@ end
 -- Internal skin handler for texture regions.
 function Core.Skin_Texture(Layer, Region, Button, Skin, Color)
 	local _mcfg = Button._MSQ_CFG
-	local bType = _mcfg.bType
+	local subType = _mcfg.SubType
 
 	local Config = Settings[Layer]
 
-	Skin = _mcfg:GetTypeSkin(Button, Skin)
-	Config = Config[bType] or Config
+	Skin = _mcfg:GetTypeSkin(Skin)
+	Config = Config[subType] or Config
 
 	if Config.CanHide and Skin.Hide then
 		Region:SetTexture()
@@ -91,7 +91,7 @@ function Core.Skin_Texture(Layer, Region, Button, Skin, Color)
 	local Resize = true
 	local Default = SkinRoot[Layer]
 
-	Default = Default[bType] or Default
+	Default = Default[subType] or Default
 
 	if (not Config.NoTexture) then
 		local Atlas = Skin.Atlas
@@ -182,7 +182,7 @@ function Core.Skin_Texture(Layer, Region, Button, Skin, Color)
 		local Width = Skin.Width or Size
 		local Height = Skin.Height or Size
 
-		Region:SetSize(_mcfg:GetSize(Width, Height))
+		Region:SetSize(_mcfg:GetScaleSize(Width, Height))
 	end
 
 	SetSkinPoint(Region, Button, Skin, SetAllPoints, Button, Default)

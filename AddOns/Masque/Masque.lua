@@ -41,7 +41,7 @@ local L = Core.Locale
 local Masque = LibStub("AceAddon-3.0"):NewAddon(MASQUE)
 
 -- API Version
-local API_VERSION = 110210
+local API_VERSION = 120001
 
 -- Client Version
 local WOW_VERSION = select(4, GetBuildInfo()) or 0
@@ -82,7 +82,7 @@ Core.WOW_VERSION = WOW_VERSION
 Core.WOW_RETAIL = WOW_RETAIL
 
 -- Add-On Info
-Core.Version = "12.1.0"
+Core.Version = "12.1.5"
 Core.Discord = "https://discord.gg/7MTWRgDzz8"
 
 Core.Authors = {
@@ -253,3 +253,19 @@ end
 function Masque:SetProfile(Name)
 	Core.db:SetProfile(Name)
 end
+
+----------------------------------------
+-- Miscellaneous
+---
+
+-- An empty function.
+local function NoOp() end
+
+Core.NoOp = NoOp
+Core.HasSecrets = _G.hasanysecretvalues or NoOp
+
+----------------------------------------
+-- API - Deprecated
+---
+
+Core.API.Register = NoOp

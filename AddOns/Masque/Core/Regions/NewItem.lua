@@ -91,7 +91,7 @@ end
 function Core.Skin_NewItem(Region, Button, Skin)
 	local _mcfg = Button._MSQ_CFG
 
-	Skin = _mcfg:GetTypeSkin(Button, Skin)
+	Skin = _mcfg:GetTypeSkin(Skin)
 
 	local Region_Atlas = Region._MSQ_Atlas or Region:GetAtlas() or BASE_ATLAS
 
@@ -131,7 +131,7 @@ function Core.Skin_NewItem(Region, Button, Skin)
 		local Width = Skin.Width or BASE_SIZE
 		local Height = Skin.Height or BASE_SIZE
 
-		Region:SetSize(_mcfg:GetSize(Width, Height))
+		Region:SetSize(_mcfg:GetScaleSize(Width, Height))
 	end
 
 	SetSkinPoint(Region, Button, Skin, SetAllPoints)
