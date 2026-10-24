@@ -147,4 +147,3 @@ L["An enhanced version of the classic button style."] = "一款游戏经典按�
 L["An enhanced version of the modern button style."] = "现代按钮样式的增强版。"
 L["The default classic button style."] = "默认的经典按钮样式。"
 L["The default modern button style."] = "默认的现代按钮样式。"
-
