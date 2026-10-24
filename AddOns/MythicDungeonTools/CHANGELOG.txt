@@ -1,4 +1,3 @@
-## 6.3.16 (2026-10-23)
+## 6.3.20 (2026-10-23)
 
-- You can now pick MDT's font in Settings.
-- Pull numbers on the map are now bigger and easier to read on every pull color.
+- Enemies in Midnight Season 2 dungeons no longer show the same spell several times in their spell list.

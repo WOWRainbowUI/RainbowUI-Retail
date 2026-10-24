@@ -124,9 +124,9 @@ local function buildGeneral(column)
   UI.Heading(column, { text = L["General"] })
   -- Applied on release: rescaling the page under the cursor while dragging would move the slider away.
   bind(UI.Slider(column, {
-    id = "uiScale", label = L["MDT Scale"], min = 0.5, max = 2, step = 0.05, value = db.uiScale,
+    id = "uiScale", label = L["MDT Scale"], min = 0.5, max = 3, step = 0.05, value = db.uiScale,
     format = function(value) return ("%d%%"):format(math.floor(value * 100 + 0.5)) end,
-    onCommit = function(value) db.uiScale = UI.SetUserScale(value) end,
+    onCommit = function(value) MDT:SetUserScale(value) end,
   }), function() return db.uiScale end)
   bind(UI.Dropdown(column, {
     id = "font", label = L["Font"], items = fontItems(), value = currentFont(), search = true, onChange = pickFont,
@@ -142,6 +142,7 @@ local function buildGeneral(column)
   checkbox(column, "forcesCount", L["Use forces count"], function() return db.useForcesCount == true end, function(value)
     db.useForcesCount = value
     MDT:RefreshSidebar()
+    MDT:DrawAllHulls()
   end)
   checkbox(column, "pullHealth", L["Show pull health"], function() return db.showPullButtonHealth == true end, function(value)
     db.showPullButtonHealth = value
