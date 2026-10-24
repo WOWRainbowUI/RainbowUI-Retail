@@ -143,6 +143,7 @@ obj["moneyGains"]				= { label="Money Gains", tooltip="Enable money you gain."}
 obj["currencyGains"]			= { label="Currency Gains", tooltip="Display notifications for gained currency."}
 obj["alwaysShowQuestItems"]		= { label="Always show quest items", tooltip="Always show quest items regardless of quality selections."}
 obj["enableIcons"]				= { label="Enable Skill Icons", tooltip="Displays icons for events that have a skill when possible."}
+obj["enableNames"]				= { label="Enable Skill Names", tooltip="Display skill names for incoming and outgoing events."}
 
 
 

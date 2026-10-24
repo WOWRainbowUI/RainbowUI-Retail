@@ -452,3 +452,5 @@ L.CHECKBOXES["disableIncoming"] = { label="停用承受文字", tooltip="隱藏�
 L.EVENT_CODES["RESOURCE_AMOUNT"] = "%a - 獲得的資源數量。\n"
 L.EVENT_CODES["RESOURCE_NAME"] = "%p - 資源名稱。\n"
 L.NOTIFICATION_EVENTS["NOTIFICATION_RESOURCE_GAIN"] = { label="獲得資源", tooltip="顯示技能與效果提供的資源。" }
+
+L.CHECKBOXES["enableNames"] = { label="啟用技能名稱", tooltip="顯示受到與造成傷害事件的技能名稱。" }
