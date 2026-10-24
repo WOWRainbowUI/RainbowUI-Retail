@@ -69,14 +69,6 @@ elseif Locale == "zhTW" then
 	L["Press %s to cancel."] = "按 %s 取消。"
 	L["Press %s to copy."] = "按 %s 複製。"
 	L["Select"] = "選擇"
-elseif Locale == "zhTW" then
-	L["Click to select this text."] = "點一下選擇此文字。"
-	L["Copy"] = "複製"
-	L["CTRL+C"] = "CTRL+C"
-	L["ESC"] = "ESC"
-	L["Press %s to cancel."] = "按 %s 取消。"
-	L["Press %s to copy."] = "按 %s 複製。"
-	L["Select"] = "選擇"
 end
 
 ----------------------------------------
