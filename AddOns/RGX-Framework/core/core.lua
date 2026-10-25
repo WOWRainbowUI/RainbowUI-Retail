@@ -223,6 +223,7 @@ RGX.moduleAliases = {
   tradingpost = "RGXTradingPost",
   prey = "RGXPrey",
   timers = "RGXTimers",
+  triggers = "RGXTriggers",
   worldmap = "RGXWorldMap",
 }
 
@@ -343,6 +344,7 @@ function RGX:GetDelves()       return self:GetModule("delves")       end
 function RGX:GetHousing()      return self:GetModule("housing")      end
 function RGX:GetTradingPost()  return self:GetModule("tradingpost")  end
 function RGX:GetPrey()         return self:GetModule("prey")         end
+function RGX:GetTriggers()    return self:GetModule("triggers")    end
 function RGX:GetWorldMap()     return self:GetModule("worldmap")   end
 
 -- Addon registry -- every RGX.Addon is recorded here so other files (or the

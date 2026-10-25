@@ -152,6 +152,7 @@ RGX:RegisterEvent("ADDON_LOADED", function(_, addon)
         TryInit("prey", "RGXPrey")
         TryInit("collectibles", "RGXCollectibles")
         TryInit("loot", "RGXLoot")
+        TryInit("triggers", "RGXTriggers")
 
         -- SavedVariables adoption safety net: databases are constructed at
         -- consumer chunk load, before the client deserializes their
