@@ -40,3 +40,6 @@ L.MSG_TRIGGER_LOW_HEALTH		= "生命值低"
 L.MSG_TRIGGER_LOW_MANA			= "魔法值低"
 L.MSG_TRIGGER_LOW_PET_HEALTH	= "宠物生命值低"
 
+
+L.COMBAT_SETUP_NOTICE = "战斗文字需要 MSBT 的战斗记录过滤器。请输入 /reload 保存并启用。"
+L.COMBAT_SETUP_RELOAD = "请重新加载界面以启动 MSBT。"

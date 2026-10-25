@@ -76,3 +76,6 @@ L.MSG_KILLING_BLOW				= "擊殺"
 L.MSG_TRIGGER_LOW_HEALTH		= "生命值偏低"
 L.MSG_TRIGGER_LOW_MANA			= "法力值偏低"
 L.MSG_TRIGGER_LOW_PET_HEALTH	= "寵物生命偏低"
+
+L.COMBAT_SETUP_NOTICE = "戰鬥文字需要 MSBT 的戰鬥紀錄篩選器。請輸入 /reload 儲存並啟用。"
+L.COMBAT_SETUP_RELOAD = "請重新載入介面以啟動 MSBT。"
