@@ -29,9 +29,9 @@ CCS.Themes = {
         frame_l       = { texture = "char_frame_border.png", cx=0,cy=0, map = {68, 146, 0.007, 0.246, 0.245, 0.755} },  -- left
 
         -- Character Frame Images
-        frame_top_img = { texture = "frame_top_img.png", w = 410, h = 72.307, cx = 0, cy = 23 },
-        frame_left_img = { texture = "frame_left_img.png", w = 65, h = 418.438, cx = -8, cy = 0 },
-        frame_right_img = { texture = "frame_right_img.png", w = 65, h = 418.438, cx = 8, cy = 0 },
+        frame_top_img = { texture = "frame_top_img.png", w = 410, h = 72.307, cx = 0, cy = -17 },
+        frame_left_img = { texture = "frame_left_img.png", w = 65, h = 418.438, cx = 0, cy = 0 },
+        frame_right_img = { texture = "frame_right_img.png", w = 65, h = 418.438, cx = 0, cy = 0 },
         frame_bg       = { texture = "frame_bg.png", map = {720, 480, 0,1,0,1} },
         frame_item     = { texture = "frame_item.png", map = nil },
         frame_check     = { texture = "check.png", map = nil },
@@ -92,9 +92,9 @@ CCS.Themes = {
         frame_l       = { texture = "char_frame_border.png", cx=0,cy=0, map = {129, 286, 0.002, 0.237, 0.238, 0.762} },  -- left
 
         -- Character Frame Images
-        frame_top_img =  { texture = "frame_top_img.png", w = 408.2366, h = 82, cx = 0, cy = 23 },
-        frame_left_img = { texture = "frame_left_img.png", w = 60, h = 392, cx = 3, cy = 0 },
-        frame_right_img ={ texture = "frame_right_img.png", w = 60, h = 392, cx = -3, cy = 0 },
+        frame_top_img =  { texture = "frame_top_img.png", w = 408.2366, h = 82, cx = 0, cy = -19 },
+        frame_left_img = { texture = "frame_left_img.png", w = 60, h = 392, cx = 6, cy = 0 },
+        frame_right_img ={ texture = "frame_right_img.png", w = 60, h = 392, cx = -6, cy = 0 },
         frame_bg       = { texture = "frame_bg.png", map = {720, 480, 0,1,0,1}},
         frame_item     = { texture = "frame_item.png", map = nil },
         frame_check     = { texture = "check.png", map = nil },
@@ -155,9 +155,9 @@ CCS.Themes = {
         frame_l       = { texture = "char_frame_border.png", cx=0,cy=0, map = {150, 258, 0, 0.263, 0.269, 0.731} },  -- left
 
         -- Character Frame Images
-        frame_top_img =  { texture = "frame_top_img.png", w = 417.2088, h = 82, cx = 0, cy = 23 },
-        frame_left_img = { texture = "frame_left_img.png", w = 81, h = 398, cx = -5, cy = 0 },
-        frame_right_img ={ texture = "frame_right_img.png", w = 81, h = 398, cx = 5, cy = 0 },
+        frame_top_img =  { texture = "frame_top_img.png", w = 417.2088, h = 82, cx = 0, cy = -19 },
+        frame_left_img = { texture = "frame_left_img.png", w = 81, h = 398, cx = 10, cy = 0 },
+        frame_right_img ={ texture = "frame_right_img.png", w = 81, h = 398, cx = -10, cy = 0 },
         frame_bg       = { texture = "frame_bg.png", map = {720, 480, 0,1,0,1} },
         frame_item     = { texture = "frame_item.png", map = nil },
         frame_check     = { texture = "check.png", map = nil },
@@ -219,7 +219,7 @@ CCS.Themes = {
         frame_l       = { texture = "char_frame_border.png", cx=0,cy=0, map = {55, 389, 0, 0.11, 0.11, 0.89} },  -- left
 
         -- Character Frame Images
-        frame_top_img =  { texture = "frame_top_img.png", w = 408.236, h = 82, cx = 0, cy = 27 },
+        frame_top_img =  { texture = "frame_top_img.png", w = 408.236, h = 82, cx = 0, cy = -17 },
         frame_left_img = { texture = "frame_left_img.png", w = 52, h = 403, cx = 0, cy = 0 },
         frame_right_img ={ texture = "frame_right_img.png", w = 52, h = 403, cx = 0, cy = 0 },
         frame_bg       = { texture = "frame_bg.png", map = {720, 480, 0,1,0,1} },
@@ -282,9 +282,9 @@ CCS.Themes = {
         frame_l       = { texture = "char_frame_border.png", cx=0,cy=0, map = {135, 229, 0, 0.268, 0.271, 0.729} },  -- left
 
         -- Character Frame Images
-        frame_top_img =  { texture = "frame_top_img.png", w = 410, h = 88.322, cx = 0, cy = 34 },
-        frame_left_img = { texture = "frame_left_img.png", w = 60, h = 341.4084507, cx = -3, cy = 0 },
-        frame_right_img ={ texture = "frame_right_img.png", w = 60, h = 341.4084507, cx = 3, cy = 0 },
+        frame_top_img =  { texture = "frame_top_img.png", w = 410, h = 88.322, cx = 0, cy = -14 },
+        frame_left_img = { texture = "frame_left_img.png", w = 60, h = 341.4084507, cx = 3, cy = 0 },
+        frame_right_img ={ texture = "frame_right_img.png", w = 60, h = 341.4084507, cx = -3, cy = 0 },
         frame_bg       = { texture = "frame_bg.png", map = {720, 480, 0,1,0,1} },
         frame_item     = { texture = "frame_item.png", map = nil },
         frame_check     = { texture = "check.png", map = nil },
@@ -345,9 +345,9 @@ CCS.Themes = {
         frame_l       = { texture = "char_frame_border.png", cx=0,cy=0, map = {160, 371, 0, 0.229, 0.232, 0.768} },  -- left
 
         -- Character Frame Images
-        frame_top_img =  { texture = "frame_top_img.png", w = 410, h = 82, cx = 0, cy = 23 },
-        frame_left_img = { texture = "frame_left_img.png", w = 72, h = 403, cx = -8, cy = 0 },
-        frame_right_img ={ texture = "frame_right_img.png", w = 72, h = 403, cx = 8, cy = 0 },
+        frame_top_img =  { texture = "frame_top_img.png", w = 410, h = 82, cx = 0, cy = -21 },
+        frame_left_img = { texture = "frame_left_img.png", w = 72, h = 403, cx = 10, cy = 0 },
+        frame_right_img ={ texture = "frame_right_img.png", w = 72, h = 403, cx = -10, cy = 0 },
         frame_bg       = { texture = "frame_bg.png", map = {1080, 720, 0,1,0,1} },
         frame_item     = { texture = "frame_item.png", map = nil },
         frame_check     = { texture = "check.png", map = nil },
@@ -408,9 +408,9 @@ CCS.Themes = {
         frame_l       = { texture = "char_frame_border.png", cx=0,cy=0, map = {125, 441, 0, 0.179, 0.181, 0.819} },  -- left
 
         -- Character Frame Images
-        frame_top_img =  { texture = "frame_top_img.png", w = 400, h = 93.65, cx = 0, cy = 34 },
+        frame_top_img =  { texture = "frame_top_img.png", w = 400, h = 93.65, cx = 0, cy = -15 },
         frame_left_img = { texture = "frame_left_img.png", w = 60, h = 331.2329, cx = 0, cy = 0 },
-        frame_right_img ={ texture = "frame_right_img.png", w = 60, h = 331.2329, cx = -5, cy = 0 },
+        frame_right_img ={ texture = "frame_right_img.png", w = 60, h = 331.2329, cx = 0, cy = 0 },
         frame_bg       = { texture = "frame_bg.png", map = {720, 480, 0,1,0,1} },
         frame_item     = { texture = "frame_item.png", map = nil },
         frame_check     = { texture = "check.png", map = nil },
@@ -471,9 +471,9 @@ CCS.Themes = {
         frame_l       = { texture = "char_frame_border.png", cx=0,cy=0, map = {130, 388, 0, 0.195, 0.201, 0.799} },  -- left
 
         -- Character Frame Images
-        frame_top_img =  { texture = "frame_top_img.png", w = 400, h = 84.294, cx = 0, cy = 27 },
-        frame_left_img = { texture = "frame_left_img.png", w = 60, h = 374.79, cx = 0, cy = 0 },
-        frame_right_img ={ texture = "frame_right_img.png", w = 60, h = 374.79, cx = 3, cy = 0 },
+        frame_top_img =  { texture = "frame_top_img.png", w = 400, h = 84.294, cx = 0, cy = -20 },
+        frame_left_img = { texture = "frame_left_img.png", w = 60, h = 374.79, cx = 10, cy = 0 },
+        frame_right_img ={ texture = "frame_right_img.png", w = 60, h = 374.79, cx = -10, cy = 0 },
         frame_bg       = { texture = "frame_bg.png", map = {720, 480, 0,1,0,1} },
         frame_item     = { texture = "frame_item.png", map = nil },
         frame_check     = { texture = "check.png", map = nil },
@@ -534,7 +534,7 @@ CCS.Themes = {
         frame_l       = { texture = "char_frame_border.png", cx=0,cy=0, map = {185, 280, 0, 0.272, 0.285, 0.715} },  -- left
 
         -- Character Frame Images
-        frame_top_img =  { texture = "frame_top_img.png", w = 400, h = 76.190, cx = 0, cy = 15 },
+        frame_top_img =  { texture = "frame_top_img.png", w = 400, h = 76.190, cx = 0, cy = -25 },
         frame_left_img = { texture = "frame_left_img.png", w = 50, h = 487, cx = 0, cy = 0 },
         frame_right_img ={ texture = "frame_right_img.png", w = 50, h = 487, cx = 0, cy = 0 },
         frame_bg       = { texture = "frame_bg.png", map = {720, 480, 0,1,0,1} },
@@ -598,9 +598,9 @@ CCS.Themes = {
         frame_l       = { texture = "char_frame_border.png", cx=0,cy=0, map = {120, 429, 0, 0.175, 0.179, 0.821} },  -- left
 
         -- Character Frame Images
-        frame_top_img =  { texture = "frame_top_img.png", w = 398, h = 96, cx = 0, cy = 30 },
-        frame_left_img = { texture = "frame_left_img.png", w = 56, h = 424, cx = -5, cy = 0 },
-        frame_right_img ={ texture = "frame_right_img.png", w = 56, h = 424, cx = 5, cy = 0 },
+        frame_top_img =  { texture = "frame_top_img.png", w = 398, h = 96, cx = 0, cy = -23 },
+        frame_left_img = { texture = "frame_left_img.png", w = 56, h = 424, cx = 0, cy = 0 },
+        frame_right_img ={ texture = "frame_right_img.png", w = 56, h = 424, cx = 0, cy = 0 },
         frame_bg       = { texture = "frame_bg.png", map = {720, 480, 0,1,0,1} },
         frame_item     = { texture = "frame_item.png", map = nil },
         frame_check     = { texture = "check.png", map = nil },
@@ -661,9 +661,9 @@ CCS.Themes = {
         frame_l       = { texture = "char_frame_border.png", cx=0,cy=0, map = {180, 323, 0, 0.26, 0.264, 0.736} },  -- left
 
         -- Character Frame Images
-        frame_top_img =  { texture = "frame_top_img.png", w = 400, h = 93.204, cx = 0, cy = 31 },
-        frame_left_img = { texture = "frame_left_img.png", w = 57, h = 471, cx = -3, cy = 0 },
-        frame_right_img ={ texture = "frame_right_img.png", w = 57, h = 471, cx = 3, cy = 0 },
+        frame_top_img =  { texture = "frame_top_img.png", w = 400, h = 93.204, cx = 0, cy = -19 },
+        frame_left_img = { texture = "frame_left_img.png", w = 57, h = 471, cx = 0, cy = 0 },
+        frame_right_img ={ texture = "frame_right_img.png", w = 57, h = 471, cx = 0, cy = 0 },
         frame_bg       = { texture = "frame_bg.png", map = {720, 480, 0,1,0,1} },
         frame_item     = { texture = "frame_item.png", map = nil },
         frame_check     = { texture = "check.png", map = nil },
@@ -724,7 +724,7 @@ CCS.Themes = {
         frame_l       = { texture = "char_frame_border.png", cx=0,cy=0, map = {150, 369, 0, 0.222, 0.224, 0.776} },  -- left
 
         -- Character Frame Images
-        frame_top_img =  { texture = "frame_top_img.png", w = 405, h = 96, cx = 0, cy = 36 },
+        frame_top_img =  { texture = "frame_top_img.png", w = 405, h = 96, cx = 0, cy = -17 },
         frame_left_img = { texture = "frame_left_img.png", w = 57, h = 353, cx = 0, cy = 0 },
         frame_right_img ={ texture = "frame_right_img.png", w = 57, h = 353, cx = 0, cy = 0 },
         frame_bg       = { texture = "frame_bg.png", map = {720, 480, 0,1,0,1} },
@@ -787,7 +787,7 @@ CCS.Themes = {
         frame_l       = { texture = "char_frame_border.png", cx=0,cy=0, map = {190, 289, 0, 0.28, 0.284, 0.716} },  -- left
 
         -- Character Frame Images
-        frame_top_img =  { texture = "frame_top_img.png", w = 400, h = 80.167, cx = 0, cy = 25 },
+        frame_top_img =  { texture = "frame_top_img.png", w = 400, h = 80.167, cx = 0, cy = -17 },
         frame_left_img = { texture = "frame_left_img.png", w = 50, h = 428.0702, cx = 0, cy = 0 },
         frame_right_img ={ texture = "frame_right_img.png", w = 50, h = 428.0702, cx = 0, cy = 0 },
         frame_bg       = { texture = "frame_bg.png", map = {720, 480, 0,1,0,1} },

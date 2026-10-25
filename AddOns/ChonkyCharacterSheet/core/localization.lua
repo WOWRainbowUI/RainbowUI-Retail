@@ -67,6 +67,8 @@ local defaultStrings = {
     ------------------------------------------------------------
     -- General / Common
     ------------------------------------------------------------
+	["Show Character Name"] = "Show Character Name", -- enUS / enGB
+	["Show Class/Level"] = "Show Class/Level", -- enUS / enGB
 	["Skin Character Tabs"]	= "Skin Character Tabs",  -- enUS / enGB
 	["Bottom Tab Texture"] = "Bottom Tab Texture",   -- enUS / enGB
 	["Header Texture"] = "Header Texture", -- enUS / enGB
@@ -505,6 +507,8 @@ elseif locale == "deDE" then
 		["Titans"] = "Titanen", -- deDE
 		["Old Gods"] = "Alte Götter", -- deDE
 		------------------------------------------------------------
+		-- Themes Related
+		------------------------------------------------------------
 		["CATEGORY_STYLE-COLOR"] = "Themen/Stil", -- deDE
 		["THEME SETTINGS"] = "Themen-Einstellungen", -- deDE
 		["THEME_WARNING"] = "Überschreibt Stileinstellungen", -- deDE
@@ -605,6 +609,12 @@ elseif locale == "deDE" then
         ["rating"] = "Wertung",
         ["Until next bracket"] = "Bis zur nächsten Stufe",
 		-- General / Common
+		["Item Alpha Adjustment"] = "Gegenstands-Alpha-Anpassung", -- deDE
+		["Hide Enchant Quality"] = "Verzauberungsqualität ausblenden", -- deDE
+		["Show Character Name"] = "Charakternamen anzeigen", -- deDE
+		["Show Class/Level"] = "Klasse/Stufe anzeigen", -- deDE
+		["X Offset"] = "X-Verschiebung", -- deDE
+		["Y Offset"] = "Y-Verschiebung", -- deDE
         ["FONT_NAME_TITLES"] = "Schriftart für Titel", -- deDE (German)		
 		["SHOW_INBAG_ILVL"] = "Gegenstandslevel in Taschen anzeigen", -- deDE (German)		
 		["STAT_DR_EFFECTIVE"] = "Effektiv", -- deDE
@@ -933,6 +943,8 @@ elseif locale == "frFR" then
 		["Titans"] = "Titans", -- frFR
 		["Old Gods"] = "Dieux Très Anciens", -- frFR
 		------------------------------------------------------------
+		-- Themes Related
+		------------------------------------------------------------
 		["CATEGORY_STYLE-COLOR"] = "Thèmes/Style", -- frFR
 		["THEME SETTINGS"] = "Paramètres du thème", -- frFR
 		["THEME_WARNING"] = "Remplace les paramètres de style", -- frFR
@@ -1033,6 +1045,12 @@ elseif locale == "frFR" then
         ["rating"] = "score",
         ["Until next bracket"] = "Jusqu’au prochain pallier",
 		-- General / Common
+		["Item Alpha Adjustment"] = "Ajustement de l’alpha des objets", -- frFR
+		["Hide Enchant Quality"] = "Masquer la qualité des enchantements", -- frFR
+		["Show Character Name"] = "Afficher le nom du personnage", -- frFR
+		["Show Class/Level"] = "Afficher la classe/niveau", -- frFR
+		["X Offset"] = "Décalage X", -- frFR
+		["Y Offset"] = "Décalage Y", -- frFR
         ["FONT_NAME_TITLES"] = "Police des titres", -- frFR (French)		
 		["SHOW_INBAG_ILVL"] = "Afficher le niveau d’objet dans les sacs", -- frFR (French)		
 		["STAT_DR_EFFECTIVE"] = "Effectif", -- frFR
@@ -1361,6 +1379,8 @@ elseif locale == "esES" then
 		["Titans"] = "Titanes", -- esES / esMX
 		["Old Gods"] = "Dioses Antiguos", -- esES / esMX
 		------------------------------------------------------------
+		-- Themes Related
+		------------------------------------------------------------
 		["CATEGORY_STYLE-COLOR"] = "Temas/Estilo", -- esES / esMX
 		["THEME SETTINGS"] = "Ajustes del tema", -- esES / esMX
 		["THEME_WARNING"] = "Sobrescribe la configuración de estilo", -- esES / esMX
@@ -1461,6 +1481,12 @@ elseif locale == "esES" then
         ["rating"] = "índice",
         ["Until next bracket"] = "Hasta el siguiente tramo",
 		-- General / Common
+		["Item Alpha Adjustment"] = "Ajuste de alfa de objetos", -- esES
+		["Hide Enchant Quality"] = "Ocultar calidad del encantamiento", -- esES
+		["Show Character Name"] = "Mostrar nombre del personaje", -- esES
+		["Show Class/Level"] = "Mostrar clase/nivel", -- esES
+		["X Offset"] = "Desplazamiento X", -- esES
+		["Y Offset"] = "Desplazamiento Y", -- esES
         ["FONT_NAME_TITLES"] = "Fuente de títulos", -- esES (Spanish - Spain)		
 		["SHOW_INBAG_ILVL"] = "Mostrar nivel de objeto en las bolsas", -- esES (Spanish - Spain)		
 		["STAT_DR_EFFECTIVE"] = "Efectivo", -- esES
@@ -1789,6 +1815,8 @@ elseif locale == "esMX" then
 		["Titans"] = "Titanes", -- esES / esMX
 		["Old Gods"] = "Dioses Antiguos", -- esES / esMX
 		------------------------------------------------------------
+		-- Themes Related
+		------------------------------------------------------------
 		["CATEGORY_STYLE-COLOR"] = "Temas/Estilo", -- esES / esMX
 		["THEME SETTINGS"] = "Ajustes del tema", -- esES / esMX
 		["THEME_WARNING"] = "Sobrescribe la configuración de estilo", -- esES / esMX
@@ -1889,6 +1917,12 @@ elseif locale == "esMX" then
         ["rating"] = "índice",
         ["Until next bracket"] = "Hasta el siguiente tramo",
 		-- General / Common
+		["Item Alpha Adjustment"] = "Ajuste de alfa de objetos", -- esMX
+		["Hide Enchant Quality"] = "Ocultar calidad del encantamiento", -- esMX
+		["Show Character Name"] = "Mostrar nombre del personaje", -- esMX
+		["Show Class/Level"] = "Mostrar clase/nivel", -- esMX
+		["X Offset"] = "Desplazamiento X", -- esMX
+		["Y Offset"] = "Desplazamiento Y", -- esMX
         ["FONT_NAME_TITLES"] = "Fuente de títulos", -- esMX (Spanish - Mexico)		
 		["SHOW_INBAG_ILVL"] = "Mostrar nivel de objeto en las bolsas", -- esMX (Spanish - Mexico)		
 		["STAT_DR_EFFECTIVE"] = "Efectivo", -- esMX
@@ -2217,6 +2251,8 @@ elseif locale == "ruRU" then
 		["Titans"] = "Титаны", -- ruRU
 		["Old Gods"] = "Древние Боги", -- ruRU
 		------------------------------------------------------------
+		-- Themes Related
+		------------------------------------------------------------
 		["CATEGORY_STYLE-COLOR"] = "Темы/Стиль", -- ruRU
 		["THEME SETTINGS"] = "Настройки темы", -- ruRU
 		["THEME_WARNING"] = "Перезаписывает параметры стиля", -- ruRU
@@ -2318,6 +2354,12 @@ elseif locale == "ruRU" then
         ["rating"] = "рейтинг",
         ["Until next bracket"] = "До следующего порога",
 		-- General / Common
+		["Item Alpha Adjustment"] = "Настройка прозрачности предметов", -- ruRU
+		["Hide Enchant Quality"] = "Скрыть качество чар", -- ruRU
+		["Show Character Name"] = "Показать имя персонажа", -- ruRU
+		["Show Class/Level"] = "Показать класс/уровень", -- ruRU
+		["X Offset"] = "Смещение по X", -- ruRU
+		["Y Offset"] = "Смещение по Y", -- ruRU
         ["FONT_NAME_TITLES"] = "Шрифт заголовков", -- ruRU (Russian)		
 		["SHOW_INBAG_ILVL"] = "Показывать уровень предметов в сумках", -- ruRU (Russian)		
 		["STAT_DR_EFFECTIVE"] = "Эффективно", -- ruRU
@@ -2646,6 +2688,8 @@ elseif locale == "koKR" then
 		["Titans"] = "티탄", -- koKR
 		["Old Gods"] = "고대 신들", -- koKR
 		------------------------------------------------------------
+		-- Themes Related
+		------------------------------------------------------------
 		["CATEGORY_STYLE-COLOR"] = "테마/스타일", -- koKR
 		["THEME SETTINGS"] = "테마 설정", -- koKR
 		["THEME_WARNING"] = "스타일 설정을 덮어씁니다", -- koKR
@@ -2746,6 +2790,12 @@ elseif locale == "koKR" then
         ["rating"] = "평점",
         ["Until next bracket"] = "다음 구간까지",
 		-- General / Common
+		["Item Alpha Adjustment"] = "아이템 알파 조정", -- koKR
+		["Hide Enchant Quality"] = "마법부여 품질 숨기기", -- koKR
+		["Show Character Name"] = "캐릭터 이름 표시", -- koKR
+		["Show Class/Level"] = "직업/레벨 표시", -- koKR
+		["X Offset"] = "X 오프셋", -- koKR
+		["Y Offset"] = "Y 오프셋", -- koKR
         ["FONT_NAME_TITLES"] = "제목 글꼴", -- koKR (Korean)		
 		["SHOW_INBAG_ILVL"] = "가방 아이템 레벨 표시", -- koKR (Korean)		
 		["STAT_DR_EFFECTIVE"] = "유효", -- koKR
@@ -3074,6 +3124,8 @@ elseif locale == "zhCN" then
 		["Titans"] = "泰坦", -- zhCN
 		["Old Gods"] = "上古之神", -- zhCN
 		------------------------------------------------------------
+		-- Themes Related
+		------------------------------------------------------------
 		["CATEGORY_STYLE-COLOR"] = "主题/样式", -- zhCN
 		["THEME SETTINGS"] = "主题设置", -- zhCN
 		["THEME_WARNING"] = "覆盖样式设置", -- zhCN
@@ -3174,6 +3226,12 @@ elseif locale == "zhCN" then
         ["rating"] = "评分",
         ["Until next bracket"] = "距离下一区间",
 		-- General / Common
+		["Item Alpha Adjustment"] = "物品透明度调整", -- zhCN
+		["Hide Enchant Quality"] = "隐藏附魔品质", -- zhCN
+		["Show Character Name"] = "显示角色名称", -- zhCN
+		["Show Class/Level"] = "显示职业/等级", -- zhCN
+		["X Offset"] = "X 偏移", -- zhCN
+		["Y Offset"] = "Y 偏移", -- zhCN
         ["FONT_NAME_TITLES"] = "标题字体", -- zhCN (Simplified Chinese)		
 		["SHOW_INBAG_ILVL"] = "显示背包物品等级", -- zhCN (Simplified Chinese)
 		["STAT_DR_EFFECTIVE"] = "有效", -- zhCN
@@ -3502,6 +3560,8 @@ elseif locale == "zhTW" then
 		["Titans"] = "泰坦", -- zhTW
 		["Old Gods"] = "上古之神", -- zhTW
 		------------------------------------------------------------
+		-- Themes Related
+		------------------------------------------------------------
 		["CATEGORY_STYLE-COLOR"] = "主題/樣式", -- zhTW
 		["THEME SETTINGS"] = "主題設定", -- zhTW
 		["THEME_WARNING"] = "覆蓋樣式設定", -- zhTW
@@ -3602,6 +3662,12 @@ elseif locale == "zhTW" then
         ["rating"] = "評分",
         ["Until next bracket"] = "距離下一區間",
 		-- General / Common
+		["Item Alpha Adjustment"] = "物品透明度調整", -- zhTW
+		["Hide Enchant Quality"] = "隱藏附魔品質", -- zhTW
+		["Show Character Name"] = "顯示角色名稱", -- zhTW
+		["Show Class/Level"] = "顯示職業/等級", -- zhTW
+		["X Offset"] = "X 位移", -- zhTW
+		["Y Offset"] = "Y 位移", -- zhTW
         ["FONT_NAME_TITLES"] = "標題字體", -- zhTW (Traditional Chinese)		
 		["SHOW_INBAG_ILVL"] = "顯示背包物品等級", -- zhTW (Traditional Chinese)
 		["STAT_DR_EFFECTIVE"] = "有效", -- zhTW
@@ -3931,6 +3997,8 @@ elseif locale == "ptBR" then
 		["Titans"] = "Titãs", -- ptBR
 		["Old Gods"] = "Deuses Antigos", -- ptBR
 		------------------------------------------------------------
+		-- Themes Related
+		------------------------------------------------------------
 		["CATEGORY_STYLE-COLOR"] = "Temas/Estilo", -- ptBR
 		["THEME SETTINGS"] = "Configurações do tema", -- ptBR
 		["THEME_WARNING"] = "Substitui as configurações de estilo", -- ptBR
@@ -4031,6 +4099,12 @@ elseif locale == "ptBR" then
         ["rating"] = "índice",
         ["Until next bracket"] = "Até a próxima faixa",
 		-- General / Common
+		["Item Alpha Adjustment"] = "Ajuste de alfa do item", -- ptBR
+		["Hide Enchant Quality"] = "Ocultar qualidade do encantamento", -- ptBR
+		["Show Character Name"] = "Mostrar nome do personagem", -- ptBR
+		["Show Class/Level"] = "Mostrar classe/nível", -- ptBR
+		["X Offset"] = "Deslocamento X", -- ptBR
+		["Y Offset"] = "Deslocamento Y", -- ptBR
         ["FONT_NAME_TITLES"] = "Fonte dos títulos", -- ptBR (Portuguese - Brazil)		
 		["SHOW_INBAG_ILVL"] = "Mostrar o nível dos itens nas bolsas", -- ptBR (Portuguese - Brazil)		
 		["STAT_DR_EFFECTIVE"] = "Efetivo", -- ptBR
@@ -4359,7 +4433,8 @@ elseif locale == "itIT" then
 		["Titans"] = "Titani", -- itIT
 		["Old Gods"] = "Antichi Dei", -- itIT
 		------------------------------------------------------------
-
+		-- Themes Related
+		------------------------------------------------------------
 		["CATEGORY_STYLE-COLOR"] = "Temi/Stile", -- itIT
 		["THEME SETTINGS"] = "Impostazioni tema", -- itIT
 		["THEME_WARNING"] = "Sovrascrive le impostazioni di stile", -- itIT
@@ -4459,6 +4534,12 @@ elseif locale == "itIT" then
 		["rating"] = "indice",
 		["Until next bracket"] = "Fino alla prossima fascia",	
 		-- General / Common
+		["Item Alpha Adjustment"] = "Regolazione dell’alpha degli oggetti", -- itIT
+		["Hide Enchant Quality"] = "Nascondi qualità dell’incantamento", -- itIT
+		["Show Character Name"] = "Mostra nome del personaggio", -- itIT
+		["Show Class/Level"] = "Mostra classe/livello", -- itIT
+		["X Offset"] = "Offset X", -- itIT
+		["Y Offset"] = "Offset Y", -- itIT
         ["FONT_NAME_TITLES"] = "Carattere dei titoli", -- itIT (Italian)		
 		["SHOW_INBAG_ILVL"] = "Mostra il livello degli oggetti nelle borse", -- itIT (Italian)		
 		["STAT_DR_EFFECTIVE"] = "Effettivo", -- itIT

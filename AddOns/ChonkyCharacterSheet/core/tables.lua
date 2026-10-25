@@ -214,10 +214,24 @@ ns.optionDefs = {
     { type="header",   cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key=nil, label="", slots=2, color={1, 1, 1}, fontSize=18, fontOutline="THICKOUTLINE", justify="LEFT" },
 
     { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key="show_char_frame", label=L["Character Frame Border"], value=true, default=true, slots=1 },
-    { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key="show_top_texture", label=L["Top Texture"], value=true, default=true, slots=1 },
-    { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key="show_left_texture", label=L["Left Texture"], value=true, default=true, slots=1 },
-    { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key="show_right_texture", label=L["Right Texture"], value=true, default=true, slots=1 },
+    { type="header",   cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key=nil, label="", slots=3, color={1, 1, 1}, fontSize=18, fontOutline="THICKOUTLINE", justify="LEFT" },
 
+    { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key="show_top_texture", label=L["Top Texture"], value=true, default=true, slots=1 },
+    { type="slider",   cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key="top_tex_scale", label=L["SCALE"], value=1, default=1, min=0.3, max=1.3, step=0.05, slots=1 },
+    { type="slider",   cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key="top_tex_xoff", label=L["X Offset"], value=0, default=0, min=-300, max=300, step=1, slots=1 },
+    { type="slider",   cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key="top_tex_yoff", label=L["Y Offset"], value=0, default=0, min=-75, max=75, step=1, slots=1 },
+
+    { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key="show_left_texture", label=L["Left Texture"], value=true, default=true, slots=1 },
+    { type="slider",   cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key="left_tex_scale", label=L["SCALE"], value=1, default=1, min=0.3, max=1.3, step=0.05, slots=1 },
+    { type="slider",   cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key="left_tex_xoff", label=L["X Offset"], value=0, default=0, min=-75, max=75, step=1, slots=1 },
+    { type="slider",   cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key="left_tex_yoff", label=L["Y Offset"], value=0, default=0, min=-75, max=75, step=1, slots=1 },
+
+    { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key="show_right_texture", label=L["Right Texture"], value=true, default=true, slots=1 },
+    { type="slider",   cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key="right_tex_scale", label=L["SCALE"], value=1, default=1, min=0.3, max=1.3, step=0.05, slots=1 },
+    { type="slider",   cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key="right_tex_xoff", label=L["X Offset"], value=0, default=0, min=-75, max=75, step=1, slots=1 },
+    { type="slider",   cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key="right_tex_yoff", label=L["Y Offset"], value=0, default=0, min=-75, max=75, step=1, slots=1 },
+
+    -- Show/hide various elements
     { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key="show_item_frame", label=L["Item Frame"], value=true, default=true, slots=1 },
     { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL), key="showstatborder", label=L["Stats Border"], value=true, default=true, slots=1 },
     { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL), key="show_mplus_frame_border", label=L["M+ Panel Border"], value=true, default=true, slots=1 },
@@ -298,6 +312,8 @@ ns.optionDefs = {
     { type="divider", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), slots=4 },
     { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL), key="showparagonmax", label=L["PARAGON_MAX_BAR"], value=false, default=false, slots=1 },
     { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL), key="showtitlesearch", label=L["TITLE_SEARCH"], value=true, default=true, slots=1 },
+    { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL), key="showcharname", label=L["Show Character Name"], value=true, default=true, slots=1 },
+    { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL), key="showclasslevel", label=L["Show Class/Level"], value=true, default=true, slots=1 },
     { type="divider", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL), slots=4 },
     { type="header", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key=nil, label=L["HEADER_ITEM_DISPLAY"], slots=4, color={1,1,1}, fontSize=16, fontOutline="THICKOUTLINE", justify="LEFT" },
     { type="divider", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), slots=4 },
@@ -327,6 +343,7 @@ ns.optionDefs = {
     { type="slider", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="itemcolorbrightness", label=L["Item Background Brightness"], value=1.00, default=1.00, min=0.30, max=1.00, step=0.01, slots=2 },
     { type="slider", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="enchantnamelength", label=L["ENCHANT_NAME_LENGTH"], value=100, default=100, min=20, max=100, step=1, slots=2 },
     { type="slider", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="itemcoloralpha", label=L["Item Alpha Adjustment"], value=0.75, default=0.75, min=0.30, max=1.00, step=0.01, slots=2 },
+    { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL), key="hideenchantquality", label=L["Hide Enchant Quality"], value=false, default=false, slots=2 },
     { type="divider", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL), slots=4 },
     { type="header", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL), key=nil, label=L["Upgrade Color by Rarity"], slots=4, color={1,1,1}, fontSize=16, fontOutline="THICKOUTLINE", justify="LEFT" },
     { type="divider", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL), slots=4 },
