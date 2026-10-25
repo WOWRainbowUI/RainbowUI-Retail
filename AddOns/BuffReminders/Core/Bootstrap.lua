@@ -119,7 +119,7 @@ bootstrapFrame:SetScript("OnEvent", function(_, event, arg1)
 
     local title = settingsPanel:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
     title:SetPoint("TOPLEFT", 16, -16)
-    title:SetText("BuffReminders")
+    title:SetText(L["BuffReminders"])
 
     local desc = settingsPanel:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
     desc:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -8)
