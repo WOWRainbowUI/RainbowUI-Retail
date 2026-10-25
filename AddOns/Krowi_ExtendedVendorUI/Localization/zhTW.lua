@@ -95,3 +95,21 @@ L["Plugin_GW2UI_Desc"] = "此整合會將 GW2 UI 的商人外觀套用至商人�
 L["ForeverGamepadNotLoaded"] = "商人介面增強不支援 WoW Forever 的控制器介面，因此未載入。若要使用，請在遊戲選項的控制器頁面關閉控制器介面，然後輸入 /reload。"
 
 L["ForeverGamepadReload"] = "WoW Forever 的控制器介面已啟用，商人介面增強不支援此介面。請輸入 /reload，改用暴雪商人視窗。"
+
+L["Gear"] = "裝備"
+
+L["Gold total"] = "金幣總額"
+
+L["Hide currencies you have none of"] = "隱藏未持有的貨幣"
+
+L["Hide sub-optimal armor"] = "隱藏非最佳護甲類型"
+
+L["Minimum quality"] = "最低品質"
+
+L["Only usable items"] = "只顯示可使用的物品"
+
+L["Recipes my other characters know"] = "其他角色已學會的配方"
+
+L["Plugin_TransmogLootHelper_Name"] = "Transmog Loot Helper"
+
+L["Plugin_TransmogLootHelper_Desc"] = "此整合會在翻頁、更改篩選或搜尋時，更新 Transmog Loot Helper 在商人物品上顯示的圖示。需要 Transmog Loot Helper 12.1.5-02 或更新版本。\n\n沒有可調整的選項。"
