@@ -1,0 +1,72 @@
+## Interface: 120100, 120105
+## Title: MiliUI Tooltip
+## Title-zhTW: |cff4DD2FF[提示]|r 米利的浮動提示
+## Title-zhCN: |cff4488FF[MiliUI]|r 米利的鼠标提示
+## Notes: Tooltip restyling rebuilt for 12.1.|n|n|cffffd200Usage: |r/mtip opens settings.
+## Notes-zhTW: MiliUI Tooltip|n|n米利的浮動提示。|n|n|cffffd200使用方法: |r/mtip 開啟設定。
+## Notes-zhCN: MiliUI Tooltip|n|n米利的鼠标提示。|n|n|cffffd200使用方法: |r/mtip 打开设置。
+## Category: Tooltip
+## Category-zhTW: 滑鼠提示
+## Category-zhCN: 鼠标提示
+## Author: Mili
+## Version: 2.1.15
+## DefaultState: enabled
+## X-Website: https://github.com/MiliUIPackage/MiliUI
+## IconTexture: Interface\Icons\INV_Misc_Note_01
+## SavedVariables: MiliUI_Tooltip_DB
+## AddonCompartmentFunc: MiliUITip_OnAddonCompartmentClick
+
+Libs\MiliUIWidgets\PixelPerfect.lua
+Libs\MiliUIWidgets\Secret.lua
+Libs\MiliUIWidgets\Errors.lua
+Libs\MiliUIWidgets\Metro.lua
+Libs\Callbacks.lua
+Libs\MiliUIDB.lua
+Locales\Locale.lua
+Locales\zhTW.lua
+Locales\zhCN.lua
+
+Core\Init.lua
+Core\Record.lua
+Core\Media.lua
+Core\DB.lua
+Core\Colors.lua
+Core\Skin.lua
+Core\Fonts.lua
+Core\Bar.lua
+Core\Hooks.lua
+Modules\UnitInfo.lua
+Modules\UnitLines.lua
+Modules\Target.lua
+Modules\Item.lua
+Modules\Spell.lua
+Modules\Quest.lua
+Modules\Model.lua
+Modules\Anchor.lua
+Modules\ChatHover.lua
+Panel\Patterns.lua
+Panel\Frame.lua
+Panel\Render.lua
+Panel\Native.lua
+Panel\ReadFallback.lua
+Panel\Try.lua
+Panel\ReadSpell.lua
+Panel\ViewSpell.lua
+Panel\ReadItem.lua
+Panel\ViewItem.lua
+Panel\ReadUnit.lua
+Panel\ViewUnit.lua
+Libs\MiliUIWidgets\Env.lua
+Libs\MiliUIWidgets\Widgets.lua
+Libs\MiliUIWidgets\ContextMenu.lua
+Libs\MiliUIWidgets\Controls.lua
+Options\Specs_Tip.lua
+Options\Preview.lua
+Options\Panel.lua
+Options\Tab_General.lua
+Options\Tab_Unit.lua
+Options\Tab_Extra.lua
+Options\Tab_Share.lua
+Libs\MiliUIWidgets\BlizzOptions.lua
+Options\Blizzard.lua
+Api.lua

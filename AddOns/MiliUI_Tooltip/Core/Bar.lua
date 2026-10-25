@@ -1,0 +1,377 @@
+------------------------------------------------------------
+-- 血條：自己的 StatusBar 放在 skin 上，不碰 GameTooltipStatusBar
+--
+-- 秘密值策略：
+--   * 條值：UnitHealthPercent(unit, true, ScaleTo100) → SetValue(秘密數字)。
+--     SetValue(secret) 會污染這個 frame 的幾何資料——所以這條的版面**永不回讀
+--     幾何**，尺寸全部來自設定（Coolinator 規則）。
+--   * 文字：AbbreviateNumbers / AbbreviateLargeNumbers（C 端、吃秘密）+
+--     SetFormattedText（C 端）。
+--   * 顏色：分量可能是秘密 → GetStatusBarTexture():SetVertexColor。
+------------------------------------------------------------
+local _, ns = ...
+
+local S = ns.Secret
+local P = ns.P
+local Media = ns.Media
+local Skin = ns.Skin
+local Colors = ns.Colors
+
+ns.Bar = {}
+local Bar = ns.Bar
+
+local DEAD = DEAD
+
+------------------------------------------------------------
+-- 引擎血條閘：12.x 的 GameTooltip 自帶血條（GameTooltip.StatusBar＝全域 GameTooltipStatusBar），
+-- 由暴雪自己的 post-call TooltipDataRules.HealthBar（Unit／Object 型別）照提示資料的 healthGUID
+-- SetWatch(guid)＝Show、沒有就 ClearWatch＝Hide；給不給 healthGUID 是 C 端組資料時決定的。
+-- 副本裡火盆、祭壇、補給品這類**用生物做的互動物**走的是 Unit 型別的提示（GetUnit 只對 Unit 型別回
+-- token，所以 OnUnit 一樣會跑），但世界游標給的資料沒有 healthGUID。
+-- 我們只是把那條 alpha 0 自己畫一條，所以**顯示與否跟著它**：它沒顯示就不畫——不然 Unit
+-- post-call 一來就無條件畫，這些「物件」底下會多一條滿血條（2026-10-24 玩家回報）。
+-- 只看 IsShown（alpha 0 不影響）、只對 GameTooltip 看（預覽 tooltip 沒有引擎替它 SetWatch）；
+-- 讀不到／秘密 ⇒ 照舊畫（fail-open）。引擎那條 Show／Hide 時 Hooks.lua 的後掛勾會叫 Bar.OnEngineBar
+-- 立刻同步，不用等 0.15s 輪詢。
+-- 例外：戰鬥中按修飾鍵叫回來的世界單位，內容是 SetUnit("mouseover") 那份（另一份資料，補給品在那份裡
+-- 有 healthGUID：2026-10-25 玩家回報按修飾鍵冒出血條）⇒ 照叫回來時記下的世界游標那份（Modules/Anchor.lua 的 Anchor.ReviveHealth）
+------------------------------------------------------------
+local function EngineBarShown(tip)
+    if tip ~= GameTooltip then return true end
+    local revived = ns.Anchor and ns.Anchor.ReviveHealth and ns.Anchor.ReviveHealth(tip)
+    if revived ~= nil then return revived end
+    local eb = tip.StatusBar or GameTooltipStatusBar
+    if not eb or S.IsForbiddenObject(eb) or not eb.IsShown then return true end
+    local ok, shown = pcall(eb.IsShown, eb)
+    if not ok or S.IsSecret(shown) then return true end
+    return shown and true or false
+end
+
+-- zhTW/zhCN 用「萬/億」，其餘語系 K/M
+local IS_CJK = (GetLocale() == "zhTW" or GetLocale() == "zhCN")
+local Abbrev = (IS_CJK and AbbreviateNumbers) or AbbreviateLargeNumbers or AbbreviateNumbers
+
+local function Ensure(tip)
+    local state = Skin.Get(tip)
+    if not state then return end
+    if state.bar then return state.bar end
+
+    local bar = CreateFrame("StatusBar", nil, state.skin)
+    bar:SetMinMaxValues(0, 100)
+    bar:SetValue(0)
+    -- 條身、底、黑框全部不貼齊（Media.NoSnap）：只關框線的話，條身照樣捨入，兩者之間會露半格縫
+    local tex = Media.NoSnap(bar:CreateTexture(nil, "ARTWORK"))
+    bar:SetStatusBarTexture(tex)
+
+    local bg = Media.NoSnap(bar:CreateTexture(nil, "BACKGROUND"))
+    bg:SetAllPoints(bar)
+    bg:SetTexture(Media.WHITE8X8)
+    bg:SetVertexColor(0.2, 0.2, 0.2, 0.8)
+
+    -- 1px 黑框線（貼在條的外緣，不吃掉條的高度；上下兩條左右各多 1px 補角）
+    local edges = {}
+    for i = 1, 4 do
+        edges[i] = Media.NoSnap(bar:CreateTexture(nil, "BORDER"))
+        edges[i]:SetTexture(Media.WHITE8X8)
+        edges[i]:SetVertexColor(0, 0, 0, 1)
+    end
+    state.barEdges = edges
+
+    local text = bar:CreateFontString(nil, "OVERLAY")
+    text:SetPoint("CENTER", bar, "CENTER", 0, 0)
+    state.barText = text
+
+    bar:Hide()
+    state.bar = bar
+    Bar.ApplySettings(tip)
+    Skin.RaiseAccents(tip)
+    return bar
+end
+Bar.Ensure = Ensure
+
+-- 設定 → 條的外觀與位置（設定變更時對所有 tip 重跑）
+function Bar.ApplySettings(tip)
+    local state = Skin.Get(tip)
+    if not state or not state.bar or not ns.db then return end
+    local sb = ns.db.statusbar
+    local bar = state.bar
+    -- 重繪面板顯示單位時貼面板（原生與 skin 都在 alpha 0），見 Bar.SetHost
+    local host = state.barHost or state.skin
+    if bar:GetParent() ~= host then bar:SetParent(host) end
+
+    if not sb.enable then
+        state.barUnit = nil
+        bar:Hide()
+    end
+
+    bar:GetStatusBarTexture():SetTexture(Media.BarTexture(sb.texture))
+
+    state.barPx = nil            -- 設定可能改了位置／高度：強制重排
+    Bar.Layout(state)
+
+    local text = state.barText
+    text:SetFont(Media.Font("default"), tonumber(sb.fontSize) or 10, "THINOUTLINE")
+    text:SetShown(sb.textFormat ~= "none")
+
+    -- 設定改動要立刻反映顏色與數值，不等 0.15s 輪詢
+    if state.barUnit then Bar.Refresh(tip) end
+end
+
+-- 位置與 1px 黑框。黑框粗細跟 skin 邊框同一個基準（Skin.Pixel：tip 縮放後的有效縮放），
+-- 而且要在顯示時換算、跟上次不同才重排：Ensure 第一次跑的時候縮放不一定是最終值，
+-- 之後又只在改設定時重跑（同 Skin.LayoutBorder 的坑）。Activate／ActivateFake 每次都叫一次
+-- 重繪面板顯示單位時（state.barHost＝面板）貼面板；面板底下有附屬框（別人加的行）時貼在整組的最下面，
+-- 不壓在附屬框上。貼的對象也進「跟上次一樣就不重排」的比對
+function Bar.Layout(state)
+    local bar = state.bar
+    if not bar or not ns.db then return end
+    local sb = ns.db.statusbar
+    local host = state.barHost or state.skin
+    local anchor = host
+    if state.barHost and sb.position ~= "top" then
+        local box = state.barHost.extrasBox
+        if box and box:IsShown() then anchor = box end
+    end
+    local bw = Skin.Pixel(host, 1)
+    if state.barPx == bw and state.barAnchor == anchor then return end
+    state.barPx, state.barAnchor = bw, anchor
+    local h = P.Scale(math.max(1, sb.height or 4))
+    -- 血條是離框體 4px 的獨立條（使用者定案）。黑框畫在條的外緣，所以條本身
+    -- 要往內縮 1px（bw），讓**黑框的外緣**貼齊框體外緣——條貼齊的話黑框會凸出去
+    local gap = P.Scale(4)
+    bar:ClearAllPoints()
+    if sb.position == "top" then
+        bar:SetPoint("BOTTOMLEFT", anchor, "TOPLEFT", bw, gap)
+        bar:SetPoint("BOTTOMRIGHT", anchor, "TOPRIGHT", -bw, gap)
+    else
+        bar:SetPoint("TOPLEFT", anchor, "BOTTOMLEFT", bw, -gap)
+        bar:SetPoint("TOPRIGHT", anchor, "BOTTOMRIGHT", -bw, -gap)
+    end
+    bar:SetHeight(h)
+
+    local e = state.barEdges
+    if e then
+        e[1]:ClearAllPoints()
+        e[1]:SetPoint("BOTTOMLEFT", bar, "TOPLEFT", -bw, 0)
+        e[1]:SetPoint("BOTTOMRIGHT", bar, "TOPRIGHT", bw, 0)
+        e[1]:SetHeight(bw)
+        e[2]:ClearAllPoints()
+        e[2]:SetPoint("TOPLEFT", bar, "BOTTOMLEFT", -bw, 0)
+        e[2]:SetPoint("TOPRIGHT", bar, "BOTTOMRIGHT", bw, 0)
+        e[2]:SetHeight(bw)
+        e[3]:ClearAllPoints()
+        e[3]:SetPoint("TOPRIGHT", bar, "TOPLEFT", 0, 0)
+        e[3]:SetPoint("BOTTOMRIGHT", bar, "BOTTOMLEFT", 0, 0)
+        e[3]:SetWidth(bw)
+        e[4]:ClearAllPoints()
+        e[4]:SetPoint("TOPLEFT", bar, "TOPRIGHT", 0, 0)
+        e[4]:SetPoint("BOTTOMLEFT", bar, "BOTTOMRIGHT", 0, 0)
+        e[4]:SetWidth(bw)
+    end
+end
+
+-- 重繪面板顯示單位時把條改貼到面板（host＝面板；nil＝貼回 skin）。條是我們自己的框，SetParent 不碰暴雪物件。
+-- 每次面板重畫都叫（附屬框可能這次有、下次沒有 ⇒ 錨點要跟著換），跟上次一樣的 host 也重排一次，很便宜
+function Bar.SetHost(tip, host)
+    local state = Skin.Get(tip)
+    if not state then return end
+    if state.barHost == nil and host == nil then return end
+    state.barHost = host
+    if state.bar then
+        Bar.ApplySettings(tip)
+        Skin.RaiseAccents(tip)
+    end
+end
+
+function Bar.ApplySettingsAll()
+    Skin.Each(function(tip, state)
+        if state.bar then Bar.ApplySettings(tip) end
+    end)
+end
+
+local function ColorBar(bar, unit)
+    local sb = ns.db.statusbar
+    local r, g, b
+    if sb.color == "custom" then
+        local c = sb.customColor
+        r, g, b = c.r, c.g, c.b
+    else
+        -- auto：拿得到職業就用職業色，拿不到才退立場色。
+        -- ⚠ 不拿 UnitIsPlayer 當閘：mouseover（連滑自己）身分是秘密值，SafeBool
+        -- 會把玩家踢去立場色備援 → 預覽（player 明文）跟實戰同一個人兩種顏色。
+        -- 明文 class 查表；秘密 class 走 C_ClassColor（秘密分量餵 SetVertexColor）；
+        -- NPC 的 UnitClass 回單位名字 → 查表撲空 → 自然落到立場色。
+        local _, class = S.SafeCall(UnitClass, unit)
+        if class then
+            local plain = S.SafeValue(class)
+            if plain then
+                local c = RAID_CLASS_COLORS[plain]
+                if c then r, g, b = c.r, c.g, c.b end
+            elseif C_ClassColor and C_ClassColor.GetClassColor then
+                local ok, c = pcall(C_ClassColor.GetClassColor, class)
+                if ok and type(c) == "table" then r, g, b = c.r, c.g, c.b end
+            end
+        end
+        if r == nil then
+            r, g, b = Colors.UnitColor(unit)
+            if g == 0.6 then g = 0.9 end
+            if r == 1 and g == 1 and b == 1 then r, g, b = 0, 0.9, 0.1 end
+        end
+    end
+    if r == nil then r, g, b = 0, 0.9, 0.1 end
+    bar:GetStatusBarTexture():SetVertexColor(r, g, b, 1)
+end
+
+-- 條值 + 文字。輪詢與事件都走這裡；整段 pcall 包住當保險
+local function RefreshInner(tip, state)
+    local unit = state.barUnit
+    if not unit then return end
+    -- ⚠ 秘密 token 不能當血量 API 的參數（tainted 下 UnitHealth(secretToken)
+    -- 直接拒收，跟 UnitName 不同，血量家族更嚴）。世界游標的提示滑鼠一定壓在
+    -- 那個單位上，改用明文 "mouseover" 讀同一個單位。
+    if S.IsSecret(unit) then unit = "mouseover" end
+    -- 存在性：明文 false 才退（滑鼠已離開、tooltip 淡出中 → 維持最後畫面）
+    local exists = S.SafeCall(UnitExists, unit)
+    if exists ~= nil and not S.IsSecret(exists) and not exists then return end
+    local bar, text = state.bar, state.barText
+    local sb = ns.db.statusbar
+
+    if S.SafeBool(UnitIsDeadOrGhost, unit) then
+        bar:SetValue(0)
+        if sb.textFormat ~= "none" then
+            text:SetFormattedText("|cffffcc33<%s>|r", DEAD)
+        end
+        ColorBar(bar, unit)
+        return
+    end
+
+    local percent
+    if UnitHealthPercent then
+        local ok, p = pcall(UnitHealthPercent, unit, true, CurveConstants and CurveConstants.ScaleTo100)
+        if ok and p ~= nil then percent = p end
+    end
+    if percent ~= nil then
+        bar:SetValue(percent)
+    end
+
+    local fmt = sb.textFormat
+    if fmt == "percent" then
+        if percent ~= nil then
+            text:SetFormattedText("%.0f%%", percent)
+        else
+            text:SetText("")
+        end
+    elseif fmt == "healthmax" then
+        text:SetFormattedText("%s / %s", Abbrev(UnitHealth(unit) or 0), Abbrev(UnitHealthMax(unit) or 1))
+    elseif fmt == "healthmaxpercent" then
+        if percent ~= nil then
+            text:SetFormattedText("%s / %s (%.0f%%)", Abbrev(UnitHealth(unit) or 0), Abbrev(UnitHealthMax(unit) or 1), percent)
+        else
+            text:SetFormattedText("%s / %s", Abbrev(UnitHealth(unit) or 0), Abbrev(UnitHealthMax(unit) or 1))
+        end
+    end
+    ColorBar(bar, unit)
+end
+
+function Bar.Refresh(tip)
+    local state = Skin.Get(tip)
+    if not state or not state.bar or not state.barUnit then return end
+    -- 戰鬥中隱藏（可關）。秘密值其實畫得出來（SetValue / C 端縮寫都吃），
+    -- 這純粹是「戰鬥中少一件東西」的選擇；出戰鬥由輪詢自動撿回來。
+    if ns.db.statusbar.hideInCombat and InCombatLockdown() then
+        state.bar:Hide()
+        return
+    end
+    -- 引擎沒替這個單位顯示血條（沒血量的互動物）⇒ 我們也不畫。barUnit 留著：引擎晚一步 Show 的話
+    -- 由 OnEngineBar／輪詢撿回來
+    if not EngineBarShown(tip) then
+        state.bar:Hide()
+        return
+    end
+    if not state.bar:IsShown() then state.bar:Show() end
+    local ok, err = pcall(RefreshInner, tip, state)
+    if not ok then
+        -- 秘密值環境下寧可空條也不要洗版；記一筆供 /mtip debug
+        ns.ReportError(err)
+        state.barUnit = nil
+        state.bar:Hide()
+    end
+end
+
+function Bar.Activate(tip, unit)
+    if not ns.db or not ns.db.statusbar.enable then return end
+    local bar = Ensure(tip)
+    if not bar then return end
+    -- 接觸面 #6 的重申：載入時 alpha 0 一次不夠——單位提示流程會把模板自帶的
+    -- 血條弄回來（GameTooltip 的是 GameTooltipStatusBar，預覽 tooltip 有自己的
+    -- 一條）。每次啟用我們的條就再壓一次。
+    Skin.NeutralizeTemplateBar(tip)
+    local state = Skin.Get(tip)
+    Bar.Layout(state)
+    state.barUnit = unit
+    Bar.Refresh(tip)   -- 顯示與否交給 Refresh（含戰鬥中隱藏、引擎血條閘的判斷）
+end
+
+-- 引擎血條 Show／Hide 的後掛勾（Hooks.lua）：有單位在手上就重跑一次 Refresh，由引擎血條閘決定開關
+function Bar.OnEngineBar(tip)
+    local state = Skin.Get(tip)
+    if not state or not state.bar or not state.barUnit then return end
+    Bar.Refresh(tip)
+end
+
+function Bar.Deactivate(tip)
+    local state = Skin.Get(tip)
+    if not state then return end
+    state.barUnit = nil
+    if state.bar then state.bar:Hide() end
+end
+
+-- 預覽（NPC 假資料）用：固定 65%、明文數字，不進輪詢
+function Bar.ActivateFake(tip)
+    if not ns.db or not ns.db.statusbar.enable then
+        Bar.Deactivate(tip)
+        return
+    end
+    local bar = Ensure(tip)
+    if not bar then return end
+    local state = Skin.Get(tip)
+    Bar.Layout(state)
+    state.barUnit = nil
+    local sb = ns.db.statusbar
+    bar:SetValue(65)
+    local text = state.barText
+    local fmt = sb.textFormat
+    if fmt == "percent" then
+        text:SetText("65%")
+    elseif fmt == "healthmax" then
+        text:SetFormattedText("%s / %s", Abbrev(6500000), Abbrev(10000000))
+    elseif fmt == "healthmaxpercent" then
+        text:SetFormattedText("%s / %s (65%%)", Abbrev(6500000), Abbrev(10000000))
+    else
+        text:SetText("")
+    end
+    local r, g, b = 0, 0.9, 0.1
+    if sb.color == "custom" then
+        local c = sb.customColor
+        r, g, b = c.r, c.g, c.b
+    end
+    bar:GetStatusBarTexture():SetVertexColor(r, g, b, 1)
+    bar:Show()
+end
+
+------------------------------------------------------------
+-- 輪詢：走 Skin.Poll 的共用 ticker
+--
+-- ⚠ 這裡**不看個別 tip 的 IsShown**：戰鬥中被藏起來的條要靠輪詢在出戰鬥後撿回來。
+--   共用 ticker 的閘是「有沒有**任何** tooltip 顯示中」，比這個粗，所以那條需求還在。
+--   （原本是一支永久顯示的 driver frame 掛 OnUpdate，等於整場遊戲每幀進 Lua 一次；
+--     理由見 Core/Skin.lua 的 Skin.Poll。）
+------------------------------------------------------------
+local POLL = 0.15
+Skin.Poll("bar", POLL, function()
+    Skin.Each(function(tip, state)
+        if state.barUnit and state.bar then
+            Bar.Refresh(tip)
+        end
+    end)
+end)
