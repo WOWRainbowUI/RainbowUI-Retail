@@ -281,7 +281,7 @@ function ns.conditions.Faction:Matched()
 		name, _, standingid = GetFactionInfoByID(self.id)
 	end
 	if name and standingid then
-		return self.rank <= standingid
+		return not self.rank or self.rank <= standingid
 	end
 end
 function ns.conditions.Faction:Label()
@@ -607,7 +607,7 @@ do
 				end
 			end
 			if #t == 0 then return end
-			return fs:format(string.join(', ', unpack(t)))
+			return fs:format(string.join(conditions.any and ' / ' or ', ', unpack(t)))
 		end
 		if conditions.SILENT then return end
 		return fs:format(conditions:CompletionLabel())
