@@ -66,7 +66,9 @@ local function getOrCreateComboModelForType(aType)
 		tComboModels[aType] = { };
 
 		for _, tModel in ipairs(VUHDO_ID_TYPE_MEMBERS[aType]) do
-			tinsert(tComboModels[aType], { tModel, VUHDO_HEADER_TEXTS[tModel] });
+			if not VUHDO_isModelHiddenOnFlavor(tModel) then
+				tinsert(tComboModels[aType], { tModel, VUHDO_HEADER_TEXTS[tModel] });
+			end
 		end
 	end
 

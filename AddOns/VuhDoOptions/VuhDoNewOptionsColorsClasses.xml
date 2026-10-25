@@ -207,6 +207,7 @@
 								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_COLORS.##29");
 								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_DEATH_KNIGHT, VUHDO_I18N_DEATH_KNIGHT);
 								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K238);
+								if not VUHDO_flavorHasClass(VUHDO_ID_DEATH_KNIGHT) then self:Hide(); end
 							</OnLoad>
 						</Scripts>
 					</Frame>
@@ -224,6 +225,7 @@
 								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_COLORS.##30");
 								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_MONKS, VUHDO_I18N_MONKS);
 								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K564);
+								if not VUHDO_flavorHasClass(VUHDO_ID_MONKS) then self:Hide(); end
 							</OnLoad>
 						</Scripts>
 					</Frame>
@@ -241,6 +243,7 @@
 								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_COLORS.##31");
 								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_DEMON_HUNTERS, VUHDO_I18N_DEMON_HUNTERS);
 								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K565);
+								if not VUHDO_flavorHasClass(VUHDO_ID_DEMON_HUNTERS) then self:Hide(); end
 							</OnLoad>
 						</Scripts>
 					</Frame>
@@ -258,6 +261,7 @@
 								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_COLORS.##32");
 								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_EVOKERS, VUHDO_I18N_EVOKERS);
 								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K585);
+								if not VUHDO_flavorHasClass(VUHDO_ID_EVOKERS) then self:Hide(); end
 							</OnLoad>
 						</Scripts>
 					</Frame>

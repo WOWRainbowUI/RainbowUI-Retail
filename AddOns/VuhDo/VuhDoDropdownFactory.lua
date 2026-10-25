@@ -102,7 +102,7 @@ local function VUHDO_unitRoleItemSelected(_, aCommand, aUnit)
 		DemoteAssistant(aUnit);
 		VUHDO_Msg(VUHDO_I18N_DEMOTE_ASSIST_MSG_1 .. UnitName(aUnit) .. VUHDO_I18N_DEMOTE_ASSIST_MSG_2);
 	elseif "ML" == aCommand then
-		SetLootMethod("master", UnitName(aUnit));
+		SetLootMethod("master", VUHDO_getUnitExternalName(aUnit));
 	end
 end
 
@@ -110,7 +110,7 @@ end
 
 --
 local function VUHDO_mainTankItemSelected(_, aMtPos, aUnit)
-	local tName = VUHDO_RAID[aUnit]["name"];
+	local tName = VUHDO_getPrivateTankKey(aUnit);
 
 	-- remove Maintankt?
 	if VUHDO_MAINTANK_NAMES[aMtPos] == tName then
@@ -136,7 +136,9 @@ function VUHDO_playerTargetDropDown_Initialize(aFrame, aLevel)
 		return;
 	end
 
-	local tName = VUHDO_RAID[VUHDO_MENU_UNIT]["name"];
+	local tMenuInfo = VUHDO_RAID[VUHDO_MENU_UNIT];
+	local tName = VUHDO_getUnitIdentityKey(tMenuInfo);
+	local tDisplayName = tMenuInfo["name"];
 	local tUniqueBuffs, _ = VUHDO_getAllUniqueSpells();
 
 	if aLevel > 1 then
@@ -148,7 +150,7 @@ function VUHDO_playerTargetDropDown_Initialize(aFrame, aLevel)
 			tInfo["arg2"] = tCategory;
 			tInfo["icon"] = VUHDO_BUFFS[tBuffName]["icon"];
 			tInfo["func"] = VUHDO_ptBuffSelected;
-			tInfo["checked"] = VUHDO_BUFF_SETTINGS[tCategory]["name"] == tName;
+			tInfo["checked"] = tName and VUHDO_BUFF_SETTINGS[tCategory]["name"] == tName;
 			tInfo["level"] = 2;
 			UIDropDownMenu_AddButton(tInfo, 2);
 		end
@@ -156,7 +158,7 @@ function VUHDO_playerTargetDropDown_Initialize(aFrame, aLevel)
 		return;
 	end
 
-	VUHDO_playerTargetAddTitle(VUHDO_I18N_ROLE .. " (" .. tName .. ")");
+	VUHDO_playerTargetAddTitle(VUHDO_I18N_ROLE .. " (" .. tDisplayName .. ")");
 	VUHDO_playerTargetAddTitle();
 
 	local tUnitRank, tUnitIsMl = VUHDO_getUnitRank(VUHDO_MENU_UNIT);
@@ -229,24 +231,26 @@ function VUHDO_playerTargetDropDown_Initialize(aFrame, aLevel)
 		UIDropDownMenu_AddButton(tInfo);
 	end
 
-	-- Role override
-	VUHDO_playerTargetAddTitle();
-	VUHDO_playerTargetAddTitle(VUHDO_I18N_ROLE_OVERRIDE);
+	if tName then
+		-- Role override
+		VUHDO_playerTargetAddTitle();
+		VUHDO_playerTargetAddTitle(VUHDO_I18N_ROLE_OVERRIDE);
 
-	VUHDO_playerTargetAddSetting(VUHDO_I18N_MELEE_TANK, VUHDO_MANUAL_ROLES[tName] == VUHDO_ID_MELEE_TANK, VUHDO_ID_MELEE_TANK, tName,
-		VUHDO_roleOverrideSelected, false, false, nil);
+		VUHDO_playerTargetAddSetting(VUHDO_I18N_MELEE_TANK, VUHDO_MANUAL_ROLES[tName] == VUHDO_ID_MELEE_TANK, VUHDO_ID_MELEE_TANK, tName,
+			VUHDO_roleOverrideSelected, false, false, nil);
 
-	VUHDO_playerTargetAddSetting(VUHDO_I18N_MELEE_DPS, VUHDO_MANUAL_ROLES[tName] == VUHDO_ID_MELEE_DAMAGE, VUHDO_ID_MELEE_DAMAGE, tName,
-		VUHDO_roleOverrideSelected, false, false, nil);
+		VUHDO_playerTargetAddSetting(VUHDO_I18N_MELEE_DPS, VUHDO_MANUAL_ROLES[tName] == VUHDO_ID_MELEE_DAMAGE, VUHDO_ID_MELEE_DAMAGE, tName,
+			VUHDO_roleOverrideSelected, false, false, nil);
 
-	VUHDO_playerTargetAddSetting(VUHDO_I18N_RANGED_DPS, VUHDO_MANUAL_ROLES[tName] == VUHDO_ID_RANGED_DAMAGE, VUHDO_ID_RANGED_DAMAGE, tName,
-		VUHDO_roleOverrideSelected, false, false, nil);
+		VUHDO_playerTargetAddSetting(VUHDO_I18N_RANGED_DPS, VUHDO_MANUAL_ROLES[tName] == VUHDO_ID_RANGED_DAMAGE, VUHDO_ID_RANGED_DAMAGE, tName,
+			VUHDO_roleOverrideSelected, false, false, nil);
 
-	VUHDO_playerTargetAddSetting(VUHDO_I18N_RANGED_HEALERS, VUHDO_MANUAL_ROLES[tName] == VUHDO_ID_RANGED_HEAL, VUHDO_ID_RANGED_HEAL, tName,
-		VUHDO_roleOverrideSelected, false, false, nil);
+		VUHDO_playerTargetAddSetting(VUHDO_I18N_RANGED_HEALERS, VUHDO_MANUAL_ROLES[tName] == VUHDO_ID_RANGED_HEAL, VUHDO_ID_RANGED_HEAL, tName,
+			VUHDO_roleOverrideSelected, false, false, nil);
 
-	VUHDO_playerTargetAddSetting(VUHDO_I18N_AUTO_DETECT, VUHDO_MANUAL_ROLES[tName] == nil, nil, tName,
-		VUHDO_roleOverrideSelected, false, false, nil);
+		VUHDO_playerTargetAddSetting(VUHDO_I18N_AUTO_DETECT, VUHDO_MANUAL_ROLES[tName] == nil, nil, tName,
+			VUHDO_roleOverrideSelected, false, false, nil);
+	end
 end
 
 

@@ -83,6 +83,7 @@ local sAddonRestrictionEnableCvars = {
 
 local VUHDO_parseAddonMessage;
 local VUHDO_spellcastSent;
+local VUHDO_resolveUnitByName;
 local VUHDO_updateAllOutRaidTargetButtons;
 local VUHDO_updateAllRaidTargetIndices;
 local VUHDO_updateDirectionFrame;
@@ -92,6 +93,8 @@ local VUHDO_setHealth;
 local VUHDO_initAllEventBouquets;
 local VUHDO_redisplayAllUnitAuras;
 local VUHDO_updateBouquetsForEvent;
+local VUHDO_updateManaBars;
+local VUHDO_updateAllPowerTypes;
 local VUHDO_updateAllHoTs;
 local VUHDO_updateAllCyclicBouquets;
 local VUHDO_updateAllDebuffIcons;
@@ -124,6 +127,7 @@ local VUHDO_checkAuraDataRestrictedState;
 local VUHDO_syncAuraContainersForUnit;
 local VUHDO_syncAuraContainersForAllRaidUnits;
 local VUHDO_syncOverlaysForUnit;
+local VUHDO_syncSwiftmendOverlayGates;
 local VUHDO_resetAuraContainersForUnit;
 local VUHDO_resetOverlaysForUnit;
 local VUHDO_clearOverlaysForUnit;
@@ -589,6 +593,7 @@ local function VUHDO_eventHandlerInitFunctionOverrides()
 	VUHDO_updateAllOutRaidTargetButtons = _G["VUHDO_updateAllOutRaidTargetButtons"];
 	VUHDO_parseAddonMessage = _G["VUHDO_parseAddonMessage"];
 	VUHDO_spellcastSent = _G["VUHDO_spellcastSent"];
+	VUHDO_resolveUnitByName = _G["VUHDO_resolveUnitByName"];
 	VUHDO_parseCombatLogEvent = _G["VUHDO_parseCombatLogEvent"];
 	VUHDO_updateAllHoTs = _G["VUHDO_updateAllHoTs"];
 	VUHDO_updateAllCyclicBouquets = _G["VUHDO_updateAllCyclicBouquets"];
@@ -612,6 +617,7 @@ local function VUHDO_eventHandlerInitFunctionOverrides()
 	VUHDO_setHealth = _G["VUHDO_setHealth"];
 	VUHDO_initAllEventBouquets = _G["VUHDO_initAllEventBouquets"];
 	VUHDO_updateAllAggro = _G["VUHDO_updateAllAggro"];
+	VUHDO_updateAllPowerTypes = _G["VUHDO_updateAllPowerTypes"];
 	VUHDO_updateAllRange = _G["VUHDO_updateAllRange"];
 	VUHDO_updateUnitRange = _G["VUHDO_updateUnitRange"];
 	VUHDO_updateAllVisibilityCharmRange = _G["VUHDO_updateAllVisibilityCharmRange"];
@@ -630,6 +636,7 @@ local function VUHDO_eventHandlerInitFunctionOverrides()
 	VUHDO_syncAuraContainersForUnit = _G["VUHDO_syncAuraContainersForUnit"];
 	VUHDO_syncAuraContainersForAllRaidUnits = _G["VUHDO_syncAuraContainersForAllRaidUnits"];
 	VUHDO_syncOverlaysForUnit = _G["VUHDO_syncOverlaysForUnit"];
+	VUHDO_syncSwiftmendOverlayGates = _G["VUHDO_syncSwiftmendOverlayGates"];
 	VUHDO_resetAuraContainersForUnit = _G["VUHDO_resetAuraContainersForUnit"];
 	VUHDO_resetOverlaysForUnit = _G["VUHDO_resetOverlaysForUnit"];
 	VUHDO_clearOverlaysForUnit = _G["VUHDO_clearOverlaysForUnit"];
@@ -654,14 +661,17 @@ local function VUHDO_eventHandlerInitLocalOverrides()
 	VUHDO_initTaskSystem();
 
 	VUHDO_syncOverlaysForUnit = _G["VUHDO_deferSyncOverlaysForUnit"];
+	VUHDO_syncSwiftmendOverlayGates = _G["VUHDO_deferSyncSwiftmendOverlayGates"];
 	VUHDO_flushPendingOverlayRebuild = _G["VUHDO_deferFlushPendingOverlayRebuild"];
 	VUHDO_updateHealth = _G["VUHDO_deferUpdateHealth"];
 	VUHDO_updateBouquetsForEvent = _G["VUHDO_deferUpdateBouquetsForEvent"];
+	VUHDO_updateManaBars = _G["VUHDO_deferUpdateManaBars"];
 	VUHDO_updateHealthBarsFor = _G["VUHDO_deferUpdateHealthBarsFor"];
 	VUHDO_updateAllHoTs = _G["VUHDO_deferUpdateAllHoTs"];
 	VUHDO_updateAllCyclicBouquets = _G["VUHDO_deferUpdateAllCyclicBouquets"];
 	VUHDO_updateAllDebuffIcons = _G["VUHDO_deferUpdateAllDebuffIcons"];
 	VUHDO_updateAllAggro = _G["VUHDO_deferUpdateAllAggro"];
+	VUHDO_updateAllPowerTypes = _G["VUHDO_deferUpdateAllPowerTypes"];
 	VUHDO_updateAllRange = _G["VUHDO_deferUpdateAllRange"];
 	VUHDO_updateAllVisibilityCharmRange = _G["VUHDO_deferUpdateAllVisibilityCharmRange"];
 	VUHDO_updateAllClusters = _G["VUHDO_deferUpdateAllClusters"];
@@ -1033,6 +1043,7 @@ local function VUHDO_init()
 	VUHDO_loadVariables(); -- 2. umgekehrt undefiniertes Verhalten (VUHDO_CONFIG ist nil etc.)
 	VUHDO_initAuraModeSelection();
 	VUHDO_initAllBurstCaches();
+	VUHDO_verifyFlavorRulesLoaded();
 	VUHDO_resolveAllAuraGroupFilters();
 	VUHDO_initDefaultProfiles();
 
@@ -1204,6 +1215,8 @@ do
 	local tEmptyRaid = { };
 	local tSpecNumber;
 	local tBestProfileName;
+	local tUnit;
+	local tSecond;
 	function VUHDO_OnEvent(anInstance, anEvent, anArg1, anArg2, anArg3, anArg4, anArg5, anArg6, anArg7, anArg8, anArg9, anArg10, anArg11, anArg12, anArg13, anArg14, anArg15, anArg16, anArg17, anArg18, anArg19)
 
 		if VUHDO_HANDLER_PROFILING_ENABLED and anEvent then
@@ -1253,6 +1266,9 @@ do
 
 				VUHDO_updateBouquetsForEvent("target", 13); -- VUHDO_UPDATE_MANA
 				VUHDO_updateBouquetsForEvent("focus",  13); -- VUHDO_UPDATE_MANA
+
+				VUHDO_updateManaBars("player", 3);
+				VUHDO_updateAllPowerTypes();
 
 				if VUHDO_RELOAD_AFTER_BATTLE and not InCombatLockdown() then
 					VUHDO_RELOAD_AFTER_BATTLE = false;
@@ -1462,6 +1478,13 @@ do
 				VUHDO_scheduleSpellbookRefresh();
 			end
 
+		elseif "SPELL_UPDATE_COOLDOWN" == anEvent or "SPELL_UPDATE_CHARGES" == anEvent then
+			if VUHDO_VARIABLES_LOADED and VUHDO_isPlayerKnowsSwiftmend() then
+				VUHDO_refreshSwiftmendCooldown();
+
+				VUHDO_syncSwiftmendOverlayGates();
+			end
+
 		elseif "VARIABLES_LOADED" == anEvent then
 			VUHDO_init();
 
@@ -1529,8 +1552,22 @@ do
 			VUHDO_inspectLockRole();
 
 		elseif "ROLE_CHANGED_INFORM" == anEvent then
-			if VUHDO_RAID_NAMES[anArg1] then
-				VUHDO_resetTalentScan(VUHDO_RAID_NAMES[anArg1]);
+			if VUHDO_VARIABLES_LOADED then
+				tUnit = VUHDO_resolveUnitByName(anArg1);
+
+				if tUnit then
+					VUHDO_resetTalentScan(tUnit);
+				end
+			end
+
+		elseif "UNIT_NAME_UPDATE" == anEvent then
+			if VUHDO_VARIABLES_LOADED and anArg1 then
+				if "player" == anArg1 then
+					VUHDO_PLAYER_NAME, tSecond = UnitName("player");
+					VUHDO_PLAYER_FULL_NAME = VUHDO_buildUnitFullName(VUHDO_PLAYER_NAME, tSecond);
+				end
+
+				VUHDO_updateHealth(anArg1, 1);
 			end
 
 		elseif "MODIFIER_STATE_CHANGED" == anEvent then
@@ -1572,7 +1609,7 @@ do
 				end
 
 				if "player" == anArg1 then
-					tSpecNumber = tostring(GetSpecialization()) or "1";
+					tSpecNumber = tostring(VUHDO_getActiveSpecSlot()) or "1";
 					tBestProfileName = VUHDO_getBestProfileAfterSpecChange();
 
 					-- event sometimes fires multiple times so we must de-dupe
@@ -1650,7 +1687,6 @@ end
 --
 local tTokens;
 local tName;
-local tUnit;
 local tKey;
 local tAmbiguousNames;
 local tAmbiguousMsg;
@@ -1936,6 +1972,8 @@ do
 				VUHDO_setDeferredRedrawEnabled(true);
 			elseif tSubCommand == "off" then
 				VUHDO_setDeferredRedrawEnabled(false);
+			elseif tSubCommand == "state" then
+				VUHDO_printDeferredReloadState();
 			else
 				VUHDO_printDeferredRedrawStatus();
 			end
@@ -2162,7 +2200,7 @@ function VUHDO_updateGlobalToggles()
 		VUHDO_TIMERS["REFRESH_TARGETS"] = -1;
 	end
 
-	VUHDO_TIMERS["REFRESH_INSPECT"] = VUHDO_CONFIG["IS_SCAN_TALENTS"] and 1 or -1
+	VUHDO_TIMERS["REFRESH_INSPECT"] = (VUHDO_CONFIG["IS_SCAN_TALENTS"] and VUHDO_FLAVOR_SPEC_SPECIALIZATIONS == VUHDO_getFlavorSpecModel()) and 1 or -1
 
 	VUHDO_INTERNAL_TOGGLES[VUHDO_UPDATE_PETS]
 		= VUHDO_isModelConfigured(VUHDO_ID_PETS)
@@ -2183,6 +2221,8 @@ function VUHDO_updateGlobalToggles()
 
 	VUHDO_UnRegisterEvent(not VUHDO_CONFIG["IS_READY_CHECK_DISABLED"],
 		"READY_CHECK", "READY_CHECK_CONFIRM", "READY_CHECK_FINISHED");
+
+	VUHDO_UnRegisterEvent(VUHDO_isPlayerKnowsSwiftmend(), "SPELL_UPDATE_COOLDOWN", "SPELL_UPDATE_CHARGES");
 
 	tIsShieldInterest =
 		VUHDO_PANEL_SETUP["BAR_COLORS"]["HOTS"]["showShieldAbsorb"]
@@ -2213,7 +2253,8 @@ end
 function VUHDO_loadVariables()
 
 	_, VUHDO_PLAYER_CLASS = UnitClass("player");
-	VUHDO_PLAYER_NAME = UnitName("player");
+	VUHDO_PLAYER_NAME, tSecond = UnitName("player");
+	VUHDO_PLAYER_FULL_NAME = VUHDO_buildUnitFullName(VUHDO_PLAYER_NAME, tSecond);
 
 	VUHDO_loadDefaultConfig();
 	VUHDO_setDeferredRedrawEnabled(VUHDO_CONFIG["USE_DEFERRED_REDRAW"], true);
@@ -2628,6 +2669,7 @@ do
 				VUHDO_TIMERS["REGISTER_BOUQUETS"] = 0.3;
 			else
 				VUHDO_registerAllBouquets(false);
+				VUHDO_rebuildAuraAnchorsForBouquetListGroups();
 				VUHDO_initAllEventBouquets();
 			end
 		end
@@ -3170,6 +3212,7 @@ local VUHDO_ALL_EVENT_NAMES = {
 	"PLAYER_LOGOUT",
 	"RUNE_POWER_UPDATE",
 	"UNIT_SPELLCAST_SENT",
+	"UNIT_NAME_UPDATE",
 	"PARTY_MEMBER_ENABLE", "PARTY_MEMBER_DISABLE",
 	"UPDATE_BINDINGS",
 	"PLAYER_TARGET_CHANGED", "PLAYER_FOCUS_CHANGED",
@@ -3338,6 +3381,48 @@ function VUHDO_printDeferredRedrawStatus()
 
 	return;
 
+end
+
+
+
+do
+	--
+	local tWaitingCount;
+	local tActiveCount;
+	function VUHDO_printDeferredReloadState()
+
+		VUHDO_Msg("|cffFFD100--- Deferred Reload State ---|r");
+
+		VUHDO_Msg("|cffFFA500** Status:|r");
+		VUHDO_Msg("  |cffB0E0E6Reloading:|r " .. (VUHDO_IS_RELOADING and "|cff00ff00yes|r" or "|cffff0000no|r"));
+		VUHDO_Msg(format("  |cffB0E0E6Reload Raid Timer:|r %.2f", VUHDO_TIMERS["RELOAD_RAID"] or 0));
+		VUHDO_Msg("  |cffB0E0E6Deferred Refresh Active:|r " .. (VUHDO_isDeferredRefreshActive() and "|cff00ff00yes|r" or "|cffff0000no|r"));
+		VUHDO_Msg("  |cffB0E0E6Deferred Redraw Active:|r " .. (VUHDO_isDeferredRedrawActive() and "|cff00ff00yes|r" or "|cffff0000no|r"));
+
+		VUHDO_Msg("|cffFFA500** Active Semaphores:|r");
+
+		tActiveCount = 0;
+
+		for tSemaphoreName, tSemaphore in pairs(VUHDO_getSemaphores()) do
+			tWaitingCount = #tSemaphore["waitingTasks"];
+
+			if tSemaphore["count"] > 0 or tWaitingCount > 0 then
+				tActiveCount = tActiveCount + 1;
+
+				VUHDO_Msg(format("  |cffB0E0E6%s:|r |cffB0E0E6Cur=|r%d |cffB0E0E6Wait=|r%d |cffB0E0E6Timeout=|r%dms",
+					tSemaphoreName, tSemaphore["count"], tWaitingCount, tSemaphore["timeoutMs"] or 0));
+			end
+		end
+
+		if tActiveCount == 0 then
+			VUHDO_Msg("  None");
+		end
+
+		VUHDO_Msg("|cffFFD100--- End of Deferred Reload State ---|r");
+
+		return;
+
+	end
 end
 
 

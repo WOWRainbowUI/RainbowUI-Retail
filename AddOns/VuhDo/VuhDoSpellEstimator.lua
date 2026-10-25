@@ -95,6 +95,9 @@ VUHDO_SPELLS = {
 	[VUHDO_SPELL_ID.WRITHING_WARD] = { ["isHot"] = true, },
 
 };
+
+VUHDO_applyFlavorEntries(VUHDO_SPELLS, VUHDO_SPELLS_FLAVOR_ENTRIES);
+
 local VUHDO_SPELLS = VUHDO_SPELLS;
 
 

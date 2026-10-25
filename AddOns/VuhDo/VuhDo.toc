@@ -1,8 +1,12 @@
-## Interface: 120105, 120100
+## DefaultState: disabled
+## Notes-zhTW: VuhDo ['vu:du:] |n用來取代隊伍/團隊框架，滑鼠點一下就能快速施放法術/補血，是補師的好朋友!|n 可以自訂框架的外觀，提供治療、驅散、施放增益效果、使用飾品、距離檢查和仇恨提示的功能。|n|cffffd200使用方法：|r點小地圖按鈕開啟設定。
+## Title-zhTW: |cffFF7F00[團隊]|r 框架 (巫毒)
+## Interface: 120105
+## AllowLoadGameType: standard
 
 ## Title: VuhDo ['vu:du:]
 ## Author: Iza@Gilneas, humfras, Ivaria@Hyjal
-## Version: 3.218
+## Version: 3.219
 ## Notes: Raid Frames providing click-heal functionality, buff and debuff control, main tank management and much more
 ## IconTexture: Interface\AddOns\VuhDo\Images\TemporaryPortrait-Female-BloodElf-VuhDo
 
@@ -27,14 +31,15 @@
 
 ## LoadOnDemand: 0
 
-## Title-zhTW: |cffFF7F00[團隊]|r 框架 (巫毒)
-## Notes-zhTW: VuhDo ['vu:du:] |n用來取代隊伍/團隊框架，滑鼠點一下就能快速施放法術/補血，是補師的好朋友!|n 可以自訂框架的外觀，提供治療、驅散、施放增益效果、使用飾品、距離檢查和仇恨提示的功能。|n|cffffd200使用方法：|r點小地圖按鈕開啟設定。
-## DefaultState: disabled
-
 Libs\Libs.xml
 
+VuhDoLocalization.xml
+VuhDoConstSpells.lua
+VuhDoFlavorConst.lua
+Flavors\Retail\VuhDoSpells.xml
+VuhDoCore.xml
+Flavors\Retail\VuhDoData.xml
 VuhDo.xml
 
 VuhDoPanel.xml
 VuhDoBuffWatch.xml
-

@@ -2384,17 +2384,20 @@ local function VUHDO_lnfSkinApplyEditTextures(aEditBox)
 	end
 
 	tEntry = VUHDO_lnfSkinSnapshotEditBox(aEditBox);
-	tSkinFontColor = VUHDO_lnfSkinGetActiveEntry()["fontColors"];
 
-	if tSkinFontColor and tSkinFontColor["normal"] then
-		aEditBox:SetTextColor(
-			tSkinFontColor["normal"]["TR"] or tEntry["r"],
-			tSkinFontColor["normal"]["TG"] or tEntry["g"],
-			tSkinFontColor["normal"]["TB"] or tEntry["b"],
-			tSkinFontColor["normal"]["TO"] or tEntry["a"]
-		);
-	else
-		aEditBox:SetTextColor(tEntry["r"], tEntry["g"], tEntry["b"], tEntry["a"]);
+	if not aEditBox["skinKeepTextColor"] then
+		tSkinFontColor = VUHDO_lnfSkinGetActiveEntry()["fontColors"];
+
+		if tSkinFontColor and tSkinFontColor["normal"] then
+			aEditBox:SetTextColor(
+				tSkinFontColor["normal"]["TR"] or tEntry["r"],
+				tSkinFontColor["normal"]["TG"] or tEntry["g"],
+				tSkinFontColor["normal"]["TB"] or tEntry["b"],
+				tSkinFontColor["normal"]["TO"] or tEntry["a"]
+			);
+		else
+			aEditBox:SetTextColor(tEntry["r"], tEntry["g"], tEntry["b"], tEntry["a"]);
+		end
 	end
 
 	VUHDO_lnfSkinStyleFontFace(aEditBox);

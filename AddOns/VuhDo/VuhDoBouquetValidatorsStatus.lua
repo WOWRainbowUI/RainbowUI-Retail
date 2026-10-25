@@ -552,6 +552,19 @@ end
 
 
 --
+local function VUHDO_statusPowerHealerOnlyGate(anInfo)
+
+	if not anInfo or anInfo["role"] ~= VUHDO_ID_RANGED_HEAL then
+		return false;
+	end
+
+	return anInfo["hasSecretPower"] or (anInfo["powermax"] or 0) > 0;
+
+end
+
+
+
+--
 local function VUHDO_statusOtherPowersGate(anInfo)
 
 	if not anInfo then
@@ -688,6 +701,37 @@ end
 
 
 --
+local tPowerType;
+local function VUHDO_statusPowerHealerOnlyValidator(anInfo, _, aSecretContext)
+
+	if not anInfo["unit"] or anInfo["role"] ~= VUHDO_ID_RANGED_HEAL then
+		return false, nil, -1, -1, -1;
+	end
+
+	if not anInfo["hasSecretPower"] and (anInfo["powermax"] or 0) <= 0 then
+		return false, nil, -1, -1, -1;
+	end
+
+	tPowerType = anInfo["powertype"] or 0;
+
+	if aSecretContext then
+		tPowerCurve = aSecretContext["powerCurves"] and aSecretContext["powerCurves"][tPowerType];
+		tSecretColor = nil;
+
+		if tPowerCurve then
+			tSecretColor = UnitPowerPercent(anInfo["unit"], tPowerType, false, tPowerCurve);
+		end
+
+		return true, nil, anInfo["power"], -1, anInfo["powermax"], VUHDO_copyColor(VUHDO_POWER_TYPE_COLORS[tPowerType]), UnitPowerMissing(anInfo["unit"], tPowerType), nil, nil, nil, nil, nil, tSecretColor;
+	end
+
+	return true, nil, anInfo["power"], -1, anInfo["powermax"], VUHDO_copyColor(VUHDO_POWER_TYPE_COLORS[tPowerType]);
+
+end
+
+
+
+--
 local function VUHDO_statusOtherPowersValidator(anInfo, _, aSecretContext)
 
 	if anInfo["powertype"] == 0 then
@@ -711,8 +755,7 @@ local function VUHDO_statusOtherPowersValidator(anInfo, _, aSecretContext)
 		return true, nil, anInfo["power"], -1, anInfo["powermax"], VUHDO_copyColor(VUHDO_POWER_TYPE_COLORS[tPowerType or 0]), UnitPowerMissing(anInfo["unit"], tPowerType), nil, nil, nil, nil, nil, tSecretColor;
 	end
 
-	return true, nil, anInfo["power"], -1,
-		anInfo["powermax"], VUHDO_copyColor(VUHDO_POWER_TYPE_COLORS[tPowerType or 0]);
+	return true, nil, anInfo["power"], -1, anInfo["powermax"], VUHDO_copyColor(VUHDO_POWER_TYPE_COLORS[tPowerType or 0]);
 
 end
 
@@ -1292,6 +1335,19 @@ local VUHDO_BOUQUET_BUFFS_SPECIAL_STATUS = {
 		["valueType"] = VUHDO_BOUQUET_VALUE_TYPE_STATUS,
 		["statusType"] = VUHDO_BOUQUET_STATUS_TYPE_POWER,
 		["gateValidator"] = VUHDO_statusPowerTankOnlyGate,
+		["isGlobal"] = false,
+	},
+
+	["STATUS_POWER_HEALER_ONLY"] = {
+		["displayName"] = VUHDO_I18N_BOUQUET_STATUS_POWER_HEALER_ONLY,
+		["validator"] = VUHDO_statusPowerHealerOnlyValidator,
+		["custom_type"] = VUHDO_BOUQUET_CUSTOM_TYPE_STATUSBAR,
+		["no_color"] = true,
+		["interests"] = { VUHDO_UPDATE_MANA, VUHDO_UPDATE_OTHER_POWERS, VUHDO_UPDATE_DC },
+		["secretType"] = VUHDO_SECRET_TYPE_POWER_PERCENT,
+		["valueType"] = VUHDO_BOUQUET_VALUE_TYPE_STATUS,
+		["statusType"] = VUHDO_BOUQUET_STATUS_TYPE_POWER,
+		["gateValidator"] = VUHDO_statusPowerHealerOnlyGate,
 		["isGlobal"] = false,
 	},
 

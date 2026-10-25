@@ -1463,7 +1463,7 @@ end
 
 
 --
-function VUHDO_applyAllLayersToTexture(aButton, aTexture, aLayerTemplate)
+function VUHDO_applyAllLayersToTexture(aButton, aTexture, aLayerTemplate, anIndicatorKey, aBouquetName)
 
 	if not aButton or not aTexture or not aLayerTemplate then
 		return;
@@ -1473,6 +1473,10 @@ function VUHDO_applyAllLayersToTexture(aButton, aTexture, aLayerTemplate)
 	VUHDO_applyBooleanLayers(aButton, aTexture, VUHDO_TARGET_TYPE_TEXTURE, aLayerTemplate);
 	VUHDO_applySpriteCellToTexture(aTexture, aLayerTemplate);
 
+	if anIndicatorKey then
+		VUHDO_applyOverlayBouquetGating(aButton, anIndicatorKey, aBouquetName, aLayerTemplate, nil);
+	end
+
 	return;
 
 end
@@ -1480,7 +1484,7 @@ end
 
 
 --
-function VUHDO_applyAllLayersToBorder(aButton, aBorder, aLayerTemplate)
+function VUHDO_applyAllLayersToBorder(aButton, aBorder, aLayerTemplate, anIndicatorKey, aBouquetName)
 
 	if not aButton or not aBorder or not aLayerTemplate then
 		return;
@@ -1488,6 +1492,10 @@ function VUHDO_applyAllLayersToBorder(aButton, aBorder, aLayerTemplate)
 
 	VUHDO_applySortedValidatorsToTarget(aButton, aBorder, VUHDO_TARGET_TYPE_BORDER, aLayerTemplate);
 	VUHDO_applyBooleanLayers(aButton, aBorder, VUHDO_TARGET_TYPE_BORDER, aLayerTemplate);
+
+	if anIndicatorKey then
+		VUHDO_applyOverlayBouquetGating(aButton, anIndicatorKey, aBouquetName, aLayerTemplate, nil);
+	end
 
 	return;
 
@@ -1595,8 +1603,8 @@ function VUHDO_applyOverlayBouquetGating(aButton, anIndicatorKey, aBouquetName, 
 		end
 	end
 
-	if sSecretsEnabled then
-		aTargetBar = aTargetBar or VUHDO_getHealthBar(aButton, VUHDO_INDICATOR_BAR_MAP[anIndicatorKey] or 1);
+	if sSecretsEnabled and VUHDO_INDICATOR_BAR_MAP[anIndicatorKey] then
+		aTargetBar = aTargetBar or VUHDO_getHealthBar(aButton, VUHDO_INDICATOR_BAR_MAP[anIndicatorKey]);
 
 		for tIdx = 1, #aLayerTemplate["booleanResults"] do
 			tValidatorEntry = aLayerTemplate["booleanValidators"][tIdx];

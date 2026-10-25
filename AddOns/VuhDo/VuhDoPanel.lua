@@ -197,6 +197,10 @@ local function VUHDO_getSortableName(tInfo)
 		return "";
 	end
 
+	if tInfo["fullName"] then
+		return tInfo["fullName"];
+	end
+
 	return tInfo["name"];
 
 end

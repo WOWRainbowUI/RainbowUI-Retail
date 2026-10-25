@@ -5,10 +5,13 @@ local floor = floor;
 local select = select;
 local twipe = table.wipe;
 local tinsert = table.insert;
+local tremove = table.remove;
 local tsort = table.sort;
 local ipairs = ipairs;
 local pairs = pairs;
 local type = type;
+local strfind = string.find;
+local format = string.format;
 
 local CreateColorCurve = C_CurveUtil and C_CurveUtil.CreateColorCurve;
 local UnitHealthPercent = UnitHealthPercent;
@@ -23,6 +26,7 @@ local VUHDO_displayAurasAtAnchorFromCache;
 local VUHDO_isAuraDisplaySuspended;
 local VUHDO_getSlotData;
 local VUHDO_getAuraGroupRaw;
+local VUHDO_getAuraGroupDisplayName;
 local VUHDO_getAuraBarColorType;
 local VUHDO_getAuraTextColorType;
 local VUHDO_determineAura;
@@ -36,6 +40,8 @@ local VUHDO_getAuraGroup;
 local VUHDO_getAuraGroupForUnit;
 local VUHDO_applyAuraGroupScopeFlags;
 local VUHDO_isAuraGroupContainerExpressible;
+local VUHDO_getAuraGroupResolvedFilters;
+local VUHDO_deepCopyTable;
 local VUHDO_invalidateAllOverlayPlans;
 local VUHDO_invalidateAuraContainerTemplateCache;
 local VUHDO_renderNonAuraListSlots;
@@ -57,9 +63,11 @@ local VUHDO_AURA_LIST_BOUQUETS;
 local VUHDO_UNIT_AURA_LIST_SLOTS;
 local VUHDO_MAX_PANELS;
 local VUHDO_AURA_GROUP_TYPE_LIST;
+local VUHDO_AURA_GROUP_TYPE_FILTER;
 local VUHDO_AURA_LIST_ENTRY_BOUQUET;
 local VUHDO_AURA_LIST_ENTRY_SPELL;
 local VUHDO_BOUQUET_RESTRICTED_NON_AURA;
+local VUHDO_BOUQUET_RESTRICTED_UNSUPPORTED;
 local VUHDO_SECRET_TYPE_DISPEL;
 local VUHDO_SECRET_TYPE_DURATION;
 local VUHDO_BOUQUET_CUSTOM_TYPE_AURA_GROUP;
@@ -76,6 +84,8 @@ local VUHDO_BOUQUET_LAYER_TYPE_AURA;
 local VUHDO_BOUQUET_LAYER_TYPE_SPRITECELL;
 local VUHDO_BOUQUET_LAYER_TYPE_BOOLEAN;
 local VUHDO_BOUQUET_CUSTOM_TYPE_STATUSBAR;
+
+local VUHDO_AURA_NAME_MATCH_SPELL_NAMES;
 
 local VUHDO_LAST_EVALUATED_BOUQUETS = { };
 setmetatable(VUHDO_LAST_EVALUATED_BOUQUETS, VUHDO_META_NEW_ARRAY);
@@ -118,6 +128,7 @@ local sUnitBouquetActivePool;
 local sValidatorEntryPool;
 
 local sGroupsWithEnabledAnchorReusable = { };
+local sReportedListBouquetEntries = { };
 
 local sDispelTypeCurve;
 local sDispelTypeBorderCurve;
@@ -143,6 +154,15 @@ local sDispelNameColorKeyMap = {
 	["Poison"] = "DEBUFF1",
 	["Bleed"] = "DEBUFF8",
 	["Enrage"] = "DEBUFF9",
+};
+
+local sDispelSpecialToDispelName = {
+	["DEBUFF_MAGIC"] = "Magic",
+	["DEBUFF_CURSE"] = "Curse",
+	["DEBUFF_DISEASE"] = "Disease",
+	["DEBUFF_POISON"] = "Poison",
+	["DEBUFF_BLEED"] = "Bleed",
+	["DEBUFF_ENRAGE"] = "Enrage",
 };
 
 local sBackgroundDispelTypeNames = { };
@@ -172,6 +192,25 @@ local sWhiteColor;
 
 local sIsDispelColorType = { };
 
+local sAuraConsumingSpecialNames = {
+	["OTHER"] = true,
+	["CHI_HARMONY_ICON_MINE"] = true,
+	["CHI_HARMONY_ICON_OTHERS"] = true,
+	["CHI_HARMONY_ICON_BOTH"] = true,
+};
+
+local sRestrictedModeClassCache = { };
+local sHasAuraGroupItemCache = { };
+local sIsContainerGroupExpressibleCache = { };
+local sRestrictedModeClassInProgress = { };
+local sIsAuraGroupExpressibleCache = { };
+local sGroupFlagStack = { };
+local sKeyStack = { };
+local sVisitedBouquets = { };
+local sVisitedGroups = { };
+local sResolvingAuraGroups = { };
+local sSoundMatcherSpellIds = { };
+
 
 
 --
@@ -180,6 +219,7 @@ local function VUHDO_bouquetsInitLocalOverridesFunctions()
 	VUHDO_copyColorTo = _G["VUHDO_copyColorTo"];
 	VUHDO_isConfigDemoUsers = _G["VUHDO_isConfigDemoUsers"];
 	VUHDO_getAuraGroupRaw = _G["VUHDO_getAuraGroupRaw"];
+	VUHDO_getAuraGroupDisplayName = _G["VUHDO_getAuraGroupDisplayName"];
 	VUHDO_displayAurasAtAnchorFromCache = _G["VUHDO_displayAurasAtAnchorFromCache"];
 	VUHDO_isAuraDisplaySuspended = _G["VUHDO_isAuraDisplaySuspended"];
 	VUHDO_getSlotData = _G["VUHDO_getSlotData"];
@@ -202,6 +242,8 @@ local function VUHDO_bouquetsInitLocalOverridesFunctions()
 	VUHDO_deferSyncOverlaysForUnit = _G["VUHDO_deferSyncOverlaysForUnit"];
 	VUHDO_incrementAlphaChainConfigVersion = _G["VUHDO_incrementAlphaChainConfigVersion"];
 	VUHDO_isDispelNameHostile = _G["VUHDO_isDispelNameHostile"];
+	VUHDO_getAuraGroupResolvedFilters = _G["VUHDO_getAuraGroupResolvedFilters"];
+	VUHDO_deepCopyTable = _G["VUHDO_deepCopyTable"];
 
 	return;
 
@@ -227,6 +269,8 @@ function VUHDO_bouquetsInitLocalOverrides()
 	VUHDO_UNIT_AURA_LIST_SLOTS = _G["VUHDO_UNIT_AURA_LIST_SLOTS"];
 	VUHDO_MAX_PANELS = _G["VUHDO_MAX_PANELS"];
 	VUHDO_AURA_GROUP_TYPE_LIST = _G["VUHDO_AURA_GROUP_TYPE_LIST"];
+	VUHDO_AURA_GROUP_TYPE_FILTER = _G["VUHDO_AURA_GROUP_TYPE_FILTER"];
+	VUHDO_BOUQUET_RESTRICTED_UNSUPPORTED = _G["VUHDO_BOUQUET_RESTRICTED_UNSUPPORTED"];
 	VUHDO_AURA_LIST_ENTRY_BOUQUET = _G["VUHDO_AURA_LIST_ENTRY_BOUQUET"];
 	VUHDO_AURA_LIST_ENTRY_SPELL = _G["VUHDO_AURA_LIST_ENTRY_SPELL"];
 	VUHDO_BOUQUET_RESTRICTED_NON_AURA = _G["VUHDO_BOUQUET_RESTRICTED_NON_AURA"];
@@ -246,6 +290,8 @@ function VUHDO_bouquetsInitLocalOverrides()
 	VUHDO_BOUQUET_LAYER_TYPE_SPRITECELL = _G["VUHDO_BOUQUET_LAYER_TYPE_SPRITECELL"];
 	VUHDO_BOUQUET_LAYER_TYPE_BOOLEAN = _G["VUHDO_BOUQUET_LAYER_TYPE_BOOLEAN"];
 	VUHDO_BOUQUET_CUSTOM_TYPE_STATUSBAR = _G["VUHDO_BOUQUET_CUSTOM_TYPE_STATUSBAR"];
+
+	VUHDO_AURA_NAME_MATCH_SPELL_NAMES = _G["VUHDO_AURA_NAME_MATCH_SPELL_NAMES"];
 
 	VUHDO_bouquetsInitLocalOverridesFunctions();
 
@@ -2179,6 +2225,22 @@ do
 
 		return tHasChanged;
 	end
+
+
+
+	--
+	local tInvalidateState;
+	function VUHDO_invalidateBouquetChangeState(aUnit, aBouquetName)
+
+		tInvalidateState = VUHDO_LAST_EVALUATED_BOUQUETS[aBouquetName][aUnit];
+
+		if tInvalidateState then
+			tInvalidateState[1] = nil;
+		end
+
+		return;
+
+	end
 end
 
 
@@ -3528,6 +3590,7 @@ do
 	local tLayerTemplate;
 	local tHasSecretResults;
 	local tEvalColorHash;
+	local tHasChanged;
 	function VUHDO_evaluateBouquet(aUnit, aBouquetName, anInfo)
 
 		tUnit = (VUHDO_RAID[aUnit] or tEmptyInfo)["isVehicle"] and VUHDO_RAID[aUnit]["petUnit"] or aUnit;
@@ -3590,12 +3653,27 @@ do
 				tEvalColorHash = tEvalColorHash + VUHDO_getColorHash(txState["maxColor"]) * 100000;
 			end
 
-			return true, txState["icon"], txState["timer"], txState["counter"], txState["duration"], txState["color"], txState["name"],
-				tHasSecretResults or VUHDO_hasBouquetChanged(aUnit, aBouquetName, true, txState["icon"], txState["timer"], txState["counter"], txState["duration"], tEvalColorHash, txState["clipL"], txState["clipR"], txState["clipT"], txState["clipB"]),
+			if tHasSecretResults then
+				VUHDO_invalidateBouquetChangeState(aUnit, aBouquetName);
+
+				tHasChanged = true;
+			else
+				tHasChanged = VUHDO_hasBouquetChanged(aUnit, aBouquetName, true, txState["icon"], txState["timer"], txState["counter"], txState["duration"], tEvalColorHash, txState["clipL"], txState["clipR"], txState["clipT"], txState["clipB"]);
+			end
+
+			return true, txState["icon"], txState["timer"], txState["counter"], txState["duration"], txState["color"], txState["name"], tHasChanged,
 				tAnzInfos - txState["level"], txState["timer2"], txState["clipL"], txState["clipR"], txState["clipT"], txState["clipB"], txState["isMaxColorInit"] and txState["maxColor"] or nil,
 				tLayerTemplate, txState["isAliveTime"];
 		else
-			return false, nil, nil, nil, nil, nil, nil, tHasSecretResults or VUHDO_hasBouquetChanged(aUnit, aBouquetName, false), 0, 0, nil, nil, nil, nil, nil, tLayerTemplate, false;
+			if tHasSecretResults then
+				VUHDO_invalidateBouquetChangeState(aUnit, aBouquetName);
+
+				tHasChanged = true;
+			else
+				tHasChanged = VUHDO_hasBouquetChanged(aUnit, aBouquetName, false);
+			end
+
+			return false, nil, nil, nil, nil, nil, nil, tHasChanged, 0, 0, nil, nil, nil, nil, nil, tLayerTemplate, false;
 		end
 	end
 end
@@ -3892,26 +3970,6 @@ end
 
 
 do
-	-- Specials with secretType NONE that nonetheless read aura/HoT-derived state and therefore degrade in restricted mode.
-	local sAuraConsumingSpecialNames = {
-		["OTHER"] = true,
-		["SWIFTMEND"] = true,
-		["CHI_HARMONY_ICON_MINE"] = true,
-		["CHI_HARMONY_ICON_OTHERS"] = true,
-		["CHI_HARMONY_ICON_BOTH"] = true,
-	};
-
-	local sDispelSpecialToDispelName = {
-		["DEBUFF_MAGIC"] = "Magic",
-		["DEBUFF_CURSE"] = "Curse",
-		["DEBUFF_DISEASE"] = "Disease",
-		["DEBUFF_POISON"] = "Poison",
-		["DEBUFF_BLEED"] = "Bleed",
-		["DEBUFF_ENRAGE"] = "Enrage",
-	};
-
-	local sRestrictedModeClassCache = { };
-
 	--
 	local tBouquet;
 	local tItem;
@@ -3929,6 +3987,7 @@ do
 	local tHasNonAuraItem;
 	local tAuraGroup;
 	local tAuraGroupId;
+	local tIsAuraGroupExpressible;
 	function VUHDO_classifyBouquetRestrictedMode(aBouquetName)
 
 		if not aBouquetName then
@@ -3941,14 +4000,48 @@ do
 			return tClass;
 		end
 
+		if sRestrictedModeClassInProgress[aBouquetName] then
+			return VUHDO_BOUQUET_RESTRICTED_UNSUPPORTED;
+		end
+
+		sRestrictedModeClassInProgress[aBouquetName] = true;
+
 		tBouquet = VUHDO_BOUQUETS["STORED"] and VUHDO_BOUQUETS["STORED"][aBouquetName];
 		tBouquet = VUHDO_decompressIfCompressed(tBouquet);
 
 		if type(tBouquet) ~= "table" then
+			sRestrictedModeClassInProgress[aBouquetName] = nil;
 			sRestrictedModeClassCache[aBouquetName] = VUHDO_BOUQUET_RESTRICTED_NON_AURA;
 
 			return VUHDO_BOUQUET_RESTRICTED_NON_AURA;
 		end
+
+		for tCnt = 1, #tBouquet do
+			tItem = tBouquet[tCnt];
+			tName = tItem["name"];
+			tSpecial = VUHDO_BOUQUET_BUFFS_SPECIAL[tName];
+
+			if tSpecial and tSpecial["custom_type"] == VUHDO_BOUQUET_CUSTOM_TYPE_AURA_GROUP then
+				tAuraGroupId = tItem["custom"] and tItem["custom"]["auraGroupId"];
+
+				if tAuraGroupId and sIsAuraGroupExpressibleCache[tAuraGroupId] == nil then
+					tAuraGroup = VUHDO_getAuraGroup(tAuraGroupId);
+					tIsAuraGroupExpressible = tAuraGroup and VUHDO_isAuraGroupContainerExpressible(tAuraGroup) or false;
+
+					tBouquet = VUHDO_BOUQUETS["STORED"] and VUHDO_BOUQUETS["STORED"][aBouquetName];
+					tBouquet = VUHDO_decompressIfCompressed(tBouquet);
+					tItem = tBouquet[tCnt];
+					tAuraGroupId = tItem["custom"] and tItem["custom"]["auraGroupId"];
+
+					if tAuraGroupId then
+						sIsAuraGroupExpressibleCache[tAuraGroupId] = tIsAuraGroupExpressible;
+					end
+				end
+			end
+		end
+
+		tBouquet = VUHDO_BOUQUETS["STORED"] and VUHDO_BOUQUETS["STORED"][aBouquetName];
+		tBouquet = VUHDO_decompressIfCompressed(tBouquet);
 
 		tHasAuraItem = false;
 		tAllHelpfulSpells = true;
@@ -3974,13 +4067,17 @@ do
 					tAuraGroupId = tItem["custom"] and tItem["custom"]["auraGroupId"];
 					tAuraGroup = VUHDO_getAuraGroup(tAuraGroupId);
 
-					if tAuraGroup and VUHDO_isAuraGroupContainerExpressible(tAuraGroup) then
+					if tAuraGroup and sIsAuraGroupExpressibleCache[tAuraGroupId] then
 						tHasOverlayAuraItem = true;
 					else
 						tHasUnsupportedAuraItem = true;
 						tAllDispel = false;
 					end
 				elseif tName == "DEBUFF_BAR_COLOR" then
+					tHasAuraItem = true;
+					tHasOverlayAuraItem = true;
+					tAllHelpfulSpells = false;
+				elseif tSpecial["auraSpellIds"] then
 					tHasAuraItem = true;
 					tHasOverlayAuraItem = true;
 					tAllHelpfulSpells = false;
@@ -4036,6 +4133,7 @@ do
 			tClass = VUHDO_BOUQUET_RESTRICTED_UNSUPPORTED;
 		end
 
+		sRestrictedModeClassInProgress[aBouquetName] = nil;
 		sRestrictedModeClassCache[aBouquetName] = tClass;
 
 		return tClass;
@@ -4045,9 +4143,197 @@ do
 
 
 	--
+	local tHasAuraGroupItem;
+	function VUHDO_bouquetHasAuraGroupItems(aBouquetName)
+
+		if not aBouquetName then
+			return false;
+		end
+
+		if sHasAuraGroupItemCache[aBouquetName] ~= nil then
+			return sHasAuraGroupItemCache[aBouquetName];
+		end
+
+		tBouquet = VUHDO_BOUQUETS["STORED"] and VUHDO_BOUQUETS["STORED"][aBouquetName];
+		tBouquet = VUHDO_decompressIfCompressed(tBouquet);
+
+		tHasAuraGroupItem = false;
+
+		if type(tBouquet) == "table" then
+			for tCnt = 1, #tBouquet do
+				tItem = tBouquet[tCnt];
+				tSpecial = VUHDO_BOUQUET_BUFFS_SPECIAL[tItem["name"]];
+
+				if tSpecial and tSpecial["custom_type"] == VUHDO_BOUQUET_CUSTOM_TYPE_AURA_GROUP then
+					tHasAuraGroupItem = true;
+
+					break;
+				end
+			end
+		end
+
+		sHasAuraGroupItemCache[aBouquetName] = tHasAuraGroupItem;
+
+		return tHasAuraGroupItem;
+
+	end
+
+
+
+	--
 	function VUHDO_invalidateBouquetRestrictedModeCache()
 
 		twipe(sRestrictedModeClassCache);
+		twipe(sHasAuraGroupItemCache);
+		twipe(sIsContainerGroupExpressibleCache);
+		twipe(sRestrictedModeClassInProgress);
+		twipe(sIsAuraGroupExpressibleCache);
+		twipe(sResolvingAuraGroups);
+
+		return;
+
+	end
+
+end
+
+
+
+do
+	--
+	local tResolved;
+	local tCandidateBranches;
+	local tBranchFilterStrings;
+	local tFilterString;
+	local tCandidateFilters;
+	local tIsHarmful;
+	local function VUHDO_appendAuraGroupFilterPieces(aResult, anItemIndex, anAuraGroup)
+
+		if not anAuraGroup or sResolvingAuraGroups[anAuraGroup] or not VUHDO_isAuraGroupContainerExpressible(anAuraGroup) then
+			return false;
+		end
+
+		sResolvingAuraGroups[anAuraGroup] = true;
+
+		tResolved = VUHDO_getAuraGroupResolvedFilters(anAuraGroup);
+
+		sResolvingAuraGroups[anAuraGroup] = nil;
+
+		tCandidateBranches = tResolved and tResolved["candidateBranches"];
+		tBranchFilterStrings = tResolved and tResolved["candidateBranchFilterStrings"];
+
+		if not tCandidateBranches or #tCandidateBranches == 0 then
+			return false;
+		end
+
+		for tBranchIdx = 1, #tCandidateBranches do
+			tFilterString = (tBranchFilterStrings and tBranchFilterStrings[tBranchIdx]) or (tResolved and tResolved["filterString"]) or "HARMFUL";
+
+			tCandidateFilters = VUHDO_deepCopyTable(tCandidateBranches[tBranchIdx]);
+
+			tIsHarmful = strfind(tFilterString, "HARMFUL", 1, true) ~= nil;
+
+			tinsert(aResult, {
+				["itemIndex"] = anItemIndex,
+				["branchIndex"] = tBranchIdx,
+				["filterString"] = tFilterString,
+				["candidateFilters"] = tCandidateFilters,
+				["isHarmful"] = tIsHarmful,
+				["auraGroup"] = anAuraGroup,
+			});
+		end
+
+		return true;
+
+	end
+
+
+
+	--
+	local tName;
+	local tSpecial;
+	local tSpellId;
+	local tIncludeSpellIds;
+	local tDispelName;
+	local tAuraGroupId;
+	local tAuraGroup;
+	local function VUHDO_appendBouquetItemFilterPieces(aResult, anItemIndex, anItem)
+
+		tName = anItem["name"];
+		tSpecial = VUHDO_BOUQUET_BUFFS_SPECIAL[tName];
+		tSpellId = nil;
+		tDispelName = nil;
+
+		if not tSpecial then
+			tIncludeSpellIds = { };
+
+			VUHDO_addResolvedAuraContainerSpellIds(tIncludeSpellIds, tName);
+
+			if next(tIncludeSpellIds) then
+				tSpellId = VUHDO_resolveAuraContainerSpellId(tName);
+			end
+		elseif sDispelSpecialToDispelName[tName] then
+			tDispelName = sDispelSpecialToDispelName[tName];
+		elseif tSpecial["custom_type"] == VUHDO_BOUQUET_CUSTOM_TYPE_AURA_GROUP then
+			tAuraGroupId = anItem["custom"] and anItem["custom"]["auraGroupId"];
+
+			tAuraGroup = VUHDO_getAuraGroup(tAuraGroupId);
+
+			if VUHDO_appendAuraGroupFilterPieces(aResult, anItemIndex, tAuraGroup) then
+				return;
+			end
+		end
+
+		if tSpellId then
+			if anItem["mine"] ~= false and anItem["others"] ~= true then
+				tFilterString = "HELPFUL|PLAYER";
+			elseif anItem["others"] == true and anItem["mine"] == false then
+				tFilterString = "HELPFUL|!PLAYER";
+			else
+				tFilterString = "HELPFUL";
+			end
+
+			tinsert(aResult, {
+				["itemIndex"] = anItemIndex,
+				["filterString"] = tFilterString,
+				["candidateFilters"] = {
+					["includeSpellIDs"] = tIncludeSpellIds,
+				},
+				["isHarmful"] = false,
+				["friendlyOnly"] = true,
+			});
+
+			return;
+		end
+
+		if tDispelName then
+			if VUHDO_isDispelNameHostile(tDispelName) then
+				tFilterString = "HELPFUL|DISPELLABLE";
+				tIsHarmful = false;
+			else
+				tFilterString = "HARMFUL|DISPELLABLE";
+				tIsHarmful = true;
+			end
+
+			tinsert(aResult, {
+				["itemIndex"] = anItemIndex,
+				["filterString"] = tFilterString,
+				["candidateFilters"] = {
+					["includeDispelTypes"] = {
+						[tDispelName] = true,
+					},
+				},
+				["isHarmful"] = tIsHarmful,
+				["friendlyOnly"] = tIsHarmful,
+				["hostileOnly"] = not tIsHarmful,
+			});
+
+			return;
+		end
+
+		tinsert(aResult, {
+			["itemIndex"] = anItemIndex,
+			["isStatic"] = true,
+		});
 
 		return;
 
@@ -4056,13 +4342,461 @@ do
 
 
 	--
+	local function VUHDO_appendBouquetFilterPieces(aBouquet, aResult)
+
+		for tItemIdx = 1, #aBouquet do
+			VUHDO_appendBouquetItemFilterPieces(aResult, tItemIdx, aBouquet[tItemIdx]);
+		end
+
+		return;
+
+	end
+
+
+
+	--
+	local tBouquet;
+	local tResult;
+	function VUHDO_buildBouquetAuraFilterPieces(aBouquetName)
+
+		if not aBouquetName then
+			return { };
+		end
+
+		tBouquet = VUHDO_BOUQUETS["STORED"] and VUHDO_BOUQUETS["STORED"][aBouquetName];
+		tBouquet = VUHDO_decompressIfCompressed(tBouquet);
+
+		if type(tBouquet) ~= "table" then
+			return { };
+		end
+
+		tResult = { };
+
+		VUHDO_appendBouquetFilterPieces(tBouquet, tResult);
+
+		return tResult;
+
+	end
+
+end
+
+
+
+do
+	--
+	local sEmpty = { };
+	local tSourceFilter;
+	local function VUHDO_addAuraSoundMatcherSpell(aMatcher, aKey, anIsMine, anIsOthers)
+
+		if not aKey then
+			return;
+		end
+
+		tSourceFilter = aMatcher["spells"][aKey];
+
+		if not tSourceFilter then
+			tSourceFilter = {
+				["mine"] = anIsMine,
+				["others"] = anIsOthers,
+			};
+
+			aMatcher["spells"][aKey] = tSourceFilter;
+		end
+
+		return;
+
+	end
+
+
+
+	--
+	local tMatchValue;
+	local tIsMine;
+	local tIsOthers;
+	local function VUHDO_addAuraSoundMatcherListEntry(aMatcher, anEntry)
+
+		if not anEntry or not anEntry["value"] then
+			return;
+		end
+
+		tMatchValue = anEntry["value"];
+
+		if anEntry["isNameMatch"] and type(tMatchValue) == "number" then
+			tMatchValue = VUHDO_AURA_NAME_MATCH_SPELL_NAMES[tMatchValue] or tMatchValue;
+		end
+
+		tIsMine = anEntry["mine"] ~= false;
+		tIsOthers = anEntry["others"] == true;
+
+		twipe(sSoundMatcherSpellIds);
+		VUHDO_addResolvedAuraContainerSpellIds(sSoundMatcherSpellIds, tMatchValue);
+
+		for tSpellId in pairs(sSoundMatcherSpellIds) do
+			VUHDO_addAuraSoundMatcherSpell(aMatcher, tSpellId, tIsMine, tIsOthers);
+		end
+
+		if type(tMatchValue) == "string" or type(tMatchValue) == "number" then
+			VUHDO_addAuraSoundMatcherSpell(aMatcher, tMatchValue, tIsMine, tIsOthers);
+		end
+
+		return;
+
+	end
+
+
+
+	--
+	local tGroup;
+	local tGroupType;
+	local function VUHDO_appendAuraSoundMatcherFromAuraGroupId(anAuraGroupId, aMatcher, aVisitedGroupIds)
+
+		if not anAuraGroupId or aVisitedGroupIds[anAuraGroupId] then
+			return;
+		end
+
+		aVisitedGroupIds[anAuraGroupId] = true;
+
+		tGroup = VUHDO_getAuraGroup(anAuraGroupId);
+
+		if not tGroup then
+			return;
+		end
+
+		tGroupType = tGroup["type"] or VUHDO_AURA_GROUP_TYPE_FILTER;
+
+		if tGroupType == VUHDO_AURA_GROUP_TYPE_LIST then
+			VUHDO_appendAuraSoundMatcherFromListGroup(tGroup, anAuraGroupId, aMatcher, aVisitedGroupIds, false);
+		else
+			tinsert(aMatcher["groupIds"], anAuraGroupId);
+		end
+
+		return;
+
+	end
+
+
+
+	--
+	function VUHDO_appendAuraSoundMatcherFromListGroup(aGroup, aGroupId, aMatcher, aVisitedGroupIds, anIsSkipSpellEntries)
+
+		if not aGroup then
+			return;
+		end
+
+		if aGroupId and aVisitedGroupIds[aGroupId] then
+			return;
+		end
+
+		if aGroupId then
+			aVisitedGroupIds[aGroupId] = true;
+		end
+
+		for _, tEntry in ipairs(aGroup["entries"] or sEmpty) do
+			if tEntry["entryType"] == VUHDO_AURA_LIST_ENTRY_SPELL and not anIsSkipSpellEntries then
+				VUHDO_addAuraSoundMatcherListEntry(aMatcher, tEntry);
+			elseif tEntry["entryType"] == VUHDO_AURA_LIST_ENTRY_BOUQUET and tEntry["value"] then
+				VUHDO_appendAuraSoundMatcherFromBouquet(tEntry["value"], aMatcher, aVisitedGroupIds);
+			end
+		end
+
+		return;
+
+	end
+
+
+
+	--
+	local tName;
+	local tSpecial;
+	local tAuraGroupId;
+	local tSpellId;
+	local function VUHDO_appendAuraSoundMatcherFromBouquetItem(anItem, aMatcher, aVisitedGroupIds)
+
+		tName = anItem["name"];
+		tSpecial = VUHDO_BOUQUET_BUFFS_SPECIAL[tName];
+
+		if not tSpecial then
+			tIsMine = anItem["mine"] ~= false;
+			tIsOthers = anItem["others"] == true;
+
+			twipe(sSoundMatcherSpellIds);
+			VUHDO_addResolvedAuraContainerSpellIds(sSoundMatcherSpellIds, tName);
+
+			for tResolvedSpellId in pairs(sSoundMatcherSpellIds) do
+				VUHDO_addAuraSoundMatcherSpell(aMatcher, tResolvedSpellId, tIsMine, tIsOthers);
+			end
+
+			tSpellId = VUHDO_resolveAuraContainerSpellId(tName);
+
+			if tSpellId then
+				VUHDO_addAuraSoundMatcherSpell(aMatcher, tSpellId, tIsMine, tIsOthers);
+			end
+
+			if not VUHDO_strempty(tName) then
+				VUHDO_addAuraSoundMatcherSpell(aMatcher, tName, tIsMine, tIsOthers);
+			end
+
+			return;
+		end
+
+		if sDispelSpecialToDispelName[tName] then
+			aMatcher["dispels"][sDispelSpecialToDispelName[tName]] = true;
+
+			return;
+		end
+
+		if tSpecial["custom_type"] == VUHDO_BOUQUET_CUSTOM_TYPE_AURA_GROUP then
+			tAuraGroupId = anItem["custom"] and anItem["custom"]["auraGroupId"];
+
+			VUHDO_appendAuraSoundMatcherFromAuraGroupId(tAuraGroupId, aMatcher, aVisitedGroupIds);
+		end
+
+		return;
+
+	end
+
+
+
+	--
+	local tBouquet;
+	local function VUHDO_appendAuraSoundMatcherFromBouquetItems(aBouquet, aMatcher, aVisitedGroupIds)
+
+		for tItemIdx = 1, #aBouquet do
+			VUHDO_appendAuraSoundMatcherFromBouquetItem(aBouquet[tItemIdx], aMatcher, aVisitedGroupIds);
+		end
+
+		return;
+
+	end
+
+
+
+	--
+	function VUHDO_appendAuraSoundMatcherFromBouquet(aBouquetName, aMatcher, aVisitedGroupIds)
+
+		if not aBouquetName then
+			return;
+		end
+
+		tBouquet = VUHDO_BOUQUETS["STORED"] and VUHDO_BOUQUETS["STORED"][aBouquetName];
+		tBouquet = VUHDO_decompressIfCompressed(tBouquet);
+
+		if type(tBouquet) ~= "table" then
+			return;
+		end
+
+		VUHDO_appendAuraSoundMatcherFromBouquetItems(tBouquet, aMatcher, aVisitedGroupIds);
+
+		return;
+
+	end
+
+end
+
+
+
+do
+	--
+	local tIsGroup;
+	local tKey;
+	local tGroup;
+	local tBouquet;
+	local tItem;
+	local tSpecial;
+	local tAuraGroupId;
+	local tStackSize;
+	local function VUHDO_isReferenceReachable(anIsStartGroup, aStartKey, anIsTargetGroup, aTargetKey)
+
+		if not aStartKey or not aTargetKey then
+			return false;
+		end
+
+		twipe(sGroupFlagStack);
+		twipe(sKeyStack);
+		twipe(sVisitedBouquets);
+		twipe(sVisitedGroups);
+
+		tinsert(sGroupFlagStack, anIsStartGroup);
+		tinsert(sKeyStack, aStartKey);
+
+		while #sKeyStack > 0 do
+			tStackSize = #sKeyStack;
+			tIsGroup = sGroupFlagStack[tStackSize];
+			tKey = sKeyStack[tStackSize];
+			tremove(sGroupFlagStack);
+			tremove(sKeyStack);
+
+			if tIsGroup then
+				if tKey == aTargetKey and anIsTargetGroup then
+					return true;
+				end
+
+				if not sVisitedGroups[tKey] then
+					sVisitedGroups[tKey] = true;
+
+					tGroup = VUHDO_getAuraGroupRaw(tKey);
+
+					if tGroup and (tGroup["type"] or VUHDO_AURA_GROUP_TYPE_FILTER) == VUHDO_AURA_GROUP_TYPE_LIST then
+						for _, tEntry in ipairs(tGroup["entries"] or sEmpty) do
+							if tEntry["entryType"] == VUHDO_AURA_LIST_ENTRY_BOUQUET and tEntry["value"] then
+								tinsert(sGroupFlagStack, false);
+								tinsert(sKeyStack, tEntry["value"]);
+							end
+						end
+					end
+				end
+			else
+				if tKey == aTargetKey and not anIsTargetGroup then
+					return true;
+				end
+
+				if not sVisitedBouquets[tKey] then
+					sVisitedBouquets[tKey] = true;
+
+					tBouquet = VUHDO_BOUQUETS["STORED"] and VUHDO_BOUQUETS["STORED"][tKey];
+					tBouquet = VUHDO_decompressIfCompressed(tBouquet);
+
+					if type(tBouquet) == "table" then
+						for tCnt = 1, #tBouquet do
+							tItem = tBouquet[tCnt];
+							tSpecial = VUHDO_BOUQUET_BUFFS_SPECIAL[tItem["name"]];
+
+							if tSpecial and tSpecial["custom_type"] == VUHDO_BOUQUET_CUSTOM_TYPE_AURA_GROUP then
+								tAuraGroupId = tItem["custom"] and tItem["custom"]["auraGroupId"];
+
+								if tAuraGroupId then
+									tinsert(sGroupFlagStack, true);
+									tinsert(sKeyStack, tAuraGroupId);
+								end
+							end
+						end
+					end
+				end
+			end
+		end
+
+		return false;
+
+	end
+
+
+
+	--
+	function VUHDO_bouquetReachesAuraGroup(aBouquetName, aGroupId)
+
+		return VUHDO_isReferenceReachable(false, aBouquetName, true, aGroupId);
+
+	end
+
+
+
+	--
+	function VUHDO_auraGroupReachesBouquet(aGroupId, aBouquetName)
+
+		return VUHDO_isReferenceReachable(true, aGroupId, false, aBouquetName);
+
+	end
+end
+
+
+
+do
+	--
+	local tBouquet;
+	local tItem;
+	local tName;
+	local tSpecial;
+	local tHasAuraGroupItem;
+	local tSpellItemCount;
+	local tDispelItemCount;
+	local tIsExpressible;
+	function VUHDO_isBouquetContainerGroupExpressible(aBouquetName)
+
+		if not aBouquetName then
+			return false;
+		end
+
+		if sIsContainerGroupExpressibleCache[aBouquetName] ~= nil then
+			return sIsContainerGroupExpressibleCache[aBouquetName];
+		end
+
+		tBouquet = VUHDO_BOUQUETS["STORED"] and VUHDO_BOUQUETS["STORED"][aBouquetName];
+		tBouquet = VUHDO_decompressIfCompressed(tBouquet);
+
+		tHasAuraGroupItem = false;
+		tSpellItemCount = 0;
+		tDispelItemCount = 0;
+
+		if type(tBouquet) == "table" then
+			for tCnt = 1, #tBouquet do
+				tItem = tBouquet[tCnt];
+				tName = tItem["name"];
+				tSpecial = VUHDO_BOUQUET_BUFFS_SPECIAL[tName];
+
+				if tSpecial and tSpecial["custom_type"] == VUHDO_BOUQUET_CUSTOM_TYPE_AURA_GROUP then
+					tHasAuraGroupItem = true;
+				elseif sDispelSpecialToDispelName[tName] then
+					tDispelItemCount = tDispelItemCount + 1;
+				elseif not tSpecial and not VUHDO_strempty(tName) and VUHDO_resolveAuraContainerSpellId(tName) then
+					tSpellItemCount = tSpellItemCount + 1;
+				end
+			end
+		end
+
+		if tHasAuraGroupItem or (tSpellItemCount > 0 and tDispelItemCount > 0) then
+			tIsExpressible = false;
+		else
+			tIsExpressible = tSpellItemCount > 0 or tDispelItemCount > 0;
+		end
+
+		sIsContainerGroupExpressibleCache[aBouquetName] = tIsExpressible;
+
+		return tIsExpressible;
+
+	end
+end
+
+
+
+do
+	--
+	local tListBouquetColor;
+	local tSourceColor;
+	function VUHDO_buildListBouquetColorFromItem(aItem)
+
+		if not aItem or not aItem["color"] or not aItem["color"]["R"] or not aItem["color"]["useBackground"] then
+			return nil;
+		end
+
+		tSourceColor = aItem["color"];
+
+		tListBouquetColor = {
+			["R"] = tSourceColor["R"],
+			["G"] = tSourceColor["G"],
+			["B"] = tSourceColor["B"],
+			["O"] = tSourceColor["useOpacity"] and (tSourceColor["O"] or 1) or 1,
+		};
+
+		return tListBouquetColor;
+
+	end
+end
+
+
+
+do
+	--
+	local tBouquet;
+	local tItem;
+	local tName;
+	local tSpecial;
+	local tSpellId;
 	local tEntries;
 	local tEntryCount;
 	local tDispelTypes;
 	local tDispelCount;
 	local tStaticIcon;
 	local tStaticColor;
-	local tSourceColor;
 	local tSyntheticGroup;
 	local tCandidateFilters;
 	local tFilterString;
@@ -4135,15 +4869,8 @@ do
 			end
 
 			if tSpellId or sDispelSpecialToDispelName[tName] then
-				if tStaticColor == nil and tItem["color"] and tItem["color"]["R"] then
-					tSourceColor = tItem["color"];
-
-					tStaticColor = {
-						["R"] = tSourceColor["R"],
-						["G"] = tSourceColor["G"],
-						["B"] = tSourceColor["B"],
-						["O"] = tSourceColor["O"] or 1,
-					};
+				if tStaticColor == nil then
+					tStaticColor = VUHDO_buildListBouquetColorFromItem(tItem);
 				end
 
 				if tStaticIcon == nil and tItem["icon"] and tItem["icon"] ~= 1 and VUHDO_CUSTOM_ICONS[tItem["icon"]] then
@@ -4221,190 +4948,152 @@ do
 		return tResult;
 
 	end
+end
 
 
 
+do
 	--
-	local tMixedResult;
-	local tMixedItemCount;
-	local tMixedItem;
-	local tMixedItemStackLevel;
-	local tMixedPieceKey;
-	local tMixedSpellId;
-	local tMixedIncludeSpellIds;
-	local tMixedDispelName;
-	local tMixedFilterString;
-	local tMixedCandidateFilters;
-	local tMixedButtonSetup;
-	local tMixedFrameLevelOffset;
-	local tIsHarmful;
-	function VUHDO_buildMixedBouquetListSlotTemplates(aBouquetName, aListEntryIndex, aSlotX, aSlotY, aPixelWidth, aPixelHeight, aTemplateName, aAnchorButtonSetup, aGroup)
+	local tBouquet;
+	local tResult;
+	local tItemCount;
+	local tItem;
+	local tStackLevel;
+	local tSlotKey;
+	local tPieces;
+	local tPiece;
+	local tButtonSetup;
+	local tFrameLevelOffset;
+	local tItemColor;
+	function VUHDO_buildMixedBouquetListSlotTemplates(aBouquetName, aListEntryIndex, aSlotX, aSlotY, aPixelWidth, aPixelHeight, aTemplateName, aAnchorButtonSetup, aGroup, anIsBar)
 
-		tMixedResult = { };
+		tResult = { };
 
 		if not aBouquetName then
-			return tMixedResult;
+			return tResult;
 		end
+
+		tPieces = VUHDO_buildBouquetAuraFilterPieces(aBouquetName);
 
 		tBouquet = VUHDO_BOUQUETS["STORED"] and VUHDO_BOUQUETS["STORED"][aBouquetName];
 		tBouquet = VUHDO_decompressIfCompressed(tBouquet);
 
 		if type(tBouquet) ~= "table" then
-			return tMixedResult;
+			return tResult;
 		end
 
-		tMixedItemCount = #tBouquet;
+		tItemCount = #tBouquet;
 
-		for tMixedItemIdx = 1, tMixedItemCount do
-			tMixedItem = tBouquet[tMixedItemIdx];
-			tName = tMixedItem["name"];
-			tSpecial = VUHDO_BOUQUET_BUFFS_SPECIAL[tName];
-			tMixedItemStackLevel = tMixedItemCount - tMixedItemIdx + 1;
-			tMixedFrameLevelOffset = 1 + tMixedItemStackLevel;
-			tMixedPieceKey = format("slot%d:%d", aListEntryIndex, tMixedItemIdx);
-			tMixedSpellId = nil;
-			tMixedDispelName = nil;
+		for tPieceIdx = 1, #tPieces do
+			tPiece = tPieces[tPieceIdx];
+			tItem = tBouquet[tPiece["itemIndex"]];
+			tStackLevel = tItemCount - tPiece["itemIndex"] + 1;
+			tFrameLevelOffset = 1 + tStackLevel;
+			tSlotKey = format("slot%d:%d", aListEntryIndex, tPiece["itemIndex"]);
 
-			if not tSpecial then
-				tMixedIncludeSpellIds = { };
+			if tPiece["isStatic"] then
+				tButtonSetup = { };
 
-				VUHDO_addResolvedAuraContainerSpellIds(tMixedIncludeSpellIds, tName);
-
-				if next(tMixedIncludeSpellIds) then
-					tMixedSpellId = VUHDO_resolveAuraContainerSpellId(tName);
-				else
-					tMixedSpellId = nil;
-				end
-			elseif sDispelSpecialToDispelName[tName] then
-				tMixedDispelName = sDispelSpecialToDispelName[tName];
-			end
-
-			if tMixedSpellId then
-				if tMixedItem["mine"] ~= false and tMixedItem["others"] ~= true then
-					tMixedFilterString = "HELPFUL|PLAYER";
-				elseif tMixedItem["others"] == true and tMixedItem["mine"] == false then
-					tMixedFilterString = "HELPFUL|!PLAYER";
-				else
-					tMixedFilterString = "HELPFUL";
+				for tSetupKey, tSetupValue in pairs(aAnchorButtonSetup) do
+					tButtonSetup[tSetupKey] = tSetupValue;
 				end
 
-				tMixedCandidateFilters = {
-					["includeSpellIDs"] = tMixedIncludeSpellIds,
-				};
+				tButtonSetup["frameLevelOffset"] = tFrameLevelOffset;
 
-				tMixedButtonSetup = { };
-
-				for tMixedKey, tMixedValue in pairs(aAnchorButtonSetup) do
-					tMixedButtonSetup[tMixedKey] = tMixedValue;
-				end
-
-				tMixedButtonSetup["frameLevelOffset"] = tMixedFrameLevelOffset;
-
-				if tMixedItem["color"] and tMixedItem["color"]["R"] then
-					tMixedButtonSetup["iconColor"] = tMixedItem["color"];
-				end
-
-				if tMixedItem["icon"] and tMixedItem["icon"] ~= 1 and VUHDO_CUSTOM_ICONS[tMixedItem["icon"]] then
-					tMixedButtonSetup["staticIcon"] = VUHDO_CUSTOM_ICONS[tMixedItem["icon"]][2];
-				end
-
-				tinsert(tMixedResult, {
-					["key"] = tMixedPieceKey,
-					["filterString"] = tMixedFilterString,
-					["candidateFilters"] = tMixedCandidateFilters,
-					["isHarmful"] = false,
-					["friendlyOnly"] = true,
-					["mixedEntryIndex"] = aListEntryIndex,
-					["mixedItemIndex"] = tMixedItemIdx,
-					["templateName"] = aTemplateName,
-					["buttonSetup"] = tMixedButtonSetup,
-					["x"] = aSlotX,
-					["y"] = aSlotY,
-					["width"] = aPixelWidth,
-					["height"] = aPixelHeight,
-				});
-			elseif tMixedDispelName then
-				tMixedButtonSetup = { };
-
-				for tMixedKey, tMixedValue in pairs(aAnchorButtonSetup) do
-					tMixedButtonSetup[tMixedKey] = tMixedValue;
-				end
-
-				tMixedButtonSetup["frameLevelOffset"] = tMixedFrameLevelOffset;
-
-				if tMixedItem["color"] and tMixedItem["color"]["R"] then
-					tMixedButtonSetup["iconColor"] = tMixedItem["color"];
-				end
-
-				if VUHDO_isDispelNameHostile(tMixedDispelName) then
-					tMixedFilterString = "HELPFUL|DISPELLABLE";
-					tIsHarmful = false;
-				else
-					tMixedFilterString = "HARMFUL|DISPELLABLE";
-					tIsHarmful = true;
-				end
-
-				tinsert(tMixedResult, {
-					["key"] = tMixedPieceKey,
-					["filterString"] = tMixedFilterString,
-					["candidateFilters"] = {
-						["includeDispelTypes"] = {
-							[tMixedDispelName] = true,
-						},
-					},
-					["isHarmful"] = tIsHarmful,
-					["friendlyOnly"] = tIsHarmful,
-					["hostileOnly"] = not tIsHarmful,
-					["mixedEntryIndex"] = aListEntryIndex,
-					["mixedItemIndex"] = tMixedItemIdx,
-					["templateName"] = aTemplateName,
-					["buttonSetup"] = tMixedButtonSetup,
+				tinsert(tResult, {
+					["key"] = tSlotKey,
+					["isStaticBouquetSlot"] = true,
+					["isMixedBouquetItem"] = true,
+					["bouquetName"] = aBouquetName,
+					["entryIndex"] = aListEntryIndex,
+					["itemIndex"] = tPiece["itemIndex"],
+					["frameLevelOffset"] = tFrameLevelOffset,
+					["buttonSetup"] = tButtonSetup,
 					["x"] = aSlotX,
 					["y"] = aSlotY,
 					["width"] = aPixelWidth,
 					["height"] = aPixelHeight,
 				});
 			else
-				tMixedButtonSetup = { };
+				tButtonSetup = { };
 
-				for tMixedKey, tMixedValue in pairs(aAnchorButtonSetup) do
-					tMixedButtonSetup[tMixedKey] = tMixedValue;
+				for tSetupKey, tSetupValue in pairs(aAnchorButtonSetup) do
+					tButtonSetup[tSetupKey] = tSetupValue;
 				end
 
-				tMixedButtonSetup["frameLevelOffset"] = tMixedFrameLevelOffset;
+				tButtonSetup["frameLevelOffset"] = tFrameLevelOffset;
 
-				tinsert(tMixedResult, {
-					["key"] = tMixedPieceKey,
-					["isStaticBouquetSlot"] = true,
-					["isMixedBouquetItem"] = true,
-					["bouquetName"] = aBouquetName,
-					["entryIndex"] = aListEntryIndex,
-					["itemIndex"] = tMixedItemIdx,
-					["frameLevelOffset"] = tMixedFrameLevelOffset,
-					["buttonSetup"] = tMixedButtonSetup,
+				if tItem["icon"] and tItem["icon"] ~= 1 and VUHDO_CUSTOM_ICONS[tItem["icon"]] then
+					tButtonSetup["staticIcon"] = VUHDO_CUSTOM_ICONS[tItem["icon"]][2];
+				end
+
+				tItemColor = VUHDO_buildListBouquetColorFromItem(tItem);
+
+				if tItemColor then
+					if anIsBar then
+						tButtonSetup["barColor"] = tItemColor;
+
+						if tButtonSetup["staticIcon"] then
+							tButtonSetup["staticColor"] = tItemColor;
+						elseif not tButtonSetup["hideIcon"] then
+							tButtonSetup["iconColor"] = tItemColor;
+						end
+					elseif tButtonSetup["staticIcon"] then
+						tButtonSetup["staticColor"] = tItemColor;
+						tButtonSetup["iconColor"] = nil;
+					else
+						tButtonSetup["iconColor"] = tItemColor;
+					end
+				end
+
+				if tPiece["branchIndex"] then
+					tSlotKey = format("%s:b%d", tSlotKey, tPiece["branchIndex"]);
+				end
+
+				tinsert(tResult, {
+					["key"] = tSlotKey,
+					["filterString"] = tPiece["filterString"],
+					["candidateFilters"] = tPiece["candidateFilters"],
+					["isHarmful"] = tPiece["isHarmful"] == true,
+					["friendlyOnly"] = tPiece["friendlyOnly"],
+					["hostileOnly"] = tPiece["hostileOnly"],
+					["mixedEntryIndex"] = aListEntryIndex,
+					["mixedItemIndex"] = tPiece["itemIndex"],
+					["auraGroupScopeApplied"] = tPiece["auraGroup"] ~= nil,
+					["templateName"] = aTemplateName,
+					["buttonSetup"] = tButtonSetup,
 					["x"] = aSlotX,
 					["y"] = aSlotY,
 					["width"] = aPixelWidth,
 					["height"] = aPixelHeight,
 				});
-			end
-		end
 
-		if aGroup then
-			for tMixedSlotCnt = 1, #tMixedResult do
-				if not tMixedResult[tMixedSlotCnt]["isStaticBouquetSlot"] then
-					VUHDO_applyAuraGroupScopeFlags(tMixedResult[tMixedSlotCnt], aGroup);
+				if tPiece["auraGroup"] then
+					VUHDO_applyAuraGroupScopeFlags(tResult[#tResult], tPiece["auraGroup"]);
 				end
 			end
 		end
 
-		return tMixedResult;
+		if aGroup then
+			for tSlotCnt = 1, #tResult do
+				if not tResult[tSlotCnt]["isStaticBouquetSlot"] and not tResult[tSlotCnt]["auraGroupScopeApplied"] then
+					VUHDO_applyAuraGroupScopeFlags(tResult[tSlotCnt], aGroup);
+				end
+			end
+		end
+
+		return tResult;
 
 	end
+end
 
 
 
+do
 	--
+	local tBouquet;
+	local tItem;
+	local tSpecial;
 	local tIsActive;
 	local tIcon;
 	local tTimer;
@@ -4454,12 +5143,30 @@ do
 		return false;
 
 	end
-
 end
 
 
 
 do
+	--
+	local function VUHDO_validateListGroupBouquetEntry(aGroupId, anEntry)
+
+		if VUHDO_BOUQUETS["STORED"][anEntry["value"]] then
+			return true;
+		end
+
+		if not sReportedListBouquetEntries[anEntry] then
+			sReportedListBouquetEntries[anEntry] = true;
+
+			VUHDO_Msg(format(VUHDO_I18N_ERROR_NO_LIST_GROUP_BOUQUET, VUHDO_getAuraGroupDisplayName(aGroupId), anEntry["value"]), 1, 0.4, 0.4);
+		end
+
+		return false;
+
+	end
+
+
+
 	--
 	local tAnchors;
 	local tGroup;
@@ -4470,6 +5177,8 @@ do
 	function VUHDO_registerListGroupBouquetEntries(anAlreadyRegistered)
 
 		twipe(sGroupsWithEnabledAnchorReusable);
+		twipe(sReportedListBouquetEntries);
+
 		tGroupsWithEnabledAnchor = sGroupsWithEnabledAnchorReusable;
 
 		for tPanelNum = 1, VUHDO_MAX_PANELS do
@@ -4489,7 +5198,7 @@ do
 								if tEntry["entryType"] == VUHDO_AURA_LIST_ENTRY_BOUQUET then
 									tBouquetName = tEntry["value"];
 
-									if tBouquetName then
+									if tBouquetName and VUHDO_validateListGroupBouquetEntry(tVal["groupId"], tEntry) then
 										VUHDO_registerForBouquetUnique(
 											tBouquetName,
 											"ListAuraGroup",
@@ -4526,7 +5235,7 @@ do
 						if tEntry["entryType"] == VUHDO_AURA_LIST_ENTRY_BOUQUET then
 							tBouquetName = tEntry["value"];
 
-							if tBouquetName then
+							if tBouquetName and VUHDO_validateListGroupBouquetEntry(tGroupId, tEntry) then
 								VUHDO_registerForBouquetUnique(
 									tBouquetName,
 									"ListAuraGroupColorOnly",
@@ -4554,7 +5263,7 @@ do
 						if tEntry["entryType"] == VUHDO_AURA_LIST_ENTRY_BOUQUET then
 							tBouquetName = tEntry["value"];
 
-							if tBouquetName then
+							if tBouquetName and VUHDO_validateListGroupBouquetEntry(tGroupId, tEntry) then
 								VUHDO_registerForBouquetUnique(
 									tBouquetName,
 									"ListAuraGroupColorOnly",

@@ -2,7 +2,10 @@ local _;
 
 local min = math.min;
 local max = math.max;
+local pairs = pairs;
 local issecretvalue = issecretvalue;
+
+local CreateFrame = CreateFrame;
 
 local GetAtlasInfo = C_Texture.GetAtlasInfo;
 
@@ -10,6 +13,7 @@ local VUHDO_PANEL_SETUP;
 local VUHDO_AURA_GROUP_COLOR_DISPEL;
 local VUHDO_AURA_GROUP_COLOR_ALL_DISPEL;
 local VUHDO_CUSTOM_GLOW_AURA_GROUP_KEY;
+local VUHDO_CUSTOM_GLOW_SWIFTMEND_FRAME_KEY;
 local VUHDO_AURA_GROUP_GLOW_ACTIVE_KEY;
 local VUHDO_DEFAULT_AURA_GLOW_STYLE;
 
@@ -17,6 +21,10 @@ local VUHDO_LibOrbitGlow;
 local VUHDO_PixelUtil;
 
 local VUHDO_getDispelTypeColorMapOpaque;
+
+local sEmpty = { };
+local sSpecialDotGlowProcOptions = { };
+local sSpecialDotBoolGlowHolders = { };
 
 local sResolvedGlowVisuals = { };
 local sDefaultGlowVisual;
@@ -219,6 +227,7 @@ function VUHDO_auraContainerGlowInitLocalOverrides()
 	VUHDO_AURA_GROUP_COLOR_DISPEL = _G["VUHDO_AURA_GROUP_COLOR_DISPEL"];
 	VUHDO_AURA_GROUP_COLOR_ALL_DISPEL = _G["VUHDO_AURA_GROUP_COLOR_ALL_DISPEL"];
 	VUHDO_CUSTOM_GLOW_AURA_GROUP_KEY = _G["VUHDO_CUSTOM_GLOW_AURA_GROUP_KEY"];
+	VUHDO_CUSTOM_GLOW_SWIFTMEND_FRAME_KEY = _G["VUHDO_CUSTOM_GLOW_SWIFTMEND_FRAME_KEY"];
 	VUHDO_AURA_GROUP_GLOW_ACTIVE_KEY = _G["VUHDO_AURA_GROUP_GLOW_ACTIVE_KEY"];
 	VUHDO_DEFAULT_AURA_GLOW_STYLE = _G["VUHDO_DEFAULT_AURA_GLOW_STYLE"];
 
@@ -834,7 +843,17 @@ function VUHDO_startAuraButtonGlow(aAuraButton, aButtonSetup)
 
 	tGlowStyleName = aButtonSetup["glowStyle"] or VUHDO_DEFAULT_AURA_GLOW_STYLE;
 
-	VUHDO_startFrameGlow(aAuraButton, tGlowStyleName, sUnitGlowColorArray, nil, nil, "vuhdo", aButtonSetup["width"], aButtonSetup["height"]);
+	if aButtonSetup["durationBar"] then
+		if (aButtonSetup["iconType"] or 1) == 5 then
+			VUHDO_stopInPlaceFrameGlow(aAuraButton, "vuhdo");
+
+			return;
+		end
+
+		VUHDO_startFrameGlow(aAuraButton["IconFrame"] or aAuraButton, tGlowStyleName, sUnitGlowColorArray, nil, nil, "vuhdo", aButtonSetup["glowWidth"] or aButtonSetup["width"], aButtonSetup["glowHeight"] or aButtonSetup["height"]);
+	else
+		VUHDO_startFrameGlow(aAuraButton, tGlowStyleName, sUnitGlowColorArray, nil, nil, "vuhdo", aButtonSetup["width"], aButtonSetup["height"]);
+	end
 
 	return;
 
@@ -1094,6 +1113,120 @@ end
 
 
 
+do
+	--
+	function VUHDO_stopSpecialDotBarGlow(aFrame)
+
+		if not aFrame or not aFrame["specialDotBarGlowStyle"] then
+			return;
+		end
+
+		sSpecialDotGlowProcOptions["glow"] = aFrame["specialDotBarGlowStyle"];
+		sSpecialDotGlowProcOptions["key"] = VUHDO_CUSTOM_GLOW_SWIFTMEND_FRAME_KEY;
+
+		VUHDO_LibOrbitGlow.Proc:Clear(aFrame, sSpecialDotGlowProcOptions);
+
+		aFrame["specialDotBarGlowStyle"] = nil;
+		aFrame["specialDotBarGlowColorR"] = nil;
+		aFrame["specialDotBarGlowColorG"] = nil;
+		aFrame["specialDotBarGlowColorB"] = nil;
+		aFrame["specialDotBarGlowColorO"] = nil;
+
+		return;
+
+	end
+
+
+
+	--
+	local tSpecialDotGlowVisual;
+	function VUHDO_startSpecialDotBarGlow(aFrame, aStyle, aColorArray)
+
+		if not aFrame then
+			return;
+		end
+
+		if aFrame["specialDotBarGlowStyle"] == aStyle
+			and aFrame["specialDotBarGlowColorR"] == aColorArray[1]
+			and aFrame["specialDotBarGlowColorG"] == aColorArray[2]
+			and aFrame["specialDotBarGlowColorB"] == aColorArray[3]
+			and aFrame["specialDotBarGlowColorO"] == aColorArray[4] then
+			return;
+		end
+
+		VUHDO_stopSpecialDotBarGlow(aFrame);
+
+		tSpecialDotGlowVisual = VUHDO_resolveGlowVisual(aStyle);
+
+		sSpecialDotGlowProcOptions["glow"] = aStyle;
+		sSpecialDotGlowProcOptions["key"] = VUHDO_CUSTOM_GLOW_SWIFTMEND_FRAME_KEY;
+		sSpecialDotGlowProcOptions["color"] = aColorArray;
+		sSpecialDotGlowProcOptions["frameLevel"] = 8;
+		sSpecialDotGlowProcOptions["loopDuration"] = tSpecialDotGlowVisual["duration"] or 1.0;
+
+		VUHDO_LibOrbitGlow.Proc:Loop(aFrame, sSpecialDotGlowProcOptions);
+
+		aFrame["specialDotBarGlowStyle"] = aStyle;
+		aFrame["specialDotBarGlowColorR"] = aColorArray[1];
+		aFrame["specialDotBarGlowColorG"] = aColorArray[2];
+		aFrame["specialDotBarGlowColorB"] = aColorArray[3];
+		aFrame["specialDotBarGlowColorO"] = aColorArray[4];
+
+		return;
+
+	end
+
+
+
+	--
+	local tSpecialDotHolders;
+	local tSpecialDotHolder;
+	function VUHDO_getSpecialDotBoolGlowHolder(aButton, aValidatorName)
+
+		tSpecialDotHolders = sSpecialDotBoolGlowHolders[aButton];
+
+		if not tSpecialDotHolders then
+			tSpecialDotHolders = { };
+			sSpecialDotBoolGlowHolders[aButton] = tSpecialDotHolders;
+		end
+
+		tSpecialDotHolder = tSpecialDotHolders[aValidatorName];
+
+		if not tSpecialDotHolder then
+			tSpecialDotHolder = CreateFrame("Frame", nil, aButton);
+
+			VUHDO_PixelUtil.SetPoint(tSpecialDotHolder, "TOPLEFT", aButton, "TOPLEFT", 0, 0);
+			VUHDO_PixelUtil.SetPoint(tSpecialDotHolder, "BOTTOMRIGHT", aButton, "BOTTOMRIGHT", 0, 0);
+
+			tSpecialDotHolder:SetAlpha(0);
+
+			tSpecialDotHolders[aValidatorName] = tSpecialDotHolder;
+		end
+
+		return tSpecialDotHolder;
+
+	end
+
+
+
+	--
+	function VUHDO_stopAllSpecialDotBarGlows(aButton)
+
+		VUHDO_stopSpecialDotBarGlow(aButton);
+
+		for _, tHolder in pairs(sSpecialDotBoolGlowHolders[aButton] or sEmpty) do
+			VUHDO_stopSpecialDotBarGlow(tHolder);
+
+			tHolder:SetAlpha(0);
+		end
+
+		return;
+
+	end
+end
+
+
+
 --
 local tBarGlowCache;
 function VUHDO_releaseAuraButtonGlowState(aAuraButton)
@@ -1241,6 +1374,7 @@ do
 	local tUnitDefaultGlow;
 	local tBarGlowEntry;
 	local tBarGlowCache;
+	local tIsSpecialDotBarGlow;
 	function VUHDO_applyAuraGroupBarGlowFromAuraButton(aAuraButton, aButtonSetup)
 
 		if not aAuraButton or not aButtonSetup or not aButtonSetup["auraGroupBarGlow"] then
@@ -1253,11 +1387,13 @@ do
 			return;
 		end
 
+		tIsSpecialDotBarGlow = aButtonSetup["specialDotBarGlow"];
+
 		tUnitGlowStyle = aButtonSetup["glowStyle"] or VUHDO_DEFAULT_AURA_GLOW_STYLE;
 		tUnitGlowColorType = aButtonSetup["glowColorType"];
 
 		if tUnitGlowColorType == VUHDO_AURA_GROUP_COLOR_DISPEL or tUnitGlowColorType == VUHDO_AURA_GROUP_COLOR_ALL_DISPEL then
-			if tUnitButton["hasAuraGroupBarGlow"] then
+			if not tIsSpecialDotBarGlow and tUnitButton["hasAuraGroupBarGlow"] then
 				VUHDO_stopUnitButtonAuraGroupGlow(tUnitButton, VUHDO_CUSTOM_GLOW_AURA_GROUP_KEY);
 			end
 
@@ -1272,7 +1408,10 @@ do
 						VUHDO_applyDispelTintToAuraGroupBarGlowTextures(aAuraButton);
 					end
 
-					tUnitButton[VUHDO_AURA_GROUP_GLOW_ACTIVE_KEY] = true;
+					if not tIsSpecialDotBarGlow then
+						tUnitButton[VUHDO_AURA_GROUP_GLOW_ACTIVE_KEY] = true;
+					end
+
 					aAuraButton["vuhdoAuraGroupBarGlowActive"] = true;
 
 					return;
@@ -1291,7 +1430,7 @@ do
 			aAuraButton["vuhdoAuraGroupBarGlowAppliedB"] = nil;
 			aAuraButton["vuhdoAuraGroupBarGlowAppliedO"] = nil;
 		else
-			if tUnitButton["hasAuraGroupBarGlow"] then
+			if not tIsSpecialDotBarGlow and tUnitButton["hasAuraGroupBarGlow"] then
 				VUHDO_stopUnitButtonAuraGroupGlow(tUnitButton, VUHDO_CUSTOM_GLOW_AURA_GROUP_KEY);
 			end
 
@@ -1302,7 +1441,10 @@ do
 
 			if tBarGlowEntry and not tBarGlowEntry["stopped"] then
 				if VUHDO_isAuraGroupBarGlowCurrent(aAuraButton, tUnitGlowStyle, tUnitGlowColorType, tUnitGlowMetaColor) then
-					tUnitButton[VUHDO_AURA_GROUP_GLOW_ACTIVE_KEY] = true;
+					if not tIsSpecialDotBarGlow then
+						tUnitButton[VUHDO_AURA_GROUP_GLOW_ACTIVE_KEY] = true;
+					end
+
 					aAuraButton["vuhdoAuraGroupBarGlowActive"] = true;
 
 					return;
@@ -1341,7 +1483,10 @@ do
 			aAuraButton["vuhdoAuraGroupBarGlowAppliedO"] = sUnitGlowColorArray[4];
 		end
 
-		tUnitButton[VUHDO_AURA_GROUP_GLOW_ACTIVE_KEY] = true;
+		if not tIsSpecialDotBarGlow then
+			tUnitButton[VUHDO_AURA_GROUP_GLOW_ACTIVE_KEY] = true;
+		end
+
 		aAuraButton["vuhdoAuraGroupBarGlowActive"] = true;
 
 		return;

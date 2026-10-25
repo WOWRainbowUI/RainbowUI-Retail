@@ -5,6 +5,9 @@ function VUHDO_newOptionsSpellEditBoxSpellId(anEditBox)
 
 	local tText, tR, tG, tB = VUHDO_isActionValid(anEditBox:GetText(), true);
 	local tLabel = _G[anEditBox:GetName() .. "Hint"];
+
+	anEditBox["skinKeepTextColor"] = true;
+
 	if (tText ~= nil) then
 		anEditBox:SetTextColor(1, 1, 1, 1);
 		tLabel:SetText(tText);

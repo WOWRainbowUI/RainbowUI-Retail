@@ -50,6 +50,9 @@ local tText, tLabel, tR, tG, tB;
 function VUHDO_newOptionsSpellEditBoxCheckHostileSpell(anEditBox)
 	tText, tR, tG, tB = VUHDO_isActionValid(anEditBox:GetText(), false, true);
 	tLabel = _G[anEditBox:GetName() .. "Hint"];
+
+	anEditBox["skinKeepTextColor"] = true;
+
 	if (tText ~= nil) then
 		anEditBox:SetTextColor(1, 1, 1, 1);
 		tLabel:SetText(tText);

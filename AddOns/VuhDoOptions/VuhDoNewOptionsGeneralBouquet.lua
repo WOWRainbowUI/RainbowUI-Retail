@@ -19,7 +19,8 @@ VUHDO_TEMP_BOUQUET_BUFF = nil;
 local tAllAuraGroupsForBouquet;
 local tAuraComboSortTable;
 local tAuraComboRow;
-function VUHDO_rebuildBouquetAuraGroupComboModel()
+local tSelectedBouquetName;
+function VUHDO_rebuildBouquetAuraGroupComboModel(aCurrentGroupId)
 
 	table.wipe(VUHDO_BOUQUET_AURA_GROUP_COMBO_MODEL);
 
@@ -29,6 +30,12 @@ function VUHDO_rebuildBouquetAuraGroupComboModel()
 		return;
 	end
 
+	tSelectedBouquetName = VUHDO_BOUQUETS["SELECTED"];
+
+	if VUHDO_strempty(tSelectedBouquetName) then
+		tSelectedBouquetName = nil;
+	end
+
 	if not tAuraComboSortTable then
 		tAuraComboSortTable = { };
 	else
@@ -36,7 +43,9 @@ function VUHDO_rebuildBouquetAuraGroupComboModel()
 	end
 
 	for tGroupId, _ in pairs(tAllAuraGroupsForBouquet) do
-		tinsert(tAuraComboSortTable, { tGroupId, VUHDO_getAuraGroupDisplayName(tGroupId) });
+		if not tSelectedBouquetName or tGroupId == aCurrentGroupId or not VUHDO_auraGroupReachesBouquet(tGroupId, tSelectedBouquetName) then
+			tinsert(tAuraComboSortTable, { tGroupId, VUHDO_getAuraGroupDisplayName(tGroupId) });
+		end
 	end
 
 	table.sort(tAuraComboSortTable, function(anA, anotherA)
@@ -206,7 +215,9 @@ function VUHDO_initBouquetComboModel()
 
 	table.wipe(VUHDO_BOUQET_DETAILS_COMBO_MODEL);
 	for tName, tInfo in pairs(VUHDO_BOUQUET_BUFFS_SPECIAL) do
-		tinsert(VUHDO_BOUQET_DETAILS_COMBO_MODEL, { tName, tInfo["displayName"] });
+		if VUHDO_isFlavorRequirementMet(VUHDO_BOUQUET_SPECIAL_REQUIREMENTS[tName]) then
+			tinsert(VUHDO_BOUQET_DETAILS_COMBO_MODEL, { tName, tInfo["displayName"] });
+		end
 	end
 
 	table.sort(VUHDO_BOUQET_DETAILS_COMBO_MODEL,
@@ -654,7 +665,7 @@ function VUHDO_rebuildBouquetContextEditors(anIndex)
 				VUHDO_lnfSetModel(tSubPanel, tModel .. ".custom.spellTrace");
 				tSubPanel:Show();
 			elseif (VUHDO_BOUQUET_BUFFS_SPECIAL[tBuffName]["custom_type"] == VUHDO_BOUQUET_CUSTOM_TYPE_AURA_GROUP) then
-				VUHDO_rebuildBouquetAuraGroupComboModel();
+				VUHDO_rebuildBouquetAuraGroupComboModel(tCurrentItem and tCurrentItem["custom"] and tCurrentItem["custom"]["auraGroupId"]);
 
 				tCombo = _G[tInnerPanel:GetName() .. "AuraGroupComboBox"];
 				VUHDO_setComboModel(tCombo, tModel .. ".custom.auraGroupId", VUHDO_BOUQUET_AURA_GROUP_COMBO_MODEL);
@@ -773,6 +784,10 @@ function VUHDO_rebuildAllBouquetItems(aParent, aCursorPos)
 	end
 
 	VUHDO_bouqetsChanged();
+	VUHDO_rebuildAuraAnchorsForBouquetListGroups();
+
+	return;
+
 end
 
 

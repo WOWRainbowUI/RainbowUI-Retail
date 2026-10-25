@@ -23,8 +23,10 @@ local VUHDO_DEFAULT_AURA_GROUPS;
 local VUHDO_AURA_GROUP_TYPE_FILTER;
 local VUHDO_AURA_GROUP_TYPE_LIST;
 local VUHDO_AURA_LIST_ENTRY_SPELL;
+local VUHDO_AURA_LIST_ENTRY_BOUQUET;
 local VUHDO_AURA_NAME_MATCH_SPELL_NAMES;
 
+local VUHDO_appendAuraSoundMatcherFromListGroup;
 local VUHDO_getAuraGroup;
 local VUHDO_getAuraGroupForUnit;
 local VUHDO_getAllAuraGroups;
@@ -43,6 +45,11 @@ local sPendingNativeAuraSoundClear = false;
 local sSoundEnabledAuraGroups = { };
 local sHasNativeAuraSoundsToRegister = nil;
 local sNativeResolvedSpellIds = { };
+local sSoundSkipListSpellEntries = { };
+local sSoundListBouquetMatchers = { };
+local sSoundMatcherVisitedGroupIds = { };
+
+local sEmpty = { };
 
 
 
@@ -57,8 +64,10 @@ function VUHDO_auraSoundsInitLocalOverrides()
 	VUHDO_AURA_GROUP_TYPE_FILTER = _G["VUHDO_AURA_GROUP_TYPE_FILTER"];
 	VUHDO_AURA_GROUP_TYPE_LIST = _G["VUHDO_AURA_GROUP_TYPE_LIST"];
 	VUHDO_AURA_LIST_ENTRY_SPELL = _G["VUHDO_AURA_LIST_ENTRY_SPELL"];
+	VUHDO_AURA_LIST_ENTRY_BOUQUET = _G["VUHDO_AURA_LIST_ENTRY_BOUQUET"];
 	VUHDO_AURA_NAME_MATCH_SPELL_NAMES = _G["VUHDO_AURA_NAME_MATCH_SPELL_NAMES"];
 
+	VUHDO_appendAuraSoundMatcherFromListGroup = _G["VUHDO_appendAuraSoundMatcherFromListGroup"];
 	VUHDO_getAuraGroup = _G["VUHDO_getAuraGroup"];
 	VUHDO_getAuraGroupForUnit = _G["VUHDO_getAuraGroupForUnit"];
 	VUHDO_getAllAuraGroups = _G["VUHDO_getAllAuraGroups"];
@@ -129,6 +138,25 @@ local function VUHDO_listGroupHasNativeAuraSoundSpellIds(aGroup)
 	end
 
 	return next(sNativeResolvedSpellIds) ~= nil;
+
+end
+
+
+
+--
+local function VUHDO_listGroupHasBouquetEntry(aGroup)
+
+	if not aGroup then
+		return false;
+	end
+
+	for _, tEntry in ipairs(aGroup["entries"] or sEmpty) do
+		if tEntry["entryType"] == VUHDO_AURA_LIST_ENTRY_BOUQUET then
+			return true;
+		end
+	end
+
+	return false;
 
 end
 
@@ -246,9 +274,15 @@ end
 
 
 --
+local tHasNativeSoundSpellIds;
+local tHasBouquetEntry;
+local tMatcher;
+local tHasMatcherContent;
 function VUHDO_rebuildSoundEnabledAuraGroups()
 
 	twipe(sSoundEnabledAuraGroups);
+	twipe(sSoundSkipListSpellEntries);
+	twipe(sSoundListBouquetMatchers);
 
 	tAllGroups = VUHDO_getAllAuraGroups();
 
@@ -266,8 +300,33 @@ function VUHDO_rebuildSoundEnabledAuraGroups()
 				if tGroupType == VUHDO_AURA_GROUP_TYPE_FILTER then
 					tinsert(sSoundEnabledAuraGroups, tGroupId);
 				elseif tGroupType == VUHDO_AURA_GROUP_TYPE_LIST then
-					if not VUHDO_listGroupHasNativeAuraSoundSpellIds(tGroup) then
+					tHasNativeSoundSpellIds = VUHDO_listGroupHasNativeAuraSoundSpellIds(tGroup);
+					tHasBouquetEntry = VUHDO_listGroupHasBouquetEntry(tGroup);
+
+					if tHasBouquetEntry or not tHasNativeSoundSpellIds then
 						tinsert(sSoundEnabledAuraGroups, tGroupId);
+					end
+
+					if tHasNativeSoundSpellIds and tHasBouquetEntry then
+						sSoundSkipListSpellEntries[tGroupId] = true;
+					end
+
+					if tHasBouquetEntry then
+						twipe(sSoundMatcherVisitedGroupIds);
+
+						tMatcher = {
+							["spells"] = { },
+							["dispels"] = { },
+							["groupIds"] = { },
+						};
+
+						VUHDO_appendAuraSoundMatcherFromListGroup(tGroup, tGroupId, tMatcher, sSoundMatcherVisitedGroupIds, tHasNativeSoundSpellIds);
+
+						tHasMatcherContent = next(tMatcher["spells"]) ~= nil or next(tMatcher["dispels"]) ~= nil or #tMatcher["groupIds"] > 0;
+
+						if tHasMatcherContent then
+							sSoundListBouquetMatchers[tGroupId] = tMatcher;
+						end
 					end
 				end
 			end
@@ -473,9 +532,56 @@ end
 --
 local tSpellId;
 local tName;
-local function VUHDO_auraMatchesListGroup(anAuraData, aGroup)
+local tDispelName;
+local tMatcher;
+local tSourceFilter;
+local tNestedGroupId;
+local tNestedGroup;
+local function VUHDO_auraMatchesListGroup(aUnit, anAuraData, aGroupId, aGroup)
 
 	if not anAuraData or not aGroup then
+		return false;
+	end
+
+	tSpellId = anAuraData["spellId"];
+	tName = anAuraData["name"];
+
+	if tName and issecretvalue(tName) then
+		tName = nil;
+	end
+
+	tDispelName = anAuraData["dispelName"];
+
+	if tDispelName and issecretvalue(tDispelName) then
+		tDispelName = nil;
+	end
+
+	tMatcher = sSoundListBouquetMatchers[aGroupId];
+
+	if tMatcher then
+		tSourceFilter = tMatcher["spells"][tSpellId];
+
+		if not tSourceFilter and tName then
+			tSourceFilter = tMatcher["spells"][tName];
+		end
+
+		if tSourceFilter and VUHDO_auraSourceMatchesFilter(anAuraData, tSourceFilter) then
+			return true;
+		end
+
+		if tDispelName and tMatcher["dispels"][tDispelName] then
+			return true;
+		end
+
+		for tGroupIdCnt = 1, #tMatcher["groupIds"] do
+			tNestedGroupId = tMatcher["groupIds"][tGroupIdCnt];
+			tNestedGroup = VUHDO_getAuraGroupForUnit(tNestedGroupId, aUnit);
+
+			if tNestedGroup and VUHDO_isAuraMatchingGroupFilters(aUnit, tNestedGroupId, tNestedGroup, anAuraData) then
+				return true;
+			end
+		end
+
 		return false;
 	end
 
@@ -485,11 +591,8 @@ local function VUHDO_auraMatchesListGroup(anAuraData, aGroup)
 		return false;
 	end
 
-	tSpellId = anAuraData["spellId"];
-	tName = anAuraData["name"];
-
-	if tName and issecretvalue(tName) then
-		tName = nil;
+	if sSoundSkipListSpellEntries[aGroupId] then
+		return false;
 	end
 
 	for _, tEntry in ipairs(tEntries) do
@@ -544,7 +647,7 @@ function VUHDO_checkAuraGroupSounds(aUnit, anAuraData)
 						VUHDO_playAuraGroupSound(tGroupId);
 					end
 				elseif tGroupType == VUHDO_AURA_GROUP_TYPE_LIST then
-					if VUHDO_auraMatchesListGroup(anAuraData, tGroup) then
+					if VUHDO_auraMatchesListGroup(aUnit, anAuraData, tGroupId, tGroup) then
 						VUHDO_playAuraGroupSound(tGroupId);
 					end
 				end

@@ -1,8 +1,13 @@
-## Interface: 120105, 120100
+## DefaultState: disabled
+## Notes-zhTW: VuhDo ['vu:du:] - Options |n巫毒治療框架的設定選項。|n|cffffd200使用方法：|r點小地圖按鈕開啟設定。
+## Title-zhTW: |cffFF7F00[團隊]|r 框架 (巫毒)-設定選項
+## Dependencies: VuhDo
+## Interface: 120105, 16001
+## AllowLoadGameType: standard, camelot
 
 ## Title: VuhDo ['vu:du:] - Options
 ## Author: Iza@Gilneas, humfras, Ivaria@Hyjal
-## Version: 3.218
+## Version: 3.219
 ## Notes: VuhDo Options
 ## IconTexture: Interface\AddOns\VuhDo\Images\TemporaryPortrait-Female-BloodElf-VuhDo
 
@@ -25,12 +30,7 @@
 ## SavedVariables: VUHDO_OPTIONS_SETTINGS
 ## SavedVariablesPerCharacter: VUHDO_GLOBAL_ICONS, VUHDO_GI_SCAN_IDX
 
-## Dependencies: VuhDo
 ## LoadOnDemand: 0
-
-## Title-zhTW: |cffFF7F00[團隊]|r 框架 (巫毒)-設定選項
-## Notes-zhTW: VuhDo ['vu:du:] - Options |n巫毒治療框架的設定選項。|n|cffffd200使用方法：|r點小地圖按鈕開啟設定。
-## DefaultState: disabled
 
 Libs\ChatThrottleLib\ChatThrottleLib.xml
 
@@ -103,4 +103,7 @@ VuhDoNewOptionsToolsWizard.xml
 VuhDoNewOptionsMove.xml
 VuhDoNewOptionsTabbedFrame.xml
 
-VuhDoBuffWatchSetup.xml
+VuhDoBuffWatchSetup.xml
+
+
+

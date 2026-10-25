@@ -8,6 +8,7 @@ local VUHDO_IMMEDIATE = Enum.StatusBarInterpolation.Immediate;
 local VUHDO_setStatusBarVuhDoColor;
 local VUHDO_applyAllLayersToBar;
 local VUHDO_applyAllLayersToTexture;
+local VUHDO_applyOverlayBouquetGating;
 local VUHDO_getIsDirectionArrow;
 local VUHDO_deferSyncAuraContainersForUnit;
 local VUHDO_isUnitRangeCheckable;
@@ -23,6 +24,7 @@ function VUHDO_barCustomizerThreatInitLocalOverrides()
 	VUHDO_setStatusBarVuhDoColor = _G["VUHDO_setStatusBarVuhDoColor"];
 	VUHDO_applyAllLayersToBar = _G["VUHDO_applyAllLayersToBar"];
 	VUHDO_applyAllLayersToTexture = _G["VUHDO_applyAllLayersToTexture"];
+	VUHDO_applyOverlayBouquetGating = _G["VUHDO_applyOverlayBouquetGating"];
 	VUHDO_getIsDirectionArrow = _G["VUHDO_getIsDirectionArrow"];
 	VUHDO_deferSyncAuraContainersForUnit = _G["VUHDO_deferSyncAuraContainersForUnit"];
 	VUHDO_isUnitRangeCheckable = _G["VUHDO_isUnitRangeCheckable"];
@@ -48,7 +50,7 @@ function VUHDO_threatIndicatorsBouquetCallback(aUnit, anIsActive, anIcon, aTimer
 
 			if anIsActive then
 				if aLayerTemplate then
-					VUHDO_applyAllLayersToTexture(tButton, tTexture, aLayerTemplate);
+					VUHDO_applyAllLayersToTexture(tButton, tTexture, aLayerTemplate, "THREAT_MARK", aBouquetName);
 				elseif aColor then
 					tTexture:SetVertexColor(VUHDO_backColorWithFallback(aColor));
 				end
@@ -60,6 +62,10 @@ function VUHDO_threatIndicatorsBouquetCallback(aUnit, anIsActive, anIcon, aTimer
 				VUHDO_stopThreatMarkTextureFlash(tTexture);
 
 				tTexture:Hide();
+
+				if aLayerTemplate then
+					VUHDO_applyOverlayBouquetGating(tButton, "THREAT_MARK", aBouquetName, aLayerTemplate, nil);
+				end
 			end
 		end
 	end

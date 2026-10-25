@@ -649,3 +649,11 @@ VUHDO_I18N_AURA_GROUP_RELEVANT_DEBUFFS = "Relevant Debuffs";
 VUHDO_I18N_AURA_GROUP_TIMED_DEBUFFS = "Timed Debuffs";
 
 VUHDO_I18N_PT_NAME_AMBIGUOUS = "Private tank name ambiguous: %s. Use a realm-qualified full name.";
+VUHDO_I18N_PT_NAME_AMBIGUOUS = "私人坦克名称不明確：%s。请使用完整名称（名字-伺服器或名字-姓氏）。";
+VUHDO_I18N_AURA_GROUP_PRIEST_WEAKENED_SOUL = "牧師虚弱灵魂";
+VUHDO_I18N_BW_MAIN_HAND = "主手";
+VUHDO_I18N_BW_OFF_HAND = "副手";
+VUHDO_I18N_ERROR_NO_LIST_GROUP_BOUQUET = "光环群组「%s」包含不存在的状态组「%s」！";
+VUHDO_I18N_BOUQUET_STATUS_POWER_HEALER_ONLY = "状态列：能量 %（仅治療者）";
+VUHDO_I18N_DEF_BOUQUET_BAR_POWER_HEALER_ONLY = "能量條：能量（仅治療者）";
+VUHDO_I18N_DEF_BOUQUET_PW_S_WEAKENED_SOUL_ICONS = "真言术：盾与虚弱灵魂（图示）";

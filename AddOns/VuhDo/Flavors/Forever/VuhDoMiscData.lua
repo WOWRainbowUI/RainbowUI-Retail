@@ -1,0 +1,5 @@
+VUHDO_SPELLS_FLAVOR_ENTRIES = { };
+
+VUHDO_GI_SCAN_SKIP_IDS = {
+	[1251535] = true,
+};

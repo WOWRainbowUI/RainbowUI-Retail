@@ -36,9 +36,11 @@ local sEmpty = { };
 --
 local VUHDO_getClassColorByModelId;
 local VUHDO_strempty;
+local VUHDO_resolveUnitByName;
 function VUHDO_tooltipInitLocalOverrides()
 	VUHDO_getClassColorByModelId = _G["VUHDO_getClassColorByModelId"];
 	VUHDO_strempty = _G["VUHDO_strempty"];
+	VUHDO_resolveUnitByName = _G["VUHDO_resolveUnitByName"];
 end
 --
 
@@ -284,6 +286,7 @@ local tBinding;
 local tClassName, tClassNameLoc;
 local tClassDisplayName;
 local tRaceDisplayName;
+local tResolvedUnit;
 function VUHDO_updateTooltip()
 
 	if not UnitExists(VUHDO_TT_UNIT) then
@@ -292,10 +295,14 @@ function VUHDO_updateTooltip()
 
 	tName = UnitName(VUHDO_TT_UNIT);
 
-	if sSecretsEnabled and issecretvalue(tName) then
-		tInfo = VUHDO_RAID[VUHDO_TT_UNIT];
-	else
-		tInfo = VUHDO_RAID[VUHDO_RAID_NAMES[tName]] or VUHDO_RAID[VUHDO_TT_UNIT];
+	tInfo = VUHDO_RAID[VUHDO_TT_UNIT];
+
+	if not tInfo and not (sSecretsEnabled and issecretvalue(tName)) then
+		tResolvedUnit = VUHDO_resolveUnitByName(tName);
+
+		if tResolvedUnit then
+			tInfo = VUHDO_RAID[tResolvedUnit];
+		end
 	end
 
 	if not tInfo then

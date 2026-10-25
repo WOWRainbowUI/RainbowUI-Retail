@@ -19,6 +19,16 @@ local VUHDO_CLASS_ID_POWER_TYPES = {
 	[VUHDO_ID_EVOKERS] = VUHDO_UNIT_POWER_MANA,
 }
 
+VUHDO_applyFlavorEntries(VUHDO_CLASS_ID_POWER_TYPES, (VUHDO_FLAVOR_RULES or { })["CLASS_POWER_TYPES"]);
+
+local sLastDemoClassId = VUHDO_ID_WARRIORS;
+
+for tClassId = VUHDO_ID_WARRIORS, VUHDO_ID_EVOKERS do
+	if VUHDO_flavorHasClass(tClassId) and tClassId > sLastDemoClassId then
+		sLastDemoClassId = tClassId;
+	end
+end
+
 
 
 local sClassNamesForId = {
@@ -497,7 +507,7 @@ local function VUHDO_createTestUser()
 		tUnit = "raidpet" .. tPetDemoIdx;
 
 		if VUHDO_USER_CLASS_COLORS and VUHDO_USER_CLASS_COLORS["petClassColor"] then
-			tClassId = random(VUHDO_ID_WARRIORS, VUHDO_ID_EVOKERS);
+			tClassId = random(VUHDO_ID_WARRIORS, sLastDemoClassId);
 		else
 			tClassId = VUHDO_ID_PETS;
 		end
@@ -508,7 +518,7 @@ local function VUHDO_createTestUser()
 		tPetDemoIdx = tPetDemoIdx + 1;
 	else
 		tUnit = "raid" .. tRaidDemoIdx;
-		tClassId = VUHDO_getNextFreeModelInRange(VUHDO_ID_WARRIORS, VUHDO_ID_EVOKERS);
+		tClassId = VUHDO_getNextFreeModelInRange(VUHDO_ID_WARRIORS, sLastDemoClassId);
 		tGroup = VUHDO_getNextFreeModelInRange(VUHDO_ID_GROUP_1, VUHDO_ID_GROUP_8);
 		tNumber = tRaidDemoIdx;
 		tRaidDemoIdx = tRaidDemoIdx + 1;
@@ -585,6 +595,14 @@ function VUHDO_reloadRaidDemoUsers()
 	VUHDO_unregisterAllUnitEventFrames();
 
 	VUHDO_TEST_USERS_LEFT = VUHDO_deepCopyTable(VUHDO_DEMO_SETUP[VUHDO_CONFIG_TEST_USERS]);
+
+	for tClassId = VUHDO_ID_DEATH_KNIGHT, VUHDO_ID_EVOKERS do
+		if not VUHDO_flavorHasClass(tClassId) then
+			VUHDO_TEST_USERS_LEFT[VUHDO_ID_WARRIORS + tClassId - VUHDO_ID_DEATH_KNIGHT] = VUHDO_TEST_USERS_LEFT[VUHDO_ID_WARRIORS + tClassId - VUHDO_ID_DEATH_KNIGHT] + VUHDO_TEST_USERS_LEFT[tClassId];
+			VUHDO_TEST_USERS_LEFT[tClassId] = 0;
+		end
+	end
+
 	tPetDemoIdx = 1;
 	tRaidDemoIdx = 1;
 
@@ -594,7 +612,7 @@ function VUHDO_reloadRaidDemoUsers()
 	twipe(VUHDO_MAINTANK_NAMES);
 
 	for tCnt = 1, VUHDO_TEST_USERS_LEFT[VUHDO_ID_MAINTANKS] do
-		VUHDO_MAINTANK_NAMES[tCnt] = VUHDO_RAID["raid" .. tCnt]["name"];
+		VUHDO_MAINTANK_NAMES[tCnt] = VUHDO_getUnitIdentityKey(VUHDO_RAID["raid" .. tCnt]);
 	end
 
 	twipe(VUHDO_PLAYER_TARGETS);

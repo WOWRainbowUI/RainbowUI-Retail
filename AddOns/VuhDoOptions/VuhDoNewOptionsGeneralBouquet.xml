@@ -960,6 +960,8 @@
 									<OnLoad>
 										VUHDO_setComboModel(self, nil, VUHDO_BOUQUET_AURA_GROUP_COMBO_MODEL);
 										VUHDO_lnfSetTooltip(self, VUHDO_I18N_BOUQUET_AURA_GROUP_ACTIVE);
+
+										self:SetAttribute("custom_function_post", VUHDO_bouquetsBuffColorChanged);
 									</OnLoad>
 								</Scripts>
 							</Button>

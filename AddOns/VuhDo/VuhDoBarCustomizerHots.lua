@@ -23,8 +23,7 @@ local sBarColors;
 local sClipL, sClipR, sClipT, sClipB = 0, 1, 0, 1;
 
 local sIsPlayerKnowsSwiftmend = false;
-local sSwiftmendUnits = { };
-local sIsPlayerCanCastSwiftmend;
+local sSwiftmendReady = false;
 local sSwiftmendCooldown = {
 	-- <cooldown start time>,
 	-- <cooldown duration>,
@@ -91,7 +90,7 @@ local VUHDO_HOT_CFGS = { "HOT1", "HOT2", "HOT3", "HOT4", "HOT5", "HOT6", "HOT7",
 
 
 local floor = floor;
-local GetSpellCooldown = GetSpellCooldown or VUHDO_getSpellCooldown;
+local GetSpellCooldown = C_Spell and C_Spell.GetSpellCooldown;
 local GetSpellCharges = C_Spell.GetSpellCharges;
 local GetSpellName = C_Spell.GetSpellName;
 local GetTime = GetTime;
@@ -121,8 +120,15 @@ local VUHDO_textColor;
 local VUHDO_copyColorTo;
 local VUHDO_setStatusBarVuhDoColor;
 local VUHDO_applyAllLayersToTexture;
+local VUHDO_applyOverlayBouquetGating;
 local VUHDO_clearBooleanOverlays;
 local VUHDO_clearUnitAuraFrames;
+local VUHDO_updateGlobalToggles;
+local VUHDO_invalidateAllOverlayPlans;
+local VUHDO_startSpecialDotBarGlow;
+local VUHDO_stopSpecialDotBarGlow;
+local VUHDO_getSpecialDotBoolGlowHolder;
+local VUHDO_stopAllSpecialDotBarGlows;
 
 local VUHDO_PANEL_SETUP;
 local VUHDO_HEALING_HOTS;
@@ -131,6 +137,7 @@ local VUHDO_AURA_FRAMES;
 
 local sIsClusterIcons;
 local sIsOthersHots;
+local sSpecialDotBarGlowColor = { 1, 1, 1, 1 };
 
 function VUHDO_customHotsInitLocalOverrides()
 
@@ -162,8 +169,15 @@ function VUHDO_customHotsInitLocalOverrides()
 	VUHDO_copyColorTo = _G["VUHDO_copyColorTo"];
 	VUHDO_setStatusBarVuhDoColor = _G["VUHDO_setStatusBarVuhDoColor"];
 	VUHDO_applyAllLayersToTexture = _G["VUHDO_applyAllLayersToTexture"];
+	VUHDO_applyOverlayBouquetGating = _G["VUHDO_applyOverlayBouquetGating"];
 	VUHDO_clearBooleanOverlays = _G["VUHDO_clearBooleanOverlays"];
 	VUHDO_clearUnitAuraFrames = _G["VUHDO_clearUnitAuraFrames"];
+	VUHDO_updateGlobalToggles = _G["VUHDO_updateGlobalToggles"];
+	VUHDO_invalidateAllOverlayPlans = _G["VUHDO_invalidateAllOverlayPlans"];
+	VUHDO_startSpecialDotBarGlow = _G["VUHDO_startSpecialDotBarGlow"];
+	VUHDO_stopSpecialDotBarGlow = _G["VUHDO_stopSpecialDotBarGlow"];
+	VUHDO_getSpecialDotBoolGlowHolder = _G["VUHDO_getSpecialDotBoolGlowHolder"];
+	VUHDO_stopAllSpecialDotBarGlows = _G["VUHDO_stopAllSpecialDotBarGlows"];
 
 	sBarColors = VUHDO_PANEL_SETUP["BAR_COLORS"];
 	sHotCols = sBarColors["HOTS"];
@@ -245,8 +259,39 @@ end
 
 
 --
+local tWasKnowsSwiftmend;
 function VUHDO_setKnowsSwiftmend(aKnowsSwiftmend)
+
+	tWasKnowsSwiftmend = sIsPlayerKnowsSwiftmend;
 	sIsPlayerKnowsSwiftmend = aKnowsSwiftmend;
+
+	if tWasKnowsSwiftmend ~= aKnowsSwiftmend then
+		VUHDO_updateGlobalToggles();
+		VUHDO_invalidateAllOverlayPlans();
+	end
+
+	VUHDO_refreshSwiftmendCooldown();
+
+	return;
+
+end
+
+
+
+--
+function VUHDO_isPlayerKnowsSwiftmend()
+
+	return sIsPlayerKnowsSwiftmend;
+
+end
+
+
+
+--
+function VUHDO_isSwiftmendReady()
+
+	return sSwiftmendReady;
+
 end
 
 
@@ -1147,16 +1192,6 @@ function VUHDO_removeHot(aUnit, anAuraInstanceId)
 		VUHDO_removeUnitHot(aUnit, "OTHER", VUHDO_UNIT_HOT_TYPE_OTHERSHOTS, anAuraInstanceId);
 	end
 
-	if sIsPlayerKnowsSwiftmend and tIsCastByPlayer and
-		(VUHDO_SPELL_ID.REGROWTH == tSpellName or (VUHDO_SPELL_ID.WILD_GROWTH == tSpellName and 422382 ~= tSpellId) or
-		VUHDO_SPELL_ID.REJUVENATION == tSpellName or VUHDO_SPELL_ID.GERMINATION == tSpellName) then
-		sSwiftmendUnits[aUnit] = (sSwiftmendUnits[aUnit] or 0) - 1;
-
-		if sSwiftmendUnits[aUnit] < 0 then
-			sSwiftmendUnits[aUnit] = 0;
-		end
-	end
-
 	VUHDO_removeUnitHotInfo(aUnit, anAuraInstanceId);
 
 end
@@ -1255,8 +1290,6 @@ function VUHDO_initHots(aUnit)
 		end
 	end
 
-	sSwiftmendUnits[aUnit] = 0;
-
 end
 
 
@@ -1274,15 +1307,6 @@ function VUHDO_updateHotPredicate(aUnit, aNow, anAuraInstanceId, aName, anIcon, 
 
 	tIsHotInfoAdded = false;
 	tIsCastByPlayer = aUnitCaster == "player" or aUnitCaster == VUHDO_PLAYER_RAID_ID;
-
-	if not anIsUpdate and sIsPlayerKnowsSwiftmend and tIsCastByPlayer and
-		(VUHDO_SPELL_ID.REGROWTH == aName or (VUHDO_SPELL_ID.WILD_GROWTH == aName and 422382 ~= aSpellId) or
-		VUHDO_SPELL_ID.REJUVENATION == aName or VUHDO_SPELL_ID.GERMINATION == aName) then
-		VUHDO_addUnitHotInfo(aUnit, anAuraInstanceId, anIcon, anExpiry, aStacks, aDuration, tIsCastByPlayer, aName, aSpellId);
-		tIsHotInfoAdded = true;
-
-		sSwiftmendUnits[aUnit] = (sSwiftmendUnits[aUnit] or 0) + 1;
-	end
 
 	if (anExpiry or 0) == 0 then
 		anExpiry = (aNow + 9999);
@@ -1529,6 +1553,11 @@ end
 --
 local tIcon;
 local tPanelNum;
+local tBarGlowStyle;
+local tIsUnitButtonGlowActive;
+local tBoolResultSlot;
+local tBoolHolder;
+local tDebuffBarGlowColor;
 function VUHDO_swiftmendIndicatorBouquetCallback(aUnit, anIsActive, anIcon, aTimer, aCounter, aDuration, aColor, aBuffName, aBouquetName, anImpact, aTimer2, aClipL, aClipR, aClipT, aClipB, aMaxColor, aLayerTemplate)
 
 	if sIsSpecialDotSuspended then
@@ -1547,31 +1576,72 @@ function VUHDO_swiftmendIndicatorBouquetCallback(aUnit, anIsActive, anIcon, aTim
 				VUHDO_PixelUtil.ApplySettings(tIcon);
 
 				if aLayerTemplate then
-					VUHDO_applyAllLayersToTexture(tButton, tIcon, aLayerTemplate);
+					VUHDO_applyAllLayersToTexture(tButton, tIcon, aLayerTemplate, "SWIFTMEND_INDICATOR", aBouquetName);
 				elseif aColor then
 					tIcon:SetVertexColor(VUHDO_backColorWithFallback(aColor));
 				end
 
 				tIcon:Show();
 
-				if VUHDO_INDICATOR_CONFIG[tPanelNum]["CUSTOM"]["SWIFTMEND_INDICATOR"]["isBarGlow"] then
-					VUHDO_LibCustomGlow.PixelGlow_Start(
-						tButton,
-						{
-							VUHDO_PANEL_SETUP.BAR_COLORS["DEBUFF_BAR_GLOW"]["R"],
-							VUHDO_PANEL_SETUP.BAR_COLORS["DEBUFF_BAR_GLOW"]["G"],
-							VUHDO_PANEL_SETUP.BAR_COLORS["DEBUFF_BAR_GLOW"]["B"],
-							VUHDO_PANEL_SETUP.BAR_COLORS["DEBUFF_BAR_GLOW"]["O"]
-						},
-						14,                             -- number of particles
-						0.3,                            -- frequency
-						8,                              -- length
-						2,                              -- thickness
-						0,                              -- x offset
-						0,                              -- y offset
-						false,                          -- border
-						VUHDO_CUSTOM_GLOW_SWIFTMEND_FRAME_KEY
-					);
+				tBarGlowStyle = VUHDO_INDICATOR_CONFIG[tPanelNum]["CUSTOM"]["SWIFTMEND_INDICATOR"]["barGlowStyle"] or "none";
+
+				if tBarGlowStyle == "none" then
+					VUHDO_stopAllSpecialDotBarGlows(tButton);
+				else
+					tDebuffBarGlowColor = VUHDO_PANEL_SETUP["BAR_COLORS"]["DEBUFF_BAR_GLOW"];
+
+					sSpecialDotBarGlowColor[1] = tDebuffBarGlowColor["R"];
+					sSpecialDotBarGlowColor[2] = tDebuffBarGlowColor["G"];
+					sSpecialDotBarGlowColor[3] = tDebuffBarGlowColor["B"];
+					sSpecialDotBarGlowColor[4] = tDebuffBarGlowColor["O"];
+
+					tIsUnitButtonGlowActive = false;
+
+					if not aLayerTemplate then
+						tIsUnitButtonGlowActive = true;
+					else
+						for tCnt = 1, #aLayerTemplate["nonSecretResults"] do
+							if aLayerTemplate["nonSecretResults"][tCnt]["isActive"] then
+								tIsUnitButtonGlowActive = true;
+
+								break;
+							end
+						end
+
+						if not tIsUnitButtonGlowActive and aLayerTemplate["auraResults"] then
+							for tCnt = 1, #aLayerTemplate["auraResults"] do
+								if aLayerTemplate["auraResults"][tCnt]["isActive"] then
+									tIsUnitButtonGlowActive = true;
+
+									break;
+								end
+							end
+						end
+					end
+
+					if tIsUnitButtonGlowActive then
+						VUHDO_startSpecialDotBarGlow(tButton, tBarGlowStyle, sSpecialDotBarGlowColor);
+					else
+						VUHDO_stopSpecialDotBarGlow(tButton);
+					end
+
+					if aLayerTemplate and aLayerTemplate["hasBools"] then
+						for tCnt = 1, #aLayerTemplate["booleanResults"] do
+							tBoolResultSlot = aLayerTemplate["booleanResults"][tCnt];
+
+							tBoolHolder = VUHDO_getSpecialDotBoolGlowHolder(tButton, aLayerTemplate["booleanValidators"][tCnt]["item"]["name"]);
+
+							if tBoolResultSlot["secretBool"] ~= nil then
+								VUHDO_startSpecialDotBarGlow(tBoolHolder, tBarGlowStyle, sSpecialDotBarGlowColor);
+
+								tBoolHolder:SetAlphaFromBoolean(tBoolResultSlot["secretBool"], tBoolResultSlot["trueAlpha"] > 0 and 1 or 0, tBoolResultSlot["falseAlpha"] > 0 and 1 or 0);
+							else
+								VUHDO_stopSpecialDotBarGlow(tBoolHolder);
+
+								tBoolHolder:SetAlpha(0);
+							end
+						end
+					end
 				end
 
 				if VUHDO_INDICATOR_CONFIG[tPanelNum]["CUSTOM"]["SWIFTMEND_INDICATOR"]["isIconGlow"] then
@@ -1594,11 +1664,15 @@ function VUHDO_swiftmendIndicatorBouquetCallback(aUnit, anIsActive, anIcon, aTim
 					);
 				end
 			else
-				VUHDO_LibCustomGlow.PixelGlow_Stop(tButton, VUHDO_CUSTOM_GLOW_SWIFTMEND_FRAME_KEY);
+				VUHDO_stopAllSpecialDotBarGlows(tButton);
 
 				tIcon = VUHDO_getBarRoleIcon(tButton, 51);
 				VUHDO_LibCustomGlow.PixelGlow_Stop(tIcon, VUHDO_CUSTOM_GLOW_SWIFTMEND_ICON_KEY);
 				tIcon:Hide();
+
+				if aLayerTemplate then
+					VUHDO_applyOverlayBouquetGating(tButton, "SWIFTMEND_INDICATOR", aBouquetName, aLayerTemplate, nil);
+				end
 			end
 		end
 	end
@@ -1657,55 +1731,61 @@ end
 local tStart;
 local tDuration;
 local tChargeInfo;
-local function VUHDO_updateSwiftmendCooldown()
+local tCooldownInfo;
+local tIsPlayerCanCastSwiftmend;
+function VUHDO_refreshSwiftmendCooldown()
 
 	if not sIsPlayerKnowsSwiftmend then
+		sSwiftmendReady = false;
+
 		return;
 	end
 
-	-- FIXME: need to migrate for Midnight secrets
 	if sSecretsEnabled then
+		tCooldownInfo = GetSpellCooldown(VUHDO_SPELL_ID.SWIFTMEND);
+
+		if not tCooldownInfo then
+			sSwiftmendReady = false;
+
+			return;
+		end
+
+		sSwiftmendReady = (not tCooldownInfo["isActive"]) or tCooldownInfo["isOnGCD"] == true;
+
 		return;
 	end
 
 	tChargeInfo = GetSpellCharges(VUHDO_SPELL_ID.SWIFTMEND);
 
 	if tChargeInfo then
-		if tChargeInfo.currentCharges > 0 then
-			sIsPlayerCanCastSwiftmend = true;
+		if tChargeInfo.currentCharges > 0 and not issecretvalue(tChargeInfo.currentCharges) then
+			tIsPlayerCanCastSwiftmend = true;
+		elseif issecretvalue(tChargeInfo.currentCharges) then
+			tIsPlayerCanCastSwiftmend = false;
 		else
-			sIsPlayerCanCastSwiftmend = false;
+			tIsPlayerCanCastSwiftmend = false;
 		end
 	elseif not sSwiftmendCooldown[0] or not sSwiftmendCooldown[1] then
-		tStart, tDuration = GetSpellCooldown(VUHDO_SPELL_ID.SWIFTMEND);
+		tStart, tDuration = VUHDO_getSpellCooldown(VUHDO_SPELL_ID.SWIFTMEND);
 
 		if (tStart == nil and tDuration == nil) or (tStart > 0 and tDuration > 1.5) then
 			sSwiftmendCooldown[0], sSwiftmendCooldown[1] = tStart, tDuration;
 
-			sIsPlayerCanCastSwiftmend = false;
+			tIsPlayerCanCastSwiftmend = false;
 		else
-			sIsPlayerCanCastSwiftmend = true;
+			tIsPlayerCanCastSwiftmend = true;
 		end
 	elseif (sSwiftmendCooldown[0] + sSwiftmendCooldown[1] - GetTime()) <= 0 then
 		sSwiftmendCooldown[0], sSwiftmendCooldown[1] = nil, nil;
 
-		sIsPlayerCanCastSwiftmend = true;
+		tIsPlayerCanCastSwiftmend = true;
 	else
-		sIsPlayerCanCastSwiftmend = false;
+		tIsPlayerCanCastSwiftmend = false;
 	end
 
-end
+	sSwiftmendReady = tIsPlayerCanCastSwiftmend;
 
-
-
---
-function VUHDO_isUnitSwiftmendable(aUnit)
-
-	if sIsPlayerKnowsSwiftmend and sIsPlayerCanCastSwiftmend and ((sSwiftmendUnits[aUnit] or 0) > 0) then
-		return true;
-	else
-		return false;
-	end
+	return;
 
 end
 
@@ -1717,8 +1797,6 @@ function VUHDO_updateAllHoTs(aClustersOnly)
 	if sIsSuspended then
 		return;
 	end
-
-	VUHDO_updateSwiftmendCooldown();
 
 	for tUnit, tInfo in pairs(VUHDO_RAID) do
 		if not aClustersOnly then
@@ -1763,8 +1841,6 @@ function VUHDO_deferUpdateAllHoTs(aPriority)
 	if sIsSuspended then
 		return;
 	end
-
-	VUHDO_updateSwiftmendCooldown();
 
 	if not VUHDO_RAID then
 		return;

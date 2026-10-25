@@ -82,6 +82,7 @@ end
 
 
 --
+local tGroupName;
 local function VUHDO_addBuffPanel(aCategorySpec)
 	local tCategName = aCategorySpec;
 	local tSettings = VUHDO_BUFF_SETTINGS[tCategName];
@@ -139,7 +140,7 @@ local function VUHDO_addBuffPanel(aCategorySpec)
 	tSwatch = nil;
 
 	if VUHDO_BUFF_TARGET_UNIQUE == tTargetType then
-		if not tSettings["name"] then tSettings["name"] = VUHDO_PLAYER_NAME; end
+		if not tSettings["name"] then tSettings["name"] = VUHDO_PLAYER_FULL_NAME or VUHDO_PLAYER_NAME; end
 
 		tTargetModeStr = tSettings["targetMode"];
 
@@ -166,7 +167,15 @@ local function VUHDO_addBuffPanel(aCategorySpec)
 	else
 		tVariants = VUHDO_getBuffInfoForName(tSettings["buff"], aCategorySpec) or VUHDO_getBuffInfoForName(tFirstVariant[1], aCategorySpec);
 		if tVariants then
-			tSwatch = VUHDO_addBuffSwatch(tBuffPanel, VUHDO_I18N_PLAYER, tVariants, VUHDO_BUFF_TARGET_MODE_STANDARD, nil, aCategorySpec);
+			if VUHDO_BUFF_TARGET_ENCHANT == tVariants[2] then
+				tGroupName = VUHDO_I18N_BW_MAIN_HAND;
+			elseif VUHDO_BUFF_TARGET_ENCHANT_OFF == tVariants[2] then
+				tGroupName = VUHDO_I18N_BW_OFF_HAND;
+			else
+				tGroupName = VUHDO_I18N_PLAYER;
+			end
+
+			tSwatch = VUHDO_addBuffSwatch(tBuffPanel, tGroupName, tVariants, VUHDO_BUFF_TARGET_MODE_STANDARD, nil, aCategorySpec);
 		end
 	end
 

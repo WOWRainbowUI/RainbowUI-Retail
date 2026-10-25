@@ -421,7 +421,7 @@ function VUHDO_getSecureActionForBinding(anAction, anUsesPet)
 			elseif IsUsableItem(anAction) then
 				return "item", anAction;
 			else
-				return "spell", anAction;
+				return "spell", anAction, true;
 			end
 		end
 	end
@@ -724,7 +724,7 @@ function VUHDO_setupAllHealButtonAttributes(aButton, aUnit, anIsDisable, aForceT
 			end
 		end
 	else
-		if not InCombatLockdown() then
+		if not InCombatLockdown() and not tPreAction then
 			VUHDO_updateBindingCodeAttributes();
 
 			tRequiresPet, tRequiresName, tRequiresTarget = VUHDO_getBindingAttributeRequirements();
@@ -736,7 +736,7 @@ function VUHDO_setupAllHealButtonAttributes(aButton, aUnit, anIsDisable, aForceT
 			end
 
 			if tRequiresName and tInfo and tInfo["name"] and not tInfo["hasSecretName"] then
-				VUHDO_safeSetAttribute(aButton, "vuhdo-name", tInfo["name"]);
+				VUHDO_safeSetAttribute(aButton, "vuhdo-name", VUHDO_getUnitExternalName(aUnit) or tInfo["name"]);
 			end
 
 			if tRequiresTarget and tInfo and tInfo["targetUnit"] then

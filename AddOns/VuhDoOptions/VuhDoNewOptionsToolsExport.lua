@@ -338,7 +338,7 @@ local function VUHDO_syncBuildColorsCat()
 		} },
 		{ ["id"] = "COLORS.AURAS", ["label"] = VUHDO_syncCleanLabel(VUHDO_I18N_AURAS), ["roots"] = {
 			"PANEL_SETUP.AURA_DEFAULTS", "PANEL_SETUP.BAR_COLORS.AURA_BAR_DEFAULT",
-			"PANEL_SETUP.BAR_COLORS.AURA_STACK_TRIANGLE",
+			"PANEL_SETUP.BAR_COLORS.AURA_STACK_TRIANGLE", "PANEL_SETUP.BAR_COLORS.AURA_PANDEMIC",
 		} },
 		{ ["id"] = "COLORS.RAID_ICONS", ["label"] = VUHDO_syncCleanLabel(VUHDO_I18N_RAID_ICON), ["roots"] = {
 			"PANEL_SETUP.BAR_COLORS.RAID_ICONS", "PANEL_SETUP.RAID_ICON_FILTER",
@@ -1014,6 +1014,7 @@ function VUHDO_syncApply(anIsReplace)
 		VUHDO_registerAllBouquets(false);
 		VUHDO_initAllEventBouquets();
 		VUHDO_bouqetsChanged();
+		VUHDO_rebuildAuraAnchorsForBouquetListGroups();
 		VUHDO_reloadUI(false);
 	end
 
@@ -1128,7 +1129,8 @@ function VUHDO_syncDestSelectMine()
 	twipe(VUHDO_SYNC_DEST_SEL);
 
 	for _, tProfile in ipairs(VUHDO_PROFILES) do
-		if tProfile["ORIGINATOR_TOON"] == VUHDO_PLAYER_NAME then
+		if tProfile["ORIGINATOR_TOON"] == (VUHDO_PLAYER_FULL_NAME or VUHDO_PLAYER_NAME)
+			or tProfile["ORIGINATOR_TOON"] == VUHDO_PLAYER_NAME then
 			for tCnt = 1, VUHDO_MAX_PANELS do
 				VUHDO_SYNC_DEST_SEL[VUHDO_syncDestLeafId(tProfile["NAME"], tCnt)] = true;
 			end

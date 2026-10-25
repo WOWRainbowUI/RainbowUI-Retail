@@ -503,7 +503,7 @@ function VuhDoActionPreClick(aButton, aMouseButton)
 		return;
 
 	elseif tKey and strlower(tKey[3]) == "tell" then
-		ChatFrame_SendTell(VUHDO_RAID[aButton:GetAttribute("unit")]["fullName"]);
+		ChatFrame_SendTell(VUHDO_getUnitExternalName(aButton:GetAttribute("unit")) or VUHDO_RAID[aButton:GetAttribute("unit")]["fullName"]);
 
 	else
 		if VUHDO_SPELL_CONFIG["smartCastModi"] == "all"

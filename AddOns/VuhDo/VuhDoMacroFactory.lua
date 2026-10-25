@@ -36,17 +36,7 @@ local sBattleRezItemsPending = 0;
 
 
 --
-local tNumPending;
-local tName;
-function VUHDO_battleRezListenerOnEvent(aFrame, anEvent, anItemID, anIsSuccess)
-
-	if "GET_ITEM_INFO_RECEIVED" ~= anEvent then
-		return;
-	end
-
-	if not anIsSuccess or not VUHDO_BATTLE_REZ_ITEM_LOOKUP[anItemID] then
-		return;
-	end
+function VUHDO_refreshItemBindings()
 
 	VUHDO_resetMacroCaches();
 
@@ -59,6 +49,27 @@ function VUHDO_battleRezListenerOnEvent(aFrame, anEvent, anItemID, anIsSuccess)
 	VUHDO_timeReloadUI(1);
 
 	VUHDO_rebuildKeyboardMacros();
+
+	return;
+
+end
+
+
+
+--
+local tNumPending;
+local tName;
+function VUHDO_battleRezListenerOnEvent(aFrame, anEvent, anItemID, anIsSuccess)
+
+	if "GET_ITEM_INFO_RECEIVED" ~= anEvent then
+		return;
+	end
+
+	if not anIsSuccess or not VUHDO_BATTLE_REZ_ITEM_LOOKUP[anItemID] then
+		return;
+	end
+
+	VUHDO_refreshItemBindings();
 
 	tNumPending = 0;
 

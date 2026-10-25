@@ -69,6 +69,8 @@ local VUHDO_processPendingAuraContainerBuilds;
 local VUHDO_timeRebuildAuraGroups;
 local VUHDO_updateBouquetsForEvent;
 local VUHDO_rebuildDefaultAuraNameSpellIds;
+local VUHDO_invalidateBouquetRestrictedModeCache;
+local VUHDO_isAuraMatchingGroupFilters;
 
 local sUnitDispellableAuraId = { };
 local sUnitAuraCanColorBar = { };
@@ -206,6 +208,8 @@ local function VUHDO_cleanupCanColorBarGroupDelegate(aGroup)
 	aGroup["isHelpful"] = nil;
 	aGroup["bouquetTrackOnly"] = nil;
 	aGroup["unitScope"] = nil;
+	aGroup["group"] = nil;
+	aGroup["hasConditions"] = nil;
 
 	return;
 
@@ -270,7 +274,9 @@ local function VUHDO_auraColorsInitLocalOverridesFunctions()
 	VUHDO_processPendingAuraContainerBuilds = _G["VUHDO_processPendingAuraContainerBuilds"];
 	VUHDO_timeRebuildAuraGroups = _G["VUHDO_timeRebuildAuraGroups"];
 	VUHDO_updateBouquetsForEvent = _G["VUHDO_deferUpdateBouquetsForEvent"];
+	VUHDO_invalidateBouquetRestrictedModeCache = _G["VUHDO_invalidateBouquetRestrictedModeCache"];
 	VUHDO_rebuildDefaultAuraNameSpellIds = _G["VUHDO_rebuildDefaultAuraNameSpellIds"];
+	VUHDO_isAuraMatchingGroupFilters = _G["VUHDO_isAuraMatchingGroupFilters"];
 
 	return;
 
@@ -325,6 +331,47 @@ do
 	--
 	local tEffectiveColorType;
 	local tColorBarGroup;
+	local function VUHDO_auraGroupHasConditions(aGroup)
+
+		if not aGroup then
+			return false;
+		end
+
+		if aGroup["matchAnyBooleans"] and next(aGroup["matchAnyBooleans"]) then
+			return true;
+		end
+
+		if aGroup["matchAnyFilters"] and next(aGroup["matchAnyFilters"]) then
+			return true;
+		end
+
+		if aGroup["candidateBooleans"] and next(aGroup["candidateBooleans"]) then
+			return true;
+		end
+
+		if aGroup["maxDurationSeconds"] ~= nil or aGroup["hasDuration"] then
+			return true;
+		end
+
+		if aGroup["processedAuraType"] then
+			return true;
+		end
+
+		if aGroup["excludeDispelTypes"] and next(aGroup["excludeDispelTypes"]) then
+			return true;
+		end
+
+		if aGroup["dispellableOnly"] then
+			return true;
+		end
+
+		return false;
+
+	end
+
+
+
+	--
 	local function VUHDO_setCanColorGroupBouquetTrackOnly(aColorBarGroup, aEffectiveColorType, aGroupId, aGroup)
 
 		if aEffectiveColorType == VUHDO_AURA_GROUP_COLOR_OFF and VUHDO_BOUQUET_TRACKED_AURA_GROUP_IDS[aGroupId] and not aGroup["canGlowBar"] then
@@ -377,6 +424,8 @@ do
 
 
 
+	--
+	local tIsTextColorAllowed;
 	function VUHDO_rebuildAuraGroupCaches(anIsFilterCacheDirty, anIsAnchorIndexDirty, anIsSoundsDirty)
 
 		if anIsFilterCacheDirty then
@@ -414,6 +463,8 @@ do
 
 		sAnyGlowGroups = false;
 
+		tIsTextColorAllowed = not VUHDO_isAuraModeContainers();
+
 		for tGroupId, tGroup in pairs(VUHDO_CONFIG["AURA_GROUPS"] or sEmpty) do
 			tEffectiveColorType = tGroup["colorType"] or ((tGroup["canColorBar"] or tGroup["canColorText"]) and VUHDO_AURA_GROUP_COLOR_DISPEL or VUHDO_AURA_GROUP_COLOR_OFF);
 
@@ -434,11 +485,7 @@ do
 						tColorBarGroup["canColorBar"] = false;
 					end
 
-					if tGroup["canColorText"] then
-						tColorBarGroup["canColorText"] = true;
-					else
-						tColorBarGroup["canColorText"] = false;
-					end
+					tColorBarGroup["canColorText"] = (tGroup["canColorText"] and tIsTextColorAllowed) == true;
 
 					if tGroup["canGlowBar"] then
 						tColorBarGroup["canGlowBar"] = true;
@@ -472,11 +519,7 @@ do
 						tColorBarGroup["canColorBar"] = false;
 					end
 
-					if tGroup["canColorText"] then
-						tColorBarGroup["canColorText"] = true;
-					else
-						tColorBarGroup["canColorText"] = false;
-					end
+					tColorBarGroup["canColorText"] = (tGroup["canColorText"] and tIsTextColorAllowed) == true;
 
 					if tGroup["canGlowBar"] then
 						tColorBarGroup["canGlowBar"] = true;
@@ -519,6 +562,9 @@ do
 							tColorBarGroup["isHelpful"] = not strfind(tGroup["filter"], "HARMFUL", 1, true);
 						end
 
+						tColorBarGroup["group"] = tGroup;
+						tColorBarGroup["hasConditions"] = VUHDO_auraGroupHasConditions(tGroup);
+
 						tColorBarGroup["unitScope"] = VUHDO_getAuraGroupEffectiveUnitScope(tGroup);
 
 						VUHDO_setCanColorGroupBouquetTrackOnly(tColorBarGroup, tEffectiveColorType, tGroupId, tGroup);
@@ -551,11 +597,7 @@ do
 							tColorBarGroup["canColorBar"] = false;
 						end
 
-						if tGroup["canColorText"] then
-							tColorBarGroup["canColorText"] = true;
-						else
-							tColorBarGroup["canColorText"] = false;
-						end
+						tColorBarGroup["canColorText"] = (tGroup["canColorText"] and tIsTextColorAllowed) == true;
 
 						if tGroup["canGlowBar"] then
 							tColorBarGroup["canGlowBar"] = true;
@@ -591,11 +633,7 @@ do
 							tColorBarGroup["canColorBar"] = false;
 						end
 
-						if tGroup["canColorText"] then
-							tColorBarGroup["canColorText"] = true;
-						else
-							tColorBarGroup["canColorText"] = false;
-						end
+						tColorBarGroup["canColorText"] = (tGroup["canColorText"] and tIsTextColorAllowed) == true;
 
 						if tGroup["canGlowBar"] then
 							tColorBarGroup["canGlowBar"] = true;
@@ -641,6 +679,9 @@ do
 
 							tColorBarGroup["groupId"] = tGroupId;
 
+							tColorBarGroup["group"] = tGroup;
+							tColorBarGroup["hasConditions"] = VUHDO_auraGroupHasConditions(tGroup);
+
 							tColorBarGroup["unitScope"] = VUHDO_getAuraGroupEffectiveUnitScope(tGroup);
 
 							VUHDO_setCanColorGroupBouquetTrackOnly(tColorBarGroup, tEffectiveColorType, tGroupId, tGroup);
@@ -659,8 +700,8 @@ do
 		VUHDO_clearDispellableAuraCache(nil);
 
 		if VUHDO_RAID then
-			for tUnit, _ in pairs(VUHDO_RAID) do
-				VUHDO_updateDispellableAuraForUnit(tUnit);
+			for tUnit, tInfo in pairs(VUHDO_RAID) do
+				tInfo["debuff"], tInfo["debuffName"] = VUHDO_determineAura(tUnit);
 			end
 		end
 
@@ -726,6 +767,8 @@ function VUHDO_applyAuraGroupChanges()
 	end
 
 	VUHDO_rebuildAuraGroupCaches(false, false, sIsAuraGroupSoundsDirty);
+
+	VUHDO_invalidateBouquetRestrictedModeCache();
 
 	if next(sDirtyAuraGroupIds) then
 		VUHDO_rebuildAuraAnchorsForGroups(sDirtyAuraGroupIds);
@@ -1044,7 +1087,13 @@ do
 
 			if tAuras then
 				for tIdx = 1, #tAuras do
-					if not (tCanColorGroup["excludeFilter"] and VUHDO_auraMatchesFilter(aUnit, tAuras[tIdx]["auraInstanceID"], tCanColorGroup["excludeFilter"]))
+					if tCanColorGroup["hasConditions"] then
+						if VUHDO_isAuraMatchingGroupFilters(aUnit, tCanColorGroup["groupId"], tCanColorGroup["group"], tAuras[tIdx]) then
+							tIsGroupActiveForBouquet = true;
+
+							break;
+						end
+					elseif not (tCanColorGroup["excludeFilter"] and VUHDO_auraMatchesFilter(aUnit, tAuras[tIdx]["auraInstanceID"], tCanColorGroup["excludeFilter"]))
 						and not VUHDO_isAuraIgnored(tAuras[tIdx], tCanColorGroup["groupId"]) then
 						tIsGroupActiveForBouquet = true;
 

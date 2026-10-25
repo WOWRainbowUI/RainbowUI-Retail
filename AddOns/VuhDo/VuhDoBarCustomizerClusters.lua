@@ -27,6 +27,7 @@ local VUHDO_isInConeInFrontOf;
 local VUHDO_backColor;
 local VUHDO_getUnitButtonsSafe;
 local VUHDO_applyAllLayersToBorder;
+local VUHDO_applyOverlayBouquetGating;
 
 local sHealthLimit;
 local sIsRaid;
@@ -59,6 +60,7 @@ function VUHDO_customClustersInitLocalOverrides()
 	VUHDO_backColor = _G["VUHDO_backColor"];
 	VUHDO_getUnitButtonsSafe = _G["VUHDO_getUnitButtonsSafe"];
 	VUHDO_applyAllLayersToBorder = _G["VUHDO_applyAllLayersToBorder"];
+	VUHDO_applyOverlayBouquetGating = _G["VUHDO_applyOverlayBouquetGating"];
 
 	sClusterConfig = VUHDO_CONFIG["CLUSTER"];
 	sHealthLimit = sClusterConfig["BELOW_HEALTH_PERC"] * 0.01;
@@ -301,7 +303,7 @@ function VUHDO_clusterBorderBouquetCallback(aUnit, anIsActive, anIcon, aTimer, a
 			if tBorder then
 				if anIsActive then
 					if aLayerTemplate then
-						VUHDO_applyAllLayersToBorder(tButton, tBorder, aLayerTemplate);
+						VUHDO_applyAllLayersToBorder(tButton, tBorder, aLayerTemplate, "CLUSTER_BORDER", aBouquetName);
 					elseif aColor then
 						tBorder:SetBackdropBorderColor(VUHDO_backColorWithFallback(aColor));
 					end
@@ -309,6 +311,10 @@ function VUHDO_clusterBorderBouquetCallback(aUnit, anIsActive, anIcon, aTimer, a
 					tBorder:Show();
 				else
 					tBorder:Hide();
+
+					if aLayerTemplate then
+						VUHDO_applyOverlayBouquetGating(tButton, "CLUSTER_BORDER", aBouquetName, aLayerTemplate, nil);
+					end
 				end
 			end
 

@@ -4,6 +4,7 @@ local GetTime = GetTime;
 local pairs = pairs;
 local string = string;
 local xpcall = xpcall;
+local unpack = unpack;
 local debugprofilestop = debugprofilestop;
 local MeasureCall = C_AddOnProfiler and C_AddOnProfiler.MeasureCall;
 local format = string.format;
@@ -64,6 +65,7 @@ VUHDO_DEFER_REFRESH_UNIT_AURAS = 41;
 VUHDO_DEFER_ACQUIRE_OVERLAY_CONTAINER = 42;
 VUHDO_DEFER_FLUSH_PENDING_OVERLAY_REBUILD = 43;
 VUHDO_DEFER_VOLATILE_PASS_FOR_BUTTON = 44;
+VUHDO_DEFER_SYNC_SWIFTMEND_OVERLAY_GATES = 45;
 
 local VUHDO_DEFERRED_TASK_TYPES = {
 	VUHDO_DEFER_UPDATE_HEALTH,
@@ -108,6 +110,7 @@ local VUHDO_DEFERRED_TASK_TYPES = {
 	VUHDO_DEFER_ACQUIRE_OVERLAY_CONTAINER,
 	VUHDO_DEFER_FLUSH_PENDING_OVERLAY_REBUILD,
 	VUHDO_DEFER_VOLATILE_PASS_FOR_BUTTON,
+	VUHDO_DEFER_SYNC_SWIFTMEND_OVERLAY_GATES,
 };
 
 local VUHDO_COMBAT_UNSAFE_TASKS = {
@@ -158,38 +161,38 @@ local VUHDO_TASK_TYPE_DEFAULT_COSTS = {
 	[3] = 177,    -- tm50=177μs, tm80=177μs → 177μs estimate
 	[4] = 51,     -- tm50=42μs, tm80=60μs → 51μs estimate
 	[5] = 36,     -- tm50=30μs, tm80=41μs → 36μs estimate
-	[6] = 22,     -- tm50=9μs, tm80=34μs → 22μs estimate
+	[6] = 150,
 	[7] = 45,     -- tm50=35μs, tm80=55μs → 45μs estimate
 	[8] = 674,    -- tm50=674μs, tm80=674μs → 674μs estimate
-	[9] = 17,     -- tm50=14μs, tm80=19μs → 17μs estimate
+	[9] = 150,
 	[10] = 17,    -- tm50=10μs, tm80=23μs → 17μs estimate
 	[11] = 2,     -- tm50=1μs, tm80=2μs → 2μs estimate
 	[12] = 7,     -- tm50=6μs, tm80=8μs → 7μs estimate
 	[13] = 17,    -- tm50=6μs, tm80=27μs → 17μs estimate
 	[17] = 2,     -- tm50=2μs, tm80=2μs → 2μs estimate
 	[18] = 215,   -- tm50=215μs, tm80=215μs → 215μs estimate
-	[19] = 33,    -- tm50=33μs, tm80=33μs → 33μs estimate
-	[21] = 660,   -- tm50=613μs, tm80=706μs → 660μs estimate
+	[19] = 200,
+	[21] = 50000,
 	[22] = 1375,  -- tm50=1.29ms, tm80=1.46ms → 1375μs estimate
-	[23] = 450,   -- tm50=366μs, tm80=533μs → 450μs estimate
+	[23] = 12000,
 	[24] = 74,    -- tm50=47μs, tm80=100μs → 74μs estimate
 	[25] = 205,   -- tm50=180μs, tm80=230μs → 205μs estimate
-	[26] = 181,   -- tm50=136μs, tm80=225μs → 181μs estimate
-	[27] = 6200,  -- tm50=4.26ms, tm80=8.13ms → 6200μs estimate
+	[26] = 400,
+	[27] = 20000,
 	[29] = 350,
 	[30] = 200,
 	[31] = 50,
 	[32] = 10,
-	[33] = 15,
+	[33] = 150,
 	[34] = 120,
 	[35] = 25000,
-	[36] = 2500,
-	[37] = 450,
+	[36] = 15000,
+	[37] = 50000,
 	[38] = 800,
 	[39] = 1200,
 	[40] = 35,
 	[41] = 200,
-	[42] = 120,
+	[42] = 6000,
 	[43] = 5000,
 };
 
@@ -200,6 +203,7 @@ local VUHDO_DEFERRED_TASK_STATE = {
 	["lastAdjustTime"] = 0,
 	["invocationCountByType"] = nil,
 	["avgCostUsByType"] = nil,
+	["peakCostUsByType"] = nil,
 	["costHistoryByType"] = nil,
 	["individualCostsByType"] = nil,
 	["queueTimeUsByType"] = nil,
@@ -562,6 +566,17 @@ end
 function VUHDO_deferSyncOverlaysForUnit(aUnit, aPriority)
 
 	VUHDO_deferTask(VUHDO_DEFER_SYNC_OVERLAYS_FOR_UNIT, aPriority or VUHDO_DEFERRED_TASK_PRIORITY_NORMAL, aUnit);
+
+	return;
+
+end
+
+
+
+--
+function VUHDO_deferSyncSwiftmendOverlayGates(aPriority)
+
+	VUHDO_deferTask(VUHDO_DEFER_SYNC_SWIFTMEND_OVERLAY_GATES, aPriority or VUHDO_DEFERRED_TASK_PRIORITY_HIGH);
 
 	return;
 
@@ -1270,7 +1285,7 @@ do
 					tMetrics["totalTasksDeduped"] = tMetrics["totalTasksDeduped"] + 1;
 				end
 
-				return false;
+				return true;
 			else
 				VUHDO_heapInsert(VUHDO_TASK_PRIORITY_QUEUE, tNewTask, VUHDO_TASK_QUEUE_MAP);
 
@@ -1329,6 +1344,30 @@ do
 
 
 	--
+	local tPriorPeak;
+	local function VUHDO_recordTaskPeakCost(aTaskType, aDurationUs)
+
+		if not aTaskType or not aDurationUs or aDurationUs <= 0 then
+			return;
+		end
+
+		tTaskState = VUHDO_DEFERRED_TASK_STATE;
+
+		if not tTaskState["peakCostUsByType"] then
+			tTaskState["peakCostUsByType"] = { };
+		end
+
+		tPriorPeak = tTaskState["peakCostUsByType"][aTaskType] or 0;
+
+		tTaskState["peakCostUsByType"][aTaskType] = max(aDurationUs, tPriorPeak * 0.9);
+
+		return;
+
+	end
+
+
+
+	--
 	local function VUHDO_getTaskCostEstimate(aTaskType)
 
 		tTaskState = VUHDO_DEFERRED_TASK_STATE;
@@ -1349,6 +1388,24 @@ do
 
 
 	--
+	local tPeakCost;
+	local function VUHDO_getTaskBudgetEstimate(aTaskType)
+
+		tTaskState = VUHDO_DEFERRED_TASK_STATE;
+
+		tPeakCost = tTaskState["peakCostUsByType"] and tTaskState["peakCostUsByType"][aTaskType];
+
+		if tPeakCost then
+			return tPeakCost;
+		end
+
+		return VUHDO_getTaskCostEstimate(aTaskType);
+
+	end
+
+
+
+	--
 	local tMaxTasksPerFrame;
 	local tInvocationCount;
 	local tTaskState;
@@ -1362,7 +1419,6 @@ do
 	local tEndIndex;
 	local tCount;
 	local tDefaultCost;
-	local tMaxReasonableCost;
 	function VUHDO_adjustDynamicDeferTasks()
 
 		tTaskState = VUHDO_DEFERRED_TASK_STATE;
@@ -1434,9 +1490,8 @@ do
 					end
 
 					tDefaultCost = VUHDO_TASK_TYPE_DEFAULT_COSTS[tTaskType] or (tTaskConfig["TARGET_EXEC_TIME_US"] / max(1, tTaskConfig["MAX_TASKS_PER_FRAME"])) * 1.2;
-					tMaxReasonableCost = tDefaultCost * 2;
 
-					if tCostEstimate > tMaxReasonableCost or tCostEstimate <= 0 then
+					if tCostEstimate <= 0 then
 						tCostEstimate = tDefaultCost;
 					end
 
@@ -1464,37 +1519,21 @@ do
 
 	--
 	local tStack;
-	local function VUHDO_deferredTaskErrorHandler(tError)
+	local function VUHDO_deferredTaskErrorHandler(anError)
 
-		-- tError is the original error string/object
-		-- debugstack([thread,] startLevel, numLevels, levelsToSkip)
-		-- we want to skip 3 levels:
-		-- 1. this error handler function itself
-		-- 2. the C/internal call for xpcall
-		-- 3. the function wrapper around the delegate
-		-- then start capturing from the next level (the actual delegate).
-		tStack = debugstack(1, 20, 3); -- capture up to 20 levels, after skipping 3
+		-- debugstack(start, count1, count2): count1 frames from the top, count2 from the bottom (WoW API; does not skip levels).
+		tStack = debugstack(1, 20, 3);
 
-		return tostring(tError) .. "\nStacktrace:\n" .. tStack;
+		return tostring(anError) .. "\nStacktrace:\n" .. tStack;
 
 	end
 
 
 
 	--
-	local sCurrentTaskForPcall;
-	local function VUHDO_pcallTaskDelegate()
+	local function VUHDO_xpcallTaskDelegate(aTask)
 
-		return sCurrentTaskForPcall["delegate"](unpack(sCurrentTaskForPcall["args"]));
-
-	end
-
-
-
-	--
-	local function VUHDO_pcallWrapper()
-
-		return xpcall(VUHDO_pcallTaskDelegate, VUHDO_deferredTaskErrorHandler);
+		return xpcall(aTask["delegate"], VUHDO_deferredTaskErrorHandler, unpack(aTask["args"]));
 
 	end
 
@@ -1519,13 +1558,11 @@ do
 			return false, "No delegate function", 0;
 		end
 
-		sCurrentTaskForPcall = tTask;
-
 		if VUHDO_DEFERRED_TASK_PROFILING_ENABLED then
 			tTaskDurationUs = 0;
 
 			if MeasureCall then
-				tProfilerResult, tDelegateSuccess, tDelegateResult = MeasureCall(VUHDO_pcallWrapper);
+				tProfilerResult, tDelegateSuccess, tDelegateResult = MeasureCall(VUHDO_xpcallTaskDelegate, tTask);
 
 				if tProfilerResult and tProfilerResult.elapsedMilliseconds then
 					tTaskDurationUs = tProfilerResult.elapsedMilliseconds * 1000;
@@ -1533,21 +1570,21 @@ do
 			else
 				tTaskStartTime = debugprofilestop();
 
-				tDelegateSuccess, tDelegateResult = VUHDO_pcallWrapper();
+				tDelegateSuccess, tDelegateResult = VUHDO_xpcallTaskDelegate(tTask);
 
 				tTaskDurationUs = (debugprofilestop() - tTaskStartTime) * 1000;
 			end
 		else
 			tTaskStartTime = debugprofilestop();
 
-			tDelegateSuccess, tDelegateResult = VUHDO_pcallWrapper();
+			tDelegateSuccess, tDelegateResult = VUHDO_xpcallTaskDelegate(tTask);
 
 			tTaskDurationUs = (debugprofilestop() - tTaskStartTime) * 1000;
 
 			VUHDO_recordTaskCostSample(tTaskType, tTaskDurationUs);
 		end
 
-		sCurrentTaskForPcall = nil;
+		VUHDO_recordTaskPeakCost(tTaskType, tTaskDurationUs);
 
 		if VUHDO_DEFERRED_TASK_PROFILING_ENABLED then
 			tQueueTimeUs = 0;
@@ -1607,6 +1644,8 @@ do
 	local tTaskConfig;
 	local tTasksCompleted;
 	local tHardStopTime;
+	local tSoftStopTime;
+	local tNowUs;
 	local tTask;
 	local tTaskType;
 	local tTaskDurationUs;
@@ -1652,6 +1691,7 @@ do
 		tTasksCompleted = 0;
 		tBelowHighProcessed = false;
 		tHardStopTime = (debugprofilestop() * 1000) + tTaskConfig["MAX_EXEC_TIME_US"] + 100;
+		tSoftStopTime = (debugprofilestop() * 1000) + tTaskConfig["TARGET_EXEC_TIME_US"];
 
 		for tTaskCount = 1, tTaskState["maxTasksPerFrame"] do
 			if #VUHDO_TASK_PRIORITY_QUEUE == 0 then
@@ -1678,6 +1718,14 @@ do
 				sCombatHeldTaskMap[tHeldTaskKey] = tTask;
 				tinsert(sCombatHeldTasks, tTask);
 			else
+				if tTasksCompleted >= tTaskConfig["MIN_TASKS_PER_FRAME"] then
+					tNowUs = debugprofilestop() * 1000;
+
+					if tNowUs > tSoftStopTime or tNowUs + VUHDO_getTaskBudgetEstimate(tTaskType) > tHardStopTime then
+						break;
+					end
+				end
+
 				tShouldProcessTask = (tTasksCompleted < tTaskConfig["MIN_TASKS_PER_FRAME"]) or
 					(tTasksCompleted < tTaskState["maxTasksPerFrame"]);
 
@@ -1800,7 +1848,6 @@ do
 	local tTaskConfig;
 	local tNumTasksProcessed;
 	local tChunkElapsedTime;
-	local tChunkDelegate;
 	local tProfilerResult;
 	local tChunkStartTime;
 	local tChunkTaskMetrics;
@@ -1823,10 +1870,8 @@ do
 
 		if #VUHDO_TASK_PRIORITY_QUEUE > 0 or #sCombatHeldTasks > 0 then
 			if VUHDO_DEFERRED_TASK_PROFILING_ENABLED then
-				tChunkDelegate = VUHDO_executeDeferredTaskChunk;
-
 				if MeasureCall then
-					tProfilerResult, tNumTasksProcessed, tChunkTaskMetrics = MeasureCall(tChunkDelegate);
+					tProfilerResult, tNumTasksProcessed, tChunkTaskMetrics = MeasureCall(VUHDO_executeDeferredTaskChunk);
 
 					if tProfilerResult and tProfilerResult.elapsedMilliseconds then
 						tChunkElapsedTime = tProfilerResult.elapsedMilliseconds * 1000;
@@ -1834,7 +1879,7 @@ do
 				else
 					tChunkStartTime = debugprofilestop();
 
-					tNumTasksProcessed, tChunkTaskMetrics = tChunkDelegate();
+					tNumTasksProcessed, tChunkTaskMetrics = VUHDO_executeDeferredTaskChunk();
 
 					tChunkElapsedTime = (debugprofilestop() - tChunkStartTime) * 1000;
 				end
@@ -2434,6 +2479,7 @@ function VUHDO_initTaskSystem()
 			[VUHDO_DEFER_ACQUIRE_OVERLAY_CONTAINER] = _G["VUHDO_acquireOverlayContainerForEntry"],
 			[VUHDO_DEFER_FLUSH_PENDING_OVERLAY_REBUILD] = _G["VUHDO_flushPendingOverlayRebuild"],
 			[VUHDO_DEFER_VOLATILE_PASS_FOR_BUTTON] = _G["VUHDO_applyVolatilePassForButton"],
+			[VUHDO_DEFER_SYNC_SWIFTMEND_OVERLAY_GATES] = _G["VUHDO_syncSwiftmendOverlayGates"],
 		};
 
 		tTaskTypeCount = 0;
@@ -2444,6 +2490,7 @@ function VUHDO_initTaskSystem()
 
 		VUHDO_DEFERRED_TASK_STATE["invocationCountByType"] = tcreate(0, tTaskTypeCount);
 		VUHDO_DEFERRED_TASK_STATE["avgCostUsByType"] = tcreate(0, tTaskTypeCount);
+		VUHDO_DEFERRED_TASK_STATE["peakCostUsByType"] = tcreate(0, tTaskTypeCount);
 
 		VUHDO_DEFERRED_TASK_STATE["costHistoryByType"] = { };
 		VUHDO_DEFERRED_TASK_STATE["individualCostsByType"] = { };
