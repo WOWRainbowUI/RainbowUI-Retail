@@ -58,44 +58,9 @@ local TWW_CURRENCIES = {
     ["Gilded Ethereal Crest"] = true,
 }
 
--- Midnight currency names (English and localized)
-local MIDNIGHT_CURRENCIES = {
-    ["Untainted Mana-Crystals"] = true,
-    ["Voidlight Marl"] = true,
-    ["Shard of Dundun"] = true,
-    ["Brimming Arcana"] = true,
-    ["Unalloyed Abundance"] = true,
-    ["Remnant of Anguish"] = true,
-    ["Adventurer Dawncrest"] = true,
-    ["Adventurer Mistcrest"] = true,
-}
-
--- Detect if Midnight has launched by checking for Midnight currencies.
 -- LiteVault currently runs in Midnight-only mode.
 local function IsMidnightActive()
     return true
-end
-
--- Legacy detection retained below (currently bypassed by Midnight-only mode).
-local function IsMidnightActive_Legacy()
-    -- Build lookup with localized names too
-    local midnightLookup = {}
-    for englishName in pairs(MIDNIGHT_CURRENCIES) do
-        midnightLookup[englishName] = true
-        local localizedName = L[englishName]
-        if localizedName then
-            midnightLookup[localizedName] = true
-        end
-    end
-
-    local count = C_CurrencyInfo.GetCurrencyListSize()
-    for i = 1, count do
-        local info = C_CurrencyInfo.GetCurrencyListInfo(i)
-        if info and midnightLookup[info.name] then
-            return true
-        end
-    end
-    return false
 end
 
 -- Build lookup tables for the scanner (English names AND localized names)
@@ -313,6 +278,11 @@ end
 
 lv.QueueCurrencyScan = QueueCurrencyScan
 
+-- Mailbox closed (Retail no longer fires MAIL_CLOSED): Modules/MailTracker.lua reports each
+-- mailbox visit once. Rescan currencies received by mail, as before.
+lv.MailboxClosedHandlers = lv.MailboxClosedHandlers or {}
+table.insert(lv.MailboxClosedHandlers, function() QueueCurrencyScan() end)
+
 -- Events
 local eventFrame = CreateFrame("Frame")
 eventFrame:RegisterEvent("ADDON_LOADED")
@@ -320,7 +290,6 @@ eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 eventFrame:RegisterEvent("CURRENCY_DISPLAY_UPDATE")
 pcall(eventFrame.RegisterEvent, eventFrame, "ACCOUNT_CHARACTER_CURRENCY_DATA_RECEIVED")
 eventFrame:RegisterEvent("BAG_UPDATE") -- When items move in/out of bags
-eventFrame:RegisterEvent("MAIL_CLOSED") -- When you receive mail
 eventFrame:RegisterEvent("BANKFRAME_OPENED") -- When accessing warband bank
 eventFrame:RegisterEvent("BANKFRAME_CLOSED") -- After warband bank transactions
 eventFrame:SetScript("OnEvent", function(self, event, arg1)
@@ -328,7 +297,7 @@ eventFrame:SetScript("OnEvent", function(self, event, arg1)
         C_Timer.After(1, lv.ScanCurrencies)
     elseif event == "PLAYER_ENTERING_WORLD" then
         C_Timer.After(1, lv.ScanCurrencies)
-    elseif event == "CURRENCY_DISPLAY_UPDATE" or event == "ACCOUNT_CHARACTER_CURRENCY_DATA_RECEIVED" or event == "BAG_UPDATE" or event == "MAIL_CLOSED" or event == "BANKFRAME_CLOSED" then
+    elseif event == "CURRENCY_DISPLAY_UPDATE" or event == "ACCOUNT_CHARACTER_CURRENCY_DATA_RECEIVED" or event == "BAG_UPDATE" or event == "BANKFRAME_CLOSED" then
         QueueCurrencyScan()
     elseif event == "BANKFRAME_OPENED" then
         C_Timer.After(0.5, lv.ScanCurrencies) -- Small delay for bank to load

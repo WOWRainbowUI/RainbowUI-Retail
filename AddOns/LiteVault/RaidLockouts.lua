@@ -19,12 +19,14 @@ local RAID_SEASONS = {
         raidOrder = { "midnight_s1_voidspire", "midnight_s1_dreamrift", "midnight_s1_sporefall", "midnight_s1_march" },
         raids = {
             midnight_s1_voidspire = {
-                displayKey = "The Voidspire", bossCount = 6,
+                displayKey = "The Voidspire", bossCount = 6, instanceIDs = { 2912 },
                 bosses = { "Imperator Averzian", "Vorasius", "Fallen-King Salhadaar", "Vaelgor & Ezzorak", "Lightblinded Vanguard", "Alleria Windrunner (Crown of the Cosmos)" },
             },
-            midnight_s1_dreamrift = { displayKey = "The Dreamrift", bossCount = 1, bosses = { "Chimarus" } },
-            midnight_s1_sporefall = { displayKey = "Sporefall", bossCount = 1, bosses = { "Rotmire" }, instanceIDs = { 16279 } },
-            midnight_s1_march = { displayKey = "March of Quel'Danas", bossCount = 2, bosses = { "Belo'ren", "L'ura (Midnight Falls)" } },
+            midnight_s1_dreamrift = { displayKey = "The Dreamrift", bossCount = 1, bosses = { "Chimarus" }, instanceIDs = { 2939 } },
+            -- Sporefall has no Map (instance) record; 16279 was its AreaTable/Wowhead zone ID, which
+            -- GetInstanceInfo/GetSavedInstanceInfo never return. It stays on name matching.
+            midnight_s1_sporefall = { displayKey = "Sporefall", bossCount = 1, bosses = { "Rotmire" } },
+            midnight_s1_march = { displayKey = "March of Quel'Danas", bossCount = 2, bosses = { "Belo'ren", "L'ura (Midnight Falls)" }, instanceIDs = { 2913 } },
         },
     },
     midnight_s2 = {
@@ -32,12 +34,18 @@ local RAID_SEASONS = {
         progressionTrackingActive = true,
         firstKillTrackingActive = true,
         labelKey = "LABEL_MIDNIGHT_SEASON_2",
-        raidOrder = { "midnight_s2_venomous_abyss", "midnight_s2_tidebound_grotto" },
-        -- Blizzard has confirmed eight encounters. Numeric instance, journal,
-        -- and encounter IDs remain intentionally unset until verified in-client.
+        raidOrder = { "midnight_s2_venomous_abyss", "midnight_s2_tidebound_grotto", "midnight_s2_kithix" },
+        -- instanceIDs are Map.db2 IDs (the value GetInstanceInfo/GetSavedInstanceInfo return).
+        -- encounters[bossIndex].encounterID are DungeonEncounter IDs (the value ENCOUNTER_END
+        -- returns), verified against client data and DBM. Journal IDs are not used.
         raids = {
             midnight_s2_venomous_abyss = {
-                displayKey = "The Venomous Abyss", bossCount = 8, identifiersPending = true,
+                displayKey = "The Venomous Abyss", bossCount = 8, instanceIDs = { 3004 },
+                encounters = {
+                    [1] = { encounterID = 3470 }, [2] = { encounterID = 3445 }, [3] = { encounterID = 3455 },
+                    [4] = { encounterID = 3497 }, [5] = { encounterID = 3420 }, [6] = { encounterID = 3421 },
+                    [7] = { encounterID = 3429 }, [8] = { encounterID = 3492 },
+                },
                 difficulties = {
                     { storageKey=17, difficultyID=17, tag="L", labelKey="DIFFICULTY_LFR" },
                     { storageKey=14, difficultyID=14, tag="N", labelKey="DIFFICULTY_NORMAL" },
@@ -50,14 +58,32 @@ local RAID_SEASONS = {
                 },
             },
             midnight_s2_tidebound_grotto = {
-                displayKey = "The Tidebound Grotto", bossCount = 1, identifiersPending = true,
+                -- MapDifficulty for map 2987: World 250, Normal 14, Heroic 15 and flexible
+                -- Mythic 233 each have a weekly lockout; there is no fixed Mythic 16.
+                displayKey = "The Tidebound Grotto", bossCount = 1, instanceIDs = { 2987 },
+                encounters = { [1] = { encounterID = 3379 } },
                 difficulties = {
-                    { storageKey="world", difficultyID=nil, tag="W", labelKey="DIFFICULTY_WORLD", identifiersPending=true },
+                    { storageKey=250, difficultyID=250, tag="W", labelKey="DIFFICULTY_WORLD" },
                     { storageKey=14, difficultyID=14, tag="N", labelKey="DIFFICULTY_NORMAL" },
                     { storageKey=15, difficultyID=15, tag="H", labelKey="DIFFICULTY_HEROIC" },
-                    { storageKey=16, difficultyID=16, tag="M", labelKey="DIFFICULTY_MYTHIC" },
+                    { storageKey=233, difficultyID=233, tag="M", labelKey="DIFFICULTY_MYTHIC" },
                 },
                 bosses = { "Nymrissa Wavecaller" },
+            },
+            -- 12.1.5 single-boss raid. Client data: Map 3095, DungeonEncounter 3513. Its
+            -- MapDifficulty rows give weekly lockouts for Raid Finder 17, Normal 14, Heroic 15
+            -- and flexible Mythic 233 (there is no fixed Mythic 16). Story Mode (220) has no
+            -- lockout and awards no saved progress, so it is intentionally not tracked.
+            midnight_s2_kithix = {
+                displayKey = "The Unbinding of Kith'ix", bossCount = 1, instanceIDs = { 3095 },
+                encounters = { [1] = { encounterID = 3513 } },
+                difficulties = {
+                    { storageKey=17, difficultyID=17, tag="L", labelKey="DIFFICULTY_LFR" },
+                    { storageKey=14, difficultyID=14, tag="N", labelKey="DIFFICULTY_NORMAL" },
+                    { storageKey=15, difficultyID=15, tag="H", labelKey="DIFFICULTY_HEROIC" },
+                    { storageKey=233, difficultyID=233, tag="M", labelKey="DIFFICULTY_MYTHIC" },
+                },
+                bosses = { "Kith'ix" },
             },
         },
         achievements = {
@@ -314,7 +340,20 @@ end
 
 function lv.GetCurrentRaidProgressionKills(charKey, difficultyID)
     local raidKey = selectedRaidBySeason[CURRENT_RAID_SEASON] or RAID_SEASONS[CURRENT_RAID_SEASON].raidOrder[1]
-    return lv.GetRaidProgressionCount(charKey, CURRENT_RAID_SEASON, raidKey, difficultyID)
+    -- The roster badge asks for generic IDs (16/15/14). Resolve them to the raid's own
+    -- storage key by tag, so a raid whose Mythic is flexible (233) still counts as Mythic.
+    local storageKey = difficultyID
+    local tag = ({ [17] = "L", [14] = "N", [15] = "H", [16] = "M" })[difficultyID]
+    local raidInfo = GetRaidConfig(CURRENT_RAID_SEASON, raidKey)
+    if tag and raidInfo and raidInfo.difficulties then
+        for _, difficultyInfo in ipairs(raidInfo.difficulties) do
+            if difficultyInfo.tag == tag and difficultyInfo.storageKey ~= nil then
+                storageKey = difficultyInfo.storageKey
+                break
+            end
+        end
+    end
+    return lv.GetRaidProgressionCount(charKey, CURRENT_RAID_SEASON, raidKey, storageKey)
 end
 
 -- Current tier map IDs - FIXED: Make sure this table exists and contains correct IDs
@@ -372,7 +411,11 @@ local function GetDifficultyKey(difficultyID)
 end
 
 local function IsTrackedRaidDifficulty(difficultyID)
+    -- 233 is flexible Mythic (15-25 players), used by Kith'ix and The Tidebound Grotto.
+    -- 250 is World difficulty (The Tidebound Grotto), which also has a weekly lockout.
+    -- Story Mode (220) creates no saved lockout and is deliberately not tracked.
     return difficultyID == 17 or difficultyID == 14 or difficultyID == 15 or difficultyID == 16
+        or difficultyID == 233 or difficultyID == 250
 end
 
 local DIFF_ORDER = {17, 14, 15, 16} -- LFR, Normal, Heroic, Mythic
@@ -757,16 +800,6 @@ function lv.InvalidateWarbandRaidCache()
     lv._warbandRaidCache = nil
 end
 
-local function HasLegacyRaidLockoutSchema(raidLockouts)
-    if type(raidLockouts) ~= "table" then return false end
-    for k, v in pairs(raidLockouts) do
-        if type(k) == "number" and type(v) == "table" and v.bosses then
-            return true
-        end
-    end
-    return false
-end
-
 local function EnsureRaidLockoutsSchema(playerData)
     if not playerData then return end
     playerData.raidLockouts = playerData.raidLockouts or {}
@@ -925,6 +958,7 @@ local RAID_INSTANCE_ALIASES = {
     },
     midnight_s2_venomous_abyss = { "The Venomous Abyss" },
     midnight_s2_tidebound_grotto = { "The Tidebound Grotto" },
+    midnight_s2_kithix = { "The Unbinding of Kith'ix" },
 }
 
 local function InstanceNameMatchesRaid(instanceName, raidKey, raidInfo)
@@ -979,6 +1013,31 @@ end
 -- provide the fallback while new-season identifiers are pending live verification.
 function lv.ResolveConfiguredRaid(instanceName, instanceID)
     return DetectTrackedRaid(instanceName, instanceID)
+end
+
+-- Map a saved-lockout encounter to LiteVault's boss index by name: the configured
+-- English name or its client-localized name. List position is used only for raids
+-- without configured encounter IDs (legacy behaviour) and for single-boss raids.
+local function ResolveSavedEncounterBossIndex(raidInfo, bossName, savedIndex)
+    local bosses = (raidInfo and raidInfo.bosses) or {}
+    local savedKey = NormalizeEncounterName(bossName)
+    if savedKey ~= "" then
+        for index, configuredName in ipairs(bosses) do
+            if NormalizeEncounterName(configuredName) == savedKey or NormalizeEncounterName(LT(configuredName)) == savedKey then
+                return index
+            end
+        end
+    end
+    for index, configuredName in ipairs(bosses) do
+        if EncounterNamesMatch(bossName, configuredName) or EncounterNamesMatch(bossName, LT(configuredName)) then
+            return index
+        end
+    end
+    if #bosses <= 1 or not (raidInfo and raidInfo.encounters) then
+        return savedIndex
+    end
+    lv.lastUnmatchedSavedEncounter = { name = bossName, savedIndex = savedIndex }
+    return nil
 end
 
 -- Scan the actual raid info panel for lockout data
@@ -1048,10 +1107,13 @@ function lv.ScanRaidInfoPanel()
                 end
             end
 
-            -- Scan the lockout data
-            for bossIndex = 1, math.min(numBosses, trackedBossCount) do
-                local bossName, _, isDead = GetSavedInstanceEncounterInfo(i, bossIndex)
-                if bossName then
+            -- Scan the lockout data. Blizzard's encounterIndex counts every encounter in the
+            -- instance (a Raid Finder wing can start at index 4) and need not follow
+            -- LiteVault's display order, so map each saved boss by its localized name.
+            for savedIndex = 1, numBosses or 0 do
+                local bossName, _, isDead = GetSavedInstanceEncounterInfo(i, savedIndex)
+                local bossIndex = bossName and ResolveSavedEncounterBossIndex(raidInfo, bossName, savedIndex)
+                if bossIndex and bossIndex <= trackedBossCount then
                     -- Update current week's lockout (live scan is authoritative).
                     if isDead then
                         local lockout = EnsureRaidLockoutBucket(playerData, resolvedSeasonKey, resolvedRaidKey, difficulty)
@@ -1924,6 +1986,20 @@ f:SetScript("OnEvent", function(self, event, arg1, arg2, arg3, arg4, arg5)
                 local currentInstanceID = GetInstanceInfo and select(8, GetInstanceInfo()) or nil
                 local matchedSeasonKey, matchedRaidKey = DetectTrackedRaid(currentInstanceName, currentInstanceID)
                 local matchedIndex = nil
+                -- Blizzard's numeric encounter ID is locale-independent; prefer it when a
+                -- raid configures one. Name matching below remains the fallback.
+                local numericEncounterID = tonumber(encounterID)
+                if numericEncounterID then
+                    ForEachConfiguredRaid(function(seasonKey, raidKey, raidInfo)
+                        if matchedIndex then return end
+                        for bossIndex, encounter in pairs(raidInfo.encounters or {}) do
+                            if type(encounter) == "table" and encounter.encounterID == numericEncounterID then
+                                matchedSeasonKey, matchedRaidKey, matchedIndex = seasonKey, raidKey, bossIndex
+                                return
+                            end
+                        end
+                    end)
+                end
                 ForEachConfiguredRaid(function(seasonKey, raidKey, raidInfo)
                     if not matchedIndex and (not matchedRaidKey or (matchedSeasonKey == seasonKey and matchedRaidKey == raidKey)) then
                     for i, bossName in ipairs(raidInfo.bosses or {}) do

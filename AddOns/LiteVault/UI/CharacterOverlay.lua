@@ -173,7 +173,7 @@ local function GetShownItemLevel(link)
     if not link then
         return nil
     end
-    local effectiveILvl, isPreview, baseILvl = GetDetailedItemLevelInfo(link)
+    local effectiveILvl, isPreview, baseILvl = C_Item.GetDetailedItemLevelInfo(link)
     return isPreview and baseILvl or effectiveILvl
 end
 
@@ -181,11 +181,11 @@ local function GetItemQuality(link)
     if not link then
         return nil
     end
-    local quality = select(3, GetItemInfo(link))
+    local quality = select(3, C_Item.GetItemInfo(link))
     if quality then
         return quality
     end
-    local itemID = GetItemInfoInstant(link)
+    local itemID = C_Item.GetItemInfoInstant(link)
     if itemID and C_Item and C_Item.GetItemQualityByID then
         return C_Item.GetItemQualityByID(itemID)
     end
@@ -221,7 +221,7 @@ local function IsUpgradeLink(link, suppressForEquipped)
     if suppressForEquipped or not link then
         return false
     end
-    local equipLoc = select(4, GetItemInfoInstant(link))
+    local equipLoc = select(4, C_Item.GetItemInfoInstant(link))
     local slotIDs = equipLoc and EQUIP_LOC_TO_SLOTS[equipLoc]
     if not slotIDs then
         return false
@@ -322,6 +322,9 @@ local function UpdateCharacterSlotButton(button, unit, variant)
     local link = slotID and GetInventoryItemLink(unit or "player", slotID)
     UpdateItemButton(button, link, variant or "character", { suppressUpgrade = true })
 end
+
+-- Defined further down; declared here so the refresh below calls the locals, not nil globals.
+local RefreshOpenBlizzardBags, ItemFromEquipmentFlyoutDisplayButton
 
 function lv.RefreshCharacterOverlays()
     for button in pairs(BUTTON_STATE) do
@@ -432,7 +435,7 @@ local function RefreshContainerFrame(frame)
     end
 end
 
-local function RefreshOpenBlizzardBags()
+function RefreshOpenBlizzardBags() -- local, declared above lv.RefreshCharacterOverlays
     if _G.ContainerFrameCombinedBags and ContainerFrameCombinedBags.IsShown and ContainerFrameCombinedBags:IsShown() then
         RefreshContainerFrame(ContainerFrameCombinedBags)
     end
@@ -457,7 +460,7 @@ local function HookDynamicBlizzardBagFrames()
     end
 end
 
-local function ItemFromEquipmentFlyoutDisplayButton(button)
+function ItemFromEquipmentFlyoutDisplayButton(button) -- local, declared above lv.RefreshCharacterOverlays
     if not button then
         return nil, nil
     end

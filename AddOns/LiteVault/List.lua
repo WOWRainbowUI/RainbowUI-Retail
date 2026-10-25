@@ -230,7 +230,6 @@ function lv.IsMouseOverActionMenu()
     end
     return false
 end
-local contextMenuFrame = CreateFrame("Frame", "LiteVaultCharacterContextMenu", UIParent, "UIDropDownMenuTemplate")
 
 local function RemoveCharacterFromTracking(charKey)
     if not charKey or not LiteVaultDB or not LiteVaultDB[charKey] then return end
@@ -258,6 +257,13 @@ local function RestoreCharacter(charKey)
     if lv.UpdateUI then lv.UpdateUI() end
 end
 
+-- Favorites persist as isFavorite and sort ahead of other characters (lv.SortCharacterList).
+local function ToggleFavoriteCharacter(charKey)
+    if not charKey or not LiteVaultDB or not LiteVaultDB[charKey] then return end
+    LiteVaultDB[charKey].isFavorite = not LiteVaultDB[charKey].isFavorite
+    if lv.UpdateUI then lv.UpdateUI() end
+end
+
 if not StaticPopupDialogs["LITEVAULT_CONFIRM_DELETE_CHARACTER"] then
     StaticPopupDialogs["LITEVAULT_CONFIRM_DELETE_CHARACTER"] = {
         text = (L["DIALOG_DELETE_CHAR"] ~= "DIALOG_DELETE_CHAR") and L["DIALOG_DELETE_CHAR"] or "Delete %s from LiteVault?",
@@ -278,37 +284,41 @@ local function ShowCharacterContextMenu(charKey, ownerFrame)
     local data = LiteVaultDB[charKey]
     if not data or data.class == "Bank" then return end
 
-    local menu = {}
-    if data.isIgnored then
-        table.insert(menu, {
-            text = (L["BUTTON_RESTORE"] ~= "BUTTON_RESTORE") and L["BUTTON_RESTORE"] or "Restore",
-            func = function() RestoreCharacter(charKey) end,
-            notCheckable = true,
-        })
-    else
-        table.insert(menu, {
-            text = (L["BUTTON_IGNORE"] ~= "BUTTON_IGNORE") and L["BUTTON_IGNORE"] or "Ignore",
-            func = function() IgnoreCharacter(charKey) end,
-            notCheckable = true,
-        })
-    end
+    if not (MenuUtil and MenuUtil.CreateContextMenu) then return end
 
-    table.insert(menu, {
-        text = (L["BUTTON_DELETE"] ~= "BUTTON_DELETE") and L["BUTTON_DELETE"] or "Delete",
-        func = function()
+    -- Retail context menu (replaces the removed EasyMenu). Opens at the cursor.
+    MenuUtil.CreateContextMenu(ownerFrame or UIParent, function(_, rootDescription)
+        -- Character management: Favorite, Ignore / Restore, Delete, Cancel.
+        if data.isFavorite then
+            -- Gold label keeps the favorite cue the Actions menu used to show.
+            local unfavoriteText = (L["BUTTON_UNFAVORITE"] ~= "BUTTON_UNFAVORITE") and L["BUTTON_UNFAVORITE"] or "Unfavorite"
+            rootDescription:CreateButton("|cffffd100" .. unfavoriteText .. "|r", function()
+                ToggleFavoriteCharacter(charKey)
+            end)
+        else
+            rootDescription:CreateButton((L["BUTTON_FAVORITE"] ~= "BUTTON_FAVORITE") and L["BUTTON_FAVORITE"] or "Favorite", function()
+                ToggleFavoriteCharacter(charKey)
+            end)
+        end
+
+        if data.isIgnored then
+            rootDescription:CreateButton((L["BUTTON_RESTORE"] ~= "BUTTON_RESTORE") and L["BUTTON_RESTORE"] or "Restore", function()
+                RestoreCharacter(charKey)
+            end)
+        else
+            rootDescription:CreateButton((L["BUTTON_IGNORE"] ~= "BUTTON_IGNORE") and L["BUTTON_IGNORE"] or "Ignore", function()
+                IgnoreCharacter(charKey)
+            end)
+        end
+
+        rootDescription:CreateButton((L["BUTTON_DELETE"] ~= "BUTTON_DELETE") and L["BUTTON_DELETE"] or "Delete", function()
             local nameOnly = charKey:match("^([^-]+)") or charKey
             StaticPopup_Show("LITEVAULT_CONFIRM_DELETE_CHARACTER", nameOnly, nil, charKey)
-        end,
-        notCheckable = true,
-    })
+        end)
 
-    -- Future actions can be added here (Favorite, Rename, Reset Weekly, etc.).
-    table.insert(menu, {
-        text = CANCEL,
-        notCheckable = true,
-    })
-
-    EasyMenu(menu, contextMenuFrame, "cursor", 0, 0, "MENU")
+        -- Future actions can be added here (Rename, Reset Weekly, etc.).
+        rootDescription:CreateButton(CANCEL, function() end)
+    end)
 end
 
 local function HandleCharacterCardMouseUp(self, button)
@@ -358,12 +368,6 @@ function lv.RefreshLedgerButtons()
         end
         if r.optionsBtn and r.optionsBtn.text then
             r.optionsBtn.text:SetText((L["BUTTON_ACTIONS"] ~= "BUTTON_ACTIONS") and L["BUTTON_ACTIONS"] or "Actions")
-        end
-        if r.favBtn and r.favBtn.text then
-            r.favBtn.text:SetText((L["BUTTON_FAVORITE"] ~= "BUTTON_FAVORITE") and L["BUTTON_FAVORITE"] or "Favorite")
-        end
-        if r.deleteBtn and r.deleteBtn.text then
-            r.deleteBtn.text:SetText((L["BUTTON_DELETE"] ~= "BUTTON_DELETE") and L["BUTTON_DELETE"] or "Delete")
         end
     end
 end
@@ -548,6 +552,36 @@ function lv.InitList(parent, window)
         end
         if LiteVaultDB then
             LiteVaultDB.use24HourClock = enabled
+        end
+    end)
+
+    -- Volumetric fog checkbox. This is strictly opt-in: only a stored true
+    -- value is applied automatically, while unchecking explicitly restores fog.
+    local disableVolumeFogCB = CreateFrame("CheckButton", nil, optionsContent, "InterfaceOptionsCheckButtonTemplate")
+    disableVolumeFogCB.Text:SetText(L["OPTION_DISABLE_VOLUME_FOG"])
+    disableVolumeFogCB.Text:SetTextColor(1, 1, 1)
+    disableVolumeFogCB.Text:SetWidth(optionsLabelWidth)
+    disableVolumeFogCB.Text:SetJustifyH("LEFT")
+    disableVolumeFogCB.Text:SetJustifyV("TOP")
+
+    local disableVolumeFogDesc = optionsContent:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    disableVolumeFogDesc:SetText(L["OPTION_DISABLE_VOLUME_FOG_DESC"])
+    disableVolumeFogDesc:SetTextColor(1, 0.82, 0)
+    disableVolumeFogDesc:SetWidth(optionsDescWidth)
+    disableVolumeFogDesc:SetJustifyH("LEFT")
+    disableVolumeFogDesc:SetJustifyV("TOP")
+
+    C_Timer.After(0.1, function()
+        disableVolumeFogCB:SetChecked(LiteVaultDB and LiteVaultDB.disableVolumeFog == true)
+    end)
+
+    disableVolumeFogCB:SetScript("OnClick", function(self)
+        local enabled = self:GetChecked() and true or false
+        if LiteVaultDB then
+            LiteVaultDB.disableVolumeFog = enabled
+        end
+        if SetCVar then
+            SetCVar("VolumeFog", enabled and "0" or "1")
         end
     end)
 
@@ -744,6 +778,7 @@ function lv.InitList(parent, window)
                 use24 = (LiteVaultDB.use24HourClock ~= false)
             end
             timeFormatCB:SetChecked(use24 and true or false)
+            disableVolumeFogCB:SetChecked(LiteVaultDB.disableVolumeFog == true)
             disableBagViewCB:SetChecked(LiteVaultDB.disableBagViewing or false)
             disableOverlayCB:SetChecked(LiteVaultDB.disableCharacterOverlay or false)
             disableTeleportsCB:SetChecked(LiteVaultDB.disableMPlusTeleports or false)
@@ -758,6 +793,7 @@ function lv.InitList(parent, window)
         local r, g, b = unpack(theme.textAccent or theme.textSecondary)
         timePlayedDesc:SetTextColor(r, g, b)
         timeFormatDesc:SetTextColor(r, g, b)
+        disableVolumeFogDesc:SetTextColor(r, g, b)
         disableBagViewDesc:SetTextColor(r, g, b)
         disableOverlayDesc:SetTextColor(r, g, b)
         disableTeleportsDesc:SetTextColor(r, g, b)
@@ -771,6 +807,7 @@ function lv.InitList(parent, window)
         if lv.RegisterThemedElement then
             lv.RegisterThemedElement(timePlayedDesc, function(_, theme) ApplyOptionDescColors(theme) end)
             lv.RegisterThemedElement(timeFormatDesc, function(_, theme) ApplyOptionDescColors(theme) end)
+            lv.RegisterThemedElement(disableVolumeFogDesc, function(_, theme) ApplyOptionDescColors(theme) end)
             lv.RegisterThemedElement(disableBagViewDesc, function(_, theme) ApplyOptionDescColors(theme) end)
             lv.RegisterThemedElement(disableOverlayDesc, function(_, theme) ApplyOptionDescColors(theme) end)
             lv.RegisterThemedElement(disableTeleportsDesc, function(_, theme) ApplyOptionDescColors(theme) end)
@@ -916,6 +953,7 @@ function lv.InitList(parent, window)
     local optionRows = {
         { checkbox = disableTimePlayedCB, desc = timePlayedDesc },
         { checkbox = timeFormatCB, desc = timeFormatDesc },
+        { checkbox = disableVolumeFogCB, desc = disableVolumeFogDesc },
         { checkbox = disableBagViewCB, desc = disableBagViewDesc },
         { checkbox = disableOverlayCB, desc = disableOverlayDesc },
         { checkbox = disableTeleportsCB, desc = disableTeleportsDesc },
@@ -936,6 +974,8 @@ function lv.InitList(parent, window)
         timePlayedDesc:SetWidth(optionsDescWidth)
         timeFormatCB.Text:SetWidth(optionsLabelWidth)
         timeFormatDesc:SetWidth(optionsDescWidth)
+        disableVolumeFogCB.Text:SetWidth(optionsLabelWidth)
+        disableVolumeFogDesc:SetWidth(optionsDescWidth)
         disableBagViewCB.Text:SetWidth(optionsLabelWidth)
         disableBagViewDesc:SetWidth(optionsDescWidth)
         disableOverlayCB.Text:SetWidth(optionsLabelWidth)
@@ -1067,6 +1107,8 @@ function lv.InitList(parent, window)
     lv.timePlayedDesc = timePlayedDesc
     lv.timeFormatCB = timeFormatCB
     lv.timeFormatDesc = timeFormatDesc
+    lv.disableVolumeFogCB = disableVolumeFogCB
+    lv.disableVolumeFogDesc = disableVolumeFogDesc
     lv.disableBagViewCB = disableBagViewCB
     lv.disableBagViewDesc = disableBagViewDesc
     lv.disableOverlayCB = disableOverlayCB
@@ -1104,6 +1146,7 @@ function lv.InitList(parent, window)
                         use24 = (LiteVaultDB.use24HourClock ~= false)
                     end
                     timeFormatCB:SetChecked(use24 and true or false)
+                    disableVolumeFogCB:SetChecked(LiteVaultDB.disableVolumeFog == true)
                     disableBagViewCB:SetChecked(LiteVaultDB.disableBagViewing or false)
                     disableOverlayCB:SetChecked(LiteVaultDB.disableCharacterOverlay or false)
                     disableTeleportsCB:SetChecked(LiteVaultDB.disableMPlusTeleports or false)
@@ -1187,9 +1230,6 @@ function lv.UpdateList()
         SetPortraitTexture(row.face, "player")
         row.face:SetTexCoord(0.15, 0.85, 0.15, 0.85)
     end
-
-    local reopenActionMenuForChar = lv._reopenActionMenuForChar
-    lv._reopenActionMenuForChar = nil
 
     for _, r in pairs(rows) do r:Hide() end
     local idx, totG, totP = 1, 0, 0
@@ -1291,20 +1331,40 @@ function lv.UpdateList()
                         -- No mask - square portraits!
                         
                         -- Character Name
+                        -- Header: name + realm (and the favorite star) on the primary line; race/spec on
+                        -- its own fixed line just above the data box (which starts at y = -58), so a
+                        -- long name can never push it off the card. Every card uses the same positions.
+                        r.identityText = r:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+                        r.identityText:SetPoint("TOPLEFT", 105, -42)
+                        r.identityText:SetSize(370, 14) -- data box width; overlong text truncates
+                        r.identityText:SetJustifyH("LEFT")
+                        r.identityText:SetWordWrap(false)
+                        local identityFont, identityFontSize = r.identityText:GetFont()
+                        if identityFont and identityFontSize then
+                            -- One pixel larger than GameFontNormalSmall for readability.
+                            r.identityText:SetFont(identityFont, identityFontSize + 1, "OUTLINE")
+                        end
+
                         r.nameText = r:CreateFontString(nil, "OVERLAY", "GameFontNormalHuge")
-                        r.nameText:SetPoint("TOPLEFT", 105, -36)
+                        r.nameText:SetPoint("BOTTOMLEFT", r.identityText, "TOPLEFT", 0, 2)
+                        r.nameText:SetJustifyH("LEFT")
+                        r.nameText:SetWordWrap(false)
                         local nameFont, nameFontSize = r.nameText:GetFont()
                         if nameFont and nameFontSize then
                             r.nameText:SetFont(nameFont, nameFontSize, "OUTLINE")
                         end
 
-                        r.identityText = r:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-                        r.identityText:SetPoint("LEFT", r.nameText, "RIGHT", 12, -3)
-                        r.identityText:SetJustifyH("LEFT")
-                        local identityFont, identityFontSize = r.identityText:GetFont()
-                        if identityFont and identityFontSize then
-                            r.identityText:SetFont(identityFont, identityFontSize, "OUTLINE")
+                        -- Favorite indicator (display only): Blizzard's gold favorites star from the
+                        -- Collections journals, used only when the client confirms the atlas exists.
+                        r.favoriteStar = r:CreateTexture(nil, "OVERLAY")
+                        r.favoriteStar:SetSize(16, 16)
+                        r.favoriteStar:SetPoint("LEFT", r.nameText, "RIGHT", 6, 0)
+                        r.favoriteStarAvailable = C_Texture and C_Texture.GetAtlasInfo
+                            and C_Texture.GetAtlasInfo("PetJournal-FavoritesIcon") ~= nil or false
+                        if r.favoriteStarAvailable then
+                            r.favoriteStar:SetAtlas("PetJournal-FavoritesIcon")
                         end
+                        r.favoriteStar:Hide()
 
                         -- Freshness Indicator under the currency button
                         r.freshnessFrame = CreateFrame("Frame", nil, r)
@@ -1475,6 +1535,35 @@ function lv.UpdateList()
                         r.goldText:SetWidth(220)
                         r.goldText:SetJustifyH("RIGHT")
 
+                        -- Mail indicator (Modules/MailTracker.lua): Blizzard's own new-mail envelope
+                        -- (the minimap MiniMapMailIcon atlas), just in front of the gold amount; it is
+                        -- placed against the gold text each refresh. Hovering shows details; clicks
+                        -- pass to the card.
+                        r.mailIndicator = CreateFrame("Frame", nil, r.dataBox)
+                        r.mailIndicator:SetSize(18, 18)
+                        r.mailIndicator:SetFrameLevel(r.dataBox:GetFrameLevel() + 5)
+                        r.mailIndicator:SetPoint("RIGHT", r.goldText, "LEFT", -4, 0)
+                        r.mailIndicator.icon = r.mailIndicator:CreateTexture(nil, "OVERLAY")
+                        r.mailIndicator.icon:SetPoint("CENTER")
+                        if C_Texture and C_Texture.GetAtlasInfo and C_Texture.GetAtlasInfo("ui-hud-minimap-mail-up") then
+                            -- The atlas is 20x15; scaled to the 18px slot without stretching.
+                            r.mailIndicator.icon:SetSize(18, 13.5)
+                            r.mailIndicator.icon:SetAtlas("ui-hud-minimap-mail-up")
+                        else
+                            -- Blizzard's letter icon, formerly used by the minimap mail notification.
+                            r.mailIndicator.icon:SetSize(18, 18)
+                            r.mailIndicator.icon:SetTexture("Interface\\Icons\\INV_Letter_15")
+                            r.mailIndicator.icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
+                        end
+                        if r.mailIndicator.SetMouseMotionEnabled and r.mailIndicator.SetMouseClickEnabled then
+                            r.mailIndicator:SetMouseMotionEnabled(true)
+                            r.mailIndicator:SetMouseClickEnabled(false)
+                            r.mailIndicator:SetScript("OnEnter", function(self)
+                                if lv.ShowCharacterMailTooltip then lv.ShowCharacterMailTooltip(self, self.charKey) end
+                            end)
+                            r.mailIndicator:SetScript("OnLeave", function() GameTooltip:Hide() end)
+                        end
+                        r.mailIndicator:Hide()
                         r.ilvlText = r.dataBox:CreateFontString(nil, "OVERLAY", "GameFontNormal")
                         r.ilvlText:SetPoint("BOTTOMRIGHT", r.dataBox, "BOTTOMRIGHT", -18, 18)
                         r.ilvlText:SetWidth(84)
@@ -1811,7 +1900,8 @@ function lv.UpdateList()
                             GameTooltip:Hide()
                         end)
 
-                        -- Data-box Options menu (Favorite / Ignore-Restore / Delete).
+                        -- Data-box Actions menu (Bags / Gear). Favorite, Ignore / Restore and
+                        -- Delete live in the character card's right-click menu.
                         r.optionsBtn = CreateSmallActionButton(r.dataBox, {
                             width = 74,
                             height = 22,
@@ -1853,7 +1943,7 @@ function lv.UpdateList()
                         r.actionMenu = CreateCardContainer(UIParent, {
                             kind = "Frame",
                             width = 84,
-                            height = 162,
+                            height = 66,
                             point = { "TOPLEFT", r.optionsBtn, "TOPRIGHT", 6, 0 },
                             backdrop = {
                                 bgFile = "Interface\\Buttons\\WHITE8X8",
@@ -1902,29 +1992,8 @@ function lv.UpdateList()
                             return btn
                         end
 
-                        r.favBtn = SetupActionMenuButton(r.actionMenu, (L["BUTTON_FAVORITE"] ~= "BUTTON_FAVORITE") and L["BUTTON_FAVORITE"] or "Favorite")
-                        r.favBtn:SetPoint("TOP", 0, -6)
-                        r.favBtn.ownerRow = r
-                        r.favBtn:SetScript("OnClick", function(self)
-                            local row = self.ownerRow
-                            local charData = row and LiteVaultDB and LiteVaultDB[row.charName]
-                            if not charData then return end
-                            charData.isFavorite = not charData.isFavorite
-                            lv._reopenActionMenuForChar = row.charName
-                            if lv.UpdateUI then lv.UpdateUI() end
-                        end)
-                        r.favBtn:SetScript("OnEnter", function(self)
-                            local theme = lv.GetTheme()
-                            self:SetBackdropBorderColor(unpack(theme.borderHover))
-                            GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-                            GameTooltip:SetText(L["TOOLTIP_FAVORITE_TITLE"], 1, 0.82, 0)
-                            GameTooltip:AddLine(L["TOOLTIP_FAVORITE_DESC"], 1, 1, 1)
-                            GameTooltip:Show()
-                        end)
-
-                        r.actionBtn = SetupActionMenuButton(r.actionMenu, (L["BUTTON_IGNORE"] ~= "BUTTON_IGNORE") and L["BUTTON_IGNORE"] or "Ignore")
                         r.bagsActionBtn = SetupActionMenuButton(r.actionMenu, (L["BUTTON_BAGS"] ~= "BUTTON_BAGS") and L["BUTTON_BAGS"] or "Bags")
-                        r.bagsActionBtn:SetPoint("TOP", r.favBtn, "BOTTOM", 0, -6)
+                        r.bagsActionBtn:SetPoint("TOP", 0, -6)
                         r.bagsActionBtn.ownerRow = r
                         r.bagsActionBtn:SetScript("OnClick", function(self)
                             local row = self.ownerRow
@@ -1962,37 +2031,6 @@ function lv.UpdateList()
                             GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
                             GameTooltip:SetText(L["TOOLTIP_GEAR_TITLE"], 1, 0.82, 0)
                             GameTooltip:AddLine(L["TOOLTIP_GEAR_DESC"], 1, 1, 1, true)
-                            GameTooltip:Show()
-                        end)
-
-                        r.actionBtn:SetPoint("TOP", r.gearActionBtn, "BOTTOM", 0, -6)
-                        r.actionBtn.ownerRow = r
-                        r.actionBtn:SetScript("OnEnter", function(self)
-                            local theme = lv.GetTheme()
-                            self:SetBackdropBorderColor(unpack(theme.borderHover))
-                            GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-                            local row = self.ownerRow
-                            local charData = row and LiteVaultDB and LiteVaultDB[row.charName]
-                            if charData and charData.isIgnored then
-                                GameTooltip:SetText(L["TOOLTIP_RESTORE_TITLE"], 1, 0.82, 0)
-                                GameTooltip:AddLine(L["TOOLTIP_RESTORE_DESC"], 1, 1, 1)
-                            else
-                                GameTooltip:SetText(L["TOOLTIP_IGNORE_TITLE"], 1, 0.82, 0)
-                                GameTooltip:AddLine(L["TOOLTIP_IGNORE_DESC"], 1, 1, 1)
-                            end
-                            GameTooltip:Show()
-                        end)
-
-                        r.deleteBtn = SetupActionMenuButton(r.actionMenu, (L["BUTTON_DELETE"] ~= "BUTTON_DELETE") and L["BUTTON_DELETE"] or "Delete")
-                        r.deleteBtn:SetPoint("TOP", r.actionBtn, "BOTTOM", 0, -6)
-                        r.deleteBtn.ownerRow = r
-                        r.deleteBtn:SetScript("OnEnter", function(self)
-                            local theme = lv.GetTheme()
-                            self:SetBackdropBorderColor(unpack(theme.borderHover))
-                            GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-                            GameTooltip:SetText("|cffff0000" .. L["TOOLTIP_DELETE_TITLE"] .. "|r", 1, 0, 0)
-                            GameTooltip:AddLine(L["TOOLTIP_DELETE_DESC"], 1, 1, 1)
-                            GameTooltip:AddLine("|cffff6666" .. L["TOOLTIP_DELETE_WARNING"] .. "|r", 1, 0.4, 0.4)
                             GameTooltip:Show()
                         end)
 
@@ -2046,24 +2084,15 @@ function lv.UpdateList()
                     r.optionsBtn:SetBackdropBorderColor(unpack(t.borderPrimary))
                     r.actionMenu:SetBackdropColor(unpack(t.dataBoxBg))
                     r.actionMenu:SetBackdropBorderColor(unpack(t.borderPrimary))
-                    r.favBtn:SetBackdropColor(unpack(t.dataBoxBgAlt))
-                    r.favBtn:SetBackdropBorderColor(unpack(t.borderPrimary))
                     r.gearActionBtn:SetBackdropColor(unpack(t.dataBoxBgAlt))
                     r.gearActionBtn:SetBackdropBorderColor(unpack(t.borderPrimary))
-                    r.actionBtn:SetBackdropColor(unpack(t.dataBoxBgAlt))
-                    r.actionBtn:SetBackdropBorderColor(unpack(t.borderPrimary))
-                    r.deleteBtn:SetBackdropColor(unpack(t.dataBoxBgAlt))
-                    r.deleteBtn:SetBackdropBorderColor(unpack(t.borderPrimary))
                     r.bagsBtn:SetFrameLevel(r.dataBox:GetFrameLevel() + 8)
                     r.raidBtn:SetFrameLevel(r.dataBox:GetFrameLevel() + 8)
                     r.currencyBtn:SetFrameLevel(r.dataBox:GetFrameLevel() + 8)
                     r.optionsBtn:SetFrameLevel(r.dataBox:GetFrameLevel() + 8)
                     r.actionMenu:SetFrameLevel((r.dataBox:GetFrameLevel() or 1) + 25)
-                    r.favBtn:SetFrameLevel(r.actionMenu:GetFrameLevel() + 1)
                     r.bagsActionBtn:SetFrameLevel(r.actionMenu:GetFrameLevel() + 1)
                     r.gearActionBtn:SetFrameLevel(r.actionMenu:GetFrameLevel() + 1)
-                    r.actionBtn:SetFrameLevel(r.actionMenu:GetFrameLevel() + 1)
-                    r.deleteBtn:SetFrameLevel(r.actionMenu:GetFrameLevel() + 1)
 
                     -- Special handling for Warband Bank (no class color)
                     local cc
@@ -2106,6 +2135,22 @@ function lv.UpdateList()
                         displayName = ((L["Warband Bank"] ~= "Warband Bank") and L["Warband Bank"] or name)
                     end
                     r.nameText:SetText("|c" .. cc:GenerateHexColor() .. displayName .. "|r")
+                    -- Favorite star follows the name on the primary line. Rows are reused after
+                    -- sorting, so the star and the name width are set every refresh.
+                    local showFavoriteStar = (data.isFavorite and data.class ~= "Bank" and r.favoriteStarAvailable) and true or false
+                    r.favoriteStar:SetShown(showFavoriteStar)
+                    -- Mail indicator: last known mail status for this character (live only for the
+                    -- logged-in character), shown in front of the gold amount.
+                    local mailState = (data.class ~= "Bank" and lv.GetCharacterMailState) and lv.GetCharacterMailState(name, data) or nil
+                    r.mailIndicator.charKey = name
+                    r.mailIndicator:SetShown(mailState ~= nil)
+                    -- Keep name + realm and the star inside the card: the name keeps its natural
+                    -- width and is truncated only if it would run past the data box width.
+                    local nameWidth = r.nameText.GetUnboundedStringWidth and r.nameText:GetUnboundedStringWidth()
+                    if nameWidth then
+                        local nameMaxWidth = 370 - (showFavoriteStar and 22 or 0)
+                        r.nameText:SetWidth(math.min(math.ceil(nameWidth) + 2, nameMaxWidth))
+                    end
                     local raceText = data.race or ""
                     if raceText == "Scourge" then
                         raceText = "Undead"
@@ -2160,9 +2205,14 @@ function lv.UpdateList()
                     r.mplusText:SetText(mplusLine)
                     
                     -- Gold (right side)
-                    local moneyFormatter = lv.FormatGoldAligned or GetCoinTextureString
+                    local moneyFormatter = lv.FormatGoldAligned or C_CurrencyInfo.GetCoinTextureString
                     r.goldText:SetText(moneyFormatter(data.gold or 0, 13))
-                    
+                    -- The gold text is right-aligned in a wide box, so the envelope follows the
+                    -- start of the amount rather than the box edge.
+                    local goldTextWidth = (r.goldText.GetUnboundedStringWidth and r.goldText:GetUnboundedStringWidth())
+                        or (r.goldText.GetStringWidth and r.goldText:GetStringWidth()) or 0
+                    r.mailIndicator:ClearAllPoints()
+                    r.mailIndicator:SetPoint("RIGHT", r.goldText, "RIGHT", -(math.ceil(goldTextWidth) + 4), 0)                    
                     -- Catalyst Charges
                     local catInfo = C_CurrencyInfo.GetCurrencyInfo(lv.GetActiveCatalystCurrencyID())
                     if catInfo and catInfo.iconFileID then
@@ -2190,7 +2240,7 @@ function lv.UpdateList()
                     r.sparkBtn.fullSparks = data.fullSparks or 0
                     r.sparkBtn.fracturedSparks = data.fracturedSparks or 0
                     local fullSparks = data.fullSparks or 0
-                    local sparkIcon = GetItemIcon(lv.GetActiveSparkItemID()) or 0
+                    local sparkIcon = C_Item.GetItemIconByID(lv.GetActiveSparkItemID()) or 0
                     SetCircularBadgeTexture(r.sparkBadge, sparkIcon)
                     if fullSparks > 0 then
                         r.sparkText:SetText(string.format("|cffffaa00%d|r", fullSparks))
@@ -2209,7 +2259,7 @@ function lv.UpdateList()
                         -- Legacy Midnight Season 1 Ascendant resources.
                         r.voidshardBtn.ascendantVoidshards = data.ascendantVoidshards or 0
                         local ascendantVoidshards = data.ascendantVoidshards or 0
-                        local voidshardIcon = GetItemIcon(lv.ASCENDANT_VOIDSHARD_ITEM_ID) or 0
+                        local voidshardIcon = C_Item.GetItemIconByID(lv.ASCENDANT_VOIDSHARD_ITEM_ID) or 0
                         SetCircularBadgeTexture(r.voidshardBadge, voidshardIcon)
                         if ascendantVoidshards > 0 then
                             r.voidshardText:SetText(string.format("|cffbb6aff%d|r", ascendantVoidshards))
@@ -2226,7 +2276,7 @@ function lv.UpdateList()
 
                         r.voidcoreBtn.ascendantVoidcores = data.ascendantVoidcores or 0
                         local ascendantVoidcores = data.ascendantVoidcores or 0
-                        local voidcoreIcon = GetItemIcon(lv.ASCENDANT_VOIDCORE_ITEM_ID) or 0
+                        local voidcoreIcon = C_Item.GetItemIconByID(lv.ASCENDANT_VOIDCORE_ITEM_ID) or 0
                         SetCircularBadgeTexture(r.voidcoreBadge, voidcoreIcon)
                         if ascendantVoidcores > 0 then
                             r.voidcoreText:SetText(string.format("|cffff7aff%d|r", ascendantVoidcores))
@@ -2371,46 +2421,7 @@ function lv.UpdateList()
                         end
                     end
 
-                    -- Update Favorite action state
-                    if data.isFavorite then
-                        r.favBtn.text:SetText((L["BUTTON_UNFAVORITE"] ~= "BUTTON_UNFAVORITE") and L["BUTTON_UNFAVORITE"] or "Unfavorite")
-                        r.favBtn.text:SetTextColor(1, 0.82, 0)
-                    else
-                        r.favBtn.text:SetText((L["BUTTON_FAVORITE"] ~= "BUTTON_FAVORITE") and L["BUTTON_FAVORITE"] or "Favorite")
-                        r.favBtn.text:SetTextColor(unpack(t.textPrimary))
-                    end
-
-                    -- Minimal data-box actions: always available for characters (not bank).
-                    if data.class ~= "Bank" then
-                        if data.isIgnored then
-                            r.actionBtn.text:SetText((L["BUTTON_RESTORE"] ~= "BUTTON_RESTORE") and L["BUTTON_RESTORE"] or "Restore")
-                        else
-                            r.actionBtn.text:SetText((L["BUTTON_IGNORE"] ~= "BUTTON_IGNORE") and L["BUTTON_IGNORE"] or "Ignore")
-                        end
-
-                        r.actionBtn:SetScript("OnClick", function(self)
-                            local row = self.ownerRow
-                            local charKey = row and row.charName
-                            local charData = charKey and LiteVaultDB and LiteVaultDB[charKey]
-                            if not charData then return end
-                            charData.isIgnored = not charData.isIgnored
-                            lv._reopenActionMenuForChar = charKey
-                            if lv.UpdateUI then lv.UpdateUI() end
-                        end)
-
-                        r.deleteBtn:SetScript("OnClick", function(self)
-                            local row = self.ownerRow
-                            local charKey = row and row.charName
-                            if not charKey then return end
-                            local nameOnly = charKey:match("^([^-]+)") or charKey
-                            StaticPopup_Show("LITEVAULT_CONFIRM_DELETE_CHARACTER", nameOnly, nil, charKey)
-                        end)
-                    end
-                    if reopenActionMenuForChar and name == reopenActionMenuForChar and data.class ~= "Bank" then
-                        r.actionMenu:Show()
-                    else
-                        r.actionMenu:Hide()
-                    end
+                    r.actionMenu:Hide()
                     
                     -- Manage Mode Setup
                     if isManaging then
@@ -2427,23 +2438,17 @@ function lv.UpdateList()
                         r.optionsBtn:Hide()
                         r.optionsBtn:EnableMouse(false)
                         r.actionMenu:Hide()
-                        r.favBtn:Hide()
-                        r.favBtn:EnableMouse(false)
                         r.bagsActionBtn:Hide()
                         r.bagsActionBtn:EnableMouse(false)
                         r.gearActionBtn:Hide()
                         r.gearActionBtn:EnableMouse(false)
-                        r.actionBtn:Hide()
-                        r.actionBtn:EnableMouse(false)
-                        r.deleteBtn:Hide()
-                        r.deleteBtn:EnableMouse(false)
                     else
                         local bagsMenuEnabled = (not isManaging) and not (LiteVaultDB and LiteVaultDB.disableBagViewing)
                         local gearMenuEnabled = not isManaging
-                        r.optionsBtn:Show()
-                        r.optionsBtn:EnableMouse(true)
-                        r.favBtn:Show()
-                        r.favBtn:EnableMouse(true)
+                        -- The Actions menu now holds only Bags and Gear; hide it when neither applies.
+                        local hasActions = bagsMenuEnabled or gearMenuEnabled
+                        r.optionsBtn:SetShown(hasActions)
+                        r.optionsBtn:EnableMouse(hasActions)
                         if bagsMenuEnabled then
                             r.bagsActionBtn:Show()
                             r.bagsActionBtn:EnableMouse(true)
@@ -2458,10 +2463,6 @@ function lv.UpdateList()
                             r.gearActionBtn:Hide()
                             r.gearActionBtn:EnableMouse(false)
                         end
-                        r.actionBtn:Show()
-                        r.actionBtn:EnableMouse(true)
-                        r.deleteBtn:Show()
-                        r.deleteBtn:EnableMouse(true)
                     end
                     
                     r:SetPoint("TOPLEFT", 5, -(idx - 1) * 260) -- Increased to 260 for profession display

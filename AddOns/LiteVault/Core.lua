@@ -372,13 +372,6 @@ local function GetItemLevelFromLink(itemLink)
         return 0
     end
 
-    if GetDetailedItemLevelInfo then
-        local itemLevel = GetDetailedItemLevelInfo(itemLink)
-        if itemLevel and itemLevel > 0 then
-            return itemLevel
-        end
-    end
-
     if C_Item and C_Item.GetDetailedItemLevelInfo then
         local itemLevel = C_Item.GetDetailedItemLevelInfo(itemLink)
         if itemLevel and itemLevel > 0 then
@@ -1414,7 +1407,7 @@ function lv.ScanBags()
         for slotID = 1, numSlots do
             local info = C_Container.GetContainerItemInfo(bagID, slotID)
             if info then
-                local itemID = info.itemID or (info.hyperlink and GetItemInfoInstant(info.hyperlink))
+                local itemID = info.itemID or (info.hyperlink and C_Item.GetItemInfoInstant(info.hyperlink))
                 local itemName = info.itemName
                     or (itemID and C_Item and C_Item.GetItemNameByID and C_Item.GetItemNameByID(itemID))
                     or UNKNOWN
@@ -1449,12 +1442,12 @@ function lv.ScanGear()
 
     for _, slotID in ipairs(GEAR_SLOT_IDS) do
         local itemLink = GetInventoryItemLink("player", slotID)
-        local itemID = itemLink and GetItemInfoInstant(itemLink) or nil
+        local itemID = itemLink and C_Item.GetItemInfoInstant(itemLink) or nil
         local itemName, itemQuality, itemIcon
 
         if itemLink then
-            itemName = GetItemInfo(itemLink)
-            itemQuality = select(3, GetItemInfo(itemLink))
+            itemName = C_Item.GetItemInfo(itemLink)
+            itemQuality = select(3, C_Item.GetItemInfo(itemLink))
             itemIcon = GetInventoryItemTexture("player", slotID)
 
             if not itemName and itemID and C_Item and C_Item.GetItemNameByID then
@@ -1494,7 +1487,7 @@ local function BuildContainerItems(containerIDs)
         for slotID = 1, numSlots do
             local info = C_Container.GetContainerItemInfo(containerID, slotID)
             if info then
-                local itemID = info.itemID or (info.hyperlink and GetItemInfoInstant(info.hyperlink))
+                local itemID = info.itemID or (info.hyperlink and C_Item.GetItemInfoInstant(info.hyperlink))
                 local itemName = info.itemName
                     or (itemID and C_Item and C_Item.GetItemNameByID and C_Item.GetItemNameByID(itemID))
                     or UNKNOWN
@@ -1653,6 +1646,74 @@ function lv.ScanWarbandBank()
     db.lastScanned = time()
 end
 
+local function ProcessCharacterWeeklyAndMonthlyResets(db, lastResetTime, dateInfo)
+    local currentMonthKey = string.format("%04d-%02d", dateInfo.year, dateInfo.month)
+
+    local needsGlobalReset = false
+    if not db.lastWeeklyReset then
+        -- First-time setup for a new character only; do not reset existing characters.
+        db.lastWeeklyReset = lastResetTime
+        db.lastMonthlyReset = currentMonthKey
+        db.weeklyQuests = {}
+        db.factionParentWeeklies = nil
+        db.factionDailiesThisWeek = nil
+        db.haratiWeekly = nil
+        db.vR, db.vM, db.vW = 0, 0, 0
+        db.vaultDetails = nil
+    elseif db.lastWeeklyReset < lastResetTime then
+        needsGlobalReset = true
+    end
+
+    if needsGlobalReset then
+        -- Preserve the existing region-aware reset semantics across all tracked characters.
+        for _, charData in pairs(LiteVaultDB) do
+            if type(charData) == "table" and charData.class
+                and (not charData.region or charData.region == lv.REGION) then
+                charData.lastWeeklyReset = lastResetTime
+                charData.weeklyQuests = {}
+                charData.factionParentWeeklies = nil
+                charData.factionDailiesThisWeek = nil
+                charData.haratiWeekly = nil
+                charData.vR, charData.vM, charData.vW = 0, 0, 0
+                charData.vaultDetails = nil
+                if charData.weeklyPlanner then
+                    for _, entry in ipairs(charData.weeklyPlanner) do
+                        if type(entry) == "table" then
+                            entry.checked = false
+                        end
+                    end
+                end
+            end
+        end
+        -- Always advance the initiating record, even if it began partially initialized.
+        db.lastWeeklyReset = lastResetTime
+        LiteVaultDB.accountWideWeeklyQuests = nil
+        LiteVaultDB.accountWideFactionChoices = nil
+    end
+
+    if db.lastMonthlyReset ~= currentMonthKey then
+        for _, charData in pairs(LiteVaultDB) do
+            if type(charData) == "table" and charData.class
+                and (not charData.region or charData.region == lv.REGION) then
+                charData.lastMonthlyReset = currentMonthKey
+            end
+        end
+    end
+end
+
+local function UpdateCurrentVaultSnapshot(db)
+    local acts = C_WeeklyRewards.GetActivities and C_WeeklyRewards.GetActivities() or nil
+    local vaultSnapshot = lv.BuildVaultSnapshotFromActivities(acts)
+    if lv.ReconcileVaultSnapshotItemLevels then
+        vaultSnapshot = lv.ReconcileVaultSnapshotItemLevels(vaultSnapshot, db.vaultDetails)
+    end
+    db.vR = vaultSnapshot.raid.slots or 0
+    db.vM = vaultSnapshot.mythic.slots or 0
+    db.vW = vaultSnapshot.delve.slots or 0
+    db.vaultDetails = vaultSnapshot
+    db.vaultDetails.savedAt = time()
+end
+
 function lv.UpdateCurrentCharData()
     -- WEEKLY RESET CHECK - Wipe raid lockout data after region-specific reset
     if not LiteVaultDB then LiteVaultDB = {} end
@@ -1699,9 +1760,15 @@ function lv.UpdateCurrentCharData()
     -- Only update data if character exists and hasn't been declined
     if LiteVaultDB[lv.PLAYER_KEY] and not LiteVaultDB[lv.PLAYER_KEY].isIgnored and not declined then
         local db = LiteVaultDB[lv.PLAYER_KEY]
-        db.gold = GetMoney(); db.class = select(2, UnitClass("player"))
-        db.level = UnitLevel("player") or db.level or 0
+        db.class = select(2, UnitClass("player")) or db.class
         db.region = lv.REGION
+        -- Run reset and vault processing before unrelated character APIs. A later
+        -- snapshot failure must not leave weekly timestamps stale indefinitely.
+        ProcessCharacterWeeklyAndMonthlyResets(db, lastResetTime, d)
+        UpdateCurrentVaultSnapshot(db)
+
+        db.gold = GetMoney()
+        db.level = UnitLevel("player") or db.level or 0
         db.weeklyPlanner = db.weeklyPlanner or {
             { text = "", checked = false },
             { text = "", checked = false },
@@ -1829,10 +1896,10 @@ function lv.UpdateCurrentCharData()
         
         -- Midnight-only spark tracking (Spark of Radiance; no fractured sparks).
         db.sparks = 0
-        db.fullSparks = GetItemCount(lv.GetActiveSparkItemID(), true) or 0
+        db.fullSparks = C_Item.GetItemCount(lv.GetActiveSparkItemID(), true) or 0
         db.fracturedSparks = 0
-        db.ascendantVoidshards = GetItemCount(lv.ASCENDANT_VOIDSHARD_ITEM_ID, true) or 0
-        db.ascendantVoidcores = GetItemCount(lv.ASCENDANT_VOIDCORE_ITEM_ID, true) or 0
+        db.ascendantVoidshards = C_Item.GetItemCount(lv.ASCENDANT_VOIDSHARD_ITEM_ID, true) or 0
+        db.ascendantVoidcores = C_Item.GetItemCount(lv.ASCENDANT_VOIDCORE_ITEM_ID, true) or 0
         
         -- NEW: Update last activity timestamp
         db.lastActiveTimestamp = time()
@@ -1909,87 +1976,23 @@ function lv.UpdateCurrentCharData()
             end
         end
         
-        -- ==========================================================
-        -- REGION-AWARE WEEKLY RESET LOGIC
-        -- US (Region 1): Tuesday 15:00 UTC
-        -- EU (Region 3): Wednesday 04:00 UTC
-        -- ==========================================================
-
-        local currentMonthKey = string.format("%04d-%02d", d.year, d.month)
-
-        -- Check if reset has occurred since last recorded reset
-        local needsGlobalReset = false
-        if not db.lastWeeklyReset then
-            -- First time setup for NEW character - only initialize THIS character
-            db.lastWeeklyReset = lastResetTime
-            db.lastMonthlyReset = currentMonthKey
-            db.weeklyQuests = {}
-            db.factionParentWeeklies = nil
-            db.factionDailiesThisWeek = nil
-            db.haratiWeekly = nil
-            db.vR, db.vM, db.vW = 0, 0, 0
-            db.vaultDetails = nil
-            -- Don't trigger global reset for new characters!
-        elseif db.lastWeeklyReset < lastResetTime then
-            -- A weekly reset has ACTUALLY occurred since we last logged
-            needsGlobalReset = true
-        end
-
-        if needsGlobalReset then
-            -- Reset ALL characters' weekly tracking (only on actual weekly reset)
-            for charKey, charData in pairs(LiteVaultDB) do
-                if type(charData) == "table" and charData.class
-                    and (not charData.region or charData.region == lv.REGION) then
-                    charData.lastWeeklyReset = lastResetTime
-                    charData.weeklyQuests = {}
-                    charData.factionParentWeeklies = nil
-                    charData.factionDailiesThisWeek = nil
-                    charData.haratiWeekly = nil
-                    charData.vR, charData.vM, charData.vW = 0, 0, 0
-                    charData.vaultDetails = nil
-                    if charData.weeklyPlanner then
-                        for _, entry in ipairs(charData.weeklyPlanner) do
-                            if type(entry) == "table" then
-                                entry.checked = false
-                            end
-                        end
-                    end
-                end
-            end
-            LiteVaultDB.accountWideWeeklyQuests = nil
-            LiteVaultDB.accountWideFactionChoices = nil
-        end
-
-        local needsMonthlyReset = db.lastMonthlyReset ~= currentMonthKey
-        if needsMonthlyReset then
-            for charKey, charData in pairs(LiteVaultDB) do
-                if type(charData) == "table" and charData.class
-                    and (not charData.region or charData.region == lv.REGION) then
-                    charData.lastMonthlyReset = currentMonthKey
-                end
-            end
-        end
-
-        -- ==========================================================
-        
-        local acts = C_WeeklyRewards.GetActivities and C_WeeklyRewards.GetActivities() or nil
-        local vaultSnapshot = lv.BuildVaultSnapshotFromActivities(acts)
-        if lv.ReconcileVaultSnapshotItemLevels then
-            vaultSnapshot = lv.ReconcileVaultSnapshotItemLevels(vaultSnapshot, db.vaultDetails)
-        end
-        db.vR = vaultSnapshot.raid.slots or 0
-        db.vM = vaultSnapshot.mythic.slots or 0
-        db.vW = vaultSnapshot.delve.slots or 0
-        db.vaultDetails = vaultSnapshot
-        db.vaultDetails.savedAt = time()
     end
+end
+
+function lv.RunCurrentCharacterRefresh()
+    if not lv.UpdateCurrentCharData then
+        return true
+    end
+
+    local ok = xpcall(lv.UpdateCurrentCharData, geterrorhandler())
+    return ok
 end
 
 -- 4. SLASH COMMANDS
 SLASH_LITEVAULT1 = "/lv"
 SlashCmdList["LITEVAULT"] = function() 
     if LiteVaultWindow then 
-        lv.UpdateCurrentCharData()
+        lv.RunCurrentCharacterRefresh()
         lv.UpdateUI()
         LiteVaultWindow:Show()
     end 
@@ -2008,7 +2011,7 @@ SlashCmdList["LITEVAULTADD"] = function()
             LiteVaultDB.declinedCharacters[lv.PLAYER_KEY] = nil
         end
         if not LiteVaultDB[lv.PLAYER_KEY] then LiteVaultDB[lv.PLAYER_KEY] = {} end
-        lv.UpdateCurrentCharData()
+        lv.RunCurrentCharacterRefresh()
         if lv.UpdateUI then lv.UpdateUI() end
         local name = UnitName("player")
         print("|cff9933ff" .. L["MSG_PREFIX"] .. "|r " .. string.format(L["MSG_CHAR_ADDED"], name))
@@ -2340,7 +2343,6 @@ f:RegisterEvent("CHALLENGE_MODE_KEYSTONE_RECEPTABLE_OPEN") -- When you insert a 
 f:RegisterEvent("WEEKLY_REWARDS_UPDATE") -- Vault progress
 f:RegisterEvent("WEEKLY_REWARDS_ITEM_CHANGED") -- Vault rewards available
 f:RegisterEvent("TRADE_CLOSED") -- When a trade completes
-f:RegisterEvent("MAIL_CLOSED") -- When you send/receive mail
 f:RegisterEvent("AUCTION_HOUSE_CLOSED") -- When you buy/sell on AH
 f:RegisterEvent("BANKFRAME_OPENED") -- Warband bank tracking
 f:RegisterEvent("BANKFRAME_CLOSED") -- Warband bank tracking
@@ -2364,6 +2366,12 @@ local function ApplySavedClockPreference()
     SetCVar("timeMgrUseMilitaryTime", want24 and "1" or "0")
 end
 
+local function ApplySavedVolumeFogPreference()
+    if not (LiteVaultDB and LiteVaultDB.disableVolumeFog == true) then return end
+    if not SetCVar then return end
+    SetCVar("VolumeFog", "0")
+end
+
 local queuedRefresh = {
     currentChar = false,
     ui = false,
@@ -2383,7 +2391,7 @@ local function FlushQueuedRefresh()
     queuedRefresh.bagPanel = false
 
     if refreshCurrentChar and lv.UpdateCurrentCharData then
-        lv.UpdateCurrentCharData()
+        lv.RunCurrentCharacterRefresh()
     end
     if refreshCurrentChar and lv.RefreshFolioViewForCurrentChar then
         lv.RefreshFolioViewForCurrentChar(lv.PLAYER_KEY)
@@ -2417,6 +2425,11 @@ local function QueueCurrentCharRefresh(opts)
     })
 end
 
+-- Mailbox closed (Retail no longer fires MAIL_CLOSED): Modules/MailTracker.lua reports each
+-- mailbox visit once through this shared list. Refresh profit/character data as before.
+lv.MailboxClosedHandlers = lv.MailboxClosedHandlers or {}
+table.insert(lv.MailboxClosedHandlers, function() QueueCurrentCharRefresh() end)
+
 local function RefreshCurrentGearSnapshot(opts)
     opts = opts or {}
 
@@ -2447,7 +2460,7 @@ f:SetScript("OnEvent", function(self, event, arg1, arg2)
             OnClick = function() if LiteVaultWindow:IsShown() then LiteVaultWindow:Hide() else LiteVaultWindow:Show() end end,
             OnTooltipShow = function(tooltip)
                 tooltip:AddLine(L["TITLE_LITEVAULT"])
-                tooltip:AddLine("|cff9933ffv" .. (lv.GetAddonVersion and lv.GetAddonVersion() or "12.1.0.4") .. "|r")
+                tooltip:AddLine("|cff9933ffv" .. (lv.GetAddonVersion and lv.GetAddonVersion() or "12.1.5.1") .. "|r")
                 tooltip:Show()
             end,
         })
@@ -2460,6 +2473,7 @@ f:SetScript("OnEvent", function(self, event, arg1, arg2)
         if not LiteVaultDB.filters then LiteVaultDB.filters = { timewalking=true, darkmoon=true, dungeon=true, pvp=true, bonus=true } end
         -- Re-apply saved 24h/12h preference in case Blizzard reset it on login.
         ApplySavedClockPreference()
+        ApplySavedVolumeFogPreference()
 
         -- EARLY: Suppress time-played message as soon as possible if enabled
         if LiteVaultDB and LiteVaultDB.disableTimePlayed then
@@ -2519,7 +2533,7 @@ f:SetScript("OnEvent", function(self, event, arg1, arg2)
         if lv.SortCharacterList then
             lv.SortCharacterList(lv.currentSortMode)
         end
-        lv.UpdateCurrentCharData()
+        lv.RunCurrentCharacterRefresh()
         if lv.SyncOrderList then lv.SyncOrderList() end
         if lv.UpdateUI then lv.UpdateUI() end
 
@@ -2554,7 +2568,9 @@ f:SetScript("OnEvent", function(self, event, arg1, arg2)
         -- Some clients/reset flows can flip clock format after ADDON_LOADED.
         -- Re-apply saved preference here as well.
         ApplySavedClockPreference()
+        ApplySavedVolumeFogPreference()
         C_Timer.After(1, ApplySavedClockPreference)
+        C_Timer.After(1, ApplySavedVolumeFogPreference)
 
         QueueCurrentCharRefresh()
 
@@ -2680,7 +2696,7 @@ f:SetScript("OnEvent", function(self, event, arg1, arg2)
     elseif event == "WEEKLY_REWARDS_UPDATE" or event == "WEEKLY_REWARDS_ITEM_CHANGED" then
         -- Update when vault progress changes
         QueueCurrentCharRefresh()
-    elseif event == "TRADE_CLOSED" or event == "MAIL_CLOSED" or event == "AUCTION_HOUSE_CLOSED" then
+    elseif event == "TRADE_CLOSED" or event == "AUCTION_HOUSE_CLOSED" then
         -- Update profit tracking when trading, mailing, or using AH
         QueueCurrentCharRefresh()
         
@@ -2711,7 +2727,7 @@ f:SetScript("OnEvent", function(self, event, arg1, arg2)
                 LiteVaultDB["Warband Bank"].region = lv.REGION
                 LiteVaultDB["Warband Bank"].lastLogin = time()
 
-                print("|cff9482c9[LiteVault]|r " .. string.format(L["MSG_WARBAND_BANK_BALANCE"], GetCoinTextureString(warbandGold)))
+                print("|cff9482c9[LiteVault]|r " .. string.format(L["MSG_WARBAND_BANK_BALANCE"], C_CurrencyInfo.GetCoinTextureString(warbandGold)))
                 lv.QueueRefresh({ ui = true })
             end
         end
@@ -2761,8 +2777,8 @@ SlashCmdList["LVS2DEBUG"] = function()
     print(string.format("CLIENT version=%s build=%s interface=%s active=%s", tostring(version), tostring(build), tostring(interfaceVersion), lv.GetActiveUpgradeSeasonKey()))
 
     local sparkID = lv.GetActiveSparkItemID()
-    local sparkName = GetItemInfo and GetItemInfo(sparkID) or nil
-    print(string.format("SPARK id=%s name=%s count=%s", tostring(sparkID), tostring(sparkName), tostring(GetItemCount and GetItemCount(sparkID, true) or 0)))
+    local sparkName = C_Item and C_Item.GetItemInfo and C_Item.GetItemInfo(sparkID) or nil
+    print(string.format("SPARK id=%s name=%s count=%s", tostring(sparkID), tostring(sparkName), tostring(C_Item and C_Item.GetItemCount and C_Item.GetItemCount(sparkID, true) or 0)))
 
     local catalystID = lv.GetActiveCatalystCurrencyID()
     local catalyst = C_CurrencyInfo and C_CurrencyInfo.GetCurrencyInfo and C_CurrencyInfo.GetCurrencyInfo(catalystID)
@@ -2862,7 +2878,7 @@ SlashCmdList["LVRESET"] = function(msg)
         end
         LiteVaultDB.accountWideFactionChoices = nil
         LiteVaultDB.accountWideWeeklyQuests = nil
-        if lv.UpdateCurrentCharData then lv.UpdateCurrentCharData() end
+        lv.RunCurrentCharacterRefresh()
         if lv.UpdateUI then lv.UpdateUI() end
         print("|cff9933ff" .. L["MSG_PREFIX"] .. "|r " .. string.format(L["MSG_WEEKLY_DATA_RESET"], charCount))
 

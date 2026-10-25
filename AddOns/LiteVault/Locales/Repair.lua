@@ -103,16 +103,66 @@ for locale, additions in pairs(raidRedesignTranslations) do
 end
 
 local tideboundTranslations = {
-    deDE = { DIFFICULTY_WORLD="Welt", ["The Tidebound Grotto"]="The Tidebound Grotto", ["Nymrissa Wavecaller"]="Nymrissa Wavecaller" },
-    frFR = { DIFFICULTY_WORLD="Monde", ["The Tidebound Grotto"]="The Tidebound Grotto", ["Nymrissa Wavecaller"]="Nymrissa Wavecaller" },
-    esES = { DIFFICULTY_WORLD="Mundo", ["The Tidebound Grotto"]="The Tidebound Grotto", ["Nymrissa Wavecaller"]="Nymrissa Wavecaller" },
-    ptBR = { DIFFICULTY_WORLD="Mundo", ["The Tidebound Grotto"]="The Tidebound Grotto", ["Nymrissa Wavecaller"]="Nymrissa Wavecaller" },
-    ruRU = { DIFFICULTY_WORLD="Мир", ["The Tidebound Grotto"]="The Tidebound Grotto", ["Nymrissa Wavecaller"]="Nymrissa Wavecaller" },
-    zhCN = { DIFFICULTY_WORLD="世界", ["The Tidebound Grotto"]="The Tidebound Grotto", ["Nymrissa Wavecaller"]="Nymrissa Wavecaller" },
-    zhTW = { DIFFICULTY_WORLD="世界", ["The Tidebound Grotto"]="The Tidebound Grotto", ["Nymrissa Wavecaller"]="Nymrissa Wavecaller" },
-    koKR = { DIFFICULTY_WORLD="야외", ["The Tidebound Grotto"]="The Tidebound Grotto", ["Nymrissa Wavecaller"]="Nymrissa Wavecaller" },
+    deDE = { DIFFICULTY_WORLD="Welt", ["The Tidebound Grotto"]="Die Gezeitengebundene Grotte", ["Nymrissa Wavecaller"]="Nymrissa Wellenrufer" },
+    frFR = { DIFFICULTY_WORLD="Monde", ["The Tidebound Grotto"]="La grotte des Marées", ["Nymrissa Wavecaller"]="Nymrissa Mande-vagues" },
+    esES = { DIFFICULTY_WORLD="Mundo", ["The Tidebound Grotto"]="Gruta Mareal", ["Nymrissa Wavecaller"]="Nymrissa Clamaolas" },
+    ptBR = { DIFFICULTY_WORLD="Mundo", ["The Tidebound Grotto"]="Gruta Marejante", ["Nymrissa Wavecaller"]="Nymrissa Clamaondas" },
+    ruRU = { DIFFICULTY_WORLD="Мир", ["The Tidebound Grotto"]="Приливный грот", ["Nymrissa Wavecaller"]="Нимрисса Волногон" },
+    zhCN = { DIFFICULTY_WORLD="世界", ["The Tidebound Grotto"]="潮缚石窟", ["Nymrissa Wavecaller"]="尼姆瑞莎·唤波者" },
+    zhTW = { DIFFICULTY_WORLD="世界", ["The Tidebound Grotto"]="浪縛岩窟", ["Nymrissa Wavecaller"]="妮莉莎‧喚浪者" },
+    koKR = { DIFFICULTY_WORLD="야외", ["The Tidebound Grotto"]="해일결속 동굴", ["Nymrissa Wavecaller"]="님리사 웨이브콜러" },
 }
 for locale, additions in pairs(tideboundTranslations) do
+    local data = lv.LocaleData and lv.LocaleData[locale]
+    if data then for key, value in pairs(additions) do data[key] = value end end
+end
+
+-- Client names from Blizzard data (Map 3095 and DungeonEncounter 3513, per locale).
+-- Identification uses the numeric IDs; these strings are for display and name fallback.
+local kithixTranslations = {
+    deDE = { ["The Unbinding of Kith'ix"]="Die Entfesslung von Kith'ix", ["Kith'ix"]="Kith'ix" },
+    frFR = { ["The Unbinding of Kith'ix"]="Le Déliement de Kith’ix", ["Kith'ix"]="Kith’ix" },
+    esES = { ["The Unbinding of Kith'ix"]="La liberación de Kith'ix", ["Kith'ix"]="Kith'ix" },
+    ptBR = { ["The Unbinding of Kith'ix"]="A Libertação de Kith'ix", ["Kith'ix"]="Kith'ix" },
+    ruRU = { ["The Unbinding of Kith'ix"]="Освобождение Кит'икса", ["Kith'ix"]="Кит'икс" },
+    zhCN = { ["The Unbinding of Kith'ix"]="基希克斯破封", ["Kith'ix"]="基希克斯" },
+    zhTW = { ["The Unbinding of Kith'ix"]="克希斯的解放", ["Kith'ix"]="克希斯" },
+    koKR = { ["The Unbinding of Kith'ix"]="키식스 해방", ["Kith'ix"]="키식스" },
+}
+for locale, additions in pairs(kithixTranslations) do
+    local data = lv.LocaleData and lv.LocaleData[locale]
+    if data then for key, value in pairs(additions) do data[key] = value end end
+end
+
+-- Venomous Abyss boss names from Blizzard client data (DungeonEncounter, per locale).
+-- Saved lockouts report localized boss names, so these drive boss mapping as well as display.
+local venomousAbyssBossTranslations = {
+    deDE = { ["Nek'zali the Soulcoiler"]="Nek'zali die Seelenwinderin", ["Entombed Sentinels"]="Eingeschlossene Wächter", ["Vashnik the Malignant"]="Vashnik der Bösartige", ["The Lost Explorers"]="Die verirrten Entdecker", ["Sszorak"]="Sszorak", ["The Twin Fangs"]="Die Zwillingsfänge", ["The Coiled Altar"]="Der Gewundene Altar", ["Ula'tek"]="Ula'tek" },
+    frFR = { ["Nek'zali the Soulcoiler"]="Nek’zali l’Entortillâme", ["Entombed Sentinels"]="Sentinelles inhumées", ["Vashnik the Malignant"]="Vashnik le Malveillant", ["The Lost Explorers"]="L’expédition perdue", ["Sszorak"]="Sszorak", ["The Twin Fangs"]="Les crochets jumeaux", ["The Coiled Altar"]="Autel Annelé", ["Ula'tek"]="Ula’tek" },
+    esES = { ["Nek'zali the Soulcoiler"]="Nek'zali la Volutadora de Almas", ["Entombed Sentinels"]="Centinelas Sepultados", ["Vashnik the Malignant"]="Vashnik el Maligno", ["The Lost Explorers"]="Los exploradores perdidos", ["Sszorak"]="Sszorak", ["The Twin Fangs"]="Los colmillos gemelos", ["The Coiled Altar"]="El Altar en Espiral", ["Ula'tek"]="Ula'tek" },
+    ptBR = { ["Nek'zali the Soulcoiler"]="Nek'zali, a Enrosca-almas", ["Entombed Sentinels"]="Sentinelas Sepultadas", ["Vashnik the Malignant"]="Vashnik, o Maligno", ["The Lost Explorers"]="Exploradores Perdidos", ["Sszorak"]="Sszorak", ["The Twin Fangs"]="As Presas Gêmeas", ["The Coiled Altar"]="O Altar Enrolado", ["Ula'tek"]="Ula'tek" },
+    ruRU = { ["Nek'zali the Soulcoiler"]="Нек'зали Душительница Душ", ["Entombed Sentinels"]="Погребенные стражи", ["Vashnik the Malignant"]="Вашник Тлетворный", ["The Lost Explorers"]="Потерявшиеся исследователи", ["Sszorak"]="Ссзорак", ["The Twin Fangs"]="Два Клыка", ["The Coiled Altar"]="Спиральный алтарь", ["Ula'tek"]="Ула'тек" },
+    zhCN = { ["Nek'zali the Soulcoiler"]="盘魂者内克扎莉", ["Entombed Sentinels"]="陵寝哨兵", ["Vashnik the Malignant"]="万毒邪祟者瓦什尼克", ["The Lost Explorers"]="迷失的探险者", ["Sszorak"]="斯索拉克", ["The Twin Fangs"]="双子毒牙", ["The Coiled Altar"]="盘卷祭坛", ["Ula'tek"]="乌拉特克" },
+    zhTW = { ["Nek'zali the Soulcoiler"]="『纏魂者』尼札利", ["Entombed Sentinels"]="埋葬衛哨", ["Vashnik the Malignant"]="『惡性之毒』伐許尼克", ["The Lost Explorers"]="迷路的探險者", ["Sszorak"]="司佐拉", ["The Twin Fangs"]="雙生毒牙", ["The Coiled Altar"]="盤蛇祭壇", ["Ula'tek"]="烏拉特克" },
+    koKR = { ["Nek'zali the Soulcoiler"]="영혼살무사 네크잘리", ["Entombed Sentinels"]="매장된 파수꾼", ["Vashnik the Malignant"]="악성의 바쉬니크", ["The Lost Explorers"]="길 잃은 탐험가", ["Sszorak"]="스조라크", ["The Twin Fangs"]="쌍둥이 송곳니", ["The Coiled Altar"]="똬리의 제단", ["Ula'tek"]="울라텍" },
+}
+for locale, additions in pairs(venomousAbyssBossTranslations) do
+    local data = lv.LocaleData and lv.LocaleData[locale]
+    if data then for key, value in pairs(additions) do data[key] = value end end
+end
+
+-- Character card mail tooltip (Modules/MailTracker.lua).
+local mailTrackingTranslations = {
+    deDE = { TEXT_MAIL_LAST_CHECKED_FMT="Zuletzt geprüft: %s", TEXT_MAIL_OFFLINE_NOTE="Zuletzt bekannter Stand. Wird aktualisiert, wenn sich dieser Charakter einloggt." },
+    frFR = { TEXT_MAIL_LAST_CHECKED_FMT="Dernière vérification : %s", TEXT_MAIL_OFFLINE_NOTE="Dernier état connu. Mis à jour à la prochaine connexion de ce personnage." },
+    esES = { TEXT_MAIL_LAST_CHECKED_FMT="Última comprobación: %s", TEXT_MAIL_OFFLINE_NOTE="Último estado conocido. Se actualiza cuando este personaje inicia sesión." },
+    ptBR = { TEXT_MAIL_LAST_CHECKED_FMT="Última verificação: %s", TEXT_MAIL_OFFLINE_NOTE="Último status conhecido. Atualiza quando este personagem entra no jogo." },
+    ruRU = { TEXT_MAIL_LAST_CHECKED_FMT="Последняя проверка: %s", TEXT_MAIL_OFFLINE_NOTE="Последнее известное состояние. Обновится, когда этот персонаж войдёт в игру." },
+    zhCN = { TEXT_MAIL_LAST_CHECKED_FMT="上次检查：%s", TEXT_MAIL_OFFLINE_NOTE="最后已知状态。该角色登录时更新。" },
+    zhTW = { TEXT_MAIL_LAST_CHECKED_FMT="上次檢查：%s", TEXT_MAIL_OFFLINE_NOTE="最後已知狀態。此角色登入時更新。" },
+    koKR = { TEXT_MAIL_LAST_CHECKED_FMT="마지막 확인: %s", TEXT_MAIL_OFFLINE_NOTE="마지막으로 확인된 상태입니다. 이 캐릭터로 접속하면 갱신됩니다." },
+}
+for locale, additions in pairs(mailTrackingTranslations) do
     local data = lv.LocaleData and lv.LocaleData[locale]
     if data then for key, value in pairs(additions) do data[key] = value end end
 end

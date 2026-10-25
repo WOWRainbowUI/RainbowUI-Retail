@@ -1113,6 +1113,14 @@ TEXT_DELVER_MOUNT_REWARD_REQUIREMENT="完成 Glory of the Midnight Delver 以获
 TEXT_EXPLORE_EVERSONG_PROGRESS="追踪 Explore Eversong Woods 进度。已标记 x/y。", TEXT_EXPLORE_HARANDAR_PROGRESS="追踪 Explore Harandar 进度。已标记 x/y。", TEXT_EXPLORE_VOIDSTORM_PROGRESS="追踪 Explore Voidstorm 进度。已标记 x/y。", TEXT_EXPLORE_ZULAMAN_PROGRESS="追踪 Explore Zul'Aman 进度。已标记 x/y。",
 }
 for key,value in pairs(phase2) do L[key]=value end
+L.NOTE_RITUAL_BEHAVIOR_VENOMOUS_OOZE = "在仪式区域中央击杀剧毒巨人，以获得剧毒软泥。"
+L.TEXT_FACTION_WEEKLY_STILL_NEEDED_FMT = "仍需完成：%s"
+L.TEXT_ALL_TRACKED_CHARACTERS_COMPLETED = "所有已追踪角色均已完成"
+L.TEXT_NO_TRACKED_CHARACTERS = "没有已追踪角色"
+L.OPTION_DISABLE_VOLUME_FOG = "禁用体积雾"
+L.OPTION_DISABLE_VOLUME_FOG_DESC = "移除体积雾和大气薄雾。关闭此选项会恢复雾效。"
+L.TEXT_MAIL_LAST_CHECKED_FMT = "上次检查：%s"
+L.TEXT_MAIL_OFFLINE_NOTE = "上次已知状态。此角色登录时更新。"
 lv.RegisterLocale("zhCN", L)
 
 -- Store for reload functionality

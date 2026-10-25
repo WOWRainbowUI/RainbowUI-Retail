@@ -311,7 +311,7 @@ end
 local function GetMPlusRewardText(run)
     local parts = {}
     local money = tonumber(run.rewardMoney) or tonumber(run.gold) or 0
-    if money > 0 then parts[#parts + 1] = GetCoinTextureString(money, 11) end
+    if money > 0 then parts[#parts + 1] = C_CurrencyInfo.GetCoinTextureString(money, 11) end
     local crestText = BuildRunCrestGainText(run)
     if crestText then parts[#parts + 1] = BuildRunCrestGainText(run, true) end
     return table.concat(parts, " ")
@@ -971,7 +971,7 @@ function lv.UpdateInstancePanel()
     end
     local legacyAvg = legacyRuns > 0 and math.floor(legacyDur / legacyRuns) or 0
     widgets.legacyRuns:SetText(string.format(T("LABEL_LEGACY_RUNS"), legacyRuns))
-    widgets.legacyGold:SetText(string.format(T("LABEL_GOLD_EARNED"), GetCoinTextureString(legacyGold)))
+    widgets.legacyGold:SetText(string.format(T("LABEL_GOLD_EARNED"), C_CurrencyInfo.GetCoinTextureString(legacyGold)))
     widgets.legacyAvg:SetText(string.format(T("LABEL_AVG_TIME"), lv.Stats.FormatDuration(legacyAvg)))
 
     widgets.recentTitle:SetText(T("SECTION_RECENT_RUNS"))
@@ -988,7 +988,7 @@ function lv.UpdateInstancePanel()
                 text = text .. string.format("  [|c%s%s|r]", classHex, runChar)
             end
             if run.gold and run.gold > 0 then
-                text = text .. "  " .. GetCoinTextureString(run.gold)
+                text = text .. "  " .. C_CurrencyInfo.GetCoinTextureString(run.gold)
             end
             local crestText = BuildRunCrestGainText(run)
             if crestText then

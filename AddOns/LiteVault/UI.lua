@@ -140,7 +140,7 @@ LVWindow:SetScript("OnHide", function()
 end)
 
 LVWindow:SetScript("OnShow", function()
-    if lv.UpdateCurrentCharData then lv.UpdateCurrentCharData() end
+    if lv.RunCurrentCharacterRefresh then lv.RunCurrentCharacterRefresh() end
     if lv.UpdateUI then lv.UpdateUI(true) end
 end)
 
@@ -787,6 +787,10 @@ end)
 local currentMainView = "dashboard"
 local FactionWeeklyWindow
 
+function lv.IsProfitViewVisible()
+    return currentMainView == "profit"
+end
+
 local function ApplyGoldBoxLayout(view)
     if not lv.GoldBox then return end
 
@@ -1053,44 +1057,6 @@ local function UpdateWeeklyWarningLayout(warningText)
 end
 lv.UpdateWeeklyWarningLayout = UpdateWeeklyWarningLayout
 
-local function NormalizeWeeklyQuestTitle(title)
-    if type(title) ~= "string" then return nil end
-    title = title:gsub("’", "'"):gsub("‘", "'")
-    title = title:gsub("：", ":"):gsub("，", ",")
-    title = title:gsub("’", "'"):gsub("‘", "'")
-    title = title:gsub("ï¼š", ":"):gsub("：", ":")
-    title = title:gsub("%s+", " ")
-    title = title:match("^%s*(.-)%s*$")
-    if title == "" then return nil end
-    return title:lower()
-end
-
-local function BuildWeeklyQuestTitleSet(quest)
-    local titles = {}
-    if not quest or not quest.name then return titles end
-
-    local function AddTitle(title)
-        local normalized = NormalizeWeeklyQuestTitle(title)
-        if normalized then
-            titles[normalized] = true
-        end
-    end
-
-    local localized = L[quest.name]
-    AddTitle(localized)
-    AddTitle(quest.name)
-    if C_QuestLog and C_QuestLog.GetTitleForQuestID then
-        AddTitle(C_QuestLog.GetTitleForQuestID(quest.id))
-        if quest.variants then
-            for _, variantID in ipairs(quest.variants) do
-                AddTitle(C_QuestLog.GetTitleForQuestID(variantID))
-            end
-        end
-    end
-
-    return titles
-end
-
 local function GetFreshSavedAccountWideWeeklyQuestRecord(quest)
     if not (quest and quest.accountWide and LiteVaultDB and LiteVaultDB.accountWideWeeklyQuests) then
         return nil
@@ -1239,55 +1205,6 @@ local function BuildWeeklyQuestNextWeekText(quest)
     local nextName = GetWeeklyQuestVariantDisplayName(quest, nextQuestID)
     local label = L["LABEL_NEXT_WEEK_FMT"]
     return "|cff999999" .. string.format(label, nextName) .. "|r"
-end
-
-local function FindNearbyWeeklyQuestState(quest)
-    if not (quest and quest.accountWide and quest.searchRange and C_QuestLog.GetTitleForQuestID) then
-        return nil
-    end
-
-    local minQuestID = quest.id
-    local maxQuestID = quest.id
-    if quest.variants then
-        for _, variantID in ipairs(quest.variants) do
-            minQuestID = math.min(minQuestID, variantID)
-            maxQuestID = math.max(maxQuestID, variantID)
-        end
-    end
-
-    local titleSet = BuildWeeklyQuestTitleSet(quest)
-    local foundInProgress = false
-
-    for candidateID = math.max(1, minQuestID - quest.searchRange), maxQuestID + quest.searchRange do
-        local title = C_QuestLog.GetTitleForQuestID(candidateID)
-        if titleSet[NormalizeWeeklyQuestTitle(title)] then
-            if C_QuestLog.IsQuestFlaggedCompleted(candidateID) then
-                return "done"
-            end
-            if C_QuestLog.IsQuestFlaggedCompletedOnAccount and C_QuestLog.IsQuestFlaggedCompletedOnAccount(candidateID) then
-                return "done"
-            end
-            if C_QuestLog.GetLogIndexForQuestID(candidateID) then
-                foundInProgress = true
-            end
-        end
-    end
-
-    if foundInProgress then
-        return "in_progress"
-    end
-
-    return nil
-end
-
-local function IsWeeklyQuestCompleted(questID, quest)
-    if C_QuestLog.IsQuestFlaggedCompleted(questID) then
-        return true
-    end
-    if quest and quest.accountWide and C_QuestLog.IsQuestFlaggedCompletedOnAccount then
-        return C_QuestLog.IsQuestFlaggedCompletedOnAccount(questID) and true or false
-    end
-    return false
 end
 
 local function GetGroupedWeeklyQuestState(quest)
@@ -2314,7 +2231,7 @@ local function GetFactionRenownDetails(mode)
             for i = 1, rewardCount do
                 local itemName, itemTexture, _, _, _, itemID = GetQuestLogRewardInfo(i, rewardQuestID)
                 if itemName or itemID then
-                    rewardName = itemName or (itemID and GetItemInfo and GetItemInfo(itemID)) or nil
+                    rewardName = itemName or (itemID and C_Item and C_Item.GetItemInfo and C_Item.GetItemInfo(itemID)) or nil
                     rewardIcon = itemTexture or (itemID and C_Item and C_Item.GetItemIconByID and C_Item.GetItemIconByID(itemID)) or nil
                     rewardItemID = itemID
                     break
@@ -2831,27 +2748,197 @@ local function BuildFactionQuestStatusText(state)
     return "|cffff0000" .. L["STATUS_NOT_STARTED"] .. "|r"
 end
 
-local function BuildFactionQuestRowText(quest)
-    if factionWeeklyMode == "silvermoon" and quest then
-        local showSilvermoonQuest = (
-            quest.id == 91966 or
-            quest.id == 90574 or
-            quest.id == 90576 or
-            quest.id == 90573 or
-            quest.id == 90575
+local function IsFreshFactionWeeklyRecord(record, currentReset)
+    return type(record) == "table"
+        and record.state == "done"
+        and (not currentReset or ((record.updatedAt or 0) >= currentReset))
+end
+
+local function IsFactionQuestCompletedForCharacter(quest, mode, charKey, charDB, currentReset)
+    if not (quest and mode and charKey and type(charDB) == "table") then
+        return false
+    end
+
+    -- The current character's live state is authoritative during the short window
+    -- before the corresponding quest event has been persisted.
+    if charKey == lv.PLAYER_KEY and mode == factionWeeklyMode then
+        return GetFactionQuestState(quest) == "done"
+    end
+
+    if mode == "harati" and quest.id == lv.HARATI_SELECTOR_QUEST_ID then
+        local harati = charDB.haratiWeekly
+        if type(harati) == "table" and harati.completed == true
+            and harati.resetStart == currentReset then
+            return true
+        end
+        return IsFreshFactionWeeklyRecord(
+            charDB.weeklyQuests and charDB.weeklyQuests["Legends of the Haranir"],
+            currentReset
         )
-        if not showSilvermoonQuest then
-            return nil
+    end
+
+    if mode == "silvermoon" then
+        local parent = charDB.factionParentWeeklies
+            and charDB.factionParentWeeklies.silvermoon
+            and charDB.factionParentWeeklies.silvermoon[quest.id]
+        if IsFreshFactionWeeklyRecord(parent, currentReset) then
+            return true
+        end
+
+        local completedThisWeek = charDB.factionDailiesThisWeek
+            and charDB.factionDailiesThisWeek.silvermoon
+        if completedThisWeek and completedThisWeek[quest.id] then
+            return true
+        end
+
+        local choice = LiteVaultDB and LiteVaultDB.accountWideFactionChoices
+            and LiteVaultDB.accountWideFactionChoices.silvermoon
+        if type(choice) == "table" and choice.sourceKey == charKey
+            and choice.questID == quest.id and choice.state == "done"
+            and (not currentReset or ((choice.updatedAt or 0) >= currentReset)) then
+            return true
+        end
+        return false
+    end
+
+    return IsFreshFactionWeeklyRecord(
+        charDB.weeklyQuests and charDB.weeklyQuests[quest.name],
+        currentReset
+    )
+end
+
+local function GetFactionRosterMaxLevel()
+    local maxLevel
+    if GetMaxLevelForPlayerExpansion then
+        maxLevel = GetMaxLevelForPlayerExpansion()
+    end
+    if (not maxLevel or maxLevel <= 0) and GetMaxLevelForExpansionLevel and GetExpansionLevel then
+        maxLevel = GetMaxLevelForExpansionLevel(GetExpansionLevel())
+    end
+    if (not maxLevel or maxLevel <= 0) and type(MAX_PLAYER_LEVEL) == "number" then
+        maxLevel = MAX_PLAYER_LEVEL
+    end
+    if maxLevel and maxLevel > 0 then
+        return maxLevel
+    end
+
+    -- Compatibility fallback for clients without the modern max-level APIs.
+    for _, charKey in ipairs(LiteVaultOrder or {}) do
+        local charDB = LiteVaultDB and LiteVaultDB[charKey]
+        if lv.IsLiteVaultCharacterRecord and lv.IsLiteVaultCharacterRecord(charKey, charDB)
+            and (not charDB.region or charDB.region == lv.REGION) then
+            maxLevel = math.max(maxLevel or 0, tonumber(charDB.level) or 0)
         end
     end
-    if factionWeeklyMode == "harati" and quest and quest.id ~= lv.HARATI_SELECTOR_QUEST_ID then
-        return nil
+    return maxLevel or 0
+end
+
+local function GetTrackedFactionCharacters()
+    local characters = {}
+    local declined = LiteVaultDB and LiteVaultDB.declinedCharacters
+    local maxLevel = GetFactionRosterMaxLevel()
+
+    for _, charKey in ipairs(LiteVaultOrder or {}) do
+        local charDB = LiteVaultDB and LiteVaultDB[charKey]
+        if lv.IsLiteVaultCharacterRecord and lv.IsLiteVaultCharacterRecord(charKey, charDB)
+            and (not charDB.region or charDB.region == lv.REGION)
+            and maxLevel > 0 and tonumber(charDB.level) == maxLevel
+            and not charDB.isIgnored
+            and not (declined and declined[charKey]) then
+            characters[#characters + 1] = { key = charKey, data = charDB }
+        end
     end
+
+    return characters
+end
+
+local function ApplyFactionCharacterDisplayNames(characters)
+    local nameCounts = {}
+    for _, character in ipairs(characters) do
+        local name = character.key:match("^([^-]+)") or character.key
+        character.name = name
+        nameCounts[name] = (nameCounts[name] or 0) + 1
+    end
+    for _, character in ipairs(characters) do
+        local displayName = nameCounts[character.name] > 1 and character.key or character.name
+        local classColor = C_ClassColor and C_ClassColor.GetClassColor
+            and C_ClassColor.GetClassColor(character.data.class)
+        if classColor and classColor.WrapTextInColorCode then
+            displayName = classColor:WrapTextInColorCode(displayName)
+        elseif RAID_CLASS_COLORS and RAID_CLASS_COLORS[character.data.class]
+            and RAID_CLASS_COLORS[character.data.class].colorStr then
+            displayName = "|c" .. RAID_CLASS_COLORS[character.data.class].colorStr .. displayName .. "|r"
+        end
+        character.displayName = displayName
+    end
+end
+
+local function BuildFactionQuestRosterText(quest)
+    local characters = GetTrackedFactionCharacters()
+    if #characters == 0 then
+        return L["TEXT_NO_TRACKED_CHARACTERS"]
+    end
+
+    if quest.accountWide then
+        local currentReset = lv.GetLastWeeklyReset and lv.GetLastWeeklyReset() or nil
+        local saved = LiteVaultDB and LiteVaultDB.accountWideWeeklyQuests
+            and LiteVaultDB.accountWideWeeklyQuests[quest.name]
+        if IsFreshFactionWeeklyRecord(saved, currentReset)
+            or (lv.PLAYER_KEY and GetFactionQuestState(quest) == "done") then
+            return L["TEXT_ALL_TRACKED_CHARACTERS_COMPLETED"]
+        end
+        return string.format(L["TEXT_FACTION_WEEKLY_STILL_NEEDED_FMT"], L["LABEL_WARBAND"])
+    end
+
+    ApplyFactionCharacterDisplayNames(characters)
+    local currentReset = lv.GetLastWeeklyReset and lv.GetLastWeeklyReset() or nil
+    local needed = {}
+    for _, character in ipairs(characters) do
+        if not IsFactionQuestCompletedForCharacter(
+            quest, factionWeeklyMode, character.key, character.data, currentReset
+        ) then
+            needed[#needed + 1] = character.displayName
+        end
+    end
+
+    if #needed == 0 then
+        return L["TEXT_ALL_TRACKED_CHARACTERS_COMPLETED"]
+    end
+    return string.format(L["TEXT_FACTION_WEEKLY_STILL_NEEDED_FMT"], table.concat(needed, ", "))
+end
+
+local function ShouldDisplayFactionQuest(quest)
+    if not quest then return false end
+
+    if factionWeeklyMode == "singularity" then
+        return quest.id == 90962
+    end
+
+    if factionWeeklyMode == "harati" then
+        return quest.id == lv.HARATI_SELECTOR_QUEST_ID
+    end
+
+    if factionWeeklyMode == "silvermoon" then
+        local cfg = lv.ACCOUNT_WIDE_FACTION_CHOICES
+            and lv.ACCOUNT_WIDE_FACTION_CHOICES.silvermoon
+        local choice = LiteVaultDB and LiteVaultDB.accountWideFactionChoices
+            and LiteVaultDB.accountWideFactionChoices.silvermoon
+        local currentReset = lv.GetLastWeeklyReset and lv.GetLastWeeklyReset() or nil
+        if not (cfg and cfg.subFactionLookup and cfg.subFactionLookup[quest.id]
+            and type(choice) == "table" and choice.questID == quest.id
+            and (not currentReset or ((choice.updatedAt or 0) >= currentReset))) then
+            return false
+        end
+    end
+
+    return true
+end
+
+local function BuildFactionQuestRowText(quest)
+    if not ShouldDisplayFactionQuest(quest) then return nil end
     local state = GetFactionQuestState(quest)
-    if state ~= "done" then
-        return nil
-    end
     local row = GetWeeklyQuestDisplayName(quest) .. ": " .. BuildFactionQuestStatusText(state)
+    row = row .. "\n  |cffbbbbbb" .. BuildFactionQuestRosterText(quest) .. "|r"
     local nextWeekText = BuildWeeklyQuestNextWeekText(quest)
     if nextWeekText then
         row = row .. "\n  " .. nextWeekText
@@ -2871,7 +2958,7 @@ local function BuildFactionQuestText(quests)
     if #rows == 0 then
         return UIText("MSG_NO_FACTION_WEEKLY_COMPLETIONS"), 0
     end
-    return table.concat(rows, "\n"), #rows
+    return table.concat(rows, "\n\n"), #rows
 end
 
 function lv.UpdateFactionWeeklyWindow()
@@ -3283,7 +3370,7 @@ promptUI.yesBtn:SetScript("OnClick", function()
     -- FIX: Force create the entry so UpdateCurrentCharData has something to write to
     if not LiteVaultDB[lv.PLAYER_KEY] then LiteVaultDB[lv.PLAYER_KEY] = {} end
 
-    if lv.UpdateCurrentCharData then lv.UpdateCurrentCharData() end
+    if lv.RunCurrentCharacterRefresh then lv.RunCurrentCharacterRefresh() end
     if lv.UpdateUI then lv.UpdateUI() end
     Prompt:Hide()
 end)
@@ -3612,6 +3699,12 @@ function lv.RefreshLocalizedUI()
     end
     if lv.timeFormatDesc then
         lv.timeFormatDesc:SetText(L["OPTION_ENABLE_24HR_CLOCK_DESC"])
+    end
+    if lv.disableVolumeFogCB then
+        lv.disableVolumeFogCB.Text:SetText(L["OPTION_DISABLE_VOLUME_FOG"])
+    end
+    if lv.disableVolumeFogDesc then
+        lv.disableVolumeFogDesc:SetText(L["OPTION_DISABLE_VOLUME_FOG_DESC"])
     end
     if lv.disableBagViewCB then
         lv.disableBagViewCB.Text:SetText(L["OPTION_DISABLE_BAG_VIEWING"])

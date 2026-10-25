@@ -153,8 +153,8 @@ end
 -- 61679 = Midnight Epic (233, Epic)
 function lv.GetiLvLColor(level)
     level = tonumber(level) or 0
-    local epicHex = select(4, GetItemQualityColor(Enum and Enum.ItemQuality and Enum.ItemQuality.Epic or 4)) or "ffa335ee"
-    local rareHex = select(4, GetItemQualityColor(Enum and Enum.ItemQuality and Enum.ItemQuality.Rare or 3)) or "ff0070dd"
+    local epicHex = select(4, C_Item.GetItemQualityColor(Enum and Enum.ItemQuality and Enum.ItemQuality.Epic or 4)) or "ffa335ee"
+    local rareHex = select(4, C_Item.GetItemQualityColor(Enum and Enum.ItemQuality and Enum.ItemQuality.Rare or 3)) or "ff0070dd"
 
     if level >= 233 then
         return epicHex

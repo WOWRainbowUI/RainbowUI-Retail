@@ -15,7 +15,7 @@ lv.L = L
 
 function lv.GetAddonVersion()
     local version = C_AddOns and C_AddOns.GetAddOnMetadata and C_AddOns.GetAddOnMetadata(addonName, "Version")
-    return (type(version) == "string" and version ~= "") and version or "12.1.0.5"
+    return (type(version) == "string" and version ~= "") and version or "12.1.5.1"
 end
 
 -- =============================================================================
