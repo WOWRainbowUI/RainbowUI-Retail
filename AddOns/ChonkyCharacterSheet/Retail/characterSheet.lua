@@ -20,6 +20,7 @@ local modtex2 = _G["CharacterModelFramebgtex2"] or modbg:CreateTexture("Characte
 local modelbtn = _G["CCS_clk_Btn"] or CreateFrame("Button", "CCS_clk_Btn", PaperDollFrame, "UIPanelButtonTemplate")
 local modelbtnfont1 = _G["CCS_clk_Btnfs1"] or modelbtn:CreateFontString("CCS_clk_Btnfs1")
 local ccs_cshow
+local ReputationFrame_Update
 local function hookfix() 
 
     if C_AddOns.IsAddOnLoaded("ClassCodex") == true and option("showm_sp_onopen") == true then
@@ -201,6 +202,10 @@ ccs_cshow = function()
 
     CCS.ChangeModelBg(false)
     CharacterModelScene.ControlFrame:Hide()
+    -- Seriously, Bliz?  Why do you re-show these elements every time the character frame opens?
+    for _, r in ipairs({ CharacterModelScene:GetRegions() }) do if r.Hide then r:Hide() end end
+    CharacterModelFrameBackgroundOverlay:Hide()
+    ReputationFrame_Update()
     if option("skinchartabs") then
         CCS.SkinCharacterButtons()
     elseif CharacterFrameTab1 and CharacterFrameTab1.CCS_BG and CharacterFrameTab1.CCS_BG:IsShown() then
@@ -449,7 +454,7 @@ local function TryLoopItems()
     end
 end
 
-local function ReputationFrame_Update()
+ReputationFrame_Update = function()
     local ks={ReputationFrame.ScrollBox.ScrollTarget:GetChildren()}; 
     local gender = UnitSex("player");
     local xtext, factiontext= "", ""
@@ -1324,8 +1329,11 @@ function CCS.HookSetup()
                 NarciMiniTalentTree:ClearAllPoints(); 
                 NarciMiniTalentTree:SetPoint("TOPLEFT", CharacterFrameBg, "TOPRIGHT", 0, 0)
             end                        
+            for _, r in ipairs({ CharacterModelScene:GetRegions() }) do if r.Hide then r:Hide() end end
+            CharacterModelFrameBackgroundOverlay:Hide()            
         end)
         PaperDollSidebarTab1._ccsHooked = true
+
     end
 
     if not PaperDollSidebarTab2._ccsHooked then
@@ -1380,6 +1388,9 @@ function CCS.HookSetup()
                 NarciMiniTalentTree:ClearAllPoints()
                 NarciMiniTalentTree:SetPoint("TOPLEFT", CharacterFrameBg, "TOPRIGHT", 0, 0)
             end
+            for _, r in ipairs({ CharacterModelScene:GetRegions() }) do if r.Hide then r:Hide() end end
+            CharacterModelFrameBackgroundOverlay:Hide()
+            
         end)
 
         PaperDollSidebarTab2._ccsHooked = true
@@ -1412,7 +1423,9 @@ function CCS.HookSetup()
             if C_AddOns.IsAddOnLoaded("Narcissus") then -- Just relocate the mini talent tree so it isn't hidden behind the character frame.
                 NarciMiniTalentTree:ClearAllPoints(); 
                 NarciMiniTalentTree:SetPoint("TOPLEFT", CharacterFrameBg, "TOPRIGHT", 0, 0)
-            end            
+            end   
+            for _, r in ipairs({ CharacterModelScene:GetRegions() }) do if r.Hide then r:Hide() end end
+            CharacterModelFrameBackgroundOverlay:Hide()
         end)
         PaperDollSidebarTab3._ccsHooked = true
     end
@@ -1498,10 +1511,10 @@ function module:SetupBlizzardFrameOverrides()
     CharacterFrameTitleText:ClearAllPoints();
     CharacterFrameTitleText:SetPoint("LEFT", CharacterFrame, "LEFT", 50, 0)
     CharacterFrameTitleText:SetPoint("RIGHT", CharacterFrameInset.Bg, "RIGHT", -40, 0)
-
     CharacterLevelText:ClearAllPoints()
     CharacterLevelText:SetPoint("TOP", CharacterFrameTitleText, "BOTTOM", 0, 0)
-
+    CharacterFrameTitleText:SetShown(option("showcharname"))
+    CharacterLevelText:SetShown(option("showclasslevel"))
     CharacterFrame.NineSlice:Hide()
     CharacterFramePortrait:Hide()
 
@@ -1701,6 +1714,17 @@ function module:SetupBlizzardFrameOverrides()
     CharacterModelFrameBackgroundOverlay:SetPoint("TOPLEFT", CharacterModelFrameBackgroundTopLeft, "TOPLEFT", 0, 0)
     CharacterModelFrameBackgroundOverlay:SetPoint("BOTTOMRIGHT", CharacterModelFrameBackgroundBotRight, "BOTTOMRIGHT", 0, 70)
     CharacterModelFrameBackgroundOverlay:Hide()
+    CharacterModelFrameBackgroundOverlay:SetTexture("")
+    for _, r in ipairs({ CharacterModelScene:GetRegions() }) do if r.Hide then r:Hide() end end
+    
+    if PaperDollInnerBorderBottom then PaperDollInnerBorderBottom:Hide() end
+    if PaperDollInnerBorderBottom2 then PaperDollInnerBorderBottom2:Hide() end
+    if PaperDollInnerBorderBottomLeft then PaperDollInnerBorderBottomLeft:Hide() end
+    if PaperDollInnerBorderBottomRight then PaperDollInnerBorderBottomRight:Hide() end
+    if PaperDollInnerBorderTop then PaperDollInnerBorderTop:Hide() end
+    if PaperDollInnerBorderTopLeft then PaperDollInnerBorderTopLeft:Hide() end
+    if PaperDollInnerBorderTopRight then PaperDollInnerBorderTopRight:Hide() end
+    
     if CCS.Themes ~= nil and CCS.Themes.enabled == true and option("theme") ~= "None" then
         CCS.CreateChonkyNineSlice(modbg)
     end
@@ -2199,7 +2223,8 @@ function CCS.CharacterSheetEventHandler(event, ...)
         if CCS_TitleSearchBox then
             CCS_TitleSearchBox:SetShown(option("showtitlesearch"))
         end
-
+        CharacterFrameTitleText:SetShown(option("showcharname"))
+        CharacterLevelText:SetShown(option("showclasslevel"))
         return true
     elseif event == "CCS_EVENT_CSHOW" then
 

@@ -24,6 +24,10 @@ CCS.Modules[module.Name] = module
 CCS.AscendantVoidforgedBonusIDs = {
     [13653] = {tier = "Hero", icon = "Interface\\ICONS\\INV_1205_Voidforge_SovereignVoidcores_CosmicVoid.blp",},
     [13654] = {tier = "Myth", icon = "Interface\\ICONS\\INV_1205_Voidforge_SovereignVoidcores_CosmicVoid.blp",},
+	-- Ascendant Venomforged
+    [12848] = {tier = "Hero", icon = "Interface\\ICONS\\Inv_1205_voidforge_sovereignvoidcorefragments_green.blp",},
+	[12856] = {tier = "Myth", icon = "Interface\\ICONS\\Inv_1205_voidforge_sovereignvoidcorefragments_green.blp",},
+	[13852] = {tier = "Myth", icon = "Interface\\ICONS\\Inv_1205_voidforge_sovereignvoidcorefragments_green.blp",},
 }
 
 function CCS.GetAscendantVoidforgedTag(link)

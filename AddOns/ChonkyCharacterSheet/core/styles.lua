@@ -1220,24 +1220,33 @@ function CCS.CreateChonkyCharacterBG(isInspect)
         -- Only adjust for Character frame
         ---------------------------
         if isInspect == false then
+            local top_scale = option("top_tex_scale") or 1
+            local left_scale = option("left_tex_scale") or 1
+            local right_scale = option("right_tex_scale") or 1
+            local t_xoff = option("top_tex_xoff") or 0
+            local t_yoff = option("top_tex_yoff") or 0
+            local l_xoff = option("left_tex_xoff") or 0
+            local l_yoff = option("left_tex_yoff") or 0
+            local r_xoff = option("right_tex_xoff") or 0
+            local r_yoff = option("right_tex_yoff") or 0
+            
             TopOverlay:SetTexture(path .. theme.frame_top_img.texture)
             TopOverlay:SetSize(theme.frame_top_img.w, theme.frame_top_img.h)
-            
-            local ttfontsize = option("fontsize_nametitle") or 12
-            if CCS.CurrentVersion == CCS.FOREVER then -- -60 down
-                TopOverlay:SetPoint("CENTER", CharacterFrameTitleText, "TOP", theme.frame_top_img.cx, theme.frame_top_img.cy + (7+5*ttfontsize/12))
-            else
-                TopOverlay:SetPoint("CENTER", CharacterFrameTitleText, "TOP", theme.frame_top_img.cx, theme.frame_top_img.cy + (7+5*ttfontsize/12))
-            end
+            TopOverlay:SetScale(top_scale)
+
+            TopOverlay:SetPoint("BOTTOM", CharacterFrameBg, "TOP", theme.frame_top_img.cx / top_scale + t_xoff, theme.frame_top_img.cy/top_scale + t_yoff)
+            TopOverlay:SetPoint("CENTER", CharacterFrameTitleText, "CENTER", theme.frame_top_img.cx / top_scale + t_xoff,0)
             TopOverlay:Show()
             LeftOverlay:SetTexture(path .. theme.frame_left_img.texture)
             LeftOverlay:SetSize(theme.frame_left_img.w, theme.frame_left_img.h)
-            LeftOverlay:SetPoint("CENTER", L, "LEFT", theme.frame_left_img.cx, theme.frame_left_img.cy)
+            LeftOverlay:SetScale(left_scale)            
+            LeftOverlay:SetPoint("RIGHT", bg_setpoint, "LEFT", theme.frame_left_img.cx/left_scale + l_xoff, theme.frame_left_img.cy/left_scale + l_yoff)
             LeftOverlay:Show()
 
             RightOverlay:SetTexture(path .. theme.frame_right_img.texture)
             RightOverlay:SetSize(theme.frame_right_img.w, theme.frame_right_img.h)
-            RightOverlay:SetPoint("CENTER", R, "RIGHT", theme.frame_right_img.cx, theme.frame_right_img.cy)
+            RightOverlay:SetScale(right_scale)                        
+            RightOverlay:SetPoint("LEFT", bg_setpoint, "RIGHT", theme.frame_right_img.cx/right_scale + r_xoff, theme.frame_right_img.cy/right_scale + r_yoff)
             RightOverlay:Show()
         end
     ------------------------------------------------------------
@@ -1307,10 +1316,10 @@ function CCS.UpdateThemeInfo()
         if PaperDollFrame.LeftOverlay ~= nil then PaperDollFrame.LeftOverlay:SetShown(option("show_left_texture")) end
         if PaperDollFrame.RightOverlay ~= nil then PaperDollFrame.RightOverlay:SetShown(option("show_right_texture")) end
         if CharacterModelFramebg.ChonkyNS ~= nil then CharacterModelFramebg.ChonkyNS:SetShown(option("show_paperdoll_border")) end
-        if CharacterFrameInsetRight.Bg ~= nil then CharacterFrameInsetRight.Bg:SetShown(option("showsidebarbg")) end
+        if CharacterFrameInsetRight ~= nil and CharacterFrameInsetRight.Bg ~= nil then CharacterFrameInsetRight.Bg:SetShown(option("showsidebarbg")) end
         CCS.SkinItems()
         if InspectFrame ~= nil and InspectFrame.ChonkyNS ~= nil then InspectFrame.ChonkyNS:SetShown(option("show_inspect_frame"))  end
-        if InspectModelFramebg.ChonkyNS ~= nil then InspectModelFramebg.ChonkyNS:SetShown(option("show_paperdolli_border"))  end        
+        if InspectModelFramebg ~= nil and InspectModelFramebg.ChonkyNS ~= nil then InspectModelFramebg.ChonkyNS:SetShown(option("show_paperdolli_border"))  end        
         if ccsmi_sf ~= nil and ccsmi_sf.ChonkyNS ~= nil then ccsmi_sf.ChonkyNS:SetShown(option("show_mplusi_frame_border"))  end
 
         if CharacterStatsPane.ChonkyNS ~= nil then CharacterStatsPane.ChonkyNS:SetShown(option("showstatborder")) end

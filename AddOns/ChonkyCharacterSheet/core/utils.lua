@@ -2319,7 +2319,7 @@ function CCS.updateLocationInfo(unit, slotIndex, framename)
                         --Enchant = enchant
                         Enchant = StripEnchantPrefix(enchant)
                     end
-                  
+
                     -- Base item level
                     local ilvl = text:match(ITEM_LEVEL:gsub("%%d", "(%%d+)"))
                     if ilvl and (tonumber(ilvl) ~= tonumber(itemiLevel or 0)) then
@@ -2337,7 +2337,7 @@ function CCS.updateLocationInfo(unit, slotIndex, framename)
                     if quality then
                      Quality = quality
                     end
-                    
+
                     -- Empty socket
                     if text:match(EMPTY_SOCKET_PRISMATIC) then
                         EmptySocket = true
@@ -2422,7 +2422,7 @@ function CCS.updateLocationInfo(unit, slotIndex, framename)
     if CCS.CurrentVersion ~= CCS.FOREVER then 
         -- Ascendant Voidforged override (likely will use this for other similar upgrades in the future)
         local ascIcon, ascTier = CCS.GetAscendantVoidforgedTag(link)
-        if ascIcon then
+        if ascIcon and option("maxupgradehide") == false then
             local ascIconsize = option("fontsize_iilvl"..suffix) or 10
             local tex = "|T" .. ascIcon .. ":"..ascIconsize..":"..ascIconsize.."|t"
             local label = ascTier or ""
@@ -2572,6 +2572,29 @@ function CCS.updateLocationInfo(unit, slotIndex, framename)
 
         if option("showenchants"..suffix) == true then
 
+            local enchantlen = option("enchantnamelength") or 100
+            local ellipsis = "..."
+            
+            -- detect trailing icon escape (|A...|a or |T...|t)
+            local iconStart = Enchant:match(".*()|[AT].-|[at]$")
+
+            -- strip icon if option is enabled
+            if option("hideenchantquality") == true and iconStart then
+                Enchant = Enchant:sub(1, iconStart - 1)
+                iconStart = nil -- icon removed, prevents later logic from reusing it
+            end
+
+            -- truncation logic
+            if strlen(Enchant) > enchantlen then
+                Enchant = SafeUtf8Sub(Enchant, 1, enchantlen - strlen(ellipsis)) .. ellipsis
+            end
+
+            enchantTxt:SetText(Enchant)
+            enchantTxt:Show()
+        end
+        --[[
+        if option("showenchants"..suffix) == true then
+
             -- detect trailing icon escape (|A...|a or |T...|t)
             local enchantlen = option("enchantnamelength") or 100
             local ellipsis = "..."
@@ -2591,7 +2614,7 @@ function CCS.updateLocationInfo(unit, slotIndex, framename)
             enchantTxt:SetText(Enchant)
             enchantTxt:Show()
             
-        end
+        end--]]
 
         -- Display Durability text (white)
         if isPlayer and option("showdurability") == true and durMax ~= nil and durCur ~= nil and durMax > 0 and durCur ~= durMax then

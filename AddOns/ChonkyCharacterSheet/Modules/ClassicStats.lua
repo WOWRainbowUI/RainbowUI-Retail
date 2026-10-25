@@ -1370,6 +1370,7 @@ local function CreateHeaderRow(parent, frameName, section)
 	color.r = secColor_r or color.r
 	color.g = secColor_g or color.g
 	color.b = secColor_b or color.b
+	color.a = secColor_a or 1
 	
     -- Extract section key from "CCS_Header_<key>"
     if not row.sectionKey then
@@ -1846,7 +1847,7 @@ local function CreateContentRow(parent, frameName, rowName, iconPath, color)
 
     end
 	
-    row.highlight:SetColorTexture(color.r, color.g, color.b, 0.3)
+    row.highlight:SetColorTexture(color.r, color.g, color.b, color.a)--0.3)
 	row.isZero=false
     return row
 end
@@ -2358,7 +2359,7 @@ local function ApplyStyle(self)
         -------------------------------------------------
         local secColor = option(section.colorKey)
         if frame and frame.bg and secColor then
-            frame.bg:SetColorTexture(secColor[1], secColor[2], secColor[3], 0.2)
+            frame.bg:SetColorTexture(secColor[1], secColor[2], secColor[3], secColor[4] or 0.2)
         end
 
         -------------------------------------------------
@@ -2490,7 +2491,7 @@ function module:Initialize(onlyStyle)
             self.sections[section.key].rows = self.sections[section.key].rows or {}
             self.sections[section.key].colorKey = section.colorKey
 
-            local secColor_r, secColor_g, secColor_b = unpack(option(section.colorKey))
+            local secColor_r, secColor_g, secColor_b, secColor_a= unpack(option(section.colorKey))
             sectionFrame:SetWidth(rowWidth + 4)
 
             if not previousSection then
@@ -2538,6 +2539,7 @@ function module:Initialize(onlyStyle)
                         r = secColor_r or section.color.r,
                         g = secColor_g or section.color.g,
                         b = secColor_b or section.color.b,
+						a = secColor_a or 1,
                     }
                 )
 
