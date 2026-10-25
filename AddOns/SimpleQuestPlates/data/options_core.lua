@@ -62,6 +62,7 @@ function SQP:CreateOptionsPanel()
         theme        = BrandTheme,
         title        = SQP.L["SimpleQuestPlates"],
         sidebarTitle = SQP.L["SimpleQuestPlates"],
+        sidebarIcon  = false,
         subtitle     = SQP.L["Quest tracking overlay for enemy nameplates"],
         author       = SQP.AUTHOR or "DonnieDice",
         website      = "|cff7289daDiscord:|r |cffffd700discord.gg/N7kdKAHVVF|r",
