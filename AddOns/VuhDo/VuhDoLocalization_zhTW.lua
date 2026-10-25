@@ -1,4 +1,4 @@
-﻿if (GetLocale() ~= "zhTW") then
+if (GetLocale() ~= "zhTW") then
 	return;
 end
 -- @EXACT = true: Translation has to be the exact(!) match in the clients language,
@@ -590,7 +590,6 @@ VUHDO_I18N_AURA_GROUP_INFERRED_ATONEMENT = "贖罪（推測）";
 VUHDO_I18N_AURA_GROUP_MY_DEBUFFS = "我的減益";
 VUHDO_I18N_AURA_GROUP_MY_EXTERNAL_DEF = "我的外部防禦技能";
 VUHDO_I18N_AURA_GROUP_MY_RAID_DEBUFFS = "我的團隊減益";
-VUHDO_I18N_AURA_GROUP_MY_RAID_DEBUFFS = "我的團隊減益";
 VUHDO_I18N_AURA_GROUP_PRESERVATION_EVOKER_HOTS = "守護喚能師持續治療";
 VUHDO_I18N_AURA_GROUP_AUGMENTATION_EVOKER_BUFFS = "增效喚能師增益";
 VUHDO_I18N_AURA_GROUP_RESTORATION_DRUID_HOTS = "恢復德魯伊持續治療";
@@ -668,7 +667,6 @@ VUHDO_I18N_AURA_GROUP_RELEVANT_BUFFS = "相關增益";
 VUHDO_I18N_AURA_GROUP_RELEVANT_DEBUFFS = "相關減益";
 VUHDO_I18N_AURA_GROUP_TIMED_DEBUFFS = "限時減益";
 
-VUHDO_I18N_PT_NAME_AMBIGUOUS = "私人坦克名稱不明確：%s。請使用包含伺服器名稱的完整角色名稱。";
 VUHDO_I18N_PT_NAME_AMBIGUOUS = "私人坦克名稱不明確：%s。請使用完整名稱（名字-伺服器或名字-姓氏）。";
 VUHDO_I18N_AURA_GROUP_PRIEST_WEAKENED_SOUL = "牧師虛弱靈魂";
 VUHDO_I18N_BW_MAIN_HAND = "主手";

@@ -648,7 +648,6 @@ VUHDO_I18N_AURA_GROUP_RELEVANT_BUFFS = "Relevant Buffs";
 VUHDO_I18N_AURA_GROUP_RELEVANT_DEBUFFS = "Relevant Debuffs";
 VUHDO_I18N_AURA_GROUP_TIMED_DEBUFFS = "Timed Debuffs";
 
-VUHDO_I18N_PT_NAME_AMBIGUOUS = "Private tank name ambiguous: %s. Use a realm-qualified full name.";
 VUHDO_I18N_PT_NAME_AMBIGUOUS = "私人坦克名称不明確：%s。请使用完整名称（名字-伺服器或名字-姓氏）。";
 VUHDO_I18N_AURA_GROUP_PRIEST_WEAKENED_SOUL = "牧師虚弱灵魂";
 VUHDO_I18N_BW_MAIN_HAND = "主手";

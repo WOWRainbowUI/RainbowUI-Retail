@@ -1,3 +1,4 @@
+## Dependencies: Ace3
 ## DefaultState: disabled
 ## Notes-zhTW: VuhDo ['vu:du:] |n用來取代隊伍/團隊框架，滑鼠點一下就能快速施放法術/補血，是補師的好朋友!|n 可以自訂框架的外觀，提供治療、驅散、施放增益效果、使用飾品、距離檢查和仇恨提示的功能。|n|cffffd200使用方法：|r點小地圖按鈕開啟設定。
 ## Title-zhTW: |cffFF7F00[團隊]|r 框架 (巫毒)
