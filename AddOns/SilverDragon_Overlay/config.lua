@@ -268,6 +268,7 @@ function module:RegisterConfig()
                         order = 30,
                     },
                     routes = config.toggle("巡邏路線", "顯示部分怪物的巡邏路線", 40),
+                    quantize = config.toggle("避免圖示重疊", "將相近圖示移到格線上，避免互相重疊", 45),
                     loot = lootSelect(50),
                     tooltip_help = config.toggle("操作提示", "在浮動提示中顯示滑鼠操作快捷方式", 53),
                 },
