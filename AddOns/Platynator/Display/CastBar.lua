@@ -10,7 +10,7 @@ function addonTable.Display.CastBarMixin:PostInit()
     self.modColors = addonTable.Display.Utilities.TintAutoColors(self.details.autoColors, self.details.background.color)
   end
 
-  self.showInterruptMarker = self.details.interruptMarker.asset ~= "none"
+  self.showInterruptMarker = self.interruptMarker.active
 end
 
 function addonTable.Display.CastBarMixin:SetUnit(unit)

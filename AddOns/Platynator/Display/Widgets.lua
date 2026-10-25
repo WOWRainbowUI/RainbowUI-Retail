@@ -28,7 +28,7 @@ local function InitBar(frame, details)
     frame:Strip()
   end
 
-  local borderDetails = LSM:Fetch("ninesliceborder", details.border.asset, true) or LSM:Fetch("ninesliceborder", "Platy: 4px")
+  local borderDetails = LSM:Fetch("ninesliceborder", details.border.asset, true) or LSM:Fetch("ninesliceborder", "MM: 4px")
   assert(borderDetails)
   local borderSliceDetails = LSM:Fetch("nineslice", borderDetails.nineslice)
   assert(borderSliceDetails)
@@ -38,14 +38,14 @@ local function InitBar(frame, details)
   frame.borderWidth = frame.rawWidth + (borderSliceDetails.padding.left + borderSliceDetails.padding.right) / 2
   frame.borderHeight = frame.rawHeight + (borderSliceDetails.padding.top + borderSliceDetails.padding.bottom) / 2
 
-  local foreground = LSM:Fetch("statusbar", details.foreground.asset, true) or LSM:Fetch("statusbar", "Platy: Solid White")
+  local foreground = LSM:Fetch("statusbar", details.foreground.asset, true) or LSM:Fetch("statusbar", "MM: Solid White")
   frame.statusBar:SetScale(borderSliceDetails.scaleModifier * details.scale)
   frame.statusBar:SetMinMaxValues(0, 1)
   frame.statusBar:SetValue(1)
   frame.statusBar:SetStatusBarTexture(foreground)
   frame.statusBar:GetStatusBarTexture():SetDrawLayer("ARTWORK")
 
-  local background = LSM:Fetch("statusbar", details.background.asset, true) or LSM:Fetch("statusbar", "Platy: Solid Grey")
+  local background = LSM:Fetch("statusbar", details.background.asset, true) or LSM:Fetch("statusbar", "MM: Solid Grey")
   frame.background:SetTexture(background)
   frame.background:SetAllPoints()
   frame.background:SetScale(borderSliceDetails.scaleModifier * details.scale)
@@ -55,19 +55,22 @@ local function InitBar(frame, details)
   frame.border:SetVertexColor(details.border.color.r, details.border.color.g, details.border.color.b, details.border.color.a)
   frame.border:SetTextureSliceMargins(borderSliceDetails.margins.left, borderSliceDetails.margins.top, borderSliceDetails.margins.right, borderSliceDetails.margins.bottom)
   frame.statusBar:GetStatusBarTexture():RemoveMaskTexture(frame.edgeMask)
-  if details.marker.asset ~= "none" then
-    frame.marker:Show()
-    local markerDetails = addonTable.Assets.BarPositionHighlights[details.marker.asset]
-    frame.marker:SetTexture(markerDetails.file)
-    local color = details.marker.color
-    frame.marker:SetVertexColor(color.r, color.g, color.b)
-    if markerDetails.mask then
-      frame.edgeMask:SetBlockingLoadsRequested(true)
-      frame.edgeMask:SetTexture(markerDetails.mask, "CLAMPTOWHITE", "CLAMPTOWHITE")
-      frame.statusBar:GetStatusBarTexture():AddMaskTexture(frame.edgeMask)
+  frame.marker:Hide()
+  if details.marker.asset ~= "MM: Transparency" then
+    local markerDetails = LSM:Fetch("spark", details.marker.asset)
+    if markerDetails then
+      frame.marker:Show()
+      frame.marker:SetTexture(markerDetails.file)
+      frame.marker.rawWidth = markerDetails.width
+      frame.marker.rawOffset = markerDetails.offset
+      local color = details.marker.color
+      frame.marker:SetVertexColor(color.r, color.g, color.b)
+      if markerDetails.mask then
+        frame.edgeMask:SetBlockingLoadsRequested(true)
+        frame.edgeMask:SetTexture(markerDetails.mask, "CLAMPTOWHITE", "CLAMPTOWHITE")
+        frame.statusBar:GetStatusBarTexture():AddMaskTexture(frame.edgeMask)
+      end
     end
-  else
-    frame.marker:Hide()
   end
 
   frame.statusBar:GetStatusBarTexture():RemoveMaskTexture(frame.mask)
@@ -92,19 +95,17 @@ local function SizeBar(frame, details)
 
   PixelUtil.SetSize(frame.statusBar, frame.rawWidth * frame.lowerScale, frame.rawHeight * frame.lowerScale)
   PixelUtil.SetSize(frame.border, frame.borderWidth * frame.lowerScale, frame.borderHeight * frame.lowerScale)
-  if details.marker.asset ~= "none" then
-    local markerDetails = addonTable.Assets.BarPositionHighlights[details.marker.asset]
-    PixelUtil.SetSize(frame.marker, markerDetails.width * details.scale * frame.lowerScale, frame.rawHeight * frame.lowerScale)
-    PixelUtil.SetSize(frame.edgeMask, markerDetails.width * details.scale, frame.rawHeight * details.scale)
+  if frame.marker:IsShown() then
+    PixelUtil.SetSize(frame.marker, frame.marker.rawWidth * details.scale * frame.lowerScale, frame.rawHeight * frame.lowerScale)
+    PixelUtil.SetSize(frame.edgeMask, frame.marker.rawWidth * details.scale, frame.rawHeight * details.scale)
   end
 end
 
 local function AnchorBar(frame, details)
   ApplyAnchor(frame, frame.details.anchor)
-  if details.marker.asset ~= "none" then
-    local markerDetails = addonTable.Assets.BarPositionHighlights[details.marker.asset]
-    PixelUtil.SetPoint(frame.marker, "RIGHT", frame.statusBar:GetStatusBarTexture(), "RIGHT", markerDetails.width * details.scale * frame.lowerScale * markerDetails.offset, 0)
-    PixelUtil.SetPoint(frame.edgeMask, "RIGHT", frame.statusBar:GetStatusBarTexture(), "RIGHT", markerDetails.width * details.scale * markerDetails.offset + 1, 0)
+  if frame.marker:IsShown() then
+    PixelUtil.SetPoint(frame.marker, "RIGHT", frame.statusBar:GetStatusBarTexture(), "RIGHT", details.scale * frame.lowerScale * frame.marker.rawOffset, 0)
+    PixelUtil.SetPoint(frame.edgeMask, "RIGHT", frame.statusBar:GetStatusBarTexture(), "RIGHT", details.scale * frame.marker.rawOffset + 1, 0)
   end
 end
 
@@ -211,6 +212,7 @@ function addonTable.Display.GetHealthBar(frame, parent)
   frame:SetFlattensRenderLayers(true)
 
   frame.statusBarAbsorb = CreateFrame("StatusBar", nil, frame)
+  frame.statusBarAbsorb:SetStatusBarTexture("Interface/AddOns/Platynator/Assets/Special/transparent.png")
 
   frame.statusBarCutaway = CreateFrame("StatusBar", nil, frame)
   frame.statusBarCutawayAnimation = frame.statusBarCutaway:CreateAnimationGroup()
@@ -227,6 +229,16 @@ function addonTable.Display.GetHealthBar(frame, parent)
 
   frame.statusBar = CreateFrame("StatusBar", nil, frame)
   frame.statusBar:SetPoint("CENTER")
+  frame.statusBar:SetStatusBarTexture("Interface/AddOns/Platynator/Assets/Special/white.png")
+
+  local absorbMask = frame.statusBar:CreateMaskTexture()
+  absorbMask:SetBlockingLoadsRequested(true)
+  absorbMask:SetTexture("Interface/AddOns/Platynator/Assets/Special/white.png", "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
+  absorbMask:SetTextureSliceMargins(1, 1, 1, 1)
+  absorbMask:SetAllPoints(frame.statusBarAbsorb:GetStatusBarTexture())
+  frame.absorbTexture = frame.statusBar:CreateTexture(nil, "ARTWORK", nil, -1)
+  frame.absorbTexture:SetAllPoints(frame.statusBar)
+  frame.absorbTexture:AddMaskTexture(absorbMask)
 
   frame.statusBarCutaway:SetAllPoints(frame.statusBar)
 
@@ -253,27 +265,26 @@ function addonTable.Display.GetHealthBar(frame, parent)
   function frame:Init(details)
     InitBar(frame, details)
 
-    local borderDetails = LSM:Fetch("ninesliceborder", details.border.asset, true) or LSM:Fetch("ninesliceborder", "Platy: 4px")
+    local borderDetails = LSM:Fetch("ninesliceborder", details.border.asset, true) or LSM:Fetch("ninesliceborder", "MM: 4px")
     assert(borderDetails)
     local borderSliceDetails = LSM:Fetch("nineslice", borderDetails.nineslice)
     assert(borderSliceDetails)
 
     frame.statusBarCutaway:SetShown(details.animate)
 
-    frame.statusBarAbsorb:SetStatusBarTexture(LSM:Fetch("statusbar", details.absorb.asset, true) or LSM:Fetch("statusbar", "Platy: Absorb Wide"))
-    frame.statusBarAbsorb:GetStatusBarTexture():SetVertexColor(details.absorb.color.r, details.absorb.color.g, details.absorb.color.b, details.absorb.color.a)
+    frame.absorbTexture:SetTexture(LSM:Fetch("statusbar", details.absorb.asset, true) or LSM:Fetch("statusbar", "MM: Absorb Wide"))
+    frame.absorbTexture:SetVertexColor(details.absorb.color.r, details.absorb.color.g, details.absorb.color.b, details.absorb.color.a)
     frame.statusBarAbsorb:SetPoint("LEFT", frame.statusBar:GetStatusBarTexture(), "RIGHT")
-    frame.statusBarAbsorb:SetScale(borderSliceDetails.scaleModifier * details.scale)
-    frame.statusBarAbsorb:GetStatusBarTexture():RemoveMaskTexture(frame.mask)
+    frame.absorbTexture:RemoveMaskTexture(frame.mask)
 
-    frame.statusBarCutaway:SetStatusBarTexture(LSM:Fetch("statusbar", details.foreground.asset, true) or LSM:Fetch("statusbar", "Platy: Solid White"))
+    frame.statusBarCutaway:SetStatusBarTexture(LSM:Fetch("statusbar", details.foreground.asset, true) or LSM:Fetch("statusbar", "MM: Solid White"))
     frame.statusBarCutaway:SetScale(borderSliceDetails.scaleModifier * details.scale)
     frame.statusBarCutaway:GetStatusBarTexture():RemoveMaskTexture(frame.mask)
     frame.statusBarCutaway:SetAlpha(0)
     frame.statusBarCutawayMask:SetPoint("LEFT", frame.statusBar:GetStatusBarTexture(), "RIGHT")
     frame.statusBarCutawayMask:SetScale(details.scale)
 
-    frame.statusBarAbsorb:GetStatusBarTexture():AddMaskTexture(frame.mask)
+    frame.absorbTexture:AddMaskTexture(frame.mask)
     frame.statusBarCutaway:GetStatusBarTexture():AddMaskTexture(frame.statusBarCutawayMask)
     frame.statusBarCutaway:GetStatusBarTexture():AddMaskTexture(frame.mask)
 
@@ -303,7 +314,7 @@ function addonTable.Display.GetHealthBar(frame, parent)
 
   function frame:ApplySize()
     SizeBar(frame, frame.details)
-    PixelUtil.SetSize(frame.statusBarAbsorb, frame.rawWidth * frame.lowerScale, frame.rawHeight * frame.lowerScale)
+    PixelUtil.SetSize(frame.statusBarAbsorb, frame.rawWidth, frame.rawHeight)
     PixelUtil.SetSize(frame.statusBarCutawayMask, frame.rawWidth * frame.lowerScale, frame.rawHeight * frame.lowerScale)
   end
 
@@ -332,7 +343,7 @@ function addonTable.Display.GetHealthBar(frame, parent)
       frame.auras[kind].pillar = CreateFrame("Frame", nil, frame, "DisableUntrustedLayoutScriptsTemplate")
     end
     frame.auras[kind].active = true
-    local foreground = LSM:Fetch("statusbar", frame.details.foreground.asset, true) or LSM:Fetch("statusbar", "Platy: Solid White")
+    local foreground = LSM:Fetch("statusbar", frame.details.foreground.asset, true) or LSM:Fetch("statusbar", "MM: Solid White")
 
     local limit = #settings.auras + (settings.showAll.enabled and 1 or 0) + (settings.showNone.enabled and 1 or 0)
     if #frame.auras[kind].textures < limit then
@@ -355,7 +366,7 @@ function addonTable.Display.GetHealthBar(frame, parent)
       details.texture:SetTexture(foreground)
     end
 
-    local markerDetails = addonTable.Assets.BarPositionHighlights[frame.details.marker.asset]
+    local markerDetails = LSM:Fetch("spark", frame.details.marker.asset)
     if markerDetails and markerDetails.mask then
       for _, details in ipairs(frame.auras[kind].textures) do
         details.texture:AddMaskTexture(frame.edgeMask)
@@ -433,18 +444,24 @@ function addonTable.Display.GetCastBar(frame, parent)
   function frame:Init(details)
     InitBar(frame, details)
 
-    local borderDetails = LSM:Fetch("ninesliceborder", details.border.asset, true) or LSM:Fetch("ninesliceborder", "Platy: 4px")
+    local borderDetails = LSM:Fetch("ninesliceborder", details.border.asset, true) or LSM:Fetch("ninesliceborder", "MM: 4px")
     assert(borderDetails)
     local borderSliceDetails = LSM:Fetch("nineslice", borderDetails.nineslice)
     assert(borderSliceDetails)
 
     frame.interruptMarker:SetScale(borderSliceDetails.scaleModifier * details.scale)
     frame.interruptPositioner:SetScale(borderSliceDetails.scaleModifier * details.scale)
-    if details.interruptMarker.asset ~= "none" then
-      local markerDetails = addonTable.Assets.BarPositionHighlights[details.interruptMarker.asset]
-      frame.interruptMarkerPoint:SetTexture(markerDetails.file)
-      local color = details.interruptMarker.color
-      frame.interruptMarkerPoint:SetVertexColor(color.r, color.g, color.b)
+    frame.interruptMarker.active = false
+    if details.interruptMarker.asset ~= "MM: Transparency" then
+      local markerDetails = LSM:Fetch("spark", details.interruptMarker.asset)
+      if markerDetails then
+        frame.interruptMarker.active = true
+        frame.interruptMarker.rawWidth = markerDetails.width
+        frame.interruptMarker.rawOffset = markerDetails.offset
+        frame.interruptMarkerPoint:SetTexture(markerDetails.file)
+        local color = details.interruptMarker.color
+        frame.interruptMarkerPoint:SetVertexColor(color.r, color.g, color.b)
+      end
     end
 
     frame.interruptMarkerPoint:RemoveMaskTexture(frame.mask)
@@ -483,9 +500,8 @@ function addonTable.Display.GetCastBar(frame, parent)
     frame.interruptMarkerPoint:SetHeight(frame.rawHeight * lowerScale)
     frame.interruptMarker:SetSize(frame.rawWidth * lowerScale, frame.rawHeight * lowerScale)
     frame.interruptPositioner:SetSize(frame.rawWidth * lowerScale, frame.rawHeight * lowerScale)
-    if details.interruptMarker.asset ~= "none" then
-      local markerDetails = addonTable.Assets.BarPositionHighlights[details.interruptMarker.asset]
-      PixelUtil.SetSize(frame.interruptMarkerPoint, markerDetails.width * details.scale * lowerScale, frame.rawHeight * lowerScale)
+    if details.interruptMarker.asset ~= "MM: Transparency" then
+      PixelUtil.SetSize(frame.interruptMarkerPoint, frame.interruptMarker.rawWidth * details.scale * lowerScale, frame.rawHeight * lowerScale)
     end
   end
 
@@ -705,7 +721,7 @@ function addonTable.Display.GetHighlight(frame, parent)
   frame.highlight:SetAllPoints()
 
   function frame:Init(details)
-    local highlightDetails = (details.sliced and (LSM:Fetch("nineslice", details.asset, true) or LSM:Fetch("nineslice", "Platy: 7px"))) or (LSM:Fetch("platynator/sizedtexture", details.asset, true) or LSM:Fetch("platynator/sizedtexture", "Platy: Glow"))
+    local highlightDetails = (details.sliced and (LSM:Fetch("nineslice", details.asset, true) or LSM:Fetch("nineslice", "MM: 7px"))) or (LSM:Fetch("platynator/sizedtexture", details.asset, true) or LSM:Fetch("platynator/sizedtexture", "MM: Glow"))
     assert(highlightDetails)
     frame.details = details
 
@@ -751,7 +767,7 @@ function addonTable.Display.GetHighlight(frame, parent)
 
   function frame:ApplySize()
     local details = frame.details
-    local highlightDetails = (details.sliced and (LSM:Fetch("nineslice", details.asset, true) or LSM:Fetch("nineslice", "Platy: 7px"))) or (LSM:Fetch("platynator/sizedtexture", details.asset, true) or LSM:Fetch("platynator/sizedtexture", "Platy: Glow"))
+    local highlightDetails = (details.sliced and (LSM:Fetch("nineslice", details.asset, true) or LSM:Fetch("nineslice", "MM: 7px"))) or (LSM:Fetch("platynator/sizedtexture", details.asset, true) or LSM:Fetch("platynator/sizedtexture", "MM: Glow"))
     assert(highlightDetails)
     if details.sliced then
       local width, height = details.width * addonTable.Assets.BarBordersSize.width, details.height * addonTable.Assets.BarBordersSize.height
@@ -878,7 +894,7 @@ function addonTable.Display.GetFlashingHighlight(frame, parent)
   frame.Animation:Stop()
 
   function frame:Init(details)
-    local highlightDetails = (details.sliced and (LSM:Fetch("nineslice", details.asset, true) or LSM:Fetch("nineslice", "Platy: 7px"))) or (LSM:Fetch("platynator/sizedtexture", details.asset, true) or LSM:Fetch("platynator/sizedtexture", "Platy: Glow"))
+    local highlightDetails = (details.sliced and (LSM:Fetch("nineslice", details.asset, true) or LSM:Fetch("nineslice", "MM: 7px"))) or (LSM:Fetch("platynator/sizedtexture", details.asset, true) or LSM:Fetch("platynator/sizedtexture", "MM: Glow"))
     assert(highlightDetails)
     frame.details = details
     frame.highlight:SetAlpha(1)
@@ -915,7 +931,7 @@ function addonTable.Display.GetFlashingHighlight(frame, parent)
 
   function frame:ApplySize()
     local details = frame.details
-    local highlightDetails = (details.sliced and (LSM:Fetch("nineslice", details.asset, true) or LSM:Fetch("nineslice", "Platy: 7px"))) or (LSM:Fetch("platynator/sizedtexture", details.asset, true) or LSM:Fetch("platynator/sizedtexture", "Platy: Glow"))
+    local highlightDetails = (details.sliced and (LSM:Fetch("nineslice", details.asset, true) or LSM:Fetch("nineslice", "MM: 7px"))) or (LSM:Fetch("platynator/sizedtexture", details.asset, true) or LSM:Fetch("platynator/sizedtexture", "MM: Glow"))
     assert(highlightDetails)
     if details.sliced then
       local width, height = details.width * addonTable.Assets.BarBordersSize.width, details.height * addonTable.Assets.BarBordersSize.height
@@ -961,7 +977,7 @@ function addonTable.Display.GetBorderedHighlight(frame, parent)
 
     frame.details = details
 
-    local borderDetails = LSM:Fetch("ninesliceborder", details.border.asset, true) or LSM:Fetch("ninesliceborder", "Platy: 4px")
+    local borderDetails = LSM:Fetch("ninesliceborder", details.border.asset, true) or LSM:Fetch("ninesliceborder", "MM: 4px")
     assert(borderDetails)
     local borderSliceDetails = LSM:Fetch("nineslice", borderDetails.nineslice)
     assert(borderSliceDetails)
@@ -971,7 +987,7 @@ function addonTable.Display.GetBorderedHighlight(frame, parent)
     frame.borderWidth = frame.rawWidth + (borderSliceDetails.padding.left + borderSliceDetails.padding.right) / 2
     frame.borderHeight = frame.rawHeight + (borderSliceDetails.padding.top + borderSliceDetails.padding.bottom) / 2
 
-    local background = LSM:Fetch("statusbar", details.background.asset, true) or LSM:Fetch("statusbar", "Platy: Solid Grey")
+    local background = LSM:Fetch("statusbar", details.background.asset, true) or LSM:Fetch("statusbar", "MM: Solid Grey")
     frame.background:SetTexture(background)
     frame.background:SetAllPoints()
     frame.background:SetScale(borderSliceDetails.scaleModifier * details.scale)
@@ -1046,7 +1062,7 @@ function addonTable.Display.GetAuraHighlight(frame, parent)
       frame.auras[kind].pillar = CreateFrame("Frame", nil, frame, "DisableUntrustedLayoutScriptsTemplate")
     end
     frame.auras[kind].active = true
-    local highlightDetails = (frame.details.sliced and (LSM:Fetch("nineslice", frame.details.asset, true) or LSM:Fetch("nineslice", "Platy: 7px"))) or (LSM:Fetch("platynator/sizedtexture", frame.details.asset, true) or LSM:Fetch("platynator/sizedtexture", "Platy: Glow"))
+    local highlightDetails = (frame.details.sliced and (LSM:Fetch("nineslice", frame.details.asset, true) or LSM:Fetch("nineslice", "MM: 7px"))) or (LSM:Fetch("platynator/sizedtexture", frame.details.asset, true) or LSM:Fetch("platynator/sizedtexture", "MM: Glow"))
 
     local limit = #settings.auras + (settings.showAll.enabled and 1 or 0) + (settings.showNone.enabled and 1 or 0)
     if #frame.auras[kind].textures < limit then

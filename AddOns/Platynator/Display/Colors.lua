@@ -160,6 +160,36 @@ local function SplitEvaluate(state, r1, g1, b1, a1, r2, g2, b2, a2)
     C_CurveUtil.EvaluateColorValueFromBoolean(state, a1 or 1, a2 or 1)
 end
 
+local bnetFriendCacheFrame
+local bnetFriendCache = {}
+local function CacheBNetFriends(indexStart, indexEnd)
+  for i = indexStart, indexEnd do
+    for j = 1, C_BattleNet.GetFriendNumGameAccounts(i) do
+      local info = C_BattleNet.GetFriendGameAccountInfo(i,  j)
+      if info.playerGuid then
+        bnetFriendCache[info.playerGuid] = true
+      end
+    end
+  end
+end
+local function CheckFriendGUID(guid)
+  if not bnetFriendCacheFrame then
+    bnetFriendCacheFrame = CreateFrame("Frame")
+    bnetFriendCacheFrame:RegisterEvent("BN_FRIEND_ACCOUNT_ONLINE")
+    bnetFriendCacheFrame:RegisterEvent("BN_FRIEND_INFO_CHANGED")
+    bnetFriendCacheFrame:SetScript("OnEvent", function(_, event, index)
+      if event == "BN_FRIEND_ACCOUNT_ONLINE" or not index then
+        CacheBNetFriends(1, BNGetNumFriends())
+      else
+        CacheBNetFriends(index, index)
+      end
+    end)
+    CacheBNetFriends(1, BNGetNumFriends())
+  end
+
+  return C_FriendList.IsFriend(guid) or bnetFriendCache[guid]
+end
+
 function addonTable.Display.GetColor(settings, state, unit)
   local colorQueue = {}
   for _, s in ipairs(settings) do
@@ -514,6 +544,13 @@ function addonTable.Display.GetColor(settings, state, unit)
     elseif s.kind == "myClassColor" then
       local _, class = UnitClass("player")
       table.insert(colorQueue, {color = s.colors[class] or RAID_CLASS_COLORS[class]})
+    elseif s.kind == "friendList" then
+      if state.isPlayer then
+        local guid = UnitGUID(unit)
+        if not issecretvalue(guid) and CheckFriendGUID(guid) then
+          table.insert(colorQueue, {color = s.colors.friend})
+        end
+      end
     end
   end
 

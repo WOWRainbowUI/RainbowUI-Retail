@@ -16,8 +16,8 @@ local dispelColorMap = {
 }
 
 local function GetAurasPoolLegacy(self)
-  local borderAsset = LSM:Fetch("nineslice", "Platy: 1px")
-  local dispelAsset = LSM:Fetch("nineslice", "Platy: 4px")
+  local borderAsset = LSM:Fetch("nineslice", "MM: 1px")
+  local dispelAsset = LSM:Fetch("nineslice", "MM: 4px")
   return CreateFramePool("Frame", self, "PlatynatorNameplateBuffButtonTemplate", nil, false, function(frame)
     frame.Border = frame:CreateTexture(nil, "OVERLAY")
     frame.Border:SetAllPoints(true)

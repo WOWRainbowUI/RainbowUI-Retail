@@ -143,8 +143,8 @@ local function StyleAura(auraFrame, details, container)
 end
 
 local function GetAurasInitializerModern(container)
-  local borderAsset = LSM:Fetch("nineslice", "Platy: 1px")
-  local dispelAsset = LSM:Fetch("nineslice", "Platy: 4px")
+  local borderAsset = LSM:Fetch("nineslice", "MM: 1px")
+  local dispelAsset = LSM:Fetch("nineslice", "MM: 4px")
   return function(frame)
     table.insert(container.frames, frame)
     frame:SetFlattensRenderLayers(true)

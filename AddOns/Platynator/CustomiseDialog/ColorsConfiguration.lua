@@ -374,6 +374,7 @@ addonTable.CustomiseDialog.ColorsConfig = {
         getter = function(details)
           return {color = details.colors.miniboss, enabled = details.enabled.miniboss}
         end,
+        hide = not addonTable.Constants.IsRetail,
       },
       {
         label = addonTable.Locales.CASTER,
@@ -1268,6 +1269,27 @@ addonTable.CustomiseDialog.ColorsConfig = {
       },
     },
   },
+  ["friendList"] = {
+    label = addonTable.Locales.FRIENDS_LIST,
+    default = {
+      kind = "friendList",
+      colors = {
+        friend = GetColor("9dff00"),
+      },
+    },
+    entries = {
+      {
+        label = addonTable.Locales.FRIEND,
+        kind = "colorPicker",
+        setter = function(details, value)
+          details.colors.friend = value
+        end,
+        getter = function(details)
+          return details.colors.friend
+        end,
+      },
+    },
+  },
 }
 
 addonTable.CustomiseDialog.ColorsConfigOrder = {
@@ -1293,6 +1315,7 @@ addonTable.CustomiseDialog.ColorsConfigOrder = {
   "quest",
   "party",
   "guild",
+  "friendList",
   "classColors",
   "myClassColor",
   "difficulty",
