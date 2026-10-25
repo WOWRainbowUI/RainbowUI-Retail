@@ -1,8 +1,7 @@
 ## Interface: 120100, 120105, 16001
 ## Title: Coolinator
-## Version: 164
+## Version: 165
 ## Author: plusmouse
-## Dependencies: MouseMedia
 ## OptionalDeps: Masque
 ## SavedVariables: COOLINATOR_CONFIG
 ## SavedVariablesPerCharacter: COOLINATOR_CURRENT_PROFILE, COOLINATOR_LAST_INSTANCE
@@ -25,6 +24,8 @@ Libs/LibStub/LibStub.lua
 Libs/CallbackHandler-1.0/CallbackHandler-1.0.lua
 Libs/LibSharedMedia-3.0/lib.xml
 Libs/LibEditModeOverride/LibEditModeOverride.xml
+
+MouseMedia/embed.xml
 
 Locales.lua
 
