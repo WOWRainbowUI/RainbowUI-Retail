@@ -2,7 +2,7 @@
 ## Interface: 11509
 ## Title: HidingBar
 ## Author: sfmict
-## Version: v12.1.7
+## Version: v12.1.9
 ## IconTexture: Interface\AddOns\HidingBar\media\icon
 ## Notes: Convenient hiding panel
 ## Notes-esES: Panel de ocultación conveniente
