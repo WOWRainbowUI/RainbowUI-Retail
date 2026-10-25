@@ -22,6 +22,60 @@ local UtilityNotifications = MikSBT.Components.UtilityNotifications
 local Client = MikSBT.Compatibility.Client
 local RestrictedValue = MikSBT.API.RestrictedValue
 
+local reloadPromptShown = false
+local reloadPromptFrame
+
+local function HideCombatSetup()
+	if reloadPromptFrame then reloadPromptFrame:Hide() end
+end
+
+local function NotifyCombatSetup(message)
+	MikSBT.Print(message)
+	if reloadPromptShown then return end
+	reloadPromptShown = true
+	-- Keep this window out of Blizzard's shared static-popup pool, which
+	-- guild controls also traverse before calling protected functions.
+	local frame = CreateFrame("Frame", nil, UIParent,
+		BackdropTemplateMixin and "BackdropTemplate")
+	reloadPromptFrame = frame
+	frame:Hide()
+	frame:SetSize(380, 170)
+	frame:SetPoint("CENTER")
+	frame:SetFrameStrata("DIALOG")
+	frame:SetClampedToScreen(true)
+	frame:EnableMouse(true)
+	frame:SetBackdrop({
+		bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
+		edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+		tile = true, tileSize = 16, edgeSize = 16,
+		insets = { left = 4, right = 4, top = 4, bottom = 4 },
+	})
+	frame:SetBackdropColor(0.02, 0.02, 0.02, 0.9)
+	frame:SetBackdropBorderColor(0.6, 0.5, 0.3, 1)
+	local title = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+	title:SetPoint("TOP", 0, -20)
+	title:SetText("MSBT")
+	local text = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+	text:SetPoint("TOP", 0, -52)
+	text:SetWidth(332)
+	text:SetText("In order for MSBT to start, you need to reload your UI.")
+
+	local reloadButton = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
+	reloadButton:SetSize(140, 26)
+	reloadButton:SetPoint("BOTTOM", -76, 20)
+	reloadButton:SetText(RELOADUI)
+	reloadButton:SetScript("OnClick", function()
+		frame:Hide()
+		ReloadUI()
+	end)
+	local cancelButton = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
+	cancelButton:SetSize(140, 26)
+	cancelButton:SetPoint("BOTTOM", 76, 20)
+	cancelButton:SetText(CANCEL)
+	cancelButton:SetScript("OnClick", function() frame:Hide() end)
+	frame:Show()
+end
+
 local string_find = string.find
 local string_gsub = string.gsub
 local FormatLargeNumber = FormatLargeNumber
@@ -694,7 +748,8 @@ if Client.isMainline or Client.isForever then
 		}),
 		getSaved = function() return MSBTCombatEngine_SavedVars end,
 		setSaved = function(saved) MSBTCombatEngine_SavedVars = saved end,
-		notify = function(message) MikSBT.Print(message) end,
+		notify = NotifyCombatSetup,
+		onReady = HideCombatSetup,
 	})
 end
 
@@ -753,6 +808,7 @@ end
 
 local function Disable()
 	if combatEngine then combatEngine:Stop() end
+	HideCombatSetup()
 	eventFrame:Hide()
 	eventFrame:UnregisterAllEvents()
 	incomingCombat:Reset()

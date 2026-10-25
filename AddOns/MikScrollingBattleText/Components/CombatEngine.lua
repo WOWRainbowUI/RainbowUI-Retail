@@ -11,12 +11,16 @@ function Engine:MaintainLog()
 	if not self.active then return end
 	if ns.mine then ns.mine:Tidy(GetTime()) end
 	if not ns.EventAvailable("COMBAT_LOG_MESSAGE") then return end
+	-- Saved combat-log filters may not be restored when MSBT first starts.
+	if IsLoggedIn and not IsLoggedIn() then return end
 	if self.config.log:IsReady() then
 		self.warned = false
+		if self.config.onReady then self.config.onReady() end
 		ns.KeepCombatLog(true)
 	else
 		ns.KeepCombatLog(false)
-		if not self.warned then
+		if not self.warned
+			and not (InCombatLockdown and InCombatLockdown()) then
 			self.config.notify("Combat text needs its MSBT combat-log filter. "
 				.. "Type /reload to save and activate it.")
 			self.warned = true
@@ -57,6 +61,7 @@ function Engine:Start()
 	local frame = ns.reader.frame
 	frame:RegisterEvent("PLAYER_LOGOUT")
 	frame:RegisterEvent("ADDON_LOADED")
+	frame:RegisterEvent("PLAYER_LOGIN")
 	self:MaintainLog()
 	self.ticker = C_Timer.NewTicker(2, function() self:MaintainLog() end)
 end
@@ -69,7 +74,7 @@ function Engine:HandleEvent(event, ...)
 			self.config.log:WriteSettings()
 		end
 		return
-	elseif event == "ADDON_LOADED" then
+	elseif event == "ADDON_LOADED" or event == "PLAYER_LOGIN" then
 		self:MaintainLog()
 		return
 	end
