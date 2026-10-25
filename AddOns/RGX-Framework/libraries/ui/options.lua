@@ -532,6 +532,7 @@ local function CreateOptionsPanel(UI, opts)
     panel:SetFrameStrata("DIALOG")
     panel:EnableMouse(true)
     local _sidebarIcon  = opts.icon or GetMeta(tAddonName, "IconTexture")
+    if opts.sidebarIcon == false then _sidebarIcon = nil end
     local _sidebarTitle = opts.sidebarTitle or opts.title or tAddonName
     local _sidebarName  = _sidebarIcon
         and format("|T%s:16:16:0:0|t %s", _sidebarIcon, _sidebarTitle)
