@@ -6,7 +6,7 @@
 ## Notes-zhTW: MiliUI Tooltip|n|n米利的浮動提示。|n|n|cffffd200使用方法: |r/mtip 開啟設定。
 ## Notes-zhCN: MiliUI Tooltip|n|n米利的鼠标提示。|n|n|cffffd200使用方法: |r/mtip 打开设置。
 ## Category: Tooltip
-## Category-zhTW: 滑鼠提示
+## Category-zhTW: 浮動提示
 ## Category-zhCN: 鼠标提示
 ## Author: Mili
 ## Version: 2.1.15

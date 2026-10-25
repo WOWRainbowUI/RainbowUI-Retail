@@ -48,7 +48,7 @@ local Controls = ns.Controls
 
 -- 版面常數
 -- 標籤欄寬：宿主可用 Env.LABEL_W 覆蓋（選用）。zhTW 的長標籤在 128 會塞不下，
--- 例如滑鼠提示插件的「隱藏『右鍵點擊顯示選單』提示行」，那邊用 200。
+-- 例如浮動提示插件的「隱藏『右鍵點擊顯示選單』提示行」，那邊用 200。
 local LABEL_W    = ns.WidgetsEnv.LABEL_W or 128     -- 標籤欄寬（靠右對齊）
 local GAP        = 12      -- 標籤與控件間距
 local ROW_H      = 26      -- toggle / color / number
@@ -308,7 +308,7 @@ function Controls.Build(parent, controls, ctx, startX, startY, width)
             end)
             -- 選中的文字超過下拉寬度就被截成「…」（材質名、字型名、角色名都很長）。
             -- 表單是一列一個控件、右邊沒有別的東西，讓它在剩下的空間裡自己撐寬。
-            -- 還是放不下的話 CreateDropdown 的滑鼠提示會補上全文。
+            -- 還是放不下的話 CreateDropdown 的浮動提示會補上全文。
             dd:SetMaxWidth(Avail(spec))
             dd:SetPoint("LEFT", parent, "TOPLEFT", cx, y - rowH / 2)
             tinsert(refreshers, function()

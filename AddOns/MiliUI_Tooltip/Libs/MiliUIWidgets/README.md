@@ -50,7 +50,7 @@ python3 .claude/scripts/sync-widgets.py --check   # 只檢查漂移（提交前�
 | `Font(token)` | function | → 字型路徑 |
 | `Accent()` | function | → r, g, b |
 | `PopupParent()` | function | → 確認彈窗掛哪個框 |
-| `LABEL_W` | number（選用） | 表單標籤欄寬，預設 128。標籤普遍偏長的插件（例如滑鼠提示的 zhTW 標籤）調大這個，超過欄寬的標籤會換行而不是溢出被裁 |
+| `LABEL_W` | number（選用） | 表單標籤欄寬，預設 128。標籤普遍偏長的插件（例如浮動提示的 zhTW 標籤）調大這個，超過欄寬的標籤會換行而不是溢出被裁 |
 
 ### NAMESPACE 為什麼一定要不同
 

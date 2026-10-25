@@ -22,7 +22,7 @@ ns.playerClass = select(2, UnitClass("player"))   -- player token 不受 12.1 �
 --                   但事件會點名是哪個插件的哪個函式。
 ------------------------------------------------------------
 ns.Errors.Install(function(line)
-    print(ns.PREFIX_COLOR .. "[米利的滑鼠提示]|r |cffff5555" .. line .. "|r")
+    print(ns.PREFIX_COLOR .. "[米利的浮動提示]|r |cffff5555" .. line .. "|r")
 end)
 
 ------------------------------------------------------------
@@ -135,7 +135,7 @@ do
         local key = tostring(funcName)
         if not seen[key] then
             seen[key] = true
-            print("|cff4DD2FF[米利的滑鼠提示]|r |cffff5555" .. line .. "|r")
+            print("|cff4DD2FF[米利的浮動提示]|r |cffff5555" .. line .. "|r")
         end
     end)
 end

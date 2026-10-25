@@ -157,7 +157,7 @@ SlashCmdList.MILIUITIP = function(msg)
     local cmd, arg = msg:match("^(%S+)%s*(.-)$")
     if cmd == "panel" then
         -- 重繪面板的位置診斷（Panel/Try.lua）：印一次原生怎麼錨、多高、padding、panel 貼在哪
-        local function say(line) print("|cff4DD2FF[米利的滑鼠提示]|r " .. line) end
+        local function say(line) print("|cff4DD2FF[米利的浮動提示]|r " .. line) end
         ns.Panel.DebugDump(say)
     elseif cmd == "record" then
         -- 記錄模式：滑的時候自動記物品／法術提示的原始資料（Core/Record.lua）
@@ -167,9 +167,9 @@ SlashCmdList.MILIUITIP = function(msg)
     elseif msg == "log" then
         ns.logEnabled = not ns.logEnabled
         if ns.logEnabled then wipe(ns.logBuf) end
-        print("|cff4DD2FF[米利的滑鼠提示]|r 診斷記錄：" .. (ns.logEnabled and "開（重現問題後 /mtip logdump 開視窗）" or "關"))
+        print("|cff4DD2FF[米利的浮動提示]|r 診斷記錄：" .. (ns.logEnabled and "開（重現問題後 /mtip logdump 開視窗）" or "關"))
     elseif msg == "logdump" then
-        print("|cff4DD2FF[米利的滑鼠提示]|r 診斷記錄 " .. #ns.logBuf .. " 條")
+        print("|cff4DD2FF[米利的浮動提示]|r 診斷記錄 " .. #ns.logBuf .. " 條")
         ShowLogWindow(table.concat(ns.logBuf, "\n"))
         wipe(ns.logBuf)
     elseif msg == "debug" then
