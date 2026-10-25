@@ -1041,6 +1041,12 @@ TEXT_DELVER_MOUNT_REWARD_REQUIREMENT="Accomplissez Glory of the Midnight Delver 
 TEXT_EXPLORE_EVERSONG_PROGRESS="Suivez la progression d’Explore Eversong Woods. x/y validés.", TEXT_EXPLORE_HARANDAR_PROGRESS="Suivez la progression d’Explore Harandar. x/y validés.", TEXT_EXPLORE_VOIDSTORM_PROGRESS="Suivez la progression d’Explore Voidstorm. x/y validés.", TEXT_EXPLORE_ZULAMAN_PROGRESS="Suivez la progression d’Explore Zul'Aman. x/y validés.",
 }
 for key,value in pairs(phase2) do L[key]=value end
+L.NOTE_RITUAL_BEHAVIOR_VENOMOUS_OOZE = "Tuez des géants venimeux dans la zone centrale du rituel pour obtenir du limon venimeux."
+L.TEXT_FACTION_WEEKLY_STILL_NEEDED_FMT = "Encore nécessaire : %s"
+L.TEXT_ALL_TRACKED_CHARACTERS_COMPLETED = "Tous les personnages suivis ont terminé"
+L.TEXT_NO_TRACKED_CHARACTERS = "Aucun personnage suivi"
+L.OPTION_DISABLE_VOLUME_FOG = "Désactiver le brouillard volumétrique"
+L.OPTION_DISABLE_VOLUME_FOG_DESC = "Supprime le brouillard volumétrique et la brume atmosphérique. Désactiver cette option rétablit le brouillard."
 lv.RegisterLocale("frFR", L)
 
 -- Store for reload functionality

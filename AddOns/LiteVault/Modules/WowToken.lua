@@ -183,7 +183,7 @@ local function FormatDeltaText(delta)
         return nil
     end
 
-    local formatter = lv.FormatGoldAligned or GetCoinTextureString
+    local formatter = lv.FormatGoldAligned or (C_CurrencyInfo and C_CurrencyInfo.GetCoinTextureString)
     if not formatter then
         return tostring(delta)
     end
@@ -193,7 +193,7 @@ local function FormatDeltaText(delta)
 end
 
 local function FormatTokenHistoryPrice(price)
-    local formatter = lv.FormatGoldAligned or GetCoinTextureString
+    local formatter = lv.FormatGoldAligned or (C_CurrencyInfo and C_CurrencyInfo.GetCoinTextureString)
     if not formatter then
         return tostring(price)
     end
@@ -290,7 +290,7 @@ SlashCmdList["LITEVAULTTOKEN"] = function()
         return
     end
 
-    local moneyText = (GetCoinTextureString and GetCoinTextureString(info.price)) or tostring(info.price)
+    local moneyText = (C_CurrencyInfo and C_CurrencyInfo.GetCoinTextureString and C_CurrencyInfo.GetCoinTextureString(info.price)) or tostring(info.price)
     local updatedText = info.updatedText or LText("LABEL_UNKNOWN")
     local affordText = info.canAfford and LText("BUTTON_YES") or LText("BUTTON_NO")
     print("|cff9482c9[LiteVault]|r " .. LText("LABEL_WOW_TOKEN") .. " " .. moneyText)

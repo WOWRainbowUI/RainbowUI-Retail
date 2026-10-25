@@ -1,7 +1,12 @@
 package-as: LiteVault
 
+manual-changelog:
+  filename: CHANGELOG.md
+  markup-type: markdown
+
 ignore:
   - backups
+  - dist
   - .agents
   - .git
   - .github
@@ -17,3 +22,5 @@ ignore:
   - "*.obj"
   - "*SavedVariables*"
   - Libs/LibStub/tests
+  - Modules/FishingDebug.lua
+  - raid.png

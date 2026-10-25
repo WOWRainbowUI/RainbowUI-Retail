@@ -171,22 +171,8 @@ local function GetStartOfDayTimestamp(timestamp)
     return time(d)
 end
 
-local function GetStartOfMonthTimestamp(timestamp)
-    local d = date("*t", timestamp or time())
-    d.day, d.hour, d.min, d.sec = 1, 0, 0, 0
-    return time(d)
-end
-
 local function GetCurrentProfitCharKey()
     return lv.PLAYER_KEY
-end
-
-local function BuildCurrentCharacterProfitOpts()
-    return {
-        charKey = GetCurrentProfitCharKey(),
-        includeIgnored = true,
-        region = nil,
-    }
 end
 
 local function GetCharacterRecord(charKey)
@@ -203,16 +189,6 @@ end
 
 local function GetSourceDefinitions()
     return (lv.GetProfitSources and lv.GetProfitSources()) or {}
-end
-
-local function BuildSourceLabelMap()
-    local labels = {}
-    for _, source in ipairs(GetSourceDefinitions()) do
-        if source and source.key then
-            labels[source.key] = source.label or source.key
-        end
-    end
-    return labels
 end
 
 local function GetTransactionsForPeriod(period, opts)
@@ -351,40 +327,6 @@ local function BuildWarbandProfitGraphSeries()
     }
 end
 
-local function BuildWarbandMonthlyProfitGraphSeries()
-    local now = time()
-    local today = date("*t", now)
-    local dayCount = today.day
-    local transactions = GetTransactionsForPeriod("month")
-    local labels = { order = {} }
-    for day = 1, dayCount do
-        local label = ((day == 1) or (day == dayCount) or (day % 5 == 0)) and tostring(day) or ""
-        labels.order[#labels.order + 1] = {
-            bucketKey = day,
-            label = label,
-            tooltipLabel = string.format("%s %d", date("%b", now), day),
-        }
-    end
-    labels.bucketFn = function(timestamp)
-        return date("*t", timestamp).day
-    end
-    local points = BuildProfitGraphBuckets(transactions, labels)
-    local hasHistory = false
-    for _, point in ipairs(points) do
-        if (point.value or 0) ~= 0 then
-            hasHistory = true
-            break
-        end
-    end
-
-    return {
-        title = UIText("LABEL_WARBAND_PROFIT"),
-        subtitle = UIText("TEXT_PROFIT_WARBAND_MONTHLY_GRAPH_SUBTITLE"),
-        emptyText = hasHistory and UIText("TEXT_PROFIT_GRAPH_EMPTY_WARBAND_MONTHLY") or UIText("TEXT_PROFIT_GRAPH_PENDING_WARBAND_MONTHLY"),
-        points = points,
-    }
-end
-
 local function BuildMonthlyProfitGraphSeries(charKey)
     local now = time()
     local today = date("*t", now)
@@ -435,6 +377,22 @@ end
 local function GetProfitTokenMonthlyText()
     local count = lv.GetCurrentMonthWowTokenPurchaseCount and lv.GetCurrentMonthWowTokenPurchaseCount() or 0
     return string.format(UIText("TEXT_PROFIT_TOKENS_THIS_MONTH_FMT", "Tokens This Month: %d"), count)
+end
+
+local function BuildGoalProgressFromSummary(period, summary)
+    local goalEntry = lv.GetProfitGoal and lv.GetProfitGoal(period) or nil
+    local goalAmount = goalEntry and tonumber(goalEntry.amount) or 0
+    local current = summary and tonumber(summary.net) or 0
+    return {
+        period = period,
+        goal = goalAmount,
+        current = current,
+        remaining = (goalAmount > 0) and math.max(0, goalAmount - current) or 0,
+        percent = (goalAmount > 0) and math.min(1, current / goalAmount) or 0,
+        met = (goalAmount > 0) and (current >= goalAmount) or false,
+        scope = goalEntry and goalEntry.scope or "warband",
+        updatedAt = goalEntry and goalEntry.updatedAt or nil,
+    }
 end
 
 local function ShowProfitTokenMonthlyTooltip(owner)
@@ -563,10 +521,10 @@ local function GetProfitLedgerDisplayTextFromLink(itemLink)
 
     local itemID = tonumber(itemLink:match("|Hitem:(%d+)"))
     local suffix = itemLink:match("|h|r(.*)$") or ""
-    if itemID and GetItemInfo and GetItemQualityColor then
-        local resolvedName, _, quality = GetItemInfo(itemID)
+    if itemID and C_Item and C_Item.GetItemInfo and C_Item.GetItemQualityColor then
+        local resolvedName, _, quality = C_Item.GetItemInfo(itemID)
         if resolvedName and quality then
-            local _, _, _, qualityHex = GetItemQualityColor(quality)
+            local _, _, _, qualityHex = C_Item.GetItemQualityColor(quality)
             if qualityHex and qualityHex ~= "" then
                 return "|c" .. qualityHex .. "[" .. resolvedName .. "]|r" .. suffix
             end
@@ -592,10 +550,7 @@ local function GetProfitLedgerResolvedItemLink(trans)
     local itemID = tonumber(trans.itemID)
     if itemID and itemID > 0 then
         local itemLink = nil
-        if GetItemInfo then
-            itemLink = select(2, GetItemInfo(itemID))
-        end
-        if (not itemLink or itemLink == "") and C_Item and C_Item.GetItemInfo then
+        if C_Item and C_Item.GetItemInfo then
             itemLink = select(2, C_Item.GetItemInfo(itemID))
         end
         if type(itemLink) == "string" and itemLink:match("|Hitem:") then
@@ -686,15 +641,6 @@ GetProfitLedgerDetailText = function(trans)
         return detailName
     end
     return genericFallback
-end
-
-local function GetProfitLedgerSourceDisplay(trans)
-    local sourceTag = GetProfitLedgerSourceTag(trans)
-    local detailText = GetProfitLedgerDetailText(trans)
-    if sourceTag ~= "" and detailText ~= "" then
-        return string.format("%s: %s", sourceTag, detailText)
-    end
-    return detailText ~= "" and detailText or GetProfitLedgerSourceName(trans and trans.source or "")
 end
 
 local function GetProfitLedgerTooltipLink(trans)
@@ -2940,31 +2886,6 @@ C_Timer.After(0, function()
 end)
 
 -- 5. UPDATE FUNCTIONS
-local function GetWarbandTransferNet(summary)
-    if type(summary) == "table" then
-        return summary.net or 0
-    end
-    return 0
-end
-
-local function GetTransferAdjustedWeeklyDelta(charKey, charData)
-    local summary = GetSummaryForPeriod("week", {
-        charKey = charKey,
-        includeIgnored = true,
-        region = nil,
-    })
-    return summary.net or 0
-end
-
-local function GetTransferAdjustedMonthlyDelta(charKey, charData)
-    local summary = GetSummaryForPeriod("month", {
-        charKey = charKey,
-        includeIgnored = true,
-        region = nil,
-    })
-    return summary.net or 0
-end
-
 local function UpdateProfitGoalRow(row, progress)
     if not row then
         return
@@ -3046,26 +2967,17 @@ local function PopulateTopEarnersList(pool, parent, scrollFrame, listContent, en
     scrollFrame:SetVerticalScroll(0)
 end
 
-function lv.UpdateTrackingDisplays()
-    if not LiteVaultDB or not LiteVaultDB[lv.PLAYER_KEY] then return end
-    local data = LiteVaultDB[lv.PLAYER_KEY]
-    local cCol = C_ClassColor.GetClassColor(data.class or "WARRIOR")
-    weeklyUI.title:SetText(string.format(L["LABEL_WEEKLY_QUESTS"], "|c" .. cCol:GenerateHexColor() .. UnitName("player") .. "|r"))
-    
-    data.weeklyQuests = data.weeklyQuests or {}
-    local questList = GetCurrentWeeklyQuestList()
-    UpdateWeeklyWarningLayout(BuildWeeklyWarningText())
-    RenderWeeklyQuestRows(data, questList)
-
-    local currentCharOpts = BuildCurrentCharacterProfitOpts()
-    local weeklySummary = GetSummaryForPeriod("week", currentCharOpts)
-    local monthlySummary = GetSummaryForPeriod("month", currentCharOpts)
-    local warbandSummary = GetSummaryForPeriod("week")
-    local weeklyGoalProgress = lv.GetProfitGoalProgress and lv.GetProfitGoalProgress("week") or nil
-    local monthlyGoalProgress = lv.GetProfitGoalProgress and lv.GetProfitGoalProgress("month") or nil
-    local weeklyTopEarners = lv.GetProfitTopEarners and lv.GetProfitTopEarners("week", 5) or {}
-    local monthlyTopEarners = lv.GetProfitTopEarners and lv.GetProfitTopEarners("month", 5) or {}
-    local tokenText = GetProfitTokenMonthlyText()
+function lv.UpdateProfitDisplays()
+    if not (goldUI and lv.GetProfitDashboardSnapshot) then return end
+    local snapshot = lv.GetProfitDashboardSnapshot(GetCurrentProfitCharKey())
+    local weeklySummary = snapshot.currentWeekly
+    local monthlySummary = snapshot.currentMonthly
+    local warbandSummary = snapshot.warbandWeekly
+    local weeklyGoalProgress = BuildGoalProgressFromSummary("week", snapshot.warbandWeekly)
+    local monthlyGoalProgress = BuildGoalProgressFromSummary("month", snapshot.warbandMonthly)
+    local weeklyTopEarners = snapshot.weeklyTopEarners
+    local monthlyTopEarners = snapshot.monthlyTopEarners
+    local tokenText = string.format(UIText("TEXT_PROFIT_TOKENS_THIS_MONTH_FMT", "Tokens This Month: %d"), snapshot.tokenCount or 0)
     local theme = lv.GetTheme and lv.GetTheme() or nil
 
     UpdateSummaryCard(goldUI.weeklyCard, weeklySummary, "weekly")
@@ -3100,6 +3012,23 @@ function lv.UpdateTrackingDisplays()
 
     if lv.ProfitGraphWindow and lv.ProfitGraphWindow:IsShown() then
         lv.RefreshOpenProfitWindow()
+    end
+end
+
+
+function lv.UpdateTrackingDisplays()
+    if not LiteVaultDB or not LiteVaultDB[lv.PLAYER_KEY] then return end
+    local data = LiteVaultDB[lv.PLAYER_KEY]
+    local cCol = C_ClassColor.GetClassColor(data.class or "WARRIOR")
+    weeklyUI.title:SetText(string.format(L["LABEL_WEEKLY_QUESTS"], "|c" .. cCol:GenerateHexColor() .. UnitName("player") .. "|r"))
+
+    data.weeklyQuests = data.weeklyQuests or {}
+    local questList = GetCurrentWeeklyQuestList()
+    UpdateWeeklyWarningLayout(BuildWeeklyWarningText())
+    RenderWeeklyQuestRows(data, questList)
+
+    if lv.IsProfitViewVisible and lv.IsProfitViewVisible() then
+        lv.UpdateProfitDisplays()
     end
 end
 

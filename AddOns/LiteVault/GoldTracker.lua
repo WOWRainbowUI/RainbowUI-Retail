@@ -1,5 +1,7 @@
 local addonName, lv = ...
 local L = lv.L
+local GT = lv.GoldTrackerInternal
+local state = GT.State
 
 local function LText(key, fallback)
     local value = L and L[key]
@@ -132,59 +134,32 @@ local CACHE_NAME_PATTERNS = {
 
 local ITEM_UPGRADE_INTERACTION_TYPE = (Enum and Enum.PlayerInteractionType and Enum.PlayerInteractionType.ItemUpgrade) or 53
 
-local lastTriggerTime = 0
-local lastTradeTime = 0
-local lastQuestTime = 0
-local lastQuestWasWorldQuest = false
-local lastQuestWasWeekly = false
-local lastTurnedInQuestID = nil
-local pendingWorldQuestGold = false
-local pendingWorldQuestTime = 0
-local confirmedWorldQuestGold = false
-local confirmedWorldQuestTime = 0
-local trackedWorldQuests = {}
-local activeQuestTypes = {}
-local lastTurnInQuestDebug = nil
-local lastQuestRemovalDebug = nil
-local lastAHMailTime = 0
-local lastRepairTime = 0
-local lastGuildRepairTime = 0
-local lastFlightTime = 0
-local cachedPlayerName = nil
-local inItemUpgrade = false
-local recentCacheUsed = false
-local recentCacheToken = 0
-local lastRecentCacheUsedTime = 0
-local lastQueuedCacheSnapshot = nil
-local lastLikelyCacheSlots = {}
-local lastBagSlotSnapshot = {}
+-- Mutable session attribution state is owned by GoldTracker/State.lua.
+state.repairState.extractSourceID = function(guid)
+    if guid == nil then
+        return nil
+    end
 
-local ahPurchaseQueue = {}
-local vendorSellQueue = {}
-local merchantPurchaseQueue = {}
-local mailItemQueue = {}
-local cacheItemCounts = {}
-local pendingCacheSnapshots = {}
-local pendingUpgradeSnapshots = {}
-local pendingItemFixups = {}
-local processedMailIndices = {}
-local postedAuctionItems = {}
-local lastCraftingOrderItem = nil
-local lastCraftingOrderItemID = nil
-local lastCraftingOrderCount = nil
-local lastFulfilledOrderItem = nil
-local lastFulfilledOrderItemID = nil
-local lastFulfilledOrderCount = nil
-local nextQueueToken = 0
+    if issecretvalue and issecretvalue(guid) then
+        return nil
+    end
+
+    if type(guid) ~= "string" then
+        return nil
+    end
+
+    local guidType, databaseID = string_match(guid, "^([^-]+)%-[^-]*%-[^-]*%-[^-]*%-[^-]*%-(%d+)")
+    if guidType ~= "Creature" and guidType ~= "Vehicle" and guidType ~= "GameObject" then
+        return nil
+    end
+
+    return tonumber(databaseID)
+end
 local UPGRADE_BATCH_BURST_WINDOW = 2.0
 local UPGRADE_BATCH_RECENT_WINDOW = 5.0
 local REWARD_PENDING_TTL_SECONDS = 2.5
 local REWARD_PENDING_CHAT_TTL_SECONDS = 1.5
-local pendingQuestReward = nil
-local pendingWorldQuestReward = nil
-local lastSourceAttributionDebug = nil
 local PrunePendingCacheSnapshots
-local HasFreshCacheSignal
 local function ShallowCopy(source)
     local copy = {}
     for key, value in pairs(source or {}) do
@@ -224,23 +199,23 @@ local function SetPendingReward(sourceKey, questID, amount, ttlSeconds, reason)
         reason = reason,
     }
     if sourceKey == "worldQuest" then
-        pendingWorldQuestReward = reward
+        state.pendingWorldQuestReward = reward
     else
-        pendingQuestReward = reward
+        state.pendingQuestReward = reward
     end
     return reward
 end
 
 local function ClearPendingReward(sourceKey)
     if sourceKey == "worldQuest" then
-        pendingWorldQuestReward = nil
+        state.pendingWorldQuestReward = nil
     elseif sourceKey == "quest" then
-        pendingQuestReward = nil
+        state.pendingQuestReward = nil
     end
 end
 
 local function GetPendingReward(sourceKey, nowTime)
-    local reward = (sourceKey == "worldQuest") and pendingWorldQuestReward or pendingQuestReward
+    local reward = (sourceKey == "worldQuest") and state.pendingWorldQuestReward or state.pendingQuestReward
     if not reward then
         return nil
     end
@@ -286,8 +261,6 @@ local QUEST_REWARD_CHAT_GLOBAL_KEYS = {
     "ERR_QUEST_REWARD_MONEY",
 }
 
-local cachedQuestRewardChatPatterns = nil
-local cachedNormalizedQuestRewardChatPatterns = nil
 
 local function NormalizeSystemMessageText(text)
     if type(text) ~= "string" then
@@ -337,12 +310,12 @@ local function BuildLocalizedFormatPattern(fmt)
 end
 
 local function GetQuestRewardChatPatterns()
-    if cachedQuestRewardChatPatterns then
-        return cachedQuestRewardChatPatterns, cachedNormalizedQuestRewardChatPatterns
+    if state.cachedQuestRewardChatPatterns then
+        return state.cachedQuestRewardChatPatterns, state.cachedNormalizedQuestRewardChatPatterns
     end
 
-    cachedQuestRewardChatPatterns = {}
-    cachedNormalizedQuestRewardChatPatterns = {}
+    state.cachedQuestRewardChatPatterns = {}
+    state.cachedNormalizedQuestRewardChatPatterns = {}
 
     local seen = {}
     for _, globalKey in ipairs(QUEST_REWARD_CHAT_GLOBAL_KEYS) do
@@ -350,12 +323,12 @@ local function GetQuestRewardChatPatterns()
         local pattern = BuildLocalizedFormatPattern(fmt)
         if pattern and not seen[pattern] then
             seen[pattern] = true
-            table_insert(cachedQuestRewardChatPatterns, pattern)
-            table_insert(cachedNormalizedQuestRewardChatPatterns, BuildLocalizedFormatPattern(NormalizeSystemMessageText(fmt)) or pattern)
+            table_insert(state.cachedQuestRewardChatPatterns, pattern)
+            table_insert(state.cachedNormalizedQuestRewardChatPatterns, BuildLocalizedFormatPattern(NormalizeSystemMessageText(fmt)) or pattern)
         end
     end
 
-    return cachedQuestRewardChatPatterns, cachedNormalizedQuestRewardChatPatterns
+    return state.cachedQuestRewardChatPatterns, state.cachedNormalizedQuestRewardChatPatterns
 end
 
 local function IsLocalizedQuestRewardMoneyMessage(message)
@@ -394,7 +367,7 @@ end
 
 local function GetPendingCacheSnapshot(windowSeconds)
     PrunePendingCacheSnapshots(windowSeconds)
-    return pendingCacheSnapshots[1]
+    return state.pendingCacheSnapshots[1]
 end
 
 local function IsRealNamedCacheSnapshot(snapshot)
@@ -416,7 +389,7 @@ end
 
 local function FindPendingCacheSnapshot(windowSeconds, predicate)
     PrunePendingCacheSnapshots(windowSeconds)
-    for index, snapshot in ipairs(pendingCacheSnapshots) do
+    for index, snapshot in ipairs(state.pendingCacheSnapshots) do
         if not predicate or predicate(snapshot) then
             return snapshot, index
         end
@@ -452,7 +425,7 @@ local function IsTransactionBackedByRealCacheEvidence(tx)
 end
 
 local function GetRecentQuestFallbackState(nowTime)
-    local age = nowTime - (lastQuestTime or 0)
+    local age = nowTime - (state.lastQuestTime or 0)
     if age >= 0 and age < 5.0 then
         return true, age
     end
@@ -461,35 +434,35 @@ end
 
 local function HasRecentPendingWorldQuestGold(nowTime)
     nowTime = nowTime or GetTime()
-    local age = nowTime - (pendingWorldQuestTime or 0)
-    if pendingWorldQuestGold and age >= 0 and age < 5.0 then
+    local age = nowTime - (state.pendingWorldQuestTime or 0)
+    if state.pendingWorldQuestGold and age >= 0 and age < 5.0 then
         return true, age
     end
-    if pendingWorldQuestGold and age >= 5.0 then
-        pendingWorldQuestGold = false
-        pendingWorldQuestTime = 0
+    if state.pendingWorldQuestGold and age >= 5.0 then
+        state.pendingWorldQuestGold = false
+        state.pendingWorldQuestTime = 0
     end
     return false, age
 end
 
 local function HasRecentConfirmedWorldQuestGold(nowTime)
     nowTime = nowTime or GetTime()
-    local age = nowTime - (confirmedWorldQuestTime or 0)
-    if confirmedWorldQuestGold and age >= 0 and age < 5.0 then
+    local age = nowTime - (state.confirmedWorldQuestTime or 0)
+    if state.confirmedWorldQuestGold and age >= 0 and age < 5.0 then
         return true, age
     end
-    if confirmedWorldQuestGold and age >= 5.0 then
-        confirmedWorldQuestGold = false
-        confirmedWorldQuestTime = 0
+    if state.confirmedWorldQuestGold and age >= 5.0 then
+        state.confirmedWorldQuestGold = false
+        state.confirmedWorldQuestTime = 0
     end
     return false, age
 end
 
 local function ConsumeConfirmedWorldQuestGold()
-    confirmedWorldQuestGold = false
-    confirmedWorldQuestTime = 0
-    pendingWorldQuestGold = false
-    pendingWorldQuestTime = 0
+    state.confirmedWorldQuestGold = false
+    state.confirmedWorldQuestTime = 0
+    state.pendingWorldQuestGold = false
+    state.pendingWorldQuestTime = 0
 end
 
 local function DescribeQuestSourceState(nowTime, pendingReward)
@@ -499,7 +472,7 @@ local function DescribeQuestSourceState(nowTime, pendingReward)
     end
 
     local hasRecentQuest, age = GetRecentQuestFallbackState(nowTime)
-    if hasRecentQuest and not lastQuestWasWorldQuest then
+    if hasRecentQuest and not state.lastQuestWasWorldQuest then
         table_insert(parts, string_format("recent quest fallback age=%.1fs", age))
     end
 
@@ -526,7 +499,7 @@ local function DescribeWorldQuestSourceState(nowTime, pendingReward)
     end
 
     local hasRecentQuest, questAge = GetRecentQuestFallbackState(nowTime)
-    if hasRecentQuest and lastQuestWasWorldQuest then
+    if hasRecentQuest and state.lastQuestWasWorldQuest then
         table_insert(parts, string_format("recent world quest fallback age=%.1fs", questAge))
     end
 
@@ -538,7 +511,7 @@ end
 
 local function DescribeActiveCacheSource(flagWindowSeconds, snapshotWindowSeconds)
     local flagWindow = flagWindowSeconds or 4
-    local hasRecentFlag = recentCacheUsed and (GetTime() - (lastRecentCacheUsedTime or 0)) < flagWindow
+    local hasRecentFlag = state.recentCacheUsed and (GetTime() - (state.lastRecentCacheUsedTime or 0)) < flagWindow
     local snapshot = GetPendingCacheSnapshot(snapshotWindowSeconds or 20)
     if not hasRecentFlag and not snapshot then
         return "none"
@@ -554,12 +527,12 @@ local function DescribeActiveCacheSource(flagWindowSeconds, snapshotWindowSecond
 end
 
 local function RecordSourceAttributionDebug(debugInfo)
-    lastSourceAttributionDebug = debugInfo
+    state.lastSourceAttributionDebug = debugInfo
 end
 
 local function AllocateQueueToken()
-    nextQueueToken = nextQueueToken + 1
-    return nextQueueToken
+    state.nextQueueToken = state.nextQueueToken + 1
+    return state.nextQueueToken
 end
 
 local function IsLikelyCacheItem(itemID, itemLink, itemName)
@@ -978,14 +951,14 @@ local function CaptureItemData(itemInfo, qualityTier)
 end
 
 local function MarkRecentCacheUsed(duration)
-    recentCacheToken = recentCacheToken + 1
-    local token = recentCacheToken
-    recentCacheUsed = true
-    lastRecentCacheUsedTime = GetTime()
+    state.recentCacheToken = state.recentCacheToken + 1
+    local token = state.recentCacheToken
+    state.recentCacheUsed = true
+    state.lastRecentCacheUsedTime = GetTime()
     if C_Timer then
         C_Timer.After(duration or 15, function()
-            if token == recentCacheToken then
-                recentCacheUsed = false
+            if token == state.recentCacheToken then
+                state.recentCacheUsed = false
             end
         end)
     end
@@ -993,23 +966,23 @@ end
 
 PrunePendingCacheSnapshots = function(windowSeconds)
     local cutoff = time() - (windowSeconds or 20)
-    while #pendingCacheSnapshots > 0 do
-        local snapshot = pendingCacheSnapshots[1]
+    while #state.pendingCacheSnapshots > 0 do
+        local snapshot = state.pendingCacheSnapshots[1]
         if snapshot and snapshot.timestamp and snapshot.timestamp >= cutoff then
             break
         end
-        table_remove(pendingCacheSnapshots, 1)
+        table_remove(state.pendingCacheSnapshots, 1)
     end
 end
 
 local function PrunePendingUpgradeSnapshots(windowSeconds)
     local cutoff = time() - (windowSeconds or 20)
-    while #pendingUpgradeSnapshots > 0 do
-        local snapshot = pendingUpgradeSnapshots[1]
+    while #state.pendingUpgradeSnapshots > 0 do
+        local snapshot = state.pendingUpgradeSnapshots[1]
         if snapshot and snapshot.timestamp and snapshot.timestamp >= cutoff then
             break
         end
-        table_remove(pendingUpgradeSnapshots, 1)
+        table_remove(state.pendingUpgradeSnapshots, 1)
     end
 end
 
@@ -1028,13 +1001,13 @@ local function QueueCacheSnapshot(itemID, itemLink, itemName, evidenceKind)
         or SOURCE_LABEL_BY_KEY.cache
 
     local preciseNow = GetPreciseNow()
-    if lastQueuedCacheSnapshot
-        and not lastQueuedCacheSnapshot.consumed
-        and lastQueuedCacheSnapshot.itemID == finalItemID
-        and lastQueuedCacheSnapshot.name == resolvedName
-        and (preciseNow - (lastQueuedCacheSnapshot.preciseTimestamp or 0)) <= 0.75 then
+    if state.lastQueuedCacheSnapshot
+        and not state.lastQueuedCacheSnapshot.consumed
+        and state.lastQueuedCacheSnapshot.itemID == finalItemID
+        and state.lastQueuedCacheSnapshot.name == resolvedName
+        and (preciseNow - (state.lastQueuedCacheSnapshot.preciseTimestamp or 0)) <= 0.75 then
         if evidenceKind == "openedContainer" then
-            lastQueuedCacheSnapshot.openedContainer = true
+            state.lastQueuedCacheSnapshot.openedContainer = true
         end
         MarkRecentCacheUsed()
         return
@@ -1048,10 +1021,10 @@ local function QueueCacheSnapshot(itemID, itemLink, itemName, evidenceKind)
         preciseTimestamp = preciseNow,
         openedContainer = (evidenceKind == "openedContainer"),
     }
-    pendingCacheSnapshots[#pendingCacheSnapshots + 1] = snapshot
-    lastQueuedCacheSnapshot = snapshot
-    while #pendingCacheSnapshots > 10 do
-        table_remove(pendingCacheSnapshots, 1)
+    state.pendingCacheSnapshots[#state.pendingCacheSnapshots + 1] = snapshot
+    state.lastQueuedCacheSnapshot = snapshot
+    while #state.pendingCacheSnapshots > 10 do
+        table_remove(state.pendingCacheSnapshots, 1)
     end
     MarkRecentCacheUsed()
 end
@@ -1069,9 +1042,9 @@ local function QueueUpgradeSnapshot()
         timestamp = time(),
         preciseTimestamp = GetPreciseNow(),
     }
-    pendingUpgradeSnapshots[#pendingUpgradeSnapshots + 1] = snapshot
-    while #pendingUpgradeSnapshots > 10 do
-        table_remove(pendingUpgradeSnapshots, 1)
+    state.pendingUpgradeSnapshots[#state.pendingUpgradeSnapshots + 1] = snapshot
+    while #state.pendingUpgradeSnapshots > 10 do
+        table_remove(state.pendingUpgradeSnapshots, 1)
     end
 end
 
@@ -1080,7 +1053,7 @@ local function ConsumePendingCacheSnapshot(windowSeconds, predicate)
     if not index then
         return nil
     end
-    local snapshot = table_remove(pendingCacheSnapshots, index)
+    local snapshot = table_remove(state.pendingCacheSnapshots, index)
     if snapshot then
         snapshot.consumed = true
     end
@@ -1089,10 +1062,10 @@ end
 
 local function ConsumePendingUpgradeSnapshot(windowSeconds)
     PrunePendingUpgradeSnapshots(windowSeconds)
-    if #pendingUpgradeSnapshots == 0 then
+    if #state.pendingUpgradeSnapshots == 0 then
         return nil
     end
-    return table_remove(pendingUpgradeSnapshots, 1)
+    return table_remove(state.pendingUpgradeSnapshots, 1)
 end
 
 local function ConsumeUpgradeSnapshotPrefix(count)
@@ -1101,15 +1074,15 @@ local function ConsumeUpgradeSnapshotPrefix(count)
     end
 
     local consumed = {}
-    for _ = 1, math.min(count, #pendingUpgradeSnapshots) do
-        consumed[#consumed + 1] = table_remove(pendingUpgradeSnapshots, 1)
+    for _ = 1, math.min(count, #state.pendingUpgradeSnapshots) do
+        consumed[#consumed + 1] = table_remove(state.pendingUpgradeSnapshots, 1)
     end
     return consumed
 end
 
 local function GetRecentUpgradeBurstCount(windowSeconds)
     PrunePendingUpgradeSnapshots(windowSeconds)
-    if #pendingUpgradeSnapshots == 0 then
+    if #state.pendingUpgradeSnapshots == 0 then
         return 0
     end
 
@@ -1117,7 +1090,7 @@ local function GetRecentUpgradeBurstCount(windowSeconds)
     local firstPrecise = nil
     local count = 0
 
-    for index, snapshot in ipairs(pendingUpgradeSnapshots) do
+    for index, snapshot in ipairs(state.pendingUpgradeSnapshots) do
         local preciseTs = tonumber(snapshot and snapshot.preciseTimestamp) or tonumber(snapshot and snapshot.timestamp) or 0
         if (nowPrecise - preciseTs) > UPGRADE_BATCH_RECENT_WINDOW then
             break
@@ -1137,14 +1110,14 @@ end
 
 local function ConsumeUpgradeSnapshotsForDiff(diff, windowSeconds)
     PrunePendingUpgradeSnapshots(windowSeconds)
-    if type(diff) ~= "number" or diff >= 0 or #pendingUpgradeSnapshots == 0 then
+    if type(diff) ~= "number" or diff >= 0 or #state.pendingUpgradeSnapshots == 0 then
         return nil, nil
     end
 
     local target = math_abs(diff)
     local runningTotal = 0
 
-    for index, snapshot in ipairs(pendingUpgradeSnapshots) do
+    for index, snapshot in ipairs(state.pendingUpgradeSnapshots) do
         local expectedCopper = tonumber(snapshot and snapshot.expectedCopper)
         if not expectedCopper or expectedCopper <= 0 then
             break
@@ -1168,7 +1141,7 @@ end
 
 local function PeekUpgradeSnapshotsForDiff(diff, windowSeconds)
     PrunePendingUpgradeSnapshots(windowSeconds)
-    if type(diff) ~= "number" or diff >= 0 or #pendingUpgradeSnapshots == 0 then
+    if type(diff) ~= "number" or diff >= 0 or #state.pendingUpgradeSnapshots == 0 then
         return nil, nil
     end
 
@@ -1176,7 +1149,7 @@ local function PeekUpgradeSnapshotsForDiff(diff, windowSeconds)
     local runningTotal = 0
     local snapshots = {}
 
-    for _, snapshot in ipairs(pendingUpgradeSnapshots) do
+    for _, snapshot in ipairs(state.pendingUpgradeSnapshots) do
         local expectedCopper = tonumber(snapshot and snapshot.expectedCopper)
         if not expectedCopper or expectedCopper <= 0 then
             break
@@ -1194,8 +1167,8 @@ local function PeekUpgradeSnapshotsForDiff(diff, windowSeconds)
     local burstCount = GetRecentUpgradeBurstCount(windowSeconds)
     if burstCount >= 2 and (target % burstCount) == 0 then
         local evenSnapshots = {}
-        for index = 1, math.min(burstCount, #pendingUpgradeSnapshots) do
-            evenSnapshots[#evenSnapshots + 1] = pendingUpgradeSnapshots[index]
+        for index = 1, math.min(burstCount, #state.pendingUpgradeSnapshots) do
+            evenSnapshots[#evenSnapshots + 1] = state.pendingUpgradeSnapshots[index]
         end
         if #evenSnapshots == burstCount then
             return evenSnapshots, "evenSplit"
@@ -1205,26 +1178,8 @@ local function PeekUpgradeSnapshotsForDiff(diff, windowSeconds)
     return nil, nil
 end
 
-local function HasRecentCacheSnapshot(windowSeconds)
-    PrunePendingCacheSnapshots(windowSeconds)
-    return #pendingCacheSnapshots > 0
-end
-
-HasFreshCacheSignal = function(flagWindowSeconds, snapshotWindowSeconds)
-    local flagWindow = flagWindowSeconds or 4
-    if recentCacheUsed and (GetTime() - (lastRecentCacheUsedTime or 0)) < flagWindow then
-        return true
-    end
-    return HasRecentCacheSnapshot(snapshotWindowSeconds or 20)
-end
-
-local function HasPendingUpgradeSnapshot(windowSeconds)
-    PrunePendingUpgradeSnapshots(windowSeconds)
-    return #pendingUpgradeSnapshots > 0
-end
-
 local function RefreshBagSlotSnapshot()
-    lastBagSlotSnapshot = {}
+    state.lastBagSlotSnapshot = {}
     if not (C_Container and C_Container.GetContainerNumSlots and C_Container.GetContainerItemInfo) then
         return
     end
@@ -1234,8 +1189,8 @@ local function RefreshBagSlotSnapshot()
         for slot = 1, slots do
             local itemInfo = C_Container.GetContainerItemInfo(bagID, slot)
             if itemInfo and itemInfo.itemID then
-                lastBagSlotSnapshot[bagID] = lastBagSlotSnapshot[bagID] or {}
-                lastBagSlotSnapshot[bagID][slot] = {
+                state.lastBagSlotSnapshot[bagID] = state.lastBagSlotSnapshot[bagID] or {}
+                state.lastBagSlotSnapshot[bagID][slot] = {
                     itemID = itemInfo.itemID,
                     hyperlink = itemInfo.hyperlink,
                     itemName = itemInfo.itemName,
@@ -1252,9 +1207,9 @@ local function MarkCacheContainerIfPresent(bagID, slot)
     end
 
     local itemInfo = C_Container.GetContainerItemInfo(bagID, slot)
-    local fallbackInfo = lastLikelyCacheSlots
-        and lastLikelyCacheSlots[bagID]
-        and lastLikelyCacheSlots[bagID][slot]
+    local fallbackInfo = state.lastLikelyCacheSlots
+        and state.lastLikelyCacheSlots[bagID]
+        and state.lastLikelyCacheSlots[bagID][slot]
         or nil
 
     local itemID = itemInfo and itemInfo.itemID or (fallbackInfo and fallbackInfo.itemID)
@@ -1270,10 +1225,10 @@ local function MarkCacheContainerIfPresent(bagID, slot)
 end
 
 local function BuildLikelyCacheBagState()
-    local state = {}
+    local bagState = {}
     local slotState = {}
     if not (C_Container and C_Container.GetContainerNumSlots and C_Container.GetContainerItemInfo) then
-        return state
+        return bagState
     end
 
     for bagID = (BACKPACK_CONTAINER or 0), (NUM_BAG_SLOTS or 4) do
@@ -1287,14 +1242,14 @@ local function BuildLikelyCacheBagState()
                     hyperlink = itemInfo.hyperlink,
                     itemName = itemInfo.itemName,
                 }
-                local entry = state[itemInfo.itemID]
+                local entry = bagState[itemInfo.itemID]
                 if not entry then
                     entry = {
                         bags = 0,
                         link = itemInfo.hyperlink,
                         name = itemInfo.itemName,
                     }
-                    state[itemInfo.itemID] = entry
+                    bagState[itemInfo.itemID] = entry
                 end
                 entry.bags = entry.bags + (itemInfo.stackCount or 1)
                 entry.link = entry.link or itemInfo.hyperlink
@@ -1303,8 +1258,8 @@ local function BuildLikelyCacheBagState()
         end
     end
 
-    lastLikelyCacheSlots = slotState
-    return state
+    state.lastLikelyCacheSlots = slotState
+    return bagState
 end
 
 local function ScanCacheItemCounts()
@@ -1314,7 +1269,7 @@ local function ScanCacheItemCounts()
     for itemID in pairs(CACHE_ITEMS) do
         trackedIDs[itemID] = true
     end
-    for itemID in pairs(cacheItemCounts) do
+    for itemID in pairs(state.cacheItemCounts) do
         trackedIDs[itemID] = true
     end
     for itemID in pairs(bagState) do
@@ -1331,7 +1286,7 @@ local function ScanCacheItemCounts()
             newTotal = newBags
         end
 
-        local old = cacheItemCounts[itemID]
+        local old = state.cacheItemCounts[itemID]
         local oldTotal = type(old) == "table" and old.total or old
         local oldBags = type(old) == "table" and old.bags or old
         if (oldTotal and newTotal < oldTotal) or (oldBags and newBags < oldBags) then
@@ -1344,14 +1299,14 @@ local function ScanCacheItemCounts()
         end
 
         if newTotal > 0 or newBags > 0 or CACHE_ITEMS[itemID] then
-            cacheItemCounts[itemID] = {
+            state.cacheItemCounts[itemID] = {
                 total = newTotal,
                 bags = newBags,
                 link = (currentBag and currentBag.link) or (type(old) == "table" and old.link) or nil,
                 name = (currentBag and currentBag.name) or (type(old) == "table" and old.name) or nil,
             }
         else
-            cacheItemCounts[itemID] = nil
+            state.cacheItemCounts[itemID] = nil
         end
     end
 end
@@ -1397,7 +1352,7 @@ local function RefreshQueuedItem(queueEntry)
     if (not itemID or itemID == 0) and currentItem then
         local itemName = currentItem:match("%[([^%]]+)%]")
         if itemName then
-            local posted = postedAuctionItems[itemName]
+            local posted = state.postedAuctionItems[itemName]
             if posted then
                 itemID = posted.itemID
                 cachedPip = cachedPip or posted.pip
@@ -1453,7 +1408,7 @@ local function ScheduleItemFixup(tx, itemID)
         return
     end
 
-    pendingItemFixups[#pendingItemFixups + 1] = {
+    state.pendingItemFixups[#state.pendingItemFixups + 1] = {
         tx = tx,
         itemID = itemID,
         retries = 0,
@@ -1462,7 +1417,7 @@ end
 
 local function ProcessItemFixups()
     local pending = {}
-    for _, fixup in ipairs(pendingItemFixups) do
+    for _, fixup in ipairs(state.pendingItemFixups) do
         local tx = fixup.tx
         local itemID = fixup.itemID
         if tx and itemID and C_Item and C_Item.GetItemInfo then
@@ -1489,14 +1444,14 @@ local function ProcessItemFixups()
         end
     end
 
-    pendingItemFixups = pending
-    if #pendingItemFixups > 0 then
+    state.pendingItemFixups = pending
+    if #state.pendingItemFixups > 0 then
         C_Timer.After(0.5, ProcessItemFixups)
     end
 end
 
 local function StartFixupProcessing()
-    if #pendingItemFixups > 0 and C_Timer then
+    if #state.pendingItemFixups > 0 and C_Timer then
         C_Timer.After(0.5, ProcessItemFixups)
     end
 end
@@ -1529,10 +1484,7 @@ local function GetVendorSellPrice(itemID, itemLink)
     end
 
     local sellPrice = nil
-    if GetItemInfo then
-        sellPrice = select(11, GetItemInfo(target))
-    end
-    if (not sellPrice or sellPrice <= 0) and C_Item and C_Item.GetItemInfo then
+    if C_Item and C_Item.GetItemInfo then
         sellPrice = select(11, C_Item.GetItemInfo(target))
     end
 
@@ -1622,19 +1574,19 @@ local function BuildVendorQueueEntrySummary(queueEntry)
 end
 
 local function ConsumeVendorSellQueueForDiff(diff)
-    if not diff or diff <= 0 or #vendorSellQueue == 0 then
+    if not diff or diff <= 0 or #state.vendorSellQueue == 0 then
         return nil
     end
 
-    for index, entry in ipairs(vendorSellQueue) do
+    for index, entry in ipairs(state.vendorSellQueue) do
         if entry and entry.expectedCopper and entry.expectedCopper == diff then
-            return { table_remove(vendorSellQueue, index) }
+            return { table_remove(state.vendorSellQueue, index) }
         end
     end
 
     local runningTotal = 0
     local prefixCount = 0
-    for index, entry in ipairs(vendorSellQueue) do
+    for index, entry in ipairs(state.vendorSellQueue) do
         local expectedCopper = entry and entry.expectedCopper
         if type(expectedCopper) ~= "number" or expectedCopper <= 0 then
             break
@@ -1646,7 +1598,7 @@ local function ConsumeVendorSellQueueForDiff(diff)
         if runningTotal == diff then
             local consumed = {}
             for _ = 1, prefixCount do
-                consumed[#consumed + 1] = table_remove(vendorSellQueue, 1)
+                consumed[#consumed + 1] = table_remove(state.vendorSellQueue, 1)
             end
             return consumed
         elseif runningTotal > diff then
@@ -1658,21 +1610,21 @@ local function ConsumeVendorSellQueueForDiff(diff)
 end
 
 local function ConsumeMerchantPurchaseQueueForDiff(diff)
-    if not diff or diff >= 0 or #merchantPurchaseQueue == 0 then
+    if not diff or diff >= 0 or #state.merchantPurchaseQueue == 0 then
         return nil
     end
 
     local target = math_abs(diff)
 
-    for index, entry in ipairs(merchantPurchaseQueue) do
+    for index, entry in ipairs(state.merchantPurchaseQueue) do
         if entry and entry.expectedCopper and entry.expectedCopper == target then
-            return { table_remove(merchantPurchaseQueue, index) }
+            return { table_remove(state.merchantPurchaseQueue, index) }
         end
     end
 
     local runningTotal = 0
     local prefixCount = 0
-    for index, entry in ipairs(merchantPurchaseQueue) do
+    for index, entry in ipairs(state.merchantPurchaseQueue) do
         local expectedCopper = entry and entry.expectedCopper
         if type(expectedCopper) ~= "number" or expectedCopper <= 0 then
             break
@@ -1684,7 +1636,7 @@ local function ConsumeMerchantPurchaseQueueForDiff(diff)
         if runningTotal == target then
             local consumed = {}
             for _ = 1, prefixCount do
-                consumed[#consumed + 1] = table_remove(merchantPurchaseQueue, 1)
+                consumed[#consumed + 1] = table_remove(state.merchantPurchaseQueue, 1)
             end
             return consumed
         elseif runningTotal > target then
@@ -1723,11 +1675,11 @@ local function ConsumeSpecificQueueEntries(queue, entries)
 end
 
 local function PeekVendorSellQueueForDiff(diff)
-    if not diff or diff <= 0 or #vendorSellQueue == 0 then
+    if not diff or diff <= 0 or #state.vendorSellQueue == 0 then
         return nil
     end
 
-    for _, entry in ipairs(vendorSellQueue) do
+    for _, entry in ipairs(state.vendorSellQueue) do
         if entry and entry.expectedCopper and entry.expectedCopper == diff then
             return { entry }
         end
@@ -1735,7 +1687,7 @@ local function PeekVendorSellQueueForDiff(diff)
 
     local runningTotal = 0
     local entries = {}
-    for _, entry in ipairs(vendorSellQueue) do
+    for _, entry in ipairs(state.vendorSellQueue) do
         local expectedCopper = entry and entry.expectedCopper
         if type(expectedCopper) ~= "number" or expectedCopper <= 0 then
             break
@@ -1755,13 +1707,13 @@ local function PeekVendorSellQueueForDiff(diff)
 end
 
 local function PeekMerchantPurchaseQueueForDiff(diff)
-    if not diff or diff >= 0 or #merchantPurchaseQueue == 0 then
+    if not diff or diff >= 0 or #state.merchantPurchaseQueue == 0 then
         return nil
     end
 
     local target = math_abs(diff)
 
-    for _, entry in ipairs(merchantPurchaseQueue) do
+    for _, entry in ipairs(state.merchantPurchaseQueue) do
         if entry and entry.expectedCopper and entry.expectedCopper == target then
             return { entry }
         end
@@ -1769,7 +1721,7 @@ local function PeekMerchantPurchaseQueueForDiff(diff)
 
     local runningTotal = 0
     local entries = {}
-    for _, entry in ipairs(merchantPurchaseQueue) do
+    for _, entry in ipairs(state.merchantPurchaseQueue) do
         local expectedCopper = entry and entry.expectedCopper
         if type(expectedCopper) ~= "number" or expectedCopper <= 0 then
             break
@@ -1853,7 +1805,7 @@ local function BuildTransaction(sourceKey, amount, timestamp)
         amount = amount,
         source = sourceKey or "other",
         sourceLabel = SOURCE_LABEL_BY_KEY[sourceKey or "other"] or SOURCE_LABEL_BY_KEY.other,
-        charKey = cachedPlayerName or SafeCharKey(),
+        charKey = state.cachedPlayerName or SafeCharKey(),
     }
     if sourceKey == "worldQuest" then
         tx.flags = { worldQuest = true }
@@ -1890,7 +1842,7 @@ end
 
 local function RetagRecentTransactionAsWorldQuest(expectedAmount, reason)
     local storage = GetStorage()
-    local charKey = cachedPlayerName or SafeCharKey()
+    local charKey = state.cachedPlayerName or SafeCharKey()
     local nowTs = time()
 
     for i = 1, math.min(10, #storage.transactions) do
@@ -1945,40 +1897,42 @@ local function CacheActiveQuestType(questID, isWorldQuest)
     end
 
     local confirmed = isWorldQuest and true or false
-    activeQuestTypes[questID] = {
+    state.activeQuestTypes[questID] = {
         isWorldQuest = confirmed,
         questType = confirmed and "worldQuest" or "quest",
     }
 
     if confirmed then
-        trackedWorldQuests[questID] = true
+        state.trackedWorldQuests[questID] = true
     else
-        trackedWorldQuests[questID] = nil
+        state.trackedWorldQuests[questID] = nil
     end
 end
 
 local function GetCachedActiveQuestType(questID)
-    return questID and activeQuestTypes[questID] or nil
+    return questID and state.activeQuestTypes[questID] or nil
 end
 
 local function ClearCachedActiveQuestType(questID)
     if not questID then
         return
     end
-    activeQuestTypes[questID] = nil
-    trackedWorldQuests[questID] = nil
+    state.activeQuestTypes[questID] = nil
+    state.trackedWorldQuests[questID] = nil
 end
 
-local function InitCurrentCharacterState()
+local function InitCurrentCharacterState(forceMoneySync)
     local charKey = SafeCharKey()
-    cachedPlayerName = charKey
+    state.cachedPlayerName = charKey
     if not charKey or not GetMoney then
         return
     end
 
     local storage = GetStorage()
-    if type(GetMoney()) == "number" and type(storage.lastKnownMoney[charKey]) ~= "number" then
-        storage.lastKnownMoney[charKey] = GetMoney()
+    local currentMoney = GetMoney()
+    if type(currentMoney) == "number"
+        and (forceMoneySync or type(storage.lastKnownMoney[charKey]) ~= "number") then
+        storage.lastKnownMoney[charKey] = currentMoney
     end
 end
 
@@ -1992,29 +1946,6 @@ local function IsWarbandBankActive()
     return false
 end
 
-local function RecordAuctionMailFallback()
-    if #mailItemQueue == 0 then
-        return
-    end
-
-    local charKey = cachedPlayerName or SafeCharKey()
-    local nowTs = time()
-    for _, sale in ipairs(mailItemQueue) do
-        if sale.isAH and sale.expectedGold and sale.expectedGold > 0 then
-            RefreshQueuedItem(sale)
-            local tx = BuildTransaction("auction", sale.expectedGold, nowTs)
-            ApplyQueueItemToTransaction(tx, sale)
-            if not HasRecentTransactionLike(tx, 60) then
-                InsertTransaction(tx)
-            end
-        end
-    end
-
-    for key in pairs(mailItemQueue) do
-        mailItemQueue[key] = nil
-    end
-end
-
 local function CheckInvoice(index)
     if not index then
         return
@@ -2026,11 +1957,11 @@ local function CheckInvoice(index)
     end
 
     local dedupKey = (itemName or "") .. ":" .. tostring(bid or 0)
-    if processedMailIndices[dedupKey] then
+    if state.processedMailIndices[dedupKey] then
         return
     end
-    processedMailIndices[dedupKey] = true
-    lastAHMailTime = GetTime()
+    state.processedMailIndices[dedupKey] = true
+    state.lastAHMailTime = GetTime()
 
     local bodyText = GetInboxText and GetInboxText(index) or nil
     local itemLink = bodyText and bodyText:match("|c%x+|Hitem:[^|]+|h%[[^%]]+%]|h|r") or nil
@@ -2068,8 +1999,8 @@ local function CheckInvoice(index)
         end
     end
 
-    if itemName and postedAuctionItems[itemName] then
-        local cached = postedAuctionItems[itemName]
+    if itemName and state.postedAuctionItems[itemName] then
+        local cached = state.postedAuctionItems[itemName]
         if not itemID or itemID == 0 then
             itemID = cached.itemID
         end
@@ -2140,7 +2071,7 @@ local function CheckInvoice(index)
         expectedGold = bid - consignment
     end
 
-    table_insert(mailItemQueue, {
+    table_insert(state.mailItemQueue, {
         item = finalItem,
         itemID = finalItemID,
         count = itemCount,
@@ -2176,7 +2107,7 @@ local function InstallHooks()
             if itemLink then
                 local _, _, _, _, itemCount = GetInboxItem(mailIndex, attachIndex or 1)
                 local item, itemID, _, pip = CaptureItemData(itemLink)
-                table_insert(mailItemQueue, {
+                table_insert(state.mailItemQueue, {
                     item = item,
                     itemID = itemID,
                     count = itemCount or 1,
@@ -2199,7 +2130,7 @@ local function InstallHooks()
                     if sellPrice and sellPrice > 0 then
                         expectedCopper = sellPrice * count
                     end
-                    table_insert(vendorSellQueue, {
+                    table_insert(state.vendorSellQueue, {
                         item = item,
                         itemID = itemID,
                         count = count,
@@ -2221,7 +2152,7 @@ local function InstallHooks()
             local purchaseCount = NormalizeMerchantPurchaseCount(quantity, merchantStackCount)
             local unitCopper, expectedCopper = CalculateMerchantExpectedCopper(price, merchantStackCount, purchaseCount, quantity)
 
-            table_insert(merchantPurchaseQueue, {
+            table_insert(state.merchantPurchaseQueue, {
                 item = item or link or name,
                 itemID = itemID,
                 count = purchaseCount,
@@ -2235,19 +2166,71 @@ local function InstallHooks()
         end)
     end
 
+    if MerchantGuildBankRepairButton and MerchantGuildBankRepairButton.HookScript then
+        MerchantGuildBankRepairButton:HookScript("PreClick", function()
+            local cost, canRepair = nil, false
+            if GetRepairAllCost then
+                cost, canRepair = GetRepairAllCost()
+            end
+
+            state.repairState.guildActive = true
+            state.repairState.guildTime = GetTime()
+            state.repairState.guildSourceID = nil
+            state.repairState.guildStartCost = canRepair and type(cost) == "number" and cost > 0 and cost or nil
+            state.repairState.guildObservedOut = 0
+            state.repairState.guildTransactions = {}
+            state.repairState.guildGeneration = state.repairState.guildGeneration + 1
+
+            if C_Timer then
+                local generation = state.repairState.guildGeneration
+                C_Timer.After(0.5, function()
+                    if state.repairState.finishGuildSettlement then
+                        state.repairState.finishGuildSettlement(generation)
+                    end
+                end)
+            end
+        end)
+    end
+
     if RepairAllItems then
         hooksecurefunc("RepairAllItems", function(guildBankRepair)
+            local now = GetTime()
             if guildBankRepair then
-                lastGuildRepairTime = GetTime()
+                if not state.repairState.guildActive then
+                    state.repairState.guildStartCost = nil
+                    state.repairState.guildObservedOut = 0
+                    state.repairState.guildTransactions = {}
+                end
+                state.repairState.guildActive = true
+                state.repairState.guildTime = now
+                state.repairState.guildSourceID = nil
+                state.repairState.guildGeneration = state.repairState.guildGeneration + 1
+
+                if C_Timer then
+                    local generation = state.repairState.guildGeneration
+                    C_Timer.After(0.5, function()
+                        if state.repairState.finishGuildSettlement then
+                            state.repairState.finishGuildSettlement(generation)
+                        end
+                    end)
+                end
             else
-                lastRepairTime = GetTime()
+                state.repairState.personalTime = now
+                state.repairState.personalSourceID = nil
+            end
+
+            local repairSourceID = state.repairState.extractSourceID(UnitGUID and UnitGUID("npc"))
+            if guildBankRepair then
+                state.repairState.guildSourceID = repairSourceID
+            else
+                state.repairState.personalSourceID = repairSourceID
             end
         end)
     end
 
     if TakeTaxiNode then
         hooksecurefunc("TakeTaxiNode", function()
-            lastFlightTime = GetTime()
+            state.lastFlightTime = GetTime()
         end)
     end
 
@@ -2260,7 +2243,7 @@ local function InstallHooks()
                     if pip and itemLink and not itemLink:match("|A:Professions") then
                         itemLink = itemLink .. " " .. string_format("|A:%s:12:12:0:-6|a", pip)
                     end
-                    table_insert(ahPurchaseQueue, {
+                    table_insert(state.ahPurchaseQueue, {
                         item = itemLink,
                         itemID = itemID,
                         count = info.quantity or 1,
@@ -2286,7 +2269,7 @@ local function InstallHooks()
                 if pip and itemLink and not itemLink:match("|A:Professions") then
                     itemLink = itemLink .. " " .. string_format("|A:%s:12:12:0:-6|a", pip)
                 end
-                table_insert(ahPurchaseQueue, {
+                table_insert(state.ahPurchaseQueue, {
                     item = itemLink,
                     itemID = storedID,
                     count = quantity or 1,
@@ -2306,7 +2289,7 @@ local function InstallHooks()
                     local itemName = C_Item.GetItemNameByID(itemID)
                     if itemName then
                         local pipAtlas = itemLink and itemLink:match("|A:(Professions%-ChatIcon%-Quality%-[%d%-]*Tier%d)")
-                        postedAuctionItems[itemName] = { itemID = itemID, pip = pipAtlas }
+                        state.postedAuctionItems[itemName] = { itemID = itemID, pip = pipAtlas }
                         local storage = GetStorage()
                         storage.itemCache[itemName] = {
                             itemID = itemID,
@@ -2329,7 +2312,7 @@ local function InstallHooks()
                     local itemName = C_Item.GetItemNameByID(itemID)
                     if itemName then
                         local pipAtlas = itemLink and itemLink:match("|A:(Professions%-ChatIcon%-Quality%-[%d%-]*Tier%d)")
-                        postedAuctionItems[itemName] = { itemID = itemID, pip = pipAtlas }
+                        state.postedAuctionItems[itemName] = { itemID = itemID, pip = pipAtlas }
                         local storage = GetStorage()
                         storage.itemCache[itemName] = {
                             itemID = itemID,
@@ -2353,9 +2336,9 @@ local function InstallHooks()
                     if schematic and schematic.outputItemID then
                         local itemLink, itemID = CaptureItemData(schematic.outputItemID)
                         local qualityIcon = string_format("|A:Professions-ChatIcon-Quality-Tier%d:12:12:0:-6|a", qualityTier)
-                        lastCraftingOrderItem = (itemLink or string.format("[%s]", LText("LABEL_UNKNOWN"))) .. " " .. qualityIcon
-                        lastCraftingOrderItemID = itemID
-                        lastCraftingOrderCount = 1
+                        state.lastCraftingOrderItem = (itemLink or string.format("[%s]", LText("LABEL_UNKNOWN"))) .. " " .. qualityIcon
+                        state.lastCraftingOrderItemID = itemID
+                        state.lastCraftingOrderCount = 1
                     end
                 end
             end
@@ -2370,9 +2353,9 @@ local function InstallHooks()
                 local itemLink, itemID = CaptureItemData(order.outputItemHyperlink or order.itemID)
                 if itemLink then
                     local qualityIcon = string_format("|A:Professions-ChatIcon-Quality-Tier%d:12:12:0:-6|a", qualityTier)
-                    lastFulfilledOrderItem = itemLink .. " " .. qualityIcon
-                    lastFulfilledOrderItemID = itemID
-                    lastFulfilledOrderCount = 1
+                    state.lastFulfilledOrderItem = itemLink .. " " .. qualityIcon
+                    state.lastFulfilledOrderItemID = itemID
+                    state.lastFulfilledOrderCount = 1
                 end
             end
         end)
@@ -2418,7 +2401,7 @@ local function BuildExactPendingRewardClaim(nowTime, diff)
 
     local pendingWorldQuest = GetPendingReward("worldQuest", nowTime)
     if pendingWorldQuest
-        and pendingWorldQuest.questID == lastTurnedInQuestID
+        and pendingWorldQuest.questID == state.lastTurnedInQuestID
         and pendingWorldQuest.amount
         and pendingWorldQuest.amount == diff then
         candidates[#candidates + 1] = pendingWorldQuest
@@ -2426,7 +2409,7 @@ local function BuildExactPendingRewardClaim(nowTime, diff)
 
     local pendingQuest = GetPendingReward("quest", nowTime)
     if pendingQuest
-        and pendingQuest.questID == lastTurnedInQuestID
+        and pendingQuest.questID == state.lastTurnedInQuestID
         and pendingQuest.amount
         and pendingQuest.amount == diff then
         candidates[#candidates + 1] = pendingQuest
@@ -2454,21 +2437,21 @@ local function BuildExactPendingRewardClaim(nowTime, diff)
 end
 
 local function BuildAuctionPurchaseClaim(diff)
-    if type(diff) ~= "number" or diff >= 0 or #ahPurchaseQueue ~= 1 then
+    if type(diff) ~= "number" or diff >= 0 or #state.ahPurchaseQueue ~= 1 then
         return nil
     end
 
-    return BuildSourceClaim("auction", "single queued auction purchase was unambiguous", 1, "auctionPurchaseQueued", ahPurchaseQueue[1])
+    return BuildSourceClaim("auction", "single queued auction purchase was unambiguous", 1, "auctionPurchaseQueued", state.ahPurchaseQueue[1])
 end
 
 local function BuildAuctionMailClaim(diff)
-    if type(diff) ~= "number" or diff <= 0 or #mailItemQueue == 0 then
+    if type(diff) ~= "number" or diff <= 0 or #state.mailItemQueue == 0 then
         return nil
     end
 
     local bestIdx = nil
     local bestMatchDiff = diff * 0.05
-    for index, sale in ipairs(mailItemQueue) do
+    for index, sale in ipairs(state.mailItemQueue) do
         if sale and sale.isAH then
             local itemDiff = math_abs((sale.expectedGold or 0) - diff)
             if itemDiff < bestMatchDiff then
@@ -2480,14 +2463,14 @@ local function BuildAuctionMailClaim(diff)
 
     if bestIdx then
         return BuildSourceClaim("auction", "auction mail sale matched expected invoice amount", 1, "auctionMailExact", {
-            entries = { mailItemQueue[bestIdx] },
+            entries = { state.mailItemQueue[bestIdx] },
             mode = "single",
         })
     end
 
     local remainingDiff = diff
     local consumedItems = {}
-    for _, sale in ipairs(mailItemQueue) do
+    for _, sale in ipairs(state.mailItemQueue) do
         local expected = sale and sale.expectedGold or 0
         if sale and sale.isAH and expected > 0 and expected <= remainingDiff * 1.1 then
             consumedItems[#consumedItems + 1] = sale
@@ -2539,12 +2522,12 @@ local function IsLikelyWowTokenPurchase(diff)
 end
 
 local function ConsumeQuestSourceState(sourceKey)
-    lastQuestTime = 0
-    lastQuestWasWorldQuest = false
-    lastQuestWasWeekly = false
-    lastTurnedInQuestID = nil
-    pendingWorldQuestGold = false
-    pendingWorldQuestTime = 0
+    state.lastQuestTime = 0
+    state.lastQuestWasWorldQuest = false
+    state.lastQuestWasWeekly = false
+    state.lastTurnedInQuestID = nil
+    state.pendingWorldQuestGold = false
+    state.pendingWorldQuestTime = 0
 
     if sourceKey == "worldQuest" then
         ConsumeConfirmedWorldQuestGold()
@@ -2563,13 +2546,12 @@ local function ConsumeClaimSideEffects(claim)
     local sourceKey = claim.source
 
     if claimType == "repairPersonal" then
-        lastRepairTime = 0
-    elseif claimType == "repairGuild" then
-        lastGuildRepairTime = 0
+        state.repairState.personalTime = 0
+        state.repairState.personalSourceID = nil
     elseif claimType == "tradeRecent" or claimType == "tradeContext" then
-        lastTradeTime = 0
+        state.lastTradeTime = 0
     elseif claimType == "flightRecent" or claimType == "flightContext" then
-        lastFlightTime = 0
+        state.lastFlightTime = 0
     elseif claimType == "confirmedWorldQuest"
         or claimType == "pendingWorldQuestExact"
         or claimType == "pendingQuestExact"
@@ -2588,6 +2570,27 @@ local function DetermineSource(nowTime, diff)
     local questSourceActive = positiveGold and IsQuestSourceActive() or false
 
     local claim = BuildExactPendingRewardClaim(nowTime, diff)
+    if not claim
+        and negativeGold
+        and (nowTime - state.repairState.personalTime < 1.0)
+        and ((MerchantFrame and MerchantFrame.IsShown and MerchantFrame:IsShown())
+            or state.repairState.specialSourceIDs[state.repairState.personalSourceID]) then
+        claim = BuildSourceClaim("repair", "merchant repair activity won", 2, "repairPersonal")
+    end
+    if not claim
+        and negativeGold
+        and state.repairState.guildActive then
+        claim = BuildSourceClaim("repair", "merchant guild repair remainder won", 2, "repairGuild")
+    end
+    if not claim
+        and negativeGold
+        and MerchantFrame
+        and MerchantFrame.IsShown
+        and MerchantFrame:IsShown()
+        and InRepairMode
+        and InRepairMode() then
+        claim = BuildSourceClaim("repair", "manual merchant repair mode active", 2, "repairManual")
+    end
     if not claim and positiveGold then
         local vendorEntries = PeekVendorSellQueueForDiff(diff)
         if vendorEntries and #vendorEntries > 0 then
@@ -2619,7 +2622,7 @@ local function DetermineSource(nowTime, diff)
     if not claim and questSourceActive then
         claim = BuildSourceClaim("quest", "quest or gossip frame open", 2, "questWindow")
     end
-    if not claim and positiveGold and confirmedWorldQuestGold and (nowTime - confirmedWorldQuestTime < 2.0) then
+    if not claim and positiveGold and state.confirmedWorldQuestGold and (nowTime - state.confirmedWorldQuestTime < 2.0) then
         claim = BuildSourceClaim("worldQuest", "confirmed world quest reward won", 2, "confirmedWorldQuest")
     end
 
@@ -2634,19 +2637,13 @@ local function DetermineSource(nowTime, diff)
         end
     end
 
-    if not claim and negativeGold and (nowTime - lastRepairTime < 1.0) and MerchantFrame and MerchantFrame.IsShown and MerchantFrame:IsShown() then
-        claim = BuildSourceClaim("repair", "merchant repair activity won", 2, "repairPersonal")
-    end
-    if not claim and negativeGold and (nowTime - lastGuildRepairTime < 0.3) and MerchantFrame and MerchantFrame.IsShown and MerchantFrame:IsShown() then
-        claim = BuildSourceClaim("repair", "merchant guild repair remainder won", 2, "repairGuild")
-    end
-    if not claim and ((TradeFrame and TradeFrame.IsShown and TradeFrame:IsShown()) or (nowTime - lastTradeTime < 1.0)) then
+    if not claim and ((TradeFrame and TradeFrame.IsShown and TradeFrame:IsShown()) or (nowTime - state.lastTradeTime < 1.0)) then
         claim = BuildSourceClaim("trade", "trade window activity won", 2, (TradeFrame and TradeFrame.IsShown and TradeFrame:IsShown()) and "tradeContext" or "tradeRecent")
     end
-    if not claim and ((FlightMapFrame and FlightMapFrame.IsShown and FlightMapFrame:IsShown()) or (TaxiFrame and TaxiFrame.IsShown and TaxiFrame:IsShown()) or (UnitOnTaxi and UnitOnTaxi("player")) or (nowTime - lastFlightTime < 2.0)) then
-        claim = BuildSourceClaim("flightpath", "flight path context active", 2, ((nowTime - lastFlightTime < 2.0) and "flightRecent" or "flightContext"))
+    if not claim and ((FlightMapFrame and FlightMapFrame.IsShown and FlightMapFrame:IsShown()) or (TaxiFrame and TaxiFrame.IsShown and TaxiFrame:IsShown()) or (UnitOnTaxi and UnitOnTaxi("player")) or (nowTime - state.lastFlightTime < 2.0)) then
+        claim = BuildSourceClaim("flightpath", "flight path context active", 2, ((nowTime - state.lastFlightTime < 2.0) and "flightRecent" or "flightContext"))
     end
-    if not claim and negativeGold and inItemUpgrade then
+    if not claim and negativeGold and state.inItemUpgrade then
         claim = BuildSourceClaim("upgrade", "item upgrade interaction active", 2, "upgradeInteraction")
     end
     if not claim and negativeGold then
@@ -2659,7 +2656,7 @@ local function DetermineSource(nowTime, diff)
     end
 
     if not claim and (isAHOpen or (AuctionHouseFrame and AuctionHouseFrame.IsShown and AuctionHouseFrame:IsShown()) or (AuctionFrame and AuctionFrame.IsShown and AuctionFrame:IsShown())) then
-        if diff < 0 and #ahPurchaseQueue == 0 then
+        if diff < 0 and #state.ahPurchaseQueue == 0 then
             claim = BuildSourceClaim("ahFee", "auction house open with negative gold and no purchase queue", 3, "auctionFeeContext")
         else
             claim = BuildSourceClaim("auction", "auction house open", 3, "auctionContext")
@@ -2669,9 +2666,9 @@ local function DetermineSource(nowTime, diff)
         claim = BuildSourceClaim("vendor", "merchant window open", 3, "merchantContext")
     end
     if not claim and MailFrame and MailFrame.IsShown and MailFrame:IsShown() then
-        if (nowTime - lastAHMailTime < 30.0) then
+        if (nowTime - state.lastAHMailTime < 30.0) then
             claim = BuildSourceClaim("auction", "recent auction mail activity won", 3, "auctionMailContext")
-        elseif diff > 0 and #mailItemQueue > 0 and mailItemQueue[1].isAH then
+        elseif diff > 0 and #state.mailItemQueue > 0 and state.mailItemQueue[1].isAH then
             claim = BuildSourceClaim("auction", "mail queue marked as auction proceeds", 3, "auctionMailContext")
         elseif diff > 0 then
             local foundInvoice = false
@@ -2706,8 +2703,8 @@ local function DetermineSource(nowTime, diff)
     if not claim and (GuildBankFrame and GuildBankFrame.IsShown and GuildBankFrame:IsShown()) then
         claim = BuildSourceClaim("guildBank", "guild bank frame open", 3, "guildBankContext")
     end
-    if not claim and positiveGold and (nowTime - lastQuestTime < 5.0) and not lootActive then
-        if lastQuestWasWorldQuest then
+    if not claim and positiveGold and (nowTime - state.lastQuestTime < 5.0) and not lootActive then
+        if state.lastQuestWasWorldQuest then
             claim = BuildSourceClaim("worldQuest", "recent world quest fallback won", 4, "recentWorldQuestFallback")
         else
             claim = BuildSourceClaim("quest", "recent quest fallback won", 4, "recentQuestFallback")
@@ -2721,7 +2718,13 @@ local function DetermineSource(nowTime, diff)
         end
     end
 
-    claim = claim or BuildSourceClaim("loot", "default loot fallback", 5, "lootFallback")
+    if not claim then
+        if positiveGold then
+            claim = BuildSourceClaim("loot", "default loot fallback", 5, "lootFallback")
+        elseif negativeGold then
+            claim = BuildSourceClaim("other", "unclassified negative gold fallback", 5, "otherFallback")
+        end
+    end
     return claim, BuildSourceAttributionDebug(nowTime, diff, claim, lootActive)
 end
 
@@ -2739,12 +2742,12 @@ local function AttachTransactionDetail(tx, sourceKey, diff, claim)
         end
     elseif sourceKey == "auction" then
         if claimType == "auctionPurchaseQueued" and claimPayload then
-            ConsumeSpecificQueueEntries(ahPurchaseQueue, { claimPayload })
+            ConsumeSpecificQueueEntries(state.ahPurchaseQueue, { claimPayload })
             ApplyQueueItemToTransaction(tx, claimPayload)
         elseif (claimType == "auctionMailExact" or claimType == "auctionMailBatch")
             and type(claimPayload) == "table"
             and type(claimPayload.entries) == "table" then
-            local consumedItems = ConsumeSpecificQueueEntries(mailItemQueue, claimPayload.entries)
+            local consumedItems = ConsumeSpecificQueueEntries(state.mailItemQueue, claimPayload.entries)
             if #consumedItems > 0 then
                 local first = consumedItems[1]
                 ApplyQueueItemToTransaction(tx, first)
@@ -2762,12 +2765,12 @@ local function AttachTransactionDetail(tx, sourceKey, diff, claim)
                 end
                 tx.amount = diff - extraTotal
             end
-        elseif #ahPurchaseQueue > 0 and diff < 0 then
-            ApplyQueueItemToTransaction(tx, table_remove(ahPurchaseQueue, 1))
-        elseif #mailItemQueue > 0 and diff > 0 then
+        elseif #state.ahPurchaseQueue > 0 and diff < 0 then
+            ApplyQueueItemToTransaction(tx, table_remove(state.ahPurchaseQueue, 1))
+        elseif #state.mailItemQueue > 0 and diff > 0 then
             local matchedClaim = BuildAuctionMailClaim(diff)
             if matchedClaim and matchedClaim.payload and matchedClaim.payload.entries then
-                local consumedItems = ConsumeSpecificQueueEntries(mailItemQueue, matchedClaim.payload.entries)
+                local consumedItems = ConsumeSpecificQueueEntries(state.mailItemQueue, matchedClaim.payload.entries)
                 if #consumedItems > 0 then
                     local first = consumedItems[1]
                     ApplyQueueItemToTransaction(tx, first)
@@ -2788,12 +2791,12 @@ local function AttachTransactionDetail(tx, sourceKey, diff, claim)
             end
         end
     elseif sourceKey == "mail" then
-        if #mailItemQueue > 0 then
-            ApplyQueueItemToTransaction(tx, table_remove(mailItemQueue, 1))
+        if #state.mailItemQueue > 0 then
+            ApplyQueueItemToTransaction(tx, table_remove(state.mailItemQueue, 1))
         end
     elseif sourceKey == "vendor" then
         if claimType == "vendorSellMatched" and type(claimPayload) == "table" then
-            local matchedSales = ConsumeSpecificQueueEntries(vendorSellQueue, claimPayload)
+            local matchedSales = ConsumeSpecificQueueEntries(state.vendorSellQueue, claimPayload)
             if #matchedSales > 0 then
                 local firstSale = matchedSales[1]
                 ApplyVendorSellEntryToTransaction(tx, firstSale)
@@ -2812,7 +2815,7 @@ local function AttachTransactionDetail(tx, sourceKey, diff, claim)
                 tx.amount = diff - extraTotal
             end
         elseif claimType == "merchantPurchaseMatched" and type(claimPayload) == "table" then
-            local matchedPurchases = ConsumeSpecificQueueEntries(merchantPurchaseQueue, claimPayload)
+            local matchedPurchases = ConsumeSpecificQueueEntries(state.merchantPurchaseQueue, claimPayload)
             if #matchedPurchases > 0 then
                 local firstPurchase = matchedPurchases[1]
                 ApplyQueueItemToTransaction(tx, firstPurchase)
@@ -2830,7 +2833,7 @@ local function AttachTransactionDetail(tx, sourceKey, diff, claim)
                 end
                 tx.amount = diff - extraTotal
             end
-        elseif #vendorSellQueue > 0 and diff > 0 then
+        elseif #state.vendorSellQueue > 0 and diff > 0 then
             local matchedSales = ConsumeVendorSellQueueForDiff(diff)
             if matchedSales and #matchedSales > 0 then
                 local firstSale = matchedSales[1]
@@ -2851,9 +2854,9 @@ local function AttachTransactionDetail(tx, sourceKey, diff, claim)
                 end
                 tx.amount = diff - extraTotal
             else
-                ApplyVendorSellEntryToTransaction(tx, table_remove(vendorSellQueue, 1))
+                ApplyVendorSellEntryToTransaction(tx, table_remove(state.vendorSellQueue, 1))
             end
-        elseif #merchantPurchaseQueue > 0 and diff < 0 then
+        elseif #state.merchantPurchaseQueue > 0 and diff < 0 then
             local matchedPurchases = ConsumeMerchantPurchaseQueueForDiff(diff)
             if matchedPurchases and #matchedPurchases > 0 then
                 local firstPurchase = matchedPurchases[1]
@@ -2874,7 +2877,7 @@ local function AttachTransactionDetail(tx, sourceKey, diff, claim)
                 end
                 tx.amount = diff - extraTotal
             else
-                ApplyQueueItemToTransaction(tx, table_remove(merchantPurchaseQueue, 1))
+                ApplyQueueItemToTransaction(tx, table_remove(state.merchantPurchaseQueue, 1))
             end
         end
     elseif sourceKey == "cache" then
@@ -2893,7 +2896,7 @@ local function AttachTransactionDetail(tx, sourceKey, diff, claim)
         end
     elseif sourceKey == "upgrade" then
         if claimType == "upgradeMatched" and type(claimPayload) == "table" and type(claimPayload.snapshots) == "table" then
-            local matchedSnapshots = ConsumeSpecificQueueEntries(pendingUpgradeSnapshots, claimPayload.snapshots)
+            local matchedSnapshots = ConsumeSpecificQueueEntries(state.pendingUpgradeSnapshots, claimPayload.snapshots)
             local splitMode = claimPayload.splitMode
             if #matchedSnapshots > 0 then
                 if splitMode == "expected" and #matchedSnapshots > 1 then
@@ -2959,22 +2962,39 @@ local function AttachTransactionDetail(tx, sourceKey, diff, claim)
             end
         end
     elseif sourceKey == "crafting" then
-        if lastCraftingOrderItem and diff < 0 then
-            tx.detailLink = lastCraftingOrderItem
-            tx.detailName = GetDisplayNameFromLink(lastCraftingOrderItem) or LText("TEXT_PROFIT_SOURCE_CRAFT")
-            tx.itemID = lastCraftingOrderItemID
-            tx.count = lastCraftingOrderCount or 1
-            lastCraftingOrderItem = nil
-            lastCraftingOrderItemID = nil
-            lastCraftingOrderCount = nil
-        elseif lastFulfilledOrderItem and diff > 0 then
-            tx.detailLink = lastFulfilledOrderItem
-            tx.detailName = GetDisplayNameFromLink(lastFulfilledOrderItem) or LText("TEXT_PROFIT_SOURCE_CRAFT")
-            tx.itemID = lastFulfilledOrderItemID
-            tx.count = lastFulfilledOrderCount or 1
-            lastFulfilledOrderItem = nil
-            lastFulfilledOrderItemID = nil
-            lastFulfilledOrderCount = nil
+        if state.lastCraftingOrderItem and diff < 0 then
+            tx.detailLink = state.lastCraftingOrderItem
+            tx.detailName = GetDisplayNameFromLink(state.lastCraftingOrderItem) or LText("TEXT_PROFIT_SOURCE_CRAFT")
+            tx.itemID = state.lastCraftingOrderItemID
+            tx.count = state.lastCraftingOrderCount or 1
+            state.lastCraftingOrderItem = nil
+            state.lastCraftingOrderItemID = nil
+            state.lastCraftingOrderCount = nil
+        elseif state.lastFulfilledOrderItem and diff > 0 then
+            tx.detailLink = state.lastFulfilledOrderItem
+            tx.detailName = GetDisplayNameFromLink(state.lastFulfilledOrderItem) or LText("TEXT_PROFIT_SOURCE_CRAFT")
+            tx.itemID = state.lastFulfilledOrderItemID
+            tx.count = state.lastFulfilledOrderCount or 1
+            state.lastFulfilledOrderItem = nil
+            state.lastFulfilledOrderItemID = nil
+            state.lastFulfilledOrderCount = nil
+        end
+    elseif sourceKey == "other" and diff < 0 then
+        local npcName = UnitName and UnitName("npc") or nil
+        local zoneName = GetMinimapZoneText and GetMinimapZoneText() or nil
+        if issecretvalue and issecretvalue(npcName) then
+            npcName = nil
+        end
+        if issecretvalue and issecretvalue(zoneName) then
+            zoneName = nil
+        end
+        npcName = npcName ~= "" and npcName or nil
+        zoneName = zoneName ~= "" and zoneName or nil
+
+        if npcName and zoneName then
+            tx.detailName = npcName .. " - " .. zoneName
+        else
+            tx.detailName = npcName or zoneName or tx.detailName
         end
     end
 
@@ -2982,12 +3002,72 @@ local function AttachTransactionDetail(tx, sourceKey, diff, claim)
     tx.detailName = tx.detailName or tx.sourceLabel
 end
 
-local function ScanExistingWorldQuests()
-    for questID in pairs(trackedWorldQuests) do
-        trackedWorldQuests[questID] = nil
+state.repairState.finishGuildSettlement = function(generation)
+    if generation ~= state.repairState.guildGeneration or not state.repairState.guildActive then
+        return
     end
-    for questID in pairs(activeQuestTypes) do
-        activeQuestTypes[questID] = nil
+
+    local observedOut = state.repairState.guildObservedOut or 0
+    local paid = observedOut
+    if type(state.repairState.guildStartCost) == "number" and state.repairState.guildStartCost > 0 then
+        local remainCost, stillNeed = nil, false
+        if GetRepairAllCost then
+            remainCost, stillNeed = GetRepairAllCost()
+        end
+        if not stillNeed or type(remainCost) ~= "number" or remainCost <= 0 then
+            remainCost = 0
+        end
+
+        paid = state.repairState.guildStartCost - remainCost
+        if paid < 0 then
+            paid = 0
+        elseif paid > state.repairState.guildStartCost then
+            paid = state.repairState.guildStartCost
+        end
+    end
+
+    local repairAllowance = observedOut
+    if repairAllowance > paid then
+        repairAllowance = paid
+    end
+
+    for _, tx in ipairs(state.repairState.guildTransactions) do
+        local outgoing = math_abs(tonumber(tx and tx.amount) or 0)
+        local repairAmount = outgoing
+        if repairAmount > repairAllowance then
+            repairAmount = repairAllowance
+        end
+        local excessAmount = outgoing - repairAmount
+
+        if repairAmount <= 0 then
+            tx.source = "other"
+            tx.sourceLabel = SOURCE_LABEL_BY_KEY.other
+            tx.detailName = nil
+            AttachTransactionDetail(tx, "other", tx.amount, nil)
+        elseif excessAmount > 0 then
+            tx.amount = -repairAmount
+            local excessTx = BuildTransaction("other", -excessAmount, tx.timestamp)
+            AttachTransactionDetail(excessTx, "other", excessTx.amount, nil)
+            InsertTransaction(excessTx)
+        end
+
+        repairAllowance = repairAllowance - repairAmount
+    end
+
+    state.repairState.guildActive = false
+    state.repairState.guildTime = 0
+    state.repairState.guildSourceID = nil
+    state.repairState.guildStartCost = nil
+    state.repairState.guildObservedOut = 0
+    state.repairState.guildTransactions = {}
+end
+
+local function ScanExistingWorldQuests()
+    for questID in pairs(state.trackedWorldQuests) do
+        state.trackedWorldQuests[questID] = nil
+    end
+    for questID in pairs(state.activeQuestTypes) do
+        state.activeQuestTypes[questID] = nil
     end
 
     if not (C_QuestLog and C_QuestLog.GetNumQuestLogEntries and C_QuestLog.GetInfo) then
@@ -3036,41 +3116,50 @@ local function NormalizeSourceFilter(sources)
     return hasAny and normalized or nil
 end
 
-local function TransactionMatchesOptions(tx, opts)
+(function()
+local function PrepareTransactionQuery(opts)
     opts = opts or {}
+    local region = opts.region
+    if region == nil then
+        region = lv.REGION
+    end
+    return {
+        startTs = opts.period and GetPeriodStart(opts.period) or nil,
+        sourceFilter = NormalizeSourceFilter(opts.sources),
+        charKey = opts.charKey,
+        includeNonProfit = opts.includeNonProfit == true,
+        includeIgnored = opts.includeIgnored == true,
+        region = region,
+    }
+end
+
+local function TransactionMatchesPreparedQuery(tx, query)
     if type(tx) ~= "table" then
         return false
     end
 
-    if opts.includeNonProfit ~= true and lv.IsNonProfitGoldSource(tx.source) then
+    if not query.includeNonProfit and lv.IsNonProfitGoldSource(tx.source) then
         return false
     end
 
-    local period = opts.period
-    local startTs = period and GetPeriodStart(period) or nil
-    if startTs and (tx.timestamp or 0) < startTs then
+    if query.startTs and (tx.timestamp or 0) < query.startTs then
         return false
     end
 
-    if opts.charKey and tx.charKey ~= opts.charKey then
+    if query.charKey and tx.charKey ~= query.charKey then
         return false
     end
 
-    local sourceFilter = NormalizeSourceFilter(opts.sources)
-    if sourceFilter and not sourceFilter[tx.source] then
+    if query.sourceFilter and not query.sourceFilter[tx.source] then
         return false
     end
 
     local charData = LiteVaultDB and tx.charKey and LiteVaultDB[tx.charKey] or nil
     if charData and charData.class then
-        if opts.includeIgnored ~= true and charData.isIgnored then
+        if not query.includeIgnored and charData.isIgnored then
             return false
         end
-        local region = opts.region
-        if region == nil then
-            region = lv.REGION
-        end
-        if region and charData.region and charData.region ~= region then
+        if query.region and charData.region and charData.region ~= query.region then
             return false
         end
     end
@@ -3078,18 +3167,24 @@ local function TransactionMatchesOptions(tx, opts)
     return true
 end
 
-function lv.GetProfitTransactions(opts)
+local function GetProfitTransactionsPrepared(opts)
     local storage = GetStorage()
     local results = {}
     local limit = opts and opts.limit
+    local query = PrepareTransactionQuery(opts)
     for _, tx in ipairs(storage.transactions or {}) do
-        if TransactionMatchesOptions(tx, opts) then
+        if TransactionMatchesPreparedQuery(tx, query) then
             results[#results + 1] = ShallowCopy(tx)
             if limit and #results >= limit then
                 break
             end
         end
     end
+    return results, query
+end
+
+function lv.GetProfitTransactions(opts)
+    local results = GetProfitTransactionsPrepared(opts)
     return results
 end
 
@@ -3101,20 +3196,20 @@ function lv.GetCurrentMonthWowTokenPurchaseCount(opts)
     query.limit = nil
 
     local count = 0
-    local transactions = lv.GetProfitTransactions(query)
+    local transactions, preparedQuery = GetProfitTransactionsPrepared(query)
     for _, tx in ipairs(transactions or {}) do
         if tx and tx.source == "wowToken" then
             count = count + 1
         end
     end
 
-    return count, GetPeriodStart("month")
+    return count, preparedQuery.startTs
 end
 
 function lv.GetProfitSummary(period, opts)
     local query = ShallowCopy(opts or {})
     query.period = period
-    local transactions = lv.GetProfitTransactions(query)
+    local transactions, preparedQuery = GetProfitTransactionsPrepared(query)
     local income = 0
     local expense = 0
     for _, tx in ipairs(transactions) do
@@ -3132,7 +3227,7 @@ function lv.GetProfitSummary(period, opts)
         income = income,
         expense = expense,
         net = income - expense,
-        startTime = GetPeriodStart(period),
+        startTime = preparedQuery.startTs,
         transactions = transactions,
     }
 end
@@ -3143,7 +3238,7 @@ function lv.GetProfitDailyStats(year, month, opts)
     local worstDay, worstValue = nil, 0
     local storage = GetStorage()
     local query = ShallowCopy(opts or {})
-    local sourceFilter = NormalizeSourceFilter(query.sources)
+    local preparedQuery = PrepareTransactionQuery(query)
 
     local function AddAmount(day, amount)
         if type(day) ~= "number" or day < 1 or day > 31 or type(amount) ~= "number" or amount == 0 then
@@ -3169,22 +3264,12 @@ function lv.GetProfitDailyStats(year, month, opts)
             and tx.timestamp
             and tx.amount
             and tx.source ~= "warbandBank"
-            and TransactionMatchesOptions(tx, query) then
+            and TransactionMatchesPreparedQuery(tx, preparedQuery) then
             local charData = LiteVaultDB and tx.charKey and LiteVaultDB[tx.charKey] or nil
             if charData and charData.class then
-                local includeIgnored = (query.includeIgnored == true)
-                local region = query.region
-                if region == nil then
-                    region = lv.REGION
-                end
-
-                if (includeIgnored or not charData.isIgnored)
-                    and (not region or not charData.region or charData.region == region)
-                    and (not sourceFilter or sourceFilter[tx.source]) then
-                    local txDate = date("*t", tx.timestamp)
-                    if txDate and txDate.year == year and txDate.month == month then
-                        AddAmount(txDate.day, tx.amount)
-                    end
+                local txDate = date("*t", tx.timestamp)
+                if txDate and txDate.year == year and txDate.month == month then
+                    AddAmount(txDate.day, tx.amount)
                 end
             end
         end
@@ -3207,6 +3292,102 @@ function lv.GetProfitDailyStats(year, month, opts)
         worstDay = worstDay,
     }
 end
+
+local function NewProfitSummary(period, startTime)
+    return { period = period, count = 0, income = 0, expense = 0, net = 0, startTime = startTime }
+end
+
+local function AddTransactionToSummary(summary, amount)
+    amount = amount or 0
+    summary.count = summary.count + 1
+    summary.net = summary.net + amount
+    if amount > 0 then
+        summary.income = summary.income + amount
+    elseif amount < 0 then
+        summary.expense = summary.expense + math_abs(amount)
+    end
+end
+
+local function BuildTopEarners(totals, limit)
+    local results = {}
+    for charKey, amount in pairs(totals) do
+        local charData = LiteVaultDB and LiteVaultDB[charKey] or nil
+        results[#results + 1] = {
+            charKey = charKey,
+            name = charKey:match("^([^-]+)") or charKey,
+            class = charData and charData.class or nil,
+            amount = amount,
+        }
+    end
+    table_sort(results, function(a, b)
+        if a.amount == b.amount then
+            return tostring(a.name or "") < tostring(b.name or "")
+        end
+        return a.amount > b.amount
+    end)
+    while #results > limit do
+        results[#results] = nil
+    end
+    return results
+end
+
+-- Aggregates the main Profit dashboard in one history pass. Unlike the public
+-- transaction APIs, this returns totals only and never exposes stored entries.
+function lv.GetProfitDashboardSnapshot(charKey)
+    local storage = GetStorage()
+    local weekStart = GetPeriodStart("week")
+    local monthStart = GetPeriodStart("month")
+    local region = lv.REGION
+    local snapshot = {
+        currentWeekly = NewProfitSummary("week", weekStart),
+        currentMonthly = NewProfitSummary("month", monthStart),
+        warbandWeekly = NewProfitSummary("week", weekStart),
+        warbandMonthly = NewProfitSummary("month", monthStart),
+        tokenCount = 0,
+    }
+    local weeklyTotals, monthlyTotals = {}, {}
+
+    for _, tx in ipairs(storage.transactions or {}) do
+        if type(tx) == "table" then
+            local timestamp = tx.timestamp or 0
+            local inWeek = timestamp >= weekStart
+            local inMonth = timestamp >= monthStart
+            if inWeek or inMonth then
+                local txCharKey = tx.charKey
+                local charData = LiteVaultDB and txCharKey and LiteVaultDB[txCharKey] or nil
+                local regionMatches = not (charData and charData.class and region and charData.region and charData.region ~= region)
+                local standardProfit = not lv.IsNonProfitGoldSource(tx.source)
+
+                if regionMatches and txCharKey == charKey and standardProfit then
+                    if inWeek then AddTransactionToSummary(snapshot.currentWeekly, tx.amount) end
+                    if inMonth then AddTransactionToSummary(snapshot.currentMonthly, tx.amount) end
+                end
+
+                local warbandMatches = regionMatches and not (charData and charData.class and charData.isIgnored)
+                if warbandMatches then
+                    if inMonth and tx.source == "wowToken" then
+                        snapshot.tokenCount = snapshot.tokenCount + 1
+                    end
+                    if standardProfit then
+                        if inWeek then
+                            AddTransactionToSummary(snapshot.warbandWeekly, tx.amount)
+                            if txCharKey then weeklyTotals[txCharKey] = (weeklyTotals[txCharKey] or 0) + (tx.amount or 0) end
+                        end
+                        if inMonth then
+                            AddTransactionToSummary(snapshot.warbandMonthly, tx.amount)
+                            if txCharKey then monthlyTotals[txCharKey] = (monthlyTotals[txCharKey] or 0) + (tx.amount or 0) end
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    snapshot.weeklyTopEarners = BuildTopEarners(weeklyTotals, 5)
+    snapshot.monthlyTopEarners = BuildTopEarners(monthlyTotals, 5)
+    return snapshot
+end
+end)()
 
 function lv.GetProfitGoal(period)
     local goal = GetNormalizedProfitGoal(period, true)
@@ -3410,69 +3591,69 @@ SLASH_LVGOLDDEBUG1 = "/lvgolddebug"
 SlashCmdList["LVGOLDDEBUG"] = function()
     print("|cff9482c9[LiteVault]|r GoldTracker source debug")
 
-    if lastSourceAttributionDebug then
+    if state.lastSourceAttributionDebug then
         print(string_format(
             " Last attribution: source=%s diff=%s class=%s claim=%s reason=%s",
-            tostring(lastSourceAttributionDebug.sourceWon or "?"),
-            tostring(lastSourceAttributionDebug.diff or "?"),
-            tostring(lastSourceAttributionDebug.evidenceClass or "?"),
-            tostring(lastSourceAttributionDebug.claimType or "?"),
-            tostring(lastSourceAttributionDebug.reason or "?")
+            tostring(state.lastSourceAttributionDebug.sourceWon or "?"),
+            tostring(state.lastSourceAttributionDebug.diff or "?"),
+            tostring(state.lastSourceAttributionDebug.evidenceClass or "?"),
+            tostring(state.lastSourceAttributionDebug.claimType or "?"),
+            tostring(state.lastSourceAttributionDebug.reason or "?")
         ))
     else
         print(" Last attribution: none")
     end
     print(string_format(
         " Quest state: recent=%.2fs worldQuest=%s weekly=%s pendingWQ=%s confirmedWQ=%s lastQuestID=%s",
-        GetTime() - (lastQuestTime or 0),
-        tostring(lastQuestWasWorldQuest and true or false),
-        tostring(lastQuestWasWeekly and true or false),
-        tostring(pendingWorldQuestGold and true or false),
-        tostring(confirmedWorldQuestGold and true or false),
-        tostring(lastTurnedInQuestID or "nil")
+        GetTime() - (state.lastQuestTime or 0),
+        tostring(state.lastQuestWasWorldQuest and true or false),
+        tostring(state.lastQuestWasWeekly and true or false),
+        tostring(state.pendingWorldQuestGold and true or false),
+        tostring(state.confirmedWorldQuestGold and true or false),
+        tostring(state.lastTurnedInQuestID or "nil")
     ))
-    if lastTurnInQuestDebug then
+    if state.lastTurnInQuestDebug then
         print(string_format(
             " Turn-in trace: questID=%s cachedType=%s cachedWorldQuest=%s pendingBucket=%s",
-            tostring(lastTurnInQuestDebug.questID or "nil"),
-            tostring(lastTurnInQuestDebug.cachedType or "nil"),
-            tostring(lastTurnInQuestDebug.cachedWorldQuest and true or false),
-            tostring(lastTurnInQuestDebug.pendingBucket or "nil")
+            tostring(state.lastTurnInQuestDebug.questID or "nil"),
+            tostring(state.lastTurnInQuestDebug.cachedType or "nil"),
+            tostring(state.lastTurnInQuestDebug.cachedWorldQuest and true or false),
+            tostring(state.lastTurnInQuestDebug.pendingBucket or "nil")
         ))
     else
         print(" Turn-in trace: none")
     end
-    if lastQuestRemovalDebug then
+    if state.lastQuestRemovalDebug then
         print(string_format(
             " Removal trace: questID=%s cachedType=%s cachedWorldQuest=%s",
-            tostring(lastQuestRemovalDebug.questID or "nil"),
-            tostring(lastQuestRemovalDebug.cachedType or "nil"),
-            tostring(lastQuestRemovalDebug.cachedWorldQuest and true or false)
+            tostring(state.lastQuestRemovalDebug.questID or "nil"),
+            tostring(state.lastQuestRemovalDebug.cachedType or "nil"),
+            tostring(state.lastQuestRemovalDebug.cachedWorldQuest and true or false)
         ))
     else
         print(" Removal trace: none")
     end
     print(string_format(
         " Queues: ah=%d vendor=%d merchant=%d mail=%d cache=%d upgrade=%d warbandBank=%s itemUpgrade=%s",
-        #ahPurchaseQueue,
-        #vendorSellQueue,
-        #merchantPurchaseQueue,
-        #mailItemQueue,
-        #pendingCacheSnapshots,
-        #pendingUpgradeSnapshots,
+        #state.ahPurchaseQueue,
+        #state.vendorSellQueue,
+        #state.merchantPurchaseQueue,
+        #state.mailItemQueue,
+        #state.pendingCacheSnapshots,
+        #state.pendingUpgradeSnapshots,
         tostring(IsWarbandBankActive() and true or false),
-        tostring(inItemUpgrade and true or false)
+        tostring(state.inItemUpgrade and true or false)
     ))
 end
 
 local eventFrame = CreateFrame("Frame")
 eventFrame:RegisterEvent("MAIL_SHOW")
 eventFrame:SetScript("OnEvent", function(self)
-    for key in pairs(mailItemQueue) do
-        mailItemQueue[key] = nil
+    for key in pairs(state.mailItemQueue) do
+        state.mailItemQueue[key] = nil
     end
-    for key in pairs(processedMailIndices) do
-        processedMailIndices[key] = nil
+    for key in pairs(state.processedMailIndices) do
+        state.processedMailIndices[key] = nil
     end
 
     if self.hooksSetUp then
@@ -3484,7 +3665,7 @@ eventFrame:SetScript("OnEvent", function(self)
         OpenMailFrame:HookScript("OnShow", function()
             local mailIndex = InboxFrame and InboxFrame.openMailID
             if mailIndex and GetInboxInvoiceInfo and GetInboxInvoiceInfo(mailIndex) then
-                lastAHMailTime = GetTime()
+                state.lastAHMailTime = GetTime()
             end
         end)
     end
@@ -3493,18 +3674,29 @@ eventFrame:SetScript("OnEvent", function(self)
         hooksecurefunc("InboxFrame_OnClick", function(button, index)
             local mailIndex = index or (button and button.index)
             if mailIndex and GetInboxInvoiceInfo and GetInboxInvoiceInfo(mailIndex) then
-                lastAHMailTime = GetTime()
+                state.lastAHMailTime = GetTime()
             end
         end)
     end
 end)
 
-eventFrame = CreateFrame("Frame")
-eventFrame:RegisterEvent("MAIL_CLOSED")
-eventFrame:SetScript("OnEvent", function()
-    if C_Timer then
-        C_Timer.After(0.5, RecordAuctionMailFallback)
-    end
+-- Mailbox closed (Retail no longer fires MAIL_CLOSED): Modules/MailTracker.lua reports each
+-- visit once. After the same 0.5s settle delay as before, leftover mail queue entries from the
+-- visit are discarded, as MAIL_SHOW does on the next visit. They are not recorded as income:
+-- every money change already creates its primary transaction in PLAYER_MONEY, so an entry that
+-- was never consumed is either income already recorded or income that never arrived.
+lv.MailboxClosedHandlers = lv.MailboxClosedHandlers or {}
+table.insert(lv.MailboxClosedHandlers, function()
+    if not C_Timer then return end
+    C_Timer.After(0.5, function()
+        if MailFrame and MailFrame.IsShown and MailFrame:IsShown() then return end -- reopened
+        for key in pairs(state.mailItemQueue) do
+            state.mailItemQueue[key] = nil
+        end
+        for key in pairs(state.processedMailIndices) do
+            state.processedMailIndices[key] = nil
+        end
+    end)
 end)
 
 eventFrame = CreateFrame("Frame")
@@ -3512,11 +3704,11 @@ eventFrame:RegisterEvent("MERCHANT_CLOSED")
 eventFrame:SetScript("OnEvent", function()
     if C_Timer then
         C_Timer.After(0.5, function()
-            for key in pairs(vendorSellQueue) do
-                vendorSellQueue[key] = nil
+            for key in pairs(state.vendorSellQueue) do
+                state.vendorSellQueue[key] = nil
             end
-            for key in pairs(merchantPurchaseQueue) do
-                merchantPurchaseQueue[key] = nil
+            for key in pairs(state.merchantPurchaseQueue) do
+                state.merchantPurchaseQueue[key] = nil
             end
         end)
     end
@@ -3525,7 +3717,7 @@ end)
 eventFrame = CreateFrame("Frame")
 eventFrame:RegisterEvent("TAXIMAP_CLOSED")
 eventFrame:SetScript("OnEvent", function()
-    lastFlightTime = GetTime()
+    state.lastFlightTime = GetTime()
 end)
 
 eventFrame = CreateFrame("Frame")
@@ -3533,8 +3725,8 @@ eventFrame:RegisterEvent("AUCTION_HOUSE_CLOSED")
 eventFrame:SetScript("OnEvent", function()
     if C_Timer then
         C_Timer.After(0.5, function()
-            for key in pairs(ahPurchaseQueue) do
-                ahPurchaseQueue[key] = nil
+            for key in pairs(state.ahPurchaseQueue) do
+                state.ahPurchaseQueue[key] = nil
             end
         end)
     end
@@ -3556,7 +3748,6 @@ eventFrame:RegisterEvent("PLAYER_INTERACTION_MANAGER_FRAME_HIDE")
 eventFrame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
 eventFrame:RegisterEvent("ITEM_LOCK_CHANGED")
 eventFrame:RegisterEvent("BAG_UPDATE_DELAYED")
-local deferredBankMoneyCheck = false
 eventFrame:SetScript("OnEvent", function(self, event, arg1, arg2, arg3)
     if event == "ADDON_LOADED" and arg1 == addonName then
         GetStorage()
@@ -3570,11 +3761,11 @@ eventFrame:SetScript("OnEvent", function(self, event, arg1, arg2, arg3)
         RefreshBagSlotSnapshot()
         ScanCacheItemCounts()
     elseif event == "PLAYER_ENTERING_WORLD" then
-        InitCurrentCharacterState()
+        InitCurrentCharacterState(true)
         RefreshBagSlotSnapshot()
         ScanCacheItemCounts()
     elseif event == "TRADE_CLOSED" then
-        lastTradeTime = GetTime()
+        state.lastTradeTime = GetTime()
     elseif event == "QUEST_ACCEPTED" then
         local questID = tonumber(arg2) or tonumber(arg1)
         if questID then
@@ -3582,12 +3773,12 @@ eventFrame:SetScript("OnEvent", function(self, event, arg1, arg2, arg3)
         end
     elseif event == "PLAYER_INTERACTION_MANAGER_FRAME_SHOW" then
         if arg1 == ITEM_UPGRADE_INTERACTION_TYPE then
-            inItemUpgrade = true
+            state.inItemUpgrade = true
         end
     elseif event == "PLAYER_INTERACTION_MANAGER_FRAME_HIDE" then
         if arg1 == ITEM_UPGRADE_INTERACTION_TYPE and C_Timer then
             C_Timer.After(0.5, function()
-                inItemUpgrade = false
+                state.inItemUpgrade = false
             end)
         end
     elseif event == "UNIT_SPELLCAST_SUCCEEDED" and arg1 == "player" then
@@ -3605,13 +3796,13 @@ eventFrame:SetScript("OnEvent", function(self, event, arg1, arg2, arg3)
         ScanCacheItemCounts()
     elseif event == "CHAT_MSG_MONEY" or event == "CHAT_MSG_SYSTEM" then
         local nowTime = GetTime()
-        local recentQuestCompletion = (nowTime - lastQuestTime < 10.0)
+        local recentQuestCompletion = (nowTime - state.lastQuestTime < 10.0)
         local rewardAmount = ExtractMoneyAmountFromMessage(arg1)
-        if recentQuestCompletion and lastQuestWasWorldQuest and IsLocalizedQuestRewardMoneyMessage(arg1) then
-            confirmedWorldQuestGold = true
-            confirmedWorldQuestTime = nowTime
-            pendingWorldQuestGold = false
-            pendingWorldQuestTime = 0
+        if recentQuestCompletion and state.lastQuestWasWorldQuest and IsLocalizedQuestRewardMoneyMessage(arg1) then
+            state.confirmedWorldQuestGold = true
+            state.confirmedWorldQuestTime = nowTime
+            state.pendingWorldQuestGold = false
+            state.pendingWorldQuestTime = 0
             ClearPendingReward("worldQuest")
             RetagRecentTransactionAsWorldQuest(rewardAmount, rewardAmount and "world quest chat amount confirmation" or "world quest chat confirmation")
         end
@@ -3631,19 +3822,19 @@ eventFrame:SetScript("OnEvent", function(self, event, arg1, arg2, arg3)
             end
         end
 
-        lastQuestTime = GetTime()
+        state.lastQuestTime = GetTime()
 
         if event == "QUEST_TURNED_IN" then
-            lastQuestWasWorldQuest = isWorldQuest
-            lastQuestWasWeekly = isWeekly or false
-            lastTurnedInQuestID = arg1
-            confirmedWorldQuestGold = false
-            confirmedWorldQuestTime = 0
+            state.lastQuestWasWorldQuest = isWorldQuest
+            state.lastQuestWasWeekly = isWeekly or false
+            state.lastTurnedInQuestID = arg1
+            state.confirmedWorldQuestGold = false
+            state.confirmedWorldQuestTime = 0
             if isWorldQuest then
                 ClearPendingReward("quest")
             else
-                pendingWorldQuestGold = false
-                pendingWorldQuestTime = 0
+                state.pendingWorldQuestGold = false
+                state.pendingWorldQuestTime = 0
                 ClearPendingReward("worldQuest")
             end
             local pendingSourceKey = isWorldQuest and "worldQuest" or "quest"
@@ -3652,23 +3843,23 @@ eventFrame:SetScript("OnEvent", function(self, event, arg1, arg2, arg3)
             else
                 SetPendingReward(pendingSourceKey, arg1, nil, REWARD_PENDING_CHAT_TTL_SECONDS, "QUEST_TURNED_IN awaiting chat confirmation")
             end
-            lastTurnInQuestDebug = {
+            state.lastTurnInQuestDebug = {
                 questID = arg1,
                 cachedType = cachedQuestType and cachedQuestType.questType or "quest",
                 cachedWorldQuest = cachedQuestType and cachedQuestType.isWorldQuest or false,
                 pendingBucket = (pendingSourceKey == "worldQuest") and "pendingWorldQuestReward" or "pendingQuestReward",
             }
         elseif isWorldQuest then
-            lastQuestWasWorldQuest = true
+            state.lastQuestWasWorldQuest = true
             ClearPendingReward("quest")
-        elseif lastTurnedInQuestID ~= arg1 then
-            lastQuestWasWorldQuest = false
-            pendingWorldQuestGold = false
-            pendingWorldQuestTime = 0
+        elseif state.lastTurnedInQuestID ~= arg1 then
+            state.lastQuestWasWorldQuest = false
+            state.pendingWorldQuestGold = false
+            state.pendingWorldQuestTime = 0
             ClearPendingReward("worldQuest")
         end
         if event == "QUEST_REMOVED" then
-            lastQuestRemovalDebug = {
+            state.lastQuestRemovalDebug = {
                 questID = arg1,
                 cachedType = cachedQuestType and cachedQuestType.questType or "quest",
                 cachedWorldQuest = cachedQuestType and cachedQuestType.isWorldQuest or false,
@@ -3676,25 +3867,25 @@ eventFrame:SetScript("OnEvent", function(self, event, arg1, arg2, arg3)
         end
 
         if isWorldQuest then
-            pendingWorldQuestGold = true
-            pendingWorldQuestTime = lastQuestTime
-            local pendingReward = GetPendingReward("worldQuest", lastQuestTime)
+            state.pendingWorldQuestGold = true
+            state.pendingWorldQuestTime = state.lastQuestTime
+            local pendingReward = GetPendingReward("worldQuest", state.lastQuestTime)
             local authoritativeAmount = tonumber(arg3) or tonumber(pendingReward and pendingReward.amount)
             RetagRecentTransactionAsWorldQuest(authoritativeAmount, event .. " authoritative world quest correction")
         end
         ClearCachedActiveQuestType(arg1)
     elseif event == "PLAYER_MONEY" and IsWarbandBankActive() and C_Timer then
-        if not deferredBankMoneyCheck then
-            deferredBankMoneyCheck = true
+        if not state.deferredBankMoneyCheck then
+            state.deferredBankMoneyCheck = true
             C_Timer.After(0.6, function()
-                deferredBankMoneyCheck = false
+                state.deferredBankMoneyCheck = false
                 local handler = eventFrame:GetScript("OnEvent")
                 if handler then handler(eventFrame, "LITEVAULT_DEFERRED_PLAYER_MONEY") end
             end)
         end
     elseif event == "PLAYER_MONEY" or event == "LITEVAULT_DEFERRED_PLAYER_MONEY" then
         local nowTime = GetTime()
-        local charKey = cachedPlayerName or SafeCharKey()
+        local charKey = state.cachedPlayerName or SafeCharKey()
         if not charKey or not GetMoney then
             return
         end
@@ -3717,15 +3908,22 @@ eventFrame:SetScript("OnEvent", function(self, event, arg1, arg2, arg3)
             return
         end
 
-        lastTriggerTime = nowTime
+        if diff < 0 and state.repairState.guildActive then
+            state.repairState.guildObservedOut = (state.repairState.guildObservedOut or 0) + (-diff)
+        end
+
+        state.lastTriggerTime = nowTime
         local claim, attributionDebug = DetermineSource(nowTime, diff)
         RecordSourceAttributionDebug(attributionDebug)
-        local sourceKey = claim and claim.source or "loot"
+        local sourceKey = claim and claim.source or (diff > 0 and "loot" or "other")
         local tx = BuildTransaction(sourceKey, diff, time())
         AttachTransactionDetail(tx, sourceKey, diff, claim)
         local inserted = InsertTransaction(tx)
         if not inserted then
             return
+        end
+        if claim and claim.claimType == "repairGuild" and state.repairState.guildActive then
+            table_insert(state.repairState.guildTransactions, tx)
         end
         storage.lastKnownMoney[charKey] = currentMoney
 

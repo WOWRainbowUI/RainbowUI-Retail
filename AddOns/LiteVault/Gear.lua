@@ -379,7 +379,7 @@ local function ApplyItemLevelText(slot, itemLevel, quality)
     if itemLevel and itemLevel > 0 then
         slot.itemLevelText:SetText(tostring(itemLevel))
         if quality ~= nil then
-            local r, g, b = GetItemQualityColor(quality)
+            local r, g, b = C_Item.GetItemQualityColor(quality)
             slot.itemLevelText:SetTextColor(r, g, b)
         else
             slot.itemLevelText:SetTextColor(1, 1, 1)
@@ -404,13 +404,6 @@ local function ResolveEntryItemLevel(entry)
         return nil
     end
 
-    if GetDetailedItemLevelInfo then
-        local itemLevel = GetDetailedItemLevelInfo(link)
-        if itemLevel and itemLevel > 0 then
-            return itemLevel
-        end
-    end
-
     if C_Item and C_Item.GetDetailedItemLevelInfo then
         local itemLevel = C_Item.GetDetailedItemLevelInfo(link)
         if itemLevel and itemLevel > 0 then
@@ -432,13 +425,13 @@ local function ResolveEntryQuality(entry)
 
     local link = entry.link
     if link then
-        local quality = select(3, GetItemInfo(link))
+        local quality = select(3, C_Item.GetItemInfo(link))
         if quality ~= nil then
             return quality
         end
     end
 
-    local itemID = entry.itemID or (link and GetItemInfoInstant(link)) or nil
+    local itemID = entry.itemID or (link and C_Item.GetItemInfoInstant(link)) or nil
     if itemID and C_Item and C_Item.GetItemQualityByID then
         return C_Item.GetItemQualityByID(itemID)
     end
@@ -688,7 +681,7 @@ function lv.OpenGearPanel(charKey, skipMenuClose)
 
             local quality = resolvedQuality
             if quality then
-                local r, g, b = GetItemQualityColor(quality)
+                local r, g, b = C_Item.GetItemQualityColor(quality)
                 slotBtn:SetBackdropBorderColor(r, g, b, 1)
             else
                 slotBtn:SetBackdropBorderColor(0.35, 0.35, 0.35, 1)

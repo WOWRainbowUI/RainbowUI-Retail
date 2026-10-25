@@ -1010,6 +1010,12 @@ TEXT_DELVER_MOUNT_REWARD_REQUIREMENT="Conclua Glory of the Midnight Delver para 
 TEXT_EXPLORE_EVERSONG_PROGRESS="Rastreie o progresso de Explore Eversong Woods. x/y marcados.", TEXT_EXPLORE_HARANDAR_PROGRESS="Rastreie o progresso de Explore Harandar. x/y marcados.", TEXT_EXPLORE_VOIDSTORM_PROGRESS="Rastreie o progresso de Explore Voidstorm. x/y marcados.", TEXT_EXPLORE_ZULAMAN_PROGRESS="Rastreie o progresso de Explore Zul'Aman. x/y marcados.",
 }
 for key,value in pairs(phase2) do L[key]=value end
+L.NOTE_RITUAL_BEHAVIOR_VENOMOUS_OOZE = "Mate Gigantes Venenosos na área central do ritual para obter Gosma Venenosa."
+L.TEXT_FACTION_WEEKLY_STILL_NEEDED_FMT = "Ainda precisam: %s"
+L.TEXT_ALL_TRACKED_CHARACTERS_COMPLETED = "Todos os personagens rastreados concluíram"
+L.TEXT_NO_TRACKED_CHARACTERS = "Nenhum personagem rastreado"
+L.OPTION_DISABLE_VOLUME_FOG = "Desativar névoa volumétrica"
+L.OPTION_DISABLE_VOLUME_FOG_DESC = "Remove a névoa volumétrica e a neblina atmosférica. Desativar esta opção restaura a névoa."
 lv.RegisterLocale("ptBR", L)
 
 -- Store for reload functionality

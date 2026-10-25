@@ -1013,6 +1013,12 @@ TEXT_DELVER_MOUNT_REWARD_REQUIREMENT="Schließe Glory of the Midnight Delver ab,
 TEXT_EXPLORE_EVERSONG_PROGRESS="Verfolge den Fortschritt von Explore Eversong Woods. x/y markiert.", TEXT_EXPLORE_HARANDAR_PROGRESS="Verfolge den Fortschritt von Explore Harandar. x/y markiert.", TEXT_EXPLORE_VOIDSTORM_PROGRESS="Verfolge den Fortschritt von Explore Voidstorm. x/y markiert.", TEXT_EXPLORE_ZULAMAN_PROGRESS="Verfolge den Fortschritt von Explore Zul'Aman. x/y markiert.",
 }
 for key,value in pairs(phase2) do L[key]=value end
+L.NOTE_RITUAL_BEHAVIOR_VENOMOUS_OOZE = "Tötet Giftige Riesen im zentralen Ritualbereich, um Giftigen Schlamm zu erhalten."
+L.TEXT_FACTION_WEEKLY_STILL_NEEDED_FMT = "Noch benötigt: %s"
+L.TEXT_ALL_TRACKED_CHARACTERS_COMPLETED = "Alle erfassten Charaktere haben abgeschlossen"
+L.TEXT_NO_TRACKED_CHARACTERS = "Keine erfassten Charaktere"
+L.OPTION_DISABLE_VOLUME_FOG = "Volumetrischen Nebel deaktivieren"
+L.OPTION_DISABLE_VOLUME_FOG_DESC = "Entfernt volumetrischen Nebel und atmosphärischen Dunst. Das Ausschalten dieser Option stellt den Nebel wieder her."
 lv.RegisterLocale("deDE", L)
 
 -- Store for reload functionality

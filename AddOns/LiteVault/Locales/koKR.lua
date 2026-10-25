@@ -1107,6 +1107,12 @@ TEXT_DELVER_MOUNT_REWARD_REQUIREMENT="Glory of the Midnight Delver를 완료해 
 TEXT_EXPLORE_EVERSONG_PROGRESS="Explore Eversong Woods 진행도를 추적합니다. x/y 표시됨.", TEXT_EXPLORE_HARANDAR_PROGRESS="Explore Harandar 진행도를 추적합니다. x/y 표시됨.", TEXT_EXPLORE_VOIDSTORM_PROGRESS="Explore Voidstorm 진행도를 추적합니다. x/y 표시됨.", TEXT_EXPLORE_ZULAMAN_PROGRESS="Explore Zul'Aman 진행도를 추적합니다. x/y 표시됨.",
 }
 for key,value in pairs(phase2) do L[key]=value end
+L.NOTE_RITUAL_BEHAVIOR_VENOMOUS_OOZE = "의식 지역 중앙에서 맹독 거인을 처치해 맹독 수액을 획득하세요."
+L.TEXT_FACTION_WEEKLY_STILL_NEEDED_FMT = "아직 필요: %s"
+L.TEXT_ALL_TRACKED_CHARACTERS_COMPLETED = "추적 중인 모든 캐릭터 완료"
+L.TEXT_NO_TRACKED_CHARACTERS = "추적 중인 캐릭터 없음"
+L.OPTION_DISABLE_VOLUME_FOG = "볼륨 안개 비활성화"
+L.OPTION_DISABLE_VOLUME_FOG_DESC = "볼륨 안개와 대기 연무를 제거합니다. 이 옵션을 끄면 안개가 복원됩니다."
 lv.RegisterLocale("koKR", L)
 
 -- Store for reload functionality

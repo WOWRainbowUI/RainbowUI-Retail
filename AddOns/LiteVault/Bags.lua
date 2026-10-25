@@ -412,7 +412,7 @@ function lv.OpenBagPanel(charKey, skipMenuClose)
         ApplyBagCraftingQualityOverlay(btn, item)
 
         local quality = item.quality or ((Enum and Enum.ItemQuality and Enum.ItemQuality.Common) or 1)
-        local r, g, b = GetItemQualityColor(quality)
+        local r, g, b = C_Item.GetItemQualityColor(quality)
         btn:SetBackdropColor(0, 0, 0, 0.75)
         btn:SetBackdropBorderColor(r, g, b)
         btn:Show()

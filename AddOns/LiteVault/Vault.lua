@@ -390,8 +390,8 @@ function lv.ShowVaultWindow(charKey)
     end
 
     currentVaultChar = charKey
-    if charKey == lv.PLAYER_KEY and lv.UpdateCurrentCharData then
-        lv.UpdateCurrentCharData()
+    if charKey == lv.PLAYER_KEY and lv.RunCurrentCharacterRefresh then
+        lv.RunCurrentCharacterRefresh()
     end
     LVVaultWindow:Show()
     lv.UpdateVaultWindow()

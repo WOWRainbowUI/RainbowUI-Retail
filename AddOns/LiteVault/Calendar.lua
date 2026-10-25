@@ -22,8 +22,8 @@ local dayButtons = {}
 local currentPlannerChar = nil
 
 local function FormatTooltipMoney(copper)
-    if GetCoinTextureString then
-        return GetCoinTextureString(math.abs(copper))
+    if C_CurrencyInfo and C_CurrencyInfo.GetCoinTextureString then
+        return C_CurrencyInfo.GetCoinTextureString(math.abs(copper))
     end
 
     local gold = math.floor(math.abs(copper) / 10000)

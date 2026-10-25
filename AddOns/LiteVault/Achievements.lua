@@ -1157,10 +1157,10 @@ ACH.META_12_1 = {
                 } },
                 { id = 63599, name = "Submerge the Incursion", note = "Temple Incursions are 10-minute group events that begin after the current Temple Strike is completed when an Incursion is available.", criteria = { "Cache of the Three", "Summoning Ritual", "Supplies Must Flow" } },
                 { id = 62649, name = "A Lone Wanderer", note = "During Purifying Earth and Sky, use the Shrine of Sky to become a Spiritwing. Fly through one of the large blue Wandering Soul Globes.", criteria = { "Soul Globe" } },
-                { id = 62600, name = "Ritual Behavior", note = "Collect each offering and deliver it to the Ritual Altar during Summoning Ritual.", criteria = { "Petrified Egg", "Spirit Urn", "Venomous Ooze" }, details = {
-                    { mapID = 2509, x = 47.22, y = 54.42, name = "Petrified Egg", note = "Found on the ground during the event; deliver it to the Ritual Altar." },
-                    { mapID = 2509, x = 47.22, y = 54.42, name = "Spirit Urn", note = "Found on the ground during the event; deliver it to the Ritual Altar." },
-                    { mapID = 2509, x = 47.22, y = 54.42, name = "Venomous Ooze", note = "Obtained from Venomous Giants; deliver it to the Ritual Altar." },
+                { id = 62600, name = "Ritual Behavior", note = "Collect each offering and deliver it to the Ritual Altar during Summoning Ritual.", ritualWaypoint = { mapID = 2509, x = 47.22, y = 54.42, name = "Ritual Altar" }, criteria = { "Petrified Egg", "Spirit Urn", "Venomous Ooze" }, details = {
+                    { mapID = 2509, x = 42.00, y = 47.00, name = "Petrified Egg", note = "Found on the ground on the western side of the ritual area; deliver it to the Ritual Altar." },
+                    { mapID = 2509, x = 54.00, y = 49.00, name = "Spirit Urn", note = "Found on the ground on the eastern side of the ritual area; deliver it to the Ritual Altar." },
+                    { name = "Venomous Ooze", note = "NOTE_RITUAL_BEHAVIOR_VENOMOUS_OOZE" },
                 } },
                 { id = 63610, name = "The Honored Dead", subView = "honoreddead" },
                 { id = 63600, name = "Spike the Strike", note = "Complete all six Temple Strike variants.", criteria = { "Purifying Earth and Sky", "The Underbelly", "Overflowing Venom", "Ruuk'jar's Clutch", "Profane Pyres", "Cursed Depths" }, details = {
@@ -1293,21 +1293,6 @@ local function SetAchievementTreasureWaypoint(mapID, x, y, title)
             C_SuperTrack.SetSuperTrackedUserWaypoint(true)
         end
     end
-end
-
-local function ApplyMetaAchievementOverlay(view)
-    if not view or view.MetaOverlay then
-        return view and view.MetaOverlay or nil
-    end
-    local overlay = view:CreateTexture(nil, "ARTWORK", nil, 1)
-    overlay:SetTexture("Interface\\AddOns\\LiteVault\\MetaOverlay.png")
-    overlay:SetTexCoord(248 / 1536, 1288 / 1536, 40 / 1024, 904 / 1024)
-    overlay:SetPoint("TOPLEFT", view, "TOPLEFT", -18, 18)
-    overlay:SetPoint("BOTTOMRIGHT", view, "BOTTOMRIGHT", 18, -18)
-    overlay:SetBlendMode("BLEND")
-    overlay:SetAlpha(1)
-    view.MetaOverlay = overlay
-    return overlay
 end
 
 local function CreateMetaAchievementHomeOverlay(parent, btn, note)
@@ -6954,7 +6939,7 @@ local function RenderMeta121View()
                 local t = lv.GetTheme(); self:SetBackdropBorderColor(unpack(t.borderHover)); self:SetBackdropColor(unpack(t.buttonBgHover))
                 GameTooltip:SetOwner(self, "ANCHOR_RIGHT"); GameTooltip:SetText(name, 1, 0.82, 0)
                 if type(info) == "table" and info.mapID then GameTooltip:AddLine(string.format("%.2f, %.2f", info.x, info.y), 1, 1, 1) end
-                if type(info) == "table" and info.note then GameTooltip:AddLine(info.note, 0.8, 0.8, 0.8, true) end
+                if type(info) == "table" and info.note then GameTooltip:AddLine(UIText(info.note, info.note), 0.8, 0.8, 0.8, true) end
                 GameTooltip:Show()
             end)
             btn:SetScript("OnLeave", function(self) local t = lv.GetTheme(); self:SetBackdropBorderColor(unpack(t.borderPrimary)); self:SetBackdropColor(unpack(t.buttonBgAlt or t.buttonBg)); GameTooltip:Hide() end)
@@ -7254,6 +7239,9 @@ function lv.SetMainView(view)
         SetFactionCardsVisible(false)
         SetFolioContentVisible(false)
         SetProfitContentVisible(true)
+        if lv.UpdateProfitDisplays then
+            lv.UpdateProfitDisplays()
+        end
     elseif currentMainView == "instances" then
         AchievementView:Hide()
         if lv.OptionsPanel then lv.OptionsPanel:Hide() end

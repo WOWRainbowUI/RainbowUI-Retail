@@ -1,0 +1,4 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/">
+    <Frame name="LiteVaultRunestoneMapPinTemplate" mixin="LiteVaultRunestoneMapPinMixin" virtual="true" enableMouse="true">
+    </Frame>
+</Ui>

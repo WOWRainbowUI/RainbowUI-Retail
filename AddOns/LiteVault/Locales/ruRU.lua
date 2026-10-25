@@ -1086,6 +1086,12 @@ TEXT_DELVER_MOUNT_REWARD_REQUIREMENT="Выполните Glory of the Midnight D
 TEXT_EXPLORE_EVERSONG_PROGRESS="Отслеживайте прогресс Explore Eversong Woods. Отмечено: x/y.", TEXT_EXPLORE_HARANDAR_PROGRESS="Отслеживайте прогресс Explore Harandar. Отмечено: x/y.", TEXT_EXPLORE_VOIDSTORM_PROGRESS="Отслеживайте прогресс Explore Voidstorm. Отмечено: x/y.", TEXT_EXPLORE_ZULAMAN_PROGRESS="Отслеживайте прогресс Explore Zul'Aman. Отмечено: x/y.",
 }
 for key,value in pairs(phase2) do L[key]=value end
+L.NOTE_RITUAL_BEHAVIOR_VENOMOUS_OOZE = "Убивайте ядовитых великанов в центральной части ритуальной зоны, чтобы получить ядовитую слизь."
+L.TEXT_FACTION_WEEKLY_STILL_NEEDED_FMT = "Еще требуется: %s"
+L.TEXT_ALL_TRACKED_CHARACTERS_COMPLETED = "Все отслеживаемые персонажи завершили"
+L.TEXT_NO_TRACKED_CHARACTERS = "Нет отслеживаемых персонажей"
+L.OPTION_DISABLE_VOLUME_FOG = "Отключить объемный туман"
+L.OPTION_DISABLE_VOLUME_FOG_DESC = "Убирает объемный туман и атмосферную дымку. Отключение этой настройки восстанавливает туман."
 lv.RegisterLocale("ruRU", L)
 
 -- Store for reload functionality

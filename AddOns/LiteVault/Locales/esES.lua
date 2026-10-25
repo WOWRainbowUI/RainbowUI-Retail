@@ -1009,6 +1009,12 @@ TEXT_DELVER_MOUNT_REWARD_REQUIREMENT="Completa Glory of the Midnight Delver para
 TEXT_EXPLORE_EVERSONG_PROGRESS="Sigue el progreso de Explore Eversong Woods. x/y marcados.", TEXT_EXPLORE_HARANDAR_PROGRESS="Sigue el progreso de Explore Harandar. x/y marcados.", TEXT_EXPLORE_VOIDSTORM_PROGRESS="Sigue el progreso de Explore Voidstorm. x/y marcados.", TEXT_EXPLORE_ZULAMAN_PROGRESS="Sigue el progreso de Explore Zul'Aman. x/y marcados.",
 }
 for key,value in pairs(phase2) do L[key]=value end
+L.NOTE_RITUAL_BEHAVIOR_VENOMOUS_OOZE = "Mata gigantes venenosos en la zona central del ritual para obtener cieno venenoso."
+L.TEXT_FACTION_WEEKLY_STILL_NEEDED_FMT = "Aún lo necesitan: %s"
+L.TEXT_ALL_TRACKED_CHARACTERS_COMPLETED = "Todos los personajes registrados lo han completado"
+L.TEXT_NO_TRACKED_CHARACTERS = "No hay personajes registrados"
+L.OPTION_DISABLE_VOLUME_FOG = "Desactivar la niebla volumétrica"
+L.OPTION_DISABLE_VOLUME_FOG_DESC = "Elimina la niebla volumétrica y la bruma atmosférica. Desactivar esta opción restaura la niebla."
 lv.RegisterLocale("esES", L)
 
 -- Store for reload functionality
