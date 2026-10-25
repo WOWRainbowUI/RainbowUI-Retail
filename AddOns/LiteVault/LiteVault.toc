@@ -1,3 +1,4 @@
+## Dependencies: Ace3
 ## Interface: 120001, 120005, 120007, 120100, 120105
 ## Title: LiteVault
 ## Notes: Lightweight Warband Tracker
