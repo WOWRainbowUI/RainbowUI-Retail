@@ -1,4 +1,4 @@
-﻿local _, U1 = ...
+local _, U1 = ...
 
 local D = {}
 U1.CfgDefaults = D
@@ -1920,30 +1920,23 @@ D["TinyTooltip-Reforged"] = {
 	icon = "Interface\\Icons\\inv_wand_02",
 };
 D["TinyTooltip-Remake"] = {
-    defaultEnable = 1,
+    defaultEnable = 0,
 	tags = { "ENHANCEMENT" },
-	title = "浮動提示資訊增強",
-	desc = "重製並優化遊戲中的浮動提示資訊，讓玩家在查看目標資訊時能獲得更清晰、直觀的體驗。`",
+	title = "(請刪除) 浮動提示資訊增強",
+	desc = "已改用米利的浮動提示，請自行刪除 TinyTooltip-Remake 資料夾。`",
 	modifier = "彩虹ui",
 	icon = "Interface\\Icons\\inv_wand_02",
-	img = true,
+};
+D["MiliUI_Tooltip"] = {
+    defaultEnable = 1,
+	tags = { "ENHANCEMENT" },
+	title = "米利的浮動提示",
+	desc = "浮動提示就是滑鼠指向玩家、怪物、物品或技能時，出現的資訊說明視窗。這個插件可以美化這些視窗，調整文字大小、字型、背景、邊框與血量條，讓資訊更容易閱讀。``位置與顯示：可以讓提示跟隨滑鼠，或固定在螢幕角落，並調整與滑鼠的距離；也能設定戰鬥中隱藏提示，減少遮擋畫面。``物品與技能：可選擇顯示圖示、物品所屬資料片、最大堆疊數，以及物品、法術或任務的 ID 等額外資訊。不需要的項目可以在設定中關閉。``聊天連結：可設定滑鼠移到聊天中的連結時，直接顯示提示內容。``使用方法：插件預設載入，滑鼠指向目標即可看到效果。輸入 /mtip 或點下方的設定選項，依照自己的閱讀習慣調整外觀、位置與顯示內容。`",
+	modifier = "米利",
     {
         text = "設定選項",
-        callback = function() SlashCmdList["TinyTooltip"]("general") end,
+        callback = function() SlashCmdList["MILIUITIP"]("") end,
     },
-	{
-        text = "恢復為預設值",
-        callback = function() SlashCmdList["TinyTooltip"]("reset") end,
-		reload = true,
-    },
-	{
-		type = "text",
-        text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",       
-	},
-	{
-		type = "text",
-		text = "移動位置：在遊戲內建的編輯模式中勾選 '浮動提示資訊' 來移動位置。\n\n查看法術ID：滑鼠指向時按住 Alt 鍵。\n\n戰鬥中顯示滑鼠提示：在設定選項中取消勾選 '戰鬥中隱藏'，玩家和NPC的戰鬥中隱藏也要分別取消勾選。\n\nDIY 模式：在設定選項中按下 DIY，可以分別拖曳每種資訊文字，自行安排呈現的位置。\n\n|cffFF2D2D請勿同時開啟 功能百寶箱 > 界面設置 > 增強工具提示 的功能，以免發生衝突。|r\n",
-	},
 };
 D["tullaRange"] = {
     defaultEnable = 1,
