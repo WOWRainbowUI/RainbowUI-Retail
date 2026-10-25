@@ -1,7 +1,7 @@
 ## Dependencies: Ace3
 ## Interface: 120100, 120105, 16001
 ## Title: Coolinator
-## Version: 164
+## Version: 165
 ## Author: plusmouse
 ## OptionalDeps: Masque
 ## SavedVariables: COOLINATOR_CONFIG
@@ -27,6 +27,8 @@
 ## DefaultState: disabled
 
 Libs/LibEditModeOverride/LibEditModeOverride.xml
+
+MouseMedia/embed.xml
 
 Locales.lua
 
