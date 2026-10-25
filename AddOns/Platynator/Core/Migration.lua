@@ -812,6 +812,33 @@ local function UpgradeDesignv27(design)
   end
 end
 
+local function UpgradeDesignv28(design)
+  local function Convert(asset)
+    return asset:gsub("^Platy: ", "MM: "):gsub("^Cooli: ", "MM: ")
+  end
+  for _, bar in ipairs(design.bars) do
+    bar.background.asset = Convert(bar.background.asset)
+    bar.foreground.asset = Convert(bar.foreground.asset)
+    bar.border.asset = Convert(bar.border.asset)
+    if bar.absorb then
+      bar.absorb.asset = Convert(bar.absorb.asset)
+    end
+    bar.marker.asset = addonTable.Assets.SparkLegacyMap[bar.marker.asset] or bar.marker.asset
+    if bar.kind == "cast" then
+      bar.interruptMarker.asset = addonTable.Assets.SparkLegacyMap[bar.interruptMarker.asset] or bar.marker.asset
+    end
+  end
+
+  for _, highlight in ipairs(design.highlights) do
+    if highlight.kind == "fixedBordered" then
+      highlight.background.asset = Convert(highlight.background.asset)
+      highlight.border.asset = Convert(highlight.border.asset)
+    elseif highlight.kind ~= "animatedBorder" then
+      highlight.asset = Convert(highlight.asset or "MM: Transparent")
+    end
+  end
+end
+
 local designUpgrades = {
   UpgradeDesignv1,
   UpgradeDesignv2,
@@ -841,6 +868,7 @@ local designUpgrades = {
   UpgradeDesignv25,
   UpgradeDesignv26,
   UpgradeDesignv27,
+  UpgradeDesignv28,
 }
 
 function addonTable.Core.UpgradeDesign(design)

@@ -61,13 +61,12 @@ local function GetLabelsValuesBackgrounds()
   local height = textureHeight
   local width = addonTable.Assets.BarBordersSize.width * height / addonTable.Assets.BarBordersSize.height
 
-  local allKeys = GetKeysArray(addonTable.Assets.BarBackgrounds)
-  table.sort(allKeys)
-  for _, key in ipairs(allKeys) do
-    local details = addonTable.Assets.BarBackgrounds[key]
+  local mouseAssets = tFilter(assets, function(a) return a:match("^MM: ") end, true)
+  table.sort(mouseAssets)
+  for _, key in ipairs(mouseAssets) do
     local file = LSM:Fetch("statusbar", key)
-    local text = "|T".. file .. ":" .. (height - 1) .. ":" .. (width - 1) .. "|t " .. (key:gsub("Platy: ", ""))
-    if details.isTransparent then
+    local text = "|T".. file .. ":" .. (height - 1) .. ":" .. (width - 1) .. "|t " .. (key:gsub("MM: ", ""))
+    if key == "MM: Solid Transparency" then
       text = addonTable.Locales.NONE
     end
 
@@ -75,14 +74,14 @@ local function GetLabelsValuesBackgrounds()
     table.insert(values, key)
   end
 
-  for _, key in ipairs(assets) do
-    if not addonTable.Assets.BarBackgrounds[key] then
-      local file = LSM:Fetch("statusbar", key)
-      local text = "|T".. file .. ":" .. (height - 1) .. ":" .. (width - 1) .. "|t [Custom] " .. key
+  local otherAssets = tFilter(assets, function(a) return not a:match("^MM: ") end, true)
+  table.sort(otherAssets)
+  for _, key in ipairs(otherAssets) do
+    local file = LSM:Fetch("statusbar", key)
+    local text = "|T".. file .. ":" .. (height - 1) .. ":" .. (width - 1) .. "|t [Custom] " .. key
 
-      table.insert(labels, text)
-      table.insert(values, key)
-    end
+    table.insert(labels, text)
+    table.insert(values, key)
   end
 
   return labels, values
@@ -94,13 +93,12 @@ local function GetLabelsValuesBorders()
 
   local height = textureHeight
 
-  local allKeys = GetKeysArray(addonTable.Assets.BarBordersSliced)
-  table.sort(allKeys)
-  for _, key in ipairs(allKeys) do
-    local details = addonTable.Assets.BarBordersSliced[key]
+  local mouseAssets = tFilter(assets, function(a) return a:match("^MM: ") end, true)
+  table.sort(mouseAssets)
+  for _, key in ipairs(mouseAssets) do
     local file = LSM:Fetch("nineslice", LSM:Fetch("ninesliceborder", key).nineslice).file
-    local text = "|T".. file .. ":" .. (height - 1) .. ":" .. (height - 1) .. "|t " .. (key:gsub("Platy: ", ""))
-    if details.isTransparent then
+    local text = "|T".. file .. ":" .. (height - 1) .. ":" .. (height - 1) .. "|t " .. (key:gsub("MM: ", ""))
+    if key == "MM: Transparent" then
       text = addonTable.Locales.NONE
     end
 
@@ -108,17 +106,17 @@ local function GetLabelsValuesBorders()
     table.insert(values, key)
   end
 
-  for _, key in ipairs(assets) do
-    if not addonTable.Assets.BarBordersSliced[key] then
-      local border = LSM:Fetch("ninesliceborder", key)
-      local slice = LSM:Fetch("nineslice", border.nineslice)
-      if slice then
-        local file = slice.file
-        local text = "|T".. file .. ":" .. (height - 1) .. ":" .. (height - 1) .. "|t [Custom] " .. key
+  local otherAssets = tFilter(assets, function(a) return not a:match("^MM: ") end, true)
+  table.sort(otherAssets)
+  for _, key in ipairs(otherAssets) do
+    local border = LSM:Fetch("ninesliceborder", key)
+    local slice = LSM:Fetch("nineslice", border.nineslice)
+    if slice then
+      local file = slice.file
+      local text = "|T".. file .. ":" .. (height - 1) .. ":" .. (height - 1) .. "|t [Custom] " .. key
 
-        table.insert(labels, text)
-        table.insert(values, key)
-      end
+      table.insert(labels, text)
+      table.insert(values, key)
     end
   end
 
@@ -154,21 +152,14 @@ local function GetLabelsValuesHighlightsNotAnimated()
   local slicedAssets = LSM:List("nineslice")
   local regularAssets = LSM:List("platynator/sizedtexture")
 
-  local platySliced = GetKeysArray(addonTable.Assets.BarBordersSliced)
-  tAppendAll(platySliced, tFilter(GetKeysArray(addonTable.Assets.Highlights), function(a)
-    return addonTable.Assets.Highlights[a].mode == addonTable.Assets.RenderMode.Sliced
-  end, true))
-  local platyRegular = tFilter(GetKeysArray(addonTable.Assets.Highlights), function(a)
-    local assetDetails = addonTable.Assets.Highlights[a]
-    return assetDetails.mode ~= addonTable.Assets.RenderMode.Sliced
-      and (not assetDetails.kind or not assetDetails.kind:match("^animated"))
-  end, true)
+  local mouseSlicedAssets = tFilter(slicedAssets, function(a) return a:match("^MM: ") end, true)
+  local mouseRegularAssets = tFilter(regularAssets, function(a) return a:match("^MM: ") end, true)
 
   local together = {}
-  for _, key in ipairs(platySliced) do
+  for _, key in ipairs(mouseSlicedAssets) do
     table.insert(together, {sliced = true, asset = key})
   end
-  for _, key in ipairs(platyRegular) do
+  for _, key in ipairs(mouseRegularAssets) do
     table.insert(together, {sliced = false, asset = key})
   end
   table.sort(together, function(a, b)
@@ -182,12 +173,11 @@ local function GetLabelsValuesHighlightsNotAnimated()
   for _, keyDetails in ipairs(together) do
     seen[keyDetails.asset] = true
     if keyDetails.sliced then
-      local details = addonTable.Assets.BarBordersSliced[keyDetails.asset]
-      if not details or not details.isTransparent then
+      if keyDetails.asset ~= "MM: Transparent" then
         local assetDetails = LSM:Fetch("nineslice", keyDetails.asset)
         assert(assetDetails)
         local width = assetDetails.previewWidth * height/assetDetails.previewHeight
-        local text = "|T".. assetDetails.file .. ":" .. height .. ":" .. width .. "|t " .. (keyDetails.asset:gsub("Platy: ", ""))
+        local text = "|T".. assetDetails.file .. ":" .. height .. ":" .. width .. "|t " .. (keyDetails.asset:gsub("MM: ", ""))
 
         table.insert(labels, text)
         table.insert(values, {sliced = true, asset = keyDetails.asset})
@@ -202,7 +192,7 @@ local function GetLabelsValuesHighlightsNotAnimated()
         width = 180
       end
 
-      local text = "|T".. details.file .. ":" .. height .. ":" .. width .. "|t " .. (keyDetails.asset:gsub("Platy: ", ""))
+      local text = "|T".. details.file .. ":" .. height .. ":" .. width .. "|t " .. (keyDetails.asset:gsub("MM: ", ""))
 
       table.insert(labels, text)
       table.insert(values, {sliced = false, asset = keyDetails.asset})
@@ -225,6 +215,59 @@ local function GetLabelsValuesHighlightsNotAnimated()
       assert(details)
 
       local width = details.width * height/details.height
+      if width > 180 then
+        height = 180/width * height
+        width = 180
+      end
+
+      local text = "|T".. details.file .. ":" .. height .. ":" .. width .. "|t [Custom] " .. key
+
+      table.insert(labels, text)
+      table.insert(values, {sliced = false, asset = key})
+    end
+  end
+
+  return labels, values
+end
+
+local function GetLabelsValuesSparks()
+  local labels, values = {}, {}
+  local regularAssets = LSM:List("spark")
+
+  local mouseRegularAssets = tFilter(regularAssets, function(a) return a:match("^MM: ") end, true)
+  table.sort(mouseRegularAssets)
+
+  local height = textureHeight - 1
+
+  local seen = {}
+
+  for _, asset in ipairs(mouseRegularAssets) do
+    seen[asset] = true
+    local details = LSM:Fetch("spark", asset)
+    assert(details)
+
+    local width = details.width * height/(125/8)
+    if width > 180 then
+      height = 180/width * height
+      width = 180
+    end
+
+    local text = "|T".. details.file .. ":" .. height .. ":" .. width .. "|t " .. (asset:gsub("MM: ", ""))
+
+    if asset == "MM: Transparency" then
+      text = addonTable.Locales.NONE
+    end
+
+    table.insert(labels, text)
+    table.insert(values, asset)
+  end
+
+  for _, key in ipairs(regularAssets) do
+    if not seen[key] then
+      local details = LSM:Fetch("spark", key)
+      assert(details)
+
+      local width = details.width * height/(125/8)
       if width > 180 then
         height = 180/width * height
         width = 180
@@ -551,10 +594,10 @@ addonTable.CustomiseDialog.WidgetsConfig = {
             end,
           },
           {
-            label = addonTable.Locales.HIGHLIGHT_BAR_EDGE,
+            label = addonTable.Locales.SPARK,
             kind = "dropdown",
             getInitData = function(details)
-              return GetLabelsValues(addonTable.Assets.BarPositionHighlights, function(a) return true end)
+              return GetLabelsValuesSparks()
             end,
             setter = function(details, value)
               details.marker.asset = value
@@ -564,7 +607,7 @@ addonTable.CustomiseDialog.WidgetsConfig = {
             end,
           },
           {
-            label = addonTable.Locales.BAR_EDGE_COLOR,
+            label = addonTable.Locales.SPARK_COLOR,
             kind = "colorPickerWithCheckbox",
             setter = function(details, value)
               details.marker.color = value.color
@@ -644,10 +687,10 @@ addonTable.CustomiseDialog.WidgetsConfig = {
             label = addonTable.Locales.MARK_INTERRUPT_READY_POINT,
             kind = "checkbox",
             setter = function(details, value)
-              details.interruptMarker.asset = value and "wide/glow" or "none"
+              details.interruptMarker.asset = value and "MM: Glow" or "MM: Transparency"
             end,
             getter = function(details)
-              return details.interruptMarker.asset ~= "none"
+              return details.interruptMarker.asset ~= "MM: Transparency"
             end,
           },
           {

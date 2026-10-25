@@ -77,6 +77,7 @@ function addonTable.Display.HealthBarMixin:UpdateHealth(state)
   self.statusBarAbsorb:SetMinMaxValues(0, state.maxWithAbsorbs)
 
   self.statusBarAbsorb:SetValue(state.absorbs, self.animate)
+  self.absorbTexture:SetAlpha(state.absorbs)
   self.newHealth = state.absolute
   self.statusBar:SetValue(self.newHealth, self.animate)
 

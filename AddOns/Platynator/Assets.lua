@@ -24,133 +24,10 @@ addonTable.Assets.BarBordersSize = {
 }
 
 local legacyMode = addonTable.Assets.Mode
-local renderMode = addonTable.Assets.RenderMode
-
-local LSM = LibStub("LibSharedMedia-3.0")
-LSM:Register(LSM.MediaType.FONT, "Roboto Condensed Bold", "Interface/AddOns/Platynator/Assets/Fonts/RobotoCondensed-Bold.ttf", LSM.LOCALE_BIT_western + LSM.LOCALE_BIT_ruRU)
-LSM:Register(LSM.MediaType.FONT, "Lato", "Interface/AddOns/Platynator/Assets/Fonts/Lato-Regular.ttf")
-LSM:Register(LSM.MediaType.FONT, "Poppins SemiBold", "Interface/AddOns/Platynator/Assets/Fonts/Poppins-SemiBold.ttf")
-LSM:Register(LSM.MediaType.FONT, "Diablo Heavy", "Interface/AddOns/Platynator/Assets/Fonts/DiabloHeavy.ttf")
-LSM:Register(LSM.MediaType.FONT, "Atkinson Hyperlegible Next", "Interface/AddOns/Platynator/Assets/Fonts/AtkinsonHyperlegibleNext-Regular.otf")
-
-addonTable.Assets.BarBackgrounds = {
-  ["Platy: Solid Transparency"] = {file = "Interface/AddOns/Platynator/Assets/Special/transparent.png", isTransparent = true},
-  ["Platy: Solid Black"] = {file = "Interface/AddOns/Platynator/Assets/Special/black.png"},
-  ["Platy: Solid Grey"] = {file = "Interface/AddOns/Platynator/Assets/Special/grey.png"},
-  ["Platy: Solid Grey (Raid)"] = {file = "Interface/AddOns/Platynator/Assets/Special/grey-raid.png"},
-  ["Platy: Solid White"] = {file = "Interface/AddOns/Platynator/Assets/Special/white.png"},
-
-  ["Platy: Bevelled"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarBackgrounds/bevelled.png", has4k = true},
-  ["Platy: Bevelled Grey"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarBackgrounds/bevelled-grey.png", has4k = true},
-
-  ["Platy: Fade Bottom"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarBackgrounds/fade-bottom.png", has4k = true},
-  ["Platy: Fade Top"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarBackgrounds/fade-top.png", has4k = true},
-  ["Platy: Fade Left"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarBackgrounds/fade-left.png", has4k = true},
-  ["Platy: Fade Right"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarBackgrounds/fade-right.png", has4k = true},
-
-  ["Platy: GW2"] = {file = "Interface/AddOns/Platynator/Assets/Special/BarBackgrounds/gw2.png"},
-  ["Platy: Blizzard Cast Bar"] = {file = "Interface/AddOns/Platynator/Assets/Special/BarBackgrounds/blizzard-cast-bar.png"},
-
-  ["Platy: Absorb Wide"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarBackgrounds/blizzard-absorb.png", has4k = true},
-  ["Platy: Absorb Narrow"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarBackgrounds/blizzard-absorb-narrow.png", has4k = true},
-}
-
-addonTable.Assets.BarBordersSliced = {
-  ["Platy: Transparent"] = {file = "Interface/AddOns/Platynator/Assets/Special/transparent.png", width = 20, height = 20, isTransparent = true, margin = 0.5, extra = 0, modifier = 1},
-
-  ["Platy: 7px"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarBorders/bold-square.png", width = 20, height = 20, has4k = true, masked = true, margin = 0.45, extra = 0, modifier = 0.35, DPIScale = 1/2},
-  ["Platy: 4px"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarBorders/slight-square.png", width = 20, height = 20, has4k = true, masked = true, margin = 0.3, extra = 0, modifier = 0.35, DPIScale = 1/2},
-  ["Platy: 2px"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarBorders/thin-square.png", width = 20, height = 20, has4k = true, masked = true, margin = 0.2, extra = 0, modifier = 0.35, DPIScale = 1/2},
-  ["Platy: 1px"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarBorders/1px-square.png", width = 20, height = 20, has4k = true, masked = true, margin = 0.3, extra = 0, modifier = 0.35, DPIScale = 1/2},
-
-  ["Platy: Round Bold"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarBorders/round-square.png", width = 48, height = 48, has4k = true, margin = 0.48, extra = 0, modifier = 0.3, DPIScale = 1/2},
-  ["Platy: Round Medium"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarBorders/round-slight-square.png", width = 48, height = 48, has4k = true, margin = 0.48, extra = 0, modifier = 0.3, DPIScale = 1/2},
-  ["Platy: Round Thin"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarBorders/round-thin-square.png", width = 48, height = 48, has4k = true, margin = 0.48, extra = 0, modifier = 0.3, DPIScale = 1/2},
-
-  ["Platy: Soft"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarBorders/soft-square.png", width = 66, height = 66, has4k = true, margin = 0.33, extra = 9, modifier = 0.25, DPIScale = 4/6},
-  ["Platy: GW2"] = {file = "Interface/AddOns/Platynator/Assets/Special/BarBorders/gw2.png", width = 33, height = 33, masked = false, margin = 0.3, extra = 12, modifier = 1},
-
-  ["Platy: Blizzard Health"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarBorders/blizzard-health-square.png", width = 48, height = 48, has4k = true, margin = 0.4, extra = 0, modifier = 0.3, DPIScale = 1/2},
-  ["Platy: Blizzard Midnight"] = {file = "Interface/AddOns/Platynator/Assets/Special/BarBorders/blizzard-midnight.png", width = 34, height = 34, margin = 0.35, extra = 9, modifier = 0.40},
-  ["Platy: Blizzard Midnight Selected"] = {file = "Interface/AddOns/Platynator/Assets/Special/BarBorders/blizzard-midnight-selected.png", width = 33, height = 33, margin = 0.4, extra = 12, modifier = 0.35},
-  ["Platy: Blizzard Cast Bar"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarBorders/blizzard-cast-bar-square.png", width = 48, height = 48, has4k = true, margin = 0.40, extra = 0, modifier = 0.35, DPIScale = 1/2},
-  ["Platy: Blizzard Classic"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarBorders/blizzard-classic-square.png", width = 48, height = 48, has4k = true, margin = 0.4, extra = 0, modifier = 0.3, DPIScale = 1/2},
-  ["Platy: Blizzard Metal"] = {file = "Interface/AddOns/Platynator/Assets/Special/BarBorders/blizzard-metal.png", width = 44, height = 44, margin = 0.48, extra = 14, modifier = 0.4},
-  ["Platy: Blizzard Gray Inset"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarBorders/blizzard-grey-inset.png", width = 69, height = 69, margin = 0.35, extra = 13, modifier = 0.4, has4k = true, DPIScale = 0.8},
-}
-
-addonTable.Assets.BarMasks = {
-  ["Platy: Solid"] = {file = "Interface/AddOns/Platynator/Assets/Special/white.png", width = 10, height = 10},
-  ["Platy: 7px"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarBorders/bold-square-mask.png", width = 20, height = 20, has4k = true},
-  ["Platy: 4px"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarBorders/slight-square-mask.png", width = 20, height = 20, has4k = true},
-  ["Platy: 2px"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarBorders/thin-square-mask.png", width = 20, height = 20, has4k = true},
-  --["1px"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarBorders/1px-square-mask.png", width = 20, height = 20, has4k = true, margin = 0.3},
-
-  ["Platy: Round Bold"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarBorders/round-square-mask.png", width = 48, height = 48, has4k = true, margin = 0.48},
-  ["Platy: Round Medium"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarBorders/round-slight-square-mask.png", width = 48, height = 48, has4k = true, margin = 0.48},
-  ["Platy: Round Thin"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarBorders/round-thin-square-mask.png", width = 48, height = 48, has4k = true, margin = 0.48},
-
-  ["Platy: Soft"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarBorders/soft-square-mask.png", width = 48, height = 48, has4k = true, margin = 0.33},
-
-  ["Platy: Blizzard Health"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarBorders/blizzard-health-square-mask.png", width = 48, height = 48, has4k = true, margin = 0.49},
-  ["Platy: Blizzard Midnight"] = {file = "Interface/AddOns/Platynator/Assets/Special/BarBorders/blizzard-midnight-mask.png", width = 24, height = 24, margin = 0.49},
-  ["Platy: Blizzard Classic"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarBorders/blizzard-classic-square-mask.png", width = 48, height = 48, has4k = true, margin = 0.35},
-  ["Platy: Blizzard Cast Bar"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarBorders/blizzard-cast-bar-square-mask.png", width = 48, height = 48, has4k = true, margin = 0.35},
-  ["Platy: Blizzard Gray Inset"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarBorders/blizzard-grey-inset-mask.png", width = 52, height = 52, has4k = true, margin = 0.35},
-}
 
 addonTable.Assets.Highlights = {
-  ["Platy: White"] = {file = "Interface/AddOns/Platynator/Assets/Special/white.png", width = 10, height = 10, mode = renderMode.Sliced, tag = "white", margin = 0.4, extra = 0, modifier = 1, minSize = 1},
-
-  ["Platy: Blizzard Health Bold"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarBorders/blizzard-health-square.png", width = 48, height = 48, has4k = true, masked = true, tag = "blizzard-health", margin = 0.4, extra = 0, minSize = 100, modifier = 0.3, DPIScale = 1/2, mode = renderMode.Sliced},
-  ["Platy: Soft Glow"] = {file = "Interface/AddOns/Platynator/Assets/%s/Highlights/soft-glow-square.png", width = 59, height = 59, has4k = true, masked = true, tag = "soft", margin = 0.4, extra = 11, modifier = 0.3, DPIScale = 1/2, mode = renderMode.Sliced},
-  ["Platy: Feathered"] = {file = "Interface/AddOns/Platynator/Assets/%s/Highlights/feathered-square.png", width = 60, height = 60, has4k = true, masked = true, tag = "soft", margin = 0.48, extra = 0, modifier = 0.25, DPIScale = 1/2, mode = renderMode.Sliced},
-  ["Platy: Feathered Holed"] = {file = "Interface/AddOns/Platynator/Assets/%s/Highlights/feathered-holed-square.png", width = 60, height = 60, has4k = true, masked = true, tag = "soft", margin = 0.48, extra = 0, modifier = 0.25, DPIScale = 1/2, mode = renderMode.Sliced},
-  ["Platy: Blizzard Midnight Important Cast"] = {file = "Interface/AddOns/Platynator/Assets/Special/BarBorders/blizzard-midnight-important-cast.png", width = 79, height = 16, marginX = 0.42, marginY = 0.5, extra = 0, modifier = 1, mode = renderMode.Sliced},
-  ["Platy: Blizzard Midnight Targeted By Enemy"] = {file = "Interface/AddOns/Platynator/Assets/Special/BarBorders/blizzard-midnight-targetedbyenemy.png", width = 24, height = 24, margin = 0.42, extra = 0, modifier = 1, mode = renderMode.Sliced},
-
-  ["Platy: Glow"] = {file = "Interface/AddOns/Platynator/Assets/%s/Highlights/glow-100.png", width = 1563, height = 680, has4k = true, mode = renderMode.Stretch, tag = "glow"},
-
-  ["Platy: Striped"] = {file = "Interface/AddOns/Platynator/Assets/%s/Highlights/striped.png", width = 1000, height = 125, has4k = true, mode = renderMode.Stretch, tag = "striped"},
-  ["Platy: Striped Reverse"] = {file = "Interface/AddOns/Platynator/Assets/%s/Highlights/striped-reverse.png", width = 1000, height = 125, has4k = true, mode = renderMode.Stretch, tag = "striped-reverse"},
-
-  ["Platy: Arrows In"] = {file = "Interface/AddOns/Platynator/Assets/%s/Highlights/arrows-in.png", width = 1000, height = 125, has4k = true, mode = renderMode.Stretch, tag = "arrows-in"},
-  ["Platy: Arrows Out"] = {file = "Interface/AddOns/Platynator/Assets/%s/Highlights/arrows-out.png", width = 1000, height = 125, has4k = true, mode = renderMode.Stretch, tag = "arrows-out"},
-  ["Platy: Arrows In Close"] = {file = "Interface/AddOns/Platynator/Assets/%s/Highlights/arrows-in-close.png", width = 1000, height = 125, has4k = true, mode = renderMode.Stretch, tag = "arrows-in-close"},
-  ["Platy: Arrows Out Close"] = {file = "Interface/AddOns/Platynator/Assets/%s/Highlights/arrows-out-close.png", width = 1000, height = 125, has4k = true, mode = renderMode.Stretch, tag = "arrows-out-close"},
-
-  ["Platy: Arrow"] = {file = "Interface/AddOns/Platynator/Assets/%s/Highlights/arrows.png", width = 86, height = 66, has4k = true, margin = 0.5, extra = 0, modifier = 0.29, DPIScale = 8/10, mode = renderMode.Sliced, tag = "arrows"},
-  ["Platy: Arrow Out"] = {file = "Interface/AddOns/Platynator/Assets/%s/Highlights/arrows-basic-out.png", width = 86, height = 66, has4k = true, margin = 0.5, extra = 0, modifier = 0.29, DPIScale = 8/10, mode = renderMode.Sliced, tag = "arrows"},
-  ["Platy: Arrow Double"] = {file = "Interface/AddOns/Platynator/Assets/%s/Highlights/double-arrows.png", width = 149, height = 69, has4k = true, margin = 0.5, extra = 0, modifier = 0.31, DPIScale = 8/10, mode = renderMode.Sliced, tag = "arrows"},
-  ["Platy: Arrow Double Out"] = {file = "Interface/AddOns/Platynator/Assets/%s/Highlights/double-arrows-out.png", width = 149, height = 69, has4k = true, margin = 0.5, extra = 0, modifier = 0.31, DPIScale = 8/10, mode = renderMode.Sliced, tag = "arrows"},
-  ["Platy: Arrow Double Down"] = {file = "Interface/AddOns/Platynator/Assets/%s/Highlights/double-arrows-down.png", width = 173, height = 153, has4k = true, mode = renderMode.Fixed, tag = "arrows"},
-  ["Platy: Arrow Solid"] = {file = "Interface/AddOns/Platynator/Assets/%s/Highlights/arrows-solid.png", width = 97, height = 69, has4k = true, margin = 0.5, extra = 0, modifier = 0.30, DPIScale = 8/10, mode = renderMode.Sliced, tag = "arrows"},
-  ["Platy: Arrow Solid Out"] = {file = "Interface/AddOns/Platynator/Assets/%s/Highlights/arrows-solid-out.png", width = 97, height = 69, has4k = true, margin = 0.5, extra = 0, modifier = 0.30, DPIScale = 8/10, mode = renderMode.Sliced, tag = "arrows"},
-  ["Platy: Arrow Solid Down"] = {file = "Interface/AddOns/Platynator/Assets/%s/Highlights/arrow-solid-down.png", width = 207, height = 132, has4k = true, mode = renderMode.Fixed, tag = "arrows"},
-  ["Platy: Arrow Hi-vis"] = {file = "Interface/AddOns/Platynator/Assets/%s/Highlights/hi-vis-arrows.png", width = 158, height = 50, has4k = true, margin = 0.5, extra = 0, modifier = 0.42, shiftModifierV = 1, DPIScale = 8/10, mode = renderMode.Sliced, tag = "arrows"},
-  ["Platy: Arrow Hi-vis Out"] = {file = "Interface/AddOns/Platynator/Assets/%s/Highlights/hi-vis-arrows-out.png", width = 158, height = 50, has4k = true, margin = 0.5, extra = 0, modifier = 0.42, shiftModifierV = 1, DPIScale = 8/10, mode = renderMode.Sliced, tag = "arrows"},
-  ["Platy: Arrow Hi-vis Down"] = {file = "Interface/AddOns/Platynator/Assets/%s/Highlights/hi-vis-arrow-down.png", width = 125, height = 185, has4k = true, mode = renderMode.Fixed, tag = "arrows"},
-  ["Platy: Arrow Blocky"] = {file = "Interface/AddOns/Platynator/Assets/%s/Highlights/arrows-blocky.png", width = 68, height = 50, has4k = true, margin = 0.5, extra = 0, modifier = 0.42, shiftModifierV = 1, DPIScale = 8/10, mode = renderMode.Sliced, tag = "arrows"},
-  ["Platy: Arrow Blocky Out"] = {file = "Interface/AddOns/Platynator/Assets/%s/Highlights/arrows-blocky-out.png", width = 68, height = 50, has4k = true, margin = 0.5, extra = 0, modifier = 0.42, shiftModifierV = 1, DPIScale = 8/10, mode = renderMode.Sliced, tag = "arrows"},
-
-  ["Platy: Brackets"] = {file = "Interface/AddOns/Platynator/Assets/%s/Highlights/brackets.png", width = 154, height = 56, has4k = true, margin = 0.45, extra = 0, modifier = 0.3, shiftModifierV = 1, DPIScale = 8/10, mode = renderMode.Sliced},
-
-  ["Platy: Blizzard Classic Level"] = {file = "Interface/AddOns/Platynator/Assets/%s/Highlights/blizzard-classic-level.png", width = 178, height = 125, has4k = true, mode = renderMode.Fixed, tag = "blizzard-classic-level"},
-  ["Platy: Blizzard Aggro"] = {file = "Interface/AddOns/Platynator/Assets/Special/Highlights/blizzard-aggro.png", width = 1000, height = 240, has4k = true, mode = renderMode.Fixed, tag = "blizzard-aggro"},
-
   ["Platy: Animated Dashes Short"] = {offset = -1, defaultWidth = 1, preview = "Interface/AddOns/Platynator/Assets/Special/Animations/important-preview.png", horizontal = "Interface/AddOns/Platynator/Assets/Special/Animations/important.png", vertical = "Interface/AddOns/Platynator/Assets/Special/Animations/important-90.png", columns = 1, rows = 11, duration = 0.5, kind = "animatedBorder"},
   ["Platy: Animated Dashes Long"] = {offset = -1, defaultWidth = 1, preview = "Interface/AddOns/Platynator/Assets/Special/Animations/pandemic-preview.png", horizontal = "Interface/AddOns/Platynator/Assets/Special/Animations/pandemic.png", vertical = "Interface/AddOns/Platynator/Assets/Special/Animations/pandemic-90.png", columns = 1, rows = 11, duration = 0.5, kind = "animatedBorder"},
-}
-
-addonTable.Assets.BarPositionHighlights = {
-  ["none"] = {file = "", width = 0, height = 0, isTransparent = true, order = 1},
-  ["wide/glow"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarPosition/highlight.png", width = 54, height = 125, mask = "Interface/AddOns/Platynator/Assets/%s/BarPosition/highlight-mask.png", offset = 0.25, has4k = true, order = 2, text = addonTable.Locales.BAR_POSITION_BLUR},
-  ["streak"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarPosition/streak.png", width = 143, height = 125, offset = 0, has4k = true, order = 3, text = addonTable.Locales.BAR_POSITION_STREAK},
-  ["curved"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarPosition/curved.png", mask = "Interface/AddOns/Platynator/Assets/%s/BarPosition/curved-mask.png", width = 63, height = 125, offset = 0.3, has4k = true, order = 5, text = addonTable.Locales.BAR_POSITION_CURVED},
-  ["curved-half"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarPosition/curved-half.png", mask = "Interface/AddOns/Platynator/Assets/%s/BarPosition/curved-half-mask.png", width = 63, height = 125, offset = 0.3, has4k = true, order = 5, text = addonTable.Locales.BAR_POSITION_CURVED_HALF},
-  ["curved-reverse"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarPosition/curved-reverse.png", mask = "Interface/AddOns/Platynator/Assets/%s/BarPosition/curved-mask.png", width = 63, height = 125, offset = 0.4, has4k = true, order = 7, text = addonTable.Locales.BAR_POSITION_CURVED_REVERSE},
-  ["curved-reverse-half"] = {file = "Interface/AddOns/Platynator/Assets/%s/BarPosition/curved-reverse-half.png", mask = "Interface/AddOns/Platynator/Assets/%s/BarPosition/curved-half-mask.png", width = 63, height = 125, offset = 0.4, has4k = true, order = 7, text = addonTable.Locales.BAR_POSITION_CURVED_HALF_REVERSE},
-  ["gw2"] = {file = "Interface/AddOns/Platynator/Assets/Special/BarPosition/gw2.png", width = 137, height = 125, offset = 0.5, order = 10, text = "GW2"},
 }
 
 addonTable.Assets.PowerBars = {
@@ -242,31 +119,6 @@ function addonTable.Assets.ApplyScale()
     DPIScale = "DPI96"
   end
 
-  local function IterateLSMBackground(list)
-    for key, entry in pairs(list) do
-      if entry.has4k then
-        entry.file = entry.file:format(DPIScale)
-      end
-      LSM:Register(LSM.MediaType.STATUSBAR, key, entry.file)
-    end
-  end
-
-  local function ResizeSlicedAssets(list, scales)
-    for key, entry in pairs(list) do
-      if entry.has4k then
-        entry.file = entry.file:format(DPIScale)
-        if DPIScale ~= "DPI144" then
-          local scale = scales[key].DPIScale
-          entry.width = scale * entry.width
-          entry.height = scale * entry.height
-          if entry.modifier then
-            entry.modifier = entry.modifier / scale
-          end
-        end
-      end
-    end
-  end
-
   local keys = {
     "file",
     "mask",
@@ -301,66 +153,6 @@ function addonTable.Assets.ApplyScale()
     end
   end
 
-  local function IterateLSMSlicedBorder(list, masks)
-    ResizeSlicedAssets(list, list)
-    ResizeSlicedAssets(masks, list)
-    for key, entry in pairs(list) do
-      local marginX = entry.margin or entry.marginX
-      local marginY = entry.margin or entry.marginY
-      LSM:Register("nineslice", key, {
-        file = entry.file,
-        previewWidth = entry.width,
-        previewHeight = entry.height,
-        padding = {left = entry.extra / 2, right = entry.extra / 2, top = entry.extra / 2, bottom = entry.extra / 2},
-        margins = {left = entry.width * marginX, right = entry.width * marginX, top = entry.height * marginY, bottom = entry.height * marginY},
-        scaleModifier = entry.modifier,
-        mode = Enum.UITextureSliceMode.Stretched,
-      })
-      local maskKey = masks[key] and key or "Platy: Solid"
-      local maskData = masks[maskKey]
-      local maskMargin = maskData.margin or 0.49
-      LSM:Register("ninesliceborder", key, {
-        nineslice = key,
-        mask = {
-          file = maskData.file,
-          margins = {left = maskData.width * maskMargin, right = maskData.width * maskMargin, top = maskData.height * maskMargin, bottom = maskData.height * maskMargin},
-        },
-      })
-    end
-  end
-
-  local function IterateLSMHighlights(list)
-    for key, entry in pairs(list) do
-      if entry.mode == renderMode.Sliced then
-        ResizeSlicedAssets({entry}, {entry})
-        local marginX = entry.margin or entry.marginX
-        local marginY = entry.margin or entry.marginY
-        LSM:Register("nineslice", key, {
-          file = entry.file,
-          previewWidth = entry.width,
-          previewHeight = entry.height,
-          margins = {left = entry.width * marginX, right = entry.width * marginX, top = entry.height * marginY, bottom = entry.height * marginY},
-          padding = {left = 0, right = 0, top = 0, bottom = 0},
-          scaleModifier = entry.modifier,
-          mode = Enum.UITextureSliceMode.Stretched,
-        })
-      elseif entry.kind == "animatedBorder" then
-        -- Not registered on purpose
-      else
-        ResizeAssets({entry})
-        LSM:Register("platynator/sizedtexture", key, {
-          file = entry.file,
-          width = entry.width,
-          height = entry.height,
-        })
-      end
-    end
-  end
-
-  IterateLSMBackground(addonTable.Assets.BarBackgrounds)
-  IterateLSMSlicedBorder(addonTable.Assets.BarBordersSliced, addonTable.Assets.BarMasks)
-  IterateLSMHighlights(addonTable.Assets.Highlights)
-  ResizeAssets(addonTable.Assets.BarPositionHighlights)
   Apply4k(addonTable.Assets.PowerBars)
   ResizeAssets(addonTable.Assets.Markers)
 end

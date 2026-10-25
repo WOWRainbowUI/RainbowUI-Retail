@@ -25,25 +25,25 @@ addonTable.CustomiseDialog.DesignWidgets = {
       layer = 1,
       animate = false,
       background = {
-        asset = "Platy: Fade Bottom",
+        asset = "MM: Fade Bottom",
         color = GetColor("FFFFFF", 1),
         applyColor = false,
       },
       foreground = {
-        asset = "Platy: Fade Bottom",
+        asset = "MM: Fade Bottom",
       },
       border = {
-        asset = "Platy: 7px",
+        asset = "MM: 7px",
         color = GetColor("000000", 1),
         width = 1,
         height = 1,
       },
       absorb = {
-        asset = "Platy: Absorb Wide",
+        asset = "MM: Absorb Wide",
         color = GetColor("FFFFFF", 1)
       },
       marker = {
-        asset = "none",
+        asset = "MM: Transparency",
         applyColor = true,
         color = GetColor("FFFFFF"),
       },
@@ -93,24 +93,24 @@ addonTable.CustomiseDialog.DesignWidgets = {
         CopyTable(addonTable.CustomiseDialog.ColorsConfig["cast"].default),
       },
       marker = {
-        asset = "none",
+        asset = "MM: Transparency",
         applyColor = true,
         color = GetColor("FFFFFF"),
       },
       interruptMarker = {
-        asset = "none",
+        asset = "MM: Transparency",
         color = GetColor("FFFFFF"),
       },
       background = {
-        asset = "Platy: Fade Bottom",
+        asset = "MM: Fade Bottom",
         color = GetColor("FFFFFF", 1),
         applyColor = false,
       },
       foreground = {
-        asset = "Platy: Fade Bottom",
+        asset = "MM: Fade Bottom",
       },
       border = {
-        asset = "Platy: 7px",
+        asset = "MM: 7px",
         color = GetColor("000000", 1),
         width = 1,
         height = 1,
@@ -143,15 +143,15 @@ addonTable.CustomiseDialog.DesignWidgets = {
         color = GetColor("FFFFFF"),
       },
       background = {
-        asset = "Platy: Fade Bottom",
+        asset = "MM: Fade Bottom",
         color = GetColor("FFFFFF", 1),
         applyColor = false,
       },
       foreground = {
-        asset = "Platy: Fade Bottom",
+        asset = "MM: Fade Bottom",
       },
       border = {
-        asset = "Platy: 7px",
+        asset = "MM: 7px",
         color = GetColor("000000", 1),
         width = 1,
         height = 1,
@@ -183,7 +183,7 @@ addonTable.CustomiseDialog.DesignWidgets = {
     default = {
       anchor = {"TOPLEFT", -140, 50},
       kind = "automatic",
-      asset = "Platy: Soft Glow",
+      asset = "MM: Soft Glow",
       sliced = true,
       width = 1.07,
       height = 1.54,
@@ -201,7 +201,7 @@ addonTable.CustomiseDialog.DesignWidgets = {
     default = {
       anchor = {"TOPLEFT", -140, 50},
       kind = "target",
-      asset = "Platy: Glow",
+      asset = "MM: Glow",
       sliced = false,
       width = 1,
       height = 1,
@@ -216,7 +216,7 @@ addonTable.CustomiseDialog.DesignWidgets = {
     default = {
       anchor = {"TOPLEFT", -140, 50},
       kind = "softTarget",
-      asset = "Platy: Glow",
+      asset = "MM: Glow",
       sliced = false,
       width = 1,
       height = 1,
@@ -231,7 +231,7 @@ addonTable.CustomiseDialog.DesignWidgets = {
     default = {
       anchor = {"TOPLEFT", -140, 50},
       kind = "focus",
-      asset = "Platy: Glow",
+      asset = "MM: Glow",
       sliced = false,
       width = 1,
       height = 1,
@@ -246,7 +246,7 @@ addonTable.CustomiseDialog.DesignWidgets = {
     default = {
       anchor = {"TOPLEFT", -140, 50},
       kind = "mouseover",
-      asset = "Platy: Glow",
+      asset = "MM: Glow",
       sliced = false,
       width = 1,
       height = 1,
@@ -262,7 +262,7 @@ addonTable.CustomiseDialog.DesignWidgets = {
     default = {
       anchor = {"TOPLEFT", -140, 50},
       kind = "fixed",
-      asset = "Platy: Feathered",
+      asset = "MM: Feathered",
       sliced = true,
       height = 1.1,
       width = 1,
@@ -278,12 +278,12 @@ addonTable.CustomiseDialog.DesignWidgets = {
       anchor = {"TOPLEFT", -140, 50},
       kind = "fixedBordered",
       background = {
-        asset = "Platy: Fade Bottom",
+        asset = "MM: Fade Bottom",
         color = GetColor("FFFFFF", 1),
         applyColor = false,
       },
       border = {
-        asset = "Platy: 7px",
+        asset = "MM: 7px",
         color = GetColor("000000", 1),
         width = 1,
         height = 1,
@@ -333,7 +333,7 @@ addonTable.CustomiseDialog.DesignWidgets = {
     default = {
       anchor = {"TOPLEFT", -140, 50},
       kind = "flashing",
-      asset = "Platy: Feathered",
+      asset = "MM: Feathered",
       sliced = true,
       height = 1.1,
       width = 1,

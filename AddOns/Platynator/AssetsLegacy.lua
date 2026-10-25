@@ -279,3 +279,40 @@ addonTable.Assets.PowerBarsLegacyMap = {
   ["normal/soft-square-faded"] = "Platy: Soft Square",
   ["normal/soft-square-full"] = "Platy: Soft Square",
 }
+
+addonTable.Assets.SparkLegacyMap = {
+  ["none"] = "MM: Transparency",
+  ["wide/glow"] = "MM: Glow",
+  ["streak"] = "MM: Streak",
+  ["curved"] = "MM: Wave",
+  ["curved-half"] = "MM: Wave (Half)",
+  ["curved-reverse"] = "MM: Wave (Reverse)",
+  ["curved-reverse-half"] = "MM: Wave (Reverse, Half)",
+  ["bevelled"] = "MM: Bevelled",
+  ["bevelled-cornered"] = "MM: Bevelled (Cornered)",
+  ["gw2"] = "MM: GW2",
+}
+addonTable.Assets.BarBordersSliced = {
+  ["Platy: Transparent"] = true,
+
+  ["Platy: 7px"] = true,
+  ["Platy: 4px"] = true,
+  ["Platy: 2px"] = true,
+  ["Platy: 1px"] = true,
+
+  ["Platy: Round Bold"] = true,
+  ["Platy: Round Medium"] = true,
+  ["Platy: Round Thin"] = true,
+
+  ["Platy: Soft"] = true,
+  ["Platy: GW2"] = true,
+
+  ["Platy: Blizzard Health"] = true,
+  ["Platy: Blizzard Midnight"] = true,
+  ["Platy: Blizzard Midnight Selected"] = true,
+  ["Platy: Blizzard Cast Bar"] = true,
+  ["Platy: Blizzard Classic"] = true,
+  ["Platy: Blizzard Metal"] = true,
+  ["Platy: Blizzard Gray Inset"] = true,
+  ["Platy: Blizzard Glow"] = true,
+}
