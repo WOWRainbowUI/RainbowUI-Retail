@@ -29,14 +29,15 @@ VUHDO_DEBUFF_TYPES = {
 	["Enrage"] = VUHDO_DEBUFF_TYPE_ENRAGE,
 };
 
-VUHDO_DEBUFF_BLACKLIST = {
-	[GetSpellName(69127)] = true, -- Chill of the Throne
-	[GetSpellName(57724)] = true, -- Sated (Bloodlust)
-	[GetSpellName(71328)] = true, -- Dungeon Cooldown
-	[GetSpellName(57723)] = true, -- Exhaustion (Heroism)
-	[GetSpellName(80354)] = true, -- Temporal Displacement (Time Warp)
-	[GetSpellName(264689)] = true, -- Fatigued (Primal Fury)
-};
+VUHDO_DEBUFF_BLACKLIST = { };
+VUHDO_addSpellNameKeys(VUHDO_DEBUFF_BLACKLIST,
+	69127, -- Chill of the Throne
+	57724, -- Sated (Bloodlust)
+	71328, -- Dungeon Cooldown
+	57723, -- Exhaustion (Heroism)
+	80354, -- Temporal Displacement (Time Warp)
+	264689 -- Fatigued (Primal Fury)
+);
 
 local VUHDO_CONFIG;
 local VUHDO_RAID;

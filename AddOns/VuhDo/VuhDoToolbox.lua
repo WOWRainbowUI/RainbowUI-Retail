@@ -229,6 +229,25 @@ end
 
 
 --
+local tKeySpellName;
+function VUHDO_addSpellNameKeys(aTable, ...)
+
+	for tCnt = 1, select("#", ...) do
+		tKeySpellName = GetSpellName((select(tCnt, ...)));
+
+		if tKeySpellName then
+			aTable[tKeySpellName] = true;
+		end
+	end
+
+	return aTable;
+
+end
+
+
+
+
+--
 local tResolvedName;
 function VUHDO_formatAuraSpellDisplayName(aSpellName)
 
@@ -241,17 +260,7 @@ end
 
 
 --
-local VUHDO_RANGE_SPELLS_REMAP = {
-	["HELPFUL"] = {
-		[VUHDO_SPELL_ID.LIVING_FLAME] = { VUHDO_SPELL_ID.CHRONO_FLAME, VUHDO_SPELL_ID.EMERALD_BLOSSOM },
-		[VUHDO_SPELL_ID.DETOX] = { VUHDO_SPELL_ID.VIVIFY },
-	},
-	["HARMFUL"] = {
-		[VUHDO_SPELL_ID.SMITE] = { VUHDO_SPELL_ID.SHADOW_WORD_PAIN },
-		[VUHDO_SPELL_ID.LIVING_FLAME] = { VUHDO_SPELL_ID.AZURE_STRIKE },
-		[VUHDO_SPELL_ID.LIGHTNING_BOLT] = { VUHDO_SPELL_ID.FLAME_SHOCK },
-	},
-};
+local VUHDO_RANGE_SPELLS_REMAP = VUHDO_RANGE_SPELLS_REMAP;
 
 local tIsSpellInRange;
 function VUHDO_isSpellInRange(aSpell, aUnit, aUnitReaction)
@@ -465,22 +474,8 @@ local sZeroRange = "";
 local sPetRangeSpell;
 local sResurrectionRangeSpell;
 
-local VUHDO_PET_RANGE_SPELLS = {
-	["HUNTER"] = 136,
-	["WARLOCK"] = 755,
-	["DEATHKNIGHT"] = 47541,
-};
-
-local VUHDO_RESURRECTION_RANGE_SPELLS = {
-	["DRUID"] = VUHDO_SPELL_ID.REBIRTH,
-	["PRIEST"] = VUHDO_SPELL_ID.RESURRECTION,
-	["PALADIN"] = VUHDO_SPELL_ID.INTERCESSION,
-	["SHAMAN"] = VUHDO_SPELL_ID.ANCESTRAL_SPIRIT,
-	["MONK"] = VUHDO_SPELL_ID.RESUSCITATE,
-	["DEATHKNIGHT"] = VUHDO_SPELL_ID.RAISE_ALLY,
-	["WARLOCK"] = VUHDO_SPELL_ID.SOULSTONE,
-	["EVOKER"] = VUHDO_SPELL_ID.RETURN,
-};
+local VUHDO_PET_RANGE_SPELLS = VUHDO_PET_RANGE_SPELLS;
+local VUHDO_RESURRECTION_RANGE_SPELLS = VUHDO_RESURRECTION_RANGE_SPELLS;
 
 
 --
@@ -1219,10 +1214,39 @@ end
 
 
 --
+function VUHDO_isModelHiddenOnFlavor(aModelId)
+
+	if aModelId >= VUHDO_ID_WARRIORS and aModelId <= VUHDO_ID_EVOKERS then
+		return not VUHDO_flavorHasClass(aModelId);
+	end
+
+	return false;
+
+end
+
+
+
+--
+function VUHDO_getActiveSpecSlot()
+
+	if VUHDO_FLAVOR_SPEC_TALENT_GROUPS == VUHDO_getFlavorSpecModel() then
+		return C_SpecializationInfo.GetActiveSpecGroup();
+	end
+
+	return C_SpecializationInfo.GetSpecialization();
+
+end
+
+
+
+
+
+
+--
 local tResurrectionSpells;
 local tKnownResurrectionSpells;
 function VUHDO_getResurrectionSpells()
-	tResurrectionSpells = (VUHDO_RESURRECTION_SPELLS[VUHDO_PLAYER_CLASS] or sEmpty)[GetSpecialization() or 0];
+	tResurrectionSpells = (VUHDO_RESURRECTION_SPELLS[VUHDO_PLAYER_CLASS] or sEmpty)[VUHDO_getActiveSpecSlot() or 0];
 
 	if tResurrectionSpells then
 		tKnownResurrectionSpells = { };
@@ -1403,8 +1427,8 @@ function VUHDO_replaceMacroTemplates(aText, aUnit)
 		tInfo = VUHDO_RAID[aUnit];
 
 		if tInfo then
-			if tInfo["name"] and not tInfo["hasSecretName"] then
-				aText = gsub(aText, "[Vv][Dd][Nn][Aa][Mm][Ee]", tInfo["name"]);
+			if not tInfo["hasSecretIdentity"] then
+				aText = gsub(aText, "[Vv][Dd][Nn][Aa][Mm][Ee]", VUHDO_getUnitExternalName(aUnit) or tInfo["name"] or "");
 			end
 
 			if tInfo["petUnit"] then

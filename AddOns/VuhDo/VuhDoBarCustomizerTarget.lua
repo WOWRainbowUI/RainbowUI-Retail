@@ -324,11 +324,11 @@ local tName;
 local function VUHDO_rememberTargetButton(aTargetUnit, aButton)
 	for tUnit, tInfo in pairs(VUHDO_RAID) do
 		if VUHDO_unitIsUnit(tUnit, aTargetUnit) then
-			if tInfo["hasSecretName"] then
+			if tInfo["hasSecretIdentity"] then
 				break;
 			end
 
-			tName = tInfo["name"];
+			tName = VUHDO_getUnitIdentityKey(tInfo);
 
 			if not tName then
 				break;

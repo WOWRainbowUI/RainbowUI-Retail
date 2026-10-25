@@ -7,6 +7,7 @@ local tconcat = table.concat;
 local tsort = table.sort;
 local twipe = table.wipe;
 local format = string.format;
+local max = math.max;
 
 local CreateFrame = CreateFrame;
 local InCombatLockdown = InCombatLockdown;
@@ -121,6 +122,7 @@ VUHDO_INDICATOR_OVERLAY_TARGETS = {
 		["shape"] = "dot",
 		["getter"] = "VUHDO_getBarRoleIcon",
 		["iconIndex"] = 51,
+		["addLevel"] = 2,
 	},
 	["THREAT_MARK"] = {
 		["shape"] = "dot",
@@ -144,6 +146,7 @@ local VUHDO_AURA_IDENTITY_GATE_HELPFUL;
 local VUHDO_AURA_IDENTITY_GATE_HARMFUL;
 local VUHDO_BUTTON_CACHE;
 local VUHDO_MAX_PANELS;
+local VUHDO_AURA_LIST_BOUQUETS;
 
 local VUHDO_PixelUtil;
 local VUHDO_LibSharedMedia;
@@ -173,6 +176,7 @@ local VUHDO_deferVolatilePassForButton;
 local VUHDO_fixFrameLevels;
 local VUHDO_deferInitAuraContainersForButton;
 local VUHDO_rebuildAuraAnchorsForAllButtons;
+local VUHDO_refreshAllUnitAuras;
 
 local sAuraBorderOptions = {
 	["style"] = Enum.CustomAuraButtonDispelTypeTextureStyle.PreserveAsset,
@@ -201,6 +205,13 @@ local sAuraOpaqueBorderOptions = {
 	["style"] = Enum.CustomAuraButtonDispelTypeTextureStyle.PreserveAsset,
 	["showWhenHarmful"] = true,
 	["showWhenHelpful"] = true,
+};
+
+local sAuraBarDispelOverlayOptions = {
+	["style"] = Enum.CustomAuraButtonDispelTypeTextureStyle.PreserveAsset,
+	["showWhenHarmful"] = true,
+	["showWhenHelpful"] = true,
+	["showWithoutDispelType"] = false,
 };
 
 local sAuraDurationBarOptions = { };
@@ -254,6 +265,7 @@ local sAuraTimerFormatterFull;
 local sAuraTimerFormattersByThreshold = { };
 local sAuraTimerColorCurveFull;
 local sAuraTimerColorCurvesByThreshold = { };
+local sAuraDurationTextOptionsAlive;
 local sChainBaselineColors = { };
 local sChainBaselineFrames = { };
 local sChainBackgroundFillOwners = { };
@@ -328,7 +340,7 @@ do
 		tBreakpoints = {
 			{
 				["threshold"] = 3600,
-				["format"] = "%.1f",
+				["format"] = "%.1fh",
 				["components"] = {
 					{
 						["div"] = 3600,
@@ -339,7 +351,7 @@ do
 			},
 			{
 				["threshold"] = 60,
-				["format"] = "%d",
+				["format"] = "%dm",
 				["components"] = {
 					{
 						["div"] = 60,
@@ -368,8 +380,7 @@ do
 	local tHideThreshold;
 	function VUHDO_getAuraTimerFormatter(aDurationMode, aTimerThreshold)
 
-		if aDurationMode == VUHDO_SPELL_DURATION_MODE_FULL or aDurationMode == VUHDO_SPELL_DURATION_MODE_ALIVE then
-			-- FIXME: alive mode elapsed time is not supported by CustomAuraButton DurationTextBinding
+		if aDurationMode == VUHDO_SPELL_DURATION_MODE_FULL then
 			if not sAuraTimerFormatterFull then
 				sAuraTimerFormatterFull = CreateNumericRuleFormatter();
 				sAuraTimerFormatterFull:SetBreakpoints(VUHDO_copyAuraTimerBaseBreakpoints());
@@ -410,6 +421,10 @@ do
 	local tColorCurve;
 	function VUHDO_getAuraTimerColorCurve(aDurationMode, aTimerThreshold)
 
+		if aDurationMode == VUHDO_SPELL_DURATION_MODE_ALIVE then
+			return nil;
+		end
+
 		if aDurationMode == VUHDO_SPELL_DURATION_MODE_FULL then
 			return sAuraTimerColorCurveFull;
 		end
@@ -435,6 +450,44 @@ end
 
 
 
+do
+	--
+	local tFormat;
+	function VUHDO_getAuraDurationTextOptions(aDurationMode, aTimerThreshold)
+
+		if aDurationMode == VUHDO_SPELL_DURATION_MODE_ALIVE then
+			if not sAuraDurationTextOptionsAlive then
+				tFormat = {
+					["formatString"] = "{}",
+					["components"] = {
+						{
+							["property"] = Enum.DurationTextBindingProperty.ElapsedDuration,
+							["formatter"] = VUHDO_getAuraTimerFormatter(VUHDO_SPELL_DURATION_MODE_FULL, aTimerThreshold),
+						},
+					},
+				};
+
+				sAuraDurationTextOptionsAlive = {
+					["textFormat"] = tFormat,
+				};
+			end
+
+			return sAuraDurationTextOptionsAlive;
+		end
+
+		return {
+			["textFormatter"] = VUHDO_getAuraTimerFormatter(aDurationMode, aTimerThreshold),
+			["textColor"] = {
+				["curve"] = VUHDO_getAuraTimerColorCurve(aDurationMode, aTimerThreshold),
+				["property"] = Enum.DurationTextBindingProperty.RemainingDuration,
+			},
+		};
+
+	end
+end
+
+
+
 --
 function VUHDO_auraContainerInitLocalOverrides()
 
@@ -451,6 +504,7 @@ function VUHDO_auraContainerInitLocalOverrides()
 	VUHDO_AURA_IDENTITY_GATE_HARMFUL = _G["VUHDO_AURA_IDENTITY_GATE_HARMFUL"];
 	VUHDO_BUTTON_CACHE = _G["VUHDO_BUTTON_CACHE"];
 	VUHDO_MAX_PANELS = _G["VUHDO_MAX_PANELS"];
+	VUHDO_AURA_LIST_BOUQUETS = _G["VUHDO_AURA_LIST_BOUQUETS"];
 
 	VUHDO_PixelUtil = _G["VUHDO_PixelUtil"];
 	VUHDO_LibSharedMedia = _G["VUHDO_LibSharedMedia"];
@@ -483,6 +537,7 @@ function VUHDO_auraContainerInitLocalOverrides()
 	VUHDO_fixFrameLevels = _G["VUHDO_fixFrameLevels"];
 	VUHDO_deferInitAuraContainersForButton = _G["VUHDO_deferInitAuraContainersForButton"];
 	VUHDO_rebuildAuraAnchorsForAllButtons = _G["VUHDO_rebuildAuraAnchorsForAllButtons"];
+	VUHDO_refreshAllUnitAuras = _G["VUHDO_refreshAllUnitAuras"];
 
 	sAuraOpaqueBorderOptions["backingCurveFn"] = _G["VUHDO_getDispelTypeBackgroundBackingCurve"];
 	sAuraOpaqueBorderOptions["fillCurveFn"] = _G["VUHDO_getDispelTypeBackgroundFillCurve"];
@@ -495,6 +550,8 @@ function VUHDO_auraContainerInitLocalOverrides()
 		sAuraTimerColorCurveFull:AddPoint(0.1, CreateColor(1, 0.2, 0.2, 1));
 		sAuraTimerColorCurveFull:AddPoint(4.9, CreateColor(1, 1, 1, 1));
 	end
+
+	sAuraBarDispelOverlayOptions["customDispelColorCurve"] = VUHDO_getDispelTypeBorderCurve();
 
 	VUHDO_auraContainerOverlaysInitLocalOverrides();
 
@@ -627,7 +684,7 @@ do
 			tDurationBar:SetAllPoints(aAuraButton);
 		end
 
-		if aButtonSetup["dispelBorder"] then
+		if aButtonSetup["dispelBorder"] and not aButtonSetup["glowIcon"] then
 			VUHDO_bindAuraButtonDispelBorder(aAuraButton, aButtonSetup);
 		elseif not aButtonSetup["dispelOverlayChrome"] then
 			VUHDO_unbindAuraButtonDispelBorder(aAuraButton);
@@ -705,6 +762,55 @@ do
 
 
 	--
+	local tIconColor;
+	local tBarColor;
+	local tMainTexture;
+	local tStaticColor;
+	local function VUHDO_reapplyAuraButtonEntryColors(aButtonSetup, aAuraButton)
+
+		if aAuraButton["IconTexture"] and not aButtonSetup["dispelIcon"] then
+			if aButtonSetup["iconColor"] then
+				tIconColor = aButtonSetup["iconColor"];
+
+				aAuraButton["IconColorOverlay"]:SetColorTexture(tIconColor["R"] or 1, tIconColor["G"] or 1, tIconColor["B"] or 1, 1);
+				aAuraButton["IconColorOverlay"]:Show();
+			else
+				aAuraButton["IconColorOverlay"]:Hide();
+			end
+		end
+
+		if aButtonSetup["durationBar"] and aAuraButton["DurationBar"] and aButtonSetup["barColor"] and "class" ~= aButtonSetup["barColorMode"] then
+			tBarColor = aButtonSetup["barColor"];
+
+			aAuraButton["DurationBar"]:GetStatusBarTexture():SetVertexColor(tBarColor["R"] or 0.2, tBarColor["G"] or 0.6, tBarColor["B"] or 0.2, tBarColor["O"] or 1);
+		end
+
+		tMainTexture = aAuraButton["IconTexture"] or aAuraButton["FillTexture"];
+
+		if aButtonSetup["staticColor"] and tMainTexture and not aButtonSetup["shadowBar"] and not aButtonSetup["border"]
+			and (aButtonSetup["staticIcon"] or not aAuraButton["IconTexture"]) then
+			tStaticColor = aButtonSetup["staticColor"];
+
+			if aButtonSetup["staticIcon"] then
+				tMainTexture:SetVertexColor(tStaticColor["R"] or 1, tStaticColor["G"] or 1, tStaticColor["B"] or 1, tStaticColor["O"] or 1);
+			else
+				tMainTexture:SetColorTexture(tStaticColor["R"] or 1, tStaticColor["G"] or 1, tStaticColor["B"] or 1, tStaticColor["O"] or 1);
+			end
+
+			tMainTexture:Show();
+		elseif tMainTexture and not aButtonSetup["shadowBar"] and not aButtonSetup["border"] and not aButtonSetup["hideIcon"] then
+			if aButtonSetup["staticIcon"] then
+				tMainTexture:SetVertexColor(1, 1, 1, 1);
+			end
+		end
+
+		return;
+
+	end
+
+
+
+	--
 	local tVolatileShadowBar;
 	local tVolatileShadowBackground;
 	local tVolatileShadowTexture;
@@ -723,6 +829,8 @@ do
 		if aButtonSetup["border"] or aButtonSetup["dispelBorder"] then
 			VUHDO_reapplyAuraButtonBorderEdges(aAuraButton, aButtonSetup);
 		end
+
+		VUHDO_reapplyAuraButtonEntryColors(aButtonSetup, aAuraButton);
 
 		if not aAuraButton["ShadowBar"] then
 			return;
@@ -1265,6 +1373,173 @@ end
 
 do
 	--
+	local tColor;
+	local tRegion;
+	local tFlashRegion;
+	local tFlashAnimGroup;
+	local tFlashAnim;
+	function VUHDO_addAuraButtonPandemicRegions(aButtonSetup, aAuraButton, aParent, aAnchor, aColorKey, aFlashKey, aAnimGroupKey)
+
+		if aButtonSetup["colorOnPandemic"] then
+			tColor = aButtonSetup["pandemicColor"];
+
+			tRegion = aAuraButton[aColorKey];
+
+			if not tRegion then
+				tRegion = aParent:CreateTexture(nil, "ARTWORK", nil, 1);
+				aAuraButton[aColorKey] = tRegion;
+
+				tRegion:SetTexture("Interface\\Buttons\\WHITE8X8");
+
+				VUHDO_PixelUtil.ApplySettings(tRegion);
+			end
+
+			tRegion:SetAllPoints(aAnchor);
+			tRegion:SetDrawLayer("ARTWORK", 1);
+			tRegion:SetBlendMode("MOD");
+
+			if tColor then
+				tRegion:SetVertexColor(tColor["R"] or 1, tColor["G"] or 1, tColor["B"] or 1, 1);
+			end
+
+			aAuraButton:AddPandemicRegion(tRegion);
+		end
+
+		if aButtonSetup["flashOnPandemic"] then
+			tFlashRegion = aAuraButton[aFlashKey];
+
+			if not tFlashRegion then
+				tFlashRegion = aParent:CreateTexture(nil, "ARTWORK", nil, 2);
+				aAuraButton[aFlashKey] = tFlashRegion;
+
+				tFlashRegion:SetTexture("Interface\\Buttons\\WHITE8X8");
+
+				VUHDO_PixelUtil.ApplySettings(tFlashRegion);
+
+				tFlashAnimGroup = tFlashRegion:CreateAnimationGroup();
+				aAuraButton[aAnimGroupKey] = tFlashAnimGroup;
+
+				tFlashAnimGroup:SetLooping("BOUNCE");
+
+				tFlashAnim = tFlashAnimGroup:CreateAnimation("Alpha");
+				tFlashAnim:SetFromAlpha(0);
+				tFlashAnim:SetToAlpha(1);
+				tFlashAnim:SetDuration(0.4);
+			else
+				tFlashAnimGroup = aAuraButton[aAnimGroupKey];
+			end
+
+			tFlashRegion:SetAllPoints(aAnchor);
+			tFlashRegion:SetDrawLayer("ARTWORK", 2);
+			tFlashRegion:SetBlendMode("BLEND");
+
+			tColor = aButtonSetup["pandemicColor"];
+
+			if tColor then
+				tFlashRegion:SetVertexColor(tColor["R"] or 1, tColor["G"] or 1, tColor["B"] or 1, 0.7);
+			else
+				tFlashRegion:SetVertexColor(1, 0.2, 0.2, 0.7);
+			end
+
+			tFlashRegion:Show();
+
+			tFlashAnimGroup:Play();
+
+			aAuraButton:AddPandemicRegion(tFlashRegion);
+		end
+
+		return;
+
+	end
+end
+
+
+
+do
+	--
+	local tRegion;
+	local tParent;
+	local tAnchor;
+	local tStatusBarTexture;
+	local tFlashRegion;
+	local tFlashAnimGroup;
+	function VUHDO_applyAuraButtonPandemicRegions(aButtonSetup, aAuraButton)
+
+		aAuraButton:ClearPandemicRegions();
+
+		tRegion = aAuraButton["VuhDoPandemicColor"];
+
+		if tRegion then
+			tRegion:Hide();
+		end
+
+		tFlashRegion = aAuraButton["VuhDoPandemicFlash"];
+
+		if tFlashRegion then
+			tFlashRegion:Hide();
+		end
+
+		tFlashAnimGroup = aAuraButton["VuhDoPandemicFlashAnimGroup"];
+
+		if tFlashAnimGroup then
+			tFlashAnimGroup:Stop();
+		end
+
+		tRegion = aAuraButton["VuhDoPandemicIconColor"];
+
+		if tRegion then
+			tRegion:Hide();
+		end
+
+		tFlashRegion = aAuraButton["VuhDoPandemicIconFlash"];
+
+		if tFlashRegion then
+			tFlashRegion:Hide();
+		end
+
+		tFlashAnimGroup = aAuraButton["VuhDoPandemicIconFlashAnimGroup"];
+
+		if tFlashAnimGroup then
+			tFlashAnimGroup:Stop();
+		end
+
+		if not aButtonSetup["hasPandemic"] then
+			return;
+		end
+
+		if aButtonSetup["pandemicOnBarFill"] and aAuraButton["DurationBar"] then
+			tStatusBarTexture = aAuraButton["DurationBar"]:GetStatusBarTexture();
+
+			if tStatusBarTexture then
+				tParent = aAuraButton["DurationBar"];
+
+				VUHDO_addAuraButtonPandemicRegions(aButtonSetup, aAuraButton, tParent, tStatusBarTexture, "VuhDoPandemicColor", "VuhDoPandemicFlash", "VuhDoPandemicFlashAnimGroup");
+			end
+		end
+
+		if aButtonSetup["pandemicOnIcon"] then
+			if aButtonSetup["durationBar"] and aAuraButton["IconFrame"] then
+				tParent = aAuraButton;
+				tAnchor = aAuraButton["IconFrame"];
+
+				VUHDO_addAuraButtonPandemicRegions(aButtonSetup, aAuraButton, tParent, tAnchor, "VuhDoPandemicIconColor", "VuhDoPandemicIconFlash", "VuhDoPandemicIconFlashAnimGroup");
+			else
+				tParent = aAuraButton;
+				tAnchor = aAuraButton;
+
+				VUHDO_addAuraButtonPandemicRegions(aButtonSetup, aAuraButton, tParent, tAnchor, "VuhDoPandemicColor", "VuhDoPandemicFlash", "VuhDoPandemicFlashAnimGroup");
+			end
+		end
+
+		return;
+
+	end
+end
+
+
+
+do
+	--
 	local tMainTexture;
 	local tStaticColor;
 	local tBarColor;
@@ -1276,6 +1551,7 @@ do
 	local tFillBackground;
 	local tTexCoords;
 	local tDispelIconTexture;
+	local tDispelBarOverlay;
 	local tTextOverlayFrame;
 	local tBarNoIconTexts;
 	function VUHDO_applyAuraButtonSetup(aButtonSetup, aAuraButton)
@@ -1344,8 +1620,12 @@ do
 
 				aAuraButton["IconColorOverlay"]:SetColorTexture(tIconColor["R"] or 1, tIconColor["G"] or 1, tIconColor["B"] or 1, 1);
 				aAuraButton["IconColorOverlay"]:Show();
+
+				aAuraButton["IconTexture"]:SetAlpha(tIconColor["O"] or 1);
 			else
 				aAuraButton["IconColorOverlay"]:Hide();
+
+				aAuraButton["IconTexture"]:SetAlpha(1);
 			end
 		end
 
@@ -1495,8 +1775,10 @@ do
 
 				VUHDO_applyAuraButtonDispelIcon(aAuraButton, aButtonSetup);
 			elseif aButtonSetup["dispelBorder"] then
-				if aAuraButton["IconTexture"] then
+				if aAuraButton["IconTexture"] and not aButtonSetup["glowIcon"] then
 					VUHDO_bindAuraButtonDispelBorder(aAuraButton, aButtonSetup);
+				elseif aAuraButton["IconTexture"] then
+					VUHDO_unbindAuraButtonDispelBorder(aAuraButton);
 				else
 					if not aButtonSetup["dispelFill"] and not aButtonSetup["auraGroupBarGlow"] then
 						aAuraButton:ClearDispelTypeTextures();
@@ -1513,6 +1795,27 @@ do
 
 				VUHDO_hideAuraButtonBorder(aAuraButton);
 			end
+		end
+
+		if aButtonSetup["dispelBarOverlayOptions"] and aAuraButton["DurationBar"] then
+			tDispelBarOverlay = aAuraButton["VuhDoDispelBarOverlay"];
+
+			if not tDispelBarOverlay then
+				tDispelBarOverlay = aAuraButton["DurationBar"]:CreateTexture(nil, "ARTWORK");
+				aAuraButton["VuhDoDispelBarOverlay"] = tDispelBarOverlay;
+
+				VUHDO_PixelUtil.ApplySettings(tDispelBarOverlay);
+			end
+
+			if aButtonSetup["barTexture"] then
+				tDispelBarOverlay:SetTexture(aButtonSetup["barTexture"]);
+			else
+				tDispelBarOverlay:SetTexture("Interface\\Buttons\\WHITE8X8");
+			end
+
+			tDispelBarOverlay:SetAllPoints(aAuraButton["DurationBar"]:GetStatusBarTexture());
+
+			aAuraButton:AddDispelTypeTexture(tDispelBarOverlay, aButtonSetup["dispelBarOverlayOptions"]);
 		end
 
 		if aButtonSetup["dispelOverlayChrome"] then
@@ -1614,15 +1917,13 @@ do
 			aAuraButton:SetMouseMotionEnabled(false);
 		elseif aButtonSetup["mouseMotion"] == false then
 			aAuraButton:SetMouseMotionEnabled(false);
+		elseif InCombatLockdown() then
+			aAuraButton:SetMouseMotionEnabled(false);
 		else
 			aAuraButton:EnableMouse(true);
 			aAuraButton:SetMouseMotionEnabled(true);
 			aAuraButton:SetPropagateMouseMotion(true);
-			aAuraButton:SetMouseClickEnabled(false);
-
-			if not InCombatLockdown() then
-				aAuraButton:SetPropagateMouseClicks(true);
-			end
+			aAuraButton:SetPropagateMouseClicks(true);
 		end
 
 		if aButtonSetup["glowIcon"] then
@@ -1638,6 +1939,8 @@ do
 
 			aAuraButton["vuhdoAuraGroupBarGlowActive"] = nil;
 		end
+
+		VUHDO_applyAuraButtonPandemicRegions(aButtonSetup, aAuraButton);
 
 		return;
 
@@ -2317,9 +2620,15 @@ do
 			elseif AnchorUtil.FlowLayoutAxis.Vertical == tContainerLayout["layoutAxis"] and tContainerLayout["elementHeight"] then
 				tMaxLineSize = (tContainerLayout["maxColumns"] or 1) * (tContainerLayout["elementHeight"] + (tContainerLayout["spacing"] or 0));
 
+				tMaxLineSize = tMaxLineSize - (tContainerLayout["leadingSpacing"] or 0);
+				tMaxLineSize = max(tMaxLineSize, tContainerLayout["elementHeight"]);
+
 				tContainer:SetFlowLayoutMaximumLineSize(tMaxLineSize);
 			elseif tContainerLayout["elementWidth"] then
 				tMaxLineSize = (tContainerLayout["maxColumns"] or 1) * (tContainerLayout["elementWidth"] + (tContainerLayout["spacing"] or 0));
+
+				tMaxLineSize = tMaxLineSize - (tContainerLayout["leadingSpacing"] or 0);
+				tMaxLineSize = max(tMaxLineSize, tContainerLayout["elementWidth"]);
 
 				tContainer:SetFlowLayoutMaximumLineSize(tMaxLineSize);
 			end
@@ -2675,6 +2984,29 @@ do
 
 
 	--
+	local function VUHDO_appendAuraButtonSetupColorSignature(aSignatureParts, aColor)
+
+		if not aColor then
+			tinsert(aSignatureParts, "0");
+			tinsert(aSignatureParts, "0");
+			tinsert(aSignatureParts, "0");
+			tinsert(aSignatureParts, "0");
+
+			return;
+		end
+
+		tinsert(aSignatureParts, format("%.3f", aColor["R"] or 0));
+		tinsert(aSignatureParts, format("%.3f", aColor["G"] or 0));
+		tinsert(aSignatureParts, format("%.3f", aColor["B"] or 0));
+		tinsert(aSignatureParts, format("%.3f", aColor["O"] or 1));
+
+		return;
+
+	end
+
+
+
+	--
 	local tSublevelSlots;
 	local tSublevelSlot;
 	local tDurationBarOptions;
@@ -2705,6 +3037,34 @@ do
 			tinsert(aSignatureParts, format("%d", tDurationBarOptions["direction"] or 0));
 		else
 			tinsert(aSignatureParts, "0");
+		end
+
+		tinsert(aSignatureParts, aButtonSetup["durationText"] and "1" or "0");
+		tinsert(aSignatureParts, aButtonSetup["applicationCount"] and "1" or "0");
+		tinsert(aSignatureParts, aButtonSetup["durationCooldown"] and "1" or "0");
+		tinsert(aSignatureParts, tostring(aButtonSetup["durationMode"] or ""));
+		tinsert(aSignatureParts, format("%.3f", aButtonSetup["timerThreshold"] or 0));
+		tinsert(aSignatureParts, tostring(aButtonSetup["staticIcon"] or ""));
+		tinsert(aSignatureParts, aButtonSetup["staticColor"] and "1" or "0");
+
+		if not aButtonSetup["staticIcon"] then
+			VUHDO_appendAuraButtonSetupColorSignature(aSignatureParts, aButtonSetup["staticColor"]);
+		end
+
+		tinsert(aSignatureParts, format("%.3f", aButtonSetup["dispelBright"] or 0));
+		tinsert(aSignatureParts, format("%.3f", aButtonSetup["dispelOpacity"] or 0));
+		tinsert(aSignatureParts, aButtonSetup["barColorMode"] or "");
+		tinsert(aSignatureParts, aButtonSetup["hasPandemic"] and "1" or "0");
+		tinsert(aSignatureParts, aButtonSetup["flashOnPandemic"] and "1" or "0");
+		tinsert(aSignatureParts, aButtonSetup["colorOnPandemic"] and "1" or "0");
+		tinsert(aSignatureParts, aButtonSetup["pandemicOnIcon"] and "1" or "0");
+		tinsert(aSignatureParts, aButtonSetup["pandemicOnBarFill"] and "1" or "0");
+
+		VUHDO_appendAuraButtonSetupColorSignature(aSignatureParts, aButtonSetup["pandemicColor"]);
+		VUHDO_appendAuraButtonSetupColorSignature(aSignatureParts, aButtonSetup["iconColor"]);
+
+		if "debuff" == aButtonSetup["barColorMode"] then
+			tinsert(aSignatureParts, aButtonSetup["barTexture"] or "");
 		end
 
 		return;
@@ -2765,6 +3125,7 @@ do
 			tinsert(aSignatureParts, format("%d", tContainerLayout["layoutAxis"] or 0));
 			tinsert(aSignatureParts, format("%d", tContainerLayout["horizontalDir"] or 0));
 			tinsert(aSignatureParts, format("%d", tContainerLayout["verticalDir"] or 0));
+			tinsert(aSignatureParts, format("%d", tContainerLayout["leadingSpacing"] or 0));
 		end
 
 		for _, tSlot in ipairs(aContainerTemplate["slots"] or sEmpty) do
@@ -2918,29 +3279,6 @@ do
 
 
 	--
-	local function VUHDO_appendAuraButtonSetupColorSignature(aSignatureParts, aColor)
-
-		if not aColor then
-			tinsert(aSignatureParts, "0");
-			tinsert(aSignatureParts, "0");
-			tinsert(aSignatureParts, "0");
-			tinsert(aSignatureParts, "0");
-
-			return;
-		end
-
-		tinsert(aSignatureParts, format("%.3f", aColor["R"] or 0));
-		tinsert(aSignatureParts, format("%.3f", aColor["G"] or 0));
-		tinsert(aSignatureParts, format("%.3f", aColor["B"] or 0));
-		tinsert(aSignatureParts, format("%.3f", aColor["O"] or 1));
-
-		return;
-
-	end
-
-
-
-	--
 	local function VUHDO_appendAuraButtonSetupVolatileSignatureParts(aSignatureParts, aButtonSetup)
 
 		if not aButtonSetup then
@@ -2952,16 +3290,36 @@ do
 		tinsert(aSignatureParts, aButtonSetup["barInverted"] and "1" or "0");
 		tinsert(aSignatureParts, aButtonSetup["shadowValueMode"] or "");
 		tinsert(aSignatureParts, format("%.3f", aButtonSetup["dispelOpacity"] or 0));
+
 		VUHDO_appendAuraButtonSetupColorSignature(aSignatureParts, aButtonSetup["staticColor"]);
+
 		tinsert(aSignatureParts, format("%d", aButtonSetup["borderWidth"] or 0));
 		tinsert(aSignatureParts, aButtonSetup["borderFile"] or "");
 		tinsert(aSignatureParts, format("%.3f", aButtonSetup["borderRepeatX"] or 1));
 		tinsert(aSignatureParts, format("%.3f", aButtonSetup["borderRepeatY"] or 1));
 		tinsert(aSignatureParts, aButtonSetup["glowStyle"] or "");
 		tinsert(aSignatureParts, aButtonSetup["glowColorType"] or "");
+
 		VUHDO_appendAuraButtonSetupColorSignature(aSignatureParts, aButtonSetup["glowColor"]);
+		VUHDO_appendAuraButtonSetupColorSignature(aSignatureParts, aButtonSetup["barColor"]);
+
+		tinsert(aSignatureParts, format("%d", aButtonSetup["frameLevelOffset"] or 0));
 
 		return;
+
+	end
+
+
+
+	--
+	local sCandidateFilterSignatureParts = { };
+	function VUHDO_getCandidateFiltersSignature(aCandidateFilters)
+
+		twipe(sCandidateFilterSignatureParts);
+
+		VUHDO_appendSignatureCandidateFilters(sCandidateFilterSignatureParts, aCandidateFilters);
+
+		return tconcat(sCandidateFilterSignatureParts, "|");
 
 	end
 
@@ -4446,6 +4804,9 @@ local tDurationMode;
 local tTimerThreshold;
 local tIconTextSize;
 local tIconType;
+local tIsColorPandemic;
+local tIsFlashPandemic;
+local tPandemicColor;
 function VUHDO_buildAnchorButtonSetup(anAnchorConfig, aPixelWidth, aPixelHeight, anIsBar, aGroup, aBarWidth, aBarHeight)
 
 	tDispelBorder = VUHDO_resolveAuraTriState(anAnchorConfig["dispelBorder"], "dispelBorder");
@@ -4479,13 +4840,7 @@ function VUHDO_buildAnchorButtonSetup(anAnchorConfig, aPixelWidth, aPixelHeight,
 	tButtonSetup["timerThreshold"] = tTimerThreshold;
 
 	if tButtonSetup["durationText"] then
-		tButtonSetup["durationTextOptions"] = {
-			["textFormatter"] = VUHDO_getAuraTimerFormatter(tDurationMode, tTimerThreshold),
-			["textColor"] = {
-				["curve"] = VUHDO_getAuraTimerColorCurve(tDurationMode, tTimerThreshold),
-				["property"] = Enum.DurationTextBindingProperty.RemainingDuration,
-			},
-		};
+		tButtonSetup["durationTextOptions"] = VUHDO_getAuraDurationTextOptions(tDurationMode, tTimerThreshold);
 	end
 
 	if tIconType == 2 then
@@ -4512,10 +4867,41 @@ function VUHDO_buildAnchorButtonSetup(anAnchorConfig, aPixelWidth, aPixelHeight,
 
 			tButtonSetup["iconTextSize"] = tIconTextSize;
 			tButtonSetup["textSize"] = tIconTextSize;
+			tButtonSetup["glowWidth"] = tIconTextSize;
+			tButtonSetup["glowHeight"] = tIconTextSize;
 		end
 	end
 
+	tIsColorPandemic = VUHDO_resolveAuraTriState(anAnchorConfig["colorOnPandemic"], "colorOnPandemic");
+	tIsFlashPandemic = VUHDO_resolveAuraTriState(anAnchorConfig["flashOnPandemic"], "flashOnPandemic");
+
+	if tIsColorPandemic or tIsFlashPandemic then
+		tButtonSetup["hasPandemic"] = true;
+		tButtonSetup["colorOnPandemic"] = tIsColorPandemic;
+		tButtonSetup["flashOnPandemic"] = tIsFlashPandemic;
+
+		if tIsColorPandemic then
+			tPandemicColor = VUHDO_PANEL_SETUP and VUHDO_PANEL_SETUP["BAR_COLORS"] and VUHDO_PANEL_SETUP["BAR_COLORS"]["AURA_PANDEMIC"];
+
+			if tPandemicColor then
+				tButtonSetup["pandemicColor"] = VUHDO_deepCopyTable(tPandemicColor);
+			end
+		end
+
+		tButtonSetup["pandemicOnBarFill"] = anIsBar;
+		tButtonSetup["pandemicOnIcon"] = (not anIsBar) or (tIconType <= 3 and (tButtonSetup["iconTextSize"] or 0) > 0);
+	end
+
 	return tButtonSetup;
+
+end
+
+
+
+--
+function VUHDO_getAuraBarDispelOverlayOptions()
+
+	return sAuraBarDispelOverlayOptions;
 
 end
 
@@ -4539,8 +4925,41 @@ end
 
 do
 	--
+	local sBouquetListGroupIds = { };
 	local tPanelAnchors;
 	local tTemplatePanelCache;
+	local tMapping;
+	local tAnchorConfig;
+	function VUHDO_rebuildAuraAnchorsForBouquetListGroups()
+
+		if not VUHDO_isAuraModeContainers() then
+			return;
+		end
+
+		twipe(sBouquetListGroupIds);
+
+		for _, tBouquetMappings in pairs(VUHDO_AURA_LIST_BOUQUETS or sEmpty) do
+			for tMappingCnt = 1, #tBouquetMappings do
+				tMapping = tBouquetMappings[tMappingCnt];
+				tAnchorConfig = VUHDO_PANEL_SETUP[tMapping["panelNum"]] and VUHDO_PANEL_SETUP[tMapping["panelNum"]]["AURA_ANCHORS"] and VUHDO_PANEL_SETUP[tMapping["panelNum"]]["AURA_ANCHORS"][tMapping["anchorKey"]];
+
+				if tAnchorConfig and tAnchorConfig["groupId"] then
+					sBouquetListGroupIds[tAnchorConfig["groupId"]] = true;
+				end
+			end
+		end
+
+		if next(sBouquetListGroupIds) then
+			VUHDO_rebuildAuraAnchorsForGroups(sBouquetListGroupIds);
+		end
+
+		return;
+
+	end
+
+
+
+	--
 	function VUHDO_rebuildAuraAnchorsForGroups(aGroupIds)
 
 		if not aGroupIds then
@@ -4576,6 +4995,8 @@ do
 		else
 			VUHDO_invalidateAuraContainerTemplateCache();
 			VUHDO_rebuildAuraAnchorsForAllButtons();
+
+			VUHDO_refreshAllUnitAuras();
 		end
 
 		return;

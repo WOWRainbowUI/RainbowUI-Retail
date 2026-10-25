@@ -341,7 +341,9 @@ local VUHDO_getManaBarHeight = VUHDO_getManaBarHeight;
 
 --
 function VUHDO_getHealthBarHeight(aPanelNum)
-	return VUHDO_PANEL_SETUP[aPanelNum]["SCALING"]["barHeight"] - VUHDO_getManaBarHeight(aPanelNum);
+
+	return max(0, VUHDO_PANEL_SETUP[aPanelNum]["SCALING"]["barHeight"] - VUHDO_getManaBarHeight(aPanelNum));
+
 end
 
 
@@ -366,8 +368,9 @@ end
 
 --
 function VUHDO_getHealthBarWidth(aPanelNum)
-	return VUHDO_PANEL_SETUP[aPanelNum]["SCALING"]["barWidth"]
-		- VUHDO_getSideBarWidthLeft(aPanelNum) - VUHDO_getSideBarWidthRight(aPanelNum);
+
+	return max(0, VUHDO_PANEL_SETUP[aPanelNum]["SCALING"]["barWidth"] - VUHDO_getSideBarWidthLeft(aPanelNum) - VUHDO_getSideBarWidthRight(aPanelNum));
+
 end
 
 

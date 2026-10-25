@@ -1,5 +1,7 @@
 local _;
 
+local GetSpecializationInfo = C_SpecializationInfo.GetSpecializationInfo;
+
 VUHDO_PROFILE_SHARE_VERSION = 1;
 
 VUHDO_IS_DEFAULT_PROFILE = false;
@@ -133,6 +135,16 @@ function VUHDO_skinsInitAutoCheckButton(aButton, anIndex)
 	if ((tIndexStart == 1) and tIndexEnd) then
 		local tIndexName;
 		local tSpecId = tonumber(string.sub(anIndex, tIndexEnd + 2, tIndexEnd + 2));
+
+		if VUHDO_FLAVOR_SPEC_TALENT_GROUPS == VUHDO_getFlavorSpecModel() then
+			if (tSpecId or 0) > 2 then
+				aButton:Hide();
+			else
+				_G[aButton:GetName() .. "Label"]:SetText(tSpecId == 1 and VUHDO_I18N_SPEC_PRIMARY or VUHDO_I18N_SPEC_SECONDARY);
+			end
+
+			return;
+		end
 
 		if (tSpecId == 1) then
 			tIndexName = VUHDO_I18N_SPEC_1;

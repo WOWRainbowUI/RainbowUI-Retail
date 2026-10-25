@@ -4,6 +4,8 @@ VUHDO_GLOBAL_ICONS = { };
 local VUHDO_GI_SCAN_MAX = 1600001;
 VUHDO_GI_SCAN_IDX = VUHDO_GI_SCAN_MAX;
 
+local VUHDO_GI_SCAN_SKIP_IDS = _G["VUHDO_GI_SCAN_SKIP_IDS"] or { };
+
 local VUHDO_GI_SCAN_SKIPS = {
 	[1213133] = 1049296,
 	[1049295] = 936051,
@@ -282,10 +284,12 @@ local function VUHDO_scanNextGlobalIcons()
 	tRef = VUHDO_GLOBAL_ICONS;
 
 	for tCnt = VUHDO_GI_SCAN_IDX + tStep, VUHDO_GI_SCAN_IDX, -1 do
-		tName, _, tIcon = GetSpellInfo(tCnt);
+		if not VUHDO_GI_SCAN_SKIP_IDS[tCnt] then
+			tName, _, tIcon = GetSpellInfo(tCnt);
 
-		if tRef[tName] == "" then
-			tRef[tName] = tIcon;
+			if tRef[tName] == "" then
+				tRef[tName] = tIcon;
+			end
 		end
 
 		tCnt = VUHDO_GI_SCAN_SKIPS[tCnt] or tCnt;

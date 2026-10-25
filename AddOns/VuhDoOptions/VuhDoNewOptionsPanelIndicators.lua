@@ -77,12 +77,6 @@ local sIndicatorMetaModel = {
 				["tooltip"] = VUHDO_I18N_TT.K576,
 			},]]
 			{
-				["name"] = VUHDO_I18N_BAR_GLOW_COLOR,
-				["type"] = VUHDO_BOOLEAN_CONSTRAINTS,
-				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.CUSTOM.SWIFTMEND_INDICATOR.isBarGlow",
-				["tooltip"] = VUHDO_I18N_TT.K577,
-			},
-			{
 				["name"] = VUHDO_I18N_ANCHOR,
 				["type"] = VUHDO_ANCHOR_CONSTRAINTS,
 				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.CUSTOM.SWIFTMEND_INDICATOR.anchor",
@@ -108,6 +102,13 @@ local sIndicatorMetaModel = {
 				["min"] = 0.1, ["max"] = 4, ["step"] = 0.05, ["unit"] = " x",
 				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.CUSTOM.SWIFTMEND_INDICATOR.SCALE",
 				["tooltip"] = nil,
+			},
+			{
+				["name"] = VUHDO_I18N_BAR_GLOW_COLOR,
+				["type"] = VUHDO_ENUMERATOR_CONSTRAINTS,
+				["isGlowStyleCombo"] = true,
+				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.CUSTOM.SWIFTMEND_INDICATOR.barGlowStyle",
+				["tooltip"] = VUHDO_I18N_TT.K779,
 			},
 		},
 	},
@@ -671,6 +672,15 @@ local function VUHDO_createComboBoxForComponent(anIndex, anElement, aParent)
 		sPendingSourceCombo = tCombo;
 
 		VUHDO_lnfComboBoxInitFromModel(tCombo);
+	elseif anElement["isGlowStyleCombo"] then
+		tCombo["isGlow"] = true;
+
+		VUHDO_PixelUtil.SetWidth(tCombo, 110);
+
+		VUHDO_initGlowStyleComboModel();
+
+		VUHDO_setComboModel(tCombo, anElement["model"], VUHDO_GLOW_STYLE_COMBO_MODEL);
+		VUHDO_lnfComboBoxInitFromModel(tCombo);
 	else
 		VUHDO_setComboModel(tCombo, anElement["model"], anElement["enumerator"]);
 		VUHDO_lnfComboBoxInitFromModel(tCombo);
@@ -831,6 +841,9 @@ local function VUHDO_newOptionsIndicatorsRefreshCustomComponent(anIndex, anEleme
 		if tCombo then
 			if anElement["isFormatCombo"] then
 				VUHDO_initTextProviderFormatCombo(tCombo, anElement["model"]);
+			elseif anElement["isGlowStyleCombo"] then
+				VUHDO_initGlowStyleComboModel();
+				VUHDO_lnfComboRefreshFromModelSilent(tCombo);
 			else
 				VUHDO_lnfComboRefreshFromModelSilent(tCombo);
 			end

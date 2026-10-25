@@ -2,10 +2,15 @@ local _;
 
 local format = string.format;
 local pairs = pairs;
+local next = next;
 local tinsert = table.insert;
 local tconcat = table.concat;
 local gsub = string.gsub;
 local tostring = tostring;
+local twipe = table.wipe;
+
+local InCombatLockdown = InCombatLockdown;
+local IsUsableItem = IsUsableItem or C_Item.IsUsableItem;
 
 local VUHDO_SPELL_ASSIGNMENTS;
 local VUHDO_MODIFIER_KEYS;
@@ -14,12 +19,15 @@ local VUHDO_NUM_MOUSE_BUTTONS;
 local VUHDO_analyzeMacroPlaceholders;
 local VUHDO_getSecureActionForBinding;
 local VUHDO_getMacroTemplateForAction;
+local VUHDO_refreshItemBindings;
 
 local sSetupClicksCache = nil;
 local sRemoveClicksCache = nil;
 local sRequiresPet = false;
 local sRequiresName = false;
 local sRequiresTarget = false;
+local sUnresolvedActions = { };
+local sItemListenerFrame = CreateFrame("Frame", "VuhDoBindingItemListener");
 
 
 
@@ -33,6 +41,7 @@ function VUHDO_bindingGeneratorInitLocalOverrides()
 	VUHDO_analyzeMacroPlaceholders = _G["VUHDO_analyzeMacroPlaceholders"];
 	VUHDO_getSecureActionForBinding = _G["VUHDO_getSecureActionForBinding"];
 	VUHDO_getMacroTemplateForAction = _G["VUHDO_getMacroTemplateForAction"];
+	VUHDO_refreshItemBindings = _G["VUHDO_refreshItemBindings"];
 
 	VUHDO_analyzeBindingRequirements();
 
@@ -104,11 +113,14 @@ local tFormat;
 local tCount;
 local tArgs;
 local tFormatEscaped;
+local tIsUnresolved;
 function VUHDO_generateSetupClicksCode()
 
 	if sSetupClicksCache then
 		return sSetupClicksCache;
 	end
+
+	twipe(sUnresolvedActions);
 
 	tLines = {
 		"local button = self",
@@ -137,7 +149,11 @@ function VUHDO_generateSetupClicksCode()
 				tAttrPrefix = tWithMinus;
 				tAttrSuffix = tostring(tCnt);
 
-				tType, tTemplate = VUHDO_getSecureActionForBinding(tAction, sRequiresPet);
+				tType, tTemplate, tIsUnresolved = VUHDO_getSecureActionForBinding(tAction, sRequiresPet);
+
+				if tIsUnresolved then
+					sUnresolvedActions[tAction] = true;
+				end
 
 				if tType == "spell" then
 					tinsert(tLines, format(
@@ -212,8 +228,25 @@ function VUHDO_generateSetupClicksCode()
 						tAttrPrefix, tAttrSuffix, VUHDO_escapeForLuaString(tTemplate)
 					));
 				end
+			else
+				tAttrPrefix = tWithMinus;
+				tAttrSuffix = tostring(tCnt);
+
+				tinsert(tLines, format(
+					'button:SetAttribute("%stype%s", nil)',
+					tAttrPrefix, tAttrSuffix
+				));
 			end
 		end
+	end
+
+	if next(sUnresolvedActions) then
+		sItemListenerFrame:RegisterEvent("GET_ITEM_INFO_RECEIVED");
+		sItemListenerFrame:RegisterEvent("BAG_UPDATE_DELAYED");
+		sItemListenerFrame:RegisterEvent("PLAYER_EQUIPMENT_CHANGED");
+		sItemListenerFrame:RegisterEvent("PLAYER_REGEN_ENABLED");
+	else
+		sItemListenerFrame:UnregisterAllEvents();
 	end
 
 	sSetupClicksCache = tconcat(tLines, "\n");
@@ -221,6 +254,40 @@ function VUHDO_generateSetupClicksCode()
 	return sSetupClicksCache;
 
 end
+
+
+
+--
+local tIsAnyResolved;
+function VUHDO_bindingItemListenerOnEvent(aFrame, anEvent, anItemId, anIsSuccess)
+
+	if InCombatLockdown() then
+		return;
+	end
+
+	if "GET_ITEM_INFO_RECEIVED" == anEvent and not anIsSuccess then
+		return;
+	end
+
+	tIsAnyResolved = false;
+
+	for tAction, _ in pairs(sUnresolvedActions) do
+		if IsUsableItem(tAction) then
+			tIsAnyResolved = true;
+
+			break;
+		end
+	end
+
+	if tIsAnyResolved then
+		VUHDO_refreshItemBindings();
+	end
+
+	return;
+
+end
+
+sItemListenerFrame:SetScript("OnEvent", VUHDO_bindingItemListenerOnEvent);
 
 
 

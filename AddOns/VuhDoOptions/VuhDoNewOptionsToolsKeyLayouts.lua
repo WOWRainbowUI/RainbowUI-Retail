@@ -1,5 +1,7 @@
 local _;
 
+local GetSpecializationInfo = C_SpecializationInfo.GetSpecializationInfo;
+
 VUHDO_KEY_LAYOUT_SHARE_VERSION = 1;
 
 VUHDO_KEY_LAYOUT_COMBO_MODEL = { };
@@ -88,6 +90,16 @@ function VUHDO_keyLayoutInitSpecCheckButton(aCheckButton, aSpecId)
 
 	local tIndexName;
 	local tSpecId = tonumber(aSpecId) or 0;
+
+	if VUHDO_FLAVOR_SPEC_TALENT_GROUPS == VUHDO_getFlavorSpecModel() then
+		if tSpecId > 2 then
+			aCheckButton:Hide();
+		else
+			_G[aCheckButton:GetName() .. "Label"]:SetText(tSpecId == 1 and VUHDO_I18N_SPEC_PRIMARY or VUHDO_I18N_SPEC_SECONDARY);
+		end
+
+		return;
+	end
 
 	if (tSpecId == 1) then
 		tIndexName = VUHDO_I18N_SPEC_1;

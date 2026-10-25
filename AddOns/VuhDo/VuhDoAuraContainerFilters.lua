@@ -11,6 +11,7 @@ local strsub = string.sub;
 local twipe = table.wipe;
 local tinsert = table.insert;
 local floor = math.floor;
+local format = string.format;
 
 local GetSpellName = C_Spell.GetSpellName;
 local GetSpellIDForSpellIdentifier = C_Spell.GetSpellIDForSpellIdentifier;
@@ -77,15 +78,18 @@ local VUHDO_DEFAULT_AURA_GLOW_STYLE;
 local VUHDO_AURA_MAX_MATCH_ANY;
 local VUHDO_AURA_CONDITION_BOOLEAN_KEYS;
 local VUHDO_AURA_MATCH_ANY_FILTER_TOKEN_ORDER;
+local VUHDO_AURA_LIST_LAYOUT_INDEX_STRIDE;
 
 local VUHDO_getAuraGroup;
 local VUHDO_applyAuraGroupScopeFlags;
 local VUHDO_classifyBouquetRestrictedMode;
 local VUHDO_buildListEntryContainerGroupTemplate;
 local VUHDO_buildMixedBouquetListSlotTemplates;
+local VUHDO_buildBouquetAuraFilterPieces;
+local VUHDO_isBouquetContainerGroupExpressible;
 local VUHDO_applyBarButtonSetupFields;
-local VUHDO_getAuraTimerFormatter;
-local VUHDO_getAuraTimerColorCurve;
+local VUHDO_getAuraDurationTextOptions;
+local VUHDO_getAuraBarDispelOverlayOptions;
 local VUHDO_getTriStateBool;
 local VUHDO_resolveAuraTriState;
 local VUHDO_buildAnchorButtonSetup;
@@ -99,6 +103,11 @@ local VUHDO_getAuraBarHeightPixelsVertical;
 local VUHDO_deepCopyTable;
 
 local sEmpty = { };
+
+local sNonNegatableFilterTokens = {
+	["INCLUDE_NAME_PLATE_ONLY"] = true,
+	["MAW"] = true,
+};
 
 local sAllDispelTypeNames = { };
 local sPlayerDispelTypeNames = { };
@@ -207,6 +216,7 @@ function VUHDO_auraContainerFiltersInitLocalOverrides()
 	VUHDO_AURA_LIST_ENTRY_SPELL = _G["VUHDO_AURA_LIST_ENTRY_SPELL"];
 	VUHDO_AURA_LIST_ENTRY_BOUQUET = _G["VUHDO_AURA_LIST_ENTRY_BOUQUET"];
 	VUHDO_AURA_LIST_ENTRY_EMPTY = _G["VUHDO_AURA_LIST_ENTRY_EMPTY"];
+	VUHDO_AURA_LIST_LAYOUT_INDEX_STRIDE = _G["VUHDO_AURA_LIST_LAYOUT_INDEX_STRIDE"];
 	VUHDO_BOUQUET_RESTRICTED_AURA_CONTAINER = _G["VUHDO_BOUQUET_RESTRICTED_AURA_CONTAINER"];
 	VUHDO_BOUQUET_RESTRICTED_NON_AURA = _G["VUHDO_BOUQUET_RESTRICTED_NON_AURA"];
 	VUHDO_BOUQUET_RESTRICTED_MIXED = _G["VUHDO_BOUQUET_RESTRICTED_MIXED"];
@@ -238,9 +248,11 @@ function VUHDO_auraContainerFiltersInitLocalOverrides()
 	VUHDO_classifyBouquetRestrictedMode = _G["VUHDO_classifyBouquetRestrictedMode"];
 	VUHDO_buildListEntryContainerGroupTemplate = _G["VUHDO_buildListEntryContainerGroupTemplate"];
 	VUHDO_buildMixedBouquetListSlotTemplates = _G["VUHDO_buildMixedBouquetListSlotTemplates"];
+	VUHDO_buildBouquetAuraFilterPieces = _G["VUHDO_buildBouquetAuraFilterPieces"];
+	VUHDO_isBouquetContainerGroupExpressible = _G["VUHDO_isBouquetContainerGroupExpressible"];
 	VUHDO_applyBarButtonSetupFields = _G["VUHDO_applyBarButtonSetupFields"];
-	VUHDO_getAuraTimerFormatter = _G["VUHDO_getAuraTimerFormatter"];
-	VUHDO_getAuraTimerColorCurve = _G["VUHDO_getAuraTimerColorCurve"];
+	VUHDO_getAuraDurationTextOptions = _G["VUHDO_getAuraDurationTextOptions"];
+	VUHDO_getAuraBarDispelOverlayOptions = _G["VUHDO_getAuraBarDispelOverlayOptions"];
 	VUHDO_getTriStateBool = _G["VUHDO_getTriStateBool"];
 	VUHDO_resolveAuraTriState = _G["VUHDO_resolveAuraTriState"];
 	VUHDO_buildAnchorButtonSetup = _G["VUHDO_buildAnchorButtonSetup"];
@@ -335,10 +347,23 @@ function VUHDO_rebuildDefaultAuraNameSpellIds()
 					tValue = tEntry["value"];
 
 					if tEntry["isNameMatch"] and type(tValue) == "number" then
-						tSpellName = GetSpellName(tValue);
+						tSpellId = tValue;
+						tSpellName = GetSpellName(tSpellId);
 
 						if tSpellName then
 							VUHDO_AURA_NAME_MATCH_SPELL_NAMES[tValue] = tSpellName;
+
+							tNameIds = VUHDO_AURA_NAME_TO_SPELL_IDS[tSpellName];
+
+							if not tNameIds then
+								tNameIds = { };
+
+								VUHDO_AURA_NAME_TO_SPELL_IDS[tSpellName] = tNameIds;
+							end
+
+							tNameIds[tSpellId] = true;
+
+							VUHDO_AURA_NAME_PREFERRED_SPELL_ID[tSpellName] = VUHDO_AURA_NAME_PREFERRED_SPELL_ID[tSpellName] or tSpellId;
 						end
 					end
 				end
@@ -374,11 +399,6 @@ end
 
 do
 	--
-	local sNonNegatableFilterTokens = {
-		["INCLUDE_NAME_PLATE_ONLY"] = true,
-		["MAW"] = true,
-	};
-
 	local tType;
 	local tFilter;
 	local tExcludeFilter;
@@ -616,17 +636,6 @@ do
 	local tType;
 	local tBouquetClass;
 	local tSpellId;
-	local tCached;
-	local tFilterString;
-	local tCandidateFilters;
-	local tCandidateBranches;
-	local tDroppedBranchKeys;
-	local tBranchFilterStrings;
-	local tDroppedBranchTokens;
-	local tExpressible;
-	local tSpellIds;
-	local tDispelTypes;
-	local tDispelSnapshot;
 	local tValue;
 	function VUHDO_isAuraGroupContainerExpressible(aGroup)
 
@@ -671,6 +680,49 @@ do
 
 	end
 
+end
+
+
+
+do
+	--
+	local tCached;
+	local tFilterString;
+	local tCandidateFilters;
+	local tCandidateBranches;
+	local tDroppedBranchKeys;
+	local tBranchFilterStrings;
+	local tDroppedBranchTokens;
+	local tExpressible;
+	local tSpellIds;
+	local tType;
+	local tBouquetTemplate;
+	local tBouquetBranch;
+	local tHasBouquetBranch;
+	local tGroupBaseCandidate;
+	local tTemplateFilters;
+	local tBouquetPiecesByEntry;
+	local tPieces;
+	local tPiece;
+	local tPieceFilters;
+	local function VUHDO_collectListGroupBouquetPieces(aGroup, aPiecesByEntry)
+
+		if (aGroup["type"] or VUHDO_AURA_GROUP_TYPE_FILTER) ~= VUHDO_AURA_GROUP_TYPE_LIST then
+			return aPiecesByEntry;
+		end
+
+		for tEntryIdx, tEntry in ipairs(aGroup["entries"] or sEmpty) do
+			if tEntry["entryType"] == VUHDO_AURA_LIST_ENTRY_BOUQUET and tEntry["value"]
+				and VUHDO_classifyBouquetRestrictedMode(tEntry["value"]) == VUHDO_BOUQUET_RESTRICTED_AURA_CONTAINER
+				and not VUHDO_isBouquetContainerGroupExpressible(tEntry["value"]) then
+				aPiecesByEntry[tEntryIdx] = VUHDO_buildBouquetAuraFilterPieces(tEntry["value"]);
+			end
+		end
+
+		return aPiecesByEntry;
+
+	end
+
 
 
 	--
@@ -686,6 +738,8 @@ do
 			return tCached;
 		end
 
+		tBouquetPiecesByEntry = VUHDO_collectListGroupBouquetPieces(aGroup, { });
+
 		tFilterString = VUHDO_buildAuraGroupNativeFilterString(aGroup);
 		tCandidateBranches, tDroppedBranchKeys, tBranchFilterStrings, tDroppedBranchTokens = VUHDO_buildAuraGroupCandidateBranches(aGroup, nil);
 		tCandidateFilters = tCandidateBranches and tCandidateBranches[1];
@@ -693,9 +747,14 @@ do
 
 		tType = aGroup["type"] or VUHDO_AURA_GROUP_TYPE_FILTER;
 
-		if tType == VUHDO_AURA_GROUP_TYPE_LIST and (not tCandidateFilters or not tCandidateFilters["includeSpellIDs"]) then
-			tSpellIds = nil;
+		tSpellIds = nil;
+		tHasBouquetBranch = false;
+		tGroupBaseCandidate = nil;
+		tBouquetTemplate = nil;
+		tBouquetBranch = nil;
+		tTemplateFilters = nil;
 
+		if tType == VUHDO_AURA_GROUP_TYPE_LIST then
 			for _, tEntry in ipairs(aGroup["entries"] or sEmpty) do
 				if tEntry["entryType"] == VUHDO_AURA_LIST_ENTRY_SPELL and tEntry["value"] then
 					tSpellIds = tSpellIds or { };
@@ -708,7 +767,27 @@ do
 				tSpellIds = nil;
 			end
 
-			if tSpellIds then
+			tGroupBaseCandidate = VUHDO_copyCandidateFilterTable(tCandidateBranches and tCandidateBranches[1]);
+
+			if tGroupBaseCandidate then
+				tGroupBaseCandidate["includeSpellIDs"] = nil;
+			end
+
+			if not tCandidateFilters or not tCandidateFilters["includeSpellIDs"] then
+				if tSpellIds then
+					for tBranchCnt = 1, #(tCandidateBranches or sEmpty) do
+						tCandidateBranches[tBranchCnt] = tCandidateBranches[tBranchCnt] or { };
+
+						tCandidateBranches[tBranchCnt]["includeSpellIDs"] = tSpellIds;
+					end
+
+					tCandidateFilters = tCandidateBranches[1];
+				else
+					tCandidateBranches = { };
+					tBranchFilterStrings = { };
+					tCandidateFilters = nil;
+				end
+			elseif tSpellIds then
 				for tBranchCnt = 1, #(tCandidateBranches or sEmpty) do
 					tCandidateBranches[tBranchCnt] = tCandidateBranches[tBranchCnt] or { };
 
@@ -717,6 +796,78 @@ do
 
 				tCandidateFilters = tCandidateBranches[1];
 			end
+
+			for tEntryIdx, tEntry in ipairs(aGroup["entries"] or sEmpty) do
+				if tEntry["entryType"] == VUHDO_AURA_LIST_ENTRY_BOUQUET and tEntry["value"]
+					and VUHDO_classifyBouquetRestrictedMode(tEntry["value"]) == VUHDO_BOUQUET_RESTRICTED_AURA_CONTAINER
+					and VUHDO_isBouquetContainerGroupExpressible(tEntry["value"]) then
+					tBouquetTemplate = VUHDO_buildListEntryContainerGroupTemplate(tEntry["value"]);
+
+					if tBouquetTemplate then
+						tBouquetBranch = VUHDO_copyCandidateFilterTable(tGroupBaseCandidate) or { };
+
+						tTemplateFilters = tBouquetTemplate["candidateFilters"];
+
+						if tTemplateFilters then
+							for tMergeKey, tMergeValue in pairs(tTemplateFilters) do
+								tBouquetBranch[tMergeKey] = tMergeValue;
+							end
+						end
+
+						if not tCandidateBranches then
+							tCandidateBranches = { };
+						end
+
+						if not tBranchFilterStrings then
+							tBranchFilterStrings = { };
+						end
+
+						tinsert(tCandidateBranches, tBouquetBranch);
+						tinsert(tBranchFilterStrings, tBouquetTemplate["filterString"] or tFilterString);
+
+						tHasBouquetBranch = true;
+					end
+				elseif tBouquetPiecesByEntry[tEntryIdx] then
+					tPieces = tBouquetPiecesByEntry[tEntryIdx];
+
+					for tPieceIdx = 1, #tPieces do
+						tPiece = tPieces[tPieceIdx];
+
+						if not tPiece["isStatic"] then
+							tBouquetBranch = VUHDO_copyCandidateFilterTable(tGroupBaseCandidate) or { };
+
+							tPieceFilters = tPiece["candidateFilters"];
+
+							if tPieceFilters then
+								for tMergeKey, tMergeValue in pairs(tPieceFilters) do
+									tBouquetBranch[tMergeKey] = tMergeValue;
+								end
+							end
+
+							if not tCandidateBranches then
+								tCandidateBranches = { };
+							end
+
+							if not tBranchFilterStrings then
+								tBranchFilterStrings = { };
+							end
+
+							tinsert(tCandidateBranches, tBouquetBranch);
+							tinsert(tBranchFilterStrings, tPiece["filterString"] or tFilterString);
+
+							tHasBouquetBranch = true;
+						end
+					end
+				end
+			end
+
+			if tCandidateBranches and tCandidateBranches[1] then
+				tCandidateFilters = tCandidateBranches[1];
+			else
+				tCandidateFilters = nil;
+			end
+
+			tExpressible = tHasBouquetBranch or tSpellIds ~= nil;
 		end
 
 		tCached = {
@@ -735,9 +886,15 @@ do
 
 	end
 
+end
 
 
+
+do
 	--
+	local tDispelTypes;
+	local tDispelSnapshot;
+	local tGroup;
 	function VUHDO_invalidateAuraGroupFilterCache()
 
 		twipe(sGroupResolvedFilterCache);
@@ -751,7 +908,6 @@ do
 
 
 	--
-	local tGroup;
 	function VUHDO_invalidateAuraGroupFilterCacheForGroup(aGroupId)
 
 		if not aGroupId then
@@ -1479,17 +1635,6 @@ end
 
 do
 	--
-	local function VUHDO_applyListSlotLayoutFlags(aSlotTemplate, anEntryIndex)
-
-		aSlotTemplate["entryIndex"] = anEntryIndex;
-
-		return aSlotTemplate;
-
-	end
-
-
-
-	--
 	local tIncludeSpellIds;
 	local tSlotCandidateFilters;
 	local tSlotButtonSetup;
@@ -1508,7 +1653,16 @@ do
 	local tEffectiveDurationMode;
 	local tEffectiveTimerThreshold;
 	local tColorCopy;
+	local tPandemicColor;
+	local tIsEntryColor;
+	local tIsEntryFlash;
+	local tIsColorPandemic;
+	local tIsFlashPandemic;
 	function VUHDO_buildListEntrySlotButtonSetup(aGroup, anEntry, aAnchorButtonSetup, anIsBar, anExcludeSpellIds)
+
+		if anEntry["mine"] == false and anEntry["others"] ~= true then
+			return nil, nil;
+		end
 
 		tIncludeSpellIds = { };
 
@@ -1537,13 +1691,19 @@ do
 		tSlotEntryShowStacks = VUHDO_getTriStateBool(anEntry, "showStacks", nil);
 		tSlotEntryShowClock = VUHDO_getTriStateBool(anEntry, "showClock", nil);
 
+		tIsEntryColor = VUHDO_getTriStateBool(anEntry, "colorOnPandemic", nil);
+		tIsEntryFlash = VUHDO_getTriStateBool(anEntry, "flashOnPandemic", nil);
+
 		tNeedsSlotButtonCopy = tSlotEntryDurationMode ~= tAnchorDurationMode
 			or tSlotEntryTimerThreshold ~= tAnchorTimerThreshold
 			or (tSlotEntryShowTimer ~= nil and tSlotEntryShowTimer ~= tAnchorShowTimer)
 			or (tSlotEntryShowStacks ~= nil and tSlotEntryShowStacks ~= aAnchorButtonSetup["applicationCount"])
 			or (tSlotEntryShowClock ~= nil and tSlotEntryShowClock ~= aAnchorButtonSetup["durationCooldown"])
 			or (anEntry["colorIcon"] and anEntry["colorIconColor"])
-			or anEntry["glowIcon"] == true;
+			or anEntry["glowIcon"] == true
+			or (tIsEntryColor ~= nil and tIsEntryColor ~= aAnchorButtonSetup["colorOnPandemic"])
+			or (tIsEntryFlash ~= nil and tIsEntryFlash ~= aAnchorButtonSetup["flashOnPandemic"])
+			or (anEntry["colorOnPandemic"] == 1 and anEntry["pandemicColor"] ~= nil);
 
 		if tNeedsSlotButtonCopy then
 			tSlotButtonSetup = { };
@@ -1585,13 +1745,7 @@ do
 				tEffectiveDurationMode = tSlotEntryDurationMode;
 				tEffectiveTimerThreshold = tSlotEntryTimerThreshold;
 
-				tSlotButtonSetup["durationTextOptions"] = {
-					["textFormatter"] = VUHDO_getAuraTimerFormatter(tEffectiveDurationMode, tEffectiveTimerThreshold),
-					["textColor"] = {
-						["curve"] = VUHDO_getAuraTimerColorCurve(tEffectiveDurationMode, tEffectiveTimerThreshold),
-						["property"] = Enum.DurationTextBindingProperty.RemainingDuration,
-					},
-				};
+				tSlotButtonSetup["durationTextOptions"] = VUHDO_getAuraDurationTextOptions(tEffectiveDurationMode, tEffectiveTimerThreshold);
 			else
 				tSlotButtonSetup["durationTextOptions"] = nil;
 			end
@@ -1622,6 +1776,58 @@ do
 
 			tSlotButtonSetup["glowColor"] = anEntry["glowIconColor"];
 			tSlotButtonSetup["glowStyle"] = anEntry["glowIconStyle"] or VUHDO_DEFAULT_AURA_GLOW_STYLE;
+
+			if anIsBar and tSlotButtonSetup["iconTextSize"] then
+				tSlotButtonSetup["glowWidth"] = tSlotButtonSetup["iconTextSize"];
+				tSlotButtonSetup["glowHeight"] = tSlotButtonSetup["iconTextSize"];
+			end
+		end
+
+		if tNeedsSlotButtonCopy then
+			if tIsEntryColor ~= nil then
+				tIsColorPandemic = tIsEntryColor;
+			else
+				tIsColorPandemic = aAnchorButtonSetup["colorOnPandemic"];
+			end
+
+			if tIsEntryFlash ~= nil then
+				tIsFlashPandemic = tIsEntryFlash;
+			else
+				tIsFlashPandemic = aAnchorButtonSetup["flashOnPandemic"];
+			end
+
+			if tIsColorPandemic or tIsFlashPandemic then
+				tSlotButtonSetup["hasPandemic"] = true;
+				tSlotButtonSetup["colorOnPandemic"] = tIsColorPandemic;
+				tSlotButtonSetup["flashOnPandemic"] = tIsFlashPandemic;
+				tSlotButtonSetup["pandemicOnBarFill"] = anIsBar;
+				tSlotButtonSetup["pandemicOnIcon"] = (not anIsBar) or ((tSlotButtonSetup["iconType"] or 1) <= 3 and (tSlotButtonSetup["iconTextSize"] or 0) > 0);
+
+				if tIsColorPandemic then
+					if anEntry["colorOnPandemic"] == 1 and anEntry["pandemicColor"] then
+						tSlotButtonSetup["pandemicColor"] = VUHDO_deepCopyTable(anEntry["pandemicColor"]);
+					elseif aAnchorButtonSetup["pandemicColor"] then
+						tSlotButtonSetup["pandemicColor"] = VUHDO_deepCopyTable(aAnchorButtonSetup["pandemicColor"]);
+					else
+						tPandemicColor = VUHDO_PANEL_SETUP and VUHDO_PANEL_SETUP["BAR_COLORS"] and VUHDO_PANEL_SETUP["BAR_COLORS"]["AURA_PANDEMIC"];
+
+						tSlotButtonSetup["pandemicColor"] = tPandemicColor and VUHDO_deepCopyTable(tPandemicColor) or nil;
+					end
+				else
+					tSlotButtonSetup["pandemicColor"] = nil;
+				end
+			else
+				tSlotButtonSetup["hasPandemic"] = nil;
+				tSlotButtonSetup["colorOnPandemic"] = nil;
+				tSlotButtonSetup["flashOnPandemic"] = nil;
+				tSlotButtonSetup["pandemicColor"] = nil;
+				tSlotButtonSetup["pandemicOnIcon"] = nil;
+				tSlotButtonSetup["pandemicOnBarFill"] = nil;
+			end
+		end
+
+		if anIsBar and "debuff" == tSlotButtonSetup["barColorMode"] then
+			tSlotButtonSetup["dispelBarOverlayOptions"] = VUHDO_getAuraBarDispelOverlayOptions();
 		end
 
 		return tSlotButtonSetup, tSlotCandidateFilters;
@@ -1666,27 +1872,54 @@ do
 		return;
 
 	end
+end
+
+
+
+do
+	--
+	local tGroups;
+	local tPendingSpacing;
+	local tLeadingSpacing;
+	local function VUHDO_applyListPendingSpacing(aGroupLayout)
+
+		if tPendingSpacing > 0 then
+			if #tGroups == 0 then
+				tLeadingSpacing = tLeadingSpacing + tPendingSpacing;
+			else
+				aGroupLayout["groupSpacing"] = tPendingSpacing;
+			end
+
+			tPendingSpacing = 0;
+		end
+
+		return;
+
+	end
 
 
 
 	--
-	local tGroups;
 	local tGroupTemplate;
 	local tGroupLayout;
-	local tPendingSpacer;
 	local tExcludeIds;
 	local tSlotButtonSetup;
 	local tSlotCandidateFilters;
 	local tBouquetSlotTemplate;
 	local tLayoutAxis;
 	local tSpacerSize;
+	local tMixedSlotTemplates;
+	local tMixedSlotTemplate;
+	local tEntryLayoutIndex;
+	local tEntryGroupCnt;
 	function VUHDO_buildListAnchorEntryGroups(aGroup, anAnchorConfig, aPixelWidth, aPixelHeight, aSpacing, aMaxFrameCount, aTemplateName, aAnchorButtonSetup, anIsBar)
 
 		tGroups = { };
-		tPendingSpacer = 0;
+		tPendingSpacing = 0;
+		tLeadingSpacing = 0;
 
 		if not aGroup then
-			return tGroups;
+			return tGroups, 0;
 		end
 
 		tLayoutAxis, _, _ = VUHDO_resolveAnchorFlowDirections(anAnchorConfig["growthDir"] or "RIGHT", anAnchorConfig["wrapDir"] or "DOWN", anAnchorConfig["maxColumns"] or 5);
@@ -1705,7 +1938,7 @@ do
 					tSpacerSize = aPixelWidth + aSpacing;
 				end
 
-				tPendingSpacer = tPendingSpacer + tSpacerSize;
+				tPendingSpacing = tPendingSpacing + tSpacerSize;
 			elseif tEntry["entryType"] == VUHDO_AURA_LIST_ENTRY_SPELL then
 				tSlotButtonSetup, tSlotCandidateFilters = VUHDO_buildListEntrySlotButtonSetup(aGroup, tEntry, aAnchorButtonSetup, anIsBar, tExcludeIds);
 
@@ -1715,14 +1948,10 @@ do
 						["elementHeight"] = aPixelHeight,
 						["elementSpacing"] = aSpacing,
 						["lineSpacing"] = aSpacing,
-						["layoutIndex"] = tEntryIndex,
+						["layoutIndex"] = tEntryIndex * VUHDO_AURA_LIST_LAYOUT_INDEX_STRIDE,
 					};
 
-					if tPendingSpacer > 0 then
-						tGroupLayout["groupSpacing"] = tPendingSpacer;
-
-						tPendingSpacer = 0;
-					end
+					VUHDO_applyListPendingSpacing(tGroupLayout);
 
 					tGroupTemplate = {
 						["key"] = "entry" .. tEntryIndex,
@@ -1739,6 +1968,56 @@ do
 
 					tinsert(tGroups, tGroupTemplate);
 				end
+			elseif tEntry["entryType"] == VUHDO_AURA_LIST_ENTRY_BOUQUET and VUHDO_classifyBouquetRestrictedMode(tEntry["value"]) == VUHDO_BOUQUET_RESTRICTED_AURA_CONTAINER
+				and not VUHDO_isBouquetContainerGroupExpressible(tEntry["value"]) then
+
+				tMixedSlotTemplates = VUHDO_buildMixedBouquetListSlotTemplates(tEntry["value"], tEntryIndex, 0, 0, aPixelWidth, aPixelHeight, aTemplateName, aAnchorButtonSetup, aGroup, anIsBar);
+
+				tEntryLayoutIndex = tEntryIndex * VUHDO_AURA_LIST_LAYOUT_INDEX_STRIDE;
+				tEntryGroupCnt = 0;
+
+				for tMixedSlotCnt = 1, #tMixedSlotTemplates do
+					tMixedSlotTemplate = tMixedSlotTemplates[tMixedSlotCnt];
+
+					if tMixedSlotTemplate and not tMixedSlotTemplate["isStaticBouquetSlot"] then
+						tEntryGroupCnt = tEntryGroupCnt + 1;
+
+						tGroupLayout = {
+							["elementWidth"] = aPixelWidth,
+							["elementHeight"] = aPixelHeight,
+							["elementSpacing"] = aSpacing,
+							["lineSpacing"] = aSpacing,
+							["layoutIndex"] = tEntryLayoutIndex + tEntryGroupCnt,
+						};
+
+						VUHDO_applyListPendingSpacing(tGroupLayout);
+
+						tGroupTemplate = {
+							["key"] = format("entry%d:%d", tEntryIndex, tEntryGroupCnt),
+							["filterString"] = tMixedSlotTemplate["filterString"],
+							["candidateFilters"] = tMixedSlotTemplate["candidateFilters"],
+							["isHarmful"] = tMixedSlotTemplate["isHarmful"] == true,
+							["maxFrameCount"] = 1,
+							["templateName"] = tMixedSlotTemplate["templateName"],
+							["layout"] = tGroupLayout,
+							["buttonSetup"] = tMixedSlotTemplate["buttonSetup"],
+						};
+
+						if tMixedSlotTemplate["friendlyOnly"] then
+							tGroupTemplate["friendlyOnly"] = true;
+						end
+
+						if tMixedSlotTemplate["hostileOnly"] then
+							tGroupTemplate["hostileOnly"] = true;
+						end
+
+						if not tMixedSlotTemplate["auraGroupScopeApplied"] then
+							VUHDO_applyAuraGroupScopeFlags(tGroupTemplate, aGroup);
+						end
+
+						tinsert(tGroups, tGroupTemplate);
+					end
+				end
 			elseif tEntry["entryType"] == VUHDO_AURA_LIST_ENTRY_BOUQUET and VUHDO_classifyBouquetRestrictedMode(tEntry["value"]) == VUHDO_BOUQUET_RESTRICTED_AURA_CONTAINER then
 				tBouquetSlotTemplate = VUHDO_buildListEntryContainerGroupTemplate(tEntry["value"]);
 
@@ -1750,14 +2029,10 @@ do
 						["elementHeight"] = aPixelHeight,
 						["elementSpacing"] = aSpacing,
 						["lineSpacing"] = aSpacing,
-						["layoutIndex"] = tEntryIndex,
+						["layoutIndex"] = tEntryIndex * VUHDO_AURA_LIST_LAYOUT_INDEX_STRIDE,
 					};
 
-					if tPendingSpacer > 0 then
-						tGroupLayout["groupSpacing"] = tPendingSpacer;
-
-						tPendingSpacer = 0;
-					end
+					VUHDO_applyListPendingSpacing(tGroupLayout);
 
 					tGroupTemplate = {
 						["key"] = "entry" .. tEntryIndex,
@@ -1777,7 +2052,21 @@ do
 			end
 		end
 
-		return tGroups;
+		return tGroups, tLeadingSpacing;
+
+	end
+
+end
+
+
+
+do
+	--
+	local function VUHDO_applyListSlotLayoutFlags(aSlotTemplate, anEntryIndex)
+
+		aSlotTemplate["entryIndex"] = anEntryIndex;
+
+		return aSlotTemplate;
 
 	end
 
@@ -1858,7 +2147,7 @@ do
 						tinsert(tSlots, tSlotTemplate);
 					end
 				elseif tEntry["entryType"] == VUHDO_AURA_LIST_ENTRY_BOUQUET and VUHDO_classifyBouquetRestrictedMode(tEntry["value"]) == VUHDO_BOUQUET_RESTRICTED_MIXED then
-					tMixedSlotTemplates = VUHDO_buildMixedBouquetListSlotTemplates(tEntry["value"], tEntryIndex, tSlotX, tSlotY, aPixelWidth, aPixelHeight, aTemplateName, aAnchorButtonSetup, aGroup);
+					tMixedSlotTemplates = VUHDO_buildMixedBouquetListSlotTemplates(tEntry["value"], tEntryIndex, tSlotX, tSlotY, aPixelWidth, aPixelHeight, aTemplateName, aAnchorButtonSetup, aGroup, anIsBar);
 
 					if anIsFixedLayout and tFixedSlotAnchor then
 						for tMixedSlotCnt = 1, #tMixedSlotTemplates do
@@ -1893,6 +2182,22 @@ do
 					VUHDO_applyListSlotLayoutFlags(tSlotTemplate, tEntryIndex);
 
 					tinsert(tSlots, tSlotTemplate);
+				elseif tEntry["entryType"] == VUHDO_AURA_LIST_ENTRY_BOUQUET and VUHDO_classifyBouquetRestrictedMode(tEntry["value"]) == VUHDO_BOUQUET_RESTRICTED_AURA_CONTAINER
+					and not VUHDO_isBouquetContainerGroupExpressible(tEntry["value"]) then
+					tMixedSlotTemplates = VUHDO_buildMixedBouquetListSlotTemplates(tEntry["value"], tEntryIndex, tSlotX, tSlotY, aPixelWidth, aPixelHeight, aTemplateName, aAnchorButtonSetup, aGroup, anIsBar);
+
+					if anIsFixedLayout and tFixedSlotAnchor then
+						for tMixedSlotCnt = 1, #tMixedSlotTemplates do
+							tMixedSlotTemplates[tMixedSlotCnt]["anchor"] = tFixedSlotAnchor;
+							tMixedSlotTemplates[tMixedSlotCnt]["relPoint"] = tFixedSlotRelPoint;
+						end
+					end
+
+					for tMixedSlotCnt = 1, #tMixedSlotTemplates do
+						VUHDO_applyListSlotLayoutFlags(tMixedSlotTemplates[tMixedSlotCnt], tEntryIndex);
+
+						tinsert(tSlots, tMixedSlotTemplates[tMixedSlotCnt]);
+					end
 				elseif tEntry["entryType"] == VUHDO_AURA_LIST_ENTRY_BOUQUET and VUHDO_classifyBouquetRestrictedMode(tEntry["value"]) == VUHDO_BOUQUET_RESTRICTED_AURA_CONTAINER then
 					tBouquetSlotTemplate = VUHDO_buildListEntryContainerGroupTemplate(tEntry["value"]);
 
@@ -2029,6 +2334,7 @@ do
 	local tBranchFilterStrings;
 	local tBranchCandidate;
 	local tGroupKey;
+	local tLeadingSpacing;
 	function VUHDO_buildAnchorContainerTemplate(aButton, anAnchorIndex, anAnchorConfig)
 
 		tGroup = VUHDO_getAuraGroup(anAnchorConfig["groupId"]);
@@ -2125,6 +2431,10 @@ do
 			else
 				tAnchorButtonSetup["barColor"] = sAuraBarFallbackColor;
 			end
+
+			if "debuff" == tColorMode then
+				tAnchorButtonSetup["dispelBarOverlayOptions"] = VUHDO_getAuraBarDispelOverlayOptions();
+			end
 		end
 
 		tGroups = { };
@@ -2168,7 +2478,23 @@ do
 			end
 		elseif tGroup then
 			if VUHDO_isListCollapseEligible(tGroup, tUseFixedSlots, tIsFixedLayout) then
-				tGroups = VUHDO_buildListAnchorEntryGroups(tGroup, anAnchorConfig, tPixelWidth, tPixelHeight, tSpacing, tMaxFrameCount, tTemplateName, tAnchorButtonSetup, tIsBar);
+				tGroups, tLeadingSpacing = VUHDO_buildListAnchorEntryGroups(tGroup, anAnchorConfig, tPixelWidth, tPixelHeight, tSpacing, tMaxFrameCount, tTemplateName, tAnchorButtonSetup, tIsBar);
+
+				if tLeadingSpacing > 0 then
+					tContainerLayout["leadingSpacing"] = tLeadingSpacing;
+
+					if AnchorUtil.FlowLayoutAxis.Horizontal == tContainerLayout["layoutAxis"] then
+						if AnchorUtil.FlowDirection.Right == tContainerLayout["horizontalDir"] then
+							tContainerLayout["paddingLeft"] = tLeadingSpacing;
+						else
+							tContainerLayout["paddingRight"] = tLeadingSpacing;
+						end
+					elseif AnchorUtil.FlowDirection.Down == tContainerLayout["verticalDir"] then
+						tContainerLayout["paddingTop"] = tLeadingSpacing;
+					else
+						tContainerLayout["paddingBottom"] = tLeadingSpacing;
+					end
+				end
 			else
 				tSlots = VUHDO_buildListAnchorSlots(tGroup, anAnchorConfig, tPixelWidth, tPixelHeight, tSpacing, tMaxCols, tMaxFrameCount, tTemplateName, tAnchorButtonSetup, tIsBar, tGrowthDir, tWrapDir, tIsFixedLayout, tFixedRadioValue, tHealthBarWidthPx, tHealthBarHeightPx);
 			end
@@ -2271,7 +2597,7 @@ end
 do
 	--
 	local tCopy;
-	local function VUHDO_copyCandidateFilterTable(aSource)
+	function VUHDO_copyCandidateFilterTable(aSource)
 
 		if not aSource then
 			return nil;
@@ -2294,7 +2620,6 @@ do
 	local tCandidate;
 	local tSpellIds;
 	local tExcludeIds;
-	local tValue;
 	local tCandidateBooleans;
 	local tBoolKey;
 	local tResolvedBool;
@@ -2399,7 +2724,6 @@ do
 	local tMatchAnyBooleans;
 	local tMatchAnyFilters;
 	local tBoolKey;
-	local tTriState;
 	local tBranches;
 	local tBranch;
 	local tMaxBranches;

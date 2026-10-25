@@ -10,7 +10,10 @@ local issecretvalue = issecretvalue;
 local VUHDO_initGcd;
 local VUHDO_strempty;
 
+local VUHDO_RAID;
 local VUHDO_RAID_NAMES;
+local VUHDO_resolveUnitByName;
+local VUHDO_getUnitIdentityKey;
 local VUHDO_GROUPS;
 local VUHDO_CONFIG = { };
 
@@ -27,7 +30,10 @@ function VUHDO_spellEventHandlerInitLocalOverrides()
 	VUHDO_initGcd = _G["VUHDO_initGcd"];
 	VUHDO_strempty = _G["VUHDO_strempty"];
 
+	VUHDO_RAID = _G["VUHDO_RAID"];
 	VUHDO_RAID_NAMES = _G["VUHDO_RAID_NAMES"];
+	VUHDO_resolveUnitByName = _G["VUHDO_resolveUnitByName"];
+	VUHDO_getUnitIdentityKey = _G["VUHDO_getUnitIdentityKey"];
 	VUHDO_GROUPS = _G["VUHDO_GROUPS"];
 	VUHDO_CONFIG = _G["VUHDO_CONFIG"];
 
@@ -92,9 +98,7 @@ function VUHDO_spellcastSent(aUnit, aTargetName, aSpellId)
 	-- Resurrection?
 	if not sSecretsEnabled and (tSpellName == sFirstRes or tSpellName == sSecondRes or tSpellName == sThirdRes) then
 		if aTargetName and not VUHDO_strempty(aTargetName) then
-			aTargetName = smatch(aTargetName, "^[^-]*");
-
-			if not VUHDO_RAID_NAMES[aTargetName] then
+			if not VUHDO_resolveUnitByName(aTargetName) then
 				return;
 			end
 		end
@@ -119,10 +123,15 @@ function VUHDO_spellcastSent(aUnit, aTargetName, aSpellId)
 		return;
 	end
 
-	aTargetName = smatch(aTargetName, "^[^-]*");
-	tTargetUnit = VUHDO_RAID_NAMES[aTargetName];
+	tTargetUnit = VUHDO_resolveUnitByName(aTargetName);
 
 	if not tTargetUnit then
+		return;
+	end
+
+	aTargetName = VUHDO_getUnitIdentityKey(VUHDO_RAID[tTargetUnit]);
+
+	if not aTargetName then
 		return;
 	end
 

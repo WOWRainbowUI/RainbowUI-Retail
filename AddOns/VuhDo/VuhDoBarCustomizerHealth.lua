@@ -1319,7 +1319,7 @@ do
 			return;
 		end
 
-		tAllButtons = VUHDO_IN_RAID_TARGET_BUTTONS[tInfo["name"]];
+		tAllButtons = VUHDO_IN_RAID_TARGET_BUTTONS[VUHDO_getUnitIdentityKey(tInfo)];
 
 		if not tAllButtons then
 			return;

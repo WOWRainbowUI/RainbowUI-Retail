@@ -113,10 +113,8 @@ VUHDO_SPELL_ENTRY_COLOR_ICON = false;
 VUHDO_SPELL_ENTRY_SHOW_TIMER = 2;
 VUHDO_SPELL_ENTRY_SHOW_STACKS = 2;
 VUHDO_SPELL_ENTRY_SHOW_CLOCK = 2;
-VUHDO_SPELL_ENTRY_FADE_ON_LOW = 2;
-VUHDO_SPELL_ENTRY_FADE_THRESHOLD = 3;
-VUHDO_SPELL_ENTRY_FLASH_ON_LOW = 2;
-VUHDO_SPELL_ENTRY_FLASH_THRESHOLD = 2;
+VUHDO_SPELL_ENTRY_COLOR_ON_PANDEMIC = 2;
+VUHDO_SPELL_ENTRY_FLASH_ON_PANDEMIC = 2;
 
 VUHDO_AURA_FILTER_OPTIONS = {
 	{ "HELPFUL", VUHDO_I18N_AURA_GROUP_ALL_BUFFS, nil, nil, VUHDO_I18N_TT.K635 },
@@ -164,6 +162,7 @@ local VUHDO_AURA_GROUP_TOOLTIPS = {
 	["ENHANCEMENT_SHAMAN_BUFFS"] = VUHDO_I18N_TT.K683,
 	["BREWMASTER_MONK_BUFFS"] = VUHDO_I18N_TT.K684,
 	["WARLOCK_METAMORPHOSIS"] = VUHDO_I18N_TT.K685,
+	["PRIEST_WEAKENED_SOUL"] = VUHDO_I18N_TT.K908,
 	["RELEVANT_DEBUFFS"] = VUHDO_I18N_TT.K862,
 	["RELEVANT_BUFFS"] = VUHDO_I18N_TT.K858,
 };
@@ -1826,6 +1825,11 @@ do
 				tCanColorTextCheck:Disable();
 				tCanColorTextCheck:SetAlpha(0.5);
 			end
+
+			if VUHDO_isAuraModeContainers() then
+				tCanColorTextCheck:Disable();
+				tCanColorTextCheck:SetAlpha(0.5);
+			end
 		end
 
 		if tCustomColorSwatch and tGroup then
@@ -1849,7 +1853,7 @@ do
 				VUHDO_lnfSetModel(tCustomColorSwatch, "VUHDO_CONFIG.AURA_GROUPS." .. sSelectedGroupId .. ".customColor");
 				tCustomColorSwatch:SetAttribute("custom_function_post", VUHDO_auraGroupsCustomColorChanged);
 
-				tCanUseCustomColor = VUHDO_AURA_GROUPS_COLOR_TYPE == VUHDO_AURA_GROUP_COLOR_CUSTOM and (VUHDO_AURA_GROUPS_CAN_COLOR_BAR or VUHDO_AURA_GROUPS_CAN_COLOR_TEXT);
+				tCanUseCustomColor = VUHDO_AURA_GROUPS_COLOR_TYPE == VUHDO_AURA_GROUP_COLOR_CUSTOM and VUHDO_AURA_GROUPS_CAN_COLOR_BAR;
 
 				tCustomColorSwatch:SetAttribute("disabled", not tCanUseCustomColor);
 				tCustomColorSwatch:SetAlpha(tCanUseCustomColor and 1 or 0.5);
@@ -2757,7 +2761,7 @@ function VUHDO_auraGroupsUpdateCustomColorSwatchState()
 	tCustomColorSwatchForUpdate = _G["VuhDoNewOptionsAuraGroupsStorePanelCustomColorTexture"];
 
 	if tCustomColorSwatchForUpdate and tCustomColorSwatchForUpdate:IsShown() then
-		tCanUseCustomColorForUpdate = VUHDO_AURA_GROUPS_COLOR_TYPE == VUHDO_AURA_GROUP_COLOR_CUSTOM and (VUHDO_AURA_GROUPS_CAN_COLOR_BAR or VUHDO_AURA_GROUPS_CAN_COLOR_TEXT);
+		tCanUseCustomColorForUpdate = VUHDO_AURA_GROUPS_COLOR_TYPE == VUHDO_AURA_GROUP_COLOR_CUSTOM and VUHDO_AURA_GROUPS_CAN_COLOR_BAR;
 
 		tCustomColorSwatchForUpdate:SetAttribute("disabled", not tCanUseCustomColorForUpdate);
 		tCustomColorSwatchForUpdate:SetAlpha(tCanUseCustomColorForUpdate and 1 or 0.5);
@@ -2827,6 +2831,8 @@ function VUHDO_auraGroupsGlowBarStyleChanged(aParent, aValue)
 
 	VUHDO_markAuraGroupChanged(sSelectedGroupId, false, false);
 
+	VUHDO_timeRegisterBouquets(0.3);
+
 	VUHDO_auraGroupsRefreshRightPanel();
 
 	return;
@@ -2843,6 +2849,8 @@ function VUHDO_auraGroupsGlowColorChanged(aColorSwatch)
 	end
 
 	VUHDO_markAuraGroupChanged(sSelectedGroupId, false, false);
+
+	VUHDO_timeRegisterBouquets(0.3);
 
 	return;
 
@@ -3201,6 +3209,9 @@ function VUHDO_auraGroupsListAddSpell()
 		["fadeThreshold"] = nil,
 		["flashOnLow"] = 2,
 		["flashThreshold"] = nil,
+		["colorOnPandemic"] = 2,
+		["flashOnPandemic"] = 2,
+		["pandemicColor"] = nil,
 	});
 
 	tSpellComboEditBox:SetText("");
@@ -3236,6 +3247,12 @@ function VUHDO_auraGroupsListAddBouquet()
 		return;
 	end
 
+	if VUHDO_bouquetReachesAuraGroup(tBouquetName, sSelectedGroupId) then
+		VUHDO_Msg(VUHDO_I18N_AURA_GROUP_BOUQUET_CYCLE, 1, 0.4, 0.4);
+
+		return;
+	end
+
 	if not tGroup["entries"] then
 		tGroup["entries"] = { };
 	end
@@ -3248,6 +3265,8 @@ function VUHDO_auraGroupsListAddBouquet()
 	VUHDO_auraGroupsRefreshListEntries();
 
 	VUHDO_markAuraGroupChanged(sSelectedGroupId, true, true);
+
+	VUHDO_timeRegisterBouquets(0.3);
 
 	return;
 
@@ -3457,10 +3476,11 @@ function VUHDO_spellEntrySettingsInitFromEntry(anEntry)
 	VUHDO_SPELL_ENTRY_SHOW_TIMER = tEntry["showTimer"] or 2;
 	VUHDO_SPELL_ENTRY_SHOW_STACKS = tEntry["showStacks"] or 2;
 	VUHDO_SPELL_ENTRY_SHOW_CLOCK = tEntry["showClock"] or 2;
-	VUHDO_SPELL_ENTRY_FADE_ON_LOW = tEntry["fadeOnLow"] or 2;
-	VUHDO_SPELL_ENTRY_FADE_THRESHOLD = tEntry["fadeThreshold"] or 3;
-	VUHDO_SPELL_ENTRY_FLASH_ON_LOW = tEntry["flashOnLow"] or 2;
-	VUHDO_SPELL_ENTRY_FLASH_THRESHOLD = tEntry["flashThreshold"] or 2;
+	VUHDO_SPELL_ENTRY_COLOR_ON_PANDEMIC = tEntry["colorOnPandemic"] or 2;
+	VUHDO_SPELL_ENTRY_FLASH_ON_PANDEMIC = tEntry["flashOnPandemic"] or 2;
+
+	VUHDO_SPELL_ENTRY_SETTINGS["PANDEMIC_COLOR"] = tEntry["pandemicColor"] and VUHDO_deepCopyTable(tEntry["pandemicColor"])
+		or VUHDO_deepCopyTable(VUHDO_PANEL_SETUP.BAR_COLORS["AURA_PANDEMIC"]);
 
 	return;
 
@@ -3502,10 +3522,10 @@ function VUHDO_spellEntrySettingsSaveToEntry()
 	tEntry["showTimer"] = VUHDO_SPELL_ENTRY_SHOW_TIMER;
 	tEntry["showStacks"] = VUHDO_SPELL_ENTRY_SHOW_STACKS;
 	tEntry["showClock"] = VUHDO_SPELL_ENTRY_SHOW_CLOCK;
-	tEntry["fadeOnLow"] = VUHDO_SPELL_ENTRY_FADE_ON_LOW;
-	tEntry["fadeThreshold"] = VUHDO_SPELL_ENTRY_FADE_THRESHOLD;
-	tEntry["flashOnLow"] = VUHDO_SPELL_ENTRY_FLASH_ON_LOW;
-	tEntry["flashThreshold"] = VUHDO_SPELL_ENTRY_FLASH_THRESHOLD;
+	tEntry["colorOnPandemic"] = VUHDO_SPELL_ENTRY_COLOR_ON_PANDEMIC;
+	tEntry["flashOnPandemic"] = VUHDO_SPELL_ENTRY_FLASH_ON_PANDEMIC;
+
+	tEntry["pandemicColor"] = VUHDO_deepCopyTable(VUHDO_SPELL_ENTRY_SETTINGS["PANDEMIC_COLOR"]);
 
 	VUHDO_initEntrySettingsCache();
 
@@ -3714,28 +3734,24 @@ local function VUHDO_initSpellEntrySettingsFromModel(aFrame)
 		VUHDO_lnfTriStateCheckButtonInitFromModel(tControl);
 	end
 
-	tControl = _G[tRootPane:GetName() .. "FadeOnLowTriState"];
+	tControl = _G[tRootPane:GetName() .. "ColorOnPandemicTriState"];
+
+	if tControl then
+		VUHDO_lnfTriStateCheckButtonInitFromModel(tControl);
+		VUHDO_lnfUpdateComponentsByConstraints(tControl);
+	end
+
+	tControl = _G[tRootPane:GetName() .. "FlashOnPandemicTriState"];
 
 	if tControl then
 		VUHDO_lnfTriStateCheckButtonInitFromModel(tControl);
 	end
 
-	tControl = _G[tRootPane:GetName() .. "FlashOnLowTriState"];
+	tControl = _G[tRootPane:GetName() .. "PandemicColorTexture"];
 
 	if tControl then
-		VUHDO_lnfTriStateCheckButtonInitFromModel(tControl);
-	end
-
-	tControl = _G[tRootPane:GetName() .. "FadeThresholdSliderSlider"];
-
-	if tControl then
-		VUHDO_lnfSliderInitFromModel(tControl);
-	end
-
-	tControl = _G[tRootPane:GetName() .. "FlashThresholdSliderSlider"];
-
-	if tControl then
-		VUHDO_lnfSliderInitFromModel(tControl);
+		VUHDO_lnfColorSwatchInitFromModel(tControl);
+		VUHDO_lnfUpdateComponentsByConstraints(tControl);
 	end
 
 	return;
@@ -4025,6 +4041,7 @@ end
 
 --
 local tEntries;
+local tRemovedEntry;
 function VUHDO_auraGroupsListRemoveEntry(anIndex)
 
 	if not sSelectedGroupId or not VUHDO_CONFIG["AURA_GROUPS"] or not VUHDO_CONFIG["AURA_GROUPS"][sSelectedGroupId] then
@@ -4037,11 +4054,17 @@ function VUHDO_auraGroupsListRemoveEntry(anIndex)
 		return;
 	end
 
+	tRemovedEntry = tEntries[anIndex];
+
 	tremove(tEntries, anIndex);
 
 	VUHDO_auraGroupsRefreshListEntries();
 
 	VUHDO_markAuraGroupChanged(sSelectedGroupId, true, true);
+
+	if tRemovedEntry and tRemovedEntry["entryType"] == VUHDO_AURA_LIST_ENTRY_BOUQUET then
+		VUHDO_timeRegisterBouquets(0.3);
+	end
 
 	return;
 
@@ -4077,6 +4100,8 @@ function VUHDO_auraGroupsListMoveEntry(anIndex, aDirection)
 	VUHDO_auraGroupsRefreshListEntries();
 
 	VUHDO_markAuraGroupChanged(sSelectedGroupId, true, true);
+
+	VUHDO_timeRegisterBouquets(0.3);
 
 	return;
 

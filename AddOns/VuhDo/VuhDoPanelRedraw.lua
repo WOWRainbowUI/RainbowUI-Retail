@@ -9,6 +9,7 @@ local floor = math.floor;
 local ceil = math.ceil;
 local min = math.min;
 local max = math.max;
+local xpcall = xpcall;
 
 local InCombatLockdown = InCombatLockdown;
 local RemovePrivateAuraAnchor = C_UnitAuras and C_UnitAuras.RemovePrivateAuraAnchor;
@@ -2462,6 +2463,18 @@ end
 
 
 
+--
+local tRedrawErrorStack;
+local function VUHDO_deferredRedrawErrorHandler(anError)
+
+	tRedrawErrorStack = debugstack(1, 20, 3);
+
+	return tostring(anError) .. "\nStacktrace:\n" .. tRedrawErrorStack;
+
+end
+
+
+
 do
 	--
 	local tNumButtons;
@@ -2554,7 +2567,7 @@ do
 
 	--
 	local tHealButton;
-	function VUHDO_deferInitHealButtonDelegate(aPanelNum, aButtonIndex)
+	local function VUHDO_pcallInitHealButton(aPanelNum, aButtonIndex)
 
 		tHealButton = VUHDO_getOrCreateHealButton(aButtonIndex, aPanelNum);
 
@@ -2565,6 +2578,23 @@ do
 		end
 
 		VUHDO_initHealButton(tHealButton, aPanelNum);
+
+		return;
+
+	end
+
+
+
+	--
+	local tInitHealButtonSuccess;
+	local tInitHealButtonError;
+	function VUHDO_deferInitHealButtonDelegate(aPanelNum, aButtonIndex)
+
+		tInitHealButtonSuccess, tInitHealButtonError = xpcall(VUHDO_pcallInitHealButton, VUHDO_deferredRedrawErrorHandler, aPanelNum, aButtonIndex);
+
+		if not tInitHealButtonSuccess then
+			VUHDO_Msg("Deferred redraw error: " .. tostring(tInitHealButtonError));
+		end
 
 		if sButtonInitSemaphores[aPanelNum] then
 			sButtonInitSemaphores[aPanelNum]:decrement();
@@ -2757,7 +2787,7 @@ do
 	local tXPos;
 	local tYPos;
 	local tPanel;
-	function VUHDO_deferPositionHealButtonDelegate(aUnit, aPanelNum, aButtonIndex, aModelIndex, aModelId, aGroupIndex, aColumnIndex)
+	local function VUHDO_pcallPositionHealButton(aUnit, aPanelNum, aButtonIndex, aModelId, aGroupIndex, aColumnIndex)
 
 		tHealButton = VUHDO_getOrCreateHealButton(aButtonIndex, aPanelNum);
 
@@ -2797,6 +2827,23 @@ do
 			VUHDO_PixelUtil.Show(tHealButton);
 		end
 
+		return;
+
+	end
+
+
+
+	--
+	local tPositionHealButtonSuccess;
+	local tPositionHealButtonError;
+	function VUHDO_deferPositionHealButtonDelegate(aUnit, aPanelNum, aButtonIndex, aModelIndex, aModelId, aGroupIndex, aColumnIndex)
+
+		tPositionHealButtonSuccess, tPositionHealButtonError = xpcall(VUHDO_pcallPositionHealButton, VUHDO_deferredRedrawErrorHandler, aUnit, aPanelNum, aButtonIndex, aModelId, aGroupIndex, aColumnIndex);
+
+		if not tPositionHealButtonSuccess then
+			VUHDO_Msg("Deferred redraw error: " .. tostring(tPositionHealButtonError));
+		end
+
 		if sButtonPositionSemaphores[aPanelNum] then
 			sButtonPositionSemaphores[aPanelNum]:decrement();
 		end
@@ -2808,11 +2855,40 @@ do
 
 
 	--
+	local tPanel;
+	local function VUHDO_pcallRedrawPanelComplete(aPanelNum, anIsFixAllFrameLevels)
+
+		tPanel = VUHDO_getOrCreateActionPanel(aPanelNum);
+
+		VUHDO_positionTableHeaders(tPanel, aPanelNum);
+
+		VUHDO_initPanel(tPanel, aPanelNum);
+
+		if VUHDO_isPanelVisible(aPanelNum) then
+			VUHDO_fixFrameLevels(anIsFixAllFrameLevels, tPanel, 2, tPanel:GetChildren());
+
+			VUHDO_PixelUtil.Show(tPanel);
+		else
+			VUHDO_PixelUtil.Hide(tPanel);
+		end
+
+		VUHDO_updateAllPanelBars(aPanelNum);
+
+		VUHDO_redisplayAllUnitAuras();
+
+		return;
+
+	end
+
+
+
+	--
 	local tCurrentCycleId;
 	local tTrackerKey;
 	local tNextRequest;
-	local tPanel;
 	local tButtonSemaphores;
+	local tRedrawPanelCompleteSuccess;
+	local tRedrawPanelCompleteError;
 	function VUHDO_deferRedrawPanelCompleteDelegate(aPanelNum, anIsFixAllFrameLevels, aCycleId)
 
 		if tButtonSemaphores then
@@ -2835,23 +2911,11 @@ do
 			end
 		end
 
-		tPanel = VUHDO_getOrCreateActionPanel(aPanelNum);
+		tRedrawPanelCompleteSuccess, tRedrawPanelCompleteError = xpcall(VUHDO_pcallRedrawPanelComplete, VUHDO_deferredRedrawErrorHandler, aPanelNum, anIsFixAllFrameLevels);
 
-		VUHDO_positionTableHeaders(tPanel, aPanelNum);
-
-		VUHDO_initPanel(tPanel, aPanelNum);
-
-		if VUHDO_isPanelVisible(aPanelNum) then
-			VUHDO_fixFrameLevels(anIsFixAllFrameLevels, tPanel, 2, tPanel:GetChildren());
-
-			VUHDO_PixelUtil.Show(tPanel);
-		else
-			VUHDO_PixelUtil.Hide(tPanel);
+		if not tRedrawPanelCompleteSuccess then
+			VUHDO_Msg("Deferred redraw error: " .. tostring(tRedrawPanelCompleteError));
 		end
-
-		VUHDO_updateAllPanelBars(aPanelNum);
-
-		VUHDO_redisplayAllUnitAuras();
 
 		if aCycleId and sRedrawAllPanelsSemaphore and VUHDO_extractCycleIdFromSemaphoreName(sRedrawAllPanelsSemaphore["name"]) == aCycleId then
 			if sRedrawAllPanelsSemaphore["count"] <= 0 then
@@ -3348,7 +3412,7 @@ do
 
 	--
 	local tPanel;
-	function VUHDO_deferRedrawPanelDelegate(aPanelNum, anIsFixAllFrameLevels, aCycleId)
+	local function VUHDO_pcallRedrawPanel(aPanelNum, aCycleId)
 
 		tPanel = VUHDO_getOrCreateActionPanel(aPanelNum);
 
@@ -3362,6 +3426,23 @@ do
 			VUHDO_deferPositionAllHealButtons(tPanel, aPanelNum, aCycleId);
 		end
 
+		return;
+
+	end
+
+
+
+	--
+	local tRedrawPanelSuccess;
+	local tRedrawPanelError;
+	function VUHDO_deferRedrawPanelDelegate(aPanelNum, anIsFixAllFrameLevels, aCycleId)
+
+		tRedrawPanelSuccess, tRedrawPanelError = xpcall(VUHDO_pcallRedrawPanel, VUHDO_deferredRedrawErrorHandler, aPanelNum, aCycleId);
+
+		if not tRedrawPanelSuccess then
+			VUHDO_Msg("Deferred redraw error: " .. tostring(tRedrawPanelError));
+		end
+
 		VUHDO_deferRedrawPanelComplete(aPanelNum, anIsFixAllFrameLevels, aCycleId);
 
 		return;
@@ -3372,13 +3453,7 @@ do
 
 	--
 	local tGcdCol;
-	local tNextRequest;
-	function VUHDO_deferRedrawAllPanelsCompleteDelegate(anIsFixAllFrameLevels)
-
-		if sRedrawAllPanelsSemaphore and
-			not sRedrawAllPanelsSemaphore:waitFor(VUHDO_DEFER_REDRAW_ALL_PANELS_COMPLETE, VUHDO_DEFERRED_TASK_PRIORITY_HIGH, anIsFixAllFrameLevels) then
-			return;
-		end
+	local function VUHDO_pcallRedrawAllPanelsComplete()
 
 		VUHDO_setupAllButtonsUnitWatch(VUHDO_CONFIG["HIDE_EMPTY_BUTTONS"] and not VUHDO_IS_PANEL_CONFIG and not VUHDO_isConfigDemoUsers());
 		VUHDO_updateAllRaidBars();
@@ -3411,6 +3486,29 @@ do
 		VUHDO_initAllEventBouquets();
 
 		VUHDO_updateToggledUnitEvents();
+
+		return;
+
+	end
+
+
+
+	--
+	local tNextRequest;
+	local tRedrawAllPanelsCompleteSuccess;
+	local tRedrawAllPanelsCompleteError;
+	function VUHDO_deferRedrawAllPanelsCompleteDelegate(anIsFixAllFrameLevels)
+
+		if sRedrawAllPanelsSemaphore and
+			not sRedrawAllPanelsSemaphore:waitFor(VUHDO_DEFER_REDRAW_ALL_PANELS_COMPLETE, VUHDO_DEFERRED_TASK_PRIORITY_HIGH, anIsFixAllFrameLevels) then
+			return;
+		end
+
+		tRedrawAllPanelsCompleteSuccess, tRedrawAllPanelsCompleteError = xpcall(VUHDO_pcallRedrawAllPanelsComplete, VUHDO_deferredRedrawErrorHandler);
+
+		if not tRedrawAllPanelsCompleteSuccess then
+			VUHDO_Msg("Deferred redraw error: " .. tostring(tRedrawAllPanelsCompleteError));
+		end
 
 		VUHDO_releaseStoredSemaphore(sRedrawAllPanelsSemaphore);
 

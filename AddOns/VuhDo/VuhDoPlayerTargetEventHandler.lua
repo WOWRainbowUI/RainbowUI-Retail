@@ -18,6 +18,7 @@ local VUHDO_getUnitButtonsSafe;
 local VUHDO_getPlayerTargetFrame;
 local VUHDO_cleanupSpellTraceForUnit;
 local VUHDO_applyAllLayersToBorder;
+local VUHDO_applyOverlayBouquetGating;
 local VUHDO_unregisterUnitForEvents;
 local VUHDO_updateUnitRange;
 
@@ -42,6 +43,7 @@ function VUHDO_playerTargetEventHandlerInitLocalOverrides()
 	VUHDO_getPlayerTargetFrame = _G["VUHDO_getPlayerTargetFrame"];
 	VUHDO_cleanupSpellTraceForUnit = _G["VUHDO_cleanupSpellTraceForUnit"];
 	VUHDO_applyAllLayersToBorder = _G["VUHDO_applyAllLayersToBorder"];
+	VUHDO_applyOverlayBouquetGating = _G["VUHDO_applyOverlayBouquetGating"];
 	VUHDO_unregisterUnitForEvents = _G["VUHDO_unregisterUnitForEvents"];
 	VUHDO_updateUnitRange = _G["VUHDO_updateUnitRange"];
 
@@ -140,7 +142,7 @@ function VUHDO_barBorderBouquetCallback(aUnit, anIsActive, anIcon, aTimer, aCoun
 				if anIsActive then
 					if aLayerTemplate then
 						VUHDO_PixelUtil.SetFrameLevel(tBorder, tButton:GetFrameLevel() + (anImpact or 0) + 2);
-						VUHDO_applyAllLayersToBorder(tButton, tBorder, aLayerTemplate);
+						VUHDO_applyAllLayersToBorder(tButton, tBorder, aLayerTemplate, "BAR_BORDER", aBouquetName);
 					elseif aColor then
 						VUHDO_PixelUtil.SetFrameLevel(tBorder, tButton:GetFrameLevel() + (anImpact or 0) + 2);
 						tBorder:SetBackdropBorderColor(VUHDO_backColorWithFallback(aColor));
@@ -149,6 +151,10 @@ function VUHDO_barBorderBouquetCallback(aUnit, anIsActive, anIcon, aTimer, aCoun
 					tBorder:Show();
 				else
 					tBorder:Hide();
+
+					if aLayerTemplate then
+						VUHDO_applyOverlayBouquetGating(tButton, "BAR_BORDER", aBouquetName, aLayerTemplate, nil);
+					end
 				end
 			end
 

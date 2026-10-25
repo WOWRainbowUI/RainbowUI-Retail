@@ -4,6 +4,8 @@ local table = table;
 local ipairs = ipairs;
 local twipe = table.wipe;
 local InCombatLockdown = InCombatLockdown;
+local next = next;
+local GetTime = GetTime;
 
 local RemovePrivateAuraAnchor = C_UnitAuras and C_UnitAuras.RemovePrivateAuraAnchor;
 local AddPrivateAuraAnchor = C_UnitAuras and C_UnitAuras.AddPrivateAuraAnchor;
@@ -50,6 +52,9 @@ local sRefreshUiNoMembers;
 local sShowPanels;
 local sDurationAnchor = { };
 local sDeferredRefreshCount = 0;
+local sPendingRefreshPanels = { };
+local sPendingRefreshDeadline = 0;
+local sPendingRefreshTimeout = 2;
 local sStaleButtonIndices = { };
 local sRefreshUnitButtons = { };
 local sRefreshUnitButtonsPanel = { };
@@ -373,7 +378,13 @@ function VUHDO_deferRefreshUiNoMembers()
 		sDeferredRefreshCount = 1;
 	end
 
+	twipe(sPendingRefreshPanels);
+
+	sPendingRefreshDeadline = GetTime() + sPendingRefreshTimeout;
+
 	for tPanelNum = 1, 10 do -- VUHDO_MAX_PANELS
+		sPendingRefreshPanels[tPanelNum] = true;
+
 		VUHDO_deferTask(VUHDO_DEFER_REFRESH_PANEL, VUHDO_DEFERRED_TASK_PRIORITY_HIGH, tPanelNum);
 	end
 
@@ -395,6 +406,8 @@ local tButton;
 function VUHDO_deferRefreshPanelDelegate(aPanelNum)
 
 	if not VUHDO_isPanelVisible(aPanelNum) then
+		sPendingRefreshPanels[aPanelNum] = nil;
+
 		VUHDO_PixelUtil.Hide(VUHDO_getActionPanelOrStub(aPanelNum));
 
 		return;
@@ -414,10 +427,10 @@ function VUHDO_deferRefreshPanelDelegate(aPanelNum)
 		tGroupArray = VUHDO_getGroupMembersSorted(tModelId, tSortBy, aPanelNum, tModelIndex);
 
 		for tGroupIdx, tUnit in ipairs(tGroupArray) do
-			tButton = VUHDO_getOrCreateHealButton(tButtonIdx, aPanelNum);
+			tButton = VUHDO_getHealButton(tButtonIdx, aPanelNum);
 			tButtonIdx = tButtonIdx + 1;
 
-			if tButton["initRevision"] ~= VUHDO_getPanelButtonInitRev(aPanelNum) then
+			if not tButton or tButton["initRevision"] ~= VUHDO_getPanelButtonInitRev(aPanelNum) then
 				sStaleButtonIndices[#sStaleButtonIndices + 1] = tButtonIdx - 1;
 			end
 		end
@@ -452,14 +465,40 @@ function VUHDO_deferRefreshPanelCompleteDelegate(aPanelNum)
 
 	VUHDO_refreshPanel(aPanelNum);
 
+	sPendingRefreshPanels[aPanelNum] = nil;
+
 	return;
 
 end
 
 
 
+
+
+--
+local function VUHDO_isRefreshPanelPending()
+
+	if GetTime() >= sPendingRefreshDeadline then
+		twipe(sPendingRefreshPanels);
+
+		return false;
+	end
+
+	return nil ~= next(sPendingRefreshPanels);
+
+end
+
+
+
+
 --
 function VUHDO_deferRefreshUiCompleteDelegate()
+
+	if VUHDO_isRefreshPanelPending() then
+		VUHDO_deferTask(VUHDO_DEFER_REFRESH_UI_COMPLETE, VUHDO_DEFERRED_TASK_PRIORITY_NORMAL);
+
+		return;
+	end
 
 	if sDeferredRefreshCount > 0 then
 		sDeferredRefreshCount = sDeferredRefreshCount - 1;
@@ -497,7 +536,7 @@ end
 --
 function VUHDO_isDeferredRefreshActive()
 
-	return sDeferredRefreshCount > 0;
+	return sDeferredRefreshCount > 0 or VUHDO_isRefreshPanelPending();
 
 end
 

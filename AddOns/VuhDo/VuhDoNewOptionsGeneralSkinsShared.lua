@@ -149,7 +149,7 @@ local VUHDO_DEFAULT_PROFILES = {
 				},
 				["SWIFTMEND_INDICATOR"] = {
 					["SCALE"] = 1,
-					["isBarGlow"] = false,
+					["barGlowStyle"] = "none",
 					["anchor"] = "TOPLEFT",
 					["xAdjust"] = 5.5,
 					["yAdjust"] = -14,
@@ -913,7 +913,7 @@ local VUHDO_DEFAULT_PROFILES = {
 				},
 				["SWIFTMEND_INDICATOR"] = {
 					["SCALE"] = 1,
-					["isBarGlow"] = false,
+					["barGlowStyle"] = "none",
 					["anchor"] = "TOPLEFT",
 					["xAdjust"] = 5.5,
 					["yAdjust"] = -14,					
@@ -2224,7 +2224,7 @@ end
 --
 local tSpec;
 function VUHDO_getBestProfileAfterSpecChange()
-	tSpec = GetSpecialization();
+	tSpec = VUHDO_getActiveSpecSlot();
 	return VUHDO_getBestProfileForSpecAndSize(tSpec, VUHDO_GROUP_SIZE)
 		or VUHDO_getBestProfileForSpec(tSpec)
 		or VUHDO_getBestProfileForSize(VUHDO_GROUP_SIZE);
@@ -2234,7 +2234,7 @@ end
 
 --
 function VUHDO_getBestProfileAfterSizeChange()
-	tSpec = GetSpecialization();
+	tSpec = VUHDO_getActiveSpecSlot();
 	return VUHDO_getBestProfileForSpecAndSize(tSpec, VUHDO_GROUP_SIZE)
 		or VUHDO_getBestProfileForSize(VUHDO_GROUP_SIZE)
 		or VUHDO_getBestProfileForSpec(tSpec);
@@ -2389,7 +2389,7 @@ local function VUHDO_createNewProfile(aName)
 		["LOCKED"] = tProfile ~= nil and tProfile["LOCKED"],
 		["HARDLOCKED"] = false,
 		["ORIGINATOR_CLASS"] = VUHDO_PLAYER_CLASS,
-		["ORIGINATOR_TOON"] = VUHDO_PLAYER_NAME,
+		["ORIGINATOR_TOON"] = VUHDO_PLAYER_FULL_NAME or VUHDO_PLAYER_NAME,
 		["CONFIG"] = VUHDO_CONFIG,
 		["PANEL_SETUP"] = VUHDO_PANEL_SETUP,
 		["POWER_TYPE_COLORS"] = VUHDO_POWER_TYPE_COLORS,
@@ -2515,7 +2515,9 @@ function VUHDO_saveProfile(aName)
 	if tExistingProfile then
 		VUHDO_TARGET_PROFILE_NAME = aName;
 
-		if tExistingProfile["ORIGINATOR_TOON"] ~= VUHDO_PLAYER_NAME and not VUHDO_CONFIG["IS_ALWAYS_OVERWRITE_PROFILE"] then
+		if tExistingProfile["ORIGINATOR_TOON"] ~= (VUHDO_PLAYER_FULL_NAME or VUHDO_PLAYER_NAME)
+			and tExistingProfile["ORIGINATOR_TOON"] ~= VUHDO_PLAYER_NAME
+			and not VUHDO_CONFIG["IS_ALWAYS_OVERWRITE_PROFILE"] then
 
 			VuhDoThreeSelectFrameText:SetText(
 				VUHDO_I18N_PROFILE_OVERWRITE_1 .. " \"" .. aName .. "\" "
@@ -2569,7 +2571,7 @@ local function VUHDO_isProfileRuleAllowed(tRule, aClass, aToon)
 	elseif VUHDO_PROFILE_MODEL_MATCH_CLASS == tRule then
 		return VUHDO_PLAYER_CLASS == aClass;
 	elseif VUHDO_PROFILE_MODEL_MATCH_TOON == tRule then
-		return VUHDO_PLAYER_NAME == aToon;
+		return (VUHDO_PLAYER_FULL_NAME or VUHDO_PLAYER_NAME) == aToon or VUHDO_PLAYER_NAME == aToon;
 	elseif VUHDO_PROFILE_MODEL_MATCH_NEVER == tRule then
 		return false;
 	else
@@ -2773,6 +2775,9 @@ function VUHDO_loadProfileNoInit(aName)
 	VUHDO_SPELL_CONFIG      = VUHDO_smartLoadFromProfile(VUHDO_SPELL_CONFIG,      tProfile["SPELL_CONFIG"],      VUHDO_PROFILE_MODEL["SPELL_CONFIG"],      VUHDO_PROFILE_MODEL_MATCH_ALL);
 	VUHDO_BUFF_SETTINGS     = VUHDO_smartLoadFromProfile(VUHDO_BUFF_SETTINGS,     tProfile["BUFF_SETTINGS"],     VUHDO_PROFILE_MODEL["BUFF_SETTINGS"],     VUHDO_PROFILE_MODEL_MATCH_ALL);
 	VUHDO_BUFF_ORDER        = VUHDO_smartLoadFromProfile(VUHDO_BUFF_ORDER,        tProfile["BUFF_ORDER"],        VUHDO_PROFILE_MODEL["BUFF_ORDER"],        VUHDO_PROFILE_MODEL_MATCH_ALL);
+
+	VUHDO_migrateShieldsBuffSettings();
+
 	VUHDO_INDICATOR_CONFIG  = VUHDO_smartLoadFromProfile(VUHDO_INDICATOR_CONFIG,  tProfile["INDICATOR_CONFIG"],  VUHDO_PROFILE_MODEL["INDICATOR_CONFIG"],  VUHDO_PROFILE_MODEL_MATCH_ALL);
 
 	tPanelPositions = tProfile["PANEL_POSITIONS"];

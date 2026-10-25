@@ -1,0 +1,22 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
+
+	<Script file="VuhDoFlavor.lua" />
+	<Script file="VuhDoConst.lua" />
+	<Script file="VuhDoGuiConst.lua" />
+	<Script file="VuhDoToolbox.lua" />
+	<Script file="VuhDoToolboxUtil.lua" />
+	<Script file="VuhDoAuras.lua" />
+	<Script file="VuhDoAuraMode.lua" />
+	<Script file="VuhDoAuraInference.lua" />
+	<Script file="VuhDoAuraSounds.lua" />
+	<Script file="VuhDoTask.lua" />
+	<Script file="VuhDoPercentile.lua" />
+	<Script file="VuhDoBuffConst.lua" />
+	<Script file="VuhDoDebuffConst.lua" />
+	<Script file="VuhDoTextProviders.lua" />
+	<Script file="VuhDoTextProviderHandler.lua" />
+	<Script file="VuhDoDefaultsBouquets.lua" />
+
+</Ui>

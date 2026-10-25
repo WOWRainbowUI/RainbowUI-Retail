@@ -1,0 +1,13 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
+
+	<Script file="VuhDoFlavorRules.lua" />
+	<Script file="VuhDoClassData.lua" />
+	<Script file="VuhDoBuffData.lua" />
+	<Script file="VuhDoDebuffData.lua" />
+	<Script file="VuhDoDefaultsData.lua" />
+	<Script file="VuhDoBouquetData.lua" />
+	<Script file="VuhDoMiscData.lua" />
+
+</Ui>

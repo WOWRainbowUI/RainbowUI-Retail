@@ -724,7 +724,7 @@ do
 			if not InCombatLockdown() then
 				if VUHDO_RESET_SIZES then VUHDO_resetSizeCalcCaches(); end
 
-				if strfind(aModel, "AURA_ANCHORS", 1, true) or strfind(aModel, "AURA_DEFAULTS", 1, true) then
+				if strfind(aModel, "AURA_ANCHORS", 1, true) or strfind(aModel, "AURA_DEFAULTS", 1, true) or strfind(aModel, "AURA_PANDEMIC", 1, true) then
 					VUHDO_invalidateAuraContainerTemplateCache();
 				end
 
@@ -734,6 +734,7 @@ do
 
 					if strfind(aModel, "VUHDO_BOUQUETS", 1, true) then
 						VUHDO_timeRefreshOverlays(0.3);
+						VUHDO_timeRegisterBouquets(0.3);
 					end
 
 				elseif tPanelNum then

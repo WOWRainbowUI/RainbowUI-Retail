@@ -1,0 +1,109 @@
+local GetSpellName = C_Spell.GetSpellName;
+
+--
+VUHDO_INIT_PURGE_ABILITIES = {
+	["WARRIOR"] = { },
+	["ROGUE"] = {
+		[VUHDO_DEBUFF_TYPE_ENRAGE] = { 5938 }, -- VUHDO_SPELL_ID.SHIV
+	},
+	["HUNTER"] = {
+		[VUHDO_DEBUFF_TYPE_MAGIC] = { 19801 }, -- VUHDO_SPELL_ID.TRANQUILIZING_SHOT
+		[VUHDO_DEBUFF_TYPE_ENRAGE] = { 19801 }, -- VUHDO_SPELL_ID.TRANQUILIZING_SHOT
+	},
+	["MAGE"] = {
+		[VUHDO_DEBUFF_TYPE_MAGIC] = { 30449 }, -- VUHDO_SPELL_ID.SPELLSTEAL
+	},
+	["DRUID"] = {
+		[VUHDO_DEBUFF_TYPE_ENRAGE] = { 2908 }, -- VUHDO_SPELL_ID.SOOTHE
+	},
+	["PALADIN"] = { },
+	["PRIEST"] = {
+		[VUHDO_DEBUFF_TYPE_MAGIC] = { 528 }, -- VUHDO_SPELL_ID.DISPEL_MAGIC
+		-- [VUHDO_DEBUFF_TYPE_MAGIC] = { 528, 32375 }, -- VUHDO_SPELL_ID.DISPEL_MAGIC, VUHDO_SPELL_ID.MASS_DISPEL
+	},
+	["SHAMAN"] = {
+		[VUHDO_DEBUFF_TYPE_MAGIC] = { 370, 378773 }, -- VUHDO_SPELL_ID.PURGE, VUHDO_SPELL_ID.GREATER_PURGE
+	},
+	["WARLOCK"] = {
+		[VUHDO_DEBUFF_TYPE_MAGIC] = { 19505 }, -- VUHDO_SPELL_ID.DEVOUR_MAGIC (Felhunter pet)
+	},
+	["DEATHKNIGHT"] = { },
+	["MONK"] = {
+		[VUHDO_DEBUFF_TYPE_ENRAGE] = { 450432 }, -- VUHDO_SPELL_ID.PRESSURE_POINTS
+	},
+	["DEMONHUNTER"] = {
+		[VUHDO_DEBUFF_TYPE_MAGIC] = { 278326 }, -- VUHDO_SPELL_ID.CONSUME_MAGIC
+	},
+	["EVOKER"] = {
+		[VUHDO_DEBUFF_TYPE_ENRAGE] = { 406971 }, -- VUHDO_SPELL_ID.OPPRESSING_ROAR (Overawe talent)
+	},
+};
+
+
+
+--
+VUHDO_INIT_DISPEL_ABILITIES = {
+	["WARRIOR"] = { },
+	["ROGUE"] = { },
+	["HUNTER"] = { },
+	["MAGE"] = {
+		[VUHDO_DEBUFF_TYPE_CURSE] = { 475 }, -- VUHDO_SPELL_ID.REMOVE_CURSE 
+	},
+	["DRUID"] = {
+		[VUHDO_DEBUFF_TYPE_POISON] = { 2782, 88423 }, -- VUHDO_SPELL_ID.REMOVE_CORRUPTION, VUHDO_SPELL_ID.NATURES_CURE
+		[VUHDO_DEBUFF_TYPE_CURSE] = { 2782, 88423 }, -- VUHDO_SPELL_ID.REMOVE_CORRUPTION, VUHDO_SPELL_ID.NATURES_CURE
+		[VUHDO_DEBUFF_TYPE_MAGIC] = { 88423 }, -- VUHDO_SPELL_ID.NATURES_CURE
+	},
+	["PALADIN"] = {
+		[VUHDO_DEBUFF_TYPE_POISON] = { 213644, 393024 }, -- VUHDO_SPELL_ID.CLEANSE_TOXINS, VUHDO_SPELL_ID.IMPROVED_CLEANSE
+		[VUHDO_DEBUFF_TYPE_DISEASE] = { 213644, 393024 }, -- VUHDO_SPELL_ID.CLEANSE_TOXINS, VUHDO_SPELL_ID.IMPROVED_CLEANSE
+		[VUHDO_DEBUFF_TYPE_MAGIC] = { 4987 }, -- VUHDO_SPELL_ID.PALA_CLEANSE
+		[VUHDO_DEBUFF_TYPE_BLEED] = { 1022 }, -- VUHDO_SPELL_ID.BLESSING_OF_PROTECTION
+	},
+	["PRIEST"] = {
+		-- Priest talent 'Improved Purify' (390632) is now needed to dispel 'Disease'
+		[VUHDO_DEBUFF_TYPE_DISEASE] = { 213634, 390632 }, --  VUHDO_SPELL_ID.PURIFY_DISEASE, VUHDO_SPELL_ID.IMPROVED_PURIFY
+		[VUHDO_DEBUFF_TYPE_MAGIC] = { 527 }, -- VUHDO_SPELL_ID.PURIFY
+		-- [VUHDO_DEBUFF_TYPE_MAGIC] = { 527, 32375 }, -- VUHDO_SPELL_ID.PURIFY, VUHDO_SPELL_ID.MASS_DISPEL
+	},
+	["SHAMAN"] = {
+		-- Shaman has two dispel spells with the same name ("Purify Spirit") so need to reference by ID
+		[VUHDO_DEBUFF_TYPE_CURSE] = { 383016, 51886 }, -- VUHDO_SPELL_ID.IMPROVED_PURIFY_SPIRIT, VUHDO_SPELL_ID.CLEANSE_SPIRIT
+		[VUHDO_DEBUFF_TYPE_MAGIC] = { 383016, 77130 }, -- VUHDO_SPELL_ID.IMPROVED_PURIFY_SPIRIT, VUHDO_SPELL_ID.PURIFY_SPIRIT
+		[VUHDO_DEBUFF_TYPE_POISON] = { 383013 }, -- VUHDO_SPELL_ID.POISON_CLEANSING_TOTEM
+	},
+	["WARLOCK"] = {
+		[VUHDO_DEBUFF_TYPE_MAGIC] = { 89808 }, -- VUHDO_SPELL_ID.SINGE_MAGIC (Imp pet)
+	},
+	["DEATHKNIGHT"] = { },
+	["MONK"] = {
+		-- Monk has two dispel spells with the same name ("Detox") so need to reference by ID
+		[VUHDO_DEBUFF_TYPE_POISON] = { 218164, 388874 },
+		[VUHDO_DEBUFF_TYPE_DISEASE] = { 218164, 388874 },
+		[VUHDO_DEBUFF_TYPE_MAGIC] = { 115450 }, -- Now Mistweaver "Detox" only
+	},
+	["DEMONHUNTER"] = { },
+	["EVOKER"] = {
+		-- Evoker 'Expunge' morphs into 'Naturalize' for Preservation spec
+		-- Mapping needed for VUHDO_isSpellKnown() by name so use spell ID to force check by IsSpellKnown()
+		[VUHDO_DEBUFF_TYPE_POISON] = { 360823, 365585, 374251 }, -- VUHDO_SPELL_ID.NATURALIZE, VUHDO_SPELL_ID.EXPUNGE, VUHDO_SPELL_ID.CAUTERIZING_FLAME
+		[VUHDO_DEBUFF_TYPE_MAGIC] = { 360823 }, -- VUHDO_SPELL_ID.NATURALIZE
+		[VUHDO_DEBUFF_TYPE_CURSE] = { 374251 }, -- VUHDO_SPELL_ID.CAUTERIZING_FLAME
+		[VUHDO_DEBUFF_TYPE_DISEASE] = { 374251 }, -- VUHDO_SPELL_ID.CAUTERIZING_FLAME
+		[VUHDO_DEBUFF_TYPE_BLEED] = { 374251 }, -- VUHDO_SPELL_ID.CAUTERIZING_FLAME
+	},
+};
+
+
+
+VUHDO_SPEC_TO_DEBUFF_ABIL = { 
+	[115450] = GetSpellName(115450), -- MW Monk "Detox"
+	[218164] = GetSpellName(218164), -- WW/BM Monk "Detox"
+	[360823] = GetSpellName(360823), -- Preservation Evoker "Naturalize" (morphed "Expunge")
+	[390632] = GetSpellName(527), -- Priest 'Improved Purify' must be mapped to 'Purify'
+	[393024] = GetSpellName(4987), -- Paladin 'Improved Cleanse' must be mapped to 'Cleanse'
+	[388874] = GetSpellName(115450), -- Monk 'Improved Detox' must be mapped to 'Detox'
+	[383016] = GetSpellName(77130), -- Shaman 'Improved Purify Spirit' must be mapped to 'Purify Spirit'
+	[378773] = GetSpellName(370), -- Shaman 'Greater Purge' must be mapped to 'Purge'
+	[450432] = GetSpellName(115078), -- Monk 'Pressure Points' must be mapped to 'Paralysis'
+};

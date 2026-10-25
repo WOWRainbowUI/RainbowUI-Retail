@@ -245,6 +245,10 @@ end
 local tLibSpec = { };
 function VUHDO_initLibSpecialization()
 
+	if VUHDO_FLAVOR_SPEC_SPECIALIZATIONS ~= VUHDO_getFlavorSpecModel() then
+		return;
+	end
+
 	if not VUHDO_LibSpec or not tLibSpec then
 		return;
 	end

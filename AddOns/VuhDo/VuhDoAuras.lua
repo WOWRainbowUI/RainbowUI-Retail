@@ -27,6 +27,7 @@ local VUHDO_AURA_IGNORE_LIST;
 local VUHDO_DEFAULT_AURA_GROUPS;
 local VUHDO_PANEL_MODELS;
 local VUHDO_PANEL_SETUP;
+local VUHDO_DEFAULT_AURA_DEFAULTS;
 local VUHDO_UNIT_BUTTONS_PANEL;
 local VUHDO_RAID;
 local VUHDO_I18N_AURA_GROUP_NAMES;
@@ -90,7 +91,7 @@ local VUHDO_ACTIVE_AURA_FILTERS = VUHDO_ACTIVE_AURA_FILTERS;
 VUHDO_AURA_SPELL_TO_BOUQUETS = VUHDO_AURA_SPELL_TO_BOUQUETS or { };
 local VUHDO_AURA_SPELL_TO_BOUQUETS = VUHDO_AURA_SPELL_TO_BOUQUETS;
 
-VUHDO_AURA_MIGRATION_VERSION = 11;
+VUHDO_AURA_MIGRATION_VERSION = 12;
 local VUHDO_AURA_MIGRATION_VERSION = VUHDO_AURA_MIGRATION_VERSION;
 
 VUHDO_AURA_GROUP_COLOR_OFF = 1;
@@ -261,6 +262,7 @@ do
 		VUHDO_DEFAULT_AURA_GROUPS = _G["VUHDO_DEFAULT_AURA_GROUPS"];
 		VUHDO_PANEL_MODELS = _G["VUHDO_PANEL_MODELS"];
 		VUHDO_PANEL_SETUP = _G["VUHDO_PANEL_SETUP"];
+		VUHDO_DEFAULT_AURA_DEFAULTS = _G["VUHDO_DEFAULT_AURA_DEFAULTS"];
 		VUHDO_UNIT_BUTTONS_PANEL = _G["VUHDO_UNIT_BUTTONS_PANEL"];
 		VUHDO_RAID = _G["VUHDO_RAID"];
 		VUHDO_I18N_AURA_GROUP_NAMES = _G["VUHDO_I18N_AURA_GROUP_NAMES"];
@@ -1728,7 +1730,7 @@ function VUHDO_resolveAuraTriState(anAnchorValue, aFieldName)
 		return tDefaults[aFieldName];
 	end
 
-	return true;
+	return VUHDO_DEFAULT_AURA_DEFAULTS[aFieldName];
 
 end
 
@@ -2801,6 +2803,7 @@ do
 	local tCachedAura;
 	local tSlotData;
 	local tOldSlot;
+	local tEntryCount;
 	function VUHDO_updateListSlotsForAnchor(aUnit, aPanelNum, anAnchorIndex, anAnchorConfig)
 
 		if not aUnit or not aPanelNum or not anAnchorIndex or not anAnchorConfig then
@@ -2905,6 +2908,18 @@ do
 						end
 					end
 				end
+			end
+		end
+
+		tEntryCount = #tEntries;
+
+		for tClearIndex, tClearSlot in pairs(VUHDO_UNIT_AURA_LIST_SLOTS[aUnit][aPanelNum][anAnchorIndex]) do
+			if tClearIndex > tEntryCount then
+				if tClearSlot then
+					sSlotDataPool:release(tClearSlot);
+				end
+
+				VUHDO_UNIT_AURA_LIST_SLOTS[aUnit][aPanelNum][anAnchorIndex][tClearIndex] = nil;
 			end
 		end
 
@@ -3878,6 +3893,42 @@ do
 			tPanelSetup["AURA_DEFAULTS"]["rangeFade"] = true;
 		end
 
+		if tPanelSetup["AURA_DEFAULTS"]["colorOnPandemic"] == nil then
+			tPanelSetup["AURA_DEFAULTS"]["colorOnPandemic"] = false;
+		end
+
+		if tPanelSetup["AURA_DEFAULTS"]["flashOnPandemic"] == nil then
+			tPanelSetup["AURA_DEFAULTS"]["flashOnPandemic"] = false;
+		end
+
+		return;
+
+	end
+
+
+
+	--
+	local tPanelSetup;
+	local tDefaultAuraDefaults;
+	function VUHDO_migrateAuraDefaultsMissingKeys()
+
+		tPanelSetup = _G["VUHDO_PANEL_SETUP"];
+		tDefaultAuraDefaults = _G["VUHDO_DEFAULT_AURA_DEFAULTS"];
+
+		if not tPanelSetup or not tDefaultAuraDefaults then
+			return;
+		end
+
+		if not tPanelSetup["AURA_DEFAULTS"] then
+			tPanelSetup["AURA_DEFAULTS"] = { };
+		end
+
+		for tKey, tDefaultValue in pairs(tDefaultAuraDefaults) do
+			if tPanelSetup["AURA_DEFAULTS"][tKey] == nil then
+				tPanelSetup["AURA_DEFAULTS"][tKey] = tDefaultValue;
+			end
+		end
+
 		return;
 
 	end
@@ -3965,6 +4016,10 @@ do
 
 		if tCurrentMigrationVersion < 11 then
 			VUHDO_migrateAuraIgnoreListInvalidKeys();
+		end
+
+		if tCurrentMigrationVersion < 12 then
+			VUHDO_migrateAuraDefaultsMissingKeys();
 		end
 
 		tPanelSetup["AURA_MIGRATION_VERSION"] = VUHDO_AURA_MIGRATION_VERSION;

@@ -1249,7 +1249,7 @@
 				</Anchors>
 				<Frames>
 
-					<CheckButton name="$parentFadeOnLowTriState" text="VUHDO_I18N_FADE_ON_LOW" inherits="VuhDoTriStateCheckButtonTemplate">
+					<CheckButton name="$parentColorOnPandemicTriState" text="VUHDO_I18N_COLOR_ON_PANDEMIC" inherits="VuhDoTriStateCheckButtonTemplate">
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
@@ -1259,13 +1259,13 @@
 						</Anchors>
 						<Scripts>
 							<OnLoad>
-								VUHDO_panelAurasAnchorControlSetModel(self, "fadeOnLow");
-								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K629);
+								VUHDO_panelAurasAnchorControlSetModel(self, "colorOnPandemic");
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K906);
 							</OnLoad>
 						</Scripts>
 					</CheckButton>
 
-					<CheckButton name="$parentFlashOnLowTriState" text="VUHDO_I18N_FLASH_ON_LOW" inherits="VuhDoTriStateCheckButtonTemplate">
+					<CheckButton name="$parentFlashOnPandemicTriState" text="VUHDO_I18N_FLASH_ON_PANDEMIC" inherits="VuhDoTriStateCheckButtonTemplate">
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
@@ -1275,8 +1275,8 @@
 						</Anchors>
 						<Scripts>
 							<OnLoad>
-								VUHDO_panelAurasAnchorControlSetModel(self, "flashOnLow");
-								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K630);
+								VUHDO_panelAurasAnchorControlSetModel(self, "flashOnPandemic");
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K907);
 							</OnLoad>
 						</Scripts>
 					</CheckButton>

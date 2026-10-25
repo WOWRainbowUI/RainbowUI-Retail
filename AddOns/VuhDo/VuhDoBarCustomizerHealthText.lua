@@ -261,7 +261,7 @@ local tNameText;
 local function VUHDO_buildNameText(aUnit, anInfo, aSetup, aPanelNum, anIsTarget)
 
 	tOwnerInfo = VUHDO_RAID[anInfo["ownerUnit"]];
-	tIndex = anInfo["name"] .. (anInfo["ownerUnit"] or "") .. aPanelNum;
+	tIndex = (VUHDO_getUnitIdentityKey(anInfo) or anInfo["name"] or "") .. (anInfo["ownerUnit"] or "") .. aPanelNum;
 
 	if not sSecretsEnabled and VUHDO_LibNickTag and aSetup["ID_TEXT"]["showNickname"] then
 		tNickname = VUHDO_LibNickTag:GetNickname(anInfo["name"]) or anInfo["name"];

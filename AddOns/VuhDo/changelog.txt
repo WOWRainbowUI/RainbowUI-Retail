@@ -1,3 +1,37 @@
+Version 3.219  
+  
+  
+Known issues:  
+-- Midnight add-on restrictions mean some features are not yet available:  
+--   Overheal text provider and Life Text highlight are not yet working  
+--   Many Hitpoints option (e.g. Show Effective) are not yet working  
+--   Raid Icon bar and text color filtring are not yet working  
+--   Emergency Mode is not yet working  
+--   Incoming Spell Trace (i.e. targeted spells) is not yet working  
+-- Blizzard continues to have a bug that breaks proper spell targeting.  
+--   Under 'Game Menu > Options > Gameplay > Combat' deselect 'Auto Self Cast'  
+--   and set 'Self Cast Key' to 'None'  
+  
+  
+Bugfixes:  
+-- Fixed item mouse bindings after login  
+-- Fixed Buff Watch missing buff bar color target selection  
+-- Fixed header text alignment when panel is horizontal  
+-- Fixed Swiftmendable bouquet  
+-- Fixed Special Dot indicator bar glow  
+  
+  
+Improvements:  
+-- Bump TOC interface for 12.1.5 and 1.60.1  
+-- Added Shaman 'Water Shield' to Buff Watch (Forever)
+-- Added new default aura group 'Priest Weakened Soul' (Forever)  
+-- Added default bouquet 'PW:S & Weakened Soul (Icons)' (Forever)  
+-- Added aura icon flash and color change during pandemic window  
+-- Added bouquet validator 'Statusbar: Power % (Healer Only)'  
+-- Added default bouquet 'Manabars: Power (Healer Only)'  
+  
+  
+--------------------------------------------------------------  
 Version 3.218  
   
   

@@ -1,0 +1,24 @@
+-- VuhDoSecretSpells.lua (Build: 1.60.1.70094, Branch: wow_cn_beta)
+VUHDO_SPELL_CAST_ALWAYS_SECRET = {
+	[402004] = true,
+};
+
+VUHDO_SPELL_CAST_NEVER_SECRET = {
+	[1515] = true,
+};
+
+VUHDO_SPELL_AURA_ALWAYS_SECRET = {
+	[1283894] = true,
+};
+
+VUHDO_SPELL_AURA_NEVER_SECRET = {
+	[1283888] = true,
+};
+
+VUHDO_SPELL_COOLDOWN_ALWAYS_SECRET = {
+	[1283884] = true,
+};
+
+VUHDO_SPELL_COOLDOWN_NEVER_SECRET = {
+	[1283885] = true,
+};

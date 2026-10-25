@@ -55,6 +55,7 @@ local tX, tY
 local tHealthBar;
 local tHeaderText;
 local tIsHorizontal;
+local tTextOffset;
 local tEmpty = { };
 function VUHDO_positionTableHeaders(aPanel, aPanelNum)
 
@@ -100,13 +101,17 @@ function VUHDO_positionTableHeaders(aPanel, aPanelNum)
 		tHeaderText = VUHDO_getHeaderTextId(tHeader);
 		tHeaderText:SetFont(tFont, tTextSize, "OUTLINE");
 
+		VUHDO_customizeHeader(tHeader, aPanelNum, tModel[tCnt]);
+
 		VUHDO_PixelUtil.ClearAllPoints(tHeaderText);
 		tHeaderText:SetJustifyH("CENTER");
 		tHeaderText:SetJustifyV("MIDDLE");
 
 		if tIsHorizontal then
 			VUHDO_PixelUtil.SetSize(tHeaderText, tHeight, 0);
-			VUHDO_PixelUtil.SetPoint(tHeaderText, "CENTER", tHealthBar, "CENTER", -tTextSize * 0.5, 0);
+
+			tTextOffset = -tHeaderText:GetStringHeight() * 0.5;
+			VUHDO_PixelUtil.SetPoint(tHeaderText, "CENTER", tHealthBar, "CENTER", tTextOffset, tTextOffset);
 
 			tHeaderText:SetRotation(sHeaderTextRotation);
 		else
@@ -118,8 +123,6 @@ function VUHDO_positionTableHeaders(aPanel, aPanelNum)
 
 		tX, tY = VUHDO_getHeaderPos(tCnt, aPanelNum);
 		VUHDO_PixelUtil.SetPoint(tHeader, "TOPLEFT", aPanel:GetName(), "TOPLEFT",  tX + tWidth * 0.5 * (1 - tBarWidth), -tY);
-
-		VUHDO_customizeHeader(tHeader, aPanelNum, tModel[tCnt]);
 
 		tHeader:Show();
 	end

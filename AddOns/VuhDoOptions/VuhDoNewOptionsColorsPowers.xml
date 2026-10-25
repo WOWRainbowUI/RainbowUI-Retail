@@ -87,6 +87,7 @@
 								VUHDO_lnfSetModel(self, "VUHDO_POWER_TYPE_COLORS.##6");
 								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_RUNES, VUHDO_I18N_RUNES);
 								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K161);
+								if not VUHDO_flavorHasPowerType(VUHDO_UNIT_POWER_RUNES) then self:Hide(); end
 							</OnLoad>
 						</Scripts>
 					</Frame>
@@ -121,6 +122,7 @@
 								VUHDO_lnfSetModel(self, "VUHDO_POWER_TYPE_COLORS.##8");
 								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_LUNAR_POWER, VUHDO_I18N_LUNAR_POWER);
 								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K560);
+								if not VUHDO_flavorHasPowerType(VUHDO_UNIT_POWER_LUNAR_POWER) then self:Hide(); end
 							</OnLoad>
 						</Scripts>
 					</Frame>
@@ -138,6 +140,7 @@
 								VUHDO_lnfSetModel(self, "VUHDO_POWER_TYPE_COLORS.##11");
 								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_MAELSTROM, VUHDO_I18N_MAELSTROM);
 								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K561);
+								if not VUHDO_flavorHasPowerType(VUHDO_UNIT_POWER_MAELSTROM) then self:Hide(); end
 							</OnLoad>
 						</Scripts>
 					</Frame>
@@ -155,6 +158,7 @@
 								VUHDO_lnfSetModel(self, "VUHDO_POWER_TYPE_COLORS.##13");
 								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_INSANITY, VUHDO_I18N_INSANITY);
 								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K562);
+								if not VUHDO_flavorHasPowerType(VUHDO_UNIT_POWER_INSANITY) then self:Hide(); end
 							</OnLoad>
 						</Scripts>
 					</Frame>
@@ -172,6 +176,7 @@
 								VUHDO_lnfSetModel(self, "VUHDO_POWER_TYPE_COLORS.##17");
 								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_FURY, VUHDO_I18N_FURY);
 								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K563);
+								if not VUHDO_flavorHasPowerType(VUHDO_UNIT_POWER_FURY) then self:Hide(); end
 							</OnLoad>
 						</Scripts>
 					</Frame>
@@ -189,6 +194,7 @@
 								VUHDO_lnfSetModel(self, "VUHDO_POWER_TYPE_COLORS.##18");
 								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_PAIN, VUHDO_I18N_PAIN);
 								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K566);
+								if not VUHDO_flavorHasPowerType(VUHDO_UNIT_POWER_PAIN) then self:Hide(); end
 							</OnLoad>
 						</Scripts>
 					</Frame>

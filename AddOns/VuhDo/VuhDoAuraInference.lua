@@ -8,7 +8,7 @@ local issecretvalue = issecretvalue;
 local GetTime = GetTime;
 
 local UnitIsUnit = UnitIsUnit;
-local GetSpecialization = GetSpecialization;
+local GetSpecialization = C_SpecializationInfo.GetSpecialization;
 local GetSpellTexture = GetSpellTexture or C_Spell.GetSpellTexture;
 local GetUnitAuras = C_UnitAuras and C_UnitAuras.GetUnitAuras;
 local GetAuraDataByAuraInstanceID = C_UnitAuras and C_UnitAuras.GetAuraDataByAuraInstanceID;
@@ -52,96 +52,9 @@ end
 
 
 
-VUHDO_INFERRED_AURA_SYNTHETIC_IDS = {
-	["SHAMAN_RIPTIDE"] = -1001,
-	["EVOKER_ECHO"] = -1002,
-	["PRIEST_ATONEMENT"] = -1003,
-};
-
+local VUHDO_AURA_INFERENCE_CONFIG = VUHDO_AURA_INFERENCE_CONFIG;
+local VUHDO_AURA_INFERENCE_STATE = VUHDO_AURA_INFERENCE_STATE;
 local sSyntheticIdByType = VUHDO_INFERRED_AURA_SYNTHETIC_IDS;
-
-VUHDO_AURA_INFERENCE_CONFIG = {
-	["SHAMAN_RIPTIDE"] = {
-		["spellId"] = 61295,
-		["maxAuras"] = 2,
-		["sortRule"] = Enum.UnitAuraSortRule.ExpirationOnly,
-		["includeSpellIds"] = { },
-		["excludeSpellIds"] = { },
-		["empoweredSpellIds"] = { },
-		["hasExcludeUnit"] = true,
-		["specRequired"] = nil,
-	},
-	["EVOKER_ECHO"] = {
-		["spellId"] = 364343,
-		["maxAuras"] = 3,
-		["sortRule"] = Enum.UnitAuraSortRule.NameOnly,
-		["includeSpellIds"] = {
-			[366155] = true,
-			[357170] = true,
-			[360995] = true,
-		},
-		["excludeSpellIds"] = {
-			[366155] = true,
-			[357170] = true,
-			[360995] = true,
-		},
-		["empoweredSpellIds"] = {
-			[355936] = true,
-			[382614] = true,
-		},
-		["hasExcludeUnit"] = false,
-		["specRequired"] = nil,
-	},
-	["PRIEST_ATONEMENT"] = {
-		["spellId"] = 194384,
-		["maxAuras"] = 1,
-		["sortRule"] = Enum.UnitAuraSortRule.NameOnly,
-		["includeSpellIds"] = {
-			[17] = true,
-			[2061] = true,
-			[47540] = true,
-			[194509] = true,
-			[200829] = true,
-		},
-		["excludeSpellIds"] = { },
-		["empoweredSpellIds"] = { },
-		["hasExcludeUnit"] = false,
-		["specRequired"] = 1,
-	},
-};
-
-VUHDO_AURA_INFERENCE_STATE = {
-	["SHAMAN_RIPTIDE"] = {
-		["activeAuras"] = { },
-		["filteredAuras"] = { },
-		["lastCastTime"] = nil,
-		["excludeUnit"] = {
-			["unit"] = nil,
-			["auraInstanceID"] = nil,
-		},
-		["empoweredPending"] = false,
-	},
-	["EVOKER_ECHO"] = {
-		["activeAuras"] = { },
-		["filteredAuras"] = { },
-		["lastCastTime"] = nil,
-		["excludeUnit"] = {
-			["unit"] = nil,
-			["auraInstanceID"] = nil,
-		},
-		["empoweredPending"] = false,
-	},
-	["PRIEST_ATONEMENT"] = {
-		["activeAuras"] = { },
-		["filteredAuras"] = { },
-		["lastCastTime"] = nil,
-		["excludeUnit"] = {
-			["unit"] = nil,
-			["auraInstanceID"] = nil,
-		},
-		["empoweredPending"] = false,
-	},
-};
 
 VUHDO_INFERRED_AURAS = { };
 
