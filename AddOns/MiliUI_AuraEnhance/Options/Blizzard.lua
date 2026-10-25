@@ -10,7 +10,7 @@ local _, ns = ...
 local L = ns.L
 
 ns.BlizzCategory = ns.RegisterBlizzardCategory{
-    title        = L["MiliUI Aura Enhance"],
+    title        = (L["MiliUI Aura Enhance"]:gsub("^米利的", "")),
     instructions = L["Use /maura to open options"],
     versionText  = L["Version: %s"]:format(ns.VERSION),
     buttonText   = L["Open options"],
