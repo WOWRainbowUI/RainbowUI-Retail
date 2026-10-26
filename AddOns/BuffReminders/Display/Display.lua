@@ -1,4 +1,6 @@
-local _, BR = ...
+local _, ns = ...
+---@class BR
+local BR = ns
 
 -- ============================================================================
 -- TYPE DEFINITIONS
@@ -57,12 +59,22 @@ local _, BR = ...
 ---@field delveFoodOnly? boolean
 ---@field delveFoodTimer? boolean
 ---@field freeConsumableMode? "follow"|"override"
----@field freeConsumableVisibility? table
+---@field freeConsumableVisibility? ContentVisibility
 ---@field healthstoneVisibility? "readyCheck"|"always"|"casterOnly"
----@field consumableRebuffWarning? boolean
----@field consumableRebuffThreshold? number
----@field consumableRebuffColor? number[]
+---@field healthstoneThreshold? number
+---@field healthstoneLowStock? boolean
+---@field soulstoneVisibility? "readyCheck"|"always"|"casterOnly"
+---@field soulstoneHideCooldown? boolean
+---@field soulstonePinnedTarget? string
+---@field repairThreshold? number Durability percent
+---@field repairHideInCombat? boolean
+---@field mageFoodContent? "all"|"dungeon"|"raid"
+---@field feastAtPlayer? boolean
 ---@field consumableDisplayMode? "icon_only"|"sub_icons"|"expanded"
+---@field consumableBadgeOnSubIcons? boolean
+---@field showConsumableTooltips? boolean
+---@field showBuffTooltips? boolean
+---@field rightClickSnooze? boolean
 ---@field consumableTextScale? number
 ---@field hideConsumableLabels? boolean
 ---@field hideLegacyConsumables? boolean
@@ -71,11 +83,17 @@ local _, BR = ...
 ---@field petLabels? boolean
 ---@field petLabelScale? number
 ---@field petSpecIconOnHover? boolean
+---@field petLabelClasses? table<ClassName, boolean>
+---@field useFelDomination? boolean
+---@field warlockDemons? table<string, table<string, boolean>> Content row -> allowed demon keys
+---@field warlockWrongDemon? boolean
 ---@field textPositions? table<string, {zone: string, offsetX: number, offsetY: number}>
 ---@field textSizes? table<string, number>
 
 ---@class CategorySetting
 ---@field position CategoryPosition
+---@field anchorFrame? string Frame name the category anchors to; nil = screen
+---@field anchorPoint? string
 ---@field iconSize? number
 ---@field iconWidth? number
 ---@field textSize? number
@@ -144,11 +162,10 @@ local _, BR = ...
 ---@field consumable CategorySetting
 ---@field utility CategorySetting
 ---@field custom CategorySetting
+---@field loadout CategorySetting
 
 ---@class CategoryFrame: Frame
 ---@field category CategoryName
-
----@alias SplitCategories table<CategoryName, boolean>
 
 ---@class DetachedIconEntry
 ---@field position {x: number, y: number}
@@ -181,6 +198,7 @@ local _, BR = ...
 ---@field isExtraFrame? boolean
 ---@field mainFrame? BuffFrame
 ---@field _br_pet_spell? string             -- Localized spell name for pet click-to-cast
+---@field _br_item? table                   -- Consumable item an expanded extra frame shows
 ---@field _br_pet_spec_icon? number        -- Pet spec ability icon texture for hover swap
 ---@field _br_pet_label_key? string        -- Cache key for pet label updates
 ---@field _br_count_scale? number          -- Font scale the count text was last written with
@@ -188,6 +206,7 @@ local _, BR = ...
 ---@field _br_pet_family_text? FontString  -- Pet spec label below name
 ---@field _br_pet_extra_text? FontString   -- Spirit Beast label below spec
 ---@field _cachedItems? table|false         -- Per-cycle cache for GetConsumableActionItems result
+---@field _sameStatItems? table             -- Reused list for the expiring fan-out (GetSameStatItems)
 
 -- Lua stdlib locals (avoid repeated global lookups in hot paths)
 local floor, max, min = math.floor, math.max, math.min
@@ -352,6 +371,7 @@ local eventFrame -- forward declaration; created later in file
 
 ---@type TestModeData?
 local testModeData = nil
+---@type ClassName?
 local playerClass = nil -- Cached player class, set once on init
 
 -- Dirty flag system: events set dirty=true, OnUpdate checks flag with throttle
@@ -461,14 +481,8 @@ BR.Display = BR.Display or {}
 ---@return boolean
 local function IsCategorySplit(category)
     local db = BR.profile
-    -- Check new location first (categorySettings.{cat}.split)
-    if db.categorySettings and db.categorySettings[category] then
-        if db.categorySettings[category].split ~= nil then
-            return db.categorySettings[category].split == true
-        end
-    end
-    -- Fall back to legacy location (splitCategories.{cat})
-    return db.splitCategories and db.splitCategories[category] == true
+    local catSettings = db.categorySettings and db.categorySettings[category]
+    return catSettings ~= nil and catSettings.split == true
 end
 
 ---Resolve the key detach state is stored under. The options drawer stores
@@ -1849,7 +1863,7 @@ end
 -- Bag items for a consumable frame, memoized for the render cycle. `false` records a
 -- scan that found nothing, so an empty bag never repeats it.
 ---@param frame BuffFrame
----@return table|false items
+---@return table[]|false items
 local function GetCachedItems(frame)
     local items = frame._cachedItems
     if items == nil then
@@ -1857,6 +1871,31 @@ local function GetCachedItems(frame)
         frame._cachedItems = items
     end
     return items
+end
+
+-- items[1] followed by the other bag items that share its stat label, in bag sort
+-- order. An unlabeled item has no "same" variant. The list is reused per frame.
+---@param frame BuffFrame
+---@param items table[]
+---@return table[]
+local function GetSameStatItems(frame, items)
+    local list = frame._sameStatItems
+    if not list then
+        list = {}
+        frame._sameStatItems = list
+    end
+    wipe(list)
+    local first = items[1]
+    list[1] = first
+    local label = first and first.statLabel
+    if label then
+        for i = 2, #items do
+            if items[i].statLabel == label then
+                list[#list + 1] = items[i]
+            end
+        end
+    end
+    return list
 end
 
 -- Drop the memo so the next read rescans the bags.
@@ -2048,9 +2087,10 @@ local function ApplyConsumableDisplayMode(frame, entry, frameList, parentFrame)
         end
     end
 
-    -- The variant icons fan out only when the buff is fully gone. An expiring buff, or
-    -- food that the player eats now, keeps one icon so the row width stays the same.
-    if entry.displayType ~= "text" or entry.isEating then
+    -- Every variant fans out when the buff is fully gone. An expiring buff fans out
+    -- only the other qualities of the stat it refreshes; food being eaten keeps one icon.
+    local expiring = entry.displayType == "expiring"
+    if (entry.displayType ~= "text" and not expiring) or entry.isEating then
         BR.SecureButtons.UpdateConsumableButtons(frame, nil)
         return
     end
@@ -2060,6 +2100,9 @@ local function ApplyConsumableDisplayMode(frame, entry, frameList, parentFrame)
 
     local displayMode = (BR.profile.defaults or {}).consumableDisplayMode or "sub_icons"
     local items = GetCachedItems(frame)
+    if expiring and items then
+        items = GetSameStatItems(frame, items)
+    end
 
     if displayMode == "sub_icons" then
         if testMode and items and #items > 1 then
@@ -2132,12 +2175,16 @@ local function ApplyConsumableDisplayMode(frame, entry, frameList, parentFrame)
         BR.SecureButtons.UpdateConsumableButtons(frame, nil)
         if displayMode == "expanded" and items and #items > 1 then
             local cachedGlow = entry.category
-                    and GetCachedGlowSettings(entry.category, entry.glowKindOverride or "missing")
+                    and GetCachedGlowSettings(
+                        entry.category,
+                        entry.glowKindOverride or (expiring and "expiring" or "missing")
+                    )
                 or nil
             local expandedSize = frame:GetWidth()
             local stackFontSize = BR.SecureButtons.ComputeConsumableFontSize(expandedSize, "stackCount")
             for i = 2, #items do
                 local extra = GetOrCreateExtraFrame(frame, i - 1)
+                extra._br_item = items[i] -- The click overlay uses the item this frame shows.
                 extra:SetParent(parentFrame)
                 extra:SetSize(expandedSize, frame:GetHeight())
                 extra.icon:SetTexture(items[i].icon)
@@ -3308,18 +3355,8 @@ local function SlashHandler(msg)
             end
         end
         BR.Components.RefreshAll()
-    elseif cmd == "debug" then
-        BR.profile.debugMode = not BR.profile.debugMode
-        if BR.profile.debugMode then
-            print("|cff00ccffBuffReminders:|r " .. L["Display.DebugEnabled"])
-        else
-            print("|cff00ccffBuffReminders:|r " .. L["Display.DebugDisabled"])
-        end
     elseif cmd == "runedebug" then
         BR.Display.PrintRuneDebug()
-    elseif cmd == "spelldebug" then
-        local arg = msg:match("^%S+%s+(%S+)")
-        BR.Display.PrintSpellDebug(arg and arg:lower())
     elseif cmd == "secretdebug" then
         local arg = msg:match("^%S+%s+(%S+)")
         BR.Display.PrintSecretDebug(arg)
@@ -3448,7 +3485,7 @@ eventHandlers.PLAYER_ENTERING_WORLD = function()
         C_Timer.After(2, function()
             for _, def in ipairs(SelfBuffs) do
                 if def.key == "burningRush" then
-                    InvalidateBuffIconBySpellID(def.spellID)
+                    InvalidateBuffIconBySpellID(def.spellID --[[@as number]])
                     return
                 end
             end
@@ -3501,7 +3538,7 @@ eventHandlers.ZONE_CHANGED_INDOORS = RefreshRepairAction
 eventHandlers.GROUP_ROSTER_UPDATE = function()
     UpdateAuraEventRegistration()
     SetDirty("group")
-    -- Refresh chat-request macrotext so prefix tracks party↔raid↔instance
+    -- Refresh chat-request macrotext so prefix tracks party<->raid<->instance
     -- transitions. A rebuild in PreClick is too late: the secure dispatcher can
     -- read the old macrotext before the write propagates, and send to the wrong
     -- channel.
@@ -3639,7 +3676,6 @@ eventHandlers.PLAYER_SPECIALIZATION_CHANGED = function(arg1)
 end
 
 eventHandlers.TRAIT_CONFIG_UPDATED = function()
-    BR.Display.LogLoadoutChange()
     BR.SecureButtons.RefreshOverlaySpells()
     SetDirty()
     -- An external loadout addon rebuilds its list after a short delay, so the loadout

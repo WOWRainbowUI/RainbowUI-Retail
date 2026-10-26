@@ -1,4 +1,6 @@
-local _, BR = ...
+local _, ns = ...
+---@class BR
+local BR = ns
 
 -- ============================================================================
 -- GLOW MODULE
@@ -233,7 +235,7 @@ BR.Glow.Types = Types
 
 -- Deferred-dispatch retry: if Glow.Start runs before the host's rect resolves
 -- (the frame is shown, but PositionMainContainer did not anchor it yet), LCG
--- sizes all glow textures to 0×0. Glow.Start stashes the request on the host.
+-- sizes all glow textures to 0x0. Glow.Start stashes the request on the host.
 -- OnSizeChanged then dispatches it when the layout pass settles, with no wait
 -- for the throttled UpdateDisplay tick.
 local function FlushPending(host)

@@ -1,4 +1,6 @@
-local _, BR = ...
+local _, ns = ...
+---@class BR
+local BR = ns
 
 -- ============================================================================
 -- MOVER FRAME SYSTEM
@@ -143,6 +145,7 @@ local function SavePosition(catKey, x, y)
 
     local db = BR.profile
     if not db.categorySettings then
+        ---@diagnostic disable-next-line: missing-fields
         db.categorySettings = {}
     end
     if not db.categorySettings[catKey] then
@@ -958,6 +961,7 @@ local function CreateCoordinatePopup()
         else
             local db = BR.profile
             if not db.categorySettings then
+                ---@diagnostic disable-next-line: missing-fields
                 db.categorySettings = {}
             end
             if not db.categorySettings[catKey] then
@@ -1438,6 +1442,7 @@ SaveDetachedPosition = function(key, x, y)
         db.detachedIcons = {}
     end
     if not db.detachedIcons[key] then
+        ---@diagnostic disable-next-line: missing-fields
         db.detachedIcons[key] = {}
     end
     db.detachedIcons[key].position = { x = x, y = y }

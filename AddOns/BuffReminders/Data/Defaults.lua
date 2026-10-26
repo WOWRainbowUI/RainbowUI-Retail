@@ -1,4 +1,6 @@
-local _, BR = ...
+local _, ns = ...
+---@class BR
+local BR = ns
 
 -- The addon's entire default config. Pure data, exported as BR.defaults - the
 -- single source; read it directly, no module-namespaced alias.
@@ -7,6 +9,69 @@ local _, BR = ...
 -- for opt-in buffs) and resolved at read time by StateHelpers.IsBuffEnabled - no
 -- migration and no per-profile seeding needed for new off-by-default buffs.
 
+---@alias BuffTrackingMode "all"|"my_buffs"|"personal"|"self_only"|"smart"
+
+---@class ExternalsSettings
+---@field useCustomAppearance boolean False = the appearance keys inherit from the global `defaults` (BR.GetExternalSetting)
+---@field position CategoryPosition
+---@field anchorFrame? string Frame name; nil = screen placement, as for the categories
+---@field anchorPoint? string
+---@field iconSize number
+---@field iconWidth? number nil = same as iconSize (square)
+---@field iconZoom number
+---@field borderSize number
+---@field iconAlpha number
+---@field spacing number Absolute px (Blizzard's elementSpacing), not an iconSize multiplier
+---@field durationSize number Countdown text, centered on the icon
+---@field showSwipe boolean Radial sweep that uncovers as the time runs out
+---@field growDirection "LEFT"|"RIGHT"|"UP"|"DOWN" The flow layout has no centered growth
+---@field showTooltips boolean
+---@field entries table<string, true> Tracked keys. Empty = the display is off
+---@field sound? string nil = no sound. Core/Sounds.lua owns the value format
+---@field sounds table<string, string> Per-entry override: nil inherits `sound`
+---@field custom table<string, ExternalCustomEntry> The player's own entries, keyed like the curated ones
+
+---@class BRProfile
+---@field dbVersion? integer
+---@field enabledBuffs table<string, boolean> Explicit user choices only
+---@field loadoutReminders table<string, LoadoutRule>
+---@field customBuffs? table<string, CustomBuff>
+---@field showOnlyInGroup boolean
+---@field hideWhileResting boolean
+---@field hideInCombat boolean
+---@field hideExpiringInCombat boolean
+---@field buffTrackingMode BuffTrackingMode
+---@field outsideInstancesMode BuffTrackingMode|"default"
+---@field combatMode BuffTrackingMode|"default"
+---@field levelingMode BuffTrackingMode|"default"
+---@field hideAllInVehicle boolean
+---@field hideWhileMounted boolean
+---@field hideInLegacyInstances boolean
+---@field hideWhileLeveling boolean
+---@field showMissingCountOnly boolean
+---@field petPassiveOnlyInCombat boolean
+---@field bronzeHideInCombat boolean
+---@field druidIgnoreTravelForm boolean
+---@field optionsPanelZoom number Percent
+---@field showLoginMessages boolean
+---@field requestBuffInChat boolean
+---@field chatRequestCooldown boolean
+---@field chatRequestMessages table<string, string>
+---@field dkRunePreferences table<number, table<string, table<number, boolean>>>
+---@field roguePoisonPreferences table
+---@field minimap table
+---@field externals ExternalsSettings
+---@field defaults DefaultSettings
+---@field categoryVisibility CategoryVisibility
+---@field categorySettings AllCategorySettings
+---@field detachedIcons? DetachedIcons
+---@field buffSounds? table<string, string>
+---@field readyCheckOnlyOverrides? table<string, boolean>
+---@field rememberedConsumables? table<number, table<string, number>> Spec ID -> category -> spell ID
+---@field customAnchorFrames? string[]
+---@field position? CategoryPosition
+
+---@type BRProfile
 BR.defaults = {
     enabledBuffs = {},
     -- User-defined loadout reminders (talent / loadout / equipment-set mismatch),
@@ -61,38 +126,25 @@ BR.defaults = {
     -- not allowed to read. Purely additive schema - DeepCopyDefault seeds it, so
     -- no migration is needed.
     externals = {
-        -- false = the appearance keys below inherit from the global `defaults`
-        -- table (resolved by BR.GetExternalSetting) and their stored values stay
-        -- dormant. Countdown size and direction have no `defaults` counterpart,
-        -- so they always come from this table.
+        -- Countdown size and direction have no `defaults` counterpart, so they
+        -- always come from this table, even while the appearance inherits.
         useCustomAppearance = false,
-        -- anchorFrame/anchorPoint stay nil until the mover popup sets them, and nil
-        -- means screen placement - the same contract the categories use.
         position = { point = "CENTER", x = 0, y = -180 },
         iconSize = 40,
-        -- iconWidth: nil = same as iconSize (square). Set explicitly for non-square icons.
         iconZoom = 0,
         borderSize = 2,
         iconAlpha = 1,
-        spacing = 4, -- absolute px (Blizzard's elementSpacing), not an iconSize multiplier
-        durationSize = 16, -- countdown text, centered on the icon
-        showSwipe = true, -- radial sweep over the icon; it uncovers as the time runs out
-        growDirection = "RIGHT", -- "LEFT", "RIGHT", "UP" or "DOWN"; the flow layout has no centered growth
-        -- Mouse motion on the buttons. The game draws the tooltip, so it names the
-        -- aura the addon cannot read. Off keeps the icons out of the mouse's way.
+        spacing = 4,
+        durationSize = 16,
+        showSwipe = true,
+        growDirection = "RIGHT",
+        -- The game draws the tooltip, so it names the aura the addon cannot read.
+        -- Off keeps the icons out of the mouse's way.
         showTooltips = false,
-        -- The tracked set doubles as the on switch: empty means the display is off.
-        entries = {}, -- [Data/Externals.lua key] = true
-        -- sound: deliberately absent - nil means no sound. One value for every
-        -- tracked external, played by the engine when the aura lands, because no
-        -- Lua code can see that happen. Core/Sounds.lua owns the value format.
-        --
-        -- sounds[key] is the per-entry override: nil inherits `sound`, a value
-        -- replaces it, and the no-sound sentinel silences that entry alone.
+        entries = {},
+        -- The engine plays the sound when the aura lands, because no Lua code can
+        -- see that happen. The no-sound sentinel in `sounds` silences one entry.
         sounds = {},
-        -- The player's own entries, keyed the same way as the curated ones so
-        -- `entries` and `sounds` address both sets.
-        ---@type table<string, ExternalCustomEntry>
         custom = {},
     },
 

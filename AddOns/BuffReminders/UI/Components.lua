@@ -1,4 +1,6 @@
-local _, BR = ...
+local _, ns = ...
+---@class BR
+local BR = ns
 
 -- Shared palette tokens (BR.Colors), unpacked once so the per-widget calls below
 -- avoid re-indexing the palette table on every build.
@@ -206,7 +208,7 @@ local ButtonColors = {
 ---Create a modern flat-style button with dark background and thin border
 ---@param parent Frame
 ---@param text string
----@param onClick function
+---@param onClick? function
 ---@param tooltip? TooltipText Optional tooltip configuration
 ---@param colorOverrides? table Partial color table to override defaults (same keys as ButtonColors)
 ---@return table

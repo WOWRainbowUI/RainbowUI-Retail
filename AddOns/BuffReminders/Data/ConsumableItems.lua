@@ -1,4 +1,6 @@
-local _, BR = ...
+local _, ns = ...
+---@class BR
+local BR = ns
 local L = BR.L
 
 -- Lookup tables of known consumable item IDs, keyed by consumable type.

@@ -1,4 +1,6 @@
-local _, BR = ...
+local _, ns = ...
+---@class BR
+local BR = ns
 
 -- ============================================================================
 -- BUFF PAGE SECTION: Free Consumables (consumable category only)
@@ -32,6 +34,7 @@ local function Build(ctx, layout)
 
     local function EnsureFreeVisibility()
         if not db.defaults then
+            ---@diagnostic disable-next-line: missing-fields
             db.defaults = {}
         end
         if not db.defaults.freeConsumableVisibility then

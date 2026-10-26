@@ -1,4 +1,6 @@
-local _, BR = ...
+local _, ns = ...
+---@class BR
+local BR = ns
 
 -- Maps game events to the caches that each event makes stale, and owns the player flags
 -- (combat, rest, level, vehicle), the context windows (ready check, dungeon and delve
@@ -7,8 +9,10 @@ local _, BR = ...
 -- handler reads fresh values.
 -- RenderRequested asks for the render that a change needs. urgent = true asks for it now.
 
+---@alias CacheId "auraTrackable"|"consumables"|"contentType"|"durability"|"healer"|"item"|"loadout"|"offHand"|"pet"|"petActions"|"repairSource"|"spec"|"spell"|"spellNameMisses"|"spellTextureMisses"|"stance"
+
 ---@class GameContextEventSpec
----@field caches? string[] Cache ids to clear, in order
+---@field caches? CacheId[] Cache ids to clear, in order
 ---@field playerOnly? boolean The event applies only when arg1 is "player"
 ---@field handle? fun(...) Runs after the cache clears, with the event payload
 
@@ -44,7 +48,7 @@ local IsSpellOverlayed = C_SpellActivationOverlay and C_SpellActivationOverlay.I
 
 ---@class GlowRegistryEntry
 ---@field buff table
----@field category string
+---@field category CategoryName
 
 -- Spell IDs whose action-bar overlay glow is up. The overlay events set any spell ID,
 -- so this set does not depend on the registry.
@@ -172,15 +176,19 @@ end
 -- spell and fires again when the talent returns.
 local function PruneGlowingSpells()
     for spellID in pairs(glowingSpells) do
-        if not IsPlayerSpell(spellID) then
+        if not C_SpellBook.IsSpellKnown(spellID) then
             glowingSpells[spellID] = nil
         end
     end
 end
 
+---@type CacheId[]
 local SPELL_SET = { "spell", "pet", "stance", "loadout", "petActions" }
+---@type GameContextEventSpec
 local CONTENT_TYPE = { caches = { "contentType" } }
+---@type GameContextEventSpec
 local HEALER = { caches = { "healer" } }
+---@type GameContextEventSpec
 local STANCE = { caches = { "stance" } }
 
 ---@type table<string, GameContextEventSpec>
@@ -318,11 +326,11 @@ local EVENT_CACHES = {
     },
 }
 
----@type table<string, fun()>
+---@type table<CacheId, fun()>
 local invalidators = {}
 
 ---Bind a cache id to the function that clears the cache.
----@param id string
+---@param id CacheId
 ---@param fn fun()
 function GameContext.RegisterCache(id, fn)
     if invalidators[id] then
@@ -335,7 +343,7 @@ end
 GameContext.RegisterCache("spellNameMisses", BR.ClearSpellNameMisses)
 
 ---Clear one cache. An unknown id is a programming error.
----@param id string
+---@param id CacheId
 function GameContext.Invalidate(id)
     local fn = invalidators[id]
     if not fn then
@@ -344,7 +352,7 @@ function GameContext.Invalidate(id)
     fn()
 end
 
----@param ids string[]
+---@param ids CacheId[]
 local function InvalidateAll(ids)
     for i = 1, #ids do
         GameContext.Invalidate(ids[i])

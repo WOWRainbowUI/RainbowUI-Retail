@@ -1,4 +1,6 @@
-local _, BR = ...
+local _, ns = ...
+---@class BR
+local BR = ns
 
 -- ============================================================================
 -- BUFF ROW FACTORY (shared)
@@ -180,10 +182,11 @@ local function CreateBuffRow(
 
         -- Lay visible glyphs out right-to-left: [sound][pin][new] <link>.
         local sounds = BR.profile.buffSounds
-        local hasSound = sounds and sounds[key] ~= nil
+        local sound = sounds and sounds[key]
+        local hasSound = sound ~= nil
         local hasPin = IsIconDetached(key)
         local isRowNew = BR.Options.WhatsNew.IsItemNew(key)
-        soundGlyph.dynamicDesc = hasSound and BR.Sounds.Label(sounds[key]) or nil
+        soundGlyph.dynamicDesc = sound and BR.Sounds.Label(sound) or nil
 
         local anchor, anchorGap = settingsBtn, GLYPH_TO_LINK_GAP
         for _, g in ipairs({ { newDot, isRowNew }, { pinGlyph, hasPin }, { soundGlyph, hasSound } }) do

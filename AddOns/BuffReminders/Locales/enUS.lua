@@ -1,4 +1,6 @@
-local _, BR = ...
+local _, ns = ...
+---@class BR
+local BR = ns
 
 -- ============================================================================
 -- LOCALIZATION (English - Default)
@@ -312,8 +314,6 @@ english["Display.FramesLocked"] = "Frames locked."
 english["Display.FramesUnlocked"] = "Frames unlocked."
 english["Display.MinimapHidden"] = "Minimap icon hidden."
 english["Display.MinimapShown"] = "Minimap icon shown."
-english["Display.DebugEnabled"] = "Debug mode ENABLED. Run |cFFFFD100/br debug|r again to turn off."
-english["Display.DebugDisabled"] = "Debug mode disabled."
 english["Display.Description"] = "Track missing buffs at a glance."
 english["Display.OpenOptions"] = "Open Options"
 english["Display.SlashCommands"] = "Slash commands: /br, /br lock, /br unlock, /br test, /br minimap, /br snooze"

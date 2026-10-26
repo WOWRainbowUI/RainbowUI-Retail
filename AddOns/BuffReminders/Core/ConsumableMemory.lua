@@ -1,4 +1,6 @@
-local _, BR = ...
+local _, ns = ...
+---@class BR
+local BR = ns
 
 -- ============================================================================
 -- CONSUMABLE MEMORY
@@ -45,7 +47,7 @@ end
 -- ============================================================================
 
 ---Remember a consumable spell for the current spec.
----@param specId number Player's current specialization ID
+---@param specId number? Player's current specialization ID
 ---@param category string Consumable category (e.g., "flask", "food", "weapon")
 ---@param spellID number The spell ID to remember
 ---@param updateOnly? boolean When true, only update an existing entry (never create new spec/category memory)

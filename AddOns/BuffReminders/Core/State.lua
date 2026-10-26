@@ -1,4 +1,6 @@
-local _, BR = ...
+local _, ns = ...
+---@class BR
+local BR = ns
 
 -- ============================================================================
 -- BUFF STATE MODULE
@@ -12,7 +14,7 @@ local _, BR = ...
 
 ---@class BuffStateEntry
 ---@field key string                         -- "intellect", "devotionAura", etc.
----@field category CategoryName              -- "raid", "presence", "targeted", "self", "pet", "consumable", "custom"
+---@field category CategoryName
 ---@field sortOrder number                   -- Position within category for display ordering
 ---@field visible boolean                    -- Should show?
 ---@field displayType "count"|"text"|"expiring"
@@ -34,6 +36,7 @@ local ceil = math.ceil
 local format = string.format
 local tinsert = table.insert
 local tostring = tostring
+local IsSpellKnown = C_SpellBook.IsSpellKnown
 
 -- Reusable single-element buffer to avoid { spellID } allocations in hot loops.
 -- SAFETY: callers must consume the result immediately - the buffer is overwritten on next call.
@@ -277,7 +280,7 @@ local DRUID_TRAVEL_FORM_IDS = {
 ---@class StanceCache
 ---@field wrongStance boolean|nil
 ---@field expectedStanceID number|false|nil     -- false = non-warrior
----@field currentStanceIcon number|string|false|nil  -- false = unstanced
+---@field currentStanceIcon number|false|nil  -- false = unstanced
 ---@field shadowFormActive boolean|nil
 ---@field wrongDruidForm boolean|nil
 ---@field expectedDruidFormID number|false|nil  -- false = non-druid or non-feral/balance
@@ -550,14 +553,14 @@ local function GetPlayerRole()
     return cachedPlayerRole
 end
 
----Check if player knows a spell (cached version of IsPlayerSpell)
+---Check if player knows a spell (cached version of C_SpellBook.IsSpellKnown)
 ---@param spellID number
 ---@return boolean
 local function IsPlayerSpellCached(spellID)
     if cachedSpellKnowledge[spellID] ~= nil then
         return cachedSpellKnowledge[spellID]
     end
-    local knows = IsPlayerSpell(spellID)
+    local knows = IsSpellKnown(spellID)
     cachedSpellKnowledge[spellID] = knows
     return knows
 end
@@ -1624,29 +1627,15 @@ local function ShouldShowTargetedBuff(spellIDs, requiredClass, beneficiaryRole, 
 end
 
 ---Check if player should cast their self buff or weapon imbue (returns true if missing)
----@param spellID SpellID
----@param requiredClass ClassName
----@param enchantID? number For weapon imbues, checks if this enchant is on either weapon
----@param requiresSpell? number Only show if player knows this spell
----@param excludeSpell? number Hide if player knows this spell
----@param buffIdOverride? number|number[] Separate buff ID(s) to check (if different from spellID)
----@param customCheck? fun(): boolean? Custom check function for complex buff logic
----@param requireSpecId? number Only show if player's current spec matches (WoW spec ID)
+---@param buff SelfBuff|CustomBuff
 ---@param skipSpellKnownCheck? boolean Skip the "player knows spell" check (for custom buffs)
----@param requiresBuffWithEnchant? boolean When true, require both enchant AND buff (for Paladin Rites)
 ---@return boolean? Returns nil if player can't/shouldn't use this buff
-local function ShouldShowSelfBuff(
-    spellID,
-    requiredClass,
-    enchantID,
-    requiresSpell,
-    excludeSpell,
-    buffIdOverride,
-    customCheck,
-    requireSpecId,
-    skipSpellKnownCheck,
-    requiresBuffWithEnchant
-)
+local function ShouldShowSelfBuff(buff, skipSpellKnownCheck)
+    local spellID = buff.spellID --[[@as SpellID]]
+    local requiredClass, requireSpecId = buff.class, buff.requireSpecId
+    local enchantID, requiresSpell, excludeSpell = buff.enchantID, buff.requiresSpellID, buff.excludeSpellID
+    local buffIdOverride, customCheck = buff.buffIdOverride, buff.customCheck
+    local requiresBuffWithEnchant = buff.requiresBuffWithEnchant
     if requiredClass and playerClass ~= requiredClass then
         return nil
     end
@@ -2006,8 +1995,11 @@ function BuffState.GetEntry(key)
     return BuffState.entries[key]
 end
 
+---@class VisibleEntryList: { [integer]: BuffStateEntry }
+---@field _sorted? boolean True when the entries are already in sortOrder
+
 ---Pre-built per-category lists of visible entries (populated by Refresh)
----@type table<CategoryName, BuffStateEntry[]>
+---@type table<CategoryName, VisibleEntryList>
 BuffState.visibleByCategory = {}
 
 ---Create or update an entry
@@ -2218,18 +2210,7 @@ local function RefreshSelf(isAuraRestricted, hideExpiring)
                             BR.Icons.ApplyDynamicIcon(entry, buff)
                         end
                     else
-                        local shouldShow = ShouldShowSelfBuff(
-                            buff.spellID,
-                            buff.class,
-                            buff.enchantID,
-                            buff.requiresSpellID,
-                            buff.excludeSpellID,
-                            buff.buffIdOverride,
-                            buff.customCheck,
-                            buff.requireSpecId,
-                            nil, -- skipSpellKnownCheck
-                            buff.requiresBuffWithEnchant
-                        )
+                        local shouldShow = ShouldShowSelfBuff(buff)
                         -- showWhenPresent inverts the logic (e.g., Burning Rush: show when active)
                         local wantPresent = buff.showWhenPresent
                         local show = (wantPresent and shouldShow == false) or (not wantPresent and shouldShow)
@@ -2251,7 +2232,8 @@ local function RefreshSelf(isAuraRestricted, hideExpiring)
                             elseif buff.getExpirationInfo then
                                 remaining, expiringCastID = buff.getExpirationInfo()
                             elseif buff.buffIdOverride or buff.spellID then
-                                _, remaining = UnitHasBuff("player", buff.buffIdOverride or buff.spellID)
+                                _, remaining =
+                                    UnitHasBuff("player", (buff.buffIdOverride or buff.spellID) --[[@as SpellID]])
                             end
                             if TrySetEntryExpiring(entry, remaining, selfThreshold, selfExGlow) then
                                 if expiringCastID then
@@ -2311,9 +2293,7 @@ local function RefreshPresence(db, trackingMode, isAuraRestricted, hideExpiring)
                 HasCasterForBuff(buff.class, buff.levelRequired),
                 buff.castOnOthers
             )
-            local dungeonEntryOk = buff.showOnInstanceEntry
-                and GameContext.IsInDungeonEntry()
-                and (not buff.casterClass or buff.casterClass == playerClass)
+            local dungeonEntryOk = buff.showOnInstanceEntry and GameContext.IsInDungeonEntry()
             local readyCheckOk = not buff.readyCheckOnly or GameContext.IsInReadyCheck()
             -- Soulstone visibility mode overrides readyCheckOnly
             if buff.key == "soulstone" and not readyCheckOk then
@@ -2445,18 +2425,7 @@ local function RefreshPet()
         local settingKey = buff.groupId or buff.key
 
         if IsBuffEnabled(settingKey) and petVisible and not (buff.key == "petPassive" and petPassiveHidden) then
-            local shouldShow = ShouldShowSelfBuff(
-                buff.spellID,
-                buff.class,
-                buff.enchantID,
-                buff.requiresSpellID,
-                buff.excludeSpellID,
-                buff.buffIdOverride,
-                buff.customCheck,
-                buff.requireSpecId,
-                nil, -- skipSpellKnownCheck
-                buff.requiresBuffWithEnchant
-            )
+            local shouldShow = ShouldShowSelfBuff(buff)
             if shouldShow then
                 SetEntryText(entry, buff.overlayText, petMissGlow)
                 BR.Icons.ApplyDynamicIcon(entry, buff)
@@ -2515,8 +2484,8 @@ local function RefreshConsumables(db, trackingMode, isAuraRestricted, hideExpiri
                 end
             end
         else
-            local requiredClass = buff.class or buff.casterClass
-            local hasCaster = not requiredClass or HasCasterForBuff(requiredClass, buff.levelRequired)
+            local requiredClass = buff.casterClass
+            local hasCaster = not requiredClass or HasCasterForBuff(requiredClass)
             local isFreeConsumable = freeVisible and IsFreeConsumable(buff)
             -- Healthstone ready check mode (independent of follow/override content gates)
             local freeReadyCheckOk = true
@@ -2595,12 +2564,11 @@ local function RefreshCustom(isAuraRestricted, hideExpiring)
     local _, customMissGlow = GetCategoryGlowSettings("custom")
     for i, buff in ipairs(CustomBuffs) do
         local entry = GetOrCreateEntry(buff.key, "custom", i)
-        local settingKey = buff.groupId or buff.key
 
         local trackable = IsAuraTrackable(buff)
         local useGlowFallback = isAuraRestricted and not trackable and buff.glowMode ~= "disabled"
         local shouldProcess = (not isAuraRestricted or trackable or useGlowFallback)
-            and IsBuffEnabled(settingKey)
+            and IsBuffEnabled(buff.key)
             and IsCustomBuffVisibleForContent(buff)
 
         if shouldProcess and buff.requireSpellKnown then
@@ -2647,18 +2615,8 @@ local function RefreshCustom(isAuraRestricted, hideExpiring)
                 SetEntryText(entry, buff.overlayText, customMissGlow)
             end
         elseif shouldProcess then
-            local shouldShow = ShouldShowSelfBuff(
-                buff.spellID,
-                buff.class,
-                buff.enchantID,
-                buff.requiresSpellID,
-                buff.excludeSpellID,
-                buff.buffIdOverride,
-                buff.customCheck,
-                buff.requireSpecId,
-                true, -- custom buffs track buffs the player receives, not casts
-                buff.requiresBuffWithEnchant
-            )
+            -- Custom buffs track buffs the player receives, not casts.
+            local shouldShow = ShouldShowSelfBuff(buff, true)
             local wantPresent = buff.showWhenPresent
             local show = (wantPresent and shouldShow == false) or (not wantPresent and shouldShow)
             if show then
@@ -2667,12 +2625,11 @@ local function RefreshCustom(isAuraRestricted, hideExpiring)
                 shouldShow == false
                 and buff.expirationThreshold
                 and buff.expirationThreshold > 0
-                and not buff.enchantID
                 and not hideExpiring
-                and (buff.buffIdOverride or buff.spellID)
+                and buff.spellID
             then
                 -- Buff is present (not missing), check if expiring (per-buff threshold)
-                local _, remaining = UnitHasBuff("player", buff.buffIdOverride or buff.spellID)
+                local _, remaining = UnitHasBuff("player", buff.spellID)
                 TrySetEntryExpiring(entry, remaining, buff.expirationThreshold * 60, true)
             end
         end
@@ -3321,7 +3278,7 @@ function BuffState.GetExpectedWarriorStanceID()
     local specId = GetPlayerSpecId()
     if specId == 73 then
         stanceCache.expectedStanceID = STANCE_DEFENSIVE
-    elseif specId == 72 and IsPlayerSpell(STANCE_BERSERKER) then
+    elseif specId == 72 and IsSpellKnown(STANCE_BERSERKER) then
         stanceCache.expectedStanceID = STANCE_BERSERKER
     else
         stanceCache.expectedStanceID = STANCE_BATTLE
@@ -3330,7 +3287,7 @@ function BuffState.GetExpectedWarriorStanceID()
 end
 
 ---Texture for the warrior's currently active stance, or nil if unstanced. Cached.
----@return number|string|nil
+---@return number?
 function BuffState.GetCurrentWarriorStanceIcon()
     if stanceCache.currentStanceIcon ~= nil then
         return stanceCache.currentStanceIcon or nil

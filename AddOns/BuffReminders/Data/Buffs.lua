@@ -1,4 +1,6 @@
-local _, BR = ...
+local _, ns = ...
+---@class BR
+local BR = ns
 
 local L = BR.L
 
@@ -101,6 +103,7 @@ BR.DK_RUNEFORGES = DK_RUNEFORGES
 ---@field groupOnly? boolean Only show when in a group (hide when solo)
 ---@field suppressedByEntry? string Hide when this entry key is already visible (e.g., self buff covers it)
 ---@field chatRequestable? boolean Offer "request this buff in chat" on click for players who can't provide it
+---@field customCheck? fun(isRestricted?: boolean): boolean?
 
 ---@class TargetedBuff
 ---@field spellID SpellID
@@ -129,6 +132,7 @@ BR.DK_RUNEFORGES = DK_RUNEFORGES
 ---@field defaultEnabled? boolean Ships disabled when false (opt-in); enabled otherwise. Resolved at read time by IsBuffEnabled.
 ---@field enchantID? number
 ---@field requiresBuffWithEnchant? boolean -- When true, require both enchant AND buff to be present (for Paladin Rites)
+---@field getExpirationInfo? fun(): number?, number? -- Remaining seconds and expiring spell ID, for a buff with no single aura
 ---@field castSpellID? number           -- Spell ID used for click-to-cast when different from spellID
 ---@field clickMacro? fun(spellID: number?): string -- Macro text override for click-to-cast, receives castable spell ID
 ---@field buffIdOverride? number|number[]
@@ -170,6 +174,8 @@ BR.DK_RUNEFORGES = DK_RUNEFORGES
 ---@field showOnInstanceEntry? boolean Only show briefly when entering an instance
 ---@field disabledInCompetitivePvP? boolean Unusable in arenas and rated BGs
 ---@field ignoresReadyCheckFilter? boolean Ignore the consumable category ready-check-only filter (still respects content gates)
+---@field noExpirationGlow? boolean
+---@field addedIn? string Version cohort for the what's-new dot
 ---@field chatRequestable? boolean Offer "request this buff in chat" on click for players who can't provide it (e.g. non-warlock requesting a Healthstone)
 
 ---@class BuffGroup
@@ -207,7 +213,7 @@ BR.DK_RUNEFORGES = DK_RUNEFORGES
 ---@field spellID? number                                    -- require == "talent" (talent spell)
 ---@field specID? number                                     -- spec binding: require == "talent" or "loadout"
 ---@field character? string                                  -- character binding ("Name - Realm"): require == "gear" or "loadout"
----@field class? string                                      -- class token ("PALADIN") of the creating character; drives binding-label color
+---@field class? ClassName                                   -- class of the creating character; drives binding-label color
 ---@field loadout? { name: string, configID?: number, source?: "tlex" }  -- require == "loadout"; source == "tlex" for Talent Loadout Ex entries
 ---@field when? LoadoutWhen                    -- content scope + instances; nil = everywhere
 ---@field clickToFix? boolean                 -- click the icon to equip the set / load the loadout / open the talent UI
@@ -468,8 +474,20 @@ BR.REPAIR_SOURCES = {
 ---@field showOnInstanceEntry? boolean  -- Only show briefly on dungeon entry (grouped, non-M+)
 ---@field visibilityCondition? fun(): boolean?
 ---@field customCheck? fun(isRestricted?: boolean): boolean?
+---@field addedIn? string Version cohort for the what's-new dot
 
----@type table<string, RaidBuff[]|PresenceBuff[]|TargetedBuff[]|SelfBuff[]|ConsumableBuff[]|UtilityBuff[]|CustomBuff[]|LoadoutRule[]>
+---@class BuffTables
+---@field raid RaidBuff[]
+---@field presence PresenceBuff[]
+---@field targeted TargetedBuff[]
+---@field self SelfBuff[]
+---@field pet SelfBuff[]
+---@field custom CustomBuff[]
+---@field loadout LoadoutRule[]
+---@field consumable ConsumableBuff[]
+---@field utility UtilityBuff[]
+
+---@type BuffTables
 BR.BUFF_TABLES = {
     ---@type RaidBuff[]
     raid = {

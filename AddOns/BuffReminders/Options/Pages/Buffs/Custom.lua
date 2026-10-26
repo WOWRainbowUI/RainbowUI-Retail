@@ -1,4 +1,6 @@
-local _, BR = ...
+local _, ns = ...
+---@class BR
+local BR = ns
 
 -- ============================================================================
 -- CUSTOM BUFFS PAGE
@@ -48,7 +50,7 @@ local function FormatRestrictions(buff)
     if #parts == 0 then
         return ""
     end
-    return table.concat(parts, " · ")
+    return table.concat(parts, " \194\183 ")
 end
 
 -- Fills one row with the per-buff widgets. The right-side controls are chained:

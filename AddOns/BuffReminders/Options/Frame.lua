@@ -1,4 +1,6 @@
-local _, BR = ...
+local _, ns = ...
+---@class BR
+local BR = ns
 
 -- ============================================================================
 -- OPTIONS PANEL SHELL
@@ -328,7 +330,7 @@ local function CreateOptionsPanel()
 
     local discordSep = panel:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
     discordSep:SetPoint("LEFT", version, "RIGHT", 6, 0)
-    discordSep:SetText("|cff555555·|r")
+    discordSep:SetText("|cff555555\194\183|r")
 
     local discordLink = panel:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
     discordLink:SetPoint("LEFT", discordSep, "RIGHT", 6, 0)
@@ -350,7 +352,7 @@ local function CreateOptionsPanel()
 
     local kofiSep = panel:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
     kofiSep:SetPoint("LEFT", discordLink, "RIGHT", 6, 0)
-    kofiSep:SetText("|cff555555·|r")
+    kofiSep:SetText("|cff555555\194\183|r")
 
     local kofiLink = panel:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
     kofiLink:SetPoint("LEFT", kofiSep, "RIGHT", 6, 0)

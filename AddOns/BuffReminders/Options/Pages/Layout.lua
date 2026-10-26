@@ -1,4 +1,6 @@
-local _, BR = ...
+local _, ns = ...
+---@class BR
+local BR = ns
 
 -- ============================================================================
 -- LAYOUT PAGE
@@ -325,7 +327,7 @@ local function BuildDetachedTab(frame, contentWidth, onResize)
                 local posFS = row:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
                 posFS:SetPoint("LEFT", nameFS, "RIGHT", 8, 0)
                 local pos = detached[key] and detached[key].position
-                posFS:SetText(pos and string.format("%d · %d", pos.x or 0, pos.y or 0) or "")
+                posFS:SetText(pos and string.format("%d \194\183 %d", pos.x or 0, pos.y or 0) or "")
 
                 local returnBtn = CreateButton(row, L["DetachedIcons.Reattach"], function()
                     ReattachIcon(key)

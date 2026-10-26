@@ -1,4 +1,6 @@
-local _, BR = ...
+local _, ns = ...
+---@class BR
+local BR = ns
 
 -- Namespace scaffold for Options/ modules. Must load before any Options/Dialogs/* or
 -- Options/Pages/* file so they can populate their slots.

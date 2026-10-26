@@ -1,4 +1,6 @@
-local _, BR = ...
+local _, ns = ...
+---@class BR
+local BR = ns
 
 -- Restriction predicates measured through C_Secrets. This module predicts
 -- whether a read yields secrets; the BR.Secret helpers in Core.lua verify the

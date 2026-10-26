@@ -1,4 +1,6 @@
-local _, BR = ...
+local _, ns = ...
+---@class BR
+local BR = ns
 
 -- ============================================================================
 -- BUFF PAGE SECTION: Appearance & Glow overrides
@@ -115,6 +117,7 @@ local function Build(ctx, layout)
                 -- not change the display.
                 local effective = GetCategorySettings(category)
                 if not db.categorySettings then
+                    ---@diagnostic disable-next-line: missing-fields
                     db.categorySettings = {}
                 end
                 if not db.categorySettings[category] then
@@ -215,6 +218,7 @@ local function Build(ctx, layout)
                 -- Snapshot the effective glow config (enable flags + style),
                 -- so the override does not change the display.
                 if not db.categorySettings then
+                    ---@diagnostic disable-next-line: missing-fields
                     db.categorySettings = {}
                 end
                 if not db.categorySettings[category] then
