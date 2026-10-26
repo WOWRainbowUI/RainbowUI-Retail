@@ -29,6 +29,7 @@ do
             ['ProfessionMicroButton'] = PROFESSIONS_BUTTON,
             ['PVPMicroButton'] = PLAYER_V_PLAYER,
             ['QuestLogMicroButton'] = QUESTLOG_BUTTON,
+            ['ScribeMicroButton'] = SCRIBE_BUTTON,
             ['SocialsMicroButton'] = SOCIAL_BUTTON,
             ['SpellbookMicroButton'] = SPELLBOOK_ABILITIES_BUTTON,
             ['StoreMicroButton'] = BLIZZARD_STORE,
@@ -120,20 +121,6 @@ function MenuBar:GetDisplayName()
     return L.MenuBarDisplayName
 end
 
-MenuBar:Extend('OnCreate', function(self)
-    self.activeButtons = {}
-end)
-
-MenuBar:Extend('OnAttachButton', function(_, button)
-    button:SetShown(true)
-    button:AttachButton()
-end)
-
-MenuBar:Extend('OnDetachButton', function(_, button)
-    button:SetShown(false)
-    button:DetachButton()
-end)
-
 function MenuBar:GetDefaults()
     if Addon:IsGameType("standard") then
         return {
@@ -156,6 +143,32 @@ function MenuBar:GetDefaults()
     end
 end
 
+MenuBar:Extend('OnCreate', function(self)
+    self.activeButtons = {}
+end)
+
+MenuBar:Extend('OnAttachButton', function(self, container)
+    container:SetShown(true)
+    container:AttachButton()
+    container.button:EnableMouse(not self:GetClickThrough())
+end)
+
+MenuBar:Extend('OnDetachButton', function(_, button)
+    button:SetShown(false)
+    button:DetachButton()
+end)
+
+-- the containers are just placeholders, so apply click through to the contained
+-- micro buttons as well
+function MenuBar:UpdateClickThrough()
+    MenuBar.proto.UpdateClickThrough(self)
+
+    local enableMouse = not self:GetClickThrough()
+    for _, container in pairs(self.buttons) do
+        container.button:EnableMouse(enableMouse)
+    end
+end
+
 function MenuBar:AcquireButton(index)
     return self.activeButtons[index]
 end
@@ -174,6 +187,16 @@ function MenuBar:ReloadButtons()
     end
 
     MenuBar.proto.ReloadButtons(self)
+end
+
+function MenuBar:IsMenuButtonEnabled(container)
+    local key = container.button:GetName()
+    local disabledButtons = self.sets.disabled
+    if disabledButtons and disabledButtons[key] then
+        return false
+    end
+
+    return container:ShouldShow()
 end
 
 function MenuBar:SetEnableMenuButton(container, enabled)
@@ -201,69 +224,42 @@ function MenuBar:SetEnableMenuButton(container, enabled)
     self:ReloadButtons()
 end
 
-function MenuBar:IsMenuButtonEnabled(container)
-    local key = container.button:GetName()
-    local disabledButtons = self.sets.disabled
-    if disabledButtons and disabledButtons[key] then
-        return false
-    end
-
-    return container:ShouldShow()
-end
-
--- exports
-Addon.MenuBar = MenuBar
-
 --------------------------------------------------------------------------------
 -- context menu
 --------------------------------------------------------------------------------
 
-local function Menu_AddDisableMenuButtonsPanel(menu)
-    local L = LibStub('AceLocale-3.0'):GetLocale('Dominos-Config')
+MenuBar.contextMenu = Addon.ButtonBar.contextMenu:Extend {
+    {
+        addPanel = 'Appearance',
+        after = 'General',
 
-    local panel = menu:NewPanel(L.Buttons)
-    local width, height = 0, 0
-    local prev = nil
+        -- which micro buttons to show on the bar
+        controls = function()
+            local controls = {}
 
-    for _, container in ipairs(MicroButtons) do
-        local toggle = panel:NewCheckButton({
-            name = container.displayName,
-
-            get = function()
-                return panel.owner:IsMenuButtonEnabled(container)
-            end,
-
-            set = function(_, enable)
-                panel.owner:SetEnableMenuButton(container, enable)
+            for _, container in ipairs(MicroButtons) do
+                tinsert(controls, {
+                    type = 'check',
+                    name = container.displayName,
+                    available = function()
+                        return container:ShouldShow()
+                    end,
+                    get = function(bar)
+                        return bar:IsMenuButtonEnabled(container)
+                    end,
+                    set = function(bar, enable)
+                        bar:SetEnableMenuButton(container, enable)
+                    end
+                })
             end
-        })
 
-        if prev then
-            toggle:SetPoint('TOPLEFT', prev, 'BOTTOMLEFT', 0, -2)
-        else
-            toggle:SetPoint('TOPLEFT', 0, -2)
+            return controls
         end
+    }
+}
 
-        local bWidth, bHeight = toggle:GetEffectiveSize()
-
-        width = math.max(width, bWidth)
-        height = height + (bHeight + 2)
-
-        prev = toggle
-    end
-
-    panel.width = width
-    panel.height = height
-
-    return panel
-end
-
-function MenuBar:OnCreateMenu(menu)
-    menu:AddLayoutPanel()
-    Menu_AddDisableMenuButtonsPanel(menu)
-    menu:AddFadingPanel()
-    menu:AddAdvancedPanel()
-end
+-- exports
+Addon.MenuBar = MenuBar
 
 --------------------------------------------------------------------------------
 -- module
@@ -285,6 +281,10 @@ end
 function MenuBarModule:AttachButtons()
     for _, container in ipairs(MicroButtons) do
         container:AttachButton()
+    end
+
+    if self.bar then
+        self.bar:UpdateClickThrough()
     end
 end
 
@@ -330,10 +330,6 @@ function MenuBarModule:OnFirstLoad()
         self:RegisterEvent('PET_BATTLE_CLOSE', 'AttachButtons')
     end
 
-    if MicroMenu:GetParent() == MicroMenuContainer then
-        self:AttachButtons()
-    end
-
     if MicroMenu.UpdateHelpTicketButtonAnchor then
         local function repositionHelpdeskTicketButton()
             local bar = self.bar
@@ -351,9 +347,9 @@ function MenuBarModule:OnFirstLoad()
         repositionHelpdeskTicketButton()
     end
 
-    -- a consistent bug in classic era, AchievementFrameAchievements_OnEvent
+    -- a consistent bug in classic clients, AchievementFrameAchievements_OnEvent
     -- tries to call a function that does not exist
-    if Addon:IsGameType('cata') and AchievementMicroButton_Update == nil then
+    if AchievementMicroButton_Update == nil and not Addon:IsGameType("standard", "forever") then
         AchievementMicroButton_Update = function() end
     end
 end

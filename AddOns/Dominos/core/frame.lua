@@ -135,7 +135,8 @@ end
 function Frame:Free(deleteSettings)
     active[self.id] = nil
 
-    UnregisterStateDriver(self, 'display', 'show')
+    UnregisterStateDriver(self, 'display')
+    UnregisterStateDriver(self, 'userDisplay')
 
     Addon.FadeManager:Remove(self)
 
@@ -201,7 +202,6 @@ function Frame:LoadSettings()
              or Addon:SetFrameSets(self.id, self:GetDefaults())
 
     self:UpdateDisplayLayer()
-    self:UpdateDisplayLevel()
     self:RestorePosition()
     self:RestoreAnchor()
 
@@ -370,6 +370,22 @@ function Frame:GetFadeOutDuration()
 end
 
 --------------------------------------------------------------------------------
+-- Mouseover
+--------------------------------------------------------------------------------
+
+function Frame:UpdateWatched()
+    local watch = self:FrameIsShown()
+              and self:GetFadeMultiplier() < 1
+              and not (Addon:IsLinkedOpacityEnabled() and self:IsAnchored())
+
+    if watch then
+        Addon.FadeManager:Add(self)
+    else
+        Addon.FadeManager:Remove(self)
+    end
+end
+
+--------------------------------------------------------------------------------
 -- Fade Out Timing
 --------------------------------------------------------------------------------
 
@@ -411,19 +427,19 @@ end
 --------------------------------------------------------------------------------
 
 local function isDescendant(frame, ancestor)
-    if frame == nil then
-        return false
+    while frame do
+        if frame == ancestor then
+            return true
+        end
+
+        if frame:IsForbidden() then
+            return false
+        end
+
+        frame = frame:GetParent()
     end
 
-    if frame == ancestor then
-        return true
-    end
-
-    if frame:IsForbidden() then
-        return false
-    end
-
-    return isDescendant(frame:GetParent(), ancestor)
+    return false
 end
 
 local function isFlyoutFocus(flyout, owner)
@@ -434,15 +450,12 @@ local function isFlyoutFocus(flyout, owner)
     return false
 end
 
-local isFocus
-if type (GetMouseFocus) == "function" then
-    isFocus = function(frame)
-        if frame:IsForbidden() then
-            return false
-        end
+local function isFocus(frame)
+    if frame:IsForbidden() then
+        return false
+    end
 
-        local focus = GetMouseFocus()
-
+    for _, focus in ipairs(GetMouseFoci()) do
         -- not focused on a particular frame, check to see if the mouse is over
         -- either the frame itself, or a flyout owned by the frame
         if focus == WorldFrame then
@@ -459,41 +472,14 @@ if type (GetMouseFocus) == "function" then
             end
         end
 
-        return focus and isDescendant(focus, frame)
-    end
-else
-    isFocus = function(frame)
-        if frame:IsForbidden() then
-            return false
+        if isDescendant(focus, frame) then
+            return true
         end
-
-        for _, focus in ipairs(GetMouseFoci()) do
-            -- not focused on a particular frame, check to see if the mouse is over
-            -- either the frame itself, or a flyout owned by the frame
-            if focus == WorldFrame then
-                if frame:IsMouseOver(1, -1, -1, 1) then
-                    return true
-                end
-
-                if isFlyoutFocus(_G.SpellFlyout, frame) then
-                    return true
-                end
-
-                if isFlyoutFocus(Addon.SpellFlyout, frame) then
-                    return true
-                end
-            end
-
-            if isDescendant(focus, frame) then
-                return true
-            end
-        end
-
-        return false
     end
+
+    return false
 end
 
--- returns all frames docked to the given frame
 function Frame:IsFocus()
     return isFocus(self) or (Addon:IsLinkedOpacityEnabled() and self:IfAnchored('IsFocus'))
 end
@@ -612,8 +598,12 @@ function Frame:UpdateDisplayConditions()
         if not self.needsDisplayConditionUpdate then
             self.needsDisplayConditionUpdate = true
             EventUtil.RegisterOnceFrameEventAndCallback("PLAYER_REGEN_ENABLED", function()
-                self:UpdateDisplayConditions()
                 self.needsDisplayConditionUpdate = nil
+
+                -- the frame may have been freed while we were waiting
+                if active[self.id] == self then
+                    self:UpdateDisplayConditions()
+                end
             end)
         end
     else
@@ -675,7 +665,7 @@ end
 
 function Frame:SavePosition(point, relPoint, x, y)
     if point == nil then
-        error('Usage: Frame:SavePosition(point, [relPoint, x, y]', 2)
+        error('Usage: Frame:SavePosition(point, [relPoint, x, y])', 2)
     end
 
     if relPoint == point then
@@ -710,7 +700,7 @@ function Frame:GetSavedPosition()
     local x = sets.x or 0
     local y = sets.y or 0
 
-    return point, relPoint,x, y
+    return point, relPoint, x, y
 end
 
 function Frame:SaveRelativePosition()
@@ -744,7 +734,7 @@ end
 
 function Frame:SaveAnchor(relFrame, point, relPoint, x, y)
     if relFrame == nil or point == nil then
-        error('Usage: Frame:SaveAnchor(relFrame, point, [relPoint, x, y]', 2)
+        error('Usage: Frame:SaveAnchor(relFrame, point, [relPoint, x, y])', 2)
     end
 
     if relFrame == self then
@@ -752,7 +742,7 @@ function Frame:SaveAnchor(relFrame, point, relPoint, x, y)
     end
 
     local relFrameGroup, relFrameId = FlyPaper.GetFrameInfo(relFrame)
-    if relFrame == nil then
+    if relFrameId == nil then
         error('Frame is not registered with FlyPaper', 2)
     end
 
@@ -975,34 +965,74 @@ end
 -- Context Menus
 --------------------------------------------------------------------------------
 
-function Frame:CreateMenu()
-    local menu = Addon:NewMenu()
-
-    if menu then
-        self:OnCreateMenu(menu)
-        return menu
-    end
+-- the questions the context menu asks about a bar
+function Frame:CanClickThrough()
+    return false
 end
 
-function Frame:OnCreateMenu(menu)
-    menu:AddBasicLayoutPanel()
-    menu:AddFadingPanel()
-    menu:AddAdvancedPanel(true)
+-- bars that only show when the game has something for them to show don't offer
+-- show states
+function Frame:CanSetShowStates()
+    return true
 end
+
+function Frame:CanShowInOverrideUI()
+    return Addon:IsGameType('standard', 'mists', 'forever')
+end
+
+function Frame:CanShowInPetBattleUI()
+    return self:CanShowInOverrideUI() and not Addon:IsGameType('forever')
+end
+
+Frame.contextMenu = Addon.ContextMenu {
+    {
+        id = 'General',
+        controls = {
+            'PaddingSlider',
+            'ScaleSlider',
+            'OpacitySlider'
+        }
+    },
+    {
+        id = 'Visibility',
+        controls = {
+            {
+                type = 'header',
+                name = 'ShowStates',
+                available = 'CanSetShowStates'
+            },
+            'ShowPresetDropdown',
+            'ShowStatesText',
+            {
+                type = 'header',
+                name = 'MouseoverFading'
+            },
+            'FadedOpacitySlider',
+            'FadeInDelaySlider',
+            'FadeInTimeSlider',
+            'FadeOutDelaySlider',
+            'FadeOutTimeSlider'
+        }
+    },
+    {
+        id = 'Advanced',
+        controls = {
+            {
+                type = 'header',
+                name = 'Behavior'
+            },
+            'ClickThroughCheck',
+            'ShowInOverrideUICheck',
+            'ShowInPetBattleUICheck',
+            'DrawOrderHeader',
+            'FrameStrataDropdown',
+            'FrameLevelSlider'
+        }
+    }
+}
 
 function Frame:ShowMenu()
-    local menu = self.menu
-    if not menu then
-        menu = self:CreateMenu()
-        self.menu = menu
-    end
-
-    if menu then
-        menu:Hide()
-        menu:SetOwner(self)
-        menu:ShowPanel(LibStub('AceLocale-3.0'):GetLocale('Dominos-Config').Layout)
-        menu:Show()
-    end
+    Addon:ShowContextMenu(self)
 end
 
 --------------------------------------------------------------------------------
@@ -1049,22 +1079,6 @@ function Frame:UpdateDisplayLevel()
 	self:SetFrameLevel(level)
 
     fireBarCallback(self, 'BAR_DISPLAY_LEVEL_UPDATED', level)
-end
-
---------------------------------------------------------------------------------
--- Mouseover
---------------------------------------------------------------------------------
-
-function Frame:UpdateWatched()
-    local watch = self:FrameIsShown()
-              and self:GetFadeMultiplier() < 1
-              and not (Addon:IsLinkedOpacityEnabled() and self:IsAnchored())
-
-    if watch then
-        Addon.FadeManager:Add(self)
-    else
-        Addon.FadeManager:Remove(self)
-    end
 end
 
 --------------------------------------------------------------------------------
