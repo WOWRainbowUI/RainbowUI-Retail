@@ -26,10 +26,8 @@ ButtonBar:Extend(
     end
 )
 
-function ButtonBar:OnCreateMenu(menu)
-    menu:AddLayoutPanel()
-    menu:AddFadingPanel()
-    menu:AddAdvancedPanel()
+function ButtonBar:CanClickThrough()
+    return true
 end
 
 function ButtonBar:AcquireButton(index)
@@ -89,6 +87,10 @@ function ButtonBar:ReloadButtons()
     self:Layout()
 end
 
+function ButtonBar:NumButtons()
+    return self.sets.numButtons or 0
+end
+
 function ButtonBar:SetNumButtons(numButtons)
     self.sets.numButtons = numButtons or 0
 
@@ -110,8 +112,23 @@ function ButtonBar:UpdateNumButtons()
     self:Layout()
 end
 
-function ButtonBar:NumButtons()
-    return self.sets.numButtons or 0
+-- the most buttons the bar can have. bars that can have more buttons than they
+-- have now override this
+function ButtonBar:MaxLength()
+    return math.max(1, self:NumButtons())
+end
+
+-- the most columns the bar can show right now, which is one per button
+function ButtonBar:MaxColumns()
+    return math.max(1, self:NumButtons())
+end
+
+-- a stored column count can be more than the bar has buttons now, so show no
+-- more than it can use, and keep the stored value for when the bar grows again
+function ButtonBar:NumColumns()
+    local numButtons = self:NumButtons()
+
+    return math.min(self.sets.columns or numButtons, numButtons)
 end
 
 function ButtonBar:SetColumns(columns)
@@ -119,8 +136,8 @@ function ButtonBar:SetColumns(columns)
     self:Layout()
 end
 
-function ButtonBar:NumColumns()
-    return self.sets.columns or self:NumButtons()
+function ButtonBar:GetSpacing()
+    return self.sets.spacing or 0
 end
 
 function ButtonBar:SetSpacing(spacing)
@@ -128,8 +145,8 @@ function ButtonBar:SetSpacing(spacing)
     self:Layout()
 end
 
-function ButtonBar:GetSpacing()
-    return self.sets.spacing or 0
+function ButtonBar:GetRowOffset()
+    return self.sets.rowOffset or 0
 end
 
 function ButtonBar:SetRowOffset(rowOffset)
@@ -137,8 +154,13 @@ function ButtonBar:SetRowOffset(rowOffset)
     self:Layout()
 end
 
-function ButtonBar:GetRowOffset()
-    return self.sets.rowOffset or 0
+-- how far rows can be offset or spaced, in a button's width and height
+function ButtonBar:GetRowOffsetLimit()
+    return Round(ActionButton1:GetWidth()) + self:GetSpacing()
+end
+
+function ButtonBar:GetRowSpacing()
+    return self.sets.rowSpacing or 0
 end
 
 function ButtonBar:SetRowSpacing(rowSpacing)
@@ -146,12 +168,16 @@ function ButtonBar:SetRowSpacing(rowSpacing)
     self:Layout()
 end
 
-function ButtonBar:GetRowSpacing()
-    return self.sets.rowSpacing or 0
+function ButtonBar:GetRowSpacingLimit()
+    return Round(ActionButton1:GetHeight()) + self:GetSpacing()
 end
 
--- the wackiness here is for backward compaitbility reasons, since I did not
+-- the wackiness here is for backward compatibility reasons, since I did not
 -- implement true defaults
+function ButtonBar:GetLeftToRight()
+    return not self.sets.isRightToLeft
+end
+
 function ButtonBar:SetLeftToRight(isLeftToRight)
     local isRightToLeft = not isLeftToRight
 
@@ -159,8 +185,8 @@ function ButtonBar:SetLeftToRight(isLeftToRight)
     self:Layout()
 end
 
-function ButtonBar:GetLeftToRight()
-    return not self.sets.isRightToLeft
+function ButtonBar:GetTopToBottom()
+    return not self.sets.isBottomToTop
 end
 
 function ButtonBar:SetTopToBottom(isTopToBottom)
@@ -168,10 +194,6 @@ function ButtonBar:SetTopToBottom(isTopToBottom)
 
     self.sets.isBottomToTop = isBottomToTop and true or nil
     self:Layout()
-end
-
-function ButtonBar:GetTopToBottom()
-    return not self.sets.isBottomToTop
 end
 
 function ButtonBar:GetButtonInsets()
@@ -212,8 +234,8 @@ function ButtonBar:Layout()
         return
     end
 
-    local cols = min(self:NumColumns(), numButtons)
-    local rows = ceil(numButtons / cols)
+    local cols = Clamp(self:NumColumns(), 1, numButtons)
+    local rows = math.ceil(numButtons / cols)
 
     local isLeftToRight = self:GetLeftToRight()
     local isTopToBottom = self:GetTopToBottom()
@@ -235,7 +257,7 @@ function ButtonBar:Layout()
     for i = 1, numButtons do
         local button = self.buttons[i]
 
-        local row = floor((i - 1) / cols)
+        local row = math.floor((i - 1) / cols)
         if not isTopToBottom then
             row = rows - (row + 1)
         end
@@ -266,14 +288,10 @@ function ButtonBar:Layout()
 end
 
 function ButtonBar:UpdateClickThrough()
-    local isClickThroughEnabled = self:GetClickThrough()
+    local enableMouse = not self:GetClickThrough()
 
     for _, button in pairs(self.buttons) do
-        if isClickThroughEnabled then
-            button:EnableMouse(false)
-        else
-            button:EnableMouse(true)
-        end
+        button:EnableMouse(enableMouse)
     end
 end
 
@@ -292,6 +310,30 @@ function ButtonBar:ForButtons(methodOrFunc, ...)
         end
     end
 end
+
+ButtonBar.contextMenu = Addon.Frame.contextMenu:Extend {
+    {
+        insert = 'General',
+        at = 'start',
+        controls = {
+            'ColumnsSlider',
+            'SpacingSlider',
+            'RowOffsetSlider',
+            'RowSpacingSlider'
+        }
+    },
+    {
+        insert = 'Advanced',
+        before = 'DrawOrderHeader',
+        controls = {
+            {
+                type = 'header',
+                name = 'Layout'
+            },
+            'LayoutDirectionDropdown'
+        }
+    }
+}
 
 -- exports
 Addon.ButtonBar = ButtonBar

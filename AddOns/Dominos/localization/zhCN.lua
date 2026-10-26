@@ -1,0 +1,62 @@
+﻿--[[
+	Localization_zhCN.lua
+	2008/12/4 Modified by xuxianhe@gmail.com
+    Sep 9. 2012     yaroot##gmail#com
+--]]
+
+local AddonName = ...
+local L = LibStub('AceLocale-3.0'):NewLocale(AddonName, 'zhCN')
+if not L then return end
+
+L.AlertsBarDisplayName = "警报"
+L.AvailableProfiles = '可用配置'
+L.BarDisplayName = "%s 条"
+L.BindingEnterTip = '<Shift+左键> 进入绑定模式'
+L.BindingExitTip = '<Shift+左键> 退出绑定模式'
+L.CantDeleteCurrentProfile = '不能删除当前正在使用的配置'
+L.ConfigDesc = '设置模式开关'
+L.ConfigEnterTip = '<左键> 进入设置模式'
+L.ConfigExitTip = '<左键> 退出设置模式'
+L.ConfigMode = '设置模式'
+L.ConfigModeExit = '退出设置模式'
+L.ConfigModeHelp = '<拖动> 移动技能条(按住Alt键可以不粘附)。\n<右键> 进入设置。\n<中键> 或 <Shift+右键> 设置是否显示。'
+L.CopyDesc = '从 <profile> 复制设置'
+L.DeleteDesc = '删除 <profile>'
+L.ExtraBarDescription = "显示区域或遭遇战的特殊技能"
+L.Hidden = "隐藏"
+L.HideBar = '<中键或者Shift+右键> 隐藏'
+L.HideFramesDesc = '隐藏 <frameList>'
+L.InvalidProfile = '无效的配置 "%s"'
+L.KeyboardMovementTip = "使用方向键调整位置。"
+L.ListDesc = '列出所有配置'
+L.MouseMovementTip = '用左键拖动移动。'
+L.NewPlayer = '建立新角色配置 %s'
+L.PrintVersionDesc = '显示当前版本'
+L.ProfileCopied = '已复制配置"%s"的设置到当前配置'
+L.ProfileCreated = '建立新配置 "%s"'
+L.ProfileDeleted = '删除配置 "%s"'
+L.ProfileLoaded = '配置设置为 "%s"'
+L.ProfileReset = '重置配置 "%s"'
+L.QueueStatusBarDisplayName = "任务状态条"
+L.ResetDesc = '返回默认设置'
+L.RollBarDisplayName = "Rolls"
+L.SaveDesc = '保存当前配置为 <profile>'
+L.SetAlpha = '<滚轮> 设置透明度 (|cffffffff%d|r)'
+L.SetAlphaDesc = '透明度 <frameList>'
+L.SetColsDesc = '列 <frameList>'
+L.SetDesc = '配置切换为 <profile>'
+L.SetFadeDesc = '遮罩透明度 <frameList>'
+L.SetPadDesc = '填充 <frameList>'
+L.SetScaleDesc = '缩放 <frameList>'
+L.SetSpacingDesc = '间隔 <frameList>'
+L.ShowBar = '<中键或者Shift+右键> 显示'
+L.ShowConfig = '<右键> 设置'
+L.ShowFramesDesc = '显示 <frameList>'
+L.Shown = "显示"
+L.ShowOptionsDesc = '显示设置菜单'
+L.ShowOptionsTip = '<右键> 显示设置菜单'
+L.TipRollBar = '在团队中显示物品掷点面板'
+L.TipVehicleBar = [[显示瞄准和离开载具的控制按钮.\n其他载具按钮将在心灵控制条上显示.]]
+L.ToggleFramesDesc = '开关 <frameList>'
+L.Updated = '升级到 v%s'
+L.WrongBuildWarning = "You're running a %s version for %s on a %s server. Things may not work"

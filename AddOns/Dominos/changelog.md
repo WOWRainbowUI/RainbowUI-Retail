@@ -1,5 +1,12 @@
 # Dominos Changelog
 
+## 11.5.0
+
+* Rebuilt and reorganized all bar context menus.
+* Show States now have a presets dropdown.
+* Progress Bar and Cast Bar width/height sliders are now in pixels.
+* Updated TOCs for 12.1.7
+
 ## 11.4.5
 
 * Fix a typo causing an error on mouseover of fully transparent action bars

@@ -126,6 +126,16 @@ function DominosStanceBar:UpdateActions()
 end
 
 -- binding text
+function DominosStanceBar:ShowingBindingText()
+    local result = self.sets.showBindingText
+
+    if result == nil then
+        result = Addon.db.profile.showBindingText
+    end
+
+    return result
+end
+
 function DominosStanceBar:SetShowBindingText(show)
     show = show and true
 
@@ -140,36 +150,20 @@ function DominosStanceBar:SetShowBindingText(show)
     end
 end
 
-function DominosStanceBar:ShowingBindingText()
-    local result = self.sets.showBindingText
-
-    if result == nil then
-        result = Addon.db.profile.showBindingText
-    end
-
-    return result
-end
-
-function DominosStanceBar:OnCreateMenu(menu)
-    local L = LibStub('AceLocale-3.0'):GetLocale('Dominos-Config')
-
-    local layoutPanel = menu:NewPanel(L.Layout)
-
-    layoutPanel:NewCheckButton {
-        name = L.ShowBindingText,
-        get = function()
-            return layoutPanel.owner:ShowingBindingText()
-        end,
-        set = function(_, enable)
-            layoutPanel.owner:SetShowBindingText(enable)
-        end
+DominosStanceBar.contextMenu = Addon.ButtonBar.contextMenu:Extend {
+    {
+        insert = 'General',
+        at = 'start',
+        controls = {
+            {
+                type = 'check',
+                name = 'ShowBindingText',
+                get = 'ShowingBindingText',
+                set = 'SetShowBindingText'
+            }
+        }
     }
-
-    layoutPanel:AddLayoutOptions()
-
-    menu:AddFadingPanel()
-    menu:AddAdvancedPanel()
-end
+}
 
 -- export
 Addon.StanceBar = DominosStanceBar

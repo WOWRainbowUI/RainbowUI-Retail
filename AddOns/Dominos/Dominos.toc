@@ -1,19 +1,20 @@
-## Interface: 120105, 120100, 50504, 20506, 16001, 11509
+## Interface: 120107, 120105, 50504, 20506, 16001, 11509
 ## Title: Dominos
 ## Notes: A main actionbar replacement
 ## Notes-zhCN: 一种动作条替换方案
 ## Author: Tuller
 ## Category: Action Bars
-## Version: 11.4.5
-## X-GameType: [Game]
+## Version: 11.5.0
 ## SavedVariables: DominosDB
 ## OptionalDeps: Ace3, LibKeyBound-1.0, LibSharedMedia-3.0, Masque, FlyPaper, LibDualSpec-1.0
 ## IconTexture: Interface/AddOns/Dominos/Dominos
 # stuff required for the addon to work
 embeds.xml
-localization.xml
+localization\default.lua
+localization\[TextLocale].lua
 Dominos.lua
 core\helpers.lua
+core\contextMenu.lua
 core\barStates\module.lua
 core\barStates\Common.lua
 core\barStates\[Game].lua

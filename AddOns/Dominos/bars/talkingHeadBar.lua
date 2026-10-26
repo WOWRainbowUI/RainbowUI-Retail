@@ -18,11 +18,9 @@ function TalkingHeadBar:New()
     return TalkingHeadBar.proto.New(self, 'talk')
 end
 
-TalkingHeadBar:Extend(
-    'OnAcquire', function(self)
-    self:Layout()
+function TalkingHeadBar:GetDisplayName()
+    return L.TalkingHeadBarDisplayName
 end
-)
 
 function TalkingHeadBar:GetDefaults()
     return {
@@ -35,9 +33,11 @@ function TalkingHeadBar:GetDefaults()
     }
 end
 
-function TalkingHeadBar:GetDisplayName()
-    return L.TalkingHeadBarDisplayName
+TalkingHeadBar:Extend(
+    'OnAcquire', function(self)
+    self:Layout()
 end
+)
 
 function TalkingHeadBar:Layout()
     self:RepositionTalkingHeadFrame()
@@ -53,27 +53,8 @@ function TalkingHeadBar:RepositionTalkingHeadFrame()
     TalkingHeadFrame:SetParent(self)
 end
 
-function TalkingHeadBar:OnCreateMenu(menu)
-    self:AddLayoutPanel(menu)
-    menu:AddFadingPanel()
-    menu:AddAdvancedPanel(true)
-end
-
-function TalkingHeadBar:AddLayoutPanel(menu)
-    local l = LibStub('AceLocale-3.0'):GetLocale('Dominos-Config')
-
-    local panel = menu:NewPanel(l.Layout)
-
-    panel.muteButton = panel:NewCheckButton
-    {
-        name = _G.MUTE,
-        get = function() return panel.owner:MuteSounds() end,
-        set = function(_, enable) panel.owner:SetMuteSounds(enable) end
-    }
-
-    panel:AddBasicLayoutOptions()
-
-    return panel
+function TalkingHeadBar:MuteSounds()
+    return self.sets.muteSounds and true
 end
 
 function TalkingHeadBar:SetMuteSounds(enable)
@@ -86,9 +67,20 @@ function TalkingHeadBar:SetMuteSounds(enable)
     end
 end
 
-function TalkingHeadBar:MuteSounds()
-    return self.sets.muteSounds and true
-end
+TalkingHeadBar.contextMenu = Addon.Frame.contextMenu:Extend {
+    {
+        insert = 'General',
+        at = 'start',
+        controls = {
+            {
+                type = 'check',
+                name = _G.MUTE,
+                get = 'MuteSounds',
+                set = 'SetMuteSounds'
+            }
+        }
+    }
+}
 
 -- module
 local TalkingHeadBarModule = Addon:NewModule('TalkingHeadBar')
@@ -113,7 +105,7 @@ function TalkingHeadBarModule:OnFirstLoad()
     TalkingHeadFrame:SetScript("OnHide", nil)
 
     hooksecurefunc(TalkingHeadFrame, 'PlayCurrent', function()
-        if not self.frame:MuteSounds() then
+        if not (self.frame and self.frame:MuteSounds()) then
             return
         end
 
