@@ -1,5 +1,5 @@
 ## Interface: 11509
-## Version: 13.0.7
+## Version: 13.0.8
 ## Title: FriendGroups
 ## Notes:|cfffe7b2cFriendGroups - Custom folders, known alt tracking, auto guild groups, smart search, mass invites, and rich realm/class info|r
 ## Author: Osiris the Kiwi / Discord: osirisnz / Original authors: mkp_tv / Hayato2846 / Thainii
@@ -23,6 +23,9 @@
 # Libraries (load before any addon file that uses them)
 Libs\LibStub\LibStub.lua
 Libs\LibDeflate\LibDeflate.lua
+Libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
+Libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
+Libs\LibDBIcon-1.0\lib.xml
 
 Compat.lua
 locales\localizations.xml
@@ -33,5 +36,6 @@ Realms.lua
 FriendGroups.lua
 Sync.lua
 Automation.lua
+Minimap.lua
 FriendGroups.xml
 FriendGroups_ClassicList.xml

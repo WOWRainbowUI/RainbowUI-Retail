@@ -67,6 +67,9 @@ Compat.HAS_MENU_API = (Menu ~= nil and type(Menu.ModifyMenu) == "function")
 -- FriendGroups_GetExtraWidth / FriendGroups_IsWideList in FriendGroups.lua.
 Compat.CAN_RESIZE_WIDTH = Compat.IS_MAINLINE
 
+-- The addon list under the minimap. Not every Classic client has it; LibDBIcon gates the same way.
+Compat.HAS_COMPARTMENT = (AddonCompartmentFrame ~= nil)
+
 -- Retail 12.1 replaced the contact list with the Social UI. Blizzard_FriendList was
 -- split into Blizzard_SocialUI (the SocialUIFrame shell and its tab rail),
 -- Blizzard_SocialUIShared (SocialUIControl / C_SocialUI) and Blizzard_FriendsFrame,
