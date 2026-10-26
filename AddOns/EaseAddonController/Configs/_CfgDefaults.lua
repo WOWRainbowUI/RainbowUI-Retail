@@ -1870,10 +1870,6 @@ D["TidyPlates_ThreatPlates"] = {
         callback = function() SlashCmdList["ACECONSOLE_TPTP"]("") end,
     },
 	{
-        text = "切換血條重疊/堆疊",
-        callback = function() SlashCmdList["TPTPOVERLAP"]("") end,
-    },
-	{
 		type = "text",
         text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",       
 	},
