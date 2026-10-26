@@ -1,6 +1,6 @@
 ## Interface: 120100, 120105, 16001, 50504, 38001, 20506, 11509
 ## Title: Platynator
-## Version: 521
+## Version: 522
 ## Author: plusmouse
 ## SavedVariables: PLATYNATOR_CONFIG
 ## SavedVariablesPerCharacter: PLATYNATOR_CURRENT_PROFILE, PLATYNATOR_LAST_INSTANCE
@@ -23,6 +23,7 @@ Libs\LibStub\LibStub.lua
 Libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
 Libs\LibSharedMedia-3.0\lib.xml
 Libs\LibRangeCheck-3.0\LibRangeCheck-3.0.lua
+
 
 MouseMedia/embed.xml
 
