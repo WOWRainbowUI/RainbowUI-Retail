@@ -117,7 +117,7 @@ function HelpDialog:OnLoad(owner)
         region:HookScript('OnEnter', function() showTooltip(slider) end)
         region:HookScript('OnLeave', function() hideTooltip(slider) end)
     end
-    
+
     self:Show()
 end
 
