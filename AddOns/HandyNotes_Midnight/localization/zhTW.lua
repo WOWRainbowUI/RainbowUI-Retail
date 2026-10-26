@@ -224,9 +224,6 @@ L['mislaid_treasure'] = "遺失的寶藏"
 
 L['options_icons_hexmask'] = '{achievement:63720}'
 L["options_icons_hexmask_desc"] = "顯示 {achievement:63720} 成就的位置。"
-L["thundering_hexmask"] = "雷鳴妖術面具"
-L["fiery_hexmask"] = "烈焰妖術面具"
-L["frozen_hexmask"] = "寒冰妖術面具"
 L["locked_door_note"] = "沒有難度限制。擊敗 {npc:273788}，使用 {item:282402} 開門。\n\n{note:也可由盜賊直接開啟，或使用 {item:260232}。}"
 L["flooded_chamber"] = "水下入口"
 L["flooded_chamber_note"] = "裡面有 {npc:270937}，可使用 {npc:271605} 或火焰法術打破。"
