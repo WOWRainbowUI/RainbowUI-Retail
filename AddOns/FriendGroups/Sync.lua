@@ -78,6 +78,8 @@ local BOOL_FIELDS = {
     -- stored on every flavor but only consumed on retail (hidden on Classic, which has no
     -- secret values), the same pattern as the width bits. APPEND-ONLY.
     "safe_whisper", "streamer_mode",
+    -- Appended after 13.0.7. show_compartment defaults ON, so it is inverted. APPEND-ONLY.
+    "show_compartment", "show_minimap_button",
 }
 
 -- Allowed values for the one numeric scalar we sync.
@@ -94,7 +96,7 @@ local VALID_FONT_SIZES = { [1] = true, [2] = true, [3] = true }
 -- missing bit in an older backup decodes as enabled (the correct default).
 local DEFAULT_ON_INVERTED = {
     show_class_icons = true, show_note = true, show_status = true, eui_skin = true,
-    show_game_icon = true, show_faction_color = true,
+    show_game_icon = true, show_faction_color = true, show_compartment = true,
 }
 
 -- Retired bit positions. They still occupy their slot in BOOL_FIELDS so the layout of every
@@ -605,6 +607,7 @@ function M.Apply(profile)
 
     if _G.FriendGroups_UpdateSize then _G.FriendGroups_UpdateSize() end
     if _G.FriendGroups_UpdateContactCap then _G.FriendGroups_UpdateContactCap() end
+    if _G.FriendGroups_UpdateMinimapButton then _G.FriendGroups_UpdateMinimapButton() end
     if _G.FriendGroups_RequestFullUpdate then _G.FriendGroups_RequestFullUpdate() end
 
     return true

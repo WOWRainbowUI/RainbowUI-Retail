@@ -683,6 +683,30 @@ local settingsMenuItems = {
         end
     },
 
+    -- SECTION: MINIMAP (see Minimap.lua)
+    { text = L["SETTINGS_MINIMAP"], notCheckable = true, isTitle = true },
+    {
+        text = L["SET_COMPARTMENT"],
+        tooltip = { L["SET_COMPARTMENT_TT"] },
+        condition = function() return Compat.HAS_COMPARTMENT end,
+        keepShownOnClick = true,
+        checked = function() return FriendGroups_SavedVars.show_compartment end,
+        func = function()
+            FriendGroups_SavedVars.show_compartment = not FriendGroups_SavedVars.show_compartment
+            FriendGroups_UpdateMinimapButton()
+        end
+    },
+    {
+        text = L["SET_MINIMAP_BUTTON"],
+        tooltip = { L["SET_MINIMAP_BUTTON_TT"] },
+        keepShownOnClick = true,
+        checked = function() return FriendGroups_SavedVars.show_minimap_button end,
+        func = function()
+            FriendGroups_SavedVars.show_minimap_button = not FriendGroups_SavedVars.show_minimap_button
+            FriendGroups_UpdateMinimapButton()
+        end
+    },
+
 	-- SECTION 4: AUTOMATION
     { text = L["SETTINGS_AUTOMATION"], notCheckable = true, isTitle = true },
     {
@@ -824,11 +848,10 @@ local settingsMenuItems = {
             FriendGroups_SavedVars.show_faction_color = true
             FriendGroups_SavedVars.show_game_icon = true
             FriendGroups_SavedVars.show_realm = true
-            -- Was the ONE key present in the fresh-install defaults and absent here, so a
-            -- reset silently left realm flags at whatever they already were instead of
-            -- restoring them. Found by diffing the two lists rather than by reading; that
-            -- diff is the check to repeat whenever a setting is added.
+            -- Must cover every key in the fresh-install defaults and the nil-checks after
+            -- them; diff the lists whenever a setting is added.
             FriendGroups_SavedVars.show_flags = true
+            FriendGroups_SavedVars.show_contact_cap = true
             FriendGroups_SavedVars.hide_high_level = true
             FriendGroups_SavedVars.add_favorite_group = true
             FriendGroups_SavedVars.show_guildmates = true
@@ -846,6 +869,8 @@ local settingsMenuItems = {
             FriendGroups_SavedVars.offline_tracker = true
             FriendGroups_SavedVars.streamer_mode = false
             FriendGroups_SavedVars.safe_whisper = false
+            FriendGroups_SavedVars.show_compartment = true
+            FriendGroups_SavedVars.show_minimap_button = false
             FriendGroups_SavedVars.show_known_alts = true
             -- The three size axes at their defaults: Medium height, Wide panel, Small text.
             -- Written EXPLICITLY, never left nil, so the reset state is byte-identical to a
@@ -862,8 +887,9 @@ local settingsMenuItems = {
             end
             FriendGroups_UpdateSize()
             FriendGroups_UpdateContactCap()
+            FriendGroups_UpdateMinimapButton()
             FriendGroups_FriendsListUpdate()
-            
+
             print(L["MSG_RESET"])
         end
     },
@@ -4809,7 +4835,8 @@ EnableFriendGroups = function()
             show_game_icon = true,
             show_realm = true,            
             hide_high_level = true,       
-            add_favorite_group = true,    
+            add_favorite_group = true,
+            show_guildmates = true,
             show_mobile_afk = false,
             add_mobile_text = true,       
             ingame_only = false,
@@ -4828,28 +4855,14 @@ EnableFriendGroups = function()
             streamer_mode = false,
             -- Off on a fresh install: Whisper opens chat in one click, as it always has.
             safe_whisper = false,
-            -- Classic only, off while the own-list path is proven. Seeded here for the
-            -- record; nil reads the same as false everywhere it is consulted.
-            --
-            -- Deliberately absent from the "Reset to Default" block below and from
-            -- Sync.lua: this is a compatibility switch, not a preference, and neither a
-            -- settings reset nor an imported profile should be able to silently put a
-            -- Classic raid leader's Raid tab back to being blocked in combat.
+            -- The compartment is the way in; the minimap button is opt-in.
+            show_compartment = true,
+            show_minimap_button = false,
+            -- Compatibility switch, not a preference: kept out of Reset to Default and Sync.lua
+            -- so neither can put a Classic Raid tab back to being blocked in combat.
             classic_own_list = false,
-            -- [[ FRESH-INSTALL SIZE DEFAULTS ]]
-            -- Medium height, Wide panel, Small text.
-            --
-            -- Wide and Small pull the same way: the widest panel and the smallest rows show
-            -- the most contacts at once and make the size controls obviously present, so a
-            -- new user discovers them and dials back to taste rather than never finding them.
-            --
-            -- HEIGHT is the one axis that does NOT sit at its extreme. Width and font scale
-            -- what the list can hold; height scales the panel whether or not there is
-            -- anything to put in it, so Large on a small friends list opens a mostly empty
-            -- window -- which reads as a broken addon rather than as a setting to adjust.
-            --
-            -- This table is the FRESH-INSTALL branch only. Existing users never reach it,
-            -- so changing these cannot resize a list somebody has already set up.
+            -- Medium height (not Large: an empty tall panel looks broken), Wide, Small text.
+            -- Only a fresh install reads this table; Reset to Default must match it.
             extra_height = 190,
             wide_list = true,
             width_normal = false,
@@ -4908,6 +4921,12 @@ EnableFriendGroups = function()
     -- are returned to one-click Whisper like everyone else and can opt back in.
     if FriendGroups_SavedVars.safe_whisper == nil then
         FriendGroups_SavedVars.safe_whisper = false
+    end
+    if FriendGroups_SavedVars.show_compartment == nil then
+        FriendGroups_SavedVars.show_compartment = true
+    end
+    if FriendGroups_SavedVars.show_minimap_button == nil then
+        FriendGroups_SavedVars.show_minimap_button = false
     end
     if FriendGroups_SavedVars.group_order == nil then
         FriendGroups_SavedVars.group_order = {}
@@ -7051,45 +7070,18 @@ frame:SetScript("OnEvent", function(self, event, arg1, ...)
         FriendGroups_SavedVars.MyBattleTag = myBattleTag
         
     elseif event == "PLAYER_LOGIN" then
-        if not FriendGroups_SavedVars then
-            FriendGroups_SavedVars = {
-                collapsed = {},
-                hide_offline = false,
-                colour_classes = true,
-                show_class_icons = true,
-                show_note = true,
-                show_status = true,
-                show_faction_icons = true,
-                show_faction_color = true,
-                show_game_icon = true,
-                show_realm = true,
-                hide_high_level = true, 
-                add_favorite_group = true, 
-                add_mobile_text = true, 
-                show_search = true, 
-                open_one_group = false,
-                auto_accept_invite = false,
-                auto_accept_sync = false,
-                offline_tracker = true,
-                streamer_mode = false,
-                safe_whisper = false,
-                show_guildmates = true
-            }
-        end
-        
-        if FriendGroups_SavedVars.show_guildmates == nil then FriendGroups_SavedVars.show_guildmates = true end
-        -- 12.2.2: the legacy list-refresh fallback was removed after the alpha; clear
-        -- the orphaned saved variable so no tester stays silently on the old mode.
-        FriendGroups_SavedVars.legacy_list_update = nil
-        
-        -- [[ MASTER WIPE WHEN TRACKING IS DISABLED ]]
-        -- When alt tracking is enabled we intentionally retain every cached character
-        -- indefinitely (no time-based expiry) so the known-alt history grows as complete
-        -- as possible. Data only leaves the cache via the recent-10 cap, the manual purge
-        -- button, or disabling tracking (the wipe below).
-        if FriendGroups_SavedVars.show_known_alts == false then
-            if FriendGroups_SavedVars.alt_cache then wipe(FriendGroups_SavedVars.alt_cache) end
-            if FriendGroups_SavedVars.guid_index then wipe(FriendGroups_SavedVars.guid_index) end
+        -- Nil on a fresh install: EnableFriendGroups owns the one fresh-defaults table.
+        if FriendGroups_SavedVars then
+            if FriendGroups_SavedVars.show_guildmates == nil then FriendGroups_SavedVars.show_guildmates = true end
+            -- 12.2.2: the legacy list-refresh fallback was removed after the alpha; clear
+            -- the orphaned saved variable so no tester stays silently on the old mode.
+            FriendGroups_SavedVars.legacy_list_update = nil
+
+            -- The alt cache has no time-based expiry; disabling tracking is what empties it.
+            if FriendGroups_SavedVars.show_known_alts == false then
+                if FriendGroups_SavedVars.alt_cache then wipe(FriendGroups_SavedVars.alt_cache) end
+                if FriendGroups_SavedVars.guid_index then wipe(FriendGroups_SavedVars.guid_index) end
+            end
         end
 
         EnableFriendGroups()

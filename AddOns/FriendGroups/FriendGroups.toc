@@ -1,5 +1,5 @@
 ## Interface: 120100, 120105
-## Version: 13.0.7
+## Version: 13.0.8
 ## Dependencies: Ace3
 ## X-TestedPatch: 12.1.5
 ## Title: FriendGroups
@@ -37,6 +37,7 @@ Realms.lua
 FriendGroups.lua
 Sync.lua
 Automation.lua
+Minimap.lua
 ContactsMark.lua
 EllesmereSkin.lua
 FriendGroups.xml
