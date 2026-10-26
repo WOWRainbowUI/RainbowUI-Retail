@@ -4,7 +4,9 @@ local metrics = {}
 local watched = setmetatable({}, addon.weakMeta)
 local pending = setmetatable({}, addon.weakMeta)
 local measure
-local samples = { "88:88", "888.8", "888d", "888h", "888m", "888s" }
+-- Reserve a readable short timer rather than a worst-case clock on every aura.
+-- Long formats may extend beyond small icons; fitting never reads live text.
+local samples = { "88", "8.8", "8m", "8h", "8d" }
 
 local function ReadDimension(frame, method)
     return frame[method](frame)
