@@ -1,4 +1,6 @@
-local _, BR = ...
+local _, ns = ...
+---@class BR
+local BR = ns
 
 -- ============================================================================
 -- LOADOUT REMINDERS PAGE
@@ -51,17 +53,17 @@ local function FormatSummary(rule)
             target = BR.GetSpellName(rule.spellID) or tostring(rule.spellID)
         end
     end
-    local summary = target and (kind .. " · " .. target) or kind
+    local summary = target and (kind .. " \194\183 " .. target) or kind
 
     -- Where it applies: a specific instance, else the content scope.
     local when = rule.when
     local instances = when and when.instances
     if instances and #instances > 0 then
         summary = summary
-            .. " · "
+            .. " \194\183 "
             .. (#instances == 1 and instances[1].name or string.format(L["Loadout.Instances"], #instances))
     elseif when and when.scope and SCOPE_LABELS[when.scope] then
-        summary = summary .. " · " .. L[SCOPE_LABELS[when.scope]]
+        summary = summary .. " \194\183 " .. L[SCOPE_LABELS[when.scope]]
     end
 
     return summary

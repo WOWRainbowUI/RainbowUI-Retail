@@ -1,4 +1,6 @@
-local _, BR = ...
+local _, ns = ...
+---@class BR
+local BR = ns
 
 -- Classes that benefit from each buff (fallback when spec is unknown)
 -- nil = everyone benefits, otherwise only listed classes are counted

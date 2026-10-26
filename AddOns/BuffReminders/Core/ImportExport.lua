@@ -1,4 +1,6 @@
-local _, BR = ...
+local _, ns = ...
+---@class BR
+local BR = ns
 
 -- ============================================================================
 -- IMPORT/EXPORT FUNCTIONS
@@ -19,7 +21,7 @@ local DEFLATE_CONFIG = { level = 9 }
 
 -- Shareable profile settings with no entry in BR.defaults. A profile string carries
 -- these keys too, and an import replaces them. Runtime memory (rememberedConsumables)
--- and debugMode stay local.
+-- stays local.
 local EXTRA_PROFILE_KEYS = {
     "customBuffs",
     "detachedIcons",
@@ -178,7 +180,7 @@ local function ImportSettings(prefixedStr)
     -- Guard on the OLD key only: the new mode keys already hold a value in the
     -- profile (AceDB defaults), so a `p.outsideInstancesMode == nil` check never
     -- fires and drops the legacy boolean without conversion.
-    local p = BR.profile
+    local p = BR.profile --[[@as table]] -- carries keys that BRProfile no longer declares
     if p.selfOnlyOutsideInstances ~= nil then
         p.outsideInstancesMode = p.selfOnlyOutsideInstances and "self_only" or "default"
     end
@@ -210,6 +212,7 @@ local function ImportSettings(prefixedStr)
     -- Ensure defaults sub-table exists and has the metatable (DeepCopy produces
     -- a plain table, and old export strings can omit the defaults key).
     if not BR.profile.defaults then
+        ---@diagnostic disable-next-line: missing-fields
         BR.profile.defaults = {}
     end
     setmetatable(BR.profile.defaults, { __index = defaults.defaults })

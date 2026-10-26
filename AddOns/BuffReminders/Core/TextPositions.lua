@@ -1,4 +1,6 @@
-local _, BR = ...
+local _, ns = ...
+---@class BR
+local BR = ns
 
 -- ============================================================================
 -- TEXT POSITIONS
@@ -146,7 +148,7 @@ function BR.TextPositions.GetSizePercent(item)
         return own
     end
     local defaults = BR.profile and BR.profile.defaults
-    return (defaults and defaults.consumableTextScale) or BR.defaults.defaults.consumableTextScale
+    return (defaults and defaults.consumableTextScale) or BR.defaults.defaults.consumableTextScale --[[@as number]]
 end
 
 ---Resolve a zone name to its SetPoint descriptor. Falls back to INSIDE_C.

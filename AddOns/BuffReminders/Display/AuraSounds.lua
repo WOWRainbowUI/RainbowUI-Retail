@@ -1,4 +1,6 @@
-local _, BR = ...
+local _, ns = ...
+---@class BR
+local BR = ns
 
 -- ============================================================================
 -- EXTERNALS: SOUND ALERTS
@@ -78,7 +80,8 @@ end
 ---@param key string
 ---@param spellIDs number[]
 ---@param sound string|number A file path or a file ID
-local function Register(key, spellIDs, sound)
+---@param throttle number? Seconds before the same handle can play again
+local function Register(key, spellIDs, sound, throttle)
     local ids = {}
     -- One table for the whole loop: AddAuraSound reads it synchronously.
     local info = {
@@ -86,6 +89,7 @@ local function Register(key, spellIDs, sound)
         soundFileName = type(sound) == "string" and sound or nil,
         soundFileID = type(sound) == "number" and sound or nil,
         outputChannel = CHANNEL,
+        throttleSeconds = throttle,
     }
 
     for _, spellID in ipairs(spellIDs) do
@@ -145,7 +149,7 @@ local function BuildDesired()
                     end
                 end
                 if owned[1] then
-                    desired[entry.key] = { sound = sound, spellIDs = owned }
+                    desired[entry.key] = { sound = sound, spellIDs = owned, throttle = entry.soundThrottle }
                 end
             end
         end
@@ -179,7 +183,7 @@ local function Reconcile()
             if restricted then
                 pending = true
             else
-                Register(entry.key, want.spellIDs, want.sound)
+                Register(entry.key, want.spellIDs, want.sound, want.throttle)
             end
         end
     end

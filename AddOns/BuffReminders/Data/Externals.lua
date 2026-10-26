@@ -1,4 +1,6 @@
-local _, BR = ...
+local _, ns = ...
+---@class BR
+local BR = ns
 
 -- The external defensives and buffs shown by Display/AuraTracker.lua, plus the
 -- accessors every consumer of that feature needs. Loads before Display and Options,
@@ -11,10 +13,18 @@ local _, BR = ...
 -- buffs on assistable units". A harmful aura on yourself can never be tracked, so
 -- this list is buffs-you-receive by construction.
 --
--- `section` buckets an entry under a heading in the options list. An entry is named
--- after its first spell, so the label is the client's own. `labelSpellID` names it after
--- the granting ability instead, when the aura's own name misleads. `labelSpellIDs` joins
--- several names, for an effect the game names once per faction.
+-- An entry is named after its first spell, so the label is the client's own.
+
+---@class ExternalEntry
+---@field key string
+---@field spellIDs number[]
+---@field section? string Options heading. A player's own entry has none
+---@field labelSpellID? number Names the entry after the granting ability, when the aura's own name misleads
+---@field labelSpellIDs? number[] Joins several names, for an effect the game names once per faction
+---@field name? string The player's own label
+---@field defaultSound? false
+---@field soundThrottle? number Seconds before the same spell ID plays again. AddAuraSound refuses a value above 5
+---@field custom? true
 
 ---Display groupings, in the order the options page renders them.
 BR.EXTERNAL_SECTIONS = {
@@ -29,6 +39,7 @@ BR.EXTERNAL_SECTIONS = {
 
 -- Within a section, entries are ordered by their English name: the options page
 -- renders them in this order, so the list reads alphabetically with no sort.
+---@type ExternalEntry[]
 BR.EXTERNALS = {
     { key = "blessingOfProtection", section = "personal", spellIDs = { 1022 } }, -- Paladin
     { key = "blessingOfSacrifice", section = "personal", spellIDs = { 6940 } }, -- Paladin
@@ -40,11 +51,12 @@ BR.EXTERNALS = {
     { key = "painSuppression", section = "personal", spellIDs = { 33206 } }, -- Priest
     { key = "timeDilation", section = "personal", spellIDs = { 357170 } }, -- Evoker
 
-    { key = "ancestralProtection", section = "groupDefensives", spellIDs = { 207498 } }, -- Shaman
-    { key = "antiMagicZone", section = "groupDefensives", spellIDs = { 145629 } }, -- Death Knight
-    { key = "darkness", section = "groupDefensives", spellIDs = { 209426 } }, -- Demon Hunter
-    { key = "powerWordBarrier", section = "groupDefensives", spellIDs = { 81782 } }, -- Priest
+    -- A zone aura re-lands each time the player re-enters the zone, hence the throttle.
+    { key = "antiMagicZone", section = "groupDefensives", spellIDs = { 145629 }, soundThrottle = 5 }, -- Death Knight
+    { key = "darkness", section = "groupDefensives", spellIDs = { 209426 }, soundThrottle = 5 }, -- Demon Hunter
+    { key = "powerWordBarrier", section = "groupDefensives", spellIDs = { 81782 }, soundThrottle = 5 }, -- Priest
     { key = "rallyingCry", section = "groupDefensives", spellIDs = { 97463 } }, -- Warrior
+    { key = "spiritLinkTotem", section = "groupDefensives", spellIDs = { 325174 }, soundThrottle = 5 }, -- Shaman
 
     {
         key = "massBarrier", -- Mage
@@ -73,6 +85,7 @@ BR.EXTERNALS = {
     {
         key = "bloodlust", -- Shaman + the cross-class variants
         section = "boosts",
+        soundThrottle = 5,
         labelSpellIDs = { 2825, 32182 },
         spellIDs = {
             2825, -- Bloodlust
@@ -174,7 +187,7 @@ end
 ---Sound value for one entry: its own override, or the page sound while it inherits.
 ---`defaultSound = false` marks an entry that re-applies too often for the shared
 ---sound, so it stays silent until the player overrides it.
----@param entry table
+---@param entry ExternalEntry
 ---@return string|nil
 function BR.GetExternalEntrySound(entry)
     local settings = BR.GetExternalSettings()
@@ -197,7 +210,7 @@ function BR.IsExternalSoundOverridden(key)
     return sounds ~= nil and sounds[key] ~= nil
 end
 
----@param entry table
+---@param entry ExternalEntry
 ---@return string
 function BR.GetExternalLabel(entry)
     if entry.name then
@@ -232,7 +245,7 @@ local type = type
 ---Every entry the addon knows: the curated list first, then the player's own,
 ---sorted by label. Rebuilt on each call, because the callers run on settings
 ---changes and world events - a cache here adds only a way to go stale.
----@return table[]
+---@return ExternalEntry[]
 function BR.GetExternalEntries()
     local custom = BR.GetExternalSettings().custom
     if not custom or next(custom) == nil then
@@ -279,7 +292,7 @@ end
 ---The first entry other than `exceptKey` that already lists this spell ID.
 ---@param spellID number
 ---@param exceptKey string?
----@return table?
+---@return ExternalEntry?
 function BR.FindExternalBySpellID(spellID, exceptKey)
     for _, entry in ipairs(BR.GetExternalEntries()) do
         if entry.key ~= exceptKey then
@@ -297,8 +310,8 @@ end
 ---Mirrors the first-wins rule in Display/AuraSounds.lua: an earlier tracked entry
 ---with a sound claims every spell ID it lists, and an entry loses its alert only
 ---when every one of its IDs is claimed.
----@param entry table
----@return table?
+---@param entry ExternalEntry
+---@return ExternalEntry?
 function BR.FindExternalSoundOwner(entry)
     local tracked = BR.GetExternalSettings().entries
     if not tracked or not tracked[entry.key] then

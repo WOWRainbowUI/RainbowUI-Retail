@@ -1,4 +1,6 @@
-local _, BR = ...
+local _, ns = ...
+---@class BR
+local BR = ns
 
 -- ============================================================================
 -- PROFILE SYSTEM (AceDB-3.0 + LibDualSpec-1.0)
@@ -23,6 +25,7 @@ function BR.Profiles.Initialize(aceDefaults)
 
     -- The proxy routes each read and write to the active AceDB profile. A closure
     -- that captures `local db = BR.profile` stays valid across profile switches.
+    ---@type BRProfile
     BR.profile = setmetatable({}, {
         __index = function(_, key)
             return BR.aceDB.profile[key]
@@ -214,6 +217,7 @@ function BR.Profiles.ReapplyDefaultsMetatable()
     end
     local db = BR.profile
     if not db.defaults then
+        ---@diagnostic disable-next-line: missing-fields
         db.defaults = {}
     end
     setmetatable(db.defaults, { __index = codeDefaults.defaults })

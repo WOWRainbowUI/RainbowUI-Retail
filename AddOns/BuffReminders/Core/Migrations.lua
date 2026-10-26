@@ -1,4 +1,6 @@
-local _, BR = ...
+local _, ns = ...
+---@class BR
+local BR = ns
 
 -- ============================================================================
 -- Versioned SavedVariables migrations.
@@ -22,7 +24,7 @@ local max = math.max
 
 BR.Migrations = {}
 
-BR.Migrations.DB_VERSION = 56
+BR.Migrations.DB_VERSION = 58
 
 -- Run pending migrations against the profile `db`, using code `defaults` for
 -- fallbacks. `ctx` carries the Display.lua file-scope values the migrations
@@ -1139,6 +1141,42 @@ function BR.Migrations.Run(db, defaults, ctx)
                         end
                     end
                     profileDefaults.warlockDemon = nil
+                end
+            end
+        end,
+
+        -- [57] Ancestral Protection Totem leaves the curated externals list: the game
+        -- removed the ability, so aura 207498 can never apply. Nothing walks a tracked
+        -- key without a matching entry, so this pass only clears the dead saved keys.
+        -- It covers every profile, because an inactive profile keeps them otherwise.
+        [57] = function()
+            local profiles = BR.aceDB and BR.aceDB.sv and BR.aceDB.sv.profiles
+            if not profiles then
+                return
+            end
+            for _, profile in pairs(profiles) do
+                local externals = type(profile) == "table" and profile.externals
+                if type(externals) == "table" then
+                    if type(externals.entries) == "table" then
+                        externals.entries.ancestralProtection = nil
+                    end
+                    if type(externals.sounds) == "table" then
+                        externals.sounds.ancestralProtection = nil
+                    end
+                end
+            end
+        end,
+
+        -- [58] /br debug leaves: no code reads debugMode, so this pass clears the
+        -- dead flag in every profile.
+        [58] = function()
+            local profiles = BR.aceDB and BR.aceDB.sv and BR.aceDB.sv.profiles
+            if not profiles then
+                return
+            end
+            for _, profile in pairs(profiles) do
+                if type(profile) == "table" then
+                    profile.debugMode = nil
                 end
             end
         end,

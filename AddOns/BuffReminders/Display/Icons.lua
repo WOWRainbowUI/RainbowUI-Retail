@@ -1,4 +1,6 @@
-local _, BR = ...
+local _, ns = ...
+---@class BR
+local BR = ns
 
 -- ============================================================================
 -- ICON / TEXTURE RESOLUTION
@@ -50,7 +52,7 @@ BR.GameContext.RegisterCache("spellTextureMisses", ClearSpellTextureMisses)
 
 ---Get spell texture from a single spell ID. For a buff def use GetBuffIcons(buff)[1]
 ---instead, so that buff.icons takes priority over the raw spellID lookup.
----@param spellID number
+---@param spellID SpellID?
 ---@return number? textureID
 local function GetBuffTexture(spellID)
     if type(spellID) == "table" then
