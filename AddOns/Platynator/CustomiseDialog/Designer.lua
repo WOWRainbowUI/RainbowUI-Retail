@@ -1228,7 +1228,7 @@ function addonTable.CustomiseDialog.GetMainDesigner(parent)
         w.statusBar:SetMinMaxValues(0, 100)
         w.statusBar:SetValue(70)
         if w.details.kind == "cast" then
-          if w.details.interruptMarker.asset ~= "none" then
+          if w.details.interruptMarker.asset ~= "MM: Transparency" then
             w.interruptPositioner:SetMinMaxValues(0, 100)
             w.interruptPositioner:SetValue(0)
             w.interruptMarker:Show()
