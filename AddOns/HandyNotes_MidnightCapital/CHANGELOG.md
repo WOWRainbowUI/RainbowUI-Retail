@@ -1,8 +1,6 @@
-# Changelog
+## 1.1.2 - WoW 12.1.5 Compatibility
 
-All notable changes to this project will be documented in this file.
-
-The format is based on Keep a Changelog and this project adheres to Semantic Versioning.
+- Updated compatibility for WoW 12.1.5.
 
 ## 1.1.1 - French Localization Completed
 
