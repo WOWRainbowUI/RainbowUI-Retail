@@ -6,7 +6,7 @@
 local L = Addon.L
 local GetSpecialization = C_SpecializationInfo and C_SpecializationInfo.GetSpecialization or _G.GetSpecialization
 
-Addon.DEBUG = Addon.Meta("version") == "13.3.1"
+Addon.DEBUG = Addon.Meta("version") == "13.3.3"
 
 local function toggleDPS()
   if Addon.db.profile.optionRoleDetectionAutomatic then

@@ -215,8 +215,7 @@ L["Color Name by Target Marks in Headline View"] = "名字检视时，名字显�
 --[[Translation missing --]]
 L["Coloring"] = "颜色"
 L["Colors"] = "颜色"
---[[Translation missing --]]
-L["Colors the countdown text once the remaining duration drops below the threshold below."] = "Colors the countdown text once the remaining duration drops below the threshold below."
+L["Colors the countdown text once the remaining duration drops below the threshold below."] = "剩余时间低于下方设置的阈值时，更改倒计时文字的颜色。"
 L["Column Limit"] = "列限制"
 L["Combat"] = "战斗"
 L["Combo Points"] = "连击点"
@@ -1191,3 +1190,7 @@ L["You can access the "] = "你可以进入"
 L["You cannot delete General Settings, only custom nameplates entries."] = "你不能删除常规设置，只能删除自定义血条。"
 L["You currently have two nameplate addons enabled: |cff89F559Threat Plates|r and |cff89F559%s|r. Please disable one of these, otherwise two overlapping nameplates will be shown for units."] = "目前启用了两个血条插件: |cff89F559Threat Plates|r和|cff89F559%s|r。请停用其中一个血条插件，否则会重复出现两个叠在一起的血条。"
 L["Your version of LibDogTag-Unit-3.0 does not support nameplates. You need to install at least v90000.3 of LibDogTag-Unit-3.0."] = "你所使用的 LibDogTag-Unit-3.0 版本不支持血条，请安装  v90000.3 或更新的版本。"
+
+L["Color when Expiring"] = "即将结束时的颜色"
+
+L["Expiring Threshold"] = "即将结束阈值"
