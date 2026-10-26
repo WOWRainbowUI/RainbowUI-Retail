@@ -1,3 +1,11 @@
+## 4.7.2 - Readable Small Icon Timers
+- Increased fitted timer text size on small icons.
+- Timer text fitting now uses short countdown formats.
+
+## 4.7.1 - WoW 12.1.5 Compatibility
+
+- Updated compatibility for WoW 12.1.5.
+
 ## 4.7.0 - Cooldown Performance and Text Sizing
 - Reduced work during repeated cooldown clears.
 - Added optional timer text shrinking for small icons.

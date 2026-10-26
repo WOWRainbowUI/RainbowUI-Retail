@@ -3,7 +3,7 @@ local L = LibStub("AceLocale-3.0"):NewLocale("MinimalistCooldownEdge", "frFR")
 if not L then return end
 
 L["Shrink text to fit icons"] = "Réduire le texte pour l'adapter aux icônes"
-L["FIT_TEXT_DESC"] = "La taille configurée est un maximum. Le texte est réduit sur les petites icônes selon des exemples fixes, sans changer de taille pendant le compte à rebours."
+L["FIT_TEXT_DESC"] = "La taille configurée est un maximum. Des exemples courts fixes gardent le texte lisible et sa taille stable pendant le compte à rebours. Les formats longs peuvent dépasser des petites icônes."
 
 L["MINIAURAS_COUNTDOWN_COLORS_NOTICE"] = "MiniAuras gère les couleurs de seuil du compte à rebours. Configurez-les dans MiniAuras > Misc > Countdown Colours."
 L["MYDRS_SWIPE_ALPHA_DESC"] = "0 % = transparent, 100 % = totalement sombre. Remplace le réglage Cooldown Swipe Alpha de MyDRs tant que cette catégorie est activée ; 100 % correspond au balayage dessiné par MyDRs."

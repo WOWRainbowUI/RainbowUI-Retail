@@ -1,9 +1,9 @@
-## Interface: 120100, 16001
+## Interface: 120100, 16001, 120105
 ## AllowLoadGameType: mainline, camelot
 ## Title: |cff00ccffMiniCE|r (Minimalist Cooldown Edge)
 ## Notes: Clean cooldowns with category-specific styles.
 ## Author: Anahkas
-## Version: 4.7.0
+## Version: 4.7.2
 ## IconTexture: Interface\AddOns\MinimalistCooldownEdge\Assets\Textures\MinimalistCooldownEdge
 ## Category: Action Bars
 ## X-Curse-Project-ID: 1443896
