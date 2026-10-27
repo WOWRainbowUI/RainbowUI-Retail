@@ -8,7 +8,7 @@ local windDirections = {
 	[3] = DBM_COMMON_L.NORTHEAST
 }
 
-mod:SetRevision("20260919193459")
+mod:SetRevision("20261026012040")
 mod:SetCreatureID(190484, 190485)
 mod:SetEncounterID(2623)
 mod:SetZone(2521)
@@ -151,6 +151,9 @@ if DBM:IsRestricted() then
 				timerStormslamCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "stormslam", "stormslamCount"))
 				handled = true
 			elseif timer == 25 then
+				--Kyrakka's death can force an early Cloudburst cast, with its replacement added before state 2.
+				--Stop only the bar; keep the old reservation so the actual cast still warns and advances its count.
+				timerInterruptingCloudburstCD:Stop()
 				timerInterruptingCloudburstCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "cloudburst", "cloudburstCount"))
 				handled = true
 			end
@@ -160,7 +163,7 @@ if DBM:IsRestricted() then
 			self:ResumeBlizzardAPI()
 			self:UnregisterShortTermEvents()
 			setFallback(self)
-			DBM:Debug("|cffff0000Failed to match encounter timeline events to expected timers, falling back to Blizzard API|r", nil, nil, nil, true)
+			DBM:Debug("|cffff0000Failed to match encounter timeline events to expected timers, falling back to Blizzard API|r", nil, true, nil, true)
 		end
 	end
 

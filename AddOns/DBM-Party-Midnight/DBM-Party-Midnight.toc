@@ -1,4 +1,4 @@
-## Interface: 120100, 120105
+## Interface: 120105, 120107
 ## AllowLoadGameType: standard
 ## Category: DBM
 ## Title:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0Dungeons (Midnight)|r
@@ -40,7 +40,7 @@
 ## X-DBM-Mod-MinExpansion: 11
 ## X-Curse-Project-ID: 314994
 ## X-Wago-ID: xZKxZENk
-## Version: r268
+## Version: r269
 
 localization.en.lua
 WindrunnerSpire\Emberdawn.lua

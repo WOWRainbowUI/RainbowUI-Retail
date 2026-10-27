@@ -3,7 +3,7 @@ local L		= mod:GetLocalizedStrings()
 
 mod.statTypes = "normal,heroic,mythic,challenge,timewalker"
 
-mod:SetRevision("20260922035347")
+mod:SetRevision("20261026012040")
 mod:SetCreatureID(135475, 135470, 135472)
 mod:SetEncounterID(2140)
 mod:SetUsedIcons(1, 2)
@@ -171,7 +171,7 @@ if DBM:IsRestricted() then
 				self:ResumeBlizzardAPI()
 				self:UnregisterShortTermEvents()
 				setFallback(self)
-				DBM:Debug("|cffff0000Failed to match encounter timeline events to expected timers, falling back to Blizzard API|r", nil, nil, nil, true)
+				DBM:Debug("|cffff0000Failed to match encounter timeline events to expected timers, falling back to Blizzard API|r", nil, true, nil, true)
 			end
 		end
 

@@ -1,4 +1,4 @@
-## Interface: 40402, 50504, 120100, 120105
+## Interface: 40402, 50504, 120105, 120107
 ## AllowLoadGameType: cata, mists, standard
 ## Category: DBM
 ## Title:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0Dungeons (Cata)|r
@@ -40,7 +40,7 @@
 ## X-DBM-Mod-MinCoreRevision: 20260522000000
 ## X-DBM-Mod-MinExpansion: 3
 ## X-Curse-Project-ID: 314994
-## Version: r268
+## Version: r269
 
 localization.en.lua
 localization.tw.lua

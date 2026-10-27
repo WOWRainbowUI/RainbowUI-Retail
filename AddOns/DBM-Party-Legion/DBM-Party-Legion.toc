@@ -1,4 +1,4 @@
-## Interface: 120100, 120105
+## Interface: 120105, 120107
 ## AllowLoadGameType: standard
 ## Category: DBM
 ## Title:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0Dungeons (Legion)|r
@@ -38,7 +38,7 @@
 ## X-DBM-Mod-MinCoreRevision: 20260522000000
 ## X-DBM-Mod-MinExpansion: 6
 ## X-Curse-Project-ID: 314994
-## Version: r268
+## Version: r269
 
 localization.en.lua
 localization.cn.lua

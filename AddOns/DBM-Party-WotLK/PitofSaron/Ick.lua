@@ -5,7 +5,7 @@ if not mod:IsClassic() then
 	mod.statTypes = "normal,heroic,mythic,challenge,timewalker"
 end
 
-mod:SetRevision("20260919193459")
+mod:SetRevision("20261026012040")
 mod:SetCreatureID(36476)
 mod:SetEncounterID(2001)
 mod:SetZone(658)
@@ -133,7 +133,7 @@ if DBM:IsRestricted() then
 				self:ResumeBlizzardAPI()
 				self:UnregisterShortTermEvents()
 				setFallback(self)
-				DBM:Debug("|cffff0000Failed to match encounter timeline events to expected timers, falling back to Blizzard API|r", nil, nil, nil, true)
+				DBM:Debug("|cffff0000Failed to match encounter timeline events to expected timers, falling back to Blizzard API|r", nil, true, nil, true)
 			end
 		end
 

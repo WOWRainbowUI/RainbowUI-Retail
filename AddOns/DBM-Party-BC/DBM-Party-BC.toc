@@ -1,4 +1,4 @@
-## Interface: 20506, 30405, 38002, 40402, 50504, 120100, 120105
+## Interface: 20506, 30405, 38002, 40402, 50504, 120105, 120107
 ## AllowLoadGameType: tbc, wrath, cata, mists, standard
 ## Category: DBM
 ## Title:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0Dungeons (BC)|r
@@ -41,9 +41,10 @@
 ## X-DBM-Mod-MinExpansion: 1
 ## X-Curse-Project-ID: 314994
 ## X-Wago-ID: xZKxZENk
-## Version: r268
+## Version: r269
 
 localization.en.lua
+localization.cn.lua
 localization.tw.lua
 Hellfire_Ramp\Gargolmar.lua
 Hellfire_Ramp\Omor.lua

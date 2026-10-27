@@ -3,7 +3,7 @@ local L		= mod:GetLocalizedStrings()
 
 mod.statTypes = "normal,heroic,mythic,challenge,timewalker"
 
-mod:SetRevision("20260919193459")
+mod:SetRevision("20261026012040")
 mod:SetCreatureID(133392)
 mod:SetEncounterID(2127)
 mod.onlyHighest = true--Instructs DBM health tracking to literally only store highest value seen during fight, even if it drops below that
@@ -79,7 +79,7 @@ if DBM:IsRestricted() then
 				self:ResumeBlizzardAPI()
 				self:UnregisterShortTermEvents()
 				setFallback(self)
-				DBM:Debug("|cffff0000Failed to match encounter timeline events to expected timers, falling back to Blizzard API|r", nil, nil, nil, true)
+				DBM:Debug("|cffff0000Failed to match encounter timeline events to expected timers, falling back to Blizzard API|r", nil, true, nil, true)
 			end
 		end
 

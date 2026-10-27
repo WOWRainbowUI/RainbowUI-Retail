@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2660, "DBM-Party-Midnight", 3, 1300)
 --local L		= mod:GetLocalizedStrings()--Nothing to localize for blank mods
 
-mod:SetRevision("20260921230256")
+mod:SetRevision("20261026012040")
 mod:SetCreatureID(239636)
 mod:SetEncounterID(3073)
 --mod:SetHotfixNoticeRev(20250823000000)
@@ -94,6 +94,8 @@ do
 			else
 				timerCosmicStingCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "sting", "stingCount"))
 			end
+		elseif timer == 8 then--Cosmic Sting (follower difficulty)
+			timerCosmicStingCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "sting", "stingCount"))
 		elseif timer == 16 then--Neural Link
 			timerNeuralLinkCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "link", "linkCount"))
 		elseif timer == 29 then--Astral Grasp
@@ -103,7 +105,7 @@ do
 			self:ResumeBlizzardAPI()
 			self:UnregisterShortTermEvents()
 			setFallback(self)
-			DBM:Debug("|cffff0000Failed to match encounter timeline events to expected timers, falling back to Blizzard API|r", nil, nil, nil, true)
+			DBM:Debug("|cffff0000Failed to match encounter timeline events to expected timers, falling back to Blizzard API|r", nil, true, nil, true)
 		end
 	end
 
@@ -111,6 +113,8 @@ do
 	function mod:ENCOUNTER_TIMELINE_EVENT_ADDED(eventInfo)
 		if eventInfo.source ~= 0 then return end
 		local eventID = eventInfo.id
+		local eventState = C_EncounterTimeline.GetEventState(eventID)
+		if eventState ~= 0 then return end--Ignore garbage state timers entirely since this boss sends a lot of them
 		local timerExact = eventInfo.duration
 		local timer = math.floor(timerExact + 0.5)
 		if not badStateDetected then

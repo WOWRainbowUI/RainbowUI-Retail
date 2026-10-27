@@ -1,7 +1,15 @@
 # DBM - Dungeons, Delves, & Events
 
-## [r268](https://github.com/DeadlyBossMods/DBM-Dungeons/tree/r268) (2026-10-19)
-[Full Changelog](https://github.com/DeadlyBossMods/DBM-Dungeons/compare/r267...r268) [Previous Releases](https://github.com/DeadlyBossMods/DBM-Dungeons/releases)
+## [r269](https://github.com/DeadlyBossMods/DBM-Dungeons/tree/r269) (2026-10-26)
+[Full Changelog](https://github.com/DeadlyBossMods/DBM-Dungeons/compare/r268...r269) [Previous Releases](https://github.com/DeadlyBossMods/DBM-Dungeons/releases)
 
-- Enable Generic trash on holiday bosses on retail and all bosses in forever  
-- Add missing gossip ID, fix auto gossip not working  
+- CI tweak  
+- always play sound when routing fails  
+- Fix and close  
+- Headless Horseman locale  
+    Fixes and closes #647  
+- fix regression  
+- Update tocs for 12.1.7 ptr  
+- Fix missing zhCN localization loading and names in TBC dungeons (#645)  
+- Just silence a false error at this point  
+- revise follower/normal timers for 3rd and 4th boss of MT Closes https://github.com/DeadlyBossMods/DBM-Dungeons/issues/643  

@@ -1,4 +1,4 @@
-## Interface: 11509, 16001, 20506, 30405, 38002, 40402, 50504, 120100, 120105
+## Interface: 11509, 16001, 20506, 30405, 38002, 40402, 50504, 120105, 120107
 ## Category: DBM
 ## Title:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0Dungeons (Vanilla)|r
 ## Title-deDE:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0Dungeons (Vanilla)|r
@@ -64,7 +64,7 @@
 ## X-DBM-Mod-MinExpansion: 0
 ## X-Curse-Project-ID: 314994
 ## X-Wago-ID: xZKxZENk
-## Version: r268
+## Version: r269
 ## IconTexture: Interface\AddOns\DBM-Core\textures\dbm_airhorn [AllowLoadGameType cata, standard, mists]
 
 locale.generated.lua

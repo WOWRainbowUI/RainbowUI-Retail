@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2791, "DBM-Party-Midnight", 6, 1313)
 --local L		= mod:GetLocalizedStrings()--Nothing to localize for blank mods
 
-mod:SetRevision("20260911055800")
+mod:SetRevision("20261026012040")
 mod:SetCreatureID(238887)
 mod:SetEncounterID(3285)
 --mod:SetHotfixNoticeRev(20250823000000)
@@ -109,7 +109,7 @@ do
 			self:ResumeBlizzardAPI()
 			self:UnregisterShortTermEvents()
 			setFallback(self)
-			DBM:Debug("|cffff0000Failed to match encounter timeline events to expected timers, falling back to Blizzard API|r", nil, nil, nil, true)
+			DBM:Debug("|cffff0000Failed to match encounter timeline events to expected timers, falling back to Blizzard API|r", nil, true, nil, true)
 		end
 	end
 

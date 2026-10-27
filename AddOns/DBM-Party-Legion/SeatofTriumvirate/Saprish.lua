@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(1980, "DBM-Party-Legion", 13, 945)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260919193459")
+mod:SetRevision("20261026012040")
 mod:SetCreatureID(124872)
 mod:SetEncounterID(2066)
 mod:SetZone(1753)
@@ -97,7 +97,7 @@ if DBM:IsRestricted() then
 				self:ResumeBlizzardAPI()
 				self:UnregisterShortTermEvents()
 				setFallback(self)
-				DBM:Debug("|cffff0000Failed to match encounter timeline events to expected timers, falling back to Blizzard API|r", nil, nil, nil, true)
+				DBM:Debug("|cffff0000Failed to match encounter timeline events to expected timers, falling back to Blizzard API|r", nil, true, nil, true)
 			end
 		end
 
