@@ -1,4 +1,4 @@
-## Interface: 120007, 120100
+## Interface: 120100, 120105
 
 ## Title: Myu's Knowledge Points Tracker
 ## Title-zhCN: Myu的知识点追踪
@@ -11,7 +11,7 @@
 ## Author: Myu
 ## Dependencies: Blizzard_Professions
 ## SavedVariables: MKPT_Config
-## Version: 0.8.12
+## Version: 0.8.13
 ## X-Curse-Project-ID: 1457220
 ## X-Wago-ID: nGv78DNx
 ## IconTexture: Interface\AddOns\MyusKnowledgePointsTracker\Textures\MKPT_Icon
