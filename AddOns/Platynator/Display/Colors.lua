@@ -406,8 +406,8 @@ function addonTable.Display.GetColor(settings, state, unit)
         name = channelInfo[1]
       end
       if name ~= nil then
-        if UnitIsSpellTarget then
-          table.insert(colorQueue, {state = {{value = UnitIsSpellTarget(unit, "player")}}, color = s.colors.targeted})
+        if PlayerIsSpellTarget then
+          table.insert(colorQueue, {state = {{value = PlayerIsSpellTarget(unit)}}, color = s.colors.targeted})
         elseif UnitIsUnit(unit .. "target", "player") then
           table.insert(colorQueue, {color = s.colors.targeted})
           break

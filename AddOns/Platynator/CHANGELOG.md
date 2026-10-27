@@ -1,7 +1,7 @@
 # Platynator
 
-## [522](https://github.com/TheMouseNest/Platynator/tree/522) (2026-10-25)
-[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/521...522) 
+## [523](https://github.com/TheMouseNest/Platynator/tree/523) (2026-10-26)
+[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/522...523) 
 
-- Designer: Fix interrupt ready marker display if disabled  
-- Asset update  
+- Fix absorb not scaling with health bar  
+- Cleanup deprecations  
