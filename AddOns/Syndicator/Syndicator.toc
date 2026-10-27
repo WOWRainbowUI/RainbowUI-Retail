@@ -1,7 +1,7 @@
 ## Dependencies: Ace3
 ## Interface: 120100, 120105, 16001, 50504, 38001, 20506, 11509
 ## Title: Syndicator
-## Version: 287
+## Version: 288
 ## Author: plusmouse
 ## SavedVariables: SYNDICATOR_CONFIG, SYNDICATOR_DATA, SYNDICATOR_SUMMARIES
 ## IconTexture: Interface\AddOns\Syndicator\Assets\logo.tga
