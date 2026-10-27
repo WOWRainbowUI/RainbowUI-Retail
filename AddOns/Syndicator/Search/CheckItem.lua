@@ -696,14 +696,16 @@ end
 
 local UPGRADE_PATH_PATTERN = ITEM_UPGRADE_TOOLTIP_FORMAT_STRING and "^" .. ITEM_UPGRADE_TOOLTIP_FORMAT_STRING:gsub("%%s", ".*"):gsub("%%d", ".*")
 local currentSeasonBonusIDs = {
+  13751,
+  13335,
 }
 
 local function CheckBonusIDs(itemLink)
   local _, main = LinkUtil.ExtractLink(itemLink)
   local entries = {strsplit(":", main)}
-  local bonusIDCount = tonumber(entries[14])
+  local bonusIDCount = tonumber(entries[13])
   if bonusIDCount and bonusIDCount > 0 then
-    for i = 15, 14 + bonusIDCount do
+    for i = 14, 13 + bonusIDCount do
       if currentSeasonBonusIDs[tonumber(entries[i])] then
         return true
       end
