@@ -1,4 +1,4 @@
-## Interface: 11509, 16001, 20506, 30405, 38002, 40402, 50504, 120100, 120105
+## Interface: 11509, 16001, 20506, 30405, 38002, 40402, 50504, 120105, 120107
 ## Category: DBM
 ## Title:|cffffe00a<|r|cffff7d0aDBM Core|r|cffffe00a>|r |cff69ccf0Status Bar Timers|r
 ## Title-esES:|cffffe00a<|r|cffff7d0aDBM Core|r|cffffe00a>|r |cff69ccf0Temporizadores de Estado|r
@@ -21,7 +21,7 @@
 ## LoadOnDemand: 0
 ## DefaultState: enabled
 ## Author: MysticalOS, QartemisT
-## Version: 12.1.17
+## Version: 12.1.18
 ## X-Website: https://deadlybossmods.com
 
 DBT.lua

@@ -671,6 +671,31 @@ do
 	---@param confirmTime number?
 	function checkWipe(self, confirm, confirmTime)
 		if #inCombat > 0 then
+			-- New-zone combat (especially delves) must not keep an old encounter armed.
+			local currentArea = self:GetCurrentArea()
+			local validArea = type(currentArea) == "number" and currentArea >= 0
+			local currentZoneCombat = false
+			for i = #inCombat, 1, -1 do
+				local mod = inCombat[i]
+				if mod.engagedArea and validArea and mod.engagedArea ~= currentArea then
+					if not mod.leftCombatAreaAt then
+						mod.leftCombatAreaAt = GetTime()
+					elseif GetTime() - mod.leftCombatAreaAt > mmax(5, mod.combatInfo.wipeTimer or 0) then
+						if not mod.noStatistics then
+							self:Debug("You wiped. Reason : Left encounter zone " .. mod.engagedArea .. " for " .. currentArea)
+						end
+						self:EndCombat(mod, true, nil, "checkWipe")
+					end
+				else
+					mod.leftCombatAreaAt = nil
+					currentZoneCombat = true
+				end
+			end
+			if #inCombat == 0 then return end
+			if not currentZoneCombat then
+				self:Schedule(3, checkWipe, self)
+				return
+			end
 			difficulties:RefreshCache()
 			--hack for no iEEU information is provided.
 			if not bossuIdFound then
@@ -715,10 +740,15 @@ do
 				if timeSinceValid > confirmTime then
 					for i = #inCombat, 1, -1 do
 						local mod = inCombat[i]
-						if not mod.noStatistics then
-							self:Debug("You wiped. Reason : " .. (wipe == 1 and "No combat unit found in your party." or "No boss found : " .. (wipe or "nil")))
+						if not mod.leftCombatAreaAt then
+							if not mod.noStatistics then
+								self:Debug("You wiped. Reason : " .. (wipe == 1 and "No combat unit found in your party." or "No boss found : " .. (wipe or "nil")))
+							end
+							self:EndCombat(mod, true, nil, "checkWipe")
 						end
-						self:EndCombat(mod, true, nil, "checkWipe")
+					end
+					if #inCombat > 0 then
+						self:Schedule(3, checkWipe, self)
 					end
 				else--Have not reached required out of combat time yet, check again every 3 seconds until we do
 					self:Schedule(3, checkWipe, self, true, confirmTime)
@@ -726,7 +756,9 @@ do
 			else
 				local maxDelayTime = (difficulties.savedDifficulty == "worldboss" and 15) or 5 --wait 10s more on worldboss do actual wipe.
 				for _, v in ipairs(inCombat) do
-					maxDelayTime = v.combatInfo and v.combatInfo.wipeTimer and v.combatInfo.wipeTimer > maxDelayTime and v.combatInfo.wipeTimer or maxDelayTime
+					if not v.leftCombatAreaAt then
+						maxDelayTime = v.combatInfo and v.combatInfo.wipeTimer and v.combatInfo.wipeTimer > maxDelayTime and v.combatInfo.wipeTimer or maxDelayTime
+					end
 				end
 				self:Schedule(3, checkWipe, self, true, maxDelayTime)
 			end
@@ -816,13 +848,14 @@ do
 			tinsert(inCombat, mod)
 			-- Pull time is always considered as in combat, this makes sure checkWipe() triggers only after the minimum time without combat has passed since start.
 			lastValidCombat = GetTime()
-			if mod.inCombatOnlyEvents and not mod.inCombatOnlyEventsRegistered then
+			if not mod.inCombatOnlyEventsRegistered and (mod.inCombatOnlyEvents or mod.inCombatOnlySafeEvents) then
 				mod.inCombatOnlyEventsRegistered = 1
-				mod:RegisterEvents(unpack(mod.inCombatOnlyEvents))
-			end
-			if mod.inCombatOnlySafeEvents and not mod.inCombatOnlyEventsRegistered then
-				mod.inCombatOnlyEventsRegistered = 1
-				mod:RegisterSafeEvents(unpack(mod.inCombatOnlySafeEvents))
+				if mod.inCombatOnlyEvents then
+					mod:RegisterEvents(unpack(mod.inCombatOnlyEvents))
+				end
+				if mod.inCombatOnlySafeEvents then
+					mod:RegisterSafeEvents(unpack(mod.inCombatOnlySafeEvents))
+				end
 			end
 			--Fix for "attempt to perform arithmetic on field 'stats' (a nil value)"
 			if not mod.stats and not mod.noStatistics then
@@ -848,6 +881,14 @@ do
 			mod.engagedDiffText = difficulties.difficultyText
 			mod.engagedDiffIndex = difficulties.difficultyIndex
 			mod.engagedDiffModifier = difficulties.difficultyModifier
+			mod.engagedArea = nil
+			mod.leftCombatAreaAt = nil
+			if private.isRetail and (private.LastInstanceType == "raid" or private.LastInstanceType == "party") and difficulties.savedDifficulty ~= "worldboss" and not (mod.addon and mod.addon.type == "SCENARIO") then
+				local currentArea = self:GetCurrentArea()
+				if type(currentArea) == "number" and currentArea >= 0 then
+					mod.engagedArea = currentArea
+				end
+			end
 			mod.inCombat = true
 			if self.UpdateGenericTrashOptions then
 				self:UpdateGenericTrashOptions(true)
@@ -1048,6 +1089,7 @@ do
 					self:PlaySoundFile(self.Options.EventSoundEngage2, nil, true)
 				end
 				if not mod.inScenario and self.Options.EventSoundMusic and not self:IsNoneValue(self.Options.EventSoundMusic) and self.Options.EventSoundMusic ~= "" and not (self.Options.EventMusicMythicFilter and (difficulties.savedDifficulty == "mythic" or difficulties.savedDifficulty == "challenge")) and not mod.noStatistics and not self.Options.RestoreSettingMusic then
+					if DBM_GUI and DBM_GUI.StopMusicPreview then DBM_GUI:StopMusicPreview() end
 					self:FireEvent("DBM_MusicStart", "BossEncounter")
 					if not self.Options.RestoreSettingCustomMusic then
 						self.Options.RestoreSettingCustomMusic = tonumber(GetCVar("Sound_EnableMusic")) or 1
@@ -1272,7 +1314,7 @@ do
 					private.showConstantReminder = 1
 					--Show message any time this is a mod that has a newer hotfix revision and it's a wipe
 					--These people need to know the wipe could very well be their fault.
-					self:AddMsg(L.OUT_OF_DATE_NAG)
+					private.AddMsg(self, L.OUT_OF_DATE_NAG)
 				end
 				local msg
 				for k, _ in pairs(autoRespondSpam) do
@@ -1410,6 +1452,8 @@ do
 			mod.engagedDiffText = nil
 			mod.engagedDiffIndex = nil
 			mod.engagedDiffModifier = nil
+			mod.engagedArea = nil
+			mod.leftCombatAreaAt = nil
 			mod.vb.stageTotality = nil
 			if #inCombat == 0 then--prevent error if you pulled multiple boss. (Earth, Wind and Fire)
 				private.statusGuildDisabled, private.statusWhisperDisabled, private.raidIconsDisabled, private.chatBubblesDisabled = false, false, false, false

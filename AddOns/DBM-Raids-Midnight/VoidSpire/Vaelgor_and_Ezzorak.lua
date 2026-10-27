@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2735, "DBM-Raids-Midnight", 4, 1307)
 --local L		= mod:GetLocalizedStrings()--Nothing to localize for blank mods
 
-mod:SetRevision("20260727212041")
+mod:SetRevision("20261026012050")
 mod:SetCreatureID(250892)--Vaelgor main boss, 254109 for Ezzorak
 mod:SetEncounterID(3178)
 --mod:SetHotfixNoticeRev(20250823000000)
@@ -285,7 +285,7 @@ do
 				self:ResumeBlizzardAPI()
 				self:UnregisterShortTermEvents()
 				setFallback(self)
-				DBM:Debug("|cffff0000Failed to match encounter timeline events to expected timers, falling back to Blizzard API|r", nil, nil, nil, true)
+				DBM:Debug("|cffff0000Failed to match encounter timeline events to expected timers, falling back to Blizzard API|r", nil, true, nil, true)
 			end
 		elseif stage == 2 then--Stage 2 (t=118 to t=256)
 			if self:IsRoundedTimer(timer, 6) then--Rakfang (initial opener)
@@ -350,7 +350,7 @@ do
 				self:ResumeBlizzardAPI()
 				self:UnregisterShortTermEvents()
 				setFallback(self)
-				DBM:Debug("|cffff0000Failed to match encounter timeline events to expected timers, falling back to Blizzard API|r", nil, nil, nil, true)
+				DBM:Debug("|cffff0000Failed to match encounter timeline events to expected timers, falling back to Blizzard API|r", nil, true, nil, true)
 			end
 		elseif stage == 3 then--Stage 3 (t=256 to t=454)
 			if self:IsRoundedTimer(timer, 225) then--Radiant Barrier
@@ -446,7 +446,7 @@ do
 				self:ResumeBlizzardAPI()
 				self:UnregisterShortTermEvents()
 				setFallback(self)
-				DBM:Debug("|cffff0000Failed to match encounter timeline events to expected timers, falling back to Blizzard API|r", nil, nil, nil, true)
+				DBM:Debug("|cffff0000Failed to match encounter timeline events to expected timers, falling back to Blizzard API|r", nil, true, nil, true)
 			end
 		else--Unknown stage
 			--TODO, get long pull that actually goes into stage 4. which should also be triggered by barrier/midnight flames combo
@@ -454,7 +454,7 @@ do
 			self:ResumeBlizzardAPI()
 			self:UnregisterShortTermEvents()
 			setFallback(self)
-			DBM:Debug("|cffff0000Failed to match encounter timeline events to expected timers, falling back to Blizzard API|r", nil, nil, nil, true)
+			DBM:Debug("|cffff0000Failed to match encounter timeline events to expected timers, falling back to Blizzard API|r", nil, true, nil, true)
 			return
 		end
 	end
@@ -847,7 +847,7 @@ do
 				self:ResumeBlizzardAPI()
 				self:UnregisterShortTermEvents()
 				setFallback(self)
-				DBM:Debug("|cffff0000Failed to match encounter timeline events to expected timers, falling back to Blizzard API|r", nil, nil, nil, true)
+				DBM:Debug("|cffff0000Failed to match encounter timeline events to expected timers, falling back to Blizzard API|r", nil, true, nil, true)
 			end
 		elseif stage == 2 then--Stage 2
 			if self:IsRoundedTimer(timer, 6) then--Rakfang (initial)
@@ -905,7 +905,7 @@ do
 				self:ResumeBlizzardAPI()
 				self:UnregisterShortTermEvents()
 				setFallback(self)
-				DBM:Debug("|cffff0000Failed to match encounter timeline events to expected timers, falling back to Blizzard API|r", nil, nil, nil, true)
+				DBM:Debug("|cffff0000Failed to match encounter timeline events to expected timers, falling back to Blizzard API|r", nil, true, nil, true)
 			end
 		elseif stage == 3 then--Stage 3
 			if self:IsRoundedTimer(timer, 225) then--Radiant Barrier
@@ -991,7 +991,7 @@ do
 				self:ResumeBlizzardAPI()
 				self:UnregisterShortTermEvents()
 				setFallback(self)
-				DBM:Debug("|cffff0000Failed to match encounter timeline events to expected timers, falling back to Blizzard API|r", nil, nil, nil, true)
+				DBM:Debug("|cffff0000Failed to match encounter timeline events to expected timers, falling back to Blizzard API|r", nil, true, nil, true)
 			end
 		else--Unknown stage
 			return

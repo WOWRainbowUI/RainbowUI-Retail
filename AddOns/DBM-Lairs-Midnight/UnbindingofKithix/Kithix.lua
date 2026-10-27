@@ -3,7 +3,7 @@ local mod	= DBM:NewMod(2896, "DBM-Lairs-Midnight", 1, 1324)--Change order when 1
 
 mod.statTypes = "story,lfr,normal,heroic,mythic"
 
-mod:SetRevision("20261015054122")
+mod:SetRevision("20261026012050")
 mod:SetCreatureID(267861)
 mod:SetEncounterID(3513)
 --mod:SetHotfixNoticeRev(20250823000000)
@@ -190,7 +190,7 @@ do
 		self:ResumeBlizzardAPI()
 		self:UnregisterShortTermEvents()
 		setFallback(self)
-		DBM:Debug("|cffff0000Failed to match encounter timeline events to expected timers, falling back to Blizzard API|r", nil, nil, nil, true)
+		DBM:Debug("|cffff0000Failed to match encounter timeline events to expected timers, falling back to Blizzard API|r", nil, true, nil, true)
 	end
 
 	---@param self DBMMod

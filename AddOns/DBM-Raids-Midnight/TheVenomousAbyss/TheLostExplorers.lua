@@ -4,7 +4,7 @@ local mod	= DBM:NewMod(2894, "DBM-Raids-Midnight", 1, 1320)
 local UnitIsFriend = UnitIsFriend
 local GetTime = GetTime
 
-mod:SetRevision("20261010080459")
+mod:SetRevision("20261023043152")
 mod:SetCreatureID(261835, 261843, 261848)--261584 is Mor'zahi
 mod:SetEncounterID(3497)
 --mod:SetHotfixNoticeRev(20250823000000)
@@ -536,8 +536,8 @@ do
 					specWarnShreddingShards:Show()
 					specWarnShreddingShards:Play("defensive")
 				elseif self:IsTank() then
-					specWarnShreddingShardsTaunt:Schedule(3, DBM_COMMON_L.UNKNOWN)--Sadly, boss doesn't look at correct target, at all
-					specWarnShreddingShardsTaunt:ScheduleVoice(3, "tauntboss")
+					specWarnShreddingShardsTaunt:Schedule(4.5, DBM_COMMON_L.UNKNOWN)--Sadly, boss doesn't look at correct target, at all
+					specWarnShreddingShardsTaunt:ScheduleVoice(4.5, "tauntboss")
 				end
 			elseif eventType == "frostfire" then
 				warnFrostfireVolley:Show(eventCount)

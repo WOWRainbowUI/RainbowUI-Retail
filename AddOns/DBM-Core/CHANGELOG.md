@@ -1,17 +1,22 @@
 # DBM - Core
 
-## [12.1.17](https://github.com/DeadlyBossMods/DeadlyBossMods/tree/12.1.17) (2026-10-22)
-[Full Changelog](https://github.com/DeadlyBossMods/DeadlyBossMods/compare/12.1.16...12.1.17) [Previous Releases](https://github.com/DeadlyBossMods/DeadlyBossMods/releases)
+## [12.1.18](https://github.com/DeadlyBossMods/DeadlyBossMods/tree/12.1.18) (2026-10-26)
+[Full Changelog](https://github.com/DeadlyBossMods/DeadlyBossMods/compare/12.1.17...12.1.18) [Previous Releases](https://github.com/DeadlyBossMods/DeadlyBossMods/releases)
 
-- prep new tag  
-- Fix Chilling frost personal warning not firing in hardcode due to not waiting long enough for actual blizz event to be sent.  
-    while at it, improve blizz event intercept to be more robust by passing severity when it can be used to disambiguate warning colision  
-- Hide guild button if not in a guild in the gear check  
-- Consumable check now flags shaman and paladin class specific weapon imbues as valid weapon status yes checks  
-    Fallback Gear check no longer shows ? on players not running DBM when equiped items return uncached results.  
-- fix raid checks tab template on classic flavors  
-- more secret protection if pulling boss with frame still open (granted that should happen less often now with last update)  
-- Auto close raid checks frame on pull timer or boss pull  
-    don't restart consumables check if a check was already in progress at time a ready check is sent and ready check option enabled  
-- cleanup 12.1.5 toc checks  
+- Prep new tag  
+- Strip Hudmap out of DBM-Core  
+- Fix and close https://github.com/DeadlyBossMods/DeadlyBossMods/issues/2268 which occurs if user doesn't actually have chosen langauge default voice pack installed  
+- always play sound when routing fails  
+- Fix and close https://github.com/DeadlyBossMods/DeadlyBossMods/issues/2266  
+- Optimizations and bugfixes (#2265)  
+    * Optimizations and bugfixes  
+- Update koKR (#2262)  
+    * Update koKR  
+- Translate consumes (#2261)  
+    * Update translations  
+- Fix isTanking on Forever  
+- Update tocs for 12.1.7 ptr  
+- Re-enable libspec in forever, and switch own specRole table to same Ids for lookup compatability  
+- Create an elaborate zone based end combat rule to handle niche situations of leaving zone while a boss is engaged, causing endcombat to not fire if you immediately jump into another zone that keeps combat conditions true (such as a delve or M+)  
+- delay taunt by another 1.5 sec to avoid stack refreshes for very fast reacting tanks  
 - bump alpha  

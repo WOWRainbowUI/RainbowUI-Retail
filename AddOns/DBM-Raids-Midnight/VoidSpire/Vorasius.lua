@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2734, "DBM-Raids-Midnight", 4, 1307)
 --local L		= mod:GetLocalizedStrings()--Nothing to localize for blank mods
 
-mod:SetRevision("20260708211617")
+mod:SetRevision("20261026012050")
 mod:SetCreatureID(240434)
 mod:SetEncounterID(3177)
 --mod:SetHotfixNoticeRev(20250823000000)
@@ -108,7 +108,7 @@ do
 			self:ResumeBlizzardAPI()
 			self:UnregisterShortTermEvents()
 			setFallback(self)
-			DBM:Debug("|cffff0000Failed to match encounter timeline events to expected timers, falling back to Blizzard API|r", nil, nil, nil, true)
+			DBM:Debug("|cffff0000Failed to match encounter timeline events to expected timers, falling back to Blizzard API|r", nil, true, nil, true)
 		end
 	end
 	--Note, bar state changing and canceling is handled by core
