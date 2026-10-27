@@ -1,7 +1,6 @@
 # BugSack
 
-## [v12.1.8](https://github.com/funkydude/BugSack/tree/v12.1.8) (2026-10-21)
-[Full Changelog](https://github.com/funkydude/BugSack/compare/v12.1.7...v12.1.8) [Previous Releases](https://github.com/funkydude/BugSack/releases)
+## [v12.1.9](https://github.com/funkydude/BugSack/tree/v12.1.9) (2026-10-26)
+[Full Changelog](https://github.com/funkydude/BugSack/compare/v12.1.8...v12.1.9) [Previous Releases](https://github.com/funkydude/BugSack/releases)
 
-- Bump toc  
-- Update ruRU (#215)  
+- Cleanups  
