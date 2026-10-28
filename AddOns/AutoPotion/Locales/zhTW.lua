@@ -12,7 +12,6 @@ L["Current Priority"] = "目前的優先順序"
 L["Bandage Priority"] = "繃帶優先"
 L["Heartseeking Health Injector (tinker)"] = "覓心生命注射器 (裝置)"
 L["Include /stopcasting in the macro"] = "在巨集中包含停止施法"
-L["Includes the shortest Cooldown in the reset Condition of Castsequence. !!USE CAREFULLY!!"] = "連續施放的重置條件使用最短的冷卻時間。!!請謹慎使用!!"
 L["Invalid option: "] = "無效選項："
 L["Items"] = "物品"
 L["Low Priority Healthstones"] = "治療石的優先順序較低"
@@ -90,3 +89,6 @@ L["Use Rapid Regeneration (Troll racial) before bandages"] = "在繃帶之前使
 L["Only when the buff is missing"] = "僅在缺少增益時優先使用"
 
 L["Eat buff food first while you don't have its buff (\"Well Fed\" for food, \"Relaxed\" for drinks), even before conjured food. While you have it, buff food comes last and is only eaten when nothing else is left."] = "缺少食物的「充分進食」或飲品的「放鬆」增益時，優先使用增益食物或飲品，順序排在魔法製造的食物之前。已有增益時，增益食物會排在最後，僅在沒有其他選擇時使用。"
+
+L["Go back to your first heal once its cooldown is over"] = "第一個治療冷卻結束後，重新從它開始"
+L["If you don't press the macro for as long as your first heal's cooldown (talents included), the macro starts over with it. Works when the first heal is a spell or a Healthstone. A later heal with a longer cooldown can still make the macro wait."] = "若未按下巨集的時間達到第一個治療的冷卻時間（包含天賦效果），巨集就會重新從它開始。第一個治療為法術或治療石時適用。後續治療若有更長的冷卻時間，仍可能讓巨集等待。"

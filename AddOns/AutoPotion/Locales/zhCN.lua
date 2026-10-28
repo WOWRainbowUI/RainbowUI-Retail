@@ -24,8 +24,6 @@ L["Include \"Well Fed\"/\"Relaxed\" buff food and drink items (with situational 
 "将\"进食充分\"/\"悠闲\"增益食物和饮料（含情境性副属性加成）纳入食物和饮料优先级列表。"
 L["Heartseeking Health Injector (tinker)"] = "觅心生命注射器（匠械）"
 L["Include /stopcasting in the macro"] = "添加停止施法（/stopcasting）到宏内（需重载界面）"
-L["Includes the shortest Cooldown in the reset Condition of Castsequence. !!USE CAREFULLY!!"] =
-"在队列施法（Castsequence）的重置条件中加入最短冷却时间|cffff0000!!请谨慎使用!!|r"
 L["Invalid option: "] = "无效选项："
 L["Items"] = "物品"
 L["Low Priority Healthstones"] = "降低治疗石使用优先级"
@@ -94,3 +92,6 @@ L["Use Rapid Regeneration (Troll racial) before bandages"] = "在绷带之前使
 L["Only when the buff is missing"] = "仅在缺少增益时优先使用"
 
 L["Eat buff food first while you don't have its buff (\"Well Fed\" for food, \"Relaxed\" for drinks), even before conjured food. While you have it, buff food comes last and is only eaten when nothing else is left."] = "缺少食物的“进食充分”或饮品的“放松”增益时，优先使用增益食物或饮品，顺序排在魔法制造的食物之前。已有增益时，增益食物会排在最后，仅在没有其他选择时使用。"
+
+L["Go back to your first heal once its cooldown is over"] = "第一个治疗冷却结束后，重新从它开始"
+L["If you don't press the macro for as long as your first heal's cooldown (talents included), the macro starts over with it. Works when the first heal is a spell or a Healthstone. A later heal with a longer cooldown can still make the macro wait."] = "若未按下宏的时间达到第一个治疗的冷却时间（包含天赋效果），宏就会重新从它开始。第一个治疗为法术或治疗石时适用。后续治疗若有更长的冷却时间，仍可能让宏等待。"
