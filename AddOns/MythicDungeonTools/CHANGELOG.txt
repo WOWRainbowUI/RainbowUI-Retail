@@ -1,3 +1,4 @@
-## 6.3.24 (2026-10-26)
+## 6.3.26 (2026-10-28)
 
-- New Focus Marker option "Only focus enemy units", on by default.
+- Updated Russian and German translations.
+- Long checkbox labels in Settings now wrap instead of being cut off.
