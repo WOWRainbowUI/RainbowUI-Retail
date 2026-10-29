@@ -18,7 +18,7 @@
 		local WHITE = "Interface\\Buttons\\WHITE8X8"
 
 		----------------------------------------------------------------------
-		-- Arcane Orbit
+		-- Arcane
 		----------------------------------------------------------------------
 
 		Effects[2] = function(e, h)
@@ -70,7 +70,7 @@
 		end
 
 		----------------------------------------------------------------------
-		-- Rune Ward
+		-- Rune
 		----------------------------------------------------------------------
 
 		Effects[3] = function(e, h)
@@ -285,7 +285,7 @@
 		end
 
 		----------------------------------------------------------------------
-		-- Snow Globe
+		-- Snow
 		----------------------------------------------------------------------
 
 		Effects[6] = function(e, h)
@@ -938,7 +938,7 @@
 		end
 
 		----------------------------------------------------------------------
-		-- Digital Rain
+		-- Rain
 		----------------------------------------------------------------------
 
 		Effects[20] = function(e, h)
@@ -1012,7 +1012,7 @@
 		end
 
 		----------------------------------------------------------------------
-		-- Candy Party
+		-- Candy
 		----------------------------------------------------------------------
 
 		Effects[22] = function(e, h)
@@ -1077,6 +1077,572 @@
 					sp.down:SetOffset(-cos(ang) * height, -sin(ang) * height)
 				end
 				for i = 1, #stars do Pop(stars[i]) end
+			end
+		end
+
+		----------------------------------------------------------------------
+		-- Rainbow
+		----------------------------------------------------------------------
+
+		Effects[23] = function(e, h)
+			local square, Tex, Anim, Group, MakeGlow, EdgeAt, EdgeT, EdgeNormal, Hue = h.square, h.Tex, h.Anim, h.Group, h.MakeGlow, h.EdgeAt, h.EdgeT, h.EdgeNormal, h.Hue
+			local count, band, cycle = 7, 3, 8 -- Number of rings, ring width in pixels, seconds for a ring to go through every colour
+			local inset = square and 1 or 4 -- Gap so the inner ring is not lost under the minimap border
+			local spread = 0.75 -- Hue range across the rings (red on the outside through to violet on the inside)
+			local steps = 12 -- Colour stops per cycle (more stops keep the in-between colours bright)
+			local rings = {}
+			-- Solid rings stacked behind the minimap (smallest on top so each ring only shows its own band)
+			for k = 1, count do
+				local t = Tex(e.back, square and WHITE or DOT, "BACKGROUND", 3 - k)
+				t:SetBlendMode("BLEND")
+				t:SetPoint("CENTER")
+				-- Each ring starts at its own place on the colour wheel (red outside to violet inside)
+				local offset = (count - k) / (count - 1) * spread
+				t:SetVertexColor(Hue(offset))
+				-- Loop through the colour wheel (the colours flow outwards)
+				local ag = Group(e, t)
+				for j = 0, steps - 1 do
+					local r1, g1, b1 = Hue(offset + j / steps)
+					local r2, g2, b2 = Hue(offset + (j + 1) / steps)
+					local vc = Anim(ag, "VertexColor", cycle / steps, j + 1)
+					vc:SetStartColor(CreateColor(r1, g1, b1, 1)); vc:SetEndColor(CreateColor(r2, g2, b2, 1))
+				end
+				rings[k] = t
+			end
+			e.Layout = function()
+				local w = Minimap:GetWidth()
+				for k = 1, count do
+					local s = w + 2 * (inset + band * k)
+					rings[k]:SetSize(s, s)
+				end
+			end
+		end
+
+		----------------------------------------------------------------------
+		-- Fireflies
+		----------------------------------------------------------------------
+
+		Effects[24] = function(e, h)
+			local square, Tex, Anim, Group, MakeGlow, EdgeAt, EdgeT, EdgeNormal, Hue = h.square, h.Tex, h.Anim, h.Group, h.MakeGlow, h.EdgeAt, h.EdgeT, h.EdgeNormal, h.Hue
+			local flies = {}
+			for i = 1, 20 do
+				-- Each firefly is a frame so its halo and core move together
+				local ff = CreateFrame("Frame", nil, e.frame); ff:SetSize(1, 1)
+				local halo = Tex(ff, DOT, "ARTWORK", 1, 0.7, 1, 0.25, 0.45); halo:SetSize(12, 12); halo:SetPoint("CENTER")
+				local core = Tex(ff, DOT, "ARTWORK", 2, 0.95, 1, 0.7, 1); core:SetSize(3, 3); core:SetPoint("CENTER")
+				-- Wander along a closed smooth loop
+				local path = Anim(Group(e, ff), "Path", 6 + random() * 5); path:SetCurveType("SMOOTH")
+				local cps = {}
+				for j = 1, 5 do cps[j] = path:CreateControlPoint(); cps[j]:SetOrder(j) end
+				-- Blink at its own pace
+				local blink = Anim(Group(e, ff, "BOUNCE"), "Alpha", 0.6 + random() * 1.2, 1, random() * 1.5); blink:SetFromAlpha(1); blink:SetToAlpha(0.1); blink:SetSmoothing("IN_OUT")
+				flies[i] = {frame = ff, cps = cps, t = random(), d = random(-4, 16)}
+			end
+			e.Layout = function()
+				for i = 1, #flies do
+					local fl = flies[i]
+					local x, y = EdgeT(fl.t, fl.d)
+					fl.frame:ClearAllPoints(); fl.frame:SetPoint("CENTER", e.frame, "CENTER", x, y)
+					for j = 1, 4 do fl.cps[j]:SetOffset(random(-14, 14), random(-14, 14)) end
+					fl.cps[5]:SetOffset(0, 0)
+				end
+			end
+		end
+
+		----------------------------------------------------------------------
+		-- Synthwave
+		----------------------------------------------------------------------
+
+		Effects[25] = function(e, h)
+			local square, Tex, Anim, Group, MakeGlow, EdgeAt, EdgeT, EdgeNormal, Hue = h.square, h.Tex, h.Anim, h.Group, h.MakeGlow, h.EdgeAt, h.EdgeT, h.EdgeNormal, h.Hue
+			local glow = MakeGlow(e.back, 1.3, 0.6, 0.2, 1, 0.55, 0.14)
+			local segs, step, pieces = 64, 0.03, {}
+			for k = 0, segs - 1 do
+				-- Neon tube that blends between hot pink and cyan around the edge
+				local f = 0.5 + 0.5 * sin(k / segs * TAU * 2)
+				local r, g, b = 1 - 0.8 * f, 0.2 + 0.7 * f, 0.8 + 0.2 * f
+				local sf = CreateFrame("Frame", nil, e.frame); sf:SetAllPoints(); sf:SetAlpha(0.4)
+				local glowLine = sf:CreateLine(nil, "ARTWORK", nil, 1)
+				glowLine:SetColorTexture(r, g, b, 0.3); glowLine:SetBlendMode("ADD"); glowLine:SetThickness(8)
+				local core = sf:CreateLine(nil, "ARTWORK", nil, 2)
+				core:SetColorTexture(r * 0.4 + 0.6, g * 0.4 + 0.6, b * 0.4 + 0.6, 1); core:SetBlendMode("ADD"); core:SetThickness(2)
+				-- Light pulse chases round the tube
+				local ag = Group(e, sf)
+				local up = Anim(ag, "Alpha", 0.2, 1, k * step); up:SetFromAlpha(0.4); up:SetToAlpha(1)
+				local down = Anim(ag, "Alpha", 0.9, 2); down:SetFromAlpha(1); down:SetToAlpha(0.4); down:SetEndDelay((segs - k) * step)
+				pieces[k + 1] = {lines = {glowLine, core}, t = k / segs}
+			end
+			-- Bright head that rides the pulse
+			local head = Tex(e.frame, STAR, "ARTWORK", 3, 1, 0.85, 1); head:SetSize(20, 20)
+			Anim(Group(e, head), "Rotation", 0.8):SetDegrees(360)
+			local path = Anim(Group(e, head), "Path", segs * step + 1.1)
+			path:SetCurveType(square and "NONE" or "SMOOTH")
+			local cps = {}
+			for i = 1, segs do cps[i] = path:CreateControlPoint(); cps[i]:SetOrder(i) end
+			e.Layout = function()
+				if glow.Layout then glow.Layout() end
+				for i = 1, #pieces do
+					local p = pieces[i]
+					local x1, y1 = EdgeT(p.t, 3)
+					local x2, y2 = EdgeT(p.t + 1 / segs, 3)
+					for _, line in ipairs(p.lines) do
+						line:SetStartPoint("CENTER", e.frame, x1, y1)
+						line:SetEndPoint("CENTER", e.frame, x2, y2)
+					end
+				end
+				-- Head goes once round with the pulse (pulse takes segs * step to go round, then the loop rests)
+				path:SetDuration(segs * step)
+				path:SetEndDelay(1.1)
+				local sx, sy = EdgeT(0, 3)
+				head:ClearAllPoints(); head:SetPoint("CENTER", e.frame, "CENTER", sx, sy)
+				for i = 1, segs do
+					local x, y = EdgeT(i / segs, 3)
+					cps[i]:SetOffset(x - sx, y - sy)
+				end
+			end
+		end
+
+		----------------------------------------------------------------------
+		-- Collider
+		----------------------------------------------------------------------
+
+		Effects[26] = function(e, h)
+			local square, Tex, Anim, Group, MakeGlow, EdgeAt, EdgeT, EdgeNormal, Hue = h.square, h.Tex, h.Anim, h.Group, h.MakeGlow, h.EdgeAt, h.EdgeT, h.EdgeNormal, h.Hue
+			local period, points, movers = 8, 72, {}
+			-- Function to make a region follow the edge in a direction (1 is anticlockwise, -1 is clockwise)
+			local function Mover(region, phase, dir)
+				local ag = Group(e, region)
+				local path = Anim(ag, "Path", period)
+				path:SetCurveType(square and "NONE" or "SMOOTH")
+				local cps = {}
+				for i = 1, square and points + 4 or points do cps[i] = path:CreateControlPoint(); cps[i]:SetOrder(i) end
+				tinsert(movers, {region = region, cps = cps, phase = phase, dir = dir})
+				return ag
+			end
+			-- Two comets start together at the top and race round in opposite directions
+			for side, c in ipairs({{1, 0.25, 0.8}, {0.2, 0.9, 1}}) do
+				local dir = side == 1 and 1 or -1
+				for k = 12, 1, -1 do
+					local fade = 1 - k / 13
+					local d = Tex(e.frame, DOT, "ARTWORK", 1, c[1], c[2], c[3], 0.7 * fade)
+					d:SetSize(2 + 6 * fade, 2 + 6 * fade)
+					Mover(d, 0.25 - dir * k * 0.006, dir)
+				end
+				local core = Tex(e.frame, DOT, "ARTWORK", 2, c[1] * 0.4 + 0.6, c[2] * 0.4 + 0.6, c[3] * 0.4 + 0.6, 0.95); core:SetSize(8, 8)
+				Mover(core, 0.25, dir)
+				local head = Tex(e.frame, STAR, "ARTWORK", 3, c[1], c[2], c[3]); head:SetSize(20, 20)
+				local spin = Anim(Mover(head, 0.25, dir), "Rotation", period); spin:SetDegrees(360 * 6 * dir)
+			end
+			-- Flash where the comets meet (top at the start of each lap, bottom half way round)
+			local flashes = {}
+			for i, v in ipairs({{0.25, 0}, {0.75, period / 2}}) do
+				local ff = CreateFrame("Frame", nil, e.frame); ff:SetSize(1, 1); ff:SetAlpha(0)
+				local burst = Tex(ff, DOT, "ARTWORK", 4, 0.8, 0.6, 1, 0.8); burst:SetSize(34, 34); burst:SetPoint("CENTER")
+				local star = Tex(ff, STAR, "ARTWORK", 5, 1, 1, 1); star:SetSize(30, 30); star:SetPoint("CENTER")
+				local ag = Group(e, ff)
+				local on = Anim(ag, "Alpha", 0.08, 1, v[2]); on:SetFromAlpha(0); on:SetToAlpha(1)
+				local off = Anim(ag, "Alpha", 0.5, 2); off:SetFromAlpha(1); off:SetToAlpha(0); off:SetEndDelay(period - v[2] - 0.58)
+				flashes[i] = {frame = ff, t = v[1]}
+			end
+			e.Layout = function()
+				for _, m in ipairs(movers) do
+					-- Points around the edge starting from the mover (square includes the exact corners)
+					local n, ts = #m.cps, {}
+					if square then
+						for i = 1, n - 4 do ts[i] = i / (n - 4) end
+						for c = 0, 3 do tinsert(ts, (((0.125 + c * 0.25) - m.phase) * m.dir) % 1) end
+						table.sort(ts)
+					else
+						for i = 1, n do ts[i] = i / n end
+					end
+					local sx, sy = EdgeT(m.phase, 4)
+					m.region:ClearAllPoints(); m.region:SetPoint("CENTER", e.frame, "CENTER", sx, sy)
+					for i = 1, n do
+						local x, y = EdgeT(m.phase + m.dir * ts[i], 4)
+						m.cps[i]:SetOffset(x - sx, y - sy)
+					end
+				end
+				for i = 1, #flashes do
+					local x, y = EdgeT(flashes[i].t, 4)
+					flashes[i].frame:ClearAllPoints(); flashes[i].frame:SetPoint("CENTER", e.frame, "CENTER", x, y)
+				end
+			end
+		end
+
+		----------------------------------------------------------------------
+		-- Bubbles
+		----------------------------------------------------------------------
+
+		Effects[27] = function(e, h)
+			local square, Tex, Anim, Group, MakeGlow, EdgeAt, EdgeT, EdgeNormal, Hue = h.square, h.Tex, h.Anim, h.Group, h.MakeGlow, h.EdgeAt, h.EdgeT, h.EdgeNormal, h.Hue
+			local sqrt = math.sqrt
+			local bubbles = {}
+			-- Function to send a bubble up from the bottom of the minimap (stays inside a round minimap too)
+			local function Reset(b, first)
+				local half = Minimap:GetWidth() / 2 - 6
+				local x = random(-half, half)
+				local chord = square and half or sqrt(max(half * half - x * x, 0))
+				b.frame:ClearAllPoints(); b.frame:SetPoint("CENTER", e.frame, "CENTER", x, -chord)
+				for j = 1, 4 do
+					local wobble = j < 4 and (j % 2 == 1 and 1 or -1) * random(2, 5) or 0
+					b.cps[j]:SetOffset(wobble, chord * 2 * j / 4)
+				end
+				local s = random(5, 12)
+				b.body:SetSize(s, s); b.shine:SetSize(s * 0.35, s * 0.35)
+				b.shine:ClearAllPoints(); b.shine:SetPoint("CENTER", b.body, "CENTER", -s * 0.2, s * 0.2)
+				local d = (2 + random() * 2) * max(chord, 10) / max(half, 10)
+				local wait = first and random() * 4 or random() * 1.5
+				b.path:SetDuration(d); b.path:SetStartDelay(wait)
+				b.fadeIn:SetStartDelay(wait)
+				b.fadeOut:SetStartDelay(wait + d - 0.3)
+			end
+			for i = 1, 18 do
+				local bf = CreateFrame("Frame", nil, e.frame); bf:SetSize(1, 1); bf:SetAlpha(0)
+				local b = {frame = bf, cps = {}}
+				b.body = Tex(bf, DOT, "ARTWORK", 1, 0.5, 0.85, 1, 0.3); b.body:SetPoint("CENTER")
+				b.shine = Tex(bf, DOT, "ARTWORK", 2, 1, 1, 1, 0.8)
+				local ag = Group(e, bf)
+				b.path = Anim(ag, "Path", 3); b.path:SetCurveType("SMOOTH")
+				for j = 1, 4 do b.cps[j] = b.path:CreateControlPoint(); b.cps[j]:SetOrder(j) end
+				b.fadeIn = Anim(ag, "Alpha", 0.4); b.fadeIn:SetFromAlpha(0); b.fadeIn:SetToAlpha(1)
+				b.fadeOut = Anim(ag, "Alpha", 0.3); b.fadeOut:SetFromAlpha(1); b.fadeOut:SetToAlpha(0)
+				ag:SetScript("OnLoop", function() Reset(b) end)
+				bubbles[i] = b
+			end
+			e.Layout = function()
+				for i = 1, #bubbles do Reset(bubbles[i], true) end
+			end
+		end
+
+		----------------------------------------------------------------------
+		-- Acid
+		----------------------------------------------------------------------
+
+		Effects[28] = function(e, h)
+			local square, Tex, Anim, Group, MakeGlow, EdgeAt, EdgeT, EdgeNormal, Hue = h.square, h.Tex, h.Anim, h.Group, h.MakeGlow, h.EdgeAt, h.EdgeT, h.EdgeNormal, h.Hue
+			local glow = MakeGlow(e.back, 1.2, 0.35, 1, 0.2, 0.45, 0.1)
+			local drops = {}
+			-- Function to choose a new spot on the lower edge for a drop to form and fall from
+			local function Reset(dp)
+				local x, y = EdgeT(0.56 + random() * 0.38, 1)
+				dp.tex:ClearAllPoints(); dp.tex:SetPoint("TOP", e.frame, "CENTER", x, y)
+				dp.fall:SetOffset(0, -random(22, 40))
+				local wait = random() * 2.5
+				dp.grow:SetStartDelay(wait); dp.show:SetStartDelay(wait)
+			end
+			for i = 1, 16 do
+				local t = Tex(e.frame, DOT, "ARTWORK", 1, 0.45, 1, 0.25); t:SetSize(4, 6); t:SetAlpha(0)
+				local ag = Group(e, t)
+				local dp = {tex = t}
+				-- Swell on the edge
+				dp.grow = Anim(ag, "Scale", 1.4, 1); dp.grow:SetScaleFrom(0.2, 0.2); dp.grow:SetScaleTo(1, 1); dp.grow:SetOrigin("TOP", 0, 0); dp.grow:SetSmoothing("OUT")
+				dp.show = Anim(ag, "Alpha", 1.4, 1); dp.show:SetFromAlpha(0); dp.show:SetToAlpha(1)
+				-- Drop, stretch and fade
+				dp.fall = Anim(ag, "Translation", 0.55, 2); dp.fall:SetSmoothing("IN")
+				local stretch = Anim(ag, "Scale", 0.55, 2); stretch:SetScaleFrom(1, 1); stretch:SetScaleTo(0.7, 1.6); stretch:SetOrigin("TOP", 0, 0)
+				local fade = Anim(ag, "Alpha", 0.55, 2); fade:SetFromAlpha(1); fade:SetToAlpha(0)
+				ag:SetScript("OnLoop", function() Reset(dp) end)
+				drops[i] = dp
+			end
+			e.Layout = function()
+				if glow.Layout then glow.Layout() end
+				for i = 1, #drops do Reset(drops[i]) end
+			end
+		end
+
+		----------------------------------------------------------------------
+		-- Shadow
+		----------------------------------------------------------------------
+
+		Effects[29] = function(e, h)
+			local square, Tex, Anim, Group, MakeGlow, EdgeAt, EdgeT, EdgeNormal, Hue = h.square, h.Tex, h.Anim, h.Group, h.MakeGlow, h.EdgeAt, h.EdgeT, h.EdgeNormal, h.Hue
+			local glow = MakeGlow(e.back, 1.3, 0.55, 0.15, 0.85, 0.5, 0.12)
+			local puffs = {}
+			-- Function to send a puff of smoke out from a random point on the edge (first puff starts at a random time)
+			local function Reset(p, first)
+				local t = random()
+				local a = EdgeNormal(t)
+				local x, y = EdgeT(t, 2)
+				p.tex:ClearAllPoints(); p.tex:SetPoint("CENTER", e.frame, "CENTER", x, y)
+				local dist = random(10, 22)
+				p.move:SetOffset(cos(a) * dist, sin(a) * dist + random(2, 8))
+				local d = 1.8 + random() * 1.4
+				local wait = first and random() * d or 0
+				p.move:SetDuration(d); p.grow:SetDuration(d); p.spin:SetDuration(d)
+				p.fadeOut:SetDuration(d * 0.6)
+				p.move:SetStartDelay(wait); p.grow:SetStartDelay(wait); p.spin:SetStartDelay(wait); p.fadeIn:SetStartDelay(wait)
+				p.fadeOut:SetStartDelay(wait + d * 0.4)
+			end
+			for i = 1, 26 do
+				-- Dark smoke (normal blending so it darkens rather than glows)
+				local t = e.back:CreateTexture(nil, "ARTWORK", nil, 1)
+				t:SetTexture(DOT); t:SetBlendMode("BLEND")
+				t:SetVertexColor(0.12 + random() * 0.1, 0.02, 0.2 + random() * 0.1, 0.75)
+				local size = random(14, 24); t:SetSize(size, size); t:SetAlpha(0)
+				local ag = Group(e, t)
+				local p = {tex = t}
+				p.move = Anim(ag, "Translation", 2); p.move:SetSmoothing("OUT")
+				p.grow = Anim(ag, "Scale", 2); p.grow:SetScaleFrom(0.5, 0.5); p.grow:SetScaleTo(1.6, 1.6)
+				p.spin = Anim(ag, "Rotation", 2); p.spin:SetDegrees(random(-90, 90))
+				p.fadeIn = Anim(ag, "Alpha", 0.4); p.fadeIn:SetFromAlpha(0); p.fadeIn:SetToAlpha(1)
+				p.fadeOut = Anim(ag, "Alpha", 1); p.fadeOut:SetFromAlpha(1); p.fadeOut:SetToAlpha(0)
+				ag:SetScript("OnLoop", function() Reset(p) end)
+				puffs[i] = p
+			end
+			e.Layout = function()
+				if glow.Layout then glow.Layout() end
+				for i = 1, #puffs do Reset(puffs[i], true) end
+			end
+		end
+
+		----------------------------------------------------------------------
+		-- Radar
+		----------------------------------------------------------------------
+
+		Effects[30] = function(e, h)
+			local square, Tex, Anim, Group, MakeGlow, EdgeAt, EdgeT, EdgeNormal, Hue = h.square, h.Tex, h.Anim, h.Group, h.MakeGlow, h.EdgeAt, h.EdgeT, h.EdgeNormal, h.Hue
+			local trail, period, beams = 18, 4, {}
+			-- Sweep line with a fading trail behind it (each trail beam starts a little further back)
+			for k = 0, trail do
+				local main = k == 0
+				local t = Tex(e.frame, WHITE, "ARTWORK", main and 2 or 1, 0.25, 1, 0.45, main and 0.7 or 0.28 * (1 - k / (trail + 1)) ^ 1.5)
+				local ag = Group(e, t)
+				local start = Anim(ag, "Rotation", 0.001, 1); start:SetDegrees(k * 2.5); start:SetOrigin("LEFT", 0, 0)
+				local spin = Anim(ag, "Rotation", period, 2); spin:SetDegrees(-360); spin:SetOrigin("LEFT", 0, 0)
+				beams[k + 1] = {tex = t, main = main}
+			end
+			-- Blips that appear and fade
+			local blips = {}
+			local function Blip(b)
+				local half = Minimap:GetWidth() / 2 - 8
+				local a, r = random() * TAU, random() * half
+				b.tex:ClearAllPoints(); b.tex:SetPoint("CENTER", e.frame, "CENTER", cos(a) * r, sin(a) * r)
+				b.on:SetStartDelay(random() * 3)
+			end
+			for i = 1, 6 do
+				local t = Tex(e.frame, DOT, "ARTWORK", 3, 0.4, 1, 0.55); t:SetSize(6, 6); t:SetAlpha(0)
+				local ag = Group(e, t)
+				local b = {tex = t}
+				b.on = Anim(ag, "Alpha", 0.1, 1); b.on:SetFromAlpha(0); b.on:SetToAlpha(1)
+				local off = Anim(ag, "Alpha", 1.8, 2); off:SetFromAlpha(1); off:SetToAlpha(0)
+				ag:SetScript("OnLoop", function() Blip(b) end)
+				blips[i] = b
+			end
+			e.Layout = function()
+				local r = Minimap:GetWidth() / 2
+				for i = 1, #beams do
+					local b = beams[i]
+					b.tex:SetSize(r, b.main and 2 or 3)
+					b.tex:ClearAllPoints(); b.tex:SetPoint("LEFT", e.frame, "CENTER", 0, 0)
+				end
+				for i = 1, #blips do Blip(blips[i]) end
+			end
+		end
+
+		----------------------------------------------------------------------
+		-- Tesla
+		----------------------------------------------------------------------
+
+		Effects[31] = function(e, h)
+			local square, Tex, Anim, Group, MakeGlow, EdgeAt, EdgeT, EdgeNormal, Hue = h.square, h.Tex, h.Anim, h.Group, h.MakeGlow, h.EdgeAt, h.EdgeT, h.EdgeNormal, h.Hue
+			local glow = MakeGlow(e.back, 1.2, 0.3, 0.7, 1, 0.45, 0.1)
+			local arcs, segs = {}, 7
+			-- Function to give an arc a new place, shape and wait (arcs crackle along the edge between two points)
+			local function Reset(arc)
+				local t0, span = random(), 0.04 + random() * 0.06
+				local px, py = EdgeT(t0, 2)
+				arc.sparkA:ClearAllPoints(); arc.sparkA:SetPoint("CENTER", e.frame, "CENTER", px, py)
+				for j = 1, segs do
+					local bow = j == segs and 2 or 2 + random() * 9
+					local x, y = EdgeT(t0 + span * j / segs, bow)
+					for _, line in ipairs(arc.lines[j]) do
+						line:SetStartPoint("CENTER", e.frame, px, py)
+						line:SetEndPoint("CENTER", e.frame, x, y)
+					end
+					px, py = x, y
+				end
+				arc.sparkB:ClearAllPoints(); arc.sparkB:SetPoint("CENTER", e.frame, "CENTER", px, py)
+				arc.wait:SetStartDelay(random() * 1.5)
+			end
+			for i = 1, 5 do
+				local af = CreateFrame("Frame", nil, e.frame); af:SetAllPoints(); af:SetAlpha(0)
+				local arc = {lines = {}}
+				for j = 1, segs do
+					local glowLine = af:CreateLine(nil, "ARTWORK", nil, 1)
+					glowLine:SetColorTexture(0.35, 0.7, 1, 0.35); glowLine:SetBlendMode("ADD"); glowLine:SetThickness(6)
+					local core = af:CreateLine(nil, "ARTWORK", nil, 2)
+					core:SetColorTexture(0.85, 0.95, 1, 1); core:SetBlendMode("ADD"); core:SetThickness(1.5)
+					arc.lines[j] = {glowLine, core}
+				end
+				arc.sparkA = Tex(af, STAR, "ARTWORK", 3, 0.7, 0.9, 1); arc.sparkA:SetSize(12, 12)
+				arc.sparkB = Tex(af, STAR, "ARTWORK", 3, 0.7, 0.9, 1); arc.sparkB:SetSize(12, 12)
+				-- Crackle on, flicker and off
+				local ag = Group(e, af)
+				arc.wait = Anim(ag, "Alpha", 0.03, 1); arc.wait:SetFromAlpha(0); arc.wait:SetToAlpha(1)
+				local f1 = Anim(ag, "Alpha", 0.05, 2); f1:SetFromAlpha(1); f1:SetToAlpha(0.3)
+				local f2 = Anim(ag, "Alpha", 0.04, 3); f2:SetFromAlpha(0.3); f2:SetToAlpha(1)
+				local f3 = Anim(ag, "Alpha", 0.12, 4); f3:SetFromAlpha(1); f3:SetToAlpha(0)
+				ag:SetScript("OnLoop", function() Reset(arc) end)
+				arcs[i] = arc
+			end
+			e.Layout = function()
+				if glow.Layout then glow.Layout() end
+				for i = 1, #arcs do Reset(arcs[i]) end
+			end
+		end
+
+		----------------------------------------------------------------------
+		-- Meteor
+		----------------------------------------------------------------------
+
+		Effects[32] = function(e, h)
+			local square, Tex, Anim, Group, MakeGlow, EdgeAt, EdgeT, EdgeNormal, Hue = h.square, h.Tex, h.Anim, h.Group, h.MakeGlow, h.EdgeAt, h.EdgeT, h.EdgeNormal, h.Hue
+			local ang = atan2(-0.75, -1) -- Down and to the left
+			local dx, dy = cos(ang), sin(ang)
+			local meteors = {}
+			-- Function to choose a new line across the minimap and a new wait
+			local function Reset(m)
+				local half = Minimap:GetWidth() / 2
+				local across = random(-half, half)
+				local sx, sy = -dx * (half + 30) - dy * across, -dy * (half + 30) + dx * across
+				m.frame:ClearAllPoints(); m.frame:SetPoint("CENTER", e.frame, "CENTER", sx, sy)
+				local dist = half * 2 + 60
+				m.move:SetOffset(dx * dist, dy * dist)
+				local d = 1 + random() * 0.4
+				local wait = 0.3 + random() * 3.2
+				m.move:SetDuration(d); m.move:SetStartDelay(wait)
+				m.fadeIn:SetStartDelay(wait)
+				m.fadeOut:SetStartDelay(wait + d - 0.3)
+			end
+			for i = 1, 5 do
+				local mf = CreateFrame("Frame", nil, e.frame); mf:SetSize(1, 1); mf:SetAlpha(0)
+				local m = {frame = mf}
+				local glow = Tex(mf, DOT, "ARTWORK", 1, 1, 0.55, 0.2, 0.6); glow:SetSize(12, 12); glow:SetPoint("CENTER")
+				local head = Tex(mf, STAR, "ARTWORK", 3, 1, 0.9, 0.65); head:SetSize(14, 14); head:SetPoint("CENTER")
+				local tail = Tex(mf, WHITE, "ARTWORK", 2, 1, 1, 1); tail:SetSize(60, 2.5)
+				tail:SetGradient("HORIZONTAL", CreateColor(1, 0.5, 0.2, 0), CreateColor(1, 0.9, 0.7, 0.9))
+				tail:SetPoint("CENTER", head, "CENTER", -dx * 30, -dy * 30)
+				tail:SetRotation(ang)
+				local ag = Group(e, mf)
+				m.move = Anim(ag, "Translation", 1)
+				m.fadeIn = Anim(ag, "Alpha", 0.15); m.fadeIn:SetFromAlpha(0); m.fadeIn:SetToAlpha(1)
+				m.fadeOut = Anim(ag, "Alpha", 0.3); m.fadeOut:SetFromAlpha(1); m.fadeOut:SetToAlpha(0)
+				ag:SetScript("OnLoop", function() Reset(m) end)
+				meteors[i] = m
+			end
+			e.Layout = function()
+				for i = 1, #meteors do Reset(meteors[i]) end
+			end
+		end
+
+		----------------------------------------------------------------------
+		-- Tube
+		----------------------------------------------------------------------
+
+		Effects[33] = function(e, h)
+			local square, Tex, Anim, Group, MakeGlow, EdgeAt, EdgeT, EdgeNormal, Hue = h.square, h.Tex, h.Anim, h.Group, h.MakeGlow, h.EdgeAt, h.EdgeT, h.EdgeNormal, h.Hue
+
+			-- Everything is kept inside the minimap (clipped for square, masked for round)
+			local clip = CreateFrame("Frame", nil, e.frame); clip:SetAllPoints(); clip:SetClipsChildren(true)
+			local mask
+			if not square then
+				mask = clip:CreateMaskTexture()
+				mask:SetTexture(DOT, "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
+				mask:SetAllPoints(clip)
+			end
+
+			-- Function to create a dark texture (normal blending so it darkens rather than glows)
+			local function Dark(sub, a)
+				local t = clip:CreateTexture(nil, "ARTWORK", nil, sub)
+				t:SetTexture(WHITE); t:SetBlendMode("BLEND")
+				t:SetVertexColor(0, 0, 0, a or 1)
+				if mask then t:AddMaskTexture(mask) end
+				return t
+			end
+
+			-- Scanlines (created as needed in the layout so they always fill the minimap)
+			local scanlines, gap = {}, 3
+
+			-- Hum bar rolling down the minimap (same as the Glitch effect)
+			local scan = Tex(clip, WHITE, "ARTWORK", 3, 0.6, 1, 1, 0.08)
+			if mask then scan:AddMaskTexture(mask) end
+			local roll = Anim(Group(e, scan), "Translation", 4)
+
+			-- Soft dark band that slowly drifts up the minimap
+			local bandTop, bandBottom = Dark(2), Dark(2)
+			bandTop:SetGradient("VERTICAL", CreateColor(0, 0, 0, 0.1), CreateColor(0, 0, 0, 0))
+			bandBottom:SetGradient("VERTICAL", CreateColor(0, 0, 0, 0), CreateColor(0, 0, 0, 0.1))
+			local bandTopRoll, bandBottomRoll = Anim(Group(e, bandTop), "Translation", 11), Anim(Group(e, bandBottom), "Translation", 11)
+
+			-- Edge darkening (makes the glass look curved)
+			local edge, edgeAlpha = {}, 0.3
+			if square then
+				for k = 1, 4 do edge[k] = Dark(4) end
+				edge[1]:SetGradient("VERTICAL", CreateColor(0, 0, 0, 0), CreateColor(0, 0, 0, edgeAlpha))	-- Top
+				edge[2]:SetGradient("VERTICAL", CreateColor(0, 0, 0, edgeAlpha), CreateColor(0, 0, 0, 0))	-- Bottom
+				edge[3]:SetGradient("HORIZONTAL", CreateColor(0, 0, 0, edgeAlpha), CreateColor(0, 0, 0, 0))	-- Left
+				edge[4]:SetGradient("HORIZONTAL", CreateColor(0, 0, 0, 0), CreateColor(0, 0, 0, edgeAlpha))	-- Right
+			else
+				-- Rings of lines just inside the edge, darkest at the outside
+				local rings, segs = 6, 48
+				for k = 1, rings do
+					local a = edgeAlpha * (1 - (k - 1) / rings) ^ 2
+					for j = 1, segs do
+						local line = clip:CreateLine(nil, "ARTWORK", nil, 4)
+						line:SetColorTexture(0, 0, 0, a)
+						tinsert(edge, {line = line, k = k, t = (j - 1) / segs, step = 1 / segs})
+					end
+				end
+				edge.rings = rings
+			end
+
+			e.Layout = function()
+				local w = Minimap:GetWidth()
+
+				-- Scanlines
+				local count = floor(w / gap)
+				for i = 1, max(count, #scanlines) do
+					local s = scanlines[i]
+					if i <= count then
+						if not s then s = Dark(1, 0.15); scanlines[i] = s end
+						s:SetSize(w, 1)
+						s:ClearAllPoints(); s:SetPoint("TOP", clip, "TOP", 0, -(i - 1) * gap - 1)
+						s:Show()
+					elseif s then
+						s:Hide()
+					end
+				end
+
+				-- Hum bar
+				scan:SetSize(w, 2); scan:ClearAllPoints(); scan:SetPoint("CENTER", clip, "TOP", 0, 0)
+				roll:SetOffset(0, -w)
+
+				-- Dark band starts below the minimap and drifts up past the top
+				local band = w * 0.3
+				bandTop:SetSize(w, band / 2); bandBottom:SetSize(w, band / 2)
+				bandTop:ClearAllPoints(); bandTop:SetPoint("BOTTOM", clip, "BOTTOM", 0, -band / 2)
+				bandBottom:ClearAllPoints(); bandBottom:SetPoint("TOP", clip, "BOTTOM", 0, -band / 2)
+				bandTopRoll:SetOffset(0, w + band); bandBottomRoll:SetOffset(0, w + band)
+
+				-- Edge darkening
+				local depth = w * 0.12
+				if square then
+					edge[1]:ClearAllPoints(); edge[1]:SetPoint("TOPLEFT", clip); edge[1]:SetPoint("TOPRIGHT", clip); edge[1]:SetHeight(depth)
+					edge[2]:ClearAllPoints(); edge[2]:SetPoint("BOTTOMLEFT", clip); edge[2]:SetPoint("BOTTOMRIGHT", clip); edge[2]:SetHeight(depth)
+					edge[3]:ClearAllPoints(); edge[3]:SetPoint("TOPLEFT", clip); edge[3]:SetPoint("BOTTOMLEFT", clip); edge[3]:SetWidth(depth)
+					edge[4]:ClearAllPoints(); edge[4]:SetPoint("TOPRIGHT", clip); edge[4]:SetPoint("BOTTOMRIGHT", clip); edge[4]:SetWidth(depth)
+				else
+					local thick = depth / edge.rings
+					for i = 1, #edge do
+						local v = edge[i]
+						local inset = -(v.k - 0.5) * thick
+						local x1, y1 = EdgeT(v.t, inset)
+						local x2, y2 = EdgeT(v.t + v.step, inset)
+						v.line:SetThickness(thick)
+						v.line:SetStartPoint("CENTER", clip, x1, y1)
+						v.line:SetEndPoint("CENTER", clip, x2, y2)
+					end
+				end
 			end
 		end
 

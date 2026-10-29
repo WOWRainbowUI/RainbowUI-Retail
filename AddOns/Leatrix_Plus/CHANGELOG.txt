@@ -1,4 +1,13 @@
-﻿12.1.14 - 21st October 2026
+﻿12.1.15 - 28th October 2026
+- PTR (12.1.7): Updated for game patch 12.1.7.
+- Added 'Show info cards' ('Interface').  If checked, pointing at something (such as a player, item, spell, buff, quest, etc) and pressing a keybind (you can set it in the configuration panel) will show a color-coded information card.  Pointing at a character will show information such as their average item level, talent choices, buffs and a 3D model of the character with animation slider, a gear toggle button, a fullscreen switch and scene selector.  Pointing at something else will show useful information and a Wowhead link that you can copy with CTRL/C.  This new option replaces the web link keybind which has been removed.
+- For 'Enhance minimap', added more visual effects.
+- For 'Enhance dressup', redesigned the dressing room layout.  There are additional buttons, the gear slot buttons and the nude button are now toggles and there is now an info card button.
+- For 'Media', tracks are now automatically generated from game data.
+- Having the taint log enabled is currently causing errors to be shown.  These are caused by a bug in the game and the same was happening in Forever Beta.  For now, taint logging will be disabled as a temporary measure because I don't want to change a lot of code to work around a game bug that will likely be fixed anyway.
+- Removed transitional code.
+
+12.1.14 - 21st October 2026
 - The 'Set chat font size' option ('Chat') is now 'More chat font sizes'.  It now adds additional font sizes to the chat font size menu.
 - Added a language dropdown menu ('Settings') so you can choose which language you want the addon to use.
 - For 'Show range coloring' ('Interface'), fixed a Lua error.

@@ -5,11 +5,6 @@
 		SlashCmdList["Leatrix_Plus"]()
 	</Binding>
 
-	<!-- Show web link -->
-	<Binding name="LEATRIX_PLUS_GLOBAL_WEBLINK" category = "Leatrix Plus">
-		SlashCmdList["Leatrix_Plus"]("id")
-	</Binding>
-
 	<!-- Announce rare -->
 	<Binding name="LEATRIX_PLUS_GLOBAL_RARE" category = "Leatrix Plus">
 		SlashCmdList["Leatrix_Plus"]("ra")
