@@ -3,7 +3,7 @@
 # line above once ready.
 
 ## Title: Threat Plates
-## Version: 13.3.3
+## Version: 13.3.4
 ## Notes: Threat-reactive nameplates.
 ## Notes-deDE: Bedrohungsreaktive Namensplaketten.
 ## Notes-esES: Placas Identificativas de Amenaza
