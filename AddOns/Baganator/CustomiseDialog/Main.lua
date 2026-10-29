@@ -654,7 +654,7 @@ function BaganatorCustomiseDialogMixin:SetupGeneral()
   do
     local DONATE_OPTIONS = {{
       type = "header",
-      text = addonTable.Locales.DEVELOPMENT_IS_TIME_CONSUMING,
+      text = addonTable.Locales.DEVELOPMENT_IS_DONE_BY_A_HUMAN,
       level = 2,
     }}
     local optionFrames = GenerateFrames(DONATE_OPTIONS, frame)

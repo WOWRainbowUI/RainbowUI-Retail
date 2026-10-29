@@ -1,6 +1,7 @@
 # Baganator
 
-## [838](https://github.com/TheMouseNest/Baganator/tree/838) (2026-10-17)
-[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/837...838) 
+## [839](https://github.com/TheMouseNest/Baganator/tree/839) (2026-10-28)
+[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/838...839) 
 
-- Forever: Bank: Fix extra line doubling column count on categories  
+- Update donate message  
+- Forever: If unusable in red refresh bags on profession skill up to check recipes  

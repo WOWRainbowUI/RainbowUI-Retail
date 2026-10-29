@@ -1,7 +1,7 @@
 ## Dependencies: Ace3
 ## Interface: 120100, 120105, 16001, 50504, 38001, 20506, 11509
 ## Title: Baganator
-## Version: 838
+## Version: 839
 ## Author: plusmouse
 ## OptionalDeps: Syndicator, Masque
 ## SavedVariables: BAGANATOR_CONFIG, BAGANATOR_DATA
@@ -184,3 +184,4 @@ Compatibility\Contexts.lua
 Compatibility\ItemLevels.lua
 Compatibility\AuctionValue.lua
 Compatibility\BankType.lua
+Compatibility\Unusable.lua
