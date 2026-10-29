@@ -1,7 +1,6 @@
 # Platynator
 
-## [523](https://github.com/TheMouseNest/Platynator/tree/523) (2026-10-26)
-[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/522...523) 
+## [526](https://github.com/TheMouseNest/Platynator/tree/526) (2026-10-28)
+[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/525...526) 
 
-- Fix absorb not scaling with health bar  
-- Cleanup deprecations  
+- Classic Era/MoP: Fix this again  

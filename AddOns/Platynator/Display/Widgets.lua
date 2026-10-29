@@ -3,15 +3,19 @@ local addonTable = select(2, ...)
 
 local LSM = LibStub("LibSharedMedia-3.0")
 
+local SmartSize = addonTable.Constants.IsPixelPerfectPlus and UIParent.SetSize or PixelUtil.SetSize
+local SmartPoint = addonTable.Constants.IsPixelPerfectPlus and UIParent.SetPoint or PixelUtil.SetPoint
+local SmartConvert = addonTable.Constants.IsPixelPerfectPlus and function(a) return a end or PixelUtil.ConvertPixelsToUIForRegion
+
 function addonTable.Display.ApplyAnchor(frame, anchor, scale)
   scale = scale or 1
   frame:ClearAllPoints()
   if #anchor == 0 then
     frame:SetPoint("CENTER")
   elseif #anchor == 3 then
-    PixelUtil.SetPoint(frame, anchor[1], frame:GetParent(), "CENTER", anchor[2] * scale, anchor[3] * scale)
+    SmartPoint(frame, anchor[1], frame:GetParent(), "CENTER", anchor[2] * scale, anchor[3] * scale)
   elseif #anchor == 2 then
-    PixelUtil.SetPoint(frame, "CENTER", frame:GetParent(), "CENTER", anchor[1] * scale, anchor[2] * scale)
+    SmartPoint(frame, "CENTER", frame:GetParent(), "CENTER", anchor[1] * scale, anchor[2] * scale)
   elseif #anchor == 1 then
     frame:SetPoint(anchor[1], frame:GetParent(), "CENTER")
   end
@@ -91,21 +95,21 @@ local function InitBar(frame, details)
 end
 
 local function SizeBar(frame, details)
-  PixelUtil.SetSize(frame, frame.rawWidth * details.scale, frame.rawHeight * details.scale)
+  SmartSize(frame, frame.rawWidth * details.scale, frame.rawHeight * details.scale)
 
-  PixelUtil.SetSize(frame.statusBar, frame.rawWidth * frame.lowerScale, frame.rawHeight * frame.lowerScale)
-  PixelUtil.SetSize(frame.border, frame.borderWidth * frame.lowerScale, frame.borderHeight * frame.lowerScale)
+  SmartSize(frame.statusBar, frame.rawWidth * frame.lowerScale, frame.rawHeight * frame.lowerScale)
+  SmartSize(frame.border, frame.borderWidth * frame.lowerScale, frame.borderHeight * frame.lowerScale)
   if frame.marker:IsShown() then
-    PixelUtil.SetSize(frame.marker, frame.marker.rawWidth * details.scale * frame.lowerScale, frame.rawHeight * frame.lowerScale)
-    PixelUtil.SetSize(frame.edgeMask, frame.marker.rawWidth * details.scale, frame.rawHeight * details.scale)
+    SmartSize(frame.marker, frame.marker.rawWidth * details.scale * frame.lowerScale, frame.rawHeight * frame.lowerScale)
+    SmartSize(frame.edgeMask, frame.marker.rawWidth * details.scale, frame.rawHeight * details.scale)
   end
 end
 
 local function AnchorBar(frame, details)
   ApplyAnchor(frame, frame.details.anchor)
   if frame.marker:IsShown() then
-    PixelUtil.SetPoint(frame.marker, "RIGHT", frame.statusBar:GetStatusBarTexture(), "RIGHT", details.scale * frame.lowerScale * frame.marker.rawOffset, 0)
-    PixelUtil.SetPoint(frame.edgeMask, "RIGHT", frame.statusBar:GetStatusBarTexture(), "RIGHT", details.scale * frame.marker.rawOffset + 1, 0)
+    SmartPoint(frame.marker, "RIGHT", frame.statusBar:GetStatusBarTexture(), "RIGHT", details.scale * frame.lowerScale * frame.marker.rawOffset, 0)
+    SmartPoint(frame.edgeMask, "RIGHT", frame.statusBar:GetStatusBarTexture(), "RIGHT", details.scale * frame.marker.rawOffset + 1, 0)
   end
 end
 
@@ -315,8 +319,8 @@ function addonTable.Display.GetHealthBar(frame, parent)
 
   function frame:ApplySize()
     SizeBar(frame, frame.details)
-    PixelUtil.SetSize(frame.statusBarAbsorb, frame.rawWidth, frame.rawHeight)
-    PixelUtil.SetSize(frame.statusBarCutawayMask, frame.rawWidth * frame.lowerScale, frame.rawHeight * frame.lowerScale)
+    SmartSize(frame.statusBarAbsorb, frame.rawWidth, frame.rawHeight)
+    SmartSize(frame.statusBarCutawayMask, frame.rawWidth * frame.lowerScale, frame.rawHeight * frame.lowerScale)
   end
 
   function frame:SetMarkerAlpha(a)
@@ -374,7 +378,7 @@ function addonTable.Display.GetHealthBar(frame, parent)
       end
     end
 
-    local height = PixelUtil.ConvertPixelsToUIForRegion(frame.rawHeight * frame.details.scale, frame) + 1
+    local height = SmartConvert(frame.rawHeight * frame.details.scale, frame) + 1
     ArrangeAuras(frame, auraManager, height, kind, filterString)
   end
 
@@ -502,7 +506,7 @@ function addonTable.Display.GetCastBar(frame, parent)
     frame.interruptMarker:SetSize(frame.rawWidth * lowerScale, frame.rawHeight * lowerScale)
     frame.interruptPositioner:SetSize(frame.rawWidth * lowerScale, frame.rawHeight * lowerScale)
     if details.interruptMarker.asset ~= "MM: Transparency" then
-      PixelUtil.SetSize(frame.interruptMarkerPoint, frame.interruptMarker.rawWidth * details.scale * lowerScale, frame.rawHeight * lowerScale)
+      SmartSize(frame.interruptMarkerPoint, frame.interruptMarker.rawWidth * details.scale * lowerScale, frame.rawHeight * lowerScale)
     end
   end
 
@@ -605,7 +609,7 @@ function addonTable.Display.GetPower(frame, parent)
   function frame:ApplySize()
     local maxPower = self.lastMaxPower
     self.lastMaxPower = nil
-    PixelUtil.SetSize(self, (self.asset.width - self.asset.inset) * (self.points and #self.points or 0), self.asset.height)
+    SmartSize(self, (self.asset.width - self.asset.inset) * (self.points and #self.points or 0), self.asset.height)
     if self.points then
       self:SetValue(self.points)
     elseif self.currentPower and maxPower then
@@ -617,8 +621,8 @@ function addonTable.Display.GetPower(frame, parent)
     local maxPower = #points
     self.points = points
     if self.lastMaxPower ~= maxPower then
-      local width = PixelUtil.ConvertPixelsToUIForRegion(self.asset.width * self.details.scale, self)
-      local height = PixelUtil.ConvertPixelsToUIForRegion(self.asset.height * self.details.scale, self)
+      local width = SmartConvert(self.asset.width * self.details.scale, self)
+      local height = SmartConvert(self.asset.height * self.details.scale, self)
       while #self.powerTextures < maxPower do
         local t = self:CreateTexture(nil, "ARTWORK")
         t:SetTexture(self.asset.file)
@@ -632,8 +636,8 @@ function addonTable.Display.GetPower(frame, parent)
         end
       end
 
-      local offset = PixelUtil.ConvertPixelsToUIForRegion((-(self.asset.width - self.asset.inset) * maxPower/2 - self.asset.inset / 2) * self.details.scale, self)
-      local step = PixelUtil.ConvertPixelsToUIForRegion((self.asset.width - self.asset.inset) * self.details.scale, self)
+      local offset = SmartConvert((-(self.asset.width - self.asset.inset) * maxPower/2 - self.asset.inset / 2) * self.details.scale, self)
+      local step = SmartConvert((self.asset.width - self.asset.inset) * self.details.scale, self)
       for i = 1, maxPower do
         local t = self.powerTextures[i]
         t:ClearAllPoints()
@@ -645,7 +649,7 @@ function addonTable.Display.GetPower(frame, parent)
 
       self.lastMaxPower = maxPower
 
-      PixelUtil.SetSize(self, (self.asset.width - self.asset.inset) * self.details.scale * maxPower, (self.asset.height - self.asset.inset) * self.details.scale)
+      SmartSize(self, (self.asset.width - self.asset.inset) * self.details.scale * maxPower, (self.asset.height - self.asset.inset) * self.details.scale)
     end
 
     if maxPower > 0 then
@@ -661,8 +665,8 @@ function addonTable.Display.GetPower(frame, parent)
     self.currentPower = currentPower
     self.lastColor = color
     if self.lastMaxPower ~= maxPower then
-      local width = PixelUtil.ConvertPixelsToUIForRegion(self.asset.width * self.details.scale, self)
-      local height = PixelUtil.ConvertPixelsToUIForRegion(self.asset.height * self.details.scale, self)
+      local width = SmartConvert(self.asset.width * self.details.scale, self)
+      local height = SmartConvert(self.asset.height * self.details.scale, self)
       while #self.powerStatusPips < maxPower do
         local sb = CreateFrame("StatusBar", nil, self)
         sb:SetStatusBarTexture("Interface/AddOns/Platynator/Special/transparent.png")
@@ -687,8 +691,8 @@ function addonTable.Display.GetPower(frame, parent)
         end
       end
 
-      local offset = PixelUtil.ConvertPixelsToUIForRegion((-(self.asset.width - self.asset.inset) * maxPower/2 - self.asset.inset / 2) * self.details.scale, self)
-      local step = PixelUtil.ConvertPixelsToUIForRegion((self.asset.width - self.asset.inset) * self.details.scale, self)
+      local offset = SmartConvert((-(self.asset.width - self.asset.inset) * maxPower/2 - self.asset.inset / 2) * self.details.scale, self)
+      local step = SmartConvert((self.asset.width - self.asset.inset) * self.details.scale, self)
       for i = 1, maxPower do
         local sb = self.powerStatusPips[i]
         sb:ClearAllPoints()
@@ -701,7 +705,7 @@ function addonTable.Display.GetPower(frame, parent)
 
       self.lastMaxPower = maxPower
 
-      PixelUtil.SetSize(self, (self.asset.width - self.asset.inset) * self.details.scale * maxPower, (self.asset.height - self.asset.inset) * self.details.scale)
+      SmartSize(self, (self.asset.width - self.asset.inset) * self.details.scale * maxPower, (self.asset.height - self.asset.inset) * self.details.scale)
     end
 
     if maxPower > 0 then
@@ -773,12 +777,12 @@ function addonTable.Display.GetHighlight(frame, parent)
     if details.sliced then
       local width, height = details.width * addonTable.Assets.BarBordersSize.width, details.height * addonTable.Assets.BarBordersSize.height
       frame.rawWidth, frame.rawHeight = width * details.scale, height * details.scale
-      PixelUtil.SetSize(frame, frame.rawWidth, frame.rawHeight)
-      PixelUtil.SetSize(frame.highlight, (width + (highlightDetails.padding.left + highlightDetails.padding.right) / 2) / highlightDetails.scaleModifier, (height + (highlightDetails.padding.top + highlightDetails.padding.bottom) / 2) / highlightDetails.scaleModifier)
+      SmartSize(frame, frame.rawWidth, frame.rawHeight)
+      SmartSize(frame.highlight, (width + (highlightDetails.padding.left + highlightDetails.padding.right) / 2) / highlightDetails.scaleModifier, (height + (highlightDetails.padding.top + highlightDetails.padding.bottom) / 2) / highlightDetails.scaleModifier)
     else
       frame.rawWidth, frame.rawHeight = highlightDetails.width * details.width * details.scale, highlightDetails.height * details.height * details.scale
-      PixelUtil.SetSize(frame, frame.rawWidth, frame.rawHeight)
-      PixelUtil.SetSize(frame.highlight, highlightDetails.width * details.width, highlightDetails.height * details.height)
+      SmartSize(frame, frame.rawWidth, frame.rawHeight)
+      SmartSize(frame.highlight, highlightDetails.width * details.width, highlightDetails.height * details.height)
     end
   end
 
@@ -866,9 +870,9 @@ function addonTable.Display.GetAnimatedBorderHighlight(frame, parent)
 
   function frame:ApplySize()
     local details = frame.details
-    PixelUtil.SetSize(frame, addonTable.Assets.BarBordersSize.width * details.width * details.scale, addonTable.Assets.BarBordersSize.height * details.height * details.scale)
+    SmartSize(frame, addonTable.Assets.BarBordersSize.width * details.width * details.scale, addonTable.Assets.BarBordersSize.height * details.height * details.scale)
 
-    local dim = PixelUtil.ConvertPixelsToUIForRegion(details.borderWidth * frame.defaultBorderDim, frame)
+    local dim = SmartConvert(details.borderWidth * frame.defaultBorderDim, frame)
     frame.Top:SetHeight(dim)
     frame.Bottom:SetHeight(dim)
     frame.Left:SetWidth(dim)
@@ -936,11 +940,11 @@ function addonTable.Display.GetFlashingHighlight(frame, parent)
     assert(highlightDetails)
     if details.sliced then
       local width, height = details.width * addonTable.Assets.BarBordersSize.width, details.height * addonTable.Assets.BarBordersSize.height
-      PixelUtil.SetSize(frame, width * details.scale, height * details.scale)
-      PixelUtil.SetSize(frame.highlight, (width + (highlightDetails.padding.left + highlightDetails.padding.right) / 2) / highlightDetails.scaleModifier, (height + (highlightDetails.padding.top + highlightDetails.padding.bottom) / 2) / highlightDetails.scaleModifier)
+      SmartSize(frame, width * details.scale, height * details.scale)
+      SmartSize(frame.highlight, (width + (highlightDetails.padding.left + highlightDetails.padding.right) / 2) / highlightDetails.scaleModifier, (height + (highlightDetails.padding.top + highlightDetails.padding.bottom) / 2) / highlightDetails.scaleModifier)
     else
-      PixelUtil.SetSize(frame, highlightDetails.width * details.width * details.scale, highlightDetails.height * details.height * details.scale)
-      PixelUtil.SetSize(frame.highlight, highlightDetails.width * details.width, highlightDetails.height * details.height)
+      SmartSize(frame, highlightDetails.width * details.width * details.scale, highlightDetails.height * details.height * details.scale)
+      SmartSize(frame.highlight, highlightDetails.width * details.width, highlightDetails.height * details.height)
     end
   end
 
@@ -1027,10 +1031,10 @@ function addonTable.Display.GetBorderedHighlight(frame, parent)
 
   function frame:ApplySize()
     local details = frame.details
-    PixelUtil.SetSize(frame, frame.rawWidth * details.scale, frame.rawHeight * details.scale)
+    SmartSize(frame, frame.rawWidth * details.scale, frame.rawHeight * details.scale)
 
-    PixelUtil.SetSize(frame.background, frame.rawWidth * frame.lowerScale, frame.rawHeight * frame.lowerScale)
-    PixelUtil.SetSize(frame.border, frame.borderWidth * frame.lowerScale, frame.borderHeight * frame.lowerScale)
+    SmartSize(frame.background, frame.rawWidth * frame.lowerScale, frame.rawHeight * frame.lowerScale)
+    SmartSize(frame.border, frame.borderWidth * frame.lowerScale, frame.borderHeight * frame.lowerScale)
   end
 
   return frame
@@ -1161,7 +1165,7 @@ function addonTable.Display.GetMarker(frame, parent)
   function frame:ApplySize()
     local details = frame.details
     local markerDetails = addonTable.Assets.Markers[details.asset]
-    PixelUtil.SetSize(frame, markerDetails.width * details.scale, markerDetails.height * details.scale)
+    SmartSize(frame, markerDetails.width * details.scale, markerDetails.height * details.scale)
   end
 
   return frame
@@ -1461,6 +1465,9 @@ function addonTable.Display.GetWidgets(design, parent, isEditor)
   end
 
   for _, w in ipairs(widgets) do
+    if addonTable.Constants.IsPixelPerfectPlus then
+      PixelUtil.SetRoundLayoutToNearestPixelRecursively(w, true)
+    end
     w:ApplyAnchor()
     w:ApplySize()
     w.pixelPerfectRequired = nil

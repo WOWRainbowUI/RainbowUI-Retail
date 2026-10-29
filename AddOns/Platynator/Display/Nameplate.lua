@@ -27,6 +27,12 @@ function addonTable.Display.NameplateMixin:OnLoad()
   self.CrowdControlDisplay:SetFrameStrata("MEDIUM")
   self.CrowdControlDisplay:SetFlattensRenderLayers(true)
 
+  if addonTable.Constants.IsPixelPerfectPlus then
+    self.DebuffDisplay:SetRoundLayoutToNearestPixel(true)
+    self.BuffDisplay:SetRoundLayoutToNearestPixel(true)
+    self.CrowdControlDisplay:SetRoundLayoutToNearestPixel(true)
+  end
+
   self:SetSize(10, 10)
 
   self.casting = false
@@ -133,7 +139,7 @@ function addonTable.Display.NameplateMixin:InitializeWidgets(design, scaleOffset
     self.AurasManager:InitializeWidgets(self, designInfo)
   end
 
-  if self:GetScript("OnSizeChanged") == nil then
+  if self:GetScript("OnSizeChanged") == nil and not addonTable.Constants.IsPixelPerfectPlus then
     self:SetScript("OnSizeChanged", self.OnSizeChanged)
   end
   self:SetScript("OnUpdate", nil)
@@ -262,6 +268,8 @@ function addonTable.Display.NameplateMixin:SetUnit(unit)
   end
 end
 
+local SmartSize = addonTable.Constants.IsPixelPerfectPlus and UIParent.SetSize or PixelUtil.SetSize
+
 function addonTable.Display.NameplateMixin:AnchorAuras(designInfo)
   self.DebuffDisplay.enabled = false
   self.BuffDisplay.enabled = false
@@ -272,7 +280,7 @@ function addonTable.Display.NameplateMixin:AnchorAuras(designInfo)
     self.DebuffDisplay:ClearAllPoints()
     self.DebuffDisplay:SetFrameLevel(addonTable.Constants.LayerFrameLevelStep * designInfo.debuffs.layer + 450)
     self.DebuffDisplay.details = designInfo.debuffs
-    PixelUtil.SetSize(self.DebuffDisplay, defaultSize * designInfo.debuffs.scale, defaultSize * designInfo.debuffs.scale * designInfo.debuffs.height)
+    SmartSize(self.DebuffDisplay, defaultSize * designInfo.debuffs.scale, defaultSize * designInfo.debuffs.scale * designInfo.debuffs.height)
     addonTable.Display.ApplyAnchor(self.DebuffDisplay, designInfo.debuffs.anchor)
   end
   if designInfo.buffs then
@@ -280,7 +288,7 @@ function addonTable.Display.NameplateMixin:AnchorAuras(designInfo)
     self.BuffDisplay:ClearAllPoints()
     self.BuffDisplay:SetFrameLevel(addonTable.Constants.LayerFrameLevelStep * designInfo.buffs.layer + 450 + 10)
     self.BuffDisplay.details = designInfo.buffs
-    PixelUtil.SetSize(self.BuffDisplay, defaultSize * designInfo.buffs.scale, defaultSize * designInfo.buffs.scale * designInfo.buffs.height)
+    SmartSize(self.BuffDisplay, defaultSize * designInfo.buffs.scale, defaultSize * designInfo.buffs.scale * designInfo.buffs.height)
     addonTable.Display.ApplyAnchor(self.BuffDisplay, designInfo.buffs.anchor)
   end
   if designInfo.crowdControl then
@@ -288,7 +296,7 @@ function addonTable.Display.NameplateMixin:AnchorAuras(designInfo)
     self.CrowdControlDisplay:ClearAllPoints()
     self.CrowdControlDisplay:SetFrameLevel(addonTable.Constants.LayerFrameLevelStep * designInfo.crowdControl.layer + 450 + 20)
     self.CrowdControlDisplay.details = designInfo.crowdControl
-    PixelUtil.SetSize(self.CrowdControlDisplay, defaultSize * designInfo.crowdControl.scale, defaultSize * designInfo.crowdControl.scale * designInfo.crowdControl.height)
+    SmartSize(self.CrowdControlDisplay, defaultSize * designInfo.crowdControl.scale, defaultSize * designInfo.crowdControl.scale * designInfo.crowdControl.height)
     addonTable.Display.ApplyAnchor(self.CrowdControlDisplay, designInfo.crowdControl.anchor)
   end
 end

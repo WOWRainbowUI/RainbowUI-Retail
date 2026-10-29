@@ -43,7 +43,7 @@ local function SetupGeneral(parent)
   end
 
   do
-    local header = addonTable.CustomiseDialog.Components.GetHeader(container, addonTable.Locales.DEVELOPMENT_IS_TIME_CONSUMING)
+    local header = addonTable.CustomiseDialog.Components.GetHeader(container, addonTable.Locales.DEVELOPMENT_IS_DONE_BY_A_HUMAN)
     header:SetPoint("TOP", allFrames[#allFrames], "BOTTOM", 0, -30)
     table.insert(allFrames, header)
 

@@ -279,7 +279,7 @@ function addonTable.Display.GetColor(settings, state, unit)
       end
     elseif s.kind == "eliteType" then
       if (inRelevantEliteInstance or not s.instancesOnly) and not addonTable.Display.Utilities.IsNeutralUnit(unit) then
-        local t = GetEliteType(unit, s.applyCasterAlways)
+        local t = GetEliteType(unit, s.applyCasterAlways, s.enabled)
         if t and s.enabled[t] then
           table.insert(colorQueue, {color = s.colors[t]})
           break
@@ -287,7 +287,7 @@ function addonTable.Display.GetColor(settings, state, unit)
       end
     elseif s.kind == "delveType" then
       if (inRelevantDelveInstance and s.delves or not inRelevantThreatInstance and s.outsideInstances) and not addonTable.Display.Utilities.IsNeutralUnit(unit) then
-        local t = GetDelveType(unit)
+        local t = GetDelveType(unit, s.enabled)
         if t and s.enabled[t] then
           table.insert(colorQueue, {color = s.colors[t]})
           break
