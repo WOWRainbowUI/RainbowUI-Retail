@@ -243,12 +243,12 @@ end
 function addonTable.Display.CastBarMixin:ApplySize(width, height)
   local sizing = addonTable.Display.GetSizingForStatusBar(self, width, height)
   self.sizingWidth, self.sizingHeight = sizing.rawWidth, sizing.rawHeight
-  PixelUtil.SetSize(self, sizing.rawWidth, sizing.rawHeight)
-  PixelUtil.SetSize(self.statusBar, sizing.statusWidth * self.lowerScale, sizing.statusHeight * self.lowerScale)
-  PixelUtil.SetSize(self.border, sizing.borderWidth * self.lowerScale, sizing.borderHeight * self.lowerScale)
+  self:SetSize(sizing.rawWidth, sizing.rawHeight)
+  self.statusBar:SetSize(sizing.statusWidth * self.lowerScale, sizing.statusHeight * self.lowerScale)
+  self.border:SetSize(sizing.borderWidth * self.lowerScale, sizing.borderHeight * self.lowerScale)
   if sizing.iconSize > 0 then
     self.icon:Show()
-    PixelUtil.SetSize(self.icon, sizing.iconSize, sizing.iconSize)
+    self.icon:SetSize(sizing.iconSize, sizing.iconSize)
   else
     self.icon:Hide()
   end
@@ -267,5 +267,5 @@ function addonTable.Display.CastBarMixin:ApplySize(width, height)
 end
 
 function addonTable.Display.CastBarMixin:ApplyPadding(horizontal, vertical)
-  PixelUtil.SetSize(self, self.sizingWidth + horizontal, self.sizingHeight + vertical)
+  self:SetSize(self.sizingWidth + horizontal, self.sizingHeight + vertical)
 end

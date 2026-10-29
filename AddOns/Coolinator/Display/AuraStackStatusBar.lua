@@ -44,6 +44,8 @@ function addonTable.Display.AuraStacksBaseMixin:OnLoad()
     auraButton.statusBar:SetPoint("RIGHT", auraButton.foreground)
 
     auraButton:SetPoint("CENTER", self)
+    
+    PixelUtil.SetRoundLayoutToNearestPixelRecursively(auraButton, true)
   end
 
   self.StyleButton = function(auraButton, details)
@@ -179,7 +181,7 @@ function addonTable.Display.AuraStacksBaseMixin:ApplyPadding(horizontal, vertica
     self.harmfulButton:SetFrameLevel(self:GetFrameLevel() + 1)
   end
 
-  PixelUtil.SetSize(self, self.sizingWidth + horizontal, self.sizingHeight + vertical)
+  self:SetSize(self.sizingWidth + horizontal, self.sizingHeight + vertical)
 end
 
 function addonTable.Display.AuraStacksBaseMixin:GetDefaultSize()
@@ -211,8 +213,8 @@ function addonTable.Display.AuraStacksBaseMixin:ApplySize(width, height)
 
   self.sizingWidth, self.sizingHeight = rawWidth, rawHeight
   self.statusWidth, self.statusHeight = statusWidth, statusHeight
-  PixelUtil.SetSize(self.border, borderWidth * self.lowerScale, borderHeight * self.lowerScale)
-  PixelUtil.SetSize(self.background, statusWidth * self.lowerScale, statusHeight * self.lowerScale)
+  self.border:SetSize(borderWidth * self.lowerScale, borderHeight * self.lowerScale)
+  self.background:SetSize(statusWidth * self.lowerScale, statusHeight * self.lowerScale)
 
   if self.helpfulButton then
     self.SizeButton(self.helpfulButton, width, height)
@@ -286,8 +288,8 @@ function addonTable.Display.AuraStacksPipMixin:OnLoad()
   end
 
   self.SizeButton = function(auraButton, width, height)
-    PixelUtil.SetSize(auraButton.statusBar, (self.statusWidth * self.details.scale + 5) * self.applicationLimit, self.statusHeight * self.details.scale)
-    PixelUtil.SetSize(auraButton.foreground, self.statusWidth * self.lowerScale, self.statusWidth * self.lowerScale)
+    auraButton.statusBar:SetSize((self.statusWidth * self.details.scale + 5) * self.applicationLimit, self.statusHeight * self.details.scale)
+    auraButton.foreground:SetSize(self.statusWidth * self.lowerScale, self.statusWidth * self.lowerScale)
   end
 end
 
@@ -360,7 +362,7 @@ function addonTable.Display.AuraStacksBarMixin:OnLoad()
   end
 
   self.SizeButton = function(auraButton, width, height)
-    PixelUtil.SetSize(auraButton.statusBar, self.statusWidth * self.lowerScale, self.statusHeight * self.lowerScale)
+    auraButton.statusBar:SetSize(self.statusWidth * self.lowerScale, self.statusHeight * self.lowerScale)
 
     auraButton.sizingWidth, auraButton.sizingHeight = self.sizingWidth, self.sizingHeight
     auraButton.TextsContainer.Applications:ClearAllPoints()

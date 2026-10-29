@@ -92,23 +92,23 @@ end
 function addonTable.Display.AbilityChargesPipMixin:ApplySize(width, height)
   local sizing = addonTable.Display.GetSizingForStatusBar(self, width, height)
   self.sizingWidth, self.sizingHeight = sizing.rawWidth, sizing.rawHeight
-  PixelUtil.SetSize(self, sizing.rawWidth, sizing.rawHeight)
-  PixelUtil.SetSize(self.statusBar, sizing.statusWidth * self.lowerScale, sizing.statusHeight * self.lowerScale)
+  self:SetSize(sizing.rawWidth, sizing.rawHeight)
+  self.statusBar:SetSize(sizing.statusWidth * self.lowerScale, sizing.statusHeight * self.lowerScale)
   if self.maxCharges then
     self.offsetStatusBar:ClearAllPoints()
     self.chargingStatusBar:ClearAllPoints()
     if self.details.layout == "horizontal" then
-      PixelUtil.SetSize(self.offsetStatusBar, sizing.rawWidth * self.maxCharges, sizing.rawHeight)
-      PixelUtil.SetPoint(self.offsetStatusBar, "LEFT", self, "LEFT", (1 - self.index) * sizing.rawWidth, 0)
+      self.offsetStatusBar:SetSize(sizing.rawWidth * self.maxCharges, sizing.rawHeight)
+      self.offsetStatusBar:SetPoint("LEFT", self, "LEFT", (1 - self.index) * sizing.rawWidth, 0)
       self.chargingStatusBar:SetPoint("LEFT", self.offsetStatusBar:GetStatusBarTexture(), "RIGHT")
     else
-      PixelUtil.SetSize(self.offsetStatusBar, sizing.rawWidth, sizing.rawHeight * self.maxCharges)
-      PixelUtil.SetPoint(self.offsetStatusBar, "BOTTOM", self, "BOTTOM", 0, (1 - self.index) * sizing.rawHeight)
+      self.offsetStatusBar:SetSize(sizing.rawWidth, sizing.rawHeight * self.maxCharges)
+      self.offsetStatusBar:SetPoint("BOTTOM", self, "BOTTOM", 0, (1 - self.index) * sizing.rawHeight)
       self.chargingStatusBar:SetPoint("BOTTOM", self.offsetStatusBar:GetStatusBarTexture(), "TOP")
     end
-    PixelUtil.SetSize(self.chargingStatusBar, sizing.statusWidth * self.lowerScale, sizing.statusHeight * self.lowerScale)
+    self.chargingStatusBar:SetSize(sizing.statusWidth * self.lowerScale, sizing.statusHeight * self.lowerScale)
   end
-  PixelUtil.SetSize(self.border, sizing.borderWidth * self.lowerScale, sizing.borderHeight * self.lowerScale)
+  self.border:SetSize(sizing.borderWidth * self.lowerScale, sizing.borderHeight * self.lowerScale)
 end
 
 function addonTable.Display.AbilityChargesPipMixin:ShouldCollapse()

@@ -1,6 +1,6 @@
 # Coolinator
 
-## [165](https://github.com/TheMouseNest/Coolinator/tree/165) (2026-10-24)
-[Full Changelog](https://github.com/TheMouseNest/Coolinator/compare/164...165) 
+## [167](https://github.com/TheMouseNest/Coolinator/tree/167) (2026-10-28)
+[Full Changelog](https://github.com/TheMouseNest/Coolinator/compare/166...167) 
 
-- Testing build  
+- Fix typo  

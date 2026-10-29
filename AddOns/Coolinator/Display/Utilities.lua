@@ -23,9 +23,9 @@ function addonTable.Display.ApplyAnchor(frame, anchor, scale)
   if #anchor == 0 then
     frame:SetPoint("CENTER")
   elseif #anchor == 3 then
-    PixelUtil.SetPoint(frame, anchor[1], frame:GetParent(), "CENTER", anchor[2] * scale, anchor[3] * scale)
+    frame:SetPoint(anchor[1], frame:GetParent(), "CENTER", anchor[2] * scale, anchor[3] * scale)
   elseif #anchor == 2 then
-    PixelUtil.SetPoint(frame, "CENTER", frame:GetParent(), "CENTER", anchor[1] * scale, anchor[2] * scale)
+    frame:SetPoint("CENTER", frame:GetParent(), "CENTER", anchor[1] * scale, anchor[2] * scale)
   elseif #anchor == 1 then
     frame:SetPoint(anchor[1], frame:GetParent(), "CENTER")
   end
@@ -280,8 +280,8 @@ function addonTable.Display.SizeTextsForBar(self, details, byKeys, scaleModifier
     if settings.rotate then
       xDiff, yDiff = addonTable.Display.CalculateBarTextOffset(settings.anchor[1], width, height)
     end
-    PixelUtil.SetPoint(text, settings.anchor[1], self.statusBar, settings.anchor[1], settings.anchor[2]/scale + xDiff, settings.anchor[3]/scale + yDiff)
-    PixelUtil.SetWidth(text, width)
+    text:SetPoint(settings.anchor[1], self.statusBar, settings.anchor[1], settings.anchor[2]/scale + xDiff, settings.anchor[3]/scale + yDiff)
+    text:SetWidth(width)
     text:SetRotation(settings.rotate and -math.pi / 2 or 0)
   end
 end

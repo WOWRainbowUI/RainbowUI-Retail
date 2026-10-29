@@ -10,13 +10,13 @@ addonTable.Display.ClassResourceStatusBar = {}
 local function SizeStatusBar(self, width, height)
   local sizing = addonTable.Display.GetSizingForStatusBar(self, width, height)
   self.sizingWidth, self.sizingHeight = sizing.rawWidth, sizing.rawHeight
-  PixelUtil.SetSize(self, sizing.rawWidth, sizing.rawHeight)
-  PixelUtil.SetSize(self.border, sizing.borderWidth * self.lowerScale, sizing.borderHeight * self.lowerScale)
-  PixelUtil.SetSize(self.statusBar, sizing.statusWidth * self.lowerScale, sizing.statusHeight * self.lowerScale)
+  self:SetSize(sizing.rawWidth, sizing.rawHeight)
+  self.border:SetSize(sizing.borderWidth * self.lowerScale, sizing.borderHeight * self.lowerScale)
+  self.statusBar:SetSize(sizing.statusWidth * self.lowerScale, sizing.statusHeight * self.lowerScale)
 end
 
 local function PadStatusBar(self, horizontal, vertical)
-  PixelUtil.SetSize(self, self.sizingWidth + horizontal, self.sizingHeight + vertical)
+  self:SetSize(self.sizingWidth + horizontal, self.sizingHeight + vertical)
 end
 
 local function GetApplicableSize(self)
@@ -46,7 +46,6 @@ function addonTable.Display.ClassResourceStatusBar.stagger:OnLoad()
   self.GetApplicableSize = GetApplicableSize
 
   self.text = self.statusBar:CreateFontString()
-
 end
 
 function addonTable.Display.ClassResourceStatusBar.stagger:OnUpdate()
@@ -99,10 +98,10 @@ end
 function addonTable.Display.ClassResourceStatusBar.stagger:ApplySize(width, height)
   local sizing = addonTable.Display.GetSizingForStatusBar(self, width, height)
   self.sizingWidth, self.sizingHeight = sizing.rawWidth, sizing.rawHeight
-  PixelUtil.SetSize(self, sizing.rawWidth, sizing.rawHeight)
-  PixelUtil.SetSize(self.border, sizing.borderWidth * self.lowerScale, sizing.borderHeight * self.lowerScale)
-  PixelUtil.SetSize(self.statusBar, sizing.statusWidth * self.lowerScale, sizing.statusHeight * self.lowerScale)
-  PixelUtil.SetSize(self.fadedStatusBar, sizing.statusWidth * self.lowerScale, sizing.statusHeight * self.lowerScale)
+  self:SetSize(sizing.rawWidth, sizing.rawHeight)
+  self.border:SetSize(sizing.borderWidth * self.lowerScale, sizing.borderHeight * self.lowerScale)
+  self.statusBar:SetSize(sizing.statusWidth * self.lowerScale, sizing.statusHeight * self.lowerScale)
+  self.fadedStatusBar:SetSize(sizing.statusWidth * self.lowerScale, sizing.statusHeight * self.lowerScale)
 end
 
 addonTable.Display.ClassResourceStatusBar.stagger.ApplyPadding = PadStatusBar

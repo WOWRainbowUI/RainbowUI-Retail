@@ -172,7 +172,7 @@ function addonTable.Display.GroupMixin:ReanchorForSize()
     local padding = details.padding * offsetSize
     for _, child in ipairs(self.children) do
       child:ClearAllPoints()
-      PixelUtil.SetPoint(child, point, self, point, width / child:GetScale(), 0)
+      child:SetPoint(point, self, point, width / child:GetScale(), 0)
       local childWidth, childHeight = child:GetSize()
       if child.GetApplicableSize then
         childWidth, childHeight = child:GetApplicableSize()
@@ -186,7 +186,7 @@ function addonTable.Display.GroupMixin:ReanchorForSize()
       width = width - padding
     end
     self.applicableWidth, self.applicableHeight = width, maxHeight
-    PixelUtil.SetSize(self, width, maxHeight)
+    self:SetSize(width, maxHeight)
 
   elseif details.layout == "vertical" then
     local point = "BOTTOM"
@@ -199,7 +199,7 @@ function addonTable.Display.GroupMixin:ReanchorForSize()
     local lastChild
     for _, child in ipairs(self.children) do
       child:ClearAllPoints()
-      PixelUtil.SetPoint(child, point, self, point, 0, height / child:GetScale())
+      child:SetPoint(point, self, point, 0, height / child:GetScale())
       local childWidth, childHeight = child:GetSize()
       if child.GetApplicableSize then
         childWidth, childHeight = child:GetApplicableSize()
@@ -214,7 +214,7 @@ function addonTable.Display.GroupMixin:ReanchorForSize()
       height = height - padding
     end
     self.applicableWidth, self.applicableHeight = maxWidth, height
-    PixelUtil.SetSize(self, maxWidth, height)
+    self:SetSize(maxWidth, height)
   end
 end
 
@@ -342,7 +342,6 @@ end
 
 function addonTable.Display.GroupMixin:UpdateVisibility(eventName)
   if not self.details.visibility or #self.details.visibility == 0 or self.details.layout == "standalone" then
-    PixelUtil.SetSize(self, self.width, self.height)
     return
   end
 

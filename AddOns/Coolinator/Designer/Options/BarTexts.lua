@@ -182,15 +182,17 @@ function addonTable.Designer.Options.GetBarTextPositioning(rootParent, texts)
     preview.widgets[kind].text:SetText(textDetails.default)
   end
 
+  PixelUtil.SetRoundLayoutToNearestPixelRecursively(preview, true)
+
   local function SizeBar()
     preview.bar.rawWidth, preview.bar.rawHeight, preview.bar.borderWidth, preview.bar.borderHeight, preview.bar.lowerScale
       = addonTable.Display.ApplyStatusBar(preview.bar.details, preview.bar.statusBar, preview.bar.border, preview.bar.borderMask, preview.bar.background)
     local sizing = addonTable.Display.GetSizingForStatusBar(preview.bar, 0, 0)
     preview.bar.statusWidth, preview.bar.statusHeight = sizing.statusWidth, sizing.statusHeight
-    PixelUtil.SetSize(preview.bar, sizing.rawWidth, sizing.rawHeight)
-    PixelUtil.SetSize(preview.bar.statusBar, sizing.statusWidth * preview.bar.lowerScale, sizing.statusHeight * preview.bar.lowerScale)
-    PixelUtil.SetSize(wrapper, sizing.rawWidth, sizing.rawHeight)
-    PixelUtil.SetSize(preview.bar.border, sizing.borderWidth * preview.bar.lowerScale, sizing.borderHeight * preview.bar.lowerScale)
+    preview.bar:SetSize(sizing.rawWidth, sizing.rawHeight)
+    preview.bar.statusBar:SetSize(sizing.statusWidth * preview.bar.lowerScale, sizing.statusHeight * preview.bar.lowerScale)
+    wrapper:SetSize(sizing.rawWidth, sizing.rawHeight)
+    preview.bar.border:SetSize(sizing.borderWidth * preview.bar.lowerScale, sizing.borderHeight * preview.bar.lowerScale)
     preview.bar.borderWrapper:SetFrameLevel(preview.bar.statusBar:GetFrameLevel() + 1)
     wrapper:SetFrameLevel(preview.bar.statusBar:GetFrameLevel() + 2)
   end
@@ -272,7 +274,7 @@ function addonTable.Designer.Options.GetBarTextPositioning(rootParent, texts)
 
         preview.widgets[key]:ClearAllPoints()
         local x, y = textDetails.anchor[2], textDetails.anchor[3]
-        PixelUtil.SetPoint(preview.widgets[key], textDetails.anchor[1], wrapper, textDetails.anchor[1], x, y)
+        preview.widgets[key]:SetPoint(textDetails.anchor[1], wrapper, textDetails.anchor[1], x, y)
       end
     end
 

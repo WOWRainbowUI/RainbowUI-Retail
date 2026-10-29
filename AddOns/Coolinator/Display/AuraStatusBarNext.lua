@@ -49,6 +49,8 @@ function addonTable.Display.AuraStatusBarNextMixin:OnLoad()
     local sizeAssistant = CreateFrame("Frame", nil, self, "DisableUntrustedLayoutScriptsTemplate")
     sizeAssistant:SetSize(0.001, 0.001)
     sizeAssistant:SetPoint("TOPLEFT", auraButton, "BOTTOMRIGHT")
+
+    PixelUtil.SetRoundLayoutToNearestPixelRecursively(auraButton, true)
   end
 
   self.StyleButton = function(auraButton, details, durationFormat)
@@ -69,13 +71,13 @@ function addonTable.Display.AuraStatusBarNextMixin:OnLoad()
     local sizing = addonTable.Display.GetSizingForStatusBar(auraButton, width, height)
     auraButton.sizingWidth, auraButton.sizingHeight = sizing.rawWidth, sizing.rawHeight
     self.sizingWidth, self.sizingHeight = sizing.rawWidth, sizing.rawHeight
-    PixelUtil.SetSize(auraButton.statusBar, sizing.statusWidth * auraButton.lowerScale, sizing.statusHeight * auraButton.lowerScale)
-    PixelUtil.SetSize(auraButton.border, sizing.borderWidth * auraButton.lowerScale, sizing.borderHeight * auraButton.lowerScale)
+    auraButton.statusBar:SetSize(sizing.statusWidth * auraButton.lowerScale, sizing.statusHeight * auraButton.lowerScale)
+    auraButton.border:SetSize(sizing.borderWidth * auraButton.lowerScale, sizing.borderHeight * auraButton.lowerScale)
     if sizing.iconSize > 0 then
       auraButton.Icon:Show()
       auraButton.TextsContainer.Charges:Show()
-      PixelUtil.SetPoint(auraButton.TextsContainer.Charges, "BOTTOMRIGHT", auraButton.Icon, "BOTTOMRIGHT", -5, 5)
-      PixelUtil.SetSize(auraButton.Icon, sizing.iconSize, sizing.iconSize)
+      auraButton.TextsContainer.Charges:SetPoint("BOTTOMRIGHT", auraButton.Icon, "BOTTOMRIGHT", -5, 5)
+      auraButton.Icon:SetSize(sizing.iconSize, sizing.iconSize)
     else
       auraButton.Icon:Hide()
       auraButton.TextsContainer.Charges:Hide()

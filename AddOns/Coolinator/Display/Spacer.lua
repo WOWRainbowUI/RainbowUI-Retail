@@ -16,9 +16,9 @@ function addonTable.Display.SpacerMixin:GetDefaultSize()
 end
 
 function addonTable.Display.SpacerMixin:ApplySize(width, height)
-  PixelUtil.SetSize(self, self.width, self.height)
+  self:SetSize(self.width, self.height)
 end
 
 function addonTable.Display.SpacerMixin:ApplyPadding(horizontal, vertical)
-  PixelUtil.SetSize(self, self.width + horizontal, self.height + vertical)
+  self:SetSize(self.width + horizontal, self.height + vertical)
 end

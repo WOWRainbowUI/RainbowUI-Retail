@@ -148,8 +148,8 @@ end
 
 function addonTable.Designer.BarMixin:ApplySize(width, height)
   local sizing = addonTable.Display.GetSizingForStatusBar(self, width, height)
-  PixelUtil.SetSize(self, sizing.rawWidth, sizing.rawHeight)
-  PixelUtil.SetSize(self.border, sizing.borderWidth * self.lowerScale, sizing.borderHeight * self.lowerScale)
+  self:SetSize(sizing.rawWidth, sizing.rawHeight)
+  self.border:SetSize(sizing.borderWidth * self.lowerScale, sizing.borderHeight * self.lowerScale)
 end
 
 function addonTable.Designer.BarMixin:OnEnter()
@@ -205,12 +205,12 @@ end
 
 function addonTable.Designer.BarWithIconMixin:ApplySize(width, height)
   local sizing = addonTable.Display.GetSizingForStatusBar(self, width, height)
-  PixelUtil.SetSize(self, sizing.rawWidth, sizing.rawHeight)
-  PixelUtil.SetSize(self.statusBar, sizing.statusWidth * self.lowerScale, sizing.statusHeight * self.lowerScale)
-  PixelUtil.SetSize(self.border, sizing.borderWidth * self.lowerScale, sizing.borderHeight * self.lowerScale)
+  self:SetSize(sizing.rawWidth, sizing.rawHeight)
+  self.statusBar:SetSize(sizing.statusWidth * self.lowerScale, sizing.statusHeight * self.lowerScale)
+  self.border:SetSize(sizing.borderWidth * self.lowerScale, sizing.borderHeight * self.lowerScale)
   if sizing.iconSize > 0 then
     self.icon:Show()
-    PixelUtil.SetSize(self.icon, sizing.iconSize, sizing.iconSize)
+    self.icon:SetSize(sizing.iconSize, sizing.iconSize)
   else
     self.icon:Hide()
   end
