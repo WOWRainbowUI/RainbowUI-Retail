@@ -129,6 +129,8 @@ local Highlights = {
   ["MM: Striped"] = {file = prefix .. "Assets/%s/Highlights/striped.png", width = 1000, height = 125, has4k = true, mode = renderMode.Stretch, tag = "striped"},
   ["MM: Striped Reverse"] = {file = prefix .. "Assets/%s/Highlights/striped-reverse.png", width = 1000, height = 125, has4k = true, mode = renderMode.Stretch, tag = "striped-reverse"},
 
+  ["MM: Stripes (Thin)"] = {file = prefix .. "Assets/%s/Highlights/stripes-thin.png", width = 1000, height = 125, has4k = true, mode = renderMode.Stretch, tag = "stripes-thin"},
+
   ["MM: Arrows In"] = {file = prefix .. "Assets/%s/Highlights/arrows-in.png", width = 1000, height = 125, has4k = true, mode = renderMode.Stretch, tag = "arrows-in"},
   ["MM: Arrows Out"] = {file = prefix .. "Assets/%s/Highlights/arrows-out.png", width = 1000, height = 125, has4k = true, mode = renderMode.Stretch, tag = "arrows-out"},
   ["MM: Arrows In Close"] = {file = prefix .. "Assets/%s/Highlights/arrows-in-close.png", width = 1000, height = 125, has4k = true, mode = renderMode.Stretch, tag = "arrows-in-close"},

@@ -36,7 +36,7 @@ end
 
 local function AnchorStandalone(widget, anchor)
   local point, relativeTo, relativePoint, offsetX, offsetY = unpack(anchor)
-  PixelUtil.SetPoint(widget, point, relativeTo, relativePoint, offsetX/widget:GetScale(), offsetY/widget:GetScale())
+  widget:SetPoint(point, relativeTo, relativePoint, offsetX/widget:GetScale(), offsetY/widget:GetScale())
 end
 
 function addonTable.Display.BaseLayoutManagerMixin:GetStack(details)
@@ -72,7 +72,7 @@ function addonTable.Display.BaseLayoutManagerMixin:GetStack(details)
     end
   end
   wrapper:SetDefaultSize(width, height)
-  PixelUtil.SetSize(wrapper, width, height)
+  wrapper:SetSize(width, height)
 
   return wrapper
 end
@@ -148,9 +148,9 @@ function addonTable.Display.BaseLayoutManagerMixin:ArrangeGroup(wrapper, details
           child:SetPoint("LEFT", lastChild, "RIGHT")
         else
           if details.anchor and details.anchor[1]:match("RIGHT") then
-            PixelUtil.SetPoint(child, "LEFT", wrapper, "LEFT", padding / 2 / child:GetScale(), 0)
+            child:SetPoint("LEFT", wrapper, "LEFT", padding / 2 / child:GetScale(), 0)
           elseif details.anchor and details.anchor[1]:match("LEFT") then
-            PixelUtil.SetPoint(child, "LEFT", wrapper, "LEFT", -padding / 2 / child:GetScale(), 0)
+            child:SetPoint("LEFT", wrapper, "LEFT", -padding / 2 / child:GetScale(), 0)
           else
             child:SetPoint("LEFT", wrapper)
           end
@@ -159,7 +159,7 @@ function addonTable.Display.BaseLayoutManagerMixin:ArrangeGroup(wrapper, details
           child:SetPoint(details.alignment, wrapper)
         end
       else
-        PixelUtil.SetPoint(child, point, wrapper, point, width / child:GetScale(), 0)
+        child:SetPoint(point, wrapper, point, width / child:GetScale(), 0)
       end
       if not self.autoSize or not child.IgnoreForSizing or not child:IgnoreForSizing() then
         local childWidth, childHeight
@@ -199,9 +199,9 @@ function addonTable.Display.BaseLayoutManagerMixin:ArrangeGroup(wrapper, details
           child:SetPoint("BOTTOM", lastChild, "TOP")
         else
           if details.anchor and details.anchor[1]:match("TOP") then
-            PixelUtil.SetPoint(child, "BOTTOM", wrapper, "BOTTOM", 0, padding / 2 / child:GetScale())
+            child:SetPoint("BOTTOM", wrapper, "BOTTOM", 0, padding / 2 / child:GetScale())
           elseif details.anchor and details.anchor[1]:match("BOTTOM") then
-            PixelUtil.SetPoint(child, "BOTTOM", wrapper, "BOTTOM", 0, -padding / 2 / child:GetScale())
+            child:SetPoint("BOTTOM", wrapper, "BOTTOM", 0, -padding / 2 / child:GetScale())
           else
             child:SetPoint("BOTTOM", wrapper)
           end
@@ -210,7 +210,7 @@ function addonTable.Display.BaseLayoutManagerMixin:ArrangeGroup(wrapper, details
           child:SetPoint(details.alignment, wrapper)
         end
       else
-        PixelUtil.SetPoint(child, point, wrapper, point, 0, height / child:GetScale())
+        child:SetPoint(point, wrapper, point, 0, height / child:GetScale())
       end
       if not self.autoSize or not child.IgnoreForSizing or not child:IgnoreForSizing() then
         local childWidth, childHeight
@@ -232,6 +232,10 @@ function addonTable.Display.BaseLayoutManagerMixin:ArrangeGroup(wrapper, details
     wrapper:SetDefaultSize(finalWidth, finalHeight)
 
   else -- standalone
+    if not addonTable.Utilities.IsAurasRestricted() then
+      PixelUtil.SetRoundLayoutToNearestPixelRecursively(wrapper, true)
+    end
+
     for _, child in ipairs(wrapper.children) do
       if child.details.kind == "group" then
         self:ArrangeGroup(child, child.details)

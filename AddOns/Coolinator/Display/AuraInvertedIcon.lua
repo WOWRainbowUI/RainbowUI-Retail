@@ -16,11 +16,11 @@ function addonTable.Display.AuraInvertedIconMixin:OnLoad()
   self.ButtonInit = function(auraButton)
     auraButton:SetCollapsesLayout(true)
     auraButton:SetMouseMotionEnabled(false)
+    PixelUtil.SetRoundLayoutToNearestPixelRecursively(auraButton, true)
   end
 
   self.SizeButton = function(auraButton, details)
-    local dim = PixelUtil.ConvertPixelsToUIForRegion(wrapperSize, self)
-    auraButton:SetSize(dim, dim)
+    auraButton:SetSize(wrapperSize, wrapperSize)
     auraButton:SetScale(self:GetEffectiveScale() / UIParent:GetScale())
   end
 
@@ -95,7 +95,7 @@ function addonTable.Display.AuraInvertedIconMixin:ApplyPadding(horizontal, verti
     self.SizeButton(self.harmfulButton, self.details)
   end
 
-  PixelUtil.SetSize(self, offsetSize + horizontal, offsetSize + vertical)
+  self:SetSize(offsetSize + horizontal, offsetSize + vertical)
 end
 
 function addonTable.Display.AuraInvertedIconMixin:Setup(details)
@@ -131,9 +131,8 @@ function addonTable.Display.AuraInvertedIconMixin:Setup(details)
 end
 
 function addonTable.Display.AuraInvertedIconMixin:ApplySize()
-  local dim = PixelUtil.ConvertPixelsToUIForRegion(wrapperSize, self)
-  self.iconWrapper:SetSize(dim, dim)
-  self.Container:SetSize(dim, dim)
+  self.iconWrapper:SetSize(wrapperSize, wrapperSize)
+  self.Container:SetSize(wrapperSize, wrapperSize)
 end
 
 function addonTable.Display.AuraInvertedIconMixin:OnShow()

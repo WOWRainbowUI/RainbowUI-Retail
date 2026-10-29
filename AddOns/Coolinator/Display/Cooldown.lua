@@ -73,9 +73,9 @@ end
 
 function addonTable.Display.CooldownMixin:ApplyPadding(horizontal, vertical)
   self.paddingH, self.paddingV = horizontal, vertical
-  local width, height = PixelUtil.ConvertPixelsToUIForRegion(offsetSize + horizontal, self), PixelUtil.ConvertPixelsToUIForRegion(offsetSize + vertical, self)
+  local width, height = offsetSize + horizontal, offsetSize + vertical
   self:SetSize(width, height)
-  PixelUtil.SetSize(self.SpellActivationAlert, width * 1.4, height * 1.4);
+  self.SpellActivationAlert:SetSize(width * 1.4, height * 1.4);
 end
 
 function addonTable.Display.CooldownMixin:OnEnter()
