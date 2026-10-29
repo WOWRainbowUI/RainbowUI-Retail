@@ -3,7 +3,7 @@
 
 ## Author: StormFX, JJSheets
 ## Title: Masque
-## Version: 12.1.6
+## Version: 12.1.7
 
 ## Category: Masque
 ## IconTexture: Interface\AddOns\Masque\Textures\Icon
