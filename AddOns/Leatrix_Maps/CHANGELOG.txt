@@ -1,4 +1,8 @@
-﻿12.1.14 - 21st October 2026
+﻿12.1.15 - 28th October 2026
+- PTR (12.1.7): Updated for game patch 12.1.7.
+- Added a few protections against specific addons breaking the map.
+
+12.1.14 - 21st October 2026
 - Added a language dropdown menu ('Settings') so you can choose which language you want the addon to use.
 - Removed the 'Use English language' option now that the addon has a language dropdown menu.
 - Updated translations.

@@ -1,6 +1,6 @@
 
 	----------------------------------------------------------------------
-	-- 	Leatrix Maps 12.1.14 (21st October 2026)
+	-- 	Leatrix Maps 12.1.15 (28th October 2026)
 	----------------------------------------------------------------------
 
 	-- 10:Func, 20:Comm, 30:Evnt, 40:Panl
@@ -12,7 +12,7 @@
 	local LeaMapsLC, LeaMapsCB, LeaConfigList, LeaLockList = {}, {}, {}, {}
 
 	-- Version
-	LeaMapsLC["AddonVer"] = "12.1.14"
+	LeaMapsLC["AddonVer"] = "12.1.15"
 
 	-- Get locale table
 	local void, Leatrix_Maps = ...
@@ -28,7 +28,7 @@
 			end)
 			return
 		end
-		if gametocversion and gametocversion >= 120105 then -- 12.1.5
+		if gametocversion and gametocversion >= 120107 then -- 12.1.7
 			LeaMapsLC.NewPatch = true
 		end
 	end
@@ -501,6 +501,8 @@
 			local function SetMapScale()
 				LeaMapsCB["MapScale"].f:SetFormattedText("%.0f%%", LeaMapsLC["MapScale"] * 100)
 				LeaMapsCB["MaxMapScale"].f:SetFormattedText("%.0f%%", LeaMapsLC["MaxMapScale"] * 100)
+				-- Do not change scale if the map frame cannot be changed (scale controls are locked then)
+				if not LeaMapsLC:CanChangeMap() then return end
 				if not WorldMapFrame:IsMaximized() then
 					WorldMapFrame:SetScale(LeaMapsLC["MapScale"])
 				else
@@ -516,6 +518,13 @@
 			-- Set scale when map size is toggled
 			hooksecurefunc(WorldMapFrame, "SynchronizeDisplayState", SetMapScale)
 
+			-- Lock scale controls while the map frame cannot be changed
+			LeaMapsLC:AddMapLock(function(lock)
+				LeaMapsLC:LockItem(LeaMapsCB["MapScale"], lock)
+				LeaMapsLC:LockItem(LeaMapsCB["MaxMapScale"], lock)
+				LeaMapsLC:LockItem(scalePanel.r, lock)
+			end)
+
 			-- Back to Main Menu button click
 			scalePanel.b:HookScript("OnClick", function()
 				scalePanel:Hide()
@@ -524,6 +533,7 @@
 
 			-- Reset button click
 			scalePanel.r:HookScript("OnClick", function()
+				if not LeaMapsLC:CanChangeMap() then return end
 				-- Reset map scale
 				LeaMapsLC["MapScale"] = 1.0
 				LeaMapsLC["MaxMapScale"] = 1.0
@@ -535,11 +545,13 @@
 			-- Show scale panel when configuration button is clicked
 			LeaMapsCB["ScaleWorldMapBtn"]:HookScript("OnClick", function()
 				if IsShiftKeyDown() and IsControlKeyDown() then
-					-- Preset profile
-					LeaMapsLC["MapScale"] = 1.0
-					LeaMapsLC["MaxMapScale"] = 0.9
-					SetMapScale()
-					if scalePanel:IsShown() then scalePanel:Hide(); scalePanel:Show(); end
+					-- Preset profile (not while the map frame cannot be changed)
+					if LeaMapsLC:CanChangeMap() then
+						LeaMapsLC["MapScale"] = 1.0
+						LeaMapsLC["MaxMapScale"] = 0.9
+						SetMapScale()
+						if scalePanel:IsShown() then scalePanel:Hide(); scalePanel:Show(); end
+					end
 				else
 					scalePanel:Show()
 					LeaMapsLC["PageF"]:Hide()
@@ -985,24 +997,67 @@
 			-- Allow map frame movement
 			----------------------------------------------------------------------
 
+			local SetMapPositionFunc -- Defined below
+			local mapMoving
+
+			-- Function to check if the map frame has a position on screen (it can be missing or secret)
+			local function MapHasRect()
+				local left = WorldMapFrame:GetLeft()
+				if issecretvalue and issecretvalue(left) then return false end
+				return left ~= nil
+			end
+
+			-- Function to check if map frame position values can be saved (they can be missing or secret)
+			local function IsValidMapPoint(a, r, x, y)
+				if issecretvalue and (issecretvalue(a) or issecretvalue(r) or issecretvalue(x) or issecretvalue(y)) then return false end
+				return type(a) == "string" and type(r) == "string" and type(x) == "number" and type(y) == "number"
+			end
+
+			-- Function to start moving the map frame (not while the map frame cannot be changed)
+			local function StartMapMove()
+				if LeaMapsLC["EnableMovement"] ~= "On" or not LeaMapsLC:CanChangeMap() then return end
+				WorldMapFrame:StartMoving()
+				-- Another addon's frames anchored to the map frame can leave it with no position when moving starts so
+				-- stop moving and put the map frame back at its saved position
+				if not MapHasRect() then
+					WorldMapFrame:StopMovingOrSizing()
+					WorldMapFrame:SetUserPlaced(false)
+					SetMapPositionFunc()
+					return
+				end
+				mapMoving = true
+			end
+
+			-- Function to stop moving the map frame and save its position
+			local function StopMapMove()
+				if not mapMoving or not LeaMapsLC:CanChangeMap() then return end
+				mapMoving = nil
+				WorldMapFrame:StopMovingOrSizing()
+				WorldMapFrame:SetUserPlaced(false)
+				-- Save map frame position (if it's not valid, put the map frame back at its saved position)
+				local a, void, r, x, y = WorldMapFrame:GetPoint()
+				if not IsValidMapPoint(a, r, x, y) then
+					SetMapPositionFunc()
+					return
+				end
+				if WorldMapFrame:IsMaximized() then
+					LeaMapsLC["MaxMapPosA"], LeaMapsLC["MaxMapPosR"], LeaMapsLC["MaxMapPosX"], LeaMapsLC["MaxMapPosY"] = a, r, x, y
+				else
+					LeaMapsLC["MapPosA"], LeaMapsLC["MapPosR"], LeaMapsLC["MapPosX"], LeaMapsLC["MapPosY"] = a, r, x, y
+				end
+			end
+
 			-- Enable movement
 			WorldMapFrame:SetMovable(true)
 			WorldMapFrame:RegisterForDrag("LeftButton")
-			WorldMapFrame:SetScript("OnDragStart", function()
-				if LeaMapsLC["EnableMovement"] == "On" then
-					WorldMapFrame:StartMoving()
-				end
-			end)
-			WorldMapFrame:SetScript("OnDragStop", function()
-				WorldMapFrame:StopMovingOrSizing()
-				WorldMapFrame:SetUserPlaced(false)
-				-- Save map frame position
-				if WorldMapFrame:IsMaximized() then
-					LeaMapsLC["MaxMapPosA"], void, LeaMapsLC["MaxMapPosR"], LeaMapsLC["MaxMapPosX"], LeaMapsLC["MaxMapPosY"] = WorldMapFrame:GetPoint()
-				else
-					LeaMapsLC["MapPosA"], void, LeaMapsLC["MapPosR"], LeaMapsLC["MapPosX"], LeaMapsLC["MapPosY"] = WorldMapFrame:GetPoint()
-				end
-			end)
+			WorldMapFrame:SetScript("OnDragStart", StartMapMove)
+			WorldMapFrame:SetScript("OnDragStop", StopMapMove)
+
+			-- Stop moving the map frame when combat starts (combat lockdown starts after this event and another addon
+			-- may make the map frame protected during it)
+			local moveEvents = CreateFrame("Frame")
+			moveEvents:RegisterEvent("PLAYER_REGEN_DISABLED")
+			moveEvents:SetScript("OnEvent", StopMapMove)
 
 			-- Allow map to be moved by the title bar (needed for simple map frame)
 			if LeaMapsCB["MapTitleFrame"] then
@@ -1014,8 +1069,9 @@
 
 			WorldMapFrame:SetClampedToScreen(true)
 
-			-- Function to set map position
-			local function SetMapPositionFunc()
+			-- Function to set map position (not while the map frame cannot be changed)
+			SetMapPositionFunc = function()
+				if not LeaMapsLC:CanChangeMap() then return end
 				WorldMapFrame:ClearAllPoints()
 				if not WorldMapFrame:IsMaximized() then
 					WorldMapFrame:SetClampRectInsets(600, -600, -64, 470)
@@ -1031,8 +1087,9 @@
 			hooksecurefunc(WorldMapFrame, "OnFrameSizeChanged", SetMapPositionFunc) -- Needed when maximising the map
 			SetMapPositionFunc()
 
-			-- Function to set map movement clickable area
+			-- Function to set map movement clickable area (not while the map frame cannot be changed)
 			local function SetMapHitRect()
+				if not LeaMapsLC:CanChangeMap() then return end
 				if LeaMapsLC["EnableMovement"] == "On" then
 					WorldMapFrame:SetHitRectInsets(-10, -10, -10, -10)
 				else
@@ -1048,6 +1105,12 @@
 			SetMapHitRect()
 			LeaMapsCB["EnableMovement"]:HookScript("OnClick", SetMapHitRect)
 
+			-- Lock map movement controls while the map frame cannot be changed
+			LeaMapsLC:AddMapLock(function(lock)
+				LeaMapsLC:LockItem(LeaMapsCB["EnableMovement"], lock)
+				LeaMapsLC:LockItem(scaleFrame.r, lock)
+			end)
+
 			----------------------------------------------------------------------
 			-- Panel button handlers
 			----------------------------------------------------------------------
@@ -1060,6 +1123,7 @@
 
 			-- Reset button click
 			scaleFrame.r:HookScript("OnClick", function()
+				if not LeaMapsLC:CanChangeMap() then return end
 				-- Reset map position
 				LeaMapsLC["EnableMovement"] = "On"
 				LeaMapsLC["MapPosA"], LeaMapsLC["MapPosR"], LeaMapsLC["MapPosX"], LeaMapsLC["MapPosY"] = "TOPLEFT", "TOPLEFT", 16, -94
@@ -1844,26 +1908,33 @@
 			reloadb.f:Hide()
 		end)
 
-		-- Add reset map layout button
-		local resetMapBtn = LeaMapsLC:CreateButton("ResetMapLayoutButton", LeaMapsLC["PageF"], "Reset map layout", "BOTTOMLEFT", 16, 10, 25, "Click to reset the map position and scale to the game default.")
-		resetMapBtn:SetScript("OnClick", function()
-			-- Reset saved map position and scale
-			LeaMapsLC["MapPosA"], LeaMapsLC["MapPosR"], LeaMapsLC["MapPosX"], LeaMapsLC["MapPosY"] = "TOPLEFT", "TOPLEFT", 16, -94
-			LeaMapsLC["MaxMapPosA"], LeaMapsLC["MaxMapPosR"], LeaMapsLC["MaxMapPosX"], LeaMapsLC["MaxMapPosY"] = "CENTER", "CENTER", 0, 0
-			LeaMapsLC["MapScale"] = 1.0
-			LeaMapsLC["MaxMapScale"] = 1.0
-			-- Apply them now (the map frame is not protected so this works during combat)
-			if InCombatLockdown() and WorldMapFrame:IsProtected() then return end
-			WorldMapFrame:SetScale(1)
-			if LeaMapsLC["UnlockMap"] == "On" then
-				WorldMapFrame:ClearAllPoints()
-				if WorldMapFrame:IsMaximized() then
-					WorldMapFrame:SetPoint(LeaMapsLC["MaxMapPosA"], UIParent, LeaMapsLC["MaxMapPosR"], LeaMapsLC["MaxMapPosX"], LeaMapsLC["MaxMapPosY"])
-				else
-					WorldMapFrame:SetPoint(LeaMapsLC["MapPosA"], UIParent, LeaMapsLC["MapPosR"], LeaMapsLC["MapPosX"], LeaMapsLC["MapPosY"])
+		-- Add reset map layout button (once, it's on the main panel)
+		if not LeaMapsCB["ResetMapLayoutButton"] then
+			local resetMapBtn = LeaMapsLC:CreateButton("ResetMapLayoutButton", LeaMapsLC["PageF"], "Reset map layout", "BOTTOMLEFT", 16, 10, 25, "Click to reset the map position and scale to the game default.")
+			resetMapBtn:SetScript("OnClick", function()
+				-- Do nothing if the map frame cannot be changed (the button is locked then)
+				if not LeaMapsLC:CanChangeMap() then return end
+				-- Reset saved map position and scale
+				LeaMapsLC["MapPosA"], LeaMapsLC["MapPosR"], LeaMapsLC["MapPosX"], LeaMapsLC["MapPosY"] = "TOPLEFT", "TOPLEFT", 16, -94
+				LeaMapsLC["MaxMapPosA"], LeaMapsLC["MaxMapPosR"], LeaMapsLC["MaxMapPosX"], LeaMapsLC["MaxMapPosY"] = "CENTER", "CENTER", 0, 0
+				LeaMapsLC["MapScale"] = 1.0
+				LeaMapsLC["MaxMapScale"] = 1.0
+				-- Apply them now
+				WorldMapFrame:SetScale(1)
+				if LeaMapsLC["UnlockMap"] == "On" then
+					WorldMapFrame:ClearAllPoints()
+					if WorldMapFrame:IsMaximized() then
+						WorldMapFrame:SetPoint(LeaMapsLC["MaxMapPosA"], UIParent, LeaMapsLC["MaxMapPosR"], LeaMapsLC["MaxMapPosX"], LeaMapsLC["MaxMapPosY"])
+					else
+						WorldMapFrame:SetPoint(LeaMapsLC["MapPosA"], UIParent, LeaMapsLC["MapPosR"], LeaMapsLC["MapPosX"], LeaMapsLC["MapPosY"])
+					end
 				end
-			end
-		end)
+			end)
+			-- Lock the button while the map frame cannot be changed
+			LeaMapsLC:AddMapLock(function(lock)
+				LeaMapsLC:LockItem(resetMapBtn, lock)
+			end)
+		end
 
 		-- Set textures
 		LeaMapsLC:CreateBar("FootTexture", Side, 470, 48, "BOTTOM", 0.5, 0.5, 0.5, 1.0, "Interface\\ACHIEVEMENTFRAME\\UI-GuildAchievement-Parchment-Horizontal-Desaturated.png")
@@ -2024,6 +2095,50 @@
 			item:SetAlpha(1.0)
 		end
 	end
+
+	----------------------------------------------------------------------
+	-- Map frame protection
+	----------------------------------------------------------------------
+
+	-- Another addon can make the map frame protected (such as by giving it a secure child frame) and protected frames
+	-- cannot be moved or scaled during combat. Actions that move or scale the map frame are not done while it cannot be
+	-- changed and the controls for them are locked until it can be changed again.
+
+	local mapLockFuncs = {}
+
+	-- Function to check if the map frame can be moved or scaled
+	function LeaMapsLC:CanChangeMap()
+		return not InCombatLockdown() or not WorldMapFrame:IsProtected()
+	end
+
+	-- Function to lock or unlock controls that move or scale the map frame
+	local function SetMapLocks(lock)
+		for i = 1, #mapLockFuncs do
+			mapLockFuncs[i](lock)
+		end
+	end
+
+	-- Function to add a function that locks or unlocks controls (it's run now and when combat starts or ends)
+	function LeaMapsLC:AddMapLock(func)
+		tinsert(mapLockFuncs, func)
+		func(not LeaMapsLC:CanChangeMap())
+	end
+
+	-- Set control locks when combat starts and ends
+	local mapLockEvents = CreateFrame("Frame")
+	mapLockEvents:RegisterEvent("PLAYER_REGEN_DISABLED")
+	mapLockEvents:RegisterEvent("PLAYER_REGEN_ENABLED")
+	mapLockEvents:SetScript("OnEvent", function(self, event)
+		if #mapLockFuncs == 0 then return end
+		if event == "PLAYER_REGEN_DISABLED" then
+			-- Combat lockdown starts after this event so lock now if the map frame is protected and check again on the
+			-- next frame (another addon may make the map frame protected during this event)
+			if WorldMapFrame:IsProtected() then SetMapLocks(true) end
+			C_Timer.After(0, function() SetMapLocks(not LeaMapsLC:CanChangeMap()) end)
+		else
+			SetMapLocks(not LeaMapsLC:CanChangeMap())
+		end
+	end)
 
 	-- Function to set lock state for configuration buttons
 	function LeaMapsLC:LockOption(option, item, reloadreq)
