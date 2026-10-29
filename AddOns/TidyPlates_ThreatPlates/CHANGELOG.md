@@ -1,4 +1,8 @@
-# 13.3.3 (2026-10-25)
+# 13.3.4 (2026-10-28)
 
-* Changed the duration of auras on WoW Retail and Forever to be shown without a unit for seconds (e.g., "12" instead of "12 s") and as "2m", "2h", or "2d" for longer durations.
-* Fixed a bug where the text shadow was missing for the name, status text, and spell name on nameplates [GH-708].
+* Fixed a bug where auras on friendly units kept the settings of their own area when "Swap Area By Reaction" was enabled [GH-770].
+* Fixed a Lua error when resetting a profile to its default settings (or switching to another profile) while Masque was enabled. A changed Masque setting is now applied after the next UI reload.
+* Fixed threat-based transparency and scale for custom styles that use the threat system and for nameplates in headline view [GH-623].
+* Fixed several script functions of custom styles not being called or not receiving the documented parameters.
+* Fixed enabling or disabling a script-triggered custom style with "Never" only taking effect after a UI reload.
+* Fixed a bug where certain game events (e.g., entering or leaving combat) were no longer processed after disabling a widget until the UI was reloaded.
