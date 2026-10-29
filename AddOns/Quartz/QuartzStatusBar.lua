@@ -59,5 +59,43 @@ function QuartzStatusBar:SetRotatesTexture(rotate)
 	end
 end
 
+function Quartz3:CreateImportantOverlay(host)
+	local overlay = CreateFrame("StatusBar", nil, host)
+	overlay:SetAllPoints(host)
+	overlay:SetFrameLevel(host:GetFrameLevel() + 1)
+	overlay:SetMinMaxValues(0, 1)
+	overlay:Hide()
+	hooksecurefunc(host, "SetMinMaxValues", function(_, ...) overlay:SetMinMaxValues(...) end)
+	hooksecurefunc(host, "SetValue", function(_, ...) overlay:SetValue(...) end)
+	if host.SetTimerDuration then
+		hooksecurefunc(host, "SetTimerDuration", function(_, ...) overlay:SetTimerDuration(...) end)
+	end
+	-- Re-setting the texture is how the host reclaims value control after a native timer; the overlay needs the same with its own texture.
+	hooksecurefunc(host, "SetStatusBarTexture", function()
+		if overlay.textureFile then
+			overlay:SetStatusBarTexture(overlay.textureFile)
+		end
+	end)
+	host.ImportantOverlay = overlay
+	return overlay
+end
+
+function Quartz3:SetImportantOverlay(host, isImportant, textureFile, notInterruptible, importantColor, importantNoInterruptColor)
+	local overlay = host.ImportantOverlay
+	if not overlay then return end
+	if issecretvalue(isImportant) or isImportant then
+		if overlay.textureFile ~= textureFile then
+			overlay.textureFile = textureFile
+			overlay:SetStatusBarTexture(textureFile)
+		end
+		overlay:SetStatusBarColor(1, 1, 1, 1)
+		overlay:GetStatusBarTexture():SetVertexColorFromBoolean(notInterruptible, importantNoInterruptColor, importantColor)
+		overlay:Show()
+		overlay:SetAlphaFromBoolean(isImportant, 1, 0)
+	else
+		overlay:Hide()
+	end
+end
+
 -- Native methods (SetMinMaxValues, SetValue, SetStatusBarColor, SetTimerDuration) 
 -- are called directly on the instance (bar) and do not go through __index

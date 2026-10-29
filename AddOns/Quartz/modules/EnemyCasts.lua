@@ -40,7 +40,8 @@ local bit_band, bit_bor = bit.band, bit.bor
 
 local locked = true
 local db, getOptions, castBar
-local barColorObj, noInterruptColorObj
+local barColorObj, noInterruptColorObj, importantColorObj, importantNoInterruptColorObj
+local IsSpellImportant = C_Spell and C_Spell.IsSpellImportant
 
 
 local defaults = {
@@ -79,6 +80,8 @@ local defaults = {
 		textcolor = {1, 1, 1},
 		barcolor = {0.71, 0, 1},
 		noInterruptColor = {0.5, 0.5, 0.5},
+		importantColor = {1.0, 0.2, 0.8},
+		importantNoInterruptColor = {0.6, 0.2, 1.0},
 
 		instanceonly = true,
 	}
@@ -547,21 +550,21 @@ do
 		-- Scan all nameplates directly instead of using stored state
 		-- This avoids issues with stale entries and secret value comparisons
 		local barIndex = 0
-		
+
 		for i = 1, 40 do -- Max nameplates
 			local unit = "nameplate" .. i
 			-- Only show casts from enemies that are in combat
 			if UnitExists(unit) and UnitIsEnemy("player", unit) and UnitAffectingCombat(unit) then
 				-- Check for cast
-				local spellName, _, texture, _, _, _, _, notInterruptible = UnitCastingInfo(unit)
+				local spellName, _, texture, _, _, _, _, notInterruptible, spellID = UnitCastingInfo(unit)
 				local isChannel = false
 				local durationObj
-				
+
 				if spellName then
 					durationObj = UnitCastingDuration(unit)
 				else
 					-- Check for channel
-					spellName, _, texture, _, _, _, notInterruptible = UnitChannelInfo(unit)
+					spellName, _, texture, _, _, _, notInterruptible, spellID = UnitChannelInfo(unit)
 					if spellName then
 						isChannel = true
 						durationObj = UnitChannelDuration(unit)
@@ -578,6 +581,10 @@ do
 					bar.isChannel = isChannel
 					setCastText(bar, unit, spellName, isChannel)
 					bar.Icon:SetTexture(texture)
+					local isImportant = false
+					if IsSpellImportant and (issecretvalue(spellID) or spellID) then
+						isImportant = IsSpellImportant(spellID)
+					end
 					bar:SetMinMaxValues(0, 1)
 					bar:SetTimerDuration(durationObj)
 					
@@ -601,7 +608,7 @@ do
 					if not issecretvalue(notInterruptible) and not notInterruptible then
 						notInterruptible = false
 					end
-					bar:GetStatusBarTexture():SetVertexColorFromBoolean(notInterruptible, noInterruptColorObj, barColorObj)
+					Quartz3.Util.ApplyCastColor(bar, isImportant, importantColorObj, importantNoInterruptColorObj, notInterruptible, noInterruptColorObj, barColorObj)
 
 					bar:Show()
 				end
@@ -735,6 +742,10 @@ do
 		barColorObj = CreateColor(br, bg, bb, 1)
 		local nr, ng, nb = unpack(db.noInterruptColor)
 		noInterruptColorObj = CreateColor(nr, ng, nb, 1)
+		local ir, ig, ib = unpack(db.importantColor)
+		importantColorObj = CreateColor(ir, ig, ib, 1)
+		local xr, xg, xb = unpack(db.importantNoInterruptColor)
+		importantNoInterruptColorObj = CreateColor(xr, xg, xb, 1)
 
 		-- One-shot conversion of stored bottom-left free positions to the center-relative system.
 		if not db.centerpos then
@@ -972,6 +983,22 @@ do
 								get = getColor,
 								set = setColor,
 								order = 114,
+							},
+							importantColor = {
+								type = "color",
+								name = L["Important Color"],
+								desc = L["Set the color of the bars for important casts"],
+								get = getColor,
+								set = setColor,
+								order = 114.2,
+							},
+							importantNoInterruptColor = {
+								type = "color",
+								name = L["Important Uninterruptible Color"],
+								desc = L["Set the color of the bars for important uninterruptible casts"],
+								get = getColor,
+								set = setColor,
+								order = 114.4,
 							},
 							nl5 = {
 								type = "description",
