@@ -844,6 +844,7 @@ L["If checked, the Aqir Egg Cluster transform will be removed when applied."] = 
 L["If checked, the Artist's Duds transform will be removed when applied."] = "如果选中此选项，艺术家的旧衣服（铭文）专业装备幻化将在生效时被自动移除。"
 L["If checked, the Atomic Recalibrator transform will be removed when applied."] = "勾选后，原子重校器玩具的变形外观将在生效后被自动移除。"
 L["If checked, the Atomic Regoblinator transform will be removed when applied."] = [=[如果选中此选项，则自动移除原子地精重塑器变形。
+]=]
 L["If checked, the backpack clean-up button and the bank frame clean-up button will not be shown."] = "勾选后，背包及银行的整理按钮不再显示。"
 L["If checked, the boss banner will not be shown.|n|nThe boss banner appears when a boss is defeated.  It shows the name of the boss and the loot that was distributed."] = "勾选后，BOSS的横幅信息条将不再弹出。|n|n该信息通常在BOSS被击败后弹出。它将显示BOSS的名字以及掉落。"
 L["If checked, the button to toggle the raid container frame will be shown just above the raid management frame (left side of the screen) instead of in the raid management frame itself.|n|nThis allows you to toggle the raid container frame without needing to open the raid management frame."] = "勾选后，打开团队信息的按钮会显示在左侧团队管理框体的上方，而不是在其内部。|n|n此选项让你无需打开团队管理框体，就可以切换团队框体。"
