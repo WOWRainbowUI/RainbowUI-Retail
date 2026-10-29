@@ -7,6 +7,8 @@ end)
 
 addonTable.Display.CastIconMarkerMixin = {}
 
+local SmartPoint = addonTable.Constants.IsPixelPerfectPlus and UIParent.SetPoint or PixelUtil.SetPoint
+
 function addonTable.Display.CastIconMarkerMixin:PostInit()
   if self.details.square then
     self.background = borderPool:Acquire()
@@ -16,8 +18,8 @@ function addonTable.Display.CastIconMarkerMixin:PostInit()
     self.marker:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 
     self.PostApplyAnchor = function()
-      PixelUtil.SetPoint(self.background, "TOPLEFT", self, "TOPLEFT", -1, 1)
-      PixelUtil.SetPoint(self.background, "BOTTOMRIGHT", self, "BOTTOMRIGHT", 1, -1)
+      SmartPoint(self.background, "TOPLEFT", self, "TOPLEFT", -1, 1)
+      SmartPoint(self.background, "BOTTOMRIGHT", self, "BOTTOMRIGHT", 1, -1)
     end
   end
 end

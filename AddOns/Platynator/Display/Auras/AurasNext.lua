@@ -114,8 +114,8 @@ local function StyleAura(auraFrame, details, container)
   auraFrame.Cooldown:SetDrawEdge(details.showSwipe)
   auraFrame.Cooldown:SetDrawSwipe(details.showSwipe)
 
-  local width = PixelUtil.ConvertPixelsToUIForRegion(20, container)
-  local height = PixelUtil.ConvertPixelsToUIForRegion(20 * details.height, container)
+  local width = 20
+  local height = 20 * details.height
   auraFrame:SetSize(width, height)
   auraFrame.Border:SetSize(width, height)
   auraFrame.Icon:SetSize(width, height)
@@ -183,12 +183,13 @@ local function GetAurasInitializerModern(container)
     end
 
     addonTable.Display.GeneratePandemicAnimation(frame)
-    PixelUtil.SetRoundLayoutToNearestPixelRecursively(frame.Pandemic, true)
 
     frame:SetApplicationCount(frame.TextsContainer.Applications, {})
     frame:SetIcon(frame.Icon)
     frame:SetDurationCooldown(frame.Cooldown)
     frame:AddDispelTypeTexture(frame.Dispel.Border, {showIcon = false, showWhenHarmful = true, showWhenHelpful = true, style = Enum.CustomAuraButtonDispelTypeTextureStyle.PreserveAsset})
+
+    PixelUtil.SetRoundLayoutToNearestPixelRecursively(frame, true)
 
     if container.details then
       StyleAura(frame, container.details, container)
@@ -206,9 +207,13 @@ function addonTable.Display.AurasManagerNextMixin:OnLoad()
   self.slots = CreateFrame("AuraContainer", nil, self, "CustomAuraContainerTemplate")
 
   self.buffs:SetEnabled(false)
+  self.buffs:SetRoundLayoutToNearestPixel(true)
   self.debuffs:SetEnabled(false)
+  self.debuffs:SetRoundLayoutToNearestPixel(true)
   self.crowdControl:SetEnabled(false)
+  self.crowdControl:SetRoundLayoutToNearestPixel(true)
   self.slots:SetEnabled(false)
+  self.slots:SetRoundLayoutToNearestPixel(true)
 
   self.initialSetup = true
 
@@ -425,7 +430,7 @@ function addonTable.Display.AurasManagerNextMixin:InitializeWidgets(parent, aura
       self[kind].groupsCount = #groups
     end
 
-    local padding = PixelUtil.ConvertPixelsToUIForRegion(20 * details.padding, self[kind])
+    local padding = 20 * details.padding
 
     for index, group in ipairs(groups) do
       local key = tostring(index)
@@ -513,11 +518,9 @@ function addonTable.Display.AurasManagerNextMixin:AcquireSlot(height, point, fil
     auraFrame:SetPoint(unpack(point))
     auraFrame:SetCollapsesLayout(true)
     auraFrame:EnableMouseMotion(false)
+    auraFrame:SetRoundLayoutToNearestPixel(true)
   end, candidateFilters = { includeSpellIDs = {[spellID] = true} } })
 
-  if frame.RoundLayoutToNearestPixel then
-    frame:RoundLayoutToNearestPixel(true)
-  end
   self.slots.framesByKey[key] = frame
 
   self.slots.available = self.slots.available + 1

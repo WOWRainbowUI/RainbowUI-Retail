@@ -16,6 +16,7 @@ addonTable.Constants = {
   IsMidnightNext = select(4, GetBuildInfo()) >= 120107,
   IsCVarsBack = C_CVar.GetCVarInfo("nameplateMotionSpeed") ~= nil,
   IsSecretsActive = C_Secrets and C_Secrets.HasSecretRestrictions() or false,
+  IsPixelPerfectPlus = PixelUtil.SetRoundLayoutToNearestPixelRecursively ~= nil,
 
   DeathKnightMaxRunes = 6,
 

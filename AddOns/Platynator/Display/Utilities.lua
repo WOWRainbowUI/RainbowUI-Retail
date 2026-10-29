@@ -659,6 +659,16 @@ do
     end
   end)
 
+  local defaultEnabled = {
+    boss = true,
+    miniboss = true,
+    caster = true,
+    melee = true,
+    trivial = true,
+    elite = true,
+    rare = true,
+  }
+
   local GetDungeonEliteType, GetRaidEliteType
   if addonTable.Constants.IsRetail then
     local levelTracker = CreateFrame("Frame")
@@ -682,14 +692,15 @@ do
       end
     end)
 
-    GetDungeonEliteType = function(unit, casterOverride)
+    GetDungeonEliteType = function(unit, casterOverride, enabled)
+      enabled = enabled or defaultEnabled
       local classification = UnitClassification(unit)
       if classification == "elite" then
         local level = UnitEffectiveLevel(unit)
         local dungeonLevel = PLATYNATOR_LAST_INSTANCE.level
-        if level == dungeonLevel + 1 then
+        if level == dungeonLevel + 1 and enabled.miniboss then
           return "miniboss"
-        elseif (level == dungeonLevel + 2) or level == -1 then
+        elseif ((level == dungeonLevel + 2) or level == -1) and enabled.boss then
           return "boss"
         else
           return HasMana(unit) and "caster" or "melee"
@@ -699,14 +710,15 @@ do
       end
     end
 
-    GetRaidEliteType = function(unit, casterOverride)
+    GetRaidEliteType = function(unit, casterOverride, enabled)
+      enabled = enabled or defaultEnabled
       local classification = UnitClassification(unit)
       if classification == "elite" then
         local level = UnitEffectiveLevel(unit)
         local dungeonLevel = PLATYNATOR_LAST_INSTANCE.level
-        if level == -1 or UnitIsBossMob and UnitIsBossMob(unit) then
+        if (level == -1 or UnitIsBossMob and UnitIsBossMob(unit)) and enabled.boss then
           return "boss"
-        elseif level >= dungeonLevel + 2 then
+        elseif level >= dungeonLevel + 2 and enabled.miniboss then
           return "miniboss"
         else
           return HasMana(unit) and "caster" or "melee"
@@ -716,11 +728,12 @@ do
       end
     end
   else
-    GetDungeonEliteType = function(unit, casterOverride)
+    GetDungeonEliteType = function(unit, casterOverride, enabled)
+      enabled = enabled or defaultEnabled
       local classification = UnitClassification(unit)
       if classification == "elite" then
         local level = UnitEffectiveLevel(unit)
-        if level == -1 then
+        if level == -1 and enabled.boss then
           return "boss"
         else
           return HasMana(unit) and "caster" or "melee"
@@ -730,11 +743,12 @@ do
       end
     end
 
-    GetRaidEliteType = function(unit, casterOverride)
+    GetRaidEliteType = function(unit, casterOverride, enabled)
+      enabled = enabled or defaultEnabled
       local classification = UnitClassification(unit)
       if classification == "elite" then
         local level = UnitEffectiveLevel(unit)
-        if level == -1 then
+        if level == -1 and enabled.boss then
           return "boss"
         else
           return HasMana(unit) and "caster" or "melee"
@@ -753,18 +767,19 @@ do
     end
   end
 
-  function addonTable.Display.Utilities.GetDelveType(unit)
+  function addonTable.Display.Utilities.GetDelveType(unit, enabled)
+    enabled = enabled or defaultEnabled
     local classification = UnitClassification(unit)
     if classification == "elite" then
       local level = UnitEffectiveLevel(unit)
       local dungeonLevel = PLATYNATOR_LAST_INSTANCE.level
       local isRetail = addonTable.Constants.IsRetail
-      if isRetail and level == dungeonLevel + 2 or level == -1 then
+      if (isRetail and level == dungeonLevel + 2 or level == -1) and enabled.boss then
         return "boss"
       else
-        return "elite"
+        return enabled.elite and "elite" or HasMana(unit) and "caster" or "melee"
       end
-    elseif classification == "rareelite" then
+    elseif classification == "rareelite" and enabled.rare then
       return "rare"
     elseif classification == "normal" then
       return HasMana(unit) and "caster" or "melee"
