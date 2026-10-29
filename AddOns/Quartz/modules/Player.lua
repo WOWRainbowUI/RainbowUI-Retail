@@ -60,7 +60,6 @@ local defaults = {
 		tickheight = 55,
 		noInterruptChangeColor = false,
 		noInterruptShield = false,
-		targetnamestyle = "default"
 	})
 }
 
@@ -143,26 +142,6 @@ do
 				disabled = function() return not db.showticks end,
 				hidden = function() return db.tickheightmode ~= "custom" end,
 				order = 107,
-			}
-			options.args.nlttargetname = {
-				type = "description",
-				name = "",
-				order = 408.0,
-			}
-			options.args.targetname = {
-				type = "toggle",
-				name = L["Show Target Name"],
-				desc = L["Display target name of spellcasts after spell name"],
-				disabled = function() return db.hidenametext end,
-				order = 408.1,
-			}
-			options.args.targetnamestyle = {
-				type = "select",
-				name = L["Target Name Style"],
-				desc = L["How to display target name of spellcasts after spell name"],
-				values = {["default"] = L["Spell -> Target"], ["on"] = L["Spell on Target"]},
-				disabled = function() return not db.targetname or db.hidenametext end,
-				order = 409,
 			}
 		end
 		return options

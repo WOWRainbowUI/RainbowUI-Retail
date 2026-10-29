@@ -28,7 +28,7 @@ Quartz3.IsForever = WOW_PROJECT_ID == WOW_PROJECT_CAMELOT or (tocVersion > 16000
 ----------------------------
 -- Upvalues
 -- GLOBALS: LibStub, QuartzDB
-local type, pairs, tonumber = type, pairs, tonumber
+local type, pairs, tonumber, unpack = type, pairs, tonumber, unpack
 
 local defaults = {
 	profile = {
@@ -345,6 +345,23 @@ function Quartz3.Util.ApplyFontStyle(fontString, font, size, outline, shadowColo
 
 	-- La couleur reste gérée par SetTextColor (override par-FontString) chez l'appelant.
 	fontString:SetFontObject(fontObject)
+end
+
+function Quartz3.Util.ApplyCastColor(bar, isImportant, importantColor, importantNoInterruptColor, notInterruptible, noInterruptColor, baseColor)
+	local base, important = baseColor, importantColor
+	local evaluate = C_CurveUtil and C_CurveUtil.EvaluateColorFromBoolean
+	if evaluate then
+		if noInterruptColor then
+			base = evaluate(notInterruptible, noInterruptColor, baseColor)
+		end
+		important = evaluate(notInterruptible, importantNoInterruptColor, importantColor)
+	elseif not issecretvalue(notInterruptible) and notInterruptible then
+		base = noInterruptColor or baseColor
+		important = importantNoInterruptColor
+	end
+	-- Bar color reset to white first so the texture tint alone carries the result.
+	bar:SetStatusBarColor(1, 1, 1, 1)
+	bar:GetStatusBarTexture():SetVertexColorFromBoolean(isImportant, important, base)
 end
 
 function Quartz3.Util.TimeFormat(num, isCastTime)

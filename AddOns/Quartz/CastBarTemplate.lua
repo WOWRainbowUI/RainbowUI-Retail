@@ -33,6 +33,7 @@ local LibClassicCasterino = WoWClassic and LibStub("LibClassicCasterino", true)
 local min, type, format, unpack, setmetatable = math.min, type, string.format, unpack, setmetatable
 local CreateFrame, GetTime, UIParent = CreateFrame, GetTime, UIParent
 local UnitName, UnitCastingInfo, UnitChannelInfo = UnitName, UnitCastingInfo, UnitChannelInfo
+local IsSpellImportant = C_Spell and C_Spell.IsSpellImportant
 
 if LibClassicCasterino then
 	UnitCastingInfo = function(unit)
@@ -258,6 +259,58 @@ function CastBarTemplate:SetNameText(name)
 	end
 end
 
+local function ApplyImportantStyle(self, isImportant, notInterruptible)
+	local db = self.config
+	if not issecretvalue(notInterruptible) and not notInterruptible then
+		notInterruptible = false
+	end
+
+	if db.importantChangeTexture then
+		if not self.Bar.ImportantOverlay then
+			Quartz3:CreateImportantOverlay(self.Bar)
+		end
+		local ir, ig, ib = unpack(db.importantColor)
+		local xr, xg, xb = unpack(db.importantNoInterruptColor)
+		Quartz3:SetImportantOverlay(self.Bar, isImportant, media:Fetch("statusbar", db.importantTexture), notInterruptible, CreateColor(ir, ig, ib, 1), CreateColor(xr, xg, xb, 1))
+	elseif self.Bar.ImportantOverlay then
+		self.Bar.ImportantOverlay:Hide()
+	end
+
+	local overlay = self.ImportantBorderOverlay
+	if not overlay then return end
+	if db.importantChangeBorder and (issecretvalue(isImportant) or isImportant) then
+		overlay.backdrop.edgeFile = media:Fetch("border", db.importantBorder)
+		overlay.backdropInfo = overlay.backdrop
+		overlay:ApplyBackdrop()
+		local r, g, b = unpack(db.importantBorderColor)
+		overlay:SetBackdropBorderColor(r, g, b, db.importantBorderAlpha)
+		overlay:SetBackdropColor(0, 0, 0, 0)
+		overlay:Show()
+		overlay:SetAlphaFromBoolean(isImportant, 1, 0)
+	else
+		overlay:Hide()
+	end
+end
+
+local function ApplyBarColor(self, notInterruptible)
+	if not (self.casting or self.channeling) then return end
+	local gdb = Quartz3.db.profile
+	local db = self.config
+	local isImportant = false
+	if db.importantChangeColor then
+		isImportant = self.isImportant
+	end
+	local cr, cg, cb = unpack(self.casting and gdb.castingcolor or gdb.channelingcolor)
+	local ir, ig, ib = unpack(db.importantColor)
+	local xr, xg, xb = unpack(db.importantNoInterruptColor)
+	local noInterruptColor
+	if db.noInterruptChangeColor then
+		local nr, ng, nb = unpack(db.noInterruptColor)
+		noInterruptColor = CreateColor(nr, ng, nb, 1)
+	end
+	Quartz3.Util.ApplyCastColor(self.Bar, isImportant, CreateColor(ir, ig, ib, 1), CreateColor(xr, xg, xb, 1), notInterruptible, noInterruptColor, CreateColor(cr, cg, cb, 1))
+end
+
 local function ToggleCastNotInterruptible(self, notInterruptible, init)
 	local db = self.config
 
@@ -266,11 +319,13 @@ local function ToggleCastNotInterruptible(self, notInterruptible, init)
 		notInterruptible = false
 	end
 
-	if db.noInterruptChangeColor then
-		local nr, ng, nb = unpack(db.noInterruptColor)
-		local br, bg, bb = unpack(self.casting and Quartz3.db.profile.castingcolor or Quartz3.db.profile.channelingcolor)
-		self.Bar:GetStatusBarTexture():SetVertexColorFromBoolean(notInterruptible, CreateColor(nr, ng, nb, 1), CreateColor(br, bg, bb, 1))
+	ApplyBarColor(self, notInterruptible)
+
+	local isImportant = false
+	if self.casting or self.channeling then
+		isImportant = self.isImportant
 	end
+	ApplyImportantStyle(self, isImportant, notInterruptible)
 
 	if isSecret then
 		-- Shield handling with SetAlphaFromBoolean
@@ -345,11 +400,11 @@ function CastBarTemplate:UNIT_SPELLCAST_START(event, unit, guid, spellID)
 	end
 	local db = self.config
 
-	local spell, displayName, icon, startTime, endTime, _, notInterruptible, numStages
+	local spell, displayName, icon, startTime, endTime, _, notInterruptible, numStages, castSpellID
 	if event == "UNIT_SPELLCAST_START" then
-		spell, displayName, icon, startTime, endTime, _, _, notInterruptible = UnitCastingInfo(unit)
+		spell, displayName, icon, startTime, endTime, _, _, notInterruptible, castSpellID = UnitCastingInfo(unit)
 	else -- self.channeling
-		spell, displayName, icon, startTime, endTime, _, notInterruptible, _, _, numStages = UnitChannelInfo(unit)
+		spell, displayName, icon, startTime, endTime, _, notInterruptible, castSpellID, _, numStages = UnitChannelInfo(unit)
 		-- channeling spells sometimes just display "Channeling" - this is not wanted
 		displayName = spell
 	end
@@ -360,6 +415,14 @@ function CastBarTemplate:UNIT_SPELLCAST_START(event, unit, guid, spellID)
 	if WoWClassic then
 		notInterruptible = false
 	end
+
+	local isImportant = false
+	if IsSpellImportant and (issecretvalue(castSpellID) or castSpellID) then
+		isImportant = IsSpellImportant(castSpellID)
+	end
+	self.isImportant = isImportant
+	-- Before the native timer binds the bars, so the overlay texture is never changed under a running timer.
+	ApplyImportantStyle(self, isImportant, notInterruptible)
 
 	-- endTime/numStages can be secret for other players' casts.
 	-- Revisit if Blizzard provides a proper API for empower duration with secrets.
@@ -428,8 +491,6 @@ function CastBarTemplate:UNIT_SPELLCAST_START(event, unit, guid, spellID)
 	end
 	self.numStages = numStages
 
-	self.Bar:SetStatusBarColor(unpack(self.casting and Quartz3.db.profile.castingcolor or Quartz3.db.profile.channelingcolor))
-
 	if not self.hasSecretTiming then
 		self.Bar:SetValue(self.casting and 0 or 1)
 	end
@@ -439,6 +500,20 @@ function CastBarTemplate:UNIT_SPELLCAST_START(event, unit, guid, spellID)
 	-- Object interactions (chests, gathering) come with an empty display text on Forever.
 	if not issecretvalue(displayName) and (displayName == nil or displayName == "") then
 		displayName = spell
+	end
+	if self.unit ~= "player" then
+		local targetName
+		if db.targetname then
+			if self.channeling then
+				targetName = UnitName(unit .. "target")
+			elseif UnitShouldDisplaySpellTargetName(unit) then
+				targetName = UnitSpellTargetName(unit)
+			end
+			if issecretvalue(targetName) or targetName then
+				targetName = Ambiguate(targetName, "short")
+			end
+		end
+		self.targetName = targetName
 	end
 	self:SetNameText(displayName)
 
@@ -844,7 +919,9 @@ do
 			if not (bar.casting or bar.channeling) then
 				local db = bar.config
 				local hasNoInterrupt = db.noInterruptChangeColor or db.noInterruptChangeBorder or db.noInterruptShield
-				local t = (now - bar.demoStart) % (hasNoInterrupt and 6.6 or 4.6)
+				local hasImportant = db.importantChangeColor and IsSpellImportant
+				local noInterruptEnd = hasNoInterrupt and 6.6 or 4.6
+				local t = (now - bar.demoStart) % (noInterruptEnd + (hasImportant and 2.0 or 0))
 				local value, color, timeText, text, showSpark
 				if t < 2.0 then
 					value, color = t / 2.0, gdb.castingcolor
@@ -859,24 +936,43 @@ do
 				elseif t < 4.6 then
 					value, color, timeText = 0.6, gdb.failcolor, ""
 					text = L["INTERRUPTED (%s)"]:format(bar.unit)
-				else
+				elseif t < noInterruptEnd then
 					value = (t - 4.6) / 2.0
 					color = db.noInterruptChangeColor and db.noInterruptColor or gdb.castingcolor
 					timeText = ("%.1f"):format(2.0 - (t - 4.6))
 					showSpark = true
+				else
+					value = (t - noInterruptEnd) / 2.0
+					color = db.importantColor
+					timeText = ("%.1f"):format(2.0 - (t - noInterruptEnd))
 				end
 
-				local inNoInterrupt = (hasNoInterrupt and t >= 4.6) and true or false
+				local inNoInterrupt = (hasNoInterrupt and t >= 4.6 and t < noInterruptEnd) and true or false
 				if inNoInterrupt ~= bar.demoNoInterrupt then
 					bar.demoNoInterrupt = inNoInterrupt
 					ToggleCastNotInterruptible(bar, inNoInterrupt)
+				end
+				local inImportant = (hasImportant and t >= noInterruptEnd) and true or false
+				if inImportant ~= bar.demoImportant then
+					bar.demoImportant = inImportant
+					ApplyImportantStyle(bar, inImportant, false)
 				end
 
 				bar.Bar:SetMinMaxValues(0, 1)
 				bar.Bar:SetValue(value)
 				bar.Bar:SetStatusBarColor(unpack(color))
 				bar.TimeText:SetText(timeText)
-				bar.Text:SetText(text or bar.unit)
+				if not text then
+					text = bar.unit
+					if db.targetname then
+						if db.targetnamestyle == "on" then
+							text = L["%s on %s"]:format(text, L["Target"])
+						else
+							text = ("%s -> %s"):format(text, L["Target"])
+						end
+					end
+				end
+				bar.Text:SetText(text)
 
 				if showSpark and gdb.sparkenabled then
 					bar.Spark:ClearAllPoints()
@@ -915,6 +1011,10 @@ do
 		if self.demoNoInterrupt then
 			self.demoNoInterrupt = nil
 			ToggleCastNotInterruptible(self, false)
+		end
+		if self.demoImportant then
+			self.demoImportant = nil
+			ApplyImportantStyle(self, false, false)
 		end
 		self.Bar:SetStatusBarColor(unpack(Quartz3.db.profile.castingcolor))
 		if not (self.channeling or self.casting) then
@@ -960,6 +1060,21 @@ do
 	local function noInterruptChangeColor(info)
 		local db = getBar(info).config
 		return not db.noInterruptChangeColor
+	end
+
+	local function importantChangeColor(info)
+		local db = getBar(info).config
+		return not db.importantChangeColor
+	end
+
+	local function importantChangeTexture(info)
+		local db = getBar(info).config
+		return not db.importantChangeTexture
+	end
+
+	local function importantChangeBorder(info)
+		local db = getBar(info).config
+		return not db.importantChangeBorder
 	end
 
 	local function icondisabled(info)
@@ -1250,6 +1365,26 @@ do
 					disabled = hidenametextoptions,
 					order = 409,
 				},
+				nltargetname = {
+					type = "description",
+					name = "",
+					order = 409.5,
+				},
+				targetname = {
+					type = "toggle",
+					name = L["Show Target Name"],
+					desc = L["Display target name of spellcasts after spell name"],
+					disabled = hidenametextoptions,
+					order = 409.6,
+				},
+				targetnamestyle = {
+					type = "select",
+					name = L["Target Name Style"],
+					desc = L["How to display target name of spellcasts after spell name"],
+					values = {["default"] = L["Spell -> Target"], ["on"] = L["Spell on Target"]},
+					disabled = function(info) local db = getBar(info).config return not db.targetname or db.hidenametext end,
+					order = 409.7,
+				},
 				nltimetext = {
 					type = "description",
 					name = "",
@@ -1390,6 +1525,86 @@ do
 						},
 					},
 				},
+				importantGroup = {
+					type = "group",
+					name = L["Important cast bars"],
+					dialogInline = true,
+					order = 456,
+					args = {
+						importantChangeColor = {
+							type = "toggle",
+							name = L["Change Color"],
+							desc = L["Change the color of important Cast Bars"],
+							order = 1,
+						},
+						importantColor = {
+							type = "color",
+							name = L["Cast Bar Color"],
+							desc = L["Set the color of the cast bar for important casts"],
+							get = getColor,
+							set = setColor,
+							disabled = importantChangeColor,
+							order = 2,
+						},
+						importantNoInterruptColor = {
+							type = "color",
+							name = L["Uninterruptible Color"],
+							desc = L["Set the color of the cast bar for important casts that cannot be interrupted"],
+							get = getColor,
+							set = setColor,
+							disabled = importantChangeColor,
+							order = 3,
+						},
+						importantChangeTexture = {
+							type = "toggle",
+							name = L["Change Texture"],
+							desc = L["Use a different texture for important casts"],
+							order = 10,
+						},
+						importantTexture = {
+							type = "select",
+							dialogControl = "LSM30_Statusbar",
+							name = L["Texture"],
+							desc = L["Set the texture of the cast bar for important casts"],
+							values = lsmlist.statusbar,
+							disabled = importantChangeTexture,
+							order = 11,
+						},
+						importantChangeBorder = {
+							type = "toggle",
+							name = L["Change Border Style"],
+							desc = L["Use a different border for important casts"],
+							order = 20,
+						},
+						importantBorder = {
+							type = "select",
+							dialogControl = "LSM30_Border",
+							name = L["Border"],
+							desc = L["Set the border style for important casts"],
+							values = lsmlist.border,
+							disabled = importantChangeBorder,
+							order = 21,
+						},
+						importantBorderColor = {
+							type = "color",
+							name = L["Border Color"],
+							desc = L["Set the color of the cast bar border for important casts"],
+							get = getColor,
+							set = setColor,
+							disabled = importantChangeBorder,
+							order = 22,
+						},
+						importantBorderAlpha = {
+							type = "range",
+							name = L["Border Alpha"],
+							desc = L["Set the alpha of the cast bar border for important casts"],
+							isPercent = true,
+							min = 0, max = 1, bigStep = 0.025,
+							disabled = importantChangeBorder,
+							order = 23,
+						},
+					},
+				},
 				toolheader = {
 					type = "header",
 					name = L["Tools"],
@@ -1447,6 +1662,7 @@ Quartz3.CastBarTemplate.defaults = {
 	fontShadowOffsetX = 0.8,
 	fontShadowOffsetY = -0.8,
 	targetname = false,
+	targetnamestyle = "default",
 	border = "Blizzard Tooltip",
 	nametextx = 3,
 	nametexty = 0,
@@ -1460,6 +1676,16 @@ Quartz3.CastBarTemplate.defaults = {
 	noInterruptChangeColor = false,
 	noInterruptColor = {1.0, 0.49, 0},
 	noInterruptShield = true,
+
+	importantChangeColor = true,
+	importantColor = {1.0, 0.2, 0.8},
+	importantNoInterruptColor = {0.6, 0.2, 1.0},
+	importantChangeTexture = false,
+	importantTexture = "Runes",
+	importantChangeBorder = false,
+	importantBorder = "Tooltip enlarged",
+	importantBorderColor = {1.0, 0.2, 0.8},
+	importantBorderAlpha = 1,
 }
 Quartz3.CastBarTemplate.template = CastBarTemplate
 Quartz3.CastBarTemplate.bars = {}
@@ -1520,9 +1746,19 @@ function Quartz3.CastBarTemplate:new(parent, unit, name, localizedName, config)
 			insets = {left = 4, right = 4, top = 4, bottom = 4},
 		}
 		bar.NoInterruptBorderOverlay:Hide()
+
+		bar.ImportantBorderOverlay = CreateFrame("Frame", nil, bar, "BackdropTemplate")
+		bar.ImportantBorderOverlay:SetAllPoints(bar)
+		bar.ImportantBorderOverlay:SetFrameLevel(bar:GetFrameLevel() + 3)
+		bar.ImportantBorderOverlay.backdrop = {
+			edgeSize = 16,
+			insets = {left = 4, right = 4, top = 4, bottom = 4},
+		}
+		bar.ImportantBorderOverlay:Hide()
 	end
 
 	bar.lastNotInterruptible = false
+	bar.isImportant = false
 
 	bar.backdrop = { bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
 	                 tile = true, tileSize = 16, edgeSize = 16, --edgeFile = "", -- set by ApplySettings
