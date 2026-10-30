@@ -839,6 +839,14 @@ local function UpgradeDesignv28(design)
   end
 end
 
+local function UpgradeDesignv29(design)
+  for _, text in ipairs(design.texts) do
+    if text.kind == "health" or text.kind == "damageAbsorb" then
+      text.abbreviate = true
+    end
+  end
+end
+
 local designUpgrades = {
   UpgradeDesignv1,
   UpgradeDesignv2,
@@ -869,6 +877,7 @@ local designUpgrades = {
   UpgradeDesignv26,
   UpgradeDesignv27,
   UpgradeDesignv28,
+  UpgradeDesignv29,
 }
 
 function addonTable.Core.UpgradeDesign(design)
@@ -1074,6 +1083,10 @@ local function MigrateSettingsv10()
   end
 end
 
+local function MigrateSettingsv11()
+  addonTable.Config.Set(addonTable.Config.Options.WHEN_NO_TARGET_ALPHA, addonTable.Config.Get(addonTable.Config.Options.NOT_TARGET_ALPHA))
+end
+
 local settingUpgrades = {
   MigrateSettingsv1,
   MigrateSettingsv2,
@@ -1086,6 +1099,7 @@ local settingUpgrades = {
   MigrateSettingsv8,
   MigrateSettingsv9,
   MigrateSettingsv10,
+  MigrateSettingsv11,
 }
 function addonTable.Core.MigrateSettings()
   if #settingUpgrades + 1 ~= addonTable.Config.Get(addonTable.Config.Options.MIGRATION) then

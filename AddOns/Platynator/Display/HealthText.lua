@@ -36,6 +36,7 @@ function addonTable.Display.HealthTextMixin:PostInit()
     end
   end
 
+  self.abbreviateAbsolute = self.details.abbreviate and (addonTable.Display.Utilities.AbbreviateNumbersAlt or AbbreviateNumbers) or BreakUpLargeNumbers
   if self.details.showPercentSymbol then
     self.percentTail = "%"
   else
@@ -61,6 +62,7 @@ function addonTable.Display.HealthTextMixin:Strip()
   self:UnregisterAllEvents()
   self.abbreviateData = nil
   self.abbreviateCallback = nil
+  self.abbreviateAbsolute = nil
   self.percentTail = nil
   self.formatMultiple = nil
   self.PostInit = nil
@@ -68,33 +70,26 @@ function addonTable.Display.HealthTextMixin:Strip()
 end
 
 function addonTable.Display.HealthTextMixin:UpdateText(state)
-  if UnitIsDeadOrGhost(self.unit) then
-    self.text:SetText("0")
-    if self.hideAuto then
-      self.text:SetAlpha(0)
-    end
+  local values = {
+    percentage = "",
+    absolute = self.abbreviateAbsolute(state.absolute),
+  }
+  local types = self.details.displayTypes
+  local value = state.percent
+  if self.abbreviateData then
+    values.percentage = AbbreviateNumbers(value, self.abbreviateData) .. self.percentTail
+  elseif self.abbreviateCallback then
+    values.percentage = self.abbreviateCallback(value) .. self.percentTail
   else
-    local values = {
-      percentage = "",
-      absolute = (addonTable.Display.Utilities.AbbreviateNumbersAlt or AbbreviateNumbers)(state.absolute),
-    }
-    local types = self.details.displayTypes
-    local value = state.percent
-    if self.abbreviateData then
-      values.percentage = AbbreviateNumbers(value, self.abbreviateData) .. self.percentTail
-    elseif self.abbreviateCallback then
-      values.percentage = self.abbreviateCallback(value) .. self.percentTail
-    else
-      values.percentage = (C_StringUtil and C_StringUtil.RoundToNearestString and C_StringUtil.RoundToNearestString(value) or Round(value)) .. self.percentTail
-    end
-    if #types == 2 then
-      self.text:SetFormattedText(self.formatMultiple, values[types[1]], values[types[2]])
-    elseif #types == 1 then
-      self.text:SetFormattedText("%s", values[types[1]])
-    end
+    values.percentage = (C_StringUtil and C_StringUtil.RoundToNearestString and C_StringUtil.RoundToNearestString(value) or Round(value)) .. self.percentTail
+  end
+  if #types == 2 then
+    self.text:SetFormattedText(self.formatMultiple, values[types[1]], values[types[2]])
+  elseif #types == 1 then
+    self.text:SetFormattedText("%s", values[types[1]])
+  end
 
-    if self.hideAuto then
-      self.text:SetAlpha(state.markerAlpha)
-    end
+  if self.hideAuto then
+    self.text:SetAlpha(state.markerAlpha)
   end
 end

@@ -867,6 +867,16 @@ addonTable.CustomiseDialog.WidgetsConfig = {
               return tIndexOf(details.displayTypes, "absolute") ~= nil
             end,
           },
+          {
+            label = addonTable.Locales.ABBREVIATE_LARGE_VALUES,
+            kind = "checkbox",
+            setter = function(details, value)
+              details.abbreviate = value
+            end,
+            getter = function(details)
+              return details.abbreviate
+            end,
+          },
           { kind = "spacer" },
           {
             label = addonTable.Locales.PERCENTAGE,
@@ -923,6 +933,23 @@ addonTable.CustomiseDialog.WidgetsConfig = {
           },
           { kind = "spacer" },
           multipleValuesDisplay,
+        }
+      }
+    },
+    ["damageAbsorb"] = {
+      {
+        label = addonTable.Locales.GENERAL,
+        entries = {
+          {
+            label = addonTable.Locales.ABBREVIATE_LARGE_VALUES,
+            kind = "checkbox",
+            setter = function(details, value)
+              details.abbreviate = value
+            end,
+            getter = function(details)
+              return details.abbreviate
+            end,
+          },
         }
       }
     },

@@ -1467,17 +1467,18 @@ function addonTable.Display.GetWidgets(design, parent, isEditor)
   for _, w in ipairs(widgets) do
     if addonTable.Constants.IsPixelPerfectPlus then
       PixelUtil.SetRoundLayoutToNearestPixelRecursively(w, true)
+    else
+      w.pixelPerfectRequired = nil
+      w:SetScript("OnShow", function()
+        if w.pixelPerfectRequired and w.unit then
+          w.pixelPerfectRequired = nil
+          w:ApplyAnchor()
+          w:ApplySize()
+        end
+      end)
     end
     w:ApplyAnchor()
     w:ApplySize()
-    w.pixelPerfectRequired = nil
-    w:SetScript("OnShow", function()
-      if w.pixelPerfectRequired and w.unit then
-        w.pixelPerfectRequired = nil
-        w:ApplyAnchor()
-        w:ApplySize()
-      end
-    end)
   end
 
   return widgets

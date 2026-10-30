@@ -388,7 +388,13 @@ function addonTable.Display.AurasManagerNextMixin:GetFilters(kind, settings)
 end
 
 function addonTable.Display.AurasManagerNextMixin:InitializeWidgets(parent, auraDetails, doNotSize)
-  self.auraDetails = auraDetails
+  local newFont = addonTable.Core.GetDesignByName(addonTable.Display.Context:GetDefaultEnemyNPCDesign()).font
+  if self.auraDetails and tCompare(self.auraDetails, auraDetails, 50) and tCompare(self.lastFont, newFont) then
+    return
+  end
+
+  self.auraDetails = CopyTable(auraDetails)
+  self.lastFont = CopyTable(newFont)
   self.parent = parent
 
   self.buffs:ClearAllPoints()

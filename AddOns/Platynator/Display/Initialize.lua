@@ -79,6 +79,7 @@ function addonTable.Display.ManagerMixin:OnLoad()
   if C_Secrets and C_Secrets.HasSecretRestrictions() then
     self:RegisterEvent("ADDON_RESTRICTION_STATE_CHANGED")
   end
+  self:RegisterEvent("PLAYER_TARGET_CHANGED")
 
   addonTable.CallbackRegistry:RegisterCallback("UnitDesignChange", function(_, unit)
     local display = self.nameplateDisplays[unit]
@@ -98,19 +99,12 @@ function addonTable.Display.ManagerMixin:OnLoad()
   addonTable.CallbackRegistry:RegisterCallback("RefreshStateChange", function(_, state)
     if state[addonTable.Constants.RefreshReason.Design] then
       self:SetScript("OnUpdate", function()
-        local defaultEnemyDesign = addonTable.Core.GetDesignByName(addonTable.Display.Context:GetDefaultEnemyNPCDesign())
-        addonTable.CurrentFont, addonTable.CurrentFontUsesSmoothing = addonTable.Core.GetFontByDesign(defaultEnemyDesign)
+        self:SetScript("OnUpdate", nil)
         self:UpdateFriendlyFont()
         self:UpdateNamePlateSize()
         self:RestylePoolsStaggered()
-        self:SetScript("OnUpdate", nil)
-        for unit in pairs(self.nameplateDisplays) do
-          self:Uninstall(unit)
-          self:Install(unit)
-        end
-        if self.lastInteract and self.lastInteract.interactUnit then
-          self.lastInteract:UpdateSoftInteract()
-        end
+        self:UpdateActivePlates()
+        self:UpdateSoftInteract()
         self:UpdateStacking()
         self:UpdateAllClickRegions()
         self:UpdateTargetScale()
@@ -124,10 +118,7 @@ function addonTable.Display.ManagerMixin:OnLoad()
       self:UpdateNamePlateSize()
       self:RestylePoolsStaggered()
 
-      for unit in pairs(self.nameplateDisplays) do
-        self:Uninstall(unit)
-        self:Install(unit)
-      end
+      self:UpdateActivePlates()
       self:UpdateAllClickRegions()
       self:UpdateTargetScale()
     end
@@ -135,10 +126,7 @@ function addonTable.Display.ManagerMixin:OnLoad()
       self:UpdateNamePlateSize()
       self:UpdateStacking()
       self:RestylePoolsStaggered()
-      for unit in pairs(self.nameplateDisplays) do
-        self:Uninstall(unit)
-        self:Install(unit)
-      end
+      self:UpdateActivePlates()
     end
     if state[addonTable.Constants.RefreshReason.Movement] then
       self:UpdateMovement()
@@ -151,14 +139,7 @@ function addonTable.Display.ManagerMixin:OnLoad()
     end
     if state[addonTable.Constants.RefreshReason.Simplified] then
       self:RestylePoolsStaggered()
-      local allUnits = GetKeysArray(self.nameplateDisplays)
-      for _, unit in ipairs(allUnits) do
-        self:Uninstall(unit)
-        local nameplate = C_NamePlate.GetNamePlateForUnit(unit, issecure())
-        if nameplate then
-          self:Install(unit)
-        end
-      end
+      self:UpdateActivePlates()
       self:RepositionDisplays()
     end
     if state[addonTable.Constants.RefreshReason.Clickable] then
@@ -166,10 +147,9 @@ function addonTable.Display.ManagerMixin:OnLoad()
       self:UpdateClickable()
     end
     if state[addonTable.Constants.RefreshReason.DesignSelection] then
-      self.styleIndex = self.styleIndex + 1
-      local defaultEnemyDesign = addonTable.Core.GetDesignByName(addonTable.Display.Context:GetDefaultEnemyNPCDesign())
-      addonTable.CurrentFont, addonTable.CurrentFontUsesSmoothing = addonTable.Core.GetFontByDesign(defaultEnemyDesign)
+      self:UpdateFont()
       self:RestylePoolsStaggered()
+      self:UpdateActivePlates()
       self:UpdateFriendlyFont()
       self:UpdateNamePlateSize()
       self:UpdateAllClickRegions()
@@ -183,9 +163,7 @@ function addonTable.Display.ManagerMixin:OnLoad()
       or settingName == addonTable.Config.Options.VERTICAL_OFFSET
     then
       self:UpdateNamePlateSize()
-      for unit in pairs(self.nameplateDisplays) do
-        self:UpdateStackingRegion(unit)
-      end
+      self:UpdateStackRegionsOnly()
       self:RepositionDisplays()
       self:UpdateAllClickRegions()
       self:UpdateStacking()
@@ -194,13 +172,7 @@ function addonTable.Display.ManagerMixin:OnLoad()
     elseif settingName == addonTable.Config.Options.OBSCURED_ALPHA then
       self:UpdateObscuredAlpha()
     elseif settingName == addonTable.Config.Options.BLIZZARD_WIDGET_SCALE then
-      for unit in pairs(self.nameplateDisplays) do
-        local nameplate = C_NamePlate.GetNamePlateForUnit(unit, issecure())
-        local WidgetContainer = nameplate.UnitFrame.WidgetContainer
-        if WidgetContainer then
-          WidgetContainer:SetScale(addonTable.Config.Get(addonTable.Config.Options.BLIZZARD_WIDGET_SCALE))
-        end
-      end
+      self:UpdateWidgetScale()
     elseif settingName == addonTable.Config.Options.NAMEPLATE_POSITION then
       self:UpdateNamePlateSize()
       self:RepositionDisplays()
@@ -224,6 +196,41 @@ function addonTable.Display.ManagerMixin:OnLoad()
       end
     end
   end)
+end
+
+function addonTable.Display.ManagerMixin:UpdateFont()
+  local defaultEnemyDesign = addonTable.Core.GetDesignByName(addonTable.Display.Context:GetDefaultEnemyNPCDesign())
+  addonTable.CurrentFont, addonTable.CurrentFontUsesSmoothing = addonTable.Core.GetFontByDesign(defaultEnemyDesign)
+end
+
+function addonTable.Display.ManagerMixin:UpdateSoftInteract()
+  if self.lastInteract and self.lastInteract.interactUnit then
+    self.lastInteract:UpdateSoftInteract()
+  end
+end
+
+function addonTable.Display.ManagerMixin:UpdateWidgetScale()
+  for unit in pairs(self.nameplateDisplays) do
+    local nameplate = C_NamePlate.GetNamePlateForUnit(unit, issecure())
+    local WidgetContainer = nameplate.UnitFrame.WidgetContainer
+    if WidgetContainer then
+      WidgetContainer:SetScale(addonTable.Config.Get(addonTable.Config.Options.BLIZZARD_WIDGET_SCALE))
+    end
+  end
+end
+
+function addonTable.Display.ManagerMixin:UpdateActivePlates()
+  local allUnits = GetKeysArray(self.nameplateDisplays)
+  for _, unit in pairs(allUnits) do
+    self:Uninstall(unit)
+    self:Install(unit)
+  end
+end
+
+function addonTable.Display.ManagerMixin:UpdateStackRegionsOnly()
+  for unit in pairs(self.nameplateDisplays) do
+    self:UpdateStackingRegion(unit)
+  end
 end
 
 local function StyleSettingsKey(settings)
@@ -900,6 +907,8 @@ function addonTable.Display.ManagerMixin:OnEvent(eventName, ...)
     for _, list in ipairs(self.preallocatedDisplaysByIndex) do
       list[index]:SetParent(nameplate)
     end
+  elseif eventName == "PLAYER_TARGET_CHANGED" then
+    addonTable.CallbackRegistry:TriggerEvent("TargetChanged")
   elseif eventName == "PLAYER_SOFT_INTERACT_CHANGED" then
     if self.lastInteract and self.lastInteract.interactUnit then
       self.lastInteract:UpdateSoftInteract()
@@ -951,9 +960,7 @@ function addonTable.Display.ManagerMixin:OnEvent(eventName, ...)
   elseif eventName == "GARRISON_UPDATE" then
     self:UpdateInstanceShowState()
   elseif eventName == "PLAYER_LOGIN" then
-    local defaultEnemyDesign = addonTable.Core.GetDesignByName(addonTable.Display.Context:GetDefaultEnemyNPCDesign())
-
-    addonTable.CurrentFont, addonTable.CurrentFontUsesSmoothing = addonTable.Core.GetFontByDesign(defaultEnemyDesign)
+    self:UpdateFont()
     self:UpdateFriendlyFont()
 
     self:GeneratePools()

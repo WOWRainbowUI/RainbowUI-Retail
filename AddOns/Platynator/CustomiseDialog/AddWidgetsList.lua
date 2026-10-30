@@ -527,7 +527,8 @@ addonTable.CustomiseDialog.DesignWidgets = {
       truncate = false,
       significantFigures = 0,
       showPercentSymbol = true,
-      formatMultiple = "%s (%s)"
+      formatMultiple = "%s (%s)",
+      abbreviate = true,
     },
   },
   {
