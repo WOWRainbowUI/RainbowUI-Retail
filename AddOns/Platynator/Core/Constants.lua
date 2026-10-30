@@ -16,7 +16,7 @@ addonTable.Constants = {
   IsMidnightNext = select(4, GetBuildInfo()) >= 120107,
   IsCVarsBack = C_CVar.GetCVarInfo("nameplateMotionSpeed") ~= nil,
   IsSecretsActive = C_Secrets and C_Secrets.HasSecretRestrictions() or false,
-  IsPixelPerfectPlus = PixelUtil.SetRoundLayoutToNearestPixelRecursively ~= nil,
+  IsPixelPerfectPlus = PixelUtil.SetRoundLayoutToNearestPixelRecursively,
 
   DeathKnightMaxRunes = 6,
 
@@ -56,6 +56,7 @@ addonTable.Constants.Events = {
   "EncounterUpdate",
   "PowerChange",
   "DungeonLevelUpdate",
+  "TargetChanged",
 
   "CustomiseDesignsAssigned",
   "UnitDesignChange",

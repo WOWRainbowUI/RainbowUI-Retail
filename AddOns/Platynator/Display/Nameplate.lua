@@ -89,13 +89,20 @@ function addonTable.Display.NameplateMixin:ApplyPixelPerfectSizing(force)
   if self:ShouldNotSize() and not force then
     return
   end
-  for _, w in ipairs(self.widgets) do
-    if w:IsShown() then
-      w.pixelPerfectRequired = nil
+  if addonTable.Constants.IsPixelPerfectPlus then
+    for _, w in ipairs(self.widgets) do
       w:ApplyAnchor()
       w:ApplySize()
-    else
-      w.pixelPerfectRequired = true
+    end
+  else
+    for _, w in ipairs(self.widgets) do
+      if w:IsShown() then
+        w.pixelPerfectRequired = nil
+        w:ApplyAnchor()
+        w:ApplySize()
+      else
+        w.pixelPerfectRequired = true
+      end
     end
   end
   if self.aurasInfo then
@@ -204,6 +211,9 @@ function addonTable.Display.NameplateMixin:SetUnit(unit)
 
     addonTable.Cache:Get(unit, "mouseover")
 
+    if addonTable.Config.Get(addonTable.Config.Options.NOT_TARGET_ALPHA) ~= addonTable.Config.Get(addonTable.Config.Options.WHEN_NO_TARGET_ALPHA) then
+      addonTable.CallbackRegistry:RegisterCallback("TargetChanged", self.UpdateVisual, self)
+    end
     addonTable.Cache:RegisterCallback(unit, "target", function()
       self:UpdateVisual()
     end)
@@ -260,6 +270,7 @@ function addonTable.Display.NameplateMixin:SetUnit(unit)
     self.casting = false
 
     addonTable.CallbackRegistry:UnregisterCallback("TextOverrideUpdated", self)
+    addonTable.CallbackRegistry:UnregisterCallback("TargetChanged", self)
   end
 
   self:UpdateVisual()
@@ -332,7 +343,11 @@ function addonTable.Display.NameplateMixin:UpdateVisual()
       alpha = math.max(alpha, addonTable.Config.Get(addonTable.Config.Options.CAST_ALPHA))
     end
     if not isMouseover and not self.casting then
-      alpha = addonTable.Config.Get(addonTable.Config.Options.NOT_TARGET_ALPHA)
+      if (UnitExists("target") or UnitExists("softenemy") or UnitExists("softfriend")) then
+        alpha = addonTable.Config.Get(addonTable.Config.Options.NOT_TARGET_ALPHA)
+      else
+        alpha = addonTable.Config.Get(addonTable.Config.Options.WHEN_NO_TARGET_ALPHA)
+      end
     end
   end
   if not self.inRange then

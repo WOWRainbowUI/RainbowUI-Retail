@@ -20,6 +20,7 @@ function addonTable.Display.HealthTextMixin:PostInit()
     self.abbreviateData = significantFiguresCaches[self.details.significantFigures]
   end
 
+  self.abbreviateAbsolute = self.details.abbreviate and AbbreviateNumbers or BreakUpLargeNumbers
   if self.details.showPercentSymbol then
     self.percentTail = "%"
   else
@@ -45,6 +46,7 @@ function addonTable.Display.HealthTextMixin:Strip()
   self:UnregisterAllEvents()
   self.abbreviateData = nil
   self.abbreviateCallback = nil
+  self.abbreviateAbsolute = nil
   self.percentTail = nil
   self.formatMultiple = nil
   self.PostInit = nil
@@ -52,31 +54,24 @@ function addonTable.Display.HealthTextMixin:Strip()
 end
 
 function addonTable.Display.HealthTextMixin:UpdateText(state)
-  if UnitIsDeadOrGhost(self.unit) then
-    self.text:SetText("0")
-    if self.hideAuto then
-      self.text:SetAlpha(0)
-    end
+  local values = {
+    percentage = "",
+    absolute = self.abbreviateAbsolute(state.absolute),
+  }
+  local types = self.details.displayTypes
+  local value = state.percent
+  if self.abbreviateData then
+    values.percentage = AbbreviateNumbers(value, self.abbreviateData) .. self.percentTail
   else
-    local values = {
-      percentage = "",
-      absolute = AbbreviateNumbers(state.absolute),
-    }
-    local types = self.details.displayTypes
-    local value = state.percent
-    if self.abbreviateData then
-      values.percentage = AbbreviateNumbers(value, self.abbreviateData) .. self.percentTail
-    else
-      values.percentage = C_StringUtil.RoundToNearestString(value) .. self.percentTail
-    end
-    if #types == 2 then
-      self.text:SetFormattedText(self.formatMultiple, values[types[1]], values[types[2]])
-    elseif #types == 1 then
-      self.text:SetFormattedText("%s", values[types[1]])
-    end
+    values.percentage = C_StringUtil.RoundToNearestString(value) .. self.percentTail
+  end
+  if #types == 2 then
+    self.text:SetFormattedText(self.formatMultiple, values[types[1]], values[types[2]])
+  elseif #types == 1 then
+    self.text:SetFormattedText("%s", values[types[1]])
+  end
 
-    if self.hideAuto then
-      self.text:SetAlpha(state.markerAlpha)
-    end
+  if self.hideAuto then
+    self.text:SetAlpha(state.markerAlpha)
   end
 end
