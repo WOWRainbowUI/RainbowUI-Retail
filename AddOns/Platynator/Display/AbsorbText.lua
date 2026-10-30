@@ -4,7 +4,7 @@ local addonTable = select(2, ...)
 addonTable.Display.AbsorbTextMixin = {}
 
 function addonTable.Display.AbsorbTextMixin:PostInit()
-  self.abbreviateAbsolute = self.details.abbreviate and (addonTable.Display.Utilities.AbbreviateNumbersAlt or AbbreviateNumbers) or BreakUpLargeNumbers
+  self.abbreviateAbsolute = self.details.abbreviate and AbbreviateNumbers or BreakUpLargeNumbers
 end
 
 function addonTable.Display.AbsorbTextMixin:SetUnit(unit)

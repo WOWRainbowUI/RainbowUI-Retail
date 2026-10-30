@@ -36,7 +36,7 @@ function addonTable.Display.HealthTextMixin:PostInit()
     end
   end
 
-  self.abbreviateAbsolute = self.details.abbreviate and (addonTable.Display.Utilities.AbbreviateNumbersAlt or AbbreviateNumbers) or BreakUpLargeNumbers
+  self.abbreviateAbsolute = self.details.abbreviate and AbbreviateNumbers or BreakUpLargeNumbers
   if self.details.showPercentSymbol then
     self.percentTail = "%"
   else
