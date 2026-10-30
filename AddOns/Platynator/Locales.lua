@@ -830,7 +830,6 @@ L["NOT_TARGET_TARGET_SELECTED"] = "非目標（已選取目標）"
 L["NOT_TARGET_TARGET_UNSELECTED"] = "非目標（未選取目標）"
 L["OBSCURED"] = "被遮蔽"
 L["COMBAT_OBSCURED"] = "戰鬥中被遮蔽"
-L["OUT_OF_RANGE"] = "超出範圍"
 L["NOT_IN_PULL"] = "不在拉怪範圍內"
 
 local L = Locales.zhCN
@@ -1253,6 +1252,4 @@ L["NOT_TARGET_TARGET_SELECTED"] = "非目标（已选中目标）"
 L["NOT_TARGET_TARGET_UNSELECTED"] = "非目标（未选中目标）"
 L["OBSCURED"] = "被遮挡"
 L["COMBAT_OBSCURED"] = "战斗中被遮挡"
-L["OUT_OF_RANGE"] = "超出范围"
 L["NOT_IN_PULL"] = "不在拉怪范围内"
-
