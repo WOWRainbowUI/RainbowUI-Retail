@@ -62,6 +62,8 @@ L["Loadout.NoLoadoutSelected"] = "먼저 특성 구성을 선택하세요."
 L["Loadout.TLXTag"] = "|cff9d9d9d(구성 예)|r"
 L["Loadout.InvalidSpell"] = "해당 주문 ID는 존재하지 않습니다. 특성의 주문 ID를 사용하세요."
 L["Loadout.CombatBlocked"] = "전투 중에는 장비나 특성을 바꿀 수 없습니다."
+L["Loadout.EquipFailed"] = "장비 세트를 착용할 수 없습니다. 세트에 있는 아이템이 전부 가방에 있는지 확인하세요."
+L["Loadout.OpenTalentsFailed"] = "특성 창을 열 수 없습니다. 이 리마인더를 고치려면 직접 열어야 합니다."
 L["Loadout.Instances"] = "인스턴스 %d개"
 L["Loadout.LimitRaids"] = "특정 레이드만"
 L["Loadout.LimitDungeons"] = "특정 던전만"
@@ -163,6 +165,12 @@ L["Label.LowPrimary"] = "하급 1차"
 L["Label.LowSecondary"] = "하급 2차"
 L["Label.RevivePet"] = "야수 되살리기"
 L["Label.Felguard"] = "지옥수호병"
+L["Label.Imp"] = "임프"
+L["Label.Voidwalker"] = "공허방랑자"
+L["Label.Felhunter"] = "지옥사냥개"
+L["Label.Sayaad"] = "세이야드"
+L["Label.Ghoul"] = "구울"
+L["Label.WaterElemental"] = "물의 정령"
 L["Badge.Hearty"] = "든"
 L["Badge.Fleeting"] = "덧"
 
@@ -298,8 +306,6 @@ L["Display.FramesLocked"] = "프레임 위치를 고정했습니다."
 L["Display.FramesUnlocked"] = "프레임의 고정이 해제됐습니다."
 L["Display.MinimapHidden"] = "미니맵 아이콘이 숨겨졌습니다."
 L["Display.MinimapShown"] = "미니맵 아이콘이 표시됩니다."
-L["Display.DebugEnabled"] = "디버그 모드가 활성화됐습니다. |cFFFFD100/br debug|r를 다시 실행하면 꺼집니다."
-L["Display.DebugDisabled"] = "디버그 모드가 비활성화됐습니다."
 L["Display.Description"] = "누락된 버프를 한꺼번에 확인하세요."
 L["Display.OpenOptions"] = "옵션 열기"
 L["Display.SlashCommands"] = "슬래시 명령어: /br, /br lock, /br unlock, /br test, /br minimap, /br snooze"
@@ -310,6 +316,8 @@ L["Display.LoginFirstInstall"] =
     "설치해 주셔서 감사합니다! |cFFFFD100/br unlock|r을 입력하여 버프 표시를 이동하거나, |cFFFFD100/br|r 옵션 패널 하단의 버튼을 사용하세요."
 L["Display.LoginSnooze"] =
     "우클릭으로 소모품 알림 해제: 소모품에 우클릭이나 |cFFFFD100/br snooze|r를 입력하면 리마인더를 이번 세션에서만 해제할 수 있습니다."
+L["Display.LoginCasterName"] =
+    "외부 버프는 이제 버프마다 시전자를 표시할 수 있습니다. |cFFFFD100/br|r > 카테고리 > 외부 버프에서 켜세요."
 
 -- ============================================================================
 -- OPTIONS: NAVIGATION LABELS
@@ -350,8 +358,7 @@ L["Externals.Boosts"] = "공격 및 마나"
 L["Externals.Movement"] = "이동기"
 L["Externals.Aggro"] = "위협 수준 이전"
 L["Externals.Augmentation"] = "증강"
-L["Externals.DurationSize"] = "쿨타임 크기"
-L["Externals.Appearance"] = "외형"
+L["Externals.Countdown"] = "초읽기"
 L["Externals.AppearanceNote"] =
     "전투 중 변경한 사항은 전투 종료 후 즉시 적용됩니다. 프레임 잠금을 해제하면 버프 줄을 이동할 수 있습니다."
 L["Externals.ShowSwipe"] = "쿨타임 회전 표시"
@@ -360,6 +367,10 @@ L["Externals.ShowSwipe.Desc"] =
 L["Externals.ShowTooltips"] = "툴팁 표시"
 L["Externals.ShowTooltips.Desc"] =
     "아이콘에 마우스를 올리면 게임 내 버프 툴팁을 표시합니다. 아이콘은 마우스 이동에만 반응하며 클릭은 동작하지 않습니다."
+L["Externals.CasterName"] = "시전자 이름"
+L["Externals.CasterName.Desc"] =
+    "아이콘 옆에 버프 시전자를 직업 색상을 입혀서 표시합니다."
+L["Externals.CasterNameOff"] = "먼저 시전자 이름이 위치할 지점을 선택하세요."
 L["Externals.Sound.Claimed"] = "%s|1이;가; 이 주문 ID의 소리를 이미 사용 중입니다."
 -- Externals: the player's own entries
 L["Externals.Custom"] = "나만의 버프"
@@ -411,12 +422,10 @@ L["Options.Preview"] = "미리보기"
 -- ============================================================================
 -- OPTIONS: GLOBAL DEFAULTS
 -- ============================================================================
-L["Options.GlobalDefaults"] = "전체 기본값"
 L["Options.GlobalDefaults.Note"] = "(사용자 지정 외형으로 덮어쓰지 않는 한 모든 카테고리에 적용됨)"
 L["Options.Default"] = "기본값"
 L["Options.Text"] = "텍스트"
-L["Options.Text.Note"] =
-    "(크기와 색상은 카테고리별로 설정이 가능하며 글꼴, 외곽선, 위치는 항상 모든 곳에 동일 적용됩니다)"
+L["Options.AppliesEverywhere"] = "모든 카테고리에 적용합니다. 어느 하나의 카테고리만 설정을 바꿀 수 없습니다."
 L["Options.Font"] = "글꼴"
 L["Options.TextOutline"] = "외곽선"
 L["Options.TextOutline.None"] = "없음"
@@ -425,6 +434,10 @@ L["Options.TextOutline.Thick"] = "두꺼운 외곽선"
 L["Options.TextOutline.Monochrome"] = "모노크롬"
 L["Options.TextOutline.OutlineMono"] = "외곽선 + 모노크롬"
 L["Options.TextOutline.ThickMono"] = "두꺼움 + 모노크롬"
+L["Options.SlugOutline"] = "부드러운 외곽선"
+L["Options.SlugOutline.Desc"] =
+    "클라이언트의 Slug 텍스트 렌더러를 사용해 외곽선을 그립니다. 가장자리는 더 부드럽게 그려지지만 외곽선은 약간 더 두껍게 보일 수 있습니다."
+L["Options.SlugOutline.Disabled"] = '"외곽선"과 "두꺼운 외곽선" 스타일에만 적용됩니다.'
 
 -- ============================================================================
 -- OPTIONS: GLOW SETTINGS
@@ -441,7 +454,6 @@ L["Options.MissingGlow.Desc"] = "버프가 없을 때 아이콘에 반짝임 효
 L["Options.GlowSettings.Expiring"] = "반짝임 설정 - 만료 임박"
 L["Options.GlowSettings.Missing"] = "반짝임 설정 - 누락"
 L["Options.Glow.Enabled"] = "활성화"
-L["Options.Threshold"] = "기준값"
 L["Options.GlowMissingPets"] = "소환수 없음 반짝임"
 L["Options.Expiration"] = "만료 임박"
 L["Options.Glow"] = "반짝임"
@@ -449,10 +461,9 @@ L["Options.UseCustomColor"] = "사용자 지정 색상 사용"
 L["Options.UseCustomColor.Desc"] =
     "활성화하면 발동 반짝임의 채도가 내려가고 색상이 변경됩니다.\n기본 발동 반짝임보다 덜 선명하게 보일 수 있습니다."
 L["Options.ExpirationReminder"] = "만료 임박 알림"
-L["Options.Timing"] = "타이밍"
-L["Options.UseDefaultThreshold"] = "기본 기준값 사용"
-L["Options.UseDefaultThreshold.Desc"] =
-    "체크하면 이 카테고리는 기본값 페이지의 전역 만료 임박 기준값을 따릅니다.\n체크를 끄면 카테고리마다 기준값을 설정합니다."
+L["Options.ExpirationWarning"] = "이보다 낮으면 경고"
+L["Options.Override.Expiration.Desc"] =
+    "이 카테고리의 경고 시간을 설정합니다. 꺼놓았을 땐 기본값 페이지에 적용된 시간을 사용합니다."
 L["Options.PreKeyThreshold"] = "쐐기 전 기준값"
 L["Options.PreKeyThreshold.Desc"] =
     "신화 던전(M0)에서 쐐기돌을 넣기 전에는 더 긴 만료 임박 기준값을 사용합니다.\n쐐기를 시작하기 전 버프 작업할 때 도움이 됩니다."
@@ -512,6 +523,7 @@ L["Tooltip.PinNotInGroup"] = "(그룹에 없음)"
 L["Options.FreeConsumables"] = "무료 소모품"
 L["Options.FreeConsumables.Note"] = "(생명석, 영구 증강 룬)"
 L["Options.FreeConsumables.Override"] = "콘텐츠 필터 적용"
+L["Options.FreeConsumables.Follows"] = "위의 필터를 거친 표시 설정을 따릅니다."
 L["Options.FreeConsumables.Override.Desc"] =
     "체크 시, 무료 소모품은 아래의 콘텐츠 유형 설정을 사용합니다.\n\n체크 해제 시, 다른 소모품과 동일한 콘텐츠 필터를 따릅니다."
 
@@ -519,28 +531,29 @@ L["Options.FreeConsumables.Override.Desc"] =
 -- OPTIONS: ICONS
 -- ============================================================================
 L["Options.Icons"] = "아이콘"
-L["Options.ShowText"] = "아이콘에 텍스트 표시"
-L["Options.ShowText.Desc"] =
-    "이 카테고리의 버프 아이콘에 버프 개수나 누락 텍스트 오버레이를 표시합니다."
-L["Options.ShowMissingCountOnly"] = "누락 수량만 표시"
+L["Options.ShowTextToggle"] = "표시"
+L["Options.MainText.Desc"] =
+    "아이콘에 주 텍스트를 표시합니다: 17/20과 같은 버프 수나 소환수 없음 같은 라벨입니다. 기본값 페이지가 위치를 설정합니다. 만료 임박 초읽기는 항상 표시됩니다."
+L["Options.ShowMissingCountOnly"] = "누락 개수만 표시"
 L["Options.ShowMissingCountOnly.Desc"] =
     '전체 숫자(예: "19/20") 대신 누락된 버프 수(예: "1")만 표시합니다.'
-L["Options.ShowBuffReminderText"] = '"버프!" 알림 텍스트 표시'
-L["Options.Size"] = "크기"
 
 -- ============================================================================
 -- OPTIONS: TEXT POSITIONS
 -- ============================================================================
-L["Options.TextPositions"] = "텍스트"
 L["Options.TextPositions.Zone"] = "위치"
+L["Options.TextPositions.Offset"] = "위치 조정"
 L["Options.TextPositions.OffsetX.Short"] = "X"
 L["Options.TextPositions.OffsetY.Short"] = "Y"
+L["Options.TextPositions.Size"] = "크기"
 L["Options.TextPositions.MainText"] = "주 텍스트"
 L["Options.TextPositions.MainText.Note"] =
     "아이콘의 큰 텍스트 위치 - 17/20 같은 그룹 카운트, 초읽기, 영약 없음 같은 라벨이 해당됩니다."
 L["Options.TextPositions.StackCount"] = "중첩 수"
 L["Options.TextPositions.StatLabel"] = "능력치 라벨"
 L["Options.TextPositions.Badge"] = "표시 (든 / 덧)"
+L["Options.TextSizes.Note"] =
+    "자동으로 텍스트를 기본 크기로 유지합니다. 텍스트 크기는 아이콘 크기 비율값으로 설정합니다."
 L["Options.TextPositions.Vertical.Above"] = "위쪽"
 L["Options.TextPositions.Vertical.InsideTop"] = "상단"
 L["Options.TextPositions.Vertical.InsideMiddle"] = "중앙"
@@ -549,13 +562,17 @@ L["Options.TextPositions.Vertical.Below"] = "아래쪽"
 L["Options.TextPositions.Align.Left"] = "왼쪽"
 L["Options.TextPositions.Align.Center"] = "중앙"
 L["Options.TextPositions.Align.Right"] = "오른쪽"
-L["Options.TextPositions.Align.Left"] = "왼쪽"
-L["Options.TextPositions.Align.Center"] = "중앙"
-L["Options.TextPositions.Align.Right"] = "오른쪽"
 
 -- ============================================================================
 -- OPTIONS: CLICK TO CAST
 -- ============================================================================
+L["Options.Interaction"] = "상호 작용"
+L["Options.TextOverlays"] = "텍스트 & 오버레이"
+L["Options.BuffReminderText"] = '"버프!" 텍스트'
+L["Options.ItemFilters"] = "아이템"
+L["Options.Direction.Default"] = "기본값"
+L["Options.Direction.Desc"] =
+    "이 프레임의 아이콘이 확장할 방향입니다. 기본값 페이지에 설정된 방향을 기본적으로 따릅니다."
 L["Options.ClickToCast"] = "클릭으로 시전"
 L["Options.ClickToCast.DescFull"] =
     "버프 아이콘을 클릭해 해당 주문을 시전할 수 있습니다.(비전투 시에만) 내 캐릭터가 시전 가능한 주문에만 작동합니다."
@@ -601,8 +618,7 @@ L["Options.ShowItemTooltips"] = "아이템 툴팁 표시"
 L["Options.ShowItemTooltips.Desc"] = "소모품 아이콘에 마우스를 올리면 아이템 툴팁이 표시됩니다."
 L["Options.ShowBuffTooltips"] = "버프 툴팁 표시"
 L["Options.ShowBuffTooltips.Desc"] =
-    "공격대 또는 특수 버프 아이콘에 마우스 커서를 올리면 주문 툴팁과 걸어준 직업이 표시됩니다."
-L["Options.Behavior"] = "동작"
+    "이 카테고리의 버프 아이콘에 마우스를 올리면 주문 툴팁과 걸어준 직업이 표시됩니다."
 L["Options.PetPassiveCombat"] = "전투 중에만 수동적 소환수 알림"
 L["Options.PetPassiveCombat.Desc"] =
     "전투 중에만 수동적 소환수 알림을 표시합니다. 비활성화 시 항상 표시됩니다."
@@ -622,8 +638,9 @@ L["Options.PetDisplay.SummonDesc"] = "각 소환수 주문을 개별 아이콘�
 L["Options.PetDisplay.Mode"] = "소환수 표시 모드"
 L["Options.PetDisplay.Mode.Desc"] = "소환수 없음 알림의 표시 방식을 설정합니다."
 L["Options.PetLabels"] = "소환수 라벨"
+L["Options.PetLabels.Classes"] = "라벨 표시:"
+L["Options.PetLabels.Classes.Desc"] = "소환수 라벨은 체크된 직업의 소환수에만 표시됩니다."
 L["Options.PetLabels.Desc"] = "각 아이콘 아래에 소환수 이름과 특성을 표시합니다."
-L["Options.PetLabels.SizePct"] = "크기 %"
 
 -- ============================================================================
 -- OPTIONS: CONSUMABLE DISPLAY
@@ -636,11 +653,6 @@ L["Options.ConsumableBadgeOnSubIcons"] = "하위 아이콘에 등급 표시"
 L["Options.ConsumableBadgeOnSubIcons.Title"] = "하위 아이콘 등급 표시"
 L["Options.ConsumableBadgeOnSubIcons.Desc"] =
     '주 아이콘을 제외하고 각 하위 아이콘에 음식 품질 글자를 표시합니다. (예시: 든든한에 "든", 덧없는에 "덧")'
-L["Options.ConsumableBadgeOnSubIcons.Disabled"] = "하위 아이콘 표시 모드에서만 사용 가능합니다."
-L["Options.HideConsumableLabels"] = "능력치 라벨 숨기기"
-L["Options.HideConsumableLabels.Title"] = "소모품 능력치 라벨 숨기기"
-L["Options.HideConsumableLabels.Desc"] =
-    '소모품 아이콘 왼쪽 상단에 표시되는 작은 능력치 라벨(예: "상급 1차", "하급 2차")을 숨깁니다.'
 L["Options.ItemDisplay"] = "아이템 표시"
 L["Options.ItemDisplay.IconOnly"] = "아이콘만 표시"
 L["Options.ItemDisplay.IconOnlyDesc"] = "수량이 가장 많은 아이템 표시"
@@ -746,6 +758,15 @@ L["BuffPanel.MageFoodContent"] = "위치"
 L["BuffPanel.MageFoodContent.All"] = "모든 인스턴스"
 L["BuffPanel.MageFoodContent.Dungeon"] = "던전만"
 L["BuffPanel.MageFoodContent.Raid"] = "공격대만"
+L["BuffPanel.WarlockDemon.Warn"] = "다른 악마가 나왔을 때 경고"
+L["BuffPanel.WarlockDemon.Warn.Desc"] = "뽑은 악마가 이 콘텐트에 허용되지 않았다면 잘못된 악마 리마인더를 표시합니다."
+L["BuffPanel.WarlockDemon.Hint"] = "악마를 클릭하면 허용 처리됩니다. 허용은 여러개를 할 수 있습니다. 줄을 비우면 모든 악마가 허용됩니다."
+L["BuffPanel.WarlockDemon.World"] = "야외"
+L["BuffPanel.WarlockDemon.Dungeon"] = "던전"
+L["BuffPanel.WarlockDemon.Dungeon.Desc"] = "시나리오와 구렁도 해당됩니다."
+L["BuffPanel.WarlockDemon.Raid"] = "공격대"
+L["BuffPanel.WarlockDemon.PvP"] = "PvP"
+L["BuffPanel.WarlockDemon.Felguard"] = "악마 전문화만 특성을 찍었을 경우 지옥수호병을 소환합니다."
 L["BuffPanel.Sound"] = "소리"
 L["BuffPanel.Sound.None"] = "없음"
 L["BuffPanel.Detached"] = "자체 프레임 (분리됨)"
@@ -775,7 +796,8 @@ L["Options.Override.Appearance.Desc"] =
 L["Options.Override.Glow.Desc"] =
     "이 카테고리에 대한 전역 반짝임 설정을 다시 설정합니다.\n비활성화 시, 아래 설정들은 기본값 페이지에서 상속된 값을 표시합니다."
 L["Options.Override.Externals.Desc"] =
-    "이 아이콘들에 대한 전역 외형 기본값을 다시 설정합니다.\n비활성화 시, 크기, 확대, 테두리, 간격 조정은 기본값 페이지의 상속값으로 표시됩니다. 초읽기 텍스트 크기와 방향은 항상 별개입니다."
+    "이 아이콘들에 대한 전역 외형 기본값을 다시 설정합니다.\n비활성화 시, 아래 아이콘 설정값은 기본값 페이지의 상속값으로 표시됩니다. 방향, 텍스트와 툴팁 설정은 항상 별개입니다."
+L["Options.Override.OpenDefaults"] = "열기"
 L["Options.Customize"] = "사용자 지정"
 L["Options.ResetPosition"] = "위치 초기화"
 L["Options.MasqueNote"] = "확대 및 테두리 설정은 Masque에서 관리합니다."
@@ -1109,18 +1131,8 @@ L["Component.AdjustValue"] = "값 조정"
 L["Component.AdjustValue.Desc"] = "클릭해서 입력하거나 마우스 휠을 사용하세요."
 L["Component.AdjustValue.ClickHint"] = "숫자를 클릭하면 직접 값을 입력할 수 있습니다."
 
--- Scope tag for globally-stored controls on category pages
-L["Options.GlobalTag"] = "전역 설정"
-L["Options.GlobalTag.Title"] = "모든 곳에 적용되는 설정"
-L["Options.GlobalTag.Desc"] =
-    "설정이 애드온 전체적으로 일괄 저장됩니다.\n여기서 변경된 내역은 이 카테고리뿐만 아니라 모든 카테고리에 적용됩니다."
-
 -- Disabled-control explanations
 L["Component.DisabledReason.Title"] = "왜 비활성화가 됐나요?"
-L["DisabledReason.GrowDirection"] =
-    '확장 방향은 이 카테고리가 자체 프레임에 있어야 합니다.\n먼저 레이아웃 섹션에서 "개별 프레임으로 분리"를 활성화하세요.'
-L["DisabledReason.ResetPosition"] =
-    '분리된 카테고리만 자체 위치를 가집니다.\n먼저 "개별 프레임으로 분리"를 활성화하세요.'
 L["DisabledReason.OverrideSection"] = '먼저 이 섹션 상단의 "개별 설정"을 켜세요.'
 L["DisabledReason.CombatOverride"] =
     '위에서 "전투 중" 숨김이 활성화되어 있어, 전투 중에는 아무것도 표시되지 않으므로 개별 설정 효과가 없습니다.\n체크를 해제해야 전투 추적에 개별 설정을 사용합니다.'
@@ -1130,8 +1142,9 @@ L["DisabledReason.ExpiringInCombat"] =
     '"전투 중" 숨김이 활성화되있어서 전투 중에는 이미 모든 것이 숨겨집니다.'
 L["DisabledReason.HealthstoneThreshold"] = '먼저 "수량 부족 시 경고"를 활성화하세요.'
 L["DisabledReason.ClickToCast"] = '먼저 "클릭으로 시전"을 켜세요.'
-L["DisabledReason.UseDefaultThreshold"] = '카테고리별로 값을 설정하려면 "기본 기준값 사용"을 체크 해제하세요.'
-L["DisabledReason.StatLabelsHidden"] = '먼저 "능력치 라벨 숨기기"를 체크 해제하세요.'
+L["DisabledReason.ShowWithoutItems"] = '먼저 "소지품에 없을 때도 표시"를 켜세요.'
+L["DisabledReason.PetLabelsOff"] = '먼저 "소환수 라벨" 위치를 선택하세요.'
+L["DisabledReason.OverrideRow"] = '먼저 이 줄에서 "개별 설정"에 체크하세요.'
 
 -- Direction labels
 L["Direction.Left"] = "왼쪽"

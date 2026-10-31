@@ -26,6 +26,11 @@ local BR = ns
 ---@field showSwipe boolean Radial sweep that uncovers as the time runs out
 ---@field growDirection "LEFT"|"RIGHT"|"UP"|"DOWN" The flow layout has no centered growth
 ---@field showTooltips boolean
+---@field showCasterName boolean
+---@field casterNameSize number
+---@field casterNamePosition "TOP"|"BOTTOM"|"LEFT"|"RIGHT"
+---@field casterNameOffsetX number
+---@field casterNameOffsetY number
 ---@field entries table<string, true> Tracked keys. Empty = the display is off
 ---@field sound? string nil = no sound. Core/Sounds.lua owns the value format
 ---@field sounds table<string, string> Per-entry override: nil inherits `sound`
@@ -141,6 +146,11 @@ BR.defaults = {
         -- The game draws the tooltip, so it names the aura the addon cannot read.
         -- Off keeps the icons out of the mouse's way.
         showTooltips = false,
+        showCasterName = false,
+        casterNameSize = 12,
+        casterNamePosition = "BOTTOM",
+        casterNameOffsetX = 0,
+        casterNameOffsetY = 0,
         entries = {},
         -- The engine plays the sound when the aura lands, because no Lua code can
         -- see that happen. The no-sound sentinel in `sounds` silences one entry.
@@ -199,7 +209,6 @@ BR.defaults = {
         hideConsumableLabels = false,
         showConsumableTooltips = false,
         rightClickSnooze = true,
-        showBuffTooltips = false,
         hideLegacyConsumables = true,
         preferReusableRunes = false,
         feastAtPlayer = true,

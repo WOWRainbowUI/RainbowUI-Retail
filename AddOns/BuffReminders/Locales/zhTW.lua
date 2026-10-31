@@ -351,7 +351,6 @@ L["Externals.Boosts"] = "傷害 & 法力"
 L["Externals.Movement"] = "移動"
 L["Externals.Aggro"] = "威脅重定向"
 L["Externals.Augmentation"] = "強化"
-L["Externals.DurationSize"] = "倒數尺寸"
 L["Externals.Appearance"] = "外觀"
 L["Externals.AppearanceNote"] =
     "Changes made in combat apply as soon as you leave it. Unlock the frames to drag the row."
@@ -601,8 +600,6 @@ L["Options.PetSpecIcon.Desc"] =
 L["Options.ShowItemTooltips"] = "顯示物品提示訊息"
 L["Options.ShowItemTooltips.Desc"] = "將鼠標懸停在消耗品圖示上時顯示物品詳細訊息。"
 L["Options.ShowBuffTooltips"] = "顯示增益工具提示"
-L["Options.ShowBuffTooltips.Desc"] =
-    "將滑鼠懸停在團隊或職業增益圖示上時，顯示法術工具提示以及提供增益的職業。"
 L["Options.Behavior"] = "行為"
 L["Options.PetPassiveCombat"] = "僅在戰鬥中提示被動寵物"
 L["Options.PetPassiveCombat.Desc"] = "僅在戰鬥中顯示被動寵物提示。禁用時則始終顯示。"
@@ -773,8 +770,6 @@ L["Options.Override.Appearance.Desc"] =
     "覆寫此類別的全域外觀預設值。 \n關閉時，下方的控制項顯示從「預設值」頁面繼承的值。"
 L["Options.Override.Glow.Desc"] =
     "覆寫此類別的全域發光設定。 \n關閉時，下方的控制項顯示從「預設值」頁面繼承的值。"
-L["Options.Override.Externals.Desc"] =
-    "覆蓋這些圖示的全域外觀預設值。\n關閉時，大小、縮放、邊框和間距控制顯示從「預設值」頁面繼承的值。倒數計時的大小和方向總是分開的。"
 L["Options.Customize"] = "自定義"
 L["Options.ResetPosition"] = "重置位置"
 L["Options.MasqueNote"] = "縮放和邊框設置由Masque管理。"

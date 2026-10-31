@@ -5,8 +5,9 @@ local BR = ns
 -- ============================================================================
 -- BUFF PAGE SECTION: Item Display (consumable category only)
 -- ============================================================================
--- Hide labels, text scale, display mode (icon_only/sub_icons/expanded) with
--- live preview, sub-icon side selector, and behavior toggles.
+-- Display mode (icon_only/sub_icons/expanded) with live preview and the
+-- sub-icon side selector. The file also exports the consumable text rows (Text &
+-- overlays) and the item filters (the Items subsection of Visibility).
 
 local L = BR.L
 local Components = BR.Components
@@ -19,7 +20,7 @@ local MakeCategoryGetter = Helpers.MakeCategoryGetter
 local MakeCategorySetter = Helpers.MakeCategorySetter
 
 local COMPONENT_GAP = BR.Options.Constants.COMPONENT_GAP
-local SECTION_GAP = BR.Options.Constants.SECTION_GAP
+local DEPENDENT_INDENT = BR.Options.Constants.DEPENDENT_INDENT
 
 local function Build(ctx, layout)
     local category = ctx.category
@@ -208,18 +209,44 @@ local function Build(ctx, layout)
     })
     subIconSideHolder:SetPoint("TOPLEFT", previewHolder, "TOPRIGHT", 12, 0)
 
+    -- Only the Sub-icons mode draws sub-icons, so both of its options share the
+    -- mode row and hide in the other modes.
+    local badgeOnSubIconsHolder = Components.Checkbox(parent, {
+        label = L["Options.ConsumableBadgeOnSubIcons"],
+        get = function()
+            return BR.Config.Get("defaults.consumableBadgeOnSubIcons") == true
+        end,
+        tooltip = {
+            title = L["Options.ConsumableBadgeOnSubIcons.Title"],
+            desc = L["Options.ConsumableBadgeOnSubIcons.Desc"],
+        },
+        onChange = function(checked)
+            BR.Config.Set("defaults.consumableBadgeOnSubIcons", checked)
+        end,
+    })
+    badgeOnSubIconsHolder:SetPoint("LEFT", subIconSideHolder, "RIGHT", 12, 0)
+
     updateSubIconSideVisibility = function(mode)
-        subIconSideHolder:SetShown(mode == "sub_icons")
+        local subIcons = mode == "sub_icons"
+        subIconSideHolder:SetShown(subIcons)
+        badgeOnSubIconsHolder:SetShown(subIcons)
     end
     updateSubIconSideVisibility(BR.Config.Get("defaults.consumableDisplayMode"))
+    table.insert(BR.RefreshableComponents, {
+        Refresh = function()
+            updateSubIconSideVisibility(BR.Config.Get("defaults.consumableDisplayMode"))
+        end,
+    })
+end
 
-    -- The hide-stat-labels checkbox gates the Stat label position row. Keep the
-    -- checkbox directly above that row, so the dependency stays visible.
-    layout:Space(SECTION_GAP)
-    Helpers.LayoutSubsectionHeader(layout, parent, L["Options.TextPositions"])
+---Text & overlays rows for the consumable icons: base size, then one row per
+---text element. Every key is global, because only this category draws them.
+local function BuildOverlays(ctx, layout)
+    local parent = ctx.content
 
     local consumableTextScaleHolder = Components.Slider(parent, {
         label = L["Options.ConsumableTextScale"],
+        labelWidth = ctx.overlayLabelWidth,
         min = 5,
         max = 80,
         step = 1,
@@ -237,148 +264,82 @@ local function Build(ctx, layout)
     })
     layout:Add(consumableTextScaleHolder, nil, COMPONENT_GAP)
 
-    local function statLabelsShown()
-        return not BR.Config.Get("defaults.hideConsumableLabels")
-    end
-
-    local hideConsumableLabelsHolder = Components.Checkbox(parent, {
-        label = L["Options.HideConsumableLabels"],
-        get = function()
-            return BR.Config.Get("defaults.hideConsumableLabels")
-        end,
-        tooltip = {
-            title = L["Options.HideConsumableLabels.Title"],
-            desc = L["Options.HideConsumableLabels.Desc"],
-        },
-        onChange = function(checked)
-            BR.Config.Set("defaults.hideConsumableLabels", checked)
-            -- Re-evaluate the stat label row's enabled gate.
-            Components.RefreshAll()
-        end,
-    })
-    layout:Add(hideConsumableLabelsHolder, nil, COMPONENT_GAP)
-
-    local badgeOnSubIconsHolder = Components.Checkbox(parent, {
-        label = L["Options.ConsumableBadgeOnSubIcons"],
-        get = function()
-            return BR.Config.Get("defaults.consumableBadgeOnSubIcons") == true
-        end,
-        enabled = function()
-            return BR.Config.Get("defaults.consumableDisplayMode") == "sub_icons"
-        end,
-        disabledReason = L["Options.ConsumableBadgeOnSubIcons.Disabled"],
-        tooltip = {
-            title = L["Options.ConsumableBadgeOnSubIcons.Title"],
-            desc = L["Options.ConsumableBadgeOnSubIcons.Desc"],
-        },
-        onChange = function(checked)
-            BR.Config.Set("defaults.consumableBadgeOnSubIcons", checked)
-        end,
-    })
-    layout:Add(badgeOnSubIconsHolder, nil, COMPONENT_GAP)
-
-    -- One row per text item: name, placement, then size in a fixed right-hand
-    -- column. The four controls only fit the page at these widths, so trim the
-    -- zone dropdowns and the offset tracks before adding anything to the row.
-    local ROW_ITEM_LABEL_W = 78
-    local ROW_ZONE_VERTICAL_W = 92
-    local ROW_ZONE_ALIGN_W = 66
-    local ROW_OFFSET_TRACK_W = 48
-    local ROW_SIZE_LABEL_W = 30
+    local labelWidth = ctx.overlayLabelWidth
 
     local function FormatSize(val)
         return val == 0 and L["Options.Auto"] or (val .. "%")
     end
 
-    local function buildTextItemRow(item, label, enabled)
-        local row = CreateFrame("Frame", nil, parent)
-        row:SetSize(parent:GetWidth(), 26)
-
-        -- Only the stat label row is gated, so only it carries a reason.
-        local reason = enabled and L["DisabledReason.StatLabelsHidden"] or nil
-
-        local picker = Components.ZonePicker(row, {
+    ---@param item string
+    ---@param label string
+    ---@param off? TextOffToggle
+    local function TextItemRow(item, label, off)
+        Helpers.LayoutTextRow(layout, parent, {
             label = label,
-            labelWidth = ROW_ITEM_LABEL_W,
-            verticalWidth = ROW_ZONE_VERTICAL_W,
-            alignWidth = ROW_ZONE_ALIGN_W,
-            enabled = enabled,
-            disabledReason = reason,
-            get = function()
-                return select(1, BR.TextPositions.Get(item))
-            end,
-            onChange = function(zone)
-                BR.Config.Set("defaults.textPositions." .. item .. ".zone", zone)
-            end,
+            labelWidth = labelWidth,
+            zone = {
+                get = function()
+                    return select(1, BR.TextPositions.Get(item))
+                end,
+                set = function(zone)
+                    BR.Config.Set("defaults.textPositions." .. item .. ".zone", zone)
+                end,
+                off = off,
+            },
+            isOff = off and off.get or nil,
+            -- 0 is the inherit sentinel: it stores nil, so the item follows the base size.
+            size = {
+                min = 0,
+                max = 80,
+                format = FormatSize,
+                get = function()
+                    return BR.TextPositions.GetSizeOverride(item) or 0
+                end,
+                set = function(val)
+                    BR.Config.Set("defaults.textSizes." .. item, val > 0 and val or nil)
+                end,
+            },
+            offsets = {
+                min = -40,
+                max = 40,
+                getX = function()
+                    local _, x = BR.TextPositions.Get(item)
+                    return x
+                end,
+                setX = function(val)
+                    BR.Config.Set("defaults.textPositions." .. item .. ".offsetX", val)
+                end,
+                getY = function()
+                    local _, _, y = BR.TextPositions.Get(item)
+                    return y
+                end,
+                setY = function(val)
+                    BR.Config.Set("defaults.textPositions." .. item .. ".offsetY", val)
+                end,
+            },
         })
-        picker:SetPoint("TOPLEFT", row, "TOPLEFT", 0, 0)
-
-        local offsetX = Components.Slider(row, {
-            label = L["Options.TextPositions.OffsetX.Short"],
-            labelWidth = 12,
-            sliderWidth = ROW_OFFSET_TRACK_W,
-            min = -40,
-            max = 40,
-            enabled = enabled,
-            disabledReason = reason,
-            get = function()
-                local _, x = BR.TextPositions.Get(item)
-                return x
-            end,
-            onChange = function(val)
-                BR.Config.Set("defaults.textPositions." .. item .. ".offsetX", val)
-            end,
-        })
-        offsetX:SetPoint("LEFT", picker, "RIGHT", 10, 0)
-
-        local offsetY = Components.Slider(row, {
-            label = L["Options.TextPositions.OffsetY.Short"],
-            labelWidth = 12,
-            sliderWidth = ROW_OFFSET_TRACK_W,
-            min = -40,
-            max = 40,
-            enabled = enabled,
-            disabledReason = reason,
-            get = function()
-                local _, _, y = BR.TextPositions.Get(item)
-                return y
-            end,
-            onChange = function(val)
-                BR.Config.Set("defaults.textPositions." .. item .. ".offsetY", val)
-            end,
-        })
-        offsetY:SetPoint("LEFT", offsetX, "RIGHT", 8, 0)
-
-        -- 0 is the inherit sentinel: it stores nil, so the item follows the base size.
-        local size = Components.NumericStepper(row, {
-            label = L["Options.TextPositions.Size"],
-            labelWidth = ROW_SIZE_LABEL_W,
-            min = 0,
-            max = 80,
-            step = 1,
-            formatValue = FormatSize,
-            enabled = enabled,
-            disabledReason = reason,
-            get = function()
-                return BR.TextPositions.GetSizeOverride(item) or 0
-            end,
-            onChange = function(val)
-                BR.Config.Set("defaults.textSizes." .. item, val > 0 and val or nil)
-            end,
-        })
-        size:SetPoint("LEFT", offsetY, "RIGHT", 10, 0)
-
-        layout:Add(row, 26, COMPONENT_GAP)
     end
 
-    buildTextItemRow("statLabel", L["Options.TextPositions.StatLabel"], statLabelsShown)
-    buildTextItemRow("badge", L["Options.TextPositions.Badge"])
-    buildTextItemRow("stackCount", L["Options.TextPositions.StackCount"])
-    Helpers.LayoutSubsectionNote(layout, parent, L["Options.TextSizes.Note"])
+    -- "Off" on the stat label row is the stored hideConsumableLabels flag.
+    TextItemRow("statLabel", L["Options.TextPositions.StatLabel"], {
+        get = function()
+            return BR.Config.Get("defaults.hideConsumableLabels") == true
+        end,
+        set = function(off)
+            BR.Config.Set("defaults.hideConsumableLabels", off)
+        end,
+    })
+    TextItemRow("badge", L["Options.TextPositions.Badge"])
 
-    -- Behavior holds the visibility and filter controls (which consumables show).
-    -- Item Display holds the appearance controls (how each icon looks).
-    LayoutSectionHeader(layout, parent, L["Options.Behavior"])
+    TextItemRow("stackCount", L["Options.TextPositions.StackCount"])
+    Helpers.LayoutSubsectionNote(layout, parent, L["Options.TextSizes.Note"])
+end
+
+---Items subsection of Visibility: which consumables show.
+local function BuildFilters(ctx, layout)
+    local parent = ctx.content
+
+    Helpers.LayoutSubsectionHeader(layout, parent, L["Options.ItemFilters"])
 
     local showWithoutItemsHolder = Components.Checkbox(parent, {
         label = L["Options.ShowWithoutItems"],
@@ -396,8 +357,7 @@ local function Build(ctx, layout)
     })
     layout:Add(showWithoutItemsHolder, nil, COMPONENT_GAP)
 
-    local SHOW_WITHOUT_INDENT = 12
-    layout:SetX(layout:GetX() + SHOW_WITHOUT_INDENT)
+    layout:SetX(layout:GetX() + DEPENDENT_INDENT)
     local readyCheckOnlyHolder = Components.Checkbox(parent, {
         label = L["Options.ShowWithoutItemsReadyCheckOnly"],
         get = function()
@@ -406,6 +366,7 @@ local function Build(ctx, layout)
         enabled = function()
             return BR.Config.Get("defaults.showConsumablesWithoutItems") == true
         end,
+        disabledReason = L["DisabledReason.ShowWithoutItems"],
         tooltip = {
             title = L["Options.ShowWithoutItemsReadyCheckOnly.Title"],
             desc = L["Options.ShowWithoutItemsReadyCheckOnly.Desc"],
@@ -415,7 +376,7 @@ local function Build(ctx, layout)
         end,
     })
     layout:Add(readyCheckOnlyHolder, nil, COMPONENT_GAP)
-    layout:SetX(layout:GetX() - SHOW_WITHOUT_INDENT)
+    layout:SetX(layout:GetX() - DEPENDENT_INDENT)
 
     local delveFoodOnlyHolder = Components.Checkbox(parent, {
         label = L["Options.DelveFoodOnly"],
@@ -449,3 +410,5 @@ local function Build(ctx, layout)
 end
 
 BR.Options.BuffSections.ItemDisplay = Build
+BR.Options.BuffSections.ItemOverlays = BuildOverlays
+BR.Options.BuffSections.ConsumableFilters = BuildFilters

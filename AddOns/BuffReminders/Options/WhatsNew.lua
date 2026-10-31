@@ -8,7 +8,7 @@ local BR = ns
 -- Dots that point the user at features from a release that the user did not
 -- acknowledge yet. A `cohort` is an opaque label. `BR.aceDB.global.seenVersions`
 -- is the set of acknowledged cohorts. A cohort is new only when that set does
--- not hold it. No code compares versions, so the v6.9.3 package token
+-- not hold it. No code compares versions, so the v6.10.0 package token
 -- and prerelease suffixes stay safe.
 --
 -- This module owns state and lifecycle only. Each dot is drawn where its UI lives.
@@ -91,6 +91,29 @@ function WhatsNew.IsGroupNew(group)
         end
     end
     return false
+end
+
+local DOT_TEXTURE = "Interface\\AddOns\\BuffReminders\\Media\\dot.tga"
+
+---A dot after the text of `label`, shown while `key` is new. The panel OnShow
+---re-evaluates it, so the dot goes away at the open after MarkSeen.
+---@param label any FontString
+---@param key string
+---@return Texture
+function WhatsNew.AttachDot(label, key)
+    local dot = label:GetParent():CreateTexture(nil, "OVERLAY")
+    dot:SetTexture(DOT_TEXTURE)
+    dot:SetVertexColor(0.88, 0.42, 0.40)
+    dot:SetSize(10, 10)
+    -- From the text end, not the region edge: a fixed-width label column is
+    -- wider than its text.
+    dot:SetPoint("LEFT", label, "LEFT", label:GetStringWidth() + 4, 0)
+    local function refresh()
+        dot:SetShown(unseenItems[key] == true)
+    end
+    refresh()
+    table.insert(BR.RefreshableComponents, { Refresh = refresh })
+    return dot
 end
 
 function WhatsNew.HasPending()

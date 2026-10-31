@@ -277,7 +277,7 @@ local CategorySettingKeys = {
     showExpirationGlow = "DisplayRefresh",
     expirationThreshold = "DisplayRefresh",
     spacing = "LayoutRefresh",
-    growDirection = "LayoutRefresh",
+    layoutDirection = "LayoutRefresh",
     subIconSide = "LayoutRefresh",
     anchorFrame = "LayoutRefresh",
     anchorPoint = "LayoutRefresh",
@@ -287,6 +287,7 @@ local CategorySettingKeys = {
     showBuffReminder = "VisualsRefresh",
     buffTextSize = "VisualsRefresh",
     showText = "VisualsRefresh",
+    showBuffTooltips = "VisualsRefresh", -- Toggles hover capture vs click-through
     -- Toggles
     useCustomAppearance = "VisualsRefresh",
     useCustomGlow = "VisualsRefresh",
@@ -404,7 +405,6 @@ local DefaultSettingKeys = {
     hideConsumableLabels = "VisualsRefresh",
     showConsumableTooltips = false, -- No refresh needed, read at tooltip time
     rightClickSnooze = "DisplayRefresh", -- Re-wires the consumable buttons' type2 attribute
-    showBuffTooltips = "VisualsRefresh", -- Toggles raid/presence hover capture vs click-through
     hideLegacyConsumables = "DisplayRefresh",
     preferReusableRunes = "DisplayRefresh",
     feastAtPlayer = "DisplayRefresh",
@@ -710,7 +710,6 @@ local AppearanceKeys = {
     spacing = true,
     iconZoom = true,
     borderSize = true,
-    growDirection = true,
 }
 -- NOTE: expirationThreshold is deliberately NOT an appearance key. It is a timing/behavior
 -- setting and uses the standard per-key fallback (category value if set, else defaults),

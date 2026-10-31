@@ -1,30 +1,25 @@
 # BuffReminders
 
-## [v6.9.3](https://github.com/zerbiniandrea/BuffReminders/tree/v6.9.3) (2026-10-25)
-[Full Changelog](https://github.com/zerbiniandrea/BuffReminders/compare/v6.9.2...v6.9.3) [Previous Releases](https://github.com/zerbiniandrea/BuffReminders/releases)
+## [v6.10.0](https://github.com/zerbiniandrea/BuffReminders/tree/v6.10.0) (2026-10-29)
+[Full Changelog](https://github.com/zerbiniandrea/BuffReminders/compare/v6.9.3...v6.10.0) [Previous Releases](https://github.com/zerbiniandrea/BuffReminders/releases)
 
 ### New Features ✨
 
-- **Externals:** track Spirit Link Totem
+- **Externals:** show who cast each external buff next to its icon
+- **Tooltips:** set buff tooltips per category, now also for targeted and self buffs
+- Reorganize the category and defaults settings into one clear layout
 
 ### Bug Fixes 🐛
 
-- **Consumables:** show the other qualities of an expiring consumable
-- **Externals:** play the lust sound once per lust
-- **Externals:** stop zone defensive sounds repeating on re-entry
-- **Externals:** remove Ancestral Protection Totem
+- Show only the disabled reason when hovering a disabled setting
+
+### Localization 🌐
+
+- Updated translations: koKR
 
 ### Other Changes 🔧
 
-- **Externals:** add an ExternalEntry type for the externals list
-- Keep Lua sources ASCII only
-- Run make check on push and pull requests
-- Type the BR namespace and fix out-of-date types
-- Drop the legacy splitCategories fallback
-- Type refresh events and cache ids
-- Pass the buff table to ShouldShowSelfBuff
-- Type the saved profile and externals settings
-- Add make api-audit to list deprecated WoW API calls
-- Remove unused debug commands
-- Replace deprecated spell-knowledge calls with C_SpellBook
+- **Libs:** update embedded libs (AceDB-3.0 LibSharedMedia-3.0 LibSpecialization)
+- Even out the spacing above option subsections
+- Move the Defaults page text notes into tooltips
 

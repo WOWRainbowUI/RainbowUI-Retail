@@ -6,9 +6,9 @@ local BR = ns
 -- BUFF PAGE SECTION: Visibility
 -- ============================================================================
 -- Per-category content visibility (W/S/D/R + difficulty filters), the
--- hide-on-PvP-match-start toggle, and the ready-check-only toggle. Each
--- category configures its own visibility on its own tab. The consumable-only
--- "Free Consumables" sub-section lives in Sections/FreeConsumables.lua.
+-- ready-check-only toggle, and the hide-on-PvP-match-start toggle. The PvP
+-- toggle sits right under the bar, because the bar's PvP button gates it. The
+-- template appends the Expiration, Items and Free consumables subsections.
 
 local L = BR.L
 local Components = BR.Components
@@ -41,6 +41,17 @@ local function Build(ctx, layout)
         end,
     })
     layout:Add(visToggles, nil, SECTION_GAP)
+
+    local readyCheckHolder = Components.Checkbox(parent, {
+        label = L["Options.ReadyCheckOnly"],
+        get = MakeCategoryGetter(category, "showOnlyOnReadyCheck", false),
+        tooltip = {
+            title = L["Options.ReadyCheckOnly"],
+            desc = L["Options.ReadyCheckOnly.Desc"],
+        },
+        onChange = Helpers.MakeCategorySetter(category, "showOnlyOnReadyCheck"),
+    })
+    layout:Add(readyCheckHolder, nil, COMPONENT_GAP)
 
     local hideInPvPMatchHolder = Components.Checkbox(parent, {
         label = L["Options.HidePvPMatchStart"],
@@ -77,17 +88,6 @@ local function Build(ctx, layout)
         end,
     })
     layout:Add(hideInPvPMatchHolder, nil, COMPONENT_GAP)
-
-    local readyCheckHolder = Components.Checkbox(parent, {
-        label = L["Options.ReadyCheckOnly"],
-        get = MakeCategoryGetter(category, "showOnlyOnReadyCheck", false),
-        tooltip = {
-            title = L["Options.ReadyCheckOnly"],
-            desc = L["Options.ReadyCheckOnly.Desc"],
-        },
-        onChange = Helpers.MakeCategorySetter(category, "showOnlyOnReadyCheck"),
-    })
-    layout:Add(readyCheckHolder, nil, COMPONENT_GAP)
 end
 
 BR.Options.BuffSections.Visibility = Build

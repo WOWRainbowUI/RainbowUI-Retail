@@ -12,6 +12,11 @@ local BR = ns
 -- Per-category branches inside a section (raid-only / pet-only / consumable-only
 -- widgets) live in that section file, not here.
 --
+-- The order answers one question per section: what the reminder shows, when it
+-- shows, where it sits, how it looks, what is drawn on it, how it glows, and
+-- what the mouse does. A category leaves out a section that has nothing for it,
+-- but never moves one.
+--
 -- The template renders only "how this category displays". Per-buff toggling
 -- lives on the All Buffs page.
 --
@@ -29,33 +34,35 @@ local Template = {}
 ---@param scrollFrame table Owning scroll container (for content width)
 ---@param category string Category key driving the section set
 ---@param opts? table { appearancePadding?: number, onAppearanceResize?: fun() }
----        Threaded into ctx so CustomAppearance (the last section) can size the
----        tab frame and notify the page to resize.
+---        The template sizes the tab frame after the last section and after every
+---        relayout, then calls onAppearanceResize so the page can grow.
 function Template.Build(content, scrollFrame, category, opts)
     opts = opts or {}
+    local layout = Components.VerticalLayout(content, { x = COL_PADDING, y = PAGE_TOP_PADDING })
+
+    local function FitHeight()
+        content:SetHeight(math.abs(layout:GetY()) + (opts.appearancePadding or 30))
+        if opts.onAppearanceResize then
+            opts.onAppearanceResize()
+        end
+    end
+
     local ctx = {
         category = category,
         content = content,
         scrollFrame = scrollFrame,
         contentWidth = scrollFrame:GetContentWidth(),
-        appearancePadding = opts.appearancePadding,
-        onAppearanceResize = opts.onAppearanceResize,
+        -- A section that changes the height of a block calls this, so the
+        -- sections below it move.
+        relayout = function()
+            layout:Reflow()
+            FitHeight()
+        end,
     }
-    local layout = Components.VerticalLayout(content, { x = COL_PADDING, y = PAGE_TOP_PADDING })
 
     local Sections = BR.Options.BuffSections
+    local userAuthored = category == "custom" or category == "loadout"
 
-    -- The user-authored categories carry styling only. Their entry lists and
-    -- per-entry config live on their own sidebar pages and dialogs.
-    if category == "custom" or category == "loadout" then
-        Sections.Layout(ctx, layout)
-        Sections.CustomAppearance(ctx, layout)
-        return
-    end
-
-    -- Standalone category-specific sections lead the tab, so the controls unique
-    -- to this category sit above the shared backbone. A section that continues a
-    -- shared section stays next to its parent below.
     if category == "pet" then
         Sections.PetDisplay(ctx, layout)
     end
@@ -63,24 +70,35 @@ function Template.Build(content, scrollFrame, category, opts)
         Sections.ItemDisplay(ctx, layout)
     end
 
-    Sections.Visibility(ctx, layout)
-    if category == "consumable" then
-        Sections.FreeConsumables(ctx, layout)
+    -- The user-authored categories carry styling only. Their entry lists and
+    -- per-entry config live on their own sidebar pages and dialogs.
+    if not userAuthored then
+        Sections.Visibility(ctx, layout)
+        -- Pet and utility reminders have no expiration. A pet is present or
+        -- missing, and a utility item is a chore, not an aura.
+        if category ~= "pet" and category ~= "utility" then
+            Sections.Timing(ctx, layout)
+        end
+        if category == "consumable" then
+            Sections.ConsumableFilters(ctx, layout)
+            Sections.FreeConsumables(ctx, layout)
+        end
     end
-    Sections.Icons(ctx, layout)
-    if category == "raid" then
-        Sections.RaidIcons(ctx, layout)
-    end
-    Sections.ClickToCast(ctx, layout)
-    -- Pet and utility reminders have no expiration. A pet is present or missing,
-    -- and a utility item is a chore, not an aura. Timing does not apply to them.
-    if category ~= "pet" and category ~= "utility" then
-        Sections.Timing(ctx, layout)
-    end
+
     Sections.Layout(ctx, layout)
-    -- CustomAppearance (Appearance + Glow override sections) MUST be last:
-    -- it owns the final content:SetHeight for the page.
-    Sections.CustomAppearance(ctx, layout)
+    Sections.Appearance(ctx, layout)
+
+    if not userAuthored then
+        Sections.Overlays(ctx, layout)
+    end
+
+    Sections.Glow(ctx, layout)
+
+    if not userAuthored then
+        Sections.ClickToCast(ctx, layout)
+    end
+
+    FitHeight()
 end
 
 BR.Options.Pages.BuffTemplate = Template

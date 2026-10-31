@@ -3,11 +3,12 @@ local _, ns = ...
 local BR = ns
 
 -- ============================================================================
--- BUFF PAGE SECTION: Appearance & Glow overrides
+-- BUFF PAGE SECTIONS: Appearance and Glow
 -- ============================================================================
 -- Two independently-overridable sections, each headed by an Override checkbox
 -- with a live state label. While a section inherits, its controls stay VISIBLE
--- and show the live global default values, dimmed - never blank, never stale.
+-- and show the live global default values: the labels dim, the values stay
+-- readable, because they apply.
 -- If Override goes on, the addon snapshots the current effective values into
 -- the category, so the display does not jump. If Override goes off, the stored
 -- values stay dormant for a later re-enable.
@@ -17,20 +18,17 @@ local BR = ns
 
 local L = BR.L
 local Components = BR.Components
-local CreateButton = BR.CreateButton
 
 local GetCategorySettings = BR.Helpers.GetCategorySettings
-local IsCategorySplit = BR.Helpers.IsCategorySplit
 
-local LayoutSectionHeader = BR.Options.Helpers.LayoutSectionHeader
+local Helpers = BR.Options.Helpers
+local LayoutSectionHeader = Helpers.LayoutSectionHeader
 
 local IsMasqueActive = BR.Masque and BR.Masque.IsActive or function()
     return false
 end
 
 local COMPONENT_GAP = BR.Options.Constants.COMPONENT_GAP
-local DROPDOWN_EXTRA = BR.Options.Constants.DROPDOWN_EXTRA
-local COL_PADDING = BR.Options.Constants.COL_PADDING
 
 local APPEARANCE_KEYS = {
     "iconSize",
@@ -41,7 +39,6 @@ local APPEARANCE_KEYS = {
     "borderSize",
     "iconAlpha",
     "textAlpha",
-    "growDirection",
 }
 
 local GLOW_SNAPSHOT_KEYS = {
@@ -77,19 +74,35 @@ local GLOW_SNAPSHOT_KEYS = {
     "missingGlowYOffset",
 }
 
-local function Build(ctx, layout)
+---@param category string
+---@param key string
+---@return boolean
+local function IsOverriding(category, key)
+    local cs = BR.profile.categorySettings and BR.profile.categorySettings[category]
+    return (cs and cs[key] == true) or false
+end
+
+---Make sure the category table exists before a snapshot writes into it.
+---@param category string
+---@return table
+local function EnsureCategorySettings(category)
+    local db = BR.profile
+    if not db.categorySettings then
+        ---@diagnostic disable-next-line: missing-fields
+        db.categorySettings = {}
+    end
+    if not db.categorySettings[category] then
+        db.categorySettings[category] = {}
+    end
+    return db.categorySettings[category]
+end
+
+local function BuildAppearance(ctx, layout)
     local category = ctx.category
     local parent = ctx.content
-    local db = BR.profile
 
     local function isOverridingAppearance()
-        local cs = db.categorySettings and db.categorySettings[category]
-        return (cs and cs.useCustomAppearance == true) or false
-    end
-
-    local function isOverridingGlow()
-        local cs = db.categorySettings and db.categorySettings[category]
-        return (cs and cs.useCustomGlow == true) or false
+        return IsOverriding(category, "useCustomAppearance")
     end
 
     ---Effective value for a key: the category override when its section
@@ -103,27 +116,18 @@ local function Build(ctx, layout)
         return default
     end
 
-    -- ========================================================================
-    -- APPEARANCE
-    -- ========================================================================
     LayoutSectionHeader(layout, parent, L["Options.Appearance"])
 
     BR.Options.Helpers.AddOverrideRow(parent, layout, {
         get = isOverridingAppearance,
         desc = L["Options.Override.Appearance.Desc"],
+        defaultsLink = true,
         onChange = function(checked)
             if checked then
                 -- Snapshot the current effective values, so the override does
                 -- not change the display.
                 local effective = GetCategorySettings(category)
-                if not db.categorySettings then
-                    ---@diagnostic disable-next-line: missing-fields
-                    db.categorySettings = {}
-                end
-                if not db.categorySettings[category] then
-                    db.categorySettings[category] = {}
-                end
-                local cs = db.categorySettings[category]
+                local cs = EnsureCategorySettings(category)
                 for _, key in ipairs(APPEARANCE_KEYS) do
                     if cs[key] == nil and effective[key] ~= nil then
                         cs[key] = effective[key]
@@ -139,31 +143,13 @@ local function Build(ctx, layout)
         end,
     })
 
-    local dirHolder = Components.DirectionButtons(parent, {
-        get = function()
-            return getEffectiveValue("growDirection", "CENTER")
-        end,
-        enabled = function()
-            return isOverridingAppearance() and IsCategorySplit(category)
-        end,
-        disabledReason = function()
-            if not isOverridingAppearance() then
-                return L["DisabledReason.OverrideSection"]
-            end
-            return L["DisabledReason.GrowDirection"]
-        end,
-        onChange = function(dir)
-            BR.Config.Set("categorySettings." .. category .. ".growDirection", dir)
-        end,
-    })
-    layout:Add(dirHolder, nil, COMPONENT_GAP + DROPDOWN_EXTRA)
-
     local function isDimensionsLinked()
         return getEffectiveValue("iconWidth", nil) == nil
     end
 
-    local appFrame = CreateFrame("Frame", nil, parent)
-    layout:Add(appFrame, 0)
+    local function isInheriting()
+        return not isOverridingAppearance()
+    end
 
     -- Shared by the geometry grid and the text size/color row below it: both are
     -- covered by this category's single appearance override.
@@ -180,8 +166,17 @@ local function Build(ctx, layout)
             BR.Config.SetMulti(prefixed)
         end,
         enabled = isOverridingAppearance,
+        inherited = isInheriting,
+        disabledReason = L["DisabledReason.OverrideSection"],
     }
 
+    -- One label column for both groups: the grid measures its own labels, and the
+    -- text row joins that column.
+    local textLabelWidth = Components.MeasureSharedLabelWidth({ L["Appearance.Text"] })
+
+    Helpers.LayoutSubsectionHeader(layout, parent, L["Options.Icons"])
+    local appFrame = CreateFrame("Frame", nil, parent)
+    layout:Add(appFrame, 0)
     local catGrid = Components.AppearanceGrid(appFrame, {
         get = catAccess.get,
         set = catAccess.set,
@@ -197,34 +192,47 @@ local function Build(ctx, layout)
             Components.RefreshAll()
         end,
         enabled = isOverridingAppearance,
+        inherited = isInheriting,
+        disabledReason = L["DisabledReason.OverrideSection"],
+        labelWidth = textLabelWidth,
         masqueCheck = IsMasqueActive,
     })
     appFrame:SetSize(480, catGrid.height)
     layout:Space(catGrid.height)
 
-    local catTextStyleHolder = Components.TextStyleRow(parent, catAccess)
+    Helpers.LayoutSubsectionHeader(layout, parent, L["Options.Text"])
+    local catTextStyleHolder = Components.TextStyleRow(parent, catAccess, catGrid.labelWidth)
     layout:Add(catTextStyleHolder, nil, COMPONENT_GAP)
+end
 
-    -- ========================================================================
-    -- GLOW
-    -- ========================================================================
+local function BuildGlow(ctx, layout)
+    local category = ctx.category
+    local parent = ctx.content
+    local db = BR.profile
+
+    local function isOverridingGlow()
+        return IsOverriding(category, "useCustomGlow")
+    end
+
+    local function getEffectiveValue(key, default)
+        local val = BR.Config.GetCategorySetting(category, key)
+        if val ~= nil then
+            return val
+        end
+        return default
+    end
+
     LayoutSectionHeader(layout, parent, L["Options.Glow"])
 
     BR.Options.Helpers.AddOverrideRow(parent, layout, {
         get = isOverridingGlow,
         desc = L["Options.Override.Glow.Desc"],
+        defaultsLink = true,
         onChange = function(checked)
             if checked then
                 -- Snapshot the effective glow config (enable flags + style),
                 -- so the override does not change the display.
-                if not db.categorySettings then
-                    ---@diagnostic disable-next-line: missing-fields
-                    db.categorySettings = {}
-                end
-                if not db.categorySettings[category] then
-                    db.categorySettings[category] = {}
-                end
-                local cs = db.categorySettings[category]
+                local cs = EnsureCategorySettings(category)
                 local glowDefaults = db.defaults or {}
                 for _, key in ipairs(GLOW_SNAPSHOT_KEYS) do
                     if cs[key] == nil and glowDefaults[key] ~= nil then
@@ -243,40 +251,32 @@ local function Build(ctx, layout)
         end,
     })
 
-    -- Shared label column so the Customize button lines up across the two glow
-    -- rows regardless of which labels this category shows (their widths differ).
-    local glowLabelWidth = Components.MeasureSharedLabelWidth({
+    local labelWidth, summaryWidth = Helpers.GlowColumns({
         L["Options.ExpiringGlow"],
         L["Options.MissingGlow"],
         L["Options.GlowMissingPets"],
-    }, "GameFontHighlightSmall", 0)
+    }, false)
 
-    ---One glow row: enable checkbox + Customize button that opens the Glow
-    ---dialog for that kind. Pet reminders have no expiration, so the pet
-    ---category gets only the missing row.
+    ---Pet reminders have no expiration, so the pet category gets only the missing row.
     local function AddGlowRow(labelText, enableKey, kind)
-        local rowHolder = Components.Checkbox(parent, {
+        Helpers.LayoutGlowRow(layout, parent, {
             label = labelText,
+            labelWidth = labelWidth,
+            summaryWidth = summaryWidth,
+            kind = kind,
+            read = getEffectiveValue,
             get = function()
                 return getEffectiveValue(enableKey, true) ~= false
             end,
+            set = function(checked)
+                BR.Config.Set("categorySettings." .. category .. "." .. enableKey, checked)
+            end,
             enabled = isOverridingGlow,
             disabledReason = L["DisabledReason.OverrideSection"],
-            onChange = function(checked)
-                BR.Config.Set("categorySettings." .. category .. "." .. enableKey, checked)
-                Components.RefreshAll()
+            onCustomize = function()
+                BR.Options.Dialogs.Glow.Show(category, kind)
             end,
         })
-
-        local customizeBtn = CreateButton(parent, L["Options.Customize"], function()
-            BR.Options.Dialogs.Glow.Show(category, kind)
-        end)
-        customizeBtn:SetPoint("LEFT", rowHolder, "LEFT", rowHolder.labelOffset + glowLabelWidth + 8, 0)
-        customizeBtn:SetFrameLevel(rowHolder:GetFrameLevel() + 5)
-        customizeBtn:BindEnabled(isOverridingGlow)
-        customizeBtn:SetDisabledReason(L["DisabledReason.OverrideSection"])
-
-        layout:Add(rowHolder, nil, COMPONENT_GAP)
     end
 
     if category == "pet" then
@@ -285,14 +285,7 @@ local function Build(ctx, layout)
         AddGlowRow(L["Options.ExpiringGlow"], "showExpirationGlow", "expiring")
         AddGlowRow(L["Options.MissingGlow"], "showMissingGlow", "missing")
     end
-
-    layout:SetX(COL_PADDING)
-
-    -- This section is last on the page and owns the parent's final height.
-    parent:SetHeight(math.abs(layout:GetY()) + (ctx.appearancePadding or 30))
-    if ctx.onAppearanceResize then
-        ctx.onAppearanceResize()
-    end
 end
 
-BR.Options.BuffSections.CustomAppearance = Build
+BR.Options.BuffSections.Appearance = BuildAppearance
+BR.Options.BuffSections.Glow = BuildGlow

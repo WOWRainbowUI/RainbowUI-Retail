@@ -32,7 +32,8 @@ BR.Options.Constants = {
     SCROLLBAR_WIDTH = 24,
     COMPONENT_GAP = 6, -- standard gap between components
     SECTION_GAP = 8, -- gap before/after section boundaries
-    DROPDOWN_EXTRA = 8, -- extra clearance after dropdowns (menu overlay space)
+    DROPDOWN_EXTRA = 8, -- extra clearance after a dropdown, except the last row of a group
+    DEPENDENT_INDENT = 16, -- x indent of a control under the checkbox that gates it
     PAGE_TOP_PADDING = -16, -- y offset where each page's top VerticalLayout cursor starts
 
     -- Dialog shell metrics. A dialog declares its own width; these cover the
@@ -194,8 +195,10 @@ end
 
 -- Compact gold subsection header: smaller than LayoutSectionHeader, no accent
 -- line, for a nested sub-block under an existing section header. Pinned at the
--- layout's current x, so the caller's indent stays.
+-- layout's current x, so the caller's indent stays. It owns the space above it, so
+-- every subsection boundary is the same height. Callers add no space before it.
 function Helpers.LayoutSubsectionHeader(layout, parent, text)
+    layout:Space(SECTION_GAP)
     local header = parent:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     header:SetText("|cffffcc00" .. text .. "|r")
     local h = ceil(header:GetStringHeight())
@@ -263,18 +266,47 @@ end
 ---The wording is generic, so every override in the panel reads the same way.
 ---@param parent table
 ---@param layout table
----@param opts table Fields: get (fun(): boolean), desc (string tooltip text), onChange (fun(checked: boolean))
+---@param opts table Fields: get (fun(): boolean), desc (string tooltip text), onChange (fun(checked: boolean)), enabled? (fun(): boolean), disabledReason? (string), defaultsLink? (boolean: the values come from the Defaults page)
 ---@return table holder
 function Helpers.AddOverrideRow(parent, layout, opts)
     local holder = Components.Checkbox(parent, {
         label = L["Options.Override"],
         get = opts.get,
         tooltip = { title = L["Options.Override"], desc = opts.desc },
+        enabled = opts.enabled,
+        disabledReason = opts.disabledReason,
         onChange = opts.onChange,
     })
 
     local stateText = parent:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     stateText:SetPoint("LEFT", holder.infoIcon or holder.label, "RIGHT", 10, 0)
+
+    -- Shown while inheriting: the values come from the Defaults page, so it is
+    -- one click away.
+    local linkSeparator, defaultsLink
+    if opts.defaultsLink then
+        linkSeparator = parent:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+        linkSeparator:SetPoint("LEFT", stateText, "RIGHT", 6, 0)
+        linkSeparator:SetText("-")
+        linkSeparator:SetTextColor(0.55, 0.55, 0.55)
+        defaultsLink = CreateFrame("Button", nil, parent)
+        defaultsLink:SetPoint("LEFT", linkSeparator, "RIGHT", 6, 0)
+        local linkText = defaultsLink:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+        linkText:SetPoint("LEFT")
+        linkText:SetText(L["Options.Override.OpenDefaults"])
+        linkText:SetTextColor(0.55, 0.7, 0.95)
+        defaultsLink:SetSize(linkText:GetStringWidth() + 2, 16)
+        defaultsLink:SetScript("OnEnter", function()
+            linkText:SetTextColor(0.75, 0.85, 1)
+        end)
+        defaultsLink:SetScript("OnLeave", function()
+            linkText:SetTextColor(0.55, 0.7, 0.95)
+        end)
+        defaultsLink:SetScript("OnClick", function()
+            BR.Options.ActivatePage("defaults")
+        end)
+    end
+
     local function refreshState()
         if opts.get() then
             stateText:SetText(L["Options.Override.Overriding"])
@@ -283,6 +315,10 @@ function Helpers.AddOverrideRow(parent, layout, opts)
             stateText:SetText(L["Options.Override.Inherited"])
             stateText:SetTextColor(0.55, 0.55, 0.55)
         end
+        if defaultsLink then
+            defaultsLink:SetShown(not opts.get())
+            linkSeparator:SetShown(not opts.get())
+        end
     end
     refreshState()
     stateText.Refresh = refreshState
@@ -290,6 +326,270 @@ function Helpers.AddOverrideRow(parent, layout, opts)
 
     layout:Add(holder, nil, COMPONENT_GAP)
     return holder
+end
+
+-- ============================================================================
+-- GLOW ROWS
+-- ============================================================================
+-- One row per glow kind: the enable checkbox, a muted summary of the style it
+-- uses, and a Customize button. The summary and the button sit at fixed
+-- columns, so they line up across rows whatever the label widths.
+
+local GLOW_COL_GAP = 8
+-- The summary color dot and its gap.
+local GLOW_SWATCH_ROOM = 13
+
+---@class GlowRowOpts
+---@field label string
+---@field tooltip? TooltipText
+---@field warningTooltip? TooltipText
+---@field labelWidth number Shared by every row, from Helpers.GlowColumns
+---@field summaryWidth number Shared by every row, from Helpers.GlowColumns
+---@field get fun(): boolean
+---@field set fun(checked: boolean)
+---@field read fun(key: string, default: any): any Effective value of a glow key
+---@field kind "expiring"|"missing"
+---@field enabled? fun(): boolean
+---@field disabledReason? string|fun(): string
+---@field onCustomize fun()
+
+---Column widths for a set of glow rows.
+---@param labels string[]
+---@param hasWarningIcon boolean True when the rows show the trailing warning icon
+---@return number labelWidth, number summaryWidth
+function Helpers.GlowColumns(labels, hasWarningIcon)
+    local labelWidth = Components.MeasureSharedLabelWidth(labels, "GameFontHighlightSmall", 0)
+    if hasWarningIcon then
+        -- The checkbox draws its warning icon 4 px after the label, 14 px wide.
+        labelWidth = labelWidth + 4 + 14
+    end
+    local names = {}
+    for _, glowType in ipairs(BR.Glow.Types) do
+        names[#names + 1] = glowType.name
+    end
+    return labelWidth, Components.MeasureSharedLabelWidth(names, "GameFontDisableSmall", 0) + GLOW_SWATCH_ROOM
+end
+
+---One glow row, added to the layout.
+---@param layout table
+---@param parent table
+---@param opts GlowRowOpts
+---@return table holder
+function Helpers.LayoutGlowRow(layout, parent, opts)
+    local holder = Components.Checkbox(parent, {
+        label = opts.label,
+        tooltip = opts.tooltip,
+        warningTooltip = opts.warningTooltip,
+        get = opts.get,
+        enabled = opts.enabled,
+        disabledReason = opts.disabledReason,
+        onChange = function(checked)
+            opts.set(checked)
+            Components.RefreshAll()
+        end,
+    })
+
+    local summaryX = holder.labelOffset + opts.labelWidth + GLOW_COL_GAP
+    local summary = parent:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
+    summary:SetPoint("LEFT", holder, "LEFT", summaryX, 0)
+    local swatch = parent:CreateTexture(nil, "OVERLAY")
+    swatch:SetSize(8, 8)
+    swatch:SetPoint("LEFT", summary, "RIGHT", 5, 0)
+
+    -- Customize stays available while the row is off, so the style can be set first.
+    local customizeBtn = BR.CreateButton(parent, L["Options.Customize"], opts.onCustomize)
+    customizeBtn:SetPoint("LEFT", holder, "LEFT", summaryX + opts.summaryWidth + GLOW_COL_GAP, 0)
+    customizeBtn:SetFrameLevel(holder:GetFrameLevel() + 5)
+    if opts.enabled then
+        customizeBtn:BindEnabled(opts.enabled)
+        customizeBtn:SetDisabledReason(opts.disabledReason)
+    end
+
+    local prefix = opts.kind == "missing" and "missingGlow" or "glow"
+    -- The Glow dialog shows these types for an unset key.
+    local typeFallback = opts.kind == "missing" and BR.Glow.Type.Pixel or BR.Glow.Type.AutoCast
+    local function refresh()
+        local typeIndex = opts.read(prefix .. "Type", typeFallback)
+        local glowType = BR.Glow.Types[typeIndex] or BR.Glow.Types[typeFallback]
+        summary:SetText(glowType and glowType.name or "")
+        -- Proc draws its own art unless the custom color option is on.
+        local color = opts.read(prefix .. "Color", nil)
+        local procOwnArt = typeIndex == BR.Glow.Type.Proc and not opts.read(prefix .. "ProcUseCustomColor", false)
+        if color and not procOwnArt then
+            swatch:SetColorTexture(color[1], color[2], color[3], 1)
+            swatch:Show()
+        else
+            swatch:Hide()
+        end
+    end
+    refresh()
+    table.insert(BR.RefreshableComponents, { Refresh = refresh })
+
+    layout:Add(holder, nil, COMPONENT_GAP)
+    return holder
+end
+
+-- ============================================================================
+-- TEXT ROWS
+-- ============================================================================
+-- One row per text element on an icon, read left to right: label, position,
+-- then Size and the X and Y offsets, each labeled where it stands. Rows of one element type
+-- share their label width, so their controls line up.
+
+local TEXT_ROW_HEIGHT = 26
+local TEXT_ROW_ZONE_V_W = 92
+local TEXT_ROW_ZONE_A_W = 66
+local TEXT_ROW_LIST_W = 92
+local TEXT_ROW_GAP = 14
+local TEXT_ROW_INNER_GAP = 4
+
+---@class TextRowStepper
+---@field min number
+---@field max number
+---@field step? number
+---@field get fun(): number
+---@field set fun(value: number)
+---@field format? fun(value: number): string
+
+---@class TextRowOffsets
+---@field min number
+---@field max number
+---@field getX fun(): number
+---@field setX fun(value: number)
+---@field getY fun(): number
+---@field setY fun(value: number)
+
+---@class TextRowZone
+---@field get fun(): string
+---@field set fun(zone: string)
+---@field off? TextOffToggle
+
+---@class TextRowList
+---@field options table[]
+---@field get fun(): string
+---@field set fun(value: string)
+
+---@class TextRowOpts
+---@field label string
+---@field labelWidth number Shared by the rows of one element type
+---@field zone? TextRowZone
+---@field list? TextRowList
+---@field isOff? fun(): boolean True hides Size, X and Y
+---@field size? TextRowStepper
+---@field offsets? TextRowOffsets
+---@field enabled? fun(): boolean
+---@field disabledReason? string|fun(): string
+---@field tooltip? TooltipText
+
+---One text row, added to the layout.
+---@param layout table
+---@param parent table
+---@param opts TextRowOpts
+---@return table row
+---@return table position The position control, or the label when the row has none
+---@return table last The rightmost control, for a caller that appends one
+function Helpers.LayoutTextRow(layout, parent, opts)
+    local row = CreateFrame("Frame", nil, parent)
+    row:SetSize(parent:GetWidth(), TEXT_ROW_HEIGHT)
+
+    local position
+    if opts.zone then
+        position = Components.ZonePicker(row, {
+            label = opts.label,
+            labelWidth = opts.labelWidth,
+            verticalWidth = TEXT_ROW_ZONE_V_W,
+            alignWidth = TEXT_ROW_ZONE_A_W,
+            get = opts.zone.get,
+            onChange = opts.zone.set,
+            off = opts.zone.off,
+            enabled = opts.enabled,
+            disabledReason = opts.disabledReason,
+        })
+    elseif opts.list then
+        position = Components.Dropdown(row, {
+            label = opts.label,
+            labelWidth = opts.labelWidth,
+            width = TEXT_ROW_LIST_W,
+            options = opts.list.options,
+            get = opts.list.get,
+            onChange = opts.list.set,
+            tooltip = opts.tooltip,
+            enabled = opts.enabled,
+            disabledReason = opts.disabledReason,
+        })
+    else
+        position = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+        position:SetWidth(opts.labelWidth)
+        position:SetJustifyH("LEFT")
+        position:SetText(opts.label)
+    end
+    position:SetPoint("LEFT", row, "LEFT", 0, 0)
+    -- The dropdown carries its own label tooltip. Other rows get one over the label.
+    if opts.tooltip and not opts.list then
+        local labelHover = CreateFrame("Frame", nil, row)
+        labelHover:SetPoint("LEFT", row, "LEFT", 0, 0)
+        labelHover:SetSize(opts.labelWidth, TEXT_ROW_HEIGHT)
+        labelHover:EnableMouse(true)
+        BR.SetupTooltip(labelHover, opts.tooltip.title, opts.tooltip.desc, "ANCHOR_TOP")
+    end
+
+    local controls = {}
+    local last = position
+    local offsetLabel
+    local function stepper(label, spec, gap)
+        local holder = Components.NumericStepper(row, {
+            label = label,
+            labelWidth = Components.MeasureSharedLabelWidth({ label }, "GameFontHighlightSmall", 0)
+                + TEXT_ROW_INNER_GAP,
+            min = spec.min,
+            max = spec.max,
+            step = spec.step or 1,
+            formatValue = spec.format,
+            get = spec.get,
+            onChange = spec.set,
+            enabled = opts.enabled,
+            disabledReason = opts.disabledReason,
+        })
+        holder:SetPoint("LEFT", last, "RIGHT", gap, 0)
+        controls[#controls + 1] = holder
+        last = holder
+    end
+    -- A row without a position control starts its steppers in the position
+    -- column, so its label keeps the same width as the others.
+    local firstGap = (opts.zone or opts.list) and TEXT_ROW_GAP or 5
+    if opts.size then
+        stepper(L["Options.TextPositions.Size"], opts.size, firstGap)
+        firstGap = TEXT_ROW_GAP
+    end
+    if opts.offsets then
+        local o = opts.offsets --[[@as TextRowOffsets]]
+        -- One "Offset" label for the pair, so each stepper only names its axis.
+        offsetLabel = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+        offsetLabel:SetPoint("LEFT", last, "RIGHT", firstGap, 0)
+        offsetLabel:SetText(L["Options.TextPositions.Offset"])
+        controls[#controls + 1] = offsetLabel
+        last = offsetLabel
+        stepper(L["Options.TextPositions.OffsetX.Short"], { min = o.min, max = o.max, get = o.getX, set = o.setX }, 6)
+        stepper(L["Options.TextPositions.OffsetY.Short"], { min = o.min, max = o.max, get = o.getY, set = o.setY }, 8)
+    end
+
+    if opts.isOff or opts.enabled then
+        function row:Refresh()
+            local shown = not (opts.isOff and opts.isOff())
+            for _, control in ipairs(controls) do
+                control:SetShown(shown)
+            end
+            if offsetLabel then
+                local color = (not opts.enabled or opts.enabled()) and 1 or 0.5
+                offsetLabel:SetTextColor(color, color, color)
+            end
+        end
+        row:Refresh()
+        table.insert(BR.RefreshableComponents, row)
+    end
+
+    layout:Add(row, TEXT_ROW_HEIGHT, COMPONENT_GAP)
+    return row, position, last
 end
 
 ---A small speaker button that plays the current sound.
@@ -483,35 +783,6 @@ function Helpers.ListEditor(content, scrollFrame, config)
     table.insert(BR.RefreshableComponents, refreshHook)
 
     return Render
-end
-
--- ============================================================================
--- SCOPE TAG
--- ============================================================================
--- Category pages host a few controls whose storage is global (defaults.* or
--- profile-root) even though they sit among per-category widgets. A "GLOBAL" tag
--- next to the control's label makes that scope visible.
-
-local GLOBAL_TAG_COLOR = { 0.45, 0.7, 0.95 }
-
----Attach a "GLOBAL" scope tag after a component's label. Use on any category
----page control that writes defaults.* or a profile-root key.
----@param holder table Component holder exposing .label (and optionally .infoIcon)
-function Helpers.AttachGlobalTag(holder)
-    local anchor = holder.infoIcon or holder.label or holder
-    local tag = CreateFrame("Frame", nil, holder)
-    tag:SetPoint("LEFT", anchor, "RIGHT", 6, 0)
-    local text = tag:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-    text:SetPoint("LEFT")
-    text:SetText(L["Options.GlobalTag"])
-    text:SetTextColor(GLOBAL_TAG_COLOR[1], GLOBAL_TAG_COLOR[2], GLOBAL_TAG_COLOR[3])
-    tag:SetSize(text:GetStringWidth() + 2, 14)
-    tag:EnableMouse(true)
-    tag:SetScript("OnEnter", function()
-        BR.ShowTooltip(tag, L["Options.GlobalTag.Title"], L["Options.GlobalTag.Desc"], "ANCHOR_TOP")
-    end)
-    tag:SetScript("OnLeave", BR.HideTooltip)
-    return tag
 end
 
 -- ============================================================================

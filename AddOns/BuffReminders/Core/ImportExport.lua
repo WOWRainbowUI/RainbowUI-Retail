@@ -143,6 +143,8 @@ local function ExportSettings(sourceProfile)
             export[key] = DeepCopy(prof[key])
         end
     end
+    -- Lets an import tell which conversions an older string still needs.
+    export.exportVersion = BR.Migrations.DB_VERSION
 
     local result, err = SerializeTable(export)
     if not result then
@@ -169,6 +171,10 @@ local function ImportSettings(prefixedStr)
     for _, key in ipairs(EXTRA_PROFILE_KEYS) do
         BR.profile[key] = nil
     end
+
+    -- Strings from before the stamp carry no version.
+    local exportVersion = tonumber(data.exportVersion) or 0
+    data.exportVersion = nil
 
     for k, v in pairs(data) do
         BR.profile[k] = DeepCopy(v)
@@ -199,6 +205,17 @@ local function ImportSettings(prefixedStr)
         p.optionsPanelZoom = BR.ZoomFromLegacyScale(p.optionsPanelScale)
     end
     p.optionsPanelScale = nil
+
+    -- Pre-v59 strings carry a category's direction as growDirection (migration [59]).
+    -- In a newer string a nil layoutDirection means "follow Defaults", so only an
+    -- older string gets the conversion.
+    if exportVersion < 59 then
+        BR.Migrations.MoveCategoryDirection(p.categorySettings)
+    end
+    -- Pre-v60 strings carry the shared buff tooltip toggle (migration [60]).
+    if exportVersion < 60 then
+        BR.Migrations.SplitBuffTooltips(p)
+    end
 
     -- Pre-v55 strings carry a runtime icon cache on each custom buff (migration [55]).
     if type(p.customBuffs) == "table" then

@@ -10,7 +10,6 @@ local BR = ns
 
 local L = BR.L
 local Components = BR.Components
-local CreateButton = BR.CreateButton
 local Helpers = BR.Options.Helpers
 
 local LSM = LibStub("LibSharedMedia-3.0")
@@ -25,20 +24,13 @@ local MakeDefaultsGetter = Helpers.MakeDefaultsGetter
 local MakeDefaultsSetter = Helpers.MakeDefaultsSetter
 
 local COMPONENT_GAP = BR.Options.Constants.COMPONENT_GAP
-local DROPDOWN_EXTRA = BR.Options.Constants.DROPDOWN_EXTRA
+local SECTION_GAP = BR.Options.Constants.SECTION_GAP
 local COL_PADDING = BR.Options.Constants.COL_PADDING
 local PAGE_TOP_PADDING = BR.Options.Constants.PAGE_TOP_PADDING
 
 local tinsert = table.insert
 
--- Every control in the Text section ends on the same right edge. Font and
--- Outline are single dropdowns of TEXT_DD_W. The zone pair must fit the same
--- span minus its internal offsets: each nested dropdown holder insets its box
--- by 5 (Components.Dropdown), plus 8 between the two.
 local TEXT_DD_W = 200
-local ZONE_INTERNAL_W = 5 + 8 + 5
-local ZONE_VERTICAL_W = 102
-local ZONE_ALIGN_W = TEXT_DD_W - ZONE_INTERNAL_W - ZONE_VERTICAL_W
 
 local function BuildFontOptions()
     local fontList = LSM:List("font")
@@ -54,8 +46,65 @@ end
 local function Build(content)
     local layout = Components.VerticalLayout(content, { x = COL_PADDING, y = PAGE_TOP_PADDING })
 
-    LayoutSectionHeader(layout, content, L["Options.GlobalDefaults"])
+    -- The sections follow the category tabs, so a tab that inherits reads the
+    -- same as its source.
     LayoutSectionNote(layout, content, L["Options.GlobalDefaults.Note"])
+    layout:Space(SECTION_GAP)
+
+    -- ========================================================================
+    -- EXPIRATION
+    -- ========================================================================
+    LayoutSectionHeader(layout, content, L["Options.ExpirationReminder"])
+
+    local thresholdLW = Components.MeasureSharedLabelWidth({
+        L["Options.ExpirationWarning"],
+        L["Options.PreKeyThreshold"],
+    })
+
+    local function formatMinutes(val)
+        return val == 0 and L["Options.Off"] or (val .. " " .. L["Options.Min"])
+    end
+
+    local defThresholdHolder = Components.Slider(content, {
+        label = L["Options.ExpirationWarning"],
+        labelWidth = thresholdLW,
+        min = 0,
+        max = 45,
+        step = 5,
+        get = MakeDefaultsGetter("expirationThreshold", 15),
+        formatValue = formatMinutes,
+        onChange = MakeDefaultsSetter("expirationThreshold"),
+    })
+    layout:Add(defThresholdHolder, nil, COMPONENT_GAP)
+
+    local preKeyThresholdHolder = Components.Slider(content, {
+        label = L["Options.PreKeyThreshold"],
+        labelWidth = thresholdLW,
+        tooltip = { title = L["Options.PreKeyThreshold"], desc = L["Options.PreKeyThreshold.Desc"] },
+        min = 0,
+        max = 60,
+        step = 5,
+        get = MakeDefaultsGetter("preKeyThreshold", 0),
+        formatValue = formatMinutes,
+        onChange = MakeDefaultsSetter("preKeyThreshold"),
+    })
+    layout:Add(preKeyThresholdHolder, nil, COMPONENT_GAP)
+
+    -- ========================================================================
+    -- LAYOUT
+    -- ========================================================================
+    LayoutSectionHeader(layout, content, L["Options.Layout"])
+
+    local defDirHolder = Components.DirectionButtons(content, {
+        get = MakeDefaultsGetter("growDirection", "CENTER"),
+        onChange = MakeDefaultsSetter("growDirection"),
+    })
+    layout:Add(defDirHolder, nil, COMPONENT_GAP)
+
+    -- ========================================================================
+    -- APPEARANCE
+    -- ========================================================================
+    LayoutSectionHeader(layout, content, L["Options.Appearance"])
 
     local function isDefDimensionsLinked()
         local db = BR.profile.defaults
@@ -79,6 +128,15 @@ local function Build(content)
         end,
     }
 
+    -- One label column for both groups: the grid measures its own labels, and
+    -- the text rows join that column.
+    local textLabelWidth = Components.MeasureSharedLabelWidth({
+        L["Appearance.Text"],
+        L["Options.Font"],
+        L["Options.TextOutline"],
+    })
+
+    Helpers.LayoutSubsectionHeader(layout, content, L["Options.Icons"])
     local defGrid = Components.AppearanceGrid(content, {
         get = defAccess.get,
         set = defAccess.set,
@@ -93,114 +151,21 @@ local function Build(content)
             BR.Config.Set("defaults.iconWidth", db and db.iconSize or 64)
             Components.RefreshAll()
         end,
+        labelWidth = textLabelWidth,
         masqueCheck = IsMasqueActive,
     })
     layout:Add(defGrid.frame, defGrid.height, COMPONENT_GAP)
+    local labelWidth = defGrid.labelWidth
 
-    local defDirHolder = Components.DirectionButtons(content, {
-        labelWidth = 50,
-        get = MakeDefaultsGetter("growDirection", "CENTER"),
-        onChange = MakeDefaultsSetter("growDirection"),
-    })
-    layout:Add(defDirHolder, nil, COMPONENT_GAP + DROPDOWN_EXTRA)
+    Helpers.LayoutSubsectionHeader(layout, content, L["Options.Text"])
 
-    -- One row per glow kind, because each kind has its own enable key. A single
-    -- control for both keys hides a mixed state.
-    local GLOW_ROWS = {
-        {
-            label = L["Options.ExpiringGlow"],
-            desc = L["Options.ExpiringGlow.Desc"],
-            enableKey = "showExpirationGlow",
-            typeKey = "glowType",
-            typeFallback = 2,
-            kind = "expiring",
-        },
-        {
-            label = L["Options.MissingGlow"],
-            desc = L["Options.MissingGlow.Desc"],
-            enableKey = "showMissingGlow",
-            typeKey = "missingGlowType",
-            typeFallback = 1,
-            kind = "missing",
-        },
-    }
-    -- Fixed column boundaries so the style summary and Customize button line up
-    -- across rows. The label and the glow name vary in width, so a chained
-    -- anchor (button -> summary -> label) scatters the buttons. Anchor both to
-    -- the holder's LEFT at precomputed offsets.
-    local GLOW_COL_GAP = 8
-    -- Reserve the trailing warning icon (4px gap + 14px icon) that these rows
-    -- render after the label, so the summary column clears it on the widest row.
-    local GLOW_INFO_ICON_RESERVE = 4 + 14
-    local glowLabelWidth = Components.MeasureSharedLabelWidth({
-        L["Options.ExpiringGlow"],
-        L["Options.MissingGlow"],
-    }, "GameFontHighlightSmall", 0)
-    local glowNames = {}
-    for _, t in ipairs(BR.Glow.Types) do
-        tinsert(glowNames, t.name)
-    end
-    local glowSummaryWidth = Components.MeasureSharedLabelWidth(glowNames, "GameFontDisableSmall", 0)
-
-    for _, row in ipairs(GLOW_ROWS) do
-        local rowGlowHolder = Components.Checkbox(content, {
-            label = row.label,
-            tooltip = { title = row.label, desc = row.desc },
-            warningTooltip = {
-                title = L["Options.GlowReminderIcons.Title"],
-                desc = L["Options.GlowReminderIcons.CpuWarning"],
-            },
-            get = function()
-                local d = BR.profile.defaults
-                return d and d[row.enableKey] ~= false
-            end,
-            onChange = function(checked)
-                BR.Config.Set("defaults." .. row.enableKey, checked)
-                Components.RefreshAll()
-            end,
-        })
-
-        local summaryX = rowGlowHolder.labelOffset + glowLabelWidth + GLOW_INFO_ICON_RESERVE + GLOW_COL_GAP
-        local styleSummary = content:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
-        styleSummary:SetPoint("LEFT", rowGlowHolder, "LEFT", summaryX, 0)
-
-        local rowCustomizeBtn = CreateButton(content, L["Options.Customize"], function()
-            BR.Options.Dialogs.Glow.Show(nil, row.kind)
-        end)
-        rowCustomizeBtn:SetPoint("LEFT", rowGlowHolder, "LEFT", summaryX + glowSummaryWidth + GLOW_COL_GAP, 0)
-        rowCustomizeBtn:SetFrameLevel(rowGlowHolder:GetFrameLevel() + 5)
-
-        local function refreshGlowRow()
-            local d = BR.profile.defaults or {}
-            local typeIndex = d[row.typeKey] or row.typeFallback
-            local typeInfo = BR.Glow.Types[typeIndex]
-            styleSummary:SetText(typeInfo and typeInfo.name or "")
-        end
-        refreshGlowRow()
-        tinsert(BR.RefreshableComponents, { Refresh = refreshGlowRow })
-
-        layout:Add(rowGlowHolder, nil, COMPONENT_GAP)
-    end
-
-    -- Text size and color stay in this section, not in the geometry grid, even
-    -- though a category can override them. Font, outline and position have no
-    -- per-category override.
-    LayoutSectionHeader(layout, content, L["Options.Text"])
-    LayoutSectionNote(layout, content, L["Options.Text.Note"])
-
-    local textLabelWidth = Components.MeasureSharedLabelWidth({
-        L["Appearance.Text"],
-        L["Options.Font"],
-        L["Options.TextOutline"],
-        L["Options.TextPositions.MainText"],
-    })
-
-    local defTextStyleHolder = Components.TextStyleRow(content, defAccess, textLabelWidth)
+    local defTextStyleHolder = Components.TextStyleRow(content, defAccess, labelWidth)
     layout:Add(defTextStyleHolder, nil, COMPONENT_GAP)
 
     local defFontHolder = Components.Dropdown(content, {
         label = L["Options.Font"],
-        labelWidth = textLabelWidth,
+        labelWidth = labelWidth,
+        tooltip = { title = L["Options.Font"], desc = L["Options.AppliesEverywhere"] },
         options = BuildFontOptions(),
         width = TEXT_DD_W,
         maxItems = 15,
@@ -219,7 +184,8 @@ local function Build(content)
 
     local defOutlineHolder = Components.Dropdown(content, {
         label = L["Options.TextOutline"],
-        labelWidth = textLabelWidth,
+        labelWidth = labelWidth,
+        tooltip = { title = L["Options.TextOutline"], desc = L["Options.AppliesEverywhere"] },
         options = {
             { label = L["Options.TextOutline.None"], value = "NONE" },
             { label = L["Options.TextOutline.Outline"], value = "OUTLINE" },
@@ -252,93 +218,89 @@ local function Build(content)
     })
     slugOutlineHolder:SetPoint("LEFT", defOutlineHolder, "RIGHT", 2, 0)
 
-    local mainTextPosRow = CreateFrame("Frame", nil, content)
-    mainTextPosRow:SetSize(content:GetWidth(), 26)
+    -- ========================================================================
+    -- TEXT & OVERLAYS
+    -- ========================================================================
+    -- The main text has no Size column: Appearance > Text sets its size.
+    LayoutSectionHeader(layout, content, L["Options.TextOverlays"])
 
-    local mainTextZone = Components.ZonePicker(mainTextPosRow, {
+    local mainTextLW = Components.MeasureSharedLabelWidth({ L["Options.TextPositions.MainText"] })
+    Helpers.LayoutTextRow(layout, content, {
         label = L["Options.TextPositions.MainText"],
-        labelWidth = textLabelWidth,
-        verticalWidth = ZONE_VERTICAL_W,
-        alignWidth = ZONE_ALIGN_W,
-        get = function()
-            return select(1, BR.TextPositions.Get("count"))
-        end,
-        onChange = function(zone)
-            BR.Config.Set("defaults.textPositions.count.zone", zone)
-        end,
-    })
-    mainTextZone:SetPoint("TOPLEFT", mainTextPosRow, "TOPLEFT", 0, 0)
-
-    local mainTextOffsetX = Components.Slider(mainTextPosRow, {
-        label = L["Options.TextPositions.OffsetX.Short"],
-        labelWidth = 12,
-        sliderWidth = 60,
-        min = -40,
-        max = 40,
-        get = function()
-            local _, x = BR.TextPositions.Get("count")
-            return x
-        end,
-        onChange = function(val)
-            BR.Config.Set("defaults.textPositions.count.offsetX", val)
-        end,
-    })
-    mainTextOffsetX:SetPoint("LEFT", mainTextZone, "RIGHT", 12, 0)
-
-    local mainTextOffsetY = Components.Slider(mainTextPosRow, {
-        label = L["Options.TextPositions.OffsetY.Short"],
-        labelWidth = 12,
-        sliderWidth = 60,
-        min = -40,
-        max = 40,
-        get = function()
-            local _, _, y = BR.TextPositions.Get("count")
-            return y
-        end,
-        onChange = function(val)
-            BR.Config.Set("defaults.textPositions.count.offsetY", val)
-        end,
-    })
-    mainTextOffsetY:SetPoint("LEFT", mainTextOffsetX, "RIGHT", 8, 0)
-
-    layout:Add(mainTextPosRow, 26, COMPONENT_GAP)
-    LayoutSectionNote(layout, content, L["Options.TextPositions.MainText.Note"])
-
-    LayoutSectionHeader(layout, content, L["Options.ExpirationReminder"])
-
-    local thresholdLW = Components.MeasureSharedLabelWidth({
-        L["Options.Threshold"],
-        L["Options.PreKeyThreshold"],
+        labelWidth = mainTextLW,
+        tooltip = { title = L["Options.TextPositions.MainText"], desc = L["Options.TextPositions.MainText.Note"] },
+        zone = {
+            get = function()
+                return select(1, BR.TextPositions.Get("count"))
+            end,
+            set = function(zone)
+                BR.Config.Set("defaults.textPositions.count.zone", zone)
+            end,
+        },
+        offsets = {
+            min = -40,
+            max = 40,
+            getX = function()
+                local _, x = BR.TextPositions.Get("count")
+                return x
+            end,
+            setX = function(val)
+                BR.Config.Set("defaults.textPositions.count.offsetX", val)
+            end,
+            getY = function()
+                local _, _, y = BR.TextPositions.Get("count")
+                return y
+            end,
+            setY = function(val)
+                BR.Config.Set("defaults.textPositions.count.offsetY", val)
+            end,
+        },
     })
 
-    local function formatMinutes(val)
-        return val == 0 and L["Options.Off"] or (val .. " " .. L["Options.Min"])
+    -- ========================================================================
+    -- GLOW
+    -- ========================================================================
+    LayoutSectionHeader(layout, content, L["Options.Glow"])
+
+    local function readDefault(key, default)
+        local d = BR.profile.defaults
+        local value = d and d[key]
+        if value == nil then
+            return default
+        end
+        return value
     end
 
-    local defThresholdHolder = Components.Slider(content, {
-        label = L["Options.Threshold"],
-        labelWidth = thresholdLW,
-        min = 0,
-        max = 45,
-        step = 5,
-        get = MakeDefaultsGetter("expirationThreshold", 15),
-        formatValue = formatMinutes,
-        onChange = MakeDefaultsSetter("expirationThreshold"),
-    })
-    layout:Add(defThresholdHolder, nil, COMPONENT_GAP)
-
-    local preKeyThresholdHolder = Components.Slider(content, {
-        label = L["Options.PreKeyThreshold"],
-        labelWidth = thresholdLW,
-        tooltip = { title = L["Options.PreKeyThreshold"], desc = L["Options.PreKeyThreshold.Desc"] },
-        min = 0,
-        max = 60,
-        step = 5,
-        get = MakeDefaultsGetter("preKeyThreshold", 0),
-        formatValue = formatMinutes,
-        onChange = MakeDefaultsSetter("preKeyThreshold"),
-    })
-    layout:Add(preKeyThresholdHolder, nil, COMPONENT_GAP)
+    -- One row per glow kind, because each kind has its own enable key. A single
+    -- control for both keys hides a mixed state.
+    local glowLabelWidth, glowSummaryWidth =
+        Helpers.GlowColumns({ L["Options.ExpiringGlow"], L["Options.MissingGlow"] }, true)
+    local glowWarning = {
+        title = L["Options.GlowReminderIcons.Title"],
+        desc = L["Options.GlowReminderIcons.CpuWarning"],
+    }
+    local function AddGlowRow(label, desc, enableKey, kind)
+        Helpers.LayoutGlowRow(layout, content, {
+            label = label,
+            tooltip = { title = label, desc = desc },
+            warningTooltip = glowWarning,
+            labelWidth = glowLabelWidth,
+            summaryWidth = glowSummaryWidth,
+            kind = kind,
+            read = readDefault,
+            get = function()
+                return readDefault(enableKey, true) ~= false
+            end,
+            set = function(checked)
+                BR.Config.Set("defaults." .. enableKey, checked)
+            end,
+            onCustomize = function()
+                BR.Options.Dialogs.Glow.Show(nil, kind)
+            end,
+        })
+    end
+    AddGlowRow(L["Options.ExpiringGlow"], L["Options.ExpiringGlow.Desc"], "showExpirationGlow", "expiring")
+    AddGlowRow(L["Options.MissingGlow"], L["Options.MissingGlow.Desc"], "showMissingGlow", "missing")
 
     content:SetHeight(math.abs(layout:GetY()) + 20)
 end

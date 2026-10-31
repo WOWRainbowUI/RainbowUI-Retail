@@ -329,7 +329,6 @@ L["Externals.GroupBuffs"] = "团队增益"
 L["Externals.Movement"] = "移动加速"
 L["Externals.Aggro"] = "仇恨转移"
 L["Externals.Augmentation"] = "增效"
-L["Externals.DurationSize"] = "倒计时文字大小"
 L["Externals.Appearance"] = "外观"
 
 -- Page titles
@@ -534,8 +533,6 @@ L["Options.PetSpecIcon.Desc"] =
 L["Options.ShowItemTooltips"] = "显示物品提示信息"
 L["Options.ShowItemTooltips.Desc"] = "将鼠标悬停在消耗品图标上时显示物品详细信息。"
 L["Options.ShowBuffTooltips"] = "显示增益鼠标提示信息"
-L["Options.ShowBuffTooltips.Desc"] =
-    "当鼠标悬停在团队增益或特殊增益图标上时，显示法术提示信息以及提供该增益的职业。"
 L["Options.Behavior"] = "行为"
 L["Options.PetPassiveCombat"] = "仅在战斗中提示被动宠物"
 L["Options.PetPassiveCombat.Desc"] = "仅在战斗中显示被动宠物提示。禁用时则始终显示。"
@@ -690,8 +687,6 @@ L["Options.Override.Appearance.Desc"] =
     "为该类别覆盖全局外观默认值。\n关闭时，下方的各项控件将显示继承自“默认值”页面的数值。"
 L["Options.Override.Glow.Desc"] =
     "为该类别覆盖全局发光设置。\n关闭时，下方的各项控件将显示继承自“默认值”页面的数值。"
-L["Options.Override.Externals.Desc"] =
-    "为这些图标覆盖全局外观默认值。\n关闭时，尺寸、缩放、边框和间距控件将显示继承自“默认值”页面的数值。倒计时大小和方向始终是独立的。"
 L["Options.Customize"] = "自定义"
 L["Options.ResetPosition"] = "重置位置"
 L["Options.MasqueNote"] = "缩放和边框设置由Masque管理。"
