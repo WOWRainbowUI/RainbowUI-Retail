@@ -7,8 +7,8 @@ local BR = ns
 -- ============================================================================
 -- Sub-section appended to the consumable Visibility block: a toggle that
 -- overrides the normal visibility for buffs that do not require an item, plus
--- its own W/S/D/R picker. _Template.lua composes it immediately after
--- Sections.Visibility when category=="consumable".
+-- its own W/S/D/R picker. _Template.lua composes it as the last Visibility
+-- subsection when category=="consumable".
 
 local L = BR.L
 local Components = BR.Components
@@ -17,7 +17,7 @@ local Helpers = BR.Options.Helpers
 local UpdateDisplay = BR.Display.Update
 
 local COMPONENT_GAP = BR.Options.Constants.COMPONENT_GAP
-local SECTION_GAP = BR.Options.Constants.SECTION_GAP
+local DEPENDENT_INDENT = BR.Options.Constants.DEPENDENT_INDENT
 
 local FREE_VISIBILITY_DEFAULT = {
     openWorld = false,
@@ -47,7 +47,6 @@ local function Build(ctx, layout)
         return db.defaults.freeConsumableVisibility
     end
 
-    layout:Space(SECTION_GAP)
     Helpers.LayoutSubsectionHeader(layout, parent, L["Options.FreeConsumables"])
     Helpers.LayoutSubsectionNote(layout, parent, L["Options.FreeConsumables.Note"])
 
@@ -69,10 +68,18 @@ local function Build(ctx, layout)
     })
     layout:Add(freeOverrideHolder, nil, COMPONENT_GAP)
 
-    local INDENT = 12
-    layout:SetX(layout:GetX() + INDENT)
+    layout:SetX(layout:GetX() + DEPENDENT_INDENT)
 
-    local freeVisToggles = Components.VisibilityToggles(parent, {
+    -- While the override is off, one line replaces the whole toggle bar, and the
+    -- sections below move up.
+    local block = CreateFrame("Frame", nil, parent)
+    block:SetSize(parent:GetWidth(), 1)
+
+    local followNote = block:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
+    followNote:SetPoint("TOPLEFT", 0, 0)
+    followNote:SetText(L["Options.FreeConsumables.Follows"])
+
+    local freeVisToggles = Components.VisibilityToggles(block, {
         store = {
             getContent = function(key)
                 local vis = db.defaults and db.defaults.freeConsumableVisibility
@@ -99,19 +106,29 @@ local function Build(ctx, layout)
             UpdateDisplay()
         end,
     })
-    local origVisRefresh = freeVisToggles.Refresh
-    function freeVisToggles:Refresh()
-        origVisRefresh(self)
-        local enabled = IsFreeOverride()
-        self:SetAlpha(enabled and 1 or 0.4)
-        for _, btn in ipairs(self.allToggleButtons) do
-            btn:EnableMouse(enabled)
-        end
-    end
+    freeVisToggles:SetPoint("TOPLEFT", 0, 0)
     table.insert(BR.RefreshableComponents, freeVisToggles)
-    layout:Add(freeVisToggles, nil, COMPONENT_GAP)
 
-    layout:SetX(layout:GetX() - INDENT)
+    local NOTE_HEIGHT = 14
+    local function BlockHeight()
+        return IsFreeOverride() and freeVisToggles:GetHeight() or NOTE_HEIGHT
+    end
+
+    local shownOverride
+    function block:Refresh()
+        local override = IsFreeOverride()
+        freeVisToggles:SetShown(override)
+        followNote:SetShown(not override)
+        if shownOverride ~= nil and shownOverride ~= override then
+            ctx.relayout()
+        end
+        shownOverride = override
+    end
+    block:Refresh()
+    table.insert(BR.RefreshableComponents, block)
+    layout:AddDynamic(block, BlockHeight, COMPONENT_GAP)
+
+    layout:SetX(layout:GetX() - DEPENDENT_INDENT)
 end
 
 BR.Options.BuffSections.FreeConsumables = Build

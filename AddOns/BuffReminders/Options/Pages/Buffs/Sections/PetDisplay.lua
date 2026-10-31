@@ -5,8 +5,8 @@ local BR = ns
 -- ============================================================================
 -- BUFF PAGE SECTION: Pet Display (pet category only)
 -- ============================================================================
--- Display mode (generic vs expanded), pet labels (toggle + scale + per-class
--- segmented bar).
+-- Display mode (generic vs expanded) with a live preview. The file also exports
+-- the pet label rows for Text & overlays.
 
 local L = BR.L
 local Components = BR.Components
@@ -15,10 +15,10 @@ local TEXCOORD_INSET = BR.TEXCOORD_INSET
 
 local UpdateDisplay = BR.Display.Update
 
-local LayoutSectionHeader = BR.Options.Helpers.LayoutSectionHeader
+local Helpers = BR.Options.Helpers
+local LayoutSectionHeader = Helpers.LayoutSectionHeader
 
 local COMPONENT_GAP = BR.Options.Constants.COMPONENT_GAP
-local SECTION_GAP = BR.Options.Constants.SECTION_GAP
 
 local function Build(ctx, layout)
     local parent = ctx.content
@@ -132,162 +132,142 @@ local function Build(ctx, layout)
         updatePetDisplayModePreview(BR.Config.Get("defaults.petDisplayMode"))
     end
     table.insert(BR.RefreshableComponents, petPreviewHolder)
+end
 
-    local petLabelsHolder = Components.Checkbox(parent, {
-        label = L["Options.PetLabels"],
-        get = function()
-            return BR.Config.Get("defaults.petLabels")
-        end,
-        tooltip = {
-            title = L["Options.PetLabels"],
-            desc = L["Options.PetLabels.Desc"],
-        },
-        onChange = function(checked)
-            BR.Config.Set("defaults.petLabels", checked)
-            Components.RefreshAll()
-        end,
-    })
-    layout:Add(petLabelsHolder, nil, COMPONENT_GAP)
-
-    local petLabelScaleHolder = Components.NumericStepper(petLabelsHolder, {
-        label = L["Options.PetLabels.SizePct"],
-        labelWidth = 36,
-        min = 50,
-        max = 200,
-        step = 10,
-        get = function()
-            return BR.Config.Get("defaults.petLabelScale")
-        end,
-        enabled = function()
-            return BR.Config.Get("defaults.petLabels")
-        end,
-        onChange = function(val)
-            BR.Config.Set("defaults.petLabelScale", val)
-        end,
-    })
-    petLabelScaleHolder:SetPoint("LEFT", petLabelsHolder, "LEFT", 90, 0)
-
-    local function classColor(cls)
-        local c = RAID_CLASS_COLORS and RAID_CLASS_COLORS[cls]
-        if c then
-            return { c.r, c.g, c.b }
-        end
-        return { 0.5, 0.5, 0.5 }
-    end
-
-    local petClassBar, petClassButtons = Components.CreateSegmentedBar(petLabelsHolder, {
-        toggleDefs = {
-            {
-                key = "HUNTER",
-                label = "H",
-                tooltip = { title = L["Class.Hunter"] },
-                color = classColor("HUNTER"),
-            },
-            {
-                key = "WARLOCK",
-                label = "W",
-                tooltip = { title = L["Class.Warlock"] },
-                color = classColor("WARLOCK"),
-            },
-            {
-                key = "DEATHKNIGHT",
-                label = "D",
-                tooltip = { title = L["Class.DeathKnight"] },
-                color = classColor("DEATHKNIGHT"),
-            },
-            { key = "MAGE", label = "M", tooltip = { title = L["Class.Mage"] }, color = classColor("MAGE") },
-        },
-        getState = function(key)
-            local vis = BR.profile.defaults.petLabelClasses
-            return not vis or vis[key] ~= false
-        end,
-        setState = function(key)
-            if not BR.profile.defaults.petLabelClasses then
-                BR.profile.defaults.petLabelClasses = {
-                    HUNTER = true,
-                    WARLOCK = true,
-                    DEATHKNIGHT = true,
-                    MAGE = true,
-                }
-            end
-            BR.profile.defaults.petLabelClasses[key] = not BR.profile.defaults.petLabelClasses[key]
-        end,
-        onChange = function()
-            UpdateDisplay()
-        end,
-    })
-    petClassBar:SetPoint("LEFT", petLabelScaleHolder, "RIGHT", 8, 0)
+---Text & overlays rows for the pet icons: the pet label row, then its class
+---filter. Every key is global, because only this category draws pet labels.
+local function BuildOverlays(ctx, layout)
+    local parent = ctx.content
 
     local function isPetLabelsEnabled()
-        return BR.Config.Get("defaults.petLabels")
+        return BR.Config.Get("defaults.petLabels") == true
     end
-    petClassBar:SetBarDisabled(not isPetLabelsEnabled())
 
-    local petClassBarRefreshHolder = CreateFrame("Frame", nil, petLabelsHolder)
-    petClassBarRefreshHolder:SetSize(1, 1)
-    function petClassBarRefreshHolder:Refresh()
-        petClassBar:SetBarDisabled(not isPetLabelsEnabled())
-        for _, btn in ipairs(petClassButtons) do
-            btn.UpdateVisual()
-        end
-    end
-    table.insert(BR.RefreshableComponents, petClassBarRefreshHolder)
+    local labelWidth = ctx.overlayLabelWidth
 
     -- The zone and the offsets move the pet *name* text only. The family and
     -- spirit-beast lines keep their relative anchors below the name.
-    local petLabelPosRow = CreateFrame("Frame", nil, parent)
-    petLabelPosRow:SetSize(parent:GetWidth(), 26)
-
-    local petLabelZone = Components.ZonePicker(petLabelPosRow, {
-        label = L["Options.TextPositions.Zone"],
-        labelWidth = 70,
+    local petLabelOff = {
         get = function()
-            return select(1, BR.TextPositions.Get("petLabel"))
+            return not isPetLabelsEnabled()
         end,
-        enabled = isPetLabelsEnabled,
-        onChange = function(zone)
-            BR.Config.Set("defaults.textPositions.petLabel.zone", zone)
+        set = function(off)
+            BR.Config.Set("defaults.petLabels", not off)
         end,
+    }
+    Helpers.LayoutTextRow(layout, parent, {
+        label = L["Options.PetLabels"],
+        labelWidth = labelWidth,
+        zone = {
+            get = function()
+                return select(1, BR.TextPositions.Get("petLabel"))
+            end,
+            set = function(zone)
+                BR.Config.Set("defaults.textPositions.petLabel.zone", zone)
+            end,
+            off = petLabelOff,
+        },
+        isOff = petLabelOff.get,
+        size = {
+            min = 50,
+            max = 200,
+            step = 10,
+            format = function(val)
+                return val .. "%"
+            end,
+            get = function()
+                return BR.Config.Get("defaults.petLabelScale")
+            end,
+            set = function(val)
+                BR.Config.Set("defaults.petLabelScale", val)
+            end,
+        },
+        offsets = {
+            min = -40,
+            max = 40,
+            getX = function()
+                local _, x = BR.TextPositions.Get("petLabel")
+                return x
+            end,
+            setX = function(val)
+                BR.Config.Set("defaults.textPositions.petLabel.offsetX", val)
+            end,
+            getY = function()
+                local _, _, y = BR.TextPositions.Get("petLabel")
+                return y
+            end,
+            setY = function(val)
+                BR.Config.Set("defaults.textPositions.petLabel.offsetY", val)
+            end,
+        },
     })
-    petLabelZone:SetPoint("TOPLEFT", petLabelPosRow, "TOPLEFT", 0, 0)
 
-    local petLabelOffsetX = Components.Slider(petLabelPosRow, {
-        label = L["Options.TextPositions.OffsetX.Short"],
-        labelWidth = 12,
-        sliderWidth = 60,
-        min = -40,
-        max = 40,
-        get = function()
-            local _, x = BR.TextPositions.Get("petLabel")
-            return x
-        end,
-        enabled = isPetLabelsEnabled,
-        onChange = function(val)
-            BR.Config.Set("defaults.textPositions.petLabel.offsetX", val)
-        end,
-    })
-    petLabelOffsetX:SetPoint("LEFT", petLabelZone, "RIGHT", 12, 0)
+    -- One checkbox per pet class, in the class color. The row label shares the
+    -- column of the other rows, so the row reads as a sibling of Pet labels.
+    local PET_CLASSES = {
+        { key = "HUNTER", label = L["Class.Hunter"] },
+        { key = "WARLOCK", label = L["Class.Warlock"] },
+        { key = "DEATHKNIGHT", label = L["Class.DeathKnight"] },
+        { key = "MAGE", label = L["Class.Mage"] },
+    }
 
-    local petLabelOffsetY = Components.Slider(petLabelPosRow, {
-        label = L["Options.TextPositions.OffsetY.Short"],
-        labelWidth = 12,
-        sliderWidth = 60,
-        min = -40,
-        max = 40,
-        get = function()
-            local _, _, y = BR.TextPositions.Get("petLabel")
-            return y
-        end,
-        enabled = isPetLabelsEnabled,
-        onChange = function(val)
-            BR.Config.Set("defaults.textPositions.petLabel.offsetY", val)
-        end,
-    })
-    petLabelOffsetY:SetPoint("LEFT", petLabelOffsetX, "RIGHT", 8, 0)
+    local classRow = CreateFrame("Frame", nil, parent)
+    classRow:SetSize(parent:GetWidth(), 22)
+    local classLabel = classRow:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    classLabel:SetPoint("LEFT", 0, 0)
+    classLabel:SetWidth(labelWidth)
+    classLabel:SetJustifyH("LEFT")
+    classLabel:SetText(L["Options.PetLabels.Classes"])
+    -- One tooltip for the row, on its label, explains every checkbox.
+    local classLabelHover = CreateFrame("Frame", nil, classRow)
+    classLabelHover:SetPoint("LEFT", 0, 0)
+    classLabelHover:SetSize(classLabel:GetStringWidth() + 4, 20)
+    classLabelHover:EnableMouse(true)
+    BR.SetupTooltip(classLabelHover, L["Options.PetLabels.Classes"], L["Options.PetLabels.Classes.Desc"])
 
-    layout:Add(petLabelPosRow, 26, COMPONENT_GAP)
+    local function isClassShown(key)
+        local vis = BR.profile.defaults.petLabelClasses
+        return not vis or vis[key] ~= false
+    end
 
-    layout:Space(SECTION_GAP)
+    local previous
+    for _, class in ipairs(PET_CLASSES) do
+        local color = RAID_CLASS_COLORS and RAID_CLASS_COLORS[class.key]
+        local text = color and color:WrapTextInColorCode(class.label) or class.label
+        local holder = Components.Checkbox(classRow, {
+            label = text,
+            holderWidth = Components.MeasureSharedLabelWidth({ class.label }, "GameFontHighlightSmall", 0) + 30,
+            enabled = isPetLabelsEnabled,
+            disabledReason = L["DisabledReason.PetLabelsOff"],
+            get = function()
+                return isClassShown(class.key)
+            end,
+            onChange = function(checked)
+                local defaults = BR.profile.defaults
+                if not defaults.petLabelClasses then
+                    defaults.petLabelClasses = { HUNTER = true, WARLOCK = true, DEATHKNIGHT = true, MAGE = true }
+                end
+                defaults.petLabelClasses[class.key] = checked
+                UpdateDisplay()
+            end,
+        })
+        if previous then
+            holder:SetPoint("LEFT", previous, "RIGHT", 10, 0)
+        else
+            holder:SetPoint("LEFT", classRow, "LEFT", labelWidth + 5, 0)
+        end
+        previous = holder
+    end
+
+    function classRow:Refresh()
+        local enabled = isPetLabelsEnabled()
+        classLabel:SetTextColor(enabled and 1 or 0.5, enabled and 1 or 0.5, enabled and 1 or 0.5)
+    end
+    classRow:Refresh()
+    table.insert(BR.RefreshableComponents, classRow)
+
+    layout:Add(classRow, 22, COMPONENT_GAP)
 end
 
 BR.Options.BuffSections.PetDisplay = Build
+BR.Options.BuffSections.PetOverlays = BuildOverlays

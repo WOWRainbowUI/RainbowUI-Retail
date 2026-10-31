@@ -142,6 +142,14 @@ end
 
 local durationFormatter
 
+-- dx/dy point away from the icon and scale the border gap.
+local CASTER_NAME_SIDES = {
+    TOP = { from = "BOTTOM", to = "TOP", justify = "CENTER", dx = 0, dy = 1 },
+    BOTTOM = { from = "TOP", to = "BOTTOM", justify = "CENTER", dx = 0, dy = -1 },
+    LEFT = { from = "RIGHT", to = "LEFT", justify = "RIGHT", dx = -1, dy = 0 },
+    RIGHT = { from = "LEFT", to = "RIGHT", justify = "LEFT", dx = 1, dy = 0 },
+}
+
 ---Apply the configured look to one button. The call is legal at frame creation only.
 ---A later call is denied while auras are secret, so callers pcall it.
 local function StyleButton(button)
@@ -187,6 +195,25 @@ local function StyleButton(button)
     else
         regions.border:Hide()
     end
+
+    -- Blizzard writes the caster, whose identity is secret in restricted contexts.
+    local casterName = regions.casterName
+    local anchor = CASTER_NAME_SIDES[Setting("casterNamePosition")] or CASTER_NAME_SIDES.BOTTOM
+    local gap = borderSize + 2
+    local x = anchor.dx * gap + (Setting("casterNameOffsetX") or 0)
+    local y = anchor.dy * gap + (Setting("casterNameOffsetY") or 0)
+    BR.DisplayFonts.Apply(casterName, Setting("casterNameSize") or 12)
+    casterName:ClearAllPoints()
+    if anchor.dy ~= 0 then
+        -- Two anchors cap the name at the icon width, and the missing word wrap
+        -- truncates it, so it never covers a neighbor in a row.
+        casterName:SetPoint(anchor.from .. "LEFT", button, anchor.to .. "LEFT", x, y)
+        casterName:SetPoint(anchor.from .. "RIGHT", button, anchor.to .. "RIGHT", x, y)
+    else
+        casterName:SetPoint(anchor.from, button, anchor.to, x, y)
+    end
+    casterName:SetJustifyH(anchor.justify)
+    regions.casterHost:SetShown(Setting("showCasterName") == true)
 
     -- Last, because these are the calls most likely to be denied: a denial must not
     -- cost the styling above. The engine draws the tooltip for an aura the addon
@@ -259,6 +286,14 @@ local function InitializeButton(button)
     regions.count = regions.textHost:CreateFontString(nil, "OVERLAY", "NumberFontNormalSmall")
     regions.count:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", -1, 1)
     button:SetApplicationCount(regions.count)
+
+    -- Registered once, like the countdown. The setting toggles this carrier, because
+    -- Blizzard owns the fontstring's own visibility once it writes the name.
+    regions.casterHost = CreateFrame("Frame", nil, regions.textHost)
+    regions.casterHost:SetAllPoints(button)
+    regions.casterName = regions.casterHost:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    regions.casterName:SetWordWrap(false)
+    button:SetCasterName(regions.casterName, { useClassColors = true })
 
     StyleButton(button)
 end

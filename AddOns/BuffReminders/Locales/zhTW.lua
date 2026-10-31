@@ -349,8 +349,7 @@ L["Externals.Boosts"] = "傷害 & 法力"
 L["Externals.Movement"] = "移動"
 L["Externals.Aggro"] = "威脅重定向"
 L["Externals.Augmentation"] = "強化"
-L["Externals.DurationSize"] = "倒數尺寸"
-L["Externals.Appearance"] = "外觀"
+
 L["Externals.AppearanceNote"] =
     "Changes made in combat apply as soon as you leave it. Unlock the frames to drag the row."
 L["Externals.ShowSwipe"] = "顯示持續時間轉圈"
@@ -411,12 +410,11 @@ L["Options.Preview"] = "預覽"
 -- ============================================================================
 -- OPTIONS: GLOBAL DEFAULTS
 -- ============================================================================
-L["Options.GlobalDefaults"] = "全局預設值"
+
 L["Options.GlobalDefaults.Note"] = "（套用於所有類別，除非被自訂外觀覆蓋）"
 L["Options.Default"] = "預設"
 L["Options.Text"] = "文字"
-L["Options.Text.Note"] =
-    "(每個類別：尺寸和顏色。任何地方：字體、外框、位置。)"
+
 L["Options.Font"] = "字體"
 L["Options.TextOutline"] = "外框樣式"
 L["Options.TextOutline.None"] = "無"
@@ -441,7 +439,7 @@ L["Options.MissingGlow.Desc"] = "增益完全缺失時發光圖示。"
 L["Options.GlowSettings.Expiring"] = "發光設置 — 即將過期"
 L["Options.GlowSettings.Missing"] = "發光設置 — 缺失"
 L["Options.Glow.Enabled"] = "啟用"
-L["Options.Threshold"] = "閾值"
+
 L["Options.GlowMissingPets"] = "缺失寵物發光"
 L["Options.Expiration"] = "過期"
 L["Options.Glow"] = "發光"
@@ -449,10 +447,9 @@ L["Options.UseCustomColor"] = "使用自訂顏色"
 L["Options.UseCustomColor.Desc"] =
     "啟用後會降低觸發發光的飽和度並更改顏色。\n可能看起來不如預設觸發發光清晰。"
 L["Options.ExpirationReminder"] = "過期提示"
-L["Options.Timing"] = "定時"
-L["Options.UseDefaultThreshold"] = "使用預設閾值"
-L["Options.UseDefaultThreshold.Desc"] =
-    "當勾選後，此類別遵循預設頁面中的全域過期閾值。\n取消選取以設定類別指定的閾值。"
+
+
+
 L["Options.PreKeyThreshold"] = "鑰石前閾值"
 L["Options.PreKeyThreshold.Desc"] =
     "當進入傳奇地下城(M0)於插入鑰石之前，使用較長的過期閾值。\n有助於確保在鑰石插入之前您的增益效果是新鮮的。"
@@ -519,18 +516,18 @@ L["Options.FreeConsumables.Override.Desc"] =
 -- OPTIONS: ICONS
 -- ============================================================================
 L["Options.Icons"] = "圖示"
-L["Options.ShowText"] = "在圖示上顯示文字"
-L["Options.ShowText.Desc"] = "在此分類的增益圖示上顯示數量與缺少增益的文字覆蓋層。到期倒數計時器將始終保持顯示。"
+
+
 L["Options.ShowMissingCountOnly"] = "僅顯示缺失數量"
 L["Options.ShowMissingCountOnly.Desc"] =
     "僅顯示缺失增益的數量（例如：”1“），而不是完整的分數形式（例如：”19/20“）。"
-L["Options.ShowBuffReminderText"] = "顯示“補BUFF”提示文字"
-L["Options.Size"] = "大小"
+
+
 
 -- ============================================================================
 -- OPTIONS: TEXT POSITIONS
 -- ============================================================================
-L["Options.TextPositions"] = "文字"
+
 L["Options.TextPositions.Zone"] = "位置"
 L["Options.TextPositions.OffsetX.Short"] = "X"
 L["Options.TextPositions.OffsetY.Short"] = "Y"
@@ -598,9 +595,7 @@ L["Options.PetSpecIcon.Desc"] =
 L["Options.ShowItemTooltips"] = "顯示物品提示訊息"
 L["Options.ShowItemTooltips.Desc"] = "將鼠標懸停在消耗品圖示上時顯示物品詳細訊息。"
 L["Options.ShowBuffTooltips"] = "顯示增益工具提示"
-L["Options.ShowBuffTooltips.Desc"] =
-    "將滑鼠懸停在團隊或職業增益圖示上時，顯示法術工具提示以及提供增益的職業。"
-L["Options.Behavior"] = "行為"
+
 L["Options.PetPassiveCombat"] = "僅在戰鬥中提示被動寵物"
 L["Options.PetPassiveCombat.Desc"] = "僅在戰鬥中顯示被動寵物提示。禁用時則始終顯示。"
 L["Options.FelDomination"] = "召喚前使用惡魔支配"
@@ -620,7 +615,7 @@ L["Options.PetDisplay.Mode"] = "寵物顯示模式"
 L["Options.PetDisplay.Mode.Desc"] = "設置缺失寵物提示的顯示方式。"
 L["Options.PetLabels"] = "寵物標簽"
 L["Options.PetLabels.Desc"] = "在每個圖示下方顯示寵物名稱和專精。"
-L["Options.PetLabels.SizePct"] = "尺寸占比 %"
+
 
 -- ============================================================================
 -- OPTIONS: CONSUMABLE DISPLAY
@@ -633,11 +628,10 @@ L["Options.ConsumableBadgeOnSubIcons"] = "在子圖示上顯示品質標記"
 L["Options.ConsumableBadgeOnSubIcons.Title"] = "品質標記在子圖示上"
 L["Options.ConsumableBadgeOnSubIcons.Desc"] =
     '在每個子圖示顯示食物品質字母 (例如 "澎"為澎湃，"普"為普通的)，而非只在主圖示。'
-L["Options.ConsumableBadgeOnSubIcons.Disabled"] = "只適用於子圖示顯示模式。"
-L["Options.HideConsumableLabels"] = "隱藏屬性標籤"
-L["Options.HideConsumableLabels.Title"] = "隱藏消耗品屬性標籤"
-L["Options.HideConsumableLabels.Desc"] =
-    '隱藏顯示在消耗品圖示左上的小屬性標籤 (例如 "高主屬"、"低次屬")。'
+
+
+
+
 L["Options.ItemDisplay"] = "物品顯示"
 L["Options.ItemDisplay.IconOnly"] = "僅圖示"
 L["Options.ItemDisplay.IconOnlyDesc"] = "顯示數量最多的物品"
@@ -770,8 +764,7 @@ L["Options.Override.Appearance.Desc"] =
     "覆寫此類別的全域外觀預設值。 \n關閉時，下方的控制項顯示從「預設值」頁面繼承的值。"
 L["Options.Override.Glow.Desc"] =
     "覆寫此類別的全域發光設定。 \n關閉時，下方的控制項顯示從「預設值」頁面繼承的值。"
-L["Options.Override.Externals.Desc"] =
-    "覆蓋這些圖示的全域外觀預設值。\n關閉時，大小、縮放、邊框和間距控制顯示從「預設值」頁面繼承的值。倒數計時的大小和方向總是分開的。"
+
 L["Options.Customize"] = "自訂"
 L["Options.ResetPosition"] = "重置位置"
 L["Options.MasqueNote"] = "縮放和邊框設置由Masque管理。"
@@ -1107,17 +1100,14 @@ L["Component.AdjustValue.Desc"] = "點擊輸入或使用鼠標滾輪。"
 L["Component.AdjustValue.ClickHint"] = "點擊數字即可輸入具體數值"
 
 -- Sciope tag for globally-stored controls on category pages
-L["Options.GlobalTag"] = "全局"
-L["Options.GlobalTag.Title"] = "隨處套用"
-L["Options.GlobalTag.Desc"] =
-    "此設定會為整個插件儲存一次。 \n在此處更改它會更改每個類別的設置，而不僅僅是此類。"
+
+
+
 
 -- Disabled-control explanations
 L["Component.DisabledReason.Title"] = "為什麼這個被禁用了？"
-L["DisabledReason.GrowDirection"] =
-    '增長方向需要類別有自己的獨立框架。\n首先在佈局部分啟用"分離成單獨的框架"。'
-L["DisabledReason.ResetPosition"] =
-    '只有分離的類別才有自己的定位。\n首先啟用"分離成單獨的框架"。'
+
+
 L["DisabledReason.OverrideSection"] = "首先開啟本部分頂部的「覆蓋」。"
 L["DisabledReason.CombatOverride"] =
     '上面"戰鬥中"隱藏已啟用，因此戰鬥中不會顯示任何內容，且此覆蓋不會產生任何效果。\n取消勾選以使用戰鬥追踪覆蓋。'
@@ -1126,8 +1116,8 @@ L["DisabledReason.LevelingOverride"] =
 L["DisabledReason.ExpiringInCombat"] = '"戰鬥中"隱藏已啟用，所以在戰鬥中一切都被隱藏了。'
 L["DisabledReason.HealthstoneThreshold"] = '請先啟用"低時發出警告"。'
 L["DisabledReason.ClickToCast"] = '請先啟用"點擊施法"。'
-L["DisabledReason.UseDefaultThreshold"] = "取消選取“使用預設閾值”以設定類別特定的值。"
-L["DisabledReason.StatLabelsHidden"] = '請先取消選取"隱藏屬性標籤"。'
+
+
 
 -- Direction labels
 L["Direction.Left"] = "左側"
@@ -1192,3 +1182,31 @@ L["Label.WaterElemental"] = "水元素"
 L["BuffPanel.WarlockDemon.Warn.Desc"] = "目前召喚的惡魔不在此內容允許的惡魔之列時，顯示「錯誤的惡魔」提醒。"
 
 L["BuffPanel.WarlockDemon.Hint"] = "點擊惡魔以允許召喚，可同時允許多個。清空某一列時，該內容將允許所有惡魔。"
+
+-- v6.10.0 新增與調整的顯示文字
+L["Display.LoginCasterName"] = "外部增益現在可以顯示施放者。請到 |cFFFFD100/br|r > 類別 > 外部增益啟用。"
+L["Externals.Countdown"] = "倒數計時"
+L["Externals.CasterName"] = "施放者名稱"
+L["Externals.CasterName.Desc"] = "在圖示旁以職業顏色顯示增益施放者。"
+L["Externals.CasterNameOff"] = "請先選擇施放者名稱的顯示位置。"
+L["Options.AppliesEverywhere"] = "套用至所有類別，各類別無法覆寫。"
+L["Options.ExpirationWarning"] = "剩餘時間低於此值時提醒"
+L["Options.Override.Expiration.Desc"] = "設定此類別的提醒時間。關閉時使用預設值頁面的時間。"
+L["Options.FreeConsumables.Follows"] = "依照上方的顯示場合篩選條件。"
+L["Options.ShowTextToggle"] = "顯示"
+L["Options.MainText.Desc"] = "在圖示上顯示主要文字，例如 17/20 的數量或「沒有寵物」標籤。位置由預設值頁面設定，過期倒數計時一律顯示。"
+L["Options.TextPositions.Offset"] = "偏移"
+L["Options.Interaction"] = "互動"
+L["Options.TextOverlays"] = "文字與疊加效果"
+L["Options.BuffReminderText"] = "「增益！」文字"
+L["Options.ItemFilters"] = "物品"
+L["Options.Direction.Default"] = "預設"
+L["Options.Direction.Desc"] = "此框架圖示的排列方向。「預設」會依照預設值頁面的方向。"
+L["Options.ShowBuffTooltips.Desc"] = "滑鼠指向此類別的增益圖示時，顯示法術提示及提供增益的職業。"
+L["Options.PetLabels.Classes"] = "顯示標籤的職業"
+L["Options.PetLabels.Classes.Desc"] = "只在勾選職業的寵物上顯示寵物標籤。"
+L["Options.Override.Externals.Desc"] = "覆寫這些圖示的全域外觀預設值。\n關閉時，下方的圖示控制項顯示從預設值頁面繼承的值。方向、文字與滑鼠提示一律分開設定。"
+L["Options.Override.OpenDefaults"] = "開啟"
+L["DisabledReason.ShowWithoutItems"] = "請先啟用「不在背包中時也顯示」。"
+L["DisabledReason.PetLabelsOff"] = "請先選擇「寵物標籤」的位置。"
+L["DisabledReason.OverrideRow"] = "請先勾選此列的「覆寫」。"

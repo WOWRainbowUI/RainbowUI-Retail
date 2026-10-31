@@ -175,18 +175,40 @@ end
 ---@param isEnabledFn fun(): boolean Predicate driving the control's enabled state
 ---@param reason string|fun(): string Why the control is disabled and how to enable it
 function Components.AttachDisabledReason(holder, isEnabledFn, reason)
-    holder:EnableMouse(true)
-    holder:HookScript("OnEnter", function()
+    -- Always anchored to the holder, so the tooltip does not move while the
+    -- cursor crosses the parts of the control.
+    local function showReason()
         if isEnabledFn() then
             return
         end
         ShowTooltip(holder, L["Component.DisabledReason.Title"], ResolveDisabledReason(reason), "ANCHOR_TOP")
-    end)
+    end
+
+    holder:EnableMouse(true)
+    holder:HookScript("OnEnter", showReason)
     holder:HookScript("OnLeave", function()
         if not isEnabledFn() then
             HideTooltip()
         end
     end)
+
+    -- A part that takes the mouse (a value box, a slider thumb, a label with its
+    -- own tooltip) hides the holder from the cursor. Its own tooltip runs first,
+    -- then this hook replaces it with the reason while the control is disabled.
+    local function hookParts(frame)
+        for _, child in ipairs({ frame:GetChildren() }) do
+            if child:IsMouseEnabled() then
+                child:HookScript("OnEnter", showReason)
+            end
+            hookParts(child)
+        end
+        for _, region in ipairs({ frame:GetRegions() }) do
+            if region.IsMouseEnabled and region.HookScript and region:IsMouseEnabled() then
+                region:HookScript("OnEnter", showReason)
+            end
+        end
+    end
+    hookParts(holder)
 end
 
 -- ============================================================================
@@ -354,6 +376,7 @@ end
 
 ---@class ComponentConfig
 ---@field disabledReason? string|fun(): string Shown on hover while the control is disabled: why, and where to change it
+---@field inherited? fun(): boolean True while the value follows the Defaults page: a disabled control keeps the value readable
 ---@class SliderConfig : ComponentConfig
 ---@field label string Display label for the slider
 ---@field min number Minimum value
@@ -729,7 +752,9 @@ function Components.Slider(parent, config)
         isEnabled = enabled
         local color = enabled and 1 or 0.5
         label:SetTextColor(color, color, color)
-        valueText:SetTextColor(color, color, color)
+        -- An inherited value is real and applies, so it stays readable.
+        local valueColor = (enabled or (config.inherited and config.inherited())) and 1 or 0.5
+        valueText:SetTextColor(valueColor, valueColor, valueColor)
         UpdateVisual()
     end
 
@@ -1826,6 +1851,11 @@ end
 ---@field enabled? fun(): boolean
 ---@field disabledReason? string|fun(): string Hover text while `enabled` returns false
 ---@field onChange fun(zone: string)
+---@field off? TextOffToggle Adds "Off" as the first position
+
+---@class TextOffToggle
+---@field get fun(): boolean True while the text is hidden
+---@field set fun(off: boolean) Writes the show/hide flag the text owns
 
 -- Each Dropdown holder reserves an extra 10px past its `width` for the
 -- chevron + internal padding (see Components.Dropdown). The container has
@@ -1882,20 +1912,48 @@ function Components.ZonePicker(parent, config)
         return (config.get and config.get()) or "INSIDE_C"
     end
 
+    local off = config.off --[[@as TextOffToggle?]]
+    local function isOff()
+        return off ~= nil and off.get() == true
+    end
+
+    local verticalOptions = ZONE_PICKER_VERTICAL_OPTIONS
+    if off then
+        verticalOptions = { { value = "OFF", label = L["Options.Off"] } }
+        for _, opt in ipairs(ZONE_PICKER_VERTICAL_OPTIONS) do
+            verticalOptions[#verticalOptions + 1] = opt
+        end
+    end
+
     local verticalDD = Components.Dropdown(holder, {
         label = "",
         labelWidth = 0,
         width = V_W,
-        options = ZONE_PICKER_VERTICAL_OPTIONS,
+        options = verticalOptions,
         get = function()
+            if isOff() then
+                return "OFF"
+            end
             local v = BR.TextPositions.ToVA(currentZone())
             return v
         end,
         enabled = config.enabled,
         onChange = function(v)
+            if off and v == "OFF" then
+                off.set(true)
+                Components.RefreshAll()
+                return
+            end
+            local wasOff = isOff()
+            if off and wasOff then
+                off.set(false)
+            end
             local _, a = BR.TextPositions.ToVA(currentZone())
             if config.onChange then
                 config.onChange(BR.TextPositions.FromVA(v, a))
+            end
+            if wasOff then
+                Components.RefreshAll()
             end
         end,
     })
@@ -1933,9 +1991,10 @@ function Components.ZonePicker(parent, config)
         else
             itemLabel:SetTextColor(unpack(ZONE_PICKER_LABEL_DISABLED_COLOR))
         end
+        alignDD:SetShown(not isOff())
     end
 
-    if config.get or config.enabled then
+    if config.get or config.enabled or off then
         tinsert(RefreshableComponents, holder)
     end
 
@@ -2764,7 +2823,7 @@ end
 
 ---Create a compact numeric stepper with [-] value [+] buttons
 ---@param parent table Parent frame
----@param config table Configuration: label, min, max, step?, labelWidth?, get?, enabled?, onChange?, formatValue?
+---@param config table Configuration: label, min, max, step?, labelWidth?, get?, enabled?, inherited?, onChange?, formatValue?, tooltip?
 ---@return table holder Frame with .SetValue(n), .GetValue(), .SetEnabled(bool), .Refresh()
 function Components.NumericStepper(parent, config)
     local step = config.step or 1
@@ -2800,6 +2859,13 @@ function Components.NumericStepper(parent, config)
     label:SetJustifyH("LEFT")
     label:SetText(config.label)
     holder.label = label
+
+    if config.tooltip then
+        local labelHover = CreateFrame("Frame", nil, holder)
+        labelHover:SetAllPoints(label)
+        labelHover:EnableMouse(true)
+        SetupTooltip(labelHover, config.tooltip.title, config.tooltip.desc, "ANCHOR_TOP")
+    end
 
     local currentValue = config.min or 0
     if config.get then
@@ -2993,7 +3059,8 @@ function Components.NumericStepper(parent, config)
         isEnabled = enabled
         local color = enabled and 1 or 0.5
         label:SetTextColor(color, color, color)
-        valueText:SetTextColor(color, color, color)
+        local valueColor = (enabled or (config.inherited and config.inherited())) and 1 or 0.5
+        valueText:SetTextColor(valueColor, valueColor, valueColor)
         if enabled then
             UpdateButtonStates()
         else
@@ -3444,6 +3511,11 @@ end
 ---@field onUnlink fun()                            Called when user unlinks dimensions
 ---@field enabled? fun(): boolean                   Wraps all controls (nil = always enabled)
 ---@field masqueCheck? fun(): boolean               Returns true when Masque is active (disables zoom/border)
+---@field inherited? fun(): boolean                 True while the values follow the Defaults page
+---@field disabledReason? string|fun(): string     Hover text while `enabled` returns false
+---@field labelWidth? number                        Shared label column; omitted = measured from the grid labels
+---@field spacingPx? boolean                       Spacing in absolute pixels (0-32), not a fraction of the icon width
+---@field zoomMax? number                           Zoom slider maximum (default 15)
 
 ---Text size stepper + color swatch on one row. The swatch writes textColor and
 ---textAlpha as a pair.
@@ -3463,6 +3535,8 @@ function Components.TextStyleRow(parent, config, labelWidth)
             return config.get("textSize", BR.defaults.defaults.textSize)
         end,
         enabled = enabled,
+        inherited = config.inherited,
+        disabledReason = config.disabledReason,
         onChange = function(val)
             config.set("textSize", val)
         end,
@@ -3492,7 +3566,7 @@ end
 ---Create a 2-column appearance grid with standard layout
 ---@param parent Frame
 ---@param config AppearanceGridConfig
----@return {frame: Frame, height: number, holders: table}
+---@return {frame: Frame, height: number, holders: table, labelWidth: number}
 function Components.AppearanceGrid(parent, config)
     -- Compute label width from the longest row label so columns align
     -- regardless of locale or font replacement. The grid is icon geometry only;
@@ -3512,6 +3586,7 @@ function Components.AppearanceGrid(parent, config)
             LW = w
         end
     end
+    LW = max(LW, config.labelWidth or 0)
 
     -- Conservative value-box width estimate: sliders auto-size their own value
     -- text but COL2 needs to clear the widest possible col-1 right edge so
@@ -3539,6 +3614,24 @@ function Components.AppearanceGrid(parent, config)
         return baseEnabled() and (not masqueCheck or not masqueCheck())
     end
 
+    -- Masque owns zoom and border, so they are neither inherited nor overridable.
+    local function masqueActive()
+        return masqueCheck ~= nil and masqueCheck()
+    end
+    local function masqueInherited()
+        return config.inherited ~= nil and config.inherited() and not masqueActive()
+    end
+    local function masqueDisabledReason()
+        if masqueActive() then
+            return L["Options.MasqueNote"]
+        end
+        local reason = config.disabledReason
+        if type(reason) == "function" then
+            return reason()
+        end
+        return reason
+    end
+
     -- Forward declarations for cross-refresh
     local widthHolder, heightHolder
 
@@ -3547,6 +3640,8 @@ function Components.AppearanceGrid(parent, config)
         min = 16,
         max = 128,
         labelWidth = LW,
+        inherited = config.inherited,
+        disabledReason = config.disabledReason,
         get = function()
             local w = config.get("iconWidth", nil)
             return w or config.get("iconSize", 64)
@@ -3578,6 +3673,8 @@ function Components.AppearanceGrid(parent, config)
         min = 16,
         max = 128,
         labelWidth = LW,
+        inherited = config.inherited,
+        disabledReason = config.disabledReason,
         get = function()
             return config.get("iconSize", 64)
         end,
@@ -3594,8 +3691,10 @@ function Components.AppearanceGrid(parent, config)
     local zoomHolder = Components.Slider(frame, {
         label = L["Appearance.Zoom"],
         min = 0,
-        max = 15,
+        max = config.zoomMax or 15,
         labelWidth = LW,
+        inherited = masqueInherited,
+        disabledReason = masqueDisabledReason,
         suffix = "%",
         get = function()
             return config.get("iconZoom", BR.DEFAULT_ICON_ZOOM)
@@ -3612,6 +3711,8 @@ function Components.AppearanceGrid(parent, config)
         min = 0,
         max = 8,
         labelWidth = LW,
+        inherited = masqueInherited,
+        disabledReason = masqueDisabledReason,
         suffix = "px",
         get = function()
             return config.get("borderSize", BR.DEFAULT_BORDER_SIZE)
@@ -3623,18 +3724,25 @@ function Components.AppearanceGrid(parent, config)
     })
     borderHolder:SetPoint("TOPLEFT", COL2, -ROW_H)
 
+    -- Spacing is a fraction of the icon width, or absolute pixels with spacingPx.
+    local spacingPx = config.spacingPx == true
     local spacingHolder = Components.Slider(frame, {
         label = L["Appearance.Spacing"],
         min = 0,
-        max = 50,
+        max = spacingPx and 32 or 50,
         labelWidth = LW,
-        suffix = "%",
+        inherited = config.inherited,
+        disabledReason = config.disabledReason,
+        suffix = spacingPx and "px" or "%",
         get = function()
+            if spacingPx then
+                return config.get("spacing", 4)
+            end
             return floor((config.get("spacing", 0.2)) * 100)
         end,
         enabled = enabled and baseEnabled or nil,
         onChange = function(val)
-            config.set("spacing", val / 100)
+            config.set("spacing", spacingPx and val or val / 100)
         end,
     })
     spacingHolder:SetPoint("TOPLEFT", 0, -ROW_H * 2)
@@ -3644,6 +3752,8 @@ function Components.AppearanceGrid(parent, config)
         min = 10,
         max = 100,
         labelWidth = LW,
+        inherited = config.inherited,
+        disabledReason = config.disabledReason,
         suffix = "%",
         get = function()
             return floor((config.get("iconAlpha", 1)) * 100)
@@ -3660,6 +3770,7 @@ function Components.AppearanceGrid(parent, config)
     return {
         frame = frame,
         height = GRID_HEIGHT,
+        labelWidth = LW,
         holders = {
             width = widthHolder,
             height = heightHolder,
@@ -3871,6 +3982,9 @@ function Components.VerticalLayout(parent, config)
     -- Every frame anchored through :Add/:AddText/:AddRow, so :ShiftAllBy can
     -- re-anchor the whole stack.
     local items = {}
+    -- Every advance in order, so :Reflow can replay the stack after a block
+    -- added with :AddDynamic changes height.
+    local steps = {}
 
     ---Add a component at the current Y position and advance
     ---@param component table Component frame to position
@@ -3885,7 +3999,20 @@ function Components.VerticalLayout(parent, config)
             component:FitHeight()
         end
         local advanceHeight = height or (component.GetHeight and component:GetHeight()) or 20
+        tinsert(steps, { frames = { component }, xs = { x }, height = advanceHeight, spacing = spacing or 0 })
         currentY = currentY - advanceHeight - (spacing or 0)
+    end
+
+    ---Add a component whose height can change after the build. Call :Reflow
+    ---after the change, so everything below it moves.
+    ---@param component table
+    ---@param heightFn fun(): number Current height to advance
+    ---@param spacing? number
+    function layout:AddDynamic(component, heightFn, spacing)
+        component:SetPoint("TOPLEFT", parent, "TOPLEFT", x, currentY)
+        tinsert(items, { frame = component, x = x, y = currentY })
+        tinsert(steps, { frames = { component }, xs = { x }, heightFn = heightFn, spacing = spacing or 0 })
+        currentY = currentY - heightFn() - (spacing or 0)
     end
 
     ---Add a font string at the current Y position and advance
@@ -3895,13 +4022,34 @@ function Components.VerticalLayout(parent, config)
     function layout:AddText(fontString, height, spacing)
         fontString:SetPoint("TOPLEFT", parent, "TOPLEFT", x, currentY)
         tinsert(items, { frame = fontString, x = x, y = currentY })
+        tinsert(steps, { frames = { fontString }, xs = { x }, height = height, spacing = spacing or 0 })
         currentY = currentY - height - (spacing or 0)
     end
 
     ---Add vertical space
     ---@param amount number Space to add
     function layout:Space(amount)
+        tinsert(steps, { height = amount, spacing = 0 })
         currentY = currentY - amount
+    end
+
+    ---Replay every advance with the current height of each :AddDynamic block.
+    ---A frame that the caller re-anchored to a sibling keeps its own anchor.
+    function layout:Reflow()
+        local cy = y
+        for _, step in ipairs(steps) do
+            if step.frames then
+                for i, frame in ipairs(step.frames) do
+                    local _, relativeTo = frame:GetPoint(1)
+                    if relativeTo == parent then
+                        frame:ClearAllPoints()
+                        frame:SetPoint("TOPLEFT", parent, "TOPLEFT", step.xs[i], cy)
+                    end
+                end
+            end
+            cy = cy - (step.heightFn and step.heightFn() or step.height) - step.spacing
+        end
+        currentY = cy
     end
 
     ---Get current Y position
@@ -3927,15 +4075,20 @@ function Components.VerticalLayout(parent, config)
     ---@param spacing? number Extra spacing after row (default 0)
     function layout:AddRow(rowItems, spacing)
         local maxH = 0
+        local step = { frames = {}, xs = {}, spacing = spacing or 0 }
         for _, item in ipairs(rowItems) do
             local comp, xOff = item[1], item[2]
             comp:SetPoint("TOPLEFT", parent, "TOPLEFT", xOff, currentY)
             tinsert(items, { frame = comp, x = xOff, y = currentY })
+            tinsert(step.frames, comp)
+            tinsert(step.xs, xOff)
             local h = (comp.GetHeight and comp:GetHeight()) or 20
             if h > maxH then
                 maxH = h
             end
         end
+        step.height = maxH
+        tinsert(steps, step)
         currentY = currentY - maxH - (spacing or 0)
     end
 

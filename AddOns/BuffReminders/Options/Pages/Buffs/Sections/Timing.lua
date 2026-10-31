@@ -3,31 +3,33 @@ local _, ns = ...
 local BR = ns
 
 -- ============================================================================
--- BUFF PAGE SECTION: Timing
+-- BUFF PAGE SECTION: Expiration (subsection of Visibility)
 -- ============================================================================
--- Per-category expiration threshold. This is a behavior setting, not an
--- appearance one. It uses the standard per-key fallback: the category value if
--- set, else the global default. It stays editable, independent of the
--- useCustomAppearance toggle. The checkbox models the inheritance explicitly:
--- checked = no category value stored (follow Defaults), unchecked = category
--- override materialized from the current effective value.
+-- Per-category expiration threshold. It uses the standard per-key fallback: the
+-- category value if set, else the global default, independent of the
+-- useCustomAppearance toggle. The group holds one control, so its Override sits
+-- on the same row: on = a category value materialized from the current
+-- effective value, off = nil (follow Defaults).
 
 local L = BR.L
 local Components = BR.Components
-
-local LayoutSectionHeader = BR.Options.Helpers.LayoutSectionHeader
+local Helpers = BR.Options.Helpers
 
 local COMPONENT_GAP = BR.Options.Constants.COMPONENT_GAP
-local COL_PADDING = BR.Options.Constants.COL_PADDING
 
 local function Build(ctx, layout)
     local category = ctx.category
     local parent = ctx.content
     local db = BR.profile
+    local path = "categorySettings." .. category .. ".expirationThreshold"
 
     local function getOwnThreshold()
         local catSettings = db.categorySettings and db.categorySettings[category]
         return catSettings and catSettings.expirationThreshold
+    end
+
+    local function isOverriding()
+        return getOwnThreshold() ~= nil
     end
 
     local function getEffectiveThreshold()
@@ -38,32 +40,10 @@ local function Build(ctx, layout)
         return db.defaults and db.defaults.expirationThreshold or 15
     end
 
-    LayoutSectionHeader(layout, parent, L["Options.Timing"])
+    Helpers.LayoutSubsectionHeader(layout, parent, L["Options.Expiration"])
 
-    local useDefaultHolder = Components.Checkbox(parent, {
-        label = L["Options.UseDefaultThreshold"],
-        get = function()
-            return getOwnThreshold() == nil
-        end,
-        tooltip = {
-            title = L["Options.UseDefaultThreshold"],
-            desc = L["Options.UseDefaultThreshold.Desc"],
-        },
-        onChange = function(checked)
-            if checked then
-                BR.Config.Set("categorySettings." .. category .. ".expirationThreshold", nil)
-            else
-                BR.Config.Set("categorySettings." .. category .. ".expirationThreshold", getEffectiveThreshold())
-            end
-            Components.RefreshAll()
-        end,
-    })
-    layout:Add(useDefaultHolder, nil, COMPONENT_GAP)
-
-    layout:SetX(COL_PADDING + 10)
     local thresholdHolder = Components.Slider(parent, {
-        label = L["Options.Expiration"],
-        labelWidth = 70,
+        label = L["Options.ExpirationWarning"],
         min = 0,
         max = 45,
         step = 5,
@@ -71,16 +51,29 @@ local function Build(ctx, layout)
             return val == 0 and L["Options.Off"] or (val .. " " .. L["Options.Min"])
         end,
         get = getEffectiveThreshold,
-        enabled = function()
-            return getOwnThreshold() ~= nil
+        enabled = isOverriding,
+        inherited = function()
+            return not isOverriding()
         end,
-        disabledReason = L["DisabledReason.UseDefaultThreshold"],
+        disabledReason = L["DisabledReason.OverrideRow"],
         onChange = function(val)
-            BR.Config.Set("categorySettings." .. category .. ".expirationThreshold", val)
+            BR.Config.Set(path, val)
         end,
     })
+
+    local overrideHolder = Components.Checkbox(parent, {
+        label = L["Options.Override"],
+        holderWidth = 120,
+        get = isOverriding,
+        tooltip = { title = L["Options.Override"], desc = L["Options.Override.Expiration.Desc"] },
+        onChange = function(checked)
+            BR.Config.Set(path, checked and getEffectiveThreshold() or nil)
+            Components.RefreshAll()
+        end,
+    })
+    overrideHolder:SetPoint("LEFT", thresholdHolder, "RIGHT", 12, 0)
+
     layout:Add(thresholdHolder, nil, COMPONENT_GAP)
-    layout:SetX(COL_PADDING)
 end
 
 BR.Options.BuffSections.Timing = Build

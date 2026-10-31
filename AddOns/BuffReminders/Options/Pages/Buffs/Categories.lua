@@ -84,7 +84,7 @@ local function Build(content, scrollFrame)
             return frame
         end
 
-        -- The resize hooks let CustomAppearance size the tab frame and grow the page.
+        -- The resize hooks let the template size the tab frame and grow the page.
         BR.Options.Pages.BuffTemplate.Build(frame, scrollFrame, cat, {
             appearancePadding = APPEARANCE_PADDING,
             onAppearanceResize = UpdatePageHeight,
@@ -144,6 +144,13 @@ local function Build(content, scrollFrame)
         else
             tab:SetPoint("TOPLEFT", strip, "TOPLEFT", COL_PADDING, -STRIP_TOP)
             firstTab = tab
+        end
+        if cat == EXTERNALS_TAB then
+            -- A corner badge: the tab padding is too narrow for a dot after the text.
+            local dot = BR.Options.WhatsNew.AttachDot(tab.text, "externals.casterName")
+            dot:ClearAllPoints()
+            dot:SetSize(8, 8)
+            dot:SetPoint("TOPRIGHT", tab, "TOPRIGHT", 0, 0)
         end
         tabs[cat] = tab
         prev = tab

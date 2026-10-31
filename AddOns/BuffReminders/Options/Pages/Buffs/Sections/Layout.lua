@@ -5,9 +5,14 @@ local BR = ns
 -- ============================================================================
 -- BUFF PAGE SECTION: Layout
 -- ============================================================================
--- Split-frame toggle + reset-position button. Cross-category display ordering
--- lives on the Defaults page (single ordered list across all non-split
--- categories) since priority is inherently a global decision.
+-- One row: the split-frame toggle, then the growth direction and the
+-- reset-position button. Both apply to a split frame only, so they hide, not dim,
+-- while the category is not split. Cross-category display ordering lives on the
+-- Defaults page (single ordered list across all non-split categories) since
+-- priority is inherently a global decision.
+--
+-- The direction is its own inherited key: nil follows the Defaults page,
+-- independent of the Appearance override.
 
 local L = BR.L
 local Components = BR.Components
@@ -23,6 +28,8 @@ local LayoutSectionHeader = Helpers.LayoutSectionHeader
 local SetCategorySetting = Helpers.SetCategorySetting
 
 local COMPONENT_GAP = BR.Options.Constants.COMPONENT_GAP
+
+local DIRECTION_DEFAULT = "DEFAULT"
 
 local function Build(ctx, layout)
     local category = ctx.category
@@ -45,12 +52,34 @@ local function Build(ctx, layout)
             -- Set call fires that event. Only the visuals need a redraw.
             SetCategorySetting(category, "split", checked)
             UpdateVisuals()
-            -- resetBtn and the Stacking Order list on the Layout page both read the
-            -- split state, so their gates must re-evaluate.
+            -- The direction, the reset button and the Stacking Order list on the
+            -- Layout page all read the split state.
             Components.RefreshAll()
         end,
     })
     layout:Add(splitHolder, nil, COMPONENT_GAP)
+
+    local directionHolder = Components.Dropdown(parent, {
+        label = L["Direction.Label"],
+        width = 110,
+        options = {
+            { label = L["Options.Direction.Default"], value = DIRECTION_DEFAULT },
+            { label = L["Direction.Left"], value = "LEFT" },
+            { label = L["Direction.Center"], value = "CENTER" },
+            { label = L["Direction.Right"], value = "RIGHT" },
+            { label = L["Direction.Up"], value = "UP" },
+            { label = L["Direction.Down"], value = "DOWN" },
+        },
+        tooltip = { title = L["Direction.Label"], desc = L["Options.Direction.Desc"] },
+        get = function()
+            local catSettings = BR.profile.categorySettings and BR.profile.categorySettings[category]
+            return catSettings and catSettings.layoutDirection or DIRECTION_DEFAULT
+        end,
+        onChange = function(dir)
+            SetCategorySetting(category, "layoutDirection", dir ~= DIRECTION_DEFAULT and dir or nil)
+        end,
+    })
+    directionHolder:SetPoint("LEFT", splitHolder.infoIcon or splitHolder.label, "RIGHT", 20, 0)
 
     local resetBtn = CreateButton(parent, L["Options.ResetPosition"], function()
         local catDefaults = defaults.categorySettings[category]
@@ -58,11 +87,16 @@ local function Build(ctx, layout)
             ResetCategoryFramePosition(category, catDefaults.position.x, catDefaults.position.y)
         end
     end)
-    resetBtn:SetPoint("LEFT", splitHolder, "RIGHT", 10, 0)
-    resetBtn:BindEnabled(function()
-        return IsCategorySplit(category)
-    end)
-    resetBtn:SetDisabledReason(L["DisabledReason.ResetPosition"])
+    resetBtn:SetPoint("LEFT", directionHolder, "RIGHT", 4, 0)
+
+    local splitDependents = CreateFrame("Frame", nil, parent)
+    function splitDependents:Refresh()
+        local split = IsCategorySplit(category)
+        directionHolder:SetShown(split)
+        resetBtn:SetShown(split)
+    end
+    splitDependents:Refresh()
+    table.insert(BR.RefreshableComponents, splitDependents)
 end
 
 BR.Options.BuffSections.Layout = Build

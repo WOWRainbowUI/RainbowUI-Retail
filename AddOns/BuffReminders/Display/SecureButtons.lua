@@ -561,10 +561,8 @@ local function CreateClickOverlay(frame)
         end
         -- The anchor is the overlay: the cursor is over the overlay, not over the
         -- buff frame below it.
-        if frame.buffCategory == "raid" or frame.buffCategory == "presence" then
-            if BR.Display.ShowBuffSpellTooltip then
-                BR.Display.ShowBuffSpellTooltip(frame, overlay)
-            end
+        if BR.Display.IsBuffTooltipOn(frame.buffCategory) then
+            BR.Display.ShowBuffSpellTooltip(frame, overlay)
         end
     end)
     overlay:HookScript("OnLeave", function()

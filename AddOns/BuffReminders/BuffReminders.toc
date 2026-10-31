@@ -3,7 +3,7 @@
 ## Title: BuffReminders
 ## Notes: Track missing buffs at a glance
 ## Author: zerbi
-## Version: v6.9.3
+## Version: v6.10.0
 ## SavedVariables: BuffRemindersDB
 ## X-Curse-Project-ID: 1441094
 ## X-Wago-ID: qGYZZjNg
@@ -83,7 +83,7 @@ Options\Pages\General.lua
 Options\Pages\Profiles.lua
 Options\Pages\Buffs\Sections\Visibility.lua
 Options\Pages\Buffs\Sections\FreeConsumables.lua
-Options\Pages\Buffs\Sections\Icons.lua
+Options\Pages\Buffs\Sections\Overlays.lua
 Options\Pages\Buffs\Sections\RaidIcons.lua
 Options\Pages\Buffs\Sections\ClickToCast.lua
 Options\Pages\Buffs\Sections\PetDisplay.lua

@@ -181,8 +181,13 @@ bootstrapFrame:SetScript("OnEvent", function(_, event, arg1)
         if isFirstInstall then
             -- A fresh install never had the dismiss button. Skip the transition notice.
             glob.snoozeNoticeShown = true
+            glob.casterNameNoticeShown = true
             print("|cff00ccffBuffReminders:|r " .. L["Display.LoginFirstInstall"])
             return
+        end
+        if BR.profile.showLoginMessages ~= false and not glob.casterNameNoticeShown then
+            glob.casterNameNoticeShown = true
+            print("|cff00ccffBuffReminders:|r " .. L["Display.LoginCasterName"])
         end
         -- Right-click and /br snooze replace the consumable dismiss button.
         -- An existing user gets this notice one time only.
