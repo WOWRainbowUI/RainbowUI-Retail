@@ -113,3 +113,15 @@ L["Recipes my other characters know"] = "其他角色已學會的配方"
 L["Plugin_TransmogLootHelper_Name"] = "Transmog Loot Helper"
 
 L["Plugin_TransmogLootHelper_Desc"] = "此整合會在翻頁、更改篩選或搜尋時，更新 Transmog Loot Helper 在商人物品上顯示的圖示。需要 Transmog Loot Helper 12.1.5-02 或更新版本。\n\n沒有可調整的選項。"
+
+-- v24.2
+L["Nothing to repair"] = "沒有需要修理的物品"
+L["Plugin_Scrap_Desc"] = "此整合會在經典版將 Scrap 按鈕保留在商人視窗內，位於修理按鈕旁。\n\n沒有可調整的選項。"
+L["Plugin_Scrap_Name"] = "Scrap"
+L["Repair all items with guild money"] = "使用公會資金修理所有物品"
+L["Reverse order"] = "反向排序"
+L["Sort by"] = "排序依據"
+L["Sort_GoldPrice"] = "金幣價格"
+L["Sort_Quality"] = "品質"
+L["Sort_TokenPrice"] = "代幣價格"
+L["Sort_Vendor"] = "商人原始順序"

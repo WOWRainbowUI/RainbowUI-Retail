@@ -5,7 +5,7 @@ KrowiEVU.PluginsApi:LoadPluginLocalization(L)
 
 -- [[ Everything after this line is automatically generated from CurseForge and is not meant for manual edit - SOURCETOKEN - AUTOGENTOKEN ]] --
 
--- [[ Exported at 2026-10-24 16-32-42 ]] --
+-- [[ Exported at 2026-10-25 09-47-27 ]] --
 L["Are you sure you want to hide the options button?"] = [=[Are you sure you want to hide the options button?
 The options button can be shown again via {gameMenu} {arrow} {interface} {arrow} {addOns} {arrow} {addonName} {arrow} {general} {arrow} {options}]=]
 L["Arsenals"] = true
@@ -43,6 +43,7 @@ L["Maximum purchase"] = true
 L["Minimum quality"] = true
 L["Mounts"] = true
 L["Need"] = true
+L["Nothing to repair"] = true
 L["Only show"] = true
 L["Only usable items"] = true
 L["Options button"] = true
@@ -79,6 +80,10 @@ L["Plugin_GW2UI_Desc"] = [=[This plugin gives the vendor items GW2 UI's merchant
 
 There are no options.]=]
 L["Plugin_GW2UI_Name"] = "GW2 UI"
+L["Plugin_Scrap_Desc"] = [=[This plugin keeps Scrap's button inside the vendor window, next to the repair buttons, on the Classic clients.
+
+There are no options.]=]
+L["Plugin_Scrap_Name"] = "Scrap"
 L["Plugin_TransmogLootHelper_Desc"] = [=[This plugin keeps Transmog Loot Helper's overlay icons on the vendor items up to date when the page, filter or search changes. It needs Transmog Loot Helper 12.1.5-02 or later.
 
 There are no options.]=]
@@ -88,6 +93,8 @@ L["Recipes my other characters know"] = true
 L["RememberFilter"] = "Remember filter"
 L["RememberSearch"] = "Remember search"
 L["RememberSearchBetweenVendors"] = "Remember search between vendors"
+L["Repair all items with guild money"] = true
+L["Reverse order"] = true
 L["Rows"] = true
 L["Rows first"] = true
 L["Select All"] = true
@@ -98,6 +105,11 @@ L["Show options button"] = true
 L["Show options button Desc"] = "Show / hide the options button in the merchant window."
 L["Show purchase confirmation"] = true
 L["Show purchase confirmation Desc"] = "Show a confirmation dialog when buying more than one stack."
+L["Sort by"] = true
+L["Sort_GoldPrice"] = "Gold price"
+L["Sort_Quality"] = "Quality"
+L["Sort_TokenPrice"] = "Token price"
+L["Sort_Vendor"] = "Vendor order"
 L["Stack"] = true
 L["Stack purchase"] = true
 L["Stack size"] = true

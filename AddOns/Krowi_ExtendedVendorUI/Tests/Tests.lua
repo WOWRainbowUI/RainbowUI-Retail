@@ -27,6 +27,7 @@ local filters = addon.Filters
 local running, armed, startPending, run, current, counts, saved, skins, banner, waitingFor, waitTimer, restTimer
 local runToken = 0 -- Bumped by every start, so a stopped run's timers do nothing in the next one
 local hookedButtons = {} -- The addon's item buttons, hooked for the tooltip step
+local hookedTokens = {} -- The token banner's buttons, hooked for the currency step
 local steps
 
 -- [[ Results ]] --
@@ -44,7 +45,7 @@ local function Join(list)
 end
 
 -- [[ Environment ]] --
-local ADDONS = { 'ElvUI', 'GW2_UI', 'EllesmereUI', 'EllesmereUIBlizzardSkin', 'CanIMogIt', 'TransmogLootHelper', 'Auctionator', 'Krowi_Vendorer', 'Plumber' }
+local ADDONS = { 'ElvUI', 'GW2_UI', 'EllesmereUI', 'EllesmereUIBlizzardSkin', 'CanIMogIt', 'TransmogLootHelper', 'Auctionator', 'Krowi_Vendorer', 'Plumber', 'Scrap' }
 local PLUGINS = { 'ElvUI', 'GW2_UI', 'EllesmereUI', 'EllesmereUIItemLevel', 'CanIMogIt', 'TransmogLootHelper' }
 
 -- The Krowi_Util client flags and the ones each client's WOW_PROJECT_ID should make true; the expansion flags follow the
@@ -323,6 +324,14 @@ end
 -- once and nothing left from an earlier vendor or list, the token banner options followed. With the whole vendor in the
 -- list, also every currency Blizzard's own row shows.
 local function CheckTokenBanner()
+    -- Shown is not enough: the banner is a child of Blizzard's MerchantMoneyInset, which another addon can hide (Plumber's
+    -- Merchant Price before 1.9.7 moved it into a hidden frame of its own)
+    if KrowiEVU_TokenBanner:IsVisible() then
+        Add('PASS', 'token banner visible')
+    else
+        Add('FAIL', 'token banner not visible')
+    end
+
     local options = addon.Options.db.profile.TokenBanner
     local indices = container:GetIndices()
     local gold, costs = 0, {}
@@ -488,6 +497,355 @@ local function CheckRecipes()
     end
 end
 
+-- The illusions the account has, by lower-case name, from the collection itself: no API maps an item to its illusion, so
+-- this backs up the filter's tooltip check where the names match
+local function GetCollectedIllusionsByName()
+    local byName = {}
+    if not (C_TransmogCollection and C_TransmogCollection.GetIllusions) then
+        return byName
+    end
+    for _, illusion in ipairs(C_TransmogCollection.GetIllusions() or {}) do
+        local name = C_TransmogCollection.GetIllusionStrings(illusion.sourceID)
+        if name and not (issecretvalue and issecretvalue(name)) then
+            byName[name:lower()] = illusion.isCollected
+        end
+    end
+    return byName
+end
+
+local function DescribeTooltipLines(itemId)
+    local tooltipInfo = C_TooltipInfo.GetItemByID(itemId)
+    if not tooltipInfo then
+        return 'no tooltip data'
+    end
+    local lines = {}
+    for _, line in ipairs(tooltipInfo.lines) do
+        local text = line.leftText
+        if issecretvalue and issecretvalue(text) then
+            text = '<secret>'
+        end
+        tinsert(lines, ('%s:%s'):format(tostring(line.type), tostring(text):sub(1, 40)))
+    end
+    return table.concat(lines, ' | ')
+end
+
+-- Hide collected, Illusions under filter All, which the step turned on: an illusion the filter finds collected (Blizzard's
+-- Already known line) is hidden, the rest shown. The tooltip lines of the first few are noted, since only the game shows
+-- what Blizzard puts there (illusions-hide-collected)
+local MAX_TOOLTIP_NOTES = 4
+local function CheckIllusions()
+    local inList = {}
+    for _, index in ipairs(container:GetIndices()) do
+        inList[index] = true
+    end
+    local byName = GetCollectedIllusionsByName()
+    local illusions, collected, matched, noted, wrong, disagree = 0, 0, 0, 0, {}, {}
+    for index = 1, GetMerchantNumItems() do
+        local itemId = GetMerchantItemID(index)
+        if itemId and filters.IsIllusion(itemId) then
+            illusions = illusions + 1
+            local isCollected = filters.IsIllusionCollected(itemId)
+            local shown = inList[index] or false
+            local info = merchantItemSlot.GetItemInfo(index)
+            local name = info and info.name or tostring(itemId)
+            if isCollected then
+                collected = collected + 1
+            end
+            if isCollected == shown and #wrong < 10 then
+                tinsert(wrong, ('%s (%s, %s)'):format(name, isCollected and 'collected' or 'not collected', shown and 'shown' or 'hidden'))
+            end
+            -- Item names read "Illusion: Mongoose"; the collection may name it either way
+            local inCollection = byName[name:lower()]
+            if inCollection == nil then
+                inCollection = byName[name:lower():match(':%s*(.+)$') or '']
+            end
+            if inCollection ~= nil then
+                matched = matched + 1
+                if inCollection ~= isCollected then
+                    tinsert(disagree, ('%s (collection: %s, tooltip: %s)'):format(name, tostring(inCollection), tostring(isCollected)))
+                end
+            end
+            if noted < MAX_TOOLTIP_NOTES then
+                noted = noted + 1
+                Note(('%s (item %d, %s, collected by name: %s): %s'):format(name, itemId, isCollected and 'Already known' or 'not known', tostring(inCollection), DescribeTooltipLines(itemId)))
+            end
+        end
+    end
+    Note(('%d consumables of type Other (what the Illusions filter takes as illusions), %d Already known, %d found in the collection by name'):format(illusions, collected, matched))
+    Add(#wrong == 0 and 'PASS' or 'FAIL', 'Hide collected, Illusions: ' .. (#wrong == 0 and 'Already known ones hidden, the rest shown' or ('wrong for ' .. table.concat(wrong, ', '))))
+    if #disagree > 0 then
+        Add('FAIL', 'Illusions: the tooltip and the collection disagree for ' .. table.concat(disagree, ', '))
+    elseif matched > 0 then
+        Add('PASS', ('Illusions: the tooltip agrees with the collection for the %d found there by name'):format(matched))
+    end
+end
+
+-- Retail's new-player tutorial points its buy arrow at Blizzard's hidden MerchantItem2 (live Blizzard_TutorialTutorials.lua
+-- :2397); with Direction Rows the addon's slot 2 sits in the same place (tutorial-buy-arrow)
+local function CheckTutorialArrow()
+    if not addon.Util.IsModern then
+        return
+    end
+    local slot = GetItemSlot(2)
+    local left, top = MerchantItem2:GetLeft(), MerchantItem2:GetTop()
+    local slotLeft, slotTop = slot and slot:GetLeft(), slot and slot:GetTop()
+    if not (left and top and slotLeft and slotTop) then
+        Add('SKIP', 'tutorial arrow: MerchantItem2 or the addon\'s slot 2 has no position')
+        return
+    end
+    local same = math.abs(left - slotLeft) < 1 and math.abs(top - slotTop) < 1
+    local text = ('tutorial arrow: MerchantItem2 at %.0f, %.0f, the addon\'s slot 2 at %.0f, %.0f'):format(left, top, slotLeft, slotTop)
+    if addon.Options.db.profile.Direction == 'Columns' then
+        Note(text .. ', Direction Columns')
+    else
+        Add(same and 'PASS' or 'FAIL', text)
+    end
+end
+
+-- Room for an item counted from the bags: each bag that holds it gives its free slots times the stack size, plus what still
+-- fits on the stacks of it there. Bag 5, the reagent bag on Retail and WoW Forever, reports type 0 like a plain bag but
+-- takes crafting reagents only
+local function CountBagRoom(itemId, stack)
+    local isReagent = addon.Util.IsModern and select(17, C_Item.GetItemInfo(itemId)) == true
+    local family = C_Item.GetItemFamily(itemId) or 0
+    local room = 0
+    for bag = 0, addon.Util.IsModern and 5 or 4 do
+        local free, bagType = C_Container.GetContainerNumFreeSlots(bag)
+        local holds = free and bagType and (bagType == 0 or (family ~= 0 and bit.band(family, bagType) == bagType))
+        if holds and (bag ~= 5 or isReagent) then
+            room = room + free * stack
+            for slot = 1, C_Container.GetContainerNumSlots(bag) do
+                local info = C_Container.GetContainerItemInfo(bag, slot)
+                if info and info.itemID == itemId then
+                    room = room + stack - (info.stackCount or 0)
+                end
+            end
+        end
+    end
+    return room, isReagent
+end
+
+local function CheckBulkPurchaseRoom(index, itemId)
+    local mixin = KrowiEVU_BulkPurchaseMixin
+    local savedIndex = mixin.itemIndex
+    mixin.itemIndex = index
+    local ok, fit, stack = pcall(mixin.GetFreeBagSpace, mixin, itemId)
+    mixin.itemIndex = savedIndex
+    if not ok then
+        Add('FAIL', 'Bulk Purchase bag space: ' .. tostring(fit))
+        return
+    end
+    local room, isReagent = CountBagRoom(itemId, stack)
+    local text = ('Bulk Purchase: room for %s of item %d (stack %s%s), %d counted from the bags'):format(tostring(fit), itemId,
+        tostring(stack), isReagent and ', crafting reagent' or '', room)
+    Add(fit == room and 'PASS' or 'FAIL', text)
+end
+
+-- Bulk Purchase's room in the bags, worked out as a shift-click does, without buying: for the vendor's first item and, on
+-- Retail and WoW Forever, its first crafting reagent, the one kind the reagent bag takes
+local function CheckBulkPurchase()
+    local index, itemId, reagentIndex, reagentId
+    for i = 1, GetMerchantNumItems() do
+        local link = GetMerchantItemLink(i)
+        local id = link and tonumber(link:match('item:(%d+)'))
+        if id then
+            if not index then
+                index, itemId = i, id
+            end
+            if addon.Util.IsModern and select(17, C_Item.GetItemInfo(id)) == true then
+                reagentIndex, reagentId = i, id
+                break
+            end
+        end
+    end
+    if not index then
+        Add('SKIP', 'Bulk Purchase: no item at this vendor')
+        return
+    end
+    local bags = {}
+    for bag = 0, addon.Util.IsModern and 5 or 4 do
+        local free, bagType = C_Container.GetContainerNumFreeSlots(bag)
+        local text = ('%d: %s free, type %s'):format(bag, tostring(free), tostring(bagType))
+        if bag > 0 then
+            -- WoW Forever's 1.x build may have no bag 5
+            local ok, slot = pcall(C_Container.ContainerIDToInventoryID, bag)
+            if not ok then
+                text = text .. ', no slot: ' .. tostring(slot)
+            else
+                text = text .. (', slot %s %s'):format(tostring(slot), slot and GetInventoryItemID('player', slot) and 'with a bag' or 'empty')
+            end
+        end
+        tinsert(bags, text)
+    end
+    Note('bags ' .. table.concat(bags, '; '))
+    CheckBulkPurchaseRoom(index, itemId)
+    if reagentIndex and reagentIndex ~= index then
+        CheckBulkPurchaseRoom(reagentIndex, reagentId)
+    end
+end
+
+-- A click on a currency in the token banner opens the character window on its tab with currencies: Currency on Retail,
+-- Forever and Mists, PvP on TBC; Era has neither, so nothing opens (classic-currency-click)
+local characterShownBefore
+local function CheckCurrencyClick()
+    if characterShownBefore then
+        Add('SKIP', 'currency click: the character window was open before the click')
+        return
+    end
+    local subframes = CHARACTERFRAME_SUBFRAMES or {}
+    local getCurrencyListSize = C_CurrencyInfo and C_CurrencyInfo.GetCurrencyListSize or GetCurrencyListSize
+    local expected
+    if addon.Util.IsModern or tContains(subframes, 'TokenFrame') then
+        expected = getCurrencyListSize() > 0 and 'TokenFrame' or nil
+    elseif tContains(subframes, 'PVPFrame') then
+        expected = 'PVPFrame'
+    end
+    local shown = CharacterFrame:IsShown()
+    if not expected then
+        Add(shown and 'FAIL' or 'PASS', 'currency click: ' .. (shown and 'the character window opened, though there is no tab to open' or 'nothing opens, as there is no tab to open'))
+        return
+    end
+    local tab = _G[expected]
+    local tabShown = tab and tab:IsVisible() or false
+    Add(shown and tabShown and 'PASS' or 'FAIL', ('currency click: the character window %s, %s %s'):format(shown and 'opened' or 'did not open', expected, tabShown and 'shown' or 'not shown'))
+end
+
+-- The repair-all buttons run their mouse scripts while disabled, so they can say what they do with nothing to repair (#32)
+local function CheckRepairButtons()
+    if not MerchantRepairAllButton:IsShown() then
+        return
+    end
+    for _, button in ipairs({ MerchantRepairAllButton, MerchantGuildBankRepairButton }) do
+        if button:IsShown() then
+            Add(button:GetMotionScriptsWhileDisabled() and 'PASS' or 'FAIL', ('%s: mouse scripts while disabled %s, now %s'):format(button:GetName(),
+                tostring(button:GetMotionScriptsWhileDisabled()), button:IsEnabled() and 'enabled' or 'disabled'))
+        end
+    end
+end
+
+-- The tooltip of the repair-all button under the mouse: Blizzard's with the cost when something needs repair, the addon's
+-- Nothing to repair line when the button is disabled
+local function CheckRepairTooltip()
+    if not (GameTooltip:IsShown() and GameTooltip:GetOwner() == MerchantRepairAllButton) then
+        Add('FAIL', 'repair tooltip: no tooltip for the repair-all button under the mouse')
+        return
+    end
+    local title = GameTooltipTextLeft1 and GameTooltipTextLeft1:GetText()
+    local second = GameTooltipTextLeft2 and GameTooltipTextLeft2:IsShown() and GameTooltipTextLeft2:GetText()
+    if MerchantRepairAllButton:IsEnabled() then
+        Add(title == REPAIR_ALL_ITEMS and 'PASS' or 'FAIL', ('repair tooltip (something to repair): "%s"'):format(tostring(title)))
+    else
+        Add(title == REPAIR_ALL_ITEMS and second == addon.L['Nothing to repair'] and 'PASS' or 'FAIL', ('repair tooltip (nothing to repair): "%s", "%s"'):format(tostring(title), tostring(second)))
+    end
+end
+
+-- [[ Sort (#55) ]] --
+-- Each token's place in the order it first appears in the vendor's full list
+local function GetTokenPositions()
+    local position, count = {}, 0
+    for index = 1, GetMerchantNumItems() do
+        for costIndex = 1, GetMerchantItemCostInfo(index) or 0 do
+            local _, _, link = GetMerchantItemCostItem(index, costIndex)
+            local key = link and GetCostKey(link)
+            if key and not position[key] then
+                count = count + 1
+                position[key] = count
+            end
+        end
+    end
+    return position
+end
+
+-- Worked out here from the merchant API, not with the filter's own comparison; for Token price the first token, in the
+-- vendor's order, that the item costs and its amount
+local function GetSortValue(index, by, position)
+    if by == 'Quality' then
+        local itemId = GetMerchantItemID(index)
+        return itemId and C_Item.GetItemQualityByID(itemId)
+    elseif by == 'TokenPrice' then
+        local first, amount
+        for costIndex = 1, GetMerchantItemCostInfo(index) or 0 do
+            local _, value, link = GetMerchantItemCostItem(index, costIndex)
+            local key = link and GetCostKey(link)
+            if key and position[key] and (not first or position[key] < first) then
+                first, amount = position[key], value
+            end
+        end
+        return first and { first, amount }
+    end
+    local info = merchantItemSlot.GetItemInfo(index)
+    if by == 'Name' then
+        return info and info.name
+    end
+    return info and info.price and info.price > 0 and info.price or nil
+end
+
+-- Whether a may come right before b: no value last, then name A to Z, prices cheapest first, quality best first, Reverse
+-- flipping the direction but not where the items without a value go, nor the token groups' order
+local function MayPrecede(a, b, by, reverse)
+    if a == nil then
+        return b == nil
+    elseif b == nil then
+        return true
+    end
+    if by == 'TokenPrice' then
+        if a[1] ~= b[1] then
+            return a[1] < b[1]
+        end
+        a, b = a[2], b[2]
+    elseif by == 'Name' then
+        a, b = strcmputf8i(a, b), 0
+    elseif by == 'Quality' then
+        a, b = b, a
+    end
+    if reverse then
+        return a >= b
+    end
+    return a <= b
+end
+
+local function CheckSort(by, reverse)
+    local list = container:GetIndices()
+    local position = GetTokenPositions()
+    local values, withValue = {}, 0
+    for _, index in ipairs(list) do
+        values[index] = GetSortValue(index, by, position)
+        if values[index] ~= nil then
+            withValue = withValue + 1
+        end
+    end
+    local wrong
+    for i = 1, #list - 1 do
+        if not MayPrecede(values[list[i]], values[list[i + 1]], by, reverse) then
+            wrong = i
+            break
+        end
+    end
+    local text = ('sort by %s%s: %d of %d items have a value'):format(by, reverse and ', reversed' or '', withValue, #list)
+    if wrong then
+        Add('FAIL', text .. (', out of order at %d and %d (vendor items %d and %d)'):format(wrong, wrong + 1, list[wrong], list[wrong + 1]))
+    else
+        Add('PASS', text .. ', in order')
+    end
+    if by ~= 'TokenPrice' then
+        return
+    end
+    -- The token banner shows its tokens in the same order, after gold
+    local last, misplaced, i = 0, {}, 1
+    while _G['KrowiEVU_TokenBannerToken' .. i] do
+        local token = _G['KrowiEVU_TokenBannerToken' .. i]
+        if token:IsShown() and not token.IsGold and token.Link then
+            local place = position[GetCostKey(token.Link)]
+            if not place or place <= last then
+                tinsert(misplaced, GetCostKey(token.Link) or tostring(token.Link))
+            end
+            last = place or last
+        end
+        i = i + 1
+    end
+    Add(#misplaced == 0 and 'PASS' or 'FAIL', 'token banner in the vendor\'s token order' .. (#misplaced > 0 and (', out of place: ' .. table.concat(misplaced, ', ')) or ''))
+end
+
 -- The best armor each class wears (Cloth 1, Leather 2, Mail 3, Plate 4), and the one it wears before level 40 where the
 -- client has the old proficiencies; written out here so the check does not use the filter's own proficiency spells
 local CLASS_ARMOR = {
@@ -538,6 +896,34 @@ local function CheckGear()
     Add(#wrong == 0 and 'PASS' or 'FAIL', ('Gear: %d of %d weapon and armor pieces hidden'):format(hidden, pieces) .. (#wrong > 0 and ('; shown though they should not be: ' .. table.concat(wrong, ', ')) or ''))
 end
 
+-- Scrap's merchant button on the Classic clients (#80, Plugins/Scrap.lua): inside the window, and Blizzard's repair-all
+-- button with this addon's one anchor, not Scrap's second
+local function CheckScrap()
+    local button = not addon.Util.IsModern and C_AddOns.IsAddOnLoaded('Scrap') and Scrap and Scrap.Merchant
+    if not (button and button:IsVisible()) then
+        return
+    end
+    local placed = KrowiEVU.PluginsApi.Plugins.Scrap.LastPlaced
+    if placed then
+        Note(('Scrap had anchored its button to %s and the repair-all button had %d anchor(s), before the plugin placed them'):format(tostring(placed.ScrapAnchor), placed.RepairAllPoints))
+    end
+    local left, right, frameLeft, frameRight = button:GetLeft(), button:GetRight(), MerchantFrame:GetLeft(), MerchantFrame:GetRight()
+    if not (left and right and frameLeft and frameRight) then
+        Add('SKIP', 'Scrap: its button has no position')
+        return
+    end
+    local scale, frameScale = button:GetEffectiveScale(), MerchantFrame:GetEffectiveScale()
+    local inside = left * scale >= frameLeft * frameScale - 1 and right * scale <= frameRight * frameScale + 1
+    Add(inside and 'PASS' or 'FAIL', 'Scrap: its button is ' .. (inside and 'inside' or 'outside') .. ' the window')
+    -- Scrap makes it 37 wide; two anchors left over from another vendor stretch it
+    local width = right - left
+    Add(math.abs(width - 37) < 1 and 'PASS' or 'FAIL', ('Scrap: its button is %.0f wide (37 unstretched)'):format(width))
+    if MerchantRepairAllButton:IsShown() then
+        local points = MerchantRepairAllButton:GetNumPoints()
+        Add(points == 1 and 'PASS' or 'FAIL', ('Scrap: the repair-all button has %d anchor(s)'):format(points))
+    end
+end
+
 local function CheckMerchantTab()
     CheckGrid()
     CheckBlizzardHidden()
@@ -547,6 +933,7 @@ local function CheckMerchantTab()
     CheckServerList()
     CheckHousing()
     CheckRecipes()
+    CheckScrap()
 end
 
 local function CheckTooltip()
@@ -716,6 +1103,25 @@ local function RestoreOptions()
     gear.UsableOnly, gear.HideSubOptimalArmor, gear.MinQuality = saved.Gear.UsableOnly, saved.Gear.HideSubOptimalArmor, saved.Gear.MinQuality
     local tokenBanner = addon.Options.db.profile.TokenBanner
     tokenBanner.GoldTotal, tokenBanner.HideNone = saved.GoldTotal, saved.HideNone
+    filters.db.profile.HideCollected.Illusions = saved.HideIllusions
+    filters.db.profile.Sort.By, filters.db.profile.Sort.Reverse = saved.Sort.By, saved.Sort.Reverse
+end
+
+-- A step that sorts the list under filter All (#55)
+local function SortStep(by, reverse)
+    return {
+        Name = 'sort-' .. by:lower() .. (reverse and '-reverse' or ''),
+        Text = 'filter All, sort by ' .. addon.L['Sort_' .. by] .. (reverse and ', ' .. addon.L['Reverse order'] or ''),
+        Run = function()
+            RestoreOptions()
+            filters.db.profile.Sort.By, filters.db.profile.Sort.Reverse = by, reverse
+            KrowiEVU_FilterButton:SetFilter(LE_LOOT_FILTER_ALL)
+        end,
+        Check = function()
+            CheckMerchantTab()
+            CheckSort(by, reverse)
+        end,
+    }
 end
 
 local function Restore()
@@ -743,6 +1149,12 @@ steps = {
         Text = 'filter All, page 1',
         Run = function()
             KrowiEVU_FilterButton:SetFilter(LE_LOOT_FILTER_ALL)
+        end,
+        Check = function()
+            CheckMerchantTab()
+            CheckTutorialArrow()
+            CheckBulkPurchase()
+            CheckRepairButtons()
         end,
     },
     {
@@ -824,6 +1236,77 @@ steps = {
             tokenBanner.GoldTotal, tokenBanner.HideNone = false, true
             KrowiEVU_FilterButton:SetFilter(LE_LOOT_FILTER_ALL)
         end,
+    },
+    SortStep('Name', false),
+    SortStep('GoldPrice', false),
+    SortStep('GoldPrice', true),
+    SortStep('TokenPrice', false),
+    SortStep('Quality', false),
+    {
+        Name = 'illusions',
+        Text = 'filter All, Hide collected: Illusions on',
+        Run = function()
+            if not addon.Util.IsModern then
+                return 'the Illusions filter is Retail and Forever only'
+            end
+            local found
+            for index = 1, GetMerchantNumItems() do
+                local itemId = GetMerchantItemID(index)
+                if itemId and filters.IsIllusion(itemId) then
+                    found = true
+                    break
+                end
+            end
+            if not found then
+                return 'this vendor sells no consumables of type Other, where the Illusions filter looks'
+            end
+            RestoreOptions()
+            filters.db.profile.HideCollected.Illusions = true
+            KrowiEVU_FilterButton:SetFilter(LE_LOOT_FILTER_ALL)
+        end,
+        Check = function()
+            CheckMerchantTab()
+            CheckIllusions()
+        end,
+    },
+    {
+        -- The options button's Hide message shows this arrow, from the addon's own Media folder (options-button-arrow)
+        Name = 'arrow',
+        Run = function()
+            current.Text = 'the arrow in the options button\'s Hide message: ' .. ('{arrow}'):K_ReplaceVarsWithMenu()
+        end,
+        Check = function()
+            Note('the banner shows the arrow; a missing file shows a green square or nothing')
+        end,
+    },
+    {
+        Name = 'currency',
+        Text = 'click a currency in the token banner',
+        Wait = 'currency',
+        Run = function()
+            local i, found = 1, false
+            while _G['KrowiEVU_TokenBannerToken' .. i] do
+                local token = _G['KrowiEVU_TokenBannerToken' .. i]
+                found = found or (token:IsShown() and token.IsCurrency) or false
+                i = i + 1
+            end
+            if not found then
+                return 'the token banner shows no currency at this vendor'
+            end
+            characterShownBefore = CharacterFrame:IsShown()
+        end,
+        Check = CheckCurrencyClick,
+    },
+    {
+        Name = 'repair',
+        Text = 'hover over the repair-all button (the hammer)',
+        Wait = 'repair',
+        Run = function()
+            if not MerchantRepairAllButton:IsShown() then
+                return 'this vendor does not repair'
+            end
+        end,
+        Check = CheckRepairTooltip,
     },
     {
         Name = 'tooltip',
@@ -927,6 +1410,39 @@ local function HookItemSlots()
     end
 end
 
+-- After Blizzard's OnEnter and the addon's tooltip hook (Gui/MerchantFrame.lua), which run first
+local repairHooked
+local function HookRepair()
+    if repairHooked then
+        return
+    end
+    repairHooked = true
+    MerchantRepairAllButton:HookScript('OnEnter', function()
+        if waitingFor == 'repair' then
+            Continue()
+        end
+    end)
+end
+
+-- After the token's own click, which opens the character window
+local function OnTokenClick(self)
+    if waitingFor == 'currency' and self.IsCurrency then
+        Continue()
+    end
+end
+
+local function HookTokens()
+    local i = 1
+    while _G['KrowiEVU_TokenBannerToken' .. i] do
+        local token = _G['KrowiEVU_TokenBannerToken' .. i]
+        if not hookedTokens[token] then
+            hookedTokens[token] = true
+            token:HookScript('OnClick', OnTokenClick)
+        end
+        i = i + 1
+    end
+end
+
 local blizzardHooked
 local function HookBlizzard()
     if blizzardHooked then
@@ -978,6 +1494,10 @@ RunStep = function(n)
     elseif step.Wait then
         if step.Wait == 'hover' then
             HookItemSlots()
+        elseif step.Wait == 'currency' then
+            HookTokens()
+        elseif step.Wait == 'repair' then
+            HookRepair()
         end
         Wait(step.Wait)
     else
@@ -1106,6 +1626,8 @@ function tests.Start(onOpen)
         Gear = CopyTable(filters.db.profile.Gear),
         GoldTotal = profile.TokenBanner.GoldTotal,
         HideNone = profile.TokenBanner.HideNone,
+        HideIllusions = filters.db.profile.HideCollected.Illusions,
+        Sort = CopyTable(filters.db.profile.Sort),
     }
 
     run = { Time = date('%Y-%m-%d %H:%M:%S'), Steps = {}, OnOpen = onOpen }
@@ -1128,7 +1650,14 @@ function tests.Start(onOpen)
     banner:RegisterEvent('SCREENSHOT_FAILED')
     running = true
     runToken = runToken + 1
-    print(prefix .. ('%d steps, about 25 s, then three that need the mouse; /kevutest again stops it'):format(#steps))
+    local mouseSteps = 0
+    for _, step in ipairs(steps) do
+        if step.Wait then
+            mouseSteps = mouseSteps + 1
+        end
+    end
+    local seconds = math.ceil((#steps - mouseSteps) * (SETTLE + AFTER_SHOT) / 5) * 5
+    print(prefix .. ('%d steps, about %d s, then %d that need the mouse; /kevutest again stops it'):format(#steps, seconds, mouseSteps))
     RunStep(1)
 end
 
