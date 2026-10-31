@@ -198,7 +198,7 @@ function addonTable.Display.SetupLegacyAuras(self)
         if auraFrame.styleIndex ~= self.styleIndex then
           auraFrame.styleIndex = self.styleIndex
           StyleAura(auraFrame, details)
-          if details.showStealable then
+          if details.purgeable and details.purgeable.show then
             auraFrame.Pandemic:SetVertexColor(1, 171/255, 26/255)
           elseif details.showPandemic then
             auraFrame.Pandemic:SetVertexColor(1, 1, 1)

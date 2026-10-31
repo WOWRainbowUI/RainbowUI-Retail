@@ -67,7 +67,7 @@ function addonTable.Display.GeneratePandemicAnimation(frame)
   end
 end
 
-local function StyleAura(auraFrame, details, container)
+local function StyleAura(auraFrame, details, container, key)
   auraFrame.kind = details.kind
 
   auraFrame:EnableMouseMotion(details.showTooltips)
@@ -123,9 +123,13 @@ local function StyleAura(auraFrame, details, container)
   auraFrame.Icon:SetTexCoord(0.05, 0.95, 0.05 + texBase, 0.95 - texBase)
 
   auraFrame:ClearPandemicActiveAnimations()
+  auraFrame:ClearAuraAssignedAnimations()
   auraFrame:ClearPandemicRegions()
-  auraFrame.Pandemic:SetShown(details.pandemic and details.pandemic.show)
+  auraFrame:ClearDispelTypeTextures()
+  auraFrame:AddDispelTypeTexture(auraFrame.Dispel.Border, {showIcon = false, showWhenHarmful = true, showWhenHelpful = true, style = Enum.CustomAuraButtonDispelTypeTextureStyle.PreserveAsset})
+
   if details.pandemic and details.pandemic.show then
+    auraFrame.Pandemic:Show()
     local color = details.pandemic.color
     local Pandemic = auraFrame.Pandemic
     Pandemic.Top:SetVertexColor(color.r, color.g, color.b, color.a)
@@ -137,12 +141,41 @@ local function StyleAura(auraFrame, details, container)
     auraFrame:AddPandemicRegion(Pandemic.Right)
     auraFrame:AddPandemicRegion(Pandemic.Bottom)
     auraFrame:AddPandemicActiveAnimation(Pandemic.Animation)
+  elseif details.purgeable and details.purgeable.show then
+    auraFrame.Pandemic:Show()
+    local color = details.purgeable.color
+    local Pandemic = auraFrame.Pandemic
+    local options = {
+      showWhenHarmful = false,
+      showWhenHelpful = true,
+      stealableFilter = Enum.CustomAuraButtonDispelTypeStealableFilter.Stealable,
+      style = Enum.CustomAuraButtonDispelTypeTextureStyle.PreserveAsset,
+      customDispelColorMap = {
+        ["Magic"] = color,
+        ["Curse"] = color,
+        ["Disease"] = color,
+        ["Poison"] = color,
+        ["Enrage"] = color,
+        ["Bleed"] = color,
+      }
+    }
+    auraFrame:AddDispelTypeTexture(Pandemic.Top, options)
+    auraFrame:AddDispelTypeTexture(Pandemic.Left, options)
+    auraFrame:AddDispelTypeTexture(Pandemic.Right, options)
+    auraFrame:AddDispelTypeTexture(Pandemic.Bottom, options)
+    Pandemic.Top:SetVertexColor(color.r, color.g, color.b, color.a)
+    Pandemic.Left:SetVertexColor(color.r, color.g, color.b, color.a)
+    Pandemic.Right:SetVertexColor(color.r, color.g, color.b, color.a)
+    Pandemic.Bottom:SetVertexColor(color.r, color.g, color.b, color.a)
+    auraFrame:AddAuraAssignedAnimation(Pandemic.Animation)
+  else
+    auraFrame.Pandemic:Hide()
   end
 
   auraFrame.Dispel:SetShown(details.showType)
 end
 
-local function GetAurasInitializerModern(container)
+local function GetAurasInitializerModern(container, key)
   local borderAsset = LSM:Fetch("nineslice", "MM: 1px")
   local dispelAsset = LSM:Fetch("nineslice", "MM: 4px")
   return function(frame)
@@ -187,12 +220,12 @@ local function GetAurasInitializerModern(container)
     frame:SetApplicationCount(frame.TextsContainer.Applications, {})
     frame:SetIcon(frame.Icon)
     frame:SetDurationCooldown(frame.Cooldown)
-    frame:AddDispelTypeTexture(frame.Dispel.Border, {showIcon = false, showWhenHarmful = true, showWhenHelpful = true, style = Enum.CustomAuraButtonDispelTypeTextureStyle.PreserveAsset})
+frame.key = key
 
     PixelUtil.SetRoundLayoutToNearestPixelRecursively(frame, true)
 
     if container.details then
-      StyleAura(frame, container.details, container)
+      StyleAura(frame, container.details, container, key)
     end
   end
 end
@@ -431,7 +464,8 @@ function addonTable.Display.AurasManagerNextMixin:InitializeWidgets(parent, aura
 
     if not self[kind].groupsCount or self[kind].groupsCount < #groups then
       for i = self[kind].groupsCount and self[kind].groupsCount + 1 or 1, #groups do
-        self[kind]:AddAuraGroup(tostring(i), "", {initializeFrame = GetAurasInitializerModern(self[kind])})
+        local key = tostring(i)
+        self[kind]:AddAuraGroup(key, "", {initializeFrame = GetAurasInitializerModern(self[kind], key)})
       end
       self[kind].groupsCount = #groups
     end
@@ -454,7 +488,7 @@ function addonTable.Display.AurasManagerNextMixin:InitializeWidgets(parent, aura
 
     if not addonTable.Utilities.IsChangesRestricted() and not self.initialSetup and not doNotSize then
       for _, f in ipairs(self[kind].frames) do
-        StyleAura(f, details, self[kind])
+        StyleAura(f, details, self[kind], f.key)
       end
     end
 

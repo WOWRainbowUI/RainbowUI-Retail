@@ -2,6 +2,8 @@
 local addonTable = select(2, ...)
 addonTable.Config = {}
 
+local announceChanges = true
+
 local settings = {
   MIGRATION = {key = "migration", default = 1, new = 9},
 
@@ -146,7 +148,7 @@ local function RawSet(name, value)
 end
 
 function addonTable.Config.Set(name, value)
-  if RawSet(name, value) then
+  if RawSet(name, value) and announceChanges then
     addonTable.CallbackRegistry:TriggerEvent("SettingChanged", name)
     if addonTable.Config.RefreshType[name] then
       addonTable.CallbackRegistry:TriggerEvent("RefreshStateChange", addonTable.Config.RefreshType[name])
@@ -164,15 +166,17 @@ function addonTable.Config.MultiSet(nameValueMap)
     end
   end
 
-  local refreshState = {}
-  for _, name in ipairs(changed) do
-    addonTable.CallbackRegistry:TriggerEvent("SettingChanged", name)
-    if addonTable.Config.RefreshType[name] then
-      refreshState = Mixin(refreshState, addonTable.Config.RefreshType[name])
+  if announceChanges then
+    local refreshState = {}
+    for _, name in ipairs(changed) do
+      addonTable.CallbackRegistry:TriggerEvent("SettingChanged", name)
+      if addonTable.Config.RefreshType[name] then
+        refreshState = Mixin(refreshState, addonTable.Config.RefreshType[name])
+      end
     end
-  end
-  if next(refreshState) ~= nil then
-    addonTable.CallbackRegistry:TriggerEvent("RefreshStateChange", refreshState)
+    if next(refreshState) ~= nil then
+      addonTable.CallbackRegistry:TriggerEvent("RefreshStateChange", refreshState)
+    end
   end
 end
 
@@ -318,7 +322,9 @@ function addonTable.Config.ChangeProfile(newProfileName, comparisonData)
 
   ImportDefaultsToProfile()
 
+  announceChanges = false
   addonTable.Core.MigrateSettings()
+  announceChanges = true
 
   for _, name in ipairs(changedOptions) do
     addonTable.CallbackRegistry:TriggerEvent("SettingChanged", name)

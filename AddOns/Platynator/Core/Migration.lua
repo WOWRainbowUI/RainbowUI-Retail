@@ -847,6 +847,18 @@ local function UpgradeDesignv29(design)
   end
 end
 
+local function UpgradeDesignv30(design)
+  for _, auras in ipairs(design.auras) do
+    if auras.kind == "buffs" then
+      auras.purgeable = {
+        show = auras.showStealable,
+        color = GetColor("FFFFFF", 1),
+      }
+      auras.showStealable = nil
+    end
+  end
+end
+
 local designUpgrades = {
   UpgradeDesignv1,
   UpgradeDesignv2,
@@ -878,6 +890,7 @@ local designUpgrades = {
   UpgradeDesignv27,
   UpgradeDesignv28,
   UpgradeDesignv29,
+  UpgradeDesignv30,
 }
 
 function addonTable.Core.UpgradeDesign(design)

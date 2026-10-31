@@ -1763,13 +1763,23 @@ addonTable.CustomiseDialog.WidgetsConfig = {
         label = addonTable.Locales.VISUAL,
         entries = {
           {
-            label = addonTable.Locales.SHOW_PURGEABLE_BORDER,
+            label = addonTable.Locales.SHOW_PURGEABLE,
             kind = "checkbox",
             setter = function(details, value)
-              details.showStealable = value
+              details.purgeable.show = value
             end,
             getter = function(details)
-              return details.showStealable
+              return details.purgeable.show
+            end,
+          },
+          {
+            label = addonTable.Locales.PURGEABLE_COLOR,
+            kind = "colorPicker",
+            setter = function(details, value)
+              details.purgeable.color = value
+            end,
+            getter = function(details)
+              return details.purgeable.color
             end,
           },
         },
