@@ -1,12 +1,6 @@
 -- [[ Namespaces ]] --
 local addonName, addon = ...
 
--- [[ Version data ]] --
-local version = (GetBuildInfo())
-local major = string.match(version, '(%d+)%.(%d+)%.(%d+)(%w?)')
-addon.IsWrathClassic = major == '3'
-addon.IsDragonflightRetail = major == '10'
-
 -- [[ EllesmereUI's merchant list mode ]] --
 -- That mode replaces the merchant grid with EllesmereUI's own list of every item, which this addon can neither filter nor lay out.
 -- Then the addon loads nothing: every later file returns at its top, and a notice says why when a vendor opens (Krowi, 2026-10-21).
@@ -37,6 +31,40 @@ local function IsForeverGamepadStyleOn()
     return ok and isOn and true or false
 end
 
+-- [[ Notice window ]] --
+-- For the not-loaded notices below
+local notice, noticeText
+local function ShowNotice(text)
+    if not notice then
+        notice = CreateFrame('Frame', 'KrowiEVU_Notice', UIParent, 'BasicFrameTemplateWithInset')
+        notice:SetWidth(420)
+        notice:SetPoint('TOP', 0, -135)
+        notice:SetFrameStrata('DIALOG')
+        notice:SetToplevel(true)
+        notice:EnableMouse(true)
+        notice.TitleText:SetText(addon.Metadata.Title)
+        -- The template's close button calls HideUIPanel, which runs tainted from here and refuses in combat; a vendor can be
+        -- opened in combat (taint review of 2026-10-25)
+        notice.CloseButton:SetScript('OnClick', function()
+            notice:Hide()
+        end)
+        noticeText = notice:CreateFontString(nil, 'ARTWORK', 'GameFontHighlight')
+        noticeText:SetPoint('TOP', 0, -40)
+        noticeText:SetWidth(380)
+        -- Without the tooltip variant's OnLeave, which hides the shared tooltip whoever owns it, tainted
+        local okay = CreateFrame('Button', nil, notice, 'UIPanelButtonNoTooltipTemplate')
+        okay:SetSize(120, 22)
+        okay:SetPoint('BOTTOM', 0, 14)
+        okay:SetText(OKAY)
+        okay:SetScript('OnClick', function()
+            notice:Hide()
+        end)
+    end
+    noticeText:SetText(text)
+    notice:SetHeight(noticeText:GetStringHeight() + 96)
+    notice:Show()
+end
+
 if IsEllesmereUIListModeOn() then
     addon.NotLoaded = 'EllesmereUIListMode'
     addon.NotLoadedText = addon.L['Plugin_EllesmereUI_ListModeNotLoaded']
@@ -46,35 +74,13 @@ elseif IsForeverGamepadStyleOn() then
 end
 
 if addon.NotLoaded then
-    local notice
     -- At the first vendor and from the addon compartment (Icon.lua)
     function addon.ShowNotLoadedNotice()
         if addon.NotLoaded == 'ForeverGamepad' then
             print(addon.NotLoadedText) -- A window could need the mouse to close; the text names the addon
             return
         end
-        if not notice then
-            notice = CreateFrame('Frame', 'KrowiEVU_NotLoadedNotice', UIParent, 'BasicFrameTemplateWithInset')
-            notice:SetWidth(420)
-            notice:SetPoint('TOP', 0, -135)
-            notice:SetFrameStrata('DIALOG')
-            notice:SetToplevel(true)
-            notice:EnableMouse(true)
-            notice.TitleText:SetText(addon.Metadata.Title)
-            local text = notice:CreateFontString(nil, 'ARTWORK', 'GameFontHighlight')
-            text:SetPoint('TOP', 0, -40)
-            text:SetWidth(380)
-            text:SetText(addon.NotLoadedText)
-            local okay = CreateFrame('Button', nil, notice, 'UIPanelButtonTemplate')
-            okay:SetSize(120, 22)
-            okay:SetPoint('BOTTOM', 0, 14)
-            okay:SetText(OKAY)
-            okay:SetScript('OnClick', function()
-                notice:Hide()
-            end)
-            notice:SetHeight(text:GetStringHeight() + 96)
-        end
-        notice:Show()
+        ShowNotice(addon.NotLoadedText)
     end
 
     local noticeHelper = CreateFrame('Frame')
