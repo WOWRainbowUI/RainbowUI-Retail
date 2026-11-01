@@ -3,8 +3,9 @@
 ## Title: BuffReminders
 ## Notes: Track missing buffs at a glance
 ## Author: zerbi
-## Version: v6.10.0
+## Version: v6.10.1
 ## SavedVariables: BuffRemindersDB
+## LoadSavedVariablesFirst: 1
 ## X-Curse-Project-ID: 1441094
 ## X-Wago-ID: qGYZZjNg
 ## OptionalDeps: Masque, LibCustomGlow-1.0
