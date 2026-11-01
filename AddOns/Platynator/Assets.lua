@@ -37,6 +37,7 @@ addonTable.Assets.PowerBars = {
   ["Platy: Soft Square"] = {file = "Interface/AddOns/Platynator/Assets/%s/Power/soft-square-sprites.png", width = 18, height = 18, inset = 0, has4k = true},
   ["Platy: Glow Circle"] = {file = "Interface/AddOns/Platynator/Assets/%s/Power/glow-circle-sprites.png", width = 55, height = 55, inset = 37, has4k = true},
   ["Platy: Chained Square"] = {file = "Interface/AddOns/Platynator/Assets/%s/Power/chained-square-sprites.png", width = 22, height = 22, inset = 4, has4k = true},
+  ["Platy: Bevelled"] = {file = "Interface/AddOns/Platynator/Assets/%s/Power/bevelled-circle-sprites.png", width = 18, height = 18, inset = 0, has4k = true},
 }
 
 addonTable.Assets.Markers = {

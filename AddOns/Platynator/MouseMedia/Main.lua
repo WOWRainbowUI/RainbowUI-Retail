@@ -214,14 +214,6 @@ local function ApplyScale()
     end
   end
 
-  local function Apply4k(list)
-    for _, entry in pairs(list) do
-      if entry.has4k then
-        entry.file = entry.file:format(DPIScale)
-      end
-    end
-  end
-
   local function IterateLSMSlicedBorder(list, masks)
     ResizeSlicedAssets(list, list)
     ResizeSlicedAssets(masks, list)

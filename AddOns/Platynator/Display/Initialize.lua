@@ -211,7 +211,7 @@ end
 
 function addonTable.Display.ManagerMixin:UpdateWidgetScale()
   for unit in pairs(self.nameplateDisplays) do
-    local nameplate = C_NamePlate.GetNamePlateForUnit(unit, issecure())
+    local nameplate = C_NamePlate.GetNamePlateForUnit(unit)
     local WidgetContainer = nameplate.UnitFrame.WidgetContainer
     if WidgetContainer then
       WidgetContainer:SetScale(addonTable.Config.Get(addonTable.Config.Options.BLIZZARD_WIDGET_SCALE))
@@ -528,7 +528,7 @@ function addonTable.Display.ManagerMixin:UpdateStackingRegion(unit)
 end
 
 function addonTable.Display.ManagerMixin:UpdateClickRegion(unit)
-  local nameplate = C_NamePlate.GetNamePlateForUnit(unit, issecure())
+  local nameplate = C_NamePlate.GetNamePlateForUnit(unit)
   if nameplate and nameplate:CanChangeHitTestPoints() then
     local clickRegion = self.nameplateClickRegions[nameplate:GetName()]
     if not clickRegion.parented then
@@ -883,7 +883,7 @@ end
 function addonTable.Display.ManagerMixin:OnEvent(eventName, ...)
   if eventName == "NAME_PLATE_UNIT_ADDED" then
     local unit = ...
-    local nameplate = C_NamePlate.GetNamePlateForUnit(unit, issecure())
+    local nameplate = C_NamePlate.GetNamePlateForUnit(unit)
     nameplate.UnitFrame:SetParent(addonTable.hiddenFrame)
     nameplate.UnitFrame:UnregisterAllEvents()
 
