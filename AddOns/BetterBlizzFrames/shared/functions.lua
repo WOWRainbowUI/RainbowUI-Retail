@@ -18,6 +18,68 @@ function BBF.ShowPopup(name, ...)
 	return StaticPopup_Show(name, ...)
 end
 
+function BBF.BBCCHandlesLoC()
+	return C_AddOns.IsAddOnLoaded("BetterBlizzCC")
+end
+
+function BBF.RefreshLossOfControl()
+	if BBF.BBCCHandlesLoC() then return end
+	if BBF.LoC.Supported() then
+		BBF.LoC.Refresh()
+	elseif BBF.UpdateLoCFrame then
+		BBF.UpdateLoCFrame()
+	end
+end
+
+function BBF.LoCSettingsOpen()
+	local popup = BBF.LossOfControlWindow
+	return (popup and popup:IsVisible()) or (BetterBlizzFrames and BetterBlizzFrames:IsVisible()) or false
+end
+
+function BBF.ToggleLossOfControlTestMode()
+	if BBF.BBCCHandlesLoC() then return end
+	if BBF.LoC.Supported() then
+		BBF.LoC.Test()
+	elseif BBFLossOfControlFrame then
+		BBF.LoC.TestOwn(BBFLossOfControlFrame, BBF.L["Label_Stunned"])
+	end
+end
+
+local function UpdatePopupText()
+	local db = BetterBlizzFramesDB
+	local lines = {}
+	if BBF.isMainline then
+		lines[#lines + 1] = L["Popup_Update_Forever_Tweaks"]
+		lines[#lines + 1] = L["Big_Healthbars"]
+		if BBF.isForever then
+			lines[#lines + 1] = L["Retail_Textures"]
+		end
+	end
+	lines[#lines + 1] = L["Popup_Update_Move_Names"]:format(L["Move_Names"])
+	lines[#lines + 1] = L["Loss_Of_Control_Tweaks"]
+	for i, line in ipairs(lines) do
+		lines[i] = "- |cffffd100" .. line .. "|r"
+	end
+	local text = "|A:gmchat-icon-blizz:16:16|a Better|cff00c0ffBlizz|rFrames " .. (BBF.VersionNumber or "") .. "\n\n" .. (BBF.isMainline and L["Popup_Update_Highlights"] or L["Popup_Update_Highlights_Classic"]) .. "\n" .. table.concat(lines, "\n")
+	if BBF.locTweaksMigrated and not BBF.BBCCHandlesLoC() then
+		text = text .. "\n\n" .. L["Popup_LoC_Tweaks_On"]:format(L["Loss_Of_Control_Tweaks"])
+	end
+	if BBF.isMainline and (db.noPortraitModes or db.noPortraitPixelBorder) and not db.classicFrames then
+		text = text .. "\n\n" .. L["Popup_Update_Pixel_Border"]:format(L["Pixel_Border"], L["No_Portrait"])
+	end
+	return text .. "\n\n" .. L["Popup_Update_Changelog"]
+end
+
+BBF.popupBuilders["BBF_UPDATE_220"] = function()
+	return {
+		text = UpdatePopupText(),
+		button1 = OKAY,
+		timeout = 0,
+		whileDead = true,
+		preferredIndex = 3,
+	}
+end
+
 BBF.popupBuilders["BB_PRD_AURAS_CLASH"] = function()
 	return {
 		text = BBF.L["Popup_PRD_Auras_Clash"],
@@ -379,7 +441,11 @@ BBF.LSM = setmetatable({}, {
 				if mediaType == "font" and not IsFontFileValid(data) then
 					return false
 				end
-				return LSM:Register(mediaType, key, data, langMask)
+				if type(data) == "string" and not C_UIFileAsset.IsKnownFile(data) then
+					return false
+				end
+				local ok, registered = pcall(LSM.Register, LSM, mediaType, key, data, langMask)
+				return ok and registered
 			end
 		end
 
@@ -390,16 +456,23 @@ BBF.LSM = setmetatable({}, {
 BBF.allLocales = LSM.LOCALE_BIT_western+LSM.LOCALE_BIT_ruRU+LSM.LOCALE_BIT_zhCN+LSM.LOCALE_BIT_zhTW+LSM.LOCALE_BIT_koKR
 
 LSM:Register("statusbar", "Blizzard DF", [[Interface\TargetingFrame\UI-TargetingFrame-BarFill]])
-LSM:Register("statusbar", "Blizzard CF", [[Interface\AddOns\BetterBlizzFrames\media\ui-statusbar-cf]])
-LSM:Register("statusbar", "Blizzard Retail Bar", [[Interface\AddOns\BetterBlizzFrames\media\blizzTex\BlizzardRetailBar]])
-LSM:Register("statusbar", "Blizzard Retail Bar Crop", [[Interface\AddOns\BetterBlizzFrames\media\blizzTex\BlizzardRetailBarCrop]])
-LSM:Register("statusbar", "Blizzard Retail Bar Crop 2", [[Interface\AddOns\BetterBlizzFrames\media\blizzTex\BlizzardRetailBarCrop2]])
-LSM:Register("statusbar", "Smooth", [[Interface\Addons\BetterBlizzFrames\media\smooth]])
-LSM:Register("statusbar", "Minimalist", [[Interface\Addons\BetterBlizzFrames\media\Minimalist]])
-LSM:Register("sound", "Lossa Countered", [[Interface\AddOns\BetterBlizzFrames\media\LossaCountered.ogg]])
-LSM:Register("font", "PT Sans Narrow Bold", "Interface\\AddOns\\BetterBlizzFrames\\media\\PTSansNarrow-Bold.ttf", BBF.allLocales)
-LSM:Register("font", "Arial Narrow (BBF)", "Interface\\AddOns\\BetterBlizzFrames\\media\\arialn.ttf", BBF.allLocales)
-LSM:Register("font", "Expressway (BBF)", "Interface\\AddOns\\BetterBlizzFrames\\media\\Expressway_Free.ttf", BBF.allLocales)
+LSM:Register("statusbar", "Blizzard Retail Bar", [[Interface\AddOns\BetterBlizzFrames\media\barTextures\BlizzardRetailBar]])
+LSM:Register("statusbar", "Blizzard Retail Bar Crop", [[Interface\AddOns\BetterBlizzFrames\media\barTextures\BlizzardRetailBarCrop]])
+LSM:Register("statusbar", "Blizzard Retail Bar Crop 2", [[Interface\AddOns\BetterBlizzFrames\media\barTextures\BlizzardRetailBarCrop2]])
+LSM:Register("statusbar", "Blizzard Forever Bar", [[Interface\AddOns\BetterBlizzFrames\media\barTextures\BlizzardForeverBar]])
+BBF.internalStatusbars = {
+    ["Blizzard Retail Bar Green"] = [[Interface\AddOns\BetterBlizzFrames\media\barTextures\BlizzardRetailBarGreen]],
+    ["Blizzard Forever Bar Green"] = [[Interface\AddOns\BetterBlizzFrames\media\barTextures\BlizzardForeverBarGreen]],
+}
+function BBF.FetchStatusbar(name)
+    return BBF.internalStatusbars[name] or LSM:Fetch(LSM.MediaType.STATUSBAR, name)
+end
+LSM:Register("statusbar", "Smooth", [[Interface\Addons\BetterBlizzFrames\media\barTextures\smooth]])
+LSM:Register("statusbar", "Minimalist", [[Interface\Addons\BetterBlizzFrames\media\barTextures\Minimalist]])
+LSM:Register("sound", "Lossa Countered", [[Interface\AddOns\BetterBlizzFrames\media\sounds\LossaCountered.ogg]])
+LSM:Register("font", "PT Sans Narrow Bold", "Interface\\AddOns\\BetterBlizzFrames\\media\\fonts\\PTSansNarrow-Bold.ttf", BBF.allLocales)
+LSM:Register("font", "Arial Narrow (BBF)", "Interface\\AddOns\\BetterBlizzFrames\\media\\fonts\\arialn.ttf", BBF.allLocales)
+LSM:Register("font", "Expressway (BBF)", "Interface\\AddOns\\BetterBlizzFrames\\media\\fonts\\Expressway_Free.ttf", BBF.allLocales)
 
 function BBF.AddFont(name)
 	if type(name) ~= "string" then
@@ -436,6 +509,32 @@ end
 
 local combatQueue = {}
 local combatCheck = CreateFrame("Frame")
+function BBF.UpdateFrameStyleBlockers(groups)
+	local db = BetterBlizzFramesDB
+	for _, group in ipairs(groups) do
+		local blocker
+		for _, other in ipairs(groups) do
+			if other ~= group and not blocker then
+				for _, entry in ipairs(other.boxes) do
+					if db[entry[2]] then
+						blocker = other.name
+						break
+					end
+				end
+			end
+		end
+		for _, entry in ipairs(group.boxes) do
+			local box, key = entry[1], entry[2]
+			local locked = blocker and not db[key]
+			box:SetChecked(db[key] and true or false)
+			box:SetMotionScriptsWhileDisabled(true)
+			box:SetEnabled(not locked)
+			box:SetAlpha(locked and 0.5 or 1)
+			box.bbfStyleBlocker = locked and blocker or nil
+		end
+	end
+end
+
 function BBF.RunAfterCombat(func)
 	if not InCombatLockdown() then
 		func()
@@ -503,4 +602,33 @@ function BBF.UnclampMinimap()
         Minimap:SetClampedToScreen(not unclamp)
     end
     BBF.UnclampedMinimap = unclamp and true or nil
+end
+
+local originalStrata = {}
+local combatFrame
+
+function BBF.LowerToTStrata()
+    if InCombatLockdown() then
+        if not combatFrame then
+            combatFrame = CreateFrame("Frame")
+            combatFrame:SetScript("OnEvent", function(self)
+                self:UnregisterEvent("PLAYER_REGEN_ENABLED")
+                BBF.LowerToTStrata()
+            end)
+        end
+        combatFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+        return
+    end
+    local lower = BetterBlizzFramesDB.lowerToTStrata
+    for _, frame in ipairs({ TargetFrameToT or false, FocusFrameToT or false }) do
+        if frame then
+            if lower then
+                originalStrata[frame] = originalStrata[frame] or frame:GetFrameStrata()
+                frame:SetFrameStrata("LOW")
+            elseif originalStrata[frame] then
+                frame:SetFrameStrata(originalStrata[frame])
+                originalStrata[frame] = nil
+            end
+        end
+    end
 end
