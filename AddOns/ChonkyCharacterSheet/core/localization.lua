@@ -490,6 +490,12 @@ if locale == "enGB" then
     }
 elseif locale == "deDE" then
     localizedStrings = {
+		["Model Brightness"] = "Modellhelligkeit", -- deDE
+		["Current bracket"] = "Aktuelle Wertungsklasse", -- deDE
+		["Penalty"] = "Strafe", -- deDE
+		["to next"] = "bis zur nächsten", -- deDE
+		["Themes Override"] = "Design-Überschreibung", -- deDE
+		["DR Row Colors"] = "DR-Zeilenfarben", -- deDE
 		------------------------------------------------------------
 		-- Themes
 		------------------------------------------------------------
@@ -926,6 +932,12 @@ elseif locale == "deDE" then
     }	
 elseif locale == "frFR" then
     localizedStrings = {
+		["Model Brightness"] = "Luminosité du modèle", -- frFR
+		["Current bracket"] = "Barème actuel", -- frFR
+		["Penalty"] = "Pénalité", -- frFR
+		["to next"] = "jusqu’au suivant", -- frFR
+		["Themes Override"] = "Remplacement des thèmes", -- frFR
+		["DR Row Colors"] = "Couleurs des lignes DR", -- frFR
 		------------------------------------------------------------
 		-- Themes
 		------------------------------------------------------------
@@ -1362,6 +1374,12 @@ elseif locale == "frFR" then
     }
 elseif locale == "esES" then
     localizedStrings = {
+		["Model Brightness"] = "Brillo del modelo", -- esES
+		["Current bracket"] = "Rango actual", -- esES
+		["Penalty"] = "Penalización", -- esES
+		["to next"] = "hasta el siguiente", -- esES
+		["Themes Override"] = "Anulación de temas", -- esES
+		["DR Row Colors"] = "Colores de filas DR", -- esES
 		------------------------------------------------------------
 		-- Themes
 		------------------------------------------------------------
@@ -1798,6 +1816,12 @@ elseif locale == "esES" then
     }
 elseif locale == "esMX" then
     localizedStrings = {
+		["Model Brightness"] = "Brillo del modelo", -- esMX
+		["Current bracket"] = "Rango actual", -- esMX
+		["Penalty"] = "Penalización", -- esMX
+		["to next"] = "hasta el siguiente", -- esMX
+		["Themes Override"] = "Anulación de temas", -- esMX
+		["DR Row Colors"] = "Colores de filas DR", -- esMX
 		------------------------------------------------------------
 		-- Themes
 		------------------------------------------------------------
@@ -2234,6 +2258,12 @@ elseif locale == "esMX" then
     }
 elseif locale == "ruRU" then
     localizedStrings = {
+		["Model Brightness"] = "Яркость модели", -- ruRU
+		["Current bracket"] = "Текущая категория", -- ruRU
+		["Penalty"] = "Штраф", -- ruRU
+		["to next"] = "до следующей", -- ruRU
+		["Themes Override"] = "Переопределение тем", -- ruRU
+		["DR Row Colors"] = "Цвета строк DR", -- ruRU
 		------------------------------------------------------------
 		-- Themes
 		------------------------------------------------------------
@@ -2671,6 +2701,12 @@ elseif locale == "ruRU" then
     }
 elseif locale == "koKR" then
     localizedStrings = {
+		["Model Brightness"] = "모델 밝기", -- koKR
+		["Current bracket"] = "현재 등급", -- koKR
+		["Penalty"] = "패널티", -- koKR
+		["to next"] = "다음까지", -- koKR
+		["Themes Override"] = "테마 재정의", -- koKR
+		["DR Row Colors"] = "DR 행 색상", -- koKR
 		------------------------------------------------------------
 		-- Themes
 		------------------------------------------------------------
@@ -3107,6 +3143,12 @@ elseif locale == "koKR" then
     }
 elseif locale == "zhCN" then
     localizedStrings = {
+		["Model Brightness"] = "模型亮度", -- zhCN
+		["Current bracket"] = "当前段位", -- zhCN
+		["Penalty"] = "惩罚", -- zhCN
+		["to next"] = "到下一级", -- zhCN
+		["Themes Override"] = "主题覆盖", -- zhCN
+		["DR Row Colors"] = "DR行颜色", -- zhCN
 		------------------------------------------------------------
 		-- Themes
 		------------------------------------------------------------
@@ -3543,6 +3585,12 @@ elseif locale == "zhCN" then
     }
 elseif locale == "zhTW" then
     localizedStrings = {
+		["Model Brightness"] = "模型亮度", -- zhTW
+		["Current bracket"] = "當前段位", -- zhTW
+		["Penalty"] = "懲罰", -- zhTW
+		["to next"] = "到下一級", -- zhTW
+		["Themes Override"] = "主題覆寫", -- zhTW
+		["DR Row Colors"] = "DR列顏色", -- zhTW
 		------------------------------------------------------------
 		-- Themes
 		------------------------------------------------------------
@@ -3978,6 +4026,12 @@ elseif locale == "zhTW" then
     }
 elseif locale == "ptBR" then
     localizedStrings = {
+		["Model Brightness"] = "Brilho do modelo", -- ptBR
+		["Current bracket"] = "Faixa atual", -- ptBR
+		["Penalty"] = "Penalidade", -- ptBR
+		["to next"] = "até a próxima", -- ptBR
+		["Themes Override"] = "Substituição de temas", -- ptBR
+		["DR Row Colors"] = "Cores das linhas DR", -- ptBR
 		------------------------------------------------------------
 		-- Themes
 		------------------------------------------------------------
@@ -4414,6 +4468,12 @@ elseif locale == "ptBR" then
     }
 elseif locale == "itIT" then
     localizedStrings = {
+		["Model Brightness"] = "Luminosità del modello", -- itIT
+		["Current bracket"] = "Categoria attuale", -- itIT
+		["Penalty"] = "Penalità", -- itIT
+		["to next"] = "alla successiva", -- itIT
+		["Themes Override"] = "Override dei temi", -- itIT
+		["DR Row Colors"] = "Colori delle righe DR", -- itIT
 		------------------------------------------------------------
 		-- Themes
 		------------------------------------------------------------

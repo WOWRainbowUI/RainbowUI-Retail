@@ -209,38 +209,38 @@ ns.optionDefs = {
     -- Addon Theme Settings
     --------------------------------------
     { type="divider",  cat="STYLE-COLOR", ver=bit.bor(CCS.ALL), slots=4 },
-    { type="header",   cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key=nil, label=L["THEME SETTINGS"], slots=4, color={1, 1, 1}, fontSize=18, fontOutline="THICKOUTLINE", justify="LEFT" },
-    { type="dropdown", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key="theme", label=L["THEME"].." |cff33ccff("..L["THEME_WARNING"]..")|r", value="Explorer", default="Explorer", values={"None", "Explorer"}, slots=2 },
-    { type="header",   cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key=nil, label="", slots=2, color={1, 1, 1}, fontSize=18, fontOutline="THICKOUTLINE", justify="LEFT" },
+    { type="header",   cat="STYLE-COLOR", ver=bit.bor(CCS.ALL), key=nil, label=L["THEME SETTINGS"], slots=4, color={1, 1, 1}, fontSize=18, fontOutline="THICKOUTLINE", justify="LEFT" },
+    { type="dropdown", cat="STYLE-COLOR", ver=bit.bor(CCS.ALL), key="theme", label=L["THEME"].." |cff33ccff("..L["THEME_WARNING"]..")|r", value="Explorer", default="Explorer", values={"None", "Explorer"}, slots=2 },
+    { type="header",   cat="STYLE-COLOR", ver=bit.bor(CCS.ALL), key=nil, label="", slots=2, color={1, 1, 1}, fontSize=18, fontOutline="THICKOUTLINE", justify="LEFT" },
 
-    { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key="show_char_frame", label=L["Character Frame Border"], value=true, default=true, slots=1 },
-    { type="header",   cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key=nil, label="", slots=3, color={1, 1, 1}, fontSize=18, fontOutline="THICKOUTLINE", justify="LEFT" },
+    { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.ALL), key="show_char_frame", label=L["Character Frame Border"], value=true, default=true, slots=1 },
+    { type="header",   cat="STYLE-COLOR", ver=bit.bor(CCS.ALL), key=nil, label="", slots=3, color={1, 1, 1}, fontSize=18, fontOutline="THICKOUTLINE", justify="LEFT" },
 
-    { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key="show_top_texture", label=L["Top Texture"], value=true, default=true, slots=1 },
-    { type="slider",   cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key="top_tex_scale", label=L["SCALE"], value=1, default=1, min=0.3, max=1.3, step=0.05, slots=1 },
-    { type="slider",   cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key="top_tex_xoff", label=L["X Offset"], value=0, default=0, min=-300, max=300, step=1, slots=1 },
-    { type="slider",   cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key="top_tex_yoff", label=L["Y Offset"], value=0, default=0, min=-75, max=75, step=1, slots=1 },
+    { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.ALL), key="show_top_texture", label=L["Top Texture"], value=true, default=true, slots=1 },
+    { type="slider",   cat="STYLE-COLOR", ver=bit.bor(CCS.ALL), key="top_tex_scale", label=L["SCALE"], value=1, default=1, min=0.3, max=1.3, step=0.05, slots=1 },
+    { type="slider",   cat="STYLE-COLOR", ver=bit.bor(CCS.ALL), key="top_tex_xoff", label=L["X Offset"], value=0, default=0, min=-300, max=300, step=1, slots=1 },
+    { type="slider",   cat="STYLE-COLOR", ver=bit.bor(CCS.ALL), key="top_tex_yoff", label=L["Y Offset"], value=0, default=0, min=-75, max=75, step=1, slots=1 },
 
-    { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key="show_left_texture", label=L["Left Texture"], value=true, default=true, slots=1 },
-    { type="slider",   cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key="left_tex_scale", label=L["SCALE"], value=1, default=1, min=0.3, max=1.3, step=0.05, slots=1 },
-    { type="slider",   cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key="left_tex_xoff", label=L["X Offset"], value=0, default=0, min=-75, max=75, step=1, slots=1 },
-    { type="slider",   cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key="left_tex_yoff", label=L["Y Offset"], value=0, default=0, min=-75, max=75, step=1, slots=1 },
+    { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.ALL), key="show_left_texture", label=L["Left Texture"], value=true, default=true, slots=1 },
+    { type="slider",   cat="STYLE-COLOR", ver=bit.bor(CCS.ALL), key="left_tex_scale", label=L["SCALE"], value=1, default=1, min=0.3, max=1.3, step=0.05, slots=1 },
+    { type="slider",   cat="STYLE-COLOR", ver=bit.bor(CCS.ALL), key="left_tex_xoff", label=L["X Offset"], value=0, default=0, min=-75, max=75, step=1, slots=1 },
+    { type="slider",   cat="STYLE-COLOR", ver=bit.bor(CCS.ALL), key="left_tex_yoff", label=L["Y Offset"], value=0, default=0, min=-75, max=75, step=1, slots=1 },
 
-    { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key="show_right_texture", label=L["Right Texture"], value=true, default=true, slots=1 },
-    { type="slider",   cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key="right_tex_scale", label=L["SCALE"], value=1, default=1, min=0.3, max=1.3, step=0.05, slots=1 },
-    { type="slider",   cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key="right_tex_xoff", label=L["X Offset"], value=0, default=0, min=-75, max=75, step=1, slots=1 },
-    { type="slider",   cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key="right_tex_yoff", label=L["Y Offset"], value=0, default=0, min=-75, max=75, step=1, slots=1 },
+    { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.ALL), key="show_right_texture", label=L["Right Texture"], value=true, default=true, slots=1 },
+    { type="slider",   cat="STYLE-COLOR", ver=bit.bor(CCS.ALL), key="right_tex_scale", label=L["SCALE"], value=1, default=1, min=0.3, max=1.3, step=0.05, slots=1 },
+    { type="slider",   cat="STYLE-COLOR", ver=bit.bor(CCS.ALL), key="right_tex_xoff", label=L["X Offset"], value=0, default=0, min=-75, max=75, step=1, slots=1 },
+    { type="slider",   cat="STYLE-COLOR", ver=bit.bor(CCS.ALL), key="right_tex_yoff", label=L["Y Offset"], value=0, default=0, min=-75, max=75, step=1, slots=1 },
 
     -- Show/hide various elements
-    { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key="show_item_frame", label=L["Item Frame"], value=true, default=true, slots=1 },
+    { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.ALL), key="show_item_frame", label=L["Item Frame"], value=true, default=true, slots=1 },
     { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL), key="showstatborder", label=L["Stats Border"], value=true, default=true, slots=1 },
     { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL), key="show_mplus_frame_border", label=L["M+ Panel Border"], value=true, default=true, slots=1 },
-    { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key="show_inspect_frame", label=L["Inspect Frame Border"], value=true, default=true, slots=1 },
+    { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.ALL), key="show_inspect_frame", label=L["Inspect Frame Border"], value=true, default=true, slots=1 },
 
-    { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key="show_paperdoll_border", label=L["Model Border"], value=true, default=true, slots=1 },
+    { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.ALL), key="show_paperdoll_border", label=L["Model Border"], value=true, default=true, slots=1 },
     { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL), key="show_stats_background", label=L["Stats Background"], value=true, default=true, slots=1 },
     { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL), key="show_raid_frame_border", label=L["Raid Panel Border"], value=true, default=true, slots=1 },
-    { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key="show_paperdolli_border", label=L["Inspect Model Border"], value=true, default=true, slots=1 },
+    { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.ALL), key="show_paperdolli_border", label=L["Inspect Model Border"], value=true, default=true, slots=1 },
 
     { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL), key="showsidebarbg", label=L["Sidebar Background"], value=true, default=true, slots=1 },
     { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL), key="show_headers", label=L["Stats Headers"], value=true, default=true, slots=1 },
@@ -264,9 +264,10 @@ ns.optionDefs = {
     { type="header", cat="STYLE-COLOR", ver=bit.bor(CCS.ALL), key=nil, label=L["CATEGORY_CHAR-SHEET"], slots=4, color={1,1,1}, fontSize=18, fontOutline="THICKOUTLINE", justify="LEFT" },
     { type="dropdown", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL), key="bgtype", label=L["BG_TYPE"], value="Class Crest", default="Class Crest", values={"Default", "Class", "Class Crest", "Race", "Midnight", "Hide"}, slots=2 },
     { type="dropdown", cat="STYLE-COLOR", ver=bit.bor(CCS.TBC, CCS.MOP, CCS.FOREVER), key="bgtype", label=L["BG_TYPE"], value="Midnight", default="Midnight", values={"Default", "Class Crest", "Race", "Midnight", "Hide"}, slots=2 },
+    { type="slider", cat="STYLE-COLOR", ver=bit.bor(CCS.ALL), key="modelbg_brightness", label=L["Model Brightness"], value=1.00, default=1.00, min=0.10, max=1.00, step=0.01, slots=1 },
     { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL), key="showbganimations", label=ANIMATION, value=true, default=true, slots=1 },
-    { type="color", cat="STYLE-COLOR", ver=bit.bor(CCS.ALL), key="bgcolor", label=L["CCS_BG_COLOR"], value={0,0,0,0.89}, default={0,0,0,0.89}, slots=1 },
     { type="dropdown", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key="tabtex", label=L["Bottom Tab Texture"], value="Steel Beam", default="Steel Beam", values={"Fleur","Hammered","Iron","Onyx","Shiny","Steel Beam"}, slots=2 },
+    { type="color", cat="STYLE-COLOR", ver=bit.bor(CCS.ALL), key="bgcolor", label=L["CCS_BG_COLOR"], value={0,0,0,0.89}, default={0,0,0,0.89}, slots=1 },
     { type="checkbox", cat="STYLE-COLOR", ver=bit.bor(CCS.RETAIL, CCS.FOREVER), key="skinchartabs", label=L["Skin Character Tabs"], value=true, default=true, slots=1 },
 
     --------------------------------------
@@ -413,8 +414,9 @@ ns.optionDefs = {
     { type="slider", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL, CCS.TBC), key="round", label=L["STATS_ROUNDING"], value=2, default=2, min=0, max=2, step=1, slots=1 },
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="show_inbag_ilvl", label=L["SHOW_INBAG_ILVL"], value=true, default=true, slots=1 },
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="show_stat_icons", label=L["show_stat_icons"], value=true, default=true, slots=1 },
-    { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="show_diminishing_returns", label=L["show_diminishing_returns"], value=true, default=true, slots=1 },
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="show_hide_zero_stats", label=L["hide_zero_stats"], value=false, default=false, slots=1 },
+    { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="show_diminishing_returns", label=L["show_diminishing_returns"], value=true, default=true, slots=1 },
+    { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="show_dr_row_colors", label=L["DR Row Colors"], value=false, default=false, slots=1 },
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="show_secondarypriority", label=L["Show wowhead recommended secondary stat priority"], value=false, default=false, slots=2 },
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="show_stathighlights", label=ENABLE..": "..L["STATS_TOGGLE"], value=true, default=true, slots=2 },
     { type="dropdown", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="long_text_handling", label=L["Long Text Handling"], value="Truncate", default="Truncate", values={"Full Text", "Truncate", "Wrap Text"}, slots=2 },
@@ -2339,6 +2341,32 @@ CCS.enchantLookup = {
     [7652] = { { stat="STRENGTH" , value=585 }, { stat="AGILITY" , value=585 }, { stat="INTELLECT" , value=585 }, { stat="STAMINA" , value=562 } }, --Charged Armor Kit |A:Professions-ChatIcon-Quality-Tier1:20:20|a
     [7653] = { { stat="STRENGTH" , value=711 }, { stat="AGILITY" , value=711 }, { stat="INTELLECT" , value=711 }, { stat="STAMINA" , value=684 } }, --Charged Armor Kit |A:Professions-ChatIcon-Quality-Tier2:20:20|a
     [7654] = { { stat="STRENGTH" , value=837 }, { stat="AGILITY" , value=837 }, { stat="INTELLECT" , value=837 }, { stat="STAMINA" , value=805 } }, --Charged Armor Kit |A:Professions-ChatIcon-Quality-Tier3:20:20|a
+    -- Midnight Helm
+    [7958] = { { stat="LEECH" , value=22 } }, --Enchant Helm - Hex of Leeching |A:Professions-ChatIcon-Quality-12-Tier1:20:20|a
+    [7959] = { { stat="LEECH" , value=33 } }, --Enchant Helm - Hex of Leeching |A:Professions-ChatIcon-Quality-12-Tier2:20:20|a
+    [7960] = { { stat="LEECH" , value=44 } },  --Enchant Helm - Empowered Hex of Leeching |A:Professions-ChatIcon-Quality-12-Tier1:20:20|a
+    [7961] = { { stat="LEECH" , value=55 } },  --Enchant Helm - Empowered Hex of Leeching |A:Professions-ChatIcon-Quality-12-Tier2:20:20|a
+    [7988] = { { stat="SPEED" , value=9 } },  --Enchant Helm - Blessing of Speed |A:Professions-ChatIcon-Quality-12-Tier1:20:20|a
+    [7989] = { { stat="SPEED" , value=13 } },  --Enchant Helm - Blessing of Speed |A:Professions-ChatIcon-Quality-12-Tier2:20:20|a
+    [7990] = { { stat="SPEED" , value=17 } },  --Enchant Helm - Empowered Blessing of Speed |A:Professions-ChatIcon-Quality-12-Tier1:20:20|a
+    [7991] = { { stat="SPEED" , value=22 } },  --Enchant Helm - Empowered Blessing of Speed |A:Professions-ChatIcon-Quality-12-Tier2:20:20|a
+    [8014] = { { stat="AVOIDANCE" , value=15 } },  --Enchant Helm - Rune of Avoidance |A:Professions-ChatIcon-Quality-12-Tier1:20:20|a
+    [8015] = { { stat="AVOIDANCE" , value=22 } },  --Enchant Helm - Rune of Avoidance |A:Professions-ChatIcon-Quality-12-Tier2:20:20|a
+    [8016] = { { stat="AVOIDANCE" , value=30 } },  --Enchant Helm - Empowered Rune of Avoidance |A:Professions-ChatIcon-Quality-12-Tier1:20:20|a
+    [8017] = { { stat="AVOIDANCE" , value=37 } },  --Enchant Helm - Empowered Rune of Avoidance |A:Professions-ChatIcon-Quality-12-Tier2:20:20|a
+    -- Midnight Shoulder
+    [7970] = { { stat="SPEED" , value=26 } }, --Enchant Shoulders - Flight of the Eagle |A:Professions-ChatIcon-Quality-12-Tier1:20:20|a
+    [7971] = { { stat="SPEED" , value=39 } }, --Enchant Shoulders - Flight of the Eagle |A:Professions-ChatIcon-Quality-12-Tier2:20:20|a
+    [7972] = { { stat="SPEED" , value=52 } }, --Enchant Shoulders - Akil'zon's Swiftness |A:Professions-ChatIcon-Quality-12-Tier1:20:20|a
+    [7973] = { { stat="SPEED" , value=65 } }, --Enchant Shoulders - Akil'zon's Swiftness |A:Professions-ChatIcon-Quality-12-Tier2:20:20|a
+    [7998] = { { stat="AVOIDANCE" , value=44 } }, --Enchant Shoulders - Nature's Grace |A:Professions-ChatIcon-Quality-12-Tier1:20:20|a
+    [7999] = { { stat="AVOIDANCE" , value=67 } }, --Enchant Shoulders - Nature's Grace |A:Professions-ChatIcon-Quality-12-Tier2:20:20|a
+    [8000] = { { stat="AVOIDANCE" , value=89 } }, --Enchant Shoulders - Amirdrassil's Grace |A:Professions-ChatIcon-Quality-12-Tier1:20:20|a
+    [8001] = { { stat="AVOIDANCE" , value=111 } }, --Enchant Shoulders - Amirdrassil's Grace |A:Professions-ChatIcon-Quality-12-Tier2:20:20|a
+    [8028] = { { stat="LEECH" , value=66 } }, --Enchant Shoulders - Thalassian Recovery |A:Professions-ChatIcon-Quality-12-Tier1:20:20|a
+    [8029] = { { stat="LEECH" , value=99 } }, --Enchant Shoulders - Thalassian Recovery |A:Professions-ChatIcon-Quality-12-Tier2:20:20|a
+    [8030] = { { stat="LEECH" , value=132 } }, --Enchant Shoulders - Silvermoon's Mending |A:Professions-ChatIcon-Quality-12-Tier1:20:20|a
+    [8031] = { { stat="LEECH" , value=16 } }, --Enchant Shoulders - Silvermoon's Mending |A:Professions-ChatIcon-Quality-12-Tier2:20:20|a    
     -- Midnight Chest
     [7956] = { { stat="STRENGTH" , value=32 }, { stat="STAMINA" , value=93 }}, --Enchant Chest - Mark of Nalorakk |A:Professions-ChatIcon-Quality-12-Tier1:20:20|a
     [7957] = { { stat="STRENGTH" , value=40 }, { stat="STAMINA" , value=116 }}, --Enchant Chest - Mark of Nalorakk |A:Professions-ChatIcon-Quality-12-Tier2:20:20|a
@@ -2349,12 +2377,12 @@ CCS.enchantLookup = {
     [8012] = { { stat="INTELLECT" , value=32 } }, --Enchant Chest - Mark of the Magister |A:Professions-ChatIcon-Quality-12-Tier1:20:20|a
     [8013] = { { stat="INTELLECT" , value=40 } }, --Enchant Chest - Mark of the Magister |A:Professions-ChatIcon-Quality-12-Tier2:20:20|a
     -- Midnight Boots
-    [7962] = { { stat="STAMINA" , value=186 } }, --Enchant Boots - Lynx's Dexterity |A:Professions-ChatIcon-Quality-12-Tier1:20:20|a
-    [7963] = { { stat="STAMINA" , value=232 } }, --Enchant Boots - Lynx's Dexterity |A:Professions-ChatIcon-Quality-12-Tier2:20:20|a
-    [7992] = { { stat="STAMINA" , value=186 } }, --Enchant Boots - Shaladrassil's Roots |A:Professions-ChatIcon-Quality-12-Tier1:20:20|a
-    [7993] = { { stat="STAMINA" , value=232 } }, --Enchant Boots - Shaladrassil's Roots |A:Professions-ChatIcon-Quality-12-Tier2:20:20|a
-    [8018] = { { stat="STAMINA" , value=186 } }, --Enchant Boots - Farstrider's Hunt |A:Professions-ChatIcon-Quality-12-Tier1:20:20|a
-    [8019] = { { stat="STAMINA" , value=232 } }, --Enchant Boots - Farstrider's Hunt |A:Professions-ChatIcon-Quality-12-Tier2:20:20|a
+    [7962] = { { stat="STAMINA" , value=186 }, { stat="AVOIDANCE" , value=15 } }, --Enchant Boots - Lynx's Dexterity |A:Professions-ChatIcon-Quality-12-Tier1:20:20|a
+    [7963] = { { stat="STAMINA" , value=232 },{ stat="AVOIDANCE" , value=19 } }, --Enchant Boots - Lynx's Dexterity |A:Professions-ChatIcon-Quality-12-Tier2:20:20|a
+    [7992] = { { stat="STAMINA" , value=186 },{ stat="LEECH" , value=22 } }, --Enchant Boots - Shaladrassil's Roots |A:Professions-ChatIcon-Quality-12-Tier1:20:20|a
+    [7993] = { { stat="STAMINA" , value=232 },{ stat="LEECH" , value=28 } }, --Enchant Boots - Shaladrassil's Roots |A:Professions-ChatIcon-Quality-12-Tier2:20:20|a
+    [8018] = { { stat="STAMINA" , value=186 },{ stat="SPEED" , value=9 } }, --Enchant Boots - Farstrider's Hunt |A:Professions-ChatIcon-Quality-12-Tier1:20:20|a
+    [8019] = { { stat="STAMINA" , value=232 },{ stat="SPEED" , value=11 } }, --Enchant Boots - Farstrider's Hunt |A:Professions-ChatIcon-Quality-12-Tier2:20:20|a
     -- Midnight Rings
     [7964] = { { stat="MASTERY_RATING" , value=22 } }, --Enchant Ring - Amani Mastery |A:Professions-ChatIcon-Quality-12-Tier1:20:20|a
     [7965] = { { stat="MASTERY_RATING" , value=24 } }, --Enchant Ring - Amani Mastery |A:Professions-ChatIcon-Quality-12-Tier2:20:20|a
@@ -2792,6 +2820,9 @@ CCS.statKeyMap = {
     secondary_haste       = "HASTE_RATING",
     secondary_mastery     = "MASTERY_RATING",
     secondary_versatility = "VERSATILITY",
+	general_leech		  = "LEECH",
+	general_avoidance	  = "AVOIDANCE",
+	general_speed		  = "SPEED",
 }
 
 -- These are not intended to be completely accurate as we only want a way to translate the enchantID to a localized spell name

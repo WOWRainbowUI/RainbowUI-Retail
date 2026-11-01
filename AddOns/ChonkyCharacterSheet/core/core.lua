@@ -537,7 +537,23 @@ SlashCmdList["CHONKYCHARACTERSHEET"] = function(msg)
         print("---- Done scanning BIS ----")
         return
     end
+    if msg:match("^option") then
+        -- Extract everything after the word "option"
+        local opt = msg:match("^option%s+(.*)$")
 
+        if not opt or opt == "" then
+            print("|cffff0000You must specify an option name after 'option'.|r")
+            return
+        end
+
+        opt = opt:lower()
+
+        -- Now you can do whatever you want with the option string
+        -- Example:
+        print("Option requested:", opt, option(opt))
+
+        return
+    end
     
     if msg == "testevents" then
         print("|cff00ff00Running Events Test...|r")
