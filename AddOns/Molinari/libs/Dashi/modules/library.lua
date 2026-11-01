@@ -28,7 +28,6 @@ Returns the table _`tbl`_ with meta methods. If _`tbl`_ is not provided a new ta
 
 Included are all meta methods from the [`table` library](https://warcraft.wiki.gg/wiki/Lua_functions#Table_library), as well as a few extra handy methods:
 
-- `tbl:contains(value)` returns `true` if the table contains the given `value`, otherwise `false`
 - `tbl:merge(t)` merges (and returns) the table with the supplied table `t`
     - can also be used by using an addition arithmetic metamethod
 - `tbl:random()` returns a random value from the table
@@ -62,18 +61,6 @@ do
 		return self
 	end
 
-	if not namespace:HasVersion(120105) then
-		function tableMethods:contains(value) -- TODO: coming natively in 12.1.5
-			for _, v in next, self do
-				if value == v then
-					return true
-				end
-			end
-
-			return false
-		end
-	end
-
 	function tableMethods:random()
 		local size = self:count()
 		if size > 0 then
@@ -91,17 +78,6 @@ do
 			end
 		end
 		return tbl
-	end
-
-	if not namespace:HasVersion(120105) then
-		function tableMethods:removevalue(value) -- TODO: coming natively in 12.1.5
-			for index = #self, 1, -1 do
-				if self[index] == value then
-					table.remove(self, index)
-					return index
-				end
-			end
-		end
 	end
 
 	local function newIndex(self, key, value)
