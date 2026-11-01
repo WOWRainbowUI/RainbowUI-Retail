@@ -134,9 +134,23 @@ function CCS.RefreshStyleColors()
         CCS.CreateChonkyNineSlice(CharacterModelFramebg)
         CCS.CreateChonkyNineSlice(InspectModelFramebg)
         CCS.UpdateThemeInfo()
+        
+    elseif CCS.CurrentVersion == CCS.TBC then
+        CCS.CreateChonkyCharacterBG(false)
+        CCS.CreateChonkyCharacterBG(true)
+        CCS.CreateChonkyNineSlice(CharacterModelFramebg)
+        CCS.CreateChonkyNineSlice(InspectModelFramebg)
+        CCS.UpdateThemeInfo()        
+    elseif CCS.CurrentVersion == CCS.MOP then
+        CCS.CreateChonkyCharacterBG(false)
+        CCS.CreateChonkyCharacterBG(true)
+        CCS.CreateChonkyNineSlice(CharacterModelFramebg)
+        CCS.CreateChonkyNineSlice(InspectModelFramebg)
+        CCS.UpdateThemeInfo()                
     end
     
-    if (CCS.CurrentVersion == CCS.RETAIL or CCS.CurrentVersion == CCS.FOREVER) and CCS.Themes ~= nil and CCS.Themes.enabled == true and option("theme") ~= "None" then
+    --if (CCS.CurrentVersion == CCS.RETAIL or CCS.CurrentVersion == CCS.FOREVER) and CCS.Themes ~= nil and CCS.Themes.enabled == true and option("theme") ~= "None" then
+    if CCS.Themes ~= nil and CCS.Themes.enabled == true and option("theme") ~= "None" then
         newNormal = CCS.CurrentTheme.ncolor
         newBorder = CCS.CurrentTheme.bcolor
         newHighlight = CCS.CurrentTheme.hcolor
@@ -708,7 +722,7 @@ function CCS.CreateChonkyNineSlice(parent)
         R:SetWidth(size)
         if parent.BG ~= nil then parent.BG:Hide() end
     end
-
+    if option("theme") == "None" then frame:Hide() end
     return frame
 end
 
@@ -1060,6 +1074,7 @@ function CCS.CreateChonkyCharacterBG(isInspect)
     -- Ensure CharacterFrameBgbg exists (this function loads before characterSheet.lua, so we just create it here.
     ------------------------------------------------------------
     if isInspect == true and ( false or InspectFrame == nil) then return end
+    if CharacterFrameBg == nil then return end
     
     local parent
     local bg_name 
@@ -1229,25 +1244,26 @@ function CCS.CreateChonkyCharacterBG(isInspect)
             local l_yoff = option("left_tex_yoff") or 0
             local r_xoff = option("right_tex_xoff") or 0
             local r_yoff = option("right_tex_yoff") or 0
+            local CharTT = CharacterFrameTitleText or CharacterNameFrame
             
             TopOverlay:SetTexture(path .. theme.frame_top_img.texture)
             TopOverlay:SetSize(theme.frame_top_img.w, theme.frame_top_img.h)
             TopOverlay:SetScale(top_scale)
-
             TopOverlay:SetPoint("BOTTOM", CharacterFrameBg, "TOP", theme.frame_top_img.cx / top_scale + t_xoff, theme.frame_top_img.cy/top_scale + t_yoff)
-            TopOverlay:SetPoint("CENTER", CharacterFrameTitleText, "CENTER", theme.frame_top_img.cx / top_scale + t_xoff,0)
-            TopOverlay:Show()
+            TopOverlay:SetPoint("CENTER", CharTT, "CENTER", theme.frame_top_img.cx / top_scale + t_xoff,0)
+            TopOverlay:SetShown(option("show_top_texture"))
+
             LeftOverlay:SetTexture(path .. theme.frame_left_img.texture)
             LeftOverlay:SetSize(theme.frame_left_img.w, theme.frame_left_img.h)
             LeftOverlay:SetScale(left_scale)            
             LeftOverlay:SetPoint("RIGHT", bg_setpoint, "LEFT", theme.frame_left_img.cx/left_scale + l_xoff, theme.frame_left_img.cy/left_scale + l_yoff)
-            LeftOverlay:Show()
+            LeftOverlay:SetShown(option("show_left_texture"))
 
             RightOverlay:SetTexture(path .. theme.frame_right_img.texture)
             RightOverlay:SetSize(theme.frame_right_img.w, theme.frame_right_img.h)
             RightOverlay:SetScale(right_scale)                        
             RightOverlay:SetPoint("LEFT", bg_setpoint, "RIGHT", theme.frame_right_img.cx/right_scale + r_xoff, theme.frame_right_img.cy/right_scale + r_yoff)
-            RightOverlay:Show()
+            RightOverlay:SetShown(option("show_right_texture"))
         end
     ------------------------------------------------------------
     -- FALLBACK MODE
@@ -1272,18 +1288,21 @@ function CCS.UpdateThemeInfo()
         if CharacterModelFramebg == nil or CharacterFrameBgbg == nil or CharacterStatsPane == nil then return end
     elseif CCS.CurrentVersion == CCS.FOREVER then
         if CharacterModelFramebg == nil or CharacterFrameBgbg == nil or CharacterStatsPaneScrollBox == nil then return end
+    elseif CCS.CurrentVersion == CCS.TBC or CCS.CurrentVersion == CCS.MOP then
+        if CharacterModelFramebg == nil or CharacterFrameBgbg == nil then return end
     end
-    
+
     if CharacterFrameRightPaneHost ~= nil then 
         CharacterFrameRightPaneHost:SetFrameLevel(1) 
     end
     --------------------
     -- No Theme Selected
     --------------------
+
     if option("theme") == "None" and CharacterFrame.ChonkyNS ~= nil then
         if CharacterModelFramebg.ChonkyNS ~= nil then CharacterModelFramebg.ChonkyNS:Hide() end
         if InspectModelFramebg.ChonkyNS ~= nil then InspectModelFramebg.ChonkyNS:Hide() end        
-        if CharacterStatsPane.ChonkyNS ~= nil then 
+        if CharacterStatsPane ~= nil and CharacterStatsPane.ChonkyNS ~= nil then 
             CharacterStatsPane.ChonkyNS:SetShown(option("showstatborder"))
         end
         
@@ -1308,13 +1327,40 @@ function CCS.UpdateThemeInfo()
     --------------------
     -- Theme Selected.
     --------------------
-      
-    elseif option("theme") ~= "None" then
 
+    elseif option("theme") ~= "None" then
         if CharacterFrame.ChonkyNS ~= nil then CharacterFrame.ChonkyNS:SetShown(option("show_char_frame")) end
-        if PaperDollFrame.TopOverlay ~= nil then PaperDollFrame.TopOverlay:SetShown(option("show_top_texture")) end
-        if PaperDollFrame.LeftOverlay ~= nil then PaperDollFrame.LeftOverlay:SetShown(option("show_left_texture")) end
-        if PaperDollFrame.RightOverlay ~= nil then PaperDollFrame.RightOverlay:SetShown(option("show_right_texture")) end
+        
+        if PaperDollFrame.TopOverlay then
+            if option("show_top_texture") then
+                PaperDollFrame.TopOverlay:SetAlpha(1)
+                PaperDollFrame.TopOverlay:Show()
+            else
+                PaperDollFrame.TopOverlay:SetAlpha(0)                
+                PaperDollFrame.TopOverlay:Hide()
+            end
+        end
+
+        if PaperDollFrame.LeftOverlay then
+            if option("show_left_texture") then
+                PaperDollFrame.LeftOverlay:SetAlpha(1)
+                PaperDollFrame.LeftOverlay:Show()
+            else
+                PaperDollFrame.LeftOverlay:SetAlpha(0)
+                PaperDollFrame.LeftOverlay:Hide()
+            end
+        end
+
+        if PaperDollFrame.RightOverlay then
+            if option("show_right_texture") then
+                PaperDollFrame.RightOverlay:SetAlpha(1)
+                PaperDollFrame.RightOverlay:Show()
+            else
+                PaperDollFrame.RightOverlay:SetAlpha(0)
+                PaperDollFrame.RightOverlay:Hide()
+            end
+        end
+
         if CharacterModelFramebg.ChonkyNS ~= nil then CharacterModelFramebg.ChonkyNS:SetShown(option("show_paperdoll_border")) end
         if CharacterFrameInsetRight ~= nil and CharacterFrameInsetRight.Bg ~= nil then CharacterFrameInsetRight.Bg:SetShown(option("showsidebarbg")) end
         CCS.SkinItems()
@@ -1322,8 +1368,10 @@ function CCS.UpdateThemeInfo()
         if InspectModelFramebg ~= nil and InspectModelFramebg.ChonkyNS ~= nil then InspectModelFramebg.ChonkyNS:SetShown(option("show_paperdolli_border"))  end        
         if ccsmi_sf ~= nil and ccsmi_sf.ChonkyNS ~= nil then ccsmi_sf.ChonkyNS:SetShown(option("show_mplusi_frame_border"))  end
 
-        if CharacterStatsPane.ChonkyNS ~= nil then CharacterStatsPane.ChonkyNS:SetShown(option("showstatborder")) end
-        if CharacterStatsPane.BG ~= nil then CharacterStatsPane.BG:SetShown(option("show_stats_background")) end        
+        if CharacterStatsPane ~= nil then
+            if CharacterStatsPane.ChonkyNS ~= nil then CharacterStatsPane.ChonkyNS:SetShown(option("showstatborder")) end
+            if CharacterStatsPane.BG ~= nil then CharacterStatsPane.BG:SetShown(option("show_stats_background")) end        
+        end
 
         if ccsm_sf ~= nil and ccsm_sf.ChonkyNS ~= nil then ccsm_sf.ChonkyNS:SetShown(option("show_mplus_frame_border")) end
         if ccsrf_sf ~= nil and ccsrf_sf.ChonkyNS ~= nil then ccsrf_sf.ChonkyNS:SetShown(option("show_raid_frame_border")) end

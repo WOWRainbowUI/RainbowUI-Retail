@@ -95,11 +95,11 @@ local function MoveModelLeft()
     CharacterModelFrame:SetWidth(Height/CCS.ModelAspect)
     CharacterModelFrame:SetPoint("LEFT", CharacterFrameBg, "LEFT", 121, -20);
     CharacterModelFrame:SetFrameLevel(2)
-   
+
     modbg:ClearAllPoints()
-    modbg:SetPoint("TOPLEFT", CharacterHeadSlot, "TOPLEFT", 0, 0)
-    modbg:SetPoint("RIGHT", CharacterHandsSlot, "RIGHT", 0, 0)    
-    modbg:SetPoint("BOTTOM", CharacterMainHandSlot, "BOTTOM", 0, 0)            
+    modbg:SetPoint("TOPLEFT", CharacterHeadSlot, "TOPLEFT", 0, 4)
+    modbg:SetPoint("RIGHT", CharacterHandsSlot, "RIGHT", 2, 0)    
+    modbg:SetPoint("BOTTOM", CharacterMainHandSlot, "BOTTOM", 0, -5)        
     
 end
 
@@ -1605,14 +1605,18 @@ function module:SetupBlizzardFrameOverrides()
                 RaidNotice_AddMessage(RaidBossEmoteFrame, format("%s", ERR_AFFECTING_COMBAT), ChatTypeInfo["SYSTEM"])
             end 
     end)
-    
+
     modbg:ClearAllPoints()
-    modbg:SetPoint("TOPLEFT", CharacterHeadSlot, "TOPLEFT", 0, 0)
-    modbg:SetPoint("RIGHT", CharacterHandsSlot, "RIGHT", 0, 0)    
-    modbg:SetPoint("BOTTOM", CharacterRangedSlot, "BOTTOM", 0, 0)        
+    modbg:SetPoint("TOPLEFT", CharacterHeadSlot, "TOPLEFT", 0, 4)
+    modbg:SetPoint("RIGHT", CharacterHandsSlot, "RIGHT", 2, 0)    
+    modbg:SetPoint("BOTTOM", CharacterMainHandSlot, "BOTTOM", 0, -5)        
     modbg:SetFrameStrata("LOW")
-    modbg:SetFrameLevel(50)
+    modbg:SetFrameLevel(1)
+    
     CCS.ChangeModelBg(false)
+    if CCS.Themes ~= nil and CCS.Themes.enabled == true and option("theme") ~= "None" then
+        CCS.CreateChonkyNineSlice(modbg)
+    end    
     
     local Height = 520  -- Hard code it for now
     CharacterModelFrame:ClearAllPoints();
@@ -1812,6 +1816,13 @@ function module:UpdateStyle()
         option("fontcolor_showchar")[3] or 1,
         option("fontcolor_showchar")[4] or 1
     )
+    
+    CCS:SkinBlizzardButton(CharacterFrameCloseButton, "x", 26)
+
+    local CCSsetbtn = _G["CCSsetbtn"] or CreateFrame("Button", "CCSsetbtn", CharacterFrame)
+    CCS:ApplyIconStyle(CCSsetbtn, "gear", 32)
+    
+    CCS.SkinItems()
 
 end
 
@@ -1831,7 +1842,7 @@ function module:ApplyDynamicLayout()
 		CharacterModelFrame:SetPoint("LEFT", CharacterFrameBg, "LEFT", Left+(Bgoffset-277)/2, -20);
 		-- All slots on the left (under head) are tied back to this slot
 		CharacterHeadSlot:ClearAllPoints()
-		CharacterHeadSlot:SetPoint("TOPLEFT", CharacterFrameBg, "TOPLEFT", 30, -60)
+        CharacterHeadSlot:SetPoint("TOPLEFT", CharacterFrameBg, "TOPLEFT", 36, -69)
 		CharacterNeckSlot:ClearAllPoints()
 		CharacterNeckSlot:SetPoint("TOPLEFT", CharacterHeadSlot, "BOTTOMLEFT", 0, -option("vpad"))
 		CharacterShoulderSlot:ClearAllPoints()
@@ -1848,7 +1859,7 @@ function module:ApplyDynamicLayout()
 		CharacterWristSlot:SetPoint("TOPLEFT", CharacterTabardSlot, "BOTTOMLEFT", 0, -option("vpad"))
 		-- All slots on the right (under hands) are tied back to this slot
 		CharacterHandsSlot:ClearAllPoints()
-		CharacterHandsSlot:SetPoint("TOPLEFT", CharacterFrameBg, "TOPLEFT", 283 + option("hpad"), -60)
+		CharacterHandsSlot:SetPoint("TOPLEFT", CharacterFrameBg, "TOPLEFT", 272 + option("hpad"), -69)
 		CharacterWaistSlot:ClearAllPoints()
 		CharacterWaistSlot:SetPoint("TOPLEFT", CharacterHandsSlot, "BOTTOMLEFT", 0, -option("vpad"))
 		CharacterLegsSlot:ClearAllPoints()
@@ -1864,11 +1875,11 @@ function module:ApplyDynamicLayout()
 		CharacterTrinket1Slot:ClearAllPoints()
 		CharacterTrinket1Slot:SetPoint("TOPLEFT", CharacterTrinket0Slot, "BOTTOMLEFT", 0, -option("vpad"))
 		CharacterMainHandSlot:ClearAllPoints()
-		CharacterMainHandSlot:SetPoint("BOTTOMLEFT", CharacterFrameBg, "BOTTOMLEFT", 146 + 89*option("hpad")/262, 60)
+		CharacterMainHandSlot:SetPoint("BOTTOMLEFT", CharacterFrameBg, "BOTTOMLEFT", 146 + 89*option("hpad")/262, 65)
 		CharacterSecondaryHandSlot:ClearAllPoints()
 		CharacterSecondaryHandSlot:SetPoint("TOPLEFT", CharacterMainHandSlot, "TOPRIGHT", 60*option("hpad")/262, 0)
 		CharacterRangedSlot:ClearAllPoints()
-		CharacterRangedSlot:SetPoint("TOPLEFT", CharacterMainHandSlot, "BOTTOMLEFT", 0, -5)
+		CharacterRangedSlot:SetPoint("TOPLEFT", CharacterMainHandSlot, "BOTTOMLEFT", 0, -15)
 		
 	end
 	
@@ -2021,7 +2032,36 @@ function module:ApplyDynamicLayout()
 			CharacterRangedSlotNormalTexture:Show()
 			CharacterAmmoSlotNormalTexture:Show()
 		end	  
-		
+
+        local normalSlots = {
+            { frame = CharacterBackSlot, tex = CharacterBackSlotNormalTexture },
+            { frame = CharacterChestSlot, tex = CharacterChestSlotNormalTexture },
+            { frame = CharacterFeetSlot, tex = CharacterFeetSlotNormalTexture },
+            { frame = CharacterFinger0Slot, tex = CharacterFinger0SlotNormalTexture },
+            { frame = CharacterFinger1Slot, tex = CharacterFinger1SlotNormalTexture },
+            { frame = CharacterHandsSlot, tex = CharacterHandsSlotNormalTexture },
+            { frame = CharacterHeadSlot, tex = CharacterHeadSlotNormalTexture },
+            { frame = CharacterLegsSlot, tex = CharacterLegsSlotNormalTexture },
+            { frame = CharacterMainHandSlot, tex = CharacterMainHandSlotNormalTexture },
+            { frame = CharacterNeckSlot, tex = CharacterNeckSlotNormalTexture },
+            { frame = CharacterSecondaryHandSlot, tex = CharacterSecondaryHandSlotNormalTexture },
+            { frame = CharacterShirtSlot, tex = CharacterShirtSlotNormalTexture },
+            { frame = CharacterShoulderSlot, tex = CharacterShoulderSlotNormalTexture },
+            { frame = CharacterTabardSlot, tex = CharacterTabardSlotNormalTexture },
+            { frame = CharacterTrinket0Slot, tex = CharacterTrinket0SlotNormalTexture },
+            { frame = CharacterTrinket1Slot, tex = CharacterTrinket1SlotNormalTexture },
+            { frame = CharacterWaistSlot, tex = CharacterWaistSlotNormalTexture },
+            { frame = CharacterWristSlot, tex = CharacterWristSlotNormalTexture },
+            { frame = CharacterRangedSlot, tex = CharacterRangedSlotNormalTexture }, -- may be nil
+        }
+
+        for _, slot in ipairs(normalSlots) do
+            if slot.frame and slot.tex then
+                slot.tex:ClearAllPoints()
+                slot.tex:SetPoint("TOPLEFT", slot.frame, "TOPLEFT", -3, 3)
+                slot.tex:SetPoint("BOTTOMRIGHT", slot.frame, "BOTTOMRIGHT", 3, -3)
+            end
+        end
 	
 	end
 	
@@ -2173,7 +2213,9 @@ function CCS.TBCCharacterSheetEventHandler(event, ...)
         return true
     end
     if (not CharacterFrame or not CharacterFrame:IsVisible()) and event ~= "INSPECT_READY" then return end
-
+    -- If for some reason it wasn't created, let's do the NS frame creation.
+    if CharacterFrame.ChonkyNS == nil then CCS.CreateChonkyCharacterBG(false) end
+    
     if event == "PLAYER_EQUIPMENT_CHANGED" then
         TryLoopItems()
         if not CCS.characterUpdatePending then
@@ -2188,6 +2230,8 @@ function CCS.TBCCharacterSheetEventHandler(event, ...)
         TryLoopItems()
         CCS.ChangeModelBg(false)
         CCS_ReputationFrame_Update()
+        CCS.CreateChonkyCharacterBG(false)
+        CCS.SkinItems()
         if PaperDollFrame and PaperDollFrame:IsVisible() then 
             CharacterFrameBg:SetPoint("BOTTOMRIGHT", CharacterFrame, "BOTTOMRIGHT", option("hpad")+221, 0);
         end
@@ -2205,6 +2249,7 @@ function CCS.TBCCharacterSheetEventHandler(event, ...)
         return true
     elseif event == "INSPECT_READY" and InspectFrame ~= nil and InspectFrame.unit ~= nil then
                 TBCinitializeinspectframe()
+                CCS.CreateChonkyCharacterBG(true)
                 TBCloopinspectitems()
         return true
     else 

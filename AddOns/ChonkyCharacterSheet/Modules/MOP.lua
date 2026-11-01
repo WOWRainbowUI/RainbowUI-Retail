@@ -1658,7 +1658,11 @@ function module:SetupBlizzardFrameOverrides()
     end)
 
     CharacterFrameTitleText:ClearAllPoints();
-    CharacterFrameTitleText:SetPoint("TOP", CharacterFrame, "TOP", 0, -5)
+    local ttfontsize = option("fontsize_nametitle") or 12
+    CharacterFrameTitleText:SetPoint("TOP", CharacterFrame, "TOP", 0, -(13+5*ttfontsize/12))
+    CharacterFrameTitleText:SetFont( option("fontname_nametitle") or CCS.fontname, ttfontsize , CCS.textoutline)
+
+    --CharacterFrameTitleText:SetPoint("TOP", CharacterFrame, "TOP", 0, -18)
     CharacterFrameTitleText:SetPoint("LEFT", CharacterFrame, "LEFT", 50, 0)
     CharacterFrameTitleText:SetPoint("RIGHT", CharacterFrameInset.Bg, "RIGHT", -40, 0)
 
@@ -1773,7 +1777,10 @@ function module:SetupBlizzardFrameOverrides()
     CharacterModelFrameBackgroundOverlay:SetPoint("TOPLEFT", CharacterModelFrameBackgroundTopLeft, "TOPLEFT", 0, 0)
     CharacterModelFrameBackgroundOverlay:SetPoint("BOTTOMRIGHT", CharacterModelFrameBackgroundBotRight, "BOTTOMRIGHT", 0, 70)
     CharacterModelFrameBackgroundOverlay:Hide()
-
+    
+    if CCS.Themes ~= nil and CCS.Themes.enabled == true and option("theme") ~= "None" then
+        CCS.CreateChonkyNineSlice(modbg)
+    end    
 end
 
 function module:UpdateStyle()
@@ -2135,13 +2142,17 @@ function CCS.MOPCharacterSheetEventHandler(event, ...)
         end
         return true
     end
-
+    
+    if CharacterFrame.ChonkyNS == nil then CCS.CreateChonkyCharacterBG(false) end
+    
     if event == "CCS_EVENT_OPTIONS" then
         TryLoopItems()
         CCS.ChangeModelBg(false)
         CCSReputationFrame_Update()
         --CurrencyFrame_Update()
-
+        CCS.CreateChonkyCharacterBG(false)
+        CCS.SkinItems()
+        
         if InspectFrame ~= nil and InspectFrame:IsVisible() == true then
             MOPloopinspectitems()
         end
@@ -2178,6 +2189,7 @@ function CCS.MOPCharacterSheetEventHandler(event, ...)
             CCS.inspectUpdatePending = true
             InspectFrame:SetAlpha(0)
             InspectModelFrame:SetAlpha(0)
+            CCS.CreateChonkyCharacterBG(true)
             C_Timer.After(0.1, function()
                 CCS.inspectUpdatePending = false
                 MOPinitializeinspectframe()

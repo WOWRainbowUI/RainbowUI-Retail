@@ -56,6 +56,24 @@ local DR_BRACKETS = {
     {126, 0.50}, -- 50% penalty
 }
 
+local DR_BRACKET_COLORS = {
+    { 0.20, 0.80, 0.25, 1.00 }, -- 0-30: green
+    { 0.80, 0.80, 0.20, 1.00 }, -- 30-39: yellow-green
+    { 1.00, 0.65, 0.10, 1.00 }, -- 39-47: orange
+    { 1.00, 0.35, 0.10, 1.00 }, -- 47-54: red-orange
+    { 0.90, 0.15, 0.15, 1.00 }, -- 54-66: red
+    { 0.65, 0.25, 0.85, 1.00 }, -- 66-126: purple
+}
+
+local DR_BRACKET_LABELS = {
+    "0-30",
+    "30-39",
+    "39-47",
+    "47-54",
+    "54-66",
+    "66-126",
+}
+
 -- Apply diminishing returns to a raw percent value
 local function ApplySecondaryDR(rawPercent)
     local remaining = rawPercent
@@ -166,6 +184,546 @@ local function GetDRBracketProgress(rawPercent, ratingPerPercent)
     end
 end
 
+-------------------------------------------------
+-- DIMINISHING RETURNS TOOLTIP VISUAL
+-------------------------------------------------
+
+local DR_VISUAL_WIDTH   = 340
+local DR_VISUAL_HEIGHT  = 122
+local DR_VISUAL_INSET   = 7
+local DR_BAR_HEIGHT     = 12
+local DR_SEGMENT_GAP    = 1
+
+local function GetDRBracketVisualInfo(rawPercent)
+    rawPercent = math.max(0, math.min(rawPercent or 0, 126))
+
+    local previousCap = 0
+
+    for index, bracket in ipairs(DR_BRACKETS) do
+        local cap = bracket[1]
+        local multiplier = bracket[2]
+
+        if rawPercent <= cap then
+            local bracketSize = cap - previousCap
+            local intoBracket = rawPercent - previousCap
+            local progress = 0
+
+            if bracketSize > 0 then
+                progress = intoBracket / bracketSize
+            end
+
+            return {
+                index            = index,
+                startPercent     = previousCap,
+                endPercent       = cap,
+                progress         = math.max(0,math.min(progress, 1)),
+                penaltyPercent   = (1 - multiplier) * 100,
+                efficiency       = multiplier * 100,
+            }
+        end
+
+        previousCap = cap
+    end
+
+    return {
+        index            = #DR_BRACKETS,
+        startPercent     = DR_BRACKETS[#DR_BRACKETS - 1][1],
+        endPercent       = DR_BRACKETS[#DR_BRACKETS][1],
+        progress         = 1,
+        penaltyPercent   = 50,
+        efficiency       = 50,
+    }
+end
+
+
+local function CreateDRTooltipVisual()
+    local frame = _G["CCS_DRTooltipVisual"]
+
+    if frame then
+        return frame
+    end
+
+    frame = CreateFrame("Frame", "CCS_DRTooltipVisual", GameTooltip, "BackdropTemplate")
+    frame:SetSize(DR_VISUAL_WIDTH, DR_VISUAL_HEIGHT)
+    frame:SetFrameStrata("TOOLTIP")
+    frame:SetFrameLevel(GameTooltip:GetFrameLevel() + 10)
+    frame:EnableMouse(false)
+    frame:Hide()
+
+    frame:SetBackdrop({
+        bgFile = "Interface\\Buttons\\WHITE8X8",
+        edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+        edgeSize = 10,
+        insets = { left = 3, right = 3, top = 3, bottom = 3 },
+    })
+    frame:SetBackdropColor(0.025, 0.025, 0.025, 0.96)
+    frame:SetBackdropBorderColor(0.45, 0.45, 0.45, 1)
+
+    -------------------------------------------------
+    -- Title
+    -------------------------------------------------
+    frame.title = frame:CreateFontString(nil, "OVERLAY", "GameTooltipText")
+    frame.title:SetPoint("TOPLEFT", frame, "TOPLEFT", DR_VISUAL_INSET, -7)
+    frame.title:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -DR_VISUAL_INSET, -7)
+    frame.title:SetHeight(14)
+    frame.title:SetJustifyH("LEFT")
+    frame.title:SetJustifyV("MIDDLE")
+    frame.title:SetWordWrap(false)
+    frame.title:SetTextColor(1.00, 0.82, 0.00, 1.00)
+    frame.title:SetDrawLayer("OVERLAY", 7)
+
+    -------------------------------------------------
+    -- Current bracket and penalty
+    -------------------------------------------------
+    frame.bracketText = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+    frame.bracketText:SetPoint("TOPLEFT", frame.title, "BOTTOMLEFT", 0, -2)
+    frame.bracketText:SetPoint("TOPRIGHT", frame.title, "BOTTOMRIGHT", 0, -2)
+    frame.bracketText:SetHeight(12)
+    frame.bracketText:SetJustifyH("LEFT")
+    frame.bracketText:SetJustifyV("MIDDLE")
+    frame.bracketText:SetWordWrap(false)
+    frame.bracketText:SetTextColor(0.78, 0.78, 0.78, 1.00)
+    frame.bracketText:SetDrawLayer("OVERLAY", 7)
+
+    -------------------------------------------------
+    -- Rating range
+    -------------------------------------------------
+    frame.ratingRangeText = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+    frame.ratingRangeText:SetPoint("TOPLEFT", frame.bracketText, "BOTTOMLEFT", 0, -1)
+    frame.ratingRangeText:SetPoint("TOPRIGHT", frame.bracketText, "BOTTOMRIGHT", 0, -1)
+    frame.ratingRangeText:SetHeight(12)
+    frame.ratingRangeText:SetJustifyH("LEFT")
+    frame.ratingRangeText:SetJustifyV("MIDDLE")
+    frame.ratingRangeText:SetWordWrap(false)
+    frame.ratingRangeText:SetTextColor(0.64, 0.64, 0.64, 1.00)
+    frame.ratingRangeText:SetDrawLayer("OVERLAY", 7)
+
+    -------------------------------------------------
+    -- Bar container
+    -------------------------------------------------
+    frame.bar = CreateFrame("Frame", nil, frame)
+    frame.bar:SetPoint("TOPLEFT", frame, "TOPLEFT", DR_VISUAL_INSET, -57)
+    frame.bar:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -DR_VISUAL_INSET, -57)
+    frame.bar:SetHeight(DR_BAR_HEIGHT)
+    frame.bar:SetFrameLevel(frame:GetFrameLevel() + 1)
+
+    frame.bar.background = frame.bar:CreateTexture(nil, "BACKGROUND")
+    frame.bar.background:SetAllPoints()
+    frame.bar.background:SetColorTexture(0.04, 0.04, 0.04, 1)
+
+    -------------------------------------------------
+    -- Previous, current, and next bracket slots
+    -------------------------------------------------
+    frame.slots = {}
+
+    for slotIndex = 1, 3 do
+        local slot = CreateFrame("Frame", nil, frame.bar)
+        frame.slots[slotIndex] = slot
+
+        ---------------------------------------------
+        -- Dim bracket background
+        ---------------------------------------------
+        slot.background = slot:CreateTexture(nil, "BACKGROUND")
+        slot.background:SetAllPoints()
+
+        ---------------------------------------------
+        -- Bracket progress fill
+        ---------------------------------------------
+        slot.fill = slot:CreateTexture(nil, "ARTWORK")
+        slot.fill:SetPoint("TOPLEFT", slot, "TOPLEFT", 0, 0)
+        slot.fill:SetPoint("BOTTOMLEFT", slot, "BOTTOMLEFT", 0, 0)
+
+        ---------------------------------------------
+        -- Current bracket highlight
+        ---------------------------------------------
+        slot.highlight = slot:CreateTexture(nil, "OVERLAY")
+        slot.highlight:SetAllPoints()
+        slot.highlight:SetColorTexture(1, 1, 1, 0.12)
+        slot.highlight:Hide()
+
+        ---------------------------------------------
+        -- Divider between brackets
+        ---------------------------------------------
+        slot.divider = slot:CreateTexture(nil, "OVERLAY")
+        slot.divider:SetColorTexture(0, 0, 0, 0.90)
+        slot.divider:SetWidth(DR_SEGMENT_GAP)
+        slot.divider:SetPoint("TOPRIGHT", slot, "TOPRIGHT", 0, 0)
+        slot.divider:SetPoint("BOTTOMRIGHT", slot, "BOTTOMRIGHT", 0, 0)
+
+        ---------------------------------------------
+        -- Bracket label below segment
+        ---------------------------------------------
+        slot.label = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+        slot.label:SetJustifyH("CENTER")
+        slot.label:SetJustifyV("MIDDLE")
+        slot.label:SetWordWrap(false)
+        slot.label:SetTextColor(0.72, 0.72, 0.72, 1)
+
+        slot:Hide()
+        slot.label:Hide()
+    end
+
+    -------------------------------------------------
+    -- Current-position marker
+    -------------------------------------------------
+    frame.marker = frame.bar:CreateTexture(nil, "OVERLAY", nil, 7)
+    frame.marker:SetTexture("Interface\\Buttons\\WHITE8X8")
+    frame.marker:SetColorTexture(1, 1, 1, 1)
+    frame.marker:SetSize(2, DR_BAR_HEIGHT + 6)
+    frame.marker:Hide()
+
+    -------------------------------------------------
+    -- Marker glow
+    -------------------------------------------------
+    frame.markerGlow = frame.bar:CreateTexture(nil, "OVERLAY", nil, 6)
+    frame.markerGlow:SetTexture("Interface\\Buttons\\WHITE8X8")
+    frame.markerGlow:SetColorTexture(1, 0.82, 0, 0.35)
+    frame.markerGlow:SetSize(6, DR_BAR_HEIGHT + 4)
+    frame.markerGlow:Hide()
+
+    -------------------------------------------------
+    -- Raw percentage and rating
+    -------------------------------------------------
+    frame.currentValue = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+    frame.currentValue:SetPoint("TOPLEFT", frame.bar, "BOTTOMLEFT", 0, -17)
+    frame.currentValue:SetPoint("TOPRIGHT", frame.bar, "BOTTOMRIGHT", 0, -17)
+    frame.currentValue:SetHeight(12)
+    frame.currentValue:SetJustifyH("CENTER")
+    frame.currentValue:SetJustifyV("MIDDLE")
+    frame.currentValue:SetWordWrap(false)
+    frame.currentValue:SetTextColor(1, 1, 1, 1)
+    frame.currentValue:SetDrawLayer("OVERLAY", 7)
+
+    -------------------------------------------------
+    -- Progress through current bracket
+    -------------------------------------------------
+    frame.progressValue = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+    frame.progressValue:SetPoint("TOPLEFT", frame.currentValue, "BOTTOMLEFT", 0, -2)
+    frame.progressValue:SetPoint("TOPRIGHT", frame.currentValue, "BOTTOMRIGHT", 0, -2)
+    frame.progressValue:SetHeight(12)
+    frame.progressValue:SetJustifyH("CENTER")
+    frame.progressValue:SetJustifyV("MIDDLE")
+    frame.progressValue:SetWordWrap(false)
+    frame.progressValue:SetDrawLayer("OVERLAY", 7)
+
+    -------------------------------------------------
+    -- Effective percentage, rating, and loss
+    -------------------------------------------------
+    frame.effectiveValue = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+    frame.effectiveValue:SetPoint("TOPLEFT", frame.progressValue, "BOTTOMLEFT", 0, -12)
+    frame.effectiveValue:SetPoint("TOPRIGHT", frame.progressValue, "BOTTOMRIGHT", 0, -12)
+    frame.effectiveValue:SetHeight(12)
+    frame.effectiveValue:SetJustifyH("CENTER")
+    frame.effectiveValue:SetJustifyV("MIDDLE")
+    frame.effectiveValue:SetWordWrap(false)
+    frame.effectiveValue:SetDrawLayer("OVERLAY", 7)
+    frame.effectiveValue:Hide()
+
+    return frame
+end
+
+local function UpdateDRTooltipVisual(tooltip, DRtable)
+    local frame = CreateDRTooltipVisual()
+
+    if not tooltip
+        or not DRtable
+        or option("show_diminishing_returns") ~= true
+        or CCS.AreSecretsDisabled()
+        or not DRtable.rawPercent1
+        or not DRtable.rawRating
+        or DRtable.rawRating <= 0
+    then
+        frame:Hide()
+        return
+    end
+
+    -------------------------------------------------
+    -- Clamp percentage to DR cap
+    -------------------------------------------------
+    local rawPercent = math.max(0, math.min(DRtable.rawPercent1, 126))
+    local visualInfo = GetDRBracketVisualInfo(rawPercent)
+
+    if not visualInfo then
+        frame:Hide()
+        return
+    end
+
+    -------------------------------------------------
+    -- Rounded rating values
+    -------------------------------------------------
+    local rawRating = math.floor((DRtable.rawRating or 0) + 0.5)
+    local effectiveRating = math.floor((DRtable.effectiveRating or 0) + 0.5)
+    local ratingLost = math.floor((DRtable.ratingLost or 0) + 0.5)
+    local effectivePercent = DRtable.effectivePercent1 or rawPercent
+    local showEffectiveLine = ratingLost > 0
+
+    -------------------------------------------------
+    -- Calculate rating per raw percentage point
+    -------------------------------------------------
+    local ratingPerPercent = 0
+
+    if rawPercent > 0 then
+        ratingPerPercent = DRtable.rawRating / rawPercent
+    end
+
+    -------------------------------------------------
+    -- Determine rating range and progress
+    -------------------------------------------------
+    local bracketProgress
+
+    if ratingPerPercent > 0 and ratingPerPercent < math.huge then
+        bracketProgress = GetDRBracketProgress(rawPercent, ratingPerPercent)
+    end
+
+    -------------------------------------------------
+    -- Build displayed text
+    -------------------------------------------------
+    local titleText = L["Diminishing Returns Bracket"] or "Diminishing Returns Bracket"
+
+    local bracketText = string.format(
+        "%s: %.0f%% - %.0f%% (%.0f%% %s)",
+        L["Current bracket"] or "Current bracket",
+        visualInfo.startPercent,
+        visualInfo.endPercent,
+        visualInfo.penaltyPercent,
+        L["Penalty"] or "Penalty"
+    )
+
+    local ratingRangeText = L["Rating range"] or "Rating range"
+    local progressText = ""
+    local currentValueText
+    local effectiveValueText = ""
+
+    if bracketProgress then
+        local startRating = math.floor(bracketProgress.bracketStartRating + 0.5)
+        local endRating = math.floor(bracketProgress.bracketEndRating + 0.5)
+        local ratingIntoBracket = math.max(0, math.floor(bracketProgress.ratingIntoBracket + 0.5))
+        local ratingRemaining = math.max(0, math.floor(bracketProgress.ratingRemaining + 0.5))
+
+        ratingRangeText = string.format(
+            "%s: %s - %s",
+            L["Rating range"] or "Rating range",
+            BreakUpLargeNumbers(startRating),
+            BreakUpLargeNumbers(endRating)
+        )
+
+        progressText = string.format(
+            "|cff00d100%s %s|r  " .. "|cffaaaaaa - |r  " .. "|cffffa040%s %s|r",
+            BreakUpLargeNumbers(ratingIntoBracket),
+            L["Into bracket"] or "into bracket",
+            BreakUpLargeNumbers(ratingRemaining),
+            L["to next"] or "to next"
+        )
+    end
+
+    currentValueText = string.format(
+        "|cffffffff%.2f%%|r  |cffaaaaaa(%s %s)|r",
+        rawPercent,
+        BreakUpLargeNumbers(rawRating),
+        L["rating"] or "rating"
+    )
+
+    if showEffectiveLine then
+        effectiveValueText = string.format(
+            "|cff68ccef%s: %.2f%% (%s %s)|r  " .. "|cffff5555(-%s %s)|r",
+            L["STAT_DR_EFFECTIVE"] or "Effective",
+            effectivePercent,
+            BreakUpLargeNumbers(effectiveRating),
+            L["rating"] or "rating",
+            BreakUpLargeNumbers(ratingLost),
+            L["rating"] or "rating"
+        )
+    end
+
+    -------------------------------------------------
+    -- Attach beneath tooltip with fixed width
+    -------------------------------------------------
+    frame:ClearAllPoints()
+    frame:SetPoint("TOPLEFT", tooltip, "BOTTOMLEFT", 0, 0)
+    frame:SetWidth(DR_VISUAL_WIDTH)
+
+    if showEffectiveLine then
+        frame:SetHeight(DR_VISUAL_HEIGHT + 20)
+    else
+        frame:SetHeight(DR_VISUAL_HEIGHT)
+    end
+
+    -------------------------------------------------
+    -- Apply text
+    -------------------------------------------------
+    frame.title:SetText(titleText)
+    frame.bracketText:SetText(bracketText)
+    frame.ratingRangeText:SetText(ratingRangeText)
+    frame.currentValue:SetText(currentValueText)
+    frame.progressValue:SetText(progressText)
+
+    if showEffectiveLine then
+        frame.effectiveValue:SetText(effectiveValueText)
+        frame.effectiveValue:Show()
+    else
+        frame.effectiveValue:SetText("")
+        frame.effectiveValue:Hide()
+    end
+
+    -------------------------------------------------
+    -- Determine visible brackets
+    -------------------------------------------------
+    local currentIndex = visualInfo.index
+    local visibleBrackets
+
+    if currentIndex == 1 then
+        ---------------------------------------------
+        -- First bracket:
+        -- 75% current, 25% next
+        ---------------------------------------------
+        visibleBrackets = {
+            { bracketIndex = currentIndex,     role = "current", widthRatio = 0.75 },
+            { bracketIndex = currentIndex + 1, role = "next",    widthRatio = 0.25 },
+        }
+
+    elseif currentIndex == #DR_BRACKETS then
+        ---------------------------------------------
+        -- Final bracket:
+        -- 25% previous, 75% current
+        ---------------------------------------------
+        visibleBrackets = {
+            { bracketIndex = currentIndex - 1, role = "previous", widthRatio = 0.25 },
+            { bracketIndex = currentIndex,     role = "current",  widthRatio = 0.75 },
+        }
+
+    else
+        ---------------------------------------------
+        -- Middle bracket:
+        -- 20% previous, 60% current, 20% next
+        ---------------------------------------------
+        visibleBrackets = {
+            { bracketIndex = currentIndex - 1, role = "previous", widthRatio = 0.20 },
+            { bracketIndex = currentIndex,     role = "current",  widthRatio = 0.60 },
+            { bracketIndex = currentIndex + 1, role = "next",     widthRatio = 0.20 },
+        }
+    end
+
+    -------------------------------------------------
+    -- Reset reusable slots
+    -------------------------------------------------
+    for _, slot in ipairs(frame.slots) do
+        slot:Hide()
+        slot.label:Hide()
+        slot.highlight:Hide()
+        slot.divider:Show()
+        slot.fill:SetWidth(0.001)
+    end
+
+    -------------------------------------------------
+    -- Lay out visible brackets
+    -------------------------------------------------
+    local availableWidth = DR_VISUAL_WIDTH - (DR_VISUAL_INSET * 2)
+    local xOffset = 0
+    local currentSlot
+    local currentSlotWidth = 0
+
+    for slotIndex, slotInfo in ipairs(visibleBrackets) do
+        local slot = frame.slots[slotIndex]
+        local bracketIndex = slotInfo.bracketIndex
+        local slotWidth = availableWidth * slotInfo.widthRatio
+        local color = DR_BRACKET_COLORS[bracketIndex]
+        local bracketEnd = DR_BRACKETS[bracketIndex][1]
+        local bracketStart = 0
+
+        if bracketIndex > 1 then
+            bracketStart = DR_BRACKETS[bracketIndex - 1][1]
+        end
+
+        ---------------------------------------------
+        -- Position and size slot
+        ---------------------------------------------
+        slot:ClearAllPoints()
+        slot:SetPoint("TOPLEFT", frame.bar, "TOPLEFT", xOffset, 0)
+        slot:SetSize(slotWidth, DR_BAR_HEIGHT)
+        slot:Show()
+
+        ---------------------------------------------
+        -- Apply bracket colors
+        ---------------------------------------------
+        slot.background:SetColorTexture(color[1] * 0.22, color[2] * 0.22, color[3] * 0.22, 0.95)
+        slot.fill:SetColorTexture(color[1], color[2], color[3], color[4])
+
+        ---------------------------------------------
+        -- Set bracket fill
+        ---------------------------------------------
+        if slotInfo.role == "previous" then
+            slot.fill:SetWidth(slotWidth)
+
+        elseif slotInfo.role == "current" then
+            slot.fill:SetWidth(math.max(1, slotWidth * visualInfo.progress))
+            slot.highlight:Show()
+
+            currentSlot = slot
+            currentSlotWidth = slotWidth
+        else
+            slot.fill:SetWidth(0.001)
+        end
+
+        ---------------------------------------------
+        -- Position bracket label
+        ---------------------------------------------
+        slot.label:ClearAllPoints()
+        slot.label:SetPoint("TOP", slot, "BOTTOM", 0, -3)
+        slot.label:SetWidth(slotWidth)
+        slot.label:SetHeight(12)
+        slot.label:SetText(string.format("%.0f-%.0f%%", bracketStart, bracketEnd))
+
+        if slotInfo.role == "current" then
+            slot.label:SetTextColor(1, 1, 1, 1)
+        else
+            slot.label:SetTextColor(0.55, 0.55, 0.55, 1)
+        end
+
+        slot.label:Show()
+
+        xOffset = xOffset + slotWidth
+    end
+
+    -------------------------------------------------
+    -- Remove divider from final visible bracket
+    -------------------------------------------------
+    local finalVisibleSlot = frame.slots[#visibleBrackets]
+
+    if finalVisibleSlot then
+        finalVisibleSlot.divider:Hide()
+    end
+
+    -------------------------------------------------
+    -- Position marker within current bracket
+    -------------------------------------------------
+    if currentSlot then
+        local markerOffset = currentSlotWidth * visualInfo.progress
+        markerOffset = math.max(1, math.min(markerOffset, currentSlotWidth - 1))
+
+        frame.marker:ClearAllPoints()
+        frame.marker:SetPoint("CENTER", currentSlot, "LEFT", markerOffset, 0)
+
+        frame.markerGlow:ClearAllPoints()
+        frame.markerGlow:SetPoint("CENTER", frame.marker, "CENTER", 0, 0)
+
+        frame.marker:Show()
+        frame.markerGlow:Show()
+    else
+        frame.marker:Hide()
+        frame.markerGlow:Hide()
+    end
+
+    frame:Show()
+end
+
+local function HideDRTooltipVisual()
+    local frame = _G["CCS_DRTooltipVisual"]
+
+    if frame then
+        frame:Hide()
+    end
+end
+
 function CCS:RestoreCharacterStatsPane()
     CharacterStatsPane.ItemLevelCategory:SetPoint("TOP", CharacterStatsPane, "TOP", -3, 2)
     CharacterStatsPane.ClassBackground:SetAlpha(1)
@@ -254,7 +812,7 @@ local function GetActiveMode()
     if not CCS.CurrentProfile or UnitLevel("player") < 80 then return "none" end
 	if option("show_secondarypriority") then return "wowhead" end
 	
-    -- One-time migration from legacy "mythic"/"raid" flat option keys → priority_slots array
+    -- One-time migration from legacy "mythic"/"raid" flat option keys -> priority_slots array
     if not CCS.CurrentProfile._priority_slots_migrated then
         -- Step 1: migrate old mythic/raid keys to custom_priority_slot_N_* flat keys
         if CCS.CurrentProfile.use_custom_priority_mythic then
@@ -715,11 +1273,11 @@ local function GetStatCrit(rowData)
 	tt_desc = tt_desc..format(CR_CRIT_TOOLTIP, BreakUpLargeNumbers(extraCritRating), extraCritChance)
 
     local DRtable = GetStatDRInfo(CR_CRIT_SPELL)
-    tt_desc = tt_desc .. BuildDRTooltip(DRtable)
+    --tt_desc = tt_desc .. BuildDRTooltip(DRtable)
 	if option("show_stathighlights") then
 		tt_desc = tt_desc.."\n\n".."|cffffffff("..L["STATS_TOGGLE"]..")|r"
 	end
-	return leftText, rightText, tt_name, tt_desc, link, isZero
+	return leftText, rightText, tt_name, tt_desc, link, isZero, DRtable	
 end
 
 local function GetStatHaste(rowData)  
@@ -751,11 +1309,11 @@ local function GetStatHaste(rowData)
 		GetCombatRatingBonus(CR_HASTE_SPELL))
 		
 	local DRtable = GetStatDRInfo(CR_HASTE_SPELL)
-    tt_desc = tt_desc .. BuildDRTooltip(DRtable)
+    --tt_desc = tt_desc .. BuildDRTooltip(DRtable)
 	if option("show_stathighlights") then
 		tt_desc = tt_desc.."\n\n".."|cffffffff("..L["STATS_TOGGLE"]..")|r"
 	end
-	return leftText, rightText, tt_name, tt_desc, link, isZero
+	return leftText, rightText, tt_name, tt_desc, link, isZero, DRtable	
 end
 
 local function GetStatMastery(rowData)  
@@ -803,11 +1361,11 @@ local function GetStatMastery(rowData)
 	end
 
 	local DRtable = GetStatDRInfo(CR_MASTERY)
-    tt_desc = tt_desc .. BuildDRTooltip(DRtable)
+    --tt_desc = tt_desc .. BuildDRTooltip(DRtable)
 	if option("show_stathighlights") then
 		tt_desc = tt_desc.."\n\n".."|cffffffff("..L["STATS_TOGGLE"]..")|r"
 	end
-	return leftText, rightText, tt_name, tt_desc, link, isZero
+	return leftText, rightText, tt_name, tt_desc, link, isZero, DRtable	
 end
 local function GetStatVersatility(rowData)  
 	local leftText, rightText, tt_name, tt_desc, isZero = "","|cffffd100<" .. L["Secret"] .. ">|r","","",false
@@ -846,6 +1404,7 @@ local function GetStatVersatility(rowData)
 		versatilityDamageTakenReduction)
 		
 	local DRtable = GetStatDRInfo(CR_VERSATILITY_DAMAGE_DONE)
+	--[[
 	if DRtable ~= nil and option("show_diminishing_returns") == true then 
 		tt_desc = tt_desc..format("\n   %s%s: %d [+%.2f%%/%.2f%%]|r", "|cff68ccef", L["STAT_DR_EFFECTIVE"] or "Effective",BreakUpLargeNumbers(DRtable.effectiveRating), DRtable.effectivePercent1, DRtable.effectivePercent2)
 		tt_desc = tt_desc..format("\n   %s%s: %d [+%.2f%%/%.2f%%]|r", "|cffff5555", L["LOST"] or "Lost",BreakUpLargeNumbers(DRtable.ratingLost), DRtable.percentLost1, DRtable.percentLost2)
@@ -880,11 +1439,11 @@ local function GetStatVersatility(rowData)
 		end
 
 		
-	end                        
+	end   --]]                     
 	if option("show_stathighlights") then
 		tt_desc = tt_desc.."\n\n".."|cffffffff("..L["STATS_TOGGLE"]..")|r"
 	end
-	return leftText, rightText, tt_name, tt_desc, link, isZero
+	return leftText, rightText, tt_name, tt_desc, link, isZero, DRtable	
 end
 
 -------------------------------------------------
@@ -1192,9 +1751,9 @@ local function GetStatLeech(rowData)
 	tt_name = HIGHLIGHT_FONT_COLOR_CODE .. format(PAPERDOLLFRAME_TOOLTIP_FORMAT, STAT_LIFESTEAL) .. " " .. format("%.2F%%", lifesteal) .. FONT_COLOR_CODE_CLOSE;
 	tt_desc = format(CR_LIFESTEAL_TOOLTIP, BreakUpLargeNumbers(leechRating), GetCombatRatingBonus(CR_LIFESTEAL));
 	local DRtable = GetStatDRInfo(CR_LIFESTEAL)
-    tt_desc = tt_desc .. BuildDRTooltip(DRtable)
+    --tt_desc = tt_desc .. BuildDRTooltip(DRtable)
 
-	return leftText, rightText, tt_name, tt_desc, link, isZero
+	return leftText, rightText, tt_name, tt_desc, link, isZero, DRtable
 end
 
 local function GetStatAvoidance(rowData)  
@@ -1213,9 +1772,9 @@ local function GetStatAvoidance(rowData)
 	tt_name = HIGHLIGHT_FONT_COLOR_CODE .. format(PAPERDOLLFRAME_TOOLTIP_FORMAT, STAT_AVOIDANCE) .. " " .. format("%.2F%%", avoidance) .. FONT_COLOR_CODE_CLOSE;
 	tt_desc = format(CR_AVOIDANCE_TOOLTIP, BreakUpLargeNumbers(avoidRating), GetCombatRatingBonus(CR_AVOIDANCE));
 	local DRtable = GetStatDRInfo(CR_AVOIDANCE)
-    tt_desc = tt_desc .. BuildDRTooltip(DRtable)
+    --tt_desc = tt_desc .. BuildDRTooltip(DRtable)
 	
-	return leftText, rightText, tt_name, tt_desc, link, isZero
+	return leftText, rightText, tt_name, tt_desc, link, isZero, DRtable
 end
 
 local function GetStatSpeed(rowData)  
@@ -1233,9 +1792,9 @@ local function GetStatSpeed(rowData)
 	tt_name = HIGHLIGHT_FONT_COLOR_CODE .. format(PAPERDOLLFRAME_TOOLTIP_FORMAT, STAT_SPEED) .. " " .. format("%.2F%%", speed) .. FONT_COLOR_CODE_CLOSE;
 	tt_desc = format(CR_SPEED_TOOLTIP, BreakUpLargeNumbers(speedRating), GetCombatRatingBonus(CR_SPEED));
 	local DRtable = GetStatDRInfo(CR_SPEED)
-    tt_desc = tt_desc .. BuildDRTooltip(DRtable)
+    --tt_desc = tt_desc .. BuildDRTooltip(DRtable)
 	
-	return leftText, rightText, tt_name, tt_desc, link, isZero
+	return leftText, rightText, tt_name, tt_desc, link, isZero, DRtable
 end
 
 local function GetStatMovespeed(rowData)  
@@ -2421,11 +2980,27 @@ UpdateAllStats = function(parent)
                     -------------------------------------------------
                     -- Get stat values
                     -------------------------------------------------
-                    local leftText, rightText, tt_name, tt_desc, link, isZero =
+                    local leftText, rightText, tt_name, tt_desc, link, isZero, DRtable =
                         rowData.statFunc(rowData)
 
                     rowFrame.isZero = isZero
+					-------------------------------------------------
+					-- DR Info (background)
+					-------------------------------------------------
+					rowFrame.DRtable = DRtable
+					if DRtable and DRtable.rawPercent1 and rowData.key:find("^secondary_") and option("show_diminishing_returns") and option("show_dr_row_colors") then
+						local visualInfo = GetDRBracketVisualInfo(DRtable.rawPercent1)
 
+						if visualInfo and visualInfo.index > 1 then
+							local color = DR_BRACKET_COLORS[visualInfo.index]
+							rowFrame.bg:SetColorTexture(color[1], color[2], color[3], 0.35)
+						else
+							rowFrame.bg:SetColorTexture(0.05, 0.05, 0.05, 0.60)
+						end
+
+					else
+						rowFrame.bg:SetColorTexture(0.05, 0.05, 0.05, 0.60)
+					end
                     -------------------------------------------------
                     -- Update icon for currencies
                     -------------------------------------------------
@@ -2554,6 +3129,15 @@ UpdateAllStats = function(parent)
 
 							self.highlight:Show()
 							GameTooltip:Show()
+							
+							-- Run after GameTooltip:Show() so its final width and height
+							-- have already been calculated.
+							if self.DRtable then
+								UpdateDRTooltipVisual(GameTooltip, self.DRtable)
+							else
+								HideDRTooltipVisual()
+							end							
+							
 						end)
 
 						rowFrame:SetScript("OnMouseDown", function(self)
@@ -2590,7 +3174,7 @@ UpdateAllStats = function(parent)
 							if CCS.activeClickedRow ~= self then
 								self.highlight:Hide()
 							end
-
+							HideDRTooltipVisual()
 							GameTooltip:Hide()
 
 							-- Only hide overlays if nothing is locked in
@@ -3054,6 +3638,7 @@ function CCS.CharacterStatsEventHandler(event, ...)
             CCS:RestoreCharacterStatsPane()
         end
         module:Initialize()
+		UpdateAllStats()
         return true
     end
 
