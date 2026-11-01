@@ -228,21 +228,31 @@ function BBF.UpdateThreatMeterVisibility()
     end
 end
 
+local statusBarsHidden = {}
+
 local function UpdateStatusTrackingBar(container)
-    local db = BetterBlizzFramesDB
     local index = container.shownBarIndex
-    local bars = StatusTrackingBarInfo.BarsEnum
-    local hide = not CharacterFrame:IsShown() and ((db.hideExpBar and index == bars.Experience) or (db.hideHonorBar and index == bars.Honor))
-    local parent = hide and hiddenFrame or StatusTrackingBarManager
-    if container:GetParent() ~= parent then
-        container:SetParent(parent)
+    local hide = statusBarsHidden[index] and not CharacterFrame:IsShown()
+    for barIndex, bar in pairs(container.bars) do
+        local hideBar = hide and barIndex == index
+        bar:SetAlpha(hideBar and 0 or 1)
+        bar:EnableMouse(not hideBar)
+        if bar.ExhaustionTick then
+            bar.ExhaustionTick:EnableMouse(not hideBar)
+        end
+    end
+    if container.BarFrameTexture then
+        container.BarFrameTexture:SetAlpha(hide and 0 or 1)
     end
 end
 
 function BBF.UpdateStatusTrackingBars()
     local db = BetterBlizzFramesDB
+    local bars = StatusTrackingBarInfo.BarsEnum
+    if db.hideExpBar then statusBarsHidden[bars.Experience] = true end
+    if db.hideHonorBar then statusBarsHidden[bars.Honor] = true end
+    if not next(statusBarsHidden) then return end
     if not BBF.statusTrackingBarsHooked then
-        if not (db.hideExpBar or db.hideHonorBar) then return end
         for _, container in ipairs(StatusTrackingBarManager.barContainers) do
             hooksecurefunc(container, "ApplyPendingBarToShow", UpdateStatusTrackingBar)
         end
@@ -290,6 +300,16 @@ function BBF.HideFrames()
             changes.hideGroupIndicator = true
         elseif changes.hideGroupIndicator then
             PlayerFrame.PlayerFrameContent.PlayerFrameContentContextual.GroupIndicator:SetAlpha(1)
+        end
+
+        if db.hideMicroMenuBorder then
+            MicroMenu.BorderArt:Hide()
+            MicroMenu.BackgroundArt:Hide()
+            changes.hideMicroMenuBorder = true
+        elseif changes.hideMicroMenuBorder then
+            MicroMenu.BorderArt:Show()
+            MicroMenu.BackgroundArt:Show()
+            changes.hideMicroMenuBorder = nil
         end
 
         if db.hideActionBarQualityIcon then
@@ -598,7 +618,7 @@ function BBF.HideFrames()
             end
         end
 
-        if (BetterBlizzFramesDB.hideFullPower or BetterBlizzFramesDB.hideUnitFramePlayerMana or BetterBlizzFramesDB.bigPlayerHealthbar) and not changes.hideFullPower then
+        if (BetterBlizzFramesDB.hideFullPower or BetterBlizzFramesDB.hideUnitFramePlayerMana or BBF.BigPlayerHealthbar()) and not changes.hideFullPower then
             changes.hideFullPower = PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.ManaBarArea.ManaBar.FullPowerFrame:GetParent()
             PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.ManaBarArea.ManaBar.FullPowerFrame:SetParent(hiddenFrame)
             if ClassNameplateManaBarFrame and ClassNameplateManaBarFrame.FullPowerFrame then
@@ -1175,75 +1195,7 @@ function BBF.HideFrames()
 
         BBF.UpdateStatusTrackingBars()
 
-        if BetterBlizzFramesDB.hideUnitFrameShadow then
-            if not BetterBlizzFramesDB.classicFrames then
-                if not BBF.hideUnitFrameShadow then
-                    -- Player
-                    if not BetterBlizzFramesDB.symmetricPlayerFrame then
-                        local playerTex = PlayerFrame.PlayerFrameContainer.FrameTexture
-                        playerTex:SetTexture(BBF.GetNoShadowPlayerFrameTexture())
-                        hooksecurefunc(playerTex, "SetAtlas", function(self)
-                            self:SetTexture(BBF.GetNoShadowPlayerFrameTexture())
-                        end)
-
-                        local playerAltTex = PlayerFrame.PlayerFrameContainer.AlternatePowerFrameTexture
-
-                        if BetterBlizzFramesDB.hideUnitFramePlayerSecondResource then
-                            local altBars = {
-                                AlternatePowerBar,
-                                MonkStaggerBar,
-                                EvokerEbonMightBar,
-                                DemonHunterSoulFragmentsBar,
-                            }
-
-                            for _, frame in ipairs(altBars) do
-                                if frame then
-                                    frame:SetAlpha(0)
-                                end
-                            end
-                            playerAltTex:SetSize(198, 71)
-                            playerAltTex:ClearAllPoints()
-                            playerAltTex:SetAllPoints(playerTex)
-                            BBF.UpdatePlayerFrameFlash()
-                        end
-
-                        BBF.UpdateNoShadowPlayerAltFrameTexture()
-                        hooksecurefunc(playerAltTex, "SetAtlas", BBF.UpdateNoShadowPlayerAltFrameTexture)
-                    end
-
-                    -- Target & Focus
-                    local targetTex = TargetFrame.TargetFrameContainer.FrameTexture
-                    targetTex:SetTexture("Interface\\AddOns\\BetterBlizzFrames\\media\\blizzTex\\UI-HUD-UnitFrame-Target-PortraitOn-NoShadow")
-                    hooksecurefunc(targetTex, "SetAtlas", function(self, atlas)
-                        if atlas == "UI-HUD-UnitFrame-Target-PortraitOn" then
-                            self:SetTexture("Interface\\AddOns\\BetterBlizzFrames\\media\\blizzTex\\UI-HUD-UnitFrame-Target-PortraitOn-NoShadow")
-                        elseif atlas == "UI-HUD-UnitFrame-Target-Rare-PortraitOn" then
-                            self:SetTexture("Interface\\AddOns\\BetterBlizzFrames\\media\\blizzTex\\UI-HUD-UnitFrame-Target-PortraitOn-NoShadow")
-                        elseif atlas == "UI-HUD-UnitFrame-Target-MinusMob-PortraitOn" then
-                            self:SetTexture("Interface\\AddOns\\BetterBlizzFrames\\media\\blizzTex\\UI-HUD-UnitFrame-Target-MinusMob-PortraitOn-NoShadow")
-                        end
-                    end)
-                    local focusTex = FocusFrame.TargetFrameContainer.FrameTexture
-                    focusTex:SetTexture("Interface\\AddOns\\BetterBlizzFrames\\media\\blizzTex\\UI-HUD-UnitFrame-Target-PortraitOn-NoShadow")
-                    hooksecurefunc(focusTex, "SetAtlas", function(self, atlas)
-                        if atlas == "UI-HUD-UnitFrame-Target-PortraitOn" then
-                            self:SetTexture("Interface\\AddOns\\BetterBlizzFrames\\media\\blizzTex\\UI-HUD-UnitFrame-Target-PortraitOn-NoShadow")
-                        elseif atlas == "UI-HUD-UnitFrame-Target-Rare-PortraitOn" then
-                            self:SetTexture("Interface\\AddOns\\BetterBlizzFrames\\media\\blizzTex\\UI-HUD-UnitFrame-Target-PortraitOn-NoShadow")
-                        elseif atlas == "UI-HUD-UnitFrame-Target-MinusMob-PortraitOn" then
-                            self:SetTexture("Interface\\AddOns\\BetterBlizzFrames\\media\\blizzTex\\UI-HUD-UnitFrame-Target-MinusMob-PortraitOn-NoShadow")
-                        end
-                    end)
-
-                    -- ToT's
-                    BBF.UpdateTotFrameTexture()
-                    --Pet
-                    BBF.UpdatePetFrameTexture()
-
-                    BBF.hideUnitFrameShadow = true
-                end
-            end
-        elseif not BetterBlizzFramesDB.symmetricPlayerFrame and BetterBlizzFramesDB.hideUnitFramePlayerSecondResource then
+        if BetterBlizzFramesDB.hideUnitFramePlayerSecondResource then
             local playerTex = PlayerFrame.PlayerFrameContainer.FrameTexture
             local playerAltTex = PlayerFrame.PlayerFrameContainer.AlternatePowerFrameTexture
 
@@ -1264,11 +1216,21 @@ function BBF.HideFrames()
                 playerAltTex:SetSize(198, 71)
                 playerAltTex:ClearAllPoints()
                 playerAltTex:SetAllPoints(playerTex)
-                playerAltTex:SetAtlas(playerTex:GetAtlas())
+                local function CopyPlayerTex(self)
+                    local atlas = playerTex:GetAtlas()
+                    if atlas then
+                        self:SetAtlas(atlas)
+                    elseif playerTex.bbfRetailArt then
+                        BBF.SetRetailArt(self, playerTex.bbfRetailArt, playerTex.bbfRetailFlip, false)
+                    else
+                        self:SetTexture(playerTex:GetTexture())
+                    end
+                end
+                CopyPlayerTex(playerAltTex)
                 hooksecurefunc(playerAltTex, "SetAtlas", function(self)
                     if self.changingTex then return end
                     self.changingTex = true
-                    self:SetAtlas(playerTex:GetAtlas())
+                    CopyPlayerTex(self)
                     self.changingTex = false
                 end)
                 BBF.hookedPlayerAltBarTex = true
@@ -1464,12 +1426,6 @@ function BBF.HideFrames()
             PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.HealthBarsContainer.PlayerFrameHealthBarAnimatedLoss:SetParent(hiddenFrame)
         end
 
-        local LossOfControlFrameAlphaBg = BetterBlizzFramesDB.hideLossOfControlFrameBg and 0 or 0.6
-        local LossOfControlFrameAlphaLines = BetterBlizzFramesDB.hideLossOfControlFrameLines and 0 or 1
-        LossOfControlFrame.blackBg:SetAlpha(LossOfControlFrameAlphaBg)
-        LossOfControlFrame.RedLineTop:SetAlpha(LossOfControlFrameAlphaLines)
-        LossOfControlFrame.RedLineBottom:SetAlpha(LossOfControlFrameAlphaLines)
-
         -- action bar macro name hotkey hide
         if BetterBlizzFramesDB.hideActionBarHotKey or BetterBlizzFramesDB.hideActionBarMacroName or keybindAlphaChanged then
             -- Blizzard buttons
@@ -1624,10 +1580,18 @@ function BBF.HideFrames()
                 local child = select(i, Minimap:GetChildren())
                 if child then
                     local childName = child:GetName() or ""
-                    if string.find(childName, "LibDBIcon") or childName == "ExpansionLandingPageMinimapButton" or childName == "ArenaAnalyticsMinimapButton" then
+                    if string.find(childName, "LibDBIcon") or childName == "ArenaAnalyticsMinimapButton" then
                         child:SetAlpha(alpha)
                     end
                 end
+            end
+            local landingButton = ExpansionLandingPageMinimapButton
+            if landingButton then
+                local blizzardShows = landingButton:IsShown() and GameRulesUtil.ShouldShowExpansionLandingPageButton()
+                    and landingButton:IsExpansionOverlayMode()
+                local visible = show and blizzardShows
+                landingButton:SetAlpha(visible and 1 or 0)
+                landingButton:EnableMouse(visible and true or false)
             end
         end
 
@@ -1665,6 +1629,19 @@ function BBF.HideFrames()
             changes.hideOgRaidFrameBg = nil
         end
 
+        local expansionButton = ExpansionLandingPageMinimapButton
+        if expansionButton then
+            if BetterBlizzFramesDB.hideExpansionLandingPageButton then
+                if expansionButton:GetParent() ~= hiddenFrame then
+                    expansionButton.bbfOriginalParent = expansionButton:GetParent()
+                    expansionButton:SetParent(hiddenFrame)
+                end
+            elseif expansionButton.bbfOriginalParent then
+                expansionButton:SetParent(expansionButton.bbfOriginalParent)
+                expansionButton.bbfOriginalParent = nil
+            end
+        end
+
         -- Hide all LibDBIcon buttons by default
         if BetterBlizzFramesDB.hideMinimapButtons and not minimapButtonsHooked then
             ToggleLibDBIconButtons(false)
@@ -1687,20 +1664,22 @@ function BBF.HideFrames()
                     end)
                 end)
 
-                ExpansionLandingPageMinimapButton:HookScript("OnEnter", function()
-                    iconMouseOver = true
-                    ToggleLibDBIconButtons(true)
-                end)
-
-                ExpansionLandingPageMinimapButton:HookScript("OnLeave", function()
-                    iconMouseOver = false
-                    -- Delay hiding to check if we left the Minimap to another LibDBIcon or completely out
-                    C_Timer.After(0.1, function() 
-                        if not Minimap:IsMouseOver() and not iconMouseOver then
-                            ToggleLibDBIconButtons(false)
-                        end
+                if ExpansionLandingPageMinimapButton then
+                    ExpansionLandingPageMinimapButton:HookScript("OnEnter", function()
+                        iconMouseOver = true
+                        ToggleLibDBIconButtons(true)
                     end)
-                end)
+
+                    ExpansionLandingPageMinimapButton:HookScript("OnLeave", function()
+                        iconMouseOver = false
+                        -- Delay hiding to check if we left the Minimap to another LibDBIcon or completely out
+                        C_Timer.After(0.1, function() 
+                            if not Minimap:IsMouseOver() and not iconMouseOver then
+                                ToggleLibDBIconButtons(false)
+                            end
+                        end)
+                    end)
+                end
 
                 for i = 1, Minimap:GetNumChildren() do
                     local child = select(i, Minimap:GetChildren())

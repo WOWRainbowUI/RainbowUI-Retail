@@ -433,12 +433,12 @@ function BBF.HideFrames()
     UpdateHighLevelSkulls()
 
     if not BetterBlizzFramesDB.hideLevelText and BetterBlizzFramesDB.hidePlayerLevelText and not BBF.classicFramesPlayerLevelHide then
-        PlayerFrameTexture:SetTexture(BetterBlizzFramesDB.biggerHealthbars and "Interface\\Addons\\BetterBlizzFrames\\media\\UI-TargetingFrame-NoLevel" or "Interface\\TargetingFrame\\UI-TargetingFrame-NoLevel")
+        PlayerFrameTexture:SetTexture(BetterBlizzFramesDB.biggerHealthbars and "Interface\\Addons\\BetterBlizzFrames\\media\\classicTextures\\UI-TargetingFrame-NoLevel.png" or "Interface\\TargetingFrame\\UI-TargetingFrame-NoLevel")
         BBF.classicFramesPlayerLevelHide = true
     end
 
     if BetterBlizzFramesDB.hideLevelText and not BBF.classicFramesLevelHide then
-        local noLevelTexture = BetterBlizzFramesDB.biggerHealthbars and "Interface\\Addons\\BetterBlizzFrames\\media\\UI-TargetingFrame-NoLevel" or "Interface\\TargetingFrame\\UI-TargetingFrame-NoLevel"
+        local noLevelTexture = BetterBlizzFramesDB.biggerHealthbars and "Interface\\Addons\\BetterBlizzFrames\\media\\classicTextures\\UI-TargetingFrame-NoLevel.png" or "Interface\\TargetingFrame\\UI-TargetingFrame-NoLevel"
 
         if BetterBlizzFramesDB.hideLevelTextAlways or UnitLevel("player") == maxLvl then
             PlayerFrameTexture:SetTexture(noLevelTexture)
@@ -1044,14 +1044,6 @@ function BBF.HideFrames()
         PetFrameManaBarTextLeft:Hide()
         PetFrameManaBarTextRight:SetAlpha(0)
         PetFrameManaBarTextRight:Hide()
-    end
-
-    if LossOfControlFrame then
-        local LossOfControlFrameAlphaBg = BetterBlizzFramesDB.hideLossOfControlFrameBg and 0 or 0.6
-        local LossOfControlFrameAlphaLines = BetterBlizzFramesDB.hideLossOfControlFrameLines and 0 or 1
-        LossOfControlFrame.blackBg:SetAlpha(LossOfControlFrameAlphaBg)
-        LossOfControlFrame.RedLineTop:SetAlpha(LossOfControlFrameAlphaLines)
-        LossOfControlFrame.RedLineBottom:SetAlpha(LossOfControlFrameAlphaLines)
     end
 end
 
