@@ -39,14 +39,18 @@ function addonTable.Display.HealthBarMixin:SetUnit(unit)
     addonTable.Display.RegisterForColorEvents(self, self.details.autoColors)
   else
     self:UnregisterAllEvents()
-    self.statusBarCutawayAnimation:Stop()
+    if self.details.animate then
+      self.statusBarCutawayAnimation:Stop()
+    end
     addonTable.Display.UnregisterForColorEvents(self)
   end
 end
 
 function addonTable.Display.HealthBarMixin:Strip()
   self:UnregisterAllEvents()
-  self.statusBarCutawayAnimation:Stop()
+  if self.details.animate then
+    self.statusBarCutawayAnimation:Stop()
+  end
   addonTable.Display.UnregisterForColorEvents(self)
   self.modColors = nil
   self.animate = nil
@@ -56,7 +60,9 @@ end
 
 function addonTable.Display.HealthBarMixin:SetColor(r, g, b, a)
   self.statusBar:GetStatusBarTexture():SetVertexColor(r, g, b)
-  self.statusBarCutaway:GetStatusBarTexture():SetVertexColor(r, g, b)
+  if self.details.animate then
+    self.statusBarCutaway:GetStatusBarTexture():SetVertexColor(r, g, b)
+  end
   if self.details.background.applyColor then
     local mod = self.details.background.color
     if self.modColors then
@@ -73,7 +79,9 @@ end
 function addonTable.Display.HealthBarMixin:UpdateHealth(state)
   self.statusBar:SetMinMaxValues(0, state.maxWithAbsorbs)
 
-  self.statusBarCutaway:SetMinMaxValues(0, state.maxWithAbsorbs)
+  if self.details.animate then
+    self.statusBarCutaway:SetMinMaxValues(0, state.maxWithAbsorbs)
+  end
   self.statusBarAbsorb:SetMinMaxValues(0, state.maxWithAbsorbs)
 
   self.statusBarAbsorb:SetValue(state.absorbs, self.animate)

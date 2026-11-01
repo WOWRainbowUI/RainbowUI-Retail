@@ -332,7 +332,7 @@ function addonTable.Display.AurasManagerNextMixin:GetFilters(kind, settings)
       if not exclude[spellID] then
         deduplicate = deduplicate + 1
         exclude[spellID] = true
-        table.insert(output, {includeFilter, {includeSpellIDs = {[spellID] = true}}})
+        table.insert(output, {includeFilter, {includeSpellIDs = {[spellID] = true}}, true})
       end
     end
   end
@@ -422,12 +422,9 @@ end
 
 function addonTable.Display.AurasManagerNextMixin:InitializeWidgets(parent, auraDetails, doNotSize)
   local newFont = addonTable.Core.GetDesignByName(addonTable.Display.Context:GetDefaultEnemyNPCDesign()).font
-  if self.auraDetails and tCompare(self.auraDetails, auraDetails, 50) and tCompare(self.lastFont, newFont) then
-    return
-  end
 
-  self.auraDetails = CopyTable(auraDetails)
-  self.lastFont = CopyTable(newFont)
+  local isSameFont = self.lastFont and tCompare(self.lastFont, newFont) or false
+
   self.parent = parent
 
   self.buffs:ClearAllPoints()
@@ -477,16 +474,17 @@ function addonTable.Display.AurasManagerNextMixin:InitializeWidgets(parent, aura
       self[kind]:SetAuraGroupFilterString(key, group[1])
       self[kind]:SetAuraGroupLayout(key, {elementSpacing = padding, lineSpacing = padding})
       self[kind]:SetAuraGroupCandidateFilters(key, group[2])
-      self[kind]:SetAuraGroupMaxFrameCount(key, details.limit)
+      self[kind]:SetAuraGroupMaxFrameCount(key, group[3] and 1 or details.limit)
+      self[kind]:SetAuraGroupEnabled(key, true)
     end
 
     if self[kind].groupsCount > #groups then
       for i = #groups + 1, self[kind].groupsCount do
-        self[kind]:SetAuraGroupMaxFrameCount(tostring(i), 0)
+        self[kind]:SetAuraGroupEnabled(tostring(i), false)
       end
     end
 
-    if not addonTable.Utilities.IsChangesRestricted() and not self.initialSetup and not doNotSize then
+    if not addonTable.Utilities.IsChangesRestricted() and not self.initialSetup and not doNotSize and (not self.auraDetails or not tCompare(details, self.auraDetails[kind] or {})) then
       for _, f in ipairs(self[kind].frames) do
         StyleAura(f, details, self[kind], f.key)
       end
@@ -501,23 +499,26 @@ function addonTable.Display.AurasManagerNextMixin:InitializeWidgets(parent, aura
     self[kind]:Show()
   end
 
+  self.auraDetails = CopyTable(auraDetails)
+  self.lastFont = CopyTable(newFont)
+
   self.initialSetup = false
 end
 
-local function ApplyStartTailCount(auras, count)
+local function ApplyStartTailEnabled(auras, state)
   if auras.manualStart > 0 then
     for i = 1, auras.manualStart do
-      auras:SetAuraGroupMaxFrameCount(tostring(i), count)
+      auras:SetAuraGroupEnabled(tostring(i), state)
     end
   end
   if auras.manualTail > 0 then
     for i = auras.groupLiveCount, auras.groupLiveCount - auras.manualTail do
-      auras:SetAuraGroupMaxFrameCount(tostring(i), count)
+      auras:SetAuraGroupEnabled(tostring(i), state)
     end
   end
   if auras.manualDeduplicate > 0 then
     for i = auras.manualStart + 1, auras.manualStart + auras.manualDeduplicate do
-      auras:SetAuraGroupMaxFrameCount(tostring(i), count > 0 and 1 or 0)
+      auras:SetAuraGroupEnabled(tostring(i), state)
     end
   end
 end
@@ -580,13 +581,13 @@ function addonTable.Display.AurasManagerNextMixin:SetUnit(unit)
 
   if UnitCanAssist("player", unit) then
     if self.debuffs.details then
-      ApplyStartTailCount(self.debuffs, 0)
+      ApplyStartTailEnabled(self.debuffs, false)
     end
     if self.crowdControl.details then
-      ApplyStartTailCount(self.crowdControl, 0)
+      ApplyStartTailEnabled(self.crowdControl, false)
     end
     if self.buffs.details then
-      ApplyStartTailCount(self.buffs, self.buffs.details.limit)
+      ApplyStartTailEnabled(self.buffs, true)
       self.buffs:SetAuraGroupMaxFrameCount(tostring(self.buffs.manualStart + 1), self.buffs.details.limit)
       for i = self.buffs.manualStart + 2, self.buffs.groupLiveCount - self.buffs.manualTail do
         self.buffs:SetAuraGroupMaxFrameCount(tostring(i), 0)
@@ -594,13 +595,13 @@ function addonTable.Display.AurasManagerNextMixin:SetUnit(unit)
     end
   else
     if self.debuffs.details then
-      ApplyStartTailCount(self.debuffs, self.debuffs.details.limit)
+      ApplyStartTailEnabled(self.debuffs, true)
     end
     if self.crowdControl.details then
-      ApplyStartTailCount(self.crowdControl, self.crowdControl.details.limit)
+      ApplyStartTailEnabled(self.crowdControl, true)
     end
     if self.buffs.details then
-      ApplyStartTailCount(self.buffs, 0)
+      ApplyStartTailEnabled(self.buffs, false)
       self.buffs:SetAuraGroupMaxFrameCount(tostring(self.buffs.manualStart + 1), 0)
       for i = self.buffs.manualStart + 2, self.buffs.groupLiveCount - self.buffs.manualTail do
         self.buffs:SetAuraGroupMaxFrameCount(tostring(i), self.buffs.details.limit)

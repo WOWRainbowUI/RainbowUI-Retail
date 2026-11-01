@@ -213,23 +213,8 @@ end
 function addonTable.Display.GetHealthBar(frame, parent)
   frame = frame or CreateFrame("Frame", nil, parent or UIParent)
 
-  frame:SetFlattensRenderLayers(true)
-
   frame.statusBarAbsorb = CreateFrame("StatusBar", nil, frame)
   frame.statusBarAbsorb:SetStatusBarTexture("Interface/AddOns/Platynator/Assets/Special/transparent.png")
-
-  frame.statusBarCutaway = CreateFrame("StatusBar", nil, frame)
-  frame.statusBarCutawayAnimation = frame.statusBarCutaway:CreateAnimationGroup()
-  frame.statusBarCutawayAnimation:SetToFinalAlpha(true)
-  local alpha = frame.statusBarCutawayAnimation:CreateAnimation("Alpha")
-  alpha:SetSmoothing("IN_OUT")
-  alpha:SetFromAlpha(1)
-  alpha:SetToAlpha(0)
-  alpha:SetDuration(0.3)
-  frame.statusBarCutawayMask = frame.statusBarCutaway:CreateMaskTexture()
-  frame.statusBarCutawayMask:SetBlockingLoadsRequested(true)
-  frame.statusBarCutawayMask:SetTexture("Interface/AddOns/Platynator/Assets/Special/white.png", "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
-  frame.statusBarCutawayMask:SetTextureSliceMargins(1, 1, 1, 1)
 
   frame.statusBar = CreateFrame("StatusBar", nil, frame)
   frame.statusBar:SetPoint("CENTER")
@@ -241,13 +226,10 @@ function addonTable.Display.GetHealthBar(frame, parent)
   frame.absorbTexture = frame.absorbClipping:CreateTexture(nil, "ARTWORK", nil, -1)
   frame.absorbTexture:SetAllPoints(frame.statusBar)
 
-  frame.statusBarCutaway:SetAllPoints(frame.statusBar)
-
   frame.marker = frame.statusBar:CreateTexture(nil, "OVERLAY", nil, 7)
   frame.marker:SetSnapToPixelGrid(false)
 
   local borderHolder = CreateFrame("Frame", nil, frame)
-  borderHolder:SetFlattensRenderLayers(true)
   frame.border = borderHolder:CreateTexture()
   frame.border:SetDrawLayer("OVERLAY")
   frame.border:SetPoint("CENTER", frame)
@@ -271,25 +253,32 @@ function addonTable.Display.GetHealthBar(frame, parent)
     local borderSliceDetails = LSM:Fetch("nineslice", borderDetails.nineslice)
     assert(borderSliceDetails)
 
-    frame.statusBarCutaway:SetShown(details.animate)
-
     frame.absorbTexture:SetTexture(LSM:Fetch("statusbar", details.absorb.asset, true) or LSM:Fetch("statusbar", "MM: Absorb Wide"))
     frame.absorbTexture:SetVertexColor(details.absorb.color.r, details.absorb.color.g, details.absorb.color.b, details.absorb.color.a)
     frame.statusBarAbsorb:SetPoint("LEFT", frame.statusBar:GetStatusBarTexture(), "RIGHT")
     frame.absorbTexture:RemoveMaskTexture(frame.mask)
 
-    frame.statusBarCutaway:SetStatusBarTexture(LSM:Fetch("statusbar", details.foreground.asset, true) or LSM:Fetch("statusbar", "MM: Solid White"))
-    frame.statusBarCutaway:SetScale(borderSliceDetails.scaleModifier * details.scale)
-    frame.statusBarCutaway:GetStatusBarTexture():RemoveMaskTexture(frame.mask)
-    frame.statusBarCutaway:SetAlpha(0)
-    frame.statusBarCutawayMask:SetPoint("LEFT", frame.statusBar:GetStatusBarTexture(), "RIGHT")
-    frame.statusBarCutawayMask:SetScale(details.scale)
+    frame:GenerateCutaway(details)
+
+    if frame.statusBarCutaway then
+      frame.statusBarCutaway:SetShown(details.animate)
+    end
+    if details.animate then
+      frame.statusBarCutaway:SetStatusBarTexture(LSM:Fetch("statusbar", details.foreground.asset, true) or LSM:Fetch("statusbar", "MM: Solid White"))
+      frame.statusBarCutaway:SetScale(borderSliceDetails.scaleModifier * details.scale)
+      frame.statusBarCutaway:GetStatusBarTexture():RemoveMaskTexture(frame.mask)
+      frame.statusBarCutaway:SetAlpha(0)
+      frame.statusBarCutawayMask:SetPoint("LEFT", frame.statusBar:GetStatusBarTexture(), "RIGHT")
+      frame.statusBarCutawayMask:SetScale(details.scale)
+
+      frame.statusBarCutaway:GetStatusBarTexture():AddMaskTexture(frame.statusBarCutawayMask)
+      frame.statusBarCutaway:GetStatusBarTexture():AddMaskTexture(frame.mask)
+    end
+
     frame.statusBarAbsorb:SetScale(details.scale)
     frame.absorbClipping:SetScale(borderSliceDetails.scaleModifier * details.scale)
 
     frame.absorbTexture:AddMaskTexture(frame.mask)
-    frame.statusBarCutaway:GetStatusBarTexture():AddMaskTexture(frame.statusBarCutawayMask)
-    frame.statusBarCutaway:GetStatusBarTexture():AddMaskTexture(frame.mask)
 
     if details.kind == "health" then
       Mixin(frame, addonTable.Display.HealthBarMixin)
@@ -304,9 +293,32 @@ function addonTable.Display.GetHealthBar(frame, parent)
     end
   end
 
+  function frame:GenerateCutaway(details)
+    if frame.statusBarCutaway or not details.animate then
+      return
+    end
+
+    frame.statusBarCutaway = CreateFrame("StatusBar", nil, frame)
+    frame.statusBarCutawayAnimation = frame.statusBarCutaway:CreateAnimationGroup()
+    frame.statusBarCutawayAnimation:SetToFinalAlpha(true)
+    local alpha = frame.statusBarCutawayAnimation:CreateAnimation("Alpha")
+    alpha:SetSmoothing("IN_OUT")
+    alpha:SetFromAlpha(1)
+    alpha:SetToAlpha(0)
+    alpha:SetDuration(0.3)
+    frame.statusBarCutawayMask = frame.statusBarCutaway:CreateMaskTexture()
+    frame.statusBarCutawayMask:SetBlockingLoadsRequested(true)
+    frame.statusBarCutawayMask:SetTexture("Interface/AddOns/Platynator/Assets/Special/white.png", "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
+    frame.statusBarCutawayMask:SetTextureSliceMargins(1, 1, 1, 1)
+
+    frame.statusBarCutaway:SetAllPoints(frame.statusBar)
+  end
+
   function frame:ApplyFrameLevels()
-    frame.statusBarCutaway:SetFrameLevel(frame:GetFrameLevel() + 1)
-    frame.absorbClipping:SetFrameLevel(frame:GetFrameLevel() + 2)
+    if frame.statusBarCutaway then
+      frame.statusBarCutaway:SetFrameLevel(frame:GetFrameLevel() + 1)
+    end
+    frame.statusBarAbsorb:SetFrameLevel(frame:GetFrameLevel() + 2)
     frame.statusBar:SetFrameLevel(frame:GetFrameLevel() + 3)
     borderHolder:SetFrameLevel(frame:GetFrameLevel() + 5)
   end
@@ -318,7 +330,9 @@ function addonTable.Display.GetHealthBar(frame, parent)
   function frame:ApplySize()
     SizeBar(frame, frame.details)
     SmartSize(frame.statusBarAbsorb, frame.rawWidth, frame.rawHeight)
-    SmartSize(frame.statusBarCutawayMask, frame.rawWidth * frame.lowerScale, frame.rawHeight * frame.lowerScale)
+    if frame.statusBarCutaway then
+      SmartSize(frame.statusBarCutawayMask, frame.rawWidth * frame.lowerScale, frame.rawHeight * frame.lowerScale)
+    end
   end
 
   function frame:SetMarkerAlpha(a)
@@ -400,7 +414,6 @@ function addonTable.Display.GetCastBar(frame, parent)
   frame.marker:SetSnapToPixelGrid(false)
 
   local borderHolder = CreateFrame("Frame", nil, frame)
-  borderHolder:SetFlattensRenderLayers(true)
   frame.border = borderHolder:CreateTexture()
   frame.border:SetDrawLayer("OVERLAY")
   frame.border:SetPoint("CENTER", frame)
@@ -521,7 +534,6 @@ function addonTable.Display.GetEnergyBar(frame, parent)
   frame.marker:SetSnapToPixelGrid(false)
 
   local borderHolder = CreateFrame("Frame", nil, frame)
-  borderHolder:SetFlattensRenderLayers(true)
   frame.border = borderHolder:CreateTexture()
   frame.border:SetDrawLayer("OVERLAY")
   frame.border:SetPoint("CENTER", frame)
