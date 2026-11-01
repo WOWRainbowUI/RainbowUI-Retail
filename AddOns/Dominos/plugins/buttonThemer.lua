@@ -51,7 +51,12 @@ local Masque, MasqueVersion = LibStub('Masque', true)
 
 if Masque then
     local L = LibStub("AceLocale-3.0"):GetLocale(AddonName)
-	-- masque not installed
+    -- lets a group show up in masque before it has any buttons
+    function ButtonThemer:CreateGroup(groupName)
+        Masque:Group(L.AddonName, groupName)
+    end
+
+    -- masque not installed
     function ButtonThemer:Register(button, groupName, ...)
         local group = Masque:Group(L.AddonName, groupName)
 
@@ -81,6 +86,9 @@ if Masque then
         end
     end
 else
+    function ButtonThemer:CreateGroup()
+    end
+
     function ButtonThemer:Register(button)
         theme(button)
     end

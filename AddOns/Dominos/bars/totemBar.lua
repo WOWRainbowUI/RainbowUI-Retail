@@ -33,12 +33,7 @@ function TotemBar:GetDefaults()
 end
 
 TotemBar:Extend('OnAcquire', function(self)
-    if not InCombatLockdown() then
-        MultiCastActionBarFrame:SetParent(self)
-        MultiCastActionBarFrame:ClearAllPoints()
-        MultiCastActionBarFrame:SetPoint('CENTER', self)
-    end
-
+    self:AttachChild(MultiCastActionBarFrame)
     self:Layout()
 end)
 
