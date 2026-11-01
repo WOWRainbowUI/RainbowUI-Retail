@@ -1,5 +1,6 @@
 local _, BR = ... -- luacheck: ignore 211
-if GetLocale() ~= "zhCN" then
+BR.translatedLocales.zhCN = "简体中文"
+if BR.locale ~= "zhCN" then
     return
 end
 
@@ -1061,3 +1062,10 @@ L["Options.Override.OpenDefaults"] = "打开"
 L["DisabledReason.ShowWithoutItems"] = "请先启用「不在背包中时也显示」。"
 L["DisabledReason.PetLabelsOff"] = "请先选择「宠物标签」的位置。"
 L["DisabledReason.OverrideRow"] = "请先勾选此行的「覆盖」。"
+
+-- Language options
+L["Options.Language"] = "语言"
+L["Options.Language.Auto"] = "自动（游戏语言）"
+L["Options.Language.Desc"] = "插件文字的语言。自动会使用游戏语言，尚未翻译的文字则显示英文。"
+L["Language.enUS"] = "English"
+L["Dialog.ReloadLanguage"] = "重新加载界面后才会应用新的语言。\n现在重新加载吗？"

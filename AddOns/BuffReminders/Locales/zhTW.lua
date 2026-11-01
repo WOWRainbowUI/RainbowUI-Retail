@@ -1,5 +1,6 @@
 local _, BR = ... -- luacheck: ignore 211
-if GetLocale() ~= "zhTW" then
+BR.translatedLocales.zhTW = "繁體中文"
+if BR.locale ~= "zhTW" then
     return
 end
 
@@ -1210,3 +1211,10 @@ L["Options.Override.OpenDefaults"] = "開啟"
 L["DisabledReason.ShowWithoutItems"] = "請先啟用「不在背包中時也顯示」。"
 L["DisabledReason.PetLabelsOff"] = "請先選擇「寵物標籤」的位置。"
 L["DisabledReason.OverrideRow"] = "請先勾選此列的「覆寫」。"
+
+-- Language options
+L["Options.Language"] = "語言"
+L["Options.Language.Auto"] = "自動（遊戲語言）"
+L["Options.Language.Desc"] = "插件文字的語言。自動會使用遊戲語言，尚未翻譯的文字則顯示英文。"
+L["Language.enUS"] = "English"
+L["Dialog.ReloadLanguage"] = "重新載入介面後才會套用新的語言。\n現在重新載入嗎？"
