@@ -1,5 +1,6 @@
-### Changes in 120100.150-Release:
+### Changes in 120100.151-Release:
 
-- Added: Support for Hearty Food/Feast and Prepared Ingredients for Cooking
-- Fixed: Enchanting skill requirement for disenchanting in TBC/Wrath/Mists
+- Changed: Update Interface version for retail
+- Changed: Update retail data
+- Changed: Update wrath data
 
