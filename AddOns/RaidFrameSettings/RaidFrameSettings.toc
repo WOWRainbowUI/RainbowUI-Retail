@@ -1,5 +1,6 @@
-## Interface: 120000, 120001, 120005, 120105, 120100
-## Version: 4.6.5
+## Dependencies: Ace3
+## Interface: 120000, 120001, 120005, 120007, 120100, 120105
+## Version: 4.6.7
 ## Title: RaidFrameSettings
 ## Author: Slothpala
 ## AddonCompartmentFunc: RaidFrameSettings_OpenSettings

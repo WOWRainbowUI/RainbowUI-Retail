@@ -2,11 +2,22 @@
 local addon_name, private = ...
 local addon = _G[addon_name]
 
+-- These globals are gone in newer clients, they only exist in the C_SpecializationInfo namespace there.
+local GetSpecialization = C_SpecializationInfo and C_SpecializationInfo.GetSpecialization or GetSpecialization
+local GetSpecializationInfoForClassID = C_SpecializationInfo and C_SpecializationInfo.GetSpecializationInfoForClassID or GetSpecializationInfoForClassID
+
 local class_id = select(3, UnitClass("player"))
 -- The data for spec_id and spec_name is sometimes not available at login, so we request it on PLAYER_ENTERING_WORLD.
 local spec_id
 local spec_name
 local current_spec
+
+-- Characters without a specialization (below level 10) share one profile set.
+local function update_spec()
+  current_spec = GetSpecialization and GetSpecialization()
+  spec_name = current_spec and select(2, GetSpecializationInfoForClassID(class_id, current_spec))
+  spec_id = (spec_name or "no_spec") .. class_id
+end
 
 local group_type = ""
 
@@ -18,6 +29,9 @@ local group_profiles = {
 }
 
 local function check_group_profile()
+  if not spec_id then -- GROUP_ROSTER_UPDATE can fire before the spec is known.
+    return
+  end
   local new_group_type = addon.GetGroupType()
   if new_group_type == group_type then
     return
@@ -37,19 +51,18 @@ event_frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 event_frame:RegisterUnitEvent("PLAYER_SPECIALIZATION_CHANGED", "player")
 event_frame:SetScript("OnEvent", function(_, event, arg1, arg2)
   if event == "PLAYER_ENTERING_WORLD" and ( arg1 or arg2 ) then -- arg1 = initial login, arg2 = reloading. Both can be false when zoning out of instance for example.
-    current_spec = GetSpecialization()
-    spec_name = select(2, GetSpecializationInfoForClassID(class_id, current_spec))
-    spec_id = spec_name .. class_id
+    update_spec()
   elseif event == "PLAYER_SPECIALIZATION_CHANGED" then
-    current_spec = GetSpecialization()
-    spec_name = select(2, GetSpecializationInfoForClassID(class_id, current_spec))
-    spec_id = spec_name .. class_id
+    update_spec()
     group_type = "" -- This is done to bypass the check.
   end
   check_group_profile()
 end)
 
 function addon:LoadGroupProfile()
+  if not spec_id then
+    update_spec()
+  end
   group_type = self.GetGroupType()
   local profile = self.db.global.profiles[spec_id][group_profiles[group_type]]
   self.db:SetProfile(profile)
