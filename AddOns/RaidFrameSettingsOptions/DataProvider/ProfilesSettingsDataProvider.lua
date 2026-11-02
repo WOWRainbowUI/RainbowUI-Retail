@@ -6,6 +6,10 @@ local L = LibStub("AceLocale-3.0"):GetLocale(addon_name)
 local data_manager = {}
 private.DataHandler.RegisterDataManager("profiles_settings", data_manager)
 
+-- These globals are gone in newer clients, they only exist in the C_SpecializationInfo namespace there.
+local GetSpecialization = C_SpecializationInfo and C_SpecializationInfo.GetSpecialization or GetSpecialization
+local GetSpecializationInfoForClassID = C_SpecializationInfo and C_SpecializationInfo.GetSpecializationInfoForClassID or GetSpecializationInfoForClassID
+
 local class_id = select(3, UnitClass("player"))
 local highlight_color_hex = "cff4A90E2"
 
@@ -48,9 +52,9 @@ local function generate_options_tbl()
           -- Create the new profile or set if it already exists.
           data_base:SetProfile(input)
           -- Set the current group type profile to the newly created profile
-          local current_spec = GetSpecialization()
-          local current_spec_name = select(2, GetSpecializationInfoForClassID(class_id, current_spec))
-          local current_spec_id = current_spec_name .. class_id
+          local current_spec = GetSpecialization and GetSpecialization()
+          local current_spec_name = current_spec and select(2, GetSpecializationInfoForClassID(class_id, current_spec))
+          local current_spec_id = (current_spec_name or "no_spec") .. class_id
           local group_type = main_addon.GetGroupType()
           main_addon.db.global.profiles[current_spec_id][group_type .. "_profile"] = input
         end,
@@ -108,7 +112,7 @@ local function generate_options_tbl()
   }
 
   -- Create entries for all specs.
-  local current_spec = GetSpecialization()
+  local current_spec = GetSpecialization and GetSpecialization()
   local current_group_type = main_addon.GetGroupType()
   local num_specs = C_SpecializationInfo.GetNumSpecializationsForClassID(class_id)
   for i=1, num_specs do

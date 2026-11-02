@@ -1,5 +1,5 @@
-## Interface: 120000, 120001, 120005, 120007, 120100
-## Version: 4.6.5
+## Interface: 120000, 120001, 120005, 120007, 120100, 16001
+## Version: 4.6.7
 ## Title: RaidFrameSettings
 ## Author: Slothpala
 ## AddonCompartmentFunc: RaidFrameSettings_OpenSettings
