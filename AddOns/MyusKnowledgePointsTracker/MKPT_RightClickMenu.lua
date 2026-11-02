@@ -7,6 +7,7 @@ local RightClickMenu = CreateFrame("Frame", "MKPT_RightClickMenu", UIParent, "UI
 
 local TWW_LOCALIZED_NAME = EXPANSION_NAME10
 local MIDNIGHT_LOCALIZED_NAME = EXPANSION_NAME11
+local DF_LOCALIZED_NAME = EXPANSION_NAME9
 
 local function InitializeRightClickMenu(self, level, menuList)
   local f = MKPT_env.ui
@@ -23,7 +24,7 @@ local function InitializeRightClickMenu(self, level, menuList)
     midnightOption.checked = MKPT_env.charDb.state.expansion == Enum.ExpansionLevel.Midnight
     midnightOption.func = function()
       if not midnightOption.checked then
-        MKPT_env.ToggleExpansion()
+        MKPT_env.ToggleExpansion(Enum.ExpansionLevel.Midnight)
       end
     end
     UIDropDownMenu_AddButton(midnightOption)
@@ -33,11 +34,22 @@ local function InitializeRightClickMenu(self, level, menuList)
     twwOption.checked = MKPT_env.charDb.state.expansion == Enum.ExpansionLevel.WarWithin
     twwOption.func = function()
       if not twwOption.checked then
-        MKPT_env.ToggleExpansion()
+        MKPT_env.ToggleExpansion(Enum.ExpansionLevel.WarWithin)
       end
     end
 
     UIDropDownMenu_AddButton(twwOption)
+
+    local dfOption = UIDropDownMenu_CreateInfo()
+    dfOption.text = DF_LOCALIZED_NAME
+    dfOption.checked = MKPT_env.charDb.state.expansion == Enum.ExpansionLevel.Dragonflight
+    dfOption.func = function()
+      if not dfOption.checked then
+        MKPT_env.ToggleExpansion(Enum.ExpansionLevel.Dragonflight)
+      end
+    end
+
+    UIDropDownMenu_AddButton(dfOption)
   end
 
   -- Show/Hide filterGroups
