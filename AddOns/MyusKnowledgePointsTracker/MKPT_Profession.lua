@@ -30,8 +30,10 @@ function MKPT_Profession:New(professionId, spellId, catchUpCurrencyId, trainerLo
   self.__index = self
   profession.id = professionId
   profession.spellId = spellId
-  profession.catchUpCurrencyId = catchUpCurrencyId
-  catchUpCurrencyIdx[catchUpCurrencyId] = profession
+  if catchUpCurrencyId then
+    profession.catchUpCurrencyId = catchUpCurrencyId
+    catchUpCurrencyIdx[catchUpCurrencyId] = profession
+  end
 
   local info = C_TradeSkillUI.GetProfessionInfoBySkillLineID(profession.id)
   profession.trainerLocation = trainerLocation
@@ -114,6 +116,7 @@ end
 ---@param self MKPT_Profession
 ---@return number
 function MKPT_Profession:GetCatchUpCurrencyLeft()
+  if not self.catchUpCurrencyId then return 0 end
   local currencyInfo = C_CurrencyInfo.GetCurrencyInfo(self.catchUpCurrencyId)
   local quantity = currencyInfo.useTotalEarnedForMaxQty and currencyInfo.totalEarned or currencyInfo.quantity
   return currencyInfo.maxQuantity - quantity

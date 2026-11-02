@@ -12,11 +12,13 @@ local MKPT_PatronCatchUp = MKPT_env.MKPT_PatronCatchUp
 local MKPT_Item = MKPT_env.MKPT_Item
 local MKPT_QuestRequirement = MKPT_env.MKPT_QuestRequirement
 local MKPT_CurrencyRequirement = MKPT_env.MKPT_CurrencyRequirement
+local MKPT_ReputationRequirement = MKPT_env.MKPT_ReputationRequirement
 local MKPT_RenownRequirement = MKPT_env.MKPT_RenownRequirement
 local MKPT_ItemRequirement = MKPT_env.MKPT_ItemRequirement
 local MKPT_FirstTimeRecipe = MKPT_env.MKPT_FirstTimeRecipe
 local MKPT_KpItemRequirement = MKPT_env.MKPT_KpItemRequirement
 local MKPT_Currency = MKPT_env.MKPT_Currency
+local MKPT_ProfessionSkillRequirement = MKPT_env.MKPT_ProfessionSkillRequirement
 
 local L = MKPT_env.L
 
@@ -53,6 +55,278 @@ end
 
 MKPT_env.InitProfessions = function()
   db = {
+    -- Dragonflight
+    [Enum.ExpansionLevel.Dragonflight] = {
+
+      -- Alchemy
+      [2823] = MKPT_Profession:New(2823, 366261, nil, { map=2112, x=0.36398452520370, y=0.71703720092773 })
+          -- Dusty Alchemist's Research
+          :AddEntry(MKPT_UniqueBook:New({ questId = { 71893 }, itemId = 200974, waypoint = { map = 2112, x = 0.35406965017319, y = 0.59096604585648 }, kp = 10, spell = 393153 })
+            :AddRequirement(MKPT_ReputationRequirement:New(2544, 2))
+            :AddRequirement(MKPT_ItemRequirement:New(190456, 100)))
+          -- Rare Alchemist's Research
+          :AddEntry(MKPT_UniqueBook:New({ questId = { 71904 }, itemId = 201270, waypoint = { map = 2112, x = 0.35406965017319, y = 0.59096604585648 }, kp = 10, spell = 393224 })
+            :AddRequirement(MKPT_ReputationRequirement:New(2544, 4))
+            :AddRequirement(MKPT_ItemRequirement:New(190456, 150)))
+          -- Ancient Alchemist's Research
+          :AddEntry(MKPT_UniqueBook:New({ questId = { 71915 }, itemId = 201281, waypoint = { map = 2112, x = 0.35406965017319, y = 0.59096604585648 }, kp = 10, spell = 393225 })
+            :AddRequirement(MKPT_ReputationRequirement:New(2544, 5))
+            :AddRequirement(MKPT_ItemRequirement:New(190456, 200)))
+          -- Draconic Treatise on Alchemy
+          :AddEntry(MKPT_Treatise:New({ questId = { 74108 }, itemId = 194697, waypoint = { map = 2112, x = 0.34759241342545, y = 0.61595261096954 }, kp = 1, spell = 377674, atlasIcon = "Professions-Crafting-Orders-Icon" })
+            :AddRequirement(MKPT_ItemRequirement:New(194697, 1)))
+          -- Experimental Substance, Treasure Hunt
+          :AddEntry(MKPT_WeeklyTreasure:New ({ questId = { 66373 }, itemId = 193891, kp = 1 })
+            :AddRequirement(MKPT_ProfessionSkillRequirement:New(2823, 25)))
+          -- Reawakened Catalyst, Treasure Hunt
+          :AddEntry(MKPT_WeeklyTreasure:New ({ questId = { 66374 }, itemId = 193897, kp = 1 })
+            :AddRequirement(MKPT_ProfessionSkillRequirement:New(2823, 25)))
+      ,
+
+      -- Blacksmithing
+      [2822] = MKPT_Profession:New(2822, 365677, nil, { map = 2112, x = 0.36911648511887, y = 0.46592760086060 })
+          -- Dusty Blacksmith's Diagrams
+          :AddEntry(MKPT_UniqueBook:New({ questId = { 71894 }, itemId = 200972, waypoint = { map = 2112, x = 0.35406965017319, y = 0.59096604585648 }, kp = 10, spell = 393154 })
+            :AddRequirement(MKPT_ReputationRequirement:New(2544, 2))
+            :AddRequirement(MKPT_ItemRequirement:New(190456, 100)))
+          -- Rare Blacksmith's Diagrams
+          :AddEntry(MKPT_UniqueBook:New({ questId = { 71905 }, itemId = 201268, waypoint = { map = 2112, x = 0.35406965017319, y = 0.59096604585648 }, kp = 10, spell = 393226 })
+            :AddRequirement(MKPT_ReputationRequirement:New(2544, 4))
+            :AddRequirement(MKPT_ItemRequirement:New(190456, 150)))
+          -- Ancient Blacksmith's Diagrams
+          :AddEntry(MKPT_UniqueBook:New({ questId = { 71916 }, itemId = 201279, waypoint = { map = 2112, x = 0.35406965017319, y = 0.59096604585648 }, kp = 10, spell = 393227 })
+            :AddRequirement(MKPT_ReputationRequirement:New(2544, 5))
+            :AddRequirement(MKPT_ItemRequirement:New(190456, 200)))
+          -- Draconic Treatise on Blacksmithing
+          :AddEntry(MKPT_Treatise:New({ questId = { 74109 }, itemId = 198454, waypoint = { map = 2112, x = 0.34759241342545, y = 0.61595261096954 }, kp = 1, spell = 377674, atlasIcon = "Professions-Crafting-Orders-Icon" })
+            :AddRequirement(MKPT_ItemRequirement:New(198454, 1)))
+          -- Valdrakken Weapon Chain, Treasure Hunt
+          :AddEntry(MKPT_WeeklyTreasure:New ({ questId = { 66381 }, itemId = 192131, kp = 1 })
+            :AddRequirement(MKPT_ProfessionSkillRequirement:New(2822, 25)))
+          -- Draconium Blade Sharpener, Treasure Hunt
+          :AddEntry(MKPT_WeeklyTreasure:New ({ questId = { 66382 }, itemId = 192132, kp = 1 })
+            :AddRequirement(MKPT_ProfessionSkillRequirement:New(2822, 25)))
+      ,
+
+      -- Enchanting
+      [2825] = MKPT_Profession:New(2825, 366255, nil, { map = 2112, x = 0.31047844886780, y = 0.61382997035980 })
+          -- Dusty Enchanter's Research
+          :AddEntry(MKPT_UniqueBook:New({ questId = { 71895 }, itemId = 200976, waypoint = { map = 2112, x = 0.35406965017319, y = 0.59096604585648 }, kp = 10, spell = 393155 })
+            :AddRequirement(MKPT_ReputationRequirement:New(2544, 2))
+            :AddRequirement(MKPT_ItemRequirement:New(190456, 100)))
+          -- Rare Enchanter's Research
+          :AddEntry(MKPT_UniqueBook:New({ questId = { 71906 }, itemId = 201272, waypoint = { map = 2112, x = 0.35406965017319, y = 0.59096604585648 }, kp = 10, spell = 393228 })
+            :AddRequirement(MKPT_ReputationRequirement:New(2544, 4))
+            :AddRequirement(MKPT_ItemRequirement:New(190456, 150)))
+          -- Ancient Enchanter's Research
+          :AddEntry(MKPT_UniqueBook:New({ questId = { 71917 }, itemId = 201283, waypoint = { map = 2112, x = 0.35406965017319, y = 0.59096604585648 }, kp = 10, spell = 393229 })
+            :AddRequirement(MKPT_ReputationRequirement:New(2544, 5))
+            :AddRequirement(MKPT_ItemRequirement:New(190456, 200)))
+          -- Draconic Treatise on Enchanting
+          :AddEntry(MKPT_Treatise:New({ questId = { 74110 }, itemId = 194702, waypoint = { map = 2112, x = 0.34759241342545, y = 0.61595261096954 }, kp = 1, spell = 377686, atlasIcon = "Professions-Crafting-Orders-Icon" })
+            :AddRequirement(MKPT_ItemRequirement:New(194702, 1)))
+          -- Prismatic Focusing Shard, Treasure Hunt
+          :AddEntry(MKPT_WeeklyTreasure:New ({ questId = { 66377 }, itemId = 193900, kp = 1 })
+            :AddRequirement(MKPT_ProfessionSkillRequirement:New(2825, 25)))
+          -- Primal Dust, Treasure Hunt
+          :AddEntry(MKPT_WeeklyTreasure:New ({ questId = { 66378 }, itemId = 193901, kp = 1 })
+            :AddRequirement(MKPT_ProfessionSkillRequirement:New(2825, 25)))
+      ,
+
+      -- Engineering
+      [2827] = MKPT_Profession:New(2827, 366254, nil, { map = 2112, x = 0.42293441295624, y = 0.48587745428085 })
+          -- Dusty Engineer's Scribblings
+          :AddEntry(MKPT_UniqueBook:New({ questId = { 71896 }, itemId = 200977, waypoint = { map = 2112, x = 0.35406965017319, y = 0.59096604585648 }, kp = 10, spell = 393156 })
+            :AddRequirement(MKPT_ReputationRequirement:New(2544, 2))
+            :AddRequirement(MKPT_ItemRequirement:New(190456, 100)))
+          -- Rare Engineer's Scribblings
+          :AddEntry(MKPT_UniqueBook:New({ questId = { 71907 }, itemId = 201273, waypoint = { map = 2112, x = 0.35406965017319, y = 0.59096604585648 }, kp = 10, spell = 393230 })
+            :AddRequirement(MKPT_ReputationRequirement:New(2544, 4))
+            :AddRequirement(MKPT_ItemRequirement:New(190456, 150)))
+          -- Ancient Engineer's Scribblings
+          :AddEntry(MKPT_UniqueBook:New({ questId = { 71918 }, itemId = 201284, waypoint = { map = 2112, x = 0.35406965017319, y = 0.59096604585648 }, kp = 10, spell = 393231 })
+            :AddRequirement(MKPT_ReputationRequirement:New(2544, 5))
+            :AddRequirement(MKPT_ItemRequirement:New(190456, 200)))
+          -- Draconic Treatise on Engineering
+          :AddEntry(MKPT_Treatise:New({ questId = { 74111 }, itemId = 198510, waypoint = { map = 2112, x = 0.34759241342545, y = 0.61595261096954 }, kp = 1, spell = 377685, atlasIcon = "Professions-Crafting-Orders-Icon" })
+            :AddRequirement(MKPT_ItemRequirement:New(198510, 1)))
+          -- Eroded Titan Gizmo, Treasure Hunt
+          :AddEntry(MKPT_WeeklyTreasure:New ({ questId = { 66379 }, itemId = 193902, kp = 1 })
+            :AddRequirement(MKPT_ProfessionSkillRequirement:New(2827, 25)))
+          -- Watcher Power Core, Treasure Hunt
+          :AddEntry(MKPT_WeeklyTreasure:New ({ questId = { 66380 }, itemId = 193903, kp = 1 })
+            :AddRequirement(MKPT_ProfessionSkillRequirement:New(2827, 25)))
+      ,
+
+      -- Herbalism
+      [2832] = MKPT_Profession:New(2832, 366252, nil, { map = 2112, x = 0.37625139951706, y = 0.68141198158264 })
+          -- Dusty Herbalist's Notes
+          :AddEntry(MKPT_UniqueBook:New({ questId = { 71897 }, itemId = 200980, waypoint = { map = 2112, x = 0.35406965017319, y = 0.59096604585648 }, kp = 15, spell = 393157 })
+            :AddRequirement(MKPT_ReputationRequirement:New(2544, 2))
+            :AddRequirement(MKPT_ItemRequirement:New(190456, 100)))
+          -- Rare Herbalist's Notes
+          :AddEntry(MKPT_UniqueBook:New({ questId = { 71908 }, itemId = 201276, waypoint = { map = 2112, x = 0.35406965017319, y = 0.59096604585648 }, kp = 15, spell = 393232 })
+            :AddRequirement(MKPT_ReputationRequirement:New(2544, 4))
+            :AddRequirement(MKPT_ItemRequirement:New(190456, 150)))
+          -- Ancient Herbalist's Notes
+          :AddEntry(MKPT_UniqueBook:New({ questId = { 71919 }, itemId = 201287, waypoint = { map = 2112, x = 0.35406965017319, y = 0.59096604585648 }, kp = 15, spell = 393233 })
+            :AddRequirement(MKPT_ReputationRequirement:New(2544, 5))
+            :AddRequirement(MKPT_ItemRequirement:New(190456, 200)))
+          -- Draconic Treatise on Herbalism
+          :AddEntry(MKPT_Treatise:New({ questId = { 74107 }, itemId = 194704, waypoint = { map = 2112, x = 0.34759241342545, y = 0.61595261096954 }, kp = 1, spell = 377683, atlasIcon = "Professions-Crafting-Orders-Icon" })
+            :AddRequirement(MKPT_ItemRequirement:New(194704, 1)))
+          -- Dreambloom Petal
+          :AddEntry(MKPT_WeeklyTreasure:New { questId = { 71857, 71858, 71859, 71860, 71861 }, itemId = 200677, kp = 1, atlasIcon = "Professions_Tracking_Herb", text = L["Randomly looted while gathering herbs"] })
+          -- Dreambloom
+          :AddEntry(MKPT_WeeklyTreasure:New { questId = { 71864 }, itemId = 200678, kp = 3, atlasIcon = "Professions_Tracking_Herb", text = L["Looted through herbs, after gathering 5 petals"] })
+      ,
+
+      -- Inscription
+      [2828] = MKPT_Profession:New(2828, 366251, nil, { map=2112, x=0.38856750726700, y=0.73365747928619 })
+          -- Dusty Scribe's Runic Drawings
+          :AddEntry(MKPT_UniqueBook:New({ questId = { 71898 }, itemId = 200973, waypoint = { map = 2112, x = 0.35406965017319, y = 0.59096604585648 }, kp = 10, spell = 393158 })
+            :AddRequirement(MKPT_ReputationRequirement:New(2544, 2))
+            :AddRequirement(MKPT_ItemRequirement:New(190456, 100)))
+          -- Rare Scribe's Runic Drawings
+          :AddEntry(MKPT_UniqueBook:New({ questId = { 71909 }, itemId = 201269, waypoint = { map = 2112, x = 0.35406965017319, y = 0.59096604585648 }, kp = 10, spell = 393234 })
+            :AddRequirement(MKPT_ReputationRequirement:New(2544, 4))
+            :AddRequirement(MKPT_ItemRequirement:New(190456, 150)))
+          -- Ancient Scribe's Runic Drawings
+          :AddEntry(MKPT_UniqueBook:New({ questId = { 71920 }, itemId = 201280, waypoint = { map = 2112, x = 0.35406965017319, y = 0.59096604585648 }, kp = 10, spell = 393235 })
+            :AddRequirement(MKPT_ReputationRequirement:New(2544, 5))
+            :AddRequirement(MKPT_ItemRequirement:New(190456, 200)))
+          -- Draconic Treatise on Inscription
+          :AddEntry(MKPT_Treatise:New({ questId = { 74105 }, itemId = 194699, waypoint = { map = 2112, x = 0.34759241342545, y = 0.61595261096954 }, kp = 1, spell = 377675, atlasIcon = "Professions-Crafting-Orders-Icon" })
+            :AddRequirement(MKPT_ItemRequirement:New(194699, 1)))
+          -- Phoenix Feather Quill, Treasure Hunt
+          :AddEntry(MKPT_WeeklyTreasure:New ({ questId = { 66375 }, itemId = 193904, kp = 1 })
+            :AddRequirement(MKPT_ProfessionSkillRequirement:New(2828, 25)))
+          -- Iskaaran Trading Ledger, Treasure Hunt
+          :AddEntry(MKPT_WeeklyTreasure:New ({ questId = { 66376 }, itemId = 193905, kp = 1 })
+            :AddRequirement(MKPT_ProfessionSkillRequirement:New(2828, 25)))
+      ,
+
+      -- Jewelcrafting
+      [2829] = MKPT_Profession:New(2829, 366250, nil, { map = 2112, x = 0.40804201364517, y = 0.61111366748810 })
+          -- Dusty Jeweler's Illustrations
+          :AddEntry(MKPT_UniqueBook:New({ questId = { 71899 }, itemId = 200978, waypoint = { map = 2112, x = 0.35406965017319, y = 0.59096604585648 }, kp = 10, spell = 393159 })
+            :AddRequirement(MKPT_ReputationRequirement:New(2544, 2))
+            :AddRequirement(MKPT_ItemRequirement:New(190456, 100)))
+          -- Rare Jeweler's Illustrations
+          :AddEntry(MKPT_UniqueBook:New({ questId = { 71910 }, itemId = 201274, waypoint = { map = 2112, x = 0.35406965017319, y = 0.59096604585648 }, kp = 10, spell = 393236 })
+            :AddRequirement(MKPT_ReputationRequirement:New(2544, 4))
+            :AddRequirement(MKPT_ItemRequirement:New(190456, 150)))
+          -- Ancient Jeweler's Illustrations
+          :AddEntry(MKPT_UniqueBook:New({ questId = { 71921 }, itemId = 201285, waypoint = { map = 2112, x = 0.35406965017319, y = 0.59096604585648 }, kp = 10, spell = 393237 })
+            :AddRequirement(MKPT_ReputationRequirement:New(2544, 5))
+            :AddRequirement(MKPT_ItemRequirement:New(190456, 200)))
+          -- Draconic Treatise on Jewelcrafting
+          :AddEntry(MKPT_Treatise:New({ questId = { 74112 }, itemId = 194703, waypoint = { map = 2112, x = 0.34759241342545, y = 0.61595261096954 }, kp = 1, spell = 377688, atlasIcon = "Professions-Crafting-Orders-Icon" })
+            :AddRequirement(MKPT_ItemRequirement:New(194703, 1)))
+          -- Chipped Tyrstone
+          :AddEntry(MKPT_WeeklyTreasure:New (({ questId = { 66388 }, itemId = 193907, kp = 1 }))
+            :AddRequirement(MKPT_ProfessionSkillRequirement:New(2829, 25)))
+          -- Ancient Gem Fragments
+          :AddEntry(MKPT_WeeklyTreasure:New (({ questId = { 66389 }, itemId = 193909, kp = 1 }))
+            :AddRequirement(MKPT_ProfessionSkillRequirement:New(2829, 25)))
+      ,
+
+      -- Leatherworking
+      [2830] = MKPT_Profession:New(2830, 366249, nil, { map = 2112, x = 0.28503471612930, y = 0.61312985420227 })
+          -- Dusty Leatherworker's Diagrams
+          :AddEntry(MKPT_UniqueBook:New({ questId = { 71900 }, itemId = 200979, waypoint = { map = 2112, x = 0.35406965017319, y = 0.59096604585648 }, kp = 10, spell = 393160 })
+            :AddRequirement(MKPT_ReputationRequirement:New(2544, 2))
+            :AddRequirement(MKPT_ItemRequirement:New(190456, 100)))
+          -- Rare Leatherworker's Diagrams
+          :AddEntry(MKPT_UniqueBook:New({ questId = { 71911 }, itemId = 201275, waypoint = { map = 2112, x = 0.35406965017319, y = 0.59096604585648 }, kp = 10, spell = 393238 })
+            :AddRequirement(MKPT_ReputationRequirement:New(2544, 4))
+            :AddRequirement(MKPT_ItemRequirement:New(190456, 150)))
+          -- Ancient Leatherworker's Diagrams
+          :AddEntry(MKPT_UniqueBook:New({ questId = { 71922 }, itemId = 201286, waypoint = { map = 2112, x = 0.35406965017319, y = 0.59096604585648 }, kp = 10, spell = 393239 })
+            :AddRequirement(MKPT_ReputationRequirement:New(2544, 5))
+            :AddRequirement(MKPT_ItemRequirement:New(190456, 200)))
+          -- Draconic Treatise on Jewelcrafting
+          :AddEntry(MKPT_Treatise:New({ questId = { 74113 }, itemId = 194700, waypoint = { map = 2112, x = 0.34759241342545, y = 0.61595261096954 }, kp = 1, spell = 377678, atlasIcon = "Professions-Crafting-Orders-Icon" })
+            :AddRequirement(MKPT_ItemRequirement:New(194700, 1)))
+          -- Molted Dragon Scales
+          :AddEntry(MKPT_WeeklyTreasure:New ({ questId = { 66384 }, itemId = 193910, kp = 1 })
+            :AddRequirement(MKPT_ProfessionSkillRequirement:New(2830, 25)))
+          -- Ossified Hide
+          :AddEntry(MKPT_WeeklyTreasure:New ({ questId = { 66385 }, itemId = 198975, kp = 1 })
+            :AddRequirement(MKPT_ProfessionSkillRequirement:New(2830, 25)))
+      ,
+
+      -- Mining
+      [2833] = MKPT_Profession:New(2833, 366260, nil, { map = 2112, x = 0.38869118690491, y = 0.51457256078720 })
+          -- Dusty Herbalist's Notes
+          :AddEntry(MKPT_UniqueBook:New({ questId = { 71901 }, itemId = 200981, waypoint = { map = 2112, x = 0.35406965017319, y = 0.59096604585648 }, kp = 15, spell = 393161 })
+            :AddRequirement(MKPT_ReputationRequirement:New(2544, 2))
+            :AddRequirement(MKPT_ItemRequirement:New(190456, 100)))
+          -- Rare Miner's Notes
+          :AddEntry(MKPT_UniqueBook:New({ questId = { 71912 }, itemId = 201277, waypoint = { map = 2112, x = 0.35406965017319, y = 0.59096604585648 }, kp = 15, spell = 393240 })
+            :AddRequirement(MKPT_ReputationRequirement:New(2544, 4))
+            :AddRequirement(MKPT_ItemRequirement:New(190456, 150)))
+          -- Ancient Miner's Notes
+          :AddEntry(MKPT_UniqueBook:New({ questId = { 71923 }, itemId = 201288, waypoint = { map = 2112, x = 0.35406965017319, y = 0.59096604585648 }, kp = 15, spell = 393241 })
+            :AddRequirement(MKPT_ReputationRequirement:New(2544, 5))
+            :AddRequirement(MKPT_ItemRequirement:New(190456, 200)))
+          -- Draconic Treatise on Mining
+          :AddEntry(MKPT_Treatise:New({ questId = { 74106 }, itemId = 194708, waypoint = { map = 2112, x = 0.34759241342545, y = 0.61595261096954 }, kp = 1, spell = 377684, atlasIcon = "Professions-Crafting-Orders-Icon" })
+            :AddRequirement(MKPT_ItemRequirement:New(194708, 1)))
+          -- Iridescent Ore Fragments 
+          :AddEntry(MKPT_WeeklyTreasure:New { questId = { 72160, 72161 ,72162, 72163, 72164 }, itemId = 194062, kp = 1, atlasIcon = "Professions_Tracking_Ore", text = L["Randomly looted while mining"] })
+          -- Iridescent Ore
+          :AddEntry(MKPT_WeeklyTreasure:New { questId = { 72165 }, itemId = 201301, kp = 3, atlasIcon = "Professions_Tracking_Ore", text = L["Looted through mining, after 5 Slabs of Slate"] })
+      ,
+
+      -- Skinning
+      [2834] = MKPT_Profession:New(2834, 366259, nil, { map = 2112, x = 0.28560048341751, y = 0.60388791561127 })
+          -- Dusty Herbalist's Notes
+          :AddEntry(MKPT_UniqueBook:New({ questId = { 71902 }, itemId = 200982, waypoint = { map = 2112, x = 0.35406965017319, y = 0.59096604585648 }, kp = 15, spell = 393162 })
+            :AddRequirement(MKPT_ReputationRequirement:New(2544, 2))
+            :AddRequirement(MKPT_ItemRequirement:New(190456, 100)))
+          -- Rare Skinner's Notes
+          :AddEntry(MKPT_UniqueBook:New({ questId = { 71913 }, itemId = 201278, waypoint = { map = 2112, x = 0.35406965017319, y = 0.59096604585648 }, kp = 15, spell = 393242 })
+            :AddRequirement(MKPT_ReputationRequirement:New(2544, 4))
+            :AddRequirement(MKPT_ItemRequirement:New(190456, 150)))
+          -- Ancient Skinner's Notes
+          :AddEntry(MKPT_UniqueBook:New({ questId = { 71924 }, itemId = 201289, waypoint = { map = 2112, x = 0.35406965017319, y = 0.59096604585648 }, kp = 15, spell = 393243 })
+            :AddRequirement(MKPT_ReputationRequirement:New(2544, 5))
+            :AddRequirement(MKPT_ItemRequirement:New(190456, 200)))
+          -- Draconic Treatise on Skinning
+          :AddEntry(MKPT_Treatise:New({ questId = { 74114 }, itemId = 201023, waypoint = { map = 2112, x = 0.34759241342545, y = 0.61595261096954 }, kp = 1, spell = 377682, atlasIcon = "Professions-Crafting-Orders-Icon" })
+            :AddRequirement(MKPT_ItemRequirement:New(201023, 1)))
+          -- Curious Hide Scraps 
+          :AddEntry(MKPT_WeeklyTreasure:New { questId = { 70381, 70383, 70384, 70385, 70386 }, itemId = 198837, kp = 1, atlasIcon = "worldquest-icon-skinning", text = L["Randomly looted while skinning"] })
+          -- Large Sample of Curious Hide
+          :AddEntry(MKPT_WeeklyTreasure:New { questId = { 70389 }, itemId = 198841, kp = 2, atlasIcon = "worldquest-icon-skinning", text = L["Looted through skinning, after 5 hides"] })
+      ,
+
+      -- Tailoring
+      [2831] = MKPT_Profession:New(2831, 366258, nil, { map = 2112, x = 0.32147103548050, y = 0.66286236047745 })
+          -- Dusty Tailor's Diagrams
+          :AddEntry(MKPT_UniqueBook:New({ questId = { 71903 }, itemId = 200975, waypoint = { map = 2112, x = 0.35406965017319, y = 0.59096604585648 }, kp = 10, spell = 393163 })
+            :AddRequirement(MKPT_ReputationRequirement:New(2544, 2))
+            :AddRequirement(MKPT_ItemRequirement:New(190456, 100)))
+          -- Rare Tailor's Diagrams
+          :AddEntry(MKPT_UniqueBook:New({ questId = { 71914 }, itemId = 201271, waypoint = { map = 2112, x = 0.35406965017319, y = 0.59096604585648 }, kp = 10, spell = 393244 })
+            :AddRequirement(MKPT_ReputationRequirement:New(2544, 4))
+            :AddRequirement(MKPT_ItemRequirement:New(190456, 150)))
+          -- Ancient Tailor's Diagrams
+          :AddEntry(MKPT_UniqueBook:New({ questId = { 71925 }, itemId = 201282, waypoint = { map = 2112, x = 0.35406965017319, y = 0.59096604585648 }, kp = 10, spell = 393245 })
+            :AddRequirement(MKPT_ReputationRequirement:New(2544, 5))
+            :AddRequirement(MKPT_ItemRequirement:New(190456, 200)))
+          -- Draconic Treatise on Tailoring
+          :AddEntry(MKPT_Treatise:New({ questId = { 74115 }, itemId = 194698, waypoint = { map = 2112, x = 0.34759241342545, y = 0.61595261096954 }, kp = 1, spell = 377677, atlasIcon = "Professions-Crafting-Orders-Icon" })
+            :AddRequirement(MKPT_ItemRequirement:New(194698, 1)))
+          -- Umbral Bone Needle
+          :AddEntry(MKPT_WeeklyTreasure:New ({ questId = { 66386 }, itemId = 193898, kp = 1 })
+            :AddRequirement(MKPT_ProfessionSkillRequirement:New(2831, 25)))
+          -- Primalweave Spindle
+          :AddEntry(MKPT_WeeklyTreasure:New ({ questId = { 66387 }, itemId = 193899, kp = 1 })
+            :AddRequirement(MKPT_ProfessionSkillRequirement:New(2831, 25)))
+    },
+    
     -- TWW
     [Enum.ExpansionLevel.WarWithin] = {
       -- Alchemy
@@ -597,9 +871,9 @@ MKPT_env.InitProfessions = function()
           :AddEntry(MKPT_WeeklyQuestItem:New { questId = { 83104, 83105, 83103, 83106, 83102 }, itemId = 224818, waypoint = { map = 2339, x = 0.5262, y = 0.5254 }, kp = 3, text = L["Mining trainer quests"], unique = true })
           -- Algari Treatise on Mining (Requires skill 25)
           :AddEntry(MKPT_Treatise:New { questId = { 83733 }, itemId = 222553, waypoint = { map = 2339, x = 0.5804, y = 0.5645 }, kp = 1, spell = 457726, atlasIcon = "Professions-Crafting-Orders-Icon" })
-          -- "Slab of Slate"
+          -- Slab of Slate
           :AddEntry(MKPT_WeeklyTreasure:New { questId = { 83050, 83051, 83052, 83053, 83054 }, itemId = 224583, kp = 1, atlasIcon = "Professions_Tracking_Ore", text = L["Randomly looted while mining"] })
-          -- "Slab of Slate"
+          -- Erosion-Polished Slate
           :AddEntry(MKPT_WeeklyTreasure:New { questId = { 83049 }, itemId = 224584, kp = 3, atlasIcon = "Professions_Tracking_Ore", text = L["Looted through mining, after 5 Slabs of Slate"] })
           -- DMF Rearm, Reuse, Recycle
           :AddEntry(MKPT_DarkmoonQuest:New { questId = { 29518 }, waypoint = { map = 407, x = 0.4930, y = 0.6087 }, kp = 3 })

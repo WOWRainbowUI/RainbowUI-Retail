@@ -99,13 +99,69 @@ function MKPT_CurrencyRequirement:GetDescription()
   return currencyDescription..": "..currentQuantityStr.."/"..self.requiredQuantity
 end
 
+---@class MKPT_ReputationRequirement : MKPT_Requirement
+---@field factionId number - Id of the faction
+---@field requiredLevel number - Reputation level required
+local MKPT_ReputationRequirement = MKPT_Requirement:New()
+MKPT_env.MKPT_ReputationRequirement = MKPT_ReputationRequirement
+
+---@param factionId number - Id of the required currency
+---@param requiredLevel number - Reputation level required
+function MKPT_ReputationRequirement:New(factionId, requiredLevel)
+  local o = MKPT_Requirement.New()
+  setmetatable(o, self)
+  self.__index = self
+
+  o.factionId = factionId
+  o.requiredLevel = requiredLevel
+
+  return o
+end
+
+---@return true if the required level of reputation is met, false otherwise
+function MKPT_ReputationRequirement:MeetsRequirement()
+  local reputationRank = C_GossipInfo.GetFriendshipReputationRanks(self.factionId)
+  local reactionLevel = reputationRank and reputationRank.currentLevel or 0
+  return reactionLevel >= self.requiredLevel
+end
+
+---Gets faction name, concatenated with its' current level / required level
+---@return string
+function MKPT_ReputationRequirement:GetDescription()
+  local factionData = C_Reputation.GetFactionDataByID(self.factionId)
+  local reputationRank = C_GossipInfo.GetFriendshipReputationRanks(self.factionId)
+  local factionName
+  local factionReactionLevel
+
+  if reputationRank then
+    factionReactionLevel = reputationRank.currentLevel
+  else
+    factionReactionLevel = 0
+  end
+
+  if factionData then
+    factionName = factionData.name
+  else
+    factionName = "RenownFactionId: "..self.factionId
+  end
+
+  local currentLevelStr
+  if self:MeetsRequirement() then
+    currentLevelStr = Utils.CatchUpTextColor(factionReactionLevel)
+  else
+    currentLevelStr = Utils.RequirementsNotMetColor(factionReactionLevel)
+  end
+
+  return factionName..": "..currentLevelStr.."/"..self.requiredLevel
+end
+
 ---@class MKPT_RenownRequirement : MKPT_Requirement
----@field majorFactionId number - Id of the required currency
+---@field majorFactionId number - Id of the  Renown Faction
 ---@field requiredLevel number - Renown level required
 local MKPT_RenownRequirement = MKPT_Requirement:New()
 MKPT_env.MKPT_RenownRequirement = MKPT_RenownRequirement
 
----@param majorFactionId number - Id of the required currency
+---@param majorFactionId number - Id of the Renown Faction
 ---@param requiredLevel number - Renown level required
 function MKPT_RenownRequirement:New(majorFactionId, requiredLevel)
   local o = MKPT_Requirement.New()
@@ -173,7 +229,7 @@ function MKPT_ItemRequirement:New(itemId, requiredQuantity)
   return o
 end
 
----@return true if the required level of renown is met, false otherwise
+---@return true if the required quantity of item is available, false otherwise
 function MKPT_ItemRequirement:MeetsRequirement()
   local itemCount = C_Item.GetItemCount(self.itemId)
   return itemCount >= self.requiredQuantity
@@ -228,4 +284,43 @@ function MKPT_KpItemRequirement:GetDescription()
   end
 
   return self.kpItem:GetCategoryIcon().." "..(self.kpItem:GetFormattedName() or "???").." "..icon
+end
+
+---@class MKPT_ProfessionSkillRequirement : MKPT_Requirement
+---@field skillLineId number - Skill line id of the required profession
+---@field requiredSkill number - Required skill level of the profession
+local MKPT_ProfessionSkillRequirement = MKPT_Requirement:New()
+MKPT_env.MKPT_ProfessionSkillRequirement = MKPT_ProfessionSkillRequirement
+
+---@param skillLineId number - Skill line id of the required profession
+---@param requiredSkill number - Required skill level of the profession
+function MKPT_ProfessionSkillRequirement:New(skillLineId, requiredSkill)
+  local o = MKPT_Requirement.New()
+  setmetatable(o, self)
+  self.__index = self
+
+  o.skillLineId = skillLineId
+  o.requiredSkill = requiredSkill
+
+  return o
+end
+
+---@return boolean - true if the profession is trained and the skill is reached
+function MKPT_ProfessionSkillRequirement:MeetsRequirement()
+  local info = C_TradeSkillUI.GetProfessionInfoBySkillLineID(self.skillLineId)
+  if info and info.skillLevel >= self.requiredSkill then
+    return true
+  end
+  return false
+end
+
+---Gets the profession name with skill level, followed of a green/red checkmark if it meets the skill requirement
+---@return string
+function MKPT_ProfessionSkillRequirement:GetDescription()
+  local info = C_TradeSkillUI.GetProfessionInfoBySkillLineID(self.skillLineId)
+  local meetsRequirement = self:MeetsRequirement()
+  local icon = meetsRequirement and CreateAtlasMarkup("groupfinder-icon-greencheckmark", 12, 12) or ""
+  local formattedSkillLevel = meetsRequirement and Utils.CatchUpTextColor(info.skillLevel) or Utils.RequirementsNotMetColor(info.skillLevel)
+
+  return info.professionName .. " " .. formattedSkillLevel .. "/" .. self.requiredSkill .. icon
 end

@@ -516,12 +516,10 @@ function MKPT_env.ToggleUi()
 end
 
 ---Switch between expansions
-function MKPT_env.ToggleExpansion()
+function MKPT_env.ToggleExpansion(expansionEnum)
   local currentExpansion = MKPT_env.charDb.state.expansion
-  if currentExpansion == Enum.ExpansionLevel.WarWithin then
-    MKPT_env.charDb.state.expansion = Enum.ExpansionLevel.Midnight
-  else
-    MKPT_env.charDb.state.expansion = Enum.ExpansionLevel.WarWithin
+  if currentExpansion ~= expansionEnum then
+    MKPT_env.charDb.state.expansion = expansionEnum
   end
 
   -- Attempt to load skill level from professions of legacy expansions
