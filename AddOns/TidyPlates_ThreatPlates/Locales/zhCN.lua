@@ -457,6 +457,7 @@ L["Glow"] = "发光"
 L["Glow Color"] = "发光颜色"
 L["Glow Frame"] = "发光框架"
 L["Glow Type"] = "发光类型"
+L["Greyed out types compare the threat values of several units. WoW keeps these values secret from addons, so this is not possible. If such a type is selected, no threat value is shown."] = "灰色禁用的类型需要比较多个单位的仇恨值，但魔兽世界不允许插件读取这些机密数值，因此无法使用。选择这类类型时不会显示仇恨值。"
 L["Guardians"] = "守护者"
 --[[Translation missing --]]
 L["Hard locked target only"] = "Hard locked target only"

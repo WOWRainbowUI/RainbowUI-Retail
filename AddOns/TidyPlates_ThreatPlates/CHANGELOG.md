@@ -1,8 +1,8 @@
-# 13.3.4 (2026-10-28)
+# 13.3.5 (2026-11-01)
 
-* Fixed a bug where auras on friendly units kept the settings of their own area when "Swap Area By Reaction" was enabled [GH-770].
-* Fixed a Lua error when resetting a profile to its default settings (or switching to another profile) while Masque was enabled. A changed Masque setting is now applied after the next UI reload.
-* Fixed threat-based transparency and scale for custom styles that use the threat system and for nameplates in headline view [GH-623].
-* Fixed several script functions of custom styles not being called or not receiving the documented parameters.
-* Fixed enabling or disabling a script-triggered custom style with "Never" only taking effect after a UI reload.
-* Fixed a bug where certain game events (e.g., entering or leaving combat) were no longer processed after disabling a widget until the UI was reloaded.
+* Fixed a Lua error when spending or regenerating Essence as an Evoker with the combo points widget enabled, caused by secret value restrictions [GH-776].
+* Disabled the threat delta and tank value types of the threat widget on WoW Midnight and WoW Forever, as they cannot work with secret threat values.
+* Fixed a bug where the mana text of the resource widget ignored the option "Metric Unit Symbols".
+* Enabled the option "Metric Unit Symbols" again on WoW Midnight and WoW Forever. If it is disabled, numbers are now abbreviated in western style on these clients, regardless of the client language.
+* Fixed a bug where the resource widget was not shown on WoW Midnight and WoW Forever, caused by secret value restrictions.
+* Fixed a bug where the castbar of empowered casts ran in the wrong direction and ended too early on WoW Midnight.
