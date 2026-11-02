@@ -1,4 +1,5 @@
 ## Interface: 120100, 120105
+## AllowLoadGameType: standard
 ## Title: MiliUI Boss Timeline
 ## Title-zhTW: |cffFF7F00[副本]|r 米利的首領時間軸
 ## Title-zhCN: |cffFF7F00[副本]|r 米利的首领时间轴
@@ -9,7 +10,7 @@
 ## Category-zhTW: 團隊
 ## Category-zhCN: 地下城和团队副本
 ## Author: Mili
-## Version: 1.0.2
+## Version: 1.0.3
 ## X-Website: https://github.com/MiliUIPackage/MiliUI
 ## IconTexture: Interface\Icons\Spell_Holy_BorrowedTime
 ## DefaultState: disabled
