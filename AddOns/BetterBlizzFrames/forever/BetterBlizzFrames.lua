@@ -2670,20 +2670,10 @@ end
 --########################################################
 function BBF.MiniFrame(frame)
     local db = BetterBlizzFramesDB
-    local useMiniFrame
-
-    -- Determine which setting to use based on frame type
-    if frame == PlayerFrame then
-        useMiniFrame = db.useMiniPlayerFrame
-    elseif frame == TargetFrame then
-        useMiniFrame = db.useMiniTargetFrame
-    elseif frame == FocusFrame then
-        useMiniFrame = db.useMiniFocusFrame
-    end
-
-    if not useMiniFrame then return end
+    if not BBF.IsMiniFrame(frame) then return end
 
     BBF.StopMiniFrameBars(frame)
+    BBF.HideMiniFrameBarArt(frame)
     if frame ~= PlayerFrame and BBF.UpdateHealthbarMirror then
         BBF.UpdateHealthbarMirror(frame)
     end
@@ -5638,6 +5628,7 @@ local function TurnTestModesOff()
 end
 
 local function executeCustomCode()
+    if BetterBlizzFramesDB and BetterBlizzFramesDB.customCode == defaultSettings.customCode then return end
     if BetterBlizzFramesDB and BetterBlizzFramesDB.customCode then
         local function fontMissing(path)
             if not BBF.testFont then
@@ -5690,12 +5681,14 @@ local function executeCustomCode()
                 return "[[" .. fallback .. "]]"
             end
         end)
+        BBF.WatchCustomCodeTexts(code)
         local func, errorMsg = loadstring(code, "BBF Custom Code")
         if func then
             xpcall(func, geterrorhandler())
         else
             BBF.Print(string.format(L["Print_Error_In_Custom_Code"], errorMsg))
         end
+        BBF.FinishCustomCodeTexts()
     end
 end
 
@@ -6208,7 +6201,7 @@ First:SetScript("OnEvent", function(_, event, addonName)
 
         BBF.MoveableFPSCounter(false, BetterBlizzFramesDB.fpsCounterFontOutline)
 
-        if BetterBlizzFramesDB.useMiniPlayerFrame then
+        if BBF.IsMiniFrame(PlayerFrame) then
             if AlternatePowerBar then
                 AlternatePowerBar:SetParent(hiddenFrame)
             end
@@ -6272,6 +6265,10 @@ First:SetScript("OnEvent", function(_, event, addonName)
 
         if BetterBlizzFramesDB.castbarPixelBorderIcons == nil then
             BetterBlizzFramesDB.castbarPixelBorderIcons = BetterBlizzFramesDB.castbarPixelBorder and true or false
+        end
+
+        if BetterBlizzFramesDB.hideCastFinishSparkles == nil then
+            BetterBlizzFramesDB.hideCastFinishSparkles = (BetterBlizzFramesDB.castbarPixelBorder or (BetterBlizzFramesDB.changeUnitFrameCastbarTexture and not BetterBlizzFramesDB.classicCastbarsPlayer)) and true or false
         end
 
         if not BetterBlizzFramesDB.optimizedAuraLists then

@@ -22,9 +22,9 @@ BBF.TextAreaLayouts = {
             { style = "classic", mode = "big", mana = "hidden", inside = true, healthY = 1.5, manaY = 0 },
             { style = "classic", mode = "big", mana = "hidden", healthY = -1.5, manaY = 0 },
             { style = "classic", mode = "big", inside = true, bottom = -1, healthY = 2, manaY = -0.5, own = { bottom = true, manaY = true } },
-            { style = "classic", mode = "big", bottom = -1, healthY = -1.5, manaY = -0.5, own = { bottom = true, manaY = true } },
+            { style = "classic", mode = "big", bottom = -1, healthY = -2, manaY = -1, own = { bottom = true, manaY = true } },
             { style = "classic", mode = "none", mana = "hidden", healthY = 0.5 },
-            { style = "classic", mode = "none", left = 2, right = 0, healthY = 0 },
+            { style = "classic", mode = "none", left = 2, right = 0, healthY = -1 },
             { style = "camelot", mode = "xl", healthY = -1 },
             { style = "camelot", mode = "big" },
             { style = "camelot", left = 0.5, right = 1, top = -0.5, textLeft = 0.5, textRight = 3.5 },
@@ -39,9 +39,11 @@ BBF.TextAreaLayouts = {
             { style = "noPortrait", left = 1, right = -6.5 },
             { style = "classic", mode = "big", mana = "hidden", inside = true, bottom = 1, healthY = 3.5 },
             { style = "classic", mode = "big", mana = "hidden", bottom = 1, healthY = -1.5 },
-            { style = "classic", mode = "big", bottom = -1, manaY = -0.5, own = { bottom = true } },
+            { style = "classic", mode = "big", inside = true, bottom = -1, manaY = -0.5, own = { bottom = true } },
+            { style = "classic", mode = "big", bottom = -1, healthY = -1.5, manaY = -0.5, own = { bottom = true, healthY = true } },
             { style = "classic", mode = "none", mana = "hidden", top = 1, bottom = -1, healthY = 0 },
-            { style = "classic", left = 1, right = -2, top = 1, bottom = -1, textLeft = -0.5, textRight = -0.5 },
+            { style = "classic", left = 1, right = -2, top = 1, bottom = -1, healthY = -0.5, manaY = -0.5, textLeft = -0.5, textRight = -0.5,
+                own = { healthY = true, manaY = true } },
             { client = "retail", style = "retail", mode = "none", mana = "shown", left = 1, right = -5, healthY = -1, manaY = 0, textRight = 7,
                 own = { healthY = true, manaY = true } },
             { client = "retail", style = "retail", mode = "xl", mana = "shown", left = 1, right = -1.5, textRight = 11 },
@@ -134,10 +136,10 @@ BBF.TextAreaOverrides = {}
 
 BBF.NameLayouts = {
     player = { { style = "classic", inside = true, y = -13 }, { inside = true, y = -12 }, { client = "retail", style = "retail", mode = "xl", mana = "hidden", y = 1 }, { style = "retail", y = 1.5 },
-        { style = "classic", y = 2.5 }, { style = "camelot", mode = "xl", mana = "hidden", y = 3 }, { style = "camelot", mode = "xl", y = 2 },
+        { style = "classic", mode = "none", y = 3.5 }, { style = "classic", y = 2 }, { style = "camelot", mode = "xl", mana = "hidden", y = 3 }, { style = "camelot", mode = "xl", y = 2 },
         { style = "camelot", mode = "reduced", y = 2 }, { y = 1 } },
-    target = { { style = "classic", mode = "big", mana = "hidden", inside = true, y = -13.5, own = true },
-        { style = "classic", mode = "big", mana = "hidden", y = 2, own = true }, { inside = true, y = -12 }, { client = "retail", style = "retail", mode = "xl", mana = "hidden", left = 23, right = 5, centerX = -14, width = -8, centerWidth = -14, y = 0.5, own = true }, { client = "retail", style = "retail", left = 23, right = 5, centerX = -14, width = -8, centerWidth = -14, y = 1, own = true },{ style = "retail", y = 2 }, { style = "camelot", mode = "none", mana = "hidden", y = -2, own = true },
+    target = { { style = "classic", mode = "none", y = 4, own = true }, { style = "classic", mode = "big", mana = "hidden", inside = true, y = -13.5, own = true },
+        { style = "classic", mode = "big", mana = "hidden", y = 2, own = true }, { style = "classic", mode = "big", inside = false, y = 2.5, own = true }, { inside = true, y = -12 }, { client = "retail", style = "retail", mode = "xl", mana = "hidden", left = 23, right = 5, centerX = -14, width = -8, centerWidth = -14, y = 0.5, own = true }, { client = "retail", style = "retail", left = 23, right = 5, centerX = -14, width = -8, centerWidth = -14, y = 1, own = true },{ style = "retail", y = 2 }, { style = "camelot", mode = "none", mana = "hidden", y = -2, own = true },
         { style = "camelot", mode = "xl", mana = "hidden", y = 2, own = true },
         { style = "camelot", mode = "big", mana = "hidden", y = 1.5, own = true }, { y = 1 } },
     tot = { { classicToT = true, below = true, y = -4 }, { inside = true, y = -10 }, { style = "pixel", y = 1 }, { style = "retail", y = 2 },
@@ -176,43 +178,57 @@ local function FrameInfo(frame)
     if frame.PartyMemberOverlay then return "party", "party", "Party" end
 end
 
-local function Bars(frame)
+local function Texts(frame)
     if frame == PlayerFrame then
         local manaBar = PlayerFrame_GetManaBar()
         local container = PlayerFrame_GetHealthBarContainer()
-        return (BBF.HealthBar and BBF.HealthBar(frame)) or container.HealthBar or container, manaBar,
-            { LEFT = container.LeftText, CENTER = container.HealthBarText, RIGHT = container.RightText },
+        return { LEFT = container.LeftText, CENTER = container.HealthBarText, RIGHT = container.RightText },
             { LEFT = manaBar.LeftText, CENTER = manaBar.ManaBarText, RIGHT = manaBar.RightText }
     end
     if frame == TargetFrame or frame == FocusFrame then
         local main = frame.TargetFrameContent.TargetFrameContentMain
         local container, manaBar = main.HealthBarsContainer, main.ManaBar
-        return BBF.HealthBar(frame), manaBar,
-            { LEFT = container.LeftText, CENTER = container.HealthBarText, RIGHT = container.RightText, DEAD = container.DeadText, UNCONSCIOUS = container.UnconsciousText },
+        return { LEFT = container.LeftText, CENTER = container.HealthBarText, RIGHT = container.RightText, DEAD = container.DeadText, UNCONSCIOUS = container.UnconsciousText },
             { LEFT = manaBar.LeftText, CENTER = manaBar.ManaBarText, RIGHT = manaBar.RightText }
     end
     if frame == PetFrame then
-        return PetFrameHealthBar, PetFrameManaBar,
-            { LEFT = PetFrameHealthBarTextLeft, CENTER = PetFrameHealthBarText, RIGHT = PetFrameHealthBarTextRight },
+        return { LEFT = PetFrameHealthBarTextLeft, CENTER = PetFrameHealthBarText, RIGHT = PetFrameHealthBarTextRight },
             { LEFT = PetFrameManaBarTextLeft, CENTER = PetFrameManaBarText, RIGHT = PetFrameManaBarTextRight }
     end
     if frame.PartyMemberOverlay then
         local container, manaBar = frame.HealthBarContainer, frame.ManaBar
-        return container.HealthBar or container, manaBar,
-            { LEFT = container.LeftText, CENTER = container.CenterText, RIGHT = container.RightText },
+        return { LEFT = container.LeftText, CENTER = container.CenterText, RIGHT = container.RightText },
             { LEFT = manaBar.LeftText, CENTER = manaBar.CenterText, RIGHT = manaBar.RightText }
     end
     if TotUnit(frame) then
         local bar = frame.HealthBar
-        return bar, frame.ManaBar, { DEAD = bar and bar.DeadText, UNCONSCIOUS = bar and bar.UnconsciousText }, {}
+        return { DEAD = bar and bar.DeadText, UNCONSCIOUS = bar and bar.UnconsciousText }, {}
     end
-    return frame.HealthBar, frame.ManaBar, {}, {}
+    return {}, {}
+end
+
+local function Bars(frame)
+    local healthTexts, manaTexts = Texts(frame)
+    if frame == PlayerFrame then
+        local container = PlayerFrame_GetHealthBarContainer()
+        return (BBF.HealthBar and BBF.HealthBar(frame)) or container.HealthBar or container, PlayerFrame_GetManaBar(), healthTexts, manaTexts
+    end
+    if frame == TargetFrame or frame == FocusFrame then
+        return BBF.HealthBar(frame), frame.TargetFrameContent.TargetFrameContentMain.ManaBar, healthTexts, manaTexts
+    end
+    if frame == PetFrame then
+        return PetFrameHealthBar, PetFrameManaBar, healthTexts, manaTexts
+    end
+    if frame.PartyMemberOverlay then
+        local container = frame.HealthBarContainer
+        return container.HealthBar or container, frame.ManaBar, healthTexts, manaTexts
+    end
+    return frame.HealthBar, frame.ManaBar, healthTexts, manaTexts
 end
 
 function BBF.TextAreaTexts(frame)
     if not FrameInfo(frame) then return {}, {} end
-    local _, _, healthTexts, manaTexts = Bars(frame)
-    return healthTexts, manaTexts
+    return Texts(frame)
 end
 
 local function ManaHidden(manaBar)
@@ -223,8 +239,7 @@ BBF.TextAreaManaHidden = ManaHidden
 local HIDE_MANA = { Target = "hideUnitFrameTargetMana", Focus = "hideUnitFrameFocusMana" }
 
 local function MiniFrame(unit)
-    local db = BetterBlizzFramesDB
-    return (unit == "player" and db.useMiniPlayerFrame) or (unit == "target" and db.useMiniTargetFrame) or (unit == "focus" and db.useMiniFocusFrame)
+    return BBF.IsMiniFrame((unit == "player" and PlayerFrame) or (unit == "target" and TargetFrame) or (unit == "focus" and FocusFrame))
 end
 
 local CLIENT = BBF.isForever and "forever" or "retail"
@@ -591,6 +606,35 @@ local function WatchBar(bar, frame)
     bar:HookScript("OnSizeChanged", QueueRelayout)
 end
 
+local watchCustomCode = false
+local customCodeCanRunLater = false
+
+local function CalledFromCustomCode()
+    if not watchCustomCode then return false end
+    for line in debugstack(2, 6, 0):gmatch("[^\n]+") do
+        if not line:find("[C]", 1, true) and not line:find("textArea.lua", 1, true) then
+            return line:find("BBF Custom Code", 1, true) ~= nil
+        end
+    end
+    return false
+end
+
+local function ClaimText(text, ...)
+    local points = text:GetNumPoints() > 1 and text.bbfCustomPoints or {}
+    points[#points + 1] = { n = select("#", ...), ... }
+    text.bbfCustomPoints = points
+end
+
+local function RestoreCustomPoints(text)
+    local placing = text.bbfTextAreaPlacing
+    text.bbfTextAreaPlacing = true
+    text:ClearAllPoints()
+    for _, args in ipairs(text.bbfCustomPoints) do
+        text:SetPoint(unpack(args, 1, args.n))
+    end
+    text.bbfTextAreaPlacing = placing
+end
+
 local function HookText(text, frame)
     if not text then return end
     if textOwner[text] then
@@ -598,8 +642,16 @@ local function HookText(text, frame)
         return
     end
     textOwner[text] = frame
-    hooksecurefunc(text, "SetPoint", function(self)
+    hooksecurefunc(text, "SetPoint", function(self, ...)
         if self.bbfTextAreaPlacing then return end
+        if CalledFromCustomCode() then
+            ClaimText(self, ...)
+            return
+        end
+        if self.bbfCustomPoints then
+            RestoreCustomPoints(self)
+            return
+        end
         local owner = textOwner[self]
         if owner and BBF.TextAreaActive(owner) then
             BBF.ApplyTextArea(owner)
@@ -613,7 +665,7 @@ function BBF.StatusTextPoint(point)
 end
 
 local function PlaceText(text, box, point, x, y)
-    if not text then return end
+    if not text or text.bbfCustomPoints then return end
     text.bbfTextAreaPlacing = true
     text:ClearAllPoints()
     text:SetPoint(point, box, point, x, y)
@@ -843,11 +895,14 @@ local function ApplyTextArea(frame)
         if text then
             local detached = text:GetParent() ~= manaBar
             if area.manaHidden and detached then
-                text.bbfTextAreaHidden = true
+                if not text.bbfTextAreaHidden then
+                    text.bbfTextAreaHidden = true
+                    text.bbfTextAreaAlpha = text:GetAlpha()
+                end
                 text:SetAlpha(0)
             elseif text.bbfTextAreaHidden then
                 text.bbfTextAreaHidden = nil
-                text:SetAlpha(1)
+                text:SetAlpha(text.bbfTextAreaAlpha)
             end
         end
     end
@@ -952,7 +1007,8 @@ function BBF.NameAreaBox(frame)
         box:SetPoint("BOTTOMLEFT", area, "TOPLEFT", left, v.y or 0)
         box:SetPoint("BOTTOMRIGHT", area, "TOPRIGHT", right, v.y or 0)
     end
-    box:SetHeight(frame.bbfNameBaseHeight or NAME_HEIGHT[setup.key])
+    box.bbfHeight = frame.bbfNameBaseHeight or NAME_HEIGHT[setup.key]
+    box:SetHeight(box.bbfHeight)
     box:Show()
     return box
 end
@@ -996,10 +1052,10 @@ local function PlacePartyName(name, box)
     local scale = BBF.GetNameMoveScale and BBF.GetNameMoveScale("moveNameParty") or 1
     local multiLine = moved and db.moveNamePartyMultiLine and true or false
     local edge = moved and db.moveNamePartyGrowDown and "TOP" or "BOTTOM"
-    local boxHeight = box:GetHeight()
+    local boxHeight = box.bbfHeight
     if multiLine then
         local _, fontHeight = name:GetFont()
-        if fontHeight then
+        if boxHeight and fontHeight then
             local nudge = (boxHeight - fontHeight) / 2
             dy = dy + (edge == "BOTTOM" and nudge or -nudge)
         end
@@ -1083,14 +1139,37 @@ function BBF.ApplyNameArea(frame)
     return result
 end
 
-function BBF.RefreshTextAreas()
+local function TextAreaFrames()
     local frames = { PlayerFrame, TargetFrame, FocusFrame, PetFrame, TargetFrame and TargetFrame.totFrame, FocusFrame and FocusFrame.totFrame }
     if PartyFrame then
         for i = 1, 4 do
             frames[#frames + 1] = PartyFrame["MemberFrame" .. i]
         end
     end
-    for _, frame in pairs(frames) do
+    return frames
+end
+
+function BBF.FinishCustomCodeTexts()
+    watchCustomCode = customCodeCanRunLater
+end
+
+function BBF.WatchCustomCodeTexts(code)
+    if not code:find("SetPoint", 1, true) then return end
+    watchCustomCode = true
+    customCodeCanRunLater = code:find("function", 1, true) ~= nil
+    for _, frame in pairs(TextAreaFrames()) do
+        if frame then
+            for _, texts in ipairs({ Texts(frame) }) do
+                for _, text in pairs(texts) do
+                    HookText(text, frame)
+                end
+            end
+        end
+    end
+end
+
+function BBF.RefreshTextAreas()
+    for _, frame in pairs(TextAreaFrames()) do
         if frame then
             BBF.ApplyTextArea(frame)
             BBF.ApplyNameArea(frame)

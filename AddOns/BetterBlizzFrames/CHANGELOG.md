@@ -1,3 +1,24 @@
+# BetterBlizzFrames 2.2.0d
+## Retail & Forever
+### New
+- Castbars: Hide castbar finish effects. Remove the glows and stuff after a cast is completed on Player Castbar.
+### Tweak
+- Tweak lvl position a bit for classic frames n stuff.
+- Retail: revert new role icons to how they looked before patch 2.2.0
+- Allow custom code to move statusbar texts again.
+### Bugfix
+- Fix a secret error in new role icons etting
+- Fix Hide XP/Honor bar not working properly
+- Fix No Portrait Pixel Border healthbar being weird in vehicle.
+- Purgeable enemy buff filter: Fix Shaman's Greater Purge not counting as a purge.
+
+# BetterBlizzFrames 2.2.0c
+## Retail & Forever
+### Bugfix
+- Fix No Portrait + Mini-FocusFrame causing pixel borders and text to still be showing.
+- Fix a secret error (ty Wildu for report)
+- Fix role icons being too small with the new role icons setting.
+
 # BetterBlizzFrames 2.2.0
 ## Highlights
 - Bigger update with many changes, especially for Forever. Here are some highlights:

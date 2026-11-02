@@ -336,7 +336,6 @@ end
 
 local function SnapBars(frame, g, healthBar, manaBar)
     if frame == PlayerFrame then
-        if PlayerFrame.state == "vehicle" then return end
         local container = healthBar:GetParent()
         PlaceBar(container, frame, g.point, g.healthBar)
         healthBar:ClearAllPoints()
@@ -431,6 +430,7 @@ function BBF.ApplyPixelBorderLayout(frame)
     if frame == PlayerFrame and BBF.ApplyPixelBorderAltBar then
         BBF.ApplyPixelBorderAltBar()
     end
+    BBF.HideMiniFrameBarArt(frame)
 end
 
 function BBF.PixelBorderBoxes(frame)
