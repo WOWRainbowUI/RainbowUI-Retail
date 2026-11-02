@@ -99,9 +99,9 @@ end
 function addonTable.CustomiseDialog.IsUsingDefaultStyleSelect()
   local cmp = {
     {criteria = {"cannot-attack"}, simplified = false, scale = 1, style = "_name-only"},
-    {criteria = {"can-attack", "class-minor"}, simplified = true, scale = 1, style = "_hare_simplified"},
-    {criteria = {"can-attack", "minion"}, simplified = true, scale = 1, style = "_hare_simplified"},
-    {criteria = {"can-attack", "loc-dungeon", "class-normal"}, simplified = true, scale = 1, style = "_hare_simplified"},
+    {criteria = {"can-attack", "class-minor"}, simplified = true, scale = 1, style = "_deer_simplified"},
+    {criteria = {"can-attack", "minion"}, simplified = true, scale = 1, style = "_deer_simplified"},
+    {criteria = {"can-attack", "loc-dungeon", "class-normal"}, simplified = true, scale = 1, style = "_deer_simplified"},
     {criteria = {"can-attack"}, simplified = false, scale = 1, style = "_deer"},
   }
 
@@ -219,7 +219,7 @@ local function GetDefaultOptions(container)
         else
           local fallback = addonTable.Config.Get(addonTable.Config.Options.SIMPLIFIED_ASSIGNED_FALLBACK)
           if not addonTable.Core.GetDesignByName(fallback) then
-            fallback = "_hare_simplified"
+            fallback = "_deer_simplified"
           end
           table.insert(assignments, 2,
             {criteria = CopyTable(criteria), simplified = true, scale = 1, style = fallback}

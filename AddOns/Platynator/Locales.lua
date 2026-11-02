@@ -9,6 +9,7 @@ local Locales = {
 PLATYNATOR_LOCALES = Locales
 
 local L = Locales.enUS
+L["DEER_SIMPLIFIED"] = "Deer Simplified"
 
 L["THANKS_FOR_USING_PLATYNATOR_DONATE"] = "Thanks for using Platynator. Consider donating to support development"
 
@@ -431,6 +432,7 @@ L["BAD_CUSTOM_STYLE_SELECT"] = "Platynator: Your \"Custom\" style select setting
 
 
 local L = Locales.zhTW
+L["DEER_SIMPLIFIED"] = "鹿（精簡）"
 L["SPARK"] = "計量條游標"
 L["SPARK_COLOR"] = "游標顏色"
 L["FRIENDS_LIST"] = "好友名單"
@@ -837,6 +839,7 @@ L["NOT_IN_PULL"] = "不在拉怪範圍內"
 L["PURGEABLE_COLOR"] = "可淨化效果顏色"
 L["SHOW_PURGEABLE"] = "顯示可淨化效果"
 local L = Locales.zhCN
+L["DEER_SIMPLIFIED"] = "鹿（精简）"
 L["SPARK"] = "计量条游标"
 L["SPARK_COLOR"] = "游标颜色"
 L["FRIENDS_LIST"] = "好友列表"

@@ -5,7 +5,7 @@ addonTable.Config = {}
 local announceChanges = true
 
 local settings = {
-  MIGRATION = {key = "migration", default = 1, new = 9},
+  MIGRATION = {key = "migration", default = 1, new = 12},
 
   STYLE = {key = "style", default = "_deer"},
   CURRENT_SKIN = {key = "current_skin", default = "blizzard", refresh = {addonTable.Constants.RefreshReason.Skin}},
@@ -20,12 +20,12 @@ local settings = {
   DESIGNS = {key = "designs", default = {}, refresh = {addonTable.Constants.RefreshReason.Design}},
   DESIGN_ASSIGNMENTS = {key = "design_assignments", default = {}, new = {
     {criteria = {"cannot-attack"}, simplified = false, scale = 1, style = "_name-only"},
-    {criteria = {"can-attack", "class-minor"}, simplified = true, scale = 1, style = "_hare_simplified"},
-    {criteria = {"can-attack", "minion"}, simplified = true, scale = 1, style = "_hare_simplified"},
-    {criteria = {"can-attack", "loc-dungeon", "class-normal"}, simplified = true, scale = 1, style = "_hare_simplified"},
+    {criteria = {"can-attack", "class-minor"}, simplified = true, scale = 1, style = "_deer_simplified"},
+    {criteria = {"can-attack", "minion"}, simplified = true, scale = 1, style = "_deer_simplified"},
+    {criteria = {"can-attack", "loc-dungeon", "class-normal"}, simplified = true, scale = 1, style = "_deer_simplified"},
     {criteria = {"can-attack"}, simplified = false, scale = 1, style = "_deer"},
   }, refresh = {addonTable.Constants.RefreshReason.DesignSelection, addonTable.Constants.RefreshReason.Design}},
-  SIMPLIFIED_ASSIGNED_FALLBACK = {key = "simplified_assigned_fallback", default = "_hare_simplified"},
+  SIMPLIFIED_ASSIGNED_FALLBACK = {key = "simplified_assigned_fallback", default = "_deer_simplified"},
 
   AURA_FILTERS = {key = "aura_filters", default = {crowdControl = {include = {}, exclude = {}}}},
   AURA_DEDUPLICATE = {key = "aura_deduplicate", default = {["DEATHKNIGHT"] = {55078}}},

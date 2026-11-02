@@ -5,65 +5,80 @@ local LSM = LibStub("LibSharedMedia-3.0")
 
 local auraFormatter, auraPlainFormatter = addonTable.Display.Utilities.GetAuraNumericFormatter()
 
-function addonTable.Display.GeneratePandemicAnimation(frame)
-  frame.Pandemic = CreateFrame("Frame", nil, frame)
-  frame.Pandemic:SetAllPoints()
-  frame.Pandemic.Animation = frame.Pandemic:CreateAnimationGroup()
-  frame.Pandemic:SetFrameLevel(frame.Cooldown:GetFrameLevel() + 5)
+local function GenerateDispelTexture(frame)
+  if frame.DispelBorder then
+    return
+  end
+
+  local dispelAsset = LSM:Fetch("nineslice", "MM: 4px")
+  local dispelTexture = frame:CreateTexture(nil, "OVERLAY", nil, 2)
+  dispelTexture:SetAllPoints()
+  dispelTexture:SetScale(dispelAsset.scaleModifier)
+  dispelTexture:SetTexture(dispelAsset.file)
+  dispelTexture:SetTextureSliceMargins(dispelAsset.margins.left, dispelAsset.margins.top, dispelAsset.margins.right, dispelAsset.margins.bottom)
+  dispelTexture:SetVertexColor(1, 0, 0)
+  dispelTexture:SetRoundLayoutToNearestPixel(true)
+  frame.DispelBorder = dispelTexture
+end
+
+local function GeneratePandemicAnimation(frame)
+  if frame.PandemicAnimation then
+    return
+  end
+
+  frame.PandemicAnimation = frame:CreateAnimationGroup()
   do
-    frame.Pandemic.Top = frame.Pandemic:CreateTexture()
-    frame.Pandemic.Top:SetPoint("TOPLEFT")
-    frame.Pandemic.Top:SetPoint("TOPRIGHT")
-    frame.Pandemic.Top:SetTexture("Interface/AddOns/Platynator/Assets/Special/pandemic.png")
-    frame.Pandemic.Bottom = frame.Pandemic:CreateTexture()
-    frame.Pandemic.Bottom:SetPoint("BOTTOMLEFT")
-    frame.Pandemic.Bottom:SetPoint("BOTTOMRIGHT")
-    frame.Pandemic.Bottom:SetTexture("Interface/AddOns/Platynator/Assets/Special/pandemic.png")
-    frame.Pandemic.Bottom:SetRotation(math.pi)
-    frame.Pandemic.Left = frame.Pandemic:CreateTexture()
-    frame.Pandemic.Left:SetPoint("TOPLEFT")
-    frame.Pandemic.Left:SetPoint("BOTTOMLEFT")
-    frame.Pandemic.Left:SetTexture("Interface/AddOns/Platynator/Assets/Special/pandemic-90.png")
-    frame.Pandemic.Right = frame.Pandemic:CreateTexture()
-    frame.Pandemic.Right:SetPoint("TOPRIGHT")
-    frame.Pandemic.Right:SetPoint("BOTTOMRIGHT")
-    frame.Pandemic.Right:SetTexture("Interface/AddOns/Platynator/Assets/Special/pandemic-90.png")
-    frame.Pandemic.Right:SetRotation(math.pi)
+    frame.PandemicTop = frame:CreateTexture(nil, "OVERLAY", nil, 5)
+    frame.PandemicTop:SetPoint("TOPLEFT")
+    frame.PandemicTop:SetPoint("TOPRIGHT")
+    frame.PandemicTop:SetTexture("Interface/AddOns/Platynator/Assets/Special/pandemic.png")
+    frame.PandemicTop:SetRoundLayoutToNearestPixel(true)
+    frame.PandemicBottom = frame:CreateTexture(nil, "OVERLAY", nil, 5)
+    frame.PandemicBottom:SetPoint("BOTTOMLEFT")
+    frame.PandemicBottom:SetPoint("BOTTOMRIGHT")
+    frame.PandemicBottom:SetTexture("Interface/AddOns/Platynator/Assets/Special/pandemic.png")
+    frame.PandemicBottom:SetRotation(math.pi)
+    frame.PandemicBottom:SetRoundLayoutToNearestPixel(true)
+    frame.PandemicLeft = frame:CreateTexture(nil, "OVERLAY", nil, 5)
+    frame.PandemicLeft:SetPoint("TOPLEFT")
+    frame.PandemicLeft:SetPoint("BOTTOMLEFT")
+    frame.PandemicLeft:SetTexture("Interface/AddOns/Platynator/Assets/Special/pandemic-90.png")
+    frame.PandemicLeft:SetRoundLayoutToNearestPixel(true)
+    frame.PandemicRight = frame:CreateTexture(nil, "OVERLAY", nil, 5)
+    frame.PandemicRight:SetPoint("TOPRIGHT")
+    frame.PandemicRight:SetPoint("BOTTOMRIGHT")
+    frame.PandemicRight:SetTexture("Interface/AddOns/Platynator/Assets/Special/pandemic-90.png")
+    frame.PandemicRight:SetRotation(math.pi)
+    frame.PandemicRight:SetRoundLayoutToNearestPixel(true)
 
     local pandemicDim = 1
-    frame.Pandemic.Top:SetHeight(pandemicDim)
-    frame.Pandemic.Bottom:SetHeight(pandemicDim)
-    frame.Pandemic.Left:SetWidth(pandemicDim)
-    frame.Pandemic.Right:SetWidth(pandemicDim)
+    frame.PandemicTop:SetHeight(pandemicDim)
+    frame.PandemicBottom:SetHeight(pandemicDim)
+    frame.PandemicLeft:SetWidth(pandemicDim)
+    frame.PandemicRight:SetWidth(pandemicDim)
 
-    local fb = frame.Pandemic.Animation:CreateAnimation("Flipbook")
+    local fb = frame.PandemicAnimation:CreateAnimation("Flipbook")
     fb:SetFlipBookColumns(1)
     fb:SetFlipBookRows(11)
     fb:SetDuration(0.5)
-    fb:SetTarget(frame.Pandemic.Top)
-    local fb = frame.Pandemic.Animation:CreateAnimation("Flipbook")
+    fb:SetTarget(frame.PandemicTop)
+    local fb = frame.PandemicAnimation:CreateAnimation("Flipbook")
     fb:SetFlipBookColumns(1)
     fb:SetFlipBookRows(11)
     fb:SetDuration(0.5)
-    fb:SetTarget(frame.Pandemic.Bottom)
-    local fb = frame.Pandemic.Animation:CreateAnimation("Flipbook")
+    fb:SetTarget(frame.PandemicBottom)
+    local fb = frame.PandemicAnimation:CreateAnimation("Flipbook")
     fb:SetFlipBookColumns(11)
     fb:SetFlipBookRows(1)
     fb:SetDuration(0.5)
-    fb:SetTarget(frame.Pandemic.Left)
-    local fb = frame.Pandemic.Animation:CreateAnimation("Flipbook")
+    fb:SetTarget(frame.PandemicLeft)
+    local fb = frame.PandemicAnimation:CreateAnimation("Flipbook")
     fb:SetFlipBookColumns(11)
     fb:SetFlipBookRows(1)
     fb:SetDuration(0.5)
-    fb:SetTarget(frame.Pandemic.Right)
-    frame.Pandemic.Animation:SetLooping("REPEAT")
-    frame.Pandemic.Animation:Stop()
-    function frame.Pandemic:SetVertexColor(...)
-      frame.Pandemic.Top:SetVertexColor(...)
-      frame.Pandemic.Bottom:SetVertexColor(...)
-      frame.Pandemic.Left:SetVertexColor(...)
-      frame.Pandemic.Right:SetVertexColor(...)
-    end
+    fb:SetTarget(frame.PandemicRight)
+    frame.PandemicAnimation:SetLooping("REPEAT")
+    frame.PandemicAnimation:Stop()
   end
 end
 
@@ -72,44 +87,46 @@ local function StyleAura(auraFrame, details, container, key)
 
   auraFrame:EnableMouseMotion(details.showTooltips)
 
-  auraFrame.TextsContainer.Applications:SetFontObject(addonTable.CurrentFont)
-  auraFrame.TextsContainer.Applications:ClearAllPoints()
-  addonTable.Display.ApplyAnchor(auraFrame.TextsContainer.Applications, details.texts.stacks.anchor, addonTable.CurrentFontUsesSmoothing and 1/details.texts.stacks.scale or 1)
-  if addonTable.CurrentFontUsesSmoothing then
-    auraFrame.TextsContainer.Applications:SetTextScale(1)
-    auraFrame.TextsContainer.Applications:SetScale(details.texts.stacks.scale)
-  else
-    auraFrame.TextsContainer.Applications:SetTextScale(details.texts.stacks.scale)
-    auraFrame.TextsContainer.Applications:SetScale(1)
-  end
-  local c1 = details.texts.stacks.color
-  auraFrame.TextsContainer.Applications:SetTextColor(c1.r, c1.g, c1.b)
-  auraFrame.TextsContainer.Applications:SetShown(details.texts.stacks.visible);
-
-  auraFrame.TextsContainer.Countdown:SetShown(details.texts.countdown.visible)
-  if details.texts.countdown.visible then
-    auraFrame.TextsContainer.Countdown:SetFontObject(addonTable.CurrentFont)
-    auraFrame.TextsContainer.Countdown:ClearAllPoints()
-    addonTable.Display.ApplyAnchor(auraFrame.TextsContainer.Countdown, details.texts.countdown.anchor, addonTable.CurrentFontUsesSmoothing and 1/details.texts.countdown.scale or 1)
+  if auraFrame.Applications then
+    auraFrame.Applications:SetFontObject(addonTable.CurrentFont)
+    auraFrame.Applications:ClearAllPoints()
+    addonTable.Display.ApplyAnchor(auraFrame.Applications, details.texts.stacks.anchor, addonTable.CurrentFontUsesSmoothing and 1/details.texts.stacks.scale or 1)
     if addonTable.CurrentFontUsesSmoothing then
-      auraFrame.TextsContainer.Countdown:SetTextScale(1)
-      auraFrame.TextsContainer.Countdown:SetScale(details.texts.countdown.scale)
+      auraFrame.Applications:SetTextScale(1)
+      auraFrame.Applications:SetScale(details.texts.stacks.scale)
     else
-      auraFrame.TextsContainer.Countdown:SetTextScale(details.texts.countdown.scale)
-      auraFrame.TextsContainer.Countdown:SetScale(1)
+      auraFrame.Applications:SetTextScale(details.texts.stacks.scale)
+      auraFrame.Applications:SetScale(1)
+    end
+    local c1 = details.texts.stacks.color
+    auraFrame.Applications:SetTextColor(c1.r, c1.g, c1.b)
+    auraFrame.Applications:SetShown(details.texts.stacks.visible);
+    auraFrame.Applications:SetSmoothScaling(addonTable.CurrentFontUsesSmoothing)
+  end
+
+  auraFrame.Countdown:SetShown(details.texts.countdown.visible)
+  if details.texts.countdown.visible then
+    auraFrame.Countdown:SetFontObject(addonTable.CurrentFont)
+    auraFrame.Countdown:ClearAllPoints()
+    addonTable.Display.ApplyAnchor(auraFrame.Countdown, details.texts.countdown.anchor, addonTable.CurrentFontUsesSmoothing and 1/details.texts.countdown.scale or 1)
+    if addonTable.CurrentFontUsesSmoothing then
+      auraFrame.Countdown:SetTextScale(1)
+      auraFrame.Countdown:SetScale(details.texts.countdown.scale)
+    else
+      auraFrame.Countdown:SetTextScale(details.texts.countdown.scale)
+      auraFrame.Countdown:SetScale(1)
     end
     local c2 = details.texts.countdown.color
-    auraFrame.TextsContainer.Countdown:SetTextColor(c2.r, c2.g, c2.b)
+    auraFrame.Countdown:SetTextColor(c2.r, c2.g, c2.b)
     auraFrame:ClearDurationText()
     if details.texts.countdown.showFractions then
-      auraFrame:SetDurationText(auraFrame.TextsContainer.Countdown, {textFormatter = auraFormatter})
+      auraFrame:SetDurationText(auraFrame.Countdown, {textFormatter = auraFormatter})
     else
-      auraFrame:SetDurationText(auraFrame.TextsContainer.Countdown, {textFormatter = auraPlainFormatter})
+      auraFrame:SetDurationText(auraFrame.Countdown, {textFormatter = auraPlainFormatter})
     end
   end
 
-  auraFrame.TextsContainer.Applications:SetSmoothScaling(addonTable.CurrentFontUsesSmoothing)
-  auraFrame.TextsContainer.Countdown:SetSmoothScaling(addonTable.CurrentFontUsesSmoothing)
+  auraFrame.Countdown:SetSmoothScaling(addonTable.CurrentFontUsesSmoothing)
 
   auraFrame.Cooldown:SetDrawEdge(details.showSwipe)
   auraFrame.Cooldown:SetDrawSwipe(details.showSwipe)
@@ -126,25 +143,37 @@ local function StyleAura(auraFrame, details, container, key)
   auraFrame:ClearAuraAssignedAnimations()
   auraFrame:ClearPandemicRegions()
   auraFrame:ClearDispelTypeTextures()
-  auraFrame:AddDispelTypeTexture(auraFrame.Dispel.Border, {showIcon = false, showWhenHarmful = true, showWhenHelpful = true, style = Enum.CustomAuraButtonDispelTypeTextureStyle.PreserveAsset})
+  if details.showType then
+    GenerateDispelTexture(auraFrame, details)
+    auraFrame.DispelBorder:Show()
+    auraFrame:AddDispelTypeTexture(auraFrame.DispelBorder, {showIcon = false, showWhenHarmful = true, showWhenHelpful = true, style = Enum.CustomAuraButtonDispelTypeTextureStyle.PreserveAsset})
+  elseif auraFrame.DispelBorder then
+    auraFrame.DispelBorder:Hide()
+  end
 
   if details.pandemic and details.pandemic.show then
-    auraFrame.Pandemic:Show()
+    GeneratePandemicAnimation(auraFrame)
+    auraFrame.PandemicTop:Show()
+    auraFrame.PandemicLeft:Show()
+    auraFrame.PandemicRight:Show()
+    auraFrame.PandemicBottom:Show()
     local color = details.pandemic.color
-    local Pandemic = auraFrame.Pandemic
-    Pandemic.Top:SetVertexColor(color.r, color.g, color.b, color.a)
-    Pandemic.Left:SetVertexColor(color.r, color.g, color.b, color.a)
-    Pandemic.Right:SetVertexColor(color.r, color.g, color.b, color.a)
-    Pandemic.Bottom:SetVertexColor(color.r, color.g, color.b, color.a)
-    auraFrame:AddPandemicRegion(Pandemic.Top)
-    auraFrame:AddPandemicRegion(Pandemic.Left)
-    auraFrame:AddPandemicRegion(Pandemic.Right)
-    auraFrame:AddPandemicRegion(Pandemic.Bottom)
-    auraFrame:AddPandemicActiveAnimation(Pandemic.Animation)
+    auraFrame.PandemicTop:SetVertexColor(color.r, color.g, color.b, color.a)
+    auraFrame.PandemicLeft:SetVertexColor(color.r, color.g, color.b, color.a)
+    auraFrame.PandemicRight:SetVertexColor(color.r, color.g, color.b, color.a)
+    auraFrame.PandemicBottom:SetVertexColor(color.r, color.g, color.b, color.a)
+    auraFrame:AddPandemicRegion(auraFrame.PandemicTop)
+    auraFrame:AddPandemicRegion(auraFrame.PandemicLeft)
+    auraFrame:AddPandemicRegion(auraFrame.PandemicRight)
+    auraFrame:AddPandemicRegion(auraFrame.PandemicBottom)
+    auraFrame:AddPandemicActiveAnimation(auraFrame.PandemicAnimation)
   elseif details.purgeable and details.purgeable.show then
-    auraFrame.Pandemic:Show()
+    GeneratePandemicAnimation(auraFrame)
+    auraFrame.PandemicTop:Show()
+    auraFrame.PandemicLeft:Show()
+    auraFrame.PandemicRight:Show()
+    auraFrame.PandemicBottom:Show()
     local color = details.purgeable.color
-    local Pandemic = auraFrame.Pandemic
     local options = {
       showWhenHarmful = false,
       showWhenHelpful = true,
@@ -159,68 +188,60 @@ local function StyleAura(auraFrame, details, container, key)
         ["Bleed"] = color,
       }
     }
-    auraFrame:AddDispelTypeTexture(Pandemic.Top, options)
-    auraFrame:AddDispelTypeTexture(Pandemic.Left, options)
-    auraFrame:AddDispelTypeTexture(Pandemic.Right, options)
-    auraFrame:AddDispelTypeTexture(Pandemic.Bottom, options)
-    Pandemic.Top:SetVertexColor(color.r, color.g, color.b, color.a)
-    Pandemic.Left:SetVertexColor(color.r, color.g, color.b, color.a)
-    Pandemic.Right:SetVertexColor(color.r, color.g, color.b, color.a)
-    Pandemic.Bottom:SetVertexColor(color.r, color.g, color.b, color.a)
-    auraFrame:AddAuraAssignedAnimation(Pandemic.Animation)
-  else
-    auraFrame.Pandemic:Hide()
+    auraFrame:AddDispelTypeTexture(auraFrame.PandemicTop, options)
+    auraFrame:AddDispelTypeTexture(auraFrame.PandemicLeft, options)
+    auraFrame:AddDispelTypeTexture(auraFrame.PandemicRight, options)
+    auraFrame:AddDispelTypeTexture(auraFrame.PandemicBottom, options)
+    auraFrame.PandemicTop:SetVertexColor(color.r, color.g, color.b, color.a)
+    auraFrame.PandemicLeft:SetVertexColor(color.r, color.g, color.b, color.a)
+    auraFrame.PandemicRight:SetVertexColor(color.r, color.g, color.b, color.a)
+    auraFrame.PandemicBottom:SetVertexColor(color.r, color.g, color.b, color.a)
+    auraFrame:AddAuraAssignedAnimation(auraFrame.PandemicAnimation)
+  elseif auraFrame.PandemicAnimation then
+    auraFrame.PandemicTop:Hide()
+    auraFrame.PandemicLeft:Hide()
+    auraFrame.PandemicRight:Hide()
+    auraFrame.PandemicBottom:Hide()
+    auraFrame.PandemicAnimation:Stop()
   end
-
-  auraFrame.Dispel:SetShown(details.showType)
 end
 
 local function GetAurasInitializerModern(container, key)
   local borderAsset = LSM:Fetch("nineslice", "MM: 1px")
-  local dispelAsset = LSM:Fetch("nineslice", "MM: 4px")
+  local kind = container.details.kind
   return function(frame)
     table.insert(container.frames, frame)
     frame:SetFlattensRenderLayers(true)
-    frame.Icon = frame:CreateTexture(nil, "ARTWORK")
-    frame.Icon:SetPoint("CENTER")
     frame.Cooldown = CreateFrame("Cooldown", nil, frame, "CooldownFrameTemplate")
+    frame.Cooldown:SetFrameLevel(frame:GetFrameLevel())
     frame.Cooldown:SetDrawBling(false)
     frame.Cooldown:SetHideCountdownNumbers(true)
     frame.Cooldown:SetDrawEdge(true)
     frame.Cooldown:SetReverse(true)
-    frame.TextsContainer = CreateFrame("Frame", nil, frame)
-    frame.TextsContainer:SetAllPoints()
-    frame.TextsContainer.Countdown = frame.TextsContainer:CreateFontString(nil, nil, "GameFontHighlight")
-    frame.TextsContainer.Countdown:SetDrawLayer("OVERLAY", 1)
-    frame.TextsContainer.Countdown:SetPoint("CENTER")
-    frame.TextsContainer.Applications = frame.TextsContainer:CreateFontString(nil, nil, "GameFontHighlight")
-    frame.TextsContainer.Applications:SetDrawLayer("OVERLAY", 2)
-    frame.TextsContainer.Applications:SetPoint("BOTTOMRIGHT", 3, -2)
+    frame:SetDurationCooldown(frame.Cooldown)
 
-    frame.Border = frame:CreateTexture(nil, "OVERLAY")
+    frame.Icon = frame:CreateTexture(nil, "BACKGROUND", nil, -7)
+    frame.Icon:SetPoint("CENTER", frame)
+    frame:SetIcon(frame.Icon)
+
+    frame.Countdown = frame:CreateFontString(nil, nil, "GameFontHighlight")
+    frame.Countdown:SetDrawLayer("OVERLAY", 6)
+    frame.Countdown:SetPoint("CENTER")
+    if kind ~= "crowdControl" then
+      frame.Applications = frame:CreateFontString(nil, nil, "GameFontHighlight")
+      frame.Applications:SetDrawLayer("OVERLAY", 7)
+      frame.Applications:SetPoint("BOTTOMRIGHT", 3, -2)
+      frame:SetApplicationCount(frame.Applications, {})
+    end
+
+    frame.Border = frame:CreateTexture(nil, "OVERLAY", nil, 1)
     frame.Border:SetAllPoints(true)
     frame.Border:SetScale(borderAsset.scaleModifier)
     frame.Border:SetTexture(borderAsset.file)
     frame.Border:SetTextureSliceMargins(borderAsset.margins.left, borderAsset.margins.top, borderAsset.margins.right, borderAsset.margins.bottom)
     frame.Border:SetVertexColor(0, 0, 0)
-    frame.Dispel = CreateFrame("Frame", nil, frame)
-    frame.Dispel:SetAllPoints()
-    do
-      local dispelTexture = frame.Dispel:CreateTexture()
-      dispelTexture:SetAllPoints()
-      dispelTexture:SetScale(dispelAsset.scaleModifier)
-      dispelTexture:SetTexture(dispelAsset.file)
-      dispelTexture:SetTextureSliceMargins(dispelAsset.margins.left, dispelAsset.margins.top, dispelAsset.margins.right, dispelAsset.margins.bottom)
-      dispelTexture:SetVertexColor(1, 0, 0)
-      frame.Dispel.Border = dispelTexture
-    end
 
-    addonTable.Display.GeneratePandemicAnimation(frame)
-
-    frame:SetApplicationCount(frame.TextsContainer.Applications, {})
-    frame:SetIcon(frame.Icon)
-    frame:SetDurationCooldown(frame.Cooldown)
-frame.key = key
+    frame.key = key
 
     PixelUtil.SetRoundLayoutToNearestPixelRecursively(frame, true)
 
@@ -306,6 +327,11 @@ local function ProcessSpells(kind)
 end
 
 local _, class = UnitClass("player")
+local Kind = {
+  All = 0,
+  Friendly = 1,
+  Enemy = 2,
+}
 
 function addonTable.Display.AurasManagerNextMixin:GetFilters(kind, settings)
   local output = table.create(6)
@@ -318,11 +344,12 @@ function addonTable.Display.AurasManagerNextMixin:GetFilters(kind, settings)
   elseif kind == "crowdControl" then
     includeFilter = settings.filters.fromYou and "HARMFUL|PLAYER" or "HARMFUL"
   end
+  local customKind = kind == "buffs" and Kind.Friendly or Kind.Enemy
   local start, tail, deduplicate = 0, 0, 0
   for i = 1, 2 do
     if include[i] then
       start = start + 1
-      table.insert(output, {includeFilter, {includeSpellIDs = include[i]}})
+      table.insert(output, {includeFilter, {includeSpellIDs = include[i]}, customKind})
     end
   end
 
@@ -332,7 +359,7 @@ function addonTable.Display.AurasManagerNextMixin:GetFilters(kind, settings)
       if not exclude[spellID] then
         deduplicate = deduplicate + 1
         exclude[spellID] = true
-        table.insert(output, {includeFilter, {includeSpellIDs = {[spellID] = true}}, true})
+        table.insert(output, {includeFilter, {includeSpellIDs = {[spellID] = true}}, Kind.Enemy, true})
       end
     end
   end
@@ -353,31 +380,29 @@ function addonTable.Display.AurasManagerNextMixin:GetFilters(kind, settings)
       end
     end
 
-    table.insert(output, {"HELPFUL|PLAYER", {excludeSpellIDs = exclude, maxDuration = maxDuration}})
+    table.insert(output, {"HELPFUL|PLAYER", {excludeSpellIDs = exclude, maxDuration = maxDuration}, Kind.Friendly})
     if settings.filters.defensive then
-      table.insert(output, {"HELPFUL|BIG_DEFENSIVE|!PLAYER", {excludeSpellIDs = exclude, maxDuration = maxDuration}})
-      table.insert(output, {"HELPFUL|EXTERNAL_DEFENSIVE|!BIG_DEFENSIVE|!PLAYER", {excludeSpellIDs = exclude, maxDuration = maxDuration}})
-      table.insert(output, {"HELPFUL|RAID_IN_COMBAT|!EXTERNAL_DEFENSIVE|!BIG_DEFENSIVE|!PLAYER", {excludeSpellIDs = exclude, maxDuration = maxDuration}})
+      table.insert(output, {"HELPFUL|BIG_DEFENSIVE|!PLAYER", {excludeSpellIDs = exclude, maxDuration = maxDuration}, Kind.All})
+      table.insert(output, {"HELPFUL|EXTERNAL_DEFENSIVE|!BIG_DEFENSIVE|!PLAYER", {excludeSpellIDs = exclude, maxDuration = maxDuration}, Kind.All})
+      table.insert(output, {"HELPFUL|RAID_IN_COMBAT|!EXTERNAL_DEFENSIVE|!BIG_DEFENSIVE|!PLAYER", {excludeSpellIDs = exclude, maxDuration = maxDuration}, Kind.All})
     elseif settings.filters.important then
-      table.insert(output, {"HELPFUL|!PLAYER", {excludeSpellIDs = exclude, isBossOrRoleAura = true, isFromPlayerOrPlayerPet = false, maxDuration = maxDuration}})
-      table.insert(output, {"HELPFUL|IMPORTANT|!PLAYER", {excludeSpellIDs = exclude, isBossOrRoleAura = false, maxDuration = maxDuration}})
+      table.insert(output, {"HELPFUL|IMPORTANT|!PLAYER", {excludeSpellIDs = exclude, maxDuration = maxDuration}, Kind.All})
       if dispelTypes then
         table.insert(output, {"HELPFUL|!IMPORTANT|!PLAYER", {
           includeDispelTypes = dispelTypes,
           excludeSpellIDs = exclude,
-          isBossOrRoleAura = false,
-        }})
+        }, Kind.Enemy})
       end
       if settings.filters.dispellable then
-        table.insert(output, {"HELPFUL|!IMPORTANT|!PLAYER", {excludeSpellIDs = exclude, excludeDispelTypes = dispelTypes, isStealable = true, maxDuration = maxDuration}})
+        table.insert(output, {"HELPFUL|!IMPORTANT|!PLAYER", {excludeSpellIDs = exclude, excludeDispelTypes = dispelTypes, isStealable = true, maxDuration = maxDuration}, Kind.Enemy})
       end
     else
       if settings.filters.dispellable or settings.filters.enrage or settings.filters.magic then
         if dispelTypes then
-          table.insert(output, {"HELPFUL|!PLAYER", {excludeSpellIDs = exclude, includeDispelTypes = dispelTypes, maxDuration = maxDuration}})
+          table.insert(output, {"HELPFUL|!PLAYER", {excludeSpellIDs = exclude, includeDispelTypes = dispelTypes, maxDuration = maxDuration}, Kind.Enemy})
         end
         if settings.filters.dispellable then
-          table.insert(output, {"HELPFUL|!PLAYER", {excludeSpellIDs = exclude, isStealable = true, excludeDispelTypes = dispelTypes, maxDuration = maxDuration}})
+          table.insert(output, {"HELPFUL|!PLAYER", {excludeSpellIDs = exclude, isStealable = true, excludeDispelTypes = dispelTypes, maxDuration = maxDuration}, Kind.Enemy})
         end
       else
         table.insert(output, {"HELPFUL|!PLAYER", {excludeSpellIDs = exclude}, maxDuration = maxDuration})
@@ -393,37 +418,50 @@ function addonTable.Display.AurasManagerNextMixin:GetFilters(kind, settings)
       nameplateShowAll = false
     end
     if settings.filters.important then
-      table.insert(output, {"HARMFUL|IMPORTANT|!CROWD_CONTROL" .. playerFilter, {excludeSpellIDs = exclude, nameplateShowAll = nameplateShowAll}})
-      table.insert(output, {"HARMFUL|!IMPORTANT|!CROWD_CONTROL" .. playerFilter, {excludeSpellIDs = exclude, nameplateShowAll = nameplateShowAll, nameplateShowPersonal = true}})
+      table.insert(output, {"HARMFUL|!CROWD_CONTROL" .. playerFilter, {excludeSpellIDs = exclude, nameplateShowAll = nameplateShowAll, nameplateShowPersonal = true}, Kind.All})
     else
-      table.insert(output, {"HARMFUL|!CROWD_CONTROL" .. playerFilter, {excludeSpellIDs = exclude, nameplateShowAll = nameplateShowAll}})
+      table.insert(output, {"HARMFUL|!CROWD_CONTROL" .. playerFilter, {excludeSpellIDs = exclude, nameplateShowAll = nameplateShowAll}, Kind.All})
     end
   elseif kind == "crowdControl" then
     if settings.filters.fromYou then
-      table.insert(output, {"HARMFUL|CROWD_CONTROL|PLAYER", {excludeSpellIDs = exclude}})
+      table.insert(output, {"HARMFUL|CROWD_CONTROL|PLAYER", {excludeSpellIDs = exclude}, Kind.All})
       if settings.filters.includeExtras then
-        table.insert(output, {"HARMFUL|!CROWD_CONTROL|PLAYER", {nameplateShowAll = true}})
+        table.insert(output, {"HARMFUL|!CROWD_CONTROL|PLAYER", {nameplateShowAll = true}, Kind.All})
       end
     else
-      table.insert(output, {"HARMFUL|CROWD_CONTROL", {excludeSpellIDs = exclude}})
+      table.insert(output, {"HARMFUL|CROWD_CONTROL", {excludeSpellIDs = exclude}, Kind.All})
       if settings.filters.includeExtras then
-        table.insert(output, {"HARMFUL|!CROWD_CONTROL", {nameplateShowAll = true}})
+        table.insert(output, {"HARMFUL|!CROWD_CONTROL", {nameplateShowAll = true}, Kind.All})
       end
     end
   end
 
   if include[3] then
-    table.insert(output, {includeFilter, {includeSpellIDs = include[3]}})
+    table.insert(output, {includeFilter, {includeSpellIDs = include[3]}, customKind})
     tail = tail + 1
   end
 
-  return output, start, tail, deduplicate
+  local friendlyCount, enemyCount = 0, 0
+  for _, entry in ipairs(output) do
+    if entry[3] == Kind.Friendly then
+      friendlyCount = friendlyCount + 1
+    elseif entry[3] == Kind.Enemy then
+      enemyCount = enemyCount + 1
+    else
+      friendlyCount = friendlyCount + 1
+      enemyCount = enemyCount + 1
+    end
+  end
+
+  return output, math.max(friendlyCount, enemyCount)
 end
 
 function addonTable.Display.AurasManagerNextMixin:InitializeWidgets(parent, auraDetails, doNotSize)
   local newFont = addonTable.Core.GetDesignByName(addonTable.Display.Context:GetDefaultEnemyNPCDesign()).font
 
   local isSameFont = self.lastFont and tCompare(self.lastFont, newFont) or false
+
+  self.lastKind = nil
 
   self.parent = parent
 
@@ -448,43 +486,33 @@ function addonTable.Display.AurasManagerNextMixin:InitializeWidgets(parent, aura
   self.slots:SetEnabled(false)
 
   for kind, details in pairs(auraDetails) do
-    local groups, start, tail, deduplicate = self:GetFilters(kind, details)
+    local groups, required = self:GetFilters(kind, details)
 
-    self[kind].groupLiveCount = #groups
-    self[kind].manualStart = start
-    self[kind].manualTail = tail
-    self[kind].manualDeduplicate = deduplicate
+    self[kind].groupLiveCount = required
+    self[kind].friendlyGroups = tFilter(groups, function(g) return g[3] == Kind.All or g[3] == Kind.Friendly end, true)
+    self[kind].enemyGroups = tFilter(groups, function(g) return g[3] == Kind.All or g[3] == Kind.Enemy end, true)
 
     self[kind]:SetScale(details.scale)
     self[kind]:SetPoint(directionMap[details.direction])
     self[kind]:SetFlowLayoutAnchorPoint(anchorMap[details.direction])
 
-    if not self[kind].groupsCount or self[kind].groupsCount < #groups then
-      for i = self[kind].groupsCount and self[kind].groupsCount + 1 or 1, #groups do
+    if not self[kind].groupsCount or self[kind].groupsCount < required then
+      for i = self[kind].groupsCount and self[kind].groupsCount + 1 or 1, required do
         local key = tostring(i)
         self[kind]:AddAuraGroup(key, "", {initializeFrame = GetAurasInitializerModern(self[kind], key)})
       end
-      self[kind].groupsCount = #groups
+      self[kind].groupsCount = required
     end
 
     local padding = 20 * details.padding
 
-    for index, group in ipairs(groups) do
-      local key = tostring(index)
-      self[kind]:SetAuraGroupFilterString(key, group[1])
+    for i = 1, self[kind].groupsCount do
+      local key = tostring(i)
       self[kind]:SetAuraGroupLayout(key, {elementSpacing = padding, lineSpacing = padding})
-      self[kind]:SetAuraGroupCandidateFilters(key, group[2])
-      self[kind]:SetAuraGroupMaxFrameCount(key, group[3] and 1 or details.limit)
-      self[kind]:SetAuraGroupEnabled(key, true)
+      self[kind]:SetAuraGroupEnabled(key, false)
     end
 
-    if self[kind].groupsCount > #groups then
-      for i = #groups + 1, self[kind].groupsCount do
-        self[kind]:SetAuraGroupEnabled(tostring(i), false)
-      end
-    end
-
-    if not addonTable.Utilities.IsChangesRestricted() and not self.initialSetup and not doNotSize and (not self.auraDetails or not tCompare(details, self.auraDetails[kind] or {})) then
+    if not addonTable.Utilities.IsChangesRestricted() and not self.initialSetup and not doNotSize and (not self.auraDetails or not tCompare(details, self.auraDetails[kind] or {}) or not isSameFont) then
       for _, f in ipairs(self[kind].frames) do
         StyleAura(f, details, self[kind], f.key)
       end
@@ -505,20 +533,18 @@ function addonTable.Display.AurasManagerNextMixin:InitializeWidgets(parent, aura
   self.initialSetup = false
 end
 
-local function ApplyStartTailEnabled(auras, state)
-  if auras.manualStart > 0 then
-    for i = 1, auras.manualStart do
-      auras:SetAuraGroupEnabled(tostring(i), state)
-    end
+local function ApplyGroups(auras, groups, limit)
+  for i, group in ipairs(groups) do
+    local key = tostring(i)
+    auras:SetAuraGroupFilterString(key, group[1])
+    auras:SetAuraGroupCandidateFilters(key, group[2])
+    auras:SetAuraGroupMaxFrameCount(key, group[4] and 1 or limit)
+    auras:SetAuraGroupEnabled(key, true)
   end
-  if auras.manualTail > 0 then
-    for i = auras.groupLiveCount, auras.groupLiveCount - auras.manualTail do
-      auras:SetAuraGroupEnabled(tostring(i), state)
-    end
-  end
-  if auras.manualDeduplicate > 0 then
-    for i = auras.manualStart + 1, auras.manualStart + auras.manualDeduplicate do
-      auras:SetAuraGroupEnabled(tostring(i), state)
+
+  if auras.groupLiveCount > #groups then
+    for i = #groups + 1, auras.groupLiveCount do
+      auras:SetAuraGroupEnabled(tostring(i), false)
     end
   end
 end
@@ -530,7 +556,7 @@ function addonTable.Display.AurasManagerNextMixin:ReleaseSlots()
 
   if self.slots.occupied > 0 then
     for i = 1, self.slots.occupied do
-      self.slots:SetAuraSlotFilterString(tostring(i), "")
+      self.slots:SetAuraGroupEnabled(tostring(i), false)
     end
   end
 end
@@ -580,32 +606,30 @@ function addonTable.Display.AurasManagerNextMixin:SetUnit(unit)
   end
 
   if UnitCanAssist("player", unit) then
-    if self.debuffs.details then
-      ApplyStartTailEnabled(self.debuffs, false)
-    end
-    if self.crowdControl.details then
-      ApplyStartTailEnabled(self.crowdControl, false)
-    end
-    if self.buffs.details then
-      ApplyStartTailEnabled(self.buffs, true)
-      self.buffs:SetAuraGroupMaxFrameCount(tostring(self.buffs.manualStart + 1), self.buffs.details.limit)
-      for i = self.buffs.manualStart + 2, self.buffs.groupLiveCount - self.buffs.manualTail do
-        self.buffs:SetAuraGroupMaxFrameCount(tostring(i), 0)
+    if self.lastKind ~= Kind.Friendly then
+      if self.debuffs.details then
+        ApplyGroups(self.debuffs, self.debuffs.friendlyGroups, self.debuffs.details.limit)
       end
+      if self.crowdControl.details then
+        ApplyGroups(self.crowdControl, self.crowdControl.friendlyGroups, self.crowdControl.details.limit)
+      end
+      if self.buffs.details then
+        ApplyGroups(self.buffs, self.buffs.friendlyGroups, self.buffs.details.limit)
+      end
+      self.lastKind = Kind.Friendly
     end
   else
-    if self.debuffs.details then
-      ApplyStartTailEnabled(self.debuffs, true)
-    end
-    if self.crowdControl.details then
-      ApplyStartTailEnabled(self.crowdControl, true)
-    end
-    if self.buffs.details then
-      ApplyStartTailEnabled(self.buffs, false)
-      self.buffs:SetAuraGroupMaxFrameCount(tostring(self.buffs.manualStart + 1), 0)
-      for i = self.buffs.manualStart + 2, self.buffs.groupLiveCount - self.buffs.manualTail do
-        self.buffs:SetAuraGroupMaxFrameCount(tostring(i), self.buffs.details.limit)
+    if self.lastKind ~= Kind.Enemy then
+      if self.debuffs.details then
+        ApplyGroups(self.debuffs, self.debuffs.enemyGroups, self.debuffs.details.limit)
       end
+      if self.crowdControl.details then
+        ApplyGroups(self.crowdControl, self.crowdControl.enemyGroups, self.crowdControl.details.limit)
+      end
+      if self.buffs.details then
+        ApplyGroups(self.buffs, self.buffs.enemyGroups, self.buffs.details.limit)
+      end
+      self.lastKind = Kind.Enemy
     end
   end
 

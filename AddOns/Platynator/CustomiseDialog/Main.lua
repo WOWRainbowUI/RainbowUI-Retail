@@ -461,7 +461,7 @@ function addonTable.CustomiseDialog.GetStyleDropdown(parent)
             for _, a in ipairs(assignments) do
               if a.style == entry.value then
                 if a.simplified then
-                  a.style = "_hare_simplified"
+                  a.style = "_deer_simplified"
                 else
                   a.style = addonTable.Constants.CustomName
                 end

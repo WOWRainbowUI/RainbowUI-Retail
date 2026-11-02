@@ -200,6 +200,8 @@ function addonTable.Display.CacheMixin:OnLoad()
   self.step = 1
   self.totalElapsed = 0
 
+  self.healthQueue = {}
+
   for event in pairs(eventToKind) do
     self:RegisterEvent(event)
   end
@@ -335,11 +337,24 @@ function addonTable.Display.CacheMixin:OnEvent(eventName, unit, ...)
     end
   else
     local kind = eventToKind[eventName]
-    self:Process(kind, unit, eventName, ...)
+    if kind == "health" then
+      if self.state[unit] then
+        self.healthQueue[unit] = true
+      end
+    else
+      self:Process(kind, unit, eventName, ...)
+    end
   end
 end
 
 function addonTable.Display.CacheMixin:OnUpdate(elapsed)
+  for unit in pairs(self.healthQueue) do
+    if self.state[unit] then
+      self:Process("health", unit)
+    end
+  end
+  self.healthQueue = {}
+
   local length = #self.monitoringOrder
   if length == 0 then
     return
