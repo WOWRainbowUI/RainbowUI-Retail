@@ -93,3 +93,5 @@ L["LAYOUTS"] = "版面配置"
 L["LAYOUTS_DESC"] = "可在這裡重置、複製與刪除編輯模式版面配置的設定。\n請注意，這些資料都儲存在目前的設定檔中。"
 L["RESET_LAYOUT"] = "重置 |cffffffff\"%s\"|r"
 L["RESET_LAYOUT_DESC"] = "將目前版面配置的設定重置為預設值。"
+
+L["ANCHORS_EM_INFO"] = "錨點框架與其設定可在這裡找到：|cffffd200%s|r → |cffffd200%s|r。"
