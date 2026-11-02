@@ -11,7 +11,6 @@ local L = ns.L
 
 ns.BlizzCategory = ns.RegisterBlizzardCategory{
     title        = L["ADDON_NAME"],
-    categoryName = L["SETTINGS_MAIN"],
     instructions = L["OPEN_HINT"],
     versionText  = L["VERSION_FORMAT"]:format(ns.VERSION),
     buttonText   = L["BTN_OPEN_OPTIONS"],

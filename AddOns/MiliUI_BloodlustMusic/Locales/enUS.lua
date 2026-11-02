@@ -108,5 +108,3 @@ L["OPEN_HINT"]        = "Use /blm to open options"
 L["BTN_OPEN_OPTIONS"] = "Open options"
 L["ABOUT_SLASH"]      = "Commands: |cffffd200/blm|r opens the options, |cffffd200/blm test|r plays a track with the bar, |cffffd200/blm stop|r stops it."
 L["ABOUT_AUTHOR"]     = "Author: Mili (MiliUI package)"
-
-L["SETTINGS_MAIN"] = "Bloodlust Music"

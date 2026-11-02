@@ -109,5 +109,3 @@ L["OPEN_HINT"]        = "输入 /blm 打开设置"
 L["BTN_OPEN_OPTIONS"] = "打开设置"
 L["ABOUT_SLASH"]      = "命令：|cffffd200/blm|r 打开设置，|cffffd200/blm test|r 试播一首并显示倒计时条，|cffffd200/blm stop|r 停止播放。"
 L["ABOUT_AUTHOR"]     = "作者：米利（米利UI套组）"
-
-L["SETTINGS_MAIN"] = "嗜血音乐"

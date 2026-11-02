@@ -113,9 +113,9 @@ ns.LUST_DEBUFF_FRESH_THRESHOLD = 540
 -- Music configuration
 ----------------------------------------------------------------------
 ns.MUSIC_FILES = {
-    { name = "BABYMONSTER - 춤 (CHOOM)", path = "Interface\\AddOns\\MiliUI_BloodlustMusic\\Media\\music.mp3" },
+    { name = "Power of the Horde", path = "Interface\\AddOns\\MiliUI_BloodlustMusic\\Media\\power_of_the_horde.mp3" },
 }
-ns.MUSIC_DURATION     = 42
+ns.MUSIC_DURATION     = 40
 ns.MUSIC_MEDIA_PREFIX = "Interface\\AddOns\\MiliUI_BloodlustMusic\\Media\\"
 ns.DEFAULT_CHANNEL    = "SFX"
 ns.CHANNELS           = { "Master", "SFX", "Dialog" }
