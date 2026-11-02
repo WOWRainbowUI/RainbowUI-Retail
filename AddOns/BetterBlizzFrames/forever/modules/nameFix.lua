@@ -196,6 +196,21 @@ local layoutKeys = {
 }
 local layoutFrames = { PlayerFrame, TargetFrame, FocusFrame, TargetFrameToT, FocusFrameToT, PetFrame }
 
+local NAME_SIZE = {
+    [PlayerFrame] = { 96, 12 },
+    [TargetFrame] = { 90, 12 },
+    [FocusFrame] = { 90, 12 },
+    [TargetFrameToT] = { 68, 10 },
+    [FocusFrameToT] = { 68, 10 },
+    [PetFrame] = { 68, 10 },
+}
+local PARTY_NAME_SIZE = { 57, 10 }
+
+local function NameSize(frame)
+    local size = NAME_SIZE[frame] or PARTY_NAME_SIZE
+    return size[1], size[2]
+end
+
 local NO_PORTRAIT_NAME_SHRINK = -33
 
 local function NoPortraitMainFrame(frame)
@@ -294,10 +309,11 @@ local function CenterXSpec(healthBar, ToT, pet, unit)
 end
 
 local function MiniNameSpec(frame, db)
-    if frame == PlayerFrame and db.useMiniPlayerFrame then
+    if not BBF.IsMiniFrame(frame) then return end
+    if frame == PlayerFrame then
         return "LEFT", PlayerFrame.PlayerFrameContainer, "TOP", -16, -26, "LEFT", 180
     end
-    if (frame == TargetFrame and db.useMiniTargetFrame) or (frame == FocusFrame and db.useMiniFocusFrame) then
+    if frame == TargetFrame or frame == FocusFrame then
         return "RIGHT", frame.TargetFrameContainer.Portrait, "LEFT", -9, 10, "RIGHT", 180
     end
 end
@@ -486,7 +502,7 @@ local function ApplyNameLayout(frame)
         local left = justify == "RIGHT" and dw or justify == "CENTER" and dw / 2 or 0
         local multiLine = prefix and db[prefix .. "MultiLine"] and true or false
         local edge = prefix and db[prefix .. "GrowDown"] and "TOP" or "BOTTOM"
-        local boxHeight = nameBox:GetHeight()
+        local boxHeight = nameBox.bbfHeight
         fontString:ClearAllPoints()
         fontString:SetWordWrap(multiLine)
         if fontString.SetMaxLines then
@@ -497,6 +513,7 @@ local function ApplyNameLayout(frame)
             dy = dy + MultiLineNudge(fontString, boxHeight, edge)
         end
         local boxWidth = nameBox:GetWidth()
+        if issecretvalue(boxWidth) then boxWidth = nil end
         local scale = BBF.GetNameMoveScale and BBF.GetNameMoveScale(prefix) or 1
         local x1, y1, x2, y2 = dx - left, dy, dx + dw - left, dy
         if BBF.SetNameMoveScale then
@@ -830,7 +847,7 @@ local function GetSpecID(unit)
 
     -- Iterate through tooltip lines to find the spec name
     for _, line in ipairs(tooltipData.lines) do
-        if line and line.type == Enum.TooltipDataLineType.None and line.leftText and line.leftText ~= "" then
+        if line and line.leftText and not issecretvalue(line.leftText) and line.leftText ~= "" then
             local specID = ALL_SPECS[line.leftText]
             if specID then
                 SpecCache[tooltipGUID] = specID -- Cache result
@@ -1099,7 +1116,6 @@ local function PartyFrameNameChange(frame)
     end
 
     local _, fontSize = frame.bbfName:GetFont()
-    local baseWidth = frame.Name:GetWidth()
     local extraWidth = 0
     if fontSize and fontSize > 10 then
         extraWidth = math.floor((fontSize - 10) / 2) * 15
@@ -1107,10 +1123,8 @@ local function PartyFrameNameChange(frame)
 
     if BetterBlizzFramesDB.classicFrames and frame.bbfPartyNameWidth then
         frame.bbfName:SetWidth(frame.bbfPartyNameWidth + extraWidth)
-    elseif issecretvalue(baseWidth) then -- TODO: figure out a better way to handle this, all of it
-        frame.bbfName:SetWidth(57 + extraWidth)
     else
-        frame.bbfName:SetWidth(baseWidth + extraWidth)
+        frame.bbfName:SetWidth(frame.bbfNameBaseWidth + extraWidth)
     end
 
     if classColorPartyNames or customColorPartyNames then
@@ -1238,8 +1252,8 @@ local function InitializeFontString(frame)
     frame.bbfName:SetTextColor(name:GetTextColor())
     frame.bbfName:SetShadowColor(name:GetShadowColor())
     frame.bbfName:SetShadowOffset(name:GetShadowOffset())
-    frame.bbfNameBaseWidth = name:GetWidth()
-    local nameHeight = name:GetHeight()
+    local nameWidth, nameHeight = NameSize(frame)
+    frame.bbfNameBaseWidth = nameWidth
     frame.bbfNameBaseHeight = nameHeight
     frame.bbfName:SetWidth(GetNameWidth(frame))
     frame.bbfName:SetHeight(nameHeight)
@@ -2046,8 +2060,11 @@ local function UpdateNamePositionForClassic()
             frame.bbfName:SetJustifyV(name:GetJustifyV())
             frame.bbfName:SetShadowColor(name:GetShadowColor())
             frame.bbfName:SetShadowOffset(name:GetShadowOffset())
-            frame.bbfName:SetWidth(name:GetWidth())
-            frame.bbfName:SetHeight(name:GetHeight())
+            local width, height = name:GetWidth(), name:GetHeight()
+            if not issecretvalue(width) and not issecretvalue(height) then
+                frame.bbfName:SetWidth(width)
+                frame.bbfName:SetHeight(height)
+            end
             frame.bbfName:SetWordWrap(false)
 
             -- Copy position
