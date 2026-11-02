@@ -1,9 +1,9 @@
 ## Dependencies: Ace3
-## Interface: 120105, 120007, 120100
+## Interface: 120105, 11509, 16001, 20506, 38002, 40402, 50504
 
 ## Title: Clique
 ## Author: Cladhaire
-## Version: v5.0.15-release
+## Version: v5.1.0-release
 ## Notes: Simply powerful click-casting interface
 ## Notes-ruRU: Простой и мощный интерфейс для привязки заклинаний к щелчку мыши.
 ## IconTexture: Interface\AddOns\Clique\images\icon_square_64.tga
@@ -25,7 +25,6 @@ i18n\Localization.enUS.lua
 i18n\Localization.zhCN.lua
 i18n\Localization.zhTW.lua
 
-libs\LibDropDown\embed.xml
 
 core/core.lua
 core/database.lua
@@ -33,7 +32,10 @@ core/changelog.lua
 core/frame_registry.lua
 core/proxy_frames.lua
 core/bindings.lua
+core/binding_attributes.lua
 core/attributes.lua
+core/binding_status.lua
+core/bindset_choices.lua
 core/talents.lua
 core/utils.lua
 core/import_export.lua
