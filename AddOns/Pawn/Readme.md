@@ -84,10 +84,13 @@ Pawn plays along with most other addons, but there are a few that break Pawn tha
 
 ## Updates
 
+### Version 2.14.1
+
+* Forever: Includes new default stat weights for all classes and specs, curated by HawsJon.
+
 ### Version 2.14.0
 
 * Forever: Pawn now fully supports World of Warcraft Forever.
-	* The default stat weights on Forever are the same as the Classic Era defaults. I'll update them when I have something better.
 * Forever: Added support for a wide variety of new and changed items in all languages.
 	* Haste is only working in English currently.
 	* MP5 and HP5 are not working in French due to a translation bug in the game.
