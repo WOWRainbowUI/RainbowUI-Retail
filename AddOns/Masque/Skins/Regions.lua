@@ -323,18 +323,6 @@ local baseConfig = {
 
 	-- [ AutoCastOverlay ]
 
-	-- AutoCast (Classic)
-	AutoCastable = { -- [ ActionButtonTemplate ][DEPRECATED]
-		Key = "AutoCastable",
-		Type = "Texture",
-		Iterate = true,
-	},
-	AutoCastShine = { -- [ ActionButtonTemplate ][DEPRECATED]
-		--Key = "AutoCastShine", -- Causes issues with Pet bars.
-		Name = "Shine",
-		Type = "Frame",
-	},
-
 	-- AutoCast (Retail)
 	AutoCast_Frame = { -- [ AutoCastOverlayTemplate ]
 		Key = "AutoCastOverlay",
@@ -356,7 +344,7 @@ local baseConfig = {
 		Type = "Texture",
 	},
 
-	-- [ Cooldowns ]
+	-- [ Cooldown ]
 
 	Cooldown = {
 		Key = "cooldown",
@@ -397,8 +385,6 @@ local actionConfig = {
 	Highlight = baseConfig.Highlight,
 	Count = baseConfig.Count,
 	HotKey = baseConfig.HotKey,
-	AutoCastable = baseConfig.AutoCastable,
-	AutoCastShine = baseConfig.AutoCastShine,
 	AutoCast_Frame = baseConfig.AutoCast_Frame,
 	AutoCast_Shine = baseConfig.AutoCast_Shine,
 	AutoCast_Mask = baseConfig.AutoCast_Mask,

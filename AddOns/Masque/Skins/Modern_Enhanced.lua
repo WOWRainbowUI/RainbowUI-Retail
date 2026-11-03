@@ -78,10 +78,7 @@ Core.AddSkin("Modern Enhanced", {
 	-- [ TextOverlayContainer ]
 	-- Count = Template.Count,
 	-- HotKey = Template.HotKey,
-	-- [ AutoCastShine (Classic) ]
-	-- AutoCastable = Template.AutoCastable,
-	-- AutoCastShine = Template.AutoCastShine,
-	-- [ AutoCastOverlay (Retail) ]
+	-- [ AutoCastOverlay ]
 	-- AutoCast_Frame = Template.AutoCast_Frame,
 	-- AutoCast_Mask = Template.AutoCast_Mask,
 	-- AutoCast_Shine = Template.AutoCast_Shine,

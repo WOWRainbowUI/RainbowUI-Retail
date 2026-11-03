@@ -9,8 +9,9 @@
 	"Blizzard Modern" Skin
 
 	Notes:
-	* Emulates the default Dragonflight button style.
+	* Emulates the default modern button style.
 	* Some attributes are modified for internal consistency.
+	* Commented values are the default values. See Skins/Defaults.lua.
 
 ]]
 
@@ -874,8 +875,8 @@ local Skin = {
 			Height = 28,
 			-- Point = "CENTER",
 			-- RelPoint = "CENTER",
-			OffsetX = 1,
-			OffsetY = -0.5,
+			OffsetX = 1.5,
+			OffsetY = -1,
 			-- SetAllPoints = nil,
 		},
 	},
@@ -931,7 +932,7 @@ local Skin = {
 			Height = 64,
 			-- Point = "CENTER",
 			-- RelPoint = "CENTER",
-			-- OffsetX = 0,
+			OffsetX = -0.5,
 			-- OffsetY = 0,
 			-- SetAllPoints = nil,
 		},

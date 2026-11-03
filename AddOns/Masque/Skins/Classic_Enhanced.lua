@@ -187,7 +187,7 @@ Core.AddSkin("Classic Enhanced", {
 			Height = 28,
 			-- Point = "CENTER",
 			-- RelPoint = "CENTER",
-			OffsetX = 0.5,
+			OffsetX = 1,
 			OffsetY = -0.5,
 			-- SetAllPoints = nil,
 		},
