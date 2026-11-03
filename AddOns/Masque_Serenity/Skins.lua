@@ -25,12 +25,12 @@ local L = Core.Locale
 -- Locals
 ---
 
-local API_VERSION = 120000
+local API_VERSION = 120100
 
 -- Skin Info
 local Authors = {"StormFX", "|cff999999Sairen|r"}
 local Discord = "https://discord.gg/7MTWRgDzz8"
-local Version = "12.1.5"
+local Version = "12.1.6"
 local Websites = {
 	"https://github.com/SFX-WoW/Masque_Serenity",
 	"https://www.curseforge.com/wow/addons/masque-serenity",
@@ -241,21 +241,17 @@ Masque:AddSkin("Serenity", {
 			OffsetY = 4,
 		},
 	},
-	-- [ AutoCastShine (Classic) ]
-	AutoCastable = {
-		Texture = [[Interface\Buttons\UI-AutoCastableOverlay]],
-		Color = {1, 1, 0, 1},
-		Width = 60,
-		Height = 60,
+	-- [ AutoCastOverlay ]
+	AutoCast_Frame = {
+		Width = 37,
+		Height = 37,
+		Classic = {
+			Width = 28,
+			Height = 28,
+			OffsetX = 1,
+			OffsetY = -1,
+		},
 	},
-	AutoCastShine = {
-		Width = 28,
-		Height = 28,
-		OffsetX = 1,
-		OffsetY = -1,
-	},
-	-- [ AutoCastOverlay (Retail) ]
-	-- AutoCast_Frame = Default.AutoCast_Frame,
 	AutoCast_Shine = {
 		Atlas = "UI-HUD-ActionBar-PetAutoCast-Ants",
 		Width = 36,
@@ -270,8 +266,15 @@ Masque:AddSkin("Serenity", {
 		Atlas = "UI-HUD-ActionBar-PetAutoCast-Corners",
 		Width = 26,
 		Height = 26,
+		Classic = {
+			Atlas = "UI-HUD-ActionBar-PetAutoCast-Corners",
+			Width = 62,
+			Height = 62,
+			OffsetX = -0.5,
+			OffsetY = 0.5,
+		},
 	},
-	-- [ Cooldowns ]
+	-- [ Cooldown ]
 	Cooldown = {
 		Texture = MASK_ROUND,
 		EdgeTexture = [[Interface\AddOns\Masque\Textures\Square\Edge]],
@@ -285,7 +288,7 @@ Masque:AddSkin("Serenity", {
 		Width = 26,
 		Height = 26,
 	},
-	-- [ SpellAlerts ]
+	-- [ SpellAlert ]
 	SpellAlert = {
 		Width = 32,
 		Height = 32,
@@ -380,8 +383,6 @@ Masque:AddSkin("Serenity - Redux", {
 	-- Highlight = Template.Highlight,
 	-- Count = Template.Count,
 	-- HotKey = Template.HotKey,
-	-- AutoCastable = Template.AutoCastable,
-	-- AutoCastShine = Template.AutoCastShine,
 	-- AutoCast_Frame = Template.AutoCast_Frame,
 	-- AutoCast_Shine = Template.AutoCast_Shine,
 	-- AutoCast_Mask = Template.AutoCast_Mask,
@@ -574,20 +575,17 @@ Masque:AddSkin("Serenity - Square", {
 			OffsetY = -2,
 		},
 	},
-	-- [ AutoCastShine (Classic) ]
-	AutoCastable = {
-		Texture = [[Interface\Buttons\UI-AutoCastableOverlay]],
-		Width = 62,
-		Height = 62,
+	-- [ AutoCastOverlay ]
+	AutoCast_Frame = {
+		Width = 37,
+		Height = 37,
+		Classic = {
+			Width = 28,
+			Height = 28,
+			OffsetX = 1,
+			OffsetY = -1,
+		},
 	},
-	AutoCastShine = {
-		Width = 32,
-		Height = 32,
-		OffsetX = 1,
-		OffsetY = -1,
-	},
-	-- [ AutoCastOverlay (Retail) ]
-	-- AutoCast_Frame = Default.AutoCast_Frame,
 	AutoCast_Shine = {
 		Atlas = "UI-HUD-ActionBar-PetAutoCast-Ants",
 		Width = 40, -- 41
@@ -602,8 +600,15 @@ Masque:AddSkin("Serenity - Square", {
 		Atlas = "UI-HUD-ActionBar-PetAutoCast-Corners",
 		Width = 31,
 		Height = 31,
+		Classic = {
+			Atlas = "UI-HUD-ActionBar-PetAutoCast-Corners",
+			Width = 60,
+			Height = 60,
+			OffsetX = -0.5,
+			OffsetY = 0.5,
+		},
 	},
-	-- [ Cooldowns ]
+	-- [ Cooldown ]
 	Cooldown = {
 		Texture = MASK_SQUARE,
 		EdgeTexture = [[Interface\AddOns\Masque\Textures\Modern\Edge]],
@@ -617,7 +622,7 @@ Masque:AddSkin("Serenity - Square", {
 		Width = 26,
 		Height = 26,
 	},
-	-- [ SpellAlerts ]
+	-- [ SpellAlert ]
 	SpellAlert = {
 		Width = 32,
 		Height = 32,
@@ -712,8 +717,6 @@ Masque:AddSkin("Serenity - Square Redux", {
 	-- Highlight = Template.Highlight,
 	-- Count = Template.Count,
 	-- HotKey = Template.HotKey,
-	-- AutoCastable = Template.AutoCastable,
-	-- AutoCastShine = Template.AutoCastShine,
 	-- AutoCast_Frame = Template.AutoCast_Frame,
 	-- AutoCast_Shine = Template.AutoCast_Shine,
 	-- AutoCast_Mask = Template.AutoCast_Mask,
