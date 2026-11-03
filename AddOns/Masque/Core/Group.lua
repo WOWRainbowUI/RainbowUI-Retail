@@ -73,7 +73,7 @@ local C_Layers = {
 -- Adds or reassigns a button to the group.
 function GMT:AddButton(Button, Regions, Type, Strict)
 
-	-- Validation
+	-- [ Validation ]
 	local frameType = GetFrameType(Button)
 
 	if not frameType then
@@ -87,13 +87,13 @@ function GMT:AddButton(Button, Regions, Type, Strict)
 
 	if parent == self then return end
 
-	-- Reassignment
+	-- [ Reassignment ]
 	if parent then
 		Regions = Regions or parent.Buttons[Button]
 		parent.Buttons[Button] = nil
 	end
 
-	-- Configuration
+	-- [ Configuration ]
 	local _mcfg = GetMasqueConfig(Button)
 
 	_mcfg.FrameType = frameType
@@ -104,25 +104,21 @@ function GMT:AddButton(Button, Regions, Type, Strict)
 
 	Group[Button] = self
 
+	-- [ Regions ]
 	if type(Regions) ~= "table" then
 		Regions = {}
 	end
 
 	-- Don't iterate layers for generic frames.
 	if not Strict and frameType ~= "Frame" then
-		local Layers = TypeConfig[subType]
+		local layers = TypeConfig[subType]
 
-		for Layer, Info in pairs(Layers) do
-			local Region = Regions[Layer]
+		for layer, cfg in pairs(layers) do
+			local region = Regions[layer]
 
-			if Region == nil and not Info.Ignore then
-				if Layer == "AutoCastShine" then
-					Region = Regions.Shine or Regions.AutoCast or GetRegion(Button, Info)
-				else
-					Region = GetRegion(Button, Info)
-				end
-
-				Regions[Layer] = Region
+			if region == nil and not cfg.Ignore then
+				region = GetRegion(Button, cfg)
+				Regions[layer] = region
 			end
 		end
 	end
