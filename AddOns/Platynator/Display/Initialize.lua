@@ -196,6 +196,31 @@ function addonTable.Display.ManagerMixin:OnLoad()
       end
     end
   end)
+
+  hooksecurefunc(NamePlateDriverFrame, "OnNamePlateAdded", function(_, unit)
+    local nameplate = C_NamePlate.GetNamePlateForUnit(unit, false)
+    if nameplate then
+      nameplate.UnitFrame:SetParent(addonTable.hiddenFrame)
+      nameplate.UnitFrame:UnregisterAllEvents()
+
+      if nameplate.UnitFrame.castBar then
+        nameplate.UnitFrame.castBar:UnregisterAllEvents()
+      elseif nameplate.UnitFrame.CastBarsContainer then
+        nameplate.UnitFrame.CastBarsContainer.castBar:UnregisterAllEvents()
+      end
+
+      if nameplate.UnitFrame.WidgetContainer then
+        nameplate.UnitFrame.WidgetContainer:SetParent(nameplate)
+        nameplate.UnitFrame.WidgetContainer:SetScale(addonTable.Config.Get(addonTable.Config.Options.BLIZZARD_WIDGET_SCALE))
+      end
+      if nameplate:CanChangeHitTestPoints() then
+        local clickRegion = self.nameplateClickRegions[nameplate:GetName()]
+        nameplate:SetAllHitTestPoints(clickRegion)
+      end
+      local stackRegion = self.nameplateStackRegions[nameplate:GetName()]
+      nameplate:SetStackingBoundsFrame(stackRegion)
+    end
+  end)
 end
 
 function addonTable.Display.ManagerMixin:UpdateFont()
@@ -381,41 +406,22 @@ function addonTable.Display.ManagerMixin:UpdateTargetScale()
 end
 
 local function GetCVarsForNameplates()
-  if C_CVar.GetCVarInfo("nameplateShowFriendlyPlayers") ~= nil then
-    return {
-      friendlyPlayer = "nameplateShowFriendlyPlayers",
-      friendlyNPC = "nameplateShowFriendlyNpcs",
-      friendlyMinion = "nameplateShowFriendlyPlayerMinions",
-      enemy = "nameplateShowEnemies",
-      enemyMinion = "nameplateShowEnemyMinions",
-      enemyMinor = "nameplateShowEnemyMinus",
-    }, {
-      friendlyMinionPet = "nameplateShowFriendlyPlayerPets",
-      friendlyMinionTotem = "nameplateShowFriendlyPlayerTotems",
-      friendlyMinionGuardian = "nameplateShowFriendlyPlayerGuardians",
-    }, {
-      enemyMinionPet = "nameplateShowEnemyPets",
-      enemyMinionTotem = "nameplateShowEnemyTotems",
-      enemyMinionGuardian = "nameplateShowEnemyGuardians",
-    }
-  else
-    return {
-      friendlyPlayer = "nameplateShowFriends",
-      friendlyNPC = "nameplateShowFriendlyNPCs",
-      friendlyMinion = "nameplateShowFriendlyMinions",
-      enemy = "nameplateShowEnemies",
-      enemyMinion = "nameplateShowEnemyMinions",
-      enemyMinor = "nameplateShowEnemyMinus",
-    }, {
-      friendlyMinionPet = "nameplateShowFriendlyPets",
-      friendlyMinionTotem = "nameplateShowFriendlyTotems",
-      friendlyMinionGuardian = "nameplateShowFriendlyGuardians",
-    }, {
-      enemyMinionPet = "nameplateShowEnemyPets",
-      enemyMinionTotem = "nameplateShowEnemyTotems",
-      enemyMinionGuardian = "nameplateShowEnemyGuardians",
-    }
-  end
+  return {
+    friendlyPlayer = "nameplateShowFriendlyPlayers",
+    friendlyNPC = "nameplateShowFriendlyNpcs",
+    friendlyMinion = "nameplateShowFriendlyPlayerMinions",
+    enemy = "nameplateShowEnemies",
+    enemyMinion = "nameplateShowEnemyMinions",
+    enemyMinor = "nameplateShowEnemyMinus",
+  }, {
+    friendlyMinionPet = "nameplateShowFriendlyPlayerPets",
+    friendlyMinionTotem = "nameplateShowFriendlyPlayerTotems",
+    friendlyMinionGuardian = "nameplateShowFriendlyPlayerGuardians",
+  }, {
+    enemyMinionPet = "nameplateShowEnemyPets",
+    enemyMinionTotem = "nameplateShowEnemyTotems",
+    enemyMinionGuardian = "nameplateShowEnemyGuardians",
+  }
 end
 
 function addonTable.Display.ManagerMixin:UpdateShowState()
@@ -739,30 +745,6 @@ function addonTable.Display.ManagerMixin:UpdateClickable()
   end
 end
 
-function addonTable.Display.ManagerMixin:ToggleBlizzardDriver()
-  local events = {
-    "NAME_PLATE_UNIT_ADDED",
-    "NAME_PLATE_UNIT_REMOVED",
-    "PLAYER_SOFT_INTERACT_CHANGED",
-    "PLAYER_SOFT_ENEMY_CHANGED",
-    "PLAYER_SOFT_FRIEND_CHANGED",
-    "PLAYER_TARGET_CHANGED",
-    "NAME_PLATE_UNIT_REMOVED",
-
-  }
-  if addonTable.Display.Utilities.IsInRelevantInstance({dungeon = true, raid = true, pvp = true}) then
-    for _, e in ipairs(events) do
-      NamePlateDriverFrame:UnregisterEvent(e)
-    end
-  else
-    self:UnregisterEvent("NAME_PLATE_UNIT_ADDED")
-    for _, e in ipairs(events) do
-      NamePlateDriverFrame:RegisterEvent(e)
-    end
-    self:RegisterEvent("NAME_PLATE_UNIT_ADDED")
-  end
-end
-
 function addonTable.Display.ManagerMixin:UpdateSimplifiedScale()
   if self:CombatChangesCheck() then
     return
@@ -883,8 +865,10 @@ function addonTable.Display.ManagerMixin:UpdateFriendlyFont()
         end
       end
     end
-    C_CVar.SetCVar("nameplateUseClassColorForFriendlyPlayerUnitNames", addonTable.Display.Utilities.IsInRelevantInstance({dungeon = true, raid = true, delve = true}) and self.friendlyNameOnlyClassColors and "1" or "0")
-    C_CVar.SetCVar("nameplateSize", addonTable.Config.Get(addonTable.Config.Options.INSTANCES_NAME_ONLY_SIZE))
+    local newFriendlyColor = addonTable.Display.Utilities.IsInRelevantInstance({dungeon = true, raid = true, delve = true}) and self.friendlyNameOnlyClassColors and "1" or "0"
+    local newNameplateSize = addonTable.Config.Get(addonTable.Config.Options.INSTANCES_NAME_ONLY_SIZE)
+    C_CVar.SetCVar("nameplateUseClassColorForFriendlyPlayerUnitNames", newFriendlyColor)
+    C_CVar.SetCVar("nameplateSize", newNameplateSize)
     ChangeFont(SystemFont_NamePlate_Outlined, _G[addonTable.CurrentFont])
     ChangeFont(SystemFont_NamePlate, _G[addonTable.CurrentFont])
   else
@@ -909,22 +893,6 @@ end
 function addonTable.Display.ManagerMixin:OnEvent(eventName, ...)
   if eventName == "NAME_PLATE_UNIT_ADDED" then
     local unit = ...
-    local nameplate = C_NamePlate.GetNamePlateForUnit(unit)
-    if nameplate.UnitFrame then
-      nameplate.UnitFrame:SetParent(addonTable.hiddenFrame)
-      nameplate.UnitFrame:UnregisterAllEvents()
-
-      if nameplate.UnitFrame.castBar then
-        nameplate.UnitFrame.castBar:UnregisterAllEvents()
-      elseif nameplate.UnitFrame.CastBarsContainer then
-        nameplate.UnitFrame.CastBarsContainer.castBar:UnregisterAllEvents()
-      end
-
-      if nameplate.UnitFrame.WidgetContainer then
-        nameplate.UnitFrame.WidgetContainer:SetParent(nameplate)
-        nameplate.UnitFrame.WidgetContainer:SetScale(addonTable.Config.Get(addonTable.Config.Options.BLIZZARD_WIDGET_SCALE))
-      end
-    end
     self:Install(unit)
   elseif eventName == "NAME_PLATE_UNIT_REMOVED" then
     local unit = ...
@@ -983,11 +951,9 @@ function addonTable.Display.ManagerMixin:OnEvent(eventName, ...)
     self:UpdateNamePlateSize()
   elseif eventName == "PLAYER_ENTERING_WORLD" then
     self:UpdateInstanceShowState()
-    self:ToggleBlizzardDriver()
     self:UpdateNamePlateSize()
     self:UpdateClickable()
   elseif eventName == "GARRISON_UPDATE" then
-    self:ToggleBlizzardDriver()
     self:UpdateInstanceShowState()
   elseif eventName == "PLAYER_LOGIN" then
     self:UpdateFont()

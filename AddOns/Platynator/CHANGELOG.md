@@ -1,6 +1,6 @@
 # Platynator
 
-## [532](https://github.com/TheMouseNest/Platynator/tree/532) (2026-11-01)
-[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/531...532) 
+## [536](https://github.com/TheMouseNest/Platynator/tree/536) (2026-11-02)
+[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/535...536) 
 
-- Classic: Fix auras  
+- Remove optimisation that caused more issues than it solved  
