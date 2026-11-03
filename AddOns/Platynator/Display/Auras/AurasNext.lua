@@ -405,7 +405,7 @@ function addonTable.Display.AurasManagerNextMixin:GetFilters(kind, settings)
           table.insert(output, {"HELPFUL|!PLAYER", {excludeSpellIDs = exclude, isStealable = true, excludeDispelTypes = dispelTypes, maxDuration = maxDuration}, Kind.Enemy})
         end
       else
-        table.insert(output, {"HELPFUL|!PLAYER", {excludeSpellIDs = exclude}, maxDuration = maxDuration})
+        table.insert(output, {"HELPFUL|!PLAYER", {excludeSpellIDs = exclude, maxDuration = maxDuration}, Kind.All})
       end
     end
   elseif kind == "debuffs" then
