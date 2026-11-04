@@ -3,7 +3,7 @@
 ## Notes: Keystone Manager for Guilds and Friends
 ## Author: Astral
 ## Dependencies: Ace3
-## Version: 4.62
+## Version: 4.63
 ## SavedVariables: AstralKeys, AstralCharacters, AstralKeysSettings, AstralMinimap, AstralAffixes, AstralLists, AstralUnits
 ## Category-enUS: |cffFF0000Astral|r Addons
 ## X-Wago-ID: baNDZoKo
