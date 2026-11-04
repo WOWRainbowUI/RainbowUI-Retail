@@ -39,6 +39,15 @@ local OTF = KT_ObjectiveTrackerFrame
 
 -- Internal ------------------------------------------------------------------------------------------------------------
 
+local function SetCharWaypointData(stype, id, type, mapID)
+	if not dbChar.waypoint then return end  -- WTF - because some addons create stupid things during PLAYER_LOGOUT
+
+	dbChar.waypoint.stype = stype
+	dbChar.waypoint.id = id
+	dbChar.waypoint.type = type
+	dbChar.waypoint.mapID = mapID or 0
+end
+
 local function SetupOptions(versionText)
 	if not KT:Addon_IsModule(KT.Options) then return end
 
@@ -56,6 +65,14 @@ local function SetupOptions(versionText)
 			end,
 			set = function()
 				db.addonTomTom = not db.addonTomTom
+
+				-- cleanup
+				if db.addonTomTom then
+					C_SuperTrack.ClearAllSuperTracked()
+				else
+					SetCharWaypointData()
+				end
+
 				ReloadUI()
 			end,
 			order = 8.1,
@@ -246,12 +263,11 @@ local function AreaPOIGetIconInfo(id, ignoreUI)
 
 	local info = C_AreaPoiInfo.GetAreaPOIInfo(mapID, id)
 	if info then
+		title = info.name
 		if info.atlasName then
 			local width, height, offsetX, offsetY = 18, 18, -3, 0
 			local atlas = KT.GetPoiIcon(info.atlasName, "atlas") or info.atlasName
-			title = CreateAtlasMarkup(atlas, width, height, offsetX, offsetY)..info.name
-		else
-			title = info.name
+			title = CreateAtlasMarkup(atlas, width, height, offsetX, offsetY)..title
 		end
 		x, y = info.position:GetXY()
 	end
@@ -270,11 +286,10 @@ local function QuestOfferGetIconInfo(id, ignoreUI)
 
 	local info = KT.GetQuestOfferInfo(mapID, id)
 	if info then
+		title = info.questName
 		local iconMarkup = KT.GetPoiIcon("Quest"..info.questClassification, "markup")
 		if iconMarkup then
-			title = iconMarkup..info.questName
-		else
-			title = info.questName
+			title = iconMarkup..title
 		end
 		x, y = info.x, info.y
 	end
@@ -348,7 +363,11 @@ local function ContentGetIconInfo(type, id)
 		return title, mapID, x, y, waypointMapID, waypointText, fakeData
 	end
 
-	title = KT.GetPoiIcon("MapPin", "markup")..C_ContentTracking.GetTitle(type, id)
+	title = C_ContentTracking.GetTitle(type, id)
+	if not title then
+		return title, mapID, x, y, waypointMapID, waypointText, fakeData
+	end
+	title = KT.GetPoiIcon("MapPin", "markup")..title
 
 	local _, info = C_ContentTracking.GetNextWaypointForTrackable(type, id, mapID)
 	if not info then
@@ -385,12 +404,11 @@ local function VignetteGetIconInfo(guid, ignoreUI)
 
 	local info = C_VignetteInfo.GetVignetteInfo(guid)
 	if info then
+		title = info.name
 		if info.atlasName then
 			local width, height, offsetX, offsetY = 18, 18, -3, 0
 			local atlas = KT.GetPoiIcon(info.atlasName, "atlas") or info.atlasName
-			title = CreateAtlasMarkup(atlas, width, height, offsetX, offsetY)..info.name
-		else
-			title = info.name
+			title = CreateAtlasMarkup(atlas, width, height, offsetX, offsetY)..title
 		end
 		local position = C_VignetteInfo.GetVignettePosition(guid, mapID)
 		if position then
@@ -419,7 +437,9 @@ local function SetWaypointTag(button, show)
 end
 
 local function UpdateWaypointTag(button)
-	local show = (superTrackedID ~= nil and (superTrackedID == button.questID or superTrackedID == button.areaPOIID))
+	local show = (TomTom.profile.arrow.enable
+			and superTrackedID ~= nil
+			and (superTrackedID == button.questID or superTrackedID == button.areaPOIID))
 	SetWaypointTag(button, show)
 end
 
@@ -427,41 +447,6 @@ local function RefreshWaypointTags()
 	for button in KT.POIButtons_EnumerateActive() do
 		UpdateWaypointTag(button)
 	end
-end
-
-local function TomTomArrow_Init()
-	local theme = TomTom.CrazyArrowThemeHandler.active
-	tomtomArrow = TomTomCrazyArrow
-	tomtomArrow.KTarrow = theme.tbl.arrowTexture
-	tomtomArrow.KTshown = true
-
-    local travel = tomtomArrow:CreateTexture(nil, "OVERLAY")
-    travel:SetAtlas("poi-traveldirections-arrow2", true)
-    travel:SetScale(0.9)
-    travel:SetPoint("BOTTOM")
-    travel:Hide()
-    tomtomArrow.KTtravel = travel
-end
-
-local function TomTomArrow_SetShown(show)
-	if tomtomArrow then
-		tomtomArrow.KTarrow:SetShown(show)
-		tomtomArrow.KTtravel:SetShown(not show)
-		tomtomArrow.status:SetShown(show and TomTom.profile.arrow.showdistance)
-		C_Timer.After(0, function()
-			tomtomArrow.tta:SetShown(show and TomTom.profile.arrow.showtta)
-		end)
-		tomtomArrow.KTshown = show
-	end
-end
-
-local function SetCharWaypointData(stype, id, type, mapID)
-	if not dbChar.waypoint then return end  -- WTF - because some addons create stupid things during PLAYER_LOGOUT
-
-	dbChar.waypoint.stype = stype
-	dbChar.waypoint.id = id
-	dbChar.waypoint.type = type
-	dbChar.waypoint.mapID = mapID or 0
 end
 
 local function AddTicker(id, func, seconds)
@@ -491,12 +476,18 @@ local function AddWaypoint(id, pinType, force)
 	if superTrackingType == Enum.SuperTrackingType.Quest then
 		if C_QuestLog.IsQuestTask(id) then
 			local iconName = QuestUtils_IsQuestWorldQuest(id) and "WorldQuest" or "BonusObjective"
-			title = KT.GetPoiIcon(iconName, "markup")..C_TaskQuest.GetQuestInfoByQuestID(id)
-			mapID, x, y, waypointMapID, waypointText, fakeData = TaskQuestPOIGetIconInfo(id)
+			title = C_TaskQuest.GetQuestInfoByQuestID(id)
+			if title then
+				title = KT.GetPoiIcon(iconName, "markup")..title
+				mapID, x, y, waypointMapID, waypointText, fakeData = TaskQuestPOIGetIconInfo(id)
+			end
 		else
 			local iconName = C_QuestLog.IsComplete(id) and "QuestTurnin" or "Quest"
-			title = KT.GetPoiIcon(iconName, "markup")..C_QuestLog.GetTitleForQuestID(id)
-			mapID, x, y, waypointMapID, waypointText, fakeData = QuestPOIGetIconInfo(id)
+			title = C_QuestLog.GetTitleForQuestID(id)
+			if title then
+				title = KT.GetPoiIcon(iconName, "markup")..title
+				mapID, x, y, waypointMapID, waypointText, fakeData = QuestPOIGetIconInfo(id)
+			end
 		end
 	elseif superTrackingType == Enum.SuperTrackingType.UserWaypoint then
 		if id == userWaypointID then
@@ -530,7 +521,7 @@ local function AddWaypoint(id, pinType, force)
 	end
 
 	if questWaypoint then
-		stopCleanup = true  -- prevent tracking cleanup in TomTom:ClearWaypoint hook
+		stopCleanup = true  -- prevent tracking cleanup in callback WaypointRemoved
 		TomTom:RemoveWaypoint(questWaypoint)
 		stopCleanup = false
 	end
@@ -553,20 +544,9 @@ local function AddWaypoint(id, pinType, force)
 	return true
 end
 
-local function OnWaypointRemoved(id)
-	if id == superTrackedID then
-		RemoveTicker(id)
-		questWaypoint = nil
-		superTrackedID = nil
-		SetCharWaypointData()
-		RefreshWaypointTags()
-	end
-end
-
 local function RemoveWaypoint(id)
 	if id == superTrackedID then
-		TomTom:RemoveWaypoint(questWaypoint)  -- see TomTom:ClearWaypoint hook
-		OnWaypointRemoved(id)
+		TomTom:RemoveWaypoint(questWaypoint)  -- see callback WaypointRemoved
 	end
 end
 
@@ -592,80 +572,104 @@ local function SetSuperTrackedUserWaypoint(superTracked, force)
 	SetSuperTrackedWaypoint(id, nil, force)
 end
 
+local function TomTomArrow_SetShown(show)
+	if tomtomArrow.KTarrow then
+		tomtomArrow.KTarrow:SetShown(show)
+		tomtomArrow.KTtravel:SetShown(not show)
+		tomtomArrow.status:SetShown(show and TomTom.profile.arrow.showdistance)
+		C_Timer.After(0, function()
+			tomtomArrow.tta:SetShown(show and TomTom.profile.arrow.showtta)
+		end)
+	end
+	tomtomArrow.KTshown = show
+end
+
 local function TomTom_PatchOptions()
-	KT:RegisterOptionsPatch("TomTom-CrazyTaxi", function(options)
-		local order = options.args.rightclick.order + 0.5
-		options.args[addonName.."Warning"] = {
-			name = "        "..KT.TEXT.ADDON_IS_ACTIVE.."\n"..
-					"        "..cBold.."Right Click|r - removes the waypoint from the arrow, clears the POI selection\n"..
-					"        and deletes the waypoint (if created by "..KT.TITLE..").\n"..
-					"        "..cBold.."Shift + Right Click|r - opens the TomTom context menu.",
-			type = "description",
-			order = order,
+	KT:Bliz_RegisterOptionsPatch("TOMTOM_ARROW_MENU", function(options)
+		options.description = {
+			text = KT.TEXT.ADDON_IS_CONTROLLED.."\n"..
+					"- "..cBold.."Left Click|r - opens World Map.\n"..
+					"- "..cBold.."Right Click|r - removes the waypoint from the arrow, clears the POI selection\n"..
+					"   and deletes the waypoint (if created by "..KT.TITLE..").\n"..
+					"- "..cBold.."Shift + Right Click|r - opens the TomTom context menu.",
+			indent = 30,
+			paddingTop = -8,
 		}
 	end)
 
-	KT:RegisterOptionsPatch("TomTom-POI", function(options)
-		options.disabled = true
-		options.args[addonName.."Warning"] = {
-			name = KT.TEXT.ADDON_IS_ACTIVE_DISABLED.."\n\n",
-			type = "description",
-			order = 0,
+	KT:Bliz_RegisterOptionsPatch("TOMTOM_ARROW_SETCLOSEST", function(options, nextOptions)
+		options.description = {
+			text = KT.TEXT.ADDON_IS_CONTROLLED,
+			indent = 30,
+			paddingTop = -8,
 		}
+		nextOptions.hidden = true
+	end)
+
+	KT:Bliz_RegisterOptionsPatch("TOMTOM_POI_SETCLOSEST", function(options, nextOptions)
+		options.description = {
+			text = KT.TEXT.ADDON_IS_CONTROLLED,
+			paddingTop = -8,
+		}
+		nextOptions.hidden = true
 	end)
 end
 
-local function SetHooks()
+local function TomTom_Setup()
+	if not db.addonTomTom then return end
+
 	-- TomTom
-	if TomTom.EnableDisablePOIIntegration then
-		local bck_TomTom_EnableDisablePOIIntegration = TomTom.EnableDisablePOIIntegration
-		function TomTom:EnableDisablePOIIntegration()
-			self.profile.poi.enable = false
-			self.profile.poi.modifier = "A"
-			self.profile.poi.setClosest = false
-			self.profile.poi.arrival = 0
-			bck_TomTom_EnableDisablePOIIntegration(self)
-		end
-		TomTom:EnableDisablePOIIntegration()
-	end
+	TomTom:SuppressFeature(KT.TITLE, "poi")
+	TomTom:SuppressFeature(KT.TITLE, "arrow.setclosest")
 
-    if TomTom.ShowHideCrazyArrow then
-        local bck_TomTom_ShowHideCrazyArrow = TomTom.ShowHideCrazyArrow
-        function TomTom:ShowHideCrazyArrow()
-            self.profile.arrow.setclosest = false
-            bck_TomTom_ShowHideCrazyArrow(self)
-        end
-        TomTom:ShowHideCrazyArrow()
-    end
-
-	hooksecurefunc(TomTom.CrazyArrowThemeHandler, "SetActiveTheme", function(self, button, key, arrival)
-		tomtomArrow.KTarrow = self.active.tbl.arrowTexture
+	TomTom.RegisterCallback(addonName, "ArrowThemeChanged", function(event, key)
+		tomtomArrow.KTarrow = TomTom:GetCrazyArrowTexture()
 		if questWaypoint then
 			TomTomArrow_SetShown(tomtomArrow.KTshown)
 		end
 	end)
 
-	hooksecurefunc(TomTom, "ClearWaypoint", function(self, uid)
+	TomTom.RegisterCallback(addonName, "WaypointRemoved", function(event, uid)
 		if not db.width then return end  -- WTF - because some addons create stupid things during PLAYER_LOGOUT
 		if stopCleanup then return end
+		if uid ~= questWaypoint then return end
 
-		OnWaypointRemoved(uid.KTid)
+		if uid.KTid == superTrackedID then
+			RemoveTicker(uid.KTid)
+			questWaypoint = nil
+			superTrackedID = nil
+			SetCharWaypointData()
+			RefreshWaypointTags()
+		end
 	end)
 
-	hooksecurefunc(TomTom, "SetCrazyArrow", function(self, uid, dist, title)
+	TomTom.RegisterCallback(addonName, "ArrowTargetChanged", function(event, uid)
+		if not uid then return end
+
 		if not uid.KTid then
 			C_SuperTrack.ClearAllSuperTracked()
 		end
 
-        local fakeData = uid.KTfakeData ~= nil and uid.KTfakeData or false
-        TomTomArrow_SetShown(not fakeData)
+		local fakeData = uid.KTfakeData ~= nil and uid.KTfakeData or false
+		TomTomArrow_SetShown(not fakeData)
 	end)
 
-	hooksecurefunc(TomTom, "ClearCrazyArrowPoint", function(self, remove)
-		if superTrackedID ~= nil then
-			RemoveWaypoint(superTrackedID)
-		end
-	end)
+	-- TomTom Arrow
+	tomtomArrow = TomTomCrazyArrow
+	tomtomArrow.KTarrow = TomTom:GetCrazyArrowTexture()
+	tomtomArrow.KTshown = true
+
+	local travel = tomtomArrow:CreateTexture(nil, "OVERLAY")
+	travel:SetAtlas("poi-traveldirections-arrow2", true)
+	travel:SetScale(0.9)
+	travel:SetPoint("BOTTOM")
+	travel:Hide()
+	tomtomArrow.KTtravel = travel
+end
+
+local function SetHooks()
+	-- TomTom
+	hooksecurefunc(TomTom, "ShowHideCrazyArrow", RefreshWaypointTags)
 
 	TomTomCrazyArrow:RegisterForClicks("LeftButtonUp", "RightButtonUp")
 	local bck_TomTomCrazyArrow_OnClick = TomTomCrazyArrow:GetScript("OnClick")
@@ -768,18 +772,18 @@ end
 local function SetEvents()
 	KT:RegEvent("PLAYER_ENTERING_WORLD", function(eventID, isInitialLogin)
 		if isInitialLogin then
-            if dbChar.waypoint.id == userWaypointID then
-                SetCharWaypointData()
-            end
-            if dbChar.waypoint.mapID > 0 and dbChar.waypoint.type == 1 then
-                KT.SetMapID(dbChar.waypoint.mapID)
-            end
+			if dbChar.waypoint.id == userWaypointID then
+				SetCharWaypointData()
+			end
+			if dbChar.waypoint.mapID > 0 and dbChar.waypoint.type == 1 then
+				KT.SetMapID(dbChar.waypoint.mapID)
+			end
 		end
 		KT:UnregEvent(eventID)
 	end, M)
 
-	-- Update waypoint after reload with supertracking
-	KT:RegEvent("QUEST_LOG_UPDATE", function(eventID)
+	-- Update waypoint after login/reload with supertracking
+	KT:RegSignal("QUESTS_READY", function()
 		if dbChar.waypoint.stype == Enum.SuperTrackingType.Quest then
 			local questID = C_SuperTrack.GetSuperTrackedQuestID() or dbChar.waypoint.id
 			if questID and (QuestUtils_IsQuestWatched(questID) or C_QuestLog.IsComplete(questID) or QuestUtil.IsQuestTrackableTask(questID)) then
@@ -813,7 +817,6 @@ local function SetEvents()
 				C_SuperTrack.SetSuperTrackedVignette(vignetteGUID)
 			end
 		end
-		KT:UnregEvent(eventID)
 	end, M)
 
 	KT:RegEvent("QUEST_ACCEPTED", function(_, questID)
@@ -912,7 +915,7 @@ function M:OnInitialize()
 	if self.isAvailable then
 		local defaults = KT.MergeTables({
 			profile = {
-				tomtomArrival = 20,
+				tomtomArrival = 15,
 			}
 		}, KT.db.defaults)
 		KT.db:RegisterDefaults(defaults)
@@ -921,17 +924,17 @@ end
 
 function M:OnEnable()
 	_DBG("|cff00ff00Enable|r - "..self:GetName(), true)
-	local loaded, versionText = KT.CheckAddOn("TomTom", "v4.3.12-release")
+	local loaded, versionText = KT.CheckAddOn("TomTom", "v4.4.0-release")
 
 	SetupOptions(versionText)
 	if loaded and db.addonTomTom then
-		KT:Alert_IncompatibleAddon("TomTom", "v4.1.2-release")
+		KT:Alert_IncompatibleAddon("TomTom", "v4.4.0-beta")
 
 		SetupOptions_Module()
 		SetEvents()
 		SetHooks()
 
-		TomTomArrow_Init()
 		TomTom_PatchOptions()
+		TomTom_Setup()
 	end
 end

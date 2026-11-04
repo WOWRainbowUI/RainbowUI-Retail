@@ -222,7 +222,7 @@ end
 
 function M:OnEnable()
     _DBG("|cff00ff00Enable|r - "..self:GetName(), true)
-    local loaded, versionText = KT.CheckAddOn("BattlePetCompletionist", "12.1.5-20261014-1")
+    local loaded, versionText = KT.CheckAddOn("BattlePetCompletionist", "12.1.5-20261030-3")
 
     SetupOptions(versionText)
     if loaded and db.addonBattlePetCompletionist then

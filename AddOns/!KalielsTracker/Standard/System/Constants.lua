@@ -21,9 +21,14 @@ do
     }
 end
 
+KT.IS_WOW_RETAIL = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE)
+KT.IS_WOW_FOREVER = (WOW_PROJECT_ID == WOW_PROJECT_CAMELOT)
+KT.IS_WOW_MODERN = (KT.IS_WOW_RETAIL or KT.IS_WOW_FOREVER)
+
 KT.MIN_COMPATIBLE_VERSION = "7.0.0"
 
-KT.MEDIA_PATH = "Interface\\AddOns\\"..addonName.."\\Media\\"
+KT.PATH = "Interface\\AddOns\\"..addonName.."\\"
+KT.MEDIA_PATH = KT.PATH.."Media\\"
 
 KT.MODULES = {}
 
@@ -211,12 +216,33 @@ KT.MAJOR_CITY_MAPS = {
     [2393] = "Silvermoon City",
 }
 
+-- Menu Buttons
+KT.BUTTON = {
+    QUESTLOG = QuestLogMicroButton,
+    ACHIEVEMENTS = AchievementMicroButton,
+}
+
 -- Keybindings
 KT.KEYBINDINGS = {
     keyBindCollapse = { frameName = addonName.."MinimizeButton" },
     keyBindHide = { frameName = "KT_BindingButton" },
     keyBindClosestQuest = { frameName = addonName.."MinimizeButton", mouse = "RightButton" },
     EXTRAACTIONBUTTON1 = false
+}
+
+-- Language
+KT.LANG = {
+    enUS = { code = "EN", name = "English" },
+    deDE = { code = "DE", name = "Deutsch" },
+    frFR = { code = "FR", name = "Français" },
+    esES = { code = "ES", name = "Español" },
+    esMX = { code = "ES", name = "Español" },
+    ptBR = { code = "PT", name = "Português" },
+    itIT = { code = "IT", name = "Italiano" },
+    ruRU = { code = "RU", name = "Русский" },
+    koKR = { code = "KO", name = "한국어" },
+    zhCN = { code = "CN", name = "简体中文" },
+    zhTW = { code = "TW", name = "繁體中文" },
 }
 
 -- Texts
@@ -228,17 +254,22 @@ KT.FORMAT = {
     COLOR_WARNING2 = "|cffff4200%s|r"
 }
 KT.TEXT = {
+    TRACKER_QUESTLOG = QUESTLOG_BUTTON,
+    TRACKER_ACHIEVEMENTS = ACHIEVEMENT_BUTTON,
     ADDON_IS_ACTIVE = "|cff00ffffAddon "..KT.TITLE.." is active.|r",
     ADDON_IS_ACTIVE_DISABLED = "|cff00ffffAddon "..KT.TITLE.." is active. Some options are disabled.|r",
+    ADDON_IS_CONTROLLED = "|cff00ffffControlled by addon "..KT.TITLE..".|r",
     OPTION_NEW = "|cffff7fff[New]|r",
     OPTION_BETA = "|cffff7fff[Beta]|r",
     OPTION_EXPERIMENTAL = "|cffff7fff[Experimental]|r",
-    OPTION_WARNING = "|cffff7f00Warning:|r UI will be re-loaded!"
+    OPTION_WARNING = "|cffff7f00Warning:|r UI will be re-loaded!",
+    OPTION_CONTROLS_VISIBILITY_LEGEND = "\n * Normal / Heroic / Mythic / Scenario / Delve",
+    OPTION_CONTROLS_VISIBILITY_LEGEND_MARKER = " *",
 }
 if PLAYER_DIFFICULTY_MYTHIC_PLUS and MAP_LEGEND_DELVE then
-    KT.TEXT.OPTION_MODULE_SCENARIO_LEGEND = "\n * "..TRACKER_HEADER_DUNGEON.." / "..PLAYER_DIFFICULTY_MYTHIC_PLUS.." / "..CHALLENGE_MODE.." / "..TRACKER_HEADER_SCENARIO.." / "..MAP_LEGEND_DELVE.." / "..TRACKER_HEADER_PROVINGGROUNDS
+    KT.TEXT.OPTION_MODULES_SCENARIO_LEGEND = "\n * "..TRACKER_HEADER_DUNGEON.." / "..PLAYER_DIFFICULTY_MYTHIC_PLUS.." / "..CHALLENGE_MODE.." / "..TRACKER_HEADER_SCENARIO.." / "..MAP_LEGEND_DELVE.." / "..TRACKER_HEADER_PROVINGGROUNDS
 else
-    KT.TEXT.OPTION_MODULE_SCENARIO_LEGEND = "\n * "..TRACKER_HEADER_DUNGEON.." / "..CHALLENGE_MODE.." / "..TRACKER_HEADER_SCENARIO.." / "..TRACKER_HEADER_PROVINGGROUNDS
+    KT.TEXT.OPTION_MODULES_SCENARIO_LEGEND = "\n * "..TRACKER_HEADER_DUNGEON.." / "..CHALLENGE_MODE.." / "..TRACKER_HEADER_SCENARIO.." / "..TRACKER_HEADER_PROVINGGROUNDS
 end
 
 -- Core Constants

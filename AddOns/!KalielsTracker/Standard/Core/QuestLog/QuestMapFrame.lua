@@ -135,7 +135,7 @@ function KT_QuestMapFrame_ShowQuestDetails(questID)
     detailsFrame:Show();
 
     -- save current view
-    detailsFrame.returnMapID = WorldMapFrame:GetMapID();
+    detailsFrame.returnMapID = C_Map.GetBestMapForUnit("player")  -- MSA
 
     -- destination/waypoint
     local ignoreWaypoints = true  -- MSA
@@ -215,8 +215,10 @@ function KT_QuestMapFrame_UpdateQuestDetailsButtons()
 end
 
 function KT_QuestMapFrame_ReturnFromQuestDetails()
-	if ( KT_QuestMapFrame.DetailsFrame.returnMapID ) then
-        C_Map.OpenWorldMap(KT_QuestMapFrame.DetailsFrame.returnMapID)
+	if not InCombatLockdown() then
+		if ( KT_QuestMapFrame.DetailsFrame.returnMapID ) then
+			C_Map.OpenWorldMap(KT_QuestMapFrame.DetailsFrame.returnMapID)
+		end
 	end
 	KT_QuestMapFrame_CloseQuestDetails();  -- MSA
 end

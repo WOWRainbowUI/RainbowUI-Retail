@@ -93,7 +93,7 @@ end
 
 function M:OnEnable()
     _DBG("|cff00ff00Enable|r - "..self:GetName(), true)
-    local loaded, versionText = KT.CheckAddOn("Masque", "12.1.0")
+    local loaded, versionText = KT.CheckAddOn("Masque", "12.1.8")
 
     SetupOptions(versionText)
     if loaded and db.addonMasque then

@@ -11,13 +11,58 @@ local addonName, KT = ...
 local M = KT:NewModule("QuestLog")
 KT.QuestLog = M
 
+local LSM = LibStub("LibSharedMedia-3.0")
 local _DBG = function(...) if _DBG then _DBG("KT", ...) end end
 
 local db, dbChar
+local agwLists = AceGUIWidgetLSMlists
+local textOffsets = { [-1] = "Small", [0] = "Medium", [1] = "Large", [2] = "Extra Large" }
+local baseFontSizes = {}
 
 local dropDownFrame
 
 -- Internal ------------------------------------------------------------------------------------------------------------
+
+local function QuestDetails_SetText()
+    if not db.questLog.detailsShow then return end
+
+    local headingFont = LSM:Fetch("font", db.questLog.detailsHeadingFont)
+    local bodyFont = LSM:Fetch("font", db.questLog.detailsBodyFont)
+    local offset = db.questLog.detailsBodyTextOffset
+
+    local function SetFontFile(fontObject, fontFile, sizeOffset)
+        local _, size, flags = fontObject:GetFont()
+
+        if not baseFontSizes[fontObject] then
+            baseFontSizes[fontObject] = size
+        end
+
+        if sizeOffset then
+            size = baseFontSizes[fontObject] + sizeOffset
+        end
+
+        fontObject:SetFont(fontFile, size, flags)
+    end
+
+    SetFontFile(KT_QuestInfoTitleHeader, headingFont)
+    SetFontFile(KT_QuestInfoDescriptionHeader, headingFont)
+    SetFontFile(KT_QuestMapFrame.DetailsFrame.RewardsFrameContainer.RewardsFrame.Label, headingFont)
+
+    SetFontFile(KT_QuestInfoDescriptionText, bodyFont, offset)
+    SetFontFile(KT_QuestInfoObjectivesText, bodyFont, offset)
+    SetFontFile(KT_QuestInfoGroupSize, bodyFont, offset)
+    SetFontFile(KT_QuestInfoTimerText, bodyFont, offset)
+    SetFontFile(KT_QuestInfoSpellObjectiveLearnLabel, bodyFont, offset)
+    SetFontFile(KT_QuestInfoRequiredMoneyText, bodyFont, offset)
+
+    local objectives = KT_QuestInfoObjectivesFrame.Objectives
+    for _, objective in ipairs(objectives) do
+        if not baseFontSizes[objective] then
+            baseFontSizes[objective] = baseFontSizes[objectives[1]]
+        end
+        SetFontFile(objective, bodyFont, offset)
+    end
+end
 
 local function SetupOptions()
     if not KT:Addon_IsModule(KT.Options) then return end
@@ -26,36 +71,93 @@ local function SetupOptions()
         name = "Quest Log",
         type = "group",
         inline = true,
+        get = function(info)
+            return db.questLog[info[#info]]
+        end,
+        set = function(info, value)
+            db.questLog[info[#info]] = value
+            QuestDetails_SetText()
+        end,
         args = {
-            questLogShowDetails = {
+            detailsShow = {
                 name = "Show Quest Details on World Map "..KT.TEXT.OPTION_EXPERIMENTAL,
                 type = "toggle",
-                width = "double",
-                set = function()
-                    db.questLogShowDetails = not db.questLogShowDetails
-                end,
+                width = 2,
                 order = 1.1,
             },
-            questLogShowDetailsDesc = {
+            detailsShowDesc = {
                 name = "Show Quest Details when opening the quest map from the tracker. This feature uses a custom Quest Details implementation.\n\n",
                 type = "description",
-                width = "double",
+                width = 2,
                 marginLeft = 30,
                 order = 1.2,
+            },
+            detailsShowSpacer = {
+                name = " ",
+                type = "description",
+                width = 1,
+                order = 1.3,
+            },
+            detailsHeadingFont = {
+                name = "Heading Font",
+                desc = "- Default: ".. KT.db.defaults.profile.questLog.detailsHeadingFont,
+                type = "select",
+                dialogControl = "LSM30_Font",
+                values = agwLists.font,
+                disabled = function()
+                    return not db.questLog.detailsShow
+                end,
+                order = 2,
+            },
+            detailsBodyFont = {
+                name = "Body Font",
+                desc = "- Default: ".. KT.db.defaults.profile.questLog.detailsBodyFont,
+                type = "select",
+                dialogControl = "LSM30_Font",
+                values = agwLists.font,
+                disabled = function()
+                    return not db.questLog.detailsShow
+                end,
+                order = 3,
+            },
+            detailsBodyTextOffset = {
+                name = "Body Text Size",
+                desc = "- Default: ".. textOffsets[KT.db.defaults.profile.questLog.detailsBodyTextOffset],
+                type = "select",
+                values = textOffsets,
+                disabled = function()
+                    return not db.questLog.detailsShow
+                end,
+                order = 4,
             },
         },
     })
 end
 
-local function QuestMapQuestOptionsDropDown_Initialize(self)
+local function QuestMap_ToggleDropDown(frame, handlerFunc, anchor, xOffset, yOffset, point, relativePoint)
+    if dropDownFrame.activeFrame ~= frame then
+        MSA_CloseDropDownMenus()
+    end
+    dropDownFrame.activeFrame = frame
+    dropDownFrame.initialize = handlerFunc
+    dropDownFrame.questID = frame.questID
+    if point then
+        MSA_DropDownMenu_SetAnchor(dropDownFrame, nil, nil, point, nil, relativePoint)
+    end
+    MSA_ToggleDropDownMenu(1, nil, dropDownFrame, anchor, xOffset, yOffset)
+    PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
+end
+
+local function QuestLog_OnOpenDropDown(self)
+    local questID = self.questID
 	local info = KT.Menu_CreateInfo()
-	KT.Menu_AddTitle(C_QuestLog.GetTitleForQuestID(self.questID))
+	KT.Menu_AddTitle(C_QuestLog.GetTitleForQuestID(questID))
 
 	local text, func
-	if C_SuperTrack.GetSuperTrackedQuestID() ~= self.questID then
+	if C_SuperTrack.GetSuperTrackedQuestID() ~= questID then
 		text = SUPER_TRACK_QUEST
 		func = function()
-			C_SuperTrack.SetSuperTrackedQuestID(self.questID)
+			C_SuperTrack.SetSuperTrackedQuestID(questID)
 		end
 	else
 		text = STOP_SUPER_TRACK_QUEST
@@ -65,25 +167,34 @@ local function QuestMapQuestOptionsDropDown_Initialize(self)
 	end
 	KT.Menu_AddButton(text, func)
 
-	KT.Menu_AddButton(QuestUtils_IsQuestWatched(self.questID) and UNTRACK_QUEST or TRACK_QUEST, function()
-		QuestMapQuestOptions_TrackQuest(self.questID)
+	KT.Menu_AddButton(QuestUtils_IsQuestWatched(questID) and UNTRACK_QUEST or TRACK_QUEST, function()
+		QuestMapQuestOptions_TrackQuest(questID)
 	end, (dbChar.filterAuto[1] ~= nil))
 
 	info.disabled = false
 
 	KT.Menu_AddButton(SHARE_QUEST, function()
-		QuestMapQuestOptions_ShareQuest(self.questID)
-	end, (not C_QuestLog.IsPushableQuest(self.questID) or not IsInGroup()))
+		QuestMapQuestOptions_ShareQuest(questID)
+	end, (not C_QuestLog.IsPushableQuest(questID) or not IsInGroup()))
 
 	info.disabled = false
 
-	if C_QuestLog.CanAbandonQuest(self.questID) then
+	if C_QuestLog.CanAbandonQuest(questID) then
 		KT.Menu_AddButton(ABANDON_QUEST, function()
-			QuestMapQuestOptions_AbandonQuest(self.questID)
+			QuestMapQuestOptions_AbandonQuest(questID)
 		end)
 	end
 
-	KT:SendSignal("CONTEXT_MENU_UPDATE", info, "quest", self.questID)
+	KT:SendSignal("CONTEXT_MENU_UPDATE", info, "quest", questID)
+end
+
+local function QuestDetails_OnOpenDropDown(self)
+    local questID = self:GetParent().DetailsFrame.questID
+    local info = KT.Menu_CreateInfo()
+    info.KTmenuSource = "questDetails"
+    KT.Menu_AddTitle(C_QuestLog.GetTitleForQuestID(questID))
+
+    KT:SendSignal("CONTEXT_MENU_UPDATE", info, "quest", questID)
 end
 
 local function SetHooks()
@@ -120,14 +231,14 @@ local function SetHooks()
 			if menu then
 				manager:CloseMenu(menu)
 			end
-			MSA_CloseDropDownMenus()
-			dropDownFrame.questID = self.questID
-			MSA_ToggleDropDownMenu(1, nil, dropDownFrame, "cursor", 6, -6)
+			QuestMap_ToggleDropDown(self, QuestLog_OnOpenDropDown, "cursor", 6, -6)
 		elseif button == "LeftButton" then
 			if IsModifiedClick(db.menuWowheadURLModifier) then
 				KT:Alert_WowheadURL("quest", self.questID)
 			elseif IsModifiedClick(db.menuYouTubeURLModifier) then
 				KT:Alert_YouTubeURL("quest", self.questID)
+			elseif db.questLog.detailsShow then
+				KT.OpenService_Open("quest", self.questID, true)
 			end
 		end
 	end)
@@ -182,6 +293,9 @@ local function SetFrames()
     logo.tex = logo:CreateTexture(nil, "ARTWORK")
     logo.tex:SetTexture(KT.MEDIA_PATH.."KT_logo")
     logo.tex:SetAllPoints()
+    logo:SetScript("OnMouseUp", function(self)
+        QuestMap_ToggleDropDown(self, QuestDetails_OnOpenDropDown, self, 0, 0, "TOP", "BOTTOM")
+    end)
     logo:SetScript("OnEnter", function(self)
         GameTooltip:SetOwner(self, "ANCHOR_TOP")
         GameTooltip:AddLine("Quest Details created by |cffffd200"..KT.TITLE, 1, 1, 1)
@@ -197,9 +311,8 @@ local function SetFrames()
     questMapFrame.DetailsFrame = KT_QuestsFrame.DetailsFrame
 
 	-- DropDown frame
-	dropDownFrame = MSA_DropDownMenu_Create(addonName.."QuestLogDropDown", QuestMapFrame)
-	dropDownFrame.questID = 0  -- for QuestMapQuestOptionsDropDown_Initialize
-	MSA_DropDownMenu_Initialize(dropDownFrame, QuestMapQuestOptionsDropDown_Initialize, "MENU")
+	dropDownFrame = MSA_DropDownMenu_Create(addonName.."QuestLogDropDown", KT_QuestMapFrame)
+	MSA_DropDownMenu_Initialize(dropDownFrame, nil, "MENU")
 end
 
 -- External ------------------------------------------------------------------------------------------------------------
@@ -213,10 +326,21 @@ function M:OnInitialize()
     if self.isAvailable then
         local defaults = KT.MergeTables({
             profile = {
-                questLogShowDetails = true
-            }
+                questLog = {
+                    detailsShow = true,
+                    detailsHeadingFont = "Morpheus",
+                    detailsBodyFont = LSM:GetDefault("font"),
+                    detailsBodyTextOffset = 0,
+                },
+            },
         }, KT.db.defaults)
         KT.db:RegisterDefaults(defaults)
+
+        -- migration
+        if db.questLogShowDetails ~= nil then
+            db.questLog.detailsShow = db.questLogShowDetails
+            db.questLogShowDetails = nil
+        end
     end
 end
 
@@ -225,4 +349,6 @@ function M:OnEnable()
     SetupOptions()
     SetFrames()
     SetHooks()
+
+    QuestDetails_SetText()
 end

@@ -29,15 +29,21 @@ end)
 do
     local THROTTLE_SECONDS = 0.2
     local lastUpdate = 0
-    ObjectiveTrackerFrame:HookScript("OnEvent", function(self, event, ...)
+    ObjectiveTrackerFrame:HookScript("OnEvent", function(_, event)
         if event == "SUPER_TRACKING_PATH_UPDATED" then
             local now = GetTime()
             if (now - lastUpdate) < THROTTLE_SECONDS then return end
             lastUpdate = now
 
-            KT_QuestObjectiveTracker:MarkDirty()
-            KT_CampaignQuestObjectiveTracker:MarkDirty()
-            KT_WorldQuestObjectiveTracker:MarkDirty()
+            if KT_QuestObjectiveTracker then
+                KT_QuestObjectiveTracker:MarkDirty()
+            end
+            if KT_CampaignQuestObjectiveTracker then
+                KT_CampaignQuestObjectiveTracker:MarkDirty()
+            end
+            if KT_WorldQuestObjectiveTracker then
+                KT_WorldQuestObjectiveTracker:MarkDirty()
+            end
         end
     end)
     ObjectiveTrackerFrame:RegisterEvent("SUPER_TRACKING_PATH_UPDATED")

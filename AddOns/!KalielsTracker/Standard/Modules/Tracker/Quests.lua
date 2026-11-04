@@ -268,23 +268,48 @@ local function SetHooks()
     function KT_QuestObjectiveTracker:OnBlockHeaderEnter(block)
         if not db.tooltipShow then return end
 
-        local questLink = GetQuestLink(block.id)
+        local questID = block.id
+        local questLink = GetQuestLink(questID)
         if not questLink then return end
 
         KT.GameTooltip_SetPosition(block)
 
-        GameTooltip:SetHyperlink(questLink)
+        local defaultTitle
+        local info = CreateBaseTooltipInfo("GetHyperlink", questLink)
+        info.linePostCall = function(_, lineData)
+            local text
+            if lineData == info.tooltipData.lines[1] then
+                text = KT.LocalizationService_Get("quest.tooltip.title", lineData.leftText, questID)
+                GameTooltipTextLeft1:SetText(text)
+                if text ~= lineData.leftText then
+                    defaultTitle = lineData.leftText
+                end
+            elseif lineData == info.tooltipData.lines[2] then
+                local questData = KT.QuestsCache_GetInfo(questID)
+                local colorStyle = KT_OBJECTIVE_TRACKER_COLOR["Zone"]
+                text = questData.zone
+                if defaultTitle then
+                    text = "|cff909090"..defaultTitle.."|r\n"..text.."|T:16:1|t"
+                end
+                GameTooltipTextLeft2:SetText(text)
+                GameTooltipTextLeft2:SetTextColor(colorStyle.r, colorStyle.g, colorStyle.b)
+            elseif lineData == info.tooltipData.lines[4] then
+                text = KT.LocalizationService_Get("quest.tooltip.objectives", lineData.leftText, questID)
+                GameTooltipTextLeft4:SetText(text)
+            end
+        end
+        GameTooltip:ProcessInfo(info)
 
         if db.tooltipShowRewards then
-            if KT.HaveQuestRewardData(block.id) then
+            if KT.HaveQuestRewardData(questID) then
                 tooltipUpdateQuestID = 0
-                KT.GameTooltip_AddQuestRewardsToTooltip(GameTooltip, block.id)
+                KT.GameTooltip_AddQuestRewardsToTooltip(GameTooltip, questID)
             else
-                tooltipUpdateQuestID = block.id
+                tooltipUpdateQuestID = questID
                 GameTooltip:AddLine(" ")
                 GameTooltip:AddLine(KT.RETRIEVING_DATA, RED_FONT_COLOR.r, RED_FONT_COLOR.g, RED_FONT_COLOR.b)
                 C_Timer.After(0.1, function()
-                    if tooltipUpdateQuestID == block.id then
+                    if tooltipUpdateQuestID == questID then
                         self:OnBlockHeaderEnter(block)
                     end
                 end)
@@ -292,7 +317,7 @@ local function SetHooks()
         end
 
         if IsInGroup() then
-            local tooltipData = C_TooltipInfo.GetQuestPartyProgress(block.id, true)
+            local tooltipData = C_TooltipInfo.GetQuestPartyProgress(questID, true)
             if tooltipData then
                 GameTooltip:AddLine(" ")
                 local tooltipInfo = { tooltipData = tooltipData, append = true }
@@ -302,7 +327,7 @@ local function SetHooks()
 
         if db.tooltipShowID then
             GameTooltip:AddLine(" ")
-            GameTooltip:AddDoubleLine(" ", "ID: |cffffffff"..block.id)
+            GameTooltip:AddDoubleLine(" ", "ID: |cffffffff"..questID)
         end
 
         GameTooltip:Show()

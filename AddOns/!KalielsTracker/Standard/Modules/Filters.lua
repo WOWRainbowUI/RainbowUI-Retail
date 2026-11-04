@@ -166,6 +166,7 @@ local function SetHooks()
 			end
 
 			local sort = dbChar.filter.quests.sort
+			local reverse = dbChar.filter.quests.sortReverse
 			if sort == "newest" then
 				local time1 = info1.KTquest and info1.KTquest.updateTime or 0
 				local time2 = info2.KTquest and info2.KTquest.updateTime or 0
@@ -176,7 +177,11 @@ local function SetHooks()
 						return quest1.level > quest2.level
 					end
 				else
-					return time1 > time2
+					if reverse then
+						return time1 < time2
+					else
+						return time1 > time2
+					end
 				end
 			elseif sort == "zone" then
 				local zone1 = info1.KTquest and info1.KTquest.zone or ""
@@ -188,16 +193,28 @@ local function SetHooks()
 						return quest1.level > quest2.level
 					end
 				else
-					return zone1 < zone2
+					if reverse then
+						return zone1 > zone2
+					else
+						return zone1 < zone2
+					end
 				end
 			elseif sort == "level" then
 				if quest1.level == quest2.level then
 					return quest1.title < quest2.title
 				else
-					return quest1.level > quest2.level
+					if reverse then
+						return quest1.level < quest2.level
+					else
+						return quest1.level > quest2.level
+					end
 				end
 			elseif sort == "title" then
-				return quest1.title < quest2.title
+				if reverse then
+					return quest1.title > quest2.title
+				else
+					return quest1.title < quest2.title
+				end
 			end
 
 			return info1.index > info2.index
@@ -983,12 +1000,14 @@ local function FilterMenu_AddQuests(info)
 		info.hasArrow = false
 		info.notCheckable = false
 
-		KT.Menu_AddCheck("Show all Campaign", { dbChar.filter.quests, "showCampaign" }, function()
-			dbChar.filter.quests.showCampaign = not dbChar.filter.quests.showCampaign
-			if dbChar.filterAuto[1] == "zone" then
-				Filter_Menu_Quests(_, "zone")
-			end
-		end)
+		if KT.IS_WOW_RETAIL then
+			KT.Menu_AddCheck("Show all Campaign", { dbChar.filter.quests, "showCampaign" }, function()
+				dbChar.filter.quests.showCampaign = not dbChar.filter.quests.showCampaign
+				if dbChar.filterAuto[1] == "zone" then
+					Filter_Menu_Quests(_, "zone")
+				end
+			end)
+		end
 
 		KT.Menu_AddCheck("|cff00ff00Auto|r Zone", { dbChar.filterAuto, 1, "zone" }, Filter_Menu_AutoTrack, 1, "zone")
 	elseif MSA_DROPDOWNMENU_MENU_LEVEL == 2 then
@@ -1028,7 +1047,9 @@ local function FilterMenu_AddQuests(info)
 				dbChar.filter.quests.sort = arg
 				KT:SendSignal("QUESTS_ORDER_CHANGED")
 				KT:Tracker_Update()
-				MSA_DropDownMenu_Refresh(KT.DropDown, nil, obj:GetParent():GetID())
+				local menu = obj:GetParent()
+				local button = _G[menu.parent:GetName().."Button"..menu.parentID]
+				KT:Filter_DropDown_Toggle(button, menu:GetID())
 			end
 
 			KT.Menu_AddRadio("Disabled", { dbChar.filter.quests, "sort" })
@@ -1037,16 +1058,28 @@ local function FilterMenu_AddQuests(info)
 			KT.Menu_AddRadio("by Level", { dbChar.filter.quests, "sort" }, "level")
 			KT.Menu_AddRadio("by Title", { dbChar.filter.quests, "sort" }, "title")
 
+			info.isNotRadio = true
+			KT.Menu_AddCheck("Reverse", { dbChar.filter.quests, "sortReverse" }, function(obj)
+				dbChar.filter.quests.sortReverse = not dbChar.filter.quests.sortReverse
+				KT:SendSignal("QUESTS_ORDER_CHANGED")
+				KT:Tracker_Update()
+				MSA_DropDownMenu_Refresh(KT.DropDown, nil, obj:GetParent():GetID())
+			end, not dbChar.filter.quests.sort)
+
 			KT.Menu_AddSeparator()
 			info.notCheckable = false
 
-			KT.Menu_AddCheck("Top Meta quests", { dbChar.filter.quests, "sortTopOverride" }, function(obj)
-				dbChar.filter.quests.sortTopOverride = not dbChar.filter.quests.sortTopOverride
-				KT:Tracker_Update()
-				MSA_DropDownMenu_Refresh(KT.DropDown, nil, obj:GetParent():GetID())
-			end)
+			if KT.IS_WOW_RETAIL then
+				KT.Menu_AddCheck("Top Meta quests", { dbChar.filter.quests, "sortTopOverride" }, function(obj)
+					dbChar.filter.quests.sortTopOverride = not dbChar.filter.quests.sortTopOverride
+					KT:SendSignal("QUESTS_ORDER_CHANGED")
+					KT:Tracker_Update()
+					MSA_DropDownMenu_Refresh(KT.DropDown, nil, obj:GetParent():GetID())
+				end)
+			end
 			KT.Menu_AddCheck("Bottom Completed quests", { dbChar.filter.quests, "sortBottomCompleted" }, function(obj)
 				dbChar.filter.quests.sortBottomCompleted = not dbChar.filter.quests.sortBottomCompleted
+				KT:SendSignal("QUESTS_ORDER_CHANGED")
 				KT:Tracker_Update()
 				MSA_DropDownMenu_Refresh(KT.DropDown, nil, obj:GetParent():GetID())
 			end)
@@ -1246,6 +1279,7 @@ function M:OnInitialize()
                 filter = {
                     quests = {
                         sort = nil,
+						sortReverse = false,
                         sortTopOverride = true,
                         sortBottomCompleted = false,
                         showCampaign = true
@@ -1297,7 +1331,7 @@ function M:OnEnable()
 	SetHooks()
 	SetFrames()
 
-	KT:RegSignal("QUESTS_READY:20", SanitizeFavorites, self)
+	KT:RegSignal("QUESTS_READY", SanitizeFavorites, self)
 	KT:RegSignal("CONTEXT_MENU_UPDATE:50", ContextMenu_Extend, self)
 	KT:RegSignal("QUEST_DATA_CHANGED", function()
 		if dbChar.filterAuto[1] == "zone" then
@@ -1320,7 +1354,7 @@ function M:OnEnable()
 end
 
 function KT:Filter_DropDown_Toggle(button, level)
-	MSA_CloseDropDownMenus()
+	MSA_CloseDropDownMenus(level)
 
 	local dropDown = self.DropDown
 	local value = button and button.value or nil

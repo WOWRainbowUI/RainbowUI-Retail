@@ -76,7 +76,7 @@ local function RS_SetOptions()
 end
 
 local function RS_PatchOptions()
-	KT:RegisterOptionsPatch("RareScanner Display", function(options)
+	KT:Ace_RegisterOptionsPatch("RareScanner Display", function(options)
 		local target = options.args
 		target.displayMiniature.disabled = true
 		target.displayButtonContainers.disabled = true
@@ -91,7 +91,7 @@ local function RS_PatchOptions()
 		}
 	end)
 
-	KT:RegisterOptionsPatch("RareScanner Loot Options", function(options)
+	KT:Ace_RegisterOptionsPatch("RareScanner Loot Options", function(options)
 		local target = options.args.display_options.args
 		target.lootTooltipPosition.disabled = true
 		target.itemsToShow.disabled = true
@@ -382,7 +382,7 @@ end
 
 function M:OnEnable()
 	_DBG("|cff00ff00Enable|r - "..self:GetName(), true)
-	local loaded, versionText = KT.CheckAddOn("RareScanner", "12.1.5")
+	local loaded, versionText = KT.CheckAddOn("RareScanner", "12.1.5.5")
 
 	SetupOptions(versionText)
 	if loaded and db.addonRareScanner then

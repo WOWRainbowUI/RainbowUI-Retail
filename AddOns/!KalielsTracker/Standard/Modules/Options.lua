@@ -924,7 +924,7 @@ local options = {
 							order = 6,
 						},
 						hdrOtherButtons = {
-							name = "Show Quest Log and Achievements buttons",
+							name = "Show "..KT.TEXT.TRACKER_QUESTLOG.." and "..KT.TEXT.TRACKER_ACHIEVEMENTS.." buttons",
 							type = "toggle",
 							width = "double",
 							set = function()
@@ -1254,8 +1254,11 @@ local options = {
 						},
 						-- rules options
 						contextsNote = {
-							name = "\n * Normal / Heroic / Mythic / Scenario / Delve",
+							name = KT.TEXT.OPTION_CONTROLS_VISIBILITY_LEGEND,
 							type = "description",
+							hidden = function()
+								return KT.TEXT.OPTION_CONTROLS_VISIBILITY_LEGEND == ""
+							end,
 							order = 30,
 						},
 					},
@@ -1508,7 +1511,7 @@ local function Visibility_ShowActiveContext(_, contexts)
 
 	for _, ctx in ipairs(KT.VISIBILITY_CONTEXTS) do
 		local prefix = " "
-		local suffix = ctx == "dungeon" and "|r *" or "|r"
+		local suffix = "|r"..(ctx == "dungeon" and KT.TEXT.OPTION_CONTROLS_VISIBILITY_LEGEND_MARKER or "")
 		if ctx == contexts[1] then
 			prefix = prefix..color
 		end
@@ -1531,7 +1534,7 @@ local function Visibility_CreateContextOptions(args)
 	for i, ctx in ipairs(KT.VISIBILITY_CONTEXTS) do
 		local name = "visibility"..ctx
 		args[name.."Label"] = {
-			name = " "..KT.VISIBILITY_CONTEXTS_LOCALIZED[ctx]..(ctx == "dungeon" and " *" or ""),
+			name = " "..KT.VISIBILITY_CONTEXTS_LOCALIZED[ctx]..(ctx == "dungeon" and KT.TEXT.OPTION_CONTROLS_VISIBILITY_LEGEND_MARKER or ""),
 			type = "description",
 			width = 0.7,
 			fontSize = "medium",
@@ -1567,7 +1570,7 @@ local function Modules_CreateOptions(args)
 			if module == KT_ScenarioObjectiveTracker then
 				text = text.." *"
 				args.descModules = {
-					name = KT.TEXT.OPTION_MODULE_SCENARIO_LEGEND,
+					name = KT.TEXT.OPTION_MODULES_SCENARIO_LEGEND,
 					type = "description",
 					order = 30,
 				}
@@ -1647,14 +1650,14 @@ function SetSharedColor(color)
 end
 
 local function Alert_TrackedQuests()
-	if WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE and WOW_PROJECT_ID ~= WOW_PROJECT_CAMELOT then return end
+	if not KT.IS_WOW_MODERN then return end
 
 	local trackedQuests = GetCVar("trackedQuests")
 	local trackedQuestsVersion = trackedQuests:match("^(v%d+)")
 	if not trackedQuestsVersion or trackedQuests == trackedQuestsVersion then return end
 
 	local game = "_retail_"
-	if WOW_PROJECT_ID == WOW_PROJECT_CAMELOT then
+	if KT.IS_WOW_FOREVER then
 		game = "_forever_"
 	end
 	local character = UnitName("player")
@@ -1715,6 +1718,10 @@ local function Setup()
 	opt.messageOutput.disabled = function()
 		return not ((questsEnabled and db.messageQuest) or
 				(achievementsEnabled and db.messageAchievement))
+	end
+	opt.messageOutput.args.Channel.hidden = true
+	if db.sink20OutputSink == "Channel" then
+		db.sink20OutputSink = "UIErrorsFrame"
 	end
 	KT:SetSinkStorage(db)
 

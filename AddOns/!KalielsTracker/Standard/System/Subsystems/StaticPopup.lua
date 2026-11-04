@@ -146,6 +146,20 @@ StaticPopupDialogs[addonName.."_ReloadUI"] = {
     whileDead = 1
 }
 
+StaticPopupDialogs[addonName.."_ReloadUIWide"] = {
+    text = DIALOG_TITLE,
+    subText = "...",
+    button1 = RELOADUI,
+    wide = true,
+    wideText = true,
+    OnShow = StaticPopup_OnShow,
+    OnAccept = function()
+        ReloadUI()
+    end,
+    timeout = 0,
+    whileDead = 1
+}
+
 local function CreatePopup_URL(text, editBoxWidth, onShow)
     return {
         text = text,

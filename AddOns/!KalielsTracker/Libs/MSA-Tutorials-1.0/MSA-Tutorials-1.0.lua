@@ -36,6 +36,7 @@ Frame Arguments
  title .......... Title relative to frame (replace General value).
  width .......... Width relative to frame (replace General value).
  height ......... Height relative to frame (replace General value).
+ font ........... Font relative to frame (replace General value).
 Note: All other arguments can be used as a general!
  paddingX ....... Default is 25. Left and Right padding.
  paddingTop ..... Default is 20.
@@ -77,7 +78,7 @@ local format = string.format
 local strfind = string.find
 local round = function(n) return floor(n + 0.5) end
 
-local Lib = LibStub:NewLibrary('MSA-Tutorials-1.0', 18)
+local Lib = LibStub:NewLibrary('MSA-Tutorials-1.0', 19)
 if Lib then
 	Lib.NewFrame, Lib.NewButton, Lib.UpdateFrame = nil
 	Lib.numFrames = Lib.numFrames or 1
@@ -337,6 +338,9 @@ local function UpdateFrame(frame, i)
 	else
 		frame.text:SetPoint('TOPLEFT', 0, textPaddingTop * -1)
 	end
+	if data.font then
+		frame.text:SetFont(data.font, 12)
+	end
 	frame.text:SetText(data.text)
 
 	local textHeight = round(frame.text:GetHeight() + 3)
@@ -437,7 +441,7 @@ local function NewButton(frame, name, direction)
 	button:SetDisabledTexture(BUTTON_TEX:format(name, 'Disabled'))
 	button:SetPushedTexture(BUTTON_TEX:format(name, 'Down'))
 	button:SetNormalTexture(BUTTON_TEX:format(name, 'Up'))
-	button:SetPoint('BOTTOM'..((direction == -1) and 'LEFT' or 'RIGHT'), -(30 * direction), 1)
+	button:SetPoint('BOTTOM'..((direction == -1) and 'LEFT' or 'RIGHT'), -(30 * direction), WOW_PROJECT_ID == WOW_PROJECT_CAMELOT and 2 or 1)
 	button:SetSize(26, 26)
 	button:SetScript('OnClick', function()
 		UpdateFrame(frame, frame.i + direction)
@@ -475,9 +479,6 @@ local function NewFrame(data)
 	frame.heading:Hide()
 	frame.text = frame.content:CreateFontString(nil, nil, 'GameFontHighlight')
 	frame.text:SetPoint('RIGHT')
-	if data.font then
-		frame.text:SetFont(data.font, 12)
-	end
 	frame.text:SetJustifyH('LEFT')
 	frame.editboxes = {}
 	

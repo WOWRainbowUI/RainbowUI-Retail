@@ -1401,6 +1401,12 @@ local function FeedOptions(appName, options,container,rootframe,path,group,inlin
 						control:SetJustifyV(justifyV)
 					end
 
+					-- MSA
+					if v.descStyle == "inline" then
+						local desc = GetOptionsMemberValue("desc", v, options, path, appName)
+						control:SetDescription(desc)
+					end
+
 					local imageCoords = GetOptionsMemberValue("imageCoords",v, options, path, appName)
 					local image, width, height = GetOptionsMemberValue("image",v, options, path, appName)
 

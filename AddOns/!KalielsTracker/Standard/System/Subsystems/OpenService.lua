@@ -28,7 +28,7 @@ end
 function KT.OpenService_Open(name, ...)
     local func = overrides[name] or defaults[name]
     if not func then
-        error("|cffff0000OpenService|r - handler '"..tostring(name).."' is not defined.")
+        error("|cffff0000OpenService|r - handler '"..tostring(name).."' is not defined.", 2)
     end
     func(...)
 end
@@ -39,6 +39,7 @@ local function ToggleQuestLog()
     if C_GameRules.IsGameRuleActive(Enum.GameRule.WorldMapDisabled) then
         return
     end
+
     if WorldMapFrame:IsShown() then
         HideUIPanel(WorldMapFrame)
     else
@@ -48,9 +49,13 @@ local function ToggleQuestLog()
 end
 
 local function OpenMapToQuest(questID)
+    if C_GameRules.IsGameRuleActive(Enum.GameRule.WorldMapDisabled) then
+        return
+    end
+
     QuestMapFrame:SetDisplayMode(QuestLogDisplayMode.Quests)
     C_Map.OpenWorldMap()
-    if KT:Addon_IsModule(KT.QuestLog) and db.questLogShowDetails and GetCVarBool("questLogOpen") then
+    if KT:Addon_IsModule(KT.QuestLog) and db.questLog.detailsShow and GetCVarBool("questLogOpen") then
         KT_QuestMapFrame_ShowQuestDetails(questID)
     else
         local ignoreWaypoints = true
@@ -95,6 +100,7 @@ local function OpenMapToEventPoi(areaPoiID)
     if C_GameRules.IsGameRuleActive(Enum.GameRule.WorldMapDisabled) then
         return
     end
+
     local mapID = C_EventScheduler.GetEventUiMapID(areaPoiID)
     if mapID then
         QuestMapFrame:SetDisplayMode(QuestLogDisplayMode.Events)
@@ -139,8 +145,8 @@ local function RegisterDefaults()
         ToggleAchievementFrame()
     end)
 
-    KT.OpenService_Default("quest", function(id)
-        if KT.InCombatBlocked() then return end
+    KT.OpenService_Default("quest", function(id, mute)
+        if KT.InCombatBlocked(mute) then return end
         OpenMapToQuest(id)
     end)
 

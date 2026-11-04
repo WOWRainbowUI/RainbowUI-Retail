@@ -85,7 +85,7 @@ end
 
 function M:OnEnable()
     _DBG("|cff00ff00Enable|r - "..self:GetName(), true)
-    local loaded, versionText = KT.CheckAddOn("Narcissus", "1.8.6")
+    local loaded, versionText = KT.CheckAddOn("Narcissus", "1.8.7 b")
 
     SetupOptions(versionText)
     if loaded and db.addonNarcissus then

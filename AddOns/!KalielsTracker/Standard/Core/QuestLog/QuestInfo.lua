@@ -1,3 +1,6 @@
+---@type KT
+local _, KT = ...
+
 local REWARDS_SECTION_OFFSET = 5;		-- vertical distance between sections
 local REWARDS_ROW_OFFSET = 2;			-- vertical distance between rows within a section
 
@@ -131,12 +134,15 @@ end
 
 -- NOTE: Also returns whether or not to do failure checking
 local function QuestInfo_GetTitle()
+	local questID = QuestInfo_GetQuestID();  -- MSA
 	local useLargeIcon = true;
 	if ( KT_QuestInfoFrame.questLog ) then
-		local title = C_QuestLog.GetTitleForQuestID(C_QuestLog.GetSelectedQuest());
+		local title = C_QuestLog.GetTitleForQuestID(questID);  -- MSA
+		title = KT.LocalizationService_Get("quest.detail.title", title, questID);  -- MSA
 		return DecorateQuestTitle(title, useLargeIcon), true;
 	else
 		local title = GetTitleText();
+		title = KT.LocalizationService_Get("quest.detail.title", title, questID);  -- MSA
 		return DecorateQuestTitle(title, useLargeIcon), false;
 	end
 end
@@ -176,12 +182,16 @@ function KT_QuestInfo_ShowType()
 end
 
 function KT_QuestInfo_ShowDescriptionText()
+	local questID = QuestInfo_GetQuestID();  -- MSA
 	local questDescription;
 	if ( KT_QuestInfoFrame.questLog ) then
 		questDescription = GetQuestLogQuestText();
 	else
 		questDescription = GetQuestText();
 	end
+
+	questDescription = KT.LocalizationService_Get("quest.detail.description", questDescription, questID);  -- MSA
+
 	KT_QuestInfoDescriptionText:SetText(questDescription);
 	KT_QuestInfoDescriptionText:SetWidth(ACTIVE_TEMPLATE.contentWidth);
 	return KT_QuestInfoDescriptionText;
@@ -202,6 +212,7 @@ function KT_QuestInfo_ShowObjectives()
 		if ( not newObjective ) then
 			newObjective = KT_QuestInfoObjectivesFrame:CreateFontString("KT_QuestInfoObjective"..index, "BACKGROUND", "QuestFontNormalSmall");
 			newObjective:SetPoint("TOPLEFT", objectivesTable[index - 1], "BOTTOMLEFT", 0, -2);
+			newObjective:SetFont(objectivesTable[1]:GetFont());  -- MSA
 			newObjective:SetJustifyH("LEFT");
 			newObjective:SetWidth(285);
 			objectivesTable[index] = newObjective;
@@ -382,12 +393,16 @@ function KT_QuestInfo_ShowObjectivesHeader()
 end
 
 function KT_QuestInfo_ShowObjectivesText()
+	local questID = QuestInfo_GetQuestID();  -- MSA
 	local questObjectives, _;
 	if ( KT_QuestInfoFrame.questLog ) then
 		_, questObjectives = GetQuestLogQuestText();
 	else
 		questObjectives = GetObjectiveText();
 	end
+
+	questObjectives = KT.LocalizationService_Get("quest.detail.objectives", questObjectives, questID);  -- MSA
+
 	KT_QuestInfoObjectivesText:SetText(questObjectives);
 	KT_QuestInfoObjectivesText:SetWidth(ACTIVE_TEMPLATE.contentWidth);
 	return KT_QuestInfoObjectivesText;

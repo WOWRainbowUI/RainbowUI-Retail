@@ -599,16 +599,15 @@ end
 function KT.GetNumQuests()
     local numQuests = 0
     local numQuestsOver = 0
-    local numEntries = C_QuestLog.GetNumQuestLogEntries()
 
-    for i = 1, numEntries do
+    for i = 1, C_QuestLog.GetNumQuestLogEntries() do
         local info = C_QuestLog.GetInfo(i)
-        if info and not info.isHidden and not info.isHeader and not info.isTask and not info.isBounty then
+        if info and not (info.isHidden or info.isHeader or info.isTask or info.isBounty) then
             local quest = KT.QuestsCache_GetInfo(info.questID)
-            if not quest.isAccount and not quest.isCalling then
-                numQuests = numQuests + 1
-            else
+            if quest.isAccount or quest.isCalling then
                 numQuestsOver = numQuestsOver + 1
+            else
+                numQuests = numQuests + 1
             end
         end
     end
@@ -618,6 +617,7 @@ end
 
 function KT.GetNumQuestWatches()
     local numWatches = C_QuestLog.GetNumQuestWatches()
+
     for i = 1, C_QuestLog.GetNumQuestWatches() do
         local questID = C_QuestLog.GetQuestIDForQuestWatchIndex(i)
         if questID then
@@ -627,6 +627,7 @@ function KT.GetNumQuestWatches()
             end
         end
     end
+
     return numWatches
 end
 
@@ -789,9 +790,9 @@ function KT.SecondsToTime(seconds, noSeconds, maxCount, roundUp)
 end
 
 -- Combat test
-function KT.InCombatBlocked()
+function KT.InCombatBlocked(mute)
     local blocked = InCombatLockdown()
-    if blocked then
+    if blocked and not mute then
         UIErrorsFrame:AddExternalErrorMessage("This action cannot be completed during combat.")
     end
     return blocked
@@ -866,6 +867,11 @@ function KT:Alert_IncompatibleAddon(addon, version)
         self.db.profile["addon"..addon] = false
         self.StaticPopup_Show("ReloadUI", nil, "|cff00ffe3%s|r support has been disabled. Please install version |cff00ffe3%s|r or later and enable addon support.", C_AddOns.GetAddOnMetadata(addon, "Title"), version)
     end
+end
+
+function KT:Alert_AddonPatch(addon, patch)
+    local patchPath = self.PATH.."Tools\\"..patch
+    self.StaticPopup_Show("ReloadUIWide", nil, "To enable "..KT.FORMAT.TEXT_BOLD.." integration, run the following patch file:\n\n"..KT.FORMAT.TEXT_BOLD, C_AddOns.GetAddOnMetadata(addon, "Title"), patchPath)
 end
 
 function KT:Alert_WowheadURL(type, id, subtype)
