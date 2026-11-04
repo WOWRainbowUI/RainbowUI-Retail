@@ -1,6 +1,6 @@
 -- [[ REALM FLAGS DATABASE ]] --
 -- GENERATED FILE - regenerate with RealmUpdater\Update-Realms.ps1 (Blizzard Game Data API).
--- Data pulled: 2026-07-12 UTC. Do not hand-edit except the CN section (no public API for CN).
+-- Data pulled: 2026-11-03 UTC. Do not hand-edit except the CN section (no public API for CN).
 --
 -- Tables are region-scoped (picked by gameAccountInfo.regionID via FriendGroups_GetRealmDatabase):
 --   1 = Americas/Oceania, 2 = Korea, 3 = Europe/Russia, 4 = Taiwan, 5 = China.
@@ -33,10 +33,6 @@ FriendGroups_RealmData = {
     -- [[ OCEANIA (FlagAU.tga) ]] --
     ["AmanThul"] = {icon = "FlagAU.tga", region = "Oceania"},
     ["Barthilas"] = {icon = "FlagAU.tga", region = "Oceania"},
-    -- PTR-only test realm: not present in the live Blizzard realm API, so RealmUpdater
-    -- cannot generate it. Added by hand to exercise realm flags on 12.1; remove (or let a
-    -- regeneration drop it) once the PTR realm list is no longer needed.
-    ["Benedictus"] = {icon = "FlagAU.tga", region = "Oceania"},
     ["Caelestrasz"] = {icon = "FlagAU.tga", region = "Oceania"},
     ["DathRemar"] = {icon = "FlagAU.tga", region = "Oceania"},
     ["Dreadmaul"] = {icon = "FlagAU.tga", region = "Oceania"},
