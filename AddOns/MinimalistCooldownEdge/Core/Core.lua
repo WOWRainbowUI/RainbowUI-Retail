@@ -207,6 +207,7 @@ local ownershipProviderAddons = {
     [C.Addon.Bartender4Name] = true,
     [C.Addon.SArenaName] = true,
     [C.Addon.TellMeWhenName] = true,
+    [C.Addon.ForeverAurasName] = true,
     [C.Addon.MyDRsName] = true,
     [C.Addon.ShackledName] = true,
     [C.Addon.ShinyAurasName] = true,
@@ -530,6 +531,11 @@ end
 
 function MCE:IsTellMeWhenAvailable()
     return self:IsAddonLoadedCached(C.Addon.TellMeWhenName)
+end
+
+function MCE:IsForeverAurasAvailable()
+    return addon.ClientCompat.IsForever
+        and self:IsAddonLoadedCached(C.Addon.ForeverAurasName)
 end
 
 function MCE:IsMyDRsAvailable()
@@ -1333,6 +1339,7 @@ MCE.defaults = {
             [C.Categories.MyDRs] = myDRsDefaults,
             [C.Categories.SArena] = sArenaDefaults,
             [C.Categories.TellMeWhen] = tellMeWhenDefaults,
+            [C.Categories.ForeverAuras] = CategoryDefaults(C.Categories.ForeverAuras, false),
             [C.Categories.Shackled] = shackledDefaults,
         },
     },
@@ -1471,6 +1478,7 @@ function MCE:OnInitialize()
     self:RegisterBlizzardOptionsPanel(AceConfigDialog:AddToBlizOptions(addonName, L["MyDRs"], C.Addon.ShortName, C.Categories.MyDRs))
     self:RegisterBlizzardOptionsPanel(AceConfigDialog:AddToBlizOptions(addonName, L["sArena"], C.Addon.ShortName, C.Categories.SArena))
     self:RegisterBlizzardOptionsPanel(AceConfigDialog:AddToBlizOptions(addonName, L["TellMeWhen"], C.Addon.ShortName, C.Categories.TellMeWhen))
+    self:RegisterBlizzardOptionsPanel(AceConfigDialog:AddToBlizOptions(addonName, L["ForeverAuras"], C.Addon.ShortName, C.Categories.ForeverAuras))
     self:RegisterBlizzardOptionsPanel(AceConfigDialog:AddToBlizOptions(addonName, L["Shackled"], C.Addon.ShortName, C.Categories.Shackled))
     self:RegisterBlizzardOptionsPanel(AceConfigDialog:AddToBlizOptions(addonName, L["Profiles"], C.Addon.ShortName, "profiles"))
     self:RegisterBlizzardOptionsPanel(AceConfigDialog:AddToBlizOptions(addonName, L["Help & Support"], C.Addon.ShortName, "help"))

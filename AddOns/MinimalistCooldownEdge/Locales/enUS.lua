@@ -2,6 +2,9 @@
 local L = LibStub("AceLocale-3.0"):NewLocale("MinimalistCooldownEdge", "enUS", true)
 if not L then return end
 
+L["ForeverAuras"] = true
+L["FOREVERAURAS_DESC"] = "Style ForeverAuras icon countdowns, including clones. Countdown visibility and swipe animation remain controlled by ForeverAuras."
+
 L["Shrink text to fit icons"] = true
 L["FIT_TEXT_DESC"] = "Treats the configured text size as a maximum and shrinks timer text on small icons. Uses fixed short timer samples for readable, stable sizing. Longer timer formats may extend beyond small icons."
 

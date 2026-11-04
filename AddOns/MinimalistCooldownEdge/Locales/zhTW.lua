@@ -376,3 +376,6 @@ L["MinimalistCooldownEdge"] = "冷卻時間"
 L["Shrink text to fit icons"] = "縮小文字以符合圖示大小"
 
 L["FIT_TEXT_DESC"] = "將設定的文字大小視為上限，並在小圖示上縮小計時文字。使用固定的短計時範例，讓字級清晰且穩定；較長的計時格式可能超出小圖示。"
+
+L["ForeverAuras"] = "ForeverAuras"
+L["FOREVERAURAS_DESC"] = "設定 ForeverAuras 圖示與複製圖示的倒數樣式。倒數顯示與掃掠動畫仍由 ForeverAuras 控制。"

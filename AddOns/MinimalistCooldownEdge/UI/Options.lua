@@ -101,6 +101,7 @@ local function CategoryNeedsFullScan(key)
         or key == C.Categories.MyDRs
         or key == C.Categories.SArena
         or key == C.Categories.TellMeWhen
+        or key == C.Categories.ForeverAuras
         or key == C.Categories.Unitframe
         or key == C.Categories.Shackled
 end
@@ -115,6 +116,7 @@ local OWNERSHIP_CATEGORIES = {
     [C.Categories.MyDRs] = true,
     [C.Categories.SArena] = true,
     [C.Categories.TellMeWhen] = true,
+    [C.Categories.ForeverAuras] = true,
     [C.Categories.Shackled] = true,
 }
 
@@ -905,6 +907,7 @@ local function CreateCategoryOptions(order, name, key, desc)
     local isSArena = (key == C.Categories.SArena)
     local isShackled = (key == C.Categories.Shackled)
     local isTellMeWhen = (key == C.Categories.TellMeWhen)
+    local isForeverAuras = (key == C.Categories.ForeverAuras)
     local isPlayerAura = (key == C.Categories.PlayerAura)
     local isActionbar = (key == C.Categories.Actionbar)
     local isStackCategory = (key == C.Categories.Actionbar or key == C.Categories.Nameplate or key == C.Categories.CooldownManager or key == C.Categories.Unitframe or isPlayerAura)
@@ -935,6 +938,7 @@ local function CreateCategoryOptions(order, name, key, desc)
                 or (isSArena and not MCE:IsSArenaAvailable())
                 or (isShackled and not MCE:IsShackledAvailable())
                 or (isTellMeWhen and not MCE:IsTellMeWhenAvailable())
+                or (isForeverAuras and not MCE:IsForeverAurasAvailable())
         end,
         -- Dynamic name with status indicator (colored accent when active, dimmed when inactive)
         name = function()
@@ -1215,7 +1219,7 @@ local function CreateCategoryOptions(order, name, key, desc)
                         desc = L["Hide the text entirely (useful if you only want the swipe edge or stacks)."],
                         get = CatGet(key, "hideCountdownNumbers"),
                         set = CatSet(key, "hideCountdownNumbers"),
-                        hidden = function() return isMiniAuras or isSArena or isTellMeWhen end,
+                        hidden = function() return isMiniAuras or isSArena or isTellMeWhen or isForeverAuras end,
                     },
                     auraCdTextOnlyMine = isUnitframe and {
                         type = "toggle", order = 5.005, width = "1",
@@ -1478,7 +1482,7 @@ local function CreateCategoryOptions(order, name, key, desc)
                     .. (isTellMeWhen and L["Swipe Edge"] or L["Swipe Animation"]) .. "|r",
                 inline = true, order = 20, disabled = disabledFn,
                 args = {
-                    drawSwipe = (not isTellMeWhen) and {
+                    drawSwipe = (not isTellMeWhen and not isForeverAuras) and {
                         type = "toggle", order = 0, width = 1.20,
                         name = L["Show Swipe Animation"],
                         desc = L["Shows the dark overlay that sweeps during a cooldown."],
@@ -1496,7 +1500,7 @@ local function CreateCategoryOptions(order, name, key, desc)
                         get = CatGet(key, "swipeAlpha", C.Styler.DefaultSwipeAlpha),
                         set = CatRangeSet(key, "swipeAlpha"),
                     } or nil,
-                    swipeEdgeRowBreak1 = (not isTellMeWhen) and RowBreak(1.1) or nil,
+                    swipeEdgeRowBreak1 = (not isTellMeWhen and not isForeverAuras) and RowBreak(1.1) or nil,
                     edgeEnabled = {
                         type = "toggle", order = 2, width = "1",
                         name = L["Show Swipe Edge"],
@@ -1797,6 +1801,13 @@ function MCE:GetOptions()
                                 get = function() return MCE.db.profile.categories[C.Categories.Shackled].enabled end,
                                 set = SetDashboardCategoryEnabled(C.Categories.Shackled),
                             },
+                            toggleForeverAuras = {
+                                type = "toggle", order = 9.6, width = 0.9,
+                                name = "|cffffd100" .. L["ForeverAuras"] .. "|r",
+                                hidden = function() return not MCE:IsForeverAurasAvailable() end,
+                                get = function() return MCE.db.profile.categories[C.Categories.ForeverAuras].enabled end,
+                                set = SetDashboardCategoryEnabled(C.Categories.ForeverAuras),
+                            },
                             partyRaidFramesRetired = {
                                 type = "description", order = 9.5, width = "full", fontSize = "small",
                                 name = "|cff777777" .. L["Party / Raid Frames"] .. " - " .. L["Retired"] .. "|r",
@@ -2047,6 +2058,8 @@ function MCE:GetOptions()
                 L["SARENA_DESC"]),
             [C.Categories.TellMeWhen] = CreateCategoryOptions(12, L["TellMeWhen"], C.Categories.TellMeWhen,
                 L["TELLMEWHEN_DESC"]),
+            [C.Categories.ForeverAuras] = CreateCategoryOptions(13, L["ForeverAuras"], C.Categories.ForeverAuras,
+                L["FOREVERAURAS_DESC"]),
             [C.Categories.Shackled] = CreateCategoryOptions(14, L["Shackled"], C.Categories.Shackled,
                 L["SHACKLED_DESC"]),
 

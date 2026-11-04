@@ -44,8 +44,12 @@ function addon.GetFittedFontSize(frame, font, size, flags, enabled)
         metric = { width = sampleWidth, height = sampleHeight }
         metrics[key] = metric
     end
-    return math.max(1, math.min(size, size * (width - 4) / metric.width,
-        size * (height - 4) / metric.height))
+    -- A fixed two-pixel inset on each side consumed a quarter of a 16px
+    -- aura. Reserve 5% per side, capped at the original inset on large icons.
+    local insetX = math.min(2, width * 0.05)
+    local insetY = math.min(2, height * 0.05)
+    return math.max(1, math.min(size, size * (width - 2 * insetX) / metric.width,
+        size * (height - 2 * insetY) / metric.height))
 end
 
 function addon.WatchTextFit(frame, enabled, callback)

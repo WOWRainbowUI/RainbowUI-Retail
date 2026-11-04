@@ -326,3 +326,6 @@ L["Game Default"] = "游戏默认"
 L["Shrink text to fit icons"] = "缩小文字以适应图标大小"
 
 L["FIT_TEXT_DESC"] = "将设置的文字大小视为上限，并在小图标上缩小计时文字。使用固定的短计时示例，让字号清晰且稳定；较长的计时格式可能超出小图标。"
+
+L["ForeverAuras"] = "ForeverAuras"
+L["FOREVERAURAS_DESC"] = "设置 ForeverAuras 图标及克隆图标的倒计时样式。倒计时显示与扫掠动画仍由 ForeverAuras 控制。"
