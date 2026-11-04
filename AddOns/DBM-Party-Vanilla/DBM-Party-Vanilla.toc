@@ -16,6 +16,7 @@
 ## RequiredDeps: DBM-Core
 ## SavedVariables: DBMPartyVanilla_AllSavedVars
 ## SavedVariablesPerCharacter: DBMPartyVanilla_SavedStats
+## IconTexture: Interface\AddOns\DBM-Core\textures\dbm_airhorn
 ## X-DBM-Mod: 1
 ## X-DBM-Mod-Type: PARTY
 ## X-DBM-Mod-Category: Classic
@@ -64,7 +65,7 @@
 ## X-DBM-Mod-MinExpansion: 0
 ## X-Curse-Project-ID: 314994
 ## X-Wago-ID: xZKxZENk
-## Version: r269
+## Version: 270
 ## IconTexture: Interface\AddOns\DBM-Core\textures\dbm_airhorn [AllowLoadGameType cata, standard, mists]
 
 locale.generated.lua
