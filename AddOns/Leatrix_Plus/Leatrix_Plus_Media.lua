@@ -10623,7 +10623,7 @@
 		"battleforazeroth/mus_80_sirenssong_a.mp3#2146640",
 		"battleforazeroth/mus_80_sirenssong_b.mp3#2146641",
 		"battleforazeroth/mus_80_sirenssong_c.mp3#2146642",
-		"battleforazeroth/mus_80_sirenssong_d.mp3#2146643#1",
+		"battleforazeroth/mus_80_sirenssong_d_solo.mp3#2146643#1",
 		"battleforazeroth/mus_80_sirenssong_h.mp3#2146644#1",
 
 		"|cffffd800", "|cffffd800" .. "Algerson Lumber Yard, Fernwood Ridge",
@@ -10645,7 +10645,7 @@
 		"legion/mus_70_menaceofthedarktitans_h2.mp3#1417356",
 
 		"|cffffd800", "|cffffd800" .. "Fogcliff Strand",
-		"battleforazeroth/mus_80_sirenssong_d.mp3#2146643#2",
+		"battleforazeroth/mus_80_sirenssong_d_solo.mp3#2146643#2",
 		"battleforazeroth/mus_80_sirenssong_h.mp3#2146644#2",
 		"legion/mus_70_felglade_a.mp3#1477340",
 		"zonemusic/azuremyst/ai_nagawalkuni02.mp3#53287",
@@ -10825,7 +10825,7 @@
 		"shadowlands/mus_90_aw_nocturne_melancholy_dream_l.mp3#3853396",
 
 		"|cffffd800", "|cffffd800" .. "Heart of the Forest",
-		"shadowlands/mus_mx_cov_seatoftheprimus_01.mp3#3931650",
+		"shadowlands/mus_mx_cov_seatoftheprimus_01.ogg#3931650",
 
 		"|cffffd800", "|cffffd800" .. "Grove of Awakening",
 		"shadowlands/mus_90_aw_choice_rebirth_a.mp3#3853234",
@@ -10862,7 +10862,7 @@
 		"legion/mus_70_preserver_h1.mp3#1452937",
 
 		"|cffffd800", "|cffffd800" .. "Elysian Hold, Archon's Rise",
-		"shadowlands/mus_mx_cov_seatoftheprimus_01.mp3#3931650",
+		"shadowlands/mus_mx_cov_seatoftheprimus_01.ogg#3931650",
 
 		"|cffffd800", "|cffffd800" .. "Sanctum of Binding, Elysian Hold",
 		"shadowlands/mus_90_ba_kyrian_a.mp3#3853456",
@@ -10990,7 +10990,7 @@
 		"shadowlands/mus_90_mx_sansprimus_hero_d.mp3#3853686",
 
 		"|cffffd800", "|cffffd800" .. "Bleak Redoubt, Seat of the Primus, Butchers Block",
-		"shadowlands/mus_mx_cov_seatoftheprimus_01.mp3#3931650",
+		"shadowlands/mus_mx_cov_seatoftheprimus_01.ogg#3931650",
 
 		"|cffffd800", "|cffffd800" .. "Bony Spindles, Akarek's Tears, House of Eyes, Nurakkir",
 		"shadowlands/mus_90_mx_deathisabattlefield_ambient_a.mp3#3853598",
@@ -11155,7 +11155,7 @@
 		"shadowlands/mus_90_rd_ritual_feral_h.mp3#3853852",
 
 		"|cffffd800", "|cffffd800" .. "Sinfall, The Ember Court",
-		"shadowlands/mus_mx_cov_seatoftheprimus_01.mp3#3931650",
+		"shadowlands/mus_mx_cov_seatoftheprimus_01.ogg#3931650",
 
 		"|cffffd800", "|cffffd800" .. "Sanctuary of the Mad, The Curator's Crypt, Archivam, Catacombs of Regret, Stalker's Lodge, Feeders' Thicket, The Sneak Hole",
 		"shadowlands/mus_90_rd_decadence_drainageswamp_a.mp3#3853774#1",
@@ -13047,7 +13047,7 @@
 		"midnight/silent_317.mp3#7726826",
 
 		"|cffffd800", "|cffffd800" .. "Sanctum of Light",
-		"shadowlands/mus_mx_cov_seatoftheprimus_01.mp3#3931650",
+		"shadowlands/mus_mx_cov_seatoftheprimus_01.ogg#3931650",
 
 		"|cffffd800", "|cffffd800" .. "Astalor's Sanctum, Silvermoon City Inn, Wayfarer's Rest",
 		"midnight/mus_120_silvermoon_inn_a.mp3#7698330",
@@ -13254,7 +13254,7 @@
 		"midnight/mus_120_devouring_host_j.mp3#7703714",
 
 		"|cffffd800", "|cffffd800" .. "Gnawing Reach",
-		"shadowlands/mus_mx_cov_seatoftheprimus_01.mp3#3931650",
+		"shadowlands/mus_mx_cov_seatoftheprimus_01.ogg#3931650",
 
 		"|cffffd800", "|cffffd800" .. "Stormarion Citadel",
 		"midnight/mus_120_locus_point_a.mp3#7684188#2",
@@ -13370,7 +13370,7 @@
 		"midnight/mus_120_atalabasi_h.mp3#7682292#2",
 
 		"|cffffd800", "|cffffd800" .. "Thresh Cove",
-		"shadowlands/mus_mx_cov_seatoftheprimus_01.mp3#3931650",
+		"shadowlands/mus_mx_cov_seatoftheprimus_01.ogg#3931650",
 
 		"|cffffd800", "|cffffd800" .. "Tomb of Mun'jin",
 		"midnight/mus_120_midnight_battle_c.mp3#7690555",
@@ -18605,7 +18605,7 @@
 		"midnight/mus_120_midnight_battle_e.mp3#7690559",
 		"midnight/mus_120_midnight_battle_d.mp3#7690557",
 		"midnight/mus_120_void_combat_b.mp3#7692198",
-		"shadowlands/mus_mx_cov_seatoftheprimus_01.mp3#3931650",
+		"shadowlands/mus_mx_cov_seatoftheprimus_01.ogg#3931650",
 		"midnight/mus_120_shadowguard_void_a.mp3#7681154",
 		"midnight/mus_120_shadowguard_void_b.mp3#7681156",
 		"midnight/mus_120_shadowguard_void_c.mp3#7681158",
