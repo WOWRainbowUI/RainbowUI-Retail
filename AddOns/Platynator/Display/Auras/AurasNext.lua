@@ -512,7 +512,7 @@ function addonTable.Display.AurasManagerNextMixin:InitializeWidgets(parent, aura
       self[kind]:SetAuraGroupEnabled(key, false)
     end
 
-    if not addonTable.Utilities.IsChangesRestricted() and not self.initialSetup and not doNotSize and (not self.auraDetails or not tCompare(details, self.auraDetails[kind] or {}) or not isSameFont) then
+    if not addonTable.Utilities.IsChangesRestricted() and not self.initialSetup and not doNotSize and (not self.auraDetails or not tCompare(details, self.auraDetails[kind] or {}, 50) or not isSameFont) then
       for _, f in ipairs(self[kind].frames) do
         StyleAura(f, details, self[kind], f.key)
       end
@@ -556,7 +556,7 @@ function addonTable.Display.AurasManagerNextMixin:ReleaseSlots()
 
   if self.slots.occupied > 0 then
     for i = 1, self.slots.occupied do
-      self.slots:SetAuraGroupEnabled(tostring(i), false)
+      self.slots:SetAuraSlotEnabled(tostring(i), false)
     end
   end
 end

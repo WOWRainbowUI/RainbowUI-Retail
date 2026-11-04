@@ -894,11 +894,13 @@ do
       threshold = 0,
       step = 0.1,
       format = "%.1f",
+      rounding = Enum.NumericRuleFormatRounding.Down,
     },
     {
       threshold = 3,
       step = 1,
       format = "%d",
+      rounding = Enum.NumericRuleFormatRounding.Down,
     },
     {
       threshold = 60,
@@ -907,6 +909,7 @@ do
         {
           div = 60,
           step = 1,
+          rounding = Enum.NumericRuleFormatRounding.Down,
         }
       }
     }
@@ -918,6 +921,7 @@ do
       threshold = 0,
       step = 1,
       format = "%d",
+      rounding = Enum.NumericRuleFormatRounding.Down,
     },
     {
       threshold = 60,
@@ -926,6 +930,7 @@ do
         {
           div = 60,
           step = 1,
+          rounding = Enum.NumericRuleFormatRounding.Down,
         }
       }
     }
