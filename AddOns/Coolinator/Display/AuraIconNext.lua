@@ -25,10 +25,11 @@ function addonTable.Display.AuraIconNextMixin:OnLoad()
     mask:SetAllPoints(auraButton.Icon)
     auraButton.Icon:AddMaskTexture(mask)
 
-    auraButton.CountFrame = CreateFrame("auraButton", nil, auraButton)
-    auraButton.CountFrame:SetAllPoints(auraButton.Icon)
-    auraButton.CountFrame.text = auraButton.CountFrame:CreateFontString(nil, nil, "NumberFontNormal")
-    auraButton:SetApplicationCount(auraButton.CountFrame.text)
+    auraButton.TextsContainer = CreateFrame("auraButton", nil, auraButton)
+    auraButton.TextsContainer:SetAllPoints(auraButton.Icon)
+    auraButton.TextsContainer.stacks = auraButton.TextsContainer:CreateFontString(nil, nil, "NumberFontNormal")
+    auraButton.TextsContainer.countdown = auraButton.TextsContainer:CreateFontString(nil, nil, "NumberFontNormal")
+    auraButton:SetApplicationCount(auraButton.TextsContainer.stacks)
 
     auraButton.BaseCooldown = CreateFrame("Cooldown", nil, auraButton, "CooldownFrameTemplate")
     auraButton.BaseCooldown:SetDrawEdge(false)
@@ -65,12 +66,14 @@ function addonTable.Display.AuraIconNextMixin:OnLoad()
 
     auraButton:SetCollapsesLayout(addonTable.Config.Get(addonTable.Config.Options.COMPRESS_LAYOUT))
     auraButton.details = details
-    addonTable.Display.StyleIcon({id  = details.style}, auraButton, auraButton.Icon, auraButton.CountFrame.text, nil, {auraButton.Icon}, {{text = true, swipe = true, widget = auraButton.BaseCooldown}})
+    auraButton:ClearDurationText()
+    auraButton:SetDurationText(auraButton.TextsContainer.countdown, {textFormatter = addonTable.Display.GetAuraDurationFormatter(details.texts.cooldown.showFractions)})
+    addonTable.Display.StyleIcon({id  = details.style}, auraButton, auraButton.Icon, auraButton.TextsContainer.stacks, nil, {auraButton.Icon}, {{text = true, textWidget = auraButton.TextsContainer.countdown, swipe = true, widget = auraButton.BaseCooldown}})
     auraButton:SetMouseMotionEnabled(addonTable.Config.Get(addonTable.Config.Options.SHOW_TOOLTIPS))
     auraButton.TypeBorder:SetFrameLevel(auraButton:GetFrameLevel() + 2)
     auraButton.BaseCooldown:SetFrameLevel(auraButton:GetFrameLevel() + 3)
     auraButton.PandemicBorder:SetFrameLevel(auraButton:GetFrameLevel() + 4)
-    auraButton.CountFrame:SetFrameLevel(auraButton:GetFrameLevel() + 5)
+    auraButton.TextsContainer:SetFrameLevel(auraButton:GetFrameLevel() + 5)
     auraButton.PandemicBorder.texture:SetShown(details.showPandemic)
 
     local usingGlow = addonTable.Constants.GlowsMap[details.whenActive] ~= nil

@@ -92,6 +92,70 @@ do
   end
 end
 
+do
+  local fractional = C_StringUtil.CreateNumericRuleFormatter()
+  fractional:SetBreakpoints({
+    {
+      threshold = 0,
+      step = 0.1,
+      rounding = Enum.NumericRuleFormatRounding.Down,
+      format = "%.1f",
+    },
+    {
+      threshold = 3,
+      step = 1,
+      rounding = Enum.NumericRuleFormatRounding.Down,
+      format = "%d",
+    },
+    {
+      threshold = 60,
+      format = "%d:%02d",
+      components = {
+        {
+          div = 60,
+          rounding = Enum.NumericRuleFormatRounding.Down,
+          step = 1,
+        },
+        {
+          mod = 60,
+          rounding = Enum.NumericRuleFormatRounding.Down,
+          step = 1,
+        }
+      }
+    }
+  })
+
+  local basic = C_StringUtil.CreateNumericRuleFormatter()
+  basic:SetBreakpoints({
+    {
+      threshold = 0,
+      step = 1,
+      rounding = Enum.NumericRuleFormatRounding.Down,
+      format = "%d",
+    },
+    {
+      threshold = 60,
+      format = "%d:%02d",
+      components = {
+        {
+          div = 60,
+          rounding = Enum.NumericRuleFormatRounding.Down,
+          step = 1,
+        },
+        {
+          mod = 60,
+          rounding = Enum.NumericRuleFormatRounding.Down,
+          step = 1,
+        }
+      }
+    }
+  })
+
+  function addonTable.Display.GetAuraDurationFormatter(isFractional)
+    return isFractional and fractional or basic
+  end
+end
+
 function addonTable.Display.GenerateStatusBar(self)
   self:SetScript("OnEvent", self.OnEvent)
 

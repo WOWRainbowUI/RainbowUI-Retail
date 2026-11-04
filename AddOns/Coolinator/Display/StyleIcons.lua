@@ -68,9 +68,9 @@ function addonTable.Display.StyleIcon(styleSettings, parent, icon, count, keybin
 
   if details.texts then
     for _, c in ipairs(cooldowns) do
-      local text = c.widget:GetRegions()
+      local text = c.textWidget or c.widget:GetRegions()
       SetupText(text, details.texts.cooldown)
-      c.widget:SetHideCountdownNumbers(not c.text or not details.texts.cooldown.visible)
+      c.widget:SetHideCountdownNumbers(c.textWidget or not c.text or not details.texts.cooldown.visible)
     end
     if count then
       SetupText(count, details.texts.count)

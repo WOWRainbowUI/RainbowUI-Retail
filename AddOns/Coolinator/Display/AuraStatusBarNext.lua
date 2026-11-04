@@ -140,17 +140,17 @@ function addonTable.Display.AuraStatusBarNextMixin:Setup(details)
     components = {
       {
         property = addonTable.Display.ConvertDurationDisplayToComponent(display[1]),
-        formatter = addonTable.Display.GetDurationFormatter(self.details.texts.duration.showFractions),
+        formatter = addonTable.Display.GetAuraDurationFormatter(self.details.texts.duration.showFractions),
       },
       {
         property = addonTable.Display.ConvertDurationDisplayToComponent(display[2]),
-        formatter = addonTable.Display.GetDurationFormatter(self.details.texts.duration.showFractions),
+        formatter = addonTable.Display.GetAuraDurationFormatter(self.details.texts.duration.showFractions),
       }
     }
   else
     components = {{
       property = addonTable.Display.ConvertDurationDisplayToComponent(display[1]),
-      formatter = addonTable.Display.GetDurationFormatter(self.details.texts.duration.showFractions),
+      formatter = addonTable.Display.GetAuraDurationFormatter(self.details.texts.duration.showFractions),
     }}
   end
 
