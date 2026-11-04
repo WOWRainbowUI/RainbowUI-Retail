@@ -34,7 +34,7 @@ local db, dbChar
 
 local agwLists = AceGUIWidgetLSMlists
 
-local textOffsets = { [-1] = "Small", [0] = "Medium", [1] = "Large", [2] = "Extra Large" }
+local textOffsets = { [-1] = "小", [0] = "中", [1] = "大", [2] = "特大" }
 
 local baseFontSizes = {}
 

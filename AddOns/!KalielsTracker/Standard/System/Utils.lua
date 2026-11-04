@@ -1746,7 +1746,7 @@ function KT:Alert_AddonPatch(addon, patch)
 
     local patchPath = self.PATH.."Tools\\"..patch
 
-    self.StaticPopup_Show("ReloadUIWide", nil, "To enable "..KT.FORMAT.TEXT_BOLD.." integration, run the following patch file:\n\n"..KT.FORMAT.TEXT_BOLD, C_AddOns.GetAddOnMetadata(addon, "Title"), patchPath)
+    self.StaticPopup_Show("ReloadUIWide", nil, "若要啟用 "..KT.FORMAT.TEXT_BOLD.." 整合，請執行以下修補檔案：\n\n"..KT.FORMAT.TEXT_BOLD, C_AddOns.GetAddOnMetadata(addon, "Title"), patchPath)
 
 end
 
