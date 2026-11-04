@@ -1,5 +1,5 @@
 ﻿----------------------------------------------------------------------
--- 	Leatrix Plus 12.1.15 (28th October 2026)
+-- 	Leatrix Plus 12.1.16 (3rd November 2026)
 ----------------------------------------------------------------------
 
 --	01:Functions 02:Locks,  03:Restart 40:Player
@@ -16,7 +16,7 @@
 	-- Hide event toasts (Frames) and Hide talking frame (Frames) have been updated to work
 	-- around this but I don't want to change a lot of other code when this taint bug will
 	-- likely be fixed anyway so better to just make sure it's off for now.
-	SetCVar("taintLog", "0")
+	-- SetCVar("taintLog", "0")
 
 	-- Create global table
 	_G.LeaPlusDB = _G.LeaPlusDB or {}
@@ -27,7 +27,7 @@
 	local void
 
 	-- Version
-	LeaPlusLC["AddonVer"] = "12.1.15"
+	LeaPlusLC["AddonVer"] = "12.1.16"
 
 	-- Get locale table
 	local void, Leatrix_Plus = ...
@@ -724,22 +724,10 @@
 				local watcher = CreateFrame("Frame", nil, UIParent)
 				watcher:SetPropagateKeyboardInput(true)
 				watcher:EnableKeyboard(true)
+				-- Every key always goes on to the game (the watcher never keeps a key, Escape closes the card through the game's own list of windows)
 				watcher:SetScript("OnKeyDown", function(self, key)
 					local card = LeaPlusLC.IDCard
-					if not card or not card:IsShown() then
-						-- No card showing, so every key goes to the game
-						if not InCombatLockdown() and not self:GetPropagateKeyboardInput() then self:SetPropagateKeyboardInput(true) end
-						return
-					end
-					-- Escape closes the card (and is kept from the game, outside combat)
-					if not InCombatLockdown() then self:SetPropagateKeyboardInput(key ~= "ESCAPE") end
-					if key == "ESCAPE" then
-						local viewer = LeaPlusLC.IDViewer
-						if viewer and viewer.scenePopup and viewer.scenePopup:IsShown() then viewer.scenePopup:Hide() elseif viewer and viewer.fullscreen then viewer:SetFullscreen(false) else card:Hide() end
-						-- Let keys through to the game again straight after (never left blocked)
-						C_Timer.After(0, function() if not InCombatLockdown() then self:SetPropagateKeyboardInput(true) end end)
-						return
-					end
+					if not card or not card:IsShown() then return end
 					if (key == "LCTRL" or key == "RCTRL" or key == "LMETA" or key == "RMETA") and card.url and not card.edit:HasFocus() then
 						card.ctrlFocus = true
 						card.edit:SetFocus()
@@ -2058,8 +2046,10 @@
 					end
 					local card = LeaPlusLC.IDCard
 					if not card then
-						card = CreateFrame("Frame", nil, UIParent, "BackdropTemplate")
+						card = CreateFrame("Frame", "LeaPlusGlobalInfoCard", UIParent, "BackdropTemplate")
 						card:Hide()
+						-- Escape closes the card (the game closes it like other windows, so no key is ever kept from the game)
+						table.insert(UISpecialFrames, "LeaPlusGlobalInfoCard")
 						card:SetSize(480, 140)
 						card:SetPoint("TOP", UIParent, "BOTTOM", 0, UIParent:GetHeight() * 0.28) -- Lower part of the screen, above the action bars
 						SnapToPixels(card)
@@ -2269,8 +2259,8 @@
 							local combo = (IsAltKeyDown() and "ALT-" or "") .. (IsControlKeyDown() and "CTRL-" or "") .. (IsShiftKeyDown() and "SHIFT-" or "") .. ((IsMetaKeyDown and IsMetaKeyDown()) and "META-" or "") .. key
 							if LeaPlusLC["ShowInfoCards"] == "On" and LeaPlusLC["InfoCardKey"] ~= "" and combo == LeaPlusLC["InfoCardKey"] then
 								ShowInfoCard()
-								-- If no new card was shown (such as pointing at a mailbox), the link box still has the keyboard, so give it back now
-								if card.ctrlFocus then card.ctrlFocus = nil self:ClearFocus() end
+								-- Ctrl is still held, so the link box keeps the keyboard (for the new card, or the old one if no new card was shown such as pointing at a mailbox)
+								-- Letting go of Ctrl gives it back to the game as usual
 								return
 							end
 							-- Any other key (not Ctrl itself) gives the keyboard back so the next press reaches the game
@@ -2288,9 +2278,16 @@
 						card:SetScript("OnShow", function() card.fade:Play() end)
 						-- The link box only keeps the keyboard while Ctrl is held (letting go of Ctrl is not always seen by the link box, so check every frame)
 						card:SetScript("OnUpdate", function(self)
-							if self.ctrlFocus and not (IsControlKeyDown() or (IsMetaKeyDown and IsMetaKeyDown())) then
+							if not self.ctrlFocus then return end
+							-- (Ctrl is not checked for a moment after the card is shown, as the game can report it as not held while the key is being handled)
+							local ctrlHeld = IsControlKeyDown() or (IsMetaKeyDown and IsMetaKeyDown()) or (GetTime() - (self.ctrlFocusTime or 0) < 0.2)
+							if not ctrlHeld or not self.url or not self.edit:IsShown() then
 								self.ctrlFocus = nil
 								if self.edit:HasFocus() then self.edit:ClearFocus() end
+							elseif not self.edit:HasFocus() then
+								-- Ctrl is still held but the link box does not have the keyboard (such as when it could not be given while the info card key was being handled), so give it now
+								self.edit:SetFocus()
+								self.edit:HighlightText()
 							end
 						end)
 						-- Closing the card always gives the keyboard back to the game
@@ -2423,8 +2420,18 @@
 						viewer:Hide()
 					end
 					card:Raise()
-					card.ctrlFocus = nil
-					card.edit:ClearFocus() -- The keyboard stays with the game (holding Ctrl gives it to the link box)
+					-- The keyboard stays with the game (holding Ctrl gives it to the link box)
+					-- If Ctrl is already held (such as from pressing CTRL/A to show the card), give the link box the keyboard now so CTRL/C works straight away
+					-- (otherwise the Ctrl watcher only sees Ctrl again when key repeat sends it, which is a short delay)
+					-- (while the info card key is being handled the game reports Ctrl as not held, so the key itself is checked too)
+					if card.url and (IsControlKeyDown() or (IsMetaKeyDown and IsMetaKeyDown()) or LeaPlusLC.IDKeyHasCtrl) then
+						card.ctrlFocus = true
+						card.ctrlFocusTime = GetTime()
+						card.edit:SetFocus()
+					else
+						card.ctrlFocus = nil
+						card.edit:ClearFocus()
+					end
 					card.edit:HighlightText()
 				end
 				-- Card for a buff or debuff the game has hidden from addons (such as in combat or a PvP match)
@@ -3726,7 +3733,11 @@
 			InfoButton:Hide()
 			InfoButton:RegisterForClicks("AnyDown")
 			InfoButton:SetScript("OnClick", function()
+				-- The game reports Ctrl as not held while a key binding is being handled, so remember whether the key includes Ctrl
+				local key = LeaPlusLC["InfoCardKey"] or ""
+				LeaPlusLC.IDKeyHasCtrl = (key:find("CTRL%-") or key:find("META%-")) and true or nil
 				ShowInfoCard()
+				LeaPlusLC.IDKeyHasCtrl = nil
 			end)
 
 			-- Show the card for a player unit (used by the dressing room)
@@ -8204,22 +8215,135 @@
 			local c = LeaPlusLC["RaidColors"][select(2, UnitClass("player"))]
 			if c then PlayFN:SetVertexColor(c.r, c.g, c.b) end
 
+			-- Function to tint frame border (desaturate first so the gold does not mix with the class color)
+			local function TintFrameBorder(tex, col)
+				if not tex then return end
+				if col then
+					tex:SetDesaturated(true)
+					tex:SetVertexColor(col.r, col.g, col.b)
+				else
+					tex:SetDesaturated(false)
+					tex:SetVertexColor(1, 1, 1)
+				end
+			end
+
+			-- Function to set player frame border color
+			local function PlayerBorderCol()
+				local col = LeaPlusLC["ClassColPlayerBorder"] == "On" and c or nil
+				TintFrameBorder(PlayerFrame.PlayerFrameContainer.FrameTexture, col)
+				TintFrameBorder(PlayerFrame.PlayerFrameContainer.AlternatePowerFrameTexture, col)
+				TintFrameBorder(PlayerFrame.PlayerFrameContent.PlayerFrameContentContextual.PlayerPortraitCornerIcon, col)
+			end
+
+			-- Refresh player frame border color when player frame art is changed (such as leaving a vehicle)
+			if PlayerFrame_ToPlayerArt then
+				hooksecurefunc("PlayerFrame_ToPlayerArt", function()
+					if LeaPlusLC["ClassColPlayerBorder"] == "On" then
+						PlayerBorderCol()
+					end
+				end)
+			end
+
+			-- Function to set player frame resting glow color (resting glow only, combat glow stays red)
+			local restTinted
+			local function RestGlowCol()
+				local st = PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.StatusTexture
+				if not st then return end
+				if LeaPlusLC["ClassColPlayerBorder"] == "On" and c then
+					local r, g, b = st:GetVertexColor()
+					if restTinted or g > 0.5 then
+						-- Resting glow (Blizzard gold or already tinted)
+						st:SetDesaturated(true)
+						st:SetVertexColor(c.r, c.g, c.b)
+						restTinted = true
+					end
+				elseif restTinted then
+					-- Option turned off so restore Blizzard resting glow
+					st:SetDesaturated(false)
+					st:SetVertexColor(1.0, 0.88, 0.25, 1.0)
+					restTinted = nil
+				end
+			end
+
+			-- Refresh resting glow color after Blizzard sets it
+			if PlayerFrame_UpdateStatus then
+				hooksecurefunc("PlayerFrame_UpdateStatus", function()
+					if LeaPlusLC["ClassColPlayerBorder"] == "On" and c then
+						local st = PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.StatusTexture
+						if not st then return end
+						local r, g, b = st:GetVertexColor()
+						if g > 0.5 then
+							-- Blizzard set resting glow
+							st:SetDesaturated(true)
+							st:SetVertexColor(c.r, c.g, c.b)
+							restTinted = true
+						else
+							-- Blizzard set combat glow
+							st:SetDesaturated(false)
+							restTinted = nil
+						end
+					end
+				end)
+			end
+
+			-- Find player chain texture (created by show player chain if enabled)
+			local chainTex
+			local chainAtlas = {["UI-HUD-UnitFrame-Target-PortraitOn-Boss-Gold"] = true, ["UI-HUD-UnitFrame-Target-PortraitOn-Boss-Gold-Winged"] = true, ["UI-HUD-UnitFrame-Target-PortraitOn-Boss-Rare-Silver"] = true}
+			for i, region in ipairs({PlayerFrame.PlayerFrameContainer:GetRegions()}) do
+				if region:GetObjectType() == "Texture" and region:GetAtlas() and chainAtlas[region:GetAtlas()] then
+					chainTex = region
+					break
+				end
+			end
+
+			-- Function to set player chain color
+			local chainBusy
+			local function ChainCol()
+				if not chainTex then return end
+				chainBusy = true
+				if LeaPlusLC["ClassColChain"] == "On" and c then
+					chainTex:SetDesaturated(true)
+					chainTex:SetVertexColor(c.r, c.g, c.b)
+				else
+					chainTex:SetDesaturated(false)
+					chainTex:SetVertexColor(1, 1, 1, 1)
+				end
+				chainBusy = nil
+			end
+
+			-- Refresh player chain color when chain style is changed (chain style resets vertex color)
+			if chainTex then
+				hooksecurefunc(chainTex, "SetVertexColor", function()
+					if not chainBusy and LeaPlusLC["ClassColChain"] == "On" then
+						ChainCol()
+					end
+				end)
+			end
+
 			-- Create color function for target and focus frames
 			local function TargetFrameCol()
+				local targetCol, focusCol
 				if UnitIsPlayer("target") then
 					local void, target = UnitClass("target")
 					if canaccessvalue(target) then
-						local c = LeaPlusLC["RaidColors"][target]
-						if c then TargetFrame.TargetFrameContent.TargetFrameContentMain.ReputationColor:SetVertexColor(c.r, c.g, c.b) end
+						targetCol = LeaPlusLC["RaidColors"][target]
 					end
 				end
 				if UnitIsPlayer("focus") then
 					local void, focus = UnitClass("focus")
 					if canaccessvalue(focus) then
-						local c = LeaPlusLC["RaidColors"][focus]
-						if c then FocusFrame.TargetFrameContent.TargetFrameContentMain.ReputationColor:SetVertexColor(c.r, c.g, c.b) end
+						focusCol = LeaPlusLC["RaidColors"][focus]
 					end
 				end
+				-- Name backgrounds
+				if LeaPlusLC["ClassColTarget"] == "On" then
+					if targetCol then TargetFrame.TargetFrameContent.TargetFrameContentMain.ReputationColor:SetVertexColor(targetCol.r, targetCol.g, targetCol.b) end
+					if focusCol then FocusFrame.TargetFrameContent.TargetFrameContentMain.ReputationColor:SetVertexColor(focusCol.r, focusCol.g, focusCol.b) end
+				end
+				-- Frame borders
+				local borderOn = LeaPlusLC["ClassColTargetBorder"] == "On"
+				TintFrameBorder(TargetFrame.TargetFrameContainer.FrameTexture, borderOn and targetCol or nil)
+				TintFrameBorder(FocusFrame.TargetFrameContainer.FrameTexture, borderOn and focusCol or nil)
 			end
 
 			local ColTar = CreateFrame("FRAME")
@@ -8228,7 +8352,7 @@
 			-- Refresh color if focus frame size changes
 			if FocusFrame_SetSmallSize then
 				hooksecurefunc(FocusFrame, "SetSmallSize", function()
-					if LeaPlusLC["ClassColTarget"] == "On" then
+					if LeaPlusLC["ClassColTarget"] == "On" or LeaPlusLC["ClassColTargetBorder"] == "On" then
 						TargetFrameCol()
 					end
 				end)
@@ -8237,9 +8361,14 @@
 			-- Create configuration panel
 			local ClassFrame = LeaPlusLC:CreatePanel("Class colored frames", "ClassFrame")
 
-			LeaPlusLC:MakeTx(ClassFrame, "Settings", 16, -72)
-			LeaPlusLC:MakeCB(ClassFrame, "ClassColPlayer", "Show player frame in class color", 16, -92, false, "If checked, the player frame background will be shown in class color.")
-			LeaPlusLC:MakeCB(ClassFrame, "ClassColTarget", "Show target frame and focus frame in class color", 16, -112, false, "If checked, the target frame background and focus frame background will be shown in class color.")
+			LeaPlusLC:MakeTx(ClassFrame, "Player frame", 16, -72)
+			LeaPlusLC:MakeCB(ClassFrame, "ClassColPlayer", "Show player name background in class color", 16, -92, false, "If checked, the background behind the player name will be shown in class color.")
+			LeaPlusLC:MakeCB(ClassFrame, "ClassColPlayerBorder", "Show player frame border in class color", 16, -112, false, "If checked, the player frame border including the ring around the portrait will be shown in class color.")
+			LeaPlusLC:MakeCB(ClassFrame, "ClassColChain", "Show player chain in class color", 16, -132, false, "If checked, the player chain will be shown in class color.|n|nThis requires the show player chain option to be enabled.")
+
+			LeaPlusLC:MakeTx(ClassFrame, "Target and focus frames", 16, -172)
+			LeaPlusLC:MakeCB(ClassFrame, "ClassColTarget", "Show target and focus name background in class color", 16, -192, false, "If checked, the background behind the target name and focus name will be shown in class color.")
+			LeaPlusLC:MakeCB(ClassFrame, "ClassColTargetBorder", "Show target and focus frame border in class color", 16, -212, false, "If checked, the target frame border and focus frame border including the ring around the portrait will be shown in class color.")
 
 			-- Help button hidden
 			ClassFrame.h:Hide()
@@ -8258,8 +8387,15 @@
 				else
 					PlayFN:Hide()
 				end
+				PlayerBorderCol()
+				RestGlowCol()
+				ChainCol()
 				-- Target and focus frames
-				if LeaPlusLC["ClassColTarget"] == "On" then
+				if LeaPlusLC["ClassColTarget"] ~= "On" then
+					TargetFrame.CheckFaction(TargetFrame) -- Reset target frame colors
+					TargetFrame.CheckFaction(FocusFrame) -- Reset focus frame colors
+				end
+				if LeaPlusLC["ClassColTarget"] == "On" or LeaPlusLC["ClassColTargetBorder"] == "On" then
 					ColTar:RegisterEvent("GROUP_ROSTER_UPDATE")
 					ColTar:RegisterEvent("PLAYER_TARGET_CHANGED")
 					ColTar:RegisterEvent("PLAYER_FOCUS_CHANGED")
@@ -8267,14 +8403,17 @@
 					TargetFrameCol()
 				else
 					ColTar:UnregisterAllEvents()
-					TargetFrame.CheckFaction(TargetFrame) -- Reset target frame colors
-					TargetFrame.CheckFaction(FocusFrame) -- Reset focus frame colors
+					TintFrameBorder(TargetFrame.TargetFrameContainer.FrameTexture, nil) -- Reset target frame border
+					TintFrameBorder(FocusFrame.TargetFrameContainer.FrameTexture, nil) -- Reset focus frame border
 				end
 			end
 
 			-- Run function when options are clicked and on startup
 			LeaPlusCB["ClassColPlayer"]:HookScript("OnClick", SetClassColFrames)
 			LeaPlusCB["ClassColTarget"]:HookScript("OnClick", SetClassColFrames)
+			LeaPlusCB["ClassColPlayerBorder"]:HookScript("OnClick", SetClassColFrames)
+			LeaPlusCB["ClassColTargetBorder"]:HookScript("OnClick", SetClassColFrames)
+			LeaPlusCB["ClassColChain"]:HookScript("OnClick", SetClassColFrames)
 			SetClassColFrames()
 
 			-- Reset button handler
@@ -8283,6 +8422,9 @@
 				-- Reset checkboxes
 				LeaPlusLC["ClassColPlayer"] = "On"
 				LeaPlusLC["ClassColTarget"] = "On"
+				LeaPlusLC["ClassColPlayerBorder"] = "Off"
+				LeaPlusLC["ClassColTargetBorder"] = "Off"
+				LeaPlusLC["ClassColChain"] = "Off"
 
 				-- Update colors and refresh configuration panel
 				SetClassColFrames()
@@ -8296,6 +8438,9 @@
 					-- Preset profile
 					LeaPlusLC["ClassColPlayer"] = "On"
 					LeaPlusLC["ClassColTarget"] = "On"
+					LeaPlusLC["ClassColPlayerBorder"] = "Off"
+					LeaPlusLC["ClassColTargetBorder"] = "Off"
+					LeaPlusLC["ClassColChain"] = "Off"
 					SetClassColFrames()
 				else
 					ClassFrame:Show()
@@ -9546,6 +9691,34 @@
 					end
 				end
 			end)
+
+			-- Apply the main chat window font size to the guild and community chat (and GM chat)
+			-- Blizzard only copies it when the communities addon loads or when a size is chosen from the menu,
+			-- so if the communities addon loads before saved chat sizes are applied at login, it keeps the default size
+			local function SyncCommunityChatFont()
+				if not DEFAULT_CHAT_FRAME then return end
+				local void, fontSize = FCF_GetChatWindowInfo(DEFAULT_CHAT_FRAME:GetID())
+				if not fontSize or fontSize <= 0 then return end
+				local fontFile, void, fontFlags = DEFAULT_CHAT_FRAME:GetFont()
+				if not fontFile then return end
+				if CommunitiesFrame and CommunitiesFrame.Chat and CommunitiesFrame.Chat.MessageFrame then
+					CommunitiesFrame.Chat.MessageFrame:SetFont(fontFile, fontSize, fontFlags)
+				end
+				if GMChatFrame then
+					GMChatFrame:SetFont(fontFile, fontSize, fontFlags)
+				end
+			end
+
+			local fontSyncFrame = CreateFrame("FRAME")
+			fontSyncFrame:RegisterEvent("UPDATE_CHAT_WINDOWS")
+			fontSyncFrame:RegisterEvent("ADDON_LOADED")
+			fontSyncFrame:SetScript("OnEvent", function(self, event, addonName)
+				if event == "ADDON_LOADED" and addonName ~= "Blizzard_Communities" and addonName ~= "Blizzard_GMChatUI" then return end
+				SyncCommunityChatFont()
+			end)
+
+			-- Apply now in case chat sizes were already applied before this ran
+			SyncCommunityChatFont()
 
 		end
 
@@ -13881,7 +14054,8 @@
 			-- Create tables for list data
 			local ListData, playlist = {}, {}
 			local scrollFrame, willPlay, musicHandle, ZonePage, LastPlayed, LastFolder, TempFolder, HeadingOfClickedTrack, LastMusicHandle
-			local numButtons = math.floor((LeaPlusLC.MainPanelHeight - 110) / 16) - 1
+			-- Number of list rows is calculated from the panel height (rows start 70 from the top and must end at least 50 from the bottom)
+			local numButtons = math.floor((LeaPlusLC.MainPanelHeight - 120) / 16)
 			local uframe = CreateFrame("FRAME")
 
 			-- These categories will not appear in random track selections
@@ -13950,8 +14124,8 @@
 					end
 				end
 
-				local bRoll = ((36 + (LeaPlusLC.MainPanelHeight - 370)) / 16) + 16
-				scrollFrame.child:SetSize(200, #ListData + (math.floor(bRoll * 15)))
+				-- Set scroll range so the last item is shown in the last row (scroll frame height is panel height - 82)
+				scrollFrame.child:SetSize(200, #ListData + (LeaPlusLC.MainPanelHeight - 82) - numButtons)
 
 			end
 
@@ -14887,6 +15061,9 @@
 				LeaPlusLC:LoadVarChk("ClassColFrames", "Off")				-- Class colored frames
 				LeaPlusLC:LoadVarChk("ClassColPlayer", "On")				-- Class colored player frame
 				LeaPlusLC:LoadVarChk("ClassColTarget", "On")				-- Class colored target frame
+				LeaPlusLC:LoadVarChk("ClassColPlayerBorder", "Off")			-- Class colored player frame border
+				LeaPlusLC:LoadVarChk("ClassColTargetBorder", "Off")			-- Class colored target frame border
+				LeaPlusLC:LoadVarChk("ClassColChain", "Off")				-- Class colored player chain
 
 				LeaPlusLC:LoadVarChk("NoAlerts", "Off")						-- Hide alerts
 				LeaPlusLC:LoadVarChk("HideBodyguard", "Off")				-- Hide bodyguard window
@@ -15231,6 +15408,9 @@
 			LeaPlusDB["ClassColFrames"]			= LeaPlusLC["ClassColFrames"]
 			LeaPlusDB["ClassColPlayer"]			= LeaPlusLC["ClassColPlayer"]
 			LeaPlusDB["ClassColTarget"]			= LeaPlusLC["ClassColTarget"]
+			LeaPlusDB["ClassColPlayerBorder"]	= LeaPlusLC["ClassColPlayerBorder"]
+			LeaPlusDB["ClassColTargetBorder"]	= LeaPlusLC["ClassColTargetBorder"]
+			LeaPlusDB["ClassColChain"]			= LeaPlusLC["ClassColChain"]
 
 			LeaPlusDB["NoAlerts"]				= LeaPlusLC["NoAlerts"]
 			LeaPlusDB["HideBodyguard"]			= LeaPlusLC["HideBodyguard"]
@@ -15768,70 +15948,214 @@
 		return mbtn
 	end
 
-	-- Create a dropdown menu (using standard dropdown template)
+	----------------------------------------------------------------------
+	-- Pop-up lists
+	----------------------------------------------------------------------
+
+	-- The game's menus keep their state on the menu frame and the world map reads the frame under the pointer every
+	-- frame, so menu entries made by an addon spread taint into the map's own code while the map is open. Dropdown
+	-- menus use these pop-up lists instead. They are frames of our own, so the map never reads anything the addon wrote.
+
+	function LeaPlusLC:CreatePopupList(parent)
+
+		local rowHeight, rowsPerColumn, columnWidth = 20, 25, 180
+		local rows = {}
+		local owner, entries, isChecked, onClick, onWheel
+
+		local list = CreateFrame("Frame", nil, parent, "BackdropTemplate")
+		list:SetFrameStrata("FULLSCREEN_DIALOG")
+		list:SetClampedToScreen(true)
+		list:EnableMouse(true)
+		list:EnableMouseWheel(true)
+		list:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8X8", edgeFile = "Interface\\Buttons\\WHITE8X8", edgeSize = 1})
+		list:SetBackdropColor(0.05, 0.05, 0.05, 0.95)
+		list:SetBackdropBorderColor(0.3, 0.3, 0.3, 1)
+		list:Hide()
+
+		-- Mousewheel runs the wheel function if there is one (and stops anything under the list from scrolling)
+		list:SetScript("OnMouseWheel", function(self, delta)
+			if onWheel then onWheel(delta) end
+		end)
+
+		-- Close the list when clicking anywhere else (only watched while the list is showing)
+		list:SetScript("OnShow", function(self) self:RegisterEvent("GLOBAL_MOUSE_DOWN") end)
+		list:SetScript("OnHide", function(self) self:UnregisterEvent("GLOBAL_MOUSE_DOWN") end)
+		list:SetScript("OnEvent", function(self)
+			if not self:IsMouseOver() and not (owner and owner:IsMouseOver()) then
+				self:Hide()
+			end
+		end)
+
+		-- Function to show a row as checked or not
+		local function SetRowCheck(row)
+			if isChecked(row.entry) then
+				row.Check:Show()
+				row.Text:SetTextColor(NORMAL_FONT_COLOR:GetRGB())
+			else
+				row.Check:Hide()
+				row.Text:SetTextColor(HIGHLIGHT_FONT_COLOR:GetRGB())
+			end
+		end
+
+		-- Function to get a row (rows are created when first needed and reused)
+		local function GetRow(index)
+			local row = rows[index]
+			if not row then
+				row = CreateFrame("Button", nil, list)
+				row:SetSize(columnWidth, rowHeight)
+				row:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight", "ADD")
+				row.Check = row:CreateTexture(nil, "ARTWORK")
+				row.Check:SetTexture("Interface\\Buttons\\UI-CheckBox-Check")
+				row.Check:SetSize(16, 16)
+				row.Check:SetPoint("LEFT", 4, 0)
+				row.Text = row:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+				row.Text:SetPoint("LEFT", 22, 0)
+				row.Text:SetPoint("RIGHT", -4, 0)
+				row.Text:SetJustifyH("LEFT")
+				row.Text:SetWordWrap(false)
+				row:SetScript("OnClick", function(self)
+					-- The click function returns true to keep the list open (such as for checkboxes)
+					if onClick(self.entry) then
+						for i = 1, #entries do SetRowCheck(rows[i]) end
+					else
+						list:Hide()
+					end
+				end)
+				rows[index] = row
+			end
+			return row
+		end
+
+		local popup = {}
+
+		-- Close the list
+		function popup:Close()
+			list:Hide()
+		end
+
+		-- Update the checks in the open list
+		function popup:Refresh()
+			if not list:IsShown() then return end
+			for i = 1, #entries do SetRowCheck(rows[i]) end
+		end
+
+		-- Show the list next to a button (long lists are split into columns)
+		function popup:Open(button, items, checkedFunc, clickFunc, point, relativePoint, x, y, wheelFunc)
+			local count = #items
+			if count == 0 then return end
+			owner, entries, isChecked, onClick, onWheel = button, items, checkedFunc, clickFunc, wheelFunc
+			local columns = math.ceil(count / rowsPerColumn)
+			local perColumn = math.ceil(count / columns)
+			for i = 1, count do
+				local row = GetRow(i)
+				row.entry = items[i]
+				row.Text:SetText(items[i].name)
+				SetRowCheck(row)
+				row:ClearAllPoints()
+				row:SetPoint("TOPLEFT", list, "TOPLEFT", 8 + math.floor((i - 1) / perColumn) * columnWidth, -8 - ((i - 1) % perColumn) * rowHeight)
+				row:Show()
+			end
+			for i = count + 1, #rows do
+				rows[i]:Hide()
+				rows[i].entry = nil
+			end
+			list:SetSize(columns * columnWidth + 16, perColumn * rowHeight + 16)
+			list:ClearAllPoints()
+			list:SetPoint(point, button, relativePoint, x, y)
+			list:SetFrameLevel(button:GetFrameLevel() + 20)
+			list:Show()
+		end
+
+		-- Open the list for a button or close it if it's already open for that button
+		function popup:Toggle(button, ...)
+			if list:IsShown() and owner == button then
+				list:Hide()
+			else
+				self:Open(button, ...)
+			end
+		end
+
+		return popup
+
+	end
+
+	-- Create a dropdown menu (the standard dropdown button but it opens a pop-up list instead of the game's menu, see
+	-- LeaPlusLC:CreatePopupList for why)
 	function LeaPlusLC:CreateDropdown(frame, label, width, anchor, parent, relative, x, y, reload, items)
 
-		local RadioDropdown = CreateFrame("DropdownButton", nil, parent, "WowStyle1DropdownTemplate")
-		LeaPlusCB[frame] = RadioDropdown
-		RadioDropdown:SetPoint(anchor, parent, relative, x, y)
+		local dropdown = CreateFrame("DropdownButton", nil, parent, "WowStyle1DropdownTemplate")
+		LeaPlusCB[frame] = dropdown
+		dropdown:SetPoint(anchor, parent, relative, x, y)
 
-		local function IsSelected(value)
-			return value == LeaPlusLC[frame]
+		local lf = dropdown:CreateFontString(nil, "OVERLAY", "GameFontNormal"); lf:SetPoint("TOPLEFT", dropdown, 0, 20); lf:SetPoint("TOPRIGHT", dropdown, -5, 20); lf:SetJustifyH("LEFT"); lf:SetText(L[label])
+
+		-- List entries
+		local entries = {}
+		for i = 1, #items do
+			entries[i] = {name = items[i][1], value = items[i][2]}
 		end
 
-		local function SetSelected(value)
-			LeaPlusLC[frame] = value
-		end
-
-		MenuUtil.CreateRadioMenu(RadioDropdown, IsSelected, SetSelected, unpack(items))
-
-		local lf = RadioDropdown:CreateFontString(nil, "OVERLAY", "GameFontNormal"); lf:SetPoint("TOPLEFT", RadioDropdown, 0, 20); lf:SetPoint("TOPRIGHT", RadioDropdown, -5, 20); lf:SetJustifyH("LEFT"); lf:SetText(L[label])
-
-		-- Cycle through the options with the mousewheel while the menu is closed (scroll down for the next option, up for the previous one)
-		RadioDropdown:EnableMouseWheel(true)
-
-		-- Apply the new option in the same way as choosing it from the menu (runs anything hooked to the menu closing)
-		RadioDropdown:HookScript("OnMouseWheel", function(self)
-			self:TriggerEvent(DropdownButtonMixin.Event.OnMenuClose, self)
-		end)
-
-		-- Cycle through the options with the mousewheel while the menu is open (an invisible layer over the menu takes the mousewheel but lets clicks through)
-		local wheel
-		RadioDropdown:RegisterCallback("OnMenuOpen", function()
-			local menu = RadioDropdown.menu
-			if not menu then return end
-			if not wheel then
-				wheel = CreateFrame("Frame", nil, UIParent)
-				wheel:EnableMouse(false)
-				wheel:EnableMouseWheel(true)
-				wheel:SetScript("OnMouseWheel", function(self, delta)
-					-- Find the current option and step to the next or previous one (stops at either end)
-					local index = 1
-					for i = 1, #items do
-						if items[i][2] == LeaPlusLC[frame] then index = i; break end
-					end
-					index = index + (delta < 0 and 1 or -1)
-					if index < 1 or index > #items then return end
-					LeaPlusLC[frame] = items[index][2]
-					-- Move the tick in the open menu, update the dropdown text and apply the option
-					if RadioDropdown.menu then RadioDropdown.menu:ReinitializeAll() end
-					RadioDropdown:SignalUpdate()
-					RadioDropdown:TriggerEvent(DropdownButtonMixin.Event.OnMenuClose, RadioDropdown)
-				end)
+		-- Function to show the current option on the button
+		local function UpdateText()
+			for i = 1, #entries do
+				if entries[i].value == LeaPlusLC[frame] then
+					dropdown:OverrideText(entries[i].name)
+					return
+				end
 			end
-			wheel:SetAllPoints(menu)
-			wheel:SetFrameStrata(menu:GetFrameStrata())
-			wheel:SetFrameLevel(menu:GetFrameLevel() + 50)
-			wheel:Show()
-		end)
+			dropdown:OverrideText("")
+		end
 
-		-- Hide the layer when the menu really closes (the mousewheel also signals the menu closing so options apply, but without a menu)
-		RadioDropdown:RegisterCallback("OnMenuClose", function(owner, dropdown, menu)
-			if menu and wheel then wheel:Hide() end
+		-- Function to apply an option (runs anything hooked to the menu closing, so options apply in the same way as before)
+		local function SetValue(value)
+			LeaPlusLC[frame] = value
+			UpdateText()
+			dropdown:TriggerEvent(DropdownButtonMixin.Event.OnMenuClose, dropdown)
 			if reload then
 				LeaPlusLC:ReloadCheck()
 			end
+		end
+
+		local popup = LeaPlusLC:CreatePopupList(parent)
+
+		local function IsCurrent(entry)
+			return entry.value == LeaPlusLC[frame]
+		end
+
+		local function Choose(entry)
+			SetValue(entry.value)
+		end
+
+		-- Function to step to the next or previous option (scroll down for the next option, up for the previous one, stops at either end)
+		local function Step(delta)
+			local index = 1
+			for i = 1, #entries do
+				if entries[i].value == LeaPlusLC[frame] then index = i; break end
+			end
+			index = index + (delta < 0 and 1 or -1)
+			if index < 1 or index > #entries then return end
+			SetValue(entries[index].value)
+			popup:Refresh()
+		end
+
+		-- Open or close the list when the button is clicked
+		dropdown:HookScript("OnMouseDown", function(self, button)
+			if button ~= "LeftButton" or not self:IsEnabled() then return end
+			popup:Toggle(self, entries, IsCurrent, Choose, "TOPLEFT", "BOTTOMLEFT", 0, -2, Step)
 		end)
+
+		-- Cycle through the options with the mousewheel over the button (the open list does the same)
+		dropdown:EnableMouseWheel(true)
+		dropdown:HookScript("OnMouseWheel", function(self, delta)
+			if self:IsEnabled() then Step(delta) end
+		end)
+
+		-- Close the list if the button is disabled
+		dropdown:HookScript("OnDisable", function() popup:Close() end)
+
+		-- Show the current option when the button is shown
+		dropdown:HookScript("OnShow", UpdateText)
+		UpdateText()
 
 	end
 
@@ -16802,7 +17126,7 @@
 					local col1, col2, color1 = 10, 120, "|cffffffaa"
 					LeaPlusLC:MakeTx(frame, "Leatrix Plus Help", col1, -10)
 					LeaPlusLC:MakeWD(frame, color1 .. "/ltp|r", col1, -30)
-					LeaPlusLC:MakeWD(frame, "Toggle opttions panel.", col2, -30)
+					LeaPlusLC:MakeWD(frame, "Toggle options panel.", col2, -30)
 					LeaPlusLC:MakeWD(frame, color1 .. "/ltp reset", col1, -50)
 					LeaPlusLC:MakeWD(frame, "Reset addon panel position and scale.", col2, -50)
 					LeaPlusLC:MakeWD(frame, color1 .. "/ltp wipe", col1, -70)
@@ -17759,6 +18083,9 @@
 				LeaPlusDB["WidgetTopScale"] = 1.25				-- Manage widget top scale
 
 				LeaPlusDB["ClassColFrames"] = "On"				-- Class colored frames
+				LeaPlusDB["ClassColPlayerBorder"] = "On"			-- Player border in class color
+				LeaPlusDB["ClassColTargetBorder"] = "On"			-- Target border in class color
+				LeaPlusDB["ClassColChain"] = "On"				-- Chain in class color
 
 				LeaPlusDB["NoAlerts"] = "On"					-- Hide alerts
 				LeaPlusDB["HideBodyguard"] = "On"				-- Hide bodyguard window

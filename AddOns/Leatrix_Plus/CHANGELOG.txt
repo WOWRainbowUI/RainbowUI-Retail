@@ -1,4 +1,9 @@
-﻿12.1.15 - 28th October 2026
+﻿12.1.16 - 3rd November 2026
+- Fixed an issue with 'More chat font sizes' ('Chat') which caused the communities and guild chat font size to reset sometimes.
+- For 'Show info cards' ('Interface'), fixed an issue which caused CTRL/C to not copy the link if your info card key included CTRL and you had not released CTRL first.
+- For 'Class colored frames' ('Frames'), you can now set the frame border and player chain (if you use that option) to be in class color too.
+
+12.1.15 - 28th October 2026
 - PTR (12.1.7): Updated for game patch 12.1.7.
 - Added 'Show info cards' ('Interface').  If checked, pointing at something (such as a player, item, spell, buff, quest, etc) and pressing a keybind (you can set it in the configuration panel) will show a color-coded information card.  Pointing at a character will show information such as their average item level, talent choices, buffs and a 3D model of the character with animation slider, a gear toggle button, a fullscreen switch and scene selector.  Pointing at something else will show useful information and a Wowhead link that you can copy with CTRL/C.  This new option replaces the web link keybind which has been removed.
 - For 'Enhance minimap', added more visual effects.
