@@ -1,7 +1,10 @@
 local _, app = ...
 local L = setmetatable({}, {__index = function(_, key) return key end})
 app.L = L
-app.displayName = "戰鬥統計外觀-地心之戰"
+app.displayName = GetLocale() == "zhTW" and "戰鬥統計外觀-地心之戰" or (GetLocale() == "zhCN" and "战斗统计外观-地心之战" or "Details! Skin TWW")
+L["LOG_LEVEL_DESC"] = "Controls messages in chat. Same as /details_tww loglevel <level>."
+if GetLocale() == "zhTW" then L["LOG_LEVEL_DESC"] = "控制聊天視窗中的記錄訊息量，亦可使用 /details_tww loglevel <level>。"
+elseif GetLocale() == "zhCN" then L["LOG_LEVEL_DESC"] = "控制聊天窗口中的日志消息量，也可使用 /details_tww loglevel <level>。" end
 if GetLocale() == "zhTW" then
 L["Skin the Blizzard damage meter"] = "套用暴雪傷害統計外觀"
 L["Applies the 'The War Within' skin to the game's built-in damage meter, whichever style is picked in Edit Mode."] = "將地心之戰外觀套用至遊戲內建傷害統計，不受編輯模式所選樣式影響。"

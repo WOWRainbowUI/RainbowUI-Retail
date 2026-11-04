@@ -91,7 +91,7 @@ local options = {
             type = "select",
             order = 20,
             name = L["Log level"],
-            desc = "How much " .. appName .. " writes to the chat window. Same as /details_tww loglevel <level>.",
+            desc = L["LOG_LEVEL_DESC"],
             values = levelNames,
             sorting = levelOrder,
             get = function()
@@ -112,8 +112,8 @@ function module:OnInitialize()
     options.args.profiles.order = 100
 
     LibStub("AceConfig-3.0"):RegisterOptionsTable(appName, options)
-    local category = LibStub("AceConfigDialog-3.0"):AddToBlizOptions(appName, app.displayName)
-    self.categoryID = category and category.name
+    local category, categoryID = LibStub("AceConfigDialog-3.0"):AddToBlizOptions(appName, app.displayName)
+    self.categoryID = categoryID or (category and category.name)
     app.categoryID = self.categoryID
 end
 
