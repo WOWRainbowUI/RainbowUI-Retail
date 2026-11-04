@@ -4,7 +4,7 @@ local mod	= DBM:NewMod(2894, "DBM-Raids-Midnight", 1, 1320)
 local UnitIsFriend = UnitIsFriend
 local GetTime = GetTime
 
-mod:SetRevision("20261023043152")
+mod:SetRevision("20261028042802")
 mod:SetCreatureID(261835, 261843, 261848)--261584 is Mor'zahi
 mod:SetEncounterID(3497)
 --mod:SetHotfixNoticeRev(20250823000000)
@@ -261,6 +261,16 @@ do
 	---@param countKey string
 	---@param addedAt number? Mythic stage-2 recurrence evidence; independent of the delayed bar start and bar visibility
 	local function queueStart(self, timerObj, timerExact, eventID, eventType, countKey, addedAt)
+		if eventType == "icebound" and math.floor(timerExact + 0.5) == 5 then
+			--The phase-opening five-second entry actually casts immediately.
+			self:TLCountStart(eventID, eventType, countKey)
+			local _, eventCount = self:TLCountFinish(eventID)
+			if eventCount then
+				specWarnIceboundFlames:Show(eventCount)
+				specWarnIceboundFlames:Play("kickcast")
+			end
+			return
+		end
 		if addedAt and self:IsMythic() then
 			mythicStage2Expected[eventType] = {
 				eventID = eventID,

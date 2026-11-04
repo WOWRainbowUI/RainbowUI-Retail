@@ -18,7 +18,7 @@
 ## LoadOnDemand: 0
 ## DefaultState: enabled
 ## Author: MysticalOS, QartemisT
-## Version: 12.1.18
+## Version: 12.1.19
 ## X-Curse-Project-ID: 3358
 ## X-Wago-ID: qv633o6b
 ## X-Website: https://deadlybossmods.com
@@ -28,7 +28,7 @@ Libs\LibChatAnims\LibChatAnims.xml [AllowLoadGameType standard, classic]
 Libs\LibLatency\LibLatency.xml
 Libs\LibDurability\LibDurability.xml
 Libs\LibKeystone\LibKeystone.lua [AllowLoadGameType standard]
-Libs\LibSpecialization\LibSpecialization.lua [AllowLoadGameType standard, classic]
+Libs\LibSpecialization\LibSpecialization.lua
 Libs\LibDropDownMenu\LibDropDownMenu.xml [AllowLoadGameType tbc, wrath]
 
 localization.en.lua
@@ -88,6 +88,7 @@ modules\objects\BossMod.lua
 modules\objects\BossModOptions.lua
 modules\objects\BossModEventDispatcher.lua
 modules\objects\Localization.lua
+VoicePackSounds.lua
 modules\objects\VoicePacks.lua
 modules\objects\Timer.lua
 modules\UserTimers.lua

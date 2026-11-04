@@ -32,7 +32,7 @@ private.combatDetectionState = {
 local lastCombatStarted = GetTime()
 local lastValidCombat = 0
 local combatInitialized, healthCombatInitialized = false, false
-local watchFrameRestore, questieWatchRestore, bossuIdFound = false, false, false
+local questieWatchRestore, bossuIdFound = false, false
 local delayedFunction
 
 local playerName = private.playerName
@@ -55,21 +55,29 @@ local checkWipe, checkBossHealth, checkCustomBossHealth
 local suppressObjectiveTracker, restoreObjectiveTracker
 do
 	-- Use native methods from our own frame, not tracker methods another addon may replace.
-	local frameAPI = private.isRetail and CreateFrame("Frame")
+	local frameAPI
 	local restoreFrame, restoreAlpha
 
 	function suppressObjectiveTracker()
-		if not frameAPI or restoreFrame then return end
-		local frame = ObjectiveTrackerFrame
-		if not frame or frameAPI.IsForbidden(frame) then return end
-		local protected = frameAPI.IsProtected(frame)
+		if restoreFrame then return end
+		local frame
+		if private.isRetail or private.isForever then
+			frame = ObjectiveTrackerFrame
+		elseif private.isWrath or private.isCata or private.isMop then
+			frame = WatchFrame
+		else
+			frame = QuestWatchFrame
+		end
+		if not frame then return end
+		frameAPI = frameAPI or CreateFrame("Frame")
+		if frameAPI.IsForbidden(frame) then return end
 		local shown = frameAPI.IsShown(frame)
-		if DBM:issecretvalue(protected) or DBM:issecretvalue(shown) or protected or not shown then return end
+		if DBM:issecretvalue(shown) or not shown then return end
 		local alpha = frameAPI.GetAlpha(frame)
 		if DBM:issecretvalue(alpha) or alpha == 0 then return end
 		restoreFrame, restoreAlpha = frame, alpha
 		-- Presentation only: Hide/Show/collapse enter Blizzard's tracker and item-button logic.
-		-- Alpha zero leaves buttons interactable; keep this experiment gated by DebugMode.
+		-- Alpha zero leaves buttons interactable but does not change protected visibility.
 		frameAPI.SetAlpha(frame, 0)
 	end
 
@@ -270,16 +278,6 @@ do
 		end
 		if #inCombat == 0 then
 			restoreObjectiveTracker()
-		end
-		if watchFrameRestore then
-			if private.isRetail or private.isCata or private.isMop then
-				ObjectiveTracker_Expand()
-			elseif private.isWrath then
-				WatchFrame:Show()
-			else -- Classic Era / BCC
-				QuestWatchFrame:Show()
-			end
-			watchFrameRestore = false
 		end
 		local QuestieLoader = _G["QuestieLoader"]
 		if QuestieLoader then
@@ -579,8 +577,9 @@ do
 		return self:FilterRaidBossEmote(msg, sender, ...)
 	end
 
-	function DBM:RAID_BOSS_EMOTE(msg, ...)--This is a mirror of above prototype only it has less args, both still exist for some reason.
+	function DBM:RAID_BOSS_EMOTE(msg, sender, ...)--This is a mirror of above prototype only it has less args, both still exist for some reason.
 		if self:issecretvalue(msg) then
+			self:Debug("|cffffff00RAID_BOSS_EMOTE: |r fired: " .. msg .. " with sender of " .. sender, 3, nil, nil, true, true)
 			return
 		end
 		module.OnMonsterMessage("emote", msg)
@@ -952,29 +951,25 @@ do
 				self:StartLogging(0)
 			end
 			local trackedAchievements
-			--TODO, is MoP classic still using the old path? will TBC when it launches on aniversary
-			if private.isClassic or private.isBCC then
+			if private.isClassic or private.isBCC or private.isForever then
 				trackedAchievements = false
-			elseif private.isWrath or private.isCata then
+			elseif private.isWrath or private.isCata or private.isMop then
 				trackedAchievements = (GetNumTrackedAchievements() > 0)
+			elseif private.isRetail then
+				-- Match Blizzard's achievement tracker: earned-by-me entries remain stored but are not displayed.
+				for _, achievementID in ipairs(C_ContentTracking.GetTrackedIDs(Enum.ContentTrackingType.Achievement)) do
+					local wasEarnedByMe = select(13, GetAchievementInfo(achievementID))
+					if not wasEarnedByMe then
+						trackedAchievements = achievementID
+						break
+					end
+				end
 			else
 				trackedAchievements = (C_ContentTracking and C_ContentTracking.GetTrackedIDs(2)[1])
 			end
 			if self.Options.HideObjectivesFrame and mod.addon and mod.addon.type ~= "SCENARIO" and not trackedAchievements and difficulties.difficultyIndex ~= 8 then
-				if private.isRetail then
-					if self.Options.DebugMode then
-						suppressObjectiveTracker()
-					end
-				elseif not private.isCata and not private.isMop and not private.isForever and not InCombatLockdown() then
-					if WatchFrame then
-						if WatchFrame:IsVisible() then
-							WatchFrame:Hide()
-							watchFrameRestore = true
-						end
-					elseif QuestWatchFrame and QuestWatchFrame:IsVisible() then -- Classic Era / BCC
-						QuestWatchFrame:Hide()
-						watchFrameRestore = true
-					end
+				suppressObjectiveTracker()
+				if not private.isRetail and not InCombatLockdown() then
 					local QuestieLoader = _G["QuestieLoader"]
 					if QuestieLoader then
 						local QuestieTracker = _G["QuestieTracker"] or QuestieLoader:ImportModule("QuestieTracker")--Might be a global in some versions, but not a global in others
@@ -1182,6 +1177,19 @@ do
 	end
 	DBM.UNIT_HEALTH_FREQUENT = DBM.UNIT_HEALTH
 
+	-- Stops once the player is no longer dead (released, resurrected, or survived the wipe) or 3 seconds after EndCombat
+	---@param deadline number GetTime() after which no further checks are scheduled
+	local function autoReleaseCheck(deadline)
+		if not UnitIsDead("player") then return end
+		if C_InstanceEncounter.IsEncounterSuppressingRelease() then
+			if GetTime() < deadline then
+				DBM:Schedule(0.1, autoReleaseCheck, deadline)
+			end
+			return
+		end
+		RepopMe()
+	end
+
 	---@param mod DBMMod
 	---@param wipe boolean?
 	---@param srmIncluded boolean? unregister all events including SPELL_AURA_REMOVED events
@@ -1235,6 +1243,10 @@ do
 				twipe(mod.iconRestore)
 			end
 			mod.inCombat = false
+			if wipe and mod.Options.AutoRelease then
+				self:Unschedule(autoReleaseCheck)
+				autoReleaseCheck(GetTime() + 3)
+			end
 			if self.UpdateGenericTrashOptions then
 				self:UpdateGenericTrashOptions(true)
 			end
@@ -1460,23 +1472,13 @@ do
 				if self.Options.RecordOnlyBosses then
 					self:Schedule(10, self.StopLogging, self)--small delay to catch kill/died combatlog events
 				end
-				-- Always restore our alpha, even if either option was disabled during the fight.
+				-- Always restore our alpha, even if the option was disabled during the fight.
 				restoreObjectiveTracker()
 				self:HideBlizzardEvents(0)
 				self:Unschedule(checkBossHealth)
 				self:Unschedule(checkCustomBossHealth)
 				self.Arrow:Hide()
 				if not InCombatLockdown() then
-					if watchFrameRestore then
-						if private.isRetail or private.isCata or private.isMop then
-							--ObjectiveTracker_Expand()
-						elseif private.isWrath then
-							WatchFrame:Show()
-						else -- Classic Era / BCC
-							QuestWatchFrame:Show()
-						end
-						watchFrameRestore = false
-					end
 					local QuestieLoader = _G["QuestieLoader"]
 					if QuestieLoader then
 						local QuestieTracker = _G["QuestieTracker"] or QuestieLoader:ImportModule("QuestieTracker")--Might be a global in some versions, but not a global in others
@@ -1877,4 +1879,3 @@ end
 function DBM:InCombat()
 	return #inCombat > 0
 end
-
