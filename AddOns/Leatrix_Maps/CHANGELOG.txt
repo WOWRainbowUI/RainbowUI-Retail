@@ -1,4 +1,8 @@
-﻿12.1.15 - 28th October 2026
+﻿12.1.16 - 3rd November 2026
+- For 'Use simple map frame', added 'Show zone menus'.  Note that the menu items cannot be clicked while in combat.
+- Added theme support for the world map.  There is a theme dropdown in the configuration panel.
+
+12.1.15 - 28th October 2026
 - PTR (12.1.7): Updated for game patch 12.1.7.
 - Added a few protections against specific addons breaking the map.
 

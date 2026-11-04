@@ -1,9 +1,13 @@
 
 	----------------------------------------------------------------------
-	-- 	Leatrix Maps 12.1.15 (28th October 2026)
+	-- 	Leatrix Maps 12.1.16 (3rd November 2026)
 	----------------------------------------------------------------------
 
 	-- 10:Func, 20:Comm, 30:Evnt, 40:Panl
+
+	-- Leatrix_Maps.blp (256x128) texture coordinates (left, right, top, bottom):
+	-- Button: 0.5, 1, 0, 0.25 | Button highlight: 0, 0.5, 0, 0.25 | White close cross: 0, 0.125, 0.25, 0.5 | Red close cross: 0, 0.25, 0.5, 1
+	-- Maximise: 0.25, 0.5, 0.5, 1 | Restore: 0.5, 0.75, 0.5, 1
 
 	-- Create global table
 	_G.LeaMapsDB = _G.LeaMapsDB or {}
@@ -12,7 +16,7 @@
 	local LeaMapsLC, LeaMapsCB, LeaConfigList, LeaLockList = {}, {}, {}, {}
 
 	-- Version
-	LeaMapsLC["AddonVer"] = "12.1.15"
+	LeaMapsLC["AddonVer"] = "12.1.16"
 
 	-- Get locale table
 	local void, Leatrix_Maps = ...
@@ -54,71 +58,254 @@
 		return name
 	end
 
-	-- Create a dropdown menu (using standard dropdown template)
+	-- Create a dropdown menu (the standard dropdown button but it opens a pop-up list instead of the game's menu, see
+	-- LeaMapsLC:CreatePopupList for why)
 	function LeaMapsLC:CreateDropdown(frame, label, width, anchor, parent, relative, x, y, reload, items)
 
-		local RadioDropdown = CreateFrame("DropdownButton", nil, parent, "WowStyle1DropdownTemplate")
-		LeaMapsCB[frame] = RadioDropdown
-		RadioDropdown:SetPoint(anchor, parent, relative, x, y)
-		RadioDropdown:SetWidth(width)
+		local dropdown = CreateFrame("DropdownButton", nil, parent, "WowStyle1DropdownTemplate")
+		LeaMapsCB[frame] = dropdown
+		dropdown:SetPoint(anchor, parent, relative, x, y)
+		dropdown:SetWidth(width)
 
-		local function IsSelected(value)
-			return value == LeaMapsLC[frame]
+		local lf = dropdown:CreateFontString(nil, "OVERLAY", "GameFontNormal"); lf:SetPoint("TOPLEFT", dropdown, 0, 20); lf:SetPoint("TOPRIGHT", dropdown, -5, 20); lf:SetJustifyH("LEFT"); lf:SetText(L[label])
+
+		-- List entries
+		local entries = {}
+		for i = 1, #items do
+			entries[i] = {name = items[i][1], value = items[i][2]}
 		end
 
-		local function SetSelected(value)
-			LeaMapsLC[frame] = value
-		end
-
-		MenuUtil.CreateRadioMenu(RadioDropdown, IsSelected, SetSelected, unpack(items))
-
-		local lf = RadioDropdown:CreateFontString(nil, "OVERLAY", "GameFontNormal"); lf:SetPoint("TOPLEFT", RadioDropdown, 0, 20); lf:SetPoint("TOPRIGHT", RadioDropdown, -5, 20); lf:SetJustifyH("LEFT"); lf:SetText(L[label])
-
-		-- Cycle through the options with the mousewheel while the menu is closed (scroll down for the next option, up for the previous one)
-		RadioDropdown:EnableMouseWheel(true)
-
-		-- Apply the new option in the same way as choosing it from the menu (runs anything hooked to the menu closing)
-		RadioDropdown:HookScript("OnMouseWheel", function(self)
-			self:TriggerEvent(DropdownButtonMixin.Event.OnMenuClose, self)
-		end)
-
-		-- Cycle through the options with the mousewheel while the menu is open (an invisible layer over the menu takes the mousewheel but lets clicks through)
-		local wheel
-		RadioDropdown:RegisterCallback("OnMenuOpen", function()
-			local menu = RadioDropdown.menu
-			if not menu then return end
-			if not wheel then
-				wheel = CreateFrame("Frame", nil, UIParent)
-				wheel:EnableMouse(false)
-				wheel:EnableMouseWheel(true)
-				wheel:SetScript("OnMouseWheel", function(self, delta)
-					-- Find the current option and step to the next or previous one (stops at either end)
-					local index = 1
-					for i = 1, #items do
-						if items[i][2] == LeaMapsLC[frame] then index = i; break end
-					end
-					index = index + (delta < 0 and 1 or -1)
-					if index < 1 or index > #items then return end
-					LeaMapsLC[frame] = items[index][2]
-					-- Move the tick in the open menu, update the dropdown text and apply the option
-					if RadioDropdown.menu then RadioDropdown.menu:ReinitializeAll() end
-					RadioDropdown:SignalUpdate()
-					RadioDropdown:TriggerEvent(DropdownButtonMixin.Event.OnMenuClose, RadioDropdown)
-				end)
+		-- Function to show the current option on the button
+		local function UpdateText()
+			for i = 1, #entries do
+				if entries[i].value == LeaMapsLC[frame] then
+					dropdown:OverrideText(entries[i].name)
+					return
+				end
 			end
-			wheel:SetAllPoints(menu)
-			wheel:SetFrameStrata(menu:GetFrameStrata())
-			wheel:SetFrameLevel(menu:GetFrameLevel() + 50)
-			wheel:Show()
-		end)
+			dropdown:OverrideText("")
+		end
 
-		-- Hide the layer when the menu really closes (the mousewheel also signals the menu closing so options apply, but without a menu)
-		RadioDropdown:RegisterCallback("OnMenuClose", function(owner, dropdown, menu)
-			if menu and wheel then wheel:Hide() end
+		-- Function to apply an option (runs dropdown.onChange if it's set)
+		local function SetValue(value)
+			LeaMapsLC[frame] = value
+			UpdateText()
+			if dropdown.onChange then dropdown.onChange(value) end
 			if reload then
 				LeaMapsLC:ReloadCheck()
 			end
+		end
+
+		local popup = LeaMapsLC:CreatePopupList(parent)
+
+		local function IsCurrent(entry)
+			return entry.value == LeaMapsLC[frame]
+		end
+
+		local function Choose(entry)
+			SetValue(entry.value)
+		end
+
+		-- Function to step to the next or previous option (scroll down for the next option, up for the previous one, stops at either end)
+		local function Step(delta)
+			local index = 1
+			for i = 1, #entries do
+				if entries[i].value == LeaMapsLC[frame] then index = i; break end
+			end
+			index = index + (delta < 0 and 1 or -1)
+			if index < 1 or index > #entries then return end
+			SetValue(entries[index].value)
+			popup:Refresh()
+		end
+
+		-- Open or close the list when the button is clicked
+		dropdown:HookScript("OnMouseDown", function(self, button)
+			if button ~= "LeftButton" or not self:IsEnabled() then return end
+			popup:Toggle(self, entries, IsCurrent, Choose, "TOPLEFT", "BOTTOMLEFT", 0, -2, Step)
 		end)
+
+		-- Cycle through the options with the mousewheel over the button (the open list does the same)
+		dropdown:EnableMouseWheel(true)
+		dropdown:HookScript("OnMouseWheel", function(self, delta)
+			if self:IsEnabled() then Step(delta) end
+		end)
+
+		-- Show the current option when the button is shown
+		dropdown:HookScript("OnShow", UpdateText)
+		UpdateText()
+
+	end
+
+	----------------------------------------------------------------------
+	-- Pop-up lists
+	----------------------------------------------------------------------
+
+	-- The game's menus keep their state on the menu frame and the world map reads the frame under the pointer every
+	-- frame, so menu entries made by an addon spread taint into the map's own code. Lists shown over the map use these
+	-- pop-up lists instead. They are frames of our own, so the map never reads anything the addon wrote.
+
+	function LeaMapsLC:CreatePopupList(parent)
+
+		local rowHeight, rowsPerColumn, columnWidth = 20, 25, 180
+		local rows = {}
+		local owner, entries, isChecked, onClick, onWheel
+		local highlightColor -- Row highlight color (set with popup:SetColors)
+		local rowColorFunc -- Optional function giving each row its own highlight color (set with popup:SetColors)
+
+		local list = CreateFrame("Frame", nil, parent, "BackdropTemplate")
+		list:SetFrameStrata("FULLSCREEN_DIALOG")
+		list:SetClampedToScreen(true)
+		list:EnableMouse(true)
+		list:EnableMouseWheel(true)
+		-- Mousewheel runs the wheel function if there is one (and stops the map zooming under the list)
+		list:SetScript("OnMouseWheel", function(self, delta)
+			if onWheel then onWheel(delta) end
+		end)
+		list:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8X8"})
+		list:SetBackdropColor(0.05, 0.05, 0.05, 0.95)
+
+		-- Border (four lines sized in whole screen pixels when the list opens, so it's the same width all the way round)
+		local borderLines = {}
+		for i = 1, 4 do
+			borderLines[i] = list:CreateTexture(nil, "BORDER")
+			borderLines[i]:SetTexture("Interface\\Buttons\\WHITE8X8")
+			borderLines[i]:SetVertexColor(0.3, 0.3, 0.3, 1)
+		end
+
+		-- Function to set the border lines to 1 screen pixel
+		local function SetBorderPixels()
+			local scale = list:GetEffectiveScale()
+			if issecretvalue and issecretvalue(scale) then return end -- Frame scales can be secret in combat
+			local px = PixelUtil and PixelUtil.GetNearestPixelSize(1, scale, 1) or 1
+			local top, bottom, left, right = borderLines[1], borderLines[2], borderLines[3], borderLines[4]
+			top:ClearAllPoints(); top:SetPoint("TOPLEFT"); top:SetPoint("TOPRIGHT"); top:SetHeight(px)
+			bottom:ClearAllPoints(); bottom:SetPoint("BOTTOMLEFT"); bottom:SetPoint("BOTTOMRIGHT"); bottom:SetHeight(px)
+			left:ClearAllPoints(); left:SetPoint("TOPLEFT", 0, -px); left:SetPoint("BOTTOMLEFT", 0, px); left:SetWidth(px)
+			right:ClearAllPoints(); right:SetPoint("TOPRIGHT", 0, -px); right:SetPoint("BOTTOMRIGHT", 0, px); right:SetWidth(px)
+		end
+		list:Hide()
+
+		-- Close the list when clicking anywhere else (only watched while the list is showing)
+		list:SetScript("OnShow", function(self) self:RegisterEvent("GLOBAL_MOUSE_DOWN") end)
+		list:SetScript("OnHide", function(self) self:UnregisterEvent("GLOBAL_MOUSE_DOWN") end)
+		list:SetScript("OnEvent", function(self)
+			if not self:IsMouseOver() and not (owner and owner:IsMouseOver()) then
+				self:Hide()
+			end
+		end)
+
+		-- Function to show a row as checked or not
+		local function SetRowCheck(row)
+			if isChecked(row.entry) then
+				row.Check:Show()
+				row.Text:SetTextColor(NORMAL_FONT_COLOR:GetRGB())
+			else
+				row.Check:Hide()
+				row.Text:SetTextColor(HIGHLIGHT_FONT_COLOR:GetRGB())
+			end
+		end
+
+		-- Function to get a row (rows are created when first needed and reused)
+		local function GetRow(index)
+			local row = rows[index]
+			if not row then
+				row = CreateFrame("Button", nil, list)
+				row:SetSize(columnWidth, rowHeight)
+				row:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight", "ADD")
+				if highlightColor then row:GetHighlightTexture():SetVertexColor(highlightColor[1], highlightColor[2], highlightColor[3]) end
+				row.Check = row:CreateTexture(nil, "ARTWORK")
+				row.Check:SetTexture("Interface\\Buttons\\UI-CheckBox-Check")
+				row.Check:SetSize(16, 16)
+				row.Check:SetPoint("LEFT", 4, 0)
+				row.Text = row:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+				row.Text:SetPoint("LEFT", 22, 0)
+				row.Text:SetPoint("RIGHT", -4, 0)
+				row.Text:SetJustifyH("LEFT")
+				row.Text:SetWordWrap(false)
+				row:SetScript("OnClick", function(self)
+					-- The click function returns true to keep the list open (such as for checkboxes)
+					if onClick(self.entry) then
+						for i = 1, #entries do SetRowCheck(rows[i]) end
+					else
+						list:Hide()
+					end
+				end)
+				rows[index] = row
+			end
+			return row
+		end
+
+		local popup = {}
+
+		-- Close the list
+		function popup:Close()
+			list:Hide()
+		end
+
+		-- Set the list colors (background, border and row highlight, used by the map theme)
+		-- (rowFunc is optional, it is called with the row number and row count and returns a highlight color for that row)
+		function popup:SetColors(bgR, bgG, bgB, borderR, borderG, borderB, hlR, hlG, hlB, rowFunc)
+			list:SetBackdropColor(bgR, bgG, bgB, 0.97)
+			for i = 1, #borderLines do borderLines[i]:SetVertexColor(borderR, borderG, borderB, 1) end
+			highlightColor = {hlR, hlG, hlB}
+			rowColorFunc = rowFunc
+			for i = 1, #rows do
+				rows[i]:GetHighlightTexture():SetVertexColor(hlR, hlG, hlB)
+			end
+		end
+
+		-- The list frame (so the map theme can add textures to it)
+		popup.frame = list
+
+		-- Update the checks in the open list
+		function popup:Refresh()
+			if not list:IsShown() then return end
+			for i = 1, #entries do SetRowCheck(rows[i]) end
+		end
+
+		-- Show the list next to a button (long lists are split into columns)
+		function popup:Open(button, items, checkedFunc, clickFunc, point, relativePoint, x, y, wheelFunc)
+			local count = #items
+			if count == 0 then return end
+			owner, entries, isChecked, onClick, onWheel = button, items, checkedFunc, clickFunc, wheelFunc
+			local columns = math.ceil(count / rowsPerColumn)
+			local perColumn = math.ceil(count / columns)
+			for i = 1, count do
+				local row = GetRow(i)
+				if rowColorFunc then
+					row:GetHighlightTexture():SetVertexColor(rowColorFunc(i, count))
+				elseif highlightColor then
+					row:GetHighlightTexture():SetVertexColor(highlightColor[1], highlightColor[2], highlightColor[3])
+				end
+				row.entry = items[i]
+				row.Text:SetText(items[i].name)
+				SetRowCheck(row)
+				row:ClearAllPoints()
+				row:SetPoint("TOPLEFT", list, "TOPLEFT", 8 + math.floor((i - 1) / perColumn) * columnWidth, -8 - ((i - 1) % perColumn) * rowHeight)
+				row:Show()
+			end
+			for i = count + 1, #rows do
+				rows[i]:Hide()
+				rows[i].entry = nil
+			end
+			list:SetSize(columns * columnWidth + 16, perColumn * rowHeight + 16)
+			list:ClearAllPoints()
+			list:SetPoint(point, button, relativePoint, x, y)
+			list:SetFrameLevel(button:GetFrameLevel() + 20)
+			SetBorderPixels()
+			list:Show()
+		end
+
+		-- Open the list for a button or close it if it's already open for that button
+		function popup:Toggle(button, ...)
+			if list:IsShown() and owner == button then
+				list:Hide()
+			else
+				self:Open(button, ...)
+			end
+		end
+
+		return popup
 
 	end
 
@@ -150,6 +337,10 @@
 		----------------------------------------------------------------------
 		-- Simple map frame
 		----------------------------------------------------------------------
+
+		-- Map theme (simple map frame only, ApplyMapTheme is set when the simple map frame is created)
+		-- mapTheme holds the parts the theme colors (title bar, buttons, menus, lists, coordinates background)
+		local ApplyMapTheme, mapTheme = nil, {}
 
 		if LeaMapsLC["SimpleMapFrame"] == "On" and not LeaLockList["SimpleMapFrame"] then
 
@@ -201,9 +392,18 @@
 			-- Create border (covers the map and the quest log when it's shown)
 			local borderFrame = CreateFrame("Frame", nil, WorldMapFrame, "BackdropTemplate")
 			borderFrame:SetFrameLevel(WorldMapFrame:GetFrameLevel())
-			borderFrame:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8X8", edgeFile = "Interface\\Buttons\\WHITE8X8", edgeSize = 1})
+			borderFrame:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8X8"})
 			borderFrame:SetBackdropColor(0, 0, 0, 0.9)
-			borderFrame:SetBackdropBorderColor(0.3, 0.3, 0.3, 1)
+
+			-- Create black edge with a soft drop shadow around the border (sized in whole screen pixels in SetPixelEdges)
+			-- (the shadow layers stack so the shadow fades out naturally from the edge)
+			local edgeTextures = {}
+			for i = 1, 5 do
+				local tex = borderFrame:CreateTexture(nil, "BACKGROUND", nil, -8 + i)
+				tex:SetTexture("Interface\\Buttons\\WHITE8X8")
+				if i == 5 then tex:SetVertexColor(0, 0, 0, 1) else tex:SetVertexColor(0, 0, 0, 0.12) end
+				edgeTextures[i] = tex
+			end
 
 			-- Create title bar (uses the space left by the navigation bar)
 			local titleFrame = CreateFrame("Frame", nil, WorldMapFrame)
@@ -216,18 +416,11 @@
 
 			local titleTexture = titleFrame:CreateTexture(nil, "BACKGROUND")
 			titleTexture:SetAllPoints()
-			titleTexture:SetColorTexture(0.06, 0.06, 0.06, 1)
+			titleTexture:SetTexture("Interface\\Buttons\\WHITE8X8") -- Colors are set by the map theme
+			mapTheme.titleBar = titleFrame
+			mapTheme.titleTexture = titleTexture
 
-			-- Create gold border (same art as the default map frame)
-			local goldBorder = CreateFrame("Frame", nil, WorldMapFrame, "NineSlicePanelTemplate")
-			goldBorder:ClearAllPoints()
-			goldBorder:SetPoint("TOPLEFT", borderFrame, "TOPLEFT", -2, 0)
-			goldBorder:SetPoint("BOTTOMRIGHT", borderFrame, "BOTTOMRIGHT", 2, -2)
-			goldBorder:SetFrameStrata("HIGH")
-			goldBorder:SetFrameLevel(frameLevel + 1)
-			NineSliceUtil.ApplyLayoutByName(goldBorder, "ButtonFrameTemplateNoPortrait")
-
-			-- Create frame for title bar text (above the gold border)
+			-- Create frame for title bar text
 			local titleTextFrame = CreateFrame("Frame", nil, titleFrame)
 			titleTextFrame:SetAllPoints()
 			titleTextFrame:SetFrameLevel(frameLevel + 2)
@@ -237,9 +430,15 @@
 			titleText:SetPoint("CENTER")
 			titleText:SetWordWrap(false)
 
+			-- Assign file level scope to map title (needed for Show zone menus)
+			LeaMapsCB["MapTitleText"] = titleText
+
 			-- Create quest count
 			local questCount = titleTextFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
 			questCount:SetPoint("LEFT", 8, 0)
+
+			-- Assign file level scope to quest count (needed for Show zone menus)
+			LeaMapsCB["MapQuestCount"] = questCount
 
 			----------------------------------------------------------------------
 			-- Title bar buttons
@@ -249,36 +448,40 @@
 			WorldMapFrame.BorderFrame.CloseButton:SetSize(20, 20)
 			WorldMapFrame.BorderFrame.MaximizeMinimizeFrame:SetSize(20, 20)
 
-			-- Function to replace button art with an icon (the button still works as normal)
-			local function SetButtonIcon(button, file, normal, hover, boxColor)
+			-- Function to replace button art with a white icon (the button still works as normal)
+			-- The icon and hover box colors are set by the map theme (the icon turns white on hover)
+			mapTheme.buttons = {}
+			local function SetButtonIcon(button, file, left, right, top, bottom)
 				for i, v in pairs({button:GetNormalTexture(), button:GetPushedTexture(), button:GetHighlightTexture(), button:GetDisabledTexture()}) do
 					v:SetAlpha(0)
 				end
 				-- Hover background
 				local box = button:CreateTexture(nil, "BACKGROUND")
 				box:SetAllPoints()
-				boxColor = boxColor or {1, 1, 1, 0.2}
-				box:SetColorTexture(boxColor[1], boxColor[2], boxColor[3], boxColor[4])
+				box:SetTexture("Interface\\Buttons\\WHITE8X8")
 				box:Hide()
 				-- Icon
 				local icon = button:CreateTexture(nil, "OVERLAY")
 				icon:SetTexture("Interface\\AddOns\\Leatrix_Maps\\" .. file)
+				if left then icon:SetTexCoord(left, right, top, bottom) end
 				icon:SetAllPoints()
-				icon:SetVertexColor(normal[1], normal[2], normal[3])
+				local entry = {box = box, icon = icon, color = {0.8, 0.8, 0.8}}
+				icon:SetVertexColor(unpack(entry.color))
+				mapTheme.buttons[#mapTheme.buttons + 1] = entry
 				button:HookScript("OnEnter", function()
 					box:Show()
-					icon:SetVertexColor(hover[1], hover[2], hover[3])
+					icon:SetVertexColor(1, 1, 1)
 				end)
 				button:HookScript("OnLeave", function()
 					box:Hide()
-					icon:SetVertexColor(normal[1], normal[2], normal[3])
+					icon:SetVertexColor(unpack(entry.color))
 				end)
 			end
 
-			-- Set button icons
-			SetButtonIcon(WorldMapFrame.BorderFrame.CloseButton, "Leatrix_Maps_Close", {0.8, 0.8, 0.8}, {1, 1, 1}, {0.45, 0.05, 0.05, 0.7})
-			SetButtonIcon(WorldMapFrame.BorderFrame.MaximizeMinimizeFrame.MaximizeButton, "Leatrix_Maps_Maximise", {0.8, 0.66, 0}, {1, 0.82, 0}, {0.4, 0.3, 0.02, 0.7})
-			SetButtonIcon(WorldMapFrame.BorderFrame.MaximizeMinimizeFrame.MinimizeButton, "Leatrix_Maps_Restore", {0.8, 0.66, 0}, {1, 0.82, 0}, {0.4, 0.3, 0.02, 0.7})
+			-- Set button icons (the close cross, maximise and restore icons are in Leatrix_Maps.blp)
+			SetButtonIcon(WorldMapFrame.BorderFrame.CloseButton, "Leatrix_Maps.blp", 0, 0.125, 0.25, 0.5)
+			SetButtonIcon(WorldMapFrame.BorderFrame.MaximizeMinimizeFrame.MaximizeButton, "Leatrix_Maps.blp", 0.25, 0.5, 0.5, 1)
+			SetButtonIcon(WorldMapFrame.BorderFrame.MaximizeMinimizeFrame.MinimizeButton, "Leatrix_Maps.blp", 0.5, 0.75, 0.5, 1)
 
 			-- Restyle quest search box to match the title bar (flat dark box filling the gap between the gold lines)
 			local searchBox = QuestScrollFrame.SearchBox
@@ -294,9 +497,12 @@
 				searchBg:SetPoint("TOPLEFT", -4, -1)
 				searchBg:SetPoint("BOTTOMRIGHT", 0, 0)
 
-				-- Set background color (slightly lighter while typing)
+				-- Set background color (slightly lighter while typing, colors are set by the map theme)
 				local function SetSearchBg(focused)
-					if focused then
+					local color = focused and mapTheme.searchFocused or mapTheme.searchNormal
+					if color then
+						searchBg:SetColorTexture(color[1], color[2], color[3], 1)
+					elseif focused then
 						searchBg:SetColorTexture(0.19, 0.18, 0.17, 1)
 					else
 						searchBg:SetColorTexture(0.13, 0.12, 0.11, 1)
@@ -305,6 +511,7 @@
 				SetSearchBg(false)
 				searchBox:HookScript("OnEditFocusGained", function() SetSearchBg(true) end)
 				searchBox:HookScript("OnEditFocusLost", function() SetSearchBg(false) end)
+				mapTheme.SetSearchBg = function() SetSearchBg(searchBox:HasFocus()) end
 
 			end
 
@@ -349,6 +556,65 @@
 
 			local detailsHeight, detailsScrollHeight
 
+			-- Function to set the border and its edge in whole screen pixels (so the edge is the same width all the way
+			-- round at any map scale or UI scale). The border is 1 pixel bigger than the map, then 1 pixel of black edge
+			-- and 4 pixels of shadow.
+			local edgeQuestWidth = 0
+			local function SetPixelEdges()
+				local scale = borderFrame:GetEffectiveScale()
+				if issecretvalue and issecretvalue(scale) then return end -- Frame scales can be secret in combat
+				local px = PixelUtil and PixelUtil.GetNearestPixelSize(1, scale, 1) or 1
+				borderFrame:ClearAllPoints()
+				borderFrame:SetPoint("TOPLEFT", titleFrame, "TOPLEFT", -px, px)
+				local footer = mapTheme.footerFrame
+				if footer and WorldMapFrame:IsMaximized() then
+					-- Maximised map fills the screen so the coordinates footer goes inside the bottom of the map
+					footer:ClearAllPoints()
+					footer:SetPoint("BOTTOMLEFT", WorldMapFrame.ScrollContainer, "BOTTOMLEFT", 0, 0)
+					footer:SetPoint("BOTTOMRIGHT", WorldMapFrame.ScrollContainer, "BOTTOMRIGHT", 0, 0)
+					mapTheme.PlaceCoords(true)
+					borderFrame:SetPoint("BOTTOMRIGHT", WorldMapFrame.ScrollContainer, "BOTTOMRIGHT", edgeQuestWidth + px, -px)
+				elseif footer then
+					-- Coordinates footer under the map and quest log (the border goes round it)
+					footer:ClearAllPoints()
+					footer:SetPoint("TOPLEFT", WorldMapFrame.ScrollContainer, "BOTTOMLEFT", 0, 0)
+					footer:SetPoint("TOPRIGHT", WorldMapFrame.ScrollContainer, "BOTTOMRIGHT", edgeQuestWidth, 0)
+					mapTheme.PlaceCoords(false)
+					borderFrame:SetPoint("BOTTOMRIGHT", footer, "BOTTOMRIGHT", px, -px)
+				else
+					borderFrame:SetPoint("BOTTOMRIGHT", WorldMapFrame.ScrollContainer, "BOTTOMRIGHT", edgeQuestWidth + px, -px)
+				end
+				for i = 1, #edgeTextures do
+					local out = (i == 5 and 1 or 6 - i) * px -- Edge 1 pixel out, shadow 2 to 5 pixels out
+					local tex = edgeTextures[i]
+					tex:ClearAllPoints()
+					tex:SetPoint("TOPLEFT", borderFrame, "TOPLEFT", -out, out)
+					tex:SetPoint("BOTTOMRIGHT", borderFrame, "BOTTOMRIGHT", out, -out)
+				end
+			end
+
+			-- Make an edge function available to code that changes the map scale. It sets the edge now and once more on
+			-- the next frame, after the game has finished laying out the scaled map. Only one next-frame pass is queued
+			-- at a time.
+			local edgeQueued
+			local function EdgeQueued()
+				edgeQueued = nil
+				SetPixelEdges()
+			end
+			LeaMapsLC.RefreshMapLines = function()
+				SetPixelEdges()
+				if not edgeQueued then
+					edgeQueued = true
+					C_Timer.After(0, EdgeQueued)
+				end
+			end
+
+			-- Update the edge when the UI scale or resolution changes
+			local edgeEvents = CreateFrame("Frame")
+			edgeEvents:RegisterEvent("UI_SCALE_CHANGED")
+			edgeEvents:RegisterEvent("DISPLAY_SIZE_CHANGED")
+			edgeEvents:SetScript("OnEvent", function() LeaMapsLC.RefreshMapLines() end)
+
 			-- Function to set map frame layout
 			local function SetFrameLayout()
 
@@ -360,9 +626,8 @@
 				titleFrame:ClearAllPoints()
 				titleFrame:SetPoint("BOTTOMLEFT", WorldMapFrame.ScrollContainer, "TOPLEFT", 0, 0)
 				titleFrame:SetPoint("BOTTOMRIGHT", WorldMapFrame.ScrollContainer, "TOPRIGHT", questWidth, 0)
-				borderFrame:ClearAllPoints()
-				borderFrame:SetPoint("TOPLEFT", titleFrame, "TOPLEFT", -1, 1)
-				borderFrame:SetPoint("BOTTOMRIGHT", WorldMapFrame.ScrollContainer, "BOTTOMRIGHT", questWidth + 1, -1)
+				edgeQuestWidth = questWidth
+				SetPixelEdges()
 
 				-- Center map title over the map (the quest log part of the title bar is used by the search box)
 				titleText:ClearAllPoints()
@@ -405,15 +670,20 @@
 					local detailsFrame = QuestMapFrame.DetailsFrame
 					if CanChange(detailsFrame) and CanChange(detailsFrame.ScrollFrame) then
 						if not detailsHeight then
-							detailsHeight = detailsFrame:GetHeight()
-							detailsScrollHeight = detailsFrame.ScrollFrame:GetHeight()
+							-- Frame sizes can be secret in combat (they are not stored then and are read again next time)
+							local height, scrollHeight = detailsFrame:GetHeight(), detailsFrame.ScrollFrame:GetHeight()
+							if not (issecretvalue and (issecretvalue(height) or issecretvalue(scrollHeight))) then
+								detailsHeight, detailsScrollHeight = height, scrollHeight
+							end
 						end
-						detailsFrame:ClearAllPoints()
-						detailsFrame:SetPoint("TOPRIGHT", detailsFrame:GetParent(), "TOPRIGHT", 0, -47)
-						detailsFrame:SetHeight(detailsHeight - 46)
-						detailsFrame.ScrollFrame:SetHeight(detailsScrollHeight - 46)
-						detailsFrame.Bg:SetPoint("BOTTOMLEFT", detailsFrame, "BOTTOMLEFT", 0, 0)
-						detailsFrame.Bg:SetPoint("BOTTOMRIGHT", detailsFrame, "BOTTOMRIGHT", 0, 0)
+						if detailsHeight then
+							detailsFrame:ClearAllPoints()
+							detailsFrame:SetPoint("TOPRIGHT", detailsFrame:GetParent(), "TOPRIGHT", 0, -47)
+							detailsFrame:SetHeight(detailsHeight - 46)
+							detailsFrame.ScrollFrame:SetHeight(detailsScrollHeight - 46)
+							detailsFrame.Bg:SetPoint("BOTTOMLEFT", detailsFrame, "BOTTOMLEFT", 0, 0)
+							detailsFrame.Bg:SetPoint("BOTTOMRIGHT", detailsFrame, "BOTTOMRIGHT", 0, 0)
+						end
 					end
 
 					-- Move quest settings button to the left of the close button
@@ -460,6 +730,517 @@
 					if WorldMapFrame:IsShown() then SetFrameLayout() end
 				end
 			end)
+
+			----------------------------------------------------------------------
+			-- Map theme
+			----------------------------------------------------------------------
+
+			-- Map themes (the theme colors the title bar and coordinates background, the edge is black). The accent color is
+			-- used for the title bar buttons and zone lists, the hover color for the zone menus.
+			-- Themes with a base color (color = {r, g, b}) all use the same recipe as Class color: a dark wash of the color on
+			-- the title bar and the color itself for the accents, so they look like a matching set.
+			-- Theme numbers are saved, so new themes are added at the end (the dropdown sets the order they are listed in).
+			local mapThemes = {
+				-- 1: Classic (neutral black with a muted gold accent)
+				{bgBottom = {0.04, 0.04, 0.04}, bgTop = {0.09, 0.09, 0.09}, accent = {0.45, 0.37, 0.20}, hover = {1, 1, 1, 0.12}},
+				-- 2: Warm (dark brown with a bronze accent)
+				{bgBottom = {0.06, 0.04, 0.02}, bgTop = {0.12, 0.08, 0.045}, accent = {0.55, 0.42, 0.22}, hover = {1, 0.85, 0.6, 0.14}},
+				-- 3: Charcoal (cool slate)
+				{bgBottom = {0.05, 0.05, 0.06}, bgTop = {0.13, 0.13, 0.15}, accent = {0.32, 0.36, 0.42}, hover = {0.75, 0.85, 1, 0.14}},
+				-- 4: Class color (base color is the player's class color, filled in when the theme is applied)
+				{classColor = true},
+				-- 5: Pink
+				{color = {1, 0.35, 0.70}},
+				-- 6: Alliance
+				{color = {0.25, 0.50, 1}},
+				-- 7: Horde
+				{color = {0.90, 0.15, 0.10}},
+				-- 8: Purple
+				{color = {0.60, 0.30, 1}},
+				-- 9: Teal
+				{color = {0.10, 0.80, 0.75}},
+				-- 10: Green
+				{color = {0.30, 0.85, 0.25}},
+				-- 11: Rainbow (dark rainbow from left to right, violet accent to match the right-hand end)
+				{rainbow = true, bgBottom = {0.04, 0.04, 0.04}, bgTop = {0.09, 0.09, 0.09}, accent = {0.65, 0.40, 1}, hover = {1, 1, 1, 0.15}},
+			}
+
+			-- Rainbow colors (left to right) and how dark they are drawn so the text stays readable
+			local rainbowColors = {{1, 0.15, 0.15}, {1, 0.55, 0.10}, {1, 0.90, 0.15}, {0.25, 0.90, 0.30}, {0.20, 0.50, 1}, {0.65, 0.35, 1}}
+			local rainbowShade = 0.30
+
+			-- Function to get the rainbow for a bar (created the first time the rainbow theme is used)
+			-- (inset keeps the rainbow inside a border, such as the zone list's 1 pixel border)
+			local function GetRainbow(bar, inset)
+				if bar.leaRainbow then return bar.leaRainbow end
+				inset = inset or 0
+				local rainbow = {}
+				local count = #rainbowColors - 1
+				for i = 1, count do
+					local seg = bar:CreateTexture(nil, "BACKGROUND", nil, 1)
+					seg:SetTexture("Interface\\Buttons\\WHITE8X8")
+					local c1, c2 = rainbowColors[i], rainbowColors[i + 1]
+					seg:SetGradient("HORIZONTAL", CreateColor(c1[1] * rainbowShade, c1[2] * rainbowShade, c1[3] * rainbowShade, 1), CreateColor(c2[1] * rainbowShade, c2[2] * rainbowShade, c2[3] * rainbowShade, 1))
+					if i == 1 then
+						seg:SetPoint("TOPLEFT", inset, -inset); seg:SetPoint("BOTTOMLEFT", inset, inset)
+					else
+						seg:SetPoint("TOPLEFT", rainbow[i - 1], "TOPRIGHT"); seg:SetPoint("BOTTOMLEFT", rainbow[i - 1], "BOTTOMRIGHT")
+					end
+					if i == count then
+						seg:SetPoint("TOPRIGHT", -inset, -inset); seg:SetPoint("BOTTOMRIGHT", -inset, inset)
+					end
+					rainbow[i] = seg
+				end
+				-- Shade the bottom of the bar like the other themes
+				local shade = bar:CreateTexture(nil, "BACKGROUND", nil, 2)
+				shade:SetPoint("TOPLEFT", inset, -inset); shade:SetPoint("BOTTOMRIGHT", -inset, inset)
+				shade:SetTexture("Interface\\Buttons\\WHITE8X8")
+				shade:SetGradient("VERTICAL", CreateColor(0, 0, 0, 0.45), CreateColor(0, 0, 0, 0))
+				rainbow.shade = shade
+				-- Keep the segments evenly spaced when the bar changes size (the last one fills the rest)
+				local function SetWidths()
+					local barWidth = bar:GetWidth()
+					if issecretvalue and issecretvalue(barWidth) then return end -- Frame sizes can be secret in combat
+					local width = (barWidth - inset * 2) / count
+					for i = 1, count - 1 do rainbow[i]:SetWidth(width) end
+				end
+				bar:HookScript("OnSizeChanged", SetWidths)
+				SetWidths()
+				bar.leaRainbow = rainbow
+				return rainbow
+			end
+
+			-- Function to get the rainbow color for a list row (rows run through the rainbow from top to bottom)
+			local function RainbowRowColor(index, count)
+				local pos = count > 1 and (index - 1) / (count - 1) * (#rainbowColors - 1) or 0
+				local i = math.min(math.floor(pos) + 1, #rainbowColors - 1)
+				local f = pos - (i - 1)
+				local c1, c2 = rainbowColors[i], rainbowColors[i + 1]
+				return c1[1] + (c2[1] - c1[1]) * f, c1[2] + (c2[2] - c1[2]) * f, c1[3] + (c2[3] - c1[3]) * f
+			end
+
+			-- Function to show or hide the rainbow on a bar
+			local function SetRainbow(bar, show, inset)
+				if not show and not bar.leaRainbow then return end
+				local rainbow = GetRainbow(bar, inset)
+				for i = 1, #rainbow do
+					if show then rainbow[i]:Show() else rainbow[i]:Hide() end
+				end
+				if show then rainbow.shade:Show() else rainbow.shade:Hide() end
+			end
+
+			-- Function to apply the map theme (runs on startup and when the theme is changed, no reload needed)
+			ApplyMapTheme = function()
+				local theme = mapThemes[LeaMapsLC["MapTheme"]] or mapThemes[1]
+				local ar, ag, ab, hr, hg, hb, ha, bgBottom, bgTop
+				local r, g, b
+				if theme.classColor then
+					local color = RAID_CLASS_COLORS[select(2, UnitClass("player"))] or NORMAL_FONT_COLOR
+					r, g, b = color.r, color.g, color.b
+				elseif theme.color then
+					r, g, b = theme.color[1], theme.color[2], theme.color[3]
+				end
+				if r then
+					-- Base color recipe (dark wash on the title bar, the color itself for the accents)
+					ar, ag, ab = r * 0.85, g * 0.85, b * 0.85
+					hr, hg, hb, ha = r, g, b, 0.22
+					bgBottom, bgTop = CreateColor(r * 0.10, g * 0.10, b * 0.10, 1), CreateColor(r * 0.20, g * 0.20, b * 0.20, 1)
+				else
+					ar, ag, ab = theme.accent[1], theme.accent[2], theme.accent[3]
+					hr, hg, hb, ha = theme.hover[1], theme.hover[2], theme.hover[3], theme.hover[4]
+					bgBottom = CreateColor(theme.bgBottom[1], theme.bgBottom[2], theme.bgBottom[3], 1)
+					bgTop = CreateColor(theme.bgTop[1], theme.bgTop[2], theme.bgTop[3], 1)
+				end
+				local topR, topG, topB = bgTop:GetRGB()
+				-- Title bar and coordinates background
+				mapTheme.titleTexture:SetGradient("VERTICAL", bgBottom, bgTop)
+				SetRainbow(mapTheme.titleBar, theme.rainbow)
+				if mapTheme.footer then
+					mapTheme.footerTexture:SetGradient("VERTICAL", bgBottom, bgTop)
+					SetRainbow(mapTheme.footer, theme.rainbow)
+				end
+				-- Title bar buttons (icon in a bright accent color, hover box in the accent color with a white icon)
+				local brightest = math.max(ar, ag, ab)
+				local boost = brightest > 0 and 1 / brightest or 1 -- Brighten so the strongest channel is full (keeps the hue)
+				for i, entry in ipairs(mapTheme.buttons) do
+					entry.box:SetVertexColor(ar, ag, ab, 0.6)
+					entry.color = {ar * boost, ag * boost, ab * boost}
+					if not entry.box:IsShown() then entry.icon:SetVertexColor(unpack(entry.color)) end
+				end
+				-- Quest search box (title bar color, a little lighter while typing)
+				mapTheme.searchNormal = {topR + 0.04, topG + 0.04, topB + 0.04}
+				mapTheme.searchFocused = {topR + 0.10, topG + 0.10, topB + 0.10}
+				if mapTheme.SetSearchBg then mapTheme.SetSearchBg() end
+				-- Zone menu hover
+				if mapTheme.menuButtons then
+					for i, button in ipairs(mapTheme.menuButtons) do
+						button.Hover:SetColorTexture(hr, hg, hb, ha)
+					end
+				end
+				-- Zone menu lists (title bar color, accent border and a highlight tinted with the hover color)
+				-- (Rainbow gives the list the same rainbow as the title bar and each row its own rainbow highlight color)
+				if mapTheme.popup then
+					mapTheme.popup:SetColors(topR, topG, topB, ar, ag, ab, hr + (1 - hr) * 0.3, hg + (1 - hg) * 0.3, hb + (1 - hb) * 0.3, theme.rainbow and RainbowRowColor or nil)
+					SetRainbow(mapTheme.popup.frame, theme.rainbow)
+				end
+			end
+
+			-- Set theme on startup (the theme dropdown sets it when changed)
+			ApplyMapTheme()
+
+			----------------------------------------------------------------------
+			-- Configuration panel
+			----------------------------------------------------------------------
+
+			-- Create configuration panel
+			local simplePanel = LeaMapsLC:CreatePanel("Use simple map frame", "simplePanel")
+
+			-- Add controls
+			LeaMapsLC:MakeTx(simplePanel, "Settings", 16, -72)
+			LeaMapsLC:MakeCB(simplePanel, "ShowZoneMenu", "Show zone menus", 16, -92, false, "If checked, continent and zone menus will be shown in the map title bar.|n|nThe menus cannot be used in combat.")
+
+			-- Map theme dropdown (applies straight away)
+			LeaMapsLC:CreateDropdown("MapTheme", "Map Theme", 146, "TOPLEFT", simplePanel, "TOPLEFT", 16, -152, false, {{L["Classic"], 1}, {L["Warm"], 2}, {L["Charcoal"], 3}, {L["Class Color"], 4}, {L["Alliance"], 6}, {L["Horde"], 7}, {L["Green"], 10}, {L["Teal"], 9}, {L["Purple"], 8}, {L["Pink"], 5}, {L["Rainbow"], 11}})
+			LeaMapsCB["MapTheme"].onChange = ApplyMapTheme
+
+			-- Back to Main Menu button click
+			simplePanel.b:HookScript("OnClick", function()
+				simplePanel:Hide()
+				LeaMapsLC["PageF"]:Show()
+			end)
+
+			-- Reset button click
+			simplePanel.r:HookScript("OnClick", function()
+				LeaMapsLC["ShowZoneMenu"] = "On"
+				LeaMapsLC["MapTheme"] = 1
+				ApplyMapTheme()
+				if LeaMapsLC.SetZoneMenus then LeaMapsLC.SetZoneMenus() end
+				simplePanel:Hide(); simplePanel:Show()
+			end)
+
+			-- Show configuration panel when configuration button is clicked
+			LeaMapsCB["SimpleMapFrameBtn"]:HookScript("OnClick", function()
+				if IsShiftKeyDown() and IsControlKeyDown() then
+					-- Preset profile
+					LeaMapsLC["ShowZoneMenu"] = "On"
+					if LeaMapsLC.SetZoneMenus then LeaMapsLC.SetZoneMenus() end
+					LeaMapsLC["MapTheme"] = 1
+					ApplyMapTheme()
+					if simplePanel:IsShown() then simplePanel:Hide(); simplePanel:Show(); end
+				else
+					simplePanel:Show()
+					LeaMapsLC["PageF"]:Hide()
+				end
+			end)
+
+		end
+
+		----------------------------------------------------------------------
+		-- Show zone menus (simple map frame only)
+		----------------------------------------------------------------------
+
+		if LeaMapsLC["SimpleMapFrame"] == "On" and not LeaLockList["SimpleMapFrame"] then
+
+			-- The menus can be turned on and off at any time, including in combat (they only use frames of our own).
+			-- Nothing is created until the menus are turned on for the first time.
+
+			local zoneMenusReady, updateZoneMenus
+
+			local function SetupZoneMenus()
+
+				-- Maps are changed with C_Map.OpenWorldMap which fires WORLD_MAP_OPEN. Blizzard's own event handler then changes
+				-- the map in secure code so the map is never tainted (calling WorldMapFrame:SetMapID from here would taint it).
+				-- C_Map.OpenWorldMap cannot be used in combat so the menus are disabled during combat.
+
+				local continents, continentByID, continentByName = {}, {}, {}
+				local selectedContinent, selectedZone, listsBuilt
+
+				-- Create menu holder (in the title bar after the quest count, the map title is hidden while the menus show)
+				local titleFrame, titleText = LeaMapsCB["MapTitleFrame"], LeaMapsCB["MapTitleText"]
+				local holder = CreateFrame("Frame", nil, titleFrame)
+				holder:SetHeight(20)
+				holder:SetPoint("LEFT", LeaMapsCB["MapQuestCount"], "RIGHT", 4, 0)
+				holder:SetFrameLevel(titleFrame:GetFrameLevel() + 3)
+				holder:Hide()
+
+				-- Function to create a divider line (separates the quest count and the menus)
+				local function CreateDivider()
+					local divider = holder:CreateTexture(nil, "ARTWORK")
+					divider:SetColorTexture(0.4, 0.4, 0.4, 1)
+					divider:SetSize(1, 12)
+					return divider
+				end
+
+				-- Function to create a title bar menu button (map name, highlighted on hover)
+				local function CreateMenuButton()
+					local button = CreateFrame("Button", nil, holder)
+					button:SetHeight(20)
+					button.Hover = button:CreateTexture(nil, "BACKGROUND")
+					button.Hover:SetAllPoints()
+					button.Hover:SetColorTexture(1, 1, 1, 0.2)
+					button.Hover:Hide()
+					button.Text = button:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+					button.Text:SetPoint("LEFT", 6, 0)
+					button.Text:SetWordWrap(false)
+					button.Text:SetJustifyH("LEFT")
+					button:SetScript("OnEnter", function(self)
+						if self:IsEnabled() then self.Hover:Show() end
+					end)
+					button:SetScript("OnLeave", function(self)
+						self.Hover:Hide()
+					end)
+					button:SetScript("OnDisable", function(self)
+						self.Hover:Hide()
+						self.Text:SetTextColor(DISABLED_FONT_COLOR:GetRGB())
+					end)
+					button:SetScript("OnEnable", function(self)
+						self.Text:SetTextColor(NORMAL_FONT_COLOR:GetRGB())
+					end)
+					return button
+				end
+
+				-- Function to set a button's text and fit the button to it (or to a fixed width if given, long names are cut short)
+				local function SetButtonText(button, text, fixedWidth)
+					button.Text:SetWidth(0)
+					button.Text:SetText(text)
+					local width = fixedWidth or math.min(button.Text:GetStringWidth(), 200)
+					button.Text:SetWidth(width)
+					button:SetWidth(width + 12)
+				end
+
+				-- Continent menu width (fits the longest continent name so the zone menu stays in the same place)
+				local contWidth
+
+				-- Create continent and zone menus (quest count | continent | zone)
+				local contDivider = CreateDivider()
+				contDivider:SetPoint("LEFT", holder, "LEFT", 4, 0)
+
+				local contMenu = CreateMenuButton()
+				contMenu:SetPoint("LEFT", contDivider, "RIGHT", 4, 0)
+
+				local zoneDivider = CreateDivider()
+				zoneDivider:SetPoint("LEFT", contMenu, "RIGHT", 4, 0)
+
+				local zoneMenu = CreateMenuButton()
+				zoneMenu:SetPoint("LEFT", zoneDivider, "RIGHT", 4, 0)
+
+				-- Give the menu buttons the theme hover color
+				mapTheme.menuButtons = {contMenu, zoneMenu}
+
+				-- Function to sort entries by name
+				local function SortByName(a, b) return a.name < b.name end
+
+				-- Function to create a list entry (the first zone in each list is the continent itself)
+				local function CreateEntry(mapID, name)
+					local entry = {mapID = mapID, name = name, zoneByID = {}, zoneByName = {}}
+					entry.zones = {{mapID = mapID, name = name}}
+					return entry
+				end
+
+				-- Function to build the continent and zone lists (done once, the first time the map is shown)
+				local function BuildLists()
+					listsBuilt = true
+
+					-- Continents (top-level continents in Cosmic and Azeroth, duplicate names keep the one with the most zones)
+					local children = {}
+					for i, rootID in ipairs({946, 947}) do
+						local list = C_Map.GetMapChildrenInfo(rootID)
+						if list then
+							for j, info in ipairs(list) do
+								if info.mapID ~= 947 and (info.mapType == Enum.UIMapType.Continent or info.mapType == Enum.UIMapType.World) then
+									children[#children + 1] = info
+								end
+							end
+						end
+					end
+					do
+						for i, info in ipairs(children) do
+							local entry = CreateEntry(info.mapID, info.name)
+							local zones = C_Map.GetMapChildrenInfo(info.mapID, Enum.UIMapType.Zone)
+							if zones then
+								local list = {}
+								for j, zoneInfo in ipairs(zones) do
+									-- Duplicate zone names (such as phased versions) keep the lowest map ID
+									local existing = entry.zoneByName[zoneInfo.name]
+									if not existing then
+										local zone = {mapID = zoneInfo.mapID, name = zoneInfo.name}
+										list[#list + 1] = zone
+										entry.zoneByName[zoneInfo.name] = zone
+										entry.zoneByID[zoneInfo.mapID] = zone
+									elseif zoneInfo.mapID < existing.mapID then
+										entry.zoneByID[existing.mapID] = nil
+										existing.mapID = zoneInfo.mapID
+										entry.zoneByID[zoneInfo.mapID] = existing
+									end
+								end
+								table.sort(list, SortByName)
+								for j = 1, #list do
+									entry.zones[#entry.zones + 1] = list[j]
+								end
+							end
+							if #entry.zones > 1 then
+								local existing = continentByName[info.name]
+								if not existing or #entry.zones > #existing.zones then
+									continentByName[info.name] = entry
+								end
+							end
+						end
+					end
+					for name, entry in pairs(continentByName) do
+						continents[#continents + 1] = entry
+						continentByID[entry.mapID] = entry
+					end
+					table.sort(continents, SortByName)
+
+					-- Azeroth and Cosmic go at the end (they have no zones)
+					for i, mapID in ipairs({947, 946}) do
+						local info = C_Map.GetMapInfo(mapID)
+						if info then
+							local entry = CreateEntry(mapID, info.name)
+							continents[#continents + 1] = entry
+							continentByID[mapID] = entry
+						end
+					end
+
+				end
+
+				-- Function to find the continent and zone for a map (walks up the map parents)
+				local function FindSelection(mapID)
+					local below
+					for i = 1, 20 do
+						local info = mapID and C_Map.GetMapInfo(mapID)
+						if not info then return end
+						local continent = continentByID[mapID] or ((info.mapType == Enum.UIMapType.Continent or info.mapType == Enum.UIMapType.World) and continentByName[info.name])
+						if continent then
+							local zone = below and (continent.zoneByID[below.mapID] or continent.zoneByName[below.name]) or continent.zones[1]
+							return continent, zone
+						end
+						below = info
+						mapID = info.parentMapID
+					end
+				end
+
+				-- Function to change the map (taint-free, not available in combat)
+				local function OpenMap(mapID)
+					if InCombatLockdown() then return end
+					if mapID and mapID ~= WorldMapFrame:GetMapID() then
+						C_Map.OpenWorldMap(mapID)
+					end
+				end
+
+				-- Continent and zone lists (see LeaMapsLC:CreatePopupList, colors are set by the map theme)
+				local popup = LeaMapsLC:CreatePopupList(WorldMapFrame)
+				mapTheme.popup = popup
+				if ApplyMapTheme then ApplyMapTheme() end
+				local function IsCurrentContinent(entry) return entry == selectedContinent end
+				local function IsCurrentZone(entry) return entry == selectedZone end
+				local function ChooseMap(entry) OpenMap(entry.mapID) end
+
+				-- Open or close the lists when the menu buttons are clicked
+				contMenu:SetScript("OnClick", function(self)
+					if InCombatLockdown() then return end
+					popup:Toggle(self, continents, IsCurrentContinent, ChooseMap, "TOPLEFT", "BOTTOMLEFT", 0, -2)
+				end)
+
+				zoneMenu:SetScript("OnClick", function(self)
+					if InCombatLockdown() or not selectedContinent then return end
+					popup:Toggle(self, selectedContinent.zones, IsCurrentZone, ChooseMap, "TOPLEFT", "BOTTOMLEFT", 0, -2)
+				end)
+
+				-- Function to enable or disable the menus (they are disabled in combat)
+				local function SetMenusEnabled(inCombat)
+					if inCombat then popup:Close() end
+					contMenu:SetEnabled(not inCombat)
+					zoneMenu:SetEnabled(not inCombat)
+				end
+
+				-- Function to update the menus to match the map that is showing
+				local function HideMenus()
+					popup:Close()
+					holder:Hide()
+					titleText:SetAlpha(1)
+				end
+
+				local function UpdateMenus()
+					-- Menus turned off
+					if LeaMapsLC["ShowZoneMenu"] ~= "On" then
+						HideMenus()
+						return
+					end
+					-- Build lists the first time they are needed while the map is showing
+					if not listsBuilt then
+						if not WorldMapFrame:IsShown() then return end
+						BuildLists()
+					end
+					selectedContinent, selectedZone = FindSelection(WorldMapFrame:GetMapID())
+					if not selectedContinent then
+						HideMenus()
+						return
+					end
+
+					-- Continent menu, then the zone menu if the continent has zones (it says Zones while the continent map shows)
+					popup:Close()
+					if not contWidth then
+						contWidth = 0
+						for i = 1, #continents do
+							contMenu.Text:SetWidth(0)
+							contMenu.Text:SetText(continents[i].name)
+							contWidth = math.max(contWidth, contMenu.Text:GetStringWidth())
+						end
+						contWidth = math.min(math.ceil(contWidth), 200)
+					end
+					SetButtonText(contMenu, selectedContinent.name, contWidth)
+					if #selectedContinent.zones > 1 then
+						if selectedZone and selectedZone ~= selectedContinent.zones[1] then
+							SetButtonText(zoneMenu, selectedZone.name)
+						else
+							SetButtonText(zoneMenu, L["Zones"])
+						end
+						zoneDivider:Show()
+						zoneMenu:Show()
+						holder:SetWidth(9 + contMenu:GetWidth() + 9 + zoneMenu:GetWidth())
+					else
+						zoneDivider:Hide()
+						zoneMenu:Hide()
+						holder:SetWidth(9 + contMenu:GetWidth())
+					end
+
+					-- Show the menus in place of the map title
+					titleText:SetAlpha(0)
+					holder:Show()
+					SetMenusEnabled(InCombatLockdown())
+				end
+
+				-- Update menus when the map changes (runs after Blizzard's code has finished)
+				hooksecurefunc(WorldMapFrame, "OnMapChanged", UpdateMenus)
+
+				-- Update menus when the map is shown
+				WorldMapFrame:HookScript("OnShow", UpdateMenus)
+
+				-- Disable menus during combat
+				holder:RegisterEvent("PLAYER_REGEN_DISABLED")
+				holder:RegisterEvent("PLAYER_REGEN_ENABLED")
+				holder:SetScript("OnEvent", function(self, event)
+					SetMenusEnabled(event == "PLAYER_REGEN_DISABLED")
+				end)
+
+				updateZoneMenus = UpdateMenus
+
+			end
+
+			-- Function to turn the menus on or off
+			local function SetZoneMenus()
+				if LeaMapsLC["ShowZoneMenu"] == "On" and not zoneMenusReady then
+					zoneMenusReady = true
+					SetupZoneMenus()
+				end
+				if updateZoneMenus then updateZoneMenus() end
+			end
+
+			-- Set menus when the option is clicked (and from the panel reset button) and on startup
+			LeaMapsCB["ShowZoneMenu"]:HookScript("OnClick", SetZoneMenus)
+			LeaMapsLC.SetZoneMenus = SetZoneMenus
+			SetZoneMenus()
 
 		end
 
@@ -508,6 +1289,7 @@
 				else
 					WorldMapFrame:SetScale(LeaMapsLC["MaxMapScale"])
 				end
+				if LeaMapsLC.RefreshMapLines then LeaMapsLC.RefreshMapLines() end
 			end
 
 			-- Set scale properties when controls are changed and on startup
@@ -566,8 +1348,8 @@
 
 		if LeaMapsLC["EnhanceBattleMap"] == "On" then
 
-			-- Show teammates
-			BattlefieldMapOptions.showPlayers = true
+			-- Show teammates (only set if it's off, Blizzard's code reads this setting)
+			if not BattlefieldMapOptions.showPlayers then BattlefieldMapOptions.showPlayers = true end
 
 			-- Create configuraton panel
 			local battleFrame = LeaMapsLC:CreatePanel("Enhance battlefield map", "battleFrame")
@@ -766,8 +1548,8 @@
 			local function FixGroupPin()
 
 				-- Icons should be under the player arrow
-				BattlefieldMapFrame.groupMembersDataProvider.pin.SetAppearanceField("party", "sublevel", 0)
-				BattlefieldMapFrame.groupMembersDataProvider.pin.SetAppearanceField("raid", "sublevel", 0)
+				BattlefieldMapFrame.groupMembersDataProvider.pin:SetPinSubLevel("party", 0)
+				BattlefieldMapFrame.groupMembersDataProvider.pin:SetPinSubLevel("raid", 0)
 
 				-- Icon size
 				BattlefieldMapFrame.groupMembersDataProvider:SetUnitPinSize("party", LeaMapsLC["BattleGroupIconSize"])
@@ -875,21 +1657,20 @@
 		-- Show coordinates
 		----------------------------------------------------------------------
 
-		if LeaMapsLC["ShowCoords"] == "On" then
+		-- Find the game's coordinates panel (if it can't be found, such as after a game update, the option does nothing
+		-- rather than stopping the rest of the addon from loading)
+		local coordsPanel
+		for void, frame in ipairs(WorldMapFrame.overlayFrames or {}) do
+			if frame.PlayerCoords and frame.CursorCoords then coordsPanel = frame; break end
+		end
+
+		if LeaMapsLC["ShowCoords"] == "On" and coordsPanel then
 
 			-- Enable built-in coordinates
 			SetCVar("worldMapShowPlayerCoords", "1")
 			SetCVar("worldMapShowCursorCoords", "1")
 
-			local function FindCoordsPanel()
-				for void, frame in ipairs(WorldMapFrame.overlayFrames) do
-					if frame.PlayerCoords and frame.CursorCoords then
-						return frame
-					end
-				end
-			end
-
-			local coords = FindCoordsPanel()
+			local coords = coordsPanel
 			local canvas = WorldMapFrame:GetCanvasContainer()
 
 			coords.PlayerCoords:SetParent(canvas)
@@ -918,10 +1699,48 @@
 			cFrame:SetPoint("BOTTOMLEFT", 17)
 			cFrame:SetPoint("BOTTOMRIGHT", 0)
 
-			cFrame.t = cFrame:CreateTexture(nil, "BACKGROUND")
+			-- Background (on its own frame so the rainbow theme can add to it)
+			cFrame.back = CreateFrame("Frame", nil, cFrame)
+			cFrame.back:SetAllPoints()
+			cFrame.t = cFrame.back:CreateTexture(nil, "BACKGROUND")
 			cFrame.t:SetAllPoints()
 			cFrame.t:SetTexture("Interface\\ChatFrame\\ChatFrameBackground")
 			cFrame.t:SetVertexColor(0, 0, 0, 0.5)
+
+			-- Simple map frame: the coordinates sit in a footer under the map (so the bar does not cover anything on the
+			-- map), the same width as the title bar and colored by the map theme (the footer is placed in SetPixelEdges)
+			if ApplyMapTheme then
+				cFrame:SetParent(WorldMapFrame)
+				cFrame:ClearAllPoints()
+				cFrame:SetHeight(20)
+				cFrame:SetFrameStrata(mapTheme.titleBar:GetFrameStrata())
+				cFrame:SetFrameLevel(mapTheme.titleBar:GetFrameLevel())
+				cFrame.t:SetTexture("Interface\\Buttons\\WHITE8X8")
+				cFrame.t:SetVertexColor(1, 1, 1, 1)
+				mapTheme.footerFrame = cFrame
+				mapTheme.footer = cFrame.back
+				mapTheme.footerTexture = cFrame.t
+
+				-- Function to move the coordinates into the footer (same places along the map as before, in the footer which
+				-- is under the map, or inside the bottom of the map when the map is maximised)
+				local function MoveCoords(frame, point, relativePoint, x, y)
+					if not frame then return end
+					frame:SetParent(cFrame)
+					frame:ClearAllPoints()
+					frame:SetPoint(point, canvas, relativePoint, x, y)
+					frame:SetFrameLevel(cFrame:GetFrameLevel() + 2)
+				end
+				mapTheme.PlaceCoords = function(inside)
+					local y = inside and 16 or -4
+					MoveCoords(coords.PlayerCoords, "TOPLEFT", "BOTTOMLEFT", 40, y)
+					MoveCoords(coords.CursorCoords, "TOPRIGHT", "BOTTOMRIGHT", -80, y)
+					MoveCoords(coords.CrosshairCoords, "TOP", "BOTTOM", -32, y)
+				end
+				mapTheme.PlaceCoords(false)
+
+				ApplyMapTheme()
+				LeaMapsLC.RefreshMapLines()
+			end
 
 			-- Disable coordinates if option is turned off
 			cFrame:RegisterEvent("PLAYER_LOGOUT")
@@ -942,9 +1761,9 @@
 			-- Function to apply settings
 			local function SetCoordFunc()
 				if LeaMapsLC["CoordsBackground"] == "On" then
-					cFrame.t:Show()
+					cFrame.back:Show()
 				else
-					cFrame.t:Hide()
+					cFrame.back:Hide()
 				end
 			end
 
@@ -1050,8 +1869,8 @@
 			-- Enable movement
 			WorldMapFrame:SetMovable(true)
 			WorldMapFrame:RegisterForDrag("LeftButton")
-			WorldMapFrame:SetScript("OnDragStart", StartMapMove)
-			WorldMapFrame:SetScript("OnDragStop", StopMapMove)
+			WorldMapFrame:HookScript("OnDragStart", StartMapMove)
+			WorldMapFrame:HookScript("OnDragStop", StopMapMove)
 
 			-- Stop moving the map frame when combat starts (combat lockdown starts after this event and another addon
 			-- may make the map frame protected during it)
@@ -1063,8 +1882,8 @@
 			if LeaMapsCB["MapTitleFrame"] then
 				LeaMapsCB["MapTitleFrame"]:EnableMouse(true)
 				LeaMapsCB["MapTitleFrame"]:RegisterForDrag("LeftButton")
-				LeaMapsCB["MapTitleFrame"]:SetScript("OnDragStart", WorldMapFrame:GetScript("OnDragStart"))
-				LeaMapsCB["MapTitleFrame"]:SetScript("OnDragStop", WorldMapFrame:GetScript("OnDragStop"))
+				LeaMapsCB["MapTitleFrame"]:SetScript("OnDragStart", StartMapMove)
+				LeaMapsCB["MapTitleFrame"]:SetScript("OnDragStop", StopMapMove)
 			end
 
 			WorldMapFrame:SetClampedToScreen(true)
@@ -1183,11 +2002,11 @@
 		-- Disable map emote when opening the map
 		----------------------------------------------------------------------
 
-		hooksecurefunc(C_ChatInfo, "PerformEmote", function(emote)
-			if emote == "READ" and WorldMapFrame:IsShown() then
-				if LeaMapsLC["NoMapEmote"] == "On" then
-					C_ChatInfo.CancelEmote()
-				end
+		-- The map performs the reading emote in its OnShow script so it is cancelled straight after (this only runs when
+		-- the map is shown, unlike a hook on C_ChatInfo.PerformEmote which would run for every emote)
+		WorldMapFrame:HookScript("OnShow", function()
+			if LeaMapsLC["NoMapEmote"] == "On" then
+				C_ChatInfo.CancelEmote()
 			end
 		end)
 
@@ -1313,16 +2132,30 @@
 			-- Create table to store revealed overlays
 			local overlayTextures = {}
 			local bfoverlayTextures = {}
-			local tex = {}
+
+			-- Texture pools for revealed overlays (one per exploration pin and owned by Leatrix Maps so Blizzard code never
+			-- reads them, the pin is only the parent so the textures move and hide with the map)
+			local revealPools = {}
+			local function ResetRevealTexture(pool, texture)
+				texture:SetVertexColor(1, 1, 1, 1)
+				texture:Hide()
+				texture:ClearAllPoints()
+			end
+			local function GetRevealPool(pin)
+				local pool = revealPools[pin]
+				if not pool then
+					pool = CreateTexturePool(pin, "ARTWORK", -1, nil, ResetRevealTexture)
+					revealPools[pin] = pool
+				end
+				return pool
+			end
 
 			-- Function to refresh overlays (Blizzard_SharedMapDataProviders\MapExplorationDataProvider)
 			local function MapExplorationPin_RefreshOverlays(pin, fullUpdate)
 
 				-- Remove existing textures
-				for k, v in pairs(tex) do
-					v:SetVertexColor(1, 1, 1, 1)
-				end
-				wipe(tex)
+				local pool = GetRevealPool(pin)
+				pool:ReleaseAll()
 
 				overlayTextures = {}
 				local mapID = WorldMapFrame.mapID; if not mapID then return end
@@ -1340,9 +2173,9 @@
 				end
 
 				-- Get the sizes
-				pin.layerIndex = pin:GetMap():GetCanvasContainer():GetCurrentLayerIndex()
+				local layerIndex = pin:GetMap():GetCanvasContainer():GetCurrentLayerIndex()
 				local layers = C_Map.GetMapArtLayers(mapID)
-				local layerInfo = layers and layers[pin.layerIndex]
+				local layerInfo = layers and layers[layerIndex]
 				if not layerInfo then return end
 				local TILE_SIZE_WIDTH = layerInfo.tileWidth
 				local TILE_SIZE_HEIGHT = layerInfo.tileHeight
@@ -1374,8 +2207,7 @@
 								end
 							end
 							for k = 1, numTexturesWide do
-								local texture = pin.overlayTexturePool:Acquire()
-								tinsert(tex, texture)
+								local texture = pool:Acquire()
 								if ( k < numTexturesWide ) then
 									texturePixelWidth = TILE_SIZE_WIDTH
 									textureFileWidth = TILE_SIZE_WIDTH
@@ -1395,9 +2227,6 @@
 								texture:SetTexture(tonumber(fileDataIDs[((j - 1) * numTexturesWide) + k]), nil, nil, "TRILINEAR")
 								texture:SetDrawLayer("ARTWORK", -1)
 								texture:Show()
-								if fullUpdate then
-									pin.textureLoadGroup:AddTexture(texture)
-								end
 								if LeaMapsLC["RevTint"] == "On" and mapType == 3 then
 									texture:SetVertexColor(LeaMapsLC["tintRed"], LeaMapsLC["tintGreen"], LeaMapsLC["tintBlue"], LeaMapsLC["tintAlpha"])
 								end
@@ -1408,29 +2237,17 @@
 				end
 			end
 
-			-- Reset texture color and alpha
-			local function TexturePool_ResetVertexColor(pool, texture)
-				texture:SetVertexColor(1, 1, 1)
-				texture:SetAlpha(1)
-				return TexturePool_HideAndClearAnchors(pool, texture)
-			end
-
 			-- Show overlays on startup
 			for pin in WorldMapFrame:EnumeratePinsByTemplate("MapExplorationPinTemplate") do
 				hooksecurefunc(pin, "RefreshOverlays", MapExplorationPin_RefreshOverlays)
-				pin.overlayTexturePool.resetterFunc = TexturePool_ResetVertexColor
 			end
-
-			local bftex = {}
 
 			-- Repeat refresh overlays function for Battlefield map
 			local function bfMapExplorationPin_RefreshOverlays(pin, fullUpdate)
 
 				-- Remove existing textures
-				for k, v in pairs(bftex) do
-					v:SetVertexColor(1, 1, 1, 1)
-				end
-				wipe(bftex)
+				local pool = GetRevealPool(pin)
+				pool:ReleaseAll()
 
 				bfoverlayTextures = {}
 				local mapID = BattlefieldMapFrame.mapID; if not mapID then return end
@@ -1448,9 +2265,9 @@
 				end
 
 				-- Get the sizes
-				pin.layerIndex = pin:GetMap():GetCanvasContainer():GetCurrentLayerIndex()
+				local layerIndex = pin:GetMap():GetCanvasContainer():GetCurrentLayerIndex()
 				local layers = C_Map.GetMapArtLayers(mapID)
-				local layerInfo = layers and layers[pin.layerIndex]
+				local layerInfo = layers and layers[layerIndex]
 				if not layerInfo then return end
 				local TILE_SIZE_WIDTH = layerInfo.tileWidth
 				local TILE_SIZE_HEIGHT = layerInfo.tileHeight
@@ -1482,8 +2299,7 @@
 								end
 							end
 							for k = 1, numTexturesWide do
-								local texture = pin.overlayTexturePool:Acquire()
-								tinsert(bftex, texture)
+								local texture = pool:Acquire()
 								if ( k < numTexturesWide ) then
 									texturePixelWidth = TILE_SIZE_WIDTH
 									textureFileWidth = TILE_SIZE_WIDTH
@@ -1503,9 +2319,6 @@
 								texture:SetTexture(tonumber(fileDataIDs[((j - 1) * numTexturesWide) + k]), nil, nil, "TRILINEAR")
 								texture:SetDrawLayer("ARTWORK", -1)
 								texture:Show()
-								if fullUpdate then
-									pin.textureLoadGroup:AddTexture(texture)
-								end
 								if LeaMapsLC["RevTint"] == "On" and mapType == 3 then
 									texture:SetVertexColor(LeaMapsLC["tintRed"], LeaMapsLC["tintGreen"], LeaMapsLC["tintBlue"], LeaMapsLC["tintAlpha"])
 								end
@@ -1518,7 +2331,6 @@
 
 			for pin in BattlefieldMapFrame:EnumeratePinsByTemplate("MapExplorationPinTemplate") do
 				hooksecurefunc(pin, "RefreshOverlays", bfMapExplorationPin_RefreshOverlays)
-				pin.overlayTexturePool.resetterFunc = TexturePool_ResetVertexColor
 			end
 
 			-- Create tint frame
@@ -1625,42 +2437,6 @@
 					LeaMapsLC["PageF"]:Hide()
 				end
 			end)
-
-			-- Add tint unexplored areas checkbox to world map filter menu
-			do
-
-				-- Define essential functions
-				local function IsSelected()
-					return LeaMapsLC["RevTint"] == "On"
-				end
-
-				local function SetSelected()
-					if LeaMapsLC["RevTint"] == "On" then
-						LeaMapsLC["RevTint"] = "Off"
-					else
-						LeaMapsLC["RevTint"] = "On"
-					end
-					SetTintCol()
-					if LeaMapsCB["RevTint"]:IsShown() then LeaMapsCB["RevTint"]:Hide(); LeaMapsCB["RevTint"]:Show() end
-				end
-
-				-- Create checkbox entry
-				local button = MenuUtil.CreateCheckbox(L["Tint unexplored areas"], IsSelected, SetSelected)
-
-				-- Add tooltip
-				-- local function OnTooltipShow(tooltipFrame, elementDescription)
-				-- 	GameTooltip_SetTitle(tooltipFrame, L["If checked, unexplored areas will be tinted."])
-				-- end
-				-- button:SetTooltip(OnTooltipShow)
-
-				-- Insert button to menu
-				Menu.ModifyMenu("MENU_WORLD_MAP_TRACKING", function(ownerRegion, rootDescription, contextData)
-					rootDescription:CreateDivider()
-					rootDescription:CreateTitle(L["Leatrix Maps"])
-					rootDescription:Insert(button)
-				end)
-
-			end
 
 		end
 
@@ -2162,6 +2938,7 @@
 
 	-- Set lock state for configuration buttons
 	function LeaMapsLC:SetDim()
+		LeaMapsLC:LockOption("SimpleMapFrame", "SimpleMapFrameBtn", true)		-- Use simple map frame
 		LeaMapsLC:LockOption("ScaleWorldMap", "ScaleWorldMapBtn", true) 		-- Scale the map
 		LeaMapsLC:LockOption("RevealMap", "RevTintBtn", true)					-- Shiw unexplored areas
 		LeaMapsLC:LockOption("UnlockMap", "UnlockMapBtn", true)					-- Unlock map frame
@@ -2191,10 +2968,10 @@
 		-- Set skinned button textures
 		if not naked then
 			mbtn:SetNormalTexture("Interface\\AddOns\\Leatrix_Maps\\Leatrix_Maps.blp")
-			mbtn:GetNormalTexture():SetTexCoord(0.5, 1, 0, 1)
+			mbtn:GetNormalTexture():SetTexCoord(0.5, 1, 0, 0.25)
 		end
 		mbtn:SetHighlightTexture("Interface\\AddOns\\Leatrix_Maps\\Leatrix_Maps.blp")
-		mbtn:GetHighlightTexture():SetTexCoord(0, 0.5, 0, 1)
+		mbtn:GetHighlightTexture():SetTexCoord(0, 0.5, 0, 0.25)
 
 		-- Hide the default textures
 		mbtn:HookScript("OnShow", function() mbtn.Left:Hide(); mbtn.Middle:Hide(); mbtn.Right:Hide() end)
@@ -2496,6 +3273,8 @@
 				LeaMapsDB["MapScale"] = 1.0
 				LeaMapsDB["MaxMapScale"] = 0.9
 				LeaMapsDB["HideBlackoutFrame"] = "On"
+				LeaMapsDB["ShowZoneMenu"] = "On"
+				LeaMapsDB["MapTheme"] = 1
 				LeaMapsDB["AddonLanguage"] = 1
 				LeaMapsDB["NoMapFade"] = "On"
 				LeaMapsDB["NoMapEmote"] = "On"
@@ -2596,6 +3375,8 @@
 			LeaMapsLC:LoadVarNum("MapScale", 1.2, 0.5, 2)				-- Map scale
 			LeaMapsLC:LoadVarNum("MaxMapScale", 1.0, 0.5, 2)			-- Maximised map scale
 			LeaMapsLC:LoadVarChk("HideBlackoutFrame", "On")				-- Hide blackout frame
+			LeaMapsLC:LoadVarChk("ShowZoneMenu", "On")					-- Show zone menus
+			LeaMapsLC:LoadVarNum("MapTheme", 1, 1, 11)					-- Map theme
 			LeaMapsLC:LoadVarNum("AddonLanguage", 1, 1, 12)				-- Addon language
 			LeaMapsLC:LoadVarChk("NoMapFade", "On")						-- Disable map fade
 			LeaMapsLC:LoadVarChk("NoMapEmote", "On")					-- Disable map emote
@@ -2693,7 +3474,9 @@
 			LeaMapsDB["MapScale"] = LeaMapsLC["MapScale"]
 			LeaMapsDB["MaxMapScale"] = LeaMapsLC["MaxMapScale"]
 			LeaMapsDB["HideBlackoutFrame"] = LeaMapsLC["HideBlackoutFrame"]
+			LeaMapsDB["ShowZoneMenu"] = LeaMapsLC["ShowZoneMenu"]
 			LeaMapsDB["AddonLanguage"] = LeaMapsLC["AddonLanguage"]
+			LeaMapsDB["MapTheme"] = LeaMapsLC["MapTheme"]
 			LeaMapsDB["NoMapFade"] = LeaMapsLC["NoMapFade"]
 			LeaMapsDB["NoMapEmote"] = LeaMapsLC["NoMapEmote"]
 			LeaMapsDB["NoFilterResetBtn"] = LeaMapsLC["NoFilterResetBtn"]
@@ -2845,6 +3628,7 @@
 	LeaMapsLC:MakeCB(PageF, "NoFilterResetBtn", "Hide filter reset button", 225, -272, true, "If checked, the world map filter reset button will be hidden.")
 	LeaMapsLC:MakeCB(PageF, "ShowMinimapIcon", "Show minimap button", 225, -292, false, "If checked, the minimap button will be shown.")
 
+	LeaMapsLC:CfgBtn("SimpleMapFrameBtn", LeaMapsCB["SimpleMapFrame"])
 	LeaMapsLC:CfgBtn("ScaleWorldMapBtn", LeaMapsCB["ScaleWorldMap"])
 	LeaMapsLC:CfgBtn("RevTintBtn", LeaMapsCB["RevealMap"])
 	LeaMapsLC:CfgBtn("UnlockMapBtn", LeaMapsCB["UnlockMap"])
