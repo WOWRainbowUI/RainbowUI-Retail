@@ -2,6 +2,9 @@
 local L = LibStub("AceLocale-3.0"):NewLocale("MinimalistCooldownEdge", "frFR")
 if not L then return end
 
+L["ForeverAuras"] = true
+L["FOREVERAURAS_DESC"] = "Personnalise les comptes à rebours des icônes ForeverAuras, clones compris. ForeverAuras conserve la gestion de la visibilité des nombres et de l'animation du balayage."
+
 L["Shrink text to fit icons"] = "Réduire le texte pour l'adapter aux icônes"
 L["FIT_TEXT_DESC"] = "La taille configurée est un maximum. Des exemples courts fixes gardent le texte lisible et sa taille stable pendant le compte à rebours. Les formats longs peuvent dépasser des petites icônes."
 

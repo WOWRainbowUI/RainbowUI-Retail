@@ -1,6 +1,6 @@
-# MinimalistCooldownEdge: experimental WoW Forever support
+# MinimalistCooldownEdge: WoW Forever support
 
-Version: `4.7.0`. One source branch and version serve both editions.
+Version: `4.7.2`. One source branch and version serve both editions.
 
 ## Behavior
 
@@ -32,11 +32,10 @@ automatic Retail-to-Forever SavedVariables transfer.
 
 Run `py Tools/package.py --output .release` locally to create **QA drafts**:
 
-- `MinimalistCooldownEdge-4.7.0-beta.1-Retail.zip`
-- `MinimalistCooldownEdge-4.7.0-beta.1-Forever.zip`
+- `MinimalistCooldownEdge-4.7.2-Retail.zip`
+- `MinimalistCooldownEdge-4.7.2-Forever.zip`
 
-Those names refer to the original migration snapshots. The October feedback
-candidate is `MinimalistCooldownEdge-4.7.0.zip` in the workspace's
+The earlier October feedback candidate is `MinimalistCooldownEdge-4.7.0.zip` in the workspace's
 `CurseForgeFeedback/packages` directory. Its `BUILD.json` records the outstanding
 Retail and Forever runtime checks.
 
@@ -48,7 +47,7 @@ For a fully validated stable package, use `--release --tag <matching-version-tag
 tagged checkout after recording PASS for static checks, Forever runtime, Retail
 runtime and dependencies, plus the actual Forever build and tester. The builder
 does not create tags, install addons or upload files. The existing CurseForge
-project can host both edition files. Initial public Forever versions are experimental betas. Their in-game checks remain pending.
+project can host both edition files. The current public Forever build is a Release. Its in-game checks remain as recorded above.
 
 ## Sources
 
@@ -57,9 +56,16 @@ project can host both edition files. Initial public Forever versions are experim
 
 ## Distribution
 
-A public beta uses one archive with the existing client interfaces and Forever
-interface 16001. Beta publication does not change the pending in-game validation
-above. Release publication was explicitly requested by the maintainer; runtime checks remain pending.
+Public releases use one archive with the declared client interfaces and Forever
+interface 16001. Runtime and dependency validation retain their recorded status.
 
 This version also includes the existing Retail stance-button styling option and
 static stance cooldown text colors. The original Retail working copy is preserved.
+
+## Current public release
+
+Version `4.7.2` is available as a CurseForge Release for WoW Forever `1.60.1`
+(interface `16001`) and the other declared client versions. Release status does not
+change the in-game and dependency validation records above.
+
+[Download the verified release](https://edge.forgecdn.net/files/9326/796/MinimalistCooldownEdge-4.7.2-Release.zip)

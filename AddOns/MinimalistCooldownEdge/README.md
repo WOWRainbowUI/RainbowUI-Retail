@@ -1,4 +1,4 @@
-Experimental WoW Forever support is available in this development branch. See [FOREVER.md](FOREVER.md) for the supported behavior, draft packages and pending in-game checks.
+WoW Forever 1.60.1 support is available in Release 4.7.2. See [FOREVER.md](FOREVER.md) for supported behavior, downloads and validation records.
 
 # Minimalist Cooldown Edge (MiniCE)
 
@@ -18,6 +18,9 @@ The addon is built around an adapter-driven registry. Cooldowns are discovered b
 - MiniAuras overlays.
 - sArena_Reloaded cooldown timers.
 - TellMeWhen cooldown and charge sweeps.
+- ForeverAuras icon countdowns, including clones, on WoW Forever. Enable its
+  category under Enable Categories Styling; visibility and swipe animation are
+  controlled in ForeverAuras.
 
 Party / Raid Frames are no longer supported. The options menu keeps a retired notice for this category because Blizzard Patch 12.0.5 changed the compact party and raid frame surface MiniCE previously styled.
 
@@ -30,6 +33,8 @@ BetterBlizzFrames support currently applies to Player Auras only; MiniCE disable
 ## Main features
 
 - Per-category font, text color, edge, swipe, and stack-count styling.
+- Optional text fitting with proportional margins to keep small aura timers
+  readable; the configured font size remains the maximum.
 - Optional duration-based text coloring with threshold curves.
 - Import and export for profile data.
 - Embedded Ace3 configuration UI with profile support.

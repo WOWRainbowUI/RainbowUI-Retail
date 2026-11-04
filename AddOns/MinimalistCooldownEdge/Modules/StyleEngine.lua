@@ -1354,21 +1354,21 @@ end
 -- HIDE COUNTDOWN NUMBERS RESOLUTION
 -- =========================================================================
 
-local function GetTellMeWhenTimerOption(cdFrame, optionKey)
-    local adapter = Registry and Registry:GetAdapter(CATEGORY.TellMeWhen) or nil
+local function GetProviderTimerOption(cdFrame, category, optionKey)
+    local adapter = Registry and Registry:GetAdapter(category) or nil
     local getter = adapter and adapter.GetTimerOption or nil
     if type(getter) ~= "function" then return nil end
 
     local ok, value = pcall(getter, adapter, cdFrame, optionKey)
-    if ok and type(value) == "boolean" then
+    if ok and not IsSecretValue(value) and type(value) == "boolean" then
         return value
     end
     return nil
 end
 
 function StyleEngine:GetDesiredHideCountdownNumbers(cdFrame, category, config, isAssistedCombat, subtype)
-    if category == CATEGORY.TellMeWhen then
-        return GetTellMeWhenTimerOption(cdFrame, "hideCountdownNumbers")
+    if category == CATEGORY.TellMeWhen or category == CATEGORY.ForeverAuras then
+        return GetProviderTimerOption(cdFrame, category, "hideCountdownNumbers")
     end
 
     local hideNums = config.hideCountdownNumbers
@@ -1461,8 +1461,8 @@ local function GetMiniAurasHideSwipeSetting(config, subtype)
 end
 
 function StyleEngine:GetDesiredDrawSwipe(cdFrame, category, config, isChargeCooldown, hasActiveCharge, subtype)
-    if category == CATEGORY.TellMeWhen then
-        return GetTellMeWhenTimerOption(cdFrame, "drawSwipe")
+    if category == CATEGORY.TellMeWhen or category == CATEGORY.ForeverAuras then
+        return GetProviderTimerOption(cdFrame, category, "drawSwipe")
     end
 
     local baseWant = config.drawSwipe ~= false
@@ -1751,7 +1751,7 @@ function StyleEngine:ApplyStyle(cdFrame, forcedCategory)
             pcall(cdFrame.SetHideCountdownNumbers, cdFrame, hideNums)
             fs.suppressHideNums = nil
             fs.hideNums = hideNums
-        elseif hideNums == nil and category == CATEGORY.TellMeWhen then
+        elseif hideNums == nil and (category == CATEGORY.TellMeWhen or category == CATEGORY.ForeverAuras) then
             fs.hideNums = nil
         end
     end

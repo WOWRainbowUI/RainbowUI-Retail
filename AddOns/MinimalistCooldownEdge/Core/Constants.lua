@@ -18,6 +18,7 @@ C.Addon = {
     Bartender4Name = "Bartender4",
     SArenaName = "sArena_Reloaded",
     TellMeWhenName = "TellMeWhen",
+    ForeverAurasName = "ForeverAuras",
     MyDRsName = "MyDRs",
     ShackledName = "Shackled",
     ShinyAurasName = "ShinyAuras",
@@ -44,6 +45,7 @@ C.Categories = {
     MyDRs = "mydrs",
     SArena = "sarena",
     TellMeWhen = "tellmewhen",
+    ForeverAuras = "foreverauras",
     Shackled = "shackled",
     PartyRaidRetired = "partyRaidRetired",
 }
@@ -156,6 +158,7 @@ C.Defaults = {
         [C.Categories.HealerCC] = false,
         [C.Categories.SArena] = false,
         [C.Categories.TellMeWhen] = false,
+        [C.Categories.ForeverAuras] = false,
         [C.Categories.MyDRs] = false,
         [C.Categories.Shackled] = false,
     },

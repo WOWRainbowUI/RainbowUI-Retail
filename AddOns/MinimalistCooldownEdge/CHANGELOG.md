@@ -1,3 +1,8 @@
+## 4.7.3 - ForeverAuras Cooldown Styling
+
+- Added a ForeverAuras styling category for icon countdowns and clones.
+- Reduced text fitting margins on small icons.
+
 ## 4.7.2 - Readable Small Icon Timers
 - Increased fitted timer text size on small icons.
 - Timer text fitting now uses short countdown formats.

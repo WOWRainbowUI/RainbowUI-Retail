@@ -3,12 +3,12 @@
 ## Title: |cff00ccffMiniCE|r (Minimalist Cooldown Edge)
 ## Notes: Clean cooldowns with category-specific styles.
 ## Author: Anahkas
-## Version: 4.7.2
+## Version: 4.7.3
 ## IconTexture: Interface\AddOns\MinimalistCooldownEdge\Assets\Textures\MinimalistCooldownEdge
 ## Category: Action Bars
 ## X-Curse-Project-ID: 1443896
 ## SavedVariables: MinimalistCooldownEdgeDB_v2
-## OptionalDeps: LibSharedMedia-3.0, Bartender4, Dominos, Dominos_Cast, Dominos_Config, ElvUI, HealerCC, MiniAuras, sArena_Reloaded, TellMeWhen, ShinyAuras, MyDRs, CooldownManagerCentered, mUI, BetterBlizzFrames, BetterBlizzPlates, Shackled
+## OptionalDeps: LibSharedMedia-3.0, Bartender4, Dominos, Dominos_Cast, Dominos_Config, ElvUI, HealerCC, MiniAuras, sArena_Reloaded, TellMeWhen, ForeverAuras, ShinyAuras, MyDRs, CooldownManagerCentered, mUI, BetterBlizzFrames, BetterBlizzPlates, Shackled
 
 
 # Libraries
@@ -58,6 +58,7 @@ Adapters\MiniAurasAdapter.lua
 Adapters\MyDRsAdapter.lua
 Adapters\SArenaAdapter.lua
 Adapters\TellMeWhenAdapter.lua
+Adapters\ForeverAurasAdapter.lua
 Adapters\ShackledAdapter.lua
 Adapters\ShinyAurasAdapter.lua
 Adapters\NameplateAdapter.lua
