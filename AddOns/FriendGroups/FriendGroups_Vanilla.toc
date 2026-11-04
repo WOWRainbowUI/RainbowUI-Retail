@@ -1,3 +1,4 @@
+## Dependencies: Ace3
 ## Interface: 11509
 ## Version: 13.0.9
 ## Title: FriendGroups
@@ -23,9 +24,6 @@
 # Libraries (load before any addon file that uses them)
 Libs\LibStub\LibStub.lua
 Libs\LibDeflate\LibDeflate.lua
-Libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
-Libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
-Libs\LibDBIcon-1.0\lib.xml
 
 Compat.lua
 locales\localizations.xml
