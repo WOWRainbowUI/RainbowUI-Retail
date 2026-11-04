@@ -222,9 +222,9 @@ local function SetFrames()
 			end
 		elseif event == "QUEST_REMOVED" then
 			local questID = ...
-			if not C_QuestLog.IsQuestTask(questID) and not C_QuestLog.IsQuestBounty(questID) then
-				KT.QuestsCache_RemoveQuest(questID)
+			KT.QuestsCache_RemoveQuest(questID)
 
+			if not C_QuestLog.IsQuestTask(questID) and not C_QuestLog.IsQuestBounty(questID) then
 				dbChar.quests.num, dbChar.quests.numOver = KT.QuestsCache_Update()
 				KT:SendSignal("QUESTS_COUNT_UPDATED")
 
@@ -716,7 +716,7 @@ function KT:SetOtherButtons()
 		button:SetScript("OnEnter", function(self)
 			self:GetNormalTexture():SetVertexColor(1, 1, 1)
 			GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-			GameTooltip:AddLine(AchievementMicroButton.tooltipText, 1, 1, 1)
+			GameTooltip:AddLine(KT.BUTTON.ACHIEVEMENTS.tooltipText, 1, 1, 1)
 			GameTooltip:Show()
 		end)
 		button:SetScript("OnLeave", function(self)
@@ -738,7 +738,7 @@ function KT:SetOtherButtons()
 		button:SetScript("OnEnter", function(self)
 			self:GetNormalTexture():SetVertexColor(1, 1, 1)
 			GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-			GameTooltip:AddLine(QuestLogMicroButton.tooltipText, 1, 1, 1)
+			GameTooltip:AddLine(KT.BUTTON.QUESTLOG.tooltipText, 1, 1, 1)
 			GameTooltip:Show()
 		end)
 		button:SetScript("OnLeave", function(self)
@@ -876,7 +876,7 @@ function KT:OnEnable()
 
 	SetFrames()
 
-	self:RegSignal("QUESTS_READY:10", Quests_UpdateCount)
+	self:RegSignal("QUESTS_READY", Quests_UpdateCount)
 	self:RegSignal("OPTIONS_CHANGED", "Tracker_Update")
 	self:RegEvent("PLAYER_ENTERING_WORLD", function(eventID, ...)
 		self.ObjectiveTrackerManager:OnPlayerEnteringWorld(...)

@@ -106,6 +106,7 @@ function KT.Menu_AddSeparator()
     _info.notCheckable = true
     _info.isNotRadio = true
     _info.hasArrow = false
+    _info.disabled = false
 end
 
 function KT.Menu_AddButton(text, ...)
@@ -186,5 +187,5 @@ end
 function SS:Init()
     db = KT.db.profile
 
-    KT:RegSignal("CONTEXT_MENU_UPDATE", ContextMenu_Extend, self)
+    KT:RegSignal("CONTEXT_MENU_UPDATE:20", ContextMenu_Extend, self)
 end

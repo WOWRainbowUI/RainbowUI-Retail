@@ -22,11 +22,10 @@ function KT.QuestsCache_Update(force)
     local data = questsCache.data
     local numQuests = 0
     local numQuestsOver = 0
-    local numEntries = C_QuestLog.GetNumQuestLogEntries()
     local headerTitle
     local validIDs = {}
 
-    for i = 1, numEntries do
+    for i = 1, C_QuestLog.GetNumQuestLogEntries() do
         local questInfo = C_QuestLog.GetInfo(i)
         if not questInfo.isHidden then
             if questInfo.isHeader then

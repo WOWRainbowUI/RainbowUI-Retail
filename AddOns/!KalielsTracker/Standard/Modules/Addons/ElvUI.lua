@@ -32,7 +32,7 @@ local function SetupOptions(loaded, versionText)
 end
 
 local function ElvUI_PatchOptions()
-    KT:RegisterOptionsPatch("ElvUI", function(options)
+    KT:Ace_RegisterOptionsPatch("ElvUI", function(options)
         C_Timer.After(0, function()
             local target = options.args.general.args.blizzardImprovements.args.objectiveFrameGroup.args
             target[addonName.."Warning"] = {

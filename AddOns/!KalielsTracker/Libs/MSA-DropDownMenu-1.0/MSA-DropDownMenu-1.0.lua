@@ -8,7 +8,7 @@
 -- Frame names are version-dependent and are not part of the public API.
 -- Do not access frames directly by name, always use the library-provided interface.
 
-local name, version = "MSA-DropDownMenu-1.0", 22
+local name, version = "MSA-DropDownMenu-1.0", 23
 
 local lib, oldVersion = LibStub:NewLibrary(name, version)
 if not lib then return end
@@ -710,6 +710,7 @@ info.arg1 = [ANYTHING] -- This is the first argument used by info.func
 info.arg2 = [ANYTHING] -- This is the second argument used by info.func
 info.arg3 = [ANYTHING] -- This is the third argument used by info.func  -- MSA
 info.fontObject = [FONT] -- font object replacement for Normal and Highlight
+info.fontObjectDisable = [FONT] -- font object replacement for Disable  -- MSA
 info.menuList = [TABLE] -- This contains an array of info tables to be displayed as a child menu
 info.menuListDisplayMode = [nil, "MENU"] -- If menuList is set, show the sub drop down with an override display mode.
 info.noClickSound = [nil, 1]  --  Set to 1 to suppress the sound when clicking the button. The sound only plays if .func is set.
@@ -846,7 +847,11 @@ function MSA_DropDownMenu_AddButton(info, level)
     local invisibleButton = _G[button:GetName().."InvisibleButton"];
 
     -- Default settings
-    button:SetDisabledFontObject(GameFontDisableSmallLeft);
+    if ( info.fontObjectDisable ) then
+        button:SetDisabledFontObject(info.fontObjectDisable);  -- MSA
+    else
+        button:SetDisabledFontObject(GameFontDisableSmallLeft);
+    end
     invisibleButton:Hide();
     button:Enable();
 

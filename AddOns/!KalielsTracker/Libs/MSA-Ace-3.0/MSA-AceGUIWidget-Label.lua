@@ -56,9 +56,23 @@ local function UpdateImageAnchor(self)
 		end
 	else
 		-- no image shown
-		label:SetPoint("TOPLEFT", frame, "TOPLEFT", marginLeft, 0)  -- MSA
+		-- MSA
+		local top = 0
+		if self.desc and self.desc:GetText() and self.desc:GetText() ~= "" then
+			top = -5
+		end
+
+		label:SetPoint("TOPLEFT", frame, "TOPLEFT", marginLeft, top)  -- MSA
 		label:SetWidth(contentWidth)  -- MSA
 		height = label:GetStringHeight()
+	end
+
+	-- MSA
+	if self.desc then
+		self.desc:SetWidth(width - 30)
+		if self.desc:GetText() and self.desc:GetText() ~= "" then
+			height = label:GetStringHeight() + 14 + self.desc:GetStringHeight()
+		end
 	end
 
 	-- avoid zero-height labels, since they can used as spacers
@@ -89,7 +103,8 @@ local methods = {
 		self:SetFontObject()
 		self:SetJustifyH("LEFT")
 		self:SetJustifyV("TOP")
-		self:SetDisabled(false)  -- MSA
+		self:SetDisabled(nil)     -- MSA
+		self:SetDescription(nil)  -- MSA
 
 		-- reset the flag
 		self.resizing = nil
@@ -178,9 +193,41 @@ local methods = {
 	["SetDisabled"] = function(self, disabled)
 		self.disabled = disabled
 		if disabled then
-			self.label:SetTextColor(.5, .5, .5)
+			self.label:SetTextColor(0.5, 0.5, 0.5)
+			if self.desc then
+				self.desc:SetTextColor(0.5, 0.5, 0.5)
+			end
 		else
 			self.label:SetTextColor(unpack(self.color))
+			if self.desc then
+				self.desc:SetTextColor(1, 1, 1)
+			end
+		end
+	end,
+
+	-- MSA
+	["SetDescription"] = function(self, desc)
+		local height = self.label:GetStringHeight()
+		if desc then
+			if not self.desc then
+				local f = self.frame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+				f:ClearAllPoints()
+				f:SetPoint("TOPLEFT", self.label, "BOTTOMLEFT", 5, -3)
+				f:SetWidth(self.frame.width - 30)
+				f:SetPoint("RIGHT", self.frame, "RIGHT", -30, 0)
+				f:SetJustifyH("LEFT")
+				f:SetJustifyV("TOP")
+				self.desc = f
+			end
+			self.desc:Show()
+			self.desc:SetText(desc)
+			self:SetHeight(height + 14 + self.desc:GetStringHeight())
+		else
+			if self.desc then
+				self.desc:SetText("")
+				self.desc:Hide()
+			end
+			self:SetHeight(height)
 		end
 	end,
 }

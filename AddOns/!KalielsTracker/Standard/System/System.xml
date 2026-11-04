@@ -18,6 +18,7 @@
     <Script file="Subsystems\Modules.lua"/>
     <Script file="Subsystems\QuestButtons.lua"/>
     <Script file="Subsystems\OpenService.lua"/>
+    <Script file="Subsystems\LocalizationService.lua"/>
     <Script file="Subsystems\Menu.lua"/>
     <Script file="Subsystems\ProgressBar.lua"/>
     <Script file="Subsystems\StaticPopup.lua"/>

@@ -64,7 +64,7 @@ local function CreateQuestTags(quest)
     local result = ""
 
     if db.questsShowLevel then
-        level = tostring(quest.level)
+        level = tostring(quest.difficultyLevel > 0 and quest.difficultyLevel or quest.level)
     end
 
     if db.questsShowTags then
@@ -353,14 +353,14 @@ function KT.Hooks_ObjectiveTrackerBlock()
                 if self.questCompleted then
                     colorStyle = KT_OBJECTIVE_TRACKER_COLOR["CompleteHighlight"]
                 elseif db.questsColorByDifficulty then
-                    _, colorStyle = GetQuestDifficultyColor(self.level)
+                    _, colorStyle = GetDifficultyColor(C_PlayerInfo.GetContentDifficultyQuestForPlayer(self.id))
                 end
                 colorStyleTag = KT_OBJECTIVE_TRACKER_COLOR["NormalHighlight"]
             else
                 if self.questCompleted then
                     colorStyle = KT_OBJECTIVE_TRACKER_COLOR["Complete"]
                 elseif db.questsColorByDifficulty then
-                    colorStyle = GetQuestDifficultyColor(self.level)
+                    colorStyle = GetDifficultyColor(C_PlayerInfo.GetContentDifficultyQuestForPlayer(self.id))
                 end
                 colorStyleTag = KT_OBJECTIVE_TRACKER_COLOR["Normal"]
             end
@@ -400,7 +400,7 @@ function KT.Hooks_ObjectiveTrackerBlock()
             if self.questCompleted then
                 colorStyle = KT_OBJECTIVE_TRACKER_COLOR["Complete"]
             elseif db.questsColorByDifficulty then
-                colorStyle = GetQuestDifficultyColor(self.level)
+                colorStyle = GetDifficultyColor(C_PlayerInfo.GetContentDifficultyQuestForPlayer(questID))
             end
         end
         if colorStyle then
@@ -504,7 +504,9 @@ function KT.Hooks_ObjectiveTrackerBlock()
 
     function KT_ObjectiveTrackerBlockMixin:AddTimerBar(duration, startTime)
         local timerBar = KT.KT_ObjectiveTrackerBlockMixin.AddTimerBar(self, duration, startTime)
-        SetTimerBarStyle(self, timerBar)
+        if timerBar then
+            SetTimerBarStyle(self, timerBar)
+        end
         return timerBar
     end
 end
@@ -613,10 +615,10 @@ function KT.Hooks_UIErrorsFrame()
     local bck_UIErrorsFrame_OnEvent = UIErrorsFrame:GetScript("OnEvent")
     UIErrorsFrame:SetScript("OnEvent", function(self, event, ...)
         if db.messageQuest and event == "UI_INFO_MESSAGE" then
-            local text, _ = ...
+            local _, message = ...
             for _, patt in ipairs(KT.msgPatterns) do
-                if strfind(text, patt) then
-                    KT:SetMessage(text, 1, 1, 0, nil, "Interface\\GossipFrame\\AvailableQuestIcon", -2, 0)
+                if strfind(message, patt) then
+                    KT:SetMessage(message, 1, 1, 0, nil, "Interface\\GossipFrame\\AvailableQuestIcon", -2, 0)
                     return
                 end
             end
