@@ -696,8 +696,8 @@ end
 
 local UPGRADE_PATH_PATTERN = ITEM_UPGRADE_TOOLTIP_FORMAT_STRING and "^" .. ITEM_UPGRADE_TOOLTIP_FORMAT_STRING:gsub("%%s", ".*"):gsub("%%d", ".*")
 local currentSeasonBonusIDs = {
-  13751,
-  13335,
+  [13751] = true,
+  [13335] = true,
 }
 
 local function CheckBonusIDs(itemLink)
