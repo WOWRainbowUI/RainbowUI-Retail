@@ -1,7 +1,7 @@
 # Syndicator
 
-## [288](https://github.com/TheMouseNest/Syndicator/tree/288) (2026-10-26)
-[Full Changelog](https://github.com/TheMouseNest/Syndicator/compare/287...288) 
+## [289](https://github.com/TheMouseNest/Syndicator/tree/289) (2026-10-30)
+[Full Changelog](https://github.com/TheMouseNest/Syndicator/compare/288...289) 
 
-- Fix bonus id checks using wrong indexes  
-- Add current season bonus ids  
+- Prevent loading in Talebound  
+- Fix bonus id list using array rather than keys format  

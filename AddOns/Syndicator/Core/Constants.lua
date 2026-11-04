@@ -23,6 +23,8 @@ addonTable.Constants = {
   IsBC = WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC,
   IsEra = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC,
 
+  IsTalebound = GetGameType and GetGameType() == "wowhack",
+
   IsTitan = GetBuildInfo():match("^3%.8") ~= nil,
 
   IsLegacyAH = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC or IsUsingLegacyAuctionClient ~= nil and IsUsingLegacyAuctionClient(),
