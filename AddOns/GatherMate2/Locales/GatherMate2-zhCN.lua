@@ -217,6 +217,10 @@ L["World Map Icons Clickable"] = "可点击世界地图图示"
 L["Wrath of the Lich King"] = "巫妖王之怒"
 
 
+L["Icon alpha value, this lets you change the transparency of the icons. Only applies on Minimap."] = "调整图标透明度，仅应用于小地图。"
+L["Minimap Icon Alpha"] = "小地图图标透明度"
+L["World Map Icon Alpha"] = "世界地图图标透明度"
+
 local NL = LibStub("AceLocale-3.0"):NewLocale("GatherMate2Nodes", "zhCN")
 if not NL then return end
 
@@ -851,3 +855,24 @@ NL["Writhebark"] = "歪扭树皮"
 NL["Zandalari Archaeology Find"] = "赞达拉考古发现"
 NL["Zin'anthid"] = "龙眼珊瑚"
 
+
+-- Exact author node-name fallback; game-localized resource names require verification.
+NL["Abyssal Swirl"] = true
+NL["Blighted Venom Pool"] = true
+NL["Bubbling Beryl"] = true
+NL["Cursed Argentleaf"] = true
+NL["Cursed Azeroot"] = true
+NL["Cursed Brilliant Silver"] = true
+NL["Cursed Mana Lily"] = true
+NL["Cursed Oddity"] = true
+NL["Cursed Refulgent Copper"] = true
+NL["Cursed Sanguithorn"] = true
+NL["Cursed Tranquility Bloom"] = true
+NL["Cursed Umbral Tin"] = true
+NL["Envenomated Copper"] = true
+NL["Envenomated Tranquility Bloom"] = true
+NL["Grisly Cod Pool"] = true
+NL["Torrential Gorgerswarm"] = true
+NL["Vile Venom"] = true
+NL["Viscous Venom"] = true
+NL["Willow Sea"] = true
