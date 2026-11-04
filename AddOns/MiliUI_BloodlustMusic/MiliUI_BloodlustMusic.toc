@@ -1,4 +1,5 @@
 ## Interface: 120007, 120100, 120105
+## AllowLoadGameType: standard
 ## Title: MiliUI BloodlustMusic
 ## Notes: Bloodlust / Heroism music playback and countdown bar.|n|n|cffffd200Usage: |rEsc>Options>AddOns>Bloodlust Music or type /blm to configure.
 ## Title-zhTW: |cff00FFFF[音效]|r 米利的嗜血音樂
@@ -12,7 +13,7 @@
 ## Category-zhCN: 战斗
 ## Category-koKR: 전투
 ## Author: Mili
-## Version: 1.2.8
+## Version: 1.2.10
 ## SavedVariables: MiliUI_BloodlustMusic_DB
 
 Libs\MiliUIWidgets\PixelPerfect.lua
