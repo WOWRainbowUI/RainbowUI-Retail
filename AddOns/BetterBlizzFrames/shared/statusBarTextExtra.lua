@@ -50,6 +50,7 @@ local function ClearTexts(entry)
 end
 
 local function ShowText(entry, fontString, text, alpha)
+    if BetterBlizzFramesDB.alwaysHideStatusBarTexts then return end
     fontString:SetText(text)
     if entry.owned or fontString == entry.center then
         fontString:SetAlpha(alpha)
@@ -473,4 +474,84 @@ function BBF.StatusBarTextExtra()
     BBF.PlaceTotStatusTexts()
     RenderGroup(list.tot)
     RenderGroup(list.party)
+end
+
+local statusBars
+
+local function AddStatusBar(list, bar)
+    if bar then list[#list + 1] = bar end
+end
+
+local function GetStatusBars()
+    if statusBars then return statusBars end
+    local list = {}
+    local player = PlayerFrame.PlayerFrameContent.PlayerFrameContentMain
+    AddStatusBar(list, player.HealthBarsContainer.HealthBar)
+    AddStatusBar(list, player.ManaBarArea.ManaBar)
+    AddStatusBar(list, AlternatePowerBar)
+    AddStatusBar(list, MonkStaggerBar)
+    AddStatusBar(list, EvokerEbonMightBar)
+    AddStatusBar(list, DemonHunterSoulFragmentsBar)
+    AddStatusBar(list, PetFrame.healthbar)
+    AddStatusBar(list, PetFrame.manabar)
+    local targets = { TargetFrame, FocusFrame }
+    for i = 1, 5 do
+        targets[#targets + 1] = _G["Boss" .. i .. "TargetFrame"]
+    end
+    for _, frame in pairs(targets) do
+        local main = frame.TargetFrameContent and frame.TargetFrameContent.TargetFrameContentMain
+        if main then
+            AddStatusBar(list, main.HealthBarsContainer.HealthBar)
+            AddStatusBar(list, main.ManaBar)
+        end
+    end
+    for i = 1, 4 do
+        local member = PartyFrame["MemberFrame" .. i]
+        if member then
+            AddStatusBar(list, member.HealthBarContainer.HealthBar)
+            AddStatusBar(list, member.ManaBar)
+        end
+    end
+    statusBars = list
+    return list
+end
+
+local function KeepStatusTextHidden(text, alpha)
+    if text.bbfStatusTextForcing then return end
+    text.bbfStatusTextAlpha = alpha
+    if BetterBlizzFramesDB.alwaysHideStatusBarTexts then
+        text.bbfStatusTextForcing = true
+        text:SetAlpha(0)
+        text.bbfStatusTextForcing = nil
+    end
+end
+
+local function ApplyStatusTextAlpha(text)
+    if not text then return end
+    if not text.bbfStatusTextAlpha then
+        text.bbfStatusTextAlpha = text:GetAlpha()
+        hooksecurefunc(text, "SetAlpha", KeepStatusTextHidden)
+    end
+    text:SetAlpha(text.bbfStatusTextAlpha)
+end
+
+function BBF.AlwaysHideStatusBarTexts()
+    if not BetterBlizzFramesDB.alwaysHideStatusBarTexts and not statusBars then return end
+    for _, bar in ipairs(GetStatusBars()) do
+        ApplyStatusTextAlpha(bar.TextString)
+        ApplyStatusTextAlpha(bar.LeftText)
+        ApplyStatusTextAlpha(bar.RightText)
+    end
+end
+
+function BBF.RefreshAlwaysHideStatusBarTexts()
+    BBF.AlwaysHideStatusBarTexts()
+    if BBF.UpdateManaOnlyTexts then
+        BBF.UpdateManaOnlyTexts()
+    end
+    if InCombatLockdown() then
+        BBF.RunAfterCombat(BBF.StatusBarTextExtra)
+    else
+        BBF.StatusBarTextExtra()
+    end
 end

@@ -160,15 +160,28 @@ local function ApplyTotArtTexture(tex, hideMana, bigMode)
     tex.bbfChangingTex = nil
 end
 
-local function SetGlowArt(glow, on, file, atlas)
+local function SetGlowArt(glow, on, file, atlas, art)
     if not glow then return end
     if on then
         glow:SetTexture(file)
         glow:SetTexCoord(0, 1, 0, 1)
         glow.bbfBigGlow = true
+        if art then
+            glow.bbfGlowPoint = glow.bbfGlowPoint or { glow:GetPoint(1) }
+            glow:ClearAllPoints()
+            glow:SetPoint("TOPLEFT", art, "TOPLEFT")
+            glow:SetSize(120, 49)
+            glow:SetDrawLayer((glow:GetDrawLayer()), 1)
+        end
     elseif glow.bbfBigGlow then
         glow.bbfBigGlow = nil
         glow:SetAtlas(atlas, TextureKitConstants.UseAtlasSize)
+        if glow.bbfGlowPoint then
+            glow:ClearAllPoints()
+            glow:SetPoint(unpack(glow.bbfGlowPoint))
+            glow:SetDrawLayer((glow:GetDrawLayer()), 0)
+            glow.bbfGlowPoint = nil
+        end
     end
 end
 
@@ -180,7 +193,7 @@ end
 
 function BBF.UpdatePetFrameTexture()
     local db = BetterBlizzFramesDB
-    if db.classicFrames then return end
+    if db.classicFrames or BBF.ClassicStyleAddon() then return end
     if not PetFrameTexture then return end
     if BBF.HasNoPortrait("pet") then return end
     local bigMode = BBF.PetBigMode()
@@ -188,7 +201,7 @@ function BBF.UpdatePetFrameTexture()
     ApplyTotArtTexture(PetFrameTexture, hideMana, bigMode)
     local custom = (bigMode or hideMana) and true or false
     SetGlowArt(PetFrameFlash, custom, RETAIL_TEX .. "ToT-InCombat" .. BigArtSuffix(bigMode, hideMana) .. ".png",
-        "UI-HUD-UnitFrame-TargetofTarget-PortraitOn-InCombat")
+        "UI-HUD-UnitFrame-TargetofTarget-PortraitOn-InCombat", PetFrameTexture)
     SetGlowArt(PetAttackModeTexture, bigMode and true or false, RETAIL_TEX .. "ToT-Status" .. BigArtSuffix(bigMode) .. ".png",
         "UI-HUD-UnitFrame-TargetofTarget-PortraitOn-Status")
     if not PetFrameTexture.bbfHookedTex then
@@ -468,7 +481,7 @@ local function UpdateOnePartyReduced(frame)
     end
     frame.Texture:SetTexture(RETAIL_TEX .. "ToT" .. ShadowSuffix() .. suffix .. ".png")
     frame.Texture:SetTexCoord(0, 1, 0, 1)
-    SetGlowArt(frame.Flash, true, RETAIL_TEX .. "ToT-InCombat" .. suffix .. ".png", "UI-HUD-UnitFrame-Party-PortraitOn-InCombat")
+    SetGlowArt(frame.Flash, true, RETAIL_TEX .. "ToT-InCombat" .. suffix .. ".png", "UI-HUD-UnitFrame-Party-PortraitOn-InCombat", frame.Texture)
     SetGlowArt(overlay and overlay.Status, mode and true or false, RETAIL_TEX .. "ToT-Status" .. BigArtSuffix(mode) .. ".png",
         "UI-HUD-UnitFrame-Party-PortraitOn-Status")
     SetBarManaAlpha(frame.ManaBar, hideMana and 0 or 1)
@@ -493,7 +506,7 @@ local function UpdateOnePartyReduced(frame)
 end
 
 function BBF.UpdatePartyReduced()
-    if not PartyFrame then return end
+    if not PartyFrame or BBF.ClassicStyleAddon() then return end
     for i = 1, 4 do
         local frame = PartyFrame["MemberFrame" .. i]
         if frame then
@@ -518,7 +531,7 @@ function BBF.UpdateTotFrameTexture()
     if BBF.PlaceTotStatusTexts then
         BBF.PlaceTotStatusTexts()
     end
-    if BetterBlizzFramesDB.classicFrames then return end
+    if BetterBlizzFramesDB.classicFrames or BBF.ClassicStyleAddon() then return end
     UpdateOneTotTexture(TargetFrame, "target")
     UpdateOneTotTexture(FocusFrame, "focus")
     UpdateOneTotBars(TargetFrame, "target")
@@ -543,6 +556,7 @@ local function PlaceBarText(text, point, bar, x, y)
 end
 
 function BBF.PlacePetHealthTexts()
+    if BBF.ClassicStyleAddon() then return end
     local db = BetterBlizzFramesDB
     if BBF.ApplyTextArea(PetFrame) then return end
     local big = BBF.PetBigMode() == "big"
@@ -558,7 +572,7 @@ end
 
 function BBF.UpdateDefaultPetBars()
     local db = BetterBlizzFramesDB
-    if db.classicFrames or BBF.HasNoPortrait("pet") then return end
+    if db.classicFrames or BBF.HasNoPortrait("pet") or BBF.ClassicStyleAddon() then return end
     if not PetFrameHealthBar or not PetFrameManaBar or not PetFrameHealthBarMask then return end
     local mode = BBF.PetBigMode()
     local hideMana = db.hideUnitFramePetMana

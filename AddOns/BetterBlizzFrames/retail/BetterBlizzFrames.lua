@@ -187,6 +187,7 @@ local defaultSettings = {
     smoothHealthbars = true,
     statusTextExtra = false,
     swapStatusBarTexts = false,
+    alwaysHideStatusBarTexts = false,
     statusTextExtraHealth = true,
     statusTextExtraMana = true,
     hideTooltip = false,
@@ -1446,6 +1447,7 @@ local function PlacePartyModernRoleIcon(frame)
     icon:ClearAllPoints()
     if db.classicFrames or BBF.HasNoPortrait("party") then
         local size = math.max(roleIcon:GetHeight() or 12, 9)
+        icon:SetParent(roleIcon:GetParent())
         icon:SetSize(size, size)
         icon:SetPoint("CENTER", roleIcon, "CENTER")
     else
@@ -4393,11 +4395,11 @@ function BBF.HookUnitFrameTextures()
 
     if classicFramesLoaded then
         if db.changeUnitFrameHealthbarTexture then
-            ApplyTextureChange("health", CfPlayerFrameHealthBar)
-            ApplyTextureChange("health", CfTargetFrameHealthBar, TargetFrame)
+            ApplyTextureChange("health", CfPlayerFrame.HealthBar)
+            ApplyTextureChange("health", CfTargetFrame.HealthBar, TargetFrame)
             ApplyTextureChange("health", TargetFrame.TargetFrameContent.TargetFrameContentMain.ReputationColor, TargetFrame)
             ApplyTextureChange("health", FocusFrame.TargetFrameContent.TargetFrameContentMain.ReputationColor, FocusFrame)
-            ApplyTextureChange("health", CfFocusFrameHealthBar, FocusFrame)
+            ApplyTextureChange("health", CfFocusFrame.HealthBar, FocusFrame)
             if PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.ReputationColor then
                 ApplyTextureChange("health", PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.ReputationColor)
             end
@@ -4407,16 +4409,16 @@ function BBF.HookUnitFrameTextures()
         end
 
         if db.changeUnitFrameManabarTexture then
-            ApplyTextureChange("mana", CfPlayerFrameManaBar)
-            ApplyTextureChange("mana", CfTargetFrameManaBar, nil, true)
-            ApplyTextureChange("mana", CfFocusFrameManaBar, nil, true)
+            ApplyTextureChange("mana", CfPlayerFrame.ManaBar)
+            ApplyTextureChange("mana", CfTargetFrame.ManaBar, nil, true)
+            ApplyTextureChange("mana", CfFocusFrame.ManaBar, nil, true)
         end
 
         if not db.classColorFrames then
             local healthbars = {
-                CfPlayerFrameHealthBar,
-                CfTargetFrameHealthBar,
-                CfFocusFrameHealthBar
+                CfPlayerFrame.HealthBar,
+                CfTargetFrame.HealthBar,
+                CfFocusFrame.HealthBar
             }
 
             for _, healthbar in ipairs(healthbars) do
@@ -4755,7 +4757,7 @@ end
 function BBF.SymmetricPlayerFrame()
     if not BetterBlizzFramesDB.symmetricPlayerFrame then return end
     if BBF.HasNoPortrait("player") then return end
-    if BetterBlizzFramesDB.classicFrames then return end
+    if BetterBlizzFramesDB.classicFrames or BBF.ClassicStyleAddon() then return end
     if InCombatLockdown() then
         BBF.Print(L["Print_Leave_Combat"])
         return
@@ -4849,11 +4851,11 @@ function BBF.SymmetricPlayerFrame()
     hooksecurefunc(healthBar, "SetPoint", function(self)
         if not self.changing then
             self.changing = true
-            self:SetPoint("TOPLEFT", healthBarsContainer, "TOPLEFT", -1.5 - BBF.GetMirrorPlayerHealthbarGrow(), 1 + BBF.GetMirrorPlayerHealthbarRaise())
+            self:SetPoint("TOPLEFT", healthBarsContainer, "TOPLEFT", -1.5, 1 + BBF.GetMirrorPlayerHealthbarRaise())
             self.changing = false
         end
     end)
-    healthBar:SetPoint("TOPLEFT", healthBarsContainer, "TOPLEFT", -1.5 - BBF.GetMirrorPlayerHealthbarGrow(), 1 + BBF.GetMirrorPlayerHealthbarRaise())
+    healthBar:SetPoint("TOPLEFT", healthBarsContainer, "TOPLEFT", -1.5, 1 + BBF.GetMirrorPlayerHealthbarRaise())
 
     local playerPortrait = PlayerFrame.PlayerFrameContainer.PlayerPortrait
     playerPortrait:SetSize(58.5, 58.5)
@@ -4864,11 +4866,11 @@ function BBF.SymmetricPlayerFrame()
         if not self.changing then
             self.changing = true
             local width = BBF.GetMirrorPlayerHealthbarSize()
-            self:SetWidth(width)
+            self:SetWidth(width + BBF.GetMirrorPlayerHealthbarGrow())
             self.changing = false
         end
     end)
-    healthBarsContainer:SetWidth((BBF.GetMirrorPlayerHealthbarSize()))
+    healthBarsContainer:SetWidth(BBF.GetMirrorPlayerHealthbarSize() + BBF.GetMirrorPlayerHealthbarGrow())
 
     hooksecurefunc(healthBarsContainer, "SetHeight", function(self)
         if InCombatLockdown() then return end
@@ -4882,9 +4884,10 @@ function BBF.SymmetricPlayerFrame()
     local _, containerHeight = BBF.GetMirrorPlayerHealthbarSize()
     healthBarsContainer:SetHeight(containerHeight)
 
+    local containerGrow = healthBarsContainer.bbfGrow or 0
     healthBarsContainer.RightText:SetPoint("RIGHT", -4, 1)
-    healthBarsContainer.LeftText:SetPoint("LEFT", 2, 1)
-    healthBarsContainer.HealthBarText:SetPoint("CENTER", 0, 1)
+    healthBarsContainer.LeftText:SetPoint("LEFT", 2 + containerGrow, 1)
+    healthBarsContainer.HealthBarText:SetPoint("CENTER", containerGrow / 2, 1)
 
     hooksecurefunc(healthBar, "SetHeight", function(self)
         if InCombatLockdown() then return end
@@ -5301,6 +5304,11 @@ function BBF.DefaultFrameTweaks()
         local container = frame.TargetFrameContainer
         RoundToPixel(container.FrameTexture)
         RoundToPixel(container.Flash)
+        if not BetterBlizzFramesDB.classicFrames and not BBF.HasNoPortrait(frame == TargetFrame and "target" or "focus") and not BBF.ClassicStyleAddon() then
+            local context = frame.TargetFrameContent.TargetFrameContentContextual
+            context.LeaderIcon:SetPoint("TOPRIGHT", -85, -10)
+            context.GuideIcon:SetPoint("TOPRIGHT", -85, -10)
+        end
     end
 end
 
@@ -5375,7 +5383,7 @@ function BBF.FixStupidBlizzPTRShit()
         end
     end
 
-    if isAddonLoaded("ClassicFrames") or isAddonLoaded("EasyFrames") or BetterBlizzFramesDB.classicFrames or BBF.HasNoPortrait("player") then return end
+    if BBF.ClassicStyleAddon() or BetterBlizzFramesDB.classicFrames or BBF.HasNoPortrait("player") then return end
     local function SetPlayerManaHeight()
         BBF.RunAfterCombat(function()
             PlayerFrame.manabar:SetHeight(10.5)
@@ -5755,7 +5763,7 @@ function BBF.SpecPortraits()
     if not BetterBlizzFramesDB.classPortraitsUseSpecIcons then return end
     hooksecurefunc("UnitFramePortrait_Update", function(self)
         if BBF.UpdateSecretPortrait(self) then return end
-        if (self.unit == "target" or self.unit == "focus" or self.unit == "player") and UnitIsPlayer(self.unit) then
+        if BBF.SpecIconsActive() and (self.unit == "target" or self.unit == "focus" or self.unit == "player") and UnitIsPlayer(self.unit) then
             if not (self.unit == "player" and BetterBlizzFramesDB.classPortraitsUseSpecIconsSkipSelf) then
                 local specID = BBF.GetSpecID(self.unit)
                 if specID then
@@ -5920,6 +5928,10 @@ Frame:SetScript("OnEvent", function(...)
             BBF.HookPlayerAndTargetAuras()
             BBF.HookFrameTextureColor()
             BBF.DefaultFrameTweaks()
+            if BBF.ClassicStyleAddon() and BetterBlizzFramesDB.bigHealthbars and not BetterBlizzFramesDB.classicStyleAddonNotice then
+                BetterBlizzFramesDB.classicStyleAddonNotice = true
+                BBF.Print(L["Big_Healthbars"] .. ": " .. BBF.ClassicStyleAddonNote())
+            end
 
             if BetterBlizzFramesDB.playerFrameOCD then
                 BBF.FixStupidBlizzPTRShit()
@@ -6089,6 +6101,7 @@ First:SetScript("OnEvent", function(_, event, addonName)
         BBF.ApplyLocale()
 
         InitializeSavedVariables()
+        BBF.HoldClassicFramesSetting()
 
         if BetterBlizzFramesDB.hideTargetAuras then
             BetterBlizzFramesDB.hideTargetBuffs = true
@@ -6268,6 +6281,7 @@ First:SetScript("OnEvent", function(_, event, addonName)
         BBF.UpdateBigPlayerHealthbar()
         BBF.CenterCurrentValueOnBars()
         BBF.StatusBarTextExtra()
+        BBF.AlwaysHideStatusBarTexts()
         BBF.HideTooltip()
         BBF.LowerToTStrata()
         BBF.FlipPortraits()
