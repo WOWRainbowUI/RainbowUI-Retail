@@ -28,25 +28,29 @@ local sandStormSpell = (GetSpellName(93473)) -- Sandstorm spell cast by the came
 local loggingSpell = (GetSpellName(167895))
 local loggingSpell2 = (GetSpellName(1239682)) -- tww/midnight housing decor wood logging
 
-local spells =
-{ -- spellname to "database name"
-	[miningSpell] = "Mining",
-	[miningSpell2] = "Mining",
-	[miningSpell3] = "Mining",
-	[miningSpellMidnight] = "Mining",
-	[herbSpell] = "Herb Gathering",
-	[fishSpell] = "Fishing",
-	[gasSpell] = "Extract Gas",
-	[openSpell] = "Treasure",
-	[openNoTextSpell] = "Treasure",
-	[pickSpell] = "Treasure",
-	[archSpell] = "Archaeology",
-	[sandStormSpell] = "Treasure",
-	[loggingSpell] = "Logging",
-	[loggingSpell2] = "Logging",
-	[205243] = "Treasure", -- skinning ground warts
-	[469894] = "Treasure", -- level earth (disturbed earth)
-}
+-- spellname to "database name"
+-- not every client knows every spell (eg. WoW Forever), so skip names that failed to resolve
+local spells = {}
+for _, entry in ipairs({
+	{ miningSpell, "Mining" },
+	{ miningSpell2, "Mining" },
+	{ miningSpell3, "Mining" },
+	{ miningSpellMidnight, "Mining" },
+	{ herbSpell, "Herb Gathering" },
+	{ fishSpell, "Fishing" },
+	{ gasSpell, "Extract Gas" },
+	{ openSpell, "Treasure" },
+	{ openNoTextSpell, "Treasure" },
+	{ pickSpell, "Treasure" },
+	{ archSpell, "Archaeology" },
+	{ sandStormSpell, "Treasure" },
+	{ loggingSpell, "Logging" },
+	{ loggingSpell2, "Logging" },
+	{ 205243, "Treasure" }, -- skinning ground warts
+	{ 469894, "Treasure" }, -- level earth (disturbed earth)
+}) do
+	if entry[1] then spells[entry[1]] = entry[2] end
+end
 local tooltipLeftText1 = _G["GameTooltipTextLeft1"]
 local strfind = string.find
 local pii = math.pi
@@ -191,7 +195,7 @@ end
 ]]
 function Collector:UIError(event,token,msg)
 	local what = tooltipLeftText1:GetText();
-	if not what then return end
+	if not what or issecretvalue(what) or issecretvalue(msg) then return end
 	if strfind(msg, miningSpell) or (miningSpell2 and strfind(msg, miningSpell2) or (miningSpell3 and strfind(msg, miningSpell3))) then
 		self:addItem(miningSpell,what)
 	elseif strfind(msg, herbSkill) then
@@ -207,7 +211,7 @@ end
 	spell cast started
 ]]
 function Collector:SpellStarted(event,unit,target,guid,spellcast)
-	if unit ~= "player" then return end
+	if unit ~= "player" or issecretvalue(spellcast) or issecretvalue(target) then return end
 	foundTarget = false
 	ga ="No"
 	local spellname = GetSpellName(spellcast)
