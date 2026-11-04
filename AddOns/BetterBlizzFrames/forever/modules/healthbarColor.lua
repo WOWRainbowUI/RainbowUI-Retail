@@ -58,7 +58,9 @@ local function GetRPNameColor(unit)
     local guid = UnitGUID(unit)
     if not guid or issecretvalue(guid) or issecretvalue(UnitName(unit)) then return end
     if not UnitIsPlayer(unit) then return end
-    local player = AddOn_TotalRP3 and AddOn_TotalRP3.Player and AddOn_TotalRP3.Player.CreateFromUnit(unit)
+    local characterID = TRP3_NameUtil and TRP3_NameUtil.GetQualifiedName(unit)
+    if not characterID then return end
+    local player = AddOn_TotalRP3 and AddOn_TotalRP3.Player and AddOn_TotalRP3.Player.CreateFromCharacterID(characterID)
     if player then
         local color = player:GetCustomColorForDisplay()
         if color then
@@ -1137,17 +1139,17 @@ function BBF.HookHealthbarColors()
                 end
                 updatingHealthColorCF = false
             end)
-            if CfPlayerFrameHealthBar then
+            if CfPlayerFrame and CfPlayerFrame.HealthBar then
                 if not BetterBlizzFramesDB.classColorFramesSkipPlayer then
-                    HookCfSetStatusBarColor(CfPlayerFrameHealthBar, "player")
+                    HookCfSetStatusBarColor(CfPlayerFrame.HealthBar, "player")
                 end
-                HookCfSetStatusBarColor(CfTargetFrameHealthBar, "target")
-                HookCfSetStatusBarColor(CfFocusFrameHealthBar, "focus")
+                HookCfSetStatusBarColor(CfTargetFrame.HealthBar, "target")
+                HookCfSetStatusBarColor(CfFocusFrame.HealthBar, "focus")
                 hooksecurefunc(TargetFrame, "CheckFaction", function()
-                    UpdateHealthColorCF(CfTargetFrameHealthBar, "target")
+                    UpdateHealthColorCF(CfTargetFrame.HealthBar, "target")
                 end)
                 hooksecurefunc(FocusFrame, "CheckFaction", function()
-                    UpdateHealthColorCF(CfFocusFrameHealthBar, "focus")
+                    UpdateHealthColorCF(CfFocusFrame.HealthBar, "focus")
                 end)
             else
                 BBF.Print(L["Print_ClassicFrames_Not_Detected"])
@@ -1332,7 +1334,7 @@ local PLAYER_NAME_BG_HEALTH_ATLAS = "UI-HUD-UnitFrame-Player-PortraitOn-Bar-Heal
 
 local function PlayerNameBgMode()
     local db = BetterBlizzFramesDB
-    if db.classicFrames or C_AddOns.IsAddOnLoaded("ClassicFrames") then return false end
+    if db.classicFrames or BBF.ClassicStyleAddon() then return false end
     if db.playerNameBgClassic then return "classic" end
     if db.playerNameBgRetail then return "retail" end
 end
@@ -1385,18 +1387,18 @@ function BBF.PlayerReputationColor()
                     frame.ReputationColor:SetTexture(nameBgTexture)
                     frame.ReputationColor:SetTexCoord(0, 1, 0, 1)
                 else
-                    if not BBF.UnitFrameTextureOn("health") then
-                        frame.ReputationColor:SetTexture(137017)
-                        frame.ReputationColor:SetTexCoord(1, 0, 0, 1)
-                    else
+                    if BetterBlizzFramesDB.changeUnitFrameHealthbarTextureRepColor and BBF.UnitFrameTextureOn("health") then
                         local texture = BBF.UnitFrameNameBgTexture()
                         frame.ReputationColor:SetTexture(texture)
                         frame.ReputationColor:SetTexCoord(0, 1, 0, 1)
+                    else
+                        frame.ReputationColor:SetTexture("Interface\\TargetingFrame\\UI-TargetingFrame-LevelBackground")
+                        frame.ReputationColor:SetTexCoord(1, 0, 0, 1)
                     end
                 end
                 frame.ReputationColor:SetSize(117, 22)
-                frame.ReputationColor:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -26, -30)
-            elseif C_AddOns.IsAddOnLoaded("ClassicFrames") then
+                frame.ReputationColor:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -26, -31)
+            elseif BBF.ClassicStyleAddon() then
                 frame.ReputationColor:SetTexture(137017)
                 frame.ReputationColor:SetSize(117, 19)
                 frame.ReputationColor:SetTexCoord(1, 0, 0, 1)

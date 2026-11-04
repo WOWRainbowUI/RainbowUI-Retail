@@ -1,3 +1,5 @@
+local CONTAINER_X = 85
+local HEALTHBAR_WIDTH = 124
 local HEALTHBAR_HEIGHT = 19
 local MANABAR_HEIGHT = 10
 local BAR_GAP = 1
@@ -14,6 +16,18 @@ local function SetContainerPoint(hpContainer, xOffset, yOffset)
     hpContainer:SetPoint(point, relativeTo, relativePoint, xOffset or x, yOffset or y)
 end
 
+local function SetContainerGrow(hpContainer, width, grow)
+    hpContainer.bbfGrow = grow > 0 and grow or nil
+    SetContainerPoint(hpContainer, CONTAINER_X - grow)
+    hpContainer:SetWidth(width + grow)
+end
+
+local function ClearContainerGrow(hpContainer)
+    if hpContainer.bbfGrow then
+        SetContainerGrow(hpContainer, HEALTHBAR_WIDTH, 0)
+    end
+end
+
 local function GetHealthBits()
     local hpContainer = PlayerFrame_GetHealthBarContainer()
     return hpContainer, hpContainer.HealthBar, hpContainer.HealthBarMask
@@ -25,7 +39,7 @@ end
 
 local function DefaultArtFrame()
     local db = BetterBlizzFramesDB
-    return not db.classicFrames and not BBF.HasNoPortrait("player")
+    return not db.classicFrames and not BBF.HasNoPortrait("player") and not BBF.ClassicStyleAddon()
 end
 
 function BBF.PlayerManaHiddenArt()
@@ -57,8 +71,9 @@ local function ShadowSuffix()
 end
 
 local function SetHealthTextOffset(hpContainer, y)
-    hpContainer.HealthBarText:SetPoint("CENTER", hpContainer, "CENTER", 0, y)
-    hpContainer.LeftText:SetPoint("LEFT", hpContainer, "LEFT", 2, y)
+    local grow = hpContainer.bbfGrow or 0
+    hpContainer.HealthBarText:SetPoint("CENTER", hpContainer, "CENTER", grow / 2, y)
+    hpContainer.LeftText:SetPoint("LEFT", hpContainer, "LEFT", 2 + grow, y)
     hpContainer.RightText:SetPoint("RIGHT", hpContainer, "RIGHT", -2, y)
 end
 
@@ -101,9 +116,10 @@ function BBF.GetMirrorPlayerHealthbarRaise()
 end
 
 local function SetMirrorHealthTextY(hpContainer, y)
+    local grow = hpContainer.bbfGrow or 0
     hpContainer.RightText:SetPoint("RIGHT", hpContainer, "RIGHT", -4, y)
-    hpContainer.LeftText:SetPoint("LEFT", hpContainer, "LEFT", 2, y)
-    hpContainer.HealthBarText:SetPoint("CENTER", hpContainer, "CENTER", 0, y)
+    hpContainer.LeftText:SetPoint("LEFT", hpContainer, "LEFT", 2 + grow, y)
+    hpContainer.HealthBarText:SetPoint("CENTER", hpContainer, "CENTER", grow / 2, y)
 end
 
 function BBF.GetMirrorPlayerHealthbarSize()
@@ -273,6 +289,7 @@ local function UpdatePlayerStatusTexture()
 end
 
 function BBF.UpdatePlayerFrameFlash()
+    if BBF.ClassicStyleAddon() then return end
     if not BBF.hookedPlayerFrameFlash then
         BBF.hookedPlayerFrameFlash = true
         hooksecurefunc("PlayerFrame_ToPlayerArt", BBF.UpdatePlayerFrameFlash)
@@ -326,9 +343,10 @@ local function DefaultBarLayout(hpContainer, healthBar, mask)
     hpContainer:SetHeight(HEALTHBAR_HEIGHT)
     local art, artTexture = PlayerMaskArt()
     local grow = BBF.FrameMaskGrow(art, "health")
+    SetContainerGrow(hpContainer, HEALTHBAR_WIDTH, grow)
     healthBar:ClearAllPoints()
-    healthBar:SetPoint("TOPLEFT", hpContainer, "TOPLEFT", -grow, raise + tall)
-    healthBar:SetSize(124 + grow, height)
+    healthBar:SetPoint("TOPLEFT", hpContainer, "TOPLEFT", 0, raise + tall)
+    healthBar:SetSize(HEALTHBAR_WIDTH + grow, height)
     if not BBF.ApplyFrameMask(mask, art, "health", artTexture) then
         mask:SetAtlas("UI-HUD-UnitFrame-Player-PortraitOn-Bar-Health-Mask", true)
         mask:ClearAllPoints()
@@ -345,6 +363,7 @@ end
 local function GrowBar()
     local hpContainer, healthBar, mask = GetHealthBits()
     if BetterBlizzFramesDB.classicFrames then
+        ClearContainerGrow(hpContainer)
         local hideMana = BetterBlizzFramesDB.hideUnitFramePlayerMana
         local height = hideMana and 39 or 29
         SetContainerPoint(hpContainer, 87, -34)
@@ -358,6 +377,7 @@ local function GrowBar()
         return
     end
     if BBF.HasNoPortrait("player") then
+        ClearContainerGrow(hpContainer)
         hpContainer:SetHeight(HEALTHBAR_HEIGHT_GROWN)
         healthBar:SetHeight(HEALTHBAR_HEIGHT_GROWN)
         if BetterBlizzFramesDB.noPortraitPixelBorder then
@@ -379,11 +399,11 @@ local function GrowBar()
     if BetterBlizzFramesDB.symmetricPlayerFrame then
         local width, containerHeight, barHeight = BBF.GetMirrorPlayerHealthbarSize()
         local grow = BBF.GetMirrorPlayerHealthbarGrow()
-        SetContainerPoint(hpContainer, 85)
-        hpContainer:SetSize(width, containerHeight)
+        SetContainerGrow(hpContainer, width, grow)
+        hpContainer:SetHeight(containerHeight)
         healthBar:SetSize(width + grow, barHeight)
         local raise = BBF.GetMirrorPlayerHealthbarRaise()
-        healthBar:SetPoint("TOPLEFT", hpContainer, "TOPLEFT", -1.5 - grow, 1 + raise)
+        healthBar:SetPoint("TOPLEFT", hpContainer, "TOPLEFT", -1.5, 1 + raise)
         local noMana = BBF.PlayerManaHiddenArt() and MANA_SPAN or 0
         SetMirrorHealthTextY(hpContainer, 1 + (raise - noMana) / 2)
         local contextual = PlayerFrame.PlayerFrameContent.PlayerFrameContentContextual
@@ -401,6 +421,7 @@ end
 local function RestoreBar()
     local hpContainer, healthBar, mask = GetHealthBits()
     if BetterBlizzFramesDB.classicFrames then
+        ClearContainerGrow(hpContainer)
         SetContainerPoint(hpContainer, 87, -44)
         hpContainer:SetSize(124, 15)
         healthBar:SetWidth(124)
@@ -410,6 +431,7 @@ local function RestoreBar()
         return
     end
     if BBF.HasNoPortrait("player") then
+        ClearContainerGrow(hpContainer)
         hpContainer:SetHeight(HEALTHBAR_HEIGHT)
         healthBar:SetHeight(HEALTHBAR_HEIGHT)
         if BetterBlizzFramesDB.noPortraitPixelBorder then
@@ -428,10 +450,10 @@ local function RestoreBar()
     if BetterBlizzFramesDB.symmetricPlayerFrame then
         local width, containerHeight, barHeight = BBF.GetMirrorPlayerHealthbarSize()
         local grow = BBF.GetMirrorPlayerHealthbarGrow()
-        SetContainerPoint(hpContainer, 85)
-        hpContainer:SetSize(width, containerHeight)
+        SetContainerGrow(hpContainer, width, grow)
+        hpContainer:SetHeight(containerHeight)
         healthBar:SetSize(width + grow, barHeight)
-        healthBar:SetPoint("TOPLEFT", hpContainer, "TOPLEFT", -1.5 - grow, 1)
+        healthBar:SetPoint("TOPLEFT", hpContainer, "TOPLEFT", -1.5, 1)
         SetMirrorHealthTextY(hpContainer, 1)
         local contextual = PlayerFrame.PlayerFrameContent.PlayerFrameContentContextual
         BBF.ShiftRegionY(contextual and contextual.LeaderIcon, 0)
@@ -454,6 +476,7 @@ local function RestoreBar()
     BBF.ShiftRegionY(contextual and contextual.LeaderIcon, 0)
     BBF.ShiftRegionY(contextual and contextual.GuideIcon, 0)
     BBF.ShiftRegionY(contextual and contextual.RoleIcon, 0)
+    ClearContainerGrow(hpContainer)
     hpContainer:SetHeight(HEALTHBAR_HEIGHT)
     healthBar:ClearAllPoints()
     healthBar:SetPoint("TOPLEFT", hpContainer, "TOPLEFT", 0, 0)
@@ -600,6 +623,7 @@ end
 
 function BBF.UpdateBigPlayerHealthbar()
     BBF.PlayerReputationColor()
+    if BBF.ClassicStyleAddon() then return end
     if IsEnabled() then
         EnsureHooks()
         Apply()

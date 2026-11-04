@@ -174,6 +174,7 @@ local function SetNoBorderFlash(flash, art, on, atlas, relativeTo, x, y)
 end
 
 function BBF.UpdatePetFrameTexture()
+    if BBF.ClassicStyleAddon() then return end
     local db = BetterBlizzFramesDB
     if db.classicFrames then return end
     if not PetFrameTexture then return end
@@ -489,6 +490,7 @@ local function PlaceRetailPartyBars(frame)
     local bars = BBF.PartyBars(frame)
     if not BBF.FitRetailBars(frame.Texture, container, container.HealthBarMask, not frame.bbfPartyNoMana and manaBar, manaBar.ManaBarMask, bars) then return end
     bars:SetAllPoints(container.HealthBar, container)
+    BBF.SetRetailSmallFlash(frame.Flash, frame.Texture, frame.bbfBigParty, frame.bbfReducedParty, frame.bbfPartyNoMana, "ui-hud-unitframe-party-portraiton-incombat")
 end
 
 local function PlacePartyManaBar(frame, bars, manaBar, mask)
@@ -683,6 +685,7 @@ local function PlaceMicroRoleIcon(frame)
     if not proxy then return end
     local default = DefaultPartyRoleLook()
     local size = default and PARTY_ROLE.size or 15
+    proxy.roleIcon:SetParent(frame.PartyMemberOverlay.RoleIcon:GetParent())
     proxy.roleIcon:SetSize(size, size)
     proxy.roleIcon:ClearAllPoints()
     proxy.roleIcon:SetPoint("CENTER", frame.PartyMemberOverlay.RoleIcon, "CENTER", default and PARTY_ROLE.x or 0, default and PARTY_ROLE.y or 0)
@@ -770,6 +773,7 @@ function BBF.UpdatePartyRoleIcons()
 end
 
 function BBF.UpdatePartyReduced()
+    if BBF.ClassicStyleAddon() then return end
     if not PartyFrame then return end
     for i = 1, 4 do
         local frame = PartyFrame["MemberFrame" .. i]
@@ -798,7 +802,7 @@ end
 
 function BBF.UpdateTotFrameTexture()
     BBF.PlaceTotStatusTexts()
-    if BetterBlizzFramesDB.classicFrames then return end
+    if BetterBlizzFramesDB.classicFrames or BBF.ClassicStyleAddon() then return end
     UpdateOneTotTexture(TargetFrame, "target")
     UpdateOneTotTexture(FocusFrame, "focus")
     UpdateOneTotReduced(TargetFrame, "target")
@@ -883,6 +887,8 @@ function BBF.UpdateDefaultPetFrameMana()
     BBF.UpdatePetFrameTexture()
     if (BBF.RetailTexturesOn and BBF.RetailTexturesOn("pet")) then
         BBF.FitRetailBars(PetFrameTexture, PetFrameHealthBar, PetFrameHealthBarMask, not db.hideUnitFramePetMana and PetFrameManaBar, PetFrameManaBarMask)
+        local petMode = BBF.PetBigMode()
+        BBF.SetRetailSmallFlash(PetFrameFlash, PetFrameTexture, petMode, petMode == "reduced", db.hideUnitFramePetMana, "UI-HUD-UnitFrame-TargetofTarget-PortraitOn-InCombat")
         BBF.ApplyTextArea(PetFrame)
     end
 end
