@@ -1,19 +1,21 @@
-## Interface: 120105, 120100
+## Interface: 120105,120107
 ## Title: GatherMate2: Storage for Midnight
 ## Author: nevcairiel
 ## Group: GatherMate2
 ## IconTexture: Interface\AddOns\GatherMate2\Artwork\Icon.tga
 ## Dependencies: GatherMate2
-## Version: 1.52.3
+## AllowLoadGameType: standard
+## Version: 1.52.4
 ## X-Category: Map
 ## LoadSavedVariablesFirst: 1
 ## SavedVariables: GatherMate2HerbDBMN, GatherMate2MineDBMN, GatherMate2FishDBMN, GatherMate2GasDBMN, GatherMate2TreasureDBMN, GatherMate2ArchaeologyDBMN, GatherMate2LoggingDBMN
 ## X-GM2-Storage-Tag: MN
-## X-GM2-Storage-Zones: 2393, 2395, 2405, 2413, 2437
+## X-GM2-Storage-Zones: 2393, 2395, 2405, 2413, 2437, 2512, 2509
 
 ## Title-zhTW: |cffFFFF99[專業]|r 採集助手-至暗之夜儲存檔
 ## Notes-zhTW: GatherMate2: Storage for Midnight |n|n儲存至暗之夜的採集資料。
 ## Category-zhTW: 專業
 ## DefaultState: disabled
+
 
 ..\GatherMate2\LoadAddOnStorage.lua
