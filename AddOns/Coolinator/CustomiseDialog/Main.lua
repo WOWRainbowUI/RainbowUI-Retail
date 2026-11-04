@@ -43,7 +43,7 @@ local function SetupGeneral(parent)
   end
 
   do
-    local header = addonTable.CustomiseDialog.Components.GetHeader(container, addonTable.Locales.DEVELOPMENT_IS_TIME_CONSUMING)
+    local header = addonTable.CustomiseDialog.Components.GetHeader(container, addonTable.Locales.DEVELOPMENT_IS_DONE_BY_A_HUMAN)
     header:SetPoint("TOP", allFrames[#allFrames], "BOTTOM", 0, -30)
     table.insert(allFrames, header)
 
@@ -83,7 +83,7 @@ local function SetupGeneral(parent)
         end
       end
     end
-    profileDropdown:SetPoint("TOP", allFrames[#allFrames], "BOTTOM", 0, 0)
+    profileDropdown:SetPoint("TOP", allFrames[#allFrames], "BOTTOM", 0, -30)
     profileDropdown.DropDown:SetupMenu(function(menu, rootDescription)
       local profiles = addonTable.Config.GetProfileNames()
       table.sort(profiles, function(a, b) return a:lower() < b:lower() end)
