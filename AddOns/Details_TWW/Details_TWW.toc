@@ -1,19 +1,34 @@
-## Interface: 11508, 20205, 30405, 50503, 120105, 120100
-## Title: Details! Skin TWW |cff8080ffv1.3.9|r
-## Notes: Adds the 'The War Within' Skin to Details.|n|cffbbbbbbBy Karl-Heinz Schneider|r|n|n|TInterface/Addons/Details_TWW/Textures/coffee:12:12|t |cff82c5ffbuymeacoffee.com/karlheinzschneider|r
-## Author: Karl-Heinz Schneider
+## Interface: 120105, 50504, 20506, 11509, 16001
+## Title: Details! Skin TWW
+## Notes: Adds the 'The War Within' Skin to Blizzard's built-in damage meter and to Details!. |n|cffbbbbbbBy Karl-Heinz Schneider|r|n|n|TInterface/Addons/Details_TWW/assets/core/coffee:12:12|t |cff82c5ffbuymeacoffee.com/karlheinzschneider|r
+## Author: Karl-HeinzSchneider
+## Version: |cff8080ffv2.0|r
+## Dependencies: Ace3
+## OptionalDeps: Details
+## SavedVariables: Details_TWWDB
+## X-License: MIT
 ## X-Website: https://github.com/Karl-HeinzSchneider/WoW-Details-Skin-TheWarWithin
 ## X-Curse-Project-ID: 1083704
-## Version: v1.3.9
-## X-Date: 20250927030426
-## Dependencies: Details
-## OptionalDeps: Ace3
+
+Locales.lua
+
+src\core\logger.lua
+src\core\db.lua
+src\core\ace.lua
+src\core\options.lua
+src\core\minimapbutton.lua
+
+src\blizzard\damagemeter.lua
+src\details\skin.lua
+
+Details_TWW.lua
 
 ## Title-zhTW: |cffFF2D2D[戰鬥]|r Details! 戰鬥統計外觀-地心之戰
-## Notes-zhTW: Details! Skin TWW |n|n地心之戰的戰鬥統計視窗外觀。|n|n|cffffd200使用方法: |r打開 Details!選項>外觀>外觀的下拉選單選擇 地心之戰。
-## Category-zhTW: 戰鬥
-## IconTexture: Interface\AddOns\Details\images\minimap
-## DefaultState: disabled
 
-Core.lua
-Profile_Default.lua
+## Notes-zhTW: Details! Skin TWW |n|n地心之戰的戰鬥統計視窗外觀。|n|n|cffffd200使用方法: |r打開 Details!選項>外觀>外觀的下拉選單選擇 地心之戰。
+
+## Category-zhTW: 戰鬥
+
+## IconTexture: Interface\AddOns\Details\images\minimap
+
+## DefaultState: disabled
