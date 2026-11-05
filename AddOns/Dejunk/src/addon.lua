@@ -26,11 +26,12 @@ Addon.IS_DEBUG = false
 -- Addon - Methods
 -- ============================================================================
 
---- Returns a string in the format: `"CharName-RealmName"`.
+--- Returns a string in the format: `"CharName-RealmName"`. On Forever it is the full name alone, since the realm
+--- there is not guaranteed to be unique.
 --- @return string
 function Addon:GetCharacterKey()
-  local name = Addon.IS_FOREVER and GetUnitName("player") or UnitName("player")
-  return ("%s-%s"):format(name, GetNormalizedRealmName())
+  if Addon.IS_FOREVER then return GetUnitName("player") end
+  return ("%s-%s"):format(UnitName("player"), GetNormalizedRealmName())
 end
 
 --- Returns a 64-bit unique identifier.
@@ -149,7 +150,7 @@ function Addon:IsAtMerchant()
   return (MerchantFrame and MerchantFrame:IsShown()) or false
 end
 
--- Addon:ForcePrint(), Addon:Print(), Addon:Debug()
+-- Addon:ForcePrint(), Addon:Print(), Addon:PrintVerbose(), Addon:Debug()
 do
   local Colors = Addon:GetModule("Colors")
   local StateManager = Addon:GetModule("StateManager")
@@ -163,9 +164,15 @@ do
   --- Prints the given arguments if chat messages are enabled.
   --- @param ... any
   function Addon:Print(...)
-    if StateManager:GetGlobalState().chatMessages then
+    if StateManager:GetGlobalState().chatMessages.enabled then
       print(Colors.Blue("[" .. ADDON_NAME .. "]"), ...)
     end
+  end
+
+  --- Prints the given arguments if chat messages are enabled and their detail is `VERBOSE`.
+  --- @param ... any
+  function Addon:PrintVerbose(...)
+    if StateManager:GetGlobalState().chatMessages.detail == "VERBOSE" then self:Print(...) end
   end
 
   --- Prints the given arguments with debug formatting.

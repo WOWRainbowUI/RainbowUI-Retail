@@ -1,7 +1,7 @@
 # Changelog
 
-## [3.4.1] - 2026-10-13
+## [3.5.1] - 2026-11-04
 
-### Changed
+### Fixed
 
-- Updated the Retail interface version for patch 12.1.5.
+- Fixed a character's profile sometimes resetting to `Default` on WoW Forever. A character is now identified by its full name alone, and existing profile assignments are kept.
