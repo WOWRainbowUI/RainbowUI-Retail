@@ -13,6 +13,13 @@ L["Quest Type Trivial"] = "低等级";    --Low-level quest
 L["Quest Type Dungeon"] = "地下城任务";
 L["Quest Type Raid"] = "团本任务";
 L["Quest Type Covenant Calling"] = "盟约使命";
+L["Quest Difficulty VeryHard"] = "非常困难";
+L["Quest Difficulty Hard"] = "困难";
+L["Quest Difficulty Normal"] = "普通";
+L["Quest Difficulty Easy"] = "简单";
+L["Quest Difficulty Trivial"] = "低等级";
+L["Your Level"] = "你的等级";
+L["Quest Level"] = "人物等级";
 
 L["Accept"] = "接受"
 L["Continue"] = "继续";
@@ -62,6 +69,7 @@ L["Story Progress"] = "故事进度";
 L["Quest Complete Alert"] = "任务完成！";
 L["Item Equipped"] = "已装备";
 L["Collection Collected"] = "已收集";
+L["Forever New Quest"] = "《魔兽世界：永恒》新任务";
 
 --String Format
 L["Format Reputation Reward Tooltip"] = "在%2$s中的声望提高%1$d点";
@@ -156,6 +164,12 @@ L["Use Blizzard Tooltip Desc"] = "使用暴雪自带的鼠标提示来显示任�
 L["Roleplaying"] = "角色扮演";
 L["Use RP Name In Dialogues"] = "对话中使用RP名字";
 L["Use RP Name In Dialogues Desc"] = "将对话文本中出现的本名替换为你RP角色的名字。";
+L["Quest Difficulty Option"] = "任务难度";
+L["Quest Difficulty Option Desc"] = "选择任务列表界面上任务难度的显示方式。";
+L["QuestDifficultyStyle Level"] = "任务等级";
+L["QuestDifficultyStyle Level Desc"] = "在任务名称的左侧显示任务等级。";
+L["QuestDifficultyStyle Name"] = "难度名称";
+L["QuestDifficultyStyle Name Desc"] = "如果任务不在推荐等级范围内，在任务按钮的最右侧显示难度名称。\n（推荐范围为只比你角色高两级或低一级以内）";
 
 L["Camera Movement"] = "镜头运动";
 L["Camera Movement Off"] = "关";
@@ -181,6 +195,8 @@ L["Input Device PlayStation"] = "PlayStation";
 L["Input Device PlayStation Tooltip"] = "确认键： [KEY:PS:PAD1]\n取消键： [KEY:PS:PAD2]";
 L["Input Device Switch"] = "Switch";
 L["Input Device Switch Tooltip"] = "确认键： [KEY:SWITCH:PAD1]\n取消键： [KEY:SWITCH:PAD2]";
+L["Detected Device Colon"] = "检测到设备：";
+L["Detected Devices Colon"] = "检测到设备：";
 L["Use Custom Bindings"] = "使用自定义按键";
 L["Use Custom Bindings Desc"] = "勾选此选项以启用自定义按键。";
 L["Primary Control Key"] = "确认键";
@@ -332,6 +348,7 @@ L["Action Option9"] = "对话选项 9";
 --Tutorial
 L["Tutorial Settings Hotkey"] = "按下 [KEY:PC:F1] 来打开或关闭设置";
 L["Tutorial Settings Hotkey Console"] = "按下 [KEY:PC:F1] 或 [KEY:CONSOLE:MENU] 来打开或关闭设置";   --Use this if gamepad enabled
+L["Tutorial Choose Input Device"] = "选择输入设备";
 L["Instruction Open Settings"] = "在对话界面可见时按 [KEY:PC:F1] 来打开设置";    --Used in Game Menu - AddOns
 L["Instruction Open Settings Console"] = "在对话界面可见时按 [KEY:PC:F1] 或 [KEY:CONSOLE:MENU] 来打开设置";
 L["Instruction Open Settings Keybind Format"] = "在对话界面可见时按 [%s] 来打开设置";

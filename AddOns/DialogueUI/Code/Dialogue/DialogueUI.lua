@@ -124,6 +124,7 @@ local Schematic = {
     ["FrontFrame.Header.Title"] = {point = "LEFT", relativePoint = "LEFT", x = 53, y = 2},
     ["FrontFrame.Header.TopLight"] = {width = 358, height = 34},
     ["FrontFrame.Header.WarbandCompleteAlert"] = {width = 44, height = 44, point = "CENTER", relativePoint = "TOPRIGHT", x = -25, y = -20},
+    ["FrontFrame.Header.ForeverQuestAlert"] = {width = 44, height = 44, point = "CENTER", relativePoint = "TOPRIGHT", x = -25, y = -15},
 
     ["FrontFrame.QuestPortrait"] = {maxSizeMultiplier = 1.1, width = 170, height = 170, point = "TOP", relativePoint = "TOPRIGHT", x = 66, y = -64},
     ["FrontFrame.QuestPortrait.Model"] = {maxSizeMultiplier = 1.1, width = 78, height = 78, point = "CENTER", relativePoint = "TOP", x = 0, y = -71},
@@ -247,6 +248,10 @@ function DUIDialogBaseMixin:UpdateFrameSize()
     self.ContentFrame:SetPoint("BOTTOMRIGHT", self.ScrollFrame, "BOTTOMRIGHT", 0, 0);
     self.contentWidth = contentWidth;
 
+    --Force UseQuestLayout and SetScrollable to re-apply (frame may be hidden, so no handler re-run)
+    self.questLayout = nil;
+    self.ContentFrame.scrollable = nil;
+
     self.InputBox:ClearAllPoints();
     self.InputBox:SetPoint("LEFT", self, "LEFT", PADDING_H, 0);
     self.InputBox:SetPoint("RIGHT", self, "RIGHT", -PADDING_H, 0);
@@ -318,6 +323,13 @@ function DUIDialogBaseMixin:OnLoad()
     wb:SetScript("OnLeave", TooltipFrame.HideTooltip);
     API.DisableSharpening(wb.Icon);
 
+    --New Forever Quest Alert
+    local fq = headerFrame.ForeverQuestAlert;
+    self.ForeverQuestAlert = fq;
+    fq.tooltipText = L["Forever New Quest"];
+    fq:SetScript("OnEnter", TooltipFrame.ShowWidgetTooltip);
+    fq:SetScript("OnLeave", TooltipFrame.HideTooltip);
+    API.DisableSharpening(fq.Icon);
 
     local tintableTextures = {};
     self.tintableTextures = tintableTextures;
@@ -538,6 +550,9 @@ function DUIDialogBaseMixin:LoadTheme()
     self.WarbandCompleteAlert.Icon:SetTexture(parchmentFile);
     self.WarbandCompleteAlert.Icon:SetTexCoord(0.71875, 0.8125, 0.56640625, 0.61328125);
 
+    self.ForeverQuestAlert.Icon:SetTexture(parchmentFile);
+    self.ForeverQuestAlert.Icon:SetTexCoord(0.8125, 0.90625, 0.56640625, 0.61328125);
+
     self.RewardSelection.FrontTexture:SetTexture(prefix.."RewardChoice-Highlight.png");
     self.RewardSelection.BackTexture:SetTexture(prefix.."RewardChoice-Highlight-Back.png");
     self.RewardSelection.BackTexture:SetVertexColor(0.65, 0, 0);
@@ -753,14 +768,29 @@ function DUIDialogBaseMixin:UseQuestLayout(state)
         self.hasActiveGossipQuests = false;
         self.activeQuestButtons = {};
 
-        if questID and API.IsQuestFlaggedCompletedOnAccount(questID) then
-            self.WarbandCompleteAlert:Show();
-            self.FrontFrame.Header.Title:SetPoint("RIGHT", self.FrontFrame.Header, "RIGHT", -56, 2);
-            CallbackRegistry:TriggerOnNextUpdate("WarbandCompleteAlert.Show", self.FrontFrame.Header, self.WarbandCompleteAlert);
+        --WarbandCompleted or ForeverNewQuest
+        local anyRightIcon;
+
+        if API.IsForeverNewQuest(questID) then
+            anyRightIcon = true;
+            self.ForeverQuestAlert:Show();
         else
-            self.WarbandCompleteAlert:Hide();
-            self.FrontFrame.Header.Title:SetPoint("RIGHT", self.FrontFrame.Header, "RIGHT", -8, 2);
+            self.ForeverQuestAlert:Hide();
         end
+
+        if anyRightIcon then
+            self.WarbandCompleteAlert:Hide();
+        else
+            if API.ShouldShowWarbandCompletedIcon(questID) then
+                anyRightIcon = true;
+                self.WarbandCompleteAlert:Show();
+                CallbackRegistry:TriggerOnNextUpdate("WarbandCompleteAlert.Show", self.FrontFrame.Header, self.WarbandCompleteAlert);
+            else
+                self.WarbandCompleteAlert:Hide();
+            end
+        end
+
+        self.FrontFrame.Header.Title:SetPoint("RIGHT", self.FrontFrame.Header, "RIGHT", (anyRightIcon and -56) or -8, 2);
 
     elseif self.questLayout ~= false or forceUpdate then
         self.questLayout = false;
@@ -773,6 +803,7 @@ function DUIDialogBaseMixin:UseQuestLayout(state)
         self.BackgroundDecor:Hide();
         self.FrontFrame.QuestPortrait:FadeOut();
         self.WarbandCompleteAlert:Hide();
+        self.ForeverQuestAlert:Hide();
         CallbackRegistry:Trigger("StopViewingQuest");
     end
 
@@ -898,7 +929,7 @@ function DUIDialogBaseMixin:SetScrollable(scrollable)
         self.ContentFrame:SetPoint("TOPLEFT", self.ScrollFrame.ScrollChild, "TOPLEFT", 0, 0);
         self.ContentFrame:SetWidth(self.contentWidth);
 
-    elseif (not scrollable) and (self.ContentFrame.scrollable or forceUpdate) then
+    elseif (not scrollable) and (self.ContentFrame.scrollable ~= false or forceUpdate) then
         self.ContentFrame.scrollable = false;
         self.ContentFrame:ClearAllPoints();
         self.ContentFrame:SetParent(self);
@@ -1911,7 +1942,7 @@ function DUIDialogBaseMixin:HandleQuestGreeting()
         if type(frequency) == "number" then
             -- For Retail Enum.QuestFrequency.Daily = 1
             -- For Classic LE_QUEST_FREQUENCY_DAILY = 2
-            -- Not many quests use QUEST_GREETING in Retail,
+            -- Not many quests use QUEST_GREETING in Retail (Test Candiate: Kul'amara the Fierce, 57.9, 46.7, Coiled Isle)
             -- so we can't confirm if the frequency from GetAvailableQuestInfo and C_GossipInfo.GetAvailableQuests are the same.
             -- Let's assume they are not
             frequency = frequency - 1;
@@ -2374,6 +2405,7 @@ function DUIDialogBaseMixin:ShowUI(event, ...)
     end
 
     if not self:IsShown() then
+        CallbackRegistry:Trigger("DialogueUI.PreShow");
         CameraUtil:InitiateInteraction();
         self:PlayIntroAnimation();
         self:OnEvent(event);
@@ -3063,7 +3095,6 @@ do  --Quest Rewards
         local baseOffsetX = PADDING_H * FRAME_SIZE_MULTIPLIER;
         local chooseItems = self.chooseItems;
 
-        local itemButtonWidth = self.halfFrameWidth;
         local itemButtonHeight = 36;
         local gridWidth = self.quarterFrameWidth;
         local smallItemButtonHeight = 15;

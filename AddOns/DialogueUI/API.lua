@@ -978,20 +978,32 @@ do  -- Quest
     local GetQuestClassification = C_QuestInfoSystem.GetQuestClassification or AlwaysNil;
     local IsAccountQuest = C_QuestLog.IsAccountQuest or AlwaysFalse;
 
-    API.IsQuestFlaggedCompletedOnAccount = IsQuestFlaggedCompletedOnAccount;
     API.ReadyForTurnIn = ReadyForTurnIn;
 
-    local function IsPlayerOnQuest(questID)
-        if questID then
-            return IsOnQuest(questID)
-        end
+    function API.IsPlayerOnQuest(questID)
+        return questID and IsOnQuest(questID);
     end
-    API.IsPlayerOnQuest = IsPlayerOnQuest;
 
     if AcknowledgeAutoAcceptQuest then
         API.AcknowledgeAutoAcceptQuest = AcknowledgeAutoAcceptQuest;
     else    --Classic
         API.AcknowledgeAutoAcceptQuest = AcceptQuest;
+    end
+
+    if addon.IS_RETAIL then
+        function API.ShouldShowWarbandCompletedIcon(questID)
+            return questID and IsQuestFlaggedCompletedOnAccount(questID);
+        end
+    else
+        API.ShouldShowWarbandCompletedIcon = AlwaysFalse;
+    end
+
+    if addon.IS_Forever then
+        function API.IsForeverNewQuest(questID)
+            return questID and questID > 9665;
+        end
+    else
+        API.IsForeverNewQuest = AlwaysFalse;
     end
 
     --TWW
@@ -1361,7 +1373,9 @@ do  -- Quest
         if not item then return end;
         local classID, subclassID = select(6, GetItemInfoInstant(item));
         --print(item, classID, subclassID)
-        return (classID == 12) or (classID == 0 and subclassID == 8) or (classID == 15 and subclassID == 4)     ---Re-ignore Junk?
+        local isQuestItem = classID == 12;
+        local isPotentialQuestItem = (classID == 0 and subclassID == 8) or (classID == 15 and subclassID == 4);
+        return isQuestItem, isPotentialQuestItem;
     end
     API.IsQuestLoreItem = IsQuestLoreItem;
 

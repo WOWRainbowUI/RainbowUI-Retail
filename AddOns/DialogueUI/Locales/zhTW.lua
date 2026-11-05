@@ -7,6 +7,7 @@ local L = addon.L;
 
 
 L["Renown Level Label"] = "名望 ";
+L["Tutorial Choose Input Device"] = "選擇輸入設備";
 
 
 --DO NOT TRANSLATE
@@ -389,3 +390,20 @@ L["Pin Trading Post"] = "貿易站";
 L["Dialogue UI"] = "任務-對話"
 L["Quest Completed On Alt"] = "你之前已用其他角色完成此任務。";
 L["HelpTip Alt Completed Quest"] = "此圖示表示你已用其他角色完成此任務。";
+
+L["Quest Difficulty VeryHard"] = "非常困難";
+L["Quest Difficulty Hard"] = "困難";
+L["Quest Difficulty Normal"] = "普通";
+L["Quest Difficulty Easy"] = "簡單";
+L["Quest Difficulty Trivial"] = "低等級";
+L["Your Level"] = "你的等級";
+L["Quest Level"] = "任務等級";
+L["Forever New Quest"] = "這是 WoW: Forever 的新任務";
+L["Quest Difficulty Option"] = "任務難度";
+L["Quest Difficulty Option Desc"] = "選擇 NPC 提供任務清單時，任務難度的顯示方式。";
+L["QuestDifficultyStyle Level"] = "等級";
+L["QuestDifficultyStyle Level Desc"] = "在任務標題左側顯示任務等級。";
+L["QuestDifficultyStyle Name"] = "難度名稱";
+L["QuestDifficultyStyle Name Desc"] = "任務等級超出建議範圍時，在任務按鈕右側顯示難度名稱。\n（任務等級比你的角色高 3 級或低 1 級）";
+L["Detected Device Colon"] = "偵測到的裝置：";
+L["Detected Devices Colon"] = "偵測到的裝置：";
