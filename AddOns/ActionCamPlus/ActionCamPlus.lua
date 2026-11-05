@@ -60,6 +60,11 @@ ACP.Settings = {
 	}
 }
 
+local motionSicknessOverrideOptions = {
+	ACP.Settings.onFoot.actionCam, ACP.Settings.mounted.ACP_MountedActionCam, ACP.Settings.combat.ACP_CombatActionCam,
+	ACP.Settings.onFoot.pitch, ACP.Settings.mounted.pitch, ACP.Settings.combat.pitch
+}
+
 local ActionCamPlus_EventFrame = CreateFrame("Frame", 'ActionCamPlus_EventFrame')
 -- Init Events
 ActionCamPlus_EventFrame:RegisterEvent("ADDON_LOADED")
@@ -118,7 +123,7 @@ function ZoomFrame.linear(self, elapsed)
 		local velocity = abs(ActionCamPlusDB.transitionUsingSpeed and ActionCamPlusDB.transitionSpeed or (path / ActionCamPlusDB.transitionTime))
 		zoomTransitionDuration = abs(path / velocity)
 		local f = _delta > 0 and MoveViewOutStart or MoveViewInStart
-		f(velocity / GetCVar("cameraZoomSpeed"), nil, nil, true)
+		f(velocity / GetCVar("cameraZoomSpeed"), nil, nil, "ACP")
 	end
 
 	local diff = camPosition - _destination
@@ -126,7 +131,7 @@ function ZoomFrame.linear(self, elapsed)
 	if absDiff >= 0 then
 		if absDiff >= CAMERA_ZOOM_MIN_CORRECTION then
 			local f = _delta < 0 and CameraZoomOut or CameraZoomIn
-			RunNextFrame(function() f(abs(absDiff), true) end)
+			RunNextFrame(function() f(abs(absDiff), "ACP") end)
 		else
 			MoveViewInStop()
 			MoveViewOutStop()
@@ -193,7 +198,7 @@ function ZoomFrame.smoothZoomUpdate(self, elapsed, transitionFunc)
 		local diff = _destination - GetCameraZoom()
 		if abs(diff) >= CAMERA_ZOOM_MIN_CORRECTION then
 			local f = diff < 0 and CameraZoomIn or CameraZoomOut
-			RunNextFrame(function() f(abs(diff), true) end)
+			RunNextFrame(function() f(abs(diff), "ACP") end)
 			ACP.print("Applying correction:", diff)
 		end
 
@@ -213,7 +218,7 @@ function ZoomFrame.smoothZoomUpdate(self, elapsed, transitionFunc)
 	self.lastVelocity = velocity
 
 	local f = _delta < 0 and MoveViewInStart or MoveViewOutStart
-	f(velocity / ActionCamPlusDB.defaultZoomSpeed, nil, nil, true)
+	f(velocity / ActionCamPlusDB.defaultZoomSpeed, nil, nil, "ACP")
 end
 
 function ZoomFrame.Reset(self)
@@ -342,7 +347,17 @@ function ActionCamPlus_EventFrame:ADDON_LOADED(self, addon)
 	end
 
 	if not TabSystemButtonArtMixin then ACP.useClassicUI = true end
+
 	ACP.ActionCamPlusConfig_Setup()
+	if not ActionCamPlusDB.varCache then ActionCamPlusDB.varCache = {} end
+	if not ActionCamPlusDB.varCache["CameraKeepCharacterCentered"] then
+		ActionCamPlusDB.varCache["CameraKeepCharacterCentered"] = GetCVar("CameraKeepCharacterCentered")
+	end
+	if not ActionCamPlusDB.varCache["CameraReduceUnexpectedMovement"] then
+		ActionCamPlusDB.varCache["CameraReduceUnexpectedMovement"] = GetCVar("CameraReduceUnexpectedMovement")
+	end
+
+	-- /run print(GetCVar("CameraKeepCharacterCentered") .. " | " .. GetCVar("CameraReduceUnexpectedMovement"))
 
 	UIParent:UnregisterEvent("EXPERIMENTAL_CVAR_CONFIRMATION_NEEDED") 							-- classic
 	if GameEvent then GameEvent.HandleExperimentalCVarConfirmationNeeded = function() end end	-- retail, since 12.1
@@ -354,15 +369,24 @@ function ActionCamPlus_EventFrame:ADDON_LOADED(self, addon)
 	end
 
 	for _,func in pairs({"CameraZoomIn", "CameraZoomOut"}) do
-		hooksecurefunc(func, function(_, wasACP)
+		hooksecurefunc(func, function(_, caller)
+			local wasACP = caller == "ACP"
 			if _destination and not wasACP then _destination = nil end
 		end)
 	end
 	for _,func in pairs({"MoveViewInStart", "MoveViewOutStart"}) do
-		hooksecurefunc(func, function(_,_,_, wasACP)
+		hooksecurefunc(func, function(_,_,_, caller)
+			local wasACP = caller == "ACP"
 			if _destination and not wasACP then _destination = nil end
 		end)
 	end
+
+	hooksecurefunc("SetCVar", function(cvar, value, caller)
+		if caller == "ACP" then return end
+		if cvar ~= "CameraKeepCharacterCentered" and cvar ~= "CameraReduceUnexpectedMovement" then return end
+
+		ActionCamPlusDB.varCache[cvar] = value
+	end)
 end
 
 function ActionCamPlus_EventFrame:PLAYER_ENTERING_WORLD()
@@ -371,8 +395,6 @@ function ActionCamPlus_EventFrame:PLAYER_ENTERING_WORLD()
 	else
 		ActionCamPlusDB.defaultZoomSpeed = GetCVar("cameraZoomSpeed")
 	end
-	SetCVar("CameraKeepCharacterCentered", 0)
-	SetCVar("CameraReduceUnexpectedMovement", 0)
 
 	ACP.SpellIsMount() -- call once to init mountIDs
 	activeMountID = ACP.getMountID()
@@ -549,6 +571,7 @@ function ACP.CheckAllSettings() -- This function basically decides everything
 		ACP.SetFocus(false)
 		ACP.SetFocusInteract(false)
 		ACP.SetPitch(false)
+		ACP.overrideOrRestoreCVars()
 		return
 	end
 
@@ -585,6 +608,28 @@ function ACP.CheckAllSettings() -- This function basically decides everything
 
 		if not ActionCamPlusDB.ACP_SetCameraZoom then return end
 		ACP.SetCameraZoom(ActionCamPlusDB.unmountedCamDistance)
+	end
+
+	ACP.overrideOrRestoreCVars()
+end
+
+function ACP.motionSicknessOverride()
+	for i, option in pairs(motionSicknessOverrideOptions) do
+		if ActionCamPlusDB[option] then
+			return true
+		end
+	end
+
+	return false
+end
+
+function ACP.overrideOrRestoreCVars()
+	if ActionCamPlusDB.ACP_AddonEnabled and ACP.motionSicknessOverride() then
+		SetCVar("CameraKeepCharacterCentered", 0, "ACP")
+		SetCVar("CameraReduceUnexpectedMovement", 0, "ACP")
+	else
+		SetCVar("CameraKeepCharacterCentered", ActionCamPlusDB.varCache["CameraKeepCharacterCentered"], "ACP")
+		SetCVar("CameraReduceUnexpectedMovement", ActionCamPlusDB.varCache["CameraReduceUnexpectedMovement"], "ACP")
 	end
 end
 
