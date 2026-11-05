@@ -12,7 +12,7 @@ local function GetLabelsValues(allAssets, filter, showName, widthMod)
   local allKeys = GetKeysArray(allAssets)
   table.sort(allKeys, function(a, b)
     local aGroup, bGroup = allAssets[a].group, allAssets[b].group
-    local aOrder, bOrder = allAssets[a].order, allAssets[b].order
+    local aOrder, bOrder = allAssets[a].order or 0, allAssets[b].order or 0
     if aOrder then
       if aGroup == bGroup then
         return aOrder < bOrder

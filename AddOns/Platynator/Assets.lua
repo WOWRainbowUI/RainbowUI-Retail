@@ -52,23 +52,23 @@ addonTable.Assets.Markers = {
   ["normal/blizzard-shield"] = {file = "Interface/AddOns/Platynator/Assets/%s/Markers/blizzard-shield.png", width = 136, height = 165, has4k = true, tag = "cannotInterrupt"},
   ["normal/gw2-shield"] = {file = "Interface/AddOns/Platynator/Assets/Special/Markers/gw2-shield.png", width = 165, height = 165, has4k = true, tag = "cannotInterrupt"},
 
-  ["special/blizzard-elite"] = {file = "Interface/AddOns/Platynator/Assets/Special/Markers/eliterarecombo-blizzard.png", width = 150, height = 155, mode = legacyMode.Special, tag = "elite"},
-  ["normal/blizzard-elite"] = {file = "Interface/AddOns/Platynator/Assets/Special/Markers/elite-blizzard.png", width = 150, height = 155},
-  ["normal/blizzard-rareelite"] = {file = "Interface/AddOns/Platynator/Assets/Special/Markers/rareelite-blizzard.png", width = 150, height = 155},
+  ["special/blizzard-elite"] = {file = "Interface/AddOns/Platynator/Assets/Special/Markers/eliterarecombo-blizzard.png", width = 150, height = 155, mode = legacyMode.Special, tag = "elite", order = 1},
+  ["normal/blizzard-elite"] = {file = "Interface/AddOns/Platynator/Assets/Special/Markers/elite-blizzard.png", width = 150, height = 155, tag = "elite", order = 2},
+  ["normal/blizzard-rareelite"] = {file = "Interface/AddOns/Platynator/Assets/Special/Markers/rareelite-blizzard.png", width = 150, height = 155, order = 2},
 
-  ["special/blizzard-elite-around"] = {file = "Interface/AddOns/Platynator/Assets/%s/Markers/blizzard-rareelitecombo.png", width = 183, height = 155, has4k = true, mode = legacyMode.Special, tag = "elite"},
-  ["normal/blizzard-elite-around"] = {file = "Interface/AddOns/Platynator/Assets/%s/Markers/blizzard-elite.png", width = 183, height = 150, has4k = true},
-  ["normal/blizzard-rareelite-around"] = {file = "Interface/AddOns/Platynator/Assets/%s/Markers/blizzard-rareelite.png", width = 183, height = 150, has4k = true},
+  ["special/blizzard-elite-around"] = {file = "Interface/AddOns/Platynator/Assets/%s/Markers/blizzard-rareelitecombo.png", width = 183, height = 155, has4k = true, mode = legacyMode.Special, tag = "elite", order = 1},
+  ["normal/blizzard-elite-around"] = {file = "Interface/AddOns/Platynator/Assets/%s/Markers/blizzard-elite.png", width = 183, height = 150, has4k = true, tag = "elite", order = 2},
+  ["normal/blizzard-rareelite-around"] = {file = "Interface/AddOns/Platynator/Assets/%s/Markers/blizzard-rareelite.png", width = 183, height = 150, has4k = true, order = 2},
 
-  ["special/blizzard-elite-midnight"] = {file = "Interface/AddOns/Platynator/Assets/%s/Markers/blizzard-midnight-eliterarecombo.png", width = 150, height = 150, has4k = true, mode = legacyMode.Special, tag = "elite"},
-  ["normal/blizzard-elite-midnight"] = {file = "Interface/AddOns/Platynator/Assets/%s/Markers/blizzard-midnight-elite.png", width = 150, height = 150, has4k = true},
-  ["normal/blizzard-rareelite-midnight"] = {file = "Interface/AddOns/Platynator/Assets/%s/Markers/blizzard-midnight-rareelite.png", width = 150, height = 150, has4k = true},
+  ["special/blizzard-elite-midnight"] = {file = "Interface/AddOns/Platynator/Assets/%s/Markers/blizzard-midnight-eliterarecombo.png", width = 150, height = 150, has4k = true, mode = legacyMode.Special, tag = "elite", order = 1},
+  ["normal/blizzard-elite-midnight"] = {file = "Interface/AddOns/Platynator/Assets/%s/Markers/blizzard-midnight-elite.png", width = 150, height = 150, has4k = true, tag = "elite", order = 2},
+  ["normal/blizzard-rareelite-midnight"] = {file = "Interface/AddOns/Platynator/Assets/%s/Markers/blizzard-midnight-rareelite.png", width = 150, height = 150, has4k = true, order = 2},
 
-  ["special/blizzard-elite-star"] = {file = "Interface/AddOns/Platynator/Assets/%s/Markers/blizzard-rare-old.png", width = 140, height = 140, has4k = true, tag = "elite"},
+  ["special/blizzard-elite-star"] = {file = "Interface/AddOns/Platynator/Assets/%s/Markers/blizzard-rare-old.png", width = 140, height = 140, has4k = true, tag = "elite", order = 2},
 
-  ["special/tidy-star-elite"] = {file = "Interface/AddOns/Platynator/Assets/%s/Markers/tidy-star-combined.png", width = 140, height = 140, has4k = true, mode = legacyMode.Special, tag = "elite"},
-  ["special/tidy-star"] = {file = "Interface/AddOns/Platynator/Assets/%s/Markers/tidy-star.png", width = 140, height = 140, has4k = true, tag = "elite"},
-  ["special/tidy-star-silver"] = {file = "Interface/AddOns/Platynator/Assets/%s/Markers/tidy-star-silver.png", width = 140, height = 140, has4k = true, tag = "elite"},
+  ["special/tidy-star-elite"] = {file = "Interface/AddOns/Platynator/Assets/%s/Markers/tidy-star-combined.png", width = 140, height = 140, has4k = true, mode = legacyMode.Special, tag = "elite", order = 1},
+  ["special/tidy-star"] = {file = "Interface/AddOns/Platynator/Assets/%s/Markers/tidy-star.png", width = 140, height = 140, has4k = true, tag = "elite", order = 2},
+  ["special/tidy-star-silver"] = {file = "Interface/AddOns/Platynator/Assets/%s/Markers/tidy-star-silver.png", width = 140, height = 140, has4k = true, tag = "elite", order = 2},
   ["special/tidy-star-rare"] = {file = "Interface/AddOns/Platynator/Assets/%s/Markers/tidy-star.png", width = 140, height = 140, has4k = true, tag = "rare"},
   ["special/tidy-star-silver-rare"] = {file = "Interface/AddOns/Platynator/Assets/%s/Markers/tidy-star-silver.png", width = 140, height = 140, has4k = true, tag = "rare"},
 
@@ -76,6 +76,9 @@ addonTable.Assets.Markers = {
   ["normal/blizzard-rare-old"] = {file = "Interface/AddOns/Platynator/Assets/%s/Markers/blizzard-rare-old.png", width = 140, height = 140, has4k = true, tag = "rare"},
   ["normal/blizzard-rare-silver-star"] = {file = "Interface/AddOns/Platynator/Assets/%s/Markers/blizzard-rare-star.png", width = 140, height = 140, has4k = true, tag = "rare"},
   ["normal/blizzard-rare-midnight"] = {file = "Interface/AddOns/Platynator/Assets/%s/Markers/blizzard-midnight-rare.png", width = 162, height = 162, has4k = true, tag = "rare"},
+  ["normal/blizzard-rare-silver-dragon"] = {file = "Interface/AddOns/Platynator/Assets/%s/Markers/blizzard-midnight-rareelite.png", width = 150, height = 150, has4k = true, tag = "rare"},
+  ["normal/blizzard-rare-silver-dragon-around"] = {file = "Interface/AddOns/Platynator/Assets/%s/Markers/blizzard-rareelite.png", width = 183, height = 150, has4k = true, tag = "rare"},
+  ["normal/blizzard-rare-old-dragon"] = {file = "Interface/AddOns/Platynator/Assets/Special/Markers/rareelite-blizzard.png", width = 150, height = 155, tag = "rare"},
 
   ["normal/blizzard-raid"] = {file = "Interface/TargetingFrame/UI-RaidTargetingIcons", preview = "Interface\\TargetingFrame\\UI-RaidTargetingIcon_1.blp", width = 150, height = 150, tag = "raid"},
 

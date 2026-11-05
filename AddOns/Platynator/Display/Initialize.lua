@@ -198,6 +198,9 @@ function addonTable.Display.ManagerMixin:OnLoad()
   end)
 
   hooksecurefunc(NamePlateDriverFrame, "OnNamePlateAdded", function(_, unit)
+    if unit == "preview" then
+      return
+    end
     local nameplate = C_NamePlate.GetNamePlateForUnit(unit, false)
     if nameplate then
       nameplate.UnitFrame:SetParent(addonTable.hiddenFrame)
@@ -583,9 +586,6 @@ function addonTable.Display.ManagerMixin:UpdateAllClickRegions()
 end
 
 function addonTable.Display.ManagerMixin:Install(unit)
-  if unit == "preview" then
-    return
-  end
   local nameplate = C_NamePlate.GetNamePlateForUnit(unit)
   -- NOTE: the nameplate _name_ does not correspond to the unit
   if nameplate and unit and (addonTable.Constants.IsRetail or not UnitIsUnit("player", unit)) then
