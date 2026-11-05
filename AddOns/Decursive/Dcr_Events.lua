@@ -1,7 +1,7 @@
 --[[
     This file is part of Decursive.
 
-    Decursive (v 2.9.0-RC3) add-on for World of Warcraft UI
+    Decursive (v 2.9.0-RC4) add-on for World of Warcraft UI
     Copyright (C) 2006-2026 John Wellesz (Decursive AT 2072productions.com) ( http://www.2072productions.com/to/decursive.php )
 
     Decursive is free software: you can redistribute it and/or modify
@@ -24,7 +24,7 @@
     Decursive is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY.
 
-    This file was last updated on 2026-09-25T15:08:00Z
+    This file was last updated on 2026-11-04T09:37:36Z
 --]]
 -------------------------------------------------------------------------------
 
@@ -613,7 +613,7 @@ do
 
 
         if not D:AurasRestricted() then -- classic versions still use CLEU and although they support UNIT_AURA as well CLEU provides more features
-            if o_auraUpdateInfo.removedAuraInstanceIDs then
+            if o_auraUpdateInfo.removedAuraInstanceIDs and canaccessvalue(o_auraUpdateInfo.removedAuraInstanceIDs) then
                 self:checkForDebuff(UnitID)
 
                 for _, id in pairs(o_auraUpdateInfo.removedAuraInstanceIDs) do
@@ -1300,6 +1300,6 @@ do
     end
 end
 
-T._LoadedFiles["Dcr_Events.lua"] = "2.9.0-RC3";
+T._LoadedFiles["Dcr_Events.lua"] = "2.9.0-RC4";
 
 -- The Great Below
