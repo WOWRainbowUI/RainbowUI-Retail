@@ -55,6 +55,9 @@ Dropdowns.version = "2.0.0"
 
 local _dropdownCounter = 0
 
+-- Inline Play/Stop buttons added by the onPreview option of CreateNestedDropdown.
+local PREVIEW_KEY = "rgxPreviewBtn"
+
 -- WoW measures buttons as listFrame:GetWidth() - (BORDER * 2)
 local BORDER_THICKNESS = UIDROPDOWNMENU_BORDER_THICKNESS or 15
 local BORDER_PAD       = BORDER_THICKNESS * 2
@@ -461,6 +464,11 @@ end
                         leaf items; use Drops:AddInlineButton here
         autoWidth       (table)            — { minWidth, leftInset, opts }
                         triggers ForceWidth on each open
+        onPreview       (fn(value, item, holder)) - Play/Stop button on each leaf with a value.
+                        Forces the UIDropDownMenu path. Set item.preview = false to skip a row.
+        previewLabel    (string)  - default "Play"
+        previewStopLabel(string)  - default "Stop"
+        isPreviewing    (fn(value, item, holder)) -> bool - chooses Play or Stop
 
     Item fields:
         text        (string)
@@ -476,6 +484,7 @@ end
         tooltipTitle(string)
         tooltipText (string)
         keepOpen    (bool)     — don't CloseDropDownMenus on select
+        preview     (bool)     - false hides this leaf's Play button (onPreview)
         keepShownOnClick(bool) — UIDropDownMenu-compatible alias for keepOpen
 ]]
 -- ─────────────────────────────────────────────────────────────────────────────
@@ -753,7 +762,31 @@ function Dropdowns:CreateNestedDropdown_Legacy(parent, opts)
     holder._menuData = {}
     local menuKeyCounter = 0
 
+    -- Play/Stop state. Only used when opts.onPreview is set.
+    local onPreview = opts.onPreview
+    local previewLabel = opts.previewLabel or "Play"
+    local previewStopLabel = opts.previewStopLabel or "Stop"
+    local isPreviewing = opts.isPreviewing
+    holder._previewButtons = {}
+
+    local function previewTextFor(item)
+        if type(isPreviewing) == "function" and isPreviewing(item.value, item, holder) then
+            return previewStopLabel
+        end
+        return previewLabel
+    end
+
+    -- The row that UIDropDownMenu_AddButton has just created on this level.
+    local function lastButtonAt(level)
+        local listFrame = Dropdowns:GetListFrame(level)
+        if not listFrame or not listFrame.numButtons then return nil end
+        return _G[listFrame:GetName() .. "Button" .. listFrame.numButtons]
+    end
+
     local function addItems(items, level)
+        -- List rows are shared by every open UIDropDownMenu and recycled between opens, so
+        -- clear Play buttons left by any earlier menu, including one from another dropdown.
+        Dropdowns:HideInlineButtons(level, PREVIEW_KEY)
         for _, item in ipairs(items or {}) do
             local info = UIDropDownMenu_CreateInfo()
 
@@ -824,15 +857,46 @@ function Dropdowns:CreateNestedDropdown_Legacy(parent, opts)
                         end
                     end
                 end
+
+                -- Play/Stop button. A leaf with a value gets one unless item.preview is false.
+                if onPreview and item.value ~= nil and item.preview ~= false then
+                    local row = lastButtonAt(level)
+                    if row then
+                        local preview = Dropdowns:AddInlineButton(row, {
+                            key = PREVIEW_KEY,
+                            text = previewTextFor(item),
+                            width = 34,
+                            height = 16,
+                            onClick = function(rowFrame)
+                                onPreview(item.value, item, holder)
+                                local inline = rowFrame[PREVIEW_KEY]
+                                if inline and inline.label then
+                                    inline.label:SetText(previewTextFor(item))
+                                end
+                            end,
+                        })
+                        preview.item = item
+                        holder._previewButtons[#holder._previewButtons + 1] = preview
+                    end
+                end
             end
         end
 
-        -- Auto-width after all items added at this level
-        if autoW then
+        -- Auto-width after all items added at this level. Play buttons take row width too,
+        -- so the preview key is reserved here and consumers do not list it in autoWidth.opts.
+        if autoW or onPreview then
+            local fo = autoW and autoW.opts or {}
+            local inlineKeys = {}
+            for _, key in ipairs(fo.inlineKeys or {}) do
+                inlineKeys[#inlineKeys + 1] = key
+            end
+            if onPreview then
+                inlineKeys[#inlineKeys + 1] = PREVIEW_KEY
+            end
             Dropdowns:ForceWidth(level,
-                autoW.minWidth  or 200,
-                autoW.leftInset or 10,
-                autoW.opts)
+                (autoW and autoW.minWidth) or 200,
+                (autoW and autoW.leftInset) or 10,
+                { inlineKeys = inlineKeys, countKey = fo.countKey, compactRight = fo.compactRight })
         end
     end
 
@@ -843,6 +907,7 @@ function Dropdowns:CreateNestedDropdown_Legacy(parent, opts)
             -- Prevents stale key accumulation and ensures TWW compat.
             holder._menuData = {}
             menuKeyCounter = 0
+            holder._previewButtons = {}
             addItems(holder:GetItems(), level)
         else
             local children = type(menuList) == "table" and menuList
@@ -856,6 +921,15 @@ function Dropdowns:CreateNestedDropdown_Legacy(parent, opts)
     function holder:Refresh(value)
         if value ~= nil then self.value = value end
         SetDropdownText(self.dropdown, self:GetValueText(self.value))
+    end
+
+    -- Re-read Play/Stop labels, for example after the consumer's playback ends.
+    function holder:RefreshPreviews()
+        for _, preview in ipairs(self._previewButtons or {}) do
+            if preview:IsShown() and preview.label and preview.item then
+                preview.label:SetText(previewTextFor(preview.item))
+            end
+        end
     end
 
     function holder:SetEnabled(enabled)
@@ -963,7 +1037,9 @@ end
 function Dropdowns:CreateNestedDropdown(parent, opts)
     opts = opts or {}
     local holder
-    if HasModernDropdownTemplate() then
+    -- Play buttons need UIDropDownMenu list frames, where ForceWidth reserves row width.
+    -- MenuUtil rows expose no list frame, so onPreview always takes the legacy path.
+    if HasModernDropdownTemplate() and opts.onPreview == nil then
         RGX:Debug("RGXDropdown: dispatching to MenuUtil path")
         holder = self:CreateNestedDropdown_MenuUtil(parent, opts)
     else

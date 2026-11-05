@@ -215,6 +215,15 @@ GitLab is authoritative for development, issues, MRs, and CI. GitHub is the
 downstream public distribution. Public GitHub tags are sanitized release trees;
 their SHAs intentionally differ from the full-source GitLab tags.
 
+**Workforce exclusion.** The Hermes workforce does not operate on this
+repository. Operator directive 2026-10-27: no workforce role implements,
+reviews, gates, merges, or releases here, and workforce roles are not
+assigned to this repository. Any workforce session that arrives here must
+report the exclusion to the operator and stop; all work and merges are
+operator-owned. This keeps the shared validation pipeline, protected
+release tags, Wago, and README preservation under direct operator
+control.
+
 ## Package and Public Boundary
 
 The player package contains runtime files plus `AGENTS.md`. It excludes:
