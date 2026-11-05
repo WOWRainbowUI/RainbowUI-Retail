@@ -1,3 +1,11 @@
+# v2.67.0
+
+- Added option to pin categories and quest chains to the top of the category and expansion list
+
+# v2.66.0
+
+- Updated for Classic Era and Forever
+
 # v2.65.0
 
 - Fixed some issues with handling items

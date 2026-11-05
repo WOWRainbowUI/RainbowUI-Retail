@@ -15,27 +15,10 @@ end
 
 local GetLogIndexForQuestID = C_QuestLog and C_QuestLog.GetLogIndexForQuestID or GetQuestLogIndexByID
 local IsQuestFlaggedCompleted = C_QuestLog and C_QuestLog.IsQuestFlaggedCompleted or IsQuestFlaggedCompleted
+local GetNumQuestLogEntries = C_QuestLog and C_QuestLog.GetNumQuestLogEntries or GetNumQuestLogEntries
 
 local GetQuestsActive
-if select(4, GetBuildInfo()) < 90000 then
-    function GetQuestsActive(tbl)
-        local tbl = tbl or {};
-    
-        local numEntries = GetNumQuestLogEntries()
-        for i=1,numEntries do
-            local questID = select(8, GetQuestLogTitle(i));
-            if questID ~= nil and questID ~= 0 then
-                tbl[questID] = {};
-    
-                for objective=1,GetNumQuestLeaderBoards(i) do
-                    tbl[questID][objective] = {GetQuestLogLeaderBoard(objective, i)};
-                end
-            end
-        end
-        
-        return tbl;
-    end
-else
+if C_QuestLog and C_QuestLog.GetNumQuestLogEntries then
     function GetQuestsActive(tbl)
         local tbl = tbl or {};
     
@@ -47,6 +30,24 @@ else
     
                 for objective=1,GetNumQuestLeaderBoards(i) do
                     tbl[info.questID][objective] = {GetQuestLogLeaderBoard(objective, i)};
+                end
+            end
+        end
+        
+        return tbl;
+    end
+else
+    function GetQuestsActive(tbl)
+        local tbl = tbl or {};
+    
+        local numEntries = GetNumQuestLogEntries()
+        for i=1,numEntries do
+            local questID = select(8, GetQuestLogTitle(i));
+            if questID ~= nil and questID ~= 0 then
+                tbl[questID] = {};
+    
+                for objective=1,GetNumQuestLeaderBoards(i) do
+                    tbl[questID][objective] = {GetQuestLogLeaderBoard(objective, i)};
                 end
             end
         end
@@ -90,7 +91,7 @@ end;
 local BtWQuestsCharactersMap = {} -- Map from name-realm to Character Mixin
 
 local ClassMap = {}
-for classID=1,GetNumClasses() do
+for classID=1,30 do
     local info = C_CreatureInfo.GetClassInfo(classID)
     if info then
         ClassMap[info.classFile] = info
@@ -270,6 +271,32 @@ function BtWQuestsCharactersCharacterMixin:IsCategoryIgnored(id)
     return self.t.ignoredCategories and self.t.ignoredCategories[id]
 end
 
+function BtWQuestsCharactersCharacterMixin:ToggleCategoryPinned(id)
+    if self.t.pinnedCategories == nil then
+        self.t.pinnedCategories = {}
+    end
+
+    if self.t.pinnedCategories[id] then
+        self.t.pinnedCategories[id] = nil
+    else
+        self.t.pinnedCategories[id] = true
+    end
+end
+function BtWQuestsCharactersCharacterMixin:SetCategoryPinned(id, ignore)
+    if ignore == false then
+        ignore = nil
+    end
+
+    if self.t.pinnedCategories == nil then
+        self.t.pinnedCategories = {}
+    end
+
+    self.t.pinnedCategories[id] = ignore
+end
+function BtWQuestsCharactersCharacterMixin:IsCategoryPinned(id)
+    return self.t.pinnedCategories and self.t.pinnedCategories[id]
+end
+
 function BtWQuestsCharactersCharacterMixin:ToggleChainIgnored(id)
     if self.t.ignoredChains == nil then
         self.t.ignoredChains = {}
@@ -295,6 +322,34 @@ end
 function BtWQuestsCharactersCharacterMixin:IsChainIgnored(id)
     return self.t.ignoredChains and self.t.ignoredChains[id]
 end
+
+function BtWQuestsCharactersCharacterMixin:ToggleChainPinned(id)
+    if self.t.pinnedChains == nil then
+        self.t.pinnedChains = {}
+    end
+
+    if self.t.pinnedChains[id] then
+        self.t.pinnedChains[id] = nil
+    else
+        self.t.pinnedChains[id] = true
+    end
+end
+function BtWQuestsCharactersCharacterMixin:SetChainPinned(id, ignore)
+    if ignore == false then
+        ignore = nil
+    end
+
+    if self.t.pinnedChains == nil then
+        self.t.pinnedChains = {}
+    end
+
+    self.t.pinnedChains[id] = ignore
+end
+function BtWQuestsCharactersCharacterMixin:IsChainPinned(id)
+    return self.t.pinnedChains and self.t.pinnedChains[id]
+end
+
+
 function BtWQuestsCharactersCharacterMixin:IsChainActive(id)
     return BtWQuestsDatabase:IsChainActive(id, self)
 end
@@ -1101,7 +1156,7 @@ function BtWQuestsCharacters:OnEvent(event, ...)
     if C_PvP.IsWarModeDesired then
         if event == "WAR_MODE_STATUS_UPDATE" or event == "PLAYER_FLAGS_CHANGED" or event == "PLAYER_ENTERING_WORLD" then
             character.warMode = C_PvP.IsWarModeDesired();
-            character.warModeBonus = C_PvP.GetWarModeRewardBonus();
+            character.warModeBonus = C_PvP.GetWarModeRewardBonus and C_PvP.GetWarModeRewardBonus();
         end
     end
     if event == "PLAYER_EQUIPMENT_CHANGED" or event == "PLAYER_ENTERING_WORLD" then
@@ -1187,10 +1242,10 @@ eventHandler:RegisterEvent("PLAYER_LOGOUT");
 if GetAchievementInfo then
     eventHandler:RegisterEvent("ACHIEVEMENT_EARNED");
 end
-if C_PvP and C_PvP.IsWarModeDesired then
+if C_PvP and C_PvP.IsWarModeDesired and select(4, GetBuildInfo()) >= 80000 then
     eventHandler:RegisterEvent("WAR_MODE_STATUS_UPDATE");
 end
-if C_Covenants and C_PvP.IsWarModeDesired then
+if C_Covenants then
     eventHandler:RegisterEvent("COVENANT_CHOSEN");
 end
 

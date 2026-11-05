@@ -176,7 +176,13 @@ BtWQuestsCategoryHeaderMixin = {}
 function BtWQuestsCategoryHeaderMixin:Set(item, character)
     self.item = item
 
-    self.Name:SetText(item:GetName())
+    local name = item:GetName()
+    self.Name:SetText(name)
+    if name == "" then
+        self:SetHeight(10)
+        self.Name:ClearAllPoints()
+        self.Name:SetPoint("TOPLEFT", 0, 5)
+    end
 
     self.id = item:GetID();
 end
@@ -205,6 +211,14 @@ function BtWQuestsCategoryItemMixin:Set(item, character)
     self.Acive:SetShown(item:IsActive(character))
     self.Tick:SetShown(item:IsCompleted(character))
     self.Major:SetShown(item:IsMajor())
+
+    if item:GetType() == "category" and character:IsCategoryPinned(item:GetID()) then
+        self.Pin.texture:SetVertexColor(1.0, 1.0, 1.0)
+    elseif item:GetType() == "chain" and character:IsChainPinned(item:GetID()) then
+        self.Pin.texture:SetVertexColor(1.0, 1.0, 1.0)
+    else
+        self.Pin.texture:SetVertexColor(0.7, 0.5, 0.5)
+    end
 
     self.id = item:GetID();
 end
@@ -260,14 +274,26 @@ function BtWQuestsCategoryListItemMixin:Set(item, character)
     self.Major:SetShown(item:IsMajor())
     self.Major:SetAlpha(1)
 
+    if item:GetType() == "category" and character:IsCategoryPinned(item:GetID()) then
+        self.Pin.texture:SetVertexColor(1.0, 1.0, 1.0)
+    elseif item:GetType() == "chain" and character:IsChainPinned(item:GetID()) then
+        self.Pin.texture:SetVertexColor(1.0, 1.0, 1.0)
+    else
+        self.Pin.texture:SetVertexColor(0.7, 0.5, 0.5)
+    end
+
     self.id = item:GetID();
 end
 function BtWQuestsCategoryListItemMixin:OnEnter()
     BtWQuestsCategoryItemMixin.OnEnter(self)
+    self.Tick:SetAlpha(0)
+    self.Pin.texture:SetAlpha(0.75)
     self.Ignore.texture:SetAlpha(0.75)
 end
 function BtWQuestsCategoryListItemMixin:OnLeave()
     BtWQuestsCategoryItemMixin.OnLeave(self)
+    self.Tick:SetAlpha(1)
+    self.Pin.texture:SetAlpha(0.0)
     self.Ignore.texture:SetAlpha(0.0)
 end
 
@@ -275,11 +301,15 @@ BtWQuestsCategoryGridItemMixin = Mixin({}, BtWQuestsCategoryItemMixin)
 function BtWQuestsCategoryGridItemMixin:OnEnter()
     BtWQuestsCategoryItemMixin.OnEnter(self)
     self.Major:SetAlpha(0)
+    self.Tick:SetAlpha(0)
+    self.Pin.texture:SetAlpha(0.75)
     self.Ignore.texture:SetAlpha(0.75)
 end
 function BtWQuestsCategoryGridItemMixin:OnLeave()
     BtWQuestsCategoryItemMixin.OnLeave(self)
     self.Major:SetAlpha(1)
+    self.Tick:SetAlpha(1)
+    self.Pin.texture:SetAlpha(0.0)
     self.Ignore.texture:SetAlpha(0.0)
 end
 

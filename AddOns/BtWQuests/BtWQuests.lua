@@ -836,7 +836,7 @@ function BtWQuestsMixin:OnLoad()
     end
 
     if self.NineSlice then
-        if select(4, GetBuildInfo()) >= 100000 then
+        if select(4, GetBuildInfo()) >= 100000 or select(4, GetBuildInfo()) < 20000 then
             -- Temp fix for Dragonflight changes
             self.NavBack:SetFrameLevel(510)
             self.NavForward:SetFrameLevel(510)

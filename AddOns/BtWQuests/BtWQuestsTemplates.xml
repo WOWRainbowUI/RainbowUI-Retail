@@ -1387,6 +1387,73 @@
 					</OnMouseUp>
 				</Scripts>
 			</Button>
+			<Button parentKey="Pin">
+				<Size x="20" y="20"/>
+				<Anchors>
+					<Anchor point="RIGHT" relativeKey="$parent.Ignore" relativePoint="LEFT" x="-5" y="0"/>
+				</Anchors>
+				<Layers>
+					<Layer level="ARTWORK">
+						<Texture atlas="friendslist-recentallies-pin-yellow" alpha="0.0" parentKey="texture"/>
+					</Layer>
+				</Layers>
+				<Scripts>
+					<OnClick>
+						local frame = self:GetParent():GetParent():GetParent():GetParent():GetParent();
+						local item = self:GetParent().item
+						local character = frame:GetCharacter()
+						if item:GetType() == "chain" then
+							character:ToggleChainPinned(item:GetID())
+							self:GetParent().Acive:SetShown(item:IsActive(character))
+						elseif item:GetType() == "category" then
+							character:ToggleCategoryPinned(item:GetID())
+						end
+
+						if item:GetType() == "category" and character:IsCategoryPinned(item:GetID()) then
+							self.texture:SetVertexColor(1.0, 1.0, 1.0)
+						elseif item:GetType() == "chain" and character:IsChainPinned(item:GetID()) then
+							self.texture:SetVertexColor(1.0, 1.0, 1.0)
+						else
+							self.texture:SetVertexColor(0.7, 0.5, 0.5)
+						end
+
+						frame:Refresh()
+					</OnClick>
+					<OnEnter>
+						self.texture:SetAlpha(1.0)
+
+						local frame = self:GetParent():GetParent():GetParent():GetParent():GetParent();
+						local item = self:GetParent().item
+						local character = frame:GetCharacter()
+
+						if item:GetType() == "category" and character:IsCategoryPinned(item:GetID()) then
+							self.texture:SetVertexColor(0.7, 0.5, 0.5)
+						elseif item:GetType() == "chain" and character:IsChainPinned(item:GetID()) then
+							self.texture:SetVertexColor(0.7, 0.5, 0.5)
+						else
+							self.texture:SetVertexColor(1.0, 1.0, 1.0)
+						end
+					</OnEnter>
+					<OnLeave>
+						self.texture:SetAlpha(0.0)
+						
+						local frame = self:GetParent():GetParent():GetParent():GetParent():GetParent();
+						local item = self:GetParent().item
+						local character = frame:GetCharacter()
+
+						if item:GetType() == "category" and character:IsCategoryPinned(item:GetID()) then
+							self.texture:SetVertexColor(1.0, 1.0, 1.0)
+						elseif item:GetType() == "chain" and character:IsChainPinned(item:GetID()) then
+							self.texture:SetVertexColor(1.0, 1.0, 1.0)
+						else
+							self.texture:SetVertexColor(0.7, 0.5, 0.5)
+						end
+					</OnLeave>
+					<OnMouseUp>
+						self:GetParent():OnMouseUp(button)
+					</OnMouseUp>
+				</Scripts>
+			</Button>
 		</Frames>
 		<NormalTexture inherits="UI-BtWQuests-CategoryListItem-Base"/>
 		<HighlightTexture inherits="UI-BtWQuests-CategoryListItem-Highlight"/>
@@ -1442,6 +1509,75 @@
 			</Layer>
 		</Layers>
 		<Frames>
+			<Button parentKey="Pin">
+				<Size x="20" y="20"/>
+				<Anchors>
+					<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="-7" y="7"/>
+				</Anchors>
+				<Layers>
+					<Layer level="ARTWORK">
+						<Texture atlas="friendslist-recentallies-pin-yellow" alpha="0.0" parentKey="texture"/>
+					</Layer>
+				</Layers>
+				<Scripts>
+					<OnClick>
+						local frame = self:GetParent():GetParent():GetParent():GetParent():GetParent();
+						local item = self:GetParent().item
+						local character = frame:GetCharacter()
+						if item:GetType() == "chain" then
+							character:ToggleChainPinned(item:GetID())
+							self:GetParent().Acive:SetShown(item:IsActive(character))
+						elseif item:GetType() == "category" then
+							character:ToggleCategoryPinned(item:GetID())
+						end
+
+						if item:GetType() == "category" and character:IsCategoryPinned(item:GetID()) then
+							self.texture:SetVertexColor(1.0, 1.0, 1.0)
+						elseif item:GetType() == "chain" and character:IsChainPinned(item:GetID()) then
+							self.texture:SetVertexColor(1.0, 1.0, 1.0)
+						else
+							self.texture:SetVertexColor(0.7, 0.5, 0.5)
+						end
+
+						frame:Refresh()
+					</OnClick>
+					<OnEnter>
+    					self:GetParent().Tick:SetAlpha(0)
+						self.texture:SetAlpha(1.0)
+						
+						local frame = self:GetParent():GetParent():GetParent():GetParent():GetParent();
+						local item = self:GetParent().item
+						local character = frame:GetCharacter()
+
+						if item:GetType() == "category" and character:IsCategoryPinned(item:GetID()) then
+							self.texture:SetVertexColor(0.7, 0.5, 0.5)
+						elseif item:GetType() == "chain" and character:IsChainPinned(item:GetID()) then
+							self.texture:SetVertexColor(0.7, 0.5, 0.5)
+						else
+							self.texture:SetVertexColor(1.0, 1.0, 1.0)
+						end
+					</OnEnter>
+					<OnLeave>
+    					self:GetParent().Tick:SetAlpha(0)
+						self.texture:SetAlpha(0.0)
+						
+						local frame = self:GetParent():GetParent():GetParent():GetParent():GetParent();
+						local item = self:GetParent().item
+						local character = frame:GetCharacter()
+
+						if item:GetType() == "category" and character:IsCategoryPinned(item:GetID()) then
+							self.texture:SetVertexColor(1.0, 1.0, 1.0)
+						elseif item:GetType() == "chain" and character:IsChainPinned(item:GetID()) then
+							self.texture:SetVertexColor(1.0, 1.0, 1.0)
+						else
+							self.texture:SetVertexColor(0.7, 0.5, 0.5)
+						end
+					</OnLeave>
+					<OnMouseUp>
+						self:GetParent():OnMouseUp(button)
+					</OnMouseUp>
+				</Scripts>
+			</Button>
 			<Button parentKey="Ignore">
 				<Size x="20" y="20"/>
 				<Anchors>
