@@ -162,3 +162,9 @@ else
     end
   end
 end
+
+if C_CVar.SetTempCVar then
+  addonTable.Utilities.SetCVar = C_CVar.SetTempCVar
+else
+  addonTable.Utilities.SetCVar = C_CVar.SetCVar
+end

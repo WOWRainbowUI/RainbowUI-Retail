@@ -1,7 +1,8 @@
 # Coolinator
 
-## [168](https://github.com/TheMouseNest/Coolinator/tree/168) (2026-11-02)
-[Full Changelog](https://github.com/TheMouseNest/Coolinator/compare/167...168) 
+## [169](https://github.com/TheMouseNest/Coolinator/tree/169) (2026-11-04)
+[Full Changelog](https://github.com/TheMouseNest/Coolinator/compare/168...169) 
 
-- Use Blizzard style aura countdowns formatting (and fix fractional for auras)  
--  Update donate message to specify no AI  
+- Fix typo  
+- Fix pixel perfect issues with auras  
+- Remove final vestiges of old pixel perfect  

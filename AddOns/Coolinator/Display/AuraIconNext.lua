@@ -12,6 +12,8 @@ function addonTable.Display.AuraIconNextMixin:OnLoad()
   self:SetScript("OnHide", self.OnHide)
   self:SetScript("OnEvent", self.OnEvent)
 
+  self.sizeAssistants = {}
+
   self.ButtonInit = function(auraButton)
     auraButton:SetIgnoringChildrenForBounds(true)
     auraButton:SetCollapsesLayout(true)
@@ -59,6 +61,7 @@ function addonTable.Display.AuraIconNextMixin:OnLoad()
     local sizeAssistant = CreateFrame("Frame", nil, self, "DisableUntrustedLayoutScriptsTemplate")
     sizeAssistant:SetSize(0.001, 0.001)
     sizeAssistant:SetPoint("TOPLEFT", auraButton, "BOTTOMRIGHT")
+    table.insert(self.sizeAssistants, sizeAssistant)
   end
 
   self.StyleButton = function(auraButton, details)
@@ -134,6 +137,7 @@ function addonTable.Display.AuraIconNextMixin:ApplyPadding(horizontal, vertical)
         auraButton:SetSize(offsetSize + horizontal, offsetSize + vertical)
         auraButton:SetScale(self:GetEffectiveScale() / UIParent:GetScale())
         auraButton:SetFrameLevel(self:GetFrameLevel() + 1)
+        PixelUtil.SetRoundLayoutToNearestPixelRecursively(auraButton, true)
       end, candidateFilters = self.include},
       {initializeFrame = function(auraButton)
         self.ButtonInit(auraButton)
@@ -142,6 +146,7 @@ function addonTable.Display.AuraIconNextMixin:ApplyPadding(horizontal, vertical)
         auraButton:SetSize(offsetSize + horizontal, offsetSize + vertical)
         auraButton:SetScale(self:GetEffectiveScale() / UIParent:GetScale())
         auraButton:SetFrameLevel(self:GetFrameLevel() + 1)
+        PixelUtil.SetRoundLayoutToNearestPixelRecursively(auraButton, true)
       end, candidateFilters = self.include},
       self.details.playerSourced
     )
@@ -150,14 +155,22 @@ function addonTable.Display.AuraIconNextMixin:ApplyPadding(horizontal, vertical)
     self.helpfulButton:SetSize(offsetSize + horizontal, offsetSize + vertical)
     self.helpfulButton:SetScale(self:GetEffectiveScale() / UIParent:GetScale())
     self.helpfulButton:SetFrameLevel(self:GetFrameLevel() + 1)
+    PixelUtil.SetRoundLayoutToNearestPixelRecursively(self.helpfulButton, true)
 
     self.helpfulPetButton:SetSize(offsetSize + horizontal, offsetSize + vertical)
     self.helpfulPetButton:SetScale(self:GetEffectiveScale() / UIParent:GetScale())
     self.helpfulPetButton:SetFrameLevel(self:GetFrameLevel() + 1)
+    PixelUtil.SetRoundLayoutToNearestPixelRecursively(self.helpfulPetButton, true)
 
     self.harmfulButton:SetSize(offsetSize + horizontal, offsetSize + vertical)
     self.harmfulButton:SetScale(self:GetEffectiveScale() / UIParent:GetScale())
     self.harmfulButton:SetFrameLevel(self:GetFrameLevel() + 1)
+    PixelUtil.SetRoundLayoutToNearestPixelRecursively(self.harmfulButton, true)
+  end
+
+  self:SetRoundLayoutToNearestPixel(false)
+  for _, sa in ipairs(self.sizeAssistants) do
+    sa:SetRoundLayoutToNearestPixel(false)
   end
 end
 

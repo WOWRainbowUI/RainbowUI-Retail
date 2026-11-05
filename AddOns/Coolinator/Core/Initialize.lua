@@ -172,7 +172,7 @@ startupFrame:SetScript("OnEvent", function(_, eventName)
       addonTable.Core.ApplyPresets(layout)
     end
 
-    C_CVar.SetCVar("cooldownViewerEnabled", "0")
+    addonTable.Utilities.SetCVar("cooldownViewerEnabled", "0")
 
     addonTable.CallbackRegistry:TriggerEvent("Layout")
   end
