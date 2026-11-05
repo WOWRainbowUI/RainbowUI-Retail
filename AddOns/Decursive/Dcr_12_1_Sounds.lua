@@ -41,7 +41,7 @@ if not T._LoadedFiles or not T._LoadedFiles["Dcr_DebuffsFrame.xml"] or not T._Lo
     DecursiveInstallCorrupted = true;
     return;
 end
-T._LoadedFiles["Dcr_12_1_Sounds.lua"] = not DC.RESTRICTED_AURAS and "2.9.0-RC3";
+T._LoadedFiles["Dcr_12_1_Sounds.lua"] = not DC.RESTRICTED_AURAS and "2.9.0-RC4";
 
 function D:Schedule_MN_SoundsRegistration(delay)
     if DC.RESTRICTED_AURAS then
@@ -63,7 +63,7 @@ local SPELLS_BY_TYPE = {
         1294569, 1217633, 1228198, 1201554, 1235549, 1239860, 1259365,
         1238084, 1249238, 276031, 1294815, 372682, 373589, 1305234,
         381515, 392641, 392924, 268008, 268013, 1296052, 1286922,
-        270920, 270499,
+        270920, 270499, 373693
     },
     [DC.POISON] = {
         1294845, 1305368, 1307571, 474515, 1216590, 1234846, 1250937,
@@ -239,4 +239,4 @@ function D:Refresh12_1AuraSounds()
 end
 
 
-T._LoadedFiles["Dcr_12_1_Sounds.lua"] = "2.9.0-RC3";
+T._LoadedFiles["Dcr_12_1_Sounds.lua"] = "2.9.0-RC4";

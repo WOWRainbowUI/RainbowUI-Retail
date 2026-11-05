@@ -1,7 +1,7 @@
 --[[
     This file is part of Decursive.
 
-    Decursive (v 2.9.0-RC3) add-on for World of Warcraft UI
+    Decursive (v 2.9.0-RC4) add-on for World of Warcraft UI
     Copyright (C) 2006-2026 John Wellesz (Decursive AT 2072productions.com) ( http://www.2072productions.com/to/decursive.php )
 
     Decursive is free software: you can redistribute it and/or modify
@@ -2085,6 +2085,6 @@ function MicroUnitF:OnAttributeChanged(self, name, value)
     D:Debug("Micro unit", name, "AttributeChanged to", value);
 end
 
-T._LoadedFiles["Dcr_DebuffsFrame.lua"] = "2.9.0-RC3";
+T._LoadedFiles["Dcr_DebuffsFrame.lua"] = "2.9.0-RC4";
 
 -- Heresy
