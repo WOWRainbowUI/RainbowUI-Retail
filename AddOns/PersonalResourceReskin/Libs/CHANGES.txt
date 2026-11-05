@@ -1,110 +1,137 @@
 ------------------------------------------------------------------------
-r1419 | nevcairiel | 2026-09-25 11:47:59 +0000 (Fri, 25 Sep 2026) | 1 line
-Changed paths:
-   M /trunk
-   M /trunk/AceDB-3.0/AceDB-3.0.lua
-
-AceDB-3.0: Remove leftover build info
-------------------------------------------------------------------------
-r1418 | nevcairiel | 2026-09-25 11:46:16 +0000 (Fri, 25 Sep 2026) | 4 lines
-Changed paths:
-   M /trunk
-   M /trunk/AceDB-3.0/AceDB-3.0.lua
-
-AceDB-3.0: Have the name generation API more closely match Blizzards name generation
-
-If no surname is available, don't try to append an empty one. Maybe
-they'll make them optional for unique singular names at some point.
-------------------------------------------------------------------------
-r1417 | nevcairiel | 2026-09-25 11:46:09 +0000 (Fri, 25 Sep 2026) | 1 line
-Changed paths:
-   M /trunk
-   M /trunk/.luacheckrc
-   M /trunk/AceDB-3.0/AceDB-3.0.lua
-
-AceDB-3.0: Check for region-wide names using the appropriate API
-------------------------------------------------------------------------
-r1416 | funkehdude | 2026-09-25 11:37:05 +0000 (Fri, 25 Sep 2026) | 1 line
-Changed paths:
-   M /trunk/AceDB-3.0/AceDB-3.0.lua
-
-AceDB-3.0: Remove `realmKey` from `charKey` in WoW Forever as names are unique across all rulesets (PvE/PvP/etc)
-------------------------------------------------------------------------
-r1415 | funkehdude | 2026-09-25 11:12:28 +0000 (Fri, 25 Sep 2026) | 1 line
-Changed paths:
-   M /trunk/.luacheckrc
-   M /trunk/AceDB-3.0/AceDB-3.0.lua
-
-AceDB-3.0: Swap UnitName for UnitNameUnmodified. Fix compatibility with WoW Forever's latest beta update (once again includes the surname in the profile).
-------------------------------------------------------------------------
-r1414 | funkehdude | 2026-09-18 01:23:16 +0000 (Fri, 18 Sep 2026) | 1 line
-Changed paths:
-   M /trunk/.luacheckrc
-   M /trunk/AceDB-3.0/AceDB-3.0.lua
-
-AceDB-3.0: Compatibility with WoW Forever
-------------------------------------------------------------------------
-r1413 | funkehdude | 2026-09-17 22:54:34 +0000 (Thu, 17 Sep 2026) | 1 line
+r1393 | funkehdude | 2026-04-10 01:52:49 +0000 (Fri, 10 Apr 2026) | 1 line
 Changed paths:
    M /trunk/Ace3.toc
 
 Bump toc
 ------------------------------------------------------------------------
-r1412 | funkehdude | 2026-09-08 01:02:22 +0000 (Tue, 08 Sep 2026) | 1 line
+r1392 | funkehdude | 2026-03-16 00:15:39 +0000 (Mon, 16 Mar 2026) | 1 line
 Changed paths:
    M /trunk/Ace3.toc
 
 Bump toc
 ------------------------------------------------------------------------
-r1411 | funkehdude | 2026-09-06 22:47:39 +0000 (Sun, 06 Sep 2026) | 1 line
+r1391 | funkehdude | 2026-03-06 14:48:32 +0000 (Fri, 06 Mar 2026) | 1 line
 Changed paths:
-   M /trunk/AceGUI-3.0/widgets/AceGUIWidget-Icon.lua
-   M /trunk/AceGUI-3.0/widgets/AceGUIWidget-Label.lua
+   M /trunk/AceGUI-3.0/widgets/AceGUIWidget-Slider.lua
 
-AceGUI-3.0: Forgot to bump versions.
+AceGUI-3.0/widgets/AceGUIWidget-Slider: Workaround font loading issue sometimes making freshly created editboxes blank until the text is changed.
 ------------------------------------------------------------------------
-r1410 | funkehdude | 2026-09-06 22:45:42 +0000 (Sun, 06 Sep 2026) | 1 line
+r1390 | nevcairiel | 2026-02-03 18:39:36 +0000 (Tue, 03 Feb 2026) | 1 line
 Changed paths:
-   M /trunk/AceGUI-3.0/widgets/AceGUIWidget-Icon.lua
-   M /trunk/AceGUI-3.0/widgets/AceGUIWidget-Label.lua
+   M /trunk/Ace3.toc
 
-AceGUI-3.0: Add `:SetImageByAtlas` API to the `AceGUIWidget-Icon` and `AceGUIWidget-Label` widgets.
+Bump toc
 ------------------------------------------------------------------------
-r1409 | funkehdude | 2026-09-03 22:41:24 +0000 (Thu, 03 Sep 2026) | 1 line
+r1389 | nevcairiel | 2026-02-03 18:39:11 +0000 (Tue, 03 Feb 2026) | 1 line
 Changed paths:
+   M /trunk/changelog.txt
+
+Update changelog
+------------------------------------------------------------------------
+r1388 | funkehdude | 2026-01-22 23:05:57 +0000 (Thu, 22 Jan 2026) | 1 line
+Changed paths:
+   M /trunk/.luacheckrc
+   M /trunk/AceTab-3.0/AceTab-3.0.lua
+
+AceTab-3.0/AceTab-3.0: `NUM_CHAT_WINDOWS` was replaced by `Constants.ChatFrameConstants.MaxChatWindows`
+------------------------------------------------------------------------
+r1387 | funkehdude | 2026-01-13 16:57:21 +0000 (Tue, 13 Jan 2026) | 1 line
+Changed paths:
+   M /trunk/Ace3.toc
+
+Bump toc
+------------------------------------------------------------------------
+r1386 | nevcairiel | 2025-12-11 18:25:02 +0000 (Thu, 11 Dec 2025) | 5 lines
+Changed paths:
+   M /trunk
    M /trunk/AceConfig-3.0/AceConfigDialog-3.0/AceConfigDialog-3.0.lua
 
-AceConfig-3.0/AceConfigDialog-3.0: Slightly bigger popup size.
-------------------------------------------------------------------------
-r1408 | funkehdude | 2026-09-03 15:37:56 +0000 (Thu, 03 Sep 2026) | 1 line
-Changed paths:
-   M /trunk/AceDBOptions-3.0/AceDBOptions-3.0.lua
+AceConfigDialog-3.0: Forward the "arg" option table member to widgets
 
-AceDBOptions-3.0: Increase the character limit to 50, increase the width of the dropdown so that a 50 character profile should always show.
+Widgets will receive the data through the SetCustomData function, if
+available, and can act on it as needed. This provides a clear lifecycle
+function before layout where the data is being made available.
 ------------------------------------------------------------------------
-r1407 | funkehdude | 2026-09-03 15:26:34 +0000 (Thu, 03 Sep 2026) | 1 line
+r1385 | nevcairiel | 2025-12-06 11:26:20 +0000 (Sat, 06 Dec 2025) | 1 line
 Changed paths:
-   M /trunk/AceDB-3.0/AceDB-3.0.lua
+   M /trunk
+   M /trunk/AceConfig-3.0/AceConfigDialog-3.0/AceConfigDialog-3.0.lua
+   M /trunk/AceConfig-3.0/AceConfigRegistry-3.0/AceConfigRegistry-3.0.lua
 
-AceDB-3.0: Bump limit to 50 characters
+AceConfig-3.0: Bump library versions for relative width support
 ------------------------------------------------------------------------
-r1406 | funkehdude | 2026-09-03 04:12:17 +0000 (Thu, 03 Sep 2026) | 1 line
+r1384 | nevcairiel | 2025-12-06 10:23:20 +0000 (Sat, 06 Dec 2025) | 3 lines
 Changed paths:
-   M /trunk/AceDB-3.0/AceDB-3.0.lua
+   M /trunk
+   M /trunk/AceGUI-3.0/widgets/AceGUIWidget-Keybinding.lua
 
-AceDB-3.0: Restrict profile names to between 1 and 30 characters. Existing profiles remain and can be copied to a new name.
+AceGUI-3.0: Keybinding: Add gamepad support
+
+Gamepad bindings are completely in line with the rest of the keybinding system in WoW, so all that's really necessary to make them work in AceGUI is to add a handler to catch bindings.
 ------------------------------------------------------------------------
-r1405 | funkehdude | 2026-09-03 02:03:09 +0000 (Thu, 03 Sep 2026) | 1 line
+r1383 | nevcairiel | 2025-12-06 10:19:35 +0000 (Sat, 06 Dec 2025) | 8 lines
 Changed paths:
+   M /trunk
+   M /trunk/AceConfig-3.0/AceConfigDialog-3.0/AceConfigDialog-3.0.lua
+   M /trunk/AceConfig-3.0/AceConfigRegistry-3.0/AceConfigRegistry-3.0.lua
+
+AceConfig-3.0: Widget width can be defined to be relative to the container
+
+Syntax in the config table:
+width = "relative"
+relWidth = "0.25"
+
+This will result in a widget that takes up a quarter of the container's
+width.
+------------------------------------------------------------------------
+r1382 | nevcairiel | 2025-12-05 08:44:39 +0000 (Fri, 05 Dec 2025) | 11 lines
+Changed paths:
+   M /trunk
    M /trunk/.luacheckrc
-   M /trunk/AceDBOptions-3.0/AceDBOptions-3.0.lua
+   M /trunk/AceConfig-3.0/AceConfigDialog-3.0/AceConfigDialog-3.0.lua
 
-AceDBOptions-3.0: Validate new profile names (Restrict to 30 characters, must contain some text)
+AceConfigDialog-3.0: Preserve the original ID for BlizzOptions categories
+
+In Midnight, the ID must be numeric, so we can no longer use the name,
+and this may prevent taint spread by the ID field, since the
+automatically generated value is assigned securely.
+
+To open the settings panel through Settings.OpenToCategory, the ID needs
+to be passed, which is returned as the second value from :AddToBlizzOptions
+
+This change becomes effective when the new C_SettingsUtil API is added
+to the various clients, currently in 12.0
 ------------------------------------------------------------------------
-r1404 | funkehdude | 2026-08-26 22:31:26 +0000 (Wed, 26 Aug 2026) | 1 line
+r1381 | nevcairiel | 2025-12-05 08:43:15 +0000 (Fri, 05 Dec 2025) | 4 lines
 Changed paths:
-   M /trunk/AceGUI-3.0/widgets/AceGUIWidget-Heading.lua
+   M /trunk
+   M /trunk/AceConfig-3.0/AceConfigDialog-3.0/AceConfigDialog-3.0.lua
 
-AceGUI-3.0/widgets/AceGUIWidget-Heading: Support secret text
+AceConfigDialog-3.0: Remove InterfaceOptions_AddCategory support
+
+All supported WoW versions have moved on to the new Settings interface,
+so this was unused.
+------------------------------------------------------------------------
+r1380 | funkehdude | 2025-12-03 00:09:20 +0000 (Wed, 03 Dec 2025) | 1 line
+Changed paths:
+   M /trunk/Ace3.toc
+
+Bump toc
+------------------------------------------------------------------------
+r1379 | nevcairiel | 2025-11-27 18:58:03 +0000 (Thu, 27 Nov 2025) | 3 lines
+Changed paths:
+   M /trunk
+   M /trunk/AceGUI-3.0/widgets/AceGUIContainer-TreeGroup.lua
+
+AceGUI-3.0: TreeGroup: Pass an explicit alpha value to SetText
+
+Fixes CF-#685
+------------------------------------------------------------------------
+r1378 | funkehdude | 2025-11-19 19:46:34 +0000 (Wed, 19 Nov 2025) | 1 line
+Changed paths:
+   M /trunk/Ace3.toc
+
+Bump toc
 ------------------------------------------------------------------------
 

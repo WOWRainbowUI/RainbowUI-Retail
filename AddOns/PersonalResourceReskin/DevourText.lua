@@ -18,8 +18,12 @@ frame.text:SetText("0")
 frame:SetMovable(true)
 frame:EnableMouse(false)
 frame:RegisterForDrag("LeftButton")
+local SavePosition, AnchorDevourText   -- below: remember / put back where you dropped it
 frame:SetScript("OnDragStart", function(self) self:StartMoving() end)
-frame:SetScript("OnDragStop", function(self) self:StopMovingOrSizing() end)
+frame:SetScript("OnDragStop", function(self)
+    self:StopMovingOrSizing()
+    if SavePosition then SavePosition() end
+end)
 
 local function ShouldShowDevour()
     local _, class = UnitClass("player")
@@ -61,7 +65,10 @@ local defaults = {
     devourFontSize = 20,
     devourAnchorPoint = "CENTER",
     devourStrata = "HIGH",
-    devourLocked = false
+    devourLocked = false,
+    devourAttach = true,   -- sit on the alternate power bar (souls bar) and move with it
+    devourX = 0, devourY = 0,           -- offset from the bar's middle (attached)
+    devourFreeX = 0, devourFreeY = 0,   -- offset from the screen's middle (not attached)
 }
 
 local function CopyDefaults(dest, src)
@@ -131,6 +138,40 @@ local options = {
                 ApplyDevourFont()
             end,
             order = 2,
+        },
+        devourAttach = {
+            name = "Attach to the souls bar",
+            desc = "On: the text sits on the alternate power (souls) bar and moves with it. Off: it stays where you put it on the screen.",
+            type = "toggle",
+            order = 2.6,
+            get = function() return DevourTextDB.devourAttach ~= false end,
+            set = function(_, val) DevourTextDB.devourAttach = val; if AnchorDevourText then AnchorDevourText() end end,
+        },
+        devourX = {
+            name = "Left / right",
+            type = "range", min = -600, max = 600, step = 1, order = 2.7,
+            get = function() return DevourTextDB.devourAttach ~= false and (DevourTextDB.devourX or 0) or (DevourTextDB.devourFreeX or 0) end,
+            set = function(_, val)
+                if DevourTextDB.devourAttach ~= false then DevourTextDB.devourX = val else DevourTextDB.devourFreeX = val end
+                if AnchorDevourText then AnchorDevourText() end
+            end,
+        },
+        devourY = {
+            name = "Up / down",
+            type = "range", min = -600, max = 600, step = 1, order = 2.8,
+            get = function() return DevourTextDB.devourAttach ~= false and (DevourTextDB.devourY or 0) or (DevourTextDB.devourFreeY or 0) end,
+            set = function(_, val)
+                if DevourTextDB.devourAttach ~= false then DevourTextDB.devourY = val else DevourTextDB.devourFreeY = val end
+                if AnchorDevourText then AnchorDevourText() end
+            end,
+        },
+        resetDevourPos = {
+            name = "Reset position",
+            type = "execute", order = 2.9,
+            func = function()
+                DevourTextDB.devourX, DevourTextDB.devourY, DevourTextDB.devourFreeX, DevourTextDB.devourFreeY = 0, 0, 0, 0
+                if AnchorDevourText then AnchorDevourText() end
+            end,
         },
         lockDevourText = {
             name = "Lock Devour Text",
@@ -208,25 +249,51 @@ frame:SetScript("OnEvent", function(self, event, ...)
     end
 end)
 
-local function AnchorToPRDBar()
+-- the souls bar of the Personal Resource Display (made late by the game,
+-- sometimes after login / reload - so we look again a few times)
+local function GetAltBar()
     local prd = rawget(_G, "PersonalResourceDisplayFrame")
     local altBar = prd and prd.AlternatePowerBar or nil
-    local background = altBar and altBar.background or nil
-    if altBar and background then
+    local anchor = altBar and (altBar.background or altBar) or nil
+    return altBar, anchor
+end
+
+local function AnchorToPRDBar()
+    if InCombatLockdown() and frame:IsProtected() then return end
+    local altBar, anchor = GetAltBar()
+    frame:ClearAllPoints()
+    if DevourTextDB.devourAttach ~= false and altBar and anchor then
         frame:SetParent(altBar)
-        frame:ClearAllPoints()
-        frame:SetPoint("CENTER", background, "CENTER", 0, 0)
+        frame:SetPoint("CENTER", anchor, "CENTER", DevourTextDB.devourX or 0, DevourTextDB.devourY or 0)
     else
         frame:SetParent(UIParent)
-        frame:ClearAllPoints()
-        frame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
+        frame:SetPoint("CENTER", UIParent, "CENTER", DevourTextDB.devourFreeX or 0, DevourTextDB.devourFreeY or 0)
     end
+    frame:SetUserPlaced(false)   -- our own saved spot, not the game's layout cache
     frame:SetFrameStrata(DevourTextDB.devourStrata or "HIGH")
     frame:SetFrameLevel(100)
     -- Re-enforce lock state after re-parent (SetParent can reset mouse)
-    if DevourTextDB.devourLocked or DevourTextDB.devourLocked == nil then
-        frame:EnableMouse(false)
+    frame:EnableMouse(not DevourTextDB.devourLocked)
+end
+AnchorDevourText = AnchorToPRDBar
+
+-- dropped after dragging: keep that spot (relative to the bar when attached)
+SavePosition = function()
+    local altBar, anchor = GetAltBar()
+    local attached = DevourTextDB.devourAttach ~= false and altBar and anchor
+    local host = attached and anchor or UIParent
+    local fx, fy = frame:GetCenter()
+    local hx, hy = host:GetCenter()
+    if not (fx and hx) then return end
+    local fs, hs = frame:GetEffectiveScale(), host:GetEffectiveScale()
+    local dx = (fx * fs - hx * hs) / fs
+    local dy = (fy * fs - hy * hs) / fs
+    if attached then
+        DevourTextDB.devourX, DevourTextDB.devourY = math.floor(dx + 0.5), math.floor(dy + 0.5)
+    else
+        DevourTextDB.devourFreeX, DevourTextDB.devourFreeY = math.floor(dx + 0.5), math.floor(dy + 0.5)
     end
+    AnchorToPRDBar()
 end
 
 AnchorToPRDBar()
@@ -235,6 +302,10 @@ local function HookPRDBar()
     local prd = _G and _G.PersonalResourceDisplayFrame or nil
     local altBar = prd and prd.AlternatePowerBar or nil
     local background = altBar and altBar.background or nil
+    if altBar and not altBar._devourTextShowHooked and altBar.HookScript then
+        altBar._devourTextShowHooked = true
+        altBar:HookScript("OnShow", function() AnchorToPRDBar() end)
+    end
     if background and not background._devourTextHooked then
         background._devourTextHooked = true
         hooksecurefunc(background, "SetPoint", function()
@@ -251,9 +322,18 @@ end
 
 local eventFrame = CreateFrame("Frame")
 eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+eventFrame:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
 eventFrame:SetScript("OnEvent", function(_, event)
+    -- the saved settings are only there now (after this file ran)
+    if type(DevourTextDB) ~= "table" then DevourTextDB = {} end
+    CopyDefaults(DevourTextDB, defaults)
+    ApplyDevourFont()
     AnchorToPRDBar()
     HookPRDBar()
+    -- the game may make the souls bar a moment later: look again
+    for _, t in ipairs({ 0.5, 1.5, 3, 6 }) do
+        C_Timer.After(t, function() AnchorToPRDBar(); HookPRDBar() end)
+    end
 end)
 
 UpdateDevourText()

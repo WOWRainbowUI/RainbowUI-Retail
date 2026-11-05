@@ -1,21 +1,3 @@
--- Classic compatibility shim: GetSpecialization()/GetSpecializationInfo() do not exist on
--- WoW Classic clients (no modern talent-specialization system there), so calling them
--- directly throws "attempt to call a nil value". These wrappers detect whether the API
--- exists at runtime and fall back to nil on Classic, leaving Retail behavior untouched.
-local function PRR_SafeGetSpecialization()
-    if GetSpecialization then
-        return GetSpecialization()
-    end
-    return nil
-end
-
-local function PRR_SafeGetSpecializationInfo(specIndex)
-    if GetSpecializationInfo then
-        return GetSpecializationInfo(specIndex)
-    end
-    return nil
-end
-
 -- Prevent any call to SetClampRectInsets on PlayerFrame to avoid protected function errors
 local function IsInEditModeOrCombat()
     return InCombatLockdown() or (EditModeManagerFrame and EditModeManagerFrame.editModeActive)
@@ -300,8 +282,8 @@ end
         end
         local function GetClassSpecProfileName()
             local _, class = UnitClass("player")
-            local specIndex = PRR_SafeGetSpecialization()
-            local specName = specIndex and select(2, PRR_SafeGetSpecializationInfo(specIndex)) or "Default"
+            local specIndex = GetSpecialization()
+            local specName = specIndex and select(2, GetSpecializationInfo(specIndex)) or "Default"
             return class .. "_" .. (specName or "Default")
         end
 
@@ -403,7 +385,7 @@ local function ReskinBar(bar, barType)
     -- Add a 'T' marker at 32% width for the PowerBar for all Death Knight specs
     if barType == "power" then
         local _, class = UnitClass("player")
-        local spec = PRR_SafeGetSpecialization() -- 1: Blood, 2: Frost, 3: Unholy
+        local spec = GetSpecialization() -- 1: Blood, 2: Frost, 3: Unholy
         if class == "DEATHKNIGHT" and (spec == 1 or spec == 2 or spec == 3) then
             if not bar.__PRD_IMarker then
                 -- Vertical line
@@ -442,7 +424,7 @@ local function ReskinBar(bar, barType)
        -- Add a 'T' marker at 29.17% width for the PowerBar
     if barType == "power" then
         local _, class = UnitClass("player")
-        local spec = PRR_SafeGetSpecialization() -- 1: havoc, 2: Vengeance, 3: devour
+        local spec = GetSpecialization() -- 1: havoc, 2: Vengeance, 3: devour
         if class == "DEMONHUNTER" and spec == 2 then
             if not bar.__PRD_IMarker then
                 -- Vertical line
@@ -473,7 +455,7 @@ local function ReskinBar(bar, barType)
         -- Add a 'T' marker at 33.33% width for the PowerBar
     if barType == "power" then
         local _, class = UnitClass("player")
-        local spec = PRR_SafeGetSpecialization() -- 1: havoc, 2: Vengeance, 3: devour
+        local spec = GetSpecialization() -- 1: havoc, 2: Vengeance, 3: devour
         if class == "DEMONHUNTER" and spec == 1 then
             if not bar.__PRD_IMarker then
                 -- Vertical line
@@ -504,7 +486,7 @@ local function ReskinBar(bar, barType)
         -- Add a 'T' marker at 83.333% width for the PowerBar
     if barType == "power" then
         local _, class = UnitClass("player")
-        local spec = PRR_SafeGetSpecialization() -- 1: havoc, 2: Vengeance, 3: devour
+        local spec = GetSpecialization() -- 1: havoc, 2: Vengeance, 3: devour
         -- Removed all 'T' marker code for Devour Demon Hunter (spec == 3)
     end
     -- Hide marker for non-Demon Hunter classes
@@ -518,7 +500,7 @@ local function ReskinBar(bar, barType)
 -- Add 'T' markers at multiple percentages for the Alternate Power Bar
 if barType == "altpower" then
     local _, class = UnitClass("player")
-    local spec = PRR_SafeGetSpecialization() -- 1: havoc, 2: Vengeance, 3: devour
+    local spec = GetSpecialization() -- 1: havoc, 2: Vengeance, 3: devour
     if class == "DEMONHUNTER" and spec == 3 then
         -- All 'T' marker code for Devour Demon Hunter (spec == 3) removed: do nothing
         if bar.__PRD_AltMarkers then

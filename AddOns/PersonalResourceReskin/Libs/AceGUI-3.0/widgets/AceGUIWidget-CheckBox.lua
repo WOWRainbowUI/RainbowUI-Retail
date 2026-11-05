@@ -1,7 +1,7 @@
 --[[-----------------------------------------------------------------------------
 Checkbox Widget
 -------------------------------------------------------------------------------]]
-local Type, Version = "CheckBox", 27
+local Type, Version = "CheckBox", 26
 local AceGUI = LibStub and LibStub("AceGUI-3.0", true)
 if not AceGUI or (AceGUI:GetWidgetVersion(Type) or 0) >= Version then return end
 
@@ -97,7 +97,7 @@ local methods = {
 		if disabled then
 			self.frame:Disable()
 			self.text:SetTextColor(0.5, 0.5, 0.5)
-			self.check:SetDesaturated(true)
+			SetDesaturation(self.check, true)
 			if self.desc then
 				self.desc:SetTextColor(0.5, 0.5, 0.5)
 			end
@@ -105,9 +105,9 @@ local methods = {
 			self.frame:Enable()
 			self.text:SetTextColor(1, 1, 1)
 			if self.tristate and self.checked == nil then
-				self.check:SetDesaturated(true)
+				SetDesaturation(self.check, true)
 			else
-				self.check:SetDesaturated(false)
+				SetDesaturation(self.check, false)
 			end
 			if self.desc then
 				self.desc:SetTextColor(1, 1, 1)
@@ -119,15 +119,15 @@ local methods = {
 		local check = self.check
 		self.checked = value
 		if value then
-			self.check:SetDesaturated(false)
+			SetDesaturation(check, false)
 			check:Show()
 		else
 			--Nil is the unknown tristate value
 			if self.tristate and value == nil then
-				self.check:SetDesaturated(true)
+				SetDesaturation(check, true)
 				check:Show()
 			else
-				self.check:SetDesaturated(false)
+				SetDesaturation(check, false)
 				check:Hide()
 			end
 		end

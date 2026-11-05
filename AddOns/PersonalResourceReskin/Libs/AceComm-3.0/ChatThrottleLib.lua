@@ -23,7 +23,7 @@
 -- LICENSE: ChatThrottleLib is released into the Public Domain
 --
 
-local CTL_VERSION = 32
+local CTL_VERSION = 31
 
 local _G = _G
 
@@ -279,7 +279,6 @@ end
 local bMyTraffic = false
 
 function ChatThrottleLib.Hook_SendChatMessage(text, chattype, language, destination, ...)
-	if issecretvalue and (issecretvalue(text) or issecretvalue(destination)) then return end
 	if bMyTraffic then
 		return
 	end
@@ -289,7 +288,6 @@ function ChatThrottleLib.Hook_SendChatMessage(text, chattype, language, destinat
 	self.nBypass = self.nBypass + size	-- just a statistic
 end
 function ChatThrottleLib.Hook_SendAddonMessage(prefix, text, chattype, destination, ...)
-	if issecretvalue and (issecretvalue(text) or issecretvalue(destination)) then return end
 	if bMyTraffic then
 		return
 	end
