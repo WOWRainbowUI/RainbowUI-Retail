@@ -1,5 +1,5 @@
-local VERSION_TEXT = "v1.0.6";
-local VERSION_DATE = 1791100000;
+local VERSION_TEXT = "v1.0.7";
+local VERSION_DATE = 1793800000;
 
 
 local addonName, addon = ...
@@ -25,6 +25,7 @@ local DefaultValues = {
         HideUnitNames = false,
     ShowCopyTextButton = false,
     ShowNPCNameOnPage = false,
+    QuestDifficultyStyle = 1,
     MarkHighestSellPrice = false,
     QuestTypeText = false,
     SimplifyCurrencyReward = false,
@@ -236,7 +237,7 @@ do
     end
     addon.IsToCVersionEqualOrNewerThan = IsToCVersionEqualOrNewerThan;
 
-    local game = C_AddOns.GetAddOnMetadata(addonName, "X-Game");
+    local game = C_AddOns.GetAddOnMetadata(addonName, "X-GameType");
 
     -- TODO: "Camelot" / WOW_PROJECT_CAMELOT will be renamed to "Forever"
     addon.IS_FOREVER = game == "Camelot" or WOW_PROJECT_ID == WOW_PROJECT_CAMELOT;

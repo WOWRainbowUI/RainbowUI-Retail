@@ -312,7 +312,7 @@ function DUIDialogOptionButtonMixin:OnEnter()
 end
 
 function DUIDialogOptionButtonMixin:OnLeave()
-    if self:IsMouseOver() then return end;
+    if self:IsMouseMotionFocus() then return end;
     self.owner:HighlightButton(nil);
     self.t = 0;
     self:SetScript("OnUpdate", Anim_ResetButtonCentent_OnUpdate);
@@ -448,7 +448,11 @@ end
 function DUIDialogOptionButtonMixin:SetQuestTypeText(questInfo)
     local typeText;
 
-    if questInfo.isTrivial then
+    local difficultyLabel = API.GetQuestDifficultyLabelForQuestButton(questInfo.questID);
+
+    if difficultyLabel then
+        typeText = difficultyLabel;
+    elseif questInfo.isTrivial then
         typeText = L["Quest Type Trivial"];
     else
         if SHOW_QUEST_TYPE_TEXT then
@@ -479,7 +483,6 @@ function DUIDialogOptionButtonMixin:SetQuestTypeText(questInfo)
             local frameWidth = questTypeFrame:GetContentWidth();
             self.hasQuestType = true;
             self.rightFrameWidth = Round(frameWidth);
-            self:SetButtonText(questInfo.title, true);
         end
 
         local rightIcon = self:GetExtraObject("Warband");
@@ -488,6 +491,10 @@ function DUIDialogOptionButtonMixin:SetQuestTypeText(questInfo)
         end
     else
         self:RemoveQuestTypeText();
+    end
+
+    if addon.CAN_SHOW_QUEST_LEVEL then
+        self:SetQuestName(questInfo);
     end
 end
 
@@ -499,7 +506,7 @@ function DUIDialogOptionButtonMixin:SetQuestVisual(questInfo, rebuildQuestInfo)
     self.Icon:SetTexture(GetQuestIcon(questInfo));  --We fill in the QuestInfo through this API
 
     if questInfo.isComplete or (not questInfo.isOnQuest) then
-        if questInfo.repeatable or (questInfo.frequency and questInfo.frequency ~= 0) then
+        if questInfo.repeatable or (questInfo.frequency and questInfo.frequency > 0) then
             self:SetButtonArt(2);
         else
             self:SetButtonArt(1);
@@ -521,9 +528,9 @@ function DUIDialogOptionButtonMixin:SetQuest(questInfo, hotkey)
     self.rightFrameWidth = BUTTON_HEIGHT_LARGE;     --Reserved for displaying quest type on the right, such as Trivial, Weekly...
     API.BuildQuestInfo(questInfo);
     self:SetQuestVisual(questInfo);
-    self:SetButtonText(questInfo.title, true);
+    self:SetQuestName(questInfo);
 
-    if API.IsQuestFlaggedCompletedOnAccount(self.questID) then
+    if API.ShouldShowWarbandCompletedIcon(self.questID) then
         self:ShowWarbandCompletedIcon();
     end
 
@@ -534,6 +541,16 @@ function DUIDialogOptionButtonMixin:SetQuest(questInfo, hotkey)
         end
     end
     CallbackRegistry:LoadQuest(self.questID, OnQuestLoaded);
+end
+
+function DUIDialogOptionButtonMixin:SetQuestName(questInfo)
+    --local questLevel, diff = API.GetQuestLevel(questInfo.questID);
+    local qusetLevelText = API.GetColorizedQuestLevel(questInfo.questID);
+    if qusetLevelText then
+        self:SetButtonText(string.format("%s %s", qusetLevelText, questInfo.title), true);
+    else
+        self:SetButtonText(questInfo.title, true);
+    end
 end
 
 function DUIDialogOptionButtonMixin:IsQuestButton()
