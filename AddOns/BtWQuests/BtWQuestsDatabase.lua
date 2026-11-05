@@ -19,15 +19,17 @@ local LE_EXPANSION_LEVEL_CURRENT = LE_EXPANSION_LEVEL_CURRENT or 0;
 --@REMOVE AFTER 9.0
 local GetLogIndexForQuestID = C_QuestLog.GetLogIndexForQuestID
 local GetQuestWatchType = C_QuestLog.GetQuestWatchType
-local AddQuestWatch = C_QuestLog.AddQuestWatch
-local RemoveQuestWatch = C_QuestLog.RemoveQuestWatch
+local AddQuestWatch = C_QuestLog.AddQuestWatch or function (questID)
+    return AddQuestWatch(GetLogIndexForQuestID(questID))
+end
+local RemoveQuestWatch = C_QuestLog.RemoveQuestWatch or function (questID)
+    return RemoveQuestWatch(GetLogIndexForQuestID(questID))
+end
 if INTERFACE_NUMBER < 90000 then
     GetLogIndexForQuestID = GetQuestLogIndexByID
     function GetQuestWatchType(questID)
         return IsQuestWatched(GetLogIndexForQuestID(questID)) and 0 or nil
     end
-    AddQuestWatch = AddQuestWatchForQuestID
-    RemoveQuestWatch = RemoveQuestWatchForQuestID
 end
 local GetItemCount = C_Item and C_Item.GetItemCount or GetItemCount
 
@@ -1137,6 +1139,7 @@ function CategoryMixin:GetItemList(character, noHeaders, filterCompleted, filter
     local major = {}
     local others = {}
     local completed = {}
+    local pinned = {}
     local ignored = {}
     local header = nil
 
@@ -1150,13 +1153,19 @@ function CategoryMixin:GetItemList(character, noHeaders, filterCompleted, filter
                 if includeChildren and item:GetType() == "category" then
                     local children = item:GetItemList(character, noHeaders, false, false, false, includeChildren)
 
-                    if filterIgnored and character:IsCategoryIgnored(item:GetID()) then
+                    if character:IsCategoryPinned(item:GetID()) then
+                        for _,child in ipairs(children) do
+                            table.insert(pinned, child)
+                        end
+                    elseif filterIgnored and character:IsCategoryIgnored(item:GetID()) then
                         for _,child in ipairs(children) do
                             table.insert(ignored, child)
                         end
                     else
                         for _,child in ipairs(children) do
-                            if filterIgnored and child:GetType() == "chain" and character:IsChainIgnored(child:GetID()) then
+                            if child:GetType() == "chain" and character:IsChainPinned(child:GetID()) then
+                                table.insert(pinned, child)
+                            elseif filterIgnored and child:GetType() == "chain" and character:IsChainIgnored(child:GetID()) then
                                 table.insert(ignored, child)
                             elseif filterCompleted and child:IsCompleted(character) then
                                 table.insert(completed, child)
@@ -1167,6 +1176,10 @@ function CategoryMixin:GetItemList(character, noHeaders, filterCompleted, filter
                             end
                         end
                     end
+                elseif item:GetType() == "category" and character:IsCategoryPinned(item:GetID()) then
+                    table.insert(pinned, item)
+                elseif item:GetType() == "chain" and character:IsChainPinned(item:GetID()) then
+                    table.insert(pinned, item)
                 elseif filterIgnored and item:GetType() == "category" and character:IsCategoryIgnored(item:GetID()) then
                     table.insert(ignored, item)
                 elseif filterIgnored and item:GetType() == "chain" and character:IsChainIgnored(item:GetID()) then
@@ -1194,10 +1207,25 @@ function CategoryMixin:GetItemList(character, noHeaders, filterCompleted, filter
 
     local results = {}
 
-    if #major > 0 then
-        if not noHeaders then
-            table.insert(results, self.database:CreateItem(-1, {type = "header", name = L["BTWQUESTS_MAJOR"]}, self, self))
+    if #pinned > 0 then
+        -- if not noHeaders then
+        --     table.insert(results, self.database:CreateItem(-1, {type = "header", name = L["BTWQUESTS_PINNED"]}, self, self))
+        -- end
+
+        for _,item in ipairs(pinned) do
+            table.insert(results, item)
         end
+        
+        -- Separate pinned
+        if not noHeaders then
+            table.insert(results, self.database:CreateItem(-1, {type = "header", name = ""}, self, self))
+        end
+    end
+
+    if #major > 0 then
+        -- if not noHeaders then
+        --     table.insert(results, self.database:CreateItem(-1, {type = "header", name = L["BTWQUESTS_MAJOR"]}, self, self))
+        -- end
 
         for _,item in ipairs(major) do
             table.insert(results, item)
@@ -1311,7 +1339,17 @@ function ExpansionMixin:GetMajorItems(character)
 
     local items = self:GetItemList(character, true, true, true, true, true)
     for _,item in ipairs(items) do
-        if item:IsActive(character) then
+        if item:GetType() == "category" and character:IsCategoryPinned(item:GetID()) and not item:IsCompleted(character) then
+            actives[#actives+1] = item
+            if #actives == 3 then
+                break
+            end
+        elseif item:GetType() == "chain" and character:IsChainPinned(item:GetID()) and not item:IsCompleted(character) then
+            actives[#actives+1] = item
+            if #actives == 3 then
+                break
+            end
+        elseif item:IsActive(character) then
             actives[#actives+1] = item
             if #actives == 3 then
                 break
@@ -2797,6 +2835,26 @@ function ChromieTimeItemMixin:IsCompleted(database, item, character)
         return chromieId > 0
     end
 end
+local AdventureJournalItemMixin = CreateFromMixins(ItemMixin);
+function AdventureJournalItemMixin:GetName(database, item, character)
+    for index,adventureItem in ipairs(C_AdventureJournal.GetSuggestions()) do
+        if adventureItem.iconPath == item.iconFileId then
+            return adventureItem.buttonText
+        end
+    end
+    
+    if item.fallbackName then
+        return database:EvalText(item.fallbackName, item, character);
+    end
+end
+function AdventureJournalItemMixin:OnClick(database, item, character, button, frame, tooltip)
+    for index,adventureItem in ipairs(C_AdventureJournal.GetSuggestions()) do
+        if adventureItem.iconPath == item.iconFileId then
+            C_AdventureJournal.ActivateEntry(index)
+            return
+        end
+    end
+end
 
 local DatabaseItemMetatable = {};
 function DatabaseItemMetatable.__index(tbl, key)
@@ -3906,6 +3964,7 @@ Database:RegisterItemType("campaign", CampaignItemMixin);
 Database:RegisterItemType("spell", ItemMixin); -- Is just used to track with rewards spells are used
 Database:RegisterItemType("area", AreaItemMixin);
 Database:RegisterItemType("chromietime", ChromieTimeItemMixin);
+Database:RegisterItemType("adventurejournal", AdventureJournalItemMixin);
 
 Database:AddCondition(-1, { type = "chromietime" });
 Database:AddCondition(923, { type = "faction", id = "Horde" });
