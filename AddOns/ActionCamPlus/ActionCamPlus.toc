@@ -1,9 +1,9 @@
-## Interface: 11508, 20505, 50503, 120105, 120100
+## Interface: 120000, 120001, 120100, 120105, 50503, 20505, 11508, 16001
 ## Title: ActionCamPlus
 ## Notes: Makes Blizzard's experimental Action Camera more usable.
 ## Author: Anorian
 ## SavedVariables: ActionCamPlusDB
-## Version: 1.11
+## Version: 1.12
 ## OptionalDeps: ACP
 ## AddonCompartmentFunc: ActionCamPlus_ToggleConfigFrame
 
