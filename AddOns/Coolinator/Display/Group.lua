@@ -180,7 +180,7 @@ function addonTable.Display.GroupMixin:ReanchorForSize()
         childWidth, childHeight = child:GetDefaultSize()
       end
       maxHeight = math.max(childHeight * child:GetScale(), maxHeight)
-      width = width + PixelUtil.ConvertPixelsToUIForRegion(childWidth + padding / child:GetScale(), child) * child:GetScale()
+      width = width + (childWidth + padding / child:GetScale()) * child:GetScale()
     end
     if width > 0 then
       width = width - padding
@@ -207,7 +207,7 @@ function addonTable.Display.GroupMixin:ReanchorForSize()
         childWidth, childHeight = child:GetDefaultSize()
       end
       maxWidth = math.max(childWidth * child:GetScale(), maxWidth)
-      height = height + PixelUtil.ConvertPixelsToUIForRegion(childHeight + padding / child:GetScale(), child) * child:GetScale()
+      height = height + (childHeight + padding / child:GetScale()) * child:GetScale()
       lastChild = child
     end
     if height > 0 then

@@ -13,6 +13,8 @@ function addonTable.Display.AuraStatusBarNextMixin:OnLoad()
   self:SetScript("OnHide", self.OnHide)
   self:SetScript("OnEvent", self.OnEvent)
 
+  self.sizeAssistants = {}
+
   self.ButtonInit = function(auraButton)
     auraButton:SetCollapsesLayout(true)
     auraButton:SetIgnoringChildrenForBounds(true)
@@ -49,6 +51,7 @@ function addonTable.Display.AuraStatusBarNextMixin:OnLoad()
     local sizeAssistant = CreateFrame("Frame", nil, self, "DisableUntrustedLayoutScriptsTemplate")
     sizeAssistant:SetSize(0.001, 0.001)
     sizeAssistant:SetPoint("TOPLEFT", auraButton, "BOTTOMRIGHT")
+    table.insert(self.sizeAssistants, sizeAssistant)
 
     PixelUtil.SetRoundLayoutToNearestPixelRecursively(auraButton, true)
   end
@@ -224,6 +227,11 @@ function addonTable.Display.AuraStatusBarNextMixin:ApplyPadding(horizontal, vert
     self.harmfulButton:SetSize(self.harmfulButton.sizingWidth + horizontal, self.harmfulButton.sizingHeight + vertical)
     self.harmfulButton:SetScale(self:GetEffectiveScale() / UIParent:GetScale())
     self.harmfulButton:SetFrameLevel(self:GetFrameLevel() + 1)
+  end
+
+  self:SetRoundLayoutToNearestPixel(false)
+  for _, sa in ipairs(self.sizeAssistants) do
+    sa:SetRoundLayoutToNearestPixel(false)
   end
 end
 

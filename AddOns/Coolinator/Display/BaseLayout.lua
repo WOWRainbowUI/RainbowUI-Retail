@@ -169,14 +169,14 @@ function addonTable.Display.BaseLayoutManagerMixin:ArrangeGroup(wrapper, details
           childWidth, childHeight = child:GetWidth(), child:GetHeight()
         end
         maxHeight = math.max(childHeight * child:GetScale(), maxHeight)
-        width = width + PixelUtil.ConvertPixelsToUIForRegion(childWidth + padding / child:GetScale(), child) * child:GetScale()
+        width = width + (childWidth + padding / child:GetScale()) * child:GetScale()
       end
       lastChild = child
     end
     if width > 0 then
       width = width - padding
     end
-    local finalWidth, finalHeight = PixelUtil.ConvertPixelsToUIForRegion(width, wrapper), PixelUtil.ConvertPixelsToUIForRegion(maxHeight, wrapper)
+    local finalWidth, finalHeight = width, maxHeight
     wrapper:SetSize(finalWidth, finalHeight)
     wrapper:SetDefaultSize(finalWidth, finalHeight)
 
@@ -220,14 +220,14 @@ function addonTable.Display.BaseLayoutManagerMixin:ArrangeGroup(wrapper, details
           childWidth, childHeight = child:GetWidth(), child:GetHeight()
         end
         maxWidth = math.max(childWidth * child:GetScale(), maxWidth)
-        height = height + PixelUtil.ConvertPixelsToUIForRegion(childHeight + padding / child:GetScale(), child) * child:GetScale()
+        height = height + (childHeight + padding / child:GetScale()) * child:GetScale()
       end
       lastChild = child
     end
     if height > 0 then
       height = height - padding
     end
-    local finalWidth, finalHeight = PixelUtil.ConvertPixelsToUIForRegion(maxWidth, wrapper), PixelUtil.ConvertPixelsToUIForRegion(height, wrapper)
+    local finalWidth, finalHeight = maxWidth, height
     wrapper:SetSize(finalWidth, finalHeight)
     wrapper:SetDefaultSize(finalWidth, finalHeight)
 

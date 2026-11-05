@@ -61,7 +61,8 @@ function addonTable.Display.CooldownMixin:OnLoad()
 end
 
 function addonTable.Display.CooldownMixin:Style()
-  addonTable.Display.StyleIcon({id = self.details.style}, self, self.Icon, self.TextsContainer.count, self.TextsContainer.keybinding,
+  addonTable.Display.StyleIcon({id = self.details.style}, self, self.Icon,
+    self.TextsContainer.count, self.TextsContainer.keybinding,
     {self.Icon, self.NotUsable},
     {{swipe = true, text = true, widget = self.BaseCooldown}, {text = true, widget = self.ChargesCooldown},}
   )
