@@ -1,8 +1,7 @@
 # Platynator
 
-## [537](https://github.com/TheMouseNest/Platynator/tree/537) (2026-11-02)
-[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/536...537) 
+## [538](https://github.com/TheMouseNest/Platynator/tree/538) (2026-11-04)
+[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/537...538) 
 
-- Fix another typo  
-- Fix typo  
-- Fix aura countdowns to match Blizzard format  
+- Enable silver dragons for rare icons  
+- Fix error on opening Blizzard nameplate options  
