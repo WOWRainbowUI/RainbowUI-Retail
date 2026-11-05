@@ -117,3 +117,5 @@ L["BTWQUESTS_WAIT_FOR_WEEKLY_RESET"] = "等待每週重置"
 
 -- 自行加入
 L["BtWQuests"] = "任務指南"
+L["BTWQUESTS_PINNED"] = "已置頂"
+L["GROUP_PINNED"] = "群組已置頂"
