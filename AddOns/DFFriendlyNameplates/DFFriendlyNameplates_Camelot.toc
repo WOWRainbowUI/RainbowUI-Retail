@@ -1,0 +1,25 @@
+## Interface: 16001
+## Title: DF Friendly Nameplates [Forever]
+## Author: Httpsx
+## Version: 2.12
+## Notes: Friendly nameplates for raids/dungeons WoW Retail.
+## DefaultState: Enabled
+## SavedVariables: DFFriendlyNamePlates
+## IconTexture: Interface/AddOns/DFFriendlyNamePlates/Media/icon.png
+
+## X-Curse-Project-ID: 818206
+## X-Wago-ID: yQKy1vK7
+
+embeds.xml
+httpsxLib.lua
+localization\localization.en.lua
+localization\localization.ru.lua
+localization\localization.cn.lua
+localization\localization.tw.lua
+localization\localization.kr.lua
+localization\localization.lua
+core.lua
+
+nameplates.lua
+worldtext.lua
+extended.lua
