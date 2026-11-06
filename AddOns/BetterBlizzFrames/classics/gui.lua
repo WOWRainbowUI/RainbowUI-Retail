@@ -8757,7 +8757,7 @@ local function guiMisc()
 
     local contentFrame = CreateFrame("Frame", nil, scrollFrame)
     contentFrame.name = guiMisc.name
-    contentFrame:SetSize(680, 780)
+    contentFrame:SetSize(680, 800)
     scrollFrame:SetScrollChild(contentFrame)
 
     local function CreateSectionHeader(text, atlas, iconWidth, iconHeight, relativeTo, relativePoint, x, y)
@@ -8787,14 +8787,18 @@ local function guiMisc()
     end)
     CreateTooltip(stealthIndicatorPlayer, L["Tooltip_Stealth_Indicator_Desc"])
 
+    local snowfallKeypress = CreateCheckbox("snowfallKeypress", L["Snowfall_Keypress"], contentFrame, nil, BBF.SnowfallKeypress)
+    snowfallKeypress:SetPoint("TOPLEFT", stealthIndicatorPlayer, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
+    CreateTooltipTwo(snowfallKeypress, L["Snowfall_Keypress"], L["Tooltip_Snowfall_Keypress_Desc"])
+
     if BBF.isTBC or BBF.isMoP or BBF.isEra then
         contentFrame.removeAddonListCategories = CreateCheckbox("removeAddonListCategories", L["Improved_AddonList"], contentFrame, nil, BBF.RemoveAddonCategories)
-        contentFrame.removeAddonListCategories:SetPoint("TOPLEFT", stealthIndicatorPlayer, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
+        contentFrame.removeAddonListCategories:SetPoint("TOPLEFT", snowfallKeypress, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
         CreateTooltipTwo(contentFrame.removeAddonListCategories, L["Improved_AddonList"], L["Tooltip_Improved_AddonList_Desc"])
     end
 
     local smoothBars = CreateCheckbox("smoothBars", L["Smooth_Bars"], contentFrame)
-    smoothBars:SetPoint("TOPLEFT", contentFrame.removeAddonListCategories or stealthIndicatorPlayer, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
+    smoothBars:SetPoint("TOPLEFT", contentFrame.removeAddonListCategories or snowfallKeypress, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
     CreateTooltipTwo(smoothBars, L["Smooth_Bars"], L["Tooltip_Smooth_Bars_Desc"], L["Tooltip_Smooth_Bars_SubText"])
 
     local smoothBarsOptions = CreateMultiSelectDropdown(L["Smooth_Bars_Options"], contentFrame, {
