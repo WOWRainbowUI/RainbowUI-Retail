@@ -17,7 +17,36 @@ hidden:Hide()
 local skinners = {
   ItemButton = function(frame, tags)
     S.Button(frame, {"icon", "ProfessionQualityOverlay", "IconOverlay", "searchOverlay", "ItemContextOverlay"})
-    S.SquareIcon(GetItemButtonIconTexture(frame), frame, true)
+    frame.icon:RemoveMaskTexture(frame.icon:GetMaskTexture(1))
+    hooksecurefunc(frame, "SetItemButtonQuality", function(_, quality)
+      frame.IconBorder:SetTexture("Interface/AddOns/Baganator/Assets/Skins/dark-icon-border")
+      frame:ClearNormalTexture()
+      local c = ITEM_QUALITY_COLORS[quality]
+      if c then
+        frame.IconBorder:SetVertexColor(c.r, c.g, c.b, 1)
+        frame.IconBorder:Show()
+      else
+        frame.IconBorder:Hide()
+      end
+      frame.icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
+    end)
+    if frame.BGRUpdateQuests then
+      local questMarker = frame:CreateTexture(nil, "ARTWORK")
+      questMarker:SetSize(22, 22)
+      questMarker:SetAtlas("Crosshair_Quest_64")
+      questMarker:SetPoint("BOTTOMLEFT", -3, 2)
+      local questTexture = frame:GetName() and _G[frame:GetName() .. "IconQuestTexture"] or frame.IconQuestTexture
+      hooksecurefunc(frame, "BGRUpdateQuests", function()
+        questMarker:Hide()
+        if questTexture:IsShown() then
+          local textureID = questTexture:GetTexture()
+          if textureID == 368362 then -- quest border only
+            questMarker:Show()
+          end
+          frame.IconBorder:SetVertexColor(1, 0.82, 0)
+        end
+      end)
+    end
   end,
   IconButton = function(frame)
     S.Button(frame, {"Icon"})

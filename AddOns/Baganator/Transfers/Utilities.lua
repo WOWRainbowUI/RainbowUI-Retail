@@ -123,7 +123,7 @@ function addonTable.Transfers.GetCurrentBankSlots()
         bankSlots = addonTable.Transfers.GetBagsSlots(bagsData, indexes)
       end
     else
-      bankSlots = addonTable.Transfers.GetBagsSlots(Syndicator.API.GetCharacter(characterName).bank, Syndicator.Constants.AllBankIndexes)
+      bankSlots = addonTable.Transfers.GetBagsSlots(Syndicator.API.GetCharacter(Syndicator.API.GetCurrentCharacter()).bank, Syndicator.Constants.AllBankIndexes)
     end
   elseif addonTable.Config.Get(addonTable.Config.Options.BANK_CURRENT_TAB) == addonTable.Constants.BankTabType.Warband then
     local tabIndex = addonTable.Config.Get(addonTable.Config.Options.WARBAND_CURRENT_TAB)

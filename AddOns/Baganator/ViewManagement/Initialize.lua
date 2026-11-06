@@ -464,10 +464,10 @@ local function HideDefaultBank()
     end
   end
 
-  BankFrame:SetParent(hidden)
   BankFrame:SetScript("OnHide", nil)
   BankFrame:SetScript("OnEvent", nil)
   BankFrame:SetScript("OnShow", nil)
+  BankFrame:SetParent(hidden)
 
   if BankFrame.BankPanel and BankFrame.BankPanel.MoneyDisplay then
     BankFrame.BankPanel.MoneyDisplay:UnregisterAllEvents()
@@ -590,9 +590,27 @@ function addonTable.ViewManagement.Initialize()
     HideDefaultBackpack()
   end, CallErrorHandler)
 
-  xpcall(function()
-    HideDefaultBank()
-  end, CallErrorHandler)
+  if addonTable.Constants.IsForever then
+    Syndicator.CallbackRegistry:RegisterCallback("Ready", function()
+      if next(Syndicator.API.GetCharacter(Syndicator.API.GetCurrentCharacter()).bankTabs) ~= nil then
+        HideDefaultBank()
+      else
+        BankFrame:SetAlpha(0)
+        local frame = CreateFrame("Frame")
+        frame:RegisterEvent("BANKFRAME_OPENED")
+        frame:SetScript("OnEvent", function()
+          frame:UnregisterEvent("BANKFRAME_OPENED")
+          C_Timer.After(0, function()
+            HideDefaultBank()
+          end)
+        end)
+      end
+    end)
+  else
+    xpcall(function()
+      HideDefaultBank()
+    end, CallErrorHandler)
+  end
 
   xpcall(function()
     local info = C_XMLUtil.GetTemplateInfo("BackpackTokenTemplate")

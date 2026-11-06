@@ -35,6 +35,7 @@ local skinners = {
   ItemButton = function(frame, tags)
     frame.bgrElvUISkin = true
     S:HandleItemButton(frame, true)
+    S:HandleItemButtonCrop(frame)
     S:HandleIconBorder(frame.IconBorder)
     frame.SlotBackground:Show()
     frame.SlotBackground:SetAllPoints()
