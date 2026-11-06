@@ -280,7 +280,9 @@ end
 -- stored positionally; the lowercase search* fields are derived on decode.
 -- Layout:  account ~ rec ^ rec ; account ~ rec ...   (record fields joined by ,)
 -- ============================================================================
-local ALT_FIELDS = { "key", "charName", "realm", "level", "class", "faction", "zone", "guild", "project", "timestamp" }
+-- Append-only, like BOOL_FIELDS: older decoders read the first ten and ignore the rest.
+local ALT_FIELDS = { "key", "charName", "realm", "level", "class", "faction", "zone", "guild", "project", "timestamp",
+    "ruleset", "region" }
 local ALT_NUM = { level = true, project = true, timestamp = true }
 
 local function EncodeAltCache(altCache)
@@ -328,6 +330,9 @@ local function DecodeAltCache(str, into)
                                 alt[name] = SanitizeLabel(raw, 100)
                             end
                         end
+                        -- Absent in older codes; nil (not "") so later sightings can fill them.
+                        if alt.ruleset == "" then alt.ruleset = nil end
+                        if alt.region == "" then alt.region = nil end
                         -- Rebuild derived lowercase search fields.
                         alt.searchName = (alt.charName or ""):lower()
                         alt.searchRealm = (alt.realm or ""):lower()
@@ -579,6 +584,8 @@ function M.Apply(profile)
     -- them (newer format). Older backups leave the local data intact.
     if profile.alt_cache then sv.alt_cache = profile.alt_cache end
     if profile.known_player_guilds then sv.known_player_guilds = profile.known_player_guilds end
+    -- An older code can carry pre-fix Forever keys; fold them before anything reads them.
+    if _G.FriendGroups_NormalizeForeverAlts then _G.FriendGroups_NormalizeForeverAlts() end
 
     -- Match the menu's side-effect: alt tracking off clears its derived caches.
     if not sv.show_known_alts and _G.wipe then
@@ -594,15 +601,6 @@ function M.Apply(profile)
     local state = addonTable and addonTable.State
     if sv.safe_whisper and state and type(state.InstallSendMessageOverride) == "function" then
         state.InstallSendMessageOverride()
-    end
-
-    -- An imported font scale changes the ROW HEIGHT as well as the text, and the Social UI
-    -- caches template extents -- so the cache has to be dropped before the rebuild below,
-    -- or the restored size would render inside rows still sized for the old one.
-    -- Reached through the addon table rather than a global: Compat is addon-private.
-    local compat = addonTable and addonTable.Compat
-    if compat and type(compat.OnFontScaleChanged) == "function" then
-        compat.OnFontScaleChanged()
     end
 
     if _G.FriendGroups_UpdateSize then _G.FriendGroups_UpdateSize() end

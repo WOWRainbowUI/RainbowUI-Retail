@@ -164,13 +164,6 @@ function FriendGroups_SetFontScale(scale)
 
     FriendGroups_SavedVars.font_size = scale
 
-    -- Row HEIGHT is derived from the scale as well as the font, and the Social UI caches
-    -- template extents. Without dropping that cache the text would resize inside rows that
-    -- kept their old height, clipping the larger sizes.
-    if type(Compat.OnFontScaleChanged) == "function" then
-        Compat.OnFontScaleChanged()
-    end
-
     -- Forced: the roster has not changed, only what should be drawn of it -- which is
     -- exactly the case the non-forcing path discards.
     FriendGroups_FriendsListUpdate(true)
@@ -664,15 +657,15 @@ local settingsMenuItems = {
     },
 
     -- SECTION: CHAT
-    -- Retail only: Classic has no secret values, so whispering from the list cannot cause
+    -- Retail and Forever only: Classic has no secret values, so whispering from the list cannot cause
     -- the chat errors this prevents. See WHISPER WITHOUT TAINTING CHAT. Off by default, so
     -- Whisper opens chat in one click unless a player opts in.
     { text = L["SETTINGS_CHAT"], notCheckable = true, isTitle = true,
-      condition = function() return Compat.IS_MAINLINE end },
+      condition = function() return Compat.IS_RETAIL_UI end },
     {
         text = L["SET_SAFE_WHISPER"],
         tooltip = { L["SET_SAFE_WHISPER_TT_1"], L["SET_SAFE_WHISPER_TT_2"] },
-        condition = function() return Compat.IS_MAINLINE end,
+        condition = function() return Compat.IS_RETAIL_UI end,
         keepShownOnClick = true,
         checked = function() return FriendGroups_SavedVars.safe_whisper end,
         func = function()
@@ -720,6 +713,8 @@ local settingsMenuItems = {
     },
     {
         text = L["SET_AUTO_PARTY_SYNC"],
+        -- Hidden where Blizzard has Party Sync switched off (Forever); the saved value stays.
+        condition = function() return Compat.IsPartySyncAvailable() end,
         keepShownOnClick = true,
         checked = function() return FriendGroups_SavedVars.auto_accept_sync end,
         func = function()
@@ -881,16 +876,17 @@ local settingsMenuItems = {
             FriendGroups_SavedVars.font_size = 1
             FriendGroups_SavedVars.collapsed = {}
             FriendGroups_SavedVars.group_order = {}
+            -- A fresh install shows the retail/Forever reminder, so a reset does too.
+            FriendGroups_SavedVars.forever_import_tip_off = nil
+            FriendGroups_SavedVars.forever_export_tip_off = nil
 
-            if type(Compat.OnFontScaleChanged) == "function" then
-                Compat.OnFontScaleChanged()
-            end
             FriendGroups_UpdateSize()
             FriendGroups_UpdateContactCap()
             FriendGroups_UpdateMinimapButton()
             FriendGroups_FriendsListUpdate()
 
             print(L["MSG_RESET"])
+            FriendGroups_ShowForeverImportTip()
         end
     },
 }
@@ -932,11 +928,12 @@ function FG_IsCharOnline(charKey)
     local numBNetTotal = C_BattleNet and C_BattleNet.GetFriendNum and C_BattleNet.GetFriendNum() or BNGetNumFriends and BNGetNumFriends() or 0
     if numBNetTotal > 0 then
         for i = 1, numBNetTotal do
-            local accountInfo = C_BattleNet.GetFriendAccountInfo(i)
+            local accountInfo = Compat.GetFriendAccountInfo(i)
             if accountInfo and accountInfo.gameAccountInfo and accountInfo.gameAccountInfo.isOnline then
                 if accountInfo.gameAccountInfo.clientProgram == BNET_CLIENT_WOW then
                     local bName = accountInfo.gameAccountInfo.characterName or ""
                     local bRealm = FriendGroups_CleanRealmName(accountInfo.gameAccountInfo.realmName or accountInfo.gameAccountInfo.realmDisplayName or "")
+                    if Compat.IsForeverGame(accountInfo.gameAccountInfo) then bRealm = Compat.FOREVER_REALM end
                     if (bName .. "-" .. bRealm) == charKey then return true end
                 end
             end
@@ -972,6 +969,7 @@ function FriendGroups_BuildGuildCache()
                 local baseName, realmName = strsplit("-", name)
                 if baseName then
                     local targetRealm = realmName or myRealm
+                    if Compat.IS_FOREVER then targetRealm = Compat.FOREVER_REALM end
                     if targetRealm and type(targetRealm) == "string" then
                         local cleanRealm = FriendGroups_CleanRealmName(targetRealm)
                         local uniqueKey = baseName .. "-" .. cleanRealm
@@ -1118,7 +1116,7 @@ function FriendGroups_Rename(self, oldGroup)
     local numBNetTotal = C_BattleNet.GetFriendNum and C_BattleNet.GetFriendNum() or BNGetNumFriends()
     
 	for i = 1, numBNetTotal do
-        local accountInfo = C_BattleNet.GetFriendAccountInfo(i)
+        local accountInfo = Compat.GetFriendAccountInfo(i)
         if accountInfo then
             local presenceID = accountInfo.bnetAccountID
             local noteText = accountInfo.note
@@ -1169,7 +1167,7 @@ function FriendGroups_InviteOrGroup(groupName, invite)
             local buttonType = playerData.buttonType
 
             if buttonType == FRIENDS_BUTTON_TYPE_BNET then
-                local friendAccountInfo = C_BattleNet.GetFriendAccountInfo(id)
+                local friendAccountInfo = Compat.GetFriendAccountInfo(id)
                 if friendAccountInfo and friendAccountInfo.gameAccountInfo then
                     local gameAccountInfo = friendAccountInfo.gameAccountInfo
                     
@@ -1202,7 +1200,7 @@ function FriendGroups_InviteOrGroup(groupName, invite)
 
         local numBNetTotal = C_BattleNet and C_BattleNet.GetFriendNum and C_BattleNet.GetFriendNum() or BNGetNumFriends()
         for i = 1, numBNetTotal do
-            local friendAccountInfo = C_BattleNet.GetFriendAccountInfo(i)
+            local friendAccountInfo = Compat.GetFriendAccountInfo(i)
             if friendAccountInfo then
                 local presenceID = friendAccountInfo.bnetAccountID
                 local noteText = friendAccountInfo.note
@@ -1569,24 +1567,7 @@ function FriendGroups_GetClassColorCode(class, returnTable)
 				FRIENDS_GRAY_COLOR.b * 255)
 	end
 
-	local initialClass = class
-	for k, v in pairs(LOCALIZED_CLASS_NAMES_FEMALE) do
-		if class == v then
-			class = k
-			break
-		end
-	end
-
-	if class == initialClass then
-		for k, v in pairs(LOCALIZED_CLASS_NAMES_MALE) do
-			if class == v then
-				class = k
-				break
-			end
-		end
-	end
-
-	local color = class ~= "" and RAID_CLASS_COLORS[class] or FRIENDS_GRAY_COLOR
+	local color = Compat.ClassColor(Compat.ClassToken(class)) or FRIENDS_GRAY_COLOR
 	if returnTable then
 		return color
 	else
@@ -1865,8 +1846,10 @@ function FriendGroups_GetBNetButtonNameText(accountName, client, canCoop, charac
             -- character on a different realm (e.g. main Snarge-Area52 vs. current
             -- Snarge-Proudmoore), and a name-only check would wrongly hide the aka there.
             local onMainCharacter = (akaInfo.name == characterName)
-            if onMainCharacter and akaInfo.realm and realmName and realmName ~= "" then
-                onMainCharacter = (FriendGroups_CleanRealmName(akaInfo.realm) == FriendGroups_CleanRealmName(realmName))
+            -- Forever alts are stored under FOREVER_REALM, never the live shard name.
+            local liveRealm = (gameInfo and Compat.IsForeverGame(gameInfo)) and Compat.FOREVER_REALM or realmName
+            if onMainCharacter and akaInfo.realm and liveRealm and liveRealm ~= "" then
+                onMainCharacter = (FriendGroups_CleanRealmName(akaInfo.realm) == FriendGroups_CleanRealmName(liveRealm))
             end
             if akaInfo.name and not onMainCharacter then
                 local akaDisplayName = akaInfo.name
@@ -2007,7 +1990,7 @@ function FriendGroups_GetOnlineInfoText(client, isMobile, rafLinkType, locationT
 	end
 
 	if FriendGroups_SavedVars.show_realm and realmText and realmText ~= "" then
-		locationText = locationText .. " - " .. realmText
+		locationText = locationText .. " - " .. Compat.DisplayRealmName(realmText)
 	end
 
 	return locationText;
@@ -2021,7 +2004,7 @@ function FriendGroups_GetFriendInfoById(id)
 
     -- 12.0 FIX: Strictly use C_BattleNet. Old global BNet functions are permanently removed.
 	if C_BattleNet and C_BattleNet.GetFriendAccountInfo then
-		local accountInfo = C_BattleNet.GetFriendAccountInfo(id)
+		local accountInfo = Compat.GetFriendAccountInfo(id)
 		if accountInfo then
 			accountName = accountInfo.accountName
 			isFavoriteFriend = accountInfo.isFavorite
@@ -2049,7 +2032,7 @@ function FriendGroups_GetFriendInfoById(id)
 				timerunningSeasonID = gameAccountInfo.timerunningSeasonID
 			end
 
-			if Compat.IS_MAINLINE then
+			if Compat.IS_RETAIL_UI then
 				canCoop = CanCooperateWithGameAccount(accountInfo)
 			else
 				-- Classic's CanCooperateWithGameAccount expects a numeric BNet account ID
@@ -2061,7 +2044,7 @@ function FriendGroups_GetFriendInfoById(id)
 
 	if realmName and realmName ~= "" then
 		if zoneName then
-			zoneName = zoneName .. " - " .. realmName
+			zoneName = zoneName .. " - " .. Compat.DisplayRealmName(realmName)
 		end
 	end
 
@@ -2082,7 +2065,7 @@ function FriendGroups_GetStatusString(playerData)
 	local status = "Offline"
 
 	if playerData.buttonType == FRIENDS_BUTTON_TYPE_BNET then
-		local friendAccountInfo = C_BattleNet.GetFriendAccountInfo(playerData.id)
+		local friendAccountInfo = Compat.GetFriendAccountInfo(playerData.id)
 
 		if friendAccountInfo then
 			local gameAccountInfo = friendAccountInfo.gameAccountInfo
@@ -2659,7 +2642,7 @@ function FriendGroups_SetGroups(id, buttonType, passedAccountInfo)
 
     -- Inline state resolution to completely bypass redundant API table allocations
     if buttonType == FRIENDS_BUTTON_TYPE_BNET then
-        local friendAccountInfo = passedAccountInfo or C_BattleNet.GetFriendAccountInfo(id)
+        local friendAccountInfo = passedAccountInfo or Compat.GetFriendAccountInfo(id)
         if friendAccountInfo then
             noteText = friendAccountInfo.note or ""
             favorite = friendAccountInfo.isFavorite
@@ -2669,7 +2652,8 @@ function FriendGroups_SetGroups(id, buttonType, passedAccountInfo)
             if gameAccountInfo then
                 isOnline = gameAccountInfo.isOnline
                 client = gameAccountInfo.clientProgram
-                isRetail = (gameAccountInfo.wowProjectID == WOW_PROJECT_MAINLINE)
+                -- Guild auto-detect matches against our own roster, so Forever compares with itself.
+                isRetail = (gameAccountInfo.wowProjectID == (Compat.IS_FOREVER and WOW_PROJECT_ID or WOW_PROJECT_MAINLINE))
                 -- Same-project drives the "show only <this client>'s friends" filter:
                 -- retail-identical (self == mainline) and correct on Classic (self == Classic).
                 isSameProject = Compat.IsSameProject(gameAccountInfo)
@@ -2819,7 +2803,7 @@ function FriendGroups_SetGroups(id, buttonType, passedAccountInfo)
 
     if not isCacheValid then
         if buttonType == FRIENDS_BUTTON_TYPE_BNET and accountIdentifier then
-            local friendAccountInfo = passedAccountInfo or C_BattleNet.GetFriendAccountInfo(id)
+            local friendAccountInfo = passedAccountInfo or Compat.GetFriendAccountInfo(id)
             -- 12.1 title friends arrive through the Battle.net enumeration but are NOT
             -- Battle.net account friends: they have no BattleTag, so accountIdentifier falls
             -- back to a character name and the alt cache -- which exists to collect the
@@ -2917,7 +2901,7 @@ function FriendGroups_SetGroups(id, buttonType, passedAccountInfo)
 
                 if not mainGuild and not hasManualGuild then
                     if isOnline and client == BNET_CLIENT_WOW and isRetail and charName ~= "" then
-                        local friendAccountInfo = passedAccountInfo or C_BattleNet.GetFriendAccountInfo(id)
+                        local friendAccountInfo = passedAccountInfo or Compat.GetFriendAccountInfo(id)
                         if friendAccountInfo and friendAccountInfo.gameAccountInfo then
                             local rName = (type(friendAccountInfo.gameAccountInfo.realmName) == "string") and friendAccountInfo.gameAccountInfo.realmName or ""
                             local fullName = charName
@@ -2997,7 +2981,7 @@ function FriendGroups_SetGroups(id, buttonType, passedAccountInfo)
             local offlineGroup = L["GROUP_OFFLINE_0"]
 
             if buttonType == FRIENDS_BUTTON_TYPE_BNET then
-                local friendAccountInfo = passedAccountInfo or C_BattleNet.GetFriendAccountInfo(id)
+                local friendAccountInfo = passedAccountInfo or Compat.GetFriendAccountInfo(id)
                 -- Typed explicitly. 12.1 publishes 0 for the entire title-friend tier rather
                 -- than omitting the field, and the census confirmed it, so "> 0" is the real
                 -- test for "datable" and nil is only the older shape.
@@ -3231,30 +3215,9 @@ local function FriendGroups_RebuildNameMatchSet()
     FriendGroups_NameMatchSource = "none"
     if searchValue == "" then return end
 
-    -- [[ SEARCH-INFO SHAPE, AND WHY THERE IS NO LONGER A FALLBACK ]]
-    -- A bare { searchText = ... } returns nothing on 12.1 (measured), so the table is built
-    -- the way Blizzard builds it. Their OnSearchEnterPressed reads:
-    --
-    --     local activeSearchInfo = self:BuildActiveSearchInfo()
-    --     activeSearchInfo.searchText = text or ""
-    --     local friendsData = C_BattleNet.SearchFriends(activeSearchInfo)
-    --
-    -- so the view's own builder is the ONLY accepted source. It carries every field this
-    -- patch expects, including any added later, and it reflects the Status/Tags boxes exactly
-    -- as Blizzard's search does.
-    --
-    -- A hand-composed table used to stand in when there was no view, on the theory that the
-    -- shape was all that mattered. It was wrong twice over. It never returned a match when it
-    -- was measured, and "no view" turned out to mean something quite different from what it
-    -- was written for: on a live 12.1 client with the Social UI switched off there IS no view
-    -- and the call is FORBIDDEN, so that branch existed only to produce an error report on
-    -- every keystroke. Blizzard's own search on that client is the legacy list's, which never
-    -- called this API at all.
-    --
-    -- Requiring the view therefore does double duty -- it is the only shape that works, and
-    -- it is exactly the condition under which the call is allowed. Compat.SearchFriends still
-    -- latches the forbidden case underneath, because "allowed" is the client's call and not
-    -- ours to assume.
+    -- Only the view's own BuildActiveSearchInfo shape returns matches; a bare { searchText }
+    -- comes back empty. Having a view does NOT mean the call is allowed (Forever has one and
+    -- forbids it): Compat.SearchFriends decides that.
     local view = Compat.GetSocialUIFriendsView and Compat.GetSocialUIFriendsView()
     if not view or type(view.BuildActiveSearchInfo) ~= "function" then
         -- Not an error. The matcher's own comparisons still run; what is lost is Blizzard's
@@ -3316,7 +3279,7 @@ function FriendGroups_Search(playerId, playerButtonType, passedAccountInfo)
 
     if playerButtonType == FRIENDS_BUTTON_TYPE_BNET then
         -- Fast Path: Use passed memory reference instead of querying the API
-        local accountInfo = passedAccountInfo or C_BattleNet.GetFriendAccountInfo(playerId)
+        local accountInfo = passedAccountInfo or Compat.GetFriendAccountInfo(playerId)
         if accountInfo then
             -- [[ ACCOUNT-LEVEL FIELDS ]]
             -- These three live on accountInfo, NOT on gameAccountInfo, and they used to be
@@ -3345,14 +3308,15 @@ function FriendGroups_Search(playerId, playerButtonType, passedAccountInfo)
                 richPresence = (type(gameInfo.richPresence) == "string") and gameInfo.richPresence or ""
                 factionSearchText = (type(gameInfo.factionName) == "string") and gameInfo.factionName or ""
 
-                local database = FriendGroups_GetRealmDatabase(gameInfo.regionID)
-
-                if realmName ~= "" then
-                    local cleanRealm = FriendGroups_CleanRealmName(realmName)
-                    local data = database[cleanRealm]
-                    if data and data.region then
-                        regionSearchText = data.region
-                    end
+                local data = FriendGroups_GetRealmEntry(gameInfo)
+                if data and data.region then
+                    regionSearchText = data.region
+                end
+                -- Forever rows read "PvP", not the shard, so the words people type must match.
+                if Compat.IsForeverGame(gameInfo) then
+                    local code = Compat.ParseForeverShard(realmName) or Compat.ParseForeverPresence(richPresence)
+                    regionSearchText = regionSearchText .. " " .. (L["FOREVER"] or "Forever")
+                        .. " " .. (Compat.ForeverRulesetLabel(code) or "")
                 end
             end
             
@@ -3538,7 +3502,7 @@ end
 -- in ChatTypeInfo), and Escape returns to the previous sticky type -- the same as a
 -- whisper opened by Blizzard.
 --
--- Retail only. Classic clients have no secret values, so the taint is harmless there
+-- Retail and Forever only. Classic clients have no secret values, so the taint is harmless there
 -- and they keep Blizzard's one-click Whisper.
 --
 -- OPT-IN since 13.0.51 (Advanced > Chat > Arena-Safe Whispers, saved as safe_whisper).
@@ -3550,7 +3514,7 @@ end
 -- from here: each one either runs Blizzard's chat code tainted or writes those globals.
 -- ============================================================================
 local function FG_CanPrimeWhisper()
-    return Compat.IS_MAINLINE
+    return Compat.IS_RETAIL_UI
         and type(ChatFrameUtil) == "table"
         and type(ChatFrameUtil.ChooseBoxForSend) == "function"
         and type(ChatFrameUtil.GetActiveWindow) == "function"
@@ -3671,7 +3635,7 @@ local function FG_SendMessageButton_OnClick(self, ...)
             PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
         end
     elseif friendType == FRIENDS_BUTTON_TYPE_BNET then
-        local accountInfo = C_BattleNet.GetFriendAccountInfo(friendIndex)
+        local accountInfo = Compat.GetFriendAccountInfo(friendIndex)
         if accountInfo then
             FG_PrimeWhisper("BN_WHISPER", accountInfo.accountName, accountInfo)
         end
@@ -3767,8 +3731,11 @@ function FriendGroups_AddDropDownNew(ownerRegion, rootDescription, contextData)
                     end
                 end
 
-                if realm and realm ~= "" and type(realm) == "string" then
-                    realm = realm:gsub("[%s%p]+", "") 
+                -- Forever has no realm in a name: "/w First Last" is the whole address.
+                if Compat.IsForeverGame(info.gameAccountInfo) then
+                    textToCopy = char
+                elseif realm and realm ~= "" and type(realm) == "string" then
+                    realm = realm:gsub("[%s%p]+", "")
                     textToCopy = char .. "-" .. realm
                 else
                     textToCopy = char
@@ -3778,7 +3745,9 @@ function FriendGroups_AddDropDownNew(ownerRegion, rootDescription, contextData)
             end
 		else
             textToCopy = data.name
-            if textToCopy and textToCopy ~= "" and type(textToCopy) == "string" and not string.find(textToCopy, "-") then
+            if Compat.IS_FOREVER and type(textToCopy) == "string" then
+                textToCopy = strsplit("-", textToCopy)
+            elseif textToCopy and textToCopy ~= "" and type(textToCopy) == "string" and not string.find(textToCopy, "-") then
                 local myRealm = GetNormalizedRealmName()
                 if type(myRealm) == "string" and myRealm ~= "" then
                     textToCopy = textToCopy .. "-" .. myRealm:gsub("[%s%p]+", "")
@@ -3842,15 +3811,12 @@ function FriendGroups_AddDropDownNew(ownerRegion, rootDescription, contextData)
                 table.sort(menuAlts, function(a, b) return (a.charName or "") < (b.charName or "") end)
 
                 for _, altData in ipairs(menuAlts) do
-                    local engClass = ""
-                    if altData.class and (LOCALIZED_CLASS_NAMES_MALE[altData.class] or RAID_CLASS_COLORS[altData.class]) then
-                        engClass = altData.class
-                    else
-                        for k, v in pairs(LOCALIZED_CLASS_NAMES_MALE) do if altData.class == v then engClass = k break end end
-                        if engClass == "" then for k, v in pairs(LOCALIZED_CLASS_NAMES_FEMALE) do if altData.class == v then engClass = k break end end end
-                    end
+                    local engClass = Compat.ClassToken(altData.class) or ""
                     local colorCode = FriendGroups_GetClassColorCode(engClass ~= "" and engClass or altData.class)
-                    local displayLabel = colorCode .. altData.charName .. "-" .. altData.realm .. "|r"
+                    local displayLabel = colorCode .. FriendGroups_AltDisplayName(altData) .. "|r"
+                    if altData.realm == Compat.FOREVER_REALM then
+                        displayLabel = displayLabel .. " (" .. Compat.ForeverLabel(altData.ruleset) .. ")"
+                    end
                     local altUniqueKey = altData.charName .. "-" .. FriendGroups_CleanRealmName(altData.realm or "")
 
                     mainSubMenu:CreateButton(displayLabel, function(data)
@@ -3904,7 +3870,7 @@ function FriendGroups_AddDropDownNew(ownerRegion, rootDescription, contextData)
         end
     end
 
-    -- The friend's MANUAL guild tags (<GuildName> in the note) — these can be removed.
+    -- The friend's MANUAL guild tags (<GuildName> in the note). These can be removed.
     -- Auto-detected (roster) guild membership has no note tag and is not removable.
     local manualGuilds = {}
     if type(note) == "string" then
@@ -4289,7 +4255,7 @@ function FriendGroups_GetFriendNote(id, buttonType)
 	local noteText = ""
 
 	if buttonType == FRIENDS_BUTTON_TYPE_BNET then
-		local accountInfo = C_BattleNet.GetFriendAccountInfo(id)
+		local accountInfo = Compat.GetFriendAccountInfo(id)
 
 		if accountInfo then
 			noteText = accountInfo.note
@@ -4305,7 +4271,7 @@ function FriendGroups_GetFriendFavorite(id, buttonType)
 	local isFavorite = false
 
 	if buttonType == FRIENDS_BUTTON_TYPE_BNET then
-		local accountInfo = C_BattleNet.GetFriendAccountInfo(id)
+		local accountInfo = Compat.GetFriendAccountInfo(id)
 
 		if accountInfo then
 			isFavorite = accountInfo.isFavorite
@@ -4628,7 +4594,7 @@ local function FriendGroups_BuildBNetNoteMap()
 
     local map, trustworthy = {}, true
     for i = 1, total do
-        local accountInfo = C_BattleNet.GetFriendAccountInfo(i)
+        local accountInfo = Compat.GetFriendAccountInfo(i)
         local accountIdentifier = accountInfo and (FriendGroups_AccountIdentifier(accountInfo))
         if type(accountIdentifier) ~= "string" or accountIdentifier == ""
             or type(accountInfo.bnetAccountID) ~= "number" then
@@ -4753,6 +4719,77 @@ StaticPopupDialogs["FRIENDGROUPS_RELOAD"] = {
     hideOnEscape = true,
     preferredIndex = 3,
 }
+
+-- Login reminder to carry the setup between retail and Forever: "export here" on retail,
+-- "import here" on Forever. Our own frame, not a StaticPopup: it needs a checkbox, and
+-- children added to Blizzard's shared popup frames outlive us.
+local FG_ForeverTip
+
+local FG_TIP_MODES = {
+    forever = { text = "POPUP_FOREVER_IMPORT_TIP", off = "forever_import_tip_off" },
+    retail = { text = "POPUP_RETAIL_EXPORT_TIP", off = "forever_export_tip_off" },
+}
+
+local function FG_TipMode()
+    if Compat.IS_FOREVER then return FG_TIP_MODES.forever end
+    if Compat.IS_MAINLINE then return FG_TIP_MODES.retail end
+    return nil
+end
+
+local function FG_BuildForeverTip(mode)
+    local f = CreateFrame("Frame", "FriendGroupsForeverTip", UIParent, "BackdropTemplate")
+    f:SetFrameStrata("DIALOG")
+    f:SetToplevel(true)
+    f:SetClampedToScreen(true)
+    f:SetPoint("TOP", UIParent, "TOP", 0, -135)
+    f:SetWidth(420)
+    f:SetBackdrop({
+        bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
+        edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
+        tile = true, tileSize = 32, edgeSize = 32,
+        insets = { left = 11, right = 12, top = 12, bottom = 11 },
+    })
+
+    local text = f:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+    text:SetPoint("TOP", 0, -24)
+    text:SetWidth(370)
+    text:SetJustifyH("CENTER")
+    text:SetText(string.format(L[mode.text], L["SETTINGS_PROFILE"], L["SETTINGS_EXPORT"], L["SETTINGS_IMPORT"]))
+
+    local check = CreateFrame("CheckButton", nil, f, "UICheckButtonTemplate")
+    check:SetSize(24, 24)
+    local label = f:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+    label:SetPoint("LEFT", check, "RIGHT", 4, 0)
+    label:SetText(L["POPUP_DONT_SHOW_AGAIN"])
+    local rowWidth = 24 + 4 + label:GetStringWidth()
+    check:SetPoint("TOPLEFT", text, "BOTTOM", -rowWidth / 2, -12)
+
+    local ok = CreateFrame("Button", nil, f, "UIPanelButtonTemplate")
+    ok:SetSize(128, 22)
+    ok:SetPoint("BOTTOM", 0, 18)
+    ok:SetText(OKAY)
+    ok:SetScript("OnClick", function()
+        if check:GetChecked() and type(FriendGroups_SavedVars) == "table" then
+            FriendGroups_SavedVars[mode.off] = true
+        end
+        f:Hide()
+    end)
+
+    f:SetHeight(24 + text:GetStringHeight() + 12 + 24 + 12 + 22 + 18)
+    f.fgCheck = check
+    f:Hide()
+    return f
+end
+
+-- Every retail or Forever login until "Don't show this again" is ticked on that client.
+function FriendGroups_ShowForeverImportTip()
+    local mode = FG_TipMode()
+    if not mode or type(FriendGroups_SavedVars) ~= "table" then return end
+    if FriendGroups_SavedVars[mode.off] then return end
+    FG_ForeverTip = FG_ForeverTip or FG_BuildForeverTip(mode)
+    FG_ForeverTip.fgCheck:SetChecked(false)
+    FG_ForeverTip:Show()
+end
 
 StaticPopupDialogs["FRIENDGROUPS_NICKNAME_MIGRATE"] = {
     text = L["POPUP_NICKNAME_MIGRATE"],
@@ -5083,7 +5120,7 @@ end)
                         end)
                     end
                 else
-                    -- Checkboxes — keep the menu/flyout open for live tweaking
+                    -- Checkboxes keep the menu or flyout open for live tweaking
                     local cb = target:CreateCheckbox(
                         item.text,
                         function() return item.checked() end,
@@ -5376,41 +5413,16 @@ local fgRowNameGutter = 38
 -- Resolve an English class token ("MAGE") from a localized class name, or pass
 -- through if it is already a token. Mirrors FriendGroups_GetClassColorCode.
 local function FriendGroups_ResolveClassToken(name)
-    if not name or name == "" then return nil end
-    if RAID_CLASS_COLORS[name] then return name end
-    for k, v in pairs(LOCALIZED_CLASS_NAMES_MALE) do if v == name then return k end end
-    for k, v in pairs(LOCALIZED_CLASS_NAMES_FEMALE) do if v == name then return k end end
-    return nil
+    return Compat.ClassToken(name)
 end
 
 -- Published for the platform renderers (file-local, so invisible to Platform_*.lua as a
 -- global). The Social UI row builds its class icon from the token this resolves.
 addonTable.State.ResolveClassToken = FriendGroups_ResolveClassToken
 
--- Best-effort class for a friend's account row when the live API reports none
--- (12.0.7 presence reduction: className/characterName are nil for most friends'
--- sessions). Tiers: exact alt-cache match on the current character when its name
--- is known -> the user's selected main for that friend (FriendGroups_ActiveAKA,
--- which is also the "aka [main]" the row displays) -> the most recently seen
--- cached alt. Returns a class name/token for FriendGroups_ResolveClassToken, or
--- nil. Display-only: invite gating and flavor detection never read this.
--- ============================================================================
--- [[ SELECTED MAIN'S CLASS ]]
--- The class of the character the user explicitly picked as this contact's main, or nil.
---
--- Exists so an OFFLINE contact can still show a class icon -- desaturated, to say plainly
--- that it describes their main rather than what they are playing right now -- instead of a
--- blank column. An offline row has no live class, so before this the icon slot sat empty
--- for exactly the contacts the user had gone to the trouble of identifying.
---
--- Read straight from manual_mains + alt_cache rather than through FriendGroups_ActiveAKA,
--- which is only populated inside the show_guildmates branch of FriendGroups_SetGroups: the
--- icon has nothing to do with guild grouping and must not vanish when that setting is off.
---
--- Deliberately NOT a general "best guess" -- the newest cached alt is not offered here. An
--- icon for a character the user never nominated would be a guess presented as a fact.
--- ============================================================================
-function FriendGroups_LookupMainClass(accountIdentifier)
+-- The cached alt record of the user's selected main for this contact, or nil.
+-- Reads manual_mains directly: FriendGroups_ActiveAKA is only filled when show_guildmates is on.
+local function FG_FindMainAlt(accountIdentifier)
     if type(accountIdentifier) ~= "string" or accountIdentifier == "" then return nil end
     if type(FriendGroups_SavedVars) ~= "table" then return nil end
 
@@ -5424,14 +5436,49 @@ function FriendGroups_LookupMainClass(accountIdentifier)
 
     for _, alt in ipairs(alts) do
         local currentKey = (alt.charName or "") .. "-" .. FriendGroups_CleanRealmName(alt.realm or "")
-        if currentKey == mainKey or alt.key == mainKey then
-            if type(alt.class) == "string" and alt.class ~= "" then return alt.class end
-            return nil
-        end
+        if currentKey == mainKey or alt.key == mainKey then return alt end
     end
     return nil
 end
 
+-- Selected main's class for an OFFLINE row (drawn greyed), or nil. Never the newest alt:
+-- that would be a guess about a character the user never nominated.
+function FriendGroups_LookupMainClass(accountIdentifier)
+    local alt = FG_FindMainAlt(accountIdentifier)
+    if alt and type(alt.class) == "string" and alt.class ~= "" then return alt.class end
+    return nil
+end
+
+-- Project a cached alt was seen on; records predating the project field are nil unless Forever.
+local function FG_AltProject(alt)
+    local project = tonumber(alt.project)
+    if project and project > 0 then return project end
+    if alt.realm == Compat.FOREVER_REALM then return Compat.FOREVER_PROJECT end
+    return nil
+end
+
+-- Whether a cached alt could be the character this live session is on. Without it a retail
+-- main's class (Evoker) was drawn on a Forever session.
+local function FG_AltFitsSession(alt, gameInfo)
+    local altProject = FG_AltProject(alt)
+    if Compat.IsForeverGame(gameInfo) then return altProject == Compat.FOREVER_PROJECT end
+    if altProject == Compat.FOREVER_PROJECT then return false end
+    if altProject == nil then return true end
+
+    local pid = gameInfo and gameInfo.wowProjectID
+    if issecretvalue and issecretvalue(pid) then pid = nil end
+    if type(pid) == "number" and pid > 0 then return altProject == pid end
+
+    local isClassic, source = Compat.ResolveFriendFlavor(gameInfo)
+    if source == "default" or isClassic == nil then return true end
+    local mainline = WOW_PROJECT_MAINLINE or 1
+    if isClassic then return altProject ~= mainline end
+    return altProject == mainline
+end
+
+-- Class for an ONLINE row whose session reports none (12.0.7 presence reduction). Returns
+-- class, guessed: guessed is true unless the live character itself matched, and the row greys
+-- the icon. Steps 2-3 only consider alts from the session's own game. Display-only.
 function FriendGroups_LookupAccountClass(accountInfo, characterName, realmName)
     if not accountInfo then return nil end
     local key = FriendGroups_AccountIdentifier(accountInfo)
@@ -5439,36 +5486,39 @@ function FriendGroups_LookupAccountClass(accountInfo, characterName, realmName)
 
     local alts = FriendGroups_SavedVars and type(FriendGroups_SavedVars.alt_cache) == "table"
         and FriendGroups_SavedVars.alt_cache[key]
+    local gameInfo = accountInfo.gameAccountInfo
 
     -- 1. Exact match on the live character (name known, other fields degraded).
     if type(characterName) == "string" and characterName ~= "" and type(alts) == "table" then
+        if Compat.ParseForeverShard(realmName) then realmName = Compat.FOREVER_REALM end
         local cleanRealm = FriendGroups_CleanRealmName(realmName or "")
         for _, alt in ipairs(alts) do
             if alt.charName == characterName
                 and (cleanRealm == "" or FriendGroups_CleanRealmName(alt.realm or "") == cleanRealm) then
-                if type(alt.class) == "string" and alt.class ~= "" then return alt.class end
+                if type(alt.class) == "string" and alt.class ~= "" then return alt.class, false end
             end
         end
     end
 
-    -- 2. Selected main: coherent with the "aka [main]" already shown on the row.
-    local akaInfo = FriendGroups_ActiveAKA and FriendGroups_ActiveAKA[key]
-    if akaInfo and type(akaInfo.class) == "string" and akaInfo.class ~= "" then
-        return akaInfo.class
+    -- 2. Selected main, when it is from the game they are playing.
+    local mainAlt = FG_FindMainAlt(key)
+    if mainAlt and type(mainAlt.class) == "string" and mainAlt.class ~= ""
+        and FG_AltFitsSession(mainAlt, gameInfo) then
+        return mainAlt.class, true
     end
 
-    -- 3. Most recently seen cached alt.
+    -- 3. Most recently seen cached alt from that game.
     if type(alts) == "table" then
         local bestClass, bestTime
         for _, alt in ipairs(alts) do
-            if type(alt.class) == "string" and alt.class ~= "" then
+            if type(alt.class) == "string" and alt.class ~= "" and FG_AltFitsSession(alt, gameInfo) then
                 local t = tonumber(alt.timestamp) or 0
                 if not bestClass or t > bestTime then
                     bestClass, bestTime = alt.class, t
                 end
             end
         end
-        if bestClass then return bestClass end
+        if bestClass then return bestClass, true end
     end
 
     return nil
@@ -5509,6 +5559,9 @@ function FriendGroups_ApplyRowLayout(button)
             local c = CLASS_ICON_TCOORDS and CLASS_ICON_TCOORDS[token]
             if c then icon:SetTexCoord(c[1], c[2], c[3], c[4]) end
         end
+        -- Always re-stated: pooled rows would otherwise keep a previous friend's grey.
+        icon:SetDesaturated(button.fgClassGuessed and true or false)
+        icon:SetAlpha(button.fgClassGuessed and 0.6 or 1)
         icon:Show()
     else
         icon:Hide()
@@ -5659,6 +5712,7 @@ FriendGroups_FriendsListUpdateFriendButton = function(button, elementData)
 	button.buttonType = buttonType;
 	button.id = id;
 	button.fgClass = nil;   -- current character's class (localized); set below when online
+	button.fgClassGuessed = nil;
 	button.fgNote = nil;    -- raw server note for this friend
 	if button.gameIcon then button.gameIcon:SetDesaturated(false); button.gameIcon:SetVertexColor(1, 1, 1) end
 
@@ -5801,7 +5855,7 @@ FriendGroups_FriendsListUpdateFriendButton = function(button, elementData)
 		end
 
 	elseif button.buttonType == FRIENDS_BUTTON_TYPE_BNET then
-		local accountInfo = C_BattleNet.GetFriendAccountInfo(id);
+		local accountInfo = Compat.GetFriendAccountInfo(id);
 		if accountInfo then
 			button.fgNote = accountInfo.note;
             -- [[ MASSIVE OPTIMIZATION: Pull localized API data inline instead of running a redundant global function search ]]
@@ -5826,9 +5880,10 @@ FriendGroups_FriendsListUpdateFriendButton = function(button, elementData)
             -- 12.0.7 presence reduction: live className is nil for most friends'
             -- sessions. Recover the class from FriendGroups' own cached data so
             -- class colors and icons survive on the account row (display-only).
+            local classGuessed
             if client == BNET_CLIENT_WOW and accountInfo.gameAccountInfo
                 and accountInfo.gameAccountInfo.isOnline and (not class or class == "") then
-                class = FriendGroups_LookupAccountClass(accountInfo, characterName, realmName)
+                class, classGuessed = FriendGroups_LookupAccountClass(accountInfo, characterName, realmName)
             end
 
 			if FriendGroups_SavedVars.show_mobile_afk and client == 'BSAp' then statusTexture = FRIENDS_TEXTURE_AFK end
@@ -5836,23 +5891,37 @@ FriendGroups_FriendsListUpdateFriendButton = function(button, elementData)
 			nameText = FriendGroups_GetBNetButtonNameText(accountName, client, canCoop, characterName, class, level, battleTag, timerunningSeasonID, realmName, accountInfo.gameAccountInfo)
 			button.status:SetTexture(statusTexture);
             
+            local isForeverFriend = Compat.IsForeverGame(accountInfo.gameAccountInfo)
+            if isForeverFriend and (not factionName or factionName == "") then
+                factionName = FriendGroups_ForeverFaction(accountInfo)
+            end
             factionName = factionName or ""
 			isCrossFactionInvite = factionName ~= "" and factionName ~= playerFactionGroup;
 			inviteFaction = factionName;
 
 			if accountInfo.gameAccountInfo and accountInfo.gameAccountInfo.isOnline then
 				button.fgClass = (client == BNET_CLIENT_WOW) and class or nil;
+				button.fgClassGuessed = button.fgClass and classGuessed or nil;
 				button.background:SetColorTexture(FRIENDS_BNET_BACKGROUND_COLOR.r, FRIENDS_BNET_BACKGROUND_COLOR.g, FRIENDS_BNET_BACKGROUND_COLOR.b, FRIENDS_BNET_BACKGROUND_COLOR.a);
 
-				if FriendGroups_ShowRichPresenceOnly(client, accountInfo.gameAccountInfo.wowProjectID, factionName, accountInfo.gameAccountInfo.realmID, accountInfo.gameAccountInfo.areaName) then
+				if isForeverFriend then
+					-- Same "Zone - Forever Normal" line on every client.
+					infoText = FriendGroups_GetOnlineInfoText(client, accountInfo.gameAccountInfo.isWowMobile, accountInfo.rafLinkType,
+						Compat.ForeverLocation(accountInfo.gameAccountInfo, FriendGroups_SavedVars.show_realm));
+				elseif FriendGroups_ShowRichPresenceOnly(client, accountInfo.gameAccountInfo.wowProjectID, factionName, accountInfo.gameAccountInfo.realmID, accountInfo.gameAccountInfo.areaName) then
 					infoText = FriendGroups_GetOnlineInfoText(client, accountInfo.gameAccountInfo.isWowMobile, accountInfo.rafLinkType, accountInfo.gameAccountInfo.richPresence);
 				else
 					infoText = FriendGroups_GetOnlineInfoText(client, accountInfo.gameAccountInfo.isWowMobile, accountInfo.rafLinkType, accountInfo.gameAccountInfo.areaName, realmName);
 				end
 
-				C_Texture.SetTitleIconTexture(button.gameIcon, client, Enum.TitleIconVersion.Medium);
-				local fadeIcon = (client == BNET_CLIENT_WOW) and not Compat.IsSameProject(accountInfo.gameAccountInfo);
-				if fadeIcon then button.gameIcon:SetAlpha(0.6); else button.gameIcon:SetAlpha(1); end
+				if isForeverFriend then
+					button.gameIcon:SetTexture(Compat.FOREVER_ICON)
+				else
+					-- subIcon selects the product variant (Classic), as Blizzard's own row does.
+					C_Texture.SetTitleIconTexture(button.gameIcon, client, Enum.TitleIconVersion.Medium, accountInfo.gameAccountInfo.subIcon);
+				end
+				-- Full brightness for every online game, other projects included.
+				button.gameIcon:SetAlpha(1);
 					-- Retail gold vs Classic green: tint the client icon by the friend project.
 					Compat.TintGameIcon(button.gameIcon, accountInfo.gameAccountInfo)
 
@@ -5894,7 +5963,7 @@ FriendGroups_FriendsListUpdateFriendButton = function(button, elementData)
                         button.realmFlag:SetSize(button.gameIcon:GetWidth() * 0.75, button.gameIcon:GetHeight() * 0.75)
                     end
                     
-                    local flagTexture, _ = FriendGroups_GetRealmInfo(accountInfo.gameAccountInfo)
+                    local flagTexture, _ = FriendGroups_GetRealmInfo(accountInfo.gameAccountInfo, FriendGroups_AccountIdentifier(accountInfo))
 
                     if flagTexture then
                         button.realmFlag:SetTexture(flagTexture)
@@ -6171,7 +6240,7 @@ function FriendGroups_FriendsListUpdate(forceUpdate)
     -- Parse natively in a single linear pass & pass refs down
     local numBNetTotal = C_BattleNet.GetFriendNum and C_BattleNet.GetFriendNum() or BNGetNumFriends()
     for i = 1, numBNetTotal do
-        local accountInfo = C_BattleNet.GetFriendAccountInfo(i)
+        local accountInfo = Compat.GetFriendAccountInfo(i)
         if accountInfo then
             -- This loop is the one guaranteed COMPLETE enumeration of Battle.net
             -- friends, so it is where the nickname cache is refreshed from the notes.
@@ -6388,12 +6457,59 @@ function FriendGroups_FilterTable(tableData, filterFunction)
 	return returnTable
 end
 
+-- Forever character name -> region ("US"/"AU"/"EU"), learned from the alt cache. Names are
+-- unique across a Forever region, so retail can flag a Forever friend it has seen there.
+local FG_ForeverRegionByName = {}
+
+-- Faction for a reduced Forever session (Blizzard sends none): the one faction all of the
+-- account's known Forever characters share, else nil. Never a guess between two sides.
+function FriendGroups_ForeverFaction(accountInfo)
+    local accountIdentifier = FriendGroups_AccountIdentifier(accountInfo)
+    local cache = accountIdentifier and FriendGroups_SavedVars and FriendGroups_SavedVars.alt_cache
+    local alts = type(cache) == "table" and cache[accountIdentifier]
+    if type(alts) ~= "table" then return nil end
+    local faction
+    for _, alt in ipairs(alts) do
+        if alt.realm == Compat.FOREVER_REALM and type(alt.faction) == "string" and alt.faction ~= "" then
+            if faction and faction ~= alt.faction then return nil end
+            faction = alt.faction
+        end
+    end
+    return faction
+end
+
+-- Presence-reduced sessions name no character: fall back to the region of the account's
+-- most recently seen Forever alt.
+local function FG_ForeverAccountRegion(accountIdentifier)
+    local cache = accountIdentifier and FriendGroups_SavedVars and FriendGroups_SavedVars.alt_cache
+    local alts = type(cache) == "table" and cache[accountIdentifier]
+    if type(alts) ~= "table" then return nil end
+    local best, bestTime
+    for _, alt in ipairs(alts) do
+        if alt.realm == Compat.FOREVER_REALM and alt.region then
+            local t = tonumber(alt.timestamp) or 0
+            if not best or t > bestTime then best, bestTime = alt.region, t end
+        end
+    end
+    return best
+end
+
 -- Resolve a friend's realm to its database entry (icon/region/classic tag). This is
 -- the single realm-resolution path: region-scoped table pick, API realmName lookup,
 -- then rich-presence parse. Shared by the realm-flags feature (GetRealmInfo below)
 -- and the game-icon flavor tint (Compat.ResolveFriendFlavor), so both always agree.
-function FriendGroups_GetRealmEntry(gameAccountInfo)
+function FriendGroups_GetRealmEntry(gameAccountInfo, accountIdentifier)
     if not gameAccountInfo then return nil end
+
+    -- Before the realm tables: a shard name is not a realm, and must not fall through.
+    if Compat.IsForeverGame(gameAccountInfo) then
+        local _, region = Compat.ForeverInfo(gameAccountInfo)
+        if not region and type(gameAccountInfo.characterName) == "string" then
+            region = FG_ForeverRegionByName[gameAccountInfo.characterName]
+        end
+        if not region then region = FG_ForeverAccountRegion(accountIdentifier) end
+        return Compat.ForeverRealmEntry(region)
+    end
 
     -- Secure String Verification up front
     local rawRealm = gameAccountInfo.realmName
@@ -6432,8 +6548,8 @@ function FriendGroups_GetRealmEntry(gameAccountInfo)
     return nil
 end
 
-function FriendGroups_GetRealmInfo(gameAccountInfo)
-    local data = FriendGroups_GetRealmEntry(gameAccountInfo)
+function FriendGroups_GetRealmInfo(gameAccountInfo, accountIdentifier)
+    local data = FriendGroups_GetRealmEntry(gameAccountInfo, accountIdentifier)
     if data then
         return "Interface\\AddOns\\FriendGroups\\Textures\\" .. data.icon, data.region
     end
@@ -7082,9 +7198,12 @@ frame:SetScript("OnEvent", function(self, event, arg1, ...)
                 if FriendGroups_SavedVars.alt_cache then wipe(FriendGroups_SavedVars.alt_cache) end
                 if FriendGroups_SavedVars.guid_index then wipe(FriendGroups_SavedVars.guid_index) end
             end
+            FriendGroups_NormalizeForeverAlts()
         end
 
         EnableFriendGroups()
+        -- After EnableFriendGroups: a fresh install has no SavedVars until it runs.
+        C_Timer.After(8, FriendGroups_ShowForeverImportTip)
 
         -- 12.2.2 TAINT FIX: never write FriendsFrame.selectedFriend/-Type from addon code
         -- (insecure writes taint fields Blizzard's secure handlers read). selectionLocked
@@ -7136,23 +7255,33 @@ FriendGroups_SaveToAltCache = function(accountIdentifier, gameInfo)
     local charName = (type(gameInfo.characterName) == "string") and gameInfo.characterName or ""
     if charName == "" then return end
     
-    local rawRealm = gameInfo.realmName
-    if not rawRealm or rawRealm == "" then rawRealm = gameInfo.realmDisplayName end
-    if (not rawRealm or rawRealm == "") and type(gameInfo.richPresence) == "string" then
-        local extraction = gameInfo.richPresence:match("%s%-%s(.+)")
-        if extraction then rawRealm = extraction end
+    local isForever = Compat.IsForeverGame(gameInfo)
+    local ruleset, region, presenceZone
+    local rawRealm
+    if isForever then
+        -- One key per Forever character whatever the shard; ruleset and region are display.
+        rawRealm = Compat.FOREVER_REALM
+        ruleset, region, presenceZone = Compat.ForeverInfo(gameInfo)
+    else
+        rawRealm = gameInfo.realmName
+        if not rawRealm or rawRealm == "" then rawRealm = gameInfo.realmDisplayName end
+        if (not rawRealm or rawRealm == "") and type(gameInfo.richPresence) == "string" then
+            local extraction = gameInfo.richPresence:match("%s%-%s(.+)")
+            if extraction then rawRealm = extraction end
+        end
     end
     if not rawRealm or rawRealm == "" then return end
 
     local displayRealm = (type(rawRealm) == "string") and rawRealm or ""
-    local normalizedRealm = FriendGroups_CleanRealmName(displayRealm) 
+    local normalizedRealm = FriendGroups_CleanRealmName(displayRealm)
     local uniqueKey = charName .. "-" .. normalizedRealm
-    
+
     local class = (type(gameInfo.className) == "string") and gameInfo.className or ""
     local faction = (type(gameInfo.factionName) == "string") and gameInfo.factionName or ""
-    local zone = (type(gameInfo.areaName) == "string") and gameInfo.areaName or L["UNKNOWN"]
+    local zone = (type(gameInfo.areaName) == "string") and gameInfo.areaName or presenceZone or L["UNKNOWN"]
     local level = tonumber(gameInfo.characterLevel) or 1
-    local project = gameInfo.wowProjectID or WOW_PROJECT_MAINLINE
+    local project = isForever and Compat.FOREVER_PROJECT or (gameInfo.wowProjectID or WOW_PROJECT_MAINLINE)
+    if isForever and region then FG_ForeverRegionByName[charName] = region end
 
     local detectedGuild = nil
     if FriendGroups_LiveGuildSessionDict[uniqueKey] or FriendGroups_LiveGuildSessionDict[charName] then
@@ -7190,6 +7319,10 @@ FriendGroups_SaveToAltCache = function(accountIdentifier, gameInfo)
         if existingAlt.faction ~= faction then existingAlt.faction = faction; dataChanged = true end
         if existingAlt.realm ~= displayRealm then existingAlt.realm = displayRealm; dataChanged = true end
         if existingAlt.project ~= project then existingAlt.project = project; dataChanged = true end
+        if isForever then existingAlt.key = uniqueKey end
+        -- Only ever filled in: retail knows the ruleset but not the region.
+        if ruleset and existingAlt.ruleset ~= ruleset then existingAlt.ruleset = ruleset; dataChanged = true end
+        if region and existingAlt.region ~= region then existingAlt.region = region; dataChanged = true end
         
         -- Pre-calculate and store search strings to prevent GC search stutter
         existingAlt.searchName = charName:lower()
@@ -7216,6 +7349,8 @@ FriendGroups_SaveToAltCache = function(accountIdentifier, gameInfo)
             zone = zone,
             guild = detectedGuild,
             project = project,
+            ruleset = ruleset,
+            region = region,
             timestamp = time(),
             -- Pre-calculate and store search strings
             searchName = charName:lower(),
@@ -7243,6 +7378,100 @@ FriendGroups_SaveToAltCache = function(accountIdentifier, gameInfo)
     end
 end
 
+-- Older builds keyed one Forever character two ways: by shard (seen on Forever) and by
+-- the rich-presence tail "PvP - Durotar" (seen on retail). Rewrites both to the single
+-- Forever key and merges them. Runs at login and after every import.
+local function FG_ForeverRecordInfo(alt)
+    local realm = type(alt.realm) == "string" and alt.realm or ""
+    local ruleset, region = Compat.ParseForeverShard(realm)
+    if ruleset then return true, ruleset, region, nil end
+    if alt.project ~= Compat.FOREVER_PROJECT and realm ~= Compat.FOREVER_REALM then return false end
+    if realm == Compat.FOREVER_REALM or realm == "" then return true end
+    local word, zone = realm:match("^(.-)%s%-%s(.+)$")
+    return true, Compat.ForeverRulesetCode(word or realm), nil, zone
+end
+
+local function FG_MergeAlt(into, from)
+    if (tonumber(from.timestamp) or 0) > (tonumber(into.timestamp) or 0) then
+        into.level, into.zone, into.faction, into.timestamp = from.level, from.zone, from.faction, from.timestamp
+    end
+    if (not into.class or into.class == "") and from.class and from.class ~= "" then into.class = from.class end
+    into.guild = into.guild or from.guild
+    into.ruleset = into.ruleset or from.ruleset
+    into.region = into.region or from.region
+end
+
+-- "Name-Realm", or just "First Last" for a Forever alt: Forever names carry no realm, and
+-- its ruleset belongs on the "Last seen" line (FriendGroups_AltSeenPlace), never in colour.
+function FriendGroups_AltDisplayName(alt)
+    local name = alt.charName or ""
+    if alt.realm == Compat.FOREVER_REALM then return name end
+    return name .. ((alt.realm and alt.realm ~= "") and ("-" .. alt.realm) or "")
+end
+
+-- Where an alt was last seen: "Zone", or "Zone (Forever Normal)" for a Forever alt.
+function FriendGroups_AltSeenPlace(alt)
+    local zone = alt.zone or L["UNKNOWN_ZONE"] or ""
+    if alt.realm ~= Compat.FOREVER_REALM then return zone end
+    return zone .. " (" .. Compat.ForeverLabel(alt.ruleset) .. ")"
+end
+
+function FriendGroups_NormalizeForeverAlts()
+    local sv = FriendGroups_SavedVars
+    if type(sv) ~= "table" or type(sv.alt_cache) ~= "table" then return end
+    local mains = type(sv.manual_mains) == "table" and sv.manual_mains or nil
+
+    for account, list in pairs(sv.alt_cache) do
+        if type(list) == "table" then
+            local byKey = {}
+            local i = 1
+            while i <= #list do
+                local alt = list[i]
+                local isForever, ruleset, region, zone = false
+                if type(alt) == "table" and type(alt.charName) == "string" and alt.charName ~= "" then
+                    isForever, ruleset, region, zone = FG_ForeverRecordInfo(alt)
+                end
+                local merged = false
+                if isForever then
+                    local newKey = alt.charName .. "-" .. Compat.FOREVER_REALM
+                    local oldComputed = alt.charName .. "-" .. FriendGroups_CleanRealmName(alt.realm or "")
+                    if mains and (mains[account] == alt.key or mains[account] == oldComputed) then
+                        mains[account] = newKey
+                    end
+                    alt.key, alt.realm, alt.project = newKey, Compat.FOREVER_REALM, Compat.FOREVER_PROJECT
+                    alt.ruleset = alt.ruleset or ruleset
+                    alt.region = alt.region or region
+                    if zone and (not alt.zone or alt.zone == "" or alt.zone == L["UNKNOWN"]) then alt.zone = zone end
+                    alt.searchRealm = Compat.FOREVER_REALM:lower()
+                    alt.searchZone = (alt.zone or ""):lower()
+                    local first = byKey[newKey]
+                    if first then
+                        FG_MergeAlt(first, alt)
+                        table.remove(list, i)
+                        merged = true
+                    else
+                        byKey[newKey] = alt
+                    end
+                end
+                if not merged then i = i + 1 end
+            end
+            for _, alt in pairs(byKey) do
+                if alt.region then FG_ForeverRegionByName[alt.charName] = alt.region end
+            end
+        end
+    end
+
+    if type(sv.guid_index) == "table" then
+        for _, entry in pairs(sv.guid_index) do
+            if type(entry) == "table" and type(entry.charName) == "string"
+                and Compat.ParseForeverShard(entry.realm) then
+                entry.realm = Compat.FOREVER_REALM
+                entry.key = entry.charName .. "-" .. Compat.FOREVER_REALM
+            end
+        end
+    end
+end
+
 -- 2. The Silent Tracker (Catches background changes)
 local FriendGroups_BNetIndexMap = {}
 
@@ -7250,7 +7479,7 @@ local function FriendGroups_UpdateBNetIndexMap()
     wipe(FriendGroups_BNetIndexMap)
     local numBNetTotal = C_BattleNet.GetFriendNum and C_BattleNet.GetFriendNum() or BNGetNumFriends()
     for i = 1, numBNetTotal do
-        local accountInfo = C_BattleNet.GetFriendAccountInfo(i)
+        local accountInfo = Compat.GetFriendAccountInfo(i)
         if accountInfo and accountInfo.bnetAccountID then
             FriendGroups_BNetIndexMap[accountInfo.bnetAccountID] = i
         end
@@ -7280,7 +7509,7 @@ FriendGroups_AltTracker:SetScript("OnEvent", function(self, event, ...)
     -- Secure API Lookup by strict ID guarantees we never pull the wrong person's data
     local accountInfo = C_BattleNet.GetAccountInfoByID(arg1)
     if not accountInfo then 
-        accountInfo = C_BattleNet.GetFriendAccountInfo(arg1) -- Legacy fallback just in case
+        accountInfo = Compat.GetFriendAccountInfo(arg1) -- Legacy fallback just in case
     end
     if not accountInfo then return end
     
@@ -7329,7 +7558,7 @@ local function FriendGroups_GetNoteByAccount(accountIdentifier)
     local num = (C_BattleNet.GetFriendNum and C_BattleNet.GetFriendNum())
         or (BNGetNumFriends and BNGetNumFriends()) or 0
     for i = 1, num do
-        local info = C_BattleNet.GetFriendAccountInfo(i)
+        local info = Compat.GetFriendAccountInfo(i)
         if info and (info.battleTag == accountIdentifier or info.accountName == accountIdentifier) then
             if type(info.note) == "string" and info.note ~= "" then return strtrim(info.note) end
             return nil
@@ -7375,19 +7604,29 @@ local function FriendGroups_DrawAltTooltip(anchorFrame, accountIdentifier, charK
 
     local function MergeIntoMaster(alt)
         if not alt or not alt.charName or not alt.realm then return end
-        
+
+        -- A live Forever baseline still carries its shard; fold it into the stored key.
+        local realm, ruleset, region = alt.realm, alt.ruleset, alt.region
+        local shardRuleset, shardRegion = Compat.ParseForeverShard(realm)
+        if shardRuleset then
+            realm, ruleset, region = Compat.FOREVER_REALM, ruleset or shardRuleset, region or shardRegion
+        end
+
         -- Force a universal, lowercase key to prevent case-sensitive splits
-        local renderKey = string.lower(alt.charName .. "-" .. alt.realm:gsub("[%s%p]+", ""))
-        
+        local renderKey = string.lower(alt.charName .. "-" .. realm:gsub("[%s%p]+", ""))
+
         if not masterDict[renderKey] then
             masterDict[renderKey] = {
-                key = renderKey, charName = alt.charName, realm = alt.realm,
+                key = renderKey, charName = alt.charName, realm = realm,
                 class = alt.class, faction = alt.faction, level = alt.level,
-                zone = alt.zone, guild = alt.guild, timestamp = alt.timestamp
+                zone = alt.zone, guild = alt.guild, timestamp = alt.timestamp,
+                ruleset = ruleset, region = region
             }
         else
             local existing = masterDict[renderKey]
-            
+            existing.ruleset = existing.ruleset or ruleset
+            existing.region = existing.region or region
+
             -- ALWAYS preserve a valid guild tag
             if alt.guild and alt.guild ~= "NONE" and alt.guild ~= "-" and alt.guild ~= "" then
                 if not existing.guild or existing.guild == "NONE" or existing.guild == "-" or existing.guild == "" then
@@ -7620,13 +7859,7 @@ local function FriendGroups_DrawAltTooltip(anchorFrame, accountIdentifier, charK
                 gapLine:SetFontObject("SystemFont_Tiny")
             end
 
-            local engClass = ""
-            if alt.class and (LOCALIZED_CLASS_NAMES_MALE[alt.class] or RAID_CLASS_COLORS[alt.class]) then
-                engClass = alt.class
-            else
-                for k, v in pairs(LOCALIZED_CLASS_NAMES_MALE) do if alt.class == v then engClass = k break end end
-                if engClass == "" then for k, v in pairs(LOCALIZED_CLASS_NAMES_FEMALE) do if alt.class == v then engClass = k break end end end
-            end
+            local engClass = Compat.ClassToken(alt.class) or ""
 
             local classIconStr = Compat.ClassIconMarkup(engClass, 16)
             
@@ -7638,7 +7871,7 @@ local function FriendGroups_DrawAltTooltip(anchorFrame, accountIdentifier, charK
             if FriendGroups_IsStreamerMode() then
                 coloredName = nameColor .. FriendGroups_MaskName(alt.charName) .. "|r"
             else
-                coloredName = nameColor .. alt.charName .. (alt.realm ~= "" and ("-" .. alt.realm) or "") .. "|r"
+                coloredName = nameColor .. FriendGroups_AltDisplayName(alt) .. "|r"
             end
 
             local factionPath = FriendGroups_GetFactionIcon(alt.faction)
@@ -7669,7 +7902,7 @@ local function FriendGroups_DrawAltTooltip(anchorFrame, accountIdentifier, charK
                 end
             end
 
-            local line2 = string.format(L["TOOLTIP_ALTS_SEEN"], alt.zone, timeStr)
+            local line2 = string.format(L["TOOLTIP_ALTS_SEEN"], FriendGroups_AltSeenPlace(alt), timeStr)
 
             FriendGroupsAltTooltip:AddLine(line1, 1, 1, 1, false)
             FriendGroupsAltTooltip:AddLine(line2, 0.6, 0.6, 0.6, false)
@@ -7822,7 +8055,7 @@ function FriendGroups_ShowButtonAltTooltip(button)
     local baselineData = nil
 
     if button.buttonType == FRIENDS_BUTTON_TYPE_BNET then
-        local accountInfo = C_BattleNet.GetFriendAccountInfo(button.id)
+        local accountInfo = Compat.GetFriendAccountInfo(button.id)
         if not accountInfo then return end
 
         local accountIdentifier = FriendGroups_AccountIdentifier(accountInfo)
@@ -7845,12 +8078,15 @@ function FriendGroups_ShowButtonAltTooltip(button)
 
         FriendGroups_CurrentHoverBNetID = accountIdentifier
 
-        if accountInfo.gameAccountInfo and accountInfo.gameAccountInfo.characterName then
+        if accountInfo.gameAccountInfo and (accountInfo.gameAccountInfo.characterName or "") ~= "" then
             local rawRealm = accountInfo.gameAccountInfo.realmName
             if not rawRealm or rawRealm == "" then rawRealm = accountInfo.gameAccountInfo.realmDisplayName end
+            -- Retail never gets a Forever friend's realm name; the character is still current.
+            if Compat.IsForeverGame(accountInfo.gameAccountInfo) then rawRealm = Compat.FOREVER_REALM end
             if rawRealm and rawRealm ~= "" then
                 local cName = accountInfo.gameAccountInfo.characterName
                 local rName = rawRealm:gsub("[%s%p]+", "")
+                if Compat.IsForeverGame(accountInfo.gameAccountInfo) then rName = Compat.FOREVER_REALM end
                 FriendGroups_CurrentHoverCharKey = cName .. "-" .. rName
                 
                 baselineData = {
@@ -7862,6 +8098,9 @@ function FriendGroups_ShowButtonAltTooltip(button)
                     zone = accountInfo.gameAccountInfo.areaName or L["UNKNOWN_ZONE"],
                     timestamp = time()
                 }
+                if rawRealm == Compat.FOREVER_REALM then
+                    baselineData.ruleset, baselineData.region = Compat.ForeverInfo(accountInfo.gameAccountInfo)
+                end
             end
         end
 
@@ -7889,7 +8128,7 @@ hooksecurefunc(FriendsTooltip, "Show", function(self)
     local baselineData = nil
 
     if button.buttonType == FRIENDS_BUTTON_TYPE_BNET then
-        local accountInfo = C_BattleNet.GetFriendAccountInfo(button.id)
+        local accountInfo = Compat.GetFriendAccountInfo(button.id)
         if not accountInfo then return end
 
         local accountIdentifier = FriendGroups_AccountIdentifier(accountInfo)
@@ -7912,12 +8151,15 @@ hooksecurefunc(FriendsTooltip, "Show", function(self)
 
         FriendGroups_CurrentHoverBNetID = accountIdentifier
 
-        if accountInfo.gameAccountInfo and accountInfo.gameAccountInfo.characterName then
+        if accountInfo.gameAccountInfo and (accountInfo.gameAccountInfo.characterName or "") ~= "" then
             local rawRealm = accountInfo.gameAccountInfo.realmName
             if not rawRealm or rawRealm == "" then rawRealm = accountInfo.gameAccountInfo.realmDisplayName end
+            -- Retail never gets a Forever friend's realm name; the character is still current.
+            if Compat.IsForeverGame(accountInfo.gameAccountInfo) then rawRealm = Compat.FOREVER_REALM end
             if rawRealm and rawRealm ~= "" then
                 local cName = accountInfo.gameAccountInfo.characterName
                 local rName = rawRealm:gsub("[%s%p]+", "")
+                if Compat.IsForeverGame(accountInfo.gameAccountInfo) then rName = Compat.FOREVER_REALM end
                 FriendGroups_CurrentHoverCharKey = cName .. "-" .. rName
                 
                 baselineData = {
@@ -7929,6 +8171,9 @@ hooksecurefunc(FriendsTooltip, "Show", function(self)
                     zone = accountInfo.gameAccountInfo.areaName or L["UNKNOWN_ZONE"],
                     timestamp = time()
                 }
+                if rawRealm == Compat.FOREVER_REALM then
+                    baselineData.ruleset, baselineData.region = Compat.ForeverInfo(accountInfo.gameAccountInfo)
+                end
             end
         end
 
@@ -8016,7 +8261,13 @@ local function FriendGroups_OnGuildRosterEnter(owner, memberInfo)
     else 
         cName, rName = strsplit("-", rawName)
         rName = rName:gsub("[%s%p]+", "")
-        charKey = cName .. "-" .. rName 
+        charKey = cName .. "-" .. rName
+    end
+    -- Forever names never contain a hyphen; the suffix, if any, is a hidden shard.
+    if Compat.IS_FOREVER then
+        cName = strsplit("-", rawName)
+        rName = Compat.FOREVER_REALM
+        charKey = cName .. "-" .. rName
     end
 
     FriendGroups_CurrentHoverBNetID = FriendGroups_FindBNetIDByCharKey(charKey)
@@ -8353,77 +8604,64 @@ SlashCmdList["FRIENDGROUPSDEBUG"] = function(msg)
         DEFAULT_CHAT_FRAME:AddMessage(string.format(
             "%d title friends, %d with a usable plain-text custom name.", reported, usable))
     elseif command == "font" then
-        -- [[ ROW FONT PROBE ]] Why CJK and Cyrillic names render as tofu boxes in the list
-        -- while Blizzard's own mouseover shows them correctly.
-        --
-        -- The suspicion is FG_ShrinkFont: it captures GetFont() once per region and re-applies
-        -- the raw PATH. A path is a single file with no fallback list, so any glyph that file
-        -- lacks becomes a box -- whereas a font OBJECT keeps Blizzard's fallback chain, which
-        -- is exactly what FriendGroups_DrawAltTooltip already restores by hand with
-        -- SetFontObject for "Cyrillic/Asian characters".
-        --
-        -- What settles it is the pair of columns below: `obj` versus `path`. A row showing
-        -- boxes with obj=nil and a Latin-only path confirms the mechanism; boxes with an
-        -- object still attached means the font is not the culprit and the search moves on.
-        -- `high` marks the rows that actually contain non-ASCII, which are the only ones the
-        -- question is about.
-        local function Describe(fs)
-            if not fs then return "none" end
-            local obj = (type(fs.GetFontObject) == "function") and fs:GetFontObject() or nil
-            local objName = obj and type(obj.GetName) == "function" and obj:GetName() or nil
-            local path, size, flags = fs:GetFont()
-            local file = type(path) == "string" and path:match("[^\\/]+$") or path
-            return string.format("obj=%s file=%s size=%s flags=%s",
-                tostring(objName or "nil"), tostring(file or "nil"),
-                tostring(size and math.floor(size + 0.5) or "nil"), tostring(flags or ""))
+        -- [[ ROW FONT PROBE ]] Per row: the file the name uses now, and the file its own font
+        -- object picks for the same text. Samples show what each script resolves to, on a shown
+        -- and a hidden string. Battle.net names are |K escapes, so GetText reads ASCII.
+        local function FileOf(path)
+            return type(path) == "string" and (path:gsub("\\", "/"):match("[^/]+$") or path) or tostring(path)
         end
 
-        -- Raw, with the pipe doubled: a |K escape renders as a real name through AddMessage,
-        -- so an unescaped probe would make an unreadable value look like text.
-        local function Sample(fs)
-            if not fs or type(fs.GetText) ~= "function" then return "nil", false end
-            local text = fs:GetText()
-            if type(text) ~= "string" then return "nil", false end
-            local high = text:find("[\128-\255]") ~= nil
-            return (text:sub(1, 24):gsub("|", "||")), high
+        local function Resolve(parent, object, text)
+            if not (parent and object and parent.CreateFontString) then return "n/a" end
+            parent.fgFontProbe = parent.fgFontProbe or parent:CreateFontString(nil, "OVERLAY")
+            local fs = parent.fgFontProbe
+            fs:SetAlpha(0)
+            fs:SetFontObject(object)
+            fs:SetText(text)
+            local path = fs:GetFont()
+            fs:SetText("")
+            return FileOf(path)
         end
 
-        DEFAULT_CHAT_FRAME:AddMessage("FriendGroups row font probe:")
-        local reference = _G["GameTooltipText"]
-        if reference then
-            DEFAULT_CHAT_FRAME:AddMessage("  reference GameTooltipText -> " .. Describe(reference))
-        end
+        local SAMPLES = {
+            { "ascii", "Abc" }, { "latin", "\195\184\195\169" }, { "cyrillic", "\208\150\208\190" },
+            { "hangul", "\234\176\128" }, { "cjk", "\228\184\173" },
+        }
+        local hidden = _G["FriendGroups_FontProbeFrame"] or CreateFrame("Frame", "FriendGroups_FontProbeFrame", UIParent)
+        hidden:Hide()
 
-        local rows, highRows = 0, 0
+        -- Kept in SavedVariables too, so the output survives a reload. Replaced on every run.
+        local saved = {}
+        FriendGroups_SavedVars.font_probe = saved
+        local function Say(msg)
+            DEFAULT_CHAT_FRAME:AddMessage(msg)
+            saved[#saved + 1] = (msg:gsub("|", "||"))
+        end
+        Say("FriendGroups row font probe (name, live file, object's file):")
+        local rows, sampled = 0, false
         Compat.ForEachContactListFrame(function(frame)
             if type(frame) ~= "table" then return end
-            -- Social UI cards expose FriendName; the legacy rows expose name.
             local nameString = frame.FriendName or frame.name
-            if not nameString then return end
-            if rows >= 12 then return end
-            rows = rows + 1
-
-            local sample, high = Sample(nameString)
-            if high then highRows = highRows + 1 end
-
-            DEFAULT_CHAT_FRAME:AddMessage(string.format("  [%s] %s", high and "high" or "ascii", sample))
-            DEFAULT_CHAT_FRAME:AddMessage("      live    " .. Describe(nameString))
-
-            -- The captured baseline FG_ShrinkFont re-applies on every recycle. If this holds a
-            -- path rather than an object, every later pass re-states that path and the
-            -- fallback chain never comes back, however the region started out.
+            local raw = nameString and nameString:GetText()
+            if type(raw) ~= "string" or raw == "" then return end
             local base = frame.fgBaseFont and frame.fgBaseFont["FriendName"]
-            if base then
-                local file = type(base.font) == "string" and base.font:match("[^\\/]+$") or base.font
-                DEFAULT_CHAT_FRAME:AddMessage(string.format("      capture file=%s size=%s flags=%s",
-                    tostring(file or "nil"), tostring(base.size or "nil"), tostring(base.flags or "")))
-            else
-                DEFAULT_CHAT_FRAME:AddMessage("      capture none (FG_ShrinkFont has not run on this row)")
+            local object = (base and base.object)
+                or (type(nameString.GetFontObject) == "function" and nameString:GetFontObject()) or nil
+            if not sampled and object then
+                sampled = true
+                local objName = type(object.GetName) == "function" and object:GetName() or "?"
+                Say("  object " .. tostring(objName))
+                for _, s in ipairs(SAMPLES) do
+                    Say(string.format("  sample %s: shown=%s hidden=%s",
+                        s[1], Resolve(frame, object, s[2]), Resolve(hidden, object, s[2])))
+                end
             end
+            rows = rows + 1
+            local tag = (raw:find("|K", 1, true) and "K" or "") .. (raw:find("[\128-\255]") and "8" or "")
+            Say(string.format("  [%s] %s|r  live=%s  object=%s",
+                tag, raw, FileOf((nameString:GetFont())), Resolve(frame, object, raw)))
         end)
-
-        DEFAULT_CHAT_FRAME:AddMessage(string.format(
-            "%d rows reported, %d containing non-ASCII.", rows, highRows))
+        Say(string.format("%d rows. K = Battle.net ||K name, 8 = non-ASCII text. Saved; /reload to write it.", rows))
     elseif command == "bar" then
         -- [[ BATTLE.NET BAR TREE ]] Names the frames on the bar so the copy button beside the
         -- BattleTag can be addressed by its real parentKey instead of guessed at by position.

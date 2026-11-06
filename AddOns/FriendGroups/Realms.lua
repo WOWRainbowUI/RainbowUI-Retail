@@ -1,6 +1,6 @@
 -- [[ REALM FLAGS DATABASE ]] --
 -- GENERATED FILE - regenerate with RealmUpdater\Update-Realms.ps1 (Blizzard Game Data API).
--- Data pulled: 2026-11-03 UTC. Do not hand-edit except the CN section (no public API for CN).
+-- Data pulled: 2026-11-05 UTC. Do not hand-edit except the CN section (no public API for CN).
 --
 -- Tables are region-scoped (picked by gameAccountInfo.regionID via FriendGroups_GetRealmDatabase):
 --   1 = Americas/Oceania, 2 = Korea, 3 = Europe/Russia, 4 = Taiwan, 5 = China.
@@ -646,7 +646,7 @@ FriendGroups_RealmDataEU = {
     ["PozzodellEternità"] = {icon = "FlagIT.tga", region = "Italy"},
 
     -- [[ PORTUGAL (FlagPT.tga) ]] --
-    ["Aggra"] = {icon = "FlagPT.tga", region = "Portugal"},
+    ["AggraPortuguês"] = {icon = "FlagPT.tga", region = "Portugal"},
 
     -- [[ RUSSIA (FlagRU.tga) ]] --
     ["Ashenvale"] = {icon = "FlagRU.tga", region = "Russia"},

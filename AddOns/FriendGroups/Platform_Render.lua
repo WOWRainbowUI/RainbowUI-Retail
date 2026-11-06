@@ -220,6 +220,9 @@ local function LayoutRow(button)
 			button.fgClassIcon:SetTexture("Interface\\TargetingFrame\\UI-Classes-Circles")
 			button.fgClassIcon:SetTexCoord(tcoord[1], tcoord[2], tcoord[3], tcoord[4])
 		end
+		-- Always re-stated: pooled rows would otherwise keep a previous friend's grey.
+		button.fgClassIcon:SetDesaturated(button.fgClassGuessed and true or false)
+		button.fgClassIcon:SetAlpha(button.fgClassGuessed and 0.6 or 1)
 		button.fgClassIcon:Show()
 		x = x + iconSize + 4
 	else
@@ -322,6 +325,7 @@ RenderFriendButton = function(button, elementData)
 	if not id then return end
 
 	button.fgClass = nil
+	button.fgClassGuessed = nil
 	button.fgNote = nil
 	if button.facIcon then button.facIcon:Hide() end
 	if button.realmFlag then button.realmFlag:Hide() end
@@ -402,14 +406,11 @@ RenderFriendButton = function(button, elementData)
 				local cached = FG_LookupCachedClass(accountInfo, characterName, accountInfo.gameAccountInfo.realmName)
 				if cached then button.fgClass = cached end
 			end
-			-- 12.0.7 presence reduction: sessions often publish no characterName
-			-- either, so the exact-match lookup above cannot fire. Fall through to
-			-- the shared account-level tiers (selected main -> most recent alt).
-			-- Guarded: the global is defined by FriendGroups.lua, which loads after
-			-- this file (call happens at render time, so it exists by then).
+			-- No characterName either: fall through to the account-level guess, which the
+			-- icon draws greyed. FriendGroups.lua defines it and loads after this file.
 			if (not button.fgClass or button.fgClass == "") and FriendGroups_LookupAccountClass
 				and accountInfo.gameAccountInfo and accountInfo.gameAccountInfo.isOnline then
-				button.fgClass = FriendGroups_LookupAccountClass(accountInfo, characterName,
+				button.fgClass, button.fgClassGuessed = FriendGroups_LookupAccountClass(accountInfo, characterName,
 					accountInfo.gameAccountInfo.realmName)
 			end
 			button.fgNote = accountInfo.note
@@ -436,7 +437,13 @@ RenderFriendButton = function(button, elementData)
 				button.background:SetColorTexture(FRIENDS_BNET_BACKGROUND_COLOR.r, FRIENDS_BNET_BACKGROUND_COLOR.g,
 					FRIENDS_BNET_BACKGROUND_COLOR.b, FRIENDS_BNET_BACKGROUND_COLOR.a)
 
-				if FriendGroups_ShowRichPresenceOnly(accountInfo.gameAccountInfo.clientProgram, accountInfo.gameAccountInfo.wowProjectID, accountInfo.gameAccountInfo.factionName, accountInfo.gameAccountInfo.realmID, accountInfo.gameAccountInfo.areaName) then
+				local isForeverFriend = Compat.IsForeverGame(accountInfo.gameAccountInfo)
+				if isForeverFriend then
+					-- Same "Zone - Forever Normal" line as retail and Forever; show_realm already applied.
+					infoText = FriendGroups_GetOnlineInfoText(accountInfo.gameAccountInfo.clientProgram,
+						accountInfo.gameAccountInfo.isWowMobile, accountInfo.rafLinkType,
+						Compat.ForeverLocation(accountInfo.gameAccountInfo, true))
+				elseif FriendGroups_ShowRichPresenceOnly(accountInfo.gameAccountInfo.clientProgram, accountInfo.gameAccountInfo.wowProjectID, accountInfo.gameAccountInfo.factionName, accountInfo.gameAccountInfo.realmID, accountInfo.gameAccountInfo.areaName) then
 					infoText = FriendGroups_GetOnlineInfoText(accountInfo.gameAccountInfo.clientProgram,
 						accountInfo.gameAccountInfo.isWowMobile, accountInfo.rafLinkType,
 						accountInfo.gameAccountInfo.richPresence)
@@ -461,20 +468,17 @@ RenderFriendButton = function(button, elementData)
 				end
 
 				-- [[ FIX: C_Texture Crash Prevention ]]
-				if C_Texture and C_Texture.SetTitleIconTexture then
-					C_Texture.SetTitleIconTexture(button.gameIcon, accountInfo.gameAccountInfo.clientProgram, Enum.TitleIconVersion.Medium)
+				if isForeverFriend then
+					button.gameIcon:SetTexture(Compat.FOREVER_ICON)
+				elseif C_Texture and C_Texture.SetTitleIconTexture then
+					C_Texture.SetTitleIconTexture(button.gameIcon, accountInfo.gameAccountInfo.clientProgram, Enum.TitleIconVersion.Medium, accountInfo.gameAccountInfo.subIcon)
 				elseif BNet_GetClientTexture then
 					-- Classic Fallback
 					button.gameIcon:SetTexture(BNet_GetClientTexture(accountInfo.gameAccountInfo.clientProgram))
 				end
 
-				local fadeIcon = (accountInfo.gameAccountInfo.clientProgram == BNET_CLIENT_WOW) and
-					not Compat.IsSameProject(accountInfo.gameAccountInfo)
-				if fadeIcon then
-					button.gameIcon:SetAlpha(0.6)
-				else
-					button.gameIcon:SetAlpha(1)
-				end
+				-- Full brightness for every online game, other projects included.
+				button.gameIcon:SetAlpha(1)
 				-- Retail gold vs Classic green: tint the client icon by the friend project.
 				Compat.TintGameIcon(button.gameIcon, accountInfo.gameAccountInfo)
 
@@ -500,6 +504,10 @@ RenderFriendButton = function(button, elementData)
 					button.travelPassButton:Disable()
 				end
 
+				local rowFaction = accountInfo.gameAccountInfo.factionName
+				if isForeverFriend and (not rowFaction or rowFaction == "") then
+					rowFaction = FriendGroups_ForeverFaction(accountInfo)
+				end
 				if FriendGroups_SavedVars.show_faction_icons then
 					if not button.facIcon then
 						button.facIcon = button:CreateTexture("facIcon")
@@ -513,7 +521,7 @@ RenderFriendButton = function(button, elementData)
 						-- Game icon hidden: slide the faction icon into its slot so there is no gap.
 						button.facIcon:SetPoint("RIGHT", button.gameIcon, "RIGHT", 0, 0)
 					end
-					button.facIcon:SetTexture(FriendGroups_GetFactionIcon(accountInfo.gameAccountInfo.factionName))
+					button.facIcon:SetTexture(FriendGroups_GetFactionIcon(rowFaction))
 					button.facIcon:Show()
 				else
 					if button.facIcon then
@@ -523,9 +531,9 @@ RenderFriendButton = function(button, elementData)
 
 				-- Faction row tint -- its own toggle, independent of the faction icon.
 				if FriendGroups_SavedVars.show_faction_color ~= false then
-					if accountInfo.gameAccountInfo.factionName == "Horde" then
+					if rowFaction == "Horde" then
 						button.background:SetColorTexture(0.7, 0.2, 0.2, 0.2)
-					elseif accountInfo.gameAccountInfo.factionName == "Alliance" then
+					elseif rowFaction == "Alliance" then
 						button.background:SetColorTexture(0.2, 0.2, 0.7, 0.2)
 					end
 				end

@@ -1,6 +1,6 @@
 ## Dependencies: Ace3
 ## Interface: 20506
-## Version: 13.0.9
+## Version: 13.1.1
 ## Title: FriendGroups
 ## Notes:|cfffe7b2cFriendGroups - Custom folders, known alt tracking, auto guild groups, smart search, mass invites, and rich realm/class info|r
 ## Author: Osiris the Kiwi / Discord: osirisnz / Original authors: mkp_tv / Hayato2846 / Thainii
@@ -22,8 +22,6 @@
 ## Category-zhTW: 對話
 
 # Libraries (load before any addon file that uses them)
-Libs\LibStub\LibStub.lua
-Libs\LibDeflate\LibDeflate.lua
 
 Compat.lua
 locales\localizations.xml

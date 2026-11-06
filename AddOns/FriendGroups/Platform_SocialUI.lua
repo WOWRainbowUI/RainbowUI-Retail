@@ -47,10 +47,9 @@ local addonName, addonTable = ...
 local Compat = addonTable.Compat
 local L = addonTable.L
 
--- Blizzard_SocialUI and Blizzard_SocialUIShared are both "AllowLoadGameType: mainline",
--- so the Social UI cannot exist on any Classic flavor. Classic keeps the HybridScroll
+-- The Social UI ships on retail and Forever only. Classic keeps the HybridScroll
 -- renderer in Platform_Render.lua and never loads any of this.
-if not Compat.IS_MAINLINE then return end
+if not Compat.IS_RETAIL_UI then return end
 
 -- Shared state exposed by FriendGroups.lua. That file loads AFTER this one, so
 -- capturing addonTable.State now would pin nil; it is bound lazily at first render,
@@ -68,8 +67,7 @@ local FG_CallbackOwner = {}
 local hooksInstalled = false
 local cardHookInstalled = false
 
--- Set only when the row-height override has actually been ACCEPTED, which is not the same as
--- "we tried once". See FG_InstallCardHeightOverride and its retry in Compat.RenderSocialUIList.
+-- Set only once FG_InstallCardHeightOverride has been accepted, not merely tried.
 local cardHeightInstalled = false
 
 -- Diagnostic counters (see FriendGroups_GetSocialUIState). Cheap integers, incremented on
@@ -569,6 +567,26 @@ local function FG_ApplyHeaderDecoration(header, groupName, countText)
 	FG_InstallHeaderClickTakeover(header, groupName)
 end
 
+local function FG_ClearHeaderDecoration(header)
+	header.rawGroupName = nil
+	header.fgIsHeader = nil
+	if header.solidBannerTexture then header.solidBannerTexture:Hide() end
+	if header.fgCountText then header.fgCountText:Hide() end
+	Compat.DetachHeaderDrag(header)
+end
+
+-- Headers are pooled: Blizzard's Initialize rewrites only the title, so a scrolled-in header
+-- kept the last group's banner, count and rawGroupName (clicks hit that group) until a rebuild.
+local function FG_OnHeaderInitialize(header, node)
+	header.fgHeaderInitHooked = true
+	local data = node and type(node.GetData) == "function" and node:GetData()
+	if type(data) == "table" and data.groupName then
+		FG_ApplyHeaderDecoration(header, data.groupName, data.headerCount)
+	elseif header.fgIsHeader then
+		FG_ClearHeaderDecoration(header)
+	end
+end
+
 local function FG_ApplyToVisibleCards(view)
 	local scrollBox = view and view.ScrollBox
 	if not scrollBox or type(scrollBox.ForEachFrame) ~= "function" then return end
@@ -579,6 +597,11 @@ local function FG_ApplyToVisibleCards(view)
 		-- Headers carry ButtonText and no FriendName; spacers carry neither. The element
 		-- data is a tree NODE here, not a bare table, so it is unwrapped before reading.
 		if frame.ButtonText and not frame.FriendName then
+			-- Headers built before the mixin hook in InitSocialUI need their own.
+			if not frame.fgHeaderInitHooked and type(frame.Initialize) == "function" then
+				hooksecurefunc(frame, "Initialize", FG_OnHeaderInitialize)
+				frame.fgHeaderInitHooked = true
+			end
 			local data = frame.GetElementData and frame:GetElementData()
 			if data and type(data.GetData) == "function" then data = data:GetData() end
 			if data and data.groupName then
@@ -743,12 +766,92 @@ end
 --                                      .accountInfo unconditionally, so a legacy friend
 --                                      has no valid card representation.
 -- ============================================================================
+-- True while a row's context menu is open or a mouse button is held over the list.
+-- A rebuild then would release the row under the click and close or swallow its menu.
+local function FG_RowInteractionActive(view)
+	local manager = Menu and type(Menu.GetManager) == "function" and Menu.GetManager()
+	local menu = manager and manager:GetOpenMenu()
+	local owner = menu and type(menu.GetOwnerRegion) == "function" and menu:GetOwnerRegion()
+	for _ = 1, 6 do
+		if not owner then break end
+		if owner == view.ScrollBox then return true end
+		owner = type(owner.GetParent) == "function" and owner:GetParent() or nil
+	end
+	return (IsMouseButtonDown("LeftButton") or IsMouseButtonDown("RightButton"))
+		and view.ScrollBox:IsMouseOver()
+end
+
+local FG_DeferredLayout
+
+-- [[ SCROLL MEMORY ]] Blizzard's own list, swapped in on every BN_FRIEND_INFO_CHANGED, is
+-- shorter than ours and its layout clamps the offset; ours kept the clamp, so the list jumped
+-- up near the bottom. Why: Desktop\Claude\FriendGroups\FriendGroups-socialui-scroll.md.
+local FG_ScrollMemory = { offset = nil, atEnd = false }
+local FG_InstallingProvider = false
+
+-- Every user scroll (wheel, bar, ScrollTo*) passes SetScrollPercentage. So does the scrollbar's
+-- echo of each layout, which during our own install would record the clamp: skipped there.
+local function FG_RememberScroll(scrollBox, scrollPercentage)
+	if FG_InstallingProvider then return end
+	if not FG_SocialProvider or scrollBox:GetDataProvider() ~= FG_SocialProvider then return end
+	if type(scrollPercentage) ~= "number" then return end
+	local pct = math.min(math.max(scrollPercentage, 0), 1)
+	FG_ScrollMemory.atEnd = pct >= 0.999
+	FG_ScrollMemory.offset = scrollBox:GetDerivedScrollRange() * pct
+end
+
+local function FG_InstallScrollMemory(scrollBox)
+	if scrollBox.fgScrollMemoryHooked or type(scrollBox.SetScrollPercentage) ~= "function" then return end
+	scrollBox.fgScrollMemoryHooked = true
+	hooksecurefunc(scrollBox, "SetScrollPercentage", FG_RememberScroll)
+end
+
+local function FG_RestoreScroll(scrollBox)
+	local offset = FG_ScrollMemory.offset
+	if not offset then return end
+	local noLerp = ScrollBoxConstants.NoScrollInterpolation
+	if FG_ScrollMemory.atEnd then
+		if not scrollBox:IsAtEnd() then scrollBox:ScrollToEnd(noLerp) end
+	elseif math.abs(scrollBox:GetDerivedScrollOffset() - offset) >= 1 then
+		scrollBox:ScrollToOffset(offset, noLerp)
+	end
+end
+
+-- The only way FriendGroups puts its list in, so the echo guard and the restore are never missed.
+local function FG_SetOurProvider(scrollBox, provider)
+	FG_InstallingProvider = true
+	scrollBox:SetDataProvider(provider, ScrollBoxConstants.RetainScrollPosition)
+	FG_InstallingProvider = false
+	FG_RestoreScroll(scrollBox)
+end
+
 function Compat.RenderSocialUIList(layout)
 	State = State or addonTable.State
 
 	local view = Compat.GetSocialUIFriendsView()
 	if not view or not view.ScrollBox then return end
 	if type(layout) ~= "table" then return end
+
+	-- Held, not dropped: the newest layout runs as soon as the click or menu is done.
+	if FG_RowInteractionActive(view) then
+		local alreadyWaiting = FG_DeferredLayout ~= nil
+		FG_DeferredLayout = layout
+		if not alreadyWaiting then
+			local function retry()
+				local current = Compat.GetSocialUIFriendsView()
+				if current and FG_RowInteractionActive(current) then
+					C_Timer.After(0.2, retry)
+					return
+				end
+				local pending = FG_DeferredLayout
+				FG_DeferredLayout = nil
+				if pending then Compat.RenderSocialUIList(pending) end
+			end
+			C_Timer.After(0.2, retry)
+		end
+		return
+	end
+	FG_DeferredLayout = nil
 
 	-- Presence guards for the two shared-XML symbols this path depends on. Both ship
 	-- with the ScrollBox system the Social UI itself is built on, so a client that
@@ -758,16 +861,7 @@ function Compat.RenderSocialUIList(layout)
 	if type(ScrollBoxConstants) ~= "table" or ScrollBoxConstants.RetainScrollPosition == nil then return end
 	if type(TreeDataProviderMixin) ~= "table" or type(TreeDataProviderMixin.Event) ~= "table" then return end
 
-	-- [[ ROW HEIGHT, RETRIED ]]
-	-- Compat.InitSocialUI attempts this first, but it runs on PLAYER_ENTERING_WORLD, and the
-	-- view's TemplateRegistrations table may not exist that early. By the time a rebuild
-	-- reaches here the view has definitely rendered at least once, so the registration is
-	-- present -- this is the pass that cannot be too early.
-	--
-	-- Gated on ACCEPTANCE rather than on having tried, so a failed attempt is retried on the
-	-- next rebuild instead of being remembered as done. Re-installing is idempotent (it
-	-- assigns the same function to the same field), so the cost of the extra check is one
-	-- boolean read per rebuild once it has taken.
+	-- Retried until accepted: InitSocialUI's attempt can precede the view's first render.
 	if not cardHeightInstalled then
 		cardHeightInstalled = FG_InstallCardHeightOverride(view)
 	end
@@ -808,7 +902,7 @@ function Compat.RenderSocialUIList(layout)
 			-- through the layout, matching what Blizzard's own generator does on every
 			-- refresh. element.id is the Battle.net friend index, the same value
 			-- C_BattleNet.GetFriendAccountInfo takes.
-			local accountInfo = allowed and C_BattleNet.GetFriendAccountInfo(element.id) or nil
+			local accountInfo = allowed and Compat.GetFriendAccountInfo(element.id) or nil
 			if accountInfo then
 				-- [[ NOTE DSL CONTAINMENT ]]
 				-- Blizzard's card tooltip prints accountInfo.note verbatim, which would put
@@ -937,8 +1031,9 @@ function Compat.RenderSocialUIList(layout)
 	-- the build seeds each node from it. An OnSizeChanged callback writing node state back
 	-- into the same variable would make two writers for one fact, and the click handler's
 	-- "Auto Collapse Groups" pass could be undone by whichever fired last.
+	FG_InstallScrollMemory(view.ScrollBox)
 	FG_SocialProvider = provider
-	view.ScrollBox:SetDataProvider(provider, ScrollBoxConstants.RetainScrollPosition)
+	FG_SetOurProvider(view.ScrollBox, provider)
 
 	-- Blizzard's element factory has just initialised the visible cards with its own text.
 	-- Apply the FriendGroups display settings over the top, and hook each frame so a
@@ -960,10 +1055,8 @@ function Compat.RenderSocialUIList(layout)
 		skin.SkinSocialWidgets(view)
 	end
 
-	-- Retried here as well as at init. The dropdown's own OnLoad has to have run for
-	-- menuGenerator to exist, and if it had not by the time InitSocialUI fired there would
-	-- otherwise be no second attempt for the rest of the session. Guarded by a flag on the
-	-- dropdown, so the repeat costs one field read.
+	-- Retried here as well as at init, in case the view was not built yet; a local flag
+	-- makes the repeat free.
 	FG_HookFilterDropdown(view)
 end
 
@@ -990,7 +1083,7 @@ function Compat.ReassertSocialUIProvider()
 	if type(ScrollBoxConstants) ~= "table" or ScrollBoxConstants.RetainScrollPosition == nil then return end
 	if view.ScrollBox:GetDataProvider() == FG_SocialProvider then return end
 
-	view.ScrollBox:SetDataProvider(FG_SocialProvider, ScrollBoxConstants.RetainScrollPosition)
+	FG_SetOurProvider(view.ScrollBox, FG_SocialProvider)
 
 	-- The swap re-initialises the visible cards from Blizzard's factory, wiping our text.
 	FG_ApplyToVisibleCards(view)
@@ -1099,9 +1192,7 @@ local function FG_FontScaleStep()
 	return FG_FONT_SCALE_STEPS[n] or FG_FONT_SCALE_STEPS[2]
 end
 
--- Row height. Uniform across the list, exactly as Blizzard's own GetActiveBaseHeight is:
--- the extent previewer asks once per cache fill and has no row to inspect, so the note line
--- is budgeted whenever the setting is on rather than per friend.
+-- Row height, uniform across the list; the note line is budgeted whenever the setting is on.
 local function FG_GetCardBaseHeight()
 	local step = FG_FontScaleStep()
 	if type(FriendGroups_SavedVars) == "table" and FriendGroups_SavedVars.show_note then
@@ -1110,31 +1201,40 @@ local function FG_GetCardBaseHeight()
 	return step.compactHeight
 end
 
--- Drop the cached template extents so the next layout re-derives the row height through
--- FG_GetCardBaseHeight. Raised by FriendGroups_SetFontScale, which then forces the rebuild.
-function Compat.OnFontScaleChanged()
-	local view = Compat.GetSocialUIFriendsView()
-	if view and type(view.ClearTemplateExtentCache) == "function" then
-		view:ClearTemplateExtentCache()
+-- Scaled exactly as Blizzard's CalculateTemplateExtent scales a card's base height.
+local function FG_ScaledCardHeight(view)
+	local base = FG_GetCardBaseHeight()
+	local registration = view.TemplateRegistrations["FriendsListSocialCardTemplate"]
+	if type(TextSizeManager) ~= "table" then return base end
+	if registration and registration.useScaleWeightForHeight then
+		return TextSizeManager:GetScaledValueWeighted(base, registration)
 	end
+	return TextSizeManager:GetScaledValue(base)
 end
 
--- Height is taken WITHOUT owning the ScrollBox view. GetTemplateExtent always recalculates
--- a cleared cache from TemplateRegistrations, so replacing the card template's
--- baseHeightCalculator is permanent: Blizzard's own ClearTemplateExtentCache on every
--- Refresh and OnShow re-derives through our function. That avoids re-initialising the view,
--- which would also mean taking over the element factory, the extent calculator and the
--- selection behaviour -- an all-or-nothing change that fails to a blank list.
+-- Our own extent calculator; never write TemplateRegistrations or fill TemplateExtentCache.
+-- Refresh wipes that cache just before the protected SearchFriends, and wiping entries our
+-- code computed got it forbidden on Forever. Headers and spacers use Blizzard's uncached math.
+local FG_ExtentScrollView
 FG_InstallCardHeightOverride = function(view)
-	if not view or type(view.TemplateRegistrations) ~= "table" then return false end
-
-	local registration = view.TemplateRegistrations["FriendsListSocialCardTemplate"]
-	if type(registration) ~= "table" then return false end
-
-	registration.baseHeightCalculator = FG_GetCardBaseHeight
-	if type(view.ClearTemplateExtentCache) == "function" then
-		view:ClearTemplateExtentCache()
+	local scrollBox = view and view.ScrollBox
+	local scrollView = scrollBox and type(scrollBox.GetView) == "function" and scrollBox:GetView()
+	if not scrollView or type(scrollView.SetElementExtentCalculator) ~= "function" then return false end
+	if type(view.CalculateTemplateExtent) ~= "function" or type(view.TemplateRegistrations) ~= "table" then
+		return false
 	end
+	if FG_ExtentScrollView == scrollView then return true end
+	FG_ExtentScrollView = scrollView
+
+	scrollView:SetElementExtentCalculator(function(_, node)
+		local data = node and type(node.GetData) == "function" and node:GetData()
+		if data and data.isSpacer then
+			return view:CalculateTemplateExtent("SocialUIScrollableSpacerTemplate")
+		elseif data and data.headerText ~= nil then
+			return view:CalculateTemplateExtent("SocialUIScrollableHeaderTemplate")
+		end
+		return FG_ScaledCardHeight(view)
+	end)
 	return true
 end
 
@@ -1199,10 +1299,8 @@ local function FG_UpdateClassIcon(card, class, iconSize, desaturated)
 		if coords then icon:SetTexCoord(coords[1], coords[2], coords[3], coords[4]) end
 	end
 
-	-- Greyed when the class describes the contact's SELECTED MAIN rather than the character
-	-- they are on right now, which is the only way an offline row gets an icon at all. Always
-	-- re-stated, never toggled only on: these textures are pooled, so a row recycled from an
-	-- offline contact onto a live one would otherwise keep the grey.
+	-- Greyed when the class is a guess (main or cached alt), not the live character. Always
+	-- re-stated: pooled rows would otherwise keep a previous friend's grey.
 	icon:SetDesaturated(desaturated and true or false)
 	icon:SetAlpha(desaturated and 0.6 or 1)
 	icon:Show()
@@ -1210,40 +1308,23 @@ local function FG_UpdateClassIcon(card, class, iconSize, desaturated)
 	return iconGutter
 end
 
--- ============================================================================
--- [[ ROW FONT SIZE, AND THE CJK TOFU BUG ]]
---
--- SetFont takes ONE file. Blizzard's font OBJECTS carry a fallback list, and GetFont reports
--- whichever file of that list the text currently in the string actually needs -- measured with
--- /fg font, on one object, on two rows:
---
---   洛特瑞      obj=UserScaledFontHeader  file=ARKai_T.ttf
---   [No Group]  obj=UserScaledFontHeader  file=FRIZQT__.TTF
---
--- The old code captured that file ONCE per pooled card and re-applied it forever. So each
--- card was permanently branded with whichever script it happened to draw first, and a CJK
--- name later recycled onto a card branded FRIZQT__ rendered as boxes. It looked stable
--- whenever the list fitted on screen (cards map 1:1 to rows and never get reused) and broke
--- the moment you scrolled -- which is exactly how it was finally reproduced.
---
--- So the file is now resolved PER SCRIPT rather than per card, and the cache is shared: the
--- first row of a given script to be measured teaches every card the file for that script.
---
--- SIZE is still cached per card, and must be: it is the one value that cannot be re-read
--- safely. Reading a size back after our own SetFont returns the SHRUNK size, and feeding
--- that in again compounds the reduction until the text disappears -- the original bug this
--- function was written to fix.
--- ============================================================================
+-- [[ ROW FONT SIZE ]] SetFont pins ONE file; a font object picks the file per script, |K
+-- names included. So each pass asks the object, on a hidden string, which file this text
+-- needs. Why: Desktop\Claude\FriendGroups\FriendGroups-row-font-files.md.
+local FG_FontResolver
 
--- [fontObjectName/script] = the file Blizzard's object resolved to for that script. Shared
--- across every card deliberately; per-card was the bug.
-local FG_ScriptFontFile = {}
-
--- Only two classes matter here: text that a Latin file can draw, and text that needs the
--- locale's wide-glyph file. Any byte >= 128 means the latter.
-local function FG_TextScript(text)
-	if type(text) == "string" and text:find("[\128-\255]") then return "wide" end
-	return "ascii"
+local function FG_ResolveFontFile(object, text)
+	if not object then return nil end
+	if not FG_FontResolver then
+		local holder = CreateFrame("Frame")
+		holder:Hide()
+		FG_FontResolver = holder:CreateFontString(nil, "OVERLAY")
+	end
+	FG_FontResolver:SetFontObject(object)
+	FG_FontResolver:SetText(text or "")
+	local path = FG_FontResolver:GetFont()
+	FG_FontResolver:SetText("")
+	return path
 end
 
 local function FG_ShrinkFont(card, fontString, key)
@@ -1252,11 +1333,9 @@ local function FG_ShrinkFont(card, fontString, key)
 	card.fgBaseFont = card.fgBaseFont or {}
 	local base = card.fgBaseFont[key]
 
+	-- Captured on the first pass, before any SetFont of ours: re-reading the size later
+	-- returns the shrunk value and compounds. The object survives our SetFont.
 	if not base then
-		-- First pass for this region is the one moment nothing of ours has been applied, so
-		-- both the size and the file are Blizzard's own. The OBJECT is kept as well: it
-		-- survives our SetFont (verified -- /fg font still reports the object on rows we have
-		-- already shrunk) and is the handle used to re-resolve the file below.
 		local path, size, flags = fontString:GetFont()
 		if not path or not size then return end
 		local object = (type(fontString.GetFontObject) == "function") and fontString:GetFontObject() or nil
@@ -1264,53 +1343,19 @@ local function FG_ShrinkFont(card, fontString, key)
 		card.fgBaseFont[key] = base
 	end
 
-	local objectName = (base.object and type(base.object.GetName) == "function" and base.object:GetName()) or "?"
-	local script = FG_TextScript(fontString:GetText())
-	local scriptKey = objectName .. "/" .. script
-
-	-- Hand the string back to its object, then read what the client resolves for the text
-	-- that is in it RIGHT NOW. That is the only moment the correct file for this script is
-	-- observable.
-	--
-	-- The colour is carried across by hand: SetFontObject re-applies the object's colour and
-	-- would otherwise discard the name tint applied further up this function.
-	if base.object then
-		local r, g, b, a = fontString:GetTextColor()
-		fontString:SetFontObject(base.object)
-		local resolvedPath, resolvedSize = fontString:GetFont()
-
-		-- Trusted ONLY when the size came back to pristine. That is the proof the restore
-		-- actually took -- an older comment in this file claimed an explicit SetFont wins over
-		-- a later SetFontObject, and rather than take either answer on faith the read is
-		-- validated before it is believed. A stale read reports our own shrunk size, and its
-		-- path would mean nothing.
-		if resolvedPath and resolvedSize and math.abs(resolvedSize - base.size) < 0.5 then
-			FG_ScriptFontFile[scriptKey] = resolvedPath
-		end
-		if r then fontString:SetTextColor(r, g, b, a) end
-	end
-
-	local path = FG_ScriptFontFile[scriptKey]
+	local path = FG_ResolveFontFile(base.object, fontString:GetText())
 	local flags = base.flags
 
-	-- The EllesmereUI colourise pass overrides the FAMILY only, and it is folded into this one
-	-- write rather than applied afterwards: this is the write that runs on every recycle, so a
-	-- second pass would simply be undone by the next one.
+	-- EllesmereUI's theme font replaces the family; folded into this write, which runs on every recycle.
 	local theme = FG_EUITheme()
 	if theme and theme.fontPath then
 		path = theme.fontPath
 		if theme.fontFlag ~= nil then flags = theme.fontFlag end
 	end
 
-	-- No file known for this script yet -- which can only happen if no row of it has ever been
-	-- measured pristine. Leave the string on its object rather than pinning a file that cannot
-	-- draw it: the row renders at Blizzard's size instead of the chosen one, which is a
-	-- cosmetic difference, where guessing would be a row of boxes.
+	-- No object to ask: stay on Blizzard's font at its own size rather than pin a guess.
 	if not path then return end
 
-	-- Derived from the captured baseline plus the user's scale, never from the current size,
-	-- so this stays idempotent no matter how many times the row is recycled. Floored at 6pt:
-	-- below that the text is unreadable, and SetFont rejects a size of zero outright.
 	local size = base.size + FG_FontScaleStep().fontDelta
 	if size < 6 then size = 6 end
 
@@ -1343,6 +1388,11 @@ local function FG_UpdateRightIcons(card, gameInfo, iconSize)
 	local showGameIcon = not (FriendGroups_SavedVars.show_game_icon == false)
 	if not showGameIcon then
 		gameIcon:Hide()
+	elseif gameIcon.Icon then
+		-- Same bundled logo as every other client's Forever row.
+		if gameInfo and Compat.IsForeverGame(gameInfo) then gameIcon.Icon:SetTexture(Compat.FOREVER_ICON) end
+		-- Blizzard fades other projects to 0.6; FriendGroups shows every game at full brightness.
+		gameIcon.Icon:SetAlpha(1)
 	end
 
 	if not card.fgFacIcon then
@@ -1355,7 +1405,11 @@ local function FG_UpdateRightIcons(card, gameInfo, iconSize)
 
 	local facPath = ""
 	if FriendGroups_SavedVars.show_faction_icons and gameInfo then
-		facPath = FriendGroups_GetFactionIcon(gameInfo.factionName) or ""
+		local faction = gameInfo.factionName
+		if (not faction or faction == "") and Compat.IsForeverGame(gameInfo) then
+			faction = FriendGroups_ForeverFaction(card.elementData and card.elementData.accountInfo)
+		end
+		facPath = FriendGroups_GetFactionIcon(faction) or ""
 	end
 	local facShown = (facPath ~= "")
 	if facShown then
@@ -1372,7 +1426,8 @@ local function FG_UpdateRightIcons(card, gameInfo, iconSize)
 
 	local flagPath
 	if FriendGroups_SavedVars.show_flags and gameInfo then
-		flagPath = FriendGroups_GetRealmInfo(gameInfo)
+		local accountInfo = card.elementData and card.elementData.accountInfo
+		flagPath = FriendGroups_GetRealmInfo(gameInfo, FriendGroups_AccountIdentifier(accountInfo))
 	end
 	local flagShown = (type(flagPath) == "string" and flagPath ~= "")
 	if flagShown then
@@ -1426,6 +1481,7 @@ FG_ApplySocialCardContent = function(card)
 
 	local gameInfo = accountInfo.gameAccountInfo
 	local client, characterName, class, level, realmName
+	local classIsMain = false
 
 	if gameInfo then
 		client = gameInfo.clientProgram
@@ -1438,19 +1494,13 @@ FG_ApplySocialCardContent = function(card)
 		-- keeps its own cache so class colour and the class icon survive. Same recovery the
 		-- retail row renderer performs before building its name text.
 		if gameInfo.isOnline and (not class or class == "") and client == BNET_CLIENT_WOW then
-			class = FriendGroups_LookupAccountClass(accountInfo, characterName, realmName)
+			class, classIsMain = FriendGroups_LookupAccountClass(accountInfo, characterName, realmName)
+			classIsMain = classIsMain and true or false
 		end
 
 	end
 
-	-- [[ OFFLINE: FALL BACK TO THE SELECTED MAIN ]]
-	-- An offline contact has no live class, so their icon column sat empty. When the user has
-	-- nominated a main for them, that character's class fills it -- drawn desaturated, because
-	-- it describes who they are rather than who they are playing.
-	--
-	-- Strictly a fallback: `class` above always wins, so a live session is never overridden,
-	-- and the flag is what keeps a real class icon from being greyed by mistake.
-	local classIsMain = false
+	-- Offline: the selected main's class, greyed. Never overrides a class found above.
 	if (not class or class == "") and type(FriendGroups_LookupMainClass) == "function" then
 		local accountIdentifier = FriendGroups_AccountIdentifier(accountInfo)
 		local mainClass = accountIdentifier and FriendGroups_LookupMainClass(accountIdentifier)
@@ -1560,18 +1610,25 @@ FG_ApplySocialCardContent = function(card)
 	card.Level:SetText("")
 	card.Class:SetText("")
 
-	-- [[ SECOND LINE ]] retail builds location first, then APPENDS the note after two
-	-- spaces -- they are shown together, not one or the other:
-	--     "Maisara Caverns - Mok'Nathal  #VVIP"
-	-- FriendGroups_GetOnlineInfoText is retail's own builder and handles mobile,
-	-- Recruit-a-Friend wording, and the " - Realm" suffix under show_realm. That is where
-	-- the realm belongs; putting it inside the name brackets overran the single-line name
-	-- field and truncated it.
+	-- [[ SECOND LINE ]] location, then the note after two spaces ("Zone - Realm  #VVIP").
+	-- Cross-project friends have no areaName; like the legacy row, they show Blizzard's
+	-- rich presence instead of "Unknown".
 	local secondLine = ""
 	if gameInfo and gameInfo.isOnline then
-		secondLine = FriendGroups_GetOnlineInfoText(
-			client, gameInfo.isWowMobile, accountInfo.rafLinkType,
-			gameInfo.areaName, realmName) or ""
+		if Compat.IsForeverGame(gameInfo) then
+			-- Same "Zone - Forever Normal" line on every client.
+			secondLine = FriendGroups_GetOnlineInfoText(
+				client, gameInfo.isWowMobile, accountInfo.rafLinkType,
+				Compat.ForeverLocation(gameInfo, FriendGroups_SavedVars.show_realm)) or ""
+		elseif FriendGroups_ShowRichPresenceOnly(client, gameInfo.wowProjectID, gameInfo.factionName,
+			gameInfo.realmID, gameInfo.areaName) then
+			secondLine = FriendGroups_GetOnlineInfoText(
+				client, gameInfo.isWowMobile, accountInfo.rafLinkType, gameInfo.richPresence) or ""
+		else
+			secondLine = FriendGroups_GetOnlineInfoText(
+				client, gameInfo.isWowMobile, accountInfo.rafLinkType,
+				gameInfo.areaName, realmName) or ""
+		end
 	end
 
 	-- show_note defaults ON, so the test is ~= false to match retail's own condition.
@@ -1756,6 +1813,9 @@ FG_ApplySocialCardContent = function(card)
 	local tinted = false
 	if gameInfo and FriendGroups_SavedVars.show_faction_color ~= false and card.Background then
 		local faction = gameInfo.factionName
+		if (not faction or faction == "") and Compat.IsForeverGame(gameInfo) then
+			faction = FriendGroups_ForeverFaction(accountInfo)
+		end
 		if faction == "Horde" then
 			card.Background:SetColorTexture(0.7, 0.2, 0.2, 0.2)
 			tinted = true
@@ -1831,45 +1891,16 @@ end
 
 -- ============================================================================
 -- [[ GROUPS SUBMENU ]]
--- Blizzard's Filter dropdown offers exactly two extension points, matched by literal
--- method name. From SocialUISharedTemplates.lua:
---
---   function SocialUIOnlineSearchFilterDropdownMixin:OnLoad()
---       ...
---       self:SetupMenu(function(dropdown, rootDescription)
---           local socialView = self:GetSocialView();
---           if socialView then
---               if socialView.SetupStatusFilterDropdown then ... end
---               if socialView.SetupTagsFilterDropdown then ... end
---           end
---       end);
---   end
---
--- Defining a third method on the view therefore does nothing -- the generator would have
--- to name it. There is also no menu tag on this dropdown, so Menu.ModifyMenu cannot reach
--- it either. Re-issuing SetupMenu with a wrapper is the only route.
---
--- Blizzard's generator is CHAINED, not reproduced: DropdownButtonMixin:SetupMenu stores
--- the closure on self.menuGenerator, so the original is captured and called first. Status
--- and Tags therefore stay exactly Blizzard's, including any submenu added in a later
--- patch, and only the append is ours.
---
--- Installed once. SetupMenu asserts its argument is a function and regenerates if the
--- dropdown is shown, so re-wrapping on every refresh would nest the wrappers.
+-- Post-hook only. Replacing the dropdown's menuGenerator ran Blizzard's filter code tainted,
+-- which taints view.selectedSearchFilterOptions and gets SearchFriends forbidden on the next
+-- refresh (Forever, 2026-11-05). See FriendGroups-Forever-Port-Plan.md.
+local FG_FilterMenuHooked = false
 FG_HookFilterDropdown = function(view)
-	local filterBar = view and view.FilterBar
-	local dropdown = filterBar and filterBar.SearchFilterDropdown
-	if not dropdown or dropdown.fgGroupsMenuHooked then return false end
-	if type(dropdown.SetupMenu) ~= "function" then return false end
+	if FG_FilterMenuHooked then return false end
+	if not view or type(view.GenerateSearchFilterMenu) ~= "function" then return false end
+	FG_FilterMenuHooked = true
 
-	local blizzardGenerator = dropdown.menuGenerator
-	if type(blizzardGenerator) ~= "function" then return false end
-
-	dropdown.fgGroupsMenuHooked = true
-
-	dropdown:SetupMenu(function(ownerDropdown, rootDescription)
-		blizzardGenerator(ownerDropdown, rootDescription)
-
+	hooksecurefunc(view, "GenerateSearchFilterMenu", function(_, rootDescription)
 		if not Compat.IsSocialUIActive() then return end
 		if #FG_LastGroupOrder == 0 then return end
 		if type(rootDescription) ~= "table" or type(rootDescription.CreateButton) ~= "function" then return end
@@ -1924,8 +1955,13 @@ end
 -- table would not affect a frame that already exists -- and SocialUIFrame builds its
 -- content frames during its own OnLoad, long before this runs.
 -- ============================================================================
-local function FG_OnNativeRefresh()
+local function FG_OnNativeRefresh(_, retainScrollPosition)
 	if not Compat.IsSocialUIActive() then return end
+
+	-- OnShow and BN_DISCONNECTED discard on purpose: the list opens at the top.
+	if not retainScrollPosition then
+		FG_ScrollMemory.offset, FG_ScrollMemory.atEnd = nil, false
+	end
 
 	State = State or addonTable.State
 
@@ -2037,17 +2073,8 @@ function Compat.InitSocialUI()
 		end
 	end
 
-	-- [[ RETAIL ROW DENSITY ]]
-	-- The registration this replaces outlives every cache clear, so once accepted the height
-	-- survives Refresh, OnShow and text-scale changes -- but ACCEPTANCE is not guaranteed
-	-- here, and the result has to be recorded rather than assumed.
-	--
-	-- view.TemplateRegistrations is not populated until the view's ScrollBox first initialises
-	-- its templates, which can happen well after PLAYER_ENTERING_WORLD. This function runs on
-	-- that event, and hooksInstalled is already true by the time we reach this line -- so a
-	-- miss here used to be permanent for the session, and every row stayed at Blizzard's
-	-- 70px card with all four icons scaled to match and the name squeezed to an ellipsis.
-	-- That is a login-timing race, so it appears at random and never in a fresh test.
+	-- Recorded, not assumed: a miss here (view not built yet) is retried on the next rebuild,
+	-- otherwise rows stay at Blizzard's 70px card for the session.
 	cardHeightInstalled = FG_InstallCardHeightOverride(view)
 
 	-- Drive Blizzard's own search field instead of adding a second one.
@@ -2083,6 +2110,13 @@ function Compat.InitSocialUI()
 		and type(FriendsListSocialCardMixin.InitializeDisplay) == "function" then
 		hooksecurefunc(FriendsListSocialCardMixin, "InitializeDisplay", FG_ApplySocialCardContent)
 		cardHookInstalled = true
+	end
+
+	-- Same for group headers, created after this point. Other Social UI lists share the
+	-- template; their nodes carry no groupName, so the handler leaves them alone.
+	if type(SocialUIScrollableHeaderMixin) == "table"
+		and type(SocialUIScrollableHeaderMixin.Initialize) == "function" then
+		hooksecurefunc(SocialUIScrollableHeaderMixin, "Initialize", FG_OnHeaderInitialize)
 	end
 end
 

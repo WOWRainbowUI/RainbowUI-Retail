@@ -27,12 +27,20 @@ addonTable.Compat = Compat
 
 -- ============================================================================
 -- [[ FLAVOR IDENTITY ]]
--- WOW_PROJECT_ID and WOW_PROJECT_MAINLINE are documented globals present on
--- every flavor. IS_MAINLINE is the single source of truth for "this is retail".
+-- IS_MAINLINE is the retail PROJECT (what a friend's wowProjectID is compared with).
+-- IS_RETAIL_UI is retail's FrameXML, which Forever (project 18, Camelot) also runs:
+-- gate UI paths on IS_RETAIL_UI, never on IS_MAINLINE, or Forever falls into Classic code.
 -- ============================================================================
-Compat.PROJECT_ID  = WOW_PROJECT_ID
-Compat.IS_MAINLINE = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE)
-Compat.IS_CLASSIC  = not Compat.IS_MAINLINE
+Compat.PROJECT_ID   = WOW_PROJECT_ID
+Compat.IS_MAINLINE  = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE)
+Compat.IS_FOREVER   = (WOW_PROJECT_CAMELOT ~= nil and WOW_PROJECT_ID == WOW_PROJECT_CAMELOT)
+Compat.IS_RETAIL_UI = Compat.IS_MAINLINE or Compat.IS_FOREVER
+Compat.IS_CLASSIC   = not Compat.IS_RETAIL_UI
+
+-- Forever's project id, readable on every flavor (Classic clients lack the global).
+Compat.FOREVER_PROJECT = WOW_PROJECT_CAMELOT or 18
+-- Realm value stored on Forever alts. Never rename: it is part of every Forever alt key.
+Compat.FOREVER_REALM = "Forever"
 
 -- ============================================================================
 -- [[ FEATURE DETECTION ]]
@@ -65,7 +73,7 @@ Compat.HAS_MENU_API = (Menu ~= nil and type(Menu.ModifyMenu) == "function")
 -- that passes through a Classic character must carry a retail user's width choice back
 -- out intact. They are simply never CONSUMED where this is false -- see
 -- FriendGroups_GetExtraWidth / FriendGroups_IsWideList in FriendGroups.lua.
-Compat.CAN_RESIZE_WIDTH = Compat.IS_MAINLINE
+Compat.CAN_RESIZE_WIDTH = Compat.IS_RETAIL_UI
 
 -- The addon list under the minimap. Not every Classic client has it; LibDBIcon gates the same way.
 Compat.HAS_COMPARTMENT = (AddonCompartmentFrame ~= nil)
@@ -92,7 +100,7 @@ Compat.HAS_COMPARTMENT = (AddonCompartmentFrame ~= nil)
 -- per tab via CreateFrame("Frame", nil, socialUIFrame, template) and reaches it by
 -- parentKey. There is no global to probe, so the reference is taken off SocialUIFrame.
 function Compat.IsSocialUIActive()
-	if not Compat.IS_MAINLINE then return false end
+	if not Compat.IS_RETAIL_UI then return false end
 	if type(SocialUIControl) ~= "table" or type(SocialUIControl.IsEnabled) ~= "function" then
 		return false
 	end
@@ -487,32 +495,11 @@ function Compat.RegisterEvents(frame, events)
 end
 
 -- ============================================================================
--- [[ C_BattleNet.SearchFriends -- THE ONE CALL THAT CAN BE FORBIDDEN ]]
--- SearchFriends is the only Blizzard API this addon asks about names it cannot read
--- itself: on 12.1 accountName is a |K escape the client resolves at draw time, and this
--- call resolves it server-side. Two call sites use it -- the search matcher's name set
--- (FriendGroups.lua) and the native Filter checkboxes (Platform_SocialUI.lua).
---
--- On a live 12.1 client with the Social UI switched off it is PROTECTED, and calling it
--- from addon code raises ADDON_ACTION_FORBIDDEN attributed to FriendGroups.
---
--- [[ WHY THE EXISTING pcall WAS NOT ENOUGH ]]
--- ADDON_ACTION_FORBIDDEN is an EVENT the client fires from C, synchronously, from inside
--- the blocked call. pcall catches Lua errors; it cannot intercept an event. The report
--- proved it -- BugGrabber's handler appeared ABOVE `[C]: in function 'pcall'` in the
--- traceback, because its OnEvent ran nested inside our own pcall frame. So the call
--- returned quietly, the addon carried on, and the user collected one error per rebuild
--- for as long as the search box had text in it.
---
--- The fix is to notice the event and stop calling. The in-flight flag is what makes the
--- attribution exact: ADDON_ACTION_FORBIDDEN names the addon but not the function, so
--- latching on the event alone would blame this call for any other blocked action of ours.
---
--- Session-scoped, not persisted. Protection is a property of the client build, and a
--- reload is cheap; a saved latch would need invalidating on patch day and would hide the
--- day Blizzard unprotects it.
+-- [[ C_BattleNet.SearchFriends ]] Protected on live 12.1 and on Forever; pcall cannot stop
+-- ADDON_ACTION_FORBIDDEN, so the event latches it off. Forever starts latched: it blocks the
+-- very first call. Why: Desktop\Claude\FriendGroups\FriendGroups-Forever-Port-Plan.md s9.2.
 -- ============================================================================
-local searchFriendsForbidden = false
+local searchFriendsForbidden = Compat.IS_FOREVER == true
 local searchFriendsInFlight = false
 
 local searchFriendsWatcher = CreateFrame("Frame")
@@ -556,6 +543,175 @@ local function FG_Plain(v)
 	return v
 end
 
+-- [[ FOREVER RULESETS ]] Forever is realmless: each ruleset per region is one megaserver of
+-- hidden shards named "CAMWOW <US1|US2|AU1|EU..> Realm <n> <PVE|PVP|RP|RPPVP>". Players see the ruleset.
+local FOREVER_RULESET_CODES = {
+	PVE = "NORMAL", NORMAL = "NORMAL", PVP = "PVP", RP = "RP", RPPVP = "RPPVP", RPVP = "RPPVP",
+}
+
+local FOREVER_REGIONS = {
+	AU = { icon = "FlagAU.tga", region = "Oceania", forever = true },
+	CN = { icon = "FlagCN.tga", region = "China", forever = true },
+	EU = { icon = "FlagGB.tga", region = "EU", forever = true },
+	KR = { icon = "FlagKR.tga", region = "Korea", forever = true },
+	TW = { icon = "FlagTW.tga", region = "Taiwan", forever = true },
+	US = { icon = "FlagUS.tga", region = "US", forever = true },
+}
+
+-- Battle.net regionID to Forever region. Region 1 holds both US and AU shards, so it is absent.
+local FOREVER_REGION_BY_BNET = { [2] = "KR", [3] = "EU", [4] = "TW", [5] = "CN" }
+
+-- realmID -> { ruleset, region }. Retail gets a Forever friend's realmID but never its name.
+-- From /fgprobe realms on live Forever, 2026-11-05; data in FriendGroups-Forever-Port-Plan.md s11.
+local FOREVER_SHARDS = {
+	[6794] = { "NORMAL", "US" }, [6796] = { "NORMAL", "US" }, [6797] = { "NORMAL", "AU" },
+	[6798] = { "PVP", "US" },    [6800] = { "PVP", "US" },    [6801] = { "PVP", "AU" },
+	[6921] = { "NORMAL", "US" }, [6922] = { "PVP", "US" },    [6923] = { "NORMAL", "US" },
+	[6924] = { "PVP", "US" },    [6925] = { "NORMAL", "US" }, [6926] = { "PVP", "US" },
+	[6927] = { "RPPVP", "US" },  [6929] = { "NORMAL", "US" }, [6930] = { "PVP", "US" },
+	[6931] = { "NORMAL", "US" }, [6932] = { "PVP", "US" },    [6933] = { "NORMAL", "US" },
+	[6934] = { "PVP", "US" },    [6936] = { "RPPVP", "US" },  [7055] = { "RP", "US" },
+}
+
+-- Bundled 32 px Forever logo: Blizzard's own WoWF title icon is a blank silhouette on Forever.
+Compat.FOREVER_ICON = "Interface\\AddOns\\FriendGroups\\Textures\\forever"
+
+local function FG_Flat(s)
+	return (s:gsub("[%s%p]", "")):upper()
+end
+
+-- Shard name to ruleset code and region ("US"/"AU"/"EU"), or nil when not a Forever shard.
+function Compat.ParseForeverShard(realm)
+	realm = FG_Plain(realm)
+	if type(realm) ~= "string" or realm == "" then return nil end
+	local region, kind = FG_Flat(realm):match("^CAMWOW(%a%a)%d*REALM%d+(%a+)$")
+	if not region then return nil end
+	return FOREVER_RULESET_CODES[kind] or kind, region
+end
+
+-- A ruleset word as Blizzard or our locale prints it ("PvP", "JcJ") to its code; other
+-- words are returned unchanged so they still display.
+function Compat.ForeverRulesetCode(word)
+	word = FG_Plain(word)
+	if type(word) ~= "string" or word == "" then return nil end
+	local flat = FG_Flat(word)
+	if FOREVER_RULESET_CODES[flat] then return FOREVER_RULESET_CODES[flat] end
+	local L = addonTable.L
+	if L then
+		for _, code in ipairs({ "NORMAL", "PVP", "RP", "RPPVP" }) do
+			local label = rawget(L, "RULESET_" .. code)
+			if label and FG_Flat(label) == flat then return code end
+		end
+	end
+	return word
+end
+
+-- Retail rich presence for a Forever friend is "<Forever> - <ruleset> - <zone>".
+function Compat.ParseForeverPresence(richPresence)
+	richPresence = FG_Plain(richPresence)
+	if type(richPresence) ~= "string" then return nil end
+	local ruleset, zone = richPresence:match("^.-%s%-%s(.-)%s%-%s(.+)$")
+	if not ruleset then ruleset = richPresence:match("^.-%s%-%s(.+)$") end
+	if not ruleset then return nil end
+	return Compat.ForeverRulesetCode(ruleset), zone
+end
+
+function Compat.IsForeverGame(gameInfo)
+	if not gameInfo then return false end
+	-- Blizzard's own product marker; reduced sessions carry it with project 0.
+	if FG_Plain(gameInfo.subIcon) == "WoWF" then return true end
+	local pid = FG_Plain(gameInfo.wowProjectID)
+	if type(pid) == "number" and pid > 0 then return pid == Compat.FOREVER_PROJECT end
+	if Compat.ParseForeverShard(gameInfo.realmName) then return true end
+	-- Presence-reduced sessions carry only "Forever - <ruleset> - <zone>".
+	local presence = FG_Plain(gameInfo.richPresence)
+	local product = type(presence) == "string" and presence:match("^(.-)%s%-%s")
+	if not product then return false end
+	local L = addonTable.L
+	return product == Compat.FOREVER_REALM or (L ~= nil and product == rawget(L, "FOREVER"))
+end
+
+function Compat.ForeverRulesetLabel(code)
+	if type(code) ~= "string" or code == "" then return nil end
+	local L = addonTable.L
+	return (L and rawget(L, "RULESET_" .. code)) or code
+end
+
+-- Realm-database-shaped entry (icon/region) for a Forever region code, or nil.
+function Compat.ForeverRealmEntry(region)
+	return region and FOREVER_REGIONS[region] or nil
+end
+
+-- Ruleset code, region code and zone for a Forever session, from whichever source this
+-- client has: shard name (Forever), realmID table (retail), or rich presence (reduced).
+function Compat.ForeverInfo(gameInfo)
+	if not gameInfo then return nil end
+	local ruleset, region = Compat.ParseForeverShard(gameInfo.realmName)
+	if not ruleset then
+		local shard = FOREVER_SHARDS[FG_Plain(gameInfo.realmID)]
+		if shard then ruleset, region = shard[1], shard[2] end
+	end
+	region = region or FOREVER_REGION_BY_BNET[FG_Plain(gameInfo.regionID)]
+	local presenceRuleset, presenceZone = Compat.ParseForeverPresence(gameInfo.richPresence)
+	local zone = FG_Plain(gameInfo.areaName)
+	if type(zone) ~= "string" or zone == "" then zone = presenceZone end
+	return ruleset or presenceRuleset, region, zone
+end
+
+-- "Forever Normal", or "Forever" when the ruleset is unknown.
+function Compat.ForeverLabel(ruleset)
+	local L = addonTable.L
+	local label = (L and rawget(L, "FOREVER")) or Compat.FOREVER_REALM
+	local rulesetLabel = Compat.ForeverRulesetLabel(ruleset)
+	return rulesetLabel and (label .. " " .. rulesetLabel) or label
+end
+
+-- The row's location for a Forever friend on every client: "Zone - Forever Normal".
+function Compat.ForeverLocation(gameInfo, showRealm)
+	local ruleset, _, zone = Compat.ForeverInfo(gameInfo)
+	if not showRealm then return zone end
+	if not zone then return Compat.ForeverLabel(ruleset) end
+	return zone .. " - " .. Compat.ForeverLabel(ruleset)
+end
+
+-- What a realm name should read as: the ruleset for a Forever shard, else the name.
+function Compat.DisplayRealmName(realm)
+	local code = Compat.ParseForeverShard(realm)
+	if code then return Compat.ForeverRulesetLabel(code) end
+	return realm
+end
+
+-- [[ FRIEND ACCOUNT FETCH ]] A friend on two games at once reports one game account; prefer the
+-- one on our own client so the row, search and Blizzard's invite button describe one session.
+function Compat.GetFriendAccountInfo(friendIndex)
+	local accountInfo = C_BattleNet.GetFriendAccountInfo(friendIndex)
+	local current = accountInfo and accountInfo.gameAccountInfo
+	if not current or FG_Plain(current.wowProjectID) == WOW_PROJECT_ID then return accountInfo end
+	if type(C_BattleNet.GetFriendNumGameAccounts) ~= "function"
+		or type(C_BattleNet.GetFriendGameAccountInfo) ~= "function" then
+		return accountInfo
+	end
+	local count = C_BattleNet.GetFriendNumGameAccounts(friendIndex)
+	if type(count) ~= "number" or count < 2 then return accountInfo end
+	for i = 1, count do
+		local other = C_BattleNet.GetFriendGameAccountInfo(friendIndex, i)
+		if other and FG_Plain(other.isOnline) and FG_Plain(other.clientProgram) == (BNET_CLIENT_WOW or "WoW")
+			and FG_Plain(other.wowProjectID) == WOW_PROJECT_ID then
+			accountInfo.gameAccountInfo = other
+			break
+		end
+	end
+	return accountInfo
+end
+
+-- Blizzard's own switch for the Party Sync UI; Forever hard-codes it off.
+function Compat.IsPartySyncAvailable()
+	if type(QuestMapFrameUtils) == "table" and type(QuestMapFrameUtils.IsPartySyncEnabled) == "function" then
+		return QuestMapFrameUtils:IsPartySyncEnabled() and true or false
+	end
+	return true
+end
+
 -- True when the given Battle.net game account is on OUR project.
 -- This is the correct gate for "can I invite / group with this WoW friend": you
 -- can only party with players on the same project, so both flavors must compare
@@ -570,6 +726,7 @@ function Compat.IsSameProject(gameInfo)
 	if type(pid) == "number" and pid > 0 then
 		return pid == WOW_PROJECT_ID
 	end
+	if Compat.IsForeverGame(gameInfo) then return Compat.IS_FOREVER end
 	local realmID = FG_Plain(gameInfo.realmID)
 	local realmName = FG_Plain(gameInfo.realmName)
 	if (type(realmID) == "number" and realmID > 0)
@@ -609,6 +766,8 @@ function Compat.ResolveFriendFlavor(gameInfo)
 		return nil, "not-wow"
 	end
 	local mainline = WOW_PROJECT_MAINLINE or 1
+	-- Forever is not Classic: no green tint, own icon via subIcon.
+	if Compat.IsForeverGame(gameInfo) then return false, "forever" end
 	local pid = FG_Plain(gameInfo.wowProjectID)
 	if type(pid) == "number" and pid > 0 then
 		return (pid ~= mainline), "projectID"
@@ -620,7 +779,7 @@ function Compat.ResolveFriendFlavor(gameInfo)
 	local realmID = FG_Plain(gameInfo.realmID)
 	local realmName = FG_Plain(gameInfo.realmName)
 	if (type(realmID) == "number" and realmID > 0) or (type(realmName) == "string" and realmName ~= "") then
-		return (WOW_PROJECT_ID ~= mainline), "same-project"
+		return Compat.IS_CLASSIC, "same-project"
 	end
 	return false, "default"
 end
@@ -642,6 +801,7 @@ local PROJECT_MAX_LEVEL = {
 	[WOW_PROJECT_CLASSIC or 2] = 60,
 	[WOW_PROJECT_BURNING_CRUSADE_CLASSIC or 5] = 70,
 	[WOW_PROJECT_MISTS_CLASSIC or 19] = 90,
+	[WOW_PROJECT_CAMELOT or 18] = 60,
 }
 PROJECT_MAX_LEVEL[WOW_PROJECT_ID] = HOST_MAX_LEVEL
 
@@ -709,4 +869,53 @@ function Compat.ClassIconMarkup(engClass, size)
 		return "|A:" .. atlas .. ":" .. size .. ":" .. size .. "|a"
 	end
 	return "|A:classicon-" .. string.lower(engClass) .. ":" .. size .. ":" .. size .. "|a"
+end
+
+-- [[ CLASS FALLBACK ]] Classes an older client lacks (Forever, Classic: DK, Monk, DH, Evoker),
+-- resolved privately. Never write them into RAID_CLASS_COLORS or LOCALIZED_CLASS_NAMES_*:
+-- Blizzard iterates those, and addon-written entries would taint it.
+local FG_EXTRA_CLASSES = {
+	DEATHKNIGHT = { id = 6,  key = "CLASS_DEATHKNIGHT", en = "Death Knight", r = 0.77, g = 0.12, b = 0.23 },
+	MONK        = { id = 10, key = "CLASS_MONK",        en = "Monk",         r = 0.00, g = 1.00, b = 0.59 },
+	DEMONHUNTER = { id = 12, key = "CLASS_DEMONHUNTER", en = "Demon Hunter", r = 0.64, g = 0.19, b = 0.79 },
+	EVOKER      = { id = 13, key = "CLASS_EVOKER",      en = "Evoker",       r = 0.20, g = 0.58, b = 0.50 },
+}
+
+local function FG_ExtraClassName(info)
+	if C_CreatureInfo and type(C_CreatureInfo.GetClassInfo) == "function" then
+		local classInfo = C_CreatureInfo.GetClassInfo(info.id)
+		if classInfo and type(classInfo.className) == "string" and classInfo.className ~= "" then
+			return classInfo.className
+		end
+	end
+	local L = addonTable.L
+	return L and rawget(L, info.key) or nil
+end
+
+-- English token ("MONK") from a token or a localized class name, or nil.
+function Compat.ClassToken(name)
+	name = FG_Plain(name)
+	if type(name) ~= "string" or name == "" then return nil end
+	if (RAID_CLASS_COLORS and RAID_CLASS_COLORS[name]) or FG_EXTRA_CLASSES[name] then return name end
+	for _, names in ipairs({ LOCALIZED_CLASS_NAMES_MALE, LOCALIZED_CLASS_NAMES_FEMALE }) do
+		if type(names) == "table" then
+			for token, localized in pairs(names) do
+				if localized == name then return token end
+			end
+		end
+	end
+	for token, info in pairs(FG_EXTRA_CLASSES) do
+		if name == info.en or name == FG_ExtraClassName(info) then return token end
+	end
+	return nil
+end
+
+-- Color table ({r,g,b}) for a token, including the private fallback classes.
+function Compat.ClassColor(token)
+	if type(token) ~= "string" then return nil end
+	if RAID_CLASS_COLORS and RAID_CLASS_COLORS[token] then return RAID_CLASS_COLORS[token] end
+	local info = FG_EXTRA_CLASSES[token]
+	if not info then return nil end
+	info.color = info.color or (CreateColor and CreateColor(info.r, info.g, info.b)) or { r = info.r, g = info.g, b = info.b }
+	return info.color
 end
