@@ -4,6 +4,7 @@
 -- Functions
 local _G = getfenv(0)
 local pairs = _G.pairs
+local wipe = _G.wipe
 -- Libraries
 local string = _G.string
 local format = string.format
@@ -12,6 +13,7 @@ local format = string.format
 -- ----------------------------------------------------------------------------
 local _, private = ...
 local LibStub = _G.LibStub
+---@type ACAddon
 local addon = LibStub("AceAddon-3.0"):GetAddon(private.addon_name)
 local L = LibStub("AceLocale-3.0"):GetLocale(private.addon_name)
 
@@ -38,16 +40,16 @@ end
 local character_data_list = {}
 local function getCharacterDataListMenu()
 	local list = {}
+	wipe(character_data_list)
 	local factionstr, faction_icon, colorCode
 	local i = 1
 	
 	for serverkey in pairs(Accountant_ClassicSaveData) do
 		for charkey in pairs(Accountant_ClassicSaveData[serverkey]) do
-			factionstr = Accountant_ClassicSaveData[serverkey][charkey]["options"].faction or nil
+			local charOptions = Accountant_ClassicSaveData[serverkey][charkey]["options"] or {}
+			factionstr = charOptions.faction
 			faction_icon = factionstr and "|TInterface\\PVPFrame\\PVP-Currency-"..factionstr..":0:0|t%s - %s" or "%s - %s"
-
-			local class = Accountant_ClassicSaveData[serverkey][charkey]["options"].class or nil
-			colorCode = class and "|c"..RAID_CLASS_COLORS[class]["colorStr"] or ""
+			colorCode = private.GetClassColorPrefix(charOptions.class)
 
 			list[i] = format(colorCode..faction_icon.."|r", serverkey, charkey)
 			character_data_list[i] = { serverkey, charkey }
@@ -59,15 +61,16 @@ local function getCharacterDataListMenu()
 end
 
 local function confirmCharacterRemoval(value)
-	local selected_srv  = character_data_list[value][1]
-	local selected_char  = character_data_list[value][2]
-	local faction_icon, class_color
+	local entry = character_data_list[value]
+	if not entry then return end
+	local selected_srv, selected_char = entry[1], entry[2]
+	local charData = Accountant_ClassicSaveData[selected_srv] and Accountant_ClassicSaveData[selected_srv][selected_char]
+	if not charData then return end
 
-	local factionstr = Accountant_ClassicSaveData[selected_srv][selected_char]["options"].faction or nil
-	faction_icon = factionstr and "|TInterface\\PVPFrame\\PVP-Currency-"..factionstr..":0:0|t" or ""
-
-	local classToken = Accountant_ClassicSaveData[selected_srv][selected_char]["options"].class or nil
-	class_color = classToken and "|c"..RAID_CLASS_COLORS[classToken]["colorStr"] or ""
+	local options = charData["options"] or {}
+	local factionstr = options.faction
+	local faction_icon = factionstr and "|TInterface\\PVPFrame\\PVP-Currency-"..factionstr..":0:0|t" or ""
+	local class_color = private.GetClassColorPrefix(options.class)
 
 	-- Using native StaticPopupDialogs to show the confirm box.
 	StaticPopupDialogs["ACCOUNTANT_CLASSIC_CONFIRM_REMOVE"] = {
@@ -180,7 +183,12 @@ local function getOptions()
 									desc = L["Reset money frame's position"],
 									--width = "full",
 									func = function()
-										AccountantClassicMoneyInfoFrame:SetPoint("TOPLEFT", nil, "TOPLEFT", 10, -80)
+										-- Persist the default position too, otherwise the frame jumps back on reload
+										addon.db.profile.MnyFramePoint = { "TOPLEFT", "UIParent", "TOPLEFT", 10, -80 }
+										local moneyFrame = addon:GetModule("MoneyFrame", true)
+										if moneyFrame then
+											moneyFrame:ArrangeMoneyInfoFrame()
+										end
 									end,
 									disabled = function() return not addon.db.profile.showmoneyinfo end,
 								},
@@ -405,7 +413,10 @@ local function getOptions()
 									end,
 									set = function(info, value)
 										confirmCharacterRemoval(value)
-										InterfaceOptionsFrame:Hide()
+										-- InterfaceOptionsFrame no longer exists on clients using the new Settings UI
+										if InterfaceOptionsFrame then
+											InterfaceOptionsFrame:Hide()
+										end
 									end,
 								},
 							},

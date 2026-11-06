@@ -7,7 +7,8 @@
 local _G = getfenv(0)
 local _, private = ...
 
-local classic = _G.WOW_PROJECT_ID ~= _G.WOW_PROJECT_MAINLINE
+-- Use the shared client classification (Forever uses the mainline-style UI)
+local classic = private.Client.isAnyClassic
 local frame = CreateFrame("Frame", "AccountantClassicFrame", UIParent)
 frame:SetSize(640, 512)
 frame:SetPoint("TOPLEFT", UIParent, "TOPLEFT", 0, -104)
