@@ -1,32 +1,38 @@
 -----------------------------------------------------------------------
--- Upvalued Lua API.
+-- Description: Creates and manages the floating money info frame 
+-- for Accountant Classic.
 -----------------------------------------------------------------------
 local _G = getfenv(0)
 local GameTooltip = _G.GameTooltip
 local unpack = _G.unpack
 
--- ----------------------------------------------------------------------------
--- AddOn namespace.
--- ----------------------------------------------------------------------------
 local _, private = ...
 local LibStub = _G.LibStub
+---@type ACAddon
 local addon = LibStub("AceAddon-3.0"):GetAddon(private.addon_name)
+---@class MoneyFrameModule : AceAddon, AceEvent-3.0
 local MoneyFrame = addon:NewModule("MoneyFrame", "AceEvent-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale(private.addon_name)
 
 local Client = private.Client
 
-local profile
 local isInLockdown = false
 local AC_MNYSTR = nil
 
-local function frame_OnUpdate(self)
+-- Always read the live AceDB profile: a cached reference went stale after
+-- switching / copying / resetting profiles.
+local function getProfile()
+	return addon.db.profile
+end
+
+-- Refresh the money text. This used to run from OnUpdate, i.e. formatting the money
+-- string on every rendered frame; it is now driven by PLAYER_MONEY and by option changes.
+local function updateMoneyText(frame, force)
 	local frametxt = "|cFFFFFFFF"..addon:GetFormattedValue(GetMoney())
-	if (frametxt ~= AC_MNYSTR) then
-		self.Text:SetText(frametxt)
+	if (force or frametxt ~= AC_MNYSTR) then
+		frame.Text:SetText(frametxt)
 		AC_MNYSTR = frametxt
-		local width = self.Text:GetStringWidth()
-		self:SetWidth(width)
+		frame:SetWidth(math.max(frame.Text:GetStringWidth(), 1))
 	end
 end
 
@@ -57,10 +63,10 @@ local function frame_OnEnter(self)
 	end
 
 	local tooltip
-	if (Client.isAnyClassic) then
-		tooltip = GameTooltip
-	else -- Retail
+	if (not Client.isAnyClassic and GetAppropriateTooltip) then
 		tooltip = GetAppropriateTooltip()
+	else
+		tooltip = GameTooltip
 	end
 
 	if (not tooltip:IsShown()) then
@@ -74,7 +80,7 @@ local function frame_OnEnter(self)
 		if (tokenstr) then
 			GameTooltip_AddNormalLine(tooltip, tokenstr, true)
 		end]]
-		if (profile.showintrotip == true) then
+		if (getProfile().showintrotip == true) then
 			GameTooltip_AddColoredLine(tooltip, "("..L["Left-click and drag to move this button.\nRight-Click to open Accountant Classic."]..")", GRAY_FONT_COLOR, true)
 		end
 		tooltip:Show()
@@ -88,9 +94,8 @@ local function frame_OnLeave(self)
 end
 
 local function createMoneyFrame()
-	local f
-	if not f then f = CreateFrame("Frame", "AccountantClassicMoneyInfoFrame", UIParent) end
-	
+	local f = _G.AccountantClassicMoneyInfoFrame or CreateFrame("Frame", "AccountantClassicMoneyInfoFrame", UIParent)
+
 	f:SetWidth(160)
 	f:SetHeight(21)
 	local point, _, relativePoint, ofsx, ofsy = unpack(addon.db.profile.MnyFramePoint)
@@ -102,7 +107,6 @@ local function createMoneyFrame()
 	f.Text = f:CreateFontString("AccountantClassicMoneyInfoText", "OVERLAY", "GameFontNormal")
 	f.Text:SetPoint("TOPLEFT", f, "TOPLEFT", 0, 0)
 	f.Text:SetText(L["Accountant Classic"])
-	f:SetScript("OnUpdate", 	frame_OnUpdate)
 	f:SetScript("OnMouseDown", 	frame_OnMouseDown)
 	f:SetScript("OnMouseUp", 	frame_OnMouseUp)
 	f:SetScript("OnEnter", 		frame_OnEnter)
@@ -112,15 +116,15 @@ local function createMoneyFrame()
 end
 
 function MoneyFrame:OnInitialize()
-	profile = addon.db.profile
-	
 	MoneyFrame.frame = createMoneyFrame()
 end
 
 function MoneyFrame:OnEnable()
 	self:RegisterEvent("PLAYER_REGEN_ENABLED")
 	self:RegisterEvent("PLAYER_REGEN_DISABLED")
-	if (profile.showmoneyinfo == true) then
+	self:RegisterEvent("PLAYER_MONEY", "UpdateMoney")
+	self:RegisterEvent("PLAYER_ENTERING_WORLD", "UpdateMoney")
+	if (getProfile().showmoneyinfo == true) then
 		self.frame:Show()
 		self:ArrangeMoneyInfoFrame()
 	else
@@ -131,16 +135,27 @@ end
 function MoneyFrame:OnDisable()
 	self:UnregisterEvent("PLAYER_REGEN_ENABLED")
 	self:UnregisterEvent("PLAYER_REGEN_DISABLED")
+	self:UnregisterEvent("PLAYER_MONEY")
+	self:UnregisterEvent("PLAYER_ENTERING_WORLD")
 	self.frame:Hide()
 end
 
+function MoneyFrame:UpdateMoney()
+	if self.frame then
+		updateMoneyText(self.frame)
+	end
+end
+
 function MoneyFrame:ArrangeMoneyInfoFrame()
+	local profile = getProfile()
 	self.frame:SetScale(profile.infoscale or 1)
 	self.frame:SetAlpha(profile.infoalpha or 1)
 	local point, _, relativePoint, ofsx, ofsy = unpack(profile.MnyFramePoint)
 	self.frame:ClearAllPoints()
 	self.frame:SetParent(UIParent)
 	self.frame:SetPoint(point or "TOPLEFT", nil, relativePoint or "TOPLEFT", ofsx or 10, ofsy or -80)
+	-- options such as "breakupnumbers" change the formatting, so always redraw here
+	updateMoneyText(self.frame, true)
 end
 
 function MoneyFrame:PLAYER_REGEN_DISABLED()

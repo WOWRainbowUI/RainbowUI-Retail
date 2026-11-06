@@ -39,6 +39,17 @@ Client.isAnyClassic = Client.isClassicEra or Client.isTBCClassic or Client.isPro
 Client.isKnownProject = Client.isRetail or Client.isAnyClassic or Client.isForever
 private.Client = Client
 
+-- Returns the "|cAARRGGBB" colour prefix for a class token, or "" when the token is
+-- unknown to this client (e.g. data saved by another game flavour), instead of erroring
+-- on RAID_CLASS_COLORS[class] being nil.
+function private.GetClassColorPrefix(classToken)
+	local color = classToken and RAID_CLASS_COLORS and RAID_CLASS_COLORS[classToken]
+	if color and color.colorStr then
+		return "|c"..color.colorStr
+	end
+	return ""
+end
+
 -- Create constants table
 local constants = {}
 private.constants = constants
@@ -248,7 +259,7 @@ else
 
 	constants.logtypes = {
 		"TRANSMO", "GARRISON", "LFG", "BARBER", "GUILD",
-		"TRAIN", "TAXI", "TRADE", "AH", "MERCH", "REPAIRS", "MAIL", "QUEST", "LOOT", "OTHER" 
+		"TRAIN", "TAXI", "TRADE", "AH", "MERCH", "REPAIRS", "MAIL", "QUEST", "LOOT", "OTHER"
 	}
 	constants.onlineData = {
 		["TRANSMO"] =	{ Title = TRANSMOGRIFY};
@@ -307,3 +318,9 @@ constants.tabTooltipText = {
 -- Maximum lines for characters to be displayed. 
 -- We have 18 lines of space but we are using the 18th line to present the total. 
 constants.maxCharLines = 17
+
+-- Maximum lines of tooltip
+constants.maxTooltipLines = 50
+
+-- icon texture
+constants.iconTexture = "Interface\\AddOns\\Accountant_Classic\\Images\\AccountantClassicButton-Up"
