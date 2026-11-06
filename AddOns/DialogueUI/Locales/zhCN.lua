@@ -169,7 +169,7 @@ L["Quest Difficulty Option Desc"] = "选择任务列表界面上任务难度的�
 L["QuestDifficultyStyle Level"] = "任务等级";
 L["QuestDifficultyStyle Level Desc"] = "在任务名称的左侧显示任务等级。";
 L["QuestDifficultyStyle Name"] = "难度名称";
-L["QuestDifficultyStyle Name Desc"] = "如果任务不在推荐等级范围内，在任务按钮的最右侧显示难度名称。\n（推荐范围为只比你角色高两级或低一级以内）";
+L["QuestDifficultyStyle Name Desc"] = "任务等级超出推荐范围时，在任务按钮右侧显示难度名称。\n（任务等级比角色高 3 级或低 3 级）";
 
 L["Camera Movement"] = "镜头运动";
 L["Camera Movement Off"] = "关";

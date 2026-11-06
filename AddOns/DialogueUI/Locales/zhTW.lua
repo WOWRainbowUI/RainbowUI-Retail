@@ -404,6 +404,6 @@ L["Quest Difficulty Option Desc"] = "選擇 NPC 提供任務清單時，任務�
 L["QuestDifficultyStyle Level"] = "等級";
 L["QuestDifficultyStyle Level Desc"] = "在任務標題左側顯示任務等級。";
 L["QuestDifficultyStyle Name"] = "難度名稱";
-L["QuestDifficultyStyle Name Desc"] = "任務等級超出建議範圍時，在任務按鈕右側顯示難度名稱。\n（任務等級比你的角色高 3 級或低 1 級）";
+L["QuestDifficultyStyle Name Desc"] = "在任務等級超出建議範圍時，於任務按鈕右側顯示難度名稱。\n（任務等級比角色高 3 級或低 3 級）";
 L["Detected Device Colon"] = "偵測到的裝置：";
 L["Detected Devices Colon"] = "偵測到的裝置：";
