@@ -471,7 +471,7 @@ function BaganatorRetailCachedItemButtonMixin:UpdateTextures()
 end
 
 function BaganatorRetailCachedItemButtonMixin:SetItemDetails(details)
-  self:SetItemButtonTexture(details.iconTexture)
+  self.icon:SetTexture(details.iconTexture)
   self:SetItemButtonQuality(details.quality, details.itemLink, false, details.isBound)
   SetItemButtonCount(self, details.itemCount, details.itemCount and details.itemCount > 9999) -- true results in abbreviating large numbers
   SetItemButtonDesaturated(self, false);
@@ -639,7 +639,7 @@ function BaganatorRetailLiveContainerItemButtonMixin:SetItemDetails(cacheData)
   ClearItemButtonOverlay(self);
 
   self:SetHasItem(texture);
-  self:SetItemButtonTexture(texture);
+  self.icon:SetTexture(texture);
 
   self:SetItemButtonQuality(quality, nil, true, isBound);
 
@@ -856,7 +856,7 @@ function BaganatorRetailLiveGuildItemButtonMixin:SetItemDetails(cacheData, tabIn
   itemCount = cacheData.itemCount
   quality = cacheData.quality or quality
 
-  SetItemButtonTexture(self, texture);
+  self.icon:SetTexture(texture);
   SetItemButtonCount(self, itemCount);
   SetItemButtonDesaturated(self, locked);
 
@@ -932,7 +932,7 @@ end
 function BaganatorClassicCachedItemButtonMixin:SetItemDetails(details)
   GetInfo(self, details)
 
-  SetItemButtonTexture(self, details.iconTexture);
+  self.icon:SetTexture(details.iconTexture);
   SetItemButtonQuality(self, details.quality); -- Doesn't do much
   ApplyQualityBorderClassic(self, details.quality)
   SetItemButtonCount(self, details.itemCount, details.itemCount and details.itemCount > 9999);
@@ -1139,7 +1139,7 @@ function BaganatorClassicLiveContainerItemButtonMixin:SetItemDetails(cacheData)
   local noValue = info and info.hasNoValue;
   local itemID = info and info.itemID;
 
-  SetItemButtonTexture(self, texture);
+  self.icon:SetTexture(texture);
   SetItemButtonQuality(self, quality, itemID);
   ApplyQualityBorderClassic(self, quality)
   SetItemButtonCount(self, itemCount, itemCount and itemCount > 9999);
@@ -1336,7 +1336,7 @@ function BaganatorClassicLiveGuildItemButtonMixin:SetItemDetails(cacheData, tabI
   itemCount = cacheData.itemCount
   quality = cacheData.quality or quality
 
-  SetItemButtonTexture(self, texture);
+  self.icon:SetTexture(texture);
   SetItemButtonCount(self, itemCount);
   SetItemButtonDesaturated(self, locked);
   ApplyQualityBorderClassic(self, quality)
