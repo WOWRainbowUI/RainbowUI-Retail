@@ -2,11 +2,6 @@
 local addonTable = select(2, ...)
 
 local cvars = {
-  ["nameplateGlobalScale"] = "1",
-  ["NamePlateHorizontalScale"] = "1",
-  ["NamePlateVerticalScale"] = "1",
-  ["nameplateLargeBottomInset"] = "0.15",
-  ["nameplateLargerScale"] = "1",
   ["nameplateMaxAlpha"] = "1",
   ["nameplateMaxAlphaDistance"] = "40",
   ["nameplateMinAlpha"] = "0.6",
@@ -16,12 +11,9 @@ local cvars = {
   ["nameplateMaxScale"] = "1",
   ["nameplateMinScale"] = "1",
   ["nameplateMotionSpeed"] = "0.025",
-  ["nameplatePlayerLargerScale"] = "1",
   ["nameplateTargetBehindMaxDistance"] = "30",
   ["nameplateTargetRadialPosition"] = "1",
-  ["clampTargetNameplateToScreen"] = "1",
   ["nameplateNotSelectedAlpha"] = "-1",
-  ["nameplateShowOnlyNameForFriendlyPlayerUnits"] = "1",
   ["nameplateOverlapH"] = "1",
   ["nameplateOverlapV"] = "1",
 }

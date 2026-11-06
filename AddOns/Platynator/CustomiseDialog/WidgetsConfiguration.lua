@@ -967,6 +967,17 @@ addonTable.CustomiseDialog.WidgetsConfig = {
               return details.showWhenWowDoes
             end,
           },
+          {
+            label = addonTable.Locales.SHOW_FIRST_NAME_ONLY,
+            kind = "checkbox",
+            setter = function(details, value)
+              details.showFirstNameOnly = value
+            end,
+            getter = function(details)
+              return details.showFirstNameOnly
+            end,
+            hide = not addonTable.Constants.IsForever,
+          },
         }
       },
       {
@@ -2113,42 +2124,24 @@ addonTable.CustomiseDialog.WidgetsConfig = {
           { kind = "spacer" },
           {
             label = addonTable.Locales.BACKGROUND_COLOR,
-            kind = "colorPicker",
+            kind = "colorPickerWithCheckbox",
             setter = function(details, value)
-              details.background.color = value
+              details.background.color = value.color
+              details.background.applyColor = not value.enabled
             end,
             getter = function(details)
-              return details.background.color
-            end,
-          },
-          {
-            label = addonTable.Locales.APPLY_MAIN_COLOR_TO_BACKGROUND,
-            kind = "checkbox",
-            setter = function(details, value)
-              details.background.applyColor = value
-            end,
-            getter = function(details)
-              return details.background.applyColor
+              return {color = details.background.color, enabled = not details.background.applyColor}
             end,
           },
           {
             label = addonTable.Locales.ABSORB_COLOR,
-            kind = "colorPicker",
+            kind = "colorPickerWithCheckbox",
             setter = function(details, value)
-              details.absorb.color = value
+              details.absorb.color = value.color
+              details.absorb.applyColor = value.enabled
             end,
             getter = function(details)
-              return details.absorb.color
-            end,
-          },
-          {
-            label = addonTable.Locales.APPLY_ABSORB_COLOR,
-            kind = "checkbox",
-            setter = function(details, value)
-              details.absorb.applyColor = value
-            end,
-            getter = function(details)
-              return details.absorb.applyColor
+              return {color = details.absorb.color, enabled = details.absorb.color.enabled}
             end,
           },
           { kind = "spacer" },
@@ -2162,6 +2155,18 @@ addonTable.CustomiseDialog.WidgetsConfig = {
               return details.showWhenWowDoes
             end,
           },
+          {
+            label = addonTable.Locales.SHOW_FIRST_NAME_ONLY,
+            kind = "checkbox",
+            setter = function(details, value)
+              details.showFirstNameOnly = value
+            end,
+            getter = function(details)
+              return details.showFirstNameOnly
+            end,
+            hide = not addonTable.Constants.IsForever,
+          },
+          { kind = "spacer" },
           {
             label = addonTable.Locales.ANIMATE_X,
             kind = "checkbox",

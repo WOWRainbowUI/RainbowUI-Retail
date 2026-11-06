@@ -60,7 +60,11 @@ end
 function addonTable.Display.CreatureTextMixin:SaveName()
   if UnitIsPlayer(self.unit) and RegionalUniqueNamesEnabled and RegionalUniqueNamesEnabled() then
     local part1, part2 = UnitName(self.unit)
-    self.defaultText = part1 and part2 and part1 .. Constants.CharacterNameSeparatorConsts.CHARACTERNAME_SURNAME_SEPARATOR .. part2 or part1
+    if self.details.showFirstNameOnly then
+      self.defaultText = part1
+    else
+      self.defaultText = part1 and part2 and part1 .. Constants.CharacterNameSeparatorConsts.CHARACTERNAME_SURNAME_SEPARATOR .. part2 or part1
+    end
   else
     self.defaultText = UnitName(self.unit)
   end
