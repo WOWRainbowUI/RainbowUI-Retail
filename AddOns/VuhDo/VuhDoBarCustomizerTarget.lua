@@ -58,6 +58,7 @@ local VUHDO_getBarText;
 local VUHDO_getBarTextSolo;
 local VUHDO_getLifeText;
 local VUHDO_resetBarTextVertexColor;
+local VUHDO_getBlizzardClassColorMixin;
 
 
 
@@ -88,6 +89,7 @@ function VUHDO_customTargetInitLocalOverrides()
 	VUHDO_getBarTextSolo = _G["VUHDO_getBarTextSolo"];
 	VUHDO_getLifeText = _G["VUHDO_getLifeText"];
 	VUHDO_resetBarTextVertexColor = _G["VUHDO_resetBarTextVertexColor"];
+	VUHDO_getBlizzardClassColorMixin = _G["VUHDO_getBlizzardClassColorMixin"];
 
 end
 
@@ -189,11 +191,18 @@ local function VUHDO_fillCustomInfo(aUnit)
 		tInfo["hasSecretPower"] = issecretvalue(tInfo["power"]) or issecretvalue(tInfo["powermax"]);
 		tInfo["hasSecretHealth"] = issecretvalue(tInfo["health"]);
 		tInfo["hasSecretClass"] = issecretvalue(tClassName);
+
+		if tInfo["hasSecretClass"] then
+			tInfo["blizzardClassColor"] = VUHDO_getBlizzardClassColorMixin(tClassName);
+		else
+			tInfo["blizzardClassColor"] = nil;
+		end
 	else
 		tInfo["hasSecretPower"] = false;
 		tInfo["hasSecretHealth"] = false;
 		tInfo["hasSecretHealthMax"] = false;
 		tInfo["hasSecretClass"] = false;
+		tInfo["blizzardClassColor"] = nil;
 	end
 
 	tInfo["dead"] = VUHDO_safeCall(UnitIsDeadOrGhost, aUnit, false);

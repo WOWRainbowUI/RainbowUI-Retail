@@ -2885,7 +2885,7 @@ function VUHDO_loadProfile(aName)
 	VUHDO_incrementAuraAnchorConfigVersion();
 
 	VUHDO_clearBackdropCache();
-	VUHDO_loadVariables();
+	VUHDO_loadVariables(true);
 	VUHDO_initAllBurstCaches();
 	VUHDO_resolveAllAuraGroupFilters();
 	VUHDO_initPanelModels();
@@ -2910,7 +2910,7 @@ function VUHDO_loadProfile(aName)
 		VUHDO_spellTraceUpdateEditBox(VuhDoNewOptionsGeneralSpellTraceStorePanelEditBox);
 	end
 
-	collectgarbage("collect");
+	return;
 
 end
 

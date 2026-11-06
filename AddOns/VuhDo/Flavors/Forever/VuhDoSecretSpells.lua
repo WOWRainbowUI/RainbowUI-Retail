@@ -1,4 +1,4 @@
--- VuhDoSecretSpells.lua (Build: 1.60.1.70094, Branch: wow_cn_beta)
+-- VuhDoSecretSpells.lua (Build: 1.60.1.70790, Branch: wowf)
 VUHDO_SPELL_CAST_ALWAYS_SECRET = {
 	[402004] = true,
 };

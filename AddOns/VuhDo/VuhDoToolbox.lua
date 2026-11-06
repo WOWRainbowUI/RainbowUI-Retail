@@ -702,6 +702,27 @@ local VUHDO_isUnitRangeCheckable = VUHDO_isUnitRangeCheckable;
 
 
 --
+function VUHDO_isUnitRangeEventDriven(aUnit)
+
+	if not aUnit then
+		return false;
+	end
+
+	if "player" == aUnit or VUHDO_unitIsUnit(aUnit, "player") then
+		return true;
+	end
+
+	if "pet" == aUnit or VUHDO_unitIsUnit(aUnit, "pet") or VUHDO_isSpecialUnit(aUnit) then
+		return false;
+	end
+
+	return VUHDO_isUnitRangeCheckable(aUnit);
+
+end
+
+
+
+--
 local tIsInRange;
 local tIsChecked;
 local tIsGuessRange;

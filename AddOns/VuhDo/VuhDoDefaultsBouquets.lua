@@ -1315,7 +1315,7 @@ local sEmpty = { };
 --
 local tOriginalVersion;
 local tSwiftmendCustom;
-function VUHDO_loadDefaultBouquets()
+function VUHDO_loadDefaultBouquets(anIsProfileSwitch)
 
 	if not VUHDO_BOUQUETS then
 		VUHDO_BOUQUETS = VUHDO_decompressOrCopy(VUHDO_DEFAULT_BOUQUETS);
@@ -1676,6 +1676,10 @@ function VUHDO_loadDefaultBouquets()
 	VUHDO_DEFAULT_INDICATOR_CONFIG = VUHDO_compressAndPackTable(VUHDO_DEFAULT_INDICATOR_CONFIG);
 	VUHDO_DEFAULT_INDICATOR_CONFIG_PER_PANEL = VUHDO_compressAndPackTable(VUHDO_DEFAULT_INDICATOR_CONFIG_PER_PANEL);
 
-	VUHDO_ensureAllBouquetItemsSanity();
+	if not anIsProfileSwitch then
+		VUHDO_ensureAllBouquetItemsSanity();
+	end
+
+	return;
 
 end

@@ -3280,7 +3280,7 @@ do
 					if VUHDO_AURA_VOLATILE_PASS_REBUILD == tVolatileAction then
 						VUHDO_retireAuraContainer(aButton, tReconcileExistingContainer);
 
-						tFreshContainer = VUHDO_acquireAuraContainer(aButton, tContainerTemplate);
+						tFreshContainer = VUHDO_acquireAuraContainer(aButton, tContainerTemplate, "overlayVolatile");
 
 						if tFreshContainer then
 							if not tReconcileExistingOverlays[tReconcileIndicatorKey] then
@@ -3361,7 +3361,7 @@ do
 		tContainerTemplate = tPendingEntry["containerTemplate"];
 		tChainGroupMeta = tPendingEntry["chainGroupMeta"];
 
-		tContainerData = VUHDO_acquireAuraContainer(aButton, tContainerTemplate);
+		tContainerData = VUHDO_acquireAuraContainer(aButton, tContainerTemplate, "overlayNew");
 
 		if tContainerData then
 			if not VUHDO_OVERLAY_CONTAINERS[tButtonName] then

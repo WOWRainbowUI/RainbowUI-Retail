@@ -148,6 +148,10 @@ do
 		VUHDO_HANDLER_PROFILING_ENABLED = anIsEnabled;
 
 		if anIsEnabled then
+			if VUHDO_HANDLER_PROFILING_SESSION_START_TIME == 0 then
+				VUHDO_HANDLER_PROFILING_SESSION_START_TIME = GetTime();
+			end
+
 			VUHDO_Msg("Handler profiling is enabled.");
 		else
 			VUHDO_Msg("Handler profiling is disabled.");
@@ -260,7 +264,7 @@ do
 		tSegmentName = "OnEvent_" .. anEventName;
 
 		if not VUHDO_HANDLER_PROFILING_METRICS[tSegmentName] then
-			VUHDO_HANDLER_PROFILING_METRICS[tSegmentName] = VUHDO_createPercentileTracker();
+			VUHDO_HANDLER_PROFILING_METRICS[tSegmentName] = VUHDO_createTailMeanTracker();
 		end
 
 		tTracker = VUHDO_HANDLER_PROFILING_METRICS[tSegmentName];
@@ -338,41 +342,27 @@ do
 
 
 	--
-	local tPercentileKeys;
-	local tPercentileText;
-	local tPercentileKey;
+	local tTailMeanText;
 	function VUHDO_printHandlerMetricSegment(aSegName, aSegData, anInvocationCount, anIndent)
 
 		if not aSegData then
 			return;
 		end
 
-		tPercentileKeys = { };
+		tTailMeanText = "";
 
-		for tPercentileKey in pairs(aSegData) do
-			if string.sub(tPercentileKey, 1, 2) == "tm" then
-				tinsert(tPercentileKeys, tPercentileKey);
-			end
-		end
-
-		VUHDO_sortPercentileKeys(tPercentileKeys);
-
-		tPercentileText = "";
-
-		for tIndex = 1, #tPercentileKeys do
-			tPercentileKey = tPercentileKeys[tIndex];
-
+		for tIndex, tTailMeanKey in ipairs(VUHDO_TAIL_MEAN_KEYS) do
 			if tIndex > 1 then
-				tPercentileText = tPercentileText .. ", ";
+				tTailMeanText = tTailMeanText .. ", ";
 			end
 
-			tPercentileText = tPercentileText .. tPercentileKey .. ": " .. VUHDO_formatTime(aSegData[tPercentileKey] or 0);
+			tTailMeanText = tTailMeanText .. tTailMeanKey .. ": " .. VUHDO_formatTime(aSegData[tTailMeanKey] or 0);
 		end
 
 		VUHDO_Msg(format("%s|cffB0E0E6%s:|r Total: %s, %s",
 			anIndent or "  ", aSegName,
 			VUHDO_formatTime(aSegData["Total"] or 0),
-			tPercentileText
+			tTailMeanText
 		));
 
 		return;
@@ -406,7 +396,8 @@ do
 	local tInvocationCount;
 	local tEventStats;
 	local tEventName;
-	local tPercentiles;
+	local tTailMeans;
+	local tTailMeanText;
 	local tTotal;
 	local tCount;
 	local tArgString;
@@ -474,7 +465,7 @@ do
 			if string.sub(tSegmentName, 1, 8) == "OnEvent_" and tTracker:isInitialized() then
 				tEventName = string.sub(tSegmentName, 9);
 
-				tPercentiles = tTracker:getPercentiles();
+				tTailMeans = tTracker:getTailMeans();
 
 				tTotal = tTracker:getCumulativeTotal();
 				tCount = tTracker["totalCount"];
@@ -483,7 +474,7 @@ do
 					["name"] = tEventName,
 					["totalTime"] = tTotal,
 					["count"] = tCount,
-					["trimmedMeans"] = tPercentiles,
+					["tailMeans"] = tTailMeans,
 				});
 			end
 		end
@@ -493,37 +484,25 @@ do
 		else
 			table.sort(tEventStats, VUHDO_sortEventStats);
 
-			VUHDO_Msg("  |cff98FB98Sorted by Total Time|r (Event: Total, Count, percentiles)");
+			VUHDO_Msg("  |cff98FB98Sorted by Total Time|r (Event: Total, Count, tail means)");
 
 			for _, tStats in ipairs(tEventStats) do
-				tPercentileKeys = { };
+				tTailMeanText = "";
 
-				for tPercentileKey in pairs(tStats["trimmedMeans"]) do
-					if string.sub(tPercentileKey, 1, 2) == "tm" then
-						tinsert(tPercentileKeys, tPercentileKey);
-					end
-				end
-
-				VUHDO_sortPercentileKeys(tPercentileKeys);
-
-				tPercentileText = "";
-
-				for tIndex = 1, #tPercentileKeys do
-					tPercentileKey = tPercentileKeys[tIndex];
-
+				for tIndex, tTailMeanKey in ipairs(VUHDO_TAIL_MEAN_KEYS) do
 					if tIndex > 1 then
-						tPercentileText = tPercentileText .. ", ";
+						tTailMeanText = tTailMeanText .. ", ";
 					end
 
-					tPercentileText = tPercentileText .. "|cff98FB98" .. tPercentileKey .. ":|r " .. VUHDO_formatTime(tStats["trimmedMeans"][tPercentileKey] or 0);
+					tTailMeanText = tTailMeanText .. "|cff98FB98" .. tTailMeanKey .. ":|r " .. VUHDO_formatTime(tStats["tailMeans"][tTailMeanKey] or 0);
 				end
 
-						VUHDO_Msg(format("  |cffB0E0E6%s:|r |cff98FB98Total:|r %s, |cff98FB98Count:|r %d, %s",
-			tStats["name"],
-			VUHDO_formatTime(tStats["totalTime"]),
-			tStats["count"],
-			tPercentileText
-		));
+				VUHDO_Msg(format("  |cffB0E0E6%s:|r |cff98FB98Total:|r %s, |cff98FB98Count:|r %d, %s",
+					tStats["name"],
+					VUHDO_formatTime(tStats["totalTime"]),
+					tStats["count"],
+					tTailMeanText
+				));
 			end
 		end
 
@@ -896,12 +875,8 @@ end
 local function VUHDO_initOptions()
 
 	if VuhDoNewOptionsTabbedFrame then
-		VUHDO_initHotComboModels();
-		VUHDO_initHotBarComboModels();
-		VUHDO_initDebuffIgnoreComboModel();
 		VUHDO_initBouquetComboModel();
 		VUHDO_initBouquetSlotsComboModel();
-		VUHDO_bouquetsUpdateDefaultColors();
 	end
 
 	return;
@@ -2250,7 +2225,7 @@ end
 
 
 --
-function VUHDO_loadVariables()
+function VUHDO_loadVariables(anIsProfileSwitch)
 
 	_, VUHDO_PLAYER_CLASS = UnitClass("player");
 	VUHDO_PLAYER_NAME, tSecond = UnitName("player");
@@ -2266,12 +2241,14 @@ function VUHDO_loadVariables()
 	end
 
 	VUHDO_initBuffSettings();
-	VUHDO_loadDefaultBouquets();
+	VUHDO_loadDefaultBouquets(anIsProfileSwitch);
 	VUHDO_panelRedrawInitLocalOverrides();
 	VUHDO_initClassColors();
 	VUHDO_initTextProviderConfig();
 
 	VUHDO_lnfPatchFont(VuhDoOptionsTooltipText, "Text");
+
+	VUHDO_clearSaneValueCache();
 
 	return;
 
@@ -2698,15 +2675,42 @@ do
 
 
 	--
+	local function VUHDO_loadChangedAutoProfile()
+
+		if InCombatLockdown() or VUHDO_IS_CONFIG then
+			return false;
+		end
+
+		sAutoProfile, sTrigger = VUHDO_getAutoProfile();
+
+		if not sAutoProfile then
+			return false;
+		end
+
+		VUHDO_Msg(VUHDO_I18N_AUTO_ARRANG_1 .. sTrigger .. VUHDO_I18N_AUTO_ARRANG_2 .. "|cffffffff" .. sAutoProfile .. "|r\"");
+
+		VUHDO_loadProfile(sAutoProfile);
+
+		sAutoProfile = nil;
+		VUHDO_TIMERS["RELOAD_RAID"] = 0;
+		VUHDO_IS_RELOAD_BUFFS = false;
+
+		return true;
+
+	end
+
+
+
+	--
 	local function VUHDO_handleSegment2C(aTimeDelta)
 
 		-- Reload raid roster?
-		if VUHDO_checkTimer("RELOAD_RAID") then
+		if VUHDO_checkTimer("RELOAD_RAID") and not VUHDO_loadChangedAutoProfile() then
 			VUHDO_doReloadRoster(false);
 		end
 
 		-- Quick update after raid roster change?
-		if VUHDO_checkTimer("RELOAD_ROSTER") then
+		if VUHDO_checkTimer("RELOAD_ROSTER") and not VUHDO_loadChangedAutoProfile() then
 			VUHDO_doReloadRoster(true);
 		end
 
@@ -3509,7 +3513,7 @@ function VUHDO_processProfilingBatch()
 		tDuration = tUpdate["duration"];
 
 		if not VUHDO_HANDLER_PROFILING_METRICS[tSegmentName] then
-			VUHDO_HANDLER_PROFILING_METRICS[tSegmentName] = VUHDO_createPercentileTracker();
+			VUHDO_HANDLER_PROFILING_METRICS[tSegmentName] = VUHDO_createTailMeanTracker();
 		end
 
 		tTracker = VUHDO_HANDLER_PROFILING_METRICS[tSegmentName];
@@ -3535,40 +3539,37 @@ end
 
 
 
---
-local tResult;
-local tPercentiles;
-local tTotal;
-local tCount;
-local tPercentile;
-local tKey;
-function VUHDO_getHandlerProfilingMetrics()
+do
+	--
+	local tResult;
+	local tTailMeans;
+	local tTotal;
+	local tCount;
+	function VUHDO_getHandlerProfilingMetrics()
 
-	VUHDO_flushProfilingBatch();
+		VUHDO_flushProfilingBatch();
 
-	tResult = { };
+		tResult = { };
 
-	for tSegmentName, tTracker in pairs(VUHDO_HANDLER_PROFILING_METRICS) do
-		tPercentiles = tTracker:getPercentiles();
+		for tSegmentName, tTracker in pairs(VUHDO_HANDLER_PROFILING_METRICS) do
+			tTailMeans = tTracker:getTailMeans();
 
-		tTotal = tTracker:getCumulativeTotal();
-		tCount = tTracker["totalCount"];
+			tTotal = tTracker:getCumulativeTotal();
+			tCount = tTracker["totalCount"];
 
-		tResult[tSegmentName] = {
-			["Total"] = tTotal,
-			["Count"] = tCount
-		};
+			tResult[tSegmentName] = {
+				["Total"] = tTotal,
+				["Count"] = tCount
+			};
 
-		for tIndex = 1, #tTracker["percentiles"] do
-			tPercentile = tTracker["percentiles"][tIndex];
-			tKey = "tm" .. floor(tPercentile * 100);
-
-			tResult[tSegmentName][tKey] = tPercentiles[tKey] or 0;
+			for _, tTailMeanKey in ipairs(VUHDO_TAIL_MEAN_KEYS) do
+				tResult[tSegmentName][tTailMeanKey] = tTailMeans[tTailMeanKey] or 0;
+			end
 		end
+
+		return tResult;
+
 	end
-
-	return tResult;
-
 end
 
 
@@ -3591,71 +3592,65 @@ end
 
 
 
---
-local tTestTracker;
-local tExpectedTotal;
-local tBufferTotal;
-local tCumulativeTotal;
-local tBufferCount;
-local tCumulativeCount;
-local tValue;
-local tDataLossPercent;
-local tAccuracyPercent;
-local tTm50;
-local tTm80;
-local tTm90;
-local tTm99;
-local tTm100;
-function VUHDO_testProfilingSystem()
+do
+	--
+	local tTestTracker;
+	local tExpectedTotal;
+	local tBufferTotal;
+	local tCumulativeTotal;
+	local tBufferCount;
+	local tCumulativeCount;
+	local tValue;
+	local tDataLossPercent;
+	local tAccuracyPercent;
+	local tTailMeans;
+	function VUHDO_testProfilingSystem()
 
-	VUHDO_Msg("=== Testing Profiling System ===");
+		VUHDO_Msg("=== Testing Profiling System ===");
 
-	tTestTracker = VUHDO_createPercentileTracker();
-	tExpectedTotal = 0;
+		tTestTracker = VUHDO_createTailMeanTracker();
+		tExpectedTotal = 0;
 
-	VUHDO_Msg("Adding 2000 test measurements...");
+		VUHDO_Msg("Adding 2000 test measurements...");
 
-	for tCnt = 1, 2000 do
-		tValue = 0.1 * tCnt;
-		tExpectedTotal = tExpectedTotal + tValue;
-		tTestTracker:update(tValue);
+		for tCnt = 1, 2000 do
+			tValue = 0.1 * tCnt;
+			tExpectedTotal = tExpectedTotal + tValue;
+			tTestTracker:update(tValue);
+		end
+
+		tBufferTotal = 0;
+
+		for tCnt = 1, tTestTracker["bufferSize"] do
+			tBufferTotal = tBufferTotal + tTestTracker["buffer"][tCnt];
+		end
+
+		tCumulativeTotal = tTestTracker:getCumulativeTotal();
+		tBufferCount = tTestTracker["bufferSize"];
+		tCumulativeCount = tTestTracker["totalCount"];
+
+		VUHDO_Msg("Expected Total: " .. string.format("%.2f", tExpectedTotal) .. " ms");
+		VUHDO_Msg("Buffer Total: " .. string.format("%.2f", tBufferTotal) .. " ms");
+		VUHDO_Msg("Cumulative Total: " .. string.format("%.2f", tCumulativeTotal) .. " ms");
+		VUHDO_Msg("Buffer Count: " .. tBufferCount);
+		VUHDO_Msg("Cumulative Count: " .. tCumulativeCount);
+
+		if tBufferCount > 0 then
+			tDataLossPercent = ((tExpectedTotal - tBufferTotal) / tExpectedTotal) * 100;
+			tAccuracyPercent = (tCumulativeTotal / tExpectedTotal) * 100;
+			VUHDO_Msg("Buffer Data Loss: " .. string.format("%.2f", tDataLossPercent) .. "%");
+			VUHDO_Msg("Cumulative Accuracy: " .. string.format("%.2f", tAccuracyPercent) .. "%");
+		end
+
+		tTailMeans = tTestTracker:getTailMeans();
+
+		VUHDO_Msg("tm50: " .. string.format("%.2f", tTailMeans["tm50"]) .. " ms, tm80: " .. string.format("%.2f", tTailMeans["tm80"]) .. " ms, tm90: " .. string.format("%.2f", tTailMeans["tm90"]) .. " ms, tm99: " .. string.format("%.2f", tTailMeans["tm99"]) .. " ms, tm100: " .. string.format("%.2f", tTailMeans["tm100"]) .. " ms");
+
+		VUHDO_Msg("=== Test Complete ===");
+
+		return;
+
 	end
-
-	tBufferTotal = 0;
-
-	for tCnt = 1, tTestTracker["bufferSize"] do
-		tBufferTotal = tBufferTotal + tTestTracker["buffer"][tCnt];
-	end
-
-	tCumulativeTotal = tTestTracker:getCumulativeTotal();
-	tBufferCount = tTestTracker["bufferSize"];
-	tCumulativeCount = tTestTracker["totalCount"];
-
-	VUHDO_Msg("Expected Total: " .. string.format("%.2f", tExpectedTotal) .. " ms");
-	VUHDO_Msg("Buffer Total: " .. string.format("%.2f", tBufferTotal) .. " ms");
-	VUHDO_Msg("Cumulative Total: " .. string.format("%.2f", tCumulativeTotal) .. " ms");
-	VUHDO_Msg("Buffer Count: " .. tBufferCount);
-	VUHDO_Msg("Cumulative Count: " .. tCumulativeCount);
-
-	if tBufferCount > 0 then
-		tDataLossPercent = ((tExpectedTotal - tBufferTotal) / tExpectedTotal) * 100;
-		tAccuracyPercent = (tCumulativeTotal / tExpectedTotal) * 100;
-		VUHDO_Msg("Buffer Data Loss: " .. string.format("%.2f", tDataLossPercent) .. "%");
-		VUHDO_Msg("Cumulative Accuracy: " .. string.format("%.2f", tAccuracyPercent) .. "%");
-	end
-
-	tTm50 = tTestTracker:getPercentile(50);
-	tTm80 = tTestTracker:getPercentile(80);
-	tTm90 = tTestTracker:getPercentile(90);
-	tTm99 = tTestTracker:getPercentile(99);
-	tTm100 = tTestTracker:getPercentile(100);
-
-	VUHDO_Msg("tm50: " .. string.format("%.2f", tTm50) .. " ms, tm80: " .. string.format("%.2f", tTm80) .. " ms, tm90: " .. string.format("%.2f", tTm90) .. " ms, tm99: " .. string.format("%.2f", tTm99) .. " ms, tm100: " .. string.format("%.2f", tTm100) .. " ms");
-
-	VUHDO_Msg("=== Test Complete ===");
-
-	return;
-
 end
 
 

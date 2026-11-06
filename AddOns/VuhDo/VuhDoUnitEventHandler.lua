@@ -30,6 +30,7 @@ local VUHDO_isAnyoneInterestedIn;
 local VUHDO_updateHandlerOnEventMetrics;
 local VUHDO_onUnitInRangeUpdate;
 local VUHDO_updateUnitVisibilityCharmRange;
+local VUHDO_updateUnitRange;
 local VUHDO_needsUnitAuraEvent;
 local VUHDO_syncNativeAuraSoundsForUnit;
 local VUHDO_isAuraModeContainers;
@@ -123,6 +124,7 @@ function VUHDO_unitEventHandlerInitLocalOverrides()
 	VUHDO_updateHandlerOnEventMetrics = _G["VUHDO_updateHandlerOnEventMetrics"];
 	VUHDO_onUnitInRangeUpdate = _G["VUHDO_onUnitInRangeUpdate"];
 	VUHDO_updateUnitVisibilityCharmRange = _G["VUHDO_updateUnitVisibilityCharmRange"];
+	VUHDO_updateUnitRange = _G["VUHDO_updateUnitRange"];
 	VUHDO_needsUnitAuraEvent = _G["VUHDO_needsUnitAuraEvent"];
 	VUHDO_syncNativeAuraSoundsForUnit = _G["VUHDO_syncNativeAuraSoundsForUnit"];
 	VUHDO_isAuraModeContainers = _G["VUHDO_isAuraModeContainers"];
@@ -342,6 +344,8 @@ function VUHDO_dispatchUnitEvent(anEvent, anArg1, anArg2, anArg3, anArg4, anArg5
 		if VUHDO_RAID[anArg1] then
 			VUHDO_updateHealth(anArg1, VUHDO_UPDATE_DC);
 
+			VUHDO_updateUnitRange(anArg1);
+
 			VUHDO_syncAuraContainersForUnit(anArg1);
 			VUHDO_syncOverlaysForUnit(anArg1);
 		end
@@ -363,7 +367,7 @@ function VUHDO_dispatchUnitEvent(anEvent, anArg1, anArg2, anArg3, anArg4, anArg5
 		end
 
 		if VUHDO_RAID[anArg1] then
-			VUHDO_updateUnitVisibilityCharmRange(anArg1);
+			VUHDO_updateUnitVisibilityCharmRange(anArg1, true);
 
 			VUHDO_updateBouquetsForEvent(anArg1, 34);
 
@@ -377,7 +381,7 @@ function VUHDO_dispatchUnitEvent(anEvent, anArg1, anArg2, anArg3, anArg4, anArg5
 		end
 
 		if VUHDO_RAID[anArg1] ~= nil then
-			VUHDO_updateUnitVisibilityCharmRange(anArg1);
+			VUHDO_updateUnitVisibilityCharmRange(anArg1, true);
 
 			VUHDO_syncAuraContainersForUnit(anArg1);
 			VUHDO_syncOverlaysForUnit(anArg1);
@@ -407,6 +411,8 @@ function VUHDO_dispatchUnitEvent(anEvent, anArg1, anArg2, anArg3, anArg4, anArg5
 		end
 
 		if VUHDO_RAID[anArg1] ~= nil then
+			VUHDO_updateUnitRange(anArg1);
+
 			VUHDO_updateBouquetsForEvent(anArg1, 39);
 
 			VUHDO_syncAuraContainersForUnit(anArg1);

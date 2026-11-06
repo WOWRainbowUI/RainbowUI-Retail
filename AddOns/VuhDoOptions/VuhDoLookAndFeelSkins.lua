@@ -221,9 +221,16 @@ local sBackdropFileKeys = {
 };
 
 local sSkinReady = false;
+local sSkinGeneration = 0;
 local sHooked = { };
 local sOriginalBackdropFiles = { };
 local sEmpty = { };
+local sSkinQueue = { };
+local sSkinHiddenQueue = { };
+local sSkinQueueIndex = 1;
+local sSkinHiddenQueueIndex = 1;
+local sSkinUpdateFrame;
+local sSkinMaxUpdateUs = 7500;
 
 local sIsCjkLocale = GetLocale() == "zhCN" or GetLocale() == "zhTW" or GetLocale() == "koKR";
 local sCjkFont = {
@@ -310,38 +317,40 @@ local sValidFontColorKeys = {
 local sIndicatorSchemaTexLeft = 18 / 128;
 local sIndicatorSchemaTexRight = 108 / 128;
 
-local tDarkTextureNames = {
-	"blue_dk_square_16_16",
-	"scroll_bar_bg_16_16",
-	"blue_lt_square_16_16",
-	"button_combo_32_32",
-	"button_combo_edit_128_32",
-	"button_combo_pressed_32_32",
-	"button_normal_128_32",
-	"button_pressed_128_32",
-	"button_up_32_32",
-	"icon_black",
-	"icon_aura",
-	"icon_blue_square",
-	"icon_check",
-	"icon_tree_expand",
-	"icon_white",
-	"status_dot",
-	"combo_select_dot",
-	"input_border_1",
-	"panel_edges_1",
-	"panel_edges_2",
-	"panel_edges_2_append_bottom",
-	"panel_edges_3",
-	"panel_edges_4",
-	"slider_thumb_h",
-	"slider_thumb_v",
-	"tabstop_active",
-	"tabstop_inactive",
-};
+do
+	local tDarkTextureNames = {
+		"blue_dk_square_16_16",
+		"scroll_bar_bg_16_16",
+		"blue_lt_square_16_16",
+		"button_combo_32_32",
+		"button_combo_edit_128_32",
+		"button_combo_pressed_32_32",
+		"button_normal_128_32",
+		"button_pressed_128_32",
+		"button_up_32_32",
+		"icon_black",
+		"icon_aura",
+		"icon_blue_square",
+		"icon_check",
+		"icon_tree_expand",
+		"icon_white",
+		"status_dot",
+		"combo_select_dot",
+		"input_border_1",
+		"panel_edges_1",
+		"panel_edges_2",
+		"panel_edges_2_append_bottom",
+		"panel_edges_3",
+		"panel_edges_4",
+		"slider_thumb_h",
+		"slider_thumb_v",
+		"tabstop_active",
+		"tabstop_inactive",
+	};
 
-for tCnt = 1, #tDarkTextureNames do
-	sDarkSkin["textures"][tDarkTextureNames[tCnt]] = sDarkImagesPath .. tDarkTextureNames[tCnt];
+	for tCnt = 1, #tDarkTextureNames do
+		sDarkSkin["textures"][tDarkTextureNames[tCnt]] = sDarkImagesPath .. tDarkTextureNames[tCnt];
+	end
 end
 
 sDarkSkin["textures"]["icon_check_tri"] = sDarkImagesPath .. "icon_check";
@@ -2038,32 +2047,71 @@ end
 
 
 
---
-local tComboName;
-local function VUHDO_lnfSkinOnComboInitItems(aComboBox)
+do
+	--
+	local tComboName;
+	local tTable;
+	local tDropdownBox;
+	local tItemNamePrefix;
+	local tSkinnedItemCount;
+	local tItemPanel;
+	function VUHDO_lnfSkinOnComboInitItems(aComboBox)
 
-	if not sSkinReady then
+		if not sSkinReady then
+			return;
+		end
+
+		tComboName = aComboBox and aComboBox:GetName();
+
+		if not tComboName then
+			return;
+		end
+
+		tTable = aComboBox:GetAttribute("combo_table");
+
+		if not tTable then
+			return;
+		end
+
+		if aComboBox["isScrollable"] then
+			tDropdownBox = _G[tComboName .. "ScrollPanel"];
+			tItemNamePrefix = tComboName .. "ScrollPanelSelectPanelItem";
+		else
+			tDropdownBox = _G[tComboName .. "SelectPanel"];
+			tItemNamePrefix = tComboName .. "SelectPanelItem";
+		end
+
+		if not tDropdownBox then
+			return;
+		end
+
+		if tDropdownBox["skinGeneration"] ~= sSkinGeneration then
+			VUHDO_lnfSkinApplyToFrameTree(tDropdownBox);
+			tDropdownBox["skinGeneration"] = sSkinGeneration;
+			tDropdownBox["skinItemCount"] = #tTable;
+		else
+			tSkinnedItemCount = tDropdownBox["skinItemCount"] or 0;
+
+			for tIndex = tSkinnedItemCount + 1, #tTable do
+				tItemPanel = _G[tItemNamePrefix .. tIndex];
+
+				if tItemPanel then
+					VUHDO_lnfSkinApplyToFrameTree(tItemPanel);
+				end
+			end
+
+			if #tTable > tSkinnedItemCount then
+				tDropdownBox["skinItemCount"] = #tTable;
+			end
+		end
+
+		if aComboBox["isGlow"] and aComboBox["itemsBuilt"] then
+			VUHDO_lnfRefreshComboGlowItems(aComboBox);
+		end
+
 		return;
+
 	end
-
-	tComboName = aComboBox and aComboBox:GetName();
-
-	if not tComboName then
-		return;
-	end
-
-	if aComboBox["isScrollable"] then
-		VUHDO_lnfSkinApplyToFrameTree(_G[tComboName .. "ScrollPanel"]);
-	else
-		VUHDO_lnfSkinApplyToFrameTree(_G[tComboName .. "SelectPanel"]);
-	end
-
-	if aComboBox["isGlow"] and aComboBox["itemsBuilt"] then
-		VUHDO_lnfRefreshComboGlowItems(aComboBox);
-	end
-
-	return;
-
 end
 
 
@@ -2119,7 +2167,6 @@ end
 
 
 do
-
 	--
 	local tCheckTreeBackdrop;
 	function VUHDO_lnfSkinApplyCheckTreeRowBackdrop(aRow)
@@ -2177,7 +2224,6 @@ do
 		return;
 
 	end
-
 end
 
 
@@ -2271,6 +2317,7 @@ end
 
 --
 local tComboBox;
+local tComboName;
 local tSelectPanel;
 local function VUHDO_lnfSkinOnComboButtonClicked(aButton)
 
@@ -2661,83 +2708,93 @@ end
 
 
 
---
-local tRegions;
-local tRegionName;
-local function VUHDO_lnfSkinApplyFontColors(aFrame)
+do
+	--
+	local tRegion;
+	local tRegionName;
+	local function VUHDO_lnfSkinStyleFontStringRegions(...)
 
-	if not aFrame then
+		for tIdx = 1, select("#", ...) do
+			tRegion = (select(tIdx, ...));
+
+			if tRegion.GetObjectType and tRegion:GetObjectType() == "FontString" then
+				tRegionName = tRegion:GetName();
+
+				if tRegionName and strfind(tRegionName, "Title", 1, true) then
+					VUHDO_lnfSkinStyleFontString(tRegion, "title");
+				elseif tRegionName and strfind(tRegionName, "Value", 1, true) then
+					VUHDO_lnfSkinStyleFontString(tRegion, "value");
+				elseif tRegionName and strfind(tRegionName, "Label", 1, true) then
+					VUHDO_lnfSkinStyleFontString(tRegion, "normal");
+				end
+
+				if sIsCjkLocale then
+					VUHDO_lnfSkinStyleFontFace(tRegion);
+				end
+			end
+		end
+
 		return;
+
 	end
 
-	tName = aFrame:GetName();
 
-	if tName then
-		tRegion = _G[tName .. "Label"];
 
-		if tRegion then
-			VUHDO_lnfSkinStyleFontString(tRegion, "normal");
+	--
+	local tName;
+	function VUHDO_lnfSkinApplyFontColors(aFrame)
+
+		if not aFrame then
+			return;
 		end
 
-		tRegion = _G[tName .. "Label2"];
+		tName = aFrame:GetName();
 
-		if tRegion then
-			VUHDO_lnfSkinStyleFontString(tRegion, "normal");
-		end
+		if tName then
+			tRegion = _G[tName .. "Label"];
 
-		tRegion = _G[tName .. "Title"];
+			if tRegion then
+				VUHDO_lnfSkinStyleFontString(tRegion, "normal");
+			end
 
-		if tRegion then
-			VUHDO_lnfSkinStyleFontString(tRegion, "title");
-		end
+			tRegion = _G[tName .. "Label2"];
 
-		tRegion = _G[tName .. "Value"];
+			if tRegion then
+				VUHDO_lnfSkinStyleFontString(tRegion, "normal");
+			end
 
-		if tRegion then
-			VUHDO_lnfSkinStyleFontString(tRegion, "value");
-		end
+			tRegion = _G[tName .. "Title"];
 
-		tRegion = _G[tName .. "Text"];
-
-		if tRegion then
-			VUHDO_lnfSkinStyleFontString(tRegion, "normal");
-		end
-	end
-
-	if aFrame.GetFontString and aFrame:GetObjectType() == "Button" then
-		tRegion = aFrame:GetFontString();
-
-		if tRegion then
-			VUHDO_lnfSkinStyleFontString(tRegion, "normal");
-		end
-	end
-
-	tRegions = { aFrame:GetRegions() };
-
-	for _, tRegion in ipairs(tRegions) do
-		if tRegion.GetObjectType and tRegion:GetObjectType() == "FontString" then
-			tRegionName = tRegion:GetName();
-
-			if tRegionName and strfind(tRegionName, "Title", 1, true) then
+			if tRegion then
 				VUHDO_lnfSkinStyleFontString(tRegion, "title");
-			elseif tRegionName and strfind(tRegionName, "Value", 1, true) then
+			end
+
+			tRegion = _G[tName .. "Value"];
+
+			if tRegion then
 				VUHDO_lnfSkinStyleFontString(tRegion, "value");
-			elseif tRegionName and strfind(tRegionName, "Label", 1, true) then
+			end
+
+			tRegion = _G[tName .. "Text"];
+
+			if tRegion then
 				VUHDO_lnfSkinStyleFontString(tRegion, "normal");
 			end
 		end
-	end
 
-	if sIsCjkLocale then
-		for _, tRegion in ipairs(tRegions) do
-			if tRegion.GetObjectType and tRegion:GetObjectType() == "FontString" then
-				VUHDO_lnfSkinStyleFontFace(tRegion);
+		if aFrame.GetFontString and aFrame:GetObjectType() == "Button" then
+			tRegion = aFrame:GetFontString();
+
+			if tRegion then
+				VUHDO_lnfSkinStyleFontString(tRegion, "normal");
 			end
 		end
+
+		VUHDO_lnfSkinStyleFontStringRegions(aFrame:GetRegions());
+
+		return;
+
 	end
-
-	return;
-
 end
 
 
@@ -3603,15 +3660,6 @@ end
 
 
 do
-	local sSkinQueue = { };
-	local sSkinHiddenQueue = { };
-	local sSkinQueueIndex = 1;
-	local sSkinHiddenQueueIndex = 1;
-	local sSkinUpdateFrame;
-	local sSkinMaxUpdateUs = 7500;
-
-
-
 	--
 	local function VUHDO_lnfSkinQueueIsPending()
 
@@ -3745,7 +3793,19 @@ do
 
 
 	--
-	local tChildCount;
+	local function VUHDO_lnfSkinApplyToChildFrameTrees(...)
+
+		for tIdx = 1, select("#", ...) do
+			VUHDO_lnfSkinApplyToFrameTree((select(tIdx, ...)));
+		end
+
+		return;
+
+	end
+
+
+
+	--
 	function VUHDO_lnfSkinApplyToFrameTree(aFrame)
 
 		if not aFrame then
@@ -3753,12 +3813,7 @@ do
 		end
 
 		VUHDO_lnfSkinApplyToComponent(aFrame);
-
-		tChildCount = select("#", aFrame:GetChildren());
-
-		for tIdx = 1, tChildCount do
-			VUHDO_lnfSkinApplyToFrameTree((select(tIdx, aFrame:GetChildren())));
-		end
+		VUHDO_lnfSkinApplyToChildFrameTrees(aFrame:GetChildren());
 
 		return;
 
@@ -3773,6 +3828,8 @@ function VUHDO_lnfSkinApplyAll()
 	if not sSkinReady then
 		return;
 	end
+
+	sSkinGeneration = sSkinGeneration + 1;
 
 	if VuhDoNewOptionsTabbedFrame then
 		VUHDO_lnfSkinEnqueueFrameTree(VuhDoNewOptionsTabbedFrame);
@@ -3867,7 +3924,6 @@ end
 
 --
 local tColorLen;
-local tFontEntry;
 local function VUHDO_lnfSkinValidateColorArray(aColor, aLabel)
 
 	if type(aColor) ~= "table" then
@@ -3900,6 +3956,7 @@ end
 
 --
 local tBackdropEntry;
+local tFontEntry;
 local function VUHDO_lnfSkinValidate(aName, aSkinData)
 
 	if type(aName) ~= "string" or aName == "" then
@@ -4283,21 +4340,23 @@ end
 
 
 
---
-local tResult;
-function VUHDO_getRegisteredSkins()
+do
+	--
+	local tResult;
+	function VUHDO_getRegisteredSkins()
 
-	tResult = { };
+		tResult = { };
 
-	for tName, tEntry in pairs(VUHDO_OPTIONS_SKINS) do
-		tinsert(tResult, {
-			["name"] = tName,
-			["displayName"] = tEntry["displayName"] or tName,
-		});
+		for tName, tEntry in pairs(VUHDO_OPTIONS_SKINS) do
+			tinsert(tResult, {
+				["name"] = tName,
+				["displayName"] = tEntry["displayName"] or tName,
+			});
+		end
+
+		return tResult;
+
 	end
-
-	return tResult;
-
 end
 
 
@@ -4311,117 +4370,121 @@ end
 
 
 
---
-local tDisplayName;
-function VUHDO_lnfSkinInitComboTable()
+do
+	--
+	local tDisplayName;
+	function VUHDO_lnfSkinInitComboTable()
 
-	twipe(VUHDO_OPTIONS_SKIN_COMBO_TABLE);
+		twipe(VUHDO_OPTIONS_SKIN_COMBO_TABLE);
 
-	for tName, tSkinEntry in pairs(VUHDO_OPTIONS_SKINS) do
-		tDisplayName = tSkinEntry["displayName"] or tName;
+		for tName, tSkinEntry in pairs(VUHDO_OPTIONS_SKINS) do
+			tDisplayName = tSkinEntry["displayName"] or tName;
 
-		tinsert(VUHDO_OPTIONS_SKIN_COMBO_TABLE, { tName, tDisplayName });
+			tinsert(VUHDO_OPTIONS_SKIN_COMBO_TABLE, { tName, tDisplayName });
+		end
+
+		tsort(VUHDO_OPTIONS_SKIN_COMBO_TABLE, VUHDO_lnfSkinComboTableSort);
+
+		sHooked["comboTableInitialized"] = true;
+
+		return;
+
 	end
-
-	tsort(VUHDO_OPTIONS_SKIN_COMBO_TABLE, VUHDO_lnfSkinComboTableSort);
-
-	sHooked["comboTableInitialized"] = true;
-
-	return;
-
 end
 
 
 
---
-local tFontFlags;
-function VUHDO_lnfSkinInit()
+do
+	--
+	local tFontFlags;
+	function VUHDO_lnfSkinInit()
 
-	if not VUHDO_OPTIONS_SETTINGS then
-		return;
-	end
-
-	if not VUHDO_OPTIONS_SETTINGS["SKIN"] then
-		VUHDO_OPTIONS_SETTINGS["SKIN"] = "Classic";
-	elseif VUHDO_OPTIONS_SETTINGS["SKIN"] == "Default" then
-		VUHDO_OPTIONS_SETTINGS["SKIN"] = "Classic";
-	end
-
-	if not VUHDO_OPTIONS_SETTINGS["SKIN_TINTS"] then
-		VUHDO_OPTIONS_SETTINGS["SKIN_TINTS"] = { };
-	end
-
-	VUHDO_lnfSkinInitComboTable();
-	VUHDO_lnfSkinRewriteBackdrops();
-
-	if not sHooked["patchFont"] then
-		hooksecurefunc("VUHDO_lnfPatchFont", VUHDO_lnfSkinApplyToComponent);
-
-		sHooked["patchFont"] = true;
-	end
-
-	if not sHooked["tabGlyph"] then
-		hooksecurefunc("VUHDO_lnfTabCheckButtonClicked", VUHDO_lnfSkinOnTabCheckButtonClicked);
-		hooksecurefunc("VUHDO_lnfRadioButtonClicked", VUHDO_lnfSkinOnRadioButtonClicked);
-		hooksecurefunc("VUHDO_lnfCheckButtonOnEnter", VUHDO_lnfSkinOnCheckButtonEnter);
-		hooksecurefunc("VUHDO_lnfCheckButtonOnLeave", VUHDO_lnfSkinOnCheckButtonLeave);
-		hooksecurefunc("VUHDO_lnfTabCheckButtonOnEnter", VUHDO_lnfSkinRefreshTabButton);
-		hooksecurefunc("VUHDO_lnfTabCheckButtonOnLeave", VUHDO_lnfSkinRefreshTabButton);
-		hooksecurefunc("VUHDO_lnfCheckButtonOnLoad", VUHDO_lnfSkinApplyCheckLabelAnchors);
-
-		sHooked["tabGlyph"] = true;
-	end
-
-	if not sHooked["triState"] then
-		hooksecurefunc("VUHDO_lnfTriStateCheckButtonUpdateModel", VUHDO_lnfSkinOnTriStateCheckButtonUpdateModel);
-		hooksecurefunc("VUHDO_lnfTriStateCheckButtonInitFromModel", VUHDO_lnfSkinOnTriStateCheckButtonUpdateModel);
-
-		sHooked["triState"] = true;
-	end
-
-	if not sHooked["combo"] then
-		hooksecurefunc("VUHDO_lnfComboInitItems", VUHDO_lnfSkinOnComboInitItems);
-		hooksecurefunc("VUHDO_lnfComboItemOnEnter", VUHDO_lnfSkinOnComboItemOnEnter);
-		hooksecurefunc("VUHDO_lnfComboItemOnLeave", VUHDO_lnfSkinOnComboItemOnLeave);
-		hooksecurefunc("VUHDO_lnfComboButtonClicked", VUHDO_lnfSkinOnComboButtonClicked);
-		hooksecurefunc("VUHDO_lnfCheckTreeRowOnEnter", VUHDO_lnfSkinOnCheckTreeRowOnEnter);
-		hooksecurefunc("VUHDO_lnfCheckTreeRowOnLeave", VUHDO_lnfSkinOnCheckTreeRowOnLeave);
-
-		sHooked["combo"] = true;
-	end
-
-	if not sHooked["squareDemo"] then
-		hooksecurefunc("VUHDO_squareDemoOnShow", VUHDO_lnfSkinOnSquareDemoOnShow);
-
-		sHooked["squareDemo"] = true;
-	end
-
-	if not sHooked["auraGroups"] then
-		hooksecurefunc("VUHDO_auraGroupsRefreshListEntries", VUHDO_lnfSkinOnAuraGroupsRefresh);
-		hooksecurefunc("VUHDO_buildAllBuffSetupGenerericPanel", VUHDO_lnfSkinOnBuffWatchRefresh);
-		hooksecurefunc("VUHDO_positionAllGroupConfigPanels", VUHDO_lnfSkinStyleMovePanelConfigIcons);
-		hooksecurefunc("VUHDO_lnfColorSwatchInitFromModel", VUHDO_lnfSkinStyleColorSwatch);
-
-		sHooked["auraGroups"] = true;
-	end
-
-	if sIsCjkLocale then
-		sCjkFont["path"] = VUHDO_getSafeFontPath(VUHDO_OPTIONS_FONT_NAME);
-
-		for tCnt = 1, #sCjkButtonFontNames do
-			tName = sCjkButtonFontNames[tCnt];
-
-			_, _, tFontFlags = _G[tName]:GetFont();
-
-			_G[tName]:SetFont(sCjkFont["path"], sCjkFont["size"], tFontFlags or "");
+		if not VUHDO_OPTIONS_SETTINGS then
+			return;
 		end
+
+		if not VUHDO_OPTIONS_SETTINGS["SKIN"] then
+			VUHDO_OPTIONS_SETTINGS["SKIN"] = "Classic";
+		elseif VUHDO_OPTIONS_SETTINGS["SKIN"] == "Default" then
+			VUHDO_OPTIONS_SETTINGS["SKIN"] = "Classic";
+		end
+
+		if not VUHDO_OPTIONS_SETTINGS["SKIN_TINTS"] then
+			VUHDO_OPTIONS_SETTINGS["SKIN_TINTS"] = { };
+		end
+
+		VUHDO_lnfSkinInitComboTable();
+		VUHDO_lnfSkinRewriteBackdrops();
+
+		if not sHooked["patchFont"] then
+			hooksecurefunc("VUHDO_lnfPatchFont", VUHDO_lnfSkinApplyToComponent);
+
+			sHooked["patchFont"] = true;
+		end
+
+		if not sHooked["tabGlyph"] then
+			hooksecurefunc("VUHDO_lnfTabCheckButtonClicked", VUHDO_lnfSkinOnTabCheckButtonClicked);
+			hooksecurefunc("VUHDO_lnfRadioButtonClicked", VUHDO_lnfSkinOnRadioButtonClicked);
+			hooksecurefunc("VUHDO_lnfCheckButtonOnEnter", VUHDO_lnfSkinOnCheckButtonEnter);
+			hooksecurefunc("VUHDO_lnfCheckButtonOnLeave", VUHDO_lnfSkinOnCheckButtonLeave);
+			hooksecurefunc("VUHDO_lnfTabCheckButtonOnEnter", VUHDO_lnfSkinRefreshTabButton);
+			hooksecurefunc("VUHDO_lnfTabCheckButtonOnLeave", VUHDO_lnfSkinRefreshTabButton);
+			hooksecurefunc("VUHDO_lnfCheckButtonOnLoad", VUHDO_lnfSkinApplyCheckLabelAnchors);
+
+			sHooked["tabGlyph"] = true;
+		end
+
+		if not sHooked["triState"] then
+			hooksecurefunc("VUHDO_lnfTriStateCheckButtonUpdateModel", VUHDO_lnfSkinOnTriStateCheckButtonUpdateModel);
+			hooksecurefunc("VUHDO_lnfTriStateCheckButtonInitFromModel", VUHDO_lnfSkinOnTriStateCheckButtonUpdateModel);
+
+			sHooked["triState"] = true;
+		end
+
+		if not sHooked["combo"] then
+			hooksecurefunc("VUHDO_lnfComboInitItems", VUHDO_lnfSkinOnComboInitItems);
+			hooksecurefunc("VUHDO_lnfComboItemOnEnter", VUHDO_lnfSkinOnComboItemOnEnter);
+			hooksecurefunc("VUHDO_lnfComboItemOnLeave", VUHDO_lnfSkinOnComboItemOnLeave);
+			hooksecurefunc("VUHDO_lnfComboButtonClicked", VUHDO_lnfSkinOnComboButtonClicked);
+			hooksecurefunc("VUHDO_lnfCheckTreeRowOnEnter", VUHDO_lnfSkinOnCheckTreeRowOnEnter);
+			hooksecurefunc("VUHDO_lnfCheckTreeRowOnLeave", VUHDO_lnfSkinOnCheckTreeRowOnLeave);
+
+			sHooked["combo"] = true;
+		end
+
+		if not sHooked["squareDemo"] then
+			hooksecurefunc("VUHDO_squareDemoOnShow", VUHDO_lnfSkinOnSquareDemoOnShow);
+
+			sHooked["squareDemo"] = true;
+		end
+
+		if not sHooked["auraGroups"] then
+			hooksecurefunc("VUHDO_auraGroupsRefreshListEntries", VUHDO_lnfSkinOnAuraGroupsRefresh);
+			hooksecurefunc("VUHDO_buildAllBuffSetupGenerericPanel", VUHDO_lnfSkinOnBuffWatchRefresh);
+			hooksecurefunc("VUHDO_positionAllGroupConfigPanels", VUHDO_lnfSkinStyleMovePanelConfigIcons);
+			hooksecurefunc("VUHDO_lnfColorSwatchInitFromModel", VUHDO_lnfSkinStyleColorSwatch);
+
+			sHooked["auraGroups"] = true;
+		end
+
+		if sIsCjkLocale then
+			sCjkFont["path"] = VUHDO_getSafeFontPath(VUHDO_OPTIONS_FONT_NAME);
+
+			for tCnt = 1, #sCjkButtonFontNames do
+				tName = sCjkButtonFontNames[tCnt];
+
+				_, _, tFontFlags = _G[tName]:GetFont();
+
+				_G[tName]:SetFont(sCjkFont["path"], sCjkFont["size"], tFontFlags or "");
+			end
+		end
+
+		sSkinReady = true;
+		VUHDO_lnfSkinApplyAll();
+
+		return;
+
 	end
-
-	sSkinReady = true;
-	VUHDO_lnfSkinApplyAll();
-
-	return;
-
 end
 
 

@@ -1135,13 +1135,11 @@ function VUHDO_initAuraGroupsAddSpellComboModel()
 	for tSpellId, _ in pairs(tSpellIds) do
 		tDisplayName = VUHDO_resolveSpellId(tSpellId);
 
-		if tDisplayName ~= tostring(tSpellId) then
+		if type(tDisplayName) == "string" then
 			tDisplayName = "[" .. tSpellId .. "] " .. tDisplayName;
-		else
-			tDisplayName = tostring(tSpellId);
-		end
 
-		tinsert(tSortTable, { tSpellId, tDisplayName, VUHDO_resolveSpellId(tSpellId) });
+			tinsert(tSortTable, { tSpellId, tDisplayName, tDisplayName });
+		end
 	end
 
 	tsort(tSortTable, function(anA, anotherA) return anA[3] < anotherA[3]; end);

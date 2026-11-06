@@ -2328,7 +2328,7 @@ do
 			tIsGradient = anEntry["custom"]["isClassGradient"];
 
 			if anInfo["hasSecretClass"] and not (VUHDO_USER_CLASS_COLORS and VUHDO_USER_CLASS_COLORS[tClassId]) then
-				return VUHDO_getBlizzardClassColorMixin(anInfo["class"]), nil;
+				return anInfo["blizzardClassColor"], nil;
 			end
 
 			if tIsGradient then
@@ -3173,7 +3173,7 @@ do
 			txState["secretContext"]["blizzardClassColor"] = nil;
 
 			if not tHealthCurve and aInfo["hasSecretClass"] then
-				txState["secretContext"]["blizzardClassColor"] = VUHDO_getBlizzardClassColorMixin(aInfo["class"]);
+				txState["secretContext"]["blizzardClassColor"] = aInfo["blizzardClassColor"];
 			end
 
 			txState["secretContext"]["healthCurve"] = tHealthCurve;
