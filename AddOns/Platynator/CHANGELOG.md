@@ -1,7 +1,6 @@
 # Platynator
 
-## [538](https://github.com/TheMouseNest/Platynator/tree/538) (2026-11-04)
-[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/537...538) 
+## [541](https://github.com/TheMouseNest/Platynator/tree/541) (2026-11-05)
+[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/540...541) 
 
-- Enable silver dragons for rare icons  
-- Fix error on opening Blizzard nameplate options  
+- Remove the temporary cvars as they caused issues with keyboard shortcuts  

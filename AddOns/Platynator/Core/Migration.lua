@@ -859,6 +859,14 @@ local function UpgradeDesignv30(design)
   end
 end
 
+local function UpgradeDesignv31(design)
+  for _, text in ipairs(design.texts) do
+    if text.kind == "creatureName" then
+      text.showFirstNameOnly = false
+    end
+  end
+end
+
 local designUpgrades = {
   UpgradeDesignv1,
   UpgradeDesignv2,

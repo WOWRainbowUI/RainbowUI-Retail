@@ -437,12 +437,8 @@ function addonTable.Display.ManagerMixin:UpdateShowState()
   local currentShow = addonTable.Config.Get(addonTable.Config.Options.SHOW_NAMEPLATES)
 
   local baseValues, friendlyMinions, enemyMinions = GetCVarsForNameplates()
-  if C_CVar.GetCVarInfo("nameplateShowOnlyNameForFriendlyPlayerUnits") then
-    C_CVar.SetCVar("nameplateShowOnlyNameForFriendlyPlayerUnits", "0")
-  end
-  if C_CVar.GetCVarInfo("nameplateUseClassColorForFriendlyPlayerUnitNames") then
-    C_CVar.SetCVar("nameplateUseClassColorForFriendlyPlayerUnitNames", "0")
-  end
+  C_CVar.SetCVar("nameplateShowOnlyNameForFriendlyPlayerUnits", "0")
+  C_CVar.SetCVar("nameplateUseClassColorForFriendlyPlayerUnitNames", "0")
 
   for key, cvar in pairs(baseValues) do
     local newValue = currentShow[key] and "1" or "0"
@@ -477,7 +473,7 @@ function addonTable.Display.ManagerMixin:UpdateInstanceShowState()
   local relevantInstance = addonTable.Display.Utilities.IsInRelevantInstance({dungeon = true, raid = true, delve = true})
   local isDelve = addonTable.Display.Utilities.IsInRelevantInstance({delve = true})
 
-  if state == "name_only" and C_CVar.GetCVarInfo("nameplateShowOnlyNameForFriendlyPlayerUnits") then
+  if state == "name_only" then
     C_CVar.SetCVar("nameplateShowOnlyNameForFriendlyPlayerUnits", relevantInstance and "1" or "0")
     C_CVar.SetCVar("nameplateUseClassColorForFriendlyPlayerUnitNames", relevantInstance and self.friendlyNameOnlyClassColors and "1" or "0")
   end
