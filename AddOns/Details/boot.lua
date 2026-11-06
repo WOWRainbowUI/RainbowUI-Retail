@@ -23,8 +23,8 @@ end})
 		end
 		local addonName, Details222 = ...
 		local version, build, date, tvs = GetBuildInfo()
-		Details.build_counter = 15339
-		Details.alpha_build_counter = 15339 --if this is higher than the regular counter, use it instead
+		Details.build_counter = 15400
+		Details.alpha_build_counter = 15400 --if this is higher than the regular counter, use it instead
 		Details.dont_open_news = true
 		Details.game_version = version
 		Details.userversion = version .. " " .. Details.build_counter
@@ -52,7 +52,7 @@ end})
 
 		Details = Details
 
-		local gameVersionPrefix = "VCPM" --v1, v2 v5, v12
+		local gameVersionPrefix = "VFCPM" --v1, forever , v2 v5, v12
 
 		Details.gameVersionPrefix = gameVersionPrefix
 
