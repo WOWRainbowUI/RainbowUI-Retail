@@ -342,6 +342,46 @@ GTFO.SpellID["1266814"] = {
   sound = 3;
 };
 
+--- *****************************
+--- * Magister's Terrace (2811) *
+--- *****************************
+
+GTFO.SpellID["1270762"] = {
+  --desc = "Shhhh! (Vigilant Librarian)";
+  instance = 2811;
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["1283905"] = {
+  --desc = "Shield Slam (Runed Spellbreaker)";
+  instance = 2811;
+  sound = 3;
+};
+
+GTFO.SpellID["1265938"] = {
+  --desc = "Void Blast";
+  instance = 2811;
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["1269631"] = {
+  --desc = "Entropy Orb (Degentrius)";
+  instance = 2811;
+  encounter = 3074;
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["1214714"] = {
+  --desc = "Void Torrent (Degentrius)";
+  instance = 2811;
+  encounter = 3074;
+  applicationOnly = true;
+  sound = 3;
+};
+
 --- ************************
 --- * The Voidspire (2912) *
 --- ************************
@@ -1086,6 +1126,15 @@ GTFO.SpellID["1316354"] = {
   instance = 3095;
   applicationOnly = true;
   sound = 3;
+  stackSound = 3;
+};
+
+GTFO.SpellID["1318850"] = {
+  --desc = "Caustic Burst";
+  instance = 3095;
+  applicationOnly = true;
+  sound = 3;
+  stackSound = 3;
 };
 
 GTFO.SpellID["1304040"] = {
@@ -1142,12 +1191,20 @@ GTFO.SpellID["1302917"] = {
   tankSound = 0;
 };
 
+GTFO.SpellID["1318796"] = {
+  --desc = "Heaving Assault (Colossal Earthbreaker)";
+  instance = 3095;
+  applicationOnly = true;
+  sound = 3;
+  stackSound = 3;
+};
+
 --- ****************************************
 --- * The Labyrinth of Kindo'jan (3043) *
 --- ****************************************
 
 GTFO.SpellID["1289267"] = {
-  --desc = "Rotten Cascade";
+  --desc = "Rotten Cascade (Sha'Kuro)";
   instance = 3043;
   applicationOnly = true;
   sound = 3;
@@ -1160,5 +1217,75 @@ GTFO.SpellID["1303494"] = {
   sound = 3;
   stackSound = 3;
 };
+
+GTFO.SpellID["1320845"] = {
+	--desc = "Whirling Spirit (Hexbound Defender)";
+	instance = 3043;
+	applicationOnly = true;
+	sound = 3;
+};
+
+GTFO.SpellID["1305704"] = {
+	--desc = "Bone Spike (King of Souls)";
+	instance = 3043;
+	applicationOnly = true;
+	sound = 3;
+};
+
+GTFO.SpellID["1295869"] = {
+  --desc = "On Fire!";
+  instance = 3043;
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["1315479"] = {
+  --desc = "Fear the Dark (Haunted Mask)";
+  instance = 3043;
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["1315572"] = {
+  --desc = "Crushing Leap (Sacrifice of Flesh)";
+  instance = 3043;
+  applicationOnly = true;
+  sound = 3;
+};
+
+
+GTFO.SpellID["1312084"] = {
+  --desc = "Crushing Slam (The Undead Trollbunal)";
+  instance = 3043;
+  sound = 3;
+};
+
+GTFO.SpellID["1312026"] = {
+  --desc = "Shredding Swipe (The Undead Trollbunal)";
+  instance = 3043;
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["1283783"] = {
+  --desc = "Shadow Wave (Head Ritualist Zol'go)";
+  instance = 3043;
+  sound = 3;
+};
+
+GTFO.SpellID["1292130"] = {
+  --desc = "Storm of Torment (Den'zara)";
+  instance = 3043;
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["1292001"] = {
+  --desc = "Beckoning Death (Den'zara)";
+  instance = 3043;
+  applicationOnly = true;
+  sound = 3;
+};
+
 
 end

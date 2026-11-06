@@ -2512,3 +2512,9 @@ Change Log:
 6.12.2
 * Fixed an issue where an older version was accidentally uploaded
 * Added Midnight spells for The Labyrinth of Kindo'jan
+
+6.12.3
+* Added Midnight spells (world)
+* Added Midnight spells for The Labyrinth of Kindo'jan
+* Added Midnight spells for Magister's Terrace
+

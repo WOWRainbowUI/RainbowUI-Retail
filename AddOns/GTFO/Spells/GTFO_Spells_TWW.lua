@@ -467,7 +467,8 @@ GTFO.SpellID["422806"] = {
 --- ******************************
 
 GTFO.SpellID["427473"] = {
-  --desc = "Flamestrike (Fanatical Mage)";
+  --desc = "Flamestrike (Fanatical Mage, Blazing Pyromancer)";
+  instances = { 2649, 2811 }; -- Priory of the Sacred Flame, Magisters' Terrace
   sound = 1;
 };
 
@@ -1651,5 +1652,3 @@ GTFO.SpellID["142790"] = {
 };
 
 end
-
-

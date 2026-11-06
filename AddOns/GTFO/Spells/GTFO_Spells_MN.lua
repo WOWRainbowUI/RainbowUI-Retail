@@ -175,6 +175,12 @@ GTFO.SpellID["1278901"] = {
   sound = 1;
 };
 
+GTFO.SpellID["1306842"] = {
+  --desc = "Unstable Void Energy";
+  maps = { 2395, 2437 }; -- Eversong Woods, Zul'Aman
+  sound = 1;
+};
+
 --- *******************
 --- * Midnight (Prey) *
 --- *******************
@@ -305,6 +311,43 @@ GTFO.SpellID["1214089"] = {
   instance = 2811; 
 };
 
+GTFO.SpellID["1282053"] = {
+  --desc = "Arcane Residue (Arcane Sentry)";
+  instance = 2811;
+  sound = 1;
+};
+
+GTFO.SpellID["1243905"] = {
+  --desc = "Unstable Energy (Arcanotron Custos)";
+  instance = 2811;
+  encounter = 3071;
+  sound = 0;
+  stackSound = 2;
+};
+
+GTFO.SpellID["1225015"] = {
+  --desc = "Suppression Zone (Seranel Sunlash)";
+  instance = 2811;
+  encounter = 3072;
+  applicationOnly = true;
+  negatingDebuffSpellID = 1225796; -- Runic Mark
+  sound = 2;
+};
+
+GTFO.SpellID["1224104"] = {
+  --desc = "Void Secretions (Gemellus)";
+  instance = 2811;
+  encounter = 3073;
+  sound = 1;
+};
+
+GTFO.SpellID["1224401"] = {
+  --desc = "Cosmic Radiation (Gemellus)";
+  instance = 2811;
+  encounter = 3073;
+  sound = 1;
+};
+
 --- *************************
 --- * Voidscar Arena (2923) *
 --- *************************
@@ -314,8 +357,6 @@ GTFO.SpellID["1234833"] = {
   instance = 2923;
   sound = 1;
 };
-
--- Toxic Sludge is in GTFO_Spells_TWW.lua because it is used in multiple instances.
 
 --- ***************************
 --- * Windrunner Spire (2805) *
@@ -1050,5 +1091,19 @@ GTFO.SpellID["1300767"] = {
   encounter = 3548;
   sound = 1;
 };
+
+GTFO.SpellID["269397"] = {
+  --desc = "Covered in Flames";
+  instance = 3043;
+  applicationOnly = true;
+  sound = 1;
+};
+
+GTFO.SpellID["1315509"] = {
+  --desc = "Hands of the Lost";
+  instance = 3043;
+  sound = 2;
+};
+
 
 end
