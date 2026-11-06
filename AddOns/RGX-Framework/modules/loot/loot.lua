@@ -5,6 +5,9 @@
 -- Usage:
 --   local Loot = RGX:GetLoot()
 --
+--   -- Fire once per bag update for the first newly acquired item of any quality
+--   Loot:OnItemLooted(function(bag, slot, quality) ... end)
+--
 --   -- Fire when a Rare+ quality item appears in bags (quality >= 3)
 --   Loot:OnRareLoot(function(bag, slot, quality) ... end)
 --
@@ -25,7 +28,9 @@ local Loot = {}
 -- ── State ─────────────────────────────────────────────────────────────────────
 
 Loot._eventsInit      = false
+Loot._onItemLooted    = {}
 Loot._onRareLoot      = {}
+Loot._seenNewItems    = {}
 Loot._onCurrencyGained = {}
 Loot._currencyCache   = {}
 
@@ -55,6 +60,11 @@ end
 
 -- ── Public callback registration ─────────────────────────────────────────────
 
+-- Fired once per bag update for the first newly acquired item of any quality.
+-- "Looted" means it newly arrived in the bags (drops, vendors, mail and crafting all count).
+-- fn(bag, slot, quality)   quality may be nil on clients that do not report it
+function Loot:OnItemLooted(fn)     return AddCb(self._onItemLooted,     fn) end
+
 -- Fired when a new Rare+ item appears in bags.
 -- fn(bag, slot, quality)
 function Loot:OnRareLoot(fn)       return AddCb(self._onRareLoot,       fn) end
@@ -65,8 +75,23 @@ function Loot:OnCurrencyGained(fn) return AddCb(self._onCurrencyGained, fn) end
 
 -- ── Internal helpers ──────────────────────────────────────────────────────────
 
-local function ScanBagsForRareLoot()
+local function ItemQuality(bag, slot)
+    if C_Container and C_Container.GetContainerItemInfo then
+        local info = C_Container.GetContainerItemInfo(bag, slot)
+        return info and info.quality
+    elseif GetContainerItemInfo then
+        local _, _, q = GetContainerItemInfo(bag, slot)
+        return q
+    end
+end
+
+-- C_NewItems keeps an item flagged new until the player clears it, so a later bag update
+-- still sees it. Each slot is reported once; slots that stop being new are forgotten.
+local function ScanBagsForNewLoot()
     local numBags = NUM_BAG_SLOTS or 4
+    local stillNew = {}
+    local first, rare
+
     for bag = 0, numBags do
         local numSlots = 0
         if C_Container and C_Container.GetContainerNumSlots then
@@ -78,21 +103,23 @@ local function ScanBagsForRareLoot()
         for slot = 1, numSlots do
             local isNew = C_NewItems and C_NewItems.IsNewItem and C_NewItems.IsNewItem(bag, slot)
             if isNew then
-                local quality
-                if C_Container and C_Container.GetContainerItemInfo then
-                    local info = C_Container.GetContainerItemInfo(bag, slot)
-                    quality = info and info.quality
-                elseif GetContainerItemInfo then
-                    local _, _, q = GetContainerItemInfo(bag, slot)
-                    quality = q
-                end
-                if quality and quality >= RARE_QUALITY_THRESHOLD then
-                    Fire(Loot._onRareLoot, bag, slot, quality)
-                    return  -- one notification per bag update is enough
+                local key = bag .. ":" .. slot
+                stillNew[key] = true
+                if not Loot._seenNewItems[key] then
+                    local quality = ItemQuality(bag, slot)
+                    first = first or { bag, slot, quality }
+                    if not rare and quality and quality >= RARE_QUALITY_THRESHOLD then
+                        rare = { bag, slot, quality }
+                    end
                 end
             end
         end
     end
+
+    Loot._seenNewItems = stillNew
+    -- One notification per bag update is enough for each callback list.
+    if first then Fire(Loot._onItemLooted, first[1], first[2], first[3]) end
+    if rare then Fire(Loot._onRareLoot, rare[1], rare[2], rare[3]) end
 end
 
 -- ── Framework event wiring ────────────────────────────────────────────────────
@@ -102,7 +129,7 @@ function Loot:Init()
     self._eventsInit = true
 
     RGX:RegisterEvent("BAG_NEW_ITEMS_UPDATED", function()
-        ScanBagsForRareLoot()
+        ScanBagsForNewLoot()
     end)
 
     RGX:RegisterEvent("CURRENCY_DISPLAY_UPDATE", function(_, currencyID, quantity, quantityChange)

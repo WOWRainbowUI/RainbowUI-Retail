@@ -8,6 +8,7 @@ local addonName, RGX = ...
 local Honor = {
     _eventsInit = false,
     _onLevelUp = {},
+    _onHonorGain = {},
     currentHonorLevel = nil,
     pendingCheck = false,
 }
@@ -42,6 +43,18 @@ end
 
 function Honor:OnLevelUp(fn) return AddCb(self._onLevelUp, fn) end
 
+-- Fired for every honor award (honorable kills, objectives, bonuses).
+-- fn(amount, message)   amount is best-effort and nil when the message cannot be read
+function Honor:OnHonorGain(fn) return AddCb(self._onHonorGain, fn) end
+
+local function ParseHonorAmount(message)
+    if type(message) ~= "string" then return nil end
+    local ok, amount = pcall(function()
+        return tonumber(message:match("(%d+)%s+[Hh]onor") or message:match("%((%d+)"))
+    end)
+    return ok and amount or nil
+end
+
 function Honor:Evaluate(triggerName)
     local newLevel = GetCurrentHonorLevel()
     local oldLevel = self.currentHonorLevel
@@ -69,6 +82,9 @@ function Honor:Init()
     RGX:RegisterEvent("HONOR_LEVEL_UPDATE", queue, "RGXHonor_Level")
     RGX:RegisterEvent("PLAYER_PVP_RANK_CHANGED", queue, "RGXHonor_Rank")
     RGX:RegisterEvent("HONOR_XP_UPDATE", queue, "RGXHonor_XP")
+    RGX:RegisterEvent("CHAT_MSG_COMBAT_HONOR_GAIN", function(_, message)
+        Fire(Honor._onHonorGain, ParseHonorAmount(message), message)
+    end, "RGXHonor_Gain")
     RGX:RegisterEvent("PLAYER_ENTERING_WORLD", function(event) Honor:QueueCheck(event, 1.0) end, "RGXHonor_Login")
 end
 

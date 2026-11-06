@@ -286,7 +286,7 @@ function Dropdowns:ForceWidth(level, minWidth, leftInset, opts)
                     end
                 end
 
-                local rightRes = inlineW > 0 and (inlineW + 8)
+                local rightRes = inlineW > 0 and (inlineW + 14)
                     or (hasArrow and 14 or 6) + (cw > 0 and (cw + 6) or 0)
                 neededContent = math.max(neededContent, leftInset + tw + rightRes)
             end
@@ -325,7 +325,7 @@ function Dropdowns:ForceWidth(level, minWidth, leftInset, opts)
                         inlineBtn:SetPoint("LEFT", btn, "LEFT", leftInset + tw + 4, 0)
                     else
                         inlineBtn:ClearAllPoints()
-                        inlineBtn:SetPoint("RIGHT", btn, "RIGHT", -4, 0)
+                        inlineBtn:SetPoint("RIGHT", btn, "RIGHT", -6, 0)
                     end
                 end
 
@@ -392,15 +392,34 @@ function Dropdowns:AddInlineButton(buttonFrame, opts)
             tile = false, edgeSize = 1,
             insets = {left=0, right=0, top=0, bottom=0}
         })
-        existing:SetBackdropColor(0.08, 0.10, 0.13, 0.95)
-        existing:SetBackdropBorderColor(0.14, 0.20, 0.28, 1)
+        -- Theme from the design system, matching the dropdown trigger (surface, border, primary on hover).
+        local D = RGX and RGX.GetDesign and RGX:GetDesign()
+        local function token(name, fr, fg, fb)
+            if D and D.Unpack then
+                local r, g, b = D:Unpack(name)
+                if r then return r, g, b end
+            end
+            return fr, fg, fb
+        end
+        local function restState(btn)
+            local sr, sg, sb = token("surface", 0.08, 0.10, 0.13)
+            btn:SetBackdropColor(sr, sg, sb, 0.95)
+            btn:SetBackdropBorderColor(token("border", 0.14, 0.20, 0.28))
+        end
+        restState(existing)
 
         local lbl = existing:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
         lbl:SetAllPoints()
         lbl:SetJustifyH("CENTER")
+        lbl:SetTextColor(token("text", 0.91, 0.91, 0.93))
         existing.label = lbl
 
-        existing:SetScript("OnLeave", function() GameTooltip:Hide() end)
+        existing:HookScript("OnEnter", function(btn)
+            btn:SetBackdropBorderColor(token("primary", 0, 0.9, 1))
+        end)
+        existing:HookScript("OnLeave", function(btn) restState(btn) end)
+
+        existing:HookScript("OnLeave", function() GameTooltip:Hide() end)
         buttonFrame[key] = existing
         -- Native menu rows are recycled by other dropdowns after closing.
         -- An inline action must be explicitly shown for its new row owner.
