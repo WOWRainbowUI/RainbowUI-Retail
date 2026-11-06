@@ -909,70 +909,78 @@ function Skin.RefreshEnabled()
 end
 
 -- ---------------------------------------------------------------------------
---  EllesmereUI Friends conflict
---
---  EllesmereUIFriends is a contact-list replacement, not a skin. On 12.0 it
---  rebuilds the friends list outright, and on 12.1 EUI_Friends_Tiles_121.lua
---  paints Blizzard's Social UI cards -- the same cards FriendGroups rewrites the
---  contents and the height of. Two addons drawing one row produces a list that
---  looks broken rather than one that looks like either addon.
---
---  Raised as a POPUP, not just a chat line. A line in the chat frame scrolls away
---  behind everything else that prints at login, and the user has to act on this or
---  their contact list stays broken -- so it is a dialog, with the fix on button one.
---
---  NOT gated on eui_skin: the collision is between the two renderers, so our skin
---  toggle has no bearing on it.
+--  EllesmereUI renderer conflicts: EllesmereUIFriends (retail) and the Forever
+--  friend tiles both paint the Social UI cards FriendGroups re-texts and resizes.
+--  Not gated on eui_skin. Why: Desktop\Claude\FriendGroups\FriendGroups-eui-conflicts.md
 -- ---------------------------------------------------------------------------
 local EUI_FRIENDS_ADDON = "EllesmereUIFriends"
 
-StaticPopupDialogs["FRIENDGROUPS_EUI_FRIENDS_CONFLICT"] = {
-    text = L["EUI_FRIENDS_CONFLICT"],
-    button1 = L["EUI_FRIENDS_DISABLE"],
-    button2 = L["EUI_FRIENDS_KEEP"],
-    OnAccept = function()
-        -- One argument disables for the CURRENT CHARACTER, the least destructive
-        -- scope and the form both EllesmereUI and BugGrabber use. It only takes
-        -- effect on reload, so the two are done together.
-        if C_AddOns and C_AddOns.DisableAddOn then
-            C_AddOns.DisableAddOn(EUI_FRIENDS_ADDON)
-        end
-        ReloadUI()
-    end,
-    OnCancel = function(_, _, reason)
-        -- OnCancel is NOT only a click: it also fires on timeout, on ESC, and when
-        -- another popup overrides this one. Only a real press of button two is the
-        -- user choosing to keep both, so only that suppresses the dialog for good --
-        -- otherwise a popup they never saw would silence it permanently.
-        if reason ~= "clicked" then return end
-        if type(FriendGroups_SavedVars) == "table" then
-            FriendGroups_SavedVars.eui_conflict_dismissed = true
-        end
-    end,
-    timeout = 0,
-    whileDead = true,
-    hideOnEscape = true,
-    preferredIndex = 3,
-}
+-- EllesmereUI 9.7.6+ on Forever. friendsListCard.enabled has no options UI; it
+-- turns off the tiles alone and leaves EllesmereUI's window skin on.
+local function ForeverTilesActive()
+    local E = _G.EllesmereUI
+    if not (E and E.IS_FOREVER and E.FriendsKit and type(E.GetBlizzWindowStyle) == "function") then
+        return false
+    end
+    if type(E.PadTaintStandDown) == "function" and E.PadTaintStandDown() then return false end
+    if E.GetBlizzWindowStyle("socialui") == "off" then return false end
+    local card = type(EllesmereUIDB) == "table" and EllesmereUIDB.friendsListCard
+    return not (type(card) == "table" and card.enabled == false)
+end
 
-local function WarnFriendsConflict()
-    if not (C_AddOns and C_AddOns.IsAddOnLoaded) then return end
-    if not C_AddOns.IsAddOnLoaded(EUI_FRIENDS_ADDON) then return end
+local function DisableForeverTiles()
+    if type(EllesmereUIDB) ~= "table" then return end
+    if type(EllesmereUIDB.friendsListCard) ~= "table" then EllesmereUIDB.friendsListCard = {} end
+    EllesmereUIDB.friendsListCard.enabled = false
+end
 
-    -- Printed either way: it is the durable record once the dialog has been answered,
-    -- and it costs one line.
-    print(L["EUI_FRIENDS_CONFLICT"])
+local function DisableFriendsAddon()
+    -- One argument: current character only. Takes effect on the reload.
+    if C_AddOns and C_AddOns.DisableAddOn then C_AddOns.DisableAddOn(EUI_FRIENDS_ADDON) end
+end
 
-    if type(FriendGroups_SavedVars) == "table" and FriendGroups_SavedVars.eui_conflict_dismissed then
+local function RegisterConflictPopup(name, textKey, acceptKey, disable, dismissKey)
+    StaticPopupDialogs[name] = {
+        text = L[textKey],
+        button1 = L[acceptKey],
+        button2 = L["EUI_FRIENDS_KEEP"],
+        OnAccept = function()
+            disable()
+            ReloadUI()
+        end,
+        OnCancel = function(_, _, reason)
+            -- Also fires on ESC, timeout and override; only a click means "keep both".
+            if reason ~= "clicked" or not dismissKey then return end
+            if type(FriendGroups_SavedVars) == "table" then FriendGroups_SavedVars[dismissKey] = true end
+        end,
+        timeout = 0,
+        whileDead = true,
+        hideOnEscape = true,
+        preferredIndex = 3,
+    }
+end
+
+RegisterConflictPopup("FRIENDGROUPS_EUI_FRIENDS_CONFLICT", "EUI_FRIENDS_CONFLICT", "EUI_FRIENDS_DISABLE",
+    DisableFriendsAddon, "eui_conflict_dismissed")
+-- No dismiss key: the tiles popup returns every login while the tiles are on.
+RegisterConflictPopup("FRIENDGROUPS_EUI_TILES_CONFLICT", "EUI_TILES_CONFLICT", "EUI_TILES_DISABLE",
+    DisableForeverTiles, nil)
+
+local function RaiseConflict(popup, textKey, dismissKey)
+    print(L[textKey])
+    if dismissKey and type(FriendGroups_SavedVars) == "table" and FriendGroups_SavedVars[dismissKey] then
         return
     end
+    -- Deferred: a popup raised under the loading screen can go unseen.
+    C_Timer.After(5, function() StaticPopup_Show(popup) end)
+end
 
-    -- Deferred rather than raised straight from PLAYER_LOGIN: a dialog shown while the
-    -- loading screen is still up can be missed entirely, which is the exact failure
-    -- this replaced.
-    C_Timer.After(5, function()
-        StaticPopup_Show("FRIENDGROUPS_EUI_FRIENDS_CONFLICT")
-    end)
+local function WarnFriendsConflict()
+    if C_AddOns and C_AddOns.IsAddOnLoaded and C_AddOns.IsAddOnLoaded(EUI_FRIENDS_ADDON) then
+        RaiseConflict("FRIENDGROUPS_EUI_FRIENDS_CONFLICT", "EUI_FRIENDS_CONFLICT", "eui_conflict_dismissed")
+    elseif ForeverTilesActive() then
+        RaiseConflict("FRIENDGROUPS_EUI_TILES_CONFLICT", "EUI_TILES_CONFLICT", nil)
+    end
 end
 
 -- The reload confirmation for the enable/disable toggle is FRIENDGROUPS_RELOAD, defined in
