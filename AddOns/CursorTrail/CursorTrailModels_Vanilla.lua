@@ -1,5 +1,5 @@
 --[[---------------------------------------------------------------------------
-    File:   CursorTrailModels_Classic.lua
+    File:   CursorTrailModels_Vanilla.lua
     Desc:   This file contains a list of models used by this addon for Classic WoW.
 -----------------------------------------------------------------------------]]
 

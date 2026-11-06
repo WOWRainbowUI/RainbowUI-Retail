@@ -1,5 +1,4 @@
 --[[---------------------------------------------------------------------------
-    Addon:  CursorTrail
     File:   CursorTrailModels_TBC.lua
     Desc:   This file contains a list of models used by this addon for TBC Anniversary WoW.
 -----------------------------------------------------------------------------]]

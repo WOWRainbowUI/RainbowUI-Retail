@@ -1,4 +1,4 @@
-local CONTROLS_VERSION = "2025-07-01"  -- Version (date) of this file.  Stored as "UDControls.VERSION".
+local CONTROLS_VERSION = "2026-11-04"  -- Version (date) of this file.  Stored as "UDControls.VERSION".
 
 --[[---------------------------------------------------------------------------
 FILE:   UDControls.lua
@@ -16,6 +16,10 @@ REQUIREMENTS / DEPENDANCIES:
 USAGE:  See examples at end of this comment block.
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
 CHANGE HISTORY:
+    Nov 04, 2026
+        - Added support for WoW Forever:
+            * Added isForeverWoW(), kUsesModernAPI.
+            * Replaced kMinVer_10_2_5 with kUsesModernAPI.
     Jul 01, 2025
         - Minor changes to DisplayAllFonts().
     Apr 23, 2025
@@ -885,9 +889,10 @@ local unpack = unpack
 
 -- Templates compatible with all versions of WoW.
 local kGameTocVersion = select(4, GetBuildInfo())
-local function isVanillaWoW() return (kGameTocVersion < 20000) end
+local function isVanillaWoW() return (kGameTocVersion < 16001) end
+local function isForeverWoW() return (kGameTocVersion >= 16001 and kGameTocVersion < 20000) end
 local function isRetailWoW() return (kGameTocVersion >= 100000) end
-local kMinVer_10_2_5 = (kGameTocVersion >= 100205)  -- WoW 10.2.5 or newer?
+local kUsesModernAPI = (kGameTocVersion >= 100205 or isForeverWoW())  -- WoW 10.2.5 or newer, or WoW Forever.
 
 -- Other constants.
 local kSeparatorLine = "|-"
@@ -912,8 +917,8 @@ local kListBoxLineHeight = 17  --DJUadded  (and changed from 20)
 local gColorPickerAttributes
 local gAssociatedColorSwatch
 local kCustomizedTag = "customizedBy" .. kAddonFolderName
-local kColorPickerDefaultHeight = kMinVer_10_2_5 and 210 or 200
-local kColorPickerButtonWidth = kMinVer_10_2_5 and 150 or 138  -- Default width is 144.
+local kColorPickerDefaultHeight = kUsesModernAPI and 210 or 200
+local kColorPickerButtonWidth = kUsesModernAPI and 150 or 138  -- Default width is 144.
 local gColorPaletteFrame
 
 -- Misc constants.
@@ -930,17 +935,17 @@ local CUtil = {}  -- Forward declaration.
 --#############################################################################
 
 
-local gOpacitySlider = kMinVer_10_2_5 and OpacityFrameSlider or OpacitySliderFrame
+local gOpacitySlider = kUsesModernAPI and OpacityFrameSlider or OpacitySliderFrame
 assert(gOpacitySlider)
-local gColorPickerOkayBtn = kMinVer_10_2_5 and ColorPickerFrame.Footer.OkayButton or ColorPickerOkayButton
+local gColorPickerOkayBtn = kUsesModernAPI and ColorPickerFrame.Footer.OkayButton or ColorPickerOkayButton
 assert(gColorPickerOkayBtn)
-local gColorPickerCancelBtn = kMinVer_10_2_5 and ColorPickerFrame.Footer.CancelButton or ColorPickerCancelButton
+local gColorPickerCancelBtn = kUsesModernAPI and ColorPickerFrame.Footer.CancelButton or ColorPickerCancelButton
 assert(gColorPickerCancelBtn)
-local gColorPickerWheel = kMinVer_10_2_5 and ColorPickerFrame.Content.ColorPicker.Wheel or ColorPickerWheel
+local gColorPickerWheel = kUsesModernAPI and ColorPickerFrame.Content.ColorPicker.Wheel or ColorPickerWheel
 
 -------------------------------------------------------------------------------
 local function ColorPickerFrame_SetColorRGB(r, g, b)
-    if kMinVer_10_2_5 then
+    if kUsesModernAPI then
         ColorPickerFrame.Content.ColorPicker:SetColorRGB(r, g, b)
     else  -- Older version.
         ColorPickerFrame:SetColorRGB(r, g, b)
@@ -949,7 +954,7 @@ end
 
 -------------------------------------------------------------------------------
 local function OpacitySlider_GetValue()
-    if kMinVer_10_2_5 then
+    if kUsesModernAPI then
         ----return OpacityFrameSlider:GetValue() --<BUG> Associated color swatch not updated when opacity slider changed.
         return ColorPickerFrame.Content.ColorPicker:GetColorAlpha()
     else  -- Older version.
@@ -959,7 +964,7 @@ end
 
 -------------------------------------------------------------------------------
 local function OpacitySlider_SetValue(opacity)
-    if kMinVer_10_2_5 then
+    if kUsesModernAPI then
         ----return OpacityFrameSlider:SetValue(opacity) --<BUG> Associated color swatch not updated when opacity slider changed.
         return ColorPickerFrame.Content.ColorPicker:SetColorAlpha(opacity)
     else  -- Older version.
@@ -3972,7 +3977,7 @@ local function ColorSwatch_Callback(previousValues)
         r, g, b = ColorPickerFrame:GetColorRGB()
         if ColorPickerFrame.hasOpacity then
             a = OpacitySlider_GetValue()
-            ----if not kMinVer_10_2_5 then
+            ----if not kUsesModernAPI then
             ----    a = 1.0 - a  -- Older versions of WoW flip opacity and alpha.
             ----end
         end
@@ -4124,7 +4129,7 @@ local function ColorSwatch_ShowColorPicker(thisCS)
     ColorPickerFrame.opacityFunc = ColorSwatch_Callback
     ColorPickerFrame.cancelFunc = ColorSwatch_Callback
 
-    if kMinVer_10_2_5 then  -- WoW 10.2.5 or newer?
+    if kUsesModernAPI then
         -- Set new API stuff.
         ColorPickerFrame.Content.ColorSwatchOriginal:SetColorTexture(thisCS.r, thisCS.g, thisCS.b)
         ColorPickerFrame.Content.HexBox:OnColorSelect(thisCS.r, thisCS.g, thisCS.b)

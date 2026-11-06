@@ -1,4 +1,4 @@
-local PROFILESUI_VERSION = "2026-07-31"  -- Version (date) of this file.  Stored as "ProfilesUI.VERSION".
+local PROFILESUI_VERSION = "2026-11-04"  -- Version (date) of this file.  Stored as "ProfilesUI.VERSION".
 
 --[[---------------------------------------------------------------------------
     FILE:   UDProfiles.lua
@@ -177,6 +177,11 @@ local PROFILESUI_VERSION = "2026-07-31"  -- Version (date) of this file.  Stored
 
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
 CHANGE HISTORY:
+    Nov 04, 2026
+        - Added support for WoW Forever:
+            * Changed commented out function isVanillaWoW().
+            * Added isForeverWoW(), usesModernAPI().
+            * Replaced most calls to isRetailWoW() with usesModernAPI().
     Jul 31, 2026
         - Changed profile menu item text for "Undo" to "Undo Changes".
 
@@ -590,9 +595,11 @@ end
 
 --=============================================================================
 -- Functions are use instead of constants so variable name typos trigger an error.
-----local function isVanillaWoW() return (kGameTocVersion < 20000) end
+----local function isVanillaWoW() return (kGameTocVersion < 16001) end
+local function isForeverWoW() return (kGameTocVersion >= 16001 and kGameTocVersion < 20000) end
 ----local function isWrathWoW()   return (kGameTocVersion >= 30000 and kGameTocVersion < 40000) end
 local function isRetailWoW()  return (kGameTocVersion >= 100000) end
+local function usesModernAPI()  return (kGameTocVersion >= 100205 or isForeverWoW()) end  -- WoW 10.2.5 or newer, or WoW Forever.
 
 --=============================================================================
 local gTrace_PUI_LastTime = 0
@@ -656,7 +663,7 @@ function gMBIntf:showBlockerFrame(shownByFrame)
         self.blockerFrame.background:SetColorTexture(0.2,0.2,0.2, 0.6)
 
         -- Create an invisible editbox in the blocker frame for clearing focus in the main UI.  (Classic WoWs only.)
-        if not isRetailWoW() then
+        if not usesModernAPI() then
             self.blockerFrame.editbox = CreateFrame("EditBox", nil, self.blockerFrame, "InputBoxTemplate")
             self.blockerFrame.editbox:SetPoint("TOPLEFT", 0, 0)
             ----self.blockerFrame.editbox:SetSize(32, 32)
@@ -1708,7 +1715,7 @@ local function ProfileOptions_Show()
 
         -- [X] BUTTON --
         local x, y, size = -9, -10, 21
-        if not isRetailWoW() then
+        if not usesModernAPI() then
             x, y, size = -1, -1, 36
         end
         frm.xBtn = CreateFrame("Button", nil, frm, "UIPanelCloseButton")
@@ -1730,7 +1737,7 @@ local function ProfileOptions_Show()
         local pushedTex    = createResetTexture(frm, 0.4)
         frm.resetBtn = private.UDControls.CreateTextureButton(frm, normalTex, highlightTex, pushedTex)
         x, y = -7, 2
-        if not isRetailWoW() then
+        if not usesModernAPI() then
             x, y = -3, 0
         end
         frm.resetBtn:SetPoint("RIGHT", frm.xBtn, "LEFT", x, y)
@@ -2407,7 +2414,7 @@ local function UDProfiles_CreateUI(info)
 
     ---->>> This glitch resolved itself in Classic WoW 1.15.2, and Classic Cata 4.4.0.
     ------ Enhance the top edge of the editbox. (It disappeared in classic WoW versions.)
-    ----if not isRetailWoW() then
+    ----if not usesModernAPI() then
     ----    editbox.edgeT = editbox:CreateTexture(nil, "BORDER")
     ----    editbox.edgeT:SetPoint("TOPLEFT", editbox, "TOPLEFT", -1, 0)
     ----    editbox.edgeT:SetPoint("BOTTOMRIGHT", editbox, "TOPRIGHT", -2, -1)
@@ -4210,9 +4217,9 @@ local function createPopupListBox(parent, titleText,
 
     -- [X] BUTTON --
     listbox.xBtn = CreateFrame("Button", nil, listbox.titleBox, "UIPanelCloseButton")
-    if isRetailWoW() then listbox.xBtn:SetSize(18, 18) end
-    local x = (isRetailWoW() and -5) or 1.8
-    local y = (isRetailWoW() and -6) or 1.2
+    if usesModernAPI() then listbox.xBtn:SetSize(18, 18) end
+    local x = (usesModernAPI() and -5) or 1.8
+    local y = (usesModernAPI() and -6) or 1.2
     listbox.xBtn:SetPoint("TOPRIGHT", listbox.titleBox, "TOPRIGHT", x, y)
     listbox.xBtn:SetScript("OnClick", function(self)
                 self:GetParent():GetParent():Hide()
@@ -4224,7 +4231,7 @@ local function createPopupListBox(parent, titleText,
     listbox.prevBtn = CreateFrame("Button", nil, listbox.titleBox)
     listbox.prevBtn:Hide()
     listbox.prevBtn:SetSize(btnW, btnH)
-    x = (isRetailWoW() and -3.5) or 1
+    x = (usesModernAPI() and -3.5) or 1
     listbox.prevBtn:SetPoint("RIGHT", listbox.xBtn, "LEFT", x, 6.5)
     listbox.prevBtn:SetNormalTexture("Interface\\BUTTONS\\Arrow-Up-Up")
     listbox.prevBtn:SetPushedTexture("Interface\\BUTTONS\\Arrow-Up-Down")

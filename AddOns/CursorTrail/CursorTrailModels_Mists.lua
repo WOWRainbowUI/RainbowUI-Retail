@@ -1,6 +1,6 @@
 --[[---------------------------------------------------------------------------
-    File:   CursorTrailModels.lua
-    Desc:   This file contains a list of models used by this addon for Retail WoW.
+    File:   CursorTrailModels_Mists.lua
+    Desc:   This file contains a list of models used by this addon for Classic Mists of Pandaria.
 -----------------------------------------------------------------------------]]
 
 --:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::

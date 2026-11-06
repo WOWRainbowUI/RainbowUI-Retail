@@ -8,6 +8,25 @@ setfenv(1, _G.CursorTrail)  -- Everything after this uses our namespace rather t
 kChangelogText =
 [[
 =======================================
+RELEASE 12.1.5.2
+Released 2026-11-05
+
+* Updated UDControls and UDProfiles libraries for all versions.
+
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+Version 12.1.5.2 for Retail WoW
+Version 5.5.4.7 for Classic Mists of Pandaria
+Version 2.5.6.6 for Classic Burning Crusade
+Version 1.15.9.6 for Classic WoW
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+- No functional changes.
+
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+Version 1.60.1.1 for WoW Forever
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+- Added support for WoW Forever 1.60.1.
+
+=======================================
 RELEASE 12.1.5.1
 Released 2026-10-14
 
