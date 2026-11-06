@@ -9,6 +9,7 @@ local _, KT = ...
 
 ---@class AddonNarcissus
 local M = KT:NewModule("AddonNarcissus")
+M.COMPATIBLE_VERSION = "1.8.7 b"
 KT.AddonNarcissus = M
 
 local _DBG = function(...) if _DBG then _DBG("KT", ...) end end
@@ -27,14 +28,8 @@ local function SetupOptions(versionText)
             descStyle = "inline",
             type = "toggle",
             width = 1.05,
-            confirm = true,
-            confirmText = KT.TEXT.OPTION_WARNING,
             disabled = function()
                 return not C_AddOns.IsAddOnLoaded("Narcissus")
-            end,
-            set = function()
-                db.addonNarcissus = not db.addonNarcissus
-                ReloadUI()
             end,
             order = 5.1,
         },
@@ -84,9 +79,8 @@ function M:OnInitialize()
 end
 
 function M:OnEnable()
-
     _DBG("|cff00ff00啟用|r - "..self:GetName(), true)
-    local loaded, versionText = KT.CheckAddOn("Narcissus", "1.8.7 b")
+    local loaded, versionText = KT.CheckAddOn("Narcissus", self.COMPATIBLE_VERSION)
 
 
     SetupOptions(versionText)

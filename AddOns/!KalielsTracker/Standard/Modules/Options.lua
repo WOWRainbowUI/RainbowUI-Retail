@@ -372,6 +372,64 @@ end
 
 -- ---------------------------------------------------------------------------------------------------------------------
 
+local pendingOptions = {}
+
+local function GetPendingOption(info, getter)
+    local key = type(info) == "table" and info[#info] or info
+    local pending = pendingOptions[key]
+
+    if pending then
+        return pending.value
+    end
+
+	if getter then
+		return getter()
+	end
+	return db[key]
+end
+
+local function SetPendingOption(info, value, getter, setter)
+    local key = info[#info]
+	local currentValue
+	if getter then
+		currentValue = getter()
+	else
+		currentValue = db[key]
+	end
+
+    if value == currentValue then
+        pendingOptions[key] = nil
+    else
+        pendingOptions[key] = {
+            value = value,
+            apply = setter,
+            preAction = info.arg,
+        }
+    end
+end
+
+local function ApplyPendingOptions()
+    for key, pending in pairs(pendingOptions) do
+        if pending.apply then
+            pending.apply(pending.value)
+        else
+            db[key] = pending.value
+        end
+    end
+
+    for _, pending in pairs(pendingOptions) do
+        if pending.preAction then
+            pending.preAction(pending.value)
+        end
+    end
+
+    ReloadUI()
+end
+
+local function DiscardPendingOptions()
+	wipe(pendingOptions)
+end
+
 -- Options
 local options = {
 	name = "|T"..KT.MEDIA_PATH.."KT_logo:22:22:-1:7|t任務追蹤清單增強",
@@ -684,16 +742,13 @@ local options = {
 						},
 						fontShadow = {
 							name = "文字陰影",
-							desc = KT.TEXT.OPTION_WARNING,
+							desc = KT.TEXT.OPTION_RELOADUI,
 							type = "toggle",
-							confirm = true,
-							confirmText = KT.TEXT.OPTION_WARNING,
-							get = function()
-								return (db.fontShadow == 1)
+							get = function(info)
+								return (GetPendingOption(info) == 1)
 							end,
-							set = function(_, value)
-								db.fontShadow = value and 1 or 0
-								ReloadUI()	-- WTF
+							set = function(info, value)
+								SetPendingOption(info, value and 1 or 0)  -- WTF ReloadUI
 							end,
 							order = 4,
 						},
@@ -1466,6 +1521,8 @@ local options = {
 							type = "group",
 							inline = true,
 							order = 1,
+							get = GetPendingOption,
+							set = SetPendingOption,
 							args = {
 								-- addon options
 							},
@@ -1746,10 +1803,10 @@ local function Setup()
 	local profiles = LibStub("AceDBOptions-3.0"):GetOptionsTable(KT.db)
 	profiles.confirm = true
 	profiles.args.current.width = "double"
-	profiles.args.reset.confirmText = "重置設定檔 - "..cBold2..KT.db:GetCurrentProfile().."|r|n|n"..KT.TEXT.OPTION_WARNING
-	profiles.args.new.confirmText = KT.TEXT.OPTION_WARNING
-	profiles.args.choose.confirmText = KT.TEXT.OPTION_WARNING
-	profiles.args.copyfrom.confirmText = KT.TEXT.OPTION_WARNING
+	profiles.args.reset.confirmText = "重置設定檔 - "..cBold2..KT.db:GetCurrentProfile().."|r|n|n"..KT.TEXT.OPTION_RELOADUI
+	profiles.args.new.confirmText = KT.TEXT.OPTION_RELOADUI
+	profiles.args.choose.confirmText = KT.TEXT.OPTION_RELOADUI
+	profiles.args.copyfrom.confirmText = KT.TEXT.OPTION_RELOADUI
 	if not profiles.plugins then
 		profiles.plugins = {}
 	end
@@ -1763,7 +1820,7 @@ local function Setup()
 			name = "清空追蹤清單",
 			desc = "清空已追蹤內容的資料。",
 			type = "execute",
-			confirmText = "清空追蹤清單 - "..cBold..KT.playerName.."|r|n|n"..KT.TEXT.OPTION_WARNING,
+			confirmText = "清空追蹤清單 - "..cBold..KT.playerName.."|r|n|n"..KT.TEXT.OPTION_RELOADUI,
 			func = function()
 				for i = 1, #dbChar.filterAuto do
 					dbChar.filterAuto[i] = nil
@@ -1819,10 +1876,20 @@ local function SetHooks()
 	SettingsPanel:HookScript("OnShow", function()
 		KT:RegSignal("VISIBILITY_CONTEXT", Visibility_ShowActiveContext, M)
 		KT:SendSignal("OPTIONS_OPENED")
+
+		KT.StaticPopup_Hide("ConfirmOptions")
 	end)
 
 	SettingsPanel:HookScript("OnHide", function()
 		KT:UnregSignal("VISIBILITY_CONTEXT", M)
+
+		C_Timer.After(0, function()
+			if KT.IsTableEmpty(pendingOptions) then return end
+
+			KT.StaticPopup_ShowConfirm("ConfirmOptions", nil,
+					"部分變更需要"..KT.FORMAT.TEXT_BOLD..".\n取消會捨棄這些變更。",
+					ApplyPendingOptions, DiscardPendingOptions, RELOADUI)
+		end)
 	end)
 end
 
@@ -1877,6 +1944,9 @@ function KT.Keybind(key, command)
 end
 
 -- External ------------------------------------------------------------------------------------------------------------
+
+M.GetPendingOption = GetPendingOption
+M.SetPendingOption = SetPendingOption
 
 function M.AddControlOption(section, opt)
 	local target = controls.args[section]

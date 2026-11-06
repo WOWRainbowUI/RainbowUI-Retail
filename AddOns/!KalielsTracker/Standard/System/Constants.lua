@@ -262,7 +262,7 @@ KT.TEXT = {
     OPTION_NEW = "|cffff7fff[New]|r",
     OPTION_BETA = "|cffff7fff[Beta]|r",
     OPTION_EXPERIMENTAL = "|cffff7fff[Experimental]|r",
-    OPTION_WARNING = "|cffff7f00警告：|r將重新載入介面！",
+    OPTION_RELOADUI = "|cffff7f00注意：|r需要重新載入介面。",
     OPTION_CONTROLS_VISIBILITY_LEGEND = "\n * 普通 / 英雄 / 傳奇 / 事件 / 探究",
     OPTION_CONTROLS_VISIBILITY_LEGEND_MARKER = " *",
 }

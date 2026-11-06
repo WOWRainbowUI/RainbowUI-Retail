@@ -9,6 +9,7 @@ local addonName, KT = ...
 
 ---@class AddonElvUI
 local M = KT:NewModule("AddonElvUI")
+M.COMPATIBLE_VERSION = "v16.01"
 KT.AddonElvUI = M
 
 local _DBG = function(...) if _DBG then _DBG("KT", ...) end end
@@ -69,7 +70,7 @@ end
 
 function M:OnEnable()
     _DBG("|cff00ff00啟用|r - "..self:GetName(), true)
-    local loaded, versionText = KT.CheckAddOn("ElvUI", "v16.00")
+    local loaded, versionText = KT.CheckAddOn("ElvUI", self.COMPATIBLE_VERSION)
 
     SetupOptions(loaded, versionText)
     if loaded then

@@ -9,6 +9,7 @@ local _, KT = ...
 
 ---@class AddonBattlePetCompletionist
 local M = KT:NewModule("AddonBattlePetCompletionist")
+M.COMPATIBLE_VERSION = "12.1.5-20261105-1"
 KT.AddonBattlePetCompletionist = M
 
 local _DBG = function(...) if _DBG then _DBG("KT", ...) end end
@@ -63,14 +64,8 @@ local function SetupOptions(versionText)
             descStyle = "inline",
             type = "toggle",
             width = 1.05,
-            confirm = true,
-            confirmText = KT.TEXT.OPTION_WARNING,
             disabled = function()
                 return not C_AddOns.IsAddOnLoaded("BattlePetCompletionist")
-            end,
-            set = function()
-                db.addonBattlePetCompletionist = not db.addonBattlePetCompletionist
-                ReloadUI()
             end,
             order = 2.1,
         },
@@ -221,9 +216,8 @@ function M:OnInitialize()
 end
 
 function M:OnEnable()
-
     _DBG("|cff00ff00啟用|r - "..self:GetName(), true)
-    local loaded, versionText = KT.CheckAddOn("BattlePetCompletionist", "12.1.5-20261030-3")
+    local loaded, versionText = KT.CheckAddOn("BattlePetCompletionist", self.COMPATIBLE_VERSION)
 
 
     SetupOptions(versionText)

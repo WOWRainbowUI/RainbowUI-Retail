@@ -371,23 +371,12 @@ M.pages = {
 		headingSize = 26,
 		text = "|cff66ff66"..KT.TITLE.." 是由一人獨自開發與維護的。|r\n"..ebSpace.."\n"..
 
-				(cTitle.."版本 8.9.0|r\n"..
-				"- ADDED - Quests - new sorting option \"反向排序\"\n"..
-				"- 變更 - 更新贊助者名單。\n"..
-				"- 變更 - 插件支援：TomTom 4.4.0\n"..
-				"- 變更 - 插件支援：RareScanner 12.1.5.5\n"..
-				"- 變更 - 插件支援：Battle Pet Completionist 12.1.5-20261030-3\n"..
-				"- 變更 - 插件支援：Narcissus 1.8.7 b\n"..
-				"- 變更 - 插件支援：Masque 12.1.8\n"..
-				"- 變更 - 任務：使用新版 API 計算任務難度顏色與等級"..offs.."。\n"..
-				"- 變更 - 函式庫（Libs）\n"..
-				"- 變更 - 任務：在滑鼠提示中顯示任務區域\n"..
-				"- 變更 - 任務日誌：在任務詳情加入右鍵選單（點擊頂端"..offs.."的圖示）\n"..
-				"- 變更 - 任務日誌：一律使用自訂任務詳情\n"..
-				"- 變更 - 任務日誌：關閉任務詳情後顯示目前區域地圖"..offs.."。\n"..
-				"- CHANGED - Quest Log - customizable fonts and sizes for Quest 。\n"..
-				"- 修正 - 傳送通知至聊天頻道時發生錯誤\n"..
-				"- 修正 - 任務日誌：戰鬥中從任務詳情返回時發生錯誤\n"..
+				(cTitle.."版本 8.10.0|r\n"..
+				"- 變更 - 插件支援： Battle Pet Completionist 12.1.5-20261105-1\n"..
+				"- 變更 - 插件支援： ElvUI 16.01\n"..
+				"- 變更 - 像素對齊縮放預設啟用\n"..
+				"- 變更 - 插件支援： BtWQuests 2.68.0\n"..
+				"- 變更 - 設定：需要重新載入介面的變更可一次"..offs.."確認套用\n"..
 				"\n")..
 
 				cTitle.."回報問題|r\n"..

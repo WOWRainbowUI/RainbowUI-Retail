@@ -147,33 +147,43 @@ local function SetupOptions()
                     },
                     questsAutoTrack = {
                         name = "自動追蹤任務",
-                        desc = "接受任務時自動加入追蹤。使用暴雪的設定值 \"autoQuestWatch\"。\n"..KT.TEXT.OPTION_WARNING,
+                        desc = "接受任務時自動加入追蹤。使用暴雪的設定值 \"autoQuestWatch\"。\n"..KT.TEXT.OPTION_RELOADUI,
                         type = "toggle",
                         width = "normal+half",
-                        confirm = true,
-                        confirmText = KT.TEXT.OPTION_WARNING,
-                        get = function()
-                            return GetCVarBool("autoQuestWatch")
+                        get = function(info)
+                            return KT.Options.GetPendingOption(info, function()
+                                return GetCVarBool("autoQuestWatch")
+                            end)
                         end,
-                        set = function(_, value)
-                            SetCVar("autoQuestWatch", value)
-                            ReloadUI()
+                        set = function(info, value)
+                            KT.Options.SetPendingOption(info, value,
+                                    function()
+                                        return GetCVarBool("autoQuestWatch")
+                                    end,
+                                    function(newValue)
+                                        SetCVar("autoQuestWatch", newValue)
+                                    end)
                         end,
                         order = 6,
                     },
                     questsProgressAutoTrack = {
                         name = "自動追蹤任務進度",
-                        desc = "任務進度更新時自動加入追蹤。使用暴雪的設定值 \"autoQuestProgress\"。\n"..KT.TEXT.OPTION_WARNING,
+                        desc = "任務進度更新時自動加入追蹤。使用暴雪的設定值 \"autoQuestProgress\"。\n"..KT.TEXT.OPTION_RELOADUI,
                         type = "toggle",
                         width = "normal+half",
-                        confirm = true,
-                        confirmText = KT.TEXT.OPTION_WARNING,
-                        get = function()
-                            return GetCVarBool("autoQuestProgress")
+                        get = function(info)
+                            return KT.Options.GetPendingOption(info, function()
+                                return GetCVarBool("autoQuestProgress")
+                            end)
                         end,
-                        set = function(_, value)
-                            SetCVar("autoQuestProgress", value)
-                            ReloadUI()
+                        set = function(info, value)
+                            KT.Options.SetPendingOption(info, value,
+                                    function()
+                                        return GetCVarBool("autoQuestProgress")
+                                    end,
+                                    function(newValue)
+                                        SetCVar("autoQuestProgress", newValue)
+                                    end)
                         end,
                         order = 7,
                     },

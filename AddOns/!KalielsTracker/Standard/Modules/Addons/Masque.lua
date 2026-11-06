@@ -9,6 +9,8 @@ local _, KT = ...
 
 ---@class AddonMasque
 local M = KT:NewModule("AddonMasque")
+M.COMPATIBLE_VERSION = "12.1.8"
+M.MIN_COMPATIBLE_VERSION = "11.0.1"
 KT.AddonMasque = M
 
 local MSQ = LibStub("Masque", true)
@@ -29,14 +31,8 @@ local function SetupOptions(versionText)
             descStyle = "inline",
             type = "toggle",
             width = 1.05,
-            confirm = true,
-            confirmText = KT.TEXT.OPTION_WARNING,
             disabled = function()
                 return not C_AddOns.IsAddOnLoaded("Masque")
-            end,
-            set = function()
-                db.addonMasque = not db.addonMasque
-                ReloadUI()
             end,
             order = 4.1,
         },
@@ -92,14 +88,12 @@ function M:OnInitialize()
 end
 
 function M:OnEnable()
-
     _DBG("|cff00ff00啟用|r - "..self:GetName(), true)
-    local loaded, versionText = KT.CheckAddOn("按鈕外觀 Masque", "12.1.8")
-
+    local loaded, versionText = KT.CheckAddOn("Masque", self.COMPATIBLE_VERSION)
 
     SetupOptions(versionText)
     if loaded and db.addonMasque then
-        KT:Alert_IncompatibleAddon("Masque", "11.0.1")
+        KT:Alert_IncompatibleAddon("Masque", self.MIN_COMPATIBLE_VERSION)
 
         Masque_Init()
     end

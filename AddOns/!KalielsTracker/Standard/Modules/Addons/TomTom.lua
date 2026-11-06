@@ -9,6 +9,8 @@ local addonName, KT = ...
 
 ---@class AddonTomTom
 local M = KT:NewModule("AddonTomTom")
+M.COMPATIBLE_VERSION = "v4.4.0-release"
+M.MIN_COMPATIBLE_VERSION = "v4.4.0-release"
 KT.AddonTomTom = M
 
 local _DBG = function(...) if _DBG then _DBG("KT", ...) end end
@@ -58,22 +60,16 @@ local function SetupOptions(versionText)
 			descStyle = "inline",
 			type = "toggle",
 			width = 1.05,
-			confirm = true,
-			confirmText = KT.TEXT.OPTION_WARNING,
 			disabled = function()
 				return not C_AddOns.IsAddOnLoaded("TomTom")
 			end,
-			set = function()
-				db.addonTomTom = not db.addonTomTom
-
+			arg = function(value)
 				-- cleanup
-				if db.addonTomTom then
+				if value then
 					C_SuperTrack.ClearAllSuperTracked()
 				else
 					SetCharWaypointData()
 				end
-
-				ReloadUI()
 			end,
 			order = 8.1,
 		},
@@ -925,14 +921,13 @@ function M:OnInitialize()
 end
 
 function M:OnEnable()
-
 	_DBG("|cff00ff00啟用|r - "..self:GetName(), true)
-	local loaded, versionText = KT.CheckAddOn("TomTom", "v4.4.0-release")
+	local loaded, versionText = KT.CheckAddOn("TomTom", self.COMPATIBLE_VERSION)
 
 
 	SetupOptions(versionText)
 	if loaded and db.addonTomTom then
-		KT:Alert_IncompatibleAddon("TomTom", "v4.4.0-beta")
+		KT:Alert_IncompatibleAddon("TomTom", self.MIN_COMPATIBLE_VERSION)
 
 		SetupOptions_Module()
 		SetEvents()
