@@ -27,7 +27,7 @@ local function GetDifficultyIndex(levelDiff)
         return 2;
     elseif levelDiff >= 3 then
         return 1;
-    elseif levelDiff >= -1 then
+    elseif levelDiff >= -2 then
         return 0;
     elseif levelDiff >= -5 then
         return -1;
@@ -92,7 +92,7 @@ if CAN_SHOW_QUEST_LEVEL then
             elseif index >= 1 then
                 return L["Quest Difficulty Hard"];
             elseif index >= 0 then
-                return L["Quest Difficulty Normal"];
+                --return L["Quest Difficulty Normal"];
             elseif index >= -1 then
                 return L["Quest Difficulty Easy"];
             else
