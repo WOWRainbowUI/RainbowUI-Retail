@@ -17,6 +17,7 @@ local defaults = {
         width = 305,
         maxHeight = 600,
         frameScale = 1,
+        pixelPerfectScale = true,
         frameStrata = "LOW",
         frameScrollbar = true,
 

@@ -9,6 +9,7 @@ local _, KT = ...
 
 ---@class AddonTukui
 local M = KT:NewModule("AddonTukui")
+M.COMPATIBLE_VERSION = "v20.463"
 KT.AddonTukui = M
 
 local _DBG = function(...) if _DBG then _DBG("KT", ...) end end
@@ -47,7 +48,7 @@ end
 
 function M:OnEnable()
     _DBG("|cff00ff00Enable|r - "..self:GetName(), true)
-    local loaded, versionText = KT.CheckAddOn("Tukui", "v20.463")
+    local loaded, versionText = KT.CheckAddOn("Tukui", self.COMPATIBLE_VERSION)
 
     SetupOptions(loaded, versionText)
     if loaded then

@@ -30,6 +30,7 @@ local OBJECTIVES_WATCH_TOO_MANY = OBJECTIVES_WATCH_TOO_MANY..".. max. %d"
 local KTF = KT.frame
 local OTF = KT_ObjectiveTrackerFrame
 
+local questZoneProviders = {}
 local achievCategory
 local instanceQuestDifficulty = {
 	[DifficultyUtil.ID.DungeonNormal] = { Enum.QuestTag.Dungeon },
@@ -402,6 +403,16 @@ local function IsInstanceQuest(questID)
 	return false
 end
 
+local function IsInZoneByProvider(questID, mapID)
+	for _, provider in ipairs(questZoneProviders) do
+		local zones = provider(questID)
+		if tContains(zones, mapID) then
+			return true
+		end
+	end
+	return false
+end
+
 local function IsFilterableQuest(info)
 	return not info.isHidden and not info.isHeader and not info.isTask and (not info.isBounty or C_QuestLog.IsComplete(info.questID))
 end
@@ -485,7 +496,9 @@ local function Filter_Quests(spec, idx)
 					isOnMap = (questInfo.isOnMap or
 							KT.QuestsCache_GetProperty(questInfo.questID, "startMapID") == mapID or
 							strfindp(qText, zoneName))
-					if not questInfo.isTask and (not questInfo.isBounty or C_QuestLog.IsComplete(questInfo.questID)) and (KT.QuestsCache_GetProperty(questInfo.questID, "isCalling") or isOnMap or isInZone) then
+					if not questInfo.isTask and (not questInfo.isBounty or C_QuestLog.IsComplete(questInfo.questID))
+							and (KT.QuestsCache_GetProperty(questInfo.questID, "isCalling") or isOnMap or isInZone
+							or IsInZoneByProvider(questInfo.questID, mapID)) then
 						if KT.inInstance then
 							if IsInstanceQuest(questInfo.questID) or isOnMap then
 								C_QuestLog.AddQuestWatch(questInfo.questID)
@@ -1266,6 +1279,10 @@ local function SetFrames()
 end
 
 -- External ------------------------------------------------------------------------------------------------------------
+
+function M:RegisterQuestZoneProvider(provider)
+	table.insert(questZoneProviders, provider)
+end
 
 function M:OnInitialize()
 	_DBG("|cffffff00Init|r - "..self:GetName(), true)

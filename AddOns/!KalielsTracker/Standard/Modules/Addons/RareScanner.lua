@@ -9,6 +9,8 @@ local addonName, KT = ...
 
 ---@class AddonRareScanner
 local M = KT:NewModule("AddonRareScanner")
+M.COMPATIBLE_VERSION = "12.1.5.5"
+M.MIN_COMPATIBLE_VERSION = "11.2.0.11"
 KT.AddonRareScanner = M
 
 local _DBG = function(...) if _DBG then _DBG("KT", ...) end end
@@ -40,14 +42,8 @@ local function SetupOptions(versionText)
 			descStyle = "inline",
 			type = "toggle",
 			width = 1.05,
-			confirm = true,
-			confirmText = KT.TEXT.OPTION_WARNING,
 			disabled = function()
 				return not C_AddOns.IsAddOnLoaded("RareScanner")
-			end,
-			set = function()
-				db.addonRareScanner = not db.addonRareScanner
-				ReloadUI()
 			end,
 			order = 7.1,
 		},
@@ -382,11 +378,11 @@ end
 
 function M:OnEnable()
 	_DBG("|cff00ff00Enable|r - "..self:GetName(), true)
-	local loaded, versionText = KT.CheckAddOn("RareScanner", "12.1.5.5")
+	local loaded, versionText = KT.CheckAddOn("RareScanner", self.COMPATIBLE_VERSION)
 
 	SetupOptions(versionText)
 	if loaded and db.addonRareScanner then
-		KT:Alert_IncompatibleAddon("RareScanner", "11.2.0.11")
+		KT:Alert_IncompatibleAddon("RareScanner", self.MIN_COMPATIBLE_VERSION)
 
 		KT:Tracker_RegisterModule("KT_RareScannerObjectiveTracker", not self.isAvailable)
 

@@ -9,6 +9,8 @@ local _, KT = ...
 
 ---@class AddonBtWQuests
 local M = KT:NewModule("AddonBtWQuests")
+M.COMPATIBLE_VERSION = "v2.68.0"
+M.MIN_COMPATIBLE_VERSION = "v2.68.0"
 KT.AddonBtWQuests = M
 
 local _DBG = function(...) if _DBG then _DBG("KT", ...) end end
@@ -27,14 +29,8 @@ local function SetupOptions(versionText)
             descStyle = "inline",
             type = "toggle",
             width = 1.05,
-            confirm = true,
-            confirmText = KT.TEXT.OPTION_WARNING,
             disabled = function()
                 return not C_AddOns.IsAddOnLoaded("BtWQuests")
-            end,
-            set = function()
-                db.addonBtWQuests = not db.addonBtWQuests
-                ReloadUI()
             end,
             order = 3.1,
         },
@@ -49,6 +45,7 @@ end
 
 local function ContextMenu_Extend(_, info, type, questID)
     if type ~= "quest" then return end
+
     local item = BtWQuestsDatabase:GetQuestItem(questID, BtWQuestsCharacters:GetPlayer())
     if item then
         if not info.KTmenuExtended then
@@ -57,7 +54,12 @@ local function ContextMenu_Extend(_, info, type, questID)
         end
 
         KT.Menu_AddButton("|cff33ff99BtWQ|r - "..BtWQuests.L["BTWQUESTS_OPEN_QUEST_CHAIN"], function()
-            BtWQuestsFrame:SelectCharacter(UnitName("player"), GetRealmName())
+            local name, surname = UnitName("player")
+            if KT.IS_WOW_FOREVER then
+                name = name.." "..surname
+            end
+            BtWQuestsFrame:SelectCharacter(name, GetRealmName())
+
             BtWQuestsFrame:SelectItem(item.item)
             BtWQuestsFrame:SelectItem(item.item)
         end)
@@ -74,10 +76,12 @@ end
 
 function M:OnEnable()
     _DBG("|cff00ff00Enable|r - "..self:GetName(), true)
-    local loaded, versionText = KT.CheckAddOn("BtWQuests", "v2.65.0")
+    local loaded, versionText = KT.CheckAddOn("BtWQuests", self.COMPATIBLE_VERSION)
 
     SetupOptions(versionText)
     if loaded and db.addonBtWQuests then
+        KT:Alert_IncompatibleAddon("BtWQuests", self.MIN_COMPATIBLE_VERSION)
+
         KT:RegSignal("CONTEXT_MENU_UPDATE", ContextMenu_Extend, self)
     end
 end

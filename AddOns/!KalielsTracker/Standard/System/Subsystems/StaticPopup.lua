@@ -21,8 +21,23 @@ function KT.StaticPopup_Show(token, text, subText, ...)
     })
 end
 
+function KT.StaticPopup_ShowConfirm(token, text, subText, onAccept, onCancel, ...)
+    local data = select("#", ...) > 0 and { ... } or nil
+    return StaticPopup_Show(addonName.."_"..token, nil, nil, {
+        text = text,
+        subText = subText,
+        data = data,
+        onAccept = onAccept,
+        onCancel = onCancel
+    })
+end
+
 function KT.StaticPopup_ShowURL(token, ...)
     return StaticPopup_Show(addonName.."_"..token, nil, nil, { ... })
+end
+
+function KT.StaticPopup_Hide(token, data)
+    return StaticPopup_Hide(addonName.."_"..token, data)
 end
 
 function SS:Init()
@@ -159,6 +174,30 @@ StaticPopupDialogs[addonName.."_ReloadUIWide"] = {
     timeout = 0,
     whileDead = 1
 }
+
+local function CreatePopup_Confirm()
+    return {
+        text = DIALOG_TITLE,
+        subText = "...",
+        button1 = ACCEPT,
+        button2 = CANCEL,
+        OnShow = StaticPopup_OnShow,
+        OnAccept = function(_, data)
+            if data.onAccept then
+                data.onAccept()
+            end
+        end,
+        OnCancel = function(_, data)
+            if data.onCancel then
+                data.onCancel()
+            end
+        end,
+        timeout = 0,
+        whileDead = 1
+    }
+end
+
+StaticPopupDialogs[addonName.."_ConfirmOptions"] = CreatePopup_Confirm()
 
 local function CreatePopup_URL(text, editBoxWidth, onShow)
     return {

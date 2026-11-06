@@ -371,23 +371,12 @@ M.pages = {
 		headingSize = 26,
 		text = "|cff66ff66"..KT.TITLE.." is developed and maintained by one person.|r\n"..ebSpace.."\n"..
 
-				(cTitle.."Version 8.9.0|r\n"..
-				"- ADDED - Quests - new sorting option \"Reverse\"\n"..
-				"- CHANGED - Active Patrons\n"..
-				"- CHANGED - addon support - TomTom 4.4.0\n"..
-				"- CHANGED - addon support - RareScanner 12.1.5.5\n"..
-				"- CHANGED - addon support - Battle Pet Completionist 12.1.5-20261030-3\n"..
-				"- CHANGED - addon support - Narcissus 1.8.7 b\n"..
-				"- CHANGED - addon support - Masque 12.1.8\n"..
-				"- CHANGED - Quests - use modern API for quest difficulty coloring and level"..offs.."calculation\n"..
-				"- CHANGED - Libs\n"..
-				"- CHANGED - Quests - show the quest zone in the tooltip\n"..
-				"- CHANGED - Quest Log - add a context menu to Quest Details (click the logo"..offs.."at the top)\n"..
-				"- CHANGED - Quest Log - always use the custom Quest Details\n"..
-				"- CHANGED - Quest Log - show the map of your current zone after closing Quest"..offs.."Details\n"..
-				"- CHANGED - Quest Log - customizable fonts and sizes for Quest Details\n"..
-				"- FIXED - error when sending notification message to chat channel\n"..
-				"- FIXED - Quest Log - error when returning from Quest Details during combat\n"..
+				(cTitle.."Version 8.10.0|r\n"..
+				"- CHANGED - addon support - Battle Pet Completionist 12.1.5-20261105-1\n"..
+				"- CHANGED - addon support - ElvUI 16.01\n"..
+				"- CHANGED - enable Pixel Perfect Scale by default\n"..
+				"- CHANGED - addon support - BtWQuests 2.68.0\n"..
+				"- CHANGED - Options - apply changes requiring Reload UI with a single"..offs.."confirmation\n"..
 				"\n")..
 
 				cTitle.."Issue reporting|r\n"..

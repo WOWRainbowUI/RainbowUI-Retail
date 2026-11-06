@@ -147,33 +147,43 @@ local function SetupOptions()
                     },
                     questsAutoTrack = {
                         name = "Auto Quest tracking",
-                        desc = "Quests are automatically watched when accepted. Uses Blizzard's value \"autoQuestWatch\".\n"..KT.TEXT.OPTION_WARNING,
+                        desc = "Quests are automatically watched when accepted. Uses Blizzard's value \"autoQuestWatch\".\n"..KT.TEXT.OPTION_RELOADUI,
                         type = "toggle",
                         width = "normal+half",
-                        confirm = true,
-                        confirmText = KT.TEXT.OPTION_WARNING,
-                        get = function()
-                            return GetCVarBool("autoQuestWatch")
+                        get = function(info)
+                            return KT.Options.GetPendingOption(info, function()
+                                return GetCVarBool("autoQuestWatch")
+                            end)
                         end,
-                        set = function(_, value)
-                            SetCVar("autoQuestWatch", value)
-                            ReloadUI()
+                        set = function(info, value)
+                            KT.Options.SetPendingOption(info, value,
+                                    function()
+                                        return GetCVarBool("autoQuestWatch")
+                                    end,
+                                    function(newValue)
+                                        SetCVar("autoQuestWatch", newValue)
+                                    end)
                         end,
                         order = 6,
                     },
                     questsProgressAutoTrack = {
                         name = "Auto Quest progress tracking",
-                        desc = "Quests are automatically watched when progress updated. Uses Blizzard's value \"autoQuestProgress\".\n"..KT.TEXT.OPTION_WARNING,
+                        desc = "Quests are automatically watched when progress updated. Uses Blizzard's value \"autoQuestProgress\".\n"..KT.TEXT.OPTION_RELOADUI,
                         type = "toggle",
                         width = "normal+half",
-                        confirm = true,
-                        confirmText = KT.TEXT.OPTION_WARNING,
-                        get = function()
-                            return GetCVarBool("autoQuestProgress")
+                        get = function(info)
+                            return KT.Options.GetPendingOption(info, function()
+                                return GetCVarBool("autoQuestProgress")
+                            end)
                         end,
-                        set = function(_, value)
-                            SetCVar("autoQuestProgress", value)
-                            ReloadUI()
+                        set = function(info, value)
+                            KT.Options.SetPendingOption(info, value,
+                                    function()
+                                        return GetCVarBool("autoQuestProgress")
+                                    end,
+                                    function(newValue)
+                                        SetCVar("autoQuestProgress", newValue)
+                                    end)
                         end,
                         order = 7,
                     },

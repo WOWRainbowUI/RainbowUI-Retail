@@ -262,7 +262,7 @@ KT.TEXT = {
     OPTION_NEW = "|cffff7fff[New]|r",
     OPTION_BETA = "|cffff7fff[Beta]|r",
     OPTION_EXPERIMENTAL = "|cffff7fff[Experimental]|r",
-    OPTION_WARNING = "|cffff7f00Warning:|r UI will be re-loaded!",
+    OPTION_RELOADUI = "|cffff7f00Note:|r Requires Reload UI.",
     OPTION_CONTROLS_VISIBILITY_LEGEND = "\n * Normal / Heroic / Mythic / Scenario / Delve",
     OPTION_CONTROLS_VISIBILITY_LEGEND_MARKER = " *",
 }

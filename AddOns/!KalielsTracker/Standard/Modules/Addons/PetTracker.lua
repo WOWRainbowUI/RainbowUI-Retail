@@ -9,6 +9,8 @@ local _, KT = ...
 
 ---@class AddonPetTracker
 local M = KT:NewModule("AddonPetTracker")
+M.COMPATIBLE_VERSION = "12.0.0"
+M.MIN_COMPATIBLE_VERSION = "11.1.10"
 KT.AddonPetTracker = M
 
 local LSM = LibStub("LibSharedMedia-3.0")
@@ -57,17 +59,13 @@ local function SetupOptions(versionText)
 			descStyle = "inline",
 			type = "toggle",
 			width = 1.05,
-			confirm = true,
-			confirmText = KT.TEXT.OPTION_WARNING,
 			disabled = function()
 				return not C_AddOns.IsAddOnLoaded("PetTracker")
 			end,
-			set = function()
-				db.addonPetTracker = not db.addonPetTracker
+			arg = function(value)
 				if PetTracker.sets then
-					PetTracker.sets.zoneTracker = db.addonPetTracker
+					PetTracker.sets.zoneTracker = value
 				end
-				ReloadUI()
 			end,
 			order = 6.1,
 		},
@@ -384,11 +382,11 @@ end
 
 function M:OnEnable()
 	_DBG("|cff00ff00Enable|r - "..self:GetName(), true)
-	local loaded, versionText = KT.CheckAddOn("PetTracker", "12.0.0")
+	local loaded, versionText = KT.CheckAddOn("PetTracker", self.COMPATIBLE_VERSION)
 
 	SetupOptions(versionText)
 	if loaded and db.addonPetTracker then
-		KT:Alert_IncompatibleAddon("PetTracker", "11.1.10")
+		KT:Alert_IncompatibleAddon("PetTracker", self.MIN_COMPATIBLE_VERSION)
 
 		KT:Tracker_RegisterModule("KT_PetTrackerObjectiveTracker", not self.isAvailable)
 

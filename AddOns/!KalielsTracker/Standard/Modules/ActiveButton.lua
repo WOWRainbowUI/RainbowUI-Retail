@@ -266,6 +266,10 @@ end
 local function SetupOptions()
 	if not KT:Addon_IsModule(KT.Options) then return end
 
+	local function IsDisabled()
+		return not KT.Options.GetPendingOption("activeButtonEnable")
+	end
+
 	KT.Options.AddFeatureSection("activeButton", {
 		name = "Active Button",
 		type = "group",
@@ -273,13 +277,10 @@ local function SetupOptions()
 		args = {
 			activeButtonEnable = {
 				name = "Enable Active button",
+				desc = KT.TEXT.OPTION_RELOADUI,
 				type = "toggle",
-				confirm = true,
-				confirmText = KT.TEXT.OPTION_WARNING,
-				set = function()
-					db.activeButtonEnable = not db.activeButtonEnable
-					ReloadUI()
-				end,
+				get = KT.Options.GetPendingOption,
+				set = KT.Options.SetPendingOption,
 				order = 1.1,
 			},
 			activeButtonEnableDesc = {
@@ -292,13 +293,13 @@ local function SetupOptions()
 				name = "Show Active button Binding text",
 				width = 1.5,
 				type = "toggle",
-				disabled = function()
-					return not db.activeButtonEnable
-				end,
+				disabled = IsDisabled,
 				set = function()
 					db.activeButtonBindingShow = not db.activeButtonBindingShow
-					KTF.ActiveFrame:Hide()
-					Update()
+					if KTF.ActiveFrame then
+						KTF.ActiveFrame:Hide()
+						Update()
+					end
 				end,
 				order = 2,
 			},
@@ -308,7 +309,7 @@ local function SetupOptions()
 				width = 2,
 				fontSize = "medium",
 				disabled = function()
-					return not (db.activeButtonEnable and KT:Addon_IsModule(KT.AddonMasque) and KT.AddonMasque:IsActive())
+					return not (not IsDisabled() and KT:Addon_IsModule(KT.AddonMasque) and KT.AddonMasque:IsActive())
 				end,
 				order = 3.1,
 			},
@@ -316,7 +317,7 @@ local function SetupOptions()
 				name = "Masque",
 				type = "execute",
 				disabled = function()
-					return not (db.activeButtonEnable and KT:Addon_IsModule(KT.AddonMasque) and KT.AddonMasque:IsActive())
+					return not (not IsDisabled() and KT:Addon_IsModule(KT.AddonMasque) and KT.AddonMasque:IsActive())
 				end,
 				func = function()
 					SlashCmdList["MASQUE"]()
@@ -332,9 +333,7 @@ local function SetupOptions()
 			type = "description",
 			width = 1,
 			fontSize = "medium",
-			disabled = function()
-				return not db.activeButtonEnable
-			end,
+			disabled = IsDisabled,
 			order = 10.1,
 		},
 		keyBindActiveButtonDesc = {
@@ -342,17 +341,13 @@ local function SetupOptions()
 			type = "description",
 			width = 1,
 			justifyH = "RIGHT",
-			disabled = function()
-				return not db.activeButtonEnable
-			end,
+			disabled = IsDisabled,
 			order = 10.15,
 		},
 		keyBindActiveButton = {
 			name = "",
 			type = "keybinding",
-			disabled = function()
-				return not db.activeButtonEnable
-			end,
+			disabled = IsDisabled,
 			get = function()
 				return GetBindingKey("EXTRAACTIONBUTTON1")
 			end,
@@ -607,7 +602,7 @@ function M:OnInitialize()
 					xOffset = 0,
 					yOffset = 264,
 					scale = 1,
-					pixelPerfectScale = false,
+					pixelPerfectScale = true,
 					strata = "MEDIUM",
 				}
 			}

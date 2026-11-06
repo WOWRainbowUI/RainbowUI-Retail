@@ -9,6 +9,7 @@ local _, KT = ...
 
 ---@class AddonAuctionator
 local M = KT:NewModule("AddonAuctionator")
+M.COMPATIBLE_VERSION = "341"
 KT.AddonAuctionator = M
 
 local _DBG = function(...) if _DBG then _DBG("KT", ...) end end
@@ -27,14 +28,8 @@ local function SetupOptions(versionText)
             descStyle = "inline",
             type = "toggle",
             width = 1.05,
-            confirm = true,
-            confirmText = KT.TEXT.OPTION_WARNING,
             disabled = function()
                 return not C_AddOns.IsAddOnLoaded("Auctionator")
-            end,
-            set = function()
-                db.addonAuctionator = not db.addonAuctionator
-                ReloadUI()
             end,
             order = 1.1,
         },
@@ -66,7 +61,7 @@ end
 
 function M:OnEnable()
     _DBG("|cff00ff00Enable|r - "..self:GetName(), true)
-    local loaded, versionText = KT.CheckAddOn("Auctionator", "341")
+    local loaded, versionText = KT.CheckAddOn("Auctionator", self.COMPATIBLE_VERSION)
 
     SetupOptions(versionText)
     if loaded and db.addonAuctionator then

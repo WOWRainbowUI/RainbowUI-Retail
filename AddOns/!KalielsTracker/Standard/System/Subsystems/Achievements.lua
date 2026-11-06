@@ -48,6 +48,7 @@ function KT.AchievementsCache_Build()
     achievsCache.data = cache
     achievsCache.schema = CACHE_SCHEMA
     achievsCache.build = KT.FLAVOR.build
+    achievsCache.faction = KT.playerFaction
     achievsCache.locale = KT.LOCALE
 end
 
@@ -78,6 +79,7 @@ function SS:Init(storage)
     KT:RegEvent("PLAYER_ENTERING_WORLD", function(eventID)
         if achievsCache.schema ~= CACHE_SCHEMA or
                 achievsCache.build ~= KT.FLAVOR.build or
+                achievsCache.faction ~= KT.playerFaction or
                 achievsCache.locale ~= KT.LOCALE then
             KT.AchievementsCache_Build()
         end
