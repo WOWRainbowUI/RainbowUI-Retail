@@ -32,7 +32,7 @@ kEditBaseValues = false  -- Set to true so arrow keys change base offsets and st
                         -- Alt causes arrow keys to change BaseStepX and BaseStepY.
                         -- Shift decrease the amount of change each arrow key press.
                         -- Ctrl increase the amount of change each arrow key press.
-                        -- When done, type "/ct model" to dump all values (BEFORE CLOSING THE UI).
+                        -- When done, type "/ct modelbase" to dump all values (BEFORE CLOSING THE UI).
 kShadowStrataMatchesMain = false  -- Set to true if you want shadow at same level as the trail effect.
 kShowColorPickerOpacity = false  -- Set to true to show the opacity slider in the color picker window.
 
