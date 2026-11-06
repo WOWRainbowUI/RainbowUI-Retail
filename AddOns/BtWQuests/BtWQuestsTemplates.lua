@@ -11,20 +11,14 @@ local CHAIN_GRID_VERTICAL_SIZE = 80;
 local CHAIN_GRID_HORIZONTAL_PADDING = 99;
 local CHAIN_GRID_VERTICAL_PADDING = 52 + (CHAIN_GRID_VERTICAL_SIZE * 2);
 
---@REMOVE AFTER 9.0
-local GetLogIndexForQuestID = C_QuestLog.GetLogIndexForQuestID
-local IsQuestComplete = C_QuestLog.IsComplete
-local IsQuestFailed = C_QuestLog.IsFailed
-if select(4, GetBuildInfo()) < 90000 then
-    GetLogIndexForQuestID = GetQuestLogIndexByID
-    function IsQuestComplete(questLogIndex)
-        local complete = select(6, GetQuestLogTitle(questLogIndex))
-        return complete and complete > 0
-    end
-    function IsQuestFailed(questLogIndex)
-        local complete = select(6, GetQuestLogTitle(questLogIndex))
-        return complete and complete < 0
-    end
+local GetLogIndexForQuestID = C_QuestLog and C_QuestLog.GetLogIndexForQuestID or GetQuestLogIndexByID
+local IsQuestComplete = C_QuestLog and C_QuestLog.IsComplete or function (questLogIndex)
+    local complete = select(6, GetQuestLogTitle(questLogIndex))
+    return complete and complete > 0
+end
+local IsQuestFailed = C_QuestLog and C_QuestLog.IsFailed or function (questLogIndex)
+    local complete = select(6, GetQuestLogTitle(questLogIndex))
+    return complete and complete < 0
 end
 
 -- [[ Chain ]]
@@ -1584,7 +1578,10 @@ function BtWQuestsCharacterDropDownMixin:Initialize()
         self:GetParent():SelectCharacter(button.value)
     end
 
-    local name = UnitName("player")
+    local name, surname = UnitName("player");
+    if WOW_PROJECT_ID == WOW_PROJECT_CAMELOT then
+        name = name .. " " .. surname
+    end
     local realm = GetRealmName()
     local player = name .. "-" .. realm
 
@@ -1609,7 +1606,11 @@ function BtWQuestsCharacterDropDownMixin:Initialize()
     end
 
     local info = self:CreateInfo();
-    info.text = RAID_CLASS_COLORS[select(2,UnitClass("player"))]:WrapTextInColorCode(player .. " (" .. UnitLevel("player") .. ")")
+    if WOW_PROJECT_ID == WOW_PROJECT_CAMELOT then
+        info.text = RAID_CLASS_COLORS[select(2,UnitClass("player"))]:WrapTextInColorCode(name .. " (" .. UnitLevel("player") .. ")")
+    else
+        info.text = RAID_CLASS_COLORS[select(2,UnitClass("player"))]:WrapTextInColorCode(player .. " (" .. UnitLevel("player") .. ")")
+    end
     -- info.text = player
     info.value = player
     info.func = Select

@@ -1189,7 +1189,7 @@ function BtWQuests_ShowMapWithWaypoint(mapId, x, y, name)
 
     if not IsModifiedClick("CHATLINK") then
         ShowUIPanel(WorldMapFrame);
-        if INTERFACE_NUMBER < 90000 then
+        if INTERFACE_NUMBER < 90000 and not WOW_PROJECT_ID == WOW_PROJECT_CAMELOT then
             MaximizeUIPanel(WorldMapFrame);
         end
         WorldMapFrame:SetMapID(mapId);
@@ -1203,7 +1203,11 @@ function BtWQuests_AddOpenChainMenuItem(owner, rootDescription, questID)
         rootDescription:CreateDivider()
         rootDescription:CreateTitle(addonName)
         rootDescription:CreateButton(L["BTWQUESTS_OPEN_QUEST_CHAIN"], function()
-            BtWQuestsFrame:SelectCharacter(UnitName("player"), GetRealmName())
+            local name, surname = UnitName("player");
+            if WOW_PROJECT_ID == WOW_PROJECT_CAMELOT then
+                name = name .. " " .. surname
+            end
+            BtWQuestsFrame:SelectCharacter(name, GetRealmName())
             BtWQuestsFrame:SelectItem(item.item)
         end)
     end
