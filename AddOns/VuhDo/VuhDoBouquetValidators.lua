@@ -1502,7 +1502,7 @@ local function VUHDO_classColorIfActiveValidator(anInfo, _)
 				VUHDO_copyColor(VUHDO_USER_CLASS_COLORS[anInfo["classId"]]);
 		elseif anInfo["hasSecretClass"] then
 			return true, nil, -1, -1, -1,
-				VUHDO_getBlizzardClassColorMixin(anInfo["class"]);
+				anInfo["blizzardClassColor"];
 		else
 			return true, nil, -1, -1, -1, nil;
 		end
@@ -1526,7 +1526,7 @@ local function VUHDO_classColorValidator(anInfo, _)
 			VUHDO_copyColor(VUHDO_USER_CLASS_COLORS[anInfo["classId"]]);
 	elseif anInfo["hasSecretClass"] then
 		return true, nil, -1, -1, -1,
-			VUHDO_getBlizzardClassColorMixin(anInfo["class"]);
+			anInfo["blizzardClassColor"];
 	else
 		return true, nil, -1, -1, -1, nil;
 	end

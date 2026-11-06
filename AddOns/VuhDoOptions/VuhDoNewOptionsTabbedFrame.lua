@@ -285,7 +285,7 @@ function VUHDO_initOptionsSettings()
 		VUHDO_OPTIONS_SETTINGS["SKIN_TINTS"] = { };
 	end
 
-	VUHDO_lnfInitSearchIndex();
+	VUHDO_lnfStartSearchIndexBuild();
 
 end
 

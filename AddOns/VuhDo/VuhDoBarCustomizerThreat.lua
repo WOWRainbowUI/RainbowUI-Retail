@@ -12,6 +12,11 @@ local VUHDO_applyOverlayBouquetGating;
 local VUHDO_getIsDirectionArrow;
 local VUHDO_deferSyncAuraContainersForUnit;
 local VUHDO_isUnitRangeCheckable;
+local VUHDO_isUnitRangeEventDriven;
+local VUHDO_getUnitButtons;
+local VUHDO_deferUpdateHealthBarsFor;
+local VUHDO_updateBouquetsForEvent;
+local VUHDO_updateHealthBarsFor;
 
 local sSecretsEnabled = VUHDO_SECRETS_ENABLED;
 local sThreatInterpolation = { };
@@ -28,6 +33,11 @@ function VUHDO_barCustomizerThreatInitLocalOverrides()
 	VUHDO_getIsDirectionArrow = _G["VUHDO_getIsDirectionArrow"];
 	VUHDO_deferSyncAuraContainersForUnit = _G["VUHDO_deferSyncAuraContainersForUnit"];
 	VUHDO_isUnitRangeCheckable = _G["VUHDO_isUnitRangeCheckable"];
+	VUHDO_isUnitRangeEventDriven = _G["VUHDO_isUnitRangeEventDriven"];
+	VUHDO_getUnitButtons = _G["VUHDO_getUnitButtons"];
+	VUHDO_deferUpdateHealthBarsFor = _G["VUHDO_deferUpdateHealthBarsFor"];
+	VUHDO_updateBouquetsForEvent = _G["VUHDO_updateBouquetsForEvent"];
+	VUHDO_updateHealthBarsFor = _G["VUHDO_updateHealthBarsFor"];
 
 	for tCnt = 1, 10 do -- VUHDO_MAX_PANELS
 		sThreatInterpolation[tCnt] = VUHDO_INDICATOR_CONFIG[tCnt]["CUSTOM"]["THREAT_BAR"]["smooth"]
@@ -190,6 +200,36 @@ end
 
 
 --
+local function VUHDO_queueRangeBarUpdate(aUnit)
+
+	if VUHDO_getUnitButtons(aUnit) then
+		VUHDO_deferUpdateHealthBarsFor(aUnit, 5);
+	else
+		VUHDO_updateBouquetsForEvent(aUnit, 5);
+	end
+
+	return;
+
+end
+
+
+
+--
+local function VUHDO_queueCharmBarUpdate(aUnit)
+
+	if VUHDO_getUnitButtons(aUnit) then
+		VUHDO_deferUpdateHealthBarsFor(aUnit, 4);
+	else
+		VUHDO_updateBouquetsForEvent(aUnit, 4);
+	end
+
+	return;
+
+end
+
+
+
+--
 local tUnitInfo;
 local tIsInRange;
 function VUHDO_updateUnitRange(aUnit, aMode)
@@ -201,7 +241,7 @@ function VUHDO_updateUnitRange(aUnit, aMode)
 	tUnitInfo = VUHDO_RAID[aUnit];
 
 	if tUnitInfo then
-		tUnitInfo["isEventRange"] = false;
+		tUnitInfo["isEventRange"] = VUHDO_isUnitRangeEventDriven(aUnit);
 
 		tIsInRange = VUHDO_isInRange(aUnit, true);
 
@@ -212,8 +252,7 @@ function VUHDO_updateUnitRange(aUnit, aMode)
 		if sSecretsEnabled and tUnitInfo["hasSecretRange"] then
 			tUnitInfo["range"] = tIsInRange;
 
-			VUHDO_updateHealthBarsFor(aUnit, 5);
-			VUHDO_updateBouquetsForEvent(aUnit, 5);
+			VUHDO_queueRangeBarUpdate(aUnit);
 
 			if VUHDO_getIsDirectionArrow() and VUHDO_getCurrentMouseOver() == aUnit
 				and (VuhDoDirectionFrame["shown"] or VUHDO_CONFIG["DIRECTION"]["isAlways"]) then
@@ -223,8 +262,7 @@ function VUHDO_updateUnitRange(aUnit, aMode)
 			if issecretvalue(tUnitInfo["range"]) or tUnitInfo["range"] ~= tIsInRange then
 				tUnitInfo["range"] = tIsInRange;
 
-				VUHDO_updateHealthBarsFor(aUnit, 5);
-				VUHDO_updateBouquetsForEvent(aUnit, 5);
+				VUHDO_queueRangeBarUpdate(aUnit);
 
 				if VUHDO_getIsDirectionArrow() and VUHDO_getCurrentMouseOver() == aUnit
 					and (VuhDoDirectionFrame["shown"] or (not tIsInRange or VUHDO_CONFIG["DIRECTION"]["isAlways"])) then
@@ -256,7 +294,7 @@ function VUHDO_onUnitInRangeUpdate(aUnit, anIsInRange)
 	end
 
 	if not VUHDO_isUnitRangeCheckable(aUnit) then
-		tUnitInfo["isEventRange"] = false;
+		tUnitInfo["isEventRange"] = VUHDO_isUnitRangeEventDriven(aUnit);
 
 		VUHDO_updateUnitRange(aUnit);
 
@@ -264,7 +302,7 @@ function VUHDO_onUnitInRangeUpdate(aUnit, anIsInRange)
 	end
 
 	tUnitInfo["baseRange"] = anIsInRange;
-	tUnitInfo["isEventRange"] = true;
+	tUnitInfo["isEventRange"] = VUHDO_isUnitRangeEventDriven(aUnit);
 
 	if sSecretsEnabled then
 		tUnitInfo["hasSecretRange"] = issecretvalue(anIsInRange);
@@ -284,8 +322,7 @@ function VUHDO_onUnitInRangeUpdate(aUnit, anIsInRange)
 	if sSecretsEnabled and tUnitInfo["hasSecretRange"] then
 		tUnitInfo["range"] = anIsInRange;
 
-		VUHDO_updateHealthBarsFor(aUnit, 5);
-		VUHDO_updateBouquetsForEvent(aUnit, 5);
+		VUHDO_queueRangeBarUpdate(aUnit);
 
 		if VUHDO_getIsDirectionArrow() and VUHDO_getCurrentMouseOver() == aUnit
 			and (VuhDoDirectionFrame["shown"] or VUHDO_CONFIG["DIRECTION"]["isAlways"]) then
@@ -295,8 +332,7 @@ function VUHDO_onUnitInRangeUpdate(aUnit, anIsInRange)
 		if issecretvalue(tUnitInfo["range"]) or tUnitInfo["range"] ~= anIsInRange then
 			tUnitInfo["range"] = anIsInRange;
 
-			VUHDO_updateHealthBarsFor(aUnit, 5);
-			VUHDO_updateBouquetsForEvent(aUnit, 5);
+			VUHDO_queueRangeBarUpdate(aUnit);
 
 			if VUHDO_getIsDirectionArrow() and VUHDO_getCurrentMouseOver() == aUnit
 				and (VuhDoDirectionFrame["shown"] or (not anIsInRange or VUHDO_CONFIG["DIRECTION"]["isAlways"])) then
@@ -317,7 +353,10 @@ local tIsCharmed;
 local tUnitCharmed;
 local tUnitCanAttack;
 local tWasVisible;
-function VUHDO_updateUnitVisibilityCharmRange(aUnit)
+local tOldHasSecretCharmed;
+local tOldCanAttack;
+local tOldDead;
+function VUHDO_updateUnitVisibilityCharmRange(aUnit, anIsFromEvent)
 
 	if not VUHDO_RAID then
 		return;
@@ -343,13 +382,15 @@ function VUHDO_updateUnitVisibilityCharmRange(aUnit)
 		else
 			tUnitInfo["baseRange"] = UnitInRange(aUnit);
 		end
-
-		VUHDO_updateUnitRange(aUnit);
 	end
 
 	tUnitCharmed = UnitIsCharmed(aUnit);
 
 	if sSecretsEnabled and issecretvalue(tUnitCharmed) then
+		tOldHasSecretCharmed = tUnitInfo["hasSecretCharmed"];
+		tOldCanAttack = tUnitInfo["canAttack"];
+		tOldDead = tUnitInfo["dead"];
+
 		tUnitCanAttack = UnitCanAttack("player", aUnit);
 
 		if not tUnitInfo["dead"] and tUnitCanAttack then
@@ -360,8 +401,11 @@ function VUHDO_updateUnitVisibilityCharmRange(aUnit)
 			tUnitInfo["secretCharmed"] = nil;
 		end
 
-		VUHDO_updateHealthBarsFor(aUnit, 4);
-		VUHDO_updateBouquetsForEvent(aUnit, 4);
+		tUnitInfo["canAttack"] = tUnitCanAttack;
+
+		if anIsFromEvent or tOldHasSecretCharmed ~= tUnitInfo["hasSecretCharmed"] or tOldDead ~= tUnitInfo["dead"] or tOldCanAttack ~= tUnitCanAttack then
+			VUHDO_queueCharmBarUpdate(aUnit);
+		end
 
 		return;
 	end
@@ -376,7 +420,7 @@ function VUHDO_updateUnitVisibilityCharmRange(aUnit)
 		tUnitInfo["charmed"] = tIsCharmed;
 		tUnitInfo["canAttack"] = tUnitCanAttack;
 
-		VUHDO_updateHealthBarsFor(aUnit, 4);
+		VUHDO_queueCharmBarUpdate(aUnit);
 	end
 
 	return;

@@ -7,7 +7,10 @@ local tconcat = table.concat;
 local tsort = table.sort;
 local twipe = table.wipe;
 local format = string.format;
+local strfind = string.find;
+local strsub = string.sub;
 local max = math.max;
+local floor = math.floor;
 
 local CreateFrame = CreateFrame;
 local InCombatLockdown = InCombatLockdown;
@@ -36,6 +39,7 @@ local VUHDO_OVERLAY_SLOT_HOSTS = VUHDO_OVERLAY_SLOT_HOSTS;
 VUHDO_MISSING_BUFF_CONTAINERS = VUHDO_MISSING_BUFF_CONTAINERS or { };
 local VUHDO_MISSING_BUFF_CONTAINERS = VUHDO_MISSING_BUFF_CONTAINERS;
 
+local VUHDO_AURA_FRAME_CREATION_BATCH_SIZE = 10;
 local VUHDO_AURA_CONTAINER_TEMPLATE = "VuhDoAuraContainerTemplate";
 local VUHDO_FILL_CHAIN_CONTAINER_TEMPLATE = "VuhDoFillChainAuraContainerTemplate";
 VUHDO_AURA_BUTTON_ICON_TEMPLATE = "VuhDoAuraButtonIconTemplate";
@@ -278,17 +282,24 @@ local sBorderColorR;
 local sBorderColorG;
 local sBorderColorB;
 local sBorderColorO;
-local sBorderWidth;
-local sBorderFile;
 
 local sBorderCoordStart = 0.0625;
 local sBorderCoordEnd = 1 - sBorderCoordStart;
+
+local sSolidBorderFile = "Interface\\AddOns\\VuhDo\\Images\\white_square_16_16";
 
 local sBorderPieceKeys = {
 	"BorderCornerTopLeft",
 	"BorderCornerTopRight",
 	"BorderCornerBottomLeft",
 	"BorderCornerBottomRight",
+	"BorderEdgeTop",
+	"BorderEdgeBottom",
+	"BorderEdgeLeft",
+	"BorderEdgeRight",
+};
+
+local sSolidBorderPieceKeys = {
 	"BorderEdgeTop",
 	"BorderEdgeBottom",
 	"BorderEdgeLeft",
@@ -1040,10 +1051,20 @@ do
 
 
 	--
-	local function VUHDO_addAuraButtonBorderDispelTextures(aAuraButton, aBorderOptions)
+	local tBorderPieceKeys;
+	local tBorderFile;
+	local function VUHDO_addAuraButtonBorderDispelTextures(aAuraButton, aBorderOptions, aButtonSetup)
 
-		for tCnt = 1, #sBorderPieceKeys do
-			tBorderPiece = aAuraButton[sBorderPieceKeys[tCnt]];
+		tBorderFile = (aButtonSetup and aButtonSetup["borderFile"]) or sSolidBorderFile;
+
+		if tBorderFile == sSolidBorderFile then
+			tBorderPieceKeys = sSolidBorderPieceKeys;
+		else
+			tBorderPieceKeys = sBorderPieceKeys;
+		end
+
+		for tCnt = 1, #tBorderPieceKeys do
+			tBorderPiece = aAuraButton[tBorderPieceKeys[tCnt]];
 
 			if tBorderPiece then
 				aAuraButton:AddDispelTypeTexture(tBorderPiece, aBorderOptions);
@@ -1057,6 +1078,7 @@ do
 
 
 	--
+	local tBorderWidth;
 	local function VUHDO_anchorAuraButtonBorderEdges(aAuraButton, aButtonSetup, aAnchorFrame)
 
 		for tCnt = 1, #sBorderPieceKeys do
@@ -1067,38 +1089,88 @@ do
 
 		tAnchorFrame = aAnchorFrame or aAuraButton;
 
-		sBorderWidth = (aButtonSetup and aButtonSetup["borderWidth"]) or 1;
-		sBorderFile = (aButtonSetup and aButtonSetup["borderFile"]) or "Interface\\AddOns\\VuhDo\\Images\\white_square_16_16";
-		tBorderEdgeSize = aButtonSetup["borderEdgeSize"] or VUHDO_PixelUtil.RoundToPixel(sBorderWidth, 1);
+		tBorderWidth = (aButtonSetup and aButtonSetup["borderWidth"]) or 1;
+		tBorderFile = (aButtonSetup and aButtonSetup["borderFile"]) or sSolidBorderFile;
+		tBorderEdgeSize = aButtonSetup["borderEdgeSize"] or VUHDO_PixelUtil.RoundToPixel(tBorderWidth, 1);
 		tBorderRepeatX = aButtonSetup["borderRepeatX"] or 1;
 		tBorderRepeatY = aButtonSetup["borderRepeatY"] or 1;
+
+		if tBorderFile == sSolidBorderFile then
+			tBorderPiece = aAuraButton["BorderCornerTopLeft"];
+			tBorderPiece:Hide();
+
+			tBorderPiece = aAuraButton["BorderCornerTopRight"];
+			tBorderPiece:Hide();
+
+			tBorderPiece = aAuraButton["BorderCornerBottomLeft"];
+			tBorderPiece:Hide();
+
+			tBorderPiece = aAuraButton["BorderCornerBottomRight"];
+			tBorderPiece:Hide();
+
+			tBorderPiece = aAuraButton["BorderEdgeTop"];
+			tBorderPiece:ClearAllPoints();
+			VUHDO_PixelUtil.SetPoint(tBorderPiece, "TOPLEFT", tAnchorFrame, "TOPLEFT", 0, 0);
+			VUHDO_PixelUtil.SetPoint(tBorderPiece, "TOPRIGHT", tAnchorFrame, "TOPRIGHT", 0, 0);
+			VUHDO_PixelUtil.SetHeight(tBorderPiece, tBorderEdgeSize, 1);
+			tBorderPiece:SetTexture(tBorderFile, true, true);
+
+			tBorderPiece = aAuraButton["BorderEdgeBottom"];
+			tBorderPiece:ClearAllPoints();
+			VUHDO_PixelUtil.SetPoint(tBorderPiece, "BOTTOMLEFT", tAnchorFrame, "BOTTOMLEFT", 0, 0);
+			VUHDO_PixelUtil.SetPoint(tBorderPiece, "BOTTOMRIGHT", tAnchorFrame, "BOTTOMRIGHT", 0, 0);
+			VUHDO_PixelUtil.SetHeight(tBorderPiece, tBorderEdgeSize, 1);
+			tBorderPiece:SetTexture(tBorderFile, true, true);
+
+			tBorderPiece = aAuraButton["BorderEdgeLeft"];
+			tBorderPiece:ClearAllPoints();
+			VUHDO_PixelUtil.SetPoint(tBorderPiece, "TOPLEFT", tAnchorFrame, "TOPLEFT", 0, -tBorderEdgeSize);
+			VUHDO_PixelUtil.SetPoint(tBorderPiece, "BOTTOMLEFT", tAnchorFrame, "BOTTOMLEFT", 0, tBorderEdgeSize);
+			VUHDO_PixelUtil.SetWidth(tBorderPiece, tBorderEdgeSize, 1);
+			tBorderPiece:SetTexture(tBorderFile, true, true);
+
+			tBorderPiece = aAuraButton["BorderEdgeRight"];
+			tBorderPiece:ClearAllPoints();
+			VUHDO_PixelUtil.SetPoint(tBorderPiece, "TOPRIGHT", tAnchorFrame, "TOPRIGHT", 0, -tBorderEdgeSize);
+			VUHDO_PixelUtil.SetPoint(tBorderPiece, "BOTTOMRIGHT", tAnchorFrame, "BOTTOMRIGHT", 0, tBorderEdgeSize);
+			VUHDO_PixelUtil.SetWidth(tBorderPiece, tBorderEdgeSize, 1);
+			tBorderPiece:SetTexture(tBorderFile, true, true);
+
+			for tCnt = 1, #sSolidBorderPieceKeys do
+				tBorderPiece = aAuraButton[sSolidBorderPieceKeys[tCnt]];
+				tBorderPiece:SetDrawLayer("OVERLAY", 7);
+				tBorderPiece:Show();
+			end
+
+			return true;
+		end
 
 		tBorderPiece = aAuraButton["BorderCornerTopLeft"];
 		tBorderPiece:ClearAllPoints();
 		VUHDO_PixelUtil.SetPoint(tBorderPiece, "TOPLEFT", tAnchorFrame, "TOPLEFT", 0, 0);
 		VUHDO_PixelUtil.SetSize(tBorderPiece, tBorderEdgeSize, tBorderEdgeSize);
-		tBorderPiece:SetTexture(sBorderFile, true, true);
+		tBorderPiece:SetTexture(tBorderFile, true, true);
 		VUHDO_applyAuraButtonBorderTexCoord(tBorderPiece, sBorderPieceCoords["BorderCornerTopLeft"], tBorderRepeatX, tBorderRepeatY);
 
 		tBorderPiece = aAuraButton["BorderCornerTopRight"];
 		tBorderPiece:ClearAllPoints();
 		VUHDO_PixelUtil.SetPoint(tBorderPiece, "TOPRIGHT", tAnchorFrame, "TOPRIGHT", 0, 0);
 		VUHDO_PixelUtil.SetSize(tBorderPiece, tBorderEdgeSize, tBorderEdgeSize);
-		tBorderPiece:SetTexture(sBorderFile, true, true);
+		tBorderPiece:SetTexture(tBorderFile, true, true);
 		VUHDO_applyAuraButtonBorderTexCoord(tBorderPiece, sBorderPieceCoords["BorderCornerTopRight"], tBorderRepeatX, tBorderRepeatY);
 
 		tBorderPiece = aAuraButton["BorderCornerBottomLeft"];
 		tBorderPiece:ClearAllPoints();
 		VUHDO_PixelUtil.SetPoint(tBorderPiece, "BOTTOMLEFT", tAnchorFrame, "BOTTOMLEFT", 0, 0);
 		VUHDO_PixelUtil.SetSize(tBorderPiece, tBorderEdgeSize, tBorderEdgeSize);
-		tBorderPiece:SetTexture(sBorderFile, true, true);
+		tBorderPiece:SetTexture(tBorderFile, true, true);
 		VUHDO_applyAuraButtonBorderTexCoord(tBorderPiece, sBorderPieceCoords["BorderCornerBottomLeft"], tBorderRepeatX, tBorderRepeatY);
 
 		tBorderPiece = aAuraButton["BorderCornerBottomRight"];
 		tBorderPiece:ClearAllPoints();
 		VUHDO_PixelUtil.SetPoint(tBorderPiece, "BOTTOMRIGHT", tAnchorFrame, "BOTTOMRIGHT", 0, 0);
 		VUHDO_PixelUtil.SetSize(tBorderPiece, tBorderEdgeSize, tBorderEdgeSize);
-		tBorderPiece:SetTexture(sBorderFile, true, true);
+		tBorderPiece:SetTexture(tBorderFile, true, true);
 		VUHDO_applyAuraButtonBorderTexCoord(tBorderPiece, sBorderPieceCoords["BorderCornerBottomRight"], tBorderRepeatX, tBorderRepeatY);
 
 		tBorderPiece = aAuraButton["BorderEdgeTop"];
@@ -1106,7 +1178,7 @@ do
 		VUHDO_PixelUtil.SetPoint(tBorderPiece, "TOPLEFT", tAnchorFrame, "TOPLEFT", tBorderEdgeSize, 0);
 		VUHDO_PixelUtil.SetPoint(tBorderPiece, "TOPRIGHT", tAnchorFrame, "TOPRIGHT", -tBorderEdgeSize, 0);
 		VUHDO_PixelUtil.SetHeight(tBorderPiece, tBorderEdgeSize, 1);
-		tBorderPiece:SetTexture(sBorderFile, true, true);
+		tBorderPiece:SetTexture(tBorderFile, true, true);
 		VUHDO_applyAuraButtonBorderTexCoord(tBorderPiece, sBorderPieceCoords["BorderEdgeTop"], tBorderRepeatX, tBorderRepeatY);
 
 		tBorderPiece = aAuraButton["BorderEdgeBottom"];
@@ -1114,7 +1186,7 @@ do
 		VUHDO_PixelUtil.SetPoint(tBorderPiece, "BOTTOMLEFT", tAnchorFrame, "BOTTOMLEFT", tBorderEdgeSize, 0);
 		VUHDO_PixelUtil.SetPoint(tBorderPiece, "BOTTOMRIGHT", tAnchorFrame, "BOTTOMRIGHT", -tBorderEdgeSize, 0);
 		VUHDO_PixelUtil.SetHeight(tBorderPiece, tBorderEdgeSize, 1);
-		tBorderPiece:SetTexture(sBorderFile, true, true);
+		tBorderPiece:SetTexture(tBorderFile, true, true);
 		VUHDO_applyAuraButtonBorderTexCoord(tBorderPiece, sBorderPieceCoords["BorderEdgeBottom"], tBorderRepeatX, tBorderRepeatY);
 
 		tBorderPiece = aAuraButton["BorderEdgeLeft"];
@@ -1122,7 +1194,7 @@ do
 		VUHDO_PixelUtil.SetPoint(tBorderPiece, "TOPLEFT", tAnchorFrame, "TOPLEFT", 0, -tBorderEdgeSize);
 		VUHDO_PixelUtil.SetPoint(tBorderPiece, "BOTTOMLEFT", tAnchorFrame, "BOTTOMLEFT", 0, tBorderEdgeSize);
 		VUHDO_PixelUtil.SetWidth(tBorderPiece, tBorderEdgeSize, 1);
-		tBorderPiece:SetTexture(sBorderFile, true, true);
+		tBorderPiece:SetTexture(tBorderFile, true, true);
 		VUHDO_applyAuraButtonBorderTexCoord(tBorderPiece, sBorderPieceCoords["BorderEdgeLeft"], tBorderRepeatX, tBorderRepeatY);
 
 		tBorderPiece = aAuraButton["BorderEdgeRight"];
@@ -1130,7 +1202,7 @@ do
 		VUHDO_PixelUtil.SetPoint(tBorderPiece, "TOPRIGHT", tAnchorFrame, "TOPRIGHT", 0, -tBorderEdgeSize);
 		VUHDO_PixelUtil.SetPoint(tBorderPiece, "BOTTOMRIGHT", tAnchorFrame, "BOTTOMRIGHT", 0, tBorderEdgeSize);
 		VUHDO_PixelUtil.SetWidth(tBorderPiece, tBorderEdgeSize, 1);
-		tBorderPiece:SetTexture(sBorderFile, true, true);
+		tBorderPiece:SetTexture(tBorderFile, true, true);
 		VUHDO_applyAuraButtonBorderTexCoord(tBorderPiece, sBorderPieceCoords["BorderEdgeRight"], tBorderRepeatX, tBorderRepeatY);
 
 		for tCnt = 1, #sBorderPieceKeys do
@@ -1194,7 +1266,7 @@ do
 		sAuraBorderOptions["customDispelColorCurve"] = nil;
 		sAuraBorderOptions["customDispelColorMap"] = VUHDO_getDispelTypeColorMap(aButtonSetup["dispelBright"], aButtonSetup["dispelOpacity"]);
 
-		VUHDO_addAuraButtonBorderDispelTextures(aAuraButton, sAuraBorderOptions);
+		VUHDO_addAuraButtonBorderDispelTextures(aAuraButton, sAuraBorderOptions, aButtonSetup);
 
 		if aButtonSetup["targetFrameLevel"] then
 			VUHDO_PixelUtil.SetFrameLevel(aAuraButton, aButtonSetup["targetFrameLevel"]);
@@ -1310,7 +1382,7 @@ do
 
 		aAuraButton:ClearDispelTypeTextures();
 
-		VUHDO_addAuraButtonBorderDispelTextures(aAuraButton, sAuraIconDispelBorderOptionsBind);
+		VUHDO_addAuraButtonBorderDispelTextures(aAuraButton, sAuraIconDispelBorderOptionsBind, aButtonSetup);
 
 		return;
 
@@ -2015,9 +2087,30 @@ do
 
 	--
 	local tButtonSetup;
+	local tMaxFrameCount;
+	local tLastBatchStart;
+	local tCreatedFrameCount;
 	function VUHDO_buildAuraButtonInitializer(aTemplateRef, aContainer)
 
+		tMaxFrameCount = aTemplateRef["template"]["maxFrameCount"] or 5;
+		tLastBatchStart = floor((tMaxFrameCount - 1) / VUHDO_AURA_FRAME_CREATION_BATCH_SIZE) * VUHDO_AURA_FRAME_CREATION_BATCH_SIZE;
+
+		aTemplateRef["lastBatchStart"] = tLastBatchStart;
+		aTemplateRef["surplusFrameCount"] = VUHDO_AURA_FRAME_CREATION_BATCH_SIZE - (tMaxFrameCount - tLastBatchStart);
+		aTemplateRef["createdFrameCount"] = 0;
+
 		return function(aAuraButton)
+
+			tCreatedFrameCount = aTemplateRef["createdFrameCount"] + 1;
+			aTemplateRef["createdFrameCount"] = tCreatedFrameCount;
+
+			if tCreatedFrameCount > aTemplateRef["lastBatchStart"] and tCreatedFrameCount - aTemplateRef["lastBatchStart"] <= aTemplateRef["surplusFrameCount"] then
+				aAuraButton["vuhdoIsSurplusFrame"] = true;
+
+				VUHDO_AURA_CONTAINER_METRICS["runtime"]["surplusFrames"] = (VUHDO_AURA_CONTAINER_METRICS["runtime"]["surplusFrames"] or 0) + 1;
+
+				return;
+			end
 
 			tButtonSetup = aTemplateRef["template"]["buttonSetup"];
 
@@ -3511,7 +3604,7 @@ do
 					for tGroupFrameCnt = 1, tGroupFrameCount do
 						tAuraFrame = aContainer:GetAuraGroupFrame(tRecordedKey, tGroupFrameCnt);
 
-						if tAuraFrame and not tAuraFrame:CanBeAccessedInContext() then
+						if tAuraFrame and not tAuraFrame["vuhdoIsSurplusFrame"] and not tAuraFrame:CanBeAccessedInContext() then
 							return false;
 						end
 					end
@@ -3744,22 +3837,24 @@ do
 					for tGroupFrameCnt = 1, tGroupFrameCount do
 						tAuraFrame = aContainer:GetAuraGroupFrame(tRecordedKey, tGroupFrameCnt);
 
-						if tAuraFrame and tAuraFrame:CanBeAccessedInContext() then
-							VUHDO_applyAuraButtonVolatileSetup(tButtonSetup, tAuraFrame);
+						if tAuraFrame and not tAuraFrame["vuhdoIsSurplusFrame"] then
+							if tAuraFrame:CanBeAccessedInContext() then
+								VUHDO_applyAuraButtonVolatileSetup(tButtonSetup, tAuraFrame);
 
-							if tButtonSetup["auraGroupBarGlow"] then
-								VUHDO_applyAuraGroupBarGlowFromAuraButton(tAuraFrame, tButtonSetup);
-							end
+								if tButtonSetup["auraGroupBarGlow"] then
+									VUHDO_applyAuraGroupBarGlowFromAuraButton(tAuraFrame, tButtonSetup);
+								end
 
-							if tButtonSetup["glowIcon"] then
-								VUHDO_startAuraButtonGlow(tAuraFrame, tButtonSetup);
-							end
+								if tButtonSetup["glowIcon"] then
+									VUHDO_startAuraButtonGlow(tAuraFrame, tButtonSetup);
+								end
 
-							if "class" == tButtonSetup["barColorMode"] and tAuraFrame["DurationBar"] then
-								VUHDO_reregisterContainerClassColorBar(aContainer, tAuraFrame["DurationBar"]);
+								if "class" == tButtonSetup["barColorMode"] and tAuraFrame["DurationBar"] then
+									VUHDO_reregisterContainerClassColorBar(aContainer, tAuraFrame["DurationBar"]);
+								end
+							else
+								tSkippedCount = tSkippedCount + 1;
 							end
-						elseif tAuraFrame then
-							tSkippedCount = tSkippedCount + 1;
 						end
 					end
 				end
@@ -3904,7 +3999,7 @@ do
 	local tContainerData;
 	local tOverlayTargetBar;
 	local tContainerParent;
-	function VUHDO_acquireAuraContainer(aButton, aContainerTemplate)
+	function VUHDO_acquireAuraContainer(aButton, aContainerTemplate, aBuildReason)
 
 		if not aButton or not aContainerTemplate then
 			return nil;
@@ -3932,7 +4027,7 @@ do
 		aContainerTemplate["parent"] = tContainerParent;
 
 		VUHDO_AURA_CONTAINER_METRICS["builds"]["container"] = (VUHDO_AURA_CONTAINER_METRICS["builds"]["container"] or 0) + 1;
-
+		VUHDO_AURA_CONTAINER_METRICS["builds"][aBuildReason] = (VUHDO_AURA_CONTAINER_METRICS["builds"][aBuildReason] or 0) + 1;
 
 		tContainerData = VUHDO_buildManagedAuraContainer(aContainerTemplate);
 
@@ -4275,24 +4370,116 @@ end
 
 
 
---
-function VUHDO_printAuraContainerMetrics()
+do
+	--
+	local tTokenIndex;
+	local tOldStart;
+	local tNewStart;
+	local tOldEnd;
+	local tNewEnd;
+	local tOldToken;
+	local tNewToken;
+	local function VUHDO_findSignatureTokenMismatch(anOldSignature, aNewSignature)
 
-	VUHDO_Msg("|cffFFD100--- Aura Container Metrics ---|r");
+		if not anOldSignature or not aNewSignature then
+			return nil, nil, nil;
+		end
 
-	VUHDO_Msg(format("|cffFFA500** Containers:|r |cff98FB98Builds=|r%d |cff98FB98Releases=|r%d",
-		VUHDO_AURA_CONTAINER_METRICS["builds"]["container"] or 0,
-		VUHDO_AURA_CONTAINER_METRICS["releases"]["container"] or 0));
-	VUHDO_Msg(format("|cffFFA500** Overlay Slots:|r |cff98FB98SlotHosts=|r%d |cff98FB98Slots=|r%d |cff98FB98Suppressed=|r%d |cff98FB98MaxHostSuppressed=|r%d",
-		VUHDO_AURA_CONTAINER_METRICS["builds"]["slotHost"] or 0,
-		VUHDO_AURA_CONTAINER_METRICS["builds"]["overlaySlot"] or 0,
-		VUHDO_AURA_CONTAINER_METRICS["runtime"]["suppressedOverlaySlots"] or 0,
-		VUHDO_AURA_CONTAINER_METRICS["runtime"]["maxHostSuppressedOverlaySlots"] or 0));
+		if anOldSignature == aNewSignature then
+			return nil, nil, nil;
+		end
 
-	VUHDO_Msg("|cffFFD100--- End of Metrics ---|r");
+		tTokenIndex = 0;
+		tOldStart = 1;
+		tNewStart = 1;
 
-	return;
+		while true do
+			tTokenIndex = tTokenIndex + 1;
 
+			tOldEnd = strfind(anOldSignature, "|", tOldStart, true);
+			tNewEnd = strfind(aNewSignature, "|", tNewStart, true);
+
+			if tOldEnd then
+				tOldToken = strsub(anOldSignature, tOldStart, tOldEnd - 1);
+			else
+				tOldToken = strsub(anOldSignature, tOldStart);
+			end
+
+			if tNewEnd then
+				tNewToken = strsub(aNewSignature, tNewStart, tNewEnd - 1);
+			else
+				tNewToken = strsub(aNewSignature, tNewStart);
+			end
+
+			if tOldToken ~= tNewToken then
+				return tTokenIndex, tOldToken, tNewToken;
+			end
+
+			if not tOldEnd and not tNewEnd then
+				return nil, nil, nil;
+			end
+
+			if not tOldEnd or not tNewEnd then
+				return tTokenIndex, tOldToken, tNewToken;
+			end
+
+			tOldStart = tOldEnd + 1;
+			tNewStart = tNewEnd + 1;
+		end
+
+		return nil, nil, nil;
+
+	end
+
+
+
+	--
+	local tBuildMetrics;
+	local tRuntimeMetrics;
+	local tMismatchIndex;
+	local tOldMismatchToken;
+	local tNewMismatchToken;
+	function VUHDO_printAuraContainerMetrics()
+
+		tBuildMetrics = VUHDO_AURA_CONTAINER_METRICS["builds"];
+		tRuntimeMetrics = VUHDO_AURA_CONTAINER_METRICS["runtime"];
+
+		VUHDO_Msg("|cffFFD100--- Aura Container Metrics ---|r");
+
+		VUHDO_Msg(format("|cffFFA500** Containers:|r |cff98FB98Builds=|r%d |cff98FB98Releases=|r%d |cff98FB98SurplusFrames=|r%d",
+			tBuildMetrics["container"] or 0,
+			VUHDO_AURA_CONTAINER_METRICS["releases"]["container"] or 0,
+			tRuntimeMetrics["surplusFrames"] or 0));
+		VUHDO_Msg(format("|cffFFA500** Build reasons:|r |cff98FB98anchorNew=|r%d |cff98FB98anchorSignature=|r%d |cff98FB98anchorPanel=|r%d |cff98FB98anchorVolatile=|r%d |cff98FB98anchorDirect=|r%d |cff98FB98overlayNew=|r%d |cff98FB98overlayVolatile=|r%d |cff98FB98buffWatchNew=|r%d |cff98FB98buffWatchSignature=|r%d",
+			tBuildMetrics["anchorNew"] or 0,
+			tBuildMetrics["anchorSignature"] or 0,
+			tBuildMetrics["anchorPanel"] or 0,
+			tBuildMetrics["anchorVolatile"] or 0,
+			tBuildMetrics["anchorDirect"] or 0,
+			tBuildMetrics["overlayNew"] or 0,
+			tBuildMetrics["overlayVolatile"] or 0,
+			tBuildMetrics["buffWatchNew"] or 0,
+			tBuildMetrics["buffWatchSignature"] or 0));
+		VUHDO_Msg(format("|cffFFA500** Overlay Slots:|r |cff98FB98SlotHosts=|r%d |cff98FB98Slots=|r%d |cff98FB98Suppressed=|r%d |cff98FB98MaxHostSuppressed=|r%d",
+			tBuildMetrics["slotHost"] or 0,
+			tBuildMetrics["overlaySlot"] or 0,
+			tRuntimeMetrics["suppressedOverlaySlots"] or 0,
+			tRuntimeMetrics["maxHostSuppressedOverlaySlots"] or 0));
+
+		if tRuntimeMetrics["lastRebuildOldSignature"] and tRuntimeMetrics["lastRebuildNewSignature"] then
+			tMismatchIndex, tOldMismatchToken, tNewMismatchToken = VUHDO_findSignatureTokenMismatch(tRuntimeMetrics["lastRebuildOldSignature"], tRuntimeMetrics["lastRebuildNewSignature"]);
+
+			if tMismatchIndex then
+				VUHDO_Msg(format("|cffFFA500** Last signature mismatch:|r token %d |cff98FB98old=|r%s |cff98FB98new=|r%s",
+					tMismatchIndex, tOldMismatchToken or "", tNewMismatchToken or ""));
+			end
+		end
+
+		VUHDO_Msg("|cffFFD100--- End of Metrics ---|r");
+
+		return;
+
+	end
 end
 
 
@@ -4917,7 +5104,7 @@ function VUHDO_createAuraContainer(aButton, anAnchorIndex, anAnchorConfig)
 		return nil;
 	end
 
-	return VUHDO_acquireAuraContainer(aButton, tContainerTemplate);
+	return VUHDO_acquireAuraContainer(aButton, tContainerTemplate, "anchorDirect");
 
 end
 
@@ -5016,6 +5203,7 @@ local tFilterSignature;
 local tFilterContainer;
 local tContainerTemplate;
 local tVolatileAction;
+local tBuildReason;
 function VUHDO_initAuraContainersForButton(aButton, aPanelNum)
 
 	if not aButton or not aPanelNum then
@@ -5089,7 +5277,7 @@ function VUHDO_initAuraContainersForButton(aButton, aPanelNum)
 					if VUHDO_AURA_VOLATILE_PASS_REBUILD == tVolatileAction then
 						VUHDO_retireAuraContainer(aButton, tContainerData);
 
-						tContainerData = VUHDO_acquireAuraContainer(aButton, tContainerTemplate);
+						tContainerData = VUHDO_acquireAuraContainer(aButton, tContainerTemplate, "anchorVolatile");
 
 						if tContainerData then
 							VUHDO_AURA_CONTAINERS[tButtonName][tAnchorIndex] = tContainerData;
@@ -5100,11 +5288,21 @@ function VUHDO_initAuraContainersForButton(aButton, aPanelNum)
 						VUHDO_deferVolatilePassForButton(aButton);
 					end
 				else
+					if not tContainerData then
+						tBuildReason = "anchorNew";
+					elseif tContainerData["buildSignature"] ~= tBuildSignature then
+						tBuildReason = "anchorSignature";
+						VUHDO_AURA_CONTAINER_METRICS["runtime"]["lastRebuildOldSignature"] = tContainerData["buildSignature"];
+						VUHDO_AURA_CONTAINER_METRICS["runtime"]["lastRebuildNewSignature"] = tBuildSignature;
+					else
+						tBuildReason = "anchorPanel";
+					end
+
 					if tContainerData then
 						VUHDO_retireAuraContainer(aButton, tContainerData);
 					end
 
-					tContainerData = VUHDO_acquireAuraContainer(aButton, tContainerTemplate);
+					tContainerData = VUHDO_acquireAuraContainer(aButton, tContainerTemplate, tBuildReason);
 
 					if tContainerData then
 						VUHDO_AURA_CONTAINERS[tButtonName][tAnchorIndex] = tContainerData;

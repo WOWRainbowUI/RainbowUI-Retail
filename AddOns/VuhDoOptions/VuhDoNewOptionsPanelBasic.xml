@@ -52,7 +52,6 @@
 							<OnClick>
 								VUHDO_lnfRadioButtonClicked(self);
 								VUHDO_lnfRadioButtonUpdateModel(self);
-								VUHDO_newOptionsLooseRadioButtonClicked(self);
 								VUHDO_reloadUI(false);
 							</OnClick>
 						</Scripts>
@@ -86,7 +85,6 @@
 							<OnClick>
 								VUHDO_lnfRadioButtonClicked(self);
 								VUHDO_lnfRadioButtonUpdateModel(self);
-								VUHDO_newOptionsStrictRadioButtonClicked(self);
 								VUHDO_reloadUI(false);
 							</OnClick>
 						</Scripts>

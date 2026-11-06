@@ -61,6 +61,7 @@ local VUHDO_getResolvedTextProvider;
 local VUHDO_getAuraAnchorHost;
 local VUHDO_getHealthBar;
 local VUHDO_getRealParent;
+local VUHDO_invalidateShieldMaskAnchors;
 
 -----------------------------------------------------------------------
 --local VUHDO_getNumbersFromString;
@@ -91,6 +92,7 @@ function VUHDO_guiToolboxInitLocalOverrides()
 	VUHDO_getAuraAnchorHost = _G["VUHDO_getAuraAnchorHost"];
 	VUHDO_getHealthBar = _G["VUHDO_getHealthBar"];
 	VUHDO_getRealParent = _G["VUHDO_getRealParent"];
+	VUHDO_invalidateShieldMaskAnchors = _G["VUHDO_invalidateShieldMaskAnchors"];
 
 	for tPanelNum = 1, 10 do -- VUHDO_MAX_PANELS
 		sIsManaBar[tPanelNum] = VUHDO_INDICATOR_CONFIG[tPanelNum]["BOUQUETS"]["MANA_BAR"] ~= "";
@@ -303,7 +305,7 @@ function VUHDO_getClassColor(anInfo)
 	if VUHDO_USER_CLASS_COLORS and VUHDO_USER_CLASS_COLORS[anInfo["classId"]] then
 		return VUHDO_USER_CLASS_COLORS[anInfo["classId"]];
 	elseif anInfo["hasSecretClass"] then
-		return VUHDO_getBlizzardClassColorMixin(anInfo["class"]);
+		return anInfo["blizzardClassColor"];
 	else
 		return nil;
 	end
@@ -1823,6 +1825,8 @@ do
 	local tParent;
 	local tManaInset;
 	local tHealthHeight;
+	local tShieldBar;
+	local tShieldHeight;
 	function VUHDO_positionHealthBar(aButton, aPanelNum)
 
 		tHealthBar = VUHDO_getHealthBar(aButton, 1);
@@ -1840,6 +1844,15 @@ do
 
 		if not VUHDO_INDICATOR_CONFIG[aPanelNum]["CUSTOM"]["HEALTH_BAR"]["vertical"] and aButton["regularHeight"] then
 			tHealthHeight = aButton["regularHeight"] - tManaInset;
+			tShieldBar = VUHDO_getHealthBar(aButton, 19);
+
+			if tShieldBar then
+				tShieldHeight = tShieldBar:GetHeight();
+
+				if issecretvalue(tShieldHeight) or tShieldHeight ~= tHealthHeight then
+					VUHDO_invalidateShieldMaskAnchors(aButton);
+				end
+			end
 
 			VUHDO_PixelUtil.SetHeight(VUHDO_getHealthBar(aButton, 6), tHealthHeight);
 			VUHDO_PixelUtil.SetHeight(VUHDO_getHealthBar(aButton, 19), tHealthHeight);

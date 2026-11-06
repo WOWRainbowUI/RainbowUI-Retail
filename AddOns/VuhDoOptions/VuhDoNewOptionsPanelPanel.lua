@@ -124,22 +124,3 @@ function VUHDO_newOptionsShowHeadersEnableClicked(aCheckButton)
 		VUHDO_PANEL_SETUP[DESIGN_MISC_PANEL_NUM]["MODEL"].ordering = 0;
 	end
 end
-
-
-
---
-function VUHDO_newOptionsLooseRadioButtonClicked(aRadioButton)
-	if (aRadioButton:GetChecked()) then
-		VUHDO_PANEL_SETUP[DESIGN_MISC_PANEL_NUM]["SCALING"].showHeaders = false;
-	end
-end
-
-
-
---
-function VUHDO_newOptionsStrictRadioButtonClicked(aRadioButton)
-	if (aRadioButton:GetChecked()) then
-		VUHDO_PANEL_SETUP[DESIGN_MISC_PANEL_NUM]["SCALING"].showHeaders = true;
-	end
-end
-

@@ -1,18 +1,55 @@
 local _;
 
 local floor = math.floor;
-local ceil = math.ceil;
 local tsort = table.sort;
+local twipe = table.wipe;
+
+VUHDO_TAIL_MEAN_KEYS = { "tm50", "tm80", "tm90", "tm99", "tm100" };
 
 
 
 --
-local tPercentiles;
+local tRemainingMass;
+local tSortedIndex;
+local tWeightedSum;
+local function VUHDO_computeUpperTailMean(aSortedValues, aSortedCount, aTailMass)
+
+	if aSortedCount <= 0 or aTailMass <= 0 then
+		return 0;
+	end
+
+	if aTailMass < 1 then
+		return aSortedValues[aSortedCount];
+	end
+
+	tRemainingMass = aTailMass;
+	tWeightedSum = 0;
+	tSortedIndex = aSortedCount;
+
+	while tRemainingMass > 0 and tSortedIndex >= 1 do
+		if tRemainingMass >= 1 then
+			tWeightedSum = tWeightedSum + aSortedValues[tSortedIndex];
+			tRemainingMass = tRemainingMass - 1;
+			tSortedIndex = tSortedIndex - 1;
+		else
+			tWeightedSum = tWeightedSum + tRemainingMass * aSortedValues[tSortedIndex];
+			tRemainingMass = 0;
+		end
+	end
+
+	return tWeightedSum / aTailMass;
+
+end
+
+
+
+--
+local tTailPercentiles;
 local tBufferSize;
-local tPercentileTracker;
-local tPercentile;
-local tKey;
-function VUHDO_createPercentileTracker(aBufferSize, aPercentiles)
+local tTailMeanTracker;
+local tTailPercentile;
+local tTailMeanKey;
+function VUHDO_createTailMeanTracker(aBufferSize, aTailPercentiles)
 
 	if not aBufferSize then
 		tBufferSize = 1000;
@@ -20,14 +57,14 @@ function VUHDO_createPercentileTracker(aBufferSize, aPercentiles)
 		tBufferSize = aBufferSize;
 	end
 
-	if not aPercentiles then
-		tPercentiles = { 0.5, 0.8, 0.9, 0.99, 1.0 };
+	if not aTailPercentiles then
+		tTailPercentiles = { 0.5, 0.8, 0.9, 0.99, 1.0 };
 	else
-		tPercentiles = aPercentiles;
+		tTailPercentiles = aTailPercentiles;
 	end
 
-	tPercentileTracker = {
-		["percentiles"] = tPercentiles,
+	tTailMeanTracker = {
+		["tailPercentiles"] = tTailPercentiles,
 		["buffer"] = { },
 		["bufferSize"] = tBufferSize,
 		["nextIndex"] = 1,
@@ -35,29 +72,24 @@ function VUHDO_createPercentileTracker(aBufferSize, aPercentiles)
 		["maxValue"] = 0,
 		["totalCount"] = 0,
 		["cumulativeTotal"] = 0,
-		["sorted"] = nil,
-		["lastSortCount"] = 0,
-		["sortThreshold"] = 100,
-		["resultCache"] = { },
+		["sortedValues"] = { },
+		["isDirty"] = true,
+		["tailMeans"] = { },
+		["tailMeanKeys"] = { },
 	};
 
-	for tIndex = 1, #tPercentiles do
-		tPercentile = tPercentiles[tIndex];
-		tKey = "tm" .. floor(tPercentile * 100);
+	for tIndex = 1, #tTailPercentiles do
+		tTailPercentile = tTailPercentiles[tIndex];
+		tTailMeanKey = "tm" .. floor(tTailPercentile * 100);
 
-		tPercentileTracker["resultCache"][tIndex] = tKey;
+		tTailMeanTracker["tailMeanKeys"][tIndex] = tTailMeanKey;
+		tTailMeanTracker["tailMeans"][tTailMeanKey] = 0;
 	end
 
-	local tOldValue;
-	local tWillOverwrite;
-	function tPercentileTracker:update(aValue)
 
-		tOldValue = 0;
-		tWillOverwrite = self["isFull"];
 
-		if tWillOverwrite then
-			tOldValue = self["buffer"][self["nextIndex"]] or 0;
-		end
+	--
+	function tTailMeanTracker:update(aValue)
 
 		self["buffer"][self["nextIndex"]] = aValue;
 		self["nextIndex"] = self["nextIndex"] + 1;
@@ -74,130 +106,79 @@ function VUHDO_createPercentileTracker(aBufferSize, aPercentiles)
 		end
 
 		self["totalCount"] = self["totalCount"] + 1;
-
-		if self["totalCount"] - self["lastSortCount"] >= self["sortThreshold"] then
-			self["sorted"] = nil;
-		end
+		self["isDirty"] = true;
 
 		return;
 
 	end
 
-	local tResult;
-	local tPercentile;
-	local tPosition;
-	local tFloorPos;
-	local tCeilPos;
-	local tValue;
-	local tWeight;
-	local tValue1;
-	local tValue2;
-	local tCount;
-	local tSortedCount;
-	local tCachedKey;
-	function tPercentileTracker:getPercentiles()
 
-		tResult = { };
+
+	--
+	local tSortedCount;
+	local tTailMass;
+	local tTailMeanKey;
+	local tTailPercentile;
+	function tTailMeanTracker:getTailMeans()
+
+		if not self["isDirty"] then
+			return self["tailMeans"];
+		end
 
 		if self["totalCount"] == 0 then
-			for tIndex = 1, #self["percentiles"] do
-				tCachedKey = self["resultCache"][tIndex];
-				tResult[tCachedKey] = 0;
+			for tIndex = 1, #self["tailPercentiles"] do
+				tTailMeanKey = self["tailMeanKeys"][tIndex];
+				self["tailMeans"][tTailMeanKey] = 0;
 			end
 
-			return tResult;
+			self["isDirty"] = false;
+
+			return self["tailMeans"];
 		end
 
-		if not self["sorted"] then
-			self["sorted"] = { };
+		tSortedCount = self["isFull"] and self["bufferSize"] or (self["nextIndex"] - 1);
 
-			tCount = self["isFull"] and self["bufferSize"] or (self["nextIndex"] - 1);
+		twipe(self["sortedValues"]);
 
-			for tIndex = 1, tCount do
-				self["sorted"][tIndex] = self["buffer"][tIndex];
-			end
-
-			tsort(self["sorted"]);
-
-			self["lastSortCount"] = self["totalCount"];
+		for tIndex = 1, tSortedCount do
+			self["sortedValues"][tIndex] = self["buffer"][tIndex];
 		end
 
-		tSortedCount = #self["sorted"];
+		tsort(self["sortedValues"]);
 
-		for tIndex = 1, #self["percentiles"] do
-			tPercentile = self["percentiles"][tIndex];
-			tPosition = tPercentile * tSortedCount;
+		for tIndex = 1, #self["tailPercentiles"] do
+			tTailPercentile = self["tailPercentiles"][tIndex];
+			tTailMeanKey = self["tailMeanKeys"][tIndex];
 
-			tFloorPos = floor(tPosition);
-			tCeilPos = ceil(tPosition);
-
-			if tFloorPos <= 0 then
-				tValue = self["sorted"][1];
-			elseif tCeilPos > tSortedCount then
-				tValue = self["sorted"][tSortedCount];
-			elseif tFloorPos == tCeilPos then
-				tValue = self["sorted"][tFloorPos];
+			if tTailPercentile >= 1.0 then
+				self["tailMeans"][tTailMeanKey] = self["maxValue"];
 			else
-				tValue1 = self["sorted"][tFloorPos];
-				tValue2 = self["sorted"][tCeilPos];
-				tWeight = tPosition - tFloorPos;
+				tTailMass = (1 - tTailPercentile) * tSortedCount;
 
-				tValue = tValue1 + (tValue2 - tValue1) * tWeight;
-			end
-
-			tCachedKey = self["resultCache"][tIndex];
-			tResult[tCachedKey] = tValue;
-		end
-
-		for tIndex = 1, #self["percentiles"] do
-			if self["percentiles"][tIndex] == 1.0 then
-				tResult["tm100"] = self["maxValue"];
-				break;
+				self["tailMeans"][tTailMeanKey] = VUHDO_computeUpperTailMean(self["sortedValues"], tSortedCount, tTailMass);
 			end
 		end
 
-		return tResult;
+		self["isDirty"] = false;
+
+		return self["tailMeans"];
 
 	end
 
-	function tPercentileTracker:getCumulativeTotal()
+
+
+	--
+	function tTailMeanTracker:getCumulativeTotal()
 
 		return self["cumulativeTotal"];
 
 	end
 
-	local tPercentileDecimal;
-	local tAllPercentiles;
-	local tClosestKey;
-	local tClosestDiff;
-	local tKeyPercentile;
-	local tDiff;
-	function tPercentileTracker:getPercentile(aPercentile)
 
-		tPercentileDecimal = aPercentile / 100;
 
-		tAllPercentiles = self:getPercentiles();
-
-		tClosestKey = nil;
-		tClosestDiff = math.huge;
-
-		for tKey, tValue in pairs(tAllPercentiles) do
-			if string.sub(tKey, 1, 2) == "tm" then
-				tKeyPercentile = tonumber(string.sub(tKey, 3)) / 100;
-				tDiff = math.abs(tKeyPercentile - tPercentileDecimal);
-
-				if tDiff < tClosestDiff then
-					tClosestDiff = tDiff;
-					tClosestKey = tKey;
-				end
-			end
-		end
-
-		return tAllPercentiles[tClosestKey] or 0;
-
-	end
-
-	function tPercentileTracker:reset()
+	--
+	local tTailMeanKey;
+	function tTailMeanTracker:reset()
 
 		for tIndex = 1, self["bufferSize"] do
 			self["buffer"][tIndex] = nil;
@@ -208,35 +189,26 @@ function VUHDO_createPercentileTracker(aBufferSize, aPercentiles)
 		self["maxValue"] = 0;
 		self["totalCount"] = 0;
 		self["cumulativeTotal"] = 0;
-		self["sorted"] = nil;
-		self["lastSortCount"] = 0;
+		self["isDirty"] = true;
+
+		for tIndex = 1, #self["tailPercentiles"] do
+			tTailMeanKey = self["tailMeanKeys"][tIndex];
+			self["tailMeans"][tTailMeanKey] = 0;
+		end
 
 		return;
 
 	end
 
-	function tPercentileTracker:isInitialized()
+
+
+	--
+	function tTailMeanTracker:isInitialized()
 
 		return self["totalCount"] > 0;
 
 	end
 
-	return tPercentileTracker;
-
-end
-
-
-
---
-function VUHDO_sortPercentileKeys(aPercentileKeys)
-
-	table.sort(aPercentileKeys, function(a, b)
-		local aPercentile = tonumber(string.sub(a, 3)) or 0;
-		local bPercentile = tonumber(string.sub(b, 3)) or 0;
-
-		return aPercentile < bPercentile;
-	end);
-
-	return;
+	return tTailMeanTracker;
 
 end

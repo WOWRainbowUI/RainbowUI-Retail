@@ -31,6 +31,7 @@
 								VUHDO_lnfSliderOnLoad(self, VUHDO_I18N_SIZE, 1, 100);
 								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K095);
 								VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_PANEL_SETUP.#PNUM#.SCALING.showHeaders", false);
+								VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_PANEL_SETUP.#PNUM#.MODEL.ordering", 1);
 							</OnLoad>
 						</Scripts>
 					</Frame>
@@ -52,6 +53,7 @@
 								VUHDO_lnfSliderOnLoad(self, VUHDO_I18N_SPACING, 1, 50);
 								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K096);
 								VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_PANEL_SETUP.#PNUM#.SCALING.showHeaders", false);
+								VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_PANEL_SETUP.#PNUM#.MODEL.ordering", 1);
 							</OnLoad>
 						</Scripts>
 					</Frame>
@@ -70,9 +72,9 @@
 								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K097);
 							</OnLoad>
 							<OnClick>
-								VUHDO_lnfCheckButtonUpdateModel(self);
 								VUHDO_lnfCheckButtonClicked(self);
 								VUHDO_newOptionsShowHeadersEnableClicked(self);
+								VUHDO_lnfCheckButtonUpdateModel(self);
 							</OnClick>
 						</Scripts>
 					</CheckButton>
@@ -94,6 +96,7 @@
 								VUHDO_lnfSliderOnLoad(self, VUHDO_I18N_TEXTURE_NUM, 1, 18);
 								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K098);
 								VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_PANEL_SETUP.#PNUM#.SCALING.showHeaders", false);
+								VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_PANEL_SETUP.#PNUM#.MODEL.ordering", 1);
 							</OnLoad>
 						</Scripts>
 					</Frame>
@@ -114,6 +117,7 @@
 								VUHDO_setComboModel(self, "VUHDO_PANEL_SETUP.#PNUM#.PANEL_COLOR.HEADER.barTexture", VUHDO_STATUS_BARS);
 								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K099);
 								VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_PANEL_SETUP.#PNUM#.SCALING.showHeaders", false);
+								VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_PANEL_SETUP.#PNUM#.MODEL.ordering", 1);
 							</OnLoad>
 						</Scripts>
 					</Button>
@@ -142,6 +146,7 @@
 							<OnLoad>
 								VUHDO_lnfSetModel(self, "VUHDO_PANEL_SETUP.#PNUM#.PANEL_COLOR.HEADER.barTexture");
 								VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_PANEL_SETUP.#PNUM#.SCALING.showHeaders", false);
+								VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_PANEL_SETUP.#PNUM#.MODEL.ordering", 1);
 							</OnLoad>
 						</Scripts>
 					</Frame>
@@ -163,6 +168,7 @@
 								VUHDO_lnfSliderOnLoad(self, VUHDO_I18N_WIDTH, 0, 100, "%");
 								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K100);
 								VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_PANEL_SETUP.#PNUM#.SCALING.showHeaders", false);
+								VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_PANEL_SETUP.#PNUM#.MODEL.ordering", 1);
 							</OnLoad>
 						</Scripts>
 					</Frame>
@@ -199,6 +205,7 @@
 								VUHDO_lnfSliderOnLoad(self, VUHDO_I18N_TEXT_SIZE, 1, 32);
 								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K101);
 								VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_PANEL_SETUP.#PNUM#.SCALING.showHeaders", false);
+								VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_PANEL_SETUP.#PNUM#.MODEL.ordering", 1);
 							</OnLoad>
 						</Scripts>
 					</Frame>
@@ -216,6 +223,7 @@
 								VUHDO_setComboModel(self, "VUHDO_PANEL_SETUP.#PNUM#.PANEL_COLOR.HEADER.font", VUHDO_FONTS);
 								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K195);
 								VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_PANEL_SETUP.#PNUM#.SCALING.showHeaders", false);
+								VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_PANEL_SETUP.#PNUM#.MODEL.ordering", 1);
 							</OnLoad>
 						</Scripts>
 					</Button>
@@ -252,6 +260,7 @@
 								VUHDO_lnfSetModel(self, "VUHDO_PANEL_SETUP.#PNUM#.PANEL_COLOR.classColorsHeader");
 								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K102);
 								VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_PANEL_SETUP.#PNUM#.SCALING.showHeaders", false);
+								VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_PANEL_SETUP.#PNUM#.MODEL.ordering", 1);
 							</OnLoad>
 						</Scripts>
 					</CheckButton>
@@ -288,6 +297,7 @@
 								VUHDO_lnfSetModel(self, "VUHDO_PANEL_SETUP.#PNUM#.PANEL_COLOR.classColorsBackHeader");
 								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K196);
 								VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_PANEL_SETUP.#PNUM#.SCALING.showHeaders", false);
+								VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_PANEL_SETUP.#PNUM#.MODEL.ordering", 1);
 							</OnLoad>
 						</Scripts>
 					</CheckButton>
@@ -315,6 +325,7 @@
 								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_HEADER, VUHDO_I18N_HEADER);
 								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K103);
 								VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_PANEL_SETUP.#PNUM#.SCALING.showHeaders", false);
+								VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_PANEL_SETUP.#PNUM#.MODEL.ordering", 1);
 							</OnLoad>
 						</Scripts>
 					</Frame>

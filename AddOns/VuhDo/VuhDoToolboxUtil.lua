@@ -515,6 +515,110 @@ end
 
 
 --
+local tStack;
+function VUHDO_createStack(aInitialSize)
+
+	tStack = {
+		["data"] = tcreate(aInitialSize or 0),
+		["size"] = 0,
+		["_twipe"] = twipe,
+	};
+
+	local tSize;
+	function tStack:push(aValue)
+
+		if not aValue then
+			return;
+		end
+
+		tSize = self["size"] + 1;
+		self["size"] = tSize;
+		self["data"][tSize] = aValue;
+
+		return;
+
+	end
+
+	local tSize;
+	local tValue;
+	function tStack:pushAll(...)
+
+		tSize = self["size"];
+
+		for tCnt = 1, select("#", ...) do
+			tValue = select(tCnt, ...);
+
+			if tValue then
+				tSize = tSize + 1;
+				self["data"][tSize] = tValue;
+			end
+		end
+
+		self["size"] = tSize;
+
+		return;
+
+	end
+
+	local tSize;
+	local tValue;
+	function tStack:pop()
+
+		tSize = self["size"];
+
+		if tSize == 0 then
+			return nil;
+		end
+
+		tValue = self["data"][tSize];
+		self["data"][tSize] = nil;
+		self["size"] = tSize - 1;
+
+		return tValue;
+
+	end
+
+	local tSize;
+	function tStack:peek()
+
+		tSize = self["size"];
+
+		if tSize == 0 then
+			return nil;
+		end
+
+		return self["data"][tSize];
+
+	end
+
+	function tStack:getSize()
+
+		return self["size"];
+
+	end
+
+	function tStack:isEmpty()
+
+		return self["size"] == 0;
+
+	end
+
+	function tStack:clear()
+
+		self["_twipe"](self["data"]);
+		self["size"] = 0;
+
+		return;
+
+	end
+
+	return tStack;
+
+end
+
+
+
+--
 local function VUHDO_getTablePools()
 
 	return VUHDO_REGISTERED_TABLE_POOLS;
@@ -818,13 +922,18 @@ function VUHDO_createSemaphore(aSemaphoreName, aInitialCount, aMaxCount, aTimeou
 	local tMetrics;
 	local tTask;
 	local tTimedOutCount;
-	local tTimedOutTasks;
+	local tTimedOutTasks = { };
 	function tSemaphore:checkTimeouts()
+
+		if #self["waitingTasks"] == 0 then
+			return;
+		end
 
 		tCurrentTime = GetTime() * 1000;
 		tIsProfile = VUHDO_SEMAPHORE_PROFILING_ENABLED;
 		tTimedOutCount = 0;
-		tTimedOutTasks = { };
+
+		twipe(tTimedOutTasks);
 
 		if tIsProfile then
 			tMetrics = self["metrics"];
@@ -836,14 +945,13 @@ function VUHDO_createSemaphore(aSemaphoreName, aInitialCount, aMaxCount, aTimeou
 			if tCurrentTime >= tTask["timeoutTime"] then
 				tTimedOutCount = tTimedOutCount + 1;
 
-				if VUHDO_SEMAPHORE_PROFILING_ENABLED then
-					tMetrics = self["metrics"];
+				if tIsProfile then
 					tMetrics["timeouts"] = tMetrics["timeouts"] + 1;
 				end
 
 				tinsert(tTimedOutTasks, tTask);
 
-				table.remove(self["waitingTasks"], tIndex);
+				tremove(self["waitingTasks"], tIndex);
 			end
 		end
 
@@ -855,6 +963,8 @@ function VUHDO_createSemaphore(aSemaphoreName, aInitialCount, aMaxCount, aTimeou
 
 				VUHDO_deferTask(tTask["type"], tTask["priority"], unpack(tTask["args"]));
 			end
+
+			twipe(tTimedOutTasks);
 		end
 
 		return;

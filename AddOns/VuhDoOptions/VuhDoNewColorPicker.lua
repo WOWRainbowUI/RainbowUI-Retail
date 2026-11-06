@@ -1,9 +1,6 @@
-local VUHDO_COLOR_SWATCH;
-local VUHDO_COLOR;
-local VUHDO_PROHIBIT;
-local sIsTextEdit;
-local VUHDO_origColor;
-local VUHDO_copyPasteColor = { };
+local _;
+
+local abs = math.abs;
 
 -- Backdrops
 BACKDROP_VUHDO_COLOR_PICKER_SLIDER_8_8_1111 = {
@@ -14,6 +11,50 @@ BACKDROP_VUHDO_COLOR_PICKER_SLIDER_8_8_1111 = {
 	edgeSize = 8,
 	insets = { left = 1, right = 1, top = 1, bottom = 1 },
 };
+
+local VUHDO_COLOR_SWATCH;
+local VUHDO_COLOR;
+local VUHDO_PROHIBIT;
+
+local VUHDO_COLOR_PICKER_CHANNEL_EPSILON = 0.002;
+
+local VUHDO_origColor;
+local VUHDO_copyPasteColor = { };
+
+local sIsTextEdit;
+local sIsColorChanged = false;
+
+
+
+--
+local function VUHDO_isColorChannelChanged(anOldValue, aNewValue)
+
+	if anOldValue == nil and aNewValue == nil then
+		return false;
+	end
+
+	if anOldValue == nil or aNewValue == nil then
+		return true;
+	end
+
+	return abs(anOldValue - aNewValue) > VUHDO_COLOR_PICKER_CHANNEL_EPSILON;
+
+end
+
+
+
+--
+local function VUHDO_colorPickerApplyColor()
+
+	VUHDO_lnfUpdateVarFromModel(VUHDO_COLOR_SWATCH, VUHDO_COLOR, nil, true);
+
+	sIsColorChanged = true;
+
+	return;
+
+end
+
+
 
 --
 local function VUHDO_mayEditText()
@@ -52,6 +93,8 @@ end
 --
 function VUHDO_newColorPickerOnShow(aPanel)
 	local tDescription;
+
+	sIsColorChanged = false;
 
 	VUHDO_COLOR_SWATCH = aPanel:GetAttribute("swatch");
 	VUHDO_COLOR = VUHDO_lnfGetValueFromModel(VUHDO_COLOR_SWATCH);
@@ -99,33 +142,60 @@ end
 
 --
 function VUHDO_colorPickerOnColorSelect(anR, anG, anB)
+
 	if (sIsTextEdit) then
-		VUHDO_COLOR.TR = anR;
-		VUHDO_COLOR.TG = anG;
-		VUHDO_COLOR.TB = anB;
+		if not VUHDO_isColorChannelChanged(VUHDO_COLOR["TR"], anR) and not VUHDO_isColorChannelChanged(VUHDO_COLOR["TG"], anG)
+			and not VUHDO_isColorChannelChanged(VUHDO_COLOR["TB"], anB) then
+
+			return;
+		end
+
+		VUHDO_COLOR["TR"] = anR;
+		VUHDO_COLOR["TG"] = anG;
+		VUHDO_COLOR["TB"] = anB;
 	else
-		VUHDO_COLOR.R = anR;
-		VUHDO_COLOR.G = anG;
-		VUHDO_COLOR.B = anB;
+		if not VUHDO_isColorChannelChanged(VUHDO_COLOR["R"], anR) and not VUHDO_isColorChannelChanged(VUHDO_COLOR["G"], anG)
+			and not VUHDO_isColorChannelChanged(VUHDO_COLOR["B"], anB) then
+
+			return;
+		end
+
+		VUHDO_COLOR["R"] = anR;
+		VUHDO_COLOR["G"] = anG;
+		VUHDO_COLOR["B"] = anB;
 	end
+
 	VUHDO_lnfColorSwatchInitFromModel(VUHDO_COLOR_SWATCH);
-	VUHDO_lnfUpdateVarFromModel(VUHDO_COLOR_SWATCH, VUHDO_COLOR);
-end
+	VUHDO_colorPickerApplyColor();
 
+	return;
 
-
---
-function VUHDO_colorPickerOkay()
-	VUHDO_lnfUpdateVarFromModel(VUHDO_COLOR_SWATCH, VUHDO_COLOR);
 end
 
 
 
 --
 function VUHDO_colorPickerCancel()
-	VUHDO_COLOR = VUHDO_origColor;
-	VUHDO_lnfUpdateVarFromModel(VUHDO_COLOR_SWATCH, VUHDO_COLOR);
+
+	if not sIsColorChanged or not VUHDO_origColor or not VUHDO_COLOR_SWATCH then
+		return;
+	end
+
+	VUHDO_COLOR = VUHDO_lnfGetValueFromModel(VUHDO_COLOR_SWATCH);
+
+	if not VUHDO_COLOR then
+		return;
+	end
+
+	for tKey, tValue in pairs(VUHDO_origColor) do
+		VUHDO_COLOR[tKey] = tValue;
+	end
+
 	VUHDO_lnfColorSwatchInitFromModel(VUHDO_COLOR_SWATCH);
+	VUHDO_colorPickerApplyColor();
+
+	return;
+
 end
 
 
@@ -154,19 +224,35 @@ end
 
 
 
---
-function VUHDO_colorPickerOpacityValueChanged(aSlider)
+do
+	--
 	local tValue;
-	if (VUHDO_COLOR ~= nil) then
-		tValue = _G[aSlider:GetName() .. "Slider"]:GetValue() * 0.01;
-		if (sIsTextEdit) then
-			VUHDO_COLOR.TO = tValue;
-		else
-			VUHDO_COLOR.O = tValue;
+	function VUHDO_colorPickerOpacityValueChanged(aSlider)
+
+		if (VUHDO_COLOR ~= nil) then
+			tValue = _G[aSlider:GetName() .. "Slider"]:GetValue() * 0.01;
+
+			if (sIsTextEdit) then
+				if not VUHDO_isColorChannelChanged(VUHDO_COLOR["TO"], tValue) then
+					return;
+				end
+
+				VUHDO_COLOR["TO"] = tValue;
+			else
+				if not VUHDO_isColorChannelChanged(VUHDO_COLOR["O"], tValue) then
+					return;
+				end
+
+				VUHDO_COLOR["O"] = tValue;
+			end
+
+			VUHDO_lnfColorSwatchInitFromModel(VUHDO_COLOR_SWATCH);
+			VUHDO_colorPickerApplyColor();
+			VUHDO_colorPickerSetColorCode();
 		end
-		VUHDO_lnfColorSwatchInitFromModel(VUHDO_COLOR_SWATCH);
-		VUHDO_lnfUpdateVarFromModel(VUHDO_COLOR_SWATCH, VUHDO_COLOR);
-		VUHDO_colorPickerSetColorCode();
+
+		return;
+
 	end
 end
 
@@ -223,7 +309,7 @@ function VUHDO_colorPickerPaste(aPanel)
 
 	VUHDO_setPickerColor(aPanel);
 	VUHDO_lnfColorSwatchInitFromModel(VUHDO_COLOR_SWATCH);
-	VUHDO_lnfUpdateVarFromModel(VUHDO_COLOR_SWATCH, VUHDO_COLOR);
+	VUHDO_colorPickerApplyColor();
 end
 
 
@@ -303,6 +389,6 @@ function VUHDO_updateColorByCode(aPanel)
 
 		VUHDO_setPickerColor(aPanel);
 		VUHDO_lnfColorSwatchInitFromModel(VUHDO_COLOR_SWATCH);
-		VUHDO_lnfUpdateVarFromModel(VUHDO_COLOR_SWATCH, VUHDO_COLOR);
+		VUHDO_colorPickerApplyColor();
 	end
 end

@@ -285,9 +285,11 @@ do
 			else
 				if tExistingData then
 					VUHDO_retireAuraContainer(aButton, tExistingData);
-				end
 
-				tExistingData = VUHDO_acquireAuraContainer(aButton, tContainerTemplate);
+					tExistingData = VUHDO_acquireAuraContainer(aButton, tContainerTemplate, "buffWatchSignature");
+				else
+					tExistingData = VUHDO_acquireAuraContainer(aButton, tContainerTemplate, "buffWatchNew");
+				end
 
 				if tExistingData then
 					VUHDO_setMissingBuffBarColor(aButtonName, tCategName, tMissingColor);

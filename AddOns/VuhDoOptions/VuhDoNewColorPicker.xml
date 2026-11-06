@@ -131,7 +131,6 @@
 				</Anchors>
 				<Scripts>
 					<OnClick>
-						VUHDO_colorPickerOkay();
 						VuhDoNewColorPicker:Hide();
 					</OnClick>
 				</Scripts>

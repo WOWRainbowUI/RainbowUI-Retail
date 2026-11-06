@@ -1,6 +1,7 @@
 local _;
 
 local pairs = pairs;
+local twipe = table.wipe;
 
 local GetSpellName = C_Spell.GetSpellName;
 
@@ -9,6 +10,8 @@ VUHDO_GLOBAL_CONFIG = {
 };
 
 local VUHDO_AURA_IGNORE_LIST_DEFAULTS = VUHDO_AURA_IGNORE_LIST_DEFAULTS;
+
+local sSaneValueCache = { };
 
 
 
@@ -128,10 +131,23 @@ end
 
 --
 local tRepairedArray;
+local tSaneValue;
 function VUHDO_ensureSanity(aName, aValue, aSaneValue)
+
 	tCreated, tRepaired = 0, 0;
 
-	local tSaneValue = VUHDO_decompressIfCompressed(aSaneValue);
+	if "string" == type(aSaneValue) then
+		tSaneValue = sSaneValueCache[aSaneValue];
+
+		if not tSaneValue then
+			tSaneValue = VUHDO_decompressIfCompressed(aSaneValue);
+
+			sSaneValueCache[aSaneValue] = tSaneValue;
+		end
+	else
+		tSaneValue = aSaneValue;
+	end
+
 	tRepairedArray = _VUHDO_ensureSanity(aName, aValue, tSaneValue);
 
 	if tCreated + tRepaired > 0 then
@@ -139,6 +155,18 @@ function VUHDO_ensureSanity(aName, aValue, aSaneValue)
 	end
 
 	return tRepairedArray;
+
+end
+
+
+
+--
+function VUHDO_clearSaneValueCache()
+
+	twipe(sSaneValueCache);
+
+	return;
+
 end
 
 
