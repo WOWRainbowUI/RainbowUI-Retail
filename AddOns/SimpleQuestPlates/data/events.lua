@@ -137,6 +137,7 @@ function SQP:UNIT_QUEST_LOG_CHANGED(unitID)
 	-- Only process player quest changes, ignore group members
 	if unitID == "player" then
 		self:CacheQuestIndexes()
+		self:QUEST_LOG_UPDATE()
 	end
 end
 
