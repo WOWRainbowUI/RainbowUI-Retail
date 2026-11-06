@@ -127,6 +127,9 @@ function BtWQuestsCharactersCharacterMixin:GetName()
 end
 function BtWQuestsCharactersCharacterMixin:GetDisplayName()
     local name, realm = self:GetFullName();
+    if WOW_PROJECT_ID == WOW_PROJECT_CAMELOT then
+        return name
+    end
     return string.format("%s-%s", name, realm);
 end
 function BtWQuestsCharactersCharacterMixin:GetRealm()
@@ -617,10 +620,18 @@ function BtWQuestsCharactersPlayerMixin:IsPlayer()
     return true
 end
 function BtWQuestsCharactersPlayerMixin:GetFullName()
-    return UnitName("player"), GetRealmName()
+    local name, surname = UnitName("player");
+    if WOW_PROJECT_ID == WOW_PROJECT_CAMELOT then
+        name = name .. " " .. surname
+    end
+    return name, GetRealmName()
 end
 function BtWQuestsCharactersPlayerMixin:GetName()
-    return UnitName("player")
+    local name, surname = UnitName("player");
+    if WOW_PROJECT_ID == WOW_PROJECT_CAMELOT then
+        name = name .. " " .. surname
+    end
+    return name
 end
 function BtWQuestsCharactersPlayerMixin:GetRealm()
     return GetRealmName()
@@ -911,7 +922,10 @@ function BtWQuestsCharacters:GetCharacter(name, realm)
     end
 
     if BtWQuestsCharactersMap[key] == nil then
-        local playerName = UnitName("player")
+        local playerName, playerSurname = UnitName("player");
+        if WOW_PROJECT_ID == WOW_PROJECT_CAMELOT then
+            playerName = playerName .. " " .. playerSurname
+        end
         local playerRealm = GetRealmName()
         local playerKey = playerName .. "-" .. playerRealm
 
@@ -954,7 +968,12 @@ function BtWQuestsCharacters:GetPlayer()
     if C_QuestSession and C_QuestSession.HasJoined() then
         return self:GetCharacter("-partysync")
     else
-        return self:GetCharacter(UnitName("player"), GetRealmName())
+        local name, surname = UnitName("player");
+        if WOW_PROJECT_ID == WOW_PROJECT_CAMELOT then
+            name = name .. " " .. surname
+        end
+        
+        return self:GetCharacter(name, GetRealmName())
     end
 end
 
@@ -1111,7 +1130,11 @@ local function GetSkills(tbl)
     return tbl;
 end
 function BtWQuestsCharacters:OnEvent(event, ...)
-    local name = UnitName("player");
+    local name, surname = UnitName("player");
+    if WOW_PROJECT_ID == WOW_PROJECT_CAMELOT then
+        name = name .. " " .. surname
+    end
+
     local realm = GetRealmName();
     if not name or not realm then
         return;

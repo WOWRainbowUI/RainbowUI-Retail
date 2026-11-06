@@ -17,19 +17,15 @@ local IsAddOnLoaded = C_AddOns and C_AddOns.IsAddOnLoaded or IsAddOnLoaded;
 local LE_EXPANSION_LEVEL_CURRENT = LE_EXPANSION_LEVEL_CURRENT or 0;
 
 --@REMOVE AFTER 9.0
-local GetLogIndexForQuestID = C_QuestLog.GetLogIndexForQuestID
-local GetQuestWatchType = C_QuestLog.GetQuestWatchType
+local GetLogIndexForQuestID = C_QuestLog and C_QuestLog.GetLogIndexForQuestID or GetQuestLogIndexByID
+local GetQuestWatchType = C_QuestLog.GetQuestWatchType or function (questID)
+    return IsQuestWatched(GetLogIndexForQuestID(questID)) and 0 or nil
+end
 local AddQuestWatch = C_QuestLog.AddQuestWatch or function (questID)
     return AddQuestWatch(GetLogIndexForQuestID(questID))
 end
 local RemoveQuestWatch = C_QuestLog.RemoveQuestWatch or function (questID)
     return RemoveQuestWatch(GetLogIndexForQuestID(questID))
-end
-if INTERFACE_NUMBER < 90000 then
-    GetLogIndexForQuestID = GetQuestLogIndexByID
-    function GetQuestWatchType(questID)
-        return IsQuestWatched(GetLogIndexForQuestID(questID)) and 0 or nil
-    end
 end
 local GetItemCount = C_Item and C_Item.GetItemCount or GetItemCount
 

@@ -1,3 +1,9 @@
+# v2.68.0
+
+- Fixed character naming on Forever
+- Fixed some quest log errors for Forever
+- Fixed issue displaying the world map on Forever
+
 # v2.67.0
 
 - Added option to pin categories and quest chains to the top of the category and expansion list
