@@ -29,8 +29,7 @@ local function HideCombatSetup()
 	if reloadPromptFrame then reloadPromptFrame:Hide() end
 end
 
-local function NotifyCombatSetup(message)
-	MikSBT.Print(message)
+local function NotifyCombatSetup()
 	if reloadPromptShown then return end
 	reloadPromptShown = true
 	-- Keep this window out of Blizzard's shared static-popup pool, which
