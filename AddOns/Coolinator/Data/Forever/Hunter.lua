@@ -5,6 +5,14 @@ if UnitClassBase("player") ~= class then
 end
 addonTable.Data.Spells[class] = {
   [1] = {
+    ['auraTag'] = 'ABILITYANDAURA',
+    ['spells'] = {
+      [1] = 13163
+    },
+    ['name'] = 'Aspect of the Monkey',
+    ['isRanked'] = false
+  },
+  [2] = {
     ['spells'] = {
       [1] = 2973,
       [2] = 14260,
@@ -18,13 +26,6 @@ addonTable.Data.Spells[class] = {
     ['name'] = 'Raptor Strike',
     ['isRanked'] = true
   },
-  [2] = {
-    ['spells'] = {
-      [1] = 75
-    },
-    ['name'] = 'Auto Shot',
-    ['isRanked'] = false
-  },
   [3] = {
     ['spells'] = {
       [1] = 1494
@@ -33,30 +34,6 @@ addonTable.Data.Spells[class] = {
     ['isRanked'] = false
   },
   [4] = {
-    ['auraTag'] = 'ABILITYANDAURA',
-    ['spells'] = {
-      [1] = 13163
-    },
-    ['name'] = 'Aspect of the Monkey',
-    ['isRanked'] = false
-  },
-  [5] = {
-    ['auraTag'] = 'ABILITYANDAURA',
-    ['spells'] = {
-      [1] = 1978,
-      [2] = 13549,
-      [3] = 13550,
-      [4] = 13551,
-      [5] = 13552,
-      [6] = 13553,
-      [7] = 13554,
-      [8] = 13555,
-      [9] = 25295
-    },
-    ['name'] = 'Serpent Sting',
-    ['isRanked'] = true
-  },
-  [6] = {
     ['spells'] = {
       [1] = 3044,
       [2] = 14281,
@@ -70,7 +47,14 @@ addonTable.Data.Spells[class] = {
     ['name'] = 'Arcane Shot',
     ['isRanked'] = true
   },
-  [7] = {
+  [5] = {
+    ['spells'] = {
+      [1] = 75
+    },
+    ['name'] = 'Auto Shot',
+    ['isRanked'] = false
+  },
+  [6] = {
     ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 1130,
@@ -79,6 +63,22 @@ addonTable.Data.Spells[class] = {
       [4] = 14325
     },
     ['name'] = 'Hunter\'s Mark',
+    ['isRanked'] = true
+  },
+  [7] = {
+    ['auraTag'] = 'ABILITYANDAURA',
+    ['spells'] = {
+      [1] = 1978,
+      [2] = 13549,
+      [3] = 13550,
+      [4] = 13551,
+      [5] = 13552,
+      [6] = 13553,
+      [7] = 13554,
+      [8] = 13555,
+      [9] = 25295
+    },
+    ['name'] = 'Serpent Sting',
     ['isRanked'] = true
   },
   [8] = {
@@ -248,7 +248,13 @@ addonTable.Data.Spells[class] = {
     ['spells'] = {
       [1] = 1499,
       [2] = 14310,
-      [3] = 14311
+      [3] = 14311,
+      [4] = 1324500,
+      [5] = 1324501,
+      [6] = 1324502,
+      [7] = 3355,
+      [8] = 14308,
+      [9] = 14309
     },
     ['name'] = 'Freezing Trap',
     ['isRanked'] = true
@@ -340,13 +346,13 @@ addonTable.Data.Spells[class] = {
     ['isRanked'] = false
   },
   [38] = {
-    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 1299346,
       [2] = 1299348,
       [3] = 19506,
       [4] = 20905,
-      [5] = 20906
+      [5] = 20906,
+      [6] = 1299346
     },
     ['name'] = 'Trueshot Aura',
     ['isRanked'] = true
@@ -556,16 +562,6 @@ addonTable.Data.Spells[class] = {
     ['isRanked'] = false
   },
   [64] = {
-    ['auraTag'] = 'HELPAURA',
-    ['spells'] = {
-      [1] = 1324500,
-      [2] = 1324501,
-      [3] = 1324502
-    },
-    ['name'] = 'Freezing Trap',
-    ['isRanked'] = false
-  },
-  [65] = {
     ['auraTag'] = 'HARMAURA',
     ['spells'] = {
       [1] = 13797,
@@ -575,14 +571,46 @@ addonTable.Data.Spells[class] = {
       [5] = 14301
     },
     ['name'] = 'Immolation Trap',
-    ['isRanked'] = true
+    ['isRanked'] = false
   },
-  [66] = {
+  [65] = {
     ['auraTag'] = 'HELPAURA',
     ['spells'] = {
       [1] = 1324494
     },
     ['name'] = 'Intimidation',
+    ['isRanked'] = false
+  },
+  [66] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 1299346,
+      [2] = 1299348,
+      [3] = 19506,
+      [4] = 20905,
+      [5] = 20906
+    },
+    ['name'] = 'Trueshot Aura',
+    ['isRanked'] = false
+  },
+  [67] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 1324501,
+      [2] = 1324500,
+      [3] = 1324502
+    },
+    ['name'] = 'Freezing Trap',
+    ['isRanked'] = false
+  },
+  [68] = {
+    ['auraTag'] = 'HARMAURA',
+    ['spells'] = {
+      [1] = 14308,
+      [2] = 3355,
+      [3] = 14309
+    },
+    ['name'] = 'Freezing Trap',
     ['isRanked'] = false
   }
 }
