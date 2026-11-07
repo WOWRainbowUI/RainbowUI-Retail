@@ -107,6 +107,9 @@ function addonTable.Display.ChatFrameMixin:OnLoad()
     elseif settingName == addonTable.Config.Options.EDIT_BOX_POSITION and self:GetID() == 1 then
       self:UpdateEditBox()
       self.ButtonsBar:Update()
+    elseif settingName == addonTable.Config.Options.EDIT_BOX_HEIGHT and self:GetID() == 1 then
+      self:UpdateEditBox()
+      self.ButtonsBar:Update()
     elseif settingName == addonTable.Config.Options.SHOW_TABS then
       self:ApplyTabsShowing()
       self.ButtonsBar:Update()
@@ -199,6 +202,7 @@ function addonTable.Display.ChatFrameMixin:UpdateEditBox()
   local position = addonTable.Config.Get(addonTable.Config.Options.EDIT_BOX_POSITION)
   ChatFrame1EditBox:ClearAllPoints()
   ChatFrame1EditBox:SetScale(addonTable.Core.GetFontScalingFactor())
+  ChatFrame1EditBox:SetHeight(addonTable.Config.Get(addonTable.Config.Options.EDIT_BOX_HEIGHT))
 
   if position == "bottom" then
     local _, _, _, clampBottom = self:GetClampRectInsets()

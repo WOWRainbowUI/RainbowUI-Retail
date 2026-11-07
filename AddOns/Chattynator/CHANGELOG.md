@@ -1,7 +1,9 @@
 # Chattynator
 
-## [228](https://github.com/TheMouseNest/Chattynator/tree/228) (2026-10-17)
-[Full Changelog](https://github.com/TheMouseNest/Chattynator/compare/227...228) 
+## [229](https://github.com/TheMouseNest/Chattynator/tree/229) (2026-11-06)
+[Full Changelog](https://github.com/TheMouseNest/Chattynator/compare/228...229) 
 
-- Forever: Fix player level up message  
-- Libs update  
+- Dark Theme: Add colour options to edit box and tab texts  
+- Update customise components lib  
+- Add editbox height option (#231)  
+- Update donate message  

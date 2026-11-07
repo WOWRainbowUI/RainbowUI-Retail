@@ -43,7 +43,7 @@ local function SetupGeneral(parent)
   end
 
   do
-    local header = addonTable.CustomiseDialog.Components.GetHeader(container, addonTable.Locales.DEVELOPMENT_IS_TIME_CONSUMING)
+    local header = addonTable.CustomiseDialog.Components.GetHeader(container, addonTable.Locales.DEVELOPMENT_IS_DONE_BY_A_HUMAN)
     header:SetPoint("TOP", allFrames[#allFrames], "BOTTOM", 0, -30)
     table.insert(allFrames, header)
 
@@ -376,6 +376,14 @@ local function SetupLayout(parent)
   keepEditBoxVisible:SetPoint("TOP", allFrames[#allFrames], "BOTTOM", 0, 0)
   table.insert(allFrames, keepEditBoxVisible)
 
+  local editBoxHeight
+  editBoxHeight = addonTable.CustomiseDialog.Components.GetSlider(container, addonTable.Locales.EDIT_BOX_HEIGHT, 12, 48, function(x) return string.format("%spx", x) end, function(value)
+    addonTable.Config.Set(addonTable.Config.Options.EDIT_BOX_HEIGHT, value)
+  end)
+  editBoxHeight.option = addonTable.Config.Options.EDIT_BOX_HEIGHT
+  editBoxHeight:SetPoint("TOP", allFrames[#allFrames], "BOTTOM")
+  table.insert(allFrames, editBoxHeight)
+  
   local locked = addonTable.CustomiseDialog.Components.GetCheckbox(container, addonTable.Locales.LOCK_CHAT, 28, function(state)
     addonTable.Config.Set(addonTable.Config.Options.LOCKED, state)
   end)
@@ -408,7 +416,7 @@ local function SetupMessages(parent)
   table.insert(allFrames, fontDropdown)
 
   local fontSize
-  fontSize = addonTable.CustomiseDialog.Components.GetSlider(container, addonTable.Locales.MESSAGE_FONT_SIZE, 2, 40, "%spx", function()
+  fontSize = addonTable.CustomiseDialog.Components.GetSlider(container, addonTable.Locales.MESSAGE_FONT_SIZE, 2, 40, function(x) return string.format("%spx", x) end, function()
     addonTable.Config.Set(addonTable.Config.Options.MESSAGE_FONT_SIZE, fontSize:GetValue())
   end)
   fontSize.option = addonTable.Config.Options.MESSAGE_FONT_SIZE
@@ -416,7 +424,7 @@ local function SetupMessages(parent)
   table.insert(allFrames, fontSize)
 
   local messageSpacing
-  messageSpacing = addonTable.CustomiseDialog.Components.GetSlider(container, addonTable.Locales.MESSAGE_SPACING, 0, 60, "%spx", function()
+  messageSpacing = addonTable.CustomiseDialog.Components.GetSlider(container, addonTable.Locales.MESSAGE_SPACING, 0, 60, function(x) return string.format("%spx", x) end, function()
     addonTable.Config.Set(addonTable.Config.Options.MESSAGE_SPACING, messageSpacing:GetValue())
   end)
   messageSpacing.option = addonTable.Config.Options.MESSAGE_SPACING
@@ -459,7 +467,7 @@ local function SetupMessages(parent)
   table.insert(allFrames, enableMessageFade)
 
   local messageFadeTimer
-  messageFadeTimer = addonTable.CustomiseDialog.Components.GetSlider(container, addonTable.Locales.MESSAGE_FADE_TIME, 5, 240, "%ss", function()
+  messageFadeTimer = addonTable.CustomiseDialog.Components.GetSlider(container, addonTable.Locales.MESSAGE_FADE_TIME, 5, 240, function(x) return string.format("%ss", x) end, function()
     addonTable.Config.Set(addonTable.Config.Options.MESSAGE_FADE_TIME, messageFadeTimer:GetValue())
   end)
   messageFadeTimer.option = addonTable.Config.Options.MESSAGE_FADE_TIME
@@ -543,7 +551,7 @@ local function SetupFormatting(parent)
   table.insert(allFrames, showSeparator)
 
   local timestampSpacing
-  timestampSpacing = addonTable.CustomiseDialog.Components.GetSlider(container, addonTable.Locales.TIMESTAMP_SPACING, 0, 200, "%s%%", function()
+  timestampSpacing = addonTable.CustomiseDialog.Components.GetSlider(container, addonTable.Locales.TIMESTAMP_SPACING, 0, 200, function(x) return string.format("%s%%", x) end, function()
     addonTable.Config.Set(addonTable.Config.Options.TIMESTAMP_SPACING, timestampSpacing:GetValue() / 100)
   end)
   timestampSpacing:SetPoint("TOP", allFrames[#allFrames], "BOTTOM")
@@ -642,7 +650,7 @@ local function SetupThemes(parent)
     local optionKey = "skins." .. skinKey .. "." .. option.option
     if option.type == "slider" then
       local slider
-      slider = addonTable.CustomiseDialog.Components.GetSlider(container, option.text, option.min, option.max, option.valuePattern, function()
+      slider = addonTable.CustomiseDialog.Components.GetSlider(container, option.text, option.min, option.max, function(x) return option.valuePattern:format(x) end, function()
         addonTable.Config.Set(optionKey, slider:GetValue() / (option.scale or 1))
       end)
       slider.option = optionKey
@@ -656,6 +664,13 @@ local function SetupThemes(parent)
       checkbox.option = optionKey
       checkbox:SetPoint("TOP", allFrames[#allFrames], "BOTTOM", 0, -30)
       table.insert(allFrames, checkbox)
+    elseif option.type == "colorPicker" then
+      local colorPicker = addonTable.CustomiseDialog.Components.GetColorPicker(container, option.text, 28, function(state)
+        addonTable.Config.Set(optionKey, state)
+      end)
+      colorPicker.option = optionKey
+      colorPicker:SetPoint("TOP", allFrames[#allFrames], "BOTTOM", 0, -30)
+      table.insert(allFrames, colorPicker)
     end
   end
 
