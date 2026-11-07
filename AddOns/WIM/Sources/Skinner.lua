@@ -265,17 +265,16 @@ local WindowSoupBowl = WIM:GetWindowSoupBowl();
 local function normalizeFont(font)
 	if (type(font) == "table" and font.GetFont) then
 		local fontPath, fontHeight, fontFlags = font:GetFont();
-		return fontPath;
+		return normalizeFont(fontPath);
 
 	elseif (type(font) == "string") then
 
 		if (type(_G[font]) == "table") then
 			return normalizeFont(_G[font]);
 		end
-		-- The string is not the name of a global font object. Keep it
-		-- unchanged so SetWidgetFont's other branches can resolve
-		-- LibSharedMedia names and font file paths.
-		return font;
+		-- Use Friz's Cyrillic variant when flattening a font family to a file.
+		-- Keep other file paths and LibSharedMedia names unchanged.
+		return font:lower() == "fonts\\frizqt__.ttf" and "Fonts\\FRIZQT___CYR.TTF" or font;
 	end
 
 	return font
@@ -2515,21 +2514,14 @@ local function CheckForOutdatedSkin()
 	local check = selected and selected.schema_version and defaultSkin and defaultSkin.schema_version;
 
     if(check and selected.schema_version < defaultSkin.schema_version) then
-
-		_G.StaticPopupDialogs["WIM_SKIN_SCHEMA_NOTIFY"] = {
-			preferredIndex = _G.STATICPOPUP_NUMDIALOGS,
-			text = L["WIM now features a modern skin designed to better complement the current game interface. Your selected skin is an older style that may look dated or miss out on newer features."],
-			button1 = L["Open Skin Settings"],
-			button2 = L["Keep Current"],
-			OnAccept = function()
-				-- Open WIM settings to the Appearance:MessageWindow category.
+		dialog.confirm(
+			L["WIM now features a modern skin designed to better complement the current game interface. Your selected skin is an older style that may look dated or miss out on newer features."],
+			function()
 				_G.Settings.OpenToCategory(options.categoryMap["Appearance:MessageWindow"]);
 			end,
-			timeout = 0,
-			whileDead = 1,
-			hideOnEscape = 1
-		};
-		_G.StaticPopup_Show ("WIM_SKIN_SCHEMA_NOTIFY");
+			L["Open Skin Settings"],
+			L["Keep Current"]
+		)
     end
 end
 

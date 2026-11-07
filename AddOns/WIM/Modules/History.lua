@@ -2934,7 +2934,7 @@ local function createHistoryViewer()
                             whileDead = 1,
                             hideOnEscape = 1
                         };
-                        _G.StaticPopup_Show("WIM_DELETE_HISTORY_DATE");
+                        WIM.dialog.create("WIM_DELETE_HISTORY_DATE");
                     end);
 
                 table.insert(win.nav.filters.scroll.buttons, button);
@@ -3195,7 +3195,7 @@ local function createHistoryViewer()
                             whileDead = 1,
                             hideOnEscape = 1
                         };
-                        _G.StaticPopup_Show("WIM_DELETE_HISTORY");
+                        WIM.dialog.create("WIM_DELETE_HISTORY");
                     end);
 
                 table.insert(win.nav.userList.scroll.buttons, button);
@@ -3985,7 +3985,7 @@ local function createDisplayUpdate()
                         ViewTypes[HistoryViewer.TAB].func(self.frame, self.tmpTable);
                         self.i = self.i + 1;
                         HistoryViewer.progressBar.bar.bg:SetWidth(
-                            HistoryViewer.progressBar.bar:GetWidth() * self.i / #self.curList);
+                            HistoryViewer.progressBar.bar:GetWidth() * (self.i - 1) / #self.curList);
                         return;
                     else
                         -- Skip this record and check the next one. The
@@ -4001,7 +4001,7 @@ local function createDisplayUpdate()
                     ViewTypes[HistoryViewer.TAB].func(self.frame, self.tmpTable);
                     self.i = self.i + 1;
                     HistoryViewer.progressBar.bar.bg:SetWidth(
-                        HistoryViewer.progressBar.bar:GetWidth() * self.i / #self.curList);
+                        HistoryViewer.progressBar.bar:GetWidth() * (self.i - 1) / #self.curList);
                     return;
                 end
             end

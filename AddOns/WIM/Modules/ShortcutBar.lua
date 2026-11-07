@@ -473,7 +473,10 @@ RegisterShortcut("invite", L["Invite to Party"], {
 RegisterShortcut("guild", L["Invite to Guild"], {
 	OnClick = function(self)
 		local win = self.parentWindow;
-		_G.GuildInvite(win.theUser);
+
+		if _G.InCombatLockdown() then return end -- safeguard
+
+		(_G.C_GuildInfo and _G.C_GuildInfo.Invite or _G.GuildInvite)(win.theUser)
 	end
 });
 RegisterShortcut("friend", L["Add Friend"], {
@@ -487,19 +490,14 @@ RegisterShortcut("friend", L["Add Friend"], {
 RegisterShortcut("ignore", L["Ignore Player"], {
 	OnClick = function(self)
 		local win = self.parentWindow;
-		_G.StaticPopupDialogs["WIM_IGNORE"] = {
-		preferredIndex = STATICPOPUP_NUMDIALOGS,
-		text = _G.format(L["Are you sure you want to\nignore %s?"], (win.isBN and win.toonName or win.theUser)),
-		button1 = L["Yes"],
-		button2 = L["No"],
-		OnAccept = function()
-			addIgnore(win.isBN and win.toonName or win.theUser);
-		end,
-		timeout = 0,
-		whileDead = 1,
-		hideOnEscape = 1
-		};
-		_G.StaticPopup_Show("WIM_IGNORE");
+		dialog.confirm(
+			"WIM: " .. _G.format(L["Are you sure you want to\nignore %s?"], (win.isBN and win.toonName or win.theUser)),
+			function()
+				addIgnore(win.isBN and win.toonName or win.theUser);
+			end,
+			L["Yes"],
+			L["No"]
+		);
 	end
 });
 
