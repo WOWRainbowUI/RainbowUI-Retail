@@ -83,7 +83,7 @@ local function GetAddOnMetadataCompat(name, field)
     return nil
 end
 
-SQP.VERSION = "2.1.14" -- Addon version (also in TOC file)
+SQP.VERSION = "2.1.17" -- Addon version (also in TOC file)
 SQP.NAME = GetAddOnMetadataCompat(addonName, "Title") or addonName or "SimpleQuestPlates"
 SQP.AUTHOR = GetAddOnMetadataCompat(addonName, "Author") or "DonnieDice"
 SQP.LOCALE = GetLocale()
@@ -620,6 +620,13 @@ end
 function SQP:ToggleMinimapIcon(show, silent)
     if not self.minimapBtn then return end
     self.minimapBtn:SetVisible(show)
+    -- The icon can be hidden from three places (options checkbox, /sqp icon,
+    -- Ctrl+Right-click). Keep the already-built options checkbox in step so it
+    -- never shows a stale value that the next click then "saves" backwards.
+    local control = self.optionControls and self.optionControls.minimapIconEnabled
+    if control and control.SetChecked then
+        control:SetChecked(show and true or false)
+    end
     if not silent then
         if show then
             self:PrintMessage("Minimap icon shown.")
