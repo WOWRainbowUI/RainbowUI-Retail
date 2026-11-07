@@ -1663,6 +1663,9 @@ local function CreateSlider(parent, label, minValue, maxValue, stepValue, elemen
                 elseif element == "actionBarCDNumberScale" then
                     BetterBlizzFramesDB.actionBarCDNumberScale = value
                     BBF.ActionBarCDNumberSize()
+                elseif element == "actionBarArtScale" then
+                    BetterBlizzFramesDB.actionBarArtScale = value
+                    BBF.ActionBarArtScale()
                 elseif element == playerClassResourceScale then
                     BetterBlizzFramesDB[playerClassResourceScale] = value
                     BBF.UpdateClassComboPoints()
@@ -5597,12 +5600,9 @@ local function guiGeneralTab()
         BBF.SetCenteredNamesCaller()
     end)
 
-    local symmetricPlayerFrame = CreateCheckbox("symmetricPlayerFrame", L["Mirror_TargetFrame"], BetterBlizzFrames, nil, BBF.SymmetricPlayerFrame)
-    symmetricPlayerFrame:SetPoint("LEFT", hidePlayerName.text, "RIGHT", 0, 0)
-    CreateTooltipTwo(symmetricPlayerFrame, L["Mirror_TargetFrame"], L["Tooltip_Mirror_TargetFrame_Desc"])
-    symmetricPlayerFrame:HookScript("OnClick", function(self)
-        BBF.ShowPopup("BBF_CONFIRM_RELOAD")
-    end)
+    local hidePlayerAttackIcon = CreateCheckbox("hidePlayerAttackIcon", L["Hide_Attack_Icon"], BetterBlizzFrames, nil, BBF.UpdatePlayerAttackIcon)
+    hidePlayerAttackIcon:SetPoint("LEFT", hidePlayerName.text, "RIGHT", 0, 0)
+    CreateTooltipTwo(hidePlayerAttackIcon, L["Hide_Attack_Icon"] .. " |A:UI-HUD-UnitFrame-Player-CombatIcon:22:22|a", L["Tooltip_Hide_Attack_Icon_Desc"])
 
     -- local hidePlayerMaxHpReduction = CreateCheckbox("hidePlayerMaxHpReduction", "Hide Reduced HP", BetterBlizzFrames, nil, BBF.HideFrames)
     -- hidePlayerMaxHpReduction:SetPoint("LEFT", hidePlayerName.text, "RIGHT", 0, 0)
@@ -5727,6 +5727,13 @@ local function guiGeneralTab()
     local hideResourceTooltip = CreateCheckbox("hideResourceTooltip", L["Hide_Resource_Tooltip"], BetterBlizzFrames, nil, BBF.HideClassResourceTooltip)
     hideResourceTooltip:SetPoint("TOPLEFT", hidePlayerPower, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
     CreateTooltipTwo(hideResourceTooltip, L["Hide_Resource_Tooltip"], L["Tooltip_Hide_Resource_Tooltip_Desc"])
+
+    local symmetricPlayerFrame = CreateCheckbox("symmetricPlayerFrame", L["Mirror_TargetFrame"], BetterBlizzFrames, nil, BBF.SymmetricPlayerFrame)
+    symmetricPlayerFrame:SetPoint("LEFT", hideResourceTooltip.text, "RIGHT", 0, 0)
+    CreateTooltipTwo(symmetricPlayerFrame, L["Mirror_TargetFrame"], L["Tooltip_Mirror_TargetFrame_Desc"])
+    symmetricPlayerFrame:HookScript("OnClick", function(self)
+        BBF.ShowPopup("BBF_CONFIRM_RELOAD")
+    end)
 
     local hideManaFeedback = CreateCheckbox("hideManaFeedback", L["Hide_Mana_Feedback"], BetterBlizzFrames, nil, BBF.HideFrames)
     BBF.hideManaFeedbackCheckbox = hideManaFeedback
@@ -12380,8 +12387,26 @@ local function guiMisc()
         end
     end)
 
+    local changeActionBarArtScale = CreateCheckbox("changeActionBarArtScale", L["Change_ActionBar_Art_Size"], contentFrame)
+    changeActionBarArtScale:SetPoint("TOPLEFT", hideActionBar1, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
+    CreateTooltipTwo(changeActionBarArtScale, L["Change_ActionBar_Art_Size"], L["Tooltip_Change_ActionBar_Art_Size_Desc"])
+
+    local actionBarArtScaleSlider = CreateSlider(changeActionBarArtScale, L["ActionBar_Art_Size"], 0.5, 2, 0.01, "actionBarArtScale", nil, 90)
+    actionBarArtScaleSlider:SetPoint("LEFT", changeActionBarArtScale.text, "RIGHT", 3, -3)
+    CreateTooltipTwo(actionBarArtScaleSlider, L["Change_ActionBar_Art_Size"], L["Tooltip_Change_ActionBar_Art_Size_Desc"])
+    actionBarArtScaleSlider:SetScale(0.9)
+
+    changeActionBarArtScale:HookScript("OnClick", function(self)
+        BBF.ActionBarArtScale()
+        if not self:GetChecked() then
+            DisableElement(actionBarArtScaleSlider)
+        else
+            EnableElement(actionBarArtScaleSlider)
+        end
+    end)
+
     local hidePetActionBar = CreateCheckbox("hidePetActionBar", L["Hide_PetActionBar"], contentFrame, nil, BBF.HideFrames)
-    hidePetActionBar:SetPoint("TOPLEFT", hideActionBar1, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
+    hidePetActionBar:SetPoint("TOPLEFT", changeActionBarArtScale, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
     CreateTooltipTwo(hidePetActionBar, L["Hide_PetActionBar"], L["Tooltip_Hide_PetActionBar"])
     hidePetActionBar:HookScript("OnClick", function(self)
         if not self:GetChecked() then
