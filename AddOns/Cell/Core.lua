@@ -989,10 +989,12 @@ function eventFrame:PLAYER_LOGIN()
     if Cell.isForever then
         -- fix from MiliUI: 永恆沒有專精，playerSpecRole 來自隊伍指派（見 UpdateSpecVars），指派變了要重算
         eventFrame:RegisterEvent("PLAYER_ROLES_ASSIGNED")
-        -- 正式服靠登入時客戶端自己發的 ACTIVE_TALENT_GROUP_CHANGED 做第一次 UpdateSpecVars；永恆的雙天賦
-        -- 系統會不會在這個時間點發同一個事件沒有把握，而 playerSpecID 沒值 PreUpdateLayout 會直接 return、
-        -- 框架整個不出來，所以這裡主動跑一次（prevSpec 會把之後真的來的事件去重）
-        eventFrame:ACTIVE_TALENT_GROUP_CHANGED()
+        -- ⚠ 這裡不要主動呼叫 eventFrame:ACTIVE_TALENT_GROUP_CHANGED()。它會當場 Fire("SpecChanged") →
+        -- PreUpdateLayout → F.UpdateLayout，而這個時間點 Cell.vars.groupType／playerNameShort 都還沒設
+        -- （在下面才設），UpdateIndicators 拿 nil 當 activeLayouts 的 key 直接報錯，PLAYER_LOGIN 後半整段
+        -- 跟著不跑（2026-11-05 永恆實機：UnitButton「table index is nil」＋ Nicknames 連鎖報錯）。
+        -- 第一次 UpdateSpecVars 由下面那行無條件的 UpdateSpecVars() 負責（永恆給 playerSpecID = -classID），
+        -- 接著 GROUP_ROSTER_UPDATE(true) 照正式服的順序排版面，不需要另外補事件。
     end
 
     Cell.vars.playerNameShort = GetUnitName("player")
@@ -1164,7 +1166,9 @@ function SlashCmdList.CELL(msg, editbox)
     local rawRest = rest or ""
     rest = strlower(rest or "")
 
-    if command == "options" or command == "opt" then
+    -- fix from MiliUI: a bare /cell opens the options (it used to print the command list, which
+    -- is not what somebody typing the addon's name is after). The list moved to /cell cmd.
+    if command == "" or command == "options" or command == "option" or command == "opt" then
         F.ShowOptionsFrame()
 
     elseif command == "healers" then
@@ -1269,8 +1273,10 @@ function SlashCmdList.CELL(msg, editbox)
     --     end
 
     else
+        -- "cmd" / "command", and anything unrecognised (a typo should get the list, not the options)
         F.Print(L["Available slash commands"]..":\n"..
-            "|cFFFFB5C5/cell options|r, |cFFFFB5C5/cell opt|r: "..L["show Cell options frame"]..".\n"..
+            "|cFFFFB5C5/cell|r, |cFFFFB5C5/cell options|r, |cFFFFB5C5/cell opt|r: "..L["show Cell options frame"]..".\n"..
+            "|cFFFFB5C5/cell cmd|r, |cFFFFB5C5/cell command|r: "..L["show this command list"]..".\n"..
             "|cFFFFB5C5/cell healers|r: "..L["create a \"Healers\" indicator"]..".\n"..
             "|cFFFFB5C5/cell rescale|r: "..strlower(L["Apply Recommended Scale"])..".\n"..
             "|cFFFFB5C5/cell debug|r: "..L["toggle the debug console"]..".\n"..
