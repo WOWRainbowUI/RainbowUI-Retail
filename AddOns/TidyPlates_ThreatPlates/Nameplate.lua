@@ -130,7 +130,6 @@ local PlatesByGUID = Addon.PlatesByGUID
 -- Cached configuration settings (for performance reasons)
 ---------------------------------------------------------------------------------------------------
 local SettingsShowEnemyBlizzardNameplates, SettingsShowFriendlyBlizzardNameplates
-local SettingsShowOnlyNames
 local TargetStyleForEnemy, TargetStyleForFriend, TargetStyleForInteract
 local ShowCastBars
 local ShowInterruptSource
@@ -775,13 +774,28 @@ Addon.RefreshCastbar = RefreshCastbar
 -- Widget Container Handling
 ---------------------------------------------------------------------------------------------------------------------
 
-local function WidgetContainerReset(plate) 
-  local widget_container = plate.TPFrame.WidgetContainer
+-- Gives Blizzard's WidgetContainer back to the UnitFrame it belongs to (it is a child of UnitFrame in Blizzard's
+-- template), anchored like Blizzard does in NamePlateUnitFrameMixin:UpdateWidgetsOnlyMode. Uses the UnitFrame saved
+-- in WidgetContainerAcquire, as plate.UnitFrame may already be nil or a different (pooled) instance here.
+local function WidgetContainerReset(plate)
+  local tp_frame = plate.TPFrame
+  local widget_container = tp_frame.WidgetContainer
   if widget_container then
-    widget_container:SetParent(plate)
-    widget_container:SetIgnoreParentScale(false)
-    widget_container:ClearAllPoints()
-    widget_container:SetPoint("TOP", plate.castBar, "BOTTOM")
+    local unit_frame = tp_frame.WidgetContainerOwner
+    if unit_frame then
+      widget_container:SetParent(unit_frame)
+      widget_container:SetIgnoreParentScale(false)
+      widget_container:SetScale(1)
+      widget_container:ClearAllPoints()
+      if unit_frame.widgetsOnlyMode then
+        widget_container:SetPoint("BOTTOM", unit_frame, "BOTTOM", 0, 0)
+      else
+        local castbar = unit_frame.CastBarsContainer or unit_frame.castBar
+        widget_container:SetPoint("TOP", castbar or unit_frame, "BOTTOM", 0, 0)
+      end
+    end
+    tp_frame.WidgetContainer = nil
+    tp_frame.WidgetContainerOwner = nil
   end
 end
 
@@ -790,6 +804,7 @@ local function WidgetContainerAcquire(plate)
   local widget_container = plate.UnitFrame.WidgetContainer
   if widget_container and tp_frame.Active then
     tp_frame.WidgetContainer = widget_container
+    tp_frame.WidgetContainerOwner = plate.UnitFrame
     widget_container:SetParent(tp_frame)
     widget_container:SetIgnoreParentScale(true)
     widget_container:SetScale(Addon.db.profile.BlizzardSettings.Widgets.Scale)
@@ -941,10 +956,6 @@ local function ThreatPlatesIsActive(unitid)
   end
 end
 
-local function ClassicBlizzardNameplatesSetAlpha(UnitFrame, alpha)
-  UnitFrame.ClassificationFrame:SetAlpha(alpha)
-end
-
 -- Hide ThreatPlates nameplates if Blizzard nameplates should be shown for friendly/enemy units
 local function SetVisibilityOfBlizzardNameplate(UnitFrame, unitid)
   -- Not sure if unit.reaction will always be correctly set here, so:
@@ -974,10 +985,6 @@ local function FrameOnShow(UnitFrame)
       UnitFrame:GetParent().TPFrame:Hide()
     end
     return
-  end
-
-  if SettingsShowOnlyNames then
-    ClassicBlizzardNameplatesSetAlpha(UnitFrame, 0)
   end
 
   SetVisibilityOfBlizzardNameplate(UnitFrame, unitid)
@@ -1351,7 +1358,6 @@ function Addon:UpdateSettings()
 
   SettingsShowFriendlyBlizzardNameplates = db.ShowFriendlyBlizzardNameplates
   SettingsShowEnemyBlizzardNameplates = db.ShowEnemyBlizzardNameplates
-  SettingsShowOnlyNames = CVars:GetAsBool("nameplateShowOnlyNames") and Addon.db.profile.BlizzardSettings.Names.Enabled
   SettingsShowSurname = Addon.WOW_FEATURE_REGIONAL_SURNAMES and db.Name.HealthbarMode.ShowSurname
 
   TargetStyleForEnemy = db.targetWidget.SoftTarget.TargetStyleForEnemy
@@ -1418,13 +1424,6 @@ end
 
 function Addon:ForceUpdateOnNameplate(tp_frame)
   RefreshPlatePresentation(tp_frame, tp_frame.Parent, tp_frame.unit.unitid)
-end
-
-function Addon:ForceUpdateFrameOnShow()
-  SettingsShowOnlyNames = CVars:GetAsBool("nameplateShowOnlyNames") and Addon.db.profile.BlizzardSettings.Names.Enabled
-  for _, tp_frame in Addon:GetActiveThreatPlates() do
-    ClassicBlizzardNameplatesSetAlpha(tp_frame.Parent.UnitFrame, SettingsShowOnlyNames and 0 or 1)
-  end
 end
 
 --------------------------------------------------------------------------------------------------------------
