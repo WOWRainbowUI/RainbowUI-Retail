@@ -497,11 +497,11 @@ do
   monitor:RegisterEvent("PLAYER_ENTERING_WORLD")
   monitor:SetScript("OnEvent", function(_, eventName, data)
     if eventName == "PLAYER_TARGET_CHANGED" then
-      harmful:SetEnabled(not UnitCanAssist("player", "target"))
+      harmful:SetEnabled(not UnitCanAssist("player", "target") and UnitExists("target"))
       harmful:UpdateAllAuras()
     elseif eventName == "UNIT_FACTION" or eventName == "UNIT_TARGETABLE_CHANGED" then
       if data == "target" then
-        harmful:SetEnabled(not UnitCanAssist("player", "target"))
+        harmful:SetEnabled(not UnitCanAssist("player", "target") and UnitExists("target"))
         harmful:UpdateAllAuras()
       elseif data == "player" then
         helpful:SetEnabled(UnitCanAssist("player", "player"))
@@ -526,7 +526,7 @@ do
 
   function addonTable.Display.SetAuraSlotsFilters(key, selfSettings, targetSettings, playerSourced)
     helpful:SetAuraSlotFilterString(key, playerSourced and "HELPFUL|PLAYER" or "HELPFUL")
-    helpfulPet:SetAuraSlotFilterString(key, "HELPFUL" or "")
+    helpfulPet:SetAuraSlotFilterString(key, "HELPFUL")
     harmful:SetAuraSlotFilterString(key, playerSourced and "HARMFUL|PLAYER" or "HARMFUL")
 
     helpful:SetAuraSlotCandidateFilters(key, selfSettings)

@@ -1,8 +1,8 @@
 # Coolinator
 
-## [169](https://github.com/TheMouseNest/Coolinator/tree/169) (2026-11-04)
-[Full Changelog](https://github.com/TheMouseNest/Coolinator/compare/168...169) 
+## [170](https://github.com/TheMouseNest/Coolinator/tree/170) (2026-11-06)
+[Full Changelog](https://github.com/TheMouseNest/Coolinator/compare/169...170) 
 
-- Fix typo  
-- Fix pixel perfect issues with auras  
-- Remove final vestiges of old pixel perfect  
+- Fix "Aura (when missing)" icons  
+- Update hunter spell data  
+- Fix Mark of the Wild spell ID for aura  

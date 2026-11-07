@@ -29,8 +29,16 @@ function addonTable.Display.AuraInvertedIconMixin:OnLoad()
   self.Container:SetClipsChildren(true)
   self.AuraWrapper = CreateFrame("Frame", nil, self)
   self.AuraWrapper:SetPoint("TOPLEFT", self.Container)
-  self.AuraWrapper.sizing = CreateFrame("Frame", nil, self.AuraWrapper, "DisableUntrustedLayoutScriptsTemplate")
-  self.AuraWrapper.sizing:SetSize(0.0001, 0.0001)
+  self.AuraWrapper.TopLeft = CreateFrame("Frame", nil, self.AuraWrapper)
+  self.AuraWrapper.TopLeft:SetSize(0.0001, 0.0001)
+  self.AuraWrapper.TopLeft:SetPoint("TOPLEFT")
+  self.AuraWrapper.helpfulSizing = CreateFrame("Frame", nil, self.AuraWrapper, "DisableUntrustedLayoutScriptsTemplate")
+  self.AuraWrapper.helpfulSizing:SetSize(0.0001, 0.0001)
+  self.AuraWrapper.helpfulPetSizing = CreateFrame("Frame", nil, self.AuraWrapper, "DisableUntrustedLayoutScriptsTemplate")
+  self.AuraWrapper.helpfulPetSizing:SetSize(0.0001, 0.0001)
+  self.AuraWrapper.harmfulSizing = CreateFrame("Frame", nil, self.AuraWrapper, "DisableUntrustedLayoutScriptsTemplate")
+  self.AuraWrapper.harmfulSizing:SetSize(0.0001, 0.0001)
+  self.AuraWrapper:SetSize(10, 10)
   self.iconWrapper = CreateFrame("Frame", nil, self.Container)
   self.iconWrapper:SetPoint("TOPLEFT", self.AuraWrapper, "TOPRIGHT")
   self.Icon = self.iconWrapper:CreateTexture()
@@ -62,29 +70,24 @@ function addonTable.Display.AuraInvertedIconMixin:ApplyPadding(horizontal, verti
   end
 
   if not self.helpfulButton then
-    local prev
+    local doneHelpful = false
     self.index, self.helpfulButton, self.harmfulButton, self.helpfulPetButton = addonTable.Display.GeneratePlayerAuraSlots(
       {initializeFrame = function(auraButton)
         self.ButtonInit(auraButton)
         self.SizeButton(auraButton, self.details)
-        if not prev then
-          auraButton:SetPoint("LEFT", self.Container, "LEFT")
+        auraButton:SetPoint("LEFT", self.AuraWrapper, "LEFT")
+        if doneHelpful then
+          self.AuraWrapper.helpfulPetSizing:SetPoint("LEFT", auraButton, "RIGHT")
         else
-          auraButton:SetPoint("LEFT", prev, "RIGHT")
+          self.AuraWrapper.helpfulSizing:SetPoint("LEFT", auraButton, "RIGHT")
         end
-        self.AuraWrapper.sizing:SetPoint("LEFT", auraButton, "RIGHT")
-        prev = auraButton
+        doneHelpful = true
       end, candidateFilters = self.include},
       {initializeFrame = function(auraButton)
         self.ButtonInit(auraButton)
         self.SizeButton(auraButton, self.details)
-        if not prev then
-          auraButton:SetPoint("LEFT", self.Container, "LEFT")
-        else
-          auraButton:SetPoint("LEFT", prev, "RIGHT")
-        end
-        self.AuraWrapper.sizing:SetPoint("LEFT", auraButton, "RIGHT")
-        prev = auraButton
+        auraButton:SetPoint("LEFT", self.AuraWrapper, "LEFT")
+        self.AuraWrapper.harmfulSizing:SetPoint("LEFT", auraButton, "RIGHT")
       end, candidateFilters = self.include},
       self.details.playerSourced
     )
@@ -93,6 +96,10 @@ function addonTable.Display.AuraInvertedIconMixin:ApplyPadding(horizontal, verti
     self.SizeButton(self.helpfulButton, self.details)
     self.SizeButton(self.helpfulPetButton, self.details)
     self.SizeButton(self.harmfulButton, self.details)
+
+    self.AuraWrapper.helpfulSizing:SetPoint("LEFT", self.helpfulButton, "RIGHT")
+    self.AuraWrapper.helpfulPetSizing:SetPoint("LEFT", self.helpfulPetButton, "RIGHT")
+    self.AuraWrapper.harmfulSizing:SetPoint("LEFT", self.harmfulButton, "RIGHT")
   end
 
   self:SetSize(offsetSize + horizontal, offsetSize + vertical)

@@ -35,6 +35,7 @@ addonTable.Data.Spells[class] = {
     ['isRanked'] = true
   },
   [3] = {
+
     ['spells'] = {
       [1] = 1126,
       [2] = 5232,
@@ -627,7 +628,7 @@ addonTable.Data.Spells[class] = {
     ['spells'] = {
       [1] = 1126,
       [2] = 5232,
-      [3] = 5287,
+      [3] = 6756,
       [4] = 5234,
       [5] = 8907,
       [6] = 9884,
