@@ -17,7 +17,9 @@ hidden:Hide()
 local skinners = {
   ItemButton = function(frame, tags)
     S.Button(frame, {"icon", "ProfessionQualityOverlay", "IconOverlay", "searchOverlay", "ItemContextOverlay"})
-    frame.icon:RemoveMaskTexture(frame.icon:GetMaskTexture(1))
+    if frame.icon:GetMaskTexture(1) then
+      frame.icon:RemoveMaskTexture(frame.icon:GetMaskTexture(1))
+    end
     hooksecurefunc(frame, "SetItemButtonQuality", function(_, quality)
       frame.IconBorder:SetTexture("Interface/AddOns/Baganator/Assets/Skins/dark-icon-border")
       frame:ClearNormalTexture()
