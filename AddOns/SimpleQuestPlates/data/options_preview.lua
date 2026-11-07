@@ -84,6 +84,14 @@ function SQP:CreatePreviewSection(parent)
     end
     previewFrame.plate = realPlate
 
+    -- The client POOLS nameplate unit frames: the preview plate acquires one when it shows and
+    -- releases it back to the shared pool when it hides, and a live nameplate can later acquire
+    -- that very frame. A permanent "hide on show" hook would therefore follow the frame onto a
+    -- live nameplate and keep its debuffs (and classification/raid icons) hidden - intermittently,
+    -- depending on which pooled frame a mob receives. The hook acts only while the preview owns
+    -- the decoration, and ownership ends (and the decoration is shown again) when the preview hides.
+    local ownedDecorations = {}
+
     local function HidePreviewDecorations()
         local unit = realPlate and realPlate.UnitFrame
         if not unit then return end
@@ -95,14 +103,26 @@ function SQP:CreatePreviewSection(parent)
         for _, key in ipairs({ "ClassificationFrame", "RaidTargetFrame", "AurasFrame" }) do
             local decoration = unit[key]
             if decoration then
-                if not decoration._sqpPreviewHidden then
-                    decoration._sqpPreviewHidden = true
-                    decoration:HookScript("OnShow", function(self) self:Hide() end)
+                ownedDecorations[decoration] = true
+                if not decoration._sqpPreviewHook then
+                    decoration._sqpPreviewHook = true
+                    decoration:HookScript("OnShow", function(self)
+                        if ownedDecorations[self] then self:Hide() end
+                    end)
                 end
                 decoration:Hide()
             end
         end
     end
+
+    -- Give the pooled frame back exactly as the client expects it: no ownership, decorations shown.
+    local function ReleasePreviewDecorations()
+        for decoration in pairs(ownedDecorations) do
+            ownedDecorations[decoration] = nil
+            decoration:Show()
+        end
+    end
+    previewFrame.ReleasePreviewDecorations = ReleasePreviewDecorations
     if realPlate then realPlate:HookScript("OnShow", HidePreviewDecorations) end
     HidePreviewDecorations()
 
@@ -478,6 +498,7 @@ function SQP:CreatePreviewSection(parent)
 
     -- Stop preview pulses when panel hides
     previewFrame:SetScript("OnHide", function(self)
+        ReleasePreviewDecorations()
         local qf = self.questFrame or questFrame
         if qf then
             SQP:SetQuestToastSelected(qf, false)
@@ -881,6 +902,17 @@ function SQP:CreatePreviewSection(parent)
     previewFrame:SetScript("OnShow", function(self)
         if self.plate then self.plate:Show() end
         self:UpdatePreview()
+        -- The client lays the preview nameplate out (and registers its unit)
+        -- after OnShow returns, so the first update can anchor the overlay to a
+        -- zero-sized health bar and the questplate stays blank until some
+        -- options control triggers another refresh. Re-apply on the next frames.
+        if C_Timer and C_Timer.After then
+            for _, delay in ipairs({ 0, 0.15 }) do
+                C_Timer.After(delay, function()
+                    if self:IsShown() then self:UpdatePreview() end
+                end)
+            end
+        end
     end)
 
     -- Type-switcher button state: alpha dims inactive buttons and the
