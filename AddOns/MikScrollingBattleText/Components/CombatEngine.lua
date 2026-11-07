@@ -21,8 +21,7 @@ function Engine:MaintainLog()
 		ns.KeepCombatLog(false)
 		if not self.warned
 			and not (InCombatLockdown and InCombatLockdown()) then
-			self.config.notify("Combat text needs its MSBT combat-log filter. "
-				.. "Type /reload to save and activate it.")
+			self.config.notify()
 			self.warned = true
 		end
 	end

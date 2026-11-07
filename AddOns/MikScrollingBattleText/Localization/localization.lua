@@ -59,5 +59,4 @@ L.MSG_TRIGGER_LOW_PET_HEALTH	= "Low Pet Health"
 L.MSBT_MSBT = "MikScrollingBattleText"
 L.MSBT_OPENOPTION = ""
 
-L.COMBAT_SETUP_NOTICE = "Combat text needs its MSBT combat-log filter. Type /reload to save and activate it."
 L.COMBAT_SETUP_RELOAD = "In order for MSBT to start, you need to reload your UI."
