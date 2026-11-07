@@ -100,13 +100,19 @@ end
 
 local classicStyleAddon
 
+local function AddonWillLoad(name, player)
+	local state = C_AddOns.GetAddOnEnableState(name, player)
+	if state == Enum.AddOnEnableState.None or (player and state ~= Enum.AddOnEnableState.All) then return false end
+	return C_AddOns.IsAddOnLoadable(name, player) and true or false
+end
+
 function BBF.ClassicStyleAddon()
 	if classicStyleAddon == nil then
 		local db = BetterBlizzFramesDB
-		local player = UnitName("player")
-		classicStyleAddon = (C_AddOns.IsAddOnLoadable("ClassicFrames", player)
-			or C_AddOns.IsAddOnLoadable("EasyFrames", player)
-			or (C_AddOns.IsAddOnLoadable("ClassicUIForever", player) and not (db and db.classicUIUnitFramesOff))) and true or false
+		local player = UnitGUID("player")
+		classicStyleAddon = (AddonWillLoad("ClassicFrames", player)
+			or AddonWillLoad("EasyFrames", player)
+			or (AddonWillLoad("ClassicUIForever", player) and not (db and db.classicUIUnitFramesOff))) and true or false
 	end
 	return classicStyleAddon or C_AddOns.IsAddOnLoaded("ClassicFrames")
 end
@@ -520,6 +526,18 @@ function BBF.ActionBarCDNumberSize(reset)
 	end
 end
 
+function BBF.ActionBarArtScale()
+	local endCaps = MainActionBar and MainActionBar.EndCaps
+	if not endCaps then return end
+	if BetterBlizzFramesDB.changeActionBarArtScale then
+		endCaps:SetScale(BetterBlizzFramesDB.actionBarArtScale or 1)
+		BBF.actionBarArtScaleActive = true
+	elseif BBF.actionBarArtScaleActive then
+		endCaps:SetScale(1)
+		BBF.actionBarArtScaleActive = nil
+	end
+end
+
 local LSM = LibStub("LibSharedMedia-3.0")
 local FontValidatorString = UIParent:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 
@@ -564,6 +582,7 @@ LSM:Register("statusbar", "Blizzard Retail Bar Crop 2", [[Interface\AddOns\Bette
 LSM:Register("statusbar", "Blizzard Forever Bar", [[Interface\AddOns\BetterBlizzFrames\media\barTextures\BlizzardForeverBar]])
 BBF.internalStatusbars = {
     ["Blizzard Retail Bar Green"] = [[Interface\AddOns\BetterBlizzFrames\media\barTextures\BlizzardRetailBarGreen]],
+    ["Blizzard Retail Bar Crop Green"] = [[Interface\AddOns\BetterBlizzFrames\media\barTextures\BlizzardRetailBarCropGreen]],
     ["Blizzard Forever Bar Green"] = [[Interface\AddOns\BetterBlizzFrames\media\barTextures\BlizzardForeverBarGreen]],
 }
 function BBF.FetchStatusbar(name)
