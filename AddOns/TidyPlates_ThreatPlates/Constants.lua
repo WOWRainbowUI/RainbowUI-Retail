@@ -1730,8 +1730,7 @@ Addon.DEFAULT_SETTINGS = {
     },
     BlizzardSettings = {
       Names = {
-        ShowOnlyNames = false,
-		Enabled = false,
+        Enabled = false,
         ShowPlayersInInstances = false,
         Font = {
           Typeface = Addon.DEFAULT_FONT,
