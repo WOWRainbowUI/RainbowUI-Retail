@@ -182,13 +182,11 @@ local skinners = {
         tex:SetParent(addonTable.hiddenFrame)
       end
     end
-    local alpha = 1 - addonTable.Config.Get("skins.dark.chat_transparency")
+    local alpha = 1 - addonTable.Config.Get("skins.dark.edit_box_transparency")
     editBox.background = editBox:CreateTexture(nil, "BACKGROUND")
-    local value = 0.1
-    if addonTable.Config.Get("skins.dark.solid_chat_background") then
-      value = 0
-    end
-    editBox.background:SetColorTexture(value, value, value, alpha)
+    local editBoxColor = addonTable.Config.Get("skins.dark.edit_box_bg_color")
+
+    editBox.background:SetColorTexture(editBoxColor.r, editBoxColor.g, editBoxColor.b, alpha)
     editBox.background:SetPoint("TOPLEFT", editBox)
     editBox.background:SetPoint("BOTTOM", editBox)
     editBox.background:SetPoint("RIGHT", editBox)
@@ -243,7 +241,9 @@ local skinners = {
     tab:SetNormalFontObject("GameFontNormalSmall")
     if tab:GetFontString() == nil then
       tab:SetText(" ")
-    end
+    end    
+    local tabTextColor = addonTable.Config.Get("skins.dark.tab_text_color")
+    tab:GetFontString():SetTextColor(tabTextColor.r, tabTextColor.g, tabTextColor.b)
     tab:GetFontString():SetWordWrap(false)
     tab:GetFontString():SetNonSpaceWrap(false)
     local fsWidth
@@ -410,26 +410,29 @@ local function LoadSkin()
         tab.Middle:SetAlpha(alpha)
       end
     elseif settingName == "skins.dark.chat_transparency" then
-      local alpha = 1 - addonTable.Config.Get(settingName)
       for _, frame in ipairs(chatFrames) do
         frame:SetBackgroundColor(frame.backgroundColor.r, frame.backgroundColor.g, frame.backgroundColor.b)
       end
+    elseif settingName == "skins.dark.edit_box_transparency" then
+      local color = addonTable.Config.Get("skins.dark.edit_box_bg_color")
+      local alpha = 1 - addonTable.Config.Get("skins.dark.edit_box_transparency")
       for _, frame in ipairs(editBoxes) do
-        frame.background:SetAlpha(alpha)
+        frame.background:SetColorTexture(color.r, color.g, color.b, alpha)
+      end
+    elseif settingName == "skins.dark.tab_text_color" then
+      local color = addonTable.Config.Get(settingName)
+      for _, tab in ipairs(chatTabs) do
+        tab:GetFontString():SetTextColor(color.r, color.g, color.b)
+      end
+    elseif settingName == "skins.dark.edit_box_bg_color" then
+      local color = addonTable.Config.Get(settingName)
+      local alpha = 1 - addonTable.Config.Get("skins.dark.edit_box_transparency")
+      for _, frame in ipairs(editBoxes) do
+        frame.background:SetColorTexture(color.r, color.g, color.b, alpha)
       end
     elseif settingName == "skins.dark.solid_chat_background" then
-      local isSolid = addonTable.Config.Get(settingName)
       for _, frame in ipairs(chatFrames) do
         frame:SetBackgroundColor(frame.backgroundColor.r, frame.backgroundColor.g, frame.backgroundColor.b)
-      end
-
-      local value = 0.1
-      if isSolid then
-        value = 0
-      end
-      local alpha = 1 - addonTable.Config.Get("skins.dark.chat_transparency")
-      for _, frame in ipairs(editBoxes) do
-        frame.background:SetColorTexture(value, value, value, alpha)
       end
     end
   end)
@@ -480,9 +483,33 @@ addonTable.Skins.RegisterSkin(addonTable.Locales.DARK, "dark", LoadSkin, SkinFra
     lowText = "0%",
     highText = "100%",
     scale = 100,
+    text = addonTable.Locales.EDIT_BOX_TRANSPARENCY,
+    valuePattern = "%s%%",
+    option = "edit_box_transparency",
+    default = 0.4,
+  },
+  {
+    type = "slider",
+    min = 0,
+    max = 100,
+    lowText = "0%",
+    highText = "100%",
+    scale = 100,
     text = addonTable.Locales.TAB_TRANSPARENCY,
     valuePattern = "%s%%",
     option = "tab_transparency",
     default = 0,
   },
+  {
+    type = "colorPicker",
+    text = addonTable.Locales.EDIT_BOX_BG_COLOR,
+    default = {r = 0.1, g = 0.1, b = 0.1},
+    option = "edit_box_bg_color"
+  },
+  {
+    type = "colorPicker",
+    text = addonTable.Locales.TAB_TEXT_COLOR,
+    default = {r=1,g=0.843,b=0},
+    option = "tab_text_color"
+  }
 })
