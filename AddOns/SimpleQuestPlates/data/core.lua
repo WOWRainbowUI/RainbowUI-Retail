@@ -83,7 +83,7 @@ local function GetAddOnMetadataCompat(name, field)
     return nil
 end
 
-SQP.VERSION = "2.1.17" -- Addon version (also in TOC file)
+SQP.VERSION = "2.1.20" -- Addon version (also in TOC file)
 SQP.NAME = GetAddOnMetadataCompat(addonName, "Title") or addonName or "SimpleQuestPlates"
 SQP.AUTHOR = GetAddOnMetadataCompat(addonName, "Author") or "DonnieDice"
 SQP.LOCALE = GetLocale()
@@ -616,14 +616,22 @@ function SQP:SetupMinimapButton()
 end
 
 function SQP:ToggleMinimapIcon(show, silent)
-    if not self.minimapBtn then return end
-    self.minimapBtn:SetVisible(show)
+    show = show and true or false
+    -- The saved choice is written here first, so it persists even if the button
+    -- could not be built yet; the button itself only mirrors it.
+    SQPSettings.minimapIconEnabled = show
+    if not self.minimapBtn then
+        self:SetupMinimapButton()
+    end
+    if self.minimapBtn then
+        self.minimapBtn:SetVisible(show)
+    end
     -- The icon can be hidden from three places (options checkbox, /sqp icon,
     -- Ctrl+Right-click). Keep the already-built options checkbox in step so it
     -- never shows a stale value that the next click then "saves" backwards.
     local control = self.optionControls and self.optionControls.minimapIconEnabled
     if control and control.SetChecked then
-        control:SetChecked(show and true or false)
+        control:SetChecked(show)
     end
     if not silent then
         if show then
@@ -634,13 +642,32 @@ function SQP:ToggleMinimapIcon(show, silent)
     end
 end
 
+-- Make the button match the saved choice. Safe to call repeatedly (login, every
+-- loading screen) so another addon re-showing the button cannot undo a hide.
 function SQP:ApplyMinimapVisibility()
     if not self.minimapBtn then
         self:SetupMinimapButton()
     end
-    if self.minimapBtn then
-        self.minimapBtn:SetVisible(self.minimapBtn:GetEnabled())
+    local button = self.minimapBtn
+    if not button then return false end
+    local wanted = SQPSettings.minimapIconEnabled ~= false
+    local frame = button.frame
+    if frame and not frame._sqpVisibilityHook and frame.HookScript then
+        frame._sqpVisibilityHook = true
+        frame:HookScript("OnShow", function(self)
+            if SQPSettings.minimapIconEnabled == false then self:Hide() end
+        end)
     end
+    -- A minimap-button collector (ElvUI WindTools etc.) reparents the button and owns whether it
+    -- shows inside its own bar; only a hide is enforced there, never a forced show.
+    local collected = frame and frame.GetParent and _G.Minimap and frame:GetParent() ~= _G.Minimap
+    if collected and wanted then
+        return true
+    end
+    if wanted ~= (frame and frame:IsShown() and true or false) then
+        button:SetVisible(wanted)
+    end
+    return true
 end
 
 function SQP:InitializeFrameworkUI()
@@ -653,7 +680,11 @@ function SQP:InitializeFrameworkUI()
         return
     end
 
-    self:ApplyMinimapVisibility()
+    -- Only treat the UI as initialised once the minimap button exists, so a
+    -- failed first attempt is retried at login instead of being skipped forever.
+    if not self:ApplyMinimapVisibility() then
+        return
+    end
 
     self._frameworkUIInitialized = true
 end

@@ -91,6 +91,7 @@ function SQP:CreatePreviewSection(parent)
     -- depending on which pooled frame a mob receives. The hook acts only while the preview owns
     -- the decoration, and ownership ends (and the decoration is shown again) when the preview hides.
     local ownedDecorations = {}
+    local priorShown = {}
 
     local function HidePreviewDecorations()
         local unit = realPlate and realPlate.UnitFrame
@@ -103,7 +104,10 @@ function SQP:CreatePreviewSection(parent)
         for _, key in ipairs({ "ClassificationFrame", "RaidTargetFrame", "AurasFrame" }) do
             local decoration = unit[key]
             if decoration then
-                ownedDecorations[decoration] = true
+                if not ownedDecorations[decoration] then
+                    ownedDecorations[decoration] = true
+                    priorShown[decoration] = decoration.IsShown and decoration:IsShown() and true or false
+                end
                 if not decoration._sqpPreviewHook then
                     decoration._sqpPreviewHook = true
                     decoration:HookScript("OnShow", function(self)
@@ -115,11 +119,19 @@ function SQP:CreatePreviewSection(parent)
         end
     end
 
-    -- Give the pooled frame back exactly as the client expects it: no ownership, decorations shown.
+    -- Give the pooled frame back: no ownership, and each decoration goes back to what the client
+    -- says it should be. Never force-show: raid-target and classification frames are only shown
+    -- while the unit has a marker/classification, so a blind Show() put a marker on every enemy plate.
     local function ReleasePreviewDecorations()
         for decoration in pairs(ownedDecorations) do
             ownedDecorations[decoration] = nil
-            decoration:Show()
+            local wasShown = priorShown[decoration]
+            priorShown[decoration] = nil
+            if type(decoration.UpdateShownState) == "function" then
+                pcall(decoration.UpdateShownState, decoration)
+            elseif wasShown then
+                decoration:Show()
+            end
         end
     end
     previewFrame.ReleasePreviewDecorations = ReleasePreviewDecorations
