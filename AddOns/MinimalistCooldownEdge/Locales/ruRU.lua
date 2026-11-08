@@ -6,6 +6,8 @@ L["MINIAURAS_COUNTDOWN_COLORS_NOTICE"] = "Цветами порогов тайм
 L["MINIAURAS_SWIPE_ALPHA_DESC"] = "0% — прозрачно, 100% — полностью темно. Применяется ко всем группам модулей MiniAuras; 80% соответствует заливке, которую рисует сам MiniAuras."
 
 -- Core
+L["Show login messages"] = "Показывать сообщения при входе"
+L["LOGIN_MESSAGES_DESC"] = "Показывает уведомления MiniCE о совместимости в чате при входе в игру или загрузке аддона. При отключении этих сообщений защита от конфликтов остаётся активной."
 L["MiniAuras test command is unavailable."] = "Команда теста MiniAuras недоступна."
 
 -- Category Names

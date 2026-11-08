@@ -6,6 +6,8 @@ L["MINIAURAS_COUNTDOWN_COLORS_NOTICE"] = "MiniAuras가 카운트다운 임계값
 L["MINIAURAS_SWIPE_ALPHA_DESC"] = "0% = 투명, 100% = 완전히 어둡게. 모든 MiniAuras 모듈 그룹에 적용됩니다. 80%는 MiniAuras가 직접 그리는 쿨다운 효과와 같습니다."
 
 -- Core
+L["Show login messages"] = "로그인 메시지 표시"
+L["LOGIN_MESSAGES_DESC"] = "로그인하거나 애드온을 불러올 때 MiniCE의 호환성 알림을 채팅창에 표시합니다. 메시지를 꺼도 충돌 방지 기능은 계속 작동합니다."
 L["MiniAuras test command is unavailable."] = "MiniAuras 테스트 명령을 사용할 수 없습니다."
 
 -- Category Names

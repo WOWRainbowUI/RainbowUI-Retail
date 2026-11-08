@@ -6,6 +6,8 @@ L["MINIAURAS_COUNTDOWN_COLORS_NOTICE"] = "MiniAuras verwaltet die Schwellenfarbe
 L["MINIAURAS_SWIPE_ALPHA_DESC"] = "0 % = transparent, 100 % = vollständig dunkel. Gilt für alle MiniAuras-Modulgruppen; 80 % entspricht der Wischanimation von MiniAuras selbst."
 
 -- Core
+L["Show login messages"] = "Anmeldemeldungen anzeigen"
+L["LOGIN_MESSAGES_DESC"] = "Zeigt MiniCE-Kompatibilitätshinweise bei der Anmeldung oder beim Laden eines Addons im Chat an. Wenn diese Meldungen deaktiviert sind, bleibt der Schutz vor Konflikten aktiv."
 L["MiniAuras test command is unavailable."] = "Der MiniAuras-Testbefehl ist nicht verfügbar."
 
 -- Category Names

@@ -6,6 +6,8 @@ L["MINIAURAS_COUNTDOWN_COLORS_NOTICE"] = "MiniAuras 會自行管理倒數門檻�
 L["MINIAURAS_SWIPE_ALPHA_DESC"] = "0% = 完全透明，100% = 完全變暗。套用於所有 MiniAuras 模組群組；80% 與 MiniAuras 自身繪製的冷卻遮罩一致。"
 
 -- Core
+L["Show login messages"] = "顯示登入訊息"
+L["LOGIN_MESSAGES_DESC"] = "在登入或載入插件時，於聊天視窗顯示 MiniCE 的插件相容性提示。關閉這些訊息後，衝突保護仍然有效。"
 L["MiniAuras test command is unavailable."] = "MiniAuras 測試指令不可用。"
 
 -- Category Names

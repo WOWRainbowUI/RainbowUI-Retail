@@ -13,6 +13,8 @@ L["MYDRS_SWIPE_ALPHA_DESC"] = "0 % = transparent, 100 % = totalement sombre. Rem
 L["MINIAURAS_SWIPE_ALPHA_DESC"] = "0 % = transparent, 100 % = totalement sombre. S'applique à tous les groupes de modules MiniAuras ; 80 % correspond au balayage dessiné par MiniAuras."
 
 -- Core
+L["Show login messages"] = "Afficher les messages de connexion"
+L["LOGIN_MESSAGES_DESC"] = "Affiche les avertissements de compatibilité de MiniCE dans le chat à la connexion ou au chargement d'un addon. Désactiver ces messages conserve la protection contre les conflits."
 L["MiniAuras test command is unavailable."] = "La commande de test de MiniAuras n'est pas disponible."
 L["MyDRs test command is unavailable."] = "La commande de test de MyDRs n'est pas disponible."
 L["sArena slash command is unavailable."] = "La commande slash de sArena n'est pas disponible."

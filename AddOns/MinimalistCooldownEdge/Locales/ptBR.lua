@@ -6,6 +6,8 @@ L["MINIAURAS_COUNTDOWN_COLORS_NOTICE"] = "O MiniAuras gerencia as cores de limit
 L["MINIAURAS_SWIPE_ALPHA_DESC"] = "0% = transparente, 100% = totalmente escuro. Aplica-se a todos os grupos de módulos do MiniAuras; 80% corresponde à varredura que o próprio MiniAuras desenha."
 
 -- Core
+L["Show login messages"] = "Mostrar mensagens de login"
+L["LOGIN_MESSAGES_DESC"] = "Mostra os avisos de compatibilidade do MiniCE no chat ao entrar no jogo ou carregar um addon. Desativar essas mensagens mantém a proteção contra conflitos ativa."
 L["MiniAuras test command is unavailable."] = "O comando de teste do MiniAuras não está disponível."
 
 -- Category Names

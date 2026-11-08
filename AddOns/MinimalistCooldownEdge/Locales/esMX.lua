@@ -6,6 +6,8 @@ L["MINIAURAS_COUNTDOWN_COLORS_NOTICE"] = "MiniAuras gestiona los colores de umbr
 L["MINIAURAS_SWIPE_ALPHA_DESC"] = "0 % = transparente, 100 % = totalmente oscuro. Se aplica a todos los grupos de módulos de MiniAuras; el 80 % coincide con el barrido que dibuja MiniAuras."
 
 -- Core
+L["Show login messages"] = "Mostrar mensajes de inicio de sesión"
+L["LOGIN_MESSAGES_DESC"] = "Muestra los avisos de compatibilidad de MiniCE en el chat al iniciar sesión o al cargar un addon. Desactivar estos mensajes mantiene activa la protección contra conflictos."
 L["MiniAuras test command is unavailable."] = "El comando de prueba de MiniAuras no está disponible."
 
 -- Category Names

@@ -14,6 +14,8 @@ L["MINIAURAS_SWIPE_ALPHA_DESC"] = "0% = transparent, 100% = full dark. Applies t
 L["SHACKLED_SWIPE_ALPHA_DESC"] = "0% = transparent, 100% = full dark. Shackled draws a plain Blizzard-default swipe, so this simply re-shades it."
 
 -- Core
+L["Show login messages"] = true
+L["LOGIN_MESSAGES_DESC"] = "Show MiniCE's addon compatibility notices in chat at login or when an addon loads. Disabling these messages keeps conflict protection active."
 L["MiniAuras test command is unavailable."] = true
 L["MyDRs test command is unavailable."] = true
 L["Toggle MyDRs' built-in test icons using /mydrs test."] = true
