@@ -2,7 +2,7 @@
 ## Category-zhTW: 快捷列
 ## Notes-zhTW: Dominos Progress |n|n經驗、聲望、神器、榮譽等各種經驗值的進度條。
 ## Title-zhTW: |cff00CCFF[快捷列]|r 達美樂-經驗條
-## Interface: 120107, 120105, 50504, 20506, 16001, 11509
+## Interface: 120107, 120105, 50504, 38002, 20506, 16001, 11509
 ## Title: Dominos Progress
 ## Title-zhCN: Dominos 进度条模块
 ## Notes: Progress bars of all sorts

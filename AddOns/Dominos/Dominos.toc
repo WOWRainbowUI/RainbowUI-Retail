@@ -2,13 +2,13 @@
 ## Category-zhTW: 快捷列
 ## Notes-zhTW: Dominos |n|n用來取代遊戲內建的主要快捷列，提供方便的快捷列配置、快速鍵設定，讓你可以自由安排快捷列的位置和大小，以及多種自訂功能。|n|n|cffffd200使用方法: |r點小地圖按鈕進行設定。
 ## Title-zhTW: |cff00CCFF[快捷列]|r 達美樂
-## Interface: 120107, 120105, 50504, 20506, 16001, 11509
+## Interface: 120107, 120105, 50504, 38002, 20506, 16001, 11509
 ## Title: Dominos
 ## Notes: A main actionbar replacement
 ## Notes-zhCN: 一种动作条替换方案
 ## Author: Tuller
 ## Category: Action Bars
-## Version: 11.5.1
+## Version: 11.5.3
 ## SavedVariables: DominosDB
 ## OptionalDeps: Ace3, LibKeyBound-1.0, LibSharedMedia-3.0, Masque, FlyPaper, LibDualSpec-1.0
 ## IconTexture: Interface/AddOns/Dominos/Dominos
@@ -31,15 +31,12 @@ core\bindableButton.lua
 core\fadeManager.lua
 core\overrideController.lua [ExcludeLoadGameType vanilla]
 core\tooltipController.lua
-core\blizzardHider.lua [ExcludeLoadGameType cata, wrath]
-core\blizzardHider.classic.lua [AllowLoadGameType cata, wrath]
+core\blizzardHider.lua
 # builtin bars
 bars\actionBar\bindings.lua [AllowLoadGameType standard, camelot]
 bars\actionBar\flyout.lua [AllowLoadGameType mists]
-bars\actionBar\button.lua [ExcludeLoadGameType cata, wrath]
-bars\actionBar\button.classic.lua [AllowLoadGameType cata, wrath]
-bars\actionBar\buttons.lua [ExcludeLoadGameType cata, wrath]
-bars\actionBar\buttons.classic.lua [AllowLoadGameType cata, wrath]
+bars\actionBar\button.lua
+bars\actionBar\buttons.lua
 bars\actionBar\bar.lua
 bars\actionBar\menu.lua
 bars\actionBar\bars.lua

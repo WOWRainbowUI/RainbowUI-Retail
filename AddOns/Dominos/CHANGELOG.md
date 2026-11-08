@@ -1,5 +1,16 @@
 # Dominos Changelog
 
+## 11.5.3
+
+* Fixed an issue causing input boxes on sliders to not automatically break soft limits
+* Reverted fade sliders back to displaying values in seconds, and increased soft limit to 5s
+
+## 11.5.2
+
+* Fixed totem bar positioning in Forever
+* Disabled Dominos when Gamepad UI is active.
+* Updated references for the multi action bars so that they're properly reused by Dominos
+
 ## 11.5.1
 
 * Fixed positioning issues with various bars.
