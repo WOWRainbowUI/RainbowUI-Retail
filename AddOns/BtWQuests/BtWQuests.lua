@@ -1207,6 +1207,7 @@ function BtWQuests_AddOpenChainMenuItem(owner, rootDescription, questID)
             if WOW_PROJECT_ID == WOW_PROJECT_CAMELOT then
                 name = name .. " " .. surname
             end
+            BtWQuestsFrame:Show()
             BtWQuestsFrame:SelectCharacter(name, GetRealmName())
             BtWQuestsFrame:SelectItem(item.item)
         end)

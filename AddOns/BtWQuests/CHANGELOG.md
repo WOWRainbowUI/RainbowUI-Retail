@@ -1,3 +1,7 @@
+# v2.69.0
+
+- Fixed Open Quest Chain not going to the chain on first load
+
 # v2.68.0
 
 - Fixed character naming on Forever
