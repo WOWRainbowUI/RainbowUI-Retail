@@ -1,6 +1,7 @@
 # Baganator
 
-## [843](https://github.com/TheMouseNest/Baganator/tree/843) (2026-11-06)
-[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/842...843) 
+## [844](https://github.com/TheMouseNest/Baganator/tree/844) (2026-11-07)
+[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/843...844) 
 
-- Fix EUI skin for Retail  
+- Forever: Categories: Sort lowest stacks of ammo and potions to the top  
+- Fix disappearing EUI skin icon borders  

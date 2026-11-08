@@ -1,7 +1,7 @@
 ## Interface: 120100, 120105, 16001, 50504, 38001, 20506, 11509
 ## ExcludeLoadGameType: wowhack
 ## Title: Baganator
-## Version: 843
+## Version: 844
 ## Author: plusmouse
 ## OptionalDeps: Syndicator, Masque
 ## SavedVariables: BAGANATOR_CONFIG, BAGANATOR_DATA
