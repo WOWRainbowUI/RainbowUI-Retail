@@ -3,12 +3,15 @@
 -- This file is used to build the data rows and their text columns for the main frame.
 -----------------------------------------------------------------------
 
-local _, private = ...
+---@class ACNamespace
+local private = select(2, ...)
 
 -- True when a FontString cannot display its whole text.
 -- Note: the columns allow wrapping, so long text may wrap onto a second line that is
 -- clipped by the fixed row height; IsTruncated() does not reliably report that case,
 -- so the unbounded (single-line) width is checked first.
+---@param fontString FontString
+---@return boolean
 local function isTextTruncated(fontString)
 	local canDetect = false
 	if fontString.GetUnboundedStringWidth then
@@ -30,6 +33,7 @@ local function isTextTruncated(fontString)
 	return not canDetect
 end
 
+---@param self ACRowColumn
 local function column_OnEnter(self)
 	if self.fullText then
 		-- Character rows: show the full "realm - character" text if it is cut off
@@ -44,8 +48,15 @@ local function column_OnEnter(self)
 	AccountantClassic_LogTypeOnShow(self)
 end
 
+---@param parent ACRow
+---@param key "Title"|"In"|"Out"
+---@param width number
+---@param offset number X offset inside the row
+---@param font string Font object name
+---@param justify "LEFT"|"CENTER"|"RIGHT"
+---@return ACRowColumn
 local function createRowColumn(parent, key, width, offset, font, justify)
-	local button = CreateFrame("Button", parent:GetName()..key, parent)
+	local button = CreateFrame("Button", parent:GetName()..key, parent) --[[@as ACRowColumn]]
 	button:SetSize(width, 19)
 	button:EnableMouse(true)
 	button:SetPoint("TOPLEFT", parent, "TOPLEFT", offset, 0)
@@ -63,7 +74,11 @@ local function createRowColumn(parent, key, width, offset, font, justify)
 	return button
 end
 
+---Adds the Title / In / Out cells to a row frame.
+---@param row Frame
+---@return ACRow
 function AccountantClassic_InitializeRow(row)
+	---@cast row ACRow
 	row:SetSize(600, 19)
 	row.Title = createRowColumn(row, "Title", 280, 3, "GameFontNormal", "LEFT")
 	row.In = createRowColumn(row, "In", 160, 273, "NumberFontNormal", "RIGHT")
@@ -71,6 +86,9 @@ function AccountantClassic_InitializeRow(row)
 	return row
 end
 
+---@param parent Frame
+---@param name string Global frame name
+---@return ACRow
 function AccountantClassic_CreateRow(parent, name)
 	return AccountantClassic_InitializeRow(CreateFrame("Frame", name, parent))
 end

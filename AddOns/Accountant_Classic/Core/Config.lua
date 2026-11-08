@@ -11,10 +11,11 @@ local format = string.format
 -- ----------------------------------------------------------------------------
 -- AddOn namespace.
 -- ----------------------------------------------------------------------------
-local _, private = ...
+---@class ACNamespace
+local private = select(2, ...)
 local LibStub = _G.LibStub
----@type ACAddon
-local addon = LibStub("AceAddon-3.0"):GetAddon(private.addon_name)
+---@class ACAddon
+local addon = LibStub("AceAddon-3.0"):GetAddon(private.addon_name) --[[@as ACAddon]]
 local L = LibStub("AceLocale-3.0"):GetLocale(private.addon_name)
 
 local OpenSettingsPanel = C_SettingsUtil and C_SettingsUtil.OpenSettingsPanel
@@ -37,7 +38,10 @@ do
 	end
 end
 
+---@type ACCharacterRef[] Characters listed in the removal dropdown
 local character_data_list = {}
+---Fills character_data_list and returns the matching display names.
+---@return string[] names Colored "server - character" entries, same index as character_data_list
 local function getCharacterDataListMenu()
 	local list = {}
 	wipe(character_data_list)
@@ -60,6 +64,7 @@ local function getCharacterDataListMenu()
 	return list
 end
 
+---@param value integer Index into character_data_list
 local function confirmCharacterRemoval(value)
 	local entry = character_data_list[value]
 	if not entry then return end
@@ -90,6 +95,7 @@ local function confirmCharacterRemoval(value)
 end
 
 local aboutPanel, options, moduleOptions = nil, nil, {}
+---@return AceConfig.OptionsTable
 local function getAboutPanel()
 	if not aboutPanel then
 		aboutPanel = {
@@ -146,6 +152,7 @@ local function getAboutPanel()
 end
 
 
+---@return AceConfig.OptionsTable
 local function getOptions()
 	if not options then
 		options = {
@@ -185,7 +192,7 @@ local function getOptions()
 									func = function()
 										-- Persist the default position too, otherwise the frame jumps back on reload
 										addon.db.profile.MnyFramePoint = { "TOPLEFT", "UIParent", "TOPLEFT", 10, -80 }
-										local moneyFrame = addon:GetModule("MoneyFrame", true)
+										local moneyFrame = addon:GetModule("MoneyFrame", true) --[[@as ACMoneyFrameModule?]]
 										if moneyFrame then
 											moneyFrame:ArrangeMoneyInfoFrame()
 										end
@@ -430,6 +437,7 @@ local function getOptions()
 	return options
 end
 
+---Opens the addon options in the Blizzard settings.
 function addon:OpenOptions()
 	local frames = addon.optionsFrames or {}
 	local frameRefs = addon.optionsFrameRefs or {}
@@ -456,10 +464,12 @@ function addon:OpenOptions()
 	end
 end
 
+---@return AceConfig.OptionsTable
 local function giveProfiles()
 	return AceDBOptions:GetOptionsTable(addon.db)
 end
 
+---Registers the options tables with AceConfig.
 function addon:SetupOptions()
 	self.optionsFrames = {}
 	self.optionsFrameRefs = {}
@@ -482,6 +492,10 @@ end
 --		optionsTable	: the sub-table to insert
 --		displayName	: the name to display in the config interface for this set of options
 -- Output: None.
+---Adds an options sub-category.
+---@param name string Key in optionsFrames / optionsFrameRefs
+---@param optionTbl AceConfig.OptionsTable|fun(): AceConfig.OptionsTable
+---@param displayName string Category title
 function addon:RegisterModuleOptions(name, optionTbl, displayName)
 	moduleOptions[name] = optionTbl
 	local frame, categoryID = AceConfigDialog:AddToBlizOptions(addon.LocName, displayName, addon.LocName, name)

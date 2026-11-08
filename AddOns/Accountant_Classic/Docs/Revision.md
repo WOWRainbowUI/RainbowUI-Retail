@@ -6,6 +6,22 @@
 
 ## Revision History
 
+### v2.30.01 (Nov. 07, 2026)
+
+- New log type: Bank
+  - Buying bank tabs (character and Warband bank), Classic bank bag slots and the reagent bank are logged as Bank
+  - Depositing gold into or withdrawing gold from the Warband bank is logged as Bank (guild bank gold stays under Guild)
+  - Detected when the bank / Warband bank is opened, including remote access, and through the bank purchase / deposit / withdraw functions
+- Bug fixes
+  - Money was wrongly logged as Garrison (e.g. bank tab purchases, loot on Forever): the background events GARRISON_UPDATE and GARRISON_MISSION_FINISHED no longer switch the log type; only opening a garrison / order hall table or architect does
+  - Loot money messages are now parsed with the client's own coin strings (GOLD_AMOUNT / SILVER_AMOUNT / COPPER_AMOUNT), with the addon translations as a fallback
+  - Loot money is no longer counted twice when the balance is already updated before the loot message arrives
+  - If a loot money message cannot be parsed, the following money change is still logged as Loot
+  - Events missing on a client flavour are skipped instead of raising an error
+- Development
+  - Added Core/Annotations.lua with type declarations for the Lua language server / WoW API extension (namespace, constants, saved variables, profile, frames, LibUIDropDownMenu); not loaded in game and excluded from the package
+  - Annotated the functions in every Core file; no warnings with the WoW API extension
+
 ### v2.30.00 (Nov. 05, 2026)
 
 - Bug fixes
