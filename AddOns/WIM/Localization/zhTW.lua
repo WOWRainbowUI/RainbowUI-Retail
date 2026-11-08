@@ -606,7 +606,6 @@ WIM.AddLocale("zhTW", {
     ["Links & Emoticons"] = "連結與表情符號", -- Google Translate placeholder until native language speaker can confirm locale or suggest corrected translation
     ["Master switch for this channel type; individual channels are captured with the Capture flag below."] = "此頻道類型的總開關；各頻道以下方的擷取標記進行擷取。", -- Google Translate placeholder until native language speaker can confirm locale or suggest corrected translation
     ["Maximum Lines"] = "最大行數", -- Google Translate placeholder until native language speaker can confirm locale or suggest corrected translation
-    ["Tooltips"] = "提示", -- Google Translate placeholder until native language speaker can confirm locale or suggest corrected translation
     ["Message Area Background"] = "訊息區域背景", -- Google Translate placeholder until native language speaker can confirm locale or suggest corrected translation
     ["Message Format"] = "訊息格式", -- Google Translate placeholder until native language speaker can confirm locale or suggest corrected translation
     ["Message Windows"] = "訊息視窗", -- Google Translate placeholder until native language speaker can confirm locale or suggest corrected translation
@@ -791,4 +790,10 @@ WIM.AddLocale("zhTW", {
 	["WIM now features a modern skin designed to better complement the current game interface. Your selected skin is an older style that may look dated or miss out on newer features."] = "WIM 現在具有現代化的皮膚，旨在更好地補充當前的遊戲介面。您選擇的皮膚是較舊的樣式，可能顯得過時或缺少新功能。",
 	["Open Skin Settings"] = "打開皮膚設定",
 	["Keep Current"] = "保持當前皮膚",
+	["Press Ctrl+C to copy to clipboard."] = "按 Ctrl+C 複製到剪貼簿。",
+	["Press Ctrl+C to copy the player's name."] = "按 Ctrl+C 複製玩家名字。",
+	["Shift + Click to copy name..."] = "Shift + 點擊複製名字...",
+	["Miscellaneous"] = "雜項",
+	["Streaming Mode"] = "串流模式",
+	["Protect the privacy of players you chat with by hiding their full name and BattleTag."] = "透過隱藏玩家的全名和戰網暱稱來保護你聊天對象的隱私。",
 });
