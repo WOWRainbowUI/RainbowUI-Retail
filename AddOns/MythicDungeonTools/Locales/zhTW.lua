@@ -341,7 +341,6 @@ L["routeBatchOverwriteTooltip"] = "取代你的路線'%s'。未勾選時，路�
 L["routeBatchUnknownDungeon"] = "此路線所屬的地城不在你的 MDT 版本中。請更新 MDT 後再匯入。"
 L["Search routes"] = "搜尋路線"
 L["Drag to reorder"] = "拖曳以排序"
-L["Selected: %d"] = "已選擇：%d"
 L["Start live session"] = "開始即時連線"
 L["Join a group first"] = "請先加入隊伍"
 L["Wait until the current route finishes sending"] = "請等候目前的路線傳送完成"
