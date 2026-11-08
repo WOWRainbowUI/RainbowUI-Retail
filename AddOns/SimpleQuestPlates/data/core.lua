@@ -587,7 +587,6 @@ function SQP:DisableAddon()
 end
 
 function SQP:SetupMinimapButton()
---[[
     local MM = RGX and RGX:GetMinimap() or nil
     if not MM then return end
 
@@ -614,7 +613,6 @@ function SQP:SetupMinimapButton()
         end,
         onCtrlRight = function() SQP:ToggleMinimapIcon(false) end,
     })
---]]
 end
 
 function SQP:ToggleMinimapIcon(show, silent)
