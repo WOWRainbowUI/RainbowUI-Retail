@@ -22,6 +22,14 @@ addon.changelogPinned = nil
 -- hasn't seen yet (see ShouldAutoShowChangelog).
 addon.changelog = {
     {
+        version  = "5.1.4",
+        date     = "2026-11-07",
+        autoShow = false,
+        items = {
+            "Fix an issue with flyout spells",
+        },
+    },
+    {
         version = "5.1.0",
         date    = "2026-11-01",
         items = {
