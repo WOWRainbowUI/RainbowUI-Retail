@@ -17,7 +17,7 @@ setfenv(1, WIM);
 
 -- Core information
 addonTocName = "WIM";
-version = "3.19.2";
+version = "3.19.4";
 beta = false; -- flags current version as beta.
 
 -- The version as shown to players. A copy run straight from the repository still

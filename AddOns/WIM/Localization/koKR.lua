@@ -604,7 +604,6 @@ WIM.AddLocale("koKR", {
     ["Links & Emoticons"] = "링크 및 이모티콘", -- Google Translate placeholder until native language speaker can confirm locale or suggest corrected translation
     ["Master switch for this channel type; individual channels are captured with the Capture flag below."] = "이 채널 유형의 주 스위치입니다. 개별 채널은 아래의 가져오기 표시로 가져옵니다.", -- Google Translate placeholder until native language speaker can confirm locale or suggest corrected translation
     ["Maximum Lines"] = "최대 줄 수", -- Google Translate placeholder until native language speaker can confirm locale or suggest corrected translation
-    ["Tooltips"] = "툴팁", -- Google Translate placeholder until native language speaker can confirm locale or suggest corrected translation
     ["Message Area Background"] = "메시지 영역 배경", -- Google Translate placeholder until native language speaker can confirm locale or suggest corrected translation
     ["Message Format"] = "메시지 형식", -- Google Translate placeholder until native language speaker can confirm locale or suggest corrected translation
     ["Message Windows"] = "메시지 창", -- Google Translate placeholder until native language speaker can confirm locale or suggest corrected translation
@@ -789,4 +788,10 @@ WIM.AddLocale("koKR", {
     ["WIM now features a modern skin designed to better complement the current game interface. Your selected skin is an older style that may look dated or miss out on newer features."] = "WIM은 이제 현재 게임 인터페이스를 더 잘 보완하도록 설계된 현대적인 스킨을 제공합니다. 선택한 스킨은 오래된 스타일로 보일 수 있으며 최신 기능을 놓칠 수 있습니다.",
     ["Open Skin Settings"] = "스킨 설정 열기",
     ["Keep Current"] = "현재 스킨 유지",
+    ["Press Ctrl+C to copy to clipboard."] = "클립보드에 복사하려면 Ctrl+C를 누르세요.",
+    ["Press Ctrl+C to copy the player's name."] = "플레이어 이름을 복사하려면 Ctrl+C를 누르세요.",
+    ["Shift + Click to copy name..."] = "Shift + 클릭하여 이름 복사...",
+    ["Miscellaneous"] = "기타",
+    ["Streaming Mode"] = "스트리밍 모드",
+    ["Protect the privacy of players you chat with by hiding their full name and BattleTag."] = "대화하는 플레이어의 전체 이름과 배틀태그를 숨겨 개인 정보를 보호합니다.",
 });

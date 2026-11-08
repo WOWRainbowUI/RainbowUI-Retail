@@ -604,7 +604,6 @@ WIM.AddLocale("deDE", {
     ["Links & Emoticons"] = "Links & Emoticons", -- Google Translate placeholder until native language speaker can confirm locale or suggest corrected translation
     ["Master switch for this channel type; individual channels are captured with the Capture flag below."] = "Hauptschalter für diesen Kanaltyp; einzelne Kanäle werden mit der Markierung „Erfassen“ unten erfasst.", -- Google Translate placeholder until native language speaker can confirm locale or suggest corrected translation
     ["Maximum Lines"] = "Maximale Zeilen", -- Google Translate placeholder until native language speaker can confirm locale or suggest corrected translation
-    ["Tooltips"] = "Tooltips", -- Google Translate placeholder until native language speaker can confirm locale or suggest corrected translation
     ["Message Area Background"] = "Hintergrund des Nachrichtenbereichs", -- Google Translate placeholder until native language speaker can confirm locale or suggest corrected translation
     ["Message Format"] = "Nachrichtenformat", -- Google Translate placeholder until native language speaker can confirm locale or suggest corrected translation
     ["Message Windows"] = "Nachrichtenfenster", -- Google Translate placeholder until native language speaker can confirm locale or suggest corrected translation
@@ -789,4 +788,10 @@ WIM.AddLocale("deDE", {
 	["WIM now features a modern skin designed to better complement the current game interface. Your selected skin is an older style that may look dated or miss out on newer features."] = "WIM verfügt jetzt über einen modernen Skin, der besser zur aktuellen Spieloberfläche passt. Ihr ausgewählter Skin ist ein älterer Stil, der veraltet aussehen oder neuere Funktionen verpassen kann.",
 	["Open Skin Settings"] = "Skin-Einstellungen öffnen",
 	["Keep Current"] = "Beibehalten",
+	["Press Ctrl+C to copy to clipboard."] = "Drücken Sie Strg+C, um in die Zwischenablage zu kopieren.",
+	["Press Ctrl+C to copy the player's name."] = "Drücken Sie Strg+C, um den Namen des Spielers zu kopieren.",
+	["Shift + Click to copy name..."] = "Shift + Klick, um den Namen zu kopieren...",
+	["Miscellaneous"] = "Verschiedenes",
+	["Streaming Mode"] = "Streaming-Modus",
+	["Protect the privacy of players you chat with by hiding their full name and BattleTag."] = "Schützt die Privatsphäre der Spieler, mit denen Sie chatten, indem deren vollständiger Name und BattleTag ausgeblendet werden.",
 });
