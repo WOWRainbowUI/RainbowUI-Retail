@@ -17,6 +17,7 @@ local COLOURS = {
 	interrupt = { 1, 0.45, 0.1 }, purge = { 0.3, 0.85, 1 },
 	cleanse = { 0.4, 0.95, 0.8 }, steal = { 0.6, 0.8, 1 },
 	dispelFailed = { 0.55, 0.72, 0.82 }, broke = { 1, 0.35, 0.35 },
+	extra = { 0.15, 0.85, 0.85 },
 	kill = { 1, 1, 1 },
 }
 local EVENTS = {
@@ -32,6 +33,7 @@ local EVENTS = {
 	SPELL_DISPEL = "purge", SPELL_STOLEN = "steal",
 	SPELL_DISPEL_FAILED = "dispelFailed", SPELL_AURA_BROKEN = "broke",
 	SPELL_AURA_BROKEN_SPELL = "broke", PARTY_KILL = "kill",
+	SPELL_EXTRA_ATTACKS = "extra",
 }
 local FILTER_EVENTS = {}
 for event in pairs(EVENTS) do FILTER_EVENTS[event] = true end

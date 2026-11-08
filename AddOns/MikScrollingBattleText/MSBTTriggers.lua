@@ -1,4 +1,4 @@
-﻿
+
 local module = {}
 local moduleName = "Triggers"
 MikSBT[moduleName] = module
@@ -381,12 +381,154 @@ local function DisplayTrigger(triggerSettings, sourceName, sourceClass, recipien
 		_, _, effectTexture = GetSpellInfo(iconSkill)
 	end
 
-	DisplayEvent(triggerSettings, message, effectTexture, true)
+	DisplayEvent(triggerSettings, message, effectTexture)
 end
 
--- Kept for the profile/runtime facade; legacy trigger events are retired.
-local function Enable() end
-local function Disable() end
+-- The facade retains retired profile definitions alongside built-in alerts.
+local alertsEnabled = false
+local healthAlerted = false
+local manaAlerted = false
+local alertFrame = CreateFrame("Frame")
+local alertCurve, alertProbe
+
+local lowHealthSettings = {
+	message = "Low Health!",
+	scrollArea = "Notification",
+	colorR = 1, colorG = 0, colorB = 0,
+	fontSize = 26,
+	alwaysSticky = true,
+	soundFile = "Interface\\AddOns\\MikScrollingBattleText\\Sounds\\LowHealth.ogg",
+}
+local lowManaSettings = {
+	message = "Low Mana!",
+	scrollArea = "Notification",
+	colorR = 0, colorG = 0.5, colorB = 1,
+	fontSize = 26,
+	alwaysSticky = true,
+	soundFile = "Interface\\AddOns\\MikScrollingBattleText\\Sounds\\LowMana.ogg",
+}
+
+local function EvaluateRestrictedResource(isHealth)
+	if not alertCurve then
+		if not C_CurveUtil or not C_CurveUtil.CreateCurve
+			or not C_StringUtil or not C_StringUtil.TruncateWhenZero
+			or not Enum.LuaCurveType or not alertFrame.CreateFontString then
+			return nil
+		end
+
+		local curve = C_CurveUtil.CreateCurve()
+		curve:SetType(Enum.LuaCurveType.Linear)
+		curve:AddPoint(0, 100)
+		curve:AddPoint(0.349, 100)
+		curve:AddPoint(0.351, 0)
+		curve:AddPoint(1, 0)
+		alertFrame:Hide()
+		alertProbe = alertFrame:CreateFontString(
+			nil, "BACKGROUND", "GameFontNormal"
+		)
+		alertCurve = curve
+	end
+
+	local value
+	if isHealth then
+		value = UnitHealthPercent("player", false, alertCurve)
+	else
+		value = UnitPowerPercent(
+			"player", Enum.PowerType.Mana, false, alertCurve
+		)
+	end
+	alertProbe:SetText(C_StringUtil.TruncateWhenZero(value))
+	-- The engine collapses empty text to nil. This compares types, not secrets.
+	return alertProbe:GetText() ~= nil
+end
+
+local function IsResourceLow(value, isHealth)
+	local restrictedValue = MikSBT.API.RestrictedValue
+	if restrictedValue:CanAccess(value) then
+		if type(value) ~= "number" or value ~= value
+			or value < 0 or value > 1 then
+			return nil
+		end
+		return value < 0.35
+	end
+
+	-- Native APIs evaluate restricted resources; Lua checks text presence.
+	local success, result = pcall(EvaluateRestrictedResource, isHealth)
+	if success then return result end
+end
+
+local function CheckLowHealth()
+	if not alertsEnabled or type(UnitHealthPercent) ~= "function" then
+		return
+	end
+
+	local isLow = IsResourceLow(UnitHealthPercent("player", false), true)
+	if isLow == nil then return end
+	if isLow and not healthAlerted then
+		healthAlerted = true
+		DisplayTrigger(lowHealthSettings)
+	elseif not isLow then
+		healthAlerted = false
+	end
+end
+
+local function CheckLowMana()
+	if not alertsEnabled or type(UnitPowerPercent) ~= "function" then
+		return
+	end
+	if UnitPowerType("player") ~= Enum.PowerType.Mana then
+		manaAlerted = false
+		return
+	end
+
+	local isLow = IsResourceLow(
+		UnitPowerPercent("player", Enum.PowerType.Mana), false
+	)
+	if isLow == nil then return end
+
+	if isLow and not manaAlerted then
+		manaAlerted = true
+		DisplayTrigger(lowManaSettings)
+	elseif not isLow then
+		manaAlerted = false
+	end
+end
+
+alertFrame:SetScript("OnEvent", function(_, event, unit)
+	if event == "PLAYER_ENTERING_WORLD" then
+		CheckLowHealth()
+		CheckLowMana()
+	elseif unit == "player" then
+		if event == "UNIT_HEALTH" then
+			CheckLowHealth()
+		else
+			CheckLowMana()
+		end
+	end
+end)
+
+local function Enable()
+	if alertsEnabled then return end
+	alertsEnabled = true
+	if type(UnitHealthPercent) == "function" then
+		alertFrame:RegisterUnitEvent("UNIT_HEALTH", "player")
+	end
+	if type(UnitPowerPercent) == "function" then
+		alertFrame:RegisterUnitEvent("UNIT_POWER_UPDATE", "player")
+		alertFrame:RegisterUnitEvent("UNIT_DISPLAYPOWER", "player")
+	end
+	if type(UnitHealthPercent) == "function"
+		or type(UnitPowerPercent) == "function" then
+		alertFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+	end
+end
+
+local function Disable()
+	alertsEnabled = false
+	healthAlerted = false
+	manaAlerted = false
+	alertFrame:UnregisterAllEvents()
+end
 
 _, playerClass = UnitClass("player")
 
