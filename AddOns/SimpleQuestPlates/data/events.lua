@@ -192,6 +192,10 @@ end
 
 function SQP:PLAYER_ENTERING_WORLD()
     RGX:RegisterEvent("QUEST_LOG_UPDATE", function(event, ...) SQP:QUEST_LOG_UPDATE(...) end, "SQP_QUEST_LOG_UPDATE")
+    -- Re-apply the saved minimap icon choice after every loading screen.
+    if type(self.ApplyMinimapVisibility) == "function" then
+        self:ApplyMinimapVisibility()
+    end
     -- Refresh all nameplates when entering world
     self:RefreshAllNameplates()
 end
