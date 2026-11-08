@@ -600,10 +600,10 @@ function SQP:SetupMinimapButton()
         tooltip = {
             title = SQP.NAME or "Simple Quest Plates!",
             lines = {
-                { left = "|cff58be81Left-Click|r",       right = "Open options" },
-                { left = "|cff58be81Right-Click|r",      right = SQPSettings.enabled and "Disable overlays" or "Enable overlays" },
-                { left = "|cff4ecdc4Drag|r",             right = "Move around minimap" },
-                { left = "|cffe74c3cCtrl+Right-Click|r", right = "Hide minimap icon" },
+                { left = SQP.L["|cff58be81Left-Click|r"],       right = SQP.L["Open options"] },
+                { left = SQP.L["|cff58be81Right-Click|r"],      right = SQPSettings.enabled and SQP.L["Disable overlays"] or SQP.L["Enable overlays"] },
+                { left = SQP.L["|cff4ecdc4Drag|r"],             right = SQP.L["Move around minimap"] },
+                { left = SQP.L["|cffe74c3cCtrl+Right-Click|r"], right = SQP.L["Hide minimap icon"] },
             },
         },
         onLeftClick = function() SQP:ToggleOptions() end,
