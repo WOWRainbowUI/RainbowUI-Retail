@@ -65,7 +65,7 @@
 ## X-DBM-Mod-MinExpansion: 0
 ## X-Curse-Project-ID: 314994
 ## X-Wago-ID: xZKxZENk
-## Version: 270
+## Version: r271
 ## IconTexture: Interface\AddOns\DBM-Core\textures\dbm_airhorn [AllowLoadGameType cata, standard, mists]
 
 locale.generated.lua
