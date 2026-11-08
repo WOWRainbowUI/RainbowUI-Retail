@@ -188,6 +188,7 @@ local function OnUnitCombat(unit, event, flag, amount, school)
     end
     local hit = { record = record, key = key, at = now, unit = unit,
         petOn = PetAttacking(token) }
+    if ns.traceCombat then ns.traceCombat("report", hit) end
     -- 0.3.8: while lines of yours come, a hit is decided at the end of its
     -- frame, once every line of that frame has come (the game sends a hit
     -- and its line in the same frame, either one first; 1.60.1.70374).
@@ -223,8 +224,48 @@ end
 -- once (a seal and an enchant), so a hit takes the newest one of its school,
 -- and none when no source of its school is on (Thunderfury beside a seal).
 local PROC_KEEP = { seal = 35, poison = 3660, oil = 1860, enchant = math.huge }
+-- Windfury Weapon's four Vanilla enchant ranks share the same spell icon.
+local WINDFURY_ENCHANTS = {
+    [283] = true, [284] = true, [525] = true, [1669] = true,
+}
+local MELEE_WEAPON_SLOTS = { 16, 17 }
+local WINDFURY_WEAPON_SPELL_ID = 8232
+
+local function ActiveWindfurySpell(school)
+    local client = MikSBT.Compatibility and MikSBT.Compatibility.Client
+    if not client or not client.isForever or school ~= ns.SCHOOL_PHYSICAL then
+        return nil
+    end
+    local getEnchant = C_PaperDollInfo
+        and C_PaperDollInfo.GetTemporaryEnchantmentInfo
+    if type(getEnchant) == "function" then
+        for _, slot in ipairs(MELEE_WEAPON_SLOTS) do
+            local ok, info = pcall(getEnchant, slot)
+            if not ok then return nil end
+            if type(info) == "table" and ns.Public(info)
+                and ns.Number(info.enchantID, 1)
+                and WINDFURY_ENCHANTS[info.enchantID] then
+                return WINDFURY_WEAPON_SPELL_ID
+            end
+        end
+        return nil
+    end
+    if type(GetWeaponEnchantInfo) ~= "function" then return nil end
+    local ok, hasMain, mainTime, mainCharges, mainID,
+        hasOff, offTime, offCharges, offID = pcall(GetWeaponEnchantInfo)
+    if not ok then return nil end
+    if ns.Bool(hasMain) and hasMain and ns.Number(mainID, 1)
+        and WINDFURY_ENCHANTS[mainID] then return WINDFURY_WEAPON_SPELL_ID end
+    if ns.Bool(hasOff) and hasOff and ns.Number(offID, 1)
+        and WINDFURY_ENCHANTS[offID] then return WINDFURY_WEAPON_SPELL_ID end
+end
+
 reader.procSources = {}
 local function ProcSpell(at, school)
+    -- Inspect the current enchant rather than a cast cache: reloads,
+    -- expiration, replacements and weapon swaps must not leave stale icons.
+    local windfury = ActiveWindfurySpell(school)
+    if windfury then return windfury end
     local best
     for kind, source in pairs(reader.procSources) do
         local fresh = at - source.at <= (PROC_KEEP[kind] or 0)
@@ -251,6 +292,10 @@ function ns.DecideHit(hit, line, restrict)
     end
     if result.proc and not result.drain and not result.spell then result.procSpell = ProcSpell(hit.at, record.school) end
     record.result = result
+    if ns.traceCombat then
+        ns.traceCombat("decision", hit, { stage = "decision",
+            confirmed = line, restrict = restrict })
+    end
     if result.hold then
         local entry = { record = record, held = result.held, at = hit.at, line = line }
         reader.held[#reader.held + 1] = entry
@@ -456,21 +501,46 @@ local function OrphanSwingLine(hit)
     end
 end
 
--- 0.6.5 (predicted, not yet seen in client): a proc riding on your swing (a
--- seal, a poison, Windfury's damage) reported late with the swing's hit,
--- its line back in the swing's frame like the swing's own. A hit with no
--- line in its frame, within a frame of a swing hit of yours just paired,
--- takes a spare line of its class that is no melee line from that swing's
--- frame.
+-- A proc's confirmation can share the swing's frame even when its damage
+-- arrives in another frame. Each proc consumes a separate unused damage
+-- line from that swing, with a longer delay for physical procs on Forever.
 reader.swingHits = {}
+local LATE_PHYSICAL_PROC = 1.0
 local function ProcLine(hit)
     local record = hit.record
     if record.event ~= "damage" and record.event ~= "miss" then return nil end
+    local client = MikSBT.Compatibility and MikSBT.Compatibility.Client
     for _, paired in ipairs(reader.swingHits) do
-        if math.abs(paired.at - hit.at) <= 0.05 then
+        local since = hit.at - paired.at
+        local nearby = math.abs(since) <= 0.05
+        -- Observed Windfury reports follow the ordinary hit by up to
+        -- 0.873 s. Their confirmations can also follow the native swing,
+        -- so use its existing proc-line window rather than exact frames.
+        local delayed = client and client.isForever
+            and record.event == "damage"
+            and record.school == ns.SCHOOL_PHYSICAL
+            and paired.key == hit.key and since >= 0
+            and since <= LATE_PHYSICAL_PROC
+        if ns.traceCombat then
+            ns.traceCombat("candidate", hit, { stage = "pair",
+                pairedKey = paired.key, pairAge = since,
+                nearby = nearby, delayed = not not delayed })
+        end
+        if nearby or delayed then
             for _, line in ipairs(reader.logLines or {}) do
+                local lineGap = line.at - paired.lineAt
+                local sameFrame = math.abs(lineGap) <= SWING_FRAME
+                local followsSwing = delayed and LineRestrict(line) == "direct"
+                    and lineGap >= -SWING_FRAME and lineGap <= PROC_FLIGHT
+                if ns.traceCombat then
+                    ns.traceCombat("candidate", hit, { stage = "line",
+                        lineGap = lineGap, kind = line.kind,
+                        source = line.source, claimed = not not line.claimed,
+                        hasHit = not not line.hit, pairs = not not Pairs(line, record),
+                        sameFrame = sameFrame, followsSwing = not not followsSwing })
+                end
                 if not line.claimed and not line.hit and line.kind and not MeleeLine(line) and Pairs(line, record)
-                    and math.abs(line.at - paired.lineAt) <= SWING_FRAME then
+                    and ((nearby and sameFrame) or followsSwing) then
                     return line
                 end
             end
@@ -492,8 +562,40 @@ local function FlightProcLine(hit)
 end
 local function NoteSwingHit(hit, line)
     local list = reader.swingHits
-    list[#list + 1] = { at = hit.at, lineAt = line.at }
+    list[#list + 1] = { at = hit.at, lineAt = line.at, key = hit.key }
     while list[1] and (hit.at - list[1].at > 2 or #list > 16) do table.remove(list, 1) end
+end
+
+-- Classic ranks of the three queued-strike families supported on Forever.
+local QUEUED_STRIKES = {
+    -- Heroic Strike.
+    [78] = true, [284] = true, [285] = true, [1608] = true,
+    [11564] = true, [11565] = true, [11566] = true,
+    [11567] = true, [25286] = true,
+    -- Maul.
+    [6807] = true, [6808] = true, [6809] = true, [8972] = true,
+    [9745] = true, [9880] = true, [9881] = true,
+    -- Raptor Strike.
+    [2973] = true, [14260] = true, [14261] = true, [14262] = true,
+    [14263] = true, [14264] = true, [14265] = true, [14266] = true,
+}
+
+local function PreferQueuedStrikeHit(group, lines, restrict)
+    local client = MikSBT.Compatibility and MikSBT.Compatibility.Client
+    if not client or not client.isForever or #group ~= 2
+        or lines ~= 1 or restrict ~= "direct" then return false end
+    local first, last = group[1], group[2]
+    if first.key ~= last.key or first.at ~= last.at
+        or first.record.event ~= "damage" or last.record.event ~= "damage"
+        or first.record.school ~= ns.SCHOOL_PHYSICAL
+        or last.record.school ~= ns.SCHOOL_PHYSICAL then return false end
+    for _, cast in ipairs(ns.mine.pending) do
+        if not cast.used and cast.caster == "you" and cast.key == first.key
+            and cast.at == first.at and QUEUED_STRIKES[cast.spell] then
+            return true
+        end
+    end
+    return false
 end
 
 -- One frame's hits (of one class, with lines by kind) against the lines of
@@ -590,9 +692,15 @@ function DecideGroup(group, frameLines, decided)
             ranked[#ranked + 1] = { hit = hit, index = index,
                 fit = ns.mine:Fit(hit.key, kind, record.school, hit.at, amount, restrict) }
         end
+        -- Observed on Forever: a queued strike reports zero before its
+        -- physical hit in the cast's frame, with one spell confirmation.
+        -- Both amounts are opaque and their school/flags are identical.
+        -- Only this two-report pattern favors the later hit on a fit tie.
+        local preferQueuedHit = PreferQueuedStrikeHit(group, lines, restrict)
         table.sort(ranked, function(a, b)
             if (a.fit ~= nil) ~= (b.fit ~= nil) then return a.fit ~= nil end
             if a.fit and b.fit and a.fit ~= b.fit then return a.fit < b.fit end
+            if preferQueuedHit then return a.index > b.index end
             return a.index < b.index
         end)
         local flags = {}
@@ -1407,6 +1515,10 @@ local function OnEvent(_, event, ...)
                 -- Casts made while your target had no plate follow it.
                 ns.mine:Rekey("target" .. reader.epoch, token)
                 ns.RekeyHealing("target" .. reader.epoch, token)
+                if ns.traceCombat then
+                    ns.traceCombat("rekey", nil,
+                        { old = "target" .. reader.epoch, new = token })
+                end
                 reader.targetPlate = token
             end
         end
@@ -1420,6 +1532,10 @@ local function OnEvent(_, event, ...)
             if token == reader.targetPlate then
                 ns.mine:Rekey(token, "target" .. reader.epoch)
                 ns.RekeyHealing(token, "target" .. reader.epoch)
+                if ns.traceCombat then
+                    ns.traceCombat("rekey", nil,
+                        { old = token, new = "target" .. reader.epoch })
+                end
             else
                 ns.mine:Forget(token)
                 ns.ForgetHealing(token)
