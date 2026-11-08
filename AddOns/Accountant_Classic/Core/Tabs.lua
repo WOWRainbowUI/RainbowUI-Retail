@@ -4,10 +4,13 @@
 -----------------------------------------------------------------------------------------------------
 
 local _G = getfenv(0)
-local _, private = ...
+---@class ACNamespace
+local private = select(2, ...)
 
 local Client = private.Client
 
+---Builds the retail tab textures (no XML template on mainline).
+---@param tab ACTab
 local function createRetailTabTextures(tab)
 	local left = tab:CreateTexture(nil, "BACKGROUND")
 	left:SetAtlas("uiframe-tab-left", true)
@@ -48,13 +51,17 @@ local function createRetailTabTextures(tab)
 	tab.Text = text
 end
 
+---@param parent ACMainFrame
+---@param index integer
+---@param text string
+---@return ACTab
 local function createTab(parent, index, text)
 	local template
 	if Client.isAnyClassic then
 		template = "CharacterFrameTabButtonTemplate"
 	end
 
-	local tab = CreateFrame("Button", parent:GetName().."Tab"..index, parent, template)
+	local tab = CreateFrame("Button", parent:GetName().."Tab"..index, parent, template) --[[@as ACTab]]
 	tab:SetID(index)
 	tab:SetSize(10, 32)
 	if not template then
@@ -74,6 +81,9 @@ local function createTab(parent, index, text)
 	return tab
 end
 
+---Creates and anchors the bottom tabs.
+---@param parent ACMainFrame
+---@return ACTab[]
 function AccountantClassic_CreateTabs(parent)
 	local tabText = private.constants.tabText
 	local tabs = {}

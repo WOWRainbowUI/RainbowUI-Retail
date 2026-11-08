@@ -9,7 +9,8 @@ local UnitClass = _G.UnitClass
 -- ----------------------------------------------------------------------------
 -- AddOn namespace.
 -- ----------------------------------------------------------------------------
-local _, private = ...
+---@class ACNamespace
+local private = select(2, ...)
 private.addon_name = "Accountant_Classic"
 
 local L = LibStub("AceLocale-3.0"):GetLocale(private.addon_name)
@@ -23,6 +24,7 @@ local function IsProject(id)
     return id ~= nil and projectID == id
 end
 
+---@class ACClient
 local Client = {
     projectID = projectID,
 
@@ -42,6 +44,8 @@ private.Client = Client
 -- Returns the "|cAARRGGBB" colour prefix for a class token, or "" when the token is
 -- unknown to this client (e.g. data saved by another game flavour), instead of erroring
 -- on RAID_CLASS_COLORS[class] being nil.
+---@param classToken string? Class token, e.g. "MAGE"
+---@return string prefix "|cAARRGGBB", or "" when the class is unknown
 function private.GetClassColorPrefix(classToken)
 	local color = classToken and RAID_CLASS_COLORS and RAID_CLASS_COLORS[classToken]
 	if color and color.colorStr then
@@ -51,6 +55,7 @@ function private.GetClassColorPrefix(classToken)
 end
 
 -- Create constants table
+---@class ACConstants
 local constants = {}
 private.constants = constants
 
@@ -117,6 +122,9 @@ constants.eventLogTypes = {
 	CONFIRM_TALENT_WIPE = "TRAIN",
 	AUCTION_HOUSE_SHOW = "AH",
 	AUCTION_HOUSE_CLOSED = "",
+	-- Bank (bank bag slots / bank tab purchases, Warband bank gold deposits / withdrawals)
+	BANKFRAME_OPENED = "BANK",
+	BANKFRAME_CLOSED = "",
 }
 
 if (Client.isAnyClassic) then 
@@ -138,6 +146,11 @@ if (Client.isAnyClassic) then
 		"GUILDBANKFRAME_CLOSED",
 		"GUILDBANK_UPDATE_MONEY",
 		"GUILDBANK_UPDATE_WITHDRAWMONEY",
+		-- Bank
+		"BANKFRAME_OPENED",
+		"BANKFRAME_CLOSED",
+		"PLAYER_INTERACTION_MANAGER_FRAME_SHOW",
+		"PLAYER_INTERACTION_MANAGER_FRAME_HIDE",
 		-- Talent
 		"CONFIRM_TALENT_WIPE",
 		-- Merchant
@@ -170,7 +183,7 @@ if (Client.isAnyClassic) then
 		"PLAYER_MONEY",
 	}
 	constants.logtypes = {
-		"TRANSMO", "GARRISON", "LFG", "BARBER", "GUILD",
+		"TRANSMO", "GARRISON", "LFG", "BARBER", "GUILD", "BANK",
 		"TRAIN", "TAXI", "TRADE", "AH", "MERCH", "REPAIRS", "MAIL", "QUEST", "LOOT", "OTHER" 
 	}
 	constants.onlineData = {
@@ -178,6 +191,7 @@ if (Client.isAnyClassic) then
 		["LFG"] =		{ Title = L["LFD, LFR and Scen."]};
 		["BARBER"] =	{ Title = BARBERSHOP};
 		["GUILD"] =		{ Title = GUILD};
+		["BANK"] =		{ Title = BANK};
 		["TRAIN"] = 	{ Title = L["Training Costs"]};
 		["TAXI"] = 		{ Title = L["Taxi Fares"]};
 		["TRADE"] = 	{ Title = L["Trade Window"]};
@@ -192,14 +206,17 @@ if (Client.isAnyClassic) then
 else
 	constants.events = {
 		-- Garrison
-		"GARRISON_MISSION_FINISHED",
+		-- Only events caused by the player interacting with a garrison / order hall NPC
+		-- switch the log type. GARRISON_UPDATE and GARRISON_MISSION_FINISHED fire in the
+		-- background (missions completing, garrison data refreshes), so using them left
+		-- the log type stuck on GARRISON and unrelated money (bank tab purchases, loot)
+		-- was logged there.
 		"GARRISON_ARCHITECT_OPENED",
 		"GARRISON_ARCHITECT_CLOSED",
 		"GARRISON_MISSION_NPC_OPENED",
 		"GARRISON_MISSION_NPC_CLOSED",
 		"GARRISON_SHIPYARD_NPC_OPENED",
 		"GARRISON_SHIPYARD_NPC_CLOSED",
-		"GARRISON_UPDATE",
 		-- Barber shop
 		"BARBER_SHOP_APPEARANCE_APPLIED",
 		"BARBER_SHOP_OPEN",
@@ -217,6 +234,11 @@ else
 		"GUILDBANKFRAME_CLOSED",
 		"GUILDBANK_UPDATE_MONEY",
 		"GUILDBANK_UPDATE_WITHDRAWMONEY",
+		-- Bank
+		"BANKFRAME_OPENED",
+		"BANKFRAME_CLOSED",
+		"PLAYER_INTERACTION_MANAGER_FRAME_SHOW",
+		"PLAYER_INTERACTION_MANAGER_FRAME_HIDE",
 		-- Talent
 		"CONFIRM_TALENT_WIPE",
 		-- Merchant
@@ -248,8 +270,6 @@ else
 		"CHAT_MSG_MONEY",
 		"PLAYER_MONEY",
 	}
-	constants.eventLogTypes.GARRISON_MISSION_FINISHED = "GARRISON"
-	constants.eventLogTypes.GARRISON_UPDATE = "GARRISON"
 	constants.eventLogTypes.GARRISON_ARCHITECT_OPENED = "GARRISON"
 	constants.eventLogTypes.GARRISON_MISSION_NPC_OPENED = "GARRISON"
 	constants.eventLogTypes.GARRISON_SHIPYARD_NPC_OPENED = "GARRISON"
@@ -258,7 +278,7 @@ else
 	constants.eventLogTypes.GARRISON_SHIPYARD_NPC_CLOSED = ""
 
 	constants.logtypes = {
-		"TRANSMO", "GARRISON", "LFG", "BARBER", "GUILD",
+		"TRANSMO", "GARRISON", "LFG", "BARBER", "GUILD", "BANK",
 		"TRAIN", "TAXI", "TRADE", "AH", "MERCH", "REPAIRS", "MAIL", "QUEST", "LOOT", "OTHER"
 	}
 	constants.onlineData = {
@@ -267,6 +287,7 @@ else
 		["LFG"] =		{ Title = L["LFD, LFR and Scen."]};
 		["BARBER"] =	{ Title = BARBERSHOP};
 		["GUILD"] =		{ Title = GUILD};
+		["BANK"] =		{ Title = BANK};
 
 		["TRAIN"] = 	{ Title = L["Training Costs"]};
 		["TAXI"] = 		{ Title = L["Taxi Fares"]};

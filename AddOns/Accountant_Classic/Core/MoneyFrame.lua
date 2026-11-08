@@ -6,12 +6,13 @@ local _G = getfenv(0)
 local GameTooltip = _G.GameTooltip
 local unpack = _G.unpack
 
-local _, private = ...
+---@class ACNamespace
+local private = select(2, ...)
 local LibStub = _G.LibStub
----@type ACAddon
-local addon = LibStub("AceAddon-3.0"):GetAddon(private.addon_name)
----@class MoneyFrameModule : AceAddon, AceEvent-3.0
-local MoneyFrame = addon:NewModule("MoneyFrame", "AceEvent-3.0")
+---@class ACAddon
+local addon = LibStub("AceAddon-3.0"):GetAddon(private.addon_name) --[[@as ACAddon]]
+---@class ACMoneyFrameModule
+local MoneyFrame = addon:NewModule("MoneyFrame", "AceEvent-3.0") --[[@as ACMoneyFrameModule]]
 local L = LibStub("AceLocale-3.0"):GetLocale(private.addon_name)
 
 local Client = private.Client
@@ -21,12 +22,15 @@ local AC_MNYSTR = nil
 
 -- Always read the live AceDB profile: a cached reference went stale after
 -- switching / copying / resetting profiles.
+---@return ACProfile
 local function getProfile()
 	return addon.db.profile
 end
 
 -- Refresh the money text. This used to run from OnUpdate, i.e. formatting the money
 -- string on every rendered frame; it is now driven by PLAYER_MONEY and by option changes.
+---@param frame ACMoneyInfoFrame
+---@param force boolean? Update even when the text did not change
 local function updateMoneyText(frame, force)
 	local frametxt = "|cFFFFFFFF"..addon:GetFormattedValue(GetMoney())
 	if (force or frametxt ~= AC_MNYSTR) then
@@ -36,6 +40,8 @@ local function updateMoneyText(frame, force)
 	end
 end
 
+---@param self ACMoneyInfoFrame
+---@param button string
 local function frame_OnMouseDown(self, button)    
 	-- Prevent activation when in combat
 	if (isInLockdown) then
@@ -51,12 +57,15 @@ local function frame_OnMouseDown(self, button)
 	end
 end
 
+---@param self ACMoneyInfoFrame
+---@param button string
 local function frame_OnMouseUp(self, button)
 	self:StopMovingOrSizing()
 	local a, b, c, d, e = self:GetPoint()
 	addon.db.profile.MnyFramePoint = { a, b, c, d, e }
 end
 
+---@param self ACMoneyInfoFrame
 local function frame_OnEnter(self)
 	if (isInLockdown) then
 		return
@@ -89,10 +98,12 @@ local function frame_OnEnter(self)
 	end
 end
 
+---@param self ACMoneyInfoFrame
 local function frame_OnLeave(self)
 	GameTooltip_Hide()
 end
 
+---@return ACMoneyInfoFrame
 local function createMoneyFrame()
 	local f = _G.AccountantClassicMoneyInfoFrame or CreateFrame("Frame", "AccountantClassicMoneyInfoFrame", UIParent)
 
@@ -140,12 +151,14 @@ function MoneyFrame:OnDisable()
 	self.frame:Hide()
 end
 
+---Refreshes the money text.
 function MoneyFrame:UpdateMoney()
 	if self.frame then
 		updateMoneyText(self.frame)
 	end
 end
 
+---Applies scale, alpha and the saved position to the money frame.
 function MoneyFrame:ArrangeMoneyInfoFrame()
 	local profile = getProfile()
 	self.frame:SetScale(profile.infoscale or 1)

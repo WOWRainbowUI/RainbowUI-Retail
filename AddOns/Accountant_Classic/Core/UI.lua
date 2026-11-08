@@ -5,7 +5,8 @@
 -----------------------------------------------------------------------
 
 local _G = getfenv(0)
-local _, private = ...
+---@class ACNamespace
+local private = select(2, ...)
 
 -- Use the shared client classification (Forever uses the mainline-style UI)
 local classic = private.Client.isAnyClassic
@@ -17,6 +18,18 @@ frame:EnableMouse(true)
 frame:SetMovable(true)
 frame:Hide()
 
+---@param parent Frame
+---@param name string
+---@param layer DrawLayer
+---@param file string?
+---@param width number
+---@param height number
+---@param point FramePoint
+---@param relative Region?
+---@param relativePoint FramePoint?
+---@param x number?
+---@param y number?
+---@return Texture
 local function texture(parent, name, layer, file, width, height, point, relative, relativePoint, x, y)
 	local object = parent:CreateTexture(name, layer)
 	object:SetTexture(file)
@@ -25,6 +38,19 @@ local function texture(parent, name, layer, file, width, height, point, relative
 	return object
 end
 
+---Creates a font string and stores it as parent[key].
+---@param parent Frame
+---@param name string
+---@param key string Field name on the parent (e.g. "TotalIn")
+---@param font string Font object name
+---@param point FramePoint
+---@param relative Region?
+---@param relativePoint FramePoint?
+---@param x number?
+---@param y number?
+---@param width number?
+---@param height number?
+---@return FontString
 local function label(parent, name, key, font, point, relative, relativePoint, x, y, width, height)
 	local object = parent:CreateFontString(name, "ARTWORK", font)
 	object:SetSize(width or 0, height or 0)
@@ -71,6 +97,16 @@ end)
 local close = CreateFrame("Button", "AccountantClassicFrameCloseButton", frame, "UIPanelCloseButton")
 close:SetPoint("TOPRIGHT", frame, "TOPRIGHT", classic and 0 or 3, -16)
 
+---@param name string
+---@param text string
+---@param width number
+---@param point FramePoint
+---@param relative Region
+---@param relativePoint FramePoint
+---@param x number
+---@param y number
+---@param click fun(self: Button, button: string, down: boolean)
+---@return Button
 local function createActionButton(name, text, width, point, relative, relativePoint, x, y, click)
 	local button = CreateFrame("Button", name, frame, "UIPanelButtonTemplate")
 	button:SetSize(width, 22)
