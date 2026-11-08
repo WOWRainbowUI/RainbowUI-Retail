@@ -53,18 +53,29 @@ L["Cooldown Manager"] = true
 L["Cooldown Manager changes take effect after you reload the UI. Reload now?"] = true
 L["Cooldown Manager layout saved. It takes effect the next time you log in or /reload."] = true
 L["Copy this string and import it in the talent window"] = true
+L["Could not apply CVar %s: %s"] = true
 L["Could not clear the Cooldown Manager layout"] = true
 L["Could not delete %d 'Myslot' talent loadout(s)"] = true
 L["Could not import the Cooldown Manager layout"] = true
+L["Could not read CVar %s: %s"] = true
 L["Could not send the request, try again later."] = true
+L["CVar API unavailable"] = true
+L["CVar is not in the gameplay/UI allowlist"] = true
+L["CVar is protected or its permissions are unavailable"] = true
+L["CVar not available on this client"] = true
+L["CVar value was not accepted"] = true
+L["CVars"] = true
+L["CVars: %d applied, %d skipped, %d failed."] = true
 L["DANGEROUS"] = true
 L["Deleted %d 'Myslot' talent loadout(s)"] = true
 L["Deleting %d 'Myslot' talent loadout(s)..."] = true
+L["Duplicate CVar entry"] = true
 L["Export"] = true
 L["Failed to apply talents"] = true
 L["Failed to send profile '%s' to %s."] = true
 L["Feedback"] = true
 L["Force Import"] = true
+L["Gamepad"] = true
 L["IGNORE"] = true
 L["Ignore missing item [id=%s]"] = true
 L["Ignore unattained companion [id=%s], %s"] = true
@@ -77,8 +88,10 @@ L["Import"] = true
 L["Import failed"] = true
 L["Import is not allowed when you are in combat"] = true
 L["Importing..."] = true
+L["Invalid CVar value"] = true
 L["Kept your text, discarded the received profile '%s'."] = true
 L["Key Binding"] = true
+L["Keyboard"] = true
 L["Later"] = true
 L["Link in chat"] = true
 L["Macro %s was ignored, check if there is enough space to create"] = true
@@ -114,6 +127,7 @@ L["Select a saved profile to share it."] = true
 L["Sending profile '%s' to %s..."] = true
 L["Skip bad CRC32"] = true
 L["Skipped %d Cooldown Manager layout(s): this character already has the maximum number of layouts."] = true
+L["Skipped CVar %s: %s"] = true
 L["Skyriding Bar"] = true
 L["Sort by"] = true
 L["Stance Action Bar"] = true
@@ -184,19 +198,41 @@ L["Cooldown Manager"] = "Abklingzeitmanager"
 --[[ L["Cooldown Manager layout saved. It takes effect the next time you log in or /reload."] = "Cooldown Manager layout saved. It takes effect the next time you log in or /reload."--]] 
 L["Copy this string and import it in the talent window"] = "Kopieren Sie diesen Code und importieren Sie ihn im Talentfenster"
 --[[Translation missing --]]
+--[[ L["Could not apply CVar %s: %s"] = "Could not apply CVar %s: %s"--]] 
+--[[Translation missing --]]
 --[[ L["Could not clear the Cooldown Manager layout"] = "Could not clear the Cooldown Manager layout"--]] 
 L["Could not delete %d 'Myslot' talent loadout(s)"] = "Konnte %d 'Myslot'-Talentkonfiguration(en) nicht löschen"
 --[[Translation missing --]]
 --[[ L["Could not import the Cooldown Manager layout"] = "Could not import the Cooldown Manager layout"--]] 
+--[[Translation missing --]]
+--[[ L["Could not read CVar %s: %s"] = "Could not read CVar %s: %s"--]] 
 L["Could not send the request, try again later."] = "Die Anfrage konnte nicht gesendet werden, versuchen Sie es später erneut."
+--[[Translation missing --]]
+--[[ L["CVar API unavailable"] = "CVar API unavailable"--]] 
+--[[Translation missing --]]
+--[[ L["CVar is not in the gameplay/UI allowlist"] = "CVar is not in the gameplay/UI allowlist"--]] 
+--[[Translation missing --]]
+--[[ L["CVar is protected or its permissions are unavailable"] = "CVar is protected or its permissions are unavailable"--]] 
+--[[Translation missing --]]
+--[[ L["CVar not available on this client"] = "CVar not available on this client"--]] 
+--[[Translation missing --]]
+--[[ L["CVar value was not accepted"] = "CVar value was not accepted"--]] 
+--[[Translation missing --]]
+--[[ L["CVars"] = "CVars"--]] 
+--[[Translation missing --]]
+--[[ L["CVars: %d applied, %d skipped, %d failed."] = "CVars: %d applied, %d skipped, %d failed."--]] 
 L["DANGEROUS"] = "GEFÄHRLICH"
 L["Deleted %d 'Myslot' talent loadout(s)"] = "%d 'Myslot'-Talentkonfiguration(en) gelöscht"
 L["Deleting %d 'Myslot' talent loadout(s)..."] = "Lösche %d 'Myslot'-Talentkonfiguration(en)..."
+--[[Translation missing --]]
+--[[ L["Duplicate CVar entry"] = "Duplicate CVar entry"--]] 
 L["Export"] = "Exportieren"
 L["Failed to apply talents"] = "Anwenden der Talente fehlgeschlagen"
 L["Failed to send profile '%s' to %s."] = "Profil '%s' konnte nicht an %s gesendet werden."
 L["Feedback"] = "Feedback"
 L["Force Import"] = "Import erzwingen"
+--[[Translation missing --]]
+--[[ L["Gamepad"] = "Gamepad"--]] 
 L["IGNORE"] = "IGNORIEREN"
 L["Ignore missing item [id=%s]"] = "Fehlenden Gegenstand ignorieren [id=%s]"
 L["Ignore unattained companion [id=%s], %s"] = "Nicht erhaltenen Begleiter ignorieren [id=%s], %s"
@@ -209,8 +245,12 @@ L["Import"] = "Importieren"
 L["Import failed"] = "Import fehlgeschlagen"
 L["Import is not allowed when you are in combat"] = "Importieren ist im Kampf nicht erlaubt"
 L["Importing..."] = "Importiere..."
+--[[Translation missing --]]
+--[[ L["Invalid CVar value"] = "Invalid CVar value"--]] 
 L["Kept your text, discarded the received profile '%s'."] = "Ihr Text wurde beibehalten, das empfangene Profil '%s' wurde verworfen."
 L["Key Binding"] = "Tastenbelegung"
+--[[Translation missing --]]
+--[[ L["Keyboard"] = "Keyboard"--]] 
 --[[Translation missing --]]
 --[[ L["Later"] = "Later"--]] 
 L["Link in chat"] = "Im Chat verlinken"
@@ -249,6 +289,8 @@ L["Sending profile '%s' to %s..."] = "Profil '%s' wird an %s gesendet..."
 L["Skip bad CRC32"] = "Fehlerhafte CRC32 überspringen"
 --[[Translation missing --]]
 --[[ L["Skipped %d Cooldown Manager layout(s): this character already has the maximum number of layouts."] = "Skipped %d Cooldown Manager layout(s): this character already has the maximum number of layouts."--]] 
+--[[Translation missing --]]
+--[[ L["Skipped CVar %s: %s"] = "Skipped CVar %s: %s"--]] 
 L["Skyriding Bar"] = "Himmelsreiten-Leiste"
 L["Sort by"] = "Sortieren nach"
 L["Stance Action Bar"] = "Haltungs-Aktionsleiste"
@@ -322,19 +364,41 @@ L["Cooldown Manager"] = "Gestor de tiempos de reutilización"
 --[[ L["Cooldown Manager layout saved. It takes effect the next time you log in or /reload."] = "Cooldown Manager layout saved. It takes effect the next time you log in or /reload."--]] 
 L["Copy this string and import it in the talent window"] = "Copia este código e impórtalo en la ventana de talentos"
 --[[Translation missing --]]
+--[[ L["Could not apply CVar %s: %s"] = "Could not apply CVar %s: %s"--]] 
+--[[Translation missing --]]
 --[[ L["Could not clear the Cooldown Manager layout"] = "Could not clear the Cooldown Manager layout"--]] 
 L["Could not delete %d 'Myslot' talent loadout(s)"] = "No se pudieron eliminar %d configuraciones de talentos 'Myslot'"
 --[[Translation missing --]]
 --[[ L["Could not import the Cooldown Manager layout"] = "Could not import the Cooldown Manager layout"--]] 
+--[[Translation missing --]]
+--[[ L["Could not read CVar %s: %s"] = "Could not read CVar %s: %s"--]] 
 L["Could not send the request, try again later."] = "No se pudo enviar la solicitud, inténtalo de nuevo más tarde."
+--[[Translation missing --]]
+--[[ L["CVar API unavailable"] = "CVar API unavailable"--]] 
+--[[Translation missing --]]
+--[[ L["CVar is not in the gameplay/UI allowlist"] = "CVar is not in the gameplay/UI allowlist"--]] 
+--[[Translation missing --]]
+--[[ L["CVar is protected or its permissions are unavailable"] = "CVar is protected or its permissions are unavailable"--]] 
+--[[Translation missing --]]
+--[[ L["CVar not available on this client"] = "CVar not available on this client"--]] 
+--[[Translation missing --]]
+--[[ L["CVar value was not accepted"] = "CVar value was not accepted"--]] 
+--[[Translation missing --]]
+--[[ L["CVars"] = "CVars"--]] 
+--[[Translation missing --]]
+--[[ L["CVars: %d applied, %d skipped, %d failed."] = "CVars: %d applied, %d skipped, %d failed."--]] 
 L["DANGEROUS"] = "PELIGROSO"
 L["Deleted %d 'Myslot' talent loadout(s)"] = "Se eliminaron %d configuraciones de talentos 'Myslot'"
 L["Deleting %d 'Myslot' talent loadout(s)..."] = "Eliminando %d configuraciones de talentos 'Myslot'..."
+--[[Translation missing --]]
+--[[ L["Duplicate CVar entry"] = "Duplicate CVar entry"--]] 
 L["Export"] = "Exportar"
 L["Failed to apply talents"] = "Error al aplicar los talentos"
 L["Failed to send profile '%s' to %s."] = "No se pudo enviar el perfil '%s' a %s."
 L["Feedback"] = "Comentarios"
 L["Force Import"] = "Forzar importación"
+--[[Translation missing --]]
+--[[ L["Gamepad"] = "Gamepad"--]] 
 L["IGNORE"] = "IGNORAR"
 L["Ignore missing item [id=%s]"] = "Ignorar objeto faltante [id=%s]"
 L["Ignore unattained companion [id=%s], %s"] = "Ignorar compañero no obtenido [id=%s], %s"
@@ -347,8 +411,12 @@ L["Import"] = "Importar"
 L["Import failed"] = "Error al importar"
 L["Import is not allowed when you are in combat"] = "No se permite importar mientras estás en combate"
 L["Importing..."] = "Importando..."
+--[[Translation missing --]]
+--[[ L["Invalid CVar value"] = "Invalid CVar value"--]] 
 L["Kept your text, discarded the received profile '%s'."] = "Se ha conservado tu texto y se ha descartado el perfil recibido '%s'."
 L["Key Binding"] = "Atajo de teclado"
+--[[Translation missing --]]
+--[[ L["Keyboard"] = "Keyboard"--]] 
 --[[Translation missing --]]
 --[[ L["Later"] = "Later"--]] 
 L["Link in chat"] = "Enlace al chat"
@@ -387,6 +455,8 @@ L["Sending profile '%s' to %s..."] = "Enviando el perfil '%s' a %s..."
 L["Skip bad CRC32"] = "Saltar CRC32 erróneo"
 --[[Translation missing --]]
 --[[ L["Skipped %d Cooldown Manager layout(s): this character already has the maximum number of layouts."] = "Skipped %d Cooldown Manager layout(s): this character already has the maximum number of layouts."--]] 
+--[[Translation missing --]]
+--[[ L["Skipped CVar %s: %s"] = "Skipped CVar %s: %s"--]] 
 L["Skyriding Bar"] = "Barra de vuelo"
 L["Sort by"] = "Ordenar por"
 L["Stance Action Bar"] = "Barra de acción de postura"
@@ -460,19 +530,41 @@ L["Cooldown Manager"] = "Administrador de habilidades"
 --[[ L["Cooldown Manager layout saved. It takes effect the next time you log in or /reload."] = "Cooldown Manager layout saved. It takes effect the next time you log in or /reload."--]] 
 L["Copy this string and import it in the talent window"] = "Copia este código e impórtalo en la ventana de talentos"
 --[[Translation missing --]]
+--[[ L["Could not apply CVar %s: %s"] = "Could not apply CVar %s: %s"--]] 
+--[[Translation missing --]]
 --[[ L["Could not clear the Cooldown Manager layout"] = "Could not clear the Cooldown Manager layout"--]] 
 L["Could not delete %d 'Myslot' talent loadout(s)"] = "No se pudieron eliminar %d selecciones de talentos 'Myslot'"
 --[[Translation missing --]]
 --[[ L["Could not import the Cooldown Manager layout"] = "Could not import the Cooldown Manager layout"--]] 
+--[[Translation missing --]]
+--[[ L["Could not read CVar %s: %s"] = "Could not read CVar %s: %s"--]] 
 L["Could not send the request, try again later."] = "No se pudo enviar la solicitud, inténtalo de nuevo más tarde."
+--[[Translation missing --]]
+--[[ L["CVar API unavailable"] = "CVar API unavailable"--]] 
+--[[Translation missing --]]
+--[[ L["CVar is not in the gameplay/UI allowlist"] = "CVar is not in the gameplay/UI allowlist"--]] 
+--[[Translation missing --]]
+--[[ L["CVar is protected or its permissions are unavailable"] = "CVar is protected or its permissions are unavailable"--]] 
+--[[Translation missing --]]
+--[[ L["CVar not available on this client"] = "CVar not available on this client"--]] 
+--[[Translation missing --]]
+--[[ L["CVar value was not accepted"] = "CVar value was not accepted"--]] 
+--[[Translation missing --]]
+--[[ L["CVars"] = "CVars"--]] 
+--[[Translation missing --]]
+--[[ L["CVars: %d applied, %d skipped, %d failed."] = "CVars: %d applied, %d skipped, %d failed."--]] 
 L["DANGEROUS"] = "PELIGROSO"
 L["Deleted %d 'Myslot' talent loadout(s)"] = "Se eliminaron %d selecciones de talentos 'Myslot'"
 L["Deleting %d 'Myslot' talent loadout(s)..."] = "Eliminando %d selecciones de talentos 'Myslot'..."
+--[[Translation missing --]]
+--[[ L["Duplicate CVar entry"] = "Duplicate CVar entry"--]] 
 L["Export"] = "Exportar"
 L["Failed to apply talents"] = "Error al aplicar los talentos"
 L["Failed to send profile '%s' to %s."] = "No se pudo enviar el perfil '%s' a %s."
 L["Feedback"] = "Comentarios"
 L["Force Import"] = "Forzar importación"
+--[[Translation missing --]]
+--[[ L["Gamepad"] = "Gamepad"--]] 
 L["IGNORE"] = "IGNORAR"
 L["Ignore missing item [id=%s]"] = "Ignorar objeto faltante [id=%s]"
 L["Ignore unattained companion [id=%s], %s"] = "Ignorar compañero no obtenido [id=%s], %s"
@@ -485,8 +577,12 @@ L["Import"] = "Importar"
 L["Import failed"] = "Error al importar"
 L["Import is not allowed when you are in combat"] = "No se permite importar mientras estás en combate"
 L["Importing..."] = "Importando..."
+--[[Translation missing --]]
+--[[ L["Invalid CVar value"] = "Invalid CVar value"--]] 
 L["Kept your text, discarded the received profile '%s'."] = "Se ha conservado tu texto y se ha descartado el perfil recibido '%s'."
 L["Key Binding"] = "Atajo de teclado"
+--[[Translation missing --]]
+--[[ L["Keyboard"] = "Keyboard"--]] 
 --[[Translation missing --]]
 --[[ L["Later"] = "Later"--]] 
 L["Link in chat"] = "Enlace al chat"
@@ -525,6 +621,8 @@ L["Sending profile '%s' to %s..."] = "Enviando el perfil '%s' a %s..."
 L["Skip bad CRC32"] = "Saltar CRC32 erróneo"
 --[[Translation missing --]]
 --[[ L["Skipped %d Cooldown Manager layout(s): this character already has the maximum number of layouts."] = "Skipped %d Cooldown Manager layout(s): this character already has the maximum number of layouts."--]] 
+--[[Translation missing --]]
+--[[ L["Skipped CVar %s: %s"] = "Skipped CVar %s: %s"--]] 
 L["Skyriding Bar"] = "Barra de vuelo"
 L["Sort by"] = "Ordenar por"
 L["Stance Action Bar"] = "Barra de acción de postura"
@@ -598,19 +696,41 @@ L["Cooldown Manager"] = "Gestionnaire de temps de recharge"
 --[[ L["Cooldown Manager layout saved. It takes effect the next time you log in or /reload."] = "Cooldown Manager layout saved. It takes effect the next time you log in or /reload."--]] 
 L["Copy this string and import it in the talent window"] = "Copiez ce code et importez-le dans la fenêtre des talents"
 --[[Translation missing --]]
+--[[ L["Could not apply CVar %s: %s"] = "Could not apply CVar %s: %s"--]] 
+--[[Translation missing --]]
 --[[ L["Could not clear the Cooldown Manager layout"] = "Could not clear the Cooldown Manager layout"--]] 
 L["Could not delete %d 'Myslot' talent loadout(s)"] = "Impossible de supprimer %d configuration(s) de talents 'Myslot'"
 --[[Translation missing --]]
 --[[ L["Could not import the Cooldown Manager layout"] = "Could not import the Cooldown Manager layout"--]] 
+--[[Translation missing --]]
+--[[ L["Could not read CVar %s: %s"] = "Could not read CVar %s: %s"--]] 
 L["Could not send the request, try again later."] = "Impossible d'envoyer la demande, réessayez plus tard."
+--[[Translation missing --]]
+--[[ L["CVar API unavailable"] = "CVar API unavailable"--]] 
+--[[Translation missing --]]
+--[[ L["CVar is not in the gameplay/UI allowlist"] = "CVar is not in the gameplay/UI allowlist"--]] 
+--[[Translation missing --]]
+--[[ L["CVar is protected or its permissions are unavailable"] = "CVar is protected or its permissions are unavailable"--]] 
+--[[Translation missing --]]
+--[[ L["CVar not available on this client"] = "CVar not available on this client"--]] 
+--[[Translation missing --]]
+--[[ L["CVar value was not accepted"] = "CVar value was not accepted"--]] 
+--[[Translation missing --]]
+--[[ L["CVars"] = "CVars"--]] 
+--[[Translation missing --]]
+--[[ L["CVars: %d applied, %d skipped, %d failed."] = "CVars: %d applied, %d skipped, %d failed."--]] 
 L["DANGEROUS"] = "DANGEREUX"
 L["Deleted %d 'Myslot' talent loadout(s)"] = "%d configuration(s) de talents 'Myslot' supprimée(s)"
 L["Deleting %d 'Myslot' talent loadout(s)..."] = "Suppression de %d configuration(s) de talents 'Myslot'..."
+--[[Translation missing --]]
+--[[ L["Duplicate CVar entry"] = "Duplicate CVar entry"--]] 
 L["Export"] = "Exporter"
 L["Failed to apply talents"] = "Échec de l'application des talents"
 L["Failed to send profile '%s' to %s."] = "Échec de l'envoi du profil '%s' à %s."
 L["Feedback"] = "Retour"
 L["Force Import"] = "Forcer l'importation"
+--[[Translation missing --]]
+--[[ L["Gamepad"] = "Gamepad"--]] 
 L["IGNORE"] = "IGNORER"
 L["Ignore missing item [id=%s]"] = "Ignorer l'objet manquant [id=%s]"
 L["Ignore unattained companion [id=%s], %s"] = "Ignorer le compagnon non obtenu [id=%s], %s"
@@ -623,8 +743,12 @@ L["Import"] = "Importer"
 L["Import failed"] = "Échec de l'importation"
 L["Import is not allowed when you are in combat"] = "L'importation n'est pas autorisée en combat"
 L["Importing..."] = "Importation..."
+--[[Translation missing --]]
+--[[ L["Invalid CVar value"] = "Invalid CVar value"--]] 
 L["Kept your text, discarded the received profile '%s'."] = "Votre texte a été conservé, le profil reçu '%s' a été ignoré."
 L["Key Binding"] = "Raccourci clavier"
+--[[Translation missing --]]
+--[[ L["Keyboard"] = "Keyboard"--]] 
 --[[Translation missing --]]
 --[[ L["Later"] = "Later"--]] 
 L["Link in chat"] = "Poster le lien"
@@ -663,6 +787,8 @@ L["Sending profile '%s' to %s..."] = "Envoi du profil '%s' à %s..."
 L["Skip bad CRC32"] = "Ignorer les CRC32 incorrects"
 --[[Translation missing --]]
 --[[ L["Skipped %d Cooldown Manager layout(s): this character already has the maximum number of layouts."] = "Skipped %d Cooldown Manager layout(s): this character already has the maximum number of layouts."--]] 
+--[[Translation missing --]]
+--[[ L["Skipped CVar %s: %s"] = "Skipped CVar %s: %s"--]] 
 L["Skyriding Bar"] = "Barre de vol"
 L["Sort by"] = "Trier par"
 L["Stance Action Bar"] = "Barre d'action de posture"
@@ -736,19 +862,41 @@ L["Cooldown Manager"] = "Gestore tempi di recupero"
 --[[ L["Cooldown Manager layout saved. It takes effect the next time you log in or /reload."] = "Cooldown Manager layout saved. It takes effect the next time you log in or /reload."--]] 
 L["Copy this string and import it in the talent window"] = "Copia questo codice e importalo nella finestra dei talenti"
 --[[Translation missing --]]
+--[[ L["Could not apply CVar %s: %s"] = "Could not apply CVar %s: %s"--]] 
+--[[Translation missing --]]
 --[[ L["Could not clear the Cooldown Manager layout"] = "Could not clear the Cooldown Manager layout"--]] 
 L["Could not delete %d 'Myslot' talent loadout(s)"] = "Impossibile eliminare %d configurazioni dei talenti 'Myslot'"
 --[[Translation missing --]]
 --[[ L["Could not import the Cooldown Manager layout"] = "Could not import the Cooldown Manager layout"--]] 
+--[[Translation missing --]]
+--[[ L["Could not read CVar %s: %s"] = "Could not read CVar %s: %s"--]] 
 L["Could not send the request, try again later."] = "Impossibile inviare la richiesta, riprova più tardi."
+--[[Translation missing --]]
+--[[ L["CVar API unavailable"] = "CVar API unavailable"--]] 
+--[[Translation missing --]]
+--[[ L["CVar is not in the gameplay/UI allowlist"] = "CVar is not in the gameplay/UI allowlist"--]] 
+--[[Translation missing --]]
+--[[ L["CVar is protected or its permissions are unavailable"] = "CVar is protected or its permissions are unavailable"--]] 
+--[[Translation missing --]]
+--[[ L["CVar not available on this client"] = "CVar not available on this client"--]] 
+--[[Translation missing --]]
+--[[ L["CVar value was not accepted"] = "CVar value was not accepted"--]] 
+--[[Translation missing --]]
+--[[ L["CVars"] = "CVars"--]] 
+--[[Translation missing --]]
+--[[ L["CVars: %d applied, %d skipped, %d failed."] = "CVars: %d applied, %d skipped, %d failed."--]] 
 L["DANGEROUS"] = "PERICOLOSO"
 L["Deleted %d 'Myslot' talent loadout(s)"] = "Eliminate %d configurazioni dei talenti 'Myslot'"
 L["Deleting %d 'Myslot' talent loadout(s)..."] = "Eliminazione di %d configurazioni dei talenti 'Myslot'..."
+--[[Translation missing --]]
+--[[ L["Duplicate CVar entry"] = "Duplicate CVar entry"--]] 
 L["Export"] = "Esporta"
 L["Failed to apply talents"] = "Applicazione dei talenti non riuscita"
 L["Failed to send profile '%s' to %s."] = "Invio del profilo '%s' a %s non riuscito."
 L["Feedback"] = "Feedback"
 L["Force Import"] = "Forza Importazione"
+--[[Translation missing --]]
+--[[ L["Gamepad"] = "Gamepad"--]] 
 L["IGNORE"] = "IGNORA"
 L["Ignore missing item [id=%s]"] = "Ignora oggetto mancante [id=%s]"
 L["Ignore unattained companion [id=%s], %s"] = "Ignora compagno non ottenuto [id=%s], %s"
@@ -761,8 +909,12 @@ L["Import"] = "Importa"
 L["Import failed"] = "Importazione non riuscita"
 L["Import is not allowed when you are in combat"] = "L'importazione non è consentita durante il combattimento"
 L["Importing..."] = "Importazione..."
+--[[Translation missing --]]
+--[[ L["Invalid CVar value"] = "Invalid CVar value"--]] 
 L["Kept your text, discarded the received profile '%s'."] = "Il tuo testo è stato mantenuto, il profilo ricevuto '%s' è stato scartato."
 L["Key Binding"] = "Assegnazione tasti"
+--[[Translation missing --]]
+--[[ L["Keyboard"] = "Keyboard"--]] 
 --[[Translation missing --]]
 --[[ L["Later"] = "Later"--]] 
 L["Link in chat"] = "Crea link in chat"
@@ -801,6 +953,8 @@ L["Sending profile '%s' to %s..."] = "Invio del profilo '%s' a %s..."
 L["Skip bad CRC32"] = "Ignora CRC32 errati"
 --[[Translation missing --]]
 --[[ L["Skipped %d Cooldown Manager layout(s): this character already has the maximum number of layouts."] = "Skipped %d Cooldown Manager layout(s): this character already has the maximum number of layouts."--]] 
+--[[Translation missing --]]
+--[[ L["Skipped CVar %s: %s"] = "Skipped CVar %s: %s"--]] 
 L["Skyriding Bar"] = "Barra di volo"
 L["Sort by"] = "Ordina per"
 L["Stance Action Bar"] = "Barra azioni postura"
@@ -874,19 +1028,41 @@ L["Cooldown Manager"] = "재사용 대기시간 관리자"
 --[[ L["Cooldown Manager layout saved. It takes effect the next time you log in or /reload."] = "Cooldown Manager layout saved. It takes effect the next time you log in or /reload."--]] 
 L["Copy this string and import it in the talent window"] = "이 문자열을 복사하여 특성 창에서 가져오세요"
 --[[Translation missing --]]
+--[[ L["Could not apply CVar %s: %s"] = "Could not apply CVar %s: %s"--]] 
+--[[Translation missing --]]
 --[[ L["Could not clear the Cooldown Manager layout"] = "Could not clear the Cooldown Manager layout"--]] 
 L["Could not delete %d 'Myslot' talent loadout(s)"] = "'Myslot' 특성 구성 %d개를 삭제하지 못했습니다"
 --[[Translation missing --]]
 --[[ L["Could not import the Cooldown Manager layout"] = "Could not import the Cooldown Manager layout"--]] 
+--[[Translation missing --]]
+--[[ L["Could not read CVar %s: %s"] = "Could not read CVar %s: %s"--]] 
 L["Could not send the request, try again later."] = "요청을 보낼 수 없습니다. 나중에 다시 시도하세요."
+--[[Translation missing --]]
+--[[ L["CVar API unavailable"] = "CVar API unavailable"--]] 
+--[[Translation missing --]]
+--[[ L["CVar is not in the gameplay/UI allowlist"] = "CVar is not in the gameplay/UI allowlist"--]] 
+--[[Translation missing --]]
+--[[ L["CVar is protected or its permissions are unavailable"] = "CVar is protected or its permissions are unavailable"--]] 
+--[[Translation missing --]]
+--[[ L["CVar not available on this client"] = "CVar not available on this client"--]] 
+--[[Translation missing --]]
+--[[ L["CVar value was not accepted"] = "CVar value was not accepted"--]] 
+--[[Translation missing --]]
+--[[ L["CVars"] = "CVars"--]] 
+--[[Translation missing --]]
+--[[ L["CVars: %d applied, %d skipped, %d failed."] = "CVars: %d applied, %d skipped, %d failed."--]] 
 L["DANGEROUS"] = "위험"
 L["Deleted %d 'Myslot' talent loadout(s)"] = "'Myslot' 특성 구성 %d개를 삭제했습니다"
 L["Deleting %d 'Myslot' talent loadout(s)..."] = "'Myslot' 특성 구성 %d개 삭제 중..."
+--[[Translation missing --]]
+--[[ L["Duplicate CVar entry"] = "Duplicate CVar entry"--]] 
 L["Export"] = "내보내기"
 L["Failed to apply talents"] = "특성 적용 실패"
 L["Failed to send profile '%s' to %s."] = "'%s' 프로필을 %s 님에게 보내지 못했습니다."
 L["Feedback"] = "피드백"
 L["Force Import"] = "강제 가져오기"
+--[[Translation missing --]]
+--[[ L["Gamepad"] = "Gamepad"--]] 
 L["IGNORE"] = "무시"
 L["Ignore missing item [id=%s]"] = "누락된 아이템 무시 [id=%s]"
 L["Ignore unattained companion [id=%s], %s"] = "획득하지 않은 동반자 무시 [id=%s], %s"
@@ -899,8 +1075,12 @@ L["Import"] = "가져오기"
 L["Import failed"] = "가져오기 실패"
 L["Import is not allowed when you are in combat"] = "전투 중에는 가져오기가 허용되지 않습니다."
 L["Importing..."] = "가져오는 중..."
+--[[Translation missing --]]
+--[[ L["Invalid CVar value"] = "Invalid CVar value"--]] 
 L["Kept your text, discarded the received profile '%s'."] = "입력한 텍스트를 유지하고 받은 프로필 '%s'을(를) 버렸습니다."
 L["Key Binding"] = "키 설정"
+--[[Translation missing --]]
+--[[ L["Keyboard"] = "Keyboard"--]] 
 --[[Translation missing --]]
 --[[ L["Later"] = "Later"--]] 
 L["Link in chat"] = "대화창에 링크"
@@ -939,6 +1119,8 @@ L["Sending profile '%s' to %s..."] = "'%s' 프로필을 %s 님에게 보내는 �
 L["Skip bad CRC32"] = "잘못된 CRC32 건너뛰기"
 --[[Translation missing --]]
 --[[ L["Skipped %d Cooldown Manager layout(s): this character already has the maximum number of layouts."] = "Skipped %d Cooldown Manager layout(s): this character already has the maximum number of layouts."--]] 
+--[[Translation missing --]]
+--[[ L["Skipped CVar %s: %s"] = "Skipped CVar %s: %s"--]] 
 L["Skyriding Bar"] = "비행바"
 L["Sort by"] = "정렬 기준"
 L["Stance Action Bar"] = "태세 행동바"
@@ -1012,19 +1194,41 @@ L["Cooldown Manager"] = "Gerenciador de recarga"
 --[[ L["Cooldown Manager layout saved. It takes effect the next time you log in or /reload."] = "Cooldown Manager layout saved. It takes effect the next time you log in or /reload."--]] 
 L["Copy this string and import it in the talent window"] = "Copie este código e importe-o na janela de talentos"
 --[[Translation missing --]]
+--[[ L["Could not apply CVar %s: %s"] = "Could not apply CVar %s: %s"--]] 
+--[[Translation missing --]]
 --[[ L["Could not clear the Cooldown Manager layout"] = "Could not clear the Cooldown Manager layout"--]] 
 L["Could not delete %d 'Myslot' talent loadout(s)"] = "Não foi possível excluir %d equipamento(s) de talentos 'Myslot'"
 --[[Translation missing --]]
 --[[ L["Could not import the Cooldown Manager layout"] = "Could not import the Cooldown Manager layout"--]] 
+--[[Translation missing --]]
+--[[ L["Could not read CVar %s: %s"] = "Could not read CVar %s: %s"--]] 
 L["Could not send the request, try again later."] = "Não foi possível enviar a solicitação, tente novamente mais tarde."
+--[[Translation missing --]]
+--[[ L["CVar API unavailable"] = "CVar API unavailable"--]] 
+--[[Translation missing --]]
+--[[ L["CVar is not in the gameplay/UI allowlist"] = "CVar is not in the gameplay/UI allowlist"--]] 
+--[[Translation missing --]]
+--[[ L["CVar is protected or its permissions are unavailable"] = "CVar is protected or its permissions are unavailable"--]] 
+--[[Translation missing --]]
+--[[ L["CVar not available on this client"] = "CVar not available on this client"--]] 
+--[[Translation missing --]]
+--[[ L["CVar value was not accepted"] = "CVar value was not accepted"--]] 
+--[[Translation missing --]]
+--[[ L["CVars"] = "CVars"--]] 
+--[[Translation missing --]]
+--[[ L["CVars: %d applied, %d skipped, %d failed."] = "CVars: %d applied, %d skipped, %d failed."--]] 
 L["DANGEROUS"] = "PERIGOSO"
 L["Deleted %d 'Myslot' talent loadout(s)"] = "%d equipamento(s) de talentos 'Myslot' excluído(s)"
 L["Deleting %d 'Myslot' talent loadout(s)..."] = "Excluindo %d equipamento(s) de talentos 'Myslot'..."
+--[[Translation missing --]]
+--[[ L["Duplicate CVar entry"] = "Duplicate CVar entry"--]] 
 L["Export"] = "Exportar"
 L["Failed to apply talents"] = "Falha ao aplicar os talentos"
 L["Failed to send profile '%s' to %s."] = "Falha ao enviar o perfil '%s' para %s."
 L["Feedback"] = "Feedback"
 L["Force Import"] = "Forçar Importação"
+--[[Translation missing --]]
+--[[ L["Gamepad"] = "Gamepad"--]] 
 L["IGNORE"] = "IGNORAR"
 L["Ignore missing item [id=%s]"] = "Ignorar item ausente [id=%s]"
 L["Ignore unattained companion [id=%s], %s"] = "Ignorar companheiro não obtido [id=%s], %s"
@@ -1037,8 +1241,12 @@ L["Import"] = "Importar"
 L["Import failed"] = "Falha na importação"
 L["Import is not allowed when you are in combat"] = "A importação não é permitida durante o combate"
 L["Importing..."] = "Importando..."
+--[[Translation missing --]]
+--[[ L["Invalid CVar value"] = "Invalid CVar value"--]] 
 L["Kept your text, discarded the received profile '%s'."] = "Seu texto foi mantido e o perfil recebido '%s' foi descartado."
 L["Key Binding"] = "Atalho de Tecla"
+--[[Translation missing --]]
+--[[ L["Keyboard"] = "Keyboard"--]] 
 --[[Translation missing --]]
 --[[ L["Later"] = "Later"--]] 
 L["Link in chat"] = "Link no bate-papo"
@@ -1077,6 +1285,8 @@ L["Sending profile '%s' to %s..."] = "Enviando o perfil '%s' para %s..."
 L["Skip bad CRC32"] = "Pular CRC32 inválido"
 --[[Translation missing --]]
 --[[ L["Skipped %d Cooldown Manager layout(s): this character already has the maximum number of layouts."] = "Skipped %d Cooldown Manager layout(s): this character already has the maximum number of layouts."--]] 
+--[[Translation missing --]]
+--[[ L["Skipped CVar %s: %s"] = "Skipped CVar %s: %s"--]] 
 L["Skyriding Bar"] = "Barra de Voo"
 L["Sort by"] = "Classificar por"
 L["Stance Action Bar"] = "Barra de Ações de Postura"
@@ -1150,19 +1360,41 @@ L["Cooldown Manager"] = "Трекер восстановления"
 --[[ L["Cooldown Manager layout saved. It takes effect the next time you log in or /reload."] = "Cooldown Manager layout saved. It takes effect the next time you log in or /reload."--]] 
 L["Copy this string and import it in the talent window"] = "Скопируйте эту строку и импортируйте её в окне талантов"
 --[[Translation missing --]]
+--[[ L["Could not apply CVar %s: %s"] = "Could not apply CVar %s: %s"--]] 
+--[[Translation missing --]]
 --[[ L["Could not clear the Cooldown Manager layout"] = "Could not clear the Cooldown Manager layout"--]] 
 L["Could not delete %d 'Myslot' talent loadout(s)"] = "Не удалось удалить макеты талантов 'Myslot': %d"
 --[[Translation missing --]]
 --[[ L["Could not import the Cooldown Manager layout"] = "Could not import the Cooldown Manager layout"--]] 
+--[[Translation missing --]]
+--[[ L["Could not read CVar %s: %s"] = "Could not read CVar %s: %s"--]] 
 L["Could not send the request, try again later."] = "Не удалось отправить запрос, повторите попытку позже."
+--[[Translation missing --]]
+--[[ L["CVar API unavailable"] = "CVar API unavailable"--]] 
+--[[Translation missing --]]
+--[[ L["CVar is not in the gameplay/UI allowlist"] = "CVar is not in the gameplay/UI allowlist"--]] 
+--[[Translation missing --]]
+--[[ L["CVar is protected or its permissions are unavailable"] = "CVar is protected or its permissions are unavailable"--]] 
+--[[Translation missing --]]
+--[[ L["CVar not available on this client"] = "CVar not available on this client"--]] 
+--[[Translation missing --]]
+--[[ L["CVar value was not accepted"] = "CVar value was not accepted"--]] 
+--[[Translation missing --]]
+--[[ L["CVars"] = "CVars"--]] 
+--[[Translation missing --]]
+--[[ L["CVars: %d applied, %d skipped, %d failed."] = "CVars: %d applied, %d skipped, %d failed."--]] 
 L["DANGEROUS"] = "ОПАСНО"
 L["Deleted %d 'Myslot' talent loadout(s)"] = "Удалено макетов талантов 'Myslot': %d"
 L["Deleting %d 'Myslot' talent loadout(s)..."] = "Удаление макетов талантов 'Myslot': %d..."
+--[[Translation missing --]]
+--[[ L["Duplicate CVar entry"] = "Duplicate CVar entry"--]] 
 L["Export"] = "Экспорт"
 L["Failed to apply talents"] = "Не удалось применить таланты"
 L["Failed to send profile '%s' to %s."] = "Не удалось отправить профиль '%s' игроку %s."
 L["Feedback"] = "Обратная связь"
 L["Force Import"] = "Принудительный импорт"
+--[[Translation missing --]]
+--[[ L["Gamepad"] = "Gamepad"--]] 
 L["IGNORE"] = "ИГНОРИРОВАТЬ"
 L["Ignore missing item [id=%s]"] = "Пропустить отсутствующий предмет [id=%s]"
 L["Ignore unattained companion [id=%s], %s"] = "Пропустить недоступного спутника [id=%s], %s"
@@ -1175,8 +1407,12 @@ L["Import"] = "Импорт"
 L["Import failed"] = "Ошибка импорта"
 L["Import is not allowed when you are in combat"] = "Импорт запрещен во время боя"
 L["Importing..."] = "Импорт..."
+--[[Translation missing --]]
+--[[ L["Invalid CVar value"] = "Invalid CVar value"--]] 
 L["Kept your text, discarded the received profile '%s'."] = "Ваш текст сохранён, полученный профиль '%s' отброшен."
 L["Key Binding"] = "Привязка клавиш"
+--[[Translation missing --]]
+--[[ L["Keyboard"] = "Keyboard"--]] 
 --[[Translation missing --]]
 --[[ L["Later"] = "Later"--]] 
 L["Link in chat"] = "Поделиться в чате"
@@ -1215,6 +1451,8 @@ L["Sending profile '%s' to %s..."] = "Отправка профиля '%s' иг�
 L["Skip bad CRC32"] = "Пропустить неверный CRC32"
 --[[Translation missing --]]
 --[[ L["Skipped %d Cooldown Manager layout(s): this character already has the maximum number of layouts."] = "Skipped %d Cooldown Manager layout(s): this character already has the maximum number of layouts."--]] 
+--[[Translation missing --]]
+--[[ L["Skipped CVar %s: %s"] = "Skipped CVar %s: %s"--]] 
 L["Skyriding Bar"] = "Панель полета"
 L["Sort by"] = "Сортировка"
 L["Stance Action Bar"] = "Панель действий стоек"
@@ -1288,19 +1526,41 @@ L["Cooldown Manager"] = "冷却管理器"
 --[[ L["Cooldown Manager layout saved. It takes effect the next time you log in or /reload."] = "Cooldown Manager layout saved. It takes effect the next time you log in or /reload."--]] 
 L["Copy this string and import it in the talent window"] = "复制此字符串并在天赋窗口中导入"
 --[[Translation missing --]]
+--[[ L["Could not apply CVar %s: %s"] = "Could not apply CVar %s: %s"--]] 
+--[[Translation missing --]]
 --[[ L["Could not clear the Cooldown Manager layout"] = "Could not clear the Cooldown Manager layout"--]] 
 L["Could not delete %d 'Myslot' talent loadout(s)"] = "无法删除 %d 个'Myslot'天赋配置"
 --[[Translation missing --]]
 --[[ L["Could not import the Cooldown Manager layout"] = "Could not import the Cooldown Manager layout"--]] 
+--[[Translation missing --]]
+--[[ L["Could not read CVar %s: %s"] = "Could not read CVar %s: %s"--]] 
 L["Could not send the request, try again later."] = "无法发送请求，请稍后再试。"
+--[[Translation missing --]]
+--[[ L["CVar API unavailable"] = "CVar API unavailable"--]] 
+--[[Translation missing --]]
+--[[ L["CVar is not in the gameplay/UI allowlist"] = "CVar is not in the gameplay/UI allowlist"--]] 
+--[[Translation missing --]]
+--[[ L["CVar is protected or its permissions are unavailable"] = "CVar is protected or its permissions are unavailable"--]] 
+--[[Translation missing --]]
+--[[ L["CVar not available on this client"] = "CVar not available on this client"--]] 
+--[[Translation missing --]]
+--[[ L["CVar value was not accepted"] = "CVar value was not accepted"--]] 
+--[[Translation missing --]]
+--[[ L["CVars"] = "CVars"--]] 
+--[[Translation missing --]]
+--[[ L["CVars: %d applied, %d skipped, %d failed."] = "CVars: %d applied, %d skipped, %d failed."--]] 
 L["DANGEROUS"] = "危险"
 L["Deleted %d 'Myslot' talent loadout(s)"] = "已删除 %d 个'Myslot'天赋配置"
 L["Deleting %d 'Myslot' talent loadout(s)..."] = "正在删除 %d 个'Myslot'天赋配置..."
+--[[Translation missing --]]
+--[[ L["Duplicate CVar entry"] = "Duplicate CVar entry"--]] 
 L["Export"] = "导出"
 L["Failed to apply talents"] = "应用天赋失败"
 L["Failed to send profile '%s' to %s."] = "发送配置文件'%s'给 %s 失败。"
 L["Feedback"] = "反馈"
 L["Force Import"] = "强制导入"
+--[[Translation missing --]]
+--[[ L["Gamepad"] = "Gamepad"--]] 
 L["IGNORE"] = "忽略"
 L["Ignore missing item [id=%s]"] = "忽略缺失的物品 [id=%s]"
 L["Ignore unattained companion [id=%s], %s"] = "忽略未获得的伙伴 [id=%s], %s"
@@ -1313,8 +1573,12 @@ L["Import"] = "导入"
 L["Import failed"] = "导入失败"
 L["Import is not allowed when you are in combat"] = "战斗中无法导入"
 L["Importing..."] = "正在导入..."
+--[[Translation missing --]]
+--[[ L["Invalid CVar value"] = "Invalid CVar value"--]] 
 L["Kept your text, discarded the received profile '%s'."] = "已保留你的文本，丢弃收到的配置文件'%s'。"
 L["Key Binding"] = "按键绑定"
+--[[Translation missing --]]
+--[[ L["Keyboard"] = "Keyboard"--]] 
 --[[Translation missing --]]
 --[[ L["Later"] = "Later"--]] 
 L["Link in chat"] = "链接至聊天栏"
@@ -1353,6 +1617,8 @@ L["Sending profile '%s' to %s..."] = "正在发送配置文件'%s'给 %s..."
 L["Skip bad CRC32"] = "跳过无效的 CRC32"
 --[[Translation missing --]]
 --[[ L["Skipped %d Cooldown Manager layout(s): this character already has the maximum number of layouts."] = "Skipped %d Cooldown Manager layout(s): this character already has the maximum number of layouts."--]] 
+--[[Translation missing --]]
+--[[ L["Skipped CVar %s: %s"] = "Skipped CVar %s: %s"--]] 
 L["Skyriding Bar"] = "飞行栏"
 L["Sort by"] = "排序"
 L["Stance Action Bar"] = "姿态动作条"
@@ -1426,19 +1692,41 @@ L["Cooldown Manager"] = "技能監控"
 --[[ L["Cooldown Manager layout saved. It takes effect the next time you log in or /reload."] = "Cooldown Manager layout saved. It takes effect the next time you log in or /reload."--]] 
 L["Copy this string and import it in the talent window"] = "複製此字串並在天賦視窗中匯入"
 --[[Translation missing --]]
+--[[ L["Could not apply CVar %s: %s"] = "Could not apply CVar %s: %s"--]] 
+--[[Translation missing --]]
 --[[ L["Could not clear the Cooldown Manager layout"] = "Could not clear the Cooldown Manager layout"--]] 
 L["Could not delete %d 'Myslot' talent loadout(s)"] = "無法刪除 %d 個'Myslot'天賦配置"
 --[[Translation missing --]]
 --[[ L["Could not import the Cooldown Manager layout"] = "Could not import the Cooldown Manager layout"--]] 
+--[[Translation missing --]]
+--[[ L["Could not read CVar %s: %s"] = "Could not read CVar %s: %s"--]] 
 L["Could not send the request, try again later."] = "無法傳送請求，請稍後再試。"
+--[[Translation missing --]]
+--[[ L["CVar API unavailable"] = "CVar API unavailable"--]] 
+--[[Translation missing --]]
+--[[ L["CVar is not in the gameplay/UI allowlist"] = "CVar is not in the gameplay/UI allowlist"--]] 
+--[[Translation missing --]]
+--[[ L["CVar is protected or its permissions are unavailable"] = "CVar is protected or its permissions are unavailable"--]] 
+--[[Translation missing --]]
+--[[ L["CVar not available on this client"] = "CVar not available on this client"--]] 
+--[[Translation missing --]]
+--[[ L["CVar value was not accepted"] = "CVar value was not accepted"--]] 
+--[[Translation missing --]]
+--[[ L["CVars"] = "CVars"--]] 
+--[[Translation missing --]]
+--[[ L["CVars: %d applied, %d skipped, %d failed."] = "CVars: %d applied, %d skipped, %d failed."--]] 
 L["DANGEROUS"] = "危險"
 L["Deleted %d 'Myslot' talent loadout(s)"] = "已刪除 %d 個'Myslot'天賦配置"
 L["Deleting %d 'Myslot' talent loadout(s)..."] = "正在刪除 %d 個'Myslot'天賦配置..."
+--[[Translation missing --]]
+--[[ L["Duplicate CVar entry"] = "Duplicate CVar entry"--]] 
 L["Export"] = "匯出"
 L["Failed to apply talents"] = "套用天賦失敗"
 L["Failed to send profile '%s' to %s."] = "傳送設定檔'%s'給 %s 失敗。"
 L["Feedback"] = "反饋"
 L["Force Import"] = "強制匯入"
+--[[Translation missing --]]
+--[[ L["Gamepad"] = "Gamepad"--]] 
 L["IGNORE"] = "忽略"
 L["Ignore missing item [id=%s]"] = "忽略缺失的物品 [id=%s]"
 L["Ignore unattained companion [id=%s], %s"] = "忽略未獲得的夥伴 [id=%s], %s"
@@ -1451,8 +1739,12 @@ L["Import"] = "匯入"
 L["Import failed"] = "匯入失敗"
 L["Import is not allowed when you are in combat"] = "戰鬥中無法匯入"
 L["Importing..."] = "正在匯入..."
+--[[Translation missing --]]
+--[[ L["Invalid CVar value"] = "Invalid CVar value"--]] 
 L["Kept your text, discarded the received profile '%s'."] = "已保留你的文本，捨棄收到的設定檔'%s'。"
 L["Key Binding"] = "按鍵綁定"
+--[[Translation missing --]]
+--[[ L["Keyboard"] = "Keyboard"--]] 
 --[[Translation missing --]]
 --[[ L["Later"] = "Later"--]] 
 L["Link in chat"] = "分享到對話窗"
@@ -1491,6 +1783,8 @@ L["Sending profile '%s' to %s..."] = "正在傳送設定檔'%s'給 %s..."
 L["Skip bad CRC32"] = "跳過無效的 CRC32"
 --[[Translation missing --]]
 --[[ L["Skipped %d Cooldown Manager layout(s): this character already has the maximum number of layouts."] = "Skipped %d Cooldown Manager layout(s): this character already has the maximum number of layouts."--]] 
+--[[Translation missing --]]
+--[[ L["Skipped CVar %s: %s"] = "Skipped CVar %s: %s"--]] 
 L["Skyriding Bar"] = "飛行欄"
 L["Sort by"] = "分類方式"
 L["Stance Action Bar"] = "姿態動作條"

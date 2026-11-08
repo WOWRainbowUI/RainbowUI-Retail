@@ -1,9 +1,8 @@
 # Myslot
 
-## [v6.2.1](https://github.com/tg123/myslot/tree/v6.2.1) (2026-10-14)
-[Full Changelog](https://github.com/tg123/myslot/commits/v6.2.1) 
+## [v6.3.0](https://github.com/tg123/myslot/tree/v6.3.0) (2026-11-08)
+[Full Changelog](https://github.com/tg123/myslot/commits/v6.3.0) 
 
-- Update TOC interface versions to latest builds (#141)  
-    Retail 12.1.5 (120105), Classic Era 1.15.9 (11509), Anniversary 2.5.6 (20506), Titan 3.80.2 (38002).  
+- Add default import/export IGNORE options to the options panel (#149)  
+    Defaults are saved per character and seed the main window's Import and Export ignore menus. The options panel mirrors the main window layout (Export left, Import right) and reuses the same dropdown menu. CreateSettingMenu no longer resets saved scalar flags, so CVars stay opt-in unless a default includes them.  
     Co-authored-by: Copilot App <223556219+Copilot@users.noreply.github.com>  
-    Copilot-Session: a58cf9cb-4234-4f13-97a2-f8c50a39b826  

@@ -383,9 +383,36 @@ local function KeyToByte(key, command)
 end
 -- }}}
 
-function MySlot:GetBindingInfo(index)
-    -- might more than 1
-    local _command, _, key1, key2 = GetBinding(index)
+-- "GAMEPAD" for controller buttons (PAD1, SHIFT-PADDUP, ...), "KEYBOARD" for
+-- everything else, including mouse buttons.
+function MySlot:GetBindingKind(key)
+    local gamepad
+    if IsBindingForGamePad then
+        gamepad = IsBindingForGamePad(key)
+    else
+        gamepad = key:find("^PAD") or key:find("%-PAD")
+    end
+    return gamepad and "GAMEPAD" or "KEYBOARD"
+end
+
+-- opt.ignoreBinding skips every key; opt.ignoreBindings[KEYBOARD|GAMEPAD]
+-- skips one kind.
+function MySlot:IsBindingKeyIgnored(opt, key)
+    if not opt then
+        return false
+    end
+    if opt.ignoreBinding then
+        return true
+    end
+    return opt.ignoreBindings ~= nil and opt.ignoreBindings[self:GetBindingKind(key)] == true
+end
+
+function MySlot:GetBindingInfo(index, opt)
+    -- GetBinding returns every key bound to the command; gamepad users often
+    -- have a PAD* button on top of two keyboard keys. Pass true so PAD* keys
+    -- are returned even when gamepad support is disabled.
+    local _command = GetBinding(index, true)
+    local allKeys = { select(3, GetBinding(index, true)) }
 
     if not _command then
         return
@@ -402,10 +429,25 @@ function MySlot:GetBindingInfo(index)
 
     msg.id = command
 
-    msg.key1 = KeyToByte(key1)
-    msg.key2 = KeyToByte(key2)
+    local kept = {}
+    for i = 1, table.maxn(allKeys) do
+        local key = allKeys[i]
+        if key and not self:IsBindingKeyIgnored(opt, key) then
+            local k = KeyToByte(key)
+            if k then
+                kept[#kept + 1] = k
+            end
+        end
+    end
 
-    if msg.key1 or msg.key2 then
+    msg.key1 = kept[1]
+    msg.key2 = kept[2]
+    for i = 3, #kept do
+        msg.keys = msg.keys or {}
+        table.insert(msg.keys, kept[i])
+    end
+
+    if msg.key1 or msg.key2 or msg.keys then
         return msg
     else
         return nil
@@ -940,6 +982,137 @@ function MySlot:ApplyTalentString(str, onDone)
 end
 -- }}}
 
+do
+    -- Explicit gameplay/UI settings from Blizzard_SettingsDefinitions_Frame.
+    -- Related presentation values are applied in the same order as Blizzard's UI.
+    local names = {
+        "autoLootDefault", "deselectOnClick", "interactOnLeftClick", "autoClearAFK",
+        "autointeract", "cameraSmoothTrackingStyle", "cameraWaterCollision", "cameraSmoothStyle",
+        "autoSelfCast", "enableMouseoverCast", "empowerTapControls", "ActionButtonUseKeyHeldSpell",
+        "showTargetOfTarget", "doNotFlashLowHealthWarning", "lossOfControl",
+        "lockActionBars", "countdownForCooldowns",
+        "spellActivationOverlayOpacity", "displaySpellActivationOverlays",
+        "statusTextDisplay", "statusText", "showInGameNavigation",
+        "chatBubbles", "chatBubblesParty", "chatBubblesRaid",
+        "nameplateShowSelf", "nameplateShowAll", "nameplateShowEnemies",
+        "nameplateShowEnemyMinions", "nameplateShowEnemyMinus", "nameplateShowFriendlyPlayers",
+        "nameplateShowFriendlyPlayerMinions", "nameplateShowFriendlyNpcs",
+        "nameplateShowFriendlyClassColor", "nameplateShowClassColor",
+    }
+    local allowed = {}
+    for _, name in ipairs(names) do allowed[name:lower()] = name end
+
+    local function APIs()
+        local info = (C_CVar and C_CVar.GetCVarInfo) or _G.GetCVarInfo
+        local set = (C_CVar and C_CVar.SetCVar) or _G.SetCVar
+        return info, set
+    end
+
+    function MySlot:IsCVarSupported()
+        local info, set = APIs()
+        return type(info) == "function" and type(set) == "function"
+    end
+
+    local function Pack(...)
+        return select("#", ...), { ... }
+    end
+
+    local function Read(name)
+        local info = APIs()
+        if type(info) ~= "function" then return nil, L["CVar API unavailable"] end
+        local count, r = Pack(pcall(info, name))
+        local ok, value = r[1], r[2]
+        if not ok then return nil, tostring(value), true end
+        if type(value) ~= "string" then return nil, L["CVar not available on this client"] end
+        -- r[1] is pcall's status, so info's return i is r[i + 1].
+        local returned = count - 1
+        local locked, secure, readOnly = r[6], r[7], r[8]
+        -- Older clients omit readOnly; a read-only write is still caught by ApplyCVars'
+        -- read-back verification. locked/secure stay mandatory since those writes are unsafe.
+        if returned == 6 then readOnly = false end
+        if returned < 6 or locked ~= false or secure ~= false or readOnly ~= false then
+            return nil, L["CVar is protected or its permissions are unavailable"]
+        end
+        return value
+    end
+
+    function MySlot:GetCVars()
+        if not self:IsCVarSupported() then
+            self:Print(L["CVar API unavailable"])
+            return nil
+        end
+        local entries = {}
+        for _, name in ipairs(names) do
+            local value, reason, failed = Read(name)
+            if failed then
+                self:Print(L["Could not read CVar %s: %s"]:format(name, reason))
+                return nil -- A selected-category backup must not silently lose values.
+            end
+            if value ~= nil then
+                local entry = _MySlot.CVar()
+                entry.name, entry.value = name, value
+                entries[#entries + 1] = entry
+            end
+        end
+        return entries
+    end
+
+    function MySlot:ApplyCVars(entries)
+        local applied, skipped, failed = 0, 0, 0
+        local pending = {}
+        for _, entry in ipairs(entries or {}) do
+            local name = type(entry) == "table" and entry.name
+            local canonical = type(name) == "string" and allowed[name:lower()]
+            local reason
+            if not canonical then
+                reason = L["CVar is not in the gameplay/UI allowlist"]
+            elseif type(entry.value) ~= "string" or entry.value:find("\0", 1, true) then
+                reason = L["Invalid CVar value"]
+            elseif pending[canonical] ~= nil then
+                reason = L["Duplicate CVar entry"]
+            end
+            if reason then
+                skipped = skipped + 1
+                self:Print(L["Skipped CVar %s: %s"]:format(tostring(name or "?"), reason))
+            else
+                pending[canonical] = entry.value
+            end
+        end
+
+        for _, name in ipairs(names) do
+            local value = pending[name]
+            if value ~= nil then
+                local current, reason = Read(name)
+                local _, set = APIs()
+                if InCombatLockdown() then
+                    reason = L["Import is not allowed when you are in combat"]
+                elseif type(set) ~= "function" then
+                    reason = L["CVar API unavailable"]
+                end
+                if reason then
+                    skipped = skipped + 1
+                    self:Print(L["Skipped CVar %s: %s"]:format(name, reason))
+                elseif current == value then
+                    applied = applied + 1
+                else
+                    local ok, result = pcall(set, name, value)
+                    local actual, readReason = Read(name)
+                    if not ok or result == false or actual ~= value then
+                        failed = failed + 1
+                        local detail = not ok and tostring(result)
+                            or readReason or L["CVar value was not accepted"]
+                        self:Print(L["Could not apply CVar %s: %s"]:format(name, detail))
+                    else
+                        applied = applied + 1
+                    end
+                end
+            end
+        end
+        self:Print(L["CVars: %d applied, %d skipped, %d failed."]:format(applied, skipped, failed))
+        return applied, skipped, failed
+    end
+end
+
 function MySlot:Export(opt)
     -- ver nop nop nop crc32 crc32 crc32 crc32
 
@@ -995,7 +1168,7 @@ function MySlot:Export(opt)
     msg.bind = {}
     if not opt.ignoreBinding then
         for i = 1, GetNumBindings() do
-            local m = self:GetBindingInfo(i)
+            local m = self:GetBindingInfo(i, opt)
             if m then
                 msg.bind[#msg.bind + 1] = m
             end
@@ -1032,6 +1205,11 @@ function MySlot:Export(opt)
             c.modifiers = info.modifiers or 0
             msg.clickBinding[#msg.clickBinding + 1] = c
         end
+    end
+
+    if opt.ignoreCVars == false then
+        msg.cvar = self:GetCVars()
+        if not msg.cvar then return nil end
     end
 
     local ct = msg:Serialize()
@@ -1157,6 +1335,7 @@ function MySlot:Import(text, opt)
 
     if IsEmptyTable(msg.slot) and IsEmptyTable(msg.bind) and IsEmptyTable(msg.macro)
         and IsEmptyTable(msg.clickBinding)
+        and IsEmptyTable(msg.cvar)
         and (msg.cooldownManager == nil or msg.cooldownManager == "") and not force then
         MySlot:Print(L["Nothing to import"])
         return
@@ -2035,33 +2214,29 @@ function MySlot:RecoverData(msg, opt)
                 command = MySlot.R_BINDS[b.id]
             end
 
-            if b.key1 then
-                local mod, key = MySlot.R_MOD_KEYS[b.key1.mod], MySlot.R_KEYS[b.key1.key]
-                if key == "KEYCODE" then
-                    key = b.key1.keycode
-                end
-                key = (mod ~= "NONE" and (mod .. "-") or "") .. key
-                local bindingContext = 1
-
-                if C_KeyBindings and C_KeyBindings.GetBindingContextForAction then
-                     bindingContext = C_KeyBindings.GetBindingContextForAction(command)
-                end
-
-                SetBinding(key, command, bindingContext)
+            local bindingContext = 1
+            if C_KeyBindings and C_KeyBindings.GetBindingContextForAction then
+                bindingContext = C_KeyBindings.GetBindingContextForAction(command)
             end
 
-            if b.key2 then
-                local mod, key = MySlot.R_MOD_KEYS[b.key2.mod], MySlot.R_KEYS[b.key2.key]
-                if key == "KEYCODE" then
-                    key = b.key2.keycode
-                end
-                key = (mod ~= "NONE" and (mod .. "-") or "") .. key
-                local bindingContext = 1
+            local keys = { b.key1, b.key2 }
+            for _, k in ipairs(b.keys or {}) do
+                table.insert(keys, k)
+            end
 
-                if C_KeyBindings and C_KeyBindings.GetBindingContextForAction then
-                     bindingContext = C_KeyBindings.GetBindingContextForAction(command)
+            -- key1/key2 may be nil, so iterate by index rather than ipairs
+            for i = 1, table.maxn(keys) do
+                local k = keys[i]
+                if k then
+                    local mod, key = MySlot.R_MOD_KEYS[k.mod], MySlot.R_KEYS[k.key]
+                    if key == "KEYCODE" then
+                        key = k.keycode
+                    end
+                    key = (mod ~= "NONE" and (mod .. "-") or "") .. key
+                    if not self:IsBindingKeyIgnored(opt.actionOpt, key) then
+                        SetBinding(key, command, bindingContext)
+                    end
                 end
-                SetBinding(key, command, bindingContext)
             end
 
             bindProcessed = bindProcessed + 1
@@ -2132,6 +2307,10 @@ function MySlot:RecoverData(msg, opt)
     end
 
 
+    if opt.actionOpt.ignoreCVars == false and not IsEmptyTable(msg.cvar) then
+        self:ApplyCVars(msg.cvar)
+    end
+
     MySlot:Print(L["All slots were restored"])
     MySlot:AnnounceCooldownManagerPending()
 end
@@ -2157,11 +2336,12 @@ function MySlot:Clear(what, opt)
             end
         end
     elseif what == "BINDING" then
+        -- opt.KEYBOARD / opt.GAMEPAD select which kinds of key to remove.
         for i = 1, GetNumBindings() do
-            local action, _, key1, key2 = GetBinding(i)
+            local action = GetBinding(i, true)
 
-            for _, key in pairs({ key1, key2 }) do
-                if key then
+            for _, key in pairs({ select(3, GetBinding(i, true)) }) do
+                if key and opt and opt[self:GetBindingKind(key)] then
                     local bindingContext = 1
 
                     if C_KeyBindings and C_KeyBindings.GetBindingContextForAction then

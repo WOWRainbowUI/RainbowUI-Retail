@@ -138,6 +138,26 @@ local function CurrentTalentString()
     return currentTalent or nil
 end
 
+-- Where the Settings panel supports gamepad focus groups (Forever, 12.1.7+),
+-- OpenToCategory calls the secure-only SmartNavigation:EnterFocusGroup, which
+-- shows "Interface action failed" when an addon triggers it (#144). Open the
+-- panel and select the category ourselves to skip that focus step.
+local function OpenSettings()
+    local id = MySlot.settingcategory.ID
+    local panel = SettingsPanel
+    if panel and panel.FocusContainer and panel.Open and panel.SelectCategory and panel.GetCategoryList then
+        panel:Open()
+        local categoryTbl = panel:GetCategoryList():GetCategory(id)
+        if categoryTbl then
+            categoryTbl:SetExpanded(true)
+            panel:SelectCategory(categoryTbl)
+        end
+        return
+    end
+
+    Settings.OpenToCategory(id)
+end
+
 -- options
 do
     local b = CreateFrame("Button", nil, f, "GameMenuButtonTemplate")
@@ -145,9 +165,7 @@ do
     b:SetHeight(25)
     b:SetPoint("BOTTOMRIGHT", -145, 15)
     b:SetText(OPTIONS)
-    b:SetScript("OnClick", function()
-        Settings.OpenToCategory(MySlot.settingcategory.ID)
-    end)
+    b:SetScript("OnClick", OpenSettings)
 end
 
 -- close
@@ -167,9 +185,9 @@ local function CreateSettingMenu(opt, onChanged)
             return opt.ignoreActionBars
         end
 
-        -- if name == "binding" then
-        --     return opt.ignoreBindings
-        -- end
+        if name == "binding" then
+            return opt.ignoreBindings
+        end
 
         if name == "macro" then
             return opt.ignoreMacros
@@ -234,19 +252,26 @@ local function CreateSettingMenu(opt, onChanged)
         [15] = false,
     }
 
-    opt.ignoreBinding = false
-    -- opt.ignoreBindings = opt.ignoreBindings or {}
+    opt.ignoreBindings = opt.ignoreBindings or {
+        ["KEYBOARD"] = false,
+        ["GAMEPAD"] = false,
+    }
 
     opt.ignoreMacros = opt.ignoreMacros or {
         ["ACCOUNT"] = false,
         ["CHARACTOR"] = false,
     }
 
-    opt.ignorePetActionBar = false
+    opt.ignorePetActionBar = opt.ignorePetActionBar or false
 
-    opt.ignoreCooldownManager = false
+    opt.ignoreCooldownManager = opt.ignoreCooldownManager or false
 
-    opt.ignoreClickBindings = false
+    opt.ignoreClickBindings = opt.ignoreClickBindings or false
+
+    -- CVars are opt-in: ignored unless a saved default or the user unticks it.
+    if opt.ignoreCVars == nil then
+        opt.ignoreCVars = true
+    end
 
     -- https://warcraft.wiki.gg/wiki/Action_slot
     local actionbarlist = {
@@ -388,19 +413,33 @@ local function CreateSettingMenu(opt, onChanged)
         }, -- 1
         {
             text = L["Key Binding"],
+            hasArrow = true,
             notCheckable = false,
             isNotRadio = true,
             keepShownOnClick = true,
-            func = function ()
-                opt.ignoreBinding = not opt.ignoreBinding
-
-                if onChanged then
-                    onChanged()
-                end
-            end,
-            checked = function ()
-                return opt.ignoreBinding
-            end,
+            func = parentclicked,
+            checked = parentchecked,
+            arg1 = "binding",
+            menuList = {
+                {
+                    text = L["Keyboard"],
+                    isNotRadio = true,
+                    keepShownOnClick = true,
+                    arg1 = "binding",
+                    arg2 = "KEYBOARD",
+                    checked = childchecked,
+                    func = childclicked,
+                },
+                {
+                    text = L["Gamepad"],
+                    isNotRadio = true,
+                    keepShownOnClick = true,
+                    arg1 = "binding",
+                    arg2 = "GAMEPAD",
+                    checked = childchecked,
+                    func = childclicked,
+                },
+            }
         }, -- 2
         {
             text = MACRO,
@@ -480,6 +519,19 @@ local function CreateSettingMenu(opt, onChanged)
                 return opt.ignoreClickBindings
             end,
         }, -- 6
+        {
+            text = L["CVars"],
+            notCheckable = false,
+            isNotRadio = true,
+            keepShownOnClick = true,
+            func = function()
+                opt.ignoreCVars = not opt.ignoreCVars
+                if onChanged then onChanged() end
+            end,
+            checked = function()
+                return opt.ignoreCVars
+            end,
+        },
     }
 
     -- Some categories are retail-only; drop their entries where the client
@@ -491,6 +543,9 @@ local function CreateSettingMenu(opt, onChanged)
     end
     if not MySlot:IsClickBindingSupported() then
         unsupported[L["Click Cast Bindings"]] = true
+    end
+    if not MySlot:IsCVarSupported() then
+        unsupported[L["CVars"]] = true
     end
     if not MySlot:IsPetActionBarSupported() then
         unsupported[PET .. " " .. ACTIONBARS_LABEL] = true
@@ -519,7 +574,14 @@ local function AllSettingMenuIgnored(opt)
     end
 
     if not opt.ignoreBinding then
-        return false
+        if not opt.ignoreBindings then
+            return false
+        end
+        for _, v in pairs(opt.ignoreBindings) do
+            if not v then
+                return false
+            end
+        end
     end
 
     if not opt.ignoreMacros then
@@ -540,6 +602,10 @@ local function AllSettingMenuIgnored(opt)
     end
 
     if MySlot:IsClickBindingSupported() and not opt.ignoreClickBindings then
+        return false
+    end
+
+    if MySlot:IsCVarSupported() and opt.ignoreCVars == false then
         return false
     end
 
@@ -580,6 +646,55 @@ local EasyMenu = function (settings, owner)
     MenuUtil.CreateContextMenu(owner or UIParent, function(ownerRegion, rootDescription)
         DrawMenu(rootDescription, settings)
     end)
+end
+
+-- Default IGNORE options (set in the options panel) seed the import/export
+-- dropdowns. kind is "import" or "export".
+local ignoreDefaultTargets = {}
+
+function MySlot:GetIgnoreDefaults(kind)
+    MyslotSettings = MyslotSettings or {}
+    MyslotSettings.defaultIgnore = MyslotSettings.defaultIgnore or {}
+    MyslotSettings.defaultIgnore[kind] = MyslotSettings.defaultIgnore[kind] or {}
+    return MyslotSettings.defaultIgnore[kind]
+end
+
+function MySlot:ApplyIgnoreDefaults(kind)
+    local target = ignoreDefaultTargets[kind]
+    if not target then
+        return
+    end
+
+    local dst = target.opt
+    for k, v in pairs(self:GetIgnoreDefaults(kind)) do
+        if type(v) == "table" then
+            dst[k] = dst[k] or {}
+            for kk, vv in pairs(v) do
+                dst[k][kk] = vv
+            end
+        else
+            dst[k] = v
+        end
+    end
+
+    if target.onChanged then
+        target.onChanged()
+    end
+end
+
+function MySlot:ShowIgnoreDefaultsMenu(kind, owner)
+    local title = kind == "import" and L[" during Import"] or L[" during Export"]
+    local settings = {
+        {
+            isTitle = true,
+            text = (DEFAULT or "Default") .. ": |cffff0000" .. L["IGNORE"] .. "|r" .. title,
+            notCheckable = true,
+        }
+    }
+    tAppendAll(settings, CreateSettingMenu(self:GetIgnoreDefaults(kind), function()
+        self:ApplyIgnoreDefaults(kind)
+    end))
+    EasyMenu(settings, owner)
 end
 
 -- import
@@ -638,7 +753,7 @@ do
             if not backup then
                 MySlot:Print(L["Backup failed"])
 
-                if not forceImport then
+                if not forceImport or actionOpt.ignoreCVars == false then
                     return
                 end
             end
@@ -652,8 +767,8 @@ do
 
             MySlot:Clear("MACRO", clearOpt.ignoreMacros)
             MySlot:Clear("ACTION", clearOpt.ignoreActionBars)
-            if clearOpt.ignoreBinding then
-                MySlot:Clear("BINDING")
+            if clearOpt.ignoreBindings.KEYBOARD or clearOpt.ignoreBindings.GAMEPAD then
+                MySlot:Clear("BINDING", clearOpt.ignoreBindings)
             end
             if clearOpt.removeCooldownManager then
                 MySlot:Clear("COOLDOWNMANAGER")
@@ -694,6 +809,7 @@ do
     }
 
     tAppendAll(settings, CreateSettingMenu(actionOpt))
+    ignoreDefaultTargets.import = { opt = actionOpt }
 
     local clearbegin = #settings + 1
     tAppendAll(settings, {
@@ -711,6 +827,7 @@ do
     local clearExcludedText = {
         [PET .. " " .. ACTIONBARS_LABEL] = true,
         [L["Cooldown Manager"]] = true,
+        [L["CVars"]] = true,
     }
     for i = #clearMenu, 1, -1 do
         if clearMenu[i].text and clearExcludedText[clearMenu[i].text] then
@@ -793,6 +910,7 @@ do
 
     b:SetScript("OnClick", function()
         local s = MySlot:Export(actionOpt)
+        if not s then return end
         exportEditbox:SetText(s)
         infolabel.ShowUnsaved()
     end)
@@ -818,6 +936,7 @@ do
     }
 
     tAppendAll(settings, CreateSettingMenu(actionOpt, UpdateExportButtonState))
+    ignoreDefaultTargets.export = { opt = actionOpt, onChanged = UpdateExportButtonState }
 
     UpdateExportButtonState()
 
@@ -827,6 +946,9 @@ do
 end
 
 RegEvent("ADDON_LOADED", function()
+    MySlot:ApplyIgnoreDefaults("import")
+    MySlot:ApplyIgnoreDefaults("export")
+
     do
         local t = CreateFrame("Frame", nil, f, BackdropTemplateMixin and "BackdropTemplate" or nil)
         t:SetWidth(600)
@@ -1686,6 +1808,8 @@ SlashCmdList["MYSLOT"] = function(msg, editbox)
             [15] = true,
             ["ACCOUNT"] = true,
             ["CHARACTOR"] = true,
+            ["KEYBOARD"] = true,
+            ["GAMEPAD"] = true,
         }
         if what == "action" then
             MySlot:Clear("ACTION", opt)
@@ -1696,7 +1820,7 @@ SlashCmdList["MYSLOT"] = function(msg, editbox)
         elseif what == "talents" then
             MySlot:Clear("TALENTLOADOUT")
         else
-            Settings.OpenToCategory(MySlot.settingcategory.ID)
+            OpenSettings()
         end
     elseif cmd == "trim" then
         if not MyslotExports then
