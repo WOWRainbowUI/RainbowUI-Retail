@@ -53,18 +53,29 @@ L["Cooldown Manager"] = true
 L["Cooldown Manager changes take effect after you reload the UI. Reload now?"] = true
 L["Cooldown Manager layout saved. It takes effect the next time you log in or /reload."] = true
 L["Copy this string and import it in the talent window"] = true
+L["Could not apply CVar %s: %s"] = true
 L["Could not clear the Cooldown Manager layout"] = true
 L["Could not delete %d 'Myslot' talent loadout(s)"] = true
 L["Could not import the Cooldown Manager layout"] = true
+L["Could not read CVar %s: %s"] = true
 L["Could not send the request, try again later."] = true
+L["CVar API unavailable"] = true
+L["CVar is not in the gameplay/UI allowlist"] = true
+L["CVar is protected or its permissions are unavailable"] = true
+L["CVar not available on this client"] = true
+L["CVar value was not accepted"] = true
+L["CVars"] = true
+L["CVars: %d applied, %d skipped, %d failed."] = true
 L["DANGEROUS"] = true
 L["Deleted %d 'Myslot' talent loadout(s)"] = true
 L["Deleting %d 'Myslot' talent loadout(s)..."] = true
+L["Duplicate CVar entry"] = true
 L["Export"] = true
 L["Failed to apply talents"] = true
 L["Failed to send profile '%s' to %s."] = true
 L["Feedback"] = true
 L["Force Import"] = true
+L["Gamepad"] = true
 L["IGNORE"] = true
 L["Ignore missing item [id=%s]"] = true
 L["Ignore unattained companion [id=%s], %s"] = true
@@ -77,8 +88,10 @@ L["Import"] = true
 L["Import failed"] = true
 L["Import is not allowed when you are in combat"] = true
 L["Importing..."] = true
+L["Invalid CVar value"] = true
 L["Kept your text, discarded the received profile '%s'."] = true
 L["Key Binding"] = true
+L["Keyboard"] = true
 L["Later"] = true
 L["Link in chat"] = true
 L["Macro %s was ignored, check if there is enough space to create"] = true
@@ -114,6 +127,7 @@ L["Select a saved profile to share it."] = true
 L["Sending profile '%s' to %s..."] = true
 L["Skip bad CRC32"] = true
 L["Skipped %d Cooldown Manager layout(s): this character already has the maximum number of layouts."] = true
+L["Skipped CVar %s: %s"] = true
 L["Skyriding Bar"] = true
 L["Sort by"] = true
 L["Stance Action Bar"] = true
@@ -402,4 +416,38 @@ L["Skipped %d Cooldown Manager layout(s): this character already has the maximum
 L["The profile has no Cooldown Manager layout for your class"] = "配置中没有你的职业的技能监控布局"
 L["To apply your current specialization's Cooldown Manager layout now: copy the text below (Ctrl+C), open the Cooldown Manager (/cdm), choose Import Layout from its settings menu, paste it, name it, then select it and click Save. Otherwise the whole imported layout takes effect the next time you log in or /reload."] = "若要立即应用当前专精的技能监控布局：复制下方文字（Ctrl+C），打开技能监控（/cdm），从设置菜单选择导入布局，粘贴并命名，再选择它并点击保存。否则，完整导入的布局将在下次登录或重新加载界面时生效。"
 L["You saved changes in the Cooldown Manager, so the layout Myslot saved earlier will not be applied."] = "你已在技能监控中保存更改，因此不会应用 Myslot 之前保存的布局。"
+end
+
+if locale == "zhTW" then
+L["Could not apply CVar %s: %s"] = "無法套用 CVar %s：%s"
+L["Could not read CVar %s: %s"] = "無法讀取 CVar %s：%s"
+L["CVar API unavailable"] = "CVar API 無法使用"
+L["CVar is not in the gameplay/UI allowlist"] = "CVar 不在遊戲／介面允許清單中"
+L["CVar is protected or its permissions are unavailable"] = "CVar 受到保護，或無法取得其權限"
+L["CVar not available on this client"] = "此遊戲客戶端不支援此 CVar"
+L["CVar value was not accepted"] = "CVar 的值未被接受"
+L["CVars"] = "遊戲設定變數（CVar）"
+L["CVars: %d applied, %d skipped, %d failed."] = "CVar：已套用 %d 個，略過 %d 個，失敗 %d 個。"
+L["Duplicate CVar entry"] = "重複的 CVar 項目"
+L["Gamepad"] = "控制器"
+L["Invalid CVar value"] = "無效的 CVar 值"
+L["Keyboard"] = "鍵盤"
+L["Skipped CVar %s: %s"] = "已略過 CVar %s：%s"
+end
+
+if locale == "zhCN" then
+L["Could not apply CVar %s: %s"] = "无法应用 CVar %s：%s"
+L["Could not read CVar %s: %s"] = "无法读取 CVar %s：%s"
+L["CVar API unavailable"] = "CVar API 不可用"
+L["CVar is not in the gameplay/UI allowlist"] = "CVar 不在游戏／界面允许列表中"
+L["CVar is protected or its permissions are unavailable"] = "CVar 受保护，或无法获取其权限"
+L["CVar not available on this client"] = "此游戏客户端不支持此 CVar"
+L["CVar value was not accepted"] = "CVar 值未被接受"
+L["CVars"] = "游戏设置变量（CVar）"
+L["CVars: %d applied, %d skipped, %d failed."] = "CVar：已应用 %d 个，跳过 %d 个，失败 %d 个。"
+L["Duplicate CVar entry"] = "重复的 CVar 条目"
+L["Gamepad"] = "控制器"
+L["Invalid CVar value"] = "无效的 CVar 值"
+L["Keyboard"] = "键盘"
+L["Skipped CVar %s: %s"] = "已跳过 CVar %s：%s"
 end
