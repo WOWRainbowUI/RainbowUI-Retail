@@ -16,7 +16,7 @@ local hidden = CreateFrame("Frame")
 hidden:Hide()
 local skinners = {
   ItemButton = function(frame, tags)
-    S.Button(frame, {"icon", "ProfessionQualityOverlay", "IconOverlay", "searchOverlay", "ItemContextOverlay"})
+    S.Button(frame, {"icon", "IconBorder", "ProfessionQualityOverlay", "IconOverlay", "searchOverlay", "ItemContextOverlay"})
     if frame.icon:GetMaskTexture(1) then
       frame.icon:RemoveMaskTexture(frame.icon:GetMaskTexture(1))
     end
