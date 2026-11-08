@@ -1698,6 +1698,13 @@ function MCE:GetOptions()
                         name = "|cffbbbbbb" .. L["BANNER_DESC"] .. "|r\n",
                     },
                     bannerSpacing2 = SectionSpacer(0.4),
+                    showLoginMessages = {
+                        type = "toggle", order = 0.5, width = "full",
+                        name = L["Show login messages"],
+                        desc = L["LOGIN_MESSAGES_DESC"],
+                        get = function() return MCE.db.profile.showLoginMessages ~= false end,
+                        set = function(_, value) MCE.db.profile.showLoginMessages = value end,
+                    },
                     -- ── Quick Toggles Dashboard ─────────────────────────
                     quickToggles = {
                         type = "group", name = "|cffffd100" .. L["Enable categories styling"] .. "|r",

@@ -694,6 +694,7 @@ function MCE:Print(...)
 end
 
 function MCE:WarnBetterBlizzFramesUnitFrameConflict()
+    if self.db and self.db.profile.showLoginMessages == false then return end
     if self.betterBlizzFramesUnitFrameConflictWarned then return end
 
     self.betterBlizzFramesUnitFrameConflictWarned = true
@@ -701,6 +702,7 @@ function MCE:WarnBetterBlizzFramesUnitFrameConflict()
 end
 
 function MCE:WarnBetterBlizzPlatesNameplateConflict()
+    if self.db and self.db.profile.showLoginMessages == false then return end
     if self.betterBlizzPlatesNameplateConflictWarned then return end
 
     self.betterBlizzPlatesNameplateConflictWarned = true
@@ -1321,6 +1323,7 @@ shackledDefaults.reverseSwipe = C.Defaults.Shackled.ReverseSwipe
 
 MCE.defaults = {
     profile = {
+        showLoginMessages = true,
         abbrevThreshold = C.Options.DefaultAbbrevThreshold,
         countdownMillisecondsThreshold = C.Options.DefaultMillisecondsThreshold,
         shinyAurasAdapterEnabled = true,

@@ -1,3 +1,7 @@
+## 4.7.4 - Login Message Control
+
+- Added a General option to hide MiniCE's login compatibility messages.
+
 ## 4.7.3 - ForeverAuras Cooldown Styling
 
 - Added a ForeverAuras styling category for icon countdowns and clones.
