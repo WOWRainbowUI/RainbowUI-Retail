@@ -796,7 +796,7 @@ L["STRING_OPTIONS_DESIGNER_SHOW_FACTION_ICON"] = "Show Faction Icon"
 --[[Translation missing --]]
 L["STRING_OPTIONS_DESIGNER_SHOW_FACTION_ICON_DESC"] = "When showing a player from the opposite faction, show the faction icon."
 --[[Translation missing --]]
-L["STRING_OPTIONS_DESIGNER_SHOW_PERCENT_DESC"] = "Shows the percent column beside the value columns. Applies while the value columns are aligned; with the simple text format the columns are decided by that format instead."
+L["STRING_OPTIONS_DESIGNER_SHOW_PERCENT_DESC"] = "在總量和每秒數值後面加上百分比，同時適用於對齊欄位和簡易文字格式。"
 --[[Translation missing --]]
 L["STRING_OPTIONS_DESIGNER_SHOW_RANK_NUMBER"] = "Show Rank Number"
 --[[Translation missing --]]
@@ -2403,7 +2403,7 @@ L["STRING_OPTIONS_DESIGNER_SHOW_ARENA_ROLE_ICON"] = "顯示競技場角色職責
 L["STRING_OPTIONS_DESIGNER_SHOW_ENCOUNTER_TIMER"] = "顯示戰鬥計時器"
 L["STRING_OPTIONS_DESIGNER_SHOW_FACTION_ICON"] = "顯示陣營圖示"
 L["STRING_OPTIONS_DESIGNER_SHOW_FACTION_ICON_DESC"] = "顯示敵對陣營玩家時，同時顯示陣營圖示。"
-L["STRING_OPTIONS_DESIGNER_SHOW_PERCENT_DESC"] = "在數值欄旁顯示百分比欄。僅在數值欄對齊時生效；使用簡易文字格式時，顯示欄位由該格式決定。"
+L["STRING_OPTIONS_DESIGNER_SHOW_PERCENT_DESC"] = "在總量和每秒數值後面加上百分比，同時適用於對齊欄位和簡易文字格式。"
 L["STRING_OPTIONS_DESIGNER_SHOW_RANK_NUMBER"] = "顯示排名"
 L["STRING_OPTIONS_DESIGNER_SHOW_STATUSBAR"] = "顯示狀態列"
 L["STRING_OPTIONS_DESIGNER_SHOW_WINDOW_BORDER"] = "顯示邊框"
@@ -2747,3 +2747,5 @@ L["|cff33CC00Click|cffEEEEEE: "] = "|cff33CC00左鍵|cffEEEEEE: "
 L["|r: list of spells already saw."] = "|r: 列出已經看到的法術。"
 L["|r: open the player breakdown for you."] = "|r: 打開玩家分析。"
 L["|rcheck if it is enabled in the addons control panel."] = "|r請在插件控制台內檢查是否已經啟用/載入。"
+
+L["No options found"] = "找不到選項"

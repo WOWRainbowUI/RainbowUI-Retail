@@ -71,7 +71,7 @@ L["STRING_OPTIONS_DESIGNER_SHADOW_OFFSET_X"] = "Shadow Offset X"
 L["STRING_OPTIONS_DESIGNER_SHADOW_OFFSET_Y"] = "Shadow Offset Y"
 L["STRING_OPTIONS_DESIGNER_ALIGN_COLUMNS"] = "Align Value Columns"
 L["STRING_OPTIONS_DESIGNER_ALIGN_COLUMNS_DESC"] = "Draws the value columns in fixed columns instead of running them together into one formatted string. This is not a window setting, it changes every window at once."
-L["STRING_OPTIONS_DESIGNER_SHOW_PERCENT_DESC"] = "Shows the percent column beside the value columns. Applies while the value columns are aligned; with the simple text format the columns are decided by that format instead."
+L["STRING_OPTIONS_DESIGNER_SHOW_PERCENT_DESC"] = "Adds the percent after the total and per second amounts, in both the aligned columns and the simple text format."
 L["STRING_OPTIONS_DESIGNER_ICON_SIZE_OFFSET"] = "Icon Size Offset"
 L["STRING_OPTIONS_DESIGNER_BAR_START_AFTER_ICON"] = "Bar Starts After Icon"
 L["STRING_OPTIONS_DESIGNER_ICON_GRAYSCALE"] = "Grayscale Icons"
@@ -4387,3 +4387,5 @@ L["|cff33CC00Click|cffEEEEEE: "] = true
 L["|r: list of spells already saw."] = true
 L["|r: open the player breakdown for you."] = true
 L["|rcheck if it is enabled in the addons control panel."] = true
+
+L["No options found"] = "No options found"

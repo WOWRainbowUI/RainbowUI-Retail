@@ -8,7 +8,6 @@
 --damage object
 	local Details = _G.Details
 	local Loc = LibStub("AceLocale-3.0"):GetLocale( "Details" )
-	local Translit = LibStub("LibTranslit-1.0")
 	local gump = Details.gump
 	local _ = nil
 	local detailsFramework = DetailsFramework
@@ -3197,13 +3196,7 @@ function Details:UpdateBarApocalypseWow(instanceLine, source, instance, topValue
 	local canShowPercent = false
 
 	if not issecretvalue(actorName) then
-		if Details.righttext_simple_formatting.use_alignment then
-			if (instance.row_info.show_percent) then
-				canShowPercent = true
-			end
-		else
-			canShowPercent = true
-		end
+		canShowPercent = instance.row_info.show_percent
 
 		if source.amountPerSecond < 1 then
 			source.amountPerSecond = 1
@@ -3212,6 +3205,10 @@ function Details:UpdateBarApocalypseWow(instanceLine, source, instance, topValue
 
 	if (Details.remove_realm_from_name) then
 		actorName = Details:RemoveRealmName(source.name, source.sourceGUID)
+	end
+
+	if (instance.row_info.textL_translit_text) then
+		actorName = Details:TransliterateName(actorName)
 	end
 
 	if (instance.row_info.textL_show_number) then
@@ -3936,7 +3933,7 @@ function Details:SetBarLeftText(bar, instance, enemy, arenaEnemy, arenaAlly, usi
 	if (instance.row_info.textL_translit_text) then
 		if (not self.transliteratedName) then
 			--translate cyrillic alphabet to western alphabet by Vardex(https://github.com/Vardex May 22, 2019)
-			self.transliteratedName = Translit:Transliterate(self.displayName, "!")
+			self.transliteratedName = Details:TransliterateName(self.displayName)
 		end
 		self.displayName = self.transliteratedName or self.displayName
 	end
@@ -4743,7 +4740,7 @@ function damageClass:ToolTip_DamageDone(instance, numero, barra, keydown)
 					for _spellid, _skill in pairs(petActor:GetActorSpells()) do
 						local formattedPetName = petName:gsub((" <.*"), "")
 						if (instance.row_info.textL_translit_text) then
-							formattedPetName = Translit:Transliterate(formattedPetName, "!")
+							formattedPetName = Details:TransliterateName(formattedPetName)
 						end
 						ActorSkillsSortTable [#ActorSkillsSortTable+1] = {_spellid, _skill.total, _skill.total/meu_tempo, formattedPetName}
 					end
@@ -4978,7 +4975,7 @@ function damageClass:ToolTip_DamageDone(instance, numero, barra, keydown)
 				petName = damageTable[1]:gsub(("%s%<.*"), "")
 
 				if (instance.row_info.textL_translit_text) then
-					petName = Translit:Transliterate(petName, "!")
+					petName = Details:TransliterateName(petName)
 				end
 
 				if (instance.sub_atributo == 1) then
