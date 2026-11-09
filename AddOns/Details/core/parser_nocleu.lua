@@ -1,3 +1,16 @@
+-- RainbowUI: resolve display translations lazily, including framework files loaded before locales.
+local Loc = setmetatable({}, {__index = function(_, key)
+    local aceLocale = LibStub("AceLocale-3.0", true)
+    local locale = aceLocale and aceLocale:GetLocale("Details", true)
+    return locale and locale[key] or key
+end})
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--global name declaration
+--use lua-language-server annotations to help the linter:
+--https://github.com/LuaLS/lua-language-server/wiki/Annotations#documenting-types
+--follow definitions declared in the file definitions.lua
+--follow game api definitions in the file LibLuaServer.lua
+
 
 ---@type details
 local Details = Details
@@ -189,7 +202,7 @@ local getMySpellsSession = function(instance, damageMeterType)
     for i = 1, #spells.combatSpells do
         local thisSpell = spells.combatSpells[i]
         local spellInfo = C_Spell.GetSpellInfo(thisSpell.spellID)
-        local spellName = spellInfo and spellInfo.name or "Unknown Spell"
+        local spellName = spellInfo and spellInfo.name or Loc["Unknown Spell"]
         local creatureName = thisSpell.creatureName
 
         --spells of pets and guardians are separated entries, add the creature name to tell them from the spells of the player

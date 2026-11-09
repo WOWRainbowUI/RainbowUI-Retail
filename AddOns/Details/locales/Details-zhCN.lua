@@ -1601,3 +1601,5 @@ L["STRING_YES"] = "是"
 
 L["STRING_ATTRIBUTE_DAMAGE_MYSPELLS"] = "伤害法术"
 L["STRING_ATTRIBUTE_HEAL_MYSPELLS"] = "治疗法术"
+
+L["Unknown Spell"] = "未知法术"

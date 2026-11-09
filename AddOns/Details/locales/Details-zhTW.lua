@@ -2752,3 +2752,5 @@ L["No options found"] = "找不到選項"
 
 L["STRING_ATTRIBUTE_DAMAGE_MYSPELLS"] = "傷害法術"
 L["STRING_ATTRIBUTE_HEAL_MYSPELLS"] = "治療法術"
+
+L["Unknown Spell"] = "未知法術"
