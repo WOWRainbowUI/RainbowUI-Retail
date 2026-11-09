@@ -6,16 +6,24 @@ function ham.getManaPotionsForForever()
   local pots = {
     ham.majorManaPotion,
     ham.majorRejuvenationPotion,
-    ham.combatManaPotion,
-    ham.superiorManaPotion,
-    ham.superiorManaPotionForever,
-    ham.greaterManaPotion,
-    ham.manaTessasTonic,
+    {
+      ham.combatManaPotion,
+      ham.superiorManaPotion,
+      ham.superiorManaPotionForever,
+    },
+    {
+      ham.greaterManaPotion,
+      ham.manaTessasTonic,
+    },
     ham.manaPotion,
-    ham.lesserManaPotion,
-    ham.lesserManaPotionForever,
-    ham.minorManaPotion,
-    ham.minorManaPotionForever,
+    {
+      ham.lesserManaPotion,
+      ham.lesserManaPotionForever,
+    },
+    {
+      ham.minorManaPotion,
+      ham.minorManaPotionForever,
+    },
     ham.minorRejuvenationPotion,
   }
 
@@ -34,4 +42,14 @@ function ham.getManaPotionsForForever()
   end
 
   return pots
+end
+
+-- Mana gems, by mana restored, highest first.
+function ham.getManaGemsForForever()
+  return {
+    ham.manaRuby,    -- 1000-1200
+    ham.manaCitrine, -- 775-925
+    ham.manaJade,    -- 550-650
+    ham.manaAgate,   -- 375-425
+  }
 end

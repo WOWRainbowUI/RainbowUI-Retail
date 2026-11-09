@@ -15,6 +15,9 @@ L["Food Priority"] = "Food Priority"
 L["Drink Priority"] = "Drink Priority"
 L["Mana Potion Priority"] = "Mana Potion Priority"
 L["Include Rejuvenation Potions"] = "Include Rejuvenation Potions"
+L["Use mana gems"] = "Use mana gems"
+L["Use your best mana gem first. The next press drinks the mana potion, since they don't share a cooldown. The macro goes back to the mana gem when combat starts or ends, and when you haven't pressed it for as long as the mana gem's cooldown."] =
+"Use your best mana gem first. The next press drinks the mana potion, since they don't share a cooldown. The macro goes back to the mana gem when combat starts or ends, and when you haven't pressed it for as long as the mana gem's cooldown."
 L["Also use potions that restore health and mana (Rejuvenation potions, Cavedweller's Delight, Refreshing Serum, ...). They are sorted by the amount of mana they restore."] =
 "Also use potions that restore health and mana (Rejuvenation potions, Cavedweller's Delight, Refreshing Serum, ...). They are sorted by the amount of mana they restore."
 L["Shows the mana potion that will currently be used, based on what is in your bags."] =
@@ -40,6 +43,12 @@ L["Other / Racial"] = "Other / Racial"
 L["Potion of Withering Dreams"] = "Potion of Withering Dreams"
 L["Potion of Withering Vitality"] = "Potion of Withering Vitality"
 L["Prioritize health potions over a healthstone."] = "Prioritize health potions over a healthstone."
+L["Weakest Potion First"] = "Weakest Potion First"
+L["Use your weakest health potion first and keep the stronger ones for later. Meant for leveling. Any health potion in your bags counts, whatever its level. Healthstones still come in their usual order."] =
+"Use your weakest health potion first and keep the stronger ones for later. Meant for leveling. Any health potion in your bags counts, whatever its level. Healthstones still come in their usual order."
+L["Weakest Mana Potion First"] = "Weakest Mana Potion First"
+L["Use your weakest mana potion first and keep the stronger ones for later. Meant for leveling. Any mana potion in your bags counts, whatever its level. The mana gem is still your best one."] =
+"Use your weakest mana potion first and keep the stronger ones for later. Meant for leveling. Any mana potion in your bags counts, whatever its level. The mana gem is still your best one."
 L["Reset successful!"] = "Reset successful!"
 L["Reset to Default"] = "Reset to Default"
 L["Shows the bandage that will currently be used, based on what is in your bags."] =
