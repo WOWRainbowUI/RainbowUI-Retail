@@ -180,11 +180,11 @@ end
 local eventHandlers = {
     -- Blizzard events
     ["ACTIVE_TALENT_GROUP_CHANGED"] = {
-        { fn = WrapHandler("ACTIVE_TALENT_GROUP_CHANGED", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL } },
+        { fn = WrapHandler("ACTIVE_TALENT_GROUP_CHANGED", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL, CCS.FOREVER } },
     },
 
     ["ACTIVE_PLAYER_SPECIALIZATION_CHANGED"] = {
-        { fn = WrapHandler("ACTIVE_PLAYER_SPECIALIZATION_CHANGED", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL } },
+        { fn = WrapHandler("ACTIVE_PLAYER_SPECIALIZATION_CHANGED", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL, CCS.FOREVER } },
         { fn = WrapHandler("ACTIVE_PLAYER_SPECIALIZATION_CHANGED", CCS.CharacterSheetEventHandler, "CharacterSheetEventHandler"), versions = { CCS.RETAIL } },
     },
 
@@ -195,7 +195,7 @@ local eventHandlers = {
     end),
 
     ["AVOIDANCE_UPDATE"] = {
-        { fn = WrapHandler("AVOIDANCE_UPDATE", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL } },
+        { fn = WrapHandler("AVOIDANCE_UPDATE", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL, CCS.FOREVER } },
     },
 
     ["ITEM_PUSH"] = {
@@ -235,20 +235,20 @@ local eventHandlers = {
     },
 
     ["CHARACTER_ITEM_FIXUP_NOTIFICATION"] = {
-        { fn = WrapHandler("CHARACTER_ITEM_FIXUP_NOTIFICATION", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL } },
+        { fn = WrapHandler("CHARACTER_ITEM_FIXUP_NOTIFICATION", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL, CCS.FOREVER } },
     },
 
     ["CHARACTER_POINTS_CHANGED"] = {
-        { fn = WrapHandler("CHARACTER_POINTS_CHANGED", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL } },
+        { fn = WrapHandler("CHARACTER_POINTS_CHANGED", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL, CCS.FOREVER } },
     },
 
     ["COMBAT_RATING_UPDATE"] = {
-        { fn = WrapHandler("COMBAT_RATING_UPDATE", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL } },
+        { fn = WrapHandler("COMBAT_RATING_UPDATE", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL, CCS.FOREVER } },
         { fn = WrapHandler("COMBAT_RATING_UPDATE", CCS.TBCCharacterStatsEventHandler, "TBCCharacterStatsEventHandler"), versions = { CCS.TBC } },
     },
 
     ["CURRENCY_DISPLAY_UPDATE"]  = {
-        { fn = WrapHandler("CURRENCY_DISPLAY_UPDATE", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL } },
+        { fn = WrapHandler("CURRENCY_DISPLAY_UPDATE", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL, CCS.FOREVER } },
     },
 --[[
     ["GOSSIP_CLOSED"] = {
@@ -272,7 +272,7 @@ local eventHandlers = {
     },
    
     ["LIFESTEAL_UPDATE"] = {
-        { fn = WrapHandler("LIFESTEAL_UPDATE", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL } },
+        { fn = WrapHandler("LIFESTEAL_UPDATE", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL, CCS.FOREVER } },
     },
 
     ["LOOT_READY"] = {
@@ -280,7 +280,7 @@ local eventHandlers = {
     },
 
     ["MASTERY_UPDATE"] = {
-        { fn = WrapHandler("MASTERY_UPDATE", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL } },
+        { fn = WrapHandler("MASTERY_UPDATE", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL, CCS.FOREVER } },
     },
 
     ["MYTHIC_PLUS_CURRENT_AFFIX_UPDATE"] = {
@@ -292,7 +292,7 @@ local eventHandlers = {
     },
 
     ["PLAYER_AVG_ITEM_LEVEL_UPDATE"] = {
-        { fn = WrapHandler("PLAYER_AVG_ITEM_LEVEL_UPDATE", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL } },
+        { fn = WrapHandler("PLAYER_AVG_ITEM_LEVEL_UPDATE", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL, CCS.FOREVER } },
         { fn = WrapHandler("PLAYER_AVG_ITEM_LEVEL_UPDATE", CCS.ForeverCharacterSheetEventHandler, "ForeverCharacterSheetEventHandler"), versions = { CCS.FOREVER } },
 
     },
@@ -318,7 +318,7 @@ local eventHandlers = {
         { fn = WrapHandler("PLAYER_ENTERING_WORLD", CCS.MOPCharacterSheetEventHandler, "MOPCharacterSheetEventHandler"), versions = { CCS.MOP } },
         { fn = WrapHandler("PLAYER_ENTERING_WORLD", CCS.TBCCharacterSheetEventHandler, "TBCCharacterSheetEventHandler"), versions = { CCS.TBC } },
         { fn = WrapHandler("PLAYER_ENTERING_WORLD", CCS.TBCCharacterStatsEventHandler, "TBCCharacterStatsEventHandler"), versions = { CCS.TBC } },
-        { fn = WrapHandler("PLAYER_ENTERING_WORLD", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL } },
+        { fn = WrapHandler("PLAYER_ENTERING_WORLD", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL, CCS.FOREVER } },
         { fn = WrapHandler("PLAYER_ENTERING_WORLD", CCS.MythicPlusEventHandler, "MythicPlusEventHandler"), versions = { CCS.RETAIL } },
     },
 
@@ -327,7 +327,7 @@ local eventHandlers = {
         { fn = WrapHandler("PLAYER_EQUIPMENT_CHANGED", CCS.ForeverCharacterSheetEventHandler, "ForeverCharacterSheetEventHandler"), versions = { CCS.FOREVER } },
         { fn = WrapHandler("PLAYER_EQUIPMENT_CHANGED", CCS.MOPCharacterSheetEventHandler, "MOPCharacterSheetEventHandler"), versions = { CCS.MOP } },
         { fn = WrapHandler("PLAYER_EQUIPMENT_CHANGED", CCS.TBCCharacterSheetEventHandler, "TBCCharacterSheetEventHandler"), versions = { CCS.TBC } },
-        { fn = WrapHandler("PLAYER_EQUIPMENT_CHANGED", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL } },
+        { fn = WrapHandler("PLAYER_EQUIPMENT_CHANGED", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL, CCS.FOREVER } },
     },
 
     ["PLAYER_LEAVE_COMBAT"] = {
@@ -475,55 +475,55 @@ local eventHandlers = {
 
     ["PLAYER_SPECIALIZATION_CHANGED"] = {
         { fn = WrapHandler("PLAYER_SPECIALIZATION_CHANGED", CCS.CharacterSheetEventHandler, "CharacterSheetEventHandler"), versions = { CCS.RETAIL } },
-        { fn = WrapHandler("PLAYER_SPECIALIZATION_CHANGED", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL } },
+        { fn = WrapHandler("PLAYER_SPECIALIZATION_CHANGED", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL, CCS.FOREVER } },
     },
     ["PLAYER_STARTED_TURNING"] = {
-        { fn = WrapHandler("PLAYER_STARTED_TURNING", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL } },
+        { fn = WrapHandler("PLAYER_STARTED_TURNING", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL, CCS.FOREVER } },
     },
     ["PLAYER_STOPPED_LOOKING"] = {
-        { fn = WrapHandler("PLAYER_STOPPED_LOOKING", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL } },
+        { fn = WrapHandler("PLAYER_STOPPED_LOOKING", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL, CCS.FOREVER } },
     },
     ["PLAYER_STOPPED_TURNING"] = {
-        { fn = WrapHandler("PLAYER_STOPPED_TURNING", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL } },
+        { fn = WrapHandler("PLAYER_STOPPED_TURNING", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL, CCS.FOREVER } },
     },
     ["PLAYER_TALENT_UPDATE"] = {
-        { fn = WrapHandler("PLAYER_TALENT_UPDATE", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL } },
+        { fn = WrapHandler("PLAYER_TALENT_UPDATE", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL, CCS.FOREVER } },
     },
     ["QUEST_ACCEPTED"] = {
         { fn = WrapHandler("QUEST_ACCEPTED", CCS.CharacterSheetEventHandler, "CharacterSheetEventHandler"), versions = { CCS.RETAIL } },
     },
     ["SPEED_UPDATE"] = {
-        { fn = WrapHandler("SPEED_UPDATE", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL } },
+        { fn = WrapHandler("SPEED_UPDATE", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL, CCS.FOREVER } },
     },
     ["TRAIT_CONFIG_UPDATED"] = {
-        { fn = WrapHandler("TRAIT_CONFIG_UPDATED", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL } },
+        { fn = WrapHandler("TRAIT_CONFIG_UPDATED", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL, CCS.FOREVER } },
     },
 
     ["SPELL_POWER_CHANGED"] = {
-        { fn = WrapHandler("SPELL_POWER_CHANGED", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL } },
+        { fn = WrapHandler("SPELL_POWER_CHANGED", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL, CCS.FOREVER } },
     },
 
     ["UNIT_ATTACK"] = {
-        { fn = WrapHandler("UNIT_ATTACK", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL } },
+        { fn = WrapHandler("UNIT_ATTACK", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL, CCS.FOREVER } },
         { fn = WrapHandler("UNIT_ATTACK", CCS.TBCCharacterStatsEventHandler, "TBCCharacterStatsEventHandler"), versions = { CCS.TBC } },
     },
     ["UNIT_ATTACK_POWER"] = {
-        { fn = WrapHandler("UNIT_ATTACK_POWER", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL } },
+        { fn = WrapHandler("UNIT_ATTACK_POWER", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL, CCS.FOREVER } },
         { fn = WrapHandler("UNIT_ATTACK_POWER", CCS.TBCCharacterStatsEventHandler, "TBCCharacterStatsEventHandler"), versions = { CCS.TBC } },
     },
     ["UNIT_ATTACK_SPEED"] = {
-        { fn = WrapHandler("UNIT_ATTACK_SPEED", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL } },
+        { fn = WrapHandler("UNIT_ATTACK_SPEED", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL, CCS.FOREVER } },
         { fn = WrapHandler("UNIT_ATTACK_SPEED", CCS.TBCCharacterStatsEventHandler, "TBCCharacterStatsEventHandler"), versions = { CCS.TBC } },
     },
     ["UNIT_AURA"] = {
         { fn = WrapHandler("UNIT_AURA", CCS.TBCCharacterStatsEventHandler, "TBCCharacterStatsEventHandler"), versions = { CCS.TBC } },
     },
     ["UNIT_DAMAGE"] = {
-        { fn = WrapHandler("UNIT_DAMAGE", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL } },
+        { fn = WrapHandler("UNIT_DAMAGE", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL, CCS.FOREVER } },
         { fn = WrapHandler("UNIT_DAMAGE", CCS.TBCCharacterStatsEventHandler, "TBCCharacterStatsEventHandler"), versions = { CCS.TBC } },
     },
     ["UNIT_LEVEL"] = {
-        { fn = WrapHandler("UNIT_LEVEL", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL } },
+        { fn = WrapHandler("UNIT_LEVEL", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL, CCS.FOREVER } },
         { fn = WrapHandler("UNIT_LEVEL", CCS.TBCCharacterStatsEventHandler, "TBCCharacterStatsEventHandler"), versions = { CCS.TBC } },
     },
     
@@ -532,39 +532,39 @@ local eventHandlers = {
     },
     
     ["UNIT_MAXHEALTH"] = {
-        { fn = WrapHandler("UNIT_MAXHEALTH", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL } },
+        { fn = WrapHandler("UNIT_MAXHEALTH", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL, CCS.FOREVER } },
         { fn = WrapHandler("UNIT_MAXHEALTH", CCS.TBCCharacterStatsEventHandler, "TBCCharacterStatsEventHandler"), versions = { CCS.TBC } },
     },
     ["UNIT_MAXPOWER"] = {
-        { fn = WrapHandler("UNIT_MAXPOWER", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL } },
+        { fn = WrapHandler("UNIT_MAXPOWER", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL, CCS.FOREVER } },
     },
     ["UNIT_NAME_UPDATE"] = {
         { fn = WrapHandler("UNIT_NAME_UPDATE", CCS.CharacterSheetEventHandler, "CharacterSheetEventHandler"), versions = { CCS.RETAIL } },
         { fn = WrapHandler("UNIT_NAME_UPDATE", CCS.ForeverCharacterSheetEventHandler, "ForeverCharacterSheetEventHandler"), versions = { CCS.FOREVER } },
     },
     ["UNIT_RANGED_ATTACK_POWER"] = {
-        { fn = WrapHandler("UNIT_RANGED_ATTACK_POWER", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL } },
+        { fn = WrapHandler("UNIT_RANGED_ATTACK_POWER", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL, CCS.FOREVER } },
         { fn = WrapHandler("UNIT_RANGED_ATTACK_POWER", CCS.TBCCharacterStatsEventHandler, "TBCCharacterStatsEventHandler"), versions = { CCS.TBC } },
     },
     ["UNIT_RANGEDDAMAGE"] = {
-        { fn = WrapHandler("UNIT_RANGEDDAMAGE", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL } },
+        { fn = WrapHandler("UNIT_RANGEDDAMAGE", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL, CCS.FOREVER } },
         { fn = WrapHandler("UNIT_RANGEDDAMAGE", CCS.TBCCharacterStatsEventHandler, "TBCCharacterStatsEventHandler"), versions = { CCS.TBC } },
     },
     ["UNIT_RESISTANCES"] = {
         { fn = WrapHandler("UNIT_RESISTANCES", CCS.TBCCharacterStatsEventHandler, "TBCCharacterStatsEventHandler"), versions = { CCS.TBC } },
-        { fn = WrapHandler("UNIT_RESISTANCES", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL } },
+        { fn = WrapHandler("UNIT_RESISTANCES", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL, CCS.FOREVER } },
     },
     ["UNIT_SPELL_HASTE"] = {
-        { fn = WrapHandler("UNIT_SPELL_HASTE", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL } },
+        { fn = WrapHandler("UNIT_SPELL_HASTE", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL, CCS.FOREVER } },
     },
     ["UNIT_STATS"] = {
-        { fn = WrapHandler("UNIT_STATS", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL } },
+        { fn = WrapHandler("UNIT_STATS", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL, CCS.FOREVER } },
         { fn = WrapHandler("UNIT_STATS", CCS.TBCCharacterStatsEventHandler, "TBCCharacterStatsEventHandler"), versions = { CCS.TBC } },
     },
     ["UPDATE_INVENTORY_DURABILITY"] = {
         { fn = WrapHandler("UPDATE_INVENTORY_DURABILITY", CCS.CharacterSheetEventHandler, "CharacterSheetEventHandler"), versions = { CCS.RETAIL } },
         { fn = WrapHandler("UPDATE_INVENTORY_DURABILITY", CCS.ForeverCharacterSheetEventHandler, "ForeverCharacterSheetEventHandler"), versions = { CCS.FOREVER } },
-        { fn = WrapHandler("UPDATE_INVENTORY_DURABILITY", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL } },        
+        { fn = WrapHandler("UPDATE_INVENTORY_DURABILITY", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL, CCS.FOREVER } },        
         { fn = WrapHandler("UPDATE_INVENTORY_DURABILITY", CCS.MOPCharacterSheetEventHandler, "MOPCharacterSheetEventHandler"), versions = { CCS.MOP } },
         { fn = WrapHandler("UPDATE_INVENTORY_DURABILITY", CCS.TBCCharacterSheetEventHandler, "TBCCharacterSheetEventHandler"), versions = { CCS.TBC } },
     },
@@ -579,7 +579,7 @@ local eventHandlers = {
     -- Custom events (manually fired)
     ["CCS_EVENT_CSHOW"] = {
         { fn = WrapHandler("CCS_EVENT_CSHOW", CCS.CharacterSheetEventHandler, "CharacterSheetEventHandler"), versions = { CCS.RETAIL } },
-        { fn = WrapHandler("CCS_EVENT_CSHOW", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL } },
+        { fn = WrapHandler("CCS_EVENT_CSHOW", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL, CCS.FOREVER } },
         { fn = WrapHandler("CCS_EVENT_CSHOW", CCS.ForeverCharacterSheetEventHandler, "ForeverCharacterSheetEventHandler"), versions = { CCS.FOREVER } },
         { fn = WrapHandler("CCS_EVENT_CSHOW", CCS.MOPCharacterSheetEventHandler, "MOPCharacterSheetEventHandler"), versions = { CCS.MOP } },
         { fn = WrapHandler("CCS_EVENT_CSHOW", CCS.TBCCharacterSheetEventHandler, "TBCCharacterSheetEventHandler"), versions = { CCS.TBC } },
@@ -587,7 +587,7 @@ local eventHandlers = {
     },
 
     ["CCS_STATS"] = {
-        { fn = WrapHandler("CCS_STATS", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL } },
+        { fn = WrapHandler("CCS_STATS", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL, CCS.FOREVER } },
     },
     
     ["CCS_EVENT_OPTIONS"] = {
@@ -600,7 +600,7 @@ local eventHandlers = {
         { fn = WrapHandler("CCS_EVENT_OPTIONS", CCS.InspectSheetEventHandler, "InspectSheetEventHandler"), versions = { CCS.RETAIL } },
         { fn = WrapHandler("CCS_EVENT_OPTIONS", CCS.RaidProgressEventHandler, "RaidProgressEventHandler"), versions = { CCS.RETAIL } },
         { fn = WrapHandler("CCS_EVENT_OPTIONS", CCS.MythicPlusEventHandler, "MythicPlusEventHandler"), versions = { CCS.RETAIL } },
-        { fn = WrapHandler("CCS_EVENT_OPTIONS", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL } },
+        { fn = WrapHandler("CCS_EVENT_OPTIONS", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL, CCS.FOREVER } },
         { fn = WrapHandler("CCS_EVENT_OPTIONS", CCS.TBCCharacterStatsEventHandler, "TBCCharacterStatsEventHandler"), versions = { CCS.TBC } },
     },    
 }
