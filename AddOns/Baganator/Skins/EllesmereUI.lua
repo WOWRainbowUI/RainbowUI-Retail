@@ -16,7 +16,12 @@ local hidden = CreateFrame("Frame")
 hidden:Hide()
 local skinners = {
   ItemButton = function(frame, tags)
-    S.Button(frame, {"icon", "IconBorder", "ProfessionQualityOverlay", "IconOverlay", "searchOverlay", "ItemContextOverlay"})
+    frame.QuestMarker = frame:CreateTexture(nil, "ARTWORK")
+    frame.QuestMarker:SetSize(22, 22)
+    frame.QuestMarker:SetAtlas("Crosshair_Quest_64")
+    frame.QuestMarker:SetPoint("BOTTOMLEFT", -3, 2)
+    frame.QuestMarker:Hide()
+    S.Button(frame, {"icon", "IconBorder", "ProfessionQualityOverlay", "IconOverlay", "searchOverlay", "ItemContextOverlay", "QuestMarker"})
     if frame.icon:GetMaskTexture(1) then
       frame.icon:RemoveMaskTexture(frame.icon:GetMaskTexture(1))
     end
@@ -33,17 +38,13 @@ local skinners = {
       frame.icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
     end)
     if frame.BGRUpdateQuests then
-      local questMarker = frame:CreateTexture(nil, "ARTWORK")
-      questMarker:SetSize(22, 22)
-      questMarker:SetAtlas("Crosshair_Quest_64")
-      questMarker:SetPoint("BOTTOMLEFT", -3, 2)
       local questTexture = frame:GetName() and _G[frame:GetName() .. "IconQuestTexture"] or frame.IconQuestTexture
       hooksecurefunc(frame, "BGRUpdateQuests", function()
-        questMarker:Hide()
+        frame.QuestMarker:Hide()
         if questTexture:IsShown() then
           local textureID = questTexture:GetTexture()
           if textureID == 368362 then -- quest border only
-            questMarker:Show()
+            frame.QuestMarker:Show()
           end
           frame.IconBorder:SetVertexColor(1, 0.82, 0)
         end

@@ -1,7 +1,7 @@
 # Baganator
 
-## [844](https://github.com/TheMouseNest/Baganator/tree/844) (2026-11-07)
-[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/843...844) 
+## [846](https://github.com/TheMouseNest/Baganator/tree/846) (2026-11-08)
+[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/845...846) 
 
-- Forever: Categories: Sort lowest stacks of ammo and potions to the top  
-- Fix disappearing EUI skin icon borders  
+- EUI: Fix skin for quest markers  
+- Forever: Fix sorting bank  

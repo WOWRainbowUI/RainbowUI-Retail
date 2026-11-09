@@ -98,13 +98,12 @@ local function GetUnifiedSortData()
   for _, tab in ipairs(Syndicator.API.GetCharacter(Syndicator.API.GetCurrentCharacter()).bankTabs) do
     table.insert(bagData, tab.slots)
   end
-  local indexesToUse, sortOrder = {}, {}
+  local indexesToUse = {}
   for index, bagID in ipairs(Syndicator.Constants.AllBankIndexes) do
     indexesToUse[index] = true
-    sortOrder[bagID] = 250
   end
 
-  return bagData, indexesToUse, sortOrder
+  return bagData, indexesToUse
 end
 
 function BaganatorItemViewCommonBankViewCharacterTabsAsBagsViewMixin:SetLiveCharacter(character)
@@ -124,13 +123,14 @@ function BaganatorItemViewCommonBankViewCharacterTabsAsBagsViewMixin:ApplySearch
 end
 
 function BaganatorItemViewCommonBankViewCharacterTabsAsBagsViewMixin:DoSort(isReverse)
+  local bagChecks = addonTable.Sorting.GetBagUsageChecks(Syndicator.Constants.AllBankIndexes)
   local function DoSortInternal()
-    local bagData, indexesToUse, sortOrder = GetUnifiedSortData()
+    local bagData, indexesToUse = GetUnifiedSortData()
     local status = addonTable.Sorting.ApplyBagOrdering(
       bagData,
       Syndicator.Constants.AllBankIndexes,
       indexesToUse,
-      { checks = {}, sortOrder = sortOrder, },
+      bagChecks,
       isReverse,
       false,
       0
