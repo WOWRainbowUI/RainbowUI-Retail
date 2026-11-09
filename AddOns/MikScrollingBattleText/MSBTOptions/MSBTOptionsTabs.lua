@@ -133,7 +133,6 @@ GeneralTab_Populate = function()
 	controls.stickyCritsCheckbox:SetChecked(not currentProfile.stickyCritsDisabled)
 	controls.shortenNumbersCheckbox:SetChecked(currentProfile.shortenNumbers)
 	controls.stackSimilarHitsCheckbox:SetChecked(currentProfile.stackSimilarHits)
-	controls.enableSoundsCheckbox:SetChecked(not currentProfile.soundsDisabled)
 	controls.enableNamesCheckbox:SetChecked(not currentProfile.hideSkills)
 	controls.enableIconsCheckbox:SetChecked(not currentProfile.skillIconsDisabled)
 	controls.blizzardDamageCheckbox:SetChecked(currentProfile.blizzardDamageEnabled)
@@ -255,18 +254,9 @@ local function GeneralTab_Create()
 	end
 
 	checkbox = MSBTControls.CreateCheckbox(tabFrame)
-	objLocale = L.CHECKBOXES["enableSounds"]
-	checkbox:Configure(28, objLocale.label, objLocale.tooltip)
-	checkbox:SetPoint("BOTTOMRIGHT", tabFrame, "BOTTOMRIGHT", -30, 15)
-	checkbox:SetClickHandler(function(this, isChecked)
-		MSBTProfiles.SetOption(nil, "soundsDisabled", not isChecked)
-	end)
-	controls.enableSoundsCheckbox = checkbox
-
-	checkbox = MSBTControls.CreateCheckbox(tabFrame)
 	objLocale = L.CHECKBOXES["shortenNumbers"]
 	checkbox:Configure(28, objLocale.label, objLocale.tooltip)
-	checkbox:SetPoint("BOTTOMLEFT", controls.enableSoundsCheckbox, "TOPLEFT", 0, 0)
+	checkbox:SetPoint("BOTTOMRIGHT", tabFrame, "BOTTOMRIGHT", -30, 15)
 	checkbox:SetClickHandler(
 		function (this, isChecked)
 			MSBTProfiles.SetOption(nil, "shortenNumbers", isChecked)
@@ -419,16 +409,6 @@ local function GeneralTab_Create()
 		end
 	)
 	controls.masterFontButton = button
-
-	button = MSBTControls.CreateOptionButton(tabFrame)
-	objLocale = L.BUTTONS["addCustomSound"]
-	button:Configure(20, objLocale.label, objLocale.tooltip)
-	button:SetPoint("BOTTOMLEFT", controls.masterFontButton, "TOPLEFT", 0, 10)
-	button:SetClickHandler(function(this)
-		DisableControls(controls)
-		MSBTOptions.Sounds.ShowAddSound(tabFrame, this, GeneralTab_EnableControls)
-	end)
-	controls.addCustomSoundButton = button
 
 	local fontString = tabFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 	fontString:SetPoint("BOTTOMRIGHT", tabFrame, "BOTTOMRIGHT", 0, 0)
@@ -2042,6 +2022,15 @@ tabFrame = CreateFrame("Frame")
 tabFrame:Hide()
 tabFrame:SetScript("OnShow", EventsTab_OnShow)
 tabFrames.events = tabFrame
+MSBTOptMain.AddTab(tabFrame, objLocale.label, objLocale.tooltip)
+
+objLocale = L.TABS.sounds
+tabFrame = CreateFrame("Frame")
+tabFrame:Hide()
+tabFrame:SetScript("OnShow", function(this)
+	MSBTOptions.Sounds.ShowTab(this)
+end)
+tabFrames.sounds = tabFrame
 MSBTOptMain.AddTab(tabFrame, objLocale.label, objLocale.tooltip)
 
 objLocale = L.TABS.lootAlerts
