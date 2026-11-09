@@ -1892,14 +1892,6 @@ local function SetupModules()
 	Modules_CreateOptions(modules.args.sec1.args)
 end
 
-local function ActivateBinding()
-	for cmd, data in pairs(KT.KEYBINDINGS) do
-		if data and db[cmd] ~= "" then
-			SetOverrideBindingClick(KTF, false, db[cmd], data.frameName, data.mouse)
-		end
-	end
-end
-
 function KT.Keybind(key, command)
 	local needSave = false
 	for cmd, data in pairs(KT.KEYBINDINGS) do
@@ -2002,5 +1994,4 @@ function M:OnEnable()
 	SetHooks()
 
 	KT:RegSignal("ADDON_ENABLED", SetupModules, self)
-	KT:RegSignal("TRACKER_INITIALIZING", ActivateBinding, self)
 end

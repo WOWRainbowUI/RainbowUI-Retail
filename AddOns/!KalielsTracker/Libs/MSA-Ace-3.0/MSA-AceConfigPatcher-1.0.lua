@@ -2,7 +2,7 @@
 --- Copyright (c) 2025-2026, Marouan Sabbagh <mar.sabbagh@gmail.com>
 --- All Rights Reserved.
 
-local name, version = "MSA-AceConfigPatcher-1.0", 2
+local name, version = "MSA-AceConfigPatcher-1.0", 3
 
 local lib = LibStub:NewLibrary(name, version)
 if not lib then return end
@@ -58,7 +58,24 @@ local measureText = UIParent:CreateFontString(nil, "ARTWORK")
 measureText:SetPoint("TOPRIGHT", UIParent, "BOTTOMLEFT", -100, -100)
 measureText:SetWordWrap(true)
 
+local function GetOptionsLayout(category)
+    local layout = SettingsPanel:GetLayout(category)
+    if not layout then return end
+
+    if layout:IsVerticalLayout() then
+        return layout, SettingsPanel:GetSettingsList().ScrollBox
+    end
+
+    local page = layout:GetFrame()
+    if page.layout and page.layout.GetInitializers and page.List and page.List.ScrollBox then
+        return page.layout, page.List.ScrollBox
+    end
+end
+
 function lib:Bliz_AddOptionsText(category, parentInitializer, options)
+    local layout, scrollBox = GetOptionsLayout(category)
+    if not layout then return end
+
     local text = options.text
     local font = options.font or GameFontHighlightSmall
     local left = 37 + (options.indent or 15)
@@ -68,7 +85,6 @@ function lib:Bliz_AddOptionsText(category, parentInitializer, options)
     local initializer = Settings.CreateElementInitializer("SettingsListElementTemplate", {})
 
     function initializer:GetExtent()
-        local scrollBox = SettingsPanel:GetSettingsList().ScrollBox
         measureText:SetFontObject(font)
         measureText:SetWidth(math.max(1, scrollBox:GetWidth() - 25 - left - right))
         measureText:SetText(text)
@@ -95,7 +111,7 @@ function lib:Bliz_AddOptionsText(category, parentInitializer, options)
         frame.Text:SetText(nil)
     end
 
-    local rows = SettingsPanel:GetLayout(category):GetInitializers()
+    local rows = layout:GetInitializers()
     for i, row in ipairs(rows) do
         if row == parentInitializer then
             table.insert(rows, i + 1, initializer)
@@ -142,8 +158,8 @@ end
 
 function lib:Bliz_InitOptions()
     hooksecurefunc(SettingsPanel, "SetCurrentCategory", function(self, category)
-        local layout = self:GetLayout(category)
-        if not layout or not layout:IsVerticalLayout() then return end
+        local layout = GetOptionsLayout(category)
+        if not layout then return end
 
         local initializers = layout:GetInitializers()
         for i = #initializers, 1, -1 do

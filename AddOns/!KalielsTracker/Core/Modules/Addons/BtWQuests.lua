@@ -9,7 +9,7 @@ local _, KT = ...
 
 ---@class AddonBtWQuests
 local M = KT:NewModule("AddonBtWQuests")
-M.COMPATIBLE_VERSION = "v2.68.0"
+M.COMPATIBLE_VERSION = "v2.69.0"
 M.MIN_COMPATIBLE_VERSION = "v2.68.0"
 KT.AddonBtWQuests = M
 
@@ -82,6 +82,6 @@ function M:OnEnable()
     if loaded and db.addonBtWQuests then
         KT:Alert_IncompatibleAddon("BtWQuests", self.MIN_COMPATIBLE_VERSION)
 
-        KT:RegSignal("CONTEXT_MENU_UPDATE", ContextMenu_Extend, self)
+        KT:RegSignal("CONTEXT_MENU_UPDATE:10", ContextMenu_Extend, self)
     end
 end

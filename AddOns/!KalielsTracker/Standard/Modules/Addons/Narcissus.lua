@@ -9,7 +9,7 @@ local _, KT = ...
 
 ---@class AddonNarcissus
 local M = KT:NewModule("AddonNarcissus")
-M.COMPATIBLE_VERSION = "1.8.7 b"
+M.COMPATIBLE_VERSION = "1.8.7 c"
 KT.AddonNarcissus = M
 
 local _DBG = function(...) if _DBG then _DBG("KT", ...) end end

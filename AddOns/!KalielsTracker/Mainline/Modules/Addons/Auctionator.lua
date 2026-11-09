@@ -9,7 +9,7 @@ local _, KT = ...
 
 ---@class AddonAuctionator
 local M = KT:NewModule("AddonAuctionator")
-M.COMPATIBLE_VERSION = "341"
+M.COMPATIBLE_VERSION = "343"
 KT.AddonAuctionator = M
 
 local _DBG = function(...) if _DBG then _DBG("KT", ...) end end

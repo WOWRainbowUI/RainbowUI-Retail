@@ -31,7 +31,7 @@ local testLine
 local KTF = CreateFrame("Frame", addonName.."Frame", UIParent)
 KT.frame = KTF
 
--- Core frames
+-- Base frames
 local OTF = KT_ObjectiveTrackerFrame
 local OTFHeader = OTF.Header
 
@@ -160,13 +160,23 @@ local function Quests_UpdateCount()
 	KT:SendSignal("QUESTS_COUNT_UPDATED")
 end
 
-local function InitMainFrame()
+local function Init_Bindings()
+	for cmd, data in pairs(KT.KEYBINDINGS) do
+		if data and db[cmd] ~= "" then
+			SetOverrideBindingClick(KTF, false, db[cmd], data.frameName, data.mouse)
+		end
+	end
+end
+
+local function Init_MainFrame()
 	KTF.Child:SetParent(KTF.Scroll)
 	KTF.Scroll:SetScrollChild(KTF.Child)
 end
 
 local function Init()
 	KT:SendSignal("TRACKER_INITIALIZING")
+
+	Init_Bindings()
 
 	KT:Tracker_Move()
 	KT:Tracker_SetBackground()
@@ -177,7 +187,7 @@ local function Init()
 	KT.inWorld = true
 
 	C_Timer.After(0, function()
-		InitMainFrame()
+		Init_MainFrame()
 		OTF:Update()
 
 		KT.initialized = true
@@ -295,8 +305,9 @@ local function SetFrames()
 	local button = CreateFrame("Button", addonName.."MinimizeButton", KTF.HeaderButtons)
 	button:SetSize(16, 16)
 	button:SetPoint("TOPRIGHT", -8, -7)
-	button:SetNormalTexture(KT.MEDIA_PATH.."UI-KT-HeaderButtons")
-	button:GetNormalTexture():SetTexCoord(0, 0.5, 0.25, 0.5)
+	local texture = button:CreateTexture(nil, "ARTWORK")
+	KT.SetSprite(texture, "tracker-header-btn-collapse")
+	button:SetNormalTexture(texture)
 	button:RegisterForClicks("AnyDown")
 	button:SetScript("OnClick", function(self, btn)
 		if btn == "RightButton" then
@@ -403,7 +414,7 @@ local function SetFrames()
 	Child:SetPoint("TOPLEFT")
 	KTF.Child = Child
 
-	-- Core frames
+	-- Base frames
 	OTF:ClearAllPoints()
 	OTF:SetParent(Scroll)
 	OTF:SetPoint("TOPLEFT", Child, 20, 0)
@@ -707,8 +718,9 @@ function KT:SetOtherButtons()
 		button = CreateFrame("Button", addonName.."AchievementsButton", KTF.HeaderButtons)
 		button:SetSize(16, 16)
 		button:SetPoint("TOPRIGHT", KTF.FilterButton or KTF.MinimizeButton, "TOPLEFT", -4, 0)
-		button:SetNormalTexture(KT.MEDIA_PATH.."UI-KT-HeaderButtons")
-		button:GetNormalTexture():SetTexCoord(0.5, 1, 0.25, 0.5)
+		local texture = button:CreateTexture(nil, "ARTWORK")
+		KT.SetSprite(texture, "tracker-header-btn-achievements")
+		button:SetNormalTexture(texture)
 		button:RegisterForClicks("AnyDown")
 		button:SetScript("OnClick", function(self, btn)
 			KT.OpenService_Open("achievements")
@@ -729,8 +741,9 @@ function KT:SetOtherButtons()
 		button = CreateFrame("Button", addonName.."QuestLogButton", KTF.HeaderButtons)
 		button:SetSize(16, 16)
 		button:SetPoint("TOPRIGHT", KTF.AchievementsButton, "TOPLEFT", -4, 0)
-		button:SetNormalTexture(KT.MEDIA_PATH.."UI-KT-HeaderButtons")
-		button:GetNormalTexture():SetTexCoord(0.5, 1, 0, 0.25)
+		texture = button:CreateTexture(nil, "ARTWORK")
+		KT.SetSprite(texture, "tracker-header-btn-questlog")
+		button:SetNormalTexture(texture)
 		button:RegisterForClicks("AnyDown")
 		button:SetScript("OnClick", function(self, btn)
 			KT.OpenService_Open("questlog")
@@ -752,17 +765,19 @@ end
 
 function KT:Tracker_ToggleEmpty()
 	local alpha, mouse = 1, true
+	local texture = KTF.MinimizeButton:GetNormalTexture()
+
 	if not Tracker_HasContents() or self.hidden then
-		KTF.MinimizeButton:GetNormalTexture():SetTexCoord(0, 0.5, 0.5, 0.75)
+		KT.ChangeSprite(texture, "tracker-header-btn-empty")
 		if db.hideEmptyTracker or self.hidden then
 			alpha = 0
 			mouse = false
 		end
 	else
 		if self:Tracker_IsCollapsed() then
-			KTF.MinimizeButton:GetNormalTexture():SetTexCoord(0, 0.5, 0, 0.25)
+			KT.ChangeSprite(texture, "tracker-header-btn-expand")
 		else
-			KTF.MinimizeButton:GetNormalTexture():SetTexCoord(0, 0.5, 0.25, 0.5)
+			KT.ChangeSprite(texture, "tracker-header-btn-collapse")
 		end
 	end
 
