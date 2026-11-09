@@ -30,7 +30,9 @@ do
 end
 
 function addonTable.Utilities.GetRegionalRulesetName()
-  if C_GameRules.IsGameRuleActive(Enum.GameRule.PvPRuleset) then
+  if C_GameRules.IsGameRuleActive(Enum.GameRule.PvPRuleset) and C_GameRules.IsGameRuleActive(Enum.GameRule.RPRuleset) then
+    return "RPPvP"
+  elseif C_GameRules.IsGameRuleActive(Enum.GameRule.PvPRuleset) then
     return "PvP"
   elseif C_GameRules.IsGameRuleActive(Enum.GameRule.RPRuleset) then
     return "RP"

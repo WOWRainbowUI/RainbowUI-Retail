@@ -1,7 +1,7 @@
 ## Interface: 120100, 120105, 16001, 50504, 38001, 20506, 11509
 ## ExcludeLoadGameType: wowhack
 ## Title: Syndicator
-## Version: 289
+## Version: 290
 ## Author: plusmouse
 ## SavedVariables: SYNDICATOR_CONFIG, SYNDICATOR_DATA, SYNDICATOR_SUMMARIES
 ## IconTexture: Interface\AddOns\Syndicator\Assets\logo.tga

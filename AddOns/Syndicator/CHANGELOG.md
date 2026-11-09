@@ -1,7 +1,6 @@
 # Syndicator
 
-## [289](https://github.com/TheMouseNest/Syndicator/tree/289) (2026-10-30)
-[Full Changelog](https://github.com/TheMouseNest/Syndicator/compare/288...289) 
+## [290](https://github.com/TheMouseNest/Syndicator/tree/290) (2026-11-08)
+[Full Changelog](https://github.com/TheMouseNest/Syndicator/compare/289...290) 
 
-- Prevent loading in Talebound  
-- Fix bonus id list using array rather than keys format  
+- Forever: Fix RPPvP not being separated  
