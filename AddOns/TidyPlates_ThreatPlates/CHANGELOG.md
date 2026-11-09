@@ -1,8 +1,6 @@
-# 13.3.6 (2026-11-06)
+# 13.3.7 (2026-11-08)
 
-* Fixed a bug where names on Blizzard's nameplates did not go back to Blizzard's font after disabling the custom font.
-* Fixed a Lua error when switching from a profile with disabled auras to one with enabled auras.
-* Fixed a Lua error when Blizzard's nameplates were shown for friendly units while a custom style with an aura trigger was enabled.
-* Replaced the option "Only Names" in Blizzard's nameplate settings on WoW Classic, which no longer worked, with "Only Names for Friendly Players", as Classic now uses the same setting as Retail.
-* Fixed a bug where the transparency for occluded units was only applied after opening the options dialog [GH-780].
-* Fixed a bug where Blizzard's widgets (quest progress bars) disappeared from a nameplate when switching it from Threat Plates to Blizzard's nameplates without a UI reload.
+* Fixed a Lua error when enabling or disabling the interact icon for the target in the options.
+* Fixed a bug where, after a loading screen, nameplates in headline view of units that were not targeted showed the target highlight of the healthbar view.
+* Fixed a bug where some widgets no longer updated after a profile change or after disabling and enabling them, e.g., the combo points widget only showed the first combo point until switching targets [PR GH-782 by malcyon].
+* Fixed a bug where the combo points widget could show the combo points of another enemy (e.g., the soft target instead of the target) or, on WoW Forever, was not updated when building combo points on a new enemy did not change their number.
