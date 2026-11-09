@@ -105,7 +105,7 @@ function BaganatorItemViewCommonBackpackViewMixin:OnLoad()
     end
   end)
 
-  if addonTable.Constants.IsEra or addonTable.Constants.IsForever then
+  if addonTable.Constants.IsEra then
     local index = tIndexOf(self.TopButtons, self.ToggleGuildBankButton)
     table.remove(self.TopButtons, index)
     self.ToggleGuildBankButton:Hide()

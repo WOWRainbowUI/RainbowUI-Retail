@@ -33,6 +33,8 @@ function BaganatorItemViewCommonBankViewMixin:OnLoad()
   self.currentTab = self.Character
   if Syndicator.Constants.WarbandBankActive and addonTable.Config.Get(addonTable.Config.Options.BANK_CURRENT_TAB) == addonTable.Constants.BankTabType.Warband then
     self:SetTab(addonTable.Constants.BankTabType.Warband)
+  elseif not Syndicator.Constants.WarbandBankActive and addonTable.Config.Get(addonTable.Config.Options.BANK_CURRENT_TAB) == addonTable.Constants.BankTabType.Warband then
+    addonTable.Config.Set(addonTable.Config.Options.BANK_CURRENT_TAB, addonTable.Constants.BankTabType.Character)
   end
 
   Syndicator.CallbackRegistry:RegisterCallback("BagCacheUpdate",  function()
