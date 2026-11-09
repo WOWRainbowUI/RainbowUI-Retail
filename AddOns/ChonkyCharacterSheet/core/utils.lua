@@ -274,6 +274,10 @@ function CCS.RenderSafeTooltip(tooltip, link, unit)
     tooltip:Show()
 end
 
+function CCS.ClampPercentage(value)
+	return math.max(0.0, math.min(100.0, value));
+end
+
 -- function to determine if an item needs text facing left or right
 -- Returns 1 if we want the text blocks on the right of the item
 function CCS.displaytowardleft(eslot)
@@ -301,6 +305,7 @@ CCS.emptySlotTextures = {
     [15] = "Interface\\PaperDoll\\UI-PaperDoll-Slot-Chest",
     [16] = "Interface\\PaperDoll\\UI-PaperDoll-Slot-MainHand",
     [17] = "Interface\\PaperDoll\\UI-PaperDoll-Slot-SecondaryHand",
+    [18] = "Interface\\PaperDoll\\UI-PaperDoll-Slot-MainHand",    
     [19] = "Interface\\PaperDoll\\UI-PaperDoll-Slot-Tabard",
 }
 
@@ -324,6 +329,7 @@ function CCS.getSlotIndexName(slotIndex)
         elseif slotIndex == 15 then slotName = INVTYPE_CLOAK--"Back"
         elseif slotIndex == 16 then slotName = INVTYPE_WEAPONMAINHAND--"MainHand"
         elseif slotIndex == 17 then slotName = INVTYPE_WEAPONOFFHAND--"SecondaryHand"
+        elseif slotIndex == 18 then slotName = INVTYPE_RANGED--"SecondaryHand"
         elseif slotIndex == 19 then slotName = INVTYPE_TABARD --"Tabard"
         else return ""
         end
@@ -1147,31 +1153,33 @@ function CCS:InitSavedVariables()
 end
 
 function CCS:GetOrderedSections(defaultSections)
-    local saved = CCS.CurrentProfile.sectionOrder or {}
-    local defaultKeys = {}
-    local ordered = {}
+	local saved = CCS.CurrentProfile.sectionOrder or {}
+	local defaultKeys = {}
+	local ordered = {}
 
-    -- Build lookup of default keys
-    for _, sec in ipairs(defaultSections) do
-        defaultKeys[sec.key] = true
-    end
+	-- Build lookup of default keys valid for this version
+	for _, sec in ipairs(defaultSections) do
+		if bit.band(sec.ver, CCS.CurrentVersion) ~= 0 then
+			defaultKeys[sec.key] = true
+		end
+	end
 
-    -- Add saved keys that still exist
-    for _, key in ipairs(saved) do
-        if defaultKeys[key] then
-            ordered[#ordered+1] = key
-            defaultKeys[key] = nil
-        end
-    end
+	-- Add saved keys that still exist and are valid for this version
+	for _, key in ipairs(saved) do
+		if defaultKeys[key] then
+			ordered[#ordered+1] = key
+			defaultKeys[key] = nil
+		end
+	end
 
-    -- Add any new sections not in saved order
-    for _, sec in ipairs(defaultSections) do
-        if defaultKeys[sec.key] then
-            ordered[#ordered+1] = sec.key
-        end
-    end
+	-- Add any new sections not in saved order
+	for _, sec in ipairs(defaultSections) do
+		if defaultKeys[sec.key] then
+			ordered[#ordered+1] = sec.key
+		end
+	end
 
-    return ordered
+	return ordered
 end
 
 function CCS:ReorderSections(dragKey, dropKey)
@@ -2833,13 +2841,13 @@ end
 
 
 function CCS.AreSecretsDisabled()
-    if CCS.CurrentVersion ~= CCS.RETAIL then return false end   
+    if CCS.CurrentVersion ~= CCS.RETAIL and CCS.CurrentVersion ~= CCS.FOREVER then return false end   
 
     local inInstance, instanceType = IsInInstance()
     
     if  InCombatLockdown() or
-        C_ChallengeMode.GetActiveChallengeMapID() ~= nil or  -- Mythic+
-        C_InstanceEncounter.IsEncounterInProgress() or -- Raid/Boss Encounter
+        (C_ChallengeMode and C_ChallengeMode.GetActiveChallengeMapID() ~= nil) or  -- Mythic+
+        (C_InstanceEncounter and C_InstanceEncounter.IsEncounterInProgress()) or -- Raid/Boss Encounter
         (inInstance and (instanceType == "pvp" or instanceType == "arena")) 
         then 
         return true 
@@ -3335,4 +3343,54 @@ function CCS.SkinItems()
             slot.PushedTexture:SetSize(40, 40)
         end
     end
+end
+
+function CCS.ClassType()
+	local _, class = UnitClass("player")
+    local spec, role 
+    local classtype
+
+    if  class == "MAGE" or class == "WARLOCK" or class == "PRIEST" or class == "DRUID" or class == "SHAMAN"	or class == "PALADIN" then
+        classtype = "CASTER"
+    elseif class == "HUNTER" then
+        classtype = "RANGED"
+    else
+        classtype = "MELEE"
+    end
+    
+    return  classtype
+end
+
+CCS.BlizzardStatFrames = {}
+
+function CCS.BuildBlizzardStatFrameLookup()
+	wipe(CCS.BlizzardStatFrames)
+
+	for _, child in ipairs({CharacterStatsPaneScrollBox.ScrollBox.ScrollTarget:GetChildren()}) do
+		if child.Label then
+			local label = child.Label:GetText()
+			if label then
+				CCS.BlizzardStatFrames[label] = child
+			end
+		end
+	end
+end
+
+-- Simple lookup of our frame table to get a stat value
+function CCS.GetBlizzardStatValue(statName)
+	local statFrame = CCS.BlizzardStatFrames[format(STAT_FORMAT, statName)]
+	return statFrame and statFrame.Value and statFrame.Value:GetText()
+end
+
+function CCS.GetAppropriateDamage(unit)
+	if IsRangedWeapon() then
+		return CCS.GetRangedDamage(unit);
+	else
+		return UnitDamage(unit);
+	end
+end
+
+function CCS.GetRangedDamage(unit)
+	local attackTime, minDamage, maxDamage, bonusPos, bonusNeg, percent = UnitRangedDamage(unit);
+	return minDamage, maxDamage, nil, nil, 0, 0, percent;
 end

@@ -277,6 +277,10 @@ SlashCmdList["CHONKYCHARACTERSHEET"] = function(msg)
         firstDungeonID = ejID
         break
     end--]]
+    if msg == "stats" then
+        CCS.UpdateAllStats(_G["CCS_stat_sc"])
+        return
+    end
 
     
     if msg == "test" then

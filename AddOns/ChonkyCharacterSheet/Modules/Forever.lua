@@ -26,13 +26,6 @@ local modelbtnfont1 = _G["CCS_clk_Btnfs1"] or modelbtn:CreateFontString("CCS_clk
 local ccs_cshow
 local function hookfix() 
 
-    if not CCS.AreSecretsDisabled() and _G["ccsm_sf"] and (option("showm_sp_onopen") == true) and (UnitLevel("player") == CCS.MaxLevel)then
-            _G["ccsm_sf"]:Show()
-            _G["ccs_sf"]:Hide()             
-    elseif _G["ccsm_sf"] and not CCS.AreSecretsDisabled() then
-        _G["ccsm_sf"]:Hide()
-    end
-
     if CCS.activeClickedRow then
         CCS.activeClickedRow.clicked = false
         CCS.activeClickedRow.highlight:Hide()
@@ -107,8 +100,8 @@ local function CreateAndUpdateiLvlframe(parent)
 	local btnfont1
 	local btnfontilvl = _G["CSPilvlfs1"] or btn:CreateFontString("CSPilvlfs1")
 	local btntex = _G["CSPilvltex"] or btn:CreateTexture("CSPilvltex", "BACKGROUND", nil, 1)
-	--local avgItemLevel, avgItemLevelEquipped, avgItemLevelPvP = GetAverageItemLevel();
-    local avgItemLevelEquipped = CCS.GetUnitItemLevel("player")
+	local avgItemLevel, avgItemLevelEquipped, avgItemLevelPvP = GetAverageItemLevel();
+    --local avgItemLevelEquipped = CCS.GetUnitItemLevel("player")
 	local Color = "a336ed"
 	local tt_name = ""
 	local tt_desc = ""
@@ -141,8 +134,9 @@ local function CreateAndUpdateiLvlframe(parent)
 		Color = color
 
 		avgItemLevelEquipped = format("%s", CCS.round(avgItemLevelEquipped))
+        avgItemLevel = format("%s", CCS.round(avgItemLevel))
 
-	if option("show_inbag_ilvl") == true and false then
+	if option("show_inbag_ilvl") == true then
 		btnfontilvl:SetText(format("|cFF%s%s / %s|r", Color, avgItemLevelEquipped, avgItemLevel))
 	else
 		btnfontilvl:SetText(format("|cFF%s%s|r", Color, avgItemLevelEquipped))            
@@ -276,17 +270,9 @@ function CCS.Clicky(endstate)
 
     if _G["CCSf"] then _G["CCSf"]:Hide() end
     if _G["ccs_sf"] then _G["ccs_sf"]:Hide() end
-    if _G["ccsm_sf"] then _G["ccsm_sf"]:Hide() end
-    if _G["ccsr_sf"] then _G["ccsr_sf"]:Hide() end    
-    if _G["ccsgf_sf"] then _G["ccsgf_sf"]:Hide() end    
     
     if endstate == "LEFT" or CharacterModelScene:GetHeight() >= (CharacterFrameBg:GetHeight()-5) then -- This is to move model under the character equipment
         MoveModelLeft()
-        if _G["ccsm_sf"] and (option("showm_sp_onopen") == true) and UnitLevel("player") >= CCS.MaxLevel and (C_MythicPlus.GetCurrentAffixes() and C_MythicPlus.GetCurrentAffixes()[1]) then
-            _G["ccsm_sf"]:Show()
-        elseif _G["ccsm_sf"] then 
-            _G["ccsm_sf"]:Hide() 
-        end
     else -- This is to move the model to the right of the character frame.
         MoveModelRight()
     end
@@ -1117,6 +1103,7 @@ function CCS.HookSetup()
         option("fontcolor_nametitle")[4] or 1
         ) end)
         C_Timer.After(0, hookfix)
+        CharacterStatsPane:Show()
     end)
 
     if C_AddOns.IsAddOnLoaded("PrettyReps") == false then
@@ -1142,11 +1129,6 @@ function CCS.HookSetup()
     end)
 
     hooksecurefunc(CharacterFrame, "Show", function() 
-        if _G["ccsm_sf"] and _G["ccsm_sf"].currentSortBy and _G["ccsm_sf"].currentDir and (_G["ccsm_sf"].currentSortBy ~= option("mplus_sortby") or _G["ccsm_sf"].currentDir ~= option("mplus_direction"))then
-            _G["ccsm_sf"].currentSortBy = option("mplus_sortby") or "Name"
-            _G["ccsm_sf"].currentDir = option("mplus_direction") or "Ascending"
-            CCS.updatemplussideframe()
-        end
         ccs_cshow()
         InitializeFrameUpdates()
         CCS:FireEvent("CCS_EVENT_CSHOW")
@@ -1181,6 +1163,27 @@ function CCS.HookSetup()
         end
         
         end )
+
+    -- A little trickery to hide the stats frame when we flip to a different sidebar tab.
+    if PaperDollSidebarTab1 ~= nil and not PaperDollSidebarTab1._ccsHooked then
+        PaperDollSidebarTab1:HookScript("OnClick", function(self, button) CharacterStatsPane:Show() end)
+        PaperDollSidebarTab1._ccsHooked = true
+    end
+
+    if PaperDollSidebarTab2 ~= nil and not PaperDollSidebarTab2._ccsHooked then
+        PaperDollSidebarTab2:HookScript("OnClick", function(self, button) CharacterStatsPane:Hide() end)
+        PaperDollSidebarTab2._ccsHooked = true
+    end
+
+    if PaperDollSidebarTab3 ~= nil and not PaperDollSidebarTab3._ccsHooked then
+        PaperDollSidebarTab3:HookScript("OnClick", function(self, button) CharacterStatsPane:Hide() end)
+        PaperDollSidebarTab3._ccsHooked = true
+    end
+
+    if PaperDollSidebarTab4 ~= nil and not PaperDollSidebarTab4._ccsHooked then
+        PaperDollSidebarTab4:HookScript("OnClick", function(self, button) CharacterStatsPane:Hide() end)
+        PaperDollSidebarTab4._ccsHooked = true
+    end
 
     CCS.Hooked = true
 end
@@ -1326,7 +1329,7 @@ function module:SetupBlizzardFrameOverrides()
     
     CharacterFramePortrait:Hide()
     PaperDollFrame.TopBackgroundStripHost:Hide()
-    PaperDollFrame:UnregisterAllEvents()
+    --PaperDollFrame:UnregisterAllEvents()
 
     CharacterBackSlot.BorderFrame:Hide()
     CharacterChestSlot.BorderFrame:Hide()
@@ -1451,6 +1454,17 @@ function module:SetupBlizzardFrameOverrides()
     modbg:SetPoint("BOTTOM", CharacterMainHandSlot, "BOTTOM", 0, 0)        
     modbg:SetFrameStrata("LOW")
     modbg:SetFrameLevel(5000)
+
+    if true then -- Just for testing
+        if option("showcharacterstats") then
+            CharacterStatsPaneScrollBox:ClearAllPoints()
+            CharacterStatsPaneScrollBox:SetPoint("TOPLEFT", CharacterFrameBgbg, "TOPRIGHT", 40, -10000)
+            CharacterStatsPaneScrollBox:SetPoint("BOTTOMRIGHT", CharacterFrameBgbg, "BOTTOMRIGHT", 300, -10000)
+        else
+            CharacterStatsPaneScrollBox:SetPoint("TOPLEFT", CharacterFrameRightPaneHostStoneBg, "BOTTOMLEFT", 0, 0)
+            CharacterStatsPaneScrollBox:SetPoint("BOTTOMRIGHT", CharacterFrameRightPaneHost, "BOTTOMRIGHT", 0, 0)
+        end
+    end
 end
 
 function module:UpdateStyle()

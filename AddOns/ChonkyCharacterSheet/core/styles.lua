@@ -131,6 +131,7 @@ function CCS.RefreshStyleColors()
         CCS.CreateChonkyCharacterBG(false)
         CCS.CreateChonkyCharacterBG(true)
         CCS.CreateChonkyNineSlice(CharacterStatsPaneScrollBox)
+        CCS.CreateChonkyNineSlice(CharacterStatsPane)
         CCS.CreateChonkyNineSlice(CharacterModelFramebg)
         CCS.CreateChonkyNineSlice(InspectModelFramebg)
         CCS.UpdateThemeInfo()
@@ -1074,7 +1075,8 @@ function CCS.CreateChonkyCharacterBG(isInspect)
     -- Ensure CharacterFrameBgbg exists (this function loads before characterSheet.lua, so we just create it here.
     ------------------------------------------------------------
     if isInspect == true and ( false or InspectFrame == nil) then return end
-    if CharacterFrameBg == nil then return end
+    local CharacterFrameBg = _G["CharacterFrameBg"] or CreateFrame("Frame", "CharacterFrameBg", CharacterFrame, BackdropTemplateMixin and "BackdropTemplate")
+
     
     local parent
     local bg_name 
@@ -1162,7 +1164,7 @@ function CCS.CreateChonkyCharacterBG(isInspect)
     local TopOverlay
     local LeftOverlay
     local RightOverlay
-    
+
     if isInspect == false then
         if not PaperDollFrame.TopOverlay then
             PaperDollFrame.TopOverlay = PaperDollFrame:CreateTexture(nil, "ARTWORK")
@@ -1330,7 +1332,7 @@ function CCS.UpdateThemeInfo()
 
     elseif option("theme") ~= "None" then
         if CharacterFrame.ChonkyNS ~= nil then CharacterFrame.ChonkyNS:SetShown(option("show_char_frame")) end
-        
+
         if PaperDollFrame.TopOverlay then
             if option("show_top_texture") then
                 PaperDollFrame.TopOverlay:SetAlpha(1)

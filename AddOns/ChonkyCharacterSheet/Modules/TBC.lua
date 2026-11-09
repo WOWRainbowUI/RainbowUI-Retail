@@ -2078,7 +2078,6 @@ function module:ApplyDynamicLayout()
 
 end
 
-
 -- Module Initialization
 function module:Initialize(onlyStyle)
     -- Set up the character sheet for the current player

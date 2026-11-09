@@ -96,6 +96,8 @@ local categoryList = {
     { name = "CHAR-FONT",       ver=CCS.ALL },
     { name = "CHAR-STATS",      ver=CCS.RETAIL},
     { name = "CHAR-STATS-FONT", ver=CCS.RETAIL},
+    { name = "CHAR-STATS",      ver=CCS.FOREVER},
+    { name = "CHAR-STATS-FONT", ver=CCS.FOREVER},
     { name = "CHAR-STATS",      ver=CCS.TBC},
     { name = "CHAR-STATS-FONT", ver=CCS.TBC},    
     { name = "CHAR-MPLUS",      ver = CCS.RETAIL },

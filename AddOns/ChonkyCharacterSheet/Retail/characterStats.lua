@@ -1,7 +1,7 @@
 local addonName, ns = ...
 local CCS = ns.CCS
 
-if CCS.CurrentVersion ~= CCS.RETAIL then
+if CCS.CurrentVersion ~= CCS.RETAIL and CCS.CurrentVersion ~= CCS.FOREVER then
     return
 end
 
@@ -9,7 +9,7 @@ local option = function(key) return CCS:GetOptionValue(key) end
 local L = ns.L  -- grab the localization table
 local module = {
     Name = "characterStats",
-    CompatibleVersions = { CCS.RETAIL },
+    CompatibleVersions = { CCS.RETAIL, CCS.FOREVER },
 }
 
 CCS.Modules[module.Name] = module
@@ -17,11 +17,19 @@ CCS.Modules[module.Name] = module
 local rowWidth, rowHeight, rowSpacing = 234, 23, 2
 local fontsize = 10
 
-local function UpdateMoveSpeed() 
-	if CCS.AreSecretsDisabled() then return end
-	local rowFrame = _G["CCS_Row_general_movespeed"]
+function CCS.UpdateMoveSpeed() 
 
+	local rowFrame = _G["CCS_Row_general_movespeed"]
+	
     if not rowFrame or not option("showcharacterstats") then return end
+
+	if CCS.AreSecretsDisabled() then 
+		if CCS.CurrentVersion == CCS.FOREVER then
+			local targetValue = CCS.GetBlizzardStatValue(STAT_MOVEMENT_SPEED)
+			rowFrame.rightText = targetValue or ("|cffffd100<" .. L["Secret"] .. ">|r")
+		end
+		return 
+	end
     
     local currentSpeed, runSpeed, flightSpeed, swimSpeed = GetUnitSpeed("player");
     runSpeed = runSpeed/BASE_MOVEMENT_SPEED*100;
@@ -725,9 +733,14 @@ local function HideDRTooltipVisual()
 end
 
 function CCS:RestoreCharacterStatsPane()
-    CharacterStatsPane.ItemLevelCategory:SetPoint("TOP", CharacterStatsPane, "TOP", -3, 2)
-    CharacterStatsPane.ClassBackground:SetAlpha(1)
-
+	if CCS.CurrentVersion ~= CCS.FOREVER then
+		CharacterStatsPane.ItemLevelCategory:SetPoint("TOP", CharacterStatsPane, "TOP", -3, 2)
+		CharacterStatsPane.ClassBackground:SetAlpha(1)
+	elseif CCS.CurrentVersion == CCS.FOREVER then
+        CharacterStatsPaneScrollBox:ClearAllPoints()
+        CharacterStatsPaneScrollBox:SetPoint("TOPLEFT", CharacterFrameRightPaneHostStoneBg, "BOTTOMLEFT", 0, 0)
+        CharacterStatsPaneScrollBox:SetPoint("BOTTOMRIGHT", CharacterFrameRightPaneHost, "BOTTOMRIGHT", 0, 0)
+	end
     -- Re-register default events
     CharacterStatsPane:RegisterUnitEvent("UNIT_STATS", "player")
     CharacterStatsPane:RegisterUnitEvent("UNIT_RESISTANCES", "player")
@@ -991,67 +1004,11 @@ local function GetSortedStats(classID, specID, heroID)
     return stats
 end
 
-local function BuildDRTooltip(DRtable)
-    if not DRtable or option("show_diminishing_returns") ~= true then
-        return ""
-    end
-
-    local out = {}
-
-    -- Effective rating and percent
-    table.insert(out, format("\n   %s%s: %d [+%.2f%%]|r",
-        "|cff68ccef", L["STAT_DR_EFFECTIVE"] or "Effective",
-        BreakUpLargeNumbers(DRtable.effectiveRating),
-        DRtable.effectivePercent1))
-
-    -- Lost rating and percent
-    table.insert(out, format("\n   %s%s: %d [+%.2f%%]|r",
-        "|cffff5555", L["LOST"] or "Lost",
-        BreakUpLargeNumbers(DRtable.ratingLost),
-        DRtable.percentLost1))
-
-    -- Label
-    table.insert(out, format("\n   %s(%s)|r",
-        "|cff9d9d9d", L["STAT_DR_LABEL"] or "After diminishing returns"))
-
-    -- Bracket progress
-    local ratingPerPercent = 0
-    if DRtable.rawPercent1 ~= 0 then
-		ratingPerPercent = DRtable.rawRating / DRtable.rawPercent1
-	end
-
-    if DRtable.rawRating > 0 and ratingPerPercent < math.huge then
-        local bracket = GetDRBracketProgress(DRtable.rawPercent1, ratingPerPercent)
-
-        if bracket then
-            table.insert(out, "\n\n|cffffd100"..(L["Diminishing Returns Bracket"] or "Diminishing Returns Bracket").."|r")
-
-            table.insert(out, format("\n  %s%.2f%% – %.2f%%|r",
-                "|cffbbbbbb", bracket.bracketStartPercent, bracket.bracketEndPercent))
-
-            table.insert(out, format("\n  %s%s: %d – %d|r",
-                "|cffcccccc", L["Rating range"] or "Rating range",
-                BreakUpLargeNumbers(bracket.bracketStartRating),
-                BreakUpLargeNumbers(bracket.bracketEndRating)))
-
-            table.insert(out, format("\n  %s%s: %d %s|r",
-                "|cff00d100", L["Into bracket"] or "Into bracket",
-                BreakUpLargeNumbers(bracket.ratingIntoBracket), L["rating"] or "rating"))
-
-            table.insert(out, format("\n  %s%s: %d %s|r",
-                "|cffffa040", L["Until next bracket"] or "Until next bracket",
-                BreakUpLargeNumbers(bracket.ratingRemaining), L["rating"] or "rating"))
-        end
-    end
-
-    return table.concat(out)
-end
-
 -------------------------------------------------
 -- ATTRIBUTE STAT FUNCTIONS
 -------------------------------------------------
-local function GetStatPrimary(rowData) 
-	local leftText, rightText, tt_name, tt_desc, isZero = "","|cffffd100<" .. L["Secret"] .. ">|r","","",false
+local function GetStatPrimary() 
+	local leftText, rightText, tt_name, tt_desc, isZero, isApplicable = "","|cffffd100<" .. L["Secret"] .. ">|r","","",false,true
 	local link = nil
 	local spec = GetSpecialization()
 	local _, _, _, _, _, primaryStat = GetSpecializationInfo(spec)
@@ -1149,11 +1106,11 @@ local function GetStatPrimary(rowData)
 		tt_name = HIGHLIGHT_FONT_COLOR_CODE..format(PAPERDOLLFRAME_TOOLTIP_FORMAT, tmp_stat_name[primaryStat]).." "..tt_name;
 	end
 
-	return leftText, rightText, tt_name, tt_desc, link, isZero
+	return leftText, rightText, tt_name, tt_desc, link, isZero, isApplicable 
 end
 
-local function GetStatStamina(rowData) 
-	local leftText, rightText, tt_name, tt_desc, isZero = "","|cffffd100<" .. L["Secret"] .. ">|r","","",false
+local function GetStatStamina() 
+	local leftText, rightText, tt_name, tt_desc, isZero, isApplicable = "","|cffffd100<" .. L["Secret"] .. ">|r","","",false,true
 	local link = nil
 	local statIndex = 3 -- Stamina
 	local tmp_stat_value, effectiveStat = UnitStat("player", statIndex);
@@ -1172,11 +1129,11 @@ local function GetStatStamina(rowData)
 		tt_desc = tt_desc .. format(_G["DEFAULT_STAT"..statIndex.."_TOOLTIP"], BreakUpLargeNumbers(((effectiveStat*hpperstam))*maxhealthmod));                
 	end
 	
-	return leftText, rightText, tt_name, tt_desc, link, isZero
+	return leftText, rightText, tt_name, tt_desc, link, isZero, isApplicable 
 end
 
-local function GetStatHealth(rowData) 
-	local leftText, rightText, tt_name, tt_desc, isZero = "","|cffffd100<" .. L["Secret"] .. ">|r","","",false
+local function GetStatHealth() 
+	local leftText, rightText, tt_name, tt_desc, isZero, isApplicable = "","|cffffd100<" .. L["Secret"] .. ">|r","","",false,true
 	local link = nil
 	local health = UnitHealthMax("player");
 	local healthText = BreakUpLargeNumbers(health);
@@ -1191,11 +1148,11 @@ local function GetStatHealth(rowData)
 	tt_name = HIGHLIGHT_FONT_COLOR_CODE..format(PAPERDOLLFRAME_TOOLTIP_FORMAT, HEALTH).." "..healthText..FONT_COLOR_CODE_CLOSE;
 	tt_desc = STAT_HEALTH_TOOLTIP;
 
-	return leftText, rightText, tt_name, tt_desc, link, isZero
+	return leftText, rightText, tt_name, tt_desc, link, isZero, isApplicable 
 end
 
-local function GetStatPower(rowData)
-	local leftText, rightText, tt_name, tt_desc, isZero = "","|cffffd100<" .. L["Secret"] .. ">|r","","",false
+local function GetStatPower()
+	local leftText, rightText, tt_name, tt_desc, isZero, isApplicable = "","|cffffd100<" .. L["Secret"] .. ">|r","","",false,true
 	local link = nil
 	local powerType, powerToken, altR, altG, altB = UnitPowerType("player")
 	local power = UnitPowerMax("player") or 0;
@@ -1211,38 +1168,33 @@ local function GetStatPower(rowData)
 	tt_name = HIGHLIGHT_FONT_COLOR_CODE..format(PAPERDOLLFRAME_TOOLTIP_FORMAT, (leftText or "")).." "..(powerText or "") .. FONT_COLOR_CODE_CLOSE;
 	tt_desc = _G["STAT_"..(powerToken or "") .."_TOOLTIP"];
 	
-	return leftText, rightText, tt_name, tt_desc, link, isZero
+	return leftText, rightText, tt_name, tt_desc, link, isZero, isApplicable 
 end
 
-local function GetStatGCD(rowData)
-	local leftText, rightText, tt_name, tt_desc, isZero = "","|cffffd100<" .. L["Secret"] .. ">|r","","",false
+local function GetStatGCD()
+	local leftText, rightText, tt_name, tt_desc, isZero, isApplicable = "","|cffffd100<" .. L["Secret"] .. ">|r","","",false,true
 	local link = nil
 
-	if CCS.AreSecretsDisabled() then return leftText, rightText, tt_name, tt_desc, link, isZero end
+	if CCS.AreSecretsDisabled() then return leftText, rightText, tt_name, tt_desc, link, isZero, isApplicable end
 
-	local gcd = max(0.75, 1.5 * 100 / (100+GetHaste()))
-	local _, _, _, _, _, primaryStat = GetSpecializationInfo(GetSpecialization())
 	local _, class = UnitClass("player")
-	
-	leftText = "GCD"
-	
-	if (class == "DRUID") then 
-		if GetShapeshiftFormID() == 1 then gcd = 1 end
-	elseif (primaryStat == LE_UNIT_STAT_INTELLECT) or (primaryStat == LE_UNIT_STAT_STRENGTH) or (class == "DEMONHUNTER") or (class == "HUNTER") or (class == "SHAMAN") then 
-		gcd = gcd
-	else gcd = 1
+	local gcd = max(0.75, 1.5 * 100 / (100+GetHaste()))
+			
+	if ((class == "DRUID") and GetShapeshiftFormID() == 1) or (class == "ROGUE") then 
+		gcd = 1 
 	end
 
+	leftText = "GCD"
 	rightText = format("%.2fs", gcd)
 	
-	return leftText, rightText, tt_name, tt_desc, link, isZero
+	return leftText, rightText, tt_name, tt_desc, link, isZero, isApplicable 
 end
 
 -------------------------------------------------
 -- SECONDARY STAT FUNCTIONS
 -------------------------------------------------
-local function GetStatCrit(rowData) 
-	local leftText, rightText, tt_name, tt_desc, isZero = "","|cffffd100<" .. L["Secret"] .. ">|r","","",false
+local function GetStatCrit() 
+	local leftText, rightText, tt_name, tt_desc, isZero, isApplicable = "","|cffffd100<" .. L["Secret"] .. ">|r","","",false,true
 	local link = nil	
 	local extraCritChance = GetCombatRatingBonus(CR_CRIT_SPELL)
 	local extraCritRating = GetCombatRating(CR_CRIT_SPELL)
@@ -1273,15 +1225,16 @@ local function GetStatCrit(rowData)
 	tt_desc = tt_desc..format(CR_CRIT_TOOLTIP, BreakUpLargeNumbers(extraCritRating), extraCritChance)
 
     local DRtable = GetStatDRInfo(CR_CRIT_SPELL)
-    --tt_desc = tt_desc .. BuildDRTooltip(DRtable)
+
 	if option("show_stathighlights") then
 		tt_desc = tt_desc.."\n\n".."|cffffffff("..L["STATS_TOGGLE"]..")|r"
 	end
-	return leftText, rightText, tt_name, tt_desc, link, isZero, DRtable	
+
+	return leftText, rightText, tt_name, tt_desc, link, isZero, isApplicable, DRtable	
 end
 
-local function GetStatHaste(rowData)  
-	local leftText, rightText, tt_name, tt_desc, isZero = "","|cffffd100<" .. L["Secret"] .. ">|r","","",false
+local function GetStatHaste()  
+	local leftText, rightText, tt_name, tt_desc, isZero, isApplicable = "","|cffffd100<" .. L["Secret"] .. ">|r","","",false,true
 	local link = nil	
 	local _, class = UnitClass("player")
 	local prio = cachedPriorityLookup["Haste"]
@@ -1309,15 +1262,15 @@ local function GetStatHaste(rowData)
 		GetCombatRatingBonus(CR_HASTE_SPELL))
 		
 	local DRtable = GetStatDRInfo(CR_HASTE_SPELL)
-    --tt_desc = tt_desc .. BuildDRTooltip(DRtable)
+
 	if option("show_stathighlights") then
 		tt_desc = tt_desc.."\n\n".."|cffffffff("..L["STATS_TOGGLE"]..")|r"
 	end
-	return leftText, rightText, tt_name, tt_desc, link, isZero, DRtable	
+	return leftText, rightText, tt_name, tt_desc, link, isZero, isApplicable, DRtable	
 end
 
-local function GetStatMastery(rowData)  
-	local leftText, rightText, tt_name, tt_desc, isZero = "","|cffffd100<" .. L["Secret"] .. ">|r","","",false
+local function GetStatMastery()  
+	local leftText, rightText, tt_name, tt_desc, isZero, isApplicable = "","|cffffd100<" .. L["Secret"] .. ">|r","","",false,true
 	local link = nil
 	local _, class = UnitClass("player")
 	local mastery, bonusCoeff = GetMasteryEffect()
@@ -1361,14 +1314,14 @@ local function GetStatMastery(rowData)
 	end
 
 	local DRtable = GetStatDRInfo(CR_MASTERY)
-    --tt_desc = tt_desc .. BuildDRTooltip(DRtable)
+
 	if option("show_stathighlights") then
 		tt_desc = tt_desc.."\n\n".."|cffffffff("..L["STATS_TOGGLE"]..")|r"
 	end
-	return leftText, rightText, tt_name, tt_desc, link, isZero, DRtable	
+	return leftText, rightText, tt_name, tt_desc, link, isZero, isApplicable, DRtable	
 end
-local function GetStatVersatility(rowData)  
-	local leftText, rightText, tt_name, tt_desc, isZero = "","|cffffd100<" .. L["Secret"] .. ">|r","","",false
+local function GetStatVersatility()  
+	local leftText, rightText, tt_name, tt_desc, isZero, isApplicable = "","|cffffd100<" .. L["Secret"] .. ">|r","","",false,true
 	local link = nil
 	local versatility = GetCombatRating(CR_VERSATILITY_DAMAGE_DONE)
 	local versatilityDamageBonus = GetCombatRatingBonus(CR_VERSATILITY_DAMAGE_DONE)
@@ -1404,53 +1357,18 @@ local function GetStatVersatility(rowData)
 		versatilityDamageTakenReduction)
 		
 	local DRtable = GetStatDRInfo(CR_VERSATILITY_DAMAGE_DONE)
-	--[[
-	if DRtable ~= nil and option("show_diminishing_returns") == true then 
-		tt_desc = tt_desc..format("\n   %s%s: %d [+%.2f%%/%.2f%%]|r", "|cff68ccef", L["STAT_DR_EFFECTIVE"] or "Effective",BreakUpLargeNumbers(DRtable.effectiveRating), DRtable.effectivePercent1, DRtable.effectivePercent2)
-		tt_desc = tt_desc..format("\n   %s%s: %d [+%.2f%%/%.2f%%]|r", "|cffff5555", L["LOST"] or "Lost",BreakUpLargeNumbers(DRtable.ratingLost), DRtable.percentLost1, DRtable.percentLost2)
-		tt_desc = tt_desc..format("\n   %s(%s)|r", "|cff9d9d9d", L["STAT_DR_LABEL"] or "After diminishing returns")
-
-		-- bracket progress in rating
-		local ratingPerPercent = 0
-
-		if DRtable.rawPercent1 ~= 0 then
-			ratingPerPercent = DRtable.rawRating / DRtable.rawPercent1
-		end
-		
-		if DRtable.rawRating > 0 and ratingPerPercent < math.huge then
-			local bracket = GetDRBracketProgress(DRtable.rawPercent1, ratingPerPercent)
-
-			if bracket then
-				tt_desc = tt_desc.."\n\n|cffffd100"..(L["Diminishing Returns Bracket"] or "Diminishing Returns Bracket").."|r"
-				tt_desc = tt_desc..format("\n  %s%.2f%% – %.2f%%|r",
-					"|cffbbbbbb", bracket.bracketStartPercent, bracket.bracketEndPercent)
-
-				tt_desc = tt_desc..format("\n  %s%s: %d – %d|r",
-					"|cffcccccc", L["Rating range"] or "Rating range",
-					BreakUpLargeNumbers(bracket.bracketStartRating),
-					BreakUpLargeNumbers(bracket.bracketEndRating))
-
-				tt_desc = tt_desc..format("\n  %s%s: %d %s|r",
-					"|cff00d100", L["Into bracket"] or "Into bracket", BreakUpLargeNumbers(bracket.ratingIntoBracket), L["rating"] or "rating")
-
-				tt_desc = tt_desc..format("\n  %s%s: %d %s|r",
-					"|cffffa040", L["Until next bracket"] or "Until next bracket", BreakUpLargeNumbers(bracket.ratingRemaining), L["rating"] or "rating")
-			end
-		end
-
-		
-	end   --]]                     
+                  
 	if option("show_stathighlights") then
 		tt_desc = tt_desc.."\n\n".."|cffffffff("..L["STATS_TOGGLE"]..")|r"
 	end
-	return leftText, rightText, tt_name, tt_desc, link, isZero, DRtable	
+	return leftText, rightText, tt_name, tt_desc, link, isZero, isApplicable, DRtable	
 end
 
 -------------------------------------------------
 -- ATTACK STAT FUNCTIONS
 -------------------------------------------------
-local function GetStatAttackPower(rowData)  
-	local leftText, rightText, tt_name, tt_desc, isZero = "","|cffffd100<" .. L["Secret"] .. ">|r","","",false
+local function GetStatAttackPower()  
+	local leftText, rightText, tt_name, tt_desc, isZero, isApplicable = "","|cffffd100<" .. L["Secret"] .. ">|r","","",false,true
 	local link = nil
 
 	-- Attack Power
@@ -1473,7 +1391,7 @@ local function GetStatAttackPower(rowData)
 	if not CCS.AreSecretsDisabled() then
 		isZero = (base == 0)
 	else
-		return leftText, rightText, tt_name, tt_desc, link, isZero
+		return leftText, rightText, tt_name, tt_desc, link, isZero, isApplicable 
 	end
 	
 	local damageBonus =  BreakUpLargeNumbers(max((base+posBuff+negBuff), 0)/ATTACK_POWER_MAGIC_NUMBER);
@@ -1507,11 +1425,11 @@ local function GetStatAttackPower(rowData)
 		tt_desc = format(tooltip4, damageBonus);
 	end
 
-	return leftText, rightText, tt_name, tt_desc, link, isZero
+	return leftText, rightText, tt_name, tt_desc, link, isZero, isApplicable 
 end
 
-local function GetStatAttackSpeed(rowData)  
-	local leftText, rightText, tt_name, tt_desc, isZero = "","|cffffd100<" .. L["Secret"] .. ">|r","","",false
+local function GetStatAttackSpeed()  
+	local leftText, rightText, tt_name, tt_desc, isZero, isApplicable = "","|cffffd100<" .. L["Secret"] .. ">|r","","",false,true
 	local link = nil
 	local meleeHaste = GetMeleeHaste();
 	local speed, offhandSpeed = UnitAttackSpeed("player");
@@ -1529,11 +1447,11 @@ local function GetStatAttackSpeed(rowData)
 	tt_name = HIGHLIGHT_FONT_COLOR_CODE..format(PAPERDOLLFRAME_TOOLTIP_FORMAT, ATTACK_SPEED).." "..displaySpeed..FONT_COLOR_CODE_CLOSE;
 	tt_desc = format(STAT_ATTACK_SPEED_BASE_TOOLTIP, BreakUpLargeNumbers(meleeHaste));	
 	
-	return leftText, rightText, tt_name, tt_desc, link, isZero
+	return leftText, rightText, tt_name, tt_desc, link, isZero, isApplicable 
 end
 
-local function GetStatSpellPower(rowData)  
-	local leftText, rightText, tt_name, tt_desc, isZero = "","|cffffd100<" .. L["Secret"] .. ">|r","","",false
+local function GetStatSpellPower()  
+	local leftText, rightText, tt_name, tt_desc, isZero, isApplicable = "","|cffffd100<" .. L["Secret"] .. ">|r","","",false,true
 	local link = nil
 	local spellPower = GetSpellBonusDamage(2)
 
@@ -1547,14 +1465,14 @@ local function GetStatSpellPower(rowData)
 	tt_name = STAT_SPELLPOWER;
 	tt_desc = STAT_SPELLPOWER_TOOLTIP;
 	
-	return leftText, rightText, tt_name, tt_desc, link, isZero
+	return leftText, rightText, tt_name, tt_desc, link, isZero, isApplicable 
 end
 
 -------------------------------------------------
 -- DEFENSE STAT FUNCTIONS
 -------------------------------------------------
-local function GetStatArmor(rowData)  
-	local leftText, rightText, tt_name, tt_desc, isZero = "","|cffffd100<" .. L["Secret"] .. ">|r","","",false
+local function GetStatArmor()  
+	local leftText, rightText, tt_name, tt_desc, isZero, isApplicable = "","|cffffd100<" .. L["Secret"] .. ">|r","","",false,true
 	local link = nil
 	local baselineArmor, effectiveArmor, armor, bonusArmor = UnitArmor("player");
 	local armorReduction = 0
@@ -1577,11 +1495,11 @@ local function GetStatArmor(rowData)
 		tt_desc = tt_desc .. "\n" .. format(STAT_ARMOR_TARGET_TOOLTIP, armorReductionAgainstTarget);
 	end
 
-	return leftText, rightText, tt_name, tt_desc, link, isZero
+	return leftText, rightText, tt_name, tt_desc, link, isZero, isApplicable 
 end
 
-local function GetStatDodge(rowData)  
-	local leftText, rightText, tt_name, tt_desc, isZero = "","|cffffd100<" .. L["Secret"] .. ">|r","","",false
+local function GetStatDodge()  
+	local leftText, rightText, tt_name, tt_desc, isZero, isApplicable = "","|cffffd100<" .. L["Secret"] .. ">|r","","",false,true
 	local link = nil
 	local chance = GetDodgeChance();
 
@@ -1595,11 +1513,11 @@ local function GetStatDodge(rowData)
 	tt_name = HIGHLIGHT_FONT_COLOR_CODE..format(PAPERDOLLFRAME_TOOLTIP_FORMAT, DODGE_CHANCE).." "..string.format("%.2F", chance).."%"..FONT_COLOR_CODE_CLOSE;
 	tt_desc = format(CR_DODGE_TOOLTIP, GetCombatRating(CR_DODGE), GetCombatRatingBonus(CR_DODGE));
 	
-	return leftText, rightText, tt_name, tt_desc, link, isZero
+	return leftText, rightText, tt_name, tt_desc, link, isZero, isApplicable 
 end
 
-local function GetStatParry(rowData)  
-	local leftText, rightText, tt_name, tt_desc, isZero = "","|cffffd100<" .. L["Secret"] .. ">|r","","",false
+local function GetStatParry()  
+	local leftText, rightText, tt_name, tt_desc, isZero, isApplicable = "","|cffffd100<" .. L["Secret"] .. ">|r","","",false,true
 	local link = nil
 	local chance = GetParryChance();
 
@@ -1613,11 +1531,11 @@ local function GetStatParry(rowData)
 	tt_name = HIGHLIGHT_FONT_COLOR_CODE..format(PAPERDOLLFRAME_TOOLTIP_FORMAT, PARRY_CHANCE).." "..string.format("%.2F", chance).."%"..FONT_COLOR_CODE_CLOSE;
 	tt_desc = format(CR_PARRY_TOOLTIP, GetCombatRating(CR_PARRY), GetCombatRatingBonus(CR_PARRY));
 	
-	return leftText, rightText, tt_name, tt_desc, link, isZero
+	return leftText, rightText, tt_name, tt_desc, link, isZero, isApplicable 
 end
 
-local function GetStatBlock(rowData)  
-	local leftText, rightText, tt_name, tt_desc, isZero = "","|cffffd100<" .. L["Secret"] .. ">|r","","",false
+local function GetStatBlock()  
+	local leftText, rightText, tt_name, tt_desc, isZero, isApplicable = "","|cffffd100<" .. L["Secret"] .. ">|r","","",false,true
 	local link = nil
 	local chance = GetBlockChance();
 	local shieldBlockArmor = GetShieldBlock();
@@ -1639,11 +1557,11 @@ local function GetStatBlock(rowData)
 		tt_desc = tt_desc .. "\n" .. format(STAT_BLOCK_TARGET_TOOLTIP, blockArmorReductionAgainstTarget);
 	end                	
 	
-	return leftText, rightText, tt_name, tt_desc, link, isZero
+	return leftText, rightText, tt_name, tt_desc, link, isZero, isApplicable 
 end
 
-local function GetStatStagger(rowData)  
-	local leftText, rightText, tt_name, tt_desc, isZero = "","|cffffd100<" .. L["Secret"] .. ">|r","","",false
+local function GetStatStagger()  
+	local leftText, rightText, tt_name, tt_desc, isZero, isApplicable = "","|cffffd100<" .. L["Secret"] .. ">|r","","",false,true
 	local link = nil
 	local stagger, staggerAgainstTarget = C_PaperDollInfo.GetStaggerPercentage("player");
 
@@ -1661,7 +1579,7 @@ local function GetStatStagger(rowData)
 		tt_desc = tt_desc .. "\n" .. format(STAT_STAGGER_TARGET_TOOLTIP, staggerAgainstTarget);
 	end
 	
-	return leftText, rightText, tt_name, tt_desc, link, isZero
+	return leftText, rightText, tt_name, tt_desc, link, isZero, isApplicable 
 end
 
 -------------------------------------------------
@@ -1719,7 +1637,7 @@ local function FormatRepairCost(cost)
 end
 
 local function GetStatDurability(rowData)
-    local leftText, rightText, tt_name, tt_desc, isZero = "","|cffffd100<" .. L["Secret"] .. ">|r","","",false
+    local leftText, rightText, tt_name, tt_desc, isZero, isApplicable = "","|cffffd100<" .. L["Secret"] .. ">|r","","",false,true
     local link = nil
 
     local percent, totalCost = GetTotalDurabilityAndRepairCost()
@@ -1732,11 +1650,11 @@ local function GetStatDurability(rowData)
 		rightText = string.format("(%.0f%%)", percent)
 	end
 	
-	return leftText, rightText, tt_name, tt_desc, link, isZero
+	return leftText, rightText, tt_name, tt_desc, link, isZero, isApplicable 
 end
 
-local function GetStatLeech(rowData)  
-	local leftText, rightText, tt_name, tt_desc, isZero = "","|cffffd100<" .. L["Secret"] .. ">|r","","",false
+local function GetStatLeech()  
+	local leftText, rightText, tt_name, tt_desc, isZero, isApplicable = "","|cffffd100<" .. L["Secret"] .. ">|r","","",false,true
 	local link = nil
 	local leechRating = GetCombatRating(CR_LIFESTEAL)
 	local lifesteal = GetLifesteal();
@@ -1751,13 +1669,12 @@ local function GetStatLeech(rowData)
 	tt_name = HIGHLIGHT_FONT_COLOR_CODE .. format(PAPERDOLLFRAME_TOOLTIP_FORMAT, STAT_LIFESTEAL) .. " " .. format("%.2F%%", lifesteal) .. FONT_COLOR_CODE_CLOSE;
 	tt_desc = format(CR_LIFESTEAL_TOOLTIP, BreakUpLargeNumbers(leechRating), GetCombatRatingBonus(CR_LIFESTEAL));
 	local DRtable = GetStatDRInfo(CR_LIFESTEAL)
-    --tt_desc = tt_desc .. BuildDRTooltip(DRtable)
 
-	return leftText, rightText, tt_name, tt_desc, link, isZero, DRtable
+	return leftText, rightText, tt_name, tt_desc, link, isZero, isApplicable, DRtable
 end
 
-local function GetStatAvoidance(rowData)  
-	local leftText, rightText, tt_name, tt_desc, isZero = "","|cffffd100<" .. L["Secret"] .. ">|r","","",false
+local function GetStatAvoidance()  
+	local leftText, rightText, tt_name, tt_desc, isZero, isApplicable = "","|cffffd100<" .. L["Secret"] .. ">|r","","",false,true
 	local link = nil
 	local avoidance = GetAvoidance();
 	local avoidRating = GetCombatRating(CR_AVOIDANCE)
@@ -1772,13 +1689,12 @@ local function GetStatAvoidance(rowData)
 	tt_name = HIGHLIGHT_FONT_COLOR_CODE .. format(PAPERDOLLFRAME_TOOLTIP_FORMAT, STAT_AVOIDANCE) .. " " .. format("%.2F%%", avoidance) .. FONT_COLOR_CODE_CLOSE;
 	tt_desc = format(CR_AVOIDANCE_TOOLTIP, BreakUpLargeNumbers(avoidRating), GetCombatRatingBonus(CR_AVOIDANCE));
 	local DRtable = GetStatDRInfo(CR_AVOIDANCE)
-    --tt_desc = tt_desc .. BuildDRTooltip(DRtable)
 	
-	return leftText, rightText, tt_name, tt_desc, link, isZero, DRtable
+	return leftText, rightText, tt_name, tt_desc, link, isZero, isApplicable, DRtable
 end
 
-local function GetStatSpeed(rowData)  
-	local leftText, rightText, tt_name, tt_desc, isZero = "","|cffffd100<" .. L["Secret"] .. ">|r","","",false
+local function GetStatSpeed()  
+	local leftText, rightText, tt_name, tt_desc, isZero, isApplicable = "","|cffffd100<" .. L["Secret"] .. ">|r","","",false,true
 	local link = nil
 	local speedRating = GetCombatRating(CR_SPEED)
 	local speed = GetSpeed();
@@ -1792,22 +1708,24 @@ local function GetStatSpeed(rowData)
 	tt_name = HIGHLIGHT_FONT_COLOR_CODE .. format(PAPERDOLLFRAME_TOOLTIP_FORMAT, STAT_SPEED) .. " " .. format("%.2F%%", speed) .. FONT_COLOR_CODE_CLOSE;
 	tt_desc = format(CR_SPEED_TOOLTIP, BreakUpLargeNumbers(speedRating), GetCombatRatingBonus(CR_SPEED));
 	local DRtable = GetStatDRInfo(CR_SPEED)
-    --tt_desc = tt_desc .. BuildDRTooltip(DRtable)
 	
-	return leftText, rightText, tt_name, tt_desc, link, isZero, DRtable
+	return leftText, rightText, tt_name, tt_desc, link, isZero, isApplicable, DRtable
 end
 
-local function GetStatMovespeed(rowData)  
-	local leftText, rightText, tt_name, tt_desc, isZero = "","|cffffd100<" .. L["Secret"] .. ">|r","","",false
+local function GetStatMovespeed()  
+	local leftText, rightText, tt_name, tt_desc, isZero, isApplicable = "","|cffffd100<" .. L["Secret"] .. ">|r","","",false,true
 	local link = nil
 
 	leftText=format("%s", L["Movement"])
+	local targetValue = CCS.GetBlizzardStatValue(STAT_MOVEMENT_SPEED)
 
 	if not CCS.AreSecretsDisabled() then
-		rightText = UpdateMoveSpeed()
+		rightText = CCS.UpdateMoveSpeed()
+	elseif CCS.CurrentVersion == CCS.FOREVER then
+		rightText = targetValue or ("|cffffd100<" .. L["Secret"] .. ">|r")
 	end
 	
-	return leftText, rightText, tt_name, tt_desc, link, isZero
+	return leftText, rightText, tt_name, tt_desc, link, isZero, isApplicable 
 end
 
 -------------------------------------------------
@@ -1883,7 +1801,7 @@ end
 
 
 local function GetStatCurrency(rowData)
-    local leftText, rightText, tt_name, tt_desc, isZero =
+    local leftText, rightText, tt_name, tt_desc, isZero, isApplicable =
         "", "|cffffd100<" .. L["Secret"] .. ">|r", "", "", false
     local link = nil
 
@@ -1946,156 +1864,285 @@ local function GetStatCurrency(rowData)
             BreakUpLargeNumbers(maxQty))
     end
 
-    return leftText, rightText, tt_name, tt_desc, link, isZero
+    return leftText, rightText, tt_name, tt_desc, link, isZero, isApplicable 
 end
 
 local STAT_SECTIONS = {
+	-------------------------------------------------
+	-- ATTRIBUTES
+	-------------------------------------------------
+	{
+		key         = "ATTRIBUTES",
+		title       = L["Attributes"],
+		ver         = bit.bor(CCS.RETAIL),
+		showKey     = "show_attributes",
+		collapseKey = "collapse_attributes",
+		colorKey    = "attribute_color",
+		color       = { r = 0.90, g = 0.70, b = 0.20 },
 
-    -------------------------------------------------
-    -- ATTRIBUTES
-    -------------------------------------------------
-    {
-        key         = "ATTRIBUTES",
-        title       = L["Attributes"],
-        showKey     = "show_attributes",
-        collapseKey = "collapse_attributes",
-        colorKey    = "attribute_color",
-        color       = { r = 0.90, g = 0.70, b = 0.20 },
+		rows = {
+			{ key="attribute_primary",	name=L["Primary Stat"]	or "Primary Stat",	ver=bit.bor(CCS.RETAIL),	id=10000,	statFunc=GetStatPrimary,	icon="Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\intellect.png", isAtlas=false },
+			{ key="attribute_stamina",	name=L["Stamina"]		or "Stamina",		ver=bit.bor(CCS.RETAIL),	id=10000,	statFunc=GetStatStamina,	icon="Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\stamina.png", isAtlas=false },
+			{ key="attribute_health",	name=L["Health"]		or "Health",		ver=bit.bor(CCS.RETAIL),	id=10000,	statFunc=GetStatHealth,		icon="Interface\\Icons\\inv_potion_54", isAtlas=false },
+			{ key="attribute_power",	name=L["Power/Mana"]	or "Power/Mana",	ver=bit.bor(CCS.RETAIL),	id=10000,	statFunc=GetStatPower,		icon="Interface\\Icons\\inv_misc_gem_pearl_03", isAtlas=false },
+			{ key="attribute_gcd",		name=L["GCD"]			or "GCD",			ver=bit.bor(CCS.RETAIL),	id=10000,	statFunc=GetStatGCD,		icon="Interface\\Icons\\inv_misc_pocketwatch_02.blp", isAtlas=false },
+		},
+	},
 
-        rows = {
-            { key="attribute_primary",   name=L["Primary Stat"]  or "Primary Stat",  id=10000, statFunc=GetStatPrimary, icon="Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\intellect.png" },
-            { key="attribute_stamina",   name=L["Stamina"]       or "Stamina",       id=10000, statFunc=GetStatStamina, icon="Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\stamina.png" },
-            { key="attribute_health",    name=L["Health"]        or "Health",        id=10000, statFunc=GetStatHealth, icon="Interface\\Icons\\inv_potion_54" },
-            { key="attribute_power",     name=L["Power/Mana"]    or "Power/Mana",    id=10000, statFunc=GetStatPower, icon="Interface\\Icons\\inv_misc_gem_pearl_03" },
-            { key="attribute_gcd",       name=L["GCD"]           or "GCD",           id=10000, statFunc=GetStatGCD, icon="Interface\\Icons\\inv_misc_pocketwatch_02.blp" },
-        },
-    },
+	-------------------------------------------------
+	-- SECONDARY
+	-------------------------------------------------
+	{
+		key         = "SECONDARY",
+		title       = L["Secondary"],
+		ver         = bit.bor(CCS.RETAIL),
+		showKey     = "show_secondary",
+		collapseKey = "collapse_secondary",
+		colorKey    = "secondary_stats_color",
+		color       = { r = 0.40, g = 0.80, b = 0.40 },
 
-    -------------------------------------------------
-    -- SECONDARY
-    -------------------------------------------------
-    {
-        key         = "SECONDARY",
-        title       = L["Secondary"],
-        showKey     = "show_secondary",
-        collapseKey = "collapse_secondary",
-        colorKey    = "secondary_stats_color",
-        color       = { r = 0.40, g = 0.80, b = 0.40 },
+		rows = {
+			{ key="secondary_crit",			name=L["Critical Strike"]	or "Critical Strike",	ver=bit.bor(CCS.RETAIL),	id=10000,	statFunc=GetStatCrit,			icon="Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\crit.png", isAtlas=false },
+			{ key="secondary_haste",		name=L["Haste"]				or "Haste",				ver=bit.bor(CCS.RETAIL),	id=10000,	statFunc=GetStatHaste,			icon="Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\haste.png", isAtlas=false },
+			{ key="secondary_mastery",		name=L["Mastery"]			or "Mastery",			ver=bit.bor(CCS.RETAIL),	id=10000,	statFunc=GetStatMastery,		icon="Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\mastery.png", isAtlas=false },
+			{ key="secondary_versatility",	name=L["Versatility"]		or "Versatility",		ver=bit.bor(CCS.RETAIL),	id=10000,	statFunc=GetStatVersatility,	icon="Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\versatility.png", isAtlas=false },
+		},
+	},
 
-        rows = {
-            { key="secondary_crit",        name=L["Critical Strike"] or "Critical Strike", id=10000, statFunc=GetStatCrit, icon="Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\crit.png" },
-            { key="secondary_haste",       name=L["Haste"]           or "Haste",           id=10000, statFunc=GetStatHaste, icon="Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\haste.png" },
-            { key="secondary_mastery",     name=L["Mastery"]         or "Mastery",         id=10000, statFunc=GetStatMastery, icon="Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\mastery.png" },
-            { key="secondary_versatility", name=L["Versatility"]     or "Versatility",     id=10000, statFunc=GetStatVersatility, icon="Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\versatility.png" },
-        },
-    },
+	-------------------------------------------------
+	-- ATTACK
+	-------------------------------------------------
+	{
+		key         = "ATTACK",
+		title       = L["Attack"],
+		ver         = bit.bor(CCS.RETAIL),
+		showKey     = "show_attack",
+		collapseKey = "collapse_attack",
+		colorKey    = "attack_stats_color",
+		color       = { r = 0.80, g = 0.30, b = 0.30 },
 
-    -------------------------------------------------
-    -- ATTACK
-    -------------------------------------------------
-    {
-        key         = "ATTACK",
-        title       = L["Attack"],
-        showKey     = "show_attack",
-        collapseKey = "collapse_attack",
-        colorKey    = "attack_stats_color",
-        color       = { r = 0.80, g = 0.30, b = 0.30 },
+		rows = {
+			{ key="attack_power",	name=L["Attack Power"]	or "Attack Power",	ver=bit.bor(CCS.RETAIL),	id=10000,	statFunc=GetStatAttackPower,	icon="Interface\\Icons\\ability_warrior_offensivestance", isAtlas=false },
+			{ key="attack_speed",	name=L["Attack Speed"]	or "Attack Speed",	ver=bit.bor(CCS.RETAIL),	id=10000,	statFunc=GetStatAttackSpeed,	icon="Interface\\Icons\\inv_gauntlets_04", isAtlas=false },
+			{ key="attack_spell",	name=L["Spell Power"]	or "Spell Power",	ver=bit.bor(CCS.RETAIL),	id=10000,	statFunc=GetStatSpellPower,		icon="Interface\\Icons\\spell_fire_flamebolt", isAtlas=false },
+		},
+	},
 
-        rows = {
-            { key="attack_power", name=L["Attack Power"] or "Attack Power", id=10000, statFunc=GetStatAttackPower, icon="Interface\\Icons\\ability_warrior_offensivestance" },
-            { key="attack_speed", name=L["Attack Speed"] or "Attack Speed", id=10000, statFunc=GetStatAttackSpeed, icon="Interface\\Icons\\inv_gauntlets_04" },
-            { key="attack_spell", name=L["Spell Power"]  or "Spell Power",  id=10000, statFunc=GetStatSpellPower, icon="Interface\\Icons\\spell_fire_flamebolt" },
-        },
-    },
+	-------------------------------------------------
+	-- DEFENSE
+	-------------------------------------------------
+	{
+		key         = "DEFENSE",
+		title       = L["Defense"],
+		ver         = bit.bor(CCS.RETAIL),
+		showKey     = "show_defense",
+		collapseKey = "collapse_defense",
+		colorKey    = "defense_stats_color",
+		color       = { r = 0.29, g = 0.46, b = 0.90 },
 
-    -------------------------------------------------
-    -- DEFENSE
-    -------------------------------------------------
-    {
-        key         = "DEFENSE",
-        title       = L["Defense"],
-        showKey     = "show_defense",
-        collapseKey = "collapse_defense",
-        colorKey    = "defense_stats_color",
-        color       = { r = 0.29, g = 0.46, b = 0.90 },
+		rows = {
+			{ key="defense_armor",		name=L["Armor"]		or "Armor",		ver=bit.bor(CCS.RETAIL),	id=10000,	statFunc=GetStatArmor,		icon="Interface\\Icons\\inv_chest_chain", isAtlas=false },
+			{ key="defense_dodge",		name=L["Dodge"]		or "Dodge",		ver=bit.bor(CCS.RETAIL),	id=10000,	statFunc=GetStatDodge,		icon="Interface\\Icons\\rogue_burstofspeed", isAtlas=false },
+			{ key="defense_parry",		name=L["Parry"]		or "Parry",		ver=bit.bor(CCS.RETAIL),	id=10000,	statFunc=GetStatParry,		icon="Interface\\Icons\\ability_parry", isAtlas=false },
+			{ key="defense_block",		name=L["Block"]		or "Block",		ver=bit.bor(CCS.RETAIL),	id=10000,	statFunc=GetStatBlock,		icon="Interface\\Icons\\ability_defend", isAtlas=false },
+			{ key="defense_stagger",	name=L["Stagger"]	or "Stagger",	ver=bit.bor(CCS.RETAIL),	id=10000,	statFunc=GetStatStagger,	icon="Interface\\Icons\\monk_stance_drunkenox", isAtlas=false },
+		},
+	},
 
-        rows = {
-            { key="defense_armor",   name=L["Armor"]   or "Armor",   id=10000, statFunc=GetStatArmor, icon="Interface\\Icons\\inv_chest_chain" },
-            { key="defense_dodge",   name=L["Dodge"]   or "Dodge",   id=10000, statFunc=GetStatDodge, icon="Interface\\Icons\\rogue_burstofspeed" },
-            { key="defense_parry",   name=L["Parry"]   or "Parry",   id=10000, statFunc=GetStatParry, icon="Interface\\Icons\\ability_parry" },
-            { key="defense_block",   name=L["Block"]   or "Block",   id=10000, statFunc=GetStatBlock, icon="Interface\\Icons\\ability_defend" },
-            { key="defense_stagger", name=L["Stagger"] or "Stagger", id=10000, statFunc=GetStatStagger, icon="Interface\\Icons\\monk_stance_drunkenox" },
-        },
-    },
+	-------------------------------------------------
+	-- GENERAL
+	-------------------------------------------------
+	{
+		key         = "GENERAL",
+		title       = L["General"],
+		ver         = bit.bor(CCS.RETAIL),
+		showKey     = "show_general",
+		collapseKey = "collapse_general",
+		colorKey    = "general_color",
+		color       = { r = 0.70, g = 0.70, b = 0.70 },
 
-    -------------------------------------------------
-    -- GENERAL
-    -------------------------------------------------
-    {
-        key         = "GENERAL",
-        title       = L["General"],
-        showKey     = "show_general",
-        collapseKey = "collapse_general",
-        colorKey    = "general_color",
-        color       = { r = 0.70, g = 0.70, b = 0.70 },
+		rows = {
+			{ key="general_durability",	name=L["Durability"]		or "Durability",		ver=bit.bor(CCS.RETAIL),	id=10000,	statFunc=GetStatDurability,	icon="Interface\\Cursor\\repairnpc", isAtlas=false },
+			{ key="general_leech",		name=L["Leech"]			or "Leech",					ver=bit.bor(CCS.RETAIL),	id=10000,	statFunc=GetStatLeech,		icon="Interface\\Icons\\spell_shadow_lifedrain02", isAtlas=false },
+			{ key="general_avoidance",	name=L["Avoidance"]		or "Avoidance",				ver=bit.bor(CCS.RETAIL),	id=10000,	statFunc=GetStatAvoidance,	icon="Interface\\Icons\\ability_rogue_quickrecovery", isAtlas=false },
+			{ key="general_speed",		name=L["Speed"]			or "Speed",					ver=bit.bor(CCS.RETAIL),	id=10000,	statFunc=GetStatSpeed,		icon="Interface\\Icons\\ability_rogue_sprint", isAtlas=false },
+			{ key="general_movespeed",	name=L["Movement Speed"]	or "Movement Speed",	ver=bit.bor(CCS.RETAIL),	id=10000,	statFunc=GetStatMovespeed,	icon="Interface\\Icons\\ability_mount_nightmarehorse", isAtlas=false },
+		},
+	},
 
-        rows = {
-            { key="general_durability", name=L["Durability"]     or "Durability",     id=10000, statFunc=GetStatDurability, icon="Interface\\Cursor\\repairnpc" },
-            { key="general_leech",      name=L["Leech"]          or "Leech",          id=10000, statFunc=GetStatLeech, icon="Interface\\Icons\\spell_shadow_lifedrain02" },
-            { key="general_avoidance",  name=L["Avoidance"]      or "Avoidance",      id=10000, statFunc=GetStatAvoidance, icon="Interface\\Icons\\ability_rogue_quickrecovery" },
-            { key="general_speed",      name=L["Speed"]          or "Speed",          id=10000, statFunc=GetStatSpeed, icon="Interface\\Icons\\ability_rogue_sprint" },
-            { key="general_movespeed",  name=L["Movement Speed"] or "Movement Speed", id=10000, statFunc=GetStatMovespeed, icon="Interface\\Icons\\ability_mount_nightmarehorse" },
-        },
-    },
+	-------------------------------------------------
+	-- CRESTS
+	-------------------------------------------------
+	{
+		key         = "CRESTS",
+		title       = L["Crests"],
+		ver         = bit.bor(CCS.RETAIL),
+		showKey     = "show_crests",
+		collapseKey = "collapse_crests",
+		colorKey    = "crests_color",
+		color       = { r = 0.85, g = 0.55, b = 1.00 },
 
-    -------------------------------------------------
-    -- CRESTS
-    -------------------------------------------------
-    {
-        key         = "CRESTS",
-        title       = L["Crests"],
-        showKey     = "show_crests",
-        collapseKey = "collapse_crests",
-        colorKey    = "crests_color",
-        color       = { r = 0.85, g = 0.55, b = 1.00 },
+		rows = {
+			{ key="crests_myth",			name=L["Myth"]			or "Myth",			ver=bit.bor(CCS.RETAIL),	id=-1,	statFunc=GetStatCurrency,	icon="Interface\\Icons\\inv_120_crest_myth", isAtlas=false },
+			{ key="crests_hero",			name=L["Hero"]			or "Hero",			ver=bit.bor(CCS.RETAIL),	id=-1,	statFunc=GetStatCurrency,	icon="Interface\\Icons\\inv_120_crest_hero", isAtlas=false },
+			{ key="crests_champion",		name=L["Champion"]		or "Champion",		ver=bit.bor(CCS.RETAIL),	id=-1,	statFunc=GetStatCurrency,	icon="Interface\\Icons\\inv_120_crest_champion", isAtlas=false },
+			{ key="crests_veteran",			name=L["Veteran"]		or "Veteran",		ver=bit.bor(CCS.RETAIL),	id=-1,	statFunc=GetStatCurrency,	icon="Interface\\Icons\\inv_120_crest_veteran", isAtlas=false },
+			{ key="crests_adventurer",		name=L["Adventurer"]	or "Adventurer",	ver=bit.bor(CCS.RETAIL),	id=-1,	statFunc=GetStatCurrency,	icon="Interface\\Icons\\inv_120_crest_adventurer", isAtlas=false },
+			{ key="crests_catalyst",		name=L["Catalyst"]		or "Catalyst",		ver=bit.bor(CCS.RETAIL),	id=-1,	statFunc=GetStatCurrency,	icon="Interface\\Icons\\inv_120_crest_adventurer", isAtlas=false },
+			{ key="crests_voidcore",		name=BONUS_LOOT_LABEL	or "Bonus Loot",	ver=bit.bor(CCS.RETAIL),	id=-1,	statFunc=GetStatCurrency,	icon="Interface\\Icons\\inv_120_crest_adventurer", isAtlas=false },
+			--{ key="crests_valorstone",	name=BONUS_ROLL_REWARD_COIN or "Valorstones", ver=bit.bor(CCS.RETAIL), id=-1, statFunc=GetStatCurrency, icon="Interface\\Icons\\inv_valorstone_base", isAtlas=false },
+		},
+	},
 
-        rows = {
-            { key="crests_myth",       name=L["Myth"]        or "Myth",        id=-1, statFunc=GetStatCurrency, icon="Interface\\Icons\\inv_120_crest_myth" },
-            { key="crests_hero",       name=L["Hero"]        or "Hero",        id=-1, statFunc=GetStatCurrency, icon="Interface\\Icons\\inv_120_crest_hero" },
-            { key="crests_champion",   name=L["Champion"]    or "Champion",    id=-1, statFunc=GetStatCurrency, icon="Interface\\Icons\\inv_120_crest_champion" },
-            { key="crests_veteran",    name=L["Veteran"]     or "Veteran",     id=-1, statFunc=GetStatCurrency, icon="Interface\\Icons\\inv_120_crest_veteran" },
-            { key="crests_adventurer", name=L["Adventurer"]  or "Adventurer",  id=-1, statFunc=GetStatCurrency, icon="Interface\\Icons\\inv_120_crest_adventurer" },
-            { key="crests_catalyst", name=L["Catalyst"]  or "Catalyst",  id=-1, statFunc=GetStatCurrency, icon="Interface\\Icons\\inv_120_crest_adventurer" },
-            { key="crests_voidcore", name=BONUS_LOOT_LABEL  or "Bonus Loot",  id=-1, statFunc=GetStatCurrency, icon="Interface\\Icons\\inv_120_crest_adventurer" },
-			--{ key="crests_valorstone", name=BONUS_ROLL_REWARD_COIN or "Valorstones", id=-1, statFunc=GetStatCurrency, icon="Interface\\Icons\\inv_valorstone_base" },
+	-------------------------------------------------
+	-- PVP
+	-------------------------------------------------
+	{
+		key         = "PVP",
+		title       = L["PvP"],
+		ver         = bit.bor(CCS.RETAIL),
+		showKey     = "show_pvp",
+		collapseKey = "collapse_pvp",
+		colorKey    = "pvp_color",
+		color       = { r = 0.95, g = 0.25, b = 0.60 },
 
-        },
-    },
+		rows = {
+			{ key="pvp_honorlevel",	name=L["Honor Level"]	or "Honor Level",	ver=bit.bor(CCS.RETAIL),	id=1586,	statFunc=GetStatCurrency,	icon="Interface\\Icons\\achievement_legionpvptier1", isAtlas=false },
+			{ key="pvp_honor",		name=L["Honor"]			or "Honor",			ver=bit.bor(CCS.RETAIL),	id=1792,	statFunc=GetStatCurrency,	icon="Interface\\Icons\\achievement_legionpvptier4", isAtlas=false },
+			{ key="pvp_conquest",	name=L["Conquest"]		or "Conquest",		ver=bit.bor(CCS.RETAIL),	id=1602,	statFunc=GetStatCurrency,	icon="Interface\\Icons\\achievement_legionpvp2tier3", isAtlas=false },
+			--{ key="pvp_bloodtokens",	name=L["Bloody Tokens"]	or "Bloody Tokens",	ver=bit.bor(CCS.RETAIL),	id=2123,	statFunc=GetStatCurrency,	icon="Interface\\Icons\\inv_10_dungeonjewelry_titan_trinket_2_color2", isAtlas=false },
+			--{ key="pvp_trophy",		name=L["Trophy of Strife"]	or "Trophy of Strife",	ver=bit.bor(CCS.RETAIL),	id=2797,	statFunc=GetStatCurrency,	icon="Interface\\Icons\\ability_bossfelorcs_necromancer_orange", isAtlas=false },
+		},
+	},
 
-    -------------------------------------------------
-    -- PVP
-    -------------------------------------------------
-    {
-        key         = "PVP",
-        title       = L["PvP"],
-        showKey     = "show_pvp",
-        collapseKey = "collapse_pvp",
-        colorKey    = "pvp_color",
-        color       = { r = 0.95, g = 0.25, b = 0.60 },
+--===============================================
+-- FOREVER STATS START
+--===============================================
+	-------------------------------------------------
+	-- GENERAL - FOREVER
+	-------------------------------------------------
+	{
+		key         = "GENERAL_FOREVER",
+		title       = STAT_CATEGORY_GENERAL,
+		ver         = bit.bor(CCS.FOREVER),
+		showKey     = "show_general_forever",
+		collapseKey = "collapse_general_forever",
+		colorKey    = "general_color_forever",
+		color       = { r = 0.70, g = 0.70, b = 0.70 },
 
-        rows = {
-            { key="pvp_honorlevel", name=L["Honor Level"]     or "Honor Level",     id=1586, statFunc=GetStatCurrency, icon="Interface\\Icons\\achievement_legionpvptier1" },
-            { key="pvp_honor", 		name=L["Honor"]     	  or "Honor",     		id=1792, statFunc=GetStatCurrency, icon="Interface\\Icons\\achievement_legionpvptier4" },
-            { key="pvp_conquest",   name=L["Conquest"]        or "Conquest",        id=1602, statFunc=GetStatCurrency, icon="Interface\\Icons\\achievement_legionpvp2tier3" },
-           -- { key="pvp_bloodtokens",name=L["Bloody Tokens"]   or "Bloody Tokens",   id=2123, statFunc=GetStatCurrency, icon="Interface\\Icons\\inv_10_dungeonjewelry_titan_trinket_2_color2" },
-           -- { key="pvp_trophy",     name=L["Trophy of Strife"]or "Trophy of Strife",id=2797, statFunc=GetStatCurrency, icon="Interface\\Icons\\ability_bossfelorcs_necromancer_orange" },
-        },
-    },
+		rows = {
+			{ key="general_health",		name=L["Health"]			or "Health",			ver=bit.bor(CCS.FOREVER),	id=10000,	statFunc=GetStatHealth,			icon="Interface\\Icons\\inv_potion_54", isAtlas=false },
+			{ key="general_power",		name=L["Power/Mana"]		or "Power/Mana",		ver=bit.bor(CCS.FOREVER),	id=10000,	statFunc=GetStatPower,			icon="Interface\\Icons\\inv_misc_gem_pearl_03", isAtlas=false },
+			--{ key="general_healthregen",	name=L["Health Regen"]		or "Health Regen",		ver=bit.bor(CCS.FOREVER),	id=10000,	statFunc=CCS.GetStatHealthRegenForever,			icon="Interface\\Icons\\Spell_Holy_Renew", isAtlas=false },
+			--{ key="general_manaregen",		name=L["Mana Regen"]		or "Mana Regen",		ver=bit.bor(CCS.FOREVER),	id=10000,	statFunc=CCS.GetStatManaRegenForever,			icon="Interface\\Icons\\spell_nature_manaregentotem", isAtlas=false },
+			{ key="general_energyregen",	name=L["Energy Regen"]		or "Energy Regen",		ver=bit.bor(CCS.FOREVER),	id=10000,	statFunc=CCS.GetStatEnergyRegenForever,			icon="Interface\\Icons\\INV_Trinket_Maldraxxus_02_Yellow", isAtlas=false },
+			--{ key="general_gcd",		name=L["GCD"]			or "GCD",			    ver=bit.bor(CCS.FOREVER),	id=10000,	statFunc=GetStatGCD,		icon="Interface\\Icons\\inv_misc_pocketwatch_02.blp", isAtlas=false },
+			{ key="general_movespeed",	    name=L["Movement Speed"]	or "Movement Speed",	ver=bit.bor(CCS.FOREVER),	id=10000,	statFunc=GetStatMovespeed,	icon="Interface\\Icons\\ability_mount_nightmarehorse", isAtlas=false },
+			{ key="general_durability",	    name=L["Durability"]		or "Durability",		ver=bit.bor(CCS.FOREVER),	id=10000,	statFunc=GetStatDurability,	icon="Interface\\Cursor\\repairnpc", isAtlas=false },
+		},
+	},
+
+	-------------------------------------------------
+	-- PRIMARY STATS - FOREVER
+	-------------------------------------------------
+	{
+		key         = "ATTRIBUTES_FOREVER",
+		title       = STAT_CATEGORY_ATTRIBUTES,
+		ver         = bit.bor(CCS.FOREVER),
+		showKey     = "show_attributes_forever",
+		collapseKey = "collapse_attributes_forever",
+		colorKey    = "attributes_color_forever",
+		color       = { r = 0.90, g = 0.70, b = 0.20 },
+
+		rows = {
+			{ key="attributes_strength",	name=L["Strength"]		or "Strength",		ver=bit.bor(CCS.FOREVER),	id=10000,	statFunc=function() return CCS.GetStatPrimaryClassic(LE_UNIT_STAT_STRENGTH) end,	icon="Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\strength.png", isAtlas=false },
+			{ key="attributes_agility",	    name=L["Agility"]		or "Agility",		ver=bit.bor(CCS.FOREVER),	id=10000,	statFunc=function() return CCS.GetStatPrimaryClassic(LE_UNIT_STAT_AGILITY) end,		icon="Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\agility.png", isAtlas=false },
+			{ key="attributes_stamina",	    name=L["Stamina"]		or "Stamina",		ver=bit.bor(CCS.FOREVER),	id=10000,	statFunc=function() return CCS.GetStatPrimaryClassic(LE_UNIT_STAT_STAMINA) end,		icon="Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\stamina.png", isAtlas=false },
+			{ key="attributes_intellect",	name=L["Intellect"]		or "Intellect",		ver=bit.bor(CCS.FOREVER),	id=10000,	statFunc=function() return CCS.GetStatPrimaryClassic(LE_UNIT_STAT_INTELLECT) end,	icon="Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\intellect.png", isAtlas=false },
+			{ key="attributes_spirit",		name=L["Spirit"]		or "Spirit",		ver=bit.bor(CCS.FOREVER),	id=10000,	statFunc=function() return CCS.GetStatPrimaryClassic(LE_UNIT_STAT_SPIRIT) end,		icon="Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\spirit.png", isAtlas=false },
+		},
+	},
+
+	-------------------------------------------------
+	-- MODIFIERS - FOREVER
+	-------------------------------------------------
+	{
+		key         = "MODIFIERS",
+		title       = STAT_CATEGORY_MODIFIERS,
+		ver         = bit.bor(CCS.FOREVER),
+		showKey     = "show_modifiers_forever",
+		collapseKey = "collapse_modifiers_forever",
+		colorKey    = "modifiers_stats_color_forever",
+		color       = { r = 0.40, g = 0.80, b = 0.40 },
+
+		rows = {
+			{ key="modifiers_spellpower",		name=L["Spell Power"]		or "Spell Power",		ver=bit.bor(CCS.FOREVER),	id=10000,	statFunc=CCS.GetStatSpellPowerForever,			icon="Interface\\Icons\\spell_fire_flamebolt", isAtlas=false },
+			{ key="modifiers_healing",			name=L["Spell Healing"]		or "Spell Healing",		ver=bit.bor(CCS.FOREVER),	id=10000,	statFunc=CCS.GetStatSpellHealingForever,		icon="Interface\\Icons\\spell_holy_heal", isAtlas=false },
+			{ key="modifiers_attackpower",		name=L["Attack Power"]		or "Attack Power",		ver=bit.bor(CCS.FOREVER),	id=10000,	statFunc=function() return CCS.GetStatAttackPowerForever(false) end,	icon="Interface\\Icons\\ability_warrior_offensivestance", isAtlas=false },
+			{ key="modifiers_rangedpower",    	name=L["Ranged Attack Power"]or "Ranged Attack Power",ver=bit.bor(CCS.FOREVER),	id=10000,	statFunc=function() return CCS.GetStatAttackPowerForever(true) end,	icon="Interface\\Icons\\INV_Weapon_Bow_05", isAtlas=false },
+			{ key="modifiers_crit",			    name=L["Critical Strike"]	or "Critical Strike",	ver=bit.bor(CCS.FOREVER),	id=10000,	statFunc=CCS.GetStatCritForever,			icon="Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\crit.png", isAtlas=false },
+			{ key="modifiers_haste",		    name=L["Haste"]				or "Haste",				ver=bit.bor(CCS.FOREVER),	id=10000,	statFunc=CCS.GetStatHasteForever,			icon="Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\haste.png", isAtlas=false },
+			{ key="modifiers_hit",		    	name=L["Hit Chance"]		or "Hit Chance",		ver=bit.bor(CCS.FOREVER),	id=10000,	statFunc=CCS.GetStatHitChanceForever,			icon="Interface\\Icons\\Ability_Marksmanship", isAtlas=false },
+			{ key="modifiers_expertise",	    name=L["Expertise"]			or "Expertise",			ver=bit.bor(CCS.FOREVER),	id=10000,	statFunc=CCS.GetStatExpertiseForever,			icon="Interface\\Icons\\ability_warrior_weaponmastery", isAtlas=false },
+			{ key="modifiers_armorpen",	    name=L["Armor Penetration"]		or "Armor Penetration",		ver=bit.bor(CCS.FOREVER),	id=10000,	statFunc=CCS.GetStatArmorPenetrationForever,icon="Interface\\Icons\\ability_warrior_sunder", isAtlas=false },
+			{ key="modifiers_spellpen",	    name=L["Spell Penetration"]	or "Spell Penetration",	ver=bit.bor(CCS.FOREVER),	id=10000,	statFunc=CCS.GetStatSpellPenetrationForever,	icon="Interface\\Icons\\spell_holy_dispelmagic", isAtlas=false },
+		},
+	},
+
+	-------------------------------------------------
+	-- WEAPONS - FOREVER
+	-------------------------------------------------
+	{
+		key         = "WEAPONS_FOREVER",
+		title       = STAT_CATEGORY_WEAPONS,
+		ver         = bit.bor(CCS.FOREVER),
+		showKey     = "show_weapons_forever",
+		collapseKey = "collapse_weapons_forever",
+		colorKey    = "weapons_stats_color_forever",
+		color       = { r = 0.80, g = 0.30, b = 0.30 },
+
+		rows = {
+			{ key="weapons_speed",			name=L["Attack Speed"]		or "Attack Speed",		ver=bit.bor(CCS.FOREVER),	id=10000,	statFunc=CCS.GetStatAttackSpeedForever,			icon="Interface\\Icons\\inv_gauntlets_04", isAtlas=false },
+			{ key="weapons_mainhanddamage",	name=L["Main Hand Damage"]	or "Main Hand Damage",	ver=bit.bor(CCS.FOREVER),	id=10000,	statFunc=CCS.GetStatMainhandDamageForever,		icon="Interface\\Icons\\inv_sword_04", isAtlas=false },
+			{ key="weapons_offhanddamage",	name=L["Off Hand Damage"]	or "Off Hand Damage",	ver=bit.bor(CCS.FOREVER),	id=10000,	statFunc=CCS.GetStatOffhandDamageForever,		icon="Interface\\Icons\\inv_sword_04", isAtlas=false },
+			{ key="weapons_rangeddamage",	name=L["Ranged Damage"]		or "Ranged Damage",		ver=bit.bor(CCS.FOREVER),	id=10000,	statFunc=CCS.GetStatRangedDamageForever,		icon="Interface\\Icons\\inv_weapon_bow_07", isAtlas=false },
+			--{ key="weapons_skill",	name=L["Weapon Skill"] or "Weapon Skill",	ver=bit.bor(CCS.FOREVER),	id=10000,	statFunc=CCS.GetStatWeaponSkillForever,	icon="Interface\\Icons\\inv_sword_04" },		
+		},
+	},
+
+	-------------------------------------------------
+	-- DEFENSE - FOREVER
+	-------------------------------------------------
+	{
+		key         = "DEFENSE_FOREVER",
+		title       = STAT_CATEGORY_DEFENSE,
+		ver         = bit.bor(CCS.FOREVER),
+		showKey     = "show_defense_forever",
+		collapseKey = "collapse_defense_forever",
+		colorKey    = "defense_color_forever",
+		color       = { r = 0.29, g = 0.46, b = 0.90 },
+
+		rows = {
+			{ key="defense_defense",	name=L["Defense"]	or "Defense",	ver=bit.bor(CCS.FOREVER),	id=10000,	statFunc=CCS.GetStatDefenseForever,	icon="Interface\\Icons\\Ability_Warrior_ShieldMastery", isAtlas=false },
+			{ key="defense_armor",		name=L["Armor"]		or "Armor",		ver=bit.bor(CCS.FOREVER),	id=10000,	statFunc=CCS.GetStatArmorForever,	icon="Interface\\Icons\\inv_chest_chain", isAtlas=false },
+			{ key="defense_dodge",		name=L["Dodge"]		or "Dodge",		ver=bit.bor(CCS.FOREVER),	id=10000,	statFunc=CCS.GetStatDodgeForever,	icon="Interface\\Icons\\rogue_burstofspeed", isAtlas=false },
+			{ key="defense_parry",		name=L["Parry"]		or "Parry",		ver=bit.bor(CCS.FOREVER),	id=10000,	statFunc=CCS.GetStatParryForever,	icon="Interface\\Icons\\ability_parry", isAtlas=false },
+			{ key="defense_block",		name=L["Block"]		or "Block",		ver=bit.bor(CCS.FOREVER),	id=10000,	statFunc=CCS.GetStatBlockForever,	icon="Interface\\Icons\\ability_defend", isAtlas=false },
+			{ key="resistance_arcane",	name=DAMAGE_SCHOOL7	or "Arcane",	ver=bit.bor(CCS.FOREVER),	id=10000,	statFunc=function() return CCS.GetResistance(Enum.Damageclass.Arcane) end,	icon="UI-Character-Info-Resistance-Arcane", isAtlas=true },
+			{ key="resistance_fire",	name=DAMAGE_SCHOOL3 or "Fire",		ver=bit.bor(CCS.FOREVER),	id=10000,	statFunc=function() return CCS.GetResistance(Enum.Damageclass.Fire) end,	icon="UI-Character-Info-Resistance-Fire", isAtlas=true },
+			{ key="resistance_frost",	name=DAMAGE_SCHOOL5 or "Frost",		ver=bit.bor(CCS.FOREVER),	id=10000,	statFunc=function() return CCS.GetResistance(Enum.Damageclass.Frost) end,	icon="UI-Character-Info-Resistance-Frost", isAtlas=true },
+			{ key="resistance_nature",	name=DAMAGE_SCHOOL4 or "Nature",	ver=bit.bor(CCS.FOREVER),	id=10000,	statFunc=function() return CCS.GetResistance(Enum.Damageclass.Nature) end,	icon="UI-Character-Info-Resistance-Nature", isAtlas=true },
+			{ key="resistance_shadow",	name=DAMAGE_SCHOOL6 or "Shadow",	ver=bit.bor(CCS.FOREVER),	id=10000,	statFunc=function() return CCS.GetResistance(Enum.Damageclass.Shadow) end,	icon="UI-Character-Info-Resistance-Shadow", isAtlas=true },
+		},
+	},
+
 }
 
 STAT_SECTIONS_BY_KEY = {}
 for _, sec in ipairs(STAT_SECTIONS) do
-    STAT_SECTIONS_BY_KEY[sec.key] = sec
+	if bit.band(sec.ver, CCS.CurrentVersion) ~= 0 then
+		STAT_SECTIONS_BY_KEY[sec.key] = sec
+	end
 end
 
 local SecondaryKeyToStat = {
@@ -2164,188 +2211,195 @@ end
 
 local function UpdateLayout()
 
-    if CCS.initall == true then 
-        return 
+	if CCS.initall == true then
+		return
 	end
-	
-    local previousSection = nil
-    local sectionSpacing = 7
-    local rowSpacing = 2
-    local scrollFrame = _G["CCS_stat_sf"]
-    local scrollChild = _G["CCS_stat_sc"]
 
-    -------------------------------------------------
-    -- We accumulate scrollable height as we lay out
-    -------------------------------------------------
-    local contentHeight = 0
-    local firstVisible = true
+	local previousSection = nil
+	local sectionSpacing = 7
+	local rowSpacing = 2
+	local scrollFrame = _G["CCS_stat_sf"]
+	local scrollChild = _G["CCS_stat_sc"]
+
+	-------------------------------------------------
+	-- We accumulate scrollable height as we lay out
+	-------------------------------------------------
+	local contentHeight = 0
+	local firstVisible = true
 	local orderedKeys = CCS:GetOrderedSections(STAT_SECTIONS)
 
-    --for _, section in ipairs(STAT_SECTIONS) do
 	for _, key in ipairs(orderedKeys) do
 		local section = STAT_SECTIONS_BY_KEY[key]
-        local sectionFrame = _G["CCS_Section_" .. section.key]
-        local header       = _G["CCS_Header_" .. section.key]
 
-        if sectionFrame and header then
-            -------------------------------------------------
-            -- SECTION HIDDEN ENTIRELY
-            -------------------------------------------------
-            if not option(section.showKey) then
-                sectionFrame:Hide()
+		if section and bit.band(section.ver, CCS.CurrentVersion) ~= 0 then
+			local sectionFrame = _G["CCS_Section_" .. section.key]
+			local header = _G["CCS_Header_" .. section.key]
 
-            else
-                sectionFrame:Show()
+			if sectionFrame and header then
+				-------------------------------------------------
+				-- SECTION HIDDEN ENTIRELY
+				-------------------------------------------------
+				if not option(section.showKey) then
+					sectionFrame:Hide()
 
-                -------------------------------------------------
-                -- ANCHOR SECTION IN VERTICAL CHAIN
-                -------------------------------------------------
-                sectionFrame:ClearAllPoints()
-                if not previousSection then
-                    sectionFrame:SetPoint("TOPLEFT", scrollChild, "TOPLEFT", 0, -sectionSpacing)
-                else
-                    sectionFrame:SetPoint("TOPLEFT", previousSection, "BOTTOMLEFT", 0, -sectionSpacing)
-                end
+				else
+					sectionFrame:Show()
 
-                -------------------------------------------------
-                -- COLLAPSE STATE
-                -------------------------------------------------
-                local isCollapsed = header.isCollapsed == true
-                local showHeader = isCollapsed or option("show_headers") ~= false
+					-------------------------------------------------
+					-- ANCHOR SECTION IN VERTICAL CHAIN
+					-------------------------------------------------
+					sectionFrame:ClearAllPoints()
+					if not previousSection then
+						sectionFrame:SetPoint("TOPLEFT", scrollChild, "TOPLEFT", 0, -sectionSpacing)
+					else
+						sectionFrame:SetPoint("TOPLEFT", previousSection, "BOTTOMLEFT", 0, -sectionSpacing)
+					end
 
-                local previousRow
-                local totalHeight
+					-------------------------------------------------
+					-- COLLAPSE STATE
+					-------------------------------------------------
+					local isCollapsed = header.isCollapsed == true
+					local showHeader = isCollapsed or option("show_headers") ~= false
 
-                -------------------------------------------------
-                -- HEADER VISIBILITY
-                -------------------------------------------------
-                if showHeader then
-                    header:Show()
-                    header:ClearAllPoints()
-                    header:SetPoint("TOPLEFT", sectionFrame, "TOPLEFT", 0, 0)
-                    previousRow = header
-                    totalHeight = header:GetHeight()
-                else
-                    header:Hide()
-                    previousRow = nil
-                    totalHeight = 0
-                end
+					local previousRow
+					local totalHeight
 
-                -------------------------------------------------
-                -- ROW ORDER (SECONDARY STAT PRIORITY)
-                -------------------------------------------------
-                local rows = section.rows
-                if section.key == "SECONDARY" then
-                    rows = GetSortedSecondaryRows(section)
+					-------------------------------------------------
+					-- HEADER VISIBILITY
+					-------------------------------------------------
+					if showHeader then
+						header:Show()
+						header:ClearAllPoints()
+						header:SetPoint("TOPLEFT", sectionFrame, "TOPLEFT", 0, 0)
+						previousRow = header
+						totalHeight = header:GetHeight()
+					else
+						header:Hide()
+						previousRow = nil
+						totalHeight = 0
+					end
 
-                    -- Refresh header text + toggle visibility
-                    if header.headerText then
-                        header.headerText:SetText(GetActiveModeDisplayName())
-                    end
-                    if header.prioToggle then
-                        local numOpts = option("show_secondarypriority") and 1 or 0
-                        local _sl = GetActiveSlots()
-                        for _n = 1, #_sl do
-                            if _sl[_n].enabled then numOpts = numOpts + 1 end
-                        end
-                        header.prioToggle:SetShown(numOpts > 1 and option("show_secondarypriority") == false)
-                    end
-                end
+					-------------------------------------------------
+					-- ROW ORDER (SECONDARY STAT PRIORITY)
+					-------------------------------------------------
+					local rows = section.rows
+					if section.key == "SECONDARY" then
+						rows = GetSortedSecondaryRows(section)
 
-                -------------------------------------------------
-                -- COLLAPSED SECTION
-                -------------------------------------------------
-                if isCollapsed then
-                    for _, rowData in ipairs(rows) do
-                        local row = _G["CCS_Row_" .. rowData.key]
-                        if row then row:Hide() end
-                    end
+						-- Refresh header text + toggle visibility
+						if header.headerText then
+							header.headerText:SetText(GetActiveModeDisplayName())
+						end
+						if header.prioToggle then
+							local numOpts = option("show_secondarypriority") and 1 or 0
+							local _sl = GetActiveSlots()
+							for _n = 1, #_sl do
+								if _sl[_n].enabled then numOpts = numOpts + 1 end
+							end
+							header.prioToggle:SetShown(numOpts > 1 and option("show_secondarypriority") == false)
+						end
+					end
 
-                    sectionFrame:SetHeight(totalHeight + 3)
+					-------------------------------------------------
+					-- COLLAPSED SECTION
+					-------------------------------------------------
+					if isCollapsed then
+						for _, rowData in ipairs(rows) do
+							if bit.band(rowData.ver, CCS.CurrentVersion) ~= 0 then
+								local row = _G["CCS_Row_" .. rowData.key]
+								if row then row:Hide() end
+							end
+						end
 
-                -------------------------------------------------
-                -- EXPANDED SECTION
-                -------------------------------------------------
-                else
-                    for _, rowData in ipairs(rows) do
-                        local row = _G["CCS_Row_" .. rowData.key]
-                        if row then
-                            local shouldHide = (option("show_hide_zero_stats") == true) and (row.isZero == true)
+						sectionFrame:SetHeight(totalHeight + 3)
 
-                            -------------------------------------------------
-                            -- ICON VISIBILITY
-                            -------------------------------------------------
-                            if option("show_stat_icons") == true then
-                                row.leftText:SetPoint("LEFT", row.icon, "RIGHT", 6, 0)
-                                row.icon:Show()
-                            else
-                                row.leftText:SetPoint("LEFT", row, "LEFT", 2, 0)
-                                row.icon:Hide()
-                            end
+					-------------------------------------------------
+					-- EXPANDED SECTION
+					-------------------------------------------------
+					else
+						for _, rowData in ipairs(rows) do
+							if bit.band(rowData.ver, CCS.CurrentVersion) ~= 0 then
+								local row = _G["CCS_Row_" .. rowData.key]
 
-                            -------------------------------------------------
-                            -- ROW VISIBILITY
-                            -------------------------------------------------
-                            if option(rowData.key) ~= false and not shouldHide then
-                                row:Show()
-                                row:ClearAllPoints()
+								if row then
+									local shouldHide = ((option("show_hide_zero_stats") == true) and (row.isZero == true)) or row.isApplicable == false
 
-                                if previousRow then
-                                    row:SetPoint("TOPLEFT", previousRow, "BOTTOMLEFT", 0, -rowSpacing)
-                                else
-                                    row:SetPoint("TOPLEFT", sectionFrame, "TOPLEFT", 0, 0)
-                                end
+									-------------------------------------------------
+									-- ICON VISIBILITY
+									-------------------------------------------------
+									if option("show_stat_icons") == true then
+										row.leftText:SetPoint("LEFT", row.icon, "RIGHT", 6, 0)
+										row.icon:Show()
+									else
+										row.leftText:SetPoint("LEFT", row, "LEFT", 2, 0)
+										row.icon:Hide()
+									end
 
-                                previousRow = row
-                                totalHeight = totalHeight + row:GetHeight() + rowSpacing
-                            else
-                                row:Hide()
-                            end
-                        end
-                    end
+									-------------------------------------------------
+									-- ROW VISIBILITY
+									-------------------------------------------------
+									if option(rowData.key) ~= false and not shouldHide then
+										row:Show()
+										row:ClearAllPoints()
 
-                    sectionFrame:SetHeight(totalHeight + 3)
-                end
+										if previousRow then
+											row:SetPoint("TOPLEFT", previousRow, "BOTTOMLEFT", 0, -rowSpacing)
+										else
+											row:SetPoint("TOPLEFT", sectionFrame, "TOPLEFT", 0, 0)
+										end
 
-                -------------------------------------------------
-                -- ACCUMULATE SCROLL HEIGHT
-                -------------------------------------------------
-                if not firstVisible then
-                    contentHeight = contentHeight + sectionSpacing
-                end
+										previousRow = row
+										totalHeight = totalHeight + row:GetHeight() + rowSpacing
+									else
+										row:Hide()
+									end
+								end
+							end
+						end
 
-                contentHeight = contentHeight + sectionFrame:GetHeight()+7
-                firstVisible = false
+						sectionFrame:SetHeight(totalHeight + 3)
+					end
 
-                previousSection = sectionFrame
-            end
-        end
-    end
+					-------------------------------------------------
+					-- ACCUMULATE SCROLL HEIGHT
+					-------------------------------------------------
+					if not firstVisible then
+						contentHeight = contentHeight + sectionSpacing
+					end
 
-    -------------------------------------------------
-    -- APPLY HEIGHT TO SCROLL CHILD
-    -------------------------------------------------
-    if scrollChild then
-        scrollChild:SetHeight(contentHeight)
-    end
+					contentHeight = contentHeight + sectionFrame:GetHeight() + 7
+					firstVisible = false
 
-    -------------------------------------------------
-    -- UPDATE SCROLLBAR RANGE
-    -------------------------------------------------
-    if scrollFrame then
-        UpdateStatsScrollRange(scrollFrame)
-    end
+					previousSection = sectionFrame
+				end
+			end
+		end
+	end
+
+	-------------------------------------------------
+	-- APPLY HEIGHT TO SCROLL CHILD
+	-------------------------------------------------
+	if scrollChild then
+		scrollChild:SetHeight(contentHeight)
+	end
+
+	-------------------------------------------------
+	-- UPDATE SCROLLBAR RANGE
+	-------------------------------------------------
+	if scrollFrame then
+		UpdateStatsScrollRange(scrollFrame)
+	end
 end
 
-local UpdateAllStats
+CCS.UpdateAllStats = nil
 
 local function CreateHeaderRow(parent, frameName, section)
     -- Reuse if it already exists
     local row = _G[frameName] or CreateFrame("Frame", frameName, parent, "BackdropTemplate")
 	local title = section.title
 	local color = section.color
-	local secColor_r, secColor_g, secColor_b, secColor_a = unpack(option(section.colorKey))
-	
+	local secColor_r, secColor_g, secColor_b, secColor_a = unpack(option(section.colorKey) or {1,1,1,1})
+
 	if option("stataddoncolor") then
 		local ncolor = CCS.StyleColor.normal
 		secColor_r = ncolor[1]
@@ -2641,7 +2695,7 @@ local function CreateHeaderRow(parent, frameName, section)
 
                 -- Refresh stats, layout, and header text
                 if _G["CCS_stat_sc"] then
-                    UpdateAllStats(_G["CCS_stat_sc"])
+                    CCS.UpdateAllStats(_G["CCS_stat_sc"])
                     UpdateLayout()
                     local hrow = _G["CCS_Header_SECONDARY"]
                     if hrow then
@@ -2771,7 +2825,7 @@ local function TruncateWithEllipsis(fontString, text, maxWidth)
     return text:sub(1, high) .. ellipsis
 end
 
-local function CreateContentRow(parent, frameName, rowName, iconPath, color)
+local function CreateContentRow(parent, frameName, rowName, iconPath, isAtlas, color)
     -- Reuse if it already exists
     local row = _G[frameName] or CreateFrame("Frame", frameName, parent, "BackdropTemplate")
 
@@ -2792,8 +2846,14 @@ local function CreateContentRow(parent, frameName, rowName, iconPath, color)
         row.icon = row:CreateTexture(nil, "ARTWORK")
         row.icon:SetPoint("LEFT", row, "LEFT", 2, 0)
     end
-    row.icon:SetSize(rowH, rowH)
-    row.icon:SetTexture(iconPath)
+    
+	if isAtlas then
+		row.icon:SetSize(rowH * 1.4, rowH * 1.4)
+		row.icon:SetAtlas(iconPath)
+	else
+		row.icon:SetSize(rowH, rowH)
+		row.icon:SetTexture(iconPath)
+	end	
 
     -------------------------------------------------
     -- Compute MAX_LABEL_WIDTH
@@ -2951,242 +3011,264 @@ local function TruncateToWidth(fs, text, maxWidth)
     return ellipsis
 end
 
-UpdateAllStats = function(parent)
-    if CCS.initall == true then return end
-    CreateAndUpdateiLvlframe(CharacterStatsPane)
+CCS.UpdateAllStats = function(parent)
+	if CCS.initall == true then return end
+	
+	if CCS.CurrentVersion ~= CCS.FOREVER then
+		CreateAndUpdateiLvlframe(CharacterStatsPane)
+	else
+		-- Since we cannot do calculations due to "secrets", we will just steal the information directly from Blizzard's frame.
+		-- This just builds a frame lookup table so we can grab the value that Blizzard has already computed.
+		CCS.BuildBlizzardStatFrameLookup()
+	end
 
 	if ShouldShowPriority() then
-        local _, _, classID = UnitClass("player")
-        local specID = GetSpecialization()
-        local heroID = (C_ClassTalents and C_ClassTalents.GetActiveHeroTalentSpec and C_ClassTalents.GetActiveHeroTalentSpec()) or nil
-        GetSortedStats(classID, specID, heroID)  -- side-effect: updates cachedPriorityLookup
-    end
+		local _, _, classID = UnitClass("player")
+		local specID = GetSpecialization()
+		local heroID = (C_ClassTalents and C_ClassTalents.GetActiveHeroTalentSpec and C_ClassTalents.GetActiveHeroTalentSpec()) or nil
+		GetSortedStats(classID, specID, heroID)  -- side-effect: updates cachedPriorityLookup
+	end
 
-    local mode = option("long_text_handling")  -- "Full Text", "Truncate", "Wrap Text"
+	local mode = option("long_text_handling")  -- "Full Text", "Truncate", "Wrap Text"
 	local orderedKeys = CCS:GetOrderedSections(STAT_SECTIONS)
 
 	for _, key in ipairs(orderedKeys) do
-	--for _, sectionData in ipairs(STAT_SECTIONS) do
 		local sectionData = STAT_SECTIONS_BY_KEY[key]
-        local sectionFrame = _G["CCS_Section_" .. sectionData.key]
 
-        if sectionFrame ~= nil then
+		if sectionData and bit.band(sectionData.ver, CCS.CurrentVersion) ~= 0 then
+			local sectionFrame = _G["CCS_Section_" .. sectionData.key]
 
-            for _, rowData in ipairs(sectionData.rows) do
-                local rowFrame = _G["CCS_Row_" .. rowData.key]
+			if sectionFrame ~= nil then
 
-                if rowFrame ~= nil then
+				for _, rowData in ipairs(sectionData.rows) do
+					if bit.band(rowData.ver, CCS.CurrentVersion) ~= 0 then
+						local rowFrame = _G["CCS_Row_" .. rowData.key]
 
-                    -------------------------------------------------
-                    -- Get stat values
-                    -------------------------------------------------
-                    local leftText, rightText, tt_name, tt_desc, link, isZero, DRtable =
-                        rowData.statFunc(rowData)
+						if rowFrame ~= nil then
 
-                    rowFrame.isZero = isZero
-					-------------------------------------------------
-					-- DR Info (background)
-					-------------------------------------------------
-					rowFrame.DRtable = DRtable
-					if DRtable and DRtable.rawPercent1 and rowData.key:find("^secondary_") and option("show_diminishing_returns") and option("show_dr_row_colors") then
-						local visualInfo = GetDRBracketVisualInfo(DRtable.rawPercent1)
+							-------------------------------------------------
+							-- Get stat values
+							-------------------------------------------------
+							local leftText, rightText, tt_name, tt_desc, link, isZero, isApplicable, DRtable = rowData.statFunc(rowData)
 
-						if visualInfo and visualInfo.index > 1 then
-							local color = DR_BRACKET_COLORS[visualInfo.index]
-							rowFrame.bg:SetColorTexture(color[1], color[2], color[3], 0.35)
-						else
-							rowFrame.bg:SetColorTexture(0.05, 0.05, 0.05, 0.60)
-						end
+							rowFrame.isZero = isZero
+							rowFrame.isApplicable = isApplicable
 
-					else
-						rowFrame.bg:SetColorTexture(0.05, 0.05, 0.05, 0.60)
-					end
-                    -------------------------------------------------
-                    -- Update icon for currencies
-                    -------------------------------------------------
-					if rowData.statFunc == GetStatCurrency then
-						-- Resolve crest ID if needed
-						local id = rowData.id
-						if id == -1 then
-							id = GetCrestIDForRow(rowData.key)
-						end
+							-------------------------------------------------
+							-- DR Info (background)
+							-------------------------------------------------
+							rowFrame.DRtable = DRtable
+							if DRtable and DRtable.rawPercent1 and rowData.key:find("^secondary_") and option("show_diminishing_returns") and option("show_dr_row_colors") then
+								local visualInfo = GetDRBracketVisualInfo(DRtable.rawPercent1)
 
-						local currencyData
-						if id and C_CurrencyInfo then
-							currencyData = C_CurrencyInfo.GetCurrencyInfo(id)
-							link = C_CurrencyInfo.GetCurrencyLink(id)
-						elseif id then
-							currencyData = GetCurrencyInfo(id)
-							link = GetCurrencyLink(id)
-						end
-
-						if currencyData and currencyData.iconFileID then
-							rowFrame.icon:SetTexture(currencyData.iconFileID)
-						end
-					end
-
-                    -------------------------------------------------
-                    -- Update power color for attributes
-                    -------------------------------------------------
-                    if rowData.key == "attribute_power" then
-                        local _, powerToken = UnitPowerType("player")
-                        local info = PowerBarColor[powerToken]
-                        local r, g, b = 1, 1, 1
-                        if info then r, g, b = info.r, info.g, info.b end
-                        rowFrame.icon:SetVertexColor(r, g, b)
-                    end
-
-                    -------------------------------------------------
-                    -- Update right text
-                    -------------------------------------------------
-                    if rowFrame.rightText then
-                        rowFrame.rightText:SetText(rightText or "")
-                    end
-
-                    -------------------------------------------------
-                    -- LEFT TEXT HANDLING (the important part)
-                    -------------------------------------------------
-                    if rowFrame.leftText ~= nil then
-                        local fs = rowFrame.leftText
-                        local text = leftText or ""
-						
-						--if not CCS.AreSecretsDisabled() then 
-							fs:SetText(text)
-							-- Compute max label width
-							local reservedRightWidth
-							local MAX_LABEL_WIDTH
-							
-							if rowFrame.reservedRightWidth == nil then
-								reservedRightWidth = 110 -- rowFrame.rightText:GetStringWidth()+4
-								MAX_LABEL_WIDTH =
-								rowFrame:GetWidth()
-								- rowFrame.icon:GetWidth()
-								- 2 - 6 - reservedRightWidth - 6
-								rowFrame.reservedRightWidth = MAX_LABEL_WIDTH
-							end
-							
-							local naturalWidth = fs:GetStringWidth()
-							-- ALWAYS set width + justification first
-							fs:SetWidth(rowFrame.reservedRightWidth)
-							fs:SetJustifyH("LEFT")
-							fs:SetJustifyV("MIDDLE")
-							fs:SetNonSpaceWrap(true) 
-							
-							if mode == "Full Text" then
-								fs:SetWidth(0)
-								fs:SetWordWrap(false)
-								fs:SetMaxLines(1)
-								fs:SetText(text)
-							elseif mode == "Truncate" then
-								fs:SetWidth(rowFrame.reservedRightWidth)
-								fs:SetWordWrap(false)
-								fs:SetMaxLines(1)
-								if naturalWidth > rowFrame.reservedRightWidth then
-									fs:SetText(TruncateToWidth(fs, text, rowFrame.reservedRightWidth))
+								if visualInfo and visualInfo.index > 1 then
+									local color = DR_BRACKET_COLORS[visualInfo.index]
+									rowFrame.bg:SetColorTexture(color[1], color[2], color[3], 0.35)
+								else
+									rowFrame.bg:SetColorTexture(0.05, 0.05, 0.05, 0.60)
 								end
-							elseif mode == "Wrap Text" then
-								fs:SetWidth(rowFrame.reservedRightWidth)
-								fs:SetWordWrap(true)
-								fs:SetMaxLines(2)
-								fs:SetText(text)
-								-- Increase row height for wrapped text
-								local baseH = rowFrame:GetHeight()
-								local neededH = fs:GetStringHeight() + 4
-								rowFrame:SetHeight(math.max(baseH, neededH))
+
+							else
+								rowFrame.bg:SetColorTexture(0.05, 0.05, 0.05, 0.60)
 							end
+
+							-------------------------------------------------
+							-- Update icon for currencies
+							-------------------------------------------------
+							if rowData.statFunc == GetStatCurrency then
+								-- Resolve crest ID if needed
+								local id = rowData.id
+								if id == -1 then
+									id = GetCrestIDForRow(rowData.key)
+								end
+
+								local currencyData
+								if id and C_CurrencyInfo then
+									currencyData = C_CurrencyInfo.GetCurrencyInfo(id)
+									link = C_CurrencyInfo.GetCurrencyLink(id)
+								elseif id then
+									currencyData = GetCurrencyInfo(id)
+									link = GetCurrencyLink(id)
+								end
+
+								if currencyData and currencyData.iconFileID then
+									rowFrame.icon:SetTexture(currencyData.iconFileID)
+								end
+							end
+
+							-------------------------------------------------
+							-- Update power color for attributes
+							-------------------------------------------------
+							if rowData.key == "attribute_power" or rowData.key == "general_power" then
+								local _, powerToken = UnitPowerType("player")
+								local info = PowerBarColor[powerToken]
+								local r, g, b = 1, 1, 1
+								if info then r, g, b = info.r, info.g, info.b end
+								rowFrame.icon:SetVertexColor(r, g, b)
+							end
+
+							-------------------------------------------------
+							-- Update right text
+							-------------------------------------------------
+							if rowFrame.rightText then
+								rowFrame.rightText:SetText(rightText or "")
+							end
+
+							-------------------------------------------------
+							-- LEFT TEXT HANDLING
+							-------------------------------------------------
+							if rowFrame.leftText ~= nil then
+								local fs = rowFrame.leftText
+								local text = leftText or ""
+
+								fs:SetText(text)
+
+								-- Compute max label width
+								local reservedRightWidth
+								local MAX_LABEL_WIDTH
+
+								if rowFrame.reservedRightWidth == nil then
+									reservedRightWidth = 110
+									MAX_LABEL_WIDTH =
+										rowFrame:GetWidth()
+										- rowFrame.icon:GetWidth()
+										- 2 - 6 - reservedRightWidth - 6
+									rowFrame.reservedRightWidth = MAX_LABEL_WIDTH
+								end
+
+								local naturalWidth = fs:GetStringWidth()
+								
+								-- ALWAYS set width + justification first
+								fs:SetWidth(rowWidth - (rowFrame.reservedRightWidth+6))
 								fs:SetJustifyH("LEFT")
 								fs:SetJustifyV("MIDDLE")
-								fs:SetNonSpaceWrap(true) 						
-						--end	
-                    end
+								fs:SetNonSpaceWrap(true)
 
-                    -------------------------------------------------
-                    -- Tooltip
-                    -------------------------------------------------
-					if not CCS.AreSecretsDisabled() then 
-						rowFrame:SetScript("OnEnter", function(self)
-							local rd = rowData
+								if mode == "Full Text" then
+									fs:SetWidth(0)
+									fs:SetWordWrap(false)
+									fs:SetMaxLines(1)
+									fs:SetText(text)
 
-							GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+								elseif mode == "Truncate" then
+									fs:SetWidth(rowWidth - (rowFrame.reservedRightWidth+6))
+									fs:SetWordWrap(false)
+									fs:SetMaxLines(1)
 
-							if link ~= nil then
-								GameTooltip:SetHyperlink(link)
-							elseif not CCS.AreSecretsDisabled() then 
-								if tt_name and tt_name ~= "" then
-									GameTooltip:AddLine(tt_name, 1, 1, 1, true)
+									if naturalWidth > rowFrame.reservedRightWidth then
+										fs:SetText(TruncateToWidth(fs, text, rowFrame.reservedRightWidth))
+									end
+
+								elseif mode == "Wrap Text" then
+									fs:SetWidth(rowWidth - (rowFrame.reservedRightWidth+6))
+									fs:SetWordWrap(true)
+									fs:SetMaxLines(2)
+									fs:SetText(text)
+
+									-- Increase row height for wrapped text
+									local baseH = rowFrame:GetHeight()
+									local neededH = fs:GetStringHeight() + 4
+									rowFrame:SetHeight(math.max(baseH, neededH))
 								end
-								if tt_desc and tt_desc ~= "" then
-									GameTooltip:AddLine(tt_desc, nil, nil, nil, true)
-								end
+
+								fs:SetJustifyH("LEFT")
+								fs:SetJustifyV("MIDDLE")
+								fs:SetNonSpaceWrap(true)
 							end
 
-							-- Only show hover highlights if NO stat row is currently clicked
-							if not CCS.activeClickedRow and option("show_stathighlights") then
-								if CCS.statKeyMap[rd.key] then
+							-------------------------------------------------
+							-- Tooltip
+							-------------------------------------------------
+							if not CCS.AreSecretsDisabled() then
+								rowFrame:SetScript("OnEnter", function(self)
+									local rd = rowData
+
+									GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+
+									if link ~= nil then
+										GameTooltip:SetHyperlink(link)
+									elseif not CCS.AreSecretsDisabled() then
+										if tt_name and tt_name ~= "" then
+											GameTooltip:AddLine(tt_name, 1, 1, 1, false)
+										end
+										
+										if type(tt_desc) == "function" then
+											tt_desc()
+										elseif tt_desc and tt_desc ~= "" then
+											GameTooltip:AddLine(tt_desc, nil, nil, nil, true)
+										end
+										
+									end
+
+									-- Only show hover highlights if NO stat row is currently clicked
+									if not CCS.activeClickedRow and option("show_stathighlights") then
+										if CCS.statKeyMap[rd.key] then
+											CCS:ShowStatHighlights(rd)
+										end
+									end
+
+									self.highlight:Show()
+									GameTooltip:Show()
+
+									-- Run after GameTooltip:Show() so its final width and height
+									-- have already been calculated.
+									if self.DRtable then
+										UpdateDRTooltipVisual(GameTooltip, self.DRtable)
+									else
+										HideDRTooltipVisual()
+									end
+								end)
+
+								rowFrame:SetScript("OnMouseDown", function(self)
+									local rd = rowData
+
+									if option("show_stathighlights") ~= true or not CCS.statKeyMap[rd.key] then return end
+
+									-- If clicking the already-active row → unselect it
+									if CCS.activeClickedRow == self then
+										self.clicked = false
+										CCS.activeClickedRow = nil
+										self.highlight:Hide()
+										CCS:HideAllStatHighlights()
+										return
+									end
+
+									-- If another row was previously clicked, clear it
+									if CCS.activeClickedRow then
+										CCS.activeClickedRow.clicked = false
+										CCS.activeClickedRow.highlight:Hide()
+									end
+
+									-- Activate this row
+									self.clicked = true
+									CCS.activeClickedRow = self
+
+									-- Show highlight + stat overlays
+									self.highlight:Show()
 									CCS:ShowStatHighlights(rd)
-								end
+								end)
+
+								rowFrame:SetScript("OnLeave", function(self)
+									-- Only hide the row highlight if this row is NOT the active clicked row
+									if CCS.activeClickedRow ~= self then
+										self.highlight:Hide()
+									end
+
+									HideDRTooltipVisual()
+									GameTooltip:Hide()
+
+									-- Only hide overlays if nothing is locked in
+									if not CCS.activeClickedRow then
+										CCS:HideAllStatHighlights()
+									end
+								end)
 							end
-
-							self.highlight:Show()
-							GameTooltip:Show()
-							
-							-- Run after GameTooltip:Show() so its final width and height
-							-- have already been calculated.
-							if self.DRtable then
-								UpdateDRTooltipVisual(GameTooltip, self.DRtable)
-							else
-								HideDRTooltipVisual()
-							end							
-							
-						end)
-
-						rowFrame:SetScript("OnMouseDown", function(self)
-							local rd = rowData
-
-							if option("show_stathighlights") ~= true or not CCS.statKeyMap[rd.key] then return end
-
-							-- If clicking the already-active row → unselect it
-							if CCS.activeClickedRow == self then
-								self.clicked = false
-								CCS.activeClickedRow = nil
-								self.highlight:Hide()
-								CCS:HideAllStatHighlights()
-								return
-							end
-
-							-- If another row was previously clicked, clear it
-							if CCS.activeClickedRow then
-								CCS.activeClickedRow.clicked = false
-								CCS.activeClickedRow.highlight:Hide()
-							end
-
-							-- Activate this row
-							self.clicked = true
-							CCS.activeClickedRow = self
-
-							-- Show highlight + stat overlays
-							self.highlight:Show()
-							CCS:ShowStatHighlights(rd)
-						end)
-
-						rowFrame:SetScript("OnLeave", function(self)
-							-- Only hide the row highlight if this row is NOT the active clicked row
-							if CCS.activeClickedRow ~= self then
-								self.highlight:Hide()
-							end
-							HideDRTooltipVisual()
-							GameTooltip:Hide()
-
-							-- Only hide overlays if nothing is locked in
-							if not CCS.activeClickedRow then
-								CCS:HideAllStatHighlights()
-							end
-						end)
+						end
 					end
-                end
-            end
-        end
-    end
+				end
+			end
+		end
+	end
 end
 
 -- Make this into a minimal scroll bar; like blizzard's since that is what we are mimic'ing.
@@ -3229,7 +3311,12 @@ end
 local function CreateStatsScrollFrame(rowWidth)
     local scrollFrame = CCS_stat_sf
     if not scrollFrame then
-        scrollFrame = CreateFrame("ScrollFrame", "CCS_stat_sf", CharacterStatsPane, "BackdropTemplate")
+		if CCS.CurrentVersion == CCS.FOREVER then
+			--scrollFrame = CreateFrame("ScrollFrame", "CCS_stat_sf", CharacterStatsPaneScrollBox, "BackdropTemplate")
+			scrollFrame = CreateFrame("ScrollFrame", "CCS_stat_sf", CharacterStatsPane, "BackdropTemplate")		
+		else
+			scrollFrame = CreateFrame("ScrollFrame", "CCS_stat_sf", CharacterStatsPane, "BackdropTemplate")		
+		end
         scrollFrame:EnableMouse(true)
         scrollFrame:EnableMouseWheel(true)
         scrollFrame:SetClipsChildren(true)
@@ -3386,13 +3473,7 @@ local function ApplyStyle(self)
 	
 	if CharacterStatsPane.ChonkyNS then CharacterStatsPane.ChonkyNS:SetShown(option("showstatborder")) end
 	if CharacterStatsPane.BG ~= nil then CharacterStatsPane.BG:SetShown(option("show_stats_background")) end        
---[[
-	    if option("theme") ~= "None" and CCS.Themes.enabled then
-			CharacterStatsPane.ChonkyNS:Show()
-		else
-			CharacterStatsPane.ChonkyNS:SetShown(option("showstatborder"))
-		end
-	end--]]
+
     -------------------------------------------------
     -- Sections
     -------------------------------------------------
@@ -3405,7 +3486,7 @@ local function ApplyStyle(self)
         -- Section background
         -------------------------------------------------
         --local secColor = CCS.DarkenColor(option(section.colorKey), .2)
-        local secColor = option(section.colorKey)
+        local secColor = option(section.colorKey) or {1,1,1}
 		
         if frame and frame.bg and secColor then
 			if option("stataddoncolor") then
@@ -3477,168 +3558,211 @@ end
 
 function module:Initialize(onlyStyle)
 
-    if CCS.AreSecretsDisabled() then 
-        CCS.initall = true
-        return 
-    end
-    if UnitLevel("player") < 10 then return end
+	if CCS.AreSecretsDisabled() then
+		CCS.initall = true
+		return
+	end
+	
+	--if UnitLevel("player") < 900 then return end
 
-    -------------------------------------------------
-    -- STYLE-ONLY UPDATE
-    -------------------------------------------------
-    if onlyStyle == true and _G["CCS_stat_sf"] ~= nil then
-        ApplyStyle(self)
-        UpdateLayout()
-        return
-    end
+	-------------------------------------------------
+	-- STYLE-ONLY UPDATE
+	-------------------------------------------------
+	if onlyStyle == true and _G["CCS_stat_sf"] ~= nil then
+		ApplyStyle(self)
+		UpdateLayout()
+		return
+	end
 
-    -------------------------------------------------
-    -- FULL INITIALIZATION
-    -------------------------------------------------
-    if option("showcharacterstats") then
+	-------------------------------------------------
+	-- FULL INITIALIZATION
+	-------------------------------------------------
+	if option("showcharacterstats") then
 
-        -- Prepare cache tables
-        self.sections = self.sections or {}
-        self.iLvlFrame = self.iLvlFrame or nil
+		-- Prepare cache tables
+		self.sections = self.sections or {}
+		self.iLvlFrame = self.iLvlFrame or nil
 
-        CharacterStatsPane.ItemLevelCategory:SetPoint("TOP", CharacterStatsPane, "TOP", -3, -7000)
-        CharacterStatsPane.ClassBackground:SetAlpha(0)
-        CharacterStatsPane:UnregisterAllEvents()
-		if PaperDollSidebarTabs ~= nil and PaperDollSidebarTabs.DecorLeft ~= nil then
-				PaperDollSidebarTabs.DecorLeft:Hide()
-				PaperDollSidebarTabs.DecorRight:Hide()
+		if CCS.CurrentVersion == CCS.RETAIL then
+			CharacterStatsPane.ItemLevelCategory:SetPoint("TOP", CharacterStatsPane, "TOP", -3, -7000)
+			CharacterStatsPane.ClassBackground:SetAlpha(0)
+			CharacterStatsPane:UnregisterAllEvents()
 		end
-        -------------------------------------------------
-        -- Scroll Frame
-        -------------------------------------------------
-        local scrollFrame, scrollChild = CreateStatsScrollFrame(rowWidth)
-        local sb = CreateStatsScrollBar(scrollFrame)
 
-        self.scrollFrame = scrollFrame
-        self.scrollChild = scrollChild
+		if CCS.CurrentVersion == CCS.FOREVER then
+			CharacterStatsPane:Show()
+			CharacterStatsPane:SetParent(PaperDollFrame)
+			CharacterStatsPane.AttributesCategory:Hide()
+			CharacterStatsPane.EnhancementsCategory:Hide()
+			CharacterStatsPane.ItemLevelCategory:Hide()
+			CharacterStatsPane.ItemLevelFrame:Hide()
+			select(1, CharacterFrameRightPaneHost:GetRegions()):Hide()
+			CharacterStatsPane:SetPoint("TOPLEFT", CharacterFrameRightPaneHostStoneBg, "BOTTOMLEFT", 0,35)
+			CharacterStatsPane:SetPoint("BOTTOMRIGHT", CharacterFrameRightPaneHost, "BOTTOMRIGHT", 0,0)	
 
-        -------------------------------------------------
-        -- iLvl Frame
-        -------------------------------------------------
-        local btn = CreateAndUpdateiLvlframe(CharacterStatsPane)
-        self.iLvlFrame = btn
-        self.iLvlFrame.fontString = btn.fontString
+			CharacterStatsPaneScrollBox:ClearAllPoints()
+			-- This is for testing
+			--CharacterStatsPaneScrollBox:SetPoint("TOPLEFT", CharacterFrameBgbg, "TOPRIGHT", 40, 0)
+			--CharacterStatsPaneScrollBox:SetPoint("BOTTOMRIGHT", CharacterFrameBgbg, "BOTTOMRIGHT", 300, 0)
+			
+		end
 
-        -------------------------------------------------
-        -- Build Sections
-        -------------------------------------------------
-        local previousSection = nil
-        local sectionSpacing = 7
+		if PaperDollSidebarTabs ~= nil and PaperDollSidebarTabs.DecorLeft ~= nil then
+			PaperDollSidebarTabs.DecorLeft:Hide()
+			PaperDollSidebarTabs.DecorRight:Hide()
+		end
+
+		-------------------------------------------------
+		-- Scroll Frame
+		-------------------------------------------------
+		local scrollFrame, scrollChild = CreateStatsScrollFrame(rowWidth)
+		local sb = CreateStatsScrollBar(scrollFrame)
+
+		self.scrollFrame = scrollFrame
+		self.scrollChild = scrollChild
+
+		-------------------------------------------------
+		-- iLvl Frame
+		-------------------------------------------------
+		local btn = CreateAndUpdateiLvlframe(CharacterStatsPane)
+		self.iLvlFrame = btn
+		self.iLvlFrame.fontString = btn.fontString
+
+		-------------------------------------------------
+		-- Build Sections
+		-------------------------------------------------
+		local previousSection = nil
+		local sectionSpacing = 7
 
 		local orderedKeys = CCS:GetOrderedSections(STAT_SECTIONS)
 
 		for _, key in ipairs(orderedKeys) do
-        --for _, section in ipairs(STAT_SECTIONS) do
 			local section = STAT_SECTIONS_BY_KEY[key]
-            -------------------------------------------------
-            -- Section Frame
-            -------------------------------------------------
-            local sectionFrameName = "CCS_Section_" .. section.key
-            local sectionFrame = _G[sectionFrameName] or CreateFrame("Frame", sectionFrameName, scrollChild, "BackdropTemplate")
 
-            -- Cache section entry
-            self.sections[section.key] = self.sections[section.key] or {}
-            self.sections[section.key].frame = sectionFrame
-            self.sections[section.key].rows = self.sections[section.key].rows or {}
-            self.sections[section.key].colorKey = section.colorKey
+			if section and bit.band(section.ver, CCS.CurrentVersion) ~= 0 then
+				-------------------------------------------------
+				-- Section Frame seansean
+				-------------------------------------------------
+				local sectionFrameName = "CCS_Section_" .. section.key
+				local sectionFrame = _G[sectionFrameName] or CreateFrame("Frame", sectionFrameName, scrollChild, "BackdropTemplate")
+				
+				-- Cache section entry
+				self.sections[section.key] = self.sections[section.key] or {}
+				self.sections[section.key].frame = sectionFrame
+				self.sections[section.key].rows = self.sections[section.key].rows or {}
+				self.sections[section.key].colorKey = section.colorKey
 
-            local secColor_r, secColor_g, secColor_b = unpack(option(section.colorKey))
-            sectionFrame:SetWidth(rowWidth + 4)
+				local secColor_r, secColor_g, secColor_b = unpack(option(section.colorKey) or {1,1,1})
+				sectionFrame:SetWidth(rowWidth + 4)
 
-            if not previousSection then
-                sectionFrame:SetPoint("TOPLEFT", scrollChild, "TOPLEFT", 0, -sectionSpacing)
-            else
-                sectionFrame:SetPoint("TOPLEFT", previousSection, "BOTTOMLEFT", 0, -sectionSpacing)
-            end
+				if not previousSection then
+					sectionFrame:SetPoint("TOPLEFT", scrollChild, "TOPLEFT", 0, -sectionSpacing)
+				else
+					sectionFrame:SetPoint("TOPLEFT", previousSection, "BOTTOMLEFT", 0, -sectionSpacing)
+				end
 
-            if not sectionFrame.bg then
-                sectionFrame.bg = sectionFrame:CreateTexture(nil, "BACKGROUND")
-                sectionFrame.bg:SetAllPoints()
-            end
+				if not sectionFrame.bg then
+					sectionFrame.bg = sectionFrame:CreateTexture(nil, "BACKGROUND")
+					sectionFrame.bg:SetAllPoints()
+				end
 
-            sectionFrame:SetBackdrop({
-                edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
-                edgeSize = 6,
-                insets = { left = 2, right = 2, top = 2, bottom = 2 }
-            })
-            sectionFrame:SetBackdropBorderColor(.6, .6, .6, 1)
+				sectionFrame:SetBackdrop({
+					edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
+					edgeSize = 6,
+					insets = { left = 2, right = 2, top = 2, bottom = 2 }
+				})
+				sectionFrame:SetBackdropBorderColor(.6, .6, .6, 1)
 
-            -------------------------------------------------
-            -- Header Row
-            -------------------------------------------------
-            local headerName = "CCS_Header_" .. section.key
-            local header = CreateHeaderRow(sectionFrame, headerName, section)
-            header:SetPoint("TOPLEFT", sectionFrame, "TOPLEFT", 0, 0)
+				-------------------------------------------------
+				-- Header Row
+				-------------------------------------------------
+				local headerName = "CCS_Header_" .. section.key
+				local header = CreateHeaderRow(sectionFrame, headerName, section)
+				header:SetPoint("TOPLEFT", sectionFrame, "TOPLEFT", 0, 0)
 
-            -- Cache header
-            self.sections[section.key].header = header
+				-- Cache header
+				self.sections[section.key].header = header
 
-            -------------------------------------------------
-            -- Content Rows
-            -------------------------------------------------
-            local previousRow = header
-            local totalHeight = header:GetHeight()
+				-------------------------------------------------
+				-- Content Rows
+				-------------------------------------------------
+				local previousRow = header
+				local totalHeight = header:GetHeight()
 
-            for _, rowData in ipairs(section.rows) do
-                local rowFrameName = "CCS_Row_" .. rowData.key
-                local row = CreateContentRow(
-                    sectionFrame,
-                    rowFrameName,
-                    rowData.name,
-                    rowData.icon,
-                    {
-                        r = secColor_r or section.color.r,
-                        g = secColor_g or section.color.g,
-                        b = secColor_b or section.color.b,
-                    }
-                )
+				for _, rowData in ipairs(section.rows) do
+					if bit.band(rowData.ver, CCS.CurrentVersion) ~= 0 then
+						local rowFrameName = "CCS_Row_" .. rowData.key
+						local row = CreateContentRow(sectionFrame, rowFrameName, rowData.name, rowData.icon, rowData.isAtlas, {
+							r = secColor_r or section.color.r,
+							g = secColor_g or section.color.g,
+							b = secColor_b or section.color.b,
+						})
 
-                row:SetPoint("TOPLEFT", previousRow, "BOTTOMLEFT", 0, -rowSpacing)
-                previousRow = row
-                totalHeight = totalHeight + row:GetHeight() + rowSpacing
+						row:SetPoint("TOPLEFT", previousRow, "BOTTOMLEFT", 0, -rowSpacing)
+						previousRow = row
+						totalHeight = totalHeight + row:GetHeight() + rowSpacing
 
-                -- Cache row
-                self.sections[section.key].rows[rowData.key] = row
-            end
+						-- Cache row
+						self.sections[section.key].rows[rowData.key] = row
+					end
+				end
 
-            sectionFrame:SetHeight(totalHeight + 3)
-            previousSection = sectionFrame
-        end
+				sectionFrame:SetHeight(totalHeight + 3)
+				previousSection = sectionFrame
+			end
+		end
 
-        -------------------------------------------------
-        -- Data + Layout
-        -------------------------------------------------
-        scrollChild:Show()
-        UpdateAllStats(scrollChild)
-        ApplyStyle(self)
-        UpdateLayout()
-    end
+		-------------------------------------------------
+		-- Data + Layout
+		-------------------------------------------------
+		scrollChild:Show()
+		CCS.UpdateAllStats(scrollChild)
+		ApplyStyle(self)
+		UpdateLayout()
+	end
 end
 
 -- Event handler for character stats
 function CCS.CharacterStatsEventHandler(event, ...)
     local arg1 = ...
 
-    if CCS.CurrentVersion ~= CCS.RETAIL then return end
+    if CCS.CurrentVersion ~= CCS.RETAIL and CCS.CurrentVersion ~= CCS.FOREVER then return end
 
     if CCS.initall == true then return end
 
-    if UnitLevel("player") < 10 then return end
-    if UnitLevel("player") == 10 and InCombatLockdown() and event == "PLAYER_LEVEL_UP" then CCS.incombat = true return end
+	if UnitLevel("player") < 10 and CCS.CurrentVersion == CCS.RETAIL then return end
+    if UnitLevel("player") == 10 and CCS.CurrentVersion == CCS.RETAIL and InCombatLockdown() and event == "PLAYER_LEVEL_UP" then CCS.incombat = true return end
 
     if (event == "UNIT_DAMAGE" or event == "UNIT_ATTACK_SPEED" or event == "UNIT_MAXHEALTH") and arg1 ~= "player" then return end
 
     if event == "CCS_EVENT_OPTIONS" then
         if not option("showcharacterstats") then
             CCS:RestoreCharacterStatsPane()
+
+			if CCS.CurrentVersion == CCS.FOREVER then
+				CharacterStatsPaneScrollBox:Show()
+				CharacterStatsPane:Hide()
+				if CharacterStatsPane.ChonkyNS then
+					CharacterStatsPane.ChonkyNS:Hide()
+					CharacterStatsPane.BG:Hide()
+				end
+			end
+
+			return
         end
+		
+		if CCS.CurrentVersion == CCS.FOREVER then
+			CharacterStatsPaneScrollBox:ClearAllPoints()
+			CharacterStatsPaneScrollBox:Hide()
+			CharacterStatsPane:Show()
+			if CharacterStatsPane.ChonkyNS then
+				CharacterStatsPane.ChonkyNS:Show()
+				CharacterStatsPane.BG:Show()
+			end
+		end
+		
         module:Initialize()
-		UpdateAllStats()
+		CCS.UpdateAllStats()
         return true
     end
 
@@ -3651,7 +3775,7 @@ function CCS.CharacterStatsEventHandler(event, ...)
     if event == "PLAYER_STARTED_LOOKING" or event == "PLAYER_STARTED_TURNING" or 
        event == "PLAYER_STOPPED_LOOKING" or event == "PLAYER_STOPPED_TURNING" then
         if not InCombatLockdown() and CharacterFrame:IsVisible() then
-            UpdateMoveSpeed()
+            CCS.UpdateMoveSpeed()
         end
         return
     end
@@ -3663,7 +3787,7 @@ function CCS.CharacterStatsEventHandler(event, ...)
 			if _G["CCS_stat_sf"] == nil then
 			   module:Initialize()
 			end
-			UpdateAllStats(_G["CCS_stat_sc"])
+			CCS.UpdateAllStats(_G["CCS_stat_sc"])
 			UpdateLayout()
             -- Rebuild the options panel priority slots section for the new spec.
             if event == "PLAYER_SPECIALIZATION_CHANGED" then
