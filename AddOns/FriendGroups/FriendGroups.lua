@@ -3659,6 +3659,13 @@ end
 -- var live (FG_IsSafeWhisperOn) and falls through to Blizzard's when it is off.
 addonTable.State.InstallSendMessageOverride = FG_InstallSendMessageOverride
 
+-- Tick = your selected main (Select Main menu, panel header); person = online now. Both drawn
+-- by FriendGroups/tools/make-status-icons.lua. The blank samples the tick's transparent corner.
+local FG_SELECTED_MAIN_ICON = "Interface\\AddOns\\FriendGroups\\Textures\\selected_main.tga"
+local FG_ONLINE_NOW_ICON = "Interface\\AddOns\\FriendGroups\\Textures\\online_now.tga"
+local MENU_TICK = "|T" .. FG_SELECTED_MAIN_ICON .. ":14|t "
+local MENU_TICK_BLANK = "|T" .. FG_SELECTED_MAIN_ICON .. ":14:14:0:0:32:32:0:1:0:1|t "
+
 function FriendGroups_AddDropDownNew(ownerRegion, rootDescription, contextData)
     if not contextData then return end
     -- Scope the injection to the contact list: these MENU_UNIT_*_FRIEND tags also fire from
@@ -3792,8 +3799,9 @@ function FriendGroups_AddDropDownNew(ownerRegion, rootDescription, contextData)
         end
 
         if FriendGroups_SavedVars and FriendGroups_SavedVars.show_known_alts ~= false then
+            local selectedMainKey = FriendGroups_SavedVars.manual_mains and FriendGroups_SavedVars.manual_mains[accountIdentifier]
             local mainSubMenu = rootDescription:CreateButton(L["DROP_SELECT_MAIN"])
-            mainSubMenu:CreateButton(L["DROP_CLEAR_MAIN"], function(data)
+            local clearMain = mainSubMenu:CreateButton(MENU_TICK_BLANK .. L["DROP_CLEAR_MAIN"], function(data)
                 if FriendGroups_SavedVars and FriendGroups_SavedVars.manual_mains then
                     FriendGroups_SavedVars.manual_mains[data.accountIdentifier] = nil
                     if FriendGroups_SavedVars.main_guild then
@@ -3802,6 +3810,7 @@ function FriendGroups_AddDropDownNew(ownerRegion, rootDescription, contextData)
                     FriendGroups_FriendsListUpdate(true)
                 end
             end, { accountIdentifier = accountIdentifier })
+            clearMain:SetEnabled(selectedMainKey ~= nil)
 
             if FriendGroups_SavedVars.alt_cache and FriendGroups_SavedVars.alt_cache[accountIdentifier] then
                 local menuAlts = {}
@@ -3818,6 +3827,7 @@ function FriendGroups_AddDropDownNew(ownerRegion, rootDescription, contextData)
                         displayLabel = displayLabel .. " (" .. Compat.ForeverLabel(altData.ruleset) .. ")"
                     end
                     local altUniqueKey = altData.charName .. "-" .. FriendGroups_CleanRealmName(altData.realm or "")
+                    displayLabel = ((altUniqueKey == selectedMainKey) and MENU_TICK or MENU_TICK_BLANK) .. displayLabel
 
                     mainSubMenu:CreateButton(displayLabel, function(data)
                         if not FriendGroups_SavedVars.manual_mains then FriendGroups_SavedVars.manual_mains = {} end
@@ -5701,10 +5711,7 @@ FriendGroups_FriendsListUpdateFriendButton = function(button, elementData)
     end
     if not isFriendFrame then return end
 
-    -- 12.2.2b: while Blizzard's transient flat provider occupies the ScrollBox (hook
-    -- mode, rare native updates), skip rendering entirely -- the grouped provider is
-    -- swapped back in the same execution and every visible row is re-initialized then,
-    -- so painting flat data here is pure waste.
+    -- Blizzard's flat provider is swapped out again in the same execution; skip it.
     if FriendGroups_ActiveProvider and FriendsListFrame.ScrollBox:GetDataProvider() ~= FriendGroups_ActiveProvider then return end
 
 	local id = elementData.id;
@@ -5726,11 +5733,11 @@ FriendGroups_FriendsListUpdateFriendButton = function(button, elementData)
 
 	if button.buttonType == FRIENDS_BUTTON_TYPE_WOW then
 		local info = C_FriendList.GetFriendInfoByIndex(id);
-		button.fgNote = info and info.notes;
-		-- 12.2.2b: character-friend rows mirror the BNet row format -- class-coloured
-		-- [Name] + level on line 1 (realm stripped), zone - realm on line 2. Cross-realm
-		-- friends carry the realm in their name ("Name-Realm"); same-realm friends use
-		-- the player's own realm so line 2 reads identically to a BNet row.
+		-- Nil after a removal: the reasserted provider still holds the old indices
+		-- until the queued rebuild runs.
+		if not info then return end
+		button.fgNote = info.notes;
+		-- Same-realm friends have no "-Realm" suffix; line 2 falls back to our realm.
 		local charName, charRealm = strsplit("-", info.name or "");
 		if (info.connected) then
 			button.background:SetColorTexture(FRIENDS_WOW_BACKGROUND_COLOR.r, FRIENDS_WOW_BACKGROUND_COLOR.g, FRIENDS_WOW_BACKGROUND_COLOR.b, FRIENDS_WOW_BACKGROUND_COLOR.a);
@@ -6029,11 +6036,8 @@ FriendGroups_FriendsListUpdateFriendButton = function(button, elementData)
 		button.name:SetText(nameText);
 		button.name:SetTextColor(nameColor.r, nameColor.g, nameColor.b);
 
-		-- [[ WIDE LIST: stretch the name fontstring into the extra horizontal room ]]
-		-- The native name region has a fixed template width (it truncates with "..."), so
-		-- widening the frame alone is not enough; the fontstring needs its own extra width
-		-- to actually reveal long names + full "aka" suffixes. Capture the Blizzard width
-		-- once, then grow or restore it to match the current setting.
+		-- The template name width is fixed; widening the frame alone still truncates.
+		-- Capture Blizzard's width once, then grow or restore it.
 		if not button.fgOrigNameWidth then
 			local nw = button.name:GetWidth()
 			if nw and nw > 0 then button.fgOrigNameWidth = nw end
@@ -7642,6 +7646,9 @@ local function FriendGroups_DrawAltTooltip(anchorFrame, accountIdentifier, charK
                 existing.timestamp = alt.timestamp
             end
         end
+
+        -- Flagged after the shard fold above, so a live Forever record finds its stored entry.
+        if alt.isLive then masterDict[renderKey].isLive = true end
     end
 
     -- 1. PULL FROM LOCAL BNET CACHE
@@ -7651,9 +7658,10 @@ local function FriendGroups_DrawAltTooltip(anchorFrame, accountIdentifier, charK
         end
     end
 
-    -- 2. PULL FROM LIVE BASELINE DATA
+    -- 2. PULL FROM LIVE BASELINE DATA (plus any other multibox clients)
     if baselineData then
         MergeIntoMaster(baselineData)
+        for _, extra in ipairs(baselineData.alsoLive or {}) do MergeIntoMaster(extra) end
     end
 
     -- Flatten the merged dictionary back into a renderable array
@@ -7820,53 +7828,69 @@ local function FriendGroups_DrawAltTooltip(anchorFrame, accountIdentifier, charK
             FriendGroupsAltTooltip:AddLine(residual, aR, aG, aB, true)
         end
 	
-        local sortedAlts = {}
-        for _, alt in ipairs(alts) do table.insert(sortedAlts, alt) end
-        
-        table.sort(sortedAlts, function(a, b)
-            local aIsMain = false
-            local bIsMain = false
-            if FriendGroups_SavedVars and FriendGroups_SavedVars.manual_mains and accountIdentifier then
-                local manualMainKey = FriendGroups_SavedVars.manual_mains[accountIdentifier]
-                local aKey = a.charName .. "-" .. FriendGroups_CleanRealmName(a.realm or "")
-                local bKey = b.charName .. "-" .. FriendGroups_CleanRealmName(b.realm or "")
-                if aKey == manualMainKey or a.key == manualMainKey then aIsMain = true end
-                if bKey == manualMainKey or b.key == manualMainKey then bIsMain = true end
-            end
-            if aIsMain and not bIsMain then return true end
-            if bIsMain and not aIsMain then return false end
-
+        -- [[ SECTIONS ]] Selected Main, then Online Now, then the rest by recency. A section
+        -- header appears only when Selected Main or Online Now exists, else the plain list.
+        local manualMainKey = (FriendGroups_SavedVars.manual_mains and accountIdentifier)
+            and FriendGroups_SavedVars.manual_mains[accountIdentifier] or nil
+        local function IsSelectedMain(alt)
+            if not manualMainKey then return false end
+            return alt.key == manualMainKey
+                or (alt.charName .. "-" .. FriendGroups_CleanRealmName(alt.realm or "")) == manualMainKey
+        end
+        local function ByRecency(a, b)
             local timeA = a.timestamp or 0
             local timeB = b.timestamp or 0
             if timeA == timeB then
                 if a.level == b.level then return a.charName < b.charName end
-                return a.level > b.level
+                return (a.level or 0) > (b.level or 0)
             end
             return timeA > timeB
-        end)
+        end
 
+        local mainAlt, liveAlts, otherAlts = nil, {}, {}
+        for _, alt in ipairs(alts) do
+            if not mainAlt and IsSelectedMain(alt) then
+                mainAlt = alt
+            elseif alt.isLive then
+                liveAlts[#liveAlts + 1] = alt
+            else
+                otherAlts[#otherAlts + 1] = alt
+            end
+        end
+        table.sort(liveAlts, ByRecency)
+        table.sort(otherAlts, ByRecency)
+
+        local function TimeAgo(timestamp)
+            if timestamp and timestamp <= 0 then return L["UNKNOWN"] end
+            local diff = time() - (timestamp or time())
+            if diff < 0 then diff = 0 end
+            if diff < 60 then return L["TIME_JUST_NOW"] end
+            local n, one, many
+            if diff < 3600 then n, one, many = math.floor(diff / 60), "TIME_ONE_MINUTE_AGO", "TIME_MINUTES_AGO"
+            elseif diff < 86400 then n, one, many = math.floor(diff / 3600), "TIME_ONE_HOUR_AGO", "TIME_HOURS_AGO"
+            else n, one, many = math.floor(diff / 86400), "TIME_ONE_DAY_AGO", "TIME_DAYS_AGO" end
+            if n == 1 then return L[one] end
+            return string.format(L[many], n)
+        end
+
+        local MAIN_ICON = "|T" .. FG_SELECTED_MAIN_ICON .. ":16|t "
+        local ONLINE_ICON = "|T" .. FG_ONLINE_NOW_ICON .. ":16|t "
         local rowCount = 0
-        for _, alt in ipairs(sortedAlts) do
-            if rowCount >= 10 then break end
+
+        local function AddAltRow(alt, header)
             rowCount = rowCount + 1
 
-            -- Create a custom 50% height gap instead of a full line
+            -- Half-height gap via a smaller FontObject; SetFont here would poison the shared font.
             FriendGroupsAltTooltip:AddLine(" ")
             local gapLine = _G["FriendGroupsAltTooltipTextLeft" .. FriendGroupsAltTooltip:NumLines()]
-            if gapLine then
-                -- Safely swap to a smaller native FontObject. 
-                -- Avoids explicit SetFont calls that poison global objects.
-                gapLine:SetFontObject("SystemFont_Tiny")
-            end
+            if gapLine then gapLine:SetFontObject("SystemFont_Tiny") end
+
+            if header then FriendGroupsAltTooltip:AddLine(header, aR, aG, aB, false) end
 
             local engClass = Compat.ClassToken(alt.class) or ""
-
             local classIconStr = Compat.ClassIconMarkup(engClass, 16)
-            
             local nameColor = FriendGroups_GetClassColorCode(engClass ~= "" and engClass or alt.class)
-            -- The alt roster is the densest identity block in the addon -- one contact's
-            -- whole character list, each with a realm. Masking drops the realm with the
-            -- name, so an entry reads "Kiw***" rather than "Kiw***-Nobundo".
+            -- Masking drops the realm with the name: "Kiw***", never "Kiw***-Nobundo".
             local coloredName
             if FriendGroups_IsStreamerMode() then
                 coloredName = nameColor .. FriendGroups_MaskName(alt.charName) .. "|r"
@@ -7877,35 +7901,29 @@ local function FriendGroups_DrawAltTooltip(anchorFrame, accountIdentifier, charK
             local factionPath = FriendGroups_GetFactionIcon(alt.faction)
             local factionIconStr = factionPath ~= "" and ("|T" .. factionPath .. ":16|t") or ""
 
-            local diff = time() - (alt.timestamp or time())
-            if diff < 0 then diff = 0 end
-
-            local timeStr = ""
-            if diff < 60 then timeStr = L["TIME_JUST_NOW"]
-            elseif diff < 3600 then timeStr = string.format(L["TIME_MINUTES_AGO"], math.floor(diff / 60))
-            elseif diff < 86400 then timeStr = string.format(L["TIME_HOURS_AGO"], math.floor(diff / 3600))
-            else timeStr = string.format(L["TIME_DAYS_AGO"], math.floor(diff / 86400)) end
-
-            local isCurrentMain = false
-            if FriendGroups_SavedVars and FriendGroups_SavedVars.manual_mains and accountIdentifier then
-                local manualMainKey = FriendGroups_SavedVars.manual_mains[accountIdentifier]
-                local currentKey = alt.charName .. "-" .. FriendGroups_CleanRealmName(alt.realm or "")
-                if currentKey == manualMainKey or alt.key == manualMainKey then isCurrentMain = true end
-            end
-
-            local leaderFlagStr = isCurrentMain and "|TInterface\\AddOns\\FriendGroups\\Textures\\check.tga:16|t " or ""
-            local line1 = leaderFlagStr .. string.format(L["TOOLTIP_ALTS_FORMAT"], classIconStr, coloredName, factionIconStr, alt.level)
-            
+            local line1 = string.format(L["TOOLTIP_ALTS_FORMAT"], classIconStr, coloredName, factionIconStr, alt.level)
             if alt.guild and alt.guild ~= "NONE" and alt.guild ~= "-" and alt.guild ~= "" then
                 if L["TOOLTIP_ALTS_GUILD_SUFFIX"] then
                     line1 = line1 .. string.format(L["TOOLTIP_ALTS_GUILD_SUFFIX"], alt.guild)
                 end
             end
-
-            local line2 = string.format(L["TOOLTIP_ALTS_SEEN"], FriendGroups_AltSeenPlace(alt), timeStr)
-
             FriendGroupsAltTooltip:AddLine(line1, 1, 1, 1, false)
-            FriendGroupsAltTooltip:AddLine(line2, 0.6, 0.6, 0.6, false)
+
+            if alt.isLive then
+                FriendGroupsAltTooltip:AddLine(string.format(L["TOOLTIP_ALTS_ONLINE"], FriendGroups_AltSeenPlace(alt)), 1, 1, 1, false)
+            else
+                FriendGroupsAltTooltip:AddLine(string.format(L["TOOLTIP_ALTS_SEEN"], FriendGroups_AltSeenPlace(alt), TimeAgo(alt.timestamp)), 0.6, 0.6, 0.6, false)
+            end
+        end
+
+        if mainAlt then AddAltRow(mainAlt, MAIN_ICON .. L["TOOLTIP_ALTS_SELECTED_MAIN"]) end
+        for i, alt in ipairs(liveAlts) do
+            AddAltRow(alt, (i == 1) and (ONLINE_ICON .. L["TOOLTIP_ALTS_ONLINE_NOW"]) or nil)
+        end
+        local sectioned = (mainAlt ~= nil) or (#liveAlts > 0)
+        for i, alt in ipairs(otherAlts) do
+            if rowCount >= 10 then break end
+            AddAltRow(alt, (i == 1 and sectioned) and L["TOOLTIP_ALTS_OTHER"] or nil)
         end
 
         FriendGroupsAltTooltip:Show()
@@ -7918,12 +7936,6 @@ local function FriendGroups_DrawAltTooltip(anchorFrame, accountIdentifier, charK
         -- roster tooltip parked where the panel would be so it does not jump sides as you
         -- scroll. No-op for the friends list and when no native tooltip is on screen.
         FriendGroups_DockNativeTooltipBelowPanel(anchorFrame)
-    end
-end
-
-function FriendGroups_RefreshAltTooltip()
-    if FriendGroups_CurrentHoverAnchor then
-        FriendGroups_DrawAltTooltip(FriendGroups_CurrentHoverAnchor, FriendGroups_CurrentHoverBNetID, FriendGroups_CurrentHoverCharKey)
     end
 end
 
@@ -8024,6 +8036,64 @@ hooksecurefunc(GameTooltip, "Show", function(self)
     FriendGroups_DockNativeTooltipBelowPanel(anchor)
 end)
 
+-- [[ LIVE ALT RECORDS ]]
+-- Record for the character a game account is on, or nil with no character. isLive stays off
+-- unless the account reads online, so an offline friend's leftover name never shows as online.
+local function FriendGroups_LiveAltRecord(gameAccountInfo)
+    if not gameAccountInfo or (gameAccountInfo.characterName or "") == "" then return nil end
+    local rawRealm = gameAccountInfo.realmName
+    if not rawRealm or rawRealm == "" then rawRealm = gameAccountInfo.realmDisplayName end
+    -- Retail never gets a Forever friend's realm name; the character is still current.
+    local isForever = Compat.IsForeverGame(gameAccountInfo)
+    if isForever then rawRealm = Compat.FOREVER_REALM end
+    if not rawRealm or rawRealm == "" then return nil end
+
+    local online = gameAccountInfo.isOnline
+    if issecretvalue and issecretvalue(online) then online = nil end
+
+    local cName = gameAccountInfo.characterName
+    local record = {
+        charName = cName,
+        realm = rawRealm,
+        class = gameAccountInfo.className or "",
+        faction = gameAccountInfo.factionName or "",
+        level = tonumber(gameAccountInfo.characterLevel) or 1,
+        zone = gameAccountInfo.areaName or L["UNKNOWN_ZONE"],
+        timestamp = time(),
+        isLive = (online ~= false),
+    }
+    if isForever then
+        record.ruleset, record.region = Compat.ForeverInfo(gameAccountInfo)
+    end
+    local rName = isForever and Compat.FOREVER_REALM or (rawRealm:gsub("[%s%p]+", ""))
+    return record, cName .. "-" .. rName
+end
+
+-- Saves every game account on a BNet friend to the alt cache and returns the hovered
+-- character's live record (other multibox clients ride in .alsoLive) and its key.
+local function FriendGroups_BNetHoverBaseline(friendIndex, accountInfo, accountIdentifier)
+    FriendGroups_SaveToAltCache(accountIdentifier, accountInfo.gameAccountInfo)
+    local baseline, charKey = FriendGroups_LiveAltRecord(accountInfo.gameAccountInfo)
+
+    if C_BattleNet.GetFriendNumGameAccounts then
+        local numAccounts = C_BattleNet.GetFriendNumGameAccounts(friendIndex)
+        if numAccounts and numAccounts > 1 then
+            for i = 1, numAccounts do
+                local gameAccountInfo = C_BattleNet.GetFriendGameAccountInfo(friendIndex, i)
+                if gameAccountInfo then
+                    FriendGroups_SaveToAltCache(accountIdentifier, gameAccountInfo)
+                    local extra = baseline and FriendGroups_LiveAltRecord(gameAccountInfo)
+                    if extra and extra.isLive then
+                        baseline.alsoLive = baseline.alsoLive or {}
+                        table.insert(baseline.alsoLive, extra)
+                    end
+                end
+            end
+        end
+    end
+    return baseline, charKey
+end
+
 -- [[ DIRECT BUTTON HANDLER ]]
 function FriendGroups_ShowButtonAltTooltip(button)
     if not FriendGroups_Loaded or FriendGroups_SavedVars.show_known_alts == false then FriendGroupsAltTooltip:Hide() return end
@@ -8052,8 +8122,6 @@ function FriendGroups_ShowButtonAltTooltip(button)
     FriendGroups_CurrentHoverBNetID = nil
     FriendGroups_CurrentHoverCharKey = nil
 
-    local baselineData = nil
-
     if button.buttonType == FRIENDS_BUTTON_TYPE_BNET then
         local accountInfo = Compat.GetFriendAccountInfo(button.id)
         if not accountInfo then return end
@@ -8061,48 +8129,9 @@ function FriendGroups_ShowButtonAltTooltip(button)
         local accountIdentifier = FriendGroups_AccountIdentifier(accountInfo)
         if not accountIdentifier then return end
 
-        FriendGroups_SaveToAltCache(accountIdentifier, accountInfo.gameAccountInfo)
-        
-        -- [[ MULTIBOX FIX: Automatically harvest all secondary open wow clients natively ]]
-        if C_BattleNet.GetFriendNumGameAccounts then
-            local numAccounts = C_BattleNet.GetFriendNumGameAccounts(button.id)
-            if numAccounts and numAccounts > 1 then
-                for i = 1, numAccounts do
-                    local gameAccountInfo = C_BattleNet.GetFriendGameAccountInfo(button.id, i)
-                    if gameAccountInfo then
-                        FriendGroups_SaveToAltCache(accountIdentifier, gameAccountInfo)
-                    end
-                end
-            end
-        end
-
+        local baselineData, liveKey = FriendGroups_BNetHoverBaseline(button.id, accountInfo, accountIdentifier)
         FriendGroups_CurrentHoverBNetID = accountIdentifier
-
-        if accountInfo.gameAccountInfo and (accountInfo.gameAccountInfo.characterName or "") ~= "" then
-            local rawRealm = accountInfo.gameAccountInfo.realmName
-            if not rawRealm or rawRealm == "" then rawRealm = accountInfo.gameAccountInfo.realmDisplayName end
-            -- Retail never gets a Forever friend's realm name; the character is still current.
-            if Compat.IsForeverGame(accountInfo.gameAccountInfo) then rawRealm = Compat.FOREVER_REALM end
-            if rawRealm and rawRealm ~= "" then
-                local cName = accountInfo.gameAccountInfo.characterName
-                local rName = rawRealm:gsub("[%s%p]+", "")
-                if Compat.IsForeverGame(accountInfo.gameAccountInfo) then rName = Compat.FOREVER_REALM end
-                FriendGroups_CurrentHoverCharKey = cName .. "-" .. rName
-                
-                baselineData = {
-                    charName = cName,
-                    realm = rawRealm,
-                    class = accountInfo.gameAccountInfo.className or "",
-                    faction = accountInfo.gameAccountInfo.factionName or "",
-                    level = tonumber(accountInfo.gameAccountInfo.characterLevel) or 1,
-                    zone = accountInfo.gameAccountInfo.areaName or L["UNKNOWN_ZONE"],
-                    timestamp = time()
-                }
-                if rawRealm == Compat.FOREVER_REALM then
-                    baselineData.ruleset, baselineData.region = Compat.ForeverInfo(accountInfo.gameAccountInfo)
-                end
-            end
-        end
+        FriendGroups_CurrentHoverCharKey = liveKey
 
         local fgNoteClean = nil
         if type(accountInfo.note) == "string" and accountInfo.note ~= "" then
@@ -8125,8 +8154,6 @@ hooksecurefunc(FriendsTooltip, "Show", function(self)
     FriendGroups_CurrentHoverBNetID = nil
     FriendGroups_CurrentHoverCharKey = nil
 
-    local baselineData = nil
-
     if button.buttonType == FRIENDS_BUTTON_TYPE_BNET then
         local accountInfo = Compat.GetFriendAccountInfo(button.id)
         if not accountInfo then return end
@@ -8134,48 +8161,9 @@ hooksecurefunc(FriendsTooltip, "Show", function(self)
         local accountIdentifier = FriendGroups_AccountIdentifier(accountInfo)
         if not accountIdentifier then return end
 
-        FriendGroups_SaveToAltCache(accountIdentifier, accountInfo.gameAccountInfo)
-        
-        -- [[ MULTIBOX FIX: Mirror of above ]]
-        if C_BattleNet.GetFriendNumGameAccounts then
-            local numAccounts = C_BattleNet.GetFriendNumGameAccounts(button.id)
-            if numAccounts and numAccounts > 1 then
-                for i = 1, numAccounts do
-                    local gameAccountInfo = C_BattleNet.GetFriendGameAccountInfo(button.id, i)
-                    if gameAccountInfo then
-                        FriendGroups_SaveToAltCache(accountIdentifier, gameAccountInfo)
-                    end
-                end
-            end
-        end
-
+        local baselineData, liveKey = FriendGroups_BNetHoverBaseline(button.id, accountInfo, accountIdentifier)
         FriendGroups_CurrentHoverBNetID = accountIdentifier
-
-        if accountInfo.gameAccountInfo and (accountInfo.gameAccountInfo.characterName or "") ~= "" then
-            local rawRealm = accountInfo.gameAccountInfo.realmName
-            if not rawRealm or rawRealm == "" then rawRealm = accountInfo.gameAccountInfo.realmDisplayName end
-            -- Retail never gets a Forever friend's realm name; the character is still current.
-            if Compat.IsForeverGame(accountInfo.gameAccountInfo) then rawRealm = Compat.FOREVER_REALM end
-            if rawRealm and rawRealm ~= "" then
-                local cName = accountInfo.gameAccountInfo.characterName
-                local rName = rawRealm:gsub("[%s%p]+", "")
-                if Compat.IsForeverGame(accountInfo.gameAccountInfo) then rName = Compat.FOREVER_REALM end
-                FriendGroups_CurrentHoverCharKey = cName .. "-" .. rName
-                
-                baselineData = {
-                    charName = cName,
-                    realm = rawRealm,
-                    class = accountInfo.gameAccountInfo.className or "",
-                    faction = accountInfo.gameAccountInfo.factionName or "",
-                    level = tonumber(accountInfo.gameAccountInfo.characterLevel) or 1,
-                    zone = accountInfo.gameAccountInfo.areaName or L["UNKNOWN_ZONE"],
-                    timestamp = time()
-                }
-                if rawRealm == Compat.FOREVER_REALM then
-                    baselineData.ruleset, baselineData.region = Compat.ForeverInfo(accountInfo.gameAccountInfo)
-                end
-            end
-        end
+        FriendGroups_CurrentHoverCharKey = liveKey
 
         FriendGroups_DrawAltTooltip(FriendGroups_CurrentHoverAnchor or FriendsFrame, FriendGroups_CurrentHoverBNetID, FriendGroups_CurrentHoverCharKey, baselineData)
     end
@@ -8185,6 +8173,15 @@ FriendsFrame:HookScript("OnHide", function()
     if FriendGroupsAltTooltip then FriendGroupsAltTooltip:Hide() end
     FriendGroups_CurrentHoverAnchor = nil
 end)
+
+-- In game per the roster's ClubMemberPresence: true, false, or nil when unreadable, which
+-- keeps the old behaviour. OnlineMobile is the chat app, not the game. /fgprobe roster checks it.
+local function FG_RosterInGame(memberInfo)
+    local presence = memberInfo.presence
+    local P = Enum and Enum.ClubMemberPresence
+    if presence == nil or not P or (issecretvalue and issecretvalue(presence)) then return nil end
+    return presence == P.Online or presence == P.Away or presence == P.Busy
+end
 
 local function FriendGroups_OnGuildRosterEnter(owner, memberInfo)
     -- [[ SECRET-SAFE HELPER ]]
@@ -8197,6 +8194,9 @@ local function FriendGroups_OnGuildRosterEnter(owner, memberInfo)
     end
 
     FriendGroups_CurrentHoverAnchor = owner
+
+    -- Offline members get timestamp 0 so the roster's stale zone never reads as "Just now".
+    local inGame = FG_RosterInGame(memberInfo)
 
     local guid = memberInfo.guid
     local guidReadable = (guid ~= nil) and not (issecretvalue and issecretvalue(guid))
@@ -8236,7 +8236,8 @@ local function FriendGroups_OnGuildRosterEnter(owner, memberInfo)
                 level     = tonumber(FG_PlainOrNil(memberInfo.level)) or resolved.level or 1,
                 zone      = FG_PlainOrNil(memberInfo.zoneName) or FG_PlainOrNil(memberInfo.zone) or resolved.zone or L["UNKNOWN_ZONE"],
                 guild     = FriendGroups_PlayerGuildName,
-                timestamp = time()
+                timestamp = (inGame == false) and 0 or time(),
+                isLive    = (inGame == true),
             }
             FriendGroups_DrawAltTooltip(owner, resolved.account, resolved.key, baselineData)
         else
@@ -8312,7 +8313,8 @@ local function FriendGroups_OnGuildRosterEnter(owner, memberInfo)
         level = tonumber(memberInfo.level) or 1,
         zone = memberInfo.zoneName or memberInfo.zone or L["UNKNOWN_ZONE"],
         guild = FriendGroups_PlayerGuildName, -- [[ FIX: Supply local guild explicitly ]]
-        timestamp = time()
+        timestamp = (inGame == false) and 0 or time(),
+        isLive = (inGame == true),
     }
 
     -- [[ GUID-INDEX HARVEST ]]
