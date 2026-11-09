@@ -31,9 +31,7 @@ local function Module_SetHeader(module)
     module.Header:SetScript("OnMouseUp", ModuleHeader_OnClick)
 
     local icon = module.Header:CreateTexture(nil, "ARTWORK")
-    icon:SetSize(16, 16)
-    icon:SetTexture(KT.MEDIA_PATH.."UI-KT-HeaderButtons")
-    icon:SetTexCoord(0.5, 1, 0.75, 1)
+    KT.SetSprite(icon, "module-header-icon-collapse", true)
     icon:SetPoint("LEFT", -6, 2)
     module.Header.Icon = icon
 end

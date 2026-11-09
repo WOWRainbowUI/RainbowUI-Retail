@@ -187,5 +187,5 @@ end
 function SS:Init()
     db = KT.db.profile
 
-    KT:RegSignal("CONTEXT_MENU_UPDATE:20", ContextMenu_Extend, self)
+    KT:RegSignal("CONTEXT_MENU_UPDATE:50", ContextMenu_Extend, self)
 end

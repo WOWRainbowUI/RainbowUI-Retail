@@ -1,27 +1,28 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
 ..\..\FrameXML\UI.xsd">
+    <Script file="..\..\Core\System\Constants.lua"/>
     <Script file="Constants.lua"/>
-    <Script file="Utils.lua"/>
-    <Script file="Safe.lua"/>
-    <Script file="Media.lua"/>
-    <Script file="Config.lua"/>
-    <Script file="Storage.lua"/>
-    <Script file="Addon.lua"/>
-    <Script file="Tracker.lua"/>
-    <Script file="API.lua"/>
+    <Script file="..\..\Core\System\Utils.lua"/>
+    <Script file="..\..\Core\System\Safe.lua"/>
+    <Script file="..\..\Core\System\Media.lua"/>
+    <Script file="..\..\Core\System\Config.lua"/>
+    <Script file="..\..\Core\System\Storage.lua"/>
+    <Script file="..\..\Core\System\Addon.lua"/>
+    <Script file="..\..\Core\System\Tracker.lua"/>
+    <Script file="..\..\Core\System\API.lua"/>
 
-    <Script file="Subsystems\Telemetry.lua"/>
-    <Script file="Subsystems\IncompatibleAddons.lua"/>
-    <Script file="Subsystems\Hooks.lua"/>
-    <Script file="Subsystems\Quests.lua"/>
-    <Script file="Subsystems\Achievements.lua"/>
-    <Script file="Subsystems\Modules.lua"/>
-    <Script file="Subsystems\QuestButtons.lua"/>
-    <Script file="Subsystems\OpenService.lua"/>
-    <Script file="Subsystems\LocalizationService.lua"/>
-    <Script file="Subsystems\Menu.lua"/>
-    <Script file="Subsystems\ProgressBar.lua"/>
-    <Script file="Subsystems\StaticPopup.lua"/>
-    <Script file="Subsystems\Visibility.lua"/>
-    <Script file="Subsystems\AddonCompartment.lua"/>
+    <Script file="..\..\Core\System\Subsystems\Telemetry.lua"/>
+    <Script file="..\..\Core\System\Subsystems\IncompatibleAddons.lua"/>
+    <Script file="..\..\Core\System\Subsystems\Hooks.lua"/>
+    <Script file="..\..\Core\System\Subsystems\Quests.lua"/>
+    <Script file="..\..\Core\System\Subsystems\Achievements.lua"/>
+    <Script file="..\..\Core\System\Subsystems\Modules.lua"/>
+    <Script file="..\..\Core\System\Subsystems\QuestButtons.lua"/>
+    <Script file="..\..\Core\System\Subsystems\OpenService.lua"/>
+    <Script file="..\..\Core\System\Subsystems\LocalizationService.lua"/>
+    <Script file="..\..\Core\System\Subsystems\Menu.lua"/>
+    <Script file="..\..\Core\System\Subsystems\ProgressBar.lua"/>
+    <Script file="..\..\Core\System\Subsystems\StaticPopup.lua"/>
+    <Script file="..\..\Core\System\Subsystems\Visibility.lua"/>
+    <Script file="..\..\Core\System\Subsystems\AddonCompartment.lua"/>
 </Ui>

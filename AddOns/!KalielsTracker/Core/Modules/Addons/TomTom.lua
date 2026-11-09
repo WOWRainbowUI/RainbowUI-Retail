@@ -9,7 +9,7 @@ local addonName, KT = ...
 
 ---@class AddonTomTom
 local M = KT:NewModule("AddonTomTom")
-M.COMPATIBLE_VERSION = "v4.4.0-release"
+M.COMPATIBLE_VERSION = "v4.4.1-release"
 M.MIN_COMPATIBLE_VERSION = "v4.4.0-release"
 KT.AddonTomTom = M
 

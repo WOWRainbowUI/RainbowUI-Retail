@@ -151,13 +151,13 @@ function KT.Hooks_ObjectiveTrackerContainer()
         local texture = KTF.MinimizeButton:GetNormalTexture()
         if collapsed then
             _DBG("COLLAPSE", true)
-            texture:SetTexCoord(0, 0.5, 0, 0.25)
+            KT.ChangeSprite(texture, "tracker-header-btn-expand")
             if KT:Addon_IsModule(KT.Scenario) then
                 KT.Scenario:ExternalFrames_Hide()
             end
         else
             _DBG("EXPAND", true)
-            texture:SetTexCoord(0, 0.5, 0.25, 0.5)
+            KT.ChangeSprite(texture, "tracker-header-btn-collapse")
         end
         MSA_CloseDropDownMenus()
     end)
@@ -167,9 +167,9 @@ function KT.Hooks_ObjectiveTrackerModule()
     hooksecurefunc(KT_ObjectiveTrackerModuleHeaderMixin, "SetCollapsed", function(self, collapsed)
         local texture = self.Icon
         if collapsed then
-            texture:SetTexCoord(0, 0.5, 0.75, 1)
+            KT.ChangeSprite(texture, "module-header-icon-expand")
         else
-            texture:SetTexCoord(0.5, 1, 0.75, 1)
+            KT.ChangeSprite(texture, "module-header-icon-collapse")
         end
     end)
     Default_SetChangedMixin(KT_ObjectiveTrackerModuleHeaderMixin, "Header", "SetCollapsed")

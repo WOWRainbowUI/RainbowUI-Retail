@@ -32,7 +32,7 @@ local buttons = KT.QuestButtons_GetButtons()
 
 local DEFAULT_ICON = "Interface\\Icons\\INV_Misc_QuestionMark"
 
-local Update  -- functions
+local Update, UpdateHotkey  -- functions
 
 -- Internal ------------------------------------------------------------------------------------------------------------
 
@@ -337,7 +337,8 @@ local function SetupOptions()
 			order = 10.1,
 		},
 		keyBindActiveButtonDesc = {
-			name = "使用"..format(KT.FORMAT.TEXT_BOLD, BINDING_NAME_EXTRAACTIONBUTTON1),
+			name = C_KeyBindings.GetBindingIndex("EXTRAACTIONBUTTON1")
+					and "共用"..format(KT.FORMAT.TEXT_BOLD, BINDING_NAME_EXTRAACTIONBUTTON1) or "",
 			type = "description",
 			width = 1,
 			justifyH = "RIGHT",
@@ -349,10 +350,18 @@ local function SetupOptions()
 			type = "keybinding",
 			disabled = IsDisabled,
 			get = function()
-				return GetBindingKey("EXTRAACTIONBUTTON1")
+				if C_KeyBindings.GetBindingIndex("EXTRAACTIONBUTTON1") then
+					return GetBindingKey("EXTRAACTIONBUTTON1")
+				end
+				return db.keyBindActiveButton
 			end,
 			set = function(_, value)
-				KT.Keybind(value, "EXTRAACTIONBUTTON1")
+				if C_KeyBindings.GetBindingIndex("EXTRAACTIONBUTTON1") then
+					KT.Keybind(value, "EXTRAACTIONBUTTON1")
+				else
+					KT.Keybind(value, "keyBindActiveButton")
+					UpdateHotkey()
+				end
 			end,
 			order = 10.2,
 		},
@@ -373,18 +382,26 @@ local function UpdateBlizzardButtonIconID()
 	blizzardButtonIconID = iconID
 end
 
-local function UpdateHotkey()
-	local key = GetBindingKey("EXTRAACTIONBUTTON1")
+function UpdateHotkey()
 	local button = KTF.ActiveButton
-	local hotkey = button.HotKey
-	local hotkeyExtra = ExtraActionButton1.HotKey
-	local text = db.activeButtonBindingShow and GetBindingText(key, 1) or ""
-	ClearOverrideBindings(button)
-	if key then
-		hotkeyExtra:SetText(RANGE_INDICATOR)
-		hotkeyExtra:Hide()
-		SetOverrideBindingClick(button, false, key, button:GetName())
+	if not button then return end
+
+	local key
+	if C_KeyBindings.GetBindingIndex("EXTRAACTIONBUTTON1") then
+		ClearOverrideBindings(button)
+		key = GetBindingKey("EXTRAACTIONBUTTON1")
+		if key then
+			local hotkeyExtra = ExtraActionButton1.HotKey
+			hotkeyExtra:SetText(RANGE_INDICATOR)
+			hotkeyExtra:Hide()
+			SetOverrideBindingClick(button, false, key, button:GetName())
+		end
+	else
+		key = db.keyBindActiveButton
 	end
+
+	local hotkey = button.HotKey
+	local text = db.activeButtonBindingShow and GetBindingText(key, 1) or ""
 	if text == "" then
 		hotkey:SetText(RANGE_INDICATOR)
 		hotkey:Hide()
@@ -395,6 +412,8 @@ local function UpdateHotkey()
 end
 
 local function RemoveHotkey(button)
+	if not C_KeyBindings.GetBindingIndex("EXTRAACTIONBUTTON1") then return end
+
 	local key = GetBindingKey("EXTRAACTIONBUTTON1")
 	local hotkeyExtra = ExtraActionButton1.HotKey
 	if key then
