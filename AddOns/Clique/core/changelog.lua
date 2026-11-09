@@ -22,6 +22,15 @@ addon.changelogPinned = nil
 -- hasn't seen yet (see ShouldAutoShowChangelog).
 addon.changelog = {
     {
+        version  = "5.1.5",
+        date     = "2026-11-08",
+        autoShow = false,
+        items = {
+            "Fixed an issue that prevented 'Anywhere' (global) mouse-button bindings from working over Clique-registered unit frames. On unit frames those spells will use the frame unit, otherwise they will follow normal action bar targeting rules including self-casting if that is enabled. Non-Clique registered unit frames will still 'eat' these mouse buttons, and that's not something Clique can fix due to the game client.",
+            "Over a unit frame, a 'Unit frames' (default) binding on the same button is preferred over an 'Anywhere' (global) binding. An 'Anywhere' (global) and an 'Any unit under the mouse' (hovercast) binding on the same button conflict, and the binding list shows which one is used.",
+        },
+    },
+    {
         version  = "5.1.4",
         date     = "2026-11-07",
         autoShow = false,

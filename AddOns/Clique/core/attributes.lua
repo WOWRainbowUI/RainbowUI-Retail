@@ -55,10 +55,12 @@ local function shouldApply(global, entry)
                 return true
             end
         end
-        -- 'hovercast' also applies on unit frames, at the lowest priority: the
-        -- frame takes the click, so it would never reach globutton. Plain
-        -- left/right click are skipped, as on globutton.
-        return entry.sets.hovercast == true and entry.key ~= "BUTTON1" and entry.key ~= "BUTTON2"
+        -- The frame takes every click, so 'hovercast'/'global' clicks would never reach
+        -- globutton; apply them here at the lowest priority. See docs/bindings.md.
+        local isClick = addon:GetMouseButtonNumber(entry) ~= nil
+        local isPlainLeftRight = entry.key == "BUTTON1" or entry.key == "BUTTON2"
+        local appliesOnFrames = entry.sets.hovercast or (entry.sets.global and isClick)
+        return appliesOnFrames == true and not isPlainLeftRight
     end
 end
 

@@ -30,7 +30,7 @@ local WHEN_TEXT = addon.BindSetChoiceText.when
 local WHERE_TOOLTIPS = {
     frames = L["Works when the mouse is over a unit frame that Clique manages."],
     anyunit = L["The action goes to the unit under the mouse: on unit frames, nameplates, or characters in the world. With no unit under the mouse, nothing happens, even for spells that need no target. On unit frames, a 'Unit frames' binding on the same key is preferred."],
-    anywhere = L["Works like an action bar key. The mouse can be anywhere, and the spell uses your current target. Use this for spells you do not want on an action bar. Do not use the same key for an 'Any unit under the mouse' binding."],
+    anywhere = L["Works like an action bar key. The mouse can be anywhere, and the spell uses your current target. A mouse click on a unit frame uses that frame's unit. On unit frames, a 'Unit frames' binding on the same key is preferred. Use this for spells you do not want on an action bar. Do not use the same key for an 'Any unit under the mouse' binding."],
 }
 
 -- The old edit page's names, so players can find their bind-sets
