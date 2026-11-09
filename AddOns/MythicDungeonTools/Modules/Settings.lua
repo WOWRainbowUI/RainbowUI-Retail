@@ -53,14 +53,14 @@ local function bind(control, value, disabled, hidden)
   return control
 end
 
-local function checkbox(parent, id, label, value, onChange, disabled)
+local function checkbox(parent, id, label, value, onChange, disabled, hidden)
   return bind(UI.Checkbox(parent, {
-    id = id, label = label, value = value(), disabled = disabled and disabled() or false,
+    id = id, label = label, value = value(), disabled = disabled and disabled() or false, hidden = hidden and hidden() or false,
     onChange = function(checked)
       onChange(checked)
       sync()
     end,
-  }), value, disabled)
+  }), value, disabled, hidden)
 end
 
 local function recolorPulls(force)
@@ -161,6 +161,9 @@ local function buildGeneral(column)
   checkbox(column, "alwaysOverwriteRoutes", L["Always overwrite matching routes on import"], function() return db.alwaysOverwriteRoutesByUID == true end, function(value)
     db.alwaysOverwriteRoutesByUID = value
   end)
+  checkbox(column, "newRoutesOnTop", L["Add new routes at the top"], function() return db.newRoutesOnTop == true end, function(value)
+    db.newRoutesOnTop = value
+  end)
   if MDT:IsRetail() then
     checkbox(column, "muteXalatath", L["Mute Xal'atath Voice Lines"], function() return db.muteXalatathVoiceLines == true end, function(value)
       db.muteXalatathVoiceLines = value
@@ -181,6 +184,10 @@ local function buildGeneral(column)
     value = db.fadeOutAlpha, disabled = fadeOutDisabled(),
     onChange = function(value) db.fadeOutAlpha = value end,
   }), function() return db.fadeOutAlpha end, fadeOutDisabled)
+  -- April Fools: only on April 1st, the one day it does anything.
+  checkbox(column, "hideAprilFools", L["hideAprilFools"], function() return db.hideAprilFools == true end, function(value)
+    MDT:SetAprilFoolsHidden(value)
+  end, nil, function() return not MDT:IsAprilFirst() end)
 
   UI.Heading(column, { text = L["Language"] })
   local changeLanguage = _G.SlashCmdList["ADDONLOCALE"]
