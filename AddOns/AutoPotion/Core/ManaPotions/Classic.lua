@@ -6,8 +6,10 @@ function ham.getManaPotionsForClassic()
   local pots = {
     ham.majorManaPotion,         -- 1350-2250
     ham.majorRejuvenationPotion, -- 1440-1760 (+ health)
-    ham.combatManaPotion,        -- 900-1500
-    ham.superiorManaPotion,      -- 900-1500
+    {
+      ham.combatManaPotion,        -- 900-1500
+      ham.superiorManaPotion,      -- 900-1500
+    },
     ham.greaterManaPotion,       -- 700-900
     ham.manaPotion,              -- 455-585
     ham.lesserManaPotion,        -- 280-360
@@ -25,4 +27,14 @@ function ham.getManaPotionsForClassic()
   end
 
   return pots
+end
+
+-- Mana gems, by mana restored, highest first.
+function ham.getManaGemsForClassic()
+  return {
+    ham.manaRuby,    -- 1000-1200
+    ham.manaCitrine, -- 775-925
+    ham.manaJade,    -- 550-650
+    ham.manaAgate,   -- 375-425
+  }
 end

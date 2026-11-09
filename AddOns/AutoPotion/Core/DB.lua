@@ -9,6 +9,9 @@ ham.defaults = {
     cdReset = false,
     stopCast = false,
     raidStone = false,
+    -- the potion priority turned around: the weakest health / mana potion first
+    weakestPotionFirst = false,
+    weakestManaPotionFirst = false,
     witheringPotion = false,
     witheringDreamsPotion = false,
     cavedwellerDelight = true,
@@ -17,6 +20,8 @@ ham.defaults = {
     -- with includeBuffFood: buff food first while the food buff is missing, last while it's there
     buffFoodOnlyWhenMissing = false,
     includeRejuvenation = true,
+    -- AutoManaPotion uses the best mana gem before the mana potion
+    useManaGems = true,
     soulburn = false,
     -- Forever: the AutoBandage macro casts Rapid Regeneration (Troll racial) before the bandage
     rapidRegenerationBandage = true,

@@ -1,28 +1,24 @@
 # Auto Potion
 
-## [4.0.6](https://github.com/ollidiemaus/AutoPotion/tree/4.0.6) (2026-11-05)
-[Full Changelog](https://github.com/ollidiemaus/AutoPotion/compare/4.0.5...4.0.6) [Previous Releases](https://github.com/ollidiemaus/AutoPotion/releases)
+## [4.0.7](https://github.com/ollidiemaus/AutoPotion/tree/4.0.7) (2026-11-08)
+[Full Changelog](https://github.com/ollidiemaus/AutoPotion/compare/4.0.6...4.0.7) [Previous Releases](https://github.com/ollidiemaus/AutoPotion/releases)
 
-- WoW Forever: use Forever's own food, drink, potions, bandages and Windstone (#167)  
-    * WoW Forever: use Forever's own food and drink  
-    AutoFood and AutoDrink now know Forever's plain food and drink, Ketharas'  
-    Hyjal Stew and Restorative Bread. Nutritious food and drinks, and Filet o'  
-    Flank, are buff food: they need "Include Buff Food", and that now also covers  
-    the older food Forever turned Nutritious. "Only when the buff is missing"  
-    orders AutoDrink by the food buff on Forever.  
-    Part of #166  
-    * WoW Forever: use Windstone, Tessa's Tonic and Forever's potions and bandages  
-    Windstone is used first on Zephras Isle and the Darkspear Islands bandages  
-    first on Darkspear Islands; elsewhere the macros leave them out. Perishable  
-    potions, Tessa's Tonic and Dense Runecloth Bandage join their lists.  
-    Part of #166  
-    * wago\_check reports restoring items the addon doesn't list  
-    --missing lists them for a flavor's client, leaving out  
-    scripts/missing\_skip.json, which keeps each exclusion with its reason.  
-    Entries a list adds with table.insert now get the ID and name checks too.  
-    Part of #166  
-    * WoW Forever: use Forever's Major and Greater Healing Potion in their zones  
-    They only work in The Hinterlands, Duskwood, Ashenvale and Feralas, so  
-    AutoPotion uses them first there and leaves them out elsewhere. The macros  
-    update when you cross into or out of one of these zones.  
-    Part of #166  
+- Weakest Potion First: optional reversed potion priority for health and mana potions (#170)  
+    Two opt-in boxes, both off by default: "Weakest Potion First" on the main  
+    page and "Weakest Mana Potion First" on the AutoManaPotion page turn the  
+    potion priority around, for leveling.  
+    The flavor lists group potions of the same strength in { } groups;  
+    ham.potionPriority flattens them, puts zone-locked items (battleground  
+    draughts, Windstone, Forever's zone-locked potions) first and, with the  
+    setting on, reverses the strength order while each group keeps its order  
+    (expiring before plain, plain mana before rejuvenation). Healthstones and  
+    mana gems keep their best-first order. wago\_check reads the groups as  
+    part of the list around them.  
+    Also adds the Potion priority and Weakest potion first glossary entries.  
+- updated docs  
+- AutoManaPotion uses the best mana gem before the mana potion (#168) (#169)  
+    A mage's best mana gem goes first in a castsequence with the best mana  
+    potion, reset on combat and after the gem's cooldown as the client  
+    reports it. A gem alone is a plain /use. New "Use mana gems" box on the  
+    mana potion page (on by default); the preview shows the gem first.  
+    Mana gem lists per flavor, best first; "Mana gem" in the glossary.  
