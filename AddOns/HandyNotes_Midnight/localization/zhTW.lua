@@ -35,20 +35,20 @@ L['options_icons_safari_desc'] = '顯示成就 {achievement:61091} 所需的戰�
 L['options_icons_renowned_beast'] = '知名野獸'
 L['options_icons_renowned_beast_desc'] = '顯示可召喚的日常剝皮野獸位置。'
 L['silverscale_note'] = '在橋下召喚。'
-L['last_architect_note'] = nil
+L["last_architect_note"] = "完成每日謎題可獲得裝飾。"
 L['neighborhood_riddle'] = '寶藏位置'
-L['options_icons_souvenirs'] = nil
-L['options_icons_souvenirs_desc'] = nil
-L['souvenir_activity_note'] = nil
-L['souvenir_balloon_note'] = nil
-L['souvenir_beach_note'] = nil
-L['souvenir_cart_note'] = nil
-L['souvenir_guide_note'] = nil
-L['souvenir_kite_note'] = nil
-L['souvenir_scroll_note'] = nil
-L['souvenir_soil_note'] = nil
-L['souvenir_turtle_note'] = nil
-L['souvenir_waterfall_note'] = nil
+L["options_icons_souvenirs"] = "{achievement:63606}"
+L["options_icons_souvenirs_desc"] = "顯示 {achievement:63606} 所需秘密紀念品的位置。"
+L["souvenir_activity_note"] = "需要海龜人的奮鬥活動。"
+L["souvenir_balloon_note"] = "攻擊商店內的 {npc:270647}。"
+L["souvenir_beach_note"] = "可在整個區域出現。只坐在海灘椅上等待 10 分鐘並不足夠；必須透過海灘活動累積隱藏進度：坐在椅子或毛巾上、待在水中、騎乘 {npc:267313}，以及攻擊 {npc:266931}。進度接近全滿時，{npc:266895} 會回應「Now THIS is a party.」；再完成一次「Stay a While and Glisten」活動，紀念品就會出現。"
+L["souvenir_cart_note"] = "這個紀念品在一輛於社區巡迴的推車後方。"
+L["souvenir_guide_note"] = "先閱讀屋內的 {object:No Wrong Rung: A Quick Start Guide to Laddering}，學會 %s 後才能爬上梯子。"
+L["souvenir_kite_note"] = "這個紀念品會掛在風箏上於社區上空飛行。騎乘飛行坐騎撞上它，迫使它落地。"
+L["souvenir_scroll_note"] = "向 {npc:268110} 購買 %s，並在這裡使用；紀念品會出現在泡泡內。"
+L["souvenir_soil_note"] = "對 {npc:272966} 使用水系範圍法術，例如 {spell:145205}、{spell:444995} 或 {spell:190356}。\n\n也可以等待下雨。"
+L["souvenir_turtle_note"] = "在一隻可能四處走動的烏龜身上。"
+L["souvenir_waterfall_note"] = "這個紀念品會出現在瀑布源頭，並隨水流漂向下游。被沖上海灘並由海龜人小孩拾起後就會消失。"
 
 -------------------------------------------------------------------------------
 -------------------------------- EVERSONG WOODS -------------------------------
