@@ -449,3 +449,9 @@ L.EVENT_CODES["RESOURCE_NAME"] = "%p - 资源名称。\n"
 L.NOTIFICATION_EVENTS["NOTIFICATION_RESOURCE_GAIN"] = { label="获得资源", tooltip="显示技能与效果提供的资源。" }
 
 L.CHECKBOXES["enableNames"] = { label="启用技能名称", tooltip="显示受到与造成伤害事件的技能名称。" }
+
+L.TABS["sounds"] = { label="音效", tooltip="启用事件音效并添加自定义音效文件。" }
+
+L.CHECKBOXES["lowHealthSound"] = { label="低生命值音效", tooltip="播放低生命值警告音效，最多每 8 秒一次。取消勾选时仍会显示文字警告。" }
+
+L.CHECKBOXES["lowManaSound"] = { label="低法力值音效", tooltip="播放低法力值警告音效，最多每 8 秒一次。取消勾选时仍会显示文字警告。" }
