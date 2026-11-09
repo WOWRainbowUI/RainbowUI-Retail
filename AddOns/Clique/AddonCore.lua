@@ -75,7 +75,7 @@ local UIParent = UIParent
 
 -- Extract version information from TOC file
 addon.version = GetAddOnMetadata(addonName, "Version")
-if addon.version == "v5.1.4-release" or addon.version == "wowi:version" then
+if addon.version == "v5.1.5-release" or addon.version == "wowi:version" then
     addon.version = "SCM"
 end
 
