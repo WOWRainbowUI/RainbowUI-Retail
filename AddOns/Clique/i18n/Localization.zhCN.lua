@@ -218,7 +218,6 @@ local baseLocale = {
     ["When the binding is active"] = "绑定生效时机",
     ["Where the binding is active"] = "绑定生效位置",
     ["Which units the binding is active for"] = "绑定生效的单位",
-    ["Works like an action bar key. The mouse can be anywhere, and the spell uses your current target. Use this for spells you do not want on an action bar. Do not use the same key for an 'Any unit under the mouse' binding."] = "作用类似动作条按键。鼠标可在任意位置，法术作用于你的当前目标。适用于不想放在动作条上的法术。不要将同一按键用于'鼠标下的任意单位'绑定。",
     ["Works when the mouse is over a unit frame that Clique manages."] = "鼠标位于 Clique 管理的单位框体上时生效。",
     ["Yes"] = "是",
     ["You are in binding capture mode! You can either click with your mouse or press a key on your keyboard to set a binding. You can modify the binding by holding down a combination of the alt, control and shift keys on your keyboard."] = "你正处于绑定捕获模式! 点击鼠标或按下键盘按键即可设置绑定。按住 Alt、Ctrl、Shift 的组合可修改绑定。",
@@ -232,4 +231,7 @@ local baseLocale = {
     ["|cffFF4800No macros with name '%s' exists"] = "|cffFF4800不存在名为 '%s' 的宏",
 }
 
+baseLocale["Works like an action bar key. The mouse can be anywhere, and the spell uses your current target. A mouse click on a unit frame uses that frame's unit. On unit frames, a 'Unit frames' binding on the same key is preferred. Use this for spells you do not want on an action bar. Do not use the same key for an 'Any unit under the mouse' binding."] = "如同动作条按键，鼠标可位于任何位置，法术会对当前目标施放。点击单位框体时则使用该框体的单位；同一按键若有“单位框体”绑定，会优先使用该绑定。适用于不想放在动作条上的法术。请勿与“鼠标下的任意单位”绑定使用相同按键。"
+
 addon:RegisterLocale('zhCN', baseLocale)
+

@@ -218,7 +218,6 @@ local baseLocale = {
     ["When the binding is active"] = "綁定生效時機",
     ["Where the binding is active"] = "綁定生效位置",
     ["Which units the binding is active for"] = "綁定生效的單位",
-    ["Works like an action bar key. The mouse can be anywhere, and the spell uses your current target. Use this for spells you do not want on an action bar. Do not use the same key for an 'Any unit under the mouse' binding."] = "作用類似快捷列按鍵。滑鼠可在任意位置，法術作用於你的當前目標。適用於不想放在快捷列上的法術。不要將同一按鍵用於'滑鼠下的任意單位'綁定。",
     ["Works when the mouse is over a unit frame that Clique manages."] = "滑鼠位於 Clique 管理的單位框體上時生效。",
     ["Yes"] = "是",
     ["You are in binding capture mode! You can either click with your mouse or press a key on your keyboard to set a binding. You can modify the binding by holding down a combination of the alt, control and shift keys on your keyboard."] = "你正處於綁定捕捉模式！你可以點擊滑鼠或按下鍵盤按鍵來設定綁定。你可以按住鍵盤上的 Alt、Ctrl 和 Shift 組合鍵來修改綁定。",
@@ -233,4 +232,7 @@ local baseLocale = {
     ["Clique"] = "點擊施法",
 }
 
+baseLocale["Works like an action bar key. The mouse can be anywhere, and the spell uses your current target. A mouse click on a unit frame uses that frame's unit. On unit frames, a 'Unit frames' binding on the same key is preferred. Use this for spells you do not want on an action bar. Do not use the same key for an 'Any unit under the mouse' binding."] = "如同快捷列按鍵，滑鼠可位於任何位置，法術會對目前目標施放。點擊單位框架時則使用該框架的單位；同一按鍵若有「單位框架」綁定，會優先使用該綁定。適用於不想放在快捷列上的法術。請勿與「滑鼠下的任何單位」綁定使用相同按鍵。"
+
 addon:RegisterLocale('zhTW', baseLocale)
+
