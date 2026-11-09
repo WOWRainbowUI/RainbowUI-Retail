@@ -92,3 +92,10 @@ L["Eat buff food first while you don't have its buff (\"Well Fed\" for food, \"R
 
 L["Go back to your first heal once its cooldown is over"] = "第一個治療冷卻結束後，重新從它開始"
 L["If you don't press the macro for as long as your first heal's cooldown (talents included), the macro starts over with it. Works when the first heal is a spell or a Healthstone. A later heal with a longer cooldown can still make the macro wait."] = "若未按下巨集的時間達到第一個治療的冷卻時間（包含天賦效果），巨集就會重新從它開始。第一個治療為法術或治療石時適用。後續治療若有更長的冷卻時間，仍可能讓巨集等待。"
+
+L["Use mana gems"] = "使用法力寶石"
+L["Use your best mana gem first. The next press drinks the mana potion, since they don't share a cooldown. The macro goes back to the mana gem when combat starts or ends, and when you haven't pressed it for as long as the mana gem's cooldown."] = "優先使用效果最強的法力寶石。由於法力寶石與藥水不共用冷卻時間，下次按下時會使用法力藥水。開始或結束戰鬥，或未按下的時間達到法力寶石的冷卻時間後，巨集會重新從法力寶石開始。"
+L["Weakest Potion First"] = "優先使用效果最弱的藥水"
+L["Use your weakest health potion first and keep the stronger ones for later. Meant for leveling. Any health potion in your bags counts, whatever its level. Healthstones still come in their usual order."] = "優先使用效果最弱的治療藥水，保留較強的藥水供之後使用，適合練等。不論等級，背包內的所有治療藥水都會納入。治療石仍依原本順序使用。"
+L["Weakest Mana Potion First"] = "優先使用效果最弱的法力藥水"
+L["Use your weakest mana potion first and keep the stronger ones for later. Meant for leveling. Any mana potion in your bags counts, whatever its level. The mana gem is still your best one."] = "優先使用效果最弱的法力藥水，保留較強的藥水供之後使用，適合練等。不論等級，背包內的所有法力藥水都會納入。法力寶石仍使用效果最強的。"
