@@ -2749,3 +2749,6 @@ L["|r: open the player breakdown for you."] = "|r: 打開玩家分析。"
 L["|rcheck if it is enabled in the addons control panel."] = "|r請在插件控制台內檢查是否已經啟用/載入。"
 
 L["No options found"] = "找不到選項"
+
+L["STRING_ATTRIBUTE_DAMAGE_MYSPELLS"] = "傷害法術"
+L["STRING_ATTRIBUTE_HEAL_MYSPELLS"] = "治療法術"
