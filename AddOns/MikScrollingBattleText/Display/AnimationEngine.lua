@@ -241,6 +241,7 @@ DisplayService:Configure({
 	isModDisabled = IsModDisabled,
 	display = Display,
 	playSound = MikSBT.Media.PlaySound,
+	getTime = GetTime,
 	outlineMap = OUTLINE_MAP,
 	defaultArea = DEFAULT_SCROLL_AREA,
 })

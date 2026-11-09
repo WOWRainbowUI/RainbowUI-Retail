@@ -81,6 +81,10 @@ obj["profile"]		= { label="Profile", tooltip="Display options for profile manage
 obj["general"]		= { label="General", tooltip="Display general options."}
 obj["scrollAreas"]	= { label="Scroll Areas", tooltip="Display options for creating, deleting, and configuring scroll areas.\n\nMouse over the icon buttons for more information."}
 obj["events"]		= { label="Events", tooltip="Display options for incoming, outgoing, and notification events.\n\nMouse over the icon buttons for more information."}
+obj["sounds"] = {
+	label = "Sounds",
+	tooltip = "Enable event sounds and add custom sound files.",
+}
 obj["lootAlerts"]	= { label="Loot Alerts", tooltip="Display options for loot related notifications."}
 obj["language"]		= { label="Language", tooltip="Shows the current game locale and how language selection works for MSBT."}
 obj["resetBlizzardSCT"] = { label="Reset Blizzard SCT", tooltip="Enable Blizzard damage and turn off MSBT."}
@@ -483,6 +487,16 @@ L.MSG_INVALID_CUSTOM_SOUND_NAME		= "Invalid sound name."
 L.MSG_SOUND_NAME_ALREADY_EXISTS		= "Sound name already exists."
 L.MSG_INVALID_SOUND_FILE			= "Sound must be an .mp3 or .ogg file."
 L.CHECKBOXES["enableSounds"] = { label="Enable Sounds", tooltip="Play custom sounds assigned to displayed events."}
+L.CHECKBOXES["lowHealthSound"] = {
+	label = "Low Health Sound",
+	tooltip = "Play the low-health warning sound, at most once every 8 seconds. " ..
+		"The text warning remains visible when this is unchecked.",
+}
+L.CHECKBOXES["lowManaSound"] = {
+	label = "Low Mana Sound",
+	tooltip = "Play the low-mana warning sound, at most once every 8 seconds. " ..
+		"The text warning remains visible when this is unchecked.",
+}
 L.DROPDOWNS["sound"]				= { label="Sound:", tooltip="Selects the sound to play when the event occurs."}
 L.BUTTONS["addCustomSound"]			= { label="Add Sound", tooltip="Adds a custom sound to the list of available sounds.\n\nWARNING: The sound file must exist in the target location *BEFORE* WoW was started.\n\nIt is highly recommended to place the file in the MikScrollingBattleText\\Sounds directory to avoid issues."}
 L.BUTTONS["customSound"]				= { tooltip="Click to enter a custom sound file." }
