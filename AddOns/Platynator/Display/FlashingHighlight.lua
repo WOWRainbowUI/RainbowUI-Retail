@@ -13,6 +13,7 @@ function addonTable.Display.FlashingHighlightMixin:SetUnit(unit)
 end
 
 function addonTable.Display.FlashingHighlightMixin:Strip()
+  addonTable.Display.UnregisterForColorEvents(self)
   self.Animation:Stop()
 end
 

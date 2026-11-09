@@ -69,12 +69,7 @@ local getter = {
     return new, state
   end,
   ["threat"] = function(oldState, unit)
-    local result
-    if PlayerIsInCombat and not PlayerIsInCombat() then -- Fix for Blizzard API glitch
-      result = {situation = nil, otherTankAggro = false}
-    else
-      result = {situation = UnitThreatSituation("player", unit), otherTankAggro = false}
-    end
+    local result = {situation = UnitThreatSituation("player", unit), otherTankAggro = false}
     if result.situation ~= 3 and result.situation ~= 2 and IsTank() then
       for _, tankUnit in ipairs(GetOtherTanks()) do
         if UnitThreatSituation(tankUnit, unit) == 3 then
@@ -212,10 +207,6 @@ function addonTable.Display.CacheMixin:OnLoad()
   self:RegisterEvent("PLAYER_FOCUS_CHANGED")
   self:RegisterEvent("UPDATE_MOUSEOVER_UNIT")
 
-  if UnitClassBase("player") == "ROGUE" then -- Accommodate vanish not resetting threat with event
-    self:RegisterEvent("PLAYER_REGEN_ENABLED")
-  end
-
   self:SetScript("OnUpdate", self.OnUpdate)
 
   addonTable.CallbackRegistry:RegisterCallback("LegacyInterrupter", function(_, playerGUID, destGUID)
@@ -326,13 +317,6 @@ function addonTable.Display.CacheMixin:OnEvent(eventName, unit, ...)
     for unit, details in pairs(self.monitoring) do
       if details.focus then
         self:Process("focus", unit, eventName, ...)
-      end
-    end
-  elseif eventName == "PLAYER_REGEN_ENABLED" then
-    -- Rogue only fix
-    for unit, details in pairs(self.monitoring) do
-      if details.threat then
-        self:Process("threat", unit, eventName, ...)
       end
     end
   else

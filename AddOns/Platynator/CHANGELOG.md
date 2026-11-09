@@ -1,6 +1,7 @@
 # Platynator
 
-## [541](https://github.com/TheMouseNest/Platynator/tree/541) (2026-11-05)
-[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/540...541) 
+## [542](https://github.com/TheMouseNest/Platynator/tree/542) (2026-11-08)
+[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/541...542) 
 
-- Remove the temporary cvars as they caused issues with keyboard shortcuts  
+- Remove rogue stealth threat fix (causes threat to lag)  
+- Fix missing unregister  
