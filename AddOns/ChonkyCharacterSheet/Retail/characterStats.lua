@@ -2034,7 +2034,7 @@ local STAT_SECTIONS = {
 			{ key="general_health",		name=L["Health"]			or "Health",			ver=bit.bor(CCS.FOREVER),	id=10000,	statFunc=GetStatHealth,			icon="Interface\\Icons\\inv_potion_54", isAtlas=false },
 			{ key="general_power",		name=L["Power/Mana"]		or "Power/Mana",		ver=bit.bor(CCS.FOREVER),	id=10000,	statFunc=GetStatPower,			icon="Interface\\Icons\\inv_misc_gem_pearl_03", isAtlas=false },
 			--{ key="general_healthregen",	name=L["Health Regen"]		or "Health Regen",		ver=bit.bor(CCS.FOREVER),	id=10000,	statFunc=CCS.GetStatHealthRegenForever,			icon="Interface\\Icons\\Spell_Holy_Renew", isAtlas=false },
-			--{ key="general_manaregen",		name=L["Mana Regen"]		or "Mana Regen",		ver=bit.bor(CCS.FOREVER),	id=10000,	statFunc=CCS.GetStatManaRegenForever,			icon="Interface\\Icons\\spell_nature_manaregentotem", isAtlas=false },
+			{ key="general_manaregen",		name=L["Mana Regen"]		or "Mana Regen",		ver=bit.bor(CCS.FOREVER),	id=10000,	statFunc=CCS.GetStatManaRegenForever,			icon="Interface\\Icons\\spell_nature_manaregentotem", isAtlas=false },
 			{ key="general_energyregen",	name=L["Energy Regen"]		or "Energy Regen",		ver=bit.bor(CCS.FOREVER),	id=10000,	statFunc=CCS.GetStatEnergyRegenForever,			icon="Interface\\Icons\\INV_Trinket_Maldraxxus_02_Yellow", isAtlas=false },
 			--{ key="general_gcd",		name=L["GCD"]			or "GCD",			    ver=bit.bor(CCS.FOREVER),	id=10000,	statFunc=GetStatGCD,		icon="Interface\\Icons\\inv_misc_pocketwatch_02.blp", isAtlas=false },
 			{ key="general_movespeed",	    name=L["Movement Speed"]	or "Movement Speed",	ver=bit.bor(CCS.FOREVER),	id=10000,	statFunc=GetStatMovespeed,	icon="Interface\\Icons\\ability_mount_nightmarehorse", isAtlas=false },
@@ -3599,12 +3599,6 @@ function module:Initialize(onlyStyle)
 			select(1, CharacterFrameRightPaneHost:GetRegions()):Hide()
 			CharacterStatsPane:SetPoint("TOPLEFT", CharacterFrameRightPaneHostStoneBg, "BOTTOMLEFT", 0,35)
 			CharacterStatsPane:SetPoint("BOTTOMRIGHT", CharacterFrameRightPaneHost, "BOTTOMRIGHT", 0,0)	
-
-			CharacterStatsPaneScrollBox:ClearAllPoints()
-			-- This is for testing
-			--CharacterStatsPaneScrollBox:SetPoint("TOPLEFT", CharacterFrameBgbg, "TOPRIGHT", 40, 0)
-			--CharacterStatsPaneScrollBox:SetPoint("BOTTOMRIGHT", CharacterFrameBgbg, "BOTTOMRIGHT", 300, 0)
-			
 		end
 
 		if PaperDollSidebarTabs ~= nil and PaperDollSidebarTabs.DecorLeft ~= nil then
@@ -3740,7 +3734,6 @@ function CCS.CharacterStatsEventHandler(event, ...)
             CCS:RestoreCharacterStatsPane()
 
 			if CCS.CurrentVersion == CCS.FOREVER then
-				CharacterStatsPaneScrollBox:Show()
 				CharacterStatsPane:Hide()
 				if CharacterStatsPane.ChonkyNS then
 					CharacterStatsPane.ChonkyNS:Hide()
@@ -3752,8 +3745,6 @@ function CCS.CharacterStatsEventHandler(event, ...)
         end
 		
 		if CCS.CurrentVersion == CCS.FOREVER then
-			CharacterStatsPaneScrollBox:ClearAllPoints()
-			CharacterStatsPaneScrollBox:Hide()
 			CharacterStatsPane:Show()
 			if CharacterStatsPane.ChonkyNS then
 				CharacterStatsPane.ChonkyNS:Show()

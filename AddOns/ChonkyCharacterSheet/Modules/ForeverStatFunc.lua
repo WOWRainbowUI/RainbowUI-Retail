@@ -221,20 +221,17 @@ function CCS.GetStatHasteForever()
 
 	local _, classFileName = UnitClass("player");
 	local classType = CCS.ClassType()
-	local hastevalue
+	local hastevalue, maxHaste
 	local meleeHaste = GetMeleeHaste();
 	local baseRangedHaste, ammoHaste = GetRangedHaste();
 	local spellHaste = UnitSpellHaste("player");
 
 	local isRangedClass = classFileName == "WARRIOR" or classFileName == "HUNTER" or classFileName == "ROGUE";
 
-	leftText = STAT_HASTE
-	rightText = targetValue or format('%s%%', CCS.round(0))
-
 	if not CCS.AreSecretsDisabled() then
 
 		local rangedHaste = baseRangedHaste + ammoHaste;
-		local maxHaste = max(meleeHaste, rangedHaste, spellHaste);
+		maxHaste = max(meleeHaste, rangedHaste, spellHaste);
 
 		isZero = (maxHaste == 0)
 
@@ -253,6 +250,14 @@ function CCS.GetStatHasteForever()
 		end
 
 	end
+	
+	leftText = STAT_HASTE
+	if not CCS.AreSecretsDisabled() then
+		rightText = targetValue or format('%s%%', CCS.round(maxHaste))
+	else
+		rightText = targetValue or format('%s%%', CCS.round(0))
+	end
+
 		
 	return leftText, rightText, tt_name, tt_desc, link, isZero, isApplicable
 end
@@ -286,36 +291,6 @@ end
 -------------------------------------------------
 -- ATTACK - FOREVER
 -------------------------------------------------
-function CCS.GetStatDamageForever() 
-	local leftText, rightText, tt_name, tt_desc, isZero, isApplicable = "","|cffffd100<" .. L["Secret"] .. ">|r","","",false,true
-	local link = nil	
-
-	local valueString, displayMin, displayMax, damageTooltip, speed = PaperDollFrame_GetDamage("player", CCS.GetAppropriateDamage, INVTYPE_WEAPONMAINHAND);
-	local offhandDamageString, offhandSpeed = PaperDollFrame_GetOffhandDamage("player", CCS.GetAppropriateDamage);
-	
-	tt_name = INVTYPE_WEAPONMAINHAND
-	
-	tt_desc = function()
-		GameTooltip:AddDoubleLine(format(STAT_FORMAT, ATTACK_SPEED_SECONDS), format("%.2F", speed), NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b, NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b);
-		GameTooltip:AddDoubleLine(format(STAT_FORMAT, DAMAGE), damageTooltip, NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b, NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b);
-		GameTooltip:AddDoubleLine(format(STAT_FORMAT, STAT_DPS_SHORT), self.dps, NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b, NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b);
-
-		-- Check for offhand weapon
-		if ( offhandSpeed) then
-			GameTooltip:AddLine("\n");
-			GameTooltip:AddLine(INVTYPE_WEAPONOFFHAND, HIGHLIGHT_FONT_COLOR.r, HIGHLIGHT_FONT_COLOR.g, HIGHLIGHT_FONT_COLOR.b);
-			GameTooltip:AddDoubleLine(format(STAT_FORMAT, ATTACK_SPEED_SECONDS), format("%.2F", offhandSpeed), NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b, NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b);
-			GameTooltip:AddDoubleLine(format(STAT_FORMAT, DAMAGE), offhandDamageString, NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b, NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b);
-		end
-	end
-	
-	leftText = DAMAGE
-	rightText = format('%s%%', CCS.round(displayMax))
-	isZero = (displayMax == 0)
-
-	return leftText, rightText, tt_name, tt_desc, link, isZero, isApplicable
-end
-
 function CCS.GetStatAttackPowerForever(rangedWeapon)
 	local leftText, rightText, tt_name, tt_desc, isZero, isApplicable = "","|cffffd100<" .. L["Secret"] .. ">|r","","",false,true
 	local link = nil	
@@ -439,8 +414,8 @@ function CCS.GetStatMainhandDamageForever()
 	local valueString, displayMin, displayMax, damageTooltip, speed, dps_string
 
 	if not CCS.AreSecretsDisabled() then
-		dps_string = string.format("%.1f", PaperDollFrame_CalculateDPS(displayMin, displayMax, speed));
 		valueString, displayMin, displayMax, damageTooltip, speed = PaperDollFrame_GetDamage("player", UnitDamage, INVTYPE_WEAPONMAINHAND);
+		dps_string = string.format("%.1f", PaperDollFrame_CalculateDPS(displayMin, displayMax, speed));
 
 		-- Main hand weapon
 		local tooltipLabel = INVTYPE_WEAPONMAINHAND;
@@ -597,14 +572,15 @@ function CCS.GetStatHitChanceForever()
 
 	local targetValue = CCS.GetBlizzardStatValue(STAT_HIT_CHANCE)
 	local meleeHit, rangedHit, spellHit;
-
+	local maxHit
+	
 	if not CCS.AreSecretsDisabled() then 
 
 		meleeHit = GetCombatRatingBonus(CR_HIT_MELEE) + GetHitModifier();
 		rangedHit = GetCombatRatingBonus(CR_HIT_RANGED) + GetRangedHitModifier();
 		spellHit = GetCombatRatingBonus(CR_HIT_SPELL) + GetSpellHitModifier();
 	
-		local maxHit = max(meleeHit, rangedHit, spellHit);
+		maxHit = max(meleeHit, rangedHit, spellHit);
 
 		tt_name = format(PAPERDOLLFRAME_TOOLTIP_FORMAT, STAT_HIT_CHANCE).." "..format("%.1F%%", maxHit)
 
@@ -633,7 +609,11 @@ function CCS.GetStatHitChanceForever()
 	end
 	
 	leftText = STAT_HIT_CHANCE
-	rightText = targetValue or format('%s%%', CCS.round(0))
+	if not CCS.AreSecretsDisabled() then
+		rightText = targetValue or format('%s%%', CCS.round(maxHit))
+	else
+		rightText = targetValue or format('%s%%', CCS.round(0))
+	end
 
 	return leftText, rightText, tt_name, tt_desc, link, isZero, isApplicable
 end
@@ -785,15 +765,30 @@ function CCS.GetStatManaRegenForever()
 	
 	-- Combat mana regen is most important to the player, so we display it as the main value
 
+	leftText = MANA_REGEN
+
+	if not CCS.AreSecretsDisabled() then
+		base, combat = GetManaRegen();
+
+		base = floor(base * 5.0);
+		combat = floor(combat * 5.0);
+
+		baseText = BreakUpLargeNumbers(base);
+		combatText = BreakUpLargeNumbers(combat);
+		
+		rightText = format('%s / %s', combatText, baseText)
+		isZero = (base == 0)
+	else
+		rightText =  format('%s / %s', combatText, baseText)
+	
+	end
+
 	tt_name = HIGHLIGHT_FONT_COLOR_CODE .. format(PAPERDOLLFRAME_TOOLTIP_FORMAT, MANA_REGEN) .. FONT_COLOR_CODE_CLOSE;
 	-- Base (out of combat) regen is displayed only in the subtext of the tooltip
 	tt_desc = tt_desc.."\n" .. baseText.." "..ITEM_MOD_MANA_REGENERATION_SHORT.."\n"
 	tt_desc = tt_desc.."\n" .. format(MANA_REGEN_FROM_SPIRIT, combatText) .. "\n"
 
-	leftText = MANA_REGEN
-	rightText = format('%s / %s', combatText, baseText)
-	isZero = (base == 0)
-
+	
 	return leftText, rightText, tt_name, tt_desc, link, isZero, isApplicable
 end
 
