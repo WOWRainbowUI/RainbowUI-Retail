@@ -78,8 +78,11 @@ local settings = {
   },
 
   EDIT_BOX_POSITION = {key = "edit_box_position", default = "bottom"},
+  EDIT_BOX_WIDTH = {key = "edit_box_width", default = 430},
   EDIT_BOX_HEIGHT = {key = "edit_box_height", default = 32},
   KEEP_EDIT_BOX_VISIBLE = {key = "keep_edit_box_visible", default = false},
+  EDIT_BOX_HORIZONTAL_OFFSET = {key = "edit_box_horizontal_offset", default = 0},
+  EDIT_BOX_VERTICAL_OFFSET = {key = "edit_box_vertical_offset", default = 0},
 
   SKINS = {key = "skins", default = {}},
   DISABLED_SKINS = {key = "disabled_skins", default = {}},

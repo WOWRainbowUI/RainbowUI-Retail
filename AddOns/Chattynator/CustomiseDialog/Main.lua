@@ -350,20 +350,34 @@ local function SetupLayout(parent)
   end
   table.insert(allFrames, buttonPositionDropdown)
 
+  local editBoxHorizontalOffset, editBoxWidth
   local editBoxPositionDropdown = addonTable.CustomiseDialog.Components.GetBasicDropdown(container, addonTable.Locales.EDIT_BOX_POSITION, function(value)
     return addonTable.Config.Get(addonTable.Config.Options.EDIT_BOX_POSITION) == value
   end, function(value)
     addonTable.Config.Set(addonTable.Config.Options.EDIT_BOX_POSITION, value)
+    if value == 'bottom' or value == 'top' then
+      editBoxHorizontalOffset:Hide()
+      editBoxWidth:Hide()
+    else
+      editBoxHorizontalOffset:Show()
+      editBoxWidth:Show()
+    end
   end)
   editBoxPositionDropdown:SetPoint("TOP", allFrames[#allFrames], "BOTTOM")
   do
     local entries = {
       addonTable.Locales.BOTTOM,
       addonTable.Locales.TOP,
+      addonTable.Locales.SCREEN_BOTTOM,
+      addonTable.Locales.SCREEN_CENTER,
+      addonTable.Locales.SCREEN_TOP,
     }
     local values = {
       "bottom",
-      "top"
+      "top",
+      "screenBottom",
+      "screenCenter",
+      "screenTop"
     }
     editBoxPositionDropdown:Init(entries, values)
   end
@@ -376,6 +390,15 @@ local function SetupLayout(parent)
   keepEditBoxVisible:SetPoint("TOP", allFrames[#allFrames], "BOTTOM", 0, 0)
   table.insert(allFrames, keepEditBoxVisible)
 
+  editBoxWidth = addonTable.CustomiseDialog.Components.GetSlider(container, addonTable.Locales.EDIT_BOX_WIDTH, 200, 700, function(x) return string.format("%spx", x) end, function(value)
+    addonTable.Config.Set(addonTable.Config.Options.EDIT_BOX_WIDTH, value)
+  end)
+  editBoxWidth.option = addonTable.Config.Options.EDIT_BOX_WIDTH
+  editBoxWidth:SetPoint("TOP", allFrames[#allFrames], "BOTTOM")
+  editBoxWidth:Hide()
+  editBoxWidth:SetCollapsesLayout(true)
+  table.insert(allFrames, editBoxWidth)
+
   local editBoxHeight
   editBoxHeight = addonTable.CustomiseDialog.Components.GetSlider(container, addonTable.Locales.EDIT_BOX_HEIGHT, 12, 48, function(x) return string.format("%spx", x) end, function(value)
     addonTable.Config.Set(addonTable.Config.Options.EDIT_BOX_HEIGHT, value)
@@ -383,7 +406,24 @@ local function SetupLayout(parent)
   editBoxHeight.option = addonTable.Config.Options.EDIT_BOX_HEIGHT
   editBoxHeight:SetPoint("TOP", allFrames[#allFrames], "BOTTOM")
   table.insert(allFrames, editBoxHeight)
-  
+
+  editBoxHorizontalOffset = addonTable.CustomiseDialog.Components.GetSlider(container, addonTable.Locales.EDIT_BOX_HORIZONTAL_OFFSET, -400, 400, function(x) return string.format("%spx", x) end, function(value)
+    addonTable.Config.Set(addonTable.Config.Options.EDIT_BOX_HORIZONTAL_OFFSET, value)
+  end)
+  editBoxHorizontalOffset.option = addonTable.Config.Options.EDIT_BOX_HORIZONTAL_OFFSET
+  editBoxHorizontalOffset:SetPoint("TOP", allFrames[#allFrames], "BOTTOM")
+  editBoxHorizontalOffset:Hide()
+  editBoxHorizontalOffset:SetCollapsesLayout(true)
+  table.insert(allFrames, editBoxHorizontalOffset)
+
+  local editBoxVerticalOffset
+  editBoxVerticalOffset = addonTable.CustomiseDialog.Components.GetSlider(container, addonTable.Locales.EDIT_BOX_VERTICAL_OFFSET,-150, 150, function(x) return string.format("%spx", x) end, function(value)
+    addonTable.Config.Set(addonTable.Config.Options.EDIT_BOX_VERTICAL_OFFSET, value)
+  end)
+  editBoxVerticalOffset.option = addonTable.Config.Options.EDIT_BOX_VERTICAL_OFFSET
+  editBoxVerticalOffset:SetPoint("TOP", allFrames[#allFrames], "BOTTOM")
+  table.insert(allFrames, editBoxVerticalOffset)
+
   local locked = addonTable.CustomiseDialog.Components.GetCheckbox(container, addonTable.Locales.LOCK_CHAT, 28, function(state)
     addonTable.Config.Set(addonTable.Config.Options.LOCKED, state)
   end)
@@ -646,8 +686,11 @@ local function SetupThemes(parent)
 
   local skinKey = addonTable.Config.Get(addonTable.Config.Options.CURRENT_SKIN)
   local currentSkin = addonTable.Skins.availableSkins[skinKey]
+  local spacer = false
   for index, option in ipairs(currentSkin.options) do
-    local optionKey = "skins." .. skinKey .. "." .. option.option
+    local optionKey = "skins." .. skinKey .. "." .. (option.option or "")
+    local offset = (index == 1 and -30 or 0) + (spacer and -30 or 0)
+    spacer = false
     if option.type == "slider" then
       local slider
       slider = addonTable.CustomiseDialog.Components.GetSlider(container, option.text, option.min, option.max, function(x) return option.valuePattern:format(x) end, function()
@@ -655,22 +698,24 @@ local function SetupThemes(parent)
       end)
       slider.option = optionKey
       slider.scale = option.scale
-      slider:SetPoint("TOP", allFrames[#allFrames], "BOTTOM", 0, index == 1 and -30 or 0)
+      slider:SetPoint("TOP", allFrames[#allFrames], "BOTTOM", 0, offset)
       table.insert(allFrames, slider)
     elseif option.type == "checkbox" then
       local checkbox = addonTable.CustomiseDialog.Components.GetCheckbox(container, option.text, 28, function(state)
         addonTable.Config.Set(optionKey, state)
       end)
       checkbox.option = optionKey
-      checkbox:SetPoint("TOP", allFrames[#allFrames], "BOTTOM", 0, -30)
+      checkbox:SetPoint("TOP", allFrames[#allFrames], "BOTTOM", 0, offset)
       table.insert(allFrames, checkbox)
     elseif option.type == "colorPicker" then
       local colorPicker = addonTable.CustomiseDialog.Components.GetColorPicker(container, option.text, 28, function(state)
         addonTable.Config.Set(optionKey, state)
       end)
       colorPicker.option = optionKey
-      colorPicker:SetPoint("TOP", allFrames[#allFrames], "BOTTOM", 0, -30)
+      colorPicker:SetPoint("TOP", allFrames[#allFrames], "BOTTOM", 0, offset)
       table.insert(allFrames, colorPicker)
+    elseif option.type == "spacer" then
+      spacer = true
     end
   end
 

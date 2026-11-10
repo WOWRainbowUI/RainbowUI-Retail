@@ -150,11 +150,12 @@ local skinners = {
   end,
   ChatFrame = function(frame, tags)
     local alpha = 1 - addonTable.Config.Get("skins.dark.chat_transparency")
+    local hideSeparator = addonTable.Config.Get("skins.dark.edit_box_separator_gap") and -1 or 0
     table.insert(chatFrames, frame)
     frame.background = frame:CreateTexture(nil, "BACKGROUND")
     frame.background:SetPoint("TOP", frame.ScrollingMessagesWrapper, 0, 5)
     frame.background:SetPoint("LEFT")
-    frame.background:SetPoint("BOTTOMRIGHT", frame.ScrollingMessagesWrapper, 0, -5)
+    frame.background:SetPoint("BOTTOMRIGHT", frame.ScrollingMessagesWrapper, 0, -5 + hideSeparator)
 
     hooksecurefunc(frame, "SetBackgroundColor", function(_, r, g, b)
       if not enableHooks then
@@ -434,6 +435,11 @@ local function LoadSkin()
       for _, frame in ipairs(chatFrames) do
         frame:SetBackgroundColor(frame.backgroundColor.r, frame.backgroundColor.g, frame.backgroundColor.b)
       end
+    elseif settingName == "skins.dark.edit_box_separator_gap" then
+      for _, frame in ipairs(chatFrames) do
+        local hideSeparator = addonTable.Config.Get(settingName) and -1 or 0
+        frame.background:SetPoint("BOTTOMRIGHT", frame.ScrollingMessagesWrapper, 0, -5 + hideSeparator)
+      end
     end
   end)
 
@@ -476,18 +482,7 @@ addonTable.Skins.RegisterSkin(addonTable.Locales.DARK, "dark", LoadSkin, SkinFra
     option = "chat_transparency",
     default = 0.2,
   },
-  {
-    type = "slider",
-    min = 0,
-    max = 100,
-    lowText = "0%",
-    highText = "100%",
-    scale = 100,
-    text = addonTable.Locales.EDIT_BOX_TRANSPARENCY,
-    valuePattern = "%s%%",
-    option = "edit_box_transparency",
-    default = 0.4,
-  },
+  { type = "spacer" },
   {
     type = "slider",
     min = 0,
@@ -502,14 +497,33 @@ addonTable.Skins.RegisterSkin(addonTable.Locales.DARK, "dark", LoadSkin, SkinFra
   },
   {
     type = "colorPicker",
+    text = addonTable.Locales.TAB_TEXT_COLOR,
+    default = {r=1,g=0.843,b=0},
+    option = "tab_text_color"
+  },
+  { type = "spacer" },
+  {
+    type = "slider",
+    min = 0,
+    max = 100,
+    lowText = "0%",
+    highText = "100%",
+    scale = 100,
+    text = addonTable.Locales.EDIT_BOX_TRANSPARENCY,
+    valuePattern = "%s%%",
+    option = "edit_box_transparency",
+    default = 0.4,
+  },
+  {
+    type = "colorPicker",
     text = addonTable.Locales.EDIT_BOX_BG_COLOR,
     default = {r = 0.1, g = 0.1, b = 0.1},
     option = "edit_box_bg_color"
   },
   {
-    type = "colorPicker",
-    text = addonTable.Locales.TAB_TEXT_COLOR,
-    default = {r=1,g=0.843,b=0},
-    option = "tab_text_color"
-  }
+    type = "checkbox",
+    text = addonTable.Locales.EDIT_BOX_SEPARATOR_GAP,
+    option = "edit_box_separator_gap",
+    default = false,
+  },
 })
