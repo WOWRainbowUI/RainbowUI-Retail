@@ -1,6 +1,6 @@
 # Auctionator
 
-## [343](https://github.com/TheMouseNest/Auctionator/tree/343) (2026-11-08)
-[Full Changelog](https://github.com/TheMouseNest/Auctionator/compare/342...343) 
+## [344](https://github.com/TheMouseNest/Auctionator/tree/344) (2026-11-09)
+[Full Changelog](https://github.com/TheMouseNest/Auctionator/compare/343...344) 
 
-- Properly segment RPPvP auction house  
+- Forever: Selling: Disable copper field for gear (due to AH errors)  
