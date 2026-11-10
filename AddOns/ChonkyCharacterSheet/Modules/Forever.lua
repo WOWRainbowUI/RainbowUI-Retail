@@ -1115,7 +1115,6 @@ function CCS.HookSetup()
         end)
     end
 
-
     hooksecurefunc("PaperDollTitlesPane_Update", function()
         CCS_UpdateTitleList()
     end)
