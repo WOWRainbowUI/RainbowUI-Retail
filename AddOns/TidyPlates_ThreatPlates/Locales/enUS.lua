@@ -1109,3 +1109,5 @@ L["Enemy Bar Width"] = true
 L["Enemy Bar Height"] = true
 L["Friend Bar Width"] = true
 L["Friend Bar Height"] = true
+
+L["Auras can only be shown on nameplates after combat has ended, as the aura display could not be created during combat."] = "Auras can only be shown on nameplates after combat has ended, as the aura display could not be created during combat."

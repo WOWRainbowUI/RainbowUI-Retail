@@ -1179,3 +1179,5 @@ L["Unknown restrictions type: "] = "未知限制類型:"
 L["Valid types: combat, encounter, challenge, pvp, map"] = "有效類型: 戰鬥、首領戰、挑戰、PvP、地圖"
 
 L["Expiring Threshold"] = "即將結束門檻"
+
+L["Auras can only be shown on nameplates after combat has ended, as the aura display could not be created during combat."] = "戰鬥中無法建立光環顯示，因此必須等戰鬥結束後才能在血條上顯示光環。"

@@ -1194,3 +1194,5 @@ L["Your version of LibDogTag-Unit-3.0 does not support nameplates. You need to i
 L["Color when Expiring"] = "即将结束时的颜色"
 
 L["Expiring Threshold"] = "即将结束阈值"
+
+L["Auras can only be shown on nameplates after combat has ended, as the aura display could not be created during combat."] = "战斗中无法创建光环显示，因此必须等战斗结束后才能在姓名板上显示光环。"
