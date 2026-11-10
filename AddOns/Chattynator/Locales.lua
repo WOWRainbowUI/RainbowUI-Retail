@@ -17,6 +17,13 @@ local Locales = {
 CHATTYNATOR_LOCALES = Locales
 
 local L = Locales.enUS
+L["EDIT_BOX_HORIZONTAL_OFFSET"] = "Edit box horizontal offset"
+L["EDIT_BOX_SEPARATOR_GAP"] = "Hide edit box gap"
+L["EDIT_BOX_VERTICAL_OFFSET"] = "Edit box vertical offset"
+L["EDIT_BOX_WIDTH"] = "Edit box width"
+L["SCREEN_BOTTOM"] = "Screen Bottom"
+L["SCREEN_CENTER"] = "Screen Center"
+L["SCREEN_TOP"] = "Screen Top"
 L["DEVELOPMENT_IS_DONE_BY_A_HUMAN"] = "|cff04cca4Development is done by a hardworking human (no AI)|r"
 L["EDIT_BOX_HEIGHT"] = "Edit box height"
 L["EDIT_BOX_TRANSPARENCY"] = "Edit box transparency"
@@ -202,6 +209,13 @@ L["SLASH_UNKNOWN_COMMAND"] = "Unknown command '%s'"
 
 
 local L = Locales.zhTW
+L["EDIT_BOX_HORIZONTAL_OFFSET"] = "輸入框水平偏移"
+L["EDIT_BOX_SEPARATOR_GAP"] = "隱藏輸入框間隙"
+L["EDIT_BOX_VERTICAL_OFFSET"] = "輸入框垂直偏移"
+L["EDIT_BOX_WIDTH"] = "輸入框寬度"
+L["SCREEN_BOTTOM"] = "螢幕下方"
+L["SCREEN_CENTER"] = "螢幕中央"
+L["SCREEN_TOP"] = "螢幕上方"
 L["DEVELOPMENT_IS_DONE_BY_A_HUMAN"] = "|cff04cca4開發工作由勤奮的人類完成（非人工智慧）。|r"
 L["EDIT_BOX_HEIGHT"] = "輸入框高度"
 L["EDIT_BOX_TRANSPARENCY"] = "輸入框透明度"
@@ -369,6 +383,13 @@ L["PASTE_YOUR_IMPORT_STRING_HERE"] = "在此貼上匯入字串"
 L["THANKS_FOR_USING_CHATTYNATOR_DONATE"] = "感謝使用Chattynator。考慮捐款支持發展"
 
 local L = Locales.zhCN
+L["EDIT_BOX_HORIZONTAL_OFFSET"] = "输入框水平偏移"
+L["EDIT_BOX_SEPARATOR_GAP"] = "隐藏输入框间隙"
+L["EDIT_BOX_VERTICAL_OFFSET"] = "输入框垂直偏移"
+L["EDIT_BOX_WIDTH"] = "输入框宽度"
+L["SCREEN_BOTTOM"] = "屏幕下方"
+L["SCREEN_CENTER"] = "屏幕中央"
+L["SCREEN_TOP"] = "屏幕上方"
 L["DEVELOPMENT_IS_DONE_BY_A_HUMAN"] = "|cff04cca4开发工作由勤奋的人类完成（非人工智能）。|r"
 L["EDIT_BOX_HEIGHT"] = "输入框高度"
 L["EDIT_BOX_TRANSPARENCY"] = "输入框透明度"
