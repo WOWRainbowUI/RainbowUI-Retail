@@ -82,3 +82,5 @@ L["RESET_LAYOUT"] = "重置 |cffffffff\"%s\"|r"
 L["RESET_LAYOUT_DESC"] = "将当前布局的设置重置为默认值。"
 
 L["ANCHORS_EM_INFO"] = "锚点框架及其设置可在这里找到：|cffffd200%s|r → |cffffd200%s|r。"
+
+L["TYPE_LOOT_ITEM"] = "拾取（物品）"
