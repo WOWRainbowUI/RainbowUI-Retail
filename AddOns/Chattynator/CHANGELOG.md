@@ -1,10 +1,9 @@
 # Chattynator
 
-## [231](https://github.com/TheMouseNest/Chattynator/tree/231) (2026-11-09)
-[Full Changelog](https://github.com/TheMouseNest/Chattynator/compare/230...231) 
+## [233](https://github.com/TheMouseNest/Chattynator/tree/233) (2026-11-10)
+[Full Changelog](https://github.com/TheMouseNest/Chattynator/compare/232...233) 
 
-- Fix edit box not staying visible when option to force visibility active  
-- Minor cleanup  
-- Add edit box offset and separator gap options (#233)  
-- Dark Theme: Reorganise options  
-- Support altering "Combat Log" font by keeping it in sync with everything else  
+- Fix tab flashing stopping abruptly  
+- Keep edit box alpha in sync with chat frame  
+- Add flashing to unread tabs in "Boxed" skin  
+- Change level format  

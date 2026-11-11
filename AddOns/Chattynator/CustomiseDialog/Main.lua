@@ -41,10 +41,65 @@ local function SetupGeneral(parent)
     discordText:SetPoint("LEFT", discordButton, "RIGHT", 10, 0)
     discordText:SetText(addonTable.Locales.DISCORD_DESCRIPTION)
   end
+  
+  do
+    local function GetTipsSection(rowContainer, details)
+      local header = rowContainer:CreateFontString(nil, "ARTWORK", "GameFontHighlightMedium")
+      header:SetJustifyH("LEFT")
+      header:SetPoint("TOP")
+      header:SetText(details.header)
+      header:SetHeight(30)
+      local text = rowContainer:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+      text:SetJustifyH("LEFT")
+      text:SetPoint("TOP", header, "BOTTOM")
+      text:SetText(details.text)
+      text:SetSpacing(3)
+
+      return {header, text}
+    end
+
+    local function MakeTipsRow(details1, details2)
+      local rowContainer = CreateFrame("Frame", nil, container)
+      rowContainer:SetPoint("LEFT", 35 + addonTable.Constants.ButtonFrameOffset, 0)
+      rowContainer:SetPoint("RIGHT", -35, 0)
+      rowContainer:SetHeight(110)
+      for _, row in ipairs(GetTipsSection(rowContainer, details1)) do
+        row:SetPoint("LEFT")
+        row:SetPoint("RIGHT", rowContainer, "CENTER", -15, 0)
+      end
+      for _, row in ipairs(GetTipsSection(rowContainer, details2)) do
+        row:SetPoint("RIGHT")
+        row:SetPoint("LEFT", rowContainer, "CENTER", 15, 0)
+      end
+      return rowContainer
+    end
+
+    local tipsRows = {
+      MakeTipsRow({
+        header = CreateTextureMarkup("Interface\\AddOns\\Chattynator\\Assets\\Search.png", 64, 64, 13, 13, 0, 1, 0, 1) .. "  " .. addonTable.Locales.TIPS,
+        text = addonTable.Locales.TIPS_TIPS,
+      }, {
+        header = addonTable.Locales.MINIMAL,
+        text = addonTable.Locales.TIPS_MINIMAL,
+      }),
+      MakeTipsRow({
+        header = CreateTextureMarkup("Interface\\AddOns\\Chattynator\\Assets\\SettingsCog.png", 64, 64, 13, 13, 0, 1, 0, 1) .. "  " .. addonTable.Locales.CUSTOMIZABLE,
+        text = addonTable.Locales.TIPS_CUSTOMIZABLE,
+      }, {
+        header = addonTable.Locales.THEMES,
+        text = addonTable.Locales.TIPS_THEMES,
+      }),
+    }
+    for _, row in ipairs(tipsRows) do
+      row:SetPoint("TOP", allFrames[#allFrames], "BOTTOM")
+      table.insert(allFrames, row)
+    end
+    tipsRows[1]:SetPoint("TOP", allFrames[#allFrames - #tipsRows], "BOTTOM", 0, -30)
+  end
 
   do
     local header = addonTable.CustomiseDialog.Components.GetHeader(container, addonTable.Locales.DEVELOPMENT_IS_DONE_BY_A_HUMAN)
-    header:SetPoint("TOP", allFrames[#allFrames], "BOTTOM", 0, -30)
+    header:SetPoint("TOP", allFrames[#allFrames], "BOTTOM", 0, 0)
     table.insert(allFrames, header)
 
     local donateFrame = CreateFrame("Frame", nil, container)
@@ -190,24 +245,10 @@ local function SetupGeneral(parent)
     addonTable.Skins.AddFrame("Button", importButton)
   end
 
-  local storeMessages = addonTable.CustomiseDialog.Components.GetCheckbox(container, addonTable.Locales.STORE_MESSAGES, 28, function(state)
-    addonTable.Config.Set(addonTable.Config.Options.STORE_MESSAGES, state)
-  end)
-  storeMessages.option = addonTable.Config.Options.STORE_MESSAGES
-  storeMessages:SetPoint("TOP", allFrames[#allFrames], "BOTTOM", 0, -70)
-  table.insert(allFrames, storeMessages)
-
-  local removeOldMessages = addonTable.CustomiseDialog.Components.GetCheckbox(container, addonTable.Locales.REMOVE_OLD_MESSAGES, 28, function(state)
-    addonTable.Config.Set(addonTable.Config.Options.REMOVE_OLD_MESSAGES, state)
-  end)
-  removeOldMessages.option = addonTable.Config.Options.REMOVE_OLD_MESSAGES
-  removeOldMessages:SetPoint("TOP", allFrames[#allFrames], "BOTTOM", 0, 0)
-  table.insert(allFrames, removeOldMessages)
-
   local customTabsDropdown = addonTable.CustomiseDialog.Components.GetBasicDropdown(container, addonTable.Locales.SPECIAL_TABS)
   do
     customTabsDropdown.SetValue = nil
-    customTabsDropdown:SetPoint("TOP", allFrames[#allFrames], "BOTTOM", 0, -30)
+    customTabsDropdown:SetPoint("TOP", allFrames[#allFrames], "BOTTOM", 0, -70)
     customTabsDropdown.DropDown:SetDefaultText(GRAY_FONT_COLOR:WrapTextInColorCode(addonTable.Locales.TOGGLE_COMBAT_LOG_ETC))
     local function IsActive(customType)
       local windows = addonTable.Config.Get(addonTable.Config.Options.WINDOWS)
@@ -399,8 +440,7 @@ local function SetupLayout(parent)
   editBoxWidth:SetCollapsesLayout(true)
   table.insert(allFrames, editBoxWidth)
 
-  local editBoxHeight
-  editBoxHeight = addonTable.CustomiseDialog.Components.GetSlider(container, addonTable.Locales.EDIT_BOX_HEIGHT, 12, 48, function(x) return string.format("%spx", x) end, function(value)
+  local editBoxHeight = addonTable.CustomiseDialog.Components.GetSlider(container, addonTable.Locales.EDIT_BOX_HEIGHT, 12, 48, function(x) return string.format("%spx", x) end, function(value)
     addonTable.Config.Set(addonTable.Config.Options.EDIT_BOX_HEIGHT, value)
   end)
   editBoxHeight.option = addonTable.Config.Options.EDIT_BOX_HEIGHT
@@ -416,13 +456,26 @@ local function SetupLayout(parent)
   editBoxHorizontalOffset:SetCollapsesLayout(true)
   table.insert(allFrames, editBoxHorizontalOffset)
 
-  local editBoxVerticalOffset
-  editBoxVerticalOffset = addonTable.CustomiseDialog.Components.GetSlider(container, addonTable.Locales.EDIT_BOX_VERTICAL_OFFSET,-150, 150, function(x) return string.format("%spx", x) end, function(value)
+  local editBoxVerticalOffset = addonTable.CustomiseDialog.Components.GetSlider(container, addonTable.Locales.EDIT_BOX_VERTICAL_OFFSET,-150, 150, function(x) return string.format("%spx", x) end, function(value)
     addonTable.Config.Set(addonTable.Config.Options.EDIT_BOX_VERTICAL_OFFSET, value)
   end)
   editBoxVerticalOffset.option = addonTable.Config.Options.EDIT_BOX_VERTICAL_OFFSET
   editBoxVerticalOffset:SetPoint("TOP", allFrames[#allFrames], "BOTTOM")
   table.insert(allFrames, editBoxVerticalOffset)
+
+  local fadedAlpha
+  local fadeChatCompletely = addonTable.CustomiseDialog.Components.GetCheckbox(container, addonTable.Locales.FADE_WHEN_NOT_IN_USE, 28, function(state)
+    addonTable.Config.Set(addonTable.Config.Options.FADE_COMPLETELY, state)
+  end)
+  fadeChatCompletely.option = addonTable.Config.Options.FADE_COMPLETELY
+  fadeChatCompletely:SetPoint("TOP", allFrames[#allFrames], "BOTTOM", 0, -30)
+  table.insert(allFrames, fadeChatCompletely)
+
+  fadedAlpha = addonTable.CustomiseDialog.Components.GetSlider(container, addonTable.Locales.FADED_TRANSPARENCY, 0, 100, function(x) return string.format("%s%%", x) end, function(value)
+    addonTable.Config.Set(addonTable.Config.Options.FADED_ALPHA, 1 - value / 100)
+  end)
+  fadedAlpha:SetPoint("TOP", allFrames[#allFrames], "BOTTOM")
+  table.insert(allFrames, fadedAlpha)
 
   local locked = addonTable.CustomiseDialog.Components.GetCheckbox(container, addonTable.Locales.LOCK_CHAT, 28, function(state)
     addonTable.Config.Set(addonTable.Config.Options.LOCKED, state)
@@ -432,11 +485,12 @@ local function SetupLayout(parent)
   table.insert(allFrames, locked)
 
   container:SetScript("OnShow", function()
+    fadedAlpha:SetValue((1 - addonTable.Config.Get(addonTable.Config.Options.FADED_ALPHA))* 100)
     for _, f in ipairs(allFrames) do
       if f.SetValue then
         if f.option then
           f:SetValue(addonTable.Config.Get(f.option))
-        else
+        elseif f.DropDown then
           f:SetValue()
         end
       end
@@ -513,6 +567,20 @@ local function SetupMessages(parent)
   messageFadeTimer.option = addonTable.Config.Options.MESSAGE_FADE_TIME
   messageFadeTimer:SetPoint("TOP", allFrames[#allFrames], "BOTTOM")
   table.insert(allFrames, messageFadeTimer)
+
+  local storeMessages = addonTable.CustomiseDialog.Components.GetCheckbox(container, addonTable.Locales.STORE_MESSAGES, 28, function(state)
+    addonTable.Config.Set(addonTable.Config.Options.STORE_MESSAGES, state)
+  end)
+  storeMessages.option = addonTable.Config.Options.STORE_MESSAGES
+  storeMessages:SetPoint("TOP", allFrames[#allFrames], "BOTTOM", 0, -30)
+  table.insert(allFrames, storeMessages)
+
+  local removeOldMessages = addonTable.CustomiseDialog.Components.GetCheckbox(container, addonTable.Locales.REMOVE_OLD_MESSAGES, 28, function(state)
+    addonTable.Config.Set(addonTable.Config.Options.REMOVE_OLD_MESSAGES, state)
+  end)
+  removeOldMessages.option = addonTable.Config.Options.REMOVE_OLD_MESSAGES
+  removeOldMessages:SetPoint("TOP", allFrames[#allFrames], "BOTTOM", 0, 0)
+  table.insert(allFrames, removeOldMessages)
 
   container:SetScript("OnShow", function()
     local LibSharedMedia = LibStub and LibStub:GetLibrary("LibSharedMedia-3.0", true)

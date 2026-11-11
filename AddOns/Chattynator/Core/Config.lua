@@ -111,6 +111,9 @@ local settings = {
   TAB_FLASH_ON = {key = "tab_flash_on", default = "all"},
   SHOW_FONT_SHADOW = {key = "show_font_shadow", default = false, refresh = {addonTable.Constants.RefreshReason.MessageFont}},
 
+  FADE_COMPLETELY = {key = "fade_completely", default = true},
+  FADED_ALPHA = {key = "faded_alpha", default = 0.5},
+
   SHORTEN_FORMAT = {key = "shorten_format", default = "none", refresh = {addonTable.Constants.RefreshReason.MessageModifier}},
   CLASS_COLORS = {key = "class_colors", default = true, refresh = {addonTable.Constants.RefreshReason.MessageModifier}},
   SHOW_LEVEL = {key = "show_level", default = true, refresh = {addonTable.Constants.RefreshReason.MessageModifier}},
