@@ -1,0 +1,47 @@
+﻿## Interface: 11509, 16001, 20506, 50504, 120105
+## LoadOnDemand: 1
+## Title: Lib: Babble-SubZone-3.0
+## Notes: A library for localized in-game subzone names.
+## Title-deDE: Lib: Babble-SubZone-3.0
+## Notes-deDE: Eine Bibliothek für lokalisierte Namen von Unterzonen im Spiel.
+## Title-esES: Lib: Babble-SubZone-3.0
+## Notes-esES: Una biblioteca para nombres localizados de subzonas del juego.
+## Title-esMX: Lib: Babble-SubZone-3.0
+## Notes-esMX: Una biblioteca para nombres localizados de subzonas del juego.
+## Title-frFR: Lib: Babble-SubZone-3.0
+## Notes-frFR: Une bibliothèque de noms localisés de sous-zones en jeu.
+## Title-itIT: Lib: Babble-SubZone-3.0
+## Notes-itIT: Una libreria per i nomi localizzati delle sottozone di gioco.
+## Title-koKR: Lib: Babble-SubZone-3.0
+## Notes-koKR: 게임 내 하위 지역 이름의 현지화를 위한 라이브러리입니다.
+## Title-ptBR: Lib: Babble-SubZone-3.0
+## Notes-ptBR: Uma biblioteca de nomes localizados de subzonas no jogo.
+## Title-ruRU: Lib: Babble-SubZone-3.0
+## Notes-ruRU: Библиотека локализованных названий внутриигровых подзон.
+## Title-zhCN: Lib: Babble-SubZone-3.0
+## Notes-zhCN: 用于本地化游戏内子区域名称的库。
+## Title-zhTW: Lib: Babble-SubZone-3.0
+## Notes-zhTW: 用於本地化遊戲內子區域名稱的函式庫。
+## Author: Arith
+## Version: 12.1-release4
+## X-Category: Library
+## X-License: MIT
+## X-Date: 2026-11-09T09:59:54Z
+## X-Website: https://www.curseforge.com/wow/addons/libbabble-subzone-3-0
+## X-Credits: Thanks to the WoW community, WowAce, CurseForge, Warcraft Wiki, wow.tools, Wago Tools (QartemisT), and all contributors.
+## Category: Libraries
+## Category-deDE: Bibliotheken
+## Category-esES: Bibliotecas
+## Category-esMX: Bibliotecas
+## Category-frFR: Bibliothèques
+## Category-itIT: Librerie
+## Category-koKR: 라이브러리
+## Category-ptBR: Bibliotecas
+## Category-ruRU: Библиотеки
+## Category-zhCN: 函数库
+## Category-zhTW: 函式庫
+## IconTexture: Interface\icons\inv_misc_map07
+
+LibStub\LibStub.lua
+lib.xml
+

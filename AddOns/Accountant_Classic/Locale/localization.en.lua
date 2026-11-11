@@ -148,3 +148,13 @@ L["(%d+) Copper"] = "(%d+) Copper"
 L["BINDING_HEADER_ACCOUNTANT_CLASSIC_TITLE"] = "Accountant Classic Bindings"
 L["BINDING_NAME_ACCOUNTANT_CLASSIC_TOGGLE"] = "Toggle Accountant Classic"
 
+-- History ledger
+L["Remove, keep history"] = "Remove, keep history"
+L["Remove with history"] = "Remove with history"
+L["Delete the entire Accountant Classic history ledger of all characters?\nThe classic period data is not affected."] = "Delete the entire Accountant Classic history ledger of all characters?\nThe classic period data is not affected."
+L["The history ledger has been deleted."] = "The history ledger has been deleted."
+L["The history ledger was saved by a newer version of Accountant Classic and is read-only."] = "The history ledger was saved by a newer version of Accountant Classic and is read-only."
+L["History matches today's classic data (%d categories)."] = "History matches today's classic data (%d categories)."
+L["%d categories differ from today's classic data."] = "%d categories differ from today's classic data."
+L["History tracking started today, so money logged earlier today exists only in the classic data."] = "History tracking started today, so money logged earlier today exists only in the classic data."
+L["Resetting the Day tab also causes differences; the history ledger is never reset with it."] = "Resetting the Day tab also causes differences; the history ledger is never reset with it."
