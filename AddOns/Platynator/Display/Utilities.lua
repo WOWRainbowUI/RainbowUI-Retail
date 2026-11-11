@@ -108,7 +108,7 @@ if addonTable.Constants.IsClassic or addonTable.Constants.IsForever then
     ["WARRIOR"] = {1672, --[[Shield Bash, ranks 3-1]] 1671, 72, 6552},
     ["WARLOCK"] = {19647, 89766},
     ["SHAMAN"] = {57994, --[[Earth Shock, ranks 10-1:]] 49231, 49230, 25454, 10414, 10413, 10412, 8046, 8045, 8044, 8042},
-    ["ROGUE"] = {1766},
+    ["ROGUE"] = {1769, 1768, 1767, 1766},
     ["PRIEST"] = {15487},
     ["PALADIN"] = {31935, 96231},
     ["MONK"] = {116705},

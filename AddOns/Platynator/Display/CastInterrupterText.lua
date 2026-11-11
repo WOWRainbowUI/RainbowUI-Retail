@@ -52,11 +52,12 @@ end
 function addonTable.Display.CastInterrupterTextMixin:UpdateText()
   if self.interrupter ~= nil then
     self.text:SetText(self.interrupter)
-    if self.interrupterClass ~= nil and self.details.applyClassColors then
-      if C_ClassColor then
+    if self.details.applyClassColors then
+      if self.interrupterClass ~= nil then
         self.text:SetTextColor(C_ClassColor.GetClassColor(self.interrupterClass):GetRGB())
       else
-        self.text:SetTextColor(RAID_CLASS_COLORS[self.interrupterClass]:GetRGB())
+        local textColor = self.details.color
+        self.text:SetTextColor(textColor.r, textColor.g, textColor.b)
       end
     end
   else
