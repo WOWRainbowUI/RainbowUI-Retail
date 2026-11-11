@@ -1,8 +1,6 @@
 ---@class addonTableChattynator
 local addonTable = select(2, ...)
 
-local rightInset = 3
-
 ---@class DisplayScrollingMessages: Frame
 addonTable.Display.ScrollingMessagesMixin = {}
 
@@ -18,6 +16,8 @@ function addonTable.Display.ScrollingMessagesMixin:MyOnLoad()
   self.currentFadeOffsetTime = 0
   self.accumulatedTime = 0
   self.timestampOffset = GetTime() - time()
+
+  self.anyShown = true
 
   self.pool = CreateFontStringPool(self, "BACKGROUND", 0, addonTable.Messages.font)
   self.barPool = CreateTexturePool(self, "BACKGROUND")
@@ -169,10 +169,15 @@ function addonTable.Display.ScrollingMessagesMixin:UpdateAlphas(elapsed)
     end
   end
 
+  self.anyShown = any
   if any then
     self.animationsPending = true
     self:SetScript("OnUpdate", self.UpdateAlphas)
   end
+end
+
+function addonTable.Display.ScrollingMessagesMixin:IsAnyShown()
+  return self.anyShown
 end
 
 function addonTable.Display.ScrollingMessagesMixin:Render(newMessages)

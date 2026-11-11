@@ -488,7 +488,6 @@ function addonTable.MessagesMonitorMixin:OnEvent(eventName, ...)
     end
   elseif eventName == "PLAYER_LOGIN" then
     self.playerLoginFired = true
-    local oldFontKey = self.fontKey
     self.fontKey = addonTable.Config.Get(addonTable.Config.Options.MESSAGE_FONT)
     self.font = addonTable.Core.GetFontByID(self.fontKey)
     self.scalingFactor = addonTable.Core.GetFontScalingFactor()
@@ -933,7 +932,7 @@ local function GetDecoratedSenderName(event, ...)
     local _, englishClass, _, _, _, _, _, playerLevel = GetPlayerInfoByGUID(senderGUID);
 
     if issecretvalue(playerLevel) and addonTable.Config.Get(addonTable.Config.Options.SHOW_LEVEL) then
-      decoratedPlayerName = decoratedPlayerName .. " (" .. playerLevel .. ")"
+      decoratedPlayerName = playerLevel .. ":" .. decoratedPlayerName
     end
 
     if englishClass then

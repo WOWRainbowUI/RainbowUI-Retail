@@ -122,10 +122,41 @@ function addonTable.Display.ChatFrameMixin:OnLoad()
     elseif settingName == addonTable.Config.Options.SHOW_TABS then
       self:ApplyTabsShowing()
       self.ButtonsBar:Update()
+    elseif settingName == addonTable.Config.Options.FADE_COMPLETELY then
+      self.shouldFadeCompletely = addonTable.Config.Get(addonTable.Config.Options.FADE_COMPLETELY)
+    elseif settingName == addonTable.Config.Options.FADED_ALPHA then
+      self.fadedAlpha = addonTable.Config.Get(addonTable.Config.Options.FADED_ALPHA)
     end
   end)
 
   addonTable.Skins.AddFrame("ChatFrame", self)
+
+  self.shouldFadeCompletely = addonTable.Config.Get(addonTable.Config.Options.FADE_COMPLETELY)
+  self.fadedAlpha = addonTable.Config.Get(addonTable.Config.Options.FADED_ALPHA)
+
+  local wasEditBoxFocus = false
+  local step = 0.08
+  C_Timer.NewTicker(step, function()
+    local alpha = self:GetAlpha()
+    if not self.shouldFadeCompletely or self:IsMouseOver() or self.ButtonsBar:IsMouseOver() or ChatFrame1EditBox:HasFocus() or self.ScrollingMessages:IsAnyShown() or alpha < self.fadedAlpha or not self.ScrollingMessages:IsShown() then
+      if ChatFrame1EditBox:HasFocus() and not wasEditBoxFocus then
+        addonTable.CallbackRegistry:TriggerEvent("Render")
+      end
+      if alpha < 1 then
+        local newAlpha = alpha + step * 8
+        self:SetAlpha(newAlpha)
+      end
+    elseif self.shouldFadeCompletely then
+      if alpha > 0 and not self.ScrollingMessages:IsAnyShown() then
+        local newAlpha = math.max(self.fadedAlpha, alpha - 1/3 * step)
+        self:SetAlpha(newAlpha)
+      end
+    end
+    if self:GetID() == 1 then
+      ChatFrame1EditBox:SetAlpha(self:GetAlpha())
+    end
+    wasEditBoxFocus = ChatFrame1EditBox:HasFocus()
+  end)
 end
 
 function addonTable.Display.ChatFrameMixin:Reset()

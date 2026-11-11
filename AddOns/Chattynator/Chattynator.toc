@@ -1,9 +1,10 @@
 ## Dependencies: Ace3
 ## Interface: 120100, 120105, 16001, 50504, 38001, 20506, 11509
 ## Title: Chattynator
-## Version: 231
+## Version: 233
 ## Author: plusmouse
 ## IconTexture: Interface\AddOns\Chattynator\Assets\Logo.png
+## AddonCompartmentFunc: Chattynator_AddonCompartmentCallback
 ## SavedVariables: CHATTYNATOR_CONFIG, CHATTYNATOR_MESSAGE_LOG
 ## SavedVariablesPerCharacter: CHATTYNATOR_CURRENT_PROFILE, CHATTYNATOR_COMMAND_HISTORY
 
@@ -59,6 +60,7 @@ Modifiers/RedundantText.lua
 Skins/Main.lua
 Skins/Blizzard.lua
 Skins/Dark.lua
+Skins/Boxed.lua
 Skins/ElvUI.lua
 Skins/GW2.lua
 
