@@ -12,6 +12,23 @@ ns.reader = reader
 
 local function Now() return GetTime() end
 
+local DEPARTED_TARGET_WINDOW = 0.5
+
+local function RememberDepartedTarget()
+    if not reader.targetKey then return end
+    reader.departedTargetKey = reader.targetKey
+    reader.departedTargetAt = Now()
+    reader.targetKey = nil
+end
+
+local function DepartedTargetKey()
+    if reader.departedTargetAt
+        and Now() - reader.departedTargetAt <= DEPARTED_TARGET_WINDOW then
+        return reader.departedTargetKey
+    end
+    reader.departedTargetKey, reader.departedTargetAt = nil, nil
+end
+
 -- Unit keys -----------------------------------------------------------------------
 -- A unit is known by its nameplate token while it has one, so a DoT followed
 -- on your target is still followed once you target something else; without a
@@ -26,10 +43,18 @@ local function FindTargetPlate()
 end
 function ns.TargetKey()
     local exists = UnitExists("target")
-    if not (ns.Bool(exists) and exists) then return nil end
+    if not (ns.Bool(exists) and exists) then
+        RememberDepartedTarget()
+        return nil
+    end
+    reader.departedTargetKey, reader.departedTargetAt = nil, nil
     local self = UnitIsUnit("target", "player")
-    if ns.Bool(self) and self then return nil end
-    return reader.targetPlate or ("target" .. reader.epoch)
+    if ns.Bool(self) and self then
+        reader.targetKey = nil
+        return nil
+    end
+    reader.targetKey = reader.targetPlate or ("target" .. reader.epoch)
+    return reader.targetKey
 end
 
 local function PetAttacking(token)
@@ -174,6 +199,11 @@ local function OnUnitCombat(unit, event, flag, amount, school)
     local key, token
     if unit == "target" then
         key, token = ns.TargetKey(), "target"
+        -- Death can remove the target before its final damage report.
+        -- Keep this fallback out of TargetKey so new casts cannot use it.
+        if not key and record.event == "damage" then
+            key = DepartedTargetKey()
+        end
         if not key then return end
     elseif unit:match("^nameplate%d+$") then
         if not reader.plates[unit] or unit == reader.targetPlate then return end
@@ -259,13 +289,18 @@ local function ActiveWindfurySpell(school)
     if ns.Bool(hasOff) and hasOff and ns.Number(offID, 1)
         and WINDFURY_ENCHANTS[offID] then return WINDFURY_WEAPON_SPELL_ID end
 end
+ns.ActiveWindfurySpell = ActiveWindfurySpell
 
 reader.procSources = {}
 local function ProcSpell(at, school)
-    -- Inspect the current enchant rather than a cast cache: reloads,
-    -- expiration, replacements and weapon swaps must not leave stale icons.
+    -- Best guess for shamans: unresolved physical procs use active Windfury.
+    -- This chooses an icon; the damage source is not proven by the enchant.
     local windfury = ActiveWindfurySpell(school)
-    if windfury then return windfury end
+    if windfury then
+        local _, class = UnitClass("player")
+        if ns.Text(class) and class == "SHAMAN" then return windfury end
+        return nil
+    end
     local best
     for kind, source in pairs(reader.procSources) do
         local fresh = at - source.at <= (PROC_KEEP[kind] or 0)
@@ -690,7 +725,8 @@ function DecideGroup(group, frameLines, decided)
             local kind = record.event == "miss" and "miss" or record.event
             local amount = ns.Number(record.amount) and record.amount or nil
             ranked[#ranked + 1] = { hit = hit, index = index,
-                fit = ns.mine:Fit(hit.key, kind, record.school, hit.at, amount, restrict) }
+                fit = ns.mine:Fit(hit.key, kind, record.school, hit.at,
+                    amount, restrict, record.crit) }
         end
         -- Observed on Forever: a queued strike reports zero before its
         -- physical hit in the cast's frame, with one spell confirmation.
@@ -1504,8 +1540,16 @@ local function OnEvent(_, event, ...)
         local swingDuration, swingType = ...
         OnSwing(swingType, swingDuration)
     elseif event == "PLAYER_TARGET_CHANGED" then
+        local exists = UnitExists("target")
+        if ns.Bool(exists) and not exists then
+            RememberDepartedTarget()
+        else
+            reader.targetKey = nil
+            reader.departedTargetKey, reader.departedTargetAt = nil, nil
+        end
         reader.epoch = reader.epoch + 1
         FindTargetPlate()
+        ns.TargetKey()
     elseif event == "NAME_PLATE_UNIT_ADDED" then
         local token = ...
         if ns.Text(token) then
@@ -1515,6 +1559,9 @@ local function OnEvent(_, event, ...)
                 -- Casts made while your target had no plate follow it.
                 ns.mine:Rekey("target" .. reader.epoch, token)
                 ns.RekeyHealing("target" .. reader.epoch, token)
+                if reader.targetKey == "target" .. reader.epoch then
+                    reader.targetKey = token
+                end
                 if ns.traceCombat then
                     ns.traceCombat("rekey", nil,
                         { old = "target" .. reader.epoch, new = token })
@@ -1532,11 +1579,17 @@ local function OnEvent(_, event, ...)
             if token == reader.targetPlate then
                 ns.mine:Rekey(token, "target" .. reader.epoch)
                 ns.RekeyHealing(token, "target" .. reader.epoch)
+                if reader.targetKey == token then
+                    reader.targetKey = "target" .. reader.epoch
+                end
+                if reader.departedTargetKey == token then
+                    reader.departedTargetKey = "target" .. reader.epoch
+                end
                 if ns.traceCombat then
                     ns.traceCombat("rekey", nil,
                         { old = token, new = "target" .. reader.epoch })
                 end
-            else
+            elseif token ~= DepartedTargetKey() then
                 ns.mine:Forget(token)
                 ns.ForgetHealing(token)
             end
@@ -1570,6 +1623,8 @@ local function OnEvent(_, event, ...)
     elseif event == "PLAYER_ENTERING_WORLD" then
         RebuildAuras()
         reader.plates, reader.targetPlate, reader.held = {}, nil, {}
+        reader.targetKey = nil
+        reader.departedTargetKey, reader.departedTargetAt = nil, nil
         reader.epoch = reader.epoch + 1
         ns.mine = ns.NewMine(ns.Learned, ns.Learn, ns.SpellFacts)
         ns.ResetHealing()

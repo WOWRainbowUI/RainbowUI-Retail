@@ -1,5 +1,7 @@
 local OutgoingBatcher = {}
 OutgoingBatcher.__index = OutgoingBatcher
+local WINDFURY_WEAPON_SPELL_ID = 8232
+local WINDFURY_GROUP_DELAY = 1
 
 function OutgoingBatcher:New(config)
 	return setmetatable({
@@ -12,6 +14,11 @@ function OutgoingBatcher:Reset()
 	for key in pairs(self.batches) do
 		self.batches[key] = nil
 	end
+end
+
+function OutgoingBatcher:ShouldStackWindfury(spellID, isPet, isDot)
+	return spellID == WINDFURY_WEAPON_SPELL_ID and not isPet and not isDot
+		and self.config.getProfile().stackSimilarHits
 end
 
 function OutgoingBatcher:BuildMessage(amount, hitCount, batch, settings)
@@ -86,6 +93,16 @@ function OutgoingBatcher:Flush(batchKey)
 	if batch.isCrit and critSettings and not critSettings.disabled then
 		displaySettings = critSettings
 	end
+	if batch.hasRestricted then
+		if batch.hitCount == 1 then
+			self.config.displayRestricted(displaySettings, batch.amounts[1],
+				batch.effectTexture, "%a")
+		else
+			self.config.displayRestrictedGroup(displaySettings, batch.amounts,
+				batch.effectTexture)
+		end
+		return
+	end
 	self.config.display(
 		displaySettings,
 		self:BuildMessage(batch.totalAmount, batch.hitCount, batch, displaySettings),
@@ -103,6 +120,11 @@ function OutgoingBatcher:DisplayRestricted(
 	isDot,
 	eventKey
 )
+	if self:ShouldStackWindfury(spellID, isPet, isDot) then
+		self:Queue(spellID, amount, isCrit, effectTexture, forceIsSpell,
+			isPet, isDot, eventKey, true)
+		return
+	end
 	if not effectTexture and not isDot and not eventKey then
 		spellID = spellID or self.config.autoAttackSpellID
 		effectTexture = self.config.getSpellTexture(spellID)
@@ -128,9 +150,10 @@ function OutgoingBatcher:Queue(
 	forceIsSpell,
 	isPet,
 	isDot,
-	eventKey
+	eventKey,
+	isRestricted
 )
-	if not amount or amount <= 0 then
+	if not isRestricted and (not amount or amount <= 0) then
 		return
 	end
 
@@ -144,8 +167,10 @@ function OutgoingBatcher:Queue(
 		effectTexture = self.config.getSpellTexture(spellID)
 	end
 
+	local stackWindfury = self:ShouldStackWindfury(spellID, isPet, isDot)
 	local batchKey = (isPet and "pet:" or "") .. (isDot and "dot:" or "")
 		.. tostring(spellID or 0) .. (isCrit and ":crit" or "")
+	if stackWindfury then batchKey = batchKey .. ":stacked" end
 	if eventKey then batchKey = eventKey .. ":" .. batchKey end
 	local batch = self.batches[batchKey]
 	if not batch then
@@ -163,9 +188,11 @@ function OutgoingBatcher:Queue(
 			isDot = isDot,
 			eventKey = eventKey,
 			effectTexture = effectTexture,
+			amounts = stackWindfury and {} or nil,
 		}
 		self.batches[batchKey] = batch
-		self.config.after(self.config.delay, function()
+		local delay = stackWindfury and WINDFURY_GROUP_DELAY or self.config.delay
+		self.config.after(delay, function()
 			if self.batches[batchKey] == batch then
 				self:Flush(batchKey)
 			end
@@ -176,7 +203,14 @@ function OutgoingBatcher:Queue(
 	end
 
 	batch.hitCount = batch.hitCount + 1
-	batch.totalAmount = batch.totalAmount + amount
+	if batch.amounts then
+		batch.amounts[#batch.amounts + 1] = amount
+	end
+	if isRestricted then
+		batch.hasRestricted = true
+	else
+		batch.totalAmount = batch.totalAmount + amount
+	end
 	if effectTexture and not batch.effectTexture then
 		batch.effectTexture = effectTexture
 	end

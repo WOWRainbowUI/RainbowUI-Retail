@@ -3,6 +3,7 @@ Presentation.__index = Presentation
 
 local RestrictedValue = MikSBT.API.RestrictedValue
 local HEALER_PAIR_WINDOW = 0.2
+local GENERIC_SPELL_ICON = "Interface\\Icons\\INV_Misc_QuestionMark"
 local MISS_TYPES = {
 	"MISS", "DODGE", "PARRY", "BLOCK", "RESIST", "EVADE",
 	"IMMUNE", "DEFLECT", "ABSORB", "REFLECT",
@@ -169,6 +170,9 @@ function Presentation:Out(record)
 	local spell = result.spell or result.procSpell
 	if result.melee then spell = result.hand == "ranged" and 5019 or 6603 end
 	local icon = record.icon or (spell and self.config.getSpellTexture(spell))
+	if result.ambiguous or (result.proc and not spell) then
+		spell, icon = nil, GENERIC_SPELL_ICON
+	end
 	if record.event == "damage" then
 		local isSpell = not result.melee or result.hand == "ranged"
 		local method = RestrictedValue:IsRestricted(record.amount)
