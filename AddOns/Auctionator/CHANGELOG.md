@@ -1,6 +1,7 @@
 # Auctionator
 
-## [344](https://github.com/TheMouseNest/Auctionator/tree/344) (2026-11-09)
-[Full Changelog](https://github.com/TheMouseNest/Auctionator/compare/343...344) 
+## [345](https://github.com/TheMouseNest/Auctionator/tree/345) (2026-11-10)
+[Full Changelog](https://github.com/TheMouseNest/Auctionator/compare/344...345) 
 
-- Forever: Selling: Disable copper field for gear (due to AH errors)  
+- Forever: Crafting: Fix profit  
+- Fix undercut % losing item price  
