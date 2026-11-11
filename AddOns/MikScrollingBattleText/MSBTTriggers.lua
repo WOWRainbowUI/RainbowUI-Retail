@@ -398,7 +398,7 @@ local lowHealthSettings = {
 	fontSize = 26,
 	alwaysSticky = true,
 	soundFile = "Interface\\AddOns\\MikScrollingBattleText\\Sounds\\LowHealth.ogg",
-	soundCooldown = 8,
+	soundCooldown = 10,
 	soundDisabledOption = "lowHealthSoundDisabled",
 }
 local lowManaSettings = {
@@ -408,7 +408,7 @@ local lowManaSettings = {
 	fontSize = 26,
 	alwaysSticky = true,
 	soundFile = "Interface\\AddOns\\MikScrollingBattleText\\Sounds\\LowMana.ogg",
-	soundCooldown = 8,
+	soundCooldown = 10,
 	soundDisabledOption = "lowManaSoundDisabled",
 }
 

@@ -564,6 +564,21 @@ local function DisplayRestrictedAmount(eventSettings, amount, texturePath, messa
 	)
 end
 
+local function DisplayRestrictedGroup(eventSettings, amounts, texturePath)
+	if not eventSettings or eventSettings.disabled then return end
+	local formattedAmounts, placeholders = {}, {}
+	for index = 1, #amounts do
+		formattedAmounts[index] = Formatter:FormatRestrictedAmount(
+			amounts[index], MSBTProfiles.currentProfile
+		)
+		placeholders[index] = "%s"
+	end
+	local message = table.concat(placeholders, " + ")
+		.. string.format(" [%d %s]", #amounts, L.MSG_HITS or "Hits")
+	DisplayEvent(eventSettings, message, texturePath, nil,
+		unpack(formattedAmounts, 1, #amounts))
+end
+
 local function BuildActionMessage(eventSettings, amount, overhealAmount, effectName)
 	if not eventSettings or not eventSettings.message then
 		return nil
@@ -612,6 +627,7 @@ local outgoingBatcher = OutgoingBatcher:New({
 	end,
 	display = DisplayEvent,
 	displayRestricted = DisplayRestrictedAmount,
+	displayRestrictedGroup = DisplayRestrictedGroup,
 	after = C_Timer.After,
 	getSpellTexture = function(spellID)
 		local _, _, texture = GetSpellInfo(spellID)
