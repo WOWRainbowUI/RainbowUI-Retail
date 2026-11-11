@@ -44,18 +44,18 @@ local function BuildGuide(content)
         if Design and Design.STYLES then
             local Drops = _G.RGXDropdowns
             if Drops and type(Drops.CreateNestedDropdown) == "function" then
+                -- Canonical styles in their defined order (legacy aliases are not listed).
                 local items = {}
-                for name, style in pairs(Design.STYLES) do
-                    items[#items + 1] = {
-                        text = (type(style) == "table" and style.label) or name,
-                        value = name,
-                    }
+                for _, name in ipairs(Design.STYLE_ORDER or {}) do
+                    local style = Design.STYLES[name]
+                    if style then
+                        items[#items + 1] = { text = style.label or name, value = name }
+                    end
                 end
-                table.sort(items, function(a, b) return a.value < b.value end)
                 local styleDD = Drops:CreateNestedDropdown(theme.content, {
                     label = "Interface style",
                     width = 300, buttonWidth = 290, triggerStyle = "retail",
-                    value = Design:GetStyle() or "framework",
+                    value = (Design.GetStyleId and Design:GetStyleId()) or "framework",
                     items = items,
                     onChange = function(value)
                         if Design:SetStyle(value) then
@@ -187,6 +187,6 @@ RGX:RegisterEvent("PLAYER_LOGIN", function()
         author = "RGX Mods",
         website = "github.com/RGXMods/RGX-Framework",
         content = BuildGuide,
-        registerInSettings = true,
+        registerInSettings = false,
     })
 end, "RGX_GUIDE_PANEL")

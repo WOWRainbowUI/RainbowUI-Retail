@@ -109,6 +109,12 @@ RGX:RegisterEvent("ADDON_LOADED", function(_, addon)
         if Design then
             if RGX.db.style and type(Design.SetStyle) == "function" then
                 pcall(Design.SetStyle, Design, RGX.db.style)
+                -- Saved ids from before the style rename (retail, forever) move to their current names.
+                local id = type(Design.GetStyleId) == "function" and Design:GetStyleId() or nil
+                if id and id ~= RGX.db.style then
+                    RGX.db.style = id
+                    pcall(Design.SetStyle, Design, id)
+                end
             end
             if RGX.db.themePreset and type(Design.SetThemePreset) == "function" then
                 pcall(Design.SetThemePreset, Design, RGX.db.themePreset)

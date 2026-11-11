@@ -69,17 +69,33 @@ Design.THEME_PRESETS = {
 -- Current preset name (nil = custom theme set directly via SetTheme).
 Design.currentPreset = "cyan"
 
--- Named visual styles: the framework's custom look plus one per WoW
--- version line. A style owns the corner treatment and the structural
--- palette; the primary/accent color presets stay independent, so any style
--- combines with any color preset. The framework persists the operator's
--- choice in RGXFrameworkDB.style and re-applies it on login. "framework"
--- is the shipped default: the custom RGX look used across the board.
--- Retail/classic/forever values are starting points for in-game tuning.
+-- Named visual styles. A style owns the corner treatment, the structural palette and how the shared
+-- primitives (cards, section headers, buttons) are drawn; the primary/accent color presets stay
+-- independent, so any style combines with any color preset. The operator's choice is persisted in
+-- RGXFrameworkDB.style and re-applied on login.
+--
+--   framework      "RGX Framework"      the original RGX look (shipped default): rounded, dark navy.
+--   materialround  "RGX Material Round" rounded cards, header bands and buttons on grey; the panel ring
+--                                       is the mod's primary colour and card titles its accent colour.
+--                                       A drop-in for every RGX addon, first used by RGXProfessions.
+--
+-- Brand colours are not part of a style: every mod defines its own primary/secondary (accent) pair when it
+-- is created (SetTheme / WithTheme / a preset) and the framework pipes that pair into whichever style is
+-- active, so all three styles are branded by the mod, never by the style.
+--   classic        "RGX Classic"        square corners, warm stone palette (the old Ace3-era look).
+--
+-- Earlier releases also shipped "retail" and "forever" styles that were never fully built out; the ids
+-- keep working as aliases (retail -> framework, forever -> classic) so saved settings and callers do not
+-- break, but they are no longer listed.
+Design.STYLE_ORDER = { "framework", "materialround", "classic" }
+Design.STYLE_ALIASES = { retail = "framework", forever = "classic" }
+
 Design.STYLES = {
     framework = {
-        label = "Framework",
+        label = "RGX Framework",
         cornerStyle = "rounded",
+        buttonStyle = "square",
+        headerStyle = "square",
         colors = {
             surface    = {0.086, 0.086, 0.110},
             background = {0.055, 0.055, 0.071},
@@ -91,31 +107,41 @@ Design.STYLES = {
             warning    = {0.941, 0.706, 0.161},
             error      = {0.878, 0.333, 0.333},
             border     = {0.137, 0.137, 0.173},
+            ring       = {0.137, 0.137, 0.173},
+            headerFill = {0.086, 0.086, 0.110},
             hover      = {0.102, 0.102, 0.129},
             track      = {0.137, 0.137, 0.173},
         },
     },
-    retail = {
-        label = "Retail",
+    materialround = {
+        label = "RGX Material Round",
         cornerStyle = "rounded",
+        buttonStyle = "rounded",
+        headerStyle = "rounded",
+        ringFrom = "primary",   -- panel ring and hover ring follow the mod's primary colour
+        titleFrom = "accent",   -- card titles and the hover label follow the mod's accent colour
         colors = {
-            surface    = {0.070, 0.080, 0.110},
-            background = {0.050, 0.058, 0.082},
-            panelAlt   = {0.090, 0.102, 0.134},
-            text       = {0.950, 0.950, 0.960},
-            subtext    = {0.600, 0.620, 0.680},
-            label      = {0.400, 0.420, 0.480},
-            success    = {0.200, 0.800, 0.400},
-            warning    = {0.941, 0.706, 0.161},
+            surface    = {0.086, 0.086, 0.110},
+            background = {0.055, 0.055, 0.071},
+            panelAlt   = {0.102, 0.102, 0.129},
+            text       = {0.922, 0.922, 0.941},
+            subtext    = {0.620, 0.620, 0.660},
+            label      = {0.357, 0.357, 0.400},
+            success    = {0.300, 0.850, 0.400},
+            warning    = {1.000, 0.700, 0.200},
             error      = {0.878, 0.333, 0.333},
-            border     = {0.160, 0.180, 0.240},
-            hover      = {0.100, 0.114, 0.150},
-            track      = {0.160, 0.180, 0.240},
+            border     = {0.137, 0.137, 0.173},
+            ring       = {0.137, 0.137, 0.173}, -- fallback only: the ring follows the primary colour
+            headerFill = {0.118, 0.118, 0.149},
+            hover      = {0.130, 0.130, 0.160},
+            track      = {0.137, 0.137, 0.173},
         },
     },
     classic = {
-        label = "Classic",
+        label = "RGX Classic",
         cornerStyle = "square",
+        buttonStyle = "square",
+        headerStyle = "square",
         colors = {
             surface    = {0.100, 0.090, 0.080},
             background = {0.070, 0.062, 0.054},
@@ -127,39 +153,36 @@ Design.STYLES = {
             warning    = {0.941, 0.706, 0.161},
             error      = {0.878, 0.333, 0.333},
             border     = {0.250, 0.210, 0.150},
+            ring       = {0.250, 0.210, 0.150},
+            headerFill = {0.100, 0.090, 0.080},
             hover      = {0.130, 0.118, 0.100},
             track      = {0.250, 0.210, 0.150},
         },
     },
-    forever = {
-        label = "Forever",
-        cornerStyle = "square",
-        colors = {
-            surface    = {0.070, 0.100, 0.080},
-            background = {0.050, 0.072, 0.058},
-            panelAlt   = {0.090, 0.122, 0.100},
-            text       = {0.900, 0.940, 0.900},
-            subtext    = {0.550, 0.620, 0.560},
-            label      = {0.360, 0.420, 0.370},
-            success    = {0.200, 0.800, 0.400},
-            warning    = {0.941, 0.706, 0.161},
-            error      = {0.878, 0.333, 0.333},
-            border     = {0.160, 0.240, 0.180},
-            hover      = {0.090, 0.130, 0.100},
-            track      = {0.160, 0.240, 0.180},
-        },
-    },
 }
+
+-- How the active style draws the shared primitives (set by SetStyle). Direct SetCornerStyle/SetTheme
+-- edits leave these alone.
+Design.styleOptions = { buttonStyle = "square", headerStyle = "square", ringFrom = nil, titleFrom = nil }
 
 -- Current style name (nil = customized directly via SetCornerStyle/SetTheme).
 Design.currentStyle = "framework"
 
--- Apply a named style: corner treatment plus the full structural palette.
--- Primary/accent color tokens are untouched. Styles take effect on UI built
--- after the call; already-open windows re-skin on reload (same contract as
--- the corner selector). Returns false for unknown names.
+-- Resolve a style id, following the legacy aliases. Returns the canonical id, or nil when unknown.
+function Design:ResolveStyle(name)
+    if type(name) ~= "string" then return nil end
+    local id = (self.STYLE_ALIASES and self.STYLE_ALIASES[name]) or name
+    if self.STYLES and self.STYLES[id] then return id end
+    return nil
+end
+
+-- Apply a named style: corner treatment, the full structural palette and the button/header treatment.
+-- Primary/accent color tokens are untouched. Styles take effect on UI built after the call; already-open
+-- windows re-skin on reload (same contract as the corner selector). Legacy ids (retail, forever) are
+-- accepted and GetStyle() reports the id that was set. Returns false for unknown names.
 function Design:SetStyle(name)
-    local style = self.STYLES and self.STYLES[name]
+    local id = self:ResolveStyle(name)
+    local style = id and self.STYLES[id]
     if not style then return false end
     if style.cornerStyle then self.cornerStyle = style.cornerStyle end
     if type(style.colors) == "table" then
@@ -169,12 +192,48 @@ function Design:SetStyle(name)
             end
         end
     end
+    self.styleOptions = {
+        buttonStyle = style.buttonStyle or "square",
+        headerStyle = style.headerStyle or "square",
+        ringFrom = style.ringFrom,
+        titleFrom = style.titleFrom,
+    }
     self.currentStyle = name
     return true
 end
 
 function Design:GetStyle()
     return self.currentStyle
+end
+
+-- Canonical id of the active style ("framework" / "materialround" / "classic"), nil after direct edits.
+function Design:GetStyleId()
+    return self:ResolveStyle(self.currentStyle)
+end
+
+function Design:GetStyleLabel()
+    local id = self:GetStyleId()
+    return id and self.STYLES[id].label or nil
+end
+
+-- Build one addon's UI in a named style without changing the operator's global choice: applies the
+-- style for fn's duration, then restores the previous style, palette and options.
+--   Design:WithStyle("materialround", function() ... build windows ... end)
+function Design:WithStyle(name, fn)
+    if type(fn) ~= "function" then return end
+    if not self:ResolveStyle(name) then
+        error("RGXDesign:WithStyle unknown style '" .. tostring(name) .. "'", 2)
+    end
+    local prev = {
+        corner = self.cornerStyle, current = self.currentStyle, options = self.styleOptions, colors = {},
+    }
+    for key, value in pairs(self.Colors) do prev.colors[key] = { value[1], value[2], value[3] } end
+    self:SetStyle(name)
+    local ok, a, b, c = pcall(fn)
+    self.cornerStyle, self.currentStyle, self.styleOptions = prev.corner, prev.current, prev.options
+    for key, value in pairs(prev.colors) do self.Colors[key] = value end
+    if not ok then error(a, 0) end
+    return a, b, c   -- the builder's results (typically the frame it built)
 end
 
 -- Global corner preference: "rounded" (default) or "square". Stored in
@@ -214,6 +273,8 @@ Design.Colors = {
     warning    = {0.941, 0.706, 0.161},
     error      = {0.878, 0.333, 0.333},
     border     = {0.137, 0.137, 0.173},
+    ring       = {0.137, 0.137, 0.173}, -- outline of rounded panels/cards (styles may colour it)
+    headerFill = {0.086, 0.086, 0.110}, -- fill of a rounded section-header band
     hover      = {0.102, 0.102, 0.129},
     track      = {0.137, 0.137, 0.173},
 }
@@ -368,16 +429,24 @@ function Design:WithTheme(theme, fn)
     local prevPrimary = self.Theme.primary
     local prevAccent = self.Theme.accent
     self:SetTheme(theme)
-    local ok, err = pcall(fn)
+    local ok, a, b, c = pcall(fn)
     self.Theme.primary = prevPrimary
     self.Theme.accent = prevAccent
-    if not ok then error(err, 0) end
+    if not ok then error(a, 0) end
+    return a, b, c   -- the builder's results (typically the frame it built)
 end
 
 Design.SetColors = Design.SetTheme
 Design.UseTheme = Design.SetTheme
 
 function Design:GetColor(key)
+    -- A style may colour the panel ring from the mod's own brand colour (primary/accent), resolved live so
+    -- scoped construction themes (WithTheme) are honoured.
+    if key == "ring" then
+        local from = self.styleOptions and self.styleOptions.ringFrom
+        local themed = from and self.Theme[from]
+        if themed then return themed end
+    end
     -- Shared shades derive from the active main color, including scoped
     -- construction themes. Never cache them across theme changes.
     local factor = MAIN_SHADES[key]
@@ -417,7 +486,7 @@ function Design:ApplyPanel(frame, opts)
     opts = opts or {}
     local slice = opts.radius or self.Radius
     local fill = self:GetColor(opts.color or "surface")
-    local borderColor = self:GetColor(opts.borderColor or "border")
+    local borderColor = self:GetColor(opts.borderColor or "ring")
     local fillAlpha = opts.bgAlpha
 
     frame._panelBorder = BuildNineSlice(frame, "BACKGROUND", slice, 0, borderColor, 1)
@@ -469,16 +538,36 @@ function Design:CreateButton(parent, text, width, height, tooltipTitle, tooltipB
     local btn = CreateFrame("Button", nil, parent)
     btn:SetSize(width or 120, height or 22)
 
-    local bg = btn:CreateTexture(nil, "BACKGROUND")
-    bg:SetAllPoints()
-    bg:SetColorTexture(self:Unpack("surface"))
-    btn.bg = bg
+    -- The active style decides the button shape. Rounded buttons ("RGX Material Round") sit on the same
+    -- rounded panel as cards and light their ring on hover; they keep the btn.bg / btn.border surface that
+    -- callers may touch, forwarding to the panel colours.
+    local opts = self.styleOptions or {}
+    local rounded = opts.buttonStyle == "rounded"
+    local hoverBorderKey = rounded and "ring" or "primary"
+    -- Rounded buttons fix their hover ring colour when they are built, inside the mod's own WithTheme
+    -- scope: a hover happens long after construction, when the shared theme may belong to another mod.
+    local hoverRing = rounded and { self:Unpack("ring") } or nil
+    local titleTheme = opts.titleFrom and self.Theme[opts.titleFrom]
+    local hoverLabel = rounded and (titleTheme and { titleTheme[1], titleTheme[2], titleTheme[3] }
+        or { self:Unpack("text") }) or { self:Unpack("primary") }
 
-    local border = CreateFrame("Frame", nil, btn, "BackdropTemplate")
-    border:SetAllPoints()
-    border:SetBackdrop(BACKDROPS.border)
-    border:SetBackdropBorderColor(self:Unpack("border"))
-    btn.border = border
+    if rounded then
+        self:ApplyPanel(btn, { color = "surface", borderColor = "border",
+            radius = math.max(4, math.min(10, math.floor((height or 22) / 2))) })
+        btn.bg = { SetColorTexture = function(_, r, g, b) btn:SetPanelColor({ r, g, b }, nil, 1) end }
+        btn.border = { SetBackdropBorderColor = function(_, r, g, b) btn:SetPanelColor(nil, { r, g, b }, 1) end }
+    else
+        local bg = btn:CreateTexture(nil, "BACKGROUND")
+        bg:SetAllPoints()
+        bg:SetColorTexture(self:Unpack("surface"))
+        btn.bg = bg
+
+        local border = CreateFrame("Frame", nil, btn, "BackdropTemplate")
+        border:SetAllPoints()
+        border:SetBackdrop(BACKDROPS.border)
+        border:SetBackdropBorderColor(self:Unpack("border"))
+        btn.border = border
+    end
 
     local label = btn:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     label:SetPoint("CENTER", 0, 0)
@@ -489,8 +578,12 @@ function Design:CreateButton(parent, text, width, height, tooltipTitle, tooltipB
 
     btn:SetScript("OnEnter", function(self)
         self.bg:SetColorTexture(Design:Unpack("hover"))
-        self.border:SetBackdropBorderColor(Design:Unpack("primary"))
-        self.label:SetTextColor(Design:Unpack("primary"))
+        if hoverRing then
+            self.border:SetBackdropBorderColor(hoverRing[1], hoverRing[2], hoverRing[3])
+        else
+            self.border:SetBackdropBorderColor(Design:Unpack(hoverBorderKey))
+        end
+        self.label:SetTextColor(hoverLabel[1], hoverLabel[2], hoverLabel[3])
         if self._ttTitle then
             GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
             GameTooltip:SetText(self._ttTitle, 1, 1, 1)
@@ -522,13 +615,22 @@ end
 Design.CreateActionButton = Design.CreateButton
 
 function Design:CreateSectionHeader(parent, text, icon)
-    local header = CreateFrame("Frame", nil, parent, "BackdropTemplate")
-    header:SetHeight(32)
-    self:ApplyBackdrop(header, "solid", 0.95)
-    -- Section headers frame in a muted version of the theme's primary color:
-    -- the primary token dimmed down, never the full-brightness variant, so
-    -- every addon gets a subdued frame that follows its theme.
-    header:SetBackdropBorderColor(self:Unpack("mainBorder"))
+    local opts = self.styleOptions or {}
+    local header
+    if opts.headerStyle == "rounded" then
+        -- "RGX Material Round": a rounded band (grey fill, the style's ring colour) like every other card.
+        header = CreateFrame("Frame", nil, parent)
+        header:SetHeight(32)
+        self:ApplyPanel(header, { color = "headerFill", borderColor = "ring", radius = 8 })
+    else
+        header = CreateFrame("Frame", nil, parent, "BackdropTemplate")
+        header:SetHeight(32)
+        self:ApplyBackdrop(header, "solid", 0.95)
+        -- Section headers frame in a muted version of the theme's primary color:
+        -- the primary token dimmed down, never the full-brightness variant, so
+        -- every addon gets a subdued frame that follows its theme.
+        header:SetBackdropBorderColor(self:Unpack("mainBorder"))
+    end
 
     local leftInset = 10
     if icon then
@@ -543,7 +645,12 @@ function Design:CreateSectionHeader(parent, text, icon)
     local label = header:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     label:SetPoint("LEFT", leftInset, 0)
     label:SetText(text)
-    label:SetTextColor(self:Unpack("primary"))
+    local titleTheme = opts.titleFrom and self.Theme[opts.titleFrom]
+    if titleTheme then
+        label:SetTextColor(titleTheme[1], titleTheme[2], titleTheme[3])
+    else
+        label:SetTextColor(self:Unpack("primary"))
+    end
     ApplyDefaultFont(label)
     header.label = label
 
