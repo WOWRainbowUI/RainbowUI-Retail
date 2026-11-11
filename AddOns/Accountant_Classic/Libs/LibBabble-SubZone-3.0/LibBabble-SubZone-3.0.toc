@@ -1,5 +1,6 @@
-﻿## Interface: 11509, 16001, 20506, 50504, 120105
+## Interface: 11509, 16001, 20506, 50504, 120105
 ## LoadOnDemand: 1
+## Dependencies: Ace3
 ## Title: Lib: Babble-SubZone-3.0
 ## Notes: A library for localized in-game subzone names.
 ## Title-deDE: Lib: Babble-SubZone-3.0
@@ -42,6 +43,4 @@
 ## Category-zhTW: 函式庫
 ## IconTexture: Interface\icons\inv_misc_map07
 
-LibStub\LibStub.lua
 lib.xml
-
