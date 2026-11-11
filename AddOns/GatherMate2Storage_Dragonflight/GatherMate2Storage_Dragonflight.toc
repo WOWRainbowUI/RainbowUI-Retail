@@ -1,0 +1,14 @@
+## Interface: 120105,120107
+## Title: GatherMate2: Storage for Dragonflight
+## Author: nevcairiel
+## Group: GatherMate2
+## IconTexture: Interface\AddOns\GatherMate2\Artwork\Icon.tga
+## Dependencies: GatherMate2
+## AllowLoadGameType: standard
+## Version: 1.52.5.1
+## X-Category: Map
+## LoadSavedVariablesFirst: 1
+## SavedVariables: GatherMate2HerbDBDF, GatherMate2MineDBDF, GatherMate2FishDBDF, GatherMate2GasDBDF, GatherMate2TreasureDBDF, GatherMate2ArchaeologyDBDF, GatherMate2LoggingDBDF
+## X-GM2-Storage-Tag: DF
+## X-GM2-Storage-Zones: 2022, 2023, 2024, 2025, 2112, 2151, 2133, 2200, 2239, 2262, 2199, 2085
+..\GatherMate2\LoadAddOnStorage.lua
