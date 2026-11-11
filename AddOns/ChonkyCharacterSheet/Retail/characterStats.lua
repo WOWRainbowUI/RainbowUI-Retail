@@ -3635,7 +3635,7 @@ function module:Initialize(onlyStyle)
 
 			if section and bit.band(section.ver, CCS.CurrentVersion) ~= 0 then
 				-------------------------------------------------
-				-- Section Frame seansean
+				-- Section Frame 
 				-------------------------------------------------
 				local sectionFrameName = "CCS_Section_" .. section.key
 				local sectionFrame = _G[sectionFrameName] or CreateFrame("Frame", sectionFrameName, scrollChild, "BackdropTemplate")
@@ -3740,15 +3740,30 @@ function CCS.CharacterStatsEventHandler(event, ...)
 					CharacterStatsPane.BG:Hide()
 				end
 			end
-
 			return
         end
-		
+
 		if CCS.CurrentVersion == CCS.FOREVER then
+
 			CharacterStatsPane:Show()
 			if CharacterStatsPane.ChonkyNS then
-				CharacterStatsPane.ChonkyNS:Show()
-				CharacterStatsPane.BG:Show()
+					
+				if option("showcharacterstats") then
+					CharacterStatsPaneScrollBox:ClearAllPoints()
+					CharacterStatsPaneScrollBox:SetPoint("TOPLEFT", CharacterFrameBgbg, "TOPRIGHT", 40, -10000)
+					CharacterStatsPaneScrollBox:SetPoint("BOTTOMRIGHT", CharacterFrameBgbg, "BOTTOMRIGHT", 300, -10000)
+				else
+					CharacterStatsPaneScrollBox:SetPoint("TOPLEFT", CharacterFrameRightPaneHostStoneBg, "BOTTOMLEFT", 0, 0)
+					CharacterStatsPaneScrollBox:SetPoint("BOTTOMRIGHT", CharacterFrameRightPaneHost, "BOTTOMRIGHT", 0, 0)
+				end
+
+				if option("showstatborder") then
+					CharacterStatsPane.ChonkyNS:Show()
+				end
+				
+				if option("show_stats_background") then
+					CharacterStatsPane.BG:Show()
+				end
 			end
 		end
 		

@@ -1164,7 +1164,7 @@ local function initmplusframe()
     
 ----
 ---- Create the second button
-----seansean
+----
 	-- Create the new button
 	local btn2 = _G["InspectMPlusScoreIconBtn"] or CreateFrame("Button", "InspectMPlusScoreIconBtn", InspectPaperDollItemsFrame)
 	btn2:SetSize(32, 32)
