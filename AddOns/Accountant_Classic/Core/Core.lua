@@ -77,6 +77,15 @@ local AccountantClassic_Version = GetAddOnMetadata(private.addon_name, "Version"
 --AccountantClassic_Disabled = false;
 ---@type ACActiveLogType Log type for the next money change
 local AC_LOGTYPE = ""
+-- History-only refinement of AC_LOGTYPE for the next money change. The classic data
+-- keeps logging Warband bank deposits / withdrawals under BANK; the history ledger
+-- records them as WARBAND transfers instead. Used once by updateLog(), then cleared.
+---@type string?
+local AC_HISTORY_TYPE
+-- Set while logging the money change found at login (not made in a tracked session).
+local AC_HISTORY_UNTRACKED
+---@type ACHistory
+local History = private.History
 ---@type integer Copper on the character right now
 local AC_CURRMONEY = 0
 ---@type integer Copper at the start of the session
@@ -1131,8 +1140,20 @@ local function updateLog()
 			end
 		end
 	end
+	-- History ledger: same decision as the classic data, except the WARBAND refinement.
+	local historyType = (logtype == "BANK" and AC_HISTORY_TYPE) or logtype
+	AC_HISTORY_TYPE = nil
+	local untracked = AC_HISTORY_UNTRACKED
+	AC_HISTORY_UNTRACKED = nil
+	-- An error in the history ledger must never break the classic logging above.
+	local ok, err = pcall(History.Record, History, AC_SERVER, AC_PLAYER, historyType, diff, AC_CURRMONEY, untracked)
+	if not ok and AccountantClassic_Verbose then
+		printMessage("History error: "..tostring(err))
+	end
+
 	if AccountantClassic_Verbose then
-		printMessage(((diff > 0) and "Gained " or "Lost ")..niceCash(amount).." from "..logtype)
+		printMessage(((diff > 0) and "Gained " or "Lost ")..niceCash(amount).." from "..logtype
+			..((historyType ~= logtype) and (" (history: "..historyType..")") or ""))
 	end
 
 	-- special case mode resets
@@ -1143,6 +1164,98 @@ local function updateLog()
 	updateLDBText()
 	if AccountantClassicFrame:IsVisible() then
 		AccountantClassic_OnShow();
+	end
+end
+
+local historySlash
+
+-- ----------------------------------------------------------------------------
+-- /acc history: checks for the history ledger until it has its own window.
+-- ----------------------------------------------------------------------------
+local function historyLoginInfo()
+	return { guid = UnitGUID("player"), faction = AC_FACTION, class = AC_CLASS, money = GetMoney() }
+end
+
+StaticPopupDialogs["ACCOUNTANT_CLASSIC_HISTORY_WIPE"] = {
+	text = L["Delete the entire Accountant Classic history ledger of all characters?\nThe classic period data is not affected."],
+	button1 = OKAY,
+	button2 = CANCEL,
+	OnAccept = function()
+		History:Wipe()
+		History:Reattach(AC_SERVER, AC_PLAYER, historyLoginInfo())
+		printMessage(L["The history ledger has been deleted."])
+	end,
+	timeout = 0,
+	whileDead = true,
+	hideOnEscape = true,
+	preferredIndex = 3,
+}
+
+---@param sub string?
+historySlash = function(sub)
+	local fmtc = History.FormatCopper
+	if History:IsReadOnly() then
+		printMessage(L["The history ledger was saved by a newer version of Accountant Classic and is read-only."])
+		return
+	end
+	if sub == "today" then
+		local today = History.DayKey()
+		local totals, summary = History:GetTotals({ char = History.CharKey(AC_SERVER, AC_PLAYER) }, today, today)
+		printMessage(format("History %d - %s", today, AC_PLAYER))
+		local categories = {}
+		for category in pairs(totals) do categories[#categories + 1] = category end
+		tsort(categories)
+		for _, category in ipairs(categories) do
+			local b = totals[category]
+			local kind = History.TRANSFER_CATEGORIES[category] and " (transfer)" or ""
+			printMessage(format("  %s%s: in %s (%d), out %s (%d)", category, kind, fmtc(b.i), b.ni, fmtc(b.o), b.no))
+		end
+		local series = History:GetDailySeries({ char = History.CharKey(AC_SERVER, AC_PLAYER) }, today, today)
+		local p = series[1]
+		printMessage(format("  income %s, expense %s, net %s; online %d min (AFK %d)",
+			fmtc(summary.income), fmtc(summary.expense), fmtc(summary.net), p.minutes, p.afk))
+	elseif sub == "verify" then
+		local rows, startedToday = History:Verify(AccountantClassic_Profile["data"])
+		local bad = 0
+		for _, r in ipairs(rows) do
+			if not r.ok then bad = bad + 1 end
+			printMessage(format("  %s %s: classic %s / %s, history %s / %s", r.ok and "|cff00ff00OK|r" or "|cffff0000DIFF|r",
+				r.category, fmtc(r.classicIn), fmtc(r.classicOut), fmtc(r.historyIn), fmtc(r.historyOut)))
+		end
+		if bad == 0 then
+			printMessage(format(L["History matches today's classic data (%d categories)."], #rows))
+		else
+			printMessage(format(L["%d categories differ from today's classic data."], bad))
+			if startedToday then
+				printMessage(L["History tracking started today, so money logged earlier today exists only in the classic data."])
+			end
+			printMessage(L["Resetting the Day tab also causes differences; the history ledger is never reset with it."])
+		end
+	elseif sub == "zones" then
+		local today = History.DayKey()
+		local zones = History:GetLocationTotals({ char = History.CharKey(AC_SERVER, AC_PLAYER) }, today, today)
+		local list = {}
+		for mapID, zt in pairs(zones) do list[#list + 1] = { mapID = mapID, t = zt } end
+		tsort(list, function(a, b) return (a.t.i + a.t.o) > (b.t.i + b.t.o) end)
+		printMessage(format("History zones %d - %s", today, AC_PLAYER))
+		for _, entry in ipairs(list) do
+			local zt = entry.t
+			printMessage(format("  %s (%d): in %s, out %s", History:GetLocationKeyName(entry.mapID), entry.mapID, fmtc(zt.i), fmtc(zt.o)))
+			for subKey, st in pairs(zt.subZones) do
+				local _, subName = History:GetLocationKeyName(entry.mapID, subKey)
+				printMessage(format("    - %s: in %s, out %s", subName or subKey, fmtc(st.i), fmtc(st.o)))
+			end
+		end
+	elseif sub == "stats" then
+		local st = History:GetStats()
+		local total, _, warband = History:GetNetWorth()
+		printMessage(format("History: %d characters (%d deleted), %d days, %d category buckets, %d hours, %d location buckets, %d recent records, ~%.1f KB",
+			st.chars, st.deleted, st.days, st.buckets, st.hours, st.locations, st.recent, st.bytes / 1024))
+		printMessage(format("Net worth: %s%s", fmtc(total), warband and (" (Warband "..fmtc(warband.money)..")") or ""))
+	elseif sub == "wipe" then
+		StaticPopup_Show("ACCOUNTANT_CLASSIC_HISTORY_WIPE")
+	else
+		printMessage("/accountant history today | zones | verify | stats | wipe")
 	end
 end
 
@@ -1169,8 +1282,11 @@ local function accountantSlash(msg)
 		end
 	elseif args[1] == 'week' then
 		printMessage(addon:WeekStart())
+	elseif args[1] == 'history' then
+		historySlash(args[2])
 	else
 		printMessage("/accountant log\n")
+		printMessage("/accountant history [today | zones | verify | stats | wipe]")
 	end
 end
 
@@ -1499,6 +1615,8 @@ function AccountantClassic_OnEvent(self, event, ...)
 
 	if logType ~= nil then
 		AC_LOGTYPE = logType
+		-- Any other interaction (or closing the bank) ends a pending Warband transfer.
+		if logType ~= "BANK" then AC_HISTORY_TYPE = nil end
 	elseif event == "MERCHANT_UPDATE" then
 		if InRepairMode() then
 			AC_LOGTYPE = "REPAIRS"
@@ -1515,6 +1633,7 @@ function AccountantClassic_OnEvent(self, event, ...)
 	elseif event == "PLAYER_INTERACTION_MANAGER_FRAME_HIDE" then
 		if BANK_INTERACTIONS[arg1] and AC_LOGTYPE == "BANK" then
 			AC_LOGTYPE = ""
+			AC_HISTORY_TYPE = nil
 		end
 	elseif event == "PLAYER_MONEY" then
 		if not AC_LOG_PRIMED then
@@ -1825,10 +1944,11 @@ function AccountantClassic_ResetData()
 	StaticPopup_Show("ACCOUNTANT_CLASSIC_RESET", logmode)
 end
 
----Asks for confirmation, then removes a character's saved data.
+---Removes a character's saved data (the confirmation is asked by the caller).
 ---@param server string
 ---@param character string
-function addon:CharacterRemovalProceed(server, character)
+---@param removeHistory boolean? Also delete the history ledger; otherwise it is kept and marked as deleted
+function addon:CharacterRemovalProceed(server, character, removeHistory)
 	local serverData = Accountant_ClassicSaveData[server]
 	local charData = serverData and serverData[character]
 	if not charData then return end
@@ -1854,6 +1974,8 @@ function addon:CharacterRemovalProceed(server, character)
 			Accountant_ClassicZoneDB[server] = nil
 		end
 	end
+
+	History:OnCharacterRemoved(server, character, removeHistory and true or false)
 
 	printMessage(format(L["|cffffffff\"%s - %s|cffffffff\" character's Accountant Classic data has been removed."], faction_icon..class_color..server, character))
 	addon:PopulateCharacterList()
@@ -1889,33 +2011,37 @@ end
 
 -- Bank: buying bank bag slots / bank tabs, and moving gold in or out of the Warband bank.
 -- Guild bank gold keeps its own GUILD log type.
----Post-hook for bank slot / bank tab purchases.
-local function setBankLogType()
-	AC_LOGTYPE = "BANK"
-end
-
 ---Post-hook for C_Bank.DepositMoney / C_Bank.WithdrawMoney.
 ---@param bankType Enum.BankType
 local function onBankMoneyTransfer(bankType)
 	local bankTypes = _G.Enum and _G.Enum.BankType
 	if bankTypes and bankType == bankTypes.Guild then
 		AC_LOGTYPE = "GUILD"
+		AC_HISTORY_TYPE = nil
 	else
 		AC_LOGTYPE = "BANK"
+		-- Moving gold between a character and the Warband bank is not income or expense.
+		AC_HISTORY_TYPE = (not bankTypes or bankType == bankTypes.Account) and "WARBAND" or nil
 	end
+end
+
+---Post-hook for bank slot / bank tab purchases: a fee, never a transfer.
+local function setBankFeeLogType()
+	AC_LOGTYPE = "BANK"
+	AC_HISTORY_TYPE = nil
 end
 
 ---Hooks the bank purchase and money transfer functions that exist on this client.
 local function hookBankFunctions()
 	local C_Bank = _G.C_Bank
 	if C_Bank then
-		if C_Bank.PurchaseBankTab then addon:SecureHook(C_Bank, "PurchaseBankTab", setBankLogType) end
+		if C_Bank.PurchaseBankTab then addon:SecureHook(C_Bank, "PurchaseBankTab", setBankFeeLogType) end
 		if C_Bank.DepositMoney then addon:SecureHook(C_Bank, "DepositMoney", onBankMoneyTransfer) end
 		if C_Bank.WithdrawMoney then addon:SecureHook(C_Bank, "WithdrawMoney", onBankMoneyTransfer) end
 	end
 	-- Classic bank bag slots and the old reagent bank unlock
-	if _G.PurchaseSlot then addon:SecureHook("PurchaseSlot", setBankLogType) end
-	if _G.BuyReagentBank then addon:SecureHook("BuyReagentBank", setBankLogType) end
+	if _G.PurchaseSlot then addon:SecureHook("PurchaseSlot", setBankFeeLogType) end
+	if _G.BuyReagentBank then addon:SecureHook("BuyReagentBank", setBankFeeLogType) end
 end
 
 ---@param index integer Backpack currency slot
@@ -2129,6 +2255,16 @@ function addon:OnEnable()
 	loadData()
 	setLabels()
 
+	-- History ledger: attach the character before anything below can log money.
+	History:InitDB()
+	History:OnLogin(AC_SERVER, AC_PLAYER, {
+		guid = UnitGUID("player"),
+		faction = AC_FACTION,
+		class = AC_CLASS,
+		money = GetMoney(),
+	})
+	History:RegisterEvents()
+
 	if (profile.cross_server and not AC_SELECTED_SERVER) then 
 		AC_SELECTED_SERVER = "All" 
 	elseif (not profile.cross_server and not AC_SELECTED_SERVER) then 
@@ -2146,7 +2282,9 @@ function addon:OnEnable()
 	if (AC_LASTSESSMONEY and AC_LASTSESSMONEY ~= AC_CURRMONEY) then
 		AC_LOGTYPE = "OTHER"
 		AC_LASTMONEY = AC_LASTSESSMONEY
+		AC_HISTORY_UNTRACKED = true
 		updateLog()
+		AC_HISTORY_UNTRACKED = nil
 	end
 	AC_LASTMONEY = AC_CURRMONEY
 	

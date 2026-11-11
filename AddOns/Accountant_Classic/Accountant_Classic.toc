@@ -18,7 +18,7 @@
 ## Title-ruRU: Accountant Classic
 ## Notes-ruRU: Отслеживает заработанное и потраченное золото ваших персонажей
 ## Author: arith, kamusis
-## Version: v2.30.01
+## Version: v2.30.02
 ## Dependencies: Ace3
 ## AddonCompartmentFunc: AccountantClassic_ButtonOnClick
 ## IconTexture: Interface\AddOns\Accountant_Classic\Images\AccountantClassicButton-Up
@@ -31,10 +31,10 @@
 ## Category-koKR: 기타
 ## Category-ptBR: Outro
 ## Category-ruRU: Другое
-## OptionalDeps: LibStub, CallbackHandler-1.0, Ace3, LibDBIcon-1.0, !LibUIDropDownMenu
-## SavedVariables: Accountant_ClassicSaveData, Accountant_ClassicDB, Accountant_Classic_NewDB, Accountant_ClassicZoneDB
+## OptionalDeps: LibStub, CallbackHandler-1.0, Ace3, LibDBIcon-1.0, !LibUIDropDownMenu, LibBabble-SubZone-3.0
+## SavedVariables: Accountant_ClassicSaveData, Accountant_ClassicDB, Accountant_Classic_NewDB, Accountant_ClassicZoneDB, Accountant_ClassicHistory
 ## X-Credits: Sabaki, Shadow, Rophy
-## X-Date: 2026-11-07T06:12:45Z
+## X-Date: 2026-11-10T04:06:38Z
 ## X-Website: https://www.curseforge.com/wow/addons/accountant-classic
 ## X-License: GPLv2
 ## X-Category: Information
@@ -43,8 +43,10 @@
 ## X-WoWI-ID: 17044
 
 
+Libs\Libs.xml
 Locale\Locales.xml
 Core\Constants.lua
+Core\History.lua
 Core\Templates.lua
 Core\UI.lua
 

@@ -151,3 +151,13 @@ L["(%d+) Copper"]= "(%d+)銅幣"
 L["BINDING_HEADER_ACCOUNTANT_CLASSIC_TITLE"] = "個人會計按鍵設定"
 L["BINDING_NAME_ACCOUNTANT_CLASSIC_TOGGLE"] = "開啟個人會計"
 
+-- History ledger
+L["Remove, keep history"] = "刪除，保留歷史"
+L["Remove with history"] = "連同歷史一起刪除"
+L["Delete the entire Accountant Classic history ledger of all characters?\nThe classic period data is not affected."] = "要刪除所有角色的個人會計歷史帳本嗎？\n原本的各時段資料不受影響。"
+L["The history ledger has been deleted."] = "歷史帳本已刪除。"
+L["The history ledger was saved by a newer version of Accountant Classic and is read-only."] = "歷史帳本是由較新版本的個人會計儲存的，目前為唯讀。"
+L["History matches today's classic data (%d categories)."] = "歷史帳本與今日的原有資料一致（%d 個類別）。"
+L["%d categories differ from today's classic data."] = "有 %d 個類別與今日的原有資料不一致。"
+L["History tracking started today, so money logged earlier today exists only in the classic data."] = "歷史帳本今天才開始記錄，今天稍早的金流只存在於原有資料中。"
+L["Resetting the Day tab also causes differences; the history ledger is never reset with it."] = "重置「今日」分頁也會造成差異；歷史帳本不會跟著重置。"
