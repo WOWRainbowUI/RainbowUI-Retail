@@ -1,4 +1,4 @@
-## Interface: 11509, 16001, 20506, 38002, 50504, 120105
+## Interface: 120105, 16001, 50504, 38002, 20506, 11509
 
 ## Title: NiceDamage (Reloaded)
 ## Notes: NiceDamage font for your combat text.
@@ -15,7 +15,7 @@
 ## Category-zhCN: 战斗
 ## Category-zhTW: 戰鬥
 
-## Version: 3.1.5
+## Version: 3.1.6
 
 ## IconTexture: Interface\ICONS\Inv_knife_1H_Rogue_C_01
 

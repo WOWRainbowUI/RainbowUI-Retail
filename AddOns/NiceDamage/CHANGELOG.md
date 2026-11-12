@@ -1,3 +1,6 @@
+3.1.6
+- Update WoW interface versions
+
 3.1.5
 - Update WoW interface versions
 
