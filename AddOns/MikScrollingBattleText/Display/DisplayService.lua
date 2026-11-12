@@ -46,7 +46,13 @@ function DisplayService:DisplayEvent(eventSettings, message, texturePath, muteSo
 	end
 
 	isSticky = isSticky or eventSettings.alwaysSticky
-	self.config.display(
+	local display = self.config.display
+	if eventSettings.auraVisibility and self.config.displayWithVisibility then
+		display = function(...)
+			self.config.displayWithVisibility(eventSettings.auraVisibility, ...)
+		end
+	end
+	display(
 		message,
 		area,
 		isSticky,
@@ -114,7 +120,7 @@ function DisplayService:DisplayMessage(
 	colorB = NormalizeColor(colorB)
 
 	local profile = self.config.getProfile()
-	if fontSize == nil or fontSize < 4 or fontSize > 38 then
+	if fontSize == nil or fontSize < 4 or fontSize > 100 then
 		fontSize = area.normalFontSize or profile.normalFontSize
 	end
 

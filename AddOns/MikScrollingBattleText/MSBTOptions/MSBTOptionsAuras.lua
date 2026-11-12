@@ -106,9 +106,14 @@ function module.DisplayLine(line, id)
 	local settings = Tracking:GetSettings(Profiles.currentProfile, id)
 	line.colorSwatch:SetColor(settings.colorR or 1, settings.colorG or 1,
 		settings.colorB or 1)
-	local info = Spells:GetInfo(tonumber(id))
-	line.label:SetText((info and info.name or L.AURA_TRACKING_UNKNOWN)
-		.. " (" .. id .. ")")
+	local name = id:match("^name:(.+)$")
+	if name then
+		line.label:SetText(name .. " (" .. L.AURA_TRACKING_ALL_RANKS .. ")")
+	else
+		local info = Spells:GetInfo(tonumber(id))
+		line.label:SetText((info and info.name or L.AURA_TRACKING_UNKNOWN)
+			.. " (" .. id .. ")")
+	end
 end
 
 function module.Create(parent, refresh)

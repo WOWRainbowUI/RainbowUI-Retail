@@ -175,3 +175,51 @@ end
 function ns.ForgetSpellFacts(spell)
     if type(spell) == "number" then cache[spell] = nil end
 end
+
+-- What a spell of yours can be avoided with. Only a melee strike can be
+-- parried, and only a weapon attack (melee, or a hunter's shot at Auto Shot's
+-- range) dodged, blocked or deflected. A magic spell or debuff is resisted,
+-- immune, reflected or evaded instead: Hunter's Mark (100 yards) had been
+-- taking the pet's parries and the hunter's shots' dodges.
+-- Ranges come from C_Spell.GetSpellInfo; when they cannot be read, nothing is
+-- ruled out, so the engine behaves as before.
+local MELEE_REACH = 8
+local AUTO_SHOT = 75
+local PHYSICAL_AVOID = { DODGE = true, PARRY = true, BLOCK = true, DEFLECT = true }
+
+local function Readable(value) return not ns.Public or ns.Public(value) end
+
+local function MaxRange(spell)
+    if not (C_Spell and C_Spell.GetSpellInfo) then return nil end
+    local ok, info = pcall(C_Spell.GetSpellInfo, spell)
+    if not ok or type(info) ~= "table" or not Readable(info) then return nil end
+    local range = info.maxRange
+    if Readable(range) and type(range) == "number" and range >= 0 then return range end
+end
+
+-- "melee", "ranged" (a weapon shot), "spell", or nil when unknown.
+function ns.SpellReach(spell)
+    if type(spell) ~= "number" or not (C_Spell and C_Spell.SpellHasRange) then return nil end
+    local ok, hasRange = pcall(C_Spell.SpellHasRange, spell)
+    if not ok or not Readable(hasRange) or hasRange ~= true then return nil end
+    local range = MaxRange(spell)
+    if not range then return nil end
+    if range <= MELEE_REACH then return "melee" end
+    local _, class
+    if UnitClass then _, class = UnitClass("player") end
+    if class == "HUNTER" then
+        local shot = MaxRange(AUTO_SHOT)
+        if shot and math.abs(range - shot) < 0.5 then return "ranged" end
+    end
+    return "spell"
+end
+
+-- False when the spell can never have been answered with this avoid
+-- ("PARRY", "DODGE", ... as UNIT_COMBAT names them); true otherwise.
+function ns.SpellCanAvoid(spell, avoid)
+    if not PHYSICAL_AVOID[avoid] then return true end
+    local reach = ns.SpellReach(spell)
+    if reach == "spell" then return false end
+    if avoid == "PARRY" and reach == "ranged" then return false end
+    return true
+end

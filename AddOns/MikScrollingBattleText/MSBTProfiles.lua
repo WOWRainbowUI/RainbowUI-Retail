@@ -2931,6 +2931,10 @@ local function CommandHandler(params)
 
 		showUsage = false
 
+	elseif currentParam == "lootprofile" then
+		MikSBT.Loot.ProfileCommand(remainingParams)
+		showUsage = false
+
 	end
 
 	if (showUsage) then

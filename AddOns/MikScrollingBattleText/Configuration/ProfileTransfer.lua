@@ -15,6 +15,7 @@ local RETIRED_SETTINGS = {
 	enableBlizzardV2GroupDamage = true, enableBlizzardV2GroupHealing = true,
 }
 local RETIRED_EVENTS = {
+	NOTIFICATION_KILLING_BLOW = true,
 	NOTIFICATION_POWER_GAIN = true, NOTIFICATION_POWER_LOSS = true,
 	NOTIFICATION_ALT_POWER_GAIN = true, NOTIFICATION_ALT_POWER_LOSS = true,
 	NOTIFICATION_CHI_CHANGE = true, NOTIFICATION_CHI_FULL = true,
@@ -170,12 +171,21 @@ local function IsRecord(record)
 	return true
 end
 
+local function IsAuraKey(key)
+	if type(key) ~= "string" then return false end
+	if key:match("^[1-9]%d*$") then
+		return tonumber(key) <= 2147483647
+	end
+	local name = key:match("^name:(.+)$")
+	return name ~= nil and name == name:match("^%s*(.-)%s*$")
+		and not name:find("%c")
+end
+
 local function IsSetting(key, value, defaults)
 	if key == "auraSettings" then
 		if type(value) ~= "table" then return false end
 		for id, settings in pairs(value) do
-			if type(id) ~= "string" or not id:match("^[1-9]%d*$")
-				or tonumber(id) > 2147483647 or not IsRecord(settings) then
+			if not IsAuraKey(id) or not IsRecord(settings) then
 				return false
 			end
 		end
@@ -188,8 +198,7 @@ local function IsSetting(key, value, defaults)
 		end
 		if key == "auraTracking" then
 			for id in pairs(value) do
-				if type(id) ~= "string" or not id:match("^[1-9]%d*$")
-					or tonumber(id) > 2147483647 then return false end
+				if not IsAuraKey(id) then return false end
 			end
 		end
 		return true

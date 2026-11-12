@@ -332,7 +332,7 @@ obj["NOTIFICATION_REP_LOSS"]			= { label="声望下降", tooltip="显示你的�
 obj["NOTIFICATION_SKILL_GAIN"]			= { label="获得技能点", tooltip="显示你获得了技能点"}
 obj["NOTIFICATION_EXPERIENCE_GAIN"]		= { label="获得经验", tooltip="显示你获得了经验值"}
 obj["NOTIFICATION_PC_KILLING_BLOW"]		= { label="击杀玩家", tooltip="显示你击杀了一个敌对玩家"}
-obj["NOTIFICATION_NPC_KILLING_BLOW"]	= { label="击杀NPC", tooltip="显示你击杀了一个敌对NPC"}
+obj["NOTIFICATION_NPC_KILLING_BLOW"]	= { label="击杀NPC", tooltip="显示击杀 NPC 或目标类型未知的击杀通知。"}
 obj["NOTIFICATION_EXTRA_ATTACK"]		= { label="额外攻击", tooltip="显示你从风怒，痛击之刃，剑系掌握等方面获得了一次额外攻击"}
 obj["NOTIFICATION_ENEMY_BUFF"]			= { label="敌人获得Buff", tooltip="显示当前敌对目标获得的Buff"}
 obj["NOTIFICATION_MONSTER_EMOTE"]		= { label="怪物表情", tooltip="显示当前目标怪物表情"}
@@ -425,11 +425,12 @@ L.PROFILE_TRANSFER = {
 L.AURA_TRACKING_TITLE = "自定义光环显示在上方，取消勾选可隐藏。"
 L.AURA_TRACKING_INPUT = "光环法术 ID 或名称"
 L.AURA_TRACKING_ADD = "添加光环"
-L.AURA_TRACKING_HELP = "添加光环以隐藏其获得和消失通知。重新勾选即可恢复显示；未列出的光环仍会显示。单独过滤需要可读取的光环标识信息。"
+L.AURA_TRACKING_HELP = "输入游戏显示的完整法术名称，可隐藏所有等级的获得和消失通知。输入法术 ID 则只隐藏该 ID。请确认名称拼写。如果客户端支持，按名称排除也会隐藏受保护光环的文字和图标，并将所有以这种方式检查的受保护光环静音。按 ID 排除需要能读取法术 ID。勾选即可恢复显示。"
+L.AURA_TRACKING_ALL_RANKS = "所有等级"
 L.AURA_TRACKING_CHECKBOX = "显示此光环的获得和消失通知。"
 L.AURA_TRACKING_REMOVE = "移除此自定义规则，恢复正常追踪光环。"
 L.AURA_TRACKING_UNKNOWN = "未知光环"
-L.AURA_TRACKING_INVALID = "找不到光环。请输入有效的法术 ID 或完整法术名称。"
+L.AURA_TRACKING_INVALID = "请输入有效的法术 ID 或游戏显示的完整法术名称。"
 L.TABS["resetBlizzardSCT"] = { label="重置暴雪战斗文字", tooltip="启用暴雪伤害数字并停用 MSBT。" }
 L.CHECKBOXES["enableMSBT"] = { label="启用 MSBT 滚动战斗文字", tooltip="启用 MSBT 并关闭所有暴雪战斗文字。" }
 L.NOTIFICATION_EVENTS["NOTIFICATION_PROC"] = { label="技能触发", tooltip="显示高亮提示的技能触发。" }
