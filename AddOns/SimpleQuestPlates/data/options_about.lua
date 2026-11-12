@@ -31,7 +31,7 @@ function SQP:CreateAboutSection(content)
     local authorText = leftColumn:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     SQP:ApplyDefaultFont(authorText)
     authorText:SetPoint("TOPLEFT", 20, yOffset)
-    authorText:SetText("|cff888888By DonnieDice - donniedice@protonmail.com|r")
+    authorText:SetText("|cff888888By DonnieDice - 60427166+donniedice@users.noreply.github.com|r")
     yOffset = yOffset - 26
 
     -- Description

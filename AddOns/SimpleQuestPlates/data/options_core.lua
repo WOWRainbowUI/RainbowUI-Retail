@@ -20,8 +20,22 @@ function SQP:CreateOptionsPanel()
     -- One-time font designation for this addon (elements, buttons, and text
     -- all render through RGXFonts:GetDefault()).
     local Fonts = _G.RGXFonts
+    -- The colour choice from the RGX-Framework settings page (Theme tab) wins over SQP's own green. Read once
+    -- here, before the panel is built; a change on that page applies after a reload like the rest of the theme.
+    local function ChosenFrameworkTheme()
+        local db = _G.RGXFrameworkDB
+        local preset = type(db) == "table" and db.themePreset
+        local D = _G.RGXDesign
+        local chosen = preset and D and D.THEME_PRESETS and D.THEME_PRESETS[preset]
+        if type(chosen) ~= "table" or type(chosen.primary) ~= "table" then return nil end
+        return chosen
+    end
+    local FrameworkTheme = ChosenFrameworkTheme()
+    local function Pair(c) return { c[1], c[2], c[3] } end
+    local PRIMARY = FrameworkTheme and Pair(FrameworkTheme.primary) or { 0.345, 0.745, 0.506 }
+    local ACCENT  = FrameworkTheme and FrameworkTheme.accent and Pair(FrameworkTheme.accent) or { 0.737, 0.435, 0.659 }
     if RGX and type(RGX.SetHighlightColor) == "function" then
-        pcall(function() RGX:SetHighlightColor({ 0.345, 0.745, 0.506 }, { 0.737, 0.435, 0.659 }) end)
+        pcall(function() RGX:SetHighlightColor(PRIMARY, ACCENT) end)
     end
     if Fonts and type(Fonts.SetDefault) == "function" then
         pcall(function()
@@ -34,10 +48,10 @@ function SQP:CreateOptionsPanel()
         return
     end
 
-    -- SQP brand green (#58be81) on this addon's UI only. Hardcoded: core.lua
+    -- SQP brand green (#58be81) on this addon's UI only unless the operator chose a framework colour (above). Hardcoded default: core.lua
     -- also writes SQP.SECTION_COLOR ("RGX Blue") and load order decides who
     -- survives, so do not read it at runtime.
-    local BrandTheme = { primary = { 0.345, 0.745, 0.506 }, accent = { 0.737, 0.435, 0.659 } }
+    local BrandTheme = { primary = PRIMARY, accent = ACCENT }
     SQP.optionsTheme = BrandTheme
     local Design = _G.RGXDesign
     local function WithBrand(fn)
