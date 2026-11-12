@@ -1,8 +1,10 @@
 # Coolinator
 
-## [170](https://github.com/TheMouseNest/Coolinator/tree/170) (2026-11-06)
-[Full Changelog](https://github.com/TheMouseNest/Coolinator/compare/169...170) 
+## [171](https://github.com/TheMouseNest/Coolinator/tree/171) (2026-11-11)
+[Full Changelog](https://github.com/TheMouseNest/Coolinator/compare/170...171) 
 
-- Fix "Aura (when missing)" icons  
-- Update hunter spell data  
-- Fix Mark of the Wild spell ID for aura  
+- Tweaks to shaman data  
+- Forever: Update Shaman data  
+- Attempt to fix missing items after a loading screen  
+- Prevent showing "Target (Attack)" visibility groups if the target is dead  
+- Update Druid spell data  

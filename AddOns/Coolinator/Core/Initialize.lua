@@ -112,11 +112,11 @@ frame:SetScript("OnEvent", function(_, eventName, data1, data2)
   elseif eventName == "PLAYER_ENTERING_WORLD"  then
     C_Timer.After(0, function()
       frame:RegisterUnitEvent("UNIT_INVENTORY_CHANGED", "player")
+      if not data1 and not data2 then
+        addonTable.CallbackRegistry:TriggerEvent("Layout")
+        addonTable.CallbackRegistry:TriggerEvent("Designer.Layout")
+      end
     end)
-    if not data1 and not data2 then
-      addonTable.CallbackRegistry:TriggerEvent("Layout")
-      addonTable.CallbackRegistry:TriggerEvent("Designer.Layout")
-    end
   elseif eventName == "PVP_MATCH_STATE_CHANGED" then
     addonTable.CallbackRegistry:TriggerEvent("Layout")
   elseif eventName == "UPDATE_BINDINGS" or eventName == "ACTIONBAR_SLOT_CHANGED" or eventName == "UPDATE_MACROS" or eventName == "UPDATE_SHAPESHIFT_FORM" then
