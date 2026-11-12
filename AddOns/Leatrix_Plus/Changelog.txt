@@ -1,4 +1,11 @@
-﻿12.1.16 - 3rd November 2026
+﻿12.1.17 - 11th November 2026
+- For 'Enhance minimap' ('Interface'), added 'Show header on hover'.  If checked, the header will only be shown while the pointer is over the minimap or header.  Also added 'Header opacity' slider.  Also tidied the header bar up a bit.
+- The 'Show info card' option ('Interface') now works with dungeon icons on zone maps and boss icons on dungeon maps.
+- Added a new option 'Set keybindings' ('Settings') which replaces the previous way of setting addon related keybindings.
+- For 'Recent chat window' ('Chat') the window design has been updated.  It now shows the chat tab name and number of hidden messages, you can hold alt and drag the title bar to move the window, you can hold shift to scroll a page at a time or control to jump to the top or bottom of the chat history and there is a help button to remind you of the controls.  Web links, emails and battletags are now highlighted, you can click them and press CTRL/C to copy them to the clipboard.  You can click character names to copy them too.  You can now expand the window size to the top of your screen.  You can search recent chat using a new search box.  Added a refresh button to show new messages and a select all messages button.  Added a font size menu for the recent chat window.  You can now set a keybind to toggle the recent chat window.  Removed the chat tab right-click entry for recent chat window.
+- For 'Show info cards' ('Interface'), if the info card is for an NPC, pet, mount or player, a sounds button in the info card will let you listen to or mute the sounds that it makes (requires latest release of Leatrix Sounds).
+
+12.1.16 - 3rd November 2026
 - Fixed an issue with 'More chat font sizes' ('Chat') which caused the communities and guild chat font size to reset sometimes.
 - For 'Show info cards' ('Interface'), fixed an issue which caused CTRL/C to not copy the link if your info card key included CTRL and you had not released CTRL first.
 - For 'Class colored frames' ('Frames'), you can now set the frame border and player chain (if you use that option) to be in class color too.
