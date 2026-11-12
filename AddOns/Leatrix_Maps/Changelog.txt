@@ -1,4 +1,10 @@
-﻿12.1.16 - 3rd November 2026
+﻿12.1.17 - 11th November 2026
+- Added new 'Simple map frame' themes called 'Glass', 'Retro TV' with functional controls and 'Games' which includes a playable minigame called Gemfall.
+- Added a new option 'Set keybindings' ('Settings') which replaces the previous way of setting addon related keybindings.
+- Updated the 'Enhance battlefield map' panel design.  Removed the 'Center map on player' setting from 'Enhance battlefield map' to prevent issues.  Updated battlefield map reveal code for same reason.
+- For 'Unlock map frame', the map can now be dragged completely off-screen while dragging.  It will bounce back a little when you let go of the mouse button.
+
+12.1.16 - 3rd November 2026
 - For 'Use simple map frame', added 'Show zone menus'.  Note that the menu items cannot be clicked while in combat.
 - Added theme support for the world map.  There is a theme dropdown in the configuration panel.
 

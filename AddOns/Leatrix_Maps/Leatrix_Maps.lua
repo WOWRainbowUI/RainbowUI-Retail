@@ -1,6 +1,6 @@
 ﻿
 	----------------------------------------------------------------------
-	-- 	Leatrix Maps 12.1.16 (3rd November 2026)
+	-- 	Leatrix Maps 12.1.17 (11th November 2026)
 	----------------------------------------------------------------------
 
 	-- 10:Func, 20:Comm, 30:Evnt, 40:Panl
@@ -16,7 +16,7 @@
 	local LeaMapsLC, LeaMapsCB, LeaConfigList, LeaLockList = {}, {}, {}, {}
 
 	-- Version
-	LeaMapsLC["AddonVer"] = "12.1.16"
+	LeaMapsLC["AddonVer"] = "12.1.17"
 
 	-- Get locale table
 	local void, Leatrix_Maps = ...
@@ -39,9 +39,6 @@
 
 	-- Check for addons
 	if C_AddOns.IsAddOnLoaded("ElvUI") then LeaMapsLC.ElvUI = unpack(ElvUI) end
-
-	-- Set bindings translations
-	_G.BINDING_NAME_LEATRIX_MAPS_GLOBAL_TOGGLE = L["Toggle panel"]
 
 	-- Create a random global name that changes every time the addon loads
 	function LeaMapsLC:CreateRandomName()
@@ -244,8 +241,8 @@
 
 		-- Set the list colors (background, border and row highlight, used by the map theme)
 		-- (rowFunc is optional, it is called with the row number and row count and returns a highlight color for that row)
-		function popup:SetColors(bgR, bgG, bgB, borderR, borderG, borderB, hlR, hlG, hlB, rowFunc)
-			list:SetBackdropColor(bgR, bgG, bgB, 0.97)
+		function popup:SetColors(bgR, bgG, bgB, borderR, borderG, borderB, hlR, hlG, hlB, rowFunc, bgA)
+			list:SetBackdropColor(bgR, bgG, bgB, bgA or 0.97)
 			for i = 1, #borderLines do borderLines[i]:SetVertexColor(borderR, borderG, borderB, 1) end
 			highlightColor = {hlR, hlG, hlB}
 			rowColorFunc = rowFunc
@@ -501,7 +498,7 @@
 				local function SetSearchBg(focused)
 					local color = focused and mapTheme.searchFocused or mapTheme.searchNormal
 					if color then
-						searchBg:SetColorTexture(color[1], color[2], color[3], 1)
+						searchBg:SetColorTexture(color[1], color[2], color[3], color[4] or 1)
 					elseif focused then
 						searchBg:SetColorTexture(0.19, 0.18, 0.17, 1)
 					else
@@ -570,8 +567,21 @@
 				if footer and WorldMapFrame:IsMaximized() then
 					-- Maximised map fills the screen so the coordinates footer goes inside the bottom of the map
 					footer:ClearAllPoints()
+					-- (it stops short of the quest log toggle button in the bottom right corner so the button can be seen and
+					-- clicked, the button is only looked at, never changed)
+					local gap = 0
+					local toggle = WorldMapFrame.SidePanelToggle
+					if not toggle then
+						for void, frame in ipairs(WorldMapFrame.overlayFrames or {}) do
+							if frame.OpenButton and frame.CloseButton then toggle = frame break end
+						end
+					end
+					if toggle and toggle:IsShown() then
+						local width = toggle:GetWidth()
+						gap = (width and not (issecretvalue and issecretvalue(width)) and width or 32) + 4
+					end
 					footer:SetPoint("BOTTOMLEFT", WorldMapFrame.ScrollContainer, "BOTTOMLEFT", 0, 0)
-					footer:SetPoint("BOTTOMRIGHT", WorldMapFrame.ScrollContainer, "BOTTOMRIGHT", 0, 0)
+					footer:SetPoint("BOTTOMRIGHT", WorldMapFrame.ScrollContainer, "BOTTOMRIGHT", -gap, 0)
 					mapTheme.PlaceCoords(true)
 					borderFrame:SetPoint("BOTTOMRIGHT", WorldMapFrame.ScrollContainer, "BOTTOMRIGHT", edgeQuestWidth + px, -px)
 				elseif footer then
@@ -584,14 +594,80 @@
 				else
 					borderFrame:SetPoint("BOTTOMRIGHT", WorldMapFrame.ScrollContainer, "BOTTOMRIGHT", edgeQuestWidth + px, -px)
 				end
+				local pads = mapTheme.pads -- Casing round the border (Retro TV and Handheld themes), left, right, top and bottom
+				local pl, pr, pt, pb = 0, 0, 0, 0
+				if pads then pl, pr, pt, pb = pads[1], pads[2], pads[3], pads[4] end
 				for i = 1, #edgeTextures do
 					local out = (i == 5 and 1 or 6 - i) * px -- Edge 1 pixel out, shadow 2 to 5 pixels out
 					local tex = edgeTextures[i]
 					tex:ClearAllPoints()
-					tex:SetPoint("TOPLEFT", borderFrame, "TOPLEFT", -out, out)
-					tex:SetPoint("BOTTOMRIGHT", borderFrame, "BOTTOMRIGHT", out, -out)
+					tex:SetPoint("TOPLEFT", borderFrame, "TOPLEFT", -out - pl, out + pt)
+					tex:SetPoint("BOTTOMRIGHT", borderFrame, "BOTTOMRIGHT", out + pr, -out - pb)
+				end
+				-- Glass theme rim is 1 screen pixel wide
+				if mapTheme.SizeGlassRim then mapTheme.SizeGlassRim(px) end
+				-- Clickable area for themes with a casing
+				if LeaMapsLC.SetCasingHitRect then LeaMapsLC.SetCasingHitRect() end
+			end
+
+			-- Map frame clickable area for themes with a casing (Retro TV and Handheld). The casing is outside the map frame,
+			-- so while one of those themes is used the clickable area is made to match the border plus the casing (plus the
+			-- Unlock map frame grab area when frame movement is on), so clicking the casing doesn't click the game world.
+			-- Other themes keep the normal clickable area (Unlock map frame sets it, or it's put back to what it was). It's
+			-- not changed while the map frame can't be changed (in combat when it's protected), it's set again when combat
+			-- ends. It's set now and once more on the next frame, after the game has finished laying out the map.
+			local casingHitSet, casingHitQueued, casingHitSaved
+			local function SetCasingHitRectNow()
+				local pads = mapTheme.pads
+				if not pads then
+					-- Not a casing theme, put the normal clickable area back if a casing theme changed it
+					if casingHitSet and LeaMapsLC:CanChangeMap() then
+						casingHitSet = nil
+						if LeaMapsLC.RestoreMapHitRect then
+							LeaMapsLC.RestoreMapHitRect()
+						elseif casingHitSaved then
+							WorldMapFrame:SetHitRectInsets(casingHitSaved[1], casingHitSaved[2], casingHitSaved[3], casingHitSaved[4])
+						else
+							WorldMapFrame:SetHitRectInsets(0, 0, 0, 0)
+						end
+					end
+					return
+				end
+				if not LeaMapsLC:CanChangeMap() then return end
+				local mL, mR, mT, mB = WorldMapFrame:GetLeft(), WorldMapFrame:GetRight(), WorldMapFrame:GetTop(), WorldMapFrame:GetBottom()
+				local bL, bR, bT, bB = borderFrame:GetLeft(), borderFrame:GetRight(), borderFrame:GetTop(), borderFrame:GetBottom()
+				if not (mL and mR and mT and mB and bL and bR and bT and bB) then return end
+				if issecretvalue then
+					for void, v in ipairs({mL, mR, mT, mB, bL, bR, bT, bB}) do
+						if issecretvalue(v) then return end -- Can be secret in combat
+					end
+				end
+				-- Keep the clickable area from before the first change (used to put it back if Unlock map frame is off)
+				if not casingHitSaved and not LeaMapsLC.RestoreMapHitRect then
+					local l, r, t, b = WorldMapFrame:GetHitRectInsets()
+					if l and not (issecretvalue and (issecretvalue(l) or issecretvalue(r) or issecretvalue(t) or issecretvalue(b))) then
+						casingHitSaved = {l, r, t, b}
+					end
+				end
+				local grab = (LeaMapsLC["UnlockMap"] == "On" and LeaMapsLC["EnableMovement"] == "On") and 10 or 0
+				WorldMapFrame:SetHitRectInsets(bL - mL - grab - pads[1], mR - bR - grab - pads[2], mT - bT - grab - pads[3], bB - mB - grab - pads[4])
+				casingHitSet = true
+			end
+			local function CasingHitQueued()
+				casingHitQueued = nil
+				SetCasingHitRectNow()
+			end
+			LeaMapsLC.SetCasingHitRect = function()
+				SetCasingHitRectNow()
+				if not casingHitQueued then
+					casingHitQueued = true
+					C_Timer.After(0, CasingHitQueued)
 				end
 			end
+			-- Set it again when combat ends (in case it couldn't be changed during combat)
+			LeaMapsLC:AddMapLock(function(lock)
+				if not lock then LeaMapsLC.SetCasingHitRect() end
+			end)
 
 			-- Make an edge function available to code that changes the map scale. It sets the edge now and once more on
 			-- the next frame, after the game has finished laying out the scaled map. Only one next-frame pass is queued
@@ -665,6 +741,19 @@
 					QuestScrollFrame:ClearAllPoints()
 					QuestScrollFrame:SetPoint("TOPLEFT", QuestScrollFrame:GetParent(), "TOPLEFT", 0, -50)
 					QuestScrollFrame:SetPoint("BOTTOMRIGHT", QuestScrollFrame:GetParent(), "BOTTOMRIGHT", 0, 0)
+
+					-- Move map legend and events under the title bar too (the same as the quest list, their own title then sits
+					-- behind the title bar instead of poking out above the map frame)
+					local contents = QuestMapFrame.ContentsAnchor
+					if contents then
+						for void, frame in ipairs({QuestMapFrame.MapLegend, QuestMapFrame.EventsFrame}) do
+							if frame and CanChange(frame) then
+								frame:ClearAllPoints()
+								frame:SetPoint("TOPLEFT", contents, "TOPLEFT", 0, -50)
+								frame:SetPoint("BOTTOMRIGHT", contents, "BOTTOMRIGHT", -22, 0)
+							end
+						end
+					end
 
 					-- Move quest details under the title bar and shorten it so the bottom stays in place
 					local detailsFrame = QuestMapFrame.DetailsFrame
@@ -763,6 +852,24 @@
 				{color = {0.30, 0.85, 0.25}},
 				-- 11: Rainbow (dark rainbow from left to right, violet accent to match the right-hand end)
 				{rainbow = true, bgBottom = {0.04, 0.04, 0.04}, bgTop = {0.09, 0.09, 0.09}, accent = {0.65, 0.40, 1}, hover = {1, 1, 1, 0.15}},
+				-- Themes 13 to 15 have the same numbers as in the other game versions (12 is a theme those versions have).
+				-- 13: Glass (see-through frosted title bar and coordinates background with a bright rim and a light reflection,
+				-- the game world shows through behind them, the map itself stays solid). bgBottom and bgTop have an alpha
+				-- value, icon and box are the title bar button colors, list is the zone list and dungeon level menu colors
+				-- (background, border and background alpha), search is the quest search box colors (normal and typing).
+				[13] = {glass = true, bgBottom = {0.10, 0.12, 0.16, 0.50}, bgTop = {0.32, 0.37, 0.45, 0.40},
+				accent = {0.85, 0.90, 1}, hover = {1, 1, 1, 0.18}, icon = {0.90, 0.94, 1}, box = {1, 1, 1, 0.22},
+				list = {0.08, 0.10, 0.14, 0.75, 0.82, 0.92, 0.82}, search = {{0, 0, 0, 0.35}, {0, 0, 0, 0.55}}},
+				-- 14: Handheld (the map is the screen of a chunky games handheld held sideways: a rounded charcoal black plastic
+				-- body, a dark screen surround with a red power light, a D-pad on the left, A and B buttons and speaker holes
+				-- on the right). pads is the body size on the left, right, top and bottom.
+				[14] = {handheld = true, pads = {96, 96, 18, 30}, bgBottom = {0.07, 0.07, 0.09}, bgTop = {0.12, 0.115, 0.15}, accent = {0.80, 0.45, 0.70}, hover = {0.90, 0.55, 0.80, 0.20}, icon = {0.88, 0.85, 0.94},
+				list = {0.12, 0.11, 0.15, 0.62, 0.58, 0.72, 0.97}},
+				-- 15: Retro TV (the map is the screen of an old wooden TV: a wood casing with a dark bezel, a side panel with
+				-- two knobs, a speaker grille and a power light, and scanlines, a dark vignette and a glass glare on the
+				-- screen). pads is the casing size on the left, right, top and bottom.
+				[15] = {tv = true, pads = {12, 62, 12, 16}, bgBottom = {0.04, 0.04, 0.04}, bgTop = {0.08, 0.08, 0.08}, accent = {0.80, 0.62, 0.30}, hover = {1, 0.85, 0.55, 0.15},
+				list = {0.16, 0.10, 0.05, 0.80, 0.62, 0.30, 0.97}},
 			}
 
 			-- Rainbow colors (left to right) and how dark they are drawn so the text stays readable
@@ -829,6 +936,3278 @@
 				if show then rainbow.shade:Show() else rainbow.shade:Hide() end
 			end
 
+			-- Glass theme parts (a 1 pixel rim round the frame and a light reflection on the top of the title bar, created
+			-- the first time the theme is used)
+			local glassRim, glassSheen, glassPx = nil, nil, 1
+
+			-- Function to set the rim to 1 screen pixel (runs from SetPixelEdges)
+			local function SizeGlassRim(px)
+				glassPx = px
+				if not glassRim then return end
+				local top, bottom, left, right = glassRim[1], glassRim[2], glassRim[3], glassRim[4]
+				top:ClearAllPoints(); top:SetPoint("TOPLEFT", borderFrame); top:SetPoint("TOPRIGHT", borderFrame); top:SetHeight(px)
+				bottom:ClearAllPoints(); bottom:SetPoint("BOTTOMLEFT", borderFrame); bottom:SetPoint("BOTTOMRIGHT", borderFrame); bottom:SetHeight(px)
+				left:ClearAllPoints(); left:SetPoint("TOPLEFT", borderFrame, 0, -px); left:SetPoint("BOTTOMLEFT", borderFrame, 0, px); left:SetWidth(px)
+				right:ClearAllPoints(); right:SetPoint("TOPRIGHT", borderFrame, 0, -px); right:SetPoint("BOTTOMRIGHT", borderFrame, 0, px); right:SetWidth(px)
+			end
+			mapTheme.SizeGlassRim = SizeGlassRim
+
+			-- Function to show or hide the Glass theme (the frame background, edge and shadow are removed so the game world
+			-- shows through the see-through title bar and coordinates background)
+			local function SetGlass(show)
+				if show and not glassRim then
+					glassRim = {}
+					for i = 1, 4 do
+						glassRim[i] = borderFrame:CreateTexture(nil, "BORDER")
+						glassRim[i]:SetTexture("Interface\\Buttons\\WHITE8X8")
+						glassRim[i]:SetVertexColor(1, 1, 1, 0.55)
+					end
+					SizeGlassRim(glassPx)
+					glassSheen = titleFrame:CreateTexture(nil, "BACKGROUND", nil, 4)
+					glassSheen:SetTexture("Interface\\Buttons\\WHITE8X8")
+					glassSheen:SetPoint("TOPLEFT"); glassSheen:SetPoint("TOPRIGHT")
+					glassSheen:SetHeight(11)
+					glassSheen:SetGradient("VERTICAL", CreateColor(1, 1, 1, 0), CreateColor(1, 1, 1, 0.12))
+				end
+				if glassRim then
+					for i = 1, 4 do glassRim[i]:SetShown(show) end
+					glassSheen:SetShown(show)
+				end
+				borderFrame:SetBackdropColor(0, 0, 0, show and 0 or 0.9)
+				-- The Blizzard theme hides the edge and shadow for its own art
+				if not mapTheme.blizzard then
+					for i = 1, #edgeTextures do edgeTextures[i]:SetShown(not show) end
+				end
+			end
+
+			-- Retro TV theme (created the first time the theme is used). The casing, bezel, knobs, grille and power light are
+			-- textures on the border frame (the lowest part of the map frame, so the map and bars always draw above them).
+			-- The scanlines, vignette and glare are on a frame of our own over the map (it takes no mouse clicks).
+			local tvParts, tvScreen, tvScanlines = nil, nil, {}
+			local tvPowerRing, tvPowerPointer, tvLight, tvGlow -- Power knob ring and pointer, power light and its glow
+			local tvHoldRing, tvHoldPointer -- Vertical hold knob ring and pointer
+			local tvWhite = "Interface\\Buttons\\WHITE8X8"
+
+			-- Function to create a texture on the border frame
+			local function TVTexture(layer, sublevel, r, g, b, a)
+				local t = borderFrame:CreateTexture(nil, layer, nil, sublevel)
+				t:SetTexture(tvWhite)
+				t:SetVertexColor(r, g, b, a)
+				tvParts[#tvParts + 1] = t
+				return t
+			end
+
+			-- Function to make a texture round (square if the game's round mask is not in the client)
+			local function MakeRound(t)
+				if not borderFrame.CreateMaskTexture then return end
+				local mask = borderFrame:CreateMaskTexture()
+				mask:SetTexture("Interface\\CharacterFrame\\TempPortraitAlphaMask", "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
+				mask:SetAllPoints(t)
+				t:AddMaskTexture(mask)
+			end
+
+			-- Function to create a knob (dark ring, metal face, center cap and a pointer at an angle in degrees)
+			local function CreateKnob(y, angle)
+				local ring = TVTexture("ARTWORK", 0, 0.10, 0.07, 0.05, 1)
+				ring:SetSize(36, 36)
+				ring:SetPoint("CENTER", borderFrame, "TOPRIGHT", 36, y)
+				MakeRound(ring)
+				local face = TVTexture("ARTWORK", 1, 1, 1, 1, 1)
+				face:SetSize(30, 30)
+				face:SetPoint("CENTER", ring)
+				face:SetGradient("VERTICAL", CreateColor(0.28, 0.26, 0.23, 1), CreateColor(0.68, 0.64, 0.57, 1))
+				MakeRound(face)
+				local cap = TVTexture("ARTWORK", 2, 0.20, 0.18, 0.16, 1)
+				cap:SetSize(10, 10)
+				cap:SetPoint("CENTER", ring)
+				MakeRound(cap)
+				local pointer = borderFrame:CreateLine(nil, "ARTWORK", nil, 3)
+				pointer:SetThickness(2)
+				pointer:SetColorTexture(0.95, 0.92, 0.85, 1)
+				local rad = math.rad(angle)
+				pointer:SetStartPoint("CENTER", ring, math.cos(rad) * 5, math.sin(rad) * 5)
+				pointer:SetEndPoint("CENTER", ring, math.cos(rad) * 13, math.sin(rad) * 13)
+				tvParts[#tvParts + 1] = pointer
+				return ring, pointer
+			end
+
+			-- Function to lay out the scanlines (one line every 3 units down the screen, more are made if the map gets taller)
+			local function LayoutScanlines()
+				if not tvScreen or not tvScreen:IsShown() then return end
+				local h = tvScreen:GetHeight()
+				if not h or (issecretvalue and issecretvalue(h)) or h <= 0 then return end
+				local count = math.floor(h / 3)
+				for i = 1, count do
+					local line = tvScanlines[i]
+					if not line then
+						line = tvScreen:CreateTexture(nil, "ARTWORK")
+						line:SetTexture(tvWhite)
+						line:SetVertexColor(0, 0, 0, 0.13)
+						line:SetPoint("TOPLEFT", 0, -3 * i)
+						line:SetPoint("TOPRIGHT", 0, -3 * i)
+						line:SetHeight(1)
+						tvScanlines[i] = line
+					end
+					line:Show()
+				end
+				for i = count + 1, #tvScanlines do tvScanlines[i]:Hide() end
+			end
+
+			-- Power knob (the top knob turns the TV off and on like an old TV: turning it off squeezes the picture into a
+			-- bright line, then into a dot that fades away, turning it on draws the dot out into a line that opens up into
+			-- the picture). The map stays open. While the TV is off the screen is covered by a frame of our own which takes
+			-- the mouse, so nothing on the dark screen can be clicked by mistake. The TV is always on when the map is opened.
+			-- The animation runs in an OnUpdate that is only set while it plays (about half a second).
+			local tvPower, tvPowerParts, tvPowerButton, tvPowerHighlight
+			local tvPowerOn, tvPowerAnim, tvPowerTime, tvPowerResetting = true, nil, 0, false
+
+			-- Function to ease a value from 0 to 1 (fast at the start, slow at the end)
+			local function PowerEase(f) return 1 - (1 - f) * (1 - f) end
+
+			-- Function to set the knob pointer and power light for on or off
+			local function SetPowerKnob(on)
+				local rad = math.rad(on and 120 or 210)
+				tvPowerPointer:SetStartPoint("CENTER", tvPowerRing, math.cos(rad) * 5, math.sin(rad) * 5)
+				tvPowerPointer:SetEndPoint("CENTER", tvPowerRing, math.cos(rad) * 13, math.sin(rad) * 13)
+				if on then tvLight:SetVertexColor(1, 0.30, 0.15, 1) else tvLight:SetVertexColor(0.25, 0.08, 0.05, 1) end
+				tvGlow:SetAlpha(on and 1 or 0)
+			end
+
+			-- Function to draw the screen cover (bg: dark screen, cv: height of the dark top and bottom, ch: width of the
+			-- dark left and right, bw, bh and ba: size and alpha of the bright band in the middle, ds and da: size and alpha
+			-- of the bright dot in the middle)
+			local function PowerDraw(bg, cv, ch, bw, bh, ba, ds, da)
+				local p = tvPowerParts
+				p.bg:SetShown(bg)
+				p.top:SetShown(cv > 0); p.bottom:SetShown(cv > 0)
+				if cv > 0 then p.top:SetHeight(cv); p.bottom:SetHeight(cv) end
+				p.left:SetShown(ch > 0); p.right:SetShown(ch > 0)
+				if ch > 0 then p.left:SetWidth(ch); p.right:SetWidth(ch) end
+				p.band:SetShown(ba > 0)
+				if ba > 0 then p.band:SetSize(math.max(bw, 1), math.max(bh, 1)); p.band:SetAlpha(ba) end
+				p.dot:SetShown(da > 0); p.glow:SetShown(da > 0)
+				if da > 0 then p.dot:SetSize(ds, ds); p.dot:SetAlpha(da); p.glow:SetAlpha(da * 0.6) end
+			end
+
+			-- Function to play the animation (runs every frame while it plays)
+			local function PowerUpdate(self, elapsed)
+				tvPowerTime = tvPowerTime + elapsed
+				local t = tvPowerTime
+				local w, h = self:GetWidth(), self:GetHeight()
+				if not w or not h or (issecretvalue and (issecretvalue(w) or issecretvalue(h))) then
+					w, h, t = 0, 0, 99 -- Size can't be read so skip to the end
+				end
+				if tvPowerAnim == "off" then
+					if t < 0.15 then
+						-- Picture squeezes into a bright line
+						local f = PowerEase(t / 0.15)
+						local gap = h * (1 - f) + 2 * f
+						PowerDraw(false, (h - gap) / 2, 0, w, gap, 0.85 * f, 0, 0)
+					elseif t < 0.30 then
+						-- Line shrinks to a dot
+						local f = PowerEase((t - 0.15) / 0.15)
+						local bw = w * (1 - f) + 6 * f
+						PowerDraw(false, (h - 2) / 2, (w - bw) / 2, bw, 2, 1, 0, 0)
+					elseif t < 0.65 then
+						-- Dot fades away
+						local f = (t - 0.30) / 0.35
+						PowerDraw(true, 0, 0, 0, 0, 0, 7 - 3 * f, 1 - f)
+					else
+						PowerDraw(true, 0, 0, 0, 0, 0, 0, 0)
+						tvPowerAnim = nil
+						self:SetScript("OnUpdate", nil)
+					end
+				elseif tvPowerAnim == "on" then
+					if t < 0.12 then
+						-- Dot lights up
+						PowerDraw(true, 0, 0, 0, 0, 0, 7, t / 0.12)
+					elseif t < 0.26 then
+						-- Dot draws out into a line
+						local f = PowerEase((t - 0.12) / 0.14)
+						PowerDraw(true, 0, 0, 6 + (w - 6) * f, 2, 1, 0, 0)
+					elseif t < 0.44 then
+						-- Line opens up into the picture
+						local f = PowerEase((t - 0.26) / 0.18)
+						local gap = 2 + (h - 2) * f
+						PowerDraw(false, (h - gap) / 2, 0, w, gap, 0.9 - 0.55 * f, 0, 0)
+					elseif t < 0.60 then
+						-- Bright picture settles down
+						PowerDraw(false, 0, 0, w, h, 0.35 * (1 - (t - 0.44) / 0.16), 0, 0)
+					else
+						tvPowerAnim = nil
+						self:SetScript("OnUpdate", nil)
+						self:Hide()
+					end
+				end
+			end
+
+			-- Power knob sounds (game sound files, each is the file ID, when it starts and, if it's a long one, when it fades
+			-- out, in seconds from the click). Off: knob click, a tube shutting down and static fading with the dot. On: knob
+			-- click, a small spark as the tube warms up and a burst of radio static as the picture opens up.
+			local tvPowerSounds = {
+				off = {{567407, 0}, {566159, 0.02, 0.40}, {569693, 0.12, 0.40}},		-- uchatscrollbutton, collectortubeshutdown, uni_fx_radiostatic_01
+				on = {{567407, 0}, {2428610, 0.05}, {568039, 0.24, 0.75}},		-- uchatscrollbutton, fx_spark_cast_small_01, uni_fx_radiostatic_02
+			}
+
+			-- Function to play one power knob sound (fades it out after stopAfter seconds if it's a long one)
+			local function PlayPowerSound(fileID, stopAfter)
+				local willPlay, handle = PlaySoundFile(fileID, "Master")
+				if willPlay and handle and stopAfter then
+					C_Timer.After(stopAfter, function() StopSound(handle, 250) end)
+				end
+			end
+
+			-- Function to play the power knob sounds for turning the TV on or off
+			local function PlayPowerSounds(on)
+				for void, sound in ipairs(tvPowerSounds[on and "on" or "off"]) do
+					local fileID, start, stop = sound[1], sound[2], sound[3]
+					if start > 0 then
+						C_Timer.After(start, function() PlayPowerSound(fileID, stop and stop - start) end)
+					else
+						PlayPowerSound(fileID, stop)
+					end
+				end
+			end
+
+			-- Function to turn the TV off or on (a turn of the knob is ignored while the last one is still playing)
+			local function TogglePower()
+				if tvPowerAnim then return end
+				tvPowerOn = not tvPowerOn
+				SetPowerKnob(tvPowerOn)
+				PlayPowerSounds(tvPowerOn)
+				tvPowerAnim = tvPowerOn and "on" or "off"
+				tvPowerTime = 0
+				tvPower:Show()
+				tvPower:SetScript("OnUpdate", PowerUpdate)
+				PowerUpdate(tvPower, 0)
+			end
+
+			-- Function to turn the TV back on straight away (when the map is closed or the theme is changed)
+			local function ResetPower()
+				if not tvPower or tvPowerResetting then return end
+				tvPowerResetting = true
+				tvPowerOn, tvPowerAnim = true, nil
+				tvPower:SetScript("OnUpdate", nil)
+				tvPower:Hide()
+				SetPowerKnob(true)
+				tvPowerResetting = false
+			end
+
+			-- Function to create the screen cover and the knob button
+			local function CreatePower()
+				-- Screen cover (over the whole screen inside the bezel: title bar, map, quest log and coordinates)
+				tvPower = CreateFrame("Frame", nil, WorldMapFrame)
+				tvPower:SetFrameStrata("HIGH")
+				tvPower:SetFrameLevel(math.min(frameLevel + 20, 10000))
+				tvPower:SetAllPoints(borderFrame)
+				tvPower:EnableMouse(true)
+				tvPower:Hide()
+				local function PowerTexture(layer, sublevel, r, g, b)
+					local t = tvPower:CreateTexture(nil, layer, nil, sublevel)
+					t:SetTexture(tvWhite)
+					t:SetVertexColor(r, g, b, 1)
+					return t
+				end
+				local function PowerRound(t)
+					if not tvPower.CreateMaskTexture then return end
+					local mask = tvPower:CreateMaskTexture()
+					mask:SetTexture("Interface\\CharacterFrame\\TempPortraitAlphaMask", "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
+					mask:SetAllPoints(t)
+					t:AddMaskTexture(mask)
+				end
+				local p = {}
+				p.bg = PowerTexture("BACKGROUND", 0, 0.015, 0.015, 0.02)
+				p.bg:SetAllPoints()
+				p.top = PowerTexture("BORDER", 0, 0.015, 0.015, 0.02)
+				p.top:SetPoint("TOPLEFT"); p.top:SetPoint("TOPRIGHT")
+				p.bottom = PowerTexture("BORDER", 0, 0.015, 0.015, 0.02)
+				p.bottom:SetPoint("BOTTOMLEFT"); p.bottom:SetPoint("BOTTOMRIGHT")
+				p.left = PowerTexture("BORDER", 0, 0.015, 0.015, 0.02)
+				p.left:SetPoint("TOPLEFT"); p.left:SetPoint("BOTTOMLEFT")
+				p.right = PowerTexture("BORDER", 0, 0.015, 0.015, 0.02)
+				p.right:SetPoint("TOPRIGHT"); p.right:SetPoint("BOTTOMRIGHT")
+				p.band = PowerTexture("ARTWORK", 0, 0.85, 0.92, 1)
+				p.band:SetPoint("CENTER")
+				p.glow = PowerTexture("OVERLAY", 0, 0.75, 0.85, 1)
+				p.glow:SetSize(26, 26)
+				p.glow:SetPoint("CENTER")
+				PowerRound(p.glow)
+				p.dot = PowerTexture("OVERLAY", 1, 1, 1, 1)
+				p.dot:SetPoint("CENTER")
+				PowerRound(p.dot)
+				tvPowerParts = p
+				-- Closing the map turns the TV back on for next time
+				tvPower:SetScript("OnHide", ResetPower)
+				-- Knob button (over the top knob, the knob lights up a little when the pointer is over it)
+				tvPowerHighlight = TVTexture("ARTWORK", 4, 1, 1, 1, 0.18)
+				tvPowerHighlight:SetSize(30, 30)
+				tvPowerHighlight:SetPoint("CENTER", tvPowerRing)
+				MakeRound(tvPowerHighlight)
+				tvPowerButton = CreateFrame("Button", nil, borderFrame)
+				tvPowerButton:SetSize(36, 36)
+				tvPowerButton:SetPoint("CENTER", tvPowerRing)
+				tvPowerButton:SetFrameStrata("HIGH")
+				tvPowerButton:SetFrameLevel(math.min(frameLevel + 20, 10000))
+				tvPowerButton:RegisterForClicks("LeftButtonUp")
+				tvPowerButton:SetScript("OnClick", TogglePower)
+				tvPowerButton:SetScript("OnEnter", function() tvPowerHighlight:SetAlpha(1) end)
+				tvPowerButton:SetScript("OnLeave", function() tvPowerHighlight:SetAlpha(0) end)
+				tvPowerHighlight:SetAlpha(0)
+				tvParts[#tvParts + 1] = tvPowerButton
+			end
+
+			-- Vertical hold knob (the second knob, just for fun: the picture loses its vertical hold for a moment, so the
+			-- dark bar between frames rolls down the screen three times, slowing down until the picture catches, with
+			-- tearing lines and a flicker). It's drawn on a frame of our own over the screen which takes no mouse clicks.
+			-- The animation runs in an OnUpdate that is only set while it plays.
+			local tvHold, tvHoldParts, tvHoldButton, tvHoldHighlight
+			local tvHoldTime, tvHoldTear, tvHoldLength = 0, 0, 1.4
+
+			-- Function to set a knob pointer to an angle in degrees
+			local function SetKnobAngle(ring, pointer, angle)
+				local rad = math.rad(angle)
+				pointer:SetStartPoint("CENTER", ring, math.cos(rad) * 5, math.sin(rad) * 5)
+				pointer:SetEndPoint("CENTER", ring, math.cos(rad) * 13, math.sin(rad) * 13)
+			end
+
+			-- Function to play the animation (runs every frame while it plays)
+			local function HoldUpdate(self, elapsed)
+				tvHoldTime = tvHoldTime + elapsed
+				local t = tvHoldTime
+				local h = self:GetHeight()
+				if t >= tvHoldLength or not h or (issecretvalue and issecretvalue(h)) then
+					self:Hide() -- OnHide puts everything back
+					return
+				end
+				local p = tvHoldParts
+				-- Rolling bar (three rolls, slowing down, it ends just above the top of the screen so it's out of sight)
+				local k = 1 - t / tvHoldLength
+				local rolls = 3 * (1 - k * k * k)
+				local barH = h * 0.22
+				local y = (rolls % 1) * (h + barH) - barH
+				p.barTop:ClearAllPoints()
+				p.barTop:SetPoint("TOPLEFT", p.holder, "TOPLEFT", 0, -y)
+				p.barTop:SetPoint("TOPRIGHT", p.holder, "TOPRIGHT", 0, -y)
+				p.barTop:SetHeight(barH / 2)
+				p.barBottom:SetHeight(barH / 2)
+				-- Flicker (fades away as the picture catches)
+				p.flicker:SetAlpha(math.random() * 0.07 * k)
+				-- Tearing lines (new ones every few frames, fewer as the picture catches)
+				tvHoldTear = tvHoldTear - elapsed
+				if tvHoldTear <= 0 then
+					tvHoldTear = 0.04
+					for i = 1, #p.tears do
+						local tear = p.tears[i]
+						if math.random() < 0.75 * k then
+							tear:ClearAllPoints()
+							local ty = math.random() * h
+							tear:SetPoint("TOPLEFT", p.holder, "TOPLEFT", 0, -ty)
+							tear:SetPoint("TOPRIGHT", p.holder, "TOPRIGHT", 0, -ty)
+							tear:SetHeight(math.random(1, 3))
+							if math.random() < 0.5 then
+								tear:SetVertexColor(1, 1, 1, 0.10 + math.random() * 0.15)
+							else
+								tear:SetVertexColor(0, 0, 0, 0.35)
+							end
+							tear:Show()
+						else
+							tear:Hide()
+						end
+					end
+				end
+			end
+
+			-- Function to start the animation (not while the TV is off, turning on or off, or already rolling)
+			local function StartHold()
+				if not tvPowerOn or tvPowerAnim or tvHold:IsShown() then return end
+				SetKnobAngle(tvHoldRing, tvHoldPointer, 75)
+				-- Knob click and a short burst of static (uchatscrollbutton, uni_fx_radiostatic_03)
+				PlayPowerSound(567407)
+				C_Timer.After(0.02, function() PlayPowerSound(568977, 1.1) end)
+				tvHoldTime, tvHoldTear = 0, 0
+				tvHold:Show()
+				tvHold:SetScript("OnUpdate", HoldUpdate)
+				HoldUpdate(tvHold, 0) -- First frame straight away so nothing shows unplaced
+			end
+
+			-- Function to create the vertical hold effect and the knob button
+			local function CreateHold()
+				-- Effect frame over the whole screen inside the bezel (just below the power cover), its children are
+				-- clipped to the screen so the rolling bar does not show outside it
+				tvHold = CreateFrame("Frame", nil, WorldMapFrame)
+				tvHold:SetFrameStrata("HIGH")
+				tvHold:SetFrameLevel(math.min(frameLevel + 19, 10000))
+				tvHold:SetAllPoints(borderFrame)
+				tvHold:EnableMouse(false)
+				tvHold:SetClipsChildren(true)
+				tvHold:Hide()
+				local p = {}
+				p.holder = CreateFrame("Frame", nil, tvHold)
+				p.holder:SetAllPoints()
+				p.holder:EnableMouse(false)
+				local function HoldTexture(layer)
+					local t = p.holder:CreateTexture(nil, layer)
+					t:SetTexture(tvWhite)
+					return t
+				end
+				-- Rolling bar (dark in the middle, fading out at the top and bottom)
+				local dark, clear = CreateColor(0, 0, 0, 0.85), CreateColor(0, 0, 0, 0)
+				p.barTop = HoldTexture("ARTWORK")
+				p.barTop:SetGradient("VERTICAL", dark, clear)
+				p.barBottom = HoldTexture("ARTWORK")
+				p.barBottom:SetPoint("TOPLEFT", p.barTop, "BOTTOMLEFT")
+				p.barBottom:SetPoint("TOPRIGHT", p.barTop, "BOTTOMRIGHT")
+				p.barBottom:SetGradient("VERTICAL", clear, dark)
+				-- Flicker over the whole screen
+				p.flicker = HoldTexture("BORDER")
+				p.flicker:SetAllPoints()
+				p.flicker:SetVertexColor(1, 1, 1, 1)
+				p.flicker:SetAlpha(0)
+				-- Tearing lines
+				p.tears = {}
+				for i = 1, 6 do
+					p.tears[i] = HoldTexture("OVERLAY")
+					p.tears[i]:Hide()
+				end
+				tvHoldParts = p
+				-- Put everything back when it ends, the map is closed or the theme is changed
+				tvHold:SetScript("OnHide", function(self)
+					self:SetScript("OnUpdate", nil)
+					SetKnobAngle(tvHoldRing, tvHoldPointer, 30)
+				end)
+				-- Knob button (over the second knob, the knob lights up a little when the pointer is over it)
+				tvHoldHighlight = TVTexture("ARTWORK", 4, 1, 1, 1, 0.18)
+				tvHoldHighlight:SetSize(30, 30)
+				tvHoldHighlight:SetPoint("CENTER", tvHoldRing)
+				MakeRound(tvHoldHighlight)
+				tvHoldHighlight:SetAlpha(0)
+				tvHoldButton = CreateFrame("Button", nil, borderFrame)
+				tvHoldButton:SetSize(36, 36)
+				tvHoldButton:SetPoint("CENTER", tvHoldRing)
+				tvHoldButton:SetFrameStrata("HIGH")
+				tvHoldButton:SetFrameLevel(math.min(frameLevel + 20, 10000))
+				tvHoldButton:RegisterForClicks("LeftButtonUp")
+				tvHoldButton:SetScript("OnClick", StartHold)
+				tvHoldButton:SetScript("OnEnter", function() tvHoldHighlight:SetAlpha(1) end)
+				tvHoldButton:SetScript("OnLeave", function() tvHoldHighlight:SetAlpha(0) end)
+				tvParts[#tvParts + 1] = tvHoldButton
+			end
+
+			-- Function to create the TV
+			local function CreateTV()
+				tvParts = {}
+				local pl, pr, pt, pb = 12, 62, 12, 16 -- Same as the theme casing size
+				-- Wood casing (wood color, the game's frame background for grain and a darker bottom)
+				local wood = TVTexture("BACKGROUND", -2, 0.40, 0.24, 0.12, 1)
+				wood:SetPoint("TOPLEFT", borderFrame, "TOPLEFT", -pl, pt)
+				wood:SetPoint("BOTTOMRIGHT", borderFrame, "BOTTOMRIGHT", pr, -pb)
+				local grain = TVTexture("BACKGROUND", -1, 0.55, 0.35, 0.18, 0.55)
+				grain:SetTexture("Interface\\FrameGeneral\\UI-Background-Rock", "REPEAT", "REPEAT")
+				grain:SetHorizTile(true)
+				grain:SetVertTile(true)
+				grain:SetAllPoints(wood)
+				local shade = TVTexture("BACKGROUND", 0, 1, 1, 1, 1)
+				shade:SetAllPoints(wood)
+				shade:SetGradient("VERTICAL", CreateColor(0, 0, 0, 0.35), CreateColor(1, 0.9, 0.7, 0.06))
+				-- Bevel (light top and left edge, dark bottom and right edge)
+				local bevelTop = TVTexture("BACKGROUND", 1, 1, 0.85, 0.65, 0.30)
+				bevelTop:SetPoint("TOPLEFT", wood); bevelTop:SetPoint("TOPRIGHT", wood); bevelTop:SetHeight(2)
+				local bevelLeft = TVTexture("BACKGROUND", 1, 1, 0.85, 0.65, 0.20)
+				bevelLeft:SetPoint("TOPLEFT", wood); bevelLeft:SetPoint("BOTTOMLEFT", wood); bevelLeft:SetWidth(2)
+				local bevelBottom = TVTexture("BACKGROUND", 1, 0, 0, 0, 0.45)
+				bevelBottom:SetPoint("BOTTOMLEFT", wood); bevelBottom:SetPoint("BOTTOMRIGHT", wood); bevelBottom:SetHeight(2)
+				local bevelRight = TVTexture("BACKGROUND", 1, 0, 0, 0, 0.35)
+				bevelRight:SetPoint("TOPRIGHT", wood); bevelRight:SetPoint("BOTTOMRIGHT", wood); bevelRight:SetWidth(2)
+				-- Dark bezel round the screen (the map, bars and quest log draw over the middle of it)
+				local bezel = TVTexture("BORDER", -8, 0.05, 0.05, 0.05, 1)
+				bezel:SetPoint("TOPLEFT", borderFrame, "TOPLEFT", -5, 5)
+				bezel:SetPoint("BOTTOMRIGHT", borderFrame, "BOTTOMRIGHT", 5, -5)
+				local bezelLip = TVTexture("BORDER", -7, 0.20, 0.18, 0.16, 1)
+				bezelLip:SetPoint("TOPLEFT", borderFrame, "TOPLEFT", -2, 2)
+				bezelLip:SetPoint("BOTTOMRIGHT", borderFrame, "BOTTOMRIGHT", 2, -2)
+				local bezelInner = TVTexture("BORDER", -6, 0, 0, 0, 1)
+				bezelInner:SetAllPoints(borderFrame)
+				-- Side panel (a darker inset strip with two knobs, a speaker grille and a power light). The knobs and grille
+				-- start well down the panel so the map tabs at the top right (room for at least four) do not cover them
+				local panel = TVTexture("BORDER", -8, 0, 0, 0, 0.25)
+				panel:SetPoint("TOPLEFT", borderFrame, "TOPRIGHT", 12, -2)
+				panel:SetPoint("BOTTOMRIGHT", borderFrame, "BOTTOMRIGHT", pr - 2, 2)
+				tvPowerRing, tvPowerPointer = CreateKnob(-282, 120)
+				tvHoldRing, tvHoldPointer = CreateKnob(-330, 30)
+				for i = 1, 12 do
+					local slat = TVTexture("ARTWORK", 0, 0.07, 0.05, 0.03, 0.85)
+					slat:SetSize(34, 2)
+					slat:SetPoint("TOP", borderFrame, "TOPRIGHT", 36, -364 - (i - 1) * 6)
+					local slatLight = TVTexture("ARTWORK", 0, 1, 0.85, 0.65, 0.12)
+					slatLight:SetSize(34, 1)
+					slatLight:SetPoint("TOP", slat, "BOTTOM", 0, 0)
+				end
+				local glow = TVTexture("ARTWORK", 0, 1, 0.25, 0.10, 0.35)
+				glow:SetSize(16, 16)
+				glow:SetPoint("CENTER", borderFrame, "BOTTOMRIGHT", 36, 18)
+				MakeRound(glow)
+				local light = TVTexture("ARTWORK", 1, 1, 0.30, 0.15, 1)
+				light:SetSize(7, 7)
+				light:SetPoint("CENTER", glow)
+				MakeRound(light)
+				tvLight, tvGlow = light, glow
+				-- Screen effects over the map (scanlines, a dark vignette round the edges and a glare at the top)
+				tvScreen = CreateFrame("Frame", nil, WorldMapFrame)
+				tvScreen:SetAllPoints(WorldMapFrame.ScrollContainer)
+				tvScreen:SetFrameLevel(WorldMapFrame.ScrollContainer:GetFrameLevel() + 100)
+				tvScreen:EnableMouse(false)
+				local function Edge(point1, point2, size, horizontal, fromStart)
+					local t = tvScreen:CreateTexture(nil, "BORDER")
+					t:SetTexture(tvWhite)
+					t:SetPoint(point1); t:SetPoint(point2)
+					if horizontal then t:SetWidth(size) else t:SetHeight(size) end
+					local dark, clear = CreateColor(0, 0, 0, 0.45), CreateColor(0, 0, 0, 0)
+					if fromStart then t:SetGradient(horizontal and "HORIZONTAL" or "VERTICAL", dark, clear) else t:SetGradient(horizontal and "HORIZONTAL" or "VERTICAL", clear, dark) end
+				end
+				Edge("TOPLEFT", "TOPRIGHT", 30, false, false)
+				Edge("BOTTOMLEFT", "BOTTOMRIGHT", 30, false, true)
+				Edge("TOPLEFT", "BOTTOMLEFT", 30, true, true)
+				Edge("TOPRIGHT", "BOTTOMRIGHT", 30, true, false)
+				local glare = tvScreen:CreateTexture(nil, "OVERLAY")
+				glare:SetTexture(tvWhite)
+				glare:SetPoint("TOPLEFT"); glare:SetPoint("TOPRIGHT")
+				glare:SetHeight(70)
+				glare:SetGradient("VERTICAL", CreateColor(1, 1, 1, 0), CreateColor(1, 1, 1, 0.07))
+				tvScreen:SetScript("OnSizeChanged", LayoutScanlines)
+				tvScreen:SetScript("OnShow", LayoutScanlines)
+				-- Power knob and vertical hold knob
+				CreatePower()
+				CreateHold()
+			end
+
+			-- Function to show or hide the Retro TV theme
+			local function SetTV(show)
+				if show and not tvParts then CreateTV() end
+				if not tvParts then return end
+				if not show then ResetPower(); tvHold:Hide() end
+				for i = 1, #tvParts do tvParts[i]:SetShown(show) end
+				tvScreen:SetShown(show)
+				if show then LayoutScanlines() end
+			end
+
+			-- Handheld theme (created the first time the theme is used). Everything is drawn on the border frame (the lowest
+			-- part of the map frame, so the map and bars always draw above it). Round corners and buttons use the game's round
+			-- mask (see MakeRound). The rectangle edge and shadow are hidden as they would show square corners.
+			local hhParts
+			local hhWhite = "Interface\\Buttons\\WHITE8X8"
+
+			-- Function to create a texture on the border frame
+			local function HHTexture(layer, sublevel, r, g, b, a)
+				local t = borderFrame:CreateTexture(nil, layer, nil, sublevel)
+				t:SetTexture(hhWhite)
+				t:SetVertexColor(r, g, b, a)
+				hhParts[#hhParts + 1] = t
+				return t
+			end
+
+			-- Function to create a round texture centered on a point of the border frame
+			local function HHDisc(layer, sublevel, size, r, g, b, a, point, x, y)
+				local t = HHTexture(layer, sublevel, r, g, b, a)
+				t:SetSize(size, size)
+				t:SetPoint("CENTER", borderFrame, point, x, y)
+				MakeRound(t)
+				return t
+			end
+
+			-- Function to create a rectangle with round corners round the border (l, r, t and b are how far it goes past the
+			-- border on each side, rad is the corner size, dy moves it down). It's two rectangles and four round corners, so
+			-- it must be fully opaque (the parts overlap).
+			local function HHRoundRect(layer, sublevel, cr, cg, cb, l, r, t, b, rad, dy)
+				dy = dy or 0
+				local tall = HHTexture(layer, sublevel, cr, cg, cb, 1)
+				tall:SetPoint("TOPLEFT", borderFrame, "TOPLEFT", -l + rad, t + dy)
+				tall:SetPoint("BOTTOMRIGHT", borderFrame, "BOTTOMRIGHT", r - rad, -b + dy)
+				local wide = HHTexture(layer, sublevel, cr, cg, cb, 1)
+				wide:SetPoint("TOPLEFT", borderFrame, "TOPLEFT", -l, t - rad + dy)
+				wide:SetPoint("BOTTOMRIGHT", borderFrame, "BOTTOMRIGHT", r, -b + rad + dy)
+				HHDisc(layer, sublevel, rad * 2, cr, cg, cb, 1, "TOPLEFT", -l + rad, t - rad + dy)
+				HHDisc(layer, sublevel, rad * 2, cr, cg, cb, 1, "TOPRIGHT", r - rad, t - rad + dy)
+				HHDisc(layer, sublevel, rad * 2, cr, cg, cb, 1, "BOTTOMLEFT", -l + rad, -b + rad + dy)
+				HHDisc(layer, sublevel, rad * 2, cr, cg, cb, 1, "BOTTOMRIGHT", r - rad, -b + rad + dy)
+			end
+
+			-- Function to create a rectangle centered on a point of the border frame
+			local function HHRect(layer, sublevel, w, h, r, g, b, a, point, x, y)
+				local t = HHTexture(layer, sublevel, r, g, b, a)
+				t:SetSize(w, h)
+				t:SetPoint("CENTER", borderFrame, point, x, y)
+				return t
+			end
+
+			-- Function to create text on the border frame
+			local function HHText(text, r, g, b, point, x, y)
+				local fs = borderFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+				fs:SetText(text)
+				fs:SetTextColor(r, g, b)
+				fs:SetShadowColor(0, 0, 0, 0)
+				fs:SetPoint("CENTER", borderFrame, point, x, y)
+				hhParts[#hhParts + 1] = fs
+				return fs
+			end
+
+			-- Handheld power and gem match (like the knobs on the Retro TV theme, the select button is a power switch and the
+			-- start button starts a gem matching game). Turning the power off fades the screen out like an old handheld
+			-- screen, the picture lingers faintly for a moment, and the power light goes out. Turning it on plays a boot
+			-- sequence like a 90s disc console (our own emblem and sounds from the game): the screen fades to white, four
+			-- colored diamonds glide in and lock together into the emblem with a shimmer and the name appears, then it cuts
+			-- to black with the emblem small and the product name, and fades into the map. The buttons are frames of our own
+			-- over the drawn buttons, the screen cover is a frame of our own over the screen (it takes the mouse while the
+			-- power is off, so nothing on the dark screen can be clicked by mistake). The animations run in an OnUpdate that
+			-- is only set while they play. The power is always on when the map is opened.
+			local hhLed, hhLedGlow -- Power light and its glow
+			local hhScreen, hhPowerOn, hhPowerAnim, hhPowerTime, hhResetting = nil, true, nil, 0, false
+			local hhBootSounds = {} -- Boot sounds that have played this time
+			local GemMusic -- Defined below (gem game music, the power switch turns it off and on)
+
+			-- Function to create a button frame over a drawn button (onDown and onUp run when it's pressed and let go, onUp
+			-- also runs if it's hidden while held, onEnter and onLeave run when the pointer goes over it and off it, onLeave
+			-- also runs if it's hidden)
+			local function HHButton(point, x, y, w, h, onDown, onUp, onEnter, onLeave)
+				local button = CreateFrame("Button", nil, borderFrame)
+				button:SetSize(w, h)
+				button:SetPoint("CENTER", borderFrame, point, x, y)
+				button:SetFrameStrata("HIGH")
+				button:SetFrameLevel(math.min(frameLevel + 20, 10000))
+				button:EnableMouse(true)
+				local held
+				button:SetScript("OnMouseDown", function(self, mouseButton)
+					if mouseButton ~= "LeftButton" or held then return end
+					held = true
+					onDown()
+				end)
+				local function LetGo()
+					if not held then return end
+					held = nil
+					onUp()
+				end
+				button:SetScript("OnMouseUp", LetGo)
+				button:SetScript("OnHide", function()
+					LetGo()
+					onLeave()
+				end)
+				button:SetScript("OnEnter", onEnter)
+				button:SetScript("OnLeave", onLeave)
+				hhParts[#hhParts + 1] = button
+				return button
+			end
+
+			-- Function to set the power light for on or off
+			local function HHSetLed(on)
+				if on then hhLed:SetVertexColor(1, 0.25, 0.25, 1) else hhLed:SetVertexColor(0.25, 0.06, 0.06, 1) end
+				hhLedGlow:SetAlpha(on and 1 or 0)
+			end
+
+			-- Boot sounds (file ID, when it plays and when it fades out, in seconds): two airy swells building up as the
+			-- diamonds glide in (fx_ghostly_swells01 and 03), two glassy chime clusters cascading as they lock together
+			-- (fx_chimemult_01 and 04) with a magic chime sparkle after them (amb_flavorkit_valsharah_chime_magic_01), and a
+			-- single soft chime as it cuts to black (fx_chimesingle_03)
+			local HHBootSoundList = {
+				{795741, 0.1, 1.4}, {795745, 0.6, 1.0},
+				{1514311, 1.3, 1.6}, {1514314, 1.45, 1.4}, {1250608, 1.6, 1.4},
+				{1514320, 3.0, 1.2},
+			}
+
+			-- Boot emblem diamonds (direction they glide in from, and color: magenta, purple, teal, slate)
+			local hhPieceDirs = {{0, 1, 0.86, 0.25, 0.66}, {1, 0, 0.56, 0.36, 0.95}, {0, -1, 0.20, 0.74, 0.74}, {-1, 0, 0.30, 0.30, 0.38}}
+
+			-- Function to ease a value from 0 to 1 (fast at the start, slow at the end)
+			local function HHEase(f) return 1 - (1 - f) * (1 - f) end
+
+			-- Function to place the four emblem diamonds (scale is the size, spread is 0 when locked together and 1 when far
+			-- out, alpha is how visible they are, y moves the emblem up). Each diamond is a thick line at 45 degrees, which
+			-- draws a square standing on its corner.
+			local function HHPlacePieces(scale, spread, alpha, y)
+				local side = 26 * scale
+				local gap = (side + 4) / math.sqrt(2) -- Distance from the middle to each diamond when they're locked together
+				local half = side / 2 * 0.7071
+				for i = 1, 4 do
+					local piece = hhScreen.boot.pieces[i]
+					local dir = hhPieceDirs[i]
+					local cx, cy = dir[1] * (gap + spread * 110), dir[2] * (gap + spread * 110) + y
+					piece:SetThickness(side)
+					piece:SetStartPoint("CENTER", hhScreen.holder, cx - half, cy - half)
+					piece:SetEndPoint("CENTER", hhScreen.holder, cx + half, cy + half)
+					piece:SetAlpha(alpha)
+				end
+			end
+
+			-- Function to play the power animation (runs every frame while it plays)
+			local function HHPowerUpdate(self, elapsed)
+				hhPowerTime = hhPowerTime + elapsed
+				local t = hhPowerTime
+				if hhPowerAnim == "off" then
+					if t < 0.35 then
+						-- Screen fades out quickly
+						local f = t / 0.35
+						self.dark:SetAlpha(0.88 * (1 - (1 - f) * (1 - f)))
+					elseif t < 0.95 then
+						-- The picture lingers faintly, then it's gone
+						self.dark:SetAlpha(0.88 + 0.12 * (t - 0.35) / 0.6)
+					else
+						self.dark:SetAlpha(1)
+						hhPowerAnim = nil
+						self:SetScript("OnUpdate", nil)
+					end
+				elseif hhPowerAnim == "on" then
+					-- Boot sounds (each plays once at its time and fades out after a while, see HHBootSoundList)
+					for i = 1, #HHBootSoundList do
+						local sound = HHBootSoundList[i]
+						if t >= sound[2] and not hhBootSounds[i] then
+							hhBootSounds[i] = true
+							PlayPowerSound(sound[1], sound[3])
+						end
+					end
+					local p = self.boot
+					if t < 0.4 then
+						-- Screen 1: the dark screen fades to white
+						p.white:SetAlpha(t / 0.4)
+						HHPlacePieces(1, 1, 0, 14)
+						p.word:SetAlpha(0); p.sub:SetAlpha(0); p.flash:SetAlpha(0)
+					elseif t < 1.3 then
+						-- The four diamonds glide in from each side
+						p.white:SetAlpha(1)
+						local f = HHEase((t - 0.4) / 0.9)
+						HHPlacePieces(1, 1 - f, f, 14)
+					elseif t < 1.8 then
+						-- They lock together with a flash and the name fades in underneath
+						HHPlacePieces(1, 0, 1, 14)
+						p.flash:SetAlpha(math.max(0, 0.7 * (1 - (t - 1.3) / 0.3)))
+						local f = (t - 1.3) / 0.5
+						p.word:SetAlpha(f); p.sub:SetAlpha(f)
+					elseif t < 2.6 then
+						-- Hold
+						p.flash:SetAlpha(0)
+						p.word:SetAlpha(1); p.sub:SetAlpha(1)
+					elseif t < 3.0 then
+						-- Fade to black
+						local f = (t - 2.6) / 0.4
+						p.white:SetAlpha(1 - f)
+						HHPlacePieces(1, 0, 1 - f, 14)
+						p.word:SetAlpha(1 - f); p.sub:SetAlpha(1 - f)
+					elseif t < 3.4 then
+						-- Screen 2: the emblem small with the product name on black
+						local f = (t - 3.0) / 0.4
+						p.white:SetAlpha(0); p.word:SetAlpha(0); p.sub:SetAlpha(0)
+						HHPlacePieces(0.6, 0, f, 24)
+						p.name:SetAlpha(f); p.licence:SetAlpha(f)
+					elseif t < 4.3 then
+						-- Hold
+						HHPlacePieces(0.6, 0, 1, 24)
+						p.name:SetAlpha(1); p.licence:SetAlpha(1)
+					elseif t < 4.8 then
+						-- Everything fades away to show the map
+						local f = (t - 4.3) / 0.5
+						self.dark:SetAlpha(1 - f)
+						HHPlacePieces(0.6, 0, 1 - f, 24)
+						p.name:SetAlpha(1 - f); p.licence:SetAlpha(1 - f)
+					else
+						hhPowerAnim = nil
+						self:SetScript("OnUpdate", nil)
+						self:Hide()
+					end
+				end
+			end
+
+			-- Function to turn the power off or on (a press is ignored while the last one is still playing)
+			local function HHTogglePower()
+				if hhPowerAnim then return end
+				hhPowerOn = not hhPowerOn
+				PlayPowerSound(567407) -- uchatscrollbutton
+				if not hhPowerOn then PlayPowerSound(3749039, 1.0) end -- Power off sound (ui_adventures_fast_forward_deactivated)
+				if GemMusic then GemMusic() end
+				HHSetLed(hhPowerOn)
+				hhPowerTime = 0
+				wipe(hhBootSounds)
+				hhPowerAnim = hhPowerOn and "on" or "off"
+				hhScreen.dark:SetAlpha(hhPowerOn and 1 or 0)
+				local p = hhScreen.boot
+				p.white:SetAlpha(0); p.flash:SetAlpha(0); p.word:SetAlpha(0); p.sub:SetAlpha(0); p.name:SetAlpha(0); p.licence:SetAlpha(0)
+				for i = 1, 4 do p.pieces[i]:SetAlpha(0) end
+				hhScreen:Show()
+				hhScreen:SetScript("OnUpdate", HHPowerUpdate)
+				HHPowerUpdate(hhScreen, 0)
+			end
+
+			-- Function to turn the power back on straight away (when the map is closed or the theme is changed)
+			local function HHResetPower()
+				if not hhScreen or hhResetting then return end
+				hhResetting = true
+				hhPowerOn, hhPowerAnim = true, nil
+				hhScreen:SetScript("OnUpdate", nil)
+				hhScreen:Hide()
+				HHSetLed(true)
+				hhResetting = false
+				if GemMusic then GemMusic() end
+			end
+
+			-- Gem match (a match 3 game over the map: start deals a new board, swap two gems next to each other to make a
+			-- line of 3 or more of the same gem, matched gems clear, the gems above fall down, new gems drop in from the top
+			-- and chain reactions score more). Drag a gem towards a gem next to it, or click a gem and then a gem next to it,
+			-- to swap them, or move the highlight with
+			-- the D-pad, press A to pick up a gem and press a direction to swap it that way (B puts it down). A swap that
+			-- makes no line swaps back. If no swap can make a line, the game is over. Start hides the game and shows it
+			-- again where it was left (closing the map or changing the theme hides it too), reset starts a new game, and the
+			-- best score is saved with the addon settings. The gems are
+			-- the game's gem icons on colored tiles. The board is a frame of our own over the map which takes the mouse while
+			-- it's showing, so the map underneath isn't clicked by mistake. The animations run in an OnUpdate that is only
+			-- set while gems are moving.
+			local gems -- Board frame
+
+			-- Function to check if the handheld screen is covered by the gem board or the power screen (the points of
+			-- interest use it so their tooltips and clicks don't come through the board)
+			LeaMapsLC.IsMapCovered = function()
+				return (gems and gems:IsVisible()) or (hhScreen and hhScreen:IsVisible()) or false
+			end
+			local gemSize = 8 -- Squares across and down
+			local gemIcons = { -- Icon and tile color of each kind of gem
+				{"Interface\\Icons\\INV_Misc_Gem_Ruby_02", 0.85, 0.15, 0.18},
+				{"Interface\\Icons\\INV_Misc_Gem_Sapphire_02", 0.15, 0.35, 0.90},
+				{"Interface\\Icons\\INV_Misc_Gem_Emerald_02", 0.15, 0.70, 0.25},
+				{"Interface\\Icons\\INV_Misc_Gem_Topaz_02", 0.95, 0.65, 0.10},
+				{"Interface\\Icons\\INV_Misc_Gem_Amethyst_02", 0.60, 0.25, 0.85},
+				{"Interface\\Icons\\INV_Misc_Gem_Diamond_02", 0.85, 0.88, 0.95},
+			}
+			-- Match sound: every match shatters like crystal (fx_uni_crystal_shatter_01, it fades out after 0.35 seconds so it
+			-- doesn't go on too long). Chains and lines of 4 or more also get a word with its own bigger sound (see gemWords).
+			local gemShatter = 568269
+			local gemBoard, gemTiles = {}, {} -- Kind of gem on each square, tile for each square ([column][row], row 1 at the top)
+			local gemCell = 40 -- Size of a square
+			local gemState -- nil (no game), "play" (waiting for a move) or "busy" (gems are moving)
+			local gemScore, gemCombo = 0, 0
+			local gemBestAtStart, gemNewBest, gemRecordDone = 0, false, false -- Best score when the game started, new best to celebrate, new best celebrated
+			local gemCursorC, gemCursorR, gemPickC, gemPickR = 1, 1, nil, nil -- D-pad highlight, gem picked up
+			local gemAnim, gemAnimTime, gemAnimLength, gemAnimDone -- Animation playing ("move" or "clear"), time, length, function to run after it
+			local gemMatched = {} -- Squares in matched lines (column * 100 + row)
+			-- Special gems ([column][row]: "flame", "star" or "cube", a hypercube's kind on the board is 0 so it never makes a
+			-- line) and special gem state (runs: the lines found, swapA and swapB: the two squares of the move, forced: a
+			-- hypercube set the squares to clear, preBlasts: its effect, newBoard: a fresh board after the chain ends)
+			local gemSpecial, gemX = {}, {runs = {}}
+			local gemDirs = {U = {0, -1}, D = {0, 1}, L = {-1, 0}, R = {1, 0}}
+			local GemResolve -- Defined below
+
+			-- Function to check if the gem on a square is in a line of 3 or more
+			local function GemLineAt(c, r)
+				local k = gemBoard[c][r]
+				if k == 0 then return false end -- A hypercube never makes a line
+				local n, i = 1, c - 1
+				while i >= 1 and gemBoard[i][r] == k do n = n + 1; i = i - 1 end
+				i = c + 1
+				while i <= gemSize and gemBoard[i][r] == k do n = n + 1; i = i + 1 end
+				if n >= 3 then return true end
+				n, i = 1, r - 1
+				while i >= 1 and gemBoard[c][i] == k do n = n + 1; i = i - 1 end
+				i = r + 1
+				while i <= gemSize and gemBoard[c][i] == k do n = n + 1; i = i + 1 end
+				return n >= 3
+			end
+
+			-- Function to swap two gems on the board (data only)
+			local function GemSwapData(c1, r1, c2, r2)
+				gemBoard[c1][r1], gemBoard[c2][r2] = gemBoard[c2][r2], gemBoard[c1][r1]
+			end
+
+			-- Function to check if any swap can make a line
+			local function GemHasMove()
+				-- A hypercube can always be swapped
+				for c = 1, gemSize do
+					for r = 1, gemSize do
+						if gemSpecial[c] and gemSpecial[c][r] == "cube" then return true end
+					end
+				end
+				for c = 1, gemSize do
+					for r = 1, gemSize do
+						for void, d in ipairs({{1, 0}, {0, 1}}) do
+							local c2, r2 = c + d[1], r + d[2]
+							if c2 <= gemSize and r2 <= gemSize then
+								GemSwapData(c, r, c2, r2)
+								local found = GemLineAt(c, r) or GemLineAt(c2, r2)
+								GemSwapData(c, r, c2, r2)
+								if found then return true end
+							end
+						end
+					end
+				end
+				return false
+			end
+
+			-- Function to find every square in a line of 3 or more (returns how many)
+			local function GemFindMatches()
+				wipe(gemMatched)
+				wipe(gemX.runs)
+				local count = 0
+				for pass = 1, 2 do -- Rows, then columns
+					for a = 1, gemSize do
+						local b = 1
+						while b <= gemSize do
+							local c, r = pass == 1 and b or a, pass == 1 and a or b
+							local k, e = gemBoard[c][r], b
+							while e + 1 <= gemSize and gemBoard[pass == 1 and e + 1 or a][pass == 1 and a or e + 1] == k do e = e + 1 end
+							if e - b + 1 >= 3 and k ~= 0 then
+								-- Each line is kept (its squares and whether it's a row) to make special gems from
+								local run = {horiz = pass == 1}
+								gemX.runs[#gemX.runs + 1] = run
+								for s = b, e do run[#run + 1] = pass == 1 and s * 100 + a or a * 100 + s end
+								for s = b, e do
+									local key = pass == 1 and s * 100 + a or a * 100 + s
+									if not gemMatched[key] then
+										gemMatched[key] = true
+										count = count + 1
+									end
+								end
+							end
+							b = e + 1
+						end
+					end
+				end
+				return count
+			end
+
+			-- Function to make special gems from the lines just found (5 in a line makes a hypercube, an L or T shape makes a
+			-- star gem, 4 in a line makes a flame gem). The special gem goes on the square that was moved if it's in the
+			-- line, otherwise in the middle of the line, and that square isn't cleared. Returns what was made.
+			gemX.Make = function()
+				local made, used, inRow, inCol = {}, {}, {}, {}
+				local function Pick(run)
+					for void, key in ipairs({gemX.swapA or 0, gemX.swapB or 0}) do
+						for i = 1, #run do
+							if run[i] == key and not gemSpecial[math.floor(key / 100)][key % 100] then return key end
+						end
+					end
+					local mid = run[math.ceil(#run / 2)]
+					for i = 0, #run - 1 do
+						local key = run[(math.ceil(#run / 2) - 1 + i) % #run + 1]
+						if not gemSpecial[math.floor(key / 100)][key % 100] then return key end
+					end
+					return mid
+				end
+				for void, run in ipairs(gemX.runs) do
+					for i = 1, #run do
+						if run.horiz then inRow[run[i]] = run else inCol[run[i]] = run end
+					end
+				end
+				for void, run in ipairs(gemX.runs) do
+					if #run >= 5 then made[#made + 1] = {Pick(run), "cube"}; used[run] = true end
+				end
+				for key, rowRun in pairs(inRow) do
+					local colRun = inCol[key]
+					if colRun and not used[rowRun] and not used[colRun] and not gemSpecial[math.floor(key / 100)][key % 100] then
+						made[#made + 1] = {key, "star"}
+						used[rowRun], used[colRun] = true, true
+					end
+				end
+				for void, run in ipairs(gemX.runs) do
+					if #run == 4 and not used[run] then made[#made + 1] = {Pick(run), "flame"}; used[run] = true end
+				end
+				for void, m in ipairs(made) do
+					local c, r = math.floor(m[1] / 100), m[1] % 100
+					gemMatched[m[1]] = nil
+					gemSpecial[c][r] = m[2]
+					if m[2] == "cube" then gemBoard[c][r] = 0 end
+				end
+				return made
+			end
+
+			-- Function to set off the special gems in the squares being cleared (a flame gem clears the 3 x 3 round it, a star
+			-- gem clears its row and column, a hypercube caught in one clears every gem of a random kind). Special gems
+			-- caught in a blast go off too. Returns the blasts (for the effects).
+			gemX.Detonate = function()
+				local blasts, queue, done = {}, {}, {}
+				for key in pairs(gemMatched) do
+					if gemSpecial[math.floor(key / 100)][key % 100] then queue[#queue + 1] = key end
+				end
+				local function Hit(c, r)
+					if c < 1 or c > gemSize or r < 1 or r > gemSize then return end
+					local key = c * 100 + r
+					if not gemMatched[key] then
+						gemMatched[key] = true
+						if gemSpecial[c][r] then queue[#queue + 1] = key end
+					end
+				end
+				local i = 1
+				while i <= #queue do
+					local key = queue[i]
+					i = i + 1
+					if not done[key] then
+						done[key] = true
+						local c, r = math.floor(key / 100), key % 100
+						local kind = gemSpecial[c][r]
+						local blast = {kind = kind, c = c, r = r}
+						if kind == "flame" then
+							for dc = -1, 1 do for dr = -1, 1 do Hit(c + dc, r + dr) end end
+						elseif kind == "star" then
+							for s = 1, gemSize do Hit(s, r); Hit(c, s) end
+						elseif kind == "cube" then
+							blast.color = math.random(#gemIcons)
+							for cc = 1, gemSize do
+								for rr = 1, gemSize do
+									if gemBoard[cc][rr] == blast.color then Hit(cc, rr) end
+								end
+							end
+						end
+						blasts[#blasts + 1] = blast
+					end
+				end
+				return blasts
+			end
+
+			-- Function to fill the board with no lines and at least one swap that makes a line
+			local function GemFill()
+				for c = 1, gemSize do gemSpecial[c] = {} end -- No special gems on a new board
+				repeat
+					for c = 1, gemSize do
+						gemBoard[c] = gemBoard[c] or {}
+						for r = 1, gemSize do
+							local k
+							repeat
+								k = math.random(#gemIcons)
+							until not ((c > 2 and gemBoard[c - 1][r] == k and gemBoard[c - 2][r] == k) or (r > 2 and gemBoard[c][r - 1] == k and gemBoard[c][r - 2] == k))
+							gemBoard[c][r] = k
+						end
+					end
+				until GemHasMove()
+			end
+
+			-- Function to show how many hints are left on the hint button's label (just HINT when there's no game)
+			LeaMapsLC.GemHintLabel = function()
+				if hhParts and hhParts.hintLabel then
+					local left = gems and gemState and gemState ~= "over" and gems.hints
+					hhParts.hintLabel:SetText(left and (L["HINT"] .. " " .. left) or L["HINT"])
+				end
+			end
+
+			-- Function to show the score
+			local function GemScoreText()
+				local best = LeaMapsLC["GemBest"] or 0
+				if gemScore > best then
+					LeaMapsLC["GemBest"], best = gemScore, gemScore
+					-- Beating a best score from before this game is celebrated once
+					if gemBestAtStart > 0 and not gemRecordDone then gemRecordDone, gemNewBest = true, true end
+				end
+				gems.score:SetFormattedText("%s: %d     %s: %d", L["Score"], gemScore, L["Best"], best) -- The level is on the level bar
+				-- Level bar (fills up with the gems cleared on this level, with the level and how far along it is on it)
+				local need = 24 + 12 * (gems.level or 1)
+				local have = math.min(need, gems.levelGems or 0)
+				local fillWidth = math.max(1, (gemSize * gemCell - 2) * have / need)
+				gems.bar.fill:SetWidth(fillWidth)
+				-- The light sweeps the whole fill at the same speed whatever its width (restarted when the fill changes)
+				if gems.bar.sweepWidth ~= math.floor(fillWidth) then
+					gems.bar.sweepWidth = math.floor(fillWidth)
+					gems.bar.sweep:Stop()
+					if fillWidth > 20 then
+						gems.bar.sweepMove:SetOffset(fillWidth + 70, 0)
+						gems.bar.sweepMove:SetDuration(0.8 + (fillWidth + 70) / 220)
+						gems.bar.sweep:Play()
+					end
+				end
+				gems.bar.text:SetFormattedText("%s %d     %d / %d", L["Level"], gems.level or 1, have, need)
+				LeaMapsLC.GemHintLabel()
+			end
+
+			-- Function to show a message in the middle of the board (nothing hides it)
+			local function GemMessage(message, hint)
+				gems.message:SetText(message or "")
+				gems.hint:SetText(hint or "")
+			end
+
+			-- Function to place a tile's gem (it can be moved away from its square, made smaller and faded)
+			local function GemPlaceArt(tile)
+				tile.art:ClearAllPoints()
+				tile.art:SetPoint("CENTER", tile, "CENTER", tile.ox, tile.oy)
+				local s = math.max(1, (gemCell - 4) * tile.scale)
+				tile.art:SetSize(s, s)
+				tile.art:SetAlpha(tile.alpha)
+			end
+
+			-- Function to show the gem on a tile's square
+			local function GemShow(tile)
+				local kind = gemBoard[tile.c][tile.r]
+				if kind == 0 then
+					-- Hypercube (a brilliant shard on a white tile)
+					tile.icon:SetTexture("Interface\\Icons\\INV_Enchant_ShardBrilliantLarge")
+					tile.icon:SetDesaturated(false)
+					tile.icon:SetVertexColor(1, 1, 1)
+					tile.bg:SetColorTexture(0.90, 0.90, 1, 0.45)
+				else
+					-- (a flame gem is a fireball and a star gem a burst of holy light, both turned completely into the gem's
+					-- color, so the shape shows what it is and the color shows what it matches)
+					local g = gemIcons[kind]
+					local special = gemSpecial[tile.c] and gemSpecial[tile.c][tile.r]
+					if special == "flame" or special == "star" then
+						tile.icon:SetTexture(special == "flame" and "Interface\\Icons\\Spell_Fire_Fireball02" or "Interface\\Icons\\Spell_Holy_HolyBolt")
+						tile.icon:SetDesaturated(true)
+						local boost = 1 / math.max(g[2], g[3], g[4], 0.01)
+						tile.icon:SetVertexColor(math.min(1, g[2] * boost * 1.1), math.min(1, g[3] * boost * 1.1), math.min(1, g[4] * boost * 1.1))
+						tile.bg:SetColorTexture(g[2], g[3], g[4], 0.55)
+					else
+						tile.icon:SetTexture(g[1])
+						tile.icon:SetDesaturated(false)
+						tile.icon:SetVertexColor(1, 1, 1)
+						tile.bg:SetColorTexture(g[2], g[3], g[4], 0.40)
+					end
+				end
+				if gems.SpecialLook then gems.SpecialLook(tile, gemSpecial[tile.c] and gemSpecial[tile.c][tile.r]) end
+				tile.ox, tile.oy, tile.scale, tile.alpha = 0, 0, 1, 1
+				GemPlaceArt(tile)
+			end
+
+			-- Function to show every gem
+			local function GemShowAll()
+				for c = 1, gemSize do
+					for r = 1, gemSize do GemShow(gemTiles[c][r]) end
+				end
+			end
+
+			-- Function to set the tile edges (gold for the gem picked up, white for the D-pad highlight)
+			local function GemEdges()
+				for c = 1, gemSize do
+					for r = 1, gemSize do
+						local edge = gemTiles[c][r].edge
+						if gemPickC == c and gemPickR == r then
+							edge:SetColorTexture(1, 0.82, 0, 1)
+						elseif gemState == "play" and gems.dpadActive and gemCursorC == c and gemCursorR == r then
+							edge:SetColorTexture(1, 1, 1, 0.85)
+						else
+							edge:SetColorTexture(0, 0, 0, 0)
+						end
+					end
+				end
+			end
+
+			-- Function to fit the board to the map (runs for a new game and when the map changes size)
+			local function GemLayout()
+				gems:Fit()
+				local w, h = gems:GetWidth(), gems:GetHeight()
+				if not w or not h or (issecretvalue and (issecretvalue(w) or issecretvalue(h))) then return false end
+				gemCell = math.floor(math.min((w - 30) / gemSize, (h - 104) / gemSize)) -- Room above for the score and level bar, below for the coordinates
+				if gemCell < 16 then return false end
+				gems.grid:SetSize(gemSize * gemCell, gemSize * gemCell)
+				for c = 1, gemSize do
+					for r = 1, gemSize do
+						local tile = gemTiles[c][r]
+						tile:SetSize(gemCell, gemCell)
+						tile:ClearAllPoints()
+						tile:SetPoint("TOPLEFT", gems.grid, "TOPLEFT", (c - 1) * gemCell, -(r - 1) * gemCell)
+						GemPlaceArt(tile)
+					end
+				end
+				-- Background glow and stars fit the board and the screen
+				-- (the rings are ovals that fit inside the screen, so nothing spills over the console)
+				for i = 1, #gems.glows do
+					local dx, dy = w / 2 * gems.glows[i].size, h / 2 * gems.glows[i].size
+					gems.glows[i]:ClearAllPoints()
+					gems.glows[i]:SetPoint("TOPLEFT", gems, "CENTER", -dx, dy)
+					gems.glows[i]:SetPoint("BOTTOMRIGHT", gems, "CENTER", dx, -dy)
+				end
+				for i = 1, #gems.stars do
+					local s = gems.stars[i]
+					s:ClearAllPoints()
+					s:SetPoint("CENTER", gems, "TOPLEFT", w * s.fx, -h * s.fy)
+				end
+				if gems.level then GemScoreText() end
+				return true
+			end
+
+			-- Function to run the animation (runs every frame while gems are moving)
+			local function GemUpdate(self, elapsed)
+				gemAnimTime = gemAnimTime + elapsed
+				local f = math.min(gemAnimTime / gemAnimLength, 1)
+				if gemAnim == "move" then
+					-- Gems slide from where they started to their squares
+					local e = f * f * (3 - 2 * f)
+					for c = 1, gemSize do
+						for r = 1, gemSize do
+							local tile = gemTiles[c][r]
+							if tile.sx then
+								tile.ox, tile.oy = tile.sx * (1 - e), tile.sy * (1 - e)
+								GemPlaceArt(tile)
+								if f >= 1 then tile.sx, tile.sy = nil, nil end
+							end
+						end
+					end
+				elseif gemAnim == "clear" then
+					-- Matched gems shrink and fade away
+					for key in pairs(gemMatched) do
+						local tile = gemTiles[math.floor(key / 100)][key % 100]
+						tile.scale, tile.alpha = 1 - 0.6 * f, 1 - f
+						GemPlaceArt(tile)
+					end
+				end
+				if f < 1 then return end
+				self:SetScript("OnUpdate", nil)
+				local done = gemAnimDone
+				gemAnim, gemAnimDone = nil, nil
+				if done then done() end
+			end
+
+			-- Function to start an animation (done runs when it ends)
+			local function GemPlay(kind, length, done)
+				gemAnim, gemAnimTime, gemAnimLength, gemAnimDone = kind, 0, length, done
+				gems:SetScript("OnUpdate", GemUpdate)
+				GemUpdate(gems, 0)
+			end
+
+			-- Function to drop every gem in from above the board (for a new board or a shuffle)
+			local function GemDropAll(done)
+				GemShowAll()
+				for c = 1, gemSize do
+					for r = 1, gemSize do
+						local tile = gemTiles[c][r]
+						tile.sx, tile.sy = 0, gemSize * gemCell
+					end
+				end
+				GemPlay("move", 0.45, done)
+			end
+
+			-- Function to let gems fall into the gaps left by matched gems, with new gems dropping in from the top
+			local function GemCollapse()
+				for c = 1, gemSize do
+					local write = gemSize
+					for r = gemSize, 1, -1 do
+						if not gemMatched[c * 100 + r] then
+							if write ~= r then
+								gemBoard[c][write] = gemBoard[c][r]
+								gemSpecial[c][write] = gemSpecial[c][r]
+								gemTiles[c][write].fall = (write - r) * gemCell
+							end
+							write = write - 1
+						end
+					end
+					-- New gems for the squares left at the top, they start above the board
+					for r = write, 1, -1 do
+						gemBoard[c][r] = math.random(#gemIcons)
+						gemSpecial[c][r] = nil
+						gemTiles[c][r].fall = write * gemCell
+					end
+				end
+				for c = 1, gemSize do
+					for r = 1, gemSize do
+						local tile = gemTiles[c][r]
+						GemShow(tile)
+						if tile.fall then
+							tile.sx, tile.sy, tile.fall = 0, tile.fall, nil
+						end
+					end
+				end
+				GemPlay("move", 0.25, GemResolve)
+			end
+
+			-- Celebrations (the better the move, the bigger the show: sparkles in the gem's color fly out of every cleared gem
+			-- and the points float up from the line, a chain or a line of 4 or more slams a word into the middle with its own
+			-- sound, a starburst and a ring of sparkles, and flashes and shakes the board). They're drawn on a frame
+			-- of our own over the board which takes no mouse clicks, and run in an OnUpdate that is only set while they play.
+			local gemFxParts, gemSparkSpare, gemTextSpare = {}, {}, {} -- Sparkles and points playing, spare sparkles, spare points
+			local gemShake, gemShakeRate, gemFlash, gemBannerTime = 0, 0, 0, nil
+			local gemWords = { -- Word, color and sound for each level of move (each sound is bigger than the last)
+				{L["Nice!"], 0.60, 0.85, 1, 1138111}, -- ui_loot_toast_lesser_item_won_01
+				{L["Great!"], 0.45, 1, 0.45, 2174248}, -- ui_80_azeriteloot_toast
+				{L["Awesome!"], 1, 0.85, 0.20, 642829}, -- ui_epicloot_toast_01
+				{L["Amazing!"], 1, 0.55, 0.15, 1130983}, -- ui_raid_loot_banner_01
+				{L["Incredible!"], 1, 0.35, 0.85, 4906957}, -- ui_tradingpost_purchasecelebration_01
+			}
+
+			-- Function to put the board back in its place (after it has been shaking)
+			local function GemGridHome(x, y)
+				gems.grid:ClearAllPoints()
+				gems.grid:SetPoint("CENTER", gems, "CENTER", x or 0, (y or 0) - 6)
+			end
+
+			-- Function to run the celebrations (runs every frame while they play)
+			local function GemFxUpdate(self, elapsed)
+				-- Sparkles fly out and fall, points float up, both fade away
+				local i = 1
+				while i <= #gemFxParts do
+					local p = gemFxParts[i]
+					p.age = p.age + elapsed
+					if p.age >= p.life then
+						p.region:Hide()
+						p.spare[#p.spare + 1] = p
+						gemFxParts[i] = gemFxParts[#gemFxParts]
+						gemFxParts[#gemFxParts] = nil
+					else
+						local f = p.age / p.life
+						p.x, p.y = p.x + p.vx * elapsed, p.y + p.vy * elapsed
+						if p.isText then
+							p.region:SetAlpha(f < 0.6 and 1 or (1 - f) / 0.4)
+						else
+							p.vy = p.vy - 260 * elapsed
+							local s = p.size * (1 - 0.5 * f)
+							p.region:SetSize(s, s)
+							p.region:SetAlpha(1 - f)
+						end
+						p.region:ClearAllPoints()
+						p.region:SetPoint("CENTER", gems.grid, "TOPLEFT", p.x, p.y)
+						i = i + 1
+					end
+				end
+				-- Flash fades away
+				if gemFlash > 0 then
+					gemFlash = math.max(0, gemFlash - elapsed * 2)
+					self.flash:SetAlpha(gemFlash)
+				end
+				-- Shake dies down
+				if gemShake > 0 then
+					gemShake = math.max(0, gemShake - gemShakeRate * elapsed)
+					if gemShake > 0 then
+						GemGridHome((math.random() * 2 - 1) * gemShake, (math.random() * 2 - 1) * gemShake)
+					else
+						GemGridHome()
+					end
+				end
+				-- Word slams in from big, overshoots, bounces back and settles, a starburst flares out behind it, then it floats
+				-- up and fades away
+				if gemBannerTime then
+					gemBannerTime = gemBannerTime + elapsed
+					local t = gemBannerTime
+					if t >= 1.15 then
+						gemBannerTime = nil
+						self.banner:Hide()
+						self.burst:Hide()
+					else
+						local s
+						if t < 0.12 then s = 2.4 - 1.55 * (t / 0.12)
+						elseif t < 0.22 then s = 0.85 + 0.27 * ((t - 0.12) / 0.10)
+						elseif t < 0.30 then s = 1.12 - 0.12 * ((t - 0.22) / 0.08)
+						else s = 1 end
+						self.banner:SetScale(s)
+						self.banner:SetAlpha(t < 0.08 and t / 0.08 or (t > 0.8 and 1 - (t - 0.8) / 0.35 or 1))
+						local rise = t > 0.8 and (t - 0.8) / 0.35 * 18 or 0
+						self.banner:ClearAllPoints()
+						self.banner:SetPoint("CENTER", gems.grid, "CENTER", 0, rise / s) -- Offsets are scaled with the word
+						if t < 0.45 then
+							local f = t / 0.45
+							local size = 40 + 260 * f
+							self.burst:SetSize(size, size)
+							self.burst:SetAlpha(0.9 * (1 - f))
+							self.burst:Show()
+						else
+							self.burst:Hide()
+						end
+					end
+				end
+				-- Hint glows pulse and fade (they go as soon as a move is made)
+				if gems.fx.hintTime then
+					gems.fx.hintTime = gems.fx.hintTime + elapsed
+					if gems.fx.hintTime >= 1.5 or gemState ~= "play" then
+						gems.fx.hintTime = nil
+						gems.fx.hint[1]:Hide()
+						gems.fx.hint[2]:Hide()
+					else
+						local a = (0.35 + 0.35 * math.sin(gems.fx.hintTime * 10)) * (1 - gems.fx.hintTime / 3)
+						gems.fx.hint[1]:SetAlpha(a)
+						gems.fx.hint[2]:SetAlpha(a)
+					end
+				end
+				if #gemFxParts == 0 and gemFlash <= 0 and gemShake <= 0 and not gemBannerTime and not gems.fx.hintTime then
+					self:SetScript("OnUpdate", nil)
+				end
+			end
+
+			-- Function to add a sparkle flying out from a point on the board (spare sparkles are reused)
+			local function GemSpark(x, y, r, g, b)
+				local p = table.remove(gemSparkSpare)
+				if not p then
+					p = {spare = gemSparkSpare}
+					p.region = gems.fx:CreateTexture(nil, "OVERLAY")
+					p.region:SetTexture("Interface\\Cooldown\\star4")
+					p.region:SetBlendMode("ADD")
+				end
+				local angle, speed = math.random() * 2 * math.pi, 60 + math.random() * 110
+				p.x, p.y, p.vx, p.vy = x, y, math.cos(angle) * speed, math.sin(angle) * speed + 40
+				p.age, p.life, p.size = 0, 0.5 + math.random() * 0.3, 10 + math.random(8)
+				p.region:SetVertexColor(r, g, b, 1)
+				p.region:SetSize(p.size, p.size)
+				p.region:Show()
+				gemFxParts[#gemFxParts + 1] = p
+			end
+
+			-- Function to add points floating up from a point on the board (spare ones are reused)
+			-- Function to add text floating up from a point on the board, such as points (spare ones are reused)
+			local function GemText(x, y, text, r, g, b, speed, life)
+				local p = table.remove(gemTextSpare)
+				if not p then
+					p = {spare = gemTextSpare, isText = true}
+					p.region = gems.fx:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+					local font, size = p.region:GetFont()
+					if font then p.region:SetFont(font, 18, "OUTLINE") end
+				end
+				p.region:SetText(text)
+				p.region:SetTextColor(r, g, b)
+				p.x, p.y, p.vx, p.vy, p.age, p.life = x, y, 0, speed, 0, life
+				p.region:SetAlpha(1)
+				p.region:Show()
+				gemFxParts[#gemFxParts + 1] = p
+				gems.fx:SetScript("OnUpdate", GemFxUpdate)
+			end
+
+			-- Function to show a word in the middle of the board with its starburst and a ring of sparkles (sound is played
+			-- separately)
+			local function GemBanner(word, r, g, b, sparks)
+				gems.fx.levelWord = nil
+				gems.fx.bannerText:SetText(word)
+				gems.fx.bannerText:SetTextColor(r, g, b)
+				gems.fx.burst:SetVertexColor(r, g, b, 1)
+				gems.fx.banner:SetScale(2.4)
+				gems.fx.banner:SetAlpha(0)
+				gems.fx.banner:Show()
+				gemBannerTime = 0
+				local cx, cy = gemSize * gemCell / 2, -gemSize * gemCell / 2
+				for s = 1, sparks do GemSpark(cx, cy, r, g, b) end
+				gems.fx:SetScript("OnUpdate", GemFxUpdate)
+			end
+
+			-- Function to celebrate a match (count is how many gems cleared, combo is how far into a chain it is)
+			local function GemCelebrate(count, combo)
+				local big = combo >= 3 or count >= 5
+				local sumX, sumY, n = 0, 0, 0
+				for key in pairs(gemMatched) do
+					local c, r = math.floor(key / 100), key % 100
+					local x, y = (c - 0.5) * gemCell, -(r - 0.5) * gemCell
+					local g = gemIcons[gemBoard[c][r]] or {nil, 1, 1, 1} -- (a hypercube's sparkles are white)
+					for s = 1, big and 7 or 4 do GemSpark(x, y, g[2], g[3], g[4]) end
+					sumX, sumY, n = sumX + x, sumY + y, n + 1
+				end
+				-- Points (gold for a chain, white otherwise)
+				if combo >= 2 then
+					GemText(sumX / n, sumY / n, "+" .. count * 10 * combo * (gems.level or 1), 1, 0.85, 0.2, 45, 0.9)
+				else
+					GemText(sumX / n, sumY / n, "+" .. count * 10 * combo * (gems.level or 1), 1, 1, 1, 45, 0.9)
+				end
+				-- Combo counter for a chain (under the middle of the board, it grows with the chain)
+				if combo >= 2 then
+					GemText(gemSize * gemCell / 2, -gemSize * gemCell / 2 - 46, string.format(L["Combo x%d!"], combo), 1, 0.75 + math.min(combo, 6) * 0.04, 0.2, 14, 1.2)
+				end
+				-- Word, flash and shake for a chain or a line of 4 or more (bigger for better moves)
+				local level = combo >= 2 and math.min(combo - 1, #gemWords) or 0
+				if count >= 5 then level = math.max(level, 3) elseif count >= 4 then level = math.max(level, 1) end
+				if level > 0 then
+					local w = gemWords[level]
+					-- (a level up word stays until it's finished)
+					if not gems.levelUp:IsShown() then GemBanner(w[1], w[2], w[3], w[4], 8 + 3 * level) end
+					PlayPowerSound(w[5], 1.6) -- The word's own sound
+					gemFlash = math.max(gemFlash, 0.12 + 0.06 * level)
+					gemShake = math.max(gemShake, 2 + 1.5 * level)
+					gemShakeRate = gemShake / 0.35
+				end
+				gems.fx:SetScript("OnUpdate", GemFxUpdate)
+			end
+
+			-- Function to stop the celebrations straight away (when the game ends)
+			local function GemFxStop()
+				if not gems or not gems.fx then return end
+				gems.fx:SetScript("OnUpdate", nil)
+				for i = #gemFxParts, 1, -1 do
+					local p = gemFxParts[i]
+					p.region:Hide()
+					p.spare[#p.spare + 1] = p
+					gemFxParts[i] = nil
+				end
+				gemShake, gemFlash, gemBannerTime = 0, 0, nil
+				gems.fx.flash:SetAlpha(0)
+				gems.fx.banner:Hide()
+				gems.fx.burst:Hide()
+				gems.fx.hintTime = nil
+				gems.fx.hint[1]:Hide()
+				gems.fx.hint[2]:Hide()
+				gems.levelUp:Hide()
+				GemGridHome()
+			end
+
+			-- Function to clear any lines (chain reactions score more), shuffle if no swap can make a line, or wait for a move
+			GemResolve = function()
+				local count, made, blasts
+				if gemX.forced then
+					-- A hypercube chose the squares to clear
+					gemX.forced = nil
+					wipe(gemX.runs)
+					count = 1
+				else
+					count = GemFindMatches()
+				end
+				if count > 0 then
+					-- New special gems from the lines, then special gems being cleared go off
+					made = gemX.Make()
+					blasts = gemX.Detonate()
+					if gemX.preBlasts then
+						for i = #gemX.preBlasts, 1, -1 do table.insert(blasts, 1, gemX.preBlasts[i]) end
+						gemX.preBlasts = nil
+					end
+					count = 0
+					for key in pairs(gemMatched) do count = count + 1 end
+					gemCombo = gemCombo + 1
+					gemScore = gemScore + count * 10 * gemCombo * gems.level
+					-- Clearing gems fills the level bar, a full bar is the next level (each level needs 12 more gems than
+					-- the last, and points are multiplied by the level)
+					gems.levelGems = gems.levelGems + count
+					local levelUp
+					if gems.levelGems >= 24 + 12 * gems.level then
+						gems.levelGems = gems.levelGems - (24 + 12 * gems.level)
+						gems.level = gems.level + 1
+						gems.hints = math.min(3, (gems.hints or 0) + 1) -- Each level up gives a hint back (up to 3)
+						gemX.newBoard = true -- A fresh board rains in when the chain ends
+						levelUp = true
+					end
+					GemScoreText()
+					GemCelebrate(count, gemCombo)
+					gems.SpecialFx(made, blasts)
+					if gemNewBest then
+						-- New best score (ui_challengemode_newrecord)
+						gemNewBest = false
+						PlayPowerSound(774376)
+						GemBanner(L["New best!"], 1, 0.82, 0, 20)
+					end
+					if levelUp then
+						-- Level up (the biggest show: a big LEVEL UP logo pops in over spinning golden rays with a burst of
+						-- light, a ring of sparkles, a bright flash and a shake, with the artifact forge final trait unlocked
+						-- sound, ui_72_artifact_forge_final_trait_unlocked)
+						PlayPowerSound(1600378, 2.5)
+						gems.levelUp:Play(gems.level)
+						local cx, cy = gemSize * gemCell / 2, -gemSize * gemCell / 2
+						for s = 1, 36 do GemSpark(cx, cy, 1, 0.85, 0.3) end
+						gems.fx:SetScript("OnUpdate", GemFxUpdate)
+						gems.bar.flash:Play()
+						GemMusic() -- The new level's ambience
+						gems:SetLevelColors(gems.level) -- And its colors
+						gemFlash = math.max(gemFlash, 0.5)
+						gemShake = math.max(gemShake, 7)
+						gemShakeRate = gemShake / 0.45
+					end
+					PlayPowerSound(gemShatter, 0.35) -- Cut short with a quick fade
+					GemPlay("clear", 0.22, GemCollapse)
+					return
+				end
+				gemCombo = 0
+				gemX.swapA, gemX.swapB = nil, nil
+				if gemX.newBoard then
+					-- Level up: the old board shatters away and a fresh one rains in
+					gemX.newBoard = nil
+					gems.NewBoard()
+					return
+				end
+				if not GemHasMove() then
+					-- No swap can make a line, so the game is over (the board dims and stays to look at, start or reset
+					-- plays again, ui_garrison_mission_complete_missionfail_stinger)
+					gemState = "over"
+					gemPickC, gemPickR = nil, nil
+					GemEdges()
+					gems.grid:SetAlpha(0.45)
+					GemMessage(L["No more moves!"], string.format(L["Final score %d - press gemfall or reset to play again"], gemScore))
+					PlayPowerSound(1068445)
+					GemMusic()
+					return
+				end
+				gemState = "play"
+				GemEdges()
+				gems:Idle()
+			end
+
+			-- Function to swap two gems next to each other (it swaps back if it makes no line). A hypercube swapped with a
+			-- gem clears every gem of that kind, two hypercubes swapped together clear the whole board.
+			local function GemSwap(c1, r1, c2, r2)
+				gemState = "busy"
+				gems:Idle() -- Stops the auto hint timer
+				gemX.swapA, gemX.swapB = c2 * 100 + r2, c1 * 100 + r1
+				gemPickC, gemPickR = nil, nil
+				GemEdges()
+				PlayPowerSound(567407) -- uchatscrollbutton
+				local function Slide()
+					GemSwapData(c1, r1, c2, r2)
+					gemSpecial[c1][r1], gemSpecial[c2][r2] = gemSpecial[c2][r2], gemSpecial[c1][r1]
+					local t1, t2 = gemTiles[c1][r1], gemTiles[c2][r2]
+					GemShow(t1); GemShow(t2)
+					t1.sx, t1.sy = (c2 - c1) * gemCell, -(r2 - r1) * gemCell
+					t2.sx, t2.sy = (c1 - c2) * gemCell, -(r1 - r2) * gemCell
+				end
+				Slide()
+				GemPlay("move", 0.15, function()
+					local a, b = gemSpecial[c1][r1], gemSpecial[c2][r2]
+					if a == "cube" or b == "cube" then
+						gemCombo = 0
+						wipe(gemMatched)
+						local blast
+						if a == "cube" and b == "cube" then
+							for c = 1, gemSize do for r = 1, gemSize do gemMatched[c * 100 + r] = true end end
+							blast = {kind = "cube", c = c2, r = r2, all = true}
+						else
+							local cc, cr, oc, orow = c1, r1, c2, r2
+							if b == "cube" then cc, cr, oc, orow = c2, r2, c1, r1 end
+							local color = gemBoard[oc][orow]
+							gemMatched[cc * 100 + cr] = true
+							for c = 1, gemSize do
+								for r = 1, gemSize do
+									if gemBoard[c][r] == color then gemMatched[c * 100 + r] = true end
+								end
+							end
+							blast = {kind = "cube", c = cc, r = cr, color = color}
+						end
+						if a == "cube" then gemSpecial[c1][r1] = nil end -- Used up
+						if b == "cube" then gemSpecial[c2][r2] = nil end
+						gemX.forced, gemX.preBlasts = true, {blast}
+						GemResolve()
+					elseif GemLineAt(c1, r1) or GemLineAt(c2, r2) then
+						gemCombo = 0
+						GemResolve()
+					else
+						Slide()
+						gemX.swapA, gemX.swapB = nil, nil
+						GemPlay("move", 0.15, function()
+							gemState = "play"
+							GemEdges()
+							gems:Idle()
+						end)
+					end
+				end)
+			end
+
+			-- Function for clicking a gem or pressing A on it (pick it up, put it down, or swap it with the gem picked up)
+			local function GemClick(c, r)
+				if gemState ~= "play" then return end
+				gemCursorC, gemCursorR = c, r
+				if gemPickC == c and gemPickR == r then
+					gemPickC, gemPickR = nil, nil
+				elseif gemPickC and math.abs(gemPickC - c) + math.abs(gemPickR - r) == 1 then
+					GemSwap(gemPickC, gemPickR, c, r)
+					return
+				else
+					gemPickC, gemPickR = c, r
+				end
+				GemEdges()
+			end
+
+			-- Function to swap a gem by dragging it (the gem swaps with the one next to it in the direction it was dragged)
+			local function GemDrag(c, r, key)
+				if gemState ~= "play" then return end
+				local d = gemDirs[key]
+				local c2, r2 = c + d[1], r + d[2]
+				if c2 < 1 or c2 > gemSize or r2 < 1 or r2 > gemSize then return end
+				gemCursorC, gemCursorR = c2, r2
+				GemSwap(c, r, c2, r2)
+			end
+
+			-- Function for the D-pad (moves the highlight, or swaps the gem picked up that way)
+			local function GemDpad(key)
+				if gemState ~= "play" then return end
+				gems.dpadActive = true
+				local d = gemDirs[key]
+				if gemPickC then
+					local c2, r2 = gemPickC + d[1], gemPickR + d[2]
+					if c2 >= 1 and c2 <= gemSize and r2 >= 1 and r2 <= gemSize then
+						gemCursorC, gemCursorR = c2, r2
+						GemSwap(gemPickC, gemPickR, c2, r2)
+					end
+					return
+				end
+				gemCursorC = math.max(1, math.min(gemSize, gemCursorC + d[1]))
+				gemCursorR = math.max(1, math.min(gemSize, gemCursorR + d[2]))
+				GemEdges()
+			end
+
+			-- Function for the A button (shows a hint, or while playing with the D-pad picks up, puts down or swaps the
+			-- highlighted gem)
+			local function GemButtonA()
+				if not gems or not gems:IsVisible() then return end
+				if gems.dpadActive or gemPickC then
+					GemClick(gemCursorC, gemCursorR)
+				elseif gemState == "play" and (gems.hints or 0) > 0 then
+					-- Hint: the two gems of a random possible move pulse with a gold glow for a moment (mapping), there are 3
+					-- hints in each game and each level up gives one back (up to 3), with none left the button just clicks
+					if gems.ShowHint() then
+						gems.hints = gems.hints - 1
+						LeaMapsLC.GemHintLabel()
+						PlayPowerSound(567416)
+						gems:Idle()
+					end
+				end
+			end
+
+			-- Ambience while the gem game is on the screen (Crystalsong Forest's soft crystal hum from the game,
+			-- crystalsongforestdaynight, no music). It plays on the sound effects channel, so it uses the effects volume and the
+			-- zone music carries on as normal, and it repeats with no gap: the first time it plays, a ticker watches for it to
+			-- end (if the game can say whether a sound is still playing) to learn how long it is, then each copy starts just
+			-- before the last one ends and the last one fades out under it. The ticker only runs until the length is known,
+			-- after that a timer starts each copy. It fades out when the game is hidden, the map is closed or the power is
+			-- turned off.
+			-- Each level has its own ambience, always the same one for that level: level 1 to 50 go through the list below
+			-- (calm forests and glades first, then coasts, jungles and marshes, then snow, cities and stranger places, and
+			-- the darkest and most dramatic last), levels 51 to 100 go back through it from 50 to 1, then it starts again
+			-- (101 is level 1's ambience, and so on). Moving up a level fades the old ambience out under the new one.
+			local gemAmbiences = {
+				594384, 594486, 538990, 539058, 594528, 594456, 539131, 539108, 539056, 539128,
+				594345, 594540, 539047, 538994, 594546, 594513, 539048, 539125, 594561, 594570,
+				539001, 538999, 594471, 594381, 539097, 539092, 539084, 539103, 594396, 594447,
+				594351, 594342, 594573, 594408, 539013, 539023, 594504, 594465, 594489, 594366,
+				594450, 594480, 594360, 594423, 594333, 594552, 594510, 539073, 594372, 539011,
+				lengths = {}, -- How long each ambience is (learned the first time it plays)
+			}
+			gemAmbiences.For = function(level)
+				local count = #gemAmbiences
+				local i = (level - 1) % (count * 2)
+				if i < count then return gemAmbiences[i + 1] end
+				return gemAmbiences[count * 2 - i]
+			end
+			local gemAmbHandle, gemAmbStart, gemAmbTicker, gemAmbTimer
+			local GemAmbPlay
+			local function GemAmbWatch()
+				if gemAmbHandle and not C_Sound.IsPlaying(gemAmbHandle) then
+					-- It has ended, so now its length is known
+					gemAmbiences.lengths[gemAmbiences.playing] = GetTime() - gemAmbStart
+					gemAmbTicker:Cancel()
+					gemAmbTicker, gemAmbHandle = nil, nil
+					GemAmbPlay()
+				end
+			end
+			GemAmbPlay = function()
+				local id = gemAmbiences.For(gems and gems.level or 1)
+				local changed = gemAmbHandle and id ~= gemAmbiences.playing -- A new level's ambience
+				local willPlay, handle = PlaySoundFile(id, "SFX")
+				if not willPlay then return end
+				local last = gemAmbHandle
+				gemAmbHandle, gemAmbStart, gemAmbiences.playing = handle, GetTime(), id
+				if last then StopSound(last, changed and 1500 or 600) end -- The last copy fades out under the new one
+				local length = gemAmbiences.lengths[id]
+				if length and length > 2 then
+					gemAmbTimer = C_Timer.NewTimer(length - 0.6, GemAmbPlay)
+				elseif not length and C_Sound and C_Sound.IsPlaying then
+					gemAmbTicker = C_Timer.NewTicker(0.05, GemAmbWatch)
+				end
+			end
+			local gemAmbOn = false
+			GemMusic = function()
+				-- Turning the power off hides the game (it's kept, gemfall carries on where you were once the power is back
+				-- on). The board stays under the screen while it fades to black so the map doesn't show through, then it's
+				-- hidden.
+				if not hhPowerOn and gems and gems:IsShown() and not gems.powerHide then
+					gems.powerHide = true
+					C_Timer.After(1, function()
+						gems.powerHide = nil
+						if not hhPowerOn then gems:Hide() end
+					end)
+				end
+				LeaMapsLC.GemHintLabel()
+				local want = gems and gems:IsVisible() and hhPowerOn and gemState ~= nil and gemState ~= "over"
+				if want and gemAmbOn and gemAmbiences.For(gems.level or 1) ~= gemAmbiences.playing then
+					-- Level changed (or a new game), so the ambience changes to the new level's
+					if gemAmbTicker then gemAmbTicker:Cancel() end
+					if gemAmbTimer then gemAmbTimer:Cancel() end
+					gemAmbTicker, gemAmbTimer = nil, nil
+					GemAmbPlay()
+				elseif want and not gemAmbOn then
+					gemAmbOn = true
+					GemAmbPlay()
+				elseif not want and gemAmbOn then
+					gemAmbOn = false
+					if gemAmbTicker then gemAmbTicker:Cancel() end
+					if gemAmbTimer then gemAmbTimer:Cancel() end
+					if gemAmbHandle then StopSound(gemAmbHandle, 800) end
+					gemAmbTicker, gemAmbTimer, gemAmbHandle = nil, nil, nil
+				end
+			end
+
+			-- Function to start a new game (a new board and the score back to 0, the best score is kept)
+			local function GemNew()
+				gems:SetScript("OnUpdate", nil)
+				gemAnim, gemAnimDone = nil, nil
+				GemFxStop()
+				gems:Show() -- Shown first so its size can be read
+				if not GemLayout() then
+					gemState = nil
+					gems:Hide()
+					return
+				end
+				GemFill()
+				gems.grid:SetAlpha(1)
+				gemScore, gemCombo, gemCursorC, gemCursorR, gemPickC, gemPickR = 0, 0, 1, 1, nil, nil
+				gems.dpadActive = false
+				gems.level, gems.levelGems, gems.hints = 1, 0, 3
+				gems:SetLevelColors(1)
+				gemBestAtStart, gemNewBest, gemRecordDone = LeaMapsLC["GemBest"] or 0, false, false
+				GemScoreText()
+				GemMessage()
+				gemState = "busy"
+				GemMusic()
+				GemDropAll(function()
+					gemState = "play"
+					GemEdges()
+					gems:Idle()
+				end)
+			end
+
+			-- Function for the start button (hides the game, or shows it again where it was left, or starts a new game if
+			-- there isn't one or the game is over, not while the power is off or turning on or off). A hidden game is paused, gems that were
+			-- moving carry on when it's shown again.
+			local function GemStart()
+				PlayPowerSound(567481) -- iuiinterfacebuttona
+				if not hhPowerOn or hhPowerAnim then return end
+				if gems and gems.fadeOut:IsPlaying() then
+					-- Pressed again while it's fading out, so it fades back in
+					gems.fadeOut:Stop()
+					gems:SetAlpha(1)
+					gems.fadeIn:Play()
+				elseif not gemState or (gemState == "over" and gems:IsShown()) then
+					GemNew()
+				elseif gems:IsShown() then
+					gems.fadeOut:Play() -- Fades out, then it's hidden
+				else
+					gems:Show()
+					GemLayout()
+					GemScoreText()
+					GemEdges()
+				end
+			end
+
+			-- Function for the reset button (starts a new game, not while the power is off or turning on or off)
+			-- (a game being played asks first: a box on the board asks to start a new game, yes or no, only yes starts it,
+			-- the game is shown if it was hidden so the box can be seen)
+			local function GemReset()
+				PlayPowerSound(567407) -- uchatscrollbutton
+				if not hhPowerOn or hhPowerAnim then return end
+				if gems and gemState and gemState ~= "over" then
+					if gems.confirm:IsShown() then return end -- Already asking (yes has to be clicked)
+					if not gems:IsShown() then
+						gems:Show()
+						GemLayout()
+						GemScoreText()
+						GemEdges()
+					end
+					gems.help:Hide()
+					gems.confirm:Show()
+					return
+				end
+				GemNew()
+			end
+
+			-- Function to create the board
+			local function CreateGems()
+				gems = CreateFrame("Frame", nil, WorldMapFrame)
+				gems:SetFrameStrata("HIGH")
+				gems:SetFrameLevel(math.min(frameLevel + 17, 10000))
+				gems:SetAllPoints(WorldMapFrame.ScrollContainer)
+				-- The game screen leaves the bottom right corner open so the quest log toggle button there can be seen and
+				-- clicked: the screen stops short of the button's column, and a strip of our own (the cap) covers that
+				-- column above the button with the background colors it would have there. The button is only looked at.
+				gems.cap = CreateFrame("Frame", nil, gems)
+				gems.cap:EnableMouse(true)
+				gems.cap:Hide()
+				gems.cap.back = gems.cap:CreateTexture(nil, "BACKGROUND")
+				gems.cap.back:SetTexture(hhWhite)
+				gems.cap.back:SetAllPoints()
+				function gems:Fit()
+					local container = WorldMapFrame.ScrollContainer
+					local toggle = WorldMapFrame.SidePanelToggle
+					if not toggle then
+						for void, frame in ipairs(WorldMapFrame.overlayFrames or {}) do
+							if frame.OpenButton and frame.CloseButton then toggle = frame break end
+						end
+					end
+					local gap, tall = 0, 0
+					if toggle and toggle:IsShown() then
+						local w, h = toggle:GetSize()
+						if w and h and not (issecretvalue and (issecretvalue(w) or issecretvalue(h))) then
+							gap, tall = w + 2, h + 2
+						else
+							gap, tall = 34, 34
+						end
+					end
+					if gap ~= self.fitGap then
+						self.fitGap = gap
+						self:ClearAllPoints()
+						self:SetPoint("TOPLEFT", container, "TOPLEFT")
+						self:SetPoint("BOTTOMRIGHT", container, "BOTTOMRIGHT", -gap, 0)
+					end
+					if gap > 0 then
+						self.cap:ClearAllPoints()
+						self.cap:SetPoint("TOPLEFT", self, "TOPRIGHT")
+						self.cap:SetPoint("BOTTOMRIGHT", container, "BOTTOMRIGHT", 0, tall)
+						-- Background colors at the top and bottom of the cap (it ends above the button)
+						local full = container:GetHeight()
+						local f = 1
+						if full and not (issecretvalue and issecretvalue(full)) and full > tall then f = (full - tall) / full end
+						local top, bottom = self.palette and self.palette.top or {0.09, 0.06, 0.17}, self.palette and self.palette.bottom or {0.02, 0.02, 0.05}
+						local tr, tg, tb, br, bg, bb = top[1], top[2], top[3], bottom[1], bottom[2], bottom[3]
+						self.cap.back:SetGradient("VERTICAL", CreateColor(tr + (br - tr) * f, tg + (bg - tg) * f, tb + (bb - tb) * f, 1), CreateColor(tr, tg, tb, 1))
+						self.cap:Show()
+					else
+						self.cap:Hide()
+					end
+				end
+				gems:EnableMouse(true)
+				gems:Hide()
+				-- Game screen background (covers the map: deep indigo fading to near black, a soft violet glow behind the
+				-- board made of faint rings that light up one after another from the outside in, slowly and over and over,
+				-- and a scatter of faint stars that twinkle). The movement uses animation groups, which the game runs itself,
+				-- so there's no OnUpdate.
+				local back = gems:CreateTexture(nil, "BACKGROUND", nil, 0)
+				back:SetTexture(hhWhite)
+				back:SetGradient("VERTICAL", CreateColor(0.02, 0.02, 0.05, 1), CreateColor(0.09, 0.06, 0.17, 1))
+				back:SetAllPoints()
+				-- Board (in the middle, a little below the score, gems dropping in from above are clipped to it)
+				gems.grid = CreateFrame("Frame", nil, gems)
+				gems.grid:SetPoint("CENTER", 0, -6)
+				gems.grid:SetSize(1, 1)
+				gems.grid:SetClipsChildren(true)
+				for i, size in ipairs({1.0, 0.86, 0.72, 0.58, 0.44}) do -- Size of each ring as a fraction of the screen
+					local glow = gems:CreateTexture(nil, "BACKGROUND", nil, i)
+					glow:SetTexture(hhWhite)
+					glow:SetBlendMode("ADD") -- Adds a little light (a dark color added is a faint glow)
+					glow:SetVertexColor(0.07, 0.04, 0.13, 1)
+					glow:SetAlpha(0.3)
+					-- Each ring brightens and fades over 3 seconds, a little after the ring outside it, every 7 seconds
+					local ripple = glow:CreateAnimationGroup()
+					ripple:SetLooping("REPEAT")
+					local up = ripple:CreateAnimation("Alpha")
+					up:SetFromAlpha(0.3)
+					up:SetToAlpha(1)
+					up:SetDuration(1.5)
+					up:SetStartDelay((i - 1) * 0.55)
+					up:SetSmoothing("IN_OUT")
+					up:SetOrder(1)
+					local down = ripple:CreateAnimation("Alpha")
+					down:SetFromAlpha(1)
+					down:SetToAlpha(0.3)
+					down:SetDuration(1.5)
+					down:SetEndDelay(4 - (i - 1) * 0.55)
+					down:SetSmoothing("IN_OUT")
+					down:SetOrder(2)
+					ripple:Play()
+					glow:SetPoint("TOPLEFT", gems.grid, "CENTER", 0, 0)
+					glow:SetPoint("BOTTOMRIGHT", gems.grid, "CENTER", 0, 0)
+					glow.size = size
+					if gems.CreateMaskTexture then -- Round (the mask is made on the same frame as the glow)
+						local mask = gems:CreateMaskTexture()
+						mask:SetTexture("Interface\\CharacterFrame\\TempPortraitAlphaMask", "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
+						mask:SetAllPoints(glow)
+						glow:AddMaskTexture(mask)
+					end
+					gems.glows = gems.glows or {}
+					gems.glows[i] = glow
+				end
+				for void, star in ipairs({{0.06, 0.12, 9}, {0.14, 0.78, 7}, {0.09, 0.46, 6}, {0.92, 0.18, 8}, {0.86, 0.64, 6}, {0.95, 0.88, 9}, {0.22, 0.93, 5}, {0.78, 0.07, 5}, {0.04, 0.95, 7}, {0.97, 0.42, 5}, {0.18, 0.26, 5}, {0.12, 0.62, 8}, {0.83, 0.34, 6}, {0.90, 0.76, 5}, {0.30, 0.05, 6}, {0.70, 0.95, 6}}) do
+					local s = gems:CreateTexture(nil, "BACKGROUND", nil, 4)
+					s:SetTexture("Interface\\Cooldown\\star4")
+					s:SetBlendMode("ADD")
+					s:SetVertexColor(0.75, 0.70, 1, 0.35)
+					s:SetSize(star[3] * 2, star[3] * 2)
+					s.fx, s.fy = star[1], star[2]
+					-- Twinkle (each star dims and shrinks then brightens and grows again, at its own speed)
+					local twinkle = s:CreateAnimationGroup()
+					twinkle:SetLooping("BOUNCE")
+					local speed = 0.9 + (void * 7 % 5) * 0.35
+					local fade = twinkle:CreateAnimation("Alpha")
+					fade:SetFromAlpha(1)
+					fade:SetToAlpha(0.1)
+					fade:SetDuration(speed)
+					fade:SetSmoothing("IN_OUT")
+					local shrink = twinkle:CreateAnimation("Scale")
+					shrink:SetScale(0.45, 0.45)
+					shrink:SetDuration(speed)
+					shrink:SetSmoothing("IN_OUT")
+					twinkle:Play()
+					gems.stars = gems.stars or {}
+					gems.stars[#gems.stars + 1] = s
+				end
+				-- Dark panel behind the gems with a faint edge
+				local edge = gems:CreateTexture(nil, "BORDER", nil, 0)
+				edge:SetTexture(hhWhite)
+				edge:SetVertexColor(0.40, 0.32, 0.60, 0.55)
+				edge:SetPoint("TOPLEFT", gems.grid, "TOPLEFT", -5, 5)
+				edge:SetPoint("BOTTOMRIGHT", gems.grid, "BOTTOMRIGHT", 5, -5)
+				local panel = gems:CreateTexture(nil, "BORDER", nil, 1)
+				panel:SetTexture(hhWhite)
+				panel:SetVertexColor(0.03, 0.025, 0.06, 0.95)
+				panel:SetPoint("TOPLEFT", gems.grid, "TOPLEFT", -4, 4)
+				panel:SetPoint("BOTTOMRIGHT", gems.grid, "BOTTOMRIGHT", 4, -4)
+				-- Each level has its own colors for the background, glow rings, stars and panel edge (always the same colors
+				-- for the same level: level 1 is violet and each level after it moves round the color wheel by the golden
+				-- angle, so neighbouring levels always look clearly different and no two levels look the same). The
+				-- animations stay the same, only the colors change, when you level up or start a game.
+				function gems:SetLevelColors(level)
+					local hue = (0.712 + ((level or 1) - 1) * 0.618034) % 1
+					local function HSV(s, v)
+						local i = math.floor(hue * 6)
+						local f = hue * 6 - i
+						local p, q, w = v * (1 - s), v * (1 - s * f), v * (1 - s * (1 - f))
+						i = i % 6
+						if i == 0 then return v, w, p elseif i == 1 then return q, v, p elseif i == 2 then return p, v, w
+						elseif i == 3 then return p, q, v elseif i == 4 then return w, p, v else return v, p, q end
+					end
+					local tr, tg, tb = HSV(0.65, 0.17)
+					local br, bg, bb = HSV(0.60, 0.05)
+					self.palette = {top = {tr, tg, tb}, bottom = {br, bg, bb}}
+					back:SetGradient("VERTICAL", CreateColor(br, bg, bb, 1), CreateColor(tr, tg, tb, 1))
+					local rr, rg, rb = HSV(0.69, 0.13)
+					for i = 1, #self.glows do self.glows[i]:SetVertexColor(rr, rg, rb, 1) end
+					local sr, sg, sb = HSV(0.30, 1)
+					for i = 1, #self.stars do self.stars[i]:SetVertexColor(sr, sg, sb, 0.35) end
+					local er, eg, eb = HSV(0.47, 0.60)
+					edge:SetVertexColor(er, eg, eb, 0.55)
+					if self.Fit then self:Fit() end -- The cap by the quest log toggle matches the background
+				end
+				-- Celebrations (over the board and not clipped to it so sparkles can fly outside it, takes no mouse clicks):
+				-- a flash over the board and a word in the middle
+				gems.fx = CreateFrame("Frame", nil, gems)
+				gems.fx:SetAllPoints()
+				gems.fx:SetFrameLevel(gems.grid:GetFrameLevel() + 30)
+				gems.fx:EnableMouse(false)
+				gems.fx.flash = gems.fx:CreateTexture(nil, "BACKGROUND")
+				gems.fx.flash:SetTexture(hhWhite)
+				gems.fx.flash:SetBlendMode("ADD")
+				gems.fx.flash:SetAllPoints(gems.grid)
+				gems.fx.flash:SetAlpha(0)
+				gems.fx.hint = {}
+				for i = 1, 2 do
+					gems.fx.hint[i] = gems.fx:CreateTexture(nil, "ARTWORK")
+					gems.fx.hint[i]:SetTexture(hhWhite)
+					gems.fx.hint[i]:SetBlendMode("ADD")
+					gems.fx.hint[i]:SetVertexColor(1, 0.85, 0.35, 1)
+					gems.fx.hint[i]:Hide()
+				end
+				gems.fx.burst = gems.fx:CreateTexture(nil, "ARTWORK")
+				gems.fx.burst:SetTexture("Interface\\Cooldown\\starburst")
+				gems.fx.burst:SetBlendMode("ADD")
+				gems.fx.burst:SetPoint("CENTER", gems.grid, "CENTER")
+				gems.fx.burst:Hide()
+				-- Level up logo (LEVEL UP in big gold letters with the new level under it, over golden rays that spin and a
+				-- burst of light: it pops in big, settles, holds, then fades away, all animation groups)
+				gems.levelUp = CreateFrame("Frame", nil, gems)
+				gems.levelUp:SetSize(320, 140)
+				gems.levelUp:SetPoint("CENTER", gems.grid, "CENTER", 0, 0)
+				gems.levelUp:SetFrameLevel(gems.fx:GetFrameLevel() + 3)
+				gems.levelUp:Hide()
+				local rays = gems.levelUp:CreateTexture(nil, "BACKGROUND")
+				rays:SetTexture("Interface\\Cooldown\\starburst")
+				rays:SetBlendMode("ADD")
+				rays:SetVertexColor(1, 0.80, 0.25, 0.9)
+				rays:SetSize(420, 420)
+				rays:SetPoint("CENTER")
+				local spin = rays:CreateAnimationGroup()
+				spin:SetLooping("REPEAT")
+				local turn = spin:CreateAnimation("Rotation")
+				turn:SetDegrees(-360)
+				turn:SetDuration(6)
+				local burst = gems.levelUp:CreateTexture(nil, "BORDER")
+				burst:SetTexture("Interface\\Cooldown\\star4")
+				burst:SetBlendMode("ADD")
+				burst:SetVertexColor(1, 0.95, 0.70, 1)
+				burst:SetSize(90, 90)
+				burst:SetPoint("CENTER")
+				burst:SetAlpha(0)
+				local bang = burst:CreateAnimationGroup()
+				local grow = bang:CreateAnimation("Scale")
+				grow:SetScale(5, 5)
+				grow:SetDuration(0.5)
+				grow:SetSmoothing("OUT")
+				local bangFade = bang:CreateAnimation("Alpha")
+				bangFade:SetFromAlpha(1)
+				bangFade:SetToAlpha(0)
+				bangFade:SetDuration(0.5)
+				local title = gems.levelUp:CreateFontString(nil, "OVERLAY", "GameFontNormalHuge")
+				title:SetPoint("CENTER", 0, 14)
+				local titleFont = title:GetFont()
+				if titleFont then title:SetFont(titleFont, 52, "THICKOUTLINE") end
+				title:SetTextColor(1, 0.84, 0.15)
+				title:SetShadowOffset(3, -3)
+				title:SetText(L["LEVEL UP!"])
+				local sub = gems.levelUp:CreateFontString(nil, "OVERLAY", "GameFontHighlightHuge")
+				sub:SetPoint("TOP", title, "BOTTOM", 0, -6)
+				local subFont = sub:GetFont()
+				if subFont then sub:SetFont(subFont, 26, "OUTLINE") end
+				sub:SetTextColor(0.55, 0.90, 1)
+				local show = gems.levelUp:CreateAnimationGroup()
+				local fadeIn = show:CreateAnimation("Alpha")
+				fadeIn:SetFromAlpha(0)
+				fadeIn:SetToAlpha(1)
+				fadeIn:SetDuration(0.12)
+				fadeIn:SetOrder(1)
+				local pop = show:CreateAnimation("Scale")
+				pop:SetScale(1.3, 1.3)
+				pop:SetDuration(0.16)
+				pop:SetSmoothing("OUT")
+				pop:SetOrder(1)
+				local settle = show:CreateAnimation("Scale")
+				settle:SetScale(1 / 1.3, 1 / 1.3)
+				settle:SetDuration(0.18)
+				settle:SetSmoothing("IN_OUT")
+				settle:SetOrder(2)
+				local fadeOut = show:CreateAnimation("Alpha")
+				fadeOut:SetFromAlpha(1)
+				fadeOut:SetToAlpha(0)
+				fadeOut:SetStartDelay(1.5)
+				fadeOut:SetDuration(0.5)
+				fadeOut:SetOrder(3)
+				show:SetScript("OnFinished", function()
+					spin:Stop()
+					gems.levelUp:Hide()
+				end)
+				function gems.levelUp:Play(level)
+					sub:SetFormattedText(L["Level %d"], level)
+					self:Show()
+					show:Stop()
+					bang:Stop()
+					spin:Play()
+					bang:Play()
+					show:Play()
+				end
+				gems.levelUp:SetScript("OnHide", function()
+					show:Stop()
+					bang:Stop()
+					spin:Stop()
+				end)
+				gems.fx.banner = CreateFrame("Frame", nil, gems.fx)
+				gems.fx.banner:SetSize(1, 1)
+				gems.fx.banner:SetPoint("CENTER", gems.grid, "CENTER")
+				gems.fx.banner:Hide()
+				gems.fx.bannerText = gems.fx.banner:CreateFontString(nil, "OVERLAY", "GameFontNormalHuge")
+				local bannerFont = gems.fx.bannerText:GetFont()
+				if bannerFont then gems.fx.bannerText:SetFont(bannerFont, 36, "THICKOUTLINE") end
+				gems.fx.bannerText:SetPoint("CENTER")
+				local back = gems.grid:CreateTexture(nil, "BACKGROUND")
+				back:SetTexture(hhWhite)
+				back:SetVertexColor(0.08, 0.07, 0.10, 0.85)
+				back:SetAllPoints()
+				-- Tiles (an edge for the highlight, and the gem: a colored tile with the gem icon, lighter when the pointer
+				-- is over it)
+				for c = 1, gemSize do
+					gemTiles[c] = {}
+					for r = 1, gemSize do
+						local tile = CreateFrame("Button", nil, gems.grid)
+						tile.c, tile.r = c, r
+						tile.ox, tile.oy, tile.scale, tile.alpha = 0, 0, 1, 1
+						tile.edge = tile:CreateTexture(nil, "BACKGROUND")
+						tile.edge:SetPoint("TOPLEFT", 1, -1)
+						tile.edge:SetPoint("BOTTOMRIGHT", -1, 1)
+						tile.edge:SetColorTexture(0, 0, 0, 0)
+						tile.art = CreateFrame("Frame", nil, tile)
+						tile.bg = tile.art:CreateTexture(nil, "BORDER")
+						tile.bg:SetAllPoints()
+						tile.icon = tile.art:CreateTexture(nil, "ARTWORK")
+						tile.icon:SetPoint("TOPLEFT", 3, -3)
+						tile.icon:SetPoint("BOTTOMRIGHT", -3, 3)
+						tile.icon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
+						tile.hover = tile.art:CreateTexture(nil, "OVERLAY")
+						tile.hover:SetAllPoints()
+						tile.hover:SetColorTexture(1, 1, 1, 0.15)
+						tile.hover:Hide()
+						tile:SetScript("OnEnter", function(self) self.hover:Show() end)
+						tile:SetScript("OnLeave", function(self) self.hover:Hide() end)
+						-- Click a gem and then a gem next to it to swap them, or drag a gem towards the gem to swap it with.
+						-- Dragging uses the game's drag start (it fires once when the mouse moves a little while held), the
+						-- direction is from where the mouse was pressed, and the click that follows the drag is ignored.
+						tile:RegisterForDrag("LeftButton")
+						tile:SetScript("OnMouseDown", function(self, button)
+							if button ~= "LeftButton" then return end
+							self.downX, self.downY = GetCursorPosition()
+							self.dragged = nil
+							gems.dpadActive = false -- Playing with the mouse
+						end)
+						tile:SetScript("OnDragStart", function(self)
+							if not self.downX then return end
+							local x, y = GetCursorPosition()
+							local dx, dy = x - self.downX, y - self.downY
+							if dx == 0 and dy == 0 then return end
+							self.dragged = true
+							gemPickC, gemPickR = nil, nil
+							local key
+							if math.abs(dx) > math.abs(dy) then key = dx > 0 and "R" or "L" else key = dy > 0 and "U" or "D" end
+							GemDrag(self.c, self.r, key)
+						end)
+						tile:SetScript("OnClick", function(self)
+							if self.dragged then
+								self.dragged = nil
+								return
+							end
+							GemClick(self.c, self.r)
+						end)
+						gemTiles[c][r] = tile
+					end
+				end
+				-- Special gem looks (made to stand out: the tile gets a bright colored frame and its whole square glows and
+				-- gently pulses, two big bursts of light spin round it in opposite directions). Flame gems are fiery orange and yellow, star gems gold and white with a spinning star on top, and
+				-- hypercubes have red, green and blue bursts that make a rainbow. All animation groups, made the first time a
+				-- tile shows a special gem and only playing while it does.
+				gems.SpecialLook = function(tile, special)
+					if not special and not tile.looks then return end
+					if not tile.looks then
+						local looks = {anims = {}}
+						tile.looks = looks
+						local function Spin(region, degrees, seconds)
+							local group = region:CreateAnimationGroup()
+							group:SetLooping("REPEAT")
+							local turn = group:CreateAnimation("Rotation")
+							turn:SetDegrees(degrees)
+							turn:SetDuration(seconds)
+							looks.anims[#looks.anims + 1] = group
+						end
+						local function Pulse(region, low, seconds)
+							local group = region:CreateAnimationGroup()
+							group:SetLooping("BOUNCE")
+							local fade = group:CreateAnimation("Alpha")
+							fade:SetFromAlpha(1)
+							fade:SetToAlpha(low)
+							fade:SetDuration(seconds)
+							fade:SetSmoothing("IN_OUT")
+							looks.anims[#looks.anims + 1] = group
+						end
+						-- Bright frame round the square (it shows round the edge and lights up the see-through tile)
+						looks.frame = tile.art:CreateTexture(nil, "BORDER", nil, -2)
+						looks.frame:SetTexture(hhWhite)
+						looks.frame:SetPoint("TOPLEFT", -2, 2)
+						looks.frame:SetPoint("BOTTOMRIGHT", 2, -2)
+						Pulse(looks.frame, 0.85, 0.9) -- (only a gentle pulse)
+						-- Glow over the square, under the gem
+						looks.aura = tile.art:CreateTexture(nil, "BORDER", nil, 2)
+						looks.aura:SetTexture(hhWhite)
+						looks.aura:SetBlendMode("ADD")
+						looks.aura:SetAllPoints()
+						Pulse(looks.aura, 0.6, 0.9)
+						-- Bursts of light spinning round the gem (three for a hypercube)
+						looks.bursts = {}
+						for i = 1, 3 do
+							local burst = tile.art:CreateTexture(nil, "BORDER", nil, 3)
+							burst:SetTexture("Interface\\Cooldown\\starburst")
+							burst:SetBlendMode("ADD")
+							local out = 10 + i * 4
+							burst:SetPoint("TOPLEFT", -out, out)
+							burst:SetPoint("BOTTOMRIGHT", out, -out)
+							Spin(burst, i == 2 and 360 or -360, 2.5 + i)
+							looks.bursts[i] = burst
+						end
+						-- Badge in the bottom right corner (fireball for a flame gem, holy light for a star gem)
+						looks.badge = tile.art:CreateTexture(nil, "OVERLAY", nil, 2)
+						looks.badge:SetTexCoord(0.08, 0.92, 0.08, 0.92)
+						looks.badge:SetPoint("BOTTOMRIGHT", -1, 1)
+						looks.badge:SetPoint("TOPLEFT", tile.art, "CENTER", 0, 0)
+						looks.badgeEdge = tile.art:CreateTexture(nil, "OVERLAY", nil, 1)
+						looks.badgeEdge:SetTexture(hhWhite)
+						looks.badgeEdge:SetVertexColor(0, 0, 0, 1)
+						looks.badgeEdge:SetPoint("TOPLEFT", looks.badge, "TOPLEFT", -1, 1)
+						looks.badgeEdge:SetPoint("BOTTOMRIGHT", looks.badge, "BOTTOMRIGHT", 1, -1)
+						-- Spinning star on top (star gems)
+						looks.star = tile.art:CreateTexture(nil, "OVERLAY", nil, -1)
+						looks.star:SetTexture("Interface\\Cooldown\\star4")
+						looks.star:SetBlendMode("ADD")
+						looks.star:SetPoint("TOPLEFT", -8, 8)
+						looks.star:SetPoint("BOTTOMRIGHT", 8, -8)
+						Spin(looks.star, 360, 2.5)
+						Pulse(looks.star, 0.5, 0.35)
+					end
+					local looks = tile.looks
+					local colors = {
+						flame = {frame = {1, 0.45, 0.05}, aura = {1, 0.40, 0.05}, bursts = {{1, 0.35, 0}, {1, 0.80, 0.10}}},
+						star = {frame = {1, 0.90, 0.40}, aura = {1, 0.90, 0.50}, bursts = {{1, 0.85, 0.30}, {1, 1, 0.85}}},
+						cube = {frame = {0.85, 0.75, 1}, aura = {0.70, 0.55, 1}, bursts = {{1, 0.15, 0.15}, {0.15, 1, 0.25}, {0.25, 0.40, 1}}},
+					}
+					local set = colors[special]
+					-- The frame is the gem's color for flame and star gems (so you can see which color they match)
+					local g = gemIcons[gemBoard[tile.c][tile.r]]
+					if set and g and special ~= "cube" then set = {frame = {g[2], g[3], g[4]}, aura = set.aura, bursts = set.bursts} end
+					looks.badge:Hide()
+					looks.badgeEdge:Hide()
+					if set and g and special ~= "cube" then
+						-- Bursts in the gem's color too (a bright and a pale shade)
+						set.bursts = {{g[2], g[3], g[4]}, {0.5 + g[2] * 0.5, 0.5 + g[3] * 0.5, 0.5 + g[4] * 0.5}}
+						set.aura = {g[2], g[3], g[4]}
+					end
+					looks.frame:SetShown(set ~= nil)
+					looks.aura:SetShown(set ~= nil)
+					looks.star:SetShown(special == "star")
+					for i = 1, 3 do looks.bursts[i]:SetShown(set ~= nil and set.bursts[i] ~= nil) end
+					if set then
+						looks.frame:SetVertexColor(set.frame[1], set.frame[2], set.frame[3], 1)
+						looks.aura:SetVertexColor(set.aura[1], set.aura[2], set.aura[3], 0.6)
+						for i = 1, #set.bursts do looks.bursts[i]:SetVertexColor(set.bursts[i][1], set.bursts[i][2], set.bursts[i][3], 1) end
+						looks.star:SetVertexColor(1, 1, 0.9, 1)
+					end
+					for i = 1, #looks.anims do
+						if set then
+							if not looks.anims[i]:IsPlaying() then looks.anims[i]:Play() end
+						else
+							looks.anims[i]:Stop()
+						end
+					end
+				end
+
+				-- Light beams across the board for star gems (a few are made and reused, they flash and fade with an
+				-- animation group)
+				gems.beams = {}
+				local function Beam()
+					for i = 1, #gems.beams do
+						if not gems.beams[i]:IsShown() then return gems.beams[i] end
+					end
+					local beam = gems.fx:CreateTexture(nil, "ARTWORK", nil, 1)
+					beam:SetTexture(hhWhite)
+					beam:SetBlendMode("ADD")
+					beam:Hide()
+					beam.flash = beam:CreateAnimationGroup()
+					local fade = beam.flash:CreateAnimation("Alpha")
+					fade:SetFromAlpha(1)
+					fade:SetToAlpha(0)
+					fade:SetDuration(0.5)
+					fade:SetSmoothing("IN")
+					beam.flash:SetScript("OnFinished", function() beam:Hide() end)
+					gems.beams[#gems.beams + 1] = beam
+					return beam
+				end
+
+				-- Function to show the special gem effects: a burst of sparkles and a word for each special gem made, a
+				-- fireball for a flame gem going off, beams of light along the row and column for a star gem, lightning to
+				-- every gem a hypercube clears (one sound for each kind of effect)
+				gems.SpecialFx = function(made, blasts)
+					local played = {}
+					local function Sound(id, cut)
+						if played[id] then return end
+						played[id] = true
+						PlayPowerSound(id, cut)
+					end
+					local names = {flame = {L["Flame Gem!"], 1, 0.5, 0.1}, star = {L["Star Gem!"], 1, 0.9, 0.4}, cube = {L["Hypercube!"], 0.8, 0.65, 1}}
+					for void, m in ipairs(made or {}) do
+						local c, r = math.floor(m[1] / 100), m[1] % 100
+						local x, y = (c - 0.5) * gemCell, -(r - 0.5) * gemCell
+						local n = names[m[2]]
+						for s = 1, 14 do GemSpark(x, y, n[2], n[3], n[4]) end
+						GemText(x, y + 10, n[1], n[2], n[3], n[4], 30, 1.1)
+						GemShow(gemTiles[c][r])
+						Sound(m[2] == "cube" and 569771 or 569631, 1.2) -- holyimpactddhigh or arcanemissileimpact1a
+					end
+					for void, b in ipairs(blasts or {}) do
+						local x, y = (b.c - 0.5) * gemCell, -(b.r - 0.5) * gemCell
+						if b.kind == "flame" then
+							for s = 1, 22 do GemSpark(x, y, 1, 0.35 + math.random() * 0.35, 0.05) end
+							gemFlash = math.max(gemFlash, 0.35)
+							gemShake = math.max(gemShake, 6)
+							gemShakeRate = gemShake / 0.4
+							Sound(568461, 1.4) -- fireballimpacta
+						elseif b.kind == "star" then
+							local size = gemSize * gemCell
+							local across, down = Beam(), Beam()
+							across:ClearAllPoints()
+							across:SetPoint("LEFT", gems.grid, "TOPLEFT", 0, y)
+							across:SetSize(size, gemCell * 0.6)
+							down:ClearAllPoints()
+							down:SetPoint("TOP", gems.grid, "TOPLEFT", x, 0)
+							down:SetSize(gemCell * 0.6, size)
+							for void, beam in ipairs({across, down}) do
+								beam:SetVertexColor(1, 0.92, 0.55, 1)
+								beam:Show()
+								beam.flash:Stop()
+								beam.flash:Play()
+							end
+							for s = 1, gemSize do
+								GemSpark((s - 0.5) * gemCell, y, 1, 0.9, 0.5)
+								GemSpark(x, -(s - 0.5) * gemCell, 1, 0.9, 0.5)
+							end
+							gemFlash = math.max(gemFlash, 0.3)
+							gemShake = math.max(gemShake, 5)
+							gemShakeRate = gemShake / 0.4
+							Sound(568516, 1.4) -- lightningboltimpact
+						elseif b.kind == "cube" then
+							for key in pairs(gemMatched) do
+								local c, r = math.floor(key / 100), key % 100
+								if b.all or gemBoard[c][r] == b.color then
+									for s = 1, 3 do GemSpark((c - 0.5) * gemCell, -(r - 0.5) * gemCell, 0.75, 0.85, 1) end
+								end
+							end
+							for s = 1, 20 do GemSpark(x, y, 0.85, 0.7, 1) end
+							gemFlash = math.max(gemFlash, b.all and 0.8 or 0.5)
+							gemShake = math.max(gemShake, b.all and 10 or 7)
+							gemShakeRate = gemShake / 0.5
+							Sound(568678, 1.6) -- arcaneexplosion
+							C_Timer.After(0.05, function() PlayPowerSound(566735, 1.4) end) -- blastedlandslightningbolt
+						end
+					end
+					gems.fx:SetScript("OnUpdate", GemFxUpdate)
+				end
+
+				-- Function for a level up's fresh board (every gem shatters with sparkles in its color, then a new board
+				-- rains in, special gems are lost)
+				gems.NewBoard = function()
+					gemState = "busy"
+					wipe(gemMatched)
+					for c = 1, gemSize do
+						for r = 1, gemSize do
+							gemMatched[c * 100 + r] = true
+							local g = gemIcons[gemBoard[c][r]] or {nil, 1, 1, 1}
+							GemSpark((c - 0.5) * gemCell, -(r - 0.5) * gemCell, g[2], g[3], g[4])
+						end
+					end
+					gems.fx:SetScript("OnUpdate", GemFxUpdate)
+					PlayPowerSound(568678, 1.2) -- arcaneexplosion
+					GemPlay("clear", 0.4, function()
+						GemFill()
+						GemDropAll(function()
+							gemState = "play"
+							GemEdges()
+							gems:Idle()
+						end)
+					end)
+				end
+
+				-- Function to find a possible move and make its two gems pulse with a gold glow for a moment (returns false
+				-- if there's none). A hypercube next to any gem is always a possible move.
+				gems.ShowHint = function()
+					local moves = {}
+					for c = 1, gemSize do
+						for r = 1, gemSize do
+							for void, d in ipairs({{1, 0}, {0, 1}}) do
+								local c2, r2 = c + d[1], r + d[2]
+								if c2 <= gemSize and r2 <= gemSize then
+									if gemSpecial[c][r] == "cube" or gemSpecial[c2][r2] == "cube" then
+										moves[#moves + 1] = {c, r, c2, r2}
+									elseif gemBoard[c][r] ~= gemBoard[c2][r2] then
+										GemSwapData(c, r, c2, r2)
+										local found = GemLineAt(c, r) or GemLineAt(c2, r2)
+										GemSwapData(c, r, c2, r2)
+										if found then moves[#moves + 1] = {c, r, c2, r2} end
+									end
+								end
+							end
+						end
+					end
+					if #moves == 0 then return false end
+					local m = moves[math.random(#moves)]
+					gems.fx.hint[1]:SetAllPoints(gemTiles[m[1]][m[2]])
+					gems.fx.hint[2]:SetAllPoints(gemTiles[m[3]][m[4]])
+					gems.fx.hint[1]:Show()
+					gems.fx.hint[2]:Show()
+					gems.fx.hintTime = 0
+					gems.fx:SetScript("OnUpdate", GemFxUpdate)
+					return true
+				end
+
+				-- Auto hint: after 12 seconds with no move, a possible move glows on its own (it doesn't use up a hint, and it
+				-- glows again every 12 seconds until a move is made). It's a one-off timer, started again after each move.
+				function gems:Idle()
+					if self.idleTimer then self.idleTimer:Cancel() end
+					self.idleTimer = nil
+					if gemState == "play" and self:IsVisible() then
+						self.idleTimer = C_Timer.NewTimer(12, function()
+							self.idleTimer = nil
+							if gemState == "play" and self:IsVisible() and not self.help:IsShown() and not self.confirm:IsShown() then
+								self.ShowHint()
+								self:Idle()
+							end
+						end)
+					end
+				end
+
+				-- Idle shimmer: every few seconds a random gem catches the light with a little glint (an animation group
+				-- that moves the glint to another gem each time it repeats)
+				local glint = gems.fx:CreateTexture(nil, "OVERLAY", nil, 7) -- (on the effects frame so it shows over the gems)
+				glint:SetTexture("Interface\\Cooldown\\star4")
+				glint:SetBlendMode("ADD")
+				glint:SetVertexColor(1, 1, 1, 0.9)
+				glint:SetAlpha(0)
+				local shimmer = glint:CreateAnimationGroup()
+				shimmer:SetLooping("REPEAT")
+				local glintIn = shimmer:CreateAnimation("Alpha")
+				glintIn:SetFromAlpha(0)
+				glintIn:SetToAlpha(1)
+				glintIn:SetDuration(0.25)
+				glintIn:SetOrder(1)
+				local glintGrow = shimmer:CreateAnimation("Scale")
+				glintGrow:SetScale(1.6, 1.6)
+				glintGrow:SetDuration(0.25)
+				glintGrow:SetOrder(1)
+				local glintOut = shimmer:CreateAnimation("Alpha")
+				glintOut:SetFromAlpha(1)
+				glintOut:SetToAlpha(0)
+				glintOut:SetDuration(0.35)
+				glintOut:SetEndDelay(2.4)
+				glintOut:SetOrder(2)
+				local glintShrink = shimmer:CreateAnimation("Scale")
+				glintShrink:SetScale(1 / 1.6, 1 / 1.6)
+				glintShrink:SetDuration(0.35)
+				glintShrink:SetOrder(2)
+				local function MoveGlint()
+					local tile = gemTiles[math.random(gemSize)][math.random(gemSize)]
+					glint:ClearAllPoints()
+					glint:SetPoint("CENTER", tile, "CENTER", gemCell * 0.18, gemCell * 0.18)
+					glint:SetSize(gemCell * 0.5, gemCell * 0.5)
+					glint:SetShown(gemState == "play")
+				end
+				shimmer:SetScript("OnLoop", MoveGlint)
+				MoveGlint()
+				shimmer:Play()
+
+				-- Score, and a message in the middle (when the board is shuffled)
+				gems.score = gems:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+				gems.score:SetPoint("TOPLEFT", 10, -8)
+				gems.score:SetTextColor(0.78, 0.74, 0.92)
+				-- Level bar (above the board, as wide as it, with a bright edge, a glowing fill that gently pulses, the level and
+				-- how many gems of how many are cleared written on it, and a flash when you level up, all animation groups)
+				gems.bar = CreateFrame("Frame", nil, gems)
+				gems.bar:SetPoint("BOTTOMLEFT", gems.grid, "TOPLEFT", 0, 9)
+				gems.bar:SetPoint("BOTTOMRIGHT", gems.grid, "TOPRIGHT", 0, 9)
+				gems.bar:SetHeight(22)
+				gems.bar:SetFrameLevel(gems.grid:GetFrameLevel() + 1)
+				local barEdge = gems.bar:CreateTexture(nil, "BACKGROUND", nil, 0)
+				barEdge:SetTexture(hhWhite)
+				barEdge:SetVertexColor(0.62, 0.50, 0.95, 1)
+				barEdge:SetAllPoints()
+				local barBack = gems.bar:CreateTexture(nil, "BACKGROUND", nil, 1)
+				barBack:SetTexture(hhWhite)
+				barBack:SetVertexColor(0.05, 0.04, 0.09, 1)
+				barBack:SetPoint("TOPLEFT", 1, -1)
+				barBack:SetPoint("BOTTOMRIGHT", -1, 1)
+				gems.bar.fill = gems.bar:CreateTexture(nil, "BORDER")
+				gems.bar.fill:SetTexture(hhWhite)
+				gems.bar.fill:SetGradient("HORIZONTAL", CreateColor(0.62, 0.28, 1, 1), CreateColor(0.35, 0.90, 1, 1))
+				gems.bar.fill:SetPoint("TOPLEFT", 1, -1)
+				gems.bar.fill:SetPoint("BOTTOMLEFT", 1, 1)
+				gems.bar.fill:SetWidth(1)
+				-- A band of light sweeps along the fill over and over (like a copy progress bar), it's kept inside the fill by
+				-- a frame that clips it, and the sweep's length and speed are set to the fill's width (see GemScoreText)
+				gems.bar.clip = CreateFrame("Frame", nil, gems.bar)
+				gems.bar.clip:SetPoint("TOPLEFT", gems.bar.fill, "TOPLEFT")
+				gems.bar.clip:SetPoint("BOTTOMRIGHT", gems.bar.fill, "BOTTOMRIGHT")
+				gems.bar.clip:SetClipsChildren(true)
+				local sweepFrame = CreateFrame("Frame", nil, gems.bar.clip)
+				sweepFrame:SetSize(70, 22)
+				sweepFrame:SetPoint("RIGHT", gems.bar.clip, "LEFT", 0, 0) -- Starts just before the fill
+				for i = 1, 2 do
+					local half = sweepFrame:CreateTexture(nil, "ARTWORK")
+					half:SetTexture(hhWhite)
+					half:SetBlendMode("ADD")
+					half:SetSize(35, 22)
+					if i == 1 then
+						half:SetPoint("LEFT")
+						half:SetGradient("HORIZONTAL", CreateColor(1, 1, 1, 0), CreateColor(1, 1, 1, 0.55))
+					else
+						half:SetPoint("RIGHT")
+						half:SetGradient("HORIZONTAL", CreateColor(1, 1, 1, 0.55), CreateColor(1, 1, 1, 0))
+					end
+				end
+				gems.bar.sweep = sweepFrame:CreateAnimationGroup()
+				gems.bar.sweep:SetLooping("REPEAT")
+				gems.bar.sweepMove = gems.bar.sweep:CreateAnimation("Translation")
+				gems.bar.sweepMove:SetSmoothing("IN_OUT")
+				gems.bar.sweepMove:SetEndDelay(2) -- Pause between sweeps
+				local barFlash = gems.bar:CreateTexture(nil, "ARTWORK", nil, 1)
+				barFlash:SetTexture(hhWhite)
+				barFlash:SetBlendMode("ADD")
+				barFlash:SetAllPoints()
+				barFlash:SetAlpha(0)
+				gems.bar.flash = barFlash:CreateAnimationGroup()
+				local flashUp = gems.bar.flash:CreateAnimation("Alpha")
+				flashUp:SetFromAlpha(0)
+				flashUp:SetToAlpha(1)
+				flashUp:SetDuration(0.12)
+				flashUp:SetOrder(1)
+				local flashDown = gems.bar.flash:CreateAnimation("Alpha")
+				flashDown:SetFromAlpha(1)
+				flashDown:SetToAlpha(0)
+				flashDown:SetDuration(0.7)
+				flashDown:SetSmoothing("OUT")
+				flashDown:SetOrder(2)
+				gems.bar.text = gems.bar:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+				gems.bar.text:SetPoint("CENTER", 0, 0)
+				local barFont = gems.bar.text:GetFont()
+				if barFont then gems.bar.text:SetFont(barFont, 13, "OUTLINE") end
+				gems.message = gems:CreateFontString(nil, "OVERLAY", "GameFontNormalHuge")
+				gems.message:SetPoint("CENTER", 0, 12)
+				gems.hint = gems:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+				gems.hint:SetPoint("TOP", gems.message, "BOTTOM", 0, -8)
+				-- Help (a round ? button in the top right corner shows or hides a panel over the board explaining the game,
+				-- the board can't be played while it shows)
+				gems.help = CreateFrame("Frame", nil, gems)
+				-- (it covers the level bar and stops above the map's coordinates so its edge shows all the way round)
+				gems.help:SetPoint("TOPLEFT", gems, "TOPLEFT", 16, -28)
+				gems.help:SetPoint("BOTTOMRIGHT", gems, "BOTTOMRIGHT", -16, 32)
+				gems.help:SetFrameLevel(gems.fx:GetFrameLevel() + 5)
+				gems.help:EnableMouse(true)
+				gems.help:Hide()
+				local helpEdge = gems.help:CreateTexture(nil, "BACKGROUND", nil, 0)
+				helpEdge:SetTexture(hhWhite)
+				helpEdge:SetVertexColor(0.40, 0.32, 0.60, 0.8)
+				helpEdge:SetAllPoints()
+				helpEdge:Hide() -- No border
+				local helpBack = gems.help:CreateTexture(nil, "BACKGROUND", nil, 1)
+				helpBack:SetTexture(hhWhite)
+				helpBack:SetGradient("VERTICAL", CreateColor(0.03, 0.025, 0.06, 0.97), CreateColor(0.08, 0.06, 0.15, 0.97))
+				helpBack:SetAllPoints()
+				local helpTitle = gems.help:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+				helpTitle:SetPoint("TOP", 0, -14)
+				local helpTitleFont = helpTitle:GetFont()
+				if helpTitleFont then helpTitle:SetFont(helpTitleFont, 22, "") end
+				helpTitle:SetText(L["How to play Gemfall"])
+				-- Help pages (one topic on each page: a big heading, a picture that shows it, and a few short lines, with
+				-- arrow buttons and the mouse wheel to go between pages and the page number between the arrows)
+				local G = function(n) return gemIcons[n][1] end -- Picture of a gem kind
+				local fireball, holy, shard = "Interface\\Icons\\Spell_Fire_Fireball02", "Interface\\Icons\\Spell_Holy_HolyBolt", "Interface\\Icons\\INV_Enchant_ShardBrilliantLarge"
+				-- Each page: heading, picture (rows of icons, "=" is an arrow, the colors are tile colors), text
+				local helpPages = {
+					{L["Match gems"], {{G(1), G(1), G(1)}}, {1, 1, 1},
+						L["Swap two gems side by side to make a line of 3 or more of the same color."] .. "\n\n" .. L["Drag a gem onto its neighbour, or click one gem then the other."]},
+					{L["Score big"], {{G(2), G(2), G(2), G(2)}}, {2, 2, 2, 2},
+						L["Longer lines score more."] .. "\n\n" .. L["When falling gems make more lines, that's a chain. Chains score more each time and show a word."]},
+					{L["Flame gem"], {{G(1), G(1), G(1), G(1), "=", fireball}}, {1, 1, 1, 1, 0, 1},
+						L["Line up 4 gems of the same color to make a Flame gem of that color."] .. "\n\n" .. L["Match it with gems of its color and it explodes, clearing the gems round it."]},
+					{L["Star gem"], {{G(3), "", ""}, {G(3), "", ""}, {G(3), G(3), G(3)}, {"", "=", holy}}, {3, 0, 0, 3, 0, 0, 3, 3, 3, 0, 0, 3},
+						L["Match 5 gems of the same color in an L or T shape to make a Star gem of that color."] .. "\n\n" .. L["Match it with gems of its color and it clears its whole row and column."]},
+					{L["Hypercube"], {{G(4), G(4), G(4), G(4), G(4), "=", shard}}, {4, 4, 4, 4, 4, 0, -1},
+						L["Line up 5 gems of the same color to make a Hypercube."] .. "\n\n" .. L["Swap it with any gem next to it and every gem of that color is cleared. Two Hypercubes together clear the board."]},
+					{L["Level up"], {{"art:arrow"}}, {0},
+						L["Clearing gems fills the bar above the board. A full bar takes you up a level."] .. "\n\n" .. L["Each level scores more, shatters the board for a fresh one, and has its own colors and sound."]},
+					{L["Hints"], {{"btn:hint"}}, {0},
+						L["Press Hint to light up a possible move. You get 3 each game, and each level up gives one back."] .. "\n\n" .. L["Stuck? Wait a few seconds and a move lights up for free."]},
+					{L["Buttons"], quad = {
+						{"btn:gemfall", L["Shows or hides the game. A hidden game is paused."]},
+						{"btn:reset", L["Starts a new game. It asks first."]},
+						{"btn:power", L["Turns the console off. Your game is kept."]},
+						{"btn:help", L["Opens this help."]},
+					}},
+					{L["Saving"], {}, {},
+						L["Your game carries on after a reload or logging out."] .. "\n\n" .. L["Your best score is kept. The game ends when there are no moves left."]},
+				}
+				-- Console buttons as they look on the console (color, letter on the button, name under it)
+				local helpButtons = {
+					["btn:gemfall"] = {0.20, 0.52, 0.26, "", L["GEMFALL"]},
+					["btn:reset"] = {0.20, 0.36, 0.62, "", L["RESET"]},
+					["btn:power"] = {0.58, 0.15, 0.15, "", L["POWER"]},
+					["btn:hint"] = {0.74, 0.40, 0.64, "A", L["HINT"]},
+					["btn:help"] = {0.30, 0.22, 0.48, "?", L["Help"]},
+				}
+				local helpPage = 1
+				local helpArea = CreateFrame("Frame", nil, gems.help)
+				helpArea:SetPoint("TOPLEFT", 26, -52)
+				helpArea:SetPoint("BOTTOMRIGHT", -26, 50)
+				-- (the heading, picture and text are a block in the middle of the page, up and down and side to side)
+				local block = CreateFrame("Frame", nil, helpArea)
+				block:SetPoint("LEFT")
+				block:SetPoint("RIGHT")
+				block:SetHeight(1)
+				local pageHead = block:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+				pageHead:SetPoint("TOP", 0, 0)
+				local pageHeadFont = pageHead:GetFont()
+				if pageHeadFont then pageHead:SetFont(pageHeadFont, 26, "") end
+				local picture = CreateFrame("Frame", nil, block)
+				picture:SetPoint("TOP", pageHead, "BOTTOM", 0, -16)
+				local pictureIcons = {}
+				-- Level up picture: a green arrow pointing up (a gradient shaft and a chevron head with a soft green glow
+				-- behind it), it gently floats up and fades in over and over (animation group)
+				local arrowArt = CreateFrame("Frame", nil, picture)
+				arrowArt:SetSize(44, 44)
+				arrowArt:Hide()
+				local arrowGlow = arrowArt:CreateTexture(nil, "BACKGROUND")
+				arrowGlow:SetTexture("Interface\\Cooldown\\starburst")
+				arrowGlow:SetBlendMode("ADD")
+				arrowGlow:SetVertexColor(0.30, 1, 0.35, 0.55)
+				arrowGlow:SetPoint("CENTER", 0, 2)
+				arrowGlow:SetSize(84, 84)
+				local shaft = arrowArt:CreateTexture(nil, "ARTWORK")
+				shaft:SetTexture(hhWhite)
+				shaft:SetGradient("VERTICAL", CreateColor(0.05, 0.45, 0.10, 1), CreateColor(0.35, 1, 0.40, 1))
+				shaft:SetSize(12, 26)
+				shaft:SetPoint("BOTTOM", 0, 2)
+				for side = -1, 1, 2 do
+					local wing = arrowArt:CreateTexture(nil, "ARTWORK", nil, 1)
+					wing:SetTexture(hhWhite)
+					wing:SetVertexColor(0.35, 1, 0.40, 1)
+					wing:SetSize(10, 26)
+					wing:SetPoint("TOP", side * 4, -2)
+					if wing.SetRotation then wing:SetRotation(side * math.rad(40)) end
+				end
+				local float = arrowArt:CreateAnimationGroup()
+				float:SetLooping("REPEAT")
+				local rise = float:CreateAnimation("Translation")
+				rise:SetOffset(0, 8)
+				rise:SetDuration(1.1)
+				rise:SetSmoothing("OUT")
+				local fadeUp = float:CreateAnimation("Alpha")
+				fadeUp:SetFromAlpha(0.35)
+				fadeUp:SetToAlpha(1)
+				fadeUp:SetDuration(1.1)
+				local pageText = block:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+				pageText:SetPoint("TOP", picture, "BOTTOM", 0, -18)
+				pageText:SetPoint("LEFT", 10, 0)
+				pageText:SetPoint("RIGHT", -10, 0)
+				local pageTextFont = pageText:GetFont()
+				if pageTextFont then pageText:SetFont(pageTextFont, 19, "") end
+				pageText:SetJustifyH("CENTER")
+				pageText:SetJustifyV("TOP")
+				pageText:SetSpacing(3)
+				-- Buttons page: a button in each quarter of the page with its name and what it does under it
+				local quadHead = helpArea:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+				quadHead:SetPoint("TOP", 0, -6)
+				if pageHeadFont then quadHead:SetFont(pageHeadFont, 26, "") end
+				local quadArea = CreateFrame("Frame", nil, helpArea)
+				quadArea:SetPoint("TOPLEFT", 0, -44)
+				quadArea:SetPoint("BOTTOMRIGHT")
+				local quads = {}
+				for i = 1, 4 do
+					local q = CreateFrame("Frame", nil, quadArea)
+					local col, row = (i - 1) % 2, math.floor((i - 1) / 2)
+					q:SetPoint("TOPLEFT", quadArea, col == 0 and "TOPLEFT" or "TOP", 0, 0)
+					q:SetPoint("BOTTOMRIGHT", quadArea, col == 0 and "BOTTOM" or "BOTTOMRIGHT", 0, 0)
+					q:ClearAllPoints()
+					q:SetPoint(row == 0 and (col == 0 and "TOPLEFT" or "TOPRIGHT") or (col == 0 and "BOTTOMLEFT" or "BOTTOMRIGHT"))
+					q.col, q.row = col, row
+					q.disc = q:CreateTexture(nil, "ARTWORK")
+					q.disc:SetTexture(hhWhite)
+					q.disc:SetSize(64, 64)
+					if q.CreateMaskTexture then
+						local mask = q:CreateMaskTexture()
+						mask:SetTexture("Interface\\CharacterFrame\\TempPortraitAlphaMask", "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
+						mask:SetAllPoints(q.disc)
+						q.disc:AddMaskTexture(mask)
+					end
+					q.letter = q:CreateFontString(nil, "OVERLAY", "GameFontHighlightHuge")
+					q.letter:SetPoint("CENTER", q.disc, "CENTER")
+					q.name = q:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+					local nameFont = q.name:GetFont()
+					if nameFont then q.name:SetFont(nameFont, 20, "") end
+					q.name:SetPoint("TOP", q.disc, "BOTTOM", 0, -10)
+					q.text = q:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+					if pageTextFont then q.text:SetFont(pageTextFont, 17, "") end
+					q.text:SetPoint("TOP", q.name, "BOTTOM", 0, -6)
+					q.text:SetJustifyH("CENTER")
+					q.text:SetSpacing(2)
+					quads[i] = q
+				end
+				-- Function to size the quarters to the page (each is half as wide and half as tall)
+				local function SizeQuads()
+					local w, h = quadArea:GetWidth(), quadArea:GetHeight()
+					if not w or not h or (issecretvalue and (issecretvalue(w) or issecretvalue(h))) or w < 10 then return end
+					for i, q in ipairs(quads) do
+						q:SetSize(w / 2, h / 2)
+						q.text:SetWidth(w / 2 - 30)
+						-- The button, name and text sit together in the middle of the quarter
+						local height = 64 + 10 + q.name:GetStringHeight() + 6 + q.text:GetStringHeight()
+						q.disc:ClearAllPoints()
+						q.disc:SetPoint("TOP", q, "TOP", 0, -(h / 2 - height) / 2)
+					end
+				end
+				quadArea:SetScript("OnSizeChanged", SizeQuads)
+				local pageNumber = gems.help:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+				pageNumber:SetPoint("BOTTOM", 0, 20)
+				-- Function to show a page
+				local function ShowPage(page)
+					helpPage = math.max(1, math.min(#helpPages, page))
+					local p = helpPages[helpPage]
+					-- The buttons page has its own layout
+					arrowArt:Hide()
+					block:SetShown(not p.quad)
+					quadHead:SetShown(p.quad ~= nil)
+					quadArea:SetShown(p.quad ~= nil)
+					pageNumber:SetFormattedText("%d / %d", helpPage, #helpPages)
+					gems.help.prev:SetEnabled(helpPage > 1)
+					gems.help.next:SetEnabled(helpPage < #helpPages)
+					if p.quad then
+						quadHead:SetText(p[1])
+						for i, q in ipairs(quads) do
+							local b = helpButtons[p.quad[i][1]]
+							q.disc:SetVertexColor(b[1], b[2], b[3], 1)
+							q.letter:SetText(b[4])
+							q.name:SetText(b[5])
+							q.text:SetText(p.quad[i][2])
+						end
+						SizeQuads()
+						return
+					end
+					pageHead:SetText(p[1])
+					local size, gap, n = 44, 4, 0
+					local rows, cols = #p[2], 0
+					for r = 1, rows do cols = math.max(cols, #p[2][r]) end
+					local buttons = p[2][1] and p[2][1][1] and helpButtons[p[2][1][1]]
+					if buttons then gap = 34 end -- (buttons are spread out with their names under them)
+					local picHeight = rows > 0 and (rows * size + (rows - 1) * gap + (buttons and 18 or 0)) or 1
+					picture:SetSize(math.max(1, cols * size + (cols - 1) * gap), picHeight)
+					for r = 1, rows do
+						for c = 1, #p[2][r] do
+							n = n + 1
+							local cell = pictureIcons[n]
+							if not cell then
+								cell = {bg = picture:CreateTexture(nil, "BORDER"), icon = picture:CreateTexture(nil, "ARTWORK"), arrow = picture:CreateFontString(nil, "OVERLAY", "GameFontNormalHuge"), badge = picture:CreateTexture(nil, "OVERLAY")}
+								cell.bg:SetTexture(hhWhite)
+								cell.icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
+								cell.badge:SetTexCoord(0.08, 0.92, 0.08, 0.92)
+								cell.disc = picture:CreateTexture(nil, "ARTWORK", nil, 1)
+								cell.disc:SetTexture(hhWhite)
+								if picture.CreateMaskTexture then
+									local mask = picture:CreateMaskTexture()
+									mask:SetTexture("Interface\\CharacterFrame\\TempPortraitAlphaMask", "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
+									mask:SetAllPoints(cell.disc)
+									cell.disc:AddMaskTexture(mask)
+								end
+								cell.letter = picture:CreateFontString(nil, "OVERLAY", "GameFontHighlightLarge")
+								cell.label = picture:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+								cell.arrow:SetText(">")
+								pictureIcons[n] = cell
+							end
+							local x, y = (c - 1) * (size + gap), -(r - 1) * (size + gap)
+							local what, color = p[2][r][c], p[3][n]
+							cell.bg:ClearAllPoints()
+							cell.bg:SetPoint("TOPLEFT", x, y)
+							cell.bg:SetSize(size, size)
+							cell.icon:ClearAllPoints()
+							cell.icon:SetPoint("TOPLEFT", x + 4, y - 4)
+							cell.icon:SetSize(size - 8, size - 8)
+							cell.arrow:ClearAllPoints()
+							cell.arrow:SetPoint("CENTER", picture, "TOPLEFT", x + size / 2, y - size / 2)
+							cell.arrow:SetShown(what == "=")
+							cell.icon:SetShown(what ~= "=" and what ~= "")
+							cell.bg:SetShown(what ~= "=" and what ~= "" and color ~= 0)
+							-- (a flame or star gem shows its gem picture with the fireball or holy light badge in the corner)
+							local special = what == fireball or what == holy
+							cell.badge:ClearAllPoints()
+							cell.badge:SetPoint("BOTTOMRIGHT", picture, "TOPLEFT", x + size - 2, y - size + 2)
+							cell.badge:SetSize(size / 2, size / 2)
+							cell.badge:Hide()
+							-- Level up arrow picture
+							if what == "art:arrow" then
+								arrowArt:ClearAllPoints()
+								arrowArt:SetPoint("TOPLEFT", x, y)
+								arrowArt:Show()
+								float:Play()
+								cell.icon:Hide()
+								cell.bg:Hide()
+							end
+							-- Console button picture
+							local button = helpButtons[what]
+							cell.disc:SetShown(button ~= nil)
+							cell.letter:SetShown(button ~= nil)
+							cell.label:SetShown(button ~= nil)
+							if button then
+								cell.disc:ClearAllPoints()
+								cell.disc:SetPoint("TOPLEFT", x, y)
+								cell.disc:SetSize(size, size)
+								cell.disc:SetVertexColor(button[1], button[2], button[3], 1)
+								cell.letter:ClearAllPoints()
+								cell.letter:SetPoint("CENTER", cell.disc, "CENTER")
+								cell.letter:SetText(button[4])
+								cell.label:ClearAllPoints()
+								cell.label:SetPoint("TOP", cell.disc, "BOTTOM", 0, -6)
+								cell.label:SetText(button[5])
+								cell.icon:Hide()
+								cell.bg:Hide()
+							end
+							if what ~= "=" and what ~= "" and not button and what ~= "art:arrow" then
+								cell.icon:SetTexture(what)
+								cell.icon:SetDesaturated(special)
+								if special then
+									local g = gemIcons[color]
+									local boost = 1 / math.max(g[2], g[3], g[4], 0.01)
+									cell.icon:SetVertexColor(math.min(1, g[2] * boost * 1.1), math.min(1, g[3] * boost * 1.1), math.min(1, g[4] * boost * 1.1))
+								else
+									cell.icon:SetVertexColor(1, 1, 1)
+								end
+							end
+							if color and color > 0 then
+								local g = gemIcons[color]
+								-- (a special gem's tile is solid, a normal gem's see-through)
+								local solid = what == fireball or what == holy
+								cell.bg:SetVertexColor(g[2], g[3], g[4], solid and 0.55 or 0.40)
+							elseif color == -1 then
+								cell.bg:SetVertexColor(0.90, 0.90, 1, 0.45) -- Hypercube tile
+							end
+						end
+					end
+					for i = n + 1, #pictureIcons do
+						pictureIcons[i].bg:Hide()
+						pictureIcons[i].icon:Hide()
+						pictureIcons[i].arrow:Hide()
+						pictureIcons[i].badge:Hide()
+						pictureIcons[i].disc:Hide()
+						pictureIcons[i].letter:Hide()
+						pictureIcons[i].label:Hide()
+					end
+					pageText:SetText(p[4])
+					-- Center the block on the page
+					local height = pageHead:GetStringHeight() + 16 + picHeight + 18 + pageText:GetStringHeight()
+					block:SetHeight(height)
+					block:ClearAllPoints()
+					block:SetPoint("LEFT", helpArea, "LEFT")
+					block:SetPoint("RIGHT", helpArea, "RIGHT")
+					pageNumber:SetFormattedText("%d / %d", helpPage, #helpPages)
+					gems.help.prev:SetEnabled(helpPage > 1)
+					gems.help.next:SetEnabled(helpPage < #helpPages)
+				end
+				-- Arrow buttons (previous and next page)
+				for void, side in ipairs({{"prev", "Prev", -60, -1}, {"next", "Next", 60, 1}}) do
+					local button = CreateFrame("Button", nil, gems.help)
+					button:SetSize(32, 32)
+					button:SetPoint("BOTTOM", side[3], 12)
+					button:SetNormalTexture("Interface\\Buttons\\UI-SpellbookIcon-" .. side[2] .. "Page-Up")
+					button:SetPushedTexture("Interface\\Buttons\\UI-SpellbookIcon-" .. side[2] .. "Page-Down")
+					button:SetDisabledTexture("Interface\\Buttons\\UI-SpellbookIcon-" .. side[2] .. "Page-Disabled")
+					button:SetHighlightTexture("Interface\\Buttons\\UI-Common-MouseHilight", "ADD")
+					button:SetScript("OnClick", function()
+						PlayPowerSound(567407) -- uchatscrollbutton
+						ShowPage(helpPage + side[4])
+					end)
+					gems.help[side[1]] = button
+				end
+				gems.help:EnableMouseWheel(true)
+				gems.help:SetScript("OnMouseWheel", function(self, delta) ShowPage(helpPage - delta) end)
+				gems.help:SetScript("OnShow", function() ShowPage(1) end) -- Starts at the first page each time
+				-- Reset confirmation (a box in the middle of the board asking to start a new game, with yes and no buttons,
+				-- the board can't be played while it shows)
+				gems.confirm = CreateFrame("Frame", nil, gems)
+				gems.confirm:SetSize(300, 116)
+				gems.confirm:SetPoint("CENTER", gems.grid, "CENTER", 0, 0)
+				gems.confirm:SetFrameLevel(gems.help:GetFrameLevel() + 1)
+				gems.confirm:EnableMouse(true)
+				gems.confirm:Hide()
+				local confirmEdge = gems.confirm:CreateTexture(nil, "BACKGROUND", nil, 0)
+				confirmEdge:SetTexture(hhWhite)
+				confirmEdge:SetVertexColor(0.62, 0.50, 0.95, 1)
+				confirmEdge:SetAllPoints()
+				local confirmBack = gems.confirm:CreateTexture(nil, "BACKGROUND", nil, 1)
+				confirmBack:SetTexture(hhWhite)
+				confirmBack:SetGradient("VERTICAL", CreateColor(0.03, 0.025, 0.06, 0.98), CreateColor(0.10, 0.07, 0.18, 0.98))
+				confirmBack:SetPoint("TOPLEFT", 1, -1)
+				confirmBack:SetPoint("BOTTOMRIGHT", -1, 1)
+				local confirmTitle = gems.confirm:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+				confirmTitle:SetPoint("TOP", 0, -16)
+				confirmTitle:SetText(L["Start a new game?"])
+				local confirmText = gems.confirm:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+				confirmText:SetPoint("TOP", confirmTitle, "BOTTOM", 0, -8)
+				confirmText:SetText(L["Your score and level will be lost."])
+				local function ConfirmButton(label, x, action)
+					local button = CreateFrame("Button", nil, gems.confirm)
+					button:SetSize(96, 26)
+					button:SetPoint("BOTTOM", x, 14)
+					local back = button:CreateTexture(nil, "BACKGROUND")
+					back:SetTexture(hhWhite)
+					back:SetVertexColor(0.30, 0.22, 0.48, 1)
+					back:SetAllPoints()
+					local text = button:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+					text:SetPoint("CENTER")
+					text:SetText(label)
+					button:SetScript("OnEnter", function() back:SetVertexColor(0.42, 0.32, 0.66, 1) end)
+					button:SetScript("OnLeave", function() back:SetVertexColor(0.30, 0.22, 0.48, 1) end)
+					button:SetScript("OnClick", function()
+						PlayPowerSound(567481) -- iuiinterfacebuttona
+						gems.confirm:Hide()
+						action()
+					end)
+				end
+				ConfirmButton(L["Yes"], -56, function() GemNew() end)
+				ConfirmButton(L["No"], 56, function() end)
+				gems.helpButton = CreateFrame("Button", nil, gems)
+				gems.helpButton:SetSize(20, 20)
+				gems.helpButton:SetPoint("TOPRIGHT", gems, "TOPRIGHT", -10, -5)
+				gems.helpButton:SetFrameLevel(gems.help:GetFrameLevel() + 2)
+				local helpDisc = gems.helpButton:CreateTexture(nil, "BACKGROUND")
+				helpDisc:SetTexture(hhWhite)
+				helpDisc:SetVertexColor(0.30, 0.22, 0.48, 1)
+				helpDisc:SetAllPoints()
+				if gems.helpButton.CreateMaskTexture then
+					local mask = gems.helpButton:CreateMaskTexture()
+					mask:SetTexture("Interface\\CharacterFrame\\TempPortraitAlphaMask", "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
+					mask:SetAllPoints(helpDisc)
+					helpDisc:AddMaskTexture(mask)
+				end
+				local helpMark = gems.helpButton:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+				helpMark:SetPoint("CENTER", 0, 0)
+				helpMark:SetText("?")
+				gems.helpButton:SetScript("OnEnter", function() helpDisc:SetVertexColor(0.42, 0.32, 0.66, 1) end)
+				gems.helpButton:SetScript("OnLeave", function() helpDisc:SetVertexColor(0.30, 0.22, 0.48, 1) end)
+				gems.helpButton:SetScript("OnClick", function()
+					PlayPowerSound(567407) -- uchatscrollbutton
+					gems.help:SetShown(not gems.help:IsShown())
+				end)
+				-- Hide the game when the map is closed, fit the board again when the map changes size
+				-- The game fades in when it's shown and fades out when the gemfall button hides it (animation groups, so
+				-- there's no OnUpdate)
+				gems.fadeIn = gems:CreateAnimationGroup()
+				local fadeIn = gems.fadeIn:CreateAnimation("Alpha")
+				fadeIn:SetFromAlpha(0)
+				fadeIn:SetToAlpha(1)
+				fadeIn:SetDuration(0.3)
+				fadeIn:SetSmoothing("OUT")
+				gems.fadeOut = gems:CreateAnimationGroup()
+				gems.fadeOut:SetToFinalAlpha(true)
+				local fadeOut = gems.fadeOut:CreateAnimation("Alpha")
+				fadeOut:SetFromAlpha(1)
+				fadeOut:SetToAlpha(0)
+				fadeOut:SetDuration(0.3)
+				fadeOut:SetSmoothing("IN")
+				gems.fadeOut:SetScript("OnFinished", function()
+					gems:Hide()
+					gems:SetAlpha(1)
+				end)
+				gems:SetScript("OnHide", function(self)
+					self:Hide() -- Stays hidden when the map is opened again
+					self:Idle() -- Stops the auto hint timer
+					self.help:Hide()
+					self.confirm:Hide()
+					self.levelUp:Hide()
+					self.fadeIn:Stop()
+					self.fadeOut:Stop()
+					self:SetAlpha(1)
+					GemMusic()
+				end)
+				gems:SetScript("OnShow", function(self)
+					self.fadeIn:Play()
+					self:Idle()
+					GemMusic()
+				end)
+				gems:SetScript("OnSizeChanged", function() if gemState then GemLayout() end end)
+				gems:SetLevelColors(1)
+				-- Carry on with a game that was saved when the UI was last reloaded or you logged out (it's checked first: 64
+				-- gems with no lines and at least one move, a game that doesn't check out is dropped). It stays hidden until
+				-- the gemfall button is pressed.
+				local board, score, best, shown, level, levelGems, hints, specials = string.match(LeaMapsLC["GemGame"] or "", "^(%d+):(%d+):(%d+):(%d):?(%d*):?(%d*):?(%d*):?(%d*)$")
+				if specials and #specials ~= gemSize * gemSize then specials = nil end
+				LeaMapsLC["GemGame"] = ""
+				if board and #board == gemSize * gemSize then
+					local names = {"flame", "star", "cube"}
+					for c = 1, gemSize do
+						gemBoard[c] = gemBoard[c] or {}
+						gemSpecial[c] = {}
+						for r = 1, gemSize do
+							local i = (c - 1) * gemSize + r
+							local k = tonumber(strsub(board, i, i))
+							local s = specials and names[tonumber(strsub(specials, i, i))]
+							gemSpecial[c][r] = s
+							if k == 0 and s == "cube" then gemBoard[c][r] = 0 else gemBoard[c][r] = gemIcons[k] and k or nil end
+							if not gemBoard[c][r] or (s == "cube" and k ~= 0) then board = nil end
+						end
+					end
+					if board and GemFindMatches() == 0 and GemHasMove() then
+						gemScore, gemCombo, gemCursorC, gemCursorR, gemPickC, gemPickR = tonumber(score), 0, 1, 1, nil, nil
+						gemBestAtStart, gemNewBest = tonumber(best), false
+						gemRecordDone = gemBestAtStart > 0 and gemScore > gemBestAtStart
+						gems.dpadActive = false
+						gems.level, gems.levelGems = math.max(1, tonumber(level) or 1), tonumber(levelGems) or 0
+						gems.hints = math.min(3, tonumber(hints) or 3)
+						gems:SetLevelColors(gems.level)
+						gems.grid:SetAlpha(1)
+						GemMessage()
+						GemShowAll()
+						gemState = "play" -- Stays hidden until the gemfall button is pressed
+					end
+				end
+			end
+
+			-- Function to get the game to save when the UI is reloaded or you log out (empty if there's no game to carry on:
+			-- none started or no more moves, a game that was never loaded this session is kept)
+			LeaMapsLC.GemSaveText = function()
+				if not gems then return LeaMapsLC["GemGame"] or "" end
+				if gemState ~= "play" then return "" end
+				local digits = {}
+				for c = 1, gemSize do
+					for r = 1, gemSize do digits[#digits + 1] = gemBoard[c][r] end
+				end
+				local specials, codes = {}, {flame = 1, star = 2, cube = 3}
+				for c = 1, gemSize do
+					for r = 1, gemSize do specials[#specials + 1] = codes[gemSpecial[c][r]] or 0 end
+				end
+				return table.concat(digits) .. ":" .. gemScore .. ":" .. gemBestAtStart .. ":" .. (gems:IsShown() and "1" or "0") .. ":" .. gems.level .. ":" .. gems.levelGems .. ":" .. gems.hints .. ":" .. table.concat(specials)
+			end
+
+			-- Function to create the screen cover and the gem board
+			local function CreateHandheldScreen()
+				-- Screen cover for the power (over the whole screen inside the surround, takes the mouse while it shows,
+				-- its children are clipped to the screen so the logo can slide in from above it)
+				hhScreen = CreateFrame("Frame", nil, WorldMapFrame)
+				hhScreen:SetFrameStrata("HIGH")
+				hhScreen:SetFrameLevel(math.min(frameLevel + 20, 10000))
+				hhScreen:SetAllPoints(borderFrame)
+				hhScreen:EnableMouse(true)
+				hhScreen:SetClipsChildren(true)
+				hhScreen:Hide()
+				hhScreen.dark = hhScreen:CreateTexture(nil, "BACKGROUND")
+				hhScreen.dark:SetTexture(hhWhite)
+				hhScreen.dark:SetVertexColor(0.06, 0.065, 0.07, 1)
+				hhScreen.dark:SetAllPoints()
+				hhScreen.holder = CreateFrame("Frame", nil, hhScreen)
+				hhScreen.holder:SetAllPoints()
+				-- Boot screen parts (white screen, the four emblem diamonds, a flash, the name on the white screen, and the
+				-- product name and licence line on the black screen)
+				local p = {}
+				p.white = hhScreen:CreateTexture(nil, "BACKGROUND", nil, 1)
+				p.white:SetTexture(hhWhite)
+				p.white:SetVertexColor(0.97, 0.97, 0.98, 1)
+				p.white:SetAllPoints()
+				p.white:SetAlpha(0)
+				p.pieces = {}
+				for i = 1, 4 do
+					local dir = hhPieceDirs[i]
+					local piece = hhScreen.holder:CreateLine(nil, "ARTWORK")
+					piece:SetColorTexture(dir[3], dir[4], dir[5], 1)
+					piece:SetAlpha(0)
+					p.pieces[i] = piece
+				end
+				p.flash = hhScreen.holder:CreateTexture(nil, "OVERLAY")
+				p.flash:SetTexture(hhWhite)
+				p.flash:SetVertexColor(1, 1, 1, 1)
+				p.flash:SetAllPoints()
+				p.flash:SetAlpha(0)
+				local function BootText(size, r, g, b, y, text)
+					local fs = hhScreen.holder:CreateFontString(nil, "OVERLAY", "GameFontNormalHuge")
+					local font = fs:GetFont()
+					if font then fs:SetFont(font, size, "") end
+					fs:SetTextColor(r, g, b)
+					fs:SetShadowColor(0, 0, 0, 0)
+					fs:SetPoint("CENTER", hhScreen.holder, "CENTER", 0, y)
+					fs:SetText(text)
+					fs:SetAlpha(0)
+					return fs
+				end
+				p.word = BootText(28, 0.24, 0.12, 0.30, -52, "LEATRIX")
+				p.sub = BootText(10, 0.40, 0.32, 0.46, -74, L["POCKET ENTERTAINMENT"])
+				p.name = BootText(18, 0.85, 0.85, 0.90, -30, L["LEATRIX POCKET MAP"])
+				p.licence = BootText(9, 0.55, 0.55, 0.60, -52, L["Licensed for use in Azeroth"])
+				hhScreen.boot = p
+				hhScreen:SetScript("OnHide", HHResetPower)
+				-- Gem board
+				CreateGems()
+			end
+
+			-- Function to create the handheld
+			local function CreateHandheld()
+				hhParts = {}
+				local pl, pr, pt, pb = 96, 96, 18, 30 -- Same as the theme body size
+				-- Body (charcoal black like the black editions of real handhelds, a darker copy a little lower shows as the
+				-- thickness of the plastic, a faint gloss line along the top)
+				HHRoundRect("BACKGROUND", -2, 0.04, 0.04, 0.05, pl, pr, pt, pb, 40, -4)
+				HHRoundRect("BACKGROUND", -1, 0.13, 0.13, 0.15, pl, pr, pt, pb, 40)
+				local shine = HHTexture("BACKGROUND", 1, 1, 1, 1, 0.14)
+				shine:SetPoint("TOPLEFT", borderFrame, "TOPLEFT", -pl + 40, pt)
+				shine:SetPoint("TOPRIGHT", borderFrame, "TOPRIGHT", pr - 40, pt)
+				shine:SetHeight(2)
+				-- Screen surround (glossy near black, round corners, the map and bars draw over the middle of it) and the name
+				-- under the screen
+				HHRoundRect("BACKGROUND", 0, 0.05, 0.05, 0.06, 12, 12, 10, 22, 8)
+				HHText("LEATRIX  ·  POCKET MAP", 0.42, 0.42, 0.47, "BOTTOM", 0, -12)
+				-- Red power light on the left of the screen
+				hhLedGlow = HHDisc("ARTWORK", 0, 14, 1, 0.20, 0.20, 0.35, "LEFT", -6, 0)
+				hhLed = HHDisc("ARTWORK", 1, 7, 1, 0.25, 0.25, 1, "LEFT", -6, 0)
+				-- D-pad (with a darker copy below for depth and a dimple in the middle)
+				local dx, dy = -54, 24
+				HHRect("ARTWORK", 0, 20, 60, 0.01, 0.01, 0.01, 1, "LEFT", dx, dy - 3)
+				HHRect("ARTWORK", 0, 60, 20, 0.01, 0.01, 0.01, 1, "LEFT", dx, dy - 3)
+				HHRect("ARTWORK", 1, 20, 60, 0.06, 0.06, 0.07, 1, "LEFT", dx, dy)
+				HHRect("ARTWORK", 1, 60, 20, 0.06, 0.06, 0.07, 1, "LEFT", dx, dy)
+				HHDisc("ARTWORK", 2, 12, 0.11, 0.11, 0.12, 1, "LEFT", dx, dy)
+				-- D-pad arms (each arm lights up a little when the pointer is over it and darkens while it's held, with a soft
+				-- click, uchatscrollbutton, and moves the highlight or swaps the gem picked up in the gem game)
+				for void, arm in ipairs({{"U", 0, 20}, {"D", 0, -20}, {"L", -20, 0}, {"R", 20, 0}}) do
+					local key, ax, ay = arm[1], dx + arm[2], dy + arm[3]
+					local glow = borderFrame:CreateTexture(nil, "ARTWORK", nil, 2)
+					glow:SetTexture(hhWhite)
+					glow:SetVertexColor(1, 1, 1, 0.14)
+					glow:SetSize(20, 20)
+					glow:SetPoint("CENTER", borderFrame, "LEFT", ax, ay)
+					glow:Hide()
+					local shade = borderFrame:CreateTexture(nil, "ARTWORK", nil, 3)
+					shade:SetTexture(hhWhite)
+					shade:SetVertexColor(0, 0, 0, 0.6)
+					shade:SetSize(20, 20)
+					shade:SetPoint("CENTER", borderFrame, "LEFT", ax, ay)
+					shade:Hide()
+					HHButton("LEFT", ax, ay, 20, 20, function()
+						shade:Show()
+						PlayPowerSound(567407)
+						GemDpad(key)
+					end, function() shade:Hide() end, function() glow:Show() end, function() glow:Hide() end)
+				end
+				-- A button under the gemfall button with a label underneath (with a darker copy below for depth, it lights up a little when the pointer is
+				-- over it, presses down and darkens while it's held, with a click, iuiinterfacebuttona, and shows a hint in the
+				-- gem game)
+				local faceTop, faceBottom = CreateColor(0.74, 0.40, 0.64, 1), CreateColor(0.48, 0.17, 0.40, 1)
+				local heldTop, heldBottom = CreateColor(0.58, 0.28, 0.50, 1), CreateColor(0.38, 0.12, 0.31, 1)
+				for void, button in ipairs({{"A", "RIGHT", 54, -30, 567481, GemButtonA, L["HINT"]}}) do
+					local key, point, x, y, sound, action = button[1], button[2], button[3], button[4], button[5], button[6]
+					local labelText = HHText(button[7], 0.42, 0.42, 0.47, point, x, y - 22)
+					local labelFont = labelText:GetFont()
+					if labelFont then labelText:SetFont(labelFont, 8, "") end
+					if key == "A" then
+						hhParts.hintLabel = labelText -- Shows how many hints are left
+						if LeaMapsLC.GemHintLabel then LeaMapsLC.GemHintLabel() end
+					end
+					HHDisc("ARTWORK", 0, 30, 0.18, 0.05, 0.14, 1, point, x, y - 3)
+					local face = HHDisc("ARTWORK", 1, 30, 1, 1, 1, 1, point, x, y)
+					face:SetGradient("VERTICAL", faceBottom, faceTop)
+					local glow = borderFrame:CreateTexture(nil, "ARTWORK", nil, 2)
+					glow:SetTexture(hhWhite)
+					glow:SetVertexColor(1, 1, 1, 0.16)
+					glow:SetAllPoints(face)
+					MakeRound(glow)
+					glow:Hide()
+					local letter = HHText(key, 0.96, 0.86, 0.93, point, x, y)
+					local function Press(down)
+						local py = down and y - 2 or y
+						face:ClearAllPoints(); face:SetPoint("CENTER", borderFrame, point, x, py)
+						letter:ClearAllPoints(); letter:SetPoint("CENTER", borderFrame, point, x, py)
+						if down then face:SetGradient("VERTICAL", heldBottom, heldTop) else face:SetGradient("VERTICAL", faceBottom, faceTop) end
+					end
+					HHButton(point, x, y, 30, 30, function()
+						Press(true)
+						PlayPowerSound(sound)
+						action()
+					end, function() Press(false) end, function() glow:Show() end, function() glow:Hide() end)
+				end
+				-- Big round buttons in the bottom corners of the body (each one has a darker copy below for depth and a small
+				-- label, lights up a little when the pointer is over it, and presses down and darkens while it's held): power in
+				-- the bottom left corner (dark red), gemfall (starts the gem game) on the right side (green) and reset in the bottom right corner (blue)
+				local function HHBigButton(point, x, y, label, top, bottom, heldTop, heldBottom, action)
+					HHDisc("ARTWORK", 0, 30, 0.02, 0.02, 0.03, 1, point, x, y - 3)
+					local face = HHDisc("ARTWORK", 1, 30, 1, 1, 1, 1, point, x, y)
+					face:SetGradient("VERTICAL", bottom, top)
+					local glow = borderFrame:CreateTexture(nil, "ARTWORK", nil, 2)
+					glow:SetTexture(hhWhite)
+					glow:SetVertexColor(1, 1, 1, 0.16)
+					glow:SetAllPoints(face)
+					MakeRound(glow)
+					glow:Hide()
+					local labelText = HHText(label, 0.42, 0.42, 0.47, point, x, y - 22)
+					local font = labelText:GetFont()
+					if font then labelText:SetFont(font, 8, "") end
+					local function Press(down)
+						local py = down and y - 2 or y
+						face:ClearAllPoints()
+						face:SetPoint("CENTER", borderFrame, point, x, py)
+						if down then face:SetGradient("VERTICAL", heldBottom, heldTop) else face:SetGradient("VERTICAL", bottom, top) end
+					end
+					HHButton(point, x, y, 30, 30, function()
+						Press(true)
+						action()
+					end, function() Press(false) end, function() glow:Show() end, function() glow:Hide() end)
+				end
+				local redTop, redBottom = CreateColor(0.58, 0.15, 0.15, 1), CreateColor(0.30, 0.06, 0.06, 1)
+				local redHeldTop, redHeldBottom = CreateColor(0.44, 0.10, 0.10, 1), CreateColor(0.22, 0.04, 0.04, 1)
+				local greenTop, greenBottom = CreateColor(0.20, 0.52, 0.26, 1), CreateColor(0.08, 0.27, 0.12, 1)
+				local greenHeldTop, greenHeldBottom = CreateColor(0.14, 0.40, 0.19, 1), CreateColor(0.05, 0.20, 0.08, 1)
+				local blueTop, blueBottom = CreateColor(0.20, 0.36, 0.62, 1), CreateColor(0.08, 0.17, 0.34, 1)
+				local blueHeldTop, blueHeldBottom = CreateColor(0.14, 0.27, 0.48, 1), CreateColor(0.05, 0.12, 0.26, 1)
+				HHBigButton("BOTTOMLEFT", -60, 24, L["POWER"], redTop, redBottom, redHeldTop, redHeldBottom, HHTogglePower)
+				HHBigButton("RIGHT", 54, 34, L["GEMFALL"], greenTop, greenBottom, greenHeldTop, greenHeldBottom, GemStart)
+				HHBigButton("BOTTOMRIGHT", 54, 10, L["RESET"], blueTop, blueBottom, blueHeldTop, blueHeldBottom, GemReset)
+				-- Speaker holes (a grid of small holes at an angle)
+				local angle = math.rad(25)
+				for row = 1, 4 do
+					for col = 1, 3 do
+						local lx, ly = (col - 2) * 9, (row - 2.5) * -9
+						local x = 64 + lx * math.cos(angle) - ly * math.sin(angle)
+						local y = -118 + lx * math.sin(angle) + ly * math.cos(angle)
+						HHDisc("ARTWORK", 0, 5, 0.03, 0.03, 0.04, 1, "RIGHT", x, y)
+					end
+				end
+				-- Screen cover and gem board
+				CreateHandheldScreen()
+			end
+
+			-- Function to show or hide the Handheld theme
+			local function SetHandheld(show)
+				if show and not hhParts then CreateHandheld() end
+				if hhParts then
+					if not show then
+						HHResetPower()
+						if gems then gems:Hide() end
+					end
+					for i = 1, #hhParts do hhParts[i]:SetShown(show) end
+				end
+				if show then
+					for i = 1, #edgeTextures do edgeTextures[i]:Hide() end
+				end
+			end
+
 			-- Function to apply the map theme (runs on startup and when the theme is changed, no reload needed)
 			ApplyMapTheme = function()
 				local theme = mapThemes[LeaMapsLC["MapTheme"]] or mapThemes[1]
@@ -848,10 +4227,19 @@
 				else
 					ar, ag, ab = theme.accent[1], theme.accent[2], theme.accent[3]
 					hr, hg, hb, ha = theme.hover[1], theme.hover[2], theme.hover[3], theme.hover[4]
-					bgBottom = CreateColor(theme.bgBottom[1], theme.bgBottom[2], theme.bgBottom[3], 1)
-					bgTop = CreateColor(theme.bgTop[1], theme.bgTop[2], theme.bgTop[3], 1)
+					bgBottom = CreateColor(theme.bgBottom[1], theme.bgBottom[2], theme.bgBottom[3], theme.bgBottom[4] or 1)
+					bgTop = CreateColor(theme.bgTop[1], theme.bgTop[2], theme.bgTop[3], theme.bgTop[4] or 1)
 				end
 				local topR, topG, topB = bgTop:GetRGB()
+				-- Casing size (Retro TV and Handheld themes), then lay out the edge and shadow round it
+				mapTheme.pads = theme.pads
+				SetPixelEdges()
+				-- Glass theme rim, reflection and see-through frame
+				SetGlass(theme.glass == true)
+				-- Handheld theme body, screen surround and buttons
+				SetHandheld(theme.handheld == true)
+				-- Retro TV theme casing, panel and screen effects
+				SetTV(theme.tv == true)
 				-- Title bar and coordinates background
 				mapTheme.titleTexture:SetGradient("VERTICAL", bgBottom, bgTop)
 				SetRainbow(mapTheme.titleBar, theme.rainbow)
@@ -863,13 +4251,17 @@
 				local brightest = math.max(ar, ag, ab)
 				local boost = brightest > 0 and 1 / brightest or 1 -- Brighten so the strongest channel is full (keeps the hue)
 				for i, entry in ipairs(mapTheme.buttons) do
-					entry.box:SetVertexColor(ar, ag, ab, 0.6)
-					entry.color = {ar * boost, ag * boost, ab * boost}
+					if theme.box then entry.box:SetVertexColor(theme.box[1], theme.box[2], theme.box[3], theme.box[4]) else entry.box:SetVertexColor(ar, ag, ab, 0.6) end
+					entry.color = theme.icon and {theme.icon[1], theme.icon[2], theme.icon[3]} or {ar * boost, ag * boost, ab * boost}
 					if not entry.box:IsShown() then entry.icon:SetVertexColor(unpack(entry.color)) end
 				end
 				-- Quest search box (title bar color, a little lighter while typing)
-				mapTheme.searchNormal = {topR + 0.04, topG + 0.04, topB + 0.04}
-				mapTheme.searchFocused = {topR + 0.10, topG + 0.10, topB + 0.10}
+				if theme.search then
+					mapTheme.searchNormal, mapTheme.searchFocused = theme.search[1], theme.search[2]
+				else
+					mapTheme.searchNormal = {topR + 0.04, topG + 0.04, topB + 0.04}
+					mapTheme.searchFocused = {topR + 0.10, topG + 0.10, topB + 0.10}
+				end
 				if mapTheme.SetSearchBg then mapTheme.SetSearchBg() end
 				-- Zone menu hover
 				if mapTheme.menuButtons then
@@ -880,7 +4272,13 @@
 				-- Zone menu lists (title bar color, accent border and a highlight tinted with the hover color)
 				-- (Rainbow gives the list the same rainbow as the title bar and each row its own rainbow highlight color)
 				if mapTheme.popup then
-					mapTheme.popup:SetColors(topR, topG, topB, ar, ag, ab, hr + (1 - hr) * 0.3, hg + (1 - hg) * 0.3, hb + (1 - hb) * 0.3, theme.rainbow and RainbowRowColor or nil)
+					if theme.list then
+						-- Themes with their own list colors (Glass has a see-through list)
+						local c = theme.list
+						mapTheme.popup:SetColors(c[1], c[2], c[3], c[4], c[5], c[6], 1, 1, 1, nil, c[7])
+					else
+						mapTheme.popup:SetColors(topR, topG, topB, ar, ag, ab, hr + (1 - hr) * 0.3, hg + (1 - hg) * 0.3, hb + (1 - hb) * 0.3, theme.rainbow and RainbowRowColor or nil)
+					end
 					SetRainbow(mapTheme.popup.frame, theme.rainbow)
 				end
 			end
@@ -900,7 +4298,7 @@
 			LeaMapsLC:MakeCB(simplePanel, "ShowZoneMenu", "Show zone menus", 16, -92, false, "If checked, continent and zone menus will be shown in the map title bar.|n|nThe menus cannot be used in combat.")
 
 			-- Map theme dropdown (applies straight away)
-			LeaMapsLC:CreateDropdown("MapTheme", "Map Theme", 146, "TOPLEFT", simplePanel, "TOPLEFT", 16, -152, false, {{L["Classic"], 1}, {L["Warm"], 2}, {L["Charcoal"], 3}, {L["Class Color"], 4}, {L["Alliance"], 6}, {L["Horde"], 7}, {L["Green"], 10}, {L["Teal"], 9}, {L["Purple"], 8}, {L["Pink"], 5}, {L["Rainbow"], 11}})
+			LeaMapsLC:CreateDropdown("MapTheme", "Map Theme", 146, "TOPLEFT", simplePanel, "TOPLEFT", 16, -152, false, {{L["Classic"], 1}, {L["Warm"], 2}, {L["Charcoal"], 3}, {L["Class Color"], 4}, {L["Alliance"], 6}, {L["Horde"], 7}, {L["Green"], 10}, {L["Teal"], 9}, {L["Purple"], 8}, {L["Pink"], 5}, {L["Rainbow"], 11}, {L["Glass"], 13}, {L["Games"], 14}, {L["Retro TV"], 15}})
 			LeaMapsCB["MapTheme"].onChange = ApplyMapTheme
 
 			-- Back to Main Menu button click
@@ -1357,19 +4755,175 @@
 			-- Add controls
 			LeaMapsLC:MakeTx(battleFrame, "Settings", 16, -72)
 			LeaMapsLC:MakeCB(battleFrame, "UnlockBattlefield", "Unlock battlefield map", 16, -92, false, "If checked, you can move the battlefield map by dragging any of its borders.")
-			LeaMapsLC:MakeCB(battleFrame, "BattleCenterOnPlayer", "Center map on player", 16, -112, false, "If checked, the battlefield map will stay centered on your location as long as you are not in a dungeon.|n|nYou can hold shift while panning the map to temporarily prevent it from centering.")
 
-			LeaMapsLC:MakeSL(battleFrame, "BattleGroupIconSize", "Group Icons", "Drag to set the group icon size.", 8, 32, 1, 206, -172, "%.0f")
-			LeaMapsLC:MakeSL(battleFrame, "BattlePlayerArrowSize", "Player Arrow", "Drag to set the player arrow size.", 12, 48, 1, 36, -172, "%.0f")
-			LeaMapsLC:MakeSL(battleFrame, "BattleMapOpacity", "Map Opacity", "Drag to set the battlefield map opacity.", 0.1, 1, 0.1, 36, -232, "%.0f")
+			LeaMapsLC:MakeSL(battleFrame, "BattlePlayerArrowSize", "Player Arrow", "Drag to set the player arrow size.", 12, 48, 1, 36, -142, "%.0f")
+			LeaMapsLC:MakeSL(battleFrame, "BattleGroupIconSize", "Group Icons", "Drag to set the group icon size.", 8, 32, 1, 36, -202, "%.0f")
+			LeaMapsLC:MakeSL(battleFrame, "BattleMapOpacity", "Map Opacity", "Drag to set the battlefield map opacity.", 0.1, 1, 0.1, 36, -262, "%.0f")
 
-			-- Add preview texture
-			local prevIcon = battleFrame:CreateTexture(nil, "ARTWORK")
-			prevIcon:SetPoint("CENTER", battleFrame, "TOPLEFT", 400, -182)
-			prevIcon:SetTexture("Interface\\MINIMAP\\partyraidblipsv2")
-			prevIcon:SetTexCoord(0.015625, 0.3125, 0.03125, 0.59375)
-			prevIcon:SetSize(19, 18)
-			prevIcon:SetVertexColor(0.78, 0.61, 0.43, 1)
+			----------------------------------------------------------------------
+			-- Preview
+			----------------------------------------------------------------------
+
+			-- The preview is made only of frames and textures of our own. The battlefield map is only read
+			-- (map ID and zoom level) and nothing is written to it. The preview shows your current zone at the
+			-- battlefield map zoom level with the player arrow, a few group icons and the map opacity.
+
+			LeaMapsLC:MakeTx(battleFrame, "Preview", 244, -72)
+
+			local pvWidth, pvHeight = 210, 190
+			local pv = CreateFrame("Frame", nil, battleFrame)
+			pv:SetPoint("TOPLEFT", battleFrame, "TOPLEFT", 244, -92)
+			pv:SetSize(pvWidth, pvHeight)
+			pv:SetClipsChildren(true)
+
+			-- Checkered background so the map opacity can be seen
+			do
+				local square = 19
+				local cols, rows = ceil(pvWidth / square), ceil(pvHeight / square)
+				for row = 1, rows do
+					for col = 1, cols do
+						local t = pv:CreateTexture(nil, "BACKGROUND", nil, -8)
+						t:SetSize(square, square)
+						t:SetPoint("TOPLEFT", pv, "TOPLEFT", (col - 1) * square, -(row - 1) * square)
+						if (row + col) % 2 == 0 then t:SetColorTexture(0.22, 0.22, 0.22, 1) else t:SetColorTexture(0.14, 0.14, 0.14, 1) end
+					end
+				end
+			end
+
+			-- Map canvas (holds the map tiles, scaled to the battlefield map zoom level)
+			local pvCanvas = CreateFrame("Frame", nil, pv)
+			pvCanvas:SetPoint("TOPLEFT")
+			pvCanvas:SetSize(1, 1)
+			local pvTiles = {}
+
+			-- Icons (on their own frame above the map so they keep full opacity like the real map)
+			local pvIcons = CreateFrame("Frame", nil, pv)
+			pvIcons:SetAllPoints()
+			pvIcons:SetFrameLevel(pvCanvas:GetFrameLevel() + 2)
+
+			local pvArrow = pvIcons:CreateTexture(nil, "OVERLAY", nil, 2)
+			pvArrow:SetAtlas("UI-WorldMapArrow")
+
+			-- Group icons (offsets are from the player arrow, colors are class colors)
+			local pvGroup = {}
+			local pvGroupInfo = {
+				{-38,  22, 0.78, 0.61, 0.43},	-- Warrior
+				{ 34,  30, 0.25, 0.78, 0.92},	-- Mage
+				{ 26, -36, 0.96, 0.55, 0.73},	-- Paladin
+				{-30, -30, 1.00, 1.00, 1.00},	-- Priest
+			}
+			for i = 1, #pvGroupInfo do
+				local t = pvIcons:CreateTexture(nil, "OVERLAY", nil, 1)
+				t:SetTexture("Interface\\MINIMAP\\partyraidblipsv2")
+				t:SetTexCoord(0.015625, 0.3125, 0.03125, 0.59375)
+				t:SetVertexColor(pvGroupInfo[i][3], pvGroupInfo[i][4], pvGroupInfo[i][5], 1)
+				pvGroup[i] = t
+			end
+
+			-- Thin border around the preview
+			do
+				local b = CreateFrame("Frame", nil, battleFrame, "BackdropTemplate")
+				b:SetPoint("TOPLEFT", pv, "TOPLEFT", -1, 1)
+				b:SetPoint("BOTTOMRIGHT", pv, "BOTTOMRIGHT", 1, -1)
+				b:SetBackdrop({edgeFile = "Interface\\Buttons\\WHITE8X8", edgeSize = 1})
+				b:SetBackdropBorderColor(0.4, 0.4, 0.4, 1)
+				b:SetFrameLevel(pvIcons:GetFrameLevel() + 1)
+			end
+
+			local pvArrowX, pvArrowY = pvWidth / 2, pvHeight / 2
+
+			-- Function to position the player arrow and group icons and set their sizes
+			local function UpdatePreviewIcons()
+				local arrowSize = LeaMapsLC["BattlePlayerArrowSize"]
+				pvArrow:SetSize(arrowSize, arrowSize)
+				pvArrow:ClearAllPoints()
+				pvArrow:SetPoint("CENTER", pv, "TOPLEFT", pvArrowX, -pvArrowY)
+				local iconSize = LeaMapsLC["BattleGroupIconSize"]
+				for i = 1, #pvGroup do
+					local t = pvGroup[i]
+					t:SetSize(iconSize, iconSize)
+					t:ClearAllPoints()
+					t:SetPoint("CENTER", pv, "TOPLEFT", pvArrowX + pvGroupInfo[i][1], -(pvArrowY - pvGroupInfo[i][2]))
+				end
+			end
+
+			-- Function to set the preview map opacity
+			local function UpdatePreviewOpacity()
+				pvCanvas:SetAlpha(LeaMapsLC["BattleMapOpacity"])
+			end
+
+			-- Function to draw your current zone in the preview (centered on you where possible)
+			local function UpdatePreviewMap()
+				for i = 1, #pvTiles do pvTiles[i]:Hide() end
+				pvArrowX, pvArrowY = pvWidth / 2, pvHeight / 2
+				local mapID = BattlefieldMapFrame:GetMapID() or C_Map.GetBestMapForUnit("player")
+				local layers = mapID and C_Map.GetMapArtLayers(mapID)
+				local layerInfo = layers and layers[1]
+				local textures = layerInfo and C_Map.GetMapArtLayerTextures(mapID, 1)
+				if not textures then UpdatePreviewIcons() return end
+
+				-- Use the battlefield map zoom level if it's showing this zone (read only), otherwise fit the zone into the preview
+				local layerW, layerH = layerInfo.layerWidth, layerInfo.layerHeight
+				local scale
+				if BattlefieldMapFrame:IsShown() and BattlefieldMapFrame:GetMapID() == mapID then
+					scale = BattlefieldMapFrame.ScrollContainer:GetCanvasScale()
+				end
+				if not scale or scale <= 0 or scale >= 1 then scale = min(pvWidth / layerW, pvHeight / layerH) end
+				pvCanvas:SetScale(scale)
+				pvCanvas:SetSize(layerW, layerH)
+
+				-- Draw map tiles
+				local tileW, tileH = layerInfo.tileWidth, layerInfo.tileHeight
+				local cols, rows = ceil(layerW / tileW), ceil(layerH / tileH)
+				local index = 0
+				for row = 1, rows do
+					for col = 1, cols do
+						local fileID = textures[(row - 1) * cols + col]
+						if fileID then
+							index = index + 1
+							local t = pvTiles[index]
+							if not t then
+								t = pvCanvas:CreateTexture(nil, "BACKGROUND")
+								pvTiles[index] = t
+							end
+							t:SetSize(tileW, tileH)
+							t:ClearAllPoints()
+							t:SetPoint("TOPLEFT", pvCanvas, "TOPLEFT", (col - 1) * tileW, -(row - 1) * tileH)
+							t:SetTexture(fileID, nil, nil, "TRILINEAR")
+							t:Show()
+						end
+					end
+				end
+
+				-- Center the map on you (clamped so the map fills the preview where possible)
+				local px, py = 0.5, 0.5
+				local position = C_Map.GetPlayerMapPosition(mapID, "player")
+				if position then
+					local x, y = position:GetXY()
+					if x and y and not (issecretvalue and (issecretvalue(x) or issecretvalue(y))) then px, py = x, y end
+				end
+				local viewW, viewH = pvWidth / scale, pvHeight / scale -- Preview size in map units
+				local ox, oy
+				if layerW > viewW then ox = Clamp(viewW / 2 - px * layerW, viewW - layerW, 0) else ox = (viewW - layerW) / 2 end
+				if layerH > viewH then oy = Clamp(viewH / 2 - py * layerH, viewH - layerH, 0) else oy = (viewH - layerH) / 2 end
+				pvCanvas:ClearAllPoints()
+				pvCanvas:SetPoint("TOPLEFT", pv, "TOPLEFT", ox, -oy)
+
+				-- Player arrow position in the preview
+				pvArrowX, pvArrowY = (ox + px * layerW) * scale, (oy + py * layerH) * scale
+				UpdatePreviewIcons()
+			end
+
+			-- Keep the preview map up to date while the panel is showing (only then)
+			local pvTicker
+			pv:SetScript("OnShow", function()
+				UpdatePreviewMap()
+				UpdatePreviewOpacity()
+				if not pvTicker then pvTicker = C_Timer.NewTicker(0.5, UpdatePreviewMap) end
+			end)
+			pv:SetScript("OnHide", function()
+				if pvTicker then pvTicker:Cancel(); pvTicker = nil end
+			end)
 
 			-- Hide battlefield tab button
 			hooksecurefunc(BattlefieldMapTab, "Show", function() BattlefieldMapTab:Hide() end)
@@ -1433,86 +4987,6 @@
 			end)
 
 			----------------------------------------------------------------------
-			-- Center map on player
-			----------------------------------------------------------------------
-
-			do
-
-				local cTime = -1
-
-				-- Function to update map
-				local function cUpdate(self, elapsed)
-					if cTime > 2 or cTime == -1 then
-						if BattlefieldMapFrame.ScrollContainer:IsPanning() then return end
-						if IsShiftKeyDown() then cTime = -2000 return end
-						local position = C_Map.GetPlayerMapPosition(BattlefieldMapFrame.mapID, "player")
-						if position then
-							local x, y = position.x, position.y
-							if x then
-								local minX, maxX, minY, maxY = BattlefieldMapFrame.ScrollContainer:CalculateScrollExtentsAtScale(BattlefieldMapFrame.ScrollContainer:GetCanvasScale())
-								local cx = Clamp(x, minX, maxX)
-								local cy = Clamp(y, minY, maxY)
-								BattlefieldMapFrame.ScrollContainer:SetPanTarget(cx, cy)
-							end
-							cTime = 0
-						end
-					end
-					cTime = cTime + elapsed
-				end
-
-				-- Create frame for update
-				local cFrame = CreateFrame("FRAME", nil, BattlefieldMapFrame)
-
-				-- Function to set update state
-				local function SetUpdateFunc()
-					cTime = -1
-					if LeaMapsLC["BattleCenterOnPlayer"] == "On" then
-						cFrame:SetScript("OnUpdate", cUpdate)
-					else
-						cFrame:SetScript("OnUpdate", nil)
-					end
-				end
-
-				-- Set update state when option is clicked and on startup
-				LeaMapsCB["BattleCenterOnPlayer"]:HookScript("OnClick", SetUpdateFunc)
-				SetUpdateFunc()
-
-				-- Hook reset button click
-				battleFrame.r:HookScript("OnClick", function()
-					LeaMapsLC["BattleCenterOnPlayer"] = "Off"
-					SetUpdateFunc()
-					battleFrame:Hide(); battleFrame:Show()
-				end)
-
-				-- Hook configuration panel for preset profile
-				LeaMapsCB["EnhanceBattleMapBtn"]:HookScript("OnClick", function()
-					if IsShiftKeyDown() and IsControlKeyDown() then
-						-- Preset profile
-						LeaMapsLC["BattleCenterOnPlayer"] = "On"
-						SetUpdateFunc()
-						if battleFrame:IsShown() then battleFrame:Hide(); battleFrame:Show(); end
-					end
-				end)
-
-				-- Update location immediately or after a very short delay
-				local function SetCenterNow()
-					if LeaMapsLC["BattleCenterOnPlayer"] == "On" then
-						if IsShiftKeyDown() then cTime = -2000 else	cTime = -1 end
-					end
-				end
-				local function SetCenterSoon()
-					if LeaMapsLC["BattleCenterOnPlayer"] == "On" then
-						if IsShiftKeyDown() then cTime = -2000 else	cTime = 1.7 end
-					end
-				end
-
-				BattlefieldMapFrame.ScrollContainer:HookScript("OnMouseUp", SetCenterSoon)
-				BattlefieldMapFrame:HookScript("OnShow", SetCenterNow)
-				BattlefieldMapFrame.ScrollContainer:HookScript("OnMouseWheel", SetCenterSoon)
-
-			end
-
-			----------------------------------------------------------------------
 			-- Map opacity
 			----------------------------------------------------------------------
 
@@ -1520,6 +4994,7 @@
 				LeaMapsCB["BattleMapOpacity"].f:SetFormattedText("%.0f%%", LeaMapsLC["BattleMapOpacity"] * 100)
 				BattlefieldMapOptions.opacity = 1 - LeaMapsLC["BattleMapOpacity"]
 				BattlefieldMapFrame:RefreshAlpha()
+				UpdatePreviewOpacity()
 			end
 
 			-- Set opacity when slider is changed and on startup
@@ -1532,8 +5007,10 @@
 
 			-- Function to set player arrow size
 			local function SetPlayerArrow()
+				LeaMapsCB["BattlePlayerArrowSize"].f:SetText(LeaMapsLC["BattlePlayerArrowSize"] .. " (" .. string.format("%.0f%%", LeaMapsLC["BattlePlayerArrowSize"] / 12 * 100) .. ")")
 				BattlefieldMapFrame.groupMembersDataProvider:SetUnitPinSize("player", LeaMapsLC["BattlePlayerArrowSize"])
 				BattlefieldMapFrame.groupMembersDataProvider.pin:SynchronizePinSizes()
+				UpdatePreviewIcons()
 			end
 
 			-- Set player arrow when option is changed and on startup
@@ -1562,12 +5039,12 @@
 			local function SetIconSize()
 				LeaMapsCB["BattleGroupIconSize"].f:SetText(LeaMapsLC["BattleGroupIconSize"] .. " (" .. string.format("%.0f%%", LeaMapsLC["BattleGroupIconSize"] / 8 * 100) .. ")")
 				FixGroupPin()
-				prevIcon:SetSize(LeaMapsLC["BattleGroupIconSize"], LeaMapsLC["BattleGroupIconSize"])
+				UpdatePreviewIcons()
 			end
 
 			-- Set group icons when option is changed and on startup
 			LeaMapsCB["BattleGroupIconSize"]:HookScript("OnValueChanged", SetIconSize)
-			FixGroupPin()
+			SetIconSize()
 
 			----------------------------------------------------------------------
 			-- Rest of configuration panel
@@ -1816,7 +5293,7 @@
 			-- Allow map frame movement
 			----------------------------------------------------------------------
 
-			local SetMapPositionFunc -- Defined below
+			local SetMapPositionFunc, ClampMapPosition -- Defined below
 			local mapMoving
 
 			-- Function to check if the map frame has a position on screen (it can be missing or secret)
@@ -1853,6 +5330,7 @@
 				mapMoving = nil
 				WorldMapFrame:StopMovingOrSizing()
 				WorldMapFrame:SetUserPlaced(false)
+				ClampMapPosition()
 				-- Save map frame position (if it's not valid, put the map frame back at its saved position)
 				local a, void, r, x, y = WorldMapFrame:GetPoint()
 				if not IsValidMapPoint(a, r, x, y) then
@@ -1886,19 +5364,52 @@
 				LeaMapsCB["MapTitleFrame"]:SetScript("OnDragStop", StopMapMove)
 			end
 
-			WorldMapFrame:SetClampedToScreen(true)
+			-- The game's clamp to screen is not used. Its single clamp area cannot let the map go far off the top and far
+			-- off the bottom at the same time (when it is set up to, the map jumps when it is clicked and gets stuck), so the
+			-- map can be dragged freely and is moved back on the screen when it is dropped (see ClampMapPosition).
+			WorldMapFrame:SetClampedToScreen(false)
+
+			-- Function to move the map frame back if too much of it is off the screen. The map can go off any side of the
+			-- screen until about 100 screen pixels of it are left on the screen (if the map is moved off the top,
+			-- the title bar can be off the screen, Reset in the configuration panel brings it back).
+			local mapKeepPixels = 100
+			ClampMapPosition = function()
+				if not LeaMapsLC:CanChangeMap() then return end
+				local left, right, top, bottom = WorldMapFrame:GetLeft(), WorldMapFrame:GetRight(), WorldMapFrame:GetTop(), WorldMapFrame:GetBottom()
+				local scale, uiScale = WorldMapFrame:GetEffectiveScale(), UIParent:GetEffectiveScale()
+				local screenW, screenH = UIParent:GetSize()
+				for void, v in ipairs({left, right, top, bottom, scale, uiScale, screenW, screenH}) do
+					if issecretvalue and issecretvalue(v) then return end -- Can be secret in combat
+				end
+				if not left or not top or not scale or scale <= 0 then return end
+				-- Screen size in map frame units
+				screenW, screenH = screenW * uiScale / scale, screenH * uiScale / scale
+				-- Amount to keep on the screen in map frame units (768 units at scale 1 is the screen height)
+				local physHeight = GetPhysicalScreenSize and select(2, GetPhysicalScreenSize())
+				local keep = 300
+				if physHeight and physHeight > 0 then keep = mapKeepPixels * 768 / physHeight / scale end
+				local width, height = right - left, top - bottom
+				local offX, offY = math.max(0, width - keep), math.max(0, height - keep) -- How far it can go off each side
+				local dx, dy = 0, 0
+				if left < -offX then dx = -offX - left elseif right > screenW + offX then dx = screenW + offX - right end
+				if top > screenH + offY then dy = screenH + offY - top elseif bottom < -offY then dy = -offY - bottom end
+				if dx == 0 and dy == 0 then return end
+				if WorldMapFrame:GetNumPoints() ~= 1 then return end
+				local a, rel, r, x, y = WorldMapFrame:GetPoint()
+				if not IsValidMapPoint(a, r, x, y) then return end
+				WorldMapFrame:SetPoint(a, rel, r, x + dx, y + dy)
+			end
 
 			-- Function to set map position (not while the map frame cannot be changed)
 			SetMapPositionFunc = function()
 				if not LeaMapsLC:CanChangeMap() then return end
 				WorldMapFrame:ClearAllPoints()
 				if not WorldMapFrame:IsMaximized() then
-					WorldMapFrame:SetClampRectInsets(600, -600, -64, 470)
 					WorldMapFrame:SetPoint(LeaMapsLC["MapPosA"], UIParent, LeaMapsLC["MapPosR"], LeaMapsLC["MapPosX"], LeaMapsLC["MapPosY"])
 				else
-					WorldMapFrame:SetClampRectInsets(900, -900, -64, 700)
 					WorldMapFrame:SetPoint(LeaMapsLC["MaxMapPosA"], UIParent, LeaMapsLC["MaxMapPosR"], LeaMapsLC["MaxMapPosX"], LeaMapsLC["MaxMapPosY"])
 				end
+				ClampMapPosition()
 			end
 
 			-- Set map position when map size is toggled, map size is changed and on startup
@@ -1906,9 +5417,11 @@
 			hooksecurefunc(WorldMapFrame, "OnFrameSizeChanged", SetMapPositionFunc) -- Needed when maximising the map
 			SetMapPositionFunc()
 
-			-- Function to set map movement clickable area (not while the map frame cannot be changed)
+			-- Function to set map movement clickable area (not while the map frame cannot be changed, themes with a casing
+			-- set their own clickable area which includes the casing and the grab area)
 			local function SetMapHitRect()
 				if not LeaMapsLC:CanChangeMap() then return end
+				if mapTheme.pads and LeaMapsLC.SetCasingHitRect then LeaMapsLC.SetCasingHitRect() return end
 				if LeaMapsLC["EnableMovement"] == "On" then
 					WorldMapFrame:SetHitRectInsets(-10, -10, -10, -10)
 				else
@@ -1920,7 +5433,9 @@
 				end
 			end
 
-			-- Set map movement clickable area on startup and when setting is changed
+			-- Set map movement clickable area on startup and when setting is changed (themes with a casing use it to put
+			-- the normal clickable area back when another theme is chosen)
+			LeaMapsLC.RestoreMapHitRect = SetMapHitRect
 			SetMapHitRect()
 			LeaMapsCB["EnableMovement"]:HookScript("OnClick", SetMapHitRect)
 
@@ -2129,36 +5644,69 @@
 				Leatrix_Maps["Reveal"][542]["267:257:336:327"] = string.gsub(Leatrix_Maps["Reveal"][542]["267:257:336:327"], "1003342", "")
 			end
 
-			-- Create table to store revealed overlays
-			local overlayTextures = {}
-			local bfoverlayTextures = {}
+			-- Overlays are textures of our own created on the map exploration pins (world map and battlefield map).
+			-- Blizzard's texture pools, texture load groups and pin fields are never changed, so the map's own code
+			-- never reads anything the addon wrote. Overlays are drawn after Blizzard's RefreshOverlays and hidden
+			-- after Blizzard's RemoveAllData (both post-hooks).
 
-			-- Texture pools for revealed overlays (one per exploration pin and owned by Leatrix Maps so Blizzard code never
-			-- reads them, the pin is only the parent so the textures move and hide with the map)
-			local revealPools = {}
-			local function ResetRevealTexture(pool, texture)
-				texture:SetVertexColor(1, 1, 1, 1)
-				texture:Hide()
-				texture:ClearAllPoints()
-			end
-			local function GetRevealPool(pin)
-				local pool = revealPools[pin]
-				if not pool then
-					pool = CreateTexturePool(pin, "ARTWORK", -1, nil, ResetRevealTexture)
-					revealPools[pin] = pool
+			local revealState = setmetatable({}, {__mode = "k"}) -- Per pin state, keyed by pin (never stored on the pin)
+
+			-- Function to get the state for a pin
+			local function GetRevealState(pin)
+				local state = revealState[pin]
+				if not state then
+					state = {textures = {}, numActive = 0, tinted = false}
+					revealState[pin] = state
 				end
-				return pool
+				return state
 			end
 
-			-- Function to refresh overlays (Blizzard_SharedMapDataProviders\MapExplorationDataProvider)
-			local function MapExplorationPin_RefreshOverlays(pin, fullUpdate)
+			-- Function to hide all overlays on a pin (textures are kept for reuse)
+			local function ReleaseOverlays(pin)
+				local state = revealState[pin]
+				if not state then return end
+				local textures = state.textures
+				for i = 1, state.numActive do
+					local texture = textures[i]
+					texture:Hide()
+					texture:ClearAllPoints()
+					texture:SetTexture(nil)
+				end
+				state.numActive = 0
+			end
 
-				-- Remove existing textures
-				local pool = GetRevealPool(pin)
-				pool:ReleaseAll()
+			-- Function to get an overlay texture (created once, reused after that)
+			local function AcquireOverlay(pin, state)
+				local index = state.numActive + 1
+				local texture = state.textures[index]
+				if not texture then
+					texture = pin:CreateTexture(nil, "ARTWORK", nil, -1)
+					state.textures[index] = texture
+				end
+				state.numActive = index
+				return texture
+			end
 
-				overlayTextures = {}
-				local mapID = WorldMapFrame.mapID; if not mapID then return end
+			-- Function to set the tint of a pin's overlays (only zone maps are tinted)
+			local function ApplyTint(state)
+				local r, g, b, a = 1, 1, 1, 1
+				if state.tinted and LeaMapsLC["RevTint"] == "On" then
+					r, g, b, a = LeaMapsLC["tintRed"], LeaMapsLC["tintGreen"], LeaMapsLC["tintBlue"], LeaMapsLC["tintAlpha"]
+				end
+				local textures = state.textures
+				for i = 1, state.numActive do
+					textures[i]:SetVertexColor(r, g, b, a)
+				end
+			end
+
+			-- Function to show overlays for unexplored areas (runs after Blizzard_SharedMapDataProviders\MapExplorationDataProvider RefreshOverlays)
+			local function RefreshOverlays(pin)
+
+				-- Remove existing overlays
+				ReleaseOverlays(pin)
+
+				local map = pin:GetMap(); if not map then return end
+				local mapID = map:GetMapID(); if not mapID then return end
 				local artID = C_Map.GetMapArtID(mapID); if not artID or not Leatrix_Maps["Reveal"][artID] then return end
 				local LeaMapsZone = Leatrix_Maps["Reveal"][artID]
 
@@ -2172,8 +5720,8 @@
 					end
 				end
 
-				-- Get the sizes
-				local layerIndex = pin:GetMap():GetCanvasContainer():GetCurrentLayerIndex()
+				-- Get the sizes (layer index is kept locally, the pin's own layerIndex is never written)
+				local layerIndex = map:GetCanvasContainer():GetCurrentLayerIndex()
 				local layers = C_Map.GetMapArtLayers(mapID)
 				local layerInfo = layers and layers[layerIndex]
 				if not layerInfo then return end
@@ -2181,8 +5729,9 @@
 				local TILE_SIZE_HEIGHT = layerInfo.tileHeight
 
 				-- Get the map type (needed to make sure only zone maps are tinted)
-				local mapType = C_Map.GetMapInfo(mapID).mapType
-				if not mapType then mapType = 0 end
+				local mapInfo = C_Map.GetMapInfo(mapID)
+				local state = GetRevealState(pin)
+				state.tinted = mapInfo and mapInfo.mapType == 3 or false
 
 				-- Show textures if they are in database and have not been explored
 				for key, files in pairs(LeaMapsZone) do
@@ -2207,7 +5756,7 @@
 								end
 							end
 							for k = 1, numTexturesWide do
-								local texture = pool:Acquire()
+								local texture = AcquireOverlay(pin, state)
 								if ( k < numTexturesWide ) then
 									texturePixelWidth = TILE_SIZE_WIDTH
 									textureFileWidth = TILE_SIZE_WIDTH
@@ -2223,114 +5772,37 @@
 								end
 								texture:SetSize(texturePixelWidth, texturePixelHeight)
 								texture:SetTexCoord(0, texturePixelWidth/textureFileWidth, 0, texturePixelHeight/textureFileHeight)
-								texture:SetPoint("TOPLEFT", offsetX + (TILE_SIZE_WIDTH * (k-1)), -(offsetY + (TILE_SIZE_HEIGHT * (j - 1))))
+								texture:SetPoint("TOPLEFT", pin, "TOPLEFT", offsetX + (TILE_SIZE_WIDTH * (k-1)), -(offsetY + (TILE_SIZE_HEIGHT * (j - 1))))
 								texture:SetTexture(tonumber(fileDataIDs[((j - 1) * numTexturesWide) + k]), nil, nil, "TRILINEAR")
 								texture:SetDrawLayer("ARTWORK", -1)
 								texture:Show()
-								if LeaMapsLC["RevTint"] == "On" and mapType == 3 then
-									texture:SetVertexColor(LeaMapsLC["tintRed"], LeaMapsLC["tintGreen"], LeaMapsLC["tintBlue"], LeaMapsLC["tintAlpha"])
-								end
-								tinsert(overlayTextures, texture)
 							end
 						end
 					end
 				end
+
+				-- Set tint
+				ApplyTint(state)
+
 			end
 
-			-- Show overlays on startup
+			-- Function to hook a map exploration pin (post-hooks only)
+			local function SetupRevealPin(pin)
+				if pin.RemoveAllData then hooksecurefunc(pin, "RemoveAllData", ReleaseOverlays) end
+				hooksecurefunc(pin, "RefreshOverlays", RefreshOverlays)
+				-- Draw now if the map is already showing (such as the battlefield map)
+				local map = pin:GetMap()
+				if map and map:IsShown() then RefreshOverlays(pin) end
+			end
+
+			-- Hook the world map and battlefield map exploration pins
 			for pin in WorldMapFrame:EnumeratePinsByTemplate("MapExplorationPinTemplate") do
-				hooksecurefunc(pin, "RefreshOverlays", MapExplorationPin_RefreshOverlays)
+				SetupRevealPin(pin)
 			end
-
-			-- Repeat refresh overlays function for Battlefield map
-			local function bfMapExplorationPin_RefreshOverlays(pin, fullUpdate)
-
-				-- Remove existing textures
-				local pool = GetRevealPool(pin)
-				pool:ReleaseAll()
-
-				bfoverlayTextures = {}
-				local mapID = BattlefieldMapFrame.mapID; if not mapID then return end
-				local artID = C_Map.GetMapArtID(mapID); if not artID or not Leatrix_Maps["Reveal"][artID] then return end
-				local LeaMapsZone = Leatrix_Maps["Reveal"][artID]
-
-				-- Store already explored tiles in a table so they can be ignored
-				local TileExists = {}
-				local exploredMapTextures = C_MapExplorationInfo.GetExploredMapTextures(mapID)
-				if exploredMapTextures then
-					for i, exploredTextureInfo in ipairs(exploredMapTextures) do
-						local key = exploredTextureInfo.textureWidth .. ":" .. exploredTextureInfo.textureHeight .. ":" .. exploredTextureInfo.offsetX .. ":" .. exploredTextureInfo.offsetY
-						TileExists[key] = true
-					end
+			if BattlefieldMapFrame then
+				for pin in BattlefieldMapFrame:EnumeratePinsByTemplate("MapExplorationPinTemplate") do
+					SetupRevealPin(pin)
 				end
-
-				-- Get the sizes
-				local layerIndex = pin:GetMap():GetCanvasContainer():GetCurrentLayerIndex()
-				local layers = C_Map.GetMapArtLayers(mapID)
-				local layerInfo = layers and layers[layerIndex]
-				if not layerInfo then return end
-				local TILE_SIZE_WIDTH = layerInfo.tileWidth
-				local TILE_SIZE_HEIGHT = layerInfo.tileHeight
-
-				-- Get the map type (needed to make sure only zone maps are tinted)
-				local mapType = C_Map.GetMapInfo(mapID).mapType
-				if not mapType then mapType = 0 end
-
-				-- Show textures if they are in database and have not been explored
-				for key, files in pairs(LeaMapsZone) do
-					if not TileExists[key] then
-						local width, height, offsetX, offsetY = strsplit(":", key)
-						local fileDataIDs = { strsplit(",", files) }
-						local numTexturesWide = ceil(width/TILE_SIZE_WIDTH)
-						local numTexturesTall = ceil(height/TILE_SIZE_HEIGHT)
-						local texturePixelWidth, textureFileWidth, texturePixelHeight, textureFileHeight
-						for j = 1, numTexturesTall do
-							if ( j < numTexturesTall ) then
-								texturePixelHeight = TILE_SIZE_HEIGHT
-								textureFileHeight = TILE_SIZE_HEIGHT
-							else
-								texturePixelHeight = mod(height, TILE_SIZE_HEIGHT)
-								if ( texturePixelHeight == 0 ) then
-									texturePixelHeight = TILE_SIZE_HEIGHT
-								end
-								textureFileHeight = 16
-								while(textureFileHeight < texturePixelHeight) do
-									textureFileHeight = textureFileHeight * 2
-								end
-							end
-							for k = 1, numTexturesWide do
-								local texture = pool:Acquire()
-								if ( k < numTexturesWide ) then
-									texturePixelWidth = TILE_SIZE_WIDTH
-									textureFileWidth = TILE_SIZE_WIDTH
-								else
-									texturePixelWidth = mod(width, TILE_SIZE_WIDTH)
-									if ( texturePixelWidth == 0 ) then
-										texturePixelWidth = TILE_SIZE_WIDTH
-									end
-									textureFileWidth = 16
-									while(textureFileWidth < texturePixelWidth) do
-										textureFileWidth = textureFileWidth * 2
-									end
-								end
-								texture:SetSize(texturePixelWidth, texturePixelHeight)
-								texture:SetTexCoord(0, texturePixelWidth/textureFileWidth, 0, texturePixelHeight/textureFileHeight)
-								texture:SetPoint("TOPLEFT", offsetX + (TILE_SIZE_WIDTH * (k-1)), -(offsetY + (TILE_SIZE_HEIGHT * (j - 1))))
-								texture:SetTexture(tonumber(fileDataIDs[((j - 1) * numTexturesWide) + k]), nil, nil, "TRILINEAR")
-								texture:SetDrawLayer("ARTWORK", -1)
-								texture:Show()
-								if LeaMapsLC["RevTint"] == "On" and mapType == 3 then
-									texture:SetVertexColor(LeaMapsLC["tintRed"], LeaMapsLC["tintGreen"], LeaMapsLC["tintBlue"], LeaMapsLC["tintAlpha"])
-								end
-								tinsert(bfoverlayTextures, texture)
-							end
-						end
-					end
-				end
-			end
-
-			for pin in BattlefieldMapFrame:EnumeratePinsByTemplate("MapExplorationPinTemplate") do
-				hooksecurefunc(pin, "RefreshOverlays", bfMapExplorationPin_RefreshOverlays)
 			end
 
 			-- Create tint frame
@@ -2359,14 +5831,10 @@
 				LeaMapsCB["tintBlue"].f:SetFormattedText("%.0f%%", LeaMapsLC["tintBlue"] * 100)
 				LeaMapsCB["tintAlpha"].f:SetFormattedText("%.0f%%", LeaMapsLC["tintAlpha"] * 100)
 				-- Set tint
+				for pin, state in pairs(revealState) do
+					ApplyTint(state)
+				end
 				if LeaMapsLC["RevTint"] == "On" then
-					-- Enable tint
-					for i = 1, #overlayTextures  do
-						overlayTextures[i]:SetVertexColor(LeaMapsLC["tintRed"], LeaMapsLC["tintGreen"], LeaMapsLC["tintBlue"], LeaMapsLC["tintAlpha"])
-					end
-					for i = 1, #bfoverlayTextures do
-						bfoverlayTextures[i]:SetVertexColor(LeaMapsLC["tintRed"], LeaMapsLC["tintGreen"], LeaMapsLC["tintBlue"], LeaMapsLC["tintAlpha"])
-					end
 					-- Enable controls
 					LeaMapsCB["tintRed"]:Enable(); LeaMapsCB["tintRed"]:SetAlpha(1.0)
 					LeaMapsCB["tintGreen"]:Enable(); LeaMapsCB["tintGreen"]:SetAlpha(1.0)
@@ -2374,15 +5842,6 @@
 					LeaMapsCB["tintAlpha"]:Enable(); LeaMapsCB["tintAlpha"]:SetAlpha(1.0)
 					prvTitle:SetAlpha(1.0); tintFrame.preview:SetAlpha(1.0)
 				else
-					-- Disable tint
-					for i = 1, #overlayTextures  do
-						overlayTextures[i]:SetVertexColor(1, 1, 1)
-						overlayTextures[i]:SetAlpha(1.0)
-					end
-					for i = 1, #bfoverlayTextures  do
-						bfoverlayTextures[i]:SetVertexColor(1, 1, 1)
-						bfoverlayTextures[i]:SetAlpha(1.0)
-					end
 					-- Disable controls
 					LeaMapsCB["tintRed"]:Disable(); LeaMapsCB["tintRed"]:SetAlpha(0.3)
 					LeaMapsCB["tintGreen"]:Disable(); LeaMapsCB["tintGreen"]:SetAlpha(0.3)
@@ -2434,6 +5893,207 @@
 					if tintFrame:IsShown() then tintFrame:Hide(); tintFrame:Show(); end
 				else
 					tintFrame:Show()
+					LeaMapsLC["PageF"]:Hide()
+				end
+			end)
+
+		end
+
+		----------------------------------------------------------------------
+		-- Set keybindings (no reload required)
+		----------------------------------------------------------------------
+
+		do
+
+			-- Create configuration panel
+			local KeyPanel = LeaMapsLC:CreatePanel("Set keybindings", "KeyPanel")
+
+			-- Hidden buttons that the keys click (the keys are bound to them in the addon code so the game keybindings menu is not tainted)
+			local function MakeKeyButton(name, func)
+				local btn = CreateFrame("Button", name, UIParent)
+				btn:Hide()
+				btn:RegisterForClicks("AnyDown")
+				btn:SetScript("OnClick", func)
+			end
+
+			MakeKeyButton("LeaMapsGlobalKeyToggle", function() SlashCmdList["Leatrix_Maps"]("") end)
+
+			-- Keys (var is the saved setting, button is the button the key clicks)
+			local actions = {
+				{var = "KeyBindToggle", button = "LeaMapsGlobalKeyToggle", label = "Toggle panel", tip = "Open or close the Leatrix Maps options panel."},
+			}
+
+			-- Headings and rows
+			LeaMapsLC:MakeTx(KeyPanel, "Leatrix Maps", 16, -72)
+			local rowPos = {{16, -92}}
+
+			local function KeyName(key)
+				return GetBindingText and GetBindingText(key) or key
+			end
+
+			local listening -- Index of the row waiting for a key
+			local applyPending = false
+
+			-- Apply the keys
+			local function ApplyKeys()
+				if InCombatLockdown() then
+					applyPending = true
+					return
+				end
+				applyPending = false
+				ClearOverrideBindings(KeyPanel)
+				if LeaMapsLC["SetKeybindings"] == "On" then
+					for i = 1, #actions do
+						local key = LeaMapsLC[actions[i].var]
+						if key ~= "" then
+							SetOverrideBindingClick(KeyPanel, false, key, actions[i].button, "LeftButton")
+						end
+					end
+				end
+			end
+
+			-- Show the keys
+			local function Refresh()
+				for i = 1, #actions do
+					local btn = actions[i].btn
+					if listening == i then
+						btn:SetText(L["Press a key"])
+					elseif LeaMapsLC[actions[i].var] ~= "" then
+						btn:SetText("|cff00ff00" .. KeyName(LeaMapsLC[actions[i].var]) .. "|r")
+					else
+						btn:SetText("|cff808080" .. L["None"] .. "|r")
+					end
+				end
+			end
+
+			local function StopListening()
+				if listening then
+					actions[listening].btn:EnableKeyboard(false)
+					listening = nil
+				end
+				Refresh()
+			end
+
+			local modifierKeys = {LSHIFT = true, RSHIFT = true, LCTRL = true, RCTRL = true, LALT = true, RALT = true, LMETA = true, RMETA = true}
+
+			-- Create the rows
+			for i = 1, #actions do
+				local action = actions[i]
+				local x, y = rowPos[i][1], rowPos[i][2]
+
+				local label = LeaMapsLC:MakeWD(KeyPanel, action.label, x, y, 130)
+				label:SetWordWrap(false)
+
+				local btn = LeaMapsLC:CreateButton("KeyBind" .. i .. "Btn", KeyPanel, "None", "TOPLEFT", x + 136, y + 4, 20, action.tip)
+				btn:SetWidth(120)
+				btn.tiptext = L[action.tip] .. "|n|n" .. L["Click, then press a key (you can include Shift, Ctrl or Alt).  Press Escape to cancel or right-click to remove the key."]
+				btn:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+				action.btn = btn
+
+				-- Capture the next key pressed
+				btn:SetScript("OnKeyDown", function(self, key)
+					if listening ~= i then return end
+					if modifierKeys[key] then return end
+					if key == "ESCAPE" then
+						StopListening()
+						return
+					end
+					if InCombatLockdown() then
+						StopListening()
+						LeaMapsLC:Print("You cannot do that in combat.")
+						return
+					end
+					local combo = (IsAltKeyDown() and "ALT-" or "") .. (IsControlKeyDown() and "CTRL-" or "") .. (IsShiftKeyDown() and "SHIFT-" or "") .. (IsMetaKeyDown and IsMetaKeyDown() and "META-" or "") .. key
+					-- Take the key from any other row that uses it
+					for j = 1, #actions do
+						if j ~= i and LeaMapsLC[actions[j].var] == combo then
+							LeaMapsLC[actions[j].var] = ""
+						end
+					end
+					LeaMapsLC[action.var] = combo
+					ApplyKeys()
+					StopListening()
+				end)
+
+				-- Setting a key script turns keyboard input on by itself, so turn it off until the button is clicked
+				btn:EnableKeyboard(false)
+
+				btn:SetScript("OnClick", function(self, mouseButton)
+					if InCombatLockdown() then
+						StopListening()
+						LeaMapsLC:Print("You cannot do that in combat.")
+						return
+					end
+					if mouseButton == "RightButton" then
+						-- Remove the key
+						StopListening()
+						LeaMapsLC[action.var] = ""
+						ApplyKeys()
+						Refresh()
+						return
+					end
+					if listening == i then
+						StopListening()
+					else
+						StopListening()
+						listening = i
+						btn:EnableKeyboard(true)
+						btn:SetPropagateKeyboardInput(false)
+						Refresh()
+					end
+				end)
+			end
+
+			-- Turning the option on or off sets or removes the keys
+			LeaMapsCB["SetKeybindings"]:HookScript("OnClick", ApplyKeys)
+
+			KeyPanel:HookScript("OnShow", Refresh)
+			KeyPanel:HookScript("OnHide", StopListening)
+			KeyPanel:RegisterEvent("PLAYER_REGEN_DISABLED")
+			KeyPanel:RegisterEvent("PLAYER_REGEN_ENABLED")
+			KeyPanel:SetScript("OnEvent", function(self, event)
+				if event == "PLAYER_REGEN_DISABLED" then
+					-- Entering combat, stop listening so key presses reach the game
+					if listening then StopListening() end
+				elseif event == "PLAYER_REGEN_ENABLED" then
+					-- Set the keys if they could not be set during combat
+					if applyPending then ApplyKeys() end
+				end
+			end)
+
+			-- Set the keys once startup has finished
+			C_Timer.After(0, ApplyKeys)
+
+			-- Back to Main Menu button click
+			KeyPanel.b:HookScript("OnClick", function()
+				KeyPanel:Hide()
+				LeaMapsLC["PageF"]:Show()
+			end)
+
+			-- Reset button click
+			KeyPanel.r:HookScript("OnClick", function()
+				if InCombatLockdown() then
+					LeaMapsLC:Print("You cannot do that in combat.")
+					return
+				end
+				StopListening()
+				for i = 1, #actions do
+					LeaMapsLC[actions[i].var] = ""
+				end
+				ApplyKeys()
+				Refresh()
+			end)
+
+			-- Show configuration panel when configuration button is clicked
+			LeaMapsCB["SetKeybindingsBtn"]:HookScript("OnClick", function()
+				if IsShiftKeyDown() and IsControlKeyDown() then
+					-- Preset profile
+					StopListening()
+					LeaMapsLC["KeyBindToggle"] = "CTRL-D"
+					ApplyKeys()
+					Refresh()
+				else
+					KeyPanel:Show()
 					LeaMapsLC["PageF"]:Hide()
 				end
 			end)
@@ -2944,6 +6604,7 @@
 		LeaMapsLC:LockOption("UnlockMap", "UnlockMapBtn", true)					-- Unlock map frame
 		LeaMapsLC:LockOption("ShowCoords", "ShowCoordsBtn", true)				-- Show coordinates
 		LeaMapsLC:LockOption("EnhanceBattleMap", "EnhanceBattleMapBtn", true) 	-- Enhance battlefield map
+		LeaMapsLC:LockOption("SetKeybindings", "SetKeybindingsBtn", false) -- Set keybindings
 	end
 
 	-- Create a standard button
@@ -3190,9 +6851,24 @@
 				if LeaMapsLC["PageF"]:IsShown() then LeaMapsLC["PageF"]:Hide() LeaMapsLC["PageF"]:Show() end
 				return
 			elseif str == "wipe" then
+				-- Keep Set keybindings (enabled status and key) unless wipe all is used
+				local keepOn, keepToggle
+				if arg1 ~= "all" then
+					keepOn, keepToggle = LeaMapsLC["SetKeybindings"], LeaMapsLC["KeyBindToggle"]
+				end
 				-- Wipe all settings
 				SetCVar("mapFade", "1")
 				wipe(LeaMapsDB)
+				-- Keep the gem game (best score and the game in progress, with its score and level) unless wipe all is used
+				if arg1 ~= "all" then
+					LeaMapsDB["GemBest"] = LeaMapsLC["GemBest"]
+					LeaMapsDB["GemGame"] = LeaMapsLC.GemSaveText and LeaMapsLC.GemSaveText() or LeaMapsLC["GemGame"]
+				end
+				-- Put back Set keybindings
+				if keepOn then
+					LeaMapsDB["SetKeybindings"] = keepOn
+					LeaMapsDB["KeyBindToggle"] = keepToggle
+				end
 				LeaMapsLC["NoSaveSettings"] = true
 				ReloadUI()
 			elseif str == "nosave" then
@@ -3225,7 +6901,8 @@
 			elseif str == "hadmin" then
 				-- Show admin commands
 				LeaMapsLC:Print("reset - Reset panel position")
-				LeaMapsLC:Print("wipe - Wipe addon settings")
+				LeaMapsLC:Print("wipe - Wipe addon settings except Set keybindings")
+				LeaMapsLC:Print("wipe all - Wipe all addon settings")
 				LeaMapsLC:Print("debug - Lets you enable dungeon icons in world map settings")
 				LeaMapsLC:Print("setmap <id> - Show map ID <id>")
 				LeaMapsLC:Print("admin - Load admin profile")
@@ -3264,6 +6941,9 @@
 				-- Preset profile (reload required)
 				LeaMapsLC["NoSaveSettings"] = true
 				wipe(LeaMapsDB)
+				-- Keep the gem game (best score and the game in progress, with its score and level)
+				LeaMapsDB["GemBest"] = LeaMapsLC["GemBest"]
+				LeaMapsDB["GemGame"] = LeaMapsLC.GemSaveText and LeaMapsLC.GemSaveText() or LeaMapsLC["GemGame"]
 
 				-- Mechanics
 				LeaMapsDB["SimpleMapFrame"] = "On"
@@ -3304,7 +6984,6 @@
 				-- More
 				LeaMapsDB["EnhanceBattleMap"] = "On"
 				LeaMapsDB["UnlockBattlefield"] = "On"
-				LeaMapsDB["BattleCenterOnPlayer"] = "On"
 				LeaMapsDB["BattleGroupIconSize"] = 8
 				LeaMapsDB["BattlePlayerArrowSize"] = 12
 				LeaMapsDB["BattleMapOpacity"] = 1
@@ -3314,6 +6993,8 @@
 				LeaMapsDB["BattleMapY"] = 83
 
 				LeaMapsDB["ShowMinimapIcon"] = "On"
+				LeaMapsDB["SetKeybindings"] = "On"
+				LeaMapsDB["KeyBindToggle"] = "CTRL-D"
 				LeaMapsDB["minimapPos"] = 204 -- LeaMapsDB
 
 				ReloadUI()
@@ -3322,7 +7003,8 @@
 				LeaMapsLC:Print("Leatrix Maps" .. "|n")
 				LeaMapsLC:Print(L["Version"] .. " " .. LeaMapsLC["AddonVer"] .. "|n|n")
 				LeaMapsLC:Print("/ltm reset - Reset the panel position.")
-				LeaMapsLC:Print("/ltm wipe - Wipe all settings and reload.")
+				LeaMapsLC:Print("/ltm wipe - Wipe all settings except Set keybindings and reload.")
+				LeaMapsLC:Print("/ltm wipe all - Wipe all settings including Set keybindings and reload.")
 				LeaMapsLC:Print("/ltm help - Show this information.")
 				return
 			else
@@ -3376,7 +7058,9 @@
 			LeaMapsLC:LoadVarNum("MaxMapScale", 1.0, 0.5, 2)			-- Maximised map scale
 			LeaMapsLC:LoadVarChk("HideBlackoutFrame", "On")				-- Hide blackout frame
 			LeaMapsLC:LoadVarChk("ShowZoneMenu", "On")					-- Show zone menus
-			LeaMapsLC:LoadVarNum("MapTheme", 1, 1, 11)					-- Map theme
+			LeaMapsLC:LoadVarNum("MapTheme", 1, 1, 15)					-- Map theme
+			LeaMapsLC:LoadVarNum("GemBest", 0, 0, 999999999)			-- Handheld theme gem game best score
+			LeaMapsLC["GemGame"] = type(LeaMapsDB["GemGame"]) == "string" and LeaMapsDB["GemGame"] or ""	-- Handheld theme gem game in progress
 			LeaMapsLC:LoadVarNum("AddonLanguage", 1, 1, 12)				-- Addon language
 			LeaMapsLC:LoadVarChk("NoMapFade", "On")						-- Disable map fade
 			LeaMapsLC:LoadVarChk("NoMapEmote", "On")					-- Disable map emote
@@ -3406,7 +7090,6 @@
 			-- More
 			LeaMapsLC:LoadVarChk("EnhanceBattleMap", "Off")				-- Enhance battlefield map
 			LeaMapsLC:LoadVarChk("UnlockBattlefield", "On")				-- Unlock battlefield map
-			LeaMapsLC:LoadVarChk("BattleCenterOnPlayer", "Off")			-- Center map on player
 			LeaMapsLC:LoadVarNum("BattleGroupIconSize", 8, 8, 32)		-- Battlefield group icon size
 			LeaMapsLC:LoadVarNum("BattlePlayerArrowSize", 12, 12, 48)	-- Battlefield player arrow size
 			LeaMapsLC:LoadVarNum("BattleMapOpacity", 1, 0.1, 1)			-- Battlefield map opacity
@@ -3416,6 +7099,13 @@
 			LeaMapsLC:LoadVarNum("BattleMapY", 83, -5000, 5000)			-- Battlefield map Y axis
 
 			LeaMapsLC:LoadVarChk("ShowMinimapIcon", "On")				-- Show minimap button
+			LeaMapsLC:LoadVarChk("SetKeybindings", "Off")				-- Set keybindings
+			if type(LeaMapsDB["KeyBindToggle"]) == "string" then		-- Set keybindings toggle panel
+				LeaMapsLC["KeyBindToggle"] = LeaMapsDB["KeyBindToggle"]
+			else
+				LeaMapsLC["KeyBindToggle"] = ""
+				LeaMapsDB["KeyBindToggle"] = ""
+			end
 
 			-- Panel
 			LeaMapsLC:LoadVarAnc("MainPanelA", "CENTER")				-- Panel anchor
@@ -3477,6 +7167,8 @@
 			LeaMapsDB["ShowZoneMenu"] = LeaMapsLC["ShowZoneMenu"]
 			LeaMapsDB["AddonLanguage"] = LeaMapsLC["AddonLanguage"]
 			LeaMapsDB["MapTheme"] = LeaMapsLC["MapTheme"]
+			LeaMapsDB["GemBest"] = LeaMapsLC["GemBest"]
+			LeaMapsDB["GemGame"] = LeaMapsLC.GemSaveText and LeaMapsLC.GemSaveText() or LeaMapsLC["GemGame"] or ""
 			LeaMapsDB["NoMapFade"] = LeaMapsLC["NoMapFade"]
 			LeaMapsDB["NoMapEmote"] = LeaMapsLC["NoMapEmote"]
 			LeaMapsDB["NoFilterResetBtn"] = LeaMapsLC["NoFilterResetBtn"]
@@ -3505,7 +7197,6 @@
 			-- More
 			LeaMapsDB["EnhanceBattleMap"] = LeaMapsLC["EnhanceBattleMap"]
 			LeaMapsDB["UnlockBattlefield"] = LeaMapsLC["UnlockBattlefield"]
-			LeaMapsDB["BattleCenterOnPlayer"] = LeaMapsLC["BattleCenterOnPlayer"]
 			LeaMapsDB["BattleGroupIconSize"] = LeaMapsLC["BattleGroupIconSize"]
 			LeaMapsDB["BattlePlayerArrowSize"] = LeaMapsLC["BattlePlayerArrowSize"]
 			LeaMapsDB["BattleMapOpacity"] = LeaMapsLC["BattleMapOpacity"]
@@ -3515,6 +7206,8 @@
 			LeaMapsDB["BattleMapY"] = LeaMapsLC["BattleMapY"]
 
 			LeaMapsDB["ShowMinimapIcon"] = LeaMapsLC["ShowMinimapIcon"]
+			LeaMapsDB["SetKeybindings"] = LeaMapsLC["SetKeybindings"]
+			LeaMapsDB["KeyBindToggle"] = LeaMapsLC["KeyBindToggle"]
 
 			-- Panel
 			LeaMapsDB["MainPanelA"] = LeaMapsLC["MainPanelA"]
@@ -3627,6 +7320,7 @@
 	LeaMapsLC:MakeCB(PageF, "NoMapEmote", "Disable reading emote", 225, -252, false, "If checked, your character will not perform the reading emote when you open the map.")
 	LeaMapsLC:MakeCB(PageF, "NoFilterResetBtn", "Hide filter reset button", 225, -272, true, "If checked, the world map filter reset button will be hidden.")
 	LeaMapsLC:MakeCB(PageF, "ShowMinimapIcon", "Show minimap button", 225, -292, false, "If checked, the minimap button will be shown.")
+	LeaMapsLC:MakeCB(PageF, "SetKeybindings", "Set keybindings", 225, -312, false, "If checked, you can set a key to toggle the Leatrix Maps options panel.")
 
 	LeaMapsLC:CfgBtn("SimpleMapFrameBtn", LeaMapsCB["SimpleMapFrame"])
 	LeaMapsLC:CfgBtn("ScaleWorldMapBtn", LeaMapsCB["ScaleWorldMap"])
@@ -3634,3 +7328,4 @@
 	LeaMapsLC:CfgBtn("UnlockMapBtn", LeaMapsCB["UnlockMap"])
 	LeaMapsLC:CfgBtn("ShowCoordsBtn", LeaMapsCB["ShowCoords"])
 	LeaMapsLC:CfgBtn("EnhanceBattleMapBtn", LeaMapsCB["EnhanceBattleMap"])
+	LeaMapsLC:CfgBtn("SetKeybindingsBtn", LeaMapsCB["SetKeybindings"])
