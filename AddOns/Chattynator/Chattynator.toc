@@ -1,7 +1,7 @@
 ## Dependencies: Ace3
 ## Interface: 120100, 120105, 16001, 50504, 38001, 20506, 11509
 ## Title: Chattynator
-## Version: 233
+## Version: 234
 ## Author: plusmouse
 ## IconTexture: Interface\AddOns\Chattynator\Assets\Logo.png
 ## AddonCompartmentFunc: Chattynator_AddonCompartmentCallback

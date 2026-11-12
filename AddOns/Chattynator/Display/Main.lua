@@ -134,14 +134,10 @@ function addonTable.Display.ChatFrameMixin:OnLoad()
   self.shouldFadeCompletely = addonTable.Config.Get(addonTable.Config.Options.FADE_COMPLETELY)
   self.fadedAlpha = addonTable.Config.Get(addonTable.Config.Options.FADED_ALPHA)
 
-  local wasEditBoxFocus = false
   local step = 0.08
   C_Timer.NewTicker(step, function()
     local alpha = self:GetAlpha()
     if not self.shouldFadeCompletely or self:IsMouseOver() or self.ButtonsBar:IsMouseOver() or ChatFrame1EditBox:HasFocus() or self.ScrollingMessages:IsAnyShown() or alpha < self.fadedAlpha or not self.ScrollingMessages:IsShown() then
-      if ChatFrame1EditBox:HasFocus() and not wasEditBoxFocus then
-        addonTable.CallbackRegistry:TriggerEvent("Render")
-      end
       if alpha < 1 then
         local newAlpha = alpha + step * 8
         self:SetAlpha(newAlpha)
@@ -155,7 +151,6 @@ function addonTable.Display.ChatFrameMixin:OnLoad()
     if self:GetID() == 1 then
       ChatFrame1EditBox:SetAlpha(self:GetAlpha())
     end
-    wasEditBoxFocus = ChatFrame1EditBox:HasFocus()
   end)
 end
 

@@ -1,9 +1,10 @@
 # Chattynator
 
-## [233](https://github.com/TheMouseNest/Chattynator/tree/233) (2026-11-10)
-[Full Changelog](https://github.com/TheMouseNest/Chattynator/compare/232...233) 
+## [234](https://github.com/TheMouseNest/Chattynator/tree/234) (2026-11-11)
+[Full Changelog](https://github.com/TheMouseNest/Chattynator/compare/233...234) 
 
-- Fix tab flashing stopping abruptly  
-- Keep edit box alpha in sync with chat frame  
-- Add flashing to unread tabs in "Boxed" skin  
-- Change level format  
+- Cleanup  
+- Blizzard skin: Fix border for chat frame going missing on other chat frames  
+- Fix chat command history  
+- Remove pressing enter restored chat history visibility  
+- Boxed theme: Remove color from "new tab" button  
