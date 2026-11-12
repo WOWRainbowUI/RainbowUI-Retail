@@ -266,13 +266,13 @@ local visibilityStates = {
   ["has-target-attack"] = {
     events = {"PLAYER_TARGET_CHANGED"},
     checker = function()
-      return UnitExists("target") and UnitCanAttack("player", "target")
+      return UnitExists("target") and UnitCanAttack("player", "target") and not UnitIsDeadOrGhost("target")
     end
   },
   ["no-target-attack"] = {
     events = {"PLAYER_TARGET_CHANGED"},
     checker = function()
-      return not UnitExists("target") or not UnitCanAttack("player", "target")
+      return not UnitExists("target") or not UnitCanAttack("player", "target") or UnitIsDeadOrGhost("target")
     end
   },
   ["has-target-assist"] = {

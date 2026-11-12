@@ -273,7 +273,7 @@ addonTable.Data.Spells[class] = {
     ['spells'] = {
       [1] = 437009
     },
-    ['name'] = 'Totemic Projection',
+    ['name'] = 'Totemic Call',
     ['isRanked'] = false
   },
   [27] = {
@@ -477,22 +477,12 @@ addonTable.Data.Spells[class] = {
   },
   [50] = {
     ['spells'] = {
-      [1] = 408490,
-      [2] = 1238299,
-      [3] = 1238300,
-      [4] = 1326047
-    },
-    ['name'] = 'Lava Burst',
-    ['isRanked'] = true
-  },
-  [51] = {
-    ['spells'] = {
       [1] = 8737
     },
     ['name'] = 'Mail',
     ['isRanked'] = false
   },
-  [52] = {
+  [51] = {
     ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 8835,
@@ -502,7 +492,7 @@ addonTable.Data.Spells[class] = {
     ['name'] = 'Grace of Air Totem',
     ['isRanked'] = true
   },
-  [53] = {
+  [52] = {
     ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 408521,
@@ -512,7 +502,7 @@ addonTable.Data.Spells[class] = {
     ['name'] = 'Riptide',
     ['isRanked'] = true
   },
-  [54] = {
+  [53] = {
     ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 16188
@@ -520,7 +510,7 @@ addonTable.Data.Spells[class] = {
     ['name'] = 'Nature\'s Swiftness',
     ['isRanked'] = false
   },
-  [55] = {
+  [54] = {
     ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 408510
@@ -528,7 +518,7 @@ addonTable.Data.Spells[class] = {
     ['name'] = 'Water Shield',
     ['isRanked'] = false
   },
-  [56] = {
+  [55] = {
     ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 425336
@@ -536,19 +526,30 @@ addonTable.Data.Spells[class] = {
     ['name'] = 'Rage of the Farseer',
     ['isRanked'] = false
   },
-  [57] = {
+  [56] = {
+    ['auraTag'] = 'ABILITYANDAURA',
     ['spells'] = {
       [1] = 17364
     },
     ['name'] = 'Stormstrike',
     ['isRanked'] = false
   },
-  [58] = {
+  [57] = {
     ['spells'] = {
       [1] = 16166
     },
-    ['name'] = 'Elemental Mastery',
+    ['name'] = 'Lightning Mastery',
     ['isRanked'] = false
+  },
+  [58] = {
+    ['auraTag'] = false,
+    ['spells'] = {
+      [1] = 408490,
+      [2] = 1238299,
+      [3] = 1238300
+    },
+    ['name'] = 'Lava Burst',
+    ['isRanked'] = true
   },
   [59] = {
     ['auraTag'] = false,
@@ -575,6 +576,22 @@ addonTable.Data.Spells[class] = {
   [61] = {
     ['auraTag'] = false,
     ['spells'] = {
+      [1] = 20572
+    },
+    ['name'] = 'Blood Fury',
+    ['isRanked'] = false
+  },
+  [62] = {
+    ['auraTag'] = false,
+    ['spells'] = {
+      [1] = 1299026
+    },
+    ['name'] = 'Shatter Curse',
+    ['isRanked'] = false
+  },
+  [63] = {
+    ['auraTag'] = false,
+    ['spells'] = {
       [1] = 8185,
       [2] = 10534,
       [3] = 10535
@@ -582,7 +599,7 @@ addonTable.Data.Spells[class] = {
     ['name'] = 'Fire Resistance',
     ['isRanked'] = true
   },
-  [62] = {
+  [64] = {
     ['auraTag'] = false,
     ['spells'] = {
       [1] = 8172
@@ -590,7 +607,7 @@ addonTable.Data.Spells[class] = {
     ['name'] = 'Disease Cleansing Totem Passive',
     ['isRanked'] = false
   },
-  [63] = {
+  [65] = {
     ['auraTag'] = false,
     ['spells'] = {
       [1] = 8182,
@@ -600,7 +617,7 @@ addonTable.Data.Spells[class] = {
     ['name'] = 'Frost Resistance',
     ['isRanked'] = true
   },
-  [64] = {
+  [66] = {
     ['auraTag'] = false,
     ['spells'] = {
       [1] = 8179
@@ -608,7 +625,7 @@ addonTable.Data.Spells[class] = {
     ['name'] = 'Grounding Totem Passive',
     ['isRanked'] = false
   },
-  [65] = {
+  [67] = {
     ['auraTag'] = false,
     ['spells'] = {
       [1] = 15108,
@@ -618,7 +635,7 @@ addonTable.Data.Spells[class] = {
     ['name'] = 'Windwall',
     ['isRanked'] = true
   },
-  [66] = {
+  [68] = {
     ['auraTag'] = false,
     ['spells'] = {
       [1] = 8167
@@ -626,7 +643,7 @@ addonTable.Data.Spells[class] = {
     ['name'] = 'Poison Cleansing Totem Passive',
     ['isRanked'] = false
   },
-  [67] = {
+  [69] = {
     ['auraTag'] = false,
     ['spells'] = {
       [1] = 5677,
@@ -637,7 +654,7 @@ addonTable.Data.Spells[class] = {
     ['name'] = 'Mana Spring',
     ['isRanked'] = true
   },
-  [68] = {
+  [70] = {
     ['auraTag'] = false,
     ['spells'] = {
       [1] = 8145
@@ -645,7 +662,7 @@ addonTable.Data.Spells[class] = {
     ['name'] = 'Tremor Totem Passive',
     ['isRanked'] = false
   },
-  [69] = {
+  [71] = {
     ['auraTag'] = false,
     ['spells'] = {
       [1] = 6474
@@ -653,7 +670,7 @@ addonTable.Data.Spells[class] = {
     ['name'] = 'Earthbind Totem Passive',
     ['isRanked'] = false
   },
-  [70] = {
+  [72] = {
     ['auraTag'] = false,
     ['spells'] = {
       [1] = 16191,
@@ -664,7 +681,15 @@ addonTable.Data.Spells[class] = {
     ['name'] = 'Mana Tide',
     ['isRanked'] = true
   },
-  [71] = {
+  [73] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 1299026
+    },
+    ['name'] = 'Shatter Curse',
+    ['isRanked'] = false
+  },
+  [74] = {
     ['auraTag'] = 'HELPAURA',
     ['spells'] = {
       [1] = 30160,
@@ -673,7 +698,7 @@ addonTable.Data.Spells[class] = {
     ['name'] = 'Elemental Devastation',
     ['isRanked'] = false
   },
-  [72] = {
+  [75] = {
     ['auraTag'] = 'HARMAURA',
     ['spells'] = {
       [1] = 1238289
@@ -681,7 +706,24 @@ addonTable.Data.Spells[class] = {
     ['name'] = 'Earthbound',
     ['isRanked'] = false
   },
-  [73] = {
+  [76] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 1222988
+    },
+    ['name'] = 'Earthbound',
+    ['isRanked'] = false
+  },
+  [77] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 408505,
+      [2] = 408498
+    },
+    ['name'] = 'Maelstrom Weapon',
+    ['isRanked'] = false
+  },
+  [78] = {
     ['auraTag'] = 'HELPAURA',
     ['spells'] = {
       [1] = 2645,
@@ -690,23 +732,25 @@ addonTable.Data.Spells[class] = {
     ['name'] = 'Ghost Wolf',
     ['isRanked'] = false
   },
-  [74] = {
+  [79] = {
     ['auraTag'] = 'HELPAURA',
     ['spells'] = {
-      [1] = 1223031
+      [1] = 1223031,
+      [2] = 1238931 -- correct
     },
     ['name'] = 'Improved Stormstrike',
     ['isRanked'] = false
   },
-  [75] = {
+  [80] = {
     ['auraTag'] = 'HELPAURA',
     ['spells'] = {
-      [1] = 16256
+      [1] = 16256,
+      [2] = 16257 -- alt
     },
     ['name'] = 'Flurry',
     ['isRanked'] = false
   },
-  [76] = {
+  [81] = {
     ['auraTag'] = 'HELPAURA',
     ['spells'] = {
       [1] = 16246
@@ -714,7 +758,15 @@ addonTable.Data.Spells[class] = {
     ['name'] = 'Clearcasting',
     ['isRanked'] = false
   },
-  [77] = {
+  [82] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 16164
+    },
+    ['name'] = 'Elemental Focus',
+    ['isRanked'] = false
+  },
+  [83] = {
     ['auraTag'] = 'HELPAURA',
     ['spells'] = {
       [1] = 16177
@@ -722,7 +774,15 @@ addonTable.Data.Spells[class] = {
     ['name'] = 'Ancestral Fortitude',
     ['isRanked'] = false
   },
-  [78] = {
+  [84] = {
+    ['auraTag'] = 'HELPAURA',
+    ['spells'] = {
+      [1] = 16176
+    },
+    ['name'] = 'Ancestral Healing',
+    ['isRanked'] = false
+  },
+  [85] = {
     ['auraTag'] = 'HELPAURA',
     ['spells'] = {
       [1] = 5678,
@@ -733,7 +793,7 @@ addonTable.Data.Spells[class] = {
     ['name'] = 'Mana Spring Totem',
     ['isRanked'] = true
   },
-  [79] = {
+  [86] = {
     ['auraTag'] = 'HELPAURA',
     ['spells'] = {
       [1] = 5677,
@@ -744,7 +804,7 @@ addonTable.Data.Spells[class] = {
     ['name'] = 'Mana Spring',
     ['isRanked'] = true
   },
-  [80] = {
+  [87] = {
     ['auraTag'] = 'HELPAURA',
     ['spells'] = {
       [1] = 15108,
@@ -754,7 +814,7 @@ addonTable.Data.Spells[class] = {
     ['name'] = 'Windwall',
     ['isRanked'] = true
   },
-  [81] = {
+  [88] = {
     ['auraTag'] = 'HELPAURA',
     ['spells'] = {
       [1] = 8179
@@ -762,15 +822,16 @@ addonTable.Data.Spells[class] = {
     ['name'] = 'Grounding Totem Passive',
     ['isRanked'] = false
   },
-  [82] = {
+  [89] = {
     ['auraTag'] = 'HELPAURA',
     ['spells'] = {
-      [1] = 8178
+      [1] = 8178,
+      [2] = 8177
     },
     ['name'] = 'Grounding Totem',
     ['isRanked'] = true
   },
-  [83] = {
+  [90] = {
     ['auraTag'] = 'HELPAURA',
     ['spells'] = {
       [1] = 8182,
@@ -780,7 +841,7 @@ addonTable.Data.Spells[class] = {
     ['name'] = 'Frost Resistance',
     ['isRanked'] = true
   },
-  [84] = {
+  [91] = {
     ['auraTag'] = 'HELPAURA',
     ['spells'] = {
       [1] = 8185,
@@ -790,7 +851,7 @@ addonTable.Data.Spells[class] = {
     ['name'] = 'Fire Resistance',
     ['isRanked'] = true
   },
-  [85] = {
+  [92] = {
     ['auraTag'] = 'HELPAURA',
     ['spells'] = {
       [1] = 8512,
@@ -800,7 +861,7 @@ addonTable.Data.Spells[class] = {
     ['name'] = 'Windfury Totem',
     ['isRanked'] = true
   },
-  [86] = {
+  [93] = {
     ['auraTag'] = 'HELPAURA',
     ['spells'] = {
       [1] = 8076,
@@ -812,7 +873,7 @@ addonTable.Data.Spells[class] = {
     ['name'] = 'Strength of Earth',
     ['isRanked'] = true
   },
-  [87] = {
+  [94] = {
     ['auraTag'] = 'HELPAURA',
     ['spells'] = {
       [1] = 8836,
@@ -822,7 +883,7 @@ addonTable.Data.Spells[class] = {
     ['name'] = 'Grace of Air',
     ['isRanked'] = true
   },
-  [88] = {
+  [95] = {
     ['auraTag'] = 'HELPAURA',
     ['spells'] = {
       [1] = 8230,
@@ -833,7 +894,7 @@ addonTable.Data.Spells[class] = {
     ['name'] = 'Flametongue Totem',
     ['isRanked'] = true
   },
-  [89] = {
+  [96] = {
     ['auraTag'] = 'HELPAURA',
     ['spells'] = {
       [1] = 16191,
