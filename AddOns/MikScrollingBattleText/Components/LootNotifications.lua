@@ -14,6 +14,22 @@ local GetItemInfo = C_Item.GetItemInfo
 local GetItemCount = C_Item.GetItemCount
 local DisplayEvent = MikSBT.Animations.DisplayEvent
 
+local getMilliseconds = debugprofilestop
+if type(GetTimePreciseSec) == "function" then
+	getMilliseconds = function() return GetTimePreciseSec() * 1000 end
+end
+local profiler = MikSBT.Components.LootProfiler:New({
+	getMilliseconds = getMilliseconds,
+	getTime = GetTime,
+	after = C_Timer and C_Timer.After,
+	print = MikSBT.Print,
+	getContext = function()
+		local version, build = GetBuildInfo()
+		return (MikSBT.VERSION_STRING or "unknown addon version")
+			.. " client " .. version .. " (" .. build .. ")"
+	end,
+})
+
 local GOLD = string_gsub(GOLD_AMOUNT, "%%d *", "")
 local SILVER = string_gsub(SILVER_AMOUNT, "%%d *", "")
 local COPPER = string_gsub(COPPER_AMOUNT, "%%d *", "")
@@ -35,7 +51,7 @@ local function HandleMoney(parserEvent)
 	if eventSettings and not eventSettings.disabled then
 		local message = eventSettings.message
 		message = string_gsub(message, "%%e", moneyString)
-		DisplayEvent(eventSettings, message)
+		profiler:Measure("display", DisplayEvent, eventSettings, message)
 	end
 end
 
@@ -43,13 +59,15 @@ local function HandleCurrency(parserEvent)
 
 	local itemLink = parserEvent.itemLink
 	local itemName, numAmount, itemTexture, totalMax, itemQuality, numLootedFromMessage
-	local currency = C_CurrencyInfo.GetCurrencyInfoFromLink(itemLink)
+	local currency = profiler:Measure("metadata",
+		C_CurrencyInfo.GetCurrencyInfoFromLink, itemLink)
 	if currency then
 		itemName, numAmount, itemTexture, totalMax, itemQuality = currency.name, currency.quantity, currency.iconFileID, currency.maxQuantity, currency.quality
 	else
 		if string.match(itemLink,"^, %d+") then
 			numLootedFromMessage = string.match(itemLink, "%d+")
-			currency = C_CurrencyInfo.GetCurrencyInfo(1901)
+			currency = profiler:Measure("metadata",
+				C_CurrencyInfo.GetCurrencyInfo, 1901)
 			itemName, numAmount, itemTexture, totalMax, itemQuality = currency.name, currency.quantity, currency.iconFileID, currency.maxQuantity, currency.quality
 		else
 			return
@@ -81,7 +99,8 @@ local function HandleCurrency(parserEvent)
 			message = string_gsub(message, "%%e", itemName)
 			message = string_gsub(message, "%%a", numLooted)
 			message = string_gsub(message, "%%t", numAmount)
-			DisplayEvent(eventSettings, message, itemTexture)
+			profiler:Measure("display", DisplayEvent,
+				eventSettings, message, itemTexture)
 		end
 end
 
@@ -90,7 +109,8 @@ local function HandleItems(parserEvent)
 	if (parserEvent.isCreate) then return end
 
 	local itemLink = parserEvent.itemLink
-	local itemName, _, itemQuality, _, _, itemType, _, _, _, itemTexture = GetItemInfo(itemLink)
+	local itemName, _, itemQuality, _, _, itemType, _, _, _, itemTexture =
+		profiler:Measure("metadata", GetItemInfo, itemLink)
 	itemName = itemName or string.match(itemLink, "%[(.-)%]") or UNKNOWN
 
 	local currentProfile = MSBTProfiles.currentProfile
@@ -117,7 +137,7 @@ local function HandleItems(parserEvent)
 	end
 
 	local numLooted = parserEvent.amount or 1
-	local numItems = GetItemCount(itemLink)
+	local numItems = profiler:Measure("count", GetItemCount, itemLink)
 	if numItems == 0 then
 		numItems = numLooted
 	else
@@ -131,15 +151,12 @@ local function HandleItems(parserEvent)
 		message = string_gsub(message, "%%e", itemName)
 		message = string_gsub(message, "%%a", numLooted)
 		message = string_gsub(message, "%%t", numTotal)
-		DisplayEvent(eventSettings, message, itemTexture)
+		profiler:Measure("display", DisplayEvent,
+			eventSettings, message, itemTexture)
 	end
 end
 
-local function ParserEventsHandler(parserEvent)
-
-	if parserEvent.recipientUnit ~= "player" or parserEvent.eventType ~= "loot" then
-		return
-	end
+local function HandleLoot(parserEvent)
 
 	if parserEvent.isMoney then
 		HandleMoney(parserEvent)
@@ -147,6 +164,24 @@ local function ParserEventsHandler(parserEvent)
 		HandleCurrency(parserEvent)
 	elseif parserEvent.itemLink then
 		HandleItems(parserEvent)
+	end
+end
+
+local function ParserEventsHandler(parserEvent)
+	if parserEvent.recipientUnit ~= "player" or parserEvent.eventType ~= "loot" then
+		return
+	end
+	return profiler:Measure("handler", HandleLoot, parserEvent)
+end
+
+function module.ProfileCommand(command)
+	command = (command or ""):match("^%s*(.-)%s*$"):lower()
+	if command == "" or command == "start" then
+		profiler:Start()
+	elseif command == "stop" then
+		profiler:Stop()
+	else
+		MikSBT.Print("Use /msbt lootprofile to start or /msbt lootprofile stop.")
 	end
 end
 

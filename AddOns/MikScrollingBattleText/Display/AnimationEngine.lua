@@ -118,7 +118,7 @@ local function LoadFont(fontName)
 	fontLoaderFrame:Hide()
 end
 
-local function Display(message, saSettings, isSticky, colorR, colorG, colorB, fontSize, fontPath, outlineIndex, fontAlpha, texturePath, formatArg, ...)
+local function Display(visibility, message, saSettings, isSticky, colorR, colorG, colorB, fontSize, fontPath, outlineIndex, fontAlpha, texturePath, formatArg, ...)
 
 	local animStyleSettings, direction, behavior, textAlignIndex
 	if isSticky then
@@ -158,6 +158,7 @@ local function Display(message, saSettings, isSticky, colorR, colorG, colorB, fo
 	end
 
 	local currentProfile = MSBTProfiles.currentProfile
+	displayEvent.visibility = visibility
 
 	displayEvent.offsetX = saSettings.offsetX or 0
 	displayEvent.offsetY = saSettings.offsetY or 0
@@ -239,7 +240,8 @@ DisplayService:Configure({
 	scrollAreas = ScrollAreas,
 	fonts = fonts,
 	isModDisabled = IsModDisabled,
-	display = Display,
+	display = function(...) return Display(nil, ...) end,
+	displayWithVisibility = Display,
 	playSound = MikSBT.Media.PlaySound,
 	getTime = GetTime,
 	outlineMap = OUTLINE_MAP,
@@ -260,9 +262,22 @@ local function AnimateEvent(displayEvent)
 		end
 
 		fontString:SetPoint(displayEvent.anchorPoint, displayEvent.offsetX + displayEvent.positionX, displayEvent.offsetY + displayEvent.positionY)
-		fontString:SetAlpha(displayEvent.masterAlpha * displayEvent.alpha)
+		local alpha = displayEvent.masterAlpha * displayEvent.alpha
+		if displayEvent.visibility then
+			local selectAlpha = C_CurveUtil
+				and C_CurveUtil.EvaluateColorValueFromBoolean
+			local ok, selected = pcall(selectAlpha,
+				displayEvent.visibility.visible, alpha, 0)
+			if ok and (RestrictedValue:IsRestricted(selected)
+				or type(selected) == "number") then
+				alpha = selected
+			else
+				displayEvent.visibility = nil
+			end
+		end
+		fontString:SetAlpha(alpha)
 		if texture then
-			texture:SetAlpha(displayEvent.masterAlpha * displayEvent.alpha)
+			texture:SetAlpha(alpha)
 		end
 	else
 
@@ -311,6 +326,7 @@ local function OnUpdateAnimationFrame(this, elapsed)
 					end
 
 					displayEventCache[#displayEventCache + 1] = displayEvent
+					displayEvent.visibility = nil
 					displayEvent.animationComplete = false
 				end
 			end

@@ -36,11 +36,12 @@ L.POPUP_CONFIRM_TITLE = "Confirm Action"
 L.AURA_TRACKING_TITLE = "Custom auras appear above. Uncheck to hide."
 L.AURA_TRACKING_INPUT = "Aura spell ID or name"
 L.AURA_TRACKING_ADD = "Add aura"
-L.AURA_TRACKING_HELP = "Add an aura to hide its gained and faded notifications. Tick its checkbox to show it again. Unlisted auras keep showing. Individual filtering requires a readable aura identity."
+L.AURA_TRACKING_HELP = "Add the exact displayed spell name to hide gained and faded notifications for all its ranks, or a spell ID to hide only that ID. Check name spelling. Name exclusions also hide secret aura text and icons when supported; sounds are muted for all secret auras checked this way. ID exclusions require a readable spell ID. Tick the checkbox to show the aura again."
+L.AURA_TRACKING_ALL_RANKS = "all ranks"
 L.AURA_TRACKING_CHECKBOX = "Show this aura's gained and faded notifications."
 L.AURA_TRACKING_REMOVE = "Remove this custom rule and track the aura normally."
 L.AURA_TRACKING_UNKNOWN = "Unknown aura"
-L.AURA_TRACKING_INVALID = "Aura not found. Enter a valid spell ID or exact spell name."
+L.AURA_TRACKING_INVALID = "Enter a valid spell ID or the exact displayed spell name."
 L.MSG_NORMAL_PREVIEW_TEXT			= "Normal"
 L.MSG_DISPLAY_QUALITY				= "Display alerts for items of this quality."
 L.MSG_ITEM_QUALITIES				= "Item qualities"
@@ -431,7 +432,7 @@ obj["NOTIFICATION_REP_LOSS"]			= { label="Reputation Losses", tooltip="Enable wh
 obj["NOTIFICATION_SKILL_GAIN"]			= { label="Skill Gains", tooltip="Enable when you gain skill points."}
 obj["NOTIFICATION_EXPERIENCE_GAIN"]		= { label="Experience Gains", tooltip="Enable when you gain experience points."}
 obj["NOTIFICATION_PC_KILLING_BLOW"]		= { label="Player Killing Blows", tooltip="Enable when you get a killing blow against a hostile player."}
-obj["NOTIFICATION_NPC_KILLING_BLOW"]	= { label="NPC Killing Blows", tooltip="Enable when you get a killing blow against an NPC."}
+obj["NOTIFICATION_NPC_KILLING_BLOW"]	= { label="NPC Killing Blows", tooltip="Enable NPC killing blows and kills whose victim type is unknown."}
 obj["NOTIFICATION_EXTRA_ATTACK"]		= { label="Extra Attacks", tooltip="Enable when you gain extra attacks such as windfury, thrash, sword spec, etc."}
 obj["NOTIFICATION_PROC"] = { label="Ability Procs", tooltip="Show highlighted ability procs." }
 obj["NOTIFICATION_REACTIVE"] = { label="Reactive Abilities", tooltip="Show abilities becoming available in combat." }

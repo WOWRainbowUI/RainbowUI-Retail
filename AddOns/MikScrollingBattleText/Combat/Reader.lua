@@ -6,8 +6,10 @@ local C_Timer = ns.Timer
 -- Read hits, casts, swings, auras, and combat-log timing. MSBT owns
 -- presentation and its dedicated loot, gain, and cooldown sources.
 
-local reader = { epoch = 0, plates = {}, held = {}, lastGlow = {}, lastCC = {},
-    swingTimes = {} }
+local reader = {
+    epoch = 0, plateGeneration = 0, plates = {}, held = {},
+    lastGlow = {}, lastCC = {}, swingTimes = {},
+}
 ns.reader = reader
 
 local function Now() return GetTime() end
@@ -55,6 +57,23 @@ function ns.TargetKey()
     end
     reader.targetKey = reader.targetPlate or ("target" .. reader.epoch)
     return reader.targetKey
+end
+
+local function UnitFlag(getter, unit)
+    if type(getter) ~= "function" then return end
+    local ok, value = pcall(getter, unit)
+    if ok and ns.Bool(value) then return value end
+end
+
+local function CaptureVictim(unit, key)
+    if not key or UnitFlag(UnitExists, unit) ~= true then return end
+    local player = UnitFlag(UnitIsPlayer, unit)
+    if player == nil then return end
+    return {
+        unit = unit, isPlayer = player,
+        dead = UnitFlag(UnitIsDead, unit) == true,
+        generation = unit == "target" and reader.epoch or reader.plates[unit],
+    }
 end
 
 local function PetAttacking(token)
@@ -129,12 +148,14 @@ local function Describe(event, flag, amount, school)
     if not ns.Text(event) then return nil end
     flag = ns.Text(flag) and flag or ""
     school = ns.Number(school, 1, 255) and school or nil
+    -- avoid keeps the game's own word ("PARRY") so the engine can tell which
+    -- of your actions could have been avoided so (Mine.lua, CastTakesMiss).
     if event == "WOUND" then
         if ns.Number(amount) and amount == 0 then
             if flag == "ABSORB" or flag == "BLOCK" or flag == "RESIST" then
-                return { event = "miss", missWord = ns.MissWord(flag), school = school }
+                return { event = "miss", missWord = ns.MissWord(flag), school = school, avoid = flag }
             end
-            return { event = "miss", missWord = ns.MissWord("MISS"), school = school }
+            return { event = "miss", missWord = ns.MissWord("MISS"), school = school, avoid = "MISS" }
         end
         return {
             event = "damage", amount = amount, school = school,
@@ -143,7 +164,7 @@ local function Describe(event, flag, amount, school)
     elseif event == "HEAL" then
         return { event = "heal", amount = amount, school = school, crit = flag == "CRITICAL" }
     elseif FEEDBACK[event] then
-        return { event = "miss", missWord = ns.MissWord(event), school = school }
+        return { event = "miss", missWord = ns.MissWord(event), school = school, avoid = event }
     end
 end
 ns.DescribeCombat = Describe
@@ -215,6 +236,9 @@ local function OnUnitCombat(unit, event, flag, amount, school)
         record.plate = unit
     else
         return
+    end
+    if record.event == "damage" then
+        record.victimKey, record.victim = key, CaptureVictim(unit, key)
     end
     local hit = { record = record, key = key, at = now, unit = unit,
         petOn = PetAttacking(token) }
@@ -323,7 +347,7 @@ function ns.DecideHit(hit, line, restrict)
             or { who = "other" }
     else
         result = ns.mine:Hit(hit.key, kind, record.school, hit.at, hit.petOn, line,
-            ns.Number(record.amount) and record.amount or nil, record.crit, restrict, leech)
+            ns.Number(record.amount) and record.amount or nil, record.crit, restrict, leech, record.avoid)
     end
     if result.proc and not result.drain and not result.spell then result.procSpell = ProcSpell(hit.at, record.school) end
     record.result = result
@@ -726,7 +750,7 @@ function DecideGroup(group, frameLines, decided)
             local amount = ns.Number(record.amount) and record.amount or nil
             ranked[#ranked + 1] = { hit = hit, index = index,
                 fit = ns.mine:Fit(hit.key, kind, record.school, hit.at,
-                    amount, restrict, record.crit) }
+                    amount, restrict, record.crit, record.avoid, hit.petOn) }
         end
         -- Observed on Forever: a queued strike reports zero before its
         -- physical hit in the cast's frame, with one spell confirmation.
@@ -846,9 +870,11 @@ local function OnSwing(swingType, swingDuration)
     local hand = SWING_HANDS[swingType]
     if not hand then return end
     local times = reader.swingTimes
-    times[#times + 1] = { at = Now(), ranged = hand == "ranged" }
+    local key = ns.TargetKey()
+    times[#times + 1] = { at = Now(), ranged = hand == "ranged",
+        key = key, victim = CaptureVictim("target", key) }
     while times[1] and (Now() - times[1].at > 3 or #times > 16) do table.remove(times, 1) end
-    local claimed = ns.mine:Swing(hand, ns.TargetKey(), Now(), ns.Number(swingDuration) and swingDuration or nil)
+    local claimed = ns.mine:Swing(hand, key, Now(), ns.Number(swingDuration) and swingDuration or nil)
     if not claimed then return end
     for _, entry in ipairs(reader.held) do
         if entry.held == claimed then
@@ -1407,6 +1433,54 @@ local function KillIcon(line)
     return best and HitIcon(best.record)
 end
 
+local function ResolveKillVictim(line)
+    if line.victimResolved then return line.victimIsPlayer end
+    line.victimResolved = true
+    -- Several kills in one frame cannot be paired with individual victims.
+    for _, other in ipairs(reader.logLines or {}) do
+        if other ~= line and other.source == "kill"
+            and math.abs(other.at - line.at) <= SWING_FRAME then return end
+    end
+    local key, victim
+    local function Add(candidateKey, candidate)
+        if not candidateKey or not candidate or (key and key ~= candidateKey)
+            or (victim and victim.isPlayer ~= candidate.isPlayer) then
+            return false
+        end
+        key = candidateKey
+        if not victim or candidate.dead then victim = candidate end
+        return true
+    end
+    for _, hit in ipairs(reader.yourHits) do
+        if hit.record.event == "damage"
+            and math.abs(hit.at - line.at) <= SWING_FRAME then
+            if not Add(hit.record.victimKey, hit.record.victim) then return end
+        end
+    end
+    local hasSwingLine = false
+    for _, swingLine in ipairs(reader.logLines or {}) do
+        if math.abs(swingLine.at - line.at) <= SWING_FRAME
+            and MeleeLine(swingLine) and LineClass(swingLine) == "damage"
+            and Role(swingLine) == "swing" then hasSwingLine = true break end
+    end
+    if hasSwingLine then
+        for _, swing in ipairs(reader.swingTimes) do
+            if not swing.ranged and math.abs(swing.at - line.at) <= SWING_FRAME
+                and not Add(swing.key, swing.victim) then return end
+        end
+    end
+    if not victim then return end
+    local generation = victim.unit == "target" and reader.epoch
+        or reader.plates[victim.unit]
+    local stillSameUnit = generation == victim.generation
+        and UnitFlag(UnitExists, victim.unit) == true
+    if victim.dead
+        or (stillSameUnit and UnitFlag(UnitIsDead, victim.unit) == true) then
+        line.victimIsPlayer = victim.isPlayer
+    end
+    return line.victimIsPlayer
+end
+
 -- What a line of its own kind tells (0.3.48): your or your pet's dispel, and
 -- crowd control your hit broke. The game's event says what happened; which
 -- spell did it is the cast or hit of yours in that moment.
@@ -1448,9 +1522,12 @@ local function DrawLine(line)
     local router = Router()
     if not router then return end
     local mine = MyActionsFilter()
-    if line.source == "kill" and mine and reader.sawGrey then
-        local record = { kind = "kill", icon = KillIcon(line), text = "Killing blow" }
+    if line.source == "kill" and mine and reader.sawGrey
+        and not line.killNotified then
+        local record = { kind = "kill", icon = KillIcon(line), text = "Killing blow",
+            victimIsPlayer = ResolveKillVictim(line) }
 
+        line.killNotified = true
         router:Alert(record)
     end
     if line.kind and mine then KindAlert(router, line) end
@@ -1463,7 +1540,7 @@ end
 -- once). When that swing's line is still unpaired once its hit would have
 -- come (Mine:MeleeWindow), the Auto Attack icon shows with "Killing blow"
 -- in place of its number; if the hit does come, its number shows instead.
-function ns.WatchKillingSwing(at)
+function ns.WatchKillingSwing(at, killingLine)
     for _, line in ipairs(reader.logLines or {}) do
         if math.abs(line.at - at) <= SWING_FRAME and MeleeLine(line) and LineClass(line) == "damage"
             and Role(line) == "swing" and not line.claimed and not line.hit then
@@ -1471,11 +1548,16 @@ function ns.WatchKillingSwing(at)
             C_Timer.After(late + 0.05, function()
                 if line.claimed or line.hit then return end
                 line.claimed = true
-                local record = { event = "killed", result = { who = "you", melee = true, hand = "main" } }
+                local record = { event = "killed",
+                    victimIsPlayer = killingLine and ResolveKillVictim(killingLine),
+                    result = { who = "you", melee = true, hand = "main" } }
                 line.hit = { at = Now(), record = record }
 
                 local router = Router()
-                if router then router:Out(record) end
+                if router and not (killingLine and killingLine.killNotified) then
+                    if killingLine then killingLine.killNotified = true end
+                    router:Out(record)
+                end
             end)
             return
         end
@@ -1501,7 +1583,7 @@ local function OnLogMessage(text, r, g, b, order)
             end
         end
     end
-    if line.source == "kill" then C_Timer.After(0, function() ns.WatchKillingSwing(line.at) end) end
+    if line.source == "kill" then C_Timer.After(0, function() ns.WatchKillingSwing(line.at, line) end) end
     C_Timer.After(LOG_WAIT, function() DrawLine(line) end)
 end
 
@@ -1553,7 +1635,8 @@ local function OnEvent(_, event, ...)
     elseif event == "NAME_PLATE_UNIT_ADDED" then
         local token = ...
         if ns.Text(token) then
-            reader.plates[token] = true
+            reader.plateGeneration = reader.plateGeneration + 1
+            reader.plates[token] = reader.plateGeneration
             local same = UnitIsUnit(token, "target")
             if ns.Bool(same) and same and reader.targetPlate ~= token then
                 -- Casts made while your target had no plate follow it.
