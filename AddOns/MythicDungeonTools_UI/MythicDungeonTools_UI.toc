@@ -2,7 +2,7 @@
 # WOW_INTERFACE_TARGETS: standard-test, standard
 ## Title: Mythic Dungeon Tools (MDT) - UI
 ## Author: Nnoggie
-## Version: 6.3.32
+## Version: 6.3.33
 ## Notes: Load-on-demand interface for Mythic Dungeon Tools
 ## Dependencies: MythicDungeonTools
 ## LoadOnDemand: 1
