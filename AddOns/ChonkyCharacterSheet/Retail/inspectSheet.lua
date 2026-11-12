@@ -1291,7 +1291,7 @@ end
 
 local function initclickframe()
     -- initialize button spacing.
-    local btn = _G["CCS_iclk_Btn"] or CreateFrame("Button", "CCS_iclk_Btn", InspectPaperDollItemsFrame, "UIPanelButtonTemplate")
+    local btn = _G["CCS_iclk_Btn"] or CreateFrame("Button", "CCS_iclk_Btn", InspectPaperDollItemsFrame)
     local textstring = MOUNT_JOURNAL_PLAYER
     local texture = "Interface\\Calendar\\MeetingIcon.blp"
     local name = ""
@@ -1302,6 +1302,7 @@ local function initclickframe()
     btn:SetSize(24, 24)
     btn:SetPoint("BOTTOM", InspectPaperDollItemsFrame, "BOTTOM", 0, 6)
     btn:SetFrameStrata("HIGH")
+
     if not option("showmodel_inspect") then btn:Hide() else btn:Show() end
     
     -- Create the title text
@@ -1318,14 +1319,9 @@ local function initclickframe()
 	end	
 	
     btnfont1:SetText(textstring)
-    btn:SetNormalTexture(texture)
     
-    btn:SetScript("OnEnter", function(self) CCS.tooltip:SetOwner(self, "ANCHOR_RIGHT")
-            CCS.tooltip:AddDoubleLine("", nil, 1, 1, 1, 1, 1, 1) 
-            CCS.tooltip:Show()
-    end)
-    btn:SetScript("OnLeave", function() CCS.tooltip:Hide() end)
     btn:SetScript("OnClick", function() InspectClicky(1); end)
+	CCS:ApplyIconStyle(btn, "showchar", 20)
 -- Button 2 (Compare Button)
     -- initialize button spacing.
     btn2 = _G["CCS_iclk_Btn2"] or CreateFrame("Button", "CCS_iclk_Btn2", InspectPaperDollItemsFrame, "BackdropTemplate")
@@ -1342,24 +1338,6 @@ local function initclickframe()
 			CCS:inspect()
 		end
     end)
---[[
--- Button 3 (Refresh Button)
-    btn3 = _G["CCS_iclk_Btn3"] or CreateFrame("Button", "CCS_iclk_Btn3", InspectPaperDollItemsFrame)
-    btn3:SetSize(16, 16)
-    btn3:SetPoint("TOPRIGHT", InspectFrameCloseButton, "TOPLEFT", -5, 0)
-	btn3:SetNormalAtlas("talents-button-undo")
-	btn3:SetPushedAtlas("talents-button-undo")
-	btn3:SetHighlightAtlas("talents-button-undo")
-
-    btn3:SetScript("OnEnter", function(self) 
-			CCS.tooltip:SetOwner(self, "ANCHOR_RIGHT")
-            CCS.tooltip:AddDoubleLine(REFRESH, nil, 1, 1, 1, 1, 1, 1) 
-            CCS.tooltip:Show()
-    end)
-    btn3:SetScript("OnLeave", function() CCS.tooltip:Hide() end)
-	btn3:SetScript("OnClick", function() loopitems() PlaySound(SOUNDKIT.GS_LOGIN_CHANGE_REALM_OK) end)
---]]
-	
 end
 
 function CCS.initializeinspectframe()
@@ -1675,7 +1653,8 @@ function CCS.InspectSheetEventHandler(event, ...)
 		
 		if CCS_iclk_Btn2 ~= nil then CCS.SkinButton(CCS_iclk_Btn2) end
 		if InspectMPlusScoreIconBtn ~= nil then CCS:ApplyIconStyle(InspectMPlusScoreIconBtn, "rightarrow", 24) end
-		
+		if _G["CCS_iclk_Btn"] ~= nil then CCS:ApplyIconStyle(_G["CCS_iclk_Btn"], "showchar", 20) end
+			
 		if InspectPaperDollItemsFrame ~= nil and 
 			InspectPaperDollItemsFrame.InspectTalents ~= nil and 
 			InspectPaperDollItemsFrame.InspectTalents.backdropInfo ~= nil then 

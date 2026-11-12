@@ -94,7 +94,7 @@ end
 
 local function initclickframe()
     -- initialize button spacing.
-    local btn = _G["CCS_iclk_Btn"] or CreateFrame("Button", "CCS_iclk_Btn", InspectPaperDollItemsFrame, "UIPanelButtonTemplate")
+    local btn = _G["CCS_iclk_Btn"] or CreateFrame("Button", "CCS_iclk_Btn", InspectPaperDollItemsFrame)
     local name = ""
     local description = ""
     local link = nil
@@ -104,10 +104,6 @@ local function initclickframe()
 
     -- Create the inspect model button
     btn:SetSize(23, 23)
-    btn:SetNormalTexture("Interface\\Calendar\\MeetingIcon.blp")
-    btn:SetHighlightTexture("Interface\\Buttons\\ButtonHilight-Square.blp", "ADD")
-    btn:SetPushedTexture("Interface\\Buttons\\UI-Quickslot-Depress.blp")
-    btn:SetHitRectInsets(0, 0, 0, 0)
     btn:SetPoint("BOTTOMRIGHT", InspectFrame, "BOTTOMRIGHT", -40, 6)    
     btn:SetFrameStrata("HIGH")
 
@@ -126,12 +122,9 @@ local function initclickframe()
 		btnfont1:SetShadowOffset(option("fontshadowx") or 0, option("fontshadowy") or 0)
 	end	
     
-    btn:SetScript("OnEnter", function(self) CCS.tooltip:SetOwner(self, "ANCHOR_RIGHT")
-            CCS.tooltip:AddDoubleLine("", nil, 1, 1, 1, 1, 1, 1) 
-            CCS.tooltip:Show()
-    end)
-    btn:SetScript("OnLeave", function() CCS.tooltip:Hide() end)
     btn:SetScript("OnClick", function() InspectClicky(1); end)
+	CCS:ApplyIconStyle(btn, "showchar", 20)
+    
 end
 
 local function initializeinspectframe(optupdate)
@@ -210,7 +203,7 @@ local function initializeinspectframe(optupdate)
         option("fontcolor_nametitle_inspect")[3] or 1,
         option("fontcolor_nametitle_inspect")[4] or 1
     )
-
+    InspectPVPFrame.MainInfoFrame.CurrentRankField:SetPoint("TOP", InspectPVPFrame.MainInfoFrame.CurrentSeasonField, "BOTTOM", 0, -25)
     InspectLevelText:ClearAllPoints()
     InspectLevelText:SetPoint("TOP", InspectFrameTitleText, "BOTTOM", 0, -5)
     
@@ -450,7 +443,7 @@ function CCS.ForeverInspectSheetEventHandler(event, ...)
             ReloadUI()
         end
 		initializeinspectframe(true)
-		
+        if _G["CCS_iclk_Btn"] ~= nil then CCS:ApplyIconStyle(_G["CCS_iclk_Btn"], "showchar", 20) end
 		if InspectFrame:IsVisible() == true and InspectFrame.unit ~= nil and InspectFrame.unit ~= "mouseover" then
 			loopitems()			
         end

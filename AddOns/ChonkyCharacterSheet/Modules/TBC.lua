@@ -41,7 +41,7 @@ local inspectmodbg = _G["InspectModelFramebg"] or CreateFrame("Frame", "InspectM
 local inspectmodtex = _G["InspectModelFramebgtex"] or inspectmodbg:CreateTexture("InspectModelFramebgtex", "BACKGROUND")    
 local inspectmodtex2 = _G["InspectModelFramebgtex2"] or inspectmodbg:CreateTexture("InspectModelFramebgtex2", "ARTWORK")    
 
-local modelbtn = _G["CCS_clk_Btn"] or CreateFrame("Button", "CCS_clk_Btn", PaperDollFrame, "UIPanelButtonTemplate")
+local modelbtn = _G["CCS_clk_Btn"] or CreateFrame("Button", "CCS_clk_Btn", PaperDollFrame)
 local modelbtnfont1 = _G["CCS_clk_Btnfs1"] or modelbtn:CreateFontString("CCS_clk_Btnfs1")
 
 ---------------------------------
@@ -1544,7 +1544,8 @@ function module:SetupBlizzardFrameOverrides()
     CCSsetbtn:SetSize(32, 32)
     CCSsetbtn:SetPoint("TOPRIGHT", CharacterFrameCloseButton, "TOPLEFT", -5, 0)
     CCSsetbtn:SetScale(.5)
-    CCS:ApplyIconStyle(CCSsetbtn, "gear", 32)    
+    CCS:ApplyIconStyle(CCSsetbtn, "gear", 32)  
+    CCS:ApplyIconStyle(modelbtn, "showchar", 20)    
     CCSsetbtn:Show()
     local optionsFrame = _G["CCS_Options"]
     CCSsetbtn:SetScript("OnClick", function()
@@ -1582,6 +1583,7 @@ function module:SetupBlizzardFrameOverrides()
     modelbtn:SetSize(23, 23)
     modelbtn:SetPoint("RIGHT", CharacterTrinket1Slot, "RIGHT", 0, 0)
     modelbtn:SetPoint("BOTTOM", CharacterFrameBg, "BOTTOM", 0, 7)
+    CCS:ApplyIconStyle(modelbtn, "showchar", 20)    
     modelbtn:SetFrameStrata("HIGH")
     
     local modelbtnfont1 = _G["CCS_clk_Btnfs1"] or modelbtn:CreateFontString("CCS_clk_Btnfs1")
@@ -1590,13 +1592,6 @@ function module:SetupBlizzardFrameOverrides()
     modelbtnfont1:SetFont(option("fontname_showchar") or CCS.fontname, (option("fontsize_showchar") or 10), "OUTLINE")
     modelbtnfont1:SetText(MOUNT_JOURNAL_PLAYER)
     modelbtnfont1:SetWordWrap(true)
-    modelbtn:SetNormalTexture("Interface\\Calendar\\MeetingIcon.blp")
-    modelbtn:SetScript("OnEnter", function(self) 
-            GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
-            GameTooltip:AddDoubleLine("", nil, 1, 1, 1, 1, 1, 1) 
-            GameTooltip:Show()
-    end)
-    modelbtn:SetScript("OnLeave", function() GameTooltip:Hide() end)
     modelbtn:SetScript("OnClick", function()
             if not InCombatLockdown() then 
                 Clicky() 
@@ -1821,6 +1816,7 @@ function module:UpdateStyle()
 
     local CCSsetbtn = _G["CCSsetbtn"] or CreateFrame("Button", "CCSsetbtn", CharacterFrame)
     CCS:ApplyIconStyle(CCSsetbtn, "gear", 32)
+    CCS:ApplyIconStyle(modelbtn, "showchar", 20)
     
     CCS.SkinItems()
 
