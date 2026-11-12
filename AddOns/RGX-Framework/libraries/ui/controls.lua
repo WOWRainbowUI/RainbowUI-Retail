@@ -214,6 +214,17 @@ Usage:
 	})
 ============================================================================]]
 
+-- A small rounded piece (track, fill, thumb, dot) that answers the texture methods the controls call.
+local function RoundedPiece(D, parent, w, h, colorKey, radius)
+	local piece = CreateFrame("Frame", nil, parent)
+	if w then piece:SetWidth(w) end
+	piece:SetHeight(h)
+	D:ApplyPanel(piece, { color = colorKey, borderColor = colorKey, radius = radius })
+	function piece:SetColorTexture(r, g, b, a) self:SetPanelColor({ r, g, b }, { r, g, b }, a or 1) end
+	function piece:SetVertexColor(r, g, b, a) self:SetPanelColor({ r, g, b }, { r, g, b }, a or 1) end
+	return piece
+end
+
 function UI:CreateSlider(parent, options)
 	options = options or {}
 	local LocaleMod = RGX:GetModule("locale")
@@ -288,23 +299,47 @@ function UI:CreateSlider(parent, options)
 		if not hasLabel and GameTooltip then GameTooltip:Hide() end
 	end)
 
-	local track = trackFrame:CreateTexture(nil, "ARTWORK")
-	track:SetHeight(4)
-	track:SetPoint("LEFT", button, "LEFT", 0, 0)
-	track:SetPoint("RIGHT", button, "RIGHT", 0, 0)
-	track:SetPoint("CENTER", button, "CENTER", 0, 0)
-	track:SetColorTexture(D:Unpack("track"))
+	local track, fill, thumb
+	if D.IsRoundedControls and D:IsRoundedControls() then
+		-- "RGX Material Round": a rounded track and fill and a round thumb. The pieces are small rounded frames
+		-- with the texture methods the slider code already calls (SetColorTexture, SetVertexColor).
+		local level = trackFrame:GetFrameLevel() or 1
+		track = RoundedPiece(D, trackFrame, nil, 6, "track", 3)
+		track:SetPoint("LEFT", button, "LEFT", 0, 0)
+		track:SetPoint("RIGHT", button, "RIGHT", 0, 0)
+		track:SetPoint("CENTER", button, "CENTER", 0, 0)
+		track:SetFrameLevel(level)
+		track:SetColorTexture(D:Unpack("track"))
 
-	local fill = trackFrame:CreateTexture(nil, "ARTWORK")
-	fill:SetHeight(4)
-	fill:SetPoint("LEFT", track, "LEFT", 0, 0)
-	fill:SetColorTexture(D:Unpack("primary"))
-	if not showProgress then fill:Hide() end
+		fill = RoundedPiece(D, trackFrame, nil, 6, "primary", 3)
+		fill:SetPoint("LEFT", track, "LEFT", 0, 0)
+		fill:SetFrameLevel(level + 1)
+		fill:SetColorTexture(D:Unpack("primary"))
+		if not showProgress then fill:Hide() end
 
-	local thumb = trackFrame:CreateTexture(nil, "ARTWORK")
-	thumb:SetSize(8, 8)
-	thumb:SetTexture("Interface\\Buttons\\WHITE8x8")
-	thumb:SetVertexColor(D:Unpack("primary"))
+		thumb = RoundedPiece(D, trackFrame, 14, 14, "primary", 7)
+		thumb:SetFrameLevel(level + 2)
+		thumb:EnableMouse(false)
+		thumb:SetVertexColor(D:Unpack("primary"))
+	else
+		track = trackFrame:CreateTexture(nil, "ARTWORK")
+		track:SetHeight(4)
+		track:SetPoint("LEFT", button, "LEFT", 0, 0)
+		track:SetPoint("RIGHT", button, "RIGHT", 0, 0)
+		track:SetPoint("CENTER", button, "CENTER", 0, 0)
+		track:SetColorTexture(D:Unpack("track"))
+
+		fill = trackFrame:CreateTexture(nil, "ARTWORK")
+		fill:SetHeight(4)
+		fill:SetPoint("LEFT", track, "LEFT", 0, 0)
+		fill:SetColorTexture(D:Unpack("primary"))
+		if not showProgress then fill:Hide() end
+
+		thumb = trackFrame:CreateTexture(nil, "ARTWORK")
+		thumb:SetSize(8, 8)
+		thumb:SetTexture("Interface\\Buttons\\WHITE8x8")
+		thumb:SetVertexColor(D:Unpack("primary"))
+	end
 
 	local function valueToPercent(value)
 		if max == min then return 0 end
@@ -397,7 +432,10 @@ function UI:CreateSlider(parent, options)
 	local reset = self:CreateResetButton(container, function()
 		apply(default)
 	end)
-    self:AnchorRowReset(parent, reset, trackFrame)
+    -- The reset sits in the 28px the slider reserves at the right of its own row (the value label is inset by
+    -- that much). It used to anchor to the PARENT's right edge minus 8, which put it 8px inside a card row
+    -- and over the end of the track, and far from the slider whenever the slider was narrower than its parent.
+    self:AnchorRowReset(container, reset, trackFrame, 0)
 
 	-- Re-place the thumb every time the slider is shown: the first apply() below
 	-- runs while the panel is usually still hidden (login/load), so this is what
@@ -700,6 +738,26 @@ local function AttachHoverCallbacks(frame, opts, kind)
     end
 end
 
+-- "RGX Material Round" checkbox: the Blizzard box textures are hidden and a rounded box drawn behind the
+-- button, with the tick tinted in the primary colour. The shape lives in the button's parent, one level below,
+-- so the tick (a texture of the button itself) stays on top.
+local function RoundCheckbox(D, check, inset)
+    for _, getter in ipairs({ "GetNormalTexture", "GetPushedTexture", "GetDisabledTexture" }) do
+        local tex = check[getter] and check[getter](check)
+        if tex and tex.SetAlpha then tex:SetAlpha(0) end
+    end
+    local parent = check:GetParent()
+    local shape = D:CreateRoundedShape(check, { parent = parent, level = math.max(0, (check:GetFrameLevel() or 1) - 1),
+        inset = { inset, inset, inset, inset }, radius = 4, color = "surface", borderColor = "border" })
+    local tick = check.GetCheckedTexture and check:GetCheckedTexture()
+    if tick then
+        if tick.SetDesaturated then tick:SetDesaturated(true) end
+        if tick.SetVertexColor then tick:SetVertexColor(D:Unpack("primary")) end
+    end
+    check.shape = shape
+    return shape
+end
+
 function UI:CreateCheckbox(parent, text, opts)
     local frame = CreateFrame("Frame", nil, parent)
     frame:SetSize(300, 20)
@@ -710,6 +768,8 @@ function UI:CreateCheckbox(parent, text, opts)
     checkbox:SetPushedTexture("Interface\\Buttons\\UI-CheckBox-Down")
     checkbox:SetHighlightTexture("Interface\\Buttons\\UI-CheckBox-Highlight")
     checkbox:SetCheckedTexture("Interface\\Buttons\\UI-CheckBox-Check")
+    local D = RGX.GetDesign and RGX:GetDesign()
+    if D and D.IsRoundedControls and D:IsRoundedControls() then RoundCheckbox(D, checkbox, 0) end
     local label = self:CreateLabel(frame, { text = text, size = "normal", color = "normal" })
     label:SetPoint("LEFT", checkbox, "RIGHT", 5, 0)
     frame.checkbox = checkbox
@@ -734,6 +794,10 @@ function UI:CreateToggle(parent, options)
     local check = CreateFrame("CheckButton", nil, container, "UICheckButtonTemplate")
     check:SetSize(24, 24)
     check:SetPoint("LEFT", 0, 0)
+    do
+        local D = RGX.GetDesign and RGX:GetDesign()
+        if D and D.IsRoundedControls and D:IsRoundedControls() then RoundCheckbox(D, check, 3) end
+    end
     local currentValue = storage[key]
     if type(currentValue) == "nil" then currentValue = default end
     check:SetChecked(currentValue and true or false)
@@ -798,6 +862,19 @@ function UI:CreateTextInput(parent, options)
     ApplyDefaultFont(input)
 
     local D = RGX:GetDesign()
+    local focusRing
+    if D and D.IsRoundedControls and D:IsRoundedControls() then
+        -- "RGX Material Round": the Blizzard input skin is hidden and a rounded box drawn in its place, lit
+        -- with the primary colour while the box has focus.
+        for _, part in ipairs({ "Left", "Middle", "Right" }) do
+            local tex = input[part]
+            if tex and tex.Hide then tex:Hide() end
+        end
+        local shape, paint = D:CreateRoundedShape(input, { inset = { -4, 0, -4, 0 }, radius = 8, color = "surface", borderColor = "border" })
+        if input.SetTextInsets then input:SetTextInsets(4, 4, 0, 0) end
+        input.shape = shape
+        focusRing = paint
+    end
     local nr, ng, nb, mr, mg, mb = 1, 1, 1, 0.6, 0.6, 0.6
     if D and type(D.Unpack) == "function" then
         nr, ng, nb = D:Unpack("text")
@@ -853,6 +930,11 @@ function UI:CreateTextInput(parent, options)
     end)
     input:SetScript("OnEnterPressed", commitAndBlur)
     input:SetScript("OnEscapePressed", commitAndBlur)
+    if focusRing then
+        -- Hooked after the SetScript calls above so the focus ring follows the scripts that stay.
+        input:HookScript("OnEditFocusGained", function() focusRing.ring(D:Unpack("primary")) end)
+        input:HookScript("OnEditFocusLost", function() focusRing.ring(D:Unpack("border")) end)
+    end
 
     -- Reset
     local reset = self:CreateResetButton(container, function()
@@ -950,18 +1032,26 @@ function UI:CreateResetButton(parent, onClick)
     -- 24px wide: 2px transparent margin each side keeps the visual clear of adjacent controls
     btn:SetSize(24, 16)
 
-    local bg = btn:CreateTexture(nil, "BACKGROUND")
-    bg:SetPoint("TOPLEFT",     btn, "TOPLEFT",     2,  0)
-    bg:SetPoint("BOTTOMRIGHT", btn, "BOTTOMRIGHT", -2, 0)
-    bg:SetColorTexture(D:Unpack("surface"))
-    btn.bg = bg
+    if D.IsRoundedControls and D:IsRoundedControls() then
+        -- "RGX Material Round": a rounded chip with the same hover ring as the rounded buttons.
+        local shape, paint = D:CreateRoundedShape(btn, { inset = { 2, 0, 2, 0 }, radius = 6, color = "surface", borderColor = "border" })
+        btn.bg = { SetColorTexture = function(_, r, g, b) paint.fill(r, g, b, 1) end }
+        btn.border = { SetBackdropBorderColor = function(_, r, g, b) paint.ring(r, g, b) end }
+        btn.shape = shape
+    else
+        local bg = btn:CreateTexture(nil, "BACKGROUND")
+        bg:SetPoint("TOPLEFT",     btn, "TOPLEFT",     2,  0)
+        bg:SetPoint("BOTTOMRIGHT", btn, "BOTTOMRIGHT", -2, 0)
+        bg:SetColorTexture(D:Unpack("surface"))
+        btn.bg = bg
 
-    local border = CreateFrame("Frame", nil, btn, "BackdropTemplate")
-    border:SetPoint("TOPLEFT",     btn, "TOPLEFT",     2,  0)
-    border:SetPoint("BOTTOMRIGHT", btn, "BOTTOMRIGHT", -2, 0)
-    border:SetBackdrop({ edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1 })
-    border:SetBackdropBorderColor(D:Unpack("border"))
-    btn.border = border
+        local border = CreateFrame("Frame", nil, btn, "BackdropTemplate")
+        border:SetPoint("TOPLEFT",     btn, "TOPLEFT",     2,  0)
+        border:SetPoint("BOTTOMRIGHT", btn, "BOTTOMRIGHT", -2, 0)
+        border:SetBackdrop({ edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1 })
+        border:SetBackdropBorderColor(D:Unpack("border"))
+        btn.border = border
+    end
 
     local lbl = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     lbl:SetAllPoints()
@@ -1517,9 +1607,8 @@ function UI:CreateSwitch(parent, options)
     switchFrame:SetPoint("RIGHT", container, "RIGHT", 0, 0)
     container.switchFrame = switchFrame
 
-    local switchBg = switchFrame:CreateTexture(nil, "BACKGROUND")
-    switchBg:SetAllPoints()
-    switchBg:SetTexture("Interface\\Buttons\\WHITE8x8")
+    local switchBg, toggleBg
+    local rounded = D and D.IsRoundedControls and D:IsRoundedControls()
 
     -- Thumb
     local toggle = CreateFrame("Frame", nil, switchFrame)
@@ -1527,9 +1616,23 @@ function UI:CreateSwitch(parent, options)
     toggle:EnableMouse(false)
     container.toggle = toggle
 
-    local toggleBg = toggle:CreateTexture(nil, "ARTWORK")
-    toggleBg:SetAllPoints()
-    toggleBg:SetTexture("Interface\\Buttons\\WHITE8x8")
+    if rounded then
+        -- "RGX Material Round": a pill track and a round thumb instead of two squares.
+        local trackShape, trackPaint = D:CreateRoundedShape(switchFrame, { radius = 10, color = "border", borderColor = "border" })
+        switchBg = { SetVertexColor = function(_, r, g, b, a) trackPaint.fill(r, g, b, a or 1) end }
+        container.trackShape = trackShape
+        local thumbShape, thumbPaint = D:CreateRoundedShape(toggle, { radius = 9, color = "text", borderColor = "text" })
+        toggleBg = { SetVertexColor = function(_, r, g, b, a) thumbPaint.fill(r, g, b, a or 1); thumbPaint.ring(r, g, b) end }
+        container.thumbShape = thumbShape
+    else
+        switchBg = switchFrame:CreateTexture(nil, "BACKGROUND")
+        switchBg:SetAllPoints()
+        switchBg:SetTexture("Interface\\Buttons\\WHITE8x8")
+
+        toggleBg = toggle:CreateTexture(nil, "ARTWORK")
+        toggleBg:SetAllPoints()
+        toggleBg:SetTexture("Interface\\Buttons\\WHITE8x8")
+    end
     toggleBg:SetVertexColor(0.92, 0.92, 0.92, 1)
 
     local storage   = options.storage

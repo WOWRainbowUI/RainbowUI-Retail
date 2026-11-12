@@ -118,6 +118,7 @@ Design.STYLES = {
         cornerStyle = "rounded",
         buttonStyle = "rounded",
         headerStyle = "rounded",
+        controlStyle = "rounded",   -- switches, sliders, text boxes, checkboxes, reset buttons and tabs are rounded too
         ringFrom = "primary",   -- panel ring and hover ring follow the mod's primary colour
         titleFrom = "accent",   -- card titles and the hover label follow the mod's accent colour
         colors = {
@@ -163,7 +164,7 @@ Design.STYLES = {
 
 -- How the active style draws the shared primitives (set by SetStyle). Direct SetCornerStyle/SetTheme
 -- edits leave these alone.
-Design.styleOptions = { buttonStyle = "square", headerStyle = "square", ringFrom = nil, titleFrom = nil }
+Design.styleOptions = { buttonStyle = "square", headerStyle = "square", controlStyle = "square", ringFrom = nil, titleFrom = nil }
 
 -- Current style name (nil = customized directly via SetCornerStyle/SetTheme).
 Design.currentStyle = "framework"
@@ -195,6 +196,7 @@ function Design:SetStyle(name)
     self.styleOptions = {
         buttonStyle = style.buttonStyle or "square",
         headerStyle = style.headerStyle or "square",
+        controlStyle = style.controlStyle or "square",
         ringFrom = style.ringFrom,
         titleFrom = style.titleFrom,
     }
@@ -506,6 +508,39 @@ function Design:ApplyPanel(frame, opts)
     end
 
     return frame
+end
+
+-- Rounded chrome for the interface controls ("RGX Material Round"). True when the active style rounds
+-- switches, sliders, text boxes, checkboxes, reset buttons and tabs, not only cards, headers and buttons.
+function Design:IsRoundedControls()
+    return (self.styleOptions or {}).controlStyle == "rounded"
+end
+
+-- A rounded shape (pill, box or dot) sized by `host` plus an optional inset, drawn behind the host's other
+-- children. Returns the shape frame and a small adapter so a control's existing colour code (which targets
+-- a texture's SetColorTexture/SetVertexColor and a backdrop's SetBackdropBorderColor) keeps working:
+--   shape:SetPanelColor(fill, ring, alpha)   -- the panel API
+--   adapter.fill(r, g, b, a) / adapter.ring(r, g, b)
+-- opts: radius (default 6), color/borderColor (palette keys), inset = { left, top, right, bottom } (all 0),
+-- parent (draw the shape in another frame, for hosts whose own textures must stay on top, such as a
+-- checkbox's tick) and level (frame level, default the host's).
+function Design:CreateRoundedShape(host, opts)
+    opts = opts or {}
+    local shape = CreateFrame("Frame", nil, opts.parent or host)
+    local i = opts.inset or {}
+    shape:SetPoint("TOPLEFT", host, "TOPLEFT", i[1] or 0, -(i[2] or 0))
+    shape:SetPoint("BOTTOMRIGHT", host, "BOTTOMRIGHT", -(i[3] or 0), i[4] or 0)
+    if shape.SetFrameLevel then
+        local level = opts.level or (host.GetFrameLevel and host:GetFrameLevel()) or 1
+        shape:SetFrameLevel(math.max(0, level))
+    end
+    self:ApplyPanel(shape, { color = opts.color or "surface", borderColor = opts.borderColor or "border",
+        radius = opts.radius or 6 })
+    local adapter = {
+        fill = function(r, g, b, a) shape:SetPanelColor({ r, g, b }, nil, a or 1) end,
+        ring = function(r, g, b) shape:SetPanelColor(nil, { r, g, b }, 1) end,
+    }
+    return shape, adapter
 end
 
 function Design:CreateFrame(parent, opts)

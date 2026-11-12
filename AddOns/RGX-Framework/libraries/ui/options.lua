@@ -131,15 +131,26 @@ local function CreateTabButton(parent, text, tabIndex, row, col, panelRef, icon,
     btn.tabCol   = col
     -- Positioning is handled externally by RepositionTabs for dynamic centering.
 
-    local bg = btn:CreateTexture(nil, "BACKGROUND")
-    bg:SetAllPoints()
-    bg:SetColorTexture(sr, sg, sb, 0.90)
-    btn.bg = bg
+    local bg, border
+    if D.IsRoundedControls and D:IsRoundedControls() then
+        -- "RGX Material Round": rounded tab chips, lit with the panel's primary colour like the buttons.
+        local shape, paint = D:CreateRoundedShape(btn, { radius = 6, color = "surface", borderColor = "border" })
+        bg = { SetColorTexture = function(_, r, g, b, a) paint.fill(r, g, b, a or 1) end }
+        border = { SetBackdropBorderColor = function(_, r, g, b) paint.ring(r, g, b) end }
+        btn.shape = shape
+        bg:SetColorTexture(sr, sg, sb, 0.90)
+        border:SetBackdropBorderColor(D:Unpack("border"))
+    else
+        bg = btn:CreateTexture(nil, "BACKGROUND")
+        bg:SetAllPoints()
+        bg:SetColorTexture(sr, sg, sb, 0.90)
 
-    local border = CreateFrame("Frame", nil, btn, "BackdropTemplate")
-    border:SetAllPoints()
-    border:SetBackdrop({ edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1 })
-    border:SetBackdropBorderColor(D:Unpack("border"))
+        border = CreateFrame("Frame", nil, btn, "BackdropTemplate")
+        border:SetAllPoints()
+        border:SetBackdrop({ edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1 })
+        border:SetBackdropBorderColor(D:Unpack("border"))
+    end
+    btn.bg = bg
     btn.border = border
 
     local btnText = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
@@ -520,6 +531,8 @@ local function CreateOptionsPanel(UI, opts)
         -- Reuse the existing lazy content lifecycle without drawing a tab row.
         tabs = { { text = "", content = opts.content } }
     end
+    -- A page with one tab can hide the tab row so the content starts right under the header (opts.hideTabRow).
+    local hideTabRow = singlePage or (opts.hideTabRow == true and #tabs == 1)
     local maxPerRow  = opts.maxPerRow or 6
 
     _panelCounter = _panelCounter + 1
@@ -541,6 +554,10 @@ local function CreateOptionsPanel(UI, opts)
     panel.tabs     = {}
     panel.contents = {}
     panel.theme    = opts.theme or opts.colors
+    -- The interface style the panel was built in (opts.style, or the style active when it was created). Tab
+    -- content is built later, when the panel first opens, outside whatever WithStyle scope built the panel, so
+    -- the style is remembered here and re-applied for every content build.
+    panel.style    = D and type(D.GetStyleId) == "function" and D:GetStyleId() or nil
 
     -- Outer container
     local container = CreateFrame("Frame", nil, panel, "BackdropTemplate")
@@ -686,7 +703,8 @@ local function CreateOptionsPanel(UI, opts)
 
     -- ── Tab container ─────────────────────────────────────────────────────────
     local rowCount      = GetRowCount(tabs, maxPerRow)
-    local tabAreaHeight = singlePage and 0 or GetTabContainerHeight(rowCount)
+    -- 1px, not 0: the content frame anchors to this area's bottom edge, and a zero-height anchor is not a safe layout edge.
+    local tabAreaHeight = hideTabRow and 1 or GetTabContainerHeight(rowCount)
 
     local tabArea = CreateFrame("Frame", nil, container)
     tabArea:SetPoint("TOPLEFT",  tabAnchor, "BOTTOMLEFT",  0, -TAB_AREA_GAP)
@@ -696,7 +714,7 @@ local function CreateOptionsPanel(UI, opts)
     local tabBg = tabArea:CreateTexture(nil, "BACKGROUND")
     tabBg:SetAllPoints()
     tabBg:SetColorTexture(br, bg, bb, 0.60)
-    if singlePage then tabBg:Hide() end
+    if hideTabRow then tabBg:Hide() end
 
     -- ── Build tabs and content frames ─────────────────────────────────────────
     for i, tabInfo in ipairs(tabs) do
@@ -707,7 +725,7 @@ local function CreateOptionsPanel(UI, opts)
             tabArea, tabInfo.text, i, row, col, panel, tabInfo.icon, addonKey
         )
         panel.tabs[i] = tabBtn
-        if singlePage then tabBtn:Hide() end
+        if hideTabRow then tabBtn:Hide() end
 
         -- Content frame for this tab
         local content = CreateFrame("Frame", nil, container, "BackdropTemplate")
@@ -807,10 +825,15 @@ end
     -- back to a direct call when the panel carries no theme. Content callbacks
     -- keep their own pcall isolation; this only scopes the color surface.
     local function withPanelTheme(fn)
+        local run = fn
+        if panel.style and D and type(D.WithStyle) == "function" and type(D.GetStyleId) == "function"
+            and D:GetStyleId() ~= panel.style then
+            run = function() D:WithStyle(panel.style, fn) end
+        end
         if type(panel.theme) == "table" then
-            D:WithTheme(panel.theme, fn)
+            D:WithTheme(panel.theme, run)
         else
-            fn()
+            run()
         end
     end
 
@@ -1218,6 +1241,90 @@ end
     return panel
 end
 
+-- ── Standard options card ────────────────────────────────────────────────────
+-- The settings every RGX addon offers, in one card, under the same storage keys, so every mod behaves alike:
+--   minimapIconEnabled  show the minimap button           (opts.minimap = false omits the two minimap rows)
+--   addonMenu           list in the Addons menu           (applied through the minimap button, which tells the
+--                                                           player when a client needs a reload)
+--   chatOutput          print messages to chat            (read by RGX:CreateChat)
+--   loginMessage        print a loaded message at login   (read by RGX:CreateChat)
+--   chatPrefix          the prefix on chat messages       (empty = the addon's branded title)
+-- Absent keys mean on. opts: storage (table, required), minimap (the minimap button, or a function returning it
+-- because the button may not exist yet), labels (override any string for localisation), title, defaultPrefix
+-- (greyed placeholder text for the prefix box), onChange(key, value).
+
+local STANDARD_LABELS = {
+    title = "General",
+    description = "Minimap button, Addons menu and chat messages.",
+    minimap = "Show the minimap button",
+    addonMenu = "List in the Addons menu",
+    addonMenuReload = "The Addons menu change applies after you reload your UI.",
+    chat = "Print messages to chat",
+    login = "Print a loaded message at login",
+    prefix = "Chat prefix",
+}
+
+local function CreateStandardCard(UI, parent, opts)
+    opts = opts or {}
+    local labels = {}
+    for key, text in pairs(STANDARD_LABELS) do labels[key] = (opts.labels and opts.labels[key]) or text end
+    local storage = opts.storage
+    if type(storage) ~= "table" then
+        error("RGX UI: CreateStandardCard needs opts.storage (the addon's saved-variables table)", 2)
+    end
+
+    local card = UI:CreateCard(parent, { title = opts.title or labels.title })
+    -- Rows fill the card: a switch keeps a fixed 200px width otherwise, and a long label then runs into its
+    -- ON/OFF text. Filling puts the toggle at the card's right edge and gives the label the rest.
+    local function Add(widget) card.flow:Add(widget, { fill = true }); return widget end
+
+    local function Changed(key, value)
+        if type(opts.onChange) == "function" then pcall(opts.onChange, key, value) end
+    end
+    local function Button()
+        local button = opts.minimap
+        if type(button) == "function" then button = button() end
+        return button
+    end
+    local function Switch(label, key, onChange)
+        return Add(UI:CreateSwitch(card.content, {
+            label = label, storage = storage, key = key, default = true,
+            onChange = function(value) if onChange then onChange(value) end; Changed(key, value) end,
+        }))
+    end
+
+    if opts.description ~= false then
+        Add(UI:CreateLabel(card.content, { text = labels.description, size = "small", color = "muted", wrap = true }))
+    end
+
+    if opts.minimap ~= false then
+        Switch(labels.minimap, "minimapIconEnabled", function(value)
+            local button = Button()
+            if button and button.SetVisible then button:SetVisible(value) end
+        end)
+        if opts.addonMenu ~= false then
+            Switch(labels.addonMenu, "addonMenu", function(value)
+                local button = Button()
+                if button and button.SetCompartmentVisible and button:SetCompartmentVisible(value) == false then
+                    RGX:Print(labels.addonMenuReload)
+                end
+            end)
+        end
+    end
+    Switch(labels.chat, "chatOutput")
+    if opts.loginMessage ~= false then Switch(labels.login, "loginMessage") end
+    if opts.prefix ~= false then
+        Add(UI:CreateTextInput(card.content, {
+            label = labels.prefix, storage = storage, key = "chatPrefix", default = "",
+            placeholder = opts.defaultPrefix or "", width = 200,
+            onChange = function(value) Changed("chatPrefix", value) end,
+        }))
+    end
+
+    card:AutoHeight()
+    return card
+end
+
 -- ── Inject into RGXUI once it's available ────────────────────────────────────
 -- controls.lua runs first and sets up RGXUI; this file extends it.
 
@@ -1225,7 +1332,18 @@ local function Inject()
     local UI = _G.RGXUI
     if not UI then return false end
     UI.CreateOptionsPanel = function(self, opts)
+        -- opts.style builds the whole panel, header and content, in that interface style (for example
+        -- "materialround") without changing the operator's global choice.
+        local D = GetDesign()
+        local style = type(opts) == "table" and opts.style or nil
+        local id = style and D and type(D.ResolveStyle) == "function" and D:ResolveStyle(style) or nil
+        if id and type(D.WithStyle) == "function" and D:GetStyleId() ~= id then
+            return D:WithStyle(id, function() return CreateOptionsPanel(self, opts) end)
+        end
         return CreateOptionsPanel(self, opts)
+    end
+    UI.CreateStandardCard = function(self, parent, opts)
+        return CreateStandardCard(self, parent, opts)
     end
     UI._BuildAddonOptionTabs = BuildAddonOptionTabs
     return true

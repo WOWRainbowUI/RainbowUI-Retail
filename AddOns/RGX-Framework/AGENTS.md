@@ -23,8 +23,9 @@ invent a second API for a problem the framework already owns.
 If you have the full repository, read
 [`docs/MAINTAINER-CONTRACT.md`](docs/MAINTAINER-CONTRACT.md) before changing
 code, contracts, CI, references, or release tooling. It contains the
-maintainer-only operating contract, ownership rails, build loop, and escalation
-rules. It is not shipped in the player package or the public mirror.
+maintainer-only operating contract, Working Rules, ownership rails, build loop,
+and escalation rules. It is not shipped in the player package or the public
+mirror.
 
 Also read every scoped `AGENTS.md` in the subtree you are editing.
 

@@ -140,6 +140,56 @@ function RGX:CreateChatPrefix(opts)
     )
 end
 
+-- Addon chat output --------------------------------------------------------------
+-- One chat voice for every RGX addon, driven by the standard options (UI:CreateStandardCard):
+--   chatOutput   false silences Print and Login
+--   chatPrefix   a prefix the player typed replaces the [label]; empty, or equal to opts.name, uses opts.label
+--   loginMessage false silences Login (and the framework-wide login switch silences it too)
+-- Absent keys mean on. opts: storage (the addon's SavedVariables table, or a function returning it, because the
+-- table does not exist until the addon has loaded), name, label (the text in the brackets, default name), icon
+-- (texture, default the RGX logo), tagColor (hex, default the RGX green), tag (a leading "[Tag]" to drop from
+-- messages that still carry one). Every line reads "<icon> - [Label] message", the RGX:CreateChatPrefix format.
+function RGX:CreateChat(opts)
+    opts = opts or {}
+    local chat = {}
+
+    local function settings()
+        local s = opts.storage
+        if type(s) == "function" then s = s() end
+        return type(s) == "table" and s or {}
+    end
+
+    local function stripTag(text)
+        text = tostring(text)
+        if type(opts.tag) == "string" and opts.tag ~= "" then
+            local tag = opts.tag:gsub("%p", "%%%0")
+            text = text:gsub("^|c%x%x%x%x%x%x%x%x" .. tag .. "|r%s*", ""):gsub("^" .. tag .. "%s*", "")
+        end
+        return text
+    end
+
+    function chat:Prefix()
+        local prefix = settings().chatPrefix
+        if type(prefix) ~= "string" or prefix == "" or prefix == opts.name then
+            prefix = opts.label or opts.name or "RGX"
+        end
+        return RGX:CreateChatPrefix({ icon = opts.icon, tag = prefix, tagColor = opts.tagColor })
+    end
+
+    function chat:Print(text)
+        if settings().chatOutput == false then return end
+        print(self:Prefix() .. " " .. stripTag(text))
+    end
+
+    function chat:Login(text)
+        if settings().loginMessage == false then return end
+        if not RGX:IsLoginMessagesEnabled() then return end
+        self:Print(text)
+    end
+
+    return chat
+end
+
 -- Login messages (startup lines only) ----------------------------------------
 -- Persisted globally in the framework SavedVariables; default ON.
 -- These gate ONLY LoginMessage(). Print/Warn/Error always work.
