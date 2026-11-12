@@ -70,7 +70,8 @@ local function SetupBackpackHooks()
     if not characterName then
       return
     end
-    backpackView:Show()
+    ShowUIPanel(backpackView)
+    --backpackView:Show()
     backpackView:UpdateForCharacter(characterName, characterName == Syndicator.API.GetCurrentCharacter())
     UpdateBackpackButtons()
   end)
@@ -124,6 +125,7 @@ local function SetupBackpackHooks()
   hooksecurefunc("ToggleBag", DirectToggleOnly)
 
   ToggleAllBags = ToggleBackpackView
+  ToggleBackpack_Combined = ToggleBackpackView
 
   -- Used to open the bags when a loot toast is clicked
   hooksecurefunc("OpenBag", function()
@@ -467,10 +469,14 @@ local function HideDefaultBank()
   BankFrame:SetScript("OnHide", nil)
   BankFrame:SetScript("OnEvent", nil)
   BankFrame:SetScript("OnShow", nil)
+  BankFrame:Hide()
   BankFrame:SetParent(hidden)
 
   if BankFrame.BankPanel and BankFrame.BankPanel.MoneyDisplay then
     BankFrame.BankPanel.MoneyDisplay:UnregisterAllEvents()
+    EventRegistry:UnregisterCallback("BankPanelMixin.TriggerSetTabEffects", BankFrame);
+    EventRegistry:UnregisterCallback("BankPanelMixin.ShowOrHideBagCost", BankFrame);
+    EventRegistry:UnregisterCallback("BankPanelMixin.PageInfoChanged", BankFrame);
   end
 end
 
@@ -524,6 +530,11 @@ local function SetupCharacterSelect(frameGroup)
     end
 
   end)
+
+  addonTable.CallbackRegistry:RegisterCallback("CharacterSelectHide", function()
+    characterSelect:Hide()
+  end)
+
   addonTable.CallbackRegistry:RegisterCallback("FrameGroupSwapped", function()
     if currentFrameGroup ~= frameGroup then
       characterSelect:Hide()
@@ -572,6 +583,10 @@ local function SetupCurrencyPanel(frameGroup)
     if frameGroup == currentFrameGroup then
       currencyPanel:SetShown(not currencyPanel:IsShown())
     end
+  end)
+
+  addonTable.CallbackRegistry:RegisterCallback("CurrencyPanelHide", function()
+    currencyPanel:Hide()
   end)
 
   addonTable.CallbackRegistry:RegisterCallback("FrameGroupSwapped", function()
@@ -643,4 +658,11 @@ function addonTable.ViewManagement.GenerateFrameGroup(frameGroup)
 
   SetupCharacterSelect(frameGroup)
   SetupCurrencyPanel(frameGroup)
+
+  addonTable.CallbackRegistry:RegisterCallback("CloseAll", function()
+    addonTable.CallbackRegistry:TriggerEvent("BagHide")
+    addonTable.CallbackRegistry:TriggerEvent("BankHide")
+    addonTable.CallbackRegistry:TriggerEvent("CharacterSelectHide")
+    addonTable.CallbackRegistry:TriggerEvent("CurrencyPanelHide")
+  end)
 end

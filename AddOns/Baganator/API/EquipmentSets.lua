@@ -126,7 +126,11 @@ if not addonTable.Constants.IsEra and not addonTable.Constants.IsBC and Syndicat
               waiting = waiting - 1
               local tooltipInfo
               if addonTable.Constants.IsRetail or addonTable.Constants.IsForever then
-                tooltipInfo = C_TooltipInfo.GetBagItem(location.bagID, location.slotIndex)
+                if location.slotIndex then
+                  tooltipInfo = C_TooltipInfo.GetBagItem(location.bagID, location.slotIndex)
+                elseif location.equipmentSlotIndex then
+                  tooltipInfo = C_TooltipInfo.GetInventoryItem("player", location.equipmentSlotIndex)
+                end
               elseif location.bagID == Syndicator.Constants.AllBankIndexes[1] then
                 tooltipInfo = Syndicator.Search.DumpClassicTooltip(function(tooltip) tooltip:SetInventoryItem("player", BankButtonIDToInvSlotID(location.slotIndex)) end)
               else
@@ -166,6 +170,10 @@ if not addonTable.Constants.IsEra and not addonTable.Constants.IsBC and Syndicat
               ProcessSlot(slot, location)
             end
           end
+        end
+        for index, slot in pairs(characterData.equipped) do
+          local location = {equipmentSlotIndex = index - Syndicator.Constants.EquippedInventorySlotOffset}
+          ProcessSlot(slot, location)
         end
       end
     end

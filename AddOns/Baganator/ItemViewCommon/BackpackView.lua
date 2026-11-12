@@ -1,8 +1,6 @@
 ---@class addonTableBaganator
 local addonTable = select(2, ...)
 
-local classicTabObjectCounter = 0
-
 BaganatorItemViewCommonBackpackViewMixin = {}
 
 local function PreallocateItemButtons(pool, buttonCount)
@@ -132,11 +130,13 @@ function BaganatorItemViewCommonBackpackViewMixin:OnShow()
       self:CombineStacksAndSort()
     end)
   end
+  addonTable.ItemViewCommon.SetGamepadTrap(true, self)
   PlaySound(SOUNDKIT.IG_BACKPACK_OPEN);
 end
 
 function BaganatorItemViewCommonBackpackViewMixin:OnHide()
   PlaySound(SOUNDKIT.IG_BACKPACK_CLOSE);
+  addonTable.ItemViewCommon.SetGamepadTrap(false, self)
 end
 
 function BaganatorItemViewCommonBackpackViewMixin:SetLiveCharacter(character)
