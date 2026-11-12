@@ -6,6 +6,8 @@ L["LOG_LEVEL_DESC"] = "Controls messages in chat. Same as /details_tww loglevel 
 if GetLocale() == "zhTW" then L["LOG_LEVEL_DESC"] = "控制聊天視窗中的記錄訊息量，亦可使用 /details_tww loglevel <level>。"
 elseif GetLocale() == "zhCN" then L["LOG_LEVEL_DESC"] = "控制聊天窗口中的日志消息量，也可使用 /details_tww loglevel <level>。" end
 if GetLocale() == "zhTW" then
+L["Does not cache the skin definition in Details!. Choose this only if you specifically want to avoid caching. Custom settings, including font sizes and automation rules, may reset after login or reload."] = "不將外觀定義快取至 Details!。只有確定要停用快取時才選用。字級與自動化規則等自訂設定可能在登入或重新載入後重設。"
+L["Recommended for most users. Caches the skin definition in Details! so your custom settings can be preserved after login or reload. The cached definition remains if this addon is disabled or removed, but its textures still require the addon."] = "建議大多數使用者選用。將外觀定義快取至 Details!，以便在登入或重新載入後保留自訂設定。停用或移除此插件後，快取定義仍會保留，但材質仍需要此插件。"
 L["Skin the Blizzard damage meter"] = "套用暴雪傷害統計外觀"
 L["Applies the 'The War Within' skin to the game's built-in damage meter, whichever style is picked in Edit Mode."] = "將地心之戰外觀套用至遊戲內建傷害統計，不受編輯模式所選樣式影響。"
 L["Bar texture"] = "量條材質"
@@ -23,6 +25,8 @@ L["Left-click: options"] = "左鍵：設定選項"
 L["The War Within: cast bar style bars, round class and spec icons and the TWW title bar."] = "地心之戰：施法條樣式量條、圓形職業及專精圖示與地心之戰標題列。"
 end
 if GetLocale() == "zhCN" then
+L["Does not cache the skin definition in Details!. Choose this only if you specifically want to avoid caching. Custom settings, including font sizes and automation rules, may reset after login or reload."] = "不将外观定义缓存到 Details!。仅在明确需要停用缓存时选择。字号和自动化规则等自定义设置可能在登录或重新加载后重置。"
+L["Recommended for most users. Caches the skin definition in Details! so your custom settings can be preserved after login or reload. The cached definition remains if this addon is disabled or removed, but its textures still require the addon."] = "建议大多数用户选择。将外观定义缓存到 Details!，以便在登录或重新加载后保留自定义设置。停用或移除此插件后，缓存定义仍会保留，但材质仍需要此插件。"
 L["Skin the Blizzard damage meter"] = "应用暴雪伤害统计外观"
 L["Applies the 'The War Within' skin to the game's built-in damage meter, whichever style is picked in Edit Mode."] = "将地心之战外观应用于游戏内置伤害统计，不受编辑模式所选样式影响。"
 L["Bar texture"] = "计量条材质"
