@@ -339,6 +339,13 @@ WIM.AddLocale("ruRU", {
 	["Results are hidden by the active filter. Click to open the Filters menu."] = "Результаты скрыты активным фильтром. Нажмите, чтобы открыть меню фильтров.",
 	["Click to change how history is filtered."] = "Нажмите, чтобы изменить фильтрацию истории.",
 	["Click to open the Filters menu."] = "Нажмите, чтобы открыть меню фильтров.",
+	["Unknown name"] = "Неизвестное имя",
+	["This conversation was saved without the other player's name."] = "Этот разговор был сохранён без имени другого игрока.",
+	["Enter the name this conversation belongs to."] = "Введите имя, которому принадлежит этот разговор.",
+	["Enter the name of a player."] = "Введите имя игрока.",
+	["This conversation of %s was saved without the other player's name."] = "Этот разговор персонажа %s был сохранён без имени другого игрока.",
+	["Enter the name of the player it was with. If you already have a conversation with that player, the messages are added to it."] = "Введите имя игрока, с которым он вёлся. Если у вас уже есть разговор с этим игроком, сообщения будут добавлены к нему.",
+	["A saved conversation had lost the other player's name. It is listed as \"Unknown name\" in the History Viewer, where you can give it a name."] = "В одном сохранённом разговоре было потеряно имя другого игрока. Он показан как \"Неизвестное имя\" в окне «Просмотр истории», где ему можно дать имя.",
 	["Clicking the %s button on the message window will show that user's history in WIM's History Viewer."] = "Нажатие кнопки %s в окне сообщения покажет историю этого игрока в окне просмотра истории WIM.",
 
 	-- Message input & formatting --
@@ -795,4 +802,6 @@ WIM.AddLocale("ruRU", {
 	["Miscellaneous"] = "Разное",
 	["Streaming Mode"] = "Режим трансляции",
 	["Protect the privacy of players you chat with by hiding their full name and BattleTag."] = "Защищает конфиденциальность игроков, с которыми вы общаетесь, скрывая их полное имя и BattleTag.",
+	["Because WIM integrates itself with Edit Mode, protected errors may occur. It is recommended to reload your UI before continuing."] = "Так как WIM интегрируется с режимом редактирования, могут возникать ошибки защищённых функций. Рекомендуется перезагрузить интерфейс, прежде чем продолжить.",
+	["Reload UI"] = "Перезагрузить интерфейс",
 });

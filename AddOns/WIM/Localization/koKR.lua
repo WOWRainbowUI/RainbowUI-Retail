@@ -338,6 +338,13 @@ WIM.AddLocale("koKR", {
     ["Results are hidden by the active filter. Click to open the Filters menu."] = "활성 필터 때문에 결과가 숨겨져 있습니다. 클릭하여 필터 메뉴를 엽니다.",
     ["Click to change how history is filtered."] = "클릭하여 기록 필터 방식을 변경합니다.",
     ["Click to open the Filters menu."] = "클릭하여 필터 메뉴를 엽니다.",
+    ["Unknown name"] = "알 수 없는 이름",
+    ["This conversation was saved without the other player's name."] = "이 대화는 상대 플레이어의 이름 없이 저장되었습니다.",
+    ["Enter the name this conversation belongs to."] = "이 대화가 속한 이름을 입력하세요.",
+    ["Enter the name of a player."] = "플레이어의 이름을 입력하세요.",
+    ["This conversation of %s was saved without the other player's name."] = "%s의 이 대화는 상대 플레이어의 이름 없이 저장되었습니다.",
+    ["Enter the name of the player it was with. If you already have a conversation with that player, the messages are added to it."] = "대화 상대였던 플레이어의 이름을 입력하세요. 그 플레이어와의 대화가 이미 있으면 메시지가 그 대화에 추가됩니다.",
+    ["A saved conversation had lost the other player's name. It is listed as \"Unknown name\" in the History Viewer, where you can give it a name."] = "저장된 대화 하나에 상대 플레이어의 이름이 없었습니다. 기록 보기에 \"알 수 없는 이름\"으로 표시되며, 그곳에서 이름을 지정할 수 있습니다.",
     ["Clicking the %s button on the message window will show that user's history in WIM's History Viewer."] = "메시지 창의 %s 버튼을 클릭하면 그 사용자의 기록이 WIM 기록 뷰어에 표시됩니다.",
 
     -- Message input & formatting --
@@ -794,4 +801,6 @@ WIM.AddLocale("koKR", {
     ["Miscellaneous"] = "기타",
     ["Streaming Mode"] = "스트리밍 모드",
     ["Protect the privacy of players you chat with by hiding their full name and BattleTag."] = "대화하는 플레이어의 전체 이름과 배틀태그를 숨겨 개인 정보를 보호합니다.",
+    ["Because WIM integrates itself with Edit Mode, protected errors may occur. It is recommended to reload your UI before continuing."] = "WIM이 편집 모드와 통합되어 있기 때문에 보호된 오류가 발생할 수 있습니다. 계속하기 전에 UI를 다시 불러오는 것을 권장합니다.",
+    ["Reload UI"] = "UI 다시 불러오기",
 });

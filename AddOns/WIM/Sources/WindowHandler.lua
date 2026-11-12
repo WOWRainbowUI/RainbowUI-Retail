@@ -157,6 +157,7 @@ db_defaults.winCascade = {
 		direction = 8
 	};
 db_defaults.winFade = true;
+db_defaults.winFadeAmount = 50;
 db_defaults.winAnimation = true;
 db_defaults.wordwrap_indent = false;
 db_defaults.coloredNames = true;
@@ -196,8 +197,9 @@ local WindowSoupBowl = {
 }
 
 local FadeProps = {
-	min = .5,
-	max = 1,
+	-- min & max are deprecated since we have a defined value set now.
+	-- min = .5,
+	-- max = 1,
 	interval = .25,
 	delay = 2
 };
@@ -647,7 +649,7 @@ end
 
 local function animateFade(obj, directionIn, force)
         local fadeAnimator = obj.animators.fade
-        local to = directionIn and FadeProps.max or FadeProps.min
+        local to = directionIn and 1 or (db.winFadeAmount / 100)
         local from = obj:GetAlpha()
 
         if force then
@@ -682,7 +684,7 @@ local function animateFade(obj, directionIn, force)
 end
 
 local function setWindowAsFadedIn(obj)
-	if(WIM.db.winFade) then
+	if(WIM.db.winFade and obj.tabStrip == nil) then
                 if not obj.fadedIn then
                         obj:fadeIn()
                         obj.delayFadeElapsed = 0;
@@ -864,74 +866,80 @@ end
 
 
 local function MessageWindow_Frame_OnUpdate(self, elapsed)
-        if(self.isMoving and self.moveLastX) then
-                applyMovement(self);
-        end
+	if (self.isMoving and self.moveLastX) then
+		applyMovement(self);
+	end
+
 	-- window is visible, there aren't any messages waiting...
-        updateTracker(self);
+	updateTracker(self);
+
 	self.msgWaiting = false;
 	self.unreadCount = 0;
-        -- animation segment
-	if(self.animation and self.animation.mode) then
-                local animate = self.animation;
-                if(animate.mode == "HIDE") then
-                                animate.elapsed = animate.elapsed + elapsed;
-                                if(animate.elapsed > animate.time) then
-                                                self:Hide_Normal();
-                                else
-                                                local prct = animate.elapsed/animate.time;
-                                                local scale = (db.winSize.scale/100)*(1-prct);
-                                                scale = scale > animate.scaleLimit and scale or animate.scaleLimit;
-                                		self:SetScale(scale);
-                                		if(animate.to and animate.to.GetEffectiveScale) then
-                                                                local to = animate.to;
-                                                                local es, ts = self:GetEffectiveScale(), to:GetEffectiveScale();
-                                                                es, ts = es > 0 and es or .01, ts > 0 and ts or .01;
-                                                                local x1, y1, x2, y2 = animate.initLeft*es, animate.initTop*es, to:GetLeft()*ts, to:GetTop()*ts;
-                                                		local rise, run = ((y2-y1)>=0) and (y2-y1) or 0, ((x2-x1)>=0) and (x2-x1) or 0;
-                                                		self:ClearAllPoints();
-                                                		self:SetPoint("TOPLEFT", WindowParent, "BOTTOMLEFT", (x1+run*prct)/es, (y1+rise*prct)/es);
-                                                end
-                                	end
-                                end
+
+	-- animation segment
+	if (self.animation and self.animation.mode) then
+		local animate = self.animation;
+
+		if (animate.mode == "HIDE") then
+			animate.elapsed = animate.elapsed + elapsed;
+			if (animate.elapsed > animate.time) then
+				self:Hide_Normal();
+			else
+				local prct = animate.elapsed / animate.time;
+				local scale = (db.winSize.scale / 100) * (1 - prct);
+				scale = scale > animate.scaleLimit and scale or animate.scaleLimit;
+				self:SetScale(scale);
+				if (animate.to and animate.to.GetEffectiveScale) then
+					local to = animate.to;
+					local es, ts = self:GetEffectiveScale(), to:GetEffectiveScale();
+					es, ts = es > 0 and es or .01, ts > 0 and ts or .01;
+					local x1, y1, x2, y2 = animate.initLeft * es, animate.initTop * es, to:GetLeft() * ts, to:GetTop() *
+					ts;
+					local rise, run = ((y2 - y1) >= 0) and (y2 - y1) or 0, ((x2 - x1) >= 0) and (x2 - x1) or 0;
+					self:ClearAllPoints();
+					self:SetPoint("TOPLEFT", WindowParent, "BOTTOMLEFT", (x1 + run * prct) / es, (y1 + rise * prct) / es);
+				end
+			end
+		end
 	else
-                -- fading segment
-                if(db.winFade and self ~= DemoWindow) then
-                	self.fadeElapsed = (self.fadeElapsed or 0) + elapsed;
-                	while(self.fadeElapsed > .1) do
-                		local window = GetMouseFocus();
-                                if(window) then
-                			if(((window == self or window.parentWindow == self  or self.isOnHyperLink or
-                					self == helperFrame.attachedTo or
-                					(EditBoxInFocus and EditBoxInFocus.parentWindow == self)) or
-                					(window.tabStrip and window.tabStrip.selected.obj == self)) and
-                					(not self.fadedIn or self.delayFade)) then
-                                                                self:fadeIn()
-                				self.fadedIn = true;
-                				self.delayFade = false;
-                				self.delayFadeElapsed = 0;
-                			elseif(window ~= self and window.parentWindow ~= self and not self.isOnHyperLink and
-                					(not (window.tabStrip and window.tabStrip.selected.obj == self)) and
-                					helperFrame.attachedTo ~= self and
-                					(not EditBoxInFocus or EditBoxInFocus.parentWindow ~= self) and self.fadedIn) then
-                                                if(self.delayFade) then
-                					self.delayFadeElapsed = (self.delayFadeElapsed or 0) + elapsed;
-                					while(self.delayFadeElapsed > FadeProps.delay) do
-                						self.delayFade = false;
-                						self.delayFadeElapsed = 0;
-                					end
-                				else
-                					self.fadedIn = false;
-                					self.delayFadeElapsed = 0;
-                                                        self:fadeOut()
-                				end
-                			end
-                		end
-                		self.fadeElapsed = 0;
-                	end
-                elseif(not self.fadedIn) then
-                        setWindowAsFadedIn(self);
-                end
+		-- fading segment
+		if (db.winFade and self ~= DemoWindow) then
+			self.fadeElapsed = (self.fadeElapsed or 0) + elapsed;
+
+			while (self.fadeElapsed > .1) do
+				local window = GetMouseFocus();
+				if (window) then
+					if (((window == self or window.parentWindow == self or self.isOnHyperLink or
+									self == helperFrame.attachedTo or
+									(EditBoxInFocus and EditBoxInFocus.parentWindow == self)) or
+								(window.tabStrip and window.tabStrip.selected.obj == self)) and
+							(not self.fadedIn or self.delayFade)) then
+						self:fadeIn()
+						self.fadedIn = true;
+						self.delayFade = false;
+						self.delayFadeElapsed = 0;
+					elseif (window ~= self and window.parentWindow ~= self and not self.isOnHyperLink and
+							(not (window.tabStrip and window.tabStrip.selected.obj == self)) and
+							helperFrame.attachedTo ~= self and
+							(not EditBoxInFocus or EditBoxInFocus.parentWindow ~= self) and self.fadedIn) then
+						if (self.delayFade) then
+							self.delayFadeElapsed = (self.delayFadeElapsed or 0) + elapsed;
+							while (self.delayFadeElapsed > FadeProps.delay) do
+								self.delayFade = false;
+								self.delayFadeElapsed = 0;
+							end
+						else
+							self.fadedIn = false;
+							self.delayFadeElapsed = 0;
+							self:fadeOut()
+						end
+					end
+				end
+				self.fadeElapsed = 0;
+			end
+		elseif (not self.fadedIn) then
+			setWindowAsFadedIn(self);
+		end
 	end
 end
 
@@ -1354,7 +1362,7 @@ local function instantiateWindow(obj)
 						self.widgets.from:SetText(utils.GetPrivateBNetName(self.theUser));
 
 					-- show toon name if different
-					elseif (toonName and toonName ~= "") then
+					elseif (toonName and toonName ~= "" and toonName ~= self.theUser and not IsBNCharacterNamedFriend(id)) then
                         self.widgets.from:SetText(utils.GetReadableName(self.theUser).." ("..toonName..")");
                     end
 					self:UpdateIcon();

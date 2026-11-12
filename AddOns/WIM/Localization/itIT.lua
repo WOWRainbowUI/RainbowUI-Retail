@@ -337,6 +337,13 @@ WIM.AddLocale("itIT", {
 	["Results are hidden by the active filter. Click to open the Filters menu."] = "I risultati sono nascosti dal filtro attivo. Fai clic per aprire il menu dei filtri.",
 	["Click to change how history is filtered."] = "Fai clic per cambiare come viene filtrata la cronologia.",
 	["Click to open the Filters menu."] = "Fai clic per aprire il menu dei filtri.",
+	["Unknown name"] = "Nome sconosciuto",
+	["This conversation was saved without the other player's name."] = "Questa conversazione è stata salvata senza il nome dell'altro giocatore.",
+	["Enter the name this conversation belongs to."] = "Inserisci il nome a cui appartiene questa conversazione.",
+	["Enter the name of a player."] = "Inserisci il nome di un giocatore.",
+	["This conversation of %s was saved without the other player's name."] = "Questa conversazione di %s è stata salvata senza il nome dell'altro giocatore.",
+	["Enter the name of the player it was with. If you already have a conversation with that player, the messages are added to it."] = "Inserisci il nome del giocatore con cui si è svolta. Se hai già una conversazione con quel giocatore, i messaggi vengono aggiunti a essa.",
+	["A saved conversation had lost the other player's name. It is listed as \"Unknown name\" in the History Viewer, where you can give it a name."] = "Una conversazione salvata aveva perso il nome dell'altro giocatore. È elencata come \"Nome sconosciuto\" nel Visualizzatore cronologia, dove puoi assegnarle un nome.",
 	["Clicking the %s button on the message window will show that user's history in WIM's History Viewer."] = "Un clic sul pulsante %s nella finestra dei messaggi mostrerà la cronologia di quell'utente nel Visualizzatore cronologia di WIM.",
 
 	-- Message input & formatting --
@@ -793,4 +800,6 @@ WIM.AddLocale("itIT", {
 	["Miscellaneous"] = "Varie",
 	["Streaming Mode"] = "Modalità streaming",
 	["Protect the privacy of players you chat with by hiding their full name and BattleTag."] = "Proteggi la privacy dei giocatori con cui chat nascondendo il loro nome completo e BattleTag.",
+	["Because WIM integrates itself with Edit Mode, protected errors may occur. It is recommended to reload your UI before continuing."] = "Poiché WIM si integra con la Modalità modifica, possono verificarsi errori protetti. Si consiglia di ricaricare l'interfaccia prima di continuare.",
+	["Reload UI"] = "Ricarica interfaccia",
 });
