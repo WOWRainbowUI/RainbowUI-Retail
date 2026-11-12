@@ -237,63 +237,6 @@ local skinners = {
     local position = addonTable.Config.Get(addonTable.Config.Options.EDIT_BOX_POSITION)
     frame.visuals.fakeEditBoxTex:SetShown(position == "bottom")
 
-    frame.ScrollingMessagesWrapper:SetIgnoreParentAlpha(true)
-    frame.fadeOutAnimation = frame:CreateAnimationGroup()
-    frame.fadeOutAnimation:SetToFinalAlpha(true)
-    local alpha1 = frame.fadeOutAnimation:CreateAnimation("Alpha")
-    alpha1:SetFromAlpha(1)
-    alpha1:SetToAlpha(0)
-    alpha1:SetDuration(0.5)
-    alpha1:SetOrder(1)
-    alpha1:SetChildKey("visuals")
-    local alpha11 = frame.fadeOutAnimation:CreateAnimation("Alpha")
-    alpha11:SetFromAlpha(1)
-    alpha11:SetToAlpha(0)
-    alpha11:SetDuration(0.5)
-    alpha11:SetOrder(1)
-    alpha11:SetChildKey("TabsBar")
-    frame.fadeInAnimation = frame:CreateAnimationGroup()
-    frame.fadeInAnimation:SetToFinalAlpha(true)
-    local alpha2 = frame.fadeInAnimation:CreateAnimation("Alpha")
-    alpha2:SetFromAlpha(0)
-    alpha2:SetToAlpha(1)
-    alpha2:SetDuration(0.5)
-    alpha2:SetOrder(1)
-    alpha2:SetChildKey("visuals")
-    local alpha21 = frame.fadeInAnimation:CreateAnimation("Alpha")
-    alpha21:SetFromAlpha(0)
-    alpha21:SetToAlpha(1)
-    alpha21:SetDuration(0.5)
-    alpha21:SetOrder(1)
-    alpha21:SetChildKey("TabsBar")
-    frame.GW2HoverTracker = CreateFrame("Frame", nil, frame)
-    frame.GW2HoverTracker:SetAllPoints()
-    frame.GW2HoverTracker:SetFrameStrata("DIALOG")
-    local function Show()
-      frame.fadeOutAnimation:Stop()
-      if frame.visuals:GetAlpha() < 1 then
-        frame.fadeInAnimation:Play()
-      end
-      frame.GW2HoverTracker:SetScript("OnUpdate", function()
-        if not frame:IsMouseOver() and not ChatFrame1EditBox:IsVisible() then
-          frame.fadeInAnimation:Stop()
-          if frame.visuals:GetAlpha() > 0 then
-            frame.fadeOutAnimation:Play()
-          end
-          frame.GW2HoverTracker:SetScript("OnUpdate", nil)
-        end
-      end)
-    end
-    frame.GW2HoverTracker:SetScript("OnEnter", function()
-      Show()
-    end)
-    if frame:GetID() == 1 then
-      ChatFrame1EditBox:SetIgnoreParentAlpha(true)
-      ChatFrame1EditBox:HookScript("OnShow", function()
-        Show()
-      end)
-    end
-
     addonTable.CallbackRegistry:RegisterCallback("SettingChanged", function(_, settingName)
       if not enableHooks then
         return

@@ -212,6 +212,7 @@ local skinners = {
     end)
     hooksecurefunc(tab, "SetSelected", SetSelected)
     hooksecurefunc(tab, "SetColor", function(_, r, g, b)
+      tab.Base:SetShown(tab.isDraggable)
       tab.Base:SetColorTexture(r, g, b)
     end)
     if tab.color then
