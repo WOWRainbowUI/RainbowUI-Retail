@@ -340,6 +340,13 @@ WIM.AddLocale("zhTW", {
     ["Results are hidden by the active filter. Click to open the Filters menu."] = "結果已被目前的過濾器隱藏。點擊以開啟過濾器選單。",
     ["Click to change how history is filtered."] = "點擊變更記錄的過濾方式。",
     ["Click to open the Filters menu."] = "點擊開啟過濾器選單。",
+    ["Unknown name"] = "未知名稱",
+    ["This conversation was saved without the other player's name."] = "此對話儲存時缺少對方玩家的名字。",
+    ["Enter the name this conversation belongs to."] = "輸入此對話所屬的名字。",
+    ["Enter the name of a player."] = "請輸入一名玩家的名字。",
+    ["This conversation of %s was saved without the other player's name."] = "%s 的此對話儲存時缺少對方玩家的名字。",
+    ["Enter the name of the player it was with. If you already have a conversation with that player, the messages are added to it."] = "輸入與之對話的玩家名字。如果你已有與該玩家的對話，這些訊息會合併進去。",
+    ["A saved conversation had lost the other player's name. It is listed as \"Unknown name\" in the History Viewer, where you can give it a name."] = "有一段已儲存的對話遺失了對方玩家的名字。它在對話記錄檢視中顯示為\"未知名稱\"，你可以在那裡為它指定名字。",
     ["Clicking the %s button on the message window will show that user's history in WIM's History Viewer."] = "點擊訊息視窗上的 %s 按鈕，將在 WIM 的記錄檢視器中顯示該玩家的記錄。",
 
     -- Message input & formatting --
@@ -796,4 +803,6 @@ WIM.AddLocale("zhTW", {
 	["Miscellaneous"] = "雜項",
 	["Streaming Mode"] = "串流模式",
 	["Protect the privacy of players you chat with by hiding their full name and BattleTag."] = "透過隱藏玩家的全名和戰網暱稱來保護你聊天對象的隱私。",
+	["Because WIM integrates itself with Edit Mode, protected errors may occur. It is recommended to reload your UI before continuing."] = "由於 WIM 與編輯模式整合，可能會出現受保護的錯誤。建議在繼續之前重新載入介面。",
+	["Reload UI"] = "重新載入介面",
 });

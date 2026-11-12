@@ -497,6 +497,13 @@ local function buildWindowChrome(obj)
     local chrome = CreateFrame("Frame", nil, obj);
     chrome:SetAllPoints();
     chrome:SetFrameLevel(obj:GetFrameLevel());
+	chrome.hitbox = CreateFrame("Frame", nil, chrome);
+	chrome.hitbox.parentWindow = obj
+	chrome.hitbox:EnableMouseMotion(true);
+
+	-- chrome.hitbox.debug = chrome.hitbox:CreateTexture(nil, "BACKGROUND");
+	-- chrome.hitbox.debug:SetAllPoints();
+	-- chrome.hitbox.debug:SetColorTexture(1, 0, 0, 0.5); -- semi-transparent red for debugging
 
     -- Apply the layout first. The portrait variant's left pieces sit
     -- 13px outside the frame, 5px further than the plain layout's, which
@@ -1985,6 +1992,11 @@ function ApplyModernThemeToWindow(obj)
 	if (chrome) then
 		local apply = _G.NineSliceUtil and _G.NineSliceUtil.ApplyLayoutByName;
 		local success = (apply and (pcall(apply, chrome, skin.message_window.chrome.layout)))
+		if (success) then
+			chrome.hitbox:ClearAllPoints();
+			chrome.hitbox:SetPoint("TOPLEFT", chrome.TopLeftCorner);
+			chrome.hitbox:SetPoint("BOTTOMRIGHT", chrome.BottomRightCorner);
+		end
 	end
 
     -- One debug-log line per apply/teardown transition; steady-state
@@ -2421,17 +2433,17 @@ function SetWidgetFont(obj, widgetSkinTable)
             -- actually changes the rendered family.
             obj:SetFontObject(_G[_font]);
             local font, height, flags = _G[_font]:GetFont();
-            obj:SetFont(font, widgetSkinTable.font_height or height, obj._font_flags or widgetSkinTable.font_flags or flags);
+            obj:SetFont(normalizeFont(font), widgetSkinTable.font_height or height, obj._font_flags or widgetSkinTable.font_flags or flags);
         elseif(libs.SML.MediaTable.font[_font]) then
 			-- _G.DevTools_Dump({obj.widgetName ,_font, widgetSkinTable.font_height, obj._font_flags or widgetSkinTable.font_flags or ""});
-            obj:SetFont(libs.SML.MediaTable.font[_font], widgetSkinTable.font_height or 12, obj._font_flags or widgetSkinTable.font_flags or "");
+            obj:SetFont(normalizeFont(libs.SML.MediaTable.font[_font]), widgetSkinTable.font_height or 12, obj._font_flags or widgetSkinTable.font_flags or "");
 		elseif (type(_font) == "string" and _font:match("\\")) then
 			-- font is a path to a font file
-			obj:SetFont(_font, widgetSkinTable.font_height or 12, obj._font_flags or widgetSkinTable.font_flags or "");
+			obj:SetFont(normalizeFont(_font), widgetSkinTable.font_height or 12, obj._font_flags or widgetSkinTable.font_flags or "");
 		else
             -- can't find font, load a default font.
             local font, height, flags = _G["ChatFontNormal"]:GetFont();
-            obj:SetFont(font, widgetSkinTable.font_height or 12, obj._font_flags or widgetSkinTable.font_flags or "");
+            obj:SetFont(normalizeFont(font), widgetSkinTable.font_height or 12, obj._font_flags or widgetSkinTable.font_flags or "");
         end
     end
     -- next, lets add the extra properties to it.
@@ -2514,7 +2526,7 @@ local function CheckForOutdatedSkin()
 	local check = selected and selected.schema_version and defaultSkin and defaultSkin.schema_version;
 
     if(check and selected.schema_version < defaultSkin.schema_version) then
-		dialog.confirm(
+		utils.dialog.confirm(
 			L["WIM now features a modern skin designed to better complement the current game interface. Your selected skin is an older style that may look dated or miss out on newer features."],
 			function()
 				_G.Settings.OpenToCategory(options.categoryMap["Appearance:MessageWindow"]);
