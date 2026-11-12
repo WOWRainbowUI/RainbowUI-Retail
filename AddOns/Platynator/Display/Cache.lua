@@ -5,10 +5,11 @@ local GetOtherTanks = addonTable.Display.Utilities.GetOtherTanks
 local IsTank = addonTable.Display.Utilities.IsTankRole
 local GetRangeChecker = addonTable.Display.Utilities.GetRangeSpell
 
+local InParty = UnitIsPlayerControlledOrGroupMember or UnitInParty
 local function IsInCombatWith(unit)
   return UnitAffectingCombat(unit) and
     (
-      UnitIsFriend("player", unit) and UnitInParty(unit) == true or
+      UnitIsFriend("player", unit) and InParty(unit) or
       addonTable.Cache:Get(unit, "threat").situation ~= nil or
       UnitInParty(unit .. "target") == true
     )
