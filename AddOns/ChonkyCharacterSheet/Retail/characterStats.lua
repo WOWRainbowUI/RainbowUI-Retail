@@ -3310,6 +3310,10 @@ end
 
 local function CreateStatsScrollFrame(rowWidth)
     local scrollFrame = CCS_stat_sf
+	
+	CharacterStatsPane:SetFrameLevel(2)
+	CharacterStatsPane:SetFrameStrata("MEDIUM")	
+	
     if not scrollFrame then
 		if CCS.CurrentVersion == CCS.FOREVER then
 			--scrollFrame = CreateFrame("ScrollFrame", "CCS_stat_sf", CharacterStatsPaneScrollBox, "BackdropTemplate")
@@ -3321,7 +3325,8 @@ local function CreateStatsScrollFrame(rowWidth)
         scrollFrame:EnableMouseWheel(true)
         scrollFrame:SetClipsChildren(true)
     end
-
+	scrollFrame:SetFrameStrata("MEDIUM")	
+	scrollFrame:SetFrameLevel(3)
     scrollFrame:ClearAllPoints()
     scrollFrame:SetPoint("TOPLEFT", CharacterStatsPane, "TOPLEFT", 10, -32)
     scrollFrame:SetPoint("BOTTOMRIGHT", CharacterStatsPane, "BOTTOMRIGHT", -12, 15)
@@ -3332,7 +3337,7 @@ local function CreateStatsScrollFrame(rowWidth)
         scrollChild = CreateFrame("Frame", "CCS_stat_sc", scrollFrame)
         scrollFrame:SetScrollChild(scrollChild)
     end
-
+	
     scrollChild:ClearAllPoints()
     scrollChild:SetPoint("TOPLEFT", scrollFrame, "TOPLEFT", 0, 0)
     scrollChild:SetWidth(rowWidth or scrollFrame:GetWidth())

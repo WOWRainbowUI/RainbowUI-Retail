@@ -17,7 +17,7 @@ CCS.Modules[module.Name] = module
 local modbg = _G["CharacterModelFramebg"] or CreateFrame("Frame", "CharacterModelFramebg", CharacterModelScene)
 local modtex = _G["CharacterModelFramebgtex"] or modbg:CreateTexture("CharacterModelFramebgtex", "BACKGROUND")    
 local modtex2 = _G["CharacterModelFramebgtex2"] or modbg:CreateTexture("CharacterModelFramebgtex2", "ARTWORK")    
-local modelbtn = _G["CCS_clk_Btn"] or CreateFrame("Button", "CCS_clk_Btn", PaperDollFrame, "UIPanelButtonTemplate")
+local modelbtn = _G["CCS_clk_Btn"] or CreateFrame("Button", "CCS_clk_Btn", PaperDollFrame)
 local modelbtnfont1 = _G["CCS_clk_Btnfs1"] or modelbtn:CreateFontString("CCS_clk_Btnfs1")
 local ccs_cshow
 local ReputationFrame_Update
@@ -1784,16 +1784,12 @@ function module:SetupBlizzardFrameOverrides()
     modelbtn:SetSize(23, 23)
     modelbtn:SetPoint("BOTTOMRIGHT", CharacterFrameInsetRight, "BOTTOMLEFT", -120, 5)    
     modelbtn:SetFrameStrata("HIGH")
+    CCS:ApplyIconStyle(modelbtn, "showchar", 20)    
     modelbtnfont1:SetFont(option("fontname_showchar") or CCS.fontname, (option("fontsize_showchar") or 10), CCS.textoutline)
     modelbtnfont1:SetPoint("BOTTOM", modelbtn, "TOP", -3 , 2)
     modelbtnfont1:SetText(MOUNT_JOURNAL_PLAYER)
     modelbtnfont1:SetWordWrap(true)
-    modelbtn:SetNormalTexture("Interface\\Calendar\\MeetingIcon.blp")
-    modelbtn:SetScript("OnEnter", function(self) CCS.tooltip:SetOwner(self, "ANCHOR_RIGHT")
-            CCS.tooltip:AddDoubleLine("", nil, 1, 1, 1, 1, 1, 1) 
-            CCS.tooltip:Show()
-    end)
-    modelbtn:SetScript("OnLeave", function() CCS.tooltip:Hide() end)
+
     modelbtn:SetScript("OnClick", function()
             if not InCombatLockdown() then 
                 CCS.Clicky() 
@@ -1829,6 +1825,7 @@ function module:UpdateStyle()
 
     local CCSsetbtn = _G["CCSsetbtn"] or CreateFrame("Button", "CCSsetbtn", CharacterFrame)
    CCS:ApplyIconStyle(CCSsetbtn, "gear", 32)
+   CCS:ApplyIconStyle(modelbtn, "showchar", 20)
 
     local ttfontsize = option("fontsize_nametitle") or 12
     CharacterFrameTitleText:SetPoint("TOP", CharacterFrame, "TOP", 0, -(10+5*ttfontsize/12))
@@ -2077,6 +2074,27 @@ function module:ApplyDynamicLayout()
         CharacterWaistSlotNormalTexture:SetPoint("CENTER",0,0)
         CharacterWristSlotNormalTexture:SetPoint("CENTER",0,0)
         if CharacterRangedSlotNormalTexture then CharacterRangedSlotNormalTexture:SetPoint("CENTER",0,0) end            
+
+        if CharacterBackSlotPopoutButton ~= nil then CharacterBackSlotPopoutButton:SetFrameLevel(500) end
+        if CharacterChestSlotPopoutButton ~= nil then CharacterChestSlotPopoutButton:SetFrameLevel(500) end
+        if CharacterFeetSlotPopoutButton ~= nil then CharacterFeetSlotPopoutButton:SetFrameLevel(500) end
+        if CharacterFinger0SlotPopoutButton ~= nil then CharacterFinger0SlotPopoutButton:SetFrameLevel(500) end
+        if CharacterFinger1SlotPopoutButton ~= nil then CharacterFinger1SlotPopoutButton:SetFrameLevel(500) end
+        if CharacterHandsSlotPopoutButton ~= nil then CharacterHandsSlotPopoutButton:SetFrameLevel(500) end
+        if CharacterHeadSlotPopoutButton ~= nil then CharacterHeadSlotPopoutButton:SetFrameLevel(500) end
+        if CharacterLegsSlotPopoutButton ~= nil then CharacterLegsSlotPopoutButton:SetFrameLevel(500) end
+        if CharacterMainHandSlotPopoutButton ~= nil then CharacterMainHandSlotPopoutButton:SetFrameLevel(500) end
+        if CharacterNeckSlotPopoutButton ~= nil then CharacterNeckSlotPopoutButton:SetFrameLevel(500) end
+        if CharacterSecondaryHandSlotPopoutButton ~= nil then CharacterSecondaryHandSlotPopoutButton:SetFrameLevel(500) end
+        if CharacterShirtSlotPopoutButton ~= nil then CharacterShirtSlotPopoutButton:SetFrameLevel(500) end
+        if CharacterShoulderSlotPopoutButton ~= nil then CharacterShoulderSlotPopoutButton:SetFrameLevel(500) end
+        if CharacterTabardSlotPopoutButton ~= nil then CharacterTabardSlotPopoutButton:SetFrameLevel(500) end
+        if CharacterTrinket0SlotPopoutButton ~= nil then CharacterTrinket0SlotPopoutButton:SetFrameLevel(500) end
+        if CharacterTrinket1SlotPopoutButton ~= nil then CharacterTrinket1SlotPopoutButton:SetFrameLevel(500) end
+        if CharacterWaistSlotPopoutButton ~= nil then CharacterWaistSlotPopoutButton:SetFrameLevel(500) end
+        if CharacterWristSlotPopoutButton ~= nil then CharacterWristSlotPopoutButton:SetFrameLevel(500) end
+        if CharacterRangedSlotPopoutButton ~= nil then CharacterRangedSlotPopoutButton:SetFrameLevel(500) end
+        if CharacterAmmoSlotPopoutButton ~= nil then CharacterAmmoSlotPopoutButton:SetFrameLevel(500) end
 
     end
 end
