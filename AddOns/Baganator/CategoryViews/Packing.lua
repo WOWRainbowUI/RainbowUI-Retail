@@ -66,6 +66,9 @@ function addonTable.CategoryViews.PackSimple(activeLayouts, activeLabels, baseOf
     wrapIndex = 1
   end
 
+  local firstHit = nil
+  local prevButtonsLayout = nil
+
   local indentFactor = 0.2
   for index, layout in ipairs(activeLayouts) do
     if layout.moveOffscreen then
@@ -101,6 +104,12 @@ function addonTable.CategoryViews.PackSimple(activeLayouts, activeLabels, baseOf
       offsetY = offsetY - layout:GetHeight() - headerPadding
       prevLayout = layout
     elseif layout.type == "category" and #layout.buttons > 0 then
+      if not firstHit then
+        firstHit = layout.buttons[1]
+      else
+        addonTable.Gamepad.LinkButtons(layout.buttons[1], "Left", prevButtonsLayout.buttons[#prevButtonsLayout.buttons])
+      end
+      prevButtonsLayout = layout
       offsetXRoot = math.max(#layout.section - 1, 0) * (iconSize * indentFactor + iconPadding)
       table.insert(categoriesInRow, {layout = layout, label = activeLabels[index], level = math.max(0, #layout.section - 1), rootLimit = math.ceil(math.max(math.log(#layout.buttons)/math.log(3), 1)), goldenLimit = math.max(math.floor(math.sqrt(#layout.buttons/1.618)), 1)})
       local oldWrapIndex = wrapIndex
@@ -181,5 +190,5 @@ function addonTable.CategoryViews.PackSimple(activeLayouts, activeLabels, baseOf
     addonTable.Utilities.DebugOutput("category pack", debugprofilestop() - start)
   end
 
-  return maxWidth, -offsetY - headerPadding + bottomSpacing
+  return maxWidth, -offsetY - headerPadding + bottomSpacing, firstHit
 end

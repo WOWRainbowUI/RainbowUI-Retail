@@ -163,8 +163,18 @@ local function FlowButtonsRows(self, rowWidth)
     end
   end
   local iconPaddingScaled = iconPadding * 37 / iconSize
+  local buttonsByRow = {}
   for _, button in ipairs(self.buttons) do
+    buttonsByRow[rows] = buttonsByRow[rows] or {}
+    buttonsByRow[rows][cols] = button
     button:SetPoint("TOPLEFT", self, cols * (37 + iconPaddingScaled), - rows * (37 + iconPaddingScaled))
+
+    if rows > 0 and buttonsByRow[rows - 1][cols] then
+      addonTable.Gamepad.LinkButtons(button, "Up", buttonsByRow[rows - 1][cols])
+    end
+    if cols > 0 and buttonsByRow[rows][cols - 1] then
+      addonTable.Gamepad.LinkButtons(button, "Left", buttonsByRow[rows][cols - 1])
+    end
     button:SetScale(iconSize / 37)
     cols = cols + 1
     if cols >= rowWidth then
@@ -185,9 +195,20 @@ local function FlowButtonsColumns(self, rowWidth)
   local rows, cols = 0, 0
 
   local iconPaddingScaled = iconPadding * 37 / iconSize
+  local buttonsByRow = {}
   for _, button in ipairs(self.buttons) do
+    buttonsByRow[rows] = buttonsByRow[rows] or {}
+    buttonsByRow[rows][cols] = button
     button:SetPoint("TOPLEFT", self, cols * (37 + iconPaddingScaled), - rows * (37 + iconPaddingScaled))
     button:SetScale(iconSize / 37)
+
+    if rows > 0 and buttonsByRow[rows - 1][cols] then
+      addonTable.Gamepad.LinkButtons(button, "Up", buttonsByRow[rows - 1][cols])
+    end
+    if cols > 0 and buttonsByRow[rows][cols - 1] then
+      addonTable.Gamepad.LinkButtons(button, "Left", buttonsByRow[rows][cols - 1])
+    end
+
     rows = rows + 1
     if rows >= columnHeight then
       rows = 0
@@ -913,6 +934,9 @@ function BaganatorLiveCategoryLayoutMixin:ShowGroup(cacheList, rowWidth, categor
       SetItemButtonDesaturated(newButton, (C_Item.DoesItemExist(itemLocation) and C_Item.IsLocked(itemLocation)) or (newButton.BGR and newButton.BGR.persistIconGrey))
     end
     table.insert(self.buttons, newButton)
+    if #self.buttons > 1 then
+      addonTable.Gamepad.LinkButtons(self.buttons[#self.buttons - 1], "Right", newButton)
+    end
   end
 
   self.buttonsByKey = {}

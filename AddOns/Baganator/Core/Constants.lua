@@ -21,7 +21,7 @@ addonTable.Constants = {
 
   MaxPinnedCurrencies = 100,
 
-  IsGamepadInUse = InputUtil and InputUtil.IsGamepadUIEnabled and InputUtil.IsGamepadUIEnabled(),
+  IsGamepadInUse = InputUtil and InputUtil.IsGamepadUIEnabled and InputUtil.IsGamepadUIEnabled() or false,
 }
 
 addonTable.Constants.IsClassic = addonTable.Constants.IsClassic and not addonTable.Constants.IsForever

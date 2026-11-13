@@ -119,6 +119,7 @@ function addonTable.SingleViews.ArrangeCollapsibles(activeCollapsibles, originBa
 
   local lastCollapsible
   local addedHeight = 0
+  local prevOrigin = originBag
   for index, layout in ipairs(activeCollapsibles) do
     local key = originCollapsibles[index].key
     local hidden = addonTable.Config.Get(addonTable.Config.Options.HIDE_SPECIAL_CONTAINER)[key]
@@ -130,6 +131,8 @@ function addonTable.SingleViews.ArrangeCollapsibles(activeCollapsibles, originBa
     end
     layout:Show()
     if not hidden then
+      addonTable.Gamepad.LinkButtons(layout.buttons[1], "Up", prevOrigin.buttons[#prevOrigin.buttons])
+      addonTable.Gamepad.LinkButtons(layout.buttons[1], "Left", prevOrigin.buttons[#prevOrigin.buttons])
       divider:SetPoint("BOTTOM", layout, "TOP", 0, topSpacing / 2 + dividerOffset)
       divider:SetPoint("LEFT", layout)
       divider:SetPoint("RIGHT", layout)
@@ -143,6 +146,7 @@ function addonTable.SingleViews.ArrangeCollapsibles(activeCollapsibles, originBa
         end
         lastCollapsible = layout
       end
+      prevOrigin = layout
     end
   end
   return addedHeight + endPadding

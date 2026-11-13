@@ -439,7 +439,6 @@ function addonTable.CategoryViews.BagLayoutMixin:Display(bagWidth, bagIndexes, b
       end
     elseif details.type == "category" then
       if #details.results > 0 and not hidden[details.source] then
-        local searchResults = details.results
         local layout = layoutsBySource[details.sourceKey]
         if not layout then
           layout = table.remove(unusedLayouts)
@@ -523,9 +522,9 @@ function addonTable.CategoryViews.BagLayoutMixin:Layout(allBags, bagWidth, bagTy
   local function Next()
     if index > #calls then
       if #calls > 0 or refreshState[addonTable.Constants.RefreshReason.Cosmetic] or refreshState[addonTable.Constants.RefreshReason.ItemWidgets] or refreshState[addonTable.Constants.RefreshReason.ItemTextures] or refreshState[addonTable.Constants.RefreshReason.Layout] then
-        self.state.maxWidth, self.state.maxHeight = self:Display(bagWidth, bagIndexes, bagTypes, CopyTable(self.state.composed), self.state.emptySlotsOrder, self.state.emptySlotsByType, bagWidth, sideSpacing, topSpacing)
+        self.state.maxWidth, self.state.maxHeight, self.firstHit = self:Display(bagWidth, bagIndexes, bagTypes, CopyTable(self.state.composed), self.state.emptySlotsOrder, self.state.emptySlotsByType, bagWidth, sideSpacing, topSpacing)
       end
-      callback(self.state.maxWidth, self.state.maxHeight)
+      callback(self.state.maxWidth, self.state.maxHeight, self.firstHit)
     else
       index = index + 1
       calls[index - 1]()

@@ -139,6 +139,8 @@ function BaganatorSingleViewBackpackViewMixin:UpdateForCharacter(character, isLi
     tAppendAll(self.AllButtons, self.AllFixedButtons)
     tAppendAll(self.AllButtons, self.TopButtons)
 
+    self.SearchWidget:LinkDown(activeBag.buttons[1])
+
     local lastButton = self.CurrencyButton
     lastButton:SetPoint("BOTTOM", self, "BOTTOM", 0, 6)
     lastButton:SetPoint("LEFT", self.Container, -2, 0)
@@ -171,6 +173,11 @@ function BaganatorSingleViewBackpackViewMixin:UpdateForCharacter(character, isLi
 
   if self.refreshState[addonTable.Constants.RefreshReason.Layout] then
     self.CurrencyWidget:UpdateCurrencyTextPositions(self.Container:GetWidth() - self.buttonsWidth - 10, self.Container:GetWidth())
+  end
+
+  if self.showing then
+    addonTable.Gamepad.SetTargetButton(self, activeBag.buttons[1])
+    self.showing = false
   end
 
   addonTable.CallbackRegistry:TriggerEvent("ViewComplete")

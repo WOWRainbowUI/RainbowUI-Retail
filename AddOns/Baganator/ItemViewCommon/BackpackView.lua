@@ -21,6 +21,17 @@ function BaganatorItemViewCommonBackpackViewMixin:OnLoad()
   self:SetClampedToScreen(true)
   self:SetUserPlaced(false)
 
+  if addonTable.Constants.IsGamepadInUse then
+    self.layoutType = "ButtonFrameTemplateNoPortrait"
+    self.FrameGlow = CreateFrame("Frame", nil, self, "FrameGlowTemplate")
+  end
+  for _, b in ipairs(self.AllFixedButtons) do
+    addonTable.Gamepad.OneWayLink(b, "Down", self.SearchWidget)
+  end
+  for _, b in ipairs(self.TopButtons) do
+    addonTable.Gamepad.LinkButtons(b, "Down", self.SearchWidget.SearchBox)
+  end
+
   self.liveItemButtonPool = addonTable.ItemViewCommon.GetLiveItemButtonPool(self)
 
   self.Anchor = addonTable.ItemViewCommon.GetAnchorSetter(self, addonTable.Config.Options.MAIN_VIEW_POSITION)
@@ -130,13 +141,14 @@ function BaganatorItemViewCommonBackpackViewMixin:OnShow()
       self:CombineStacksAndSort()
     end)
   end
-  addonTable.ItemViewCommon.SetGamepadTrap(true, self)
   PlaySound(SOUNDKIT.IG_BACKPACK_OPEN);
+  addonTable.Gamepad.AnnounceShow(self)
+  self.showing = true
 end
 
 function BaganatorItemViewCommonBackpackViewMixin:OnHide()
   PlaySound(SOUNDKIT.IG_BACKPACK_CLOSE);
-  addonTable.ItemViewCommon.SetGamepadTrap(false, self)
+  addonTable.Gamepad.AnnounceHide(self)
 end
 
 function BaganatorItemViewCommonBackpackViewMixin:SetLiveCharacter(character)
@@ -219,6 +231,7 @@ function BaganatorItemViewCommonBackpackViewMixin:UpdateForCharacter(character, 
 
   self.SortButton:SetShown(addonTable.Utilities.ShouldShowSortButton() and isLive)
   self:UpdateTransferButton()
+  addonTable.Gamepad.LinkButtons(self.CustomiseButton, "Left", self.SortButton:IsShown() and self.SortButton or self.ToggleBagSlotsButton)
 
   local sideSpacing, topSpacing = addonTable.Utilities.GetSpacing()
 
@@ -285,11 +298,14 @@ function BaganatorItemViewCommonBackpackViewMixin:UpdateTransferButton()
   for _, info in ipairs(addonTable.BagTransfers) do
     if info.condition() then
       self.TransferButton:Show()
+      addonTable.Gamepad.LinkButtons(self.SortButton, "Left", self.TransferButton)
+      addonTable.Gamepad.LinkButtons(self.TransferButton, "Left", self.ToggleBagSlotsButton)
       self.TransferButton.tooltipText = info.tooltipText
       return
     end
   end
   self.TransferButton:Hide()
+  addonTable.Gamepad.LinkButtons(self.SortButton, "Left", self.ToggleBagSlotsButton)
 end
 
 function BaganatorItemViewCommonBackpackViewMixin:IsTransferActive()
@@ -376,6 +392,14 @@ end
 
 function BaganatorItemViewCommonBackpackViewMixin:GetExternalSortMethodName()
   return addonTable.Utilities.GetExternalSortMethodName()
+end
+
+function BaganatorItemViewCommonBackpackViewMixin:StartFocus()
+  self.FrameGlow:Show()
+end
+
+function BaganatorItemViewCommonBackpackViewMixin:EndFocus()
+  self.FrameGlow:Hide()
 end
 
 if table.freeze then

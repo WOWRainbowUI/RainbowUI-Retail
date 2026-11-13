@@ -179,7 +179,7 @@ function BaganatorCategoryViewBackpackViewMixin:UpdateForCharacter(character, is
   local bagTypes = addonTable.CategoryViews.Utilities.GetBagTypes(characterData, "bags", Syndicator.Constants.AllBagIndexes)
   local bagWidth = addonTable.Config.Get(addonTable.Config.Options.BAG_VIEW_WIDTH)
 
-  self.LayoutManager:Layout(characterData.bags, bagWidth, bagTypes, Syndicator.Constants.AllBagIndexes, sideSpacing, topSpacing, function(maxWidth, maxHeight)
+  self.LayoutManager:Layout(characterData.bags, bagWidth, bagTypes, Syndicator.Constants.AllBagIndexes, sideSpacing, topSpacing, function(maxWidth, maxHeight, firstVisible)
     self.Container:SetSize(
       math.max(addonTable.CategoryViews.Utilities.GetMinWidth(bagWidth), maxWidth),
       maxHeight
@@ -216,6 +216,13 @@ function BaganatorCategoryViewBackpackViewMixin:UpdateForCharacter(character, is
     end
 
     self.refreshState = {}
+
+    if self.showing then
+      addonTable.Gamepad.SetTargetButton(self, firstVisible)
+      self.showing = false
+    end
+
+    self.SearchWidget:LinkDown(firstVisible)
 
     addonTable.CallbackRegistry:TriggerEvent("ViewComplete")
   end)
