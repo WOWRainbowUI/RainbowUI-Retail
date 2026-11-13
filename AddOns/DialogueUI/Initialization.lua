@@ -1,5 +1,5 @@
-local VERSION_TEXT = "v1.0.7-b";
-local VERSION_DATE = 1793870000;
+local VERSION_TEXT = "v1.0.7-c";
+local VERSION_DATE = 1794400000;
 
 
 local addonName, addon = ...
@@ -21,13 +21,17 @@ local DefaultValues = {
     FrameOrientation = 2,                       --1:Left  2:Right(Default)
     HideUI = true,
         ShowChatWindow = true,
+        ShowEXPBar = true,
         HideOutlineSparkles = true,
         HideUnitNames = false,
+        HideUI_EnhancedMode = false,
     ShowCopyTextButton = false,
     ShowNPCNameOnPage = false,
     QuestDifficultyStyle = 1,
+    ShowForeverQuestIcon = true,
+    ShowUpgradeArrow = true,
     MarkHighestSellPrice = false,
-    QuestTypeText = false,
+    --QuestTypeText = false,                    --Removed due to Daily/Weekly QuestClassification changes
     SimplifyCurrencyReward = false,
     UseRoleplayName = false,
     UseBlizzardTooltip = false,
