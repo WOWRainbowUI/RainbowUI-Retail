@@ -18,7 +18,7 @@
 ## LoadOnDemand: 0
 ## DefaultState: enabled
 ## Author: MysticalOS, QartemisT
-## Version: 12.1.20
+## Version: 12.1.21
 ## X-Curse-Project-ID: 3358
 ## X-Wago-ID: qv633o6b
 ## X-Website: https://deadlybossmods.com
@@ -88,6 +88,7 @@ modules\objects\BossMod.lua
 modules\objects\BossModOptions.lua
 modules\objects\BossModEventDispatcher.lua
 modules\objects\Localization.lua
+modules\objects\EncounterLocales.lua
 VoicePackSounds.lua
 modules\objects\VoicePacks.lua
 modules\objects\Timer.lua

@@ -42,7 +42,7 @@ end
 
 ---@param priority number?
 function DBM:UpdateZoneAuraAnchors(priority)
-	if not private.isRetail then
+	if not private.isRetail and not private.isForever then
 		return
 	end
 	local auraHandler = DBM.Auras
@@ -102,12 +102,12 @@ do
 					end
 				end
 			--Classic raid Handling
-			elseif classicZones[mapID] or ((mapID == 249 or mapID == 533) and private.isClassic) then
+			elseif classicZones[mapID] or ((mapID == 249 or mapID == 533) and (private.isClassic or private.isForever)) then
 				if not C_AddOns.DoesAddOnExist("DBM-Raids-Vanilla") then
-					AddMsg(self, L.MOD_AVAILABLE:format("DBM Vanilla/SoD mods"), nil, private.isClassic)--Play sound only in Vanilla
+					AddMsg(self, L.MOD_AVAILABLE:format("DBM Vanilla/SoD mods"), nil, private.isClassic or private.isForever)--Play sound only in Vanilla
 				end
 				--Show extra annoying popup in current content that's non trivial in classic or BRD raild on retail
-				if private.isClassic or mapID == 2792 then
+				if private.isClassic or private.isForever or mapID == 2792 then
 					self:AnnoyingPopupCheckZone(mapID, "Vanilla")
 				end
 			--TBC raid Handling
@@ -118,7 +118,7 @@ do
 					self:AnnoyingPopupCheckZone(mapID, "BCC") -- Show extra annoying popup in current content that's non trivial in classic or BRD raild on retail
 				end
 			--Wrath raid Handling
-			elseif wrathZones[mapID] and not private.isClassic then
+			elseif wrathZones[mapID] and not private.isClassic and not private.isForever then
 				if not C_AddOns.DoesAddOnExist("DBM-Raids-WoTLK") then
 					AddMsg(self, L.MOD_AVAILABLE:format("DBM Wrath of the Lich King mods"), nil, private.isWrath)--Play sound only in wrath
 				end
@@ -429,7 +429,7 @@ do
 	---@param self DBM
 	---@param mapID number
 	local function syncZoneAuraSounds(self, mapID)
-		if not private.isRetail then
+		if not private.isRetail and not private.isForever then
 			return
 		end
 		if InCombatLockdown() or #inCombat > 0 then
@@ -453,7 +453,7 @@ do
 
 	---@param self DBM
 	function private.onZonePlayerRegenEnabled(self)
-		if not private.isRetail then
+		if not private.isRetail and not private.isForever then
 			return
 		end
 		if pendingPASoundZoneSync then
@@ -521,7 +521,7 @@ do
 		if self.BattleRezTimer then
 			self.BattleRezTimer:CheckSupported()
 		end
-		if private.isRetail then
+		if private.isRetail or private.isForever then
 			--Handle private aura sounds and anchors
 			syncZoneAuraSounds(self, mapID)
 			self:UpdateZoneAuraAnchors(1)

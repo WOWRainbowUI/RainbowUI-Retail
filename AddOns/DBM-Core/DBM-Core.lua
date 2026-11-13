@@ -83,14 +83,14 @@ local function showRealDate(curseDate)
 	end
 end
 
-DBM.Revision = parseCurseDate("20261107040814")
+DBM.Revision = parseCurseDate("20261112053816")
 private.fakeBWVersion, private.fakeBWHash = 427, "fe75de4"--427.7
 
 -- The string that is shown as version
-DBM.DisplayVersion = "12.1.20"--Core version
+DBM.DisplayVersion = "12.1.21"--Core version
 DBM.classicSubVersion = 0
 DBM.dungeonSubVersion = 0
-DBM.ReleaseRevision = releaseDate(2026, 11, 6) -- the date of the latest stable version that is available, optionally pass hours, minutes, and seconds for multiple releases in one day
+DBM.ReleaseRevision = releaseDate(2026, 11, 11) -- the date of the latest stable version that is available, optionally pass hours, minutes, and seconds for multiple releases in one day
 DBM.HighestRelease = DBM.ReleaseRevision --Updated if newer version is detected, used by update nags to reflect critical fixes user is missing on boss pulls
 
 -- support for github downloads, which doesn't support curse keyword expansion
@@ -1773,6 +1773,8 @@ do
 			if not self.Options.HasShownMidnightPopup then
 				DBM.MidnightPopup:ShowMidnightPopup()
 			end
+		end
+		if private.isRetail or private.isForever then
 			--GetSpecialization can be unavailable during the initial reload-time aura update, leaving a fallback spec cached.
 			--Refresh it here and rebuild anchors so Auto co-tank auras use the now-available tank role.
 			self:SetCurrentSpecInfo()
@@ -1794,7 +1796,7 @@ do
 		if modname == "DBM-Core" and not isLoaded then
 			--Establish a classic sub mod version for version checks and out of date notification/checking
 			if not private.isRetail then
-				local checkedRaidmodule = private.isMop and "DBM-Raids-MoP" or private.isCata and "DBM-Raids-Cata" or private.isWrath and "DBM-Raids-WoTLK" or private.isBCC and "DBM-Raids-BC" or private.isClassic and "DBM-Raids-Vanilla"
+				local checkedRaidmodule = private.isMop and "DBM-Raids-MoP" or private.isCata and "DBM-Raids-Cata" or private.isWrath and "DBM-Raids-WoTLK" or private.isBCC and "DBM-Raids-BC" or (private.isClassic or private.isForever) and "DBM-Raids-Vanilla"
 				if checkedRaidmodule and C_AddOns.DoesAddOnExist(checkedRaidmodule) then
 					local version = C_AddOns.GetAddOnMetadata(checkedRaidmodule, "Version") or "r0"
 					DBM.classicSubVersion = tonumber(string.sub(version, 2, 4)) or 0
@@ -5336,7 +5338,7 @@ function bossModPrototype:ReceiveSync(event, sender, revision, ...)
 	end
 end
 
----@param revision number|string Either a number in the format "202101010000" (year, month, day, hour, minute) or string "20261107040814" to be auto set by packager
+---@param revision number|string Either a number in the format "202101010000" (year, month, day, hour, minute) or string "20261112053816" to be auto set by packager
 function bossModPrototype:SetRevision(revision)
 	revision = parseCurseDate(revision or "")
 	if not revision or type(revision) == "string" then
