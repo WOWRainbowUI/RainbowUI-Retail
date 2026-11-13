@@ -79,7 +79,6 @@ Pawn 사용자 설정의 더 자세한 정보는, 애드온에 포함된 help �
 		["AgilityInfo"] = "민첩성. 몇몇 직업의 전투력을 증가시킵니다.",
 		["ApInfo"] = "Attack Power.  Increases the damage of physical attacks.  Does not include attack power gained from strength and agility.",
 		["ArcaneResistInfo"] = "Arcane Resistance.  Reduces the damage taken from arcane-based attacks.",
-		["ArcaneSpellDamage"] = "비전 주문 공격력",
 		["ArcaneSpellDamageInfo"] = "Arcane damage.  Increases the damage dealt by your arcane spells.",
 		["ArmorInfo"] = "방어도. 받는 물리 피해를 감소시킵니다.",
 		["ArmorPenetrationInfo"] = "갑옷 관통. 일부 물리적 공격 피해가 갑옷을 무시하도록합니다.",
@@ -91,7 +90,6 @@ Pawn 사용자 설정의 더 자세한 정보는, 애드온에 포함된 help �
 		["ClothInfo"] = "천 아이템일 경우 할당합니다.",
 		--[[Translation missing --]]
 		["CorruptionInfo"] = "Corruption of N'Zoth.  A negative value for Corruption will remove points from an item's score based on the level of corruption.",
-		["Crit"] = "치명타 및 극대화",
 		["CritInfo"] = "치명타 및 극대화. 공격이나 치유 주문이 증가한 효과로 적중될 확률을 증가시킵니다.",
 		["DefenseInfo"] = "Defense skill.  Decreases the chance that you'll be hit by boss attacks.",
 		["DodgeInfo"] = "Dodge.  Increases the chance that you'll dodge attacks entirely.",
@@ -101,16 +99,12 @@ Pawn 사용자 설정의 더 자세한 정보는, 애드온에 포함된 help �
 		["ExpertiseInfo"] = "Expertise. Negates your enemy's chances to dodge and parry.",
 		["FeralApInfo"] = "Feral Attack Power.  Increases the damage of druid attacks when in feral forms.  Does not include attack power gained from strength and agility.",
 		["FireResistInfo"] = "Fire Resistance.  Reduces the damage taken from fire-based attacks.",
-		["FireSpellDamage"] = "화염 주문 공격력",
 		["FireSpellDamageInfo"] = "Fire damage.  Increases the damage dealt by your fire spells.",
 		["FrostResistInfo"] = "Frost Resistance.  Reduces the damage taken from frost-based attacks.",
-		["FrostSpellDamage"] = "냉기 주문 공격력",
 		["FrostSpellDamageInfo"] = "Frost damage.  Increases the damage dealt by your frost spells.",
 		["HasteInfo"] = "가속. 주문 시전이나 자원 회복 속도를 증가시킵니다.",
-		["Healing"] = "치유 효과 증가",
 		["HealingInfo"] = "Spell healing.  Increases the power of your healing spells.",
 		["HitInfo"] = "Hit.  Increases the chance that your physical attacks hit the target, especially bosses.",
-		["HolySpellDamage"] = "Holy Damage",
 		["HolySpellDamageInfo"] = "Holy damage.  Increases the damage dealt by your holy spells.",
 		["Hp5Info"] = "Health regeneration per 5 seconds.  Increases the rate at which you regenerate health.",
 		["IndestructibleInfo"] = "파괴불가. 장비의 내구도 감소를 방지합니다.",
@@ -129,7 +123,6 @@ Pawn 사용자 설정의 더 자세한 정보는, 애드온에 포함된 help �
 		["Mp5Info"] = "Mana regeneration per 5 seconds.  Affects your mana regeneration even when in combat.",
 		["MultistrikeInfo"] = "Multistrike. Increases the chance that your attacks and healing spells will hit your target two extra times at reduced potency.",
 		["NatureResistInfo"] = "Nature Resistance.  Reduces the damage taken from nature-based attacks.",
-		["NatureSpellDamage"] = "자연 주문 공격력",
 		["NatureSpellDamageInfo"] = "Nature damage.  Increases the damage dealt by your nature spells.",
 		["ParryInfo"] = "Parry.  Increases the chance that you'll parry enemy attacks.",
 		["Plate"] = "판금",
@@ -139,7 +132,6 @@ Pawn 사용자 설정의 더 자세한 정보는, 애드온에 포함된 help �
 		--[[Translation missing --]]
 		["ResilienceInfo"] = "Resilience. Reduces the chance that you'll be critically hit, and decreases the damage of critical hits that you do take.",
 		["ShadowResistInfo"] = "Shadow Resistance.  Reduces the damage taken from shadow-based attacks.",
-		["ShadowSpellDamage"] = "암흑 주문 공격력",
 		["ShadowSpellDamageInfo"] = "Shadow damage.  Increases the damage dealt by your shadow spells.",
 		["Shield"] = "방패",
 		["ShieldInfo"] = "방패 아이템일 경우 할당합니다.",
@@ -151,7 +143,6 @@ Pawn 사용자 설정의 더 자세한 정보는, 애드온에 포함된 help �
 		["SpeedInfo"] = "자동 공격 당 초 단위의 무기 속도. (빠른 무기를 선호한다면, 이 숫자는 낮아야 합니다. 참고: \"특별한 무기 능력치\" 영역의 \"속도 기준\")",
 		["SpeedIs"] = "|cffffffff공격 속도|r 1초 의 가치:",
 		["SpellCritInfo"] = "Spell critical strike.  Increases the chance that your spells will hit with increased potency.",
-		["SpellDamage"] = "Spell Damage",
 		["SpellDamageInfo"] = "Spell damage.  Increases the damage dealt by your offensive spells.",
 		["SpellHitInfo"] = "Spell Hit.  Increases the chance that your damaging spells hit the target, especially bosses.",
 		--[[Translation missing --]]
@@ -494,6 +485,7 @@ Pawn이 상점에 판매했거나, 파괴했거나, 다른 방법으로 더이�
 
 PawnLocal.TooltipParsing = {
 	["Agility"] = "^민첩성 %+?#$",
+	["AllResist"] = "^모든 저항 %+?#$",
 	["AllStats"] = "^모든 능력치 %+?#$",
 	["Ap"] = "^전투력 %+?#$",
 	["Ap2"] = "^착용 효과: 전투력 %+#$",
@@ -516,6 +508,7 @@ PawnLocal.TooltipParsing = {
 	["BlockRating"] = "^착용 효과: 방패 막기 숙련도가 #만큼 증가합니다%.$",
 	["BlockRating2"] = "^UNUSED$",
 	["BlockValue"] = "^착용 효과: 방패의 피해 방어량이 #만큼 증가합니다%.$",
+	["BlockValueForever"] = "^UNUSED$",
 	["Bow"] = "^활$",
 	["ChanceOnHit"] = "발동 효과:",
 	["Charges"] = "^.+회 사용 가능$",
@@ -589,6 +582,7 @@ PawnLocal.TooltipParsing = {
 	["Healing"] = "^치유 효과 증가 %+#$",
 	["Healing2"] = "^착용 효과: 모든 주문 및 효과에 의한 치유량이 최대 #만큼 증가합니다%.$",
 	["Healing3"] = "^주문 치유량 %+#$",
+	["Healing4"] = "^착용 효과: 마법 주문과 효과에 의한 치유량이 최대 #만큼 증가합니다%.$",
 	["HeirloomLevelRange"] = "^요구 레벨: %d+ %~ (%d+)",
 	["HeirloomXpBoost"] = "^착용 효과: 경험치 획득량이",
 	["HeirloomXpBoost2"] = "^착용 효과: 몬스터 처치와 퀘스트 완료로 얻는 경험치가",
@@ -689,6 +683,7 @@ PawnLocal.TooltipParsing = {
 	["SpellHitRatingShort"] = "^주문 적중도 %+#$",
 	["SpellPenetration"] = "^착용 효과: 주문 관통력이 #만큼 증가합니다%.$",
 	["SpellPenetrationClassic"] = "^착용 효과: 자신의 주문에 대한 대상의 마법 저항력을 #만큼 감소시킵니다%.$",
+	["SpellPenetrationForever"] = "^착용 효과: 주문이 마법 저항력을 #만큼 관통합니다%.$",
 	["SpellPenetrationShort"] = "^주문 관통력 %+#$",
 	["SpellPower"] = "^주문력 %+?#$",
 	["SpellPower2"] = "^착용 효과: 주문력이 #만큼 증가합니다%.$",
@@ -758,12 +753,20 @@ if VgerCore.IsForever then
 
 	local TooltipParsing_Forever =
 	{
+		["ArcaneSpellDamage2"] = "^착용 효과: 비전 주문과 효과에 의한 공격력이 최대 #만큼 증가합니다%.$",
 		["Block"] = "^방패 막기 #$",
 		["BlockRating2"] = "^착용 효과: 방패 막기 확률이 #%%만큼 증가합니다%.$",
 		["CritPercentCombined"] = "^착용 효과: 치명타 및 극대화율이 #%%만큼 증가합니다%.$",
+		["FireSpellDamage2"] = "^착용 효과: 화염 주문과 효과에 의한 공격력이 최대 #만큼 증가합니다%.$",
+		["FrostSpellDamage2"] = "^착용 효과: 냉기 주문과 효과에 의한 공격력이 최대 #만큼 증가합니다%.$",
 		["HitPercentCombined"] = "^착용 효과: 적중률이 #%%만큼 증가합니다%.$",
+		["HolySpellDamage2"] = "^착용 효과: 신성 주문과 효과에 의한 공격력이 최대 #만큼 증가합니다%.$",
 		["Hp5"] = "^착용 효과: 5초마다 #의 생명력을 회복합니다%.",
 		["Mp5"] = "^착용 효과: 5초마다 #의 마나를 회복합니다%.$",
+		["NatureSpellDamage2"] = "^착용 효과: 자연 주문 및 효과의 공격력이 최대 #만큼 증가합니다%.$",
+		["ShadowSpellDamage2"] = "^착용 효과: 암흑 주문과 효과에 의한 공격력이 최대 #만큼 증가합니다%.$",
+		["SpellDamageAndHealing"] = "^착용 효과: 모든 마법 주문 및 효과에 의한 치유량이 최대 #만큼, 주문 공격력이 최대 #만큼 증가합니다%.$",
+		["SpellDamage3"] = "^착용 효과: 마법 주문 및 효과로 입히는 피해와 치유량이 최대 #만큼 증가합니다%.$",
 	}
 
 	local Key, NewString

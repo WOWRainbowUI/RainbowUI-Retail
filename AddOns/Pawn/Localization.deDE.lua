@@ -78,7 +78,6 @@ Weitere Informationen zur Anpassung von Pawn findet ihr in der Hilfedatei (Readm
 		["AgilityInfo"] = "Beweglichkeit. Verstärkt Eure Angriffe und Fähigkeiten.",
 		["ApInfo"] = "Angriffskraft. Erhöht den Schaden von physischen Angriffen. Beinhaltet keine Angriffskraft, die durch Stärke und Beweglichkeit gewonnen wird.",
 		["ArcaneResistInfo"] = "Arkanwiderstand. Reduziert den Schaden durch arkane Angriffe.",
-		["ArcaneSpellDamage"] = "Arkanzauberschaden",
 		["ArcaneSpellDamageInfo"] = "Arkanzauberschaden. Erhöht den durch deine arkanen Zauber verursachten Schaden.",
 		["ArmorInfo"] = "Rüstung.  Körperliche Schadensreduktion.",
 		["ArmorPenetrationInfo"] = "Rüstungsdurchdringung. Bewirkt, dass ein Teil Ihres physischen Angriffsschadens Rüstung ignoriert.",
@@ -89,7 +88,6 @@ Weitere Informationen zur Anpassung von Pawn findet ihr in der Hilfedatei (Readm
 		["Cloth"] = "Stoff",
 		["ClothInfo"] = "Punkte, die zugewiesen werden sollen, wenn der Gegenstand Stoff ist.",
 		["CorruptionInfo"] = "Verderbtheit von N'Zoth. Ein negativer Wert für \"Verderbnis\" entfernt Punkte aus der Punktzahl eines Elements basierend auf der Verderbnisstufe.",
-		["Crit"] = "Krit",
 		["CritInfo"] = "Kritische Treffer.  Chance, dass Angriffe und Heilungen stärkere Wirkung haben.",
 		["DefenseInfo"] = "Verteidigungsfähigkeit. Verringert die Wahrscheinlichkeit, dass du von Boss-Angriffen getroffen wirst.",
 		["DodgeInfo"] = "Ausweichen. Erhöht die Wahrscheinlichkeit, dass du Angriffen vollständig ausweichst.",
@@ -97,16 +95,12 @@ Weitere Informationen zur Anpassung von Pawn findet ihr in der Hilfedatei (Readm
 		["ExpertiseInfo"] = "Geschick. Macht die Chancen deines Feindes, auszuweichen und zu parieren,  zunichte.",
 		["FeralApInfo"] = "Wilde Angriffskraft. Erhöht den Schaden von Druidenangriffen in wilder Form. Beinhaltet keine Angriffskraft, die durch Stärke und Beweglichkeit gewonnen wird.",
 		["FireResistInfo"] = "Feuerwiderstand. Reduziert den Schaden durch feuerbasierte Angriffe.",
-		["FireSpellDamage"] = "Feuerzauberschaden",
 		["FireSpellDamageInfo"] = "Feuerzauberschaden. Erhöht den durch deine Feuerzauber verursachten Schaden.",
 		["FrostResistInfo"] = "Frostwiderstand. Reduziert den Schaden durch frostbasierte Angriffe.",
-		["FrostSpellDamage"] = "Frostzauberschaden",
 		["FrostSpellDamageInfo"] = "Frostzauberschaden. Erhöht den durch deine Frostzauber verursachten Schaden.",
 		["HasteInfo"] = "Tempo.  Erhöht Angriffs- und Zaubertempo.",
-		["Healing"] = "Zauberheilung",
 		["HealingInfo"] = "Zauberheilung. Erhöht die Kraft deiner Heilzauber.",
 		["HitInfo"] = "Trefferwert. Erhöht die Wahrscheinlichkeit, dass deine physischen Angriffe das Ziel treffen, insbesondere Bosse.",
-		["HolySpellDamage"] = "Heiligzauberschaden",
 		["HolySpellDamageInfo"] = "Heiligzauberschaden. Erhöht den durch deine heiligen Zauber verursachten Schaden.",
 		["Hp5Info"] = "Gesundheitsregeneration alle 5 Sekunden. Erhöht die Geschwindigkeit, mit der du deine Gesundheit regenerierst.",
 		["IndestructibleInfo"] = "Unzerstörbar.  Verhindert, dass Ihre Ausrüstung dauerhaften Schaden nimmt.",
@@ -125,7 +119,6 @@ Weitere Informationen zur Anpassung von Pawn findet ihr in der Hilfedatei (Readm
 		["Mp5Info"] = "Manaregeneration pro 5 Sekunden. Beeinflusst deine Manaregeneration auch im Kampf.",
 		["MultistrikeInfo"] = "Bereitschaft. Erhöht die Chance, dass Ihre Angriffe und Heilzauber Ihr Ziel extra zweimal bei reduzierter Wirksamkeit getroffen werden.",
 		["NatureResistInfo"] = "Naturwiderstand. Reduziert den Schaden durch naturbasierte Angriffe.",
-		["NatureSpellDamage"] = "Naturzauberschaden",
 		["NatureSpellDamageInfo"] = "Naturzauberschaden. Erhöht den durch deine Naturzauber verursachten Schaden.",
 		["ParryInfo"] = "Parieren. Erhöht die Wahrscheinlichkeit, dass du feindliche Angriffe abwehrst.",
 		["Plate"] = "Platte",
@@ -134,7 +127,6 @@ Weitere Informationen zur Anpassung von Pawn findet ihr in der Hilfedatei (Readm
 		["RapInfo"] = "Distanzangriffskraft. Erhöht den Schaden von physischen Distanzangriffen. Beinhaltet keine Angriffskraft, die durch Beweglichkeit gewonnen wird.",
 		["ResilienceInfo"] = "Elastizität. Verringert die Wahrscheinlichkeit, dass du kritisch getroffen wirst, und verringert den Schaden kritischer Treffer, die du erleidest.",
 		["ShadowResistInfo"] = "Schattenwiderstand. Reduziert den Schaden durch schattenbasierte Angriffe.",
-		["ShadowSpellDamage"] = "Schattenzauberschaden",
 		["ShadowSpellDamageInfo"] = "Schattenzauberschaden. Erhöht den durch deine Schattenzauber verursachten Schaden.",
 		["Shield"] = "Schild",
 		["ShieldInfo"] = "Punkte, die zugewiesen werden sollen, wenn der Gegenstand ein Schild ist.",
@@ -146,7 +138,6 @@ Weitere Informationen zur Anpassung von Pawn findet ihr in der Hilfedatei (Readm
 		["SpeedInfo"] = "Waffenschaden pro Sekunde.  (Wenn du schnelle Waffen bevorzugst, dann sollte diese Nummer negativ sein. Siehe auch \"Tempogrundwert\" im Bereich \"Spezielle Waffenwertungen\".)",
 		["SpeedIs"] = "1 Sekunde |cffffffffWaffentempo|r entspricht:",
 		["SpellCritInfo"] = "Kritische Zaubertreffer. Erhöht die Wahrscheinlichkeit, dass deine Zauber mit erhöhter Potenz getroffen werden.",
-		["SpellDamage"] = "Zauberschaden",
 		["SpellDamageInfo"] = "Zauberschaden. Erhöht den durch deine Angriffszauber verursachten Schaden.",
 		["SpellHitInfo"] = "Zaubertreffer. Erhöht die Wahrscheinlichkeit, dass deine Schadenszauber das Ziel treffen, insbesondere Bosse.",
 		["SpellPenetrationInfo"] = "Zauberdurchdringung. Macht die Widerstände eines Feindes gegen deine Zauber zunichte.",
@@ -471,6 +462,7 @@ Weitere Informationen zu dieser Einstellung findest du in der Readme-Datei.]=],
 
 PawnLocal.TooltipParsing = {
 	["Agility"] = "^%+?# Beweglichkeit$",
+	["AllResist"] = "^%+?# zu allen Widerstandsarten$",
 	["AllStats"] = "^%+?# [Aa]lle [Ww]erte$",
 	["Ap"] = "^%+?# Angriffskraft$",
 	["Ap2"] = "^Anlegen: %+# Angriffskraft%.$",
@@ -493,6 +485,7 @@ PawnLocal.TooltipParsing = {
 	["BlockRating"] = "^Anlegen: Erhöht Eure Blockwertung um #%.$",
 	["BlockRating2"] = "^UNUSED$",
 	["BlockValue"] = "^Anlegen: Erhöht den Blockwert Eures Schildes um #%.$",
+	["BlockValueForever"] = "^UNUSED$",
 	["Bow"] = "^Bogen$",
 	["ChanceOnHit"] = "Trefferchance:",
 	["Charges"] = "^.+ Ladungen?$",
@@ -565,6 +558,7 @@ PawnLocal.TooltipParsing = {
 	["Healing"] = "^%+# Heilzauber$",
 	["Healing2"] = "^Anlegen: Erhöht durch Zauber und Effekte verursachte Heilung um bis zu #%.$",
 	["Healing3"] = "^%+# Heilung$",
+	["Healing4"] = "^Anlegen: Erhöht die durch magische Zauber und Effekte verursachte Heilung um bis zu #%.$",
 	["HeirloomLevelRange"] = "^Benötigt Stufe %d+ bis #",
 	["HeirloomXpBoost"] = "^Anlegen: Erhaltene Erfahrung",
 	["HeirloomXpBoost2"] = "^UNUSED$",
@@ -665,6 +659,7 @@ PawnLocal.TooltipParsing = {
 	["SpellHitRatingShort"] = "^%+?# Zaubertrefferwertung$",
 	["SpellPenetration"] = "^Anlegen: Erhöht d?i?e?E?u?r?e? Zauberdurchschlagskraft um #%.$",
 	["SpellPenetrationClassic"] = "^Anlegen: Reduziert die Magiewiderstände der Ziele Eurer Zauber um #%.$",
+	["SpellPenetrationForever"] = "^Anlegen: Eure Zauber durchdringen # Zauberwiderstände%.$",
 	["SpellPenetrationShort"] = "^%+?# Zauberdurchschlagskraft$",
 	["SpellPower"] = "^%+?# Zaubermacht$",
 	["SpellPower2"] = "^Anlegen: Erhöht die Zaubermacht um #%.$",
@@ -714,6 +709,25 @@ end
 if VgerCore.IsClassic or VgerCore.IsForever or VgerCore.IsBurningCrusade or VgerCore.IsWrath or VgerCore.IsCataclysm or VgerCore.IsMists then
 	PawnLocal.TooltipParsing.Speed = "^Tempo #$"
 end
+
+if VgerCore.IsForever then
+	local TooltipParsing_Forever =
+	{
+		["ArcaneSpellDamage2"] = "^Anlegen: Erhöht den von Arkanzaubern und -effekten verursachten Schaden um bis zu #%.$",
+		["FireSpellDamage2"] = "^Anlegen: Erhöht den durch Feuerzauber und %-effekte verursachten Schaden um bis zu #%.$",
+		["FrostSpellDamage2"] = "^Anlegen: Erhöht den durch Frostzauber und %-effekte verursachten Schaden um bis zu #%.$",
+		["HolySpellDamage2"] = "^Anlegen: Erhöht den von Heiligzaubern und %-effekten verursachten Schaden um bis zu #%.$",
+		["NatureSpellDamage2"] = "^Anlegen: Erhöht den durch Naturzauber und %-effekte verursachten Schaden um bis zu #%.$",
+		["ShadowSpellDamage2"] = "^Anlegen: Erhöht den von Schattenzaubern und %-effekten verursachten Schaden um bis zu #%.$",
+		["SpellDamage3"] = "^Anlegen: Erhöht durch magische Zauber und Effekte verursachten Schaden und Heilung um bis zu #%.$",
+	}
+
+	local Key, NewString
+	for Key, NewString in pairs(TooltipParsing_Forever) do
+		PawnLocal.TooltipParsing[Key] = NewString
+	end
+end
+
 PawnLocal.Specs =
 {
     [1] = {
