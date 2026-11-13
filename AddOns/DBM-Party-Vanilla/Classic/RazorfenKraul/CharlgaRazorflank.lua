@@ -1,12 +1,12 @@
 local mod	= DBM:NewMod("CharlgaRazorflank", "DBM-Party-Vanilla", 11)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20261019224209")
+mod:SetRevision("20261109220309")
 if DBM:IsForever() then
 	mod:EnableGenericTrash()
 end
 mod:SetCreatureID(4421)
---mod:SetEncounterID(1661)
+mod:SetEncounterID(2778)
 mod:SetModelID(4642)
 mod:SetZone(47)
 

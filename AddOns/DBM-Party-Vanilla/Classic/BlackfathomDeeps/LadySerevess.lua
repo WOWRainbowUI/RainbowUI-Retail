@@ -1,12 +1,12 @@
 local mod	= DBM:NewMod("LadySerevess", "DBM-Party-Vanilla", 1)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20261019224209")
+mod:SetRevision("20261109220309")
 if DBM:IsForever() then
 	mod:EnableGenericTrash()
 end
 mod:SetCreatureID(4831)
-mod:SetEncounterID(2762)
+mod:SetEncounterID(2762, 2915)--2915 is Forever
 mod:SetModelID(4979)
 mod:SetZone(48)
 

@@ -1,11 +1,12 @@
 local mod	= DBM:NewMod("PyroguardEmberseer", "DBM-Party-Vanilla", DBM:IsCata() and 18 or 4)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20261019224209")
+mod:SetRevision("20261109220309")
 if DBM:IsForever() then
 	mod:EnableGenericTrash()
 end
 mod:SetCreatureID(9816)
+mod:SetEncounterID(3062)
 mod:SetZone(229)
 mod:SetModelID(2172)
 

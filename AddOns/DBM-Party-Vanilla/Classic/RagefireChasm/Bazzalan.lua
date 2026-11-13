@@ -1,12 +1,12 @@
 local mod	= DBM:NewMod("Bazzalan", "DBM-Party-Vanilla", 9)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20261019224209")
+mod:SetRevision("20261109220309")
 if DBM:IsForever() then
 	mod:EnableGenericTrash()
 end
 mod:SetCreatureID(11519)
---mod:SetEncounterID(1445)
+mod:SetEncounterID(2735)
 mod:SetModelID(2007)
 mod:SetZone(389)
 

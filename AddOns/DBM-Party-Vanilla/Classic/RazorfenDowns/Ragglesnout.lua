@@ -1,12 +1,12 @@
 local mod	= DBM:NewMod("Ragglesnout", "DBM-Party-Vanilla", 10)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20261019224209")
+mod:SetRevision("20261109220309")
 if DBM:IsForever() then
 	mod:EnableGenericTrash()
 end
 mod:SetCreatureID(7354)
---mod:SetEncounterID(585)
+mod:SetEncounterID(2783)
 mod:SetModelID(11382)
 mod:SetZone(129)
 

@@ -1,11 +1,12 @@
 local mod	= DBM:NewMod("Hamhock", "DBM-Party-Vanilla", 15)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20261019224209")
+mod:SetRevision("20261109220309")
 if DBM:IsForever() then
 	mod:EnableGenericTrash()
 end
 mod:SetCreatureID(1717)
+mod:SetEncounterID(2758)
 mod:SetZone(34)
 mod:SetModelID(3250)
 

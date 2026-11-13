@@ -41,7 +41,7 @@
 ## X-DBM-Mod-MinExpansion: 1
 ## X-Curse-Project-ID: 314994
 ## X-Wago-ID: xZKxZENk
-## Version: r271
+## Version: r272
 
 localization.en.lua
 localization.cn.lua

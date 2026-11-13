@@ -1,12 +1,12 @@
 local mod	= DBM:NewMod("OldSerrakis", "DBM-Party-Vanilla", 1)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20261019224209")
+mod:SetRevision("20261109220309")
 if DBM:IsForever() then
 	mod:EnableGenericTrash()
 end
 mod:SetCreatureID(4830)
-mod:SetEncounterID(2765)
+mod:SetEncounterID(2765, 2912)--2912 is Forever
 mod:SetModelID(1816)
 mod:SetZone(48)
 

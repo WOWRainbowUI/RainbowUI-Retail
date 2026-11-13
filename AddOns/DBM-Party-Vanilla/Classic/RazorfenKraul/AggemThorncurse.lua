@@ -1,12 +1,12 @@
 local mod	= DBM:NewMod("AggemThorncurse", "DBM-Party-Vanilla", 11)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20261019224209")
+mod:SetRevision("20261109220309")
 if DBM:IsForever() then
 	mod:EnableGenericTrash()
 end
 mod:SetCreatureID(4424)
---mod:SetEncounterID(438)
+mod:SetEncounterID(2774)
 mod:SetModelID(6097)
 mod:SetZone(47)
 

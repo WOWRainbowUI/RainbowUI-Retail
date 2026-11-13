@@ -1,12 +1,12 @@
 local mod	= DBM:NewMod("DeathSpeakerJargba", "DBM-Party-Vanilla", 11)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20261019224209")
+mod:SetRevision("20261109220309")
 if DBM:IsForever() then
 	mod:EnableGenericTrash()
 end
 mod:SetCreatureID(4428)
---mod:SetEncounterID(438)
+mod:SetEncounterID(2775)
 mod:SetModelID(4644)
 mod:SetZone(47)
 

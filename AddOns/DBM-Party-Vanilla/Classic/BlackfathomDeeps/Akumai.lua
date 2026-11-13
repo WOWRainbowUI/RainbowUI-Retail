@@ -1,12 +1,12 @@
 local mod	= DBM:NewMod("Akumai", "DBM-Party-Vanilla", 1)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20261019224209")
+mod:SetRevision("20261109220309")
 if DBM:IsForever() then
 	mod:EnableGenericTrash()
 end
 mod:SetCreatureID(4829)
-mod:SetEncounterID(2767)
+mod:SetEncounterID(2767, 2910)--2910 is Forever
 mod:SetModelID(2837)
 mod:SetZone(48)
 

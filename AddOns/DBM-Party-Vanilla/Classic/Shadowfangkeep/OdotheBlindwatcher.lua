@@ -1,11 +1,12 @@
 local mod	= DBM:NewMod("OdotheBlindwatcher", "DBM-Party-Vanilla", 14)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20261019224209")
+mod:SetRevision("20261109220309")
 if DBM:IsForever() then
 	mod:EnableGenericTrash()
 end
 mod:SetCreatureID(4279)
+mod:SetEncounterID(2752)
 mod:SetZone(33)
 mod:SetModelID(522)
 
