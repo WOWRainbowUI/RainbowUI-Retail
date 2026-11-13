@@ -311,8 +311,6 @@ function AuctionatorSaleItemMixin:UpdateVisuals()
       self.Price.MoneyInput:SetNextEditBox(self.BidPrice.MoneyInput.GoldBox)
     end
 
-    self.Price:SetCopperHidden(Auctionator.Constants.IsForever and not self.itemInfo.isCommodity)
-
   else
     -- No item, reset all the visuals
     self.TitleArea.Text:SetText("")
