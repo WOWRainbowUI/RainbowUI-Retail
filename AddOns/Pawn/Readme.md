@@ -84,6 +84,19 @@ Pawn plays along with most other addons, but there are a few that break Pawn tha
 
 ## Updates
 
+### Version 2.14.2
+
+* Forever: Disabled some hacks that were needed for Classic versions of WoW that don't appear to be necessary for Forever, which should make Pawn work notably faster on Forever.
+* Forever: Includes updated default stat weights for most classes and specs, including increases to the weights of weapon DPS and enhancement shaman stats to account for hotfixes.
+* Forever: Fixed a typo that was causing fire spell damage to get valued 100× the intended amount for fire mages. (For fire mages, even typos crit.)
+* Forever: Added support for many new types of items with various types of spell damage, healing, spell penetration, block value, and all resistances, in all languages.
+* Midnight and Forever: Fixed a minor error that occurred when turning the "Show icons next to tooltips" option on or off. (Thanks Angelo!)
+* Midnight and Forever: Whenever the game occasionally doesn't let Pawn set up its default key bindings when first creating a new character, Pawn will now try again on your second login.
+* Midnight and Forever: Fixed a harmless error that could occur when creating a new character.
+* Burning Crusade: Fixed a typo that was causing Jagged Seaspray Emerald to not be recommended in cases where it would have been useful. (Thanks Krytical!)
+* Items with set bonuses will no longer appear on the Compare tab as having "special effects" in Traditional Chinese.
+* Adjusted the names of several stats on the Values and Compare tabs to match how they appear in game, so players who don't play in English should see more words in their native languages instead of English.
+
 ### Version 2.14.1
 
 * Forever: Includes new default stat weights for all classes and specs, curated by HawsJon.
