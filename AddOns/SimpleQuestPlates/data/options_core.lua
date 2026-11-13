@@ -24,7 +24,7 @@ function SQP:CreateOptionsPanel()
     -- here, before the panel is built; a change on that page applies after a reload like the rest of the theme.
     local function ChosenFrameworkTheme()
         local db = _G.RGXFrameworkDB
-        local preset = type(db) == "table" and db.themePreset
+        local preset = type(db) == "table" and db.themeOverride ~= false and db.themePreset
         local D = _G.RGXDesign
         local chosen = preset and D and D.THEME_PRESETS and D.THEME_PRESETS[preset]
         if type(chosen) ~= "table" or type(chosen.primary) ~= "table" then return nil end
