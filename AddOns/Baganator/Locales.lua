@@ -449,6 +449,7 @@ L["CATEGORY_SETTINGS_HAVE_BEEN_RESET"] = "Category settings have been reset"
 
 
 local L = Locales.zhTW
+L["CANNOT_OPEN_BAGS_IN_COMBAT"] = "戰鬥中無法開啟背包"
 
 L["ACCOUNT_GOLD_X"] = "帳號金幣：%s"
 L["ACTION_TO_TRACK_TEXT"] = "Shift+左鍵點擊貨幣或拖放物品"
@@ -855,6 +856,7 @@ L["LEGACY_SKIN"] = "你有舊的外觀插件 "
 L["NO_LONGER_NEEDED"] = " 已經不再需要了，請將它刪除。多角色背包本身現已包含外觀。"
 
 local L = Locales.zhCN
+L["CANNOT_OPEN_BAGS_IN_COMBAT"] = "战斗中无法打开背包"
 
 L["ACCOUNT_GOLD_X"] = "帐号金币：%s"
 L["ACTION_TO_TRACK_TEXT"] = "按住 Shift-点击 货币或掉落物品"
