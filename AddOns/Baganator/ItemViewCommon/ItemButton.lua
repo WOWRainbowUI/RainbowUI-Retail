@@ -749,6 +749,9 @@ function BaganatorRetailLiveContainerItemButtonMixin:ClearNewItem()
   end
 end
 
+function BaganatorRetailLiveContainerItemButtonMixin:OnSmartNavSelect()
+end
+
 BaganatorRetailLiveGuildItemButtonMixin = {}
 
 function BaganatorRetailLiveGuildItemButtonMixin:OnLoad()

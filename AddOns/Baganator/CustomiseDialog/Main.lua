@@ -1250,4 +1250,10 @@ function BaganatorCustomiseDialogMixin:OnShow()
   local tabsWidth = self.Tabs[#self.Tabs]:GetRight() - self.Tabs[1]:GetLeft()
 
   self:SetWidth(math.max(self:GetWidth(), tabsWidth + 20))
+
+  addonTable.Gamepad.AnnounceShow(self)
+end
+
+function BaganatorCustomiseDialogMixin:OnHide()
+  addonTable.Gamepad.AnnounceHide(self)
 end

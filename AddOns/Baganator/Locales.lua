@@ -160,6 +160,7 @@ L["IGNORED_BANK_SLOTS"] = "Ignored bank slots (character specific)"
 L["SORT_ON_OPEN"] = "Sort on open"
 L["GUILD_BANK_SORT_METHOD"] = "Guild Bank Sort Method"
 L["CANNOT_YOU_ARE_IN_COMBAT"] = "Cannot: You are in combat"
+L["CANNOT_OPEN_BAGS_IN_COMBAT"] = "Cannot open bags in combat"
 
 L["SEARCH_TRY_X"] = "Search, try %s"
 
