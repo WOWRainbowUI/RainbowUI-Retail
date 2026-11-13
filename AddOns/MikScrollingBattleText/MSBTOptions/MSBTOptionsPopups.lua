@@ -900,43 +900,32 @@ local function CreateDamageColors()
 	frame.titleFontString:SetText(L.BUTTONS.damageColors.label)
 
 	local scrollFrame = CreateFrame("ScrollFrame", nil, frame, "UIPanelScrollFrameTemplate")
-	scrollFrame:SetPoint("TOPLEFT", frame, "TOPLEFT", 44, -116)
+	scrollFrame:SetPoint("TOPLEFT", frame, "TOPLEFT", 44, -80)
 	scrollFrame:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -64, 68)
 
 	local content = CreateFrame("Frame", nil, scrollFrame)
 	content:SetSize(270, 5)
 	scrollFrame:SetScrollChild(content)
 
-	local checkbox = MSBTControls.CreateCheckbox(frame)
-	local objLocale = L.CHECKBOXES["colorDamageAmounts"]
-	checkbox:Configure(24, objLocale.label, objLocale.tooltip)
-	checkbox:SetPoint("TOPLEFT", frame, "TOPLEFT", 44, -80)
-	checkbox:SetClickHandler(function(this, isChecked)
-		MSBTProfiles.SetOption(nil, "damageColoringDisabled", not isChecked)
-	end)
-	frame.colorCheckbox = checkbox
-
-
 	local anchor = content
 	local globalStringSchoolIndex = 0
 	local colorswatch, fontString
 	for damageType, profileKey in pairs(MSBTMain.damageColorProfileEntries) do
 		colorswatch = MSBTControls.CreateColorswatch(content)
-		colorswatch:SetPoint("TOPLEFT", anchor, "BOTTOMLEFT", anchor == content and 20 or 0, anchor == content and -10 or -5)
+		if anchor == content then
+			colorswatch:SetPoint("TOPLEFT", content, "TOPLEFT", 20, -10)
+		else
+			colorswatch:SetPoint("TOPLEFT", anchor, "BOTTOMLEFT", 0, -5)
+		end
 		colorswatch:SetColorChangedHandler(function(this)
 			MSBTProfiles.SetOption(profileKey, "colorR", this.r)
 			MSBTProfiles.SetOption(profileKey, "colorG", this.g)
 			MSBTProfiles.SetOption(profileKey, "colorB", this.b)
 		end)
-		checkbox = MSBTControls.CreateCheckbox(content)
-		objLocale = L.CHECKBOXES["colorDamageEntry"]
-		checkbox:Configure(24, MSBTMain.damageTypeMap[damageType], objLocale.tooltip)
-		checkbox:SetPoint("LEFT", colorswatch, "RIGHT", 5, 0)
-		checkbox:SetClickHandler(function(this, isChecked)
-			MSBTProfiles.SetOption(profileKey, "disabled", not isChecked)
-		end)
+		fontString = content:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
+		fontString:SetText(MSBTMain.damageTypeMap[damageType])
+		fontString:SetPoint("LEFT", colorswatch, "RIGHT", 10, 0)
 		frame[profileKey .. "Colorswatch"] = colorswatch
-		frame[profileKey .. "Checkbox"] = checkbox
 
 		anchor = colorswatch
 		globalStringSchoolIndex = globalStringSchoolIndex + 1
@@ -955,13 +944,10 @@ local function ShowDamageColors(configTable)
 	local frame = popupFrames.damageColorsFrame
 	ChangePopupParent(frame, configTable.parentFrame)
 
-	frame.colorCheckbox:SetChecked(not MSBTProfiles.currentProfile.damageColoringDisabled)
-
 	local profileEntry
 	for damageType, profileKey in pairs(MSBTMain.damageColorProfileEntries) do
 		profileEntry = MSBTProfiles.currentProfile[profileKey]
 		frame[profileKey .. "Colorswatch"]:SetColor(profileEntry.colorR, profileEntry.colorG, profileEntry.colorB)
-		frame[profileKey .. "Checkbox"]:SetChecked(not profileEntry.disabled)
 	end
 
 	frame.hideHandler = configTable.hideHandler

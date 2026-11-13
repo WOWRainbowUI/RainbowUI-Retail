@@ -42,8 +42,6 @@ obj["resist"]					= { label="Teilweise widerstanden", tooltip="Zeigt die zum Tei
 obj["vulnerability"]			= { label="Verwundbarkeitsboni", tooltip="Zeigt die Menge der Verwundbarkeitsboni an."}
 obj["overheal"]					= { label="Überheilung", tooltip="Zeigt die Menge der Überheilung an."}
 obj["overkill"]					= { label="Über Tod", tooltip="Zeigt die Menge des Schadens über Tod an."}
-obj["colorDamageAmounts"]		= { label="Farbiger Schaden", tooltip="Färbt den Schaden in der entsprechenden Farbe ein."}
-obj["colorDamageEntry"]			= { tooltip="Aktiviert Farbe für diese Schadensart."}
 obj["colorUnitNames"]			= { label="Farbige Namen", tooltip="Färbt die Namen in Klassenfarbe ein."}
 obj["colorClassEntry"]			= { tooltip="Aktiviert Farbe für diese Klasse."}
 obj["enableScrollArea"]			= { tooltip="Scroll-Bereich aktivieren."}
@@ -89,7 +87,7 @@ obj["resetProfile"]				= { label="Zurücksetzen", tooltip="Setzt das Profil auf 
 obj["deleteProfile"]			= { label="Löschen", tooltip="Löscht das Profil."}
 obj["masterFont"]				= { label="Master Schrift", tooltip="Erlaubt dir die Master Schrift festzulegen, welche bei allen Scroll-Bereichen und Ereignissen übernommen wird, sofern sie nicht überschrieben wird."}
 obj["partialEffects"]			= { label="Partielle Effekte", tooltip="Erlaubt dir festzulegen, welche partiellen Effekte angezeigt werden sollen, ob sie eingefärbt werden sollen, und wenn ja in welcher Farbe."}
-obj["damageColors"]				= { label="Schaden Farben", tooltip="Erlaubt dir festzulegen, ob oder auch nicht die Beträge nach der Farbe der Schadensart gefärbt sind und welche Farben für jede Art verwendet werden."}
+obj["damageColors"]				= { label="Schaden Farben", tooltip="Legt die Farben für die einzelnen Schadensarten fest."}
 obj["classColors"]				= { label="Klassen Farben", tooltip="Erlaubt dir festzulegen, ob die Namen nach Klassenfarbe eingefärbt werden sollen oder welche Farbe für jede Klasse verwendet werden soll." }
 obj["inputOkay"]				= { label=OKAY, tooltip="Eingaben übernehmen."}
 obj["inputCancel"]				= { label=CANCEL, tooltip="Eingaben zurücksetzen."}

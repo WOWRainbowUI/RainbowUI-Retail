@@ -42,8 +42,6 @@ obj["resist"]				= { label="Résistances partielles", tooltip="Afficher la valeu
 obj["vulnerability"]		= { label="Bonus de vulnérabilité", tooltip="Afficher la valeur des bonus de vulnérabilité."}
 obj["overheal"]				= { label="Soins en excès", tooltip="Afficher la valeur des soins en excès."}
 obj["overkill"]				= { label="Dommages en excès", tooltip="Afficher la valeur des dommages en excès."}
-obj["colorDamageAmounts"]	= { label="Valeurs des dommages en couleur", tooltip="Utiliser des couleurs pour la valeur des dommages."}
-obj["colorDamageEntry"]		= { tooltip="Activer la couleur pour ce type de dommage."}
 obj["colorUnitNames"]		= { label="Colorer les Noms des Unités", tooltip="Aplliquer les couleurs de classe spécifiques aux noms des unités."}
 obj["colorClassEntry"]		= { tooltip="Activer la couleur pour cette classe."}
 obj["enableScrollArea"]		= { tooltip="Activer la zone de défilement."}
@@ -87,7 +85,7 @@ obj["resetProfile"]				= { label="Réinitialiser", tooltip="Réinitialise le pro
 obj["deleteProfile"]			= { label="Supprimer", tooltip="Supprime le profil."}
 obj["masterFont"]				= { label="Police principale", tooltip="Paramètres des polices principales, hérités par les zones de défilement et les évènements associées avec elles, à moins qu'ils ne soient dépassés par les réglages individuels."}
 obj["partialEffects"]			= { label="Effets partiels", tooltip="Détermine les effets partiels affichés et les paramètres de couleurs."}
-obj["damageColors"]				= { label="Couleurs des Dommages", tooltip="Vous permet de paramétrer les couleurs assignées aux valeurs des dommages suivant leur type."}
+obj["damageColors"]				= { label="Couleurs des Dommages", tooltip="Choisissez la couleur de chaque type de dégâts."}
 obj["classColors"]				= { label="Couleurs des Classes", tooltip="Vous permet de définir si les noms d'unités sont colorées ou non selon leur classe et quelle couleur utiliser pour chaque classe." }
 obj["inputOkay"]				= { label="OK", tooltip="Accepte la saisie."}
 obj["inputCancel"]				= { label="Annuler", tooltip="Annule la saisie."}

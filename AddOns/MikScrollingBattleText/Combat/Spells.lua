@@ -53,6 +53,11 @@ local function DealsDamage(lower)
     -- plus 85" (Mortal Strike), "increases melee damage by 138" (Heroic
     -- Strike).
     if lower:find("weapon damage", 1, true) or lower:find("melee damage", 1, true) then return true end
+    -- Shots say it a third way: "increases ranged damage by 70" (Aimed
+    -- Shot), "Fires several missiles, hitting 3 targets" (Multi-Shot). Read
+    -- as dealing none, their hits went to the cast before them (a hunter's
+    -- pet's Claw; 1.60.1.70862).
+    if lower:find("ranged damage", 1, true) or lower:find("fires several missiles", 1, true) then return true end
     for _, word in ipairs(HARM) do
         if lower:find(word, 1, true) then return true end
     end
@@ -126,8 +131,9 @@ function ns.ParseSpellDescription(text)
     if lower:find("every %d") then facts.ticks = true end
     -- "bleed for 15 damage over 9 sec" (Rend): ticks, school not said.
     if lower:find("%d+ damage over %d") then facts.ticks = true end
-    -- A weapon or melee strike is physical and hits at once.
-    if not facts.school and (lower:find("weapon damage", 1, true) or lower:find("melee damage", 1, true)) then
+    -- A weapon or melee strike, or a shot, is physical and hits at once.
+    if not facts.school and (lower:find("weapon damage", 1, true) or lower:find("melee damage", 1, true)
+        or lower:find("ranged damage", 1, true) or lower:find("fires several missiles", 1, true)) then
         facts.school, facts.direct = 1, true
     end
     if proc then facts.procSchool = procSchool or facts.school end

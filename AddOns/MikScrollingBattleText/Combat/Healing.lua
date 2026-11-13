@@ -1,15 +1,60 @@
 local ns = MikSBT.CombatEngine
 local casts = {}
+local targets = {}
 local DIRECT_WINDOW, HOT_WINDOW, MAX_CASTS = 3, 30, 64
 
-function ns.ResetHealing() casts = {} end
+function ns.ResetHealing() casts, targets = {}, {} end
 
-function ns.NoteHealCast(unit, spell, key, now)
+function ns.NoteHealTarget(unit, target, guid, spell, now)
+	if (unit ~= "player" and unit ~= "pet") or not ns.Text(target)
+		or not ns.Text(guid) or not ns.Number(spell, 1)
+		or type(UnitName) ~= "function" then return end
+	local recipient
+	for _, token in ipairs({ "player", "pet" }) do
+		local ok, name, realm = pcall(UnitName, token)
+		if ok and ns.Text(name) and (target == name
+			or (ns.Text(realm) and target == name .. "-" .. realm)) then
+			if recipient then return end
+			recipient = token
+		end
+	end
+	if not recipient then return end
+	for index = #targets, 1, -1 do
+		if now - targets[index].at > HOT_WINDOW then
+			table.remove(targets, index)
+		end
+	end
+	targets[#targets + 1] = { unit = unit, guid = guid, spell = spell,
+		key = recipient, at = now }
+	while #targets > MAX_CASTS do table.remove(targets, 1) end
+end
+
+function ns.NoteHealCast(unit, spell, key, now, guid)
 	local helpful = C_Spell and C_Spell.IsSpellHelpful
 		and C_Spell.IsSpellHelpful(spell)
 	if not ns.Bool(helpful) or not helpful then return end
-	local selfTarget = UnitIsUnit("target", "player")
-	if ns.Bool(selfTarget) and selfTarget then key = "player" end
+	local recipient
+	if ns.Text(guid) then
+		for index = #targets, 1, -1 do
+			local target = targets[index]
+			if target.unit == unit and target.guid == guid
+				and target.spell == spell then
+				if now >= target.at and now - target.at <= HOT_WINDOW then
+					recipient = target.key
+				end
+				table.remove(targets, index)
+				break
+			end
+		end
+	end
+	if recipient then
+		key = recipient
+	else
+		local selfTarget = UnitIsUnit("target", "player")
+		if ns.Bool(selfTarget) and selfTarget then key = "player" end
+		local petTarget = UnitIsUnit("target", "pet")
+		if ns.Bool(petTarget) and petTarget then key = "pet" end
+	end
 	if not key then return end
 	for i = #casts, 1, -1 do
 		if now - casts[i].at > HOT_WINDOW then table.remove(casts, i) end
@@ -48,6 +93,7 @@ function ns.TagIncomingHeal(record, unit, now)
 	record.spell = result.spell
 	record.icon = ns.SpellIcon(result.spell)
 	record.name = ns.SpellName(result.spell)
+	return result
 end
 
 function ns.RekeyHealing(old, new)

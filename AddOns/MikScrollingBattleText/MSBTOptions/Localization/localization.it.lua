@@ -42,8 +42,6 @@ obj["resist"]					= { label="Resistenze Parziali", tooltip="Mostra l'ammontare d
 obj["vulnerability"]			= { label="Bonus Vulnerabilita'", tooltip="Mostra l'ammontare dei bonus di vulnerabilita'."}
 obj["overheal"]					= { label="Sovracure", tooltip="Mostra l'ammontare delle Sovracure."}
 obj["overkill"]					= { label="Massacro", tooltip="Mostra l'ammontare di Massacro."}
-obj["colorDamageAmounts"]		= { label="Colore Ammontare Danno", tooltip="Applica i colori specificati per l'ammontare dei danni."}
-obj["colorDamageEntry"]			= { tooltip="Abilita la colorazione di questo tipo di danni."}
 obj["colorUnitNames"]			= { label="Colore Nomi Unita'", tooltip="Applica i colori specificati ai nomi delle unita'."}
 obj["colorClassEntry"]			= { tooltip="Abilita la colorazione per le classi."}
 obj["enableScrollArea"]			= { tooltip="Abilita le aree di scorrimento."}
@@ -89,7 +87,7 @@ obj["resetProfile"]				= { label="Reimposta Profilo", tooltip="Reimposta il prof
 obj["deleteProfile"]			= { label="Cancella Profilo", tooltip="Cancella il profilo."}
 obj["masterFont"]				= { label="Carattere Principale", tooltip="Permette di impostare il carattere principale che le impostazioni erediteranno in tutte le aree di scorrimento e gli eventi al loro interno."}
 obj["partialEffects"]			= { label="Effetti Parziali", tooltip="Permette di impostare quali effetti parziali verranno mostrati, se hanno colori codificati, e in quale colore."}
-obj["damageColors"]				= { label="Colori Danno", tooltip="Permette di impostare se le quantita' sono colorate com tipo di danno e quale colore usare per ogni tipo."}
+obj["damageColors"]				= { label="Colori Danno", tooltip="Scegli il colore per ogni tipo di danno."}
 obj["classColors"]				= { label="Colori Classe", tooltip="Permette di impostare se i nomi delle unita' sono colorate dalla classe e che colore usare per ogni classe." }
 obj["inputOkay"]				= { label="OK", tooltip="Accetta l'immissione."}
 obj["inputCancel"]				= { label="ANNULLA", tooltip="Annulla l'immissione."}

@@ -25,9 +25,13 @@ function OutgoingBatcher:BuildMessage(amount, hitCount, batch, settings)
 	local profile = self.config.getProfile()
 	local formattedAmount
 	if batch and (batch.isPet or batch.eventKey) then
-		formattedAmount = self.config.formatEventMessage(settings, amount, batch.spellID)
+		formattedAmount = self.config.formatEventMessage(
+			settings, amount, batch.spellID, batch.school
+		)
 	else
-		formattedAmount = self.config.formatAmount(amount, profile)
+		formattedAmount = self.config.formatAmount(
+			amount, profile, batch and batch.school
+		)
 	end
 	if not profile.stackSimilarHits then
 		return formattedAmount
@@ -96,10 +100,10 @@ function OutgoingBatcher:Flush(batchKey)
 	if batch.hasRestricted then
 		if batch.hitCount == 1 then
 			self.config.displayRestricted(displaySettings, batch.amounts[1],
-				batch.effectTexture, "%a")
+				batch.effectTexture, "%a", nil, batch.school)
 		else
 			self.config.displayRestrictedGroup(displaySettings, batch.amounts,
-				batch.effectTexture)
+				batch.effectTexture, batch.school)
 		end
 		return
 	end
@@ -118,11 +122,12 @@ function OutgoingBatcher:DisplayRestricted(
 	forceIsSpell,
 	isPet,
 	isDot,
-	eventKey
+	eventKey,
+	school
 )
 	if self:ShouldStackWindfury(spellID, isPet, isDot) then
 		self:Queue(spellID, amount, isCrit, effectTexture, forceIsSpell,
-			isPet, isDot, eventKey, true)
+			isPet, isDot, eventKey, true, school)
 		return
 	end
 	if not effectTexture and not isDot and not eventKey then
@@ -139,7 +144,8 @@ function OutgoingBatcher:DisplayRestricted(
 		settings = critSettings
 	end
 	local message = not eventKey and not isPet and "%a" or nil
-	self.config.displayRestricted(settings, amount, effectTexture, message)
+	self.config.displayRestricted(settings, amount, effectTexture,
+		message, nil, school)
 end
 
 function OutgoingBatcher:Queue(
@@ -151,7 +157,8 @@ function OutgoingBatcher:Queue(
 	isPet,
 	isDot,
 	eventKey,
-	isRestricted
+	isRestricted,
+	school
 )
 	if not isRestricted and (not amount or amount <= 0) then
 		return
@@ -172,6 +179,7 @@ function OutgoingBatcher:Queue(
 		.. tostring(spellID or 0) .. (isCrit and ":crit" or "")
 	if stackWindfury then batchKey = batchKey .. ":stacked" end
 	if eventKey then batchKey = eventKey .. ":" .. batchKey end
+	if school then batchKey = batchKey .. ":school:" .. school end
 	local batch = self.batches[batchKey]
 	if not batch then
 		local isSpell = forceIsSpell or isDot
@@ -183,6 +191,7 @@ function OutgoingBatcher:Queue(
 			isCrit = not not isCrit,
 			totalAmount = 0,
 			spellID = spellID,
+			school = school,
 			isSpell = isSpell,
 			isPet = isPet,
 			isDot = isDot,
