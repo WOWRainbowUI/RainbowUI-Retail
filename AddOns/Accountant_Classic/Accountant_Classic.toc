@@ -18,7 +18,7 @@
 ## Title-ruRU: Accountant Classic
 ## Notes-ruRU: Отслеживает заработанное и потраченное золото ваших персонажей
 ## Author: arith, kamusis
-## Version: v2.30.02
+## Version: v2.30.03
 ## Dependencies: Ace3
 ## AddonCompartmentFunc: AccountantClassic_ButtonOnClick
 ## IconTexture: Interface\AddOns\Accountant_Classic\Images\AccountantClassicButton-Up
