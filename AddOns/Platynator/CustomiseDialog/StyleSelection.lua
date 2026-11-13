@@ -55,6 +55,9 @@ local contextCriteria = {
   {key = "delve-melee", label = addonTable.Locales.MELEE},
   {key = "delve-trivial", label = addonTable.Locales.TRIVIAL},
 
+  {title = addonTable.Locales.GROUP},
+  {key = "grouped", label = addonTable.Locales.GROUPED},
+
   {title = addonTable.Locales.TARGET},
   {key = "is-target", label = addonTable.Locales.IS_TARGET},
   {key = "not-target", label = addonTable.Locales.NOT_TARGET},
