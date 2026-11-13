@@ -436,6 +436,41 @@ function UI:CreateCard(parent, opts)
     card:SetPoint("TOPLEFT", parent, "TOPLEFT", 0, 0)
     card:SetPoint("TOPRIGHT", parent, "TOPRIGHT", 0, 0)
 
+    -- Module switch: opts.switch = { storage, key, default, onChange } puts an on/off switch in the card header.
+    -- It turns the whole card's options on or off at once: off dims the card and stops its rows taking clicks.
+    if type(opts.switch) == "table" and card.headerBand then
+        local cfg = opts.switch
+        local store = type(cfg.storage) == "table" and cfg.storage or {}
+        local function apply(on)
+            on = on and true or false
+            card.moduleEnabled = on
+            if card.content.SetAlpha then card.content:SetAlpha(on and 1 or 0.45) end
+            if card.blocker then if on then card.blocker:Hide() else card.blocker:Show() end end
+        end
+        card.blocker = CreateFrame("Frame", nil, card.content)
+        card.blocker:SetAllPoints(card.content)
+        card.blocker:SetFrameLevel((card.content:GetFrameLevel() or 1) + 40)
+        card.blocker:EnableMouse(true)
+        card.moduleSwitch = UI:CreateSwitch(card.headerBand, {
+            label = "",
+            storage = store, key = cfg.key, default = cfg.default,
+            onChange = function(value)
+                apply(value)
+                if type(cfg.onChange) == "function" then cfg.onChange(value) end
+            end,
+        })
+        card.moduleSwitch:SetSize(84, 20)
+        card.moduleSwitch:SetPoint("RIGHT", card.headerBand, "RIGHT", -8, 0)
+        local initial = store[cfg.key]
+        if initial == nil then initial = cfg.default end
+        apply(initial ~= false)
+        function card:SetModuleEnabled(on)
+            store[cfg.key] = on and true or false
+            if card.moduleSwitch.Refresh then card.moduleSwitch:Refresh() end
+            apply(on)
+        end
+    end
+
     card.flows = {}
     if opts.columns then
         assert(opts.columns == 1 or opts.columns == 2, "RGX UI: cards support one or two columns")

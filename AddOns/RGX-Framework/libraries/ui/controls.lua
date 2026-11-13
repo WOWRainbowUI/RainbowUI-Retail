@@ -741,6 +741,15 @@ end
 -- "RGX Material Round" checkbox: the Blizzard box textures are hidden and a rounded box drawn behind the
 -- button, with the tick tinted in the primary colour. The shape lives in the button's parent, one level below,
 -- so the tick (a texture of the button itself) stays on top.
+-- The tick of every tick box is the building mod's primary colour, in every style (resolved at build time).
+local function BrandTick(D, check)
+    local tick = check.GetCheckedTexture and check:GetCheckedTexture()
+    if type(tick) == "table" then
+        if tick.SetDesaturated then tick:SetDesaturated(true) end
+        if tick.SetVertexColor then tick:SetVertexColor(D:Unpack("primary")) end
+    end
+end
+
 local function RoundCheckbox(D, check, inset)
     for _, getter in ipairs({ "GetNormalTexture", "GetPushedTexture", "GetDisabledTexture" }) do
         local tex = check[getter] and check[getter](check)
@@ -770,12 +779,30 @@ function UI:CreateCheckbox(parent, text, opts)
     checkbox:SetCheckedTexture("Interface\\Buttons\\UI-CheckBox-Check")
     local D = RGX.GetDesign and RGX:GetDesign()
     if D and D.IsRoundedControls and D:IsRoundedControls() then RoundCheckbox(D, checkbox, 0) end
+    if D then BrandTick(D, checkbox) end
     local label = self:CreateLabel(frame, { text = text, size = "normal", color = "normal" })
     label:SetPoint("LEFT", checkbox, "RIGHT", 5, 0)
     frame.checkbox = checkbox
     frame.label = label
     AttachCheckboxLabel(frame, checkbox, label)
     AttachHoverCallbacks(checkbox, opts, "checkbox")
+    -- Optional binding: opts.storage + opts.key keep a saved boolean in step with the tick (opts.default when
+    -- unset), and opts.onChange(value) runs on every click. This is the standard tick box for options.
+    if type(opts) == "table" and type(opts.storage) == "table" and opts.key ~= nil then
+        local value = opts.storage[opts.key]
+        if value == nil then value = opts.default end
+        checkbox:SetChecked(value and true or false)
+        checkbox:SetScript("OnClick", function(self)
+            local checked = self:GetChecked() and true or false
+            opts.storage[opts.key] = checked
+            if type(opts.onChange) == "function" then
+                local ok, err = pcall(opts.onChange, checked)
+                if not ok and RGX and type(RGX.Error) == "function" then
+                    RGX:Error("[RGXUI] checkbox onChange failed: " .. tostring(err))
+                end
+            end
+        end)
+    end
     return frame
 end
 
@@ -797,6 +824,7 @@ function UI:CreateToggle(parent, options)
     do
         local D = RGX.GetDesign and RGX:GetDesign()
         if D and D.IsRoundedControls and D:IsRoundedControls() then RoundCheckbox(D, check, 3) end
+        if D then BrandTick(D, check) end
     end
     local currentValue = storage[key]
     if type(currentValue) == "nil" then currentValue = default end
@@ -868,7 +896,7 @@ function UI:CreateTextInput(parent, options)
         -- with the primary colour while the box has focus.
         for _, part in ipairs({ "Left", "Middle", "Right" }) do
             local tex = input[part]
-            if tex and tex.Hide then tex:Hide() end
+            if type(tex) == "table" and tex.Hide then tex:Hide() end
         end
         local shape, paint = D:CreateRoundedShape(input, { inset = { -4, 0, -4, 0 }, radius = 8, color = "surface", borderColor = "border" })
         if input.SetTextInsets then input:SetTextInsets(4, 4, 0, 0) end
@@ -1580,8 +1608,14 @@ end
 function UI:CreateSwitch(parent, options)
     options = options or {}
     local D = RGX:GetDesign()
-    local pr, pg, pb = 0.02, 0.87, 0.38 -- green-ish; refined by theme below
-    if D then pr, pg, pb = D:Unpack("success") end
+    -- The ON track and the ON text are the building mod's primary colour (resolved now, inside its own theme
+    -- scope: a later toggle happens when the shared theme may belong to another mod).
+    local pr, pg, pb = 0.02, 0.87, 0.98
+    if D then pr, pg, pb = D:Unpack("primary") end
+    local onHex = string.format("|cff%02x%02x%02x", math.floor(pr * 255 + 0.5), math.floor(pg * 255 + 0.5), math.floor(pb * 255 + 0.5))
+    local sr, sg, sb = 0.6, 0.6, 0.6
+    if D then sr, sg, sb = D:Unpack("subtext") end
+    local offHex = string.format("|cff%02x%02x%02x", math.floor(sr * 255 + 0.5), math.floor(sg * 255 + 0.5), math.floor(sb * 255 + 0.5))
     local br, bg_, bb = 0.30, 0.30, 0.30
     if D then br, bg_, bb = D:Unpack("border") end
 
@@ -1659,11 +1693,11 @@ function UI:CreateSwitch(parent, options)
         if enabled then
             toggle:SetPoint("RIGHT", switchFrame, "RIGHT", -1, 0)
             switchBg:SetVertexColor(pr, pg, pb, 1)
-            status:SetText("|cff00ff00ON|r")
+            status:SetText(onHex .. "ON|r")
         else
             toggle:SetPoint("LEFT", switchFrame, "LEFT", 1, 0)
             switchBg:SetVertexColor(br, bg_, bb, 1)
-            status:SetText("|cffff0000OFF|r")
+            status:SetText(offHex .. "OFF|r")
         end
     end
 

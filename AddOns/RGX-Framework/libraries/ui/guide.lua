@@ -3,10 +3,11 @@
 local addonName, RGX = ...
 
 local function AddLine(UI, card, text)
+    -- wrap, not a fixed width: the row takes the card's width, so the page fills the panel.
     local label = UI:CreateLabel(card.content, {
-        text = text, size = "normal", color = "normal", width = 292,
+        text = text, size = "normal", color = "normal", wrap = true,
     })
-    card.flow:Add(label)
+    card.flow:Add(label, { fill = true })
 end
 
 -- The global theme controls (main color, interface style, corners) change the framework's shared theme, which
@@ -27,6 +28,8 @@ end
 -- One page of the settings panel: page = "about", "build" or "theme".
 local function BuildGuide(content, page)
     local UI = RGX:GetUI()
+    -- Two columns that split the page between them, so every page's cards fit without scrolling. Rows wrap to
+    -- their column's width.
     local left, right = UI:CreateColumns(content, 2, { card = false, gap = 8 })
 
     -- Sections read like a book: opener, the model, what ships today, then
@@ -34,8 +37,22 @@ local function BuildGuide(content, page)
 
     -- FIRST (when a theme-following addon is loaded): the operator-facing theme controls.
     local Design = RGX:GetDesign()
-    local theme = page == "theme" and ThemeConsumerLoaded() and UI:CreateCard(left, { title = "Theme" }) or nil
+    local theme = page == "theme" and ThemeConsumerLoaded() and UI:CreateCard(left, { title = "Change framework addon theme options" }) or nil
     if theme and Design and Design.THEME_PRESETS then
+        -- The framework theme is optional: with this off the saved colour, style and corners are not applied
+        -- at login and addons keep their own look.
+        local overrideSwitch = UI:CreateSwitch(theme.content, {
+            label = "Apply the framework theme to addons",
+            storage = RGX.db, key = "themeOverride", default = true,
+            onChange = function(on)
+                if not on then
+                    Design:SetStyle("framework")
+                    if Design.SetThemePreset then Design:SetThemePreset("cyan") end
+                end
+            end,
+        })
+        overrideSwitch:SetPoint("TOPLEFT", 8, -4)
+        overrideSwitch:SetPoint("TOPRIGHT", theme.content, "TOPRIGHT", -8, -4)
         local Drops = _G.RGXDropdowns
         if Drops and type(Drops.CreateNestedDropdown) == "function" then
             local items = {}
@@ -53,8 +70,8 @@ local function BuildGuide(content, page)
                 end,
             })
             if themeDD then
-                themeDD:SetPoint("TOPLEFT", 8, -8)
-                themeDD:SetPoint("TOPRIGHT", theme.content, "TOPRIGHT", -8, -8)
+                themeDD:SetPoint("TOPLEFT", 8, -38)
+                themeDD:SetPoint("TOPRIGHT", theme.content, "TOPRIGHT", -8, -38)
             end
         end
         if Design and Design.STYLES then
@@ -80,14 +97,14 @@ local function BuildGuide(content, page)
                     end,
                 })
                 if styleDD then
-                    styleDD:SetPoint("TOPLEFT", 8, -38)
-                    styleDD:SetPoint("TOPRIGHT", theme.content, "TOPRIGHT", -8, -38)
+                    styleDD:SetPoint("TOPLEFT", 8, -68)
+                    styleDD:SetPoint("TOPRIGHT", theme.content, "TOPRIGHT", -8, -68)
                 end
             end
         end
         local corners = UI:CreateButtonGroup(theme.content, { "Rounded", "Square" },
             { buttonWidth = 100, height = 22 })
-        corners:SetPoint("TOPLEFT", 8, -68)
+        corners:SetPoint("TOPLEFT", 8, -98)
         local function UpdateCornerButtons()
             local square = Design.cornerStyle == "square"
             corners.buttons[1]:SetAlpha(square and 0.6 or 1)
@@ -106,10 +123,10 @@ local function BuildGuide(content, page)
         end)
         local note = UI:CreateLabel(theme.content, {
             text = "Style owns corners and palette; main color stays independent. Applies to the addons that follow the framework theme; reload to re-skin already-open windows.",
-            size = "small", color = "muted", width = 292,
+            size = "small", color = "muted", wrap = true,
         })
-        theme.flow:AddSpacer(90)
-        theme.flow:Add(note)
+        theme.flow:AddSpacer(120)
+        theme.flow:Add(note, { fill = true })
     end
     if theme then theme:AutoHeight() end
 
@@ -128,17 +145,15 @@ local function BuildGuide(content, page)
         local runtime = UI:CreateCard(left, { title = "This install" })
         runtime:ClearAllPoints()
         runtime:SetPoint("TOPLEFT", about, "BOTTOMLEFT", 0, -8)
-        runtime:SetPoint("TOPRIGHT", about, "BOTTOMRIGHT", 0, -8)    local version = (RGX.GetMetadata and RGX:GetMetadata(addonName, "Version")) or RGX.version or "unknown"
+        runtime:SetPoint("TOPRIGHT", about, "BOTTOMRIGHT", 0, -8)
+        local version = (RGX.GetMetadata and RGX:GetMetadata(addonName, "Version")) or RGX.version or "unknown"
         local modules = RGX.GetLoadedModules and RGX:GetLoadedModules() or {}
         AddLine(UI, runtime, "Framework version: " .. tostring(version))
         AddLine(UI, runtime, "Loaded modules: " .. tostring(#modules) .. (modules[1] and (" (" .. table.concat(modules, ", ") .. ")") or ""))
         AddLine(UI, runtime, "Login messages: " .. (RGX:IsLoginMessagesEnabled() and "on (/rgx login off to disable)" or "off"))
         runtime:AutoHeight()
 
-        local credits = UI:CreateCard(left, { title = "Credits & resources" })
-        credits:ClearAllPoints()
-        credits:SetPoint("TOPLEFT", runtime, "BOTTOMLEFT", 0, -8)
-        credits:SetPoint("TOPRIGHT", runtime, "BOTTOMRIGHT", 0, -8)
+        local credits = UI:CreateCard(right, { title = "Credits & resources" })
         AddLine(UI, credits, "RGX-Framework by RGX Mods. Modular addon infrastructure for WoW.")
         AddLine(UI, credits, "Docs: github.com/RGXMods/RGX-Framework")
         AddLine(UI, credits, "RGX-Hello provides a complete example and visual controls tour.")
@@ -161,10 +176,7 @@ local function BuildGuide(content, page)
         AddLine(UI, modulesCard, "Quest, loot, pet battle, reputation, sound and other game integrations.")
         modulesCard:AutoHeight()
 
-        local debugCard = UI:CreateCard(left, { title = "Debug & help" })
-        debugCard:ClearAllPoints()
-        debugCard:SetPoint("TOPLEFT", modulesCard, "BOTTOMLEFT", 0, -8)
-        debugCard:SetPoint("TOPRIGHT", modulesCard, "BOTTOMRIGHT", 0, -8)
+        local debugCard = UI:CreateCard(right, { title = "Debug & help" })
         AddLine(UI, debugCard, "/rgx modules - inspect available modules")
         AddLine(UI, debugCard, "/rgx debug - toggle framework diagnostics")
         AddLine(UI, debugCard, "Database tests run via CI, not in-game")

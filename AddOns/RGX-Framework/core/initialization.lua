@@ -106,7 +106,7 @@ RGX:RegisterEvent("ADDON_LOADED", function(_, addon)
         -- Restore the operator's theme and corner preferences before any
         -- module builds UI. Stored by the framework settings panel.
         local Design = type(RGX.GetDesign) == "function" and RGX:GetDesign() or nil
-        if Design then
+        if Design and RGX.db.themeOverride ~= false then
             if RGX.db.style and type(Design.SetStyle) == "function" then
                 pcall(Design.SetStyle, Design, RGX.db.style)
                 -- Saved ids from before the style rename (retail, forever) move to their current names.

@@ -84,11 +84,14 @@ Design.currentPreset = "cyan"
 -- active, so all three styles are branded by the mod, never by the style.
 --   classic        "RGX Classic"        square corners, warm stone palette (the old Ace3-era look).
 --
+--   forever        "RGX Forever"         square corners, near-black warm brown panels with a bronze frame line and
+--                                       parchment text: the Forever-client look. Titles use the mod's accent colour.
+--
 -- Earlier releases also shipped "retail" and "forever" styles that were never fully built out; the ids
 -- keep working as aliases (retail -> framework, forever -> classic) so saved settings and callers do not
 -- break, but they are no longer listed.
-Design.STYLE_ORDER = { "framework", "materialround", "classic" }
-Design.STYLE_ALIASES = { retail = "framework", forever = "classic" }
+Design.STYLE_ORDER = { "framework", "materialround", "classic", "forever" }
+Design.STYLE_ALIASES = { retail = "framework" }
 
 Design.STYLES = {
     framework = {
@@ -160,11 +163,35 @@ Design.STYLES = {
             track      = {0.250, 0.210, 0.150},
         },
     },
+    forever = {
+        label = "RGX Forever",
+        cornerStyle = "square",
+        buttonStyle = "rounded",   -- buttons and header bands sit on the framed panel art
+        headerStyle = "rounded",
+        frameArt = "forever",   -- cut-corner panels with a bronze frame and a finer inner line
+        titleFrom = "accent",   -- card titles and the hover label follow the mod's accent colour
+        colors = {
+            surface    = {0.102, 0.082, 0.055},
+            background = {0.078, 0.067, 0.051},
+            panelAlt   = {0.125, 0.102, 0.070},
+            text       = {0.941, 0.902, 0.824},
+            subtext    = {0.612, 0.545, 0.416},
+            label      = {0.430, 0.380, 0.290},
+            success    = {0.400, 0.800, 0.350},
+            warning    = {0.941, 0.706, 0.161},
+            error      = {1.000, 0.353, 0.235},
+            border     = {0.420, 0.330, 0.150},
+            ring       = {0.420, 0.330, 0.150},
+            headerFill = {0.125, 0.102, 0.070},
+            hover      = {0.150, 0.122, 0.082},
+            track      = {0.200, 0.160, 0.090},
+        },
+    },
 }
 
 -- How the active style draws the shared primitives (set by SetStyle). Direct SetCornerStyle/SetTheme
 -- edits leave these alone.
-Design.styleOptions = { buttonStyle = "square", headerStyle = "square", controlStyle = "square", ringFrom = nil, titleFrom = nil }
+Design.styleOptions = { buttonStyle = "square", headerStyle = "square", controlStyle = "square", frameArt = nil, ringFrom = nil, titleFrom = nil }
 
 -- Current style name (nil = customized directly via SetCornerStyle/SetTheme).
 Design.currentStyle = "framework"
@@ -197,6 +224,7 @@ function Design:SetStyle(name)
         buttonStyle = style.buttonStyle or "square",
         headerStyle = style.headerStyle or "square",
         controlStyle = style.controlStyle or "square",
+        frameArt = style.frameArt,
         ringFrom = style.ringFrom,
         titleFrom = style.titleFrom,
     }
@@ -285,6 +313,11 @@ Design.Colors = {
 
 Design.Radius = 12
 Design.PANEL_TEX = "Interface\\AddOns\\RGX-Framework\\libraries\\design\\panel_rounded.tga"
+-- "RGX Forever" frame art: a square panel with cut corners (solid, tinted by the ring and fill colours) and a
+-- matching one-pixel line drawn just inside the frame.
+Design.FOREVER_TEX = "Interface\\AddOns\\RGX-Framework\\libraries\\design\\panel_forever.tga"
+Design.FOREVER_LINE_TEX = "Interface\\AddOns\\RGX-Framework\\libraries\\design\\panel_forever_line.tga"
+Design.FOREVER_SLICE = 8
 
 -- 128px texture with 32px corners: corner slice covers a quarter of the UVs.
 local PANEL_TC = 0.25
@@ -322,10 +355,10 @@ local function ApplyLabelFont(fs, size)
     return fs
 end
 
-local function BuildNineSlice(frame, layer, slice, inset, color, alpha)
+local function BuildNineSlice(frame, layer, slice, inset, color, alpha, texture)
     local function t()
         local tx = frame:CreateTexture(nil, layer)
-        tx:SetTexture(Design.PANEL_TEX)
+        tx:SetTexture(texture or Design.PANEL_TEX)
         tx:SetVertexColor(color[1], color[2], color[3], alpha or 1)
         return tx
     end
@@ -486,13 +519,20 @@ end
 -- at inset 1, both nine-sliced from the rounded texture.
 function Design:ApplyPanel(frame, opts)
     opts = opts or {}
-    local slice = opts.radius or self.Radius
+    local art = self.styleOptions and self.styleOptions.frameArt == "forever"
+    local slice = art and self.FOREVER_SLICE or opts.radius or self.Radius
     local fill = self:GetColor(opts.color or "surface")
     local borderColor = self:GetColor(opts.borderColor or "ring")
     local fillAlpha = opts.bgAlpha
+    local tex = art and self.FOREVER_TEX or nil
 
-    frame._panelBorder = BuildNineSlice(frame, "BACKGROUND", slice, 0, borderColor, 1)
-    frame._panelFill   = BuildNineSlice(frame, "BORDER", slice, 1, fill, fillAlpha)
+    frame._panelBorder = BuildNineSlice(frame, "BACKGROUND", slice, 0, borderColor, 1, tex)
+    frame._panelFill   = BuildNineSlice(frame, "BORDER", slice, 1, fill, fillAlpha, tex)
+    if art and (opts.line ~= false) then
+        -- The inner line: the frame's second, finer outline, a lighter shade of the ring.
+        local line = { math.min(1, borderColor[1] * 1.35 + 0.04), math.min(1, borderColor[2] * 1.35 + 0.04), math.min(1, borderColor[3] * 1.35 + 0.04) }
+        frame._panelLine = BuildNineSlice(frame, "ARTWORK", slice, 3, line, 0.55, self.FOREVER_LINE_TEX)
+    end
 
     function frame:SetPanelColor(fillColor, borderColor, alpha)
         if borderColor then
@@ -550,6 +590,8 @@ function Design:CreateFrame(parent, opts)
     -- setting decides between rounded panels and square backdrops.
     if opts.square == nil then
         opts.square = self.cornerStyle == "square"
+        -- A style with its own frame art draws it on its square corners, instead of a flat backdrop.
+        if opts.square and self.styleOptions and self.styleOptions.frameArt == "forever" then opts.square = false end
     end
     if opts.square then
         local frame = CreateFrame("Frame", opts.name, parent, "BackdropTemplate")
