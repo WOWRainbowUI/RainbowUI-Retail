@@ -130,6 +130,8 @@ local defaultSettings = {
     darkModeUiAura = true,
     darkModeUnitFrames = true,
     darkModeCastbars = true,
+    unitFrameNameBgAlphaOverride = false,
+    unitFrameNameBgAlpha = 1,
     darkModeColor = 0.20,
     darkModeColorElite = 0.1,
     darkModeVigor = true,
@@ -194,6 +196,15 @@ local defaultSettings = {
     hideTooltip = false,
     hideTooltipArena = true,
     hideTooltipCombat = true,
+    colorTooltips = false,
+    colorTooltipsClass = true,
+    colorTooltipsNpc = true,
+    colorTooltipsLevel = true,
+    colorTooltipsFaction = true,
+    colorTooltipsHideFaction = false,
+    colorTooltipsHideHealthbar = false,
+    colorTooltipsClassHealthbar = false,
+    colorTooltipsHideClass = false,
     lowerToTStrata = false,
     flipPortraits = false,
     showPartyLevel = false,
@@ -203,6 +214,8 @@ local defaultSettings = {
     foreverMinimapScale = 1,
     foreverMinimapTitleScale = 1,
     foreverMinimapHideTitle = false,
+    minimapClassicMail = false,
+    minimapClassicMailScale = 1,
     hideThreatKeepTank = true,
     foreverMinimapXPos = 0,
     foreverMinimapYPos = 12,
@@ -279,6 +292,7 @@ local defaultSettings = {
     racialIndicatorXPos = 0,
     racialIndicatorYPos = 0,
     racialIndicatorScale = 1,
+    racialIndicatorNpcs = true,
     racialIndicatorOrc = true,
     racialIndicatorNelf = true,
     racialIndicatorHuman = true,
@@ -395,6 +409,10 @@ local defaultSettings = {
     bigDebuffsHighColor = {1, 1, 1, 1},
     bigDebuffsHighThreshold = 30,
     bigDebuffsTextScale = 1,
+    bigDebuffsCustomDebuffs = {},
+    bigDebuffsCustomBuffs = {},
+    bigDebuffsBlacklist = {},
+    bigDebuffsInterrupts = true,
     addCooldownFramePlayerAuras = false,
     customImportantAuraSorting = true,
     customLargeSmallAuraSorting = true,
@@ -566,12 +584,25 @@ local defaultSettings = {
     unitFrameValueFontColorRGB = {1,1,1,1},
     actionBarFontColorRGB = {1,1,1,1},
     actionBarRangeColor = false,
+    actionBarSlotArt = false,
     snowfallKeypress = false,
+    questXpBarColor = {0.847, 0.51, 0.125, 1},
+    healPredictionColor = {0, 1, 0, 1},
+    healPredictionColorUnitFrames = true,
+    healPredictionColorRaidFrames = true,
     actionBarRangeOverlayColor = {1, 0, 0, 0.35},
     actionBarRangeIconColor = {0.59, 0.24, 0.22, 1},
     actionBarRangeUseOverlay = false,
     actionBarRangeDesaturate = false,
+    interruptIconRangeColor = false,
+    interruptIconRangeOwnSettings = false,
+    interruptIconRangeOverlayColor = {1, 0, 0, 0.35},
+    interruptIconRangeIconColor = {0.59, 0.24, 0.22, 1},
+    interruptIconRangeUseOverlay = false,
+    interruptIconRangeDesaturate = false,
+    interruptIconRangeBorder = false,
     changeActionBarCDFont = false,
+    changeBuffDurationFont = false,
     actionBarCDTextColor = false,
     actionBarCDTextBaseColor = {1, 1, 0.1, 1},
     actionBarCDTextLowColor = {1, 0.1, 0.1, 1},
@@ -616,6 +647,7 @@ local defaultSettings = {
     damageMeterHideBorder = true,
     unitFrameHealthbarTexture = "Blizzard DF",
     unitFrameManabarTexture = "Blizzard DF",
+    altManaBarTexture = "Blizzard DF",
 
     auraWhitelist = {},
     auraBlacklist = {},
@@ -664,6 +696,16 @@ local function InitializeSavedVariables()
     if BetterBlizzFramesDB.statusTextExtra == nil and (BetterBlizzFramesDB.statusTextExtraToT or BetterBlizzFramesDB.statusTextExtraParty) then
         BetterBlizzFramesDB.statusTextExtra = true
     end
+
+    if BetterBlizzFramesDB.changeUnitFrameHealthbarTextureRepColor then
+        local db = BetterBlizzFramesDB
+        if db.classicFrames and not db.changeUnitFrameNameBgTexture then
+            local name = BBF.HealthTextureBaseName()
+            db.changeUnitFrameNameBgTexture = true
+            db.unitFrameNameBgTexture = name
+        end
+    end
+    BetterBlizzFramesDB.changeUnitFrameHealthbarTextureRepColor = nil
 
     if BetterBlizzFramesDB.hideExpAndHonorBar then
         BetterBlizzFramesDB.hideExpBar = true
@@ -1259,10 +1301,22 @@ function BBF.RemoveAddonCategories()
         return aTitle < bTitle;
     end
 
+    local function GetAddonCharacter()
+        local dropdown = AddonList.Dropdown
+        if dropdown and dropdown.CollectSelectionData then
+            local _, _, selections = dropdown:CollectSelectionData()
+            local selected = selections and selections[1]
+            local data = selected and selected.GetData and selected:GetData()
+            if data == "All" then return nil end
+            if type(data) == "string" then return data end
+        end
+        return UnitGUID("player")
+    end
+
     local function RemoveAddonCategories()
         local dataProvider = CreateTreeDataProvider();
         local filterText = AddonList.SearchBox:GetText():lower();
-        local character = UnitName("player");
+        local character = GetAddonCharacter();
 
         local enabledGroups = {};
         local disabledGroups = {};
@@ -1281,7 +1335,7 @@ function BBF.RemoveAddonCategories()
                 local isEnabled = enabledState > Enum.AddOnEnableState.None;
                 local treatAsDisabled = not isEnabled or reason == "DEP_DISABLED";
 
-                local entry = { addonIndex = i };
+                local entry = { addonIndex = i, disabled = treatAsDisabled };
                 local targetGroup = treatAsDisabled and disabledGroups or enabledGroups;
 
                 if name == group then
@@ -1298,13 +1352,24 @@ function BBF.RemoveAddonCategories()
             end
         end
 
+        for group, children in pairs(groupChildren) do
+            if not enabledGroups[group] and not disabledGroups[group] then
+                for _, child in ipairs(children) do
+                    local childName = C_AddOns.GetAddOnInfo(child.addonIndex);
+                    local targetGroup = child.disabled and disabledGroups or enabledGroups;
+                    targetGroup[childName] = child;
+                end
+                groupChildren[group] = nil;
+            end
+        end
+
         local function InsertSortedGroups(groupTable)
             local sortedGroups = {};
             for groupName in pairs(groupTable) do
                 table.insert(sortedGroups, groupName);
             end
             table.sort(sortedGroups, function(a, b)
-                return RemoveColorCodes(a):lower() < RemoveColorCodes(b):lower();
+                return SortByTitle(groupTable[a], groupTable[b]);
             end);
 
             for _, groupName in ipairs(sortedGroups) do
@@ -1669,136 +1734,6 @@ function BBF.ClassColorFriendlist()
             end
         end)
     end
-end
-
-function BBF.RaidFramePixelBorder()
-    if not BetterBlizzFramesDB.raidFramePixelBorder then return end
-    if BBF.RaidFramePixelBorderApplied then return end
-    local function CreatePixelTextureBorder(holder, size, offset)
-        if not holder.edges then
-            local edges = {}
-            for i = 1, 4 do
-                local tex = holder:CreateTexture(nil, "ARTWORK", nil, 1)
-                tex:SetColorTexture(0,0,0,1)
-                tex:SetIgnoreParentScale(true)
-                edges[i] = tex
-            end
-            holder.edges = edges
-            
-            function holder:SetVertexColor(r, g, b, a)
-                for _, tex in ipairs(self.edges) do
-                    tex:SetColorTexture(r, g, b, a or 1)
-                end
-            end
-        end
-        
-        local edges = holder.edges
-        local spacing = offset
-        
-        -- Top
-        edges[1]:ClearAllPoints()
-        edges[1]:SetPoint("TOPLEFT", holder, "TOPLEFT")
-        edges[1]:SetPoint("TOPRIGHT", holder, "TOPRIGHT")
-        edges[1]:SetHeight(size)
-        
-        -- Right
-        edges[2]:ClearAllPoints()
-        edges[2]:SetPoint("TOPRIGHT", holder, "TOPRIGHT")
-        edges[2]:SetPoint("BOTTOMRIGHT", holder, "BOTTOMRIGHT")
-        edges[2]:SetWidth(size)
-        
-        -- Bottom
-        edges[3]:ClearAllPoints()
-        edges[3]:SetPoint("BOTTOMLEFT", holder, "BOTTOMLEFT")
-        edges[3]:SetPoint("BOTTOMRIGHT", holder, "BOTTOMRIGHT")
-        edges[3]:SetHeight(size)
-        
-        -- Left
-        edges[4]:ClearAllPoints()
-        edges[4]:SetPoint("TOPLEFT", holder, "TOPLEFT")
-        edges[4]:SetPoint("BOTTOMLEFT", holder, "BOTTOMLEFT")
-        edges[4]:SetWidth(size)
-        
-        holder:Show()
-    end
-
-    local borderSize = BetterBlizzFramesDB.raidFramePixelBorderSize or 1
-    local halfPixel = BetterBlizzFramesDB.raidFramePixelBorderSize and 0.5 or 0
-
-    for i = 1, 5 do
-        local frame = _G["CompactPartyFrameMember"..i]
-        if frame then
-            if not frame.pixelBorder then
-                frame.pixelBorder = CreateFrame("Frame", nil, frame)
-                frame.pixelBorder:SetFrameLevel(3)
-            end
-            
-            frame.pixelBorder:ClearAllPoints()
-            frame.pixelBorder:SetPoint("TOPLEFT", frame.healthBar, "TOPLEFT", -0.5, 1)
-            frame.pixelBorder:SetPoint("BOTTOMRIGHT", frame.powerBar, "BOTTOMRIGHT", 0.5, 0)
-
-            CreatePixelTextureBorder(frame.pixelBorder, borderSize, 0)
-
-            if not frame.pixelBorder.diagonal then
-                local line = frame.pixelBorder:CreateTexture(nil, "OVERLAY", nil, -1)
-                line:SetColorTexture(0, 0, 0, 1)
-                line:SetIgnoreParentScale(true)
-                frame.pixelBorder.diagonal = line
-            end
-
-            local line = frame.pixelBorder.diagonal
-            line:ClearAllPoints()
-            line:SetPoint("BOTTOMLEFT", frame.healthBar, "BOTTOMLEFT", 0, 0.5+halfPixel)
-            line:SetPoint("TOPRIGHT", frame.powerBar, "TOPRIGHT", 0, -0.5)
-        end
-    end
-
-    for i = 1, 40 do
-        local frame = _G["CompactRaidFrame"..i]
-        if frame then
-            if not frame.pixelBorder then
-                frame.pixelBorder = CreateFrame("Frame", nil, frame)
-            end
-            
-            frame.pixelBorder:ClearAllPoints()
-            frame.pixelBorder:SetPoint("TOPLEFT", frame.healthBar, "TOPLEFT", -0.5, 1)
-            frame.pixelBorder:SetPoint("BOTTOMRIGHT", frame.powerBar, "BOTTOMRIGHT", 0.5, 0)
-
-
-            CreatePixelTextureBorder(frame.pixelBorder, borderSize, 0)
-
-            if not frame.pixelBorder.diagonal then
-                local line = frame.pixelBorder:CreateTexture(nil, "BORDER", nil, -1)
-                line:SetColorTexture(0, 0, 0, 1)
-                line:SetIgnoreParentScale(true)
-                frame.pixelBorder.diagonal = line
-            end
-
-            local line = frame.pixelBorder.diagonal
-            line:ClearAllPoints()
-            line:SetPoint("BOTTOMLEFT", frame.healthBar, "BOTTOMLEFT", 0, 0.5+halfPixel)
-            line:SetPoint("TOPRIGHT", frame.powerBar, "TOPRIGHT", 0, -0.5)
-        end
-    end
-    hooksecurefunc("DefaultCompactMiniFrameSetup", function(frame)
-        if not frame then return end
-        if not frame.pixelBorder then
-            frame.pixelBorder = CreateFrame("Frame", nil, frame)
-            frame.pixelBorder:SetFrameLevel(3)
-        end
-        frame.pixelBorder:ClearAllPoints()
-        frame.pixelBorder:SetPoint("TOPLEFT", frame.healthBar, "TOPLEFT", -0.5, 1)
-        frame.pixelBorder:SetPoint("BOTTOMRIGHT", frame.healthBar, "BOTTOMRIGHT", 0.5, 0)
-
-        if frame.horizTopBorder then
-            frame.horizTopBorder:Hide()
-            frame.horizBottomBorder:Hide()
-            frame.vertLeftBorder:Hide()
-            frame.vertRightBorder:Hide()
-        end
-        CreatePixelTextureBorder(frame.pixelBorder, borderSize, 0)
-    end)
-    BBF.RaidFramePixelBorderApplied = true
 end
 
 function BBF.HideAbsorbGlow()
@@ -3807,6 +3742,8 @@ local LSM = LibStub("LibSharedMedia-3.0")
 local texture = "Interface\\Addons\\BetterBlizzPlates\\media\\DragonflightTextureHD"
 local manaTexture = "Interface\\Addons\\BetterBlizzPlates\\media\\blizzTex\\BlizzardRetailBarCrop2"
 BBF.manaTexture = manaTexture
+local altManaTexture = manaTexture
+BBF.altManaTexture = altManaTexture
 local raidHpTexture = "Interface\\Addons\\BetterBlizzPlates\\media\\DragonflightTextureHD"
 local raidManaTexture = "Interface\\Addons\\BetterBlizzPlates\\media\\DragonflightTextureHD"
 local castbarTexture = 137012
@@ -3882,6 +3819,14 @@ function BBF.UnitFrameTextureOn(kind)
     return db.changeUnitFrameManabarTexture or PixelBorderManaDefault()
 end
 
+function BBF.AltManaTextureOn()
+    return BetterBlizzFramesDB.changeAltManaBarTexture or BBF.UnitFrameTextureOn("mana")
+end
+
+local function ManaTextureFor(bar)
+    return bar == AlternatePowerBar and altManaTexture or manaTexture
+end
+
 function BBF.UnitFrameTextureName(kind)
     local db = BetterBlizzFramesDB
     if kind == "health" then
@@ -3902,8 +3847,29 @@ function BBF.UnitFrameTextureIsGreen()
     return BBF.UnitFrameTextureOn("health") and BBF.internalStatusbars[name] ~= nil
 end
 
-function BBF.UnitFrameNameBgTexture()
-    return BBF.FetchStatusbar((HealthTextureNames()))
+function BBF.HealthTextureBaseName()
+    return (HealthTextureNames())
+end
+
+function BBF.NameBgAlpha()
+    local db = BetterBlizzFramesDB
+    if db.classicFrames and db.changeUnitFrameNameBgTexture and db.unitFrameNameBgAlphaOverride then
+        return db.unitFrameNameBgAlpha or 1
+    end
+    return 1
+end
+
+function BBF.UpdateNameBgAlpha()
+    local alpha = BBF.NameBgAlpha()
+    for _, rep in ipairs({
+        PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.ReputationColor,
+        TargetFrame.TargetFrameContent.TargetFrameContentMain.ReputationColor,
+        FocusFrame and FocusFrame.TargetFrameContent.TargetFrameContentMain.ReputationColor,
+    }) do
+        if rep and not rep.bbfBigHidden then
+            rep:SetAlpha(alpha)
+        end
+    end
 end
 
 local function ShowHealthTexture(bar, tex)
@@ -3950,6 +3916,8 @@ function BBF.UpdateCustomTextures()
     texture = BBF.FetchStatusbar(BBF.healthTextureName)
     manaTexture = BBF.FetchStatusbar(BBF.UnitFrameTextureName("mana"))
     BBF.manaTexture = manaTexture
+    altManaTexture = db.changeAltManaBarTexture and BBF.FetchStatusbar(db.altManaBarTexture) or manaTexture
+    BBF.altManaTexture = altManaTexture
     raidHpTexture = LSM:Fetch(LSM.MediaType.STATUSBAR, db.raidFrameHealthbarTexture)
     raidManaTexture = LSM:Fetch(LSM.MediaType.STATUSBAR, db.raidFrameManabarTexture)
     castbarTexture = LSM:Fetch(LSM.MediaType.STATUSBAR, db.unitFrameCastbarTexture)
@@ -3962,6 +3930,9 @@ function BBF.UpdateCustomTextures()
 
     BBF.HookTextures()
     BBF.RevertUnitFrameTextures()
+    if PlayerFrame.AltManaBarBBF then
+        BBF.UpdateAltManaBarLook()
+    end
 end
 
 local LocalPowerBarColor = {}
@@ -4035,10 +4006,10 @@ local function ApplyTextureChange(type, statusBar, parent, classic, party, altBa
     if not keepFancyManas then
         if (parent and parent:GetName() == "PetFrame") then -- causes weird issues if not delayed
             C_Timer.After(0.1, function()
-                statusBar:SetStatusBarTexture((type == "health" and (statusBar.bbfTexShown or texture)) or manaTexture)
+                statusBar:SetStatusBarTexture((type == "health" and (statusBar.bbfTexShown or texture)) or ManaTextureFor(statusBar))
             end)
         else
-            statusBar:SetStatusBarTexture((type == "health" and statusBar.bbfTexShown) or manaTexture)
+            statusBar:SetStatusBarTexture((type == "health" and statusBar.bbfTexShown) or ManaTextureFor(statusBar))
         end
     else
         statusBar.keepFancyManas = BetterBlizzFramesDB.changeUnitFrameManaBarTextureKeepFancy
@@ -4105,11 +4076,11 @@ local function ApplyTextureChange(type, statusBar, parent, classic, party, altBa
         end
 
         if classic and not statusBar.bbfTextureHook then
-            statusBar:SetStatusBarTexture(manaTexture)
+            statusBar:SetStatusBarTexture(ManaTextureFor(statusBar))
             hooksecurefunc(statusBar, "SetStatusBarTexture", function(self)
                 if self.changing then return end
                 self.changing = true
-                self:SetStatusBarTexture(manaTexture)
+                self:SetStatusBarTexture(ManaTextureFor(self))
                 self.changing = false
             end)
             statusBar.bbfTextureHook = true
@@ -4144,7 +4115,7 @@ local function ApplyTextureChange(type, statusBar, parent, classic, party, altBa
                                 if not r then
                                     r, g, b = GetDefaultPowerColor(powerToken, self)
                                 end
-                                self:SetStatusBarTexture(manaTexture)
+                                self:SetStatusBarTexture(ManaTextureFor(self))
                                 self:SetStatusBarDesaturated(true)
                                 self:SetStatusBarColor(r, g, b)
                             end
@@ -4158,7 +4129,7 @@ local function ApplyTextureChange(type, statusBar, parent, classic, party, altBa
                             if not r then
                                 r, g, b = GetDefaultPowerColor(powerToken, self)
                             end
-                            self:SetStatusBarTexture(manaTexture)
+                            self:SetStatusBarTexture(ManaTextureFor(self))
                             self:SetStatusBarDesaturated(true)
                             self:SetStatusBarColor(r, g, b)
                         end
@@ -4171,7 +4142,7 @@ local function ApplyTextureChange(type, statusBar, parent, classic, party, altBa
                     hookFunc = function(self)
                         local powerToken = self.powerToken or self.powerName
                         if not powerToken or not fancyManas[powerToken] then
-                            self:SetStatusBarTexture(manaTexture)
+                            self:SetStatusBarTexture(ManaTextureFor(self))
                         end
                         local r, g, b = GetDefaultPowerColor(powerToken, self)
                         self:SetStatusBarDesaturated(true)
@@ -4180,7 +4151,7 @@ local function ApplyTextureChange(type, statusBar, parent, classic, party, altBa
                 else
                     hookFunc = function(self)
                         local powerToken = self.powerToken or self.powerName
-                        self:SetStatusBarTexture(manaTexture)
+                        self:SetStatusBarTexture(ManaTextureFor(self))
                         local r, g, b = GetDefaultPowerColor(powerToken, self)
                         self:SetStatusBarDesaturated(true)
                         self:SetStatusBarColor(r, g, b)
@@ -4273,7 +4244,7 @@ local function ApplyTextureChange(type, statusBar, parent, classic, party, altBa
             statusBar.bbfTextureColorHook = true
         end
 
-        if not BBF.hookedManaBarsTexture then
+        if not BBF.hookedManaBarsTexture and BBF.UnitFrameTextureOn("mana") then
 
             local useCustomColors = BetterBlizzFramesDB.customHealthbarColors and
                                    BetterBlizzFramesDB.customPowerColors and
@@ -4457,15 +4428,6 @@ function BBF.HookUnitFrameTextures()
                 end
             end
 
-            if db.classicFrames and db.changeUnitFrameHealthbarTextureRepColor then
-                local function retexture(tex)
-                    if not tex then return end
-                    tex:SetTexture((db.changeUnitFrameHealthbarTextureRepColor and BBF.UnitFrameNameBgTexture() or "Interface\\TargetingFrame\\UI-TargetingFrame-LevelBackground"))
-                end
-                retexture(PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.ReputationColor)
-                retexture(TargetFrame.TargetFrameContent.TargetFrameContentMain.ReputationColor)
-                retexture(FocusFrame.TargetFrameContent.TargetFrameContentMain.ReputationColor)
-            end
         end
 
         if manaTextureOn then
@@ -4475,7 +4437,6 @@ function BBF.HookUnitFrameTextures()
             manaTextureUnits["pet"] = true
 
             ApplyTextureChange("mana", PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.ManaBarArea.ManaBar)
-            ApplyTextureChange("mana", AlternatePowerBar, nil, nil, nil, true)
             local class = UnitClassBase("player")
             if class == "MONK" and MonkStaggerBar then
                 ApplyTextureChange("mana", MonkStaggerBar, nil, nil, nil, true)
@@ -4502,6 +4463,10 @@ function BBF.HookUnitFrameTextures()
                     ApplyTextureChange("mana", frame.ManaBar)
                 end
             end
+        end
+
+        if BBF.AltManaTextureOn() then
+            ApplyTextureChange("mana", AlternatePowerBar, nil, nil, nil, true)
         end
 
         if db.changeUnitFrameCastbarTexture and not BBF.castbarTexturesHooked then
@@ -4710,7 +4675,7 @@ function BBF.HookTextures()
     BBF.UpdateClassicCastbarTexture(castbarTexture, db.unitFrameCastbarNonInterruptibleTexture and LSM:Fetch(LSM.MediaType.STATUSBAR, db.unitFrameCastbarNonInterruptibleTexture))
     -- Hook UnitFrames
     -- BetterBlizzFramesDB.textureSwapUnitFrames
-    if BBF.UnitFrameTextureOn("health") or BBF.UnitFrameTextureOn("mana") or db.changeUnitFrameCastbarTexture then
+    if BBF.UnitFrameTextureOn("health") or BBF.AltManaTextureOn() or db.changeUnitFrameCastbarTexture then
         BBF.HookUnitFrameTextures()
     end
     if db.classicFrames and db.changeUnitFrameNameBgTexture then
@@ -4721,6 +4686,7 @@ function BBF.HookTextures()
         TargetFrame.TargetFrameContent.TargetFrameContentMain.ReputationColor:SetTexture(nameBgTexture)
         FocusFrame.TargetFrameContent.TargetFrameContentMain.ReputationColor:SetTexture(nameBgTexture)
     end
+    BBF.UpdateNameBgAlpha()
 
     -- Hook Raidframes
     -- BetterBlizzFramesDB.textureSwapRaidFrames
@@ -6279,11 +6245,13 @@ First:SetScript("OnEvent", function(_, event, addonName)
             BBF.UpdateCustomTextures()
             BBF.SetCompactUnitFramesBackground()
             BBF.XpBarTexture()
+            BBF.QuestXpBar()
             BBF.DamageMeterTexture()
         end)
         BBF.HealthbarMirrors()
         BBF.ClassicFrames()
         BBF.noPortraitModes()
+        BBF.UpdateSkullIcons()
         BBF.UpdateDefaultPetFrameMana()
         BBF.UpdateDefaultTotFrameMana()
         BBF.UpdateBigPlayerHealthbar()
@@ -6291,6 +6259,7 @@ First:SetScript("OnEvent", function(_, event, addonName)
         BBF.StatusBarTextExtra()
         BBF.AlwaysHideStatusBarTexts()
         BBF.HideTooltip()
+        BBF.ColorTooltips()
         BBF.LowerToTStrata()
         BBF.FlipPortraits()
         BBF.UpdateAuraCollapseButton()
@@ -6324,8 +6293,10 @@ First:SetScript("OnEvent", function(_, event, addonName)
         C_Timer.After(0.5, function()
             BBF.ZoomDefaultActionbarIcons()
             BBF.ActionBarRangeColor()
+            BBF.ActionBarSlotArt()
             BBF.SnowfallKeypress()
             BBF.ActionBarCooldownFont()
+            BBF.BuffDurationFont()
             BBF.ActionBarCooldownTextColor()
             BBF.HookStatusBarText()
             BBF.UnitFrameBackgroundTexture()
@@ -6347,6 +6318,7 @@ First:SetScript("OnEvent", function(_, event, addonName)
             BBF.TexturePRD()
             BBF.FixFeedbackTextures()
             BBF.FixHealPredictionTextures()
+            BBF.HealPredictionColor()
             BBF.LegacyPRDLook()
             BBF.FixPrdRogueComboCentering()
         end)
@@ -6390,6 +6362,15 @@ First:SetScript("OnEvent", function(_, event, addonName)
             if BetterBlizzFramesDB.hasSaved then
                 C_Timer.After(7, function()
                     BBF.ShowPopup("BBF_UPDATE_220")
+                end)
+            end
+        end
+
+        if not BetterBlizzFramesDB.classicOriginalTexturesNotice then
+            BetterBlizzFramesDB.classicOriginalTexturesNotice = true
+            if BetterBlizzFramesDB.hasSaved and BetterBlizzFramesDB.classicFrames and not BetterBlizzFramesDB.classicFramesHDTextures then
+                C_Timer.After(7, function()
+                    BBF.ShowPopup("BBF_CLASSIC_ORIGINAL_TEXTURES")
                 end)
             end
         end

@@ -746,7 +746,7 @@ local function HookPowerBarColors()
             DemonHunterSoulFragmentsBar = {r = 0.11, g = 0.34, b = 0.71}
         }
 
-        if AlternatePowerBar then
+        if AlternatePowerBar and not BetterBlizzFramesDB.changeAltManaBarTexture then
             SetupAlternateBarHook(AlternatePowerBar, defaultColors.AlternatePowerBar)
         end
 
@@ -797,6 +797,9 @@ function BBF.UpdateFrames()
     if customPowerColors then
         UpdatePowerColorCache()
         HookPowerBarColors()
+        if PlayerFrame.AltManaBarBBF then
+            BBF.UpdateAltManaBarLook()
+        end
 
         if customHealthbarColors and customColorsUnitFrames then
             if PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.ManaBarArea.ManaBar then
@@ -1093,7 +1096,7 @@ function BBF.ResetClassColorReputation(frame, unit)
     local useCustomColors = customHealthbarColors and customColorsUnitFrames
     local color = getUnitColor(unit, useCustomColors)
     if color then
-        frame:SetDesaturated(false)
+        frame:SetDesaturated(BBF.NameBgDesaturated(unit))
         frame:SetVertexColor(UnitSelectionColor(unit))
     end
 end
@@ -1336,8 +1339,7 @@ local function PlayerNameBgMode()
     local db = BetterBlizzFramesDB
     if db.classicFrames or BBF.ClassicStyleAddon() then return false end
     if BBF.RetailTexturesOn and BBF.RetailTexturesOn("player") then return "retailTextures" end
-    if db.playerNameBgClassic then return "classic" end
-    if db.playerNameBgRetail then return "retail" end
+    return BBF.NameBgStyle("player")
 end
 
 local RETAIL_NAME_BG_SPLIT = 270 / 300
@@ -1400,15 +1402,16 @@ local function PlacePlayerNameBg(frame, mode)
     local rep = frame.ReputationColor
     rep.bbfNameBgSplit = nil
     local mask = rep.bbfShapeMask
-    if mode == "classic" and not mask then
+    local masked = mode == "classic" or mode == "custom"
+    if masked and not mask then
         mask = frame:CreateMaskTexture()
         mask:SetAtlas(PLAYER_NAME_BG_HEALTH_ATLAS)
         mask:SetAllPoints(rep)
         rep.bbfShapeMask = mask
     end
-    if mask and (rep.bbfShapeMasked or false) ~= (mode == "classic") then
-        rep.bbfShapeMasked = mode == "classic" or nil
-        if mode == "classic" then
+    if mask and (rep.bbfShapeMasked or false) ~= masked then
+        rep.bbfShapeMasked = masked or nil
+        if masked then
             rep:AddMaskTexture(mask)
         else
             rep:RemoveMaskTexture(mask)
@@ -1420,6 +1423,11 @@ local function PlacePlayerNameBg(frame, mode)
     elseif mode == "classic" then
         rep:SetTexture("Interface\\TargetingFrame\\UI-TargetingFrame-LevelBackground")
         rep:SetTexCoord(1, 0, 0, 1)
+        rep:SetSize(125, 21)
+        rep:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -21, -25)
+    elseif mode == "custom" then
+        rep:SetTexture(BBF.NameBgCustomTexture())
+        rep:SetTexCoord(0, 1, 0, 1)
         rep:SetSize(125, 21)
         rep:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -21, -25)
     elseif mode == "retail" then
@@ -1444,18 +1452,10 @@ function BBF.PlayerReputationColor()
             frame.ReputationColor = frame:CreateTexture(nil, "OVERLAY")
             if BetterBlizzFramesDB.classicFrames then
                 if BetterBlizzFramesDB.changeUnitFrameNameBgTexture then
-                    local nameBgTexture = BBF.LSM:Fetch(BBF.LSM.MediaType.STATUSBAR, BetterBlizzFramesDB.unitFrameNameBgTexture)
-                    frame.ReputationColor:SetTexture(nameBgTexture)
-                    frame.ReputationColor:SetTexCoord(0, 1, 0, 1)
+                    BBF.ApplyClassicFramesNameBg(frame.ReputationColor, "player")
                 else
-                    if BetterBlizzFramesDB.changeUnitFrameHealthbarTextureRepColor and BBF.UnitFrameTextureOn("health") then
-                        local texture = BBF.UnitFrameNameBgTexture()
-                        frame.ReputationColor:SetTexture(texture)
-                        frame.ReputationColor:SetTexCoord(0, 1, 0, 1)
-                    else
-                        frame.ReputationColor:SetTexture("Interface\\TargetingFrame\\UI-TargetingFrame-LevelBackground")
-                        frame.ReputationColor:SetTexCoord(1, 0, 0, 1)
-                    end
+                    frame.ReputationColor:SetTexture("Interface\\TargetingFrame\\UI-TargetingFrame-LevelBackground")
+                    frame.ReputationColor:SetTexCoord(1, 0, 0, 1)
                 end
                 frame.ReputationColor:SetSize(117, 18)
                 frame.ReputationColor:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -26, -31)
@@ -1484,6 +1484,7 @@ function BBF.PlayerReputationColor()
             frame.ReputationColor:SetDesaturated(nameBgMode == "retail")
             frame.ReputationColor:SetVertexColor(UnitSelectionColor("player"))
         end
+        BBF.ApplyNameBgAlpha(frame.ReputationColor, "player")
     else
         if frame.ReputationColor then
             frame.ReputationColor:Hide()
@@ -1551,7 +1552,9 @@ function BBF.HookFrameTextureColor()
             return
         end
         if colored then
-            r, g, b = math.min(r + 0.15, 1), math.min(g + 0.15, 1), math.min(b + 0.15, 1)
+            if not issecretvalue(r) then
+                r, g, b = math.min(r + 0.15, 1), math.min(g + 0.15, 1), math.min(b + 0.15, 1)
+            end
         elseif not bronze then
             local darkmode = BBF.darkModeUnitFramesActive
             local v = darkmode and BetterBlizzFramesDB.darkModeColor or 1

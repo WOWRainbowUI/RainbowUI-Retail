@@ -746,7 +746,7 @@ local function HookPowerBarColors()
             DemonHunterSoulFragmentsBar = {r = 0.11, g = 0.34, b = 0.71}
         }
 
-        if AlternatePowerBar then
+        if AlternatePowerBar and not BetterBlizzFramesDB.changeAltManaBarTexture then
             SetupAlternateBarHook(AlternatePowerBar, defaultColors.AlternatePowerBar)
         end
 
@@ -797,6 +797,9 @@ function BBF.UpdateFrames()
     if customPowerColors then
         UpdatePowerColorCache()
         HookPowerBarColors()
+        if PlayerFrame.AltManaBarBBF then
+            BBF.UpdateAltManaBarLook()
+        end
 
         if customHealthbarColors and customColorsUnitFrames then
             if PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.ManaBarArea.ManaBar then
@@ -1342,14 +1345,8 @@ function BBF.PlayerReputationColor()
                     frame.ReputationColor:SetTexture(nameBgTexture)
                     frame.ReputationColor:SetTexCoord(0, 1, 0, 1)
                 else
-                    if BetterBlizzFramesDB.changeUnitFrameHealthbarTextureRepColor and BBF.UnitFrameTextureOn("health") then
-                        local texture = BBF.UnitFrameNameBgTexture()
-                        frame.ReputationColor:SetTexture(texture)
-                        frame.ReputationColor:SetTexCoord(0, 1, 0, 1)
-                    else
-                        frame.ReputationColor:SetTexture("Interface\\TargetingFrame\\UI-TargetingFrame-LevelBackground")
-                        frame.ReputationColor:SetTexCoord(1, 0, 0, 1)
-                    end
+                    frame.ReputationColor:SetTexture("Interface\\TargetingFrame\\UI-TargetingFrame-LevelBackground")
+                    frame.ReputationColor:SetTexCoord(1, 0, 0, 1)
                 end
                 frame.ReputationColor:SetSize(117, 18)
                 frame.ReputationColor:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -26, -31)
@@ -1390,6 +1387,9 @@ function BBF.PlayerReputationColor()
         else
             frame.ReputationColor:SetDesaturated(false)
             frame.ReputationColor:SetVertexColor(UnitSelectionColor("player"))
+        end
+        if not frame.ReputationColor.bbfBigHidden then
+            frame.ReputationColor:SetAlpha(BBF.NameBgAlpha())
         end
     else
         if frame.ReputationColor then

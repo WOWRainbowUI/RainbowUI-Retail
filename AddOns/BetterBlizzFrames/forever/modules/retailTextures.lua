@@ -272,12 +272,12 @@ function BBF.RetailArtPath(name)
 end
 
 function BBF.ShiftRegionY(region, shift)
-    if not region or region:GetNumPoints() == 0 then return end
+    if not region or region.dontMove or region:GetNumPoints() == 0 then return end
     shift = shift or 0
     if not region.bbfShiftHooked then
         region.bbfShiftHooked = true
         hooksecurefunc(region, "SetPoint", function(self)
-            if self.bbfShifting or not self.bbfShiftY then return end
+            if self.bbfShifting or self.dontMove or not self.bbfShiftY then return end
             local wanted = self.bbfShiftY
             self.bbfShiftY = nil
             BBF.ShiftRegionY(self, wanted)
@@ -566,6 +566,7 @@ function BBF.SetRetailSmallFlash(flash, art, big, reduced, noMana, atlas)
         flash:SetTexture(RETAIL_TEX .. "ToT-InCombat" .. suffix .. ".png")
         flash:SetTexCoord(0, 1, 0, 1)
         flash.bbfSmallFlashPoint = flash.bbfSmallFlashPoint or { flash:GetPoint(1) }
+        flash.bbfSmallFlashSublevel = flash.bbfSmallFlashSublevel or select(2, flash:GetDrawLayer())
         flash:ClearAllPoints()
         flash:SetPoint("TOPLEFT", art, "TOPLEFT")
         flash:SetSize(120, 49)
@@ -574,8 +575,9 @@ function BBF.SetRetailSmallFlash(flash, art, big, reduced, noMana, atlas)
         flash:SetAtlas(atlas, TextureKitConstants.UseAtlasSize)
         flash:ClearAllPoints()
         flash:SetPoint(unpack(flash.bbfSmallFlashPoint))
-        flash:SetDrawLayer((flash:GetDrawLayer()), 0)
+        flash:SetDrawLayer((flash:GetDrawLayer()), flash.bbfSmallFlashSublevel)
         flash.bbfSmallFlashPoint = nil
+        flash.bbfSmallFlashSublevel = nil
     end
 end
 
