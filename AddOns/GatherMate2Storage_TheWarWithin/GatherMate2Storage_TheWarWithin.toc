@@ -5,7 +5,7 @@
 ## IconTexture: Interface\AddOns\GatherMate2\Artwork\Icon.tga
 ## Dependencies: GatherMate2
 ## AllowLoadGameType: standard
-## Version: 1.52.5.1
+## Version: 1.52.6
 ## X-Category: Map
 ## LoadSavedVariablesFirst: 1
 ## SavedVariables: GatherMate2HerbDBTWW, GatherMate2MineDBTWW, GatherMate2FishDBTWW, GatherMate2GasDBTWW, GatherMate2TreasureDBTWW, GatherMate2ArchaeologyDBTWW, GatherMate2LoggingDBTWW
