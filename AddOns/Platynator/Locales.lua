@@ -393,6 +393,8 @@ L["HEALTH_BAR"] = "Health Bar"
 L["AURA_HIGHLIGHT"] = "Aura Highlight"
 L["SHOW_INDIVIDUAL_COLORS"] = "Show individual colors"
 L["EXTRAS"] = "Extras"
+L["GROUP"] = "Group"
+L["GROUPED"] = "Grouped"
 
 L["ATTACK"] = "Attack"
 L["CAN_ATTACK"] = "Can Attack"

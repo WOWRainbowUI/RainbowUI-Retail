@@ -42,15 +42,19 @@ local function GetAlignment(unit)
   end
 end
 
+local InParty = UnitIsPlayerControlledOrGroupMember or UnitInParty
+
 local assignmentsPossibilities = {
-  ["can-attack"] = { frequent = true, updates = "canAttack", check = function(state) return state.canAttack end },
-  ["cannot-attack"] = { frequent = true, updates = "canAttack", check = function(state) return not state.canAttack end },
+  ["can-attack"] = { updates = "canAttack", check = function(state) return state.canAttack end },
+  ["cannot-attack"] = { updates = "canAttack", check = function(state) return not state.canAttack end },
 
-  ["in-combat"] = { frequent = true, updates = "combat", check = function(state) return state.combat end },
-  ["out-combat"] = { frequent = true, updates = "combat", check = function(state) return not state.combat end },
+  ["in-combat"] = { updates = "combat", check = function(state) return state.combat end },
+  ["out-combat"] = { updates = "combat", check = function(state) return not state.combat end },
 
-  ["is-target"] = { frequent = true, updates = "target", check = function(state) return state.target end },
-  ["not-target"] = { frequent = true, updates = "target", check = function(state) return not state.target end },
+  ["is-target"] = { updates = "target", check = function(state) return state.target end },
+  ["not-target"] = { updates = "target", check = function(state) return not state.target end },
+
+  ["grouped"] = { updates = "grouped", check = function(state) return state.grouped end },
 
   ["friend"] = { updates = "alignment", check = function(state) return state.alignment == "friend" end},
   ["hostile"] = { updates = "alignment", check = function(state) return state.alignment == "hostile" end},
@@ -122,6 +126,7 @@ local function GenerateState(unit)
     eliteType = GetEliteType(unit),
     delveType = GetDelveType(unit),
     resting = IsResting(),
+    grouped = InParty(unit),
 
     unit = unit,
     updates = {},
@@ -193,6 +198,15 @@ function addonTable.Display.DesignForContextMixin:OnEvent(event, ...)
     local unit = ...
     self.unitStates[unit] = nil
     self.unitsListening[unit] = nil
+  elseif event == "GROUP_ROSTER_UPDATE" then
+    for unit, state in pairs(self.unitStates) do
+      local changes = state.updates.grouped
+      local oldGrouped = state.grouped
+      state.grouped = InParty(unit)
+      if changes and oldGrouped ~= state.grouped then
+        addonTable.CallbackRegistry:TriggerEvent("UnitDesignChange", unit)
+      end
+    end
   end
 end
 
@@ -227,6 +241,7 @@ function addonTable.Display.DesignForContextMixin:GetDefaultEnemyNPCDesign()
     eliteType = "trival",
     delveType = "melee",
     isResting = false,
+    grouped = false,
 
     updates = {},
   })
@@ -245,6 +260,7 @@ function addonTable.Display.DesignForContextMixin:GetDefaultFriendlyPlayerDesign
     eliteType = nil,
     delveType = nil,
     isResting = false,
+    grouped = true,
 
     updates = {},
   })

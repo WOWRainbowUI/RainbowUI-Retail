@@ -1475,7 +1475,7 @@ function addonTable.Display.GetWidgets(design, parent, isEditor)
   end
 
   for _, w in ipairs(widgets) do
-    if addonTable.Constants.IsPixelPerfectPlus then
+    if addonTable.Constants.IsPixelPerfectPlus and (not addonTable.Utilities.IsChangesRestricted() or not w.auras) then
       PixelUtil.SetRoundLayoutToNearestPixelRecursively(w, true)
     else
       w.pixelPerfectRequired = nil
