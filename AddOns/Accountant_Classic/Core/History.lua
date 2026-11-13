@@ -77,6 +77,15 @@ local function isUsableNumber(value)
 	return type(value) == "number"
 end
 
+---Tests a flag returned by the game API. Since 12.0 some of them (e.g. UnitIsAFK)
+---can return a secret boolean, which raises an error when tested; it counts as false.
+---@param value any
+---@return boolean
+local function isTrue(value)
+	if issecretvalue and issecretvalue(value) then return false end
+	return not not value
+end
+
 ---@param t integer? Unix time, defaults to now
 ---@return integer day YYYYMMDD in local time
 local function dayKey(t)
@@ -369,7 +378,7 @@ local function getLocation()
 		if ok and isUsableNumber(id) then mapID = id end
 	end
 	-- Inside instances the sub-zone adds little, same as the classic zone breakdown.
-	if IsInInstance and IsInInstance() then
+	if IsInInstance and isTrue((IsInInstance())) then
 		return mapID
 	end
 	local text = GetSubZoneText and GetSubZoneText()
@@ -616,7 +625,8 @@ function History:TickOnline()
 		h[hr] = hb
 	end
 	hb.m = (hb.m or 0) + 1
-	if UnitIsAFK and UnitIsAFK("player") then
+	-- A secret AFK flag (12.0) cannot be read; that minute counts as online only.
+	if UnitIsAFK and isTrue(UnitIsAFK("player")) then
 		hb.a = (hb.a or 0) + 1
 	end
 end
