@@ -837,9 +837,12 @@ local function SyncLevelToName(frame, levelText)
     MatchNameFont(levelText, name)
     if not name.bbfLevelFontHooked then
         name.bbfLevelFontHooked = true
-        hooksecurefunc(name, "SetFont", function()
+        local function Match()
             MatchNameFont(levelText, name)
-        end)
+        end
+        hooksecurefunc(name, "SetFont", Match)
+        hooksecurefunc(name, "SetFontHeight", Match)
+        hooksecurefunc(name, "SetFontObject", Match)
     end
 end
 
@@ -1276,8 +1279,7 @@ local function MakeNoPortraitMode(frame)
         local pixelBorderMode = db.noPortraitPixelBorder
 
         contentContext:SetParent(frame.noPortraitMode)
-        contentContext.HighLevelTexture:ClearAllPoints()
-        contentContext.HighLevelTexture:SetPoint("CENTER", frame, "RIGHT", -91, 17)
+        BBF.UpdateSkullIcon(frame)
         contentContext.PetBattleIcon:ClearAllPoints()
         contentContext.PetBattleIcon:SetPoint("CENTER", frame, "BOTTOMRIGHT", -35, 25)
         contentContext.PrestigePortrait:SetScale(0.85)
@@ -1369,13 +1371,13 @@ local function MakeNoPortraitMode(frame)
                 totHpBar.HealthBarMask:SetSize(98, 36)
                 SetXYPoint(totHpBar.HealthBarMask, -17, 6.5)
             else
-                totHpBar.HealthBarMask:SetSize(98, 22)
-                SetXYPoint(totHpBar.HealthBarMask, -17, 3.5)
+                totHpBar.HealthBarMask:SetSize(98, 21)
+                SetXYPoint(totHpBar.HealthBarMask, -17, 2)
             end
 
-            totManaBar.ManaBarMask:SetSize(96, 19)
+            totManaBar.ManaBarMask:SetSize(96, 20)
             totManaBar.ManaBarMask:SetTexture("interface/hud/uipartyframeportraitoffmanamask")
-            SetXYPoint(totManaBar.ManaBarMask, -13, 4)
+            SetXYPoint(totManaBar.ManaBarMask, -13, 5)
         end
 
         if not totFrame.BBFTextFrame then
@@ -2638,7 +2640,8 @@ local function AdjustAlternateBars()
             rightText:Show()
         end
 
-        if BBF.UnitFrameTextureOn("mana") then
+        local altMana = bar == AlternatePowerBar
+        if (altMana and BBF.AltManaTextureOn()) or BBF.UnitFrameTextureOn("mana") then
             if not bar.bbfAltHooked then
                 bar.bbfAltHooked = true
                 local color = PowerBarColor[bar.powerType]
@@ -2672,7 +2675,7 @@ local function AdjustAlternateBars()
                             end
                         end
 
-                        self:SetStatusBarTexture(BBF.manaTexture)
+                        self:SetStatusBarTexture(altMana and BBF.altManaTexture or BBF.manaTexture)
                         self:SetStatusBarColor(r, g, b)
                     end)
                 else
@@ -2690,7 +2693,7 @@ local function AdjustAlternateBars()
                             end
                         end
 
-                        self:SetStatusBarTexture(BBF.manaTexture)
+                        self:SetStatusBarTexture(altMana and BBF.altManaTexture or BBF.manaTexture)
                         self:SetStatusBarColor(r, g, b)
                     end)
                 end
