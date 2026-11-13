@@ -50,14 +50,28 @@ end
 
 local RESTRICTED_AMOUNT_TOKEN = "\001"
 
-function Formatter:BuildRestrictedTemplate(message, suffix)
+function Formatter:ColorDamageAmount(amount, damageType)
+	local profile = self:GetProfile()
+	local entries = self.config.damageColorEntries
+	local entry = damageType and entries and entries[damageType]
+	local settings = entry and profile[entry]
+	if settings then
+		return ColorText(settings, amount)
+	end
+	return amount
+end
+
+function Formatter:BuildRestrictedTemplate(message, suffix, damageType)
 	message = string.gsub(message, "%%a", RESTRICTED_AMOUNT_TOKEN, 1)
 	message = string.gsub(message, "%%a", "")
 	if suffix then
 		message = message .. suffix
 	end
 	message = string.gsub(message, "%%", "%%%%")
-	return (string.gsub(message, RESTRICTED_AMOUNT_TOKEN, "%%s"))
+	local placeholder = self:ColorDamageAmount("%s", damageType)
+	return (string.gsub(message, RESTRICTED_AMOUNT_TOKEN, function()
+		return placeholder
+	end))
 end
 
 function Formatter:AbbreviateSkillName(skillName)
@@ -162,14 +176,10 @@ function Formatter:FormatEvent(event)
 	if event.amount and string.find(message, "%a", 1, true) then
 		local amount, partialAmount = FormatPartialAmount(self, event, profile)
 		local formattedAmount = self:FormatDisplayAmount(amount, profile)
-		local colorEntry = event.damageType
-			and self.config.damageColorEntries[event.damageType]
-		local damageSettings = colorEntry and profile[colorEntry]
-		if damageSettings and not event.ignoreDamageColoring
-			and not profile.damageColoringDisabled
-			and not event.forceEventColoring
-			and not damageSettings.disabled then
-			formattedAmount = ColorText(damageSettings, formattedAmount)
+		if not event.ignoreDamageColoring and not event.forceEventColoring then
+			formattedAmount = self:ColorDamageAmount(
+				formattedAmount, event.damageType
+			)
 		end
 		message = string.gsub(message, "%%a", formattedAmount .. partialAmount)
 	end

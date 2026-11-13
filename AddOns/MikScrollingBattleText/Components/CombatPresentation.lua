@@ -55,7 +55,15 @@ function Presentation:Emit(key, record, eventSettings)
 	local icon = record.icon or (record.spell
 		and self.config.getSpellTexture(record.spell))
 	if RestrictedValue:IsRestricted(record.amount) then
-		self.config.displayRestricted(settings, record.amount, icon, record.message)
+		local message = record.message
+		if record.event == "heal" then
+			-- Format public spell metadata while leaving %a for native rendering.
+			local metadata = {}
+			for field, value in pairs(record) do metadata[field] = value end
+			metadata.amount = nil
+			message = self.config.formatMessage(settings, metadata, message)
+		end
+		self.config.displayRestricted(settings, record.amount, icon, message)
 		return
 	end
 	local message
@@ -190,11 +198,16 @@ function Presentation:Out(record)
 	end
 	if record.event == "damage" then
 		local isSpell = not result.melee or result.hand == "ranged"
-		local method = RestrictedValue:IsRestricted(record.amount)
-			and "DisplayRestricted" or "Queue"
-		self.config.batcher[method](self.config.batcher,
-			spell, record.amount, record.crit, icon, isSpell,
-			result.who == "pet", result.tick, key)
+		local school = RestrictedValue:Number(record.school)
+		if RestrictedValue:IsRestricted(record.amount) then
+			self.config.batcher:DisplayRestricted(
+				spell, record.amount, record.crit, icon, isSpell,
+				result.who == "pet", result.tick, key, school)
+		else
+			self.config.batcher:Queue(
+				spell, record.amount, record.crit, icon, isSpell,
+				result.who == "pet", result.tick, key, nil, school)
+		end
 		return
 	end
 	local displayRecord = {}

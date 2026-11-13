@@ -42,8 +42,6 @@ obj["resist"]					= { label="部分抵抗", tooltip="显示部分抵抗数值"}
 obj["vulnerability"]			= { label="易伤加成", tooltip="显示易伤加成数值"}
 obj["overheal"]					= { label="过量治疗", tooltip="显示过量治疗数值"}
 obj["overkill"]					= { label="灭绝", tooltip="显示灭绝总数."}
-obj["colorDamageAmounts"]		= { label="伤害数值着色", tooltip="为伤害值着色"}
-obj["colorDamageEntry"]			= { tooltip="为此类伤害着色"}
 obj["colorUnitNames"]			= { label="名字着色", tooltip="名字使用职业颜色着色."}
 obj["colorClassEntry"]			= { tooltip="启用此职业的颜色."}
 obj["enableScrollArea"]			= { tooltip="启用滚动区域"}
@@ -89,7 +87,7 @@ obj["resetProfile"]				= { label="重置配置", tooltip="重置配置至默认�
 obj["deleteProfile"]			= { label="删除配置", tooltip="删除配置文件"}
 obj["masterFont"]				= { label="主要字体", tooltip="设置主要字体样式；除非另有指定，否则所有的滚动区域和事件均将使用这种字体样式"}
 obj["partialEffects"]			= { label="特效着色", tooltip="设置显示哪些特殊战斗效果以及着什么颜色"}
-obj["damageColors"]				= { label="伤害着色", tooltip="设置是否为某种伤害数值着色以及着什么颜色"}
+obj["damageColors"]				= { label="伤害着色", tooltip="设置各伤害类型使用的颜色。"}
 obj["classColors"]				= { label="职业颜色", tooltip="设置名字是否使用职业颜色着色和每种职业所用的颜色." }
 obj["inputOkay"]				= { label=OKAY, tooltip="接受输入"}
 obj["inputCancel"]				= { label=CANCEL, tooltip="取消输入"}

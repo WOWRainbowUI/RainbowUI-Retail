@@ -123,6 +123,19 @@ ns.LATE_SWING = LATE_SWING
 local DIRECT_ONLY, TICKS_ONLY, BOTH = 1, 2, 3
 ns.SPELL_KINDS = { directOnly = DIRECT_ONLY, ticksOnly = TICKS_ONLY, both = BOTH }
 
+local function SpellKind(facts, kind)
+    if type(facts) ~= "table" then return kind end
+    if facts.ticks == true then
+        if facts.direct == true then return BOTH end
+        if facts.direct == false then return TICKS_ONLY end
+        if kind == DIRECT_ONLY then return nil end
+    elseif facts.direct == true then
+        if facts.ticks == false then return DIRECT_ONLY end
+        if kind == TICKS_ONLY then return nil end
+    end
+    return kind
+end
+
 local PHYSICAL = 1
 ns.SCHOOL_PHYSICAL = PHYSICAL
 
@@ -140,20 +153,35 @@ function Mine:SwingDelay(hand)
     table.sort(sorted)
     return sorted[math.floor((#sorted + 1) / 2)]
 end
+local function LearnedMeleeWindow(tracker, hand)
+    local lag = tracker:SwingDelay(hand)
+    if not lag then return end
+    local early = math.max(0.05, lag - SWING_EARLY)
+    local late = lag + SWING_LATE
+    -- Variable two-hander delays can fall outside the median's window.
+    -- Preserve the initial range when recent samples show that variation;
+    -- stable hands stay tight so an earlier teammate hit cannot claim them.
+    for _, delay in ipairs(tracker.swingLags[hand]) do
+        if delay < early or delay > late then
+            return math.min(SWING_MIN, early), math.max(SWING_LINED, late)
+        end
+    end
+    return early, late
+end
+
 -- The delays a melee hit with a swing's line may come after it: for a hand,
 -- or with no hand (an extra attack, a killing swing) any hand's.
 function Mine:MeleeWindow(hand)
     if hand then
-        local lag = self:SwingDelay(hand)
-        if not lag then return SWING_MIN, SWING_LINED end
-        return math.max(0.05, lag - SWING_EARLY), lag + SWING_LATE
+        local early, late = LearnedMeleeWindow(self, hand)
+        return early or SWING_MIN, late or SWING_LINED
     end
     local early, late
     for _, each in ipairs({ "main", "off" }) do
-        local lag = self:SwingDelay(each)
-        if lag then
-            early = math.min(early or 99, math.max(0.05, lag - SWING_EARLY))
-            late = math.max(late or 0, lag + SWING_LATE)
+        local handEarly, handLate = LearnedMeleeWindow(self, each)
+        if handEarly then
+            early = math.min(early or 99, handEarly)
+            late = math.max(late or 0, handLate)
         end
     end
     if not early then return SWING_MIN, SWING_LINED end
@@ -190,6 +218,11 @@ local function KeepHeld(entry, now)
 end
 
 local function KeepDot(dot, now, tracker)
+    if dot.bufferUntil then
+        if now <= dot.bufferUntil then return true end
+        dot.bufferUntil = nil
+    end
+    if dot.confirmedAt and not dot.period then return now - dot.confirmedAt <= CAST_HISTORY_WINDOW end
     if dot.period then
         -- Allow up to three skipped ticks before discarding a known rhythm.
         while now > dot.next + TICK_SLACK and (dot.skipped or 0) < 3 do
@@ -410,9 +443,8 @@ function Mine:Cast(caster, spell, key, now)
         -- The description wins over anything learned from hits (0.3.6: a
         -- Curse of Agony learned as Physical from a pet's swings).
         school = facts.school or school
-        if facts.direct ~= nil then
-            kind = (facts.direct and facts.ticks and BOTH) or (facts.ticks and TICKS_ONLY) or (facts.direct and DIRECT_ONLY) or kind
-        end
+        kind = SpellKind(facts, kind)
+        period = facts.period or period
     end
     -- A recast refreshes its DoT: the ticks start again from now.
     for index = #self.dots, 1, -1 do
@@ -666,10 +698,11 @@ local function RememberAmount(self, spell)
 end
 
 local function Ticked(self, dot, school, now)
+    dot.bufferUntil = nil
     dot.ticks, dot.next, dot.skipped = dot.ticks + 1, now + dot.period, 0
     RememberAmount(self, dot.spell)
     if school and not dot.school then dot.school = school end
-    if not dot.known and dot.ticks >= 2 then
+    if not dot.known and dot.ticks >= 2 and not self.ambiguous then
         dot.known = true
         if dot.school and self.learned("school", dot.spell) == nil then LearnSchool(self, dot.spell, dot.school) end
         self.learn("period", dot.spell, dot.period)
@@ -697,6 +730,148 @@ local function FirstTick(dot, now)
         local gap = dot.directAt - dot.castAt
         if gap >= RETIME_GAP and math.abs((now - dot.directAt) - gap) <= TICK_SLACK then return gap, true end
     end
+end
+
+local function TickPeriod(dot, now, confirmed)
+    if dot.period then
+        if dot.next and math.abs(now - dot.next) <= TICK_SLACK then return dot.period end
+        return nil
+    end
+    if not confirmed and dot.pending and not dot.pending.used
+        and dot.pending.school == nil and now - dot.pending.at <= FIRST_HIT_WAIT then return nil end
+    local candidate = dot.candidate
+    if candidate and math.abs(now - candidate.at - candidate.period) <= TICK_SLACK then return candidate.period end
+    return FirstTick(dot, now)
+end
+
+-- Typed periodic lines can recover a cast even when its tooltip is unavailable
+-- or a learned school/kind/interval is stale. Fitting never changes the tracker.
+local function PeriodicCandidate(self, key, school, now, amount, leech)
+    local best, bestScore, count
+    local dueDot, unknownDot, drainingDotScore = false, false, nil
+    local function Consider(spell, cast, dot)
+        local at = dot and dot.castAt or cast.at
+        local since = now - at
+        if since < 0.5 or (not dot and since > CAST_HISTORY_WINDOW) then return end
+        if dot and dot.confirmedAt and now - dot.confirmedAt < 0.5 then return end
+        local facts = self.facts(spell)
+        if type(facts) == "table" then
+            if facts.damages == false or facts.helpful or facts.healthCost
+                or facts.ticks == false or not SchoolFits(facts.school, school) then return end
+            if facts.duration and since > facts.duration + DIRECT_WINDOW then return end
+        end
+        local known = dot and dot.school or self.learned("school", spell)
+        local period = dot and dot.period or self.learned("period", spell)
+        local score = AmountFit(self, spell, amount, period)
+        local drains = type(facts) == "table" and facts.leech == true
+        if leech ~= nil and drains ~= leech then score = score + 1 end
+        local onBeat = dot and dot.next
+            and math.abs(now - dot.next) <= TICK_SLACK
+        if onBeat then
+            dueDot = true
+            score = score + math.abs(now - dot.next) / TICK_SLACK * 0.3
+        else
+            if dot and not dot.period then unknownDot = true end
+            score = score + 0.8
+        end
+        if not SchoolFits(known, school) then score = score + 2 end
+        local target
+        if dot then target = dot.key else target = cast.key end
+        if target ~= key then score = score + (target == false and 0.4 or 1.5) end
+        if self.learned("direct", spell) == DIRECT_ONLY then score = score + 1 end
+        if onBeat and drains then
+            drainingDotScore = math.min(drainingDotScore or math.huge, score)
+        end
+        if not bestScore or score < bestScore - 0.1 then
+            best, bestScore, count = { spell = spell, cast = cast, dot = dot }, score, 1
+        elseif math.abs(score - bestScore) <= 0.1 then
+            count = count + 1
+        end
+    end
+    for _, dot in ipairs(self.dots) do
+        if dot.key == key or dot.key == false then Consider(dot.spell, nil, dot) end
+    end
+    for spell, casts in pairs(self.casts) do
+        local seen = {}
+        for index = #casts, 1, -1 do
+            local cast = casts[index]
+            local target = cast.key or false
+            if not seen[target] then
+                seen[target] = true
+                local tracked = false
+                for _, dot in ipairs(self.dots) do
+                    if dot.spell == spell and dot.castAt == cast.at and (dot.key == key or dot.key == false) then
+                        tracked = true
+                        break
+                    end
+                end
+                if not tracked then Consider(spell, cast, nil) end
+            end
+        end
+    end
+    -- A heal may identify a drain channel, but Siphon Life also heals:
+    -- keep a due draining DoT unless the channel's amount fits clearly better.
+    -- Other channels follow due or not-yet-timed DoTs.
+    local channelBest, channelScore, channelCount
+    for _, channel in pairs(self.channels) do
+        local facts = self.facts(channel.spell)
+        local drains = type(facts) == "table" and facts.leech == true
+        local ticks = type(facts) == "table" and facts.ticks == true
+        local healedChannel = drains and leech == true
+        local fallback = not dueDot and not unknownDot
+            and (drains or leech ~= true)
+        if (ticks or drains) and ChannelFits(channel, key, school, now)
+            and (healedChannel or fallback) then
+            local score = AmountFit(self, channel.spell, amount, facts.period)
+            if not drainingDotScore or score < drainingDotScore - 0.1 then
+                if not channelScore or score < channelScore - 0.1 then
+                    channelBest, channelScore, channelCount = channel, score, 1
+                elseif math.abs(score - channelScore) <= 0.1 then
+                    channelCount = channelCount + 1
+                end
+            end
+        end
+    end
+    if channelBest then
+        return { channel = channelBest }, channelScore, channelCount
+    end
+    return best, bestScore, count
+end
+
+local function ConfirmTick(self, candidate, key, school, now)
+    local dot = candidate.dot
+    if not dot then
+        local cast = candidate.cast
+        dot = { caster = cast.caster, spell = candidate.spell, key = key, castAt = cast.at,
+            ticks = 0, direct = cast.direct }
+        self.dots[#self.dots + 1] = dot
+        for _, entry in ipairs(self.pending) do
+            if entry.spell == dot.spell and entry.at == dot.castAt and entry.key == key then
+                entry.used = true
+            end
+        end
+    end
+    dot.key = key
+    if dot.pending then dot.pending.used = true end
+    local previous, previousSchool = dot.confirmedAt, dot.confirmedSchool
+    dot.confirmedAt, dot.confirmedSchool = now, school
+    if school then dot.school = school end
+    if previous then
+        local gap = now - previous
+        local skipped = dot.period and math.floor(gap / dot.period + 0.5)
+        if not (skipped and skipped > 1 and math.abs(gap - skipped * dot.period) <= TICK_SLACK) then
+            dot.period = gap
+        end
+        dot.known = false
+        if not self.ambiguous and school and school == previousSchool then LearnSchool(self, dot.spell, school) end
+        return Ticked(self, dot, school, now)
+    end
+    -- Anchor on the actual impact; flight time must not become the interval.
+    dot.ticks = dot.ticks + 1
+    dot.next = dot.period and now + dot.period or nil
+    dot.skipped, dot.bufferUntil = 0, nil
+    RememberAmount(self, dot.spell)
+    return Result(dot.caster, dot.spell, true, { dot = dot })
 end
 
 -- Steps 1 to 5: a hit of yours, or nil.
@@ -764,6 +939,20 @@ end
 
 local function Yours(self, key, kind, school, now)
     local allowed, sure = Allowed(self.restrictNow), self.restrictNow == "tick"
+    if kind == "damage" and sure then
+        local candidate, _, count = PeriodicCandidate(self, key, school, now,
+            self.amountNow, self.leechNow)
+        if candidate then
+            self.ambiguous = count > 1
+            if candidate.channel then
+                local channel = candidate.channel
+                RememberAmount(self, channel.spell)
+                return Result(channel.caster, channel.spell, true)
+            end
+            return ConfirmTick(self, candidate, key, school, now)
+        end
+        return nil
+    end
     if kind == "damage" and allowed.casts then
         for _, channel in pairs(self.channels) do
             if ChannelFits(channel, key, school, now) then
@@ -825,6 +1014,7 @@ local function Yours(self, key, kind, school, now)
         end
         entry.used = true
         entry.cast.directUsed = true
+        if kind ~= "miss" then entry.cast.direct = true end
         if entry.dot then entry.dot.direct, entry.dot.directAt = true, now end
         local guess
         if kind ~= "miss" and school and not entry.school then guess = Guess(self, entry, school) end
@@ -847,7 +1037,8 @@ local function Yours(self, key, kind, school, now)
             -- once, so a new spell's cast need not wait for one.
             local waiting = not sure and dot.pending and not dot.pending.used and dot.pending.school == nil
                 and now - dot.pending.at <= FIRST_HIT_WAIT
-            if dot.key == key and not dot.period and not waiting
+            if dot.key == key and not dot.period and not dot.confirmedAt
+                and not waiting
                 and not dot.ambiguousDirect and SchoolFits(dot.school, school) then
                 local candidate = dot.candidate
                 if candidate and math.abs(now - (candidate.at + candidate.period)) <= TICK_SLACK then
@@ -954,6 +1145,10 @@ end
 -- restrict (0.3.48): what the frame's lines say made their hits; only what
 -- could have made such a hit counts.
 function Mine:Fit(key, kind, school, now, amount, restrict, crit, avoid, pet)
+    if kind == "damage" and restrict == "tick" then
+        local score = self:TickFit(key, school, now, amount)
+        return score
+    end
     local best
     -- A damage shield's line fits any hit on an enemy (0.3.49).
     if restrict == "shield" then return (kind == "damage" or kind == "miss") and 0.7 or nil end
@@ -983,8 +1178,11 @@ function Mine:Fit(key, kind, school, now, amount, restrict, crit, avoid, pet)
     end
     if kind ~= "miss" and allowed.ticks then
         for _, dot in ipairs(self.dots) do
-            if dot.key == key and dot.period and dot.next and SchoolFits(dot.school, school) and math.abs(now - dot.next) <= TICK_SLACK then
-                Take(AmountFit(self, dot.spell, amount, dot.period))
+            if dot.key == key and SchoolFits(dot.school, school) then
+                local period = TickPeriod(dot, now, restrict == "tick")
+                if period then
+                    Take((dot.period and 0 or 0.4) + AmountFit(self, dot.spell, amount, dot.period))
+                end
             end
         end
         if DotDue(self, school, now) then Take(0.9) end
@@ -1046,6 +1244,8 @@ end
 local function HistoricalFit(self, spell, cast, school, now, restrict, key)
     local age = now - cast.at
     if age < 0 or age > CAST_HISTORY_WINDOW or cast.ambiguous then return nil end
+    if restrict == "direct" and key and cast.key ~= key
+        and age > AREA_MOMENT then return nil end
     local facts = self.facts(spell)
     local known = (type(facts) == "table" and facts.school)
         or self.learned("school", spell)
@@ -1053,13 +1253,12 @@ local function HistoricalFit(self, spell, cast, school, now, restrict, key)
     if type(facts) == "table"
         and (facts.damages == false or facts.helpful == true) then return nil end
 
-    local kind = self.learned("direct", spell)
-    if type(facts) == "table" and facts.direct ~= nil then
-        kind = (facts.direct and facts.ticks and BOTH)
-            or (facts.ticks and TICKS_ONLY)
-            or (facts.direct and DIRECT_ONLY) or kind
-    end
-    local period = self.learned("period", spell)
+    if restrict == "direct" and type(facts) == "table"
+        and facts.direct == false and facts.ticks == true then return nil end
+
+    local kind = SpellKind(facts, self.learned("direct", spell))
+    local period = (type(facts) == "table" and facts.period)
+        or self.learned("period", spell)
     local score, directSelected
     if kind ~= DIRECT_ONLY and period and age >= period - TICK_SLACK then
         -- Keep the periodic fallback's established rhythm/amount behavior.
@@ -1117,6 +1316,24 @@ function Mine:Likeliest(school, now, restrict, key)
         end
     end
     return Result(bestCast.caster, bestSpell, bestTick, { likely = true })
+end
+
+-- Read-only fit for a tick on this unit, including the first tick. A typed
+-- periodic confirmation may bypass an unknown cast's wait for a direct hit.
+function Mine:TickFit(key, school, now, amount, leech)
+    local candidate, score =
+        PeriodicCandidate(self, key, school, now, amount, leech)
+    local dot = candidate and candidate.dot
+    return score, dot and dot.next and math.abs(now - dot.next) <= TICK_SLACK
+end
+
+function Mine:BufferTicks(key, school, at, untilTime)
+    for _, dot in ipairs(self.dots) do
+        if (dot.key == key or dot.key == false) and dot.period and dot.next
+            and SchoolFits(dot.school, school) and math.abs(at - dot.next) <= TICK_SLACK then
+            dot.bufferUntil = math.max(dot.bufferUntil or 0, untilTime + TICK_SLACK)
+        end
+    end
 end
 
 -- A hit (kind "damage" or "heal") or a miss (kind "miss") on the unit keyed

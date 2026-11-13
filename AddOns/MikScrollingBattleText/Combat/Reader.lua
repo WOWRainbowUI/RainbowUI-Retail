@@ -97,6 +97,37 @@ local function LineRestrict(line)
     local info = line.kind and ns.LINE_KINDS and ns.LINE_KINDS[line.kind]
     return info and info.restrict
 end
+local EARLY_LINE, LATE_LINE = 0.35, 0.12
+
+local function OutgoingLocalHeal(record, unit, at, result)
+    local best, distance
+    for _, line in ipairs(reader.logLines or {}) do
+        local gap = line.at - at
+        if line.source == "mine" and LineClass(line) == "heal"
+            and not line.claimed and not line.hit
+            and gap >= -EARLY_LINE and gap <= LATE_LINE
+            and (not distance or math.abs(gap) < distance) then
+            best, distance = line, math.abs(gap)
+        end
+    end
+    if not best and ns.EventAvailable("COMBAT_LOG_MESSAGE") then return end
+    local tick = record.tick
+    if best then tick = LineRestrict(best) == "tick" end
+    result = result or ns.MatchHealing(unit, at, tick, true)
+    if not result then return end
+    local live = Router()
+    if not live then return end
+    local outgoing = {}
+    for field, value in pairs(record) do outgoing[field] = value end
+    -- Pet here describes the recipient, not the caster.
+    outgoing.pet, outgoing.selfHeal = nil, nil
+    outgoing.tick = tick
+    outgoing.result = { who = result.who, spell = result.spell, tick = tick }
+    if best then
+        best.claimed, best.hit = true, { at = at, record = outgoing }
+    end
+    live:Out(outgoing)
+end
 local function RecordClass(record) return record and (record.event == "miss" and "miss" or record.event) end
 -- Whether a line of yours may be the one of this hit (any hit without one):
 -- a grey line (no kinds) any; a coloured one only a hit of its class.
@@ -208,9 +239,14 @@ local function OnUnitCombat(unit, event, flag, amount, school)
             -- A heal can arrive before its cast succeeds in the same frame.
             -- Resolve the spell before presentation copies the record.
             C_Timer.After(0, function()
-                ns.TagIncomingHeal(record, unit, now)
+                local result = ns.TagIncomingHeal(record, unit, now)
                 local live = Router()
-                if live then live:In(record) end
+                if live then
+                    live:In(record)
+                    C_Timer.After(LATE_LINE, function()
+                        OutgoingLocalHeal(record, unit, now, result)
+                    end)
+                end
             end)
         else
             router:In(record)
@@ -219,6 +255,10 @@ local function OnUnitCombat(unit, event, flag, amount, school)
     end
     local key, token
     if unit == "target" then
+        if record.event == "heal" then
+            local pet = UnitIsUnit("target", "pet")
+            if ns.Bool(pet) and pet then return end
+        end
         key, token = ns.TargetKey(), "target"
         -- Death can remove the target before its final damage report.
         -- Keep this fallback out of TargetKey so new casts cannot use it.
@@ -389,8 +429,6 @@ end
 -- The hits of a frame against the lines of yours that came in it
 -- (DecideGroup, below).
 reader.frameHits = {}
--- How far a spare line of yours may be from a bolt's hit (ns.DecideLate).
-local EARLY_LINE, LATE_LINE = 0.35, 0.12
 local MISS_SETTLE = 0.03 -- a miss with its line waits this for its cast (DecideGroup)
 -- Melee swing lines (0.6.1 to 0.6.3, 1.60.1.70450, 19 October 2026,
 -- laptop). A melee blow is reported a while after its combat log line, never
@@ -442,6 +480,56 @@ end
 -- the swing (a warlock's staff, 1.60.1.70450, laptop; both had been taken
 -- for someone else's).
 local PROC_FLIGHT = 0.5
+local function PeriodicLine(line)
+    return line.source == "mine" and LineClass(line) == "damage" and LineRestrict(line) == "tick"
+end
+
+local function TickFit(hit)
+    local record = hit.record
+    if record.event ~= "damage" then return nil end
+    local amount = ns.Number(record.amount) and record.amount or nil
+    return ns.mine:TickFit(hit.key, record.school, hit.at, amount, Leech(hit))
+end
+local NonPeriodicPair
+
+local function DecideReports(group, at, settled)
+    local frameLines, kinded = {}, false
+    for _, line in ipairs(reader.logLines or {}) do
+        local gap = line.at - at
+        local nearbyTick = settled and PeriodicLine(line) and not line.hit
+            and gap >= -EARLY_LINE and gap <= LATE_LINE
+        if (line.at == at or nearbyTick) and Pairs(line) and not line.claimed and not MeleeLine(line) then
+            frameLines[#frameLines + 1] = line
+            if line.kind then kinded = true end
+        end
+    end
+    local decided = {}
+    if not kinded then
+        DecideGroup(group, frameLines, decided, settled)
+    else
+        local byClass, wild = { damage = {}, miss = {}, heal = {} }, {}
+        for _, line in ipairs(frameLines) do
+            local class = LineClass(line)
+            if class then table.insert(byClass[class], line) else wild[#wild + 1] = line end
+        end
+        for _, class in ipairs({ "damage", "miss", "heal" }) do
+            local hitsOf = {}
+            for _, hit in ipairs(group) do
+                if RecordClass(hit.record) == class then hitsOf[#hitsOf + 1] = hit end
+            end
+            if #hitsOf > 0 then
+                local pool = {}
+                for _, line in ipairs(byClass[class]) do pool[#pool + 1] = line end
+                for _, line in ipairs(wild) do
+                    if not line.claimed then pool[#pool + 1] = line end
+                end
+                DecideGroup(hitsOf, pool, decided, settled)
+            end
+        end
+    end
+    MarkProcs(decided, SwingFrame(at, PROC_FLIGHT))
+end
+
 function ns.DecideFrame()
     local hits = reader.frameHits
     reader.frameHits = {}
@@ -459,41 +547,21 @@ function ns.DecideFrame()
     table.sort(order)
     for _, at in ipairs(order) do
         local group = byTime[at]
-        local frameLines, kinded = {}, false
-        for _, line in ipairs(reader.logLines or {}) do
-            if line.at == at and Pairs(line) and not line.claimed and not MeleeLine(line) then
-                frameLines[#frameLines + 1] = line
-                if line.kind then kinded = true end
+        local waitForTick = false
+        for _, hit in ipairs(group) do
+            local fit, onBeat = TickFit(hit)
+            if fit ~= nil and (onBeat or not NonPeriodicPair(hit)) then
+                waitForTick = true
+                ns.mine:BufferTicks(hit.key, hit.record.school, hit.at, Now() + LATE_LINE)
             end
         end
-        local decided = {}
-        if not kinded then
-            DecideGroup(group, frameLines, decided)
+        if waitForTick then
+            -- A periodic confirmation may precede or follow UNIT_COMBAT in
+            -- another frame. Never substitute a coincident shot/spell line.
+            C_Timer.After(LATE_LINE, function() DecideReports(group, at, true) end)
         else
-            -- 0.3.48: lines coloured by kind serve only hits of their class
-            -- (a heal or a miss of yours never makes a teammate's blow
-            -- yours), damage first; a line of no known kind serves any.
-            local byClass, wild = { damage = {}, miss = {}, heal = {} }, {}
-            for _, line in ipairs(frameLines) do
-                local class = LineClass(line)
-                if class then table.insert(byClass[class], line) else wild[#wild + 1] = line end
-            end
-            for _, class in ipairs({ "damage", "miss", "heal" }) do
-                local hitsOf = {}
-                for _, hit in ipairs(group) do
-                    if RecordClass(hit.record) == class then hitsOf[#hitsOf + 1] = hit end
-                end
-                if #hitsOf > 0 then
-                    local pool = {}
-                    for _, line in ipairs(byClass[class]) do pool[#pool + 1] = line end
-                    for _, line in ipairs(wild) do
-                        if not line.claimed then pool[#pool + 1] = line end
-                    end
-                    DecideGroup(hitsOf, pool, decided)
-                end
-            end
+            DecideReports(group, at, false)
         end
-        MarkProcs(decided, SwingFrame(at, PROC_FLIGHT))
     end
 end
 
@@ -523,11 +591,17 @@ end
 local function SwingLine(hit)
     local record = hit.record
     if record.event ~= "damage" and record.event ~= "miss" then return nil end
+    -- A melee swing's hit is physical (Mine.lua, Yours), so a hit whose school
+    -- reads otherwise leaves a melee line to the swing's own hit: a teammate's
+    -- spell landing between a swing and its hit had taken the line, was shown
+    -- as a proc of yours, and the swing's hit went unshown (predicted, not
+    -- yet seen in client).
+    local otherSchool = record.event == "damage" and record.school ~= nil and record.school ~= ns.SCHOOL_PHYSICAL
     for _, swing in ipairs(ns.mine:SwingsBefore(hit.key, hit.at)) do
         for _, line in ipairs(reader.logLines or {}) do
             if not line.claimed and not line.hit and Pairs(line, record) and math.abs(line.at - swing.at) <= SWING_FRAME then
                 if line.kind == nil and swing.hand ~= "ranged" then return line, swing end
-                if MeleeLine(line) and Role(line) == "swing" then return line, swing end
+                if MeleeLine(line) and Role(line) == "swing" and not otherSchool then return line, swing end
             end
         end
     end
@@ -598,7 +672,7 @@ local function ProcLine(hit)
                         hasHit = not not line.hit, pairs = not not Pairs(line, record),
                         sameFrame = sameFrame, followsSwing = not not followsSwing })
                 end
-                if not line.claimed and not line.hit and line.kind and not MeleeLine(line) and Pairs(line, record)
+                if not line.claimed and not line.hit and line.kind and not MeleeLine(line) and not PeriodicLine(line) and Pairs(line, record)
                     and ((nearby and sameFrame) or followsSwing) then
                     return line
                 end
@@ -613,9 +687,25 @@ local function FlightProcLine(hit)
     if record.event ~= "damage" and record.event ~= "miss" then return nil end
     for _, line in ipairs(reader.logLines or {}) do
         local gap = hit.at - line.at
-        if not line.claimed and not line.hit and line.kind and not MeleeLine(line) and Pairs(line, record)
+        if not line.claimed and not line.hit and line.kind and not MeleeLine(line) and not PeriodicLine(line) and Pairs(line, record)
             and gap >= 0 and gap <= 0.3 and SwingFrame(line.at, PROC_FLIGHT) then
             return line
+        end
+    end
+end
+NonPeriodicPair = function(hit)
+    if SwingLine(hit) or OrphanSwingLine(hit) or ProcLine(hit) or FlightProcLine(hit) then return true end
+    for _, line in ipairs(reader.logLines or {}) do
+        if line.at == hit.at and not line.claimed and not line.hit and Pairs(line, hit.record)
+            and LineRestrict(line) == "direct" then
+            for _, entry in ipairs(ns.mine.pending) do
+                local facts = ns.mine.facts(entry.spell)
+                if not entry.used and entry.key == hit.key and entry.school == hit.record.school
+                    and type(facts) == "table" and facts.direct == true and facts.ticks == false
+                    and ns.Number(hit.record.amount) and facts.low and hit.record.amount >= facts.low then
+                    return true
+                end
+            end
         end
     end
 end
@@ -661,8 +751,7 @@ end
 -- yours that may be theirs: as many lines as hits (or more: a DoT of yours
 -- on an enemy without a plate also sends one) and every hit is yours; none
 -- and none is; fewer, and the engine decides as it would without lines.
-function DecideGroup(group, frameLines, decided)
-    local lines = #frameLines
+function DecideGroup(group, frameLines, decided, settled)
     local function Claim(count)
         for index = 1, math.min(count, #frameLines) do frameLines[index].claimed = true end
     end
@@ -670,6 +759,39 @@ function DecideGroup(group, frameLines, decided)
         local result, entry = ns.DecideHit(hit, flag, flag == true and restrict or nil)
         decided[#decided + 1] = { result = result, entry = entry }
     end
+    local remaining, ordinary = {}, {}
+    for _, hit in ipairs(group) do remaining[#remaining + 1] = hit end
+    for _, line in ipairs(frameLines) do
+        if not PeriodicLine(line) then ordinary[#ordinary + 1] = line end
+    end
+    for _, line in ipairs(frameLines) do
+        if PeriodicLine(line) then
+            local best, score
+            for index, hit in ipairs(remaining) do
+                local fit = TickFit(hit)
+                if fit ~= nil and #frameLines > #group then
+                    for _, other in ipairs(ordinary) do
+                        local restrict = LineRestrict(other)
+                        if restrict and LineClass(other) == "damage" then
+                            local amount = ns.Number(hit.record.amount) and hit.record.amount or nil
+                            local direct = ns.mine:Fit(hit.key, "damage", hit.record.school, hit.at, amount, restrict)
+                            if direct and direct < fit then fit = nil break end
+                        end
+                    end
+                end
+                if fit ~= nil and (not score or fit < score) then best, score = index, fit end
+            end
+            if best then
+                line.claimed = true
+                Decide(table.remove(remaining, best), true, "tick")
+            end
+        end
+    end
+    -- Typed periodic lines are reserved for matching ticks, not counted as
+    -- generic spell/proc confirmations when several damage kinds coincide.
+    group, frameLines = remaining, ordinary
+    if #group == 0 then return end
+    local lines = #frameLines
     if lines >= #group then
         -- Lines of one kind say what each hit is; of several kinds, the
         -- engine sorts them out as before.
@@ -722,7 +844,12 @@ function DecideGroup(group, frameLines, decided)
                 ns.mine.procSwing = true
                 Decide(hit, true, LineRestrict(procLine))
             elseif record.event == "damage" and ns.mine:InFlight(hit.key, record.school, hit.at) then
-                C_Timer.After(LATE_LINE, function() ns.DecideLate(hit) end)
+                if settled then
+                    -- Periodic matching already waited for this hit's line.
+                    ns.DecideLate(hit)
+                else
+                    C_Timer.After(LATE_LINE, function() ns.DecideLate(hit) end)
+                end
             elseif FlightProcLine(hit) then
                 local flight = FlightProcLine(hit)
                 flight.claimed, flight.hit = true, { at = hit.at, record = record }
@@ -824,7 +951,7 @@ end
 
 -- Your casts and swings -----------------------------------------------------------
 local lastCast
-local function OnCast(unit, spell)
+local function OnCast(unit, spell, guid)
     if not ns.Number(spell, 1) then return end
     local now = Now()
     local key
@@ -835,7 +962,7 @@ local function OnCast(unit, spell)
         -- cast is taken to be at your target and its line decides (0.3.18).
         if PetAttacking("target") or (ns.mine.petLines and LinesRunning and LinesRunning()) then key = ns.TargetKey() end
     end
-    if ns.NoteHealCast then ns.NoteHealCast(unit, spell, key, now) end
+    if ns.NoteHealCast then ns.NoteHealCast(unit, spell, key, now, guid) end
     ns.mine:Cast(unit, spell, key, now)
     local facts = ns.SpellFacts and ns.SpellFacts(spell)
     -- Your pet's casts and your own with no target to hit (Life Tap) are
@@ -1317,17 +1444,21 @@ local function Near(value, target) return math.abs(value - target) <= 0.02 end
 -- you broke, your killing blow. Read only from the colour, as before. Such a
 -- line is yours while the filter's Done By is only you and your pet; with
 -- others in it their lines would look the same, so none counts. A line of an
--- event the colours leave out comes in Blizzard's default 0.5 grey: yours,
--- kind unknown.
+-- event the colours leave out comes in Blizzard's default 0.5 grey: it
+-- cannot confirm damage while typed damage colours are active.
 local function LineSource(r, g, b)
-    if not (ns.Number(r, 0, 1) and ns.Number(g, 0, 1) and ns.Number(b, 0, 1)) then return "unknown" end
     local active, ours = false, false
     if ns.LineKindsActive then active, ours = ns.LineKindsActive() end
+    if not (ns.Number(r, 0, 1) and ns.Number(g, 0, 1) and ns.Number(b, 0, 1)) then
+        return "unknown", active and "other" or nil
+    end
     if active then
         local kind = ns.LineKind and ns.LineKind(r, g, b)
         if kind == "kill" then return "kill", kind end
         if kind then return ours and "mine" or "other", kind end
-        if Near(r, 0.5) and Near(g, 0.5) and Near(b, 0.5) then return ours and "mine" or "other" end
+        -- With typed damage colours active, an untyped line (for example a
+        -- buff) is never a damage confirmation, even if its source is ours.
+        if Near(r, 0.5) and Near(g, 0.5) and Near(b, 0.5) then return ours and "mine" or "other", "other" end
         -- Your death's line keeps your old grey whatever the colours
         -- (GenerateMessage returns the death recap link in it): no hit.
         if Near(r, 0.7) and Near(g, 0.7) and Near(b, 0.7) then return ours and "mine" or "other", "other" end
@@ -1347,7 +1478,9 @@ local function Prune(list, now)
 end
 local function FreeLine(at, window, record)
     for _, line in ipairs(reader.logLines) do
-        if not line.hit and not MeleeLine(line) and Pairs(line, record) and math.abs(line.at - at) <= (window or LOG_PAIR) then
+        local restrict, result = LineRestrict(line), record and record.result
+        local fits = restrict == nil or result == nil or ((restrict == "tick") == (result.tick == true))
+        if not line.hit and fits and not MeleeLine(line) and Pairs(line, record) and math.abs(line.at - at) <= (window or LOG_PAIR) then
             return line
         end
     end
@@ -1592,6 +1725,7 @@ local EVENTS = {
     "UNIT_COMBAT", "UNIT_SPELLCAST_SUCCEEDED", "UNIT_SPELLCAST_INTERRUPTED", "PLAYER_SWING", "PLAYER_TARGET_CHANGED",
     "NAME_PLATE_UNIT_ADDED", "NAME_PLATE_UNIT_REMOVED", "LOSS_OF_CONTROL_ADDED", "SPELL_ACTIVATION_OVERLAY_GLOW_SHOW",
     "COMBAT_TEXT_UPDATE",
+    "UNIT_SPELLCAST_SENT",
     "UNIT_SPELLCAST_CHANNEL_START", "UNIT_SPELLCAST_CHANNEL_STOP",
     "PLAYER_REGEN_DISABLED", "PLAYER_REGEN_ENABLED",
     "PLAYER_ENTERING_WORLD", "COMBAT_LOG_MESSAGE", "SPELL_TEXT_UPDATE",
@@ -1602,9 +1736,12 @@ ns.READER_EVENTS = EVENTS
 local function OnEvent(_, event, ...)
     if event == "UNIT_COMBAT" then
         OnUnitCombat(...)
+    elseif event == "UNIT_SPELLCAST_SENT" then
+        local unit, target, guid, spell = ...
+        ns.NoteHealTarget(unit, target, guid, spell, Now())
     elseif event == "UNIT_SPELLCAST_SUCCEEDED" then
-        local unit, _, spell = ...
-        if unit == "player" or unit == "pet" then OnCast(unit, spell) end
+        local unit, guid, spell = ...
+        if unit == "player" or unit == "pet" then OnCast(unit, spell, guid) end
     elseif event == "UNIT_SPELLCAST_CHANNEL_START" then
         local unit, _, spell = ...
         if (unit == "player" or unit == "pet") and ns.Number(spell, 1) then

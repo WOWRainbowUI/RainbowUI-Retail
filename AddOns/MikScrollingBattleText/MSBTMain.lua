@@ -547,13 +547,16 @@ local function CleanupActionMessage(message)
 	return message
 end
 
-local function DisplayRestrictedAmount(eventSettings, amount, texturePath, message, suffix)
+local function DisplayRestrictedAmount(
+	eventSettings, amount, texturePath, message, suffix, school
+)
 	if not eventSettings or eventSettings.disabled then
 		return
 	end
 	local template = Formatter:BuildRestrictedTemplate(
 		CleanupActionMessage(message or eventSettings.message or "%a"),
-		suffix
+		suffix,
+		school
 	)
 	DisplayEvent(
 		eventSettings,
@@ -564,14 +567,14 @@ local function DisplayRestrictedAmount(eventSettings, amount, texturePath, messa
 	)
 end
 
-local function DisplayRestrictedGroup(eventSettings, amounts, texturePath)
+local function DisplayRestrictedGroup(eventSettings, amounts, texturePath, school)
 	if not eventSettings or eventSettings.disabled then return end
 	local formattedAmounts, placeholders = {}, {}
 	for index = 1, #amounts do
 		formattedAmounts[index] = Formatter:FormatRestrictedAmount(
 			amounts[index], MSBTProfiles.currentProfile
 		)
-		placeholders[index] = "%s"
+		placeholders[index] = Formatter:ColorDamageAmount("%s", school)
 	end
 	local message = table.concat(placeholders, " + ")
 		.. string.format(" [%d %s]", #amounts, L.MSG_HITS or "Hits")
@@ -613,14 +616,16 @@ local outgoingBatcher = OutgoingBatcher:New({
 	getProfile = function()
 		return MSBTProfiles.currentProfile
 	end,
-	formatAmount = function(amount, profile)
-		return Formatter:FormatDisplayAmount(amount, profile)
+	formatAmount = function(amount, profile, school)
+		return Formatter:ColorDamageAmount(
+			Formatter:FormatDisplayAmount(amount, profile), school
+		)
 	end,
-	formatEventMessage = function(eventSettings, amount, spellID)
+	formatEventMessage = function(eventSettings, amount, spellID, school)
 		local spellName = spellID and not IsAutoAttackSpellID(spellID)
 			and GetSpellInfo(spellID) or nil
 		return CleanupActionMessage(Formatter:FormatLegacyEvent(
-			eventSettings.message, amount, nil, nil, nil, nil,
+			eventSettings.message, amount, school, nil, nil, nil,
 			nil, nil, spellName, nil, nil, nil,
 			MSBTProfiles.currentProfile.hideSkills
 		))
