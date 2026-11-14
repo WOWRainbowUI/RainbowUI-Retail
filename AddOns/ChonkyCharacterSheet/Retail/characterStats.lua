@@ -3312,7 +3312,7 @@ local function CreateStatsScrollFrame(rowWidth)
     local scrollFrame = CCS_stat_sf
 	
 	CharacterStatsPane:SetFrameLevel(2)
-	CharacterStatsPane:SetFrameStrata("MEDIUM")	
+	CharacterStatsPane:SetFrameStrata("HIGH")	
 	
     if not scrollFrame then
 		if CCS.CurrentVersion == CCS.FOREVER then
@@ -3325,7 +3325,7 @@ local function CreateStatsScrollFrame(rowWidth)
         scrollFrame:EnableMouseWheel(true)
         scrollFrame:SetClipsChildren(true)
     end
-	scrollFrame:SetFrameStrata("MEDIUM")	
+	scrollFrame:SetFrameStrata("HIGH")	
 	scrollFrame:SetFrameLevel(3)
     scrollFrame:ClearAllPoints()
     scrollFrame:SetPoint("TOPLEFT", CharacterStatsPane, "TOPLEFT", 10, -32)
@@ -3745,6 +3745,10 @@ function CCS.CharacterStatsEventHandler(event, ...)
 					CharacterStatsPane.BG:Hide()
 				end
 			end
+
+			CharacterStatsPane.ChonkyNS:Hide()
+			CharacterStatsPane.BG:Hide()
+			
 			return
         end
 

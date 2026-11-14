@@ -92,7 +92,7 @@ function CCS.GetStatPrimaryClassic(statIndex)
 	-- Strength
 	if ( statIndex == LE_UNIT_STAT_STRENGTH ) then
 		if not CCS.AreSecretsDisabled() then
-			tt_desc = string.format(classStatText, tmp_stat_value, math.floor(effectiveStat / BLOCK_VALUE_PER_STRENGTH));
+			tt_desc = string.format(classStatText, GetAttackPowerForStat(statIndex,tmp_stat_value), math.floor(effectiveStat / BLOCK_VALUE_PER_STRENGTH));
 		end
 		tt_name = HIGHLIGHT_FONT_COLOR_CODE..format(PAPERDOLLFRAME_TOOLTIP_FORMAT, tmp_stat_name[statIndex]).." "..tt_name;
 	-- Agility
@@ -877,10 +877,10 @@ function CCS.GetStatArmorForever()
 		tt_desc = format(STAT_ARMOR_TOOLTIP, armorReduction);
 
 		if (armorReductionAgainstTarget) then
-			tt_desc = tt_desc .. format(STAT_ARMOR_TARGET_TOOLTIP, armorReductionAgainstTarget);
+			tt_desc = tt_desc .. "\n" .. format(STAT_ARMOR_TARGET_TOOLTIP, armorReductionAgainstTarget) ;
 		end
 		
-		tt_desc = tt_desc .. format(ARMOR_MAX_EFFECTIVENESS_TOOLTIP);
+		tt_desc = tt_desc .. "\n\n" .. format(ARMOR_MAX_EFFECTIVENESS_TOOLTIP);
 		isZero = (effectiveArmor == 0)
 	end
 	
