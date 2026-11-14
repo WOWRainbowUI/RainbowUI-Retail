@@ -1,0 +1,17 @@
+{
+  "static": "PASS",
+  "forever_runtime": "PENDING_NO_CLIENT",
+  "retail_runtime": "PENDING_IN_GAME",
+  "dependencies": "PENDING_IN_GAME",
+  "forever_build": null,
+  "tested_by": null,
+  "evidence": [],
+  "static_evidence": {
+    "lua_version": "Lua 5.1",
+    "lua_files": 75,
+    "errors": []
+  },
+  "reference_build": "1.60.1.70338",
+  "mock_tests": "PASS",
+  "mock_evidence": "Workspace .forever-migration/mock-report.json (Lua 5.1; not in-game QA)"
+}
