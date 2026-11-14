@@ -1813,6 +1813,9 @@ LSM:Register("statusbar", "Cell ".._G.DEFAULT, Cell.vars.texture)
 -- ships). Bundle + self-register it so the default resolves without depending on the other addons being
 -- installed. LSM:Register no-ops if another addon already registered the name (identical file), never overrides.
 LSM:Register("statusbar", "MiliUI Satin", [[Interface\AddOns\Cell\Media\miliui_satin.png]])
+-- MiliUI (2026-11-13): "MiliUI Ombre" -- the file itself is a dark-left / bright-right grey gradient; the
+-- "denser left, plain right" look is layered on top by F.PaintOmbreFill below (unit button health / power fills).
+LSM:Register("statusbar", "MiliUI Ombre", [[Interface\AddOns\Cell\Media\miliui_ombre.png]])
 LSM:Register("font", "Visitor", [[Interface\Addons\Cell\Media\Fonts\visitor.ttf]], 255)
 
 function F.GetBarTexture()
@@ -1848,6 +1851,59 @@ end
 -- LSM name -> the text shown in a texture dropdown (dropdown:SetSelected matches on this text, not on the LSM name)
 function F.GetBarTextureLabel(name)
     return Cell.MiliMedia.TextureLabel(name)
+end
+
+-- MiliUI (2026-11-13): "MiliUI Ombre" bar texture -- the fill is a denser shade of its colour on the left and the
+-- plain colour on the right. Built from layered textures, no colour arithmetic: the stack (4 textures + a mask that
+-- follows the fill) lives in the pack's shared Libs/MiliUIMedia.lua (MM.OmbrePaint). Colours are only handed to
+-- textures, so secret components work too; the gradient is pinned to the whole bar, a shorter fill just crops it.
+--
+-- F.PaintOmbreFill(bar, allow, r, g, b, a) -> true when the stack took the paint; false = the caller paints
+-- the way it always did (and any stack left from earlier is put away). It declines when:
+--   * allow is false -- the caller's colour is not a single colour (Cell's own by-health "threshold*" modes)
+--   * the appearance texture is not "MiliUI Ombre"
+--   * the bar is vertical (the stack is horizontal only)
+-- Lives here, not in UnitButton.lua, because that file sits on Lua's 200-local ceiling.
+do
+    local OMBRE_NAME = "MiliUI Ombre"
+
+    function F.IsOmbreTexture()
+        return CellDB and CellDB["appearance"] and CellDB["appearance"]["texture"] == OMBRE_NAME or false
+    end
+
+    function F.PaintOmbreFill(bar, allow, r, g, b, a)
+        local MM = Cell.MiliMedia
+        if not (MM and MM.OmbrePaint) then return false end
+        if allow and F.IsOmbreTexture() then
+            -- the bar keeps the plain colour for GetStatusBarColor readers (plain values only; secrets go
+            -- straight to the textures)
+            if not (issecretvalue and (issecretvalue(r) or issecretvalue(g) or issecretvalue(b) or issecretvalue(a))) then
+                bar:SetStatusBarColor(r, g, b, a or 1)
+            end
+            if MM.OmbrePaint(bar, r, g, b, a) then return true end
+        end
+        MM.OmbreClear(bar)
+        return false
+    end
+
+    -- Plain single-colour fill of a health / power StatusBar, ombre included. The unit buttons' power bar and
+    -- the Appearance tab's preview buttons paint through this (the unit buttons' health bar has its own
+    -- SetBarColor in UnitButton.lua, which calls F.PaintOmbreFill the same way).
+    function F.PaintBarFill(bar, isHealth, r, g, b, a)
+        local allow = true
+        if isHealth then -- Cell's own by-health gradient modes keep their colouring
+            allow = not strfind(CellDB["appearance"]["barColor"][1], "^threshold")
+        end
+        if not F.PaintOmbreFill(bar, allow, r, g, b, a) then
+            bar:SetStatusBarColor(r, g, b, a or 1)
+        end
+    end
+
+    -- the bar was turned (B.SetOrientation): a vertical bar drops the stack (its fill keeps the plain colour)
+    function F.RefreshOmbreFill(bar)
+        local MM = Cell.MiliMedia
+        if MM and MM.OmbreClear and bar:GetOrientation() == "VERTICAL" then MM.OmbreClear(bar) end
+    end
 end
 
 function F.GetFont(font)
