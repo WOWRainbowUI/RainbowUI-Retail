@@ -719,7 +719,9 @@ if Client.isMainline or Client.isForever then
 			local hasRestrictedValues = RestrictedValue:IsRestricted(amount)
 				or RestrictedValue:IsRestricted(powerName)
 			local arguments = {}
-			local template = (settings.message or "%a - %p"):gsub(
+			local message = settings.message or "%a %p"
+			if message == "%a - %p" then message = "%a %p" end
+			local template = message:gsub(
 				"%%([ap])", function(token)
 					if token == "a" then
 						arguments[#arguments + 1] = amount
@@ -754,6 +756,22 @@ if Client.isMainline or Client.isForever then
 					.. (L.MSG_HITS or "Hits") .. "]"
 			end
 			return message
+		end,
+		displayHeal = function(settings, amount, healer, icon, message)
+			-- Public formatting leaves \002 for the healer and %a for the amount.
+			local arguments = {}
+			local template = message:gsub("%%a", "\001")
+			template = template:gsub("%%", "%%%%")
+			template = template:gsub("[\001\002]", function(token)
+				local value = healer
+				if token == "\001" then
+					value = Formatter:FormatRestrictedAmount(amount,
+						MSBTProfiles.currentProfile)
+				end
+				arguments[#arguments + 1] = value
+				return "%s"
+			end)
+			DisplayEvent(settings, template, icon, nil, unpack(arguments))
 		end,
 		display = DisplayEvent,
 		displayRestricted = DisplayRestrictedAmount,

@@ -2,23 +2,40 @@ local ns = MikSBT.CombatEngine
 local casts = {}
 local targets = {}
 local DIRECT_WINDOW, HOT_WINDOW, MAX_CASTS = 3, 30, 64
+local MEND_PET_SPELL_ID = 136
 
 function ns.ResetHealing() casts, targets = {}, {} end
 
+local function TargetlessHealRecipient(unit, spell)
+	if unit ~= "player" then return end
+	if spell == MEND_PET_SPELL_ID then return "pet" end
+	-- Classic ranks have different IDs but share the localized spell name.
+	local name = ns.SpellName(spell)
+	local mendPet = ns.SpellName(MEND_PET_SPELL_ID)
+	if name and mendPet and name == mendPet then return "pet" end
+end
+
 function ns.NoteHealTarget(unit, target, guid, spell, now)
-	if (unit ~= "player" and unit ~= "pet") or not ns.Text(target)
-		or not ns.Text(guid) or not ns.Number(spell, 1)
-		or type(UnitName) ~= "function" then return end
+	if (unit ~= "player" and unit ~= "pet")
+		or not ns.Text(guid) or not ns.Number(spell, 1) then return end
 	local recipient
-	for _, token in ipairs({ "player", "pet" }) do
-		local ok, name, realm = pcall(UnitName, token)
-		if ok and ns.Text(name) and (target == name
-			or (ns.Text(realm) and target == name .. "-" .. realm)) then
-			if recipient then return end
-			recipient = token
+	if ns.Public(target) and (target == nil or target == "") then
+		-- Only a known automatic recipient can replace an absent target.
+		-- Hidden targets still follow the guarded named-recipient path.
+		recipient = TargetlessHealRecipient(unit, spell)
+		if not recipient then return end
+	else
+		if not ns.Text(target) or type(UnitName) ~= "function" then return end
+		for _, token in ipairs({ "player", "pet" }) do
+			local ok, name, realm = pcall(UnitName, token)
+			if ok and ns.Text(name) and (target == name
+				or (ns.Text(realm) and target == name .. "-" .. realm)) then
+				if recipient then return end
+				recipient = token
+			end
 		end
+		if not recipient then return end
 	end
-	if not recipient then return end
 	for index = #targets, 1, -1 do
 		if now - targets[index].at > HOT_WINDOW then
 			table.remove(targets, index)

@@ -932,7 +932,7 @@ if IsClassic then
 			},
 			NOTIFICATION_RESOURCE_GAIN = {
 				colorR = 0.5, colorG = 0.5, colorB = 1,
-				message = "%a - %p", scrollArea = "Notification",
+				message = "%a %p", scrollArea = "Notification",
 			},
 			NOTIFICATION_REP_GAIN = {
 				colorR		= 0.5,
@@ -1112,6 +1112,7 @@ if IsClassic then
 		abilitySubstitutions			= {},
 		auraTracking = {},
 		auraSettings = {},
+		resourceExclusions = {},
 		abilitySuppressions				= {
 
 		},
@@ -1981,7 +1982,7 @@ else
 			},
 			NOTIFICATION_RESOURCE_GAIN = {
 				colorR = 0.5, colorG = 0.5, colorB = 1,
-				message = "%a - %p", scrollArea = "Notification",
+				message = "%a %p", scrollArea = "Notification",
 			},
 			NOTIFICATION_REP_GAIN = {
 				colorR		= 0.5,
@@ -2266,6 +2267,7 @@ else
 		abilitySubstitutions			= {},
 		auraTracking = {},
 		auraSettings = {},
+		resourceExclusions = {},
 		abilitySuppressions				= {
 			[SPELL_UNDYING_RESOLVE]		= true,
 		},

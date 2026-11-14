@@ -42,6 +42,7 @@ L.MSG_CRIT					= "Crit"
 L.MSG_CRITS					= "Crits"
 L.MSG_MULTIPLE_TARGETS		= "Multiple"
 L.MSG_READY_NOW				= "Ready Now"
+L.CP_FULL = "Finish Him!"
 
 L.MSG_INCOMING			= "Incoming"
 L.MSG_OUTGOING			= "Outgoing"

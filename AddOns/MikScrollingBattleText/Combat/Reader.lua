@@ -1309,13 +1309,32 @@ local function OnCombatText(kind)
         router:Healer(name)
     elseif kind == "ENERGIZE" or kind == "PERIODIC_ENERGIZE" then
         local amount, powerToken = C_CombatText.GetCurrentEventInfo()
-        router:Resource(amount, powerToken)
+        router:Resource(amount, powerToken, reader.comboTotals)
     elseif kind == "SPELL_ACTIVE" then
         if reader.anyGlow and Now() - reader.anyGlow < 0.5 then return end
         local name = C_CombatText.GetCurrentEventInfo()
         if ns.Public(name) and name == nil then return end
         router:Alert({ kind = "reactive", format = "<%s>", args = { name } })
     end
+end
+
+local function OnComboPoints(unit, token)
+    if not reader.comboTotals or not ns.Text(unit) or unit ~= "player"
+        or not ns.Text(token) or token ~= "COMBO_POINTS" then return end
+    local power = Enum and Enum.PowerType and Enum.PowerType.ComboPoints or 4
+    local ok, count = pcall(UnitPower, "player", power)
+    local maxOK, maximum = pcall(UnitPowerMax, "player", power)
+    if not ok or not maxOK then return end
+    if ns.Public(count) and not ns.Number(count, 0) then return end
+    if ns.Public(maximum) and not ns.Number(maximum, 1) then return end
+    if ns.Number(count, 0) and ns.Number(maximum, 1) then
+        if count == reader.comboCount and maximum == reader.comboMaximum then return end
+        reader.comboCount, reader.comboMaximum = count, maximum
+    else
+        reader.comboCount, reader.comboMaximum = nil, nil
+    end
+    local router = Router()
+    if router then router:ComboPoints(count, maximum) end
 end
 
 -- Combat-state notifications use MSBT's configured events.
@@ -1836,6 +1855,8 @@ local function OnEvent(_, event, ...)
         end
     elseif event == "COMBAT_TEXT_UPDATE" then
         OnCombatText(...)
+    elseif event == "UNIT_POWER_UPDATE" then
+        OnComboPoints(...)
     elseif event == "PLAYER_REGEN_DISABLED" then
         OnCombat(true)
     elseif event == "PLAYER_REGEN_ENABLED" then
@@ -1881,6 +1902,14 @@ function ns.StartReader()
     end
     if ns.EventAvailable("UNIT_AURA") then
         frame:RegisterUnitEvent("UNIT_AURA", "player")
+    end
+    local presentation = MikSBT.Components.CombatPresentation
+    reader.comboTotals = type(UnitPower) == "function"
+        and type(UnitPowerMax) == "function"
+        and ns.EventAvailable("UNIT_POWER_UPDATE")
+        and presentation and presentation:CanTrackComboPoints() or false
+    if reader.comboTotals then
+        frame:RegisterUnitEvent("UNIT_POWER_UPDATE", "player")
     end
     reader.auras = {}
     frame:SetScript("OnEvent", function(_, event, ...)

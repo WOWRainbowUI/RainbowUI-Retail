@@ -31,6 +31,7 @@ local SECTION_KEYS = {
 	abilitySuppressions = "SpamControl",
 	auraTracking = "SpamControl",
 	auraSettings = "SpamControl",
+	resourceExclusions = "SpamControl",
 	qualityExclusions = "LootAlerts", alwaysShowQuestItems = "LootAlerts",
 	itemsAllowed = "LootAlerts", itemExclusions = "LootAlerts",
 	cooldownExclusions = "Cooldowns", ignoreCooldownThreshold = "Cooldowns",
@@ -43,6 +44,7 @@ local LIST_TYPES = {
 	abilitySubstitutions = "string",
 	abilitySuppressions = "boolean",
 	auraTracking = "boolean",
+	resourceExclusions = "boolean",
 	qualityExclusions = "boolean", itemsAllowed = "boolean",
 	itemExclusions = "boolean", cooldownExclusions = "boolean",
 	ignoreCooldownThreshold = "boolean",
@@ -199,6 +201,12 @@ local function IsSetting(key, value, defaults)
 		if key == "auraTracking" then
 			for id in pairs(value) do
 				if not IsAuraKey(id) then return false end
+			end
+		end
+		if key == "resourceExclusions" then
+			for token in pairs(value) do
+				if type(token) ~= "string"
+					or not token:match("^[A-Z][A-Z0-9_]*$") then return false end
 			end
 		end
 		return true

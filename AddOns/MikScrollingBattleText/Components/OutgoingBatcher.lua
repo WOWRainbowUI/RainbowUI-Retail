@@ -23,14 +23,16 @@ end
 
 function OutgoingBatcher:BuildMessage(amount, hitCount, batch, settings)
 	local profile = self.config.getProfile()
+	local school = batch and batch.school
+	if settings.attackColorOverride then school = nil end
 	local formattedAmount
 	if batch and (batch.isPet or batch.eventKey) then
 		formattedAmount = self.config.formatEventMessage(
-			settings, amount, batch.spellID, batch.school
+			settings, amount, batch.spellID, school
 		)
 	else
 		formattedAmount = self.config.formatAmount(
-			amount, profile, batch and batch.school
+			amount, profile, school
 		)
 	end
 	if not profile.stackSimilarHits then
@@ -45,37 +47,63 @@ function OutgoingBatcher:BuildMessage(amount, hitCount, batch, settings)
 		translations and translations.MSG_HITS or "Hits")
 end
 
-function OutgoingBatcher:ResolveSettings(isSpell, isPet, isDot, eventKey)
-	local profile = self.config.getProfile()
-	if eventKey then
-		local settings = profile.events[eventKey]
-		if settings and not settings.disabled then return eventKey, settings end
-		return nil
-	end
-	local prefix = isPet and "PET_" or ""
-	if isDot then
-		local dotKey = prefix .. "OUTGOING_SPELL_DOT"
-		local dotSettings = profile.events[dotKey]
-		if dotSettings and not dotSettings.disabled then
-			return dotKey, dotSettings
+function OutgoingBatcher:DamageSettings(settings, isSpell, isDot, school)
+	if isDot or (isSpell and school ~= 1) then return settings end
+	-- Use attack colors without changing the user's saved event settings.
+	return setmetatable({
+		colorR = 1, colorG = 1, colorB = isSpell and 0 or 1,
+		attackColorOverride = true,
+	}, { __index = settings })
+end
+
+-- Finds the event settings to use.
+-- For critical hits, check the _CRIT event first; if disabled or absent,
+-- fall back to the normal base event.
+local function ResolveEventSettings(events, baseKey, isCrit)
+	if isCrit then
+		local critKey = baseKey .. "_CRIT"
+		local critSettings = events[critKey]
+		if critSettings and not critSettings.disabled then
+			return critKey, critSettings
 		end
 	end
+	local settings = events[baseKey]
+	if settings and not settings.disabled then
+		return baseKey, settings
+	end
+	return nil
+end
+
+function OutgoingBatcher:ResolveSettings(isSpell, isPet, isDot, eventKey, isCrit)
+	local events = self.config.getProfile().events
+	-- Use explicit event key if provided.
+	if eventKey then
+		return ResolveEventSettings(events, eventKey, isCrit)
+	end
+	local prefix = isPet and "PET_" or ""
+	-- Check DoT event settings.
+	if isDot then
+		local resolvedKey, dotSettings = ResolveEventSettings(
+			events, prefix .. "OUTGOING_SPELL_DOT", isCrit
+		)
+		if dotSettings then
+			return resolvedKey, dotSettings
+		end
+	end
+	-- Check primary damage event (spell vs melee).
 	local primaryKey = prefix .. (isSpell
 		and "OUTGOING_SPELL_DAMAGE"
 		or "OUTGOING_DAMAGE")
+	local resolvedKey, settings = ResolveEventSettings(events, primaryKey, isCrit)
+	if settings then
+		return resolvedKey, settings
+	end
+
+	-- Fall back to secondary damage event if primary is disabled.
 	local secondaryKey = prefix .. (isSpell
 		and "OUTGOING_DAMAGE"
 		or "OUTGOING_SPELL_DAMAGE")
-	local settings = profile.events[primaryKey]
-	if settings and not settings.disabled then
-		return primaryKey, settings
-	end
-
-	settings = profile.events[secondaryKey]
-	if settings and not settings.disabled then
-		return secondaryKey, settings
-	end
-	return nil
+	return ResolveEventSettings(events, secondaryKey, isCrit)
 end
 
 function OutgoingBatcher:Flush(batchKey)
@@ -85,25 +113,23 @@ function OutgoingBatcher:Flush(batchKey)
 	end
 	self.batches[batchKey] = nil
 
-	local eventKey, settings = self:ResolveSettings(
-		batch.isSpell, batch.isPet, batch.isDot, batch.eventKey
+	local _, displaySettings = self:ResolveSettings(
+		batch.isSpell, batch.isPet, batch.isDot, batch.eventKey, batch.isCrit
 	)
-	if not settings then
+	if not displaySettings then
 		return
 	end
-	local profile = self.config.getProfile()
-	local critSettings = profile.events[eventKey .. "_CRIT"]
-	local displaySettings = settings
-	if batch.isCrit and critSettings and not critSettings.disabled then
-		displaySettings = critSettings
-	end
+	displaySettings = self:DamageSettings(displaySettings,
+		batch.isSpell, batch.isDot, batch.school)
+	local school = batch.school
+	if displaySettings.attackColorOverride then school = nil end
 	if batch.hasRestricted then
 		if batch.hitCount == 1 then
 			self.config.displayRestricted(displaySettings, batch.amounts[1],
-				batch.effectTexture, "%a", nil, batch.school)
+				batch.effectTexture, "%a", nil, school)
 		else
 			self.config.displayRestrictedGroup(displaySettings, batch.amounts,
-				batch.effectTexture, batch.school)
+				batch.effectTexture, school)
 		end
 		return
 	end
@@ -135,14 +161,12 @@ function OutgoingBatcher:DisplayRestricted(
 		effectTexture = self.config.getSpellTexture(spellID)
 	end
 	local isSpell = isDot or forceIsSpell or not self.config.isAutoAttack(spellID)
-	local resolvedKey, settings = self:ResolveSettings(isSpell, isPet, isDot, eventKey)
+	local _, settings = self:ResolveSettings(isSpell, isPet, isDot, eventKey, isCrit)
 	if not settings then
 		return
 	end
-	local critSettings = self.config.getProfile().events[resolvedKey .. "_CRIT"]
-	if isCrit and critSettings and not critSettings.disabled then
-		settings = critSettings
-	end
+	settings = self:DamageSettings(settings, isSpell, isDot, school)
+	if settings.attackColorOverride then school = nil end
 	local message = not eventKey and not isPet and "%a" or nil
 	self.config.displayRestricted(settings, amount, effectTexture,
 		message, nil, school)
