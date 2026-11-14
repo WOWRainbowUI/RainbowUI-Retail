@@ -32,7 +32,7 @@ local defaults = {
         progressBar = "Blizzard",
 
         font = " 方正准圓123",
-        fontSize = 16,
+        fontSize = 20,
         fontFlag = "",
         fontShadow = 1,
         textWordWrap = false,

@@ -398,7 +398,7 @@ M.pages = {
 				icon = ICON_URL,
 				text = "https://www.curseforge.com/wow/addons/kaliels-tracker/issues",
 				width = 510,
-				bottom = 39,
+				bottom = 19,
 			}
 		},
 		shine = "Background",
