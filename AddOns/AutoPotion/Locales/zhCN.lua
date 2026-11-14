@@ -91,3 +91,13 @@ L["Weakest Potion First"] = "优先使用效果最弱的药水"
 L["Use your weakest health potion first and keep the stronger ones for later. Meant for leveling. Any health potion in your bags counts, whatever its level. Healthstones still come in their usual order."] = "优先使用效果最弱的治疗药水，保留较强的药水供之后使用，适合升级。不论等级，背包内的所有治疗药水都会纳入。治疗石仍按原本顺序使用。"
 L["Weakest Mana Potion First"] = "优先使用效果最弱的法力药水"
 L["Use your weakest mana potion first and keep the stronger ones for later. Meant for leveling. Any mana potion in your bags counts, whatever its level. The mana gem is still your best one."] = "优先使用效果最弱的法力药水，保留较强的药水供之后使用，适合升级。不论等级，背包内的所有法力药水都会纳入。法力宝石仍使用效果最强的。"
+
+L["Use mana gems"] = "使用法力宝石"
+L["Use your best mana gem first. The next press drinks the mana potion, since they don't share a cooldown. The macro goes back to the mana gem when combat starts or ends, and when you haven't pressed it for as long as the mana gem's cooldown."] =
+"优先使用你最好的法力宝石。二者不共享冷却，所以下一次按键会改喝法力药水。战斗开始或结束时，以及你未按键的时长达到法力宝石冷却后，宏会重新使用法力宝石。"
+L["Weakest Potion First"] = "最弱治疗药水优先"
+L["Use your weakest health potion first and keep the stronger ones for later. Meant for leveling. Any health potion in your bags counts, whatever its level. Healthstones still come in their usual order."] =
+"升级期间优先使用最弱的治疗药水，把更强的留到后面。背包中任意等级的治疗药水都计入。治疗石仍按原有顺序使用。"
+L["Weakest Mana Potion First"] = "最弱法力药水优先"
+L["Use your weakest mana potion first and keep the stronger ones for later. Meant for leveling. Any mana potion in your bags counts, whatever its level. The mana gem is still your best one."] =
+"升级期间优先使用最弱的法力药水，把更强的留到后面。背包中任意等级的法力药水都计入。法力宝石仍然是你最好的那一颗。"
