@@ -1,3 +1,7 @@
+## 4.7.5 - Timer Text Fitting Error Fix
+
+- Fixed a Lua error from timer text fitting on icons with protected size values.
+
 ## 4.7.4 - Login Message Control
 
 - Added a General option to hide MiniCE's login compatibility messages.

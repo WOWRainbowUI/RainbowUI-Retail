@@ -12,11 +12,25 @@ local function ReadDimension(frame, method)
     return frame[method](frame)
 end
 
+-- Clients without canaccessallvalues have no tainted access rules to honour.
+local function IsReadable(value)
+    if addon.IsSecretValue(value) then return false end
+    return canaccessallvalues == nil or addon.CanAccessAllValues(value)
+end
+
+local function IsUsableDimension(value)
+    return value == value and value > 0 and value ~= math.huge
+end
+
+-- Geometry of a frame anchored to secure content can come back secret while
+-- execution is tainted. Never compare a value before proving it is readable,
+-- and keep the range check protected in case the client still refuses it.
 local function PublicDimension(frame, method)
-    if not frame or addon.IsSecretValue(frame) then return nil end
+    if not frame or not IsReadable(frame) then return nil end
     local ok, value = pcall(ReadDimension, frame, method)
-    if not ok or addon.IsSecretValue(value) or type(value) ~= "number"
-        or value ~= value or value <= 0 or value == math.huge then return nil end
+    if not ok or type(value) ~= "number" or not IsReadable(value) then return nil end
+    local checked, usable = pcall(IsUsableDimension, value)
+    if not checked or not usable then return nil end
     return value
 end
 
