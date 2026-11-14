@@ -1,0 +1,27 @@
+## Interface: 120105, 120107, 16001
+## Notes: Wowhead Data dump for GatherMate2
+## Title: GatherMate2Data
+## Author: kagaro, Xinhuan
+## X-Category: Map
+## Group: GatherMate2
+## X-Email: sal.scotto@gmail.com
+## Version: v42.0
+## X-Generated-Version: 220
+## LoadOnDemand: 1
+## Dependencies: GatherMate2
+## X-Curse-Project-ID: 26737
+## IconTexture: Interface\AddOns\GatherMate2\Artwork\Icon.tga
+## AllowLoadGameType: mainline
+
+retail\MiningData.lua [AllowLoadGameType standard]
+retail\HerbalismData.lua [AllowLoadGameType standard]
+retail\GasData.lua [AllowLoadGameType standard]
+retail\FishData.lua [AllowLoadGameType standard]
+retail\TreasureData.lua [AllowLoadGameType standard]
+retail\ArchaeologyData.lua [AllowLoadGameType standard]
+retail\TimberData.lua [AllowLoadGameType standard]
+
+forever\HerbalismData.lua [AllowLoadGameType camelot][ExcludeLoadGameType standard]
+forever\MiningData.lua [AllowLoadGameType camelot][ExcludeLoadGameType standard]
+
+GatherMateData.lua
