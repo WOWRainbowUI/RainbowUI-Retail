@@ -176,7 +176,9 @@ function BaganatorSingleViewBackpackViewMixin:UpdateForCharacter(character, isLi
   end
 
   if self.showing then
-    addonTable.Gamepad.SetTargetButton(self, activeBag.buttons[1])
+    C_Timer.After(0, function()
+      addonTable.Gamepad.SetTargetButton(self, activeBag.buttons[1])
+    end)
     self.showing = false
   end
 
