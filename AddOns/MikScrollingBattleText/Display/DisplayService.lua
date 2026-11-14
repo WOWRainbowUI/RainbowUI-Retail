@@ -45,6 +45,10 @@ function DisplayService:DisplayEvent(eventSettings, message, texturePath, muteSo
 			or profile.normalFontAlpha
 	end
 
+	if type(fontSize) == "number"
+		and type(eventSettings.fontSizeScale) == "number" then
+		fontSize = fontSize * eventSettings.fontSizeScale
+	end
 	isSticky = isSticky or eventSettings.alwaysSticky
 	local display = self.config.display
 	if eventSettings.auraVisibility and self.config.displayWithVisibility then

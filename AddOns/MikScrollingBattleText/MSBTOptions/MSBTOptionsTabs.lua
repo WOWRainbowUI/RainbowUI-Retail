@@ -1126,6 +1126,9 @@ end
 
 
 local function EventsTab_SaveEventSettings(settings, eventType)
+	if eventType == "NOTIFICATION_RESOURCE_GAIN" then
+		MSBTProfiles.SetOption(nil, "resourceExclusions", settings.resourceExclusions)
+	end
 	EventsTab_SaveOption(eventType, "soundFile", settings.soundFile)
 	EventsTab_SaveOption(eventType, "scrollArea", settings.scrollArea, DEFAULT_SCROLL_AREA)
 	EventsTab_SaveOption(eventType, "message", settings.message)
@@ -1148,6 +1151,8 @@ local function EventsTab_SettingsButtonOnClick(this)
 	configTable.scrollArea = eventSettings.scrollArea or DEFAULT_SCROLL_AREA
 	configTable.alwaysSticky = eventSettings.alwaysSticky
 	configTable.isCrit = eventSettings.isCrit
+	configTable.showResources = eventType == "NOTIFICATION_RESOURCE_GAIN"
+	configTable.resourceExclusions = MSBTProfiles.currentProfile.resourceExclusions
 	configTable.parentFrame = tabFrames.events
 	configTable.anchorFrame = tabFrames.events
 	configTable.anchorPoint = "TOPRIGHT"

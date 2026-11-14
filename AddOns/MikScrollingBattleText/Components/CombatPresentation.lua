@@ -8,6 +8,38 @@ local MISS_TYPES = {
 	"MISS", "DODGE", "PARRY", "BLOCK", "RESIST", "EVADE",
 	"IMMUNE", "DEFLECT", "ABSORB", "REFLECT",
 }
+local RESOURCE_LABELS = {
+	MANA = "Mana",
+	RAGE = "Rage",
+	FOCUS = "Focus",
+	ENERGY = "Energy",
+	COMBO_POINTS = "Combo Point",
+	RUNES = "Runes",
+	RUNIC_POWER = "Runic Power",
+	SOUL_SHARDS = "Soul Shards",
+	LUNAR_POWER = "Lunar Power",
+	HOLY_POWER = "Holy Power",
+	ALTERNATE_POWER = "Alternate Power",
+	MAELSTROM = "Maelstrom",
+	CHI = "Chi",
+	INSANITY = "Insanity",
+	BURNING_EMBERS = "Burning Embers",
+	DEMONIC_FURY = "Demonic Fury",
+	ARCANE_CHARGES = "Arcane Charges",
+	FURY = "Fury",
+	PAIN = "Pain",
+	ESSENCE = "Essence",
+	RUNE_BLOOD = "Rune Blood",
+	RUNE_FROST = "Rune Frost",
+	RUNE_UNHOLY = "Rune Unholy",
+	ALTERNATE_QUEST_POWER = "Alternate Quest Power",
+	ALTERNATE_ENCOUNTER_POWER = "Alternate Encounter Power",
+	ALTERNATE_MOUNT_POWER = "Alternate Mount Power",
+	BALANCE = "Balance",
+	HAPPINESS = "Happiness",
+	SHADOW_ORBS = "Shadow Orbs",
+	RUNE_CHROMATIC = "Rune Chromatic",
+}
 
 -- A pet's swing: its family's icon when the client gives one. Auto Attack's
 -- icon (6603) is the player's own weapon.
@@ -54,6 +86,24 @@ function Presentation:Emit(key, record, eventSettings)
 	if not settings then return end
 	local icon = record.icon or (record.spell
 		and self.config.getSpellTexture(record.spell))
+	if record.event == "heal" and self.config.displayHeal
+		and RestrictedValue:IsRestricted(record.sourceName) then
+		local template = record.message or settings.message or ""
+		if template:find("%n", 1, true) then
+			local metadata = {}
+			for field, value in pairs(record) do metadata[field] = value end
+			metadata.sourceName = nil
+			if RestrictedValue:IsRestricted(record.amount) then
+				metadata.amount = nil
+			end
+			-- Keep the hidden name outside public formatting and cleanup.
+			local message = self.config.formatMessage(settings, metadata,
+				(template:gsub("%%n", "\002")))
+			self.config.displayHeal(settings, record.amount, record.sourceName,
+				icon, message)
+			return
+		end
+	end
 	if RestrictedValue:IsRestricted(record.amount) then
 		local message = record.message
 		if record.event == "heal" then
@@ -78,7 +128,88 @@ function Presentation:Emit(key, record, eventSettings)
 	end
 end
 
-function Presentation:Resource(amount, powerToken)
+local function NativeResourceValue(value, expectedType)
+	if not RestrictedValue:IsRestricted(value)
+		and type(value) ~= expectedType then
+		error("Native resource label selection unavailable")
+	end
+	return value
+end
+
+-- The hyperlink carries the conditional numeric gate in its hidden target.
+-- Stripping it leaves only the selected label, without changing text colors.
+local function ResourceLabelFragment(gate, label)
+	local text = NativeResourceValue(C_StringUtil.TruncateWhenZero(gate), "string")
+	local suffix = string.format("|h%s|h", label)
+	local link = NativeResourceValue(
+		C_StringUtil.WrapString(text, "|Hmsbt-resource:", suffix), "string")
+	return NativeResourceValue(C_StringUtil.StripHyperlinks(link), "string")
+end
+
+local function ResourceLabel(token)
+	if not RestrictedValue:IsRestricted(token) then
+		return RESOURCE_LABELS[token] or token
+	end
+	if not C_Intl or not C_StringUtil or not C_CurveUtil
+		or not Enum or not Enum.CollationStrength or not Enum.NormalizationForm
+		or not Enum.CollationStrength.Identical or not Enum.NormalizationForm.Nfc
+		or type(C_Intl.CompareStrings) ~= "function"
+		or type(C_Intl.IsNormalized) ~= "function"
+		or type(C_StringUtil.TruncateWhenZero) ~= "function"
+		or type(C_StringUtil.WrapString) ~= "function"
+		or type(C_StringUtil.StripHyperlinks) ~= "function"
+		or type(C_CurveUtil.EvaluateColorValueFromBoolean) ~= "function" then
+		return token
+	end
+	local ok, label = pcall(function()
+		local output, unmatched = "", 1
+		for candidate, text in pairs(RESOURCE_LABELS) do
+			local comparison = NativeResourceValue(C_Intl.CompareStrings(
+				token, candidate, Enum.CollationStrength.Identical), "number")
+			local difference = NativeResourceValue(
+				C_StringUtil.TruncateWhenZero(comparison), "string")
+			-- Equality is empty NFC text; a mismatch retains a decomposed marker.
+			local marker = NativeResourceValue(
+				C_StringUtil.WrapString(difference, "e\204\129", ""), "string")
+			local matches = NativeResourceValue(C_Intl.IsNormalized(
+				marker, Enum.NormalizationForm.Nfc), "boolean")
+			local matched = NativeResourceValue(
+				C_CurveUtil.EvaluateColorValueFromBoolean(matches, 1, 0), "number")
+			unmatched = NativeResourceValue(
+				C_CurveUtil.EvaluateColorValueFromBoolean(matches, 0, unmatched), "number")
+			output = string.format("%s%s",
+				output, ResourceLabelFragment(matched, text))
+		end
+		return string.format("%s%s",
+			output, ResourceLabelFragment(unmatched, token))
+	end)
+	if ok then return label end
+	return token
+end
+
+local function AllowedResources()
+	local configuration = MikSBT.Configuration
+	local policy = configuration and configuration.ResourcePolicy
+	return policy and policy:Allowed()
+end
+
+local function ResourceVisibility(rules, token, allowlist)
+	local visibility = MikSBT.Configuration.AuraTracking:SecretVisibility(rules, token)
+	if not visibility or not allowlist then return visibility end
+	-- The existing matcher hides listed names. Invert it to show only allowed names.
+	local ok, visible = pcall(function()
+		local unmatched = NativeResourceValue(
+			C_CurveUtil.EvaluateColorValueFromBoolean(visibility.visible, 1, 0), "number")
+		local text = NativeResourceValue(C_StringUtil.TruncateWhenZero(unmatched), "string")
+		local marker = NativeResourceValue(
+			C_StringUtil.WrapString(text, "e\204\129", ""), "string")
+		return NativeResourceValue(C_Intl.IsNormalized(
+			marker, Enum.NormalizationForm.Nfc), "boolean")
+	end)
+	if ok then return { visible = visible } end
+end
+
+function Presentation:Resource(amount, powerToken, ignoreComboPoints)
 	local settings = self:Settings("NOTIFICATION_RESOURCE_GAIN")
 	if not settings then return end
 	if not RestrictedValue:IsRestricted(amount) then
@@ -86,7 +217,120 @@ function Presentation:Resource(amount, powerToken)
 		local readableAmount = RestrictedValue:Number(amount) or tonumber(amountText)
 		if not readableAmount or readableAmount <= 0 then return end
 	end
-	self.config.displayResource(settings, amount, powerToken)
+	local exclusions = self.config.getProfile().resourceExclusions or {}
+	local allowed = AllowedResources()
+	if not RestrictedValue:IsRestricted(powerToken) then
+		if allowed and not allowed[powerToken] then return end
+		if ignoreComboPoints and powerToken == "COMBO_POINTS" then return end
+		if exclusions[powerToken] == true then return end
+	else
+		local rules = {}
+		if allowed then
+			for token in pairs(allowed) do
+				if exclusions[token] ~= true
+					and not (ignoreComboPoints and token == "COMBO_POINTS") then
+					rules["name:" .. token] = false
+				end
+			end
+			if not next(rules) then return end
+		else
+			if ignoreComboPoints then rules["name:COMBO_POINTS"] = false end
+			for token, excluded in pairs(exclusions) do
+				if excluded == true and type(token) == "string" then
+					rules["name:" .. token] = false
+				end
+			end
+		end
+		if next(rules) then
+			local visibility = ResourceVisibility(rules, powerToken, allowed ~= nil)
+			if allowed and not visibility then return end
+			-- A hidden match can select native alpha, but cannot gate sound.
+			settings = setmetatable({
+				auraVisibility = visibility, soundFile = "",
+			}, { __index = settings })
+		end
+	end
+	self.config.displayResource(settings, amount, ResourceLabel(powerToken))
+end
+
+local function NativeCountMatches(left, right)
+	local comparison = NativeResourceValue(C_Intl.CompareStrings(
+		string.format("%d", left), string.format("%d", right),
+		Enum.CollationStrength.Identical), "number")
+	local difference = NativeResourceValue(
+		C_StringUtil.TruncateWhenZero(comparison), "string")
+	local marker = NativeResourceValue(
+		C_StringUtil.WrapString(difference, "e\204\129", ""), "string")
+	return NativeResourceValue(C_Intl.IsNormalized(
+		marker, Enum.NormalizationForm.Nfc), "boolean")
+end
+
+local function SelectComboValue(matches, yes, no)
+	return NativeResourceValue(
+		C_CurveUtil.EvaluateColorValueFromBoolean(matches, yes, no), "number")
+end
+
+-- All decisions remain native when either count is hidden, including zero.
+local function ComboPointDisplay(count, maximum)
+	local zero = NativeCountMatches(count, 0)
+	local full = NativeCountMatches(count, maximum)
+	local one = NativeCountMatches(count, 1)
+	local normal = SelectComboValue(zero, 0, SelectComboValue(full, 0, 1))
+	local ready = SelectComboValue(zero, 0, SelectComboValue(full, 1, 0))
+	return {
+		normal = { visible = NativeCountMatches(normal, 1) },
+		full = { visible = NativeCountMatches(ready, 1) },
+		label = string.format("%s%s",
+			ResourceLabelFragment(SelectComboValue(one, 1, 0), "Combo Point"),
+			ResourceLabelFragment(SelectComboValue(one, 0, 1), "Combo Points")),
+	}
+end
+
+function Presentation:CanTrackComboPoints()
+	local ok, selected = pcall(ComboPointDisplay, 1, 5)
+	return ok and type(selected) == "table"
+end
+
+local function FinishSettings(settings, visibility)
+	local alert = {
+		alwaysSticky = true, fontSizeScale = 2,
+		colorR = 1, colorG = 0, colorB = 0,
+	}
+	if visibility then
+		alert.auraVisibility, alert.soundFile = visibility, ""
+	end
+	return setmetatable(alert, { __index = settings })
+end
+
+function Presentation:ComboPoints(count, maximum)
+	local settings = self:Settings("NOTIFICATION_RESOURCE_GAIN")
+	local exclusions = self.config.getProfile().resourceExclusions
+	local allowed = AllowedResources()
+	if allowed and not allowed.COMBO_POINTS then return end
+	if not settings or (exclusions and exclusions.COMBO_POINTS == true) then return end
+	local publicCount = not RestrictedValue:IsRestricted(count)
+	local publicMaximum = not RestrictedValue:IsRestricted(maximum)
+	if publicCount and (type(count) ~= "number" or count <= 0) then return end
+	if publicMaximum and (type(maximum) ~= "number" or maximum <= 0) then return end
+	local finish = (MikSBT.translations or {}).CP_FULL or "Finish Him!"
+	if publicCount and publicMaximum then
+		if count == maximum then
+			self.config.display(FinishSettings(settings), finish)
+		else
+			local name = count == 1 and "Combo Point" or "Combo Points"
+			self.config.displayResource(settings, count, name)
+		end
+		return
+	end
+	local ok, selected = pcall(ComboPointDisplay, count, maximum)
+	-- Without a native decision, do not risk showing zero or a false maximum.
+	if not ok then return end
+	local normal = setmetatable({
+		auraVisibility = selected.normal, soundFile = "",
+	}, { __index = settings })
+	local sticky = FinishSettings(settings, selected.full)
+	self.config.displayResource(normal, count, selected.label)
+	self.config.display(sticky, finish)
 end
 
 function Presentation:RememberIncomingHeal(record)

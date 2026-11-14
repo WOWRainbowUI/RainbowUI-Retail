@@ -425,6 +425,10 @@ obj["NOTIFICATION_RESOURCE_GAIN"] = {
 	label = "Resource Gains",
 	tooltip = "Show resource gains reported by abilities and effects.",
 }
+L.RESOURCE_CHECKBOX_TITLE = "Resources"
+L.RESOURCE_CHECKBOX_HELP = "Show gains for this resource when used by your class, specialization, or form."
+L.RESOURCE_CHECKBOX_SOUND = "Resource sounds are muted when a hidden resource type needs filtering."
+L.RESOURCE_COMBO_POINT = "Combo Point"
 obj["NOTIFICATION_REP_GAIN"]			= { label="Reputation Gains", tooltip="Enable when you gain reputation."}
 obj["NOTIFICATION_REP_LOSS"]			= { label="Reputation Losses", tooltip="Enable when you lose reputation."}
 obj["NOTIFICATION_SKILL_GAIN"]			= { label="Skill Gains", tooltip="Enable when you gain skill points."}

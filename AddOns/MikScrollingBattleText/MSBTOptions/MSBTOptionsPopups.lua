@@ -31,6 +31,15 @@ local DEFAULT_ANIMATION_STYLE = "Straight"
 local DEFAULT_STICKY_ANIMATION_STYLE = "Pow"
 local DEFAULT_ICON_ALIGN = "Left"
 local PREVIEW_ICON_PATH = "Interface\\Icons\\INV_Misc_AhnQirajTrinket_03"
+local RESOURCE_TOKENS = {
+	"MANA", "RAGE", "FOCUS", "ENERGY", "COMBO_POINTS", "RUNES",
+	"RUNIC_POWER", "SOUL_SHARDS", "LUNAR_POWER", "HOLY_POWER",
+	"ALTERNATE_POWER", "MAELSTROM", "CHI", "INSANITY", "BURNING_EMBERS",
+	"DEMONIC_FURY", "ARCANE_CHARGES", "FURY", "PAIN", "ESSENCE",
+	"RUNE_BLOOD", "RUNE_FROST", "RUNE_UNHOLY", "ALTERNATE_QUEST_POWER",
+	"ALTERNATE_ENCOUNTER_POWER", "ALTERNATE_MOUNT_POWER", "BALANCE",
+	"HAPPINESS", "SHADOW_ORBS", "RUNE_CHROMATIC",
+}
 
 local CLASS_NAMES = {}
 
@@ -1671,6 +1680,46 @@ local function EnableEventControls()
 end
 
 
+local function CreateResourceCheckboxes(frame)
+	local panel = CreateFrame("Frame", nil, frame)
+	panel:SetPoint("TOPLEFT", frame, "TOPLEFT", 380, -65)
+	panel:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -44, 78)
+	frame.resourcePanel = panel
+	frame.resourceCheckboxes = {}
+
+	local title = panel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+	title:SetPoint("TOPLEFT", panel, "TOPLEFT", 0, 0)
+	title:SetText(L.RESOURCE_CHECKBOX_TITLE)
+
+	local scroll = CreateFrame("ScrollFrame", nil, panel,
+		"UIPanelScrollFrameTemplate")
+	scroll:SetPoint("TOPLEFT", panel, "TOPLEFT", 0, -24)
+	scroll:SetPoint("BOTTOMRIGHT", panel, "BOTTOMRIGHT", -24, 0)
+	local content = CreateFrame("Frame", nil, scroll)
+	content:SetSize(260, #RESOURCE_TOKENS * 26 + 10)
+	scroll:SetScrollChild(content)
+	frame.resourceContent = content
+
+	for index, token in ipairs(RESOURCE_TOKENS) do
+		local label = _G[token] or token:lower():gsub("_", " ")
+		if token == "COMBO_POINTS" then label = L.RESOURCE_COMBO_POINT end
+		local checkbox = MSBTControls.CreateCheckbox(content)
+		checkbox:Configure(24, label, L.RESOURCE_CHECKBOX_HELP)
+		checkbox:SetPoint("TOPLEFT", content, "TOPLEFT", 0, -(index - 1) * 26)
+		checkbox:SetClickHandler(function(_, checked)
+			frame.resourceExclusions[token] = not checked or nil
+		end)
+		frame.resourceCheckboxes[token] = checkbox
+		frame.controls[#frame.controls + 1] = checkbox
+	end
+
+	local hint = panel:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
+	hint:SetPoint("TOPLEFT", panel, "BOTTOMLEFT", 0, -10)
+	hint:SetWidth(280)
+	hint:SetJustifyH("LEFT")
+	hint:SetText(L.RESOURCE_CHECKBOX_SOUND)
+end
+
 local function CreateEvent()
 	local frame = CreatePopup()
 	frame:SetWidth(380)
@@ -1718,6 +1767,9 @@ local function CreateEvent()
 		returnSettings.soundFile = controls.soundDropdown:GetSelectedID()
 		returnSettings.alwaysSticky = controls.stickyCheckbox:GetChecked()
 		returnSettings.iconSkill = controls.iconSkillEditbox:GetText()
+		if frame.showResources then
+			returnSettings.resourceExclusions = frame.resourceExclusions
+		end
 		frame:Hide()
 		if frame.saveHandler then
 			frame.saveHandler(returnSettings, frame.saveArg1)
@@ -1744,6 +1796,7 @@ local function ShowEvent(configTable)
 	if (not popupFrames.eventFrame) then popupFrames.eventFrame = CreateEvent() end
 
 	local frame = popupFrames.eventFrame
+	frame.showResources = configTable.showResources
 	ChangePopupParent(frame, configTable.parentFrame)
 
 	frame.titleFontString:SetText(configTable.title)
@@ -1772,6 +1825,22 @@ local function ShowEvent(configTable)
 	else
 		controls.iconSkillEditbox:Hide()
 		frame:SetHeight(370)
+	end
+
+	frame:SetWidth(380)
+	if frame.showResources then
+		if not frame.resourcePanel then CreateResourceCheckboxes(frame) end
+		frame.resourceExclusions = {}
+		for token, excluded in pairs(configTable.resourceExclusions or {}) do
+			frame.resourceExclusions[token] = excluded
+		end
+		for token, checkbox in pairs(frame.resourceCheckboxes) do
+			checkbox:SetChecked(frame.resourceExclusions[token] ~= true)
+		end
+		frame:SetSize(730, 430)
+		frame.resourcePanel:Show()
+	elseif frame.resourcePanel then
+		frame.resourcePanel:Hide()
 	end
 
 	frame.saveHandler = configTable.saveHandler
