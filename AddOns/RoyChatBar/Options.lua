@@ -32,7 +32,7 @@ ns.ChatOptions = {
         type = "checkbox",
         key = "isChatBar",
         name = L["启用功能"],
-        default = false,
+        default = true,
         tooltip = nil,
         onChange = function(_, value)
             if ns.OnChatBarToggle then ns.OnChatBarToggle(value) end
@@ -169,7 +169,7 @@ ns.ChatOptions = {
         type = "checkbox",
         key = "isTabSwitch",
         name = L["TAB切换频道"],
-        default = false,
+        default = true,
         tooltip = nil,
         onChange = function(_, value)
             if ns.OnTabSwitchChanged then ns.OnTabSwitchChanged(value) end
@@ -179,7 +179,7 @@ ns.ChatOptions = {
         type = "checkbox",
         key = "isShortChannelName",
         name = L["频道名简写"],
-        default = false,
+        default = true,
         tooltip = nil,
         onChange = function(_, value)
             if ns.OnShortChannelNameChanged then ns.OnShortChannelNameChanged(value) end
@@ -314,7 +314,7 @@ ns.ChatOptions = {
         type = "slider",
         key = "chatButtonSpacing",
         name = L["调整间距"],
-        default = 0,
+        default = 2,
         min = 0,
         max = 20,
         step = 1,
@@ -327,7 +327,7 @@ ns.ChatOptions = {
         type = "dropdown",
         key = "chatBarAnchorMode",
         name = L["定位模式"],
-        default = "FREE",
+        default = "ANCHOR",
         tooltip = nil,
         options = function()
             local c = Settings.CreateControlTextContainer()
@@ -368,7 +368,7 @@ ns.ChatOptions = {
         type = "slider",
         key = "chatBarPositionY",
         name = L["垂直移动"],
-        default = 0,
+        default = -5,
         min = -2000,
         max = 2000,
         step = 1,
@@ -464,5 +464,5 @@ CollectDefaults(ns.ChatOptions)
 -- 聊天条位置嵌套表默认值（两种定位模式各自独立存储）
 ns.defaults.chatBarPosition = {
     FREE = { x = 0, y = 0 },
-    ANCHOR = { x = 0, y = 0 },
+    ANCHOR = { x = 0, y = -5 },
 }
