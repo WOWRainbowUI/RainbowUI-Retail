@@ -78,3 +78,5 @@ L.MSG_TRIGGER_LOW_MANA			= "法力值偏低"
 L.MSG_TRIGGER_LOW_PET_HEALTH	= "寵物生命偏低"
 
 L.COMBAT_SETUP_RELOAD = "請重新載入介面以啟動 MSBT。"
+
+L.CP_FULL = "終結技就緒！"

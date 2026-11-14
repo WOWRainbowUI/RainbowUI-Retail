@@ -454,3 +454,8 @@ L.TABS["sounds"] = { label="音效", tooltip="启用事件音效并添加自定�
 L.CHECKBOXES["lowHealthSound"] = { label="低生命值音效", tooltip="播放低生命值警告音效，最多每 8 秒一次。取消勾选时仍会显示文字警告。" }
 
 L.CHECKBOXES["lowManaSound"] = { label="低法力值音效", tooltip="播放低法力值警告音效，最多每 8 秒一次。取消勾选时仍会显示文字警告。" }
+
+L.RESOURCE_CHECKBOX_TITLE = "资源"
+L.RESOURCE_CHECKBOX_HELP = "显示当前职业、专精或形态会使用的此类资源获取。"
+L.RESOURCE_CHECKBOX_SOUND = "需要过滤隐藏的资源类型时，资源提示音会静音。"
+L.RESOURCE_COMBO_POINT = "连击点数"

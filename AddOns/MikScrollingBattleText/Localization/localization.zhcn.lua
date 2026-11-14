@@ -42,3 +42,5 @@ L.MSG_TRIGGER_LOW_PET_HEALTH	= "宠物生命值低"
 
 
 L.COMBAT_SETUP_RELOAD = "请重新加载界面以启动 MSBT。"
+
+L.CP_FULL = "终结技就绪！"
