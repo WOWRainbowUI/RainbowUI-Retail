@@ -535,6 +535,7 @@ PawnLocal.TooltipParsing = {
 	["ArcaneSpellDamage3"] = "^%+# daño Arcano$",
 	["Armor"] = "^%+?# p%. de armadura$",
 	["Armor2"] = "^UNUSED$",
+	["Armor3"] = "^UNUSED$",
 	["ArmorPenetration"] = "^Equipar: Tus ataques ignoran # p%. de la armadura de tu oponente%.$",
 	["ArmorPenetrationRating"] = "^Equipar: Aumenta el índice de penetración de armadura # p%.$",
 	["ArmorPenetrationRating2"] = "^Equipar: Aumenta # p%. la penetración de armadura%.$",
@@ -612,7 +613,7 @@ PawnLocal.TooltipParsing = {
 	["Haste"] = "^%+?# [cC]eleridad$",
 	["Haste2"] = "^UNUSED$",
 	["HasteClassic"] = "^Equipar: Aumenta un #%% tu velocidad de ataque%.$",
-	["HasteCombined"] = "^UNUSED$",
+	["HasteCombined"] = "^Equipar: Aumenta un #%% la velocidad de ataque y de lanzamiento de hechizos%.$",
 	["HaventCollectedAppearance"] = "^No has conseguido esta apariencia%.?$",
 	["HasteRating"] = "^Equipar: Aumenta # p%. la celeridad%.$",
 	["HasteRating2"] = "^Equipar: Mejora el índice de celeridad en # p%.$",
@@ -978,12 +979,14 @@ if GetLocale() == "esES" then
 
 		local TooltipParsing_Forever =
 		{
+			["Armor3"] = "^%+?# p%. de armadura$",
 			["ArcaneSpellDamage2"] = "^Equipar: Aumenta hasta # p%. el daño infligido con hechizos y efectos Arcanos%.$",
 			["BlockPercent"] = "^Equipar: Aumenta un #%% la probabilidad de bloquear ataques con un escudo%.$",
 			["CritPercentCombined"] = "^Equipar: Mejora un #%% tu probabilidad de conseguir un golpe crítico%.$",
 			["DodgePercent"] = "^Equipar: Aumenta un #%% la probabilidad de esquivar un ataque%.$",
 			["FireSpellDamage2"] = "^Equipar: Aumenta hasta # p%. el daño infligido con hechizos y efectos de Fuego%.$",
 			["FrostSpellDamage2"] = "^Equipar: Aumenta hasta # p%. el daño infligido con hechizos y efectos de Escarcha%.$",
+			["HasteCombined"] = "^Equipar: Aumenta un #%% tus velocidades de ataque y de lanzamiento de hechizos%.$",
 			["Healing4"] = "^Equipar: Aumenta hasta # p%. la sanación realizada con hechizos y efectos mágicos%.$",
 			["HitPercentCombined"] = "^Equipar: Mejora un #%% tu probabilidad de golpear%.$",
 			["HolySpellDamage2"] = "^Equipar: Aumenta hasta # p%. el daño infligido con hechizos y efectos Sagrados%.$",
