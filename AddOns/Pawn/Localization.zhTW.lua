@@ -513,6 +513,7 @@ PawnLocal.TooltipParsing = {
 	["ArcaneSpellDamage3"] = "^%+#秘法傷害$",
 	["Armor"] = "^#點護甲$",
 	["Armor2"] = "^裝備: %+#點護甲值。$",
+	["Armor3"] = "^%+?#點護甲值$",
 	["ArmorPenetration"] = "^裝備: 你的攻擊無視目標#點護甲值。$",
 	["ArmorPenetrationRating"] = "^裝備: 提高#點護甲穿透等級。$",
 	["ArmorPenetrationRating2"] = "^裝備: 提高#點護甲穿透。$",
@@ -590,7 +591,7 @@ PawnLocal.TooltipParsing = {
 	["Haste"] = "^%+?#加速$",
 	["Haste2"] = "^裝備: 提高#點加速。$",
 	["HasteClassic"] = "^裝備： 你的攻擊速度提高#%%。$",
-	["HasteCombined"] = "^UNUSED$",
+	["HasteCombined"] = "^	裝備：使你的攻擊速度和施法速度提高#%%。$",
 	["HasteRating"] = "^裝備: 提高#點加速。$",
 	["HasteRating2"] = "^UNUSED$",
 	--[[Translation missing --]]
