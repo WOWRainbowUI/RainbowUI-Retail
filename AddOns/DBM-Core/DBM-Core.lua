@@ -83,14 +83,14 @@ local function showRealDate(curseDate)
 	end
 end
 
-DBM.Revision = parseCurseDate("20261112053816")
+DBM.Revision = parseCurseDate("20261113062802")
 private.fakeBWVersion, private.fakeBWHash = 427, "fe75de4"--427.7
 
 -- The string that is shown as version
-DBM.DisplayVersion = "12.1.21"--Core version
+DBM.DisplayVersion = "12.1.23"--Core version
 DBM.classicSubVersion = 0
 DBM.dungeonSubVersion = 0
-DBM.ReleaseRevision = releaseDate(2026, 11, 11) -- the date of the latest stable version that is available, optionally pass hours, minutes, and seconds for multiple releases in one day
+DBM.ReleaseRevision = releaseDate(2026, 11, 12) -- the date of the latest stable version that is available, optionally pass hours, minutes, and seconds for multiple releases in one day
 DBM.HighestRelease = DBM.ReleaseRevision --Updated if newer version is detected, used by update nags to reflect critical fixes user is missing on boss pulls
 
 -- support for github downloads, which doesn't support curse keyword expansion
@@ -2509,7 +2509,7 @@ do
 				if dbmIsEnabled and not IsTrialAccount() then
 					private.sendBWSync("Q", ("%d^%s"):format(0, private.fakeBWHash), IsInGroup(2) and "INSTANCE_CHAT" or "RAID", "NORMAL")
 				end
-				if private.isRetail or private.isCata or private.isMop then
+				if private.isRetail or private.isCata or private.isMop or private.isForever then
 					self:Schedule(2, self.RoleCheck, false, self)
 				end
 				fireEvent("DBM_raidJoin", playerName)
@@ -2599,7 +2599,7 @@ do
 				if dbmIsEnabled and not IsTrialAccount() then
 					private.sendBWSync("Q", ("%d^%s"):format(0, private.fakeBWHash), IsInGroup(2) and "INSTANCE_CHAT" or "RAID", "NORMAL")
 				end
-				if private.isRetail or private.isCata or private.isMop then
+				if private.isRetail or private.isCata or private.isMop or private.isForever then
 					self:Schedule(2, self.RoleCheck, false, self)
 				end
 				fireEvent("DBM_partyJoin", playerName)
@@ -3364,7 +3364,7 @@ do
 		end
 		if currentSpecID ~= lastSpecID then--Don't fire specchanged unless spec actually has changed.
 			self:SpecChanged()
-			if (private.isRetail or private.isCata or private.isMop) and IsInGroup() then
+			if (private.isRetail or private.isCata or private.isMop or private.isForever) and IsInGroup() then
 				self:RoleCheck(false)
 			end
 		end
@@ -4548,7 +4548,8 @@ function DBM:RoleCheck(ignoreLoot)
 		if not ignoreLoot and lootrole and (role ~= lootrole) and self.Options.RoleSpecAlert then
 			self:AddMsg(L.LOOT_SPEC_REMINDER:format(_G[role] or CL.UNKNOWN, _G[lootrole]))
 		end
-	else--Cata
+	else--Cata and Forever
+		--Note: Forever will be iffy for hybrid specs since specIds are more or less guessed
 		if (not currentSpecID or currentSpecID == 0) then
 			DBM:SetCurrentSpecInfo()
 		end
@@ -4930,15 +4931,24 @@ do
 	bossModPrototype.IsTank = DBM.IsTank
 end
 
+---NOTE: This check is VERY problematic in classic if raid doesn't set main tanks correctly cause it'll also flag most tanks as dps
 ---@param uId playerUUIDs? Used for querying external unit. If nil, queries "player"
 ---@return boolean
 function bossModPrototype:IsDps(uId)
 	if uId then--External unit call.
-		--no SpecID checks because SpecID is only availalbe with DBM/Bigwigs, but both DBM/Bigwigs auto set DAMAGER/HEALER/TANK roles anyways so it'd be redundant
-		--This check is VERY problematic in classic if raid doesn't set main tanks correctly cause it'll also flag tanks as dps without question
-		if private.isRetail or private.isMop then
+		--Check role first if available (retail and mop auto set it with DBM/BW, Forever and non boss mod users are only manually set by players)
+		if private.isRetail or private.isMop or private.isForever then
 			return not self:issecretunit(uId) and UnitGroupRolesAssigned(uId) == "DAMAGER"
 		end
+		if private.isRetail or private.isCata or private.isMop or private.isForever then
+			--We check if we have access to specID as provided by libspecialization (libspec) for the remote unit
+			local name = GetUnitName(uId, true)
+			if (private.isRetail or private.isCata or private.isMop or private.isForever) and raid[name] and raid[name].specID then--We know their specId
+				local specID = raid[name].specID
+				return private.specRoleTable[specID]["Dps"]
+			end
+		end
+		--Finish off on a last ditch old api tank check
 		return not self:issecretunit(uId) and not GetPartyAssignment("MAINTANK", uId, true)
 	end
 	if (not currentSpecID or currentSpecID == 0) then
@@ -4956,16 +4966,25 @@ end
 ---@return boolean
 function DBM:IsHealer(uId)
 	if uId then--External unit call.
-		if not private.isRetail and not private.isMop then
-			print("bossModPrototype:IsHealer should not be called in classic, report this message")
-			return false
+		--Check role first if available (retail and mop auto set it with DBM/BW, Forever and non boss mod users are only manually set by players)
+		if private.isRetail or private.isMop or private.isForever then
+			return not self:issecretunit(uId) and UnitGroupRolesAssigned(uId) == "HEALER"
 		end
-		--no SpecID checks because SpecID is only availalbe with DBM/Bigwigs, but both DBM/Bigwigs auto set DAMAGER/HEALER/TANK roles anyways so it'd be redundant
-		return not self:issecretunit(uId) and UnitGroupRolesAssigned(uId) == "HEALER"
+		if private.isRetail or private.isCata or private.isMop or private.isForever then
+			--We check if we have access to specID as provided by libspecialization (libspec) for the remote unit
+			local name = GetUnitName(uId, true)
+			if (private.isRetail or private.isCata or private.isMop or private.isForever) and raid[name] and raid[name].specID then--We know their specId
+				local specID = raid[name].specID
+				return private.specRoleTable[specID]["Healer"]
+			end
+		end
+		--Return false if we couldn't determine their role from specID or role assignment
+		return false
 	end
 	if (not currentSpecID or currentSpecID == 0) then
 		DBM:SetCurrentSpecInfo()
 	end
+	--Use specID for "player"/self when role isn't autoset
 	if not private.isRetail and not private.isMop then
 		if private.specRoleTable[currentSpecID]["Healer"] then
 			if playerClass == "DRUID" then
@@ -5075,7 +5094,7 @@ function bossModPrototype:GetNumAliveTanks()
 	local uId = (IsInRaid() and "raid") or "party"
 	for i = 1, DBM:GetNumRealGroupMembers() do
 		local unitId = uId .. i
-		local isTank = private.isRetail and UnitGroupRolesAssigned(unitId) == "TANK" or GetPartyAssignment("MAINTANK", unitId, true)
+		local isTank = (private.isForever or private.isRetail or private.isMop) and UnitGroupRolesAssigned(unitId) == "TANK" or GetPartyAssignment("MAINTANK", unitId, true)
 		if isTank and not UnitIsDeadOrGhost(unitId) then
 			count = count + 1
 		end
@@ -5338,7 +5357,7 @@ function bossModPrototype:ReceiveSync(event, sender, revision, ...)
 	end
 end
 
----@param revision number|string Either a number in the format "202101010000" (year, month, day, hour, minute) or string "20261112053816" to be auto set by packager
+---@param revision number|string Either a number in the format "202101010000" (year, month, day, hour, minute) or string "20261113062802" to be auto set by packager
 function bossModPrototype:SetRevision(revision)
 	revision = parseCurseDate(revision or "")
 	if not revision or type(revision) == "string" then

@@ -20,8 +20,12 @@ local mfloor, mmax = math.floor, math.max
 local sformat = string.format
 
 do
-	local debugLogFrame, debugLogViewport, clearButton
-	local debugLogLineFrames = {}
+	local debugLogFrame, debugLogViewport, clearButton, binaryFontButton, binaryFontHeader
+	local appliedBinaryFont, appliedBinaryScale
+	local debugLogLineFrames = {
+		human = {},
+		binary = {},
+	}
 	local debugLogEntries = {}
 	local maxDebugLogEntries = 1500
 	local debugLogSoftClosed = true
@@ -31,7 +35,9 @@ do
 	local debugLogStartIndex = 1
 	local debugLogTopVisibleLine = 1
 	local debugLogNormalPoint, debugLogNormalRelativeTo, debugLogNormalX, debugLogNormalY
-	local ensureLineFrame, getPhysicalIndex
+	local ensureLineFrame, getPhysicalIndex, updateDebugLogFont
+	local binaryFont = "Interface\\AddOns\\DBM-Core\\fonts\\DBMBinary.ttf"
+	local binaryFontObject
 
 	local function getVisibleLineCount()
 		if not debugLogViewport then return 1 end
@@ -61,28 +67,44 @@ do
 
 	local function updateVisibleLines()
 		if not debugLogViewport then return end
+		local lineFrames = DBM.Options.DebugLogBinaryFont and debugLogLineFrames.binary or debugLogLineFrames.human
 		local visibleLineCount = getVisibleLineCount()
 		for i = 1, visibleLineCount do
 			local line = ensureLineFrame(i)
+			if not line then
+				updateDebugLogFont()
+				return
+			end
 			local text = getEntry(debugLogTopVisibleLine + i - 1)
 			if text then
-				line:SetText(text)
+				if DBM.Options.DebugLogBinaryFont then
+					line:SetText(sformat("~DBM1~%s~END~", text))
+				else
+					line:SetText(text)
+				end
 				line:Show()
 			else
 				line:SetText("")
 				line:Hide()
 			end
 		end
-		if #debugLogLineFrames > visibleLineCount then
-			for i = visibleLineCount + 1, #debugLogLineFrames do
-				debugLogLineFrames[i]:SetText("")
-				debugLogLineFrames[i]:Hide()
+		if #lineFrames > visibleLineCount then
+			for i = visibleLineCount + 1, #lineFrames do
+				lineFrames[i]:SetText("")
+				lineFrames[i]:Hide()
 			end
+		end
+		if binaryFontHeader and DBM.Options.DebugLogBinaryFont then
+			local rows = math.min(visibleLineCount, mmax(0, debugLogLineCount - debugLogTopVisibleLine + 1))
+			binaryFontHeader:SetText(sformat("~DBM1~#DBMP1:%d~END~", rows))
 		end
 	end
 
 	local function refreshDebugLog(scrollToBottom)
 		if not debugLogViewport then return end
+		if appliedBinaryFont ~= DBM.Options.DebugLogBinaryFont or (DBM.Options.DebugLogBinaryFont and appliedBinaryScale ~= debugLogFrame:GetEffectiveScale()) then
+			updateDebugLogFont()
+		end
 		if scrollToBottom then
 			debugLogTopVisibleLine = getMaxTopVisibleLine()
 		end
@@ -115,16 +137,87 @@ do
 	end
 
 	ensureLineFrame = function(index)
-		if debugLogLineFrames[index] then return debugLogLineFrames[index] end
+		local binary = DBM.Options.DebugLogBinaryFont
+		local lineFrames = binary and debugLogLineFrames.binary or debugLogLineFrames.human
+		if lineFrames[index] then return lineFrames[index] end
 		local line = debugLogViewport:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
 		line:SetJustifyH("LEFT")
 		line:SetJustifyV("TOP")
 		line:SetWordWrap(false)
 		line:SetMaxLines(1)
+		if binary then
+			line:SetFontObject(binaryFontObject)
+			if not line:SetFont(binaryFontObject:GetFont()) then
+				line:Hide()
+				DBM:AddMsg(DBM_CORE_L.DEBUG_LOG_FONT_ERROR)
+				DBM.Options.DebugLogBinaryFont = false
+				return nil
+			end
+		else
+			line:SetFontObject(GameFontHighlightSmall)
+			line:SetFont(GameFontHighlightSmall:GetFont())
+		end
 		line:SetPoint("TOPLEFT", debugLogViewport, "TOPLEFT", 0, -((index - 1) * lineHeight))
 		line:SetPoint("RIGHT", debugLogViewport, "RIGHT", 0, 0)
-		debugLogLineFrames[index] = line
+		lineFrames[index] = line
 		return line
+	end
+
+	updateDebugLogFont = function()
+		if not debugLogFrame then return end
+		local wasAtBottom = debugLogTopVisibleLine >= getMaxTopVisibleLine()
+		local binary = DBM.Options.DebugLogBinaryFont
+		local scale = binary and debugLogFrame:GetEffectiveScale() or 1
+		lineHeight = binary and math.ceil(14 / scale) or 14
+		if binary then
+			if not binaryFontObject then
+				binaryFontObject = CreateFont("DBMDebugLogBinaryFont")
+			end
+			binaryFontObject:SetFont(binaryFont, 12 / scale, "")
+		end
+		local inactiveLineFrames = binary and debugLogLineFrames.human or debugLogLineFrames.binary
+		for i = 1, #inactiveLineFrames do
+			inactiveLineFrames[i]:Hide()
+		end
+		if binaryFontHeader then
+			if binary then
+				binaryFontHeader:Show()
+			else
+				binaryFontHeader:Hide()
+			end
+		end
+		ensureLineFrame(1)
+		if binary and not debugLogLineFrames.binary[1] then
+			updateDebugLogFont()
+			return
+		end
+		local activeLineFrames = binary and debugLogLineFrames.binary or debugLogLineFrames.human
+		for i = 1, #activeLineFrames do
+			activeLineFrames[i]:SetPoint("TOPLEFT", debugLogViewport, "TOPLEFT", 0, -((i - 1) * lineHeight))
+		end
+		if binary then
+			if not binaryFontHeader then
+				binaryFontHeader = debugLogFrame:CreateFontString(nil, "ARTWORK")
+				binaryFontHeader:SetPoint("TOPLEFT", debugLogFrame, "TOPLEFT", 12, -38)
+				binaryFontHeader:SetTextColor(1, 1, 1)
+				binaryFontHeader:SetFontObject(binaryFontObject)
+				if not binaryFontHeader:SetFont(binaryFontObject:GetFont()) then
+					binaryFontHeader:Hide()
+					DBM:AddMsg(DBM_CORE_L.DEBUG_LOG_FONT_ERROR)
+					DBM.Options.DebugLogBinaryFont = false
+					updateDebugLogFont()
+					return
+				end
+			end
+			binaryFontHeader:Show()
+		elseif binaryFontHeader then
+			binaryFontHeader:Hide()
+		end
+		appliedBinaryFont = binary
+		appliedBinaryScale = scale
+		debugLogViewport:SetPoint("TOPLEFT", debugLogFrame, "TOPLEFT", 12, binary and -38 - math.ceil(16 / scale) or -38)
+		binaryFontButton:SetText(binary and DBM_CORE_L.DEBUG_LOG_TEXT or DBM_CORE_L.DEBUG_LOG_BINARY)
+		refreshDebugLog(wasAtBottom)
 	end
 
 	getPhysicalIndex = function(logicalIndex)
@@ -137,9 +230,13 @@ do
 		for i = 1, #debugLogEntries do
 			debugLogEntries[i] = nil
 		end
-		for i = 1, #debugLogLineFrames do
-			debugLogLineFrames[i]:SetText("")
-			debugLogLineFrames[i]:Hide()
+		for i = 1, #debugLogLineFrames.human do
+			debugLogLineFrames.human[i]:SetText("")
+			debugLogLineFrames.human[i]:Hide()
+		end
+		for i = 1, #debugLogLineFrames.binary do
+			debugLogLineFrames.binary[i]:SetText("")
+			debugLogLineFrames.binary[i]:Hide()
 		end
 	end
 
@@ -193,6 +290,14 @@ do
 			refreshDebugLog()
 		end)
 
+		binaryFontButton = CreateFrame("Button", nil, debugLogFrame, "UIPanelButtonTemplate")
+		binaryFontButton:SetPoint("BOTTOMLEFT", debugLogFrame, "BOTTOMLEFT", 12, 12)
+		binaryFontButton:SetSize(200, 22)
+		binaryFontButton:SetScript("OnClick", function()
+			DBM.Options.DebugLogBinaryFont = not DBM.Options.DebugLogBinaryFont
+			updateDebugLogFont()
+		end)
+
 		debugLogViewport = CreateFrame("Frame", nil, debugLogFrame)
 		debugLogViewport:SetPoint("TOPLEFT", debugLogFrame, "TOPLEFT", 12, -38)
 		debugLogViewport:SetPoint("BOTTOMRIGHT", debugLogFrame, "BOTTOMRIGHT", -52, 42)
@@ -242,6 +347,7 @@ do
 			scrollDebugLogByPage(1)
 		end)
 
+		updateDebugLogFont()
 		refreshDebugLog(true)
 		setDebugLogSoftClosed(true)
 	end
