@@ -1,4 +1,3 @@
----@class addonTableBaganator
 local addonTable = select(2, ...)
 
 local buttonMapping = {
@@ -29,13 +28,13 @@ if addonTable.Constants.IsGamepadInUse then
   function addonTable.Gamepad.ResetAssociations(button1)
     SmartNavigation_ClearJumpNavigationOverrides(button1)
   end
-  function addonTable.Gamepad.AnnounceShow(frame)
+  function addonTable.Gamepad.AnnounceShow(frame, isPopup)
     C_Timer.After(0, function()
-      GamepadMode.FrameControlsManager:FrameShown(frame)
+      GamepadMode.FrameControlsManager:FrameShown(frame, isPopup)
     end)
   end
-  function addonTable.Gamepad.AnnounceHide(frame)
-      GamepadMode.FrameControlsManager:FrameHidden(frame)
+  function addonTable.Gamepad.AnnounceHide(frame, isPopup)
+    GamepadMode.FrameControlsManager:FrameHidden(frame, isPopup)
   end
 
   function addonTable.Gamepad.SetTargetButton(frame, target)

@@ -218,7 +218,9 @@ function BaganatorCategoryViewBackpackViewMixin:UpdateForCharacter(character, is
     self.refreshState = {}
 
     if self.showing then
-      addonTable.Gamepad.SetTargetButton(self, firstVisible)
+      C_Timer.After(0, function()
+        addonTable.Gamepad.SetTargetButton(self, firstVisible)
+      end)
       self.showing = false
     end
 

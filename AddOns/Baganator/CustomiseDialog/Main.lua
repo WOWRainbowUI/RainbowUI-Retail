@@ -441,6 +441,11 @@ function BaganatorCustomiseDialogMixin:OnLoad()
   self.Inset:Hide()
   self:SetScript("OnMouseWheel", function() end)
 
+  if addonTable.Constants.IsGamepadInUse then
+    self.layoutType = "ButtonFrameTemplateNoPortrait"
+    self.FrameGlow = CreateFrame("Frame", nil, self, "FrameGlowTemplate")
+  end
+
   self:SetTitle(addonTable.Locales.CUSTOMISE_BAGANATOR)
 
   self.Tabs = {}

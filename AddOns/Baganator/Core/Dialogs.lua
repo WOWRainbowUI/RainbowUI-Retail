@@ -28,6 +28,14 @@ local function GenerateDialog()
 
   addonTable.Skins.AddFrame("Dialog", dialog)
 
+  dialog:SetScript("OnShow", function()
+    addonTable.Gamepad.AnnounceShow(dialog, true)
+  end)
+
+  dialog:SetScript("OnHide", function()
+    addonTable.Gamepad.AnnounceHide(dialog, true)
+  end)
+
   return dialog
 end
 
