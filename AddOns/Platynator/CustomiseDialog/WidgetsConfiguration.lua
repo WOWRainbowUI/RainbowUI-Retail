@@ -2141,7 +2141,7 @@ addonTable.CustomiseDialog.WidgetsConfig = {
               details.absorb.applyColor = value.enabled
             end,
             getter = function(details)
-              return {color = details.absorb.color, enabled = details.absorb.color.enabled}
+              return {color = details.absorb.color, enabled = details.absorb.applyColor}
             end,
           },
           { kind = "spacer" },

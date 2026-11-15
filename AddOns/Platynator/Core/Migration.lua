@@ -1108,6 +1108,18 @@ local function MigrateSettingsv11()
   addonTable.Config.Set(addonTable.Config.Options.WHEN_NO_TARGET_ALPHA, addonTable.Config.Get(addonTable.Config.Options.NOT_TARGET_ALPHA))
 end
 
+local function MigrateSettingsv12()
+  local filters = addonTable.Config.Get(addonTable.Config.Options.AURA_HIGHLIGHTS)
+  for _, details in pairs(filters) do
+    for _, aura in ipairs(details.debuffs.auras) do
+      aura.isMissing = false
+    end
+    for _, aura in ipairs(details.buffs.auras) do
+      aura.isMissing = false
+    end
+  end
+end
+
 local settingUpgrades = {
   MigrateSettingsv1,
   MigrateSettingsv2,
@@ -1121,6 +1133,7 @@ local settingUpgrades = {
   MigrateSettingsv9,
   MigrateSettingsv10,
   MigrateSettingsv11,
+  MigrateSettingsv12,
 }
 function addonTable.Core.MigrateSettings()
   if #settingUpgrades + 1 ~= addonTable.Config.Get(addonTable.Config.Options.MIGRATION) then

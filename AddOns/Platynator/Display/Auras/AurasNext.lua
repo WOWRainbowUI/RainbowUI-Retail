@@ -569,6 +569,8 @@ function addonTable.Display.AurasManagerNextMixin:AcquireSlot(height, point, fil
     if not addonTable.Utilities.IsChangesRestricted() then
       frame.height = height
       frame:SetHeight(height)
+      frame:ClearAllPoints()
+      frame:SetPoint(unpack(point))
     end
     self.slots:SetAuraSlotEnabled(key, true)
     self.slots:SetAuraSlotFilterString(key, filterString)
