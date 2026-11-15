@@ -1,6 +1,6 @@
 local addonTable = select(2, ...)
 
-local buttonMapping = {
+addonTable.Gamepad.ButtonMapping = {
   ["A"] = "PAD1",
   ["B"] = "PAD2",
   ["X"] = "PAD3",
@@ -25,23 +25,30 @@ if addonTable.Constants.IsGamepadInUse then
   function addonTable.Gamepad.OneWayLink(button1, direction, button2)
     SmartNavigation_AddJumpNavigationOverride(button1, directions[direction], button2)
   end
-  function addonTable.Gamepad.ResetAssociations(button1)
-    SmartNavigation_ClearJumpNavigationOverrides(button1)
+  function addonTable.Gamepad.ResetAssociations(button)
+    SmartNavigation_ClearJumpNavigationOverrides(button)
   end
-  function addonTable.Gamepad.AnnounceShow(frame, isPopup)
+  function addonTable.Gamepad.AnnounceShow(frame, isPopup, shouldFocus)
     C_Timer.After(0, function()
-      GamepadMode.FrameControlsManager:FrameShown(frame, isPopup)
+      GamepadMode.FrameControlsManager:FrameShown(frame, isPopup, shouldFocus)
     end)
   end
   function addonTable.Gamepad.AnnounceHide(frame, isPopup)
-    GamepadMode.FrameControlsManager:FrameHidden(frame, isPopup)
+    GamepadMode.FrameControlsManager:FrameHidden(frame)
   end
 
   function addonTable.Gamepad.SetTargetButton(frame, target)
     SmartNavigation:SetTargetButtonForFrame(frame, target)
   end
+  function addonTable.Gamepad.SetScrollBox(frame, scrollBox)
+    SmartNavigation:SetScrollFrameForFrame(frame, scrollBox)
+  end
   function addonTable.Gamepad.SelectFirstButton(frame)
     SmartNavigation:SelectFirstButton(frame, true)
+  end
+
+  function addonTable.Gamepad.AllowFocus(frame)
+    SmartNavigation_MarkFrameFocusable(frame)
   end
 
 else
@@ -49,12 +56,18 @@ else
   end
   function addonTable.Gamepad.OneWayLink(button1, direction, button2)
   end
+  function addonTable.Gamepad.ResetAssociations(button)
+  end
   function addonTable.Gamepad.AnnounceShow(frame)
   end
   function addonTable.Gamepad.AnnounceHide(frame)
   end
   function addonTable.Gamepad.SetTargetButton(frame, target)
   end
+  function addonTable.Gamepad.SetScrollBox(frame, scrollBox)
+  end
   function addonTable.Gamepad.SelectFirstButton(frame)
+  end
+  function addonTable.Gamepad.AllowFocus(frame)
   end
 end

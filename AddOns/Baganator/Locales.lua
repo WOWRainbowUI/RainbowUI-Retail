@@ -124,6 +124,8 @@ L["DEVELOPMENT_IS_DONE_BY_A_HUMAN"] = "|cff04cca4Development is done by a hardwo
 L["DONATE"] = "Donate"
 L["LINK"] = "Link"
 
+L["NO_STACK_TO_SPLIT"] = "No stack to split"
+
 L["DEPOSIT_REAGENTS"] = "Deposit Reagents"
 L["BUY_REAGENT_BANK"] = "Buy Reagent Bank"
 
@@ -203,6 +205,7 @@ L["TRANSFER_MAIN_VIEW_GUILD_TOOLTIP_TEXT"] = "Move searched for items out from t
 L["TRANSFER_GUILD_VIEW_TOOLTIP_TEXT"] = "Move searched for items out from the guild bank into the bags.\n\nTransfers are slow due to the underlying guild bank being slow."
 
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BAG"] = "Do you want to transfer ALL items in your bags?"
+L["CONFIRM_TRANSFER_ITEMS"] = "Do you want to transfer the selected items?"
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BANK"] = "Do you want to transfer ALL items from the bank?"
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_GUILD_BANK"] = "Do you want to transfer ALL items from the guild bank?"
 L["THE_MERCHANT_DOESNT_WANT_ANY_OF_THOSE_ITEMS"] = "The merchant doesn't want any of those items"

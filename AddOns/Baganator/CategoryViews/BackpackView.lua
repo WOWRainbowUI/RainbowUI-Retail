@@ -179,7 +179,7 @@ function BaganatorCategoryViewBackpackViewMixin:UpdateForCharacter(character, is
   local bagTypes = addonTable.CategoryViews.Utilities.GetBagTypes(characterData, "bags", Syndicator.Constants.AllBagIndexes)
   local bagWidth = addonTable.Config.Get(addonTable.Config.Options.BAG_VIEW_WIDTH)
 
-  self.LayoutManager:Layout(characterData.bags, bagWidth, bagTypes, Syndicator.Constants.AllBagIndexes, sideSpacing, topSpacing, function(maxWidth, maxHeight, firstVisible)
+  self.LayoutManager:Layout(characterData.bags, bagWidth, bagTypes, Syndicator.Constants.AllBagIndexes, sideSpacing, topSpacing, function(maxWidth, maxHeight, firstVisible, lastVisible)
     self.Container:SetSize(
       math.max(addonTable.CategoryViews.Utilities.GetMinWidth(bagWidth), maxWidth),
       maxHeight
@@ -217,14 +217,14 @@ function BaganatorCategoryViewBackpackViewMixin:UpdateForCharacter(character, is
 
     self.refreshState = {}
 
-    if self.showing then
-      C_Timer.After(0, function()
-        addonTable.Gamepad.SetTargetButton(self, firstVisible)
-      end)
-      self.showing = false
-    end
-
     self.SearchWidget:LinkDown(firstVisible)
+    self.CurrencyWidget:AddGamepadUp(lastVisible)
+
+    addonTable.CategoryViews.ComputeGamepadGrid(self.activeLayouts, self.SearchWidget.SearchBox, {self.CurrencyButton}, function(b)
+      self.CurrencyWidget:AddGamepadUp(b)
+    end)
+
+    self.CurrencyWidget:AddGamepadLeft(self.CurrencyButton)
 
     addonTable.CallbackRegistry:TriggerEvent("ViewComplete")
   end)

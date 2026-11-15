@@ -24,12 +24,18 @@ function BaganatorItemViewCommonBackpackViewMixin:OnLoad()
   if addonTable.Constants.IsGamepadInUse then
     self.layoutType = "ButtonFrameTemplateNoPortrait"
     self.FrameGlow = CreateFrame("Frame", nil, self, "FrameGlowTemplate")
+    self.FrameGlow:Hide()
   end
   for _, b in ipairs(self.AllFixedButtons) do
     addonTable.Gamepad.OneWayLink(b, "Down", self.SearchWidget)
   end
   for _, b in ipairs(self.TopButtons) do
-    addonTable.Gamepad.LinkButtons(b, "Down", self.SearchWidget.SearchBox)
+    addonTable.Gamepad.OneWayLink(b, "Down", self.SearchWidget.SearchBox)
+  end
+  addonTable.Gamepad.LinkButtons(self.ToggleBankButton, "Down", self.SearchWidget.SearchBox)
+  if addonTable.Constants.IsGamepadInUse then
+    self.CloseButton:Hide()
+    self.CustomiseButton:SetPoint("TOPRIGHT", -5, 0)
   end
 
   self.liveItemButtonPool = addonTable.ItemViewCommon.GetLiveItemButtonPool(self)
@@ -142,13 +148,14 @@ function BaganatorItemViewCommonBackpackViewMixin:OnShow()
     end)
   end
   PlaySound(SOUNDKIT.IG_BACKPACK_OPEN);
-  addonTable.Gamepad.AnnounceShow(self)
+  addonTable.Gamepad.AnnounceShow(self, false, not addonTable.ItemViewCommon.WasAutoOpened())
   self.showing = true
 end
 
 function BaganatorItemViewCommonBackpackViewMixin:OnHide()
   PlaySound(SOUNDKIT.IG_BACKPACK_CLOSE);
   addonTable.Gamepad.AnnounceHide(self)
+  addonTable.CallbackRegistry:TriggerEvent("BagHidden")
 end
 
 function BaganatorItemViewCommonBackpackViewMixin:SetLiveCharacter(character)

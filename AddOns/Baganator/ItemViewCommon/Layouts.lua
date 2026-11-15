@@ -169,13 +169,10 @@ local function FlowButtonsRows(self, rowWidth)
     buttonsByRow[rows][cols] = button
     button:SetPoint("TOPLEFT", self, cols * (37 + iconPaddingScaled), - rows * (37 + iconPaddingScaled))
 
-    if rows > 0 and buttonsByRow[rows - 1][cols] then
-      addonTable.Gamepad.LinkButtons(button, "Up", buttonsByRow[rows - 1][cols])
-    end
-    if cols > 0 and buttonsByRow[rows][cols - 1] then
-      addonTable.Gamepad.LinkButtons(button, "Left", buttonsByRow[rows][cols - 1])
-    end
     button:SetScale(iconSize / 37)
+
+    button.position = {x = cols + 1, y = rows + 1}
+
     cols = cols + 1
     if cols >= rowWidth then
       cols = 0
@@ -200,14 +197,10 @@ local function FlowButtonsColumns(self, rowWidth)
     buttonsByRow[rows] = buttonsByRow[rows] or {}
     buttonsByRow[rows][cols] = button
     button:SetPoint("TOPLEFT", self, cols * (37 + iconPaddingScaled), - rows * (37 + iconPaddingScaled))
+
     button:SetScale(iconSize / 37)
 
-    if rows > 0 and buttonsByRow[rows - 1][cols] then
-      addonTable.Gamepad.LinkButtons(button, "Up", buttonsByRow[rows - 1][cols])
-    end
-    if cols > 0 and buttonsByRow[rows][cols - 1] then
-      addonTable.Gamepad.LinkButtons(button, "Left", buttonsByRow[rows][cols - 1])
-    end
+    button.position = {x = cols + 1, y = rows + 1}
 
     rows = rows + 1
     if rows >= columnHeight then

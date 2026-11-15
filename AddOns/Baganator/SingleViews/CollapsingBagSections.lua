@@ -129,10 +129,9 @@ function addonTable.SingleViews.ArrangeCollapsibles(activeCollapsibles, originBa
     if hidden then
       layout:SetPoint("TOPLEFT", UIParent, "TOPRIGHT", 2000, 0)
     end
+    layout.visible = not hidden
     layout:Show()
     if not hidden then
-      addonTable.Gamepad.LinkButtons(layout.buttons[1], "Up", prevOrigin.buttons[#prevOrigin.buttons])
-      addonTable.Gamepad.LinkButtons(layout.buttons[1], "Left", prevOrigin.buttons[#prevOrigin.buttons])
       divider:SetPoint("BOTTOM", layout, "TOP", 0, topSpacing / 2 + dividerOffset)
       divider:SetPoint("LEFT", layout)
       divider:SetPoint("RIGHT", layout)
