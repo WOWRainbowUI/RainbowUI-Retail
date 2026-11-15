@@ -106,7 +106,10 @@ RGX:RegisterEvent("ADDON_LOADED", function(_, addon)
         -- Restore the operator's theme and corner preferences before any
         -- module builds UI. Stored by the framework settings panel.
         local Design = type(RGX.GetDesign) == "function" and RGX:GetDesign() or nil
-        if Design and RGX.db.themeOverride ~= false then
+        -- The global theme override is a beta: off unless the operator turns it on, so every addon keeps its
+        -- own default look. Saving the explicit false lets addons that read the switch see the same answer.
+        if RGX.db.themeOverride == nil then RGX.db.themeOverride = false end
+        if Design and RGX.db.themeOverride == true then
             if RGX.db.style and type(Design.SetStyle) == "function" then
                 pcall(Design.SetStyle, Design, RGX.db.style)
                 -- Saved ids from before the style rename (retail, forever) move to their current names.

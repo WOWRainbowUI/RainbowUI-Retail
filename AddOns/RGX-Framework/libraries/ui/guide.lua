@@ -13,7 +13,8 @@ end
 -- The global theme controls (main color, interface style, corners) change the framework's shared theme, which
 -- only addons that build under it follow. Every other RGX addon paints its own brand, so for them the controls
 -- would do nothing. Show them only when one of the addons that follow the global theme is loaded.
-local THEME_CONSUMERS = { "BLU", "BLU_Classic", "BLU_Forever", "SimpleQuestPlates", "SimpleQuestPlates_Classic" }
+local THEME_CONSUMERS = { "BLU", "BLU_Classic", "BLU_Forever", "SimpleQuestPlates", "SimpleQuestPlates_Classic",
+    "RGXProfessions", "RGXQoL" }
 
 local function ThemeConsumerLoaded()
     local isLoaded = (_G.C_AddOns and _G.C_AddOns.IsAddOnLoaded) or _G.IsAddOnLoaded
@@ -42,8 +43,8 @@ local function BuildGuide(content, page)
         -- The framework theme is optional: with this off the saved colour, style and corners are not applied
         -- at login and addons keep their own look.
         local overrideSwitch = UI:CreateSwitch(theme.content, {
-            label = "Apply the framework theme to addons",
-            storage = RGX.db, key = "themeOverride", default = true,
+            label = "Beta: override every RGX addon's theme",
+            storage = RGX.db, key = "themeOverride", default = false,
             onChange = function(on)
                 if not on then
                     Design:SetStyle("framework")
@@ -51,8 +52,7 @@ local function BuildGuide(content, page)
                 end
             end,
         })
-        overrideSwitch:SetPoint("TOPLEFT", 8, -4)
-        overrideSwitch:SetPoint("TOPRIGHT", theme.content, "TOPRIGHT", -8, -4)
+        theme.flow:Add(overrideSwitch, { fill = true })
         local Drops = _G.RGXDropdowns
         if Drops and type(Drops.CreateNestedDropdown) == "function" then
             local items = {}
@@ -69,10 +69,7 @@ local function BuildGuide(content, page)
                     end
                 end,
             })
-            if themeDD then
-                themeDD:SetPoint("TOPLEFT", 8, -38)
-                themeDD:SetPoint("TOPRIGHT", theme.content, "TOPRIGHT", -8, -38)
-            end
+            if themeDD then theme.flow:Add(themeDD, { fill = true }) end
         end
         if Design and Design.STYLES then
             local Drops = _G.RGXDropdowns
@@ -93,18 +90,16 @@ local function BuildGuide(content, page)
                     onChange = function(value)
                         if Design:SetStyle(value) then
                             RGX.db.style = value
+                            RGX:Print("Interface style saved. Windows already open keep their old look until /reload.")
                         end
                     end,
                 })
-                if styleDD then
-                    styleDD:SetPoint("TOPLEFT", 8, -68)
-                    styleDD:SetPoint("TOPRIGHT", theme.content, "TOPRIGHT", -8, -68)
-                end
+                if styleDD then theme.flow:Add(styleDD, { fill = true }) end
             end
         end
         local corners = UI:CreateButtonGroup(theme.content, { "Rounded", "Square" },
             { buttonWidth = 100, height = 22 })
-        corners:SetPoint("TOPLEFT", 8, -98)
+        theme.flow:Add(corners)
         local function UpdateCornerButtons()
             local square = Design.cornerStyle == "square"
             corners.buttons[1]:SetAlpha(square and 0.6 or 1)
@@ -122,10 +117,9 @@ local function BuildGuide(content, page)
             UpdateCornerButtons()
         end)
         local note = UI:CreateLabel(theme.content, {
-            text = "Style owns corners and palette; main color stays independent. Applies to the addons that follow the framework theme; reload to re-skin already-open windows.",
+            text = "Beta, global override: while it is on, the colour and interface style below replace the own look of every RGX addon that follows the framework theme. Off (the default), each addon keeps its own theme. Reload to re-skin windows that are already open.",
             size = "small", color = "muted", wrap = true,
         })
-        theme.flow:AddSpacer(120)
         theme.flow:Add(note, { fill = true })
     end
     if theme then theme:AutoHeight() end
@@ -146,7 +140,11 @@ local function BuildGuide(content, page)
         runtime:ClearAllPoints()
         runtime:SetPoint("TOPLEFT", about, "BOTTOMLEFT", 0, -8)
         runtime:SetPoint("TOPRIGHT", about, "BOTTOMRIGHT", 0, -8)
-        local version = (RGX.GetMetadata and RGX:GetMetadata(addonName, "Version")) or RGX.version or "unknown"
+        -- The version straight from the framework's TOC: a version field on a shared table can be another copy's.
+        local getMeta = (_G.C_AddOns and _G.C_AddOns.GetAddOnMetadata) or _G.GetAddOnMetadata
+        local okMeta, meta = false, nil
+        if type(getMeta) == "function" then okMeta, meta = pcall(getMeta, "RGX-Framework", "Version") end
+        local version = (okMeta and meta) or RGX.version or "unknown"
         local modules = RGX.GetLoadedModules and RGX:GetLoadedModules() or {}
         AddLine(UI, runtime, "Framework version: " .. tostring(version))
         AddLine(UI, runtime, "Loaded modules: " .. tostring(#modules) .. (modules[1] and (" (" .. table.concat(modules, ", ") .. ")") or ""))

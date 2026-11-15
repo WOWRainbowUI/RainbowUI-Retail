@@ -1096,14 +1096,48 @@ function Dropdowns:ApplyRetailTrigger(holder, opts)
     else
         trigger:SetPoint("TOPLEFT", holder.label, "BOTTOMLEFT", 0, -5)
     end
-    trigger:SetBackdrop({
-        bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
-        edgeFile = "Interface\\Buttons\\WHITE8x8",
-        tile = true, tileSize = 16, edgeSize = 1,
-        insets = { left = 1, right = 1, top = 1, bottom = 1 },
-    })
-    trigger:SetBackdropColor(0.10, 0.14, 0.19, 0.96)
-    trigger:SetBackdropBorderColor(D:Unpack("border"))
+    -- The trigger is drawn in the active interface style: the style's own surface, hover and ring colours (taken
+    -- when it is built, inside the mod's own theme scope), as a framed or rounded box when the style shapes its
+    -- controls, otherwise as the flat backdrop.
+    local surface, hoverFill, ringColor, primary = { D:Unpack("surface") }, { D:Unpack("hover") }, { D:Unpack("border") }, { D:Unpack("primary") }
+    local paintFill, paintRing
+    local clientArt = D.UsesClientArt and D:UsesClientArt()
+    if clientArt then
+        -- RGX Classic / RGX Forever: the client's own input-box frame (left cap, middle, right cap) and the
+        -- client's scroll-down arrow; the client highlight lights it on hover.
+        local coords = { { 0, 0.0625 }, { 0.0625, 0.9375 }, { 0.9375, 1 } }
+        local parts = {}
+        for i, c in ipairs(coords) do
+            local tex = trigger:CreateTexture(nil, "BACKGROUND")
+            tex:SetTexture("Interface\\Common\\Common-Input-Border")
+            tex:SetTexCoord(c[1], c[2], 0, 0.625)
+            parts[i] = tex
+        end
+        parts[1]:SetPoint("TOPLEFT"); parts[1]:SetPoint("BOTTOMLEFT"); parts[1]:SetWidth(8)
+        parts[3]:SetPoint("TOPRIGHT"); parts[3]:SetPoint("BOTTOMRIGHT"); parts[3]:SetWidth(8)
+        parts[2]:SetPoint("TOPLEFT", parts[1], "TOPRIGHT"); parts[2]:SetPoint("BOTTOMRIGHT", parts[3], "BOTTOMLEFT")
+        if trigger.SetHighlightTexture then trigger:SetHighlightTexture("Interface\\Buttons\\UI-Common-MouseHilight", "ADD") end
+        trigger.clientArt = true
+        paintFill = function() end
+        paintRing = function() end
+    elseif D.IsRoundedControls and D:IsRoundedControls() and type(D.CreateRoundedShape) == "function" then
+        local shape, paint = D:CreateRoundedShape(trigger, { parent = holder, level = math.max(0, (trigger:GetFrameLevel() or 1) - 1),
+            radius = 6, color = "surface", borderColor = "border" })
+        trigger.shape = shape
+        paintFill = function(c) paint.fill(c[1], c[2], c[3], 1) end
+        paintRing = function(c) paint.ring(c[1], c[2], c[3]) end
+    else
+        trigger:SetBackdrop({
+            bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
+            edgeFile = "Interface\\Buttons\\WHITE8x8",
+            tile = true, tileSize = 16, edgeSize = 1,
+            insets = { left = 1, right = 1, top = 1, bottom = 1 },
+        })
+        paintFill = function(c) trigger:SetBackdropColor(c[1], c[2], c[3], 0.96) end
+        paintRing = function(c) trigger:SetBackdropBorderColor(c[1], c[2], c[3]) end
+    end
+    paintFill(surface)
+    paintRing(ringColor)
     trigger:RegisterForClicks("LeftButtonUp")
     local justifyH = opts.justifyH
     if justifyH ~= "CENTER" and justifyH ~= "RIGHT" then justifyH = "LEFT" end
@@ -1114,10 +1148,17 @@ function Dropdowns:ApplyRetailTrigger(holder, opts)
     text:SetPoint("RIGHT", rightInset, 0)
     text:SetJustifyH(justifyH)
     text:SetTextColor(D:Unpack("text"))
-    local arrow = trigger:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-    arrow:SetPoint("RIGHT", -6, 0)
-    arrow:SetText("v")
-    arrow:SetTextColor(D:Unpack("subtext"))
+    if clientArt then
+        local arrowTex = trigger:CreateTexture(nil, "OVERLAY")
+        arrowTex:SetSize(16, 16)
+        arrowTex:SetPoint("RIGHT", -3, 0)
+        arrowTex:SetTexture("Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Up")
+    else
+        local arrow = trigger:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+        arrow:SetPoint("RIGHT", -6, 0)
+        arrow:SetText("v")
+        arrow:SetTextColor(D:Unpack("subtext"))
+    end
 
     -- Disable the original hit area; programmatic opening retains the native
     -- nested menu implementation and its radio/selection semantics.
@@ -1132,14 +1173,8 @@ function Dropdowns:ApplyRetailTrigger(holder, opts)
             ToggleDropDownMenu(1, nil, native, self, 0, 0)
         end
     end)
-    trigger:SetScript("OnEnter", function(self)
-        self:SetBackdropColor(0.11, 0.18, 0.24, 1)
-        self:SetBackdropBorderColor(D:Unpack("primary"))
-    end)
-    trigger:SetScript("OnLeave", function(self)
-        self:SetBackdropColor(0.10, 0.14, 0.19, 0.96)
-        self:SetBackdropBorderColor(D:Unpack("border"))
-    end)
+    trigger:SetScript("OnEnter", function() paintFill(hoverFill); paintRing(primary) end)
+    trigger:SetScript("OnLeave", function() paintFill(surface); paintRing(ringColor) end)
     local function fitTrigger()
         local width = holder:GetWidth()
         if type(width) == "number" and width > 20 then

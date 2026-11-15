@@ -129,7 +129,7 @@ L["COMMAND_LOGIN_MESSAGES_PREFIX"]= "Login messages:"
 L["COMMAND_LOGIN_USAGE"]          = "Usage: /rgx login on|off|status"
 L["COMMAND_VERSION_PREFIX"]       = "RGX-Framework v"
 L["COMMAND_VERSION_UNKNOWN"]      = "unknown"
-L["COMMAND_LIST"]                 = "Commands: modules, fonts, debug, dbtest, login, editor, version"
+L["COMMAND_LIST"]                 = "Commands: modules, fonts, debug, dbtest, login, style, editor, version"
 
 -- Login line (core/initialization.lua)
 L["LOGIN_LOADED_FORMAT"]          = "RGX-Framework v%s loaded."

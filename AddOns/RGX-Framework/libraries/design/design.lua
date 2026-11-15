@@ -81,15 +81,15 @@ Design.currentPreset = "cyan"
 --
 -- Brand colours are not part of a style: every mod defines its own primary/secondary (accent) pair when it
 -- is created (SetTheme / WithTheme / a preset) and the framework pipes that pair into whichever style is
--- active, so all three styles are branded by the mod, never by the style.
---   classic        "RGX Classic"        square corners, warm stone palette (the old Ace3-era look).
+-- active, so all four styles are branded by the mod, never by the style.
+--   classic        "RGX Classic"        square corners, warm stone palette, a heavier two-pixel frame with an inner
+--                                       line on every card, button, box and tab.
 --
 --   forever        "RGX Forever"         square corners, near-black warm brown panels with a bronze frame line and
 --                                       parchment text: the Forever-client look. Titles use the mod's accent colour.
 --
--- Earlier releases also shipped "retail" and "forever" styles that were never fully built out; the ids
--- keep working as aliases (retail -> framework, forever -> classic) so saved settings and callers do not
--- break, but they are no longer listed.
+-- An earlier release shipped a "retail" style; the id keeps working as an alias (retail -> framework) so
+-- saved settings and callers do not break, but it is no longer listed.
 Design.STYLE_ORDER = { "framework", "materialround", "classic", "forever" }
 Design.STYLE_ALIASES = { retail = "framework" }
 
@@ -144,8 +144,13 @@ Design.STYLES = {
     classic = {
         label = "RGX Classic",
         cornerStyle = "square",
-        buttonStyle = "square",
-        headerStyle = "square",
+        buttonStyle = "rounded",   -- buttons, header bands and controls sit on the framed panel art
+        headerStyle = "rounded",
+        titleFrom = "accent",   -- card titles follow the mod's accent colour, readable on the dark stone fill
+        frameArt = "classic",   -- the fallback art when the client lacks the Blizzard layouts below
+        -- The client's classic frames: the gold-edged dialog border on windows, the tooltip border on cards, and the
+        -- client's own button. Controls inside keep the client's native tick box and the flat palette controls.
+        blizzard = { frame = "border:dialog", card = "border:tooltip", button = "panel", checkbox = "native", fillInset = 3 },
         colors = {
             surface    = {0.100, 0.090, 0.080},
             background = {0.070, 0.062, 0.054},
@@ -160,7 +165,7 @@ Design.STYLES = {
             ring       = {0.250, 0.210, 0.150},
             headerFill = {0.100, 0.090, 0.080},
             hover      = {0.130, 0.118, 0.100},
-            track      = {0.250, 0.210, 0.150},
+            track      = {0.340, 0.290, 0.210},
         },
     },
     forever = {
@@ -168,6 +173,9 @@ Design.STYLES = {
         cornerStyle = "square",
         buttonStyle = "rounded",   -- buttons and header bands sit on the framed panel art
         headerStyle = "rounded",
+        -- The client's own frames: the Forever metal dialog on windows, the inset frame on cards, and the dialog
+        -- button art on buttons. Controls inside keep the client's native tick box and the flat palette controls.
+        blizzard = { frame = "Dialog", card = "InsetFrameTemplate", button = "panel", checkbox = "native", fillInset = 3 },
         frameArt = "forever",   -- cut-corner panels with a bronze frame and a finer inner line
         titleFrom = "accent",   -- card titles and the hover label follow the mod's accent colour
         colors = {
@@ -184,7 +192,7 @@ Design.STYLES = {
             ring       = {0.420, 0.330, 0.150},
             headerFill = {0.125, 0.102, 0.070},
             hover      = {0.150, 0.122, 0.082},
-            track      = {0.200, 0.160, 0.090},
+            track      = {0.300, 0.240, 0.130},
         },
     },
 }
@@ -225,6 +233,7 @@ function Design:SetStyle(name)
         headerStyle = style.headerStyle or "square",
         controlStyle = style.controlStyle or "square",
         frameArt = style.frameArt,
+        blizzard = style.blizzard,
         ringFrom = style.ringFrom,
         titleFrom = style.titleFrom,
     }
@@ -318,6 +327,18 @@ Design.PANEL_TEX = "Interface\\AddOns\\RGX-Framework\\libraries\\design\\panel_r
 Design.FOREVER_TEX = "Interface\\AddOns\\RGX-Framework\\libraries\\design\\panel_forever.tga"
 Design.FOREVER_LINE_TEX = "Interface\\AddOns\\RGX-Framework\\libraries\\design\\panel_forever_line.tga"
 Design.FOREVER_SLICE = 8
+-- "RGX Classic" frame art: a plain square panel with a heavier two-pixel frame and a hollow square line drawn
+-- just inside it, so every card, button, box and tab reads as a double-framed square.
+Design.CLASSIC_TEX = "Interface\\AddOns\\RGX-Framework\\libraries\\design\\panel_classic.tga"
+Design.CLASSIC_LINE_TEX = "Interface\\AddOns\\RGX-Framework\\libraries\\design\\panel_classic_line.tga"
+
+-- The frame-art styles, by the id a style names in `frameArt`: the solid panel texture, the inner-line texture,
+-- the largest corner slice, the frame width (the fill sits this far inside the ring) and the line's inset.
+local FRAME_ART = {
+    forever = { tex = Design.FOREVER_TEX, line = Design.FOREVER_LINE_TEX, slice = Design.FOREVER_SLICE, frame = 1, lineInset = 3 },
+    classic = { tex = Design.CLASSIC_TEX, line = Design.CLASSIC_LINE_TEX, slice = 6, frame = 2, lineInset = 4 },
+}
+Design.FRAME_ART = FRAME_ART
 
 -- 128px texture with 32px corners: corner slice covers a quarter of the UVs.
 local PANEL_TC = 0.25
@@ -375,6 +396,94 @@ local function BuildNineSlice(frame, layer, slice, inset, color, alpha, texture)
     mr:SetPoint("TOPLEFT", tr, "BOTTOMLEFT"); mr:SetPoint("BOTTOMRIGHT", br, "TOPRIGHT"); mr:SetTexCoord(1 - PANEL_TC, 1, PANEL_TC, 1 - PANEL_TC)
     c:SetPoint("TOPLEFT", tl, "BOTTOMRIGHT"); c:SetPoint("BOTTOMRIGHT", br, "TOPLEFT"); c:SetTexCoord(PANEL_TC, 1 - PANEL_TC, PANEL_TC, 1 - PANEL_TC)
     return { tl, tr, bl, br, tm, bm, ml, mr, c }
+end
+
+-- Blizzard frame assets ------------------------------------------------------------------------------
+-- RGX Classic and RGX Forever draw their frames with the game client's own nine-slice art: a style names the
+-- NineSliceLayouts entry for each role in `blizzard` ({ frame = "Dialog", card = "InsetFrameTemplate", ... }) and
+-- the client's NineSliceUtil lays the metal or tooltip border out on the frame. A layout is used only when the
+-- running client has it and every atlas it names; otherwise the style's own frame art (FRAME_ART) is drawn, so a
+-- client without that art still gets a framed panel.
+local function BlizzardLayoutReady(name)
+    local util, layouts = _G.NineSliceUtil, _G.NineSliceLayouts
+    if type(util) ~= "table" or type(util.ApplyLayout) ~= "function" then return false end
+    if type(layouts) ~= "table" or type(layouts[name]) ~= "table" then return false end
+    local atlasInfo = type(_G.C_Texture) == "table" and _G.C_Texture.GetAtlasInfo
+    if type(atlasInfo) ~= "function" then return false end
+    for _, piece in pairs(layouts[name]) do
+        if type(piece) == "table" and type(piece.atlas) == "string" and not piece.atlas:find("%%s", 1, true) then
+            local ok, info = pcall(atlasInfo, piece.atlas)
+            if not (ok and info) then return false end
+        end
+    end
+    return true
+end
+
+-- True when the active style draws with the client's own art (RGX Classic, RGX Forever).
+function Design:UsesClientArt()
+    return type((self.styleOptions or {}).blizzard) == "table"
+end
+
+-- Put a client atlas on `tex` when the running client has it; otherwise the texture file `file` (if any).
+-- Returns true when the atlas was used.
+function Design:SetAtlasOr(tex, atlas, file, useAtlasSize)
+    local info = type(_G.C_Texture) == "table" and _G.C_Texture.GetAtlasInfo
+    if atlas and type(tex.SetAtlas) == "function" and type(info) == "function" then
+        local ok, found = pcall(info, atlas)
+        if ok and found then tex:SetAtlas(atlas, useAtlasSize and true or false) return true end
+    end
+    if file then tex:SetTexture(file) end
+    return false
+end
+
+-- Classic client borders, drawn from their texture files: the gold-edged dialog border and the tooltip border.
+local CLIENT_BORDERS = {
+    ["border:dialog"]  = { file = "Interface\\DialogFrame\\UI-DialogBox-Border", size = 24, inset = 6 },
+    ["border:tooltip"] = { file = "Interface\\Tooltips\\UI-Tooltip-Border", size = 14, inset = 3 },
+}
+
+-- Draw `frame` with the active style's Blizzard layout for `role` ("frame" or "card"). Returns true when the
+-- client art was applied. The pieces live on a child frame so they sit under the frame's own content, and a flat
+-- fill in the style's surface colour sits behind them.
+function Design:ApplyBlizzardFrame(frame, role, opts)
+    opts = opts or {}
+    local set = (self.styleOptions or {}).blizzard
+    local name = type(set) == "table" and set[role] or nil
+    if not name then return false end
+    local container
+    local edge = CLIENT_BORDERS[name]
+    if edge then
+        -- A classic client border drawn from its texture file as a backdrop edge (no centre).
+        local ok, made = pcall(CreateFrame, "Frame", nil, frame, "BackdropTemplate")
+        if not (ok and type(made) == "table" and made.SetBackdrop) then return false end
+        container = made
+        container:SetAllPoints(frame)
+        container:SetBackdrop({ edgeFile = edge.file, edgeSize = edge.size, insets = { left = 0, right = 0, top = 0, bottom = 0 } })
+        if container.SetBackdropBorderColor then container:SetBackdropBorderColor(1, 1, 1, 1) end
+    else
+        if not BlizzardLayoutReady(name) then return false end
+        container = CreateFrame("Frame", nil, frame)
+        container:SetAllPoints(frame)
+        container.layoutType = name
+        if not pcall(_G.NineSliceUtil.ApplyLayout, container, _G.NineSliceLayouts[name]) then return false end
+        -- The layout's own centre (the tooltip layouts carry a grey one) would cover the style's surface colour;
+        -- only the border is wanted.
+        if type(container.Center) == "table" and container.Center.Hide then container.Center:Hide() end
+    end
+    if container.SetFrameLevel and frame.GetFrameLevel then container:SetFrameLevel(frame:GetFrameLevel() or 1) end
+    local inset = (edge and edge.inset) or opts.fillInset or set.fillInset or 3
+    local fill = frame:CreateTexture(nil, "BACKGROUND", nil, -8)
+    fill:SetPoint("TOPLEFT", frame, "TOPLEFT", inset, -inset)
+    fill:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -inset, inset)
+    local color = self:GetColor(opts.color or "surface")
+    fill:SetColorTexture(color[1], color[2], color[3], opts.bgAlpha or 1)
+    frame._blizzardFrame = container
+    frame._panelBorder = {}      -- the client art is not tinted; callers that recolour a ring change nothing
+    frame._panelFill = { fill }
+    function frame:SetPanelColor(fillColor, _, alpha)
+        if fillColor then fill:SetColorTexture(fillColor[1], fillColor[2], fillColor[3], alpha or 1) end
+    end
+    return true
 end
 
 -- Legacy square backdrops (opts.square = true on CreateFrame, or ApplyBackdrop).
@@ -519,19 +628,22 @@ end
 -- at inset 1, both nine-sliced from the rounded texture.
 function Design:ApplyPanel(frame, opts)
     opts = opts or {}
-    local art = self.styleOptions and self.styleOptions.frameArt == "forever"
-    local slice = art and self.FOREVER_SLICE or opts.radius or self.Radius
+    if opts.role and self:ApplyBlizzardFrame(frame, opts.role, opts) then return frame end
+    local art = FRAME_ART[(self.styleOptions or {}).frameArt or ""]
+    -- With frame art the corner size is the art's, capped by the control's own radius, so a small box or
+    -- chip keeps a small corner instead of the card's.
+    local slice = art and math.min(art.slice, opts.radius or art.slice) or opts.radius or self.Radius
     local fill = self:GetColor(opts.color or "surface")
     local borderColor = self:GetColor(opts.borderColor or "ring")
     local fillAlpha = opts.bgAlpha
-    local tex = art and self.FOREVER_TEX or nil
+    local tex = art and art.tex or nil
 
     frame._panelBorder = BuildNineSlice(frame, "BACKGROUND", slice, 0, borderColor, 1, tex)
-    frame._panelFill   = BuildNineSlice(frame, "BORDER", slice, 1, fill, fillAlpha, tex)
+    frame._panelFill   = BuildNineSlice(frame, "BORDER", slice, art and art.frame or 1, fill, fillAlpha, tex)
     if art and (opts.line ~= false) then
         -- The inner line: the frame's second, finer outline, a lighter shade of the ring.
         local line = { math.min(1, borderColor[1] * 1.35 + 0.04), math.min(1, borderColor[2] * 1.35 + 0.04), math.min(1, borderColor[3] * 1.35 + 0.04) }
-        frame._panelLine = BuildNineSlice(frame, "ARTWORK", slice, 3, line, 0.55, self.FOREVER_LINE_TEX)
+        frame._panelLine = BuildNineSlice(frame, "ARTWORK", slice, art.lineInset, line, 0.55, art.line)
     end
 
     function frame:SetPanelColor(fillColor, borderColor, alpha)
@@ -550,8 +662,9 @@ function Design:ApplyPanel(frame, opts)
     return frame
 end
 
--- Rounded chrome for the interface controls ("RGX Material Round"). True when the active style rounds
--- switches, sliders, text boxes, checkboxes, reset buttons and tabs, not only cards, headers and buttons.
+-- Shaped chrome for the interface controls. True when the active style draws switches, sliders, text boxes,
+-- checkboxes, reset buttons and tabs as panels (rounded in "RGX Material Round", framed art in "RGX Forever"
+-- and "RGX Classic"), not only cards, headers and buttons. The framework style keeps its flat controls.
 function Design:IsRoundedControls()
     return (self.styleOptions or {}).controlStyle == "rounded"
 end
@@ -575,7 +688,7 @@ function Design:CreateRoundedShape(host, opts)
         shape:SetFrameLevel(math.max(0, level))
     end
     self:ApplyPanel(shape, { color = opts.color or "surface", borderColor = opts.borderColor or "border",
-        radius = opts.radius or 6 })
+        radius = opts.radius or 6, line = opts.line == true })
     local adapter = {
         fill = function(r, g, b, a) shape:SetPanelColor({ r, g, b }, nil, a or 1) end,
         ring = function(r, g, b) shape:SetPanelColor(nil, { r, g, b }, 1) end,
@@ -590,8 +703,8 @@ function Design:CreateFrame(parent, opts)
     -- setting decides between rounded panels and square backdrops.
     if opts.square == nil then
         opts.square = self.cornerStyle == "square"
-        -- A style with its own frame art draws it on its square corners, instead of a flat backdrop.
-        if opts.square and self.styleOptions and self.styleOptions.frameArt == "forever" then opts.square = false end
+        -- A style with its own frame art draws it on its corners, instead of a flat backdrop.
+        if opts.square and FRAME_ART[(self.styleOptions or {}).frameArt or ""] then opts.square = false end
     end
     if opts.square then
         local frame = CreateFrame("Frame", opts.name, parent, "BackdropTemplate")
@@ -607,12 +720,21 @@ function Design:CreateFrame(parent, opts)
     local frame = CreateFrame("Frame", opts.name, parent)
     if opts.width  then frame:SetWidth(opts.width)   end
     if opts.height then frame:SetHeight(opts.height) end
+    if opts.role == nil then opts.role = "frame" end
     self:ApplyPanel(frame, opts)
     return frame
 end
 
 function Design:CreateButton(parent, text, width, height, tooltipTitle, tooltipBody)
-    local btn = CreateFrame("Button", nil, parent)
+    -- Styles that use the client's own button build it from the client's UIPanelButtonTemplate; a client
+    -- without the template gets the dialog button textures below instead.
+    local wantsNative = type((self.styleOptions or {}).blizzard) == "table" and self.styleOptions.blizzard.button == "panel"
+    local btn
+    if wantsNative then
+        local ok, made = pcall(CreateFrame, "Button", nil, parent, "UIPanelButtonTemplate")
+        if ok and type(made) == "table" then btn = made; btn._blizzardTemplate = true end
+    end
+    btn = btn or CreateFrame("Button", nil, parent)
     btn:SetSize(width or 120, height or 22)
 
     -- The active style decides the button shape. Rounded buttons ("RGX Material Round") sit on the same
@@ -628,7 +750,31 @@ function Design:CreateButton(parent, text, width, height, tooltipTitle, tooltipB
     local hoverLabel = rounded and (titleTheme and { titleTheme[1], titleTheme[2], titleTheme[3] }
         or { self:Unpack("text") }) or { self:Unpack("primary") }
 
-    if rounded then
+    -- A style with Blizzard button art draws the client's dialog button (red face, metal edge) with its own
+    -- pressed, disabled and highlight states; the hover and press colours are the art's, not ours.
+    local blizzardButton = type(opts.blizzard) == "table" and (opts.blizzard.button == "dialog" or opts.blizzard.button == "panel")
+    local restLabel = blizzardButton and { self:Unpack("text") } or { self:Unpack("subtext") }
+    if blizzardButton and btn._blizzardTemplate then
+        -- The template draws the face, pressed, disabled and highlight states itself.
+        btn._blizzardButton = true
+        btn.bg = { SetColorTexture = function() end }
+        btn.border = { SetBackdropBorderColor = function() end }
+    elseif blizzardButton then
+        local coords = { 0, 1, 0, 0.71875 }
+        local function skin(setter, getter, path, mode)
+            if type(btn[setter]) ~= "function" then return end
+            btn[setter](btn, path, mode)
+            local tex = type(btn[getter]) == "function" and btn[getter](btn) or nil
+            if type(tex) == "table" and tex.SetTexCoord then tex:SetTexCoord(coords[1], coords[2], coords[3], coords[4]) end
+        end
+        skin("SetNormalTexture", "GetNormalTexture", "Interface\\Buttons\\UI-DialogBox-Button-Up")
+        skin("SetPushedTexture", "GetPushedTexture", "Interface\\Buttons\\UI-DialogBox-Button-Down")
+        skin("SetDisabledTexture", "GetDisabledTexture", "Interface\\Buttons\\UI-DialogBox-Button-Disabled")
+        skin("SetHighlightTexture", "GetHighlightTexture", "Interface\\Buttons\\UI-DialogBox-Button-Highlight", "ADD")
+        btn._blizzardButton = true
+        btn.bg = { SetColorTexture = function() end }
+        btn.border = { SetBackdropBorderColor = function() end }
+    elseif rounded then
         self:ApplyPanel(btn, { color = "surface", borderColor = "border",
             radius = math.max(4, math.min(10, math.floor((height or 22) / 2))) })
         btn.bg = { SetColorTexture = function(_, r, g, b) btn:SetPanelColor({ r, g, b }, nil, 1) end }
@@ -646,12 +792,19 @@ function Design:CreateButton(parent, text, width, height, tooltipTitle, tooltipB
         btn.border = border
     end
 
-    local label = btn:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-    label:SetPoint("CENTER", 0, 0)
-    label:SetText(text or "")
-    label:SetTextColor(self:Unpack("subtext"))
-    ApplyDefaultFont(label)
+    local label = btn._blizzardTemplate and btn.GetFontString and btn:GetFontString() or nil
+    if label then
+        -- the template's own text, in the client's button font and colour
+        btn:SetText(text or "")
+    else
+        label = btn:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+        label:SetPoint("CENTER", 0, 0)
+        label:SetText(text or "")
+        label:SetTextColor(restLabel[1], restLabel[2], restLabel[3])
+        ApplyDefaultFont(label)
+    end
     btn.label = label
+    local ownLabel = not (btn._blizzardTemplate and btn.GetFontString and btn:GetFontString())
 
     btn:SetScript("OnEnter", function(self)
         self.bg:SetColorTexture(Design:Unpack("hover"))
@@ -660,7 +813,7 @@ function Design:CreateButton(parent, text, width, height, tooltipTitle, tooltipB
         else
             self.border:SetBackdropBorderColor(Design:Unpack(hoverBorderKey))
         end
-        self.label:SetTextColor(hoverLabel[1], hoverLabel[2], hoverLabel[3])
+        if ownLabel or not btn._blizzardButton then self.label:SetTextColor(hoverLabel[1], hoverLabel[2], hoverLabel[3]) end
         if self._ttTitle then
             GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
             GameTooltip:SetText(self._ttTitle, 1, 1, 1)
@@ -675,7 +828,7 @@ function Design:CreateButton(parent, text, width, height, tooltipTitle, tooltipB
     btn:SetScript("OnLeave", function(self)
         self.bg:SetColorTexture(Design:Unpack("surface"))
         self.border:SetBackdropBorderColor(Design:Unpack("border"))
-        self.label:SetTextColor(Design:Unpack("subtext"))
+        if ownLabel or not btn._blizzardButton then self.label:SetTextColor(restLabel[1], restLabel[2], restLabel[3]) end
         GameTooltip:Hide()
     end)
 
@@ -694,7 +847,17 @@ Design.CreateActionButton = Design.CreateButton
 function Design:CreateSectionHeader(parent, text, icon)
     local opts = self.styleOptions or {}
     local header
-    if opts.headerStyle == "rounded" then
+    if self.UsesClientArt and self:UsesClientArt() then
+        -- RGX Classic / RGX Forever: the client's settings look, a title over the client's divider line.
+        header = CreateFrame("Frame", nil, parent)
+        header:SetHeight(32)
+        local divider = header:CreateTexture(nil, "ARTWORK")
+        divider:SetTexture("Interface\\Common\\UI-TooltipDivider-Transparent")
+        divider:SetPoint("BOTTOMLEFT", header, "BOTTOMLEFT", 0, 0)
+        divider:SetPoint("BOTTOMRIGHT", header, "BOTTOMRIGHT", 0, 0)
+        divider:SetHeight(8)
+        header.divider = divider
+    elseif opts.headerStyle == "rounded" then
         -- "RGX Material Round": a rounded band (grey fill, the style's ring colour) like every other card.
         header = CreateFrame("Frame", nil, parent)
         header:SetHeight(32)
@@ -745,7 +908,7 @@ end
 
 function Design:CreateSection(parent, title, icon, opts)
     opts = opts or {}
-    local section = self:CreateFrame(parent, { color = "panelAlt", square = opts.square })
+    local section = self:CreateFrame(parent, { color = "panelAlt", square = opts.square, role = "card" })
 
     if title then
         local header = self:CreateSectionHeader(section, title, icon)

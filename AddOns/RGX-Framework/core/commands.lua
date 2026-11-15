@@ -65,12 +65,38 @@ RGX:RegisterSlashCommand({ "rgx", "rgxframework", "rgxf" }, function(msg)
         else
             RGX:Print(L["COMMAND_LOGIN_USAGE"] or "Usage: /rgxf login on|off|status")
         end
+    elseif cmd == "style" or cmd == "theme" then
+        -- /rgx style [id]: show or choose the interface style (framework, materialround, classic, forever).
+        -- It is the same choice as the Theme tab: saved, and applied to windows built afterwards (reload to re-skin).
+        local Design = type(RGX.GetDesign) == "function" and RGX:GetDesign() or nil
+        local arg = strtrim(rest):lower()
+        if not (Design and Design.STYLE_ORDER) then
+            RGX:Print("The design module is not loaded.")
+        elseif arg:match("^override") then
+            -- /rgx style override on|off: the beta global theme override switch (off by default).
+            local want = arg:match("^override%s+(%a+)$")
+            if want == "on" or want == "off" then
+                if type(RGX.db) == "table" then RGX.db.themeOverride = (want == "on") end
+                RGX:Print("Global theme override (beta): " .. want .. ". Reload your UI to apply it.")
+            else
+                RGX:Print("Global theme override (beta): " .. ((type(RGX.db) == "table" and RGX.db.themeOverride == true) and "on" or "off")
+                    .. " (change with /rgx style override on|off)")
+            end
+        elseif arg == "" or arg == "list" then
+            RGX:Print("Interface style: " .. tostring(Design:GetStyleId() or "custom")
+                .. " (choose with /rgx style " .. table.concat(Design.STYLE_ORDER, "|") .. ")")
+        elseif Design:SetStyle(arg) then
+            if type(RGX.db) == "table" then RGX.db.style = Design:GetStyleId() end
+            RGX:Print("Interface style set to " .. tostring(Design:GetStyleId()) .. ". Reload your UI to re-skin open windows.")
+        else
+            RGX:Print("Unknown style. Choose " .. table.concat(Design.STYLE_ORDER, ", ") .. ".")
+        end
     elseif cmd == "editor" then
         RGX:OpenDefinitionEditor()
     elseif cmd == "version" or cmd == "ver" then
         local ver = tostring(RGX.version or (L["COMMAND_VERSION_UNKNOWN"] or "unknown"))
         RGX:Print((L["COMMAND_VERSION_PREFIX"] or "RGX-Framework v") .. ver)
     else
-        RGX:Print(L["COMMAND_LIST"] or "Commands: modules, fonts, debug, dbtest, login, editor, version")
+        RGX:Print(L["COMMAND_LIST"] or "Commands: modules, fonts, debug, dbtest, login, style, editor, version")
     end
 end, "RGXFRAMEWORK")

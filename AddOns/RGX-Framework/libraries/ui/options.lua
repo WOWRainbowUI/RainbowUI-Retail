@@ -132,7 +132,41 @@ local function CreateTabButton(parent, text, tabIndex, row, col, panelRef, icon,
     -- Positioning is handled externally by RepositionTabs for dynamic centering.
 
     local bg, border
-    if D.IsRoundedControls and D:IsRoundedControls() then
+    local clientTab
+    if D.UsesClientArt and D:UsesClientArt() then
+        -- RGX Classic / RGX Forever: the client's own tab art (left cap, tiled centre, right cap), swapped to the
+        -- active-tab art when selected. A client without the atlases falls through to the flat tab below.
+        local pieces = {}
+        for i, part in ipairs({ "left", "center", "right" }) do
+            local tex = btn:CreateTexture(nil, "BACKGROUND")
+            pieces[i] = tex
+        end
+        local function paint(active)
+            local stem = active and "uiframe-activetab-" or "uiframe-tab-"
+            local okL = D:SetAtlasOr(pieces[1], stem .. "left", nil, true)
+            local okC = D:SetAtlasOr(pieces[2], "_" .. stem .. "center", nil, true)
+            local okR = D:SetAtlasOr(pieces[3], stem .. "right", nil, true)
+            return okL and okC and okR
+        end
+        if paint(false) then
+            -- The art fills the tab exactly: the caps keep their own width, the centre stretches between them.
+            pieces[1]:SetPoint("TOPLEFT", btn, "TOPLEFT", 0, 0)
+            pieces[1]:SetPoint("BOTTOMLEFT", btn, "BOTTOMLEFT", 0, 0)
+            pieces[3]:SetPoint("TOPRIGHT", btn, "TOPRIGHT", 0, 0)
+            pieces[3]:SetPoint("BOTTOMRIGHT", btn, "BOTTOMRIGHT", 0, 0)
+            pieces[2]:SetPoint("TOPLEFT", pieces[1], "TOPRIGHT", 0, 0)
+            pieces[2]:SetPoint("BOTTOMRIGHT", pieces[3], "BOTTOMLEFT", 0, 0)
+            if pieces[2].SetHorizTile then pieces[2]:SetHorizTile(false) end
+            clientTab = paint
+            bg = { SetColorTexture = function() end }
+            border = { SetBackdropBorderColor = function() end }
+        else
+            for _, tex in ipairs(pieces) do if tex.Hide then tex:Hide() end end
+        end
+    end
+    if clientTab then
+        btn._clientTab = clientTab
+    elseif D.IsRoundedControls and D:IsRoundedControls() then
         -- "RGX Material Round": rounded tab chips, lit with the panel's primary colour like the buttons.
         local shape, paint = D:CreateRoundedShape(btn, { radius = 6, color = "surface", borderColor = "border" })
         bg = { SetColorTexture = function(_, r, g, b, a) paint.fill(r, g, b, a or 1) end }
@@ -193,6 +227,7 @@ local function CreateTabButton(parent, text, tabIndex, row, col, panelRef, icon,
 
     function btn:SetActive(active)
         self.isActive = active
+        if self._clientTab then self._clientTab(active and true or false) end
         if active then
             local D = GetDesign()
             self.bg:SetColorTexture(D:Unpack("hover"))
@@ -1243,22 +1278,17 @@ end
 
 -- ── Standard options card ────────────────────────────────────────────────────
 -- The settings every RGX addon offers, in one card, under the same storage keys, so every mod behaves alike:
---   minimapIconEnabled  show the minimap button           (opts.minimap = false omits the two minimap rows)
---   addonMenu           list in the Addons menu           (applied through the minimap button, which tells the
---                                                           player when a client needs a reload)
+--   minimapIconEnabled  show the minimap button           (opts.minimap = false omits the minimap row)
 --   chatOutput          print messages to chat            (read by RGX:CreateChat)
 --   loginMessage        print a loaded message at login   (read by RGX:CreateChat)
---   chatPrefix          the prefix on chat messages       (empty = the addon's branded title)
 -- Absent keys mean on. opts: storage (table, required), minimap (the minimap button, or a function returning it
 -- because the button may not exist yet), labels (override any string for localisation), title, defaultPrefix
 -- (greyed placeholder text for the prefix box), onChange(key, value).
 
 local STANDARD_LABELS = {
     title = "General",
-    description = "Minimap button, Addons menu and chat messages.",
+    description = "Minimap button and chat messages.",
     minimap = "Show the minimap button",
-    addonMenu = "List in the Addons menu",
-    addonMenuReload = "The Addons menu change applies after you reload your UI.",
     chat = "Print messages to chat",
     login = "Print a loaded message at login",
     prefix = "Chat prefix",
@@ -1274,8 +1304,7 @@ local function CreateStandardCard(UI, parent, opts)
     end
 
     local card = UI:CreateCard(parent, { title = opts.title or labels.title })
-    -- Rows fill the card: a switch keeps a fixed 200px width otherwise, and a long label then runs into its
-    -- ON/OFF text. Filling puts the toggle at the card's right edge and gives the label the rest.
+    -- Rows fill the card width. Options are tick boxes; switches are reserved for card headers.
     local function Add(widget) card.flow:Add(widget, { fill = true }); return widget end
 
     local function Changed(key, value)
@@ -1287,8 +1316,8 @@ local function CreateStandardCard(UI, parent, opts)
         return button
     end
     local function Switch(label, key, onChange)
-        return Add(UI:CreateSwitch(card.content, {
-            label = label, storage = storage, key = key, default = true,
+        return Add(UI:CreateCheckbox(card.content, label, {
+            storage = storage, key = key, default = true,
             onChange = function(value) if onChange then onChange(value) end; Changed(key, value) end,
         }))
     end
@@ -1302,24 +1331,9 @@ local function CreateStandardCard(UI, parent, opts)
             local button = Button()
             if button and button.SetVisible then button:SetVisible(value) end
         end)
-        if opts.addonMenu ~= false then
-            Switch(labels.addonMenu, "addonMenu", function(value)
-                local button = Button()
-                if button and button.SetCompartmentVisible and button:SetCompartmentVisible(value) == false then
-                    RGX:Print(labels.addonMenuReload)
-                end
-            end)
-        end
     end
     Switch(labels.chat, "chatOutput")
     if opts.loginMessage ~= false then Switch(labels.login, "loginMessage") end
-    if opts.prefix ~= false then
-        Add(UI:CreateTextInput(card.content, {
-            label = labels.prefix, storage = storage, key = "chatPrefix", default = "",
-            placeholder = opts.defaultPrefix or "", width = 200,
-            onChange = function(value) Changed("chatPrefix", value) end,
-        }))
-    end
 
     card:AutoHeight()
     return card
