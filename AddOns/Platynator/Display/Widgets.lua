@@ -116,63 +116,77 @@ end
 local function ArrangeAuras(frame, auraManager, height, kind, filterString)
   local settings = GetAuraSettings()[kind]
   local allocated = 0
-  if settings.showAll.enabled or settings.showNone.enabled then
-    local lastAura
-    local firstAura
-    for i = 1, #settings.auras do
-      local point = {"BOTTOM", lastAura, "TOP"}
-      if not lastAura then
-        point = {"BOTTOM", frame, "BOTTOM", 0, - height * #settings.auras}
-      end
-      local aura = auraManager:AcquireSlot(height, point, filterString, settings.auras[i].spellID)
-      if not firstAura then
-        firstAura = aura
-      end
-      lastAura = aura
+  local lastAura
+  local firstAura
+  local auraFrames = {}
+  local missing = {}
+  for i = 1, #settings.auras do
+    local point = {"BOTTOM", lastAura, "TOP"}
+    if not lastAura then
+      point = {"BOTTOM", frame, "BOTTOM", 0, -height}
     end
+    local aura = auraManager:AcquireSlot(height, point, filterString, settings.auras[i].spellID)
+    if not firstAura then
+      firstAura = aura
+    end
+    lastAura = aura
+    table.insert(auraFrames, aura)
+  end
 
-    if settings.showAll.enabled then
-      allocated = allocated + 1
-      local current = frame.auras[kind].textures[allocated]
-      current.mask:SetHeight(height)
-      local color = settings.showAll.color
-      current.texture:SetVertexColor(color.r, color.g, color.b)
-      current.texture:SetDrawLayer("OVERLAY", 6)
-      current.mask:SetPoint("BOTTOM", lastAura, "TOP")
-    end
+  if settings.showAll.enabled then
+    allocated = allocated + 1
+    local current = frame.auras[kind].textures[allocated]
+    current.mask:ClearPoint("TOP")
+    current.mask:ClearPoint("BOTTOM")
+    current.mask:SetHeight(height)
+    current.texture:SetDrawLayer("OVERLAY", 6)
+    local color = settings.showAll.color
+    current.texture:SetVertexColor(color.r, color.g, color.b)
+    frame.auras[kind].pillar:SetSize(10, #settings.auras * height)
+    current.aligner:SetPoint("BOTTOM", lastAura, "TOP")
+    frame.auras[kind].pillar:SetPoint("TOP", current.aligner, "BOTTOM")
+    current.mask:SetPoint("BOTTOM", frame.auras[kind].pillar, "BOTTOM", 0, height)
+  end
 
-    if settings.showNone.enabled then
-      allocated = allocated + 1
-      local current = frame.auras[kind].textures[allocated]
-      current.mask:SetHeight(height)
-      current.texture:SetDrawLayer("OVERLAY", 6)
-      local color = settings.showNone.color
-      current.texture:SetVertexColor(color.r, color.g, color.b)
-      frame.auras[kind].pillar:SetSize(10, #settings.auras * height)
-      frame.auras[kind].pillar:SetPoint("BOTTOM", lastAura, "TOP")
-      current.mask:SetPoint("BOTTOM", frame.auras[kind].pillar, "TOP")
-      frame.auras[kind].showNone = current.texture
-    end
+  if settings.showNone.enabled then
+    allocated = allocated + 1
+    local current = frame.auras[kind].textures[allocated]
+    current.mask:ClearPoint("TOP")
+    current.mask:ClearPoint("BOTTOM")
+    current.mask:SetHeight(height)
+    current.texture:SetDrawLayer("OVERLAY", 6)
+    local color = settings.showNone.color
+    current.texture:SetVertexColor(color.r, color.g, color.b)
+    current.aligner:SetPoint("BOTTOM", firstAura, "TOP")
+    current.mask:SetPoint("BOTTOM", current.aligner, "BOTTOM", 0, height)
+    table.insert(missing, current.texture)
   end
 
   if settings.showIndividualColors then
     for index, details in ipairs(settings.auras) do
       allocated = allocated + 1
       local current = frame.auras[kind].textures[allocated]
+      current.mask:ClearPoint("TOP")
+      current.mask:ClearPoint("BOTTOM")
       current.mask:SetHeight(height)
-      local aura = auraManager:AcquireSlot(height, {"BOTTOM", frame, "BOTTOM", 0, -height}, filterString, details.spellID)
+      current.texture:SetDrawLayer("OVERLAY")
       local color = details.color
       current.texture:SetVertexColor(color.r, color.g, color.b)
-      current.texture:SetDrawLayer("OVERLAY", math.max(-8, (6 - index)))
-      current.mask:SetPoint("BOTTOM", aura, "TOP")
+      current.aligner:SetPoint("BOTTOM", auraFrames[index], "TOP")
+      if details.isMissing then
+        current.mask:SetPoint("BOTTOM", current.aligner, "BOTTOM", 0, height)
+        table.insert(missing, current.texture)
+      else
+        current.mask:SetPoint("BOTTOM", current.aligner)
+      end
     end
   end
 
   frame.auras[kind].allocated = allocated
+  frame.auras[kind].missing = missing
 end
 
 local function UpdateAurasForKind(frame, kind, unit)
-  local settings = GetAuraSettings()[kind]
   for i = 1, frame.auras[kind].allocated do
     frame.auras[kind].textures[i].texture:Show()
   end
@@ -181,10 +195,15 @@ local function UpdateAurasForKind(frame, kind, unit)
       frame.auras[kind].textures[i].texture:Hide()
     end
   end
-  if settings.showNone.enabled then
-    frame.auras[kind].showNone:SetShown(addonTable.Cache:Get(unit, "combat"))
+  if #frame.auras[kind].missing > 0 then
+    local isCombat = addonTable.Cache:Get(unit, "combat")
+    for _, t in ipairs(frame.auras[kind].missing) do
+      t:SetShown(isCombat)
+    end
     addonTable.Cache:RegisterCallback(unit, "combat", function(state)
-      frame.auras[kind].showNone:SetShown(state)
+      for _, t in ipairs(frame.auras[kind].missing) do
+        t:SetShown(state)
+      end
     end)
   end
 end
@@ -362,7 +381,7 @@ function addonTable.Display.GetHealthBar(frame, parent)
     frame.auras[kind].active = true
     local foreground = LSM:Fetch("statusbar", frame.details.foreground.asset, true) or LSM:Fetch("statusbar", "MM: Solid White")
 
-    local limit = #settings.auras + (settings.showAll.enabled and 1 or 0) + (settings.showNone.enabled and 1 or 0)
+    local limit = (settings.showIndividualColors and #settings.auras or 0) + (settings.showAll.enabled and 1 or 0) + (settings.showNone.enabled and 1 or 0)
     if #frame.auras[kind].textures < limit then
       for i = #frame.auras[kind].textures + 1, limit do
         local t = frame.statusBar:CreateTexture(nil, "OVERLAY", nil, 5)
@@ -374,7 +393,11 @@ function addonTable.Display.GetHealthBar(frame, parent)
         m:SetPoint("RIGHT", frame.statusBar:GetStatusBarTexture(), 0, 0)
         t:AddMaskTexture(m)
         t:AddMaskTexture(frame.mask)
-        table.insert(frame.auras[kind].textures, {texture = t, mask = m})
+        local a = frame.auras[kind].submaskWrapper:CreateTexture()
+        a:SetWidth(10)
+        a:SetHeight(0.000001)
+        a:SetColorTexture(0, 0, 0, 0)
+        table.insert(frame.auras[kind].textures, {texture = t, mask = m, aligner = a})
       end
     end
 
@@ -1079,7 +1102,7 @@ function addonTable.Display.GetAuraHighlight(frame, parent)
     frame.auras[kind].active = true
     local highlightDetails = (frame.details.sliced and (LSM:Fetch("nineslice", frame.details.asset, true) or LSM:Fetch("nineslice", "MM: 7px"))) or (LSM:Fetch("platynator/sizedtexture", frame.details.asset, true) or LSM:Fetch("platynator/sizedtexture", "MM: Glow"))
 
-    local limit = #settings.auras + (settings.showAll.enabled and 1 or 0) + (settings.showNone.enabled and 1 or 0)
+    local limit = (settings.showIndividualColors and #settings.auras or 0) + (settings.showAll.enabled and 1 or 0) + (settings.showNone.enabled and 1 or 0)
     if #frame.auras[kind].textures < limit then
       for i = #frame.auras[kind].textures + 1, limit do
         local t = frame:CreateTexture(nil, "OVERLAY", nil, 5)
@@ -1090,7 +1113,11 @@ function addonTable.Display.GetAuraHighlight(frame, parent)
         m:SetPoint("LEFT", frame, 0, 0)
         m:SetPoint("RIGHT", frame, 0, 0)
         t:AddMaskTexture(m)
-        table.insert(frame.auras[kind].textures, {texture = t, mask = m})
+        local a = frame.auras[kind].submaskWrapper:CreateTexture()
+        a:SetWidth(10)
+        a:SetHeight(0.000001)
+        a:SetColorTexture(0, 0, 0, 0)
+        table.insert(frame.auras[kind].textures, {texture = t, mask = m, aligner = a})
       end
     end
 
@@ -1330,6 +1357,8 @@ function addonTable.Display.GetHealthFillText(frame, parent)
     frame.background:SetTextColor(details.background.color.r, details.background.color.g, details.background.color.b)
     frame.absorb:SetTextColor(details.absorb.color.r, details.absorb.color.g, details.absorb.color.b)
     frame.absorbPlacer:SetAlpha(0)
+
+    frame.absorb:SetShown(details.absorb.applyColor)
 
     frame.maskAbsorb:SetFrameLevel(frame:GetFrameLevel() + 2)
     frame.mask:SetFrameLevel(frame:GetFrameLevel() + 3)

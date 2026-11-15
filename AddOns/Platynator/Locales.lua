@@ -184,6 +184,7 @@ L["DEDUPLICATE"] = "Deduplicate"
 L["ENABLE"] = "Enable"
 L["WHEN_NONE_APPLIED"] = "When none applied"
 L["WHEN_ALL_APPLIED"] = "When all applied"
+L["WHEN_MISSING"] = "When missing"
 
 L["FOREGROUND"] = "Foreground"
 L["VISUAL"] = "Visual"

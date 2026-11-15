@@ -115,12 +115,22 @@ local function GetAuraOptions(parent, kind)
       Refresh()
     end)
 
-    frame.colorPicker = addonTable.CustomiseDialog.Components.GetColorPicker(frame, addonTable.Locales.COLOR, -80, function(newColor)
+    frame.isMissing = addonTable.CustomiseDialog.Components.GetCheckbox(frame, addonTable.Locales.WHEN_MISSING, -45, function(value)
+      if frame.setup.isMissing ~= value then
+        frame.setup.isMissing = value
+        Announce()
+      end
+    end)
+    frame.isMissing:SetSize(35, 30)
+    frame.isMissing:SetPoint("LEFT", frame.Label, "RIGHT", 0, 0)
+    frame.isMissing:SetPoint("RIGHT", frame, -170, 0)
+
+    frame.colorPicker = addonTable.CustomiseDialog.Components.GetColorPicker(frame, addonTable.Locales.COLOR, -10, function(newColor)
       frame.setup.color = newColor
       Announce()
     end)
-    frame.colorPicker:SetPoint("LEFT", frame.Label, "RIGHT", 0, 0)
-    frame.colorPicker:SetPoint("RIGHT", frame, -55, 0)
+    frame.colorPicker:SetPoint("LEFT", frame.isMissing, "RIGHT", 0, 0)
+    frame.colorPicker:SetPoint("RIGHT", frame, -50, 0)
 
     frame.removeEntryButton = CreateFrame("Button", nil, frame)
     frame.removeEntryButton:SetSize(30, 30)
@@ -159,6 +169,7 @@ local function GetAuraOptions(parent, kind)
       local index = tIndexOf(all, frame.setup)
       frame.shiftUp:SetShown(index > 1)
       frame.shiftDown:SetShown(index < #all)
+      frame.isMissing:SetValue(setup.isMissing)
     end
   end
   local pool = CreateFramePool("Frame", container, nil, nil, false, GetDynamicRow)

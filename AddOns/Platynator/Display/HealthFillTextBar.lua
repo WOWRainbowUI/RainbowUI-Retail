@@ -81,6 +81,7 @@ function addonTable.Display.HealthFillTextBarMixin:UpdateHealth(state)
 
   self.statusBarAbsorb:SetValue(state.absorbs, self.animate)
   self.statusBar:SetValue(state.absolute, self.animate)
+  self.absorb:SetAlpha(state.absorbs)
 end
 
 function addonTable.Display.HealthFillTextBarMixin:OnEvent(eventName)

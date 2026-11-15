@@ -5,7 +5,7 @@ addonTable.Config = {}
 local announceChanges = true
 
 local settings = {
-  MIGRATION = {key = "migration", default = 1, new = 12},
+  MIGRATION = {key = "migration", default = 1, new = 13},
 
   STYLE = {key = "style", default = "_deer"},
   CURRENT_SKIN = {key = "current_skin", default = "blizzard", refresh = {addonTable.Constants.RefreshReason.Skin}},
