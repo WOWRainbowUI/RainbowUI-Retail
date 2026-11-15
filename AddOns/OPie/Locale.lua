@@ -311,6 +311,16 @@ for i=1,K and #K or 0 do
 end
 
 if L and (C == "zhTW" or C == "zhCN") then
+	L["Accept"] = L["Accept"] or (C == "zhTW" and "接受" or "接受")
+	L["Click to view a list of actions to select from, or drag an item, ability, mount, toy, etc., here to add it to the ring."] = L["Click to view a list of actions to select from, or drag an item, ability, mount, toy, etc., here to add it to the ring."] or (C == "zhTW" and "點擊以選擇動作，或將物品、技能、坐騎、玩具等拖到這裡加入環形選單。" or "点击以选择动作，或将物品、技能、坐骑、玩具等拖到这里加入环形菜单。")
+	L["Copy Link"] = L["Copy Link"] or (C == "zhTW" and "複製連結" or "复制链接")
+	L["GS:None"] = L["GS:None"] or (C == "zhTW" and "無" or "无")
+	L["Hold %s to also add not-yet-learned abilities in this flyout."] = L["Hold %s to also add not-yet-learned abilities in this flyout."] or (C == "zhTW" and "按住 %s 可一併加入此展開選單中尚未學會的技能。" or "按住 %s 可一并加入此展开菜单中尚未学会的技能。")
+	L["It is used when no other profile applies, for example on new characters."] = L["It is used when no other profile applies, for example on new characters."] or (C == "zhTW" and "沒有其他適用的設定檔時會使用此設定檔，例如新角色。" or "没有其他适用的配置时会使用此配置，例如新角色。")
+	L["Okay"] = L["Okay"] or (C == "zhTW" and "確定" or "确定")
+	L["The %s profile can only restored to its default configuration, not deleted."] = L["The %s profile can only restored to its default configuration, not deleted."] or (C == "zhTW" and "%s 設定檔只能恢復預設設定，無法刪除。" or "%s 配置只能恢复默认设置，无法删除。")
+	L["To enable WoW's built-in error display, type %s in chat. This may help diagnose problems."] = L["To enable WoW's built-in error display, type %s in chat. This may help diagnose problems."] or (C == "zhTW" and "在聊天視窗輸入 %s 可啟用魔獸世界內建的錯誤顯示，協助診斷問題。" or "在聊天窗口输入 %s 可启用魔兽世界内置的错误显示，帮助诊断问题。")
+	L["Type %s in chat to open this panel outside the game's Options UI."] = L["Type %s in chat to open this panel outside the game's Options UI."] or (C == "zhTW" and "在聊天視窗輸入 %s，可直接開啟此面板。" or "在聊天窗口输入 %s，可直接打开此面板。")
 	L["This version of OPie is not flagged as compatible with this World of Warcraft patch."] = C == "zhTW" and "此版本的 OPie 尚未標示為相容於目前的魔獸世界版本。" or "此版本的 OPie 尚未标记为兼容当前的魔兽世界版本。"
 	L["If you encounter problems, please [check whether an OPie update is available]."] = C == "zhTW" and "如果遇到問題，請[檢查是否有 OPie 更新版本]。" or "如果遇到问题，请[检查是否有 OPie 更新版本]。"
 end
