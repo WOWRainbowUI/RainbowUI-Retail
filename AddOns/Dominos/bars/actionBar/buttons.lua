@@ -27,6 +27,7 @@ ActionButtons:Execute([[ ActionButtons = table.new() ]])
 -- Event and Callback Handling
 --------------------------------------------------------------------------------
 
+-- once, when the action bars first load (usually login)
 function ActionButtons:Initialize()
     -- register game events
     self:SetScript("OnEvent", function(f, event, ...) f[event](f, ...); end)
@@ -35,7 +36,6 @@ function ActionButtons:Initialize()
     self:RegisterEvent("PET_BAR_HIDEGRID")
     self:RegisterEvent("ACTIONBAR_SLOT_CHANGED")
     self:RegisterEvent("PLAYER_ENTERING_WORLD")
-    self:RegisterEvent("PLAYER_LOGIN")
     self:RegisterEvent("SPELLS_CHANGED")
 
     -- addon callbacks
@@ -116,6 +116,9 @@ function ActionButtons:Initialize()
         end)
     end
 
+    -- clear the main bar's always show buttons state, applied at login
+    ActionButton1:SetAttribute("showgrid", 0)
+
     self.Initialize = nil
 end
 
@@ -141,13 +144,6 @@ end
 
 function ActionButtons:PLAYER_ENTERING_WORLD()
     self:ForAll("UpdateShown")
-end
-
--- reset grid state at login. This covers waiting for the game to apply the
--- always show buttons state to the main bar
-function ActionButtons:PLAYER_LOGIN()
-    ActionButton1:SetAttribute("showgrid", 0)
-    self:LAYOUT_LOADED()
 end
 
 -- force a visibility updates when spells changed (typically called when
@@ -186,10 +182,11 @@ function ActionButtons:OnActionChanged(buttonName, action)
 end
 
 --------------------------------------------------------------------------------
--- Action Button Constrution
+-- Action Button Construction
 --------------------------------------------------------------------------------
 
--- keep track of the current action associated with a button
+-- keep track of the current action associated with a button. also clears bit 1
+-- of showgrid (Blizzard's always show buttons), since Dominos has its own
 local ActionButton_AttributeChanged = [[
     if name == "action" then
         local prevValue = ActionButtons[self]
@@ -197,6 +194,8 @@ local ActionButton_AttributeChanged = [[
             ActionButtons[self] = value
             control:CallMethod("OnActionChanged", self:GetName(), value, prevValue)
         end
+    elseif name == "showgrid" and type(value) == "number" and value % 2 == 1 then
+        self:SetAttribute("showgrid", value - 1)
     end
 ]]
 
@@ -223,7 +222,13 @@ local ActionButton_ReceiveDragAfter = [[
 local function GetActionButtonName(id)
     if id <= 0 then
         return
-    -- 1, 2
+    -- 1
+    elseif id <= 12  then
+        if Addon:UsingBlizzardKeybindHandlers()  then
+            return ('ActionButton%d'):format(id)
+        end
+        return ACTION_BUTTON_NAME_TEMPLATE:format(id)
+    -- 2
     elseif id <= 24 then
         return ACTION_BUTTON_NAME_TEMPLATE:format(id)
     -- 3
@@ -263,10 +268,16 @@ local function SafeMixin(button, trait)
     end
 end
 
-function ActionButtons:GetOrCreateActionButton(id, parent)
-    local name = GetActionButtonName(id)
+--- @param id number
+--- @param parent Frame
+--- @param name string? defaults to the standard name for the id
+function ActionButtons:GetOrCreateActionButton(id, parent, name)
     if name == nil then
-        error(("Invalid Action ID %q"):format(id))
+        name = GetActionButtonName(id)
+
+        if name == nil then
+            error(("Invalid Action ID %q"):format(id))
+        end
     end
 
     local button = _G[name]
@@ -275,6 +286,7 @@ function ActionButtons:GetOrCreateActionButton(id, parent)
     -- button not found, create a new one
     if button == nil then
         button = CreateFrame("CheckButton", name, parent, "ActionBarButtonTemplate")
+        button.isDominosButton = true
 
         -- add custom methods
         SafeMixin(button, Addon.ActionButton)
@@ -291,6 +303,8 @@ function ActionButtons:GetOrCreateActionButton(id, parent)
         -- logic of the standard UI
         button:SetParent(parent)
         button:SetID(0)
+
+        -- secure code reads .bar before the parent for useparent- attributes
         button.bar = nil
 
         -- initialize the button
@@ -303,7 +317,10 @@ function ActionButtons:GetOrCreateActionButton(id, parent)
         self:WrapScript(button, "OnAttributeChanged", ActionButton_AttributeChanged)
         self:WrapScript(button, "PostClick", ActionButton_PostClick)
         self:WrapScript(button, "OnReceiveDrag", ActionButton_ReceiveDragBefore, ActionButton_ReceiveDragAfter)
-        self:AddCastOnKeyPressSupport(button)
+
+        if not button:UsesBlizzardBindings() then
+            self:AddCastOnKeyPressSupport(button)
+        end
 
         -- register the button with the controller
         self:SetFrameRef("add", button)
@@ -361,7 +378,10 @@ function ActionButtons:AddCastOnKeyPressSupport(button)
     bind:SetAttributeNoHandler("useparent-flyoutDirection", true)
     bind:SetAttributeNoHandler("useparent-pressAndHoldAction", true)
     bind:SetAttributeNoHandler("useparent-unit", true)
-    SecureHandlerSetFrameRef(bind, "owner", button)
+
+    -- needs the real frame. secure code can only store a handle, which the
+    -- click action can't use
+    bind:SetAttributeNoHandler("clickbutton", button)
 
     bind:EnableMouseWheel()
     bind:RegisterForClicks("AnyUp", "AnyDown")
@@ -370,20 +390,23 @@ function ActionButtons:AddCastOnKeyPressSupport(button)
 
     bind.SetOverrideBindings = bindButton_SetOverrideBindings
 
-    if Addon.SpellFlyout then
-        Addon.SpellFlyout:Register(bind)
-    else
-        -- translate HOTKEY button "clicks" into LeftButton
-        self:WrapScript(bind, "OnClick", [[
-            if button == "HOTKEY" then
-                if GetActionInfo(self:GetEffectiveAttribute("action")) == "flyout" then
-                    return false
-                end
+    -- HOTKEY -> LeftButton. flyouts need their own button to open, so those
+    -- click the owner instead (type click + clickbutton)
+    self:WrapScript(bind, "OnClick", [[
+        if button == "HOTKEY" then
+            if GetActionInfo(self:GetEffectiveAttribute("action")) == "flyout" then
+                self:SetAttribute("type", "click")
 
-                return "LeftButton"
+                return "LeftButton", "flyout"
             end
-        ]])
-    end
+
+            return "LeftButton"
+        end
+    ]], [[
+        if message == "flyout" then
+            self:SetAttribute("type", "action")
+        end
+    ]])
 
     button.bind = bind
     button:UpdateOverrideBindings()
@@ -470,8 +493,5 @@ end
 function ActionButtons:GetAll()
     return pairs(self.buttons)
 end
-
--- startup and export
-ActionButtons:Initialize()
 
 Addon.ActionButtons = ActionButtons

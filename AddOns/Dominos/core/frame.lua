@@ -466,10 +466,6 @@ local function isFocus(frame)
             if isFlyoutFocus(_G.SpellFlyout, frame) then
                 return true
             end
-
-            if isFlyoutFocus(Addon.SpellFlyout, frame) then
-                return true
-            end
         end
 
         if isDescendant(focus, frame) then
@@ -501,6 +497,14 @@ function Frame:Fade(targetAlpha, delay, duration)
 
     if Addon:IsLinkedOpacityEnabled() then
         self:ForAnchored('Fade', targetAlpha, delay, duration)
+    end
+end
+
+function Frame:StopFade()
+    Addon:StopFade(self)
+
+    if Addon:IsLinkedOpacityEnabled() then
+        self:ForAnchored('StopFade')
     end
 end
 
@@ -750,6 +754,26 @@ end
 function Frame:GetRelativePosition()
     local point, relPoint, x, y = FlyPaper.GetBestAnchorForParent(self)
     return point, relPoint, x, y
+end
+
+-- sideways for tall bars, otherwise away from the nearest screen edge
+function Frame:GetCalculatedFlyoutDirection()
+    local width, height = self:GetSize()
+    local _, relPoint = self:GetRelativePosition()
+
+    if width < height then
+        if relPoint and relPoint:match('RIGHT') then
+            return 'LEFT'
+        end
+
+        return 'RIGHT'
+    end
+
+    if relPoint and relPoint:match('TOP') then
+        return 'DOWN'
+    end
+
+    return 'UP'
 end
 
 function Frame:RestorePosition()
@@ -1055,10 +1079,7 @@ Frame.contextMenu = Addon.ContextMenu {
     {
         id = 'Advanced',
         controls = {
-            {
-                type = 'header',
-                name = 'Behavior'
-            },
+            'BehaviorHeader',
             'ClickThroughCheck',
             'ShowInOverrideUICheck',
             'ShowInPetBattleUICheck',
