@@ -222,6 +222,7 @@ end
 
 function addonTable.Display.ChatFrameMixin:ApplyTabsShowing()
   local position = addonTable.Config.Get(addonTable.Config.Options.BUTTON_POSITION)
+  self.ScrollingMessages:SetPoint("TOPRIGHT",position == "outside_right" and -34 or 0, 0)
   if addonTable.Config.Get(addonTable.Config.Options.SHOW_TABS) ~= "never" then
     self.ScrollingMessagesWrapper:SetPoint("TOPLEFT", position == "outside_left" and 34 or 2, -27)
   else

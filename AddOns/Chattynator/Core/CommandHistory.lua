@@ -65,14 +65,14 @@ function addonTable.Core.InitializeChatCommandLogging()
     if C_ChatInfo and C_ChatInfo.InChatMessagingLockdown and C_ChatInfo.InChatMessagingLockdown() then
       return
     end
-    if key == "UP" and index > 0 then
+    if key == "UP" and index > 1 and #lines > 0 then
       if index > #lines then
         top = GetCurrent(ChatFrame1EditBox)
       end
       index = index - 1
       ChatFrame1EditBox:SetText(lines[index])
     elseif key == "DOWN" then
-      index = index + 1
+      index = math.min(#lines + 1, index + 1)
       if index <= #lines then
         ChatFrame1EditBox:SetText(lines[index])
       elseif top then

@@ -76,18 +76,18 @@ local function SetupGeneral(parent)
 
     local tipsRows = {
       MakeTipsRow({
-        header = CreateTextureMarkup("Interface\\AddOns\\Chattynator\\Assets\\Search.png", 64, 64, 13, 13, 0, 1, 0, 1) .. "  " .. addonTable.Locales.TIPS,
-        text = addonTable.Locales.TIPS_TIPS,
-      }, {
-        header = addonTable.Locales.MINIMAL,
-        text = addonTable.Locales.TIPS_MINIMAL,
-      }),
-      MakeTipsRow({
         header = CreateTextureMarkup("Interface\\AddOns\\Chattynator\\Assets\\SettingsCog.png", 64, 64, 13, 13, 0, 1, 0, 1) .. "  " .. addonTable.Locales.CUSTOMIZABLE,
         text = addonTable.Locales.TIPS_CUSTOMIZABLE,
       }, {
         header = addonTable.Locales.THEMES,
         text = addonTable.Locales.TIPS_THEMES,
+      }),
+      MakeTipsRow({
+        header = CreateTextureMarkup("Interface\\AddOns\\Chattynator\\Assets\\Search.png", 64, 64, 13, 13, 0, 1, 0, 1) .. "  " .. addonTable.Locales.MOVING_THE_WINDOW,
+        text = addonTable.Locales.TIPS_MOVING_THE_WINDOW,
+      }, {
+        header = addonTable.Locales.ACCESSING_DEFAULT_SETTINGS,
+        text = addonTable.Locales.TIPS_ACCESSING_DEFAULT_SETTINGS,
       }),
     }
     for _, row in ipairs(tipsRows) do
@@ -378,12 +378,16 @@ local function SetupLayout(parent)
     local entries = {
       addonTable.Locales.LEFT_OUTSIDE,
       addonTable.Locales.LEFT_INSIDE,
+      addonTable.Locales.RIGHT_OUTSIDE,
+      addonTable.Locales.RIGHT_INSIDE,
       addonTable.Locales.TABS_ABOVE,
       addonTable.Locales.TABS_BELOW,
     }
     local values = {
       "outside_left",
       "inside_left",
+      "outside_right",
+      "inside_right",
       "outside_tabs",
       "inside_tabs",
     }
@@ -525,6 +529,27 @@ local function SetupMessages(parent)
   messageSpacing:SetPoint("TOP", allFrames[#allFrames], "BOTTOM", 0, -30)
   table.insert(allFrames, messageSpacing)
 
+  local messageAlignment = addonTable.CustomiseDialog.Components.GetBasicDropdown(container, addonTable.Locales.MESSAGE_ALIGNMENT, function(value)
+    return addonTable.Config.Get(addonTable.Config.Options.MESSAGE_ALIGNMENT) == value
+  end, function(value)
+    addonTable.Config.Set(addonTable.Config.Options.MESSAGE_ALIGNMENT, value)
+  end)
+  messageAlignment:SetPoint("TOP", allFrames[#allFrames], "BOTTOM")
+  do
+    local entries = {
+      addonTable.Locales.LEFT,
+      addonTable.Locales.CENTER,
+      addonTable.Locales.RIGHT,
+    }
+    local values = {
+      "left",
+      "center",
+      "right"
+    }
+    messageAlignment:Init(entries, values)
+  end
+  table.insert(allFrames, messageAlignment)
+  
   local messageOutline = addonTable.CustomiseDialog.Components.GetBasicDropdown(container, addonTable.Locales.MESSAGE_FONT_OUTLINE, function(value)
     return addonTable.Config.Get(addonTable.Config.Options.MESSAGE_FONT_OUTLINE) == value
   end, function(value)
@@ -657,13 +682,20 @@ local function SetupFormatting(parent)
   showSeparator.option = addonTable.Config.Options.SHOW_TIMESTAMP_SEPARATOR
   showSeparator:SetPoint("TOP", allFrames[#allFrames], "BOTTOM")
   table.insert(allFrames, showSeparator)
-
+  
   local timestampSpacing
   timestampSpacing = addonTable.CustomiseDialog.Components.GetSlider(container, addonTable.Locales.TIMESTAMP_SPACING, 0, 200, function(x) return string.format("%s%%", x) end, function()
     addonTable.Config.Set(addonTable.Config.Options.TIMESTAMP_SPACING, timestampSpacing:GetValue() / 100)
   end)
   timestampSpacing:SetPoint("TOP", allFrames[#allFrames], "BOTTOM")
   table.insert(allFrames, timestampSpacing)
+
+  local timestampOnRight = addonTable.CustomiseDialog.Components.GetCheckbox(container, addonTable.Locales.TIMESTAMP_ON_RIGHT, 28, function(state)
+    addonTable.Config.Set(addonTable.Config.Options.TIMESTAMP_ON_RIGHT, state)
+  end)
+  timestampOnRight.option = addonTable.Config.Options.TIMESTAMP_ON_RIGHT
+  timestampOnRight:SetPoint("TOP", allFrames[#allFrames], "BOTTOM")
+  table.insert(allFrames, timestampOnRight)
 
   local shorteningDropdown = addonTable.CustomiseDialog.Components.GetBasicDropdown(container, addonTable.Locales.SHORTEN_CHANNELS, function(value)
     return addonTable.Config.Get(addonTable.Config.Options.SHORTEN_FORMAT) == value
