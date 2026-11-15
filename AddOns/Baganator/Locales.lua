@@ -452,6 +452,8 @@ L["CATEGORY_SETTINGS_HAVE_BEEN_RESET"] = "Category settings have been reset"
 
 
 local L = Locales.zhTW
+L["NO_STACK_TO_SPLIT"] = "沒有可拆分的堆疊"
+L["CONFIRM_TRANSFER_ITEMS"] = "要轉移選取的物品嗎？"
 L["CANNOT_OPEN_BAGS_IN_COMBAT"] = "戰鬥中無法開啟背包"
 
 L["ACCOUNT_GOLD_X"] = "帳號金幣：%s"
@@ -859,6 +861,8 @@ L["LEGACY_SKIN"] = "你有舊的外觀插件 "
 L["NO_LONGER_NEEDED"] = " 已經不再需要了，請將它刪除。多角色背包本身現已包含外觀。"
 
 local L = Locales.zhCN
+L["NO_STACK_TO_SPLIT"] = "没有可拆分的堆叠"
+L["CONFIRM_TRANSFER_ITEMS"] = "要转移选中的物品吗？"
 L["CANNOT_OPEN_BAGS_IN_COMBAT"] = "战斗中无法打开背包"
 
 L["ACCOUNT_GOLD_X"] = "帐号金币：%s"
