@@ -56,7 +56,6 @@ local skinners = {
       button.Icon:SetVertexColor(intensity, intensity, intensity)
       button.Icon:SetDrawLayer("ARTWORK")
       button.Icon:SetSize(12, 12)
-      button.Icon:SetAlpha(buttonsAlpha)
       button.Icon:ClearAllPoints()
       button.Icon:SetPoint("TOP", 0, -2);
       (button.FriendCount or FriendsMicroButtonCount):SetTextColor(intensity, intensity, intensity, buttonsAlpha)
@@ -68,8 +67,6 @@ local skinners = {
       end)
     elseif tags.channels then
       hooksecurefunc(button, "SetIconToState", function(self, state)
-        buttonsAlpha = 1 - addonTable.Config.Get("skins.dark.buttons_transparency")
-        buttonsBackground = addonTable.Config.Get("skins.dark.buttons_hide_background") and 0 or buttonsAlpha
         button:SetNormalTexture("Interface/AddOns/Chattynator/Assets/ChatButton.png")
         button:GetNormalTexture():SetVertexColor(0.15, 0.15, 0.15, buttonsBackground)
         button:GetNormalTexture():SetDrawLayer("BACKGROUND")
@@ -82,7 +79,7 @@ local skinners = {
           button.Icon:SetVertexColor(voiceActiveColor.r, voiceActiveColor.g, voiceActiveColor.b)
         else
           button.Icon:SetTexture("Interface/Addons/Chattynator/Assets/ChatChannels.png")
-          button.Icon:SetVertexColor(intensity, intensity, intensity)
+          button.Icon:SetVertexColor(intensity, intensity, intensity, buttonsAlpha)
         end
         if button:IsMouseOver() then
           button:GetScript("OnEnter")(button)
@@ -92,7 +89,6 @@ local skinners = {
         button:UpdateVisibleState()
       end)
       button:UpdateVisibleState()
-      button.Icon:SetAlpha(buttonsAlpha)
     elseif tags.voiceChatNoAudio or tags.voiceChatMuteMic then
       hooksecurefunc(button, "SetIconToState", function(self, state)
         button:SetNormalTexture("Interface/AddOns/Chattynator/Assets/ChatButton.png")
@@ -103,15 +99,13 @@ local skinners = {
         button:GetPushedTexture():SetDrawLayer("BACKGROUND")
         button.Icon:ClearAllPoints()
         button.Icon:SetPoint("CENTER")
-        button.Icon:SetAlpha(buttonsAlpha)
-      end)
+        end)
     elseif tags.menu then
       button.Icon = button:CreateTexture(nil, "ARTWORK")
       button.Icon:SetTexture("Interface/AddOns/Chattynator/Assets/ChatMenu.png")
       button.Icon:SetVertexColor(intensity, intensity, intensity)
       button.Icon:SetPoint("CENTER")
       button.Icon:SetSize(15, 15)
-      button.Icon:SetAlpha(buttonsAlpha)
     else
       button.Icon = button:CreateTexture(nil, "OVERLAY")
       if tags.search then
@@ -125,8 +119,7 @@ local skinners = {
       end
       button.Icon:SetPoint("CENTER")
       button.Icon:SetSize(15, 15)
-      button.Icon:SetAlpha(buttonsAlpha)
-      button.Icon:SetVertexColor(intensity, intensity, intensity)
+      button.Icon:SetVertexColor(intensity, intensity, intensity, buttonsAlpha)
     end
   end,
   ChatFrame = function(frame, tags)

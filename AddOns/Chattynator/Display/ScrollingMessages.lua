@@ -221,15 +221,24 @@ function addonTable.Display.ScrollingMessagesMixin:Render(newMessages)
       self.pool:Release(fs)
     end
     local showBar = addonTable.Config.Get(addonTable.Config.Options.SHOW_TIMESTAMP_SEPARATOR)
+    local messageAlignment = addonTable.Config.Get(addonTable.Config.Options.MESSAGE_ALIGNMENT)
+    local timestampOnRight = addonTable.Config.Get(addonTable.Config.Options.TIMESTAMP_ON_RIGHT)
+    local timestampSide = timestampOnRight and {"RIGHT", "LEFT", 3} or {"LEFT", "RIGHT", -4}
+    local insetRight = 0
+    local insetLeft = addonTable.Messages.inset
+    if timestampOnRight then
+      insetRight = -insetLeft - 2
+      insetLeft = -5
+    end
     for i = start + math.min(#messages, lines) - 1, start, -1 do
       local m = messages[i]
       if m then
         local fs = self.pool:Acquire()
         fs:SetFontObject(addonTable.Messages.font)
         fs:SetTextColor(1, 1, 1)
-        fs:SetJustifyH("LEFT")
-        fs:SetPoint("LEFT", self, addonTable.Messages.inset + 3, 0)
-        fs:SetPoint("RIGHT", self, -1, 0)
+        fs:SetJustifyH(messageAlignment)
+        fs:SetPoint("LEFT", self, insetLeft + 3, 0)
+        fs:SetPoint("RIGHT", self, insetRight - 1, 0)
         fs:SetPoint("BOTTOM", self, 0, 2)
         fs:SetText("")
         fs:SetText(m.text)
@@ -250,8 +259,8 @@ function addonTable.Display.ScrollingMessagesMixin:Render(newMessages)
         local timestamp = self.pool:Acquire()
         timestamp:SetFontObject(addonTable.Messages.font)
         timestamp:SetTextColor(0.6, 0.6, 0.6)
-        timestamp:SetJustifyH("LEFT")
-        timestamp:SetPoint("LEFT")
+        timestamp:SetJustifyH(timestampSide[1])
+        timestamp:SetPoint(timestampSide[1])
         timestamp:SetPoint("TOP", fs)
         timestamp:SetTextScale(addonTable.Messages.scalingFactor)
         timestamp:Show()
@@ -263,7 +272,7 @@ function addonTable.Display.ScrollingMessagesMixin:Render(newMessages)
           local bar = self.barPool:Acquire()
           bar:Show()
           bar:SetTexture("Interface/AddOns/Chattynator/Assets/Fade.png")
-          bar:SetPoint("RIGHT", fs, "LEFT", -4, 0)
+          bar:SetPoint(timestampSide[2], fs, timestampSide[1], timestampSide[3], 0)
           bar:SetPoint("TOP", fs)
           bar:SetPoint("BOTTOM", fs, 0, 1)
           bar:SetWidth(2)

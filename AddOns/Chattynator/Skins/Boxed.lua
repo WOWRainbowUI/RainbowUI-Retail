@@ -23,6 +23,7 @@ local chatButtons = {}
 
 local skinners = {
   ChatButton = function(button, tags)
+    local buttonsAlpha = 1 - addonTable.Config.Get("skins.boxed.buttons_transparency")
     table.insert(chatButtons, button)
     button:SetSize(26, 28)
     button:ClearNormalTexture()
@@ -46,12 +47,12 @@ local skinners = {
     if tags.toasts then
       button.Icon = button.FriendsButton or button:CreateTexture(nil, "ARTWORK")
       button.Icon:SetTexture("Interface/AddOns/Chattynator/Assets/ChatSocial.png")
-      button.Icon:SetVertexColor(intensity, intensity, intensity)
+      button.Icon:SetVertexColor(intensity, intensity, intensity, buttonsAlpha)
       button.Icon:SetDrawLayer("ARTWORK")
       button.Icon:SetSize(12, 12)
       button.Icon:ClearAllPoints()
       button.Icon:SetPoint("TOP", 0, -2);
-      (button.FriendCount or FriendsMicroButtonCount):SetTextColor(intensity, intensity, intensity)
+      (button.FriendCount or FriendsMicroButtonCount):SetTextColor(intensity, intensity, intensity, buttonsAlpha)
       button:HookScript("OnEnter", function()
         (button.FriendCount or FriendsMicroButtonCount):SetTextColor(hoverColor.r, hoverColor.g, hoverColor.b)
       end)
@@ -68,7 +69,7 @@ local skinners = {
           button.Icon:SetVertexColor(voiceActiveColor.r, voiceActiveColor.g, voiceActiveColor.b)
         else
           button.Icon:SetTexture("Interface/Addons/Chattynator/Assets/ChatChannels.png")
-          button.Icon:SetVertexColor(intensity, intensity, intensity)
+          button.Icon:SetVertexColor(intensity, intensity, intensity, buttonsAlpha)
         end
         if button:IsMouseOver() then
           button:GetScript("OnEnter")(button)
@@ -89,7 +90,7 @@ local skinners = {
     elseif tags.menu then
       button.Icon = button:CreateTexture(nil, "ARTWORK")
       button.Icon:SetTexture("Interface/AddOns/Chattynator/Assets/ChatMenu.png")
-      button.Icon:SetVertexColor(intensity, intensity, intensity)
+      button.Icon:SetVertexColor(intensity, intensity, intensity, buttonsAlpha)
       button.Icon:SetPoint("CENTER")
       button.Icon:SetSize(15, 15)
     else
@@ -105,7 +106,7 @@ local skinners = {
       end
       button.Icon:SetPoint("CENTER")
       button.Icon:SetSize(15, 15)
-      button.Icon:SetVertexColor(intensity, intensity, intensity)
+      button.Icon:SetVertexColor(intensity, intensity, intensity, buttonsAlpha)
     end
   end,
   ChatFrame = function(frame, tags)
@@ -298,6 +299,14 @@ local function LoadSkin()
       for _, frame in ipairs(editBoxes) do
         frame.background:SetColorTexture(color.r, color.g, color.b, alpha)
       end
+    elseif settingName == "skins.boxed.buttons_transparency" then
+      local alpha = 1 - addonTable.Config.Get(settingName)
+      for _, button in ipairs(chatButtons) do
+        if (button.FriendCount or FriendsMicroButtonCount) then
+          (button.FriendCount or FriendsMicroButtonCount):SetTextColor(intensity, intensity, intensity, alpha)
+        end
+        button.Icon:SetVertexColor(intensity, intensity, intensity, alpha)
+      end
     end
   end)
 end
@@ -340,5 +349,18 @@ addonTable.Skins.RegisterSkin(addonTable.Locales.BOXED, "boxed", LoadSkin, SkinF
     text = addonTable.Locales.EDIT_BOX_BG_COLOR,
     default = {r = 0.1, g = 0.1, b = 0.1},
     option = "edit_box_bg_color"
+  },
+  { type = "spacer" },
+  {
+    type = "slider",
+    min = 0,
+    max = 100,
+    lowText = "0%",
+    highText = "100%",
+    scale = 100,
+    text = addonTable.Locales.BUTTONS_TRANSPARENCY,
+    valuePattern = "%s%%",
+    option = "buttons_transparency",
+    default = 0,
   },
 })

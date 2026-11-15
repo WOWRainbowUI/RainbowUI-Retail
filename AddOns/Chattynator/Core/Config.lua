@@ -98,9 +98,11 @@ local settings = {
 
   LINE_SPACING = {key = "line_spacing_2", default = 0},
   MESSAGE_SPACING = {key = "message_spacing", default = 5},
+  MESSAGE_ALIGNMENT = {key = "message_alignment", default = "left"},
   TIMESTAMP_FORMAT = {key = "timestamp_format", default = "%X"},
   SHOW_TIMESTAMP_SEPARATOR = {key = "show_timestamp_separator", default = true, refresh = {addonTable.Constants.RefreshReason.MessageWidget}},
   TIMESTAMP_SPACING = {key = "timestamp_spacing", default = 1},
+  TIMESTAMP_ON_RIGHT = {key = "timestamp_on_right", default = false, refresh = {addonTable.Constants.RefreshReason.MessageWidget}},
 
   MESSAGE_FONT = {key = "message_font", default = "default", refresh = {addonTable.Constants.RefreshReason.MessageFont}},
   MESSAGE_FONT_SIZE = {key = "message_font_size", default = 14, refresh = {addonTable.Constants.RefreshReason.MessageFont}},

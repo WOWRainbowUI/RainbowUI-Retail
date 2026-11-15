@@ -1,10 +1,10 @@
 # Chattynator
 
-## [234](https://github.com/TheMouseNest/Chattynator/tree/234) (2026-11-11)
-[Full Changelog](https://github.com/TheMouseNest/Chattynator/compare/233...234) 
+## [235](https://github.com/TheMouseNest/Chattynator/tree/235) (2026-11-14)
+[Full Changelog](https://github.com/TheMouseNest/Chattynator/compare/234...235) 
 
-- Cleanup  
-- Blizzard skin: Fix border for chat frame going missing on other chat frames  
-- Fix chat command history  
-- Remove pressing enter restored chat history visibility  
-- Boxed theme: Remove color from "new tab" button  
+- Fix this \_again\_  
+- Fix edit box history breaking with an error  
+- Fix buttons not moving correctly when never show tabs is selected (#238)  
+- (Lilia) Button alignment to right and text align right/center, info section update  
+    Plus themes all get button transparency options  
