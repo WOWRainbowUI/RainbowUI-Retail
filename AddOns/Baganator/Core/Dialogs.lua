@@ -10,8 +10,8 @@ local function GenerateDialog()
   dialog:EnableMouse(true)
   dialog:SetFrameStrata("DIALOG")
 
+  dialog.layoutType = "Dialog"
   dialog.NineSlice = CreateFrame("Frame", nil, dialog, "NineSlicePanelTemplate")
-  NineSliceUtil.ApplyLayoutByName(dialog.NineSlice, "Dialog", dialog.NineSlice:GetFrameLayoutTextureKit())
 
   local bg = dialog:CreateTexture(nil, "BACKGROUND", nil, -1)
   bg:SetColorTexture(0, 0, 0, 0.8)
@@ -29,12 +29,30 @@ local function GenerateDialog()
   addonTable.Skins.AddFrame("Dialog", dialog)
 
   dialog:SetScript("OnShow", function()
-    addonTable.Gamepad.AnnounceShow(dialog, true)
+    addonTable.Gamepad.AnnounceShow(dialog)
   end)
 
   dialog:SetScript("OnHide", function()
-    addonTable.Gamepad.AnnounceHide(dialog, true)
+    addonTable.Gamepad.AnnounceHide(dialog)
   end)
+
+  function dialog:StartFocus()
+    dialog.FrameGlow:Show()
+  end
+
+  function dialog:EndFocus()
+    dialog.FrameGlow:Hide()
+  end
+
+  if addonTable.Constants.IsGamepadInUse then
+    dialog.FrameGlow = CreateFrame("Frame", nil, dialog, "FrameGlowTemplate")
+    dialog.FrameGlow:Hide()
+
+    function dialog:SmartNavigationCloseHandler()
+      dialog:Hide()
+      return true
+    end
+  end
 
   return dialog
 end

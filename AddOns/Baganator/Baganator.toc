@@ -2,7 +2,7 @@
 ## Interface: 120100, 120105, 16001, 50504, 38001, 20506, 11509
 ## ExcludeLoadGameType: wowhack
 ## Title: Baganator
-## Version: 854
+## Version: 857
 ## Author: plusmouse
 ## OptionalDeps: Syndicator, Masque
 ## SavedVariables: BAGANATOR_CONFIG, BAGANATOR_DATA
@@ -104,9 +104,12 @@ ItemViewCommon\BagTransfers.lua
 ItemViewCommon\NewItemsTracking.lua
 ItemViewCommon\AnchorSetter.lua
 ItemViewCommon\ShowBlizzardBagPreferences.lua
+ItemViewCommon\LinkGamepadGrid.lua
+ItemViewCommon\GamepadMenu.lua
 ItemViewCommon\Initialize.lua
 
 SingleViews\Pools.lua
+SingleViews\ComputeGamepadGrid.lua
 SingleViews\BankViewCharacterView.lua
 SingleViews\BankViewCharacterView.xml
 SingleViews\BankViewCharacterTabsView.lua
@@ -132,6 +135,7 @@ CategoryViews\CategoryGrouping.lua
 CategoryViews\CategorySort.lua
 CategoryViews\ItemsPreparation.lua
 CategoryViews\SpecialisedSplitting.lua
+CategoryViews\ComputeGamepadGrid.lua
 CategoryViews\Components.lua
 CategoryViews\Components.xml
 CategoryViews\BankViewCharacterView.lua

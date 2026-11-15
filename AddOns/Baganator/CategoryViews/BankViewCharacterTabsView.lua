@@ -126,7 +126,7 @@ function BaganatorCategoryViewBankViewCharacterTabsViewMixin:ShowTab(character, 
     bagWidth = bagWidth * 2
     bagIndexes = Syndicator.Constants.AllBankIndexes
   end
-  self.LayoutManager:Layout(bagData, bagWidth, bagTypes, bagIndexes, sideSpacing, topSpacing, function(maxWidth, maxHeight)
+  self.LayoutManager:Layout(bagData, bagWidth, bagTypes, bagIndexes, sideSpacing, topSpacing, function(maxWidth, maxHeight, firstVisible, lastVisible)
     self.Container:SetSize(
       math.max(addonTable.CategoryViews.Utilities.GetMinWidth(bagWidth), self:GetButtonsWidth(sideSpacing), maxWidth),
       maxHeight
@@ -145,7 +145,7 @@ function BaganatorCategoryViewBankViewCharacterTabsViewMixin:ShowTab(character, 
 
     addonTable.CallbackRegistry:TriggerEvent("ViewComplete")
 
-    self:GetParent():OnTabFinished()
+    self:GetParent():OnTabFinished(firstVisible, lastVisible)
   end)
 end
 

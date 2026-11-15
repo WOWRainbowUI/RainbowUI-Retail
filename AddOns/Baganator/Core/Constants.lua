@@ -52,8 +52,7 @@ addonTable.Constants.Events = {
   "CurrencyPanelToggle",
   "CurrencyPanelHide",
   "RefreshStateChange",
-
-  "CloseAll",
+  "BagHidden",
 
   "ViewComplete",
   "BagCacheAfterNewItemsUpdate",
@@ -68,6 +67,8 @@ addonTable.Constants.Events = {
   "CategoryItemDropped",
   "CategoryAddItemStart",
   "CategoryAddItemEnd",
+
+  "GamepadItemButtonFocus",
 
   "ForceClearedNewItems",
 

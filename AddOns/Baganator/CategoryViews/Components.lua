@@ -1,5 +1,31 @@
 ---@class addonTableBaganator
 local addonTable = select(2, ...)
+
+local callback
+local clicker = CreateFrame("Button", "BaganatorCategoryHeaderClick", UIParent)
+clicker:RegisterEvent("PLAYER_REGEN_DISABLED")
+clicker:SetScript("OnEvent", function()
+  callback = nil
+  ClearOverrideBindings(clicker)
+end)
+clicker:SetScript("OnClick", function()
+  callback()
+end)
+local function AssignY(c)
+  callback = c
+  if callback then
+    SetOverrideBindingClick(clicker, true, "PAD3", clicker:GetName())
+  else
+    ClearOverrideBindings(clicker)
+  end
+end
+
+local focussedCategory
+
+function addonTable.CategoryViews.GetFocussedCategoryIndex()
+  return focussedCategory
+end
+
 BaganatorCategoryViewsCategoryButtonMixin = {}
 
 function BaganatorCategoryViewsCategoryButtonMixin:OnLoad()
@@ -47,6 +73,28 @@ end
 function BaganatorCategoryViewsCategoryButtonMixin:OnLeave()
   GameTooltip:Hide()
   SetCursor(nil);
+end
+function BaganatorCategoryViewsCategoryButtonMixin:OnSmartNavSelect()
+  focussedCategory = self.index
+  local sourceKey = self.sourceKey
+  AssignY(function()
+    local _, transferActive = CallMethodOnNearestAncestor(self, "IsTransferActive")
+    if transferActive then
+      addonTable.Dialogs.ShowConfirm(addonTable.Locales.CONFIRM_TRANSFER_ITEMS, YES, NO, function()
+        CallMethodOnNearestAncestor(self, "TransferCategory", sourceKey)
+      end)
+    end
+  end)
+end
+function BaganatorCategoryViewsCategoryButtonMixin:OnSmartNavDeselect()
+  focussedCategory = nil
+  AssignY(nil)
+end
+
+local focussedSection = nil
+
+function addonTable.CategoryViews.GetFocussedSectionIndex()
+  return focussedSection
 end
 
 function addonTable.CategoryViews.GetSectionButtonPool(parent)
@@ -137,6 +185,23 @@ function addonTable.CategoryViews.GetSectionButtonPool(parent)
       addonTable.CallbackRegistry:UnregisterCallback("SearchMonitorComplete", self)
       self.fadeAnimation:Stop()
     end)
+    function button:OnSmartNavSelect()
+      focussedSection = button.index
+      AssignY(function()
+        local _, transferActive = CallMethodOnNearestAncestor(self, "IsTransferActive")
+        if transferActive then
+          addonTable.Dialogs.ShowConfirm(addonTable.Locales.CONFIRM_TRANSFER_ITEMS, YES, NO, function()
+            local tree = CopyTable(self.section)
+            table.insert(tree, self.source)
+            print(CallMethodOnNearestAncestor(self, "TransferSection", tree))
+          end)
+        end
+      end)
+    end
+    function button:OnSmartNavDeselect()
+      focussedSection = nil
+      AssignY(nil)
+    end
     function button:CheckResults(text)
       self.fadeAnimation:Stop()
       self.lastText = text

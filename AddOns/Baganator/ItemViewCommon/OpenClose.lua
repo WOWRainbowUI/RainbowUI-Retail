@@ -72,6 +72,10 @@ function BaganatorOpenCloseMixin:OnLoad()
     local details = frames["CharacterFrame"]
     self:ApplyState(details, false)
   end)
+
+  addonTable.CallbackRegistry:RegisterCallback("BagHidden", function()
+    self.autoOpened = false
+  end)
 end
 
 function BaganatorOpenCloseMixin:IsBagShown()
@@ -86,11 +90,11 @@ function BaganatorOpenCloseMixin:ApplyState(details, state)
     return
   end
   if state then
-    addonTable.CallbackRegistry:TriggerEvent("BagShow")
     self.autoOpened = true
+    addonTable.CallbackRegistry:TriggerEvent("BagShow")
   else
-    addonTable.CallbackRegistry:TriggerEvent("BagHide")
     self.autoOpened = false
+    addonTable.CallbackRegistry:TriggerEvent("BagHide")
   end
 end
 
@@ -108,9 +112,14 @@ function BaganatorOpenCloseMixin:OnEvent(eventName, ...)
   end
 end
 
+local frame
+
+function addonTable.ItemViewCommon.WasAutoOpened()
+  return frame and frame.autoOpened
+end
 
 function addonTable.InitializeOpenClose()
-  local frame = CreateFrame("Frame")
+  frame = CreateFrame("Frame")
   Mixin(frame, BaganatorOpenCloseMixin)
   frame:SetScript("OnEvent", frame.OnEvent)
   frame:OnLoad()

@@ -119,7 +119,7 @@ function BaganatorCategoryViewBankViewCharacterTabsAsBagsViewMixin:ShowTab(chara
     table.insert(bagTypes, 0)
   end
   bagIndexes = Syndicator.Constants.AllBankIndexes
-  self.LayoutManager:Layout(bagData, bagWidth, bagTypes, bagIndexes, sideSpacing, topSpacing, function(maxWidth, maxHeight)
+  self.LayoutManager:Layout(bagData, bagWidth, bagTypes, bagIndexes, sideSpacing, topSpacing, function(maxWidth, maxHeight, firstVisible, lastVisible)
     self.Container:SetSize(
       math.max(addonTable.CategoryViews.Utilities.GetMinWidth(bagWidth), self:GetButtonsWidth(sideSpacing), maxWidth),
       maxHeight
@@ -136,9 +136,11 @@ function BaganatorCategoryViewBankViewCharacterTabsAsBagsViewMixin:ShowTab(chara
 
     self.refreshState = {}
 
+    self.CurrencyWidget:AddGamepadUp(lastVisible)
+
     addonTable.CallbackRegistry:TriggerEvent("ViewComplete")
 
-    self:GetParent():OnTabFinished()
+    self:GetParent():OnTabFinished(firstVisible, lastVisible)
   end)
 end
 

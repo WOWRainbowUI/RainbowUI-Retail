@@ -90,6 +90,8 @@ function BaganatorItemViewCommonBankViewCharacterTabsAsBagsViewMixin:OnLoad()
 
   self.ToggleAllCharacters:SetPoint("TOPLEFT", self, addonTable.Constants.ButtonFrameOffset, -1 + addonTable.Constants.ButtonFrameOffsetTop)
 
+  addonTable.Gamepad.LinkButtons(self.ToggleBagSlotsButton, "Right", self:GetParent().CustomiseButton)
+
   addonTable.Skins.AddFrame("Button", self.DepositReagentsButton)
 end
 
@@ -278,6 +280,9 @@ function BaganatorItemViewCommonBankViewCharacterTabsAsBagsViewMixin:ShowTab(cha
 
   self.BagSlots:SetPoint("BOTTOMLEFT", self, "TOPLEFT", addonTable.Constants.ButtonFrameOffset, 0)
   self.BagSlots:Update(character, isLive)
+
+  addonTable.Gamepad.LinkButtons(self.ToggleAllCharacters, "Down", self:GetParent().SearchWidget.SearchBox)
+  addonTable.Gamepad.LinkButtons(self.ToggleBagSlotsButton, "Down", self:GetParent().SearchWidget.SearchBox)
 
   if self.BankMissingHint:IsShown() then
     for _, layout in ipairs(self.Container.Layouts) do
