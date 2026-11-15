@@ -1,6 +1,8 @@
-local M, I, COMPAT, _, T = {}, {}, select(4, GetBuildInfo()), ...
-local EV, XU, noop = T.Evie, T.exUI, function() end
+local COMPAT, _, T = select(4, GetBuildInfo()), ...
+local EV, XU, L = T.Evie, T.exUI, T.L
+assert(EV and XU and L and 1, "Incompatible library bundle")
 local MODERN, CI_4E, SECRETS = COMPAT > 10e4, COMPAT > 160e2 and COMPAT < 2e4, COMPAT > 12e4 or COMPAT > 160e2 and COMPAT < 2e4
+local M, I, noop = {}, {}, function() end
 T.TenSettings = M
 
 do -- M.EscapeCallback
@@ -66,7 +68,7 @@ do -- TenSettingsFrame
 	local TenSettingsFrame, notifyTenant = CreateFrame("Frame", "TenSettingsFrame", UIParent, "SettingsFrameTemplate") do
 		TenSettingsFrame:SetSize(WINDOW_WIDTH, WINDOW_HEIGHT)
 		TenSettingsFrame:SetPoint("CENTER", 0, 50)
-		TenSettingsFrame.NineSlice.Text:SetText(OPTIONS)
+		TenSettingsFrame.NineSlice.Text:SetText(L("Options", OPTIONS))
 		TenSettingsFrame:SetFrameStrata("HIGH")
 		TenSettingsFrame:SetToplevel(true)
 		TenSettingsFrame:Hide()
@@ -86,22 +88,22 @@ do -- TenSettingsFrame
 		local cancel = CreateFrame("Button", nil, TenSettingsFrame.WindowArea, "UIPanelButtonTemplate")
 		cancel:SetSize(110, 24)
 		cancel:SetPoint("BOTTOMRIGHT", IW_PADDING_RIGHT-WINDOW_PADDING_H, WINDOW_PADDING_BOTTOM-IW_PADDING_BOTTOM)
-		cancel:SetText(CANCEL)
+		cancel:SetText(L("Cancel", CANCEL))
 		TenSettingsFrame.Cancel = cancel
 		local save = CreateFrame("Button", nil, TenSettingsFrame.WindowArea, "UIPanelButtonTemplate")
 		save:SetSize(110, 24)
 		save:SetPoint("RIGHT", cancel, "LEFT", -4, 0)
-		save:SetText(OKAY)
+		save:SetText(L("Okay", OKAY))
 		TenSettingsFrame.Save = save
 		local defaults = CreateFrame("Button", nil, TenSettingsFrame.WindowArea, "UIPanelButtonTemplate")
 		defaults:SetSize(110, 24)
 		defaults:SetPoint("BOTTOMLEFT", WINDOW_PADDING_H - IW_PADDING_LEFT + 1, WINDOW_PADDING_BOTTOM-IW_PADDING_BOTTOM)
-		defaults:SetText(DEFAULTS)
+		defaults:SetText(L("Defaults", DEFAULTS))
 		TenSettingsFrame.Reset = defaults
 		local revert = CreateFrame("Button", nil, TenSettingsFrame.WindowArea, "UIPanelButtonTemplate") do
 			revert:SetSize(110, 24)
 			revert:SetPoint("LEFT", defaults, "RIGHT", 4, 0)
-			revert:SetText(REVERT)
+			revert:SetText(L"Revert...")
 			local drop = XU:Create("DropDown", nil, revert)
 			drop:SetAllPoints()
 			drop:Hide()
@@ -126,7 +128,7 @@ do -- TenSettingsFrame
 				return (date("%I:%M:%S %p", time()-td):gsub("^0(%d)", "%1"))
 			end
 			function drop:initialize()
-				local info, text = {func=performRevert, notCheckable=1, justifyH="CENTER"}, revert.optionText or "%2$s"
+				local info, text = {func=performRevert, notCheckable=1, justifyH="CENTER"}, L"%d |4minute:minutes; ago (%s)"
 				local now, numEntries, numArchives, firstTime = GetServerTime(), I.undo:GetState()
 				for i=1, numArchives + (numEntries > 0 and 1 or 0) do
 					local isCancel = i > numArchives
@@ -160,7 +162,7 @@ do -- TenSettingsFrame
 			end)
 		end
 	end
-	local ConfusableResetDialog, crd_show, CRD_QUESTION_TEXT = CreateFrame("Frame", nil) do
+	local ConfusableResetDialog, crd_show = CreateFrame("Frame", nil) do
 		local d, t, tenant = ConfusableResetDialog
 		d:Hide()
 		d:SetSize(460, 105)
@@ -175,22 +177,23 @@ do -- TenSettingsFrame
 		t:SetPoint("TOP", -15, -8)
 		t:SetWidth(410)
 		t, d.Question = d:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall"), t
+		t:SetText(L"You can cancel or revert to previous settings later.")
 		t:SetPoint("BOTTOM", -15, 38)
 		t:SetWidth(410)
 		t, d.Hint = CreateFrame("Button", nil, d, "UIPanelButtonTemplate", 2), t
 		t:SetSize(150, 24)
 		t:SetPoint("BOTTOM", -150, 6)
-		t:SetText(ALL_SETTINGS)
+		t:SetText(L("All Settings", ALL_SETTINGS))
 		t:SetScript("OnClick", onResetButtonClick)
 		t, d.AllSet = CreateFrame("Button", nil, d, "UIPanelButtonTemplate", 0), t
 		t:SetSize(130, 24)
 		t:SetPoint("BOTTOM", 0, 6)
-		t:SetText(CANCEL)
+		t:SetText(L("Cancel", CANCEL))
 		t:SetScript("OnClick", onResetButtonClick)
 		t, d.Cancel = CreateFrame("Button", nil, d, "UIPanelButtonTemplate", 1), t
 		t:SetSize(150, 24)
 		t:SetPoint("BOTTOM", 150, 6)
-		t:SetText(CURRENT_SETTINGS)
+		t:SetText(L("These Settings", CURRENT_SETTINGS))
 		t:SetScript("OnClick", onResetButtonClick)
 		d.OnlyThese = t
 		d:SetScript("OnHide", function(self)
@@ -198,7 +201,7 @@ do -- TenSettingsFrame
 			tenant = nil
 		end)
 		function crd_show(forTenant, thisName, rootName)
-			local qt, cc = CRD_QUESTION_TEXT or CONFIRM_RESET_INTERFACE_SETTINGS, NORMAL_FONT_COLOR_CODE
+			local qt, cc = L"Do you want to reset all %s settings to their defaults, or only the settings in the %s category?", NORMAL_FONT_COLOR_CODE
 			ConfusableResetDialog.Question:SetFormattedText(qt, cc .. tostring(rootName) .. "|r", cc .. tostring(thisName) .. "|r")
 			tenant = forTenant
 			M:ShowFrameOverlay(TenSettingsFrame.WindowArea, ConfusableResetDialog)
@@ -269,7 +272,6 @@ do -- TenSettingsFrame
 		return b
 	end
 	
-	local CANVAS_ESCAPE_HINT
 	local containers = {}
 	local container_notifications, container_notifications_internal = {}, {} do
 		local function container_notifyPanels(self, notification, ...)
@@ -294,7 +296,7 @@ do -- TenSettingsFrame
 	end
 	local function container_syncEscapeText(ci)
 		local pc = panelinfo_get(ci.currentPanel, "canvasEscapeCommand")
-		local ht = pc and pc ~= "" and CANVAS_ESCAPE_HINT
+		local ht = pc and pc ~= "" and L"Type %s in chat to open this panel outside the game's Options UI."
 		ci.canvasEscapeHint:SetText(ht and ht:format("|cffa0ff00" .. pc .. "|r") or "")
 	end
 	local function container_setTenant(ci, newPanel)
@@ -597,15 +599,6 @@ do -- TenSettingsFrame
 		local nEntries, nArchives = I.undo:GetState()
 		TenSettingsFrame.Revert:SetEnabled(nEntries > 0 or nArchives > 0)
 	end
-	function M:Localize(t)
-		CANVAS_ESCAPE_HINT = t.CANVAS_ESCAPE_HINT
-		CRD_QUESTION_TEXT = t.RESET_QUESTION
-		ConfusableResetDialog.AllSet:SetText(t.DEFAULTS_ALL or ALL_SETTINGS)
-		ConfusableResetDialog.OnlyThese:SetText(t.DEFAULTS_VISIBLE or CURRENT_SETTINGS)
-		TenSettingsFrame.Revert:SetText(t.REVERT or REVERT)
-		TenSettingsFrame.Revert.optionText = t.REVERT_OPTION_LABEL
-		ConfusableResetDialog.Hint:SetText(t.REVERT_CANCEL_HINT or "")
-	end
 	function M:SetCanvasEscapeCommand(panel, cmd)
 		local ci = containers[panel]
 		if ci then
@@ -856,7 +849,7 @@ do -- M:Show{Prompt,Alert,Copy}Overlay(...)
 		promptInfo.editBox:SetScript("OnEscapePressed", function() promptInfo.cancel:Click() end)
 	end
 	local function updatePromptFrameHeight()
-		promptFrame:SetHeight(55 + math.max(20, promptInfo.prompt:GetStringHeight()) + ( promptInfo.editBox:IsShown() and 30 or 0) + (promptInfo.detail:GetText() ~= "" and 20 or 0))
+		promptFrame:SetHeight(55 + math.max(20, promptInfo.prompt:GetStringHeight()) + ( promptInfo.editBox:IsShown() and 30 or 0) + (promptInfo.detail:GetText() ~= "" and math.max(promptInfo.detail:GetStringHeight() or 0, 20) or 0))
 		I:UpdateFrameOverlaySize(promptFrame)
 	end
 	function M:ShowPromptOverlay(frame, title, prompt, explainText, acceptText, callback, editBoxWidth, cancelText, editText)
@@ -877,14 +870,14 @@ do -- M:Show{Prompt,Alert,Copy}Overlay(...)
 		promptInfo.cancel:ClearAllPoints()
 		promptInfo.accept:ClearAllPoints()
 		if acceptText ~= false then
-			promptInfo.accept:SetText(acceptText or ACCEPT)
-			promptInfo.cancel:SetText(cancelText or CANCEL)
+			promptInfo.accept:SetText(acceptText or L("Accept", ACCEPT))
+			promptInfo.cancel:SetText(cancelText or L("Cancel", CANCEL))
 			promptInfo.cancel:SetPoint("BOTTOMLEFT", promptFrame, "BOTTOM", 5, 2)
 			promptInfo.accept:SetPoint("BOTTOMRIGHT", promptFrame, "BOTTOM", -5, 2)
 			promptInfo.accept:Show()
 		else
 			promptInfo.accept:Hide()
-			promptInfo.cancel:SetText(cancelText or OKAY)
+			promptInfo.cancel:SetText(cancelText or L("Okay", OKAY))
 			promptInfo.cancel:SetPoint("BOTTOM", 5, 2)
 		end
 		promptInfo.cancel:SetWidth(math.max(125, 25+promptInfo.cancel:GetFontString():GetStringWidth()))

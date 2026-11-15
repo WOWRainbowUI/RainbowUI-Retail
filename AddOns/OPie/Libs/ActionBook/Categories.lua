@@ -24,11 +24,21 @@ local function isItemInteresting(tf, testIdx, bag, slot, iid)
 end
 
 do -- spellbook
+	local isNotMaxSpellRank if not MODERN then
+		function isNotMaxSpellRank(sid)
+			local sn, sr = GetSpellInfo(sid), GetSpellSubtext(sid)
+			return sn and GetSpellSubtext(sn) ~= sr
+		end
+	end
 	local function procSpellBookEntry(add, at, knownFilter, sourceKnown, _ok, st, sid)
 		if (st == "SPELL" or st == "FUTURESPELL") and not IsPassiveSpell(sid) and not mark[sid] then
 			if (not knownFilter) == (st == "FUTURESPELL" or not sourceKnown) then
 				mark[sid] = 1
-				add(at, sid)
+				if at == "spell" and isNotMaxSpellRank and isNotMaxSpellRank(sid) then
+					add(at, sid, 16)
+				else
+					add(at, sid)
+				end
 			end
 		elseif st == "FLYOUT" then
 			for j=1,select(3,GetFlyoutInfo(sid)) do
@@ -224,7 +234,7 @@ if MODERN or CF_WRATH then -- Battle pets/Companions
 		running = false
 	end)
 end
-if MODERN or CF_WRATH then -- Mounts
+if MODERN or CF_WRATH or CI_4E then -- Mounts
 	AB:AugmentCategory(L"Mounts", function(_, add)
 		if GetSpellInfo(150544) then add("spell", 150544) end
 		local idm, i2, i2n = C_MountJournal.GetMountIDs(), {}, {}
@@ -252,7 +262,7 @@ AB:AugmentCategory(L"Macros", function(_, add)
 		add("macro", n[i])
 	end
 end)
-if COMPAT >= 3e4 then -- equipmentset
+if MODERN or CF_WRATH or CI_4E then -- equipmentset
 	AB:AugmentCategory(L"Equipment sets", function(_, add)
 		for _,id in pairs(C_EquipmentSet.GetEquipmentSetIDs()) do
 			add("equipmentset", (C_EquipmentSet.GetEquipmentSetInfo(id)))
@@ -340,7 +350,7 @@ do -- aliases
 	AB:AddCategoryAlias("Miscellaneous", L"Miscellaneous")
 end
 do
-	local panels = {"character", "reputation", "currency", "spellbook", "talents", "profs", "achievements", "quests", "groupfinder", "collections", "adventureguide", "guild", "map", "vault", "social", "calendar", "macro", "options", "gamemenu"}
+	local panels = {"character", "reputation", "currency", "spellbook", "talents", "legacy", "profs", "achievements", "quests", "groupfinder", "collections", "adventureguide", "guild", "map", "vault", "social", "calendar", "macro", "options", "gamemenu"}
 	AB:AugmentCategory(L"UI panels", function(_, add)
 		for i=1,#panels do
 			i = panels[i]

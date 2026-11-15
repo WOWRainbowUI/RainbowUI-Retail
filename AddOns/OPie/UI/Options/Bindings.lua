@@ -113,8 +113,17 @@ function ringBindings:altClick() -- self is the binding button
 	self:ToggleAlternateEditor(PC:GetRingBinding(ringBindings.map[id], bidx))
 end
 function ringBindings:shiftClick()
-	local name, key, macro = PC:GetRingInfo(ringBindings.map[math.abs(self:GetID())])
-	TS:ShowPromptOverlay(frame, name or key, (L"The following macro command opens this ring:"):format("|cffFFD029" .. (name or key) .. "|r"), false, false, nil, 0.90, nil, macro)
+	local name, key, macro, onOpenAction = PC:GetRingInfo(ringBindings.map[math.abs(self:GetID())])
+	local warn = ""
+	local nfc = string.gsub(NORMAL_FONT_COLOR_CODE, "%%", "%%%%")
+	if PC:GetOption("InteractionMode", key) == 1 then
+		warn = (L"Rings opened by macros use the [Relaxed] interaction mode."):gsub("%[(.-)%]", nfc .. "%1|r")
+	end
+	if onOpenAction then
+		local w2 = (L"Rings opened by macros cannot perform [On-open actions]."):gsub("%[(.-)%]", nfc .. "%1|r")
+		warn = warn ~= "" and (warn .. "\n" .. w2) or w2
+	end
+	TS:ShowCopyOverlay(frame, name or key, (L"The following macro command opens this ring:"):format("|cffFFD029" .. (name or key) .. "|r"), macro, warn, nil, 0.90)
 end
 
 local subBindings = { name=L"In-Ring Bindings",

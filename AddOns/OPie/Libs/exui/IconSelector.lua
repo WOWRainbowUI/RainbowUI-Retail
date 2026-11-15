@@ -1,5 +1,5 @@
 local COMPAT, _, T = select(4, GetBuildInfo()), ...
-local XU, MODERN, type = T.exUI, COMPAT > 10e4, type
+local XU, MODERN, CI_4E, type = T.exUI, COMPAT > 10e4, COMPAT < 2e4 and COMPAT > 160e2, type
 local assert, getWidgetData, newWidgetData, setWidgetData, AddObjectMethods, CallObjectScript = XU:GetImpl()
 
 local HOLD_HOVER_HINT_DURATION, ICON_FILE_NAMES, LookupIconName = 0.2, nil
@@ -13,6 +13,7 @@ local IconSelectorProps = {
 	firstAsset=nil,
 	firstAssetValue=nil,
 	firstAssetIsAtlas=false,
+	firstAssetAspect=1,
 	columns=14,
 	rows=7,
 	cellWidth=36,
@@ -37,7 +38,9 @@ function IconSelector:SetFirstAsset(value, overrideAsset)
 	local d = assert(getWidgetData(self, IconSelectorData), "Invalid object type")
 	local asset = overrideAsset or value
 	assert(asset == nil or type(asset) == "number" or type(asset) == "string", 'Syntax: IconSelector:SetFirstAsset(value[, overrideAsset])')
-	d.firstAssetIsAtlas = type(asset) == "string" and not GetFileIDFromPath(asset) and C_Texture.GetAtlasInfo(asset) and true
+	local atlasInfo = type(asset) == "string" and not GetFileIDFromPath(asset) and C_Texture.GetAtlasInfo(asset)
+	local aw, ah = atlasInfo and atlasInfo.width, atlasInfo and atlasInfo.height
+	d.firstAssetIsAtlas, d.firstAssetAspect = atlasInfo and true, aw and ah and aw/ah or 1
 	d.firstAssetValue, d.firstAsset = value, asset
 	internal.RenderView(d, d.viewIndexOffset)
 end
@@ -176,7 +179,8 @@ function internal.CreateIconButton(parent, pool, id)
 	f:SetScript("OnEnter", internal.OnIconEnter)
 	f:SetScript("OnLeave", internal.OnIconLeave)
 	local tex = f:CreateTexture(nil, "ARTWORK")
-	tex:SetAllPoints()
+	tex:SetSize(sz, sz)
+	tex:SetPoint("CENTER")
 	local bg = f:CreateTexture(nil, "BACKGROUND", nil, -1)
 	bg:SetTexture("Interface/Buttons/UI-EmptySlot-Disabled")
 	bg:SetPoint("CENTER", tex, "CENTER")
@@ -188,7 +192,8 @@ function internal.CreateIconButton(parent, pool, id)
 	if MODERN then
 		local m = f:CreateMaskTexture()
 		m:SetTexture("Interface/FrameGeneral/UIFrameIconMask")
-		m:SetAllPoints(tex)
+		m:SetPoint("CENTER")
+		m:SetSize(sz, sz)
 		tex:AddMaskTexture(m)
 	end
 	f.tex, f.background, f.edge = tex, bg, edge
@@ -210,11 +215,13 @@ function internal.RenderView(d, value, allowSkip)
 		local ico, tex = icons[i].tex, i == 0 and value == 0 and (d.firstAsset or "Interface/Icons/INV_Misc_QuestionMark") or icontex[i+value]
 		icons[i]:SetShown(not not tex)
 		if tex then
+			local sz, aa = math.max(4, ico:GetSize()), i == 0 and d.firstAssetAspect or 1
 			if i == 0 and value == 0 and d.firstAssetIsAtlas then
 				ico:SetAtlas(tex)
 			else
 				ico:SetTexture(tex)
 			end
+			ico:SetSize(aa < 1 and sz*aa or sz, aa > 1 and sz/aa or sz)
 			local check = sel and (tex == sel or ico:GetTexture() == sel)
 			icons[i]:SetChecked(check)
 			selectedButton = check and icons[i] or selectedButton
@@ -369,7 +376,7 @@ local function CreateIconSelector(name, parent, outerTemplate, id)
 	a:SetTextColor(0.85, 0.85, 0.85)
 	d.manualInputHint = a
 	t = CreateFrame("Button", nil, f, "UIPanelCloseButton")
-	if MODERN then
+	if MODERN or CI_4E then
 		t:SetPoint("TOPRIGHT", -6.5, -5.5)
 		t:SetSize(24,24)
 		t:SetHitRectInsets(2, 2, 2, 3)
