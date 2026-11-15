@@ -1,6 +1,8 @@
 local _, T = ...
 
 function T.WhatsNewData(vh, uv, li)
+	vh("v8.10.3")
+	uv("Compatibility improvements for WoW: Forever.")
 	vh("v8.10")
 	uv("<tt>/pingspell</tt> and <tt>/pingitem</tt> now provide feedback when used in OPie macros.")
 	li("Added additional hints throughout OPie's Options UI.")
@@ -21,4 +23,5 @@ function T.WhatsNewData(vh, uv, li)
 	li("The Quest Items ring now includes quest-starting items in Classic Anniversary.")
 	li("<tt>[in:val/naigtal]</tt> is satisfied when you are on Val or Naigtal respectively.")
 	li("<tt>[game:classic]</tt> is satisfied on non-Era/Season of Discovery Classic realms.")
+	return 810030
 end

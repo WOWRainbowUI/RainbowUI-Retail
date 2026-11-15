@@ -1,10 +1,11 @@
 local COMPAT, api, _, T = select(4,GetBuildInfo()), {}, ...
 local PC, RK, ORI, L, config = T.OPieCore, T.RingKeeper, OPie.UI, T.L, T.config
-local MODERN = COMPAT >= 11e4
+local MODERN, CI_4E = COMPAT >= 11e4, COMPAT < 2e4 and COMPAT > 160e2
 local CF_MISTS = not MODERN and COMPAT > 5e4
 local AB, EV, TS, XU = T.ActionBook:compatible(2,23), T.Evie, T.TenSettings, T.exUI
 local GameTooltip = T.NotGameTooltip or GameTooltip
 assert(PC and RK and ORI and AB and EV and TS and XU and L and 1, 'Incompatible library bundle')
+if T.TenEnv then T.TenEnv() end
 
 local FULLNAME, SHORTNAME do
 	function EV.PLAYER_LOGIN()
@@ -45,10 +46,11 @@ local function addIconSlotTextures(tex, sz)
 	edge:SetTexture("Interface/Buttons/UI-Quickslot2")
 	edge:SetSize(1.625*sz, 1.625*sz)
 	edge:SetPoint("CENTER", tex, "CENTER", 0.25, -0.25)
-	if MODERN then
+	if MODERN or CI_4E then
 		local m = p:CreateMaskTexture()
 		m:SetTexture("Interface/FrameGeneral/UIFrameIconMask")
-		m:SetAllPoints(tex)
+		m:SetPoint("CENTER", tex, "CENTER")
+		m:SetSize(sz, sz)
 		tex:AddMaskTexture(m)
 	end
 	return bg, edge
@@ -63,7 +65,8 @@ local function createIconButton(name, parent, id, skipSlotDecorations)
 	f:GetCheckedTexture():SetBlendMode("ADD")
 	f:SetPushedTexture("Interface/Buttons/UI-Quickslot-Depress")
 	f.tex = f:CreateTexture(nil, "ARTWORK")
-	f.tex:SetAllPoints()
+	f.tex:SetPoint("CENTER")
+	f.tex:SetSize(32,32)
 	if skipSlotDecorations ~= true then
 		f.background, f.edge = addIconSlotTextures(f.tex, 32)
 	end
@@ -97,15 +100,31 @@ local function CreateButton(parent, width)
 	btn:SetWidth(width or 150)
 	return btn
 end
+local getAtlasAspect do
+	local c = {}
+	function getAtlasAspect(atlas)
+		local r = c[atlas]
+		if r == nil then
+			local info = C_Texture.GetAtlasInfo(atlas)
+			r = info and info.width/info.height or false
+			c[atlas] = r
+		end
+		return r
+	end
+end
 local function setIcon(self, path, ext)
 	local plainTexturePath, atlasName
-	if type(path) == "string" and GetFileIDFromPath(path) == nil and C_Texture.GetAtlasInfo(path) then
+	local atlasAspect = type(path) == "string" and C_Texture.GetAtlasExists(path) and getAtlasAspect(path)
+	local d = math.max(16, self:GetSize())
+	if atlasAspect then
 		atlasName = path
 		self:SetAtlas(path)
+		self:SetSize(atlasAspect < 1 and d*atlasAspect or d, atlasAspect > 1 and d/atlasAspect or d)
 	else
 		plainTexturePath = path
 		self:SetTexture(path or "Interface/Icons/Inv_Misc_QuestionMark")
 		self:SetTexCoord(0,1,0,1)
+		self:SetSize(d, d)
 	end
 	if ext then
 		if type(ext.iconR) == "number" and type(ext.iconG) == "number" and type(ext.iconB) == "number" then
@@ -440,6 +459,7 @@ ringContainer = CreateFrame("Frame", nil, panel) do
 	ringContainer.newSlice = createIconButton(nil, ringContainer, nil, true) do
 		local b = ringContainer.newSlice
 		b:SetSize(24,24)
+		b.tex:SetSize(24,24)
 		b.tex:SetTexture("Interface/GuildBankFrame/UI-GuildBankFrame-NewTab")
 		b:SetScript("OnClick", function(self)
 			PlaySound(SOUNDKIT.U_CHAT_SCROLL_BUTTON)
@@ -462,7 +482,7 @@ ringContainer = CreateFrame("Frame", nil, panel) do
 			GameTooltip:SetOwner(self, "ANCHOR_NONE")
 			GameTooltip:SetPoint("LEFT", self, "RIGHT", 2, 0)
 			GameTooltip:AddLine(L"Add a new slice", 1, 1, 1)
-			GameTooltip:AddLine(L"Click to view a list of actions to select from, or drag an item, ability, macro, etc., here to add it to the ring.", nc.r, nc.g, nc.b, 1)
+			GameTooltip:AddLine(L"Click to view a list of actions to select from, or drag an item, ability, mount, toy, etc., here to add it to the ring.", nc.r, nc.g, nc.b, 1)
 			GameTooltip:Show()
 		end)
 		b:SetScript("OnLeave", config.ui.HideTooltip)
@@ -784,7 +804,7 @@ sliceDetail = CreateFrame("Frame", nil, ringContainer) do
 		f:SetHighlightTexture("Interface/Buttons/ButtonHilight-Square")
 		f:SetNormalFontObject(GameFontHighlight) f:SetHighlightFontObject(GameFontGreen) f:SetPushedTextOffset(3/4, -3/4)
 		f:SetText(" ") f:GetFontString():ClearAllPoints() f:GetFontString():SetPoint("LEFT", f, "RIGHT", 4, 0)
-		f.icon = f:CreateTexture() f.icon:SetAllPoints()
+		f.icon = f:CreateTexture() f.icon:SetSize(18, 18) f.icon:SetPoint("CENTER")
 		f.label = f:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 		f.label:SetPoint("BOTTOMLEFT", sliceDetail, "TOPLEFT", 10, 6-oy)
 		f.label:SetText(L"Icon:")
@@ -1161,13 +1181,13 @@ newSlice = CreateFrame("Frame", nil, ringContainer) do
 		f:SetScript("OnHide", onDragAbort)
 		f:SetScript("OnLeave", config.ui.HideTooltip)
 		f.ico = f:CreateTexture(nil, "ARTWORK")
-		f.ico:SetSize(32,32) f.ico:SetPoint("LEFT", 1, 0)
+		f.ico:SetSize(32,32) f.ico:SetPoint("CENTER", f, "LEFT", 17, 0)
 		addIconSlotTextures(f.ico, 32)
 		f.name = f:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 		f.name:SetHeight(14)
 		f.name:SetJustifyV("TOP")
 		f.name:SetNonSpaceWrap(true)
-		f.name:SetPoint("TOPLEFT", f.ico, "TOPRIGHT", 3, -2)
+		f.name:SetPoint("TOPLEFT", 36, -4)
 		f.name:SetPoint("RIGHT", -2, 0)
 		f.name:SetJustifyH("LEFT")
 		f.sub = f:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
@@ -1175,7 +1195,10 @@ newSlice = CreateFrame("Frame", nil, ringContainer) do
 		f.sub:SetPoint("RIGHT", -2, 0)
 		f.sub:SetJustifyH("LEFT")
 		f:SetHighlightTexture("Interface/Buttons/ButtonHilight-Square")
-		f:GetHighlightTexture():SetAllPoints(f.ico)
+		local ht = f:GetHighlightTexture()
+		ht:ClearAllPoints()
+		ht:SetPoint("CENTER", f.ico)
+		ht:SetSize(32,32)
 	end
 
 	local function syncActions()
@@ -1351,7 +1374,12 @@ end
 
 local cursorAC = {} do
 	function cursorAC:spell(_, _, sid)
-		return sid and not C_Spell.IsSpellPassive(sid) and "spell" or nil, sid
+		local st, flag = sid and not C_Spell.IsSpellPassive(sid) and "spell" or nil
+		if st and not MODERN then
+			local sn, sr = GetSpellInfo(sid), GetSpellSubtext(sid)
+			flag = (sn and GetSpellSubtext(sn) ~= sr) and 16 or nil
+		end
+		return st, sid, flag
 	end
 	function cursorAC:macro(ix)
 		ix = GetMacroInfo(ix)

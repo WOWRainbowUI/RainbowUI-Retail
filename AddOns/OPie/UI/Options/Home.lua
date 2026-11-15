@@ -43,7 +43,7 @@ local hlink = {} do
 	local function onHyperLinkClick(_, link, text)
 		local url = link == "url" and text:match("|h(.-)|h") or link:match("^url:.-(%w+://.+)")
 		if url then
-			TS:ShowCopyOverlay(frame, BROWSER_COPY_LINK, " ", url, L"Copy the URL shown above and visit it using a web browser.", OKAY, 1)
+			TS:ShowCopyOverlay(frame, L("Copy Link", BROWSER_COPY_LINK), " ", url, L"Copy the URL shown above and visit it using a web browser.", L("Okay", OKAY), 1)
 		end
 	end
 	local function onHyperLinkEnter()
@@ -65,7 +65,7 @@ local hlink = {} do
 	end
 end
 
-local navView = CreateFrame("Frame", nil, frame) do
+local navView, whatsNewButton = CreateFrame("Frame", nil, frame) do
 	navView:SetHeight(100) -- going to overflow; it's fine
 	navView:SetPoint("TOPLEFT", 0, oy - 32)
 	navView:SetPoint("TOPRIGHT", 0, oy - 32)
@@ -98,8 +98,9 @@ local navView = CreateFrame("Frame", nil, frame) do
 		fs:SetPoint("RIGHT", -9, 0)
 		fs:SetMaxLines(1)
 		fs:SetJustifyH("CENTER")
+		return t
 	end
-	makeActButton(1, L"What's New")
+	whatsNewButton = makeActButton(1, L"What's New")
 	makeActButton(2, L"Report an Issue", 180)
 	makeActButton(3, L"Translate OPie")
 
@@ -166,7 +167,7 @@ local navView = CreateFrame("Frame", nil, frame) do
 		hlink:ApplyToFrame(tw)
 	end
 end
-local logView, clipBar = CreateFrame("Frame", nil, frame) do
+local logView, clipBar, WN_VERSION = CreateFrame("Frame", nil, frame) do
 	logView:SetHeight(100) -- going to overflow; it's fine
 	logView:SetPoint("TOPLEFT", 0, oy - 32)
 	logView:SetPoint("TOPRIGHT", 0, oy - 32)
@@ -253,7 +254,18 @@ local logView, clipBar = CreateFrame("Frame", nil, frame) do
 		t:SetText(text)
 		anchorTo, anchorX, anchorY = t, 20, -4
 	end
-	securecall(T.WhatsNewData, vh, uv, li)
+	securecall(function()
+		local v = T.WhatsNewData(vh, uv, li)
+		if type(v) == "number" then
+			local lv, vv = PC:GetGlobalData("news-lv"), PC:GetGlobalData("news-vv")
+			WN_VERSION = v
+			PC:SetGlobalData("news-lv", v)
+			local fv = vv and type(vv) == "number" and vv or lv and type(lv) == "number" and lv or nil
+			if fv and fv < v then
+				whatsNewButton:SetText(L"What's New" .. "|T" .. MARK_TEXTURE .. ":12:12:-1:5:2:2:0:1:0:2:255:240:0|t")
+			end
+		end
+	end)
 end
 
 local navDialogs = {"ShowWhatsNew", "ShowReportIssuePrompt", "ShowTranslatePrompt",
@@ -272,6 +284,11 @@ function H.ShowWhatsNew()
 	navView:Hide()
 	logView:Show()
 	TS:SetCanvasEscapeCommand(frame, "/opie new")
+	if WN_VERSION then
+		PC:SetGlobalData("news-vv", WN_VERSION)
+		WN_VERSION = nil
+		whatsNewButton:SetText(L"What's New")
+	end
 end
 local function packVersionData()
 	local av = (C_AddOns.GetAddOnMetadata(ADDON, "Version") or ""):match("[%d.%-%a+]+")
@@ -289,13 +306,13 @@ function H.ShowReportIssuePrompt()
 		    .. (L"To enable WoW's built-in error display, type %s in chat. This may help diagnose problems."):format("\n|cffa0ff00" .. SLASH_CONSOLE1 .. " scriptErrors 1|r\n")
 		    .. "|r\n\n" .. text
 	end
-	TS:ShowCopyOverlay(frame, L"Report an Issue", text, url, hint, OKAY, 0.85)
+	TS:ShowCopyOverlay(frame, L"Report an Issue", text, url, hint, L("Okay", OKAY), 0.85)
 end
 function H.ShowTranslatePrompt()
 	local text = L"You can help translate OPie by visiting:"
 	local url = "https://www.townlong-yak.com/addons/opie/localization"
 	local hint = L"Copy the URL shown above and visit it using a web browser."
-	TS:ShowCopyOverlay(frame, L"Translate OPie", text, url, hint, OKAY, 0.85)
+	TS:ShowCopyOverlay(frame, L"Translate OPie", text, url, hint, L("Okay", OKAY), 0.85)
 end
 function H.ShowOptionsPanel()
 	T.ShowOPieOptionsPanel()

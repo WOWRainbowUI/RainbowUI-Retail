@@ -321,7 +321,7 @@ securecall(function() -- self(de)buff:name, own(de)buff:name, (de)buff:name, cle
 		buff="HELPFUL", debuff="HARMFUL",
 	}
 	local function checkAura(name, args, target)
-		if MODERN and C_Secrets.ShouldAurasBeSecret() then
+		if SECRETS and C_Secrets.ShouldAurasBeSecret() then
 			return "lockdown"
 		end
 		target = (name == "selfbuff" or name == "selfdebuff") and "player" or target or "target"
@@ -353,6 +353,9 @@ securecall(function() -- self(de)buff:name, own(de)buff:name, (de)buff:name, cle
 	KR:SetNonSecureConditional("buff", checkAura)
 	KR:SetNonSecureConditional("ownbuff", checkAura)
 	KR:SetNonSecureConditional("cleanse", function(_, _, target)
+		if SECRETS and C_Secrets.ShouldAurasBeSecret() then
+			return "lockdown"
+		end
 		target = target or "target"
 		return UnitIsFriend("player", target) and select(2,C_UnitAuras.GetAuraSlots(target, MODERN and "HARMFUL RAID_PLAYER_DISPELLABLE" or "HARMFUL RAID", 1)) ~= nil
 	end)

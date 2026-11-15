@@ -21,7 +21,7 @@ do
 	local profCast = "/cast [in:tww] {{spell:%1$d}}; [in:midnight] {{spell:%2$d}}; {{spell:%2$d/%1$d}}"
 	local profShow = "[in:tww,known:%1$d][in:midnight,known:%2$d]"
 	local firstAid = {id="/cast {{spell:3273}}", _u="f"}
-	R:AddDefaultRing("CommonTrades", {
+	local d = {
 		{id="/cast {{spell:3908/51309}}", _u="t"}, -- tailoring
 		{id="/cast {{spell:2108/51302}}", _u="l"}, -- leatherworking
 		{id="/cast {{spell:2018/51300}}", _u="b"}, -- blacksmithing
@@ -39,13 +39,20 @@ do
 		        or CF_WRATH and firstAid,
 		MODERN and {id="/cast [mod] {{spell:131474}}; {{spell:271990}}; {{spell:131474}}", _u="fj"} -- fish journal
 		        or CF_CATA and firstAid,
-		MODERN and {id=194174, _u ="sj"}, -- skinning journal
-		MODERN and {id=nodeOverload:format(193290, "herb", 390392, 423395, 1223014), _u="hj"}, -- herbalism journal
-		MODERN and {id=profCast:format(439871, 1221172), show=profShow:format(439871, 1221172), _u="ht"}, -- green thumb
-		MODERN and {id=profCast:format(440977, 1223388), show=profShow:format(440977, 1223388), _u="sk"}, -- sharpen your knife
-		MODERN and {id=profCast:format(442615, 1226037), show=profShow:format(442615, 1226037), _u="sm"}, -- carve meat
-		name=L"Trade Skills", hotkey="ALT-T", _u="OPCCT", v=7
-	})
+		name=L"Trade Skills", hotkey="ALT-T", _u="OPCCT", v=8
+	}
+	if MODERN then
+		d[#d+1] = {id=194174, _u ="sj"} -- skinning journal
+		d[#d+1] = {id=nodeOverload:format(193290, "herb", 390392, 423395, 1223014), _u="hj"} -- herbalism journal
+		d[#d+1] = {id=profCast:format(439871, 1221172), show=profShow:format(439871, 1221172), _u="ht"} -- green thumb
+		d[#d+1] = {id=profCast:format(440977, 1223388), show=profShow:format(440977, 1223388), _u="sk"} -- sharpen your knife
+		d[#d+1] = {id=profCast:format(442615, 1226037), show=profShow:format(442615, 1226037), _u="sm"} -- carve meat
+	elseif CI_4E then
+		d[#d+1] = {id=1278068, _u="s4"} -- tanning [camp skinning]
+		d[#d+1] = {id=1278062, _u="h4"} -- gardening [camp herbalism]
+		d[#d+1] = {id=1278067, _u="f4"} -- bait and tackle [camp fishing]
+	end
+	R:AddDefaultRing("CommonTrades", d)
 end
 R:AddDefaultRing("OPieAutoQuest", {
 	{"extrabutton", 1, _u="EB", show="[nodupeab]", fastClick=true},

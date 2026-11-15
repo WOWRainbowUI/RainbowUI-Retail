@@ -2,11 +2,11 @@ local COMPAT, _, T = select(4,GetBuildInfo()), ...
 if T.SkipLocalActionBook then return end
 if T.TenEnv then T.TenEnv() end
 
-local MODERN, CI_ERA, CI_4E = COMPAT > 12e4 or nil, COMPAT < 160e2 or nil, COMPAT > 160e2 and COMPAT < 2e4
+local MODERN, CI_ERA, CI_4E = COMPAT > 12e4 or nil, COMPAT < 160e2 or nil, COMPAT > 160e2 and COMPAT < 2e4 or nil
 local SECRETS = COMPAT > 12e4 or COMPAT > 160e2 and COMPAT < 2e4 or nil
 local CF_CLASSIC = not MODERN or nil
 local CF_WRATH, CF_CATA, CF_MISTS = CF_CLASSIC and COMPAT > 3e4 or nil, CF_CLASSIC and COMPAT > 4e4 or nil, CF_CLASSIC and COMPAT > 5e4 or nil
-local MODERN_MOUNTS, MODERN_BATTLEPETS = MODERN or CF_WRATH, MODERN or CF_MISTS
+local MODERN_MOUNTS, MODERN_BATTLEPETS = MODERN or CF_WRATH or CI_4E, MODERN or CF_MISTS
 local EV = T.Evie
 local AB = T.ActionBook:compatible(2,53)
 local RW = T.ActionBook:compatible("Rewire", 1,27)
@@ -917,7 +917,7 @@ securecall(function() -- battlepet: pet ID, species ID
 	end)
 end)
 securecall(function() -- equipmentset: equipment sets by name
-	if not (MODERN or CF_WRATH) then
+	if not (MODERN or CF_WRATH or CI_4E) then
 		return
 	end
 	local setMap = {}
@@ -1640,19 +1640,20 @@ securecall(function() -- uipanel: token
 		talents={TALENTS_BUTTON, icon="Interface/Icons/Ability_Marksmanship", gn=CF_CLASSIC and "PlayerTalentFrame", tw=CF_CLASSIC and TalentMicroButton, req=function() return (UnitLevel("player") or 0) >= 10 end},
 		achievements={ACHIEVEMENTS, atlas="UI-HUD-MicroMenu-Achievements-Up", gn="AchievementFrame", tw=AchievementMicroButton, tcr=1},
 		quests={QUESTLOG_BUTTON, icon="Interface/Icons/INV_Misc_Book_08", gw=MODERN and QuestMapFrame or QuestLogFrame, tw=QuestLogMicroButton},
-		groupfinder={DUNGEONS_BUTTON, icon=MODERN and "Interface/Icons/LEVELUPICON-LFD" or "Interface/LFGFrame/BattlenetWorking0", gw=PVEFrame, tw=LFDMicroButton},
-		collections=MODERN and {COLLECTIONS, icon="Interface/Icons/INV_Box_01", gn="CollectionsJournal", tw=CollectionsMicroButton},
+		groupfinder={DUNGEONS_BUTTON, icon=MODERN and "Interface/Icons/LEVELUPICON-LFD" or "Interface/LFGFrame/BattlenetWorking0", gw=PVEFrame, gn=CI_4E and "LFDParentFrame" or nil, tw=LFDMicroButton},
+		collections=(MODERN or CI_4E or CF_CATA) and {COLLECTIONS, icon="Interface/Icons/INV_Box_01", gn="CollectionsJournal", tw=CollectionsMicroButton},
 		adventureguide=MODERN and {ADVENTURE_JOURNAL, icon="Interface/EncounterJournal/UI-EJ-PortraitIcon", gn="EncounterJournal", tw=EJMicroButton},
-		guild=MODERN and {GUILD_AND_COMMUNITIES, icon="Interface/Icons/INV_Shirt_GuildTabard_01", gn="CommunitiesFrame", tw=GuildMicroButton}
-		              or {title=GUILD, icon="Interface/Icons/INV_Shirt_GuildTabard_01", gw=GuildFrame, ow=FriendsFrameTab3, cw=FriendsFrameCloseButton, req=IsInGuild},
-		map={WORLD_MAP, icon=CF_WRATH and "Interface/Icons/Inv_Misc_Map08" or "Interface/Worldmap/WorldMap-Icon", gw=WorldMapFrame, tw=MODERN and MinimapCluster.ZoneTextButton or MiniMapWorldMapButton or WorldMapMicroButton},
-		social={SOCIAL_BUTTON, icon=MODERN and "Interface/Icons/UI_Chat" or "Interface/Icons/INV_Scroll_03", gw=FriendsFrame, tw=MODERN and QuickJoinToastButton or FriendsMicroButton},
+		guild=(MODERN or CI_4E) and {GUILD_AND_COMMUNITIES, icon="Interface/Icons/INV_Shirt_GuildTabard_01", gn="CommunitiesFrame", tw=GuildMicroButton}
+		                         or {title=GUILD, icon="Interface/Icons/INV_Shirt_GuildTabard_01", gw=GuildFrame, ow=FriendsFrameTab3, cw=FriendsFrameCloseButton, req=IsInGuild},
+		map={WORLD_MAP, icon=CF_WRATH and "Interface/Icons/Inv_Misc_Map08" or "Interface/Worldmap/WorldMap-Icon", gw=WorldMapFrame, tw=(MODERN or CI_4E) and MinimapCluster.ZoneTextButton or MiniMapWorldMapButton or WorldMapMicroButton},
+		social={SOCIAL_BUTTON, icon=MODERN and "Interface/Icons/UI_Chat" or "Interface/Icons/INV_Scroll_03", gw=CI_4E and SocialUIFrame or FriendsFrame, tw=(MODERN or CI_4E) and QuickJoinToastButton or FriendsMicroButton},
 		calendar={L"Calendar", icon="Interface/Icons/Spell_Holy_BorrowedTime", gn="CalendarFrame", tw=GameTimeFrame},
 		options={OPTIONS, icon=MODERN and "Interface/Icons/Misc_RnRWrenchButtonRight" or "Interface/Icons/INV_Misc_Wrench_01", gw=SettingsPanel, noduck=1, open=function() Settings.OpenToCategory(nil) end},
 		macro={MACROS, icon="Interface/Icons/INV_Misc_Note_06", gn="MacroFrame", tmt=SLASH_MACRO1, cw=closeButton(MacroFrame), postmt=pyCLICK .. "csp 1\n" .. pyCLICK .. "cgm 1"},
 		profs=MODERN and {TRADE_SKILLS, icon="interface/icons/inv_pick_02", tw=ProfessionMicroButton},
 		gamemenu={L"Game Menu", icon=CF_CLASSIC and "Interface/Icons/INV_Misc_PunchCards_Red", atlas="UI-HUD-MicroMenu-GameMenu-Up", gw=GameMenuFrame, noduck=1, pre=function() return not GameMenuFrame:IsShown() or nil end, post=function() RatingMenuFrame:Show() RatingMenuFrame:Hide() PlaySound(SOUNDKIT.IG_MAINMENU_OPEN) end},
 		vault=MODERN and {DELVES_GREAT_VAULT_LABEL, icon="Interface/Icons/INV_Cape_Special_Treasure_C_01", gn="WeeklyRewardsFrame", skipCloseSound=169062, req=function() return UnitLevel("player") == 90 end, tip=ShowVaultTip, open=openPanelFallback, preload="Blizzard_WeeklyRewards"},
+		legacy=CI_4E and {LEGACY_BUTTON, atlas="Legacy-up-c60", gn="LegacySystemFrame", tw=LegacyMicroButton, req=function() return 0 < (C_MajorFactions.GetCurrentRenownLevel(2802) or 0) end},
 		csp={gw=SettingsPanel, cpreamble=true, cw=closeButton(SettingsPanel, "csp")},
 		cgm={gw=GameMenuFrame, cpreamble=true, cw=closeButton(GameMenuFrame, "cgm")},
 		csf={pre=function() return StoreFrame_IsShown and StoreFrame_SetShown and StoreFrame_IsShown() and StoreFrame_SetShown(false) end, cpreamble=true},
@@ -1810,6 +1811,11 @@ securecall(function() -- uipanel: token
 			function panels.currency.req()
 				return GetCurrencyListSize() > 0
 			end
+		elseif CI_4E then
+			panels.spellbook.gn = "PlayerSpellsFrame"
+			panels.achievements = nil
+			panels.currency = nil
+			panels.reputation = nil
 		else -- era
 			panels.achievements = nil
 			panels.groupfinder = nil
