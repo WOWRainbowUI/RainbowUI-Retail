@@ -903,3 +903,5 @@ L["Inspect"] = "检查"
 
 L["Add new routes at the top"] = "将新路线添加到最上方"
 L["hideAprilFools"] = "不显示愚人节玩笑"
+L["Mythic Dungeon Tools"] = "史诗钥石地下城规划工具"
+L["MythicDungeonTools"] = "地下城规划工具"
