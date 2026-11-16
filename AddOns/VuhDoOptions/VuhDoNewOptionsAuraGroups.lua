@@ -9,6 +9,7 @@ local twipe = table.wipe;
 local format = string.format;
 local strsplit = strsplit;
 local strupper = string.upper;
+local strlower = string.lower;
 local strfind = string.find;
 local strsub = string.sub;
 local tconcat = table.concat;
@@ -1105,51 +1106,76 @@ end
 
 
 
---
-local tSpellId;
-local tSpellIds;
-local tDisplayName;
-local tSortTable;
-function VUHDO_initAuraGroupsAddSpellComboModel()
+do
+	--
+	local tSpellIdNum;
+	local tOtherSpellIdNum;
+	local function VUHDO_auraGroupsAddSpellComboSorter(anEntry, anotherEntry)
 
-	twipe(VUHDO_AURA_GROUPS_ADD_SPELL_COMBO_MODEL);
+		if anEntry[3] ~= anotherEntry[3] then
+			return anEntry[3] < anotherEntry[3];
+		end
 
-	VUHDO_AURA_GROUPS_ADD_SPELL_SELECTED = "";
+		tSpellIdNum = tonumber(anEntry[1]);
+		tOtherSpellIdNum = tonumber(anotherEntry[1]);
 
-	tSpellIds = { };
+		if tSpellIdNum and tOtherSpellIdNum then
+			return tSpellIdNum < tOtherSpellIdNum;
+		end
 
-	for _, tGroup in pairs(VUHDO_DEFAULT_AURA_GROUPS or { }) do
-		if tGroup["type"] == VUHDO_AURA_GROUP_TYPE_LIST and tGroup["entries"] then
-			for _, tEntry in ipairs(tGroup["entries"]) do
-				if (tEntry["entryType"] or 0) == VUHDO_AURA_LIST_ENTRY_SPELL and tEntry["value"] then
-					tSpellId = tonumber(tEntry["value"]) or tEntry["value"];
+		return tostring(anEntry[1]) < tostring(anotherEntry[1]);
 
-					tSpellIds[tSpellId] = true;
+	end
+
+
+
+	--
+	local tSpellId;
+	local tSpellIds;
+	local tSpellName;
+	local tDisplayName;
+	local tSortTable;
+	function VUHDO_initAuraGroupsAddSpellComboModel()
+
+		twipe(VUHDO_AURA_GROUPS_ADD_SPELL_COMBO_MODEL);
+
+		VUHDO_AURA_GROUPS_ADD_SPELL_SELECTED = "";
+
+		tSpellIds = { };
+
+		for _, tGroup in pairs(VUHDO_DEFAULT_AURA_GROUPS or { }) do
+			if tGroup["type"] == VUHDO_AURA_GROUP_TYPE_LIST and tGroup["entries"] then
+				for _, tEntry in ipairs(tGroup["entries"]) do
+					if (tEntry["entryType"] or 0) == VUHDO_AURA_LIST_ENTRY_SPELL and tEntry["value"] then
+						tSpellId = tonumber(tEntry["value"]) or tEntry["value"];
+
+						tSpellIds[tSpellId] = true;
+					end
 				end
 			end
 		end
-	end
 
-	tSortTable = { };
+		tSortTable = { };
 
-	for tSpellId, _ in pairs(tSpellIds) do
-		tDisplayName = VUHDO_resolveSpellId(tSpellId);
+		for tSpellId, _ in pairs(tSpellIds) do
+			tSpellName = VUHDO_resolveSpellId(tSpellId);
 
-		if type(tDisplayName) == "string" then
-			tDisplayName = "[" .. tSpellId .. "] " .. tDisplayName;
+			if type(tSpellName) == "string" then
+				tDisplayName = "[" .. tSpellId .. "] " .. tSpellName;
 
-			tinsert(tSortTable, { tSpellId, tDisplayName, tDisplayName });
+				tinsert(tSortTable, { tSpellId, tDisplayName, strlower(tSpellName) });
+			end
 		end
+
+		tsort(tSortTable, VUHDO_auraGroupsAddSpellComboSorter);
+
+		for _, tEntry in ipairs(tSortTable) do
+			tinsert(VUHDO_AURA_GROUPS_ADD_SPELL_COMBO_MODEL, { tEntry[1], tEntry[2] });
+		end
+
+		return;
+
 	end
-
-	tsort(tSortTable, function(anA, anotherA) return anA[3] < anotherA[3]; end);
-
-	for _, tEntry in ipairs(tSortTable) do
-		tinsert(VUHDO_AURA_GROUPS_ADD_SPELL_COMBO_MODEL, { tEntry[1], tEntry[2] });
-	end
-
-	return;
-
 end
 
 

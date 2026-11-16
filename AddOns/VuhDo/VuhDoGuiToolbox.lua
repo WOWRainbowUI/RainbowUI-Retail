@@ -20,6 +20,8 @@ local GetClassColor = C_ClassColor and C_ClassColor.GetClassColor;
 local CreateColor = CreateColor;
 local issecretvalue = issecretvalue;
 
+local VUHDO_IMMEDIATE = Enum.StatusBarInterpolation.Immediate;
+
 local MEMBERS_PER_RAID_GROUP = MEMBERS_PER_RAID_GROUP or 5;
 
 local VUHDO_RAID_TARGET_TEXTURE_ROWS = 4;
@@ -61,7 +63,11 @@ local VUHDO_getResolvedTextProvider;
 local VUHDO_getAuraAnchorHost;
 local VUHDO_getHealthBar;
 local VUHDO_getRealParent;
-local VUHDO_invalidateShieldMaskAnchors;
+local VUHDO_getStatusbarOrientationString;
+local VUHDO_calculateDerivedOrientation;
+local VUHDO_setStatusBarOrientation;
+local VUHDO_refreshShieldMaskAnchors;
+local VUHDO_STATUSBAR_BOTTOM_TO_TOP;
 
 -----------------------------------------------------------------------
 --local VUHDO_getNumbersFromString;
@@ -92,7 +98,11 @@ function VUHDO_guiToolboxInitLocalOverrides()
 	VUHDO_getAuraAnchorHost = _G["VUHDO_getAuraAnchorHost"];
 	VUHDO_getHealthBar = _G["VUHDO_getHealthBar"];
 	VUHDO_getRealParent = _G["VUHDO_getRealParent"];
-	VUHDO_invalidateShieldMaskAnchors = _G["VUHDO_invalidateShieldMaskAnchors"];
+	VUHDO_getStatusbarOrientationString = _G["VUHDO_getStatusbarOrientationString"];
+	VUHDO_calculateDerivedOrientation = _G["VUHDO_calculateDerivedOrientation"];
+	VUHDO_setStatusBarOrientation = _G["VUHDO_setStatusBarOrientation"];
+	VUHDO_refreshShieldMaskAnchors = _G["VUHDO_refreshShieldMaskAnchors"];
+	VUHDO_STATUSBAR_BOTTOM_TO_TOP = _G["VUHDO_STATUSBAR_BOTTOM_TO_TOP"];
 
 	for tPanelNum = 1, 10 do -- VUHDO_MAX_PANELS
 		sIsManaBar[tPanelNum] = VUHDO_INDICATOR_CONFIG[tPanelNum]["BOUQUETS"]["MANA_BAR"] ~= "";
@@ -1819,15 +1829,24 @@ end
 
 
 
+--
+function VUHDO_hasManaOffsetBar(aButton)
+
+	return VUHDO_getHealthBar(aButton, VUHDO_BAR_MANA_OFFSET) ~= VuhDoDummyStatusBar;
+
+end
+
+
+
 do
 	--
 	local tHealthBar;
-	local tParent;
+	local tAnchorBase;
 	local tManaInset;
-	local tHealthHeight;
-	local tShieldBar;
-	local tShieldHeight;
-	function VUHDO_positionHealthBar(aButton, aPanelNum)
+	local tManaBar;
+	local tAuraHost;
+	local tBgBar;
+	function VUHDO_layoutStaticHealthBarGeometry(aButton, aPanelNum)
 
 		tHealthBar = VUHDO_getHealthBar(aButton, 1);
 
@@ -1835,28 +1854,240 @@ do
 			return;
 		end
 
-		tParent = VUHDO_getRealParent(tHealthBar);
+		tAnchorBase = VUHDO_getRealParent(tHealthBar);
 		tManaInset = aButton["manaBarLayoutHeight"] or 0;
 
 		VUHDO_PixelUtil.ClearAllPoints(tHealthBar);
-		VUHDO_PixelUtil.SetPoint(tHealthBar, "TOPLEFT", tParent, "TOPLEFT", VUHDO_getSideBarWidthLeft(aPanelNum), 0);
-		VUHDO_PixelUtil.SetPoint(tHealthBar, "BOTTOMRIGHT", tParent, "BOTTOMRIGHT", -VUHDO_getSideBarWidthRight(aPanelNum), tManaInset);
+		VUHDO_PixelUtil.SetPoint(tHealthBar, "TOPLEFT", tAnchorBase, "TOPLEFT", 0, 0);
+		VUHDO_PixelUtil.SetPoint(tHealthBar, "BOTTOMRIGHT", tAnchorBase, "BOTTOMRIGHT", 0, tManaInset);
 
-		if not VUHDO_INDICATOR_CONFIG[aPanelNum]["CUSTOM"]["HEALTH_BAR"]["vertical"] and aButton["regularHeight"] then
-			tHealthHeight = aButton["regularHeight"] - tManaInset;
-			tShieldBar = VUHDO_getHealthBar(aButton, 19);
+		tManaBar = VUHDO_getHealthBar(aButton, 2);
 
-			if tShieldBar then
-				tShieldHeight = tShieldBar:GetHeight();
-
-				if issecretvalue(tShieldHeight) or tShieldHeight ~= tHealthHeight then
-					VUHDO_invalidateShieldMaskAnchors(aButton);
-				end
+		if tManaBar then
+			if tManaInset > 0 then
+				VUHDO_PixelUtil.SetHeight(tManaBar, tManaInset);
+				VUHDO_PixelUtil.Show(tManaBar);
+			else
+				VUHDO_PixelUtil.Hide(tManaBar);
 			end
-
-			VUHDO_PixelUtil.SetHeight(VUHDO_getHealthBar(aButton, 6), tHealthHeight);
-			VUHDO_PixelUtil.SetHeight(VUHDO_getHealthBar(aButton, 19), tHealthHeight);
 		end
+
+		tAuraHost = VUHDO_getAuraAnchorHost(aButton);
+		tBgBar = VUHDO_getHealthBar(aButton, 3);
+
+		if tAuraHost and tBgBar then
+			VUHDO_PixelUtil.ClearAllPoints(tAuraHost);
+			VUHDO_PixelUtil.SetPoint(tAuraHost, "TOPLEFT", tBgBar, "TOPLEFT", 0, 0);
+			VUHDO_PixelUtil.SetPoint(tAuraHost, "BOTTOMRIGHT", tBgBar, "BOTTOMRIGHT", 0, tManaInset);
+		end
+
+		return;
+
+	end
+end
+
+
+
+--
+local function VUHDO_getHealthBarGeometrySignature(aButton, aPanelNum)
+
+	return format("%d|%d|%s|%s|%s|%d|%d|%d|%d|%s|%s",
+		aPanelNum,
+		aButton["manaBarLayoutHeight"] or 0,
+		VUHDO_getStatusbarOrientationString("HEALTH_BAR", aPanelNum),
+		tostring(VUHDO_INDICATOR_CONFIG[aPanelNum]["CUSTOM"]["HEALTH_BAR"]["invertGrowth"]),
+		tostring(VUHDO_INDICATOR_CONFIG[aPanelNum]["CUSTOM"]["HEALTH_BAR"]["turnAxisHealthLoss"]),
+		VUHDO_getSideBarWidthLeft(aPanelNum),
+		VUHDO_getSideBarWidthRight(aPanelNum),
+		aButton["regularHeight"] or 0,
+		VUHDO_CONFIG["SHOW_HEALTH_LOSS_BAR"] and 1 or 0,
+		sIsSideBarLeft[aPanelNum] and (VUHDO_INDICATOR_CONFIG[aPanelNum]["BOUQUETS"]["SIDE_LEFT"] or "") or "",
+		sIsSideBarRight[aPanelNum] and (VUHDO_INDICATOR_CONFIG[aPanelNum]["BOUQUETS"]["SIDE_RIGHT"] or "") or "");
+
+end
+
+
+
+do
+	--
+	local sProtectedHealthBarWarned = { };
+	local tHealthBar;
+	local tLossBar;
+	local tManaOffsetBar;
+	local tManaOffsetTexture;
+	local tLossTexture;
+	local tManaBar;
+	local tSideBar;
+	local tAuraHost;
+	local tAnchorBase;
+	local tLeftInset;
+	local tRightInset;
+	local tManaInset;
+	local tRegularHeight;
+	local tOrientation;
+	local tEffectiveOrientation;
+	local tTurnAxisHealthLoss;
+	local tSignature;
+	local tIsHealthLossAnchored;
+	local tIsHealthBarProtected;
+	function VUHDO_layoutHealthBarGeometry(aButton, aPanelNum, anIsForceLayout)
+
+		if InCombatLockdown() then
+			return;
+		end
+
+		if not VUHDO_hasManaOffsetBar(aButton) then
+			VUHDO_layoutStaticHealthBarGeometry(aButton, aPanelNum);
+
+			return;
+		end
+
+		tManaOffsetBar = VUHDO_getHealthBar(aButton, VUHDO_BAR_MANA_OFFSET);
+
+		tSignature = VUHDO_getHealthBarGeometrySignature(aButton, aPanelNum);
+
+		if not anIsForceLayout and aButton["healthBarGeometrySignature"] == tSignature then
+			return;
+		end
+
+		tHealthBar = VUHDO_getHealthBar(aButton, 1);
+		tLossBar = VUHDO_getHealthBar(aButton, 22);
+
+		if not tHealthBar or not tLossBar then
+			return;
+		end
+
+		tRegularHeight = aButton["regularHeight"];
+
+		if not tRegularHeight then
+			return;
+		end
+
+		tManaInset = aButton["manaBarLayoutHeight"] or 0;
+		tLeftInset = VUHDO_getSideBarWidthLeft(aPanelNum);
+		tRightInset = VUHDO_getSideBarWidthRight(aPanelNum);
+		tAnchorBase = VUHDO_getRealParent(tHealthBar);
+
+		tManaOffsetBar:SetAlpha(0);
+		tManaOffsetBar:EnableMouse(false);
+		VUHDO_setStatusBarOrientation(tManaOffsetBar, VUHDO_STATUSBAR_BOTTOM_TO_TOP);
+		tManaOffsetBar:SetMinMaxValues(0, tRegularHeight, VUHDO_IMMEDIATE);
+		tManaOffsetBar:SetValue(tManaInset, VUHDO_IMMEDIATE);
+
+		VUHDO_PixelUtil.ClearAllPoints(tManaOffsetBar);
+		VUHDO_PixelUtil.SetPoint(tManaOffsetBar, "TOPLEFT", tAnchorBase, "TOPLEFT", 0, 0);
+		VUHDO_PixelUtil.SetPoint(tManaOffsetBar, "BOTTOMRIGHT", tAnchorBase, "BOTTOMRIGHT", 0, 0);
+
+		tManaOffsetTexture = tManaOffsetBar:GetStatusBarTexture();
+
+		tIsHealthLossAnchored = VUHDO_CONFIG["SHOW_HEALTH_LOSS_BAR"];
+
+		tIsHealthBarProtected = tHealthBar:IsProtected();
+
+		if issecretvalue(tIsHealthBarProtected) then
+			tIsHealthBarProtected = false;
+		end
+
+		if tIsHealthLossAnchored and tIsHealthBarProtected then
+			tIsHealthLossAnchored = false;
+
+			if not sProtectedHealthBarWarned[aButton] then
+				sProtectedHealthBarWarned[aButton] = true;
+				VUHDO_Msg(format("Health bar on %s is protected; health-loss edge anchors disabled until /reload out of combat.",
+					aButton:GetName() or "?"));
+			end
+		end
+
+		if VUHDO_CONFIG["SHOW_HEALTH_LOSS_BAR"] then
+			VUHDO_PixelUtil.ClearAllPoints(tLossBar);
+			VUHDO_PixelUtil.SetPoint(tLossBar, "TOPLEFT", tAnchorBase, "TOPLEFT", tLeftInset, 0);
+			VUHDO_PixelUtil.SetPoint(tLossBar, "BOTTOMRIGHT", tManaOffsetTexture, "TOPRIGHT", -tRightInset, 0);
+			VUHDO_PixelUtil.Show(tLossBar);
+		else
+			VUHDO_PixelUtil.Hide(tLossBar);
+		end
+
+		tTurnAxisHealthLoss = VUHDO_INDICATOR_CONFIG[aPanelNum]["CUSTOM"]["HEALTH_BAR"]["turnAxisHealthLoss"];
+		tOrientation = VUHDO_getStatusbarOrientationString("HEALTH_BAR", aPanelNum);
+		tEffectiveOrientation = VUHDO_calculateDerivedOrientation(tOrientation, tTurnAxisHealthLoss);
+		tEffectiveOrientation = VUHDO_calculateDerivedOrientation(tEffectiveOrientation,
+			VUHDO_INDICATOR_CONFIG[aPanelNum]["CUSTOM"]["HEALTH_BAR"]["invertGrowth"]);
+
+		VUHDO_PixelUtil.ClearAllPoints(tHealthBar);
+
+		if tIsHealthLossAnchored then
+			tLossTexture = tLossBar:GetStatusBarTexture();
+
+			if "HORIZONTAL" == tEffectiveOrientation then
+				VUHDO_PixelUtil.SetPoint(tHealthBar, "TOPLEFT", tAnchorBase, "TOPLEFT", tLeftInset, 0);
+				VUHDO_PixelUtil.SetPoint(tHealthBar, "TOPRIGHT", tLossTexture, "TOPLEFT", 0, 0);
+				VUHDO_PixelUtil.SetPoint(tHealthBar, "BOTTOMLEFT", tManaOffsetTexture, "TOPLEFT", tLeftInset, 0);
+			elseif "HORIZONTAL_INV" == tEffectiveOrientation then
+				VUHDO_PixelUtil.SetPoint(tHealthBar, "TOPRIGHT", tAnchorBase, "TOPRIGHT", -tRightInset, 0);
+				VUHDO_PixelUtil.SetPoint(tHealthBar, "TOPLEFT", tLossTexture, "TOPRIGHT", 0, 0);
+				VUHDO_PixelUtil.SetPoint(tHealthBar, "BOTTOMRIGHT", tManaOffsetTexture, "TOPRIGHT", -tRightInset, 0);
+			elseif "VERTICAL" == tEffectiveOrientation then
+				VUHDO_PixelUtil.SetPoint(tHealthBar, "BOTTOMLEFT", tManaOffsetTexture, "TOPLEFT", tLeftInset, 0);
+				VUHDO_PixelUtil.SetPoint(tHealthBar, "BOTTOMRIGHT", tManaOffsetTexture, "TOPRIGHT", -tRightInset, 0);
+				VUHDO_PixelUtil.SetPoint(tHealthBar, "TOPLEFT", tLossTexture, "BOTTOMLEFT", 0, 0);
+			else
+				VUHDO_PixelUtil.SetPoint(tHealthBar, "TOPLEFT", tAnchorBase, "TOPLEFT", tLeftInset, 0);
+				VUHDO_PixelUtil.SetPoint(tHealthBar, "TOPRIGHT", tAnchorBase, "TOPRIGHT", -tRightInset, 0);
+				VUHDO_PixelUtil.SetPoint(tHealthBar, "BOTTOMLEFT", tLossTexture, "TOPLEFT", 0, 0);
+			end
+		else
+			VUHDO_PixelUtil.SetPoint(tHealthBar, "TOPLEFT", tAnchorBase, "TOPLEFT", tLeftInset, 0);
+			VUHDO_PixelUtil.SetPoint(tHealthBar, "BOTTOMRIGHT", tAnchorBase, "BOTTOMRIGHT", -tRightInset, tManaInset);
+		end
+
+		tManaBar = VUHDO_getHealthBar(aButton, 2);
+
+		if tManaBar then
+			VUHDO_PixelUtil.ClearAllPoints(tManaBar);
+			VUHDO_PixelUtil.SetPoint(tManaBar, "TOPLEFT", tManaOffsetTexture, "TOPLEFT", 0, 0);
+			VUHDO_PixelUtil.SetPoint(tManaBar, "BOTTOMRIGHT", tManaOffsetTexture, "BOTTOMRIGHT", 0, 0);
+			VUHDO_PixelUtil.Show(tManaBar);
+
+			if tManaInset > 0 then
+				tManaBar:SetAlpha(1);
+			else
+				tManaBar:SetAlpha(0);
+			end
+		end
+
+		if sIsSideBarLeft[aPanelNum] then
+			tSideBar = VUHDO_getHealthBar(aButton, 17);
+
+			if tSideBar then
+				VUHDO_PixelUtil.ClearAllPoints(tSideBar);
+				VUHDO_PixelUtil.SetPoint(tSideBar, "TOPLEFT", tAnchorBase, "TOPLEFT", 0, 0);
+				VUHDO_PixelUtil.SetPoint(tSideBar, "BOTTOMLEFT", tManaOffsetTexture, "TOPLEFT", 0, 0);
+				VUHDO_PixelUtil.SetWidth(tSideBar, tLeftInset);
+			end
+		end
+
+		if sIsSideBarRight[aPanelNum] then
+			tSideBar = VUHDO_getHealthBar(aButton, 18);
+
+			if tSideBar then
+				VUHDO_PixelUtil.ClearAllPoints(tSideBar);
+				VUHDO_PixelUtil.SetPoint(tSideBar, "TOPRIGHT", tAnchorBase, "TOPRIGHT", 0, 0);
+				VUHDO_PixelUtil.SetPoint(tSideBar, "BOTTOMRIGHT", tManaOffsetTexture, "TOPRIGHT", 0, 0);
+				VUHDO_PixelUtil.SetWidth(tSideBar, tRightInset);
+			end
+		end
+
+		tAuraHost = VUHDO_getAuraAnchorHost(aButton);
+
+		if tAuraHost then
+			VUHDO_PixelUtil.ClearAllPoints(tAuraHost);
+			VUHDO_PixelUtil.SetPoint(tAuraHost, "TOPLEFT", tAnchorBase, "TOPLEFT", tLeftInset, 0);
+			VUHDO_PixelUtil.SetPoint(tAuraHost, "BOTTOMRIGHT", tManaOffsetTexture, "TOPRIGHT", -tRightInset, 0);
+		end
+
+		aButton["healthBarGeometrySignature"] = tSignature;
+
+		VUHDO_refreshShieldMaskAnchors(aButton, aPanelNum);
 
 		return;
 
@@ -1867,85 +2098,61 @@ end
 
 do
 	--
-	local tSideBar;
-	local tParent;
+	local tPanelNum;
+	local tAuraHost;
+	local tBgBar;
 	local tManaInset;
-	function VUHDO_positionSideBars(aButton, aPanelNum)
+	function VUHDO_updateAuraAnchorHost(aButton)
 
+		if InCombatLockdown() then
+			if not VUHDO_hasManaOffsetBar(aButton) then
+				sPendingAuraHostUpdates[aButton] = true;
+			end
+
+			return;
+		end
+
+		if VUHDO_hasManaOffsetBar(aButton) then
+			tPanelNum = VUHDO_BUTTON_CACHE[aButton];
+
+			if not tPanelNum then
+				return;
+			end
+
+			VUHDO_layoutHealthBarGeometry(aButton, tPanelNum, true);
+
+			return;
+		end
+
+		tAuraHost = VUHDO_getAuraAnchorHost(aButton);
+
+		if not tAuraHost then
+			return;
+		end
+
+		tBgBar = VUHDO_getHealthBar(aButton, 3);
 		tManaInset = aButton["manaBarLayoutHeight"] or 0;
 
-		if VUHDO_INDICATOR_CONFIG[aPanelNum]["BOUQUETS"]["SIDE_LEFT"] ~= "" then
-			tSideBar = VUHDO_getHealthBar(aButton, 17);
+		VUHDO_PixelUtil.ClearAllPoints(tAuraHost);
+		VUHDO_PixelUtil.SetPoint(tAuraHost, "TOPLEFT", tBgBar, "TOPLEFT", 0, 0);
+		VUHDO_PixelUtil.SetPoint(tAuraHost, "BOTTOMRIGHT", tBgBar, "BOTTOMRIGHT", 0, tManaInset);
 
-			if tSideBar then
-				tParent = VUHDO_getRealParent(tSideBar);
+		return;
 
-				VUHDO_PixelUtil.ClearAllPoints(tSideBar);
-				VUHDO_PixelUtil.SetPoint(tSideBar, "TOPLEFT", tParent, "TOPLEFT", 0, 0);
-				VUHDO_PixelUtil.SetPoint(tSideBar, "BOTTOMLEFT", tParent, "BOTTOMLEFT", 0, tManaInset);
-				VUHDO_PixelUtil.SetWidth(tSideBar, VUHDO_getSideBarWidthLeft(aPanelNum));
-			end
+	end
+
+
+
+	--
+	function VUHDO_processPendingAuraHostUpdates()
+
+		for tButton, _ in pairs(sPendingAuraHostUpdates) do
+			VUHDO_updateAuraAnchorHost(tButton);
 		end
 
-		if VUHDO_INDICATOR_CONFIG[aPanelNum]["BOUQUETS"]["SIDE_RIGHT"] ~= "" then
-			tSideBar = VUHDO_getHealthBar(aButton, 18);
-
-			if tSideBar then
-				tParent = VUHDO_getRealParent(tSideBar);
-
-				VUHDO_PixelUtil.ClearAllPoints(tSideBar);
-				VUHDO_PixelUtil.SetPoint(tSideBar, "TOPRIGHT", tParent, "TOPRIGHT", 0, 0);
-				VUHDO_PixelUtil.SetPoint(tSideBar, "BOTTOMRIGHT", tParent, "BOTTOMRIGHT", 0, tManaInset);
-				VUHDO_PixelUtil.SetWidth(tSideBar, VUHDO_getSideBarWidthRight(aPanelNum));
-			end
-		end
+		twipe(sPendingAuraHostUpdates);
 
 		return;
 
 	end
-end
-
-
-
---
-local tHost;
-local tBgBar;
-function VUHDO_updateAuraAnchorHost(aButton)
-
-	if InCombatLockdown() then
-		sPendingAuraHostUpdates[aButton] = true;
-
-		return;
-	end
-
-	tHost = VUHDO_getAuraAnchorHost(aButton);
-
-	if not tHost then
-		return;
-	end
-
-	tBgBar = VUHDO_getHealthBar(aButton, 3);
-
-	VUHDO_PixelUtil.ClearAllPoints(tHost);
-
-	VUHDO_PixelUtil.SetPoint(tHost, "TOPLEFT", tBgBar, "TOPLEFT", 0, 0);
-	VUHDO_PixelUtil.SetPoint(tHost, "BOTTOMRIGHT", tBgBar, "BOTTOMRIGHT", 0, aButton["manaBarLayoutHeight"] or 0);
-
-	return;
-
-end
-
-
-
---
-function VUHDO_processPendingAuraHostUpdates()
-
-	for tButton, _ in pairs(sPendingAuraHostUpdates) do
-		VUHDO_updateAuraAnchorHost(tButton);
-	end
-
-	twipe(sPendingAuraHostUpdates);
-
-	return;
-
 end

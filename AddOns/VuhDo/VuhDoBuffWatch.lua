@@ -38,7 +38,7 @@ local sDestGroupScratch = { };
 
 -- Backdrops
 BACKDROP_VUHDO_BUFF_SWATCH_PANEL_8_8_0000 = {
-	bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", 
+	bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
 	edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
 	tile = true,
 	tileSize = 8,
@@ -48,7 +48,7 @@ BACKDROP_VUHDO_BUFF_SWATCH_PANEL_8_8_0000 = {
 BACKDROP_COLOR_VUHDO_BUFF_SWATCH_PANEL = CreateColor(0, 0, 0);
 
 BACKDROP_VUHDO_BUFF_WATCH_MAIN_FRAME_16_16_5555 = {
-	bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", 
+	bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
 	edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
 	tile = true,
 	tileSize = 16,
@@ -389,7 +389,6 @@ end
 do
 	--
 	local tBuffTex;
-	local tBuffGroup;
 	function VUHDO_unitHasBuffVariant(aUnit, aBuffInfo)
 
 		_, tBuffTex = VUHDO_unitBuffAllowSecret(aUnit, aBuffInfo[1]);
@@ -398,14 +397,8 @@ do
 			return true;
 		end
 
-		for tCnt = 3, 10 do
-			tBuffGroup = aBuffInfo[tCnt];
-
-			if not tBuffGroup then
-				break;
-			end
-
-			for _, tSameBuff in pairs(tBuffGroup) do
+		for tCnt = 3, #aBuffInfo do
+			for _, tSameBuff in pairs(aBuffInfo[tCnt] or sEmpty) do
 				_, tBuffTex = VUHDO_unitBuffAllowSecret(aUnit, tSameBuff);
 
 				if tBuffTex then
@@ -980,7 +973,6 @@ do
 	local tCategName;
 	local tIsAvailable;
 	local tIsNotInBattleground;
-	local tBuffGroup;
 	local tSpellInRange;
 	local tIsLowByTime;
 	local tIsLow;
@@ -1051,14 +1043,8 @@ do
 				_, tTexture, tCount, _, tStart, tRest, _, _ = VUHDO_unitBuffAllowSecret(tUnit, aBuffInfo[1]);
 
 				if not tTexture then
-					for tCnt = 3, 10 do
-						tBuffGroup = aBuffInfo[tCnt];
-
-						if not tBuffGroup then
-							break;
-						end
-
-						for _, tSameGroupBuff in pairs(tBuffGroup) do
+					for tCnt = 3, #aBuffInfo do
+						for _, tSameGroupBuff in pairs(aBuffInfo[tCnt] or sEmpty) do
 							_, tTexture, tCount, _, tStart, tRest, _, _ = VUHDO_unitBuffAllowSecret(tUnit, tSameGroupBuff);
 
 							if tTexture then

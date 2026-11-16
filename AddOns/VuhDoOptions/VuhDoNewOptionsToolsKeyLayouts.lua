@@ -269,15 +269,76 @@ end
 
 
 
---
-local tDecodedKeyLayoutString;
-local tKeyLayoutTable;
-local function VUHDO_keyLayoutStringToTable(aKeyLayoutString)
-	tDecodedKeyLayoutString = VUHDO_LibBase64.Decode(aKeyLayoutString);
+do
+	--
+	local tDecodedKeyLayoutString;
+	local tKeyLayoutTable;
+	local function VUHDO_keyLayoutStringToTable(aKeyLayoutString)
 
-	tKeyLayoutTable = VUHDO_decompressIfCompressed(tDecodedKeyLayoutString);
+		tDecodedKeyLayoutString = VUHDO_decodeBase64(aKeyLayoutString);
 
-	return tKeyLayoutTable;
+		tKeyLayoutTable = VUHDO_decompressIfCompressed(tDecodedKeyLayoutString);
+
+		return tKeyLayoutTable;
+
+	end
+
+
+
+	--
+	local tImportString;
+	local tImportTable;
+	local tKeyLayout;
+	local tName;
+	local tPos;
+	function VUHDO_keyLayoutImport(aEditBoxName)
+		tImportString = _G[aEditBoxName]:GetText();
+		tImportTable = VUHDO_keyLayoutStringToTable(tImportString);
+
+		if (tImportTable == nil or tImportTable["keyLayoutVersion"] == nil or tonumber(tImportTable["keyLayoutVersion"]) == nil or 
+			tonumber(tImportTable["keyLayoutVersion"]) ~= VUHDO_KEY_LAYOUT_SHARE_VERSION or tImportTable["playerName"] == nil or 
+			tImportTable["keyLayout"] == nil or tImportTable["keyLayout"]["NAME"] == nil) then
+			VUHDO_showMessageDialog(VUHDO_I18N_IMPORT, VUHDO_I18N_IMPORT_STRING_INVALID);
+
+			return false;
+		end
+
+		tKeyLayout = tImportTable["keyLayout"];
+		tName = tKeyLayout["NAME"];
+
+		if (VUHDO_SPELL_LAYOUTS[tName] ~= nil) then
+			tPos = strfind(tName, ": ", 1, true);
+			
+			if (tPos ~= nil) then
+				tName = strsub(tName, tPos + 2);
+			end
+
+			tKeyLayout["NAME"] = VUHDO_createNewLayoutName(tName, tImportTable["playerName"]);
+		end
+
+		VUHDO_SPELL_LAYOUTS[tKeyLayout["NAME"]] = tKeyLayout;
+
+		VUHDO_Msg(format(VUHDO_I18N_KEY_LAYOUT_SAVED, tKeyLayout["NAME"]));
+
+		return true;
+	end
+
+
+
+	--
+	local tEditBoxName;
+	function VUHDO_yesNoImportKeyLayoutCallback(aDecision)
+		if (VUHDO_YES == aDecision) then
+			tEditBoxName = VuhDoYesNoFrame:GetAttribute("importStringEditBoxName"); 
+
+			if (VUHDO_keyLayoutImport(tEditBoxName)) then
+				VUHDO_initKeyLayoutComboModel();
+				VUHDO_lnfComboBoxInitFromModel(VuhDoNewOptionsToolsKeyLayoutsStorePanelLayoutCombo);
+
+				_G[tEditBoxName]:GetParent():GetParent():GetParent():Hide();
+			end
+		end
+	end
 end
 
 
@@ -332,60 +393,6 @@ function VUHDO_keyLayoutExportButtonShown(aEditBox)
 	aEditBox:SetTextInsets(0, 10, 5, 5);
 
 	aEditBox:Show();
-end
-
-
-
---
-local tImportString;
-local tImportTable;
-local tKeyLayout;
-local tName;
-local tPos;
-function VUHDO_keyLayoutImport(aEditBoxName)
-	tImportString = _G[aEditBoxName]:GetText();
-	tImportTable = VUHDO_keyLayoutStringToTable(tImportString);
-
-	if (tImportTable == nil or tImportTable["keyLayoutVersion"] == nil or tonumber(tImportTable["keyLayoutVersion"]) == nil or 
-		tonumber(tImportTable["keyLayoutVersion"]) ~= VUHDO_KEY_LAYOUT_SHARE_VERSION or tImportTable["playerName"] == nil or 
-		tImportTable["keyLayout"] == nil or tImportTable["keyLayout"]["NAME"] == nil) then
-		VUHDO_Msg(VUHDO_I18N_IMPORT_STRING_INVALID);
-
-		return;
-	end
-
-	tKeyLayout = tImportTable["keyLayout"];
-	tName = tKeyLayout["NAME"];
-
-	if (VUHDO_SPELL_LAYOUTS[tName] ~= nil) then
-		tPos = strfind(tName, ": ", 1, true);
-		
-		if (tPos ~= nil) then
-			tName = strsub(tName, tPos + 2);
-		end
-
-		tKeyLayout["NAME"] = VUHDO_createNewLayoutName(tName, tImportTable["playerName"]);
-	end
-
-	VUHDO_SPELL_LAYOUTS[tKeyLayout["NAME"]] = tKeyLayout;
-
-	VUHDO_Msg(format(VUHDO_I18N_KEY_LAYOUT_SAVED, tKeyLayout["NAME"]));
-end
-
-
-
---
-function VUHDO_yesNoImportKeyLayoutCallback(aDecision)
-	if (VUHDO_YES == aDecision) then
-		local tEditBoxName = VuhDoYesNoFrame:GetAttribute("importStringEditBoxName"); 
-
-		VUHDO_keyLayoutImport(tEditBoxName);
-
-		VUHDO_initKeyLayoutComboModel();
-		VUHDO_lnfComboBoxInitFromModel(VuhDoNewOptionsToolsKeyLayoutsStorePanelLayoutCombo);
-
-		_G[tEditBoxName]:GetParent():GetParent():GetParent():Hide();
-	end
 end
 
 

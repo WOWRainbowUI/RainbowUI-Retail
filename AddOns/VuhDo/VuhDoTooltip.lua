@@ -111,7 +111,7 @@ end
 
 --
 local function VUHDO_addTooltipLineRight(aText, aColor, aTextSize)
-	if sAktLineRight < 8 then
+	if sAktLineRight < 9 then
 		VUHDO_setTooltipLine(aText, false, sAktLineRight, aColor, aTextSize)
 		sAktLineRight = sAktLineRight + 1;
 	end
@@ -341,6 +341,7 @@ function VUHDO_updateTooltip()
 	end
 
 	VUHDO_addTooltipLineLeft(format("%s%d %s", VUHDO_I18N_TT_LEVEL, UnitLevel(tUnit) or "", tClassDisplayName), tClassColor, 9);
+	VUHDO_addTooltipLineRight(" ", tClassColor, 9);
 
 	tRaceDisplayName = UnitRace(tUnit);
 
@@ -350,7 +351,8 @@ function VUHDO_updateTooltip()
 		tRaceDisplayName = tRaceDisplayName or UnitCreatureType(tUnit) or " ";
 	end
 
-	VUHDO_addTooltipLineRight(tRaceDisplayName, tClassColor, 9);
+	VUHDO_addTooltipLineLeft(tRaceDisplayName, tClassColor, 9);
+	VUHDO_addTooltipLineRight(" ", tClassColor, 9);
 
 	-- Guild
 	tGuildName, tGuildRank = GetGuildInfo(tUnit);

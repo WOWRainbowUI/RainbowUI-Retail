@@ -675,3 +675,4 @@ VUHDO_I18N_ERROR_NO_LIST_GROUP_BOUQUET = "光環群組「%s」包含不存在的
 VUHDO_I18N_BOUQUET_STATUS_POWER_HEALER_ONLY = "狀態列：能量 %（僅治療者）";
 VUHDO_I18N_DEF_BOUQUET_BAR_POWER_HEALER_ONLY = "能量條：能量（僅治療者）";
 VUHDO_I18N_DEF_BOUQUET_PW_S_WEAKENED_SOUL_ICONS = "真言術：盾與虛弱靈魂（圖示）";
+VUHDO_I18N_CLICK_BINDING_CONFLICT = "警告：暴雪點擊施法將 |cffffffff\"%s\"|r 綁定至 |cffffffff%s|r，會覆蓋 VuhDo 的點擊綁定！請在遊戲選單 > 選項 > 遊戲 > 快捷鍵 > 點擊施法中移除。";

@@ -1,4 +1,12 @@
 local _;
+
+local format = string.format;
+local strmatch = strmatch;
+local tonumber = tonumber;
+local twipe = table.wipe;
+
+local sClickBindingWarningKeys = { };
+
 VUHDO_CURR_SPELL_MODIFIER = "";
 
 
@@ -43,7 +51,77 @@ end
 
 
 --
+function VUHDO_newOptionsSpellResetClickBindingWarnings()
+
+	twipe(sClickBindingWarningKeys);
+
+	return;
+
+end
+
+
+
+do
+	--
+	local tModel;
+	local tModifier;
+	local tMouseButtonNum;
+	local tActionName;
+	local tClickText;
+	local tWarningKey;
+	function VUHDO_newOptionsSpellEditBoxCheckClickBinding(anEditBox, aHintLabel)
+
+		if VUHDO_strempty(anEditBox:GetText()) then
+			sClickBindingWarningKeys[anEditBox] = nil;
+
+			return;
+		end
+
+		tModel = anEditBox:GetAttribute("model");
+
+		if not tModel then
+			sClickBindingWarningKeys[anEditBox] = nil;
+
+			return;
+		end
+
+		tModifier, tMouseButtonNum = strmatch(tModel, "^VUHDO_[%u_]*SPELL_ASSIGNMENTS%.(%l*)(%d+)%.##3$");
+
+		if not tMouseButtonNum then
+			sClickBindingWarningKeys[anEditBox] = nil;
+
+			return;
+		end
+
+		tActionName, tClickText = VUHDO_getClickBindingConflict(tModifier, tonumber(tMouseButtonNum));
+
+		if not tActionName then
+			sClickBindingWarningKeys[anEditBox] = nil;
+
+			return;
+		end
+
+		tWarningKey = format("%s|%s", tActionName, tClickText);
+
+		if sClickBindingWarningKeys[anEditBox] ~= tWarningKey then
+			sClickBindingWarningKeys[anEditBox] = tWarningKey;
+
+			VUHDO_Msg(format(VUHDO_I18N_CLICK_BINDING_CONFLICT, tActionName, tClickText), 1, 0.3, 0.3);
+		end
+
+		aHintLabel:SetText(VUHDO_I18N_WARNING);
+		aHintLabel:SetTextColor(1, 0.3, 0.3, 1);
+
+		return;
+
+	end
+end
+
+
+
+--
 function VUHDO_newOptionsSpellEditBoxCheckSpell(anEditBox, anIsCustom)
+
 	local tText, tR, tG, tB = VUHDO_isActionValid(anEditBox:GetText(), anIsCustom);
 	local tLabel = _G[anEditBox:GetName() .. "Hint"];
 
@@ -51,12 +129,19 @@ function VUHDO_newOptionsSpellEditBoxCheckSpell(anEditBox, anIsCustom)
 
 	if (tText ~= nil) then
 		anEditBox:SetTextColor(1, 1, 1, 1);
+
 		tLabel:SetText(tText);
 		tLabel:SetTextColor(tR, tG, tB, 1);
 	else
 		anEditBox:SetTextColor(0.8, 0.8, 1, 1);
+
 		tLabel:SetText("");
 	end
+
+	VUHDO_newOptionsSpellEditBoxCheckClickBinding(anEditBox, tLabel);
+
+	return;
+
 end
 
 

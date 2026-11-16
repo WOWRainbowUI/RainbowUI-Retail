@@ -2930,8 +2930,9 @@
 			</Anchors>
 			<Scripts>
 				<OnClick>
-					self:GetParent():GetAttribute("callback")(1);
+					local tCallback = self:GetParent():GetAttribute("callback");
 					VuhDoYesNoFrame:Hide();
+					tCallback(1);
 				</OnClick>
 			</Scripts>
 		</Button>
@@ -2964,8 +2965,9 @@
 			</Anchors>
 			<Scripts>
 				<OnClick>
-					self:GetParent():GetAttribute("callback")(2);
+					local tCallback = self:GetParent():GetAttribute("callback");
 					VuhDoYesNoFrame:Hide();
+					tCallback(2);
 				</OnClick>
 			</Scripts>
 		</Button>
@@ -3009,6 +3011,8 @@
 
 			VuhDoYesNoFrameYesButtonIcon:Show();
 			VuhDoYesNoFrameNoButtonIcon:Show();
+
+			VuhDoYesNoFrameNoButton:Show();
 		</OnHide>
 	</Scripts>
 </Frame>

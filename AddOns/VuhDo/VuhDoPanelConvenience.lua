@@ -913,6 +913,9 @@ local function VUHDO_fastCacheInitButton(aPanelNum, aButtonNum)
 	VUHDO_BARS_PER_BUTTON[tButton][23] = _G[tButtonName .. "BgBarOvsOffsBar"];
 	VUHDO_BARS_PER_BUTTON[tTargetButton][23] = VuhDoDummyStatusBar;
 	VUHDO_BARS_PER_BUTTON[tTotButton][23] = VuhDoDummyStatusBar;
+	VUHDO_BARS_PER_BUTTON[tButton][25] = _G[tButtonName .. "BgBarManaOffsBar"];
+	VUHDO_BARS_PER_BUTTON[tTargetButton][25] = VuhDoDummyStatusBar;
+	VUHDO_BARS_PER_BUTTON[tTotButton][25] = VuhDoDummyStatusBar;
 	-- Aura anchor host
 	VUHDO_BARS_PER_BUTTON[tButton][24] = _G[tButtonName .. "AuHost"];
 	VUHDO_BARS_PER_BUTTON[tTargetButton][24] = _G[tButtonName .. "TgAuHost"];

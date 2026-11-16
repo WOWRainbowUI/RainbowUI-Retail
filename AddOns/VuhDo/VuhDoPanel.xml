@@ -202,7 +202,7 @@
 		</Frames>
 	</Frame>
 
-	<Button name="VuhDoButtonSecureTargetTemplate" virtual="true" inherits="SecureUnitButtonTemplate,SecureHandlerEnterLeaveTemplate,SecureHandlerShowHideTemplate">
+	<Button name="VuhDoButtonSecureTargetTemplate" virtual="true" inherits="SecureUnitButtonTemplate,PingableUnitFrameTemplate,SecureHandlerEnterLeaveTemplate,SecureHandlerShowHideTemplate">
 		<Size>
 			<AbsDimension x="95" y="18" />
 		</Size>
@@ -316,7 +316,7 @@
 	</Button>
 
 
-	<Button name="VuhDoButtonSecureTemplate" virtual="true" inherits="SecureUnitButtonTemplate,SecureHandlerEnterLeaveTemplate,SecureHandlerShowHideTemplate">
+	<Button name="VuhDoButtonSecureTemplate" virtual="true" inherits="SecureUnitButtonTemplate,PingableUnitFrameTemplate,SecureHandlerEnterLeaveTemplate,SecureHandlerShowHideTemplate">
 		<Size>
 			<AbsDimension x="95" y="18" />
 		</Size>
@@ -697,6 +697,16 @@
 						</Frames>
 					</Frame>
 
+					<StatusBar name="$parentManaOffsBar" alpha="0" inherits="VuhDoStatusBar">
+						<Scripts>
+							<OnLoad>
+								self:SetMinMaxValues(0, 1);
+								self:SetValue(0);
+								self.addLevel = 0;
+							</OnLoad>
+						</Scripts>
+					</StatusBar>
+
 					<StatusBar name="$parentOvsOffsBar" alpha="0" inherits="VuhDoStatusBar">
 						<Scripts>
 							<OnLoad>
@@ -824,7 +834,7 @@
 
 
 	<Frame name="VuhDoHealPanelTemplate" toplevel="true" parent="UIParent" movable="true"
-		enableKeyboard="true" virtual="true" hidden="true" inherits="SecureFrameTemplate,BackdropTemplate" mixin="BackdropTemplateMixin">
+		enableKeyboard="true" virtual="true" hidden="true" inherits="SecureFrameTemplate,BackdropTemplate,PingTopLevelPassThroughAttributeTemplate" mixin="BackdropTemplateMixin">
 		<KeyValues>
 			<KeyValue key="backdropInfo" value="BACKDROP_VUHDO_HEAL_PANEL" type="global" />
 		</KeyValues>

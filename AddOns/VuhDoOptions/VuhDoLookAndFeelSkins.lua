@@ -1908,6 +1908,7 @@ local tLeft;
 local tMiddle;
 local tRight;
 local tArrow;
+local tBodyTexKey;
 local function VUHDO_lnfSkinApplyComboTextures(aFrame)
 
 	if not aFrame then
@@ -1920,21 +1921,23 @@ local function VUHDO_lnfSkinApplyComboTextures(aFrame)
 		return;
 	end
 
+	tBodyTexKey = _G[tName .. "EditBox"] and "button_combo_edit_128_32" or "button_normal_128_32";
+
 	tLeft = _G[tName .. "Left"];
 	tMiddle = _G[tName .. "Middle"];
 	tRight = _G[tName .. "Right"];
 	tArrow = _G[tName .. "Button"];
 
 	if tLeft then
-		VUHDO_lnfSkinStyleTextureKeyed(tLeft, "button_normal_128_32");
+		VUHDO_lnfSkinStyleTextureKeyed(tLeft, tBodyTexKey);
 	end
 
 	if tMiddle then
-		VUHDO_lnfSkinStyleTextureKeyed(tMiddle, "button_normal_128_32");
+		VUHDO_lnfSkinStyleTextureKeyed(tMiddle, tBodyTexKey);
 	end
 
 	if tRight then
-		VUHDO_lnfSkinStyleTextureKeyed(tRight, "button_normal_128_32");
+		VUHDO_lnfSkinStyleTextureKeyed(tRight, tBodyTexKey);
 	end
 
 	if tArrow then

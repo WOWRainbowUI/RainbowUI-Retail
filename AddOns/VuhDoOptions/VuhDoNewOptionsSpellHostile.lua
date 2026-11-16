@@ -61,5 +61,10 @@ function VUHDO_newOptionsSpellEditBoxCheckHostileSpell(anEditBox)
 		anEditBox:SetTextColor(0.8, 0.8, 1, 1);
 		tLabel:SetText("");
 	end
+
+	VUHDO_newOptionsSpellEditBoxCheckClickBinding(anEditBox, tLabel);
+
+	return;
+
 end
 

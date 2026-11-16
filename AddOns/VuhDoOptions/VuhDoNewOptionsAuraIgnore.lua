@@ -229,23 +229,94 @@ end
 
 
 
---
-local tDecodedAuraIgnoreString;
-local tAuraIgnoreTable;
-local tDecompressedAuraIgnoreTable;
-local function VUHDO_auraIgnoreStringToTable(anAuraIgnoreString)
+do
+	--
+	local tDecodedAuraIgnoreString;
+	local tAuraIgnoreTable;
+	local tDecompressedAuraIgnoreTable;
+	local function VUHDO_auraIgnoreStringToTable(anAuraIgnoreString)
 
-	tDecodedAuraIgnoreString = VUHDO_LibBase64.Decode(anAuraIgnoreString);
-	tAuraIgnoreTable = VUHDO_deserializeTable(tDecodedAuraIgnoreString);
+		tDecodedAuraIgnoreString = VUHDO_decodeBase64(anAuraIgnoreString);
 
-	if tAuraIgnoreTable and tAuraIgnoreTable["auraIgnore"] then
-		tDecompressedAuraIgnoreTable = VUHDO_decompressIfCompressed(VUHDO_LibCompressEncode:Decode(tAuraIgnoreTable["auraIgnore"]));
+		if not tDecodedAuraIgnoreString then
+			return nil;
+		end
 
-		tAuraIgnoreTable["auraIgnore"] = tDecompressedAuraIgnoreTable;
+		tAuraIgnoreTable = VUHDO_deserializeTable(tDecodedAuraIgnoreString);
+
+		if tAuraIgnoreTable and tAuraIgnoreTable["auraIgnore"] then
+			tDecompressedAuraIgnoreTable = VUHDO_decompressIfCompressed(VUHDO_LibCompressEncode:Decode(tAuraIgnoreTable["auraIgnore"]));
+
+			tAuraIgnoreTable["auraIgnore"] = tDecompressedAuraIgnoreTable;
+		end
+
+		return tAuraIgnoreTable;
+
 	end
 
-	return tAuraIgnoreTable;
 
+
+	--
+	local tImportString;
+	local tImportTable;
+	local tKey;
+	function VUHDO_auraIgnoreImport(anEditBoxName)
+
+		tImportString = _G[anEditBoxName]:GetText();
+
+		tImportTable = VUHDO_auraIgnoreStringToTable(tImportString);
+
+		if tImportTable == nil or tImportTable["auraIgnoreVersion"] == nil or tonumber(tImportTable["auraIgnoreVersion"]) == nil or
+			tonumber(tImportTable["auraIgnoreVersion"]) ~= VUHDO_AURA_IGNORE_SHARE_VERSION or tImportTable["playerName"] == nil or
+			tImportTable["auraIgnore"] == nil or type(tImportTable["auraIgnore"]) ~= "table" then
+			VUHDO_showMessageDialog(VUHDO_I18N_IMPORT, VUHDO_I18N_IMPORT_STRING_INVALID);
+
+			return false;
+		end
+
+		for tAuraIgnoreSpell, _ in pairs(tImportTable["auraIgnore"]) do
+			tKey = tonumber(tAuraIgnoreSpell);
+
+			VUHDO_AURA_IGNORE_LIST[tKey or tAuraIgnoreSpell] = true;
+		end
+
+		VUHDO_invalidateAuraGroupFilterCache();
+
+		VUHDO_Msg(VUHDO_I18N_AURA_IGNORE_IMPORTED);
+
+		return true;
+
+	end
+
+
+
+	--
+	local tEditBoxName;
+	local tCombo;
+	function VUHDO_yesNoImportAuraIgnoreCallback(aDecision)
+
+		if VUHDO_YES == aDecision then
+			tEditBoxName = VuhDoYesNoFrame:GetAttribute("importStringEditBoxName");
+
+			if VUHDO_auraIgnoreImport(tEditBoxName) then
+				_G[tEditBoxName]:GetParent():GetParent():GetParent():Hide();
+
+				VUHDO_initAuraIgnoreComboModel();
+
+				tCombo = _G["VuhDoNewOptionsAuraIgnoreIgnorePanelIgnoreComboBox"];
+
+				if tCombo then
+					VUHDO_lnfComboBoxInitFromModel(tCombo);
+
+					tCombo:Hide();
+					tCombo:Show();
+				end
+			end
+		end
+
+		return;
+
+	end
 end
 
 
@@ -260,70 +331,6 @@ function VUHDO_auraIgnoreExportButtonShown(aEditBox)
 	aEditBox:SetTextInsets(0, 10, 5, 5);
 
 	aEditBox:Show();
-
-	return;
-
-end
-
-
-
---
-local tImportString;
-local tImportTable;
-local tKey;
-function VUHDO_auraIgnoreImport(anEditBoxName)
-
-	tImportString = _G[anEditBoxName]:GetText();
-
-	tImportTable = VUHDO_auraIgnoreStringToTable(tImportString);
-
-	if tImportTable == nil or tImportTable["auraIgnoreVersion"] == nil or tonumber(tImportTable["auraIgnoreVersion"]) == nil or
-		tonumber(tImportTable["auraIgnoreVersion"]) ~= VUHDO_AURA_IGNORE_SHARE_VERSION or tImportTable["playerName"] == nil or
-		tImportTable["auraIgnore"] == nil or type(tImportTable["auraIgnore"]) ~= "table" then
-		VUHDO_Msg(VUHDO_I18N_IMPORT_STRING_INVALID);
-
-		return;
-	end
-
-	for tAuraIgnoreSpell, _ in pairs(tImportTable["auraIgnore"]) do
-		tKey = tonumber(tAuraIgnoreSpell);
-
-		VUHDO_AURA_IGNORE_LIST[tKey or tAuraIgnoreSpell] = true;
-	end
-
-	VUHDO_invalidateAuraGroupFilterCache();
-
-	VUHDO_Msg(VUHDO_I18N_AURA_IGNORE_IMPORTED);
-
-	return;
-
-end
-
-
-
---
-local tEditBoxName;
-local tCombo;
-function VUHDO_yesNoImportAuraIgnoreCallback(aDecision)
-
-	if VUHDO_YES == aDecision then
-		tEditBoxName = VuhDoYesNoFrame:GetAttribute("importStringEditBoxName");
-
-		VUHDO_auraIgnoreImport(tEditBoxName);
-
-		_G[tEditBoxName]:GetParent():GetParent():GetParent():Hide();
-
-		VUHDO_initAuraIgnoreComboModel();
-
-		tCombo = _G["VuhDoNewOptionsAuraIgnoreIgnorePanelIgnoreComboBox"];
-
-		if tCombo then
-			VUHDO_lnfComboBoxInitFromModel(tCombo);
-		end
-
-		_G["VuhDoNewOptionsAuraIgnoreIgnorePanelIgnoreComboBox"]:Hide();
-		_G["VuhDoNewOptionsAuraIgnoreIgnorePanelIgnoreComboBox"]:Show();
-	end
 
 	return;
 

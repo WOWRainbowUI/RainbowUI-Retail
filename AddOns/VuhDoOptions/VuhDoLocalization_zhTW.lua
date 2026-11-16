@@ -950,6 +950,21 @@ VUHDO_I18N_TT.K894 = "從此群組中排除中毒類光環。";
 VUHDO_I18N_TT.K895 = "從此群組中排除流血類光環。";
 VUHDO_I18N_TT.K896 = "將此光環群組限制為友方單位、敵方單位，或兩者皆包含。";
 VUHDO_I18N_TT.K897 = "從此群組中排除狂怒類光環。";
+VUHDO_I18N_TT.K767 = "Enable color tinting for this spell's icon.";
+VUHDO_I18N_TT.K862 = "Shows debuffs flagged by Blizzard as boss, role, important, or crowd control, plus any that can be dispelled.";
+VUHDO_I18N_TT.K898 = "Match every aura with this spell's name (e.g. all ranks) instead of only this exact spell ID.";
+VUHDO_I18N_TT.K899 = "Color the aura icon during the aura refresh (pandemic) window. Default inherits from the aura anchor.";
+VUHDO_I18N_TT.K901 = "Flash the aura icon during the aura refresh (pandemic) window. Default inherits from the aura anchor.";
+VUHDO_I18N_TT.K902 = "Color used during the aura refresh (pandemic) window.";
+VUHDO_I18N_TT.K903 = "Color the aura icon during the aura refresh (pandemic) window.";
+VUHDO_I18N_TT.K904 = "Flash the aura icon during the aura refresh (pandemic) window.";
+VUHDO_I18N_TT.K905 = "Color used during the aura refresh (pandemic) window.";
+VUHDO_I18N_TT.K906 = "Color the aura icon during the aura refresh (pandemic) window. Global inherits from Colors > Auras.";
+VUHDO_I18N_TT.K907 = "Flash the aura icon during the aura refresh (pandemic) window. Global inherits from Colors > Auras.";
+VUHDO_I18N_TT.K908 = "Tracks Weakened Soul from yourself and from others.";
+VUHDO_I18N_TT.K909 = "在顯示的名字後加上角色姓氏。";
+VUHDO_I18N_TT.K910 = "在顯示的名字後加上伺服器名稱（僅限跨伺服器玩家）。";
+VUHDO_I18N_TT.K911 = "僅當隊伍中有同名角色時，才加上姓氏或伺服器名稱。";
 
 -- TBCC game version specific strings (tooltip IDs begin at K900)
 
@@ -1795,3 +1810,6 @@ VUHDO_I18N_TT.K905 = "光環可延長的刷新期間使用的顏色。";
 VUHDO_I18N_TT.K906 = "在光環可延長的刷新期間為圖示著色。全域沿用「顏色 > 光環」設定。";
 VUHDO_I18N_TT.K907 = "在光環可延長的刷新期間閃爍圖示。全域沿用「顏色 > 光環」設定。";
 VUHDO_I18N_TT.K908 = "追蹤自己與其他人施加的虛弱靈魂。";
+VUHDO_I18N_REALM = "伺服器";
+VUHDO_I18N_SURNAME = "姓氏";
+VUHDO_I18N_ONLY_DUPLICATES = "僅限\n同名角色";

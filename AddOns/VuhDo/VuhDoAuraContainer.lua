@@ -171,6 +171,7 @@ local VUHDO_startAuraButtonGlow;
 local VUHDO_getDispelTypeColorMap;
 local VUHDO_getDispelTypeColorMapOpaque;
 local VUHDO_getDispelTypeBorderCurve;
+local VUHDO_getDispelColorSignature;
 local VUHDO_applyAuraGroupBarGlowFromAuraButton;
 local VUHDO_getAuraAnchorHost;
 local VUHDO_unitPhaseReason;
@@ -536,6 +537,7 @@ function VUHDO_auraContainerInitLocalOverrides()
 	VUHDO_getDispelTypeColorMap = _G["VUHDO_getDispelTypeColorMap"];
 	VUHDO_getDispelTypeColorMapOpaque = _G["VUHDO_getDispelTypeColorMapOpaque"];
 	VUHDO_getDispelTypeBorderCurve = _G["VUHDO_getDispelTypeBorderCurve"];
+	VUHDO_getDispelColorSignature = _G["VUHDO_getDispelColorSignature"];
 	VUHDO_applyAuraGroupBarGlowFromAuraButton = _G["VUHDO_applyAuraGroupBarGlowFromAuraButton"];
 	VUHDO_getAuraAnchorHost = _G["VUHDO_getAuraAnchorHost"];
 	VUHDO_unitPhaseReason = _G["VUHDO_unitPhaseReason"];
@@ -561,8 +563,6 @@ function VUHDO_auraContainerInitLocalOverrides()
 		sAuraTimerColorCurveFull:AddPoint(0.1, CreateColor(1, 0.2, 0.2, 1));
 		sAuraTimerColorCurveFull:AddPoint(4.9, CreateColor(1, 1, 1, 1));
 	end
-
-	sAuraBarDispelOverlayOptions["customDispelColorCurve"] = VUHDO_getDispelTypeBorderCurve();
 
 	VUHDO_auraContainerOverlaysInitLocalOverrides();
 
@@ -1887,6 +1887,8 @@ do
 
 			tDispelBarOverlay:SetAllPoints(aAuraButton["DurationBar"]:GetStatusBarTexture());
 
+			aButtonSetup["dispelBarOverlayOptions"]["customDispelColorCurve"] = VUHDO_getDispelTypeBorderCurve();
+
 			aAuraButton:AddDispelTypeTexture(tDispelBarOverlay, aButtonSetup["dispelBarOverlayOptions"]);
 		end
 
@@ -3179,6 +3181,8 @@ do
 		tinsert(aSignatureParts, aButtonSetup["disableMouse"] and "1" or "0");
 
 		VUHDO_appendAuraContainerBuildSignatureExtras(aSignatureParts, aButtonSetup);
+
+		tinsert(aSignatureParts, VUHDO_getDispelColorSignature());
 
 	end
 

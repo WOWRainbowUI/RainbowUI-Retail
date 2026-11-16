@@ -136,6 +136,12 @@ do
 
 			if VUHDO_BUFFS[tSpellName] then
 				VUHDO_addResolvedAuraContainerSpellIds(aDest, tSpellName);
+
+				for tCnt = 3, #tCategSpells do
+					for _, tSameBuff in pairs(tCategSpells[tCnt] or sEmpty) do
+						VUHDO_addResolvedAuraContainerSpellIds(aDest, tSameBuff);
+					end
+				end
 			end
 		end
 

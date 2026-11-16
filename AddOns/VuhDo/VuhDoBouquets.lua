@@ -6,6 +6,7 @@ local select = select;
 local twipe = table.wipe;
 local tinsert = table.insert;
 local tremove = table.remove;
+local tconcat = table.concat;
 local tsort = table.sort;
 local ipairs = ipairs;
 local pairs = pairs;
@@ -66,6 +67,7 @@ local VUHDO_AURA_GROUP_TYPE_LIST;
 local VUHDO_AURA_GROUP_TYPE_FILTER;
 local VUHDO_AURA_LIST_ENTRY_BOUQUET;
 local VUHDO_AURA_LIST_ENTRY_SPELL;
+local VUHDO_MIXED_BOUQUET_FRAME_LEVEL_STRIDE;
 local VUHDO_BOUQUET_RESTRICTED_NON_AURA;
 local VUHDO_BOUQUET_RESTRICTED_UNSUPPORTED;
 local VUHDO_SECRET_TYPE_DISPEL;
@@ -145,6 +147,9 @@ local sDispelTypeBackgroundFillCurve;
 local sDispelTypeBackgroundBackingCurve;
 local sDispelTypeBackgroundFillCurveCache = { };
 local sDispelTypeBackgroundBackingCurveCache = { };
+
+local sDispelColorSignature = "";
+local sDispelColorSignatureParts = { };
 
 local sDispelNameColorKeyMap = {
 	["None"] = "DEBUFF0",
@@ -273,6 +278,7 @@ function VUHDO_bouquetsInitLocalOverrides()
 	VUHDO_BOUQUET_RESTRICTED_UNSUPPORTED = _G["VUHDO_BOUQUET_RESTRICTED_UNSUPPORTED"];
 	VUHDO_AURA_LIST_ENTRY_BOUQUET = _G["VUHDO_AURA_LIST_ENTRY_BOUQUET"];
 	VUHDO_AURA_LIST_ENTRY_SPELL = _G["VUHDO_AURA_LIST_ENTRY_SPELL"];
+	VUHDO_MIXED_BOUQUET_FRAME_LEVEL_STRIDE = _G["VUHDO_MIXED_BOUQUET_FRAME_LEVEL_STRIDE"];
 	VUHDO_BOUQUET_RESTRICTED_NON_AURA = _G["VUHDO_BOUQUET_RESTRICTED_NON_AURA"];
 	VUHDO_SECRET_TYPE_DISPEL = _G["VUHDO_SECRET_TYPE_DISPEL"];
 	VUHDO_SECRET_TYPE_DURATION = _G["VUHDO_SECRET_TYPE_DURATION"];
@@ -788,6 +794,15 @@ end
 
 
 --
+function VUHDO_getDispelColorSignature()
+
+	return sDispelColorSignature;
+
+end
+
+
+
+--
 function VUHDO_getDispelTypeTextCurve()
 
 	return sDispelTypeTextCurve;
@@ -1220,6 +1235,56 @@ end
 
 do
 	--
+	local tBarColors;
+	local tCurvePointEntry;
+	local tColorKey;
+	local tDispelColor;
+	local tPartCnt;
+	function VUHDO_rebuildDispelColorSignature()
+
+		twipe(sDispelColorSignatureParts);
+		tPartCnt = 0;
+
+		tBarColors = VUHDO_PANEL_SETUP and VUHDO_PANEL_SETUP["BAR_COLORS"];
+
+		if not tBarColors then
+			sDispelColorSignature = "";
+
+			return;
+		end
+
+		for tIdx = 1, #sDispelTypeCurvePointKeys do
+			tCurvePointEntry = sDispelTypeCurvePointKeys[tIdx];
+			tColorKey = tCurvePointEntry[2];
+			tDispelColor = tBarColors[tColorKey];
+
+			if tDispelColor then
+				tPartCnt = tPartCnt + 1;
+				sDispelColorSignatureParts[tPartCnt] = format(
+					"%s:%.3f:%.3f:%.3f:%.3f:%s:%s:%s",
+					tColorKey,
+					tDispelColor["R"] or 0,
+					tDispelColor["G"] or 0,
+					tDispelColor["B"] or 0,
+					tDispelColor["O"] or 1,
+					tDispelColor["useBorder"] and "1" or "0",
+					tDispelColor["useBackground"] and "1" or "0",
+					tDispelColor["useGlow"] and "1" or "0"
+				);
+			end
+		end
+
+		sDispelColorSignature = tconcat(sDispelColorSignatureParts, "|");
+
+		return;
+
+	end
+end
+
+
+
+do
+	--
 	local tColors;
 	local tDefaultColor;
 	local tTransparent;
@@ -1284,6 +1349,7 @@ do
 			VUHDO_populateDispelTypeBorderCurve(sDispelTypeBorderCurve);
 
 			VUHDO_rebuildDerivedDispelTypeNameMaps();
+			VUHDO_rebuildDispelColorSignature();
 
 			return;
 		end
@@ -1308,6 +1374,7 @@ do
 		VUHDO_populateDispelTypeBorderCurve(sDispelTypeBorderCurve);
 
 		VUHDO_rebuildDerivedDispelTypeNameMaps();
+		VUHDO_rebuildDispelColorSignature();
 
 		return;
 
@@ -4988,7 +5055,7 @@ do
 			tPiece = tPieces[tPieceIdx];
 			tItem = tBouquet[tPiece["itemIndex"]];
 			tStackLevel = tItemCount - tPiece["itemIndex"] + 1;
-			tFrameLevelOffset = 1 + tStackLevel;
+			tFrameLevelOffset = 1 + (tStackLevel - 1) * VUHDO_MIXED_BOUQUET_FRAME_LEVEL_STRIDE;
 			tSlotKey = format("slot%d:%d", aListEntryIndex, tPiece["itemIndex"]);
 
 			if tPiece["isStatic"] then

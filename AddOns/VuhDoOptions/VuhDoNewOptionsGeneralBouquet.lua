@@ -1031,15 +1031,84 @@ end
 
 
 
---
-local tDecodedBouquetString;
-local tBouquetTable;
-local function VUHDO_bouquetStringToTable(aBouquetString)
-	tDecodedBouquetString = VUHDO_LibBase64.Decode(aBouquetString);
-	
-	tBouquetTable = VUHDO_decompressIfCompressed(tDecodedBouquetString);
+do
+	--
+	local tDecodedBouquetString;
+	local tBouquetTable;
+	local function VUHDO_bouquetStringToTable(aBouquetString)
 
-	return tBouquetTable;
+		tDecodedBouquetString = VUHDO_decodeBase64(aBouquetString);
+
+		tBouquetTable = VUHDO_decompressIfCompressed(tDecodedBouquetString);
+
+		return tBouquetTable;
+
+	end
+
+
+
+	--
+	local tPanelMain;
+	local tImportString;
+	local tImportTable;
+	local tName;
+	local tPos;
+	function VUHDO_bouquetImport(aEditBoxName)
+		tPanelMain = _G[_G[aEditBoxName]:GetParent():GetParent():GetParent():GetParent():GetName() .. "MainPanel"];
+
+		tImportString = _G[aEditBoxName]:GetText();
+		tImportTable = VUHDO_bouquetStringToTable(tImportString);
+
+		if (tImportTable == nil or tImportTable["bouquetVersion"] == nil or tonumber(tImportTable["bouquetVersion"]) == nil or 
+			tonumber(tImportTable["bouquetVersion"]) ~= VUHDO_BOUQUET_SHARE_VERSION or tImportTable["playerName"] == nil or 
+			tImportTable["bouquetName"] == nil or tImportTable["bouquet"] == nil) then
+
+			VUHDO_showMessageDialog(VUHDO_I18N_IMPORT, VUHDO_I18N_IMPORT_STRING_INVALID);
+
+			return false;
+		end
+
+		tName = tImportTable["bouquetName"];
+
+		if (VUHDO_BOUQUETS["STORED"][tName] ~= nil) then
+			tPos = strfind(tName, ": ", 1, true);
+			
+			if (tPos ~= nil) then
+				tName = strsub(tName, tPos + 2);
+			end
+
+			tName = VUHDO_createNewBouquetName(tName, tImportTable["playerName"]);
+		end
+
+		VUHDO_BOUQUETS["STORED"][tName] = tImportTable["bouquet"];
+		VUHDO_BOUQUETS["SELECTED"] = tName;
+
+		VUHDO_bouquetsComboValueChanged(tPanelMain, tName);
+		VUHDO_initBouquetComboModel();
+
+		tPanelMain:Hide();
+		tPanelMain:Show();
+
+		VUHDO_rebuildAllBouquetItems(nil, 0);
+
+		VUHDO_Msg(VUHDO_I18N_CREATED_NEW_BOUQUET .. tName);
+
+		return true;
+	end
+
+
+
+	--
+	local tEditBoxName;
+	function VUHDO_yesNoImportBouquetCallback(aDecision)
+		if (VUHDO_YES == aDecision) then
+			tEditBoxName = VuhDoYesNoFrame:GetAttribute("importStringEditBoxName"); 
+
+			if (VUHDO_bouquetImport(tEditBoxName)) then
+				_G[tEditBoxName]:GetParent():GetParent():GetParent():Hide();
+			end
+		end
+	end
 end
 
 
@@ -1099,68 +1168,6 @@ function VUHDO_createNewBouquetName(aName, aUnitName)
 	end
 
 	return tNewName;
-end
-
-
-
---
-local tPanelMain;
-local tImportString;
-local tImportTable;
-local tName;
-local tPos;
-function VUHDO_bouquetImport(aEditBoxName)
-	tPanelMain = _G[_G[aEditBoxName]:GetParent():GetParent():GetParent():GetParent():GetName() .. "MainPanel"];
-
-	tImportString = _G[aEditBoxName]:GetText();
-	tImportTable = VUHDO_bouquetStringToTable(tImportString);
-
-	if (tImportTable == nil or tImportTable["bouquetVersion"] == nil or tonumber(tImportTable["bouquetVersion"]) == nil or 
-		tonumber(tImportTable["bouquetVersion"]) ~= VUHDO_BOUQUET_SHARE_VERSION or tImportTable["playerName"] == nil or 
-		tImportTable["bouquetName"] == nil or tImportTable["bouquet"] == nil) then
-
-		VUHDO_Msg(VUHDO_I18N_IMPORT_STRING_INVALID);
-
-		return;
-	end
-
-	tName = tImportTable["bouquetName"];
-
-	if (VUHDO_BOUQUETS["STORED"][tName] ~= nil) then
-		tPos = strfind(tName, ": ", 1, true);
-		
-		if (tPos ~= nil) then
-			tName = strsub(tName, tPos + 2);
-		end
-
-		tName = VUHDO_createNewBouquetName(tName, tImportTable["playerName"]);
-	end
-
-	VUHDO_BOUQUETS["STORED"][tName] = tImportTable["bouquet"];
-	VUHDO_BOUQUETS["SELECTED"] = tName;
-
-	VUHDO_bouquetsComboValueChanged(tPanelMain, tName);
-	VUHDO_initBouquetComboModel();
-
-	tPanelMain:Hide();
-	tPanelMain:Show();
-
-	VUHDO_rebuildAllBouquetItems(nil, 0);
-
-	VUHDO_Msg(VUHDO_I18N_CREATED_NEW_BOUQUET .. tName);
-end
-
-
-
---
-function VUHDO_yesNoImportBouquetCallback(aDecision)
-	if (VUHDO_YES == aDecision) then
-		local tEditBoxName = VuhDoYesNoFrame:GetAttribute("importStringEditBoxName"); 
-
-		VUHDO_bouquetImport(tEditBoxName);
-
-		_G[tEditBoxName]:GetParent():GetParent():GetParent():Hide();
-	end
 end
 
 

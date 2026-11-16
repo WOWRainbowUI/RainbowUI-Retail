@@ -91,4 +91,10 @@ function VUHDO_activateLayout(aName)
 	VUHDO_initKeyboardMacros();
 	VUHDO_timeReloadUI(1);
 
+	if VUHDO_IS_CONFIG then
+		VUHDO_newOptionsRebufferVars();
+	end
+
+	return;
+
 end

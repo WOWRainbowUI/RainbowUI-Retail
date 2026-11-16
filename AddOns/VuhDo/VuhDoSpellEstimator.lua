@@ -105,6 +105,8 @@ local VUHDO_SPELLS = VUHDO_SPELLS;
 -- initializes some dynamic information into VUHDO_SPELLS
 function VUHDO_initFromSpellbook()
 
+	VUHDO_initSpellbookSpellCache();
+
 	twipe(sPlayerHotsSnapshot);
 
 	for tCnt = 1, #VUHDO_PLAYER_HOTS do
