@@ -467,20 +467,9 @@ RenderFriendButton = function(button, elementData)
 					if cut then infoText = infoText:sub(1, cut - 1) end
 				end
 
-				-- [[ FIX: C_Texture Crash Prevention ]]
-				if isForeverFriend then
-					button.gameIcon:SetTexture(Compat.FOREVER_ICON)
-				elseif C_Texture and C_Texture.SetTitleIconTexture then
-					C_Texture.SetTitleIconTexture(button.gameIcon, accountInfo.gameAccountInfo.clientProgram, Enum.TitleIconVersion.Medium, accountInfo.gameAccountInfo.subIcon)
-				elseif BNet_GetClientTexture then
-					-- Classic Fallback
-					button.gameIcon:SetTexture(BNet_GetClientTexture(accountInfo.gameAccountInfo.clientProgram))
-				end
-
+				Compat.SetGameIcon(button.gameIcon, accountInfo.gameAccountInfo)
 				-- Full brightness for every online game, other projects included.
 				button.gameIcon:SetAlpha(1)
-				-- Retail gold vs Classic green: tint the client icon by the friend project.
-				Compat.TintGameIcon(button.gameIcon, accountInfo.gameAccountInfo)
 
 				-- Compatibility: Only run if the function exists
 				local shouldShowSummonButton = false

@@ -289,11 +289,8 @@ _G.FriendGroups_Automation_Claim = {
 
 -- ============================================================================
 -- [[ BUSY RULE ]]
--- Unchanged from the pre-toast behaviour: FriendGroups does not auto-accept a
--- group invite while the player is in combat, in a rated/instanced PvP match,
--- inside an active Mythic+ run, or mid-encounter. Evaluated once, when the
--- invite arrives -- a toast already on screen has a visible countdown, a hover
--- pause and a Decline button, so it is not the unattended accept this guards.
+-- No auto-accept in combat, PvP, an active Mythic+ run or mid-encounter.
+-- Evaluated once, when the invite arrives.
 -- ============================================================================
 
 local function FG_IsPlayerBusy()
@@ -302,20 +299,46 @@ local function FG_IsPlayerBusy()
 	local inInstance, instanceType = IsInInstance()
 	if inInstance then
 		if instanceType == "pvp" or instanceType == "arena" then return true end
-		-- Carried over from the pre-toast code, but with the METHOD checked and not
-		-- just the namespace: C_ChallengeMode.IsChallengeModeActive is a modern
-		-- addition, so a client exposing the namespace without this member would
-		-- have errored here and taken auto-accept down with it.
+		-- Check the method, not just the namespace: Classic has C_ChallengeMode
+		-- without IsChallengeModeActive.
 		if instanceType == "party"
 			and type(C_ChallengeMode) == "table"
 			and type(C_ChallengeMode.IsChallengeModeActive) == "function"
 			and C_ChallengeMode.IsChallengeModeActive() then
 			return true
 		end
-		if IsEncounterInProgress() then return true end
+		if C_InstanceEncounter.IsEncounterInProgress() then return true end
 	end
 
 	return false
+end
+
+-- Fails closed: an inviter we cannot identify (missing or secret GUID) is not trusted.
+local function FG_IsTrustedInviter(guid)
+	if type(guid) ~= "string" then return false end
+	if type(issecretvalue) == "function" and issecretvalue(guid) then return false end
+	if guid == "" then return false end
+
+	if C_BattleNet and type(C_BattleNet.GetGameAccountInfoByGUID) == "function" then
+		local ok, info = pcall(C_BattleNet.GetGameAccountInfoByGUID, guid)
+		if ok and info then return true end
+	end
+	if C_FriendList and type(C_FriendList.IsFriend) == "function" then
+		local ok, isFriend = pcall(C_FriendList.IsFriend, guid)
+		if ok and isFriend then return true end
+	end
+	if type(IsGuildMember) == "function" then
+		local ok, isMember = pcall(IsGuildMember, guid)
+		if ok and isMember then return true end
+	end
+	return false
+end
+
+local function FG_InviterAllowed(guid)
+	if not (FriendGroups_SavedVars and FriendGroups_SavedVars.auto_accept_friends_guild) then
+		return true
+	end
+	return FG_IsTrustedInviter(guid)
 end
 
 -- ============================================================================
@@ -762,8 +785,15 @@ FriendGroups_Automation:SetScript("OnEvent", function(self, event, ...)
 		if not FG_ShouldHandle("invite") then return end
 		if FG_IsPlayerBusy() then return end
 
+		local inviter = FG_PlainName((...))
+		-- Arg 7 is inviterGUID. A refused inviter gets no decline: Blizzard's popup stays up.
+		if not FG_InviterAllowed((select(7, ...))) then
+			FG_Announce(string.format(L["MSG_AUTO_INVITE_NOT_TRUSTED"], inviter or L["UNKNOWN"]))
+			return
+		end
+
 		if FG_ExternalToastVisible() then return end
-		InviteToast:Present({ name = FG_PlainName(...) })
+		InviteToast:Present({ name = inviter })
 
 	-- Both close the countdown if the invite is resolved somewhere other than on
 	-- the toast: PARTY_INVITE_CANCEL covers a withdrawn or expired invite and a

@@ -414,6 +414,17 @@ function Compat.SetBNetNote(bnetIDAccount, note)
 	return true
 end
 
+-- Returns inviteID, accountName. C_BattleNet.GetFriendInviteInfo is retail/Forever only;
+-- the Classic clients still have just the BNGetFriendInviteInfo global.
+function Compat.GetFriendInviteInfo(inviteIndex)
+	if type(C_BattleNet.GetFriendInviteInfo) == "function" then
+		local info = C_BattleNet.GetFriendInviteInfo(inviteIndex)
+		if info then return info.inviteID, info.accountName end
+		return
+	end
+	return BNGetFriendInviteInfo(inviteIndex)
+end
+
 -- Total number of Battle.net friends.
 --
 -- BNGetNumFriends is the DOCUMENTED entry point (added 3.3.5 / 1.13.2) and is present
@@ -855,6 +866,74 @@ function Compat.TintGameIcon(icon, gameInfo)
 		if icon.SetDesaturated then icon:SetDesaturated(false) end
 		icon:SetVertexColor(1, 1, 1)
 	end
+end
+
+-- One icon path for list rows and the Online by Game tooltip, so the two always match.
+function Compat.SetGameIcon(icon, gameInfo)
+	local client = gameInfo and gameInfo.clientProgram
+	if Compat.IsForeverGame(gameInfo) then
+		icon:SetTexture(Compat.FOREVER_ICON)
+	elseif C_Texture and C_Texture.SetTitleIconTexture then
+		C_Texture.SetTitleIconTexture(icon, client, Enum.TitleIconVersion.Medium, gameInfo and gameInfo.subIcon)
+	elseif BNet_GetClientTexture then
+		icon:SetTexture(BNet_GetClientTexture(client))
+	end
+	Compat.TintGameIcon(icon, gameInfo)
+end
+
+-- ============================================================================
+-- [[ ONLINE BY GAME ]] Buckets for the online-count tooltip. WoW splits by project; a
+-- Classic friend whose project cannot be proven goes to "WoW:classic", never a guess.
+-- ============================================================================
+local WOW_PROJECT_LABEL_KEYS = {
+	[WOW_PROJECT_MAINLINE or 1] = "GAME_WOW",
+	[WOW_PROJECT_CLASSIC or 2] = "GAME_WOW_ERA",
+	[WOW_PROJECT_BURNING_CRUSADE_CLASSIC or 5] = "GAME_WOW_TBC",
+	[WOW_PROJECT_MISTS_CLASSIC or 19] = "GAME_WOW_MISTS",
+	[WOW_PROJECT_CAMELOT or 18] = "GAME_WOW_FOREVER",
+}
+
+-- Other games show their logo only: Blizzard has no client-code-to-name API.
+local GAME_LABEL_KEYS = { App = "GAME_BNET_APP", ["?"] = "GAME_UNKNOWN" }
+
+-- gameInfo nil means a WoW character friend, who is on our project by definition.
+function Compat.GameBucket(gameInfo)
+	if not gameInfo then return "WoW:" .. WOW_PROJECT_ID end
+	local client = FG_Plain(gameInfo.clientProgram)
+	if type(client) ~= "string" or client == "" then return "?" end
+	if client == "App" or client == "BSAp" then return "App" end
+	if client ~= (BNET_CLIENT_WOW or "WoW") then return client end
+	if Compat.IsForeverGame(gameInfo) then return "WoW:" .. Compat.FOREVER_PROJECT end
+	local pid = FG_Plain(gameInfo.wowProjectID)
+	if type(pid) == "number" and pid > 0 then return "WoW:" .. pid end
+	if Compat.IsSameProject(gameInfo) then return "WoW:" .. WOW_PROJECT_ID end
+	if Compat.ResolveFriendFlavor(gameInfo) then return "WoW:classic" end
+	return "WoW:" .. (WOW_PROJECT_MAINLINE or 1)
+end
+
+-- nil for a non-WoW game: the tooltip shows its logo alone.
+function Compat.GameLabel(bucket)
+	local key
+	local pid = bucket:match("^WoW:(%d+)$")
+	if pid then
+		key = WOW_PROJECT_LABEL_KEYS[tonumber(pid)] or "GAME_WOW_CLASSIC"
+	elseif bucket == "WoW:classic" then
+		key = "GAME_WOW_CLASSIC"
+	else
+		key = GAME_LABEL_KEYS[bucket]
+		if not key then return nil end
+	end
+	local L = addonTable.L
+	return (L and rawget(L, key)) or key
+end
+
+-- Our own WoW first, other WoW versions, other games, then the app and unknown last.
+function Compat.GameBucketRank(bucket)
+	if bucket == "WoW:" .. WOW_PROJECT_ID then return 0 end
+	if bucket:find("^WoW:") then return 1 end
+	if bucket == "App" then return 3 end
+	if bucket == "?" then return 4 end
+	return 2
 end
 
 -- Inline class-icon markup (for tooltip / fontstring text) given an English class

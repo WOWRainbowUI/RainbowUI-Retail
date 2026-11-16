@@ -712,6 +712,16 @@ local settingsMenuItems = {
         end
     },
     {
+        text = L["SET_AUTO_ACCEPT_FRIENDS_GUILD"],
+        tooltip = { L["SET_AUTO_ACCEPT_FRIENDS_GUILD_TT"] },
+        enabled = function() return FriendGroups_SavedVars.auto_accept_invite == true end,
+        keepShownOnClick = true,
+        checked = function() return FriendGroups_SavedVars.auto_accept_friends_guild end,
+        func = function()
+            FriendGroups_SavedVars.auto_accept_friends_guild = not FriendGroups_SavedVars.auto_accept_friends_guild
+        end
+    },
+    {
         text = L["SET_AUTO_PARTY_SYNC"],
         -- Hidden where Blizzard has Party Sync switched off (Forever); the saved value stays.
         condition = function() return Compat.IsPartySyncAvailable() end,
@@ -860,6 +870,7 @@ local settingsMenuItems = {
             FriendGroups_SavedVars.hide_afk = false
             FriendGroups_SavedVars.open_one_group = false
             FriendGroups_SavedVars.auto_accept_invite = true
+            FriendGroups_SavedVars.auto_accept_friends_guild = false
             FriendGroups_SavedVars.auto_accept_sync = true
             FriendGroups_SavedVars.offline_tracker = true
             FriendGroups_SavedVars.streamer_mode = false
@@ -1177,7 +1188,7 @@ function FriendGroups_InviteOrGroup(groupName, invite)
                         local gameAccountID = gameAccountInfo.gameAccountID
                         if gameAccountID then
                             C_Timer.After(inviteDelay, function()
-                                BNInviteFriend(gameAccountID)
+                                C_BattleNet.InviteFriend(gameAccountID)
                             end)
                             inviteDelay = inviteDelay + 0.2
                         end
@@ -2553,6 +2564,26 @@ local FriendGroups_OnlineKeys = {}      -- [identityKey] = true, every unique on
 local FriendGroups_OnlineByGroup = {}   -- [groupName] = { [identityKey] = true }
 local FriendGroups_OnlineGuidKeys = {}  -- [playerGuid] = identityKey, online BNet characters
 local FriendGroups_OnlineTotal = 0
+-- [bucket] = { count, info }; one game per unique contact, so the counts sum to the total.
+local FriendGroups_OnlineByGame = {}
+
+-- Fields Compat's icon and bucket helpers read; copied so no API table is held past the pass.
+local FG_GAME_INFO_FIELDS = { "clientProgram", "subIcon", "wowProjectID", "realmName", "realmID", "regionID", "richPresence" }
+
+local function FriendGroups_TallyGame(gameInfo)
+    local bucket = Compat.GameBucket(gameInfo)
+    local entry = FriendGroups_OnlineByGame[bucket]
+    if not entry then
+        local info = { clientProgram = FG_WowClient(), wowProjectID = WOW_PROJECT_ID }
+        if gameInfo then
+            info = {}
+            for _, field in ipairs(FG_GAME_INFO_FIELDS) do info[field] = gameInfo[field] end
+        end
+        entry = { count = 0, info = info }
+        FriendGroups_OnlineByGame[bucket] = entry
+    end
+    entry.count = entry.count + 1
+end
 
 -- Published for the platform renderers. On 12.1 the online-contact counter has no fontstring
 -- of its own -- the legacy one is parented to the hidden FriendsListFrame -- so the Social UI
@@ -2639,6 +2670,7 @@ function FriendGroups_SetGroups(id, buttonType, passedAccountInfo)
     -- GUID of the character this friend is logged into; links the BNet and WoW friend
     -- lists together for the unique online counter. Nil when offline or not in WoW.
     local playerGuid = nil
+    local tallyGameInfo = nil
 
     -- Inline state resolution to completely bypass redundant API table allocations
     if buttonType == FRIENDS_BUTTON_TYPE_BNET then
@@ -2650,6 +2682,7 @@ function FriendGroups_SetGroups(id, buttonType, passedAccountInfo)
 
             local gameAccountInfo = friendAccountInfo.gameAccountInfo
             if gameAccountInfo then
+                tallyGameInfo = gameAccountInfo
                 isOnline = gameAccountInfo.isOnline
                 client = gameAccountInfo.clientProgram
                 -- Guild auto-detect matches against our own roster, so Forever compares with itself.
@@ -3066,6 +3099,7 @@ function FriendGroups_SetGroups(id, buttonType, passedAccountInfo)
         if onlineKey and not FriendGroups_OnlineKeys[onlineKey] then
             FriendGroups_OnlineKeys[onlineKey] = true
             FriendGroups_OnlineTotal = FriendGroups_OnlineTotal + 1
+            FriendGroups_TallyGame(tallyGameInfo)
         end
     end
 
@@ -4894,6 +4928,7 @@ EnableFriendGroups = function()
             hide_afk = false,
             open_one_group = false,
             auto_accept_invite = true,
+            auto_accept_friends_guild = false,
             auto_accept_sync = true,
             show_flags = true,
             offline_tracker = true,
@@ -5136,6 +5171,9 @@ end)
                         function() return item.checked() end,
                         function() item.func() end
                     )
+                    if item.enabled and cb and cb.SetEnabled then
+                        cb:SetEnabled(item.enabled)
+                    end
                     if item.tooltip and cb and cb.SetTooltip then
                         cb:SetTooltip(function(tooltip)
                             GameTooltip_SetTitle(tooltip, item.tooltipTitle or item.text)
@@ -5921,16 +5959,9 @@ FriendGroups_FriendsListUpdateFriendButton = function(button, elementData)
 					infoText = FriendGroups_GetOnlineInfoText(client, accountInfo.gameAccountInfo.isWowMobile, accountInfo.rafLinkType, accountInfo.gameAccountInfo.areaName, realmName);
 				end
 
-				if isForeverFriend then
-					button.gameIcon:SetTexture(Compat.FOREVER_ICON)
-				else
-					-- subIcon selects the product variant (Classic), as Blizzard's own row does.
-					C_Texture.SetTitleIconTexture(button.gameIcon, client, Enum.TitleIconVersion.Medium, accountInfo.gameAccountInfo.subIcon);
-				end
+				Compat.SetGameIcon(button.gameIcon, accountInfo.gameAccountInfo)
 				-- Full brightness for every online game, other projects included.
 				button.gameIcon:SetAlpha(1);
-					-- Retail gold vs Classic green: tint the client icon by the friend project.
-					Compat.TintGameIcon(button.gameIcon, accountInfo.gameAccountInfo)
 
 				local shouldShowSummonButton = FriendsFrame_ShouldShowSummonButton(button.summonButton);
 				button.gameIcon:SetShown(not shouldShowSummonButton);
@@ -6233,6 +6264,7 @@ function FriendGroups_FriendsListUpdate(forceUpdate)
     -- because BN_FRIEND_INFO_CHANGED flags the roster dirty, so every online/offline
     -- transition forces a full pass rather than the fast visible-row refresh above.
     wipe(FriendGroups_OnlineByGroup)
+    wipe(FriendGroups_OnlineByGame)
     wipe(FriendGroups_OnlineKeys)
     wipe(FriendGroups_OnlineGuidKeys)
     FriendGroups_OnlineTotal = 0
@@ -6765,8 +6797,12 @@ end
 -- strip is hidden again on OnHide or it would bleed through unrelated tooltips.
 local FriendGroups_TooltipBanners = {}
 local FriendGroups_TooltipBannerCount = 0
-local FriendGroups_TooltipHeaderLine = nil
-local FriendGroups_TooltipHeaderFont = nil
+local FriendGroups_TooltipHeaders = {}   -- { line, font } per promoted header
+local FriendGroups_TooltipGameIcons = {}
+local FriendGroups_TooltipGameIconCount = 0
+-- Inline blank the size of a game icon: reserves the gap the pooled icon texture sits in.
+local FG_TOOLTIP_GAME_ICON_SIZE = 14
+local FG_TOOLTIP_GAME_ICON_GAP = "|TInterface\\Common\\spacer:" .. FG_TOOLTIP_GAME_ICON_SIZE .. ":" .. FG_TOOLTIP_GAME_ICON_SIZE .. "|t"
 
 -- Undo everything we painted onto the shared tooltip: strips hidden, and the promoted
 -- header line put back on the font it had. Without the font restore, the next tooltip to
@@ -6779,12 +6815,16 @@ local function FriendGroups_ResetTooltipStyling()
     end
     FriendGroups_TooltipBannerCount = 0
 
-    if FriendGroups_TooltipHeaderLine then
-        if FriendGroups_TooltipHeaderFont then
-            FriendGroups_TooltipHeaderLine:SetFontObject(FriendGroups_TooltipHeaderFont)
-        end
-        FriendGroups_TooltipHeaderLine = nil
-        FriendGroups_TooltipHeaderFont = nil
+    for i = 1, FriendGroups_TooltipGameIconCount do
+        FriendGroups_TooltipGameIcons[i]:Hide()
+    end
+    FriendGroups_TooltipGameIconCount = 0
+
+    -- Newest first: a line promoted twice gets its original font back last.
+    for i = #FriendGroups_TooltipHeaders, 1, -1 do
+        local header = FriendGroups_TooltipHeaders[i]
+        if header.font then header.line:SetFontObject(header.font) end
+        FriendGroups_TooltipHeaders[i] = nil
     end
 end
 
@@ -6798,10 +6838,37 @@ local function FriendGroups_PromoteTooltipHeaderLine(lineIndex, r, g, b)
     local line = _G["GameTooltipTextLeft" .. lineIndex]
     -- No header font on this client: leave the line at its normal size rather than error.
     if not line or not GameTooltipHeaderText then return end
-    FriendGroups_TooltipHeaderFont = line:GetFontObject()
+    FriendGroups_TooltipHeaders[#FriendGroups_TooltipHeaders + 1] = { line = line, font = line:GetFontObject() }
     line:SetFontObject(GameTooltipHeaderText)
     line:SetTextColor(r, g, b)
-    FriendGroups_TooltipHeaderLine = line
+end
+
+-- Places a game icon in the gap FG_TOOLTIP_GAME_ICON_GAP left at the start of the line.
+local function FriendGroups_ShowTooltipGameIcon(lineIndex, bucket, info)
+    local line = _G["GameTooltipTextLeft" .. lineIndex]
+    if not line then return end
+
+    FriendGroups_TooltipGameIconCount = FriendGroups_TooltipGameIconCount + 1
+    local tex = FriendGroups_TooltipGameIcons[FriendGroups_TooltipGameIconCount]
+    if not tex then
+        tex = GameTooltip:CreateTexture(nil, "ARTWORK")
+        tex:SetSize(FG_TOOLTIP_GAME_ICON_SIZE, FG_TOOLTIP_GAME_ICON_SIZE)
+        FriendGroups_TooltipGameIcons[FriendGroups_TooltipGameIconCount] = tex
+    end
+
+    tex:ClearAllPoints()
+    tex:SetPoint("LEFT", line, "LEFT", 0, 0)
+    tex:SetTexCoord(0, 1, 0, 1)
+    if bucket == "?" then
+        tex:SetTexture("Interface\\Icons\\INV_Misc_QuestionMark")
+        tex:SetDesaturated(false)
+        tex:SetVertexColor(1, 1, 1)
+    elseif bucket == "App" then
+        Compat.SetGameIcon(tex, { clientProgram = BNET_CLIENT_APP or "App" })
+    else
+        Compat.SetGameIcon(tex, info)
+    end
+    tex:Show()
 end
 
 local function FriendGroups_ShowTooltipBanner(lineIndex, r, g, b)
@@ -6929,6 +6996,29 @@ function FriendGroups_UpdateContactCap()
                 GameTooltip:AddLine(L["TOOLTIP_ONLINE_UNIQUE_NOTE"], 1, 1, 1, true)
             end
 
+            -- [[ ONLINE BY GAME ]] Icons are placed after Show(), like the banners.
+            local games = {}
+            for bucket, entry in pairs(FriendGroups_OnlineByGame) do
+                games[#games + 1] = { bucket = bucket, entry = entry, rank = Compat.GameBucketRank(bucket), label = Compat.GameLabel(bucket) }
+            end
+            table.sort(games, function(a, b)
+                if a.rank ~= b.rank then return a.rank < b.rank end
+                if a.entry.count ~= b.entry.count then return a.entry.count > b.entry.count end
+                return (a.label or a.bucket) < (b.label or b.bucket)
+            end)
+            local pendingGameIcons = nil
+            if #games > 0 then
+                GameTooltip:AddLine(" ")
+                GameTooltip:AddLine(L["TOOLTIP_GAMES_TITLE"], aR, aG, aB)
+                FriendGroups_PromoteTooltipHeaderLine(GameTooltip:NumLines(), aR, aG, aB)
+                pendingGameIcons = {}
+                for _, game in ipairs(games) do
+                    local left = FG_TOOLTIP_GAME_ICON_GAP .. (game.label and (" " .. game.label) or "")
+                    GameTooltip:AddDoubleLine(left, string.format(L["TEXT_ONLINE_COUNT"], game.entry.count), aR, aG, aB, aR, aG, aB)
+                    pendingGameIcons[#pendingGameIcons + 1] = { line = GameTooltip:NumLines(), bucket = game.bucket, info = game.entry.info }
+                end
+            end
+
             GameTooltip:AddLine(" ")
 
             -- [[ CONTACT LIMITS ]]
@@ -6974,6 +7064,11 @@ function FriendGroups_UpdateContactCap()
                 for i = 1, #pendingBanners do
                     local banner = pendingBanners[i]
                     FriendGroups_ShowTooltipBanner(banner.line, banner.r, banner.g, banner.b)
+                end
+            end
+            if pendingGameIcons then
+                for _, icon in ipairs(pendingGameIcons) do
+                    FriendGroups_ShowTooltipGameIcon(icon.line, icon.bucket, icon.info)
                 end
             end
         end
@@ -7052,16 +7147,7 @@ function FriendGroups_FriendsFrameUpdateFriendInviteButton(button, elementData)
 	button.buttonType = elementData.buttonType;
 	button.id = id;
 
-    local inviteID, accountName
-    if C_BattleNet and C_BattleNet.GetFriendInviteInfo then
-        local inviteInfo = C_BattleNet.GetFriendInviteInfo(id)
-        if inviteInfo then
-            inviteID = inviteInfo.inviteID
-            accountName = inviteInfo.accountName
-        end
-    else
-        inviteID, accountName = BNGetFriendInviteInfo(id)
-    end
+    local inviteID, accountName = Compat.GetFriendInviteInfo(id)
 
 	button.Name:SetText(accountName);
 	button.inviteID = inviteID;
