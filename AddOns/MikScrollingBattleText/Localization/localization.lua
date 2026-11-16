@@ -43,6 +43,10 @@ L.MSG_CRITS					= "Crits"
 L.MSG_MULTIPLE_TARGETS		= "Multiple"
 L.MSG_READY_NOW				= "Ready Now"
 L.CP_FULL = "Finish Him!"
+L.COMBO_POINT = "Combo Point"
+L.COMBO_POINTS = "Combo Points"
+L.RESOURCE_NAMES = {}
+L.SETUP_RELOAD_PROMPT = "In order for MSBT to start, you need to reload your UI."
 
 L.MSG_INCOMING			= "Incoming"
 L.MSG_OUTGOING			= "Outgoing"

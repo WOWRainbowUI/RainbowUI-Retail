@@ -28,6 +28,23 @@ function ParserNotifications:HandleProficiency(event)
 	return nil
 end
 
+-- The icon of a skill line of yours, found by the name its gain gives
+-- (SkillLineIcons.lua). The spell of that name is no help on Forever: the
+-- client has one for every profession, each with the same gem icon.
+local function FindSkillIcon(skillName)
+	local icons, info = MikSBT.SKILL_LINE_ICONS, C_SkillInfo
+	if not icons or not info then return nil end
+	for index = 1, info.GetNumSkillLines() do
+		local line = info.GetSkillLineInfo(index)
+		if line and line.name == skillName then return icons[line.skillID] end
+	end
+end
+
+function ParserNotifications:SkillIcon(skillName)
+	local found, icon = pcall(FindSkillIcon, skillName)
+	return found and icon or nil
+end
+
 function ParserNotifications:HandleExperience(event)
 	if event.recipientUnit == "player" then
 		return "NOTIFICATION_EXPERIENCE_GAIN"

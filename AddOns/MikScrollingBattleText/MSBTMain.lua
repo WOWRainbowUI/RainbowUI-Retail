@@ -26,7 +26,7 @@ local reloadPromptShown = false
 local reloadPromptFrame
 
 local function HideCombatSetup()
-	if reloadPromptFrame then reloadPromptFrame:Hide() end
+	if reloadPromptFrame and not InCombatLockdown() then reloadPromptFrame:Hide() end
 end
 
 local function NotifyCombatSetup()
@@ -57,21 +57,21 @@ local function NotifyCombatSetup()
 	local text = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 	text:SetPoint("TOP", 0, -52)
 	text:SetWidth(332)
-	text:SetText(L.COMBAT_SETUP_RELOAD)
+	text:SetText(L.SETUP_RELOAD_PROMPT
+		or "In order for MSBT to start, you need to reload your UI.")
 
-	local reloadButton = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
+	local reloadButton = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate, SecureActionButtonTemplate")
 	reloadButton:SetSize(140, 26)
 	reloadButton:SetPoint("BOTTOM", -76, 20)
 	reloadButton:SetText(RELOADUI)
-	reloadButton:SetScript("OnClick", function()
-		frame:Hide()
-		ReloadUI()
-	end)
+	reloadButton:SetAttribute("type", "macro")
+	reloadButton:SetAttribute("macrotext", "/reload")
+	reloadButton:RegisterForClicks(GetCVarBool("ActionButtonUseKeyDown") and "LeftButtonDown" or "LeftButtonUp")
 	local cancelButton = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
 	cancelButton:SetSize(140, 26)
 	cancelButton:SetPoint("BOTTOM", 76, 20)
 	cancelButton:SetText(CANCEL)
-	cancelButton:SetScript("OnClick", function() frame:Hide() end)
+	cancelButton:SetScript("OnClick", HideCombatSetup)
 	frame:Show()
 end
 
@@ -261,7 +261,10 @@ local function ParserEventsHandler(parserEvent)
 	local effectTexture
 	if not currentProfile.skillIconsDisabled
 		and IsScrollAreaIconShown(eventSettings.scrollArea) and effectName then
-		_, _, effectTexture = GetSpellInfo(effectName)
+		if eventTypeString == "NOTIFICATION_SKILL_GAIN" then
+			effectTexture = parserNotifications:SkillIcon(effectName)
+		end
+		if not effectTexture then _, _, effectTexture = GetSpellInfo(effectName) end
 	end
 	local outputMessage = Formatter:FormatLegacyEvent(
 		eventSettings.message, parserEvent.amount, nil, nil, nil, nil,
@@ -547,14 +550,29 @@ local function CleanupActionMessage(message)
 	return message
 end
 
+local function RestrictedActionMessage(eventSettings, message, school, spellID)
+	message = message or eventSettings.message or "%a"
+	local publicSpellID = RestrictedValue:Number(spellID)
+	if publicSpellID then
+		local spellName = not IsAutoAttackSpellID(publicSpellID)
+			and RestrictedValue:String(GetSpellInfo(publicSpellID)) or nil
+		-- Format readable metadata without sending the hidden amount into Lua.
+		message = Formatter:FormatLegacyEvent(
+			message, nil, school, nil, nil, nil, nil, nil, spellName,
+			nil, nil, nil, MSBTProfiles.currentProfile.hideSkills
+		)
+	end
+	return CleanupActionMessage(message)
+end
+
 local function DisplayRestrictedAmount(
-	eventSettings, amount, texturePath, message, suffix, school
+	eventSettings, amount, texturePath, message, suffix, school, spellID
 )
 	if not eventSettings or eventSettings.disabled then
 		return
 	end
 	local template = Formatter:BuildRestrictedTemplate(
-		CleanupActionMessage(message or eventSettings.message or "%a"),
+		RestrictedActionMessage(eventSettings, message, school, spellID),
 		suffix,
 		school
 	)
@@ -567,7 +585,9 @@ local function DisplayRestrictedAmount(
 	)
 end
 
-local function DisplayRestrictedGroup(eventSettings, amounts, texturePath, school)
+local function DisplayRestrictedGroup(
+	eventSettings, amounts, texturePath, school, spellID
+)
 	if not eventSettings or eventSettings.disabled then return end
 	local formattedAmounts, placeholders = {}, {}
 	for index = 1, #amounts do
@@ -576,8 +596,12 @@ local function DisplayRestrictedGroup(eventSettings, amounts, texturePath, schoo
 		)
 		placeholders[index] = Formatter:ColorDamageAmount("%s", school)
 	end
-	local message = table.concat(placeholders, " + ")
-		.. string.format(" [%d %s]", #amounts, L.MSG_HITS or "Hits")
+	local message = (eventSettings.message or "%a"):gsub("%%a", "\001", 1)
+		:gsub("%%a", "")
+	message = RestrictedActionMessage(eventSettings, message, school, spellID)
+	message = message:gsub("%%", "%%%%"):gsub("\001", function()
+		return table.concat(placeholders, " + ")
+	end) .. string.format(" [%d %s]", #amounts, L.MSG_HITS or "Hits")
 	DisplayEvent(eventSettings, message, texturePath, nil,
 		unpack(formattedAmounts, 1, #amounts))
 end
@@ -747,7 +771,8 @@ if Client.isMainline or Client.isForever then
 				messageOverride or settings.message or "",
 				record.amount, record.school,
 				nil, nil, nil, name, nil, effect,
-				nil, nil, useEventColor, hideSkills
+				Formatter:FormatBlockedTrailer(record), nil, useEventColor,
+				hideSkills
 			)
 			message = CleanupActionMessage(message)
 			if record.hitCount and record.hitCount > 1
@@ -756,6 +781,9 @@ if Client.isMainline or Client.isForever then
 					.. (L.MSG_HITS or "Hits") .. "]"
 			end
 			return message
+		end,
+		formatBlockedTrailer = function(record)
+			return Formatter:FormatBlockedTrailer(record)
 		end,
 		displayHeal = function(settings, amount, healer, icon, message)
 			-- Public formatting leaves \002 for the healer and %a for the amount.
@@ -778,6 +806,7 @@ if Client.isMainline or Client.isForever then
 	})
 	combatEngine = CombatEngine:New({
 		presentation = presentation,
+		getProfile = function() return MSBTProfiles.currentProfile end,
 		log = CombatLogFilter:New({
 			getSaved = function() return Blizzard_CombatLog_Filters end,
 			getTemplate = function() return DEFAULT_COMBATLOG_FILTER_TEMPLATE end,

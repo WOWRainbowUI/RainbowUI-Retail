@@ -20,6 +20,7 @@ local DisableControls = MSBTPopups.DisableControls
 local fonts = MSBTMedia.fonts
 
 local IsClassic = MikSBT.Compatibility.Client.isClassicContent
+local IsForever = MikSBT.Compatibility.Client.isForever
 
 
 
@@ -1894,12 +1895,12 @@ local function LanguageTab_Create()
 	local localeMap = {
 		enUS = "English (US)",
 		deDE = "Deutsch",
-		frFR = "Francais",
+		frFR = "Français",
 		itIT = "Italiano",
-		koKR = "Korean",
-		ruRU = "Russian",
-		zhCN = "Chinese (Simplified)",
-		zhTW = "Chinese (Traditional)",
+		koKR = "한국어",
+		ruRU = "Русский",
+		zhCN = "简体中文",
+		zhTW = "繁體中文",
 	}
 
 	local localeID = GetLocale()
@@ -1907,13 +1908,13 @@ local function LanguageTab_Create()
 
 	local header = tabFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
 	header:SetPoint("TOPLEFT", tabFrame, "TOPLEFT", 10, -18)
-	header:SetText("Language")
+	header:SetText(L.TABS.language.label)
 	tabFrame.headerFontString = header
 
 	local current = tabFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 	current:SetPoint("TOPLEFT", header, "BOTTOMLEFT", 0, -12)
 	current:SetJustifyH("LEFT")
-	current:SetText("Current game locale: " .. localeName .. " (" .. localeID .. ")")
+	current:SetText(string.format(L.LANGUAGE_CURRENT, localeName, localeID))
 	tabFrame.currentLocaleFontString = current
 
 	local body = tabFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
@@ -1921,10 +1922,7 @@ local function LanguageTab_Create()
 	body:SetPoint("RIGHT", tabFrame, "RIGHT", -14, 0)
 	body:SetJustifyH("LEFT")
 	body:SetJustifyV("TOP")
-	body:SetText(
-		"MSBT uses your game client locale. In-addon language switching is not supported because localization is loaded at startup based on GetLocale().\n\n"
-		.. "To use another language, change the game language in the Battle.net app, then restart/reload the game UI."
-	)
+	body:SetText(L.LANGUAGE_INFO)
 	tabFrame.languageInfoFontString = body
 
 	tabFrame.created = true
@@ -1946,7 +1944,7 @@ end
 local function ResetBlizzardSCTTab_ConfirmReset()
 	MSBTProfiles.ResetOfficialBlizzardCombatText()
 	RefreshGeneralTabIfCreated()
-	Print("Blizzard scrolling combat text restored.", 0, 1, 0)
+	Print(L.MSG_BLIZZARD_TEXT_RESTORED, 0, 1, 0)
 end
 
 local function ResetBlizzardSCTTab_Create()
@@ -1956,7 +1954,7 @@ local function ResetBlizzardSCTTab_Create()
 
 	local header = tabFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
 	header:SetPoint("TOPLEFT", tabFrame, "TOPLEFT", 10, -18)
-	header:SetText("Reset Blizzard SCT")
+	header:SetText(L.TABS.resetBlizzardSCT.label)
 	tabFrame.headerFontString = header
 
 	local body = tabFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
@@ -1964,10 +1962,7 @@ local function ResetBlizzardSCTTab_Create()
 	body:SetPoint("RIGHT", tabFrame, "RIGHT", -14, 0)
 	body:SetJustifyH("LEFT")
 	body:SetJustifyV("TOP")
-	body:SetText(
-		"Use this to restore Blizzard's scrolling combat text for damage, periodic damage, and pet damage.\n\n"
-		.. "This enables Blizzard damage and turns off MSBT. You can change either toggle in General."
-	)
+	body:SetText(L.RESET_BLIZZARD_INFO)
 	tabFrame.bodyFontString = body
 
 	local button = MSBTControls.CreateOptionButton(tabFrame)

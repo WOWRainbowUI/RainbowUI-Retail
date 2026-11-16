@@ -14,15 +14,16 @@ local ns = MikSBT.CombatEngine
 -- So a hit on a unit is matched to them by time and school:
 --   1. the next tick of a DoT of yours, on its rhythm;
 --   2. a direct cast whose target, school and readable damage fit the hit,
---      with a clear margin over other spell identities;
+--      with a clear margin over other spell identities, or the one cast
+--      made in the hit's frame;
 --   3. the first tick of a spell that may tick: 1, 1.5, 2 or 3 seconds
 --      after its cast, or as long after its first matched hit as that hit
 --      came after the cast (a first tick taken for a hit);
 --   4. an unknown-school cast, using the same comparison after known ticks;
 --   5. a physical hit or a miss right after one of your swings;
---   6. a physical hit while your pet is attacking that unit, at most one a
---      second (a pet's swings are not reported);
---   7. otherwise someone else's: a teammate's, or a DoT whose cast was not
+--   6. a physical hit confirmed by your pet's enabled outgoing lines when
+--      no player swing explains it (a pet's swings are not reported);
+--   7. otherwise unknown: a teammate's hit, or a DoT whose cast was not
 --      seen (a steady rhythm of one school still marks it as ticks).
 -- What it learns about each spell is kept (Store.lua's learned cache): its
 -- school; whether it hits at once, ticks, or both; and its tick interval.
@@ -58,6 +59,16 @@ local DIRECT_WINDOW = 3.0
 -- Time breaks ties within one identity, but cannot by itself name a spell.
 local DIRECT_MATCH_MARGIN = 0.1
 local DIRECT_TIME_WEIGHT = 0.05
+-- The frame of a cast can: a strike's report came with the timestamp of its
+-- cast's event (seen on Forever with Rake and Claw, three of three; a
+-- queued strike reports in its cast's frame too, Reader.lua). With amounts
+-- hidden in a fight and no description read, two different casts waiting on
+-- a unit left every hit without a name, and as such a hit uses up no cast,
+-- the next was nameless again: after a taunt, seven strikes of seven, each
+-- shown with a question mark. A cast made within SAME_FRAME of the hit leads
+-- older casts by more than the margin; two casts of one frame still tie, and
+-- a readable amount that fits another cast still outranks the frame.
+local SAME_FRAME, SAME_FRAME_LEAD = 0.02, 0.2
 -- A spell that hits every enemy near lands in its cast's own frame: every
 -- recorded Frost Nova, Arcane Explosion and Flamestrike hit at once did (0.3.42,
 -- 1.60.1.70374). A little room for the cast's event coming a frame late.
@@ -192,7 +203,8 @@ end
 -- facts(id): what the spell's description says (Spells.lua), or nil.
 function ns.NewMine(learned, learn, facts)
     return setmetatable({ pending = {}, dots = {}, swings = {}, held = {}, rhythm = {}, petLast = {}, evidence = {}, votes = {},
-        casts = {}, amounts = {}, channels = {},
+        casts = {}, amounts = {}, channels = {}, retiredDots = {},
+        retiredChannels = {},
         learned = learned or function() end, learn = learn or function() end, facts = facts or function() end }, Mine)
 end
 
@@ -205,8 +217,14 @@ local function Prune(list, keep, now, tracker)
     while #list > MAX do table.remove(list, 1) end
 end
 
-local function KeepPending(entry, now)
-    return not entry.used and now - entry.at <= DIRECT_WINDOW
+local function DirectWindow(self, spell)
+    local facts = self.facts(spell)
+    return type(facts) == "table" and facts.window or DIRECT_WINDOW
+end
+
+local function KeepPending(entry, now, tracker)
+    return not entry.used
+        and now - entry.at <= DirectWindow(tracker, entry.spell)
 end
 
 local function KeepSwing(entry, now)
@@ -217,7 +235,17 @@ local function KeepHeld(entry, now)
     return not entry.claimed and now - entry.at <= LATE_SWING
 end
 
+local function PeriodicExpired(facts, castAt, now, cast)
+    if type(facts) ~= "table" or not facts.duration then return false end
+    -- A catalog period starts at the cast. Tooltip-only projectiles can
+    -- establish their application time from two actual observed ticks.
+    local start = not facts.period and cast and cast.periodicAt or castAt
+    return now - start > facts.duration + TICK_SLACK
+end
+
 local function KeepDot(dot, now, tracker)
+    local facts = tracker.facts(dot.spell)
+    if PeriodicExpired(facts, dot.castAt, now, dot.cast) then return false end
     if dot.bufferUntil then
         if now <= dot.bufferUntil then return true end
         dot.bufferUntil = nil
@@ -248,12 +276,29 @@ local function KeepDot(dot, now, tracker)
     return false
 end
 
+local function ChannelExpired(channel, now)
+    return (channel.endsAt and now > channel.endsAt + 0.5)
+        or (not channel.endsAt and now - channel.at > CAST_HISTORY_WINDOW)
+        or (channel.stoppedAt and now - channel.stoppedAt > 0.5)
+end
+
 function Mine:Tidy(now)
-    for caster, channel in pairs(self.channels) do
-        if now - channel.at > CAST_HISTORY_WINDOW
-            or (channel.stoppedAt and now - channel.stoppedAt > 0.5) then
-            self.channels[caster] = nil
+    for index = #self.retiredDots, 1, -1 do
+        local dot = self.retiredDots[index]
+        local facts = self.facts(dot.spell)
+        local hasDuration = type(facts) == "table" and facts.duration ~= nil
+        if (not hasDuration and now - dot.castAt > CAST_HISTORY_WINDOW)
+            or PeriodicExpired(facts, dot.castAt, now, dot.cast) then
+            table.remove(self.retiredDots, index)
         end
+    end
+    for index = #self.retiredChannels, 1, -1 do
+        if ChannelExpired(self.retiredChannels[index], now) then
+            table.remove(self.retiredChannels, index)
+        end
+    end
+    for caster, channel in pairs(self.channels) do
+        if ChannelExpired(channel, now) then self.channels[caster] = nil end
     end
     for key, schools in pairs(self.rhythm) do
         for school, beat in pairs(schools) do
@@ -273,7 +318,7 @@ function Mine:Tidy(now)
         if #casts == 0 then self.casts[spell] = nil end
     end
 
-    Prune(self.pending, KeepPending, now)
+    Prune(self.pending, KeepPending, now, self)
     Prune(self.swings, KeepSwing, now)
     Prune(self.held, KeepHeld, now)
     Prune(self.dots, KeepDot, now, self)
@@ -286,14 +331,105 @@ local function SchoolFits(known, school)
     return known == 127 and (school == 124 or school == 126)
 end
 
+-- Every direct path spends the same target outcome. A nearby second target
+-- preserves legacy area impacts; it never reopens an outcome on the first.
+local function DirectAvailable(self, spell, cast, key, now, area)
+    local age = now - cast.at
+    if age < -0.05 or age > DirectWindow(self, spell) then return false end
+    local facts = self.facts(spell)
+    local areaSpell = type(facts) == "table" and facts.area == true
+    if cast.key ~= key and not cast.targetUncertain and not (area and (areaSpell
+        or age <= AREA_MOMENT)) then return false end
+    local limit = type(facts) == "table" and facts.directHits or 1
+    local count = cast.outcomes and cast.outcomes[key or false] or 0
+    return count < (limit or 1)
+end
+
+local function ApplicationFailed(self, spell, cast, key)
+    local target = key or false
+    local misses = cast.misses and cast.misses[target] or 0
+    local outcomes = cast.outcomes and cast.outcomes[target] or 0
+    local facts = self.facts(spell)
+    local limit = type(facts) == "table" and facts.directHits or 1
+    return misses >= (limit or 1) and misses == outcomes
+end
+
+local function TargetApplied(cast, key)
+    local target = key or false
+    local outcomes = cast.outcomes and cast.outcomes[target] or 0
+    local misses = cast.misses and cast.misses[target] or 0
+    return outcomes > misses
+end
+
+local function PeriodicAvailable(cast, key, now, period)
+    local previous = cast and cast.periodicOutcomes
+        and cast.periodicOutcomes[key or false]
+    if previous == nil then return true end
+    -- History shares the same minimum separation as ordinary candidates.
+    if now - previous < 0.5 then return false end
+    if not period then return true end
+    -- Compare both reports on the current grid. A corrected learned period
+    -- must not reinterpret a saved ordinal from an older, stale interval.
+    local anchor = cast.periodicAt or cast.at
+    local before = math.floor((previous - anchor) / period + 0.5)
+    local current = math.floor((now - anchor) / period + 0.5)
+    return current > before
+end
+
+local function SpendPeriodic(cast, key, now)
+    if not cast then return end
+    cast.periodicOutcomes = cast.periodicOutcomes or {}
+    cast.periodicOutcomes[key or false] = now
+end
+
+local function SpendDirect(self, spell, cast, key, missed)
+    cast.outcomes = cast.outcomes or {}
+    local target = key or false
+    cast.outcomes[target] = (cast.outcomes[target] or 0) + 1
+    if (self.accountingEnabled == true or self.inferredWindfuryEnabled == true)
+        and not cast.ambiguous then
+        self.lastOutcomeReceipt = {
+            kind = "cast", at = cast.at, key = key, sourceKey = cast.key,
+            spell = spell, who = cast.caster, ordinal = cast.outcomes[target],
+            uncertain = cast.targetUncertain == true,
+        }
+    end
+    if missed then
+        cast.misses = cast.misses or {}
+        cast.misses[target] = (cast.misses[target] or 0) + 1
+    end
+    cast.directUsed = true
+    if not missed then cast.direct = true end
+    for _, entry in ipairs(self.pending) do
+        if entry.cast == cast and entry.key == key then
+            entry.used = not DirectAvailable(self, spell, cast, key, cast.at)
+        end
+    end
+    if ApplicationFailed(self, spell, cast, key) then
+        -- Periodic-only applications have no pending direct entry. Their
+        -- cast link still lets a failed application remove only its own DoT.
+        for index = #self.dots, 1, -1 do
+            local dot = self.dots[index]
+            if dot.cast == cast and dot.key == key then
+                dot.missed, dot.pending = true, nil
+                table.remove(self.dots, index)
+            end
+        end
+    end
+end
+
 local function ChannelFits(channel, key, school, now)
-    return channel.key == key and SchoolFits(channel.school, school)
+    return (channel.key == key or channel.targetUncertain)
+        and SchoolFits(channel.school, school)
         and now >= channel.at
+        and (not channel.endsAt or now <= channel.endsAt)
         and (not channel.stoppedAt or now <= channel.stoppedAt)
 end
 
-function Mine:StartChannel(caster, spell, key, now)
+function Mine:StartChannel(caster, spell, key, now, targetUncertain)
     caster = caster == "pet" and "pet" or "you"
+    -- Beginning another channel also ends any retired channel of that caster.
+    self:StopChannel(caster, nil, now)
     self.channels[caster] = nil
     local facts = self.facts(spell)
     if type(facts) ~= "table" or facts.damages ~= true then return end
@@ -317,17 +453,23 @@ function Mine:StartChannel(caster, spell, key, now)
     end
     self.channels[caster] = {
         caster = caster, spell = spell, key = key, at = now,
+        targetUncertain = targetUncertain == true,
         school = facts.school or self.learned("school", spell),
+        endsAt = facts.duration and now + facts.duration or nil,
     }
 end
 
 function Mine:StopChannel(caster, spell, now)
     caster = caster == "pet" and "pet" or "you"
-    local channel = self.channels[caster]
-    if channel and (spell == nil or channel.spell == spell) then
-        -- Buffered hits retain their event time, including the final tick.
-        channel.stoppedAt = now
+    local function Stop(channel)
+        if channel and channel.caster == caster
+            and (spell == nil or channel.spell == spell) then
+            -- Buffered hits retain their event time, including the final tick.
+            channel.stoppedAt = math.min(channel.stoppedAt or now, now)
+        end
     end
+    Stop(self.channels[caster])
+    for _, channel in ipairs(self.retiredChannels) do Stop(channel) end
 end
 
 local function LearnSchool(self, spell, school)
@@ -402,7 +544,7 @@ end
 
 -- A cast of yours or your pet's on the unit keyed key (nil: no unit to
 -- match against).
-function Mine:Cast(caster, spell, key, now)
+function Mine:Cast(caster, spell, key, now, targetUncertain)
     if type(spell) ~= "number" then return end
     caster = caster == "pet" and "pet" or "you"
     local channel = self.channels[caster]
@@ -412,14 +554,15 @@ function Mine:Cast(caster, spell, key, now)
     local facts = self.facts(spell)
     -- With no unit, only a spell of yours whose description says it deals
     -- damage counts (opening a chest is a cast with no target too).
-    if not key and (caster ~= "you" or type(facts) ~= "table" or facts.damages ~= true) then return end
+    if not key and not targetUncertain and (caster ~= "you" or type(facts) ~= "table" or facts.damages ~= true) then return end
     self:Tidy(now)
     local school, kind, period = self.learned("school", spell), self.learned("direct", spell), self.learned("period", spell)
     -- The last few casts of each spell (0.3.11: a fresh Agony on one enemy
     -- hid the one still ticking on another).
     local list = self.casts[spell] or {}
     self.casts[spell] = list
-    local cast = { at = now, caster = caster, key = key }
+    local cast = { at = now, caster = caster, key = key, spell = spell,
+        targetUncertain = targetUncertain == true }
     list[#list + 1] = cast
     while #list > 6 do table.remove(list, 1) end
     -- 0.3.42: a cast of yours with nothing targeted (an Arcane Explosion)
@@ -427,7 +570,7 @@ function Mine:Cast(caster, spell, key, now)
     -- of yours on any enemy in its moment is its (Likeliest, and a miss in
     -- Hit); it had been forgotten, and its hits shown as someone else's
     -- or its resist with an earlier wand shot's icon (1.60.1.70374).
-    if not key then return end
+    if not key and not targetUncertain then return end
     if type(facts) == "table" then
         if facts.damages == false then
             -- No damage at all: only a resist or immune can be its. 0.3.50:
@@ -436,6 +579,7 @@ function Mine:Cast(caster, spell, key, now)
             self.pending[#self.pending + 1] = {
                 caster = caster, spell = spell, key = key, at = now,
                 missOnly = true, cast = cast,
+                targetUncertain = targetUncertain == true,
             }
             while #self.pending > MAX do table.remove(self.pending, 1) end
             return
@@ -453,7 +597,9 @@ function Mine:Cast(caster, spell, key, now)
     end
     local dot
     if kind ~= DIRECT_ONLY or period then
-        dot = { caster = caster, spell = spell, key = key, castAt = now, school = school, period = period,
+        dot = { caster = caster, spell = spell, key = key, castAt = now,
+            cast = cast, school = school, period = period,
+            targetUncertain = targetUncertain == true,
             next = period and (now + period) or nil, ticks = 0, known = period ~= nil }
         self.dots[#self.dots + 1] = dot
     end
@@ -461,6 +607,7 @@ function Mine:Cast(caster, spell, key, now)
         local entry = {
             caster = caster, spell = spell, key = key, at = now,
             school = school, dot = dot, cast = cast,
+            targetUncertain = targetUncertain == true,
         }
         self.pending[#self.pending + 1] = entry
         if dot then dot.pending = entry end
@@ -485,6 +632,12 @@ function Mine:Swing(hand, key, now, duration)
         -- A ranged shot flies, so it never claims a hit from before it (0.3.13).
         if hand ~= "ranged" and not hit.claimed and hit.key == key and (hit.kind == "miss" or SchoolFits(PHYSICAL, hit.school)) then
             hit.claimed = true
+            if self.accountingEnabled == true or self.inferredWindfuryEnabled == true then
+                hit.accountingReceipt = {
+                    kind = "swing", at = now, key = key, hand = hand,
+                    who = "you", ordinal = 1,
+                }
+            end
             return hit
         end
     end
@@ -514,17 +667,78 @@ function Mine:SwingsBefore(key, now)
     return found
 end
 
+-- Optional diagnostics observe the same windows without tidying or spending.
+function Mine:AccountingSwingChecks(key, at)
+    if self.accountingEnabled ~= true then return nil end
+    local checks = {}
+    for index = #self.swings, 1, -1 do
+        local swing = self.swings[index]
+        local age = at - swing.at
+        if swing.key == key and swing.hand ~= "ranged"
+            and age <= PairedWindow(swing) then
+            local early, late = self:MeleeWindow(swing.hand)
+            local lag = self:SwingDelay(swing.hand) or USUAL_DELAY
+            local delayedEarly, delayedLate = lag + DELAYED_FROM,
+                lag + DELAYED_TO
+            local fits = (age >= early and age <= late)
+                or (age >= delayedEarly and age <= delayedLate)
+            local eligible = not swing.used and fits
+            local reason
+            if swing.used then reason = "used"
+            elseif eligible then reason = "eligible"
+            elseif age < early then reason = "before-window"
+            else reason = "after-window" end
+            checks[#checks + 1] = {
+                at = swing.at, hand = swing.hand, age = age,
+                early = early, late = late, delayedEarly = delayedEarly,
+                delayedLate = delayedLate, used = swing.used == true,
+                eligible = eligible, reason = reason,
+            }
+            if #checks == 8 then break end
+        end
+    end
+    return checks
+end
+
+local function RekeyCast(cast, old, new, seen)
+    if not cast or seen[cast] then return end
+    seen[cast] = true
+    if cast.key == old then cast.key = new end
+    if cast.outcomes and cast.outcomes[old] then
+        cast.outcomes[new] = math.max(cast.outcomes[new] or 0,
+            cast.outcomes[old])
+        cast.outcomes[old] = nil
+    end
+    if cast.misses and cast.misses[old] then
+        cast.misses[new] = math.max(cast.misses[new] or 0,
+            cast.misses[old])
+        cast.misses[old] = nil
+    end
+    if cast.periodicOutcomes and cast.periodicOutcomes[old] then
+        cast.periodicOutcomes[new] = math.max(
+            cast.periodicOutcomes[new] or -math.huge,
+            cast.periodicOutcomes[old])
+        cast.periodicOutcomes[old] = nil
+    end
+end
+
 -- A unit known by another key now: your target's nameplate went (a dying
 -- enemy's plate goes before the report of the blow that killed it) or came.
 function Mine:Rekey(old, new)
     if not old or not new or old == new then return end
+    for _, channel in pairs(self.channels) do
+        if channel.key == old then channel.key = new end
+    end
+    local seen = {}
     for _, casts in pairs(self.casts) do
         for _, cast in ipairs(casts) do
-            if cast.key == old then cast.key = new end
+            RekeyCast(cast, old, new, seen)
         end
     end
     for _, list in ipairs({ self.pending, self.dots, self.swings, self.held }) do
         for _, entry in ipairs(list) do
+            -- Live effects retain their cast ledger after history expires.
+            RekeyCast(entry.cast, old, new, seen)
             if entry.key == old then entry.key = new end
         end
     end
@@ -533,16 +747,24 @@ function Mine:Rekey(old, new)
 end
 
 -- Forget a unit (its nameplate went).
--- A DoT with a known rhythm is not forgotten with its plate (0.3.9): it is
--- kept unkeyed (key false) while it would still tick, and a tick of yours on
--- another plate in its moment takes it back (Adopt). An enemy that leaves
--- sight comes back with a new plate token, and battlegrounds hide who it is.
+-- A lost lifetime cannot be identified again from timing alone. Only Rekey
+-- may move state when the reader has evidence that two keys are one unit.
 -- Returns how many casts, DoTs, swings and held hits it touched.
 function Mine:Forget(key)
     local touched = 0
-    for _, casts in pairs(self.casts) do
-        for _, cast in ipairs(casts) do
-            if cast.key == key then cast.key = false end
+    for spell, casts in pairs(self.casts) do
+        for index = #casts, 1, -1 do
+            if casts[index].key == key then table.remove(casts, index) end
+        end
+        if #casts == 0 then self.casts[spell] = nil end
+    end
+    for caster, channel in pairs(self.channels) do
+        if channel.key == key then
+            self.retiredChannels[#self.retiredChannels + 1] = channel
+            while #self.retiredChannels > MAX do
+                table.remove(self.retiredChannels, 1)
+            end
+            self.channels[caster] = nil
         end
     end
     for _, list in ipairs({ self.pending, self.dots, self.swings, self.held }) do
@@ -550,7 +772,13 @@ function Mine:Forget(key)
             local entry = list[index]
             if entry.key == key then
                 touched = touched + 1
-                if list == self.dots and entry.period then entry.key = false else table.remove(list, index) end
+                if list == self.dots then
+                    self.retiredDots[#self.retiredDots + 1] = entry
+                    while #self.retiredDots > MAX do
+                        table.remove(self.retiredDots, 1)
+                    end
+                end
+                table.remove(list, index)
             end
         end
     end
@@ -562,6 +790,16 @@ local function Result(who, spell, tick, extra)
     local result = { who = who, spell = spell, tick = tick == true }
     if extra then for k, v in pairs(extra) do result[k] = v end end
     return result
+end
+
+-- A line confirms ownership, but close spell identities remain unnamed.
+-- Mixed player/pet candidates cannot safely choose an individual owner.
+local function AmbiguousResult(self, owner, mixedOwners, tick, missed)
+    self.lastOutcomeReceipt = nil
+    self.ambiguous = true
+    if self.lineNow ~= true or mixedOwners then owner = "unknown" end
+    return Result(owner, nil, tick,
+        { ambiguous = true, missed = missed == true })
 end
 
 -- A tick claimed by dot: what it teaches. A rhythm found from this
@@ -616,8 +854,9 @@ end
 
 local function DirectCandidateScore(self, entry, key, school, now, amount, crit)
     local age = now - entry.at
-    if entry.used or entry.missOnly or entry.key ~= key
-        or age < -0.05 or age > DIRECT_WINDOW
+    if entry.used or entry.missOnly
+        or (entry.key ~= key and not entry.targetUncertain)
+        or not DirectAvailable(self, entry.spell, entry.cast, key, now)
         or not SchoolFits(entry.school, school) then return nil end
 
     local facts = self.facts(entry.spell)
@@ -627,8 +866,11 @@ local function DirectCandidateScore(self, entry, key, school, now, amount, crit)
         return nil
     end
 
-    return DirectFit(self, entry.spell, amount, crit)
-        + math.max(0, age) / DIRECT_WINDOW * DIRECT_TIME_WEIGHT
+    local score = DirectFit(self, entry.spell, amount, crit)
+        + math.max(0, age) / DirectWindow(self, entry.spell)
+            * DIRECT_TIME_WEIGHT
+    if age <= SAME_FRAME then score = score - SAME_FRAME_LEAD end
+    return score
 end
 
 local function SameIdentity(first, second)
@@ -658,11 +900,20 @@ local function SelectDirectCandidate(self, key, school, now)
         local score = DirectCandidateScore(self, entry, key, school, now,
             self.amountNow, self.critNow)
         if score and score <= bestScore + DIRECT_MATCH_MARGIN
-            and (entry.ambiguous or not SameIdentity(entry, best)) then
+            and (entry.ambiguous or entry.targetUncertain
+                or not SameIdentity(entry, best)) then
             ambiguous = true
         end
     end
     return best, bestScore, ambiguous
+end
+
+local function QuarantineDirect(entry)
+    entry.ambiguous = true
+    entry.cast.ambiguous = true
+    if entry.dot and not entry.dot.period then
+        entry.dot.ambiguousDirect = true
+    end
 end
 
 local function AmbiguousDirectResult(self, key, school, now, bestScore)
@@ -676,17 +927,11 @@ local function AmbiguousDirectResult(self, key, school, now, bestScore)
             if self.lineNow == true then
                 -- Retain possible casts for ownership checks, but don't let a
                 -- later fallback name or learn the spell from this ambiguity.
-                entry.ambiguous = true
-                entry.cast.ambiguous = true
-                if entry.dot and not entry.dot.period then
-                    entry.dot.ambiguousDirect = true
-                end
+                QuarantineDirect(entry)
             end
         end
     end
-    self.ambiguous = true
-    if self.lineNow ~= true or mixedOwners then owner = "other" end
-    return Result(owner, nil, false, { ambiguous = true })
+    return AmbiguousResult(self, owner, mixedOwners, false)
 end
 
 local function RememberAmount(self, spell)
@@ -699,6 +944,7 @@ end
 
 local function Ticked(self, dot, school, now)
     dot.bufferUntil = nil
+    SpendPeriodic(dot.cast, dot.key, now)
     dot.ticks, dot.next, dot.skipped = dot.ticks + 1, now + dot.period, 0
     RememberAmount(self, dot.spell)
     if school and not dot.school then dot.school = school end
@@ -746,10 +992,14 @@ end
 
 -- Typed periodic lines can recover a cast even when its tooltip is unavailable
 -- or a learned school/kind/interval is stale. Fitting never changes the tracker.
-local function PeriodicCandidate(self, key, school, now, amount, leech)
-    local best, bestScore, count
+local function PeriodicCandidate(self, key, school, now, amount, leech,
+    visit, includeReserved)
+    local best, bestScore
+    local candidates = {}
     local dueDot, unknownDot, drainingDotScore = false, false, nil
     local function Consider(spell, cast, dot)
+        local source = cast or (dot and dot.cast)
+        if source and ApplicationFailed(self, spell, source, key) then return end
         local at = dot and dot.castAt or cast.at
         local since = now - at
         if since < 0.5 or (not dot and since > CAST_HISTORY_WINDOW) then return end
@@ -758,15 +1008,25 @@ local function PeriodicCandidate(self, key, school, now, amount, leech)
         if type(facts) == "table" then
             if facts.damages == false or facts.helpful or facts.healthCost
                 or facts.ticks == false or not SchoolFits(facts.school, school) then return end
-            if facts.duration and since > facts.duration + DIRECT_WINDOW then return end
+            if PeriodicExpired(facts, at, now, source) then return end
         end
         local known = dot and dot.school or self.learned("school", spell)
         local period = dot and dot.period or self.learned("period", spell)
+        local interval = type(facts) == "table" and facts.period or period
+        if not includeReserved
+            and not PeriodicAvailable(source, key, now, interval) then return end
         local score = AmountFit(self, spell, amount, period)
         local drains = type(facts) == "table" and facts.leech == true
         if leech ~= nil and drains ~= leech then score = score + 1 end
         local onBeat = dot and dot.next
             and math.abs(now - dot.next) <= TICK_SLACK
+        if type(facts) == "table" and facts.period and not onBeat then
+            -- Public catalog timing cannot be retaught by another report.
+            local offset = since % facts.period
+            if dot or math.min(offset, facts.period - offset) > TICK_SLACK then
+                return
+            end
+        end
         if onBeat then
             dueDot = true
             score = score + math.abs(now - dot.next) / TICK_SLACK * 0.3
@@ -775,32 +1035,35 @@ local function PeriodicCandidate(self, key, school, now, amount, leech)
             score = score + 0.8
         end
         if not SchoolFits(known, school) then score = score + 2 end
-        local target
-        if dot then target = dot.key else target = cast.key end
-        if target ~= key then score = score + (target == false and 0.4 or 1.5) end
         if self.learned("direct", spell) == DIRECT_ONLY then score = score + 1 end
         if onBeat and drains then
             drainingDotScore = math.min(drainingDotScore or math.huge, score)
         end
-        if not bestScore or score < bestScore - 0.1 then
-            best, bestScore, count = { spell = spell, cast = cast, dot = dot }, score, 1
-        elseif math.abs(score - bestScore) <= 0.1 then
-            count = count + 1
+        local candidate = { spell = spell, cast = cast, dot = dot,
+            caster = (dot or cast).caster, score = score,
+            targetUncertain = (dot or cast).targetUncertain }
+        candidates[#candidates + 1] = candidate
+        if visit then visit(candidate) end
+        if not bestScore or score < bestScore then
+            best, bestScore = candidate, score
         end
     end
     for _, dot in ipairs(self.dots) do
-        if dot.key == key or dot.key == false then Consider(dot.spell, nil, dot) end
+        if dot.key == key or dot.targetUncertain then
+            Consider(dot.spell, nil, dot)
+        end
     end
     for spell, casts in pairs(self.casts) do
         local seen = {}
         for index = #casts, 1, -1 do
             local cast = casts[index]
             local target = cast.key or false
-            if not seen[target] then
+            if (cast.key == key or cast.targetUncertain
+                or TargetApplied(cast, key)) and not seen[target] then
                 seen[target] = true
                 local tracked = false
                 for _, dot in ipairs(self.dots) do
-                    if dot.spell == spell and dot.castAt == cast.at and (dot.key == key or dot.key == false) then
+                    if dot.cast == cast then
                         tracked = true
                         break
                     end
@@ -812,7 +1075,8 @@ local function PeriodicCandidate(self, key, school, now, amount, leech)
     -- A heal may identify a drain channel, but Siphon Life also heals:
     -- keep a due draining DoT unless the channel's amount fits clearly better.
     -- Other channels follow due or not-yet-timed DoTs.
-    local channelBest, channelScore, channelCount
+    local channelBest, channelScore
+    local channelCandidates = {}
     for _, channel in pairs(self.channels) do
         local facts = self.facts(channel.spell)
         local drains = type(facts) == "table" and facts.leech == true
@@ -824,26 +1088,42 @@ local function PeriodicCandidate(self, key, school, now, amount, leech)
             and (healedChannel or fallback) then
             local score = AmountFit(self, channel.spell, amount, facts.period)
             if not drainingDotScore or score < drainingDotScore - 0.1 then
-                if not channelScore or score < channelScore - 0.1 then
-                    channelBest, channelScore, channelCount = channel, score, 1
-                elseif math.abs(score - channelScore) <= 0.1 then
-                    channelCount = channelCount + 1
+                local candidate = { channel = channel, spell = channel.spell,
+                    caster = channel.caster, score = score,
+                    targetUncertain = channel.targetUncertain }
+                channelCandidates[#channelCandidates + 1] = candidate
+                if visit then visit(candidate) end
+                if not channelScore or score < channelScore then
+                    channelBest, channelScore = candidate, score
                 end
             end
         end
     end
     if channelBest then
-        return { channel = channelBest }, channelScore, channelCount
+        best, bestScore, candidates = channelBest, channelScore, channelCandidates
     end
-    return best, bestScore, count
+    if not best then return nil end
+    local ambiguous, mixedOwners = best.targetUncertain == true, false
+    for _, candidate in ipairs(candidates) do
+        if candidate.score <= bestScore + DIRECT_MATCH_MARGIN then
+            if candidate.targetUncertain or not SameIdentity(candidate, best) then
+                ambiguous = true
+            end
+            if candidate.caster ~= best.caster then mixedOwners = true end
+        end
+    end
+    return best, bestScore, ambiguous and 2 or 1, mixedOwners
 end
 
 local function ConfirmTick(self, candidate, key, school, now)
     local dot = candidate.dot
     if not dot then
         local cast = candidate.cast
+        local facts = self.facts(candidate.spell)
+        local period = type(facts) == "table" and facts.period or nil
         dot = { caster = cast.caster, spell = candidate.spell, key = key, castAt = cast.at,
-            ticks = 0, direct = cast.direct }
+            ticks = 0, direct = cast.direct, cast = cast, period = period,
+            known = period ~= nil }
         self.dots[#self.dots + 1] = dot
         for _, entry in ipairs(self.pending) do
             if entry.spell == dot.spell and entry.at == dot.castAt and entry.key == key then
@@ -859,14 +1139,21 @@ local function ConfirmTick(self, candidate, key, school, now)
     if previous then
         local gap = now - previous
         local skipped = dot.period and math.floor(gap / dot.period + 0.5)
-        if not (skipped and skipped > 1 and math.abs(gap - skipped * dot.period) <= TICK_SLACK) then
+        local facts = self.facts(dot.spell)
+        local catalogued = type(facts) == "table" and facts.period ~= nil
+        if not catalogued and not (skipped and skipped > 1 and math.abs(gap - skipped * dot.period) <= TICK_SLACK) then
             dot.period = gap
         end
-        dot.known = false
-        if not self.ambiguous and school and school == previousSchool then LearnSchool(self, dot.spell, school) end
+        dot.known = catalogued
+        if not catalogued and dot.cast and not dot.cast.periodicAt then
+            dot.cast.periodicAt = previous - dot.period
+        end
+        if not catalogued and not self.ambiguous and school
+            and school == previousSchool then LearnSchool(self, dot.spell, school) end
         return Ticked(self, dot, school, now)
     end
     -- Anchor on the actual impact; flight time must not become the interval.
+    SpendPeriodic(dot.cast, key, now)
     dot.ticks = dot.ticks + 1
     dot.next = dot.period and now + dot.period or nil
     dot.skipped, dot.bufferUntil = 0, nil
@@ -911,7 +1198,21 @@ local function PhysicalSourceNear(self, key, now, pet)
     end
     return false
 end
-local function CastTakesMiss(self, spell, key, now, avoid, pet, restrict)
+local function PeriodicApplicationConfirmed(self, spell, cast, key, now)
+    local facts = self.facts(spell)
+    if type(facts) ~= "table" or facts.direct ~= false
+        or facts.ticks ~= true then return false end
+    for _, dot in ipairs(self.dots) do
+        if dot.cast == cast and dot.key == key and dot.confirmedAt
+            and dot.confirmedAt <= now then return true end
+    end
+    return false
+end
+
+local function CastTakesMiss(self, spell, cast, key, now, avoid, pet, restrict)
+    if PeriodicApplicationConfirmed(self, spell, cast, key, now) then
+        return false
+    end
     if not avoid then return true end
     if ns.SpellCanAvoid and not ns.SpellCanAvoid(spell, avoid) then return false end
     if restrict ~= "direct" and avoid == "MISS"
@@ -920,6 +1221,47 @@ local function CastTakesMiss(self, spell, key, now, avoid, pet, restrict)
         return false
     end
     return true
+end
+
+local function MatchDirectMiss(self, key, now)
+    local best, ambiguous, mixedOwners, refused
+    for spell, casts in pairs(self.casts) do
+        local facts = self.facts(spell)
+        local helpful = type(facts) == "table"
+            and (facts.helpful == true or facts.healthCost ~= nil)
+        for _, cast in ipairs(casts) do
+            if not helpful and DirectAvailable(self, spell, cast, key, now, true) then
+                if CastTakesMiss(self, spell, cast, key, now, self.avoidNow,
+                    self.petNow, self.restrictNow) then
+                    local candidate = { spell = spell, caster = cast.caster,
+                        cast = cast }
+                    if best and not SameIdentity(best, candidate) then
+                        ambiguous = true
+                        if best.caster ~= candidate.caster then
+                            mixedOwners = true
+                        end
+                    end
+                    if cast.ambiguous or cast.targetUncertain then
+                        ambiguous = true
+                    end
+                    if not best or (SameIdentity(best, candidate)
+                        and cast.at < best.cast.at) then best = candidate end
+                else
+                    refused = refused or cast.caster
+                end
+            end
+        end
+    end
+    if best then
+        if ambiguous then
+            return AmbiguousResult(self, best.caster, mixedOwners, false, true)
+        end
+        SpendDirect(self, best.spell, best.cast, key, true)
+        return Result(best.caster, best.spell, false, { missed = true })
+    end
+    if refused and self.restrictNow == "direct" then
+        return Result(refused, nil, false, { missed = true })
+    end
 end
 
 local function Allowed(restrict)
@@ -940,10 +1282,12 @@ end
 local function Yours(self, key, kind, school, now)
     local allowed, sure = Allowed(self.restrictNow), self.restrictNow == "tick"
     if kind == "damage" and sure then
-        local candidate, _, count = PeriodicCandidate(self, key, school, now,
+        local candidate, _, count, mixedOwners = PeriodicCandidate(self, key, school, now,
             self.amountNow, self.leechNow)
         if candidate then
-            self.ambiguous = count > 1
+            if count > 1 then
+                return AmbiguousResult(self, candidate.caster, mixedOwners, true)
+            end
             if candidate.channel then
                 local channel = candidate.channel
                 RememberAmount(self, channel.spell)
@@ -954,10 +1298,41 @@ local function Yours(self, key, kind, school, now)
         return nil
     end
     if kind == "damage" and allowed.casts then
+        local best, bestScore, ambiguous, mixedOwners
         for _, channel in pairs(self.channels) do
             if ChannelFits(channel, key, school, now) then
-                return Result(channel.caster, channel.spell, sure)
+                local score = DirectFit(self, channel.spell,
+                    self.amountNow, self.critNow)
+                if not bestScore or score < bestScore then
+                    best, bestScore = channel, score
+                end
             end
+        end
+        if best then
+            for _, channel in pairs(self.channels) do
+                if ChannelFits(channel, key, school, now)
+                    and DirectFit(self, channel.spell, self.amountNow,
+                        self.critNow) <= bestScore + DIRECT_MATCH_MARGIN then
+                    if channel.targetUncertain
+                        or not SameIdentity(best, channel) then ambiguous = true end
+                    if best.caster ~= channel.caster then mixedOwners = true end
+                end
+            end
+            local direct, directScore = SelectDirectCandidate(self, key, school, now)
+            if direct and directScore < bestScore - DIRECT_MATCH_MARGIN then
+                best = nil
+            elseif direct and directScore <= bestScore + DIRECT_MATCH_MARGIN then
+                if not SameIdentity(best, direct) or direct.targetUncertain then
+                    ambiguous = true
+                end
+                if best.caster ~= direct.caster then mixedOwners = true end
+            end
+        end
+        if best then
+            if ambiguous then
+                return AmbiguousResult(self, best.caster, mixedOwners, sure)
+            end
+            return Result(best.caster, best.spell, sure)
         end
     end
     -- 1. A DoT's next tick; of several due now, the one whose time and
@@ -967,19 +1342,34 @@ local function Yours(self, key, kind, school, now)
     -- swapped icons, 1.60.1.70374).
     local function DueTick()
         if kind == "miss" or not allowed.ticks then return nil end
-        local best, bestScore, count = nil, nil, 0
+        local best, bestScore
+        local candidates = {}
         for _, dot in ipairs(self.dots) do
             if dot.key == key and dot.period and dot.next and SchoolFits(dot.school, school)
+                and PeriodicAvailable(dot.cast, key, now, dot.period)
                 and math.abs(now - dot.next) <= TICK_SLACK then
-                count = count + 1
                 local score = math.abs(now - dot.next) / TICK_SLACK * 0.3 + AmountFit(self, dot.spell, self.amountNow, dot.period)
                 if self.leechNow ~= nil and Leeches(self, dot.spell) ~= self.leechNow then score = score + 1 end
+                candidates[#candidates + 1] = { dot = dot, score = score }
                 if not bestScore or score < bestScore then best, bestScore = dot, score end
             end
         end
-        -- Only a tick no other DoT could have made teaches its amount.
-        self.ambiguous = count > 1
-        if best then return Ticked(self, best, school, now) end
+        if best then
+            local ambiguous, mixedOwners = best.targetUncertain, false
+            for _, candidate in ipairs(candidates) do
+                if candidate.score <= bestScore + DIRECT_MATCH_MARGIN then
+                    if not SameIdentity(best, candidate.dot)
+                        or candidate.dot.targetUncertain then ambiguous = true end
+                    if candidate.dot.caster ~= best.caster then
+                        mixedOwners = true
+                    end
+                end
+            end
+            if ambiguous then
+                return AmbiguousResult(self, best.caster, mixedOwners, true)
+            end
+            return Ticked(self, best, school, now)
+        end
     end
     -- 0.3.49: a spell hit's line (restrict "direct") tries your and your
     -- pet's casts in flight first, and a DoT due in that moment after them
@@ -989,7 +1379,8 @@ local function Yours(self, key, kind, school, now)
         local tick = DueTick()
         if tick then return tick end
     end
-    -- 2. Compare direct casts together; misses retain their existing order.
+    -- 2. Compare direct casts together; a miss has no readable amount that
+    -- can distinguish overlapping spell identities.
     local exact, unknown
     local directScore, directAmbiguous
     if kind == "damage" and allowed.casts then
@@ -999,23 +1390,18 @@ local function Yours(self, key, kind, school, now)
         if candidate and candidate.school then exact = candidate
         else unknown = candidate end
     end
-    for _, entry in ipairs(kind == "miss" and allowed.casts
-        and self.pending or {}) do
-        if not entry.used and entry.key == key and now >= entry.at and now - entry.at <= DIRECT_WINDOW then
-            if CastTakesMiss(self, entry.spell, key, now,
-                self.avoidNow, self.petNow, self.restrictNow) then
-                exact = exact or entry
-            end
-        end
+    if kind == "miss" and allowed.casts then
+        local result = MatchDirectMiss(self, key, now)
+        if result then return result end
     end
     local function Direct(entry)
         if directAmbiguous then
             return AmbiguousDirectResult(self, key, school, now, directScore)
         end
-        entry.used = true
-        entry.cast.directUsed = true
-        if kind ~= "miss" then entry.cast.direct = true end
-        if entry.dot then entry.dot.direct, entry.dot.directAt = true, now end
+        SpendDirect(self, entry.spell, entry.cast, key, kind == "miss")
+        if entry.dot and kind ~= "miss" then
+            entry.dot.direct, entry.dot.directAt = true, now
+        end
         local guess
         if kind ~= "miss" and school and not entry.school then guess = Guess(self, entry, school) end
         local result = Result(entry.caster, entry.spell, false, kind == "miss" and { missed = true } or nil)
@@ -1039,6 +1425,7 @@ local function Yours(self, key, kind, school, now)
                 and now - dot.pending.at <= FIRST_HIT_WAIT
             if dot.key == key and not dot.period and not dot.confirmedAt
                 and not waiting
+                and PeriodicAvailable(dot.cast, key, now)
                 and not dot.ambiguousDirect and SchoolFits(dot.school, school) then
                 local candidate = dot.candidate
                 if candidate and math.abs(now - (candidate.at + candidate.period)) <= TICK_SLACK then
@@ -1082,6 +1469,12 @@ local function Yours(self, key, kind, school, now)
                         and SchoolFits(self.wandSchool, school))
                     or (not ranged and SchoolFits(PHYSICAL, school))) then
                 swing.used = true
+                if self.accountingEnabled == true or self.inferredWindfuryEnabled == true then
+                    self.lastOutcomeReceipt = {
+                        kind = "swing", at = swing.at, key = swing.key,
+                        hand = swing.hand, who = "you", ordinal = 1,
+                    }
+                end
                 -- 0.6.2: the delay of a melee hit paired by its swing's line.
                 local _, usualLate = self:MeleeWindow(swing.hand)
                 if paired and not ranged and since <= usualLate then
@@ -1125,7 +1518,8 @@ function Mine:InFlight(key, school, now)
     for _, entry in ipairs(self.pending) do
         local since = now - entry.at
         if not entry.used and not entry.missOnly and entry.key == key and since >= FLIGHT_MIN
-            and since <= DIRECT_WINDOW and SchoolFits(entry.school, school) then
+            and DirectAvailable(self, entry.spell, entry.cast, key, now)
+            and SchoolFits(entry.school, school) then
             return true
         end
     end
@@ -1160,10 +1554,13 @@ function Mine:Fit(key, kind, school, now, amount, restrict, crit, avoid, pet)
         end
     end
     for _, entry in ipairs(allowed.casts and self.pending or {}) do
-        if not entry.used and entry.key == key and now >= entry.at - 0.05 and now - entry.at <= DIRECT_WINDOW then
+        if not entry.used and entry.key == key
+            and DirectAvailable(self, entry.spell, entry.cast, key, now) then
             if kind == "miss" then
-                if CastTakesMiss(self, entry.spell, key, now,
-                    avoid, pet, restrict) then Take(0.5) end
+                if CastTakesMiss(self, entry.spell, entry.cast, key, now,
+                    avoid, pet, restrict) then Take(0.5)
+                -- A spell's miss line still makes the miss yours (Hit).
+                elseif restrict == "direct" then Take(0.9) end
             else
                 local score = DirectCandidateScore(self, entry, key, school,
                     now, amount, crit)
@@ -1180,7 +1577,7 @@ function Mine:Fit(key, kind, school, now, amount, restrict, crit, avoid, pet)
         for _, dot in ipairs(self.dots) do
             if dot.key == key and SchoolFits(dot.school, school) then
                 local period = TickPeriod(dot, now, restrict == "tick")
-                if period then
+                if period and PeriodicAvailable(dot.cast, key, now, period) then
                     Take((dot.period and 0 or 0.4) + AmountFit(self, dot.spell, amount, dot.period))
                 end
             end
@@ -1220,8 +1617,8 @@ function Mine:Fit(key, kind, school, now, amount, restrict, crit, avoid, pet)
             if known and SchoolFits(known, school)
                 and harmful and not ticksOnly then
                 for _, cast in ipairs(list) do
-                    local since = now - cast.at
-                    if cast.caster == "you" and since >= -0.05 and since <= AREA_MOMENT then
+                    if cast.caster == "you"
+                        and DirectAvailable(self, spell, cast, key, now, true) then
                         Take(1 + DirectFit(self, spell, amount, nil))
                     end
                 end
@@ -1241,17 +1638,18 @@ end
 -- damage and timing within DIRECT_WINDOW. Unknown intervals score
 -- after known ones; nil when no cast fits.
 -- restrict "tick" (0.3.48, its line says so): only a spell that ticks.
-local function HistoricalFit(self, spell, cast, school, now, restrict, key)
+local function HistoricalFit(self, spell, cast, school, now, restrict, key,
+    includeAmbiguous)
     local age = now - cast.at
-    if age < 0 or age > CAST_HISTORY_WINDOW or cast.ambiguous then return nil end
-    if restrict == "direct" and key and cast.key ~= key
-        and age > AREA_MOMENT then return nil end
+    if age < 0 or age > CAST_HISTORY_WINDOW
+        or (cast.ambiguous and not includeAmbiguous) then return nil end
     local facts = self.facts(spell)
     local known = (type(facts) == "table" and facts.school)
         or self.learned("school", spell)
     if not SchoolFits(known, school) then return nil end
     if type(facts) == "table"
         and (facts.damages == false or facts.helpful == true) then return nil end
+    if cast.targetUncertain then return nil end
 
     if restrict == "direct" and type(facts) == "table"
         and facts.direct == false and facts.ticks == true then return nil end
@@ -1260,20 +1658,25 @@ local function HistoricalFit(self, spell, cast, school, now, restrict, key)
     local period = (type(facts) == "table" and facts.period)
         or self.learned("period", spell)
     local score, directSelected
-    if kind ~= DIRECT_ONLY and period and age >= period - TICK_SLACK then
+    if kind ~= DIRECT_ONLY and period and age >= period - TICK_SLACK
+        and restrict ~= "direct"
+        and (cast.key == key or TargetApplied(cast, key))
+        and PeriodicAvailable(cast, key, now, period)
+        and not PeriodicExpired(facts, cast.at, now, cast)
+        and not ApplicationFailed(self, spell, cast, key) then
         -- Keep the periodic fallback's established rhythm/amount behavior.
         local offset = age % period
         offset = math.min(offset, period - offset)
-        score = AmountFit(self, spell, self.amountNow, period)
-            + math.min(offset, 1) * 0.1
-    elseif kind ~= DIRECT_ONLY and not period and age >= 0.8 then
-        score = 1 + age / CAST_HISTORY_WINDOW
+        if not (type(facts) == "table" and facts.period)
+            or offset <= TICK_SLACK then
+            score = AmountFit(self, spell, self.amountNow, period)
+                + math.min(offset, 1) * 0.1
+        end
     end
-    if kind ~= TICKS_ONLY and age <= DIRECT_WINDOW and restrict ~= "tick"
-        and (not key or cast.key == key or age <= AREA_MOMENT)
-        and (not cast.directUsed or age <= AREA_MOMENT) then
+    if kind ~= TICKS_ONLY and restrict ~= "tick"
+        and DirectAvailable(self, spell, cast, key, now, true) then
         local direct = 0.5 + DirectFit(self, spell, self.amountNow, self.critNow)
-            + age / DIRECT_WINDOW * DIRECT_TIME_WEIGHT
+            + age / DirectWindow(self, spell) * DIRECT_TIME_WEIGHT
         if not score or direct < score then score, directSelected = direct, true end
     end
     local tick = restrict == "tick"
@@ -1296,13 +1699,14 @@ function Mine:Likeliest(school, now, restrict, key)
     if not bestCast then return nil end
 
     -- History must not put a speculative name back onto an ambiguous area hit.
-    if bestDirect then
+    do
         local ambiguous, mixedOwners = false, false
         for spell, casts in pairs(self.casts) do
             for _, cast in ipairs(casts) do
                 local score, _, direct =
                     HistoricalFit(self, spell, cast, school, now, restrict, key)
-                if score and direct and score <= bestScore + DIRECT_MATCH_MARGIN
+                if score and direct == bestDirect
+                    and score <= bestScore + DIRECT_MATCH_MARGIN
                     and (spell ~= bestSpell or cast.caster ~= bestCast.caster) then
                     ambiguous = true
                     if cast.caster ~= bestCast.caster then mixedOwners = true end
@@ -1311,11 +1715,60 @@ function Mine:Likeliest(school, now, restrict, key)
         end
         if ambiguous then
             local owner = self.lineNow == true and not mixedOwners
-                and bestCast.caster or "other"
-            return Result(owner, nil, false, { ambiguous = true })
+                and bestCast.caster or "unknown"
+            return AmbiguousResult(self, owner, mixedOwners, bestTick)
         end
     end
+    if bestDirect then SpendDirect(self, bestSpell, bestCast, key, false)
+    else SpendPeriodic(bestCast, key, now) end
     return Result(bestCast.caster, bestSpell, bestTick, { likely = true })
+end
+
+-- All amounts in a mixed group may be owned while their spell and event-kind
+-- pairing remains unknown. Reserve compatible evidence without teaching facts
+-- or advancing a guessed rhythm, so a later fallback cannot reuse the group.
+function Mine:ConfirmUnidentified(key, school, now)
+    self.lastOutcomeReceipt = nil
+    self.amountNow, self.critNow, self.lineNow = nil, false, true
+    self.restrictNow, self.ambiguous = nil, true
+    local owner, mixedOwners
+    local function TakeOwner(caster)
+        if owner and owner ~= caster then mixedOwners = true end
+        owner = owner or caster
+    end
+    local periodic = {}
+    PeriodicCandidate(self, key, school, now, nil, nil, function(candidate)
+        periodic[#periodic + 1] = candidate
+    end, true)
+    for _, candidate in ipairs(periodic) do
+        TakeOwner(candidate.caster)
+        local cast = candidate.cast or (candidate.dot and candidate.dot.cast)
+        SpendPeriodic(cast, key, now)
+    end
+    for _, channel in pairs(self.channels) do
+        if ChannelFits(channel, key, school, now) then
+            TakeOwner(channel.caster)
+        end
+    end
+    for _, entry in ipairs(self.pending) do
+        if DirectCandidateScore(self, entry, key, school, now, nil, false) then
+            TakeOwner(entry.caster)
+            QuarantineDirect(entry)
+        end
+    end
+    -- Area impacts can have no pending entry for this target. Their cast
+    -- history must receive the same quarantine as ordinary direct matching.
+    for spell, casts in pairs(self.casts) do
+        for _, cast in ipairs(casts) do
+            local _, _, direct =
+                HistoricalFit(self, spell, cast, school, now, "direct", key, true)
+            if direct then
+                TakeOwner(cast.caster)
+                cast.ambiguous = true
+            end
+        end
+    end
+    return AmbiguousResult(self, owner or "you", mixedOwners, false)
 end
 
 -- Read-only fit for a tick on this unit, including the first tick. A typed
@@ -1325,6 +1778,45 @@ function Mine:TickFit(key, school, now, amount, leech)
         PeriodicCandidate(self, key, school, now, amount, leech)
     local dot = candidate and candidate.dot
     return score, dot and dot.next and math.abs(now - dot.next) <= TICK_SLACK
+end
+
+-- A lost creature may still produce your periodic line. This evidence may
+-- reject an unrelated visible report, but can never provide its identity.
+function Mine:OffscreenTickFit(key, school, now, reportedKeys)
+    for _, channels in ipairs({ self.channels, self.retiredChannels }) do
+        for _, channel in pairs(channels) do
+            local represented = channels == self.channels
+                and not channel.targetUncertain
+                and reportedKeys and reportedKeys[channel.key]
+            if (channel.key ~= key or channel.targetUncertain)
+                and not represented
+                and ChannelFits(channel, channel.key, school, now) then
+                return true
+            end
+        end
+    end
+    for _, list in ipairs({ self.dots, self.retiredDots }) do
+        for _, dot in ipairs(list) do
+            local facts = self.facts(dot.spell)
+            local hasDuration = type(facts) == "table" and facts.duration ~= nil
+            local represented = list == self.dots and not dot.targetUncertain
+                and reportedKeys and reportedKeys[dot.key]
+            if (dot.key ~= key or dot.targetUncertain) and not represented
+                and SchoolFits(dot.school, school)
+                and now >= dot.castAt
+                and (list == self.dots or hasDuration
+                    or now - dot.castAt <= CAST_HISTORY_WINDOW)
+                and not PeriodicExpired(facts, dot.castAt, now, dot.cast) then
+                if not dot.period then return true end
+                local anchor = dot.next or (dot.castAt + dot.period)
+                local offset = (now - anchor) % dot.period
+                if math.min(offset, dot.period - offset) <= TICK_SLACK then
+                    return true
+                end
+            end
+        end
+    end
+    return false
 end
 
 function Mine:BufferTicks(key, school, at, untilTime)
@@ -1340,13 +1832,14 @@ end
 -- key; school is its school mask or nil when unreadable. petAttacking: your
 -- pet is attacking that unit now. amount and crit: the hit's, when readable.
 -- Returns who made it: { who = "you" | "pet"
--- | "other", spell, tick, melee, missed }. An "other" damage or miss is held
+-- | "unknown", spell, tick, melee, missed }. An unknown damage or miss is held
 -- (hold = true, held = its entry) for a swing reported a moment later.
 -- restrict (0.3.48): what made it, from its line's colour (Allowed, above).
 -- leech (0.3.49): true when a heal on you of the hit's amount came in its
 -- moment, false when heals on you were read and none matched, nil unknown.
 -- avoid: the game's word for a miss ("PARRY", "DODGE", "MISS", ...), nil unknown.
 function Mine:Hit(key, kind, school, now, petAttacking, line, amount, crit, restrict, leech, avoid)
+    self.lastOutcomeReceipt = nil
     self:Tidy(now)
     self.amountNow, self.lineNow, self.ambiguous, self.critNow = amount, line, false, crit == true
     -- Which avoid a miss was, and whether your pet attacks its unit (CastTakesMiss).
@@ -1395,43 +1888,26 @@ function Mine:Hit(key, kind, school, now, petAttacking, line, amount, crit, rest
     -- Corruption tick) is the DoT due on that unit, or one on it, never the
     -- cast just before.
     if line == true and kind == "miss" and self.restrictNow == "tick" then
-        local best, bestOff
-        for _, dot in ipairs(self.dots) do
-            if dot.key == key then
-                local off = dot.next and math.abs(now - dot.next) or 99
-                if not bestOff or off < bestOff then best, bestOff = dot, off end
+        local candidate, _, count, mixedOwners =
+            PeriodicCandidate(self, key, nil, now, nil, nil)
+        if candidate then
+            if count > 1 then
+                return AmbiguousResult(self, candidate.caster, mixedOwners,
+                    true, true)
             end
-        end
-        if best and best.next and bestOff <= TICK_SLACK then best.next, best.skipped = now + best.period, 0 end
-        if best then return Result(best.caster, best.spell, true, { missed = true }) end
-        -- 0.3.49: none followed on this plate (a DoT cast while another enemy
-        -- was targeted): the DoT of yours whose rhythm fits, as for a tick
-        -- that landed (absorbed ticks had shown with no icon).
-        local guess = self:Likeliest(nil, now, "tick")
-        if guess then
-            guess.missed = true
-            return guess
+            local dot = candidate.dot
+            if dot and dot.next and math.abs(now - dot.next) <= TICK_SLACK then
+                dot.next, dot.skipped = now + dot.period, 0
+            end
+            SpendPeriodic(candidate.cast or (dot and dot.cast), key, now)
+            return Result(candidate.caster, candidate.spell, true,
+                { missed = true })
         end
         return Result("you", nil, true, { missed = true })
     end
     if line == true and kind == "miss" and allowed.casts then
-        local best, bestSince
-        for spell, list in pairs(self.casts) do
-            local facts = self.facts(spell)
-            -- 0.3.50: nor a spell cast on yourself (Life Tap, which costs
-            -- health): an Immune on an enemy had taken its icon, cast 1.5 s
-            -- before the Curse of Exhaustion that was immune (1.60.1.70374).
-            local helpful = type(facts) == "table" and (facts.helpful == true or facts.healthCost ~= nil)
-            for _, cast in ipairs(list) do
-                local since = now - cast.at
-                if not helpful and since >= -0.05 and since <= DIRECT_WINDOW and (not bestSince or since < bestSince)
-                    and CastTakesMiss(self, spell, key, now,
-                        self.avoidNow, self.petNow, self.restrictNow) then
-                    best, bestSince = { spell = spell, caster = cast.caster }, since
-                end
-            end
-        end
-        if best then return Result(best.caster, best.spell, false, { missed = true }) end
+        local result = MatchDirectMiss(self, key, now)
+        if result then return result end
     end
     if line == true and self.petLines and self.petOut and (kind == "damage" or kind == "miss") and allowed.melee
         and (school == nil or school == PHYSICAL) then
@@ -1443,18 +1919,11 @@ function Mine:Hit(key, kind, school, now, petAttacking, line, amount, crit, rest
     if orphan and (kind == "damage" or kind == "miss") and (school == nil or school == PHYSICAL) then
         return Result("you", nil, false, { melee = true, hand = "main", missed = kind == "miss", extra = true })
     end
-    -- A tick of yours (its line came) that nothing here explains, in the
-    -- moment a DoT whose plate went is due: that DoT, now on this plate.
     if line == true and kind == "damage" and allowed.ticks then
-        for _, dot in ipairs(self.dots) do
-            if dot.key == false and dot.next and SchoolFits(dot.school, school) and math.abs(now - dot.next) <= TICK_SLACK then
-                dot.key = key
-                return Ticked(self, dot, school, now)
-            end
-        end
         local guess = self:Likeliest(school, now, self.restrictNow, key)
         -- A hit that healed you is a drain's: never a spell that does not drain.
         if guess and not (self.leechNow == true and not Leeches(self, guess.spell)) then return guess end
+        self.lastOutcomeReceipt = nil
     end
     -- 0.3.49: a hit of yours (its line came) that healed you for its amount
     -- and that nothing above placed is a drain no cast of yours explains:
@@ -1462,14 +1931,6 @@ function Mine:Hit(key, kind, school, now, petAttacking, line, amount, crit, rest
     -- from 0.3.51 marked as a drain, so the router gives it its own icon.
     if line == true and kind == "damage" and self.leechNow == true and allowed.casts then
         return Result("you", nil, false, { proc = true, drain = true })
-    end
-    -- 6. Your pet's swing.
-    if (kind == "damage" or kind == "miss") and petAttacking and allowed.melee and (school == nil or school == PHYSICAL) then
-        local last = self.petLast[key]
-        if not last or now - last >= PET_GAP then
-            self.petLast[key] = now
-            return Result("pet", nil, false, { melee = true, missed = kind == "miss" })
-        end
     end
     -- 7. Someone else's: a steady rhythm of one school is still ticks.
     local tick = false
@@ -1484,7 +1945,17 @@ function Mine:Hit(key, kind, school, now, petAttacking, line, amount, crit, rest
             self.rhythm[key][school] = { last = now }
         end
     end
-    local result = Result("other", nil, tick)
+    -- An untyped line cannot override a rejected avoid, and a ranged attack
+    -- cannot be parried. Typed spell misses still establish ownership even
+    -- when no cast supplies a safe identity.
+    local incompatibleMiss = kind == "miss"
+        and (self.restrictNow == nil
+            or (self.restrictNow == "shot" and avoid == "PARRY"))
+    if line == true and not incompatibleMiss then
+        return Result("you", nil, self.restrictNow == "tick",
+            { missed = kind == "miss" })
+    end
+    local result = Result("unknown", nil, tick)
     if line ~= false and (kind == "miss" or kind == "damage") then
         local held = { key = key, kind = kind, school = school, at = now }
         self.held[#self.held + 1] = held

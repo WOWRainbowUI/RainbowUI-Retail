@@ -3,6 +3,10 @@ local ScrollAreas = {
 	areas = {},
 	names = {},
 }
+local PET_AREA_FALLBACKS = {
+	OutgoingPet = "Outgoing",
+	IncomingPet = "Incoming",
+}
 
 local function Clear(values)
 	for key in pairs(values) do
@@ -37,18 +41,26 @@ function ScrollAreas:Update()
 end
 
 function ScrollAreas:Resolve(identifier)
+	local areaKey = identifier
 	local settings = self.areas[identifier]
-	if settings then
-		return settings
-	end
-
-	for key, areaName in pairs(self.names) do
-		if identifier == areaName then
-			return self.areas[key]
+	if not settings then
+		for key, areaName in pairs(self.names) do
+			if identifier == areaName then
+				areaKey = key
+				settings = self.areas[key]
+				break
+			end
 		end
 	end
 
-	return self.areas[self.config.defaultArea]
+	if settings and settings.disabled then
+		local fallbackKey = PET_AREA_FALLBACKS[areaKey]
+		if fallbackKey then
+			settings = self.areas[fallbackKey] or settings
+		end
+	end
+
+	return settings or self.areas[self.config.defaultArea]
 end
 
 function ScrollAreas:ResolveKey(settings)

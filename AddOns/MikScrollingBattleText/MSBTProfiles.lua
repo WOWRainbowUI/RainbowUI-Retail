@@ -2550,6 +2550,19 @@ local function SetBlizzardCombatTextV2Enabled(isEnabled, suppressOtherText, prof
 		return
 	end
 
+	-- This runs as every fight starts and ends. Each SetCVar fires CVAR_UPDATE for
+	-- every addon and Blizzard's combat text, so a setting already right is left alone.
+	local getCVar = GetCVar or (C_CVar and C_CVar.GetCVar)
+	local function WriteCVar(name, wanted)
+		if getCVar then
+			local ok, current = pcall(getCVar, name)
+			if ok and current ~= nil and current == tostring(wanted) then
+				return
+			end
+		end
+		SetCVar(name, wanted)
+	end
+
 	local masterEnabled = isEnabled
 	local outgoingEnabled = isEnabled
 		and not (profile and profile.blizzardOutgoingDisabled)
@@ -2561,26 +2574,26 @@ local function SetBlizzardCombatTextV2Enabled(isEnabled, suppressOtherText, prof
 			local loadAddon = C_AddOns and C_AddOns.LoadAddOn or LoadAddOn
 			if loadAddon then loadAddon("Blizzard_CombatText") end
 		end
-		SetCVar("enableFloatingCombatText", 1)
+		WriteCVar("enableFloatingCombatText", 1)
 		if not IsClassic then
-			SetCVar("floatingCombatTextCombatHealing", profile and value or 0)
+			WriteCVar("floatingCombatTextCombatHealing", profile and value or 0)
 		end
-		SetCVar("floatingCombatTextCombatHealing_v2", profile and value or 0)
+		WriteCVar("floatingCombatTextCombatHealing_v2", profile and value or 0)
 		SHOW_COMBAT_TEXT = "1"
 	end
 
-	SetCVar("floatingCombatTextCombatDamage", value)
-	SetCVar("floatingCombatTextCombatDamage_v2", value)
-	SetCVar("floatingCombatTextCombatLogPeriodicSpells_v2", value)
-	SetCVar("floatingCombatTextPetMeleeDamage_v2", value)
-	SetCVar("floatingCombatTextPetSpellDamage_v2", value)
+	WriteCVar("floatingCombatTextCombatDamage", value)
+	WriteCVar("floatingCombatTextCombatDamage_v2", value)
+	WriteCVar("floatingCombatTextCombatLogPeriodicSpells_v2", value)
+	WriteCVar("floatingCombatTextPetMeleeDamage_v2", value)
+	WriteCVar("floatingCombatTextPetSpellDamage_v2", value)
 	local resourceSettings = profile and profile.events
 		and profile.events.NOTIFICATION_RESOURCE_GAIN
 	if Client.hasModernAPI and suppressOtherText and resourceSettings
 		and not resourceSettings.disabled and not profile.msbtNotificationsDisabled then
 		-- Resource notices need their own feed even when Blizzard text is hidden.
-		SetCVar("floatingCombatTextEnergyGains_v2", 1)
-		SetCVar("floatingCombatTextPeriodicEnergyGains_v2", 1)
+		WriteCVar("floatingCombatTextEnergyGains_v2", 1)
+		WriteCVar("floatingCombatTextPeriodicEnergyGains_v2", 1)
 	end
 	if (not Client.hasModernAPI and CombatText_UpdateDisplayedMessages) then CombatText_UpdateDisplayedMessages() end
 	if profile then

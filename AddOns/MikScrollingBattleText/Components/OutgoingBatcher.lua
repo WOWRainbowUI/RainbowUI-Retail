@@ -2,6 +2,15 @@ local OutgoingBatcher = {}
 OutgoingBatcher.__index = OutgoingBatcher
 local WINDFURY_WEAPON_SPELL_ID = 8232
 local WINDFURY_GROUP_DELAY = 1
+local RestrictedValue = MikSBT.API and MikSBT.API.RestrictedValue
+
+local function InferenceGroup(value)
+	if type(value) ~= "string" then return end
+	local group = RestrictedValue and RestrictedValue.String
+		and RestrictedValue:String(value)
+	if not RestrictedValue and type(value) == "string" then group = value end
+	if group and #group > 0 and #group <= 80 then return group end
+end
 
 function OutgoingBatcher:New(config)
 	return setmetatable({
@@ -16,8 +25,10 @@ function OutgoingBatcher:Reset()
 	end
 end
 
-function OutgoingBatcher:ShouldStackWindfury(spellID, isPet, isDot)
-	return spellID == WINDFURY_WEAPON_SPELL_ID and not isPet and not isDot
+function OutgoingBatcher:ShouldStackWindfury(spellID, isPet, isDot, candidateSpell)
+	local candidate = candidateSpell == WINDFURY_WEAPON_SPELL_ID
+	return (spellID == WINDFURY_WEAPON_SPELL_ID or candidate)
+		and not isPet and not isDot
 		and self.config.getProfile().stackSimilarHits
 end
 
@@ -126,10 +137,10 @@ function OutgoingBatcher:Flush(batchKey)
 	if batch.hasRestricted then
 		if batch.hitCount == 1 then
 			self.config.displayRestricted(displaySettings, batch.amounts[1],
-				batch.effectTexture, "%a", nil, school)
+				batch.effectTexture, nil, nil, school, batch.spellID)
 		else
 			self.config.displayRestrictedGroup(displaySettings, batch.amounts,
-				batch.effectTexture, school)
+				batch.effectTexture, school, batch.spellID)
 		end
 		return
 	end
@@ -149,11 +160,13 @@ function OutgoingBatcher:DisplayRestricted(
 	isPet,
 	isDot,
 	eventKey,
-	school
+	school,
+	candidateSpell,
+	inferenceGroup
 )
-	if self:ShouldStackWindfury(spellID, isPet, isDot) then
+	if self:ShouldStackWindfury(spellID, isPet, isDot, candidateSpell) then
 		self:Queue(spellID, amount, isCrit, effectTexture, forceIsSpell,
-			isPet, isDot, eventKey, true, school)
+			isPet, isDot, eventKey, true, school, candidateSpell, inferenceGroup)
 		return
 	end
 	if not effectTexture and not isDot and not eventKey then
@@ -167,9 +180,9 @@ function OutgoingBatcher:DisplayRestricted(
 	end
 	settings = self:DamageSettings(settings, isSpell, isDot, school)
 	if settings.attackColorOverride then school = nil end
-	local message = not eventKey and not isPet and "%a" or nil
+	local message = not eventKey and not isPet and not isSpell and "%a" or nil
 	self.config.displayRestricted(settings, amount, effectTexture,
-		message, nil, school)
+		message, nil, school, spellID)
 end
 
 function OutgoingBatcher:Queue(
@@ -182,7 +195,9 @@ function OutgoingBatcher:Queue(
 	isDot,
 	eventKey,
 	isRestricted,
-	school
+	school,
+	candidateSpell,
+	inferenceGroup
 )
 	if not isRestricted and (not amount or amount <= 0) then
 		return
@@ -198,10 +213,16 @@ function OutgoingBatcher:Queue(
 		effectTexture = self.config.getSpellTexture(spellID)
 	end
 
-	local stackWindfury = self:ShouldStackWindfury(spellID, isPet, isDot)
+	local stackWindfury = self:ShouldStackWindfury(
+		spellID, isPet, isDot, candidateSpell)
+	inferenceGroup = InferenceGroup(inferenceGroup)
 	local batchKey = (isPet and "pet:" or "") .. (isDot and "dot:" or "")
 		.. tostring(spellID or 0) .. (isCrit and ":crit" or "")
 	if stackWindfury then batchKey = batchKey .. ":stacked" end
+	if candidateSpell then
+		batchKey = batchKey .. ":candidate:" .. candidateSpell
+	end
+	if inferenceGroup then batchKey = batchKey .. ":inference:" .. inferenceGroup end
 	if eventKey then batchKey = eventKey .. ":" .. batchKey end
 	if school then batchKey = batchKey .. ":school:" .. school end
 	local batch = self.batches[batchKey]
@@ -224,7 +245,8 @@ function OutgoingBatcher:Queue(
 			amounts = stackWindfury and {} or nil,
 		}
 		self.batches[batchKey] = batch
-		local delay = stackWindfury and WINDFURY_GROUP_DELAY or self.config.delay
+		local delay = inferenceGroup and 0
+			or (stackWindfury and WINDFURY_GROUP_DELAY or self.config.delay)
 		self.config.after(delay, function()
 			if self.batches[batchKey] == batch then
 				self:Flush(batchKey)

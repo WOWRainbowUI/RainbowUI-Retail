@@ -2,9 +2,43 @@ local Engine = {}
 Engine.__index = Engine
 
 local ns = MikSBT.CombatEngine
+local RestrictedValue = MikSBT.API and MikSBT.API.RestrictedValue
 
 function Engine:New(config)
 	return setmetatable({ config = config }, self)
+end
+
+function Engine:InferenceEnabled()
+	local client = MikSBT.Compatibility and MikSBT.Compatibility.Client
+	if not client or not client.isForever or not self.config.getProfile
+		or not RestrictedValue then return false end
+	local profile = RestrictedValue:Table(self.config.getProfile())
+	return profile ~= nil, profile
+end
+
+function Engine:UpdateInference()
+	local enabled, profile = self:InferenceEnabled()
+	local inference = MikSBT.Components.WindfuryInference
+	if self.inference and (not enabled or self.inferenceProfile ~= profile) then
+		self.inference:FlushPlain()
+		self.inference:Reset()
+		self.inference = nil
+	end
+	if enabled and not self.inference and inference then
+		self.inference = inference:New({
+			after = ns.Timer.After,
+			enabled = function()
+				local active, current = self:InferenceEnabled()
+				return active and current == profile
+			end,
+			emit = function(record)
+				if self.active then self.config.presentation:Out(record) end
+			end,
+		})
+	end
+	self.inferenceProfile = enabled and profile or nil
+	ns.windfuryInference = self.inference
+	if ns.mine then ns.mine.inferredWindfuryEnabled = self.inference ~= nil end
 end
 
 function Engine:MaintainLog()
@@ -41,6 +75,9 @@ function Engine:CreateRouter()
 	router.Out = function(_, record)
 		if ns.EventAvailable("COMBAT_LOG_MESSAGE")
 			and not self.config.log:IsReady() then return end
+		if self.inference then
+			return self.inference:Out(record, record.accounting)
+		end
 		return presentation:Out(record)
 	end
 	return router
@@ -57,6 +94,7 @@ function Engine:Start()
 	self.config.log:ConfigureNamespace(ns)
 	ns.Dispatch = function(event, ...) self:HandleEvent(event, ...) end
 	ns.StartReader()
+	self:UpdateInference()
 	local frame = ns.reader.frame
 	frame:RegisterEvent("PLAYER_LOGOUT")
 	frame:RegisterEvent("ADDON_LOADED")
@@ -79,7 +117,12 @@ function Engine:HandleEvent(event, ...)
 	end
 	if not ns.EventAvailable(event) then return end
 	if event == "COMBAT_LOG_MESSAGE" and not self.config.log:IsReady() then return end
+	self:UpdateInference()
+	if event == "PLAYER_ENTERING_WORLD" and self.inference then
+		self.inference:Reset()
+	end
 	ns.ReaderEvent(nil, event, ...)
+	if event == "PLAYER_ENTERING_WORLD" then self:UpdateInference() end
 end
 
 function Engine:Stop()
@@ -87,6 +130,9 @@ function Engine:Stop()
 	self.active = false
 	ns.active = false
 	ns.generation = ns.generation + 1
+	if self.inference then self.inference:Reset(); self.inference = nil end
+	self.inferenceProfile = nil
+	ns.windfuryInference = nil
 	ns.StopReader()
 	ns.Dispatch = nil
 	ns.liveRouter = nil

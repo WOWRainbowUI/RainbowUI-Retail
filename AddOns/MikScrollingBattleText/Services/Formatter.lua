@@ -82,6 +82,38 @@ function Formatter:AbbreviateSkillName(skillName)
 	return skillName
 end
 
+-- A partial effect's trailer (" <45 blocked>") in its profile settings' text
+-- and color. Without an amount, the text drops its number (" <blocked>").
+-- Returns "" when the partial effect is disabled.
+function Formatter:FormatPartialTrailer(settings, amount, profile)
+	profile = profile or self:GetProfile()
+	if not settings or settings.disabled or not settings.trailer then
+		return ""
+	end
+	local trailer
+	if amount then
+		trailer = string.gsub(settings.trailer, "%%a",
+			self:FormatDisplayAmount(amount, profile))
+	else
+		trailer = string.gsub(settings.trailer, "%%a%s*", "")
+		trailer = string.gsub(trailer, "%s+([>%)%]])", "%1")
+	end
+	if not profile.partialColoringDisabled then
+		trailer = ColorText(settings, trailer)
+	end
+	return trailer
+end
+
+-- A combat engine record's blocked trailer, in the Block partial effect's
+-- settings: nil when the hit was not partly blocked or Block is off.
+function Formatter:FormatBlockedTrailer(record, profile)
+	if not record.blocked then return nil end
+	profile = profile or self:GetProfile()
+	local trailer = self:FormatPartialTrailer(profile.block,
+		record.blockedAmount, profile)
+	return trailer ~= "" and trailer or nil
+end
+
 local function FormatPartialAmount(self, event, profile)
 	local amount = event.amount
 	local partialAmount = ""
@@ -100,14 +132,7 @@ local function FormatPartialAmount(self, event, profile)
 
 	if partialValue then
 		amount = amount - partialValue
-		partialAmount = string.gsub(
-			settings.trailer,
-			"%%a",
-			self:FormatDisplayAmount(partialValue, profile)
-		)
-		if not profile.partialColoringDisabled then
-			partialAmount = ColorText(settings, partialAmount)
-		end
+		partialAmount = self:FormatPartialTrailer(settings, partialValue, profile)
 	end
 
 	return amount, partialAmount
