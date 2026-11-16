@@ -531,7 +531,8 @@ local function StyleCastBarTimer(bar, key, timer)
     local party = key == "partyCastBarTimer"
     local size, xPos = party and 12 or 13, party and 5 or 3
     local yPos = party and 0 or key == "playerCastBarTimer" and 2 or -1
-    timer:SetFont("Fonts\\bHEI01B.ttf", db[key .. "Size"] or size, "OUTLINE")
+    local fontPath = db.changeAllFontsIngame and BBF.LSM:Fetch(BBF.LSM.MediaType.FONT, db.allIngameFont) or "Fonts\\bHEI01B.ttf"
+    timer:SetFont(fontPath, db[key .. "Size"] or size, "OUTLINE")
     timer:SetWidth(0)
     timer:ClearAllPoints()
     timer:SetPoint(db[key .. "Anchor"] or "LEFT", bar, db[key .. "RelativeAnchor"] or "RIGHT",

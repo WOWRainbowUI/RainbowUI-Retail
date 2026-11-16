@@ -187,8 +187,8 @@ end
 local function CreateBar(name, parent, class, isTarget)
     local info = CLASS_INFO[class]
     local bar = CreateFrame("Frame", name, parent, "HorizontalLayoutFrame")
-    function bar:GetChildSize(child)
-        return child:GetSize(true)
+    function bar:GetChildSize()
+        return 20, 20
     end
     bar.spacing = 4
     bar.topPadding = info.topPadding
@@ -572,6 +572,7 @@ local function CreateUpdater(class)
     updater:RegisterUnitEvent("UNIT_EXITED_VEHICLE", "player")
     updater:RegisterEvent("PLAYER_ENTERING_WORLD")
     updater:RegisterEvent("PLAYER_TARGET_CHANGED")
+    updater:RegisterEvent("COMBO_TARGET_CHANGED")
     updater:RegisterEvent("NAME_PLATE_UNIT_ADDED")
     updater:RegisterEvent("NAME_PLATE_UNIT_REMOVED")
     if class == "DRUID" then

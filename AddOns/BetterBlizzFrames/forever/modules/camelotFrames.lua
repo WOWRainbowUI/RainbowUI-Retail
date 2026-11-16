@@ -15,7 +15,7 @@ local function BindLevelRing(levelText, ring, highLevelTexture)
         ring.bbfRefreshing = true
         local ownedByBlizzard = anchoredToRing and levelText:GetParent() == originalParent
         local hasLevelDisplay = levelText:IsShown() or (highLevelTexture and highLevelTexture:IsShown())
-        if ringsForcedHidden or not ownedByBlizzard or not hasLevelDisplay then
+        if ringsForcedHidden or ring.bbfTweakHidden or not ownedByBlizzard or not hasLevelDisplay then
             ring:Hide()
         else
             ring:Show()
@@ -107,7 +107,6 @@ loader:SetScript("OnEvent", function(self)
 end)
 
 local pvpBadgeRegions = {}
-local pvpBadgeParents = {}
 
 local function CollectPvpBadge(container)
     if not container then return end
@@ -127,13 +126,13 @@ function BBF.SetPvpBadgeShown(shown)
             CollectPvpBadge(FocusFrame.TargetFrameContent.TargetFrameContentContextual)
         end
         for _, region in ipairs(pvpBadgeRegions) do
-            pvpBadgeParents[region] = region:GetParent()
+            region.bbfPvpHome = region:GetParent()
         end
     end
 
     for _, region in ipairs(pvpBadgeRegions) do
         if shown then
-            region:SetParent(pvpBadgeParents[region])
+            region:SetParent(region.bbfPvpHome)
         else
             region:SetParent(BBF.hiddenFrame)
         end
@@ -747,10 +746,13 @@ function BBF.SetClassicHDLevelRing(frame, enabled)
         highLevelTexture = frame.TargetFrameContent.TargetFrameContentContextual.HighLevelTexture
     end
     if not levelText then return end
+    local group = frame == PlayerFrame and "player" or "target"
+    enabled = enabled or BBF.LevelTweakRingActive(group)
     local circle = classicFrame.HDLevelCircle
     if not circle then
         if not enabled then return end
         circle = classicFrame:CreateTexture(nil, "OVERLAY", nil, 5)
+        circle.bbfLevelTweakRing = true
         classicFrame.HDLevelCircle = circle
         ColorHDLevelRing(circle)
         local function Refresh()
@@ -776,15 +778,18 @@ function BBF.SetClassicHDLevelRing(frame, enabled)
             circle:SetTexCoord(0, 1, 0, 1)
             circle:SetSnapToPixelGrid(false)
             circle:SetTexelSnappingBias(0)
-            circle:SetSize(frame == PlayerFrame and 33.5 or 33, 31)
+            circle.bbfW, circle.bbfH = frame == PlayerFrame and 33.5 or 33, 31
             BBF.SetClassicLevelRing(levelText, circle, frame == PlayerFrame and 0 or -0.5, 0.5)
         else
             circle:SetAtlas("hud-PlayerFrame-levelring")
-            circle:SetSize(32, 32)
+            circle.bbfW, circle.bbfH = 32, 32
             BBF.SetClassicLevelRing(levelText, circle, -1, -1.5)
         end
     end
-    circle.bbfEnabled = enabled and true or false
+    local k = BBF.LevelTweakRingScale(group)
+    circle:SetSize(circle.bbfW * k, circle.bbfH * k)
+    BBF.PlaceClassicLevel(levelText)
+    circle.bbfEnabled = enabled and not BBF.LevelTweakRingHidden(group)
     circle.Refresh()
     BBF.ColorClassicHDLevelRing(frame)
 end
@@ -1007,11 +1012,11 @@ end
 
 local function ApplySmallerLevelCircle(ring, levelText, point, x, y, enabled)
     if not ring or not levelText then return end
-    if not enabled and not ring.bbfSmallApplied then return end
-    if not ring.bbfSmallApplied then
+    if not ring.bbfOrigPoint then
         ring.bbfOrigPoint = { ring:GetPoint(1) }
         ring.bbfOrigScale = ring:GetScale()
     end
+    if not enabled and not ring.bbfSmallApplied then return end
     ring.bbfSmallApplied = enabled or nil
     ring:SetScale(enabled and 0.8 or ring.bbfOrigScale)
     ring:ClearAllPoints()
@@ -1057,31 +1062,38 @@ local function RoundFrameArt()
     end
 end
 
+local function TweakRing(ring, point, x, y, scale, group)
+    ring.bbfLevelTweakRing = true
+    ring.bbfTweakHidden = BBF.LevelTweakRingHidden(group) or nil
+    BBF.PlaceLevelRing(ring, point, ring:GetParent(), point, x, y, scale, group)
+end
+
 function BBF.UpdateSmallerLevelCircle()
     if BBF.ClassicStyleAddon() then return end
     local playerMain = PlayerFrame.PlayerFrameContent.PlayerFrameContentMain
     RoundToPixel(playerMain.LevelBackgroundCircle)
-    local playerX, playerY = 19, 17.5
+    local playerX, playerY = 19 + 2 / 0.8, 17.5 - 1 / 0.8
     if (BBF.SymmetricPlayerOn and BBF.SymmetricPlayerOn()) then
         playerX, playerY = 21, 19
     end
     local playerRing = playerMain.LevelBackgroundCircle
     local playerSmall = SmallerLevelCircleOn("player")
     ApplySmallerLevelCircle(playerRing, PlayerLevelText, "BOTTOMLEFT", playerX, playerY, playerSmall)
-    if playerRing and not playerSmall and not BBF.SmallerLevelCircleBlocker("player") then
-        playerRing:ClearAllPoints()
-        playerRing:SetPoint("BOTTOMLEFT", 12, 9)
+    if not BBF.SmallerLevelCircleBlocker("player") then
+        TweakRing(playerRing, "BOTTOMLEFT", playerSmall and playerX or 12, playerSmall and playerY or 9, playerSmall and 0.8 or playerRing.bbfOrigScale, "player")
     end
     for frame, unit in pairs({ [TargetFrame] = "target", [FocusFrame] = "focus" }) do
         local main = frame.TargetFrameContent.TargetFrameContentMain
         local ring = main.LevelBackgroundCircle
         RoundToPixel(ring)
         local small = SmallerLevelCircleOn(unit)
-        ApplySmallerLevelCircle(ring, main.LevelText, "BOTTOMRIGHT", -20, 20, small)
-        if ring and not small and not BBF.SmallerLevelCircleBlocker(unit) then
-            ring:ClearAllPoints()
-            ring:SetPoint("BOTTOMRIGHT", -11, 11)
+        ApplySmallerLevelCircle(ring, main.LevelText, "BOTTOMRIGHT", -20, 20 - 1 / 0.8, small)
+        if not BBF.SmallerLevelCircleBlocker(unit) then
+            TweakRing(ring, "BOTTOMRIGHT", small and -20 or -11, small and 20 - 1 / 0.8 or 11, small and 0.8 or ring.bbfOrigScale, "target")
         end
+    end
+    for _, Refresh in ipairs(ringRefreshers) do
+        Refresh()
     end
 end
 
@@ -1108,6 +1120,70 @@ function BBF.UpdatePvpIconPosition()
     if FocusFrame then
         PlacePvpIcon(FocusFrame.TargetFrameContent.TargetFrameContentContextual, "TOPRIGHT", (BBF.RetailTexturesOn and BBF.RetailTexturesOn("focus")) and -14.5 or -12, -35)
     end
+end
+
+local CLASSIC_PVP_MAP = {
+    pvpIconHorde = "UI-HUD-UnitFrame-Player-PVP-HordeIcon",
+    pvpIconAlliance = "UI-HUD-UnitFrame-Player-PVP-AllianceIcon",
+    pvpIconFreeForAll = "UI-HUD-UnitFrame-Player-PVP-FFAIcon",
+}
+
+local function PlaceClassicPvpIcon(icon, parent, point, x, y, scale)
+    icon:SetScale(scale)
+    icon:ClearAllPoints()
+    icon:SetPoint("CENTER", parent, point, x, y)
+end
+
+local function LayoutClassicPvpIcon(frame, unit)
+    if unit == "player" then
+        local main = PlayerFrame.PlayerFrameContent.PlayerFrameContentMain
+        if BBF.HasNoPortrait("player") then
+            PlaceClassicPvpIcon(main.PvpBackgroundIcon, main, "TOPLEFT", 101, -80, 0.7)
+        elseif BetterBlizzFramesDB.classicFrames then
+            PlaceClassicPvpIcon(main.PvpBackgroundIcon, main, "TOPLEFT", 21 + 1.5 / 0.85, -63, 0.85)
+        else
+            PlaceClassicPvpIcon(main.PvpBackgroundIcon, main, "TOPLEFT", 17 - 2 / 0.85, -63 + 2 / 0.85, 0.85)
+        end
+        return
+    end
+    local context = frame.TargetFrameContent.TargetFrameContentContextual
+    if BBF.HasNoPortrait(unit) then
+        PlaceClassicPvpIcon(context.PvpBackgroundIcon, context, "TOPRIGHT", -101, -80, 0.7)
+    elseif BetterBlizzFramesDB.classicFrames then
+        PlaceClassicPvpIcon(context.PvpBackgroundIcon, context, "TOPRIGHT", -17, -63, 0.85)
+    else
+        PlaceClassicPvpIcon(context.PvpBackgroundIcon, context, "TOPRIGHT", BBF.RetailTexturesOn(unit) and -16.5 or -14, -61, 0.85)
+    end
+end
+
+local function ApplyClassicPvpIcon(frame, unit)
+    if not BetterBlizzFramesDB.classicPvpIcon or BBF.ClassicStyleAddon() then return end
+    if unit == "player" then
+        UnitFrameUtil.UpdateUnitPvPIndicator({ pvpIcon = PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.PvpBackgroundIcon }, "player", true, CLASSIC_PVP_MAP)
+    elseif frame.showPVP then
+        UnitFrameUtil.UpdateUnitPvPIndicator({ pvpIcon = frame.TargetFrameContent.TargetFrameContentContextual.PvpBackgroundIcon }, unit, nil, CLASSIC_PVP_MAP)
+    end
+    LayoutClassicPvpIcon(frame, unit)
+end
+
+local classicPvpIconHooked
+function BBF.UpdateClassicPvpIcon()
+    if not BetterBlizzFramesDB.classicPvpIcon then return end
+    if not classicPvpIconHooked then
+        classicPvpIconHooked = true
+        hooksecurefunc("PlayerFrame_UpdatePvPStatus", function()
+            ApplyClassicPvpIcon(PlayerFrame, "player")
+        end)
+        hooksecurefunc(TargetFrame, "CheckFaction", function(self)
+            ApplyClassicPvpIcon(self, "target")
+        end)
+        hooksecurefunc(FocusFrame, "CheckFaction", function(self)
+            ApplyClassicPvpIcon(self, "focus")
+        end)
+    end
+    ApplyClassicPvpIcon(PlayerFrame, "player")
+    ApplyClassicPvpIcon(TargetFrame, "target")
+    ApplyClassicPvpIcon(FocusFrame, "focus")
 end
 
 
@@ -1137,7 +1213,7 @@ local function ApplyPlayerManaHeight()
     local big = BBF.BigPlayerHealthbar and BBF.BigPlayerHealthbar()
     manaBar.ManaBarMask:SetSize(big and 129 or 128.5, 17)
     manaBar.ManaBarMask:ClearAllPoints()
-    manaBar.ManaBarMask:SetPoint("TOPLEFT", manaBar, "TOPLEFT", -1.5, 2.5)
+    manaBar.ManaBarMask:SetPoint("TOPLEFT", manaBar, "TOPLEFT", -1, 2.5)
 end
 
 function BBF.UpdatePlayerManaHeight()
@@ -1244,7 +1320,7 @@ local function ApplyNameBg(frame, unit)
     rep.bbfNameBgRetail = retail
     rep.bbfNameBgTexture = texture
     if mode then
-        rep:SetSize(125, mode == "retail" and 21.5 or 21)
+        rep:SetSize(125, 21.5)
         rep:ClearAllPoints()
         rep:SetPoint("TOPLEFT", frame, "TOPLEFT", 21, -23.5)
         if mode == "retail" then
@@ -1267,12 +1343,13 @@ local function ApplyNameBg(frame, unit)
         if (BBF.RetailTexturesOn and BBF.RetailTexturesOn(unit)) then
             rep:SetPoint("TOPRIGHT", main, "TOPRIGHT", -75, -25)
             name:SetPoint("TOPLEFT", rep, "TOPRIGHT", -133, -1)
+            frame.bbfNameBgShiftX, frame.bbfNameBgShiftY = nil, nil
         else
-            rep:SetSize(136, 18)
-            rep:SetPoint("TOPRIGHT", main, "TOPRIGHT", -82, -27)
-            name:SetPoint("TOPLEFT", rep, "TOPRIGHT", -126, -3)
+            rep:SetSize(136.5, 19)
+            rep:SetPoint("TOPRIGHT", main, "TOPRIGHT", -82, -25.5)
+            name:SetPoint("TOPLEFT", rep, "TOPRIGHT", -126, -4.5)
+            frame.bbfNameBgShiftX, frame.bbfNameBgShiftY = 0, -1.5
         end
-        frame.bbfNameBgShiftX, frame.bbfNameBgShiftY = nil, nil
     end
     if BBF.ApplyNameLayouts then
         BBF.ApplyNameLayouts()
@@ -1303,11 +1380,11 @@ end
 local playerMaskHooked
 local PLAYER_HEALTH_MASK = "UI-HUD-UnitFrame-Player-PortraitOn-Bar-Health-Mask"
 
-local function PlaceDefaultHealthMask(mask, healthBar, width, x, height)
+local function PlaceDefaultHealthMask(mask, healthBar, width, x)
     mask:SetAtlas(PLAYER_HEALTH_MASK)
     mask:ClearAllPoints()
-    mask:SetPoint("TOPLEFT", healthBar, "TOPLEFT", x or -2, 6)
-    mask:SetSize(width, height or 33)
+    mask:SetPoint("TOPLEFT", healthBar, "TOPLEFT", x, 6.5)
+    mask:SetSize(width, 33.5)
 end
 
 function BBF.UpdatePlayerHealthMask()
@@ -1322,7 +1399,7 @@ function BBF.UpdatePlayerHealthMask()
     if BBF.BigPlayerHealthbar and BBF.BigPlayerHealthbar() then return end
     if BBF.PlayerManaHiddenArt and BBF.PlayerManaHiddenArt() then return end
     local hpContainer = PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.HealthBarsContainer
-    PlaceDefaultHealthMask(hpContainer.HealthBarMask, hpContainer.HealthBar, 128.5)
+    PlaceDefaultHealthMask(hpContainer.HealthBarMask, hpContainer.HealthBar, 127.5, -1)
 end
 
 local targetMaskHooked = {}
@@ -1351,15 +1428,17 @@ function BBF.UpdateTargetHealthMask(frame)
     if not InCombatLockdown() then
         manaBar:SetSize(135, 11)
         manaBar:ClearAllPoints()
-        manaBar:SetPoint("TOPRIGHT", main.HealthBarsContainer, "BOTTOMRIGHT", 4, -1)
+        manaBar:SetPoint("TOPRIGHT", main.HealthBarsContainer, "BOTTOMRIGHT", 4, -0.5)
     end
+    local manaTexture = BBF.UnitFrameTextureOn("mana")
     local manaMask = manaBar.ManaBarMask
-    manaMask:SetSize(259, 17)
+    manaMask:SetSize(manaTexture and 258.5 or 259, 17)
     manaMask:ClearAllPoints()
-    manaMask:SetPoint("TOPLEFT", manaBar, "TOPLEFT", -62, 3)
+    manaMask:SetPoint("TOPLEFT", manaBar, "TOPLEFT", manaTexture and -61.5 or -62, 3)
     if UnitExists(unit) and UnitClassification(unit) == "minus" then return end
     local hpContainer = frame.TargetFrameContent.TargetFrameContentMain.HealthBarsContainer
-    PlaceDefaultHealthMask(hpContainer.HealthBarMask, hpContainer.HealthBar, 129, -1.5, 33.3)
+    local healthTexture = BBF.UnitFrameTextureOnFor(unit)
+    PlaceDefaultHealthMask(hpContainer.HealthBarMask, hpContainer.HealthBar, healthTexture and 128.5 or 129, healthTexture and -1 or -1.5)
 end
 
 local groupIconHooked
@@ -1503,6 +1582,7 @@ function BBF.ForeverTweaks()
     BBF.UpdatePartyStatusPosition()
     RoundFrameArt()
     BBF.UpdatePvpIconPosition()
+    BBF.UpdateClassicPvpIcon()
     BBF.UpdateSmallerLevelCircle()
     BBF.UpdateBagSlotTextures()
     BBF.UpdateBronzeTint()

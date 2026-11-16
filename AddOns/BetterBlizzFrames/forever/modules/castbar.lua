@@ -676,8 +676,8 @@ local function AdjustBorderShieldSize(castBar)
 
 
         local barWidth, barHeight = GetCastbarSize(castBar)
-        local widthScale = barWidth / baseWidth
-        local heightScale = barHeight / baseHeight
+        local widthScale = (barWidth or baseWidth) / baseWidth
+        local heightScale = (barHeight or baseHeight) / baseHeight
 
         -- Apply scaled size to the border
         BBF.SetClassicTexture(castBar.BorderShield, 311862, nil, true)
@@ -708,8 +708,8 @@ local function AdjustFlash(castBar)
     local baseOffsetYBottom = -23
 
     local barWidth, barHeight = GetCastbarSize(castBar)
-    local widthScale = barWidth / baseWidth
-    local heightScale = barHeight / baseHeight
+    local widthScale = (barWidth or baseWidth) / baseWidth
+    local heightScale = (barHeight or baseHeight) / baseHeight
 
     -- Adjust the offsets based on the scaling factors
     local offsetX = baseOffsetX * widthScale
@@ -1808,7 +1808,8 @@ local function StyleCastBarTimer(bar, key, timer)
     local db = BetterBlizzFramesDB
     timer = timer or bar.Timer
     local size, yPos = 12, 0
-    timer:SetFont("Fonts\\FRIZQT__.TTF", db[key .. "Size"] or size, "OUTLINE")
+    local fontPath = db.changeAllFontsIngame and BBF.LSM:Fetch(BBF.LSM.MediaType.FONT, db.allIngameFont) or "Fonts\\FRIZQT__.TTF"
+    timer:SetFont(fontPath, db[key .. "Size"] or size, "OUTLINE")
     timer:SetWidth(0)
     timer:ClearAllPoints()
     timer:SetPoint(db[key .. "Anchor"] or "LEFT", bar, db[key .. "RelativeAnchor"] or "RIGHT",
