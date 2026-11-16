@@ -1,10 +1,12 @@
 # Chattynator
 
-## [235](https://github.com/TheMouseNest/Chattynator/tree/235) (2026-11-14)
-[Full Changelog](https://github.com/TheMouseNest/Chattynator/compare/234...235) 
+## [236](https://github.com/TheMouseNest/Chattynator/tree/236) (2026-11-15)
+[Full Changelog](https://github.com/TheMouseNest/Chattynator/compare/235...236) 
 
-- Fix this \_again\_  
-- Fix edit box history breaking with an error  
-- Fix buttons not moving correctly when never show tabs is selected (#238)  
-- (Lilia) Button alignment to right and text align right/center, info section update  
-    Plus themes all get button transparency options  
+- Scale them down again  
+- Scale down assets to render better  
+- Fix fade sometimes flickering  
+- Blizzard skin: Fix outside right buttons overlapping background (#241)  
+- Adds chat looping and hidng edit box resets history position (#240)  
+- Fix for button alpha resetting when hovered over (#242)  
+- Add secrets guard on search functions  

@@ -137,13 +137,14 @@ function addonTable.Display.ChatFrameMixin:OnLoad()
   local step = 0.08
   C_Timer.NewTicker(step, function()
     local alpha = self:GetAlpha()
-    if not self.shouldFadeCompletely or self:IsMouseOver() or self.ButtonsBar:IsMouseOver() or ChatFrame1EditBox:HasFocus() or self.ScrollingMessages:IsAnyShown() or alpha < self.fadedAlpha or not self.ScrollingMessages:IsShown() then
+    if not self.shouldFadeCompletely or self:IsMouseOver() or self.ButtonsBar:IsMouseOver() or ChatFrame1EditBox:HasFocus() or self.ScrollingMessages:IsAnyShown() or not self.ScrollingMessages:IsShown() then
       if alpha < 1 then
-        local newAlpha = alpha + step * 8
-        self:SetAlpha(newAlpha)
+        self:SetAlpha(alpha + step * 8)
       end
+    elseif alpha < self.fadedAlpha then
+      self:SetAlpha(math.min(alpha + step * 8, self.fadedAlpha))
     elseif self.shouldFadeCompletely then
-      if alpha > 0 and not self.ScrollingMessages:IsAnyShown() then
+      if alpha > self.fadedAlpha and not self.ScrollingMessages:IsAnyShown() then
         local newAlpha = math.max(self.fadedAlpha, alpha - 1/3 * step)
         self:SetAlpha(newAlpha)
       end

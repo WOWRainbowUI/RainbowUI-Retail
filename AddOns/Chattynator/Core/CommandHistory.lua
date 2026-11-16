@@ -65,12 +65,21 @@ function addonTable.Core.InitializeChatCommandLogging()
     if C_ChatInfo and C_ChatInfo.InChatMessagingLockdown and C_ChatInfo.InChatMessagingLockdown() then
       return
     end
-    if key == "UP" and index > 1 and #lines > 0 then
+    if key == "UP" and #lines > 0 then
       if index > #lines then
         top = GetCurrent(ChatFrame1EditBox)
       end
       index = index - 1
-      ChatFrame1EditBox:SetText(lines[index])
+      if index >= 1 then
+        ChatFrame1EditBox:SetText(lines[index])
+      elseif top then
+        ChatFrame1EditBox:SetText(top)
+        top = nil
+      elseif index < 1 then
+        top = GetCurrent(ChatFrame1EditBox)
+        index = #lines
+        ChatFrame1EditBox:SetText(lines[index])
+      end
     elseif key == "DOWN" then
       index = math.min(#lines + 1, index + 1)
       if index <= #lines then
@@ -78,11 +87,15 @@ function addonTable.Core.InitializeChatCommandLogging()
       elseif top then
         ChatFrame1EditBox:SetText(top)
         top = nil
+      elseif index > #lines then
+        top = GetCurrent(ChatFrame1EditBox)
+        index = 1
+        ChatFrame1EditBox:SetText(lines[index])
       end
     end
   end)
 
-  ChatFrame1EditBox:HookScript("OnEditFocusLost", function(_, key)
+  ChatFrame1EditBox:HookScript("OnHide", function(_,key)
     top = nil
     index = #lines + 1
   end)

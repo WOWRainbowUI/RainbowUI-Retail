@@ -122,11 +122,11 @@ local function RunSearch(windowIndex, tabIndex, text, isPattern)
   text = text:lower()
   if isPattern then
     table.insert(newTab.filters, function(data)
-      return data.text:lower():match(text) ~= nil
+      return not issecretvalue(data.text) and data.text:lower():match(text) ~= nil
     end)
   else
     table.insert(newTab.filters, function(data)
-      return data.text:lower():find(text, nil, true) ~= nil
+      return not issecretvalue(data.text) and data.text:lower():find(text, nil, true) ~= nil
     end)
   end
   newTab.name = searchMarkup

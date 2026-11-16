@@ -62,13 +62,14 @@ local skinners = {
     end
   end,
   ChatFrame = function(frame, tags)
+    local position = addonTable.Config.Get(addonTable.Config.Options.BUTTON_POSITION)
     local alpha = 1 - addonTable.Config.Get("skins.blizzard.chat_transparency")
     table.insert(chatFrames, frame)
     frame.background = CreateFrame("Frame", "ChattynatorChatFrameBackground" .. #chatFrames, frame, "FloatingBorderedFrame")
     frame.background:SetFrameStrata("BACKGROUND")
     frame.background:SetFrameLevel(frame:GetFrameLevel() - 1)
     frame.background:SetPoint("TOPLEFT", frame.ScrollingMessagesWrapper, 0, 2)
-    frame.background:SetPoint("BOTTOMRIGHT", frame.ScrollingMessagesWrapper)
+    frame.background:SetPoint("BOTTOMRIGHT", frame.ScrollingMessagesWrapper, position == 'outside_right' and -34 or 0, 0)
 
     hooksecurefunc(frame, "SetBackgroundColor", function(_, r, g, b)
       for _, region in ipairs({frame.background:GetRegions()}) do
@@ -285,6 +286,11 @@ local function LoadSkin()
       local alpha = 1 - addonTable.Config.Get(settingName)
       for _, frame in ipairs(chatFrames) do
         frame.background:SetAlpha(alpha)
+      end
+    elseif settingName == "button_position" then
+      local position = addonTable.Config.Get(addonTable.Config.Options.BUTTON_POSITION)
+      for _, frame in ipairs(chatFrames) do
+        frame.background:SetPoint("BOTTOMRIGHT", frame.ScrollingMessagesWrapper, position == 'outside_right' and -34 or 0, 0)
       end
     end
   end)
