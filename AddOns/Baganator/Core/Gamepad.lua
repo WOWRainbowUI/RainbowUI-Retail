@@ -51,6 +51,30 @@ if addonTable.Constants.IsGamepadInUse then
     SmartNavigation_MarkFrameFocusable(frame)
   end
 
+  function addonTable.Gamepad.GetBindingsFooter(bindings, parent, offsetX, offsetY)
+    local gamepadFooter = GamepadSharedUtility.CreatePromptedBindingFooter(parent);
+    for _, b in ipairs(bindings) do
+      if b.isBack then
+        gamepadFooter:AddStandardBackPrompt(b.label);
+      else
+        local widget = GamepadSharedUtility.CreatePromptedBinding(b.button, nil, b.label)
+        widget:SetVisibilityType(b.visibility == "auto" and PromptedBindingMixin.VISIBILITY_TYPE.ONLY_IF_USABLE or PromptedBindingMixin.VISIBILITY_TYPE.ALWAYS)
+        if b.condition then
+          widget:AddCondition(b.condition)
+        end
+        gamepadFooter:AddPromptedBinding(widget);
+      end
+    end
+    function gamepadFooter:Refresh()
+      self:RefreshPromptedBindingsActive();
+      self:RefreshInputLegend();
+    end
+    gamepadFooter:SetAnchorOffsets(offsetX or 10, offsetY or 6);
+    gamepadFooter:Finalize();
+
+    return gamepadFooter
+  end
+
 else
   function addonTable.Gamepad.LinkButtons(button1, direction, button2)
   end

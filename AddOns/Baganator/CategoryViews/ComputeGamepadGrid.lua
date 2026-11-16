@@ -42,7 +42,7 @@ function addonTable.CategoryViews.ComputeGamepadGrid(layouts, upButton, bottomLe
           if b.position.y ~= lastCategoryRow then
             lastCategoryRow = lastCategoryRow + 1
             categoryExtraRows = categoryExtraRows + 1
-            rowEnd = categoryExtraRows + row
+            rowEnd = math.max(categoryExtraRows + row, rowEnd)
             local newRow = row + categoryExtraRows
             grid[newRow] = grid[newRow] or {}
             cols[newRow] = offset

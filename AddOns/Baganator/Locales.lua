@@ -450,8 +450,12 @@ L["SLASH_CATEGORIES_HELP"] = "Show categories matching or not matching items in 
 L["SLASH_UNKNOWN_COMMAND"] = "Unknown command '%s'"
 L["CATEGORY_SETTINGS_HAVE_BEEN_RESET"] = "Category settings have been reset"
 
+L["TOGGLE"] = "Toggle"
+L["CLEAR_RECENTS"] = "Clear Recents"
 
 local L = Locales.zhTW
+L["TOGGLE"] = "切換"
+L["CLEAR_RECENTS"] = "清除最近項目"
 L["NO_STACK_TO_SPLIT"] = "沒有可拆分的堆疊"
 L["CONFIRM_TRANSFER_ITEMS"] = "要轉移選取的物品嗎？"
 L["CANNOT_OPEN_BAGS_IN_COMBAT"] = "戰鬥中無法開啟背包"
@@ -861,6 +865,8 @@ L["LEGACY_SKIN"] = "你有舊的外觀插件 "
 L["NO_LONGER_NEEDED"] = " 已經不再需要了，請將它刪除。多角色背包本身現已包含外觀。"
 
 local L = Locales.zhCN
+L["TOGGLE"] = "切换"
+L["CLEAR_RECENTS"] = "清除最近项目"
 L["NO_STACK_TO_SPLIT"] = "没有可拆分的堆叠"
 L["CONFIRM_TRANSFER_ITEMS"] = "要转移选中的物品吗？"
 L["CANNOT_OPEN_BAGS_IN_COMBAT"] = "战斗中无法打开背包"

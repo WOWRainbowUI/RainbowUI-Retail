@@ -6,6 +6,33 @@ BaganatorSingleViewBackpackViewMixin = CreateFromMixins(BaganatorItemViewCommonB
 function BaganatorSingleViewBackpackViewMixin:OnLoad()
   BaganatorItemViewCommonBackpackViewMixin.OnLoad(self)
 
+  if addonTable.Constants.IsGamepadInUse then
+    local bindings = {
+      {
+        button = GAMEPAD_FACE_BOTTOM, label = ACTION_LABEL_SELECT, visibility = "auto",
+        condition = function()
+          return addonTable.ItemButtonUtil.GetGamepadFocus() ~= nil
+        end,
+      },
+      {
+        button = GAMEPAD_FACE_LEFT, label = CONTEXT_ACTION_LABEL_USE, visibility = "auto",
+        condition = function()
+          return addonTable.ItemButtonUtil.GetGamepadFocus() ~= nil and addonTable.ItemButtonUtil.GetGamepadFocus().frame.BGR.itemLink ~= nil
+        end,
+      },
+      {
+        button = GAMEPAD_FACE_TOP, label = CONTEXT_ACTION_LABEL_MORE_ACTIONS, visibility = "auto",
+        condition = function()
+          return addonTable.ItemButtonUtil.GetGamepadFocus() ~= nil and addonTable.ItemButtonUtil.GetGamepadFocus().frame.BGR.itemLink ~= nil
+        end
+      },
+      {
+        isBack = true, label = CLOSE
+      }
+    }
+    self.gamepadFooter = addonTable.Gamepad.GetBindingsFooter(bindings, self)
+  end
+
   self.Container.BagLive:SetPool(self.liveItemButtonPool)
   self.CollapsingBagSectionsPool = addonTable.SingleViews.GetCollapsingBagSectionsPool(self.Container)
   self.CollapsingBags = {}

@@ -48,6 +48,8 @@ function BaganatorCharacterSelectMixin:OnLoad()
     end
   end
 
+  local isOnRow = false
+
   local view = CreateScrollBoxListLinearView()
   view:SetElementExtent(20)
   view:SetElementInitializer("Button", function(frame, elementData)
@@ -84,6 +86,12 @@ function BaganatorCharacterSelectMixin:OnLoad()
     frame:SetScript("OnClick", function()
       addonTable.CallbackRegistry:TriggerEvent("CharacterSelect", elementData.fullName)
     end)
+    function frame:OnSmartNavSelect()
+      isOnRow = true
+    end
+    function frame:OnSmartNavDeselect()
+      isOnRow = false
+    end
     UpdateForSelection(frame)
   end)
   ScrollUtil.InitScrollBoxListWithScrollBar(self.ScrollBox, self.ScrollBar, view)
@@ -105,6 +113,22 @@ function BaganatorCharacterSelectMixin:OnLoad()
     self:UpdateList()
   end)
   addonTable.Skins.AddFrame("SearchBox", self.SearchBox)
+
+  if addonTable.Constants.IsGamepadInUse then
+    local bindings = {
+      {
+        button = GAMEPAD_FACE_BOTTOM, label = ACTION_LABEL_SELECT,
+        condition = function()
+          return isOnRow and SmartNavigation:GetCurrentButton():IsEnabled()
+        end,
+      },
+      {
+        isBack = true, label = CLOSE
+      }
+    }
+    self.gamepadFooter = addonTable.Gamepad.GetBindingsFooter(bindings, self)
+    self.CloseButton:Hide()
+  end
 end
 
 function BaganatorCharacterSelectMixin:UpdateList()
@@ -161,4 +185,14 @@ function BaganatorCharacterSelectMixin:OnDragStop()
   self:SetUserPlaced(false)
   local point, _, _, x, y = self:GetPoint(1)
   addonTable.Config.Set(addonTable.Config.Options.CHARACTER_SELECT_POSITION, {point, x, y})
+end
+
+function BaganatorCharacterSelectMixin:StartFocus()
+  self.FrameGlow:Show()
+  self.gamepadFooter:ShowAndActivateBindings()
+end
+
+function BaganatorCharacterSelectMixin:EndFocus()
+  self.FrameGlow:Hide()
+  self.gamepadFooter:HideAndDeactivateBindings()
 end

@@ -774,6 +774,7 @@ if addonTable.Constants.IsGamepadInUse then
     addonTable.ItemViewCommon.ShowGamepadMenu(focus.frame, {"BOTTOMRIGHT", focus.frame, "BOTTOMLEFT"}, {
       {
         label = CONTEXT_ACTION_LABEL_SPLIT_ITEM_STACK,
+        enabled = C_Item.GetStackCount(focus.frame.BGR.itemLocation) > 1,
         callback = function()
           local info = C_Container.GetContainerItemInfo(focus.bag, focus.slot);
           local itemCount = info and info.stackCount;
@@ -825,21 +826,21 @@ if addonTable.Constants.IsGamepadInUse then
   end)
 
   function BaganatorRetailLiveContainerItemButtonMixin:OnSmartNavSelect()
+    itemButtonFocus = {index = self.gamepadIndex, slot = self:GetID(), bag = self:GetParent():GetID(), frame = self}
     if InCombatLockdown() or not self.BGR or not self.BGR.itemLink then
       return
     end
     clicker:SetAttribute("clickbutton2", self)
     SetOverrideBindingClick(clicker, true, "PAD3", clicker:GetName(), "RightButton")
     SetOverrideBindingClick(clicker, true, "PAD4", openMenuButton:GetName())
-    itemButtonFocus = {index = self.gamepadIndex, slot = self:GetID(), bag = self:GetParent():GetID(), frame = self}
   end
 
   function BaganatorRetailLiveContainerItemButtonMixin:OnSmartNavDeselect()
+    itemButtonFocus = nil
     if InCombatLockdown() then
       return
     end
     ClearOverrideBindings(clicker)
-    itemButtonFocus = nil
   end
 end
 
