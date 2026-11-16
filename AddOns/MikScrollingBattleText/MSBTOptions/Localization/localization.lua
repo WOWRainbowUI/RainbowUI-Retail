@@ -33,6 +33,13 @@ L.MSG_SCROLL_AREA_ALREADY_EXISTS	= "Scroll area name already exists."
 L.MSG_INVALID_SCROLL_AREA_NAME		= "Invalid scroll area name."
 L.MSG_ACKNOWLEDGE_TEXT				= "Are you sure you wish to perform this action?"
 L.POPUP_CONFIRM_TITLE = "Confirm Action"
+L.LANGUAGE_CURRENT = "Current game locale: %s (%s)"
+L.LANGUAGE_INFO = "MSBT uses your game language. To use another language, " ..
+	"change the game language in the Battle.net app, then restart WoW."
+L.RESET_BLIZZARD_INFO = "Restore Blizzard's text for damage, periodic damage, " ..
+	"and pet damage. This enables Blizzard damage and turns off MSBT. " ..
+	"You can change either option in General."
+L.MSG_BLIZZARD_TEXT_RESTORED = "Blizzard scrolling combat text restored."
 L.AURA_TRACKING_TITLE = "Custom auras appear above. Uncheck to hide."
 L.AURA_TRACKING_INPUT = "Aura spell ID or name"
 L.AURA_TRACKING_ADD = "Add aura"
@@ -492,12 +499,12 @@ L.MSG_INVALID_SOUND_FILE			= "Sound must be an .mp3 or .ogg file."
 L.CHECKBOXES["enableSounds"] = { label="Enable Sounds", tooltip="Play custom sounds assigned to displayed events."}
 L.CHECKBOXES["lowHealthSound"] = {
 	label = "Low Health Sound",
-	tooltip = "Play the low-health warning sound, at most once every 8 seconds. " ..
+	tooltip = "Play the low-health warning sound, at most once every 10 seconds. " ..
 		"The text warning remains visible when this is unchecked.",
 }
 L.CHECKBOXES["lowManaSound"] = {
 	label = "Low Mana Sound",
-	tooltip = "Play the low-mana warning sound, at most once every 8 seconds. " ..
+	tooltip = "Play the low-mana warning sound, at most once every 10 seconds. " ..
 		"The text warning remains visible when this is unchecked.",
 }
 L.DROPDOWNS["sound"]				= { label="Sound:", tooltip="Selects the sound to play when the event occurs."}

@@ -3,7 +3,6 @@ Presentation.__index = Presentation
 
 local RestrictedValue = MikSBT.API.RestrictedValue
 local HEALER_PAIR_WINDOW = 0.2
-local GENERIC_SPELL_ICON = "Interface\\Icons\\INV_Misc_QuestionMark"
 local MISS_TYPES = {
 	"MISS", "DODGE", "PARRY", "BLOCK", "RESIST", "EVADE",
 	"IMMUNE", "DEFLECT", "ABSORB", "REFLECT",
@@ -113,7 +112,11 @@ function Presentation:Emit(key, record, eventSettings)
 			metadata.amount = nil
 			message = self.config.formatMessage(settings, metadata, message)
 		end
-		self.config.displayRestricted(settings, record.amount, icon, message)
+		-- A partly blocked hit's trailer follows the hidden amount.
+		local suffix = self.config.formatBlockedTrailer
+			and self.config.formatBlockedTrailer(record)
+		self.config.displayRestricted(settings, record.amount, icon, message,
+			suffix)
 		return
 	end
 	local message
@@ -146,9 +149,21 @@ local function ResourceLabelFragment(gate, label)
 	return NativeResourceValue(C_StringUtil.StripHyperlinks(link), "string")
 end
 
+local function TranslatedResource(token, fallback)
+	local translations = MikSBT.translations
+	local names = translations and translations.RESOURCE_NAMES
+	return names and names[token] or fallback
+end
+
+local function ComboLabel(one)
+	local translations = MikSBT.translations or {}
+	if one then return translations.COMBO_POINT or "Combo Point" end
+	return translations.COMBO_POINTS or "Combo Points"
+end
+
 local function ResourceLabel(token)
 	if not RestrictedValue:IsRestricted(token) then
-		return RESOURCE_LABELS[token] or token
+		return TranslatedResource(token, RESOURCE_LABELS[token] or token)
 	end
 	if not C_Intl or not C_StringUtil or not C_CurveUtil
 		or not Enum or not Enum.CollationStrength or not Enum.NormalizationForm
@@ -164,6 +179,7 @@ local function ResourceLabel(token)
 	local ok, label = pcall(function()
 		local output, unmatched = "", 1
 		for candidate, text in pairs(RESOURCE_LABELS) do
+			text = TranslatedResource(candidate, text)
 			local comparison = NativeResourceValue(C_Intl.CompareStrings(
 				token, candidate, Enum.CollationStrength.Identical), "number")
 			local difference = NativeResourceValue(
@@ -281,8 +297,8 @@ local function ComboPointDisplay(count, maximum)
 		normal = { visible = NativeCountMatches(normal, 1) },
 		full = { visible = NativeCountMatches(ready, 1) },
 		label = string.format("%s%s",
-			ResourceLabelFragment(SelectComboValue(one, 1, 0), "Combo Point"),
-			ResourceLabelFragment(SelectComboValue(one, 0, 1), "Combo Points")),
+			ResourceLabelFragment(SelectComboValue(one, 1, 0), ComboLabel(true)),
+			ResourceLabelFragment(SelectComboValue(one, 0, 1), ComboLabel(false))),
 	}
 end
 
@@ -317,7 +333,7 @@ function Presentation:ComboPoints(count, maximum)
 		if count == maximum then
 			self.config.display(FinishSettings(settings), finish)
 		else
-			local name = count == 1 and "Combo Point" or "Combo Points"
+			local name = ComboLabel(count == 1)
 			self.config.displayResource(settings, count, name)
 		end
 		return
@@ -354,6 +370,18 @@ function Presentation:EmitIncomingHeal(key, record)
 	end)
 end
 
+-- Merged hits keep the total blocked; it is unknown if any part's amount is.
+local function MergeBlocked(batch, record)
+	if not record.blocked then return end
+	if not batch.blocked then
+		batch.blocked, batch.blockedAmount = true, record.blockedAmount
+	elseif batch.blockedAmount and record.blockedAmount then
+		batch.blockedAmount = batch.blockedAmount + record.blockedAmount
+	else
+		batch.blockedAmount = nil
+	end
+end
+
 function Presentation:Queue(key, record, incomingHeal)
 	if not self.config.after then
 		self:Emit(key, record)
@@ -376,6 +404,7 @@ function Presentation:Queue(key, record, incomingHeal)
 	if batch then
 		batch.amount = batch.amount + record.amount
 		batch.hitCount = batch.hitCount + 1
+		MergeBlocked(batch, record)
 		if incomingHeal then self:RememberIncomingHeal(batch) end
 		return
 	end
@@ -437,20 +466,39 @@ function Presentation:Out(record)
 		and not record.icon then
 		icon = PetIcon()
 	end
-	if result.ambiguous or (result.proc and not spell) then
-		spell, icon = nil, GENERIC_SPELL_ICON
+	if result.ambiguous or (not result.melee and not spell) then
+		spell, icon = nil, nil
+	end
+	local inferenceGroup
+	if record.event == "damage" and result.who == "you" and not spell
+		and not result.melee and not result.tick and not result.ambiguous
+		and RestrictedValue:Number(record.school) == 1 then
+		inferenceGroup = RestrictedValue:String(record.windfuryInferenceGroup)
+		if inferenceGroup and (#inferenceGroup == 0 or #inferenceGroup > 80) then
+			inferenceGroup = nil
+		end
+		local client = MikSBT.Compatibility and MikSBT.Compatibility.Client
+		local profile = self.config.getProfile and self.config.getProfile()
+		if inferenceGroup and client and client.isForever
+			and RestrictedValue:Table(profile)
+			and RestrictedValue:Number(record.inferredWindfuryIcon) == 8232 then
+			icon = self.config.getSpellTexture(8232)
+		end
 	end
 	if record.event == "damage" then
 		local isSpell = not result.melee or result.hand == "ranged"
 		local school = RestrictedValue:Number(record.school)
+		local candidateSpell = result.procCandidate and result.candidateSpell
 		if RestrictedValue:IsRestricted(record.amount) then
 			self.config.batcher:DisplayRestricted(
 				spell, record.amount, record.crit, icon, isSpell,
-				result.who == "pet", result.tick, key, school)
+				result.who == "pet", result.tick, key, school, candidateSpell,
+				inferenceGroup)
 		else
 			self.config.batcher:Queue(
 				spell, record.amount, record.crit, icon, isSpell,
-				result.who == "pet", result.tick, key, nil, school)
+				result.who == "pet", result.tick, key, nil, school, candidateSpell,
+				inferenceGroup)
 		end
 		return
 	end

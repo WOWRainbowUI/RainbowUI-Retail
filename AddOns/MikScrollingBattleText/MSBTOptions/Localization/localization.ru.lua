@@ -386,3 +386,138 @@ L.BUTTONS["playSound"]				= { label="Воспр.", tooltip="Нажмите дл�
 L.EDITBOXES["customSoundName"]	= { label="Звук:", tooltip="Название, используемое для определения звука.\n\nПример: Мой Звук"}
 L.EDITBOXES["customSoundPath"]	= { label="Путь к звуку:", tooltip="Путь к файлу звука.\n\nNOTE: Если файл находится в рекомендованном директории звуков\\MikScrollingBattleText, тогда впишите только названия файла, вместо полного пути.\n\nExample: мойЗвук.ogg "}
 L.EDITBOXES["soundFile"]		= { label="Звуковой файл:", tooltip="Название звукового файла который будет проигрываться при свершении события."}
+
+-- Recent feature translations (2026-11-13).
+L.POPUP_CONFIRM_TITLE = "Подтвердить действие"
+L.AURA_TRACKING_TITLE = "Пользовательские ауры показаны выше. Снимите флажок, чтобы скрыть " ..
+    "ауру."
+L.AURA_TRACKING_INPUT = "ID или название заклинания ауры"
+L.AURA_TRACKING_ADD = "Добавить ауру"
+L.AURA_TRACKING_HELP = "Точное отображаемое название скрывает получение и исчезновение ауры " ..
+    "всех рангов. ID заклинания скрывает только этот ID. Проверьте " ..
+    "написание. Если клиент поддерживает это, правила по названию также " ..
+    "скрывают защищенные текст и значки. Звук отключается для всех " ..
+    "защищенных аур, проверенных таким способом. Правила по ID требуют " ..
+    "доступного ID заклинания. Установите флажок снова, чтобы показывать " ..
+    "ауру."
+L.AURA_TRACKING_ALL_RANKS = "все ранги"
+L.AURA_TRACKING_CHECKBOX = "Показывать получение и исчезновение этой ауры."
+L.AURA_TRACKING_REMOVE = "Удалить правило и отслеживать ауру как обычно."
+L.AURA_TRACKING_UNKNOWN = "Неизвестная аура"
+L.AURA_TRACKING_INVALID = "Введите действительный ID заклинания или точное отображаемое " ..
+    "название."
+L.RESOURCE_CHECKBOX_TITLE = "Ресурсы"
+L.RESOURCE_CHECKBOX_HELP = "Показывать получение этого ресурса, если его использует ваш класс, " ..
+    "специализация или облик."
+L.RESOURCE_CHECKBOX_SOUND = "Звуки ресурсов отключаются, когда требуется фильтрация скрытого типа" ..
+    " ресурса."
+L.RESOURCE_COMBO_POINT = "Очко серии приемов"
+L.MSG_SOUND_PLAYBACK_FAILED = "Не удалось воспроизвести звук. Проверьте путь к файлу и " ..
+    "перезапустите WoW после добавления новых звуковых файлов."
+L.MSG_INVALID_SOUND_FILE = "Звук должен быть файлом .mp3 или .ogg."
+L.LANGUAGE_CURRENT = "Текущий язык игры: %s (%s)"
+L.LANGUAGE_INFO = "MSBT использует язык игры. Для смены языка измените язык игры в " ..
+    "приложении Battle.net и перезапустите WoW."
+L.RESET_BLIZZARD_INFO = "Восстановить текст Blizzard для прямого, периодического урона и " ..
+    "урона питомцев. Это включает текст урона Blizzard и отключает MSBT. " ..
+    "Обе настройки можно изменить в разделе общих настроек."
+L.MSG_BLIZZARD_TEXT_RESTORED = "Текст боя Blizzard восстановлен."
+
+L.TABS.profile.label = "Профили"
+L.TABS.profile.tooltip = "Управление профилями и переключение между ними."
+L.TABS.sounds.label = "Звуки"
+L.TABS.sounds.tooltip = "Настройка звуков событий и добавление своих звуковых файлов."
+L.TABS.language.label = "Язык"
+L.TABS.language.tooltip = "Текущий язык игры и настройки языка MSBT."
+L.TABS.resetBlizzardSCT.label = "Сброс текста Blizzard"
+L.TABS.resetBlizzardSCT.tooltip = "Включить текст урона Blizzard и отключить MSBT."
+
+L.CHECKBOXES.enableMSBT.label = "Включить Mik's Scrolling Battle Text"
+L.CHECKBOXES.enableMSBT.tooltip = "Включить MSBT и отключить весь текст боя Blizzard."
+L.CHECKBOXES.enableBlizzardDamage.label = "Включить текст Blizzard"
+L.CHECKBOXES.enableBlizzardDamage.tooltip = "Включить текст боя Blizzard с категориями, выбранными ниже."
+L.CHECKBOXES.disableIncoming.label = "Отключить входящие события"
+L.CHECKBOXES.disableIncoming.tooltip = "Скрыть получаемый урон и исцеление для этой системы."
+L.CHECKBOXES.disableOutgoing.label = "Отключить исходящие события"
+L.CHECKBOXES.disableOutgoing.tooltip = "Скрыть наносимый урон и выполняемое исцеление для этой системы."
+L.CHECKBOXES.disableNotifications.label = "Отключить уведомления"
+L.CHECKBOXES.disableNotifications.tooltip = "Скрыть усиления, боевые оповещения и другие уведомления этой " ..
+    "системы."
+L.CHECKBOXES.enableNames.label = "Показывать названия способностей"
+L.CHECKBOXES.enableNames.tooltip = "Показывать названия способностей во входящих и исходящих событиях."
+L.CHECKBOXES.lowHealthSound.label = "Звук при низком здоровье"
+L.CHECKBOXES.lowHealthSound.tooltip = "Воспроизводить предупреждение о низком здоровье не чаще раза в 10 " ..
+    "секунд. Текст остается видимым при снятом флажке."
+L.CHECKBOXES.lowManaSound.label = "Звук при низкой мане"
+L.CHECKBOXES.lowManaSound.tooltip = "Воспроизводить предупреждение о низкой мане не чаще раза в 10 " ..
+    "секунд. Текст остается видимым при снятом флажке."
+L.CHECKBOXES.shortenNumbers.label = "Сокращать числа"
+L.CHECKBOXES.shortenNumbers.tooltip = "Показывать сокращенные числа, например 32765 как 33k."
+L.CHECKBOXES.groupNumbers.label = "Разделять тысячи"
+L.CHECKBOXES.groupNumbers.tooltip = "Группировать цифры по тысячам, например 32765 как 32,765."
+L.CHECKBOXES.stackSimilarHits.label = "Объединять похожие попадания"
+L.CHECKBOXES.stackSimilarHits.tooltip = "Добавлять число попаданий или критических ударов одной способности " ..
+    "за короткий промежуток. Для одиночных попаданий счетчик не " ..
+    "добавляется."
+L.CHECKBOXES.currencyGains.label = "Получение валюты"
+L.CHECKBOXES.currencyGains.tooltip = "Показывать уведомления о полученной валюте."
+
+L.BUTTONS.resetBlizzardSCT.label = "Сброс текста Blizzard"
+L.BUTTONS.resetBlizzardSCT.tooltip = "Восстановить настройки текста боя Blizzard и прекратить их изменение" ..
+    " со стороны MSBT."
+
+L.NOTIFICATION_EVENTS.NOTIFICATION_RESOURCE_GAIN.label = "Получение ресурсов"
+L.NOTIFICATION_EVENTS.NOTIFICATION_RESOURCE_GAIN.tooltip = "Показывать ресурсы, полученные от способностей и эффектов."
+L.NOTIFICATION_EVENTS.NOTIFICATION_ITEM_COOLDOWN.label = "Предмет готов"
+L.NOTIFICATION_EVENTS.NOTIFICATION_ITEM_COOLDOWN.tooltip = "Сообщать об окончании восстановления использованного аксессуара или " ..
+    "зелья."
+L.NOTIFICATION_EVENTS.NOTIFICATION_CROWD_CONTROL.label = "Эффекты контроля"
+L.NOTIFICATION_EVENTS.NOTIFICATION_CROWD_CONTROL.tooltip = "Показывать эффекты контроля и прерывания."
+L.NOTIFICATION_EVENTS.NOTIFICATION_PROC.label = "Срабатывания способностей"
+L.NOTIFICATION_EVENTS.NOTIFICATION_PROC.tooltip = "Показывать выделенные срабатывания способностей."
+L.NOTIFICATION_EVENTS.NOTIFICATION_REACTIVE.label = "Доступные способности"
+L.NOTIFICATION_EVENTS.NOTIFICATION_REACTIVE.tooltip = "Показывать способности, становящиеся доступными в бою."
+L.NOTIFICATION_EVENTS.NOTIFICATION_PC_KILLING_BLOW.label = "Смертельные удары по игрокам"
+L.NOTIFICATION_EVENTS.NOTIFICATION_PC_KILLING_BLOW.tooltip = "Сообщать о смертельном ударе по враждебному игроку."
+L.NOTIFICATION_EVENTS.NOTIFICATION_NPC_KILLING_BLOW.label = "Смертельные удары по НИП"
+L.NOTIFICATION_EVENTS.NOTIFICATION_NPC_KILLING_BLOW.tooltip = "Показывать смертельные удары по НИП и целям неизвестного типа."
+
+L.INCOMING_PLAYER_EVENTS.SELF_HEAL.label = "Самоисцеление"
+L.INCOMING_PLAYER_EVENTS.SELF_HEAL.tooltip = "Показывать исцеление самого себя."
+L.INCOMING_PLAYER_EVENTS.SELF_HEAL_CRIT.label = "Критическое самоисцеление"
+L.INCOMING_PLAYER_EVENTS.SELF_HEAL_CRIT.tooltip = "Показывать критическое исцеление самого себя."
+L.INCOMING_PLAYER_EVENTS.SELF_HOT.label = "Периодическое самоисцеление"
+L.INCOMING_PLAYER_EVENTS.SELF_HOT.tooltip = "Показывать периодическое исцеление самого себя."
+L.INCOMING_PLAYER_EVENTS.SELF_HOT_CRIT.label = "Критическое периодическое самоисцеление"
+L.INCOMING_PLAYER_EVENTS.SELF_HOT_CRIT.tooltip = "Показывать критическое периодическое исцеление самого себя."
+
+L.PROFILE_TRANSFER.exportTitle = "Экспорт профиля"
+L.PROFILE_TRANSFER.importTitle = "Импорт профиля"
+L.PROFILE_TRANSFER.export = "Экспорт"
+L.PROFILE_TRANSFER.import = "Импорт"
+L.PROFILE_TRANSFER.close = "Закрыть"
+L.PROFILE_TRANSFER.selectAll = "Выбрать все"
+L.PROFILE_TRANSFER.name = "2. Назовите новый профиль"
+L.PROFILE_TRANSFER.copy = "Копировать (Ctrl+C)"
+L.PROFILE_TRANSFER.exportLabel = "Строка профиля"
+L.PROFILE_TRANSFER.importLabel = "1. Вставьте строку профиля"
+L.PROFILE_TRANSFER.importAction = "Импортировать профиль"
+L.PROFILE_TRANSFER.pasteHint = "Нажмите здесь и используйте Ctrl+V, чтобы вставить строку профиля."
+L.PROFILE_TRANSFER.exportHelp = "Нажмите Ctrl+C, чтобы скопировать выбранную строку."
+L.PROFILE_TRANSFER.importHelp = "Вставьте строку профиля и укажите новое название. Импорт создаст и " ..
+    "выберет новый профиль."
+L.PROFILE_TRANSFER.mediaNote = "Пользовательские шрифты и звуковые файлы нужно устанавливать " ..
+    "отдельно. Настройки и заклинания могут отличаться между версиями или" ..
+    " языками игры."
+L.PROFILE_TRANSFER.imported = "Профиль импортирован: %s"
+L.PROFILE_TRANSFER.compatibility = "Этот профиль создан в другой версии или на другом языке игры. " ..
+    "Проверьте настройки заклинаний, триггеров, шрифтов и звуков."
+L.PROFILE_TRANSFER.errors.INVALID_NAME = "Введите название профиля длиной 1–64 символа."
+L.PROFILE_TRANSFER.errors.PROFILE_EXISTS = "Такой профиль уже существует. Выберите другое название."
+L.PROFILE_TRANSFER.errors.INVALID_TEXT = "Неверная или поврежденная строка профиля. Скопируйте экспорт " ..
+    "полностью."
+L.PROFILE_TRANSFER.errors.INVALID_DATA = "Профиль содержит неверные или неподдерживаемые настройки."
+L.PROFILE_TRANSFER.errors.TOO_LARGE = "Профиль превышает допустимый размер передачи."
+L.PROFILE_TRANSFER.errors.IN_COMBAT = "Дождитесь окончания боя перед импортом профиля."
+L.EVENT_CODES.RESOURCE_AMOUNT = "%a - Количество полученного ресурса.\n"
+L.EVENT_CODES.RESOURCE_NAME = "%p - Название ресурса.\n"

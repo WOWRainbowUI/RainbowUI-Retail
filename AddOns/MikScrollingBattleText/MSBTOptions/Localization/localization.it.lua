@@ -389,3 +389,137 @@ L.BUTTONS["playSound"]				= { label="Esegui", tooltip="Premere per eseguire il f
 L.EDITBOXES["customSoundName"]	= { label="Nome Suono:", tooltip="Il nome usato per identificare il suono"}
 L.EDITBOXES["customSoundPath"]	= { label="Percorso Suono:", tooltip="Il percorso al file del suono.\n\nNOTA: se il file e' nella cartella raccomandara MikScrollingBattleText\\Sounds, solo il nome del file necessita di essere inserito invece che l'intero percorso.\n\nEsempio: mySound.ogg"}
 L.EDITBOXES["soundFile"]		= { label="Nome del file sonoro:", tooltip="Il nome del file sonoro da eseguire quando avviene l'evento."}
+
+-- Recent feature translations (2026-11-13).
+L.POPUP_CONFIRM_TITLE = "Conferma azione"
+L.AURA_TRACKING_TITLE = "Le aure personalizzate sono elencate sopra. Deselezionale per " ..
+    "nasconderle."
+L.AURA_TRACKING_INPUT = "ID o nome dell'incantesimo dell'aura"
+L.AURA_TRACKING_ADD = "Aggiungi aura"
+L.AURA_TRACKING_HELP = "Il nome visualizzato esatto nasconde l'applicazione e la scadenza di" ..
+    " tutti i gradi. Un ID riguarda solo quell'incantesimo. Controlla " ..
+    "l'ortografia. Se supportato dal gioco, le regole per nome nascondono" ..
+    " anche testo e icone protetti. Tutte le aure protette filtrate così " ..
+    "sono silenziose. Le regole per ID richiedono un ID leggibile. " ..
+    "Riseleziona l'aura per mostrarla."
+L.AURA_TRACKING_ALL_RANKS = "tutti i gradi"
+L.AURA_TRACKING_CHECKBOX = "Mostra l'applicazione e la scadenza di questa aura."
+L.AURA_TRACKING_REMOVE = "Rimuovi questa regola e torna a seguire normalmente l'aura."
+L.AURA_TRACKING_UNKNOWN = "Aura sconosciuta"
+L.AURA_TRACKING_INVALID = "Inserisci un ID valido o il nome visualizzato esatto " ..
+    "dell'incantesimo."
+L.RESOURCE_CHECKBOX_TITLE = "Risorse"
+L.RESOURCE_CHECKBOX_HELP = "Mostra i guadagni di questa risorsa quando è usata dalla tua classe," ..
+    " specializzazione o forma."
+L.RESOURCE_CHECKBOX_SOUND = "I suoni delle risorse sono disattivati quando occorre filtrare un " ..
+    "tipo di risorsa nascosto."
+L.RESOURCE_COMBO_POINT = "Punto combo"
+L.MSG_SOUND_PLAYBACK_FAILED = "Impossibile riprodurre il suono. Controlla il percorso e riavvia WoW" ..
+    " dopo aver aggiunto nuovi file audio."
+L.MSG_INVALID_SOUND_FILE = "Il suono deve essere un file .mp3 o .ogg."
+L.LANGUAGE_CURRENT = "Lingua attuale del gioco: %s (%s)"
+L.LANGUAGE_INFO = "MSBT usa la lingua del gioco. Per cambiarla, modifica la lingua di " ..
+    "gioco nell'app Battle.net e riavvia WoW."
+L.RESET_BLIZZARD_INFO = "Ripristina il testo Blizzard per danni diretti, periodici e dei " ..
+    "famigli. Questo attiva i danni Blizzard e disattiva MSBT. Puoi " ..
+    "modificare entrambe le opzioni in Generale."
+L.MSG_BLIZZARD_TEXT_RESTORED = "Testo di combattimento Blizzard ripristinato."
+
+L.TABS.profile.label = "Profili"
+L.TABS.profile.tooltip = "Gestisci e cambia i profili."
+L.TABS.sounds.label = "Suoni"
+L.TABS.sounds.tooltip = "Configura i suoni degli eventi e aggiungi file audio personalizzati."
+L.TABS.language.label = "Lingua"
+L.TABS.language.tooltip = "Mostra la lingua del gioco e le impostazioni linguistiche di MSBT."
+L.TABS.resetBlizzardSCT.label = "Ripristina testo Blizzard"
+L.TABS.resetBlizzardSCT.tooltip = "Attiva i danni Blizzard e disattiva MSBT."
+
+L.CHECKBOXES.enableMSBT.label = "Attiva Mik's Scrolling Battle Text"
+L.CHECKBOXES.enableMSBT.tooltip = "Attiva MSBT e disattiva tutto il testo di combattimento Blizzard."
+L.CHECKBOXES.enableBlizzardDamage.label = "Attiva testo Blizzard"
+L.CHECKBOXES.enableBlizzardDamage.tooltip = "Attiva il testo di combattimento Blizzard con le categorie " ..
+    "sottostanti."
+L.CHECKBOXES.disableIncoming.label = "Disattiva eventi in entrata"
+L.CHECKBOXES.disableIncoming.tooltip = "Nascondi i danni e le cure ricevuti per questo sistema."
+L.CHECKBOXES.disableOutgoing.label = "Disattiva eventi in uscita"
+L.CHECKBOXES.disableOutgoing.tooltip = "Nascondi i danni e le cure effettuati per questo sistema."
+L.CHECKBOXES.disableNotifications.label = "Disattiva notifiche"
+L.CHECKBOXES.disableNotifications.tooltip = "Nascondi benefici, avvisi di combattimento e altre notifiche di " ..
+    "questo sistema."
+L.CHECKBOXES.enableNames.label = "Mostra nomi delle abilità"
+L.CHECKBOXES.enableNames.tooltip = "Mostra i nomi delle abilità per gli eventi in entrata e in uscita."
+L.CHECKBOXES.lowHealthSound.label = "Suono salute bassa"
+L.CHECKBOXES.lowHealthSound.tooltip = "Riproduci l'avviso di salute bassa al massimo ogni 10 secondi. " ..
+    "L'avviso testuale resta visibile se l'opzione è disattivata."
+L.CHECKBOXES.lowManaSound.label = "Suono mana basso"
+L.CHECKBOXES.lowManaSound.tooltip = "Riproduci l'avviso di mana basso al massimo ogni 10 secondi. " ..
+    "L'avviso testuale resta visibile se l'opzione è disattivata."
+L.CHECKBOXES.shortenNumbers.label = "Abbrevia numeri"
+L.CHECKBOXES.shortenNumbers.tooltip = "Mostra numeri abbreviati, per esempio 32765 diventa 33k."
+L.CHECKBOXES.groupNumbers.label = "Separa le migliaia"
+L.CHECKBOXES.groupNumbers.tooltip = "Raggruppa le cifre per migliaia, per esempio 32765 diventa 32,765."
+L.CHECKBOXES.stackSimilarHits.label = "Raggruppa colpi simili"
+L.CHECKBOXES.stackSimilarHits.tooltip = "Aggiungi il numero di colpi o critici per colpi ravvicinati della " ..
+    "stessa abilità. I colpi singoli non hanno un contatore."
+L.CHECKBOXES.currencyGains.label = "Guadagni di valuta"
+L.CHECKBOXES.currencyGains.tooltip = "Mostra le notifiche della valuta ottenuta."
+
+L.BUTTONS.resetBlizzardSCT.label = "Ripristina testo Blizzard"
+L.BUTTONS.resetBlizzardSCT.tooltip = "Ripristina le impostazioni del testo di combattimento Blizzard e " ..
+    "interrompi le modifiche di MSBT."
+
+L.NOTIFICATION_EVENTS.NOTIFICATION_RESOURCE_GAIN.label = "Guadagni di risorse"
+L.NOTIFICATION_EVENTS.NOTIFICATION_RESOURCE_GAIN.tooltip = "Mostra le risorse ottenute da abilità ed effetti."
+L.NOTIFICATION_EVENTS.NOTIFICATION_ITEM_COOLDOWN.label = "Oggetto pronto"
+L.NOTIFICATION_EVENTS.NOTIFICATION_ITEM_COOLDOWN.tooltip = "Avvisa quando termina il recupero di un monile o di una pozione " ..
+    "usati."
+L.NOTIFICATION_EVENTS.NOTIFICATION_CROWD_CONTROL.label = "Effetti di controllo"
+L.NOTIFICATION_EVENTS.NOTIFICATION_CROWD_CONTROL.tooltip = "Mostra gli effetti di controllo e le interruzioni."
+L.NOTIFICATION_EVENTS.NOTIFICATION_PROC.label = "Attivazioni delle abilità"
+L.NOTIFICATION_EVENTS.NOTIFICATION_PROC.tooltip = "Mostra le attivazioni evidenziate delle abilità."
+L.NOTIFICATION_EVENTS.NOTIFICATION_REACTIVE.label = "Abilità reattive"
+L.NOTIFICATION_EVENTS.NOTIFICATION_REACTIVE.tooltip = "Mostra le abilità che diventano disponibili in combattimento."
+L.NOTIFICATION_EVENTS.NOTIFICATION_PC_KILLING_BLOW.label = "Colpi di grazia ai giocatori"
+L.NOTIFICATION_EVENTS.NOTIFICATION_PC_KILLING_BLOW.tooltip = "Avvisa quando infliggi un colpo di grazia a un giocatore ostile."
+L.NOTIFICATION_EVENTS.NOTIFICATION_NPC_KILLING_BLOW.label = "Colpi di grazia ai PNG"
+L.NOTIFICATION_EVENTS.NOTIFICATION_NPC_KILLING_BLOW.tooltip = "Mostra i colpi di grazia ai PNG e ai bersagli di tipo sconosciuto."
+
+L.INCOMING_PLAYER_EVENTS.SELF_HEAL.label = "Cure personali"
+L.INCOMING_PLAYER_EVENTS.SELF_HEAL.tooltip = "Mostra le cure ricevute su te stesso."
+L.INCOMING_PLAYER_EVENTS.SELF_HEAL_CRIT.label = "Cure personali critiche"
+L.INCOMING_PLAYER_EVENTS.SELF_HEAL_CRIT.tooltip = "Mostra le cure critiche ricevute su te stesso."
+L.INCOMING_PLAYER_EVENTS.SELF_HOT.label = "Cure personali periodiche"
+L.INCOMING_PLAYER_EVENTS.SELF_HOT.tooltip = "Mostra le cure nel tempo ricevute su te stesso."
+L.INCOMING_PLAYER_EVENTS.SELF_HOT_CRIT.label = "Cure personali periodiche critiche"
+L.INCOMING_PLAYER_EVENTS.SELF_HOT_CRIT.tooltip = "Mostra le cure critiche nel tempo ricevute su te stesso."
+
+L.PROFILE_TRANSFER.exportTitle = "Esporta profilo"
+L.PROFILE_TRANSFER.importTitle = "Importa profilo"
+L.PROFILE_TRANSFER.export = "Esporta"
+L.PROFILE_TRANSFER.import = "Importa"
+L.PROFILE_TRANSFER.close = "Chiudi"
+L.PROFILE_TRANSFER.selectAll = "Seleziona tutto"
+L.PROFILE_TRANSFER.name = "2. Assegna un nome al nuovo profilo"
+L.PROFILE_TRANSFER.copy = "Copia (Ctrl+C)"
+L.PROFILE_TRANSFER.exportLabel = "Stringa del profilo"
+L.PROFILE_TRANSFER.importLabel = "1. Incolla la stringa del profilo"
+L.PROFILE_TRANSFER.importAction = "Importa profilo"
+L.PROFILE_TRANSFER.pasteHint = "Clicca qui e premi Ctrl+V per incollare la stringa del profilo."
+L.PROFILE_TRANSFER.exportHelp = "Premi Ctrl+C per copiare la stringa selezionata."
+L.PROFILE_TRANSFER.importHelp = "Incolla una stringa del profilo e assegna un nuovo nome. " ..
+    "L'importazione crea e seleziona il nuovo profilo."
+L.PROFILE_TRANSFER.mediaNote = "I file audio e i caratteri personalizzati devono essere installati " ..
+    "separatamente. Impostazioni e incantesimi possono variare tra " ..
+    "versioni o lingue del gioco."
+L.PROFILE_TRANSFER.imported = "Profilo importato: %s"
+L.PROFILE_TRANSFER.compatibility = "Questo profilo proviene da un'altra versione o lingua del gioco. " ..
+    "Controlla incantesimi, attivatori, caratteri e suoni."
+L.PROFILE_TRANSFER.errors.INVALID_NAME = "Inserisci un nome del profilo di 1–64 caratteri."
+L.PROFILE_TRANSFER.errors.PROFILE_EXISTS = "Questo profilo esiste già. Scegli un altro nome."
+L.PROFILE_TRANSFER.errors.INVALID_TEXT = "Stringa del profilo non valida o danneggiata. Copia l'esportazione " ..
+    "completa."
+L.PROFILE_TRANSFER.errors.INVALID_DATA = "Il profilo contiene impostazioni non valide o non supportate."
+L.PROFILE_TRANSFER.errors.TOO_LARGE = "Il profilo supera la dimensione di trasferimento consentita."
+L.PROFILE_TRANSFER.errors.IN_COMBAT = "Attendi la fine del combattimento prima di importare un profilo."
+L.EVENT_CODES.RESOURCE_AMOUNT = "%a - Quantità di risorsa ottenuta.\n"
+L.EVENT_CODES.RESOURCE_NAME = "%p - Nome della risorsa.\n"

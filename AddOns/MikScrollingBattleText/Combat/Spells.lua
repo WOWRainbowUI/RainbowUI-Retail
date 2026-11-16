@@ -14,8 +14,9 @@ local ns = MikSBT.CombatEngine
 --   "Burns the enemy for 25 Fire damage and then an additional 40 Fire
 --   damage over 15 sec.": both;
 --   "Forces the target to speak in Demonic ...": no damage at all.
--- Only English descriptions are read; on other clients, and while a
--- description has not loaded, the engine learns as before.
+-- English descriptions provide full facts. Chinese descriptions provide a
+-- school when client-localized labels identify it unambiguously. Other
+-- unknown facts retain the existing learning fallback.
 -- Returns { damages = bool, school = mask or nil, direct = bool, ticks = bool,
 -- low and high of the hit at once, total and duration of the damage over
 -- time when given }
@@ -131,6 +132,9 @@ function ns.ParseSpellDescription(text)
     if lower:find("every %d") then facts.ticks = true end
     -- "bleed for 15 damage over 9 sec" (Rend): ticks, school not said.
     if lower:find("%d+ damage over %d") then facts.ticks = true end
+    if not facts.school and facts.ticks and lower:find("bleed", 1, true) then
+        facts.school = SCHOOLS.physical
+    end
     -- A weapon or melee strike, or a shot, is physical and hits at once.
     if not facts.school and (lower:find("weapon damage", 1, true) or lower:find("melee damage", 1, true)
         or lower:find("ranged damage", 1, true) or lower:find("fires several missiles", 1, true)) then
@@ -139,6 +143,9 @@ function ns.ParseSpellDescription(text)
     if proc then facts.procSchool = procSchool or facts.school end
     -- "282 Shadow damage over 18 sec": what the ticks add up to (0.3.9).
     local total, secs = lower:match("(%d+) %a+ damage over (%d+) sec")
+    if not total then
+        total, secs = lower:match("(%d+) damage over (%d+) sec")
+    end
     if total then facts.total, facts.duration = tonumber(total), tonumber(secs) end
     -- Harm with no "<school> damage" (Drain Life's "health every"): say no
     -- more than that it harms.
@@ -151,29 +158,85 @@ function ns.ParseSpellDescription(text)
 end
 
 local cache = {}
-local function English()
-    local locale = GetLocale and GetLocale()
+local function English(locale)
     return locale == "enUS" or locale == "enGB"
+end
+
+local LOCALIZED_SCHOOLS = {
+    PHYSICAL = 1, HOLY = 2, FIRE = 4, NATURE = 8,
+    FROST = 16, SHADOW = 32, ARCANE = 64,
+}
+local DAMAGE_WORDS = { zhCN = "伤害", zhTW = "傷害" }
+
+local function LocalizedSchoolFacts(text, locale)
+    local damage = DAMAGE_WORDS[locale]
+    if not damage then return nil end
+    local school, mentioned
+    for token, mask in pairs(LOCALIZED_SCHOOLS) do
+        local label = _G["STRING_SCHOOL_" .. token]
+        local first = ns.Text(label) and (text:find(label .. damage, 1, true)
+            or text:find(label .. " " .. damage, 1, true))
+        if first then
+            -- A multi-school tooltip cannot establish one damage school.
+            if mentioned and mentioned ~= mask then return nil end
+            mentioned = mask
+            local before = text:sub(1, first - 1)
+            -- Damage bonuses/resistances mention a school without dealing it.
+            if before:find("%d+%s*$") or before:find("%d+%s*点%s*$")
+                or before:find("%d+%s*點%s*$") then school = mask end
+        end
+    end
+    if school then return { school = school } end
+end
+
+local function CatalogFacts(spell)
+    local client = MikSBT.Compatibility and MikSBT.Compatibility.Client
+    if client and client.isForever and ns.CatalogSpellFacts then
+        return ns.CatalogSpellFacts(spell)
+    end
 end
 
 -- The facts for a spell ID, cached; nil until its text has loaded.
 function ns.SpellFacts(spell)
     if type(spell) ~= "number" then return nil end
     if cache[spell] ~= nil then return cache[spell] or nil end
-    if not English() or not (C_Spell and C_Spell.GetSpellDescription) then return nil end
-    local text = C_Spell.GetSpellDescription(spell)
-    if not ns.Text(text) then
-        if C_Spell.RequestLoadSpellData then C_Spell.RequestLoadSpellData(spell) end
-        return nil
+    local locale = GetLocale and GetLocale()
+    local facts
+    if (English(locale) or DAMAGE_WORDS[locale])
+        and C_Spell and type(C_Spell.GetSpellDescription) == "function" then
+        local ok, text = pcall(C_Spell.GetSpellDescription, spell)
+        if ok and ns.Text(text) then
+            if English(locale) then facts = ns.ParseSpellDescription(text)
+            else facts = LocalizedSchoolFacts(text, locale) end
+        elseif type(C_Spell.RequestLoadSpellData) == "function" then
+            C_Spell.RequestLoadSpellData(spell)
+        end
     end
-    local facts = ns.ParseSpellDescription(text)
+    local verified = CatalogFacts(spell)
+    if verified then
+        -- Retain optional tooltip amounts/proc hints. Verified identity fields
+        -- win even when a localized description is incomplete or unavailable.
+        facts = facts or {}
+        for field, value in pairs(verified) do facts[field] = value end
+        -- Missing identity fields are authoritative too: a direct-only spell
+        -- has no periodic duration, and Shoot's school is set by its wand.
+        facts.school = verified.school
+        facts.period = verified.period
+        facts.duration = verified.duration
+    end
     -- Whether it is cast on yourself or friends (0.3.38: a resist of yours
-    -- had gone to the Life Tap cast just before it).
-    if facts and C_Spell.IsSpellHelpful then
-        local helpful = C_Spell.IsSpellHelpful(spell)
-        if ns.Bool(helpful) then facts.helpful = helpful end
+    -- had gone to the Life Tap cast just before it). This API is locale-neutral.
+    if C_Spell and type(C_Spell.IsSpellHelpful) == "function" then
+        local ok, helpful = pcall(C_Spell.IsSpellHelpful, spell)
+        if ok and ns.Bool(helpful) then
+            if helpful and not verified then
+                facts = facts or {}
+                facts.damages = false
+            end
+            if facts and not verified then facts.helpful = helpful end
+        end
     end
-    cache[spell] = facts or false
+    if facts then cache[spell] = facts end
     return facts
 end
 

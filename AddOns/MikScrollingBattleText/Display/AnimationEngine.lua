@@ -21,8 +21,6 @@ local MAX_ANIMATIONS_PER_AREA = 15
 local DEFAULT_SCROLL_TIME = 3
 local DEFAULT_FADE_PERCENT = 0.8
 
-local ANIMATION_DELAY = 0.015
-
 local TEXT_ALIGN_MAP = {"BOTTOMLEFT", "BOTTOM", "BOTTOMRIGHT"}
 
 local OUTLINE_MAP = {"", "OUTLINE", "THICKOUTLINE", "MONOCHROME", "MONOCHROME,OUTLINE", "MONOCHROME,THICKOUTLINE"}
@@ -215,10 +213,13 @@ local function Display(visibility, message, saSettings, isSticky, colorR, colorG
 		texture:SetDrawLayer(isSticky and "OVERLAY" or "ARTWORK")
 		texture:SetAlpha(0)
 		displayEvent.texture = texture
+	elseif displayEvent.texture then
+		textureCache[#textureCache + 1] = displayEvent.texture
+		displayEvent.texture:SetTexture(nil)
+		displayEvent.texture = nil
 	end
 
 	displayEvent.elapsedTime = 0
-	displayEvent.timeSinceLastUpdate = 0
 	displayEvent.scrollTime = DEFAULT_SCROLL_TIME
 	displayEvent.fadePercent = DEFAULT_FADE_PERCENT
 
@@ -302,13 +303,10 @@ local function OnUpdateAnimationFrame(this, elapsed)
 
 			for i = 1, numEvents do
 				displayEvent = displayEvents[i]
-				displayEvent.timeSinceLastUpdate = displayEvent.timeSinceLastUpdate + elapsed
-
-				if displayEvent.timeSinceLastUpdate >= ANIMATION_DELAY then
-					displayEvent.elapsedTime = displayEvent.elapsedTime + displayEvent.timeSinceLastUpdate
-					AnimateEvent(displayEvent)
-					displayEvent.timeSinceLastUpdate = 0
-				end
+				-- Every frame: a minimum update interval moved text only every second or
+				-- third frame above 66 fps, in uneven steps, which reads as stutter.
+				displayEvent.elapsedTime = displayEvent.elapsedTime + elapsed
+				AnimateEvent(displayEvent)
 
 				allInactive = false
 			end

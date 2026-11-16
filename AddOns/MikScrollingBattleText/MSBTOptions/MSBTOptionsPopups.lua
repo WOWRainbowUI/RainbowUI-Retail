@@ -1701,7 +1701,8 @@ local function CreateResourceCheckboxes(frame)
 	frame.resourceContent = content
 
 	for index, token in ipairs(RESOURCE_TOKENS) do
-		local label = _G[token] or token:lower():gsub("_", " ")
+		local label = (L.RESOURCE_NAMES and L.RESOURCE_NAMES[token])
+			or _G[token] or token:lower():gsub("_", " ")
 		if token == "COMBO_POINTS" then label = L.RESOURCE_COMBO_POINT end
 		local checkbox = MSBTControls.CreateCheckbox(content)
 		checkbox:Configure(24, label, L.RESOURCE_CHECKBOX_HELP)

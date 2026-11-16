@@ -1,5 +1,5 @@
 ## Interface: 120105, 120100, 11504, 40400, 110002
-## Version: 12.052
+## Version: 12.053
 ## Title: Mik's Scrolling Battle Text
 ## Author: Mikord
 ## Notes: Scrolls battle information around the character model.
@@ -33,14 +33,17 @@ Components\IncomingCombat.lua
 Components\OutgoingBatcher.lua
 Combat\Context.lua
 Combat\Helpers.lua
+Combat\SpellCatalog.lua
 Combat\Mine.lua
 Combat\Spells.lua
 Combat\Healing.lua
+Combat\WindfuryInference.lua
 Combat\Reader.lua
 Components\CombatLogFilter.lua
 Components\CombatPresentation.lua
 Components\CombatEngine.lua
 Components\OutgoingCombat.lua
+Components\SkillLineIcons.lua
 Components\ParserNotifications.lua
 Components\UtilityNotifications.lua
 Components\ItemCooldownTracker.lua

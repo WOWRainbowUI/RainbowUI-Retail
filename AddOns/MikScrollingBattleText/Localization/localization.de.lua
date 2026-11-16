@@ -51,3 +51,42 @@ L.MSG_TRIGGER_LOW_HEALTH		= "Wenig Gesundheit"
 L.MSG_TRIGGER_LOW_MANA			= "Wenig Mana"
 L.MSG_TRIGGER_LOW_PET_HEALTH	= "Wenig Begleiter Gesundheit"
 
+-- Recent feature translations (2026-11-13).
+L.COSMIC = "Kosmisch"
+L.CP_FULL = "Mach ihn fertig!"
+L.COMBO_POINT = "Combopunkt"
+L.COMBO_POINTS = "Combopunkte"
+L.SETUP_RELOAD_PROMPT = "Damit MSBT starten kann, muss die Benutzeroberfläche neu geladen " ..
+    "werden."
+L.RESOURCE_NAMES = {
+    MANA = "Mana",
+    RAGE = "Wut",
+    FOCUS = "Fokus",
+    ENERGY = "Energie",
+    COMBO_POINTS = "Combopunkt",
+    RUNES = "Runen",
+    RUNIC_POWER = "Runenmacht",
+    SOUL_SHARDS = "Seelensplitter",
+    LUNAR_POWER = "Astrale Macht",
+    HOLY_POWER = "Heilige Kraft",
+    ALTERNATE_POWER = "Alternative Ressource",
+    MAELSTROM = "Mahlstrom",
+    CHI = "Chi",
+    INSANITY = "Wahnsinn",
+    BURNING_EMBERS = "Instabile Funken",
+    DEMONIC_FURY = "Dämonischer Furor",
+    ARCANE_CHARGES = "Arkane Aufladungen",
+    FURY = "Jähzorn",
+    PAIN = "Schmerz",
+    ESSENCE = "Essenz",
+    RUNE_BLOOD = "Blutrune",
+    RUNE_FROST = "Frostrune",
+    RUNE_UNHOLY = "Unheilige Rune",
+    ALTERNATE_QUEST_POWER = "Questressource",
+    ALTERNATE_ENCOUNTER_POWER = "Begegnungsressource",
+    ALTERNATE_MOUNT_POWER = "Reittierressource",
+    BALANCE = "Gleichgewicht",
+    HAPPINESS = "Zufriedenheit",
+    SHADOW_ORBS = "Schattenkugeln",
+    RUNE_CHROMATIC = "Chromatische Rune",
+}
