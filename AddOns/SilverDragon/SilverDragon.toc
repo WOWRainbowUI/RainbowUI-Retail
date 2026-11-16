@@ -4,7 +4,7 @@
 ## Title-zhTW: SilverDragon
 ## Notes-zhTW: 協助記錄稀有怪位置,以及MouseOver時提示你.
 ## Notes-zhCN: 记录稀有怪物位置。
-## Version: v2026.41
+## Version: v2026.42.1
 ## Author: Kemayo
 ## eMail: kemayo at gmail dot com
 ## IconTexture: Interface\Icons\INV_Misc_Head_Dragon_01
@@ -79,4 +79,4 @@ integration\tomtom.lua
 
 # data imports
 Data\module.xml
-Data_Classic\module.xml [AllowLoadGameType vanilla, tbc, wrath, cata, camelot]
+Data_Classic\module.xml [AllowLoadGameType vanilla, tbc, wrath, cata]
