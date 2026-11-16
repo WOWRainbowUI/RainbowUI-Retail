@@ -10,5 +10,5 @@ setfenv(1, WIM);
 -- hash at release time, so diagnostics (the snapshot tool, bug
 -- reports) can state which build produced them. A copy run straight
 -- from the source tree keeps the keyword and reports as "dev".
-local hash = "a0cf026";
+local hash = "8595c21";
 BUILD_ID = string.find(hash, "^@") and "dev" or hash;
