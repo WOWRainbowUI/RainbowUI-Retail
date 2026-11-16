@@ -3750,8 +3750,6 @@ do
 
 		tBarGlowCanColorBarGroups = VUHDO_getCanColorBarGroups();
 
-		VUHDO_resetOverlaySublevelAllocator(aButton);
-
 		for tGroupCnt = #tBarGlowCanColorBarGroups, 1, -1 do
 			tBarGlowGroup = tBarGlowCanColorBarGroups[tGroupCnt];
 
@@ -3989,6 +3987,9 @@ do
 		twipe(sOverlayBuild["plannedSlotOrder"]);
 		twipe(sOverlayBuild["plannedContainerSpecs"]);
 		twipe(sOverlayBuild["plannedContainerOrder"]);
+
+		VUHDO_resetOverlaySublevelAllocator(aButton);
+		VUHDO_resetOverlaySublevelAllocator(VUHDO_getHealthBar(aButton, 3));
 
 		tBuildBouquetOverlays = VUHDO_isAuraModeContainers() or VUHDO_isAuraDataRestricted() or sHasAnyOverlays;
 

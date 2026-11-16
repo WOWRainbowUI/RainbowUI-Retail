@@ -1829,6 +1829,11 @@ end
 
 
 --
+VUHDO_expandSpellIdsWithVariants(_G["VUHDO_SWIFTMEND_HOT_SPELL_IDS"], _G["VUHDO_AURA_SPELL_VARIANTS"]);
+
+
+
+--
 VUHDO_BOUQUET_BUFFS_SPECIAL = {
 	["AGGRO"] = {
 		["displayName"] = VUHDO_I18N_BOUQUET_AGGRO,

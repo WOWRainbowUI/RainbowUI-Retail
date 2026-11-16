@@ -331,23 +331,80 @@ end
 
 
 
---
-local tDecodedDebuffIgnoreString;
-local tDebuffIgnoreTable;
-local tDecompressedDebuffIgnoreTable;
-local function VUHDO_debuffIgnoreStringToTable(aDebuffIgnoreString)
+do
+	--
+	local tDecodedDebuffIgnoreString;
+	local tDebuffIgnoreTable;
+	local tDecompressedDebuffIgnoreTable;
+	local function VUHDO_debuffIgnoreStringToTable(aDebuffIgnoreString)
 
-	tDecodedDebuffIgnoreString = VUHDO_LibBase64.Decode(aDebuffIgnoreString);
-	tDebuffIgnoreTable = VUHDO_deserializeTable(tDecodedDebuffIgnoreString);
+		tDecodedDebuffIgnoreString = VUHDO_decodeBase64(aDebuffIgnoreString);
 
-	if tDebuffIgnoreTable and tDebuffIgnoreTable["debuffIgnore"] then
-		tDecompressedDebuffIgnoreTable = VUHDO_decompressIfCompressed(tDebuffIgnoreTable["debuffIgnore"]);
+		if not tDecodedDebuffIgnoreString then
+			return nil;
+		end
 
-		tDebuffIgnoreTable["debuffIgnore"] = tDecompressedDebuffIgnoreTable;
+		tDebuffIgnoreTable = VUHDO_deserializeTable(tDecodedDebuffIgnoreString);
+
+		if tDebuffIgnoreTable and tDebuffIgnoreTable["debuffIgnore"] then
+			tDecompressedDebuffIgnoreTable = VUHDO_decompressIfCompressed(tDebuffIgnoreTable["debuffIgnore"]);
+
+			tDebuffIgnoreTable["debuffIgnore"] = tDecompressedDebuffIgnoreTable;
+		end
+
+		return tDebuffIgnoreTable;
+
 	end
 
-	return tDebuffIgnoreTable;
 
+
+	--
+	local tImportString;
+	local tImportTable;
+	function VUHDO_debuffIgnoreImport(aEditBoxName)
+
+		tImportString = _G[aEditBoxName]:GetText();
+		tImportTable = VUHDO_debuffIgnoreStringToTable(tImportString);
+
+		if (tImportTable == nil or tImportTable["debuffIgnoreVersion"] == nil or tonumber(tImportTable["debuffIgnoreVersion"]) == nil or 
+			tonumber(tImportTable["debuffIgnoreVersion"]) ~= VUHDO_DEBUFF_IGNORE_SHARE_VERSION or tImportTable["playerName"] == nil or 
+			tImportTable["debuffIgnore"] == nil or type(tImportTable["debuffIgnore"]) ~= "table") then
+			VUHDO_showMessageDialog(VUHDO_I18N_IMPORT, VUHDO_I18N_IMPORT_STRING_INVALID);
+
+			return false;
+		end
+
+		for tDebuffIgnoreSpell, _ in pairs(tImportTable["debuffIgnore"]) do
+			VUHDO_DEBUFF_BLACKLIST[tDebuffIgnoreSpell] = true;
+		end
+
+		VUHDO_Msg(VUHDO_I18N_DEBUFF_IGNORE_IMPORTED);
+
+		return true;
+
+	end
+
+
+
+	--
+	local tEditBoxName;
+	function VUHDO_yesNoImportDebuffIgnoreCallback(aDecision)
+
+		if (VUHDO_YES == aDecision) then
+			tEditBoxName = VuhDoYesNoFrame:GetAttribute("importStringEditBoxName");
+
+			if (VUHDO_debuffIgnoreImport(tEditBoxName)) then
+				_G[tEditBoxName]:GetParent():GetParent():GetParent():Hide();
+
+				VUHDO_initDebuffIgnoreComboModel();
+				_G["VuhDoNewOptionsDebuffsStandardIconsPanelIgnoreComboBox"]:Hide();
+				_G["VuhDoNewOptionsDebuffsStandardIconsPanelIgnoreComboBox"]:Show();
+			end
+		end
+
+		return;
+
+	end
 end
 
 
@@ -362,55 +419,6 @@ function VUHDO_debuffIgnoreExportButtonShown(aEditBox)
 	aEditBox:SetTextInsets(0, 10, 5, 5);
 
 	aEditBox:Show();
-
-	return;
-
-end
-
-
-
---
-local tImportString;
-local tImportTable;
-function VUHDO_debuffIgnoreImport(aEditBoxName)
-
-	tImportString = _G[aEditBoxName]:GetText();
-	tImportTable = VUHDO_debuffIgnoreStringToTable(tImportString);
-
-	if (tImportTable == nil or tImportTable["debuffIgnoreVersion"] == nil or tonumber(tImportTable["debuffIgnoreVersion"]) == nil or 
-		tonumber(tImportTable["debuffIgnoreVersion"]) ~= VUHDO_DEBUFF_IGNORE_SHARE_VERSION or tImportTable["playerName"] == nil or 
-		tImportTable["debuffIgnore"] == nil or type(tImportTable["debuffIgnore"]) ~= "table") then
-		VUHDO_Msg(VUHDO_I18N_IMPORT_STRING_INVALID);
-
-		return;
-	end
-
-	for tDebuffIgnoreSpell, _ in pairs(tImportTable["debuffIgnore"]) do
-		VUHDO_DEBUFF_BLACKLIST[tDebuffIgnoreSpell] = true;
-	end
-
-	VUHDO_Msg(VUHDO_I18N_DEBUFF_IGNORE_IMPORTED);
-
-	return;
-
-end
-
-
-
---
-function VUHDO_yesNoImportDebuffIgnoreCallback(aDecision)
-
-	if (VUHDO_YES == aDecision) then
-		local tEditBoxName = VuhDoYesNoFrame:GetAttribute("importStringEditBoxName");
-
-		VUHDO_debuffIgnoreImport(tEditBoxName);
-
-		_G[tEditBoxName]:GetParent():GetParent():GetParent():Hide();
-
-		VUHDO_initDebuffIgnoreComboModel();
-		_G["VuhDoNewOptionsDebuffsStandardIconsPanelIgnoreComboBox"]:Hide();
-		_G["VuhDoNewOptionsDebuffsStandardIconsPanelIgnoreComboBox"]:Show();
-	end
 
 	return;
 

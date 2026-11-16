@@ -1,3 +1,35 @@
+Version 3.221  
+  
+  
+Known issues:  
+-- Midnight add-on restrictions mean some features are not yet available:  
+--   Overheal text provider and Life Text highlight are not yet working  
+--   Many Hitpoints option (e.g. Show Effective) are not yet working  
+--   Raid Icon bar and text color filtring are not yet working  
+--   Emergency Mode is not yet working  
+--   Incoming Spell Trace (i.e. targeted spells) is not yet working  
+-- Blizzard continues to have a bug that breaks proper spell targeting.  
+--   Under 'Game Menu > Options > Gameplay > Combat' deselect 'Auto Self Cast'  
+--   and set 'Self Cast Key' to 'None'  
+  
+  
+Bugfixes:  
+-- Fixed Life Text 'Verbose' option showing abbreviated hitpoints  
+-- Fixed Life Text 'Missing' mode not showing the minus sign  
+-- Fixed the global cooldown bar (Forever)  
+-- Fixed Buff Watch not recognizing 'camping' auras (Forever)  
+  
+  
+Improvements:  
+-- Added option to show the realm name (Retail) or surname (Forever)  
+--   See 'VuhDo Options > Panels > Text > Show Text > Realm/Surname'  
+-- Added option to show the realm name or surname only for players with the same name  
+--   See 'VuhDo Options > Panels > Text > Show Text > Only Duplicates'  
+-- Added warning when Blizzard Click Casting overrides a VuhDo mouse binding  
+-- Added support so units are now pingable using the Blizzard Ping system  
+  
+  
+--------------------------------------------------------------  
 Version 3.220  
   
   

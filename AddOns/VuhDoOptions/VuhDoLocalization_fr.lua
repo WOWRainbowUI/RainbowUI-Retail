@@ -969,6 +969,9 @@ VUHDO_I18N_TT.K905 = "Color used during the aura refresh (pandemic) window.";
 VUHDO_I18N_TT.K906 = "Color the aura icon during the aura refresh (pandemic) window. Global inherits from Colors > Auras.";
 VUHDO_I18N_TT.K907 = "Flash the aura icon during the aura refresh (pandemic) window. Global inherits from Colors > Auras.";
 VUHDO_I18N_TT.K908 = "Tracks Weakened Soul from yourself and from others.";
+VUHDO_I18N_TT.K909 = "Append the character surname to the displayed name.";
+VUHDO_I18N_TT.K910 = "Append the realm name to the displayed name (cross-realm players only).";
+VUHDO_I18N_TT.K911 = "Append surname or realm name only when another group member shares the same name.";
 
 VUHDO_I18N_DEFAULT_PROFILE = "Profil\npar d\195\169faut";
 VUHDO_I18N_DEFAULT_LAYOUT = "Disposition \npar d\195\169faut";
@@ -1811,3 +1814,7 @@ VUHDO_I18N_COLOR_ON_PANDEMIC = "Pandemic Color";
 VUHDO_I18N_FLASH_ON_PANDEMIC = "Pandemic Flash";
 VUHDO_I18N_PANDEMIC = "Pandemic";
 VUHDO_I18N_AURA_GROUP_BOUQUET_CYCLE = "This bouquet already refers to this aura group. Adding it would create a loop.";
+
+VUHDO_I18N_REALM = "Realm";
+VUHDO_I18N_SURNAME = "Surname";
+VUHDO_I18N_ONLY_DUPLICATES = "Only\nDuplicates";

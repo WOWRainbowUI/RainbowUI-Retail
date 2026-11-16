@@ -3,12 +3,12 @@
 		<Frames>
 			<Frame name="$parentTextposPanel" inherits="VuhDoPanelTemplate">
 				<Size>
-					<AbsDimension x="180" y="190" />
+					<AbsDimension x="180" y="182" />
 				</Size>
 				<Anchors>
 					<Anchor point="TOPLEFT">
 						<Offset>
-							<AbsDimension x="20" y="-20" />
+							<AbsDimension x="12" y="-12" />
 						</Offset>
 					</Anchor>
 				</Anchors>
@@ -30,7 +30,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="40" y="-58" />
+									<AbsDimension x="40" y="-50" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -381,7 +381,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="10" y="-155" />
+									<AbsDimension x="10" y="-147" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -404,7 +404,7 @@
 				<Anchors>
 					<Anchor point="TOPLEFT">
 						<Offset>
-							<AbsDimension x="160" y="-250" />
+							<AbsDimension x="152" y="-242" />
 						</Offset>
 					</Anchor>
 				</Anchors>
@@ -517,7 +517,7 @@
 									</Anchor>
 								</Anchors>
 								<Scripts>
-zo									<OnLoad>
+									<OnLoad>
 										VUHDO_lnfSetModel(self, "VUHDO_PANEL_SETUP.#PNUM#.LIFE_TEXT.showTotalHp");
 										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K515);
 										VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_PANEL_SETUP.#PNUM#.LIFE_TEXT.show", false);
@@ -652,12 +652,12 @@ zo									<OnLoad>
 
 			<Frame name="$parentShowWhatPanel" inherits="VuhDoPanelTemplate">
 				<Size>
-					<AbsDimension x="120" y="226" />
+					<AbsDimension x="120" y="247" />
 				</Size>
 				<Anchors>
 					<Anchor point="TOPLEFT">
 						<Offset>
-							<AbsDimension x="20" y="-220" />
+							<AbsDimension x="12" y="-199" />
 						</Offset>
 					</Anchor>
 				</Anchors>
@@ -667,7 +667,7 @@ zo									<OnLoad>
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="10" y="-31" />
+									<AbsDimension x="10" y="-26" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -679,11 +679,52 @@ zo									<OnLoad>
 						</Scripts>
 					</CheckButton>
 
+					<CheckButton name="$parentNameSuffixCheckButton" inherits="VuhDoCheckButtonTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="10" y="-57" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_PANEL_SETUP.#PNUM#.ID_TEXT.showNameSuffix");
+								if VUHDO_SURNAME_CAPABILITY then
+									self:SetText(VUHDO_I18N_SURNAME);
+									VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K909);
+								else
+									self:SetText(VUHDO_I18N_REALM);
+									VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K910);
+								end
+								VUHDO_lnfCheckButtonOnLoad(self);
+								VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_PANEL_SETUP.#PNUM#.ID_TEXT.showName", false);
+							</OnLoad>
+						</Scripts>
+					</CheckButton>
+
+					<CheckButton name="$parentNameSuffixOnlyDuplicatesCheckButton" text="VUHDO_I18N_ONLY_DUPLICATES" inherits="VuhDoCheckButtonTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="10" y="-88" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_PANEL_SETUP.#PNUM#.ID_TEXT.showNameSuffixOnlyDuplicates");
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K911);
+								VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_PANEL_SETUP.#PNUM#.ID_TEXT.showNameSuffix", false);
+							</OnLoad>
+						</Scripts>
+					</CheckButton>
+
 					<CheckButton name="$parentNicknameCheckButton" text="VUHDO_I18N_NICKNAME" inherits="VuhDoCheckButtonTemplate">
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="10" y="-69" />
+									<AbsDimension x="10" y="-119" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -700,7 +741,7 @@ zo									<OnLoad>
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="10" y="-107" />
+									<AbsDimension x="10" y="-150" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -716,7 +757,7 @@ zo									<OnLoad>
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="10" y="-145" />
+									<AbsDimension x="10" y="-181" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -732,7 +773,7 @@ zo									<OnLoad>
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="10" y="-183" />
+									<AbsDimension x="10" y="-212" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -763,7 +804,7 @@ zo									<OnLoad>
 				<Anchors>
 					<Anchor point="TOPLEFT">
 						<Offset>
-							<AbsDimension x="205" y="-19" />
+							<AbsDimension x="197" y="-12" />
 						</Offset>
 					</Anchor>
 				</Anchors>

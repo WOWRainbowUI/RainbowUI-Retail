@@ -2910,6 +2910,10 @@ function VUHDO_loadProfile(aName)
 		VUHDO_spellTraceUpdateEditBox(VuhDoNewOptionsGeneralSpellTraceStorePanelEditBox);
 	end
 
+	if VUHDO_IS_CONFIG then
+		VUHDO_newOptionsRebufferVars();
+	end
+
 	return;
 
 end

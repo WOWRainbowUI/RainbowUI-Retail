@@ -247,7 +247,7 @@
 				</FontString>
 				<FontString name="$parentTextR8" inherits="GameFontNormalSmall" hidden="true">
 					<Anchors>
-						<Anchor point="TOPRIGHT" relativeTo="$parentTextR6" relativePoint="BOTTOMRIGHT">
+						<Anchor point="TOPRIGHT" relativeTo="$parentTextR7" relativePoint="BOTTOMRIGHT">
 							<Offset>
 								<AbsDimension x="0" y="-2"/>
 							</Offset>

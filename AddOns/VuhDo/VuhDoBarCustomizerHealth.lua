@@ -54,15 +54,11 @@ local VUHDO_isAuraDataRestricted;
 local VUHDO_startUnitButtonAuraGroupGlow;
 local VUHDO_stopUnitButtonAuraGroupGlow;
 local VUHDO_refreshPrivateAuras;
-local VUHDO_getRealParent;
-local VUHDO_getSideBarWidthLeft;
-local VUHDO_getSideBarWidthRight;
-local VUHDO_getHealthBarWidth;
-local VUHDO_positionHealthBar;
 local VUHDO_setOverlayChainBaselineColor;
 local VUHDO_hideOverlayFillChainBackground;
 local VUHDO_showOverlayFillChainBackground;
 local VUHDO_resetBarTextVertexColor;
+local VUHDO_refreshShieldMaskAnchors;
 
 local VUHDO_PANEL_SETUP;
 local VUHDO_BUTTON_CACHE;
@@ -154,11 +150,7 @@ function VUHDO_customHealthInitBurstCache()
 	VUHDO_startUnitButtonAuraGroupGlow = _G["VUHDO_startUnitButtonAuraGroupGlow"];
 	VUHDO_stopUnitButtonAuraGroupGlow = _G["VUHDO_stopUnitButtonAuraGroupGlow"];
 	VUHDO_refreshPrivateAuras = _G["VUHDO_refreshPrivateAuras"];
-	VUHDO_getRealParent = _G["VUHDO_getRealParent"];
-	VUHDO_getSideBarWidthLeft = _G["VUHDO_getSideBarWidthLeft"];
-	VUHDO_getSideBarWidthRight = _G["VUHDO_getSideBarWidthRight"];
-	VUHDO_getHealthBarWidth = _G["VUHDO_getHealthBarWidth"];
-	VUHDO_positionHealthBar = _G["VUHDO_positionHealthBar"];
+	VUHDO_refreshShieldMaskAnchors = _G["VUHDO_refreshShieldMaskAnchors"];
 	VUHDO_setOverlayChainBaselineColor = _G["VUHDO_setOverlayChainBaselineColor"];
 	VUHDO_hideOverlayFillChainBackground = _G["VUHDO_hideOverlayFillChainBackground"];
 	VUHDO_showOverlayFillChainBackground = _G["VUHDO_showOverlayFillChainBackground"];
@@ -1501,20 +1493,10 @@ do
 	local tLossHealthBar;
 	local tLossBar;
 	local tLossPerc;
-	local tLossTexture;
-	local tLossOrientation;
-	local tLossEffectiveOrientation;
 	local tLossInterpolation;
 	local tResolvedUnit;
 	local tLossOpacity;
 	local tSecretColor;
-	local tLossManaInset;
-	local tLossAnchorBase;
-	local tLossRegularHeight;
-	local tLossHealthHeight;
-	local tLossWidth;
-	local tLeftInset;
-	local tRightInset;
 	function VUHDO_updateHealthLossBar(aUnit, anInterpolation, aInfo, aAllButtons)
 
 		tLossInfo = aInfo or VUHDO_RAID[aUnit];
@@ -1533,7 +1515,6 @@ do
 					tLossBar = VUHDO_getHealthBar(tButton, 22);
 
 					if tLossBar then
-						tLossBar:Hide();
 						tLossBar:SetValue(0, anInterpolation or sHealthLossInterpolation[tLossPanelNum]);
 					end
 				end
@@ -1550,12 +1531,6 @@ do
 
 		tLossPerc = GetUnitTotalModifiedMaxHealthPercent(tResolvedUnit);
 
-		if tLossPerc < 0 then
-			tLossPerc = 0;
-		elseif tLossPerc > 1 then
-			tLossPerc = 1;
-		end
-
 		for _, tButton in pairs(tLossButtons) do
 			tLossPanelNum = VUHDO_BUTTON_CACHE[tButton];
 
@@ -1564,109 +1539,42 @@ do
 				tLossBar = VUHDO_getHealthBar(tButton, 22);
 
 				if tLossBar then
-					tLossOrientation = VUHDO_getStatusbarOrientationString("HEALTH_BAR", tLossPanelNum);
-					tLossEffectiveOrientation = VUHDO_calculateDerivedOrientation(tLossOrientation,
-						VUHDO_INDICATOR_CONFIG[tLossPanelNum]["CUSTOM"]["HEALTH_BAR"]["turnAxisHealthLoss"]);
-					tLossEffectiveOrientation = VUHDO_calculateDerivedOrientation(tLossEffectiveOrientation,
-						VUHDO_INDICATOR_CONFIG[tLossPanelNum]["CUSTOM"]["HEALTH_BAR"]["invertGrowth"]);
 					tLossInterpolation = anInterpolation or sHealthLossInterpolation[tLossPanelNum];
 
-					tLossManaInset = tButton["manaBarLayoutHeight"] or 0;
+					tLossBar:SetValue(tLossPerc, tLossInterpolation);
 
-					tLossRegularHeight = tButton["regularHeight"];
-					tLossHealthHeight = tLossRegularHeight and (tLossRegularHeight - tLossManaInset) or nil;
-					tLeftInset = VUHDO_getSideBarWidthLeft(tLossPanelNum);
-					tRightInset = VUHDO_getSideBarWidthRight(tLossPanelNum);
-					tLossWidth = VUHDO_getHealthBarWidth(tLossPanelNum);
+					VUHDO_refreshShieldMaskAnchors(tButton, tLossPanelNum);
 
-					tLossAnchorBase = VUHDO_getRealParent(tLossHealthBar);
+					if sSecretsEnabled and tLossHealthBar and tLossHealthBar["secretCurveColor"] and tLossHealthBar["secretCurveColor"]["R"] then
+						sConfigHealthLossColor = VUHDO_getStatusBarColor("HEALTH_LOSS", aUnit);
 
-					if tLossPerc <= 0.0001 then
-						VUHDO_positionHealthBar(tButton, tLossPanelNum);
+						if sConfigHealthLossColor then
+							tSecretColor = tLossHealthBar["secretCurveColor"];
 
-						tLossBar:Hide();
-						tLossBar:SetValue(0, tLossInterpolation);
+							if sConfigHealthLossColor["useBackground"] then
+								tLossBar:GetStatusBarTexture():SetVertexColor(sConfigHealthLossColor["R"], sConfigHealthLossColor["G"], sConfigHealthLossColor["B"], tSecretColor["O"]);
+							else
+								tLossBar:GetStatusBarTexture():SetVertexColor(tSecretColor["R"], tSecretColor["G"], tSecretColor["B"], tSecretColor["O"]);
+							end
 
-						if tLossHealthHeight then
-							VUHDO_PixelUtil.ClearAllPoints(tLossBar);
-							VUHDO_PixelUtil.SetPoint(tLossBar, "TOPLEFT", tLossAnchorBase, "TOPLEFT", tLeftInset, 0);
-							VUHDO_PixelUtil.SetSize(tLossBar, tLossWidth, tLossHealthHeight);
+							if sConfigHealthLossColor["useOpacity"] then
+								tLossBar:SetAlpha(sConfigHealthLossColor["O"] or 1);
+							end
 						end
+					elseif not sSecretsEnabled and tLossHealthBar then
+						tLossColor["R"], tLossColor["G"], tLossColor["B"], tLossOpacity = tLossHealthBar:GetStatusBarColor();
+						tLossColor = VUHDO_getDiffColor(tLossColor, VUHDO_getStatusBarColor("HEALTH_LOSS", aUnit));
+
+						if tLossColor["O"] and tLossOpacity then
+							tLossColor["O"] = tLossColor["O"] * tLossOpacity * (tLossHealthBar:GetAlpha() or 1);
+						end
+
+						VUHDO_setStatusBarVuhDoColor(tLossBar, tLossColor);
 					else
-						tLossBar:Show();
-						tLossBar:SetValue(tLossPerc, tLossInterpolation);
+						sConfigHealthLossColor = VUHDO_getStatusBarColor("HEALTH_LOSS", aUnit);
 
-						if tLossHealthHeight then
-							VUHDO_PixelUtil.ClearAllPoints(tLossBar);
-							VUHDO_PixelUtil.SetPoint(tLossBar, "TOPLEFT", tLossAnchorBase, "TOPLEFT", tLeftInset, 0);
-							VUHDO_PixelUtil.SetSize(tLossBar, tLossWidth, tLossHealthHeight);
-						end
-
-						tLossTexture = tLossBar:GetStatusBarTexture();
-
-						VUHDO_PixelUtil.ClearAllPoints(tLossHealthBar);
-
-						if "HORIZONTAL" == tLossEffectiveOrientation then
-							VUHDO_PixelUtil.SetPoint(tLossHealthBar, "TOPLEFT", tLossAnchorBase, "TOPLEFT", tLeftInset, 0);
-							VUHDO_PixelUtil.SetPoint(tLossHealthBar, "TOPRIGHT", tLossTexture, "TOPLEFT", 0, 0);
-
-							if tLossHealthHeight then
-								VUHDO_PixelUtil.SetHeight(tLossHealthBar, tLossHealthHeight);
-							end
-						elseif "HORIZONTAL_INV" == tLossEffectiveOrientation then
-							VUHDO_PixelUtil.SetPoint(tLossHealthBar, "TOPRIGHT", tLossAnchorBase, "TOPRIGHT", -tRightInset, 0);
-							VUHDO_PixelUtil.SetPoint(tLossHealthBar, "TOPLEFT", tLossTexture, "TOPRIGHT", 0, 0);
-
-							if tLossHealthHeight then
-								VUHDO_PixelUtil.SetHeight(tLossHealthBar, tLossHealthHeight);
-							end
-						elseif "VERTICAL" == tLossEffectiveOrientation then
-							VUHDO_PixelUtil.SetPoint(tLossHealthBar, "BOTTOMLEFT", tLossAnchorBase, "BOTTOMLEFT", tLeftInset, tLossManaInset);
-							VUHDO_PixelUtil.SetPoint(tLossHealthBar, "TOPLEFT", tLossTexture, "BOTTOMLEFT", 0, 0);
-
-							if tLossWidth then
-								VUHDO_PixelUtil.SetWidth(tLossHealthBar, tLossWidth);
-							end
-						else
-							VUHDO_PixelUtil.SetPoint(tLossHealthBar, "TOPLEFT", tLossAnchorBase, "TOPLEFT", tLeftInset, 0);
-							VUHDO_PixelUtil.SetPoint(tLossHealthBar, "BOTTOMLEFT", tLossTexture, "TOPLEFT", 0, 0);
-
-							if tLossWidth then
-								VUHDO_PixelUtil.SetWidth(tLossHealthBar, tLossWidth);
-							end
-						end
-
-						if sSecretsEnabled and tLossHealthBar["secretCurveColor"] and tLossHealthBar["secretCurveColor"]["R"] then
-							sConfigHealthLossColor = VUHDO_getStatusBarColor("HEALTH_LOSS", aUnit);
-
-							if sConfigHealthLossColor then
-								tSecretColor = tLossHealthBar["secretCurveColor"];
-
-								if sConfigHealthLossColor["useBackground"] then
-									tLossBar:GetStatusBarTexture():SetVertexColor(sConfigHealthLossColor["R"], sConfigHealthLossColor["G"], sConfigHealthLossColor["B"], tSecretColor["O"]);
-								else
-									tLossBar:GetStatusBarTexture():SetVertexColor(tSecretColor["R"], tSecretColor["G"], tSecretColor["B"], tSecretColor["O"]);
-								end
-
-								if sConfigHealthLossColor["useOpacity"] then
-									tLossBar:SetAlpha(sConfigHealthLossColor["O"] or 1);
-								end
-							end
-						elseif not sSecretsEnabled then
-							tLossColor["R"], tLossColor["G"], tLossColor["B"], tLossOpacity = tLossHealthBar:GetStatusBarColor();
-							tLossColor = VUHDO_getDiffColor(tLossColor, VUHDO_getStatusBarColor("HEALTH_LOSS", aUnit));
-
-							if tLossColor["O"] and tLossOpacity then
-								tLossColor["O"] = tLossColor["O"] * tLossOpacity * (tLossHealthBar:GetAlpha() or 1);
-							end
-
-							VUHDO_setStatusBarVuhDoColor(tLossBar, tLossColor);
-						else
-							sConfigHealthLossColor = VUHDO_getStatusBarColor("HEALTH_LOSS", aUnit);
-
-							if sConfigHealthLossColor then
-								VUHDO_setStatusBarVuhDoColor(tLossBar, sConfigHealthLossColor);
-							end
+						if sConfigHealthLossColor then
+							VUHDO_setStatusBarVuhDoColor(tLossBar, sConfigHealthLossColor);
 						end
 					end
 				end

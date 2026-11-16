@@ -531,15 +531,75 @@ end
 
 
 
---
-local tDecodedProfileString;
-local tProfileTable;
-local function VUHDO_profileStringToTable(aProfileString)
-	tDecodedProfileString = VUHDO_LibBase64.Decode(aProfileString);
-	
-	tProfileTable = VUHDO_decompressIfCompressed(tDecodedProfileString);
+do
+	--
+	local tDecodedProfileString;
+	local tProfileTable;
+	local function VUHDO_profileStringToTable(aProfileString)
 
-	return tProfileTable;
+		tDecodedProfileString = VUHDO_decodeBase64(aProfileString);
+
+		tProfileTable = VUHDO_decompressIfCompressed(tDecodedProfileString);
+
+		return tProfileTable;
+
+	end
+
+
+
+	--
+	local tImportString;
+	local tImportTable;
+	local tName;
+	local tProfile;
+	local tPos;
+	function VUHDO_profileImport(aEditBoxName)
+		tImportString = _G[aEditBoxName]:GetText();
+		tImportTable = VUHDO_profileStringToTable(tImportString);
+
+		if (tImportTable == nil or tImportTable["profileVersion"] == nil or tonumber(tImportTable["profileVersion"]) == nil or 
+			tonumber(tImportTable["profileVersion"]) ~= VUHDO_PROFILE_SHARE_VERSION or tImportTable["playerName"] == nil or 
+			tImportTable["profile"] == nil or tImportTable["profile"]["NAME"] == nil) then
+			VUHDO_showMessageDialog(VUHDO_I18N_IMPORT, VUHDO_I18N_IMPORT_STRING_INVALID);
+
+			return false;
+		end
+
+		tProfile = tImportTable["profile"];
+		tName = tProfile["NAME"];
+
+		if (VUHDO_getProfileNamedCompressed(tName) ~= nil) then
+			tPos = strfind(tName, ": ", 1, true);
+			
+			if (tPos ~= nil) then
+				tName = strsub(tName, tPos + 2);
+			end
+
+			tProfile["NAME"] = VUHDO_createNewProfileName(tName, tImportTable["playerName"]);
+		end
+
+		tinsert(VUHDO_PROFILES, tProfile);
+
+		VUHDO_Msg(VUHDO_I18N_PROFILE_SAVED .. "\"" .. tProfile["NAME"] .. "\".");
+
+		return true;
+	end
+
+
+
+	--
+	local tEditBoxName;
+	function VUHDO_yesNoImportProfileCallback(aDecision)
+		if (VUHDO_YES == aDecision) then
+			tEditBoxName = VuhDoYesNoFrame:GetAttribute("importStringEditBoxName"); 
+
+			if (VUHDO_profileImport(tEditBoxName)) then
+				VUHDO_updateProfileSelectCombo();
+
+				_G[tEditBoxName]:GetParent():GetParent():GetParent():Hide();
+			end
+		end
+	end
 end
 
 
@@ -601,58 +661,6 @@ function VUHDO_profileExportButtonShown(aEditBox)
 	aEditBox:SetTextInsets(0, 10, 5, 5);
 
 	aEditBox:Show();
-end
-
-
-
---
-local tImportString;
-local tImportTable;
-local tName;
-local tProfile;
-local tPos;
-function VUHDO_profileImport(aEditBoxName)
-	tImportString = _G[aEditBoxName]:GetText();
-	tImportTable = VUHDO_profileStringToTable(tImportString);
-
-	if (tImportTable == nil or tImportTable["profileVersion"] == nil or tonumber(tImportTable["profileVersion"]) == nil or 
-		tonumber(tImportTable["profileVersion"]) ~= VUHDO_PROFILE_SHARE_VERSION or tImportTable["playerName"] == nil or 
-		tImportTable["profile"] == nil or tImportTable["profile"]["NAME"] == nil) then
-		VUHDO_Msg(VUHDO_I18N_IMPORT_STRING_INVALID);
-
-		return;
-	end
-
-	tProfile = tImportTable["profile"];
-	tName = tProfile["NAME"];
-
-	if (VUHDO_getProfileNamedCompressed(tName) ~= nil) then
-		tPos = strfind(tName, ": ", 1, true);
-		
-		if (tPos ~= nil) then
-			tName = strsub(tName, tPos + 2);
-		end
-
-		tProfile["NAME"] = VUHDO_createNewProfileName(tName, tImportTable["playerName"]);
-	end
-
-	tinsert(VUHDO_PROFILES, tProfile);
-
-	VUHDO_Msg(VUHDO_I18N_PROFILE_SAVED .. "\"" .. tProfile["NAME"] .. "\".");
-end
-
-
-
---
-function VUHDO_yesNoImportProfileCallback(aDecision)
-	if (VUHDO_YES == aDecision) then
-		local tEditBoxName = VuhDoYesNoFrame:GetAttribute("importStringEditBoxName"); 
-
-		VUHDO_profileImport(tEditBoxName);
-		VUHDO_updateProfileSelectCombo();
-
-		_G[tEditBoxName]:GetParent():GetParent():GetParent():Hide();
-	end
 end
 
 

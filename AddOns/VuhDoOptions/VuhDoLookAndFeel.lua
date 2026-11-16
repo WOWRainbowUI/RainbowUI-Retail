@@ -772,6 +772,9 @@ do
 					end
 
 					if strfind(aModel, "BAR_COLORS", 1, true) then
+						VUHDO_buildAllBouquetCurves();
+						VUHDO_invalidateAuraContainerTemplateCache();
+						VUHDO_timeRefreshOverlays(0.3);
 						VUHDO_timeRegisterBouquets(0.3);
 					end
 

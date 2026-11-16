@@ -31,6 +31,7 @@ local UnitInRange = UnitInRange;
 local UnitPlayerOrPetInParty = UnitPlayerOrPetInParty;
 local UnitPlayerOrPetInRaid = UnitPlayerOrPetInRaid;
 local UnitIsPlayer = UnitIsPlayer;
+local UnitFactionGroup = UnitFactionGroup;
 local UnitCanAttack = UnitCanAttack;
 local IsAltKeyDown = IsAltKeyDown;
 local IsControlKeyDown = IsControlKeyDown;
@@ -39,6 +40,7 @@ local VUHDO_atan2 = math.atan2;
 local VUHDO_PI, VUHDO_2_PI = math.pi, math.pi * 2;
 local floor = floor;
 local pairs = pairs;
+local next = next;
 local type = type;
 local abs = abs;
 local GetAuraDataBySlot = C_UnitAuras and C_UnitAuras.GetAuraDataBySlot;
@@ -57,7 +59,11 @@ local UnitIsDeadOrGhost = UnitIsDeadOrGhost;
 local UnitIsConnected = UnitIsConnected;
 local IsSpellInSpellBook = C_SpellBook and C_SpellBook.IsSpellInSpellBook;
 local IsSpellKnownNew = C_SpellBook and C_SpellBook.IsSpellKnown;
+local GetNumSpellBookSkillLines = C_SpellBook.GetNumSpellBookSkillLines;
+local GetSpellBookSkillLineInfo = C_SpellBook.GetSpellBookSkillLineInfo;
+local GetSpellBookItemInfo = C_SpellBook.GetSpellBookItemInfo;
 local SpellBookSpellBank = Enum and Enum.SpellBookSpellBank;
+local SpellBookItemType = Enum.SpellBookItemType;
 local issecretvalue = issecretvalue;
 local issecrettable = issecrettable;
 local sSecretsEnabled = VUHDO_SECRETS_ENABLED;
@@ -70,6 +76,10 @@ local VUHDO_TALENT_CACHE_SPELL_ID = {
 };
 
 local VUHDO_TALENT_CACHE_SPELL_NAME = {
+	-- [<spell name>] = <spell ID>,
+};
+
+local VUHDO_SPELLBOOK_CACHE_SPELL_NAME = {
 	-- [<spell name>] = <spell ID>,
 };
 
@@ -423,6 +433,42 @@ function VUHDO_tableRemoveValue(aTable, aValue)
 
 	return #tKeysToRemove > 0;
 
+end
+
+
+
+do
+	--
+	local tListedSpellIds;
+	local tVariantSpellIds;
+	local tVariantSpellId;
+	function VUHDO_expandSpellIdsWithVariants(aSpellIds, aSpellVariants)
+
+		tListedSpellIds = { };
+
+		for tCnt = 1, #aSpellIds do
+			tListedSpellIds[aSpellIds[tCnt]] = true;
+		end
+
+		for tCnt = 1, #aSpellIds do
+			tVariantSpellIds = aSpellVariants[aSpellIds[tCnt]];
+
+			if tVariantSpellIds then
+				for tVariantCnt = 1, #tVariantSpellIds do
+					tVariantSpellId = tVariantSpellIds[tVariantCnt];
+
+					if not tListedSpellIds[tVariantSpellId] then
+						tListedSpellIds[tVariantSpellId] = true;
+
+						tinsert(aSpellIds, tVariantSpellId);
+					end
+				end
+			end
+		end
+
+		return;
+
+	end
 end
 
 
@@ -980,7 +1026,7 @@ end
 
 
 --
-local tZone, tIndex, tMap, tMapId, tInfo;
+local tZone, tIndex, tMap, tMapId, tInfo, tNumLines, tFactionName;
 function VUHDO_getUnitZoneName(aUnit)
 
 	tInfo = VUHDO_RAID[aUnit];
@@ -1000,12 +1046,18 @@ function VUHDO_getUnitZoneName(aUnit)
 		VuhDoScanTooltip:ClearLines();
 		VuhDoScanTooltip:SetUnit(aUnit);
 
-		if VuhDoScanTooltip:NumLines() > 2 then
-			tZone = VuhDoScanTooltipTextLeft3:GetText();
-		end
+		tNumLines = VuhDoScanTooltip:NumLines();
 
-		if tZone and not issecretvalue(tZone) and tZone == "PvP" and VuhDoScanTooltip:NumLines() > 3 then
-			tZone = VuhDoScanTooltipTextLeft4:GetText();
+		if tNumLines > 2 then
+			tZone = _G["VuhDoScanTooltipTextLeft" .. tNumLines]:GetText();
+
+			if tZone and not issecretvalue(tZone) then
+				_, tFactionName = UnitFactionGroup(aUnit);
+
+				if tZone == PVP or (tFactionName and tZone == tFactionName) then
+					tZone = nil;
+				end
+			end
 		end
 	end
 
@@ -1086,47 +1138,90 @@ function VUHDO_getUnitHealthPercent(anInfo)
 
 	tHealthMax = anInfo["healthmax"];
 
-	return tHealthMax == 0 and 0
-		or anInfo["health"] < tHealthMax and 100 * anInfo["health"] / tHealthMax or 100;
+	return tHealthMax == 0 and 0 or anInfo["health"] < tHealthMax and 100 * anInfo["health"] / tHealthMax or 100;
 
 end
 
 
 
---
-local tSpellId;
-function VUHDO_isSpellKnown(aSpellName)
+do
+	--
+	local tSkillLineInfo;
+	local tItemIndexOffset;
+	local tNumSpellBookItems;
+	local tSpellBookItemInfo;
+	function VUHDO_initSpellbookSpellCache()
 
-	if type(aSpellName) == "number" then
-		if IsSpellInSpellBook then
-			return IsSpellInSpellBook(aSpellName, SpellBookSpellBank.Player, true)
-				or (IsSpellKnownNew and IsSpellKnownNew(aSpellName, SpellBookSpellBank.Player))
-				or (SpellBookSpellBank.Pet and (IsSpellInSpellBook(aSpellName, SpellBookSpellBank.Pet, true) or (IsSpellKnownNew and IsSpellKnownNew(aSpellName, SpellBookSpellBank.Pet))))
-				or VUHDO_isTalentKnown(aSpellName);
-		else
-			return IsSpellKnown(aSpellName)
-				or IsSpellKnownOrOverridesKnown(aSpellName)
-				or IsPlayerSpell(aSpellName)
-				or VUHDO_isTalentKnown(aSpellName);
+		if InCombatLockdown() and next(VUHDO_SPELLBOOK_CACHE_SPELL_NAME) then
+			return;
 		end
-	elseif type(aSpellName) ~= "number" then
-		aSpellName = VUHDO_NAME_TO_SPELL[aSpellName] or aSpellName;
 
-		_, _, _, _, _, _, tSpellId = VUHDO_getSpellInfo(aSpellName);
+		twipe(VUHDO_SPELLBOOK_CACHE_SPELL_NAME);
 
-		if tSpellId then
-			if IsSpellInSpellBook then
-				return IsSpellInSpellBook(tSpellId, SpellBookSpellBank.Player, true)
-					or (IsSpellKnownNew and IsSpellKnownNew(tSpellId, SpellBookSpellBank.Player));
-			else
-				return IsSpellKnownOrOverridesKnown(tSpellId) or IsSpellKnown(tSpellId) or IsPlayerSpell(tSpellId);
+		for tSkillLineCnt = 1, GetNumSpellBookSkillLines() do
+			tSkillLineInfo = GetSpellBookSkillLineInfo(tSkillLineCnt);
+
+			if tSkillLineInfo and not tSkillLineInfo.offSpecID then
+				tItemIndexOffset = tSkillLineInfo.itemIndexOffset;
+				tNumSpellBookItems = tSkillLineInfo.numSpellBookItems;
+
+				for tSlot = tItemIndexOffset + 1, tItemIndexOffset + tNumSpellBookItems do
+					tSpellBookItemInfo = GetSpellBookItemInfo(tSlot, SpellBookSpellBank.Player);
+
+					if tSpellBookItemInfo and SpellBookItemType.Spell == tSpellBookItemInfo.itemType and tSpellBookItemInfo.name then
+						VUHDO_SPELLBOOK_CACHE_SPELL_NAME[tSpellBookItemInfo.name] = tSpellBookItemInfo.spellID;
+					end
+				end
 			end
 		end
+
+		return;
+
 	end
-
-	return false;
-
 end
+
+
+
+do
+	--
+	local tSpellId;
+	local tIsSpellKnown;
+	function VUHDO_isSpellKnown(aSpellName)
+
+		if type(aSpellName) == "number" then
+			if IsSpellInSpellBook then
+				return IsSpellInSpellBook(aSpellName, SpellBookSpellBank.Player, true)
+					or (IsSpellKnownNew and IsSpellKnownNew(aSpellName, SpellBookSpellBank.Player))
+					or (SpellBookSpellBank.Pet and (IsSpellInSpellBook(aSpellName, SpellBookSpellBank.Pet, true) or (IsSpellKnownNew and IsSpellKnownNew(aSpellName, SpellBookSpellBank.Pet))))
+					or VUHDO_isTalentKnown(aSpellName);
+			else
+				return IsSpellKnown(aSpellName) or IsSpellKnownOrOverridesKnown(aSpellName) or IsPlayerSpell(aSpellName) or VUHDO_isTalentKnown(aSpellName);
+			end
+		elseif type(aSpellName) ~= "number" then
+			aSpellName = VUHDO_NAME_TO_SPELL[aSpellName] or aSpellName;
+
+			_, _, _, _, _, _, tSpellId = VUHDO_getSpellInfo(aSpellName);
+
+			if tSpellId then
+				if IsSpellInSpellBook then
+					tIsSpellKnown = IsSpellInSpellBook(tSpellId, SpellBookSpellBank.Player, true) or (IsSpellKnownNew and IsSpellKnownNew(tSpellId, SpellBookSpellBank.Player));
+				else
+					tIsSpellKnown = IsSpellKnownOrOverridesKnown(tSpellId) or IsSpellKnown(tSpellId) or IsPlayerSpell(tSpellId);
+				end
+
+				if tIsSpellKnown then
+					return true;
+				end
+			end
+
+			return VUHDO_SPELLBOOK_CACHE_SPELL_NAME[aSpellName] ~= nil;
+		end
+
+		return false;
+
+	end
+end
+
 
 
 --
@@ -1159,7 +1254,7 @@ function VUHDO_initTalentSpellCaches()
 			if tNodeInfo and tNodeInfo.entryIDsWithCommittedRanks then
 				for _, tEntryId in ipairs(tNodeInfo.entryIDsWithCommittedRanks) do
 					local tEntryInfo = C_Traits.GetEntryInfo(tActiveConfigId, tEntryId);
-				
+
 					if tEntryInfo and tEntryInfo.definitionID then
 						local tDefinitionInfo = C_Traits.GetDefinitionInfo(tEntryInfo.definitionID);
 
@@ -1573,6 +1668,28 @@ end
 --
 function VUHDO_compressStringHuffman(aFile)
 	return "string" == type(aFile) and VUHDO_LibCompress:CompressHuffman(aFile) or aFile;
+end
+
+
+
+do
+	--
+	local tCleanString;
+	function VUHDO_decodeBase64(anEncodedString)
+
+		if "string" ~= type(anEncodedString) then
+			return nil;
+		end
+
+		tCleanString = gsub(anEncodedString, "[^%w%+/]", "");
+
+		if 1 == #tCleanString % 4 then
+			return nil;
+		end
+
+		return VUHDO_LibBase64.Decode(tCleanString);
+
+	end
 end
 
 

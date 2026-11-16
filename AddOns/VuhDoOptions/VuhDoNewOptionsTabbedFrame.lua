@@ -13,6 +13,12 @@ local VUHDO_B_BUFF_SETTINGS = nil;
 local VUHDO_B_SPELL_CONFIG = nil;
 local VUHDO_B_SPELLS_KEYBOARD = nil;
 local VUHDO_B_BOUQUETS = nil;
+local VUHDO_B_POWER_TYPE_COLORS = nil;
+local VUHDO_B_BUFF_ORDER = nil;
+local VUHDO_B_HOSTILE_SPELL_ASSIGNMENTS = nil;
+local VUHDO_B_USER_CLASS_COLORS = nil;
+local VUHDO_B_USER_CLASS_GRADIENT_COLORS = nil;
+local VUHDO_B_AURA_IGNORE_LIST = nil;
 VUHDO_OPTIONS_SETTINGS = nil;
 
 VUHDO_IS_CONFIG = false;
@@ -88,6 +94,12 @@ function VUHDO_tabbedPanelOkayClicked(aButton)
 	VUHDO_B_SPELL_CONFIG = nil;
 	VUHDO_B_SPELLS_KEYBOARD = nil;
 	VUHDO_B_BOUQUETS = nil;
+	VUHDO_B_POWER_TYPE_COLORS = nil;
+	VUHDO_B_BUFF_ORDER = nil;
+	VUHDO_B_HOSTILE_SPELL_ASSIGNMENTS = nil;
+	VUHDO_B_USER_CLASS_COLORS = nil;
+	VUHDO_B_USER_CLASS_GRADIENT_COLORS = nil;
+	VUHDO_B_AURA_IGNORE_LIST = nil;
 
 	VUHDO_initKeyboardMacros();
 	VUHDO_fixHotSettings();
@@ -181,7 +193,42 @@ function VUHDO_newOptionsBufferVars()
 		VUHDO_B_SPELL_CONFIG = VUHDO_compressTable(VUHDO_SPELL_CONFIG);
 		VUHDO_B_SPELLS_KEYBOARD = VUHDO_compressTable(VUHDO_SPELLS_KEYBOARD);
 		VUHDO_B_BOUQUETS = VUHDO_compressTable(VUHDO_BOUQUETS);
+		VUHDO_B_POWER_TYPE_COLORS = VUHDO_compressTable(VUHDO_POWER_TYPE_COLORS);
+		VUHDO_B_BUFF_ORDER = VUHDO_compressTable(VUHDO_BUFF_ORDER);
+		VUHDO_B_HOSTILE_SPELL_ASSIGNMENTS = VUHDO_compressTable(VUHDO_HOSTILE_SPELL_ASSIGNMENTS);
+		VUHDO_B_USER_CLASS_COLORS = VUHDO_compressTable(VUHDO_USER_CLASS_COLORS);
+		VUHDO_B_USER_CLASS_GRADIENT_COLORS = VUHDO_compressTable(VUHDO_USER_CLASS_GRADIENT_COLORS);
+		VUHDO_B_AURA_IGNORE_LIST = VUHDO_compressTable(VUHDO_AURA_IGNORE_LIST);
 	end
+
+	return;
+
+end
+
+
+
+--
+function VUHDO_newOptionsRebufferVars()
+
+	VUHDO_B_CONFIG = nil;
+	VUHDO_B_INDICATOR_CONFIG = nil;
+	VUHDO_B_PANEL_SETUP = nil;
+	VUHDO_B_SPELL_ASSIGNMENTS = nil;
+	VUHDO_B_BUFF_SETTINGS = nil;
+	VUHDO_B_SPELL_CONFIG = nil;
+	VUHDO_B_SPELLS_KEYBOARD = nil;
+	VUHDO_B_BOUQUETS = nil;
+	VUHDO_B_POWER_TYPE_COLORS = nil;
+	VUHDO_B_BUFF_ORDER = nil;
+	VUHDO_B_HOSTILE_SPELL_ASSIGNMENTS = nil;
+	VUHDO_B_USER_CLASS_COLORS = nil;
+	VUHDO_B_USER_CLASS_GRADIENT_COLORS = nil;
+	VUHDO_B_AURA_IGNORE_LIST = nil;
+
+	VUHDO_newOptionsBufferVars();
+
+	return;
+
 end
 
 
@@ -222,9 +269,43 @@ function VUHDO_yesNoDiscardChangesCallback(aDecision)
 			VUHDO_BOUQUETS = VUHDO_decompressIfCompressed(VUHDO_B_BOUQUETS);
 		end
 
+		if (VUHDO_B_POWER_TYPE_COLORS ~= nil) then
+			VUHDO_POWER_TYPE_COLORS = VUHDO_decompressIfCompressed(VUHDO_B_POWER_TYPE_COLORS);
+		end
+
+		if (VUHDO_B_BUFF_ORDER ~= nil) then
+			VUHDO_BUFF_ORDER = VUHDO_decompressIfCompressed(VUHDO_B_BUFF_ORDER);
+		end
+
+		if (VUHDO_B_HOSTILE_SPELL_ASSIGNMENTS ~= nil) then
+			VUHDO_HOSTILE_SPELL_ASSIGNMENTS = VUHDO_decompressIfCompressed(VUHDO_B_HOSTILE_SPELL_ASSIGNMENTS);
+		end
+
+		if (VUHDO_B_USER_CLASS_COLORS ~= nil) then
+			VUHDO_USER_CLASS_COLORS = VUHDO_decompressIfCompressed(VUHDO_B_USER_CLASS_COLORS);
+		end
+
+		if (VUHDO_B_USER_CLASS_GRADIENT_COLORS ~= nil) then
+			VUHDO_USER_CLASS_GRADIENT_COLORS = VUHDO_decompressIfCompressed(VUHDO_B_USER_CLASS_GRADIENT_COLORS);
+		end
+
+		if (VUHDO_B_AURA_IGNORE_LIST ~= nil) then
+			VUHDO_AURA_IGNORE_LIST = VUHDO_decompressIfCompressed(VUHDO_B_AURA_IGNORE_LIST);
+		end
+
+		VUHDO_incrementAuraAnchorConfigVersion();
+		VUHDO_clearBackdropCache();
+		VUHDO_loadVariables(true);
 		VUHDO_initAllBurstCaches();
+		VUHDO_invalidateAuraGroupFilterCache();
+		VUHDO_resolveAllAuraGroupFilters();
+		VUHDO_initPanelModels();
+		VUHDO_initDynamicPanelModels();
+		VUHDO_initDebuffs();
+		VUHDO_bouqetsChanged();
 		VUHDO_initBouquetComboModel();
 		VUHDO_newOptionsIndicatorsInvalidate();
+		VUHDO_invalidateBindingCodeCache();
 		VUHDO_reloadUI(true);
 		VUHDO_B_CONFIG = nil;
 		VUHDO_B_INDICATOR_CONFIG = nil;
@@ -234,9 +315,18 @@ function VUHDO_yesNoDiscardChangesCallback(aDecision)
 		VUHDO_B_SPELL_CONFIG = nil;
 		VUHDO_B_SPELLS_KEYBOARD = nil;
 		VUHDO_B_BOUQUETS = nil;
+		VUHDO_B_POWER_TYPE_COLORS = nil;
+		VUHDO_B_BUFF_ORDER = nil;
+		VUHDO_B_HOSTILE_SPELL_ASSIGNMENTS = nil;
+		VUHDO_B_USER_CLASS_COLORS = nil;
+		VUHDO_B_USER_CLASS_GRADIENT_COLORS = nil;
+		VUHDO_B_AURA_IGNORE_LIST = nil;
 
 		VuhDoNewOptionsTabbedFrame:Hide();
 	end
+
+	return;
+
 end
 
 
@@ -251,7 +341,13 @@ function VUHDO_newOptionsRestoreVars()
 		+ VUHDO_countTableDiffs(VUHDO_SPELL_ASSIGNMENTS, VUHDO_B_SPELL_ASSIGNMENTS)
 		+ VUHDO_countTableDiffs(VUHDO_BUFF_SETTINGS, VUHDO_B_BUFF_SETTINGS)
 		+ VUHDO_countTableDiffs(VUHDO_SPELL_CONFIG, VUHDO_B_SPELL_CONFIG)
-		+ VUHDO_countTableDiffs(VUHDO_SPELLS_KEYBOARD, VUHDO_B_SPELLS_KEYBOARD);
+		+ VUHDO_countTableDiffs(VUHDO_SPELLS_KEYBOARD, VUHDO_B_SPELLS_KEYBOARD)
+		+ VUHDO_countTableDiffs(VUHDO_POWER_TYPE_COLORS, VUHDO_B_POWER_TYPE_COLORS)
+		+ VUHDO_countTableDiffs(VUHDO_BUFF_ORDER, VUHDO_B_BUFF_ORDER)
+		+ VUHDO_countTableDiffs(VUHDO_HOSTILE_SPELL_ASSIGNMENTS, VUHDO_B_HOSTILE_SPELL_ASSIGNMENTS)
+		+ VUHDO_countTableDiffs(VUHDO_USER_CLASS_COLORS, VUHDO_B_USER_CLASS_COLORS)
+		+ VUHDO_countTableDiffs(VUHDO_USER_CLASS_GRADIENT_COLORS, VUHDO_B_USER_CLASS_GRADIENT_COLORS)
+		+ VUHDO_countTableDiffs(VUHDO_AURA_IGNORE_LIST, VUHDO_B_AURA_IGNORE_LIST);
 
 	if (tChanges > 0) then
 		VuhDoYesNoFrameText:SetText(format(VUHDO_I18N_DISCARD_CHANGES_CONFIRM, tChanges));
@@ -358,4 +454,34 @@ function VUHDO_showOptionsSkinPrompt()
 
 	return;
 
+end
+
+
+
+do
+	--
+	local function VUHDO_yesNoMessageDialogCallback(aDecision)
+
+		return;
+
+	end
+
+
+
+	--
+	function VUHDO_showMessageDialog(aTitle, aMessage)
+
+		VuhDoYesNoFrameRootPaneTitleLabelLabel:SetText(aTitle);
+		VuhDoYesNoFrameText:SetText(aMessage);
+		VuhDoYesNoFrameYesButton:SetText(VUHDO_I18N_OKAY);
+
+		VuhDoYesNoFrameNoButton:Hide();
+
+		VuhDoYesNoFrame:SetAttribute("callback", VUHDO_yesNoMessageDialogCallback);
+
+		VuhDoYesNoFrame:Show();
+
+		return;
+
+	end
 end

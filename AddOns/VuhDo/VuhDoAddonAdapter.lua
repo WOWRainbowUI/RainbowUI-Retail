@@ -1,6 +1,29 @@
 local _;
+
+local format = string.format;
+local ipairs = ipairs;
+local tostring = tostring;
+local tonumber = tonumber;
+local strlower = strlower;
+local strfind = strfind;
+local strmatch = strmatch;
+
 local LoadAddOn = C_AddOns.LoadAddOn or LoadAddOn;
 local IsAddOnLoaded = C_AddOns.IsAddOnLoaded or IsAddOnLoaded;
+local GetMacroInfo = GetMacroInfo;
+local GetSpellName = C_Spell.GetSpellName;
+local GetStringFromModifiers = GetStringFromModifiers;
+local GetClickBindingProfileInfo = C_ClickBindings and C_ClickBindings.GetProfileInfo;
+local ClickBindingType = Enum.ClickBindingType;
+
+local VUHDO_CLICK_BINDING_MOUSE_BUTTON_NUMS = {
+	["LeftButton"] = 1,
+	["Button1"] = 1,
+	["RightButton"] = 2,
+	["Button2"] = 2,
+	["MiddleButton"] = 3,
+	["Button3"] = 3,
+};
 
 -- For initializing the minimap
 VUHDO_MM_SETTINGS = VUHDO_MM_SETTINGS or { };
@@ -225,6 +248,103 @@ function VUHDO_initCliqueSupport()
 
 	return;
 
+end
+
+
+
+do
+	--
+	local tBindingInfos;
+	local tBindingType;
+	local tActionId;
+	local tActionName;
+	local tClickText;
+	local tMouseButtonNum;
+	local tModifierText;
+	local tModifierLower;
+	local tBindingModifier;
+	local tHasAlt;
+	local tHasCtrl;
+	local tHasShift;
+	function VUHDO_getClickBindingConflict(aModifier, aMouseButtonNum)
+
+		if not GetClickBindingProfileInfo then
+			return;
+		end
+
+		if VUHDO_CONFIG["IS_CLIQUE_COMPAT_MODE"] then
+			return;
+		end
+
+		if not aMouseButtonNum then
+			return;
+		end
+
+		tBindingInfos = GetClickBindingProfileInfo();
+
+		for _, tBindingInfo in ipairs(tBindingInfos) do
+			tBindingType = tBindingInfo["type"];
+
+			if tBindingType == ClickBindingType.Spell
+				or tBindingType == ClickBindingType.PetAction
+				or tBindingType == ClickBindingType.Macro then
+				tActionId = tBindingInfo["actionID"];
+
+				if tBindingType == ClickBindingType.Macro then
+					tActionName = GetMacroInfo(tActionId);
+				else
+					tActionName = GetSpellName(tActionId);
+				end
+
+				if not tActionName then
+					tActionName = tostring(tActionId);
+				end
+			else
+				tActionName = nil;
+			end
+
+			if tActionName then
+				tMouseButtonNum = VUHDO_CLICK_BINDING_MOUSE_BUTTON_NUMS[tBindingInfo["button"]];
+
+				if not tMouseButtonNum then
+					tMouseButtonNum = tonumber(strmatch(tBindingInfo["button"] or "", "^Button(%d+)$"));
+				end
+
+				tModifierText = GetStringFromModifiers(tBindingInfo["modifiers"]) or "";
+				tModifierLower = strlower(tModifierText);
+				tHasAlt = strfind(tModifierLower, "alt") ~= nil;
+				tHasCtrl = strfind(tModifierLower, "ctrl") ~= nil;
+				tHasShift = strfind(tModifierLower, "shift") ~= nil;
+
+				if tHasAlt and tHasCtrl and tHasShift then
+					tBindingModifier = "altctrlshift";
+				elseif tHasAlt and tHasCtrl then
+					tBindingModifier = "altctrl";
+				elseif tHasAlt and tHasShift then
+					tBindingModifier = "altshift";
+				elseif tHasCtrl and tHasShift then
+					tBindingModifier = "ctrlshift";
+				elseif tHasAlt then
+					tBindingModifier = "alt";
+				elseif tHasCtrl then
+					tBindingModifier = "ctrl";
+				elseif tHasShift then
+					tBindingModifier = "shift";
+				else
+					tBindingModifier = "";
+				end
+
+				if tMouseButtonNum == aMouseButtonNum and tBindingModifier == (aModifier or "") then
+					tClickText = tModifierText .. tBindingInfo["button"];
+
+					return tActionName, tClickText;
+				end
+			end
+		end
+
+		return;
+
+	end
 end
 
 

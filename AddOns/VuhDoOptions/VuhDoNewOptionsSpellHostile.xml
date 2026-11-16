@@ -643,6 +643,7 @@
 		</Frames>
 		<Scripts>
 			<OnShow>VUHDO_newOptionsSpellSetModifierHostile(VUHDO_CURR_SPELL_MODIFIER)</OnShow>
+			<OnHide>VUHDO_newOptionsSpellResetClickBindingWarnings()</OnHide>
 		</Scripts>
 	</Frame>
 </Ui>

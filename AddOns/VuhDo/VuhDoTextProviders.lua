@@ -102,17 +102,10 @@ local VUHDO_KILO_BREAKPOINTS = {
 		["fractionDivisor"] = 10,
 		["abbreviationIsGlobal"] = false,
 	},
-	{
-		["breakpoint"] = 500,
-		["abbreviation"] = "k",
-		["significandDivisor"] = 100,
-		["fractionDivisor"] = 10,
-		["abbreviationIsGlobal"] = false,
-	},
 };
 
 VUHDO_KILO_OPTIONS = {
-	["breakpointData"] = VUHDO_KILO_BREAKPOINTS,
+	["config"] = CreateAbbreviateConfig(VUHDO_KILO_BREAKPOINTS),
 };
 local VUHDO_KILO_OPTIONS = VUHDO_KILO_OPTIONS;
 

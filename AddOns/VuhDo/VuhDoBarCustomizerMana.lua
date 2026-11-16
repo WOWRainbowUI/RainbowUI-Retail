@@ -25,17 +25,17 @@ local VUHDO_setStatusBarVuhDoColor;
 local VUHDO_applyAllLayersToBar;
 local VUHDO_updateHealthLossBar;
 local VUHDO_syncOverlaysForUnit;
-local VUHDO_updateAuraAnchorHost;
-local VUHDO_positionHealthBar;
-local VUHDO_positionSideBars;
+local VUHDO_layoutHealthBarGeometry;
 local VUHDO_repositionAuraFramesForButton;
+local VUHDO_refreshShieldMaskAnchors;
+local VUHDO_hasManaOffsetBar;
 
 local sSecretsEnabled = VUHDO_SECRETS_ENABLED;
 local sIsInverted;
 local sManaInterpolation = { };
 local sSideLeftInterpolation = { };
 local sSideRightInterpolation = { };
-local sPendingManaBarLayouts = { };
+local sPendingStaticManaLayouts = { };
 
 
 
@@ -57,10 +57,10 @@ function VUHDO_customManaInitLocalOverrides()
 	VUHDO_applyAllLayersToBar = _G["VUHDO_applyAllLayersToBar"];
 	VUHDO_updateHealthLossBar = _G["VUHDO_updateHealthLossBar"];
 	VUHDO_syncOverlaysForUnit = _G["VUHDO_syncOverlaysForUnit"];
-	VUHDO_updateAuraAnchorHost = _G["VUHDO_updateAuraAnchorHost"];
-	VUHDO_positionHealthBar = _G["VUHDO_positionHealthBar"];
-	VUHDO_positionSideBars = _G["VUHDO_positionSideBars"];
+	VUHDO_layoutHealthBarGeometry = _G["VUHDO_layoutHealthBarGeometry"];
 	VUHDO_repositionAuraFramesForButton = _G["VUHDO_repositionAuraFramesForButton"];
+	VUHDO_refreshShieldMaskAnchors = _G["VUHDO_refreshShieldMaskAnchors"];
+	VUHDO_hasManaOffsetBar = _G["VUHDO_hasManaOffsetBar"];
 
 	VUHDO_syncOverlaysForUnit = _G["VUHDO_deferSyncOverlaysForUnit"];
 
@@ -193,42 +193,69 @@ do
 	--
 	local tManaBar;
 	local tPrevHeight;
+	local tManaOffsetBar;
 	function VUHDO_applyManaBarLayout(aButton, aPanelNum, aManaBarHeight, aUnit)
 
-		if InCombatLockdown() then
-			aButton["pendingManaPanelNum"] = aPanelNum;
-			aButton["pendingManaBarHeight"] = aManaBarHeight;
-			aButton["pendingManaUnit"] = aUnit;
+		if not VUHDO_hasManaOffsetBar(aButton) then
+			if InCombatLockdown() then
+				aButton["pendingManaPanelNum"] = aPanelNum;
+				aButton["pendingManaBarHeight"] = aManaBarHeight;
+				aButton["pendingManaUnit"] = aUnit;
 
-			sPendingManaBarLayouts[aButton] = true;
+				sPendingStaticManaLayouts[aButton] = true;
+
+				return;
+			end
+
+			sPendingStaticManaLayouts[aButton] = nil;
+
+			tPrevHeight = aButton["manaBarLayoutHeight"];
+
+			aButton["manaBarLayoutHeight"] = aManaBarHeight;
+
+			VUHDO_layoutHealthBarGeometry(aButton, aPanelNum, true);
+
+			if VUHDO_CONFIG["SHOW_HEALTH_LOSS_BAR"] and aUnit then
+				VUHDO_updateHealthLossBar(aUnit);
+			end
+
+			if tPrevHeight ~= aManaBarHeight then
+				VUHDO_repositionAuraFramesForButton(aButton, aPanelNum);
+			end
 
 			return;
 		end
-
-		sPendingManaBarLayouts[aButton] = nil;
 
 		tManaBar = VUHDO_getHealthBar(aButton, 2);
 		tPrevHeight = aButton["manaBarLayoutHeight"];
 
 		aButton["manaBarLayoutHeight"] = aManaBarHeight;
 
-		VUHDO_updateAuraAnchorHost(aButton);
+		tManaOffsetBar = VUHDO_getHealthBar(aButton, VUHDO_BAR_MANA_OFFSET);
 
-		if aManaBarHeight > 0 then
-			VUHDO_PixelUtil.SetHeight(tManaBar, aManaBarHeight);
-			VUHDO_PixelUtil.Show(tManaBar);
-		else
-			VUHDO_PixelUtil.Hide(tManaBar);
+		tManaOffsetBar:SetValue(aManaBarHeight, VUHDO_IMMEDIATE);
+
+		if not InCombatLockdown() and tPrevHeight ~= aManaBarHeight then
+			VUHDO_layoutHealthBarGeometry(aButton, aPanelNum, true);
 		end
 
-		VUHDO_positionHealthBar(aButton, aPanelNum);
-		VUHDO_positionSideBars(aButton, aPanelNum);
+		if tManaBar then
+			if aManaBarHeight > 0 then
+				VUHDO_PixelUtil.Show(tManaBar);
+				tManaBar:SetAlpha(1);
+			else
+				VUHDO_PixelUtil.Show(tManaBar);
+				tManaBar:SetAlpha(0);
+			end
+		end
 
-		if VUHDO_CONFIG["SHOW_HEALTH_LOSS_BAR"] then
+		VUHDO_refreshShieldMaskAnchors(aButton, aPanelNum);
+
+		if VUHDO_CONFIG["SHOW_HEALTH_LOSS_BAR"] and aUnit then
 			VUHDO_updateHealthLossBar(aUnit);
 		end
 
-		if tPrevHeight ~= aManaBarHeight then
+		if tPrevHeight ~= aManaBarHeight and not InCombatLockdown() then
 			VUHDO_repositionAuraFramesForButton(aButton, aPanelNum);
 		end
 
@@ -241,12 +268,12 @@ do
 	--
 	function VUHDO_processPendingManaBarLayouts()
 
-		for tButton, _ in pairs(sPendingManaBarLayouts) do
+		for tButton, _ in pairs(sPendingStaticManaLayouts) do
 			VUHDO_applyManaBarLayout(tButton, tButton["pendingManaPanelNum"],
 				tButton["pendingManaBarHeight"], tButton["pendingManaUnit"]);
 		end
 
-		twipe(sPendingManaBarLayouts);
+		twipe(sPendingStaticManaLayouts);
 
 		return;
 
