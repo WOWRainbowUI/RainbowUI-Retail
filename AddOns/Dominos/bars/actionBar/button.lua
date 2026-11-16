@@ -51,23 +51,26 @@ function ActionButton:OnCreate(id)
     self:EnableMouseWheel()
     self:RegisterForClicks("AnyUp", "AnyDown")
 
-    -- handle action id updates
-    self:SetAttributeNoHandler('_childupdate-offset', [[
-        local offset = message or 0
-        local id = self:GetAttribute('index') + offset
+    -- the bar's state changed: show that state's action (bar.lua)
+    self:SetAttributeNoHandler('_childupdate-state', [[
+        local id = self:GetAttribute('action-' .. message) or self:GetAttribute('action-base')
 
         if self:GetAttribute('action') ~= id then
             self:SetAttribute('action', id)
-
-            local show = (self:GetAttribute("showgrid") > 0 or HasAction(id))
-                and not self:GetAttribute("statehidden")
-
-            if show then
-                self:Show(true)
-            else
-                self:Hide(true)
-            end
+            self:RunAttribute("UpdateShown")
         end
+    ]])
+
+    -- the override page changed. buttons past its length show nothing
+    self:SetAttributeNoHandler('_childupdate-overrideoffset', [[
+        local index = self:GetAttribute('index')
+        local id = 0
+
+        if index <= PageLength then
+            id = index + message
+        end
+
+        self:SetAttribute('action-override', id)
     ]])
 
     -- showgrid tracking
@@ -86,24 +89,24 @@ function ActionButton:OnCreate(id)
 
         if (prevValue ~= value) or force then
             self:SetAttribute("showgrid", value)
+            self:RunAttribute("UpdateShown")
+        end
+    ]])
 
-            local show = (value > 0 or HasAction(self:GetAttribute("action")))
-                and not self:GetAttribute("statehidden")
+    -- show if there's an action or the grid is up
+    self:SetAttributeNoHandler("UpdateShown", [[
+        local show = (self:GetAttribute("showgrid") > 0 or HasAction(self:GetAttribute("action")))
+            and not self:GetAttribute("statehidden")
 
-            if show then
-                self:Show(true)
-            else
-                self:Hide(true)
-            end
+        if show then
+            self:Show(true)
+        else
+            self:Hide(true)
         end
     ]])
 
     -- ...and the rest
     Addon.BindableButton:AddQuickBindingSupport(self)
-
-    if Addon.SpellFlyout then
-        Addon.SpellFlyout:Register(self)
-    end
 end
 
 function ActionButton:OnSlotChanged()
@@ -120,8 +123,12 @@ function ActionButton:OnSlotChanged()
     self:UpdateShown()
 end
 
+function ActionButton:UsesBlizzardBindings()
+    return Addon:UsingBlizzardKeybindHandlers() and not self.isDominosButton
+end
+
 function ActionButton:UpdateOverrideBindings()
-    if InCombatLockdown() then return end
+    if InCombatLockdown() or self:UsesBlizzardBindings() then return end
 
     if C_HouseEditor and C_HouseEditor.IsHouseEditorActive() then
         ClearOverrideBindings(self.bind)
@@ -147,7 +154,6 @@ function ActionButton:SetFlyoutDirectionInsecure(direction)
     if InCombatLockdown() then return end
 
     self:SetAttribute("flyoutDirection", direction)
-    self:UpdateFlyout()
 end
 
 -- the stock UI shows and hides hotkeys based on if there's a binding or not

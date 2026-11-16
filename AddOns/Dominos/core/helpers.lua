@@ -26,6 +26,60 @@ function Addon:CreateDisplayCheck(part)
     }
 end
 
+-- colors are saved as RRGGBB or RRGGBBAA hex strings. the same string gives
+-- back the same shared color object while anything holds it, so don't modify it
+do
+    local RGB_LENGTH = 6
+    local RGBA_LENGTH = 8
+    local colorsByHex = setmetatable({}, { __mode = 'v' })
+
+    ---@param hex string RRGGBB or RRGGBBAA
+    ---@return ColorMixin? color nil if it isn't a hex color
+    function Addon:GetColorFromHex(hex)
+        -- saved hex is already uppercase, so this mostly hits straight away
+        local color = colorsByHex[hex]
+        if color then
+            return color
+        end
+
+        if type(hex) ~= 'string' or not hex:match('^%x+$') then
+            return
+        end
+
+        hex = hex:upper()
+
+        color = colorsByHex[hex]
+        if color then
+            return color
+        end
+
+        if #hex == RGBA_LENGTH then
+            color = CreateColorFromRGBAHexString(hex)
+        elseif #hex == RGB_LENGTH then
+            color = CreateColorFromRGBHexString(hex)
+        end
+
+        colorsByHex[hex] = color
+
+        return color
+    end
+
+    -- always RRGGBBAA, which is what GetColorFromHex reads back
+    ---@param r number 0 to 1
+    ---@param g number
+    ---@param b number
+    ---@param a number? defaults to 1
+    ---@return string hex
+    function Addon:GetHexFromColor(r, g, b, a)
+        return ('%02X%02X%02X%02X'):format(
+            Round(r * 255),
+            Round(g * 255),
+            Round(b * 255),
+            Round((a or 1) * 255)
+        )
+    end
+end
+
 -- A utility function for extending blizzard widget types (Frames, Buttons, etc)
 do
     -- extend basically just does a post hook of an existing object method
@@ -87,10 +141,6 @@ end
 -- A functional way to fade a frame from one opacity to another without constantly
 -- creating new animation groups for the frame
 do
-    local function clouseEnough(value1, value2)
-        return _G.Round(value1 * 100) == _G.Round(value2 * 100)
-    end
-
     -- track the time the animation started playing
     -- this is so that we can figure out how long we've been delaying for
     local function animation_OnPlay(self)
@@ -103,6 +153,8 @@ do
             self.alpha = nil
         end
     end
+
+    local sequences = {}
 
     local function sequence_Create(frame)
         local sequence = frame:CreateAnimationGroup()
@@ -128,17 +180,14 @@ do
 
             -- handle animation requests
             local function func(toAlpha, delay, duration)
-                -- we're already at target alpha, stop
-                if clouseEnough(frame:GetAlpha(), toAlpha) then
-                    if sequence and sequence:IsPlaying() then
-                        sequence:Stop()
-                        return
-                    end
-                end
-
                 -- create the animation if we've not yet done so
                 if not sequence then
+                    if ApproximatelyEqual(frame:GetAlpha(), toAlpha, 0.01) then
+                        return
+                    end
+
                     sequence, animation = sequence_Create(frame)
+                    sequences[frame] = sequence
                 end
 
                 local fromAlpha = frame:GetAlpha()
@@ -153,25 +202,22 @@ do
                     -- middle of an animation
                     delay = 0
 
-                    -- figure out what opacity we're currently at
-                    -- by using the animation progress
-                    local delta = animation:GetFromAlpha() - animation:GetToAlpha()
-                    fromAlpha = animation:GetFromAlpha() + (delta * animation:GetSmoothProgress())
+                    -- the frame's alpha isn't updated until the animation ends,
+                    -- so work out where we're at from the animation progress
+                    local from = animation:GetFromAlpha()
+                    local to = animation:GetToAlpha()
+                    fromAlpha = from + (to - from) * animation:GetSmoothProgress()
                 end
 
-                -- check that value against our current one
-                -- if so, quit early
-                if clouseEnough(fromAlpha, toAlpha) then
+                -- already at the target so stop
+                if ApproximatelyEqual(fromAlpha, toAlpha, 0.01) then
+                    Addon:StopFade(frame)
                     frame:SetAlpha(toAlpha)
-
-                    if sequence:IsPlaying() then
-                        sequence:Stop()
-                        return
-                    end
+                    return
                 end
 
                 sequence.alpha = toAlpha
-                animation:SetFromAlpha(frame:GetAlpha())
+                animation:SetFromAlpha(fromAlpha)
                 animation:SetToAlpha(toAlpha)
                 animation:SetStartDelay(delay)
                 animation:SetDuration(duration)
@@ -183,6 +229,14 @@ do
             return func
         end
     })
+
+    function Addon:StopFade(frame)
+        local sequence = sequences[frame]
+        if sequence then
+            sequence.alpha = nil
+            sequence:Stop()
+        end
+    end
 end
 
 -- debounce
