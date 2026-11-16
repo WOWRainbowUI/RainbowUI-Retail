@@ -80,6 +80,8 @@ local BOOL_FIELDS = {
     "safe_whisper", "streamer_mode",
     -- Appended after 13.0.7. show_compartment defaults ON, so it is inverted. APPEND-ONLY.
     "show_compartment", "show_minimap_button",
+    -- Appended after 13.1.2. Defaults off, so not inverted. APPEND-ONLY.
+    "auto_accept_friends_guild",
 }
 
 -- Allowed values for the one numeric scalar we sync.

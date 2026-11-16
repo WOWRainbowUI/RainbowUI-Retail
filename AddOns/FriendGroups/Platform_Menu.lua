@@ -89,9 +89,17 @@ function NodeMixin:CreateCheckbox(text, isChecked, onClick)
 	return node
 end
 
+-- Takes a boolean or a function, like Blizzard's; the function is read at render time.
 function NodeMixin:SetEnabled(enabled)
-	self.disabled = not enabled
+	self.enabled = enabled
 	return self
+end
+
+local function NodeIsEnabled(node)
+	local enabled = node.enabled
+	if enabled == nil then return true end
+	if type(enabled) == "function" then return enabled(node) and true or false end
+	return enabled and true or false
 end
 
 function NodeMixin:SetTooltip(fn)
@@ -147,7 +155,7 @@ local function RenderNode(node, level)
 				end
 			end
 
-			if child.disabled then
+			if not NodeIsEnabled(child) then
 				info.disabled = true
 			end
 
