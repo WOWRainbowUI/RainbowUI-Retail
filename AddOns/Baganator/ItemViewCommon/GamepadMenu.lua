@@ -2,6 +2,7 @@
 local addonTable = select(2, ...)
 
 local menu = CreateFrame("Frame", nil, UIParent)
+local onActiveRow = false
 if addonTable.Constants.IsGamepadInUse then
   menu:Hide()
   menu:SetScript("OnShow", function()
@@ -14,7 +15,11 @@ if addonTable.Constants.IsGamepadInUse then
     menu:Hide()
     return true
   end
+  function menu:StartFocus()
+    self.gamepadFooter:ShowAndActivateBindings()
+  end
   function menu:EndFocus()
+    self.gamepadFooter:HideAndDeactivateBindings()
     menu:Hide()
   end
   menu.layoutType = "CharacterCreateDropdown"
@@ -30,6 +35,19 @@ if addonTable.Constants.IsGamepadInUse then
   menu.FrameGlow:SetPoint("TOPLEFT", -27, 20)
   menu.FrameGlow:SetPoint("BOTTOMRIGHT", 27, -23)
   menu.FrameGlow:SetFrameLevel(menu:GetFrameLevel() + 200)
+
+  local bindings = {
+    {
+      button = GAMEPAD_FACE_BOTTOM, label = ACTION_LABEL_SELECT,
+      condition = function()
+        return onActiveRow
+      end
+    },
+    {
+      isBack = true, label = CLOSE
+    }
+  }
+  menu.gamepadFooter = addonTable.Gamepad.GetBindingsFooter(bindings, menu, -10, -15)
 
   menu.buttonsPool = CreateFramePool("Button", menu)
 end
@@ -73,6 +91,18 @@ function addonTable.ItemViewCommon.ShowGamepadMenu(parent, anchor, entries)
     b:SetPoint("TOP", 0, -(i - 1) * 22)
     b:SetPoint("LEFT", 0, 0)
     b:SetPoint("RIGHT", 0, 0)
+    b:SetEnabled(e.enabled ~= false)
+    if e.enabled ~= false then
+      b:GetFontString():SetTextColor(1, 1, 1)
+    else
+      b:GetFontString():SetTextColor(0.5, 0.5, 0.5)
+    end
+    function b:OnSmartNavSelect()
+      onActiveRow = b:IsEnabled()
+    end
+    function b:OnSmartNavDeselect()
+      onActiveRow = false
+    end
     b:Show()
 
     if i == 1 then

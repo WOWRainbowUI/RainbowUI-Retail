@@ -272,6 +272,10 @@ function BaganatorItemViewCommonBackpackViewMixin:OnFinished(forceResize)
     self:UpdateScroll(74 + additionalPadding + topSpacing / 2 + externalVerticalSpacing, self:GetScale())
   end
 
+  if addonTable.Constants.IsGamepadInUse then
+    self.gamepadFooter:Refresh()
+  end
+
   self:UpdateAllButtons()
 end
 
@@ -403,10 +407,12 @@ end
 
 function BaganatorItemViewCommonBackpackViewMixin:StartFocus()
   self.FrameGlow:Show()
+  self.gamepadFooter:ShowAndActivateBindings()
 end
 
 function BaganatorItemViewCommonBackpackViewMixin:EndFocus()
   self.FrameGlow:Hide()
+  self.gamepadFooter:HideAndDeactivateBindings()
 end
 
 if table.freeze then

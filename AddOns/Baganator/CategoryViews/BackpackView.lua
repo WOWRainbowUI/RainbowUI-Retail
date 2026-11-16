@@ -6,6 +6,52 @@ BaganatorCategoryViewBackpackViewMixin = CreateFromMixins(BaganatorItemViewCommo
 function BaganatorCategoryViewBackpackViewMixin:OnLoad()
   BaganatorItemViewCommonBackpackViewMixin.OnLoad(self)
 
+  if addonTable.Constants.IsGamepadInUse then
+    local bindings = {
+      {
+        button = GAMEPAD_FACE_BOTTOM, label = ACTION_LABEL_SELECT, visibility = "auto",
+        condition = function()
+          return addonTable.ItemButtonUtil.GetGamepadFocus() ~= nil
+        end,
+      },
+      {
+        button = GAMEPAD_FACE_LEFT, label = CONTEXT_ACTION_LABEL_USE, visibility = "auto",
+        condition = function()
+          return addonTable.ItemButtonUtil.GetGamepadFocus() ~= nil and addonTable.ItemButtonUtil.GetGamepadFocus().frame.BGR.itemLink ~= nil
+        end,
+      },
+      {
+        button = GAMEPAD_FACE_TOP, label = CONTEXT_ACTION_LABEL_MORE_ACTIONS, visibility = "auto",
+        condition = function()
+          return addonTable.ItemButtonUtil.GetGamepadFocus() ~= nil and addonTable.ItemButtonUtil.GetGamepadFocus().frame.BGR.itemLink ~= nil
+        end
+      },
+      {
+        button = GAMEPAD_FACE_LEFT, label = addonTable.Locales.TRANSFER, visibility = "auto",
+        condition = function()
+          return (addonTable.CategoryViews.GetFocussedCategoryIndex() ~= nil or addonTable.CategoryViews.GetFocussedSectionIndex() ~= nil)
+            and self:IsTransferActive()
+        end
+      },
+      {
+        button = GAMEPAD_FACE_BOTTOM, label = addonTable.Locales.CLEAR_RECENTS, visibility = "auto",
+        condition = function()
+          return addonTable.CategoryViews.GetFocussedCategoryIndex() ~= nil and SmartNavigation:GetCurrentButton().source == addonTable.CategoryViews.Constants.RecentItemsCategory
+        end
+      },
+      {
+        button = GAMEPAD_FACE_BOTTOM, label = addonTable.Locales.TOGGLE, visibility = "auto",
+        condition = function()
+          return addonTable.CategoryViews.GetFocussedSectionIndex() ~= nil
+        end
+      },
+      {
+        isBack = true, label = CLOSE
+      }
+    }
+    self.gamepadFooter = addonTable.Gamepad.GetBindingsFooter(bindings, self)
+  end
+
   self.Container.Layouts = {}
   self.LiveLayouts = {}
   self.CachedLayouts = {}

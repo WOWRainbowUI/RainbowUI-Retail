@@ -1,11 +1,11 @@
 ---@class addonTableBaganator
 local addonTable = select(2, ...)
 
-function addonTable.ItemViewCommon.LinkGamepadGrid(grid, row, maxCols, upButton, bottomLeftButtons, bottomRightCallback)
-  for y = 1, row do
+function addonTable.ItemViewCommon.LinkGamepadGrid(grid, maxRows, maxCols, upButton, bottomLeftButtons, bottomRightCallback)
+  for y = 1, maxRows do
     for x = 1, maxCols do
       if grid[y][x] then
-        if y == row then
+        if y == maxRows then
           if bottomLeftButtons[x] then
             addonTable.Gamepad.LinkButtons(grid[y][x], "Down", bottomLeftButtons[x])
           elseif bottomRightCallback then
@@ -15,7 +15,12 @@ function addonTable.ItemViewCommon.LinkGamepadGrid(grid, row, maxCols, upButton,
           addonTable.Gamepad.LinkButtons(grid[y][x], "Down", grid[y+1][x])
         else
           local found = false
-          for y2 = y + 1, row do
+          for y2 = y + 1, maxRows do
+            if grid[y2][x] then
+              found = true
+              addonTable.Gamepad.LinkButtons(grid[y][x], "Down", grid[y2][x])
+              break
+            end
             if x > 1 then
               for x2 = x - 1, 1, -1 do
                 if grid[y2][x2] then
@@ -27,11 +32,6 @@ function addonTable.ItemViewCommon.LinkGamepadGrid(grid, row, maxCols, upButton,
               if found then
                 break
               end
-            end
-            if grid[y2][x] then
-              found = true
-              addonTable.Gamepad.LinkButtons(grid[y][x], "Down", grid[y2][x])
-              break
             end
           end
           if not found then
@@ -48,6 +48,11 @@ function addonTable.ItemViewCommon.LinkGamepadGrid(grid, row, maxCols, upButton,
         elseif grid[y-1][x] == nil then
           local found = false
           for y2 = y - 1, 1, -1 do
+            if grid[y2][x] then
+              found = true
+              addonTable.Gamepad.LinkButtons(grid[y][x], "Up", grid[y2][x])
+              break
+            end
             if x > 1 then
               for x2 = x - 1, 1, -1 do
                 if grid[y2][x2] then
@@ -60,11 +65,6 @@ function addonTable.ItemViewCommon.LinkGamepadGrid(grid, row, maxCols, upButton,
                 break
               end
             end
-            if grid[y2][x] then
-              found = true
-              addonTable.Gamepad.LinkButtons(grid[y][x], "Up", grid[y2][x])
-              break
-            end
           end
           if not found then
             addonTable.Gamepad.OneWayLink(grid[y][x], "Up", upButton)
@@ -73,11 +73,23 @@ function addonTable.ItemViewCommon.LinkGamepadGrid(grid, row, maxCols, upButton,
 
         if grid[y][x+1] then
           addonTable.Gamepad.LinkButtons(grid[y][x], "Right", grid[y][x+1])
-        elseif x < row then
-          for x2 = x + 1, row do
-            if grid[y][x2] then
-              addonTable.Gamepad.LinkButtons(grid[y][x], "Right", grid[y][x2])
-              break
+        else
+          local found = false
+          if x < maxRows then
+            for x2 = x + 1, maxRows do
+              if grid[y][x2] then
+                found = true
+                addonTable.Gamepad.LinkButtons(grid[y][x], "Right", grid[y][x2])
+                break
+              end
+            end
+          end
+          if not found and x > 1 then
+            for x2 = 1, x - 1 do
+              if grid[y][x2] then
+                addonTable.Gamepad.LinkButtons(grid[y][x], "Right", grid[y][x2])
+                break
+              end
             end
           end
         end

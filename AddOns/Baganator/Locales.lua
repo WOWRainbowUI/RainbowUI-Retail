@@ -458,6 +458,9 @@ L["SLASH_CATEGORIES_HELP"] = "Show categories matching or not matching items in 
 L["SLASH_UNKNOWN_COMMAND"] = "Unknown command '%s'"
 L["CATEGORY_SETTINGS_HAVE_BEEN_RESET"] = "Category settings have been reset"
 
+L["TOGGLE"] = "Toggle"
+L["CLEAR_RECENTS"] = "Clear Recents"
+
 local L = Locales.frFR
 L["ACCOUNT_GOLD_X"] = "Or du compte : %s"
 L["ACTION_TO_TRACK_TEXT"] = "Maj+clic sur la monnaie ou l'objet à déposer."
