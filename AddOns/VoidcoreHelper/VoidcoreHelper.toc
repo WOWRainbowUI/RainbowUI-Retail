@@ -1,5 +1,6 @@
-## Interface: 120105, 120100
+## Interface: 120105
 ## Title: VoidcoreHelper
+## OptionalDeps: Ace3
 ## Author: York
 ## Notes: 随时查看虚空核心掉落池
 ## SavedVariables: VOIDCOREHELPER_DB
@@ -7,7 +8,7 @@
 ## IconTexture: 7658128
 ## X-Curse-Project-ID: 1530072
 
-## Title-zhTW: |cffB973CC[物品]|r 虚空核心助手
+## Title-zhTW: |cffB973CC[物品]|r 虛空核心助手
 ## Notes-zhTW: VoidcoreHelper |n讓你能夠隨時在遊戲中查看晦暗虛空核心的掉落列表。|n|n|cffffd200使用方法: 打開冒險指南或點小地圖按鈕。
 ## Category-zhTW: 物品
 ## DefaultState: disabled

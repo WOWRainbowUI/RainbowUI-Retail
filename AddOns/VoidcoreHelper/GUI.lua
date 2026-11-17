@@ -2,6 +2,9 @@ local Name, AddOnesTable = ...
 local VCH = AddOnesTable.VCH
 local D = AddOnesTable.D
 local P = AddOnesTable.P
+local locale = GetLocale()
+local displayName = locale == "zhTW" and "虛空核心助手" or locale == "zhCN" and "虚空核心助手" or Name
+VOIDCOREHELPER_DB = VOIDCOREHELPER_DB or {}
 
 local frame = CreateFrame("Frame", "VoidcoreHelperFrame", UIParent)
 tinsert(UISpecialFrames, frame:GetName())
@@ -188,9 +191,9 @@ end)
 --         VCH:InItList(data)
 --     end
 -- end)
-
+local MinimapButton = nil
 local function InitMinimapButton()
-    local MinimapButton = CreateFrame("Button", Name .. "MinimapButton", Minimap)
+    MinimapButton = CreateFrame("Button", Name .. "MinimapButton", Minimap)
     -- 设置按钮属性
     MinimapButton:SetSize(25, 25) -- 标准尺寸
     MinimapButton:SetFrameStrata("MEDIUM")
@@ -206,7 +209,7 @@ local function InitMinimapButton()
 
     -- 点击事件
     MinimapButton:SetScript("OnMouseUp", function(self, button, down)
-        -- for itemID = 268000, 270000 do
+        -- for itemID = 270000, 300000 do
         --     local name = C_Item.GetItemInfo(itemID)
         --     if name and name:find("晦暗虚空宝箱") then
         --         print(itemID, name)
@@ -244,7 +247,7 @@ local function InitMinimapButton()
     end)
     MinimapButton:SetScript("OnEnter", function(self)
         GameTooltip:SetOwner(self, "ANCHOR_BOTTOMRIGHT")
-        GameTooltip:AddLine("虚空核心助手")
+        GameTooltip:AddLine(displayName)
         GameTooltip:Show()
     end)
     MinimapButton:SetScript("OnLeave", function(self)
@@ -446,9 +449,9 @@ local function currSpec()
 end
 
 local function freshTip()
-    local fresh = VCH.MG_displayItemIDs[1315]
+    local fresh = VCH.MG_displayItemIDs[1322]
     if fresh == currDisplayItemID then
-        fresh = VCH.MG_displayItemIDs[1299]
+        fresh = VCH.MG_displayItemIDs[1311]
     end
     GameTooltip:SetItemByID(fresh)
     GameTooltip:Hide()
@@ -611,6 +614,25 @@ pFrame:SetScript("OnEvent", function(self, event, ...)
                 end
             end
         end)
+        do
+            if LibStub then
+                local icon = LibStub("LibDBIcon-1.0", true)
+                if icon and MinimapButton then
+                    local VoidcoreHelper = LibStub("LibDataBroker-1.1"):NewDataObject("VoidcoreHelper", {
+                        type = "data source",
+                        text = displayName,
+                        icon = "7658128",
+                        OnClick = MinimapButton:GetScript("OnMouseUp"),
+                    })
+                    function VoidcoreHelper.OnTooltipShow(t)
+                        t:AddLine(displayName)
+                    end
+                    VOIDCOREHELPER_DB.profileDBIcon = VOIDCOREHELPER_DB.profileDBIcon or {}
+                    icon:Register("VoidcoreHelper", VoidcoreHelper, VOIDCOREHELPER_DB.profileDBIcon)
+                    MinimapButton:Hide()
+                end
+            end
+        end
     end
 end)
 
@@ -680,6 +702,7 @@ function VCH:LoadRaidFrame()
     if EJ_SelectEncounter then
         EJ_SetDifficulty(16)
         hooksecurefunc("EJ_SelectEncounter", function(encounterID)
+            -- print(encounterID)
             local displayItemID = VCH.MR_displayItemIDs[encounterID]
             if displayItemID then
                 InitPoint(displayItemID, Difficulty[EJ_GetDifficulty()], true)
