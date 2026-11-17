@@ -440,8 +440,13 @@ function addonTable.Display.TabsBarMixin:RefreshTabs()
     newTab.minWidth = true
     newTab.isDraggable = false
     newTab:SetText(addonTable.Constants.NewTabMarkup)
+    newTab:SetFlashing(false)
     newTab:SetScript("OnClick", function()
-      table.insert(addonTable.Config.Get(addonTable.Config.Options.WINDOWS)[self.chatFrame:GetID()].tabs, addonTable.Config.GetEmptyTabConfig(addonTable.Locales.NEW_TAB))
+      local allTabsForWindow = addonTable.Config.Get(addonTable.Config.Options.WINDOWS)[self.chatFrame:GetID()].tabs
+      local newTabData = addonTable.Config.GetEmptyTabConfig(addonTable.Locales.NEW_TAB)
+      newTabData.backgroundColor = allTabsForWindow[1].backgroundColor
+      newTabData.tabColor = allTabsForWindow[1].tabColor
+      table.insert(allTabsForWindow, newTabData)
       addonTable.CallbackRegistry:TriggerEvent("RefreshStateChange", {[addonTable.Constants.RefreshReason.Tabs] = true})
     end)
     newTab:Show()
@@ -568,6 +573,7 @@ addonTable.CallbackRegistry:RegisterCallback("Render", function(_, newMessages)
             tabConfig.tabColor = CreateColor(c.r, c.g, c.b):GenerateHexColorNoAlpha()
             tabConfig.whispersTemp[testPlayer] = true
             tabConfig.isTemporary = true
+            tabConfig.backgroundColor = window.tabs[1].backgroundColor
             table.insert(window.tabs, tabConfig)
             C_Timer.After(0, function()
               addonTable.CallbackRegistry:TriggerEvent("RefreshStateChange", {[addonTable.Constants.RefreshReason.Tabs] = true})
@@ -591,6 +597,7 @@ addonTable.CallbackRegistry:RegisterCallback("Render", function(_, newMessages)
             tabConfig.tabColor = CreateColor(c.r, c.g, c.b):GenerateHexColorNoAlpha()
             tabConfig.groups = groups
             tabConfig.isTemporary = true
+            tabConfig.backgroundColor = window.tabs[1].backgroundColor
             table.insert(window.tabs, tabConfig)
             C_Timer.After(0, function()
               addonTable.CallbackRegistry:TriggerEvent("RefreshStateChange", {[addonTable.Constants.RefreshReason.Tabs] = true})

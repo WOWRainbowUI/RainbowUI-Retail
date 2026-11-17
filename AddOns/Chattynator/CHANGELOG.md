@@ -1,12 +1,10 @@
 # Chattynator
 
-## [236](https://github.com/TheMouseNest/Chattynator/tree/236) (2026-11-15)
-[Full Changelog](https://github.com/TheMouseNest/Chattynator/compare/235...236) 
+## [237](https://github.com/TheMouseNest/Chattynator/tree/237) (2026-11-16)
+[Full Changelog](https://github.com/TheMouseNest/Chattynator/compare/236...237) 
 
-- Scale them down again  
-- Scale down assets to render better  
-- Fix fade sometimes flickering  
-- Blizzard skin: Fix outside right buttons overlapping background (#241)  
-- Adds chat looping and hidng edit box resets history position (#240)  
-- Fix for button alpha resetting when hovered over (#242)  
-- Add secrets guard on search functions  
+- Forgot the full length command name  
+- Persist background color from first tab into whisper tab too  
+- For new tabs copy colours from first tab  
+- Adjust whisper sound window to 10s  
+- Blacklist target marker commands from command history  

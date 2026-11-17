@@ -27,6 +27,11 @@ end
 
 local historyLimit = 200
 
+local commandBlacklist = {
+  ["/tm"] = true,
+  ["/targetmarker"] = true,
+}
+
 function addonTable.Core.InitializeChatCommandLogging()
   CHATTYNATOR_COMMAND_HISTORY = CHATTYNATOR_COMMAND_HISTORY or {}
   if #CHATTYNATOR_COMMAND_HISTORY > historyLimit then
@@ -36,6 +41,7 @@ function addonTable.Core.InitializeChatCommandLogging()
     end
     CHATTYNATOR_COMMAND_HISTORY = newHistory
   end
+
   local lines = CHATTYNATOR_COMMAND_HISTORY
   local index = #lines + 1
   local top
@@ -47,11 +53,11 @@ function addonTable.Core.InitializeChatCommandLogging()
     end
     local chatRaw = GetCurrent(ChatFrame1EditBox)
     local command = text:match("(/[^ ]+)")
-    if command and IsSecureCmd(command) then
+    if command and (IsSecureCmd(command) or commandBlacklist[command]) then
       return
     end
     if lines[#lines] ~= text then
-      if chatRaw:sub(-#text) == text then -- Keep chat type where possible
+      if chatRaw:sub(-#text) == text and not command then -- Keep chat type where possible
         text = chatRaw
       end
       if lines[#lines] ~= text then
