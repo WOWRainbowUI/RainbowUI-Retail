@@ -509,46 +509,45 @@ function addonTable.CategoryViews.BagLayoutMixin:Display(bagWidth, bagIndexes, b
 end
 
 function addonTable.CategoryViews.BagLayoutMixin:RestoreGamepadFocus(bagIndexes)
-  local container = self:GetParent()
-  if container.showing then
+  local window = self:GetParent()
+  while window and not window:IsToplevel() and window:GetParent() ~= UIParent do
+    window = window:GetParent()
+  end
+  if window.showing then
     C_Timer.After(0, function()
-      addonTable.Gamepad.SetTargetButton(container, self.firstHit)
+      addonTable.Gamepad.SetTargetButton(window, self.firstHit)
     end)
-    container.showing = false
+    window.showing = false
   else
     local focus = addonTable.ItemButtonUtil.GetGamepadFocus()
     if focus then
       if tIndexOf(bagIndexes, focus.bag) ~= nil then
-        local found = false
         local itemButton
-        for _, layout in ipairs(container.activeLayouts) do
+        for _, layout in ipairs(self:GetParent().activeLayouts) do
           if layout.type == "category" then
+            local found = false
             for _, b in ipairs(layout.buttons) do
               if b.gamepadIndex == focus.index then
                 itemButton = b
                 found = true
                 break
               end
-              if found then
-                break
-              end
+            end
+            if found then
+              break
             end
           end
         end
         if itemButton then
-          C_Timer.After(0, function()
-            addonTable.Gamepad.SetTargetButton(container, itemButton)
-          end)
+          addonTable.Gamepad.SetTargetButton(window, itemButton)
         end
       end
     end
-    local sectionFocus = addonTable.CategoryViews.GetFocussedSectionIndex()
+    local sectionFocus = addonTable.CategoryViews.GetFocussedSectionIndex() or addonTable.CategoryViews.GetFocussedCategoryIndex()
     if sectionFocus then
-      for _, layout in ipairs(container.activeLayouts) do
+      for _, layout in ipairs(self:GetParent().activeLayouts) do
         if layout.index == sectionFocus then
-          C_Timer.After(0, function()
-            addonTable.Gamepad.SetTargetButton(container, layout)
-          end)
+          addonTable.Gamepad.SetTargetButton(window, layout)
         end
       end
     end

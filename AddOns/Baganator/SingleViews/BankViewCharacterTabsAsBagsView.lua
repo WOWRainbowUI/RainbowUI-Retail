@@ -57,9 +57,12 @@ function BaganatorSingleViewBankViewCharacterTabsAsBagsViewMixin:ShowTab(charact
     activeBank:SetPoint("TOPLEFT", 0, 0)
 
     local all = {activeBank}
-    addonTable.SingleViews.ComputeGamepadGrid(all, self:GetParent().SearchWidget.SearchBox, {isLive and self.DepositIntoReagentsBankButton or nil}, function(b)
+    addonTable.SingleViews.ComputeGamepadGrid(all, self:GetParent().SearchWidget.SearchBox, {self.isLive and self.DepositReagentsButton or nil}, function(b)
       self.CurrencyWidget:AddGamepadUp(b)
     end)
+    if self.isLive then
+      self.CurrencyWidget:AddGamepadLeft(self.DepositReagentsButton)
+    end
 
     self.Container:SetSize(math.max(activeBank:GetWidth(), self:GetButtonsWidth(sideSpacing)), self.bankHeight)
   end

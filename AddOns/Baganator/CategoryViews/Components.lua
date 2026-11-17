@@ -193,7 +193,7 @@ function addonTable.CategoryViews.GetSectionButtonPool(parent)
           addonTable.Dialogs.ShowConfirm(addonTable.Locales.CONFIRM_TRANSFER_ITEMS, YES, NO, function()
             local tree = CopyTable(self.section)
             table.insert(tree, self.source)
-            print(CallMethodOnNearestAncestor(self, "TransferSection", tree))
+            CallMethodOnNearestAncestor(self, "TransferSection", tree)
           end)
         end
       end)

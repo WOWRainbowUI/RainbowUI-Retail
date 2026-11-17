@@ -265,12 +265,11 @@ function BaganatorCategoryViewBackpackViewMixin:UpdateForCharacter(character, is
 
     self.SearchWidget:LinkDown(firstVisible)
     self.CurrencyWidget:AddGamepadUp(lastVisible)
+    self.CurrencyWidget:AddGamepadLeft(self.CurrencyButton)
 
     addonTable.CategoryViews.ComputeGamepadGrid(self.activeLayouts, self.SearchWidget.SearchBox, {self.CurrencyButton}, function(b)
       self.CurrencyWidget:AddGamepadUp(b)
     end)
-
-    self.CurrencyWidget:AddGamepadLeft(self.CurrencyButton)
 
     addonTable.CallbackRegistry:TriggerEvent("ViewComplete")
   end)
