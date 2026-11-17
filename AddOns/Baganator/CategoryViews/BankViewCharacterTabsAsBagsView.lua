@@ -136,7 +136,16 @@ function BaganatorCategoryViewBankViewCharacterTabsAsBagsViewMixin:ShowTab(chara
 
     self.refreshState = {}
 
+    self:GetParent().SearchWidget:LinkDown(firstVisible)
     self.CurrencyWidget:AddGamepadUp(lastVisible)
+    if self.isLive then
+      self.CurrencyWidget:AddGamepadLeft(self.DepositReagentsButton)
+    end
+
+    addonTable.CategoryViews.ComputeGamepadGrid(self.activeLayouts, self:GetParent().SearchWidget.SearchBox, {self.isLive and self.DepositReagentsButton or nil}, function(b)
+      self.CurrencyWidget:AddGamepadUp(b)
+    end)
+
 
     addonTable.CallbackRegistry:TriggerEvent("ViewComplete")
 
