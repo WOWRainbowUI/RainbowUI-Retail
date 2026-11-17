@@ -1,5 +1,5 @@
 ------------------------------------------------------------
--- 小圖示：團隊標記 / 狀態（戰鬥/休息）/ 隊長 / PvP / 小隊編號
+-- 小圖示：團隊標記 / 狀態（戰鬥/休息）/ 隊長 / PvP / 小隊編號 / 寵物快樂度（永恆版）
 -- 團隊標記 index 可能是秘密值 → SetRaidTargetIconTexture 吃秘密值（C 端）
 ------------------------------------------------------------
 local _, ns = ...
@@ -59,6 +59,13 @@ local PREVIEW_MARK = {
 local GROUP_BG = { r = 0.102, g = 0.102, b = 0.102, a = 0.8 }
 local GROUP_FORMAT = "%s %d"
 local PREVIEW_GROUP = 3
+
+-- 獵人寵物快樂度（永恆版）：跟暴雪寵物框同一組 atlas（PetHappinessIndicatorMixin）。
+-- 只畫圖不接滑鼠：接了會搶走單位按鈕的點擊與滑鼠提示
+local HAPPINESS_ATLAS = { "UI-PetMad", "UI-PetNeutral", "UI-PetHappiness" }
+
+-- 顯示條件（設定 showWhen）→ 最高到哪個快樂度還顯示。沒列到的值（含 always）＝一律顯示
+local HAPPINESS_MAX = { content = 2, unhappy = 1 }
 
 local atlasCache = {}
 local function AtlasInfo(name)
@@ -213,6 +220,8 @@ local function Build(uf, edb)
     SetupIcon(uf, "leader", edb.leader, "Interface\\GroupFrame\\UI-Group-LeaderIcon")
     SetupIcon(uf, "pvp", edb.pvp, nil)
     SetupGroup(uf, edb.group)
+    -- 快樂度：預設值每個設定檔都帶著（匯入匯出不分版本），但只有永恆版的寵物框真的建
+    SetupIcon(uf, "happiness", edb.happiness, nil, ns.IS_FOREVER and uf.unitKey == "pet")
 end
 
 local function Update(uf, edb, bucket)
@@ -293,6 +302,22 @@ local function Update(uf, edb, bucket)
             gp:Hide()
         end
     end
+
+    -- 寵物快樂度：UNIT_HAPPINESS 推 info 桶（Core/Events.lua），換寵物走 unitchanged
+    local hp = uf.iconTextures.happiness
+    if hp and not hp.disabled and edb.happiness and edb.happiness.enabled then
+        local mood = ns.Cache.PetHappiness(uf)
+        local max = HAPPINESS_MAX[edb.happiness.showWhen] or 3
+        -- 預覽固定是「高興」，套了條件就永遠看不到 ⇒ 改畫條件內最高的那張，位置才對得到
+        if preview and mood then mood = max end
+        local atlas = mood and mood <= max and HAPPINESS_ATLAS[mood]
+        if atlas then
+            hp.tex:SetAtlas(atlas)
+            hp:Show()
+        else
+            hp:Hide()
+        end
+    end
 end
 
 ns.RegisterElement{
@@ -300,7 +325,8 @@ ns.RegisterElement{
     order = 70,
     -- reaction：隊長圖示與小隊編號吃 GROUP_ROSTER_UPDATE、PvP 圖示吃 UNIT_FACTION，
     -- 都在 reaction 桶。其餘（團標／戰鬥休息）自己掛事件
-    buckets = { "reaction" },
+    -- info：寵物快樂度（永恆版）
+    buckets = { "reaction", "info" },
     build = Build,
     update = Update,
 }

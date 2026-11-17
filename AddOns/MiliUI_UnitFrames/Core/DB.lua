@@ -238,6 +238,8 @@ function DB.BuildDefaults()
             borderColor = black(1),
             numberFormat = "auto",       -- auto | wan | km | raw（見 Tags.NumberMode）
             percentDecimals = 0,
+            -- 永恆版：[name] 要不要帶姓氏（預設帶；正式服沒有姓氏，這個鍵沒有作用）
+            showSurname = true,
             -- 光環倒數的時間格式（Elements/Auras.lua）："mmss" 兩分鐘以內印 1:59、以上 3m｜"minutes" 2m → 90。
             -- 新鍵由 MergeDefaults 補，不必遷移
             auraTimeFormat = "mmss",
@@ -903,6 +905,15 @@ function DB.BuildDefaults()
                                 stackAnchor = "TOP", stackX = 0, stackY = 4,
                                 durationText = false, durationThreshold = 60, filterMode = "all",
                                 blacklist = satedBlacklist() },
+                    -- 小圖示：寵物框原本沒有這個元件，永恆版才為了快樂度表情加上（獵人寵物，
+                    -- 不高興會掉傷害 ⇒ 預設開）。正式服整個不建，設定頁也不會多一顆「圖示」。
+                    -- 位置在框內右上角：名字靠左、血量數字靠右下，這一角是空的。
+                    icons = ns.IS_FOREVER and {
+                        enabled = true,
+                        -- showWhen：always 一律顯示／content 滿足以下才顯示／unhappy 不高興才顯示
+                        happiness = { enabled = true, x = 102, y = 0, w = 15, h = 15, level = ICON_LEVEL,
+                                      showWhen = "content" },
+                    } or nil,
                 },
             },
 
