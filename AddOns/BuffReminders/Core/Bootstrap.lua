@@ -24,31 +24,16 @@ bootstrapFrame:SetScript("OnEvent", function(_, event, arg1)
     bootstrapFrame:UnregisterEvent("ADDON_LOADED")
 
     BR.Display.SetPlayerClass((select(2, UnitClass("player"))))
-    local isFirstInstall = not BuffRemindersDB
+    -- A database without profiles and global predates AceDB and starts fresh.
+    local isFirstInstall = not BuffRemindersDB or (not BuffRemindersDB.profiles and not BuffRemindersDB.global)
     if not BuffRemindersDB then
         BuffRemindersDB = {}
+    elseif isFirstInstall then
+        wipe(BuffRemindersDB)
     end
 
-    -- ====================================================================
-    -- Pre-AceDB migration: wrap the old flat SavedVariables layout (root-level
-    -- iconSize/categorySettings/etc., no profiles) into the AceDB structure so
-    -- AceDB:New() adopts the existing data and does not report a fresh install.
-    -- On first install the table is empty, so this block seeds an empty profile.
-    -- ====================================================================
-    if not rawget(BuffRemindersDB, "profiles") then
-        local profileData, globalData = {}, {}
-        for k, v in pairs(BuffRemindersDB) do
-            if k == "minimap" then
-                globalData[k] = v
-            else
-                profileData[k] = v
-            end
-        end
-        wipe(BuffRemindersDB)
-        rawset(BuffRemindersDB, "profiles", { ["Default"] = profileData })
-        rawset(BuffRemindersDB, "profileKeys", {})
-        rawset(BuffRemindersDB, "global", globalData)
-    end
+    BR.Migrations.StampUnversionedProfiles(BuffRemindersDB.profiles)
+    BR.Migrations.RunAllProfiles(BuffRemindersDB.profiles)
 
     local aceDefaults = {
         profile = {},
@@ -63,15 +48,6 @@ bootstrapFrame:SetScript("OnEvent", function(_, event, arg1)
     BR.Profiles.Initialize(aceDefaults)
 
     local db = BR.profile
-
-    -- ====================================================================
-    -- Versioned migrations - dbVersion makes each migration run exactly once.
-    -- Core/Migrations.lua is append-only. Never delete or renumber a migration:
-    -- an old profile can return from any version.
-    -- ====================================================================
-    BR.Migrations.Run(db, defaults, { CATEGORIES = CATEGORIES })
-
-    BR.Profiles.DeepCopyDefault(defaults, db)
 
     if not db.customBuffs then
         db.customBuffs = {}
@@ -92,12 +68,6 @@ bootstrapFrame:SetScript("OnEvent", function(_, event, arg1)
 
     -- The glow registry reads the profile and the custom-buff array, so it must build after both.
     BR.GameContext.RebuildGlowRegistry()
-
-    if not db.defaults then
-        ---@diagnostic disable-next-line: missing-fields
-        db.defaults = {}
-    end
-    setmetatable(db.defaults, { __index = defaults.defaults })
 
     if not db.categoryVisibility then
         db.categoryVisibility = {}

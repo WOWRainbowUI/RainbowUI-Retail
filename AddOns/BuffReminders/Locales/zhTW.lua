@@ -538,7 +538,7 @@ L["Options.TextPositions.MainText.Note"] =
     "大文字的位置：計數、倒數計時和標籤。"
 L["Options.TextPositions.StackCount"] = "堆疊計數"
 L["Options.TextPositions.StatLabel"] = "屬性標籤"
-L["Options.TextPositions.Badge"] = "標誌 (H / F)"
+L["Options.TextPositions.Badge"] = "標誌 (H / F / C)"
 L["Options.TextSizes.Note"] =
     "自動將文字保持為基礎大小。設定一個值以調整文字本身的大小（以圖示的百分比表示）。"
 L["Options.TextPositions.Vertical.Above"] = "上方"
@@ -666,9 +666,6 @@ L["Options.PreferReusableRunes"] = "偏好可重複使用的增強符文"
 L["Options.PreferReusableRunes.Title"] = "偏好可重複使用的增強符文"
 L["Options.PreferReusableRunes.Desc"] =
     "如果您有可重複使用的增強符文，僅顯示該符文。如果沒有，顯示其他符文。"
-L["Options.FeastAtPlayer"] = "將大餐放在腳下"
-L["Options.FeastAtPlayer.Desc"] =
-    "點擊大餐圖示將大餐放置在您的位置。如果此選項關閉，您必須選擇地面上的一個點。"
 
 -- ============================================================================
 -- OPTIONS: DK RUNEFORGE PREFERENCES
@@ -1218,3 +1215,8 @@ L["Options.Language.Auto"] = "自動（遊戲語言）"
 L["Options.Language.Desc"] = "插件文字的語言。自動會使用遊戲語言，尚未翻譯的文字則顯示英文。"
 L["Language.enUS"] = "English"
 L["Dialog.ReloadLanguage"] = "重新載入介面後才會套用新的語言。\n現在重新載入嗎？"
+
+L["Badge.Cauldron"] = "C"
+L["Options.PlaceAtPlayer"] = "將大餐和藥鍋放在腳下"
+L["Options.PlaceAtPlayer.Desc"] = "點擊大餐或藥鍋圖示會將它放在您的位置。關閉此選項時，必須在地面上選擇放置位置。"
+L["Dialog.DeleteProfile"] = "確定要刪除設定檔「%s」嗎？此操作無法復原。"
