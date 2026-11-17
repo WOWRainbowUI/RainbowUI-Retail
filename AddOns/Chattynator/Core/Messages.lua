@@ -122,6 +122,7 @@ function addonTable.MessagesMonitorMixin:OnLoad()
 
   self.awaitingRecorderSet = {}
   self.pending = 0
+  self.lastSound = 0
 
   if DEFAULT_CHAT_FRAME:GetNumMessages() > 0 then
     for i = 1, DEFAULT_CHAT_FRAME:GetNumMessages() do
@@ -1479,7 +1480,14 @@ function addonTable.MessagesMonitorMixin:MessageEventHandler(event, ...)
     self:AddMessage(msg, info.r, info.g, info.b, info.id, accessID, typeID, event, eventArgs, MessageFormatter);
   end
 
-  -- Sounds and tell targets handled by Blizzard code
+  if type == "WHISPER" or type == "BN_WHISPER" then
+    local currentTime = GetTime()
+    if currentTime - self.lastSound > 10 then
+      PlaySound(SOUNDKIT.TELL_MESSAGE)
+    end
+    self.lastSound = currentTime -- Rolling 10s window to wait for a whisper to trigger a sound
+    -- Tell targets handled by Blizzard code
+  end
 
   return true;
 end
