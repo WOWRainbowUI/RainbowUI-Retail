@@ -687,9 +687,6 @@ L["Options.PreferReusableRunes"] = "무한 증강 룬 우선"
 L["Options.PreferReusableRunes.Title"] = "무한 증강 룬 우선"
 L["Options.PreferReusableRunes.Desc"] =
     "무한 증강 룬이 있을 경우 그것만 표시합니다. 없을 경우엔 다른 룬을 표시합니다."
-L["Options.FeastAtPlayer"] = "내 위치에 잔칫상 깔기"
-L["Options.FeastAtPlayer.Desc"] =
-    "잔칫상 아이콘을 클릭하면 내 위치에 바로 깔립니다. 이 옵션을 끄면 깔 자리를 직접 찍어야 합니다."
 
 -- ============================================================================
 -- OPTIONS: DK RUNEFORGE PREFERENCES
@@ -808,6 +805,9 @@ L["Options.MasqueNote"] = "확대 및 테두리 설정은 Masque에서 관리합
 -- ============================================================================
 L["Options.ShowLoginMessages"] = "로그인 메시지 표시"
 L["Options.ShowMinimapButton"] = "미니맵 버튼 표시"
+L["Options.Language"] = "언어"
+L["Options.Language.Auto"] = "자동 (게임 클라이언트)"
+L["Options.Language.Desc"] = "애드온 텍스트 언어입니다. 자동은 게임 클라이언트의 언어를 사용합니다."
 
 -- Hide when section
 L["Options.HideWhen"] = "숨김 조건:"
@@ -910,6 +910,7 @@ L["Dialog.ResetProfile"] =
 L["Dialog.Reset"] = "초기화"
 L["Dialog.ReloadPrompt"] = "설정을 성공적으로 가져왔습니다!\nUI를 재시작해서 변경 사항을 적용할까요?"
 L["Dialog.Reload"] = "재시작"
+L["Dialog.ReloadLanguage"] = "새로 선택한 언어는 UI 재시작 후에 적용됩니다.\n재시작할까요?"
 L["Dialog.NewProfilePrompt"] = "새 프로필의 이름을 입력하세요:"
 L["Dialog.Create"] = "생성"
 L["Dialog.DiscordPrompt"] = "BuffReminders Discord에 참여하세요!\n아래 URL을 복사하세요 (Ctrl+C):"

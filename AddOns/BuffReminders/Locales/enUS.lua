@@ -194,6 +194,7 @@ english["Label.Ghoul"] = "Ghoul"
 english["Label.WaterElemental"] = "Water Elemental"
 english["Badge.Hearty"] = "H"
 english["Badge.Fleeting"] = "F"
+english["Badge.Cauldron"] = "C"
 
 -- ============================================================================
 -- BUFF NAMES
@@ -572,7 +573,7 @@ english["Options.TextPositions.MainText.Note"] =
     "Position of the big text: counts, countdowns and labels."
 english["Options.TextPositions.StackCount"] = "Stack count"
 english["Options.TextPositions.StatLabel"] = "Stat label"
-english["Options.TextPositions.Badge"] = "Badge (H / F)"
+english["Options.TextPositions.Badge"] = "Badge (H / F / C)"
 english["Options.TextSizes.Note"] =
     "Auto keeps the text at the base size. Set a value to size that text on its own, as a percentage of the icon."
 english["Options.TextPositions.Vertical.Above"] = "Above"
@@ -707,9 +708,9 @@ english["Options.PreferReusableRunes"] = "Prefer reusable augment runes"
 english["Options.PreferReusableRunes.Title"] = "Prefer reusable augment runes"
 english["Options.PreferReusableRunes.Desc"] =
     "If you have a reusable augment rune, show only that one. If you have none, show the other runes."
-english["Options.FeastAtPlayer"] = "Drop feasts at your feet"
-english["Options.FeastAtPlayer.Desc"] =
-    "Click the feast icon to place the feast at your position. If this is off, you must select a point on the ground."
+english["Options.PlaceAtPlayer"] = "Drop feasts and cauldrons at your feet"
+english["Options.PlaceAtPlayer.Desc"] =
+    "Click a feast or cauldron icon to place it at your position. If this is off, you must select a point on the ground."
 
 -- ============================================================================
 -- OPTIONS: DK RUNEFORGE PREFERENCES
@@ -931,6 +932,7 @@ english["Options.UnknownError"] = "Unknown error"
 -- ============================================================================
 english["Dialog.Cancel"] = "Cancel"
 english["Dialog.DeleteCustomBuff"] = 'Delete custom buff "%s"?'
+english["Dialog.DeleteProfile"] = 'Delete profile "%s"? You cannot undo this.'
 english["Dialog.DeleteLoadout"] = 'Delete loadout reminder "%s"?'
 english["Dialog.ResetProfile"] =
     "Reset the active profile to defaults?\n\nThis will erase all customizations\nin the current profile and reload the UI."

@@ -407,7 +407,7 @@ local DefaultSettingKeys = {
     rightClickSnooze = "DisplayRefresh", -- Re-wires the consumable buttons' type2 attribute
     hideLegacyConsumables = "DisplayRefresh",
     preferReusableRunes = "DisplayRefresh",
-    feastAtPlayer = "DisplayRefresh",
+    placeAtPlayer = "DisplayRefresh",
     -- Pet display mode
     petDisplayMode = "DisplayRefresh",
     petLabels = "DisplayRefresh",
@@ -581,12 +581,8 @@ function BR.Config.Set(path, value)
         print("|cff00ccffBuffReminders:|r Invalid config path: " .. path)
     end
 
-    -- Level 1 reads through the BR.profile proxy metatable: the proxy is an empty
-    -- shell, so rawget always misses and __newindex then overwrites real data.
-    --
-    -- Levels 2+ use rawget. The metatable on db.defaults falls back to the shared
-    -- code-defaults table, and a plain index walks into it and mutates it. A write
-    -- must always land in the saved table of the user.
+    -- Level 1 must index the BR.profile proxy: the proxy is an empty table, so
+    -- rawget always misses and __newindex then overwrites real data.
     local parent = db
     for i = 1, #segments - 1 do
         local key = segments[i]
@@ -661,7 +657,7 @@ function BR.Config.SetMulti(changes)
                 print("|cff00ccffBuffReminders:|r Invalid config path: " .. path)
             end
 
-            -- See BR.Config.Set for why level 1 uses __index and levels 2+ use rawget.
+            -- See BR.Config.Set for why level 1 indexes the proxy.
             local parent = db
             for i = 1, #segments - 1 do
                 local key = segments[i]
@@ -713,8 +709,7 @@ local AppearanceKeys = {
 }
 -- NOTE: expirationThreshold is deliberately NOT an appearance key. It is a timing/behavior
 -- setting and uses the standard per-key fallback (category value if set, else defaults),
--- independent of useCustomAppearance. Stale pre-2.5 values stored while the appearance
--- flag was off are cleaned up in Migrations.lua.
+-- independent of useCustomAppearance.
 
 -- Keys that are glow-related (inherit from defaults when useCustomGlow is false).
 -- Includes the per-kind ENABLE flags: the Glow override owns both whether each

@@ -143,8 +143,9 @@ local function ExportSettings(sourceProfile)
             export[key] = DeepCopy(prof[key])
         end
     end
-    -- Lets an import tell which conversions an older string still needs.
-    export.exportVersion = BR.Migrations.DB_VERSION
+    -- The stamp of the profile, not DB_VERSION: a profile from a newer build, or one whose
+    -- migration failed at login, holds data of another version.
+    export.exportVersion = tonumber(prof.dbVersion) or BR.Migrations.DB_VERSION
 
     local result, err = SerializeTable(export)
     if not result then
@@ -160,6 +161,15 @@ local function ImportSettings(prefixedStr)
         return false, err
     end
 
+    -- Strings from before the stamp carry no version.
+    local exportVersion = tonumber(data.exportVersion) or 0
+    data.exportVersion = nil
+
+    local ok, migrateErr = pcall(BR.Migrations.RunImport, data, exportVersion)
+    if not ok then
+        return false, "Invalid data: migration failed (" .. tostring(migrateErr) .. ")"
+    end
+
     -- Wipe all exportable keys first so import is a full replacement, not a merge.
     -- This ensures keys present in the current profile but absent from the import
     -- string are cleared (e.g. old customBuffs, disabled enabledBuffs entries).
@@ -172,67 +182,9 @@ local function ImportSettings(prefixedStr)
         BR.profile[key] = nil
     end
 
-    -- Strings from before the stamp carry no version.
-    local exportVersion = tonumber(data.exportVersion) or 0
-    data.exportVersion = nil
-
     for k, v in pairs(data) do
         BR.profile[k] = DeepCopy(v)
     end
-
-    -- Back-compat: pre-v44 export strings carry the legacy boolean tracking
-    -- overrides instead of the per-context mode enums. Migrations do not re-run on
-    -- import, so map them here (mirrors migration [44]) and clear the stale keys.
-    -- Guard on the OLD key only: the new mode keys already hold a value in the
-    -- profile (AceDB defaults), so a `p.outsideInstancesMode == nil` check never
-    -- fires and drops the legacy boolean without conversion.
-    local p = BR.profile --[[@as table]] -- carries keys that BRProfile no longer declares
-    if p.selfOnlyOutsideInstances ~= nil then
-        p.outsideInstancesMode = p.selfOnlyOutsideInstances and "self_only" or "default"
-    end
-    if p.hideOthersInCombat ~= nil then
-        p.combatMode = p.hideOthersInCombat and "my_buffs" or "default"
-    end
-    if p.myBuffsOnlyWhileLeveling ~= nil then
-        p.levelingMode = p.myBuffsOnlyWhileLeveling and "my_buffs" or "default"
-    end
-    p.selfOnlyOutsideInstances = nil
-    p.hideOthersInCombat = nil
-    p.myBuffsOnlyWhileLeveling = nil
-
-    -- Pre-v52 strings carry the panel zoom as a raw frame scale (migration [52]).
-    if type(p.optionsPanelScale) == "number" then
-        p.optionsPanelZoom = BR.ZoomFromLegacyScale(p.optionsPanelScale)
-    end
-    p.optionsPanelScale = nil
-
-    -- Pre-v59 strings carry a category's direction as growDirection (migration [59]).
-    -- In a newer string a nil layoutDirection means "follow Defaults", so only an
-    -- older string gets the conversion.
-    if exportVersion < 59 then
-        BR.Migrations.MoveCategoryDirection(p.categorySettings)
-    end
-    -- Pre-v60 strings carry the shared buff tooltip toggle (migration [60]).
-    if exportVersion < 60 then
-        BR.Migrations.SplitBuffTooltips(p)
-    end
-
-    -- Pre-v55 strings carry a runtime icon cache on each custom buff (migration [55]).
-    if type(p.customBuffs) == "table" then
-        for _, buff in pairs(p.customBuffs) do
-            if type(buff) == "table" then
-                buff._iconsCache = nil
-            end
-        end
-    end
-
-    -- Ensure defaults sub-table exists and has the metatable (DeepCopy produces
-    -- a plain table, and old export strings can omit the defaults key).
-    if not BR.profile.defaults then
-        ---@diagnostic disable-next-line: missing-fields
-        BR.profile.defaults = {}
-    end
-    setmetatable(BR.profile.defaults, { __index = defaults.defaults })
 
     return true
 end
@@ -636,7 +588,6 @@ BuffRemindersAPI = BuffReminders
 BR.ImportExport = {
     DeepCopy = DeepCopy,
     Export = ExportSettings,
-    Import = ImportSettings,
     ExportCustomBuff = ExportCustomBuff,
     ImportCustomBuff = ImportCustomBuff,
     DecodeCustomBuff = DecodeCustomBuff,
