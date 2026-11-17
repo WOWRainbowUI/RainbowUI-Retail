@@ -558,3 +558,15 @@ L.PROFILE_TRANSFER.errors.TOO_LARGE = "設定檔超過支援的傳輸大小。"
 L.PROFILE_TRANSFER.errors.IN_COMBAT = "請在戰鬥結束後匯入設定檔。"
 L.EVENT_CODES.RESOURCE_AMOUNT = "%a - 獲得的資源數量。\n"
 L.EVENT_CODES.RESOURCE_NAME = "%p - 資源名稱。\n"
+
+L.CUSTOM_FONTS = {
+	add = "新增自訂字型",
+	help = "註冊已安裝的字型，以便在 MSBT 的字型選單中使用。",
+	name = "字型名稱：",
+	nameHelp = "字型選單中顯示的名稱，例如「我的字型」。",
+	path = "字型路徑：",
+	pathHelp = "先安裝字型檔，然後輸入相對於遊戲目錄的完整路徑，例如 Interface\\AddOns\\MyFonts\\MyFont.ttf。若檔案位於 MikScrollingBattleText\\Fonts，只需輸入檔名。新安裝的檔案可能要重新啟動魔獸世界才能使用。",
+	invalidName = "請輸入字型名稱。",
+	duplicateName = "這個字型名稱已經存在。",
+	invalidPath = "無法載入此字型。請檢查安裝的檔案與路徑。",
+}

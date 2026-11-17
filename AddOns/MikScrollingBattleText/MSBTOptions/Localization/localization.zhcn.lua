@@ -553,3 +553,15 @@ L.PROFILE_TRANSFER.errors.TOO_LARGE = "配置超出了支持的传输大小。"
 L.PROFILE_TRANSFER.errors.IN_COMBAT = "请在战斗结束后导入配置文件。"
 L.EVENT_CODES.RESOURCE_AMOUNT = "%a - 获得的资源数量。\n"
 L.EVENT_CODES.RESOURCE_NAME = "%p - 资源名称。\n"
+
+L.CUSTOM_FONTS = {
+	add = "添加自定义字体",
+	help = "注册已安装的字体，以便在 MSBT 的字体菜单中使用。",
+	name = "字体名称：",
+	nameHelp = "字体菜单中显示的名称，例如“我的字体”。",
+	path = "字体路径：",
+	pathHelp = "先安装字体文件，然后输入相对于游戏目录的完整路径，例如 Interface\\AddOns\\MyFonts\\MyFont.ttf。如果文件位于 MikScrollingBattleText\\Fonts，只需输入文件名。新安装的文件可能需要重启魔兽世界才能使用。",
+	invalidName = "请输入字体名称。",
+	duplicateName = "此字体名称已存在。",
+	invalidPath = "无法加载此字体。请检查已安装的文件与路径。",
+}

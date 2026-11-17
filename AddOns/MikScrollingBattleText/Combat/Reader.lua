@@ -119,11 +119,7 @@ local function CaptureVictim(unit, key)
     if not key or UnitFlag(UnitExists, unit) ~= true then return end
     local player = UnitFlag(UnitIsPlayer, unit)
     if player == nil then return end
-    return {
-        unit = unit, isPlayer = player,
-        dead = UnitFlag(UnitIsDead, unit) == true,
-        generation = unit == "target" and reader.epoch or reader.plates[unit],
-    }
+    return { isPlayer = player }
 end
 
 local function PetAttacking(token)
@@ -2098,51 +2094,53 @@ local function KillIcon(line)
     return best and HitIcon(best.record)
 end
 
+local KILL_VICTIM_WINDOW = 0.5
+local function NearKillVictim(at, line)
+    local gap = line.at - at
+    return gap >= -LOG_PAIR and gap <= KILL_VICTIM_WINDOW
+end
+
 local function ResolveKillVictim(line)
     if line.victimResolved then return line.victimIsPlayer end
     line.victimResolved = true
-    -- Several kills in one frame cannot be paired with individual victims.
+    -- Nearby kills cannot safely share the same recent victim evidence.
     for _, other in ipairs(reader.logLines or {}) do
         if other ~= line and other.source == "kill"
-            and math.abs(other.at - line.at) <= SWING_FRAME then return end
+            and math.abs(other.at - line.at) <= KILL_VICTIM_WINDOW then return end
     end
     local key, victim
     local function Add(candidateKey, candidate)
-        if not candidateKey or not candidate or (key and key ~= candidateKey)
-            or (victim and victim.isPlayer ~= candidate.isPlayer) then
-            return false
-        end
+        if not candidateKey or (key and key ~= candidateKey) then return false end
         key = candidateKey
-        if not victim or candidate.dead then victim = candidate end
+        if candidate then
+            if victim and victim.isPlayer ~= candidate.isPlayer then return false end
+            victim = candidate
+        end
         return true
     end
     for _, hit in ipairs(reader.yourHits) do
         if hit.record.event == "damage"
-            and math.abs(hit.at - line.at) <= SWING_FRAME then
+            and NearKillVictim(hit.at, line) then
             if not Add(hit.record.victimKey, hit.record.victim) then return end
         end
     end
-    local hasSwingLine = false
-    for _, swingLine in ipairs(reader.logLines or {}) do
-        if math.abs(swingLine.at - line.at) <= SWING_FRAME
-            and MeleeLine(swingLine) and LineClass(swingLine) == "damage"
-            and Role(swingLine) == "swing" then hasSwingLine = true break end
-    end
-    if hasSwingLine then
-        for _, swing in ipairs(reader.swingTimes) do
-            if not swing.ranged and math.abs(swing.at - line.at) <= SWING_FRAME
-                and not Add(swing.key, swing.victim) then return end
+    for _, swing in ipairs(reader.swingTimes) do
+        if not swing.ranged and NearKillVictim(swing.at, line) then
+            local confirmed = false
+            for _, swingLine in ipairs(reader.logLines or {}) do
+                if math.abs(swingLine.at - swing.at) <= SWING_FRAME
+                    and MeleeLine(swingLine) and LineClass(swingLine) == "damage"
+                    and Role(swingLine) == "swing" then
+                    confirmed = true
+                    break
+                end
+            end
+            if confirmed and not Add(swing.key, swing.victim) then return end
         end
     end
     if not victim then return end
-    local generation = victim.unit == "target" and reader.epoch
-        or reader.plates[victim.unit]
-    local stillSameUnit = generation == victim.generation
-        and UnitFlag(UnitExists, victim.unit) == true
-    if victim.dead
-        or (stillSameUnit and UnitFlag(UnitIsDead, victim.unit) == true) then
-        line.victimIsPlayer = victim.isPlayer
-    end
+    -- The kill line supplies the death; the hit supplies the victim's type.
+    line.victimIsPlayer = victim.isPlayer
     return line.victimIsPlayer
 end
 

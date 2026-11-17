@@ -57,6 +57,21 @@ L.MSG_ITEMS							= "Items"
 L.MSG_ITEM_ALREADY_EXISTS			= "Item name already exists."
 L.MSG_INVALID_ITEM_NAME				= "Invalid item name."
 
+L.CUSTOM_FONTS = {
+	add = "Add custom font",
+	help = "Register an installed font for use in MSBT's font menus.",
+	name = "Font name:",
+	nameHelp = "The name to display in the font menus. Example: My Font",
+	path = "Font path:",
+	pathHelp = "Install the font file first. Enter its full game-relative path, " ..
+		"such as Interface\\AddOns\\MyFonts\\MyFont.ttf. For files in " ..
+		"MikScrollingBattleText\\Fonts, enter only the filename. " ..
+		"Newly installed files may require restarting WoW.",
+	invalidName = "Enter a font name.",
+	duplicateName = "That font name already exists.",
+	invalidPath = "Unable to load this font. Check the installed file and path.",
+}
+
 L.PROFILE_TRANSFER = {
 	exportTitle = "Export Profile", importTitle = "Import Profile",
 	export = "Export", import = "Import", close = "Close",
