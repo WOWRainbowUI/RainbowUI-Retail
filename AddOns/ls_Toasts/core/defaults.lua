@@ -89,6 +89,7 @@ D.profile = {
 	font = {
 		-- name = nil,
 		size = 14,
+		slug = false,
 	},
 	colors = {
 		name = true,
