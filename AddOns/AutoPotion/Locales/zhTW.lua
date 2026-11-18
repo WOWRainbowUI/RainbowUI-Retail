@@ -99,3 +99,11 @@ L["Weakest Potion First"] = "優先使用效果最弱的藥水"
 L["Use your weakest health potion first and keep the stronger ones for later. Meant for leveling. Any health potion in your bags counts, whatever its level. Healthstones still come in their usual order."] = "優先使用效果最弱的治療藥水，保留較強的藥水供之後使用，適合練等。不論等級，背包內的所有治療藥水都會納入。治療石仍依原本順序使用。"
 L["Weakest Mana Potion First"] = "優先使用效果最弱的法力藥水"
 L["Use your weakest mana potion first and keep the stronger ones for later. Meant for leveling. Any mana potion in your bags counts, whatever its level. The mana gem is still your best one."] = "優先使用效果最弱的法力藥水，保留較強的藥水供之後使用，適合練等。不論等級，背包內的所有法力藥水都會納入。法力寶石仍使用效果最強的。"
+
+L["Weakest Food First"] = "優先使用恢復量最少的食物"
+
+L["Weakest Drink First"] = "優先使用恢復量最少的飲料"
+
+L["Eat the food that restores the least health first and keep the better food for later. Meant for leveling. Any food in your bags counts, whatever its level. Conjured food still goes first, its weakest one first."] = "優先吃恢復生命力最少的食物，保留較好的食物供之後使用，適合練等。不論等級，背包內的所有食物都會納入。仍優先使用魔法製造的食物，從恢復量最少的開始。"
+
+L["Drink what restores the least mana first and keep the better drinks for later. Meant for leveling. Any drink in your bags counts, whatever its level. Conjured drinks still go first, the weakest one first."] = "優先喝恢復法力最少的飲料，保留較好的飲料供之後使用，適合練等。不論等級，背包內的所有飲料都會納入。仍優先使用魔法製造的飲料，從恢復量最少的開始。"
