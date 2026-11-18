@@ -791,3 +791,5 @@ L["ItemEvaluator ThirdParty Missing Format"] = "找不到先前使用的「%s」
 L["ItemEvaluator ThirdParty None"] = "找不到相容的第三方插件。";
 L["ItemEvaluator ThirdParty Found Format"] = "找到相容插件：%s";
 L["Camera Movement Invalid Due To Gamepad UI"] = "啟用暴雪的遊戲控制器介面時，鏡頭無法水平移動。";
+
+L["Restart Quest"] = "重新開始"
