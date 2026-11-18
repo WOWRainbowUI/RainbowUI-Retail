@@ -1432,7 +1432,24 @@ addonTable.CustomiseDialog.WidgetsConfig = {
           }
         }
       },
-    }
+    },
+    ["faction"] = {
+      {
+        label = addonTable.Locales.GENERAL,
+        entries = {
+          {
+            label = addonTable.Locales.SHOW_ONLY_FOR_PVP_FLAGGED,
+            kind = "checkbox",
+            setter = function(details, value)
+              details.showForPvPFlagged = value
+            end,
+            getter = function(details)
+              return details.showForPvPFlagged
+            end,
+          }
+        }
+      },
+    },
   },
   ["auras"] = {
     ["*"] = {

@@ -40,7 +40,8 @@ local kindToEvent = {
   eliteType = {"UNIT_CLASSIFICATION_CHANGED", "UNIT_FACTION"},
   rarity = {"UNIT_CLASSIFICATION_CHANGED"},
   delveType = {"UNIT_CLASSIFICATION_CHANGED", "UNIT_FACTION"},
-  party = {"GROUP_ROSTER_UPDATE"}
+  party = {"GROUP_ROSTER_UPDATE"},
+  pvpFlagged = {"PLAYER_FLAGS_CHANGED"},
 }
 local kindToCallback = {
   quest = {"QuestInfoUpdate"},
@@ -106,7 +107,7 @@ function addonTable.Display.RegisterForColorEvents(frame, settings, defaultColor
       for _, e in ipairs(es) do
         events[e] = true
         if C_EventUtils.IsEventValid(e) then
-          if e:match("^UNIT") then
+          if e:match("^UNIT") or e == "PLAYER_FLAGS_CHANGED" then
             frame:RegisterUnitEvent(e, frame.unit)
           else
             frame:RegisterEvent(e)
@@ -550,6 +551,10 @@ function addonTable.Display.GetColor(settings, state, unit)
         if not issecretvalue(guid) and CheckFriendGUID(guid) then
           table.insert(colorQueue, {color = s.colors.friend})
         end
+      end
+    elseif s.kind == "pvpFlagged" then
+      if state.isPlayer then
+        table.insert(colorQueue, {state = {{value = UnitIsPVP(unit)}}, color = s.colors.flagged})
       end
     end
   end

@@ -1,11 +1,10 @@
 # Platynator
 
-## [546](https://github.com/TheMouseNest/Platynator/tree/546) (2026-11-14)
-[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/545...546) 
+## [547](https://github.com/TheMouseNest/Platynator/tree/547) (2026-11-17)
+[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/546...547) 
 
-- This didn't work, so reverting  
-- Trying this to fix health fill text  
-- Fix a couple of bugs with health fill text widget when absorbs disabled  
-- Enable "When missing" colors for auras properly  
-- Add Is Missing options for aura colouring  
-- Rework aura colouring  
+- Fix aura colours for highlights  
+- Add "Show for PvP flagged" option to faction markers  
+- Add "PvP Flagged" automatic colour option  
+- Fix health fill text (bug was text gaining alpha > 0 for some reason)  
+- Fix aura colour priorities  

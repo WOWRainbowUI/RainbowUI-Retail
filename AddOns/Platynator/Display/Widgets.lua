@@ -120,7 +120,7 @@ local function ArrangeAuras(frame, auraManager, height, kind, filterString)
   local firstAura
   local auraFrames = {}
   local missing = {}
-  for i = 1, #settings.auras do
+  for i = #settings.auras, 1, -1 do
     local point = {"BOTTOM", lastAura, "TOP"}
     if not lastAura then
       point = {"BOTTOM", frame, "BOTTOM", 0, -height}
@@ -130,7 +130,7 @@ local function ArrangeAuras(frame, auraManager, height, kind, filterString)
       firstAura = aura
     end
     lastAura = aura
-    table.insert(auraFrames, aura)
+    auraFrames[i] = aura
   end
 
   if settings.showAll.enabled then
@@ -374,8 +374,8 @@ function addonTable.Display.GetHealthBar(frame, parent)
     end
     if not frame.auras[kind] then
       frame.auras[kind] = {textures = {}}
-      frame.auras[kind].submaskWrapper = CreateFrame("Frame", nil, frame, "DisableUntrustedLayoutScriptsTemplate")
-      frame.auras[kind].submaskWrapper:SetAllPoints()
+      frame.auras[kind].maskWrapper = CreateFrame("Frame", nil, frame, "DisableUntrustedLayoutScriptsTemplate")
+      frame.auras[kind].maskWrapper:SetAllPoints()
       frame.auras[kind].pillar = CreateFrame("Frame", nil, frame, "DisableUntrustedLayoutScriptsTemplate")
     end
     frame.auras[kind].active = true
@@ -385,7 +385,7 @@ function addonTable.Display.GetHealthBar(frame, parent)
     if #frame.auras[kind].textures < limit then
       for i = #frame.auras[kind].textures + 1, limit do
         local t = frame.statusBar:CreateTexture(nil, "OVERLAY", nil, 5)
-        local m = frame.auras[kind].submaskWrapper:CreateMaskTexture()
+        local m = frame.auras[kind].maskWrapper:CreateMaskTexture()
         t:SetAllPoints(frame.statusBar)
         m:SetBlockingLoadsRequested(true)
         m:SetTexture("Interface/AddOns/Platynator/Assets/Special/white.png", "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE", "NEAREST")
@@ -393,7 +393,7 @@ function addonTable.Display.GetHealthBar(frame, parent)
         m:SetPoint("RIGHT", frame.statusBar:GetStatusBarTexture(), 0, 0)
         t:AddMaskTexture(m)
         t:AddMaskTexture(frame.mask)
-        local a = frame.auras[kind].submaskWrapper:CreateTexture()
+        local a = frame.auras[kind].maskWrapper:CreateTexture()
         a:SetWidth(10)
         a:SetHeight(0.000001)
         a:SetColorTexture(0, 0, 0, 0)
@@ -1113,7 +1113,7 @@ function addonTable.Display.GetAuraHighlight(frame, parent)
         m:SetPoint("LEFT", frame, 0, 0)
         m:SetPoint("RIGHT", frame, 0, 0)
         t:AddMaskTexture(m)
-        local a = frame.auras[kind].submaskWrapper:CreateTexture()
+        local a = frame.auras[kind].maskWrapper:CreateTexture()
         a:SetWidth(10)
         a:SetHeight(0.000001)
         a:SetColorTexture(0, 0, 0, 0)
@@ -1319,7 +1319,10 @@ function addonTable.Display.GetHealthFillText(frame, parent)
   frame.absorb:SetPoint("CENTER", frame)
   frame.absorb:SetText(" ")
 
-  frame.absorbPlacer = frame:CreateFontString(nil, nil, "GameFontNormal")
+  local alphaZeroed = CreateFrame("Frame", nil, frame)
+  alphaZeroed:SetAlpha(0)
+  alphaZeroed:SetAllPoints(frame)
+  frame.absorbPlacer = alphaZeroed:CreateFontString(nil, nil, "GameFontNormal")
   frame.absorbPlacer:SetPoint("LEFT", frame.statusBar:GetStatusBarTexture(), "RIGHT", -1, 0)
   frame.absorbPlacer:SetText(" ")
 
@@ -1356,7 +1359,6 @@ function addonTable.Display.GetHealthFillText(frame, parent)
 
     frame.background:SetTextColor(details.background.color.r, details.background.color.g, details.background.color.b)
     frame.absorb:SetTextColor(details.absorb.color.r, details.absorb.color.g, details.absorb.color.b)
-    frame.absorbPlacer:SetAlpha(0)
 
     frame.absorb:SetShown(details.absorb.applyColor)
 
