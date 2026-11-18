@@ -46,6 +46,7 @@ do  --HeaderWidgetManger
     local function RemoveButton(button)
         button:Hide();
         button:ClearAllPoints();
+        button:SetIcon(nil);
         button.uiOrder = nil;
         button.onEnterFunc = nil;
         button.onClickFunc = nil;
@@ -215,7 +216,7 @@ do  --HeaderWidgetManger
         end
 
         if API.IsQuestLevelCached(questID) then
-            if self:AddQuestDifficulty(questID) then
+            if (not self:DoesWidgetExist("Difficulty")) and self:AddQuestDifficulty(questID) then
                 anyChange = true;
             end
         else
@@ -523,6 +524,7 @@ do  --ButtonMixin
         self.type = "Difficulty";
         self.uiOrder = 5;
         self.questID = questID;
+        self:SetIcon(nil);
         self:SetText(label);
         self:SetClickable(false);
         self.onEnterFunc = QuestDifficulty_OnEnter;
