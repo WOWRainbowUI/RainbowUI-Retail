@@ -2,7 +2,7 @@
 ## Title: Better|cff00c0ffBlizz|rFrames
 ## Notes: More options for Blizzard frames. Aura filtering, Party castbars, Combat indicator, Dark Mode etc.
 ## Author: Bodify
-## Version: v2.2.2e
+## Version: v2.2.3
 ## SavedVariables: BetterBlizzFramesDB
 ## OptionalDeps: ClassicFrames, ClassicUIForever, EasyFrames
 ## IconAtlas: gmchat-icon-blizz
