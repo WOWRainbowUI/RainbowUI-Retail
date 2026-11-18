@@ -1278,3 +1278,14 @@ L["NOT_IN_PULL"] = "不在拉怪范围内"
 
 L["PURGEABLE_COLOR"] = "可净化效果颜色"
 L["SHOW_PURGEABLE"] = "显示可净化效果"
+Locales.zhTW["PVP_FLAGGED"] = "已開啟 PvP"
+
+Locales.zhTW["FLAGGED"] = "已標記"
+
+Locales.zhTW["SHOW_ONLY_FOR_PVP_FLAGGED"] = "僅在開啟 PvP 時顯示"
+
+Locales.zhCN["PVP_FLAGGED"] = "已开启 PvP"
+
+Locales.zhCN["FLAGGED"] = "已标记"
+
+Locales.zhCN["SHOW_ONLY_FOR_PVP_FLAGGED"] = "仅在开启 PvP 时显示"
