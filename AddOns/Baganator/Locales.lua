@@ -1278,3 +1278,31 @@ L["XS_BANK"] = "%s 的银行"
 L["XS_BANK_AND_BAGS"] = "%s 的银行和背包"
 L["XS_GUILD_BANK"] = "%s 的公会银行"
 L["CANNOT_YOU_ARE_IN_COMBAT"] = "Cannot: You are in combat"
+
+Locales.zhTW["LOCK_ITEMS"] = "鎖定物品"
+
+Locales.zhTW["CUSTOMISE"] = "自訂"
+
+Locales.zhTW["COMMON"] = "一般"
+
+Locales.zhTW["SIZING"] = "尺寸"
+
+Locales.zhTW["BUTTONS"] = "按鈕"
+
+Locales.zhTW["SWAP_LAYOUT"] = "切換版面"
+
+Locales.zhTW["DEFAULT_VISIBILITY"] = "預設顯示狀態"
+
+Locales.zhCN["LOCK_ITEMS"] = "锁定物品"
+
+Locales.zhCN["CUSTOMISE"] = "自定义"
+
+Locales.zhCN["COMMON"] = "通用"
+
+Locales.zhCN["SIZING"] = "尺寸"
+
+Locales.zhCN["BUTTONS"] = "按钮"
+
+Locales.zhCN["SWAP_LAYOUT"] = "切换布局"
+
+Locales.zhCN["DEFAULT_VISIBILITY"] = "默认显示状态"
