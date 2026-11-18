@@ -7,7 +7,7 @@
 -- Main non-UI code
 ------------------------------------------------------------
 
-PawnVersion = 2.1403
+PawnVersion = 2.1404
 
 -- Remove the two hyphens from the next line to re-enable upgrade information and Pawn scores on world quest rewards. (You'll have to /reload after you save the file.)
 -- local ShowWorldQuestUpgrades = true
@@ -728,7 +728,7 @@ function PawnInitializeOptions()
 		PawnCommon.ShowReforgingAdvisor = true
 	end
 	if PawnCommon.LastVersion < 2.1300 then
-		-- The Bag Upgrade Advisor on by default now wherever Automatic mode is supported.
+		-- The Bag Upgrade Advisor is on by default now wherever Automatic mode is supported.
 		if VgerCore.SpecsExist then
 			PawnCommon.ShowBagUpgradeAdvisor = true
 		end
