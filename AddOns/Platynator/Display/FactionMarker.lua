@@ -14,6 +14,7 @@ function addonTable.Display.FactionMarkerMixin:SetUnit(unit)
   if self.unit then
     if UnitIsPlayer(unit) or (UnitTreatAsPlayerForDisplay and UnitTreatAsPlayerForDisplay(unit)) then
       self:RegisterEvent("UNIT_FACTION")
+      self:RegisterEvent("PLAYER_FLAGS_CHANGED")
       self:UpdateState()
     else
       self:Hide()
@@ -28,6 +29,9 @@ function addonTable.Display.FactionMarkerMixin:OnEvent()
 end
 
 function addonTable.Display.FactionMarkerMixin:UpdateState()
+  if self.details.showForPvPFlagged then
+    self:SetAlphaFromBoolean(UnitIsPVP(self.unit))
+  end
   local faction = UnitFactionGroup(self.unit)
   if faction == "Alliance" then
     self:Show()
@@ -46,6 +50,7 @@ end
 
 function addonTable.Display.FactionMarkerMixin:Strip()
   self:StripInternal()
+  self:SetAlpha(1)
   self.hordeTexture = nil
   self.allianceTexture = nil
   self.PostInit = nil

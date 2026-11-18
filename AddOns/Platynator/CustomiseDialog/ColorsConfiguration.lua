@@ -1290,6 +1290,27 @@ addonTable.CustomiseDialog.ColorsConfig = {
       },
     },
   },
+  ["pvpFlagged"] = {
+    label = addonTable.Locales.PVP_FLAGGED,
+    default = {
+      kind = "pvpFlagged",
+      colors = {
+        flagged = GetColor("ffff00"),
+      },
+    },
+    entries = {
+      {
+        label = addonTable.Locales.FLAGGED,
+        kind = "colorPicker",
+        setter = function(details, value)
+          details.colors.flagged = value
+        end,
+        getter = function(details)
+          return details.colors.flagged
+        end,
+      },
+    },
+  },
 }
 
 addonTable.CustomiseDialog.ColorsConfigOrder = {
@@ -1316,6 +1337,7 @@ addonTable.CustomiseDialog.ColorsConfigOrder = {
   "party",
   "guild",
   "friendList",
+  "pvpFlagged",
   "classColors",
   "myClassColor",
   "difficulty",

@@ -867,6 +867,14 @@ local function UpgradeDesignv31(design)
   end
 end
 
+local function UpgradeDesignv32(design)
+  for _, marker in ipairs(design.markers) do
+    if marker.kind == "faction" then
+      marker.showForPvPFlagged = false
+    end
+  end
+end
+
 local designUpgrades = {
   UpgradeDesignv1,
   UpgradeDesignv2,
@@ -899,6 +907,8 @@ local designUpgrades = {
   UpgradeDesignv28,
   UpgradeDesignv29,
   UpgradeDesignv30,
+  UpgradeDesignv31,
+  UpgradeDesignv32,
 }
 
 function addonTable.Core.UpgradeDesign(design)
