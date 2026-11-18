@@ -208,3 +208,7 @@ L.PagingUnavailable = "%s（無法使用）"
 L.PagingUnset = "未設定"
 L.ShowTotemRecall = "顯示圖騰召回"
 L.ShowWithSpellbook = "開啟法術書時顯示"
+
+L.ShowTotems = "顯示圖騰欄位"
+
+L.SplitTotemBars = "拆分圖騰列"
