@@ -144,7 +144,9 @@ function BaganatorItemViewCommonBankViewMixin:OnEvent(eventName)
   if eventName == "BANKFRAME_OPENED" then
     self:Show()
     self.liveBankActive = true
-    if self.hasCharacter then
+    if addonTable.Constants.IsGamepadInUse and InCombatLockdown() then
+      self:Hide()
+    elseif self.hasCharacter then
       self.Character:ResetToLive()
       self:UpdateView()
     end

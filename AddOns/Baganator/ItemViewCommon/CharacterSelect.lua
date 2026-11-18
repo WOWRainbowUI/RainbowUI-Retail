@@ -73,7 +73,15 @@ function BaganatorCharacterSelectMixin:OnLoad()
       frame.RaceIcon:SetText(Syndicator.Utilities.GetCharacterIcon(elementData.race, elementData.sex))
     end
     frame:SetText(elementData.name)
-    frame.RealmName:SetText(elementData.realm)
+    local factionIcon = ""
+    if addonTable.Constants.IsForever or addonTable.Constants.IsClassic then
+      if elementData.faction == "Horde" then
+        factionIcon = " |A:charcreatetest-logo-horde:25:21|a"
+      elseif elementData.faction == "Alliance" then
+        factionIcon = " |A:charcreatetest-logo-alliance:25:21|a"
+      end
+    end
+    frame.RealmName:SetText(elementData.realm .. factionIcon)
     frame:GetFontString():SetPoint("LEFT", 48, 0)
     frame:GetFontString():SetPoint("RIGHT", -15, 0)
     frame:GetFontString():SetJustifyH("LEFT")

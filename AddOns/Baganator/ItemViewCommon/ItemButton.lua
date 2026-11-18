@@ -432,7 +432,7 @@ local function GetItemContextMatch(self)
       else
         return auctionable
       end
-    elseif addonTable.Constants.IsRetail and addonTable.Compatibility.Context.MailInfo and addonTable.Compatibility.Context.SendMail then
+    elseif not addonTable.Constants.IsClassic and addonTable.Compatibility.Context.MailInfo and addonTable.Compatibility.Context.SendMail then
       if not C_Item.IsItemDataCachedByID(self.BGR.itemID) then
         C_Item.RequestLoadItemDataByID(self.BGR.itemID)
         needsData = true

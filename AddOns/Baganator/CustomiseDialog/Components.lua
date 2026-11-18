@@ -252,3 +252,44 @@ function addonTable.CustomiseDialog.GetBasicDropdown(parent)
 
   return frame
 end
+
+function addonTable.CustomiseDialog.GetSubTabsContainer(container, tabContainers)
+  container.wrappers = {}
+
+  local Tabs = {}
+  local lastTab
+  for _, setup in ipairs(tabContainers) do
+    local tabContainer = setup.generator(container)
+    tabContainer:SetPoint("TOPLEFT", 0, -45)
+    tabContainer:SetPoint("BOTTOMRIGHT")
+
+    local tabButton = addonTable.CustomiseDialog.Components.GetTab(container, setup.name)
+    if lastTab then
+      tabButton:SetPoint("LEFT", lastTab, "RIGHT", 5, 0)
+    else
+      tabButton:SetPoint("TOPLEFT", 0 + addonTable.Constants.ButtonFrameOffset + 10, 0)
+    end
+    lastTab = tabButton
+    tabContainer.button = tabButton
+    tabButton:SetScript("OnClick", function()
+      for _, c in ipairs(container.wrappers) do
+        PanelTemplates_DeselectTab(c.button)
+        c:Hide()
+      end
+      PanelTemplates_SelectTab(tabButton)
+      tabContainer:Show()
+    end)
+    tabContainer:Hide()
+
+    table.insert(Tabs, tabButton)
+    table.insert(container.wrappers, tabContainer)
+  end
+  container.Tabs = Tabs
+  PanelTemplates_SetNumTabs(container, #container.Tabs)
+
+  container:SetScript("OnShow", function()
+    Tabs[1]:Click()
+  end)
+
+  return container
+end

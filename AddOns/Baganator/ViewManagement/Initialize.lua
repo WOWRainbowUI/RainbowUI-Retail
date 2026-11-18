@@ -674,3 +674,18 @@ function addonTable.ViewManagement.GenerateFrameGroup(frameGroup)
   SetupCharacterSelect(frameGroup)
   SetupCurrencyPanel(frameGroup)
 end
+
+addonTable.CallbackRegistry:RegisterCallback("CloseAll", function()
+  addonTable.CallbackRegistry:TriggerEvent("BagHide")
+  addonTable.CallbackRegistry:TriggerEvent("BankHide")
+  addonTable.CallbackRegistry:TriggerEvent("CharacterSelectHide")
+  addonTable.CallbackRegistry:TriggerEvent("CurrencyPanelHide")
+end)
+
+if addonTable.Constants.IsGamepadInUse then
+  local monitor = CreateFrame("Frame")
+  monitor:RegisterEvent("PLAYER_REGEN_DISABLED")
+  monitor:SetScript("OnEvent", function()
+    addonTable.CallbackRegistry:TriggerEvent("CloseAll")
+  end)
+end
