@@ -253,6 +253,10 @@ function Buff:GetStatus()
     local aura = C_UnitAuras.GetPlayerAuraBySpellID(self.id)
     if aura then
         local applications = aura.applications
+        -- 12.x: aura fields are secret in restricted content
+        if not applications or (issecretvalue and issecretvalue(applications)) then
+            return nil
+        end
         local status = applications .. '/' .. stacks
         return (applications >= stacks) and Green(status) or Red(status)
     end
@@ -542,10 +546,15 @@ end
 function Recipe:IsObtained()
     local info = C_TooltipInfo.GetItemByID(self.item)
     if info then
+        local KnownLineType = Enum.TooltipDataLineType.RestrictedSpellKnown
         for _, line in ipairs(info.lines) do
-            if line.leftText and line.leftText == _G.ITEM_SPELL_KNOWN then
-                return true
-            end
+            -- 12.x: tooltip text can be secret; prefer the line type
+            local lineType = line.type
+            if lineType and not (issecretvalue and issecretvalue(lineType)) and
+                lineType == KnownLineType then return true end
+            local leftText = line.leftText
+            if leftText and not (issecretvalue and issecretvalue(leftText)) and
+                leftText == _G.ITEM_SPELL_KNOWN then return true end
         end
     end
     return false
@@ -589,6 +598,9 @@ function Title:GetText()
     local title = strtrim(titleName)
     text = string.gsub(text, '{title}', title)
     local player = UnitName('player')
+    if not player or (issecretvalue and issecretvalue(player)) then
+        player = UNKNOWN
+    end
     text = string.gsub(text, '{player}', player)
     text = White(text)
     if self.type then text = text .. ' (' .. self.type .. ')' end
@@ -634,7 +646,10 @@ function Appearance:IsObtained()
     local info = C_TooltipInfo.GetItemByID(self.item)
     if info then
         for _, line in ipairs(info.lines) do
-            if line.type == KnownLineType then return true end
+            -- 12.x: tooltip fields can be secret values
+            local lineType = line.type
+            if lineType and not (issecretvalue and issecretvalue(lineType)) and
+                lineType == KnownLineType then return true end
         end
     end
     return false
@@ -651,6 +666,50 @@ local Transmog = Class('Transmog', Item,
     {display_option = 'show_transmog_rewards'})
 
 local CTC = C_TransmogCollection
+
+-- Icons for the player's own specs which can loot the item, so a reward row
+-- answers "can my class use this?" at a glance.
+local CSI = C_SpecializationInfo
+local GetNumSpecializations = CSI.GetNumSpecializations or
+                                  _G.GetNumSpecializations
+local GetSpecializationInfo = CSI.GetSpecializationInfo or
+                                  _G.GetSpecializationInfo
+
+local IndexNeckType = Enum.InventoryType.IndexNeckType
+local IndexFingerType = Enum.InventoryType.IndexFingerType
+
+-- Returns the icons of the player's specs which can loot the item.
+local function GetSpecIcons(itemID)
+    if not itemID then return end
+
+    local lootSpecs = C_Item.GetItemSpecInfo(itemID)
+    local allowed
+    if lootSpecs and #lootSpecs > 0 then
+        allowed = {}
+        for i, specID in ipairs(lootSpecs) do allowed[specID] = true end
+    else
+        -- Legion and later items give no spec data when every spec can loot
+        -- them. Necks and fingers cannot be told apart from role-restricted
+        -- trinkets, so accessories fall back to all of the player's specs.
+        local _, _, _, _, _, _, _, _, equipLoc, _, _, classID, _, _, expacID =
+            C_Item.GetItemInfo(itemID)
+        local isAccessory = equipLoc == 'INVTYPE_NECK' or equipLoc ==
+                                'INVTYPE_FINGER' or equipLoc == IndexNeckType or
+                                equipLoc == IndexFingerType
+        if classID ~= 4 or (expacID or 0) < 6 or not isAccessory then
+            return
+        end
+    end
+
+    local icons = {}
+    for i = 1, GetNumSpecializations() do
+        local specID, _, _, icon = GetSpecializationInfo(i)
+        if specID and icon and (not allowed or allowed[specID]) then
+            icons[#icons + 1] = '|T' .. icon .. ':0|t'
+        end
+    end
+    if #icons > 0 then return table.concat(icons, ' ') end
+end
 
 function Transmog:Initialize(attrs)
     Item.Initialize(self, attrs)
@@ -741,6 +800,11 @@ function Transmog:GetStatus()
         -- elseif not self:IsObtainable() then
         --     status = Orange(L['unobtainable'])
         -- end
+
+        -- show which of the player's specs can loot the item, so long as the
+        -- appearance is still missing
+        local icons = GetSpecIcons(self.item)
+        if icons then status = icons .. ' ' .. status end
     end
 
     return status
