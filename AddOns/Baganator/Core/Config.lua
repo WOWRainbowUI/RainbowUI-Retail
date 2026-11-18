@@ -70,6 +70,8 @@ local settings = {
   CURRENCY_PANEL_POSITION = {key = "currency_panel_position", default = {"RIGHT", "Baganator_BackpackViewFrame", "LEFT", 0, 0}},
   SETTING_ANCHORS = {key = "setting_anchors", default = false},
 
+  BUTTONS = {key = "buttons", default = {bank = "default", guild = "hide", allCharacters = "default", bagSlots = "default", lockItems = addonTable.Constants.IsClassic and "default" or "hide", swap = "hide", toggleGrouping = "hide", transfer = "default", sort = "default", customise = "default"}},
+
   DEBUG_TIMERS = {key = "debug_timers", default = false},
   DEBUG_KEYWORDS = {key = "debug_keywords", default = false},
   DEBUG_CATEGORIES = {key = "debug_categories", default = false},

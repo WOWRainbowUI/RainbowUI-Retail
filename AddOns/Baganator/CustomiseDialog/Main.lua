@@ -12,7 +12,7 @@ end
 local GENERAL_OPTIONS = {
 }
 
-local LAYOUT_OPTIONS = {
+local LAYOUT_COMMON_OPTIONS = {
   {
     type = "dropdown",
     text = addonTable.Locales.BAG_VIEW_TYPE,
@@ -38,59 +38,6 @@ local LAYOUT_OPTIONS = {
       "single",
       "category",
     }
-  },
-  { type = "spacing" },
-  {
-    type = "dropdown",
-    text = addonTable.Locales.SHOW_BUTTONS,
-    option = "show_buttons_on_alt",
-    entries = {
-      addonTable.Locales.ALWAYS,
-      addonTable.Locales.WHEN_HOLDING_ALT,
-    },
-    values = {
-      false,
-      true,
-    }
-  },
-  {
-    type = "slider",
-    min = 1,
-    max = 24,
-    text = addonTable.Locales.BAG_COLUMNS,
-    option = "bag_view_width",
-  },
-  {
-    type = "slider",
-    min = 1,
-    max = 42,
-    text = addonTable.Locales.BANK_COLUMNS,
-    option = "bank_view_width",
-    check = function() return not Syndicator.Constants.CharacterBankTabsActive or not addonTable.Constants.IsRetail end,
-  },
-  {
-    type = "slider",
-    min = 1,
-    max = 42,
-    text = addonTable.Locales.BANK_COLUMNS,
-    option = "character_bank_view_width",
-    check = function() return Syndicator.Constants.CharacterBankTabsActive and addonTable.Constants.IsRetail end,
-  },
-  {
-    type = "slider",
-    min = 1,
-    max = 42,
-    text = addonTable.Locales.WARBAND_BANK_COLUMNS,
-    option = "warband_bank_view_width",
-    check = function() return Syndicator.Constants.WarbandBankActive end,
-  },
-  {
-    type = "slider",
-    min = 1,
-    max = 42,
-    text = addonTable.Locales.GUILD_BANK_COLUMNS,
-    option = "guild_view_width",
-    check = NotIsEraCheck,
   },
   { type = "spacing" },
   {
@@ -143,6 +90,99 @@ local LAYOUT_OPTIONS = {
     text = addonTable.Locales.CHANGE_WINDOW_ANCHORS,
     option = "setting_anchors",
   },
+}
+
+local LAYOUT_SIZE_OPTIONS = {
+  {
+    type = "slider",
+    min = 1,
+    max = 24,
+    text = addonTable.Locales.BAG_COLUMNS,
+    option = "bag_view_width",
+  },
+  {
+    type = "slider",
+    min = 1,
+    max = 42,
+    text = addonTable.Locales.BANK_COLUMNS,
+    option = "bank_view_width",
+    check = function() return not Syndicator.Constants.CharacterBankTabsActive or not addonTable.Constants.IsRetail end,
+  },
+  {
+    type = "slider",
+    min = 1,
+    max = 42,
+    text = addonTable.Locales.BANK_COLUMNS,
+    option = "character_bank_view_width",
+    check = function() return Syndicator.Constants.CharacterBankTabsActive and addonTable.Constants.IsRetail end,
+  },
+  {
+    type = "slider",
+    min = 1,
+    max = 42,
+    text = addonTable.Locales.WARBAND_BANK_COLUMNS,
+    option = "warband_bank_view_width",
+    check = function() return Syndicator.Constants.WarbandBankActive end,
+  },
+  {
+    type = "slider",
+    min = 1,
+    max = 42,
+    text = addonTable.Locales.GUILD_BANK_COLUMNS,
+    option = "guild_view_width",
+    check = NotIsEraCheck,
+  },
+}
+
+local function GetButtonsOption(label, option, check)
+  return {
+    type = "dropdown",
+    text = label,
+
+    entries = {
+      DEFAULT,
+      HIDE,
+      SHOW,
+      addonTable.Locales.WHEN_HOLDING_ALT,
+    },
+    values = {
+      "default",
+      "hide",
+      "show",
+      "alt",
+    },
+
+    option = "buttons." .. option,
+    check = check,
+  }
+end
+
+local LAYOUT_BUTTON_OPTIONS = {
+  {
+    type = "dropdown",
+    text = addonTable.Locales.DEFAULT_VISIBILITY,
+    option = "show_buttons_on_alt",
+    entries = {
+      addonTable.Locales.ALWAYS,
+      addonTable.Locales.WHEN_HOLDING_ALT,
+    },
+    values = {
+      false,
+      true,
+    }
+  },
+  { type = "spacing" },
+  GetButtonsOption(addonTable.Locales.BANK, "bank"),
+  GetButtonsOption(GUILD_BANK, "guild", NotIsEraCheck),
+  GetButtonsOption(addonTable.Locales.ALL_CHARACTERS, "allCharacters"),
+  GetButtonsOption(addonTable.Locales.BAG_SLOTS, "bagSlots"),
+  { type = "spacing" },
+  GetButtonsOption(addonTable.Locales.LOCK_ITEMS, "lockItems"),
+  GetButtonsOption(addonTable.Locales.SWAP_LAYOUT, "swap"),
+  GetButtonsOption(addonTable.Locales.GROUP_IDENTICAL_ITEMS,  "toggleGrouping"),
+  GetButtonsOption(addonTable.Locales.TRANSFER, "transfer"),
+  GetButtonsOption(addonTable.Locales.SORT, "sort"),
+  GetButtonsOption(addonTable.Locales.CUSTOMISE, "customise"),
 }
 
 local ICON_OPTIONS = {
@@ -1006,12 +1046,11 @@ function BaganatorCustomiseDialogMixin:SetupSorting()
   table.insert(self.lowestFrames, allFrames[#allFrames])
 end
 
-function BaganatorCustomiseDialogMixin:SetupLayout()
-  local tab = GetTab(self, addonTable.Locales.LAYOUT)
+local function GetLayoutCommonTab(parent)
+  local frame = CreateFrame("Frame", nil, parent)
 
-  local frame = GetWrapperFrame(self)
-
-  local allFrames = GenerateFrames(LAYOUT_OPTIONS, frame)
+  local allFrames = GenerateFrames(LAYOUT_COMMON_OPTIONS, frame)
+  frame.allFrames = allFrames
 
   local function UpdateValues()
     for _, frame in ipairs(allFrames) do
@@ -1046,7 +1085,85 @@ function BaganatorCustomiseDialogMixin:SetupLayout()
 
   frame:SetScript("OnShow", UpdateValues)
 
-  table.insert(self.lowestFrames, allFrames[#allFrames])
+  return frame
+end
+
+local function GetLayoutSizingTab(parent)
+  local frame = CreateFrame("Frame", nil, parent)
+
+  local allFrames = GenerateFrames(LAYOUT_SIZE_OPTIONS, frame)
+  frame.allFrames = allFrames
+
+  local function UpdateValues()
+    for _, frame in ipairs(allFrames) do
+      if frame.SetValue then
+        frame:SetValue(addonTable.Config.Get(frame.option))
+      end
+    end
+  end
+
+  addonTable.CallbackRegistry:RegisterCallback("SettingChanged", function(_, settingName)
+    if settingName == "bag_view_type" or settingName == "bank_view_type" then
+      local value = addonTable.Config.Get(settingName)
+      if value ~= addonTable.Config.Get("view_type") then
+        addonTable.Config.Set("view_type", "unset")
+      end
+      UpdateValues()
+    end
+  end)
+
+  frame:SetScript("OnShow", UpdateValues)
+
+  return frame
+end
+
+local function GetLayoutButtonsTab(parent)
+  local frame = CreateFrame("Frame", nil, parent)
+
+  local allFrames = GenerateFrames(LAYOUT_BUTTON_OPTIONS, frame)
+  frame.allFrames = allFrames
+
+  local function UpdateValues()
+    for _, frame in ipairs(allFrames) do
+      if frame.SetValue then
+        frame:SetValue(addonTable.Config.Get(frame.option))
+      end
+    end
+  end
+
+  addonTable.CallbackRegistry:RegisterCallback("SettingChanged", function(_, settingName)
+    if settingName == "bag_view_type" or settingName == "bank_view_type" then
+      local value = addonTable.Config.Get(settingName)
+      if value ~= addonTable.Config.Get("view_type") then
+        addonTable.Config.Set("view_type", "unset")
+      end
+      UpdateValues()
+    end
+  end)
+
+  frame:SetScript("OnShow", UpdateValues)
+
+  return frame
+end
+
+function BaganatorCustomiseDialogMixin:SetupLayout()
+  local tab = GetTab(self, addonTable.Locales.LAYOUT)
+  local frame = GetWrapperFrame(self)
+  frame:SetPoint("TOP", 0, -60)
+
+  local tabContainers = {
+    {name = addonTable.Locales.COMMON, generator = GetLayoutCommonTab},
+    {name = addonTable.Locales.SIZING, generator = GetLayoutSizingTab},
+    --{name = addonTable.Locales.BUTTONS, generator = GetLayoutButtonsTab},
+  }
+
+  local container = addonTable.CustomiseDialog.GetSubTabsContainer(frame, tabContainers)
+  for _, wrapper in ipairs(container.wrappers) do
+    table.insert(self.lowestFrames, wrapper.allFrames[#wrapper.allFrames])
+  end
+
+  return frame
+
 end
 
 function BaganatorCustomiseDialogMixin:SetupTheme()
