@@ -63,10 +63,6 @@ function addonTable.Utilities.GetAllGuilds(searchText)
   return guilds
 end
 
-function addonTable.Utilities.ShouldShowSortButton()
-  return addonTable.Config.Get(addonTable.Config.Options.SHOW_SORT_BUTTON)
-end
-
 function addonTable.Utilities.CountEmptySlots(cachedBag)
   local empty = 0
   for _, slotContents in ipairs(cachedBag) do
@@ -379,7 +375,7 @@ function addonTable.Utilities.GetSpacing()
   return sideSpacing, topSpacing, searchSpacing
 end
 
-function addonTable.Utilities.AddButtons(allButtons, lastButton, parent, spacing, regionDetails)
+function addonTable.Utilities.AddButtons(lastButton, parent, spacing, regionDetails)
   local buttonsWidth = 0
   for _, details in ipairs(regionDetails) do
     local button = details.frame
@@ -389,7 +385,6 @@ function addonTable.Utilities.AddButtons(allButtons, lastButton, parent, spacing
       buttonsWidth = buttonsWidth + spacing + button:GetWidth()
       button:SetPoint("LEFT", lastButton, "RIGHT", spacing, 0)
       lastButton = button
-      table.insert(allButtons, button)
     end
   end
 
@@ -503,4 +498,12 @@ do
       timer = nil
     end)
   end
+end
+
+function addonTable.Utilities.SwapLayout()
+  local currentBags = addonTable.Config.Get(addonTable.Config.Options.BAG_VIEW_TYPE)
+  local currentBank = addonTable.Config.Get(addonTable.Config.Options.BANK_VIEW_TYPE)
+
+  addonTable.Config.Set(addonTable.Config.Options.BAG_VIEW_TYPE, currentBags == "category" and "single" or "category")
+  addonTable.Config.Set(addonTable.Config.Options.BANK_VIEW_TYPE, currentBank == "category" and "single" or "category")
 end

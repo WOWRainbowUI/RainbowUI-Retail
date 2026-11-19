@@ -88,10 +88,6 @@ function BaganatorItemViewCommonBankViewCharacterTabsAsBagsViewMixin:OnLoad()
     end
   end)
 
-  self.ToggleAllCharacters:SetPoint("TOPLEFT", self, addonTable.Constants.ButtonFrameOffset, -1 + addonTable.Constants.ButtonFrameOffsetTop)
-
-  addonTable.Gamepad.LinkButtons(self.ToggleBagSlotsButton, "Right", self:GetParent().CustomiseButton)
-
   addonTable.Skins.AddFrame("Button", self.DepositReagentsButton)
 end
 
@@ -220,6 +216,14 @@ function BaganatorItemViewCommonBankViewCharacterTabsAsBagsViewMixin:ShowTab(cha
   end
   self.lastCharacter = character
 
+  self:GetParent().ButtonsManager:AddButton("topLeft", "allCharacters")
+  self:GetParent().ButtonsManager:AddButton("topLeft", "bagSlots", function()
+    self:ToggleBagSlots()
+  end)
+  if self.isLive then
+    self:GetParent().ButtonsManager:AddButton(self.DepositReagents)
+  end
+
   self.isLive = isLive
 
   self.searchToApply = self.searchToApply or self.refreshState[addonTable.Constants.RefreshReason.Searches] or self.refreshState[addonTable.Constants.RefreshReason.ItemData] or self.refreshState[addonTable.Constants.RefreshReason.ItemWidgets]
@@ -257,16 +261,11 @@ function BaganatorItemViewCommonBankViewCharacterTabsAsBagsViewMixin:ShowTab(cha
     end
   end
 
-  self:GetParent().AllButtons = {}
-  tAppendAll(self:GetParent().AllButtons, self:GetParent().AllFixedButtons)
-  tAppendAll(self:GetParent().AllButtons, self.TopButtons)
-
   local sideSpacing, topSpacing = addonTable.Utilities.GetSpacing()
 
   self.DepositReagentsButton:SetShown(self.isLive)
   if self.isLive then
     self.buttonsWidth = self.DepositReagentsButton:GetWidth() + 10
-    table.insert(self:GetParent().AllButtons, self.DepositIntoReagentsBankButton)
     self.DepositReagentsButton:ClearAllPoints()
     self.DepositReagentsButton:SetPoint("LEFT", self, addonTable.Constants.ButtonFrameOffset + sideSpacing - 2, 0)
     self.DepositReagentsButton:SetPoint("BOTTOM", self, 0, 6)
@@ -280,9 +279,6 @@ function BaganatorItemViewCommonBankViewCharacterTabsAsBagsViewMixin:ShowTab(cha
 
   self.BagSlots:SetPoint("BOTTOMLEFT", self, "TOPLEFT", addonTable.Constants.ButtonFrameOffset, 0)
   self.BagSlots:Update(character, isLive)
-
-  addonTable.Gamepad.LinkButtons(self.ToggleAllCharacters, "Down", self:GetParent().SearchWidget.SearchBox)
-  addonTable.Gamepad.LinkButtons(self.ToggleBagSlotsButton, "Down", self:GetParent().SearchWidget.SearchBox)
 
   if self.BankMissingHint:IsShown() then
     for _, layout in ipairs(self.Container.Layouts) do

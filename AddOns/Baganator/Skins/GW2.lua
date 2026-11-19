@@ -21,6 +21,43 @@ local function AddHeader(frame, texture)
   frame.CloseButton:SetSize(20, 20)
 end
 
+local function UpdateFrameButtons(frame, topLeftButtons, topRightButtons)
+  local buttonOffsetX = -36
+  local originalOffsetY = -30
+  local buttonOffsetY = originalOffsetY
+  local buttonHeight = topLeftButtons[1]:GetHeight()
+  local lastButtonsEnd = 0
+
+  for index, _ in ipairs(topLeftButtons) do
+    local button = topLeftButtons[index]
+    button:ClearAllPoints()
+    button:SetPoint("TOPLEFT", buttonOffsetX, buttonOffsetY)
+    buttonOffsetY = buttonOffsetY - buttonHeight - 5
+    lastButtonsEnd = math.abs(buttonOffsetY)
+  end
+
+  local function SetupRightButtons()
+    if not frame:IsVisible() then
+      return
+    end
+    local buttonOffsetYForRight = buttonOffsetY - 40
+    if not topLeftButtons[1]:IsVisible() then
+      buttonOffsetYForRight = originalOffsetY
+    end
+    for index = #topRightButtons, 1, -1 do
+      local button = topRightButtons[index]
+      if button:IsShown() then
+        button:ClearAllPoints()
+        button:SetPoint("TOPLEFT", buttonOffsetX, buttonOffsetYForRight)
+        buttonOffsetYForRight = buttonOffsetYForRight - buttonHeight - 5
+      end
+    end
+    lastButtonsEnd = math.abs(buttonOffsetYForRight)
+  end
+
+  return lastButtonsEnd
+end
+
 local function SkinContainerFrame(frame, topButtons, topRightButtons)
   AddHeader(frame, "Interface/AddOns/GW2_UI/textures/bag/bagicon")
 
@@ -62,56 +99,30 @@ local function SkinContainerFrame(frame, topButtons, topRightButtons)
   end)
   frame.SearchWidget.SearchBox:SetHeight(22)
 
-  local buttonOffsetX = -36
-  local originalOffsetY = -30
-  local buttonOffsetY = originalOffsetY
-  local buttonHeight = topButtons[1]:GetHeight()
-  local lastButtonsEnd = 0
-
-  for index, _ in ipairs(topButtons) do
-    local button = topButtons[index]
-    button:ClearAllPoints()
-    button:SetPoint("TOPLEFT", buttonOffsetX, buttonOffsetY)
-    buttonOffsetY = buttonOffsetY - buttonHeight - 5
-    lastButtonsEnd = math.abs(buttonOffsetY)
-  end
-
-  local function SetupRightButtons()
-    if not frame:IsVisible() then
-      return
-    end
-    local buttonOffsetYForRight = buttonOffsetY - 40
-    if not topButtons[1]:IsVisible() then
-      buttonOffsetYForRight = originalOffsetY
-    end
-    for index = #topRightButtons, 1, -1 do
-      local button = topRightButtons[index]
-      if button:IsShown() then
-        button:ClearAllPoints()
-        button:SetPoint("TOPLEFT", buttonOffsetX, buttonOffsetYForRight)
-        buttonOffsetYForRight = buttonOffsetYForRight - buttonHeight - 5
+  local lastButtonsEnd
+  if frame.ButtonsManager then
+    hooksecurefunc(frame.ButtonsManager, "Arrange", function()
+      lastButtonsEnd = UpdateFrameButtons(frame, frame.ButtonsManager.active.topLeft, frame.ButtonsManager.active.topRight)
+      local missingHeight = lastButtonsEnd - frame:GetHeight()
+      if missingHeight > 0 then
+        frame:SetHeight(frame:GetHeight() + missingHeight)
       end
-    end
-    lastButtonsEnd = math.abs(buttonOffsetYForRight)
+    end)
   end
 
   hooksecurefunc(frame, "SetSize", function(_, _, height)
-    local missingHeight = lastButtonsEnd - frame:GetHeight()
-    if missingHeight > 0 then
-      frame:SetHeight(height + missingHeight)
+    if lastButtonsEnd then
+      local missingHeight = lastButtonsEnd - frame:GetHeight()
+      if missingHeight > 0 then
+        frame:SetHeight(height + missingHeight)
+      end
     end
   end)
 
-  topButtons[1]:HookScript("OnShow", function()
-    SetupRightButtons()
-  end)
-
-  topButtons[1]:HookScript("OnHide", function()
-    SetupRightButtons()
-  end)
-
   if frame.ButtonVisibility then
-    hooksecurefunc(frame.ButtonVisibility, "Update", SetupRightButtons)
+    hooksecurefunc(frame.ButtonVisibility, "Update", function()
+      lastButtonsEnd = UpdateFrameButtons(frame, frame.ButtonsManager.active.topLeft, frame.ButtonsManager.topRight)
+    end)
   end
 
   frame.backgroundMask = UIParent:CreateMaskTexture()
@@ -221,14 +232,14 @@ local skinners = {
       frame.BagSlots:ClearAllPoints()
       frame.BagSlots:SetPoint("BOTTOM", frame, "TOP", 0, 8)
       frame.BagSlots:SetPoint("LEFT", frame:GetTitleText(), "RIGHT")
-      SkinContainerFrame(frame, frame.TopButtons, frame.AllFixedButtons)
+      SkinContainerFrame(frame)
     elseif tags.bank then
       if frame.Character.BagSlots then
         frame.Character.BagSlots:ClearAllPoints()
         frame.Character.BagSlots:SetPoint("BOTTOM", frame, "TOP", 0, 8)
         frame.Character.BagSlots:SetPoint("LEFT", frame:GetTitleText(), "RIGHT")
       end
-      SkinContainerFrame(frame, frame.Character.TopButtons, frame.AllFixedButtons)
+      SkinContainerFrame(frame)
     elseif tags.guild then
       frame.LogsFrame:SetFrameStrata("DIALOG")
       frame.TabTextFrame:SetFrameStrata("DIALOG")

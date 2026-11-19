@@ -1,9 +1,9 @@
 # Baganator
 
-## [862](https://github.com/TheMouseNest/Baganator/tree/862) (2026-11-17)
-[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/861...862) 
+## [865](https://github.com/TheMouseNest/Baganator/tree/865) (2026-11-18)
+[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/864...865) 
 
-- Gamepad: Ensure bags close automatically on entering combat  
-- Split "Layout" into sub-tabs  
-- Forever/Classic: Show faction icon on character select  
-- Forever: Enable context matching for mailbox  
+- Classic Era: Fix banks  
+- Fix typo  
+- Gamepad: Fix position in menu for disenchant entry  
+- Gamepad: Add disenchant shortcut to menu  

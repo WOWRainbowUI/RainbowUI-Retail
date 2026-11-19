@@ -17,7 +17,6 @@ local settings = {
   BAG_ICON_SIZE = {key = "bag_icon_size", default = 37, refresh = {Refresh.Layout, Refresh.Flow}},
   LOCK_FRAMES = {key = "lock_frames", default = false},
   HIDE_SPECIAL_CONTAINER = {key = "hide_special_container", default = {}, refresh = {Refresh.Layout}, zone = {Zone.Bags, Zone.CharacterBank}},
-  SHOW_SORT_BUTTON = {key = "show_sort_button_2", default = true, refresh = {Refresh.Buttons}},
   SORT_METHOD = {key = "sort_method", default = "type"},
   CATEGORY_SORT_METHOD = {key = "category_sort_method", default = "type", refresh = {Refresh.Sorts}},
   MIGRATED_SORT_METHOD = {key = "migrated_sort_method", default = false},
@@ -70,7 +69,11 @@ local settings = {
   CURRENCY_PANEL_POSITION = {key = "currency_panel_position", default = {"RIGHT", "Baganator_BackpackViewFrame", "LEFT", 0, 0}},
   SETTING_ANCHORS = {key = "setting_anchors", default = false},
 
-  BUTTONS = {key = "buttons", default = {bank = "default", guild = "hide", allCharacters = "default", bagSlots = "default", lockItems = addonTable.Constants.IsClassic and "default" or "hide", swap = "hide", toggleGrouping = "hide", transfer = "default", sort = "default", customise = "default"}},
+  BUTTONS = {key = "buttons", default = {
+    bank = "default", guild = "hide", allCharacters = "default", bagSlots = "default",
+    lockItems = addonTable.Constants.IsClassic and "default" or "hide", swap = "hide",
+    toggleGrouping = "hide", transfer = "default", sort = "default", customise = "default"}
+  },
 
   DEBUG_TIMERS = {key = "debug_timers", default = false},
   DEBUG_KEYWORDS = {key = "debug_keywords", default = false},

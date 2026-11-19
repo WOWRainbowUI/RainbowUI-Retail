@@ -4,38 +4,7 @@
       <OnLoad method="OnLoad"/>
     </Scripts>
     <Frames>
-      <Button parentKey="ToggleAllCharacters" inherits="BaganatorAllCharactersButtonTemplate" frameLevel="700" parentArray="TopButtons">
-        <Anchors>
-          <Anchor point="TOPLEFT" relativeKey="$parent" x="5" y="-1"/>
-        </Anchors>
-      </Button>
-      <Button parentKey="ToggleBagSlotsButton" inherits="BaganatorToggleBagSlotsButtonTemplate" frameLevel="700" parentArray="TopButtons">
-        <Anchors>
-          <Anchor point="LEFT" relativeKey="$parent.ToggleAllCharacters" relativePoint="RIGHT" />
-        </Anchors>
-        <Scripts>
-          <OnClick>
-            self:GetParent():ToggleBagSlots()
-          </OnClick>
-        </Scripts>
-      </Button>
-
       <Frame parentKey="CurrencyWidget" inherits="BaganatorCurrencyWidgetTemplate"/>
-
-      <Button parentKey="DepositIntoReagentsBankButton" inherits="UIPanelDynamicResizeButtonTemplate" text="BAGANATOR_L_DEPOSIT_REAGENTS" parentArray="LiveButtons">
-        <Scripts>
-          <OnClick>
-            DepositReagentBank()
-          </OnClick>
-        </Scripts>
-      </Button>
-      <Button parentKey="BuyReagentBankButton" inherits="UIPanelDynamicResizeButtonTemplate" text="BAGANATOR_L_BUY_REAGENT_BANK" parentArray="LiveButtons">
-        <Scripts>
-          <OnClick>
-            self:GetParent():BuyReagentBank()
-          </OnClick>
-        </Scripts>
-      </Button>
 
       <Frame parentKey="BagSlots" inherits="BaganatorBagSlotsContainerTemplate">
         <KeyValues>

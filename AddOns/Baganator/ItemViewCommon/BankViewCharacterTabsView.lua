@@ -126,8 +126,6 @@ function BaganatorItemViewCommonBankViewCharacterTabsViewMixin:OnLoad()
     GameTooltip:Hide()
   end)
 
-  self.ToggleAllCharacters:SetPoint("TOPLEFT", self, addonTable.Constants.ButtonFrameOffset, -1 + addonTable.Constants.ButtonFrameOffsetTop)
-
   addonTable.Skins.AddFrame("SideTabButton", self.purchaseButton)
   addonTable.Skins.AddFrame("Button", self.DepositReagentsButton)
 end
@@ -486,6 +484,11 @@ function BaganatorItemViewCommonBankViewCharacterTabsViewMixin:ShowTab(character
 
   self.searchToApply = self.searchToApply or self.refreshState[addonTable.Constants.RefreshReason.Searches] or self.refreshState[addonTable.Constants.RefreshReason.ItemData] or self.refreshState[addonTable.Constants.RefreshReason.ItemWidgets]
 
+  self:GetParent().ButtonsManager:AddButton("topLeft", "allCharacters")
+  if self.isLive then
+    self:GetParent().ButtonsManager:AddButton(self.DepositReagents)
+  end
+
   local characterData = Syndicator.API.GetCharacter(self.lastCharacter)
 
   addonTable.Utilities.AddGeneralDropSlot(self, function()
@@ -525,12 +528,6 @@ function BaganatorItemViewCommonBankViewCharacterTabsViewMixin:ShowTab(character
     end
   end
 
-  local searchText = self:GetParent().SearchWidget.SearchBox:GetText()
-
-  self:GetParent().AllButtons = {}
-  tAppendAll(self:GetParent().AllButtons, self:GetParent().AllFixedButtons)
-  tAppendAll(self:GetParent().AllButtons, self.TopButtons)
-
   local sideSpacing, topSpacing = addonTable.Utilities.GetSpacing()
 
   self:UpdateTabs()
@@ -540,7 +537,6 @@ function BaganatorItemViewCommonBankViewCharacterTabsViewMixin:ShowTab(character
   self.DepositReagentsButton:SetShown(self.isLive)
   if self.isLive then
     self.buttonsWidth = self.DepositReagentsButton:GetWidth() + 10
-    table.insert(self:GetParent().AllButtons, self.DepositIntoReagentsBankButton)
     self.DepositReagentsButton:ClearAllPoints()
     self.DepositReagentsButton:SetPoint("LEFT", self, addonTable.Constants.ButtonFrameOffset + sideSpacing - 2, 0)
     self.DepositReagentsButton:SetPoint("BOTTOM", self, 0, 6)
@@ -557,10 +553,6 @@ function BaganatorItemViewCommonBankViewCharacterTabsViewMixin:ShowTab(character
   end
 
   if self.BankMissingHint:IsShown() then
-    -- Ensure bank missing hint has enough space to display
-    local minWidth = self.BankMissingHint:GetWidth()
-    local maxHeight = 30
-
     for _, layout in ipairs(self.Container.Layouts) do
       layout:Hide()
     end

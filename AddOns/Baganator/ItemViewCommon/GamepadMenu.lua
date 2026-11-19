@@ -22,7 +22,6 @@ if addonTable.Constants.IsGamepadInUse then
     self.gamepadFooter:HideAndDeactivateBindings()
     menu:Hide()
   end
-  menu.layoutType = "CharacterCreateDropdown"
   menu:SetFrameStrata("DIALOG")
   menu.background = menu:CreateTexture()
   menu.background:SetAtlas("common-dropdown-bg")
@@ -50,6 +49,7 @@ if addonTable.Constants.IsGamepadInUse then
   menu.gamepadFooter = addonTable.Gamepad.GetBindingsFooter(bindings, menu, -10, -15)
 
   menu.buttonsPool = CreateFramePool("Button", menu)
+  menu.secureButtonsPool = CreateFramePool("Button", menu, "InsecureActionButtonTemplate")
 end
 
 local sizingFontString = UIParent:CreateFontString(nil, nil, "GameFontHighlight")
@@ -72,10 +72,28 @@ function addonTable.ItemViewCommon.ShowGamepadMenu(parent, anchor, entries)
   menu:SetPoint(unpack(anchor))
 
   menu.buttonsPool:ReleaseAll()
+  menu.secureButtonsPool:ReleaseAll()
   menu:Show()
 
   for i, e in ipairs(entries) do
-    local b = menu.buttonsPool:Acquire()
+    local b
+    if e.macro then
+      b = menu.secureButtonsPool:Acquire()
+      b:SetAttribute("type", "macro")
+      b:RegisterForClicks("AnyUp", "AnyDown")
+      b:SetAttribute("macrotext", e.macro)
+      if not b.hooked then
+        b:HookScript("OnClick", function()
+          menu:Hide()
+        end)
+      end
+    else
+      b = menu.buttonsPool:Acquire()
+      b:SetScript("OnClick", function()
+        e.callback()
+        menu:Hide()
+      end)
+    end
     b:SetFrameStrata("DIALOG")
     b:SetFrameLevel(menu:GetFrameLevel() + 20)
     b:SetNormalFontObject(GameFontHighlight)
@@ -84,10 +102,6 @@ function addonTable.ItemViewCommon.ShowGamepadMenu(parent, anchor, entries)
     b:GetFontString():SetJustifyH("CENTER")
     b:SetWidth(max)
     b:SetHeight(22)
-    b:SetScript("OnClick", function()
-      e.callback()
-      menu:Hide()
-    end)
     b:SetPoint("TOP", 0, -(i - 1) * 22)
     b:SetPoint("LEFT", 0, 0)
     b:SetPoint("RIGHT", 0, 0)

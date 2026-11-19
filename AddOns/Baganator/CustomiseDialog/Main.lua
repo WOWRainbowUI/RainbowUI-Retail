@@ -177,7 +177,7 @@ local LAYOUT_BUTTON_OPTIONS = {
   GetButtonsOption(addonTable.Locales.ALL_CHARACTERS, "allCharacters"),
   GetButtonsOption(addonTable.Locales.BAG_SLOTS, "bagSlots"),
   { type = "spacing" },
-  GetButtonsOption(addonTable.Locales.LOCK_ITEMS, "lockItems"),
+  --GetButtonsOption(addonTable.Locales.LOCK_ITEMS, "lockItems"),
   GetButtonsOption(addonTable.Locales.SWAP_LAYOUT, "swap"),
   GetButtonsOption(addonTable.Locales.GROUP_IDENTICAL_ITEMS,  "toggleGrouping"),
   GetButtonsOption(addonTable.Locales.TRANSFER, "transfer"),
@@ -320,12 +320,6 @@ local OPEN_CLOSE_OPTIONS = {
   },
 }
 local SORTING_OPTIONS = {
-  {
-    type = "checkbox",
-    text = addonTable.Locales.SHOW_SORT_BUTTON,
-    option = "show_sort_button_2",
-  },
-  { type = "spacing" },
   {
     type = "checkbox",
     text = addonTable.Locales.SORT_ON_OPEN,
@@ -1067,6 +1061,8 @@ local function GetLayoutCommonTab(parent)
         addonTable.Config.Set("view_type", "unset")
       end
       UpdateValues()
+    elseif settingName == "category_item_grouping" then
+      UpdateValues()
     end
   end)
 
@@ -1154,7 +1150,7 @@ function BaganatorCustomiseDialogMixin:SetupLayout()
   local tabContainers = {
     {name = addonTable.Locales.COMMON, generator = GetLayoutCommonTab},
     {name = addonTable.Locales.SIZING, generator = GetLayoutSizingTab},
-    --{name = addonTable.Locales.BUTTONS, generator = GetLayoutButtonsTab},
+    {name = addonTable.Locales.BUTTONS, generator = GetLayoutButtonsTab},
   }
 
   local container = addonTable.CustomiseDialog.GetSubTabsContainer(frame, tabContainers)

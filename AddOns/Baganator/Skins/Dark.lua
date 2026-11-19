@@ -215,10 +215,12 @@ local skinners = {
       end
     end, frame)
 
-    if tags.backpack then
-      frame.TopButtons[1]:SetPoint("TOPLEFT", 1.5, -1)
-    elseif tags.bank then
-      frame.Character.TopButtons[1]:SetPoint("TOPLEFT", 1.5, -1)
+    if frame.ButtonsManager then
+      hooksecurefunc(frame.ButtonsManager, "Arrange", function()
+        if frame.ButtonsManager.active.topLeft[1] then
+          frame.ButtonsManager.active.topLeft[1]:SetPoint("TOPLEFT", 1.5, -1)
+        end
+      end)
     elseif tags.guild then
       frame.ToggleTabTextButton:SetPoint("TOPLEFT", 1.5, -1)
     end

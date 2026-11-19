@@ -527,9 +527,6 @@ function BaganatorItemViewCommonBankViewWarbandViewMixin:ShowTab(tabIndex, isLiv
 
   self:UpdateCurrencies()
 
-  self:GetParent().AllButtons = {}
-  tAppendAll(self:GetParent().AllButtons, self:GetParent().AllFixedButtons)
-
   local sideSpacing, topSpacing = addonTable.Utilities.GetSpacing()
 
   if self.isLive then

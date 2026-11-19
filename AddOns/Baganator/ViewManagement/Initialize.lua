@@ -482,6 +482,9 @@ local function HideDefaultBank()
 
   if BankFrame.BankPanel and BankFrame.BankPanel.MoneyDisplay then
     BankFrame.BankPanel.MoneyDisplay:UnregisterAllEvents()
+    BankFrame.BankPanel.MoneyDisplay:SetScript("OnEvent", nil)
+    BankFrame.BankPanel.MoneyDisplay:SetScript("OnShow", nil)
+    BankFrame.BankPanel.MoneyDisplay:SetScript("OnHide", nil)
     EventRegistry:UnregisterCallback("BankPanelMixin.TriggerSetTabEffects", BankFrame);
     EventRegistry:UnregisterCallback("BankPanelMixin.ShowOrHideBagCost", BankFrame);
     EventRegistry:UnregisterCallback("BankPanelMixin.PageInfoChanged", BankFrame);

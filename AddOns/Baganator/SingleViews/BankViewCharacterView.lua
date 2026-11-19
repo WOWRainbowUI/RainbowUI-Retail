@@ -84,10 +84,6 @@ function BaganatorSingleViewBankViewCharacterViewMixin:UpdateForCharacter(charac
     return
   end
 
-  self:GetParent().AllButtons = {}
-  tAppendAll(self:GetParent().AllButtons, self:GetParent().AllFixedButtons)
-  tAppendAll(self:GetParent().AllButtons, self.TopButtons)
-
   if self.BankMissingHint:IsShown() then
     for _, details in ipairs(self.CollapsingBankBags) do
       details.button:Hide()
@@ -160,27 +156,9 @@ function BaganatorSingleViewBankViewCharacterViewMixin:UpdateForCharacter(charac
           button:SetPoint("BOTTOM", self, "BOTTOM", 0, 6)
           button:SetPoint("LEFT", self.Container, -2, 0)
         end
-        table.insert(self:GetParent().AllButtons, button)
+        self:GetParent().ButtonsManager:AddButton(button)
         lastButton = button
       end
-    end
-
-    if self.BuyReagentBankButton:IsShown() then
-      table.insert(self:GetParent().AllButtons, self.BuyReagentBankButton)
-      self.BuyReagentBankButton:ClearAllPoints()
-      if lastButton then
-        self.BuyReagentBankButton:SetPoint("TOPLEFT", lastButton, "TOPRIGHT", 5, 0)
-      else
-        self.BuyReagentBankButton:SetPoint("LEFT", activeBank, -2, 0)
-        self.BuyReagentBankButton:SetPoint("BOTTOM", 0, 6)
-      end
-      self.buttonsWidth = self.buttonsWidth + self.BuyReagentBankButton:GetWidth()
-    end
-    if self.DepositIntoReagentsBankButton:IsShown() then
-      table.insert(self:GetParent().AllButtons, self.DepositIntoReagentsBankButton)
-      self.DepositIntoReagentsBankButton:ClearAllPoints()
-      self.DepositIntoReagentsBankButton:SetPoint("TOPLEFT", lastButton, "TOPRIGHT", 5, 0)
-      self.buttonsWidth = self.buttonsWidth + self.DepositIntoReagentsBankButton:GetWidth()
     end
 
     activeBank:ClearAllPoints()
