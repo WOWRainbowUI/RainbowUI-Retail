@@ -1,13 +1,13 @@
 ﻿
 	----------------------------------------------------------------------
-	-- 	Leatrix Maps 12.1.17 (11th November 2026)
+	-- 	Leatrix Maps 12.1.18 (18th November 2026)
 	----------------------------------------------------------------------
 
 	-- 10:Func, 20:Comm, 30:Evnt, 40:Panl
 
 	-- Leatrix_Maps.blp (256x128) texture coordinates (left, right, top, bottom):
 	-- Button: 0.5, 1, 0, 0.25 | Button highlight: 0, 0.5, 0, 0.25 | White close cross: 0, 0.125, 0.25, 0.5 | Red close cross: 0, 0.25, 0.5, 1
-	-- Maximise: 0.25, 0.5, 0.5, 1 | Restore: 0.5, 0.75, 0.5, 1
+	-- Maximise: 0.25, 0.5, 0.5, 1 | Restore: 0.5, 0.75, 0.5, 1 | Mountains (discovery button): 0.75, 1, 0.5, 1
 
 	-- Create global table
 	_G.LeaMapsDB = _G.LeaMapsDB or {}
@@ -16,7 +16,7 @@
 	local LeaMapsLC, LeaMapsCB, LeaConfigList, LeaLockList = {}, {}, {}, {}
 
 	-- Version
-	LeaMapsLC["AddonVer"] = "12.1.17"
+	LeaMapsLC["AddonVer"] = "12.1.18"
 
 	-- Get locale table
 	local void, Leatrix_Maps = ...
@@ -121,11 +121,7 @@
 			popup:Toggle(self, entries, IsCurrent, Choose, "TOPLEFT", "BOTTOMLEFT", 0, -2, Step)
 		end)
 
-		-- Cycle through the options with the mousewheel over the button (the open list does the same)
-		dropdown:EnableMouseWheel(true)
-		dropdown:HookScript("OnMouseWheel", function(self, delta)
-			if self:IsEnabled() then Step(delta) end
-		end)
+		-- Scrolling over the closed button does nothing (the mousewheel only steps through the options over the open list)
 
 		-- Show the current option when the button is shown
 		dropdown:HookScript("OnShow", UpdateText)
@@ -242,6 +238,7 @@
 		-- Set the list colors (background, border and row highlight, used by the map theme)
 		-- (rowFunc is optional, it is called with the row number and row count and returns a highlight color for that row)
 		function popup:SetColors(bgR, bgG, bgB, borderR, borderG, borderB, hlR, hlG, hlB, rowFunc, bgA)
+			self.colors = {bgR, bgG, bgB, borderR, borderG, borderB, bgA or 0.97} -- (the discovery button's tooltip uses them too)
 			list:SetBackdropColor(bgR, bgG, bgB, bgA or 0.97)
 			for i = 1, #borderLines do borderLines[i]:SetVertexColor(borderR, borderG, borderB, 1) end
 			highlightColor = {hlR, hlG, hlB}
@@ -5172,6 +5169,7 @@
 
 			-- Create background frame
 			local cFrame = CreateFrame("FRAME", nil, WorldMapFrame.ScrollContainer)
+			LeaMapsLC.coordsBar = cFrame -- Used by the discovery area name (placed above it)
 			cFrame:SetSize(WorldMapFrame:GetWidth(), 17)
 			cFrame:SetPoint("BOTTOMLEFT", 17)
 			cFrame:SetPoint("BOTTOMRIGHT", 0)
@@ -5217,6 +5215,28 @@
 
 				ApplyMapTheme()
 				LeaMapsLC.RefreshMapLines()
+			else
+				-- Blizzard's map frame: the bar stops short of the quest log toggle button in the bottom right corner of the
+				-- map, so the button isn't covered and can be clicked (the button is only looked at, never changed)
+				local function FitBar()
+					local toggle = WorldMapFrame.SidePanelToggle
+					if not toggle then
+						for void, frame in ipairs(WorldMapFrame.overlayFrames or {}) do
+							if frame.OpenButton and frame.CloseButton then toggle = frame break end
+						end
+					end
+					local gap = 0
+					if toggle and toggle:IsShown() then
+						local width = toggle:GetWidth()
+						gap = (width and not (issecretvalue and issecretvalue(width)) and width or 32) + 4
+					end
+					cFrame:ClearAllPoints()
+					cFrame:SetPoint("BOTTOMLEFT", 0, 0)
+					cFrame:SetPoint("BOTTOMRIGHT", -gap, 0)
+				end
+				FitBar()
+				WorldMapFrame:HookScript("OnShow", FitBar)
+				WorldMapFrame.ScrollContainer:HookScript("OnSizeChanged", FitBar)
 			end
 
 			-- Disable coordinates if option is turned off
@@ -5309,26 +5329,62 @@
 				return type(a) == "string" and type(r) == "string" and type(x) == "number" and type(y) == "number"
 			end
 
+			-- The map frame is moved by the addon (not with the game's StartMoving). The game's StartMoving can make the
+			-- map frame jump a long way when dragging starts, so the map frame keeps its own anchor and is moved by the
+			-- distance the pointer has moved since dragging started. The update script only runs while the map frame is
+			-- moving.
+			local StopMapMove -- Defined below
+			local mapMover = CreateFrame("Frame")
+			mapMover:Hide()
+			local dragA, dragR, dragX, dragY, dragCX, dragCY -- Map frame anchor and pointer position when dragging started
+
+			-- Function to get the pointer position in map frame units (nothing if a value is missing or secret)
+			local function GetMapCursor()
+				local x, y = GetCursorPosition()
+				local scale = WorldMapFrame:GetEffectiveScale()
+				if issecretvalue and (issecretvalue(x) or issecretvalue(y) or issecretvalue(scale)) then return end
+				if not x or not y or not scale or scale <= 0 then return end
+				return x / scale, y / scale
+			end
+
+			mapMover:SetScript("OnUpdate", function()
+				-- Stop if the button was let go somewhere the drag stop was not seen or the map frame cannot be changed
+				if not IsMouseButtonDown("LeftButton") or not LeaMapsLC:CanChangeMap() then
+					StopMapMove()
+					return
+				end
+				local cx, cy = GetMapCursor()
+				if not cx then return end
+				WorldMapFrame:SetPoint(dragA, UIParent, dragR, dragX + cx - dragCX, dragY + cy - dragCY)
+			end)
+
 			-- Function to start moving the map frame (not while the map frame cannot be changed)
 			local function StartMapMove()
-				if LeaMapsLC["EnableMovement"] ~= "On" or not LeaMapsLC:CanChangeMap() then return end
-				WorldMapFrame:StartMoving()
-				-- Another addon's frames anchored to the map frame can leave it with no position when moving starts so
-				-- stop moving and put the map frame back at its saved position
-				if not MapHasRect() then
-					WorldMapFrame:StopMovingOrSizing()
-					WorldMapFrame:SetUserPlaced(false)
+				if mapMoving or LeaMapsLC["EnableMovement"] ~= "On" or not LeaMapsLC:CanChangeMap() then return end
+				-- Another addon's frames anchored to the map frame can leave it with no position so put the map frame
+				-- back at its saved position
+				if not MapHasRect() or WorldMapFrame:GetNumPoints() ~= 1 then
 					SetMapPositionFunc()
 					return
 				end
+				local a, rel, r, x, y = WorldMapFrame:GetPoint()
+				if not IsValidMapPoint(a, r, x, y) or (issecretvalue and issecretvalue(rel)) or rel ~= UIParent then
+					SetMapPositionFunc()
+					return
+				end
+				local cx, cy = GetMapCursor()
+				if not cx then return end
+				dragA, dragR, dragX, dragY, dragCX, dragCY = a, r, x, y, cx, cy
 				mapMoving = true
+				mapMover:Show()
 			end
 
 			-- Function to stop moving the map frame and save its position
-			local function StopMapMove()
-				if not mapMoving or not LeaMapsLC:CanChangeMap() then return end
+			StopMapMove = function()
+				if not mapMoving then return end
 				mapMoving = nil
-				WorldMapFrame:StopMovingOrSizing()
+				mapMover:Hide()
+				if not LeaMapsLC:CanChangeMap() then return end
 				WorldMapFrame:SetUserPlaced(false)
 				ClampMapPosition()
 				-- Save map frame position (if it's not valid, put the map frame back at its saved position)
@@ -5900,6 +5956,1088 @@
 		end
 
 		----------------------------------------------------------------------
+		-- Show discovery button
+		----------------------------------------------------------------------
+
+		if Leatrix_Maps["MinimapAreaGrid"] and Leatrix_Maps["MinimapExplore"] then (function() -- Runs in its own function so its locals don't count towards this function's limit of 200
+
+			-- A button on the world map shows or hides the discovery areas: every area of the zone shown that uncovers part of
+			-- the map when it's discovered and that you haven't explored yet, outlined on its real ground (from the terrain
+			-- files, in Leatrix_Maps_Discovery.lua) and numbered.  The option only shows or hides the button (no reload needed).
+			-- Blizzard's frames, pins and tables are only read, never changed.
+
+			local tileSize = 1600 / 3 -- Yards per minimap tile (533.33)
+			local vec = CreateVector2D(0, 0) -- Reused for position lookups
+			local container = WorldMapFrame.ScrollContainer
+			local floor, abs, min, max = math.floor, math.abs, math.min, math.max
+
+			-- Function to check for secret values (frame sizes, scales and positions can be secret in combat)
+			local function IsSecret(a, b, c)
+				if not issecretvalue then return false end
+				return issecretvalue(a) or issecretvalue(b) or issecretvalue(c)
+			end
+
+			-- Private tooltip so we never write to the shared GameTooltip
+			local tip = CreateFrame("GameTooltip", "LeaMapsDiscoveryTooltip", UIParent, "GameTooltipTemplate")
+			tip:SetFrameStrata("TOOLTIP")
+
+			-- With the simple map frame the tooltip is colored like the zone menus (the map theme's list background and
+			-- border, with a border 1 screen pixel wide), otherwise it's a normal tooltip
+			local tipBg = tip:CreateTexture(nil, "BACKGROUND", nil, -8)
+			tipBg:SetTexture("Interface\\Buttons\\WHITE8X8")
+			tipBg:SetAllPoints()
+			tipBg:Hide()
+			local tipLines = {}
+			for i = 1, 4 do
+				tipLines[i] = tip:CreateTexture(nil, "BACKGROUND", nil, -7)
+				tipLines[i]:SetTexture("Interface\\Buttons\\WHITE8X8")
+				tipLines[i]:Hide()
+			end
+			local function StyleTip()
+				local c = mapTheme.popup and mapTheme.popup.colors
+				local themed = c and LeaMapsLC["SimpleMapFrame"] == "On"
+				if tip.NineSlice then tip.NineSlice:SetShown(not themed) end
+				tipBg:SetShown(themed and true or false)
+				for i = 1, 4 do tipLines[i]:SetShown(themed and true or false) end
+				if not themed then return end
+				tipBg:SetVertexColor(c[1], c[2], c[3], c[7])
+				local scale = tip:GetEffectiveScale()
+				local px = 1
+				if scale and not IsSecret(scale) and PixelUtil and PixelUtil.GetNearestPixelSize then px = PixelUtil.GetNearestPixelSize(1, scale, 1) end
+				local top, bottom, left, right = tipLines[1], tipLines[2], tipLines[3], tipLines[4]
+				top:ClearAllPoints(); top:SetPoint("TOPLEFT"); top:SetPoint("TOPRIGHT"); top:SetHeight(px)
+				bottom:ClearAllPoints(); bottom:SetPoint("BOTTOMLEFT"); bottom:SetPoint("BOTTOMRIGHT"); bottom:SetHeight(px)
+				left:ClearAllPoints(); left:SetPoint("TOPLEFT"); left:SetPoint("BOTTOMLEFT"); left:SetWidth(px)
+				right:ClearAllPoints(); right:SetPoint("TOPRIGHT"); right:SetPoint("BOTTOMRIGHT"); right:SetWidth(px)
+				for i = 1, 4 do tipLines[i]:SetVertexColor(c[4], c[5], c[6], 1) end
+			end
+
+			local discEvents, UpdateExplored, CountUnexplored, GetAreaNumbers, RefreshNormalDiscovery, UpdateNormalThickness
+			local UpdateDiscBtn -- Function to update the discovery button (defined below)
+
+			----------------------------------------------------------------------
+			-- Discovery areas
+			----------------------------------------------------------------------
+
+			do
+
+			-- Show discovery areas: every area that uncovers part of the map when it's discovered is outlined on its real ground
+			-- (the 33 yard squares from the terrain files).  Areas still to discover are tinted gold, and explored areas are
+			-- left out.  Only the areas of the zone being looked at are shown, as other zones' areas can't be explored there.
+			-- An area counts as explored when one of the map's overlays that it uncovers has been uncovered
+			-- (C_MapExplorationInfo).  They're drawn on zone and city maps, on a frame of our own on the map canvas (above the
+			-- zone art, below the map icons), and only redrawn when the map or your exploration changes (the map's own zoom
+			-- scales it).
+
+			local GridData, ExploreData = Leatrix_Maps["MinimapAreaGrid"], Leatrix_Maps["MinimapExplore"]
+			local canvas = WorldMapFrame:GetCanvas()
+			local exploreState = {}	-- By instance: {zone = {}, explored = {}, version = n}
+			local tileCache = {}	-- By instance and tile: {palette, squares} and the tile's layout
+			local zoneInst = {}		-- Instance of each zone map
+			local discColors = {
+				unexplored = {1, 1, 1, 0.55},		-- Outline of an area still to discover
+				explored = {1, 1, 1, 0.3},			-- Outline between explored areas
+				exploredFill = {0.2, 1, 0.2, 0.22},	-- Tint over explored areas
+				unexploredFill = {1, 0.75, 0.1, 0.25},	-- Tint over areas still to discover
+			}
+			local drawInfo = {}					-- By frame: what was last drawn on it (for the hover highlight)
+			local hoverZone, DrawHoverHighlight	-- Zone under the pointer and the function to light it up (see below)
+
+			-- Function to check if the discovery areas are shown (the option adds the button, the button shows them)
+			local function DiscActive()
+				return LeaMapsLC["ShowDiscoveryAreas"] == "On" and LeaMapsLC["DiscoveryAreasOn"] == "On" and GridData and ExploreData
+			end
+
+			-- Function to work out which areas on a continent uncover part of the normal map and which have been explored
+			local function UpdateExploredFor(inst)
+				local st = exploreState[inst]
+				-- (byMap: each map's areas and their zones; the same area can uncover overlays on more than one map, such as
+				-- retail's copies of a zone for other phases, so it's kept for each map)
+				if not st then st = {byMap = {}, explored = {}, primary = {}, zoneMap = {}, version = 0}; exploreState[inst] = st end
+				st.byMap = {}; wipe(st.explored); wipe(st.primary); wipe(st.zoneMap)
+				st.version = st.version + 1
+				if not ExploreData then return st end
+				for mapID, overlays in pairs(ExploreData) do
+					if zoneInst[mapID] == nil then
+						local mapInst = C_Map.GetWorldPosFromMapPos(mapID, CreateVector2D(0.5, 0.5))
+						zoneInst[mapID] = mapInst or false
+					end
+					if zoneInst[mapID] == inst then
+						-- Areas that uncover the same overlay are one discovery zone (exploring any of them uncovers it), so each
+						-- area is given the zone of its overlay and outlines are drawn around zones rather than single areas
+						local mapZones = st.byMap[mapID] or {}
+						st.byMap[mapID] = mapZones
+						for key, areaList in pairs(overlays) do
+							local zoneKey = mapID .. ":" .. key
+							st.zoneMap[zoneKey] = mapID
+							for area in string.gmatch(areaList, "%d+") do
+								area = tonumber(area)
+								if not mapZones[area] then mapZones[area] = zoneKey end
+								if not st.primary[zoneKey] then st.primary[zoneKey] = area end -- The overlay's own area (for its name)
+							end
+						end
+						local textures = C_MapExplorationInfo and C_MapExplorationInfo.GetExploredMapTextures(mapID)
+						if textures then
+							for i = 1, #textures do
+								local t = textures[i]
+								local key = t.textureWidth .. ":" .. t.textureHeight .. ":" .. t.offsetX .. ":" .. t.offsetY
+								if overlays[key] then st.explored[mapID .. ":" .. key] = true end
+							end
+						end
+					end
+				end
+				return st
+			end
+			local function GetExploreState(inst)
+				return exploreState[inst] or UpdateExploredFor(inst)
+			end
+
+			-- Function to work the explored areas out again (for every continent seen so far)
+			function UpdateExplored()
+				for inst in pairs(exploreState) do UpdateExploredFor(inst) end
+			end
+
+			-- Function to get a tile's squares: a palette of area IDs and a 256 character string of palette numbers (compact)
+			local function GetTile(inst, key)
+				local byInst = tileCache[inst]
+				if not byInst then byInst = {}; tileCache[inst] = byInst end
+				local tile = byInst[key]
+				if tile ~= nil then return tile or nil end
+				local grid = GridData and GridData[inst] and GridData[inst][key]
+				if not grid then byInst[key] = false; return end
+				local palette, index, chars = {}, {}, {}
+				for area, count in string.gmatch(grid, "(%d+)%*(%d+)") do
+					area = tonumber(area)
+					if not index[area] then palette[#palette + 1] = area; index[area] = #palette end
+					chars[#chars + 1] = string.rep(string.char(index[area]), tonumber(count))
+				end
+				tile = {palette = palette, squares = table.concat(chars)}
+				byInst[key] = tile
+				return tile
+			end
+
+			-- Function to get the area of a square (row and column can step into the next tile), nil if there's no data
+			local function AreaAt(inst, tileX, tileY, row, col)
+				if col > 15 then tileX, col = tileX + 1, col - 16 elseif col < 0 then tileX, col = tileX - 1, col + 16 end
+				if row > 15 then tileY, row = tileY + 1, row - 16 elseif row < 0 then tileY, row = tileY - 1, row + 16 end
+				local tile = GetTile(inst, tileY * 64 + tileX)
+				if not tile then return end
+				local b = string.byte(tile.squares, row * 16 + col + 1)
+				return b and tile.palette[b] or nil
+			end
+
+			-- Function to number every discovery area of a zone or city map, explored or not, so each area always keeps its
+			-- number: from the top left, reading along each row and down like a book (by the middle of each area: the square
+			-- nearest the middle of its squares that's in the area, so it's inside odd shapes too).  Worked out once per map.
+			-- Returns zone key -> number and zone key -> {north, west} world position of its middle.
+			local areaNumbers = {}
+			function GetAreaNumbers(inst, mapID)
+				local cached = areaNumbers[mapID]
+				if cached then return cached[1], cached[2] end
+				if not GridData or not GridData[inst] then return end
+				vec:SetXY(0, 0)
+				local i1, p1 = C_Map.GetWorldPosFromMapPos(mapID, vec)
+				local north, west = p1 and p1.x, p1 and p1.y
+				vec:SetXY(1, 1)
+				local i2, p2 = C_Map.GetWorldPosFromMapPos(mapID, vec)
+				if not north or not p2 or i1 ~= inst or i2 ~= inst then return end
+				local south, east = p2.x, p2.y
+				if north <= south or west <= east then return end
+				local c1, c2 = max(0, floor(32 - west / tileSize)), min(63, floor(32 - east / tileSize))
+				local r1, r2 = max(0, floor(32 - north / tileSize)), min(63, floor(32 - south / tileSize))
+				local st = GetExploreState(inst)
+				local zones = st.byMap[mapID] or {}
+				local sq = tileSize / 16
+				local sums = {}
+				local function Each(fn)
+					for r = r1, r2 do
+						for c = c1, c2 do
+							if GetTile(inst, r * 64 + c) then
+								for row = 0, 15 do
+									for col = 0, 15 do
+										local area = AreaAt(inst, c, r, row, col)
+										local z = area and zones[area]
+										if z then
+											fn(z, (32 - r) * tileSize - (row + 0.5) * sq, (32 - c) * tileSize - (col + 0.5) * sq)
+										end
+									end
+								end
+							end
+						end
+					end
+				end
+				Each(function(z, wx, wy)
+					local t = sums[z]
+					if not t then t = {0, 0, 0}; sums[z] = t end
+					t[1], t[2], t[3] = t[1] + wx, t[2] + wy, t[3] + 1
+				end)
+				for z, t in pairs(sums) do t[4], t[5], t[6] = t[1] / t[3], t[2] / t[3], math.huge end
+				Each(function(z, wx, wy)
+					local t = sums[z]
+					local d = (wx - t[4]) ^ 2 + (wy - t[5]) ^ 2
+					if d < t[6] then t[6], t[7], t[8] = d, wx, wy end
+				end)
+				-- Reading order: rows a sixth of the map tall, top to bottom, then left to right along each row
+				local band = (north - south) / 6
+				local list = {}
+				for z, t in pairs(sums) do
+					list[#list + 1] = {z, floor((north - t[7]) / band), west - t[8]}
+				end
+				table.sort(list, function(a, b)
+					if a[2] ~= b[2] then return a[2] < b[2] end
+					if a[3] ~= b[3] then return a[3] < b[3] end
+					return a[1] < b[1]
+				end)
+				local numbers, centres = {}, {}
+				for i = 1, #list do
+					local z = list[i][1]
+					numbers[z] = i
+					centres[z] = {sums[z][7], sums[z][8]}
+				end
+				areaNumbers[mapID] = {numbers, centres}
+				return numbers, centres
+			end
+
+			-- Function to count the discovery areas of a zone or city map still to discover (nil if it has none), and with
+			-- wantNames, also give every area as {number, name, explored} in number order
+			function CountUnexplored(mapID, wantNames)
+				if not mapID or not ExploreData or not GridData then return end
+				vec:SetXY(0.5, 0.5)
+				local inst = C_Map.GetWorldPosFromMapPos(mapID, vec)
+				if not inst or IsSecret(inst) or not GridData[inst] then return end
+				local st = GetExploreState(inst)
+				local total, left, seen = 0, 0, {}
+				local names = wantNames and {}
+				for area, zone in pairs(st.byMap[mapID] or {}) do
+					if not seen[zone] then
+						seen[zone] = true
+						total = total + 1
+						if not st.explored[zone] then left = left + 1 end
+						if names then
+							local name = C_Map.GetAreaInfo(st.primary[zone] or area)
+							if name and name ~= "" then names[#names + 1] = {zone, name, st.explored[zone] and true or false} end
+						end
+					end
+				end
+				if names then
+					local numbers = GetAreaNumbers(inst, mapID)
+					for i = 1, #names do names[i][1] = numbers and numbers[names[i][1]] or 0 end
+					table.sort(names, function(a, b) return a[1] < b[1] end)
+				end
+				if total > 0 then return left, total, names end
+			end
+
+			-- Function to work out a tile's tints and outlines for the areas of one map (in squares from the tile's north west
+			-- corner, kept until the explored areas or the map change)
+			local function GetTileLayout(inst, tileX, tileY, showMap)
+				local tile = GetTile(inst, tileY * 64 + tileX)
+				if not tile then return end
+				local st = GetExploreState(inst)
+				if tile.version == st.version and tile.forMap == showMap then return tile end
+				local zones, explored = st.byMap[showMap] or {}, st.explored
+				-- Discovery zone of an area (nil if the area doesn't uncover anything on the map) and its state: 0 none, 1 still
+				-- to discover, 2 explored
+				local function ZoneOf(area)
+					local z = area and zones[area]
+					if z then return z end
+				end
+				local function StateOf(area)
+					local z = ZoneOf(area)
+					if not z then return 0 end
+					return explored[z] and 2 or 1
+				end
+				local fills, hLines, vLines = {}, {}, {}
+				-- Tints: runs of squares still to discover (or explored) along each row, joined with the same runs on the rows
+				-- below
+				local open, openInfo = {}, {}
+				for row = 0, 16 do
+					local runs, runInfo = {}, {}
+					if row < 16 then
+						local col = 0
+						while col < 16 do
+							local area = AreaAt(inst, tileX, tileY, row, col)
+							local state = StateOf(area)
+							if state == 1 then -- (explored areas aren't shown)
+								local zone, start = "u", col
+								col = col + 1
+								while col < 16 and StateOf(AreaAt(inst, tileX, tileY, row, col)) == state do col = col + 1 end
+								local run = (start * 16 + (col - 1)) .. "|" .. zone
+								runs[#runs + 1] = run
+								runInfo[run] = {start, col - 1, zone}
+							else
+								col = col + 1
+							end
+						end
+					end
+					local still = {}
+					for i = 1, #runs do still[runs[i]] = true end
+					for run, startRow in pairs(open) do
+						if not still[run] then
+							local info = openInfo[run]
+							fills[#fills + 1] = {info[1], startRow, info[2], row - 1, info[3]}
+							open[run], openInfo[run] = nil, nil
+						end
+					end
+					for i = 1, #runs do
+						local run = runs[i]
+						if not open[run] then open[run] = row; openInfo[run] = runInfo[run] end
+					end
+				end
+				-- Outlines: between squares of different areas where at least one side uncovers part of the map (each tile
+				-- draws the lines along its own squares' east and south sides, and along its west and north edges when there's
+				-- no tile there)
+				local function AddLine(list, fixed, from, to, kind)
+					local last = list[#list]
+					if last and last[1] == fixed and last[3] == from and last[4] == kind then
+						last[3] = to
+					else
+						list[#list + 1] = {fixed, from, to, kind}
+					end
+				end
+				local function EdgeKind(a, b)
+					if a == b or ZoneOf(a) == ZoneOf(b) then return end
+					local sa, sb = StateOf(a), StateOf(b)
+					if sa == 1 or sb == 1 then return 1 end -- Only round areas still to discover (explored ones aren't shown)
+				end
+				local hasWest, hasNorth = GetTile(inst, tileY * 64 + tileX - 1), GetTile(inst, (tileY - 1) * 64 + tileX)
+				-- Vertical lines are worked out down each column and horizontal lines along each row, so neighbouring pieces join
+				for col = 0, 15 do
+					for row = 0, 15 do
+						local kind = EdgeKind(AreaAt(inst, tileX, tileY, row, col), AreaAt(inst, tileX, tileY, row, col + 1))
+						if kind then AddLine(vLines, col + 1, row, row + 1, kind) end
+					end
+				end
+				if not hasWest then
+					for row = 0, 15 do
+						local kind = EdgeKind(AreaAt(inst, tileX, tileY, row, 0), nil)
+						if kind then AddLine(vLines, 0, row, row + 1, kind) end
+					end
+				end
+				for row = 0, 15 do
+					for col = 0, 15 do
+						local kind = EdgeKind(AreaAt(inst, tileX, tileY, row, col), AreaAt(inst, tileX, tileY, row + 1, col))
+						if kind then AddLine(hLines, row + 1, col, col + 1, kind) end
+					end
+				end
+				if not hasNorth then
+					for col = 0, 15 do
+						local kind = EdgeKind(AreaAt(inst, tileX, tileY, 0, col), nil)
+						if kind then AddLine(hLines, 0, col, col + 1, kind) end
+					end
+				end
+				tile.fills, tile.hLines, tile.vLines, tile.version, tile.forMap = fills, hLines, vLines, st.version, showMap
+				return tile
+			end
+
+			-- Function to draw the tints and outlines of the tiles in a range.  ToPos(worldX, worldY) gives a position on the
+			-- frame, unit is one square and thick is the outline thickness (both in the frame's units).  Returns the numbers
+			-- of fills and lines used.
+			local function DrawTiles(inst, c1, c2, r1, r2, frame, fillPool, linePool, ToPos, unit, thick, lineInfo, showMap)
+				local nf, nl = 0, 0
+				local info = drawInfo[frame]
+				if not info then info = {}; drawInfo[frame] = info end
+				info.inst, info.c1, info.c2, info.r1, info.r2, info.ToPos, info.unit = inst, c1, c2, r1, r2, ToPos, unit
+				local function Tex(pool, n, layer)
+					local t = pool[n]
+					if not t then
+						t = frame:CreateTexture(nil, layer)
+						t:SetColorTexture(1, 1, 1, 1)
+						pool[n] = t
+					end
+					return t
+				end
+				for r = r1, r2 do
+					for c = c1, c2 do
+						local tile = GetTileLayout(inst, c, r, showMap)
+						if tile then
+							local x0, y0 = ToPos((32 - r) * tileSize, (32 - c) * tileSize)
+							for i = 1, #tile.fills do
+								local f = tile.fills[i] -- {first column, first row, last column, last row, "" explored or "u" not}
+								nf = nf + 1
+								local t = Tex(fillPool, nf, "ARTWORK")
+								local color = f[5] == "" and discColors.exploredFill or discColors.unexploredFill
+								t:SetVertexColor(color[1], color[2], color[3], color[4])
+								t:ClearAllPoints()
+								t:SetPoint("TOPLEFT", frame, "TOPLEFT", x0 + f[1] * unit, -(y0 + f[2] * unit))
+								t:SetSize((f[3] - f[1] + 1) * unit, (f[4] - f[2] + 1) * unit)
+								t:Show()
+							end
+							for pass = 1, 2 do
+								local list = pass == 1 and tile.vLines or tile.hLines
+								for i = 1, #list do
+									local l = list[i] -- Vertical: {column, from row, to row, kind}; horizontal: {row, from column, to column, kind}
+									nl = nl + 1
+									local t = Tex(linePool, nl, "OVERLAY")
+									local color = l[4] == 1 and discColors.unexplored or discColors.explored
+									t:SetVertexColor(color[1], color[2], color[3], color[4])
+									local x, y, w, h
+									if pass == 1 then
+										x, y, w, h = x0 + l[1] * unit, y0 + l[2] * unit, 0, (l[3] - l[2]) * unit
+									else
+										x, y, w, h = x0 + l[2] * unit, y0 + l[1] * unit, (l[3] - l[2]) * unit, 0
+									end
+									if lineInfo then
+										-- Kept so the thickness can be changed when the normal map is zoomed
+										local info = lineInfo[nl]
+										if not info then info = {}; lineInfo[nl] = info end
+										info[1], info[2], info[3], info[4] = x, y, w, h
+									end
+									t:ClearAllPoints()
+									if w == 0 then
+										t:SetPoint("TOPLEFT", frame, "TOPLEFT", x - thick / 2, -y)
+										t:SetSize(thick, h)
+									else
+										t:SetPoint("TOPLEFT", frame, "TOPLEFT", x, -(y - thick / 2))
+										t:SetSize(w, thick)
+									end
+									t:Show()
+								end
+							end
+						end
+					end
+				end
+				return nf, nl
+			end
+
+			----------------------------------------------------------------------
+			-- Discovery areas on the normal map
+			----------------------------------------------------------------------
+
+			local normFrame = CreateFrame("Frame", nil, canvas)
+			normFrame:SetAllPoints()
+			if normFrame.SetClipsChildren then normFrame:SetClipsChildren(true) end
+			normFrame:Hide()
+			local normFills, normLines, normLineInfo = {}, {}, {}
+			local numNormFills, numNormLines = 0, 0
+			local normThick, normScale = 1.5, 1 -- Outline thickness (canvas units) and the canvas scale it was set for
+			local SetNormalLevel, UpdateHoverOption
+
+			-- Numbers: each area still to discover gets a number in its middle, the same as its place in the discovery button's
+			-- list (sorted by name).  They're on a frame of our own on the outline frame, scaled against the map's zoom so they
+			-- stay the same size on screen.
+			local numFrame = CreateFrame("Frame", nil, normFrame)
+			numFrame:SetPoint("TOPLEFT")
+			numFrame:SetSize(1, 1)
+			local numFont = CreateFont("LeaMapsDiscoveryNumberFont")
+			numFont:SetFont((GameFontNormal:GetFont()), 16, "OUTLINE")
+			numFont:SetTextColor(1, 0.82, 0)
+			local numLabels, numPos, numCount = {}, {}, 0
+
+			local function PlaceNumbers()
+				local s = 1 / normScale
+				numFrame:SetScale(s)
+				for i = 1, numCount do
+					local fs, p = numLabels[i], numPos[i]
+					fs:ClearAllPoints()
+					fs:SetPoint("CENTER", numFrame, "TOPLEFT", p[1] / s, -p[2] / s)
+				end
+			end
+
+			local function HideNormal()
+				for i = 1, numNormFills do normFills[i]:Hide() end
+				for i = 1, numNormLines do normLines[i]:Hide() end
+				numNormFills, numNormLines = 0, 0
+				for i = 1, numCount do numLabels[i]:Hide() end
+				numCount = 0
+				normFrame:Hide()
+			end
+
+			-- Function to show the numbers of a map's areas still to discover (in each area's middle)
+			local function NumberAreas(inst, mapID, ToCanvas)
+				local numbers, centres = GetAreaNumbers(inst, mapID)
+				local st = GetExploreState(inst)
+				local n = 0
+				if numbers then
+					for z, num in pairs(numbers) do
+						if not st.explored[z] then
+							n = n + 1
+							local fs = numLabels[n]
+							if not fs then fs = numFrame:CreateFontString(nil, "OVERLAY"); fs:SetFontObject(numFont); numLabels[n] = fs end
+							fs:SetText(num)
+							local x, y = ToCanvas(centres[z][1], centres[z][2])
+							numPos[n] = numPos[n] or {}
+							numPos[n][1], numPos[n][2] = x, y
+							fs:Show()
+						end
+					end
+				end
+				for i = n + 1, numCount do numLabels[i]:Hide() end
+				numCount = n
+				PlaceNumbers()
+			end
+
+			-- Function to keep the outlines about 1.5 pixels thick whatever the zoom (runs when the normal map is zoomed)
+			function UpdateNormalThickness()
+				if numNormLines == 0 then return end
+				local scale = container:GetCanvasScale()
+				if not scale or IsSecret(scale) or scale <= 0 then return end
+				if abs(scale - normScale) / normScale < 0.1 then return end -- Only when it has changed noticeably
+				normScale = scale
+				normThick = 1.5 / scale
+				PlaceNumbers() -- Numbers stay the same size on screen
+				for i = 1, numNormLines do
+					local info, t = normLineInfo[i], normLines[i]
+					t:ClearAllPoints()
+					if info[3] == 0 then
+						t:SetPoint("TOPLEFT", normFrame, "TOPLEFT", info[1] - normThick / 2, -info[2])
+						t:SetWidth(normThick)
+					else
+						t:SetPoint("TOPLEFT", normFrame, "TOPLEFT", info[1], -(info[2] - normThick / 2))
+						t:SetHeight(normThick)
+					end
+				end
+			end
+
+			-- Function to put the outlines above the zone art and the exploration overlays, below the map icons
+			function SetNormalLevel()
+				local level = canvas:GetFrameLevel() + 2
+				for pin in WorldMapFrame:EnumeratePinsByTemplate("MapExplorationPinTemplate") do
+					local pinLevel = pin:GetFrameLevel()
+					if pinLevel >= level then level = pinLevel + 1 end
+				end
+				if normFrame:GetFrameLevel() ~= level then normFrame:SetFrameLevel(level) end
+			end
+
+			-- Function to draw the discovery areas on the normal map (zone and city maps, when the map or exploration changes)
+			function RefreshNormalDiscovery()
+				HideNormal()
+				UpdateHoverOption()
+				if hoverZone then DrawHoverHighlight(nil) end
+				hoverZone = nil -- Name and highlight are shown again (the map or exploration changed)
+				if not DiscActive() or not WorldMapFrame:IsShown() then return end
+				local mapID = WorldMapFrame:GetMapID()
+				local info = mapID and C_Map.GetMapInfo(mapID)
+				if not info or (info.mapType ~= Enum.UIMapType.Zone and info.mapType ~= Enum.UIMapType.Micro) then return end
+				local layers = C_Map.GetMapArtLayers(mapID)
+				local layerInfo = layers and layers[1]
+				if not layerInfo or not layerInfo.layerWidth or not layerInfo.layerHeight then return end
+				local lw, lh = layerInfo.layerWidth, layerInfo.layerHeight
+				local inst, p00 = C_Map.GetWorldPosFromMapPos(mapID, CreateVector2D(0, 0))
+				local inst11, p11 = C_Map.GetWorldPosFromMapPos(mapID, CreateVector2D(1, 1))
+				if not inst or inst ~= inst11 or not p00 or not p11 or not GridData[inst] then return end
+				local north, west, south, east = p00.x, p00.y, p11.x, p11.y
+				if north <= south or west <= east then return end
+				-- World position to canvas position (the canvas is the map art layer size)
+				local ppx, ppy = lw / (west - east), lh / (north - south)
+				local function ToCanvas(wx, wy) return (west - wy) * ppx, (north - wx) * ppy end
+				local c1, c2 = floor(32 - west / tileSize), floor(32 - east / tileSize)
+				local r1, r2 = floor(32 - north / tileSize), floor(32 - south / tileSize)
+				if c1 < 0 then c1 = 0 end; if c2 > 63 then c2 = 63 end
+				if r1 < 0 then r1 = 0 end; if r2 > 63 then r2 = 63 end
+				if (c2 - c1 + 1) * (r2 - r1 + 1) > 400 then return end
+				local scale = container:GetCanvasScale()
+				if scale and not IsSecret(scale) and scale > 0 then normScale = scale end
+				normThick = 1.5 / normScale
+				local unit = tileSize / 16 * ppx -- One square in canvas units (the canvas keeps the map's proportions)
+				numNormFills, numNormLines = DrawTiles(inst, c1, c2, r1, r2, normFrame, normFills, normLines, ToCanvas, unit, normThick, normLineInfo, mapID)
+				NumberAreas(inst, mapID, ToCanvas)
+				SetNormalLevel()
+				normFrame:Show()
+			end
+
+			-- The exploration pin (explored and unexplored overlays) gets its frame level from the map after the outlines
+			-- are drawn, so the outlines are put back above it whenever its level is set or its overlays are drawn
+			-- (post-hooks only, our own frame is the only thing changed)
+			for pin in WorldMapFrame:EnumeratePinsByTemplate("MapExplorationPinTemplate") do
+				if pin.ApplyFrameLevel then hooksecurefunc(pin, "ApplyFrameLevel", SetNormalLevel) end
+				if pin.RefreshOverlays then hooksecurefunc(pin, "RefreshOverlays", SetNormalLevel) end
+			end
+
+			----------------------------------------------------------------------
+			-- Discovery area name under the pointer
+			----------------------------------------------------------------------
+
+			-- The name of the discovery area under the pointer and whether it's been discovered are shown at the bottom middle
+			-- of the map (our own frame, checked 10 times a second while the map is open and the option is on)
+			local hoverLabel = CreateFrame("Frame", nil, WorldMapFrame.ScrollContainer)
+			hoverLabel:SetPoint("BOTTOM", WorldMapFrame.ScrollContainer, "BOTTOM", 0, 8)
+			hoverLabel:SetSize(10, 24)
+			hoverLabel:EnableMouse(false)
+			hoverLabel.bg = hoverLabel:CreateTexture(nil, "BACKGROUND")
+			hoverLabel.bg:SetAllPoints()
+			hoverLabel.bg:SetColorTexture(0, 0, 0, 0.6)
+			hoverLabel.text = hoverLabel:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+			hoverLabel.text:SetPoint("CENTER")
+			hoverLabel:Hide()
+			local hoverState -- State of the shown zone
+			local hoverVec = CreateVector2D(0, 0)
+
+			-- Hover highlight: the squares of the zone under the pointer are lit up (worked out per tile once per zone)
+			local hlColor = {1, 1, 1, 0.25}
+			local hlPools = {} -- By frame: {textures, number used}
+			function DrawHoverHighlight(zone, onlyFrame)
+				for i = 1, 1 do
+					local frame = normFrame
+					if not onlyFrame or onlyFrame == frame then
+						local pool = hlPools[frame]
+						if not pool then pool = {tex = {}, n = 0}; hlPools[frame] = pool end
+						local n = 0
+						local info = drawInfo[frame]
+						if zone and info and frame:IsShown() then
+							local inst, unit = info.inst, info.unit
+							local st = GetExploreState(inst)
+							local zones = st.byMap[st.zoneMap[zone]] or {}
+							for r = info.r1, info.r2 do
+								for c = info.c1, info.c2 do
+									local tile = GetTile(inst, r * 64 + c)
+									if tile then
+										-- Runs of the zone's squares along each row ({row, first column, last column, ...})
+										if tile.hlZone ~= zone then
+											local runs = {}
+											for row = 0, 15 do
+												local col = 0
+												while col < 16 do
+													if zones[AreaAt(inst, c, r, row, col)] == zone then
+														local start = col
+														col = col + 1
+														while col < 16 and zones[AreaAt(inst, c, r, row, col)] == zone do col = col + 1 end
+														runs[#runs + 1] = row; runs[#runs + 1] = start; runs[#runs + 1] = col - 1
+													else
+														col = col + 1
+													end
+												end
+											end
+											tile.hlZone, tile.hlRuns = zone, runs
+										end
+										local runs = tile.hlRuns
+										if #runs > 0 then
+											local x0, y0 = info.ToPos((32 - r) * tileSize, (32 - c) * tileSize)
+											for j = 1, #runs, 3 do
+												n = n + 1
+												local t = pool.tex[n]
+												if not t then
+													t = frame:CreateTexture(nil, "ARTWORK", nil, 1)
+													t:SetColorTexture(hlColor[1], hlColor[2], hlColor[3], hlColor[4])
+													pool.tex[n] = t
+												end
+												t:ClearAllPoints()
+												t:SetPoint("TOPLEFT", frame, "TOPLEFT", x0 + runs[j + 1] * unit, -(y0 + runs[j] * unit))
+												t:SetSize((runs[j + 2] - runs[j + 1] + 1) * unit, unit)
+												t:Show()
+											end
+										end
+									end
+								end
+							end
+						end
+						for j = n + 1, pool.n do pool.tex[j]:Hide() end
+						pool.n = n
+					end
+				end
+			end
+
+			local function HideHover()
+				hoverLabel:Hide()
+				if hoverZone then DrawHoverHighlight(nil) end
+				hoverZone, hoverState = nil, nil
+			end
+
+			-- Function to get the instance and world position under the pointer on a zone map, nil if none
+			local function GetPointerWorld()
+				if not normFrame:IsShown() or not container:IsMouseOver() then return end
+				local x, y = container:GetNormalizedCursorPosition()
+				if IsSecret(x, y) or not x or not y or x < 0 or x > 1 or y < 0 or y > 1 then return end
+				local mapID = WorldMapFrame:GetMapID()
+				if not mapID then return end
+				hoverVec:SetXY(x, y)
+				local inst, pos = C_Map.GetWorldPosFromMapPos(mapID, hoverVec)
+				if not inst or not pos or IsSecret(pos.x, pos.y) then return end
+				return inst, pos.x, pos.y, mapID
+			end
+
+			-- Function to show text in the label (placed just above the coordinates bar when it's inside the map, otherwise at
+			-- the bottom of the map, and kept above the map)
+			local function ShowHoverText(text)
+				hoverLabel.text:SetText(text)
+				hoverLabel:SetWidth(hoverLabel.text:GetStringWidth() + 16)
+				hoverLabel:ClearAllPoints()
+				local bar = LeaMapsLC.coordsBar
+				local barBottom, mapBottom = bar and bar:IsShown() and bar:GetBottom(), WorldMapFrame.ScrollContainer:GetBottom()
+				if barBottom and mapBottom and not IsSecret(barBottom, mapBottom) and barBottom >= mapBottom - 2 then
+					hoverLabel:SetPoint("BOTTOM", bar, "TOP", 0, 4)
+				else
+					hoverLabel:SetPoint("BOTTOM", WorldMapFrame.ScrollContainer, "BOTTOM", 0, 8)
+				end
+				local level = WorldMapFrame.ScrollContainer:GetFrameLevel()
+				hoverLabel:SetFrameLevel(min(level + 30, 9900))
+				hoverLabel:Show()
+			end
+
+			local function UpdateHover()
+				if not DiscActive() then HideHover(); return end
+				local inst, wx, wy, showMap = GetPointerWorld()
+				if not inst or not GridData[inst] then HideHover(); return end
+				local fx, fy = 32 - wy / tileSize, 32 - wx / tileSize
+				local tx, ty = floor(fx), floor(fy)
+				local area = AreaAt(inst, tx, ty, floor((fy - ty) * 16), floor((fx - tx) * 16))
+				local st = GetExploreState(inst)
+				local zone = area and st.byMap[showMap] and st.byMap[showMap][area]
+				if not zone then HideHover(); return end -- Only areas of the zone being looked at
+				if st.explored[zone] then HideHover(); return end -- Explored areas aren't shown
+				local state = 1
+				if zone == hoverZone and state == hoverState and hoverLabel:IsShown() then return end
+				local name = C_Map.GetAreaInfo(st.primary[zone] or area)
+				if not name or name == "" then HideHover(); return end
+				-- With the area's number, the same as on the map and in the discovery button's list
+				local numbers = GetAreaNumbers(inst, showMap)
+				local num = numbers and numbers[zone]
+				if num then ShowHoverText("|cffffd100" .. num .. ".|r " .. name) else ShowHoverText(name) end
+				if zone ~= hoverZone then DrawHoverHighlight(zone) end
+				hoverZone, hoverState = zone, state
+			end
+
+			-- Driver (a child of the world map, so it only runs while the map is open)
+			local hoverDriver = CreateFrame("Frame", nil, WorldMapFrame)
+			hoverDriver:Hide()
+			local hoverElapsed = 0
+			hoverDriver:SetScript("OnUpdate", function(self, elapsed)
+				hoverElapsed = hoverElapsed + elapsed
+				if hoverElapsed < 0.1 then return end
+				hoverElapsed = 0
+				UpdateHover()
+			end)
+			hoverDriver:SetScript("OnHide", HideHover)
+
+			-- Function to start the label (only while the discovery areas are shown)
+			function UpdateHoverOption()
+				HideHover()
+				hoverDriver:SetShown(DiscActive() and true or false)
+			end
+
+			-- Exploration changes (registered while the map is open)
+			discEvents = CreateFrame("Frame")
+			discEvents:SetScript("OnEvent", function()
+				UpdateExplored()
+				if WorldMapFrame:IsShown() then RefreshNormalDiscovery(); UpdateDiscBtn() end -- (the button locks when a zone is fully explored)
+			end)
+
+			end
+
+			----------------------------------------------------------------------
+			-- Discovery button (shows or hides the discovery areas)
+			----------------------------------------------------------------------
+
+			-- Function to make a map button round like a minimap button (the parts are sized to the button whenever its size
+			-- changes, in the same proportions as a 31 pixel minimap button).  btn.on is a gold glow shown while it's switched on.
+			local function StyleRoundButton(btn, icon)
+				btn.bg = btn:CreateTexture(nil, "BACKGROUND")
+				btn.bg:SetTexture("Interface\\Minimap\\UI-Minimap-Background")
+				btn.icon = btn:CreateTexture(nil, "ARTWORK")
+				btn.icon:SetTexture(icon)
+				btn.icon:SetTexCoord(0.05, 0.95, 0.05, 0.95)
+				if btn.icon.SetMask then btn.icon:SetMask("Interface\\CharacterFrame\\TempPortraitAlphaMask") end
+				btn.border = btn:CreateTexture(nil, "OVERLAY")
+				btn.border:SetTexture("Interface\\Minimap\\MiniMap-TrackingBorder")
+				btn.on = btn:CreateTexture(nil, "OVERLAY", nil, 1)
+				btn.on:SetAllPoints()
+				btn.on:SetTexture("Interface\\Minimap\\UI-Minimap-ZoomButton-Highlight")
+				btn.on:SetBlendMode("ADD")
+				btn.on:SetVertexColor(1, 0.82, 0)
+				btn.on:Hide()
+				btn:SetHighlightTexture("Interface\\Minimap\\UI-Minimap-ZoomButton-Highlight", "ADD")
+				if btn.SetMotionScriptsWhileDisabled then btn:SetMotionScriptsWhileDisabled(true) end -- Tooltip still shows when locked out
+				local function Layout(self, w)
+					if not w or IsSecret(w) or w <= 0 then return end
+					if self.inTitle then
+						-- Title bar look: a simple white symbol, like the maximise and close buttons
+						if self.glyph then self.glyph:SetSize(w * 0.8, w * 0.8) end
+						return
+					end
+					local k = w / 31
+					self.border:ClearAllPoints(); self.border:SetPoint("TOPLEFT", 0, 0); self.border:SetSize(53 * k, 53 * k)
+					self.bg:ClearAllPoints(); self.bg:SetPoint("TOPLEFT", 7 * k, -5 * k); self.bg:SetSize(20 * k, 20 * k)
+					self.icon:ClearAllPoints(); self.icon:SetPoint("TOPLEFT", 7 * k, -6 * k); self.icon:SetSize(17 * k, 17 * k)
+				end
+				btn:SetScript("OnSizeChanged", Layout)
+				Layout(btn, 32)
+			end
+
+			-- Function to switch the button between the round minimap look and the title bar look (a simple symbol like the
+			-- maximise and close buttons next to it: mountains, from Leatrix_Maps.blp).  With the simple map
+			-- frame the symbol is colored by the map theme the same way as the maximise and close buttons (the theme's icon
+			-- color, and the theme's hover box with a white symbol under the pointer), and while the button is switched on it
+			-- keeps the hover box.  With Blizzard's map frame the symbol is light grey, white under the pointer and gold while
+			-- switched on.
+			local glyphFile = "Interface\\AddOns\\Leatrix_Maps\\Leatrix_Maps"
+			local function ApplyTitleLook(btn)
+				if btn.inTitle then
+					btn.on:SetAlpha(0)
+					local on = btn.on:IsShown() and btn.available
+					local hover = btn:IsMouseOver() and btn.available
+					local entry = btn.themeEntry
+					if entry and not mapTheme.blizzard then -- (the Blizzard theme has no flat buttons, so the plain look is used)
+						entry.box:SetShown(on or hover)
+						if on or hover then btn.glyph:SetVertexColor(1, 1, 1) else btn.glyph:SetVertexColor(unpack(entry.color)) end
+					elseif on then
+						btn.glyph:SetVertexColor(1, 0.82, 0)
+					elseif hover then
+						btn.glyph:SetVertexColor(1, 1, 1)
+					else
+						btn.glyph:SetVertexColor(0.8, 0.8, 0.8)
+					end
+					if entry and mapTheme.blizzard then entry.box:Hide() end
+				else
+					btn.on:SetAlpha(1)
+					if btn.themeEntry then btn.themeEntry.box:Hide() end
+				end
+			end
+			local function SetTitleLook(btn, inTitle)
+				inTitle = inTitle and true or nil
+				if btn.glyphCoords and not btn.glyph then
+					btn.glyph = btn:CreateTexture(nil, "ARTWORK")
+					btn.glyph:SetTexture(glyphFile)
+					btn.glyph:SetTexCoord(unpack(btn.glyphCoords))
+					btn.glyph:SetPoint("CENTER")
+					btn:HookScript("OnEnter", ApplyTitleLook)
+					btn:HookScript("OnLeave", ApplyTitleLook)
+					-- With the simple map frame, join the map theme's title bar buttons (it colors the symbol and hover box)
+					if ApplyMapTheme and mapTheme.buttons then
+						local box = btn:CreateTexture(nil, "BACKGROUND")
+						box:SetAllPoints()
+						box:SetTexture("Interface\\Buttons\\WHITE8X8")
+						box:Hide()
+						-- The theme colors its buttons' icons and shows or hides them (and the game's button art, art) for the
+						-- Blizzard theme, so it's given a stand-in icon of our own (never seen): its color is copied to the
+						-- symbol, and when it's shown or hidden the button's look is worked out again
+						local standIn = btn:CreateTexture(nil, "BACKGROUND")
+						standIn:SetAlpha(0)
+						hooksecurefunc(standIn, "SetVertexColor", function(self, r, g, b)
+							if btn.inTitle and not mapTheme.blizzard and not box:IsShown() then btn.glyph:SetVertexColor(r, g, b) end
+						end)
+						hooksecurefunc(standIn, "SetShown", function() ApplyTitleLook(btn) end)
+						btn.themeEntry = {box = box, icon = standIn, color = {0.8, 0.8, 0.8}, art = {}}
+						-- Start with the same colors as the close button (the theme isn't applied again here, as that lays out
+						-- the whole frame again; later theme changes color these buttons with the others)
+						local first = mapTheme.buttons[1]
+						if first then
+							if first.color then btn.themeEntry.color = {first.color[1], first.color[2], first.color[3]} end
+							if first.box then box:SetVertexColor(first.box:GetVertexColor()) end
+						end
+						mapTheme.buttons[#mapTheme.buttons + 1] = btn.themeEntry
+					end
+				end
+				if not btn.glyph then inTitle = nil end
+				btn.inTitle = inTitle
+				btn.border:SetShown(not inTitle)
+				btn.bg:SetShown(not inTitle)
+				btn.icon:SetShown(not inTitle)
+				if btn.glyph then btn.glyph:SetShown(inTitle and true or false) end
+				local highlight = btn:GetHighlightTexture()
+				if highlight then highlight:SetAlpha(inTitle and 0 or 1) end
+				local layout = btn:GetScript("OnSizeChanged")
+				if layout then layout(btn, btn:GetWidth()) end
+			end
+
+			-- Function to lock out a map button and dim it when it can't be used on the map shown (it stays on the map)
+			local function SetButtonAvailable(btn, available)
+				btn:SetEnabled(available)
+				btn.icon:SetDesaturated(not available)
+				btn:SetAlpha(available and 1 or 0.5)
+				if not available then btn.on:Hide() end
+			end
+
+			local discBtn = CreateFrame("Button", nil, container)
+			discBtn:SetSize(32, 32)
+			StyleRoundButton(discBtn, "Interface\\Icons\\Ability_Hunter_Pathfinding") -- Compass (exploring)
+			discBtn.glyphCoords = {0.75, 1, 0.5, 1} -- Mountains in Leatrix_Maps.blp (title bar look)
+			discBtn:Hide()
+
+			-- Function to place the button in the title bar, to the left of the maximise button with a gap (in retail the top
+			-- right corner of the map has Blizzard's filter and map pin buttons).  It's drawn just above the maximise button
+			-- (same strata, one level up).  If the maximise button isn't showing, it goes in the bottom left corner of the
+			-- map, above the coordinates footer when that's inside the map there.  Blizzard's buttons and the footer are only
+			-- looked at, never changed.
+			local function PlaceDiscBtn()
+				discBtn:ClearAllPoints()
+				discBtn.titleLevel = nil
+				local maxButton = WorldMapFrame.BorderFrame and WorldMapFrame.BorderFrame.MaximizeMinimizeFrame
+				if maxButton and maxButton:IsVisible() then
+					local size = maxButton:GetHeight()
+					if not size or IsSecret(size) or size < 12 or size > 32 then size = 22 end
+					discBtn:SetSize(size, size) -- (the same size as the maximise button)
+					SetTitleLook(discBtn, true)
+					-- With the simple map frame and the quest log open, the quest log's search box and settings button are in
+					-- the title bar next to the maximise button, so the button goes at the right end of the map's part of the
+					-- title bar instead (worked out from their positions, still lined up with the maximise button)
+					local dx = -14
+					if LeaMapsLC["SimpleMapFrame"] == "On" and QuestMapFrame and QuestMapFrame:IsShown() then
+						local right, mLeft = container:GetRight(), maxButton:GetLeft()
+						local cScale, mScale, bScale = container:GetEffectiveScale(), maxButton:GetEffectiveScale(), discBtn:GetEffectiveScale()
+						if right and mLeft and cScale and mScale and bScale and not IsSecret(right, mLeft, cScale) and not IsSecret(mScale, bScale) and bScale > 0 then
+							local d = (right * cScale - mLeft * mScale) / bScale - 4
+							if d < -14 then dx = d end
+						end
+					end
+					discBtn:SetPoint("RIGHT", maxButton, "LEFT", dx, 0)
+					discBtn:SetFrameStrata(maxButton:GetFrameStrata())
+					local level = maxButton:GetFrameLevel()
+					discBtn.titleLevel = (level and not IsSecret(level) and level or 10) + 1
+					return
+				end
+				discBtn:SetFrameStrata(container:GetFrameStrata())
+				-- Round like a minimap button and the same size (like the map buttons other addons add)
+				SetTitleLook(discBtn, false)
+				discBtn:SetSize(31, 31)
+				local off = 4
+				local footer = mapTheme.footerFrame
+				local bottom, left, scale = container:GetBottom(), container:GetLeft(), container:GetEffectiveScale()
+				if footer and footer:IsShown() and bottom and left and scale and not IsSecret(bottom, left, scale) and scale > 0 then
+					local top, fLeft, fScale = footer:GetTop(), footer:GetLeft(), footer:GetEffectiveScale()
+					if top and fLeft and fScale and not IsSecret(top, fLeft, fScale) and fLeft * fScale / scale < left + 40 then
+						local height = top * fScale / scale - bottom
+						if height > 0 and height < 80 then off = height + 3 end
+					end
+				end
+				discBtn:SetPoint("BOTTOMLEFT", container, "BOTTOMLEFT", 4, off)
+			end
+
+			-- Function to show the button while the option is on.  It can only be used on zone and city maps, so elsewhere,
+			-- and while a dungeon map is shown, it's locked out and dimmed.
+			function UpdateDiscBtn()
+				if LeaMapsLC["ShowDiscoveryAreas"] ~= "On" or not Leatrix_Maps["MinimapAreaGrid"] or not Leatrix_Maps["MinimapExplore"] then
+					discBtn:Hide()
+					return
+				end
+				local mapID = WorldMapFrame:GetMapID()
+				local info = mapID and C_Map.GetMapInfo(mapID)
+				local onZone = info and (info.mapType == Enum.UIMapType.Zone or info.mapType == Enum.UIMapType.Micro)
+				-- Why it's locked out (shown in its tooltip), nil when it can be used
+				if LeaMapsLC.IsDungeonMapShown and LeaMapsLC.IsDungeonMapShown() then
+					discBtn.reason = L["Not available while a dungeon map is shown."]
+				elseif not onZone then
+					discBtn.reason = L["Only available on zone maps."]
+				else
+					discBtn.reason = nil
+					-- Locked when the zone has no discovery areas, or you've explored them all
+					local left = CountUnexplored(mapID)
+					if not left then
+						discBtn.reason = L["This zone has no discovery areas."]
+					elseif left == 0 then
+						discBtn.reason = L["You have explored every area in this zone."]
+					end
+				end
+				discBtn.available = not discBtn.reason
+				PlaceDiscBtn()
+				local level = discBtn.titleLevel
+				if not level then
+					local top = 2000
+					local manager = WorldMapFrame.GetPinFrameLevelsManager and WorldMapFrame:GetPinFrameLevelsManager()
+					if manager and manager.GetValidFrameLevel then top = manager:GetValidFrameLevel("PIN_FRAME_LEVEL_TOPMOST", 1000) or top end
+					level = min(top + 150, 9500)
+				end
+				discBtn:SetFrameLevel(level)
+				discBtn.on:SetShown(LeaMapsLC["DiscoveryAreasOn"] == "On")
+				SetButtonAvailable(discBtn, discBtn.available)
+				ApplyTitleLook(discBtn)
+				discBtn:Show()
+			end
+
+			discBtn:SetScript("OnClick", function(self)
+				LeaMapsLC["DiscoveryAreasOn"] = LeaMapsLC["DiscoveryAreasOn"] == "On" and "Off" or "On"
+				RefreshNormalDiscovery()
+				UpdateDiscBtn()
+				if self:IsMouseOver() then self:GetScript("OnEnter")(self) end
+			end)
+
+			-- Function to line up the names of a numbered list in the tooltip (each name goes just after the widest number; the
+			-- tooltip is our own, and the lines are put back as they were when it's cleared)
+			local listAnchors = {}
+			local function AlignTipList(first, last)
+				local numWidth = 0
+				for i = first, last do
+					local left = _G["LeaMapsDiscoveryTooltipTextLeft" .. i]
+					if left then numWidth = max(numWidth, left:GetStringWidth()) end
+				end
+				for i = first, last do
+					local left, right = _G["LeaMapsDiscoveryTooltipTextLeft" .. i], _G["LeaMapsDiscoveryTooltipTextRight" .. i]
+					if left and right then
+						if not listAnchors[i] then listAnchors[i] = {right:GetPoint(1)} end
+						right:ClearAllPoints()
+						right:SetPoint("LEFT", left, "LEFT", numWidth + 6, 0)
+						right:SetJustifyH("LEFT")
+					end
+				end
+			end
+			tip:HookScript("OnTooltipCleared", function()
+				for i, p in pairs(listAnchors) do
+					local right = _G["LeaMapsDiscoveryTooltipTextRight" .. i]
+					if right and p[1] then
+						right:ClearAllPoints()
+						right:SetPoint(p[1], p[2], p[3], p[4], p[5])
+						right:SetJustifyH("RIGHT")
+					end
+					listAnchors[i] = nil
+				end
+			end)
+			local listFirst, listLast
+
+			discBtn:SetScript("OnEnter", function(self)
+				tip:SetScale(GameTooltip:GetScale())
+				tip:SetOwner(self, discBtn.titleLevel and "ANCHOR_BOTTOM" or "ANCHOR_LEFT") -- (below it in the title bar)
+				tip:SetText(L["Discovery areas"])
+				if LeaMapsLC["DiscoveryAreasOn"] == "On" then
+					-- (the areas left are listed below)
+				else
+					tip:AddLine(L["Click to show discovery areas you have not explored yet."] .. "  " .. L["Enter each area to fully explore a zone."], 1, 1, 1, true)
+				end
+				-- How many areas of the zone shown are still to discover
+				if self.available and LeaMapsLC["DiscoveryAreasOn"] == "On" then -- (only with the hide tip, while the areas show)
+					local left, total, names = CountUnexplored(WorldMapFrame:GetMapID(), true)
+					if left and left > 0 then
+						-- Numbered list (numbers on the left, names lined up after them)
+						listFirst = tip:NumLines() + 1
+						for i = 1, #names do
+							if names[i][3] then
+								tip:AddDoubleLine(names[i][1] .. ".", names[i][2], 0.5, 0.5, 0.5, 0.5, 0.5, 0.5) -- Explored
+							else
+								tip:AddDoubleLine(names[i][1] .. ".", names[i][2], 1, 0.82, 0, 1, 1, 1)
+							end
+						end
+						listLast = tip:NumLines()
+					end
+				end
+				if self.reason then tip:AddLine(self.reason, 0.4, 0.75, 1, true) end -- Why it's locked out
+				tip:Show()
+				if listFirst then AlignTipList(listFirst, listLast); listFirst, listLast = nil, nil end
+				StyleTip()
+			end)
+			discBtn:SetScript("OnLeave", function() tip:Hide() end)
+
+			----------------------------------------------------------------------
+			-- Updates
+			----------------------------------------------------------------------
+
+			-- Update when the map changes and when the map is shown (post-hooks only)
+			hooksecurefunc(WorldMapFrame, "OnMapChanged", function()
+				UpdateDiscBtn()
+				RefreshNormalDiscovery()
+			end)
+			-- Thickness follows the zoom, and exploration changes are followed while the map is open
+			hooksecurefunc(WorldMapFrame, "OnCanvasScaleChanged", UpdateNormalThickness)
+			WorldMapFrame:HookScript("OnHide", function() discEvents:UnregisterAllEvents() end)
+			WorldMapFrame:HookScript("OnShow", function()
+				UpdateExplored()
+				discEvents:RegisterEvent("MAP_EXPLORATION_UPDATED")
+				RefreshNormalDiscovery()
+				UpdateDiscBtn()
+			end)
+
+			-- Move the button when the quest log is opened or closed (it changes what's in the title bar)
+			if QuestMapFrame then
+				QuestMapFrame:HookScript("OnShow", function() if WorldMapFrame:IsShown() then UpdateDiscBtn() end end)
+				QuestMapFrame:HookScript("OnHide", function() if WorldMapFrame:IsShown() then UpdateDiscBtn() end end)
+			end
+
+			-- Show or hide the button (and the areas) when the option is clicked
+			LeaMapsCB["ShowDiscoveryAreas"]:HookScript("OnClick", function()
+				RefreshNormalDiscovery()
+				UpdateDiscBtn()
+			end)
+			if WorldMapFrame:IsShown() then UpdateDiscBtn() end
+
+		end)() end
+
+		----------------------------------------------------------------------
 		-- Set keybindings (no reload required)
 		----------------------------------------------------------------------
 
@@ -6305,7 +7443,7 @@
 
 		-- Set frame parameters
 		Side:Hide()
-		Side:SetSize(470, 400)
+		Side:SetSize(470, 420)
 		Side:SetClampedToScreen(true)
 		Side:SetFrameStrata("FULLSCREEN_DIALOG")
 		Side:SetFrameLevel(20)
@@ -6374,7 +7512,7 @@
 
 		-- Set textures
 		LeaMapsLC:CreateBar("FootTexture", Side, 470, 48, "BOTTOM", 0.5, 0.5, 0.5, 1.0, "Interface\\ACHIEVEMENTFRAME\\UI-GuildAchievement-Parchment-Horizontal-Desaturated.png")
-		LeaMapsLC:CreateBar("MainTexture", Side, 470, 383, "TOPRIGHT", 0.7, 0.7, 0.7, 0.7,  "Interface\\ACHIEVEMENTFRAME\\UI-GuildAchievement-Parchment-Horizontal-Desaturated.png")
+		LeaMapsLC:CreateBar("MainTexture", Side, 470, 403, "TOPRIGHT", 0.7, 0.7, 0.7, 0.7,  "Interface\\ACHIEVEMENTFRAME\\UI-GuildAchievement-Parchment-Horizontal-Desaturated.png")
 
 		-- Allow movement
 		Side:EnableMouse(true)
@@ -6937,6 +8075,434 @@
 					WorldMapFrame:SetMapID(tonumber(arg1))
 				end
 				return
+			elseif str == "arrow" then
+				-- Zone crossing arrow tool for Leatrix Maps
+				-- /ltm arrow toggles the tool, /ltm arrow x y [rotation] places it (for example, to check an existing line)
+				if not WorldMapFrame or not WorldMapFrame.GetCanvas or not WorldMapFrame.ScrollContainer then
+					LeaMapsLC:Print("The world map is not available.")
+					return
+				end
+				local tool = LeaMapsLC.ArrowTool
+				if not tool then
+					local canvas = WorldMapFrame:GetCanvas()
+					local container = WorldMapFrame.ScrollContainer
+					local floor, sin, cos, abs, format = math.floor, math.sin, math.cos, math.abs, string.format
+					local poiScale = 0.7 -- Same scale as Leatrix Maps points of interest
+
+					tool = {x = 50, y = 50, rot = 0, line = ""}
+					LeaMapsLC.ArrowTool = tool
+
+					-- Values are rounded as they change, so the arrow on the map is always exactly where the printed line puts it
+					local function Round(v, places) local m = 10 ^ places return floor(v * m + 0.5) / m end
+					local function Clamp(v) if v < 0 then return 0 elseif v > 100 then return 100 end return v end
+					local function FormatRot(r)
+						if r == 0 then return "0" end
+						if abs(r * 10 - floor(r * 10 + 0.5)) < 0.0001 then return format("%.1f", r) end
+						return format("%.2f", r)
+					end
+
+					-- Guess the zone the arrow points into by stepping out from the arrow in the direction it points
+					local function GuessDestination(mapID, x, y, rot)
+						if not mapID or not C_Map.GetWorldPosFromMapPos or not C_Map.GetMapPosFromWorldPos or not C_Map.GetMapInfoAtPosition or not MapUtil or not MapUtil.GetMapParentInfo then return end
+						local parent = MapUtil.GetMapParentInfo(mapID, Enum.UIMapType.Continent, true)
+						if not parent then return end
+						local instanceID, worldPos = C_Map.GetWorldPosFromMapPos(mapID, CreateVector2D(x / 100, y / 100))
+						if not instanceID or not worldPos then return end
+						-- World x is north and world y is west, and the rotation is anticlockwise from north
+						local wx, wy = worldPos:GetXY()
+						local dx, dy = cos(rot), sin(rot)
+						for d = 20, 400, 20 do
+							local _, contPos = C_Map.GetMapPosFromWorldPos(instanceID, CreateVector2D(wx + dx * d, wy + dy * d), parent.mapID)
+							if contPos then
+								local cx, cy = contPos:GetXY()
+								local info = C_Map.GetMapInfoAtPosition(parent.mapID, cx, cy)
+								if info and info.mapID ~= mapID and info.mapType == Enum.UIMapType.Zone then
+									return info.name, info.mapID
+								end
+							end
+						end
+					end
+
+					----------------------------------------------------------------------
+					-- Icon types (same artwork and sizes as Leatrix Maps points of interest, and the line each one makes)
+					----------------------------------------------------------------------
+
+					local ltmTex = "Interface\\AddOns\\Leatrix_Maps\\Leatrix_Maps.blp"
+					local Icons = {
+						Arrow = {atlas = "Garr_LevelUpgradeArrow", width = 48, height = 54},
+						Dungeon = {atlas = "Dungeon", size = 46},
+						Raid = {atlas = "Raid", size = 46},
+						Dunraid = {texture = ltmTex, size = 46, left = 0.375, right = 0.5, top = 0.375, bottom = 0.5},
+						FlightA = {atlas = "TaxiNode_Alliance", size = 30},
+						FlightH = {atlas = "TaxiNode_Horde", size = 30},
+						FlightN = {atlas = "TaxiNode_Neutral", size = 30},
+						Spirit = {atlas = "Vehicle-TempleofKotmogu-GreenBall", size = 28},
+						TravelA = {texture = ltmTex, size = 46, left = 0, right = 0.125, top = 0.375, bottom = 0.5},
+						TravelH = {texture = ltmTex, size = 46, left = 0.125, right = 0.25, top = 0.375, bottom = 0.5},
+						TravelN = {texture = ltmTex, size = 46, left = 0.25, right = 0.375, top = 0.375, bottom = 0.5},
+						PortalA = {atlas = "MagePortalAlliance", size = 32},
+						PortalH = {atlas = "MagePortalHorde", size = 32},
+						PortalN = {atlas = "MagePortalAlliance", size = 32},
+					}
+
+					-- Each type builds its line from x, y, rotation, destination name and map ID, and the current zone name
+					local function Travel(kind, prefix, tex)
+						return function(x, y) return format('{"%s", %s, %s, L["%s"] .. " " .. L["Destination"], nil, %s, nil, nil, nil, nil, nil, 0, nil},', kind, x, y, prefix, tex) end
+					end
+					local function Flight(kind, tex)
+						return function(x, y, r, dn, did, zone) return format('{"%s", %s, %s, L["Flight point"] .. ", " .. L["%s"], nil, %s, nil, nil},', kind, x, y, zone or "Zone", tex) end
+					end
+					local Types = {
+						{name = "Zone crossing", kind = "Arrow", rotate = true, build = function(x, y, r, dn, did) return format('{"Arrow", %s, %s, L["%s"], nil, arTex, nil, nil, nil, nil, nil, %s, %s},', x, y, dn or "Destination", r, did and tostring(did) or "nil") end},
+						{name = "Dungeon", kind = "Dungeon", build = function(x, y) return format('{"Dungeon", %s, %s, L["Dungeon name"], L["Dungeon"], dnTex, nil, nil},', x, y) end},
+						{name = "Raid", kind = "Raid", build = function(x, y) return format('{"Raid", %s, %s, L["Raid name"], L["Raid"], rdTex, nil, nil},', x, y) end},
+						{name = "Dungeons and raids", kind = "Dunraid", build = function(x, y) return format('{"Dunraid", %s, %s, L["Place name"], L["Dungeon and raid names"], dnTex, nil, nil},', x, y) end},
+						{name = "Flight point (Alliance)", kind = "FlightA", build = Flight("FlightA", "tATex")},
+						{name = "Flight point (Horde)", kind = "FlightH", build = Flight("FlightH", "tHTex")},
+						{name = "Flight point (Neutral)", kind = "FlightN", build = Flight("FlightN", "tNTex")},
+						{name = "Spirit healer", kind = "Spirit", build = function(x, y) return format('{"Spirit", %s, %s, L["Spirit Healer"], nil, spTex, nil, nil},', x, y) end},
+						{name = "Boat (Alliance)", kind = "TravelA", build = Travel("TravelA", "Boat to", "fATex")},
+						{name = "Boat (Horde)", kind = "TravelH", build = Travel("TravelH", "Boat to", "fHTex")},
+						{name = "Boat (Neutral)", kind = "TravelN", build = Travel("TravelN", "Boat to", "fNTex")},
+						{name = "Zeppelin (Horde)", kind = "TravelH", build = Travel("TravelH", "Zeppelin to", "fHTex")},
+						{name = "Tram (Alliance)", kind = "TravelA", build = Travel("TravelA", "Tram to", "fATex")},
+						{name = "Portal (Alliance)", kind = "PortalA", build = Travel("PortalA", "Portal to", "fATex")},
+						{name = "Portal (Horde)", kind = "PortalH", build = Travel("PortalH", "Portal to", "fHTex")},
+						{name = "Portal (Neutral)", kind = "PortalN", build = Travel("PortalN", "Portal to", "fNTex")},
+					}
+					tool.type = 1
+
+					-- Put an icon's artwork on a texture
+					local function SetIconTexture(tex, icon)
+						tex:SetTexture(nil)
+						tex:SetTexCoord(0, 1, 0, 1)
+						if icon.atlas then
+							tex:SetAtlas(icon.atlas)
+						else
+							tex:SetTexture(icon.texture)
+							if icon.left then tex:SetTexCoord(icon.left, icon.right, icon.top, icon.bottom) end
+						end
+					end
+
+					----------------------------------------------------------------------
+					-- Marker (same artwork, size, scale and anchor as Leatrix Maps pins)
+					----------------------------------------------------------------------
+
+					local f = CreateFrame("Frame", nil, canvas)
+					f:SetSize(48, 54)
+					-- Drawn above every other map icon so it can never get stuck underneath one
+					f:SetFrameStrata("FULLSCREEN_DIALOG")
+					f:SetFrameLevel(5000)
+					f:SetToplevel(true)
+					f:EnableMouse(true)
+					f:EnableMouseWheel(true)
+					f:Hide()
+
+					f.t = f:CreateTexture(nil, "ARTWORK")
+					f.t:SetAllPoints()
+					f.t:SetAtlas("Garr_LevelUpgradeArrow")
+
+					f.h = f:CreateTexture(nil, "OVERLAY")
+					f.h:SetAllPoints()
+					f.h:SetAtlas("Garr_LevelUpgradeArrow")
+					f.h:SetBlendMode("ADD")
+					f.h:SetAlpha(0.6)
+					f.h:Hide()
+
+					-- Dot marking the exact point that goes into the line
+					f.dot = f:CreateTexture(nil, "OVERLAY", nil, 7)
+					f.dot:SetSize(5, 5)
+					f.dot:SetPoint("CENTER")
+					f.dot:SetColorTexture(1, 0.15, 0.15, 1)
+
+					----------------------------------------------------------------------
+					-- Panel (shows the line to copy and how to use the arrow)
+					-- It sits just below the map, outside it
+					----------------------------------------------------------------------
+
+					local p = CreateFrame("Frame", nil, UIParent, "BackdropTemplate")
+					p:SetSize(660, 118)
+					p:SetClampedToScreen(true) -- If there is no room below the map, it stays on screen
+					p:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", tile = true, tileSize = 16, edgeSize = 14, insets = {left = 3, right = 3, top = 3, bottom = 3}})
+					p:SetBackdropColor(0, 0, 0, 0.85)
+					p:SetBackdropBorderColor(0.6, 0.6, 0.6, 1)
+					p:EnableMouse(true)
+					p:Hide()
+
+					p.title = p:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+					p.title:SetPoint("TOPLEFT", 10, -9)
+					p.title:SetJustifyH("LEFT")
+
+					p.info = p:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+					p.reset = CreateFrame("Button", nil, p, "UIPanelButtonTemplate")
+					p.reset:SetSize(60, 20)
+					p.reset:SetPoint("TOPRIGHT", -28, -5)
+					p.reset:SetText("Reset")
+
+					p.info:SetPoint("RIGHT", p.reset, "LEFT", -8, 0)
+					p.info:SetJustifyH("RIGHT")
+
+					p.close = CreateFrame("Button", nil, p, "UIPanelCloseButton")
+					p.close:SetSize(24, 24)
+					p.close:SetPoint("TOPRIGHT", -2, -2)
+
+					p.edit = CreateFrame("EditBox", nil, p, "InputBoxTemplate")
+					p.edit:SetSize(636, 20)
+					p.edit:SetPoint("TOPLEFT", 14, -30)
+					p.edit:SetAutoFocus(false)
+					p.edit:SetFontObject("GameFontHighlightSmall")
+					p.edit:SetMaxLetters(0)
+
+					p.help = p:CreateFontString(nil, "ARTWORK", "GameFontDisableSmall")
+					p.help:SetPoint("BOTTOMLEFT", 10, 10)
+					p.help:SetPoint("BOTTOMRIGHT", -10, 10)
+					p.help:SetJustifyH("LEFT")
+					local helpText = "Drag: move   Wheel: rotate arrow (Shift: fine)   Ctrl+wheel: up/down   Alt+wheel: left/right   Right-click: copy   /ltm arrow: close"
+					p.help:SetText(helpText)
+
+					-- Row of icon buttons to choose the type (pointing at one shows its name)
+					p.iconButtons = {}
+					for i, t in ipairs(Types) do
+						local b = CreateFrame("Button", nil, p)
+						b:SetSize(28, 28)
+						b:SetPoint("TOPLEFT", 12 + (i - 1) * 32, -56)
+						b.sel = b:CreateTexture(nil, "BACKGROUND")
+						b.sel:SetAllPoints()
+						b.sel:SetColorTexture(1, 0.82, 0, 0.45)
+						b.sel:Hide()
+						b.icon = b:CreateTexture(nil, "ARTWORK")
+						b.icon:SetPoint("TOPLEFT", 2, -2)
+						b.icon:SetPoint("BOTTOMRIGHT", -2, 2)
+						SetIconTexture(b.icon, Icons[t.kind])
+						b:SetHighlightTexture("Interface\\Buttons\\ButtonHilight-Square", "ADD")
+						b:SetScript("OnEnter", function() p.help:SetText("|cffffffff" .. t.name) end)
+						b:SetScript("OnLeave", function() p.help:SetText(helpText) end)
+						b:SetScript("OnClick", function() tool.SetType(i) end)
+						p.iconButtons[i] = b
+					end
+
+					----------------------------------------------------------------------
+					-- Update
+					----------------------------------------------------------------------
+
+					local lastKey
+					local function Update()
+						if not tool.active then return end
+						local mapID = WorldMapFrame:GetMapID()
+
+						-- Position and size exactly as Leatrix Maps does for its pins
+						local canvasScale = WorldMapFrame:GetCanvasScale()
+						if not canvasScale or canvasScale <= 0 then return end
+						local scale = poiScale / canvasScale
+						f:SetScale(scale)
+						f:ClearAllPoints()
+						f:SetPoint("CENTER", canvas, "TOPLEFT", (canvas:GetWidth() * tool.x / 100) / scale, -(canvas:GetHeight() * tool.y / 100) / scale)
+						local t = Types[tool.type]
+						local rot = t.rotate and tool.rot or 0
+						f.t:SetRotation(rot)
+						f.h:SetRotation(rot)
+
+						-- Only rebuild the text when something changed
+						local key = (mapID or 0) .. ":" .. tool.x .. ":" .. tool.y .. ":" .. rot .. ":" .. tool.type
+						if key == lastKey then return end
+						lastKey = key
+
+						local mapInfo = mapID and C_Map.GetMapInfo(mapID)
+						local zoneName = mapInfo and mapInfo.name
+						p.title:SetText("Arrow tool: |cffffffff" .. (zoneName or "Unknown map") .. " (" .. (mapID or "?") .. ")|r   " .. t.name)
+
+						local xs, ys = format("%.1f", tool.x), format("%.1f", tool.y)
+						local destName, destID
+						if t.rotate then
+							-- Only zone crossings point into a neighbouring zone
+							destName, destID = GuessDestination(mapID, tool.x, tool.y, rot)
+							p.info:SetText(format("%s, %s   Rotation %s   Points to %s", xs, ys, FormatRot(rot), destName and ("|cff00ff00" .. destName .. "|r") or "|cffff8080?|r"))
+						else
+							p.info:SetText(format("%s, %s", xs, ys))
+						end
+
+						tool.line = t.build(xs, ys, FormatRot(rot), destName, destID, zoneName)
+						p.edit:SetText(tool.line)
+						p.edit:SetCursorPosition(0)
+						if p.edit:HasFocus() then p.edit:HighlightText() end
+					end
+					tool.Update = Update
+
+					-- Keep the arrow in place when the map is zoomed, resized or changed
+					if WorldMapFrame.OnCanvasScaleChanged then hooksecurefunc(WorldMapFrame, "OnCanvasScaleChanged", Update) end
+					if WorldMapFrame.OnMapChanged then hooksecurefunc(WorldMapFrame, "OnMapChanged", function() lastKey = nil Update() end) end
+					WorldMapFrame:HookScript("OnSizeChanged", Update)
+					-- The panel shows and hides with the map
+					WorldMapFrame:HookScript("OnShow", function()
+						if tool.active then tool.ShowPanel() end
+						Update()
+					end)
+					WorldMapFrame:HookScript("OnHide", function()
+						p:Hide()
+						p.edit:ClearFocus()
+					end)
+
+					----------------------------------------------------------------------
+					-- Copy
+					----------------------------------------------------------------------
+
+					local function Copy()
+						p.edit:SetFocus()
+						p.edit:HighlightText()
+						DEFAULT_CHAT_FRAME:AddMessage(tool.line)
+						LeaMapsLC:Print("Line selected in the arrow panel. Press Ctrl+C to copy it.")
+					end
+
+					-- The text box is read only: typing puts the line back
+					p.edit:SetScript("OnTextChanged", function(self, userInput)
+						if userInput then
+							self:SetText(tool.line)
+							self:HighlightText()
+						end
+					end)
+					p.edit:SetScript("OnEditFocusGained", function(self) self:HighlightText() end)
+					p.edit:SetScript("OnEditFocusLost", function(self) self:HighlightText(0, 0) end)
+					p.edit:SetScript("OnEscapePressed", function(self) self:ClearFocus() end)
+					p.edit:SetScript("OnEnterPressed", function(self) self:ClearFocus() end)
+
+					----------------------------------------------------------------------
+					-- Mouse
+					----------------------------------------------------------------------
+
+					local function StopDrag()
+						f:SetScript("OnUpdate", nil)
+						tool.dragging = nil
+					end
+
+					-- Runs only while dragging
+					local function DragUpdate()
+						if not IsMouseButtonDown("LeftButton") then StopDrag() return end
+						local cx, cy = container:GetNormalizedCursorPosition()
+						if not cx or not cy then return end
+						local nx, ny = Round(Clamp(cx * 100 + tool.offX), 1), Round(Clamp(cy * 100 + tool.offY), 1)
+						if nx ~= tool.x or ny ~= tool.y then
+							tool.x, tool.y = nx, ny
+							Update()
+						end
+					end
+
+					f:SetScript("OnMouseDown", function(self, button)
+						if button ~= "LeftButton" then return end
+						local cx, cy = container:GetNormalizedCursorPosition()
+						if not cx or not cy then return end
+						-- Keep the grab point under the pointer so the arrow does not jump
+						tool.offX, tool.offY = tool.x - cx * 100, tool.y - cy * 100
+						tool.dragging = true
+						self:SetScript("OnUpdate", DragUpdate)
+					end)
+
+					f:SetScript("OnMouseUp", function(self, button)
+						if button == "LeftButton" then
+							StopDrag()
+						elseif button == "RightButton" then
+							Copy()
+						end
+					end)
+
+					f:SetScript("OnMouseWheel", function(self, delta)
+						if IsControlKeyDown() then
+							tool.y = Round(Clamp(tool.y - delta * 0.1), 1)
+						elseif IsAltKeyDown() then
+							tool.x = Round(Clamp(tool.x + delta * 0.1), 1)
+						elseif Types[tool.type].rotate then
+							-- Wheel up turns the arrow anticlockwise (rotation goes up), the same as the rotation value in the line
+							-- One turn is 6.3 so plain wheel steps stay on tenths (6.3 is within a degree of a full turn)
+							local step = IsShiftKeyDown() and 0.01 or 0.1
+							local r = Round(tool.rot + delta * step, 2)
+							if r >= 6.3 then r = Round(r - 6.3, 2) elseif r < 0 then r = Round(r + 6.3, 2) end
+							tool.rot = r
+						end
+						Update()
+					end)
+
+					f:SetScript("OnEnter", function(self) self.h:Show() end)
+					f:SetScript("OnLeave", function(self) self.h:Hide() end)
+					f:SetScript("OnHide", StopDrag)
+
+					----------------------------------------------------------------------
+					-- Show and hide
+					----------------------------------------------------------------------
+
+					-- The panel always sits just below the map frame, on the same strata and level as the map
+					-- (checked each time the map opens, as the map can change strata when it is maximised)
+					local function PositionPanel()
+						p:SetFrameStrata(WorldMapFrame:GetFrameStrata())
+						p:SetFrameLevel(WorldMapFrame:GetFrameLevel())
+						p:SetToplevel(WorldMapFrame:IsToplevel())
+						p:ClearAllPoints()
+						p:SetPoint("TOP", WorldMapFrame, "BOTTOM", 0, -12)
+					end
+
+					-- Change the icon type (size and artwork follow Leatrix Maps)
+					function tool.SetType(i)
+						if not Types[i] then return end
+						tool.type = i
+						local icon = Icons[Types[i].kind]
+						f:SetSize(icon.width or icon.size, icon.height or icon.size)
+						SetIconTexture(f.t, icon)
+						SetIconTexture(f.h, icon)
+						for n, b in ipairs(p.iconButtons) do b.sel:SetShown(n == i) end
+						lastKey = nil
+						Update()
+					end
+					tool.SetType(1)
+
+					function tool.ShowPanel()
+						PositionPanel()
+						p:Show()
+					end
+
+					function tool.Show()
+						tool.active = true
+						lastKey = nil
+						f:Show()
+						if WorldMapFrame:IsShown() then tool.ShowPanel() end
+						Update()
+					end
+
+					function tool.Hide()
+						tool.active = nil
+						StopDrag()
+						f:Hide()
+						p:Hide()
+						p.edit:ClearFocus()
+					end
+
+					p.close:SetScript("OnClick", tool.Hide)
+
+					-- Reset puts the arrow back in the middle of the map (rotation is kept)
+					p.reset:SetScript("OnClick", function()
+						StopDrag()
+						tool.x, tool.y = 50, 50
+						Update()
+					end)
+					tool.frame, tool.panel = f, p
+				end
+
+				-- Place the arrow at given coordinates (rotation is optional)
+				local function Num(v) return v and tonumber((v:gsub(",", ""))) end
+				local ax, ay, ar = Num(arg1), Num(arg2), Num(arg3)
+				if ax and ay then
+					tool.x = math.floor(math.max(0, math.min(100, ax)) * 10 + 0.5) / 10
+					tool.y = math.floor(math.max(0, math.min(100, ay)) * 10 + 0.5) / 10
+					if ar then tool.rot = math.floor((ar % 6.3) * 100 + 0.5) / 100 end
+					tool.Show()
+				elseif tool.active then
+					tool.Hide()
+					return
+				else
+					-- Start where the arrow was last time (the middle of the map the first time)
+					tool.Show()
+				end
+				if not WorldMapFrame:IsShown() then
+					LeaMapsLC:Print("Arrow tool is on. Open the world map to see it.")
+				end
+				return
 			elseif str == "admin" then
 				-- Preset profile (reload required)
 				LeaMapsLC["NoSaveSettings"] = true
@@ -6978,6 +8544,8 @@
 				LeaMapsDB["tintAlpha"] = 1.0
 				LeaMapsDB["ShowIcons"] = "On"
 				LeaMapsDB["ShowCoords"] = "On"
+				LeaMapsDB["ShowDiscoveryAreas"] = "On"
+				LeaMapsDB["DiscoveryAreasOn"] = "Off"				-- Discovery button starts with the areas hidden
 				LeaMapsDB["CoordsBackground"] = "On"
 				LeaMapsDB["HideTownCity"] = "On"
 
@@ -7084,6 +8652,8 @@
 			LeaMapsLC:LoadVarNum("tintAlpha", 1, 0, 1)					-- Tint transparency
 			LeaMapsLC:LoadVarChk("ShowIcons", "On")						-- Show additional icons
 			LeaMapsLC:LoadVarChk("ShowCoords", "On")					-- Show coordinates
+			LeaMapsLC:LoadVarChk("ShowDiscoveryAreas", "On")			-- Show discovery button
+			LeaMapsLC:LoadVarChk("DiscoveryAreasOn", "Off")				-- Discovery areas shown (set by the discovery button)
 			LeaMapsLC:LoadVarChk("CoordsBackground", "On")				-- Coordinates background
 			LeaMapsLC:LoadVarChk("HideTownCity", "On")					-- Hide town and city icons
 
@@ -7191,6 +8761,8 @@
 			LeaMapsDB["tintAlpha"] = LeaMapsLC["tintAlpha"]
 			LeaMapsDB["ShowIcons"] = LeaMapsLC["ShowIcons"]
 			LeaMapsDB["ShowCoords"] = LeaMapsLC["ShowCoords"]
+			LeaMapsDB["ShowDiscoveryAreas"] = LeaMapsLC["ShowDiscoveryAreas"]
+			LeaMapsDB["DiscoveryAreasOn"] = LeaMapsLC["DiscoveryAreasOn"]
 			LeaMapsDB["CoordsBackground"] = LeaMapsLC["CoordsBackground"]
 			LeaMapsDB["HideTownCity"] = LeaMapsLC["HideTownCity"]
 
@@ -7230,7 +8802,7 @@
 
 	-- Set frame parameters
 	LeaMapsLC["PageF"] = PageF
-	PageF:SetSize(470, 400)
+	PageF:SetSize(470, 420)
 	PageF:Hide()
 	PageF:SetFrameStrata("FULLSCREEN_DIALOG")
 	PageF:SetFrameLevel(20)
@@ -7254,7 +8826,7 @@
 	-- Add textures
 	local MainTexture = PageF:CreateTexture(nil, "BORDER")
 	MainTexture:SetTexture("Interface\\ACHIEVEMENTFRAME\\UI-GuildAchievement-Parchment-Horizontal-Desaturated.png")
-	MainTexture:SetSize(470, 383)
+	MainTexture:SetSize(470, 403)
 	MainTexture:SetPoint("TOPRIGHT")
 	MainTexture:SetVertexColor(0.7, 0.7, 0.7, 0.7)
 	MainTexture:SetTexCoord(0.09, 1, 0, 1)
@@ -7313,14 +8885,15 @@
 	LeaMapsLC:MakeCB(PageF, "ShowCoords", "Show coordinates", 225, -112, true, "If checked, coordinates will be shown.")
 	LeaMapsLC:MakeCB(PageF, "ShowIcons", "Show additional icons", 225, -132, true, "If checked, additional icons (such as portals) will be shown.")
 	LeaMapsLC:MakeCB(PageF, "HideTownCity", "Hide town and city icons", 225, -152, true, "If checked, town and city icons will not be shown on the continent maps.")
+	LeaMapsLC:MakeCB(PageF, "ShowDiscoveryAreas", "Show discovery button", 225, -172, false, "If checked, a button will be added to the map which lets you show discovery areas.|n|nStepping inside a discovery area will discover that area and remove the fog of war from that part of the map.  So if you want to fully explore a zone, just go to each of the discovery areas.|n|nOnly areas you still need to discover are shown.")
 
-	LeaMapsLC:MakeTx(PageF, "More", 225, -192)
-	LeaMapsLC:MakeCB(PageF, "EnhanceBattleMap", "Enhance battlefield map", 225, -212, true, "If checked, you will be able to customise the battlefield map.")
-	LeaMapsLC:MakeCB(PageF, "NoMapFade", "Disable map fade", 225, -232, false, "If checked, the map will not fade while your character is moving.")
-	LeaMapsLC:MakeCB(PageF, "NoMapEmote", "Disable reading emote", 225, -252, false, "If checked, your character will not perform the reading emote when you open the map.")
-	LeaMapsLC:MakeCB(PageF, "NoFilterResetBtn", "Hide filter reset button", 225, -272, true, "If checked, the world map filter reset button will be hidden.")
-	LeaMapsLC:MakeCB(PageF, "ShowMinimapIcon", "Show minimap button", 225, -292, false, "If checked, the minimap button will be shown.")
-	LeaMapsLC:MakeCB(PageF, "SetKeybindings", "Set keybindings", 225, -312, false, "If checked, you can set a key to toggle the Leatrix Maps options panel.")
+	LeaMapsLC:MakeTx(PageF, "More", 225, -212)
+	LeaMapsLC:MakeCB(PageF, "EnhanceBattleMap", "Enhance battlefield map", 225, -232, true, "If checked, you will be able to customise the battlefield map.")
+	LeaMapsLC:MakeCB(PageF, "NoMapFade", "Disable map fade", 225, -252, false, "If checked, the map will not fade while your character is moving.")
+	LeaMapsLC:MakeCB(PageF, "NoMapEmote", "Disable reading emote", 225, -272, false, "If checked, your character will not perform the reading emote when you open the map.")
+	LeaMapsLC:MakeCB(PageF, "NoFilterResetBtn", "Hide filter reset button", 225, -292, true, "If checked, the world map filter reset button will be hidden.")
+	LeaMapsLC:MakeCB(PageF, "ShowMinimapIcon", "Show minimap button", 225, -312, false, "If checked, the minimap button will be shown.")
+	LeaMapsLC:MakeCB(PageF, "SetKeybindings", "Set keybindings", 225, -332, false, "If checked, you can set a key to toggle the Leatrix Maps options panel.")
 
 	LeaMapsLC:CfgBtn("SimpleMapFrameBtn", LeaMapsCB["SimpleMapFrame"])
 	LeaMapsLC:CfgBtn("ScaleWorldMapBtn", LeaMapsCB["ScaleWorldMap"])
