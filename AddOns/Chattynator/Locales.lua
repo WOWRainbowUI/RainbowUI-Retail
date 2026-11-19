@@ -626,3 +626,7 @@ L["THAT_PROFILE_NAME_ALREADY_EXISTS"] = "该配置文件名称已存在。"
 
 L["THIS_WILL_OVERWRITE_STYLE_CUSTOM"] = "这将覆盖样式“自定义”。是否继续？"
 
+
+Locales.zhTW["HIDE_LAST_NAMES"] = "隱藏姓氏"
+
+Locales.zhCN["HIDE_LAST_NAMES"] = "隐藏姓氏"
