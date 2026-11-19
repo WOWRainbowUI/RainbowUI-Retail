@@ -562,3 +562,11 @@ L["Use a different border for important casts"] = "重要施法使用不同的�
 L["Use a different texture for important casts"] = "重要施法使用不同的材質"
 L["Set the color of the bars for important casts"] = "設定重要施法條的顏色"
 L["Set the color of the bars for important uninterruptible casts"] = "設定重要且無法中斷的施法條顏色"
+
+L["Friendly Target Spell"] = "友方目標法術"
+
+L["Hostile Target Spell"] = "敵方目標法術"
+
+L["Spell used to test the range to friendly targets, for your current class only. Leave empty to use the class default."] = "用來測試與友方目標距離的法術，僅適用於目前職業。留空則使用職業預設法術。"
+
+L["Spell used to test the range to hostile targets, for your current class only. Leave empty to use the class default."] = "用來測試與敵方目標距離的法術，僅適用於目前職業。留空則使用職業預設法術。"
