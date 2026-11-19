@@ -164,7 +164,7 @@ local function BlizStatFrame_Update()
         local ncolor = CCS.StyleColor.normal
 
         CharacterStatsPaneScrollBox.ClassBackground:SetVertexColor(hcolor[1],hcolor[2],hcolor[3],1)
-
+        CharacterFrameRightPaneHostStoneBg:SetTexture("Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\Frame\\parchment.png")
         if false then
             CharacterStatsPaneScrollBox.ScrollBar:Hide()
             CharacterStatsPaneScrollBox.ScrollBox:Hide()

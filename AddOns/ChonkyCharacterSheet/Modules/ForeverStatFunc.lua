@@ -67,7 +67,7 @@ function CCS.GetStatPrimaryClassic(statIndex)
 	local classStatText = _G[strupper(classFileName).."_"..strupper(statName).."_".."TOOLTIP"];
 	local tmp_stat_name = {ITEM_MOD_STRENGTH_SHORT, ITEM_MOD_AGILITY_SHORT, ITEM_MOD_STAMINA_SHORT, ITEM_MOD_INTELLECT_SHORT, ITEM_MOD_SPIRIT_SHORT};
 	local tmp_stat_value= 0
-	local effectiveStat, posBuff, negBuff
+	local stat, effectiveStat, posBuff, negBuff
 
 	if ( not classStatText ) then
 		classStatText = _G["DEFAULT".."_"..strupper(statName).."_".."TOOLTIP"];
@@ -88,16 +88,35 @@ function CCS.GetStatPrimaryClassic(statIndex)
 	rightText=targetValue or BreakUpLargeNumbers(tmp_stat_value)
 	
 	local effectiveStatDisplay = BreakUpLargeNumbers(effectiveStat);
+	if not CCS.AreSecretsDisabled() then
 
-	-- Strength
-	if ( statIndex == LE_UNIT_STAT_STRENGTH ) then
-		if not CCS.AreSecretsDisabled() then
-			tt_desc = string.format(classStatText, GetAttackPowerForStat(statIndex,tmp_stat_value), math.floor(effectiveStat / BLOCK_VALUE_PER_STRENGTH));
+		local tooltipText = HIGHLIGHT_FONT_COLOR_CODE .. tmp_stat_name[statIndex] .. " ";
+
+		if ( ( posBuff == 0 ) and ( negBuff == 0 ) ) then
+			tt_name = tooltipText..effectiveStatDisplay..FONT_COLOR_CODE_CLOSE;
+		else 
+			tooltipText = tooltipText..effectiveStatDisplay;
+			if ( posBuff > 0 or negBuff < 0 ) then
+				tooltipText = tooltipText.." ("..(tmp_stat_value - posBuff - negBuff)..FONT_COLOR_CODE_CLOSE;
+			end
+			if ( posBuff > 0 ) then
+				tooltipText = tooltipText..FONT_COLOR_CODE_CLOSE..GREEN_FONT_COLOR_CODE.."+"..posBuff..FONT_COLOR_CODE_CLOSE;
+			end
+			if ( negBuff < 0 ) then
+				tooltipText = tooltipText..RED_FONT_COLOR_CODE.." "..negBuff..FONT_COLOR_CODE_CLOSE;
+			end
+			if ( posBuff > 0 or negBuff < 0 ) then
+				tooltipText = tooltipText..HIGHLIGHT_FONT_COLOR_CODE..")"..FONT_COLOR_CODE_CLOSE;
+			end
+			tt_name = tooltipText;
 		end
-		tt_name = HIGHLIGHT_FONT_COLOR_CODE..format(PAPERDOLLFRAME_TOOLTIP_FORMAT, tmp_stat_name[statIndex]).." "..tt_name;
-	-- Agility
-	elseif ( statIndex == LE_UNIT_STAT_AGILITY ) then
-		if not CCS.AreSecretsDisabled() then
+	
+		-- Strength
+		if ( statIndex == LE_UNIT_STAT_STRENGTH ) then
+			tt_desc = string.format(classStatText, GetAttackPowerForStat(statIndex,tmp_stat_value), math.floor(effectiveStat / BLOCK_VALUE_PER_STRENGTH));
+		-- Agility
+		elseif ( statIndex == LE_UNIT_STAT_AGILITY ) then
+
 			local increasedDodgeChance = GetDodgeChanceFromAttribute() * 100.0;
 			local increasedArmor = effectiveStat * ARMOR_PER_AGILITY;
 			local increasedMeleeCritChance = GetCritChanceFromStat(statIndex, effectiveStat) * 100.0;
@@ -117,22 +136,16 @@ function CCS.GetStatPrimaryClassic(statIndex)
 			else
 				tt_desc = string.format(tt_desc, increasedMeleeCritChance, increasedArmor, increasedDodgeChance);
 			end	
-		end
-		tt_name = HIGHLIGHT_FONT_COLOR_CODE..format(PAPERDOLLFRAME_TOOLTIP_FORMAT, tmp_stat_name[statIndex]).." "..tt_name;
 
-	-- Stamina
-	elseif ( statIndex == LE_UNIT_STAT_STAMINA ) then
-		if not CCS.AreSecretsDisabled() then
+		-- Stamina
+		elseif ( statIndex == LE_UNIT_STAT_STAMINA ) then
 			local bonus = math.min(STAMINA_BREAK, effectiveStat);
 			local perStaminaBonus = (math.max(STAMINA_BREAK, effectiveStat) - STAMINA_BREAK) * UnitHPPerStamina("player");
 			bonus = bonus + perStaminaBonus;
 			tt_desc = string.format(tt_desc, tostring(bonus));
-		end
-		tt_name = HIGHLIGHT_FONT_COLOR_CODE..format(PAPERDOLLFRAME_TOOLTIP_FORMAT, tmp_stat_name[statIndex]).." "..tt_name;
 
-	-- Intellect
-	elseif ( statIndex == LE_UNIT_STAT_INTELLECT ) then
-		if not CCS.AreSecretsDisabled() then		
+		-- Intellect
+		elseif ( statIndex == LE_UNIT_STAT_INTELLECT ) then
 			local spellCrit = GetSpellCritChanceFromStat(statIndex, effectiveStat) * 100.0;
 
 			if classFileName == "WARRIOR" or classFileName == "ROGUE" then
@@ -140,16 +153,12 @@ function CCS.GetStatPrimaryClassic(statIndex)
 			else
 				local manaBonus = math.min(INTELLECT_BREAK, effectiveStat);
 				manaBonus = manaBonus + (math.max(INTELLECT_BREAK, effectiveStat) - INTELLECT_BREAK) * MANA_PER_INTELLECT;
-
 				tt_desc = string.format(tt_desc, tostring(manaBonus), spellCrit);
 			end
-		end
-		
-		tt_name = HIGHLIGHT_FONT_COLOR_CODE..format(PAPERDOLLFRAME_TOOLTIP_FORMAT, tmp_stat_name[statIndex]).." "..tt_name;
 
-	-- Spirit 
-	elseif ( statIndex == LE_UNIT_STAT_SPIRIT ) then
-		if not CCS.AreSecretsDisabled() then
+		-- Spirit 
+		elseif ( statIndex == LE_UNIT_STAT_SPIRIT ) then
+
 			local spiritStandingPenalty = 0.75;
 			local healthRegenFromSpirit = GetHealthRegenFromSpirit() * spiritStandingPenalty; -- Assume player is standing
 			local manaRegenFromSpirit = GetManaRegenFromSpirit();
@@ -164,11 +173,9 @@ function CCS.GetStatPrimaryClassic(statIndex)
 			end
 
 			tt_desc = string.format("%s\n\n%s", tt_desc, SPIRIT_STANDING_WARNING);
+
 		end
-		tt_name = HIGHLIGHT_FONT_COLOR_CODE..format(PAPERDOLLFRAME_TOOLTIP_FORMAT, tmp_stat_name[statIndex]).." "..tt_name;
-
 	end
-
 	return leftText, rightText, tt_name, tt_desc, link, isZero, isApplicable
 end
 
@@ -186,16 +193,21 @@ function CCS.GetStatCritForever()
 	local rangedCrit = GetRangedCritChance();
 	local meleeCrit = GetCritChance();
 	local critChance
+	local classType = CCS.ClassType()
 
-	if isRangedClass then 
-		critChance = rangedCrit 
+	if classType == "CASTER" then
+		critChance = spellCrit or 0
+	elseif classType == "RANGED" then
+		critChance = rangedCrit or 0
 	else
-		critChance = spellCrit
+		critChance = meleeCrit or 0
 	end
 
+	--local targetValue = CCS.GetBlizzardStatValue(STAT_CRITICAL_STRIKE)
+	
 	leftText = STAT_CRITICAL_STRIKE
 	rightText = format('%s%%', CCS.round(critChance))
-
+	
 	if not CCS.AreSecretsDisabled() then
 
 		tt_name = HIGHLIGHT_FONT_COLOR_CODE..format(PAPERDOLLFRAME_TOOLTIP_FORMAT, STAT_CRITICAL_STRIKE).." "..format("%.2F%%", critChance)..FONT_COLOR_CODE_CLOSE;

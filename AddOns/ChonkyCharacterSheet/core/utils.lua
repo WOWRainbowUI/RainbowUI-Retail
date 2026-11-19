@@ -3349,9 +3349,16 @@ function CCS.ClassType()
 	local _, class = UnitClass("player")
     local spec, role 
     local classtype
-
-    if  class == "MAGE" or class == "WARLOCK" or class == "PRIEST" or class == "DRUID" or class == "SHAMAN"	or class == "PALADIN" then
+ 
+    if  class == "MAGE" or class == "WARLOCK" or class == "PRIEST" or class == "SHAMAN"	or class == "PALADIN" then
         classtype = "CASTER"
+    elseif class == "DRUID" then
+        local formIndex= GetShapeshiftForm() -- 1 Bear Form, 2 Cat Form
+        if formIndex == 1 or formIndex == 2 then  
+            classtype = "MELEE"
+        else
+            classtype = "CASTER"
+        end
     elseif class == "HUNTER" then
         classtype = "RANGED"
     else
