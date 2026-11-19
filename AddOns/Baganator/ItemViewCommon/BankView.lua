@@ -12,12 +12,11 @@ function BaganatorItemViewCommonBankViewMixin:OnLoad()
   self:SetClampedToScreen(true)
   self:SetUserPlaced(false)
 
+  self.ButtonsManager = addonTable.Utilities.InitFrameWithMixin(self, addonTable.ItemViewCommon.ButtonsMixin)
+
   if addonTable.Constants.IsGamepadInUse then
     self.layoutType = "ButtonFrameTemplateNoPortrait"
     self.FrameGlow = CreateFrame("Frame", nil, self, "FrameGlowTemplate")
-  end
-  for _, b in ipairs(self.AllFixedButtons) do
-    addonTable.Gamepad.OneWayLink(b, "Down", self.SearchWidget)
   end
 
   self.Anchor = addonTable.ItemViewCommon.GetAnchorSetter(self, addonTable.Config.Options.BANK_ONLY_VIEW_POSITION)
@@ -48,12 +47,6 @@ function BaganatorItemViewCommonBankViewMixin:OnLoad()
   Syndicator.CallbackRegistry:RegisterCallback("BagCacheUpdate",  function()
     self.hasCharacter = true
   end)
-
-  self.CustomiseButton:SetPoint("TOP", self, 0, -1 + addonTable.Constants.ButtonFrameOffsetTop)
-
-  self:UpdateTransferButton()
-
-  addonTable.Gamepad.LinkButtons(self.CustomiseButton, "Down", self.SearchWidget.SearchBox)
 
   addonTable.Skins.AddFrame("ButtonFrame", self, {"bank"})
 end
@@ -106,24 +99,8 @@ function BaganatorItemViewCommonBankViewMixin:InitializeWarband(template)
   end
 end
 
-function BaganatorItemViewCommonBankViewMixin:UpdateTransferButton()
-  if not self.currentTab.isLive or self.currentTab.isLocked then
-    self.TransferButton:Hide()
-    return
-  end
-
-  self.TransferButton:ClearAllPoints()
-  if self.SortButton:IsShown() then
-    self.TransferButton:SetPoint("RIGHT", self.SortButton, "LEFT")
-  else
-    self.TransferButton:SetPoint("RIGHT", self.CustomiseButton, "LEFT")
-  end
-
-  self.TransferButton:Show()
-end
-
 function BaganatorItemViewCommonBankViewMixin:IsTransferActive()
-  return self.TransferButton:IsShown()
+  return self.currentTab.isLive
 end
 
 function BaganatorItemViewCommonBankViewMixin:OnDragStart()
@@ -231,6 +208,20 @@ function BaganatorItemViewCommonBankViewMixin:UpdateView()
     self.Tabs[1]:Show()
   end
 
+  self.ButtonsManager:ClearButtons()
+  self.ButtonsManager:SetGamepadDown(self.SearchWidget.SearchBox)
+  self.ButtonsManager:AddButton("topRight", "customise")
+  self.ButtonsManager:AddButton("topRight", "sort", function(_, button)
+    self.currentTab:CombineStacksAndSort(button == "RightButton")
+  end, function()
+    return self.currentTab.isLive and not self.currentTab.isLocked
+  end)
+  self.ButtonsManager:AddButton("topRight", "transfer", function(_, button)
+    self:Transfer()
+  end, function()
+    return self.currentTab.isLive
+  end)
+
   local sideSpacing = addonTable.Utilities.GetSpacing()
 
   if self.Tabs[1] then
@@ -255,10 +246,7 @@ end
 
 
 function BaganatorItemViewCommonBankViewMixin:OnTabFinished(firstButton, lastButton)
-  self.SortButton:SetShown(self.currentTab.isLive and not self.currentTab.isLocked and addonTable.Utilities.ShouldShowSortButton())
-  self:UpdateTransferButton()
-
-  self.ButtonVisibility:Update()
+  self.ButtonsManager:Arrange()
 
   self:SetSize(self.currentTab:GetSize())
 

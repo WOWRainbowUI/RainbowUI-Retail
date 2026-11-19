@@ -123,11 +123,7 @@ function addonTable.SlashCmd.Timers()
 end
 
 function addonTable.SlashCmd.SwapLayouts()
-  local currentBags = addonTable.Config.Get(addonTable.Config.Options.BAG_VIEW_TYPE)
-  local currentBank = addonTable.Config.Get(addonTable.Config.Options.BANK_VIEW_TYPE)
-
-  addonTable.Config.Set(addonTable.Config.Options.BAG_VIEW_TYPE, currentBags == "category" and "single" or "category")
-  addonTable.Config.Set(addonTable.Config.Options.BANK_VIEW_TYPE, currentBank == "category" and "single" or "category")
+  addonTable.Utilities.SwapLayout()
 end
 
 local COMMANDS = {

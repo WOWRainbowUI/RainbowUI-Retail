@@ -46,7 +46,7 @@ function BaganatorSingleViewBackpackViewMixin:OnLoad()
   end)
 
   addonTable.AddBagTransferActivationCallback(function()
-    self:UpdateTransferButton()
+    self.ButtonsManager:Arrange()
   end)
 end
 
@@ -162,18 +162,16 @@ function BaganatorSingleViewBackpackViewMixin:UpdateForCharacter(character, isLi
   self:OnFinished()
 
   if self.refreshState[addonTable.Constants.RefreshReason.Buttons] or self.refreshState[addonTable.Constants.RefreshReason.Layout] then
-    self.AllButtons = {}
-    tAppendAll(self.AllButtons, self.AllFixedButtons)
-    tAppendAll(self.AllButtons, self.TopButtons)
-
     self.SearchWidget:LinkDown(activeBag.buttons[1])
 
     local bottomButtons = {self.CurrencyButton}
 
+    self.ButtonsManager:ClearButtons(true)
+
     local lastButton = self.CurrencyButton
     lastButton:SetPoint("BOTTOM", self, "BOTTOM", 0, 6)
     lastButton:SetPoint("LEFT", self.Container, -2, 0)
-    table.insert(self.AllButtons, lastButton)
+    self.ButtonsManager:AddButton(self.CurrencyButton)
 
     self.buttonsWidth = lastButton:GetWidth()
 
@@ -187,14 +185,13 @@ function BaganatorSingleViewBackpackViewMixin:UpdateForCharacter(character, isLi
         self.buttonsWidth = self.buttonsWidth + 5 + button:GetWidth()
         button:SetPoint("LEFT", lastButton, "RIGHT", 5, 0)
         lastButton = button
-        table.insert(self.AllButtons, button)
+        self.ButtonsManager:AddButton(button)
       end
     end
 
-    self.buttonsWidth = self.buttonsWidth + addonTable.Utilities.AddButtons(self.AllButtons,
+    self.buttonsWidth = self.buttonsWidth + addonTable.Utilities.AddButtons(
       lastButton, self, 5, addonTable.API.customRegions["backpack"]["bottom_left"]
     )
-    addonTable.Utilities.AddButtons(self.AllButtons, self.TopButtons[#self.TopButtons], self, 0, addonTable.API.customRegions["backpack"]["top_left"])
 
     local all = {activeBag}
     tAppendAll(all, activeBagCollapsibles)
@@ -206,7 +203,7 @@ function BaganatorSingleViewBackpackViewMixin:UpdateForCharacter(character, isLi
 
   -- Necessary extra call as collapsing bag region buttons get updated
   -- out-of-sync with everything else
-  self.ButtonVisibility:Update()
+  self.ButtonsManager:Arrange()
 
   if self.refreshState[addonTable.Constants.RefreshReason.Layout] then
     self.CurrencyWidget:UpdateCurrencyTextPositions(self.Container:GetWidth() - self.buttonsWidth - 10, self.Container:GetWidth())

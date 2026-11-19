@@ -286,6 +286,54 @@
     </Layers>
   </Button>
 
+  <Button name="BaganatorSwapButtonTemplate" inherits="BaganatorTooltipIconButtonTemplate" virtual="true" motionScriptsWhileDisabled="true">
+    <KeyValues>
+      <KeyValue key="tooltipHeader" value="BAGANATOR_L_SWAP_LAYOUT" type="global"/>
+    </KeyValues>
+    <Scripts>
+      <OnLoad>
+        Baganator.Skins.AddFrame("IconButton", self, {"swap"})
+      </OnLoad>
+    </Scripts>
+    <Layers>
+      <Layer level="ARTWORK">
+        <Texture parentKey="Icon" atlas="common-icon-rotateleft">
+          <Size x="14" y="14"/>
+          <Anchors>
+            <Anchor point="CENTER" y="-1"/>
+          </Anchors>
+        </Texture>
+      </Layer>
+    </Layers>
+  </Button>
+
+  <Button name="BaganatorGroupButtonTemplate" inherits="BaganatorTooltipIconButtonTemplate" virtual="true" motionScriptsWhileDisabled="true">
+    <KeyValues>
+      <KeyValue key="tooltipHeader" value="BAGANATOR_L_GROUP_IDENTICAL_ITEMS" type="global"/>
+    </KeyValues>
+    <Scripts>
+      <OnLoad>
+        Baganator.Skins.AddFrame("IconButton", self, {"toggleGrouping"})
+      </OnLoad>
+    </Scripts>
+    <Layers>
+      <Layer level="ARTWORK">
+        <Texture parentKey="Icon" atlas="common-dropdown-icon-stop" alpha="0.7">
+          <Size x="12" y="12"/>
+          <Anchors>
+            <Anchor point="CENTER" x="-2" y="-2"/>
+          </Anchors>
+        </Texture>
+        <Texture parentKey="Icon2" atlas="common-dropdown-icon-stop">
+          <Size x="12" y="12"/>
+          <Anchors>
+            <Anchor point="CENTER" x="1" y="1"/>
+          </Anchors>
+        </Texture>
+      </Layer>
+    </Layers>
+  </Button>
+
   <Button name="BaganatorHelpButtonTemplate" inherits="BaganatorTooltipIconButtonTemplate" virtual="true" motionScriptsWhileDisabled="true">
     <KeyValues>
       <KeyValue key="tooltipHeader" value="BAGANATOR_L_HELP" type="global"/>

@@ -114,31 +114,6 @@ function BaganatorCategoryViewBankViewCharacterViewMixin:UpdateForCharacter(char
     return
   end
 
-  self:GetParent().AllButtons = {}
-
-  tAppendAll(self:GetParent().AllButtons, self:GetParent().AllFixedButtons)
-  tAppendAll(self:GetParent().AllButtons, self.TopButtons)
-
-  local buttonPadding = 0
-
-  local lastButton
-  if self.BuyReagentBankButton:IsShown() then
-    table.insert(self:GetParent().AllButtons, self.BuyReagentBankButton)
-    self.BuyReagentBankButton:ClearAllPoints()
-    self.BuyReagentBankButton:SetPoint("LEFT", self, addonTable.Constants.ButtonFrameOffset + sideSpacing - 2, 0)
-    self.BuyReagentBankButton:SetPoint("BOTTOM", self, 0, 6)
-    lastButton = self.BuyReagentBankButton
-    buttonPadding = 2
-  end
-  if self.DepositIntoReagentsBankButton:IsShown() then
-    table.insert(self:GetParent().AllButtons, self.DepositIntoReagentsBankButton)
-    self.DepositIntoReagentsBankButton:ClearAllPoints()
-    self.DepositIntoReagentsBankButton:SetPoint("LEFT", self, addonTable.Constants.ButtonFrameOffset + sideSpacing - 2, 0)
-    self.DepositIntoReagentsBankButton:SetPoint("BOTTOM", self, 0, 6)
-    lastButton = self.DepositIntoReagentsBankButton
-    buttonPadding = 2
-  end
-
   self.isGrouping = not self.isLive and addonTable.Config.Get(addonTable.Config.Options.CATEGORY_ITEM_GROUPING)
   self.splitStacksDueToTransfer = self.isLive
 
@@ -154,7 +129,7 @@ function BaganatorCategoryViewBankViewCharacterViewMixin:UpdateForCharacter(char
 
     self:OnFinished()
 
-    self.CurrencyWidget:UpdateCurrencyTextPositions(self.Container:GetWidth() - (lastButton and lastButton:GetWidth() + 10 or 0), self.Container:GetWidth())
+    self.CurrencyWidget:UpdateCurrencyTextPositions(self.Container:GetWidth(), self.Container:GetWidth())
 
     local searchText = self:GetParent().SearchWidget.SearchBox:GetText()
     if self.searchToApply then

@@ -25,18 +25,39 @@ function BaganatorItemViewCommonBackpackViewMixin:OnLoad()
     self.layoutType = "ButtonFrameTemplateNoPortrait"
     self.FrameGlow = CreateFrame("Frame", nil, self, "FrameGlowTemplate")
     self.FrameGlow:Hide()
-  end
-  for _, b in ipairs(self.AllFixedButtons) do
-    addonTable.Gamepad.OneWayLink(b, "Down", self.SearchWidget)
-  end
-  for _, b in ipairs(self.TopButtons) do
-    addonTable.Gamepad.OneWayLink(b, "Down", self.SearchWidget.SearchBox)
-  end
-  addonTable.Gamepad.LinkButtons(self.ToggleBankButton, "Down", self.SearchWidget.SearchBox)
-  if addonTable.Constants.IsGamepadInUse then
     self.CloseButton:Hide()
-    self.CustomiseButton:SetPoint("TOPRIGHT", -5, 0)
   end
+
+  self.ButtonsManager = addonTable.Utilities.InitFrameWithMixin(self, addonTable.ItemViewCommon.ButtonsMixin)
+
+  self.ButtonsManager:AddButton("topLeft", "bank", function() self:ToggleBank() end)
+  self.ButtonsManager:AddButton("topLeft", "guild", function() self:ToggleGuildBank() end, function()
+    if not self.lastCharacter then
+      return false
+    end
+    local guildName = Syndicator.API.GetCharacter(self.lastCharacter).details.guild
+    return guildName ~= nil and Syndicator.API.GetGuild(guildName)
+  end)
+  self.ButtonsManager:AddButton("topLeft", "allCharacters", nil)
+  self.ButtonsManager:AddButton("topLeft", "bagSlots", function() self:ToggleBagSlots() end)
+
+  self.ButtonsManager:AddButton("topRight", "toggleGrouping", function()
+    addonTable.Config.Set(addonTable.Config.Options.CATEGORY_ITEM_GROUPING, not addonTable.Config.Get(addonTable.Config.Options.CATEGORY_ITEM_GROUPING))
+  end, function()
+    return addonTable.Config.Get(addonTable.Config.Options.BAG_VIEW_TYPE) == "category"
+  end)
+  self.ButtonsManager:AddButton("topRight", "swap", function() addonTable.Utilities.SwapLayout() end)
+  self.ButtonsManager:AddButton("topRight", "transfer",
+    function() self:Transfer() end,
+    function() return self.isLive and self:IsTransferActive() end
+  )
+  self.ButtonsManager:AddButton("topRight", "sort",
+    function(_, button) self:CombineStacksAndSort(button == "RightButton") end,
+    function() return self.isLive end,
+    function() return self:GetExternalSortMethodName() end
+  )
+  self.ButtonsManager:AddButton("topRight", "customise")
+  self.ButtonsManager:SetGamepadDown(self.SearchWidget.SearchBox)
 
   self.liveItemButtonPool = addonTable.ItemViewCommon.GetLiveItemButtonPool(self)
 
@@ -116,25 +137,9 @@ function BaganatorItemViewCommonBackpackViewMixin:OnLoad()
 
   Syndicator.CallbackRegistry:RegisterCallback("GuildNameSet",  function(_, guild)
     if self.lastCharacter ~= nil and Syndicator.API.GetCharacter(self.lastCharacter) then
-      self:UpdateGuildButton()
+      self.ButtonsManager:Arrange()
     end
   end)
-
-  if addonTable.Constants.IsEra then
-    local index = tIndexOf(self.TopButtons, self.ToggleGuildBankButton)
-    table.remove(self.TopButtons, index)
-    self.ToggleGuildBankButton:Hide()
-  end
-
-  for index = 2, #self.TopButtons do
-    local button = self.TopButtons[index]
-    button:SetPoint("TOPLEFT", self.TopButtons[index-1], "TOPRIGHT")
-  end
-
-  self.TopButtons[1]:ClearAllPoints()
-  self.TopButtons[1]:SetPoint("TOPLEFT", self, "TOPLEFT", addonTable.Constants.ButtonFrameOffset + 2, -1 + addonTable.Constants.ButtonFrameOffsetTop)
-
-  self.CustomiseButton:SetPoint("TOP", self, 0, -1 + addonTable.Constants.ButtonFrameOffsetTop)
 
   addonTable.Skins.AddFrame("ButtonFrame", self, {"backpack"})
 
@@ -233,12 +238,6 @@ function BaganatorItemViewCommonBackpackViewMixin:UpdateForCharacter(character, 
   if self.refreshState[addonTable.Constants.RefreshReason.ItemData] then
     self.BagSlots:Update(self.lastCharacter, self.isLive)
   end
-  local containerInfo = characterData.containerInfo
-  self.ToggleBagSlotsButton:SetShown(self.isLive or (containerInfo and containerInfo.bags))
-
-  self.SortButton:SetShown(addonTable.Utilities.ShouldShowSortButton() and isLive)
-  self:UpdateTransferButton()
-  addonTable.Gamepad.LinkButtons(self.CustomiseButton, "Left", self.SortButton:IsShown() and self.SortButton or self.ToggleBagSlotsButton)
 
   local sideSpacing, topSpacing = addonTable.Utilities.GetSpacing()
 
@@ -276,7 +275,7 @@ function BaganatorItemViewCommonBackpackViewMixin:OnFinished(forceResize)
     self.gamepadFooter:Refresh()
   end
 
-  self:UpdateAllButtons()
+  self.ButtonsManager:Arrange()
 end
 
 function BaganatorItemViewCommonBackpackViewMixin:CombineStacks(callback)
@@ -289,49 +288,13 @@ function BaganatorItemViewCommonBackpackViewMixin:CombineStacks(callback)
   end)
 end
 
-function BaganatorItemViewCommonBackpackViewMixin:UpdateTransferButton()
-  if not self:IsVisible() then
-    return
-  end
-
-  if not self.isLive then
-    self.TransferButton:Hide()
-    return
-  end
-
-  self.TransferButton:ClearAllPoints()
-  if self.SortButton:IsShown() then
-    self.TransferButton:SetPoint("RIGHT", self.SortButton, "LEFT")
-  else
-    self.TransferButton:SetPoint("RIGHT", self.CustomiseButton, "LEFT")
-  end
-
+function BaganatorItemViewCommonBackpackViewMixin:IsTransferActive()
   for _, info in ipairs(addonTable.BagTransfers) do
     if info.condition() then
-      self.TransferButton:Show()
-      addonTable.Gamepad.LinkButtons(self.SortButton, "Left", self.TransferButton)
-      addonTable.Gamepad.LinkButtons(self.TransferButton, "Left", self.ToggleBagSlotsButton)
-      self.TransferButton.tooltipText = info.tooltipText
-      return
+      return true
     end
   end
-  self.TransferButton:Hide()
-  addonTable.Gamepad.LinkButtons(self.SortButton, "Left", self.ToggleBagSlotsButton)
-end
-
-function BaganatorItemViewCommonBackpackViewMixin:IsTransferActive()
-  return self.TransferButton:IsShown()
-end
-
-function BaganatorItemViewCommonBackpackViewMixin:UpdateAllButtons()
-  self.ButtonVisibility:Update()
-  self:UpdateGuildButton()
-end
-
-function BaganatorItemViewCommonBackpackViewMixin:UpdateGuildButton()
-  local guildName = Syndicator.API.GetCharacter(self.lastCharacter).details.guild
-  self.ToggleGuildBankButton:SetEnabled(guildName ~= nil and Syndicator.API.GetGuild(guildName))
-  self.ToggleGuildBankButton.Icon:SetDesaturated(not self.ToggleGuildBankButton:IsEnabled())
+  return false
 end
 
 function BaganatorItemViewCommonBackpackViewMixin:RunAction(action, getItems)

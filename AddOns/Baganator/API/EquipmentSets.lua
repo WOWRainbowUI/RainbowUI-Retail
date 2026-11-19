@@ -66,18 +66,7 @@ if not addonTable.Constants.IsEra and not addonTable.Constants.IsBC and Syndicat
       table.insert(self.equipmentSetNames, name)
       local info = {name = name, iconTexture = iconTexture}
 
-      -- Check for invalid items as attempting to get their locations will cause
-      -- a crash on Max OS X
-      local validItems = true
-      if IsMacClient() then
-        for _, itemID in pairs(C_EquipmentSet.GetItemIDs(setID)) do
-          if not C_Item.GetItemInfoInstant(itemID) then
-            validItems = false
-          end
-        end
-      end
-
-      if validItems then
+      if not IsMacClient() then
         -- Uses or {} because a set might exist without any associated item
         -- locations
         for _, locationID in pairs(C_EquipmentSet.GetItemLocations(setID) or {}) do
@@ -112,7 +101,7 @@ if not addonTable.Constants.IsEra and not addonTable.Constants.IsBC and Syndicat
             end
           end
         end
-      else
+      else--if IsMacClient()
         -- API will crash, so we do a much more intensive tooltip scan of all possible items
         local matchingItemIDs = {}
         for _, itemID in pairs(C_EquipmentSet.GetItemIDs(setID)) do

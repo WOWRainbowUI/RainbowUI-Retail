@@ -6,6 +6,13 @@ function addonTable.Utilities.Message(text)
   print(LINK_FONT_COLOR:WrapTextInColorCode("Baganator") .. ": " .. text)
 end
 
+function addonTable.Utilities.InitFrameWithMixin(parent, mixin)
+  local f = CreateFrame("Frame", nil, parent)
+  Mixin(f, mixin)
+  f:OnLoad()
+  return f
+end
+
 do
   local callbacksPending = {}
   local frame = CreateFrame("Frame")

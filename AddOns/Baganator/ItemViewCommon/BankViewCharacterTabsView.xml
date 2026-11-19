@@ -11,12 +11,6 @@
         </Anchors>
       </Frame>
 
-      <Button parentKey="ToggleAllCharacters" inherits="BaganatorAllCharactersButtonTemplate" frameLevel="700" parentArray="TopButtons">
-        <Anchors>
-          <Anchor point="TOPLEFT" relativeKey="$parent" x="5" y="-1"/>
-        </Anchors>
-      </Button>
-
       <Frame parentKey="CurrencyWidget" inherits="BaganatorCurrencyWidgetTemplate"/>
 
       <Button parentKey="DepositReagentsButton" inherits="UIPanelDynamicResizeButtonTemplate" text="BAGANATOR_L_DEPOSIT_REAGENTS" parentArray="LiveButtons">
