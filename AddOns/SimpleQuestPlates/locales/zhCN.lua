@@ -267,4 +267,4 @@ L["Toast Animation"] = "提示动画"
 
 L["Color"] = "颜色"
 
-L["Preview \u2014 "] = "预览 — "
+L["Preview — "] = "预览 — "
