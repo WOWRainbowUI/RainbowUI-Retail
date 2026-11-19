@@ -20,7 +20,7 @@ function SQP:CreateIconOptions(content)
     local posLabel = leftColumn:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     SQP:ApplyDefaultFont(posLabel)
     posLabel:SetPoint("TOPLEFT", 20, yOffset)
-    posLabel:SetText("|cff58be81" .. (self.L["OPTIONS_ICON_POSITION"] or SQP.L["Icon Position"]) .. "|r")
+    posLabel:SetText(SQP:BrandHex() .. (self.L["OPTIONS_ICON_POSITION"] or SQP.L["Icon Position"]) .. "|r")
     yOffset = yOffset - 22
 
 	-- X Offset
@@ -108,7 +108,7 @@ function SQP:CreateIconOptions(content)
     local styleLabel = rightColumn:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     SQP:ApplyDefaultFont(styleLabel)
     styleLabel:SetPoint("TOPLEFT", 20, rightYOffset)
-    styleLabel:SetText("|cff58be81" .. (self.L["OPTIONS_ICON_STYLE"] or SQP.L["Icon Style"]) .. "|r")
+    styleLabel:SetText(SQP:BrandHex() .. (self.L["OPTIONS_ICON_STYLE"] or SQP.L["Icon Style"]) .. "|r")
     rightYOffset = rightYOffset - 22
 
 	-- Global Scale
@@ -134,7 +134,7 @@ function SQP:CreateIconOptions(content)
     -- Toast Animation (the "?" pop when the quest frame shows)
     local markerHeader = rightColumn:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     markerHeader:SetPoint("TOPLEFT", 20, rightYOffset)
-    markerHeader:SetText(SQP.L["|cff58be81Toast Animation|r"])
+    markerHeader:SetText(SQP:BrandHex() .. SQP.L["Toast Animation"] .. "|r")
     SQP:ApplyDefaultFont(markerHeader)
     rightYOffset = rightYOffset - 20
 

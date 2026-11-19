@@ -334,7 +334,7 @@ local function BuildDisplayPage(leftColumn, rightColumn, generalCard)
                 end
             end
             if dd then
-                if dd.label then dd.label:SetTextColor(0.345, 0.745, 0.506) end
+                if dd.label then dd.label:SetTextColor(unpack(SQP.Brand.primary)) end
                 dd:SetPoint("TOPLEFT", c, "TOPLEFT", 8, yOffset)
                 dd:SetPoint("TOPRIGHT", c, "TOPRIGHT", -8, yOffset)
                 SQP:SetControlTooltip(dd, SQP.L["Blizzard contains Classic, coins, medals and badges. RGX contains bundled addon logos. Background selection preserves Text Mode. Unavailable atlases show the SQP logo."])

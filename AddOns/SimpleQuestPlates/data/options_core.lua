@@ -8,7 +8,39 @@
 local addonName, SQP = ...
 local SQPSettings = SQP.db.global
 
-SQP.SECTION_COLOR = {0.345, 0.745, 0.506}
+-- SQP's own brand pair (green primary, purple accent). SQP.Brand is the live pair the option pages read: the own
+-- pair, or the framework's main colour while its beta global theme override is on (ResolveBrand).
+SQP.OwnBrand = { primary = { 0.345, 0.745, 0.506 }, accent = { 0.737, 0.435, 0.659 } }
+SQP.Brand = { primary = { 0.345, 0.745, 0.506 }, accent = { 0.737, 0.435, 0.659 } }
+SQP.SECTION_COLOR = SQP.Brand.primary
+
+-- The addon's brand, registered with the framework (2.19+): SQP's own pair, or the framework's main colour while
+-- its beta global theme override is on. The options panel is built with it and redraws itself on a change.
+function SQP:GetBrand()
+    local D = _G.RGXDesign
+    if not self.BrandObj and D and type(D.RegisterBrand) == "function" then
+        self.BrandObj = D:RegisterBrand("SimpleQuestPlates", self.OwnBrand, nil)
+        self.BrandObj:OnChange(function() SQP:ResolveBrand() end)
+    end
+    return self.BrandObj
+end
+
+-- Rewrite SQP.Brand in place from the brand (option pages read it at paint time) and return it.
+function SQP:ResolveBrand()
+    local brand = self:GetBrand()
+    local own, live = self.OwnBrand, self.Brand
+    local theme = brand and brand:Resolve() or own
+    local p, a = theme.primary or own.primary, theme.accent or own.accent
+    live.primary[1], live.primary[2], live.primary[3] = p[1], p[2], p[3]
+    live.accent[1], live.accent[2], live.accent[3] = a[1], a[2], a[3]
+    return live
+end
+
+-- "|cffRRGGBB" for the live primary, for coloured text on the option pages.
+function SQP:BrandHex()
+    local c = self.Brand.primary
+    return string.format("|cff%02x%02x%02x", math.floor(c[1] * 255 + 0.5), math.floor(c[2] * 255 + 0.5), math.floor(c[3] * 255 + 0.5))
+end
 
 function SQP:CreateOptionsPanel()
     if self.optionsPanel then
@@ -20,23 +52,10 @@ function SQP:CreateOptionsPanel()
     -- One-time font designation for this addon (elements, buttons, and text
     -- all render through RGXFonts:GetDefault()).
     local Fonts = _G.RGXFonts
-    -- The colour choice from the RGX-Framework settings page (Theme tab) wins over SQP's own green. Read once
-    -- here, before the panel is built; a change on that page applies after a reload like the rest of the theme.
-    local function ChosenFrameworkTheme()
-        local db = _G.RGXFrameworkDB
-        local preset = type(db) == "table" and db.themeOverride ~= false and db.themePreset
-        local D = _G.RGXDesign
-        local chosen = preset and D and D.THEME_PRESETS and D.THEME_PRESETS[preset]
-        if type(chosen) ~= "table" or type(chosen.primary) ~= "table" then return nil end
-        return chosen
-    end
-    local FrameworkTheme = ChosenFrameworkTheme()
-    local function Pair(c) return { c[1], c[2], c[3] } end
-    local PRIMARY = FrameworkTheme and Pair(FrameworkTheme.primary) or { 0.345, 0.745, 0.506 }
-    local ACCENT  = FrameworkTheme and FrameworkTheme.accent and Pair(FrameworkTheme.accent) or { 0.737, 0.435, 0.659 }
-    if RGX and type(RGX.SetHighlightColor) == "function" then
-        pcall(function() RGX:SetHighlightColor(PRIMARY, ACCENT) end)
-    end
+    -- The brand pair: SQP's own, or the framework's main colour while its beta theme override is on. Scoped
+    -- to SQP's own UI with WithTheme below; the framework's shared theme is never changed.
+    local live = SQP:ResolveBrand()
+    local PRIMARY, ACCENT = live.primary, live.accent
     if Fonts and type(Fonts.SetDefault) == "function" then
         pcall(function()
             Fonts:Register("SQPStandardText", STANDARD_TEXT_FONT, {
@@ -52,19 +71,16 @@ function SQP:CreateOptionsPanel()
         return
     end
 
-    -- SQP brand green (#58be81) on this addon's UI only unless the operator chose a framework colour (above). Hardcoded default: core.lua
-    -- also writes SQP.SECTION_COLOR ("RGX Blue") and load order decides who
-    -- survives, so do not read it at runtime.
     local BrandTheme = { primary = PRIMARY, accent = ACCENT }
     SQP.optionsTheme = BrandTheme
     local Design = _G.RGXDesign
     local function WithBrand(fn)
         return function(...)
             local args = { ... }
-            if Design and Design.WithTheme then
-                local result
-                Design:WithTheme(BrandTheme, function() result = fn(unpack(args)) end)
-                return result
+            local brand = SQP:GetBrand()
+            if brand then
+                SQP:ResolveBrand()
+                return brand:Build(function() return fn(unpack(args)) end)
             end
             return fn(...)
         end
@@ -73,6 +89,7 @@ function SQP:CreateOptionsPanel()
     local function Build()
         return UI:CreateOptionsPanel({
         addonName    = addonName,
+        addonBrand   = SQP:GetBrand(),
         theme        = BrandTheme,
         title        = SQP.L["SimpleQuestPlates"],
         sidebarTitle = SQP.L["SimpleQuestPlates"],
@@ -148,8 +165,9 @@ function SQP:CreateOptionsPanel()
         })
     end
 
-    if Design and Design.WithTheme then
-        Design:WithTheme(BrandTheme, function() self.optionsPanel = Build() end)
+    local brand = SQP:GetBrand()
+    if brand then
+        self.optionsPanel = brand:Build(Build)
     else
         self.optionsPanel = Build()
     end

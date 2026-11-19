@@ -192,7 +192,7 @@ function SQP:CreateKillOptions(content)
         local colorHeader = c:CreateFontString(nil, "ARTWORK", "GameFontNormal")
         SQP:ApplyDefaultFont(colorHeader)
         colorHeader:SetPoint("TOPLEFT", 8, yOffset)
-        colorHeader:SetText(SQP.L["|cff58be81Color|r"])
+        colorHeader:SetText(SQP:BrandHex() .. SQP.L["Color"] .. "|r")
         yOffset = yOffset - 16
 
         local killDefault = {1, 0.82, 0}
