@@ -118,10 +118,10 @@ function Target:ApplySettings()
 	db = self.db.profile
 
 	if TargetFrameSpellBar then
+		-- The stripped events cannot safely be restored, re-enabling takes a reload.
 		if self:IsEnabled() and db.hideblizz then
 			TargetFrameSpellBar:UnregisterAllEvents()
 			TargetFrameSpellBar:Hide()
-		-- We cannot safely re-enable it without a reload because we stripped its events
 		end
 	end
 

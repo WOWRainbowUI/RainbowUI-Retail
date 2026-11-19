@@ -59,7 +59,6 @@ local function call(obj, method, ...)
 	end
 end
 
--- Cancel native timer animation and reclaim bar control
 local function CancelTimerAnimation(self)
 	if self.hasSecretTiming then
 		-- Reclaim value control and rebind the fill texture the native timer reset.
@@ -74,7 +73,6 @@ function CastBarTemplate:CancelTimerAnimation()
 	CancelTimerAnimation(self)
 end
 
--- Apply backdrop settings
 local function ApplyBackdropSettings(self, db, notInterruptible)
 	if notInterruptible and db.noInterruptChangeBorder then
 		self.backdrop.edgeFile = media:Fetch("border", db.noInterruptBorder)
@@ -96,7 +94,6 @@ local function ApplyBackdropSettings(self, db, notInterruptible)
 	self:SetBackdropColor(br, bg, bb, Quartz3.db.profile.backgroundalpha)
 end
 
--- Common cleanup after cast ends
 local function CleanupCastEnd(self)
 	self.TimeText:SetText("")
 	if self.NoInterruptBorderOverlay then
@@ -123,7 +120,6 @@ local function OnUpdate(self)
 	local startTime, endTime, delay = self.startTime, self.endTime, self.delay
 	local db = self.config
 	
-	-- use duration object if available
 	if self.hasSecretTiming then
 		local durationObj = self.durationObject
 		if durationObj and durationObj.GetRemainingDuration then
@@ -133,13 +129,11 @@ local function OnUpdate(self)
 			else
 				self.TimeText:SetText("")
 			end
-			-- Animation is handled by the bar's native SetTimerDuration
 		else
 			self.TimeText:SetText("")
 		end
 
-		-- If still casting, check unit is still casting (handles out-of-range / missed STOP events)
-		-- If finished/fading, fall through to allow fadeOut animation below
+		-- STOP events are missed when the unit goes out of range, so the cast is polled.
 		if self.channeling or self.casting then
 			local stillCasting
 			if self.casting then
@@ -149,7 +143,6 @@ local function OnUpdate(self)
 			end
 
 			if not stillCasting then
-				-- Cast ended or unit went out of range
 				CancelTimerAnimation(self)
 				self.Bar:SetValue(self.casting and 1.0 or 0)
 				self.Bar:SetStatusBarColor(unpack(Quartz3.db.profile.completecolor))
@@ -157,7 +150,6 @@ local function OnUpdate(self)
 				self.fadeOut = true
 				self.stopTime = currentTime
 				CleanupCastEnd(self)
-				-- Fall through to fadeOut block
 			else
 				if self.Spark then self.Spark:Hide() end
 				return
@@ -328,7 +320,6 @@ local function ToggleCastNotInterruptible(self, notInterruptible, init)
 	ApplyImportantStyle(self, isImportant, notInterruptible)
 
 	if isSecret then
-		-- Shield handling with SetAlphaFromBoolean
 		if self.Shield then
 			if not db.hideicon and db.noInterruptShield and self.Shield.SetAlphaFromBoolean then
 				self.Shield:Show()
@@ -338,7 +329,6 @@ local function ToggleCastNotInterruptible(self, notInterruptible, init)
 			end
 		end
 
-		-- Border overlay with SetAlphaFromBoolean
 		if self.NoInterruptBorderOverlay then
 			if db.noInterruptChangeBorder then
 				self.NoInterruptBorderOverlay.backdrop.edgeFile = media:Fetch("border", db.noInterruptBorder)
@@ -424,8 +414,6 @@ function CastBarTemplate:UNIT_SPELLCAST_START(event, unit, guid, spellID)
 	-- Before the native timer binds the bars, so the overlay texture is never changed under a running timer.
 	ApplyImportantStyle(self, isImportant, notInterruptible)
 
-	-- endTime/numStages can be secret for other players' casts.
-	-- Revisit if Blizzard provides a proper API for empower duration with secrets.
 	local hasSecret = issecretvalue(startTime) or issecretvalue(endTime)
 	local isChargeSpell
 	if hasSecret then
@@ -446,11 +434,9 @@ function CastBarTemplate:UNIT_SPELLCAST_START(event, unit, guid, spellID)
 		self.casting, self.channeling, self.chargeSpell = nil, true, nil
 	end
 
-	-- Handle secret timing values
 	if hasSecret then
 		self.hasSecretTiming = true
 		
-		-- Try to get Duration object for animation
 		local durationObj
 		if self.channeling then
 			if UnitEmpoweredChannelDuration then durationObj = UnitEmpoweredChannelDuration(unit) end
@@ -459,20 +445,18 @@ function CastBarTemplate:UNIT_SPELLCAST_START(event, unit, guid, spellID)
 			if UnitCastingDuration then durationObj = UnitCastingDuration(unit) end
 		end
 		
-		-- If we have a duration object and StatusBar supports SetTimerDuration
 		if durationObj and self.Bar.SetTimerDuration then
 			self.durationObject = durationObj
 			local direction = self.channeling and Enum.StatusBarTimerDirection.RemainingTime or Enum.StatusBarTimerDirection.ElapsedTime
 			self.Bar:SetMinMaxValues(0, 1)
 			self.Bar:SetTimerDuration(durationObj, Enum.StatusBarInterpolation.Immediate, direction)
 		else
-			-- Fallback: static bar position
 			self.durationObject = nil
 			self.Bar:SetMinMaxValues(0, 1)
 			self.Bar:SetValue(self.casting and 0.5 or 0.5)
 		end
 		
-		-- Store dummy values for compatibility
+		-- Non-secret placeholders for the readers that do arithmetic on start and end times.
 		self.startTime = GetTime()
 		self.endTime = self.startTime + 1
 	else
@@ -521,7 +505,6 @@ function CastBarTemplate:UNIT_SPELLCAST_START(event, unit, guid, spellID)
 		self.Spark:Show()
 	end
 
-	-- Check Samwise icon - skip if icon is secret
 	if not issecretvalue(icon) then
 		if (icon == "Interface\\Icons\\Temp" or icon == 136235) and Quartz3.db.profile.hidesamwise then
 			icon = 136243
@@ -619,7 +602,6 @@ function CastBarTemplate:UNIT_SPELLCAST_DELAYED(event, unit)
 		return
 	end
 	
-	-- If we have secret timing, we can't calculate delays
 	if self.hasSecretTiming then
 		return
 	end
@@ -636,7 +618,6 @@ function CastBarTemplate:UNIT_SPELLCAST_DELAYED(event, unit)
 		return self:Hide()
 	end
 
-	-- Check for secret values before arithmetic
 	if issecretvalue(startTime) or issecretvalue(endTime) then
 		self.hasSecretTiming = true
 		return
@@ -752,9 +733,7 @@ function CastBarTemplate:ApplySettings()
 	local normaltimewidth = self.TimeText:GetStringWidth()
 	self.TimeText:SetText(temptext)
 
-	-- GetStringWidth() returns a secret value when the FontString has secret anchoring
-	-- (from StatusBar using SetTimerDuration during an active cast).
-	-- Fall back to a font-size-based heuristic (same pattern as EnemyCasts.lua).
+	-- GetStringWidth() is secret while the bar runs a native timer.
 	if issecretvalue(normaltimewidth) then
 		normaltimewidth = db.timefontsize * (db.hidecasttime and 3 or 6)
 	end
@@ -1712,7 +1691,6 @@ function Quartz3.CastBarTemplate:new(parent, unit, name, localizedName, config)
 
 	bar.Bar      = Quartz3:CreateStatusBar(nil, bar) --CreateFrame("StatusBar", nil, bar)
 	
-	-- TextFrame ensures text is always above bars and overlays
 	bar.TextFrame = CreateFrame("Frame", nil, bar)
 	bar.TextFrame:SetAllPoints(bar.Bar)
 	bar.TextFrame:SetFrameLevel(bar.Bar:GetFrameLevel() + 4)
@@ -1737,7 +1715,6 @@ function Quartz3.CastBarTemplate:new(parent, unit, name, localizedName, config)
 		bar.Shield:SetPoint("CENTER", bar.Icon, "CENTER", -2, -1)
 		bar.Shield:Hide()
 		
-		-- NoInterruptBorderOverlay: border-only frame, uses SetAlphaFromBoolean with notInterruptible
 		bar.NoInterruptBorderOverlay = CreateFrame("Frame", nil, bar, "BackdropTemplate")
 		bar.NoInterruptBorderOverlay:SetAllPoints(bar)
 		bar.NoInterruptBorderOverlay:SetFrameLevel(bar:GetFrameLevel() + 1)

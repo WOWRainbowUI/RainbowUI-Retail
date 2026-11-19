@@ -1,5 +1,5 @@
 ## Title: Quartz
-## Interface: 120000,120001,120005,120007,120100,120105,16001
+## Interface: 120000,120001,120005,120007,120100,120105,120107,16001
 ## Notes: Modular casting bar.
 ## Author: Nevcairiel, Nymbia
 ## Version: 3.8.11

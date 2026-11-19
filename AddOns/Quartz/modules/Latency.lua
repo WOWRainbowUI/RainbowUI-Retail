@@ -51,10 +51,7 @@ local defaults = {
 		lagtextcolor = {0.7, 0.7, 0.7, 0.8},
 		lagtextalignment = "center", -- L["Left"], L["Right"]
 		lagtextposition = "bottom", --L["Top"], L["Above"], L["Below"]
-
-		-- lagmode: "default" = lag at cast end side, "embed" = lag at cast start + time shift, "right" = always right
-		-- lagpadding is applied only if lagmode == "embed"
-		lagmode = "default",
+		lagmode = "default", -- "default" | "embed" | "right"
 		lagpadding = 0.0,
 	}
 }
@@ -117,7 +114,6 @@ end
 function Latency:UNIT_SPELLCAST_START(object, bar, unit, guid, spellID)
 	self.hooks[object].UNIT_SPELLCAST_START(object, bar, unit, guid, spellID)
 
-	-- Cast times may be secret - skip latency display
 	if bar.hasSecretTiming then
 		lagbox:Hide()
 		lagtext:Hide()
@@ -203,7 +199,6 @@ end
 function Latency:UNIT_SPELLCAST_DELAYED(object, bar, unit)
 	self.hooks[object].UNIT_SPELLCAST_DELAYED(object, bar, unit)
 
-	-- Skip if cast bar has secret timing
 	if bar.hasSecretTiming then
 		return
 	end

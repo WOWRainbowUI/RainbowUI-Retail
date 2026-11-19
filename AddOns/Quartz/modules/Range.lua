@@ -28,11 +28,13 @@ local Player = Quartz3:GetModule("Player")
 local CreateFrame, UIParent = CreateFrame, UIParent
 local UnitExists, UnitCanAssist, UnitCanAttack = UnitExists, UnitCanAssist, UnitCanAttack
 local UnitInRange, UnitName, UnitCastingInfo = UnitInRange, UnitName, UnitCastingInfo
-local unpack, select, ipairs = unpack, select, ipairs
+local unpack, select, ipairs, tostring = unpack, select, ipairs, tostring
+local format, strtrim = string.format, strtrim
 
 local IsSpellInRange = C_Spell.IsSpellInRange
 local IsSpellUsable = C_Spell.IsSpellUsable
 local GetSpellName = C_Spell.GetSpellName
+local GetSpellTexture = C_Spell.GetSpellTexture
 local InCombatLockdown = InCombatLockdown
 
 ----------------------------
@@ -101,27 +103,34 @@ local cacheTimer, cachePending
 local defaults = {
 	profile = {
 		rangecolor = { 1, 1, 1 },
+		spells = { friendly = {}, hostile = {} },
 	}
 }
 
 ----------------------------
 -- Spell cache
-local function updateSpellCache()
-	rangeSpells.friendly = nil
-	rangeSpells.hostile = nil
+local function usableSpell(spellID)
+	-- Forever keeps spell ranks: the name resolves to the highest known rank, the ID would test rank 1 only.
+	local spell = Quartz3.IsForever and GetSpellName(spellID) or spellID
+	if spell and IsSpellUsable(spell) then
+		return spell
+	end
+end
 
+local function updateSpellCache()
 	for _, category in ipairs({ "friendly", "hostile" }) do
+		local custom = db.spells[category][playerClass]
+		local spell = custom and usableSpell(custom) or nil
 		local spellList = classSpells[category][playerClass]
-		if spellList then
+		if not spell and spellList then
 			for _, spellID in ipairs(spellList) do
-				-- Forever keeps spell ranks: the name resolves to the highest known rank, the ID would test rank 1 only.
-				local spell = Quartz3.IsForever and GetSpellName(spellID) or spellID
-				if spell and IsSpellUsable(spell) then
-					rangeSpells[category] = spell
+				spell = usableSpell(spellID)
+				if spell then
 					break
 				end
 			end
 		end
+		rangeSpells[category] = spell
 	end
 end
 
@@ -130,12 +139,11 @@ end
 local function setupOverlay()
 	if rangeOverlay then return end
 
-	-- Intermediate frame for UnitInRange fallback (controls checkedRange visibility)
+	-- Nested alpha holders let the secret UnitInRange booleans drive the overlay without being tested.
 	rangeCheckedFrame = CreateFrame("Frame", nil, castBar)
 	rangeCheckedFrame:SetAllPoints(castBar:GetStatusBarTexture())
 	rangeCheckedFrame:SetAlpha(1)
 
-	-- Overlay texture colored with rangecolor (solid color, anchored to fill area)
 	rangeOverlay = rangeCheckedFrame:CreateTexture(nil, "OVERLAY")
 	rangeOverlay:SetAllPoints(rangeCheckedFrame)
 	rangeOverlay:SetColorTexture(1, 1, 1)
@@ -150,7 +158,6 @@ do
 	local sincelast = 0
 
 	function OnUpdate(frame, elapsed)
-		-- Immediate cleanup (not throttled)
 		if not castBar:IsVisible() or Player.Bar.fadeOut then
 			rangeOverlay:SetAlpha(0)
 			rangeCheckedFrame:SetAlpha(1)
@@ -164,7 +171,6 @@ do
 		end
 		sincelast = 0
 
-		-- Determine spell based on target relationship
 		local spell
 		if UnitCanAssist("player", "target") then
 			spell = rangeSpells.friendly
@@ -182,7 +188,7 @@ do
 				rangeOverlay:SetAlpha(0)
 			end
 		elseif UnitExists("target") then
-			-- Fallback: UnitInRange (returns secret booleans)
+			-- UnitInRange returns secret booleans.
 			local inRange, checkedRange = UnitInRange("target")
 			rangeCheckedFrame:SetAlphaFromBoolean(checkedRange, 1, 0)
 			rangeOverlay:SetAlphaFromBoolean(inRange, 0, 1)
@@ -212,9 +218,9 @@ function Range:OnEnable()
 	self:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START")
 	self:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED", "UpdateSpellCache")
 	self:RegisterEvent("PLAYER_ENTERING_WORLD", "ScheduleSpellCache")
+	self:RegisterEvent("PLAYER_REGEN_ENABLED")
 	if Quartz3.IsForever then
 		self:RegisterEvent("SPELLS_CHANGED", "ScheduleSpellCache")
-		self:RegisterEvent("PLAYER_REGEN_ENABLED")
 	end
 	updateSpellCache()
 end
@@ -237,6 +243,7 @@ function Range:ApplySettings()
 	if rangeOverlay then
 		rangeOverlay:SetVertexColor(unpack(db.rangecolor))
 	end
+	self:ScheduleSpellCache()
 end
 
 function Range:UpdateSpellCache()
@@ -308,6 +315,43 @@ Range.UNIT_SPELLCAST_CHANNEL_START = Range.UNIT_SPELLCAST_START
 -- Options UI
 do
 	local options
+
+	local function spellOption(category, label, desc, order)
+		local usage = L["Enter a spell ID, a spell name, or shift-click a spell or talent to link it"]
+		return {
+			type = "input",
+			dialogControl = "Quartz3SpellEditBox",
+			width = "double",
+			name = function()
+				local spell = db.spells[category][playerClass] or rangeSpells[category]
+				if not spell then
+					return label
+				end
+				return format("|T%s:16:16:0:0|t %s (%s)", GetSpellTexture(spell) or 134400, label, GetSpellName(spell) or spell)
+			end,
+			desc = desc .. "\n\n" .. usage,
+			validate = function(info, value)
+				if strtrim(value) ~= "" and not Quartz3.Util.ResolveSpellInput(value) then
+					return usage
+				end
+				return true
+			end,
+			get = function()
+				local spellID = db.spells[category][playerClass]
+				return spellID and tostring(spellID) or ""
+			end,
+			set = function(info, value)
+				db.spells[category][playerClass] = Quartz3.Util.ResolveSpellInput(value)
+				if InCombatLockdown() then
+					cachePending = true
+				else
+					updateSpellCache()
+				end
+			end,
+			order = order,
+		}
+	end
+
 	function getOptions()
 		if not options then
 			options = {
@@ -341,6 +385,13 @@ do
 						end,
 						order = 101,
 					},
+					spellsbreak = {
+						type = "description",
+						name = "",
+						order = 102,
+					},
+					friendlyspell = spellOption("friendly", L["Friendly Target Spell"], L["Spell used to test the range to friendly targets, for your current class only. Leave empty to use the class default."], 103),
+					hostilespell = spellOption("hostile", L["Hostile Target Spell"], L["Spell used to test the range to hostile targets, for your current class only. Leave empty to use the class default."], 104),
 				},
 			}
 		end

@@ -18,8 +18,6 @@
 ]]
 local Quartz3 = LibStub("AceAddon-3.0"):GetAddon("Quartz3")
 
--- Use native StatusBar prototype to allow method lookup via __index
--- We use a real StatusBar so that if we add custom methods to it, they are found
 local QuartzStatusBar = CreateFrame("StatusBar")
 local MetaTable = {__index = QuartzStatusBar}
 
@@ -28,14 +26,11 @@ QuartzStatusBar.__rotatesTexture = 1
 function Quartz3:CreateStatusBar(name, parent)
 	local bar = setmetatable(CreateFrame("StatusBar", name, parent, "BackdropTemplate"), MetaTable)
 	
-	-- Use native texture setting
-	-- Note: Native SetStatusBarTexture expects a path/ID usually
 	bar:SetStatusBarTexture([[Interface\TargetingFrame\UI-StatusBar]])
 	
 	bar:SetMinMaxValues(0, 100)
 	bar:SetValue(0)
 	
-	-- Hook SetOrientation to handle texture rotation if enabled (Quartz feature)
 	hooksecurefunc(bar, "SetOrientation", function(self, orientation)
 		if self.__rotatesTexture then
 			local tex = self:GetStatusBarTexture()
@@ -46,7 +41,6 @@ function Quartz3:CreateStatusBar(name, parent)
 	return bar
 end
 
--- Custom methods found via __index
 function QuartzStatusBar:GetRotatesTexture()
 	return self.__rotatesTexture
 end
@@ -96,6 +90,3 @@ function Quartz3:SetImportantOverlay(host, isImportant, textureFile, notInterrup
 		overlay:Hide()
 	end
 end
-
--- Native methods (SetMinMaxValues, SetValue, SetStatusBarColor, SetTimerDuration) 
--- are called directly on the instance (bar) and do not go through __index

@@ -163,7 +163,6 @@ function Quartz3:ApplySettings()
 	for i = 1, #self.orderedModules do
 		local v = self.orderedModules[i]
 		local k = v.moduleName
-		-- Modules toggled while unlocked take their preview with them.
 		if self:GetModuleEnabled(k) and not v:IsEnabled() then
 			self:EnableModule(k)
 			if self.unlock and type(v.Unlock) == "function" then
@@ -291,7 +290,6 @@ function Quartz3:SetModuleEnabled(module, value)
 	local old = db.modules[module]
 	db.modules[module] = value
 	if old ~= value then
-		-- Modules toggled while unlocked take their preview with them.
 		local mod = self:GetModule(module, true)
 		if value then
 			self:EnableModule(module)
@@ -343,7 +341,6 @@ function Quartz3.Util.ApplyFontStyle(fontString, font, size, outline, shadowColo
 		fontObject:SetShadowOffset(0, 0)
 	end
 
-	-- La couleur reste gérée par SetTextColor (override par-FontString) chez l'appelant.
 	fontString:SetFontObject(fontObject)
 end
 
