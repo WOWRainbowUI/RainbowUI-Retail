@@ -1685,6 +1685,13 @@ if GameLocale == "zhCN" then
 	L["Zul'Farrak"] = "祖尔法拉克"
 	L["Zul'Gurub"] = "祖尔格拉布"
 	L["Zygor addon not found."] = "你尚未安装Zygor插件。"
+	L["Destination"] = "目的地"
+	L["Dungeon and raid names"] = "地下城与团队副本名称"
+	L["Dungeon name"] = "地下城名称"
+	L["Flight point"] = "飞行点"
+	L["Place name"] = "地点名称"
+	L["Raid name"] = "团队副本名称"
+	L["Spirit Healer"] = "灵魂医者"
 end
 
 if GameLocale == "zhTW" then
@@ -3354,4 +3361,11 @@ if GameLocale == "zhTW" then
 	L["Zul'Farrak"] = "祖爾法拉克"
 	L["Zul'Gurub"] = "祖爾格拉布"
 	L["Zygor addon not found."] = "你尚未安裝Zygor插件。"
+	L["Destination"] = "目的地"
+	L["Dungeon and raid names"] = "地城與團隊副本名稱"
+	L["Dungeon name"] = "地城名稱"
+	L["Flight point"] = "飛行點"
+	L["Place name"] = "地點名稱"
+	L["Raid name"] = "團隊副本名稱"
+	L["Spirit Healer"] = "靈魂醫者"
 end
