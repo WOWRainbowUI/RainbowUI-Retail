@@ -1,5 +1,5 @@
 ----------------------------------------------------------------------
--- 	Leatrix Plus 12.1.17 (11th November 2026)
+-- 	Leatrix Plus 12.1.18 (18th November 2026)
 ----------------------------------------------------------------------
 
 --	01:Functions 02:Locks,  03:Restart 40:Player
@@ -18,7 +18,7 @@
 	local void
 
 	-- Version
-	LeaPlusLC["AddonVer"] = "12.1.17"
+	LeaPlusLC["AddonVer"] = "12.1.18"
 
 	-- Get locale table
 	local void, Leatrix_Plus = ...
@@ -637,7 +637,6 @@
 		or	(LeaPlusLC["HideMiniAddonMenu"]		~= LeaPlusDB["HideMiniAddonMenu"])		-- Hide addon menu
 		or	(LeaPlusLC["UnclampMinimap"]		~= LeaPlusDB["UnclampMinimap"])			-- Unclamp minimap cluster
 		or	(LeaPlusLC["MinimapButtonBag"]		~= LeaPlusDB["MinimapButtonBag"])		-- Minimap button bag
-		or	(LeaPlusLC["MiniExcludeList"]		~= LeaPlusDB["MiniExcludeList"])		-- Minimap exclude list
 		or	(LeaPlusLC["TipModEnable"]			~= LeaPlusDB["TipModEnable"])			-- Enhance tooltip
 		or	(LeaPlusLC["TipNoHealthBar"]		~= LeaPlusDB["TipNoHealthBar"])			-- Tooltip hide health bar
 		or	(LeaPlusLC["EnhanceDressup"]		~= LeaPlusDB["EnhanceDressup"])			-- Enhance dressup
@@ -8475,37 +8474,77 @@
 			PetPortrait:GetParent():SetFrameLevel(4)
 			RuneFrame:SetFrameLevel(4)
 
-			-- Create chain texture
-			local playerChain = PlayerFrame.PlayerFrameContainer:CreateTexture(nil, "OVERLAY")
-			playerChain:SetTexCoord(1, 0, 0, 1)
+			local container = PlayerFrame.PlayerFrameContainer
+			local portrait = container.PlayerPortrait
+			local cornerIcon = PlayerFrame.PlayerFrameContent.PlayerFrameContentContextual.PlayerPortraitCornerIcon
+
+			-- Modern chains (atlas, x offset, y offset)
+			local modernChain = container:CreateTexture(nil, "OVERLAY")
+			modernChain:SetTexCoord(1, 0, 0, 1) -- Flip horizontally (target frame art faces the other way)
+			local modernStyles = {
+				[1] = {"UI-HUD-UnitFrame-Target-PortraitOn-Boss-Gold", 8, -9}, -- Elite (Gold)
+				[2] = {"UI-HUD-UnitFrame-Target-PortraitOn-Boss-Gold-Winged", -11, -8}, -- Boss (Gold Winged)
+				[3] = {"UI-HUD-UnitFrame-Target-PortraitOn-Boss-Rare-Silver", 8, -9}, -- Rare (Silver)
+			}
+
+			-- Classic chains (drawn for a 64x64 portrait so they are scaled to the 60x60 player portrait)
+			local classicScale = 60 / 64
+			local classicChain = container:CreateTexture(nil, "OVERLAY")
+			classicChain:SetSize(113 * classicScale, 99 * classicScale)
+			classicChain:SetPoint("TOPLEFT", portrait, "CENTER", -73 * classicScale, 44 * classicScale)
+
+			-- Left, right, top, bottom (all in Leatrix_Plus.blp)
+			local classicStyles = {
+				[4] = {0, 0.2207, 0.5, 0.8906}, -- Classic rare
+				[5] = {0.25, 0.4707, 0.5, 0.8906}, -- Classic elite
+				[6] = {0.5, 0.7207, 0.5, 0.8906}, -- Classic rare elite (dragon)
+				[7] = {0.25, 0.4707, 0, 0.3867}, -- Runic stone
+				[8] = {0.5, 0.7207, 0, 0.3867}, -- Champion laurels
+				[9] = {0.75, 0.9707, 0, 0.3867}, -- Thorned vine
+				[10] = {0, 0.2207, 0.0782, 0.4648}, -- Leatrix
+			}
+
+			-- Used by class colored frames (chain in class color)
+			LeaPlusLC.PlayerChainTextures = {modernChain, classicChain}
 
 			-- Create configuration panel
 			local ChainPanel = LeaPlusLC:CreatePanel("Show player chain", "ChainPanel")
 
 			-- Add dropdown menu
-			LeaPlusLC:CreateDropdown("PlayerChainMenu", "Chain style", 146, "TOPLEFT", ChainPanel, "TOPLEFT", 16, -92, false, {{L["ELITE"], 1}, {L["BOSS"], 2}, {L["RARE"], 3}})
+			local chainItems = {{L["MODERN ELITE"], 1}, {L["MODERN BOSS"], 2}, {L["MODERN RARE"], 3}, {L["CLASSIC RARE"], 4}, {L["CLASSIC ELITE"], 5}, {L["CLASSIC RARE ELITE"], 6}, {L["RUNIC STONE"], 7}, {L["CHAMPION LAURELS"], 8}, {L["THORNED VINE"], 9}, {L["LEATRIX"], 10}}
+			LeaPlusLC:CreateDropdown("PlayerChainMenu", "Chain style", 180, "TOPLEFT", ChainPanel, "TOPLEFT", 16, -92, false, chainItems)
+
+			-- Make the dropdown menu as wide as its longest item (the text inset and arrow need 40 pixels)
+			local chainDropdown = LeaPlusCB["PlayerChainMenu"]
+			if chainDropdown.Text then
+				local measure = chainDropdown:CreateFontString(nil, "OVERLAY")
+				measure:SetFont(chainDropdown.Text:GetFont())
+				local longest = 0
+				for i = 1, #chainItems do
+					measure:SetText(chainItems[i][1])
+					longest = math.max(longest, measure:GetUnboundedStringWidth())
+				end
+				measure:Hide()
+				chainDropdown:SetWidth(math.ceil(longest) + 40)
+			end
 
 			-- Set chain style
 			local function SetChainStyle()
-				-- Get dropdown menu value
 				local chain = LeaPlusLC["PlayerChainMenu"] -- Numeric value
-				-- Set chain style according to value
-				if chain == 1 then -- Elite (Gold)
-					playerChain:SetAtlas("UI-HUD-UnitFrame-Target-PortraitOn-Boss-Gold", true)
-					playerChain:ClearAllPoints()
-					playerChain:SetPoint("TOPLEFT", 8, -9)
-					playerChain:SetVertexColor(1, 1, 1, 1)
-				elseif chain == 2 then -- Boss (Gold Winged)
-					playerChain:SetAtlas("UI-HUD-UnitFrame-Target-PortraitOn-Boss-Gold-Winged", true)
-					playerChain:ClearAllPoints()
-					playerChain:SetPoint("TOPLEFT", -11, -8)
-					playerChain:SetVertexColor(1, 1, 1, 1)
-				elseif chain == 3 then -- Rare (Silver)
-					playerChain:SetAtlas("UI-HUD-UnitFrame-Target-PortraitOn-Boss-Rare-Silver", true)
-					playerChain:ClearAllPoints()
-					playerChain:SetPoint("TOPLEFT", 8, -9)
-					playerChain:SetVertexColor(1, 1, 1, 1)
+				local modern, classic = modernStyles[chain], classicStyles[chain]
+				modernChain:SetShown(modern ~= nil)
+				classicChain:SetShown(classic ~= nil)
+				if modern then
+					modernChain:SetAtlas(modern[1], true)
+					modernChain:ClearAllPoints()
+					modernChain:SetPoint("TOPLEFT", modern[2], modern[3])
+				elseif classic then
+					classicChain:SetTexture("Interface\\AddOns\\Leatrix_Plus\\Leatrix_Plus.blp")
+					classicChain:SetTexCoord(classic[1], classic[2], classic[3], classic[4])
 				end
+				-- Classic chains do not cover the portrait corner icon so make it invisible (alpha is used as Blizzard shows and hides it)
+				if cornerIcon then cornerIcon:SetAlpha(classic and 0 or 1) end
+				if LeaPlusLC.UpdateChainColor then LeaPlusLC.UpdateChainColor() end -- Class colored frames
 			end
 
 			-- Set style when dropdown menu is updated and on startup
@@ -8664,39 +8703,23 @@
 				end)
 			end
 
-			-- Find player chain texture (created by show player chain if enabled)
-			local chainTex
-			local chainAtlas = {["UI-HUD-UnitFrame-Target-PortraitOn-Boss-Gold"] = true, ["UI-HUD-UnitFrame-Target-PortraitOn-Boss-Gold-Winged"] = true, ["UI-HUD-UnitFrame-Target-PortraitOn-Boss-Rare-Silver"] = true}
-			for i, region in ipairs({PlayerFrame.PlayerFrameContainer:GetRegions()}) do
-				if region:GetObjectType() == "Texture" and region:GetAtlas() and chainAtlas[region:GetAtlas()] then
-					chainTex = region
-					break
-				end
-			end
-
-			-- Function to set player chain color
-			local chainBusy
+			-- Function to set player chain color (chain textures are given by show player chain if enabled)
 			local function ChainCol()
-				if not chainTex then return end
-				chainBusy = true
-				if LeaPlusLC["ClassColChain"] == "On" and c then
-					chainTex:SetDesaturated(true)
-					chainTex:SetVertexColor(c.r, c.g, c.b)
-				else
-					chainTex:SetDesaturated(false)
-					chainTex:SetVertexColor(1, 1, 1, 1)
+				local chains = LeaPlusLC.PlayerChainTextures
+				if not chains then return end
+				for i, chainTex in ipairs(chains) do
+					if LeaPlusLC["ClassColChain"] == "On" and c then
+						chainTex:SetDesaturated(true)
+						chainTex:SetVertexColor(c.r, c.g, c.b)
+					else
+						chainTex:SetDesaturated(false)
+						chainTex:SetVertexColor(1, 1, 1, 1)
+					end
 				end
-				chainBusy = nil
 			end
 
-			-- Refresh player chain color when chain style is changed (chain style resets vertex color)
-			if chainTex then
-				hooksecurefunc(chainTex, "SetVertexColor", function()
-					if not chainBusy and LeaPlusLC["ClassColChain"] == "On" then
-						ChainCol()
-					end
-				end)
-			end
+			-- Refresh player chain color when the chain style is changed
+			LeaPlusLC.UpdateChainColor = ChainCol
 
 			-- Create color function for target and focus frames
 			local function TargetFrameCol()
@@ -8800,9 +8823,9 @@
 				-- Reset checkboxes
 				LeaPlusLC["ClassColPlayer"] = "On"
 				LeaPlusLC["ClassColTarget"] = "On"
-				LeaPlusLC["ClassColPlayerBorder"] = "Off"
-				LeaPlusLC["ClassColTargetBorder"] = "Off"
-				LeaPlusLC["ClassColChain"] = "Off"
+				LeaPlusLC["ClassColPlayerBorder"] = "On"
+				LeaPlusLC["ClassColTargetBorder"] = "On"
+				LeaPlusLC["ClassColChain"] = "On"
 
 				-- Update colors and refresh configuration panel
 				SetClassColFrames()
@@ -8816,9 +8839,9 @@
 					-- Preset profile
 					LeaPlusLC["ClassColPlayer"] = "On"
 					LeaPlusLC["ClassColTarget"] = "On"
-					LeaPlusLC["ClassColPlayerBorder"] = "Off"
-					LeaPlusLC["ClassColTargetBorder"] = "Off"
-					LeaPlusLC["ClassColChain"] = "Off"
+					LeaPlusLC["ClassColPlayerBorder"] = "On"
+					LeaPlusLC["ClassColTargetBorder"] = "On"
+					LeaPlusLC["ClassColChain"] = "On"
 					SetClassColFrames()
 				else
 					ClassFrame:Show()
@@ -10117,6 +10140,69 @@
 
 			local miniFrame = CreateFrame("FRAME")
 			local LibDBIconStub = LibStub("LibDBIcon-1.0")
+
+			----------------------------------------------------------------------
+			-- Kept addon buttons (buttons which stay on the minimap)
+			----------------------------------------------------------------------
+
+			-- Kept buttons are stored in LeaPlusDB["MiniKeepButtons"] by lower case button name.  A value of true
+			-- matches the whole name.  A value of "old" is an entry converted from the old typed exclude list and
+			-- keeps the old matching (the button name only has to be found in the entry).
+
+			-- Function to check if a button should stay on the minimap
+			local function IsButtonKept(name)
+				local keep = LeaPlusDB["MiniKeepButtons"]
+				if type(keep) ~= "table" or not name then return false end
+				local lname = strlower(name)
+				if keep[lname] then return true end
+				for token, value in pairs(keep) do
+					if value == "old" and strfind(token, lname, 1, true) then return true end
+				end
+				return false
+			end
+
+			-- Function to apply the kept state to a button straight away (set further down)
+			local ApplyMiniButtonKeep
+
+			-- All The Things removes its button border and background, makes its button larger, uses a large
+			-- highlight and a square icon, so put its button back to the standard round LibDBIcon look
+			local tamedButtons = {}
+			local function TameAllTheThings(name, button)
+				button:SetSize(31, 31)
+				if tamedButtons[button] then return end
+				tamedButtons[button] = true
+				-- All The Things can resize its button at any time (such as from its settings) so keep the standard size
+				local sizing
+				hooksecurefunc(button, "SetSize", function(self)
+					if sizing then return end
+					sizing = true
+					self:SetSize(31, 31)
+					sizing = false
+				end)
+				-- Highlight
+				LibDBIconStub:ResetButtonHighlightTexture(name)
+				-- Border (All The Things removes it so create a new one for LibDBIcon to set up)
+				if not button.border then
+					button.border = button:CreateTexture(nil, "OVERLAY")
+				end
+				LibDBIconStub:ResetButtonBorder(name)
+				-- Background and icon size
+				LibDBIconStub:ResetButtonBackground(name)
+				LibDBIconStub:ResetButtonIcon(name)
+				-- Round icon
+				if button.icon then
+					local mask = button:CreateMaskTexture()
+					mask:SetTexture("Interface\\CharacterFrame\\TempPortraitAlphaMask", "CLAMPTOBLACKADDITIONAL", "CLAMPTOBLACKADDITIONAL")
+					mask:SetAllPoints(button.icon)
+					button.icon:AddMaskTexture(mask)
+				end
+			end
+
+			-- Tame All The Things now if it has already created its button (new buttons are done in the LibDBIcon callback)
+			if LibDBIconStub:GetMinimapButton("AllTheThings") then
+				TameAllTheThings("AllTheThings", LibDBIconStub:GetMinimapButton("AllTheThings"))
+			end
+
 			if LeaPlusLC["SquareMinimap"] == "On" then
 				LibDBIconStub:SetButtonRadius(0.165)
 			else
@@ -10124,54 +10210,64 @@
 			end
 
 			----------------------------------------------------------------------
-			-- Button test mode
-			----------------------------------------------------------------------
-
-			-- Create a ton of minimap buttons for test purposes
-			local useMinimapButtonTestMode = false
-			if useMinimapButtonTestMode then
-				local numberOfTestButtons = 50
-				local miniTable = {}
-				for i = 1, numberOfTestButtons do
-					miniTable[i] = LibStub("LibDataBroker-1.1"):NewDataObject("Leatrix_Plus" .. i, {
-						type = "data source",
-						text = "Test Addon " .. i,
-						icon = "Interface\\HELPFRAME\\ReportLagIcon-Movement",
-						OnClick = function(self, btn)
-							LeaPlusGlobalMiniBtnClickFunc(btn)
-						end,
-						OnTooltipShow = function(tooltip)
-							if not tooltip or not tooltip.AddLine then return end
-							tooltip:AddLine("Test Addon " .. i)
-						end,
-					})
-					miniTable[i].minimapPos = i * 50
-				end
-				for i = 1, numberOfTestButtons do
-					LibStub("LibDBIcon-1.0", true):Register("Leatrix_Plus" .. i, miniTable[i], miniTable[i])
-				end
-			end
-
-			----------------------------------------------------------------------
 			-- Configuration panel
 			----------------------------------------------------------------------
 
 			-- Create configuration panel
-			local SideMinimap = LeaPlusLC:CreatePanel("Enhance minimap", "SideMinimap")
+			local SideMinimap = LeaPlusLC:CreatePanel("Enhance minimap", "SideMinimap", true)
+			local miniScroll = SideMinimap.scrollChild
 
 			-- Add checkboxes
-			LeaPlusLC:MakeTx(SideMinimap, "Settings", 16, -72)
-			LeaPlusLC:MakeCB(SideMinimap, "HideMiniAddonButtons", "Hide addon buttons", 16, -92, false, "If checked, addon buttons will be hidden while the pointer is not over the minimap.")
-			LeaPlusLC:MakeCB(SideMinimap, "MinimapButtonBag", "Minimap button bag", 16, -112, true, "If checked, minimap buttons for addons will be collected and placed in a bag which you can toggle by right-clicking the minimap.|n|nThis setting will help you declutter the minimap without the need to install a separate addon to do that.")
-			LeaPlusLC:MakeCB(SideMinimap, "SquareMinimap", "Square minimap", 16, -132, true, "If checked, the minimap shape will be square.|n|nMinimap rotation (a setting in Edit Mode) is not recommended with a square minimap.")
-			LeaPlusLC:MakeCB(SideMinimap, "HideMiniAddonMenu", "Hide addon menu", 16, -152, true, "If checked, the addon menu will be hidden.|n|nThe addon menu appears as a number in the corner of the minimap if you have any addons installed which make use of it.")
-			LeaPlusLC:MakeCB(SideMinimap, "UnclampMinimap", "Unclamp minimap cluster", 16, -172, true, "If checked, you will be able to drag the minimap cluster to the edge of the screen using Edit Mode.|n|nWhile positioning the minimap with Edit Mode, you may need to disable Snap to position the minimap precisely.")
-			LeaPlusLC:MakeCB(SideMinimap, "MiniHeaderOnHover", "Show header on hover", 16, -192, false, "If checked, the minimap header (zone name, tracking, clock and calendar) will only be shown while the pointer is over the minimap or the header.|n|nIf you want the header below the minimap, you can set this in Edit Mode.")
+			LeaPlusLC:MakeTx(miniScroll, "Settings", 16, -2)
+			LeaPlusLC:MakeCB(miniScroll, "HideMiniAddonButtons", "Hide addon buttons", 16, -22, false, "If checked, addon buttons will be hidden while the pointer is not over the minimap.")
+			LeaPlusLC:MakeCB(miniScroll, "MinimapButtonBag", "Minimap button bag", 16, -42, true, "If checked, minimap buttons for addons will be collected and placed in a bag which you can toggle by right-clicking the minimap.|n|nThis setting will help you declutter the minimap without the need to install a separate addon to do that.")
+			LeaPlusLC:MakeCB(miniScroll, "SquareMinimap", "Square minimap", 16, -62, true, "If checked, the minimap shape will be square.|n|nMinimap rotation (a setting in Edit Mode) is not recommended with a square minimap.")
+			LeaPlusLC:MakeCB(miniScroll, "HideMiniAddonMenu", "Hide addon menu", 16, -82, true, "If checked, the addon menu will be hidden.|n|nThe addon menu appears as a number in the corner of the minimap if you have any addons installed which make use of it.")
+			LeaPlusLC:MakeCB(miniScroll, "UnclampMinimap", "Unclamp minimap cluster", 16, -102, true, "If checked, you will be able to drag the minimap cluster to the edge of the screen using Edit Mode.|n|nWhile positioning the minimap with Edit Mode, you may need to disable Snap to position the minimap precisely.")
+			LeaPlusLC:MakeCB(miniScroll, "MiniHeaderOnHover", "Show header on hover", 16, -122, false, "If checked, the minimap header (zone name, tracking, clock and calendar) will only be shown while the pointer is over the minimap or the header.|n|nIf you want the header below the minimap, you can set this in Edit Mode.")
 
-			-- Add excluded button
-			local MiniExcludedButton = LeaPlusLC:CreateButton("MiniExcludedButton", SideMinimap, "Buttons", "TOPLEFT", 16, -72, 0, 25, true, "Click to toggle the addon buttons editor.")
-			LeaPlusCB["MiniExcludedButton"]:ClearAllPoints()
-			LeaPlusCB["MiniExcludedButton"]:SetPoint("LEFT", SideMinimap.r, "RIGHT", 10, 0)
+			-- Page tabs (they sit on top of the list box and the selected tab has the same background as the box so
+			-- it joins on to it)
+			local function SetMiniTabStyle(tab, selected)
+				tab.selected = selected
+				if selected then
+					tab:SetBackdropColor(0, 0, 1, 0.5)
+					tab.text:SetTextColor(1, 1, 1)
+				else
+					tab:SetBackdropColor(0, 0, 0.5, 0.25)
+					tab.text:SetTextColor(1, 0.82, 0)
+				end
+			end
+
+			-- Function to create a tab
+			local function MakeMiniTab(name, panel, label)
+				local tab = CreateFrame("Button", nil, panel, "BackdropTemplate")
+				LeaPlusCB[name] = tab
+				tab:SetBackdrop({bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background"})
+				tab.text = tab:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+				tab.text:SetPoint("CENTER", 0, 0)
+				tab.text:SetText(L[label])
+				tab:SetSize(tab.text:GetStringWidth() + 30, 24)
+				tab:SetScript("OnEnter", function(self) if not self.selected then self:SetBackdropColor(0, 0, 0.8, 0.4) end end)
+				tab:SetScript("OnLeave", function(self) if not self.selected then self:SetBackdropColor(0, 0, 0.5, 0.25) end end)
+				return tab
+			end
+
+			-- Function to add the page tabs to a panel (shown in place of the panel subtitle)
+			local function MakeMiniTabs(panel, prefix)
+				panel.v:Hide()
+				local settingsTab = MakeMiniTab(prefix .. "SettingsTab", panel, "General")
+				settingsTab:SetPoint("BOTTOMLEFT", panel.backFrame, "TOPLEFT", 0, 0)
+				local buttonsTab = MakeMiniTab(prefix .. "ButtonsTab", panel, "Kept buttons")
+				buttonsTab:SetPoint("LEFT", settingsTab, "RIGHT", 2, 0)
+				return settingsTab, buttonsTab
+			end
+
+			-- Add tabs to the settings page (the kept buttons tab is set further down)
+			local miniSettingsTab, MiniExcludedButton = MakeMiniTabs(SideMinimap, "MiniSettings")
+			LeaPlusCB["MiniExcludedButton"] = MiniExcludedButton
+			SetMiniTabStyle(miniSettingsTab, true)
+			SetMiniTabStyle(MiniExcludedButton, false)
 
 			-- Set exclude button visibility
 			local function SetExcludeButtonsFunc()
@@ -10185,16 +10281,16 @@
 			SetExcludeButtonsFunc()
 
 			-- Add effects dropdown
-			LeaPlusLC:CreateDropdown("MinimapEffect", "Visual effect", 150, "TOPLEFT", SideMinimap, "TOPLEFT", 356, -92, false, {{L["None"], 1}, {L["Arcane"], 2}, {L["Rune"], 3}, {L["Vortex"], 4}, {L["Inferno"], 5}, {L["Snow"], 6}, {L["Storm"], 7}, {L["Corona"], 8}, {L["Aurora"], 9}, {L["Starfield"], 10}, {L["Chronometer"], 11}, {L["Heartbeat"], 12}, {L["Fireworks"], 13}, {L["Crystals"], 14}, {L["Neon"], 15}, {L["Marquee"], 16}, {L["Glitch"], 17}, {L["Lava"], 18}, {L["Fuse"], 19}, {L["Rain"], 20}, {L["Prism"], 21}, {L["Candy"], 22}, {L["Rainbow"], 23}, {L["Fireflies"], 24}, {L["Synthwave"], 25}, {L["Collider"], 26}, {L["Bubbles"], 27}, {L["Acid"], 28}, {L["Shadow"], 29}, {L["Radar"], 30}, {L["Tesla"], 31}, {L["Meteor"], 32}, {L["Tube"], 33}})
+			LeaPlusLC:CreateDropdown("MinimapEffect", "Visual effect", 150, "TOPLEFT", miniScroll, "TOPLEFT", 356, -22, false, {{L["None"], 1}, {L["Arcane"], 2}, {L["Rune"], 3}, {L["Vortex"], 4}, {L["Inferno"], 5}, {L["Snow"], 6}, {L["Storm"], 7}, {L["Corona"], 8}, {L["Aurora"], 9}, {L["Starfield"], 10}, {L["Chronometer"], 11}, {L["Heartbeat"], 12}, {L["Fireworks"], 13}, {L["Crystals"], 14}, {L["Neon"], 15}, {L["Marquee"], 16}, {L["Glitch"], 17}, {L["Lava"], 18}, {L["Fuse"], 19}, {L["Rain"], 20}, {L["Prism"], 21}, {L["Candy"], 22}, {L["Rainbow"], 23}, {L["Fireflies"], 24}, {L["Synthwave"], 25}, {L["Collider"], 26}, {L["Bubbles"], 27}, {L["Acid"], 28}, {L["Shadow"], 29}, {L["Radar"], 30}, {L["Tesla"], 31}, {L["Meteor"], 32}, {L["Tube"], 33}})
 
-			LeaPlusLC:MakeTx(SideMinimap, "Border width", 356, -132)
-			LeaPlusLC:MakeSL(SideMinimap, "MinimapBorderWidth", "Drag to set the square minimap border width.", 1, 10, 1, 356, -142, "%.0f")
+			LeaPlusLC:MakeTx(miniScroll, "Border width", 356, -62)
+			LeaPlusLC:MakeSL(miniScroll, "MinimapBorderWidth", "Drag to set the square minimap border width.", 1, 10, 1, 356, -72, "%.0f")
 
-			LeaPlusLC:MakeTx(SideMinimap, "Cluster scale", 356, -182)
-			LeaPlusLC:MakeSL(SideMinimap, "MiniClusterScale", "Drag to set the cluster scale.", 0.5, 2, 0.1, 356, -192, "%.2f")
+			LeaPlusLC:MakeTx(miniScroll, "Cluster scale", 356, -112)
+			LeaPlusLC:MakeSL(miniScroll, "MiniClusterScale", "Drag to set the cluster scale.", 0.5, 2, 0.1, 356, -122, "%.2f")
 
-			LeaPlusLC:MakeTx(SideMinimap, "Header opacity", 356, -232)
-			LeaPlusLC:MakeSL(SideMinimap, "MiniHeaderAlpha", "Drag to set the minimap header background opacity.", 0, 1, 0.05, 356, -242, "%.2f")
+			LeaPlusLC:MakeTx(miniScroll, "Header opacity", 356, -162)
+			LeaPlusLC:MakeSL(miniScroll, "MiniHeaderAlpha", "Drag to set the minimap header background opacity.", 0, 1, 0.05, 356, -172, "%.2f")
 
 			-- Show header opacity as a percentage
 			local function SetHeaderAlphaText()
@@ -10202,6 +10298,12 @@
 			end
 			LeaPlusCB["MiniHeaderAlpha"]:HookScript("OnValueChanged", SetHeaderAlphaText)
 			LeaPlusCB["MiniHeaderAlpha"]:HookScript("OnShow", SetHeaderAlphaText)
+
+			-- Add header theme dropdown (square minimap only)
+			LeaPlusLC:CreateDropdown("MiniHeaderTheme", "Header theme", 150, "TOPLEFT", miniScroll, "TOPLEFT", 16, -182, false, {{L["Black"], 2}, {L["Pink"], 3}, {L["Purple"], 7}, {L["Alliance"], 4}, {L["Horde"], 5}, {L["Rainbow"], 6}, {L["Glass"], 8}, {L["Blizzard"], 1}})
+
+			-- Add animate header checkbox (below the header theme dropdown)
+			LeaPlusLC:MakeCB(miniScroll, "MiniHeaderAnimate", "Animate header", 16, -217, false, "If checked, the minimap header theme will be animated with colors flowing along the header.")
 
 			----------------------------------------------------------------------
 			-- Hide addon menu
@@ -10229,156 +10331,333 @@
 
 			do
 
-				-- Create configuration panel
-				local ExcludedButtonsPanel = LeaPlusLC:CreatePanel("Enhance minimap", "ExcludedButtonsPanel")
-				local boxWidth = 272
+				-- Create configuration panel (with a scrolling list)
+				local ExcludedButtonsPanel = LeaPlusLC:CreatePanel("Enhance minimap", "ExcludedButtonsPanel", true)
+				local scrollChild = ExcludedButtonsPanel.scrollChild
 
-				-- Add second excluded button
-				local MiniExcludedButton2 = LeaPlusLC:CreateButton("MiniExcludedButton2", ExcludedButtonsPanel, "Buttons", "TOPLEFT", 16, -72, 0, 25, true, "Click to toggle the addon buttons editor.")
-				LeaPlusCB["MiniExcludedButton2"]:ClearAllPoints()
-				LeaPlusCB["MiniExcludedButton2"]:SetPoint("LEFT", ExcludedButtonsPanel.r, "RIGHT", 10, 0)
-				LeaPlusCB["MiniExcludedButton2"]:SetScript("OnClick", function()
+				-- Add tabs (the settings tab goes back to the settings page)
+				local keptSettingsTab, keptButtonsTab = MakeMiniTabs(ExcludedButtonsPanel, "MiniKept")
+				SetMiniTabStyle(keptSettingsTab, false)
+				SetMiniTabStyle(keptButtonsTab, true)
+				keptSettingsTab:SetScript("OnClick", function()
 					ExcludedButtonsPanel:Hide(); SideMinimap:Show()
-					return
 				end)
 
-				-- Add large editbox
-				local titleTX = LeaPlusLC:MakeTx(ExcludedButtonsPanel, "Editor", 16, -72)
-				titleTX:SetWidth(boxWidth - 14) -- 534
-				titleTX:SetWordWrap(false)
-				titleTX:SetJustifyH("LEFT")
-
-				-- Add help button
-				LeaPlusLC:CreateHelpButton("MinimapButtonsAvailableHelpButton", ExcludedButtonsPanel, titleTX, "If you use the 'Hide addon buttons' or 'Minimap button bag' settings but you want some addon buttons to remain visible around the minimap, enter the button names into the editbox below separated by commas.|n|nChanges will require a UI reload to take effect.")
-
-				local eb = CreateFrame("Frame", nil, ExcludedButtonsPanel, "BackdropTemplate")
-				eb:SetSize(boxWidth, LeaPlusLC.MainPanelHeight - 180) -- 548
-				eb:SetPoint("TOPLEFT", 10, -92)
-				eb:SetBackdrop({
-					bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
-					edgeFile = "Interface\\PVPFrame\\UI-Character-PVP-Highlight",
-					edgeSize = 16,
-					insets = { left = 8, right = 6, top = 8, bottom = 8 },
-				})
-				eb:SetBackdropBorderColor(1.0, 0.85, 0.0, 0.5)
-
-				eb.scroll = CreateFrame("ScrollFrame", nil, eb, "LeaPlusEnhanceMinimapExcludeButtonsScrollFrameTemplate")
-				eb.scroll:SetPoint("TOPLEFT", eb, 12, -10)
-				eb.scroll:SetPoint("BOTTOMRIGHT", eb, -30, 10)
-				eb.scroll:SetPanExtent(16)
-
-				-- Create character count
-				eb.scroll.CharCount = eb.scroll:CreateFontString(nil, 'ARTWORK', 'GameFontNormal')
-				eb.scroll.CharCount:Hide()
-
-				eb.Text = eb.scroll.EditBox
-				eb.Text:SetWidth(boxWidth - 54) -- 494
-				eb.Text:SetHeight(230)
-				eb.Text:SetPoint("TOPLEFT", eb.scroll)
-				eb.Text:SetPoint("BOTTOMRIGHT", eb.scroll, -12, 0)
-				eb.Text:SetMaxLetters(1200)
-				eb.Text:SetFontObject(GameFontNormalLarge)
-				eb.Text:SetAutoFocus(false)
-				eb.scroll:SetScrollChild(eb.Text)
-
-				-- Set focus on the editbox text when clicking the editbox
-				eb:SetScript("OnMouseDown", function()
-					eb.Text:SetFocus()
-					eb.Text:SetCursorPosition(eb.Text:GetMaxLetters())
-				end)
-
-				-- Debug
-				-- eb.Text:SetText("Leatrix_Plus\nLeatrix_Maps\nBugSack\nLeatrix_Plus\nLeatrix_Maps\nBugSack\nLeatrix_Plus\nLeatrix_Maps\nBugSack\nLeatrix_Plus\nLeatrix_Maps\nBugSack\nLeatrix_Plus\nLeatrix_Maps\nBugSack")
-
-				-- Function to save the excluded list
-				local function SaveString(self, userInput)
-					local keytext = eb.Text:GetText()
-					if keytext and keytext ~= "" then
-						LeaPlusLC["MiniExcludeList"] = strtrim(eb.Text:GetText())
-					else
-						LeaPlusLC["MiniExcludeList"] = ""
-					end
-					if userInput then
-						LeaPlusLC:ReloadCheck()
-					end
-				end
-
-				-- Save the excluded list when it changes and at startup
-				eb.Text:SetScript("OnTextChanged", SaveString)
-				eb.Text:SetText(LeaPlusLC["MiniExcludeList"])
-				SaveString()
-
-				-- Add large editbox for available addons
-				local titleAbTX = LeaPlusLC:MakeTx(ExcludedButtonsPanel, "Available button names", boxWidth + 20, -72)
-				titleAbTX:SetWidth(boxWidth - 14)
-				titleAbTX:SetWordWrap(false)
-				titleAbTX:SetJustifyH("LEFT")
-
-				-- Add help button
-				LeaPlusLC:CreateHelpButton("MinimapButtonsAvailableHelpButton", ExcludedButtonsPanel, titleAbTX, "This is a list of available addon button names.  You can use this list to copy and paste button names that you want into the editor.|n|nThis listing is automatically generated and cannot be edited.")
-
-				local ab = CreateFrame("Frame", nil, ExcludedButtonsPanel, "BackdropTemplate")
-				ab:SetSize(boxWidth, LeaPlusLC.MainPanelHeight - 180) -- 548
-				ab:SetPoint("TOPLEFT", 286, -92)
-				ab:SetBackdrop({
-					bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
-					edgeFile = "Interface\\PVPFrame\\UI-Character-PVP-Highlight",
-					edgeSize = 16,
-					insets = { left = 8, right = 6, top = 8, bottom = 8 },
-				})
-				ab:SetBackdropBorderColor(1.0, 0.85, 0.0, 0.5)
-				ab:SetBackdropColor(0, 0, 0, 0.5)
-
-				ab.scroll = CreateFrame("ScrollFrame", nil, ab, "LeaPlusEnhanceMinimapExcludeButtonsScrollFrameTemplate")
-				ab.scroll:SetPoint("TOPLEFT", ab, 12, -10)
-				ab.scroll:SetPoint("BOTTOMRIGHT", ab, -30, 10)
-				ab.scroll:SetPanExtent(16)
-
-				-- Create character count
-				ab.scroll.CharCount = ab.scroll:CreateFontString(nil, 'ARTWORK', 'GameFontNormal')
-				ab.scroll.CharCount:Hide()
-
-				ab.Text = ab.scroll.EditBox
-				ab.Text:SetWidth(boxWidth - 54) -- 494
-				ab.Text:SetHeight(230)
-				ab.Text:SetPoint("TOPLEFT", ab.scroll)
-				ab.Text:SetPoint("BOTTOMRIGHT", ab.scroll, -12, 0)
-				ab.Text:SetMaxLetters(1200)
-				ab.Text:SetFontObject(GameFontNormalLarge)
-				ab.Text:SetAutoFocus(false)
-				ab.scroll:SetScrollChild(ab.Text)
-
-				-- Set focus on the editbox text when clicking the editbox
-				ab:SetScript("OnMouseDown", function()
-					ab.Text:SetFocus()
-					ab.Text:SetCursorPosition(ab.Text:GetMaxLetters())
-				end)
-
-				-- Function to make string with list of buttons
-				local function MakeAddonString()
-					local msg = ""
-					local numAddons = C_AddOns.GetNumAddOns()
-					local buttons = LibDBIconStub:GetButtonList()
-					table.sort(buttons)
-					for i = 1, #buttons do
-						local button = LibDBIconStub:GetMinimapButton(buttons[i])
-						local buttonName = buttons[i]
-						msg = msg .. buttonName .. ",|n|n"
-					end
-					if msg ~= "" then
-					else
-						msg = L["No supported addons."]
-					end
-					ab.Text:SetText(msg)
-				end
-
-				ab.Text:HookScript("OnShow", MakeAddonString)
-				ab.Text:HookScript("OnTextChanged", function(self, userInput)
-					if userInput then MakeAddonString() end
-				end)
+				local showManual = false -- Manual entry box shown
 
 				-- Hide help button
 				ExcludedButtonsPanel.h:Hide()
+
+				-- List layout
+				local COLUMNS, COL_WIDTH, ROW_HEIGHT = 1, 480, 20 -- Single column (reads straight down), same row spacing as the other configuration panels
+
+				-- Function to apply the kept state to every button straight away
+				local function ApplyAllKeep()
+					if ApplyMiniButtonKeep then
+						local buttons = LibDBIconStub:GetButtonList()
+						for i = 1, #buttons do
+							ApplyMiniButtonKeep(buttons[i])
+						end
+					end
+					-- Close the minimap button bag so it is laid out again next time it is opened
+					if LeaPlusLC.bFrame and LeaPlusLC.bFrame:IsShown() then LeaPlusLC.bFrame:Hide() end
+				end
+
+				-- Function to get a readable button name
+				local function GetButtonTitle(name)
+					local button = LibDBIconStub:GetMinimapButton(name)
+					local dataObject = button and button.dataObject
+					if dataObject and type(dataObject.label) == "string" and dataObject.label ~= "" then
+						return dataObject.label
+					end
+					if strfind(name, "^LeaPlusCustomIcon_") then
+						return (string.gsub(name, "^LeaPlusCustomIcon_", ""))
+					end
+					return name
+				end
+
+				-- Headings and messages
+				local buttonsHeading = LeaPlusLC:MakeTx(scrollChild, "Addon buttons", 16, 0)
+				local otherHeading = LeaPlusLC:MakeTx(scrollChild, "Not loaded", 16, 0)
+				local emptyText = scrollChild:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+				emptyText:SetText(L["No addon buttons found."])
+				local manualText = scrollChild:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+				manualText:SetText(L["Addon not showing in the listing?"])
+
+				-- Button to add an addon button manually
+				local manualButton = LeaPlusLC:CreateButton("MiniKeepManualButton", scrollChild, "Add it manually", "TOPLEFT", 16, 0, 0, 25, true, "Click to type the name of an addon button which is not shown in the listing.")
+
+				-- Manual entry editbox (press enter to add the name)
+				local addBox = LeaPlusLC:CreateEditBox("MiniKeepAddBox", scrollChild, 220, 100, "TOPLEFT", 16, 0, "MiniKeepAddBox", "MiniKeepAddBox")
+				addBox:SetTextInsets(0, 18, 0, 0)
+
+				-- Clear button (the game's usual round cross used in search boxes, shown when there is text)
+				local addClear = CreateFrame("Button", nil, addBox)
+				addClear:SetSize(14, 14)
+				addClear:SetPoint("RIGHT", -3, 0)
+				addClear:SetFrameLevel(addBox:GetFrameLevel() + 2)
+				addClear.icon = addClear:CreateTexture(nil, "OVERLAY")
+				addClear.icon:SetSize(14, 14)
+				addClear.icon:SetPoint("CENTER")
+				addClear.icon:SetTexture("Interface\\FriendsFrame\\ClearBroadcastIcon")
+				addClear.icon:SetAlpha(0.5)
+				addClear:SetScript("OnEnter", function(self) self.icon:SetAlpha(1) end)
+				addClear:SetScript("OnLeave", function(self) self.icon:SetAlpha(0.5) end)
+				addClear:SetScript("OnMouseDown", function(self) self.icon:SetPoint("CENTER", 1, -1) end)
+				addClear:SetScript("OnMouseUp", function(self) self.icon:SetPoint("CENTER", 0, 0) end)
+				addClear:SetScript("OnClick", function() addBox:SetText(""); addBox:SetFocus() end)
+				addClear:Hide()
+				addBox:HookScript("OnTextChanged", function(self) addClear:SetShown(self:GetText() ~= "") end)
+
+				-- Add button (next to the editbox, shown and hidden with it, parented to the list so its tooltip is shown outside the panel)
+				local addButton = LeaPlusLC:CreateButton("MiniKeepAddNameButton", scrollChild, "Add", "LEFT", 0, 0, 0, 25, true, "Click to add the name to the list.")
+				addButton:ClearAllPoints()
+				addButton:SetPoint("LEFT", addBox, "RIGHT", 10, 0)
+
+				-- Rows
+				local rows = {}
+				local ToggleRow
+
+				-- Function to get a row (rows are reused)
+				local function GetRow(i)
+					if rows[i] then return rows[i] end
+					local row = CreateFrame("CheckButton", nil, scrollChild, "ChatConfigCheckButtonTemplate")
+					row.icon = row:CreateTexture(nil, "ARTWORK")
+					row.icon:SetSize(18, 18)
+					row.icon:SetPoint("LEFT", row, "RIGHT", 2, 0)
+					row.text = row:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+					row.text:SetPoint("LEFT", row.icon, "RIGHT", 6, 0)
+					row.text:SetWidth(COL_WIDTH - 60)
+					row.text:SetJustifyH("LEFT")
+					row.text:SetWordWrap(false)
+					row:SetHitRectInsets(0, -(COL_WIDTH - 40), 0, 0)
+					row:SetScript("OnClick", function(self) ToggleRow(self) end)
+					row:SetScript("OnEnter", LeaPlusLC.TipSee)
+					row:SetScript("OnLeave", GameTooltip_Hide)
+					rows[i] = row
+					return row
+				end
+
+				-- Rows for other entries (greyed name with a remove cross so a stray click does not remove the entry)
+				local otherRows = {}
+				local RemoveOtherEntry
+
+				-- Function to get a row for an other entry (rows are reused)
+				local function GetOtherRow(i)
+					if otherRows[i] then return otherRows[i] end
+					local row = CreateFrame("Frame", nil, scrollChild)
+					row:SetSize(236, ROW_HEIGHT) -- Narrow so the remove cross stays close to the name
+					row:EnableMouse(true)
+					row:SetScript("OnEnter", LeaPlusLC.TipSee)
+					row:SetScript("OnLeave", GameTooltip_Hide)
+					-- Remove cross (the game's usual round cross used in search boxes)
+					row.remove = CreateFrame("Button", nil, row)
+					row.remove:SetSize(14, 14)
+					row.remove:SetPoint("RIGHT", row, "RIGHT", -4, 0)
+					row.remove.icon = row.remove:CreateTexture(nil, "OVERLAY")
+					row.remove.icon:SetSize(14, 14)
+					row.remove.icon:SetPoint("CENTER")
+					row.remove.icon:SetTexture("Interface\\FriendsFrame\\ClearBroadcastIcon")
+					row.remove.icon:SetAlpha(0.5)
+					row.remove:SetScript("OnEnter", function(self) self.icon:SetAlpha(1) end)
+					row.remove:SetScript("OnLeave", function(self) self.icon:SetAlpha(0.5) end)
+					row.remove:SetScript("OnMouseDown", function(self) self.icon:SetPoint("CENTER", 1, -1) end)
+					row.remove:SetScript("OnMouseUp", function(self) self.icon:SetPoint("CENTER", 0, 0) end)
+					row.remove:SetScript("OnClick", function() RemoveOtherEntry(row.entryToken) end)
+					-- Name
+					row.text = row:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+					row.text:SetPoint("LEFT", row, "LEFT", 4, 0)
+					row.text:SetPoint("RIGHT", row.remove, "LEFT", -6, 0)
+					row.text:SetJustifyH("LEFT")
+					row.text:SetWordWrap(false)
+					row.text:SetTextColor(0.6, 0.6, 0.6)
+					otherRows[i] = row
+					return row
+				end
+
+				-- Function to place a row in the grid
+				local function PlaceRow(row, index, top)
+					local col = (index - 1) % COLUMNS
+					local line = math.floor((index - 1) / COLUMNS)
+					row:ClearAllPoints()
+					row:SetPoint("TOPLEFT", scrollChild, "TOPLEFT", 16 + col * COL_WIDTH, top - line * ROW_HEIGHT)
+					row:Show()
+					return math.ceil(index / COLUMNS) * ROW_HEIGHT
+				end
+
+				-- Function to build the list
+				local function MakeList()
+					local keep = LeaPlusDB["MiniKeepButtons"]
+					for i = 1, #rows do rows[i]:Hide() end
+					for i = 1, #otherRows do otherRows[i]:Hide() end
+
+					-- Get the current buttons
+					local names = LibDBIconStub:GetButtonList()
+					local present = {}
+					for i = 1, #names do present[strlower(names[i])] = names[i] end
+
+					-- Old entries which match a button name exactly become normal entries
+					for token, value in pairs(keep) do
+						if value == "old" and present[token] then keep[token] = true end
+					end
+
+					-- Addon buttons (sorted by readable name)
+					local titles = {}
+					for i = 1, #names do titles[names[i]] = GetButtonTitle(names[i]) end
+					table.sort(names, function(a, b) return strlower(titles[a]) < strlower(titles[b]) end)
+
+					-- Everything is laid out on 20 pixel lines like the other configuration panels
+					local y, used = -2, 0 -- Same heading position as "Settings" in the Enhance minimap panel
+					buttonsHeading:ClearAllPoints()
+					buttonsHeading:SetPoint("TOPLEFT", scrollChild, "TOPLEFT", 16, y)
+					y = y - 20
+
+					if #names == 0 then
+						emptyText:ClearAllPoints()
+						emptyText:SetPoint("TOPLEFT", scrollChild, "TOPLEFT", 24, y - 4)
+						emptyText:Show()
+						y = y - 20
+					else
+						emptyText:Hide()
+						local height = 0
+						for i = 1, #names do
+							local name = names[i]
+							used = used + 1
+							local row = GetRow(used)
+							local button = LibDBIconStub:GetMinimapButton(name)
+							row.entryName = name
+							row.text:SetText(titles[name])
+							-- Clickable area ends at the end of the name (like the other checkboxes)
+							row:SetHitRectInsets(0, -(26 + math.min(row.text:GetStringWidth(), COL_WIDTH - 60)), 0, 0)
+							row.text:SetTextColor(1, 1, 1)
+							row.icon:SetTexture(button and button.icon and button.icon:GetTexture() or "Interface\\HELPFRAME\\HelpIcon-KnowledgeBase")
+							if button and button.icon then row.icon:SetTexCoord(button.icon:GetTexCoord()) else row.icon:SetTexCoord(0, 1, 0, 1) end
+							row.icon:Show()
+							row:SetChecked(IsButtonKept(name))
+							row.tiptext = L["Tick to keep this button on the minimap."] .. "|n|n" .. L["Button name"] .. ": |cffffffff" .. name .. "|r"
+							height = PlaceRow(row, i, y)
+						end
+						y = y - height
+					end
+
+					-- Other entries (names which do not match a current button)
+					local others = {}
+					for token, value in pairs(keep) do
+						local matched = present[token]
+						if not matched and value == "old" then
+							for lname in pairs(present) do
+								if strfind(token, lname, 1, true) then matched = true; break end
+							end
+						end
+						if not matched then others[#others + 1] = token end
+					end
+					table.sort(others)
+
+					if #others > 0 then
+						y = y - 20 -- Blank line
+						otherHeading:ClearAllPoints()
+						otherHeading:SetPoint("TOPLEFT", scrollChild, "TOPLEFT", 16, y)
+						otherHeading:Show()
+						y = y - 20
+						local height = 0
+						for i = 1, #others do
+							local token = others[i]
+							local row = GetOtherRow(i)
+							row.entryToken = token
+							row.text:SetText(token)
+							row.tiptext = L["This button is not currently loaded.  The addon may be disabled or not installed, the name may have been added manually or typed wrongly, or the addon may not have created its button."] .. "|n|n" .. L["Click the cross to remove this entry."]
+							-- Single column so the other entries do not move around as they are removed
+							row:ClearAllPoints()
+							row:SetPoint("TOPLEFT", scrollChild, "TOPLEFT", 16, y - (i - 1) * ROW_HEIGHT)
+							row:Show()
+							height = i * ROW_HEIGHT
+						end
+						y = y - height
+					else
+						otherHeading:Hide()
+					end
+
+					-- Addon not showing in the listing (add it manually)
+					y = y - 20 -- Blank line
+					manualText:ClearAllPoints()
+					manualText:SetPoint("TOPLEFT", scrollChild, "TOPLEFT", 16, y - 6)
+					manualButton:ClearAllPoints()
+					manualButton:SetPoint("LEFT", manualText, "RIGHT", 10, 0)
+					y = y - 20
+					if showManual then
+						addBox:ClearAllPoints()
+						addBox:SetPoint("TOPLEFT", scrollChild, "TOPLEFT", 24, y - 6) -- Clear of the add manually button above
+						addBox:Show()
+						addButton:Show()
+						y = y - 20
+					else
+						addBox:Hide()
+						addButton:Hide()
+					end
+
+					scrollChild:SetSize(COLUMNS * COL_WIDTH + 16, -y + 12)
+				end
+
+				-- Function to handle a row click
+				ToggleRow = function(row)
+					local keep = LeaPlusDB["MiniKeepButtons"]
+					if row.entryName then
+						-- Addon button
+						local lname = strlower(row.entryName)
+						if row:GetChecked() then
+							keep[lname] = true
+						else
+							keep[lname] = nil
+							-- Remove old entries which matched this button too
+							for token, value in pairs(keep) do
+								if value == "old" and strfind(token, lname, 1, true) then keep[token] = nil end
+							end
+						end
+					end
+					ApplyAllKeep()
+					MakeList()
+				end
+
+				-- Function to remove an other entry (clicking its remove cross)
+				RemoveOtherEntry = function(token)
+					if not token then return end
+					LeaPlusDB["MiniKeepButtons"][token] = nil
+					ApplyAllKeep()
+					MakeList()
+				end
+
+				-- Function to add the typed name
+				local function AddTypedName()
+					local self = addBox
+					local token = strlower(strtrim(self:GetText() or ""))
+					if token ~= "" then
+						LeaPlusDB["MiniKeepButtons"][token] = true
+						ApplyAllKeep()
+					end
+					self:SetText("")
+					self:ClearFocus()
+					showManual = false
+					MakeList()
+				end
+
+				-- Add the typed name when enter is pressed or the add button is clicked
+				addBox:SetScript("OnEnterPressed", AddTypedName)
+				addButton:SetScript("OnClick", AddTypedName)
+
+				-- Take focus off the manual entry box when escape is pressed (the box stays open)
+				addBox:SetScript("OnEscapePressed", function(self)
+					self:ClearFocus()
+				end)
+
+				-- Show or hide the manual entry box
+				manualButton:SetScript("OnClick", function()
+					showManual = not showManual
+					MakeList()
+					if showManual then addBox:SetFocus() end
+				end)
+
+				-- Build the list when the panel is shown
+				ExcludedButtonsPanel:HookScript("OnShow", MakeList)
 
 				-- Back button handler
 				ExcludedButtonsPanel.b:SetScript("OnClick", function()
@@ -10386,25 +10665,25 @@
 					return
 				end)
 
+				-- Function to replace every entry (used by reset and preset)
+				local function SetKeepList(list)
+					local keep = LeaPlusDB["MiniKeepButtons"]
+					wipe(keep)
+					for i = 1, #list do keep[list[i]] = true end
+					ApplyAllKeep()
+				end
+
 				-- Reset button handler
 				ExcludedButtonsPanel.r:SetScript("OnClick", function()
-
-					-- Reset controls
-					LeaPlusLC["MiniExcludeList"] = ""
-					eb.Text:SetText(LeaPlusLC["MiniExcludeList"])
-
-					-- Refresh configuration panel
-					ExcludedButtonsPanel:Hide(); ExcludedButtonsPanel:Show()
-					LeaPlusLC:ReloadCheck()
-
+					SetKeepList({})
+					MakeList()
 				end)
 
 				-- Show configuration panal when options panel button is clicked
 				LeaPlusCB["MiniExcludedButton"]:SetScript("OnClick", function()
 					if IsShiftKeyDown() and IsControlKeyDown() then
 						-- Preset profile
-						LeaPlusLC["MiniExcludeList"] = "BugSack, Leatrix_Plus"
-						LeaPlusLC:ReloadCheck()
+						SetKeepList({"bugsack", "leatrix_plus"})
 					else
 						ExcludedButtonsPanel:Show()
 						SideMinimap:Hide()
@@ -10616,35 +10895,151 @@
 				LeaPlusLC:LockItem(LeaPlusCB["HideMiniAddonButtons"], true)
 				LeaPlusCB["HideMiniAddonButtons"].tiptext = LeaPlusCB["HideMiniAddonButtons"].tiptext .. "|n|n|cff00AAFF" .. L["Cannot be used with Minimap button bag."]
 
+				-- Layout settings
+				local bagButtonSize = 32 -- Space for each button
+				local bagPadding = 6 -- Space between the panel edge and the buttons
+
 				-- Create button frame
-				local bFrame = CreateFrame("FRAME", nil, UIParent)
+				local bFrame = CreateFrame("FRAME", nil, UIParent, "BackdropTemplate")
 				bFrame:ClearAllPoints()
 				bFrame:SetPoint("TOPLEFT", Minimap, "TOPRIGHT", 4, 4)
 				bFrame:SetClampedToScreen(true)
+				bFrame:EnableMouse(true) -- Stop clicks on the panel background passing through to the world
 				bFrame:Hide()
 
-				-- Set top level to ensure button frame shows on top of frames such as the main action bar
-				bFrame:SetToplevel(true)
+				-- Keep the panel below the addon buttons (LibDBIcon buttons have a fixed frame level of 8 so they do not
+				-- move up with the button frame when they are placed in it, and a higher panel would be drawn over them)
+				bFrame:SetFrameStrata("MEDIUM")
+				bFrame:SetFrameLevel(4)
+
+				-- Dark panel with a thin border (same border texture as the square minimap border so the colors match)
+				local function SetBagBackdrop()
+					local px = PixelUtil and PixelUtil.GetPixelToUIUnitFactor() / bFrame:GetEffectiveScale() or 1
+					bFrame:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8X8", edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Background-Dark", edgeSize = px})
+					bFrame:SetBackdropColor(0, 0, 0, 0.7)
+				end
 
 				-- Set button frame scale to match minimap cluster scale
 				bFrame:SetScale(MinimapCluster:GetScale())
+				SetBagBackdrop()
 				MinimapCluster:HookScript("OnSizeChanged", function()
 					bFrame:SetScale(MinimapCluster:GetScale())
+					SetBagBackdrop()
 				end)
+
+				-- Message shown when there are no buttons to show
+				local bagEmptyText = bFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+				bagEmptyText:SetPoint("CENTER")
+				bagEmptyText:SetText(L["No addon buttons"])
 
 				LeaPlusLC.bFrame = bFrame -- Used in LibDBIcon callback
 				_G["LeaPlusGlobalMinimapCombinedButtonFrame"] = bFrame -- For third party addons
 
-				-- Hide button frame automatically
+				-- Fade and slide the button frame in and out (same method as show header on hover)
+				-- The button frame slides out from the minimap as it fades in and back towards it as it fades out
+				-- An OnUpdate runs only while the button frame animates
+				local BAG_SLIDE = 8 -- Slide distance
+				local BAG_TIME_IN, BAG_TIME_OUT = 0.2, 0.25 -- Fade in and fade out durations
+				local bagProgress, bagTarget = 0, 0 -- 0 is hidden, 1 is shown
+				local bagPoint, bagRelPoint, bagX, bagY, bagSlideDir = "BOTTOMLEFT", "BOTTOMRIGHT", 10, 0, -1 -- Set by LayoutBag
+
+				-- Function to apply the current animation state
+				local function ApplyBag()
+					local eased = bagProgress * bagProgress * (3 - 2 * bagProgress)
+					bFrame:SetAlpha(eased)
+					bFrame:ClearAllPoints()
+					bFrame:SetPoint(bagPoint, Minimap, bagRelPoint, bagX + bagSlideDir * (1 - eased) * BAG_SLIDE, bagY)
+				end
+
+				-- Animation driver (shown only while animating)
+				local bagAnim = CreateFrame("Frame")
+				bagAnim:Hide()
+				bagAnim:SetScript("OnUpdate", function(self, elapsed)
+					if bagTarget > bagProgress then
+						bagProgress = bagProgress + elapsed / BAG_TIME_IN
+						if bagProgress > bagTarget then bagProgress = bagTarget end
+					else
+						bagProgress = bagProgress - elapsed / BAG_TIME_OUT
+						if bagProgress < bagTarget then bagProgress = bagTarget end
+					end
+					ApplyBag()
+					if bagProgress == bagTarget then
+						self:Hide()
+						if bagProgress == 0 then bFrame:Hide() end
+					end
+				end)
+
+				-- Function to hide the button frame with a fade and slide
+				local function HideBag()
+					if bFrame:IsShown() and bagTarget ~= 0 then
+						bagTarget = 0
+						bagAnim:Show()
+					end
+				end
+
+				-- Hide button frame automatically when the pointer has been away from it and the minimap for a while
+				-- (checked often so the delay is the same every time, and moving back in time cancels it)
+				local BAG_CHECK = 0.25 -- How often to check the pointer
+				local BAG_AWAY_TIME = 1 -- How long the pointer must be away before the button frame closes
+				local BAG_GAP = 12 -- Extra hover area covering the gap between the button frame and the minimap
 				local ButtonFrameTicker
-				bFrame:HookScript("OnShow", function()
-					if ButtonFrameTicker then ButtonFrameTicker:Cancel() end
-					ButtonFrameTicker = C_Timer.NewTicker(2, function()
-						if not bFrame:IsMouseOver() and not Minimap:IsMouseOver() then
-							bFrame:Hide()
-							if ButtonFrameTicker then ButtonFrameTicker:Cancel() end
+				local bagAwayTime = 0
+				local function CancelBagTicker()
+					if ButtonFrameTicker then
+						ButtonFrameTicker:Cancel()
+						ButtonFrameTicker = nil
+					end
+				end
+
+				-- Function to check if the pointer is over the minimap, the button frame or the gap between them
+				local function IsPointerNearBag()
+					if Minimap:IsMouseOver() then return true end
+					if bagSlideDir == 1 then
+						-- Button frame is left of the minimap so the gap is on its right
+						return bFrame:IsMouseOver(0, 0, 0, BAG_GAP)
+					else
+						-- Button frame is right of the minimap so the gap is on its left
+						return bFrame:IsMouseOver(0, 0, -BAG_GAP, 0)
+					end
+				end
+
+				-- Function to start closing the button frame automatically
+				local function StartBagTimers()
+					-- Close when clicking anywhere else
+					bFrame:RegisterEvent("GLOBAL_MOUSE_DOWN")
+					-- Close when the pointer has been away from the button frame and the minimap for a while
+					CancelBagTicker()
+					bagAwayTime = 0
+					ButtonFrameTicker = C_Timer.NewTicker(BAG_CHECK, function()
+						if IsPointerNearBag() then
+							bagAwayTime = 0
+						else
+							bagAwayTime = bagAwayTime + BAG_CHECK
+							if bagAwayTime >= BAG_AWAY_TIME then
+								CancelBagTicker()
+								HideBag()
+							end
 						end
-					end, 15)
+					end)
+				end
+
+				bFrame:HookScript("OnShow", StartBagTimers)
+
+				bFrame:HookScript("OnHide", function()
+					-- Reset the animation so the button frame is fully shown if something else shows it
+					bagAnim:Hide()
+					bagProgress, bagTarget = 0, 0
+					bFrame:SetAlpha(1)
+					bFrame:UnregisterEvent("GLOBAL_MOUSE_DOWN")
+					CancelBagTicker()
+				end)
+
+				bFrame:SetScript("OnEvent", function(self, event)
+					if event == "GLOBAL_MOUSE_DOWN" then
+						if not IsPointerNearBag() then
+							HideBag()
+						end
+					end
 				end)
 
 				-- Position LibDBIcon tooltips when shown
@@ -10675,15 +11070,9 @@
 				for i = 1, #buttons do
 					local button = LibDBIconStub:GetMinimapButton(buttons[i])
 					local buttonName = strlower(buttons[i])
-					if not strfind(strlower(LeaPlusDB["MiniExcludeList"]), buttonName) then
+					if not IsButtonKept(buttonName) then
 						button:Hide()
 						button:SetScript("OnShow", function() if not bFrame:IsShown() then button:Hide() end end)
-						-- Create background texture
-						local bFrameBg = button:CreateTexture(nil, "BACKGROUND")
-						bFrameBg:SetTexture("Interface\\ChatFrame\\ChatFrameBackground")
-						bFrameBg:SetPoint("CENTER")
-						bFrameBg:SetSize(30, 30)
-						bFrameBg:SetVertexColor(0, 0, 0, 0.5)
 					end
 					-- Move GameTooltip to below the minimap in case the button uses it
 					button:HookScript("OnEnter", SetButtonTooltip)
@@ -10697,6 +11086,98 @@
 				-- Hide new LibDBIcon icons
 				-- LibDBIcon_IconCreated: Done in LibDBIcon callback function
 
+				-- Function to sort button names (custom buttons are sorted by the name of the addon they replace)
+				local function SortButtons(a, b)
+					a = string.gsub(a, "^LeaPlusCustomIcon_", "")
+					b = string.gsub(b, "^LeaPlusCustomIcon_", "")
+					return a:lower() < b:lower()
+				end
+
+				-- Function to place the buttons in the button frame
+				local function LayoutBag()
+
+					-- Position button frame next to the minimap on the side with the most room
+					local m = Minimap:GetCenter()
+					local b = Minimap:GetEffectiveScale()
+					local w = GetScreenWidth()
+					local s = UIParent:GetEffectiveScale()
+					-- Line the bottom of the button frame up with the bottom of the square minimap border
+					-- (the border width is in minimap units so convert it to button frame units)
+					local borderOffset = 0
+					if LeaPlusLC["SquareMinimap"] == "On" then
+						borderOffset = LeaPlusLC["MinimapBorderWidth"] * b / bFrame:GetEffectiveScale()
+					end
+					-- (the slide direction is towards the minimap so the button frame slides out from it)
+					if m * b > (w * s / 2) then
+						bagPoint, bagRelPoint, bagX, bagSlideDir = "BOTTOMRIGHT", "BOTTOMLEFT", -10, 1
+					else
+						bagPoint, bagRelPoint, bagX, bagSlideDir = "BOTTOMLEFT", "BOTTOMRIGHT", 10, -1
+					end
+					bagY = -borderOffset
+					ApplyBag()
+
+					-- Get the buttons to show (not excluded and not hidden by their addon)
+					local allButtons = LibDBIconStub:GetButtonList()
+					local shownButtons = {}
+					for i = 1, #allButtons do
+						local buttonName = strlower(allButtons[i])
+						if not IsButtonKept(allButtons[i]) then
+							local button = LibDBIconStub:GetMinimapButton(allButtons[i])
+							if button and button.db then
+								if buttonName == "armory" then button.db.hide = false end -- Armory addon sets hidden to true
+								if not button.db.hide then
+									shownButtons[#shownButtons + 1] = allButtons[i]
+								end
+							end
+						end
+					end
+					table.sort(shownButtons, SortButtons)
+
+					-- Calculate buttons per row
+					local totalButtons = #shownButtons
+					local buttonsPerRow
+						if totalButtons > 36 then buttonsPerRow = 10
+					elseif totalButtons > 32 then buttonsPerRow = 9
+					elseif totalButtons > 28 then buttonsPerRow = 8
+					elseif totalButtons > 24 then buttonsPerRow = 7
+					elseif totalButtons > 20 then buttonsPerRow = 6
+					elseif totalButtons > 16 then buttonsPerRow = 5
+					elseif totalButtons > 12 then buttonsPerRow = 4
+					elseif totalButtons > 8 then buttonsPerRow = 3
+					elseif totalButtons > 4 then buttonsPerRow = 2
+					else
+						buttonsPerRow = 1
+					end
+
+					-- Place the buttons in a grid
+					for i = 1, totalButtons do
+						local button = LibDBIconStub:GetMinimapButton(shownButtons[i])
+						local col = (i - 1) % buttonsPerRow
+						local row = math.floor((i - 1) / buttonsPerRow)
+						-- Show the button first because LibDBIcon moves it back to the minimap when it is shown
+						LibDBIconStub:Show(shownButtons[i])
+						button:SetParent(bFrame)
+						-- All The Things changes the look of its button so make it match the other buttons
+						if shownButtons[i] == "AllTheThings" then TameAllTheThings(shownButtons[i], button) end
+						button:ClearAllPoints()
+						button:SetPoint("TOPLEFT", bFrame, "TOPLEFT", bagPadding + col * bagButtonSize, -(bagPadding + row * bagButtonSize))
+					end
+
+					-- Set the button frame size
+					local cols = math.min(totalButtons, buttonsPerRow)
+					local rows = math.ceil(totalButtons / buttonsPerRow)
+					if totalButtons > 0 then
+						bagEmptyText:Hide()
+						bFrame:SetWidth(cols * bagButtonSize + bagPadding * 2)
+						bFrame:SetHeight(rows * bagButtonSize + bagPadding * 2)
+					else
+						bagEmptyText:Show()
+						bFrame:SetWidth(bagEmptyText:GetStringWidth() + bagPadding * 4)
+						bFrame:SetHeight(bagButtonSize)
+					end
+
+				end
+
 				-- Create minimap button bag frame
 				local mbtn = CreateFrame("Frame", nil, Minimap)
 				mbtn:ClearAllPoints()
@@ -10709,82 +11190,16 @@
 				-- Toggle button frame
 				mbtn:SetScript("OnMouseUp", function(frame, button)
 					if button == "LeftButton" or button == "RightButton" then
-						if bFrame:IsShown() then
-							bFrame:Hide()
-						else bFrame:Show()
-							-- Position button frame
-							local side
-							local m = Minimap:GetCenter()
-							local b = Minimap:GetEffectiveScale()
-							local w = GetScreenWidth()
-							local s = UIParent:GetEffectiveScale()
-							bFrame:ClearAllPoints()
-							if m * b > (w * s / 2) then
-								side = "Right"
-								bFrame:SetPoint("BOTTOMRIGHT", Minimap, "BOTTOMLEFT", -10, -0)
-							else
-								side = "Left"
-								bFrame:SetPoint("BOTTOMLEFT", Minimap, "BOTTOMRIGHT", 10, 0)
-							end
-							-- Show button frame
-							local x, y, row, col = 0, 0, 0, 0
-							local buttons = LibDBIconStub:GetButtonList()
-							-- Sort the button table
-							table.sort(buttons, function(a, b)
-								if string.find(a, "LeaPlusCustomIcon_") then
-									a = string.gsub(a, "LeaPlusCustomIcon_", "")
-								end
-								if string.find(b, "LeaPlusCustomIcon_") then
-									b = string.gsub(b, "LeaPlusCustomIcon_", "")
-								end
-								return a:lower() < b:lower()
-							end)
-							-- Calculate buttons per row
-							local buttonsPerRow
-							local totalButtons = #buttons
-								if totalButtons > 36 then buttonsPerRow = 10
-							elseif totalButtons > 32 then buttonsPerRow = 9
-							elseif totalButtons > 28 then buttonsPerRow = 8
-							elseif totalButtons > 24 then buttonsPerRow = 7
-							elseif totalButtons > 20 then buttonsPerRow = 6
-							elseif totalButtons > 16 then buttonsPerRow = 5
-							elseif totalButtons > 12 then buttonsPerRow = 4
-							elseif totalButtons > 8 then buttonsPerRow = 3
-							elseif totalButtons > 4 then buttonsPerRow = 2
-							else
-								buttonsPerRow = 1
-							end
-							-- Build button grid
-							for i = 1, totalButtons do
-								local buttonName = strlower(buttons[i])
-								if not strfind(strlower(LeaPlusDB["MiniExcludeList"]), buttonName) then
-									local button = LibDBIconStub:GetMinimapButton(buttons[i])
-									if button.db then
-										if buttonName == "armory" then button.db.hide = false end -- Armory addon sets hidden to true
-										if not button.db.hide then
-											button:SetParent(bFrame)
-											button:ClearAllPoints()
-											if side == "Left" then
-												-- Minimap is on left side of screen
-												button:SetPoint("TOPLEFT", bFrame, "TOPLEFT", x, y)
-												col = col + 1; if col >= buttonsPerRow then col = 0; row = row + 1; x = 0; y = y - 30 else x = x + 30 end
-											else
-												-- Minimap is on right side of screen (changed from TOPRIGHT to TOPLEFT and x - 30 to x + 30 to make sorting work)
-												button:SetPoint("TOPLEFT", bFrame, "TOPLEFT", x, y)
-												col = col + 1; if col >= buttonsPerRow then col = 0; row = row + 1; x = 0; y = y - 30 else x = x + 30 end
-											end
-											if totalButtons <= buttonsPerRow then
-												bFrame:SetWidth(totalButtons * 30)
-											else
-												bFrame:SetWidth(buttonsPerRow * 30)
-											end
-											local void, void, void, void, e = button:GetPoint()
-											bFrame:SetHeight(0 - e + 30)
-											LibDBIconStub:Show(buttons[i])
-										end
-									end
-								end
-							end
+						if bFrame:IsShown() and bagTarget == 1 then
+							HideBag()
+						else
+							-- Start hidden (unless it is part way through fading out) then fade and slide in
+							if bFrame:IsShown() then StartBagTimers() else bagProgress = 0 end
+							bagTarget = 1
+							-- Show the button frame before laying it out (buttons hide themselves if it is not shown)
+							bFrame:Show()
+							LayoutBag()
+							bagAnim:Show()
 						end
 					end
 				end)
@@ -10934,7 +11349,11 @@
 				-- Square minimap header
 				----------------------------------------------------------------------
 
-				-- The header is rebuilt as a slim bar the same width as the square minimap border.
+				-- The header is laid out across the full width of the square minimap border in the chosen theme:
+				-- Blizzard (Blizzard's own header art and button sizes, no bar drawn) or a bar theme (a slim bar with
+				-- the same border as the minimap, in black, pink, purple, alliance, horde or rainbow colors, or a
+				-- see-through glass bar).
+				-- Each theme is just a layout so themes switch at once.
 				-- Blizzard's header pieces are only re-anchored, rescaled and have their alpha set
 				-- (no Blizzard functions are replaced, no fields are written to Blizzard frames).
 
@@ -10968,9 +11387,345 @@
 						return Minimap:GetEffectiveScale() / clusterScale
 					end
 
+					-- Blizzard theme: Blizzard's header height (the calendar button), its zone bar height and the gap
+					-- above the border (Blizzard units)
+					local BLIZZ_HEIGHT, BLIZZ_BAR, BLIZZ_GAP = 18, 16, 2
+
+					-- Function to check if the Blizzard theme is chosen
+					local function IsBlizzard() return LeaPlusLC["MiniHeaderTheme"] == 1 end
+
+					-- Function to get the Blizzard theme piece scale (same rule as Blizzard: the header only grows
+					-- with the Edit Mode minimap size if Blizzard is set to do that)
+					local function BlizzScale()
+						if MinimapCluster.scaleMinimapHeader and MinimapCluster.MinimapContainer then
+							return math.max(MinimapCluster.MinimapContainer:GetScale(), 1)
+						end
+						return 1
+					end
+
+					-- Functions to get the header bar height and how far it overlaps the minimap border (minimap units)
+					-- (Blizzard theme: no overlap, a small gap instead; bar themes: overlaps by the border width)
+					local function HeaderHeight()
+						if IsBlizzard() then return BLIZZ_HEIGHT * BlizzScale() / GetHeaderScale() end
+						return HEADER_HEIGHT + LeaPlusLC["MinimapBorderWidth"] * 2
+					end
+					local function HeaderOverlap()
+						if IsBlizzard() then return -BLIZZ_GAP * BlizzScale() / GetHeaderScale() end
+						return LeaPlusLC["MinimapBorderWidth"]
+					end
+
+					-- Bar theme colors (rainbow has no single color, it uses the rainbow bands below)
+					-- Black is plain black, the other colors are drawn as a dark wash of the color like the Leatrix Maps
+					-- title bar (10% of the color at the bottom to 20% at the top)
+					-- (theme numbers are saved, so new themes are added at the end, the dropdown sets the order they are listed in)
+					local BAR_COLORS = {
+						[2] = {0, 0, 0}, -- Black
+						[3] = {1, 0.35, 0.70}, -- Pink (same as the Leatrix Maps pink theme)
+						[4] = {0.25, 0.50, 1}, -- Alliance (same as the Leatrix Maps alliance theme)
+						[5] = {0.90, 0.15, 0.10}, -- Horde (same as the Leatrix Maps horde theme)
+						[7] = {0.60, 0.30, 1}, -- Purple (same as the Leatrix Maps purple theme)
+					}
+
+					-- Rainbow theme (same as the Leatrix Maps rainbow theme): a dark rainbow from left to right, drawn dark
+					-- so the text stays readable, with the bottom of the bar shaded
+					local RAINBOW_COLORS = {{1, 0.15, 0.15}, {1, 0.55, 0.10}, {1, 0.90, 0.15}, {0.25, 0.90, 0.30}, {0.20, 0.50, 1}, {0.65, 0.35, 1}}
+					local RAINBOW_SHADE = 0.30
+					local rainbowBands = {}
+					for i = 1, #RAINBOW_COLORS - 1 do
+						local band = headerBar:CreateTexture(nil, "BACKGROUND", nil, 1)
+						band:SetTexture("Interface\\Buttons\\WHITE8X8")
+						band:Hide()
+						rainbowBands[i] = band
+					end
+					local rainbowShade = headerBar:CreateTexture(nil, "BACKGROUND", nil, 2)
+					rainbowShade:SetTexture("Interface\\Buttons\\WHITE8X8")
+					rainbowShade:Hide()
+
+					-- Animated themes (animate header setting): colors flow along the bar and loop.  It is a Blizzard
+					-- animation (a strip holding the color pattern twice slides along inside a frame that clips it to the
+					-- bar, then loops), so no code runs while it moves.  Each pattern ends with the color it starts with so
+					-- the loop is seamless.  Colors are red, green, blue and alpha.  shade darkens the bottom like the
+					-- static bars.  The strip replaces the bar background, except glass where it is drawn on top.
+					-- Black and colors: a slow shimmer of a brighter shade flowing along the bar.
+					-- Rainbow: the dark rainbow goes all the way round the colors.
+					-- Glass: a light gleam sweeps across now and then.
+					local CYCLE_SETS = {}
+					do
+						local function Shimmer(c, low, high)
+							return {time = 6, shade = true, colors = {{c[1] * low, c[2] * low, c[3] * low, 1}, {c[1] * high, c[2] * high, c[3] * high, 1}, {c[1] * low, c[2] * low, c[3] * low, 1}}}
+						end
+						CYCLE_SETS[2] = {time = 6, shade = false, colors = {{0, 0, 0, 1}, {0.14, 0.14, 0.14, 1}, {0, 0, 0, 1}}} -- Black
+						CYCLE_SETS[3] = Shimmer(BAR_COLORS[3], 0.12, 0.34) -- Pink
+						CYCLE_SETS[4] = Shimmer(BAR_COLORS[4], 0.12, 0.34) -- Alliance
+						CYCLE_SETS[5] = Shimmer(BAR_COLORS[5], 0.12, 0.34) -- Horde
+						CYCLE_SETS[7] = Shimmer(BAR_COLORS[7], 0.12, 0.34) -- Purple
+						local s = RAINBOW_SHADE
+						CYCLE_SETS[6] = {time = 8, shade = true, colors = {{s, 0.15 * s, 0.15 * s, 1}, {s, 0.90 * s, 0.15 * s, 1}, {0.25 * s, 0.90 * s, 0.30 * s, 1}, {0.15 * s, 0.85 * s, 0.90 * s, 1}, {0.20 * s, 0.50 * s, s, 1}, {0.75 * s, 0.30 * s, s, 1}, {s, 0.15 * s, 0.15 * s, 1}}} -- Rainbow
+						CYCLE_SETS[8] = {time = 7, shade = false, colors = {{1, 1, 1, 0}, {1, 1, 1, 0}, {1, 1, 1, 0}, {1, 1, 1, 0.16}, {1, 1, 1, 0}, {1, 1, 1, 0}, {1, 1, 1, 0}}} -- Glass
+					end
+
+					-- Function to get the animation for the current theme (nil if animate header is off or the theme
+					-- has no animation)
+					local function AnimatedSet()
+						return LeaPlusLC["MiniHeaderAnimate"] == "On" and CYCLE_SETS[LeaPlusLC["MiniHeaderTheme"]] or nil
+					end
+
+					local cycleClip = CreateFrame("Frame", nil, headerBar)
+					cycleClip:SetFrameLevel(headerBar:GetFrameLevel() + 1) -- Below the header pieces (10)
+					cycleClip:SetClipsChildren(true)
+					cycleClip:Hide()
+					local cycleStrip = CreateFrame("Frame", nil, cycleClip)
+					local cycleBands = {}
+					for i = 1, 12 do -- Enough for the longest pattern twice
+						local band = cycleStrip:CreateTexture(nil, "BACKGROUND")
+						band:SetTexture("Interface\\Buttons\\WHITE8X8")
+						band:Hide()
+						cycleBands[i] = band
+					end
+					local cycleShade = cycleStrip:CreateTexture(nil, "BORDER")
+					cycleShade:SetTexture("Interface\\Buttons\\WHITE8X8")
+					cycleShade:SetAllPoints(cycleStrip)
+					cycleShade:SetGradient("VERTICAL", CreateColor(0, 0, 0, 0.45), CreateColor(0, 0, 0, 0))
+					local cycleAnim = cycleStrip:CreateAnimationGroup()
+					cycleAnim:SetLooping("REPEAT")
+					local cycleMove = cycleAnim:CreateAnimation("Translation")
+					local cycleTheme -- Theme the strip is colored for
+
+					-- Function to color the strip for a theme (the pattern twice)
+					local function SetCycleColors(theme)
+						local set = CYCLE_SETS[theme]
+						local steps = #set.colors - 1
+						for i = 1, #cycleBands do
+							local band = cycleBands[i]
+							if i <= steps * 2 then
+								local c1, c2 = set.colors[(i - 1) % steps + 1], set.colors[(i - 1) % steps + 2]
+								band:SetGradient("HORIZONTAL", CreateColor(c1[1], c1[2], c1[3], c1[4]), CreateColor(c2[1], c2[2], c2[3], c2[4]))
+								band:Show()
+							else
+								band:Hide()
+							end
+						end
+						cycleShade:SetShown(set.shade)
+						cycleMove:SetDuration(set.time)
+						cycleTheme = theme
+					end
+
+					-- Function to size the strip to the bar (one pattern is the width of the bar, the strip holds two
+					-- and slides along by one) and restart the animation
+					local function LayoutCycle()
+						if not cycleTheme then return end
+						local width = cycleClip:GetWidth()
+						if not width or (issecretvalue and issecretvalue(width)) or width <= 0 then return end -- Frame sizes can be secret in combat
+						local steps = #CYCLE_SETS[cycleTheme].colors - 1
+						local bandWidth = width / steps
+						cycleStrip:ClearAllPoints()
+						cycleStrip:SetPoint("TOPLEFT", cycleClip, "TOPLEFT")
+						cycleStrip:SetPoint("BOTTOMLEFT", cycleClip, "BOTTOMLEFT")
+						cycleStrip:SetWidth(width * 2)
+						for i = 1, steps * 2 do
+							local band = cycleBands[i]
+							band:ClearAllPoints()
+							band:SetPoint("TOPLEFT", cycleStrip, "TOPLEFT", bandWidth * (i - 1), 0)
+							band:SetPoint("BOTTOMLEFT", cycleStrip, "BOTTOMLEFT", bandWidth * (i - 1), 0)
+							band:SetWidth(bandWidth)
+						end
+						cycleMove:SetOffset(-width, 0)
+						if cycleClip:IsShown() then
+							cycleAnim:Stop()
+							cycleAnim:Play()
+						end
+					end
+					cycleClip:SetScript("OnSizeChanged", LayoutCycle)
+
+					-- Glass theme (like the Leatrix Maps glass theme, without the rim): a see-through frosted bar with a
+					-- light reflection on the top inside the normal dark edge, the game world shows through behind it
+					local glassBack = headerBar:CreateTexture(nil, "BACKGROUND", nil, 1)
+					glassBack:SetTexture("Interface\\Buttons\\WHITE8X8")
+					glassBack:SetAllPoints(headerBar)
+					-- (the opacity slider sets how see-through it is, the Leatrix Maps look is at 50%)
+					glassBack:Hide()
+					local glassSheen = headerBar:CreateTexture(nil, "BACKGROUND", nil, 4)
+					glassSheen:SetTexture("Interface\\Buttons\\WHITE8X8")
+					glassSheen:SetPoint("TOPLEFT")
+					glassSheen:SetPoint("TOPRIGHT")
+					glassSheen:Hide()
+
+					-- Color themes: dark wash of the theme color inside the border (same as the Leatrix Maps title bar)
+					local colorWash = headerBar:CreateTexture(nil, "BACKGROUND", nil, 1)
+					colorWash:SetTexture("Interface\\Buttons\\WHITE8X8")
+					colorWash:Hide()
+
+					-- Theme tint for the clock text and the tracking and calendar buttons (Blizzard never sets the clock
+					-- color and changing the button art keeps the tint, so it stays).  The button art is desaturated first
+					-- so the tint is clean.  Black puts Blizzard's colors back.
+					-- Color themes (pink, purple, alliance, horde): the clock is the theme color and the buttons a lighter
+					-- version of it (a third of the way to white, as a tint can only darken the art).
+					-- Rainbow: each piece takes the rainbow color behind it (red tracking button at the left, violet
+					-- calendar at the right, blue-violet clock near the right).
+					-- Glass: icy white buttons and clock (same as the Leatrix Maps glass theme).
+					local ACCENT_THEMES = {[3] = true, [4] = true, [5] = true, [7] = true}
+					-- Clock text lightened (part of the way to white) where the color is dark against its bar
+					local CLOCK_LIGHTEN = {[5] = 0.25, [6] = 0.25, [7] = 0.25} -- Horde, rainbow and purple
+					local trackTextures, calTextures = {}, {}
+					-- Function to get the textures of a button to tint (read each time as Blizzard sets new calendar art
+					-- every day, the highlight is left alone)
+					local function GetButtonTextures(button, list, background)
+						wipe(list)
+						if background then tinsert(list, background) end
+						if button then
+							local normal, pushed = button:GetNormalTexture(), button:GetPushedTexture()
+							if normal then tinsert(list, normal) end
+							if pushed then tinsert(list, pushed) end
+						end
+					end
+					local clockColor -- Blizzard's clock text color (read before it is first changed)
+
+					-- Function to get a color part of the way to white
+					local function Lighten(r, g, b, amount)
+						return r + (1 - r) * amount, g + (1 - g) * amount, b + (1 - b) * amount
+					end
+
+					-- Function to get the rainbow color at a position across the bar (0 is the left, 1 is the right)
+					local function RainbowColor(pos)
+						local p = pos * (#RAINBOW_COLORS - 1)
+						local i = math.min(math.floor(p) + 1, #RAINBOW_COLORS - 1)
+						local f = p - (i - 1)
+						local c1, c2 = RAINBOW_COLORS[i], RAINBOW_COLORS[i + 1]
+						return c1[1] + (c2[1] - c1[1]) * f, c1[2] + (c2[2] - c1[2]) * f, c1[3] + (c2[3] - c1[3]) * f
+					end
+
+					-- Function to tint a list of button textures (nil color puts Blizzard's colors back)
+					local function TintButton(list, r, g, b)
+						for i = 1, #list do
+							list[i]:SetDesaturated(r and true or false)
+							list[i]:SetVertexColor(r or 1, g or 1, b or 1)
+						end
+					end
+
+					-- Function to set or clear the button and clock tint
+					local function SetAccent()
+						local theme = LeaPlusLC["MiniHeaderTheme"]
+						local tr, tg, tb, cr, cg, cb, kr, kg, kb -- Tracking, calendar and clock colors
+						if ACCENT_THEMES[theme] then
+							local color = BAR_COLORS[theme]
+							tr, tg, tb = Lighten(color[1], color[2], color[3], 0.33)
+							cr, cg, cb = tr, tg, tb
+							kr, kg, kb = color[1], color[2], color[3]
+						elseif theme == 6 then
+							local first, last = RAINBOW_COLORS[1], RAINBOW_COLORS[#RAINBOW_COLORS]
+							tr, tg, tb = Lighten(first[1], first[2], first[3], 0.33)
+							cr, cg, cb = Lighten(last[1], last[2], last[3], 0.33)
+							kr, kg, kb = RainbowColor(0.85)
+						elseif theme == 8 then
+							tr, tg, tb = 0.90, 0.94, 1
+							cr, cg, cb = tr, tg, tb
+							kr, kg, kb = 0.85, 0.90, 1
+						end
+						GetButtonTextures(tracking.Button, trackTextures, tracking.Background)
+						GetButtonTextures(GameTimeFrame, calTextures)
+						TintButton(trackTextures, tr, tg, tb)
+						TintButton(calTextures, cr, cg, cb)
+						if TimeManagerClockTicker then
+							if not clockColor then clockColor = {TimeManagerClockTicker:GetTextColor()} end
+							if kr then
+								TimeManagerClockTicker:SetTextColor(Lighten(kr, kg, kb, CLOCK_LIGHTEN[theme] or 0))
+							else
+								TimeManagerClockTicker:SetTextColor(clockColor[1], clockColor[2], clockColor[3])
+							end
+						end
+					end
+
+					-- Function to show, place and size the color wash, rainbow and glass parts (only shown with their own theme)
+					local function LayoutRainbow()
+						local theme = LeaPlusLC["MiniHeaderTheme"]
+
+						local animated = AnimatedSet()
+
+						-- Color wash inside the border (black is plain so it has no wash, animated themes use the strip)
+						local color = theme ~= 2 and not animated and BAR_COLORS[theme]
+						colorWash:SetShown(color and true or false)
+						if color then
+							local bwWash = LeaPlusLC["MinimapBorderWidth"]
+							colorWash:ClearAllPoints()
+							colorWash:SetPoint("TOPLEFT", headerBar, "TOPLEFT", bwWash, -bwWash)
+							colorWash:SetPoint("BOTTOMRIGHT", headerBar, "BOTTOMRIGHT", -bwWash, bwWash)
+						end
+
+						-- Animated strip inside the border (the animation only runs while it is shown)
+						local showCycle = animated and true or false
+						if showCycle then
+							local bwCycle = LeaPlusLC["MinimapBorderWidth"]
+							cycleClip:ClearAllPoints()
+							cycleClip:SetPoint("TOPLEFT", headerBar, "TOPLEFT", bwCycle, -bwCycle)
+							cycleClip:SetPoint("BOTTOMRIGHT", headerBar, "BOTTOMRIGHT", -bwCycle, bwCycle)
+							if cycleTheme ~= theme then
+								SetCycleColors(theme)
+								cycleClip:Show()
+								LayoutCycle()
+							elseif not cycleClip:IsShown() then
+								cycleClip:Show()
+								LayoutCycle()
+							end
+						elseif cycleClip:IsShown() then
+							cycleAnim:Stop()
+							cycleClip:Hide()
+						end
+
+						-- Rainbow bands inside the border (evenly spaced, the last one fills the rest, not shown when animated)
+						local showRainbow = theme == 6 and not animated
+						local bw = LeaPlusLC["MinimapBorderWidth"]
+						local count = #rainbowBands
+						local barWidth = headerBar:GetWidth()
+						if issecretvalue and issecretvalue(barWidth) then barWidth = nil end -- Frame sizes can be secret in combat
+						for i = 1, count do
+							local band = rainbowBands[i]
+							band:SetShown(showRainbow)
+							if showRainbow then
+								band:ClearAllPoints()
+								if i == 1 then
+									band:SetPoint("TOPLEFT", headerBar, "TOPLEFT", bw, -bw)
+									band:SetPoint("BOTTOMLEFT", headerBar, "BOTTOMLEFT", bw, bw)
+								else
+									band:SetPoint("TOPLEFT", rainbowBands[i - 1], "TOPRIGHT")
+									band:SetPoint("BOTTOMLEFT", rainbowBands[i - 1], "BOTTOMRIGHT")
+								end
+								if i == count then
+									band:SetPoint("TOPRIGHT", headerBar, "TOPRIGHT", -bw, -bw)
+									band:SetPoint("BOTTOMRIGHT", headerBar, "BOTTOMRIGHT", -bw, bw)
+								elseif barWidth then
+									band:SetWidth(math.max((barWidth - bw * 2) / count, 1))
+								end
+							end
+						end
+						rainbowShade:SetShown(showRainbow)
+						if showRainbow then
+							rainbowShade:ClearAllPoints()
+							rainbowShade:SetPoint("TOPLEFT", headerBar, "TOPLEFT", bw, -bw)
+							rainbowShade:SetPoint("BOTTOMRIGHT", headerBar, "BOTTOMRIGHT", -bw, bw)
+						end
+
+						-- Glass parts (the reflection covers the top half of the bar)
+						local showGlass = theme == 8
+						glassBack:SetShown(showGlass)
+						glassSheen:SetShown(showGlass)
+						if showGlass then
+							-- (inside the dark edge, like the other themes)
+							glassBack:ClearAllPoints()
+							glassBack:SetPoint("TOPLEFT", headerBar, "TOPLEFT", bw, -bw)
+							glassBack:SetPoint("BOTTOMRIGHT", headerBar, "BOTTOMRIGHT", -bw, bw)
+							glassSheen:ClearAllPoints()
+							glassSheen:SetPoint("TOPLEFT", headerBar, "TOPLEFT", bw, -bw)
+							glassSheen:SetPoint("TOPRIGHT", headerBar, "TOPRIGHT", -bw, -bw)
+							glassSheen:SetHeight(HEADER_HEIGHT / 2)
+						end
+					end
+
+					-- Size the rainbow bands again when the bar changes width (addon frame only)
+					headerBar:HookScript("OnSizeChanged", LayoutRainbow)
+
 					-- Function to position the header bar against the minimap border (offset moves it away from the minimap)
 					local function PositionHeaderBar()
-						local bw = LeaPlusLC["MinimapBorderWidth"]
+						local bw = HeaderOverlap()
 						headerBar:ClearAllPoints()
 						if headerUnderneath then
 							headerBar:SetPoint("TOPLEFT", miniBorder, "BOTTOMLEFT", 0, bw - headerOffset)
@@ -10992,7 +11747,7 @@
 						if headerUnderneath then
 							local bw = LeaPlusLC["MinimapBorderWidth"]
 							local hiddenY = math.min(bw - 8, -2) -- Same place as Blizzard's default
-							local shownY = -(HEADER_HEIGHT + bw) - 4 -- Below the header bar
+							local shownY = -(HeaderHeight() - HeaderOverlap()) - 4 -- Below the header bar
 							coords:SetPoint("TOP", miniBorder, "BOTTOM", 0, hiddenY + (shownY - hiddenY) * headerShown)
 						else
 							coords:SetPoint("BOTTOM", Minimap, "BOTTOM", 0, -18)
@@ -11000,31 +11755,72 @@
 					end
 
 					-- Function to set the header bar opacity (background and border)
+					-- (Blizzard theme: Blizzard's zone bar art, which fades with the header for show header on hover;
+					-- bar themes: the bar, with Blizzard's zone bar art hidden)
 					local function SetHeaderOpacity()
 						local alpha = LeaPlusLC["MiniHeaderAlpha"]
-						headerBar:SetBackdropColor(0, 0, 0, alpha)
+						if IsBlizzard() then
+							borderTop:SetAlpha(alpha * headerBar:GetAlpha())
+							return
+						end
+						borderTop:SetAlpha(0)
+						cycleClip:SetAlpha(alpha) -- Animated strip (a frame, so its alpha works)
+						-- The color wash, rainbow and glass parts are gradients, which set the color of each corner, so the
+						-- opacity is part of the gradient colors (setting the texture alpha would have no effect)
+						local theme = LeaPlusLC["MiniHeaderTheme"]
+						local color = theme ~= 2 and BAR_COLORS[theme]
+						if color then
+							local r, g, b = color[1], color[2], color[3]
+							colorWash:SetGradient("VERTICAL", CreateColor(r * 0.10, g * 0.10, b * 0.10, alpha), CreateColor(r * 0.20, g * 0.20, b * 0.20, alpha))
+						end
+						if theme == 6 then
+							for i = 1, #rainbowBands do
+								local c1, c2 = RAINBOW_COLORS[i], RAINBOW_COLORS[i + 1]
+								rainbowBands[i]:SetGradient("HORIZONTAL", CreateColor(c1[1] * RAINBOW_SHADE, c1[2] * RAINBOW_SHADE, c1[3] * RAINBOW_SHADE, alpha), CreateColor(c2[1] * RAINBOW_SHADE, c2[2] * RAINBOW_SHADE, c2[3] * RAINBOW_SHADE, alpha))
+							end
+							rainbowShade:SetGradient("VERTICAL", CreateColor(0, 0, 0, 0.45 * alpha), CreateColor(0, 0, 0, 0))
+						end
+						if theme == 8 then
+							-- Glass has no backdrop background (only the dark edge)
+							glassBack:SetGradient("VERTICAL", CreateColor(0.10, 0.12, 0.16, alpha), CreateColor(0.32, 0.37, 0.45, 0.8 * alpha))
+							glassSheen:SetGradient("VERTICAL", CreateColor(1, 1, 1, 0), CreateColor(1, 1, 1, 0.24 * alpha))
+							headerBar:SetBackdropBorderColor(1, 1, 1, alpha)
+							return
+						end
+						if theme == 2 and not AnimatedSet() then
+							headerBar:SetBackdropColor(0, 0, 0, alpha) -- Black
+						else
+							headerBar:SetBackdropColor(0, 0, 0, 0) -- Color wash or rainbow bands are the background
+						end
 						headerBar:SetBackdropBorderColor(1, 1, 1, alpha)
 					end
 
 					-- Function to set the zone text width (uses the clock space only when the clock is shown)
+					-- (Blizzard theme uses Blizzard's own text position and clock space)
 					local function SetZoneTextWidth()
-						local clockSpace = 4
-						if TimeManagerClockButton and TimeManagerClockButton:IsShown() then clockSpace = CLOCK_SPACE end
+						local clockShown = TimeManagerClockButton and TimeManagerClockButton:IsShown()
+						local left, y, clockSpace = 2, 0, clockShown and CLOCK_SPACE or 4
+						if IsBlizzard() then left, y, clockSpace = 4, 1, clockShown and 44 or 4 end
 						miniFrame.ClearAllPoints(zoneButton)
-						zoneButton:SetPoint("LEFT", borderTop, "LEFT", 2, 0)
+						zoneButton:SetPoint("LEFT", borderTop, "LEFT", left, 0)
 						zoneButton:SetPoint("RIGHT", borderTop, "RIGHT", -clockSpace, 0)
 						MinimapZoneText:ClearAllPoints()
-						MinimapZoneText:SetPoint("LEFT", zoneButton, "LEFT", 0, 0)
-						MinimapZoneText:SetPoint("RIGHT", zoneButton, "RIGHT", 0, 0)
+						MinimapZoneText:SetPoint("LEFT", zoneButton, "LEFT", 0, y)
+						MinimapZoneText:SetPoint("RIGHT", zoneButton, "RIGHT", 0, y)
 					end
 
 					-- Function to position the clock (load on demand)
 					local function PositionClock()
 						if not TimeManagerClockButton then return end
-						TimeManagerClockButton:SetScale(GetHeaderScale())
 						TimeManagerClockButton:SetFrameLevel(10)
 						miniFrame.ClearAllPoints(TimeManagerClockButton)
-						TimeManagerClockButton:SetPoint("RIGHT", borderTop, "RIGHT", -2, -2) -- Lowered so the clock sits on the same baseline as the zone text
+						if IsBlizzard() then
+							TimeManagerClockButton:SetScale(BlizzScale())
+							TimeManagerClockButton:SetPoint("TOPRIGHT", borderTop, "TOPRIGHT", -4, 0) -- Blizzard's place
+						else
+							TimeManagerClockButton:SetScale(GetHeaderScale())
+							TimeManagerClockButton:SetPoint("RIGHT", borderTop, "RIGHT", -2, -1.7) -- Lowered so the clock sits on the same baseline as the zone text
+						end
 					end
 
 					-- Function to lay out the header
@@ -11036,27 +11832,71 @@
 						end
 						local bw = LeaPlusLC["MinimapBorderWidth"]
 						local scale = GetHeaderScale()
+						SetAccent()
 
-						-- Header bar (same border as the minimap with a dark background)
+						-- Blizzard theme: no bar drawn (it only holds the pieces in place and slides them for show header
+						-- on hover), Blizzard's own art, button sizes and spacing, stretched across the border
+						if IsBlizzard() then
+							local pieceScale = BlizzScale()
+							headerBar:SetBackdrop(nil)
+							LayoutRainbow()
+							headerBar:SetHeight(HeaderHeight())
+							SetHeaderOpacity()
+							PositionHeaderBar()
+
+							-- Calendar at the right edge of the border (its top is level with the top of the zone bar)
+							-- (measured in game: the dark plate of the calendar art stops about 3 units short of its frame's
+							-- right edge, so the frame overhangs the border by that much and the plate meets the border edge)
+							GameTimeFrame:SetScale(pieceScale)
+							miniFrame.ClearAllPoints(GameTimeFrame)
+							GameTimeFrame:SetPoint("TOPRIGHT", headerBar, "TOPRIGHT", 3, 0)
+
+							-- Zone bar fills the space from the tracking button to the calendar (Blizzard's spacing: the
+							-- tracking button is 17 wide with a gap of 2, the calendar has a gap of 1)
+							borderTop:SetScale(pieceScale)
+							miniFrame.ClearAllPoints(borderTop)
+							borderTop:SetPoint("TOPLEFT", headerBar, "TOPLEFT", 19, 0)
+							borderTop:SetPoint("TOPRIGHT", GameTimeFrame, "TOPLEFT", -1, 0)
+							borderTop:SetHeight(BLIZZ_BAR)
+
+							-- Tracking button at the left edge of the border (Blizzard's place beside the zone bar)
+							tracking:SetScale(pieceScale)
+							miniFrame.ClearAllPoints(tracking)
+							tracking:SetPoint("RIGHT", borderTop, "LEFT", -2, 0)
+
+							zoneButton:SetScale(pieceScale)
+							SetZoneTextWidth()
+							PositionClock()
+							PositionCoords()
+							return
+						end
+
+						-- Header bar (same border as the minimap with the theme background, glass has no backdrop
+						-- background as its own parts are drawn instead)
 						headerBar:SetHeight(HEADER_HEIGHT + bw * 2)
-						headerBar:SetBackdrop({
-							bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
-							edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Background-Dark",
-							edgeSize = bw,
-							insets = {left = bw, right = bw, top = bw, bottom = bw},
-						})
+						if LeaPlusLC["MiniHeaderTheme"] == 8 then
+							headerBar:SetBackdrop({edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Background-Dark", edgeSize = bw}) -- Glass: dark edge only
+						else
+							headerBar:SetBackdrop({
+								bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
+								edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Background-Dark",
+								edgeSize = bw,
+								insets = {left = bw, right = bw, top = bw, bottom = bw},
+							})
+						end
 						SetHeaderOpacity()
+						LayoutRainbow()
 						PositionHeaderBar()
 
 						-- Tracking button (left side)
 						tracking:SetScale(scale)
 						miniFrame.ClearAllPoints(tracking)
-						tracking:SetPoint("CENTER", headerBar, "LEFT", bw + 2 + TRACKING_SIZE / 2, 0)
+						tracking:SetPoint("CENTER", headerBar, "LEFT", bw + 2 + TRACKING_SIZE / 2, -1) -- Lowered 1 so its art is centred on the bar
 
 						-- Calendar button (right side)
 						GameTimeFrame:SetScale(scale)
 						miniFrame.ClearAllPoints(GameTimeFrame)
-						GameTimeFrame:SetPoint("CENTER", headerBar, "RIGHT", -(bw + 2 + CALENDAR_SIZE / 2), 0)
+						GameTimeFrame:SetPoint("CENTER", headerBar, "RIGHT", -(bw + 2 + CALENDAR_SIZE / 2), -1) -- Lowered 1 so its art is centred on the bar
 
 						-- Header border frame fills the space between them (zone text and clock are anchored to it)
 						borderTop:SetScale(scale)
@@ -11092,12 +11932,37 @@
 					-- Set the header opacity when the slider changes (addon frame only)
 					LeaPlusCB["MiniHeaderAlpha"]:HookScript("OnValueChanged", SetHeaderOpacity)
 
+					-- Function to grey out the animate header checkbox for the Blizzard theme (nothing to animate)
+					-- (the tooltip gets a blue note when the setting does not apply to the chosen theme)
+					local animateTip = LeaPlusCB["MiniHeaderAnimate"].tiptext
+					local function SetAnimateLock()
+						local blizzard = IsBlizzard()
+						LeaPlusLC:LockItem(LeaPlusCB["MiniHeaderAnimate"], blizzard)
+						if blizzard then
+							LeaPlusCB["MiniHeaderAnimate"].tiptext = animateTip .. "|n|n|cff00AAFF" .. L["This setting does not apply to the Blizzard header theme."]
+						else
+							LeaPlusCB["MiniHeaderAnimate"].tiptext = animateTip
+						end
+					end
+
+					-- Apply the header theme when the dropdown changes (each theme is a layout so it applies at once)
+					LeaPlusLC.SetMiniHeaderTheme = function() LayoutHeader(); SetAnimateLock() end
+					LeaPlusCB["MiniHeaderTheme"]:RegisterCallback("OnMenuClose", function() LayoutHeader(); SetAnimateLock() end)
+					SetAnimateLock()
+
+					-- Apply animate header at once when the checkbox is clicked
+					LeaPlusCB["MiniHeaderAnimate"]:HookScript("OnClick", LayoutHeader)
+
+					-- Tint the new calendar art again when Blizzard sets it (every day)
+					hooksecurefunc("GameTimeFrame_SetDate", SetAccent)
+
 					-- Clock is load on demand
 					EventUtil.ContinueOnAddOnLoaded("Blizzard_TimeManager", function()
 						PositionClock()
 						TimeManagerClockButton:HookScript("OnShow", SetZoneTextWidth)
 						TimeManagerClockButton:HookScript("OnHide", SetZoneTextWidth)
 						SetZoneTextWidth()
+						SetAccent()
 					end)
 
 					-- Function to slide the header (used by show header on hover)
@@ -11115,6 +11980,11 @@
 				-- Square minimap is disabled so disable border width slider
 				LeaPlusLC:LockItem(LeaPlusCB["MinimapBorderWidth"], true)
 				LeaPlusCB["MinimapBorderWidth"].tiptext = LeaPlusCB["MinimapBorderWidth"].tiptext .. "|cff00AAFF|n|n" .. L["This slider requires 'Square minimap' to be enabled."] .. "|r"
+
+				-- Header themes need the square minimap (the round minimap always uses Blizzard's header)
+				LeaPlusLC:LockItem(LeaPlusCB["MiniHeaderTheme"], true)
+				LeaPlusLC:LockItem(LeaPlusCB["MiniHeaderAnimate"], true)
+				LeaPlusCB["MiniHeaderAnimate"].tiptext = LeaPlusCB["MiniHeaderAnimate"].tiptext .. "|n|n|cff00AAFF" .. L["This setting requires 'Square minimap' to be enabled."]
 
 			end
 
@@ -11232,8 +12102,12 @@
 
 				-- Function to set the round minimap header border artwork alpha (hover fade multiplied by header opacity)
 				-- (square minimap keeps Blizzard's header artwork hidden and uses its own header bar)
+				-- (square minimap Blizzard theme: its zone bar art fades with the header too)
 				local function SetRoundBorderAlpha(eased)
-					if miniHeaderBar then return end
+					if miniHeaderBar then
+						if LeaPlusLC["MiniHeaderTheme"] == 1 then borderTop:SetAlpha(eased * LeaPlusLC["MiniHeaderAlpha"]) end
+						return
+					end
 					borderTop:SetAlpha(eased * LeaPlusLC["MiniHeaderAlpha"])
 				end
 
@@ -11448,6 +12322,13 @@
 
 					if not finalTex then finalTex = "Interface\\HELPFRAME\\HelpIcon-KnowledgeBase" end
 
+					-- Method Raid Tools uses a known icon and title
+					local customLabel
+					if name == "LibDBIcon10_MethodRaidTools" then
+						finalTex = "Interface\\AddOns\\MRT\\media\\MiniMap"
+						customLabel = "Method Raid Tools"
+					end
+
 					-- Function to anchor the tooltip to the custom button or the minimap
 					local function ReanchorTooltip(tip, myButton)
 						tip:ClearAllPoints()
@@ -11469,6 +12350,7 @@
 					local zeroButton = LibStub("LibDataBroker-1.1"):NewDataObject("LeaPlusCustomIcon_" .. name, {
 						type = "data source",
 						text = name,
+						label = customLabel,
 						icon = finalTex,
 						OnClick = function(self, btn)
 							if _G[name] then
@@ -11580,11 +12462,25 @@
 								self:Hide()
 							end)
 						end
+					elseif name == "LibDBIcon10_MethodRaidTools" then
+						-- Method Raid Tools (tooltip built from its own text so its hidden button is not used)
+						local myButton = LibStub("LibDBIcon-1.0"):GetMinimapButton("LeaPlusCustomIcon_" .. name)
+						myButton:HookScript("OnEnter", function()
+							local mrtL = type(GMRT) == "table" and type(GMRT.L) == "table" and GMRT.L or nil
+							GameTooltip:SetOwner(myButton, "ANCHOR_NONE")
+							GameTooltip:AddLine("Method Raid Tools")
+							if mrtL and type(mrtL.minimaptooltiplmp) == "string" then GameTooltip:AddLine(mrtL.minimaptooltiplmp, 1, 1, 1) end
+							if mrtL and type(mrtL.minimaptooltiprmp) == "string" then GameTooltip:AddLine(mrtL.minimaptooltiprmp, 1, 1, 1) end
+							GameTooltip:Show()
+							ReanchorTooltip(GameTooltip, myButton)
+						end)
+						myButton:HookScript("OnLeave", function()
+							GameTooltip:Hide()
+						end)
 					elseif name == "BtWQuestsMinimapButton"				-- BtWQuests
 						or name == "TomCats-MinimapButton"				-- TomCat's Tours
 						or name == "TomCats-LoveIsInTheAirMinimapButton2023"
 						or name == "TomCats-LunarFestivalMinimapButton2023"
-						or name == "LibDBIcon10_MethodRaidTools"		-- Method Raid Tools
 						or name == "wlMinimapButton"					-- Wowhead Looter (part of Wowhead client)
 						or name == "CLN_MinimapButton"					-- Chatty Little NPC
 						then
@@ -11639,12 +12535,10 @@
 							local name = btn:GetName()
 							local btype = btn:GetObjectType()
 							if name and btype == "Button" and not CustomAddonTable[name] and (btn:GetNumRegions() >= 3 or table.contains(LowRegionCountButtons, name)) and not issecurevariable(name) and btn:IsShown() then
-								if not strfind(strlower(LeaPlusDB["MiniExcludeList"]), strlower("##" .. name)) then
-									if not string.find(name, "LibDBIcon") and not table.contains(BypassButtonTable, name) or table.contains(customButtonTable, name) then
-										CreateBadButton(name)
-										btn:Hide()
-										btn:SetScript("OnShow", function() btn:Hide() end)
-									end
+								if not string.find(name, "LibDBIcon") and not table.contains(BypassButtonTable, name) or table.contains(customButtonTable, name) then
+									CreateBadButton(name)
+									btn:Hide()
+									btn:SetScript("OnShow", function() btn:Hide() end)
 								end
 							end
 						end
@@ -11670,7 +12564,7 @@
 						local buttons = LibDBIconStub:GetButtonList()
 						for i = 1, #buttons do
 							local buttonName = strlower(buttons[i])
-							if not strfind(strlower(LeaPlusDB["MiniExcludeList"]), buttonName) then
+							if not IsButtonKept(buttonName) then
 								LibDBIconStub:ShowOnEnter(buttons[i], true)
 							end
 						end
@@ -11681,7 +12575,7 @@
 						local buttons = LibDBIconStub:GetButtonList()
 						for i = 1, #buttons do
 							local buttonName = strlower(buttons[i])
-							if not strfind(strlower(LeaPlusDB["MiniExcludeList"]), buttonName) then
+							if not IsButtonKept(buttonName) then
 								LibDBIconStub:ShowOnEnter(buttons[i], false)
 							end
 						end
@@ -11721,6 +12615,7 @@
 				LeaPlusLC["MinimapBorderWidth"] = 3
 				LeaPlusLC["MiniHeaderAlpha"] = 0.5
 				LeaPlusLC["MiniHeaderOnHover"] = "Off"; if LeaPlusLC.SetMiniHeaderHover then LeaPlusLC.SetMiniHeaderHover() end
+				LeaPlusLC["MiniHeaderTheme"] = 2; LeaPlusLC["MiniHeaderAnimate"] = "On"; if LeaPlusLC.SetMiniHeaderTheme then LeaPlusLC.SetMiniHeaderTheme() end
 				-- Refresh panel
 				SideMinimap:Hide(); SideMinimap:Show()
 			end)
@@ -11739,6 +12634,7 @@
 						LeaPlusLC["UnclampMinimap"] = "On"
 						LeaPlusLC["MinimapBorderWidth"] = 3
 						LeaPlusLC["MiniHeaderAlpha"] = 0
+						LeaPlusLC["MiniHeaderTheme"] = 2; LeaPlusLC["MiniHeaderAnimate"] = "On"; if LeaPlusLC.SetMiniHeaderTheme then LeaPlusLC.SetMiniHeaderTheme() end
 						LeaPlusLC:ReloadCheck() -- Special reload check
 					else
 						-- Show configuration panel
@@ -11751,6 +12647,11 @@
 			-- LibDBIcon callback (search LibDBIcon_IconCreated to find calls to this)
 			LibDBIconStub.RegisterCallback(miniFrame, "LibDBIcon_IconCreated", function(self, button, name)
 
+				-- All The Things changes its button straight after creating it so tame it on the next frame
+				if name == "AllTheThings" then
+					C_Timer.After(0, function() TameAllTheThings(name, button) end)
+				end
+
 				-- Minimap button bag: Hide new LibDBIcon icons
 				if LeaPlusLC["MinimapButtonBag"] == "On" then
 					--C_Timer.After(0.1, function() -- Removed for now
@@ -11762,17 +12663,11 @@
 							if not button.db.hide then button.db.hide = false end
 						end
 
-						if not strfind(strlower(LeaPlusDB["MiniExcludeList"]), buttonName) then
+						if not IsButtonKept(buttonName) then
 							if button.db and not button.db.hide then
 								button:Hide()
 								button:SetScript("OnShow", function() if not LeaPlusLC.bFrame:IsShown() then button:Hide() end end)
 							end
-							-- Create background texture
-							local bFrameBg = button:CreateTexture(nil, "BACKGROUND")
-							bFrameBg:SetTexture("Interface\\ChatFrame\\ChatFrameBackground")
-							bFrameBg:SetPoint("CENTER")
-							bFrameBg:SetSize(30, 30)
-							bFrameBg:SetVertexColor(0, 0, 0, 0.5)
 						end
 						-- Move GameTooltip to below the minimap in case the button uses it
 						button:HookScript("OnEnter", LeaPlusLC.SetButtonTooltip)
@@ -11784,18 +12679,47 @@
 					local buttonName = strlower(name)
 					if LeaPlusLC["HideMiniAddonButtons"] == "On" then
 						-- Hide addon buttons is enabled
-						if not strfind(strlower(LeaPlusDB["MiniExcludeList"]), buttonName) then
+						if not IsButtonKept(buttonName) then
 							LibDBIconStub:ShowOnEnter(name, true)
 						end
 					else
 						-- Hide addon buttons is disabled
-						if not strfind(strlower(LeaPlusDB["MiniExcludeList"]), buttonName) then
+						if not IsButtonKept(buttonName) then
 							LibDBIconStub:ShowOnEnter(name, false)
 						end
 					end
 				end
 
 			end)
+
+			----------------------------------------------------------------------
+			-- Apply kept buttons straight away (used by the addon buttons editor)
+			----------------------------------------------------------------------
+
+			ApplyMiniButtonKeep = function(name)
+				local button = LibDBIconStub:GetMinimapButton(name)
+				if not button then return end
+				local kept = IsButtonKept(name)
+				if LeaPlusLC["MinimapButtonBag"] == "On" and LeaPlusLC.bFrame then
+					if kept then
+						-- Put the button back on the minimap (only buttons which were in the minimap button bag are
+						-- moved, so buttons already on the minimap are left alone and any hidden by their addon stay hidden)
+						if button:GetScript("OnShow") then
+							button:SetScript("OnShow", nil)
+							button:SetParent(Minimap)
+							button:ClearAllPoints()
+							LibDBIconStub:Refresh(name)
+						end
+					else
+						-- Move the button into the minimap button bag
+						button:SetScript("OnShow", function() if not LeaPlusLC.bFrame:IsShown() then button:Hide() end end)
+						if not LeaPlusLC.bFrame:IsShown() then button:Hide() end
+					end
+				elseif LeaPlusLC["MinimapButtonBag"] == "Off" then
+					-- Hide addon buttons (kept buttons are always shown)
+					LibDBIconStub:ShowOnEnter(name, not kept and LeaPlusLC["HideMiniAddonButtons"] == "On")
+				end
+			end
 
 		end
 
@@ -12352,9 +13276,6 @@
 		----------------------------------------------------------------------
 
 		if LeaPlusLC["FilterChatMessages"] == "On" then
-
-			-- Load LibChatAnims
-			Leatrix_Plus:LeaPlusLCA()
 
 			-- Create configuration panel
 			local ChatFilterPanel = LeaPlusLC:CreatePanel("Filter chat messages", "ChatFilterPanel")
@@ -16982,11 +17903,24 @@
 				LeaPlusLC:LoadVarChk("HideMiniAddonMenu", "On")				-- Hide addon menu
 				LeaPlusLC:LoadVarChk("UnclampMinimap", "Off")				-- Unclamp minimap cluster
 				LeaPlusLC:LoadVarChk("MinimapButtonBag", "Off")				-- Minimap button bag
-				LeaPlusLC:LoadVarStr("MiniExcludeList", "")					-- Minimap exclude list
+				-- Minimap kept buttons (one-time conversion from the old typed exclude list, then the old entry is deleted)
+				if type(LeaPlusDB["MiniKeepButtons"]) ~= "table" then
+					local keep = {}
+					if type(LeaPlusDB["MiniExcludeList"]) == "string" then
+						for token in string.gmatch(LeaPlusDB["MiniExcludeList"], "[^,\n\r]+") do
+							token = strlower(strtrim(token))
+							if token ~= "" then keep[token] = "old" end
+						end
+					end
+					LeaPlusDB["MiniKeepButtons"] = keep
+				end
+				LeaPlusDB["MiniExcludeList"] = nil
 				LeaPlusLC:LoadVarChk("HideMiniAddonButtons", "On")			-- Hide addon buttons
 				LeaPlusLC:LoadVarChk("MiniHeaderOnHover", "Off")			-- Show header on hover
 				LeaPlusLC:LoadVarNum("MinimapBorderWidth", 3, 1, 10)		-- Minimap border width
 				LeaPlusLC:LoadVarNum("MiniHeaderAlpha", 0.5, 0, 1)			-- Minimap header opacity
+				LeaPlusLC:LoadVarNum("MiniHeaderTheme", 2, 1, 8)			-- Minimap header theme
+				LeaPlusLC:LoadVarChk("MiniHeaderAnimate", "On")				-- Animate header
 				LeaPlusLC:LoadVarNum("MiniClusterScale", 1, 0.5, 2)			-- Minimap cluster scale
 				LeaPlusLC:LoadVarNum("MinimapEffect", 1, 1, 33)				-- Minimap effect
 
@@ -17023,7 +17957,7 @@
 				LeaPlusLC:LoadVarNum("BordersRight", 0, 0, 300)				-- Right border
 				LeaPlusLC:LoadVarNum("BordersAlpha", 0, 0, 0.9)				-- Border alpha
 				LeaPlusLC:LoadVarChk("ShowPlayerChain", "Off")				-- Show player chain
-				LeaPlusLC:LoadVarNum("PlayerChainMenu", 1, 1, 3)			-- Player chain dropdown value
+				LeaPlusLC:LoadVarNum("PlayerChainMenu", 1, 1, 10)			-- Player chain dropdown value
 				LeaPlusLC:LoadVarChk("ShowReadyTimer", "Off")				-- Show ready timer
 				LeaPlusLC:LoadVarChk("ShowRangeColoring", "Off")			-- Show range coloring
 				LeaPlusLC:LoadVarChk("ShowInfoCards", "Off")				-- Show info cards
@@ -17042,9 +17976,9 @@
 				LeaPlusLC:LoadVarChk("ClassColFrames", "Off")				-- Class colored frames
 				LeaPlusLC:LoadVarChk("ClassColPlayer", "On")				-- Class colored player frame
 				LeaPlusLC:LoadVarChk("ClassColTarget", "On")				-- Class colored target frame
-				LeaPlusLC:LoadVarChk("ClassColPlayerBorder", "Off")			-- Class colored player frame border
-				LeaPlusLC:LoadVarChk("ClassColTargetBorder", "Off")			-- Class colored target frame border
-				LeaPlusLC:LoadVarChk("ClassColChain", "Off")				-- Class colored player chain
+				LeaPlusLC:LoadVarChk("ClassColPlayerBorder", "On")			-- Class colored player frame border
+				LeaPlusLC:LoadVarChk("ClassColTargetBorder", "On")			-- Class colored target frame border
+				LeaPlusLC:LoadVarChk("ClassColChain", "On")				-- Class colored player chain
 
 				LeaPlusLC:LoadVarChk("NoAlerts", "Off")						-- Hide alerts
 				LeaPlusLC:LoadVarChk("HideBodyguard", "Off")				-- Hide bodyguard window
@@ -17344,11 +18278,12 @@
 			LeaPlusDB["HideMiniAddonMenu"]		= LeaPlusLC["HideMiniAddonMenu"]
 			LeaPlusDB["UnclampMinimap"]			= LeaPlusLC["UnclampMinimap"]
 			LeaPlusDB["MinimapButtonBag"]		= LeaPlusLC["MinimapButtonBag"]
-			LeaPlusDB["MiniExcludeList"] 		= LeaPlusLC["MiniExcludeList"]
 			LeaPlusDB["HideMiniAddonButtons"]	= LeaPlusLC["HideMiniAddonButtons"]
 			LeaPlusDB["MiniHeaderOnHover"]		= LeaPlusLC["MiniHeaderOnHover"]
 			LeaPlusDB["MinimapBorderWidth"]		= LeaPlusLC["MinimapBorderWidth"]
 			LeaPlusDB["MiniHeaderAlpha"]		= LeaPlusLC["MiniHeaderAlpha"]
+			LeaPlusDB["MiniHeaderTheme"]		= LeaPlusLC["MiniHeaderTheme"]
+			LeaPlusDB["MiniHeaderAnimate"]		= LeaPlusLC["MiniHeaderAnimate"]
 			LeaPlusDB["MiniClusterScale"]		= LeaPlusLC["MiniClusterScale"]
 			LeaPlusDB["MinimapEffect"]			= LeaPlusLC["MinimapEffect"]
 
@@ -17935,10 +18870,10 @@
 			-- Set skinned button textures
 			if not naked then
 				mbtn:SetNormalTexture("Interface\\AddOns\\Leatrix_Plus\\Leatrix_Plus.blp")
-				mbtn:GetNormalTexture():SetTexCoord(0.5, 1, 0, 1)
+				mbtn:GetNormalTexture():SetTexCoord(0.125, 0.25, 0, 0.0625)
 			end
 			mbtn:SetHighlightTexture("Interface\\AddOns\\Leatrix_Plus\\Leatrix_Plus.blp")
-			mbtn:GetHighlightTexture():SetTexCoord(0, 0.5, 0, 1)
+			mbtn:GetHighlightTexture():SetTexCoord(0, 0.125, 0, 0.0625)
 
 			-- Hide the default textures
 			mbtn:HookScript("OnShow", function() mbtn.Left:Hide(); mbtn.Middle:Hide(); mbtn.Right:Hide() end)
@@ -18120,7 +19055,13 @@
 			end
 		end
 
-		local popup = LeaPlusLC:CreatePopupList(parent)
+		-- (a dropdown in a scrolling panel puts its list behind the scroll area, which does not clip it)
+		local listParent = parent
+		local scrollFrame = parent:GetParent()
+		if scrollFrame and scrollFrame:GetObjectType() == "ScrollFrame" and scrollFrame:GetParent() then
+			listParent = scrollFrame:GetParent()
+		end
+		local popup = LeaPlusLC:CreatePopupList(listParent)
 
 		local function IsCurrent(entry)
 			return entry.value == LeaPlusLC[frame]
@@ -18130,7 +19071,8 @@
 			SetValue(entry.value)
 		end
 
-		-- Function to step to the next or previous option (scroll down for the next option, up for the previous one, stops at either end)
+		-- Function to step to the next or previous option with the mousewheel over the open list (scroll down for the
+		-- next option, up for the previous one, stops at either end; scrolling over the closed button does nothing)
 		local function Step(delta)
 			local index = 1
 			for i = 1, #entries do
@@ -18146,12 +19088,6 @@
 		dropdown:HookScript("OnMouseDown", function(self, button)
 			if button ~= "LeftButton" or not self:IsEnabled() then return end
 			popup:Toggle(self, entries, IsCurrent, Choose, "TOPLEFT", "BOTTOMLEFT", 0, -2, Step)
-		end)
-
-		-- Cycle through the options with the mousewheel over the button (the open list does the same)
-		dropdown:EnableMouseWheel(true)
-		dropdown:HookScript("OnMouseWheel", function(self, delta)
-			if self:IsEnabled() then Step(delta) end
 		end)
 
 		-- Close the list if the button is disabled
@@ -18284,6 +19220,53 @@
 				-- Prevent Leatrix Plus from overwriting LeaPlusDB at next logout
 				LpEvt:UnregisterEvent("PLAYER_LOGOUT")
 				LeaPlusLC:Print("Leatrix Plus will not overwrite LeaPlusDB at next logout.")
+				return
+			elseif str == "mbb" then
+				-- Show an exact number of test buttons on the minimap for testing the minimap button bag and other minimap features
+				local num = tonumber(arg1)
+				if not num or num < 0 or num > 200 or num ~= math.floor(num) then
+					LeaPlusLC:Print("Enter a number of test buttons from 0 to 200, such as /ltp mbb 50.")
+					return
+				end
+				local LibDBIconStub = LibStub("LibDBIcon-1.0", true)
+				local LibDataBrokerStub = LibStub("LibDataBroker-1.1", true)
+				if not LibDBIconStub or not LibDataBrokerStub then return end
+				-- Find how many test buttons already exist (LibDBIcon buttons cannot be removed so existing ones are reused)
+				local existingCount = 0
+				while LibDataBrokerStub:GetDataObjectByName("LeaPlusTestButton" .. (existingCount + 1)) do
+					existingCount = existingCount + 1
+				end
+				-- Create any extra test buttons that are needed
+				for i = existingCount + 1, num do
+					local buttonName = "LeaPlusTestButton" .. i
+					local buttonText = "Test Button " .. i
+					local dataObject = LibDataBrokerStub:NewDataObject(buttonName, {
+						type = "launcher",
+						text = buttonText,
+						icon = "Interface\\HELPFRAME\\ReportLagIcon-Movement",
+						OnClick = function(self, btn)
+							LeaPlusLC:Print(buttonText .. ": " .. btn)
+						end,
+						OnTooltipShow = function(tooltip)
+							if not tooltip or not tooltip.AddLine then return end
+							tooltip:AddLine(buttonText)
+						end,
+					})
+					-- Spread the buttons around the minimap (positions are not saved)
+					LibDBIconStub:Register(buttonName, dataObject, {minimapPos = (i * 15) % 360, hide = false})
+				end
+				-- Show the requested number of test buttons and hide the rest
+				for i = 1, math.max(existingCount, num) do
+					local buttonName = "LeaPlusTestButton" .. i
+					local button = LibDBIconStub:GetMinimapButton(buttonName)
+					if button and button.db then
+						button.db.hide = i > num
+						LibDBIconStub:Refresh(buttonName)
+					end
+				end
+				-- Close the minimap button bag so it is laid out again next time it is opened
+				if LeaPlusLC.bFrame and LeaPlusLC.bFrame:IsShown() then LeaPlusLC.bFrame:Hide() end
+				LeaPlusLC:Print(string.format(L["Test buttons shown: %d.  Reload the UI to remove them."], num))
 				return
 			elseif str == "reset" then
 				-- Reset panel positions
@@ -19411,60 +20394,432 @@
 				end
 				return
 			elseif str == "arrow" then
-				-- Arrow (left: drag, shift/ctrl: rotate, mouseup: loc, pointer must be on arrow stem)
-				local f = CreateFrame("Frame", nil, WorldMapFrame.ScrollContainer)
-				f:SetSize(64, 64)
-				f:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
-				f:SetFrameLevel(500)
-				f:SetParent(WorldMapFrame.ScrollContainer)
-				f:SetScale(0.6)
+				-- Zone crossing arrow tool for Leatrix Maps
+				-- /ltp arrow toggles the tool, /ltp arrow x y [rotation] places it (for example, to check an existing line)
+				if not WorldMapFrame or not WorldMapFrame.GetCanvas or not WorldMapFrame.ScrollContainer then
+					LeaPlusLC:Print("The world map is not available.")
+					return
+				end
+				local tool = LeaPlusLC.ArrowTool
+				if not tool then
+					local canvas = WorldMapFrame:GetCanvas()
+					local container = WorldMapFrame.ScrollContainer
+					local floor, sin, cos, abs, format = math.floor, math.sin, math.cos, math.abs, string.format
+					local poiScale = 0.7 -- Same scale as Leatrix Maps points of interest
 
-				f.t = f:CreateTexture(nil, "ARTWORK")
-				f.t:SetAtlas("Garr_LevelUpgradeArrow")
-				f.t:SetAllPoints()
+					tool = {x = 50, y = 50, rot = 0, line = ""}
+					LeaPlusLC.ArrowTool = tool
 
-				f.f = f:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-				f.f:SetText("0.0")
-
-				local x = 0
-				f:SetScript("OnUpdate", function()
-					if IsShiftKeyDown() then
-						x = x + 0.01
-						if x > 6.3 then x = 0 end
-						f.t:SetRotation(x)
-						f.f:SetFormattedText("%.1f", x)
-					elseif IsControlKeyDown() then
-						x = x - 0.01
-						if x < 0 then x = 6.3 end
-						f.t:SetRotation(x)
-						f.f:SetFormattedText("%.1f", x)
+					-- Values are rounded as they change, so the arrow on the map is always exactly where the printed line puts it
+					local function Round(v, places) local m = 10 ^ places return floor(v * m + 0.5) / m end
+					local function Clamp(v) if v < 0 then return 0 elseif v > 100 then return 100 end return v end
+					local function FormatRot(r)
+						if r == 0 then return "0" end
+						if abs(r * 10 - floor(r * 10 + 0.5)) < 0.0001 then return format("%.1f", r) end
+						return format("%.2f", r)
 					end
-					-- Print coordinates when mouse is in right place
-					local x, y = WorldMapFrame.ScrollContainer:GetNormalizedCursorPosition()
-					if x and y and x > 0 and y > 0 then
-						if MouseIsOver(f, -31, 31, 31, -31) then
-							ChatFrame1:Clear()
-							print(('{"Arrow", ' .. floor(x * 1000 + 0.5) / 10) .. ',', (floor(y * 1000 + 0.5) / 10) .. ', L["Step 1"], L["Start here."], arTex, nil, nil, nil, nil, nil, ' .. f.f:GetText() .. "},")
-							PlaySoundFile(567412, "Master", false, true)
+
+					-- Guess the zone the arrow points into by stepping out from the arrow in the direction it points
+					local function GuessDestination(mapID, x, y, rot)
+						if not mapID or not C_Map.GetWorldPosFromMapPos or not C_Map.GetMapPosFromWorldPos or not C_Map.GetMapInfoAtPosition or not MapUtil or not MapUtil.GetMapParentInfo then return end
+						local parent = MapUtil.GetMapParentInfo(mapID, Enum.UIMapType.Continent, true)
+						if not parent then return end
+						local instanceID, worldPos = C_Map.GetWorldPosFromMapPos(mapID, CreateVector2D(x / 100, y / 100))
+						if not instanceID or not worldPos then return end
+						-- World x is north and world y is west, and the rotation is anticlockwise from north
+						local wx, wy = worldPos:GetXY()
+						local dx, dy = cos(rot), sin(rot)
+						for d = 20, 400, 20 do
+							local _, contPos = C_Map.GetMapPosFromWorldPos(instanceID, CreateVector2D(wx + dx * d, wy + dy * d), parent.mapID)
+							if contPos then
+								local cx, cy = contPos:GetXY()
+								local info = C_Map.GetMapInfoAtPosition(parent.mapID, cx, cy)
+								if info and info.mapID ~= mapID and info.mapType == Enum.UIMapType.Zone then
+									return info.name, info.mapID
+								end
+							end
 						end
 					end
-				end)
 
-				f:SetMovable(true)
-				f:SetScript("OnMouseDown", function(self, btn)
-					if btn == "LeftButton" then
-						f:StartMoving()
+					----------------------------------------------------------------------
+					-- Icon types (same artwork and sizes as Leatrix Maps points of interest, and the line each one makes)
+					----------------------------------------------------------------------
+
+					local ltmTex = "Interface\\AddOns\\Leatrix_Maps\\Leatrix_Maps.blp"
+					local Icons = {
+						Arrow = {atlas = "Garr_LevelUpgradeArrow", width = 48, height = 54},
+						Dungeon = {atlas = "Dungeon", size = 46},
+						Raid = {atlas = "Raid", size = 46},
+						Dunraid = {texture = ltmTex, size = 46, left = 0.375, right = 0.5, top = 0.375, bottom = 0.5},
+						FlightA = {atlas = "TaxiNode_Alliance", size = 30},
+						FlightH = {atlas = "TaxiNode_Horde", size = 30},
+						FlightN = {atlas = "TaxiNode_Neutral", size = 30},
+						Spirit = {atlas = "Vehicle-TempleofKotmogu-GreenBall", size = 28},
+						TravelA = {texture = ltmTex, size = 46, left = 0, right = 0.125, top = 0.375, bottom = 0.5},
+						TravelH = {texture = ltmTex, size = 46, left = 0.125, right = 0.25, top = 0.375, bottom = 0.5},
+						TravelN = {texture = ltmTex, size = 46, left = 0.25, right = 0.375, top = 0.375, bottom = 0.5},
+						PortalA = {atlas = "MagePortalAlliance", size = 32},
+						PortalH = {atlas = "MagePortalHorde", size = 32},
+						PortalN = {atlas = "MagePortalAlliance", size = 32},
+					}
+
+					-- Each type builds its line from x, y, rotation, destination name and map ID, and the current zone name
+					local function Travel(kind, prefix, tex)
+						return function(x, y) return format('{"%s", %s, %s, L["%s"] .. " " .. L["Destination"], nil, %s, nil, nil, nil, nil, nil, 0, nil},', kind, x, y, prefix, tex) end
 					end
-				end)
+					local function Flight(kind, tex)
+						return function(x, y, r, dn, did, zone) return format('{"%s", %s, %s, L["Flight point"] .. ", " .. L["%s"], nil, %s, nil, nil},', kind, x, y, zone or "Zone", tex) end
+					end
+					local Types = {
+						{name = "Zone crossing", kind = "Arrow", rotate = true, build = function(x, y, r, dn, did) return format('{"Arrow", %s, %s, L["%s"], nil, arTex, nil, nil, nil, nil, nil, %s, %s},', x, y, dn or "Destination", r, did and tostring(did) or "nil") end},
+						{name = "Dungeon", kind = "Dungeon", build = function(x, y) return format('{"Dungeon", %s, %s, L["Dungeon name"], L["Dungeon"], dnTex, nil, nil},', x, y) end},
+						{name = "Raid", kind = "Raid", build = function(x, y) return format('{"Raid", %s, %s, L["Raid name"], L["Raid"], rdTex, nil, nil},', x, y) end},
+						{name = "Dungeons and raids", kind = "Dunraid", build = function(x, y) return format('{"Dunraid", %s, %s, L["Place name"], L["Dungeon and raid names"], dnTex, nil, nil},', x, y) end},
+						{name = "Flight point (Alliance)", kind = "FlightA", build = Flight("FlightA", "tATex")},
+						{name = "Flight point (Horde)", kind = "FlightH", build = Flight("FlightH", "tHTex")},
+						{name = "Flight point (Neutral)", kind = "FlightN", build = Flight("FlightN", "tNTex")},
+						{name = "Spirit healer", kind = "Spirit", build = function(x, y) return format('{"Spirit", %s, %s, L["Spirit Healer"], nil, spTex, nil, nil},', x, y) end},
+						{name = "Boat (Alliance)", kind = "TravelA", build = Travel("TravelA", "Boat to", "fATex")},
+						{name = "Boat (Horde)", kind = "TravelH", build = Travel("TravelH", "Boat to", "fHTex")},
+						{name = "Boat (Neutral)", kind = "TravelN", build = Travel("TravelN", "Boat to", "fNTex")},
+						{name = "Zeppelin (Horde)", kind = "TravelH", build = Travel("TravelH", "Zeppelin to", "fHTex")},
+						{name = "Tram (Alliance)", kind = "TravelA", build = Travel("TravelA", "Tram to", "fATex")},
+						{name = "Portal (Alliance)", kind = "PortalA", build = Travel("PortalA", "Portal to", "fATex")},
+						{name = "Portal (Horde)", kind = "PortalH", build = Travel("PortalH", "Portal to", "fHTex")},
+						{name = "Portal (Neutral)", kind = "PortalN", build = Travel("PortalN", "Portal to", "fNTex")},
+					}
+					tool.type = 1
 
-				f:SetScript("OnMouseUp", function()
-					f:StopMovingOrSizing()
-					--ChatFrame1:Clear()
-					--local x, y = WorldMapFrame.ScrollContainer:GetNormalizedCursorPosition()
-					--if x and y and x > 0 and y > 0 and MouseIsOver(f) then
-					--	print(('{"Arrow", ' .. floor(x * 1000 + 0.5) / 10) .. ',', (floor(y * 1000 + 0.5) / 10) .. ', L["Step 1"], L["Start here."], ' .. f.f:GetText() .. "},")
-					--end
-				end)
+					-- Put an icon's artwork on a texture
+					local function SetIconTexture(tex, icon)
+						tex:SetTexture(nil)
+						tex:SetTexCoord(0, 1, 0, 1)
+						if icon.atlas then
+							tex:SetAtlas(icon.atlas)
+						else
+							tex:SetTexture(icon.texture)
+							if icon.left then tex:SetTexCoord(icon.left, icon.right, icon.top, icon.bottom) end
+						end
+					end
+
+					----------------------------------------------------------------------
+					-- Marker (same artwork, size, scale and anchor as Leatrix Maps pins)
+					----------------------------------------------------------------------
+
+					local f = CreateFrame("Frame", nil, canvas)
+					f:SetSize(48, 54)
+					-- Drawn above every other map icon so it can never get stuck underneath one
+					f:SetFrameStrata("FULLSCREEN_DIALOG")
+					f:SetFrameLevel(5000)
+					f:SetToplevel(true)
+					f:EnableMouse(true)
+					f:EnableMouseWheel(true)
+					f:Hide()
+
+					f.t = f:CreateTexture(nil, "ARTWORK")
+					f.t:SetAllPoints()
+					f.t:SetAtlas("Garr_LevelUpgradeArrow")
+
+					f.h = f:CreateTexture(nil, "OVERLAY")
+					f.h:SetAllPoints()
+					f.h:SetAtlas("Garr_LevelUpgradeArrow")
+					f.h:SetBlendMode("ADD")
+					f.h:SetAlpha(0.6)
+					f.h:Hide()
+
+					-- Dot marking the exact point that goes into the line
+					f.dot = f:CreateTexture(nil, "OVERLAY", nil, 7)
+					f.dot:SetSize(5, 5)
+					f.dot:SetPoint("CENTER")
+					f.dot:SetColorTexture(1, 0.15, 0.15, 1)
+
+					----------------------------------------------------------------------
+					-- Panel (shows the line to copy and how to use the arrow)
+					-- It sits just below the map, outside it
+					----------------------------------------------------------------------
+
+					local p = CreateFrame("Frame", nil, UIParent, "BackdropTemplate")
+					p:SetSize(660, 118)
+					p:SetClampedToScreen(true) -- If there is no room below the map, it stays on screen
+					p:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", tile = true, tileSize = 16, edgeSize = 14, insets = {left = 3, right = 3, top = 3, bottom = 3}})
+					p:SetBackdropColor(0, 0, 0, 0.85)
+					p:SetBackdropBorderColor(0.6, 0.6, 0.6, 1)
+					p:EnableMouse(true)
+					p:Hide()
+
+					p.title = p:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+					p.title:SetPoint("TOPLEFT", 10, -9)
+					p.title:SetJustifyH("LEFT")
+
+					p.info = p:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+					p.reset = CreateFrame("Button", nil, p, "UIPanelButtonTemplate")
+					p.reset:SetSize(60, 20)
+					p.reset:SetPoint("TOPRIGHT", -28, -5)
+					p.reset:SetText("Reset")
+
+					p.info:SetPoint("RIGHT", p.reset, "LEFT", -8, 0)
+					p.info:SetJustifyH("RIGHT")
+
+					p.close = CreateFrame("Button", nil, p, "UIPanelCloseButton")
+					p.close:SetSize(24, 24)
+					p.close:SetPoint("TOPRIGHT", -2, -2)
+
+					p.edit = CreateFrame("EditBox", nil, p, "InputBoxTemplate")
+					p.edit:SetSize(636, 20)
+					p.edit:SetPoint("TOPLEFT", 14, -30)
+					p.edit:SetAutoFocus(false)
+					p.edit:SetFontObject("GameFontHighlightSmall")
+					p.edit:SetMaxLetters(0)
+
+					p.help = p:CreateFontString(nil, "ARTWORK", "GameFontDisableSmall")
+					p.help:SetPoint("BOTTOMLEFT", 10, 10)
+					p.help:SetPoint("BOTTOMRIGHT", -10, 10)
+					p.help:SetJustifyH("LEFT")
+					local helpText = "Drag: move   Wheel: rotate arrow (Shift: fine)   Ctrl+wheel: up/down   Alt+wheel: left/right   Right-click: copy   /ltp arrow: close"
+					p.help:SetText(helpText)
+
+					-- Row of icon buttons to choose the type (pointing at one shows its name)
+					p.iconButtons = {}
+					for i, t in ipairs(Types) do
+						local b = CreateFrame("Button", nil, p)
+						b:SetSize(28, 28)
+						b:SetPoint("TOPLEFT", 12 + (i - 1) * 32, -56)
+						b.sel = b:CreateTexture(nil, "BACKGROUND")
+						b.sel:SetAllPoints()
+						b.sel:SetColorTexture(1, 0.82, 0, 0.45)
+						b.sel:Hide()
+						b.icon = b:CreateTexture(nil, "ARTWORK")
+						b.icon:SetPoint("TOPLEFT", 2, -2)
+						b.icon:SetPoint("BOTTOMRIGHT", -2, 2)
+						SetIconTexture(b.icon, Icons[t.kind])
+						b:SetHighlightTexture("Interface\\Buttons\\ButtonHilight-Square", "ADD")
+						b:SetScript("OnEnter", function() p.help:SetText("|cffffffff" .. t.name) end)
+						b:SetScript("OnLeave", function() p.help:SetText(helpText) end)
+						b:SetScript("OnClick", function() tool.SetType(i) end)
+						p.iconButtons[i] = b
+					end
+
+					----------------------------------------------------------------------
+					-- Update
+					----------------------------------------------------------------------
+
+					local lastKey
+					local function Update()
+						if not tool.active then return end
+						local mapID = WorldMapFrame:GetMapID()
+
+						-- Position and size exactly as Leatrix Maps does for its pins
+						local canvasScale = WorldMapFrame:GetCanvasScale()
+						if not canvasScale or canvasScale <= 0 then return end
+						local scale = poiScale / canvasScale
+						f:SetScale(scale)
+						f:ClearAllPoints()
+						f:SetPoint("CENTER", canvas, "TOPLEFT", (canvas:GetWidth() * tool.x / 100) / scale, -(canvas:GetHeight() * tool.y / 100) / scale)
+						local t = Types[tool.type]
+						local rot = t.rotate and tool.rot or 0
+						f.t:SetRotation(rot)
+						f.h:SetRotation(rot)
+
+						-- Only rebuild the text when something changed
+						local key = (mapID or 0) .. ":" .. tool.x .. ":" .. tool.y .. ":" .. rot .. ":" .. tool.type
+						if key == lastKey then return end
+						lastKey = key
+
+						local mapInfo = mapID and C_Map.GetMapInfo(mapID)
+						local zoneName = mapInfo and mapInfo.name
+						p.title:SetText("Arrow tool: |cffffffff" .. (zoneName or "Unknown map") .. " (" .. (mapID or "?") .. ")|r   " .. t.name)
+
+						local xs, ys = format("%.1f", tool.x), format("%.1f", tool.y)
+						local destName, destID
+						if t.rotate then
+							-- Only zone crossings point into a neighbouring zone
+							destName, destID = GuessDestination(mapID, tool.x, tool.y, rot)
+							p.info:SetText(format("%s, %s   Rotation %s   Points to %s", xs, ys, FormatRot(rot), destName and ("|cff00ff00" .. destName .. "|r") or "|cffff8080?|r"))
+						else
+							p.info:SetText(format("%s, %s", xs, ys))
+						end
+
+						tool.line = t.build(xs, ys, FormatRot(rot), destName, destID, zoneName)
+						p.edit:SetText(tool.line)
+						p.edit:SetCursorPosition(0)
+						if p.edit:HasFocus() then p.edit:HighlightText() end
+					end
+					tool.Update = Update
+
+					-- Keep the arrow in place when the map is zoomed, resized or changed
+					if WorldMapFrame.OnCanvasScaleChanged then hooksecurefunc(WorldMapFrame, "OnCanvasScaleChanged", Update) end
+					if WorldMapFrame.OnMapChanged then hooksecurefunc(WorldMapFrame, "OnMapChanged", function() lastKey = nil Update() end) end
+					WorldMapFrame:HookScript("OnSizeChanged", Update)
+					-- The panel shows and hides with the map
+					WorldMapFrame:HookScript("OnShow", function()
+						if tool.active then tool.ShowPanel() end
+						Update()
+					end)
+					WorldMapFrame:HookScript("OnHide", function()
+						p:Hide()
+						p.edit:ClearFocus()
+					end)
+
+					----------------------------------------------------------------------
+					-- Copy
+					----------------------------------------------------------------------
+
+					local function Copy()
+						p.edit:SetFocus()
+						p.edit:HighlightText()
+						DEFAULT_CHAT_FRAME:AddMessage(tool.line)
+						LeaPlusLC:Print("Line selected in the arrow panel. Press Ctrl+C to copy it.")
+					end
+
+					-- The text box is read only: typing puts the line back
+					p.edit:SetScript("OnTextChanged", function(self, userInput)
+						if userInput then
+							self:SetText(tool.line)
+							self:HighlightText()
+						end
+					end)
+					p.edit:SetScript("OnEditFocusGained", function(self) self:HighlightText() end)
+					p.edit:SetScript("OnEditFocusLost", function(self) self:HighlightText(0, 0) end)
+					p.edit:SetScript("OnEscapePressed", function(self) self:ClearFocus() end)
+					p.edit:SetScript("OnEnterPressed", function(self) self:ClearFocus() end)
+
+					----------------------------------------------------------------------
+					-- Mouse
+					----------------------------------------------------------------------
+
+					local function StopDrag()
+						f:SetScript("OnUpdate", nil)
+						tool.dragging = nil
+					end
+
+					-- Runs only while dragging
+					local function DragUpdate()
+						if not IsMouseButtonDown("LeftButton") then StopDrag() return end
+						local cx, cy = container:GetNormalizedCursorPosition()
+						if not cx or not cy then return end
+						local nx, ny = Round(Clamp(cx * 100 + tool.offX), 1), Round(Clamp(cy * 100 + tool.offY), 1)
+						if nx ~= tool.x or ny ~= tool.y then
+							tool.x, tool.y = nx, ny
+							Update()
+						end
+					end
+
+					f:SetScript("OnMouseDown", function(self, button)
+						if button ~= "LeftButton" then return end
+						local cx, cy = container:GetNormalizedCursorPosition()
+						if not cx or not cy then return end
+						-- Keep the grab point under the pointer so the arrow does not jump
+						tool.offX, tool.offY = tool.x - cx * 100, tool.y - cy * 100
+						tool.dragging = true
+						self:SetScript("OnUpdate", DragUpdate)
+					end)
+
+					f:SetScript("OnMouseUp", function(self, button)
+						if button == "LeftButton" then
+							StopDrag()
+						elseif button == "RightButton" then
+							Copy()
+						end
+					end)
+
+					f:SetScript("OnMouseWheel", function(self, delta)
+						if IsControlKeyDown() then
+							tool.y = Round(Clamp(tool.y - delta * 0.1), 1)
+						elseif IsAltKeyDown() then
+							tool.x = Round(Clamp(tool.x + delta * 0.1), 1)
+						elseif Types[tool.type].rotate then
+							-- Wheel up turns the arrow anticlockwise (rotation goes up), the same as the rotation value in the line
+							-- One turn is 6.3 so plain wheel steps stay on tenths (6.3 is within a degree of a full turn)
+							local step = IsShiftKeyDown() and 0.01 or 0.1
+							local r = Round(tool.rot + delta * step, 2)
+							if r >= 6.3 then r = Round(r - 6.3, 2) elseif r < 0 then r = Round(r + 6.3, 2) end
+							tool.rot = r
+						end
+						Update()
+					end)
+
+					f:SetScript("OnEnter", function(self) self.h:Show() end)
+					f:SetScript("OnLeave", function(self) self.h:Hide() end)
+					f:SetScript("OnHide", StopDrag)
+
+					----------------------------------------------------------------------
+					-- Show and hide
+					----------------------------------------------------------------------
+
+					-- The panel always sits just below the map frame, on the same strata and level as the map
+					-- (checked each time the map opens, as the map can change strata when it is maximised)
+					local function PositionPanel()
+						p:SetFrameStrata(WorldMapFrame:GetFrameStrata())
+						p:SetFrameLevel(WorldMapFrame:GetFrameLevel())
+						p:SetToplevel(WorldMapFrame:IsToplevel())
+						p:ClearAllPoints()
+						p:SetPoint("TOP", WorldMapFrame, "BOTTOM", 0, -12)
+					end
+
+					-- Change the icon type (size and artwork follow Leatrix Maps)
+					function tool.SetType(i)
+						if not Types[i] then return end
+						tool.type = i
+						local icon = Icons[Types[i].kind]
+						f:SetSize(icon.width or icon.size, icon.height or icon.size)
+						SetIconTexture(f.t, icon)
+						SetIconTexture(f.h, icon)
+						for n, b in ipairs(p.iconButtons) do b.sel:SetShown(n == i) end
+						lastKey = nil
+						Update()
+					end
+					tool.SetType(1)
+
+					function tool.ShowPanel()
+						PositionPanel()
+						p:Show()
+					end
+
+					function tool.Show()
+						tool.active = true
+						lastKey = nil
+						f:Show()
+						if WorldMapFrame:IsShown() then tool.ShowPanel() end
+						Update()
+					end
+
+					function tool.Hide()
+						tool.active = nil
+						StopDrag()
+						f:Hide()
+						p:Hide()
+						p.edit:ClearFocus()
+					end
+
+					p.close:SetScript("OnClick", tool.Hide)
+
+					-- Reset puts the arrow back in the middle of the map (rotation is kept)
+					p.reset:SetScript("OnClick", function()
+						StopDrag()
+						tool.x, tool.y = 50, 50
+						Update()
+					end)
+					tool.frame, tool.panel = f, p
+				end
+
+				-- Place the arrow at given coordinates (rotation is optional)
+				local function Num(v) return v and tonumber((v:gsub(",", ""))) end
+				local ax, ay, ar = Num(arg1), Num(arg2), Num(arg3)
+				if ax and ay then
+					tool.x = math.floor(math.max(0, math.min(100, ax)) * 10 + 0.5) / 10
+					tool.y = math.floor(math.max(0, math.min(100, ay)) * 10 + 0.5) / 10
+					if ar then tool.rot = math.floor((ar % 6.3) * 100 + 0.5) / 100 end
+					tool.Show()
+				elseif tool.active then
+					tool.Hide()
+					return
+				else
+					-- Start where the arrow was last time (the middle of the map the first time)
+					tool.Show()
+				end
+				if not WorldMapFrame:IsShown() then
+					LeaPlusLC:Print("Arrow tool is on. Open the world map to see it.")
+				end
 				return
 			elseif str == "dis" then
 				-- Disband group
@@ -20111,9 +21466,11 @@
 				LeaPlusDB["HideMiniAddonMenu"] = "On"			-- Hide addon menu
 				LeaPlusDB["UnclampMinimap"] = "On"				-- Unclamp minimap cluster
 				LeaPlusDB["MinimapButtonBag"] = "On"			-- Minimap button bag
-				LeaPlusDB["MiniExcludeList"] = "BugSack, Leatrix_Plus" -- Excluded addon list
+				LeaPlusDB["MiniKeepButtons"] = {["bugsack"] = true, ["leatrix_plus"] = true} -- Kept addon buttons
 				LeaPlusDB["MinimapBorderWidth"] = 3				-- Minimap border width
 				LeaPlusDB["MiniHeaderAlpha"] = 0				-- Minimap header opacity
+				LeaPlusDB["MiniHeaderTheme"] = 2				-- Minimap header theme
+				LeaPlusDB["MiniHeaderAnimate"] = "On"			-- Animate header
 				LeaPlusDB["MiniHeaderOnHover"] = "Off"			-- Show header on hover
 				LeaPlusDB["MiniClusterScale"] = 1				-- Minimap cluster scale
 				LeaPlusDB["MinimapEffect"] = 1					-- Minimap effect
