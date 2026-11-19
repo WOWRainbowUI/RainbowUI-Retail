@@ -117,7 +117,7 @@ function loadHelper:OnEvent(event, arg1, arg2)
                 -- New players start with a bigger grid than the 5 x 2 default, and the gear glows until its first click;
                 -- existing players and new or reset profiles keep the defaults (Krowi, 2026-11-18)
                 local profile = addon.Options.db.profile
-                profile.NumRows, profile.NumColumns = 7, 4
+                profile.NumRows, profile.NumColumns = addon.Options.Defaults.profile.NumRows, addon.Options.Defaults.profile.NumColumns
                 profile.HighlightOptionsButton = true
             end
 
