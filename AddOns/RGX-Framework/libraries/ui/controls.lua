@@ -322,7 +322,7 @@ function UI:CreateSlider(parent, options)
 		thumb:EnableMouse(false)
 		thumb:SetVertexColor(D:Unpack("primary"))
 	elseif D.UsesClientArt and D:UsesClientArt() then
-		-- RGX Classic / RGX Forever: the client's own minimal slider art (bar with end caps and its knob). A thin
+		-- WoW Classic / WoW Forever: the client's own minimal slider art (bar with end caps and its knob). A thin
 		-- primary fill keeps the mod's brand on the bar. A client without the atlases gets the flat bar below.
 		track = trackFrame:CreateTexture(nil, "BORDER")
 		track:SetHeight(10)
@@ -1127,7 +1127,7 @@ function UI:CreateResetButton(parent, onClick)
     btn:SetSize(24, 16)
 
     if D.UsesClientArt and D:UsesClientArt() then
-        -- RGX Classic / RGX Forever: the client's own reset icon, with its highlight.
+        -- WoW Classic / WoW Forever: the client's own reset icon, with its highlight.
         btn:SetSize(18, 18)
         btn:SetNormalTexture("Interface\\Buttons\\UI-RefreshButton")
         btn:SetHighlightTexture("Interface\\Buttons\\UI-Common-MouseHilight", "ADD")
@@ -1594,7 +1594,7 @@ function UI:CreateSection(parent, options)
     assert(D and type(D.CreateSection) == "function", "RGX UI: section design unavailable")
     -- Share the consumer-proven section skin; RGXUI owns placement, RGXDesign textures.
     -- The card body follows the interface style: a style whose header band is rounded (RGX Material Round,
-    -- RGX Forever) gets a rounded body to match; the others keep the square backdrop. options.square overrides.
+    -- WoW Forever) gets a rounded body to match; the others keep the square backdrop. options.square overrides.
     local square = options.square
     if square == nil then
         local style = D.styleOptions or {}
@@ -1732,7 +1732,7 @@ function UI:CreateSwitch(parent, options)
 
     local clientArt = D and D.UsesClientArt and D:UsesClientArt() and D.SetAtlasOr
     if clientArt then
-        -- RGX Classic / RGX Forever: the client's own bar and knob art. The bar's middle shows the mod's primary
+        -- WoW Classic / WoW Forever: the client's own bar and knob art. The bar's middle shows the mod's primary
         -- colour when ON (a fill inside the bar), the knob is the client's slider knob.
         local mid = switchFrame:CreateTexture(nil, "BORDER")
         if D:SetAtlasOr(mid, "_Minimal_SliderBar_Middle") then

@@ -20,7 +20,7 @@
         Colors:Lerp(c1, c2, t)     - Blend colors
         Colors:Darken(color, amt)  - Darken color
         Colors:Lighten(color, amt) - Lighten color
-        Colors:OpenPicker(opts)    - Open Blizzard color picker popup
+        Colors:OpenPicker(opts)    - Open the RGX colour picker (the game's when it is missing or opacity is needed)
         Colors:CreateColorPicker(parent, opts) - Create a label + swatch widget
         Colors:CreateColorSettingControl(parent, opts) - Create a bound color setting control with reset
         Colors:ApplyStatusBar(bar, color) - Apply a color to a status bar
@@ -464,6 +464,16 @@ function Colors:OpenPicker(options)
         if type(onCancel) == "function" then
             onCancel(restored, restored.r, restored.g, restored.b, restored.a)
         end
+    end
+
+    -- The framework's own colour picker whenever it is loaded, so every addon asking the framework for a colour
+    -- gets the same RGX dialog. It has no opacity, so a request with alpha uses the game's picker below.
+    local CP = type(RGX.GetColorPicker) == "function" and RGX:GetColorPicker() or nil
+    if CP and type(CP.Show) == "function" and not hasOpacity and options.blizzard ~= true then
+        CP:Show({ r = initial.r, g = initial.g, b = initial.b }, function(r, g, b)
+            emit(self:CreatePickerColor({ r = r, g = g, b = b, a = initial.a }), false)
+        end, { border = options.border, scale = options.scale })
+        return true
     end
 
     if type(ColorPickerFrame.SetupColorPickerAndShow) == "function" then

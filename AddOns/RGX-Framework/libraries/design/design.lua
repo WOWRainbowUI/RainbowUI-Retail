@@ -74,7 +74,7 @@ Design.currentPreset = "cyan"
 -- independent, so any style combines with any color preset. The operator's choice is persisted in
 -- RGXFrameworkDB.style and re-applied on login.
 --
---   framework      "RGX Framework"      the original RGX look (shipped default): rounded, dark navy.
+--   framework      "RGX Framework"      the original RGX look (shipped default): square corners, dark navy.
 --   materialround  "RGX Material Round" rounded cards, header bands and buttons on grey; the panel ring
 --                                       is the mod's primary colour and card titles its accent colour.
 --                                       A drop-in for every RGX addon, first used by RGXProfessions.
@@ -82,21 +82,21 @@ Design.currentPreset = "cyan"
 -- Brand colours are not part of a style: every mod defines its own primary/secondary (accent) pair when it
 -- is created (SetTheme / WithTheme / a preset) and the framework pipes that pair into whichever style is
 -- active, so all four styles are branded by the mod, never by the style.
---   classic        "RGX Classic"        square corners, warm stone palette, a heavier two-pixel frame with an inner
---                                       line on every card, button, box and tab.
+--   classic        "WoW Classic"        the game's own classic frames (their cut corners, not rounded), warm stone
+--                                       palette; the fallback art adds a heavier frame with an inner line.
 --
---   forever        "RGX Forever"         square corners, near-black warm brown panels with a bronze frame line and
+--   forever        "WoW Forever"         the game's own Forever frames (their cut corners), near-black warm brown panels and
 --                                       parchment text: the Forever-client look. Titles use the mod's accent colour.
 --
 -- An earlier release shipped a "retail" style; the id keeps working as an alias (retail -> framework) so
 -- saved settings and callers do not break, but it is no longer listed.
-Design.STYLE_ORDER = { "framework", "materialround", "classic", "forever" }
+Design.STYLE_ORDER = { "materialround", "framework", "classic", "forever" }
 Design.STYLE_ALIASES = { retail = "framework" }
 
 Design.STYLES = {
     framework = {
         label = "RGX Framework",
-        cornerStyle = "rounded",
+        cornerStyle = "square",
         buttonStyle = "square",
         headerStyle = "square",
         colors = {
@@ -142,15 +142,17 @@ Design.STYLES = {
         },
     },
     classic = {
-        label = "RGX Classic",
+        label = "WoW Classic",
         cornerStyle = "square",
         buttonStyle = "rounded",   -- buttons, header bands and controls sit on the framed panel art
         headerStyle = "rounded",
-        titleFrom = "accent",   -- card titles follow the mod's accent colour, readable on the dark stone fill
+        titleFrom = "client",   -- card titles in the game's heading gold, as in the client's own windows
         frameArt = "classic",   -- the fallback art when the client lacks the Blizzard layouts below
         -- The client's classic frames: the gold-edged dialog border on windows, the tooltip border on cards, and the
         -- client's own button. Controls inside keep the client's native tick box and the flat palette controls.
-        blizzard = { frame = "border:dialog", card = "border:tooltip", button = "panel", checkbox = "native", fillInset = 3 },
+        -- The gold-edged dialog border outside, the client's inset frame inside (the tooltip border on clients
+        -- without it).
+        blizzard = { frame = "border:dialog", card = { "InsetFrameTemplate", "border:tooltip" }, button = "panel", checkbox = "native", fillInset = 3 },
         colors = {
             surface    = {0.100, 0.090, 0.080},
             background = {0.070, 0.062, 0.054},
@@ -169,15 +171,20 @@ Design.STYLES = {
         },
     },
     forever = {
-        label = "RGX Forever",
+        label = "WoW Forever",
         cornerStyle = "square",
         buttonStyle = "rounded",   -- buttons and header bands sit on the framed panel art
         headerStyle = "rounded",
         -- The client's own frames: the Forever metal dialog on windows, the inset frame on cards, and the dialog
         -- button art on buttons. Controls inside keep the client's native tick box and the flat palette controls.
-        blizzard = { frame = "Dialog", card = "InsetFrameTemplate", button = "panel", checkbox = "native", fillInset = 3 },
-        frameArt = "forever",   -- cut-corner panels with a bronze frame and a finer inner line
-        titleFrom = "accent",   -- card titles and the hover label follow the mod's accent colour
+        -- The client's metal window frame outside and its inset frame inside, as the Forever client's own windows
+        -- are built (the dialog frame on clients without the metal frame).
+        -- Layered: the window keeps the client's metal frame, and everything inside is flat panels in layers of depth
+        -- derived from the mod's own brand colour (see Design:LayeredPalette), with a tinted tooltip border on cards.
+        blizzard = { frame = { "ButtonFrameTemplateNoPortrait", "Dialog" }, card = { "border:tooltip", "InsetFrameTemplate" }, button = "panel", checkbox = "native", fillInset = 3 },
+        layered = true,
+        frameArt = "forever",   -- cut-corner panels with a bronze frame and a finer inner line, on clients without the metal frame
+        titleFrom = "layered",  -- card titles in the palette's bright title tint
         colors = {
             surface    = {0.102, 0.082, 0.055},
             background = {0.078, 0.067, 0.051},
@@ -228,7 +235,24 @@ function Design:SetStyle(name)
             end
         end
     end
+    if style.layered then
+        -- Layered styles derive their structural colours from the brand colour in effect now (WithTheme sets it
+        -- before building), so every build, brand and live theme change gets its own layers.
+        local p = self:LayeredPalette(self.Theme.primary)
+        self.Colors.background = { p.frame[1], p.frame[2], p.frame[3] }
+        self.Colors.surface    = { p.panel[1], p.panel[2], p.panel[3] }
+        self.Colors.panelAlt   = { p.row[1], p.row[2], p.row[3] }
+        self.Colors.headerFill = { p.header[1], p.header[2], p.header[3] }
+        self.Colors.border     = { p.border[1], p.border[2], p.border[3] }
+        self.Colors.ring       = { p.border[1], p.border[2], p.border[3] }
+        self.Colors.hover      = { p.hover[1], p.hover[2], p.hover[3] }
+        self.Colors.track      = { p.header[1], p.header[2], p.header[3] }
+        self.Colors.text       = { p.text[1], p.text[2], p.text[3] }
+        self.Colors.subtext    = { p.muted[1], p.muted[2], p.muted[3] }
+        self.Colors.label      = { p.muted[1] * 0.75, p.muted[2] * 0.75, p.muted[3] * 0.75 }
+    end
     self.styleOptions = {
+        layered = style.layered and true or nil,
         buttonStyle = style.buttonStyle or "square",
         headerStyle = style.headerStyle or "square",
         controlStyle = style.controlStyle or "square",
@@ -275,10 +299,10 @@ function Design:WithStyle(name, fn)
     return a, b, c   -- the builder's results (typically the frame it built)
 end
 
--- Global corner preference: "rounded" (default) or "square". Stored in
--- RGXFrameworkDB.cornerStyle and honored by CreateFrame unless the caller
--- explicitly opts into square with opts.square.
-Design.cornerStyle = "rounded"
+-- Corner treatment of the active style: "square" for RGX Framework (the default style), "rounded" for RGX
+-- Material Round. WoW Classic and WoW Forever draw the game's own frames. Each style sets it; CreateFrame
+-- honours it unless the caller passes opts.square.
+Design.cornerStyle = "square"
 
 function Design:SetThemePreset(name)
     local preset = self.THEME_PRESETS and self.THEME_PRESETS[name]
@@ -290,6 +314,30 @@ end
 
 function Design:GetThemePreset()
     return self.currentPreset
+end
+
+-- The global override's colour pair: the operator's own primary and secondary picks (RGXFrameworkDB.themePrimary /
+-- themeSecondary, {r=,g=,b=}) when set, else the chosen preset's pair. Returns { primary = {r,g,b}, accent = {r,g,b} }.
+function Design:GetOverrideTheme(db)
+    db = type(db) == "table" and db or rawget(_G, "RGXFrameworkDB") or {}
+    local presets = self.THEME_PRESETS or {}
+    local preset = presets[db.themePreset or "cyan"] or presets.cyan or {}
+    local function pick(c, fallback)
+        if type(c) == "table" and type(c.r) == "number" and type(c.g) == "number" and type(c.b) == "number" then
+            return { c.r, c.g, c.b }
+        end
+        return fallback
+    end
+    return { primary = pick(db.themePrimary, preset.primary), accent = pick(db.themeSecondary, preset.accent) }
+end
+
+-- Apply the override's colour pair (custom picks or preset) as the live theme.
+function Design:ApplyOverrideTheme(db)
+    db = type(db) == "table" and db or rawget(_G, "RGXFrameworkDB") or {}
+    local hasCustom = type(db.themePrimary) == "table" or type(db.themeSecondary) == "table"
+    self:SetTheme(self:GetOverrideTheme(db))
+    if hasCustom then self.currentPreset = nil else self.currentPreset = db.themePreset or "cyan" end
+    return true
 end
 
 function Design:SetCornerStyle(style)
@@ -322,12 +370,12 @@ Design.Colors = {
 
 Design.Radius = 12
 Design.PANEL_TEX = "Interface\\AddOns\\RGX-Framework\\libraries\\design\\panel_rounded.tga"
--- "RGX Forever" frame art: a square panel with cut corners (solid, tinted by the ring and fill colours) and a
+-- "WoW Forever" frame art: a square panel with cut corners (solid, tinted by the ring and fill colours) and a
 -- matching one-pixel line drawn just inside the frame.
 Design.FOREVER_TEX = "Interface\\AddOns\\RGX-Framework\\libraries\\design\\panel_forever.tga"
 Design.FOREVER_LINE_TEX = "Interface\\AddOns\\RGX-Framework\\libraries\\design\\panel_forever_line.tga"
 Design.FOREVER_SLICE = 8
--- "RGX Classic" frame art: a plain square panel with a heavier two-pixel frame and a hollow square line drawn
+-- "WoW Classic" frame art: a plain square panel with a heavier two-pixel frame and a hollow square line drawn
 -- just inside it, so every card, button, box and tab reads as a double-framed square.
 Design.CLASSIC_TEX = "Interface\\AddOns\\RGX-Framework\\libraries\\design\\panel_classic.tga"
 Design.CLASSIC_LINE_TEX = "Interface\\AddOns\\RGX-Framework\\libraries\\design\\panel_classic_line.tga"
@@ -398,8 +446,75 @@ local function BuildNineSlice(frame, layer, slice, inset, color, alpha, texture)
     return { tl, tr, bl, br, tm, bm, ml, mr, c }
 end
 
+-- Layered palette -------------------------------------------------------------------------------------
+-- One brand colour becomes a set of surfaces in layers of depth, the way a well-built game window reads: a
+-- near-black frame, panels a step lighter, a lighter header, rows darker than the panels, a bright selected row,
+-- a mid-bright border, and a bright title over pale text. Every layer keeps the brand's hue; a grey brand stays
+-- neutral. Pure arithmetic: the same colour always gives the same layers.
+local function RgbToHsv(r, g, b)
+    local mx, mn = math.max(r, g, b), math.min(r, g, b)
+    local d = mx - mn
+    if d == 0 then return 0, 0, mx end
+    local h
+    if mx == r then h = ((g - b) / d) % 6 elseif mx == g then h = (b - r) / d + 2 else h = (r - g) / d + 4 end
+    return h * 60, d / mx, mx
+end
+
+local function HsvToRgb(h, s, v)
+    if s <= 0 then return v, v, v end
+    local c = v * s
+    local x = c * (1 - math.abs((h / 60) % 2 - 1))
+    local m = v - c
+    local sector = math.floor(h / 60) % 6
+    local r, g, b
+    if sector == 0 then r, g, b = c, x, 0 elseif sector == 1 then r, g, b = x, c, 0
+    elseif sector == 2 then r, g, b = 0, c, x elseif sector == 3 then r, g, b = 0, x, c
+    elseif sector == 4 then r, g, b = x, 0, c else r, g, b = c, 0, x end
+    return r + m, g + m, b + m
+end
+
+-- Value (brightness) and saturation factor of each layer.
+local LAYERS = {
+    frame       = { 0.035, 0.55 },
+    row         = { 0.095, 0.60 },
+    panel       = { 0.140, 0.60 },
+    header      = { 0.200, 0.65 },
+    hover       = { 0.260, 0.68 },
+    rowSelected = { 0.360, 0.70 },
+    border      = { 0.580, 0.65 },
+    muted       = { 0.740, 0.15 },
+    text        = { 0.940, 0.10 },
+    title       = { 1.000, 0.35 },
+}
+
+function Design:LayeredPalette(primary)
+    -- Accepts {r, g, b} or {r = , g = , b = }; anything else falls back to the active primary.
+    if type(primary) == "table" and type(primary.r) == "number" and type(primary[1]) ~= "number" then
+        primary = { primary.r, primary.g, primary.b }
+    end
+    if not (type(primary) == "table" and type(primary[1]) == "number" and type(primary[2]) == "number" and type(primary[3]) == "number") then
+        primary = (self.Theme and self.Theme.primary) or { 0.5, 0.5, 0.5 }
+    end
+    local h, s0 = RgbToHsv(primary[1], primary[2], primary[3])
+    local s = math.min(s0, 0.80)
+    local palette = {}
+    for name, layer in pairs(LAYERS) do
+        local r, g, b = HsvToRgb(h, s * layer[2], layer[1])
+        palette[name] = { r, g, b }
+    end
+    return palette
+end
+
+-- The colour of a card title for a style's titleFrom: the client's gold, the palette's title tint, or one of the
+-- mod's own theme colours.
+function Design:TitleColor(from)
+    if from == "client" then return self.CLIENT_TITLE end
+    if from == "layered" then return self:LayeredPalette(self.Theme.primary).title end
+    return from and self.Theme[from] or nil
+end
+
 -- Blizzard frame assets ------------------------------------------------------------------------------
--- RGX Classic and RGX Forever draw their frames with the game client's own nine-slice art: a style names the
+-- WoW Classic and WoW Forever draw their frames with the game client's own nine-slice art: a style names the
 -- NineSliceLayouts entry for each role in `blizzard` ({ frame = "Dialog", card = "InsetFrameTemplate", ... }) and
 -- the client's NineSliceUtil lays the metal or tooltip border out on the frame. A layout is used only when the
 -- running client has it and every atlas it names; otherwise the style's own frame art (FRAME_ART) is drawn, so a
@@ -419,7 +534,7 @@ local function BlizzardLayoutReady(name)
     return true
 end
 
--- True when the active style draws with the client's own art (RGX Classic, RGX Forever).
+-- True when the active style draws with the client's own art (WoW Classic, WoW Forever).
 function Design:UsesClientArt()
     return type((self.styleOptions or {}).blizzard) == "table"
 end
@@ -445,11 +560,32 @@ local CLIENT_BORDERS = {
 -- Draw `frame` with the active style's Blizzard layout for `role` ("frame" or "card"). Returns true when the
 -- client art was applied. The pieces live on a child frame so they sit under the frame's own content, and a flat
 -- fill in the style's surface colour sits behind them.
+-- How far the flat fill sits inside each client frame (the metal window frame draws its edges inside the frame).
+local CLIENT_FILL_INSET = { ButtonFrameTemplateNoPortrait = 2, InsetFrameTemplate = 3 }
+local ROCK, MARBLE = "Interface\\FrameGeneral\\UI-Background-Rock", "Interface\\FrameGeneral\\UI-Background-Marble"
+local CLIENT_BACKGROUND = {
+    ButtonFrameTemplateNoPortrait = ROCK, Dialog = ROCK, ["border:dialog"] = ROCK,
+    InsetFrameTemplate = MARBLE, ["border:tooltip"] = MARBLE,
+}
+-- The game's heading gold (titles in the client's own windows), used by the WoW styles for card titles.
+Design.CLIENT_TITLE = { 1.0, 0.82, 0.0 }
+
 function Design:ApplyBlizzardFrame(frame, role, opts)
     opts = opts or {}
     local set = (self.styleOptions or {}).blizzard
-    local name = type(set) == "table" and set[role] or nil
-    if not name then return false end
+    local names = type(set) == "table" and set[role] or nil
+    if not names then return false end
+    -- A role may name several client frames, tried in order (the first one the client has wins).
+    if type(names) == "table" then
+        for _, name in ipairs(names) do
+            if self:ApplyBlizzardFrameNamed(frame, name, set, opts) then return true end
+        end
+        return false
+    end
+    return self:ApplyBlizzardFrameNamed(frame, names, set, opts)
+end
+
+function Design:ApplyBlizzardFrameNamed(frame, name, set, opts)
     local container
     local edge = CLIENT_BORDERS[name]
     if edge then
@@ -459,7 +595,11 @@ function Design:ApplyBlizzardFrame(frame, role, opts)
         container = made
         container:SetAllPoints(frame)
         container:SetBackdrop({ edgeFile = edge.file, edgeSize = edge.size, insets = { left = 0, right = 0, top = 0, bottom = 0 } })
-        if container.SetBackdropBorderColor then container:SetBackdropBorderColor(1, 1, 1, 1) end
+        if container.SetBackdropBorderColor then
+            -- A layered style tints the border with its own border layer; the others draw it as the client does.
+            local tint = (self.styleOptions or {}).layered and self:GetColor("border") or nil
+            if tint then container:SetBackdropBorderColor(tint[1], tint[2], tint[3], 1) else container:SetBackdropBorderColor(1, 1, 1, 1) end
+        end
     else
         if not BlizzardLayoutReady(name) then return false end
         container = CreateFrame("Frame", nil, frame)
@@ -471,12 +611,27 @@ function Design:ApplyBlizzardFrame(frame, role, opts)
         if type(container.Center) == "table" and container.Center.Hide then container.Center:Hide() end
     end
     if container.SetFrameLevel and frame.GetFrameLevel then container:SetFrameLevel(frame:GetFrameLevel() or 1) end
-    local inset = (edge and edge.inset) or opts.fillInset or set.fillInset or 3
+    local inset = (edge and edge.inset) or opts.fillInset or CLIENT_FILL_INSET[name] or set.fillInset or 3
     local fill = frame:CreateTexture(nil, "BACKGROUND", nil, -8)
     fill:SetPoint("TOPLEFT", frame, "TOPLEFT", inset, -inset)
     fill:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -inset, inset)
-    local color = self:GetColor(opts.color or "surface")
+    -- A layered style fills a window with its frame layer; cards and insets keep the colour their caller asked for.
+    local layered = (self.styleOptions or {}).layered
+    local windowFrame = name == "ButtonFrameTemplateNoPortrait" or name == "Dialog" or name == "border:dialog"
+    local color = self:GetColor(opts.color or (layered and windowFrame and "background") or "surface")
     fill:SetColorTexture(color[1], color[2], color[3], opts.bgAlpha or 1)
+    -- The game's own background art over the flat colour: windows fill with the tiled rock texture and insets
+    -- with the tiled marble, as the client's frame templates do. The colour shows where a client lacks the art.
+    local backgroundFile = (not layered) and CLIENT_BACKGROUND[name] or nil
+    if backgroundFile then
+        local art = frame:CreateTexture(nil, "BACKGROUND", nil, -7)
+        art:SetPoint("TOPLEFT", fill, "TOPLEFT")
+        art:SetPoint("BOTTOMRIGHT", fill, "BOTTOMRIGHT")
+        art:SetTexture(backgroundFile, "REPEAT", "REPEAT")
+        if art.SetHorizTile then art:SetHorizTile(true) end
+        if art.SetVertTile then art:SetVertTile(true) end
+        frame._clientBackground = art
+    end
     frame._blizzardFrame = container
     frame._panelBorder = {}      -- the client art is not tinted; callers that recolour a ring change nothing
     frame._panelFill = { fill }
@@ -580,6 +735,144 @@ function Design:WithTheme(theme, fn)
     return a, b, c   -- the builder's results (typically the frame it built)
 end
 
+-- The global theme override (beta, RGXFrameworkDB.themeOverride == true): the framework's chosen main colour
+-- preset and interface style replace every RGX addon's own pair and style. Read from the saved settings
+-- directly so it answers the same before and after the framework applies them at login.
+function Design:IsThemeOverride()
+    local db = rawget(_G, "RGXFrameworkDB")
+    return type(db) == "table" and db.themeOverride == true
+end
+
+-- What an addon should build with: its own brand pair and style, or the override's while it is on.
+--   local theme, style = Design:ResolveAddonTheme({ primary = MY_RED, accent = MY_GREY }, "materialround")
+-- theme is { primary = {r,g,b}, accent = {r,g,b} }; style is a canonical style id.
+function Design:ResolveAddonTheme(brand, brandStyle)
+    brand = type(brand) == "table" and brand or {}
+    local style = brandStyle and self:ResolveStyle(brandStyle) or nil
+    if not self:IsThemeOverride() then
+        return { primary = brand.primary, accent = brand.accent }, style
+    end
+    local db = rawget(_G, "RGXFrameworkDB")
+    local pair = self:GetOverrideTheme(db)
+    local theme = (pair.primary or pair.accent) and { primary = pair.primary or brand.primary, accent = pair.accent or brand.accent }
+        or { primary = brand.primary, accent = brand.accent }
+    local chosen = type(db.style) == "string" and self:ResolveStyle(db.style) or nil
+    return theme, chosen or style
+end
+
+-- Build in the resolved addon theme and style (scoped, restored afterwards). Returns the builder's results.
+function Design:WithAddonTheme(brand, brandStyle, fn)
+    local theme, style = self:ResolveAddonTheme(brand, brandStyle)
+    return self:WithTheme(theme, function()
+        if style then
+            local r1, r2, r3
+            self:WithStyle(style, function() r1, r2, r3 = fn() end)
+            return r1, r2, r3
+        end
+        return fn()
+    end)
+end
+
+-- ── Brands and live theme changes ────────────────────────────────────────────────────────────────────────
+-- Every RGX addon registers its brand once: its own primary/accent pair and its own interface style.
+--   local brand = RGXDesign:RegisterBrand("MyAddon", { primary = RED, accent = GREY }, "materialround")
+-- brand:Build(fn) builds UI in the resolved theme and style (the own pair, or the framework's while the beta
+-- global override is on) and remembers the brand on everything built inside it, so options panels and
+-- dropdown menus can repaint themselves when the theme changes. brand:Colors() / brand:Hex(key) read the live
+-- colours at paint time; brand:OnChange(fn) runs fn after every theme change (rebuild a window there).
+-- The framework calls Design:NotifyThemeChanged() whenever the override, colour or style changes, so open
+-- windows follow without a reload.
+Design.brands = Design.brands or {}
+Design._themeListeners = Design._themeListeners or {}
+
+local BrandMixin = {}
+BrandMixin.__index = BrandMixin
+
+function BrandMixin:Resolve()
+    return Design:ResolveAddonTheme(self.own, self.style)
+end
+
+function BrandMixin:Colors()
+    local theme = self:Resolve()
+    return theme
+end
+
+function BrandMixin:Style()
+    local _, style = self:Resolve()
+    return style
+end
+
+function BrandMixin:Color(key)
+    local theme = self:Resolve()
+    local c = theme[key or "primary"] or self.own[key or "primary"] or { 1, 1, 1 }
+    return c[1], c[2], c[3]
+end
+
+function BrandMixin:Hex(key)
+    local r, g, b = self:Color(key)
+    return "|cff" .. Design:RGBToHex(r, g, b)
+end
+
+function BrandMixin:Build(fn)
+    local prev = Design._activeBrand
+    Design._activeBrand = self
+    local ok, a, b, c = pcall(Design.WithAddonTheme, Design, self.own, self.style, fn)
+    Design._activeBrand = prev
+    if not ok then error(a, 0) end
+    return a, b, c
+end
+
+function BrandMixin:OnChange(fn)
+    if type(fn) == "function" then self.listeners[#self.listeners + 1] = fn end
+end
+
+function Design:RegisterBrand(id, own, style)
+    assert(type(id) == "string" and id ~= "", "RGXDesign:RegisterBrand needs an addon id")
+    own = type(own) == "table" and own or {}
+    local brand = self.brands[id]
+    if not brand then
+        brand = setmetatable({ id = id, listeners = {} }, BrandMixin)
+        self.brands[id] = brand
+    end
+    brand.own = { primary = own.primary, accent = own.accent }
+    -- No style of its own means the default style, so turning the override off always has a style to return to.
+    brand.style = (style and self:ResolveStyle(style)) or "framework"
+    return brand
+end
+
+function Design:GetBrand(id)
+    return self.brands[id]
+end
+
+-- The brand whose Build is running (nil outside one); panels and dropdowns built inside remember it.
+function Design:GetBuildBrand()
+    return self._activeBrand
+end
+
+-- A listener for every theme change, for UI that has no brand (the framework's own settings page).
+function Design:OnThemeChanged(fn)
+    if type(fn) == "function" then self._themeListeners[#self._themeListeners + 1] = fn end
+end
+
+-- Tell every brand and listener that the override, colour or style changed. Errors in one listener never stop
+-- the others.
+function Design:NotifyThemeChanged()
+    for _, brand in pairs(self.brands) do
+        for _, fn in ipairs(brand.listeners) do
+            local ok, err = pcall(fn, brand)
+            if not ok and _G.RGXFramework and _G.RGXFramework.Error then
+                _G.RGXFramework:Error("[RGXDesign] theme change (" .. tostring(brand.id) .. "): " .. tostring(err))
+            end
+        end
+    end
+    for _, fn in ipairs(self._themeListeners) do
+        local ok, err = pcall(fn)
+        if not ok and _G.RGXFramework and _G.RGXFramework.Error then
+            _G.RGXFramework:Error("[RGXDesign] theme change: " .. tostring(err))
+        end
+    end
+end
+
 Design.SetColors = Design.SetTheme
 Design.UseTheme = Design.SetTheme
 
@@ -663,8 +956,8 @@ function Design:ApplyPanel(frame, opts)
 end
 
 -- Shaped chrome for the interface controls. True when the active style draws switches, sliders, text boxes,
--- checkboxes, reset buttons and tabs as panels (rounded in "RGX Material Round", framed art in "RGX Forever"
--- and "RGX Classic"), not only cards, headers and buttons. The framework style keeps its flat controls.
+-- checkboxes, reset buttons and tabs as panels (rounded in "RGX Material Round", framed art in "WoW Forever"
+-- and "WoW Classic"), not only cards, headers and buttons. The framework style keeps its flat controls.
 function Design:IsRoundedControls()
     return (self.styleOptions or {}).controlStyle == "rounded"
 end
@@ -714,6 +1007,15 @@ function Design:CreateFrame(parent, opts)
         if opts.color then
             frame:SetBackdropColor(self:Unpack(opts.color))
         end
+        -- The same recolour API as the shaped panels, so callers never branch on the corner treatment.
+        function frame:SetPanelColor(fillColor, borderColor, alpha)
+            if fillColor and self.SetBackdropColor then
+                self:SetBackdropColor(fillColor[1], fillColor[2], fillColor[3], alpha or 1)
+            end
+            if borderColor and self.SetBackdropBorderColor then
+                self:SetBackdropBorderColor(borderColor[1], borderColor[2], borderColor[3], 1)
+            end
+        end
         return frame
     end
 
@@ -746,7 +1048,7 @@ function Design:CreateButton(parent, text, width, height, tooltipTitle, tooltipB
     -- Rounded buttons fix their hover ring colour when they are built, inside the mod's own WithTheme
     -- scope: a hover happens long after construction, when the shared theme may belong to another mod.
     local hoverRing = rounded and { self:Unpack("ring") } or nil
-    local titleTheme = opts.titleFrom and self.Theme[opts.titleFrom]
+    local titleTheme = self:TitleColor(opts.titleFrom)
     local hoverLabel = rounded and (titleTheme and { titleTheme[1], titleTheme[2], titleTheme[3] }
         or { self:Unpack("text") }) or { self:Unpack("primary") }
 
@@ -847,16 +1149,51 @@ Design.CreateActionButton = Design.CreateButton
 function Design:CreateSectionHeader(parent, text, icon)
     local opts = self.styleOptions or {}
     local header
-    if self.UsesClientArt and self:UsesClientArt() then
-        -- RGX Classic / RGX Forever: the client's settings look, a title over the client's divider line.
+    if opts.layered then
+        -- Layered styles: a flat band in the header layer with a one-pixel border in the border layer, title in the
+        -- palette's bright tint.
+        header = CreateFrame("Frame", nil, parent, "BackdropTemplate")
+        header:SetHeight(32)
+        header:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1,
+            insets = { left = 1, right = 1, top = 1, bottom = 1 } })
+        local fill, edge = self:GetColor("headerFill"), self:GetColor("border")
+        header:SetBackdropColor(fill[1], fill[2], fill[3], 0.95)
+        header:SetBackdropBorderColor(edge[1], edge[2], edge[3], 1)
+        header.layeredBar = true
+    elseif self.UsesClientArt and self:UsesClientArt() then
+        -- WoW Classic / WoW Forever: the client's settings look. Where the client has its category header bar
+        -- (the bevelled bar over each group in the game's settings list) the title sits on that bar, drawn in
+        -- three slices so its ends keep their shape at any width; otherwise a title over the divider line.
         header = CreateFrame("Frame", nil, parent)
         header:SetHeight(32)
-        local divider = header:CreateTexture(nil, "ARTWORK")
-        divider:SetTexture("Interface\\Common\\UI-TooltipDivider-Transparent")
-        divider:SetPoint("BOTTOMLEFT", header, "BOTTOMLEFT", 0, 0)
-        divider:SetPoint("BOTTOMRIGHT", header, "BOTTOMRIGHT", 0, 0)
-        divider:SetHeight(8)
-        header.divider = divider
+        local barAtlas = "Options_CategoryHeader_1"
+        local info = type(_G.C_Texture) == "table" and type(_G.C_Texture.GetAtlasInfo) == "function"
+            and select(2, pcall(_G.C_Texture.GetAtlasInfo, barAtlas)) or nil
+        if type(info) == "table" and info.leftTexCoord and (info.file or info.filename) then
+            local file = info.file or info.filename
+            local l, r, t, b = info.leftTexCoord, info.rightTexCoord, info.topTexCoord, info.bottomTexCoord
+            local cap = (r - l) * 0.12
+            local function slice(u1, u2)
+                local tex = header:CreateTexture(nil, "BACKGROUND")
+                tex:SetTexture(file)
+                tex:SetTexCoord(u1, u2, t, b)
+                return tex
+            end
+            local left, mid, right = slice(l, l + cap), slice(l + cap, r - cap), slice(r - cap, r)
+            local capW = math.floor((info.width or 175) * 0.12 + 0.5)
+            left:SetPoint("TOPLEFT"); left:SetPoint("BOTTOMLEFT"); left:SetWidth(capW)
+            right:SetPoint("TOPRIGHT"); right:SetPoint("BOTTOMRIGHT"); right:SetWidth(capW)
+            mid:SetPoint("TOPLEFT", left, "TOPRIGHT"); mid:SetPoint("BOTTOMRIGHT", right, "BOTTOMLEFT")
+            header.bar = { left, mid, right }
+            header.clientBar = true
+        else
+            local divider = header:CreateTexture(nil, "ARTWORK")
+            divider:SetTexture("Interface\\Common\\UI-TooltipDivider-Transparent")
+            divider:SetPoint("BOTTOMLEFT", header, "BOTTOMLEFT", 0, 0)
+            divider:SetPoint("BOTTOMRIGHT", header, "BOTTOMRIGHT", 0, 0)
+            divider:SetHeight(8)
+            header.divider = divider
+        end
     elseif opts.headerStyle == "rounded" then
         -- "RGX Material Round": a rounded band (grey fill, the style's ring colour) like every other card.
         header = CreateFrame("Frame", nil, parent)
@@ -885,7 +1222,8 @@ function Design:CreateSectionHeader(parent, text, icon)
     local label = header:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     label:SetPoint("LEFT", leftInset, 0)
     label:SetText(text)
-    local titleTheme = opts.titleFrom and self.Theme[opts.titleFrom]
+    local titleTheme = self:TitleColor(opts.titleFrom)
+    if header.clientBar then titleTheme = { 1, 1, 1 } end   -- the game's header bars carry a white title
     if titleTheme then
         label:SetTextColor(titleTheme[1], titleTheme[2], titleTheme[3])
     else

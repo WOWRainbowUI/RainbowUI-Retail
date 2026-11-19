@@ -1,7 +1,7 @@
 --[[
     RGX-Framework - Events and Messages
 
-    RGX does not need LibStub-style indirection for its own internal foundation.
+    RGX needs no library indirection for its own internal foundation.
     Instead, it exposes a tiny native dispatcher for:
     - Blizzard events
     - framework-wide messages

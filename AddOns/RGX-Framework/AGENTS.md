@@ -104,8 +104,8 @@ RGX:RegisterModule("example", Example, {
 })
 ```
 
-Never add LibStub, embed RGX inside consumers, or add Ace3 as a framework
-runtime dependency.
+Never add a third-party library loader, embed RGX inside consumers, or add an
+external library as a framework runtime dependency.
 
 ## Consumer API
 

@@ -16,7 +16,6 @@ Textures.name = "textures"
 Textures.version = "1.0.0"
 Textures.defaultBar = "Blizzard"
 Textures.bars = {}
-Textures._lsmImported = false
 
 local function NormalizePath(path)
     if type(path) ~= "string" or path == "" then
@@ -209,36 +208,6 @@ function Textures:GetDropdownItems()
     end
 
     return items
-end
-
-function Textures:ImportLibSharedMedia(force)
-    if self._lsmImported and not force then
-        return true
-    end
-
-    local libStubObject = rawget(_G, "LibStub")
-    if type(libStubObject) ~= "table" or type(libStubObject.GetLibrary) ~= "function" then
-        return false
-    end
-
-    local ok, externalLSM = pcall(libStubObject.GetLibrary, libStubObject, "LibSharedMedia-3.0", true)
-    if not ok or not externalLSM then
-        return false
-    end
-
-    local mediaList = externalLSM:List("statusbar") or {}
-    for _, mediaName in ipairs(mediaList) do
-        local mediaPath = externalLSM:Fetch("statusbar", mediaName, true) or externalLSM:Fetch("statusbar", mediaName)
-        if type(mediaPath) == "string" and mediaPath ~= "" then
-            self:RegisterBar(mediaName, mediaPath, {
-                source = "LibSharedMedia",
-                group = "LibSharedMedia",
-            })
-        end
-    end
-
-    self._lsmImported = true
-    return true
 end
 
 function Textures:ApplyToStatusBar(statusBar, name)
@@ -435,8 +404,6 @@ function Textures:Init()
             description = "Clean flat Blizzard skills bar texture.",
         },
     })
-
-    self:ImportLibSharedMedia()
 
     RGX:RegisterModule("textures", self, { category = "library" })
     _G.RGXTextures = self

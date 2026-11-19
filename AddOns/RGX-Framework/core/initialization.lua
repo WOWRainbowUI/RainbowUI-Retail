@@ -99,6 +99,8 @@ end
 
 RGX:RegisterEvent("ADDON_LOADED", function(_, addon)
     if addon == addonName then
+        -- Library files that share this namespace may have written their own version over the framework's.
+        if RGX.FRAMEWORK_VERSION then RGX.version = RGX.FRAMEWORK_VERSION end
         -- Initialize database silently
         _G.RGXFrameworkDB = _G.RGXFrameworkDB or {}
         RGX.db = _G.RGXFrameworkDB
@@ -109,6 +111,8 @@ RGX:RegisterEvent("ADDON_LOADED", function(_, addon)
         -- The global theme override is a beta: off unless the operator turns it on, so every addon keeps its
         -- own default look. Saving the explicit false lets addons that read the switch see the same answer.
         if RGX.db.themeOverride == nil then RGX.db.themeOverride = false end
+        -- Each interface style owns its corner shape; the old separate corner choice is retired.
+        RGX.db.cornerStyle = nil
         if Design and RGX.db.themeOverride == true then
             if RGX.db.style and type(Design.SetStyle) == "function" then
                 pcall(Design.SetStyle, Design, RGX.db.style)
@@ -119,11 +123,10 @@ RGX:RegisterEvent("ADDON_LOADED", function(_, addon)
                     pcall(Design.SetStyle, Design, id)
                 end
             end
-            if RGX.db.themePreset and type(Design.SetThemePreset) == "function" then
+            if type(Design.ApplyOverrideTheme) == "function" then
+                pcall(Design.ApplyOverrideTheme, Design, RGX.db)
+            elseif RGX.db.themePreset and type(Design.SetThemePreset) == "function" then
                 pcall(Design.SetThemePreset, Design, RGX.db.themePreset)
-            end
-            if RGX.db.cornerStyle and type(Design.SetCornerStyle) == "function" then
-                pcall(Design.SetCornerStyle, Design, RGX.db.cornerStyle)
             end
         end
 

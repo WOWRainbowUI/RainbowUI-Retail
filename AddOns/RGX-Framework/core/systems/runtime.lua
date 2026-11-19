@@ -2,7 +2,7 @@
     RGX-Framework - Runtime Helpers
 
     Consumer addons already proved that a WoW addon can provide its own lightweight
-    framework runtime without leaning on LibStub-era dependency chains.
+    framework runtime with no external dependency chains.
 
     RGX keeps the same philosophy here:
     - native timer helpers

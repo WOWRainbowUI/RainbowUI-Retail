@@ -10,7 +10,7 @@ local function AddLine(UI, card, text)
     card.flow:Add(label, { fill = true })
 end
 
--- The global theme controls (main color, interface style, corners) change the framework's shared theme, which
+-- The global theme controls (main color, interface style) change the framework's shared theme, which
 -- only addons that build under it follow. Every other RGX addon paints its own brand, so for them the controls
 -- would do nothing. Show them only when one of the addons that follow the global theme is loaded.
 local THEME_CONSUMERS = { "BLU", "BLU_Classic", "BLU_Forever", "SimpleQuestPlates", "SimpleQuestPlates_Classic",
@@ -40,16 +40,23 @@ local function BuildGuide(content, page)
     local Design = RGX:GetDesign()
     local theme = page == "theme" and ThemeConsumerLoaded() and UI:CreateCard(left, { title = "Change framework addon theme options" }) or nil
     if theme and Design and Design.THEME_PRESETS then
-        -- The framework theme is optional: with this off the saved colour, style and corners are not applied
+        -- The framework theme is optional: with this off the saved colour and style are not applied
         -- at login and addons keep their own look.
         local overrideSwitch = UI:CreateSwitch(theme.content, {
             label = "Beta: override every RGX addon's theme",
             storage = RGX.db, key = "themeOverride", default = false,
             onChange = function(on)
-                if not on then
+                if on then
+                    -- Apply the saved choices now, so windows built from here on use them.
+                    if RGX.db.style then Design:SetStyle(RGX.db.style) end
+                    if Design.ApplyOverrideTheme then Design:ApplyOverrideTheme(RGX.db)
+                    elseif RGX.db.themePreset and Design.SetThemePreset then Design:SetThemePreset(RGX.db.themePreset) end
+                else
                     Design:SetStyle("framework")
                     if Design.SetThemePreset then Design:SetThemePreset("cyan") end
                 end
+                -- Open windows follow at once.
+                if Design.NotifyThemeChanged then Design:NotifyThemeChanged() end
             end,
         })
         theme.flow:Add(overrideSwitch, { fill = true })
@@ -61,15 +68,58 @@ local function BuildGuide(content, page)
             local themeDD = Drops:CreateNestedDropdown(theme.content, {
                 label = "Main color",
                 width = 300, buttonWidth = 290, triggerStyle = "retail",
-                value = Design:GetThemePreset() or "cyan",
+                value = RGX.db.themePreset or "cyan",
                 items = items,
                 onChange = function(value)
-                    if Design:SetThemePreset(value) then
+                    -- Saved always; applied live only while the override is on (off means addons keep their own).
+                    if Design.THEME_PRESETS[value] then
                         RGX.db.themePreset = value
+                        -- A preset is a fresh pair: it replaces the custom primary and secondary picks.
+                        RGX.db.themePrimary, RGX.db.themeSecondary = nil, nil
+                        if theme.RefreshColors then theme.RefreshColors() end
+                        if RGX.db.themeOverride == true then
+                            Design:SetThemePreset(value)
+                            if Design.NotifyThemeChanged then Design:NotifyThemeChanged() end
+                        end
                     end
                 end,
             })
             if themeDD then theme.flow:Add(themeDD, { fill = true }) end
+        end
+        -- Primary and secondary colour: the framework colour picker, starting from the chosen preset's pair.
+        if type(UI.CreateColorPicker) == "function" then
+            local function presetColor(which)
+                local pair = Design.GetOverrideTheme and Design:GetOverrideTheme({ themePreset = RGX.db.themePreset }) or {}
+                local c = pair[which] or { 1, 1, 1 }
+                return { r = c[1], g = c[2], b = c[3] }
+            end
+            local function applyColors()
+                if RGX.db.themeOverride == true then
+                    if Design.ApplyOverrideTheme then Design:ApplyOverrideTheme(RGX.db) end
+                    if Design.NotifyThemeChanged then Design:NotifyThemeChanged() end
+                end
+            end
+            local pickers = {}
+            for _, spec in ipairs({ { key = "themePrimary", which = "primary", label = "Primary color" },
+                                    { key = "themeSecondary", which = "accent", label = "Secondary color" } }) do
+                -- The swatch shows the custom pick, or the preset's colour while none is set.
+                local view = setmetatable({}, {
+                    __index = function(_, k) if k == spec.key then return RGX.db[spec.key] or presetColor(spec.which) end end,
+                    __newindex = function(_, k, v) if k == spec.key then RGX.db[spec.key] = v end end,
+                })
+                local picker = UI:CreateColorPicker(theme.content, {
+                    label = spec.label, storage = view, key = spec.key,
+                    default = presetColor(spec.which),
+                    onChange = applyColors,
+                })
+                if picker then
+                    pickers[#pickers + 1] = picker
+                    theme.flow:Add(picker, { fill = true })
+                end
+            end
+            theme.RefreshColors = function()
+                for _, picker in ipairs(pickers) do if picker.Refresh then picker.Refresh() end end
+            end
         end
         if Design and Design.STYLES then
             local Drops = _G.RGXDropdowns
@@ -85,42 +135,37 @@ local function BuildGuide(content, page)
                 local styleDD = Drops:CreateNestedDropdown(theme.content, {
                     label = "Interface style",
                     width = 300, buttonWidth = 290, triggerStyle = "retail",
-                    value = (Design.GetStyleId and Design:GetStyleId()) or "framework",
+                    value = (RGX.db.style and Design:ResolveStyle(RGX.db.style)) or "framework",
                     items = items,
                     onChange = function(value)
-                        if Design:SetStyle(value) then
-                            RGX.db.style = value
-                            RGX:Print("Interface style saved. Windows already open keep their old look until /reload.")
+                        local id = Design:ResolveStyle(value)
+                        if id then
+                            RGX.db.style = id
+                            if RGX.db.themeOverride == true then
+                                Design:SetStyle(id)
+                                if Design.NotifyThemeChanged then Design:NotifyThemeChanged() end
+                            else
+                                RGX:Print("Interface style saved. It applies while the theme override is on.")
+                            end
                         end
                     end,
                 })
                 if styleDD then theme.flow:Add(styleDD, { fill = true }) end
             end
         end
-        local corners = UI:CreateButtonGroup(theme.content, { "Rounded", "Square" },
-            { buttonWidth = 100, height = 22 })
-        theme.flow:Add(corners)
-        local function UpdateCornerButtons()
-            local square = Design.cornerStyle == "square"
-            corners.buttons[1]:SetAlpha(square and 0.6 or 1)
-            corners.buttons[2]:SetAlpha(square and 1 or 0.6)
-        end
-        UpdateCornerButtons()
-        corners.buttons[1]:SetScript("OnClick", function()
-            Design:SetCornerStyle("rounded")
-            RGX.db.cornerStyle = "rounded"
-            UpdateCornerButtons()
-        end)
-        corners.buttons[2]:SetScript("OnClick", function()
-            Design:SetCornerStyle("square")
-            RGX.db.cornerStyle = "square"
-            UpdateCornerButtons()
-        end)
         local note = UI:CreateLabel(theme.content, {
-            text = "Beta, global override: while it is on, the colour and interface style below replace the own look of every RGX addon that follows the framework theme. Off (the default), each addon keeps its own theme. Reload to re-skin windows that are already open.",
+            text = "Beta, global override: while it is on, the colour and interface style replace the own look of every RGX addon that follows the framework theme. Off (the default), each addon keeps its own theme. Each style has its own shape: RGX Material Round is rounded, RGX Framework is square, WoW Classic and WoW Forever use the game's own frames. Open RGX windows change at once; Reload UI re-skins anything that does not.",
             size = "small", color = "muted", wrap = true,
         })
         theme.flow:Add(note, { fill = true })
+        -- Already-built windows of every RGX addon only re-skin on a reload, so offer it right here.
+        if type(Design.CreateButton) == "function" then
+            local reload = Design:CreateButton(theme.content, "Reload UI", 120, 22)
+            reload:SetScript("OnClick", function()
+                if type(_G.ReloadUI) == "function" then _G.ReloadUI() end
+            end)
+            theme.flow:Add(reload)
+        end
     end
     if theme then theme:AutoHeight() end
 

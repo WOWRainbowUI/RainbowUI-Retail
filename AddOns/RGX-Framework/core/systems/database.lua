@@ -457,19 +457,32 @@ end
 
 -- Opt-in migration for consumers moving an existing flat settings table to
 -- profiles. Keep the legacy keys recoverable; profile values are deep copies.
+--
+-- A plain flat table becomes the Default profile. A table that already has profiles AND flat keys was written by
+-- two owners (the addon kept the player's choices flat while a profile database filled the Default profile with
+-- defaults): the flat keys are the real choices, so they are applied to the active profile. Either way this runs
+-- once per table, recorded by raw.flatAdopted, so edits made afterwards are never overwritten by the old keys.
+local FLAT_RESERVED = { profiles = true, global = true, char = true, activeProfile = true, currentProfile = true,
+    flatAdopted = true }
 local function MigrateFlatProfile(raw)
-    if type(raw) ~= "table" or type(raw.profiles) == "table" then return end
+    if type(raw) ~= "table" or raw.flatAdopted == true then return end
     local values = {}
     for key, value in pairs(raw) do
-        if key ~= "profiles" and key ~= "global" and key ~= "char"
-            and key ~= "activeProfile" and key ~= "currentProfile" then
-            values[key] = value
-        end
+        if not FLAT_RESERVED[key] then values[key] = value end
     end
-    local profile = {}
-    MergeTable(profile, values)
-    raw.profiles = { [PROTECTED_PROFILE] = profile }
-    raw.activeProfile = PROTECTED_PROFILE
+    local copy = {}
+    MergeTable(copy, values)
+    if type(raw.profiles) == "table" then
+        local active = type(raw.activeProfile) == "string" and raw.activeProfile or PROTECTED_PROFILE
+        local profile = raw.profiles[active]
+        if type(profile) == "table" then
+            for key, value in pairs(copy) do profile[key] = value end
+        end
+    else
+        raw.profiles = { [PROTECTED_PROFILE] = copy }
+        raw.activeProfile = PROTECTED_PROFILE
+    end
+    raw.flatAdopted = true
 end
 
 -- ── Switch to a named profile (internal, used by CRUD methods) ────────────────

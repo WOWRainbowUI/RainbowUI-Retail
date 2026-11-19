@@ -1,7 +1,6 @@
 --=====================================================================================
 -- RGX-Framework | RGXDataBroker
--- Data object registry for minimap/datatext displays. Drop-in replacement for
--- LibDataBroker-1.1 with no LibStub dependency.
+-- Data object registry for minimap/datatext displays, RGX's own.
 --
 -- Quick start (3 lines):
 --   local DB = RGX:GetDataBroker()
@@ -14,10 +13,6 @@
 --   DB:GetAllDataObjects()                -- { name = proxy, ... }
 --   DB:OnNewDataObject(fn)                -- fn(name, proxy) on each new registration
 --   DB:OnAttributeChanged(fn)             -- fn(name, attr, value) on any field write
---
--- Optional LDB bridge:
---   If LibDataBroker-1.1 is already loaded by another addon (e.g. via Ace), each
---   NewDataObject call also registers with it so existing display addons see the source.
 --=====================================================================================
 
 local addonName, RGX = ...
@@ -28,7 +23,6 @@ DB._objects          = {}  -- name → proxy
 DB._raw              = {}  -- name → raw attribute table
 DB._newCallbacks     = {}
 DB._changeCallbacks  = {}
-DB._ldbBridge        = {}  -- name → ldb proxy (if LDB present)
 
 -- ── Internal callbacks ────────────────────────────────────────────────────────
 
@@ -43,11 +37,6 @@ local function FireChange(name, attr, value)
     for _, fn in ipairs(DB._changeCallbacks) do
         local ok, err = pcall(fn, name, attr, value)
         if not ok then RGX:Debug("[RGXDataBroker] OnAttributeChanged error: " .. tostring(err)) end
-    end
-    -- sync to LDB bridge if present
-    local ldbObj = DB._ldbBridge[name]
-    if ldbObj then
-        ldbObj[attr] = value
     end
 end
 
@@ -64,23 +53,6 @@ local function MakeProxy(name, raw)
             return "RGXDataObject[" .. name .. "]"
         end,
     })
-end
-
--- ── Optional LDB bridge ───────────────────────────────────────────────────────
-
-local function TryBridgeToLDB(name, proxy, raw)
-    local LibStub = rawget(_G, "LibStub")
-    if type(LibStub) ~= "table" or type(LibStub.GetLibrary) ~= "function" then return end
-    local ok, LDB = pcall(LibStub.GetLibrary, LibStub, "LibDataBroker-1.1", true)
-    if not ok or type(LDB) ~= "table" or type(LDB.NewDataObject) ~= "function" then return end
-
-    local attrs = {}
-    for k, v in pairs(raw) do attrs[k] = v end
-
-    local ok2, ldbObj = pcall(LDB.NewDataObject, LDB, name, attrs)
-    if ok2 and ldbObj then
-        DB._ldbBridge[name] = ldbObj
-    end
 end
 
 -- ── Public API ────────────────────────────────────────────────────────────────
@@ -102,7 +74,6 @@ function DB:NewDataObject(name, attrs)
     self._objects[name] = proxy
     self._raw[name]     = raw
 
-    TryBridgeToLDB(name, proxy, raw)
     FireNew(name, proxy)
 
     return proxy

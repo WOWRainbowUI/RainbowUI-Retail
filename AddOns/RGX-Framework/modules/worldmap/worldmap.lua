@@ -18,6 +18,9 @@
 --     directly. Every call is capability-gated: a flavor that lacks an
 --     API yields nils, never errors.
 --
+--   Waypoints (the game's own map pin) and the nearest place:
+--     CanSetWaypoint, SetWaypoint, ClearWaypoint, Nearest
+--
 --   Coordinate helpers:
 --     GetPlayerWorldPosition, GetPlayerZone, GetZoneSize,
 --     GetWorldCoordinatesFromZone, GetZoneCoordinatesFromWorld,
@@ -74,6 +77,17 @@ end
 --   CreateVector2D(x, y) -> vector2 (FrameXML global)
 
 -- Get the active coordinate adapter (native C_Map, capability-gated).
+-- A position the client hands back: a vector (GetXY) or, on some clients, a plain { x, y } table.
+local function XY(pos)
+    if type(pos) ~= "table" then return nil, nil end
+    if type(pos.GetXY) == "function" then
+        local ok, x, y = pcall(pos.GetXY, pos)
+        if ok and type(x) == "number" and type(y) == "number" then return x, y end
+    end
+    if type(pos.x) == "number" and type(pos.y) == "number" then return pos.x, pos.y end
+    return nil, nil
+end
+
 function WorldMap:GetCoordsAdapter()
     if self._coordsAdapter then return self._coordsAdapter end
 
@@ -92,15 +106,12 @@ function WorldMap:GetCoordsAdapter()
         local mapID = adapter.GetPlayerZone()
         if mapID and C_Map.GetPlayerMapPosition and C_Map.GetWorldPosFromMapPos
             and CreateVector2D then
-            local pos = C_Map.GetPlayerMapPosition(mapID, "player")
-            if pos then
-                local x, y = pos:GetXY()
+            local x, y = XY(C_Map.GetPlayerMapPosition(mapID, "player"))
+            if x then
                 local continentID, worldPos =
                     C_Map.GetWorldPosFromMapPos(mapID, CreateVector2D(x, y))
-                if worldPos then
-                    local wx, wy = worldPos:GetXY()
-                    return wx, wy, continentID
-                end
+                local wx, wy = XY(worldPos)
+                if wx then return wx, wy, continentID end
             end
         end
         return nil, nil, nil
@@ -124,10 +135,8 @@ function WorldMap:GetCoordsAdapter()
             and CreateVector2D then
             local continentID, worldPos = C_Map.GetWorldPosFromMapPos(
                 mapID, CreateVector2D(zoneX / 100, zoneY / 100))
-            if worldPos then
-                local wx, wy = worldPos:GetXY()
-                return wx, wy, continentID
-            end
+            local wx, wy = XY(worldPos)
+            if wx then return wx, wy, continentID end
         end
         return nil, nil, nil
     end
@@ -140,10 +149,8 @@ function WorldMap:GetCoordsAdapter()
             and CreateVector2D then
             local uiMapID, mapPos = C_Map.GetMapPosFromWorldPos(
                 continentID, CreateVector2D(worldX, worldY))
-            if mapPos then
-                local x, y = mapPos:GetXY()
-                return x * 100, y * 100, uiMapID
-            end
+            local x, y = XY(mapPos)
+            if x then return x * 100, y * 100, uiMapID end
         end
         return nil, nil
     end
@@ -205,7 +212,7 @@ end
 --=============================================================================
 
 -- AddWorldMapIcon(pinFrame, icon, mapID, x, y, name)
--- Mirrors HBD-Pins:AddWorldMapIconMap signature adapted for 1:1 porting.
+-- Argument order kept stable for existing callers.
 -- pinFrame: a frame to use as the pin (or nil to create one)
 -- icon: texture path
 -- mapID: uiMapID (0/nil = player's current zone)
@@ -404,6 +411,85 @@ end
 
 function WorldMap:GetWorldDistance(instance, x1, y1, x2, y2)
     return self:GetCoordsAdapter().GetWorldDistance(instance, x1, y1, x2, y2)
+end
+
+--=============================================================================
+-- Waypoints - the game's own map pin
+--=============================================================================
+
+local function ValidMapID(mapID)
+    return type(mapID) == "number" and mapID == mapID and mapID > 0 and mapID == math.floor(mapID)
+end
+
+-- Zone coordinates are finite numbers within 0-100.
+local function ValidZoneCoord(v)
+    return type(v) == "number" and v == v and v >= 0 and v <= 100
+end
+
+-- True when the client can put its own map pin on this map. Fails closed: an error or any answer other than
+-- true from the client's capability query refuses the pin. A client without that query attempts the pin and
+-- the setter's own result decides.
+function WorldMap:CanSetWaypoint(mapID)
+    if not ValidMapID(mapID) then return false end
+    if not (C_Map and type(C_Map.SetUserWaypoint) == "function" and CreateVector2D) then return false end
+    if type(C_Map.CanSetUserWaypointOnMap) == "function" then
+        local ok, can = pcall(C_Map.CanSetUserWaypointOnMap, mapID)
+        return ok and can == true
+    end
+    return true
+end
+
+-- Put the game's map pin on mapID at zone coordinates x, y (0-100) and track it (opts.track = false leaves
+-- tracking alone). Returns true when the pin is set; false for invalid input, a map the client cannot pin, or a
+-- setter error. The caller tells the player.
+function WorldMap:SetWaypoint(mapID, x, y, opts)
+    if not (ValidZoneCoord(x) and ValidZoneCoord(y)) or not self:CanSetWaypoint(mapID) then return false end
+    local px, py = x / 100, y / 100
+    local point = { uiMapID = mapID, position = CreateVector2D(px, py) }
+    if _G.UiMapPoint and type(_G.UiMapPoint.CreateFromCoordinates) == "function" then
+        local ok, made = pcall(_G.UiMapPoint.CreateFromCoordinates, mapID, px, py)
+        if ok and made then point = made end
+    end
+    -- C_Map.SetUserWaypoint reports wasSet; a client that returns nothing is taken at its word that it set it.
+    local ok, wasSet = pcall(C_Map.SetUserWaypoint, point)
+    if not ok or wasSet == false then return false end
+    if not (type(opts) == "table" and opts.track == false)
+        and C_SuperTrack and type(C_SuperTrack.SetSuperTrackedUserWaypoint) == "function" then
+        pcall(C_SuperTrack.SetSuperTrackedUserWaypoint, true)
+    end
+    return true
+end
+
+function WorldMap:ClearWaypoint()
+    if C_Map and type(C_Map.ClearUserWaypoint) == "function" then
+        return pcall(C_Map.ClearUserWaypoint)
+    end
+    return false
+end
+
+-- The place nearest the player. places is a list of tables with a map id (mapID or zoneID) and zone coordinates
+-- x, y (0-100). Distance is measured in world yards on the player's continent; places on other continents
+-- count only when nothing on the player's continent is known. Returns the place and its distance (nil when the
+-- player's position cannot be read; the first place is returned then).
+function WorldMap:Nearest(places)
+    if type(places) ~= "table" or #places == 0 then return nil end
+    local adapter = self:GetCoordsAdapter()
+    local pwx, pwy, pCont = adapter.GetPlayerWorldPosition()
+    local best, bestDist = nil, nil
+    if pwx then
+        for _, place in ipairs(places) do
+            local mapID = type(place) == "table" and (place.mapID or place.zoneID) or nil
+            local wx, wy, cont
+            if ValidMapID(mapID) and ValidZoneCoord(place.x) and ValidZoneCoord(place.y) then
+                wx, wy, cont = adapter.GetWorldCoordinatesFromZone(place.x, place.y, mapID)
+            end
+            if wx and cont == pCont then
+                local d = adapter.GetWorldDistance(nil, pwx, pwy, wx, wy)
+                if d and (not bestDist or d < bestDist) then best, bestDist = place, d end
+            end
+        end
+    end
+    return best or places[1], bestDist
 end
 
 --=============================================================================

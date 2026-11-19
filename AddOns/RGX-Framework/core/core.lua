@@ -66,6 +66,10 @@ local function NormalizeModuleName(name)
 end
 
 RGX.version = GetAddOnMetadataCompat(addonName, "Version") or "unknown"
+-- Several library files take the addon namespace (this table) as their module table and write their own
+-- `version`/`name` onto it while the framework loads. The framework's own version is kept here, where nothing
+-- else writes, and RGX.version is put back once loading is done (core/initialization.lua).
+RGX.FRAMEWORK_VERSION = RGX.version
 RGX.debugMode = false
 
 -- Contract compatibility handshake. Contract formats are additive: a
@@ -178,15 +182,16 @@ function RGX:RequireContract(addonName, formatVersion, minFrameworkVersion)
     end
 
     if minFrameworkVersion ~= nil then
-        local comparison = self:CompareVersions(self.version, minFrameworkVersion)
+        local installed = self.FRAMEWORK_VERSION or self.version
+        local comparison = self:CompareVersions(installed, minFrameworkVersion)
         if comparison == nil then
             error(string.format(
                 "%s requires RGX-Framework %s or newer; the installed RGX-Framework reports version %s and could not be verified. Update RGX-Framework.",
-                consumer, tostring(minFrameworkVersion), tostring(self.version)), 2)
+                consumer, tostring(minFrameworkVersion), tostring(installed)), 2)
         elseif comparison < 0 then
             error(string.format(
                 "%s requires RGX-Framework %s or newer; installed RGX-Framework is %s. Update RGX-Framework.",
-                consumer, tostring(minFrameworkVersion), tostring(self.version)), 2)
+                consumer, tostring(minFrameworkVersion), tostring(installed)), 2)
         end
     end
 
@@ -529,6 +534,125 @@ local function CompileDeclarativeEvery(timers)
     return compiled
 end
 
+-- ── Declarative human triggers (`on`) ────────────────────────────────────────
+-- Plain trigger words map 1:1 to framework module subscriptions (the frozen vocabulary in
+-- contract/schemas/rgx-addon.schema.json $defs.triggerName). Any UPPER_CASE key is a raw WoW event (the escape
+-- hatch). Handlers run as handler(addon, ...) with the module's or event's arguments, failure-isolated.
+local DECLARATIVE_TRIGGERS = {
+    ["levelup"]              = { "levelup",      "OnLevelUp" },
+    ["achievement"]          = { "achievement",  "OnEarned" },
+    ["achievement.criteria"] = { "achievement",  "OnCriteriaEarned" },
+    ["quest.accepted"]       = { "quest",        "OnAccepted" },
+    ["quest.complete"]       = { "quest",        "OnComplete" },
+    ["quest.turnin"]         = { "quest",        "OnTurnedIn" },
+    ["quest.progress"]       = { "quest",        "OnProgress" },
+    ["combat.start"]         = { "combat",       "OnEnter" },
+    ["combat.stop"]          = { "combat",       "OnLeave" },
+    ["combat.kill"]          = { "combat",       "OnKill" },
+    ["combat.died"]          = { "combat",       "OnPlayerDied" },
+    ["combat.crit"]          = { "combat",       "OnCrit" },
+    ["combat.lowhealth"]     = { "combat",       "OnLowHealth" },
+    ["pet.levelup"]          = { "petbattles",   "OnLevelUp" },
+    ["pet.capture"]          = { "petbattles",   "OnCapture" },
+    ["pet.battlestart"]      = { "petbattles",   "OnBattleStart" },
+    ["pet.battleend"]        = { "petbattles",   "OnBattleEnd" },
+    ["rep.gain"]             = { "reputation",   "OnGain" },
+    ["rep.rankup"]           = { "reputation",   "OnRankUp" },
+    ["rep.renown"]           = { "reputation",   "OnRenownUp" },
+    ["honor"]                = { "honor",        "OnHonorGain" },
+    ["delve.companion"]      = { "delves",       "OnCompanionLevelUp" },
+    ["delve.lifelost"]       = { "delves",       "OnLifeLost" },
+    ["delve.lifegained"]     = { "delves",       "OnLifeGained" },
+    ["housing.favor"]        = { "housing",      "OnFavorGained" },
+    ["housing.levelup"]      = { "housing",      "OnLevelUp" },
+    ["housing.rewards"]      = { "housing",      "OnRewards" },
+    ["housing.decor"]        = { "housing",      "OnDecorCollected" },
+    ["tradingpost.purchase"] = { "tradingpost",  "OnPurchase" },
+    ["tradingpost.currency"] = { "tradingpost",  "OnCurrencyGained" },
+    ["prey.start"]           = { "prey",         "OnHuntStarted" },
+    ["prey.ambush"]          = { "prey",         "OnAmbush" },
+    ["prey.capped"]          = { "prey",         "OnCapped" },
+    ["prey.complete"]        = { "prey",         "OnComplete" },
+    ["collect.mount"]        = { "collectibles", "OnMount" },
+    ["collect.toy"]          = { "collectibles", "OnToy" },
+    ["collect.transmog"]     = { "collectibles", "OnTransmog" },
+    ["collect.heirloom"]     = { "collectibles", "OnHeirloom" },
+    ["loot.rare"]            = { "loot",         "OnRareLoot" },
+    ["loot.currency"]        = { "loot",         "OnCurrencyGained" },
+    ["aura.applied"]         = { "auras",        "OnApplied" },
+    ["aura.removed"]         = { "auras",        "OnRemoved" },
+    ["aura.updated"]         = { "auras",        "OnUpdated" },
+}
+RGX.DECLARATIVE_TRIGGERS = DECLARATIVE_TRIGGERS
+
+local function IsRawEventName(trigger)
+    return type(trigger) == "string" and trigger:match("^[A-Z][A-Z0-9_]+$") ~= nil
+end
+
+local function CompileDeclarativeOn(on)
+    if on == nil then return nil end
+    if type(on) ~= "table" then
+        error("RGXAddon: 'on' must be a table of trigger = function entries", 3)
+    end
+    local compiled = {}
+    for trigger, handler in pairs(on) do
+        local known = trigger == "login" or trigger == "media.updated" or DECLARATIVE_TRIGGERS[trigger] or IsRawEventName(trigger)
+        if not known then
+            error("RGXAddon: unknown trigger 'on." .. tostring(trigger) .. "' (use a trigger word from the contract or an UPPER_CASE event)", 3)
+        end
+        if type(handler) ~= "function" then
+            error("RGXAddon: handler for 'on." .. tostring(trigger) .. "' must be a function", 3)
+        end
+        compiled[#compiled + 1] = { trigger = trigger, handler = handler }
+    end
+    table.sort(compiled, function(a, b) return a.trigger < b.trigger end)
+    return compiled
+end
+
+-- Subscribe each declared trigger. A trigger whose module this client does not load is skipped (debug note);
+-- the declaration is still valid on clients that have it.
+local function BindDeclarativeOn(addon, triggers)
+    if not triggers then return end
+    for _, entry in ipairs(triggers) do
+        local trigger, handler = entry.trigger, entry.handler
+        local function call(...)
+            local ok, err = pcall(handler, addon, ...)
+            if not ok then
+                -- Reported like every other handler failure: to the game's error handler, never thrown on.
+                local message = "[" .. addon.name .. "] on." .. trigger .. ": " .. tostring(err)
+                local handlerFn = type(geterrorhandler) == "function" and geterrorhandler() or nil
+                if type(handlerFn) ~= "function" or not pcall(handlerFn, message) then
+                    RGX._errorLog = RGX._errorLog or {}
+                    local log = RGX._errorLog
+                    log[#log + 1] = message
+                    if #log > 50 then table.remove(log, 1) end
+                end
+            end
+        end
+        local tag = addon.name .. ":on:" .. trigger
+        if trigger == "login" then
+            if type(IsLoggedIn) == "function" and IsLoggedIn() then
+                RGX:After(0, function() call() end, tag)
+            else
+                RGX:RegisterEvent("PLAYER_LOGIN", function() call() end, tag)
+            end
+        elseif trigger == "media.updated" then
+            RGX:RegisterMessage("RGX_SHAREDMEDIA_UPDATED", function(_, ...) call(...) end, tag, addon)
+        elseif IsRawEventName(trigger) then
+            RGX:RegisterEvent(trigger, function(_, ...) call(...) end, tag)
+        else
+            local route = DECLARATIVE_TRIGGERS[trigger]
+            local module = route and RGX:GetModule(route[1])
+            local subscribe = module and module[route[2]]
+            if type(subscribe) == "function" then
+                subscribe(module, call)
+            else
+                RGX:Debug("[" .. addon.name .. "] on." .. trigger .. " is not available on this client")
+            end
+        end
+    end
+end
+
 local function ResolveCompatPath(path)
     if type(path) ~= "string" or path == "" then return nil end
     if path:sub(1, 1) == "." or path:sub(-1) == "." or path:find("%.%.") then return nil end
@@ -791,6 +915,28 @@ local function CompileDeclarativeLayout(options, owner, compiledStrings)
     end
 end
 
+-- Controls may carry onChange(addon, value). Reject a non-function at declaration, in plain lists and inside
+-- page/card nodes, so a typo cannot surface later as a half-built tab.
+local function ValidateControlCallbacks(options)
+    if type(options) ~= "table" then return end
+    local function check(control)
+        if type(control) ~= "table" then return end
+        if control.onChange ~= nil and type(control.onChange) ~= "function" then
+            local key = control.toggle or control.slider or control.textbox or control.dropdown
+                or control.panel_alpha or control.color or control.font or "?"
+            error("RGXAddon: onChange for control '" .. tostring(key) .. "' must be a function", 4)
+        end
+        for _, card in ipairs(control.cards or {}) do
+            for _, inner in ipairs(card.controls or {}) do check(inner) end
+        end
+    end
+    for tab, controls in pairs(options) do
+        if tab ~= "columns" and type(controls) == "table" then
+            for _, control in ipairs(controls) do check(control) end
+        end
+    end
+end
+
 function RGX.Addon(name, opts)
     if type(name) ~= "string" or name == "" then return end
     if opts == nil then
@@ -800,8 +946,13 @@ function RGX.Addon(name, opts)
     end
     local RGX = _G.RGXFramework
     local declarativeEvery = CompileDeclarativeEvery(opts.every)
+    local declarativeOn = CompileDeclarativeOn(opts.on)
     local declarativeCompat = CompileDeclarativeCompat(opts.compat)
     local declarativeColumns = CompileDeclarativeColumns(opts.options)
+    if opts.legacyFlat ~= nil and type(opts.legacyFlat) ~= "boolean" then
+        error("RGXAddon: 'legacyFlat' must be a boolean", 2)
+    end
+    ValidateControlCallbacks(opts.options)
 
     -- options requires db: the panel and every db-bound control need the
     -- database the declarative contract promises. Failing at registration
@@ -1016,7 +1167,12 @@ function RGX.Addon(name, opts)
             -- emits); pass dbName to use something else.
             local dbName = opts.dbName or (name:gsub("[^%w_]", "") .. "DB")
             if not addon.db then
-                addon.db = RGX:NewDatabase(dbName, defaults, { global = opts.global, onSwitch = opts.onSwitch })
+                addon.db = RGX:NewDatabase(dbName, defaults, {
+                    global = opts.global,
+                    onSwitch = opts.onSwitch,
+                    -- Adopt an existing flat SavedVariables table into the Default profile (see RGX:NewDatabase).
+                    legacyFlat = opts.legacyFlat == true,
+                })
             end
         end
 
@@ -1077,6 +1233,19 @@ function RGX.Addon(name, opts)
                     local b = tonumber(opts.brand:sub(5, 6), 16) / 255
                     theme = { primary = { r, g, b } }
                 end
+                -- Every declarative addon gets a brand (its colour, or the framework's default), so its panel
+                -- follows the beta global theme override and redraws when the theme changes.
+                local Design = RGX:GetDesign()
+                local brandObj
+                if Design and type(Design.RegisterBrand) == "function" then
+                    local default = Design.THEME_PRESETS and Design.THEME_PRESETS.cyan or {}
+                    local own = {
+                        primary = theme and theme.primary or default.primary,
+                        accent = theme and theme.accent or default.accent,
+                    }
+                    brandObj = Design:RegisterBrand(name, own, opts.style or "framework")
+                    addon.brand = brandObj
+                end
                 addon.panel = UI:CreateOptionsPanel({
                     addonName = name,
                     title     = opts.title or name,
@@ -1085,6 +1254,7 @@ function RGX.Addon(name, opts)
                     height    = pick(opts.panelHeight, geom.height),
                     maxPerRow = pick(opts.maxPerRow,   geom.maxPerRow),
                     theme     = theme,
+                    addonBrand = brandObj,
                 })
                 if addon.db.OnProfileChanged then
                     addon.db:OnProfileChanged(function()
@@ -1098,6 +1268,7 @@ function RGX.Addon(name, opts)
         end -- addon.db check
 
         BindDeclarativeEvery(addon, declarativeEvery)
+        BindDeclarativeOn(addon, declarativeOn)
         -- Declarative welcome is a login message: it uses the framework chat
         -- prefix and obeys the global login-message preference (/rgxf login off).
         if opts.welcome then RGX:LoginMessage(opts.welcome) end

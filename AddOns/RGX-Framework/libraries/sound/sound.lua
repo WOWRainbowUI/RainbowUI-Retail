@@ -316,6 +316,198 @@ function Sound:UnmuteList(ids)
 end
 
 --[[============================================================================
+PLAYER SOUND FILES — find a file the player copied in by the name they typed
+============================================================================]]
+
+-- WoW plays only files under Interface\AddOns, sees only files that existed when the game started (a /reload does
+-- not pick up new ones), and cannot list a folder. The only test for a file is whether it plays, so a probe plays
+-- the file muted, stops it at once, and retries unmuted on a client that will not report on a muted file.
+
+Sound.USER_FOLDER = "Interface\\AddOns\\RGX_Sounds\\"
+Sound.EXTENSIONS = { "ogg", "mp3", "wav" }
+-- The standard sound layout for RGX addons. Inside the addon's own folder:
+--   sounds\wow_default\  the game's own sounds the addon ships
+--   sounds\game\         sounds from other games (or any further group folder)
+--   sounds\user\         shipped empty for the player's own files (an update replaces it)
+-- and, beside the addon, Interface\AddOns\<Shared>\ for the player's files that updates never touch.
+Sound.LAYOUT = { root = "sounds", wowDefault = "wow_default", game = "game", user = "user" }
+
+--- AddonFolders(addonName[, sharedFolder]) -> { root, wowDefault, game, user, shared }
+function Sound:AddonFolders(addonName, sharedFolder)
+    if type(addonName) ~= "string" or addonName == "" then return nil end
+    local root = "Interface\\AddOns\\" .. addonName .. "\\" .. self.LAYOUT.root .. "\\"
+    return {
+        root = root,
+        wowDefault = root .. self.LAYOUT.wowDefault .. "\\",
+        game = root .. self.LAYOUT.game .. "\\",
+        user = root .. self.LAYOUT.user .. "\\",
+        shared = (type(sharedFolder) == "string" and sharedFolder ~= "") and ("Interface\\AddOns\\" .. sharedFolder .. "\\") or nil,
+    }
+end
+
+--- UserFolders(addonName[, sharedFolder]) -> the folders a player's own files may be in, most durable first:
+--- the shared folder beside the addon (survives updates), then the addon's shipped sounds\user\.
+function Sound:UserFolders(addonName, sharedFolder)
+    local f = self:AddonFolders(addonName, sharedFolder)
+    if not f then return { self.USER_FOLDER } end
+    local list = {}
+    if f.shared then list[#list + 1] = f.shared end
+    list[#list + 1] = f.user
+    return list
+end
+
+--- LayoutGroup(path) -> addonName, group: which addon and layout folder a sound path is in ("wow_default", "game",
+--- "user", another group name, or "shared" for a folder ending in _Sounds beside an addon); nil when it follows no layout.
+function Sound:LayoutGroup(path)
+    if type(path) ~= "string" then return nil end
+    local p = path:gsub("/", "\\")
+    local addon, group = p:match("^[Ii][Nn][Tt][Ee][Rr][Ff][Aa][Cc][Ee]\\[Aa][Dd][Dd][Oo][Nn][Ss]\\([^\\]+)\\[Ss][Oo][Uu][Nn][Dd][Ss]\\([^\\]+)\\")
+    if addon then return addon, group:lower() end
+    local shared = p:match("^[Ii][Nn][Tt][Ee][Rr][Ff][Aa][Cc][Ee]\\[Aa][Dd][Dd][Oo][Nn][Ss]\\([^\\]+_[Ss]ounds)\\")
+    if shared then return shared:gsub("_[Ss]ounds$", ""), "shared" end
+    return nil
+end
+
+-- Subfolders tried inside the designated folder when opts.deep is set and the name is not at its top level.
+-- (The folder's own name is tried first too: unzipping often leaves Folder\Folder\file.ogg.)
+Sound.SUBFOLDERS = { "sounds", "sound", "media", "media\\sounds", "audio", "sfx", "custom", "user", "user\\sounds" }
+
+local function cleanInput(text)
+    if type(text) ~= "string" then return nil end
+    text = text:gsub("^%s+", ""):gsub("%s+$", ""):gsub("^[\"']+", ""):gsub("[\"']+$", "")
+    text = text:gsub("/", "\\"):gsub("\\+", "\\")
+    -- A pasted full path (C:\...\World of Warcraft\_forever_\Interface\AddOns\...) keeps only the part the game knows.
+    local at = text:lower():find("interface\\addons\\", 1, true)
+    if at and at > 1 then text = text:sub(at) end
+    text = text:gsub("^\\+", "")
+    if text == "" or text:find("%.%.") or text:find(":") then return nil end
+    return text
+end
+
+local function splitExtension(name)
+    local lower = name:lower()
+    for _, ext in ipairs(Sound.EXTENSIONS) do
+        if lower:sub(-(#ext + 1)) == "." .. ext then return name:sub(1, -(#ext + 2)), name:sub(-#ext) end
+    end
+    return name, nil
+end
+
+local function stop(handle)
+    if handle and StopSound then pcall(StopSound, handle) end
+end
+
+--- ProbeFile(path) -> boolean: whether the game can play this file. Plays it muted and stops it straight away.
+function Sound:ProbeFile(path)
+    if type(path) ~= "string" or path == "" then return false end
+    local canMute = type(MuteSoundFile) == "function" and type(UnmuteSoundFile) == "function"
+    if canMute then pcall(MuteSoundFile, path) end
+    local ok, willPlay, handle = pcall(PlaySoundFile, path, "Master")
+    stop(handle)
+    if canMute then pcall(UnmuteSoundFile, path) end
+    if ok and willPlay then return true end
+    if not canMute then return false end
+    ok, willPlay, handle = pcall(PlaySoundFile, path, "Master")
+    stop(handle)
+    return (ok and willPlay) and true or false
+end
+
+-- File names to try for one typed name, most likely first: as typed, then with spaces, underscores and hyphens
+-- interchanged (and dropped), each with the typed extension first; then the other extensions; then a doubled
+-- extension (Windows hides extensions, so "boop.ogg" is often really "boop.ogg.ogg").
+local function nameCandidates(leaf, extensions)
+    local stem, typedExt = splitExtension(leaf)
+    local stems, seen = {}, {}
+    local function addStem(v) if v ~= "" and not seen[v:lower()] then seen[v:lower()] = true; stems[#stems + 1] = v end end
+    addStem(stem)
+    if stem:find("[%s_%-]") then
+        addStem((stem:gsub("[%s%-]", "_")))
+        addStem((stem:gsub("[_%-]", " ")))
+        addStem((stem:gsub("[%s_]", "-")))
+        addStem((stem:gsub("[%s_%-]+", "")))
+    end
+    local exts = {}
+    if typedExt then exts[1] = typedExt end
+    for _, e in ipairs(extensions) do if not typedExt or e:lower() ~= typedExt:lower() then exts[#exts + 1] = e end end
+    local names = {}
+    for _, st in ipairs(stems) do
+        for _, e in ipairs(exts) do names[#names + 1] = st .. "." .. e end
+    end
+    if typedExt then
+        for _, e in ipairs(extensions) do names[#names + 1] = leaf .. "." .. e end
+    end
+    return names
+end
+
+--- ResolveFile(input, opts) -> path | nil, tried
+--- input: what the player typed: a full Interface\AddOns path (or a pasted path from the disk), a path from the
+---   folder's name or inside a folder, a file name, or a bare name. The extension is optional, and a wrong or
+---   doubled one is corrected; spaces, underscores and hyphens are interchangeable; quotes are ignored.
+--- opts.folders: folders to search in order (each ending in a backslash); defaults to Sound:UserFolders(opts.addon,
+---   opts.shared) when opts.addon is given (the standard layout), else { Sound.USER_FOLDER }.
+--- opts.deep: also look one or two levels inside the first folder (Sound.SUBFOLDERS, and the folder's own name).
+---   Only reached when nothing matched above, so an exact name costs a single probe.
+--- opts.extensions: extensions to try; defaults to ogg, mp3, wav.
+--- tried lists every path that was probed, in order, so the addon can tell the player where it looked.
+function Sound:ResolveFile(input, opts)
+    opts = opts or {}
+    local tried, seen = {}, {}
+    local text = cleanInput(input)
+    if not text then return nil, tried end
+    local extensions = opts.extensions or self.EXTENSIONS
+
+    local function probe(path)
+        local key = path:lower()
+        if seen[key] then return false end
+        seen[key] = true
+        tried[#tried + 1] = path
+        return self:ProbeFile(path)
+    end
+    local dir, leaf = text:match("^(.*\\)([^\\]+)$")
+    if not dir then dir, leaf = "", text end
+    local names = nameCandidates(leaf, extensions)
+    local function tryIn(prefix)
+        for _, name in ipairs(names) do
+            local path = prefix .. name
+            if probe(path) then return path end
+        end
+    end
+
+    if text:lower():find("^interface\\addons\\") then
+        return tryIn(dir), tried
+    end
+
+    local folders = {}
+    local defaultFolders = opts.addon and self:UserFolders(opts.addon, opts.shared) or { self.USER_FOLDER }
+    for _, folder in ipairs(opts.folders or defaultFolders) do
+        if type(folder) == "string" and folder ~= "" then
+            folders[#folders + 1] = folder:sub(-1) == "\\" and folder or (folder .. "\\")
+        end
+    end
+
+    -- "BLU_Sounds\pack\x.ogg": a path that starts at an addon folder's name.
+    if dir ~= "" then
+        local found = tryIn("Interface\\AddOns\\" .. dir)
+        if found then return found, tried end
+    end
+    for _, folder in ipairs(folders) do
+        local found = tryIn(folder .. dir)
+        if found then return found, tried end
+    end
+
+    if opts.deep and folders[1] then
+        local base = folders[1]
+        local own = base:match("([^\\]+)\\$")
+        local subs = { own }
+        for _, sub in ipairs(self.SUBFOLDERS) do subs[#subs + 1] = sub end
+        for _, sub in ipairs(subs) do
+            local found = tryIn(base .. sub .. "\\" .. dir)
+            if found then return found, tried end
+        end
+    end
+    return nil, tried
+end
+
+--[[============================================================================
 INITIALIZATION
 ============================================================================]]
 

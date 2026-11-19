@@ -408,11 +408,21 @@ local function RestoreListTheme(listFrame)
     listFrame._rgxThemed = nil
 end
 
+-- Run fn in the owning addon's brand (its live colours and style) when the dropdown has one.
+local function InBrand(owner, fn)
+    local brand = owner and rawget(owner, "_rgxBrand")
+    if type(brand) == "table" and type(brand.Build) == "function" then
+        local ok = pcall(brand.Build, brand, fn)
+        if ok then return end
+    end
+    fn()
+end
+
 local function ReapplyIfOwned(listFrame)
     local layout = listFrame._rgxLayout
     if layout and layout.owner ~= nil and layout.owner == _G.UIDROPDOWNMENU_OPEN_MENU then
         ApplyListLayout(listFrame, layout)
-        ApplyListTheme(listFrame, layout.skin)
+        InBrand(layout.owner, function() ApplyListTheme(listFrame, layout.skin) end)
     else
         RestoreListTheme(listFrame)
     end
@@ -466,7 +476,7 @@ function Dropdowns:ForceWidth(level, minWidth, leftInset, opts)
         listFrame._rgxLayout = layout
         HookListFrame(listFrame)
         ApplyListLayout(listFrame, layout)
-        if layout.owner ~= nil then ApplyListTheme(listFrame, layout.skin) end
+        if layout.owner ~= nil then InBrand(layout.owner, function() ApplyListTheme(listFrame, layout.skin) end) end
     end)
 end
 
@@ -633,6 +643,48 @@ end
 -- from a flavor name. Neither path establishes protected-action/taint safety.
 -- ─────────────────────────────────────────────────────────────────────────────
 
+-- The open menu of a modern dropdown, drawn in the owning addon's brand. RGX Framework and RGX Material Round
+-- put their own box (square or rounded, the brand's ring) behind the rows and hide the client's menu
+-- background; WoW Classic and WoW Forever keep the client's menu, which is already the game's look. Menu frames
+-- are pooled and reused by every addon, so the skin comes off again when the menu is released.
+local function SkinMenu(menu, owner)
+    if type(menu) ~= "table" or not menu.GetRegions then return end
+    InBrand(owner, function()
+        local D = RGX:GetDesign()
+        if not D or (D.UsesClientArt and D:UsesClientArt()) then return end
+        local hidden = {}
+        for _, region in ipairs({ menu:GetRegions() }) do
+            if region.GetAlpha and region:IsShown() then
+                hidden[#hidden + 1] = { region, region:GetAlpha() }
+                region:SetAlpha(0)
+            end
+        end
+        menu._rgxHiddenRegions = hidden
+        local skin = D:CreateFrame(menu, { color = "surface", borderColor = "ring", radius = 6, role = false })
+        skin:SetPoint("TOPLEFT", menu, "TOPLEFT", 0, 0)
+        skin:SetPoint("BOTTOMRIGHT", menu, "BOTTOMRIGHT", 0, 0)
+        if skin.SetFrameLevel and menu.GetFrameLevel then skin:SetFrameLevel(math.max(0, menu:GetFrameLevel() - 1)) end
+        if skin.EnableMouse then skin:EnableMouse(false) end
+        menu._rgxMenuSkin = skin
+    end)
+end
+
+local function UnskinMenu(menu)
+    if type(menu) ~= "table" then return end
+    if menu._rgxMenuSkin then
+        menu._rgxMenuSkin:Hide()
+        if menu._rgxMenuSkin.SetParent then menu._rgxMenuSkin:SetParent(nil) end
+        menu._rgxMenuSkin = nil
+    end
+    for _, pair in ipairs(menu._rgxHiddenRegions or {}) do
+        pair[1]:SetAlpha(pair[2])
+    end
+    menu._rgxHiddenRegions = nil
+end
+
+-- Private test hooks (tools/ci/style-matrix-check.mjs): not part of the public API.
+Dropdowns._SkinMenu, Dropdowns._UnskinMenu = SkinMenu, UnskinMenu
+
 local function HasMenuUtil()
     return _G.MenuUtil ~= nil and type(_G.MenuUtil.CreateContextMenu) == "function"
 end
@@ -730,6 +782,13 @@ function Dropdowns:CreateNestedDropdown_MenuUtil(parent, opts)
 				if type(it.children) == "table" and #it.children > 0 then groupCount = groupCount + 1 else leafCount = leafCount + 1 end
 			end
 			RGX:Debug("RGXDropdown:generator first call, items=" .. #items .. " groups=" .. groupCount .. " leafs=" .. leafCount)
+		end
+		-- Draw the open menu in the addon's brand, and take the skin off when the pooled menu is released.
+		if type(rootDescription.AddMenuAcquiredCallback) == "function" then
+			rootDescription:AddMenuAcquiredCallback(function(menu) SkinMenu(menu, holder) end)
+		end
+		if type(rootDescription.AddMenuReleasedCallback) == "function" then
+			rootDescription:AddMenuReleasedCallback(function(menu) UnskinMenu(menu) end)
 		end
 		local function isSelected(value) return holder.value == value end
         local function setSelected(value)
@@ -1103,7 +1162,7 @@ function Dropdowns:ApplyRetailTrigger(holder, opts)
     local paintFill, paintRing
     local clientArt = D.UsesClientArt and D:UsesClientArt()
     if clientArt then
-        -- RGX Classic / RGX Forever: the client's own input-box frame (left cap, middle, right cap) and the
+        -- WoW Classic / WoW Forever: the client's own input-box frame (left cap, middle, right cap) and the
         -- client's scroll-down arrow; the client highlight lights it on hover.
         local coords = { { 0, 0.0625 }, { 0.0625, 0.9375 }, { 0.9375, 1 } }
         local parts = {}
@@ -1220,6 +1279,11 @@ function Dropdowns:CreateNestedDropdown(parent, opts)
         holder = self:CreateNestedDropdown_Legacy(parent, opts)
     end
     if holder then
+        -- Remember the addon brand being built, so the open menu and list follow its live colours and style.
+        local D = RGX and RGX.GetDesign and RGX:GetDesign()
+        local brand = D and type(D.GetBuildBrand) == "function" and D:GetBuildBrand() or nil
+        holder._rgxBrand = brand
+        if holder.dropdown then holder.dropdown._rgxBrand = brand end
         -- Programmatic restoration is silent; only native menu selection
         -- dispatches onChange. Both menu implementations share this surface.
         function holder:SetValue(value) return self:Refresh(value) end

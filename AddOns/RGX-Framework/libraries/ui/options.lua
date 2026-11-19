@@ -57,6 +57,7 @@ local TAB_W = 94
 local TAB_H        = 22
 local TAB_SPACING  = 6
 local TAB_ROW_PAD  = 8
+local CONTENT_PAD_SHAPED = 14   -- inset of the cards inside a shaped (rounded / framed) content area
 local TAB_ROW_GAP  = 3
 local TAB_AREA_GAP = 2
 local HEADER_H     = 64
@@ -110,6 +111,82 @@ local function GetTabAccent(panelRef, D)
     return D:Unpack('accent')
 end
 
+-- Panel chrome (outer container, header, tab content). Styles that shape their header bands (Material
+-- Round's rounded panels, Forever's and Classic's client frames) draw these boxes with the same panel
+-- primitive as the cards, so the page header and content area match the cards inside them. The framework
+-- style keeps its flat square backdrop.
+local SQUARE_BOX = {
+    bgFile   = "Interface\\Tooltips\\UI-Tooltip-Background",
+    edgeFile = "Interface\\Buttons\\WHITE8x8",
+    tile = true, tileSize = 16, edgeSize = 1,
+    insets = {left=1, right=1, top=1, bottom=1},
+}
+
+local function UsesShapedChrome(D)
+    return D and type(D.ApplyPanel) == "function"
+        and (D.styleOptions or {}).headerStyle == "rounded"
+end
+
+local function StyleChromeBoxInner(frame, D, colorKey, borderKey, fillOnly)
+    if fillOnly and UsesShapedChrome(D) and type(D.UsesClientArt) == "function" and D:UsesClientArt() then
+        -- The game's frames: the settings window already frames the page (the outer frame), so the outer box
+        -- is a plain fill; the header and the tab content area are inner (inset) frames, the cards sit inside.
+        local r, g, b = D:Unpack(colorKey)
+        local fill = frame:CreateTexture(nil, "BACKGROUND", nil, -8)
+        fill:SetAllPoints(frame)
+        fill:SetColorTexture(r, g, b, 0.95)
+        frame._rgxShapedChrome = true
+        return
+    end
+    if UsesShapedChrome(D) then
+        D:ApplyPanel(frame, { role = "card", color = colorKey, borderColor = borderKey or "border",
+            bgAlpha = 0.95, radius = 8, line = false })
+        frame._rgxShapedChrome = true
+        return
+    end
+    frame:SetBackdrop(SQUARE_BOX)
+    local r, g, b = D:Unpack(colorKey)
+    frame:SetBackdropColor(r, g, b, 0.95)
+    frame:SetBackdropBorderColor(D:Unpack(borderKey or "border"))
+end
+
+-- Everything the chrome adds to a frame (textures, the client-frame child, backdrop pieces) is remembered so a
+-- theme change can take it off again and draw the new style, and so clearing a tab's content keeps it.
+local function Snapshot(frame)
+    local set = {}
+    for _, r in ipairs({ frame:GetRegions() }) do set[r] = true end
+    for _, c in ipairs({ frame:GetChildren() }) do set[c] = true end
+    return set
+end
+
+local function StyleChromeBox(frame, D, colorKey, borderKey, fillOnly)
+    frame._rgxChromeSpec = { colorKey, borderKey, fillOnly }
+    local before = Snapshot(frame)
+    StyleChromeBoxInner(frame, D, colorKey, borderKey, fillOnly)
+    local added = {}
+    for _, r in ipairs({ frame:GetRegions() }) do if not before[r] then added[r] = true end end
+    for _, c in ipairs({ frame:GetChildren() }) do if not before[c] then added[c] = true end end
+    frame._rgxChromeSet = added
+end
+
+local function ClearChrome(frame)
+    for obj in pairs(frame._rgxChromeSet or {}) do
+        if obj.Hide then obj:Hide() end
+    end
+    frame._rgxChromeSet = nil
+    if frame.SetBackdrop and frame.backdropInfo then frame:SetBackdrop(nil) end
+    frame._panelBorder, frame._panelFill, frame._panelLine, frame._blizzardFrame = nil, nil, nil, nil
+    frame._rgxShapedChrome = nil
+end
+
+-- Redraw a chrome box in the style and theme active now (call inside the panel's theme scope).
+local function RestyleChromeBox(frame, D)
+    local spec = frame._rgxChromeSpec
+    if not spec then return end
+    ClearChrome(frame)
+    StyleChromeBox(frame, D, spec[1], spec[2], spec[3])
+end
+
 -- The header line stays primary unless the panel theme opts in with
 -- accentHeader: existing consumers keep the chrome they already had.
 local function GetHeaderLineColor(panelRef, D)
@@ -120,33 +197,46 @@ local function GetHeaderLineColor(panelRef, D)
     return GetTabPrimary(panelRef, D)
 end
 
-local function CreateTabButton(parent, text, tabIndex, row, col, panelRef, icon, addonKey)
-    local D = GetDesign()
+-- The tab look of the active style on a button: the client's tab art (WoW Classic / WoW Forever), a rounded chip
+-- (RGX Material Round) or the flat tab (RGX Framework). Sets btn.bg / btn.border (colour targets) and, for the
+-- client art, btn._clientTab(active). Shared by the options panel tabs and UI:SkinTab.
+local function SkinTabButton(btn, D)
     local sr, sg, sb = D:Unpack("surface")
-    local frameName = "RGXTab_" .. addonKey .. "_" .. tabIndex
-    local btn = CreateFrame("Button", frameName, parent)
-    btn:SetSize(TAB_W, TAB_H)
-    btn.tabIndex = tabIndex
-    btn.tabRow   = row
-    btn.tabCol   = col
-    -- Positioning is handled externally by RepositionTabs for dynamic centering.
-
     local bg, border
     local clientTab
     if D.UsesClientArt and D:UsesClientArt() then
-        -- RGX Classic / RGX Forever: the client's own tab art (left cap, tiled centre, right cap), swapped to the
+        -- WoW Classic / WoW Forever: the client's own tab art (left cap, centre, right cap), swapped to the
         -- active-tab art when selected. A client without the atlases falls through to the flat tab below.
         local pieces = {}
         for i, part in ipairs({ "left", "center", "right" }) do
             local tex = btn:CreateTexture(nil, "BACKGROUND")
             pieces[i] = tex
         end
+        -- The game's options window uses top-facing tabs (Options_Tab_*). Clients without them fall back to
+        -- the frame tabs, which hang downward, flipped so they face up like the panel's tab row.
+        local function flip(tex)
+            if not (tex.GetTexCoord and tex.SetTexCoord) then return end
+            local ulx, uly, llx, lly, urx = tex:GetTexCoord()
+            if type(ulx) == "number" and type(lly) == "number" and type(urx) == "number" then
+                tex:SetTexCoord(ulx, urx, lly, uly)
+            end
+        end
         local function paint(active)
+            local opt = active and "Options_Tab_Active_" or "Options_Tab_"
+            if D:SetAtlasOr(pieces[1], opt .. "Left", nil, true)
+                and D:SetAtlasOr(pieces[2], opt .. "Middle", nil, true)
+                and D:SetAtlasOr(pieces[3], opt .. "Right", nil, true) then
+                return true
+            end
             local stem = active and "uiframe-activetab-" or "uiframe-tab-"
             local okL = D:SetAtlasOr(pieces[1], stem .. "left", nil, true)
             local okC = D:SetAtlasOr(pieces[2], "_" .. stem .. "center", nil, true)
             local okR = D:SetAtlasOr(pieces[3], stem .. "right", nil, true)
-            return okL and okC and okR
+            if okL and okC and okR then
+                for _, tex in ipairs(pieces) do flip(tex) end
+                return true
+            end
+            return false
         end
         if paint(false) then
             -- The art fills the tab exactly: the caps keep their own width, the centre stretches between them.
@@ -186,6 +276,21 @@ local function CreateTabButton(parent, text, tabIndex, row, col, panelRef, icon,
     end
     btn.bg = bg
     btn.border = border
+    return btn
+end
+
+local function CreateTabButton(parent, text, tabIndex, row, col, panelRef, icon, addonKey)
+    local D = GetDesign()
+    local sr, sg, sb = D:Unpack("surface")
+    local frameName = "RGXTab_" .. addonKey .. "_" .. tabIndex
+    local btn = CreateFrame("Button", frameName, parent)
+    btn:SetSize(TAB_W, TAB_H)
+    btn.tabIndex = tabIndex
+    btn.tabRow   = row
+    btn.tabCol   = col
+    -- Positioning is handled externally by RepositionTabs for dynamic centering.
+
+    SkinTabButton(btn, D)
 
     local btnText = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     ApplyDefaultFont(btnText)
@@ -270,7 +375,14 @@ local function CreateAddHelper(frame)
         return frame
     end
 
-    local canvas = UI:CreateScrollPage(frame)
+    local canvas, scroll = UI:CreateScrollPage(frame)
+    if scroll and frame._rgxShapedChrome and scroll.ClearAllPoints then
+        -- A shaped content area (RGX Material Round's rounded box, the game's frames) draws its own ring on
+        -- the edge: keep the cards clear of it on every side.
+        scroll:ClearAllPoints()
+        scroll:SetPoint("TOPLEFT", frame, "TOPLEFT", CONTENT_PAD_SHAPED, -CONTENT_PAD_SHAPED)
+        scroll:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -CONTENT_PAD_SHAPED, CONTENT_PAD_SHAPED)
+    end
     local flow = UI:CreateFlowLayout(canvas)
 
     frame._rgxCanvas = canvas
@@ -367,12 +479,15 @@ end
 -- ── Build the full content area ───────────────────────────────────────────────
 
 local function ClearContent(frame)
+    local keep = frame._rgxChromeSet or {}
     for _, child in ipairs({frame:GetChildren()}) do
-        child:Hide()
-        child:SetParent(nil)
+        if not keep[child] then
+            child:Hide()
+            child:SetParent(nil)
+        end
     end
     for _, region in ipairs({frame:GetRegions()}) do
-        region:Hide()
+        if not keep[region] then region:Hide() end
     end
     frame.Refresh = nil
 end
@@ -403,6 +518,23 @@ local function BuildAddonOptionTabs(UI, addon, options, columns, resolveControl)
         return #boundaries
     end
 
+    -- onChange(addon, ...) runs after the widget has stored the new value. A failure is reported to the game's
+    -- error handler and never thrown back into the widget.
+    local function ChangeCallback(ctrl, key)
+        if type(ctrl.onChange) ~= "function" then return nil end
+        return function(...)
+            local ok, err = pcall(ctrl.onChange, addon, ...)
+            if not ok then
+                local message = "[" .. tostring(addon.name) .. "] onChange(" .. tostring(key) .. "): " .. tostring(err)
+                local report = type(geterrorhandler) == "function" and geterrorhandler() or nil
+                if type(report) ~= "function" or not pcall(report, message) then
+                    RGX._errorLog = RGX._errorLog or {}
+                    RGX._errorLog[#RGX._errorLog + 1] = message
+                end
+            end
+        end
+    end
+
     local function AddControl(host, flow, rawControl)
         local ctrl = resolveControl(rawControl)
         if not (ctrl and type(ctrl) == "table") then return end
@@ -410,18 +542,22 @@ local function BuildAddonOptionTabs(UI, addon, options, columns, resolveControl)
         if type(ctrl.toggle) == "string" then
             -- Canonical on/off element: the declarative toggle renders the
             -- consumer-proven switch. CreateToggle stays as a legacy helper.
-            w = UI:CreateSwitch(host, { key = ctrl.toggle, label = ctrl.label or ctrl.toggle:gsub("^%l", string.upper), storage = addon.db, default = ctrl.default })
+            w = UI:CreateSwitch(host, { key = ctrl.toggle, label = ctrl.label or ctrl.toggle:gsub("^%l", string.upper), storage = addon.db, default = ctrl.default, onChange = ChangeCallback(ctrl, ctrl.toggle) })
             if w and w.HookScript and w.Refresh then
                 w:HookScript("OnShow", function() w:Refresh() end)
             end
         elseif type(ctrl.slider) == "string" then
-            w = UI:CreateSlider(host, { key = ctrl.slider, label = ctrl.label or ctrl.slider:gsub("^%l", string.upper), storage = addon.db, min = ctrl.min or 0, max = ctrl.max or 100, step = ctrl.step or 1, suffix = ctrl.suffix, progress = ctrl.progress, valueDisplay = ctrl.valueDisplay })
+            w = UI:CreateSlider(host, { key = ctrl.slider, label = ctrl.label or ctrl.slider:gsub("^%l", string.upper), storage = addon.db, min = ctrl.min or 0, max = ctrl.max or 100, step = ctrl.step or 1, suffix = ctrl.suffix, progress = ctrl.progress, valueDisplay = ctrl.valueDisplay, onChange = ChangeCallback(ctrl, ctrl.slider) })
         elseif type(ctrl.panel_alpha) == "string" then
-            w = UI:CreatePanelAlpha(host, { key = ctrl.panel_alpha, label = ctrl.label or ctrl.panel_alpha:gsub("^%l", string.upper), storage = addon.db, default = ctrl.default or 100, presets = ctrl.presets })
+            w = UI:CreatePanelAlpha(host, { key = ctrl.panel_alpha, label = ctrl.label or ctrl.panel_alpha:gsub("^%l", string.upper), storage = addon.db, default = ctrl.default or 100, presets = ctrl.presets, onChange = ChangeCallback(ctrl, ctrl.panel_alpha) })
         elseif type(ctrl.textbox) == "string" then
-            w = UI:CreateTextInput(host, { key = ctrl.textbox, label = ctrl.label or ctrl.textbox:gsub("^%l", string.upper), storage = addon.db, default = ctrl.default or "", placeholder = ctrl.placeholder })
+            w = UI:CreateTextInput(host, { key = ctrl.textbox, label = ctrl.label or ctrl.textbox:gsub("^%l", string.upper), storage = addon.db, default = ctrl.default or "", placeholder = ctrl.placeholder, onChange = ChangeCallback(ctrl, ctrl.textbox) })
         elseif type(ctrl.color) == "string" then
-            w = UI:CreateColorPicker(host, { key = ctrl.color, label = ctrl.label or ctrl.color:gsub("^%l", string.upper), storage = addon.db, default = ctrl.default or addon.db[ctrl.color], onChange = function(r, g, b) addon.db[ctrl.color] = { r = r, g = g, b = b } end })
+            w = UI:CreateColorPicker(host, { key = ctrl.color, label = ctrl.label or ctrl.color:gsub("^%l", string.upper), storage = addon.db, default = ctrl.default or addon.db[ctrl.color], onChange = function(r, g, b)
+                addon.db[ctrl.color] = { r = r, g = g, b = b }
+                local changed = ChangeCallback(ctrl, ctrl.color)
+                if changed then changed(r, g, b) end
+            end })
         elseif type(ctrl.font) == "string" then
             local Fonts = RGX:GetFonts()
             if Fonts and Fonts.AttachFontSelector then
@@ -433,7 +569,11 @@ local function BuildAddonOptionTabs(UI, addon, options, columns, resolveControl)
         elseif type(ctrl.dropdown) == "string" and Drops then
             local items = {}
             for _, v in ipairs(ctrl.items or {}) do items[#items + 1] = { text = tostring(v), value = v } end
-            w = Drops:CreateNestedDropdown(host, { label = ctrl.label or ctrl.dropdown:gsub("^%l", string.upper), items = items, width = ctrl.width or 260, value = addon.db[ctrl.dropdown], onChange = function(v) addon.db[ctrl.dropdown] = v end })
+            w = Drops:CreateNestedDropdown(host, { label = ctrl.label or ctrl.dropdown:gsub("^%l", string.upper), items = items, width = ctrl.width or 260, value = addon.db[ctrl.dropdown], onChange = function(v)
+                addon.db[ctrl.dropdown] = v
+                local changed = ChangeCallback(ctrl, ctrl.dropdown)
+                if changed then changed(v) end
+            end })
         elseif type(ctrl.button) == "string" and type(ctrl.action) == "function" then
             w = UI:CreateButton(host, { text = ctrl.button, width = ctrl.width, height = ctrl.height, onClick = ctrl.action })
         elseif type(ctrl.section) == "string" then
@@ -455,10 +595,38 @@ local function BuildAddonOptionTabs(UI, addon, options, columns, resolveControl)
             hosts = { canvas }
             flows = { UI:CreateFlowLayout(canvas) }
         end
-        local boundaries = Boundaries(#controls, #flows)
-        for index, rawControl in ipairs(controls) do
-            local slot = SlotFor(index, boundaries)
-            AddControl(hosts[slot], flows[slot], rawControl)
+        -- A section heading stays with the controls under it: the list is cut into groups at each heading and
+        -- whole groups are spread over the columns (the shortest column takes the next group).
+        local groups, current = {}, nil
+        for _, rawControl in ipairs(controls) do
+            local ctrl = resolveControl(rawControl)
+            if type(ctrl) == "table" and type(ctrl.section) == "string" or not current then
+                current = {}
+                groups[#groups + 1] = current
+            end
+            current[#current + 1] = rawControl
+        end
+        local hasSections = false
+        for _, rawControl in ipairs(controls) do
+            local ctrl = resolveControl(rawControl)
+            if type(ctrl) == "table" and type(ctrl.section) == "string" then hasSections = true break end
+        end
+        if not hasSections then
+            -- No headings: fill the columns in declaration order (five controls in two columns: 3 + 2).
+            local boundaries = Boundaries(#controls, #flows)
+            for index, rawControl in ipairs(controls) do
+                local slot = SlotFor(index, boundaries)
+                AddControl(hosts[slot], flows[slot], rawControl)
+            end
+            groups = {}
+        end
+        local load = {}
+        for i = 1, #flows do load[i] = 0 end
+        for _, group in ipairs(groups) do
+            local slot = 1
+            for i = 2, #flows do if load[i] < load[slot] then slot = i end end
+            for _, rawControl in ipairs(group) do AddControl(hosts[slot], flows[slot], rawControl) end
+            load[slot] = load[slot] + #group
         end
         local function reflow()
             if canvas:GetWidth() <= 0 then return end
@@ -499,7 +667,8 @@ local function BuildAddonOptionTabs(UI, addon, options, columns, resolveControl)
                 local controlBoundaries = Boundaries(#cardNode.controls, #cardFlows)
                 for controlIndex, rawControl in ipairs(cardNode.controls) do
                     local cardSlot = SlotFor(controlIndex, controlBoundaries)
-                    AddControl(card.columns and card.columns[cardSlot] or card.flow, cardFlows[cardSlot], rawControl)
+                    -- Controls are parented to a frame: a column, or the card's content (card.flow is a layout).
+                    AddControl(card.columns and card.columns[cardSlot] or card.content, cardFlows[cardSlot], rawControl)
                 end
                 card:AutoHeight()
                 flows[slot]:Add(card)
@@ -580,7 +749,7 @@ local function CreateOptionsPanel(UI, opts)
     panel:SetFrameStrata("DIALOG")
     panel:EnableMouse(true)
     local _sidebarIcon  = opts.icon or GetMeta(tAddonName, "IconTexture")
-    local _sidebarTitle = opts.sidebarTitle or opts.title or tAddonName
+    local _sidebarTitle = opts.sidebarTitle or (type(opts.title) == "string" and opts.title) or tAddonName
     local _sidebarName  = _sidebarIcon
         and format("|T%s:16:16:0:0|t %s", _sidebarIcon, _sidebarTitle)
         or  _sidebarTitle
@@ -589,6 +758,14 @@ local function CreateOptionsPanel(UI, opts)
     panel.tabs     = {}
     panel.contents = {}
     panel.theme    = opts.theme or opts.colors
+    -- The addon brand the panel belongs to (opts.addonBrand, or the brand whose Build is running): the panel resolves
+    -- its colours and style from it, live, and redraws itself when the theme changes.
+    -- (opts.brand is the header's brand text; the brand object is opts.addonBrand.)
+    local addonBrand = opts.addonBrand
+    if not (type(addonBrand) == "table" and type(addonBrand.OnChange) == "function") then
+        addonBrand = D and type(D.GetBuildBrand) == "function" and D:GetBuildBrand() or nil
+    end
+    panel._brand   = addonBrand
     -- The interface style the panel was built in (opts.style, or the style active when it was created). Tab
     -- content is built later, when the panel first opens, outside whatever WithStyle scope built the panel, so
     -- the style is remembered here and re-applied for every content build.
@@ -597,28 +774,14 @@ local function CreateOptionsPanel(UI, opts)
     -- Outer container
     local container = CreateFrame("Frame", nil, panel, "BackdropTemplate")
     container:SetAllPoints()
-    container:SetBackdrop({
-        bgFile   = "Interface\\Tooltips\\UI-Tooltip-Background",
-        edgeFile = "Interface\\Buttons\\WHITE8x8",
-        tile = true, tileSize = 16, edgeSize = 1,
-        insets = {left=1, right=1, top=1, bottom=1},
-    })
-    container:SetBackdropColor(sr, sg, sb, 0.95)
-    container:SetBackdropBorderColor(D:Unpack("border"))
+    StyleChromeBox(container, D, "surface", nil, true)
 
     -- ── Header ────────────────────────────────────────────────────────────────
     local header = CreateFrame("Frame", nil, container, "BackdropTemplate")
     header:SetHeight(HEADER_H)
     header:SetPoint("TOPLEFT",  8, -8)
     header:SetPoint("TOPRIGHT", -8, -8)
-    header:SetBackdrop({
-        bgFile   = "Interface\\Tooltips\\UI-Tooltip-Background",
-        edgeFile = "Interface\\Buttons\\WHITE8x8",
-        tile = true, tileSize = 16, edgeSize = 1,
-        insets = {left=1, right=1, top=1, bottom=1},
-    })
-    header:SetBackdropColor(sr, sg, sb, 0.95)
-    header:SetBackdropBorderColor(D:Unpack("border"))
+    StyleChromeBox(header, D, "surface")
 
     -- Accent line along header bottom
     local accent = header:CreateTexture(nil, "ARTWORK")
@@ -642,7 +805,15 @@ local function CreateOptionsPanel(UI, opts)
     local titleStr = header:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
     titleStr:SetPoint("LEFT", header, "TOPLEFT", leftX, -16)
     titleStr:SetJustifyV("MIDDLE")
-    titleStr:SetText(opts.title or tAddonName)
+    local function TitleText()
+        if type(opts.title) == "function" then
+            local ok, text = pcall(opts.title)
+            if ok and text then return text end
+        end
+        return type(opts.title) == "string" and opts.title or tAddonName
+    end
+    titleStr:SetText(TitleText())
+    panel._titleText = titleStr
     ApplyDefaultFont(titleStr)
 
     if opts.subtitle then
@@ -653,6 +824,15 @@ local function CreateOptionsPanel(UI, opts)
         sub:SetTextColor(D:Unpack("subtext"))
         ApplyDefaultFont(sub)
     end
+
+    -- Every RGX header carries the same three lines: author, the RGX Mods community link and the RGX Mods mark.
+    -- Missing ones come from the TOC (Author, X-Discord) or the suite defaults; pass false to leave one out.
+    if opts.author == nil then opts.author = GetMeta(tAddonName, "Author") end
+    if opts.website == nil then
+        local discord = GetMeta(tAddonName, "X-Discord") or "discord.gg/N7kdKAHVVF"
+        opts.website = "|cff7289daDiscord:|r |cffffd700" .. discord .. "|r"
+    end
+    if opts.brand == nil then opts.brand = "|cff8b4b5cRGX|r |cffffd700Mods|r" end
 
     if opts.website then
         local site = header:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
@@ -766,14 +946,7 @@ local function CreateOptionsPanel(UI, opts)
         local content = CreateFrame("Frame", nil, container, "BackdropTemplate")
         content:SetPoint("TOPLEFT",     tabArea, "BOTTOMLEFT",          1, -2)
         content:SetPoint("BOTTOMRIGHT", container, "BOTTOMRIGHT",      -7,  8)
-        content:SetBackdrop({
-            bgFile   = "Interface\\Tooltips\\UI-Tooltip-Background",
-            edgeFile = "Interface\\Buttons\\WHITE8x8",
-            tile = true, tileSize = 16, edgeSize = 1,
-            insets = {left=1, right=1, top=1, bottom=1},
-        })
-        content:SetBackdropColor(br, bg, bb, 0.95)
-        content:SetBackdropBorderColor(D:Unpack("border"))
+        StyleChromeBox(content, D, "background")
         content:Hide()
 
         panel.contents[i] = content
@@ -823,14 +996,7 @@ local function CreateOptionsPanel(UI, opts)
         local content = CreateFrame("Frame", nil, container, "BackdropTemplate")
         content:SetPoint("TOPLEFT",     tabArea, "BOTTOMLEFT",          1, -2)
         content:SetPoint("BOTTOMRIGHT", container, "BOTTOMRIGHT",      -7,  8)
-        content:SetBackdrop({
-            bgFile   = "Interface\\Tooltips\\UI-Tooltip-Background",
-            edgeFile = "Interface\\Buttons\\WHITE8x8",
-            tile = true, tileSize = 16, edgeSize = 1,
-            insets = {left=1, right=1, top=1, bottom=1},
-        })
-        content:SetBackdropColor(br, bg, bb, 0.95)
-        content:SetBackdropBorderColor(D:Unpack("border"))
+        StyleChromeBox(content, D, "background")
         content:Hide()
         self.contents[i] = content
 
@@ -860,6 +1026,14 @@ end
     -- back to a direct call when the panel carries no theme. Content callbacks
     -- keep their own pcall isolation; this only scopes the color surface.
     local function withPanelTheme(fn)
+        if panel._brand then
+            local theme, style = panel._brand:Resolve()
+            if theme and theme.primary then
+                panel.theme = { primary = theme.primary, accent = theme.accent,
+                    accentHeader = type(panel.theme) == "table" and panel.theme.accentHeader or nil }
+            end
+            panel.style = style or panel.style
+        end
         local run = fn
         if panel.style and D and type(D.WithStyle) == "function" and type(D.GetStyleId) == "function"
             and D:GetStyleId() ~= panel.style then
@@ -912,7 +1086,8 @@ end
         if not flow or not canvas then return end
         local ok = pcall(function()
             local used = flow:Apply()
-            canvas:SetHeight(math.max(1, used))
+            -- A page that places its widgets itself declares its height (canvas._rgxMinHeight) so it scrolls.
+            canvas:SetHeight(math.max(1, used, canvas._rgxMinHeight or 0))
         end)
     end
 
@@ -1240,6 +1415,65 @@ end
     end)
 
     -- ── Register with WoW Settings ────────────────────────────────────────────
+    -- ── Live theme changes ────────────────────────────────────────────────────────
+    -- Redraw the panel in the theme and style active now: the chrome boxes, the tab row, the header colours
+    -- and title, the banner and every tab's content (rebuilt lazily; the open tab at once).
+    local function RebuildTabs()
+        for key in pairs(rowGroups) do rowGroups[key] = nil end
+        for i, old in ipairs(panel.tabs) do
+            local info = old._tabInfo
+            local wasShown = old:IsShown()
+            old:Hide()
+            local row = math.ceil(i / maxPerRow)
+            local col = ((i - 1) % maxPerRow) + 1
+            local btn = CreateTabButton(tabArea, info and info.text or "", i, row, col, panel, info and info.icon, addonKey)
+            btn._tabInfo = info
+            if hideTabRow or not wasShown then btn:Hide() end
+            panel.tabs[i] = btn
+            rowGroups[row] = rowGroups[row] or {}
+            table.insert(rowGroups[row], btn)
+        end
+        RepositionTabs()
+    end
+
+    function panel:Retheme()
+        if not D then return end
+        if not self._brand then
+            -- No brand: the panel follows the framework's shared theme and style.
+            self.style = type(D.GetStyleId) == "function" and D:GetStyleId() or self.style
+        end
+        withPanelTheme(function()
+            RestyleChromeBox(container, D)
+            RestyleChromeBox(header, D)
+            for _, content in ipairs(self.contents) do RestyleChromeBox(content, D) end
+            RebuildTabs()
+            if self._titleText then self._titleText:SetText(TitleText()) end
+        end)
+        if type(self.theme) == "table" then self:SetTheme(self.theme) end
+        for _, content in ipairs(self.contents) do
+            if content._built then content._dirty = true end
+        end
+        if self.bannerFrame and self._bannerBuilt then
+            ClearContent(self.bannerFrame)
+            self._bannerBuilt = false
+            QueueBannerBuild()
+        end
+        if self._activeTab then self:SelectTab(self._activeTab) end
+    end
+
+    do
+        -- Deferred one frame: a control on the page may be the one that changed the theme.
+        local function onThemeChanged() RunSoon(0, function() panel:Retheme() end) end
+        if panel._brand then
+            panel._brand:OnChange(onThemeChanged)
+        elseif D and type(D.OnThemeChanged) == "function" and opts.theme == nil and opts.colors == nil
+            and opts.style == nil then
+            -- A panel with no brand and no theme of its own (the framework's settings page) follows the shared
+            -- theme; a panel that passed its own theme or style keeps it.
+            D:OnThemeChanged(onThemeChanged)
+        end
+    end
+
     if opts.registerInSettings == false then
         panel._category = panel
     elseif Settings and Settings.RegisterCanvasLayoutCategory then
@@ -1349,12 +1583,52 @@ local function Inject()
         -- opts.style builds the whole panel, header and content, in that interface style (for example
         -- "materialround") without changing the operator's global choice.
         local D = GetDesign()
+        if type(opts) == "table" and type(opts.addonBrand) == "table" and type(opts.addonBrand.Build) == "function" then
+            -- A brand builds the panel in its resolved theme and style; the panel follows it live from then on.
+            local brand = opts.addonBrand
+            return brand:Build(function()
+                if opts.theme == nil then
+                    local theme = brand:Resolve()
+                    opts.theme = { primary = theme.primary, accent = theme.accent }
+                end
+                return CreateOptionsPanel(self, opts)
+            end)
+        end
         local style = type(opts) == "table" and opts.style or nil
         local id = style and D and type(D.ResolveStyle) == "function" and D:ResolveStyle(style) or nil
         if id and type(D.WithStyle) == "function" and D:GetStyleId() ~= id then
             return D:WithStyle(id, function() return CreateOptionsPanel(self, opts) end)
         end
         return CreateOptionsPanel(self, opts)
+    end
+    -- Give any button the active style's tab look and colour it for its state (for addons with their own tab
+    -- row, so their tabs match the framework's in every style).
+    --   UI:SkinTab(button)                      once, when the button is built (inside the addon's brand)
+    --   UI:PaintTab(button, "active"|"hover"|"idle"[, primary])
+    UI.SkinTab = function(self, btn)
+        local D = GetDesign()
+        if not (D and btn) then return btn end
+        return SkinTabButton(btn, D)
+    end
+    UI.PaintTab = function(self, btn, state, primary)
+        local D = GetDesign()
+        if not (D and btn and btn.bg and btn.border) then return end
+        local pr, pg, pb
+        if type(primary) == "table" then pr, pg, pb = primary[1], primary[2], primary[3] else pr, pg, pb = D:Unpack("primary") end
+        if btn._clientTab then btn._clientTab(state == "active") end
+        if state == "active" then
+            btn.bg:SetColorTexture(D:Unpack("hover"))
+            btn.border:SetBackdropBorderColor(pr, pg, pb)
+            if btn.text then btn.text:SetTextColor(pr, pg, pb) end
+        elseif state == "hover" then
+            btn.border:SetBackdropBorderColor(pr, pg, pb)
+            if btn.text then btn.text:SetTextColor(pr, pg, pb) end
+        else
+            local sr, sg, sb = D:Unpack("surface")
+            btn.bg:SetColorTexture(sr, sg, sb, 0.90)
+            btn.border:SetBackdropBorderColor(D:Unpack("border"))
+            if btn.text then btn.text:SetTextColor(D:Unpack("subtext")) end
+        end
     end
     UI.CreateStandardCard = function(self, parent, opts)
         return CreateStandardCard(self, parent, opts)

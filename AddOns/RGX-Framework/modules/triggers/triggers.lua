@@ -15,7 +15,7 @@
 --       -- reflects the engine diff of the last write
 --   end)
 --
--- Contract (mirrors the WeakAuras baseline, AddonLearner pass 5):
+-- Contract:
 --   - Trigger authors never decide when to "fire". They mutate clone-keyed
 --     state; the engine diffs every field write and sets state.changed only
 --     when a value actually changed or the clone is new.

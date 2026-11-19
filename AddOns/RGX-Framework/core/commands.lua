@@ -77,17 +77,36 @@ RGX:RegisterSlashCommand({ "rgx", "rgxframework", "rgxf" }, function(msg)
             local want = arg:match("^override%s+(%a+)$")
             if want == "on" or want == "off" then
                 if type(RGX.db) == "table" then RGX.db.themeOverride = (want == "on") end
-                RGX:Print("Global theme override (beta): " .. want .. ". Reload your UI to apply it.")
+                if want == "on" then
+                    if RGX.db.style then Design:SetStyle(RGX.db.style) end
+                    if Design.ApplyOverrideTheme then Design:ApplyOverrideTheme(RGX.db)
+                    elseif RGX.db.themePreset and Design.SetThemePreset then Design:SetThemePreset(RGX.db.themePreset) end
+                else
+                    Design:SetStyle("framework")
+                    if Design.SetThemePreset then Design:SetThemePreset("cyan") end
+                end
+                if Design.NotifyThemeChanged then Design:NotifyThemeChanged() end
+                RGX:Print("Global theme override (beta): " .. want .. ".")
             else
                 RGX:Print("Global theme override (beta): " .. ((type(RGX.db) == "table" and RGX.db.themeOverride == true) and "on" or "off")
                     .. " (change with /rgx style override on|off)")
             end
         elseif arg == "" or arg == "list" then
-            RGX:Print("Interface style: " .. tostring(Design:GetStyleId() or "custom")
+            local saved = type(RGX.db) == "table" and RGX.db.style and Design:ResolveStyle(RGX.db.style) or "framework"
+            RGX:Print("Interface style: " .. tostring(saved)
                 .. " (choose with /rgx style " .. table.concat(Design.STYLE_ORDER, "|") .. ")")
-        elseif Design:SetStyle(arg) then
-            if type(RGX.db) == "table" then RGX.db.style = Design:GetStyleId() end
-            RGX:Print("Interface style set to " .. tostring(Design:GetStyleId()) .. ". Reload your UI to re-skin open windows.")
+        elseif Design:ResolveStyle(arg) then
+            -- Saved always; applied live only while the beta override is on, like the Theme tab.
+            local id = Design:ResolveStyle(arg)
+            local on = type(RGX.db) == "table" and RGX.db.themeOverride == true
+            if type(RGX.db) == "table" then RGX.db.style = id end
+            if on then
+                Design:SetStyle(id)
+                if Design.NotifyThemeChanged then Design:NotifyThemeChanged() end
+                RGX:Print("Interface style set to " .. id .. ".")
+            else
+                RGX:Print("Interface style saved as " .. id .. ". It applies while the theme override is on (/rgx style override on).")
+            end
         else
             RGX:Print("Unknown style. Choose " .. table.concat(Design.STYLE_ORDER, ", ") .. ".")
         end

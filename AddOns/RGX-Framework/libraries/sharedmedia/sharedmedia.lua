@@ -1,7 +1,7 @@
 --=====================================================================================
 -- RGX-Framework | RGXSharedMedia
 -- Multi-type media registry with external-addon scanner.
--- Bridge design proven in consumer addons (no LibStub/LibSharedMedia dep).
+-- RGX's own media registry.
 --
 -- Supported media types (extensible):
 --   "sound"      - .ogg / .mp3 / .wav files
@@ -41,7 +41,6 @@ SM._seenPaths = {}
 -- Scanner state
 SM._pendingScan  = false
 SM._pendingFullScan = false
-SM._invokedDBM   = {}
 SM._didGenericScan = false
 
 -- AddOn folders whose sounds must NOT be bridged by the generic scan. A consumer
@@ -63,30 +62,6 @@ local IGNORED_GLOBALS = {
     ["coroutine"] = true, ["debug"] = true, ["bit"] = true,
     ["bit32"] = true, ["utf8"] = true, ["io"] = true,
     ["os"] = true, ["package"] = true,
-}
-
-local KNOWN_ADDON_SOUNDS = {
-    ["Prat-3.0"] = {
-        packName = "Prat",
-        sounds = {
-            { name = "Bell",    path = "Interface\\AddOns\\Prat-3.0\\sounds\\Bell.ogg" },
-            { name = "Chime",   path = "Interface\\AddOns\\Prat-3.0\\Sounds\\Chime.ogg" },
-            { name = "Heart",   path = "Interface\\AddOns\\Prat-3.0\\Sounds\\Heart.ogg" },
-            { name = "IM",      path = "Interface\\AddOns\\Prat-3.0\\Sounds\\IM.ogg" },
-            { name = "Info",    path = "Interface\\AddOns\\Prat-3.0\\Sounds\\Info.ogg" },
-            { name = "Kachink", path = "Interface\\AddOns\\Prat-3.0\\Sounds\\Kachink.ogg" },
-            { name = "Popup",   path = "Interface\\AddOns\\Prat-3.0\\Sounds\\Link.ogg" },
-            { name = "Text1",   path = "Interface\\AddOns\\Prat-3.0\\Sounds\\Text1.ogg" },
-            { name = "Text2",   path = "Interface\\AddOns\\Prat-3.0\\Sounds\\Text2.ogg" },
-            { name = "Xylo",    path = "Interface\\AddOns\\Prat-3.0\\Sounds\\Xylo.ogg" },
-        },
-    },
-    ["TradeSkillMaster"] = {
-        packName = "TradeSkillMaster",
-        sounds = {
-            { name = "Cash Register", path = "Interface\\AddOns\\TradeSkillMaster\\Media\\register.mp3" },
-        },
-    },
 }
 
 -- ── Local utilities ───────────────────────────────────────────────────────────
@@ -179,7 +154,6 @@ local function IsLikelySoundContainer(name)
         or string.find(lower, "audio",  1, true)
         or string.find(lower, "voice",  1, true)
         or string.find(lower, "music",  1, true)
-        or string.find(lower, "dbm",    1, true)
 end
 
 local function IsLikelyMediaProvider(name)
@@ -190,7 +164,6 @@ local function IsLikelyMediaProvider(name)
         or string.find(lower, "audio",       1, true)
         or string.find(lower, "voice",       1, true)
         or string.find(lower, "music",       1, true)
-        or string.find(lower, "dbm",         1, true)
         or string.find(lower, "media",       1, true)
         or string.find(lower, "pack",        1, true)
 end
@@ -404,6 +377,25 @@ function SM:_IsExcludedPath(lowerPath)
     return false
 end
 
+-- The pack a found sound belongs to, following the standard sound layout (RGXSound.LAYOUT): an addon's
+-- sounds\user\ folder and its <Addon>_Sounds folder are that addon's user sounds, so the player's own files are
+-- listed apart from what the addon ships. Anything else is the addon folder's own pack.
+function SM:PackNameForPath(path)
+    local Sound = RGX and RGX.GetModule and RGX:GetModule("sound") or _G.RGXSound
+    if Sound and type(Sound.LayoutGroup) == "function" then
+        local addon, group = Sound:LayoutGroup(path)
+        if addon and (group == "user" or group == "shared") then return addon .. " User Sounds" end
+    end
+    return ExtractAddonFolder(path)
+end
+
+-- Register the player's own sound files for an addon under its "<Addon> User Sounds" pack, so every addon that lists
+-- shared sounds shows them. entries: like RegisterPack ({ name = path } or { { name = , path = } } or { path }).
+function SM:RegisterUserSounds(addonName, entries)
+    if type(addonName) ~= "string" or addonName == "" then return 0 end
+    return self:RegisterPack("sound", addonName .. " User Sounds", entries)
+end
+
 function SM:_BridgePath(path, preferredPackName, preferredDisplayName, scanSource)
     if not IsAudioPath(path) then return false end
 
@@ -417,7 +409,7 @@ function SM:_BridgePath(path, preferredPackName, preferredDisplayName, scanSourc
     -- Skip consumer-owned folders (they manage their own media directly)
     if self:_IsExcludedPath(lowerPath) then return false end
 
-    local packName = preferredPackName or ExtractAddonFolder(normalizedPath)
+    local packName = preferredPackName or self:PackNameForPath(normalizedPath)
     local lowerPack = string.lower(packName)
     if lowerPack == "sharedmedia" or lowerPack == "blizzard" then return false end
 
@@ -464,49 +456,6 @@ local function CollectAudioPaths(value, found, visited, state, depth)
         CollectAudioPaths(v, found, visited, state, depth + 1)
         if state.total >= MAX_SOUNDS_PER_SCAN then return false end
     end)
-end
-
-function SM:_InvokeDBMRegistrars()
-    local dbmKeys = {
-        "X-DBM-CountPack-GlobalName",
-        "X-DBM-VictoryPack-GlobalName",
-        "X-DBM-DefeatPack-GlobalName",
-        "X-DBM-MusicPack-GlobalName",
-    }
-    if type(_G.DBM) ~= "table" then return 0 end
-
-    local count = 0
-    for i = 1, GetAddonCount() do
-        for _, key in ipairs(dbmKeys) do
-            local fn = GetAddonMetadata(i, key)
-            if type(fn) == "string" and fn ~= "" and not self._invokedDBM[fn] then
-                local globalFn = _G[fn]
-                if type(globalFn) == "function" then
-                    if pcall(globalFn) then
-                        self._invokedDBM[fn] = true
-                        count = count + 1
-                    end
-                end
-            end
-        end
-    end
-    return count
-end
-
-function SM:_ScanKnownAddons()
-    local count = 0
-    for addon, data in pairs(KNOWN_ADDON_SOUNDS) do
-        if IsAddonLoaded(addon) and type(data.sounds) == "table" then
-            for _, entry in ipairs(data.sounds) do
-                if type(entry.path) == "string" then
-                    if self:_BridgePath(entry.path, data.packName, entry.name, "known") then
-                        count = count + 1
-                    end
-                end
-            end
-        end
-    end
-    return count
 end
 
 function SM:_ScanAddonGlobals()
@@ -567,12 +516,11 @@ end
 -- includeGeneric=true enables the expensive fallback scan over addon globals.
 function SM:Scan(includeGeneric)
     -- Only wipe the categories this pass actually rebuilds: a light scan
-    -- re-bridges known addons only, so wiping generic-scan results there
+    -- rebuilds nothing generic, so wiping generic-scan results there
     -- made every post-login ADDON_LOADED (any name containing "media",
     -- "pack", "sound", ...) erase the full login scan until the next full
-    -- scan. Untagged bridge entries (e.g. DBM registrar output, which is
-    -- invoke-once and not re-bridged by a light pass) survive light scans.
-    local wipeOnLightScan = { known = true }
+    -- scan.
+    local wipeOnLightScan = {}
     local soundReg = self.registry["sound"]
     if soundReg then
         for id, entry in pairs(soundReg) do
@@ -608,19 +556,13 @@ function SM:Scan(includeGeneric)
         end
     end
 
-    local n1 = self:_InvokeDBMRegistrars()
-    local n2 = self:_ScanKnownAddons()
-    local n3 = 0
-
+    local found = 0
     if includeGeneric then
-        n3 = self:_ScanAddonGlobals()
+        found = self:_ScanAddonGlobals()
         self._didGenericScan = true
     end
 
-    RGX:Debug(string.format(
-        "[RGXSharedMedia] Scan complete — DBM:%d Compat:%d Generic:%d",
-        n1, n2, n3
-    ))
+    RGX:Debug(string.format("[RGXSharedMedia] Scan complete — %d sound(s) found in installed addons", found))
 
     -- Notify consumers that the sound registry changed so they can re-import
     -- bridge entries and refresh any media pickers. Payload is the media type.
@@ -672,7 +614,7 @@ function SM:OnPlayerLogin()
     if not self._didGenericScan then
         if RGX.isForever then
             -- The generic global crawl causes a visible startup hitch on the
-            -- Forever beta client. Known media providers still scan on load.
+            -- Forever beta client; SM:Scan(true) runs it on demand.
             self._didGenericScan = true
             return
         end
