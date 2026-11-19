@@ -536,12 +536,27 @@ local function DescribeTooltipLines(itemId)
     return table.concat(described, ' | ')
 end
 
+-- Blizzard's "already known" strings (GlobalStrings.db2, #126): ITEM_SPELL_KNOWN reads "Already known", ERR_COSMETIC_KNOWN
+-- (Retail) "Already Known". Kept apart from Filters.lua's own list, so the check does not lean on the code it checks
+local KNOWN_GLOBALS = { 'ITEM_SPELL_KNOWN', 'ERR_COSMETIC_KNOWN' }
+local function MatchKnownGlobal(text)
+    if type(text) ~= 'string' then
+        return
+    end
+    for _, global in ipairs(KNOWN_GLOBALS) do
+        local value = _G[global]
+        if type(value) == 'string' and text:lower() == value:lower() then
+            return global
+        end
+    end
+end
+
 -- Whether the lines of the item a recipe makes carry Already known, which IsKnown leaves out
 local function IsNestedKnown(itemId)
     local lines = filters.GetTooltipLines(itemId)
     local first, last = filters.GetNestedLines(lines or {})
     for i = first or 1, last or 0 do
-        if lines[i].Text == ITEM_SPELL_KNOWN then
+        if MatchKnownGlobal(lines[i].Text) then
             return true
         end
     end
@@ -616,6 +631,24 @@ end
 
 local MAX_HIDDEN_NOTED = 15
 
+-- The first line outside the item a recipe makes that is one of those strings without being ITEM_SPELL_KNOWN exactly, as
+-- GLOBAL "text", or nil
+local function GetOtherKnownLine(itemId)
+    local lines = filters.GetTooltipLines(itemId)
+    if not lines then
+        return
+    end
+    local first, last = filters.GetNestedLines(lines)
+    for i, line in ipairs(lines) do
+        if not (first and i >= first and i <= last) and line.Text ~= ITEM_SPELL_KNOWN then
+            local global = MatchKnownGlobal(line.Text)
+            if global then
+                return ('%s "%s"'):format(global, line.Text)
+            end
+        end
+    end
+end
+
 local function CheckKnown()
     local inList = {}
     for _, index in ipairs(container:GetIndices()) do
@@ -627,12 +660,20 @@ local function CheckKnown()
     local kinds = { Recipe = { All = 0, Known = 0 }, Other = { All = 0, Known = 0 } }
     local wrong, disagree, unreadable, noted, nestedKnown = {}, {}, 0, 0, {}
     local checked, unchecked, collectionNoted, hidden = {}, {}, 0, {}
+    local otherKnown, otherMissed = {}, {}
     for index = 1, GetMerchantNumItems() do
         local itemId = GetMerchantItemID(index)
         if itemId then
             local known, readable = filters.IsKnown(itemId)
             local info = merchantItemSlot.GetItemInfo(index)
             local name = info and info.name or tostring(itemId)
+            local otherLine = readable and GetOtherKnownLine(itemId)
+            if otherLine then
+                tinsert(otherKnown, ('%s (item %d, %s)'):format(name, itemId, otherLine))
+                if not known then
+                    tinsert(otherMissed, ('%s (item %d, %s)'):format(name, itemId, otherLine))
+                end
+            end
             local kind = filters.IsRecipe(itemId) and 'Recipe' or filters.IsOther(itemId) and 'Other' or nil
             if not inList[index] then
                 tinsert(hidden, ('%s (item %d, %s%s)'):format(name, itemId, GetCategory(itemId), known and ', Already known' or ''))
@@ -696,6 +737,13 @@ local function CheckKnown()
         Add('SKIP', 'Hide collected, Recipes and Other: no readable recipe or item in no category at this vendor')
     else
         Add('PASS', 'Hide collected, Recipes and Other: Already known ones hidden, the rest shown')
+    end
+    if #otherMissed > 0 then
+        Add('FAIL', 'Already Known: read as not known though the tooltip says so in another case or string (#126) for ' .. table.concat(otherMissed, ', '))
+    elseif #otherKnown > 0 then
+        Add('PASS', ('Already Known: read as known through a line other than ITEM_SPELL_KNOWN exactly (#126) for %d: %s'):format(#otherKnown, table.concat(otherKnown, ', ')))
+    else
+        Note('Already Known: no item at this vendor whose tooltip says it in another case or string (#126)')
     end
     if #disagree > 0 then
         Add('FAIL', 'Already known: the tooltip and the collection disagree for ' .. table.concat(disagree, ', '))
@@ -1263,6 +1311,23 @@ local function Restore()
     end
     KrowiEVU_FilterButton:SetFilter(saved.Filter)
     KrowiEVU_Filters.LastFilter = saved.LastFilter
+    addon.Options.db.profile.HighlightOptionsButton = saved.HighlightOptionsButton
+    KrowiEVU_OptionsButton:UpdateHighlight()
+end
+
+-- The gear's first-time highlight (a fresh install): shown and pulsing while HighlightOptionsButton is set, gone and the
+-- setting cleared after ClearHighlight, which a click on the gear runs (OptionsButtonMixin OnLoad)
+local function CheckHighlight()
+    local button = KrowiEVU_OptionsButton
+    local glow, pulse = button.HighlightGlow, button.HighlightPulse
+    local shown = glow and glow:IsVisible() and pulse:IsPlaying() or false
+    Add(shown and 'PASS' or 'FAIL', 'gear highlight: ' .. (shown and 'shown and pulsing' or 'not shown')
+        .. (glow and (' (%dx%d around a %dx%d gear)'):format(glow:GetWidth(), glow:GetHeight(), button:GetWidth(), button:GetHeight()) or ''))
+    button:ClearHighlight()
+    local cleared = not (glow and glow:IsShown()) and addon.Options.db.profile.HighlightOptionsButton == false
+    Add(cleared and 'PASS' or 'FAIL', 'gear highlight: ' .. (cleared and 'gone after the click handler, setting cleared' or 'still there after the click handler'))
+    addon.Options.db.profile.HighlightOptionsButton = true -- Shown again for the screenshot; Restore puts the saved value back
+    button:UpdateHighlight()
 end
 
 -- [[ Steps ]] --
@@ -1431,6 +1496,18 @@ steps = {
         Check = function()
             Note('the banner shows the arrow; a missing file shows a green square or nothing')
         end,
+    },
+    {
+        Name = 'gear-highlight',
+        Text = 'the gear\'s first-time highlight, as a fresh install shows it',
+        Run = function()
+            if not KrowiEVU_OptionsButton:IsVisible() then
+                return 'the options button is hidden (Show options button off)'
+            end
+            addon.Options.db.profile.HighlightOptionsButton = true
+            KrowiEVU_OptionsButton:UpdateHighlight()
+        end,
+        Check = CheckHighlight,
     },
     {
         Name = 'currency',
@@ -1784,6 +1861,7 @@ function tests.Start(onOpen)
         HideRecipesOtherCharacters = filters.db.profile.HideCollected.RecipesOtherCharacters,
         HideOther = filters.db.profile.HideCollected.Other,
         Sort = CopyTable(filters.db.profile.Sort),
+        HighlightOptionsButton = profile.HighlightOptionsButton,
     }
 
     run = { Time = date('%Y-%m-%d %H:%M:%S'), Steps = {}, OnOpen = onOpen }
