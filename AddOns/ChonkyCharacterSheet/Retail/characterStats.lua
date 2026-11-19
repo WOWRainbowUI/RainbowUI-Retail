@@ -1209,6 +1209,7 @@ local function GetStatCrit()
 	else
 		leftText=ITEM_MOD_CRIT_RATING_SHORT	
 	end
+
 	rightText=format('(%s%%) %6.6s',
 		CCS.round(GetSpellCritChance('player')),
 		BreakUpLargeNumbers(GetCombatRating(CR_CRIT_SPELL)))
@@ -3795,6 +3796,18 @@ function CCS.CharacterStatsEventHandler(event, ...)
         return
     end
 
+	-- This should only occur in Forever, but the form data is a bit sluggish and if we want to get the shapeshift form we need to wait for it.
+	if event == "UPDATE_SHAPESHIFT_FORMS" or event == "UPDATE_SHAPESHIFT_FORM" then 
+        C_Timer.After(0, function()
+			if _G["CCS_stat_sf"] == nil then
+			   module:Initialize()
+			end
+			
+			CCS.UpdateAllStats(_G["CCS_stat_sc"])
+			UpdateLayout()
+        end)
+	end
+	
     if not CCS.statsUpdatePending then
         CCS.statsUpdatePending = true
         C_Timer.After(0, function()

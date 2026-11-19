@@ -542,7 +542,7 @@ ReputationFrame_Update = function()
                         k2.BackgroundHighlight:SetAllPoints(k.Background)
                     end
 
-                    if k:IsSelected() then
+                    if k ~= nil and k.IsSelected ~= nil and k:IsSelected() then
                         k.Background:SetColorTexture(.2, .2, .2, 1)
                     end
 

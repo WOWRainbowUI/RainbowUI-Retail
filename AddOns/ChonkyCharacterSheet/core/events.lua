@@ -568,7 +568,12 @@ local eventHandlers = {
         { fn = WrapHandler("UPDATE_INVENTORY_DURABILITY", CCS.MOPCharacterSheetEventHandler, "MOPCharacterSheetEventHandler"), versions = { CCS.MOP } },
         { fn = WrapHandler("UPDATE_INVENTORY_DURABILITY", CCS.TBCCharacterSheetEventHandler, "TBCCharacterSheetEventHandler"), versions = { CCS.TBC } },
     },
-
+    ["UPDATE_SHAPESHIFT_FORM"] = {
+        { fn = WrapHandler("UPDATE_SHAPESHIFT_FORM", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL, CCS.FOREVER } },
+    },
+    ["UPDATE_SHAPESHIFT_FORMS"] = {
+        { fn = WrapHandler("UPDATE_SHAPESHIFT_FORMS", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL, CCS.FOREVER } },
+    },
     ["WEEKLY_REWARDS_ITEM_CHANGED"] = {
         { fn = WrapHandler("WEEKLY_REWARDS_ITEM_CHANGED", CCS.MythicPlusEventHandler, "MythicPlusEventHandler"), versions = { CCS.RETAIL } },
     },
