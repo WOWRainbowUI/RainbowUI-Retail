@@ -1,4 +1,8 @@
-﻿12.1.17 - 11th November 2026
+﻿12.1.18 - 18th November 2026
+- For 'Show player chain' ('Interface'), added 4 new chains and 3 classic chains.  All the chains support full class-coloring options using the 'Class colored frames' option ('Frames').
+- For 'Enhance minimap' ('Interface'), there is a new header theme dropdown menu available so you can choose a theme for the header along with an option to animate it.  Requires 'Square minimap' to be enabled.  Blizzard is included in the theme list if you want to use the default UI header.  The minimap button bag has had a design refresh.  The buttons editor now uses simple checkboxes and toggling them no longer requires a reload.  You can still enter manual names if an obscure addon isn't shown in the list.
+
+12.1.17 - 11th November 2026
 - For 'Enhance minimap' ('Interface'), added 'Show header on hover'.  If checked, the header will only be shown while the pointer is over the minimap or header.  Also added 'Header opacity' slider.  Also tidied the header bar up a bit.
 - The 'Show info card' option ('Interface') now works with dungeon icons on zone maps and boss icons on dungeon maps.
 - Added a new option 'Set keybindings' ('Settings') which replaces the previous way of setting addon related keybindings.
