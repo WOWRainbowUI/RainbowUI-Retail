@@ -1,4 +1,7 @@
-﻿12.1.17 - 11th November 2026
+﻿12.1.18 - 18th November 2026
+- Added 'Show discovery button' (enabled by default).  If checked, a button on the map lets you show discovery areas, which are areas you need to visit to remove the fog of war from a zone.  So if you want to explore a zone, just run around and step inside each discovery area.
+
+12.1.17 - 11th November 2026
 - Added new 'Simple map frame' themes called 'Glass', 'Retro TV' with functional controls and 'Games' which includes a playable minigame called Gemfall.
 - Added a new option 'Set keybindings' ('Settings') which replaces the previous way of setting addon related keybindings.
 - Updated the 'Enhance battlefield map' panel design.  Removed the 'Center map on player' setting from 'Enhance battlefield map' to prevent issues.  Updated battlefield map reveal code for same reason.
