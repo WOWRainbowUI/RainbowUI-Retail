@@ -347,3 +347,13 @@ L["Disable overlays"] = "停用任務標記"
 L["Enable overlays"] = "啟用任務標記"
 L["Move around minimap"] = "沿小地圖移動"
 L["Hide minimap icon"] = "隱藏小地圖按鈕"
+
+L["Background Style"] = "背景樣式"
+
+L["Main Icon"] = "主要圖示"
+
+L["Toast Animation"] = "提示動畫"
+
+L["Color"] = "顏色"
+
+L["Preview \u2014 "] = "預覽 — "
