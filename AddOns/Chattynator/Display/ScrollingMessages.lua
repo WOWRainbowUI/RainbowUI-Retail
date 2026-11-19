@@ -223,12 +223,12 @@ function addonTable.Display.ScrollingMessagesMixin:Render(newMessages)
     local showBar = addonTable.Config.Get(addonTable.Config.Options.SHOW_TIMESTAMP_SEPARATOR)
     local messageAlignment = addonTable.Config.Get(addonTable.Config.Options.MESSAGE_ALIGNMENT)
     local timestampOnRight = addonTable.Config.Get(addonTable.Config.Options.TIMESTAMP_ON_RIGHT)
-    local timestampSide = timestampOnRight and {"RIGHT", "LEFT", 3} or {"LEFT", "RIGHT", -4}
+    local timestampSide = timestampOnRight and {"RIGHT", "LEFT", 5} or {"LEFT", "RIGHT", -4}
     local insetRight = 0
     local insetLeft = addonTable.Messages.inset
     if timestampOnRight then
       insetRight = -insetLeft - 2
-      insetLeft = -5
+      insetLeft = -3
     end
     for i = start + math.min(#messages, lines) - 1, start, -1 do
       local m = messages[i]
@@ -259,7 +259,7 @@ function addonTable.Display.ScrollingMessagesMixin:Render(newMessages)
         local timestamp = self.pool:Acquire()
         timestamp:SetFontObject(addonTable.Messages.font)
         timestamp:SetTextColor(0.6, 0.6, 0.6)
-        timestamp:SetJustifyH(timestampSide[1])
+        timestamp:SetJustifyH("LEFT")
         timestamp:SetPoint(timestampSide[1])
         timestamp:SetPoint("TOP", fs)
         timestamp:SetTextScale(addonTable.Messages.scalingFactor)

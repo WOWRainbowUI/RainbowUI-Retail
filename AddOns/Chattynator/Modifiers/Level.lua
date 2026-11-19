@@ -8,7 +8,7 @@ local function Level(data)
       if x2 == "|c" then
         return x1 .. x2 .. x3:gsub("([fF][fF]%x%x%x%x%x%x)", "%1" .. data.typeInfo.player.level .. ":") .. x4 .. x5
       else
-        return x1 .. x2 .. x3, data.typeInfo.player.level .. x4 .. x5
+        return x1 .. x2 .. data.typeInfo.player.level .. ':' .. x3 .. x4 .. x5
       end
     end, 1)
   end
