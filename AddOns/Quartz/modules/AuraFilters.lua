@@ -193,6 +193,7 @@ local function resolveSpellInput(value)
 	end
 	return nil
 end
+Quartz3.Util.ResolveSpellInput = resolveSpellInput
 
 ----------------------------
 -- Input widgets: an EditBox that also accepts spellbook drags and shift-clicked links.
@@ -531,7 +532,6 @@ function AuraFilters:OnProfileUpdate()
 	bump()
 end
 
--- Seeds a pre-revision-1 profile from the legacy account-wide store, called by the core CheckUpgrade.
 function AuraFilters:MigrateLegacyFilters()
 	if next(pdb.filters) ~= nil or next(self.db.global.filters) == nil then
 		return

@@ -100,7 +100,6 @@ local castbars = setmetatable({}, {
 		bar:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16})
 		bar:SetBackdropColor(0,0,0)
 
-		-- TextFrame ensures text is always above bars and overlays (like CastBarTemplate)
 		bar.TextFrame = CreateFrame("Frame", nil, bar)
 		bar.TextFrame:SetAllPoints(bar)
 		bar.TextFrame:SetFrameLevel(bar:GetFrameLevel() + 4)
@@ -400,12 +399,9 @@ function Enemy:OnEnable()
 	self:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
 	self:RegisterEvent("UNIT_SPELLCAST_FAILED")
 	self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
-	-- Clean up when nameplates are removed (recycled)
 	self:RegisterEvent("NAME_PLATE_UNIT_REMOVED")
-	-- Clean up when leaving combat or dying
 	self:RegisterEvent("PLAYER_REGEN_ENABLED")
 	self:RegisterEvent("PLAYER_DEAD")
-	-- Refresh bars when raid markers change
 	self:RegisterEvent("RAID_TARGET_UPDATE")
 	-- No API exposes channel targets, best effort via the current target
 	self:RegisterEvent("UNIT_TARGET")
@@ -429,13 +425,11 @@ function Enemy:OnEnable()
 	self:ApplySettings()
 end
 
--- Refresh bars when leaving combat or dying
 function Enemy:PLAYER_REGEN_ENABLED()
 	self:UpdateBars()
 end
 
 function Enemy:PLAYER_DEAD()
-	-- Hide all bars on death and clear OnUpdate
 	for i, bar in pairs(castbars) do
 		bar:Hide()
 		bar:SetScript("OnUpdate", nil)
@@ -479,7 +473,6 @@ function Enemy:UNIT_TARGET(event, unit)
 	end
 end
 
--- Clean up when nameplate is removed
 function Enemy:NAME_PLATE_UNIT_REMOVED(event, unit)
 	self:UpdateBars()
 end
@@ -500,7 +493,6 @@ function Enemy:OnDisable()
 end
 
 function Enemy:UNIT_SPELLCAST_START(event, unit)
-	-- Only trigger for nameplate units
 	if not unit:match("^nameplate") then return end
 	self:UpdateBars()
 end
@@ -521,8 +513,6 @@ Enemy.UNIT_SPELLCAST_SUCCEEDED = Enemy.UNIT_SPELLCAST_STOP
 
 
 do
-	-- Use durationObj:GetRemainingDuration() for time text
-	
 	local function onUpdate(bar)
 		if bar.durationObj and db.timetext then
 			local remaining = bar.durationObj:GetRemainingDuration()
@@ -531,7 +521,6 @@ do
 	end
 	
 	function Enemy:UpdateBars()
-		-- Hide ALL existing bars first
 		for i, bar in pairs(castbars) do
 			bar:Hide()
 			bar.durationObj = nil
@@ -540,22 +529,16 @@ do
 		-- The placeholder mover replaces the real bars while unlocked
 		if not locked then return end
 
-		-- Don't show bars if player is dead or not in combat
 		if UnitIsDeadOrGhost("player") then return end
 		if not UnitAffectingCombat("player") then return end
 		
-		-- Instance only filter
 		if db.instanceonly and not IsInInstance() then return end
 		
-		-- Scan all nameplates directly instead of using stored state
-		-- This avoids issues with stale entries and secret value comparisons
 		local barIndex = 0
 
 		for i = 1, 40 do -- Max nameplates
 			local unit = "nameplate" .. i
-			-- Only show casts from enemies that are in combat
 			if UnitExists(unit) and UnitIsEnemy("player", unit) and UnitAffectingCombat(unit) then
-				-- Check for cast
 				local spellName, _, texture, _, _, _, _, notInterruptible, spellID = UnitCastingInfo(unit)
 				local isChannel = false
 				local durationObj
@@ -563,7 +546,6 @@ do
 				if spellName then
 					durationObj = UnitCastingDuration(unit)
 				else
-					-- Check for channel
 					spellName, _, texture, _, _, _, notInterruptible, spellID = UnitChannelInfo(unit)
 					if spellName then
 						isChannel = true
@@ -571,7 +553,6 @@ do
 					end
 				end
 				
-				-- Show bar if there's an active cast/channel with duration
 				if spellName and durationObj then
 					barIndex = barIndex + 1
 					local bar = castbars[barIndex]
@@ -588,11 +569,9 @@ do
 					bar:SetMinMaxValues(0, 1)
 					bar:SetTimerDuration(durationObj)
 					
-					-- Store durationObj on bar for OnUpdate time text
 					bar.durationObj = durationObj
 					bar:SetScript("OnUpdate", onUpdate)
 
-					-- Raid target marker
 					if db.raidicons then
 						local raidTargetIndex = GetRaidTargetIndex(unit)
 						if issecretvalue(raidTargetIndex) or raidTargetIndex then
@@ -714,20 +693,17 @@ do
 			raidIcon:ClearAllPoints()
 			if db.raidiconside == "left" then
 				if showicons and iconside == "left" then
-					-- Both on the left: raid icon goes outside the spell icon
 					raidIcon:SetPoint("RIGHT", icon, "LEFT", -1, 0)
 				else
 					raidIcon:SetPoint("RIGHT", bar, "LEFT", -1, 0)
 				end
 			else
 				if showicons and iconside == "right" then
-					-- Both on the right: raid icon goes outside the spell icon
 					raidIcon:SetPoint("LEFT", icon, "RIGHT", 1, 0)
 				else
 					raidIcon:SetPoint("LEFT", bar, "RIGHT", 1, 0)
 				end
 			end
-			-- Visibility is controlled in UpdateBars based on actual marker data
 		else
 			raidIcon:Hide()
 		end
@@ -747,7 +723,6 @@ do
 		local xr, xg, xb = unpack(db.importantNoInterruptColor)
 		importantNoInterruptColorObj = CreateColor(xr, xg, xb, 1)
 
-		-- One-shot conversion of stored bottom-left free positions to the center-relative system.
 		if not db.centerpos then
 			db.centerpos = true
 			if db.x ~= nil then db.x = db.x - UIParent:GetWidth() / 2 end

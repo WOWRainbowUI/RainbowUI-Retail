@@ -843,7 +843,6 @@ do
 	function Mirror:ApplySettings()
 		db = self.db.profile
 
-		-- One-shot conversion of stored bottom-left free positions to the center-relative system.
 		if not db.centerpos then
 			db.centerpos = true
 			if db.mirrorx ~= nil then db.mirrorx = db.mirrorx - UIParent:GetWidth() / 2 end

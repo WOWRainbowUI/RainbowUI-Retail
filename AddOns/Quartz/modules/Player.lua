@@ -424,7 +424,9 @@ local channelingTicks = WoWWrath and {
 	[spellKey(1510)] = 6, -- volley
 	-- mage
 	[spellKey(10)] = 8, -- blizzard
-	[spellKey(5143)] = 3, -- arcane missiles
+	[spellKey(5143)] = 5, -- arcane missiles
+	[5143] = 3, -- arcane missiles rank 1
+	[5144] = 4, -- arcane missiles rank 2
 	-- priest
 	[spellKey(15407)] = 3, -- mind flay
 	[spellKey(10797)] = 6, -- star shards
@@ -435,6 +437,7 @@ local channelingTicks = WoWWrath and {
 	[spellKey(689)] = 5, -- drain life
 	[spellKey(1120)] = 5, -- drain soul
 	[spellKey(755)] = 10, -- health funnel
+	[spellKey(1316697)] = 6, -- wrack
 } or WoWRetail and {
 	--- Retail
 	-- warlock

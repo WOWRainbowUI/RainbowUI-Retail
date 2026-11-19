@@ -136,11 +136,10 @@ local defaults = {
 
 ----------------------------
 -- AuraButton dressing
---
--- The container creates the buttons and their Forbidden Aspects block addon script handlers, so every dynamic element goes through the native Set* bindings.
 
 local styleButton
 
+-- The container creates the buttons and their Forbidden Aspects block addon script handlers, so every dynamic element goes through the native Set* bindings.
 local function initButton(button, unit, isBuff, gen)
 	local entry = { button = button, unit = unit, isBuff = isBuff, gen = gen }
 
@@ -644,7 +643,7 @@ local function createContainer(unit, sections)
 	generation[unit] = (generation[unit] or 0) + 1
 	local gen = generation[unit]
 	local sortMethod = db.timesort and AuraContainerSortMethod.ExpirationOnly or AuraContainerSortMethod.NameOnly
-	-- maxDuration hides permanent auras, matching the old "duration > 0" rule.
+	-- maxDuration excludes permanent auras even at math.huge.
 	for i, section in ipairs(sections) do
 		local isHelpful = section.isHelpful
 		pcall(container.AddAuraGroup, container, "section" .. i, section.filterString, {
@@ -699,7 +698,6 @@ local function configureContainer(unit)
 		appliedFilters[unit] = applied
 	end
 
-	-- Vertical axis: one column of groups separated by groupSpacing (forceNewLine would start a side column).
 	container:SetFlowLayoutAxis(AnchorUtil.FlowLayoutAxis.Vertical)
 
 	for i, section in ipairs(sections) do
@@ -1536,7 +1534,7 @@ function Buff:PLAYER_REGEN_ENABLED()
 	self:ApplySettings()
 end
 
--- The container does not refresh itself on target/focus switches, same as Blizzard's TargetFrame.
+-- The container does not refresh itself on target/focus switches.
 local function refreshUnit(unit)
 	local container = containers[unit]
 	if not container then return end
@@ -1581,7 +1579,6 @@ end
 function Buff:ApplySettings()
 	db = self.db.profile
 
-	-- One-shot conversion of stored bottom-left free positions to the center-relative system.
 	if not db.centerpos then
 		db.centerpos = true
 		local cx, cy = UIParent:GetWidth() / 2, UIParent:GetHeight() / 2

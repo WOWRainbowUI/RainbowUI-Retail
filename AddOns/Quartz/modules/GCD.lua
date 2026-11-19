@@ -39,7 +39,7 @@ local defaults = {
 	profile = {
 		displayMode  = "bar",        -- "bar" | "icon"
 
-		-- Mode barre
+		-- Bar mode
 		sparkcolor   = {1, 1, 1},
 		barcolor     = {0.0, 0.5, 1.0},
 		bartexture   = "Blizzard",
@@ -49,7 +49,7 @@ local defaults = {
 		gcdgap       = -4,
 		deplete      = false,
 
-		-- Mode icône
+		-- Icon mode
 		gcdsize      = 24,
 		border       = "Blizzard Tooltip",
 		bordercolor  = {0.5, 0.5, 0.5},
@@ -181,8 +181,6 @@ function GCD:Lock()
 	self:SetMoverLocked(true)
 end
 
--- OnUpdate : repositionne le spark et met à jour le fill (mode barre uniquement)
--- Utilise starttime = GetTime() enregistré par nous → toujours non-secret
 local function OnUpdate()
 	if not starttime then return end
 	local elapsed = GetTime() - starttime
@@ -237,11 +235,10 @@ function GCD:CheckGCD(event, unit)
 	if cooldown and cooldown.isActive then
 		local start, dur = cooldown.startTime, cooldown.duration
 		if db.displayMode == "bar" then
-			-- N'initialise une nouvelle animation que si la barre n'est pas déjà active
 			if not gcdbar:IsShown() then
-				-- GetTime() est toujours non-secret : pas d'arithmétique sur valeurs secrètes
+				-- cooldown.startTime can be secret, GetTime() never is.
 				starttime = GetTime()
-				duration  = issecretvalue(dur) and 1.5 or dur  -- fallback 1.5s max GCD si secret
+				duration  = issecretvalue(dur) and 1.5 or dur
 				gcdbar.bar:SetMinMaxValues(0, duration)
 				gcdbar.bar:SetValue(0)
 				gcdbar:SetScript("OnUpdate", OnUpdate)
@@ -262,7 +259,6 @@ end
 function GCD:ApplySettings()
 	db = self.db.profile
 
-	-- One-shot conversion of stored bottom-left free positions to the center-relative system.
 	if not db.centerpos then
 		db.centerpos = true
 		if db.x ~= nil then db.x = db.x - UIParent:GetWidth() / 2 end
@@ -280,7 +276,6 @@ function GCD:ApplySettings()
 		mover:EnableMouse(not locked and isFreePosition())
 	end
 
-	-- Réinitialise l'état lors du changement de mode
 	gcdbar:SetScript("OnUpdate", nil)
 	starttime = nil
 	gcdbar:ClearAllPoints()
@@ -289,30 +284,26 @@ function GCD:ApplySettings()
 	local playerEnabled = Player:IsEnabled()
 
 	if db.displayMode == "bar" then
-		-- Dimensions
 		local pw = Player.Bar:GetWidth()
 		if pw < 1 then pw = Player.db.profile.w + 10 end
 		gcdbar_width = pw - 8
 		gcdbar:SetWidth(gcdbar_width)
 		gcdbar:SetHeight(db.gcdheight)
 
-		-- Fond noir
 		gcdbar:SetBackdrop({
 			bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
 			tile = true, tileSize = 16,
 		})
 		gcdbar:SetBackdropColor(0, 0, 0, 1)
 
-		-- Positionnement (fallback free si Player désactivé)
 		if db.gcdposition == "bottom" and playerEnabled then
 			gcdbar:SetPoint("TOP", Player.Bar, "BOTTOM", 0, db.gcdgap)
 		elseif db.gcdposition == "top" and playerEnabled then
 			gcdbar:SetPoint("BOTTOM", Player.Bar, "TOP", 0, -db.gcdgap)
-		else -- free ou Player désactivé
+		else
 			gcdbar:SetPoint("BOTTOMLEFT", ensureMover(), "BOTTOMLEFT")
 		end
 
-		-- StatusBar (fill)
 		if not gcdbar.bar then
 			gcdbar.bar = Quartz3:CreateStatusBar(nil, gcdbar)
 			gcdbar.bar:SetAllPoints(gcdbar)
@@ -323,7 +314,6 @@ function GCD:ApplySettings()
 		gcdbar.bar:SetValue(0)
 		gcdbar.bar:Show()
 
-		-- Spark
 		if not gcdspark then
 			gcdspark = gcdbar:CreateTexture(nil, "ARTWORK")
 			gcdspark:SetTexture("Interface\\CastingBar\\UI-CastingBar-Spark")
@@ -334,7 +324,6 @@ function GCD:ApplySettings()
 		gcdspark:SetHeight(db.gcdheight * 2.5)
 		gcdspark:Show()
 
-		-- Masque les éléments du mode icône
 		if gcdbar.cd   then gcdbar.cd:Hide()   end
 		if gcdbar.icon then gcdbar.icon:Hide() end
 
@@ -353,16 +342,14 @@ function GCD:ApplySettings()
 		gcdbar:SetBackdropColor(0, 0, 0, 0)
 		gcdbar:SetBackdropBorderColor(unpack(db.bordercolor))
 
-		-- Positionnement (fallback free si Player désactivé)
 		if db.iconposition == "left" and playerEnabled then
 			gcdbar:SetPoint("RIGHT", Player.Bar, "LEFT", -db.icongap, 0)
 		elseif db.iconposition == "right" and playerEnabled then
 			gcdbar:SetPoint("LEFT", Player.Bar, "RIGHT", db.icongap, 0)
-		else -- free ou Player désactivé
+		else
 			gcdbar:SetPoint("BOTTOMLEFT", ensureMover(), "BOTTOMLEFT")
 		end
 
-		-- Icône de classe
 		if not gcdbar.icon then
 			gcdbar.icon = gcdbar:CreateTexture(nil, "BACKGROUND")
 			gcdbar.icon:SetAllPoints(gcdbar)
@@ -379,7 +366,6 @@ function GCD:ApplySettings()
 		end
 		gcdbar.icon:Show()
 
-		-- CooldownFrame
 		if not gcdbar.cd then
 			gcdbar.cd = CreateFrame("Cooldown", nil, gcdbar, "CooldownFrameTemplate")
 			gcdbar.cd:SetAllPoints(gcdbar)
@@ -393,7 +379,6 @@ function GCD:ApplySettings()
 		gcdbar.cd:SetSwipeColor(r, g, b, 0.5)
 		gcdbar.cd:Show()
 
-		-- Masque les éléments du mode barre
 		if gcdbar.bar then gcdbar.bar:Hide() end
 		if gcdspark   then gcdspark:Hide()   end
 	end
@@ -402,7 +387,6 @@ function GCD:ApplySettings()
 end
 
 do
-	-- Fonctions hidden/disabled pour Ace3
 	local function inIconMode()  return db.displayMode == "icon" end
 	local function inBarMode()   return db.displayMode == "bar"  end
 	local function playerDisabled() return not Player:IsEnabled() end
@@ -430,7 +414,6 @@ do
 				get = getOpt,
 				set = setOpt,
 				args = {
-					-- Options communes
 					toggle = {
 						type = "toggle",
 						name = L["Enable"],
@@ -455,7 +438,6 @@ do
 						order = 102,
 					},
 
-					-- Section barre
 					barHeader = {
 						type = "header",
 						name = L["Bar Settings"],
@@ -522,7 +504,6 @@ do
 						hidden = inIconMode,
 					},
 
-					-- Section icône
 					iconHeader = {
 						type = "header",
 						name = L["Icon Settings"],
@@ -590,7 +571,6 @@ do
 						hidden = iconNotFree,
 					},
 
-					-- Section position libre (commune)
 					freeHeader = {
 						type = "header",
 						name = L["Free Position"],
