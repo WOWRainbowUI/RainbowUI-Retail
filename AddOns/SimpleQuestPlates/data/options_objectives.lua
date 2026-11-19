@@ -251,7 +251,7 @@ function SQP:CreateLegacyAnimationOptions(content)
     local taskSectionLabel = perTypeSection:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     SQP:ApplyDefaultFont(taskSectionLabel)
     taskSectionLabel:SetPoint("TOPLEFT", 12, -34)
-    taskSectionLabel:SetText("|cff58be81Task Icons|r")
+    taskSectionLabel:SetText(SQP:BrandHex() .. "Task Icons|r")
 
     local taskFrame = self:CreateStyledCheckbox(perTypeSection, "Animate task icons")
     taskFrame:SetPoint("TOPLEFT", 12, -54)

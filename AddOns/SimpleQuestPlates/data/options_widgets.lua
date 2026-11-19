@@ -196,7 +196,7 @@ function SQP:CreateFontSection(parent, typeKey, yOffset, activatePreviewFn)
     if typeKey then
         local fontHeader = parent:CreateFontString(nil, "ARTWORK", "GameFontNormal")
         fontHeader:SetPoint("TOPLEFT", 8, yOffset)
-        fontHeader:SetText("|cff58be81" .. (self.L["OPTIONS_FONT"] or "Font") .. "|r")
+        fontHeader:SetText(SQP:BrandHex() .. (self.L["OPTIONS_FONT"] or "Font") .. "|r")
         SQP:ApplyDefaultFont(fontHeader)
         yOffset = yOffset - 18
     end
@@ -227,7 +227,7 @@ function SQP:CreateFontSection(parent, typeKey, yOffset, activatePreviewFn)
     familyLabel:SetPoint("TOPLEFT", 8, yOffset)
     familyLabel:SetText("Family")
     SQP:ApplyDefaultFont(familyLabel)
-    familyLabel:SetTextColor(0.345, 0.745, 0.506)
+    familyLabel:SetTextColor(unpack(SQP.Brand.primary))
     yOffset = yOffset - 20
 
     local fontControl = Fonts:CreateFontSettingControl(parent, {
@@ -286,9 +286,9 @@ function SQP:CreateDisplayStyleSection(parent, typeKey, activatePreviewFn, yOffs
     local dsHeader = parent:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     SQP:ApplyDefaultFont(dsHeader)
     dsHeader:SetPoint("TOPLEFT", 8, yOffset)
-    dsHeader:SetText("|cff58be81Background Style|r")
+    dsHeader:SetText(SQP:BrandHex() .. "Background Style|r")
     dsHeader:SetFontObject(GameFontNormal)
-    dsHeader:SetTextColor(0.345, 0.745, 0.506)
+    dsHeader:SetTextColor(unpack(SQP.Brand.primary))
     yOffset = yOffset - 18
     -- Same two-way model as the Global "Background style" dropdown, as a
     -- dropdown so both surfaces expose identical options. Text-only lives
@@ -498,7 +498,7 @@ function SQP:CreateMainIconSection(parent, typeKey, activatePreviewFn, yOffset, 
     local header = parent:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     SQP:ApplyDefaultFont(header)
     header:SetPoint("TOPLEFT", 8, yOffset)
-    header:SetText("|cff58be81Main Icon|r")
+    header:SetText(SQP:BrandHex() .. "Main Icon|r")
     header:SetFontObject(GameFontNormal)
     yOffset = yOffset - 18
 

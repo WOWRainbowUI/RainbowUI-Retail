@@ -193,14 +193,24 @@ end
 -- appears in the objective text). Pick the unfinished quest-log objective that
 -- unit can satisfy. Creature-kill objectives name their creature, and this
 -- unit did not match any name, so item/object objectives are preferred.
-local function ResolveRelatedObjective()
+-- Whether a quest belongs to the map the player is on (a dungeon's quests, inside that dungeon). Unknown when the
+-- client has no answer, so the quest is kept.
+local function QuestOnCurrentMap(questID)
+    if not questID or not (C_QuestLog and C_QuestLog.IsOnMap) then return nil end
+    local ok, onMap = pcall(C_QuestLog.IsOnMap, questID)
+    if not ok or IsSecret(onMap) then return nil end
+    return onMap and true or false
+end
+
+local function ResolveRelatedObjectiveIn(mapOnly)
     local Compat = SQP.Compat
     if not Compat or not Compat.GetNumQuestLogEntries then return nil end
     local items, kills = {}, {}
     for i = 1, Compat.GetNumQuestLogEntries() do
         local info = Compat.GetInfo(i)
         if info and not info.isHeader and not info.isHidden
-            and (not info.isComplete or info.isComplete == 0) then
+            and (not info.isComplete or info.isComplete == 0)
+            and not (mapOnly and QuestOnCurrentMap(info.questID) == false) then
             local objectives = Compat.GetQuestObjectives(info.questID, i)
             for _, obj in ipairs(objectives or {}) do
                 if not obj.finished and type(obj.text) == "string" then
@@ -221,6 +231,13 @@ local function ResolveRelatedObjective()
     if #items > 0 then return items[1], "item" end
     if #kills == 1 then return kills[1], "kill" end
     return nil
+end
+
+-- Quests on this map first (inside a dungeon, the outdoor quests in the log are not this unit's), then the whole log.
+local function ResolveRelatedObjective()
+    local entry, kind = ResolveRelatedObjectiveIn(true)
+    if entry then return entry, kind end
+    return ResolveRelatedObjectiveIn(false)
 end
 
 -- Secret-safe progress cache: on modern clients a UnitGUID() result can be a
@@ -260,11 +277,16 @@ function SQP:GetQuestProgress(unitID)
     end
 
     local nameOk, unitName = pcall(UnitName, unitID)
-    if not nameOk or not unitName then return end
-
-    local testOk, testResult = pcall(function() return unitName == "" end)
-    if not testOk or testResult then
-        return
+    if not nameOk or unitName == nil then return end
+    if IsSecret(unitName) then
+        -- Inside dungeons the client gives addons a secret name. Carry on without it: the tooltip lines and the
+        -- quest log for this map can still say which objective the unit belongs to.
+        unitName = nil
+    else
+        local testOk, testResult = pcall(function() return unitName == "" end)
+        if not testOk or testResult then
+            return
+        end
     end
 
     local itemsNeeded, objectiveCount, progressGlob, questType, questIdForItems = 0, 0, nil, nil, nil

@@ -18,7 +18,7 @@ function SQP:CreateAboutSection(content)
     local aboutTitle = leftColumn:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
     SQP:ApplyDefaultFont(aboutTitle)
     aboutTitle:SetPoint("TOPLEFT", 20, yOffset)
-    aboutTitle:SetText(format("|T%s:20:20:0:0|t |cff58be81S|r|cffffffffimple|r |cff58be81Q|r|cffffffffuest|r |cff58be81P|r|cfffffffflates|r|cff58be81!|r", SQP.ICON_TEXTURE or ""))
+    aboutTitle:SetText(format("|T%s:20:20:0:0|t " .. SQP:BrandHex() .. "S|r|cffffffffimple|r " .. SQP:BrandHex() .. "Q|r|cffffffffuest|r " .. SQP:BrandHex() .. "P|r|cfffffffflates|r" .. SQP:BrandHex() .. "!|r", SQP.ICON_TEXTURE or ""))
     yOffset = yOffset - 28
 
     -- Version + Author
@@ -61,7 +61,7 @@ function SQP:CreateAboutSection(content)
     SQP:ApplyDefaultFont(discordTitle)
     discordTitle:SetPoint("TOPLEFT", discordIcon, "TOPRIGHT", 8, -1)
     discordTitle:SetPoint("RIGHT", communityFrame, "RIGHT", -8, 0)
-    discordTitle:SetText("|cff58be81RGX Mods Community|r")
+    discordTitle:SetText(SQP:BrandHex() .. "RGX Mods Community|r")
 
     local discordDesc = communityFrame:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     SQP:ApplyDefaultFont(discordDesc)
@@ -90,7 +90,7 @@ function SQP:CreateAboutSection(content)
     local cmdTitle = cmdFrame:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     SQP:ApplyDefaultFont(cmdTitle)
     cmdTitle:SetPoint("TOPLEFT", cmdFrame, "TOPLEFT", 12, -10)
-    cmdTitle:SetText("|cff58be81Slash Commands  |cffaaaaaa/sqp|r")
+    cmdTitle:SetText(SQP:BrandHex() .. "Slash Commands  |cffaaaaaa/sqp|r")
 
     -- Two-column layout: commands | descriptions
     local cmdList = cmdFrame:CreateFontString(nil, "ARTWORK", "GameFontNormal")
@@ -99,14 +99,14 @@ function SQP:CreateAboutSection(content)
     cmdList:SetWidth(120)
     cmdList:SetJustifyH("LEFT")
     cmdList:SetText(
-        "|cff58be81/sqp|r\n" ..
-        "|cff58be81/sqp on|r / |cff58be81off|r\n" ..
-        "|cff58be81/sqp test|r\n" ..
-        "|cff58be81/sqp reset|r\n" ..
-        "|cff58be81/sqp status|r\n" ..
-        "|cff58be81/sqp icon on|r\n" ..
-        "|cff58be81/sqp scale 1.2|r\n" ..
-        "|cff58be81/sqp offset 0 3|r"
+        SQP:BrandHex() .. "/sqp|r\n" ..
+        SQP:BrandHex() .. "/sqp on|r / " .. SQP:BrandHex() .. "off|r\n" ..
+        SQP:BrandHex() .. "/sqp test|r\n" ..
+        SQP:BrandHex() .. "/sqp reset|r\n" ..
+        SQP:BrandHex() .. "/sqp status|r\n" ..
+        SQP:BrandHex() .. "/sqp icon on|r\n" ..
+        SQP:BrandHex() .. "/sqp scale 1.2|r\n" ..
+        SQP:BrandHex() .. "/sqp offset 0 3|r"
     )
 
     local descList = cmdFrame:CreateFontString(nil, "ARTWORK", "GameFontNormal")

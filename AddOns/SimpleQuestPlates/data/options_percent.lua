@@ -193,7 +193,7 @@ function SQP:CreatePercentOptions(content)
         local colorHeader = c:CreateFontString(nil, "ARTWORK", "GameFontNormal")
         SQP:ApplyDefaultFont(colorHeader)
         colorHeader:SetPoint("TOPLEFT", 8, yOffset)
-        colorHeader:SetText("|cff58be81Color|r")
+        colorHeader:SetText(SQP:BrandHex() .. "Color|r")
         yOffset = yOffset - 16
 
         local pctDefault = {0.2, 1, 1}
