@@ -319,6 +319,15 @@ if GameLocale == "zhCN" then
 	L["Zeppelin to"] = "乘飞艇前往"
 	L["Zones"] = "区域背景音乐"
 	L["Zuldazar"] = "祖达萨"
+	L["Destination"] = "目的地"
+	L["Dungeon"] = "地下城"
+	L["Dungeon and raid names"] = "地下城与团队副本名称"
+	L["Dungeon name"] = "地下城名称"
+	L["Flight point"] = "飞行点"
+	L["Place name"] = "地点名称"
+	L["Raid"] = "团队副本"
+	L["Raid name"] = "团队副本名称"
+	L["Spirit Healer"] = "灵魂医者"
 end
 
 if GameLocale == "zhTW" then
@@ -622,4 +631,13 @@ if GameLocale == "zhTW" then
 	L["Zeppelin to"] = "飛船到"
 	L["Zones"] = "區域"
 	L["Zuldazar"] = "贊達拉"
+	L["Destination"] = "目的地"
+	L["Dungeon"] = "地城"
+	L["Dungeon and raid names"] = "地城與團隊副本名稱"
+	L["Dungeon name"] = "地城名稱"
+	L["Flight point"] = "飛行點"
+	L["Place name"] = "地點名稱"
+	L["Raid"] = "團隊副本"
+	L["Raid name"] = "團隊副本名稱"
+	L["Spirit Healer"] = "靈魂醫者"
 end
