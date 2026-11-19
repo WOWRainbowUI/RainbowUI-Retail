@@ -741,6 +741,15 @@ local function SetupFormatting(parent)
     table.insert(allFrames, showPlayerLevel)
   end
 
+  if addonTable.Constants.IsForever then
+    local hideLastNames = addonTable.CustomiseDialog.Components.GetCheckbox(container, addonTable.Locales.HIDE_LAST_NAMES, 28, function(state)
+      addonTable.Config.Set(addonTable.Config.Options.HIDE_LAST_NAMES, state)
+    end)
+    hideLastNames.option = addonTable.Config.Options.HIDE_LAST_NAMES
+    hideLastNames:SetPoint("TOP", allFrames[#allFrames], "BOTTOM", 0, 0)
+    table.insert(allFrames, hideLastNames)
+  end
+
   container:SetScript("OnShow", function()
     timestampSpacing:SetValue(addonTable.Config.Get(addonTable.Config.Options.TIMESTAMP_SPACING) * 100)
     for _, f in ipairs(allFrames) do

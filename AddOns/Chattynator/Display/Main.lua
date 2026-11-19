@@ -137,7 +137,11 @@ function addonTable.Display.ChatFrameMixin:OnLoad()
   local step = 0.08
   C_Timer.NewTicker(step, function()
     local alpha = self:GetAlpha()
-    if not self.shouldFadeCompletely or self:IsMouseOver() or self.ButtonsBar:IsMouseOver() or ChatFrame1EditBox:HasFocus() or self.ScrollingMessages:IsAnyShown() or not self.ScrollingMessages:IsShown() then
+    local editBoxActive = ChatFrame1EditBox:HasFocus()
+    if issecretvalue(editBoxActive) then
+      editBoxActive = ChatFrame1EditBox:IsShown()
+    end
+    if not self.shouldFadeCompletely or self:IsMouseOver() or self.ButtonsBar:IsMouseOver() or editBoxActive or self.ScrollingMessages:IsAnyShown() or not self.ScrollingMessages:IsShown() then
       if alpha < 1 then
         self:SetAlpha(alpha + step * 8)
       end
@@ -223,7 +227,7 @@ end
 
 function addonTable.Display.ChatFrameMixin:ApplyTabsShowing()
   local position = addonTable.Config.Get(addonTable.Config.Options.BUTTON_POSITION)
-  self.ScrollingMessages:SetPoint("TOPRIGHT",position == "outside_right" and -34 or 0, 0)
+  self.ScrollingMessages:SetPoint("TOPRIGHT",position == "outside_right" and -34 or -2, 0)
   if addonTable.Config.Get(addonTable.Config.Options.SHOW_TABS) ~= "never" then
     self.ScrollingMessagesWrapper:SetPoint("TOPLEFT", position == "outside_left" and 34 or 2, -27)
   else
