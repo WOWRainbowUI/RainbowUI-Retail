@@ -440,6 +440,7 @@ L["BAD_CUSTOM_STYLE_SELECT"] = "Platynator: Your \"Custom\" style select setting
 
 
 local L = Locales.zhTW
+L["RECENT_PLAYER"] = "最近的盟友"
 L["WHEN_MISSING"] = "缺少時"
 L["GROUP"] = "隊伍"
 L["GROUPED"] = "已組隊"
@@ -851,6 +852,7 @@ L["NOT_IN_PULL"] = "不在拉怪範圍內"
 L["PURGEABLE_COLOR"] = "可淨化效果顏色"
 L["SHOW_PURGEABLE"] = "顯示可淨化效果"
 local L = Locales.zhCN
+L["RECENT_PLAYER"] = "最近的盟友"
 L["WHEN_MISSING"] = "缺少时"
 L["GROUP"] = "队伍"
 L["GROUPED"] = "已组队"
