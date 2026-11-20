@@ -9,9 +9,11 @@ function RGX:Trim(str)
     return str:match("^%s*(.-)%s*$")
 end
 
+-- The delimiter is literal text, not a pattern ("." and "%" split as written).
 function RGX:Split(str, delimiter)
     local result = {}
-    for match in (str..delimiter):gmatch("(.-)" .. delimiter) do
+    local escaped = delimiter:gsub("%p", "%%%0")
+    for match in (str..delimiter):gmatch("(.-)" .. escaped) do
         table.insert(result, match)
     end
     return result
@@ -63,8 +65,9 @@ function RGX:MergeTable(dst, src)
   if type(src) ~= "table" then return dst end
   for k, v in pairs(src) do
     if type(v) == "table" then
-      if type(dst[k]) ~= "table" then dst[k] = {} end
-      self:MergeTable(dst[k], v)
+      -- Only a missing value takes the table default; a saved non-table value (a saved false) is the user's choice.
+      if dst[k] == nil then dst[k] = {} end
+      if type(dst[k]) == "table" then self:MergeTable(dst[k], v) end
     elseif dst[k] == nil then
       dst[k] = v
     end

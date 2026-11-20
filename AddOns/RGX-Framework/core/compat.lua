@@ -421,7 +421,8 @@ function RGX.API.GetSpellInfo(spellID)
             return info.name, info.rank, info.iconID, info.castTime, info.minRange, info.maxRange, info.spellID, info.originalIconID
         end
     end
-    return type(GetSpellInfo) == "function" and GetSpellInfo(spellID) or nil
+    if type(GetSpellInfo) == "function" then return GetSpellInfo(spellID) end
+    return nil
 end
 
 function RGX.API.GetSpellCooldown(spellID)
@@ -431,7 +432,8 @@ function RGX.API.GetSpellCooldown(spellID)
             return info.startTime or 0, info.duration or 0, info.isEnabled and 1 or 0, info.modRate or 1
         end
     end
-    return type(GetSpellCooldown) == "function" and GetSpellCooldown(spellID) or nil
+    if type(GetSpellCooldown) == "function" then return GetSpellCooldown(spellID) end
+    return nil
 end
 
 function RGX.API.IsUsableSpell(spellID)
@@ -442,7 +444,8 @@ function RGX.API.IsUsableSpell(spellID)
         end
         return usable, noMana
     end
-    return type(IsUsableSpell) == "function" and IsUsableSpell(spellID) or nil
+    if type(IsUsableSpell) == "function" then return IsUsableSpell(spellID) end
+    return nil
 end
 
 function RGX.API.GetItemInfo(item)
@@ -452,7 +455,8 @@ function RGX.API.GetItemInfo(item)
             return info.itemName, info.itemLink, info.itemQuality, info.itemLevel, info.itemMinLevel, info.itemType, info.itemSubType, info.itemStackCount, info.itemEquipLoc, info.iconFileID, info.itemSellPrice
         end
     end
-    return type(GetItemInfo) == "function" and GetItemInfo(item) or nil
+    if type(GetItemInfo) == "function" then return GetItemInfo(item) end
+    return nil
 end
 
 function RGX.API.GetItemCount(itemID, includeBank)

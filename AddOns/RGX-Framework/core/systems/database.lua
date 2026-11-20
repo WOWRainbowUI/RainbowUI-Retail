@@ -301,6 +301,15 @@ end
 
 -- ── Export / Import popups ─────────────────────────────────────────────────────
 
+-- The popup's edit box: editBox on older clients, EditBox or GetEditBox() on clients with the newer StaticPopup.
+local function PopupEditBox(popup)
+    if type(popup) ~= "table" then return nil end
+    if popup.editBox then return popup.editBox end
+    if popup.EditBox then return popup.EditBox end
+    if type(popup.GetEditBox) == "function" then return popup:GetEditBox() end
+    return nil
+end
+
 function RGX:ShowExportDialog(title, data)
     if type(StaticPopupDialogs) ~= "table" or type(StaticPopup_Show) ~= "function" then return end
     StaticPopupDialogs["RGX_EXPORT"] = {
@@ -309,9 +318,10 @@ function RGX:ShowExportDialog(title, data)
         hasEditBox = true,
         editBoxWidth = 350,
         OnShow = function(self)
-            if self.editBox then
-                self.editBox:SetText(data or "")
-                self.editBox:HighlightText()
+            local box = PopupEditBox(self)
+            if box then
+                box:SetText(data or "")
+                box:HighlightText()
             end
         end,
         timeout = 0,
@@ -331,8 +341,9 @@ function RGX:ShowImportDialog(title, onImport)
         hasEditBox = true,
         editBoxWidth = 350,
         OnAccept = function(self)
-            if self.editBox then
-                onImport(self.editBox:GetText() or "")
+            local box = PopupEditBox(self)
+            if box then
+                onImport(box:GetText() or "")
             end
         end,
         timeout = 0,
@@ -744,7 +755,8 @@ end
 function DB:ShowImportDialog()
     RGX:ShowImportDialog("Paste profile data:", function(str)
         local profile = self:DeserializeProfile(str)
-        if profile then
+        -- Only a profile table is stored: anything else would become the active profile and break every later login.
+        if type(profile) == "table" then
             local name = "Imported_" .. date("%Y%m%d_%H%M%S")
             self._raw.profiles = self._raw.profiles or {}
             self._raw.profiles[name] = profile

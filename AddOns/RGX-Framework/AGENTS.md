@@ -118,6 +118,13 @@ local addon = RGXAddon("MyAddon", {
 })
 ```
 
+`db` is stored in a SavedVariables table named after the addon (`MyAddonDB`, non-identifier characters removed;
+`dbName = "..."` picks another name). The addon's TOC must declare it, or every setting resets on reload:
+
+```toc
+## SavedVariables: MyAddonDB
+```
+
 `local RGX = assert(_G.RGXFramework, ...)` is the advanced escape hatch, not the
 normal authoring path.
 

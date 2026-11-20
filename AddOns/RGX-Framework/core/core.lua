@@ -1009,13 +1009,15 @@ function RGX.Addon(name, opts)
     function addon:Warn(msg)   print("|cffffcc00" .. prefix .. msg .. "|r") end
     function addon:Error(msg)  print("|cffff4444" .. prefix .. msg .. "|r") end
 
-    local function defaultScopedId(kind, eventName)
-        return string.format("%s_%s_%s", tostring(name), tostring(kind), tostring(eventName))
+    -- Without an explicit id each callback gets its own: two handlers for one event both run, and registering the
+    -- same callback again replaces itself instead of stacking.
+    local function defaultScopedId(kind, eventName, callback)
+        return string.format("%s_%s_%s_%s", tostring(name), tostring(kind), tostring(eventName), tostring(callback))
     end
 
     function addon:RegisterEvent(eventName, callback, id)
         if type(eventName) ~= "string" or eventName == "" then return false end
-        local handlerId = id or defaultScopedId("event", eventName)
+        local handlerId = id or defaultScopedId("event", eventName, callback)
         local registered = RGX:RegisterEvent(eventName, callback, handlerId, self)
         if registered then
             self._rgxEventIds[eventName] = self._rgxEventIds[eventName] or {}
@@ -1050,7 +1052,7 @@ function RGX.Addon(name, opts)
 
     function addon:RegisterUnitEvent(eventName, unit, callback, id)
         if type(eventName) ~= "string" or eventName == "" then return false end
-        local handlerId = id or defaultScopedId("unit", eventName)
+        local handlerId = id or defaultScopedId("unit", eventName, callback)
         local registered = RGX:RegisterUnitEvent(eventName, unit, callback, handlerId, self)
         if registered then
             self._rgxUnitEventIds[eventName] = self._rgxUnitEventIds[eventName] or {}
@@ -1085,7 +1087,7 @@ function RGX.Addon(name, opts)
 
     function addon:RegisterMessage(message, callback, id)
         if type(message) ~= "string" or message == "" then return false end
-        local handlerId = id or defaultScopedId("message", message)
+        local handlerId = id or defaultScopedId("message", message, callback)
         local registered = RGX:RegisterMessage(message, callback, handlerId, self)
         if registered then
             self._rgxMessageIds[message] = self._rgxMessageIds[message] or {}

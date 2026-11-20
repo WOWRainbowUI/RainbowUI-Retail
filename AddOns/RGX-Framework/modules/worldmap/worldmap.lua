@@ -417,42 +417,53 @@ end
 -- Waypoints - the game's own map pin
 --=============================================================================
 
+-- Check accessibility before comparing, calculating with or forwarding a value.
+local function waypointValueAccessible(value)
+    local api = RGX.API
+    if not (api and type(api.CanAccessValue) == "function") then return false end
+    local ok, accessible = pcall(api.CanAccessValue, value)
+    return ok and accessible == true
+end
+
+local function waypointNumber(value)
+    return waypointValueAccessible(value) and type(value) == "number"
+        and value == value and value > -math.huge and value < math.huge
+end
+
 local function ValidMapID(mapID)
-    return type(mapID) == "number" and mapID == mapID and mapID > 0 and mapID == math.floor(mapID)
+    return waypointNumber(mapID) and mapID > 0 and mapID % 1 == 0
 end
 
 -- Zone coordinates are finite numbers within 0-100.
 local function ValidZoneCoord(v)
-    return type(v) == "number" and v == v and v >= 0 and v <= 100
+    return waypointNumber(v) and v >= 0 and v <= 100
 end
 
--- True when the client can put its own map pin on this map. Fails closed: an error or any answer other than
--- true from the client's capability query refuses the pin. A client without that query attempts the pin and
--- the setter's own result decides.
+-- True only when the client explicitly permits its map pin on this map.
 function WorldMap:CanSetWaypoint(mapID)
-    if not ValidMapID(mapID) then return false end
-    if not (C_Map and type(C_Map.SetUserWaypoint) == "function" and CreateVector2D) then return false end
-    if type(C_Map.CanSetUserWaypointOnMap) == "function" then
-        local ok, can = pcall(C_Map.CanSetUserWaypointOnMap, mapID)
-        return ok and can == true
-    end
-    return true
+    if not waypointNumber(mapID) or mapID <= 0 or mapID % 1 ~= 0 then return false end
+    if not (C_Map and type(C_Map.SetUserWaypoint) == "function"
+        and type(C_Map.CanSetUserWaypointOnMap) == "function"
+        and type(CreateVector2D) == "function") then return false end
+    local ok, can = pcall(C_Map.CanSetUserWaypointOnMap, mapID)
+    return ok and waypointValueAccessible(can) and can == true
 end
 
 -- Put the game's map pin on mapID at zone coordinates x, y (0-100) and track it (opts.track = false leaves
 -- tracking alone). Returns true when the pin is set; false for invalid input, a map the client cannot pin, or a
 -- setter error. The caller tells the player.
 function WorldMap:SetWaypoint(mapID, x, y, opts)
-    if not (ValidZoneCoord(x) and ValidZoneCoord(y)) or not self:CanSetWaypoint(mapID) then return false end
+    if not waypointNumber(x) or not waypointNumber(y)
+        or x < 0 or x > 100 or y < 0 or y > 100
+        or not self:CanSetWaypoint(mapID) then return false end
     local px, py = x / 100, y / 100
     local point = { uiMapID = mapID, position = CreateVector2D(px, py) }
     if _G.UiMapPoint and type(_G.UiMapPoint.CreateFromCoordinates) == "function" then
         local ok, made = pcall(_G.UiMapPoint.CreateFromCoordinates, mapID, px, py)
         if ok and made then point = made end
     end
-    -- C_Map.SetUserWaypoint reports wasSet; a client that returns nothing is taken at its word that it set it.
     local ok, wasSet = pcall(C_Map.SetUserWaypoint, point)
-    if not ok or wasSet == false then return false end
+    if not (ok and waypointValueAccessible(wasSet) and wasSet == true) then return false end
     if not (type(opts) == "table" and opts.track == false)
         and C_SuperTrack and type(C_SuperTrack.SetSuperTrackedUserWaypoint) == "function" then
         pcall(C_SuperTrack.SetSuperTrackedUserWaypoint, true)

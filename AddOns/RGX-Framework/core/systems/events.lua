@@ -15,7 +15,11 @@ RGX.unitEvents = RGX.unitEvents or {}
 RGX.messages = RGX.messages or {}
 RGX.pendingFrameEvents = RGX.pendingFrameEvents or {}
 RGX.registeredFrameEvents = RGX.registeredFrameEvents or {}
+-- Lifecycle events are registered when the framework loads, outside any dispatch, and never deferred: a framework
+-- loaded during combat (a reload in combat) would otherwise queue ADDON_LOADED until combat ends and miss every
+-- addon's load event.
 RGX.wakeFrameEvents = RGX.wakeFrameEvents or {
+    ADDON_LOADED = true,
     PLAYER_LOGIN = true,
     PLAYER_ENTERING_WORLD = true,
     PLAYER_REGEN_ENABLED = true,
@@ -222,6 +226,12 @@ local function registerHandler(container, key, callback, id, owner, defaultOwner
     end
 
     local handlerId = makeHandlerId(callback, id)
+    -- A method name is the default id; another owner's handler with the same method name keeps its slot, so this
+    -- owner's gets an owner-qualified id instead of replacing it.
+    if callbackType == "string" and not (type(id) == "string" and id ~= "")
+        and bucket[handlerId] and bucket[handlerId].owner ~= owner then
+        handlerId = handlerId .. "@" .. tostring(owner)
+    end
     bucket[handlerId] = {
         callback = callback,
         callbackType = callbackType,
@@ -289,7 +299,8 @@ local function dispatchHandlers(container, channel, key, ...)
             -- is a handler fault, not a framework one, and must stay
             -- isolated like any other handler error.
             local method
-            ok, err, method = pcall(function() return entry.owner[entry.callback] end)
+            ok, method = pcall(function() return entry.owner[entry.callback] end)
+            if not ok then err = method end
             if ok then
                 ok, err = pcall(method, entry.owner, key, ...)
             end
@@ -574,7 +585,8 @@ function RGX:FireEvent(event, ...)
             local ok, err
             if entry.callbackType == "string" then
               local method
-              ok, err, method = pcall(function() return entry.owner[entry.callback] end)
+              ok, method = pcall(function() return entry.owner[entry.callback] end)
+              if not ok then err = method end
               if ok then
                 ok, err = pcall(method, entry.owner, event, ...)
               end

@@ -388,6 +388,17 @@ local function CreateAddHelper(frame)
     frame._rgxCanvas = canvas
     frame._rgxFlow = flow
 
+    -- Custom compositors share the same reflow owner as managed controls.
+    -- A declared extent survives tab refreshes without exposing private canvas fields.
+    function frame:SetContentHeight(height)
+        if type(height) ~= "number" or height ~= height or height < 0 or height == math.huge then
+            return false
+        end
+        canvas._rgxMinHeight = height
+        canvas:SetHeight(math.max(1, height, flow:Apply()))
+        return true
+    end
+
     local function Add(w)
         if w then flow:Add(w) end
         return w
@@ -535,6 +546,14 @@ local function BuildAddonOptionTabs(UI, addon, options, columns, resolveControl)
         end
     end
 
+    -- The default a control resets to: its own declared default, else the addon's declared db default for that key.
+    local function DeclaredDefault(ctrl, key)
+        if ctrl.default ~= nil then return ctrl.default end
+        local defaults = type(addon.db) == "table" and rawget(addon.db, "_defaults") or nil
+        if type(defaults) == "table" then return defaults[key] end
+        return nil
+    end
+
     local function AddControl(host, flow, rawControl)
         local ctrl = resolveControl(rawControl)
         if not (ctrl and type(ctrl) == "table") then return end
@@ -542,18 +561,18 @@ local function BuildAddonOptionTabs(UI, addon, options, columns, resolveControl)
         if type(ctrl.toggle) == "string" then
             -- Canonical on/off element: the declarative toggle renders the
             -- consumer-proven switch. CreateToggle stays as a legacy helper.
-            w = UI:CreateSwitch(host, { key = ctrl.toggle, label = ctrl.label or ctrl.toggle:gsub("^%l", string.upper), storage = addon.db, default = ctrl.default, onChange = ChangeCallback(ctrl, ctrl.toggle) })
+            w = UI:CreateSwitch(host, { key = ctrl.toggle, label = ctrl.label or ctrl.toggle:gsub("^%l", string.upper), storage = addon.db, default = DeclaredDefault(ctrl, ctrl.toggle), onChange = ChangeCallback(ctrl, ctrl.toggle) })
             if w and w.HookScript and w.Refresh then
                 w:HookScript("OnShow", function() w:Refresh() end)
             end
         elseif type(ctrl.slider) == "string" then
-            w = UI:CreateSlider(host, { key = ctrl.slider, label = ctrl.label or ctrl.slider:gsub("^%l", string.upper), storage = addon.db, min = ctrl.min or 0, max = ctrl.max or 100, step = ctrl.step or 1, suffix = ctrl.suffix, progress = ctrl.progress, valueDisplay = ctrl.valueDisplay, onChange = ChangeCallback(ctrl, ctrl.slider) })
+            w = UI:CreateSlider(host, { key = ctrl.slider, label = ctrl.label or ctrl.slider:gsub("^%l", string.upper), storage = addon.db, default = DeclaredDefault(ctrl, ctrl.slider), min = ctrl.min or 0, max = ctrl.max or 100, step = ctrl.step or 1, suffix = ctrl.suffix, progress = ctrl.progress, valueDisplay = ctrl.valueDisplay, onChange = ChangeCallback(ctrl, ctrl.slider) })
         elseif type(ctrl.panel_alpha) == "string" then
-            w = UI:CreatePanelAlpha(host, { key = ctrl.panel_alpha, label = ctrl.label or ctrl.panel_alpha:gsub("^%l", string.upper), storage = addon.db, default = ctrl.default or 100, presets = ctrl.presets, onChange = ChangeCallback(ctrl, ctrl.panel_alpha) })
+            w = UI:CreatePanelAlpha(host, { key = ctrl.panel_alpha, label = ctrl.label or ctrl.panel_alpha:gsub("^%l", string.upper), storage = addon.db, default = DeclaredDefault(ctrl, ctrl.panel_alpha) or 100, presets = ctrl.presets, onChange = ChangeCallback(ctrl, ctrl.panel_alpha) })
         elseif type(ctrl.textbox) == "string" then
-            w = UI:CreateTextInput(host, { key = ctrl.textbox, label = ctrl.label or ctrl.textbox:gsub("^%l", string.upper), storage = addon.db, default = ctrl.default or "", placeholder = ctrl.placeholder, onChange = ChangeCallback(ctrl, ctrl.textbox) })
+            w = UI:CreateTextInput(host, { key = ctrl.textbox, label = ctrl.label or ctrl.textbox:gsub("^%l", string.upper), storage = addon.db, default = DeclaredDefault(ctrl, ctrl.textbox) or "", placeholder = ctrl.placeholder, onChange = ChangeCallback(ctrl, ctrl.textbox) })
         elseif type(ctrl.color) == "string" then
-            w = UI:CreateColorPicker(host, { key = ctrl.color, label = ctrl.label or ctrl.color:gsub("^%l", string.upper), storage = addon.db, default = ctrl.default or addon.db[ctrl.color], onChange = function(r, g, b)
+            w = UI:CreateColorPicker(host, { key = ctrl.color, label = ctrl.label or ctrl.color:gsub("^%l", string.upper), storage = addon.db, default = DeclaredDefault(ctrl, ctrl.color) or addon.db[ctrl.color], onChange = function(r, g, b)
                 addon.db[ctrl.color] = { r = r, g = g, b = b }
                 local changed = ChangeCallback(ctrl, ctrl.color)
                 if changed then changed(r, g, b) end
@@ -671,7 +690,8 @@ local function BuildAddonOptionTabs(UI, addon, options, columns, resolveControl)
                     AddControl(card.columns and card.columns[cardSlot] or card.content, cardFlows[cardSlot], rawControl)
                 end
                 card:AutoHeight()
-                flows[slot]:Add(card)
+                -- fill: the card takes its grid column's width (a section's natural width is a fixed 300px).
+                flows[slot]:Add(card, { fill = true })
             end
 
             local function reflow()
@@ -691,7 +711,17 @@ local function BuildAddonOptionTabs(UI, addon, options, columns, resolveControl)
         return type(entry) == "table" and type(entry.page) == "string"
     end
 
-    for tabName, controls in pairs(options) do
+    -- Tabs declared as a name-keyed table have no order of their own, so they come in a stable one: General first,
+    -- then the rest by name (pairs() order would change from load to load).
+    local tabNames = {}
+    for tabName in pairs(options) do tabNames[#tabNames + 1] = tabName end
+    table.sort(tabNames, function(a, b)
+        if a == "General" then return b ~= "General" end
+        if b == "General" then return false end
+        return tostring(a) < tostring(b)
+    end)
+    for _, tabName in ipairs(tabNames) do
+        local controls = options[tabName]
         tabs[#tabs + 1] = {
             text = tabName,
             content = function(frame)
@@ -1112,7 +1142,17 @@ end
                                 content._dirty = nil
                             end
                             if tabInfo and type(tabInfo.content) == "function" then
+                                local clock = type(debugprofilestop) == "function" and debugprofilestop or nil
+                                local buildStart = clock and clock()
                                 local ok, err = pcall(tabInfo.content, CreateAddHelper(content))
+                                if clock then
+                                    self.tabBuildTimings = self.tabBuildTimings or {}
+                                    local spent = clock() - buildStart
+                                    self.tabBuildTimings[i] = spent
+                                    if spent > 250 then
+                                        RGX:Debug(string.format("[RGXOptions] %s tab built in %.0fms", tostring(tabInfo.text), spent))
+                                    end
+                                end
                                 if ok then
                                     content._built = true
                                 else
@@ -1353,9 +1393,16 @@ end
         end
 
         local opened = false
+        -- Where an open spends its time (#49/#61): category lookup, the open call, and showing. Read with
+        -- panel.openTimings; an open over the slow threshold also reports its phases to the debug log.
+        local clock = type(debugprofilestop) == "function" and debugprofilestop or nil
+        local started = clock and clock() or 0
+        local timings = { category = 0, open = 0, show = 0, total = 0 }
+        local mark = started
 
         if opts.openInSettings ~= false then
             local categoryID = self:ResolveCategoryID()
+            if clock then local now = clock(); timings.category = now - mark; mark = now end
             local categoryName = self.settingsCategoryName or self.name
 
             if Settings and type(Settings.OpenToCategory) == "function" and categoryID ~= nil then
@@ -1375,12 +1422,23 @@ end
                 return false
             end
         end
+        if clock then local now = clock(); timings.open = now - mark; mark = now end
 
         if not opened then
             self:ClearAllPoints()
             self:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
             self:Show()
         end
+        if clock then
+            local now = clock()
+            timings.show = now - mark
+            timings.total = now - started
+            if timings.total > 250 then
+                RGX:Debug(string.format("[RGXOptions] open took %.0fms: category %.0fms, open %.0fms, show %.0fms",
+                    timings.total, timings.category, timings.open, timings.show))
+            end
+        end
+        self.openTimings = timings
 
         -- Track hosting so the close button can tell floating panels
         -- (safe to hide) from Settings-canvas hosting (canvas owns chrome).
@@ -1418,17 +1476,33 @@ end
     -- ── Live theme changes ────────────────────────────────────────────────────────
     -- Redraw the panel in the theme and style active now: the chrome boxes, the tab row, the header colours
     -- and title, the banner and every tab's content (rebuilt lazily; the open tab at once).
+    -- Tab buttons are skinned for one style when they are made, and frames cannot be destroyed, so they are kept per
+    -- style and reused: a colour change re-uses the same buttons and a style change makes one set per style at most,
+    -- instead of a new set (and new leaked frames) on every theme change.
+    panel._tabPool = panel._tabPool or {}
     local function RebuildTabs()
         for key in pairs(rowGroups) do rowGroups[key] = nil end
+        local styleKey = (D and type(D.GetStyleId) == "function" and D:GetStyleId()) or "default"
+        local oldKey = panel._tabStyleKey or styleKey
+        panel._tabPool[oldKey] = panel._tabPool[oldKey] or {}
+        for i, old in ipairs(panel.tabs) do panel._tabPool[oldKey][i] = old end
+        local pool = panel._tabPool[styleKey] or {}
+        panel._tabStyleKey = styleKey
         for i, old in ipairs(panel.tabs) do
             local info = old._tabInfo
             local wasShown = old:IsShown()
             old:Hide()
             local row = math.ceil(i / maxPerRow)
             local col = ((i - 1) % maxPerRow) + 1
-            local btn = CreateTabButton(tabArea, info and info.text or "", i, row, col, panel, info and info.icon, addonKey)
+            local btn = pool[i]
+            if not (btn and btn._tabInfo == info) then
+                btn = CreateTabButton(tabArea, info and info.text or "", i, row, col, panel, info and info.icon, addonKey)
+            else
+                btn.tabRow, btn.tabCol = row, col
+                if btn.SetActive then btn:SetActive(false) end
+            end
             btn._tabInfo = info
-            if hideTabRow or not wasShown then btn:Hide() end
+            if hideTabRow or not wasShown then btn:Hide() else btn:Show() end
             panel.tabs[i] = btn
             rowGroups[row] = rowGroups[row] or {}
             table.insert(rowGroups[row], btn)

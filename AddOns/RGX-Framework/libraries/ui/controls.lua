@@ -167,7 +167,14 @@ function UI:CreateColorPicker(parent, options)
                     storage[key] = currentColor
                     swatch.tex:SetColorTexture(nr, ng, nb, 1)
                     onChange(nr, ng, nb)
-                end
+                end,
+                -- Cancel puts back the colour the picker opened with.
+                cancelFunc = function()
+                    currentColor = {r=r, g=g, b=b}
+                    storage[key] = currentColor
+                    swatch.tex:SetColorTexture(r, g, b, 1)
+                    onChange(r, g, b)
+                end,
             })
         end
     end)
@@ -417,14 +424,18 @@ function UI:CreateSlider(parent, options)
 		end)
 	end
 
-	local function apply(value)
+	-- Stores and draws the value; onChange runs only when the stored value actually changes (not at build, not
+	-- on a refresh, not on every frame of a drag that stays on the same step).
+	local function apply(value, silent)
+		if type(value) ~= "number" then value = default end
 		value = min + math.floor((value - min) / step + 0.5) * step
 		value = math.max(min, math.min(max, value))
+		local previous = storage[key]
 		storage[key] = value
 		container.valueLabel:SetText(value .. suffix)
 		valueLabel:SetText(value .. suffix)
 		positionThumbDeferred()
-		onChange(value)
+		if not silent and previous ~= value then onChange(value) end
 	end
 
 	local dragging = false
@@ -480,19 +491,13 @@ function UI:CreateSlider(parent, options)
 	container:SetScript("OnSizeChanged", positionThumbDeferred)
 	trackFrame:SetScript("OnSizeChanged", positionThumbDeferred)
 
-	apply(storage[key] or default)
+	apply(storage[key] or default, true)
 
 	container.SetValue = function(first, maybe)
-		-- Support both control:SetValue(v) and control.SetValue(v)
+		-- Support both control:SetValue(v) and control.SetValue(v); nil resets to the default.
 		local value
-		if maybe ~= nil and first == container then
-			value = maybe
-		elseif maybe == nil then
-			value = first
-		else
-			value = maybe
-		end
-		apply(value)
+		if first == container then value = maybe else value = first end
+		apply(value == nil and default or value)
 	end
 	container.GetValue = function() return storage[key] or default end
 	container.hoverValueLabel = valueLabel
@@ -607,7 +612,7 @@ function UI:CreateVolumeSlider(parent, options)
 	local D = RGX:GetDesign()
 
 	local frame = CreateFrame("Frame", nil, parent)
-	frame:SetHeight(18)
+	frame:SetSize(width, 18)
 
 	local button = CreateFrame("Button", nil, frame)
 	button:SetAllPoints(frame)
@@ -642,9 +647,10 @@ function UI:CreateVolumeSlider(parent, options)
 		return storage[key] or default
 	end
 
-	local function setVolume(volume)
+	local function setVolume(volume, silent)
+		local previous = storage[key]
 		storage[key] = volume
-		onChange(volume)
+		if not silent and previous ~= volume then onChange(volume) end
 	end
 
 	local function updateVisuals()
@@ -675,9 +681,9 @@ function UI:CreateVolumeSlider(parent, options)
 			frame:SetScript("OnUpdate", nil)
 		end
 	end
-	local function apply(volume)
+	local function apply(volume, silent)
 		if volume ~= "low" and volume ~= "high" then volume = "medium" end
-		setVolume(volume)
+		setVolume(volume, silent)
 		refreshVisuals()
 	end
 
@@ -710,10 +716,10 @@ function UI:CreateVolumeSlider(parent, options)
 	frame:SetScript("OnShow", refreshVisuals)
 	frame:SetScript("OnSizeChanged", refreshVisuals)
 
-	apply(getVolume())
+	apply(getVolume(), true)
 
 	frame.Refresh = function()
-		apply(getVolume())
+		apply(getVolume(), true)
 	end
 
 	return frame
@@ -1023,7 +1029,11 @@ function UI:CreateTextInput(parent, options)
         project()
     end)
     input:SetScript("OnEnterPressed", commitAndBlur)
-    input:SetScript("OnEscapePressed", commitAndBlur)
+    -- Escape cancels the edit: the saved text comes back and nothing is stored.
+    input:SetScript("OnEscapePressed", function(widget)
+        widget:ClearFocus()
+        project()
+    end)
     if focusRing then
         -- Hooked after the SetScript calls above so the focus ring follows the scripts that stay.
         input:HookScript("OnEditFocusGained", function() focusRing.ring(D:Unpack("primary")) end)
@@ -1039,16 +1049,10 @@ function UI:CreateTextInput(parent, options)
     project()
 
     container.SetValue = function(first, maybe)
-        -- Support both control:SetValue(v) and control.SetValue(v)
+        -- Support both control:SetValue(v) and control.SetValue(v); nil resets to the default.
         local value
-        if maybe ~= nil and first == container then
-            value = maybe
-        elseif maybe == nil then
-            value = first
-        else
-            value = maybe
-        end
-        commit(tostring(value or ""))
+        if first == container then value = maybe else value = first end
+        commit(value == nil and default or tostring(value))
     end
     container.GetValue = function() return storedValue() end
     container.Refresh = function() project() end

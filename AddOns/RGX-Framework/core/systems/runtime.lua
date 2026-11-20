@@ -423,8 +423,11 @@ if timer.elapsed >= timer.duration then
                 end
 
                 if timer.repeating and timer.active then
-                    timer.elapsed = timer.elapsed - timer.duration
-                    if timer.elapsed < 0 then
+                    -- Keep the rhythm but drop any backlog: after a long gap (a loading screen) a repeating timer
+                    -- fires once, not once per missed period.
+                    if timer.duration > 0 then
+                        timer.elapsed = (timer.elapsed - timer.duration) % timer.duration
+                    else
                         timer.elapsed = 0
                     end
                 else
@@ -459,11 +462,18 @@ function RGX:Hook(target, method, callback)
         return false
     end
 
+    -- Deduplicated per callback: any number of addons may post-hook the same function (hooksecurefunc allows it),
+    -- but one callback is installed once.
     self._hookRegistry[target] = self._hookRegistry[target] or {}
-    if self._hookRegistry[target][method] then
+    local hooked = self._hookRegistry[target][method]
+    if type(hooked) ~= "table" then
+        hooked = {}
+        self._hookRegistry[target][method] = hooked
+    end
+    if hooked[callback] then
         return false
     end
-    self._hookRegistry[target][method] = true
+    hooked[callback] = true
 
     hooksecurefunc(target, method, callback)
     return true
