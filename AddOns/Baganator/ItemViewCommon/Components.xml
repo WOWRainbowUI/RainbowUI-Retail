@@ -112,7 +112,7 @@
     </Layers>
   </Button>
 
-  <Button name="BaganatorSortButtonTemplate" virtual="true" inherits="BaganatorTooltipIconButtonTemplate" motionScriptsWhileDisabled="true">
+  <Button name="BaganatorSortButtonTemplate" virtual="true" inherits="BaganatorTooltipIconButtonTemplate" motionScriptsWhileDisabled="true" registerForClicks="LeftButtonUp, RightButtonUp">
     <KeyValues>
       <KeyValue key="tooltipHeader" value="BAGANATOR_L_SORT" type="global"/>
     </KeyValues>

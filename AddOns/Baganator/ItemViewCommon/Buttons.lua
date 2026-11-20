@@ -90,6 +90,7 @@ function addonTable.ItemViewCommon.ButtonsMixin:Arrange()
       addonTable.Gamepad.OneWayLink(button, "Down", self.gamepadDown)
       if prevLeft then
         button:SetPoint("LEFT", prevLeft, "RIGHT")
+        addonTable.Gamepad.LinkButtons(button, "Left", prevLeft)
       else
         addonTable.Gamepad.LinkButtons(button, "Down", self.gamepadDown)
         button:SetPoint("TOPLEFT", self:GetParent(), "TOPLEFT", addonTable.Constants.ButtonFrameOffset, addonTable.Constants.ButtonFrameOffsetTop)
@@ -118,11 +119,9 @@ function addonTable.ItemViewCommon.ButtonsMixin:Arrange()
       end
       addonTable.Gamepad.ResetAssociations(button)
       addonTable.Gamepad.OneWayLink(button, "Down", self.gamepadDown)
-      if not prevRight then
-        addonTable.Gamepad.LinkButtons(prevLeft, "Right", button)
-      end
       if prevRight then
         button:SetPoint("RIGHT", prevRight, "LEFT")
+        addonTable.Gamepad.LinkButtons(button, "Right", prevRight)
       elseif addonTable.Constants.IsGamepadInUse or not self:GetParent().CloseButton then
         button:SetPoint("TOPRIGHT", self:GetParent(), "TOPRIGHT", -5, addonTable.Constants.ButtonFrameOffsetTop)
       else
@@ -131,6 +130,9 @@ function addonTable.ItemViewCommon.ButtonsMixin:Arrange()
       table.insert(self.active.topRight, button)
       prevRight = button
     end
+  end
+  if prevRight and prevLeft then
+    addonTable.Gamepad.LinkButtons(prevLeft, "Right", prevRight)
   end
 
   local shown = true
