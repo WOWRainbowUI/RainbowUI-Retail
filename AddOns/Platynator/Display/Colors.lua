@@ -323,6 +323,13 @@ function addonTable.Display.GetColor(settings, state, unit)
           table.insert(colorQueue, {color = s.colors.friend})
         end
       end
+    elseif s.kind == "recent" then
+      if UnitIsPlayer(unit) then
+        local guid = UnitGUID(unit)
+        if not issecretvalue(guid) and C_RecentAllies.IsRecentAllyByGUID(guid) then
+          table.insert(colorQueue, {color = s.colors.recent})
+        end
+      end
     elseif s.kind == "classColors" then
       if state.isPlayer then
         local _, class = UnitClass(unit)

@@ -506,9 +506,12 @@ function addonTable.Display.AurasManagerNextMixin:InitializeWidgets(parent, aura
 
     local padding = 20 * details.padding
 
+    local sort = details.sorting.kind == "blizzard" and AuraContainerSortMethod.Default or AuraContainerSortMethod.ExpirationOnly
+    local reverse = details.sorting.reversed and AuraContainerSortDirection.Reverse or AuraContainerSortDirection.Normal
     for i = 1, self[kind].groupsCount do
       local key = tostring(i)
       self[kind]:SetAuraGroupLayout(key, {elementSpacing = padding, lineSpacing = padding})
+      self[kind]:SetAuraGroupSortMethod(key, sort, reverse)
       self[kind]:SetAuraGroupEnabled(key, false)
     end
 

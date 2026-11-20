@@ -608,6 +608,27 @@ addonTable.CustomiseDialog.ColorsConfig = {
       },
     },
   },
+  ["recent"] = {
+    label = addonTable.Locales.RECENT_PLAYER,
+    default = {
+      kind = "recent",
+      colors = {
+        recent = GetColor("00adf0")
+      },
+    },
+    entries = {
+      {
+        label = addonTable.Locales.RECENT_PLAYER,
+        kind = "colorPicker",
+        setter = function(details, value)
+        details.colors.recent = value
+        end,
+        getter = function(details)
+        return details.colors.recent
+        end,
+      },
+    },
+  },
   ["classColors"] = {
     label = addonTable.Locales.CLASS_COLORS,
     default = {
