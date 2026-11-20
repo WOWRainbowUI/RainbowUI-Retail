@@ -2518,3 +2518,16 @@ Change Log:
 * Added Midnight spells for The Labyrinth of Kindo'jan
 * Added Midnight spells for Magister's Terrace
 
+6.12.4
+* Fixed player names and outdated version alerts in WoW: Forever
+* Added Forever spells (world)
+* Added Forever spells (PvP)
+* Added Forever alerts for Blackrock Spire
+* Added Forever alerts for Gnomeregan
+* Added Forever alerts for Maraudon
+* Added Forever alerts for Scarlet Monastery
+* Added Forever alerts for Scholomance
+* Added Forever alerts for Stratholme
+* Added Forever alerts for Sunken Temple
+* Added Forever alerts for Ruins of Lordaeron
+* Added Forever alerts for The Hall of Thanes

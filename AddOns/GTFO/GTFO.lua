@@ -29,10 +29,10 @@ GTFO = {
 		IgnoreTimeAmount = .2;
 		AFKAlertMode = nil;
 	};
-	Version = "6.12.3"; -- Version number (text format)
+	Version = "6.12.4"; -- Version number (text format)
 	VersionNumber = 0; -- Numeric version number for checking out-of-date clients (placeholder until client is detected)
 	RetailVersionNumber = 61203; -- Numeric version number for checking out-of-date clients (retail)
-	ForeverVersionNumber = 61100; -- Numeric version number for checking out-of-date clients (WoW: Forever)
+	ForeverVersionNumber = 61204; -- Numeric version number for checking out-of-date clients (WoW: Forever)
 	ClassicVersionNumber = 60602; -- Numeric version number for checking out-of-date clients (Vanilla classic)
 	BurningCrusadeVersionNumber = 60602; -- Numeric version number for checking out-of-date clients (TBC classic)
 	WrathVersionNumber = 60602; -- Numeric version number for checking out-of-date clients (Wrath classic)
@@ -830,6 +830,20 @@ function GTFO.AlertText(iAlert)
 	end
 end
 
+function GTFO.GetVersionUnitIdentity(unit)
+	if (GTFO.ForeverMode) then
+		local name = GetUnitName(unit);
+		return name, name;
+	end
+
+	local name, server = UnitName(unit);
+	if (server and server ~= "") then
+		local fullname = name.."-"..server;
+		return fullname, fullname;
+	end
+	return name.."-"..GTFO_GetRealmName(), name;
+end
+
 -- Get a list of all the people in your group/raid using GTFO and their version numbers
 function GTFO_Command_Version()
 	GTFO_SendUpdateRequest();
@@ -846,16 +860,7 @@ function GTFO_Command_Version()
 	if (raidmembers > 0 or partymembers > 0) then
 		if (raidmembers > 0) then
 			for i = 1, raidmembers, 1 do
-				local displayName;
-				local name, server = UnitName("raid"..i);
-				local fullname = name;
-				if (server and server ~= "") then
-					fullname = name.."-"..server;
-					displayName = fullname;
-				else
-					fullname = name.."-"..GTFO_GetRealmName()
-					displayName = name;
-				end
+				local fullname, displayName = GTFO.GetVersionUnitIdentity("raid"..i);
 				if (GTFO.Users[fullname]) then
 					GTFO_ChatPrint(displayName..": "..GTFO_ParseVersionColor(GTFO.Users[fullname]));
 					users = users + 1;
@@ -865,19 +870,14 @@ function GTFO_Command_Version()
 			end
 			GTFO_ChatPrint(string.format(GTFOLocal.Group_RaidMembers, users, raidmembers));
 		elseif (partymembers > 0) then
-			GTFO_ChatPrint(UnitName("player")..": "..GTFO_ParseVersionColor(GTFO.VersionNumber));
+			local playerName = UnitName("player");
+			if (GTFO.ForeverMode) then
+				playerName = GTFO.GetVersionUnitIdentity("player");
+			end
+			GTFO_ChatPrint(playerName..": "..GTFO_ParseVersionColor(GTFO.VersionNumber));
 			users = 1;
 			for i = 1, partymembers, 1 do
-				local displayName;
-				local name, server = UnitName("party"..i);
-				local fullname = name;
-				if (server and server ~= "") then
-					fullname = name.."-"..server
-					displayName = fullname;
-				else
-					fullname = name.."-"..GTFO_GetRealmName()
-					displayName = name;
-				end
+				local fullname, displayName = GTFO.GetVersionUnitIdentity("party"..i);
 				if (GTFO.Users[fullname]) then
 					GTFO_ChatPrint(displayName..": "..GTFO_ParseVersionColor(GTFO.Users[fullname]));
 					users = users + 1;
