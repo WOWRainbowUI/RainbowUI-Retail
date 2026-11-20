@@ -23,6 +23,13 @@ local AuraSoundRestrictionTypes = {
 	--{ Enum.AddOnRestrictionType.Map, "Map" }, -- This doesn't work right now, reports false positives
 };
 
+function GTFO.GetVersionSenderIdentity(sender)
+	if (GTFO.ForeverMode) then
+		return (string.gsub(sender, "%-.*$", ""));
+	end
+	return sender;
+end
+
 function GTFO_OnEvent(self, event, ...)
 	if (event == "VARIABLES_LOADED") then
 		C_ChatInfo.RegisterAddonMessagePrefix("GTFO");
@@ -94,7 +101,11 @@ function GTFO_OnEvent(self, event, ...)
 			GTFO_ChatPrint(string.format(GTFOLocal.Loading_LoadedSuspended, GTFO.Version));
 		end
 		
-		GTFO.Users[UnitName("player")] = GTFO.VersionNumber;
+		local playerName = UnitName("player");
+		if (GTFO.ForeverMode) then
+			playerName = GTFO.GetVersionUnitIdentity("player");
+		end
+		GTFO.Users[playerName] = GTFO.VersionNumber;
 		GTFO_GetSounds();
 		GTFO.TankMode = GTFO_CheckTankMode();
 		GTFO_SendUpdateRequest();
@@ -209,10 +220,11 @@ function GTFO_OnEvent(self, event, ...)
 				if (sCommand == "V" and sValue) then
 					-- Version update received
 					--GTFO_DebugPrint(msgSender.." sent version info '"..sValue.."' to "..msgType);
-					if (not GTFO.Users[msgSender]) then
+					local sender = GTFO.GetVersionSenderIdentity(msgSender);
+					if (not GTFO.Users[sender]) then
 						GTFO_SendUpdate(msgType);
 					end
-					GTFO.Users[msgSender] = sValue;
+					GTFO.Users[sender] = sValue;
 					if ((tonumber(sValue) > GTFO.VersionNumber) and not GTFO.UpdateFound) then
 						GTFO.UpdateFound = GTFO_ParseVersionNumber(sValue);
 						if (not GTFO.Settings.NoVersionReminder) then
