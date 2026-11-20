@@ -27,6 +27,7 @@ L.COMMAND_USAGE = {
 	"  " .. L.COMMAND_SHOWVER .. " - Die aktuelle Version anzeigen.",
 	"  " .. L.COMMAND_HELP .. " - Hilfe anzeigen.",
 }
+L.COMMAND_USAGE_DESIGN = "  %s - Das Optionsfenster in diesem Design öffnen."
 
 L.MSG_DISABLE				= "Addon deaktiviert."
 L.MSG_ENABLE				= "Addon aktiviert."

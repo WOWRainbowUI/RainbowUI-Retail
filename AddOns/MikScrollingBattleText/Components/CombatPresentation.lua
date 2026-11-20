@@ -486,8 +486,9 @@ function Presentation:Out(record)
 		end
 	end
 	if record.event == "damage" then
-		local isSpell = not result.melee or result.hand == "ranged"
 		local school = RestrictedValue:Number(record.school)
+		local isSpell = not result.melee
+			or (result.hand == "ranged" and school ~= nil and school ~= 1)
 		local candidateSpell = result.procCandidate and result.candidateSpell
 		if RestrictedValue:IsRestricted(record.amount) then
 			self.config.batcher:DisplayRestricted(

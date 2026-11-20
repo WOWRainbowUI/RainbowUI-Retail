@@ -6,6 +6,7 @@ local Popups = MSBTOptions.Popups
 local Media = MikSBT.Media
 local SoundAPI = MikSBT.API.Sounds
 local L = MikSBT.translations
+local thresholdOptions = { "lowHealthThreshold", "lowManaThreshold" }
 
 function module.ShowTab(frame)
 	if not frame.created then
@@ -40,10 +41,28 @@ function module.ShowTab(frame)
 			controls[resource.control] = checkbox
 		end
 
+		local anchor = checkbox
+		for index, option in ipairs(thresholdOptions) do
+			local slider = Controls.CreateSlider(frame)
+			locale = L.SLIDERS[option]
+			slider:Configure(180, locale.label, locale.tooltip)
+			slider:SetPoint("TOPLEFT", anchor, "BOTTOMLEFT", 0,
+				index == 1 and -24 or -20)
+			slider:SetMinMaxValues(1, 99)
+			slider:SetValueStep(1)
+			slider:SetValueChangedHandler(function(_, value)
+				if not frame.refreshingThresholds then
+					MikSBT.Profiles.SetOption(nil, option, math.floor(value + 0.5))
+				end
+			end)
+			controls[option .. "Slider"] = slider
+			anchor = slider
+		end
+
 		local button = Controls.CreateOptionButton(frame)
 		locale = L.BUTTONS.addCustomSound
 		button:Configure(20, locale.label, locale.tooltip)
-		button:SetPoint("TOPLEFT", checkbox, "BOTTOMLEFT", -15, -20)
+		button:SetPoint("TOPLEFT", anchor, "BOTTOMLEFT", -15, -20)
 		button:SetClickHandler(function(this)
 			Popups.DisableControls(controls)
 			module.ShowAddSound(frame, this, function()
@@ -61,13 +80,26 @@ function module.ShowTab(frame)
 	controls.enableSoundsCheckbox:SetChecked(not profile.soundsDisabled)
 	controls.lowHealthSoundCheckbox:SetChecked(not profile.lowHealthSoundDisabled)
 	controls.lowManaSoundCheckbox:SetChecked(not profile.lowManaSoundDisabled)
+	frame.refreshingThresholds = true
+	for _, option in ipairs(thresholdOptions) do
+		local value = profile[option]
+		if type(value) ~= "number" or not (value >= 1 and value <= 99) then
+			value = 35
+		end
+		controls[option .. "Slider"]:SetValue(value)
+	end
+	frame.refreshingThresholds = false
 end
+
+-- Own sounds removed this session: the shared media library keeps them until a reload,
+-- so they stay registered and adding the name again only replaces the file.
+local removedSounds = {}
 
 local function ValidateRegistration(name, file)
 	if type(name) ~= "string" or name:match("^%s*$") then
 		return L.MSG_INVALID_CUSTOM_SOUND_NAME
 	end
-	if name == "None" or Media.sounds[name] then
+	if name == "None" or Media.sounds[name] and not removedSounds[name] then
 		return L.MSG_SOUND_NAME_ALREADY_EXISTS
 	end
 	if not SoundAPI:NormalizeFile(file) then return L.MSG_INVALID_SOUND_FILE end
@@ -94,13 +126,30 @@ function module.ShowAddSound(parent, anchor, hideHandler)
 			local file = SoundAPI:NormalizeFile(settings.secondInputText)
 			local problem = ValidateRegistration(name, file)
 			if problem then MikSBT.Print(problem); return end
-			if Media.RegisterSound(name, file) then
+			if removedSounds[name] or Media.RegisterSound(name, file) then
+				removedSounds[name] = nil
+				Media.sounds[name] = file
 				local saved = MikSBT.Profiles.savedMedia
 				if type(saved.sounds) ~= "table" then saved.sounds = {} end
 				saved.sounds[name] = file
+				-- The popup hides before it saves, so the caller hears of the new sound again.
+				if hideHandler then hideHandler() end
 			end
 		end,
 	})
+end
+
+function module.PlaySound(name)
+	if not Media.PlaySound(name) then
+		MikSBT.Print(L.MSG_SOUND_PLAYBACK_FAILED)
+	end
+end
+
+-- Only the saved entry goes; a name another addon registered first keeps its sound.
+function module.RemoveSound(name)
+	local sounds = MikSBT.Profiles.savedMedia.sounds
+	if Media.sounds[name] == sounds[name] then removedSounds[name] = true end
+	sounds[name] = nil
 end
 
 function module.PopulateEventSound(frame, selected)
@@ -115,12 +164,14 @@ function module.PopulateEventSound(frame, selected)
 	dropdown:SetSelectedID(selected or "")
 end
 
-function module.CreateEventControls(frame, enableControls)
+-- changeHandler, when given, also hears a custom sound file chosen through the input popup.
+function module.CreateEventControls(frame, enableControls, changeHandler)
 	local controls = frame.controls
 	local locale = L.DROPDOWNS.sound
 	local dropdown = Controls.CreateDropdown(frame)
 	dropdown:Configure(150, locale.label, locale.tooltip)
 	dropdown:SetPoint("TOPLEFT", controls.messageEditbox, "BOTTOMLEFT", 0, -20)
+	dropdown:SetChangeHandler(changeHandler)
 	controls.soundDropdown = dropdown
 
 	local custom = Controls.CreateIconButton(frame, "Configure")
@@ -140,7 +191,10 @@ function module.CreateEventControls(frame, enableControls)
 			end,
 			saveHandler = function(settings)
 				local file = SoundAPI:NormalizeFile(settings.inputText)
-				if file then module.PopulateEventSound(frame, file) end
+				if file then
+					module.PopulateEventSound(frame, file)
+					if changeHandler then changeHandler(dropdown, file) end
+				end
 			end,
 			hideHandler = enableControls,
 		})
@@ -154,9 +208,7 @@ function module.CreateEventControls(frame, enableControls)
 	play:SetClickHandler(function()
 		local selected = dropdown:GetSelectedID()
 		if not selected or selected == "" then return end
-		if not Media.PlaySound(selected) then
-			MikSBT.Print(L.MSG_SOUND_PLAYBACK_FAILED)
-		end
+		module.PlaySound(selected)
 	end)
 	controls.playSoundButton = play
 end

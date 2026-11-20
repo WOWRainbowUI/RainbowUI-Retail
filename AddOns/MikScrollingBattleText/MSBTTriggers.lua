@@ -389,7 +389,8 @@ local alertsEnabled = false
 local healthAlerted = false
 local manaAlerted = false
 local alertFrame = CreateFrame("Frame")
-local alertCurve, alertProbe
+local alertCurves = {}
+local alertProbe
 
 local lowHealthSettings = {
 	message = "Low Health!",
@@ -412,8 +413,9 @@ local lowManaSettings = {
 	soundDisabledOption = "lowManaSoundDisabled",
 }
 
-local function EvaluateRestrictedResource(isHealth)
-	if not alertCurve then
+local function EvaluateRestrictedResource(isHealth, threshold)
+	local cached = alertCurves[isHealth]
+	if not cached or cached.threshold ~= threshold then
 		if not C_CurveUtil or not C_CurveUtil.CreateCurve
 			or not C_StringUtil or not C_StringUtil.TruncateWhenZero
 			or not Enum.LuaCurveType or not alertFrame.CreateFontString then
@@ -423,22 +425,25 @@ local function EvaluateRestrictedResource(isHealth)
 		local curve = C_CurveUtil.CreateCurve()
 		curve:SetType(Enum.LuaCurveType.Linear)
 		curve:AddPoint(0, 100)
-		curve:AddPoint(0.349, 100)
-		curve:AddPoint(0.351, 0)
+		curve:AddPoint(threshold - 0.001, 100)
+		curve:AddPoint(threshold + 0.001, 0)
 		curve:AddPoint(1, 0)
-		alertFrame:Hide()
-		alertProbe = alertFrame:CreateFontString(
-			nil, "BACKGROUND", "GameFontNormal"
-		)
-		alertCurve = curve
+		if not alertProbe then
+			alertFrame:Hide()
+			alertProbe = alertFrame:CreateFontString(
+				nil, "BACKGROUND", "GameFontNormal"
+			)
+		end
+		cached = { threshold = threshold, curve = curve }
+		alertCurves[isHealth] = cached
 	end
 
 	local value
 	if isHealth then
-		value = UnitHealthPercent("player", false, alertCurve)
+		value = UnitHealthPercent("player", false, cached.curve)
 	else
 		value = UnitPowerPercent(
-			"player", Enum.PowerType.Mana, false, alertCurve
+			"player", Enum.PowerType.Mana, false, cached.curve
 		)
 	end
 	alertProbe:SetText(C_StringUtil.TruncateWhenZero(value))
@@ -447,17 +452,25 @@ local function EvaluateRestrictedResource(isHealth)
 end
 
 local function IsResourceLow(value, isHealth)
+	local option = isHealth and "lowHealthThreshold" or "lowManaThreshold"
+	local percent = MSBTProfiles.currentProfile[option]
+	if type(percent) ~= "number" or percent ~= percent
+		or percent < 1 or percent > 99 then
+		percent = 35
+	end
+	local threshold = percent / 100
+
 	local restrictedValue = MikSBT.API.RestrictedValue
 	if restrictedValue:CanAccess(value) then
 		if type(value) ~= "number" or value ~= value
 			or value < 0 or value > 1 then
 			return nil
 		end
-		return value < 0.35
+		return value < threshold
 	end
 
 	-- Native APIs evaluate restricted resources; Lua checks text presence.
-	local success, result = pcall(EvaluateRestrictedResource, isHealth)
+	local success, result = pcall(EvaluateRestrictedResource, isHealth, threshold)
 	if success then return result end
 end
 

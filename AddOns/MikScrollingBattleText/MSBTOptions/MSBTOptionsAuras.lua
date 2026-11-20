@@ -24,6 +24,9 @@ local function SaveRule(id, enabled)
 	end
 end
 
+-- Enabled true or false keeps the aura listed; nil removes it with its styles.
+module.SaveRule = SaveRule
+
 function module.SaveSetting(id, field, value)
 	local profile = Profiles.currentProfile
 	local current = Tracking:GetSettings(profile, id)
@@ -39,10 +42,10 @@ function module.SaveSetting(id, field, value)
 	Profiles.SetOption(nil, "auraSettings", styles)
 end
 
-function module.AddRows(list, firstID)
+function module.AddRows(list, firstID, includes)
 	local ids = {}
 	for id in pairs(Profiles.currentProfile.auraTracking or {}) do
-		ids[#ids + 1] = id
+		if not includes or includes(id) then ids[#ids + 1] = id end
 	end
 	table.sort(ids, function(left, right)
 		if left == firstID then return right ~= firstID end
@@ -50,6 +53,7 @@ function module.AddRows(list, firstID)
 		return left < right
 	end)
 	for _, id in ipairs(ids) do list:AddItem(id) end
+	return ids
 end
 
 function module.CreateLine(parent, refresh, handlers)
@@ -98,6 +102,13 @@ function module.CreateLine(parent, refresh, handlers)
 	return line
 end
 
+function module.Label(id)
+	local name = id:match("^name:(.+)$")
+	if name then return name .. " (" .. L.AURA_TRACKING_ALL_RANKS .. ")" end
+	local info = Spells:GetInfo(tonumber(id))
+	return (info and info.name or L.AURA_TRACKING_UNKNOWN) .. " (" .. id .. ")"
+end
+
 function module.DisplayLine(line, id)
 	line.auraID = id
 	line.eventType = id
@@ -106,14 +117,7 @@ function module.DisplayLine(line, id)
 	local settings = Tracking:GetSettings(Profiles.currentProfile, id)
 	line.colorSwatch:SetColor(settings.colorR or 1, settings.colorG or 1,
 		settings.colorB or 1)
-	local name = id:match("^name:(.+)$")
-	if name then
-		line.label:SetText(name .. " (" .. L.AURA_TRACKING_ALL_RANKS .. ")")
-	else
-		local info = Spells:GetInfo(tonumber(id))
-		line.label:SetText((info and info.name or L.AURA_TRACKING_UNKNOWN)
-			.. " (" .. id .. ")")
-	end
+	line.label:SetText(module.Label(id))
 end
 
 function module.Create(parent, refresh)

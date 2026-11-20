@@ -173,7 +173,11 @@ function OutgoingBatcher:DisplayRestricted(
 		spellID = spellID or self.config.autoAttackSpellID
 		effectTexture = self.config.getSpellTexture(spellID)
 	end
-	local isSpell = isDot or forceIsSpell or not self.config.isAutoAttack(spellID)
+	local isSpell = forceIsSpell
+	if isSpell == nil then
+		isSpell = not self.config.isAutoAttack(spellID)
+	end
+	isSpell = isDot or isSpell
 	local _, settings = self:ResolveSettings(isSpell, isPet, isDot, eventKey, isCrit)
 	if not settings then
 		return
@@ -227,10 +231,11 @@ function OutgoingBatcher:Queue(
 	if school then batchKey = batchKey .. ":school:" .. school end
 	local batch = self.batches[batchKey]
 	if not batch then
-		local isSpell = forceIsSpell or isDot
+		local isSpell = forceIsSpell
 		if isSpell == nil then
 			isSpell = not self.config.isAutoAttack(spellID)
 		end
+		isSpell = isDot or isSpell
 		batch = {
 			hitCount = 0,
 			isCrit = not not isCrit,

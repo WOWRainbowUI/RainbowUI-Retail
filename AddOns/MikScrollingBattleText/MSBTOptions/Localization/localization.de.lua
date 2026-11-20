@@ -18,6 +18,7 @@ L.MSG_ITEM_QUALITIES				= "Gegenstandsqualitäten"
 L.MSG_ITEMS							= "Gegenstände"
 L.MSG_ITEM_ALREADY_EXISTS			= "Gegenstandsname exisiert bereits."
 L.MSG_INVALID_ITEM_NAME				= "Ungültiger Gegenstandsname."
+L.MSG_CLASSIC_DESIGN				= "Klassisch"
 
 
 
@@ -78,6 +79,7 @@ obj["textAlign"]			= { label="Text ausrichten:", tooltip="Die Ausrichtung des Te
 obj["iconAlign"]			= { label="Symbol ausrichten:", tooltip="Die Ausrichtung des Symbols für die Animation."}
 obj["eventCategory"]		= { label="Ereigniskategorie:", tooltip="Die Kategorie der zu konfigurienden Ereignisse."}
 obj["outputScrollArea"]		= { label="Scroll-Bereich:", tooltip="Den Scroll-Bereich für die Textausgabe auswählen."}
+obj["optionsDesign"]		= { label="Optionen-Design:", tooltip="Wählt das Optionsfenster, das /msbt öffnet."}
 
 
 

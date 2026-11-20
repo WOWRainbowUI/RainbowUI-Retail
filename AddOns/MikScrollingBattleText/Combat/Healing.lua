@@ -15,6 +15,134 @@ local function TargetlessHealRecipient(unit, spell)
 	if name and mendPet and name == mendPet then return "pet" end
 end
 
+-- Healing keywords across supported client locales
+local HEALING_PATTERNS = {
+	"heal",                    -- English: "heals", "healing"
+	"restores? %d+.*health",   -- English: "restores 100 health"
+	"rend %d+.*points de vie", -- French: "Rend 189 points de vie..."
+	"soigne",                  -- French: "soigne la cible..."
+	"guérison",                -- French: "guérison"
+	"heilt",                   -- German: "Heilt das Ziel..."
+	"heilung",                 -- German: "heilung"
+	"sana",                    -- Spanish: "Sana al objetivo..."
+	"cura",                    -- Spanish: "Cura"
+}
+
+-- Duration patterns across supported client locales
+local DURATION_PATTERNS = {
+	"over (%d+) s",    -- English: "over 12 sec", "over 12 s"
+	"for (%d+) s",     -- English: "for 12 sec", "for 12 s"
+	"en (%d+) s",      -- French: "en 12 sec", "en 12 s"
+	"von (%d+) s",     -- German: "von 12 Sek", "von 12 s"
+	"durante (%d+) s", -- Spanish: "durante 12 seg", "durante 12 s"
+}
+
+-- Phrases that mention healing purely as a passive stat modifier
+local IGNORED_STAT_PATTERNS = {
+	-- English
+	"healing received",
+	"healing taken",
+	"healing done",
+	"damage and healing",
+	-- Spanish
+	"sanación recibida",
+	"sanacion recibida",
+	"sanación realizada",
+	"sanacion realizada",
+	"curación recibida",
+	"curacion recibida",
+	"daño y sanación",
+	"daño y sanacion",
+	-- French
+	"soins reçus",
+	"soins recus",
+	"soins prodigués",
+	"soins prodigues",
+	-- German
+	"erhaltene heilung",
+	"verursachte heilung",
+}
+
+-- Explicit non-healing patterns to reject across supported locales (e.g. Thorns, Mark of the Wild, Shields)
+local NON_HEALING_PATTERNS = {
+	-- English
+	"damage",
+	"armor by",
+	"intellect by",
+	"stamina by",
+	"absorbing %d+ damage",
+	-- Spanish
+	"daño",
+	"daÑo",
+	"armadura",
+	"intelecto",
+	"aguante",
+	"absorbe %d+.*daño",
+	-- French
+	"dégât",
+	"dégats",
+	"degat",
+	"armure",
+	"intelligence",
+	"endurance",
+	"absorbe %d+.*dégât",
+	-- German
+	"schaden",
+	"rüstung",
+	"rustung",
+	"intelligenz",
+	"ausdauer",
+	"absorbiert %d+.*schaden",
+}
+
+-- Lua 5.1 lowercases bytes using the host locale. Fold ASCII only so
+-- accented UTF-8 bytes still match the localized patterns.
+local function LowerASCII(text)
+	return (text:gsub("[A-Z]", function(letter)
+		return string.char(letter:byte() + 32)
+	end))
+end
+
+-- Checks if a spell description speaks of healing, with safe fallback for unidentifiable text.
+local function Heals(spell)
+	if TargetlessHealRecipient("player", spell) then return true end
+	if not (C_Spell and C_Spell.GetSpellDescription) then return true end
+	local ok, text = pcall(C_Spell.GetSpellDescription, spell)
+	if not ok or not ns.Text(text) then return true end
+	local lower = LowerASCII(text)
+
+	-- Strip passive stat phrases before checking for healing terms
+	local clean = lower
+	for _, pattern in ipairs(IGNORED_STAT_PATTERNS) do
+		clean = clean:gsub(pattern, "")
+	end
+
+	for _, pattern in ipairs(HEALING_PATTERNS) do
+		if clean:find(pattern) then return true end
+	end
+
+	-- If it doesn't match known healing terms, only reject if explicitly a damaging/stat buff
+	for _, pattern in ipairs(NON_HEALING_PATTERNS) do
+		if lower:find(pattern) then return false end
+	end
+
+	-- Safe fallback: never drop casts when description cannot establish whether it heals
+	return true
+end
+
+-- Extracts the spell duration in seconds from the description across locales.
+local function ParseDuration(spell)
+	if TargetlessHealRecipient("player", spell) then return nil end
+	if not (C_Spell and C_Spell.GetSpellDescription) then return nil end
+	local ok, text = pcall(C_Spell.GetSpellDescription, spell)
+	if not ok or not ns.Text(text) then return nil end
+	local lower = LowerASCII(text)
+	for _, pattern in ipairs(DURATION_PATTERNS) do
+		local secs = lower:match(pattern)
+		if secs then return tonumber(secs) end
+	end
+end
+
 function ns.NoteHealTarget(unit, target, guid, spell, now)
 	if (unit ~= "player" and unit ~= "pet")
 		or not ns.Text(guid) or not ns.Number(spell, 1) then return end
@@ -50,6 +178,8 @@ function ns.NoteHealCast(unit, spell, key, now, guid)
 	local helpful = C_Spell and C_Spell.IsSpellHelpful
 		and C_Spell.IsSpellHelpful(spell)
 	if not ns.Bool(helpful) or not helpful then return end
+	-- Do not record non-healing buffs as heals.
+	if not Heals(spell) then return end
 	local recipient
 	if ns.Text(guid) then
 		for index = #targets, 1, -1 do
@@ -76,8 +206,9 @@ function ns.NoteHealCast(unit, spell, key, now, guid)
 	for i = #casts, 1, -1 do
 		if now - casts[i].at > HOT_WINDOW then table.remove(casts, i) end
 	end
+	local duration = ParseDuration(spell)
 	casts[#casts + 1] = {
-		at = now, spell = spell, key = key,
+		at = now, spell = spell, key = key, duration = duration,
 		who = unit == "pet" and "pet" or "you",
 	}
 	while #casts > MAX_CASTS do table.remove(casts, 1) end
@@ -88,9 +219,16 @@ function ns.MatchHealing(key, now, tick, confirmed)
 	local best, age, ambiguous
 	for _, cast in ipairs(casts) do
 		local since = now - cast.at
+		local maxWindow = tick and (cast.duration and (cast.duration + 2) or HOT_WINDOW) or DIRECT_WINDOW
+		-- A confirmed direct heal cannot claim ticks unless it has a HoT duration
+		local directExhausted = tick and cast.directUsed and not cast.duration
 		if cast.key == key and since >= 0
-			and since <= (tick and HOT_WINDOW or DIRECT_WINDOW)
+			and since <= maxWindow
+			and not directExhausted
 			and (tick or not cast.used) then
+			if tick and best and (best.spell ~= cast.spell or best.who ~= cast.who) then
+				return nil
+			end
 			if not age or since < age then
 				best, age, ambiguous = cast, since, false
 			elseif since == age and cast.spell ~= best.spell then
@@ -100,6 +238,9 @@ function ns.MatchHealing(key, now, tick, confirmed)
 	end
 	if not best or ambiguous then return nil end
 	best.used = true
+	if not tick and confirmed then
+		best.directUsed = true
+	end
 	return { who = best.who, spell = best.spell, tick = tick }
 end
 

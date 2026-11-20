@@ -2307,6 +2307,8 @@ masterProfile.scrollAreas.OutgoingPet = CreatePetScrollArea(
 
 masterProfile.lowHealthSoundDisabled = false
 masterProfile.lowManaSoundDisabled = false
+masterProfile.lowHealthThreshold = 35
+masterProfile.lowManaThreshold = 35
 
 for _, side in ipairs({ "msbt", "blizzard" }) do
 	for _, category in ipairs({ "Outgoing", "Notifications", "Incoming" }) do
@@ -2333,7 +2335,7 @@ end
 
 local function ShowOptions()
 	if (MSBTOptions and MSBTOptions.Main and MSBTOptions.Main.ShowMainFrame) then
-		MSBTOptions.Main.ShowMainFrame()
+		MSBTOptions.Designs.Show()
 		return
 	end
 
@@ -2950,12 +2952,21 @@ local function CommandHandler(params)
 		MikSBT.Loot.ProfileCommand(remainingParams)
 		showUsage = false
 
+	elseif MSBTOptions and MSBTOptions.Designs and MSBTOptions.Designs.Select(currentParam) then
+		ShowOptions()
+		showUsage = false
+
 	end
 
 	if (showUsage) then
 
 		for _, msg in ipairs(L.COMMAND_USAGE) do
 			Print(msg, 1, 1, 1)
+		end
+		-- A design opens by its key; the keys are listed once there is more than one design.
+		local designs = MSBTOptions and MSBTOptions.Designs
+		if designs and #designs.keys > 1 then
+			Print(L.COMMAND_USAGE_DESIGN:format(table.concat(designs.keys, " | ")), 1, 1, 1)
 		end
 	end
 end

@@ -124,6 +124,9 @@ local function Snapshot(overrides, defaults)
 end
 
 local function IsValidNumber(key, value)
+	if key == "lowHealthThreshold" or key == "lowManaThreshold" then
+		return value >= 1 and value <= 99 and value == math.floor(value)
+	end
 	if key == "soundFile" or key == "iconSkill" then
 		return value > 0 and value <= 2147483647 and value == math.floor(value)
 	end
