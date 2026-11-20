@@ -138,14 +138,19 @@ local function DisplayTabLine(this, line, key, isSelected)
 end
 
 
+local function HidePopups()
+	for frame in pairs(popupFrames) do
+		frame:Hide()
+	end
+end
+
+
 local function OnClickTabLine(this, line, value)
 	for _, info in ipairs(tabData) do
 		info.frame:Hide()
 	end
 
-	for frame in pairs(popupFrames) do
-		frame:Hide()
-	end
+	HidePopups()
 
 	local frame = tabData[value].frame
 	if (frame) then frame:Show() end
@@ -161,9 +166,7 @@ local function OnHideMainFrame(this)
 	if not dockedParent then
 		PlaySound(799)
 	end
-	for frame in pairs(popupFrames) do
-		frame:Hide()
-	end
+	HidePopups()
 end
 
 
@@ -198,6 +201,8 @@ local function CreateMainFrame()
 
 	mainFrame:SetScript("OnShow", function(self)
 			self:SetFrameLevel((self:GetParent() and self:GetParent():GetFrameLevel() or 0) + 50)
+			-- Another design may have left its popups in use.
+			MSBTOptions.Popups.UseDesignPopups("classic")
 			if not dockedParent then
 				PlaySound(SOUNDKIT.IG_MAINMENU_OPTION)
 			end
@@ -353,6 +358,8 @@ local function CreateMainFrame()
 	tabData[defaultTabIndex].frame:Show()
 
 	SetSpecialFrame(true)
+	-- A new frame is already shown, so its first Show() does not run OnShow.
+	MSBTOptions.Popups.UseDesignPopups("classic")
 end
 
 
@@ -424,6 +431,8 @@ local function DockMainFrame(parent, reopen, tabIndex)
 			end
 		end)
 	end
+	-- Another design's window closes while the game's settings window shows the options.
+	MSBTOptions.Designs.HideOthers("classic")
 	mainFrame:Show()
 	if tabIndex then
 		SelectTab(tabIndex)
@@ -453,6 +462,11 @@ local function UndockMainFrame(parent)
 end
 
 
+local function IsDocked()
+	return dockedParent ~= nil
+end
+
+
 local function GetTabs()
 	local tabs = {}
 	for index, info in ipairs(tabData) do
@@ -473,10 +487,11 @@ local function ShowMainFrame()
 		reopen()
 		return
 	end
+	-- Nothing opens while the scroll areas are positioned, and the frame is not built then either:
+	-- a new frame is shown the moment it is made.
+	if MSBTScrollAreasConfigFrame and MSBTScrollAreasConfigFrame:IsShown() then return end
 	if (not mainFrame) then CreateMainFrame() end
-	if (not MSBTScrollAreasConfigFrame or not MSBTScrollAreasConfigFrame:IsShown()) then
-		mainFrame:Show()
-	end
+	mainFrame:Show()
 end
 
 
@@ -492,6 +507,11 @@ local function HideMainFrame()
 end
 
 
+local function IsMainFrameShown()
+	return mainFrame ~= nil and mainFrame:IsShown()
+end
+
+
 local function RegisterPopupFrame(frame)
 	if (not popupFrames[frame]) then popupFrames[frame] = true end
 end
@@ -500,8 +520,15 @@ end
 
 module.ShowMainFrame		= ShowMainFrame
 module.HideMainFrame		= HideMainFrame
+module.HidePopups			= HidePopups
 module.DockMainFrame		= DockMainFrame
 module.UndockMainFrame		= UndockMainFrame
+module.IsDocked				= IsDocked
 module.GetTabs				= GetTabs
 module.RegisterPopupFrame	= RegisterPopupFrame
 module.AddTab				= AddTab
+
+-- The window in this file is the classic design of the options.
+MSBTOptions.Designs.Register("classic", {
+	label = L.MSG_CLASSIC_DESIGN, Show = ShowMainFrame, Hide = HideMainFrame, IsShown = IsMainFrameShown,
+})

@@ -31,6 +31,7 @@ L.COMMAND_USAGE = {
 	"  " .. L.COMMAND_SHOWVER .. " - Shows the current version.",
 	"  " .. L.COMMAND_HELP .. " - Show the command usage.",
 }
+L.COMMAND_USAGE_DESIGN = "  %s - Opens the options window in that design."
 
 L.COSMIC			= "Cosmic"
 

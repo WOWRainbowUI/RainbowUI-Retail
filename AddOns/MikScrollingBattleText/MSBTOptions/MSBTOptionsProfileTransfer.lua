@@ -3,7 +3,6 @@ MSBTOptions.ProfileTransfer = module
 
 local Controls = MSBTOptions.Controls
 local L = MikSBT.translations.PROFILE_TRANSFER
-local popup
 
 local function ClosePopup(frame)
 	local hideHandler = frame.hideHandler
@@ -178,8 +177,10 @@ local function CreatePopup()
 end
 
 local function Show(config, exportText)
-	if not popup then popup = CreatePopup() end
-	local frame = popup
+	-- Each options design keeps its own dialog among its popups.
+	local popups = MSBTOptions.Popups.GetPopupFrames()
+	if not popups.transferFrame then popups.transferFrame = CreatePopup() end
+	local frame = popups.transferFrame
 	frame.hideHandler = nil
 	frame:SetParent(config.parentFrame)
 	frame:SetFrameStrata("FULLSCREEN_DIALOG")
