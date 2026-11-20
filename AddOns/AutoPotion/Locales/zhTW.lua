@@ -107,3 +107,8 @@ L["Weakest Drink First"] = "優先使用恢復量最少的飲料"
 L["Eat the food that restores the least health first and keep the better food for later. Meant for leveling. Any food in your bags counts, whatever its level. Conjured food still goes first, its weakest one first."] = "優先吃恢復生命力最少的食物，保留較好的食物供之後使用，適合練等。不論等級，背包內的所有食物都會納入。仍優先使用魔法製造的食物，從恢復量最少的開始。"
 
 L["Drink what restores the least mana first and keep the better drinks for later. Meant for leveling. Any drink in your bags counts, whatever its level. Conjured drinks still go first, the weakest one first."] = "優先喝恢復法力最少的飲料，保留較好的飲料供之後使用，適合練等。不論等級，背包內的所有飲料都會納入。仍優先使用魔法製造的飲料，從恢復量最少的開始。"
+
+-- 4.1.0
+L["Mana Spells"] = "恢復法力技能"
+L["Include Demonic Runes"] = "使用惡魔符文"
+L["Use a Demonic Rune or Dark Rune after the mana potion. It costs you health. It has a cooldown of its own, so the next press uses it."] = "在使用法力藥水後使用惡魔符文或黑暗符文，會消耗生命力。符文有獨立冷卻時間，因此下次按下巨集時便會使用。"
