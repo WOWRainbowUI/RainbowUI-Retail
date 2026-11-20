@@ -7,6 +7,7 @@
 
 local addonName, SQP = ...
 local SQPSettings = SQP.db.global
+local RGX = assert(_G.RGXFramework, "SQP: RGX-Framework not loaded")
 local CreateFrame = CreateFrame
 local pcall = pcall
 
@@ -918,12 +919,10 @@ function SQP:CreatePreviewSection(parent)
         -- after OnShow returns, so the first update can anchor the overlay to a
         -- zero-sized health bar and the questplate stays blank until some
         -- options control triggers another refresh. Re-apply on the next frames.
-        if C_Timer and C_Timer.After then
-            for _, delay in ipairs({ 0, 0.15 }) do
-                C_Timer.After(delay, function()
-                    if self:IsShown() then self:UpdatePreview() end
-                end)
-            end
+        for _, delay in ipairs({ 0, 0.15 }) do
+            RGX:After(delay, function()
+                if self:IsShown() then self:UpdatePreview() end
+            end, "SQP preview refresh")
         end
     end)
 
