@@ -11,10 +11,7 @@ function addonTable.Core.GetFontByDesign(design)
   local id = design.font.asset
   local outline = design.font.outline and "OUTLINE" or ""
   local shadow = design.font.shadow and "SHADOW" or ""
-  local slug = ""
-  if hasSlug and (outline ~= "" or shadow == "") then
-    slug = design.font.slug and "SLUG" or ""
-  end
+  local slug = design.font.slug and "SLUG" or ""
   local key = id:lower() .. outline .. shadow .. slug
   if not fonts[key] then
     addonTable.Core.CreateFont(id, outline, shadow, slug, false)

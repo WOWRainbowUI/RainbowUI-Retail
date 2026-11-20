@@ -5,13 +5,20 @@ local GetOtherTanks = addonTable.Display.Utilities.GetOtherTanks
 local IsTank = addonTable.Display.Utilities.IsTankRole
 local GetRangeChecker = addonTable.Display.Utilities.GetRangeSpell
 
-local InParty = UnitIsPlayerControlledOrGroupMember or UnitInParty
+local IsDirectPlayerControlled = UnitIsPlayerControlledOrGroupMember or UnitInParty
 local function IsInCombatWith(unit)
   return UnitAffectingCombat(unit) and
     (
-      UnitIsFriend("player", unit) and InParty(unit) or
+      UnitIsFriend("player", unit)
+        -- Special variant that only works on non-compound units
+        and IsDirectPlayerControlled(unit) or
+
       addonTable.Cache:Get(unit, "threat").situation ~= nil or
-      UnitInParty(unit .. "target") == true
+
+      -- Compound unit handling for unit in group or group pet
+      UnitPlayerOrPetInParty(unit .. "target") or
+      IsInRaid() and UnitPlayerOrPetInRaid(unit .. "target") or
+      not IsInGroup() and UnitIsUnit(unit .. "target", "pet")
     )
 end
 

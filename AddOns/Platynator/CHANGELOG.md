@@ -1,10 +1,11 @@
 # Platynator
 
-## [547](https://github.com/TheMouseNest/Platynator/tree/547) (2026-11-17)
-[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/546...547) 
+## [548](https://github.com/TheMouseNest/Platynator/tree/548) (2026-11-19)
+[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/547...548) 
 
-- Fix aura colours for highlights  
-- Add "Show for PvP flagged" option to faction markers  
-- Add "PvP Flagged" automatic colour option  
-- Fix health fill text (bug was text gaining alpha > 0 for some reason)  
-- Fix aura colour priorities  
+- Update combat detection to handle pets as enemy targets properly  
+- Fix typo  
+- Fix using wrong enum  
+- Mainline: Re-enable sorting (to a limited degree) on auras  
+- Add Recent Ally color options (#375)  
+- Enable SLUG for shadows (works now)  
