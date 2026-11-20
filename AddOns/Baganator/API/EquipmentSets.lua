@@ -3,7 +3,7 @@ local addonTable = select(2, ...)
 -- Blizzard Equipment sets (Wrath onwards)
 if not addonTable.Constants.IsEra and not addonTable.Constants.IsBC and Syndicator then
   local BlizzardSetTracker = CreateFrame("Frame")
-  local EQUIPMENT_SETS_PATTERN = EQUIPMENT_SETS:gsub("%%s", "(.*)")
+  local EQUIPMENT_SETS_PATTERN = EQUIPMENT_SETS:gsub("%%s", "\a"):gsub("([^%w%s\a])", "%%%1"):gsub("\a", "(.*)")
 
   function BlizzardSetTracker:OnLoad()
     FrameUtil.RegisterFrameForEvents(self, {

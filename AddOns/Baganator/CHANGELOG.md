@@ -1,9 +1,9 @@
 # Baganator
 
-## [865](https://github.com/TheMouseNest/Baganator/tree/865) (2026-11-18)
-[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/864...865) 
+## [866](https://github.com/TheMouseNest/Baganator/tree/866) (2026-11-19)
+[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/865...866) 
 
-- Classic Era: Fix banks  
-- Fix typo  
-- Gamepad: Fix position in menu for disenchant entry  
-- Gamepad: Add disenchant shortcut to menu  
+- Gamepad: Fix top button links  
+- Mac: Fix the pattern  
+- Mac: Fix equipment sets pattern for deDE  
+- Fix right-clicking sort button not reversing sort  
