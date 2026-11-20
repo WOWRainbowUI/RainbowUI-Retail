@@ -118,3 +118,5 @@ L.RESOURCE_NAMES = {
 }
 
 L.COMMAND_USAGE_DESIGN = "  %s - 以此設計開啟選項視窗。"
+
+L.CLEU_TRIGGERS_DISABLED = "依賴戰鬥紀錄事件的觸發器已停用。"

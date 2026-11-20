@@ -247,7 +247,7 @@ local function CategorizeTrigger(triggerSettings)
 		end
 		if IsCLEUTriggerMainEvent(mainEvent) then
 			if not cleuTriggerDisableNoticeShown then
-				-- Print("CLEU-based triggers are disabled.")
+				Print(MikSBT.translations.CLEU_TRIGGERS_DISABLED)
 				cleuTriggerDisableNoticeShown = true
 			end
 		else

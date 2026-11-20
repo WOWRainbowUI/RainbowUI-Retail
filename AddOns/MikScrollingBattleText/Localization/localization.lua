@@ -66,3 +66,5 @@ L.MSBT_MSBT = "MikScrollingBattleText"
 L.MSBT_OPENOPTION = ""
 
 L.COMBAT_SETUP_RELOAD = "In order for MSBT to start, you need to reload your UI."
+
+L.CLEU_TRIGGERS_DISABLED = "CLEU-based triggers are disabled."

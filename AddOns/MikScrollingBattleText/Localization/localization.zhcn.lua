@@ -82,3 +82,5 @@ L.RESOURCE_NAMES = {
 }
 
 L.COMMAND_USAGE_DESIGN = "  %s - 以此设计打开选项窗口。"
+
+L.CLEU_TRIGGERS_DISABLED = "依赖战斗记录事件的触发器已停用。"
