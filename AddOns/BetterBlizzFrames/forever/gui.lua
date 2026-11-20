@@ -60,6 +60,7 @@ local checkBoxList = {}
 local checkboxByOption = {}
 local sliderList = {}
 local dropdownList = {}
+local buttonList = {}
 local settingsPopups = {}
 local settingsPopupsHooked
 local MAX_SEARCH_CHECKBOXES = 25
@@ -3966,6 +3967,7 @@ local function CreateSearchFrame()
     local checkboxPool = {}
     local sliderPool = {}
     local dropdownPool = {}
+    local buttonPool = {}
 
     local function UpdateSearchDropdownStates()
         for _, resultDropdown in ipairs(dropdownPool) do
@@ -4084,6 +4086,29 @@ local function CreateSearchFrame()
             end
         end
 
+        local buttonCount = 0
+        for _, data in ipairs(buttonList) do
+            local button = data.button
+            if matchesQuery(data.label .. " " .. (button.tooltipTitle or "")) then
+                buttonCount = buttonCount + 1
+                local resultButton = buttonPool[buttonCount]
+                if not resultButton then
+                    resultButton = CreateFrame("Button", nil, resultsList, "UIPanelButtonTemplate")
+                    buttonPool[buttonCount] = resultButton
+                end
+                resultButton:ClearAllPoints()
+                resultButton:SetPoint("TOPLEFT", searchIcon, "TOPLEFT", 31, yOffsetCheckbox - 1)
+                resultButton:SetText(data.label)
+                resultButton:SetWidth(button:GetWidth())
+                resultButton:SetScript("OnClick", function()
+                    button:GetScript("OnClick")(button)
+                end)
+                CreateTooltipTwo(resultButton, data.label, button.tooltipTitle, nil, nil, nil, SearchCategoryOf(button))
+                resultButton:Show()
+                yOffsetCheckbox = yOffsetCheckbox - 26
+            end
+        end
+
         for _, data in ipairs(dropdownList) do
             local dropdown = data.dropdown
             local base = data.label .. " " .. (dropdown.tooltipTitle or "")
@@ -4126,7 +4151,7 @@ local function CreateSearchFrame()
                 yOffsetCheckbox = yOffsetCheckbox - 26
             end
         end
-        local checkboxCap = MAX_SEARCH_CHECKBOXES - math.ceil(dropdownCount * 26 / 21)
+        local checkboxCap = MAX_SEARCH_CHECKBOXES - math.ceil((dropdownCount + buttonCount) * 26 / 21)
 
         -- Search through checkboxes
         for _, data in ipairs(checkBoxList) do
@@ -4256,8 +4281,8 @@ local function CreateSearchFrame()
 
         UpdateSearchDropdownStates()
 
-        local totalMatches = checkboxMatches + sliderMatches + dropdownMatches
-        local shown = checkboxCount + sliderCount + dropdownCount
+        local totalMatches = checkboxMatches + sliderMatches + dropdownMatches + buttonCount
+        local shown = checkboxCount + sliderCount + dropdownCount + buttonCount
         if shown < totalMatches then
             cappedText:SetFormattedText(L["Search_Results_Capped"], shown, totalMatches)
             cappedText:Show()
@@ -4533,6 +4558,7 @@ function BBF.CreateNameLayoutCheckboxes(parent, anchor)
             BBF.OpenIconTweaksWindow(self)
         end
     end)
+    iconTweaks.searchExtraTerms = BBF.IconTweakSearchTerms()
     BBF.iconTweaksCheckbox = iconTweaks
 end
 
@@ -5337,6 +5363,10 @@ function BBF.OpenIconTweaksWindow(anchor)
                     else
                         icon:SetTexture(art)
                     end
+                end)
+                radio:SetTooltip(function(tooltip)
+                    GameTooltip_SetTitle(tooltip, element.label)
+                    GameTooltip_AddNormalLine(tooltip, BBF.IconTweakTooltip(group, element))
                 end)
             end
         end)
@@ -7599,7 +7629,12 @@ local function guiGeneralTab()
                 { key = "classicFramesHDElite", label = L["HD_Elite_Dragons"], title = L["Classic_Frames_HD_Elite"], desc = L["Tooltip_Classic_Frames_HD_Elite_Desc"] },
                 { key = "classicFramesHDTextures", label = L["HD_Textures_By_Mo"], title = L["Classic_Frames_HD_Textures"], desc = L["Tooltip_Classic_Frames_HD_Textures_Desc"] },
                 { key = "bronzeEliteDragons", label = L["Bronze_Tint_Elite_Dragons"], title = L["Bronze_Tint_Elite_Dragons"], desc = L["Tooltip_Bronze_Tint_Elite_Dragons_Desc"] },
-                { key = "removeActionBarBronzeTint", label = L["Gray_ActionBars"], title = L["Remove_ActionBar_Bronze_Tint"], desc = L["Tooltip_Remove_ActionBar_Bronze_Tint_Desc"] },
+                { key = "removeBronzeTint", label = L["Remove_Bronze_Tint"], title = L["Remove_Bronze_Tint"], desc = L["Tooltip_Remove_Bronze_Tint_Desc"] },
+                { key = "removeBronzeTintActionBars", label = L["ActionBars"], parent = "removeBronzeTint", onChange = function()
+                    BBF.UpdateActionBarBronzeTint()
+                    BBF.ShowPopup("BBF_CONFIRM_RELOAD")
+                end },
+                { key = "removeBronzeTintCastbars", label = L["Castbars"], parent = "removeBronzeTint", onChange = BBF.RefreshBronzeTint },
                 { key = "smallerLevelCircle", label = L["Smaller_Level_Circle"], title = L["Smaller_Level_Circle"], desc = L["Tooltip_Smaller_Level_Circle_Desc"] },
             }
 
@@ -7747,7 +7782,7 @@ local function guiGeneralTab()
 
                             self.cfGrayActionBars = CreateFrame("CheckButton", nil, self, "UICheckButtonTemplate")
                             self.cfGrayActionBars:SetSize(26, 26)
-                            CreateTooltipTwo(self.cfGrayActionBars, L["Remove_ActionBar_Bronze_Tint"], L["Tooltip_Remove_ActionBar_Bronze_Tint_Desc"])
+                            CreateTooltipTwo(self.cfGrayActionBars, L["Remove_Bronze_Tint"], L["Tooltip_Remove_Bronze_Tint_Desc"])
                             self.cfGrayActionBars.Text:SetText(L["Gray_ActionBars"])
 
                             self.cfPvpIcon = CreateFrame("CheckButton", nil, self, "UICheckButtonTemplate")
@@ -7764,7 +7799,7 @@ local function guiGeneralTab()
                             self.cfBronzeTint:SetChecked(BetterBlizzFramesDB.classicFramesBronzeTint or false)
                             self.cfHDElite:SetChecked(BetterBlizzFramesDB.classicFramesHDElite or false)
                             self.cfHDTextures:SetChecked(BetterBlizzFramesDB.classicFramesHDTextures or false)
-                            self.cfGrayActionBars:SetChecked(BetterBlizzFramesDB.removeActionBarBronzeTint or false)
+                            self.cfGrayActionBars:SetChecked((BetterBlizzFramesDB.removeBronzeTint and BetterBlizzFramesDB.removeBronzeTintActionBars) or false)
                             self.cfPvpIcon:SetChecked(firstClick or BetterBlizzFramesDB.classicPvpIcon or false)
 
                             self.classicSettings = true
@@ -7808,7 +7843,14 @@ local function guiGeneralTab()
                             BBF.ChangesOnReload["classicFramesBronzeTint"] = self.cfBronzeTint:GetChecked() or false
                             BBF.ChangesOnReload["classicFramesHDElite"] = self.cfHDElite:GetChecked() or false
                             BBF.ChangesOnReload["classicFramesHDTextures"] = self.cfHDTextures:GetChecked() or false
-                            BBF.ChangesOnReload["removeActionBarBronzeTint"] = self.cfGrayActionBars:GetChecked() or false
+                            local grayActionBars = self.cfGrayActionBars:GetChecked() and true or false
+                            if grayActionBars then
+                                BBF.ChangesOnReload["removeBronzeTint"] = true
+                                BBF.ChangesOnReload["removeBronzeTintActionBars"] = true
+                            else
+                                BBF.ChangesOnReload["removeBronzeTint"] = BetterBlizzFramesDB.removeBronzeTint and BetterBlizzFramesDB.removeBronzeTintCastbars or false
+                                BBF.ChangesOnReload["removeBronzeTintActionBars"] = false
+                            end
                             BBF.ChangesOnReload["classicPvpIcon"] = self.cfPvpIcon:GetChecked() or false
                         end
                         CheckBoxes()
@@ -8533,6 +8575,8 @@ local function guiGeneralTab()
     classColorFrames:HookScript("OnClick", function(self)
         if not self:GetChecked() then
             BBF.ShowPopup("BBF_CONFIRM_RELOAD")
+        else
+            BBF.FixHealthConflictsOnToggle()
         end
     end)
 
@@ -8597,6 +8641,8 @@ local function guiGeneralTab()
         BBF.UpdateFrames()
         if not self:GetChecked() then
             BBF.ShowPopup("BBF_CONFIRM_RELOAD")
+        else
+            BBF.FixHealthConflictsOnToggle()
         end
     end)
 
@@ -9623,6 +9669,7 @@ local function guiGeneralTab()
         BBF.ShowPopup("CONFIRM_RESET_BETTERBLIZZFRAMESDB")
     end)
     CreateTooltip(resetBBFButton, L["Tooltip_Full_Reset"], "ANCHOR_TOP")
+    table.insert(buttonList, { button = resetBBFButton, label = L["Full_Reset"] })
     table.insert(profileButtons, resetBBFButton)
     profilesFrame.infoText:ClearAllPoints()
     profilesFrame.infoText:SetPoint("BOTTOM", resetBBFButton, "TOP", 0, 6)
@@ -12142,6 +12189,9 @@ local function guiFrameLook()
         BBF.UpdateTargetHealthMask(TargetFrame)
         BBF.UpdateTargetHealthMask(FocusFrame)
         ReloadWhenOff(self)
+        if self:GetChecked() then
+            BBF.FixHealthConflictsOnToggle()
+        end
     end)
     do
         local f = AddPopup(changeUnitFrameHealthbarTexture, "HealthbarTexture", 92)
@@ -13989,11 +14039,11 @@ local function guiMisc()
             sizeSlider:SetPoint("TOP", separator, "BOTTOM", 0, -20)
             CreateTooltipTwo(sizeSlider, L["Tooltip_Legacy_Combo_Points_Size"])
 
-            local xOffsetSlider = CreateSlider(f, L["X_Offset"], -60, 10, 0.5, "legacyComboXPos", true, 140)
+            local xOffsetSlider = CreateSlider(f, L["X_Offset"], -40, 40, 0.5, "legacyComboXPos", true, 140)
             xOffsetSlider:SetPoint("TOP", sizeSlider, "TOP", 0, -30)
             CreateTooltipTwo(xOffsetSlider, L["Tooltip_Legacy_Combo_Points_X_Offset"])
 
-            local yOffsetSlider = CreateSlider(f, L["Y_Offset"], -60, 10, 0.5, "legacyComboYPos", true, 140)
+            local yOffsetSlider = CreateSlider(f, L["Y_Offset"], -40, 40, 0.5, "legacyComboYPos", true, 140)
             yOffsetSlider:SetPoint("TOP", xOffsetSlider, "TOP", 0, -30)
             CreateTooltipTwo(yOffsetSlider, L["Tooltip_Legacy_Combo_Points_Y_Offset"])
 
@@ -14003,13 +14053,13 @@ local function guiMisc()
             defaultButton:SetPoint("BOTTOM", f, "BOTTOM", 0, 10)
 
             defaultButton:SetScript("OnClick", function()
-                BetterBlizzFramesDB.legacyComboXPos = -28.5
-                BetterBlizzFramesDB.legacyComboYPos = -13
+                BetterBlizzFramesDB.legacyComboXPos = 0
+                BetterBlizzFramesDB.legacyComboYPos = 0
                 BetterBlizzFramesDB.legacyComboScale = 1
                 BBF.UpdateLegacyComboPosition()
                 sizeSlider:SetValue(1)
-                xOffsetSlider:SetValue(-28.5)
-                yOffsetSlider:SetValue(-13)
+                xOffsetSlider:SetValue(0)
+                yOffsetSlider:SetValue(0)
             end)
 
             KeepPopupInSettings(f, guiMisc)
@@ -14406,15 +14456,39 @@ local function guiMisc()
     bronzeEliteDragons:SetPoint("TOPLEFT", classicFramesHDElite, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
     CreateTooltipTwo(bronzeEliteDragons, L["Bronze_Tint_Elite_Dragons"], L["Tooltip_Bronze_Tint_Elite_Dragons_Desc"])
 
-    local removeActionBarBronzeTint = CreateCheckbox("removeActionBarBronzeTint", L["Remove_ActionBar_Bronze_Tint"], contentFrame, nil, BBF.UpdateActionBarBronzeTint)
-    removeActionBarBronzeTint:SetPoint("TOPLEFT", bronzeEliteDragons, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
-    CreateTooltipTwo(removeActionBarBronzeTint, L["Remove_ActionBar_Bronze_Tint"], L["Tooltip_Remove_ActionBar_Bronze_Tint_Desc"])
-    removeActionBarBronzeTint:HookScript("OnClick", function(self)
-        BBF.ShowPopup("BBF_CONFIRM_RELOAD")
+    local removeBronzeTint = CreateCheckbox("removeBronzeTint", L["Remove_Bronze_Tint"], contentFrame, nil, BBF.UpdateRemoveBronzeTint)
+    removeBronzeTint:SetPoint("TOPLEFT", bronzeEliteDragons, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
+    CreateTooltipTwo(removeBronzeTint, L["Remove_Bronze_Tint"], L["Tooltip_Remove_Bronze_Tint_Desc"])
+    removeBronzeTint:HookScript("OnClick", function()
+        if BetterBlizzFramesDB.removeBronzeTintActionBars then
+            BBF.ShowPopup("BBF_CONFIRM_RELOAD")
+        end
     end)
 
+    local removeBronzeTintOptions = CreateMultiSelectDropdown(L["Bronze_Tint_Options"], contentFrame, {
+        { key = "removeBronzeTintActionBars", label = L["ActionBars"], onChange = function()
+            BBF.UpdateActionBarBronzeTint()
+            BBF.ShowPopup("BBF_CONFIRM_RELOAD")
+        end },
+        { key = "removeBronzeTintCastbars", label = L["Castbars"], onChange = BBF.RefreshBronzeTint },
+    }, 165)
+    removeBronzeTintOptions.searchParentKey = "removeBronzeTint"
+    removeBronzeTintOptions.searchExtraTerms = { L["Remove_Bronze_Tint"] }
+    removeBronzeTintOptions:SetPoint("LEFT", removeBronzeTint.text, "RIGHT", 5, 0)
+    removeBronzeTintOptions:SetScale(0.7)
+    removeBronzeTintOptions:OverrideText(L["Bronze_Tint_Options"])
+    CreateTooltipTwo(removeBronzeTintOptions, L["Bronze_Tint_Options"], L["Tooltip_Remove_Bronze_Tint_Options_Desc"])
+
+    local function UpdateRemoveBronzeTintOptionsState()
+        local enabled = removeBronzeTint:GetChecked() and true or false
+        removeBronzeTintOptions:SetEnabled(enabled)
+        removeBronzeTintOptions:SetAlpha(enabled and 1 or 0.5)
+    end
+    removeBronzeTint:HookScript("OnClick", UpdateRemoveBronzeTintOptionsState)
+    UpdateRemoveBronzeTintOptionsState()
+
     local smallerLevelCircle = CreateCheckbox("smallerLevelCircle", L["Smaller_Level_Circle"], contentFrame, nil, BBF.UpdateSmallerLevelCircle)
-    smallerLevelCircle:SetPoint("TOPLEFT", removeActionBarBronzeTint, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
+    smallerLevelCircle:SetPoint("TOPLEFT", removeBronzeTint, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
     CreateTooltipTwo(smallerLevelCircle, L["Smaller_Level_Circle"], L["Tooltip_Smaller_Level_Circle_Desc"])
 
     local classicPvpIcon = CreateCheckbox("classicPvpIcon", L["Classic_PvP_Icon"], contentFrame, nil, BBF.UpdateClassicPvpIcon)
@@ -14917,8 +14991,12 @@ local function guiMisc()
         end
     end)
 
+    local hideHealPrediction = CreateCheckbox("hideHealPrediction", L["Hide_Heal_Prediction"], contentFrame, nil, BBF.HideHealPrediction)
+    hideHealPrediction:SetPoint("TOPLEFT", changeHealPredictionColor, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
+    CreateTooltipTwo(hideHealPrediction, L["Hide_Heal_Prediction"], L["Tooltip_Hide_Heal_Prediction_Desc"])
+
     local centerCurrentValueOnBars = CreateCheckbox("centerCurrentValueOnBars", L["Current_HP_Only_Center"], contentFrame, nil, BBF.CenterCurrentValueOnBars)
-    centerCurrentValueOnBars:SetPoint("TOPLEFT", changeHealPredictionColor, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
+    centerCurrentValueOnBars:SetPoint("TOPLEFT", hideHealPrediction, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
     CreateTooltipTwo(centerCurrentValueOnBars, L["Current_HP_Only_Center"], L["Tooltip_Current_HP_Only_Center_Desc"], L["Tooltip_Current_HP_Only_Center_SubText"])
     centerCurrentValueOnBars:HookScript("OnClick", function()
         BBF.RefreshCenteredBarText()

@@ -256,9 +256,15 @@ local function UnitFramesBronze()
     return DefaultBronzeFramesActive()
 end
 
+local function CastbarBronzeRemovalActive()
+    local db = BetterBlizzFramesDB
+    return db.removeBronzeTint and db.removeBronzeTintCastbars and not (db.darkModeUi and db.darkModeCastbars)
+end
+
 local function CastbarBronzeTintActive()
     local db = BetterBlizzFramesDB
     if db.darkModeUi and db.darkModeCastbars then return false end
+    if CastbarBronzeRemovalActive() then return false end
     if db.classicFramesBronzeTint and db.classicFramesBronzeTintCastbars and not db.classColorFrameTexture then
         return true
     end
@@ -718,8 +724,10 @@ function BBF.UpdateBossDragonBronze(frame)
             local v = BBF.DarkModeEliteValue()
             texture:SetDesaturated(db.darkModeEliteTextureDesaturated or false)
             texture:SetVertexColor(v, v, v, alpha)
+        elseif BBF.GetSelfEliteClassification(frame.unit) then
+            BBF.UpdateSelfEliteBossTexture(frame)
         else
-            texture:SetDesaturated(BBF.GetSelfEliteClassification(frame.unit) == "rareelite")
+            texture:SetDesaturated(false)
             texture:SetVertexColor(1, 1, 1, alpha)
         end
     end
@@ -859,6 +867,7 @@ function BBF.UpdateBronzeTint()
     end
     BBF.UpdateThreatBorderTint()
     BBF.RacialIndicatorCaller()
+    BBF.UpdateCastbarBronzeRemoval()
     if BronzeTintActive() then
         for _, texture in pairs(GetUnitFrameBorderTextures()) do
             BronzeTexture(texture)
@@ -942,7 +951,7 @@ local actionButtonPrefixes = {"ActionButton", "MultiBarBottomLeftButton", "Multi
 
 local function ActionBarBronzeRemovalActive()
     local db = BetterBlizzFramesDB
-    return db.removeActionBarBronzeTint and not (db.darkModeUi and db.darkModeActionBars)
+    return db.removeBronzeTint and db.removeBronzeTintActionBars and not (db.darkModeUi and db.darkModeActionBars)
 end
 
 local function SlotArtDesaturationActive()
@@ -962,7 +971,7 @@ end
 
 local function ReapplyDesaturated(self)
     if self.bbfDesatChanging then return end
-    local desaturate = SlotArtDesaturationActive() and (not self.bbfDesatCheck or self.bbfDesatCheck(self)) or false
+    local desaturate = (self.bbfDesatActive or SlotArtDesaturationActive)() and (not self.bbfDesatCheck or self.bbfDesatCheck(self)) or false
     if not desaturate and not self.bbfDesatForced then return end
     self.bbfDesatChanging = true
     self.bbfDesatForced = desaturate
@@ -970,9 +979,10 @@ local function ReapplyDesaturated(self)
     self.bbfDesatChanging = false
 end
 
-local function ForceDesaturated(texture, check)
+local function ForceDesaturated(texture, check, active)
     if not texture or texture:IsForbidden() then return end
     texture.bbfDesatCheck = check
+    texture.bbfDesatActive = active
     if not texture.bbfDesatHooked then
         texture.bbfDesatHooked = true
         hooksecurefunc(texture, "SetDesaturated", ReapplyDesaturated)
@@ -1000,6 +1010,30 @@ function BBF.UpdateActionBarBronzeTint()
             local button = _G[prefix .. i]
             ForceDesaturated(button and button.SlotArt)
         end
+    end
+end
+
+local function DesaturateCastbar(castbar)
+    if not castbar then return end
+    ForceDesaturated(castbar.Border, nil, CastbarBronzeRemovalActive)
+    ForceDesaturated(castbar.TextBorder, nil, CastbarBronzeRemovalActive)
+end
+
+local castbarArtDesaturated
+
+function BBF.UpdateCastbarBronzeRemoval()
+    local active = CastbarBronzeRemovalActive()
+    if not active and not castbarArtDesaturated then return end
+    castbarArtDesaturated = active
+    DesaturateCastbar(PlayerCastingBarFrame)
+    DesaturateCastbar(PetCastingBarFrame)
+    DesaturateCastbar(TargetFrameSpellBar)
+    DesaturateCastbar(FocusFrameSpellBar)
+    DesaturateCastbar(PetSpellBar)
+    for i = 1, 5 do
+        DesaturateCastbar(_G["Party" .. i .. "SpellBar"])
+        local boss = _G["Boss" .. i .. "TargetFrame"]
+        DesaturateCastbar(boss and boss.spellbar)
     end
 end
 
@@ -1134,6 +1168,11 @@ function BBF.RefreshBronzeTint()
         BBF.DarkmodeFrames(true)
     end
     BBF.UpdateBronzeTint()
+end
+
+function BBF.UpdateRemoveBronzeTint()
+    BBF.UpdateActionBarBronzeTint()
+    BBF.RefreshBronzeTint()
 end
 
 local function PlacePvpIcon(container, point, x, y)
@@ -1431,10 +1470,34 @@ function BBF.UpdatePlayerHealthMask()
     if BBF.BigPlayerHealthbar and BBF.BigPlayerHealthbar() then return end
     if BBF.PlayerManaHiddenArt and BBF.PlayerManaHiddenArt() then return end
     local hpContainer = PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.HealthBarsContainer
-    PlaceDefaultHealthMask(hpContainer.HealthBarMask, hpContainer.HealthBar, 127.5, -1)
+    PlaceDefaultHealthMask(hpContainer.HealthBarMask, hpContainer.HealthBar, 129, -2)
 end
 
 local targetMaskHooked = {}
+
+local function DefaultTargetStyle(frame, unit)
+    local db = BetterBlizzFramesDB
+    if db.classicFrames or BBF.IsMiniFrame(frame) or BBF.HasNoPortrait(unit) then return false end
+    if BBF.RetailTexturesOn and BBF.RetailTexturesOn(unit) then return false end
+    if BBF.BigHealthbarOn(frame) then return false end
+    if db[unit == "focus" and "hideUnitFrameFocusMana" or "hideUnitFrameTargetMana"] then return false end
+    return true
+end
+
+local function UpdateTargetDefaultHealthBar(frame, unit)
+    if InCombatLockdown() then return end
+    local container = frame.TargetFrameContent.TargetFrameContentMain.HealthBarsContainer
+    local on = DefaultTargetStyle(frame, unit)
+    if on then
+        container:SetPoint("TOPLEFT", frame.TargetFrameContainer, "LEFT", 20.5, 6)
+        container.HealthBar:SetSize(127, 20)
+    elseif frame.bbfDefaultHealthBar then
+        container:ClearPoint("TOPLEFT")
+        container:SetWidth(126)
+        container.HealthBar:SetSize(126, 20)
+    end
+    frame.bbfDefaultHealthBar = on
+end
 
 function BBF.UpdateTargetHealthMask(frame)
     if BBF.ClassicStyleAddon() then return end
@@ -1445,6 +1508,7 @@ function BBF.UpdateTargetHealthMask(frame)
     end
     local db = BetterBlizzFramesDB
     local unit = frame == FocusFrame and "focus" or "target"
+    UpdateTargetDefaultHealthBar(frame, unit)
     local mini = (unit == "target" and db.useMiniTargetFrame) or (unit == "focus" and db.useMiniFocusFrame)
     if db.classicFrames or mini or BBF.HasNoPortrait(unit) then return end
     local main = frame.TargetFrameContent.TargetFrameContentMain
@@ -1470,7 +1534,8 @@ function BBF.UpdateTargetHealthMask(frame)
     if UnitExists(unit) and UnitClassification(unit) == "minus" then return end
     local hpContainer = frame.TargetFrameContent.TargetFrameContentMain.HealthBarsContainer
     local healthTexture = BBF.UnitFrameTextureOnFor(unit)
-    PlaceDefaultHealthMask(hpContainer.HealthBarMask, hpContainer.HealthBar, healthTexture and 128.5 or 129, healthTexture and -1 or -1.5)
+    local maskX = (healthTexture and -1 or -1.5) + (frame.bbfDefaultHealthBar and 0.5 or 0)
+    PlaceDefaultHealthMask(hpContainer.HealthBarMask, hpContainer.HealthBar, healthTexture and 128.5 or 129, maskX)
 end
 
 local groupIconHooked
@@ -1521,7 +1586,11 @@ function BBF.UpdateReducedGroupIcons()
     end
 end
 
-local petHealth = { default = { 11, 23.5, 6.5, 0, -24 }, reduced = { 13, 30, 9, -1, -25.5 }, big = { 23, 55, 16, -1, -25.5 } }
+local petHealth = {
+    default = { 11.5, 23.5, 6.5, 0, -24, 71.5, 2, -6, 77, 8.5, -3, 0.5 },
+    reduced = { 13, 30, 9, -1, -25.5, 70.5, 2.5, -5, 76.5, 7, -3, -1 },
+    big = { 23, 55, 16, -1, -25.5, 70.5, 2.5, -5, 76.5, 7, -3, -1 },
+}
 
 function BBF.PetBigMode()
     local db = BetterBlizzFramesDB
@@ -1567,16 +1636,16 @@ function BBF.UpdateDefaultPetBars()
         return
     end
     local health = petHealth[BBF.PetBigMode() or "default"]
-    PetFrameHealthBar:SetSize(70.5, health[1])
+    PetFrameHealthBar:SetSize(health[6], health[1])
     PetFrameHealthBar:ClearAllPoints()
-    PetFrameHealthBar:SetPoint("BOTTOMLEFT", PetPortrait, "RIGHT", 2.5, -5)
+    PetFrameHealthBar:SetPoint("BOTTOMLEFT", PetPortrait, "RIGHT", health[7], health[8])
     PetFrameHealthBarMask:SetAtlas("UI-HUD-UnitFrame-Target-PortraitOn-Bar-Health-Mask")
     PetFrameHealthBarMask:SetSize(73.5, health[2])
     PetFrameHealthBarMask:ClearAllPoints()
     PetFrameHealthBarMask:SetPoint("TOPLEFT", PetFrameHealthBar, "TOPLEFT", health[4], health[3])
-    PetFrameManaBar:SetSize(76.5, 7)
+    PetFrameManaBar:SetSize(health[9], health[10])
     PetFrameManaBar:ClearAllPoints()
-    PetFrameManaBar:SetPoint("TOPLEFT", PetFrameHealthBar, "BOTTOMLEFT", -3, -1)
+    PetFrameManaBar:SetPoint("TOPLEFT", PetFrameHealthBar, "BOTTOMLEFT", health[11], health[12])
     PetFrameManaBarMask:SetSize(127.5, 16)
     PetFrameManaBarMask:ClearAllPoints()
     PetFrameManaBarMask:SetPoint("TOPLEFT", PetFrameManaBar, "TOPLEFT", health[5], 4)

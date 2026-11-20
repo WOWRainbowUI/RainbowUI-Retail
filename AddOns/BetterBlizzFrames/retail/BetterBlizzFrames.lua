@@ -20,6 +20,7 @@ local defaultSettings = {
     lossOfControlShowSecondIcon = true,
     lossOfControlSecondIconInterruptsOnly = true,
     lossOfControlShowSchool = true,
+    lossOfControlRemoveRedTint = true,
     lossOfControlSecondIconScale = 0.75,
     lossOfControlTimerMilliseconds = true,
     lossOfControlTimerLowThreshold = 3,
@@ -673,6 +674,7 @@ local defaultSettings = {
     healPredictionColor = {0, 1, 0, 1},
     healPredictionColorUnitFrames = true,
     healPredictionColorRaidFrames = true,
+    hideHealPrediction = false,
     actionBarRangeOverlayColor = {1, 0, 0, 0.35},
     actionBarRangeIconColor = {0.59, 0.24, 0.22, 1},
     actionBarRangeUseOverlay = false,
@@ -2441,11 +2443,21 @@ function BBF.UpdateSelfEliteBossTexture(frame)
         end
         texture:SetAtlas(data[1], TextureKitConstants.UseAtlasSize)
         texture:SetPoint("TOPRIGHT", container, "TOPRIGHT", data[2], data[3])
-        texture:SetDesaturated(data[4] or texture.bbfSelfEliteDesat)
+        local playerElite = PlayerFrame.PlayerFrameContainer.PlayerElite
+        if playerElite then
+            local r, g, b = playerElite:GetVertexColor()
+            texture:SetDesaturated(data[4] or texture.bbfSelfEliteDesat or playerElite:IsDesaturated())
+            texture:SetVertexColor(r, g, b, texture:GetAlpha())
+        else
+            texture:SetDesaturated(data[4] or texture.bbfSelfEliteDesat)
+        end
         texture:Show()
     elseif texture.bbfSelfElite then
         texture.bbfSelfElite = nil
         texture:SetDesaturated(texture.bbfSelfEliteDesat)
+        if not texture.bbfDarkElite then
+            texture:SetVertexColor(1, 1, 1, texture:GetAlpha())
+        end
         if UnitIsUnit(frame.unit, "player") then
             texture:Hide()
         end
@@ -3279,7 +3291,7 @@ function BBF.HDLegacyComboPoints()
         for i = 1, point:GetNumRegions() do
             local region = select(i, point:GetRegions())
             if region and region:IsObjectType("Texture") and region:GetDrawLayer() == "BACKGROUND" then
-                region:SetTexture(HD_COMBO_POINT)
+                BBF.SetClassicTexture(region, 130973)
                 region:SetTexCoord(0, 0.375, 0, 1)
             end
         end
@@ -5901,7 +5913,7 @@ local function executeCustomCode()
         local function textureFallback(path)
             local lower = path:lower()
             if not lower:find("^interface[\\/]+addons[\\/]") then return end
-            local fallback = lower:find("mask") and "Interface\\Common\\CommonIconMask"
+            local fallback = lower:find("mask") and "Interface\\Common\\common-iconmask"
                 or lower:find("edge") and "Interface\\AddOns\\BetterBlizzFrames\\media\\classicTextures\\MoTextures\\LoCEdge.png"
             if not fallback then return end
             if not BBF.testTexture then
@@ -6402,6 +6414,7 @@ First:SetScript("OnEvent", function(_, event, addonName)
             BBF.FixFeedbackTextures()
             BBF.FixHealPredictionTextures()
             BBF.HealPredictionColor()
+            BBF.HideHealPrediction()
             BBF.LegacyPRDLook()
             BBF.FixPrdRogueComboCentering()
         end)

@@ -345,11 +345,22 @@ local function createOrUpdateBorders(frame, colorValue, textureName, bypass)
                     border:SetPoint("TOPLEFT", icon, "TOPLEFT", -2, 2)
                     border:SetPoint("BOTTOMRIGHT", icon, "BOTTOMRIGHT", 2, -2)
                 else
-                    border:SetPoint("TOPLEFT", icon, "TOPLEFT", -3.5, 3.5)
+                    border:SetPoint("TOPLEFT", icon, "TOPLEFT", -3.5, 3)
                     border:SetPoint("BOTTOMRIGHT", icon, "BOTTOMRIGHT", 3.5, -3.5)
                 end
             end
             border:SetVertexColor(colorValue, colorValue, colorValue)
+
+            if not pixelBorderAuras then
+                if not frame.bbfIconMask then
+                    frame.bbfIconMask = frame:CreateMaskTexture()
+                    frame.bbfIconMask:SetTexture("Interface\\Common\\common-iconmask", "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
+                    frame.bbfIconMask:SetPoint("TOPLEFT", icon, "TOPLEFT", -0.5, 0.5)
+                    frame.bbfIconMask:SetPoint("BOTTOMRIGHT", icon, "BOTTOMRIGHT", 0.5, -0.5)
+                end
+                icon:AddMaskTexture(frame.bbfIconMask)
+                frame.bbfIconMasked = icon
+            end
 
             BBF.auraBorders[frame] = border
             if frame.ImportantGlow then
@@ -367,6 +378,11 @@ local function createOrUpdateBorders(frame, colorValue, textureName, bypass)
         if BBF.auraBorders[frame] then
             BBF.auraBorders[frame]:Hide()
             BBF.auraBorders[frame] = nil
+
+            if frame.bbfIconMasked then
+                frame.bbfIconMasked:RemoveMaskTexture(frame.bbfIconMask)
+                frame.bbfIconMasked = nil
+            end
 
             local icon = frame.Icon
             if textureName then
@@ -716,9 +732,8 @@ function BBF.DarkmodeFrames(bypass)
         if BetterBlizzFramesDB.legacyComboColor then
             legacyComboColor = legacyComboColor + BetterBlizzFramesDB.legacyComboColor
         end
-        for i = 1, 9 do
-            local point = BBF.LegacyComboFrame.ComboPoints[i]
-            if point and point:GetNumRegions() then
+        for _, point in ipairs(BBF.LegacyComboFrame.ComboPoints) do
+            if point:GetNumRegions() then
                 for j = 1, point:GetNumRegions() do
                     local region = select(j, point:GetRegions())
                     if region and region:IsObjectType("Texture") then
@@ -1021,12 +1036,16 @@ function BBF.DarkmodeFrames(bypass)
         end
     end
 
-    local compactPartyBorder = CompactPartyFrameBorderFrame or CompactRaidFrameContainerBorderFrame
-    if compactPartyBorder then
-        for i = 1, compactPartyBorder:GetNumRegions() do
-            local region = select(i, compactPartyBorder:GetRegions())
-            if region:IsObjectType("Texture") then
-                applySettings(region, desaturationValue, vertexColor)
+    if CompactPartyFrameBorderFrame or CompactRaidFrameContainerBorderFrame then
+        for _, name in ipairs({ "CompactPartyFrameBorderFrame", "CompactRaidFrameContainerBorderFrame" }) do
+            local border = _G[name]
+            if border then
+                for i = 1, border:GetNumRegions() do
+                    local region = select(i, border:GetRegions())
+                    if region:IsObjectType("Texture") then
+                        applySettings(region, desaturationValue, vertexColor)
+                    end
+                end
             end
         end
         for i = 1, 40 do
@@ -1507,4 +1526,5 @@ function BBF.DarkModeCastbars()
         darkModeTimerBarsOn = timerBarsOn
     end
     BBF.UpdateClassicHDTextureColors()
+    BBF.UpdateCastbarBronzeRemoval()
 end
