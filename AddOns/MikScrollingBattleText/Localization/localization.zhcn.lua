@@ -80,3 +80,5 @@ L.RESOURCE_NAMES = {
     SHADOW_ORBS = "暗影宝珠",
     RUNE_CHROMATIC = "多彩符文",
 }
+
+L.COMMAND_USAGE_DESIGN = "  %s - 以此设计打开选项窗口。"

@@ -570,3 +570,9 @@ L.CUSTOM_FONTS = {
 	duplicateName = "這個字型名稱已經存在。",
 	invalidPath = "無法載入此字型。請檢查安裝的檔案與路徑。",
 }
+
+-- 12.055
+L.MSG_CLASSIC_DESIGN = "經典"
+L.DROPDOWNS["optionsDesign"] = { label="選項視窗設計：", tooltip="選擇 /msbt 開啟的選項視窗。" }
+L.SLIDERS.lowHealthThreshold = { label="低生命力門檻 (%)", tooltip="生命力低於此百分比時顯示低生命力警報。" }
+L.SLIDERS.lowManaThreshold = { label="低法力門檻 (%)", tooltip="法力低於此百分比時顯示低法力警報。" }

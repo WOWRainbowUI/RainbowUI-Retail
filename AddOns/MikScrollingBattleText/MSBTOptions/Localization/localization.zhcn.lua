@@ -565,3 +565,9 @@ L.CUSTOM_FONTS = {
 	duplicateName = "此字体名称已存在。",
 	invalidPath = "无法加载此字体。请检查已安装的文件与路径。",
 }
+
+-- 12.055
+L.MSG_CLASSIC_DESIGN = "经典"
+L.DROPDOWNS["optionsDesign"] = { label="选项窗口设计：", tooltip="选择 /msbt 打开的选项窗口。" }
+L.SLIDERS.lowHealthThreshold = { label="低生命值阈值 (%)", tooltip="生命值低于此百分比时显示低生命值警报。" }
+L.SLIDERS.lowManaThreshold = { label="低法力值阈值 (%)", tooltip="法力值低于此百分比时显示低法力值警报。" }
