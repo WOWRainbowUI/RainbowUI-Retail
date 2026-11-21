@@ -594,7 +594,7 @@ function PawnOnAddonLoaded(AddonName)
 				-- Acceptable workaround, so don't warn.
 				return
 			end
-			tinsert(PawnIncompatibilitiesDetected.AddOns, { Name = PawnIncompatibleAddons[AddonName], Fix = "To fix it, go to Class Codex's options, in the Tooltips section, and uncheck Stat Priority Ranks. Then /reload." } )
+			tinsert(PawnIncompatibilitiesDetected.AddOns, { Name = PawnIncompatibleAddons[AddonName], Fix = PawnLocal.CompatFixClassCodex } )
 		else
 			tinsert(PawnIncompatibilitiesDetected.AddOns, { Name = PawnIncompatibleAddons[AddonName] } )
 		end

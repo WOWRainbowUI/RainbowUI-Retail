@@ -1,4 +1,4 @@
-﻿-- Pawn by Vger-Azjol-Nerub
+-- Pawn by Vger-Azjol-Nerub
 -- www.vgermods.com
 -- © 2006-2026 Travis Spomer.  This mod is released under the Creative Commons Attribution-NonCommercial-NoDerivs 3.0 license.
 -- See Readme.md for more information.
@@ -11,6 +11,13 @@
 local function PawnUseThisLocalization()
 PawnLocal =
 {
+	["CompatFixClassCodex"] = "To fix it, go to Class Codex's options, in the Tooltips section, and uncheck Stat Priority Ranks. Then /reload.",
+	["CompatHeading"] = "Pawn needs your attention",
+	["CompatIntro"] = "The following addons are preventing Pawn from working:\n\n",
+	["CompatDisablePrefix"] = "To fix it, disable ",
+	["CompatDisableSuffix"] = " and /reload.",
+	["CompatVersionPrefix"] = "You're using Pawn ",
+	["CompatVersionOn"] = " on WoW ",
 	["AverageItemLevelIgnoringRarityTooltipLine"] = "Average item level",
 	["BaseValueWord"] = "base",
 	["CopyScaleEnterName"] = "Enter a name for your new scale, a copy of %s:",

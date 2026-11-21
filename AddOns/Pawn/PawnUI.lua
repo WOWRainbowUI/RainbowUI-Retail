@@ -1,4 +1,4 @@
-﻿-- Pawn by Vger-Azjol-Nerub
+-- Pawn by Vger-Azjol-Nerub
 -- www.vgermods.com
 -- © 2006-2026 Travis Spomer.  This mod is released under the Creative Commons Attribution-NonCommercial-NoDerivs 3.0 license.
 -- See Readme.md for more information.
@@ -2728,19 +2728,19 @@ function PawnUISwitchToTab(Tab)
 		PawnUIScaleSelectorIncompatible:Show()
 		PawnUIIncompatibleTabPage:Show()
 
-		local ErrorText = "The following addons are preventing Pawn from working:\n\n"
+		local ErrorText = PawnLocal.CompatIntro
 
 		for _, AddOn in pairs(IncompatibilityDetails.AddOns) do
 			ErrorText = ErrorText .. VgerCore.Color.Salmon .. AddOn.Name .. VgerCore.Color.Reset .. "\n"
 			if AddOn.Fix then
 				ErrorText = ErrorText .. AddOn.Fix
 			else
-				ErrorText = ErrorText .. "To fix it, disable " .. AddOn.Name .. " and /reload."
+				ErrorText = ErrorText .. PawnLocal.CompatDisablePrefix .. AddOn.Name .. PawnLocal.CompatDisableSuffix
 			end
 			ErrorText = ErrorText .. "\n\n"
 		end
 
-		ErrorText = ErrorText .. VgerCore.Color.Silver .. "You're using Pawn " .. C_AddOns.GetAddOnMetadata("Pawn", "Version") .. " on WoW " .. GetBuildInfo() .. " " .. GetLocale() .. "." .. VgerCore.Color.Reset
+		ErrorText = ErrorText .. VgerCore.Color.Silver .. PawnLocal.CompatVersionPrefix .. C_AddOns.GetAddOnMetadata("Pawn", "Version") .. PawnLocal.CompatVersionOn .. GetBuildInfo() .. " " .. GetLocale() .. "." .. VgerCore.Color.Reset
 
 		PawnUIFrame_IncompatibiltyLabel:SetText(ErrorText)
 
@@ -2765,7 +2765,7 @@ end
 
 function PawnUIUpdateHeader()
 	if PawnIsIncompatible() then
-		PawnUIHeader:SetText("Pawn needs your attention")
+		PawnUIHeader:SetText(PawnLocal.CompatHeading)
 	end
 	if not PawnUIHeaders[PawnUICurrentTabNumber] then return end
 	local ColoredName

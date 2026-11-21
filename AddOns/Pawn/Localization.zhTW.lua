@@ -10,6 +10,13 @@
 local function PawnUseThisLocalization()
 PawnLocal =
 {
+	["CompatFixClassCodex"] = "請開啟 Class Codex 的設定，在 Tooltips 區段取消勾選 Stat Priority Ranks，然後輸入 /reload。",
+	["CompatHeading"] = "Pawn 需要你處理相容性問題",
+	["CompatIntro"] = "下列插件導致 Pawn 無法正常運作：\n\n",
+	["CompatDisablePrefix"] = "請停用 ",
+	["CompatDisableSuffix"] = "，然後輸入 /reload。",
+	["CompatVersionPrefix"] = "目前使用 Pawn ",
+	["CompatVersionOn"] = "，魔獸世界 ",
 	["AverageItemLevelIgnoringRarityTooltipLine"] = "平均物品等級",
 	["BaseValueWord"] = "基礎",
 	["CopyScaleEnterName"] = "將 %s 的備份命名為:",
