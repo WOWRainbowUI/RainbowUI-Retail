@@ -1,4 +1,10 @@
-﻿12.1.18 - 18th November 2026
+﻿12.1.19 - 20th November 2026
+- For 'Class colored frames' ('Frames'), added an option to use class color for the health bar.
+- For 'Class colored frames' ('Frames'), added an option to use class color for the target and focus frame health bar.
+- For 'Enhance minimap' ('Interface'), fixed a situational issue which may have cause the minimap to move after the UI is toggled such as following a pet battle.
+- Some options will now be locked if EllesmereUI has certain modules enabled that conflict.
+
+12.1.18 - 18th November 2026
 - For 'Show player chain' ('Interface'), added 4 new chains and 3 classic chains.  All the chains support full class-coloring options using the 'Class colored frames' option ('Frames').
 - For 'Enhance minimap' ('Interface'), there is a new header theme dropdown menu available so you can choose a theme for the header along with an option to animate it.  Requires 'Square minimap' to be enabled.  Blizzard is included in the theme list if you want to use the default UI header.  The minimap button bag has had a design refresh.  The buttons editor now uses simple checkboxes and toggling them no longer requires a reload.  You can still enter manual names if an obscure addon isn't shown in the list.
 
