@@ -7,13 +7,13 @@
 -- Main non-UI code
 ------------------------------------------------------------
 
-PawnVersion = 2.1404
+PawnVersion = 2.1407
 
 -- Remove the two hyphens from the next line to re-enable upgrade information and Pawn scores on world quest rewards. (You'll have to /reload after you save the file.)
 -- local ShowWorldQuestUpgrades = true
 
 -- Pawn requires this version of VgerCore:
-local PawnVgerCoreVersionRequired = 1.23
+local PawnVgerCoreVersionRequired = 1.24
 
 -- Floating point math
 local PawnEpsilon = 0.0000000001
@@ -21,6 +21,23 @@ local PawnInfinity = 1.79769313E308
 
 -- Set to true once initialization completes
 local PawnIsInitialized
+
+-- Information about incompatibilities detected with other addons
+-- Use PawnIsIncompatible() to check this.
+local PawnIncompatibilitiesDetected =
+{
+	Count = 0,
+	ShownWarning = false,
+	AddOns = { }, -- { Name = "Bad AddOn", Fix = "Uninstall it" or nil }
+}
+
+local PawnIncompatibleAddons =
+{
+	["ClassCodex"] = "Class Codex",
+	["CombatNumbersSeparator"] = "Combat Numbers Separator",
+	["FreeUI"] = "FreeUI",
+	["RatingBuster"] = "RatingBuster",
+}
 
 -- Name of our private tooltip defined in PawnUI.xml
 PawnPrivateTooltipName = "PawnPrivateTooltip1"
@@ -495,6 +512,10 @@ function PawnInitialize()
 	if C_AddOns.IsAddOnLoaded("Blizzard_InspectUI") then PawnOnAddonLoaded("Blizzard_InspectUI") end
 	if C_AddOns.IsAddOnLoaded("Blizzard_ItemSocketingUI") then PawnOnAddonLoaded("Blizzard_ItemSocketingUI") end
 	if C_AddOns.IsAddOnLoaded("Blizzard_ReforgingUI") then PawnOnAddonLoaded("Blizzard_ReforgingUI") end
+	-- Also, check for incompatible addons.
+	for IncompatibleAddonName, _ in pairs(PawnIncompatibleAddons) do
+		if C_AddOns.IsAddOnLoaded(IncompatibleAddonName) then PawnOnAddonLoaded(IncompatibleAddonName) end
+	end
 
 	-- Now, load any plugins that are ready to be loaded.
 	PawnInitializePlugins()
@@ -563,6 +584,25 @@ function PawnOnAddonLoaded(AddonName)
 	elseif AddonName == "Blizzard_EncounterJournal" then
 		-- After the encounter journal is loaded, watch the loot buttons.
 		PawnUI_HookEncounterJournal()
+	elseif PawnIncompatibleAddons[AddonName] then
+		-- An addon that we're not compatible with has loaded.
+		if AddonName == "ClassCodex" then
+			if VgerCore.IsForever then
+				-- The Forever version of Class Codex doesn't (as of November 2026) have the Stat Priority Ranks feature that breaks Pawn, so there's no need to warn about it.
+				return
+			elseif ClassCodexDB and ClassCodexDB.showTooltipBadges == false then
+				-- Acceptable workaround, so don't warn.
+				return
+			end
+			tinsert(PawnIncompatibilitiesDetected.AddOns, { Name = PawnIncompatibleAddons[AddonName], Fix = "To fix it, go to Class Codex's options, in the Tooltips section, and uncheck Stat Priority Ranks. Then /reload." } )
+		else
+			tinsert(PawnIncompatibilitiesDetected.AddOns, { Name = PawnIncompatibleAddons[AddonName] } )
+		end
+		PawnIncompatibilitiesDetected.Count = PawnIncompatibilitiesDetected.Count + 1
+		if not PawnIncompatibilitiesDetected.ShownWarning and PawnCommon.ShowCompatErrors then
+			C_Timer.After(2, function() PawnUIFrame:Show() end)
+			PawnIncompatibilitiesDetected.ShownWarning = true
+		end
 	end
 end
 
@@ -732,6 +772,10 @@ function PawnInitializeOptions()
 		if VgerCore.SpecsExist then
 			PawnCommon.ShowBagUpgradeAdvisor = true
 		end
+	end
+	if PawnCommon.LastVersion < 2.1405 then
+		-- Show addon incompatibility errors by default. There's no setting for this; it's just there as an escape hatch.
+		PawnCommon.ShowCompatErrors = true
 	end
 	if (VgerCore.IsDraenorOrLater and PawnCommon.LastVersion < PawnMrRobotLastUpdatedVersion) or
 		((VgerCore.IsClassic or VgerCore.IsForever or VgerCore.IsBurningCrusade or VgerCore.IsWrath or VgerCore.IsCataclysm or VgerCore.IsMists) and PawnCommon.LastVersion < PawnClassicLastUpdatedVersion) then
@@ -1027,7 +1071,6 @@ function PawnGetCachedItem(ItemLink, ItemName, NumLines)
 	if PawnCommon.Debug then return end
 
 	-- Otherwise, search the item cache for this item.
-	local _
 	for _, CachedItem in pairs(PawnItemCache) do
 		if (not NumLines) or (NumLines == CachedItem.NumLines) then
 			if ItemLink and CachedItem.Link then
@@ -1731,6 +1774,7 @@ local TooltipUpdateCounter = 0
 -- Updates a specific tooltip.
 function PawnUpdateTooltip(TooltipName, MethodName, Param1, ...)
 	if not PawnCommon.Scales then return end
+	if PawnIsIncompatible() then return end
 
 	local Tooltip = _G[TooltipName]
 	if not Tooltip then
@@ -2010,7 +2054,7 @@ function PawnAddTooltipLine(Tooltip, Text, r, g, b)
 	if PawnCommon.AlignNumbersRight then
 		local Pos = VgerCore.StringFindReverse(Text, ": ") -- search for a colon followed by a space so we don't get texture escape sequences
 		local Left = strsub(Text, 0, Pos - 1) -- ignore the colon
-		local Right = strsub(Text, 0, 10) .. strsub(Text, Pos + 3) -- add the color string and ignore the spaces following the colon
+		local Right = (strbyte(Text) == 124 and strsub(Text, 0, 10) or "") .. strsub(Text, Pos + 3) -- add the color string if present ("|" = 124), and ignore the spaces following the colon
 		Tooltip:AddDoubleLine(Left, Right, r, g, b)
 	else
 		Tooltip:AddLine(Text, r, g, b)
@@ -3819,7 +3863,6 @@ function PawnIsItemAnUpgrade(Item, DoNotRescan)
 	-- -- Print out the contents of the upgrade table for debugging purposes.
 	-- if UpgradeTable then
 	-- 	VgerCore.Message(tostring(Item.Link) .. " is an upgrade for:")
-	-- 	local Upgrade
 	-- 	for _, Upgrade in pairs(UpgradeTable) do
 	-- 		VgerCore.Message("    " .. Upgrade.LocalizedScaleName .. ": " .. tostring(100 * Upgrade.PercentUpgrade) .. "% upgrade from " .. tostring(Upgrade.ExistingItemLink))
 	-- 	end
@@ -6104,6 +6147,20 @@ function PawnUnregisterThirdPartyTooltip(AddonName)
 	if not AddonName then VgerCore.Fail("AddonName can't be empty.") return end
 	PawnThirdPartyTooltips[AddonName] = nil
 	PawnIsAThirdPartyTooltipRegistered = #PawnThirdPartyTooltips > 0
+end
+
+-- Returns more information if Pawn detects that it is incompatible with the current game version or other addons in a way that prevents it from working at all.
+function PawnGetIncompatibilityInfo()
+	if PawnCommon.ShowCompatErrors and PawnIncompatibilitiesDetected.Count > 0 then
+		return VgerCore.DeepCopy(PawnIncompatibilitiesDetected)
+	else
+		return nil
+	end
+end
+
+-- Returns true if Pawn detects that it is incompatible with the current game version or other addons in a way that prevents it from working at all. (Use PawnGetIncompatibilityInfo if you need more information.)
+function PawnIsIncompatible()
+	return (PawnCommon.ShowCompatErrors and PawnIncompatibilitiesDetected.Count > 0) or nil
 end
 
 -- Shows or hides the Pawn UI.
