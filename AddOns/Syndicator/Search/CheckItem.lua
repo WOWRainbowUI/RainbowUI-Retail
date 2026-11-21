@@ -1336,14 +1336,17 @@ for _, quality in pairs(Enum.ItemQuality) do
 end
 
 local keyringBagFamily = bit.lshift(1, 9 - 1)
-AddKeywordLocalised("KEYWORD_KEY", function(details)
+local function KeyringCheck(details)
   local itemFamily = C_Item.GetItemFamily(details.itemID)
   if itemFamily == nil then
     return
   else
     return bit.band(keyringBagFamily, itemFamily) ~= 0
   end
-end, addonTable.Locales.GROUP_ITEM_TYPE)
+end
+
+AddKeywordLocalised("KEYWORD_KEY", KeyringCheck, addonTable.Locales.GROUP_ITEM_TYPE)
+AddKeywordManual(KEYRING:lower(), "keyring", KeyringCheck, addonTable.Locales.GROUP_ITEM_TYPE)
 
 local fishingBagFamily = bit.lshift(1, 16 - 1)
 AddKeywordLocalised("KEYWORD_FISH", function(details)
@@ -2094,6 +2097,9 @@ function addonTable.Search.CheckItem(details, searchString)
 
   local doNotCache
   result, doNotCache = check(details, searchString)
+  if result == nil and details.classID == -1 then
+    result = false
+  end
   if not doNotCache then
     details.fullMatchInfo[searchString] = result
   end

@@ -1,7 +1,8 @@
 # Syndicator
 
-## [291](https://github.com/TheMouseNest/Syndicator/tree/291) (2026-11-15)
-[Full Changelog](https://github.com/TheMouseNest/Syndicator/compare/290...291) 
+## [292](https://github.com/TheMouseNest/Syndicator/tree/292) (2026-11-20)
+[Full Changelog](https://github.com/TheMouseNest/Syndicator/compare/291...292) 
 
-- Forever: Hide PvE/PvP/etc when all characters in the tooltip from same ruleset  
-- Forever: Fix guilds tracking wrong realm name  
+- Add #keyring keyword  
+- Add fallback for dead items (missing item data)  
+- Fix commodity posting error when item data arrives \_really\_ late  
