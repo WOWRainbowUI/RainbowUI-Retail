@@ -153,8 +153,10 @@ keysMapping["itemLevelRaw"] = function(self)
   if C_Item.IsItemDataCachedByID(self.itemID) then
     local itemLevel = C_Item.GetDetailedItemLevelInfo(self.itemLink)
     return itemLevel or -1
-  else
+  elseif self.classID ~= -1 then
     C_Item.RequestLoadItemDataByID(self.itemID)
+  else
+    return 0
   end
 end
 
@@ -206,8 +208,10 @@ end
 keysMapping["itemName"] = function(self)
   if C_Item.IsItemDataCachedByID(self.itemID) then
     return C_Item.GetItemNameByID(self.itemID) or ""
-  else
+  elseif self.classID ~= -1 then
     C_Item.RequestLoadItemDataByID(self.itemID)
+  else
+    return ""
   end
 end
 

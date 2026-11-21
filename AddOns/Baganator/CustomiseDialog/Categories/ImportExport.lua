@@ -248,7 +248,7 @@ local function ImportCategories(import)
   return customCategories, categoryMods, seenItems
 end
 
-function addonTable.CustomiseDialog.CategoriesImport(import)
+function addonTable.CustomiseDialog.CategoriesImportNoSet(import)
   if import.version > 2 and import.kind ~= "categories" then
     addonTable.Utilities.Message(addonTable.Locales.INVALID_CATEGORY_IMPORT_FORMAT)
     return
@@ -359,17 +359,16 @@ function addonTable.CustomiseDialog.CategoriesImport(import)
         currentCategoryMods[source] = nil
       end
     end
-    addonTable.Config.MultiSet({
-      [addonTable.Config.Options.CUSTOM_CATEGORIES] = CopyTable(currentCustomCategories),
-      [addonTable.Config.Options.CATEGORY_SECTIONS] = CopyTable(sections),
-      [addonTable.Config.Options.CATEGORY_MODIFICATIONS] = CopyTable(currentCategoryMods),
-      [addonTable.Config.Options.CATEGORY_HIDDEN] = CopyTable(hidden),
-      [addonTable.Config.Options.CATEGORY_DISPLAY_ORDER] = displayOrder,
-    })
 
-    addonTable.CategoryViews.FixAnyBrokenSections()
+    return {
+      categories = currentCustomCategories,
+      sections = sections,
+      modifications = currentCategoryMods,
+      hidden = hidden,
+      order = displayOrder,
+    }
   else
-    local displayOrder = addonTable.Config.Get(addonTable.Config.Options.CATEGORY_DISPLAY_ORDER)
+    local displayOrder = CopyTable(addonTable.Config.Get(addonTable.Config.Options.CATEGORY_DISPLAY_ORDER))
     for key in pairs(customCategories) do
       table.insert(displayOrder, 1, sourceMap[key])
     end
@@ -386,10 +385,32 @@ function addonTable.CustomiseDialog.CategoriesImport(import)
       currentCustomCategories[sourceMap[key]] = category
       currentCategoryMods[sourceMap[key]] = categoryMods[key]
     end
+
+    return {
+      categories = currentCustomCategories,
+      modifications = currentCategoryMods,
+      order = displayOrder,
+    }
+  end
+end
+
+function addonTable.CustomiseDialog.CategoriesImport(import)
+  local new = addonTable.CustomiseDialog.CategoriesImportNoSet(import)
+  if new and new.sections then
     addonTable.Config.MultiSet({
-      [addonTable.Config.Options.CUSTOM_CATEGORIES] = CopyTable(currentCustomCategories),
-      [addonTable.Config.Options.CATEGORY_MODIFICATIONS] = CopyTable(currentCategoryMods),
-      [addonTable.Config.Options.CATEGORY_DISPLAY_ORDER] = CopyTable(displayOrder),
+      [addonTable.Config.Options.CUSTOM_CATEGORIES] = CopyTable(new.categories),
+      [addonTable.Config.Options.CATEGORY_SECTIONS] = CopyTable(new.sections),
+      [addonTable.Config.Options.CATEGORY_MODIFICATIONS] = CopyTable(new.modifications),
+      [addonTable.Config.Options.CATEGORY_HIDDEN] = CopyTable(new.hidden),
+      [addonTable.Config.Options.CATEGORY_DISPLAY_ORDER] = new.order,
+    })
+  elseif new then
+    addonTable.Config.MultiSet({
+      [addonTable.Config.Options.CUSTOM_CATEGORIES] = CopyTable(new.categories),
+      [addonTable.Config.Options.CATEGORY_MODIFICATIONS] = CopyTable(new.modifications),
+      [addonTable.Config.Options.CATEGORY_DISPLAY_ORDER] = CopyTable(new.order),
     })
   end
+
+    addonTable.CategoryViews.FixAnyBrokenSections()
 end

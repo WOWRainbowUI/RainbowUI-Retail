@@ -84,8 +84,14 @@ if addonTable.Constants.IsEra or addonTable.Constants.IsBC or addonTable.Constan
     {
       key = "key",
       name = C_Item.GetItemClassInfo(Enum.ItemClass.Key),
-      search = "#" .. (Syndicator.Locales.KEYWORD_KEY or Syndicator.Locales.KEYWORD_KEYRING),
+      search = "#" .. Syndicator.Locales.KEYWORD_KEY,
       priorityOffset = -35,
+    },
+    {
+      key = "keyring",
+      name = KEYRING,
+      search = "#" .. KEYRING:lower(),
+      priorityOffset = -30,
     },
   }
 
@@ -352,9 +358,10 @@ elseif addonTable.Constants.IsClassic then -- Cata/Mists
     [[{"categories":[],"version":1,"order":["default_auto_recents","----","default_hearthstone","default_consumable","default_questitem","_EQUIPMENT","default_auto_equipment_sets","default_weapon","default_armor","__end","_CRAFTING","default_reagent","default_tradegoods","default_recipe","__end","default_gem","default_container","default_key","default_miscellaneous","default_battlepet","default_other","----","default_junk","default_special_empty"],"modifications":[],"hidden":[]}]],
   }
 elseif addonTable.Constants.IsForever then
-  addonTable.CategoryViews.Constants.DefaultImportVersion = 1
+  addonTable.CategoryViews.Constants.DefaultImportVersion = 2
   addonTable.CategoryViews.Constants.DefaultImport = {
     [[{"categories":[],"version":1,"order":["default_auto_recents","----","default_hearthstone","default_consumable","default_questitem","_EQUIPMENT","default_auto_equipment_sets","default_weapon","default_armor","__end","_CRAFTING","default_reagent","default_tradegoods","default_recipe","__end","default_projectile","default_container","default_quiver","default_key","default_miscellaneous","default_other","----","default_junk","default_special_empty"],"modifications":[],"hidden":[]}]],
+    [[BGR!1!dVHLVsIwEF34GWz8ARfAF7RSSkXKQzhHVzmxGdpAmymTRGTH8SvcenThD7o32NOCr2ySuTNz753J+1XCDaRIEvQ+QBJAz625gCW3uWHcGmQECSijexfu3NSZDDiZTBtUMKuxBJW2Bb/PYVpDGwvaSAOFz9q3rW+0sLGyLBwz02B0XOe2wEtUo6aUCqSAMVDCZ51xDRPw1LU20oa4cFOgOBI527KEqrWpKwlXkBh5YtG5NlwqoPhoWj4ADetwDbtF/S6kTiDPuQK02mfd8UkRSZVWco17NBnQ1+Kua2hl1bqh06UzyXMGRWl2oRPVEtXZQB8sumW+eu2XnuIFRMF0EU1GQTz3uhUSDoO7WRSHXqeKB5czrz93QMCFQBX5POWKG6TeWipx8smjAoVcSgccFJ7exjrDbUhoywnBUj5+9DVaSuDvkQclSUdjduf9TAqI1P5fgp+r+d16uAWo/Sc=]]
   }
 elseif addonTable.Constants.IsRetail then
   addonTable.CategoryViews.Constants.DefaultImportVersion = 3

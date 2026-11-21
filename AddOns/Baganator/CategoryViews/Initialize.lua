@@ -116,11 +116,17 @@ end
 
 local function CompareCurrent()
   local toMod = addonTable.CustomiseDialog.CategoriesExportTable()
-  local defaultImport = C_EncodingUtil.DeserializeJSON(
   -- math.max(1 in case the user has an old category layout from before the
   -- defaults import was added
-    addonTable.CategoryViews.Constants.DefaultImport[math.max(1, addonTable.Config.Get(addonTable.Config.Options.CATEGORY_DEFAULT_IMPORT))]
-  )
+  local exportedImport = addonTable.CategoryViews.Constants.DefaultImport[math.max(1, addonTable.Config.Get(addonTable.Config.Options.CATEGORY_DEFAULT_IMPORT))]
+  local rawData
+  if exportedImport:match("^%{") then
+    rawData = C_EncodingUtil.DeserializeJSON(exportedImport)
+  else
+    rawData = C_EncodingUtil.DeserializeCBOR(C_EncodingUtil.DecompressString(C_EncodingUtil.DecodeBase64(exportedImport:sub(7))))
+  end
+
+  local defaultImport = addonTable.CustomiseDialog.CategoriesImportNoSet(rawData)
 
   if #toMod.order ~= #defaultImport.order then
     return false
@@ -149,7 +155,12 @@ local function SetupCategories()
     -- If the layout hasn't been changed, or has only had "Recent (Auto)" added
     if tCompare(displayOrderForCmp, addonTable.CategoryViews.Constants.OldDefaults) or #displayOrder == 0 or CompareCurrent() then
 
-      addonTable.CustomiseDialog.CategoriesImport(C_EncodingUtil.DeserializeJSON(addonTable.CategoryViews.Constants.DefaultImport[addonTable.CategoryViews.Constants.DefaultImportVersion]))
+      local text = addonTable.CategoryViews.Constants.DefaultImport[addonTable.CategoryViews.Constants.DefaultImportVersion]
+      if text:match("{") then
+        addonTable.CustomiseDialog.CategoriesImport(C_EncodingUtil.DeserializeJSON(text))
+      else
+        addonTable.CustomiseDialog.CategoriesImport(C_EncodingUtil.DeserializeCBOR(C_EncodingUtil.DecompressString(C_EncodingUtil.DecodeBase64(text:sub(7)))))
+      end
       Mixin(addonTable.Config.Get(addonTable.Config.Options.CATEGORY_SECTIONS, oldSections))
       addonTable.Config.Set(addonTable.Config.Options.CATEGORY_MODIFICATIONS, oldCategoryMods)
       local newAdded = {}

@@ -23,7 +23,7 @@ function addonTable.ShowGoldSummaryRealm(anchor, point)
   local currentCharacterDetails = Syndicator.API.GetCharacter(Syndicator.API.GetCurrentCharacter()).details
   local currentRealm = currentCharacterDetails.realmNormalized
   local currentFaction = currentCharacterDetails.faction
-  local applyFaction = addonTable.Constants.IsClassic
+  local applyFaction = addonTable.Constants.IsClassic or addonTable.Constants.IsForever
   local multipleRealms = false
   -- Identify if any characters/guilds on a different realm to the current one
   -- will be shown
