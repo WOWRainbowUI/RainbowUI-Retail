@@ -10,8 +10,13 @@ local _, ns = ...
 local L = ns.L
 
 ns.BlizzCategory = ns.RegisterBlizzardCategory{
+    setCategoryID = false, -- Keep the numeric Settings ID for the addon controller.
     title        = L["MiliUI Aura Enhance"],
     instructions = L["Use /maura to open options"],
     versionText  = L["Version: %s"]:format(ns.VERSION),
     buttonText   = L["Open options"],
 }
+
+-- Preserve the existing addon-controller settings entry after migration.
+MiliUI_AuraEnhanceDB = type(MiliUI_AuraEnhanceDB) == "table" and MiliUI_AuraEnhanceDB or {}
+MiliUI_AuraEnhanceDB.categoryID = ns.BlizzCategory:GetID()
