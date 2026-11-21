@@ -29,7 +29,8 @@ function BaganatorCategoryViewsItemsPreparationMixin:PrepareItems(everything, ca
     if not processedKey[key] then
       if not seen then
         seen = CopyTable(item)
-        if seen.isJunkGetter or seen.isUpgradeGetter then
+        addonTable.Sorting.AddSortKeys({seen})
+        if seen.classID ~= -1 and (seen.isJunkGetter or seen.isUpgradeGetter) then
           if not C_Item.IsItemDataCachedByID(seen.itemID) then
             if C_Item.GetItemInfoInstant(seen.itemID) ~= nil then
               waiting = waiting + 1
@@ -47,7 +48,6 @@ function BaganatorCategoryViewsItemsPreparationMixin:PrepareItems(everything, ca
             seen.isUpgrade = seen.isUpgradeGetter and seen.isUpgradeGetter()
           end
         end
-        addonTable.Sorting.AddSortKeys({seen})
         self.seenData[key] = seen
       end
       seen.setInfo = item.setInfo

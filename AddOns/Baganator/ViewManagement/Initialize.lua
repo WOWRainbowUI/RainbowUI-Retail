@@ -52,9 +52,17 @@ local function SetupBackpackHooks()
     end
   end
 
+  local function GamepadLockCheck()
+    if addonTable.Constants.IsGamepadInUse and not backpackView:IsShown() and InCombatLockdown() then
+      UIErrorsFrame:AddMessage(addonTable.Locales.CANNOT_OPEN_BAGS_IN_COMBAT, 1.0, 0.1, 0.1, 1.0)
+      return true
+    end
+    return false
+  end
+
   local lastToggleTime = 0
   local function ToggleBackpackView()
-    if GetTime() == lastToggleTime or not Syndicator.API.GetCurrentCharacter() then
+    if GetTime() == lastToggleTime or not Syndicator.API.GetCurrentCharacter() or GamepadLockCheck() then
       return
     end
     backpackView:SetShown(not backpackView:IsShown())
@@ -127,11 +135,7 @@ local function SetupBackpackHooks()
       if debugstack():match("'ToggleBackpack'") then
         return
       end
-      if backpackView:IsShown() or not InCombatLockdown() then
-        ToggleBackpackView()
-      else
-        UIErrorsFrame:AddMessage(addonTable.Locales.CANNOT_OPEN_BAGS_IN_COMBAT, 1.0, 0.1, 0.1, 1.0)
-      end
+      ToggleBackpackView()
     end)
   end
 
@@ -139,7 +143,7 @@ local function SetupBackpackHooks()
   hooksecurefunc("OpenBag", function()
     local stack = debugstack()
     -- This hook is only for toasts
-    if stack:match("AlertFrameSystems.lua") then
+    if stack:match("AlertFrameSystems.lua") and not GamepadLockCheck() then
       addonTable.CallbackRegistry:TriggerEvent("BagShow")
     end
   end)
