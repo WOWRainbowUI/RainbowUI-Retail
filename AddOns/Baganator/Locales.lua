@@ -461,6 +461,7 @@ L["TOGGLE"] = "Toggle"
 L["CLEAR_RECENTS"] = "Clear Recents"
 
 local L = Locales.zhTW
+L["SECTION_KEYRING"] = "鑰匙圈"
 L["TOGGLE"] = "切換"
 L["CLEAR_RECENTS"] = "清除最近項目"
 L["NO_STACK_TO_SPLIT"] = "沒有可拆分的堆疊"
@@ -871,6 +872,7 @@ L["LEGACY_SKIN"] = "你有舊的外觀插件 "
 L["NO_LONGER_NEEDED"] = " 已經不再需要了，請將它刪除。多角色背包本身現已包含外觀。"
 
 local L = Locales.zhCN
+L["SECTION_KEYRING"] = "钥匙链"
 L["TOGGLE"] = "切换"
 L["CLEAR_RECENTS"] = "清除最近项目"
 L["NO_STACK_TO_SPLIT"] = "没有可拆分的堆叠"
