@@ -1243,6 +1243,20 @@ end
 -- Your casts and swings -----------------------------------------------------------
 local CAST_TARGET_KEEP, MAX_CAST_TARGETS = 30, 64
 
+-- A unit's name as the game writes it in what it sends, from the two values
+-- of UnitName. Forever gives a player a surname as the second value, where
+-- other clients give the realm, and joins the two with its own separator.
+-- Without a readable surname or separator the name comes back as it is.
+local function WrittenName(name, surname)
+    local client = MikSBT.Compatibility and MikSBT.Compatibility.Client
+    local separators = Constants and Constants.CharacterNameSeparatorConsts
+    local separator = separators and separators.CHARACTERNAME_SURNAME_SEPARATOR
+    if client and client.isForever and ns.Text(name) and ns.Text(surname) and ns.Text(separator) then
+        return name .. separator .. surname
+    end
+    return name
+end
+
 local function RecipientKey(unit)
     local same = UnitIsUnit(unit, "target")
     if ns.Bool(same) and same then return ns.TargetKey() end
@@ -1260,7 +1274,8 @@ local function NamedRecipient(target)
     for _, token in ipairs(tokens) do
         local ok, name, realm = pcall(UnitName, token)
         if ok and ns.Text(name) and (target == name
-            or (ns.Text(realm) and target == name .. "-" .. realm)) then
+            or (ns.Text(realm) and target == name .. "-" .. realm)
+            or target == WrittenName(name, realm)) then
             local candidate = RecipientKey(token)
             if candidate then
                 if key and key ~= candidate then uncertain = true end
@@ -1528,7 +1543,7 @@ local function OnInterrupted(unit, interruptedBy)
         -- 0.3.48: your interrupts come as combat log lines of their own
         -- colour, so the line settles it (KindAlert) and this only lends it
         -- the enemy's name; a teammate's interrupt sends none.
-        local name = UnitName(unit)
+        local name = WrittenName(UnitName(unit))
         reader.interruptHeld = { at = now, name = ns.Text(name) and name or nil }
         return
     else
@@ -1536,7 +1551,7 @@ local function OnInterrupted(unit, interruptedBy)
     end
     if not mine or not lastCast then return end
     lastInterrupt = now
-    local name = UnitName(unit)
+    local name = WrittenName(UnitName(unit))
     local router = Router()
     if router then
         router:Alert({ kind = "interrupt", icon = ns.SpellIcon(lastCast.spell), text = INTERRUPTED or "Interrupted",

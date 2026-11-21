@@ -5,6 +5,7 @@ MikSBT[moduleName] = module
 
 local MSBTProfiles = MikSBT.Profiles
 local MSBTParser = MikSBT.Parser
+local L = MikSBT.translations or {}
 
 local string_find = string.find
 local string_gsub = string.gsub
@@ -393,7 +394,7 @@ local alertCurves = {}
 local alertProbe
 
 local lowHealthSettings = {
-	message = "Low Health!",
+	message = (L.MSG_TRIGGER_LOW_HEALTH or "Low Health") .. "!",
 	scrollArea = "Notification",
 	colorR = 1, colorG = 0, colorB = 0,
 	fontSize = 26,
@@ -403,7 +404,7 @@ local lowHealthSettings = {
 	soundDisabledOption = "lowHealthSoundDisabled",
 }
 local lowManaSettings = {
-	message = "Low Mana!",
+	message = (L.MSG_TRIGGER_LOW_MANA or "Low Mana") .. "!",
 	scrollArea = "Notification",
 	colorR = 0, colorG = 0.5, colorB = 1,
 	fontSize = 26,

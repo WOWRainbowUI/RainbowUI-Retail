@@ -28,7 +28,7 @@ local function NormalizeCooldown(startTime, duration, isEnabled, modRate)
 	}
 end
 
-function Cooldowns:GetSpell(spellID)
+function Cooldowns:GetSpellStatus(spellID)
 	if RestrictedValue:Number(spellID) == nil then
 		return nil
 	end
@@ -40,12 +40,15 @@ function Cooldowns:GetSpell(spellID)
 			return nil
 		end
 
-		return NormalizeCooldown(
+		local status = NormalizeCooldown(
 			cooldown.startTime,
 			cooldown.duration,
 			cooldown.isEnabled,
 			cooldown.modRate
-		)
+		) or { isEnabled = NormalizeEnabled(cooldown.isEnabled) }
+		status.isActive = RestrictedValue:Boolean(cooldown.isActive)
+		status.isOnGCD = RestrictedValue:Boolean(cooldown.isOnGCD)
+		return status
 	end
 
 	if type(GetSpellCooldown) ~= "function" then
@@ -59,6 +62,11 @@ function Cooldowns:GetSpell(spellID)
 	end
 
 	return NormalizeCooldown(startTime, duration, isEnabled, modRate)
+end
+
+function Cooldowns:GetSpell(spellID)
+	local cooldown = self:GetSpellStatus(spellID)
+	if cooldown and cooldown.startTime ~= nil then return cooldown end
 end
 
 function Cooldowns:GetLegacySpell(spellID)

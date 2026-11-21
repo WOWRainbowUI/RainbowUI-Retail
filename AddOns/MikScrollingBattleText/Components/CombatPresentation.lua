@@ -450,6 +450,18 @@ local function EventKey(direction, record, result)
 	return prefix .. (spell and "SPELL_DAMAGE" or "DAMAGE")
 end
 
+local function RangedEventKey(record, key)
+	local client = MikSBT.Compatibility and MikSBT.Compatibility.Client
+	if not (client and client.isForever) then return key end
+
+	if key == "OUTGOING_SPELL_DAMAGE" and record.event == "damage" then
+		return "OUTGOING_RANGED_DAMAGE"
+	elseif key == "OUTGOING_SPELL_MISS" and record.event == "miss" then
+		return "OUTGOING_RANGED_MISS"
+	end
+	return key
+end
+
 function Presentation:Out(record)
 	local result = record.result
 	if not result or (result.who ~= "you" and result.who ~= "pet") then return end
@@ -459,6 +471,9 @@ function Presentation:Out(record)
 		return
 	end
 	local key = EventKey("OUTGOING", record, result)
+	if result.melee and result.hand == "ranged" then
+		key = RangedEventKey(record, key)
+	end
 	local spell = result.spell or result.procSpell
 	if result.melee then spell = result.hand == "ranged" and 5019 or 6603 end
 	local icon = record.icon or (spell and self.config.getSpellTexture(spell))
@@ -517,23 +532,23 @@ function Presentation:In(record)
 end
 
 function Presentation:Aura(gained, harmful, name, icon, spellID)
-	local rules = self.config.getProfile().auraTracking
-	if rules and not MikSBT.Configuration.AuraTracking:ShouldShow(
-		rules, spellID, name) then return end
+	local profile = self.config.getProfile()
+	local rules = profile.auraTracking
+	local tracking = rules and MikSBT.Configuration.AuraTracking
+	if rules and not tracking:ShouldShow(rules, spellID, name) then return end
 	local key = "NOTIFICATION_" .. (harmful and "DEBUFF" or "BUFF")
 		.. (gained and "" or "_FADE")
-	local settings = self:Settings(key)
+	local id = rules and tracking:FindID(rules, spellID, name)
+	local settings = id and tracking:GetSettings(profile, id, key)
+		or profile.events[key]
 	if not settings then return end
-	if rules then
-		local tracking = MikSBT.Configuration.AuraTracking
-		local id = tracking:FindID(rules, spellID, name)
-		if id and rules[id] ~= nil then
-			settings = tracking:GetSettings(self.config.getProfile(), id, key)
-		end
+	if settings.disabled then
+		if harmful or not id then return end
+		-- A tracked buff inherits the general style, including the fade message.
+		settings = setmetatable({ disabled = false }, { __index = settings })
 	end
 	if RestrictedValue:IsRestricted(name) then
-		local visibility = rules and MikSBT.Configuration.AuraTracking
-			:SecretVisibility(rules, name)
+		local visibility = rules and tracking:SecretVisibility(rules, name)
 		if visibility then
 			-- Native visibility cannot selectively suppress sound playback.
 			settings = setmetatable({
@@ -567,6 +582,11 @@ function Presentation:Alert(record)
 	end
 	if not key then return end
 	local displayRecord = { name = record.text, icon = record.icon }
+	-- The reader names what a line tells in English. Crowd control a hit of yours broke is told in
+	-- the locale's words where it has them.
+	if record.kind == "broke" then
+		displayRecord.name = (MikSBT.translations or {}).MSG_CONTROL_BROKEN or record.text
+	end
 	if record.args then
 		local value = record.args[1]
 		if RestrictedValue:IsRestricted(value) then

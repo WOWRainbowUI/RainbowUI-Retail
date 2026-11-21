@@ -77,6 +77,8 @@ local function ResolveEventSettings(events, baseKey, isCrit)
 		if critSettings and not critSettings.disabled then
 			return critKey, critSettings
 		end
+		-- Ranged hits and crits have independent display switches.
+		if baseKey == "OUTGOING_RANGED_DAMAGE" then return nil end
 	end
 	local settings = events[baseKey]
 	if settings and not settings.disabled then
