@@ -9,7 +9,7 @@ local addonName, KT = ...
 
 ---@class AddonRareScanner
 local M = KT:NewModule("AddonRareScanner")
-M.COMPATIBLE_VERSION = "12.1.5.5"
+M.COMPATIBLE_VERSION = "12.1.5.7"
 M.MIN_COMPATIBLE_VERSION = "11.2.0.11"
 KT.AddonRareScanner = M
 
@@ -66,6 +66,7 @@ end
 
 local function RS_SetOptions()
 	local profile = RareScanner.db.profile
+	profile.display.displayMiniature = true
 	profile.display.displayButtonContainers = false
 	profile.loot.numItems = lootNumItems
 	profile.loot.numItemsPerRow = profile.loot.numItems / 2
@@ -100,19 +101,6 @@ local function RS_PatchOptions()
 	end)
 end
 
-local function RS_OnMouseUp(self, button)
-	if not IsShiftKeyDown() and not IsControlKeyDown() and not IsAltKeyDown() then
-		if button == "LeftButton" then
-			C_SuperTrack.SetSuperTrackedQuestID(0)
-			RSbutton:GetScript("PostClick")(RSbutton, button)
-		elseif button == "RightButton" then
-			if not KT.InCombatBlocked() then
-				RSbutton.CloseButton:Click()
-			end
-		end
-	end
-end
-
 local function Wrapper_SetHeight()
 	local lootBarHeight = 0
 	if RareScanner.db.profile.loot.displayLoot and RSbutton.LootBar.itemFramesPool:GetNumActive() > 0 then
@@ -137,12 +125,24 @@ local function SetFrames()
 	Mixin(content, KT_RareScannerBlockMixin)
 	content:Hide()
 
-	local button = CreateFrame("Frame", nil, content)
+	local button = CreateFrame("Button", nil, content, "InsecureActionButtonTemplate")
 	button:SetPoint("TOPLEFT", 3, 0)
 	button:SetPoint("RIGHT", -6, 0)
 	button:SetScript("OnEnter", function() content:OnEnter() end)
 	button:SetScript("OnLeave", function() content:OnLeave() end)
-	button:SetScript("OnMouseUp", RS_OnMouseUp)
+	button:RegisterForClicks("AnyUp")
+	button:SetAttribute("useOnKeyDown", false)
+	button:SetAttribute("type1", "macro")
+	button:SetAttribute("type2", "closebutton")
+	button:SetScript("PostClick", function(_, btn)
+		KT.InCombatBlocked()
+		if not IsModifierKeyDown() then
+			RSbutton:GetScript("PostClick")(RSbutton, btn)
+		end
+	end)
+	button.closebutton = function()
+		RSbutton.CloseButton:Click()
+	end
 	content.button = button
 
 	local model = CreateFrame("PlayerModel", nil, button)
@@ -221,6 +221,8 @@ local function SetHooks()
 		RS_HideButton()
 		RS_SetOptions()
 
+		content.button:SetAttribute("macrotext1", self:GetAttribute("macrotext"))
+
 		if self.displayID then
 			content.model:SetDisplayInfo(self.displayID)
 		end
@@ -253,11 +255,31 @@ local function SetHooks()
 		Wrapper_SetHeight()
 	end)
 
-	hooksecurefunc(RSLootMixin, "AddItem", function(self, itemID, numActive)
-		self:SetScript("OnMouseUp", RS_OnMouseUp)
+	hooksecurefunc(RSLootMixin, "AddItem", function(self, itemID, numActive, dropChance, isUpgrade)
+		self:SetMouseClickEnabled(IsModifierKeyDown())
+		self:SetMouseMotionEnabled(true)
+
+		if not self.KThooked then
+			self:SetScript("OnMouseDown", function(frame, button)
+				if not InCombatLockdown() or not IsControlKeyDown() then
+					RSLootMixin.OnMouseDown(frame, button)
+				end
+				if IsModifiedClick("CHATLINK") and ChatFrameUtil.GetActiveWindow() then
+					ChatFrameUtil.InsertLink(frame.itemLink)
+				end
+			end)
+			self:HookScript("OnUpdate", function(frame)
+				frame:SetMouseClickEnabled(IsModifierKeyDown())
+			end)
+			self.KThooked = true
+		end
 	end)
 
 	hooksecurefunc(RSLootMixin, "OnEnter", function(self)
+		if not InCombatLockdown() then
+			self:SetMouseClickEnabled(IsModifierKeyDown())
+		end
+
 		content:OnEnter()
 		local tooltip = self:GetParent().LootBarToolTip
 		tooltip:SetParent(UIParent)
@@ -321,6 +343,10 @@ function KT_RareScannerBlockMixin:Init()
 	self.fixedHeight = true
 	self.height = contentHeight
 	self.usedLines = {}  -- unused, needed throughout KT_ObjectiveTrackerBlockMixin
+end
+
+function KT_RareScannerBlockMixin:OnLayout()
+	self.model:RefreshCamera()
 end
 
 function KT_RareScannerBlockMixin:SetStringText(fontString, text, colorStyle, useHighlight)

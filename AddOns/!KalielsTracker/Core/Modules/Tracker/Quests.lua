@@ -150,19 +150,11 @@ local function SetupOptions()
                         desc = "接受任務時自動加入追蹤。使用暴雪的設定值 \"autoQuestWatch\"。\n"..KT.TEXT.OPTION_RELOADUI,
                         type = "toggle",
                         width = "normal+half",
-                        get = function(info)
-                            return KT.Options.GetPendingOption(info, function()
-                                return GetCVarBool("autoQuestWatch")
-                            end)
+                        get = function()
+                            return GetCVarBool("autoQuestWatch")
                         end,
-                        set = function(info, value)
-                            KT.Options.SetPendingOption(info, value,
-                                    function()
-                                        return GetCVarBool("autoQuestWatch")
-                                    end,
-                                    function(newValue)
-                                        SetCVar("autoQuestWatch", newValue)
-                                    end)
+                        set = function(_, value)
+                            SetCVar("autoQuestWatch", value)
                         end,
                         order = 6,
                     },
@@ -171,19 +163,11 @@ local function SetupOptions()
                         desc = "任務進度更新時自動加入追蹤。使用暴雪的設定值 \"autoQuestProgress\"。\n"..KT.TEXT.OPTION_RELOADUI,
                         type = "toggle",
                         width = "normal+half",
-                        get = function(info)
-                            return KT.Options.GetPendingOption(info, function()
-                                return GetCVarBool("autoQuestProgress")
-                            end)
+                        get = function()
+                            return GetCVarBool("autoQuestProgress")
                         end,
-                        set = function(info, value)
-                            KT.Options.SetPendingOption(info, value,
-                                    function()
-                                        return GetCVarBool("autoQuestProgress")
-                                    end,
-                                    function(newValue)
-                                        SetCVar("autoQuestProgress", newValue)
-                                    end)
+                        set = function(_, value)
+                            SetCVar("autoQuestProgress", value)
                         end,
                         order = 7,
                     },

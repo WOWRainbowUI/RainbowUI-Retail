@@ -995,7 +995,9 @@ local function FilterMenu_AddQuests(info)
 		info.disabled = (dbChar.filterAuto[1] ~= nil)
 
 		KT.Menu_AddButton("區域", "zone")
-		KT.Menu_AddButton("戰役", "campaign")
+		if KT_CampaignQuestObjectiveTracker then
+			KT.Menu_AddButton("戰役", "campaign")
+		end
 		KT.Menu_AddButton("每日 / 每週", "daily")
 		KT.Menu_AddButton("副本", "instance")
 		KT.Menu_AddButton("未完成", "unfinished")

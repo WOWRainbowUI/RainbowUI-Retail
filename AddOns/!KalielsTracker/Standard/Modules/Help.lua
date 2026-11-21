@@ -21,8 +21,8 @@ M.helpPages = {
 	M.pages.masque,
 	M.pages.pettracker,
 	M.pages.tomtom,
-	M.pages.rarescanner,
 	M.pages.waypoints,
+	M.pages.rarescanner,
 	M.pages.battlepetcompletionist,
 	M.pages.whatsNew,
 }

@@ -293,15 +293,14 @@ M.pages = {
 	rarescanner = {
 		image = HELP_PATH.."help_addon-rarescanner",
 		heading = "支援插件 RareScanner",
-		text = "支援 RareScanner 後，將取代原有的 RareScanner 按鈕，並把偵測到的稀有怪物顯示於 "..
-				"inside "..KT.TITLE.."的獨立模組中。\n\n"..
+		text = "支援 RareScanner 後，將取代原有按鈕，並把偵測到的稀有怪物顯示於 "..
+				""..KT.TITLE.."的獨立模組中。\n\n"..
 				"功能特色：\n"..
 				"- 僅顯示稀有怪物的模型與名稱，不顯示寶藏或寶箱。\n"..
 				"- 顯示戰利品圖示及浮動提示（需在 RareScanner 中啟用）。\n"..
-				"- "..cBold.."左鍵點擊|r - 建立 TomTom 路徑點（若已在 RareScanner 中啟用）。\n"..
-				"- "..cBold.."右鍵點擊|r - 從追蹤器中移除已偵測到的 NPC。\n"..
-				"- 由於暴雪的限制，不支援透過左鍵點擊來鎖定 NPC。"..
-				offs.."請使用 RareScanner 的快捷鍵進行鎖定。\n"..
+				"- "..cBold.."左鍵點擊|r - 在非戰鬥時鎖定 NPC，並建立 TomTom 路徑點（若已在"..
+				offs.."RareScanner 中啟用）。\n"..
+				"- "..cBold.."右鍵點擊|r - 在非戰鬥時從追蹤器移除已偵測到的 NPC。\n"..
 				"- 所有其他 RareScanner 設定均會反映在此模組的行為上。\n"..
 				M.AddonInfo("RareScanner"),
 		editbox = {
@@ -372,15 +371,13 @@ M.pages = {
 		headingSize = 26,
 		text = "|cff66ff66"..KT.TITLE.." 是由一人獨自開發與維護的。|r\n"..ebSpace.."\n"..
 
-				(cTitle.."版本 8.11.1|r\n"..
-				"- 修正 - TomTom - 設定說明缺漏\n"..
-				"\n")..
-
-				(cTitle.."版本 8.11.0|r\n"..
-				"- 變更 - 插件支援：Narcissus 1.8.7 c\n"..
-				"- 變更 - 插件支援：Auctionator 343\n"..
-				"- 變更 - 插件支援：TomTom 4.4.1\n"..
-				"- 變更 - 插件支援：BtWQuests 2.69.0\n"..
+				(cTitle.."版本 8.12.0|r\n"..
+				"- 變更 - 插件支援：Battle Pet Completionist 12.1.5-20261112-1\n"..
+				"- 變更 - 插件支援：RareScanner 12.1.5.7\n"..
+				"- 變更 - 插件支援：Auctionator 349\n"..
+				"- 變更 - RareScanner - 左鍵點擊現在可在非戰鬥時鎖定 NPC\n"..
+				"- 變更 - 按下滑鼠時觸發追蹤器點擊（模組標題、追蹤器"..offs.."隱藏）\n"..
+				"- 修正 - TomTom - 新接任務有時缺少路徑點\n"..
 				"\n")..
 
 				cTitle.."回報問題|r\n"..

@@ -13,6 +13,8 @@ local db, dbChar
 
 local OTF = KT_ObjectiveTrackerFrame
 
+local Noop = function() end
+
 local function ModuleHeader_OnClick(self)
     local module = self:GetParent()
     PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
@@ -22,13 +24,13 @@ end
 local function Module_SetHeader(module)
     if not module.Header then return end
 
-    module.Header.Text.ClearAllPoints = function() end
+    module.Header.Text.ClearAllPoints = Noop
     module.Header.Text:SetPoint("LEFT", 10, 1)
-    module.Header.Text.SetPoint = function() end
-    module.Header.PlayAddAnimation = function() end
+    module.Header.Text.SetPoint = Noop
+    module.Header.PlayAddAnimation = Noop
     module.Header.MinimizeButton:SetShown(false)
-    module.Header.MinimizeButton.SetShown = function() end
-    module.Header:SetScript("OnMouseUp", ModuleHeader_OnClick)
+    module.Header.MinimizeButton.SetShown = Noop
+    module.Header:SetScript("OnMouseDown", ModuleHeader_OnClick)
 
     local icon = module.Header:CreateTexture(nil, "ARTWORK")
     KT.SetSprite(icon, "module-header-icon-collapse", true)
