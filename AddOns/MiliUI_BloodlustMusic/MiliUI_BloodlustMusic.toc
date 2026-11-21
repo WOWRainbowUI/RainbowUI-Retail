@@ -14,6 +14,7 @@
 ## Category-koKR: 전투
 ## Author: Mili
 ## Version: 1.2.12
+## Dependencies: Ace3
 ## SavedVariables: MiliUI_BloodlustMusic_DB
 
 Libs\MiliUIWidgets\PixelPerfect.lua
