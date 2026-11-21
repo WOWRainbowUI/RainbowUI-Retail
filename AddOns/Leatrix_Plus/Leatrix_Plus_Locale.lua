@@ -19,6 +19,11 @@ if type(choice) == "number" and localeList[choice - 1] then
 end
 
 if GameLocale == "zhCN" then
+	L["Cannot be used with EllesmereUI"] = "无法与 EllesmereUI 同时使用"
+	L["Show player health bar in class color"] = "以职业颜色显示玩家生命条"
+	L["If checked, the player health bar will be shown in class color."] = "勾选后，玩家生命条会以职业颜色显示。"
+	L["Show target and focus health bar in class color"] = "以职业颜色显示目标及焦点生命条"
+	L["If checked, the target health bar and focus health bar will be shown in class color when the target or focus is a player."] = "勾选后，当目标或焦点为玩家时，其生命条会以职业颜色显示。"
 	L["%d options found."] = "找到 %d 个选项。"
 	L["(scroll the list for more)"] = "（滚动列表查看更多选项）"
 	L["3D model"] = "3D模型"
@@ -1695,6 +1700,11 @@ if GameLocale == "zhCN" then
 end
 
 if GameLocale == "zhTW" then
+	L["Cannot be used with EllesmereUI"] = "無法與 EllesmereUI 同時使用"
+	L["Show player health bar in class color"] = "以職業顏色顯示玩家生命條"
+	L["If checked, the player health bar will be shown in class color."] = "勾選後，玩家生命條會以職業顏色顯示。"
+	L["Show target and focus health bar in class color"] = "以職業顏色顯示目標及專注目標生命條"
+	L["If checked, the target health bar and focus health bar will be shown in class color when the target or focus is a player."] = "勾選後，當目標或專注目標為玩家時，其生命條會以職業顏色顯示。"
 	L["%d options found."] = "找到 %d 個選項。"
 	L["(scroll the list for more)"] = "（滾動列表了解更多）"
 	L["3D model"] = "3D模型"
