@@ -13,7 +13,7 @@
 ## Category-zhCN: 战斗
 ## Category-koKR: 전투
 ## Author: Mili
-## Version: 1.2.10
+## Version: 1.2.12
 ## SavedVariables: MiliUI_BloodlustMusic_DB
 
 Libs\MiliUIWidgets\PixelPerfect.lua
@@ -33,6 +33,7 @@ Libs\MiliUIWidgets\Env.lua
 Libs\MiliUIWidgets\Widgets.lua
 Libs\MiliUIWidgets\ContextMenu.lua
 Libs\MiliUIWidgets\Controls.lua
+Libs\MiliUIWidgets\Window.lua
 Options\Specs.lua
 Options\Panel.lua
 Options\Tab_Music.lua

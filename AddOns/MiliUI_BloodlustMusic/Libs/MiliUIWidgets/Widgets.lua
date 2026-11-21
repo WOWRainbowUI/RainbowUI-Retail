@@ -114,17 +114,49 @@ local WIDGET_FILL = { 0.115, 0.115, 0.115, 1 }
 -- 看不清楚），邊框又是純黑幫不上忙。0.22 對齊按鈕 hover 的 0.23，不會跳出既有色階。
 local CHECKBOX_FILL = { 0.28, 0.28, 0.28, 1 }
 
-function W.Stylize(frame, color, borderColor)
-    color = color or { 0.1, 0.1, 0.1, 0.9 }
-    borderColor = borderColor or { 0, 0, 0, 1 }
+-- 1px 邊的粗細照**框自己的**有效縮放換算，而且每次顯示時對一次帳
+-- （.claude/notes/wow-1px-border-rules.md 成因 ②③⑤）：
+--   · 框掛在縮放跟 UIParent 不同的東西底下（被玩家縮放過的暴雪視窗旁邊的面板）
+--   · 建立之後 UI 縮放／祖先縮放才變、或建立當下還沒有 parent
+-- 這幾種照 UIParent 在建立時算一次的粗細都不是剛好 1 個實體像素，邊就整條不見（常見的樣子：
+-- 左、上在，右、下缺）。粗細沒變就什麼都不做，所以平常的成本是每次顯示一次除法。
+-- 記帳用弱表不寫框的欄位；宿主自帶的 P.Pixel 不收第二個參數時，結果跟原本一樣（照 UIParent）。
+local edgePx = setmetatable({}, { __mode = "k" })
+
+local function ApplyEdge(frame, px)
+    edgePx[frame] = px
     frame:SetBackdrop({
         bgFile = WHITE,
         edgeFile = WHITE,
-        edgeSize = P.Pixel(1),
+        edgeSize = px,
     })
     if P.NoSnapBackdrop then P.NoSnapBackdrop(frame) end   -- 拖到小數座標時 1px 邊不被捨入成 0（宿主自帶的 P 可能沒有這支）
+end
+
+local function RefreshEdge(frame)
+    local old = edgePx[frame]
+    if not old then return end
+    local px = P.Pixel(1, frame)
+    if math.abs(px - old) < 1e-5 then return end
+    -- 之後被別人換過 backdrop 的（清掉、換成別種邊）就不是我們的了，不要蓋回去
+    local info = frame.backdropInfo
+    if not info or info.edgeSize ~= old then edgePx[frame] = nil return end
+    local r, g, b, a = frame:GetBackdropColor()
+    local br, bg, bb, ba = frame:GetBackdropBorderColor()
+    ApplyEdge(frame, px)
+    if r then frame:SetBackdropColor(r, g, b, a) end
+    if br then frame:SetBackdropBorderColor(br, bg, bb, ba) end
+end
+W.RefreshEdge = RefreshEdge
+
+function W.Stylize(frame, color, borderColor)
+    color = color or { 0.1, 0.1, 0.1, 0.9 }
+    borderColor = borderColor or { 0, 0, 0, 1 }
+    local first = edgePx[frame] == nil
+    ApplyEdge(frame, P.Pixel(1, frame))
     frame:SetBackdropColor(unpack(color))
     frame:SetBackdropBorderColor(unpack(borderColor))
+    if first and frame.HookScript then frame:HookScript("OnShow", RefreshEdge) end
 end
 
 function W.CreateFrame(name, parent, width, height, transparent)
@@ -1273,6 +1305,30 @@ local MENU_MAX_ROWS = 14      -- 超過就裁切＋滾輪捲動（字型清單�
 -- 職業色只留給 hover 與「展開中」——常駐染色會讓整頁表單太吵
 local DD_BORDER = { 0.22, 0.22, 0.22, 1 }
 
+-- **材質預覽**（全套組的材質下拉都這樣畫，使用者 2026-11-06 指定照 Cell 的樣式）：項目帶 `texture`（圖檔路徑）時，
+-- 選單裡那一列整列鋪那張圖、字疊在上面，收合的下拉本體也鋪選中那一項的圖 ⇒ 不用選了才知道長怎樣。
+-- 圖壓在 DD_TEX_ALPHA（底下是深色底，白字才讀得出來；滑過那一列全亮）；有圖的列不靠底色表示滑過／選中
+-- （底色被圖蓋住），改畫 1px 職業色框。沒帶 texture 的項目（純色、預設、跟隨…）照舊。
+-- 清單由消費者自己帶圖：`ns.MiliMedia.TextureItems(list, always, nil, 解析函式)`（Libs/MiliUIMedia.lua）。
+local DD_TEX_ALPHA = 0.7
+
+-- 選單項目的底色／框（hover ＝ 滑鼠在上面）。b.hasTex／b.isSel 在每次展開時寫好
+local function PaintMenuItem(b, hover)
+    if b.hasTex then
+        b:SetBackdropColor(0, 0, 0, 0)
+        if hover or b.isSel then
+            b:SetBackdropBorderColor(W.Accent(1))
+        else
+            b:SetBackdropBorderColor(0, 0, 0, 0)
+        end
+        b.tex:SetAlpha(hover and 1 or DD_TEX_ALPHA)
+    elseif hover then
+        b:SetBackdropColor(W.Accent(0.4))
+    else
+        b:SetBackdropColor(0, 0, 0, 0)
+    end
+end
+
 local menuFrame
 local function EnsureMenu()
     if menuFrame then return menuFrame end
@@ -1502,6 +1558,21 @@ function W.CreateDropdown(parent, width, items, onSelect)
     arrow:SetDesaturated(true)
     arrow:SetVertexColor(W.Accent(1))
 
+    -- 選中那一項的材質預覽（項目帶 texture 才顯示）：鋪在底色上、字與箭頭底下，右邊讓出箭頭那一格
+    dd.tex = dd:CreateTexture(nil, "ARTWORK")
+    if P.NoSnap then P.NoSnap(dd.tex) end
+    dd.tex:SetAlpha(DD_TEX_ALPHA)
+    dd.tex:Hide()
+    local function ShowTexture(tex)
+        if tex == nil then dd.tex:Hide() return end
+        local px = P.Pixel(1, dd)                 -- 顯示時才換算、照下拉自己的縮放
+        dd.tex:ClearAllPoints()
+        dd.tex:SetPoint("TOPLEFT", dd, "TOPLEFT", px, -px)
+        dd.tex:SetPoint("BOTTOMRIGHT", dd, "BOTTOMRIGHT", -17, px)
+        dd.tex:SetTexture(tex)
+        dd.tex:Show()
+    end
+
     dd.items = items or {}
     dd.selected = nil
 
@@ -1543,10 +1614,12 @@ function W.CreateDropdown(parent, width, items, onSelect)
         for _, item in ipairs(dd.items) do
             if item.value == value then
                 dd.text:SetText(item.text)
+                ShowTexture(item.texture)
                 return
             end
         end
         dd.text:SetText(value ~= nil and tostring(value) or "")
+        ShowTexture(nil)
     end
     function dd:GetSelected() return dd.selected end
 
@@ -1567,16 +1640,34 @@ function W.CreateDropdown(parent, width, items, onSelect)
             local b = menu.items[i]
             if not b then
                 b = CreateFrame("Button", nil, menu, "BackdropTemplate")
+                b.tex = b:CreateTexture(nil, "ARTWORK")          -- 材質預覽（見 DD_TEX_ALPHA 上面的說明）
+                if P.NoSnap then P.NoSnap(b.tex) end
+                b.tex:Hide()
                 b.text = b:CreateFontString(nil, "OVERLAY")
                 b.text:SetFontObject(fontNormal)
                 b.text:SetPoint("LEFT", 5, 0)
                 b.text:SetJustifyH("LEFT")
-                b:SetScript("OnEnter", function(bb) bb:SetBackdropColor(W.Accent(0.4)) end)
-                b:SetScript("OnLeave", function(bb) bb:SetBackdropColor(0, 0, 0, 0) end)
+                b:SetScript("OnEnter", function(bb) PaintMenuItem(bb, true) end)
+                b:SetScript("OnLeave", function(bb) PaintMenuItem(bb, false) end)
                 menu.items[i] = b
             end
-            b:SetBackdrop({ bgFile = WHITE })
-            b:SetBackdropColor(0, 0, 0, 0)
+            -- 項目按鈕是共用池：有沒有圖、是不是選中的那一項，每次展開都重寫
+            b.hasTex = item.texture ~= nil
+            b.isSel = b.hasTex and item.value == self.selected
+            if b.hasTex then
+                local px = P.Pixel(1)                     -- 顯示時才換算
+                b:SetBackdrop({ bgFile = WHITE, edgeFile = WHITE, edgeSize = px })
+                if P.NoSnapBackdrop then P.NoSnapBackdrop(b) end
+                b.tex:ClearAllPoints()
+                b.tex:SetPoint("TOPLEFT", b, "TOPLEFT", px, -px)
+                b.tex:SetPoint("BOTTOMRIGHT", b, "BOTTOMRIGHT", -px, px)
+                b.tex:SetTexture(item.texture)
+                b.tex:Show()
+            else
+                b:SetBackdrop({ bgFile = WHITE })
+                b.tex:Hide()
+            end
+            PaintMenuItem(b, false)
             b:ClearAllPoints()
             b:SetPoint("TOPLEFT", menu, "TOPLEFT", 2, -height)
             b.text:SetText(item.text)
@@ -1797,6 +1888,7 @@ function W.CreateChoicePopup(parent, width, text, choices)
     -- 高度貼著字長：上緣 12＋字高＋字與按鈕間距 14＋按鈕 22＋下緣 12（固定 96 的話一行字中間空一大塊）
     -- 寬度也在顯示時重量一次：建立當下字型可能還沒就緒、字寬量成 0
     popup:SetScript("OnShow", function(self)
+        RefreshEdge(self)   -- W.CreateFrame 掛的 1px 外框對帳被這個 SetScript 蓋掉了，自己補叫
         mask:Show()
         Layout()
         local textH = fs:GetStringHeight() or 0
@@ -1848,6 +1940,7 @@ function W.CreateConfirmPopup(parent, width, text, onAccept)
     popup.text = fs
 
     popup:SetScript("OnShow", function(self)
+        RefreshEdge(self)   -- W.CreateFrame 掛的 1px 外框對帳被這個 SetScript 蓋掉了，自己補叫
         mask:Show()
         GrowPopupForText(self, fs, 84, 22, 12, 14)
     end)
@@ -2009,7 +2102,8 @@ function W.CreateInputPopup(parent, width, title, fields)
     popup:SetBackdropBorderColor(W.Accent(1))
     popup:SetPoint("CENTER")
     popup.mask = mask
-    popup:SetScript("OnShow", function() mask:Show() end)
+    -- 先補叫 1px 外框對帳：W.CreateFrame 當初 HookScript 的那份被這個 SetScript 蓋掉了
+    popup:SetScript("OnShow", function(self) RefreshEdge(self) mask:Show() end)
     popup:SetScript("OnHide", function() mask:Hide() end)
     popup:Hide()
 
