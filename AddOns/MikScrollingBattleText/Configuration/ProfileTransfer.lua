@@ -15,6 +15,10 @@ local RETIRED_SETTINGS = {
 	enableBlizzardV2GroupDamage = true, enableBlizzardV2GroupHealing = true,
 }
 local RETIRED_EVENTS = {
+	OUTGOING_AUTO_SHOT_DAMAGE = true, OUTGOING_AUTO_SHOT_DAMAGE_CRIT = true,
+	OUTGOING_AUTO_SHOT_MISS = true,
+	OUTGOING_BOW_DAMAGE = true, OUTGOING_BOW_DAMAGE_CRIT = true, OUTGOING_BOW_MISS = true,
+	OUTGOING_GUN_DAMAGE = true, OUTGOING_GUN_DAMAGE_CRIT = true, OUTGOING_GUN_MISS = true,
 	NOTIFICATION_KILLING_BLOW = true,
 	NOTIFICATION_POWER_GAIN = true, NOTIFICATION_POWER_LOSS = true,
 	NOTIFICATION_ALT_POWER_GAIN = true, NOTIFICATION_ALT_POWER_LOSS = true,
@@ -263,7 +267,7 @@ function ProfileTransfer:Export(name, profile, availableMedia)
 		SpamControl = {}, LootAlerts = {}, Cooldowns = {},
 	}
 	for key, value in pairs(settings) do
-		if key ~= "creationVersion" then
+		if key ~= "creationVersion" and key ~= "rangedEventsMigrated" then
 			local section = SECTION_KEYS[key] or "General"
 			if COLLECTIONS[section] then
 				sections[section] = value

@@ -252,6 +252,18 @@ obj = L.OUTGOING_PLAYER_EVENTS
 obj["OUTGOING_DAMAGE"]						= { label="Melee: Treffer", tooltip="Aktiviert ausgehende Melee-Treffer."}
 obj["OUTGOING_DAMAGE_CRIT"]					= { label="Melee: Krit", tooltip="Aktiviert ausgehende Melee-Krits."}
 obj["OUTGOING_MISS"]						= { label="Melee: Fehlschlag", tooltip="Aktiviert ausgehende Melee-Fehlschläge."}
+obj["OUTGOING_RANGED_DAMAGE"] = {
+	label = "Fernkampf: Treffer",
+	tooltip = "Zeigt Treffer mit automatischen Fernkampfangriffen und Zauberstäben.",
+}
+obj["OUTGOING_RANGED_DAMAGE_CRIT"] = {
+	label = "Fernkampf: Krit",
+	tooltip = "Zeigt kritische Treffer mit automatischen Fernkampfangriffen und Zauberstäben.",
+}
+obj["OUTGOING_RANGED_MISS"] = {
+	label = "Fernkampf: Fehlschlag",
+	tooltip = "Zeigt Fehlschläge mit automatischen Fernkampfangriffen und Zauberstäben.",
+}
 obj["OUTGOING_DODGE"]						= { label="Melee: Ausweichen", tooltip="Aktiviert ausgehendes Melee-Ausweichen."}
 obj["OUTGOING_PARRY"]						= { label="Melee: Parieren", tooltip="Aktiviert ausgehendess Melee-Parieren."}
 obj["OUTGOING_BLOCK"]						= { label="Melee: Blocken", tooltip="Aktiviert ausgehendes Melee-Blocken."}

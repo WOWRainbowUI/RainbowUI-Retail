@@ -2309,10 +2309,25 @@ masterProfile.lowHealthSoundDisabled = false
 masterProfile.lowManaSoundDisabled = false
 masterProfile.lowHealthThreshold = 35
 masterProfile.lowManaThreshold = 35
+masterProfile.events.NOTIFICATION_ABILITY_READY = {
+	disabled = true,
+	message = "%s " .. L.MSG_READY_NOW .. "!",
+	scrollArea = "Static",
+	fontSize = 22,
+	soundFile = "MSBT Cooldown",
+}
 
 for _, side in ipairs({ "msbt", "blizzard" }) do
 	for _, category in ipairs({ "Outgoing", "Notifications", "Incoming" }) do
 		masterProfile[side .. category .. "Disabled"] = false
+	end
+end
+
+local RANGED_OUTCOMES = { "DAMAGE", "DAMAGE_CRIT", "MISS" }
+if Client.isForever then
+	for _, outcome in ipairs(RANGED_OUTCOMES) do
+		masterProfile.events["OUTGOING_RANGED_" .. outcome] =
+			CopyTable(masterProfile.events["OUTGOING_SPELL_" .. outcome])
 	end
 end
 
@@ -2428,6 +2443,11 @@ local function SetOption(optionPath, optionName, optionValue, optionDefault)
 			RemoveEmptyDifferentials(currentProfile)
 		end
 	end
+
+	if Client.isForever and optionPath == "events.NOTIFICATION_RESOURCE_GAIN"
+		and optionName == "disabled" then
+		module.ApplyContextOptions()
+	end
 end
 
 local function SetupBlizzardOptions()
@@ -2451,8 +2471,8 @@ local function SetupBlizzardOptions()
 			if isSubcategory then
 				registered = Settings.RegisterCanvasLayoutSubcategory(category, panel, panel.name)
 			else
+				-- The category keeps the number the game gives it: the function that opens the settings takes a number.
 				registered = Settings.RegisterCanvasLayoutCategory(panel, panel.name)
-				registered.ID = panel.name
 				Settings.RegisterAddOnCategory(registered)
 				category = registered
 			end
@@ -2528,11 +2548,12 @@ local function UpdateBlizzardTextCategories(refreshed)
 		state.original = {}
 	end
 	for kind, info in pairs(types) do
-		local disabled
+		local disabled = state.notificationsDisabled
 		if BLIZZARD_INCOMING_TYPES[kind] then
 			disabled = state.incomingDisabled
-		else
-			disabled = state.notificationsDisabled
+		elseif state.hideResourceGains
+			and (kind == "ENERGIZE" or kind == "PERIODIC_ENERGIZE") then
+			disabled = true
 		end
 		if disabled then
 			if not state.original[kind] then
@@ -2591,8 +2612,10 @@ local function SetBlizzardCombatTextV2Enabled(isEnabled, suppressOtherText, prof
 	WriteCVar("floatingCombatTextPetSpellDamage_v2", value)
 	local resourceSettings = profile and profile.events
 		and profile.events.NOTIFICATION_RESOURCE_GAIN
-	if Client.hasModernAPI and suppressOtherText and resourceSettings
-		and not resourceSettings.disabled and not profile.msbtNotificationsDisabled then
+	local resourceFeedEnabled = Client.hasModernAPI and suppressOtherText
+		and resourceSettings and not resourceSettings.disabled
+		and not profile.msbtNotificationsDisabled
+	if resourceFeedEnabled then
 		-- Resource notices need their own feed even when Blizzard text is hidden.
 		WriteCVar("floatingCombatTextEnergyGains_v2", 1)
 		WriteCVar("floatingCombatTextPeriodicEnergyGains_v2", 1)
@@ -2602,6 +2625,9 @@ local function SetBlizzardCombatTextV2Enabled(isEnabled, suppressOtherText, prof
 		local state = blizzardCategoryState
 		state.incomingDisabled = profile.blizzardIncomingDisabled
 		state.notificationsDisabled = profile.blizzardNotificationsDisabled
+		-- Forever's Blizzard renderer compares the gain amount against zero.
+		-- Keep the source enabled for MSBT, but skip that renderer.
+		state.hideResourceGains = Client.isForever and resourceFeedEnabled
 		if hooksecurefunc and not state.hooked then
 			local function Refreshed() UpdateBlizzardTextCategories(true) end
 			if CombatText and CombatText.UpdateDisplayedMessages then
@@ -2771,6 +2797,27 @@ local function MigrateCombatTextOptions(profile)
 	end
 end
 
+local function MigrateRangedEvents(profile)
+	if not Client.isForever or rawget(profile, "rangedEventsMigrated") then return end
+
+	local events = rawget(profile, "events")
+	if type(events) == "table" then
+		for _, outcome in ipairs(RANGED_OUTCOMES) do
+			local key = "OUTGOING_RANGED_" .. outcome
+			if rawget(events, key) == nil then
+				local previous = rawget(events, "OUTGOING_AUTO_SHOT_" .. outcome)
+				if type(previous) ~= "table" or rawget(previous, "disabled") ~= false then
+					previous = rawget(events, "OUTGOING_SPELL_" .. outcome)
+				end
+				if type(previous) == "table" then
+					events[key] = CopyTable(previous)
+				end
+			end
+		end
+	end
+	profile.rangedEventsMigrated = true
+end
+
 local function SelectProfile(profileName)
 
 	if (savedVariables.profiles[profileName]) then
@@ -2779,6 +2826,7 @@ local function SelectProfile(profileName)
 
 		currentProfile = savedVariables.profiles[profileName]
 		MigrateCombatTextOptions(currentProfile)
+		MigrateRangedEvents(currentProfile)
 		module.currentProfile = currentProfile
 
 		EraseTable(differentialMap)

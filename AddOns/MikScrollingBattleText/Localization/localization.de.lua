@@ -45,6 +45,7 @@ L.MSG_STATIC			= "Statisch"
 
 L.MSG_COMBAT					= "Kampf"
 L.MSG_DISPEL					= "Dispel"
+L.MSG_CONTROL_BROKEN			= "Kontrolleffekt gebrochen"
 
 
 L.MSG_KILLING_BLOW				= "Todesstoß"

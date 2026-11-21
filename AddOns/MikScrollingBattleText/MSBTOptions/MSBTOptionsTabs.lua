@@ -1093,6 +1093,12 @@ local function EventsTab_SetupEvents()
 	EventsTab_AddEvent(category, "OUTGOING_DAMAGE", c.DAMAGE_DONE .. c.ATTACKED_NAME)
 	EventsTab_AddEvent(category, "OUTGOING_DAMAGE_CRIT", c.DAMAGE_DONE .. c.ATTACKED_NAME)
 	EventsTab_AddEvent(category, "OUTGOING_MISS", c.ATTACKED_NAME)
+	if IsForever then
+		local damage = c.DAMAGE_DONE .. c.ATTACKED_NAME
+		EventsTab_AddEvent(category, "OUTGOING_RANGED_DAMAGE", damage)
+		EventsTab_AddEvent(category, "OUTGOING_RANGED_DAMAGE_CRIT", damage)
+		EventsTab_AddEvent(category, "OUTGOING_RANGED_MISS", c.ATTACKED_NAME)
+	end
 	EventsTab_AddEvent(category, "OUTGOING_DODGE", c.ATTACKED_NAME)
 	EventsTab_AddEvent(category, "OUTGOING_PARRY", c.ATTACKED_NAME)
 	EventsTab_AddEvent(category, "OUTGOING_BLOCK", c.ATTACKED_NAME)
@@ -1165,6 +1171,7 @@ local function EventsTab_SetupEvents()
 	EventsTab_AddEvent(category, "NOTIFICATION_BUFF_FADE", c.BUFF_NAME .. c.SKILL_LONG)
 	EventsTab_AddEvent(category, "NOTIFICATION_ITEM_BUFF_FADE", c.ITEM_BUFF_NAME .. c.SKILL_LONG)
 	EventsTab_AddEvent(category, "NOTIFICATION_ITEM_COOLDOWN", c.ITEM_COOLDOWN_NAME)
+	EventsTab_AddEvent(category, "NOTIFICATION_ABILITY_READY", c.SKILL_NAME)
 	EventsTab_AddEvent(category, "NOTIFICATION_COMBAT_ENTER", "")
 	EventsTab_AddEvent(category, "NOTIFICATION_PROC", c.SKILL_LONG)
 	EventsTab_AddEvent(category, "NOTIFICATION_REACTIVE", c.SKILL_LONG)
@@ -1205,14 +1212,18 @@ end
 local function EventsTab_EventsInArea(areaKey)
 	local events = {}
 	local profileEvents = MSBTProfiles.currentProfile.events
-	for _, category in ipairs(EVENT_CATEGORY_MAP) do
-		for _, row in ipairs(orderedEvents[category]) do
+	local function AddRows(rows)
+		for _, row in ipairs(rows) do
 			local settings = profileEvents[row.eventType]
-			if EventsTab_EventArea(settings) == areaKey then
+			if settings and EventsTab_EventArea(settings) == areaKey then
 				events[#events + 1] = row
 			end
 		end
 	end
+	for _, category in ipairs(EVENT_CATEGORY_MAP) do
+		AddRows(orderedEvents[category])
+	end
+	AddRows(orderedEvents.LOOT_EVENTS)
 	return events
 end
 
@@ -1619,7 +1630,7 @@ local function EventsTab_OnShow()
 
 	local areaNames = {}
 	for key, settings in pairs(MSBTAnimations.scrollAreas or {}) do
-		if not ScrollAreasTab_IsBuiltIn(key) then
+		if key == "Static" or not ScrollAreasTab_IsBuiltIn(key) then
 			areaNames[key] = settings.name
 		end
 	end

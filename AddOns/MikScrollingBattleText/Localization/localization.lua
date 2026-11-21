@@ -56,6 +56,7 @@ L.MSG_STATIC			= "Static"
 
 L.MSG_COMBAT					= "Combat"
 L.MSG_DISPEL					= "Dispel"
+L.MSG_CONTROL_BROKEN			= "Broke crowd control"
 L.MSG_SHADOW_ORBS_FULL			= "Full Shadow Orbs"
 L.MSG_KILLING_BLOW				= "Killing Blow"
 L.MSG_TRIGGER_LOW_HEALTH		= "Low Health"

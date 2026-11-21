@@ -376,6 +376,18 @@ obj = L.OUTGOING_PLAYER_EVENTS
 obj["OUTGOING_DAMAGE"]						= { label="Melee Hits", tooltip="Enable outgoing melee hits."}
 obj["OUTGOING_DAMAGE_CRIT"]					= { label="Melee Crits", tooltip="Enable outgoing melee crits."}
 obj["OUTGOING_MISS"]						= { label="Melee Misses", tooltip="Enable outgoing melee misses."}
+obj["OUTGOING_RANGED_DAMAGE"] = {
+	label = "Ranged Hits",
+	tooltip = "Enable outgoing ranged auto-attack hits, including wand shots.",
+}
+obj["OUTGOING_RANGED_DAMAGE_CRIT"] = {
+	label = "Ranged Crits",
+	tooltip = "Enable outgoing ranged auto-attack crits, including wand shots.",
+}
+obj["OUTGOING_RANGED_MISS"] = {
+	label = "Ranged Misses",
+	tooltip = "Enable outgoing ranged auto-attack misses, including wand shots.",
+}
 obj["OUTGOING_DODGE"]						= { label="Melee Dodges", tooltip="Enable outgoing melee dodges."}
 obj["OUTGOING_PARRY"]						= { label="Melee Parries", tooltip="Enable outgoing melee parries."}
 obj["OUTGOING_BLOCK"]						= { label="Melee Blocks", tooltip="Enable outgoing melee blocks."}
@@ -450,6 +462,10 @@ obj["NOTIFICATION_DEBUFF_FADE"]			= { label="Debuff Fades", tooltip="Enable debu
 obj["NOTIFICATION_BUFF_FADE"]			= { label="Buff Fades", tooltip="Enable buffs that have faded from you."}
 obj["NOTIFICATION_ITEM_BUFF_FADE"]		= { label="Item Buff Fades", tooltip="Enable item buffs that have faded from you."}
 obj["NOTIFICATION_ITEM_COOLDOWN"] = { label="Item Ready", tooltip="Notify when a used trinket or potion cooldown finishes."}
+obj["NOTIFICATION_ABILITY_READY"] = {
+	label = "Ability Ready",
+	tooltip = "Notify when a player ability's cooldown finishes.",
+}
 obj["NOTIFICATION_COMBAT_ENTER"]		= { label="Enter Combat", tooltip="Enable when you have entered combat."}
 obj["NOTIFICATION_COMBAT_LEAVE"]		= { label="Leave Combat", tooltip="Enable when you have left combat."}
 obj["NOTIFICATION_HONOR_GAIN"]			= { label="Honor Gains", tooltip="Enable when you gain honor."}
