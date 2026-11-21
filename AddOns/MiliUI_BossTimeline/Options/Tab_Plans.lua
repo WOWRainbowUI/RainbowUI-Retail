@@ -417,7 +417,8 @@ local function PopupShell(name, parent, w, h, titleText)
     popup:SetFrameLevel(410)
     popup:SetBackdropBorderColor(W.Accent(1))
     popup:SetPoint("CENTER")
-    popup:SetScript("OnShow", function() mask:Show() end)
+    -- W.CreateFrame 掛的 1px 外框重算被這個 SetScript 蓋掉，自己補叫
+    popup:SetScript("OnShow", function(self) W.RefreshEdge(self) mask:Show() end)
     popup:SetScript("OnHide", function() mask:Hide() end)
 
     local title = popup:CreateFontString(nil, "OVERLAY")
@@ -1252,70 +1253,8 @@ local function RetryEmptyInstance(rows)
     return true
 end
 
-function Refresh()
-    if not tab then return end
-    local cur = RebuildInstances()
-    if not chosen then ChooseDefaults(cur) end
-    -- 離開副本之後「所在副本」那一筆就不在清單裡了
-    if sel.inst ~= OTHER and not instanceById[sel.inst] then
-        sel.inst = instances[1] and instances[1].value or OTHER
-    end
-    local rows = FixBoss()
-    Remember()
-
-    -- 側欄
-    instDD:SetItems(InstanceItems())
-    instDD:SetSelectedValue(sel.inst)
-    bossList:Update(rows, UpdateBossRow)
-    local loading = RetryEmptyInstance(rows)
-    bossList.loading:SetShown(View().sidebar and loading)
-    sideEmpty:SetShown(View().sidebar and #rows == 0 and not loading)
-    sideEmpty:SetText(sel.inst == OTHER and L["Bosses you entered by ID, or from older expansions, show up here."]
-        or L["The Adventure Guide has no bosses for this instance yet."])
-
-    -- 標題列
-    local row = FindRow(rows, sel.boss)
-    local boss = Plans.Boss(sel.boss)
-    local hasBoss = sel.boss ~= nil
-    UpdateBoss(sel.boss, row and row.journal)
-    bossName:SetShown(hasBoss)
-    bossSub:SetShown(hasBoss)
-    if hasBoss then
-        bossName:SetText((row and row.name) or (boss and boss.name) or tostring(sel.boss))
-        local inst = instanceById[sel.inst]
-        bossSub:SetText(((inst and inst.text) and (inst.text .. "  ") or "") .. "|cff6f6f6fID " .. sel.boss .. "|r")
-    end
-    noBossText:SetShown(not hasBoss)
-    noBossText:SetText(View().sidebar and L["Pick a boss on the left."] or L["Pick a boss: open the list with >> on the left."])
-
-    -- 難度分頁
-    diffTabs:SetShown(hasBoss)
-    if hasBoss then
-        local ids = {}
-        for _, d in ipairs(DiffGroup()) do ids[#ids + 1] = d.value end
-        local h = diffTabs:SetTabs(ids)
-        diffTabs:Select(sel.diff)
-        if diffTabs.lastH ~= h then
-            diffTabs.lastH = h
-            Layout()
-        end
-    end
-
-    -- 【技能】區塊：難度卡片裡只放技能清單，提醒那一套全部收起來
-    local abilities = View().section ~= "reminders"
-    ui.highlightSection(abilities and ui.bAbil or ui.bRem)
-    ui.bAbil:SetShown(hasBoss)
-    ui.bRem:SetShown(hasBoss)
-    sectionHint:SetShown(hasBoss)
-    sectionHint:SetText(abilities and L["How this boss's abilities look and sound on the timeline."]
-        or L["Your own reminders for this fight: on the timeline, as a boss warning, a sound or speech."])
-    ui.abil.frame:SetShown(hasBoss and abilities)
-    if abilities then
-        ui.HideReminders()
-        if hasBoss then ui.abil:Set(sel.boss, sel.diff) end
-        return
-    end
-
+-- 【我的提醒】區塊（Refresh 的後半段）：拆成自己的函式，因為 Refresh 一支捕捉的 upvalue 撞到 Lua 5.1 的 60 上限
+local function RefreshReminders(hasBoss)
     local profile = Profile()
     local has = profile ~= nil
     for _, w in ipairs(profileWidgets) do w:SetShown(has) end
@@ -1463,6 +1402,73 @@ function Refresh()
     end
 end
 
+function Refresh()
+    if not tab then return end
+    local cur = RebuildInstances()
+    if not chosen then ChooseDefaults(cur) end
+    -- 離開副本之後「所在副本」那一筆就不在清單裡了
+    if sel.inst ~= OTHER and not instanceById[sel.inst] then
+        sel.inst = instances[1] and instances[1].value or OTHER
+    end
+    local rows = FixBoss()
+    Remember()
+
+    -- 側欄
+    instDD:SetItems(InstanceItems())
+    instDD:SetSelectedValue(sel.inst)
+    bossList:Update(rows, UpdateBossRow)
+    local loading = RetryEmptyInstance(rows)
+    bossList.loading:SetShown(View().sidebar and loading)
+    sideEmpty:SetShown(View().sidebar and #rows == 0 and not loading)
+    sideEmpty:SetText(sel.inst == OTHER and L["Bosses you entered by ID, or from older expansions, show up here."]
+        or L["The Adventure Guide has no bosses for this instance yet."])
+
+    -- 標題列
+    local row = FindRow(rows, sel.boss)
+    local boss = Plans.Boss(sel.boss)
+    local hasBoss = sel.boss ~= nil
+    UpdateBoss(sel.boss, row and row.journal)
+    bossName:SetShown(hasBoss)
+    bossSub:SetShown(hasBoss)
+    if hasBoss then
+        bossName:SetText((row and row.name) or (boss and boss.name) or tostring(sel.boss))
+        local inst = instanceById[sel.inst]
+        bossSub:SetText(((inst and inst.text) and (inst.text .. "  ") or "") .. "|cff6f6f6fID " .. sel.boss .. "|r")
+    end
+    noBossText:SetShown(not hasBoss)
+    noBossText:SetText(View().sidebar and L["Pick a boss on the left."] or L["Pick a boss: open the list with >> on the left."])
+
+    -- 難度分頁
+    diffTabs:SetShown(hasBoss)
+    if hasBoss then
+        local ids = {}
+        for _, d in ipairs(DiffGroup()) do ids[#ids + 1] = d.value end
+        local h = diffTabs:SetTabs(ids)
+        diffTabs:Select(sel.diff)
+        if diffTabs.lastH ~= h then
+            diffTabs.lastH = h
+            Layout()
+        end
+    end
+
+    -- 【技能】區塊：難度卡片裡只放技能清單，提醒那一套全部收起來
+    local abilities = View().section ~= "reminders"
+    ui.highlightSection(abilities and ui.bAbil or ui.bRem)
+    ui.bAbil:SetShown(hasBoss)
+    ui.bRem:SetShown(hasBoss)
+    sectionHint:SetShown(hasBoss)
+    sectionHint:SetText(abilities and L["How this boss's abilities look and sound on the timeline."]
+        or L["Your own reminders for this fight: on the timeline, as a boss warning, a sound or speech."])
+    ui.abil.frame:SetShown(hasBoss and abilities)
+    if abilities then
+        ui.HideReminders()
+        if hasBoss then ui.abil:Set(sel.boss, sel.diff) end
+        return
+    end
+
+    RefreshReminders(hasBoss)
+end
+
 -- 建一份設定檔要先有首領紀錄：名稱、冒險指南 ID、副本從側欄那一列帶
 local function EnsureSelectedBoss()
     local row = FindRow(BossRows(sel.inst), sel.boss)
@@ -1553,7 +1559,7 @@ local function BuildSidebar()
     sideEmpty:SetJustifyH("LEFT")
 
     -- 讀取中（等冒險指南重讀的那半秒）：轉圈＋一行灰字，跟「還沒有首領」同一個位置
-    -- （掛在 bossList 底下當欄位：Refresh 的 upvalue 已經貼著 60 的上限）
+    -- （掛在 bossList 底下當欄位：當初 Refresh 的 upvalue 貼著 60 的上限；後來拆出 RefreshReminders 已鬆開）
     local sideLoading = CreateFrame("Frame", nil, tab)
     bossList.loading = sideLoading
     sideLoading:SetPoint("TOPLEFT", bossList, "TOPLEFT", 4, -4)
