@@ -328,6 +328,7 @@ function SyndicatorAuctionCacheModernMixin:ProcessAuctionCreated(auctionID)
         SYNDICATOR_DATA.Characters[self.currentCharacter].auctions,
         item
       )
+      self.postedCommodity = nil
       addonTable.CallbackRegistry:TriggerEvent("AuctionsCacheUpdate", self.currentCharacter)
     end
 
@@ -338,7 +339,6 @@ function SyndicatorAuctionCacheModernMixin:ProcessAuctionCreated(auctionID)
         DoItem()
       end)
     end
-    self.postedCommodity = nil
   elseif self.lastPostedItem then
     local item = table.remove(self.lastPostedItem, 1)
     item.auctionID = auctionID
