@@ -1,4 +1,7 @@
-﻿12.1.18 - 18th November 2026
+﻿12.1.19 - 20th November 2026
+- Fixed a potential microstutter when opening the map with 'Show discovery button' enabled.  The discovery button state is no longer saved between sessions.
+
+12.1.18 - 18th November 2026
 - Added 'Show discovery button' (enabled by default).  If checked, a button on the map lets you show discovery areas, which are areas you need to visit to remove the fog of war from a zone.  So if you want to explore a zone, just run around and step inside each discovery area.
 
 12.1.17 - 11th November 2026
