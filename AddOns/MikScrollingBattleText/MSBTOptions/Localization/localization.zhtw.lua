@@ -576,3 +576,9 @@ L.MSG_CLASSIC_DESIGN = "經典"
 L.DROPDOWNS["optionsDesign"] = { label="選項視窗設計：", tooltip="選擇 /msbt 開啟的選項視窗。" }
 L.SLIDERS.lowHealthThreshold = { label="低生命力門檻 (%)", tooltip="生命力低於此百分比時顯示低生命力警報。" }
 L.SLIDERS.lowManaThreshold = { label="低法力門檻 (%)", tooltip="法力低於此百分比時顯示低法力警報。" }
+
+-- 12.056
+L.OUTGOING_PLAYER_EVENTS["OUTGOING_RANGED_DAMAGE"] = { label="遠程命中", tooltip="顯示遠程自動攻擊命中，包含魔杖射擊。" }
+L.OUTGOING_PLAYER_EVENTS["OUTGOING_RANGED_DAMAGE_CRIT"] = { label="遠程致命一擊", tooltip="顯示遠程自動攻擊致命一擊，包含魔杖射擊。" }
+L.OUTGOING_PLAYER_EVENTS["OUTGOING_RANGED_MISS"] = { label="遠程未命中", tooltip="顯示遠程自動攻擊未命中，包含魔杖射擊。" }
+L.NOTIFICATION_EVENTS["NOTIFICATION_ABILITY_READY"] = { label="技能可用", tooltip="玩家技能冷卻結束時通知。" }
