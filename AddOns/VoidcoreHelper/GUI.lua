@@ -428,6 +428,7 @@ end
 local currDisplayItemID = nil
 -- 地下城手册按钮
 local pFrame            = CreateFrame("Frame", "VCH_P_Frame", UIParent)
+pFrame:Hide()
 
 VCH.add10               = true
 
@@ -462,9 +463,8 @@ local function InitPoint(displayItemID, itemContext, isRaid)
     local uiScale = UIParent:GetEffectiveScale()
     pFrame:SetSize(25 / uiScale, 25 / uiScale)
     pFrame:SetPoint("TOPLEFT", EncounterJournal, "TOPRIGHT", 20, -20)
-    if EncounterJournal:IsShown() then
-        pFrame:Show()
-    end
+    -- 仅当手册详情窗口真实可见时才显示，避免后台 EJ_SelectEncounter 把图标留在屏幕上
+    pFrame:SetShown(EncounterJournalEncounterFrameInfo and EncounterJournalEncounterFrameInfo:IsVisible() or false)
 
     pFrame.chickBtn1 = pFrame.chickBtn1 or CreateFrame("CheckButton", "", pFrame, "UICheckButtonTemplate")
     pFrame.chickBtn2 = pFrame.chickBtn2 or CreateFrame("CheckButton", "", pFrame, "UICheckButtonTemplate")
@@ -675,17 +675,23 @@ end)
 
 function VCH:LoadFrame()
     if EncounterJournalEncounterFrameInfo then
+        pFrame:SetParent(EncounterJournalEncounterFrameInfo)
         EncounterJournalEncounterFrameInfo:HookScript("OnShow", function()
             C_Timer.After(0, function()
-                local displayItemID = VCH.MG_displayItemIDs[EncounterJournal.instanceID]
-                if displayItemID then
-                    InitPoint(displayItemID, 16)
+                local dungeonDisplayItemID = VCH.MG_displayItemIDs[EncounterJournal.instanceID]
+                if dungeonDisplayItemID then
+                    InitPoint(dungeonDisplayItemID, 16)
                 end
 
                 -- raid
-                local displayItemID = VCH.MR_displayItemIDs[EncounterJournal.encounterID]
-                if displayItemID then
-                    InitPoint(displayItemID, Difficulty[EJ_GetDifficulty()], true)
+                local raidDisplayItemID = VCH.MR_displayItemIDs[EncounterJournal.encounterID]
+                if raidDisplayItemID then
+                    InitPoint(raidDisplayItemID, Difficulty[EJ_GetDifficulty()], true)
+                end
+
+                -- 当前页没有任何预览数据时也要明确隐藏，避免残留上一个首领的图标
+                if not dungeonDisplayItemID and not raidDisplayItemID then
+                    pFrame:Hide()
                 end
             end)
         end)
