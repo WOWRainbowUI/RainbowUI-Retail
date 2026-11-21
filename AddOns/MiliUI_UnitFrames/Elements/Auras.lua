@@ -111,7 +111,7 @@ local function ValidFilter(f)
 end
 
 ------------------------------------------------------------
--- 黑名單 → candidateFilters.excludeSpellIDs
+-- 黑名單／白名單 → candidateFilters.excludeSpellIDs／includeSpellIDs
 --
 -- 插件端讀不到光環內容，所以「不要顯示這幾顆」只能把法術 ID 交給引擎。
 -- ⚠ 引擎對「友方單位的**減益**」禁止 ID 過濾（反自動化），只有標記 NeverSecret
@@ -119,22 +119,32 @@ end
 -- 增益、以及敵方身上的減益則不受限。
 ------------------------------------------------------------
 
--- 這一欄要排除的法術 ID，沒有就回 nil。
+-- 存檔裡的名單 → 交給引擎的 ID 集合，沒有就回 nil。
 -- 一律新建：存檔裡的名單帶 false（移除過的預設條目，見 Core/DB.lua 的 SATED_DEBUFFS），
 -- 也不能讓引擎拿著 SV 本體。
-local function ExcludeSet(edb)
-    local bl = edb.blacklist
-    if type(bl) ~= "table" then return nil end
+local function IDSet(list)
+    if type(list) ~= "table" then return nil end
     local out = {}
-    for id, on in pairs(bl) do
+    for id, on in pairs(list) do
         if on then out[id] = true end
     end
     return next(out) and out or nil
 end
 
-local function WithBlacklist(cand, edb)
-    local ex = ExcludeSet(edb)
-    if not ex then return cand end
+-- 白名單 → candidateFilters.includeSpellIDs：名單有東西就只顯示名單裡的
+-- （「只想盯幾顆要補的 DoT」）。限制跟黑名單同一條：友方單位的減益只認 NeverSecret。
+-- ⚠ 名單是空的 ⇒ **不送這個欄位**（等於沒開白名單），不是送一張空表 ——
+-- 空的 includeSpellIDs 引擎怎麼解讀沒驗過，而「清空名單就恢復原狀」也是設定頁寫給玩家的行為。
+-- ⚠ 兩張名單同時有東西時一起送：白名單決定範圍，黑名單在那個範圍裡再扣。
+-- 秘密值：名單是玩家自己填的明文法術 ID，比對在暴雪安全端做
+-- （AuraContainerUtil.DoesAuraPassCandidateFilters），我們的 Lua 從頭到尾不碰光環的 spellId。
+-- 引擎准不准比對看 CanApplyIdentityCandidateFilters（2026-11-20 對過 live 原始碼）：
+--   * 敵方單位的減益（首領、敵對目標）、友方的增益 ⇒ 准，白名單完整生效
+--   * 友方單位的減益 ⇒ 只准 NeverSecret；**不准比對的光環在有白名單時一律被拒**
+--     （fail-closed，不會變成全部顯示）——跟黑名單「不准就照樣顯示」方向相反
+local function WithLists(cand, edb)
+    local ex, inc = IDSet(edb.blacklist), IDSet(edb.whitelist)
+    if not (ex or inc) then return cand end
     -- ⚠ 不能直接往 mode.cand 上加：那是 FILTER_MODES 裡的共用常數表，
     -- 改下去會污染每一個用到同一個模式的單位。一律複製一份新的。
     local out = {}
@@ -142,6 +152,7 @@ local function WithBlacklist(cand, edb)
         for k, v in pairs(cand) do out[k] = v end
     end
     out.excludeSpellIDs = ex        -- 格式：[spellID] = true
+    out.includeSpellIDs = inc
     return out
 end
 
@@ -155,16 +166,16 @@ local function BuildFilter(baseFilter, edb)
     local f = baseFilter
     if mode.token then f = f .. "|" .. mode.token end
     if edb.onlyMine then f = f .. "|PLAYER" end
-    if ValidFilter(f) then return f, WithBlacklist(mode.cand, edb) end
+    if ValidFilter(f) then return f, WithLists(mode.cand, edb) end
 
     -- 退回階梯。模式的 token 被拒 ⇒ 那個模式整個做不到，cand 那一半也不送
     -- （兩半是同一個概念，只送一半會得到一個沒人要求過的結果）。
-    -- 黑名單跟模式無關，兩層退回都要帶著。
+    -- 黑名單／白名單跟模式無關，兩層退回都要帶著。
     if edb.onlyMine then
         local withPlayer = baseFilter .. "|PLAYER"
-        if ValidFilter(withPlayer) then return withPlayer, WithBlacklist(nil, edb) end
+        if ValidFilter(withPlayer) then return withPlayer, WithLists(nil, edb) end
     end
-    return baseFilter, WithBlacklist(nil, edb)
+    return baseFilter, WithLists(nil, edb)
 end
 
 ------------------------------------------------------------
@@ -527,12 +538,12 @@ end
 -- 簽章不符就得重建整顆容器，而暴雪的 frame 刪不掉（舊的只是被 Hide、永久留著）——
 -- 把位置放進來等於「挪一格就永久多一顆容器 ＋ maxCount 顆 AuraButton」。
 -- 其餘欄位是在 AddAuraGroup / initializeFrame 當下烘死的，沒有 setter，只能重建。
--- 黑名單的指紋。
+-- 黑名單／白名單的指紋。
 -- ⚠ 一定要排序：pairs 的順序不保證，同一份名單每次算出來的字串可能不同
 -- ⇒ 每次套設定都白重建一顆容器（而重建的舊容器刪不掉，只是被藏起來）。
 local blScratch = {}
-local function BlacklistKey(edb)
-    local ex = ExcludeSet(edb)
+local function ListKey(list)
+    local ex = IDSet(list)
     if not ex then return "" end
     wipe(blScratch)
     for id in pairs(ex) do blScratch[#blScratch + 1] = id end
@@ -557,7 +568,7 @@ local function BuildSignature(edb)
         -- 倒數的時間格式（全域）：formatter 在 initializeFrame 裡綁定，同樣只能整顆重建
         TimeFormatOf(ns.db.global.auraTimeFormat),
         -- 黑名單走 candidateFilters，同樣是宣告時就固定、沒有 setter（見 filterMode）
-        BlacklistKey(edb),
+        ListKey(edb.blacklist), ListKey(edb.whitelist),
         -- 右鍵取消也是在 initializeFrame 裡登記的
         tostring(edb.rightClickCancel),
     }, "|")
