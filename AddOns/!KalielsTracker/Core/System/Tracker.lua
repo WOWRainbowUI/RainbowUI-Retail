@@ -218,7 +218,7 @@ local function SetFrames()
 		elseif event == "PLAYER_LEAVING_WORLD" then
 			KT.inWorld = false
 		elseif event == "QUEST_DETAIL" then
-			C_SuperTrack.ClearAllSuperTracked()
+			--C_SuperTrack.ClearAllSuperTracked()  -- TODO: Auto focus closest Quest
 		elseif event == "QUEST_AUTOCOMPLETE" then
 			KTF.Scroll.value = 0
 		elseif event == "QUEST_ACCEPTED" then
@@ -430,7 +430,8 @@ local function SetFrames()
 
 	-- Keybinding
 	local BindingButton = CreateFrame("Button", "KT_BindingButton", UIParent)
-	BindingButton:SetScript("OnClick", function(self, btn)
+	BindingButton:RegisterForClicks("LeftButtonDown")
+	BindingButton:SetScript("OnClick", function()
 		KT:Tracker_SetHidden()
 	end)
 

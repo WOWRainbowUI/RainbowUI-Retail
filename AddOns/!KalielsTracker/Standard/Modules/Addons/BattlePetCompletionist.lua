@@ -9,7 +9,7 @@ local _, KT = ...
 
 ---@class AddonBattlePetCompletionist
 local M = KT:NewModule("AddonBattlePetCompletionist")
-M.COMPATIBLE_VERSION = "12.1.5-20261105-1"
+M.COMPATIBLE_VERSION = "12.1.5-20261112-1"
 KT.AddonBattlePetCompletionist = M
 
 local _DBG = function(...) if _DBG then _DBG("KT", ...) end end

@@ -150,19 +150,11 @@ local function SetupOptions()
                         desc = "Quests are automatically watched when accepted. Uses Blizzard's value \"autoQuestWatch\".\n"..KT.TEXT.OPTION_RELOADUI,
                         type = "toggle",
                         width = "normal+half",
-                        get = function(info)
-                            return KT.Options.GetPendingOption(info, function()
-                                return GetCVarBool("autoQuestWatch")
-                            end)
+                        get = function()
+                            return GetCVarBool("autoQuestWatch")
                         end,
-                        set = function(info, value)
-                            KT.Options.SetPendingOption(info, value,
-                                    function()
-                                        return GetCVarBool("autoQuestWatch")
-                                    end,
-                                    function(newValue)
-                                        SetCVar("autoQuestWatch", newValue)
-                                    end)
+                        set = function(_, value)
+                            SetCVar("autoQuestWatch", value)
                         end,
                         order = 6,
                     },
@@ -171,19 +163,11 @@ local function SetupOptions()
                         desc = "Quests are automatically watched when progress updated. Uses Blizzard's value \"autoQuestProgress\".\n"..KT.TEXT.OPTION_RELOADUI,
                         type = "toggle",
                         width = "normal+half",
-                        get = function(info)
-                            return KT.Options.GetPendingOption(info, function()
-                                return GetCVarBool("autoQuestProgress")
-                            end)
+                        get = function()
+                            return GetCVarBool("autoQuestProgress")
                         end,
-                        set = function(info, value)
-                            KT.Options.SetPendingOption(info, value,
-                                    function()
-                                        return GetCVarBool("autoQuestProgress")
-                                    end,
-                                    function(newValue)
-                                        SetCVar("autoQuestProgress", newValue)
-                                    end)
+                        set = function(_, value)
+                            SetCVar("autoQuestProgress", value)
                         end,
                         order = 7,
                     },

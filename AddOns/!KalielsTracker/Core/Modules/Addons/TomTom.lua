@@ -32,7 +32,6 @@ local superTrackedID
 local ticker = {}
 local stopUpdate = false
 local stopCleanup = false
-local autoQuestWatch = GetCVarBool("autoQuestWatch")
 
 local cTitle = "|cffffd200"
 local cBold = "|cff00ffe3"
@@ -434,6 +433,7 @@ end
 
 local function UpdateWaypointTag(button)
 	local show = (TomTom.profile.arrow.enable
+			and button:IsSelected()
 			and superTrackedID ~= nil
 			and (superTrackedID == button.questID or superTrackedID == button.areaPOIID))
 	SetWaypointTag(button, show)
@@ -463,6 +463,8 @@ local function RemoveTicker(id)
 end
 
 local function AddWaypoint(id, pinType, force)
+	superTrackedID = id
+
 	if type(id) == "number" and C_QuestLog.IsQuestCalling(id) then
 		return false
 	end
@@ -540,23 +542,35 @@ local function AddWaypoint(id, pinType, force)
 	return true
 end
 
+local function OnWaypointRemoved(id)
+	if id == superTrackedID then
+		RemoveTicker(id)
+		questWaypoint = nil
+		superTrackedID = nil
+		SetCharWaypointData()
+		RefreshWaypointTags()
+	end
+end
+
 local function RemoveWaypoint(id)
 	if id == superTrackedID then
 		TomTom:RemoveWaypoint(questWaypoint)  -- see callback WaypointRemoved
+
+		OnWaypointRemoved(id)
 	end
 end
 
 local function SetSuperTrackedWaypoint(id, pinType, force)
-	if id == superTrackedID and not force then return end
+	if id == superTrackedID and questWaypoint and not force then return end
 	local added = false
 
 	if not force and superTrackedID ~= nil then
 		RemoveWaypoint(superTrackedID)
 	end
+
 	local isEmpty = (id == nil or id == 0 or id == "")
 	if not isEmpty then
 		added = AddWaypoint(id, pinType, force)
-		superTrackedID = id
 		RefreshWaypointTags()
 	end
 
@@ -564,7 +578,7 @@ local function SetSuperTrackedWaypoint(id, pinType, force)
 end
 
 local function SetSuperTrackedUserWaypoint(superTracked, force)
-	local id = superTracked and userWaypointID
+	local id = superTracked and userWaypointID or nil
 	SetSuperTrackedWaypoint(id, nil, force)
 end
 
@@ -630,13 +644,7 @@ local function TomTom_Setup()
 		if stopCleanup then return end
 		if uid ~= questWaypoint then return end
 
-		if uid.KTid == superTrackedID then
-			RemoveTicker(uid.KTid)
-			questWaypoint = nil
-			superTrackedID = nil
-			SetCharWaypointData()
-			RefreshWaypointTags()
-		end
+		OnWaypointRemoved(uid.KTid)
 	end)
 
 	TomTom.RegisterCallback(addonName, "ArrowTargetChanged", function(event, uid)
@@ -817,7 +825,7 @@ local function SetEvents()
 
 	KT:RegEvent("QUEST_ACCEPTED", function(_, questID)
 		-- Quest - enable/disable stop update
-		stopUpdate = not autoQuestWatch
+		stopUpdate = not GetCVarBool("autoQuestWatch")
 
 		-- Bonus/World quest - create waypoint
 		if C_QuestLog.IsQuestTask(questID) and questID == C_SuperTrack.GetSuperTrackedQuestID() then
@@ -891,12 +899,18 @@ local function SetEvents()
 
 	-- Create waypoint after accept quest (2nd time)
 	KT:RegEvent("QUEST_POI_UPDATE", function()
-        C_Timer.After(0.1, function()
-            local questID = C_SuperTrack.GetSuperTrackedQuestID()
-            if questID and QuestUtils_IsQuestWatched(questID) then
-                SetSuperTrackedWaypoint(questID, nil, true)
-            end
-        end)
+		C_Timer.After(0.1, function()
+			local questID = C_SuperTrack.GetSuperTrackedQuestID()
+			if questID and QuestUtils_IsQuestWatched(questID) then
+				SetSuperTrackedWaypoint(questID, nil, true)
+			end
+		end)
+	end, M)
+
+	KT:RegEvent("QUEST_WATCH_LIST_CHANGED", function(_, questID, added)
+		if added and not questWaypoint and not GetCVarBool("autoQuestWatch") then
+			SetSuperTrackedWaypoint(questID)
+		end
 	end, M)
 end
 

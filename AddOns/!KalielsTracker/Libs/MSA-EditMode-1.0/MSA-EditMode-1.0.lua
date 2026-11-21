@@ -2,7 +2,7 @@
 --- Copyright (c) 2024-2026, Marouan Sabbagh <mar.sabbagh@gmail.com>
 --- All Rights Reserved.
 
-local name, version = "MSA-EditMode-1.0", 3
+local name, version = "MSA-EditMode-1.0", 4
 
 local lib = LibStub:NewLibrary(name, version)
 if not lib then return end
@@ -362,9 +362,10 @@ function EditModeMixin:AddButtonBlizEditMode()
     if not EMmanager then return end
 
     local button = CreateFrame("Button", nil, EMmanager, "EditModeManagerFrameButtonTemplate")
-    button:SetWidth(120)
+    button:SetWidth(117)
     button:SetText(self.addonTitle)
-    button:SetPoint("LEFT", EMmanager.LayoutDropdown, "RIGHT", 22, 1)
+    button.Text:SetWidth(117 - 12)
+    button.Text:SetWordWrap(false)
     button:SetScript("OnClick", function()
         if not InCombatLockdown() then
             openFromEditMode = true
@@ -374,13 +375,21 @@ function EditModeMixin:AddButtonBlizEditMode()
     end)
     tinsert(lib.buttons, button)
 
+    local rowHeight
     local numButtons = #lib.buttons
     if numButtons == 1 then
-        button:SetPoint("TOPLEFT", EMmanager, "BOTTOMLEFT", 6, 0)
+        button:SetPoint("TOPLEFT", EMmanager.RevertAllChangesButton, "BOTTOMLEFT", 0, -10)
+        rowHeight = button:GetHeight() + 10
     elseif math.fmod(numButtons, 4) == 1 then
-        button:SetPoint("TOPLEFT", lib.buttons[numButtons - 4], "BOTTOMLEFT", 0, -6)
+        button:SetPoint("TOPLEFT", lib.buttons[numButtons - 4], "BOTTOMLEFT", 0, -3)
+        rowHeight = button:GetHeight() + 3
     else
-        button:SetPoint("LEFT", lib.buttons[numButtons - 1], "RIGHT", 6, 0)
+        button:SetPoint("LEFT", lib.buttons[numButtons - 1], "RIGHT", 4, 0)
+    end
+
+    if rowHeight then
+        EMmanager.RevertAllChangesButton:AdjustPointsOffset(0, rowHeight)
+        EMmanager.SaveChangesButton:AdjustPointsOffset(0, rowHeight)
     end
 end
 

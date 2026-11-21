@@ -298,10 +298,9 @@ M.pages = {
 				"Features:\n"..
 				"- Displays only Rare NPCs - model and name. Treasures/Chests are not shown.\n"..
 				"- Shows loot icons including tooltip (if enabled in RareScanner).\n"..
-				"- "..cBold.."Left Click|r - creates a TomTom waypoint (if enabled in RareScanner).\n"..
-				"- "..cBold.."Right Click|r - removes detected NPCs from the tracker.\n"..
-				"- Targeting NPC via Left Click is not supported due to Blizzard restrictions."..
-				offs.."Use RareScanner’s keybinding for targeting.\n"..
+				"- "..cBold.."Left Click|r - targets the NPC (out of combat) and creates a TomTom waypoint (if"..
+				offs.."enabled in RareScanner).\n"..
+				"- "..cBold.."Right Click|r - removes detected NPCs from the tracker (out of combat).\n"..
 				"- All other RareScanner settings are reflected in the behavior of this module.\n"..
 				M.AddonInfo("RareScanner"),
 		editbox = {
@@ -372,15 +371,13 @@ M.pages = {
 		headingSize = 26,
 		text = "|cff66ff66"..KT.TITLE.." is developed and maintained by one person.|r\n"..ebSpace.."\n"..
 
-				(cTitle.."Version 8.11.1|r\n"..
-				"- FIXED - TomTom - options notes missing\n"..
-				"\n")..
-
-				(cTitle.."Version 8.11.0|r\n"..
-				"- CHANGED - addon support - Narcissus 1.8.7 c\n"..
-				"- CHANGED - addon support - Auctionator 343\n"..
-				"- CHANGED - addon support - TomTom 4.4.1\n"..
-				"- CHANGED - addon support - BtWQuests 2.69.0\n"..
+				(cTitle.."Version 8.12.0|r\n"..
+				"- CHANGED - addon support - Battle Pet Completionist 12.1.5-20261112-1\n"..
+				"- CHANGED - addon support - RareScanner 12.1.5.7\n"..
+				"- CHANGED - addon support - Auctionator 349\n"..
+				"- CHANGED - RareScanner - Left Click now targets the NPC (out of combat)\n"..
+				"- CHANGED - trigger tracker clicks on mouse down (module header, tracker"..offs.."hide)\n"..
+				"- FIXED - TomTom - sometimes waypoint missing for newly accepted quest\n"..
 				"\n")..
 
 				cTitle.."Issue reporting|r\n"..
