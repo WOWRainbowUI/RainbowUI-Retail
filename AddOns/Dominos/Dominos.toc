@@ -4,7 +4,7 @@
 ## Notes-zhCN: 一种动作条替换方案
 ## Author: Tuller
 ## Category: Action Bars
-## Version: 12.0.4
+## Version: 12.1.0
 ## X-Website: https://github.com/tullamods/Dominos
 ## SavedVariables: DominosDB
 ## LoadSavedVariablesFirst: 1

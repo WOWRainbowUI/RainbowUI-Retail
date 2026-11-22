@@ -41,11 +41,6 @@ L.TextVisibility_mouseover = 'On Mouseover'
 -- appearance
 L.AbbreviateNumbers = 'Abbreviate Numbers'
 L.Display_border = 'Border'
-L.FontOutline = 'Font Outline'
-L.FontOutline_NONE = 'None'
-L.FontOutline_OUTLINE = 'Thin'
-L.FontOutline_THICKOUTLINE = 'Thick'
-L.FontSize = 'Font Size'
 L.ShowBonus = 'Show Bonus / Standing'
 L.ShowLabel = 'Show Label'
 L.ShowTooltip = 'Show Tooltip'
@@ -57,3 +52,11 @@ L.AutoSwitchModes = 'Auto Switch Modes'
 
 -- modes
 L.Azerite = 'Azerite Power'
+
+-- xp tooltip
+L.XPAfterTurnIns = 'After turn-ins'
+L.XPCompletedQuests = 'Completed quests (%d)'
+L.XPLevelUp = 'Level up (+%s)'
+L.XPRemaining = 'Remaining'
+L.XPRested = 'Rested'
+L.XPResting = 'Resting'
