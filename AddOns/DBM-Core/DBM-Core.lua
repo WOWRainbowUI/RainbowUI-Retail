@@ -83,14 +83,14 @@ local function showRealDate(curseDate)
 	end
 end
 
-DBM.Revision = parseCurseDate("20261113062802")
+DBM.Revision = parseCurseDate("20261122094740")
 private.fakeBWVersion, private.fakeBWHash = 427, "fe75de4"--427.7
 
 -- The string that is shown as version
-DBM.DisplayVersion = "12.1.23"--Core version
+DBM.DisplayVersion = "12.1.24"--Core version
 DBM.classicSubVersion = 0
 DBM.dungeonSubVersion = 0
-DBM.ReleaseRevision = releaseDate(2026, 11, 12) -- the date of the latest stable version that is available, optionally pass hours, minutes, and seconds for multiple releases in one day
+DBM.ReleaseRevision = releaseDate(2026, 11, 22) -- the date of the latest stable version that is available, optionally pass hours, minutes, and seconds for multiple releases in one day
 DBM.HighestRelease = DBM.ReleaseRevision --Updated if newer version is detected, used by update nags to reflect critical fixes user is missing on boss pulls
 
 -- support for github downloads, which doesn't support curse keyword expansion
@@ -144,7 +144,7 @@ private:RegisterPlayerNameCallback(function(_, name) playerName = name end)
 local playerGUID = UnitGUID("player")
 private.playerLevel = UnitLevel("player")
 private.LastInstanceType = nil
-local playerRealm = GetRealmName()
+local playerRealm = private.isForever and "" or GetRealmName()
 local normalizedPlayerRealm = playerRealm:gsub("[%s-]+", "")
 private.chatPrefixShort = "<" .. L.DBM .. "> "
 local dbmIsEnabled = true
@@ -1774,10 +1774,10 @@ do
 				DBM.MidnightPopup:ShowMidnightPopup()
 			end
 		end
+		--GetSpecialization can be unavailable during the initial reload-time aura update, leaving a fallback spec cached.
+		--Refresh it here and rebuild anchors so Auto co-tank auras use the now-available tank role.
+		self:SetCurrentSpecInfo()
 		if private.isRetail or private.isForever then
-			--GetSpecialization can be unavailable during the initial reload-time aura update, leaving a fallback spec cached.
-			--Refresh it here and rebuild anchors so Auto co-tank auras use the now-available tank role.
-			self:SetCurrentSpecInfo()
 			self:UpdateZoneAuraAnchors(2)
 		end
 		difficulties:RefreshCache()
@@ -2510,7 +2510,7 @@ do
 					private.sendBWSync("Q", ("%d^%s"):format(0, private.fakeBWHash), IsInGroup(2) and "INSTANCE_CHAT" or "RAID", "NORMAL")
 				end
 				if private.isRetail or private.isCata or private.isMop or private.isForever then
-					self:Schedule(2, self.RoleCheck, false, self)
+					self:Schedule(2, self.RoleCheck, self, false)
 				end
 				fireEvent("DBM_raidJoin", playerName)
 			end
@@ -2600,7 +2600,7 @@ do
 					private.sendBWSync("Q", ("%d^%s"):format(0, private.fakeBWHash), IsInGroup(2) and "INSTANCE_CHAT" or "RAID", "NORMAL")
 				end
 				if private.isRetail or private.isCata or private.isMop or private.isForever then
-					self:Schedule(2, self.RoleCheck, false, self)
+					self:Schedule(2, self.RoleCheck, self, false)
 				end
 				fireEvent("DBM_partyJoin", playerName)
 			end
@@ -3001,6 +3001,7 @@ do
         if CustomNames then
             name = CustomNames.Get(name)
         end
+        if private.isForever then return name end
         local shortName, serverName = string.split("-", name)
         if serverName and serverName ~= playerRealm and serverName ~= normalizedPlayerRealm then
             return shortName .. "*"
@@ -3481,7 +3482,9 @@ do
 		["WARLOCK"] = 11629,
 	}
 
+	---@return boolean specDetected Whether the current lookup identified a spec without using a fallback.
 	function DBM:SetCurrentSpecInfo()
+		local specDetected = false
 		if private.isRetail or private.isMop then
 			currentSpecGroup = GetSpecialization()
 			if currentSpecGroup then
@@ -3489,6 +3492,8 @@ do
 				currentSpecID = tonumber(currentSpecID)
 				if not currentSpecID or currentSpecID == 0 then
 					currentSpecID, currentSpecName = fallbackClassToRole[playerClass], playerClass
+				else
+					specDetected = true
 				end
 			else
 				currentSpecID, currentSpecName = fallbackClassToRole[playerClass], playerClass--give temp first spec id for non-specialization char. no one should use dbm with no specialization, below level 10, should not need dbm.
@@ -3497,13 +3502,18 @@ do
 		elseif private.isForever then
 			--Each class has only one specialization; the library selects the talent group with the most points.
 			currentSpecGroup = GetSpecialization() or 1
-			currentSpecID = LibSpec and LibSpec.MySpecialization() or foreverFallbackClassToRole[playerClass]
+			currentSpecID = LibSpec and LibSpec.MySpecialization()
+			specDetected = type(currentSpecID) == "number" and currentSpecID > 0
+			if not specDetected then
+				currentSpecID = foreverFallbackClassToRole[playerClass]
+			end
 			currentSpecName = tostring(currentSpecID)
 		elseif private.isCata then
 			currentSpecGroup = GetPrimaryTalentTree()
 			if currentSpecGroup and GetTalentTabInfo(currentSpecGroup) then
 				currentSpecID, currentSpecName = GetTalentTabInfo(currentSpecGroup)
 				currentSpecID = tonumber(currentSpecID)
+				specDetected = currentSpecID ~= nil and currentSpecID > 0
 			else
 				currentSpecID, currentSpecName = catafallbackClassToRole[playerClass], playerClass--give temp first spec id for non-specialization char. no one should use dbm with no specialization, below level 10, should not need dbm.
 			end
@@ -3521,6 +3531,7 @@ do
 							currentSpecGroup = i
 							currentSpecID = playerClass .. tostring(i)--Associate specID with class name and tabnumber (class is used because spec name is shared in some spots like "holy")
 							currentSpecName = currentSpecID
+							specDetected = true
 						end
 					end
 				end
@@ -3533,6 +3544,7 @@ do
 			--Refresh entire spec table if not in combat and it's still missing for some reason
 			DBMExtraGlobal:rebuildSpecTable()
 		end
+		return specDetected
 	end
 
 	function DBM:GetCurrentSpecInfo()
@@ -4535,7 +4547,14 @@ DBT:SetAnnounceHook(function(bar)
 end)
 
 --copied from big wigs with permission from funkydude. Modified by MysticalOS
+local roleSetByDBM = false
+local lastRoleSetByDBM
+
 function DBM:RoleCheck(ignoreLoot)
+	if not self:SetCurrentSpecInfo() then
+		self:Debug("Skipping role check: specialization data unavailable", 2)
+		return
+	end
 	local role
 	if private.isRetail or private.isMop then
 		local spec = GetSpecialization()
@@ -4550,24 +4569,35 @@ function DBM:RoleCheck(ignoreLoot)
 		end
 	else--Cata and Forever
 		--Note: Forever will be iffy for hybrid specs since specIds are more or less guessed
-		if (not currentSpecID or currentSpecID == 0) then
-			DBM:SetCurrentSpecInfo()
-		end
 		if currentSpecID and private.specRoleTable[currentSpecID] then
 			if private.specRoleTable[currentSpecID]["Healer"] then
 				role = "HEALER"
 			elseif private.specRoleTable[currentSpecID]["Tank"] then
 				role = "TANK"
-			else
+			elseif private.specRoleTable[currentSpecID]["Dps"] then
 				role = "DAMAGER"
 			end
-		else--By some miracle, despite excessive redundancy, it still failed because classic spagetti code.
-			role = "DAMAGER"--Set default role (which is what cataclysm does btw, it sets everyone to damager on raid join unless changed by our mod)
 		end
 	end
+	if role ~= "TANK" and role ~= "HEALER" and role ~= "DAMAGER" then
+		self:Debug("Skipping role check: specialization role unavailable", 2)
+		return
+	end
 	if not InCombatLockdown() and not IsFalling() and ((IsPartyLFG() and (difficulties.difficultyIndex == 14 or difficulties.difficultyIndex == 15)) or not IsPartyLFG()) then
-		if UnitGroupRolesAssigned("player") ~= role then
+		local currentRole = UnitGroupRolesAssigned("player")
+		local lessAccurateRoleClient = private.isForever or private.isClassic or private.isBCC or private.isWrath
+		local roleWasSetByDBM = roleSetByDBM and currentRole == lastRoleSetByDBM
+		if roleSetByDBM and not roleWasSetByDBM then
+			roleSetByDBM = false
+			lastRoleSetByDBM = nil
+		end
+		local roleCanBeUpdated = not lessAccurateRoleClient or (self.Options.AutoSetRole and (currentRole == "NONE" or roleWasSetByDBM))
+		if roleCanBeUpdated and currentRole ~= role then
 			UnitSetRole("player", role)
+			if lessAccurateRoleClient then
+				roleSetByDBM = true
+				lastRoleSetByDBM = role
+			end
 		end
 	end
 end
@@ -5357,7 +5387,7 @@ function bossModPrototype:ReceiveSync(event, sender, revision, ...)
 	end
 end
 
----@param revision number|string Either a number in the format "202101010000" (year, month, day, hour, minute) or string "20261113062802" to be auto set by packager
+---@param revision number|string Either a number in the format "202101010000" (year, month, day, hour, minute) or string "20261122094740" to be auto set by packager
 function bossModPrototype:SetRevision(revision)
 	revision = parseCurseDate(revision or "")
 	if not revision or type(revision) == "string" then

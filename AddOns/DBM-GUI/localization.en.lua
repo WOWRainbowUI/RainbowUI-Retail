@@ -411,6 +411,9 @@ L.ShowGuildMessages 				= "Show engage/kill/wipe messages for guild raids in cha
 L.ShowGuildMessagesPlus				= "Also show Mythic+ engage/kill/wipe messages for guild groups (requires raid option)"
 
 L.Area_ChatAlerts					= "Additional Alert Options"
+L.AutoSetRole						= "Automatically set your group role"
+L.AutoSetRoleNote					= "Keep this enabled unless DBM detects your role incorrectly for your spec. Other addons may rely on your role to make deterministic decisions."
+L.GroupRoleSettings					= "Group Role Settings"
 L.RoleSpecAlert						= "Show alert message on raid join when your loot spec does not match current spec"
 L.CheckGear							= "Show gear alert message during pull (when your equipped ilvl is much lower than bag ilvl (40+) or main weapon is not equipped)"
 L.WorldBossAlert					= "Show alert message when world bosses might have been engaged on your realm by guildies or friends (inaccurate if sender is CRZed)"
@@ -758,7 +761,6 @@ L.TabFooter							= "All options in this panel only work if you are group leader
 
 -- Panel: Privacy
 L.Tab_Privacy 						= "Auto Reply & Privacy"
-L.Tab_PrivacyMidnight				= "Addon Comms Privacy"
 L.Area_WhisperMessages				= "Whisper Message Options"
 L.AutoRespond 						= "Auto-respond to whispers while fighting"
 L.WhisperStats 						= "Include kill/wipe stats in whisper responses"
