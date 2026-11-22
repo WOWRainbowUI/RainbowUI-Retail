@@ -180,7 +180,7 @@ L.ActionBook = "动作书"
 L.BarInState = "%s（%s）"
 L.BarState = "%s：%s"
 L.Border = "边框"
-L.BorderSize = "边框大小"
+L.BorderSize = "大小"
 L.FontOutline = "字体描边"
 L.FontOutline_OUTLINE = "细"
 L.FontOutline_THICKOUTLINE = "粗"
@@ -195,3 +195,9 @@ L.ShowWithSpellbook = "打开法术书时显示"
 L.ShowTotems = "显示图腾栏位"
 
 L.SplitTotemBars = "拆分图腾条"
+
+L.Header_Bar = "动作条"
+
+L.Header_Text = "文字"
+
+L.ColorResetTip = "<右键或Shift+左键> 重置"

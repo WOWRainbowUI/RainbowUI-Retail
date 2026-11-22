@@ -197,7 +197,7 @@ L.ActionBook = "動作書"
 L.BarInState = "%s（%s）"
 L.BarState = "%s：%s"
 L.Border = "邊框"
-L.BorderSize = "邊框大小"
+L.BorderSize = "大小"
 L.FontOutline = "字型描邊"
 L.FontOutline_OUTLINE = "細"
 L.FontOutline_THICKOUTLINE = "粗"
@@ -212,3 +212,9 @@ L.ShowWithSpellbook = "開啟法術書時顯示"
 L.ShowTotems = "顯示圖騰欄位"
 
 L.SplitTotemBars = "拆分圖騰列"
+
+L.Header_Bar = "快捷列"
+
+L.Header_Text = "文字"
+
+L.ColorResetTip = "<右鍵 或 Shift+左鍵> 重設"

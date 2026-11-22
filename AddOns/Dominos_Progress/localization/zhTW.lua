@@ -74,3 +74,15 @@ L.TextFormat_valueRemaining = "目前值（剩餘）"
 L.TextFormat_valueRemainingPercent = "目前值（剩餘、百分比）"
 L.TextVisibility_always = "永遠顯示"
 L.TextVisibility_mouseover = "滑鼠指向時顯示"
+
+L.XPAfterTurnIns = "交付任務後"
+
+L.XPCompletedQuests = "已完成任務 (%d)"
+
+L.XPLevelUp = "升級 (+%s)"
+
+L.XPRemaining = "尚需"
+
+L.XPRested = "休息經驗加成"
+
+L.XPResting = "休息中"
