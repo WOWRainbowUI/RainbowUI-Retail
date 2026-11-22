@@ -106,3 +106,55 @@ L["Include Demonic Runes"] = "使用恶魔符文"
 L["Use a Demonic Rune or Dark Rune after the mana potion. It costs you health. It has a cooldown of its own, so the next press uses it."] = "在使用法力药水后使用恶魔符文或黑暗符文，会消耗生命值。符文有独立冷却时间，因此下次按下宏时便会使用。"
 -- New upstream locale entries
 
+
+L["Attack Power"] = "攻击强度"
+
+L["Spell Power"] = "法术强度"
+
+L["Healing"] = "治疗"
+
+L["Stamina"] = "耐力"
+
+L["Strength"] = "力量"
+
+L["Agility"] = "敏捷"
+
+L["Intellect"] = "智力"
+
+L["Spirit"] = "精神"
+
+L["Primary Stat"] = "主属性"
+
+L["Health Regen"] = "生命值恢复"
+
+L["Mana Regen"] = "法力恢复"
+
+L["Hit"] = "命中"
+
+L["Critical Strike"] = "爆击"
+
+L["Haste"] = "急速"
+
+L["Mastery"] = "精通"
+
+L["Versatility"] = "全能"
+
+L["Expertise"] = "精准"
+
+L["Armor Penetration"] = "护甲穿透"
+
+L["Dodge"] = "躲闪"
+
+L["Parry"] = "招架"
+
+L["Armor"] = "护甲"
+
+L["Resistance"] = "抗性"
+
+L["Fishing"] = "钓鱼"
+
+L["Other"] = "其他"
+
+L["Eat buff food raising this stat. Untick it to keep that buff food in your bags; food raising another ticked stat too is still eaten."] = "食用可提高此属性的增益食物。取消勾选会将这类食物留在背包；若食物同时提高其他已勾选的属性，仍会食用。"
+
+L["Eat buff food whose buff raises no single stat: feasts, random buffs and the like. Untick it to keep that buff food in your bags."] = "食用不提高单一特定属性的增益食物，例如盛宴、随机增益等。取消勾选会将这类食物留在背包。"
