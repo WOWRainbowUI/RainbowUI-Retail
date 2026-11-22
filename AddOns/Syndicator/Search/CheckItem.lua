@@ -89,6 +89,12 @@ else
   end
 end
 
+local function SpellReagentCheck(details)
+  GetClassSubClass(details)
+  return details.classID == Enum.ItemClass.Reagent and details.subClassID == Enum.ItemReagentSubclass.Reagent
+    or details.classID == Enum.ItemClass.Miscellaneous and details.subClassID == Enum.ItemMiscellaneousSubclass.Reagent
+end
+
 local function SetCheck(details)
   return details.setInfo ~= nil
 end
@@ -1104,6 +1110,7 @@ AddKeywordLocalised("KEYWORD_SWORD", SwordCheck, addonTable.Locales.GROUP_WEAPON
 AddKeywordLocalised("KEYWORD_STAFF", StaffCheck, addonTable.Locales.GROUP_WEAPON_TYPE)
 AddKeywordLocalised("KEYWORD_RING", RingCheck, addonTable.Locales.GROUP_ARMOR_TYPE)
 AddKeywordLocalised("KEYWORD_REAGENT", ReagentCheck, addonTable.Locales.GROUP_ITEM_TYPE)
+AddKeywordLocalised("KEYWORD_SPELL_REAGENT", SpellReagentCheck, addonTable.Locales.GROUP_ITEM_TYPE)
 AddKeywordLocalised("KEYWORD_FOOD", FoodCheck, addonTable.Locales.GROUP_ITEM_TYPE)
 AddKeywordLocalised("KEYWORD_DRINK", FoodCheck, addonTable.Locales.GROUP_ITEM_TYPE)
 AddKeywordLocalised("KEYWORD_POTION", PotionCheck, addonTable.Locales.GROUP_ITEM_TYPE)
@@ -2118,7 +2125,7 @@ function addonTable.Search.InitializeSearchEngine()
     [2] = "weapon",
     [3] = "gem",
     [4] = "armor",
-    [5] = "reagent",
+    --[5] = "reagent", -- handled separately
     [6] = "projectile",
     [7] = "tradeskill",
     [8] = "item enhancement",
