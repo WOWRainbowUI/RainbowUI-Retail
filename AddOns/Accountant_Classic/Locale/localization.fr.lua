@@ -1,4 +1,4 @@
--- $Id$ 
+-- French localization for Accountant Classic
 
 -- FR Translation, thanks to Thi0u ;)
 
@@ -114,3 +114,14 @@ L["(%d+) Copper"] = "(%d+) Cuivre"
 -- Key Bindings headers
 L["BINDING_HEADER_ACCOUNTANT_CLASSIC_TITLE"] = "Accountant Classic"
 L["BINDING_NAME_ACCOUNTANT_CLASSIC_TOGGLE"] = "Afficher Accountant Classic"
+
+-- History ledger
+L["Remove, keep history"] = "Supprimer en conservant l'historique"
+L["Remove with history"] = "Supprimer avec l'historique"
+L["Delete the entire Accountant Classic history ledger of all characters?\nThe classic period data is not affected."] = "Supprimer l'intégralité de l'historique Accountant Classic de tous les personnages ?\nLes données par période des statistiques classiques ne seront pas affectées."
+L["The history ledger has been deleted."] = "L'historique a été supprimé."
+L["The history ledger was saved by a newer version of Accountant Classic and is read-only."] = "L'historique a été enregistré avec une version plus récente d'Accountant Classic et est en lecture seule."
+L["History matches today's classic data (%d categories)."] = "L'historique correspond aux données d'aujourd'hui des statistiques classiques (%d catégories)."
+L["%d categories differ from today's classic data."] = "%d catégories diffèrent des données d'aujourd'hui des statistiques classiques."
+L["History tracking started today, so money logged earlier today exists only in the classic data."] = "Le suivi de l'historique a commencé aujourd'hui. Les mouvements d'argent enregistrés plus tôt dans la journée, avant son activation, figurent donc uniquement dans les statistiques classiques."
+L["Resetting the Day tab also causes differences; the history ledger is never reset with it."] = "La réinitialisation de l'onglet du jour entraîne également des différences ; l'historique n'est jamais réinitialisé avec cet onglet."

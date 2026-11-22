@@ -1,4 +1,4 @@
--- $Id$ 
+-- Brazilian Portuguese localization for Accountant Classic
 local L = LibStub("AceLocale-3.0"):NewLocale("Accountant_Classic", "ptBR", false)
 
 if not L then return end
@@ -91,3 +91,14 @@ L["(%d+) Copper"] = "(%d+) de Cobre"
 -- Key Bindings headers
 L["BINDING_HEADER_ACCOUNTANT_CLASSIC_TITLE"] = "Accountant Classic"
 L["BINDING_NAME_ACCOUNTANT_CLASSIC_TOGGLE"] = "Alternar Accountant Classic"
+
+-- History ledger
+L["Remove, keep history"] = "Remover e manter o histórico"
+L["Remove with history"] = "Remover junto com o histórico"
+L["Delete the entire Accountant Classic history ledger of all characters?\nThe classic period data is not affected."] = "Excluir todo o histórico do Accountant Classic de todos os personagens?\nOs dados por período das estatísticas tradicionais não serão afetados."
+L["The history ledger has been deleted."] = "O histórico foi excluído."
+L["The history ledger was saved by a newer version of Accountant Classic and is read-only."] = "O histórico foi salvo por uma versão mais recente do Accountant Classic e está disponível somente para leitura."
+L["History matches today's classic data (%d categories)."] = "O histórico corresponde aos dados de hoje das estatísticas tradicionais (%d categorias)."
+L["%d categories differ from today's classic data."] = "%d categorias diferem dos dados de hoje das estatísticas tradicionais."
+L["History tracking started today, so money logged earlier today exists only in the classic data."] = "O acompanhamento do histórico começou hoje, portanto as movimentações de dinheiro registradas hoje antes de sua ativação constam apenas nas estatísticas tradicionais."
+L["Resetting the Day tab also causes differences; the history ledger is never reset with it."] = "Redefinir a aba do dia também causa diferenças; o histórico nunca é redefinido junto com ela."

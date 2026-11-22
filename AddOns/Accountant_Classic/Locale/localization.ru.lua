@@ -1,4 +1,4 @@
--- $Id$ 
+-- Russian localization for Accountant Classic
 -- Thanks to Narumar and unw1s3
 local L = LibStub("AceLocale-3.0"):NewLocale("Accountant_Classic", "ruRU", false)
 
@@ -142,3 +142,14 @@ L["(%d+) Copper"] = "(%d+) Меди"
 -- Key Bindings headers
 L["BINDING_HEADER_ACCOUNTANT_CLASSIC_TITLE"] = "Привязки Accountant Classic"
 L["BINDING_NAME_ACCOUNTANT_CLASSIC_TOGGLE"] = "Крепление Accountant Classic"
+
+-- History ledger
+L["Remove, keep history"] = "Удалить, сохранив историю"
+L["Remove with history"] = "Удалить вместе с историей"
+L["Delete the entire Accountant Classic history ledger of all characters?\nThe classic period data is not affected."] = "Удалить весь журнал истории Accountant Classic для всех персонажей?\nДанные исходной статистики по периодам не будут затронуты."
+L["The history ledger has been deleted."] = "Журнал истории удалён."
+L["The history ledger was saved by a newer version of Accountant Classic and is read-only."] = "Журнал истории сохранён в более новой версии Accountant Classic и доступен только для чтения."
+L["History matches today's classic data (%d categories)."] = "История совпадает с сегодняшними данными исходной статистики (категорий: %d)."
+L["%d categories differ from today's classic data."] = "Количество категорий, отличающихся от сегодняшних данных исходной статистики: %d."
+L["History tracking started today, so money logged earlier today exists only in the classic data."] = "Запись истории началась сегодня, поэтому денежные операции, учтённые сегодня до её включения, есть только в исходной статистике."
+L["Resetting the Day tab also causes differences; the history ledger is never reset with it."] = "Сброс данных на вкладке дня также приводит к расхождениям; журнал истории при этом никогда не сбрасывается."

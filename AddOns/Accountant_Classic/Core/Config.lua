@@ -55,7 +55,7 @@ local function getCharacterDataListMenu()
 			faction_icon = factionstr and "|TInterface\\PVPFrame\\PVP-Currency-"..factionstr..":0:0|t%s - %s" or "%s - %s"
 			colorCode = private.GetClassColorPrefix(charOptions.class)
 
-			list[i] = format(colorCode..faction_icon.."|r", serverkey, charkey)
+			list[i] = format(colorCode..faction_icon.."|r", private.Realm.DisplayName(serverkey, L["Unknown Realm"]), charkey)
 			character_data_list[i] = { serverkey, charkey }
 			
 			i = i + 1

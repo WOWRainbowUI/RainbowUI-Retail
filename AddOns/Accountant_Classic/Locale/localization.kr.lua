@@ -1,4 +1,4 @@
-﻿-- $Id$ 
+﻿-- Korean localization for Accountant Classic
 
 local L = LibStub("AceLocale-3.0"):NewLocale("Accountant_Classic", "koKR", false)
 
@@ -128,3 +128,14 @@ L["(%d+) Copper"] = "(%d+) 코퍼"
 -- Key Bindings headers
 L["BINDING_HEADER_ACCOUNTANT_CLASSIC_TITLE"] = "가계부 단축키"
 L["BINDING_NAME_ACCOUNTANT_CLASSIC_TOGGLE"] = "가계부 열기"
+
+-- History ledger
+L["Remove, keep history"] = "기록을 유지하고 삭제"
+L["Remove with history"] = "기록과 함께 삭제"
+L["Delete the entire Accountant Classic history ledger of all characters?\nThe classic period data is not affected."] = "모든 캐릭터의 Accountant Classic 기록 원장 전체를 삭제하시겠습니까?\n기존 기간별 통계 데이터에는 영향을 주지 않습니다."
+L["The history ledger has been deleted."] = "기록 원장이 삭제되었습니다."
+L["The history ledger was saved by a newer version of Accountant Classic and is read-only."] = "이 기록 원장은 더 최신 버전의 Accountant Classic에서 저장되어 읽기 전용입니다."
+L["History matches today's classic data (%d categories)."] = "기록이 기존 통계의 오늘 데이터와 일치합니다(%d개 항목)."
+L["%d categories differ from today's classic data."] = "%d개 항목이 기존 통계의 오늘 데이터와 다릅니다."
+L["History tracking started today, so money logged earlier today exists only in the classic data."] = "오늘 기록 추적이 시작되었으므로, 오늘 추적 시작 전에 기록된 금액은 기존 통계 데이터에만 포함되어 있습니다."
+L["Resetting the Day tab also causes differences; the history ledger is never reset with it."] = "일일 탭을 초기화해도 차이가 발생합니다. 이때 기록 원장은 초기화되지 않습니다."

@@ -1,4 +1,4 @@
--- $Id$ 
+-- German localization for Accountant Classic
 -- DE Translation, thanks to snj & JokerGermany, IsabelGarcia, pas06
 local L = LibStub("AceLocale-3.0"):NewLocale("Accountant_Classic", "deDE", false)
 
@@ -57,6 +57,18 @@ L["This Year"] = "Dieses Jahr"
 L["Prv. Year"] = "Vorh. Jahr"
 L["Total"] = "Gesamt"
 L["All Chars"] = "Alle Chars"
+-- Tabs' tooltip
+L["TT1"] = "Diese Sitzung"
+L["TT2"] = "Heute"
+L["TT3"] = "Gestern"
+L["TT4"] = "Diese Woche"
+L["TT5"] = "Letzte Woche"
+L["TT6"] = "Dieser Monat"
+L["TT7"] = "Letzter Monat"
+L["TT8"] = "Dieses Jahr"
+L["TT9"] = "Letztes Jahr"
+L["TT10"] = "Gesamt"
+L["TT11"] = "Alle Charaktere"
 
 -- Options
 L["Accountant Classic Options"] = "Accountant-Classic-Optionen"
@@ -76,6 +88,7 @@ L["Display Instruction Tips"] = "Einführungstipps anzeigen"
 L["Toggle whether to display minimap button or floating money frame's operation tips."] = "Aktiviert/Deaktiviert die Anzeige von Bedienungstipps im Tooltip der Minikartenschaltfläche und des frei beweglichen Geldfensters."
 L["Select the character to be removed:"] = "Wähle den Charakter, der entfernt werden soll:"
 L["The selected character's Accountant Classic data will be removed."] = "Die Accountant-Classic-Daten des ausgewählten Charakters werden entfernt."
+L["The selected character is about to be removed.\nAre you sure you want to remove the following character from Accountant Classic?"] = "Der ausgewählte Charakter wird gleich entfernt.\nBist du sicher, dass du den folgenden Charakter aus Accountant Classic entfernen möchtest?"
 L["|cffffffff\"%s - %s|cffffffff\" character's Accountant Classic data has been removed."] = "|cffffffffDie Accountant-Classic-Daten für den Charakter \"%s - %s|cffffffff\" wurden gelöscht."
 L["Select the date format:"] = "Wähle das Datumsformat aus:"
 L["Date format showing in \"All Chars\" and \"Week\" tabs"] = "Datumsformat in den Reitern 'Alle Chars' und 'Woche'."
@@ -129,3 +142,14 @@ L["(%d+) Copper"] = "(%d+) Kupfer"
 -- Key Bindings headers
 L["BINDING_HEADER_ACCOUNTANT_CLASSIC_TITLE"] = "Accountant Classic"
 L["BINDING_NAME_ACCOUNTANT_CLASSIC_TOGGLE"] = "Accountant Classic umschalten"
+
+-- History ledger
+L["Remove, keep history"] = "Entfernen, Verlauf behalten"
+L["Remove with history"] = "Mit Verlauf entfernen"
+L["Delete the entire Accountant Classic history ledger of all characters?\nThe classic period data is not affected."] = "Den gesamten Verlauf aller Charaktere in Accountant Classic löschen?\nDie bisherigen Zeitraumdaten bleiben unverändert."
+L["The history ledger has been deleted."] = "Der Verlauf wurde gelöscht."
+L["The history ledger was saved by a newer version of Accountant Classic and is read-only."] = "Der Verlauf wurde mit einer neueren Version von Accountant Classic gespeichert und ist schreibgeschützt."
+L["History matches today's classic data (%d categories)."] = "Der Verlauf stimmt mit den heutigen Daten der bisherigen Statistik überein (%d Kategorien)."
+L["%d categories differ from today's classic data."] = "%d Kategorien weichen von den heutigen Daten der bisherigen Statistik ab."
+L["History tracking started today, so money logged earlier today exists only in the classic data."] = "Die Verlaufserfassung wurde erst heute gestartet. Zuvor am heutigen Tag erfasste Geldbewegungen sind daher nur in der bisherigen Statistik enthalten."
+L["Resetting the Day tab also causes differences; the history ledger is never reset with it."] = "Auch das Zurücksetzen des Tagesreiters führt zu Abweichungen; der Verlauf wird dabei niemals zurückgesetzt."
