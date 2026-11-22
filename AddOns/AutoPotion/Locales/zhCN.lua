@@ -104,3 +104,5 @@ L["Drink what restores the least mana first and keep the better drinks for later
 L["Mana Spells"] = "恢复法力技能"
 L["Include Demonic Runes"] = "使用恶魔符文"
 L["Use a Demonic Rune or Dark Rune after the mana potion. It costs you health. It has a cooldown of its own, so the next press uses it."] = "在使用法力药水后使用恶魔符文或黑暗符文，会消耗生命值。符文有独立冷却时间，因此下次按下宏时便会使用。"
+-- New upstream locale entries
+
