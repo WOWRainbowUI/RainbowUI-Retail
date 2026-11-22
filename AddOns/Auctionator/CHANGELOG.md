@@ -1,6 +1,7 @@
 # Auctionator
 
-## [349](https://github.com/TheMouseNest/Auctionator/tree/349) (2026-11-18)
-[Full Changelog](https://github.com/TheMouseNest/Auctionator/compare/348...349) 
+## [351](https://github.com/TheMouseNest/Auctionator/tree/351) (2026-11-21)
+[Full Changelog](https://github.com/TheMouseNest/Auctionator/compare/350...351) 
 
-- Forever: Auto-import from existing ruleset with faction shift in price database  
+- Remove final usages of DBKeyFromBrowseResult  
+- Retail+Forever: Fix full scan  
