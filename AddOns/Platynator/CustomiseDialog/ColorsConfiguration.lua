@@ -1357,6 +1357,7 @@ addonTable.CustomiseDialog.ColorsConfigOrder = {
   "quest",
   "party",
   "guild",
+  "recent",
   "friendList",
   "pvpFlagged",
   "classColors",

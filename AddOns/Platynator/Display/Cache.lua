@@ -5,11 +5,15 @@ local GetOtherTanks = addonTable.Display.Utilities.GetOtherTanks
 local IsTank = addonTable.Display.Utilities.IsTankRole
 local GetRangeChecker = addonTable.Display.Utilities.GetRangeSpell
 local InInstanceOrParty = addonTable.Display.Utilities.IsInInstanceOrParty
-local InInstance = addonTable.Display.Utilities.IsInInstance
+local InPvEInstance = addonTable.Display.Utilities.IsInPvEInstance
+
+local function IsPet(unit)
+  local state = UnitIsUnit(unit, "pet")
+  return not issecretvalue(state) and state
+end
 
 local IsDirectPlayerControlled = UnitIsPlayerControlledOrGroupMember or UnitInParty
 local function IsInCombatWith(unit)
-  local inInstance = InInstance()
   return UnitAffectingCombat(unit) and
     (
       UnitIsFriend("player", unit)
@@ -19,13 +23,13 @@ local function IsInCombatWith(unit)
       addonTable.Cache:Get(unit, "threat").situation ~= nil or
 
       -- Compound unit handling for unit in group or group pet
-      inInstance and UnitPlayerControlled(unit .. "target") or
-      not inInstance and (
+      (
         UnitPlayerOrPetInParty(unit .. "target") or
         IsInRaid() and UnitPlayerOrPetInRaid(unit .. "target")
       ) or
+      InPvEInstance() and not IsInGroup() and UnitPlayerControlled(unit .. "target") or
       -- Fallback when not in a party/instance
-      not InInstanceOrParty() and C_Secrets.CanCompareUnitTokens(unit .. "target", "pet") and UnitIsUnit(unit .. "target", "pet")
+      not InInstanceOrParty() and IsPet(unit .. "target")
     )
 end
 
@@ -44,7 +48,10 @@ end
 addonTable.Display.CacheMixin = {}
 
 local healthCalculator = CreateUnitHealPredictionCalculator()
-healthCalculator:SetMaximumHealthMode(Enum.UnitMaximumHealthMode.WithAbsorbs)
+local healthCalculatorAbsorbsCap = Enum.UnitMaximumHealthMode.WithAbsorbs
+if Enum.UnitMaximumHealthMode.ExpandToFitAbsorbs then
+  healthCalculatorAbsorbsCap = Enum.UnitMaximumHealthMode.ExpandToFitAbsorbs
+end
 healthCalculator:SetDamageAbsorbClampMode(Enum.UnitDamageAbsorbClampMode.MaximumHealth)
 
 local healthCurve = addonTable.Display.Utilities.Get01HiddenCurve()
@@ -137,7 +144,7 @@ local getter = {
     }
     if not UnitIsDeadOrGhost(unit) then
       UnitGetDetailedHealPrediction(unit, nil, healthCalculator)
-      healthCalculator:SetMaximumHealthMode(Enum.UnitMaximumHealthMode.WithAbsorbs)
+      healthCalculator:SetMaximumHealthMode(healthCalculatorAbsorbsCap)
       result.absolute = healthCalculator:GetCurrentHealth()
       result.absorbs = healthCalculator:GetDamageAbsorbs()
       result.maxWithAbsorbs = healthCalculator:GetMaximumHealth()

@@ -600,6 +600,8 @@ L["FIXED"] = "Corrigé"
 L["FIXED_BORDERED"] = "Fixed Bordered"
 L["FIXED_COLOR"] = "Couleur fixe"
 --[[Translation missing --]]
+L["FLAGGED"] = "Flagged"
+--[[Translation missing --]]
 L["FLASHING"] = "Flashing"
 L["FOCUS"] = "Focus"
 L["FOCUSED"] = "Focalisé"
@@ -616,6 +618,10 @@ L["FRIENDS_LIST"] = "Friends List"
 L["FROM_YOU"] = "De toi"
 L["GENERAL"] = "Général"
 L["GLOBAL_SCALE"] = "Échelle globale"
+--[[Translation missing --]]
+L["GROUP"] = "Group"
+--[[Translation missing --]]
+L["GROUPED"] = "Grouped"
 L["GUARDIANS"] = "Gardiens"
 L["GUILD"] = "Guilde"
 L["HARE"] = "Lièvre"
@@ -755,6 +761,8 @@ L["PURGEABLE"] = "Expiable"
 L["PURGEABLE_COLOR"] = "Purgeable color"
 L["PVP"] = "JcJ"
 L["PVP_FLAG_CARRIER"] = "Porteur de drapeau JcJ"
+--[[Translation missing --]]
+L["PVP_FLAGGED"] = "PvP Flagged"
 L["QUEST"] = "Quête"
 L["QUEST_OBJECTIVE"] = "Objectif de quête"
 L["RABBIT"] = "Lapin"
@@ -768,6 +776,8 @@ L["RARITY"] = "Rareté"
 L["RAW"] = "Raw"
 L["REACTION"] = "Réaction"
 L["READY"] = "Prêt"
+--[[Translation missing --]]
+L["RECENT_PLAYER"] = "Recent Player"
 L["REGIONS"] = "Régions"
 --[[Translation missing --]]
 L["RESTING"] = "Resting"
@@ -785,6 +795,8 @@ L["SCREEN_BOTTOM_INSET"] = "Screen bottom inset"
 --[[Translation missing --]]
 L["SCREEN_TOP_INSET"] = "Screen top inset"
 L["SHOW_ALL"] = "Tout afficher"
+--[[Translation missing --]]
+L["SHOW_FIRST_NAME_ONLY"] = "Show first name only"
 L["SHOW_FRACTIONS"] = "Afficher les fractions"
 L["SHOW_FRIENDLY_IN_INSTANCES"] = "Montrer les barres alliées en instance"
 --[[Translation missing --]]
@@ -794,6 +806,8 @@ L["SHOW_LONG_DURATION_AURAS"] = "Show long duration auras"
 L["SHOW_MODIFIERS_BRACKETS_EXAMPLES"] = "Afficher les modificateurs (R/B/+/-)"
 L["SHOW_NAMEPLATES_ONLY_IF_NEEDED"] = "Afficher les plaques de nom uniquement si nécessaire"
 L["SHOW_ON_INTERRUPT"] = "Afficher lors d'une interruption"
+--[[Translation missing --]]
+L["SHOW_ONLY_FOR_PVP_FLAGGED"] = "Show only for PvP flagged"
 L["SHOW_ONLY_IN_OPEN_WORLD"] = "Afficher seulement dans le monde ouvert"
 L["SHOW_OUTLINE"] = "Afficher le contour"
 L["SHOW_PANDEMIC"] = "Afficher pandémie"
@@ -884,6 +898,8 @@ L["WARNING"] = "Avertissement"
 L["WHAT_TO_EXPORT"] = "Que voulez-vous exporter?"
 --[[Translation missing --]]
 L["WHEN_ALL_APPLIED"] = "When all applied"
+--[[Translation missing --]]
+L["WHEN_MISSING"] = "When missing"
 --[[Translation missing --]]
 L["WHEN_NONE_APPLIED"] = "When none applied"
 L["WIDTH"] = "Largeur"
@@ -1071,6 +1087,8 @@ L["FIXED_BORDERED"] = "Fixed Bordered"
 --[[Translation missing --]]
 L["FIXED_COLOR"] = "Fixed color"
 --[[Translation missing --]]
+L["FLAGGED"] = "Flagged"
+--[[Translation missing --]]
 L["FLASHING"] = "Flashing"
 L["FOCUS"] = "Fokus"
 L["FOCUSED"] = "Fokussiert"
@@ -1087,6 +1105,10 @@ L["FRIENDS_LIST"] = "Friends List"
 L["FROM_YOU"] = "Von Dir"
 L["GENERAL"] = "Allgemein"
 L["GLOBAL_SCALE"] = "Globale Skalierung"
+--[[Translation missing --]]
+L["GROUP"] = "Group"
+--[[Translation missing --]]
+L["GROUPED"] = "Grouped"
 L["GUARDIANS"] = "Wächter"
 L["GUILD"] = "Gilde"
 L["HARE"] = "Hase"
@@ -1254,6 +1276,8 @@ L["PURGEABLE_COLOR"] = "Purgeable color"
 L["PVP"] = "PvP"
 --[[Translation missing --]]
 L["PVP_FLAG_CARRIER"] = "PvP Flag Carrier"
+--[[Translation missing --]]
+L["PVP_FLAGGED"] = "PvP Flagged"
 L["QUEST"] = "Quest"
 L["QUEST_OBJECTIVE"] = "Questziel"
 L["RABBIT"] = "Kanichen"
@@ -1267,6 +1291,8 @@ L["RARITY"] = "Seltenheit"
 L["RAW"] = "Raw"
 L["REACTION"] = "Reaktion"
 L["READY"] = "Bereit"
+--[[Translation missing --]]
+L["RECENT_PLAYER"] = "Recent Player"
 L["REGIONS"] = "Regionen"
 --[[Translation missing --]]
 L["RESTING"] = "Resting"
@@ -1285,6 +1311,8 @@ L["SCREEN_TOP_INSET"] = "Screen top inset"
 --[[Translation missing --]]
 L["SHOW_ALL"] = "Show All"
 --[[Translation missing --]]
+L["SHOW_FIRST_NAME_ONLY"] = "Show first name only"
+--[[Translation missing --]]
 L["SHOW_FRACTIONS"] = "Show fractions"
 L["SHOW_FRIENDLY_IN_INSTANCES"] = "Freundliche in Instanzen anzeigen"
 --[[Translation missing --]]
@@ -1296,6 +1324,8 @@ L["SHOW_MODIFIERS_BRACKETS_EXAMPLES"] = "Show modifiers (R/B/+/-)"
 L["SHOW_NAMEPLATES_ONLY_IF_NEEDED"] = "Namensleisten nur bei Bedarf anzeigen"
 --[[Translation missing --]]
 L["SHOW_ON_INTERRUPT"] = "Show on interrupt"
+--[[Translation missing --]]
+L["SHOW_ONLY_FOR_PVP_FLAGGED"] = "Show only for PvP flagged"
 L["SHOW_ONLY_IN_OPEN_WORLD"] = "Nur in freier Welt anzeigen"
 L["SHOW_OUTLINE"] = "Umriss anzeigen"
 L["SHOW_PANDEMIC"] = "Pandemic anzeigen"
@@ -1401,6 +1431,8 @@ L["WHAT_TO_EXPORT"] = "Was soll exportiert werden?"
 --[[Translation missing --]]
 L["WHEN_ALL_APPLIED"] = "When all applied"
 --[[Translation missing --]]
+L["WHEN_MISSING"] = "When missing"
+--[[Translation missing --]]
 L["WHEN_NONE_APPLIED"] = "When none applied"
 L["WIDTH"] = "Breite"
 L["WIDTH_RESTRICTION"] = "Breitenbegrenzung"
@@ -1412,8 +1444,7 @@ L["X_AURAS"] = "%d auras"
 
 
 local L = Locales.ruRU
---[[Translation missing --]]
-L["ABBREVIATE_LARGE_VALUES"] = "Abbreviate large values"
+L["ABBREVIATE_LARGE_VALUES"] = "Сокращать большие значения"
 L["ABSOLUTE"] = "Абсолютное"
 L["ABSORB"] = "Поглощение"
 L["ABSORB_COLOR"] = "Цвет поглощения"
@@ -1431,17 +1462,14 @@ L["APPLY_MAIN_COLOR_TO_BACKGROUND"] = "Применить основной цв�
 L["APPLY_OTHER_CVARS"] = "Применить другие CVars"
 L["ARCANE_FLURRY"] = "Чародейский шквал"
 L["ATTACK"] = "Атака"
---[[Translation missing --]]
-L["AURA_COLORS"] = "Aura colors"
---[[Translation missing --]]
-L["AURA_HIGHLIGHT"] = "Aura Highlight"
+L["AURA_COLORS"] = "Цвета ауры"
+L["AURA_HIGHLIGHT"] = "Подсветка ауры"
 L["AURAS"] = "Ауры"
 L["AUTOMATIC"] = "Авто"
 L["AUTOMATICALLY_SIZED"] = "Автоматически определяемый размер"
 L["BACKGROUND"] = "Фон"
 L["BACKGROUND_COLOR"] = "Цвет фона"
---[[Translation missing --]]
-L["BAD_CUSTOM_STYLE_SELECT"] = "Platynator: Your \"Custom\" style select settings didn't include settings for a unit type (either \"Can Attack\" or \"Cannot Attack\")."
+L["BAD_CUSTOM_STYLE_SELECT"] = "Platynator: в настройках стиля \\\"Пользовательский\\\" отсутствуют параметры для типа юнита (либо \\\"Может атаковать\\\", либо \\\"Не может атаковать\\\")."
 L["BARS"] = "Панели"
 L["BEAVER"] = "Бобр"
 L["BEHAVIOUR"] = "Поведение"
@@ -1449,7 +1477,6 @@ L["BLANK"] = "Пустое место "
 L["BLIZZARD"] = "Blizzard"
 L["BLIZZARD_CLASSIC"] = "Blizzard Classic"
 L["BLIZZARD_EXTRA_WIDGETS_SCALE"] = "Масштаб дополнительных виджетов Blizzard"
---[[Translation missing --]]
 L["BLIZZARD_FOREVER"] = "Blizzard Forever"
 L["BORDER"] = "Граница"
 L["BORDER_COLOR"] = "Цвет границы"
@@ -1457,8 +1484,7 @@ L["BORDER_WIDTH"] = "Ширина границы"
 L["BOSS"] = "Босс"
 L["BOTTOM"] = "Низ"
 L["BUFFS"] = "Баффы"
---[[Translation missing --]]
-L["BUFFS_FRIENDLY"] = "Buffs (Friendly)"
+L["BUFFS_FRIENDLY"] = "Баффы (друж.)"
 L["BY_PLUSMOUSE"] = "от plusmouse"
 L["CAN_ATTACK"] = "Может атаковать"
 --[[Translation missing --]]
@@ -1491,28 +1517,24 @@ L["COLORS"] = "Цвета"
 L["COMBAT"] = "Бой"
 --[[Translation missing --]]
 L["COMBAT_OBSCURED"] = "Combat obscured"
---[[Translation missing --]]
-L["COMMON"] = "Common"
+L["COMMON"] = "Общее"
 L["CONFIRM_DELETE_PROFILE_X"] = "Вы уверены, что хотите удалить профиль \"%s\"?"
 L["CONFIRM_DELETE_STYLE_X"] = "Вы уверены, что хотите удалить стиль \"%s\"?"
 L["COUNTDOWN"] = "Обратный отсчёт"
 L["CREATURE_NAME"] = "Имя существа"
 L["CROWD_CONTROL"] = "Массовый контроль"
---[[Translation missing --]]
-L["CROWD_CONTROL_ENEMY"] = "Crowd Control (Enemy)"
+L["CROWD_CONTROL_ENEMY"] = "Контроль (враж.)"
 L["CTRL_C_TO_COPY"] = "Ctrl+C для копирования"
 L["CUSTOM"] = "Пользовательский"
 L["CUSTOMISE_PLATYNATOR"] = "Настройка Platynator"
 L["DAMAGE"] = "Урон"
 L["DAMAGE_ABSORB_VALUE"] = "Значение поглощения урона"
 L["DEBUFFS"] = "Дебаффы"
---[[Translation missing --]]
-L["DEBUFFS_ENEMY"] = "Debuffs (Enemy)"
+L["DEBUFFS_ENEMY"] = "Дебаффы (враж.)"
 --[[Translation missing --]]
 L["DEDUPLICATE"] = "Deduplicate"
 L["DEER"] = "Олень"
---[[Translation missing --]]
-L["DEER_SIMPLIFIED"] = "Deer Simplified"
+L["DEER_SIMPLIFIED"] = "Упрощенный олень"
 L["DEFAULT"] = "По умолчанию"
 L["DEFAULT_BRACKETS"] = "(По умолчанию)"
 --[[Translation missing --]]
@@ -1521,8 +1543,7 @@ L["DELETE"] = "Удалить"
 L["DELVE"] = "Ежедневная активность"
 L["DELVE_TYPE"] = "Тип ежедневной активности"
 L["DESIGNER"] = "Дизайн"
---[[Translation missing --]]
-L["DEVELOPMENT_IS_DONE_BY_A_HUMAN"] = "|cff04cca4Development is done by a hardworking human (no AI)|r"
+L["DEVELOPMENT_IS_DONE_BY_A_HUMAN"] = "|cff04cca4Разработка осуществляется трудолюбивым человеком (без ИИ)|r"
 L["DIFFICULT"] = "Сложно"
 L["DIFFICULTY"] = "Сложность"
 L["DIFFICULTY_COLORED"] = "Окрашивание по сложности"
@@ -1539,8 +1560,7 @@ L["ELITE"] = "Элита"
 L["ELITE_TYPE"] = "Тип элиты"
 L["EMPOWERED"] = "Улучшенный"
 L["EMPTY"] = "Пустой"
---[[Translation missing --]]
-L["ENABLE"] = "Enable"
+L["ENABLE"] = "Включено"
 L["ENABLE_IF_LINES_FALLING_OFF_FONT"] = "Включить, если текст не влезает"
 L["ENABLE_OVERRIDE"] = "Принудительно"
 L["ENABLE_OVERRIDE_INSTANCES"] = "Переопределять в инстансах"
@@ -1578,6 +1598,8 @@ L["FIXED_BORDERED"] = "Fixed Bordered"
 --[[Translation missing --]]
 L["FIXED_COLOR"] = "Fixed color"
 --[[Translation missing --]]
+L["FLAGGED"] = "Flagged"
+--[[Translation missing --]]
 L["FLASHING"] = "Flashing"
 L["FOCUS"] = "Фокус"
 L["FOCUSED"] = "В фокусе"
@@ -1594,6 +1616,10 @@ L["FRIENDS_LIST"] = "Friends List"
 L["FROM_YOU"] = "От тебя"
 L["GENERAL"] = "Общее"
 L["GLOBAL_SCALE"] = "Глобальный масштаб"
+--[[Translation missing --]]
+L["GROUP"] = "Group"
+--[[Translation missing --]]
+L["GROUPED"] = "Grouped"
 L["GUARDIANS"] = "Защитник"
 L["GUILD"] = "Гильдия"
 L["HARE"] = "Заяц"
@@ -1743,6 +1769,8 @@ L["PURGEABLE"] = "Purgeable"
 L["PURGEABLE_COLOR"] = "Purgeable color"
 L["PVP"] = "PvP"
 L["PVP_FLAG_CARRIER"] = "Носитель PvP флага"
+--[[Translation missing --]]
+L["PVP_FLAGGED"] = "PvP Flagged"
 L["QUEST"] = "Задание"
 L["QUEST_OBJECTIVE"] = "Цель задания"
 L["RABBIT"] = "Кролик"
@@ -1756,6 +1784,8 @@ L["RARITY"] = "Редкость"
 L["RAW"] = "Raw"
 L["REACTION"] = "Реакция"
 L["READY"] = "Готово"
+--[[Translation missing --]]
+L["RECENT_PLAYER"] = "Recent Player"
 --[[Translation missing --]]
 L["REGIONS"] = "Regions"
 --[[Translation missing --]]
@@ -1775,6 +1805,8 @@ L["SCREEN_BOTTOM_INSET"] = "Screen bottom inset"
 L["SCREEN_TOP_INSET"] = "Screen top inset"
 L["SHOW_ALL"] = "Показать всё"
 --[[Translation missing --]]
+L["SHOW_FIRST_NAME_ONLY"] = "Show first name only"
+--[[Translation missing --]]
 L["SHOW_FRACTIONS"] = "Show fractions"
 L["SHOW_FRIENDLY_IN_INSTANCES"] = "Показывать дружественных в подземельях"
 --[[Translation missing --]]
@@ -1786,6 +1818,8 @@ L["SHOW_MODIFIERS_BRACKETS_EXAMPLES"] = "Show modifiers (R/B/+/-)"
 L["SHOW_NAMEPLATES_ONLY_IF_NEEDED"] = "Отображать панели только при необходимости"
 --[[Translation missing --]]
 L["SHOW_ON_INTERRUPT"] = "Show on interrupt"
+--[[Translation missing --]]
+L["SHOW_ONLY_FOR_PVP_FLAGGED"] = "Show only for PvP flagged"
 L["SHOW_ONLY_IN_OPEN_WORLD"] = "Показать только в открытом мире"
 L["SHOW_OUTLINE"] = "Показать контур"
 --[[Translation missing --]]
@@ -1803,7 +1837,7 @@ L["SHOW_TOOLTIPS"] = "Show tooltips"
 L["SHOW_TYPE_BORDER"] = "Show type border"
 L["SHOW_WHEN_WOW_DOES"] = "Аналогично настройкам WoW"
 L["SIGNIFICANT_FIGURES"] = "Значительные цифры"
-L["SIMPLIFIED"] = "Упрощенный"
+L["SIMPLIFIED"] = "Упрощ."
 L["SIMPLIFIED_SCALE"] = "Упрощенный масштаб"
 L["SIZING"] = "Размеры"
 L["SLASH_HELP"] = "Открыть настройки Platynator."
@@ -1892,6 +1926,8 @@ L["WARNING"] = "Предупреждение"
 L["WHAT_TO_EXPORT"] = "Что экспортировать?"
 --[[Translation missing --]]
 L["WHEN_ALL_APPLIED"] = "When all applied"
+--[[Translation missing --]]
+L["WHEN_MISSING"] = "When missing"
 --[[Translation missing --]]
 L["WHEN_NONE_APPLIED"] = "When none applied"
 L["WIDTH"] = "Ширина"
@@ -2056,6 +2092,8 @@ L["FIXED"] = "Corrigido"
 L["FIXED_BORDERED"] = "Fixed Bordered"
 L["FIXED_COLOR"] = "Cor fixa"
 --[[Translation missing --]]
+L["FLAGGED"] = "Flagged"
+--[[Translation missing --]]
 L["FLASHING"] = "Flashing"
 L["FOCUS"] = "Foco"
 L["FOCUSED"] = "Focado"
@@ -2072,6 +2110,10 @@ L["FRIENDS_LIST"] = "Friends List"
 L["FROM_YOU"] = "De você"
 L["GENERAL"] = "Geral"
 L["GLOBAL_SCALE"] = "Escala global"
+--[[Translation missing --]]
+L["GROUP"] = "Group"
+--[[Translation missing --]]
+L["GROUPED"] = "Grouped"
 L["GUARDIANS"] = "Guardiões"
 L["GUILD"] = "Guilda"
 L["HARE"] = "Lebre"
@@ -2211,6 +2253,8 @@ L["PURGEABLE"] = "Expurgável"
 L["PURGEABLE_COLOR"] = "Purgeable color"
 L["PVP"] = "JxJ"
 L["PVP_FLAG_CARRIER"] = "Portador da bandeira JxJ"
+--[[Translation missing --]]
+L["PVP_FLAGGED"] = "PvP Flagged"
 L["QUEST"] = "Missão"
 L["QUEST_OBJECTIVE"] = "Objetivo da missão"
 L["RABBIT"] = "Coelho"
@@ -2224,6 +2268,8 @@ L["RARITY"] = "Raridade"
 L["RAW"] = "Raw"
 L["REACTION"] = "Reação"
 L["READY"] = "Pronto"
+--[[Translation missing --]]
+L["RECENT_PLAYER"] = "Recent Player"
 L["REGIONS"] = "Regiões"
 --[[Translation missing --]]
 L["RESTING"] = "Resting"
@@ -2241,6 +2287,8 @@ L["SCREEN_BOTTOM_INSET"] = "Screen bottom inset"
 --[[Translation missing --]]
 L["SCREEN_TOP_INSET"] = "Screen top inset"
 L["SHOW_ALL"] = "Mostrar tudo"
+--[[Translation missing --]]
+L["SHOW_FIRST_NAME_ONLY"] = "Show first name only"
 L["SHOW_FRACTIONS"] = "Mostrar frações"
 L["SHOW_FRIENDLY_IN_INSTANCES"] = "Mostrar aliados em instâncias"
 --[[Translation missing --]]
@@ -2250,6 +2298,8 @@ L["SHOW_LONG_DURATION_AURAS"] = "Show long duration auras"
 L["SHOW_MODIFIERS_BRACKETS_EXAMPLES"] = "Mostrar modificadores (R/B/+/-)"
 L["SHOW_NAMEPLATES_ONLY_IF_NEEDED"] = "Mostrar placas de nome apenas se necessário"
 L["SHOW_ON_INTERRUPT"] = "Mostrar ao interromper"
+--[[Translation missing --]]
+L["SHOW_ONLY_FOR_PVP_FLAGGED"] = "Show only for PvP flagged"
 L["SHOW_ONLY_IN_OPEN_WORLD"] = "Mostrar apenas no mundo aberto"
 L["SHOW_OUTLINE"] = "Mostrar contorno"
 L["SHOW_PANDEMIC"] = "Mostrar pandemia"
@@ -2340,6 +2390,8 @@ L["WARNING"] = "Aviso"
 L["WHAT_TO_EXPORT"] = "O que exportar?"
 --[[Translation missing --]]
 L["WHEN_ALL_APPLIED"] = "When all applied"
+--[[Translation missing --]]
+L["WHEN_MISSING"] = "When missing"
 --[[Translation missing --]]
 L["WHEN_NONE_APPLIED"] = "When none applied"
 L["WIDTH"] = "Largura"
@@ -2503,6 +2555,8 @@ L["FIXED"] = "Corregido"
 L["FIXED_BORDERED"] = "Fixed Bordered"
 L["FIXED_COLOR"] = "Color fijo"
 --[[Translation missing --]]
+L["FLAGGED"] = "Flagged"
+--[[Translation missing --]]
 L["FLASHING"] = "Flashing"
 L["FOCUS"] = "Enfoque"
 L["FOCUSED"] = "Enfocado"
@@ -2519,6 +2573,10 @@ L["FRIENDS_LIST"] = "Friends List"
 L["FROM_YOU"] = "De ti"
 L["GENERAL"] = "General"
 L["GLOBAL_SCALE"] = "Escala global"
+--[[Translation missing --]]
+L["GROUP"] = "Group"
+--[[Translation missing --]]
+L["GROUPED"] = "Grouped"
 L["GUARDIANS"] = "Guardianes"
 L["GUILD"] = "Hermandad"
 L["HARE"] = "Liebre"
@@ -2658,6 +2716,8 @@ L["PURGEABLE"] = "Purgable"
 L["PURGEABLE_COLOR"] = "Purgeable color"
 L["PVP"] = "JcJ"
 L["PVP_FLAG_CARRIER"] = "Portador de bandera JcJ"
+--[[Translation missing --]]
+L["PVP_FLAGGED"] = "PvP Flagged"
 L["QUEST"] = "Misión"
 L["QUEST_OBJECTIVE"] = "Objetivo de misión"
 L["RABBIT"] = "Conejo"
@@ -2671,6 +2731,8 @@ L["RARITY"] = "Rareza"
 L["RAW"] = "Raw"
 L["REACTION"] = "Reacción"
 L["READY"] = "Listo"
+--[[Translation missing --]]
+L["RECENT_PLAYER"] = "Recent Player"
 L["REGIONS"] = "Regiones"
 --[[Translation missing --]]
 L["RESTING"] = "Resting"
@@ -2688,6 +2750,8 @@ L["SCREEN_BOTTOM_INSET"] = "Screen bottom inset"
 --[[Translation missing --]]
 L["SCREEN_TOP_INSET"] = "Screen top inset"
 L["SHOW_ALL"] = "Mostrar todo"
+--[[Translation missing --]]
+L["SHOW_FIRST_NAME_ONLY"] = "Show first name only"
 L["SHOW_FRACTIONS"] = "Mostrar fracciones"
 L["SHOW_FRIENDLY_IN_INSTANCES"] = "Mostrar amistosos en estancias"
 --[[Translation missing --]]
@@ -2697,6 +2761,8 @@ L["SHOW_LONG_DURATION_AURAS"] = "Show long duration auras"
 L["SHOW_MODIFIERS_BRACKETS_EXAMPLES"] = "Mostrar modificadores (R/B/+/-)"
 L["SHOW_NAMEPLATES_ONLY_IF_NEEDED"] = "Mostrar placas de nombre solo si es necesario"
 L["SHOW_ON_INTERRUPT"] = "Mostrar al interrumpir"
+--[[Translation missing --]]
+L["SHOW_ONLY_FOR_PVP_FLAGGED"] = "Show only for PvP flagged"
 L["SHOW_ONLY_IN_OPEN_WORLD"] = "Mostrar solo en mundo abierto"
 L["SHOW_OUTLINE"] = "Mostrar contorno"
 L["SHOW_PANDEMIC"] = "Mostrar pandemia"
@@ -2787,6 +2853,8 @@ L["WARNING"] = "Advertencia"
 L["WHAT_TO_EXPORT"] = "¿Qué exportar?"
 --[[Translation missing --]]
 L["WHEN_ALL_APPLIED"] = "When all applied"
+--[[Translation missing --]]
+L["WHEN_MISSING"] = "When missing"
 --[[Translation missing --]]
 L["WHEN_NONE_APPLIED"] = "When none applied"
 L["WIDTH"] = "Anchura"
@@ -2950,6 +3018,8 @@ L["FIXED"] = "Corregido"
 L["FIXED_BORDERED"] = "Fixed Bordered"
 L["FIXED_COLOR"] = "Color fijo"
 --[[Translation missing --]]
+L["FLAGGED"] = "Flagged"
+--[[Translation missing --]]
 L["FLASHING"] = "Flashing"
 L["FOCUS"] = "Enfoque"
 L["FOCUSED"] = "Enfocado"
@@ -2966,6 +3036,10 @@ L["FRIENDS_LIST"] = "Friends List"
 L["FROM_YOU"] = "De ti"
 L["GENERAL"] = "General"
 L["GLOBAL_SCALE"] = "Escala global"
+--[[Translation missing --]]
+L["GROUP"] = "Group"
+--[[Translation missing --]]
+L["GROUPED"] = "Grouped"
 L["GUARDIANS"] = "Guardianes"
 L["GUILD"] = "Hermandad"
 L["HARE"] = "Liebre"
@@ -3105,6 +3179,8 @@ L["PURGEABLE"] = "Purgable"
 L["PURGEABLE_COLOR"] = "Purgeable color"
 L["PVP"] = "JcJ"
 L["PVP_FLAG_CARRIER"] = "Portador de bandera JcJ"
+--[[Translation missing --]]
+L["PVP_FLAGGED"] = "PvP Flagged"
 L["QUEST"] = "Misión"
 L["QUEST_OBJECTIVE"] = "Objetivo de misión"
 L["RABBIT"] = "Conejo"
@@ -3118,6 +3194,8 @@ L["RARITY"] = "Rareza"
 L["RAW"] = "Raw"
 L["REACTION"] = "Reacción"
 L["READY"] = "Listo"
+--[[Translation missing --]]
+L["RECENT_PLAYER"] = "Recent Player"
 L["REGIONS"] = "Regiones"
 --[[Translation missing --]]
 L["RESTING"] = "Resting"
@@ -3135,6 +3213,8 @@ L["SCREEN_BOTTOM_INSET"] = "Screen bottom inset"
 --[[Translation missing --]]
 L["SCREEN_TOP_INSET"] = "Screen top inset"
 L["SHOW_ALL"] = "Mostrar todo"
+--[[Translation missing --]]
+L["SHOW_FIRST_NAME_ONLY"] = "Show first name only"
 L["SHOW_FRACTIONS"] = "Mostrar fracciones"
 L["SHOW_FRIENDLY_IN_INSTANCES"] = "Mostrar amistosos en estancias"
 --[[Translation missing --]]
@@ -3144,6 +3224,8 @@ L["SHOW_LONG_DURATION_AURAS"] = "Show long duration auras"
 L["SHOW_MODIFIERS_BRACKETS_EXAMPLES"] = "Mostrar modificadores (R/B/+/-)"
 L["SHOW_NAMEPLATES_ONLY_IF_NEEDED"] = "Mostrar placas de nombre solo si es necesario"
 L["SHOW_ON_INTERRUPT"] = "Mostrar al interrumpir"
+--[[Translation missing --]]
+L["SHOW_ONLY_FOR_PVP_FLAGGED"] = "Show only for PvP flagged"
 L["SHOW_ONLY_IN_OPEN_WORLD"] = "Mostrar solo en mundo abierto"
 L["SHOW_OUTLINE"] = "Mostrar contorno"
 L["SHOW_PANDEMIC"] = "Mostrar pandemia"
@@ -3234,6 +3316,8 @@ L["WARNING"] = "Advertencia"
 L["WHAT_TO_EXPORT"] = "¿Qué exportar?"
 --[[Translation missing --]]
 L["WHEN_ALL_APPLIED"] = "When all applied"
+--[[Translation missing --]]
+L["WHEN_MISSING"] = "When missing"
 --[[Translation missing --]]
 L["WHEN_NONE_APPLIED"] = "When none applied"
 L["WIDTH"] = "Anchura"
@@ -3383,6 +3467,8 @@ L["FILTERS"] = "過濾器"
 L["FIXED"] = "固定"
 L["FIXED_BORDERED"] = "固定邊框"
 L["FIXED_COLOR"] = "固定顏色"
+--[[Translation missing --]]
+L["FLAGGED"] = "Flagged"
 L["FLASHING"] = "閃爍"
 L["FOCUS"] = "焦點"
 L["FOCUSED"] = "聚焦"
@@ -3397,6 +3483,10 @@ L["FRIENDS_LIST"] = "好友列表"
 L["FROM_YOU"] = "來自你"
 L["GENERAL"] = "一般"
 L["GLOBAL_SCALE"] = "全局縮放"
+--[[Translation missing --]]
+L["GROUP"] = "Group"
+--[[Translation missing --]]
+L["GROUPED"] = "Grouped"
 L["GUARDIANS"] = "守衛"
 L["GUILD"] = "公會"
 L["HARE"] = "野兔"
@@ -3521,6 +3611,8 @@ L["PURGEABLE"] = "可淨化"
 L["PURGEABLE_COLOR"] = "可淨化顏色"
 L["PVP"] = "PvP"
 L["PVP_FLAG_CARRIER"] = "PvP持旗者"
+--[[Translation missing --]]
+L["PVP_FLAGGED"] = "PvP Flagged"
 L["QUEST"] = "任務"
 L["QUEST_OBJECTIVE"] = "任務目標"
 L["RABBIT"] = "兔子"
@@ -3533,6 +3625,8 @@ L["RARITY"] = "稀有性"
 L["RAW"] = "原始數據"
 L["REACTION"] = "陣營"
 L["READY"] = "就緒"
+--[[Translation missing --]]
+L["RECENT_PLAYER"] = "Recent Player"
 L["REGIONS"] = "區域"
 L["RESTING"] = "休息"
 L["REVERSED"] = "反向"
@@ -3546,6 +3640,8 @@ L["SCALED"] = "縮放"
 L["SCREEN_BOTTOM_INSET"] = "螢幕底部嵌入"
 L["SCREEN_TOP_INSET"] = "螢幕頂部嵌入"
 L["SHOW_ALL"] = "全部顯示"
+--[[Translation missing --]]
+L["SHOW_FIRST_NAME_ONLY"] = "Show first name only"
 L["SHOW_FRACTIONS"] = "顯示陣營"
 L["SHOW_FRIENDLY_IN_INSTANCES"] = "在副本中顯示友方"
 L["SHOW_INDIVIDUAL_COLORS"] = "顯示各種顏色"
@@ -3553,6 +3649,8 @@ L["SHOW_LONG_DURATION_AURAS"] = "顯示持續時間較長的光環"
 L["SHOW_MODIFIERS_BRACKETS_EXAMPLES"] = "顯示修飾符 (R/B/+/-)"
 L["SHOW_NAMEPLATES_ONLY_IF_NEEDED"] = "只在需要時顯示名條"
 L["SHOW_ON_INTERRUPT"] = "打斷時顯示"
+--[[Translation missing --]]
+L["SHOW_ONLY_FOR_PVP_FLAGGED"] = "Show only for PvP flagged"
 L["SHOW_ONLY_IN_OPEN_WORLD"] = "只在開放世界中顯示"
 L["SHOW_OUTLINE"] = "顯示描線"
 L["SHOW_PANDEMIC"] = "顯示疊加效果"
@@ -3634,6 +3732,8 @@ L["VISUAL"] = "視覺"
 L["WARNING"] = "警告"
 L["WHAT_TO_EXPORT"] = "要匯出什麼？"
 L["WHEN_ALL_APPLIED"] = "當全部應用時"
+--[[Translation missing --]]
+L["WHEN_MISSING"] = "When missing"
 L["WHEN_NONE_APPLIED"] = "當都沒應用時"
 L["WIDTH"] = "寬度"
 L["WIDTH_RESTRICTION"] = "寬度限制"
@@ -3782,6 +3882,8 @@ L["FILTERS"] = "过滤器"
 L["FIXED"] = "固定"
 L["FIXED_BORDERED"] = "固定边框"
 L["FIXED_COLOR"] = "固定颜色"
+--[[Translation missing --]]
+L["FLAGGED"] = "Flagged"
 L["FLASHING"] = "闪烁"
 L["FOCUS"] = "焦点"
 L["FOCUSED"] = "焦点"
@@ -3796,6 +3898,10 @@ L["FRIENDS_LIST"] = "好友列表"
 L["FROM_YOU"] = "来自你"
 L["GENERAL"] = "设置"
 L["GLOBAL_SCALE"] = "全局缩放"
+--[[Translation missing --]]
+L["GROUP"] = "Group"
+--[[Translation missing --]]
+L["GROUPED"] = "Grouped"
 L["GUARDIANS"] = "守护者"
 L["GUILD"] = "公会"
 L["HARE"] = "野兔"
@@ -3920,6 +4026,8 @@ L["PURGEABLE"] = "可驱散"
 L["PURGEABLE_COLOR"] = "可驱散颜色"
 L["PVP"] = "PvP"
 L["PVP_FLAG_CARRIER"] = "PvP 持旗者"
+--[[Translation missing --]]
+L["PVP_FLAGGED"] = "PvP Flagged"
 L["QUEST"] = "任务"
 L["QUEST_OBJECTIVE"] = "任务目标"
 L["RABBIT"] = "兔子"
@@ -3932,6 +4040,8 @@ L["RARITY"] = "稀有程度"
 L["RAW"] = "原始数值"
 L["REACTION"] = "阵营"
 L["READY"] = "就绪"
+--[[Translation missing --]]
+L["RECENT_PLAYER"] = "Recent Player"
 L["REGIONS"] = "区域"
 L["RESTING"] = "休息"
 L["REVERSED"] = "反向"
@@ -3945,6 +4055,8 @@ L["SCALED"] = "缩放数值"
 L["SCREEN_BOTTOM_INSET"] = "屏幕底部内边距"
 L["SCREEN_TOP_INSET"] = "屏幕顶部内边距"
 L["SHOW_ALL"] = "显示全部"
+--[[Translation missing --]]
+L["SHOW_FIRST_NAME_ONLY"] = "Show first name only"
 L["SHOW_FRACTIONS"] = "显示小数"
 L["SHOW_FRIENDLY_IN_INSTANCES"] = "在副本中显示友方姓名板"
 L["SHOW_INDIVIDUAL_COLORS"] = "显示各类型独立颜色"
@@ -3952,6 +4064,8 @@ L["SHOW_LONG_DURATION_AURAS"] = "显示持续时间较长的光环"
 L["SHOW_MODIFIERS_BRACKETS_EXAMPLES"] = "显示修饰符（R/B/+/-）"
 L["SHOW_NAMEPLATES_ONLY_IF_NEEDED"] = "仅在需要时显示姓名板"
 L["SHOW_ON_INTERRUPT"] = "打断时显示"
+--[[Translation missing --]]
+L["SHOW_ONLY_FOR_PVP_FLAGGED"] = "Show only for PvP flagged"
 L["SHOW_ONLY_IN_OPEN_WORLD"] = "仅在世界显示"
 L["SHOW_OUTLINE"] = "显示轮廓"
 L["SHOW_PANDEMIC"] = "显示叠加效果"
@@ -4033,6 +4147,8 @@ L["VISUAL"] = "外观"
 L["WARNING"] = "警告"
 L["WHAT_TO_EXPORT"] = "需要导出什么？"
 L["WHEN_ALL_APPLIED"] = "全部生效时"
+--[[Translation missing --]]
+L["WHEN_MISSING"] = "When missing"
 L["WHEN_NONE_APPLIED"] = "均未生效时"
 L["WIDTH"] = "宽度"
 L["WIDTH_RESTRICTION"] = "宽度限制"
@@ -4206,6 +4322,8 @@ L["FIXED_BORDERED"] = "Fixed Bordered"
 --[[Translation missing --]]
 L["FIXED_COLOR"] = "Fixed color"
 --[[Translation missing --]]
+L["FLAGGED"] = "Flagged"
+--[[Translation missing --]]
 L["FLASHING"] = "Flashing"
 L["FOCUS"] = "주시 대상"
 L["FOCUSED"] = "주시 대상"
@@ -4222,6 +4340,10 @@ L["FRIENDS_LIST"] = "Friends List"
 L["FROM_YOU"] = "당신에게서"
 L["GENERAL"] = "일반"
 L["GLOBAL_SCALE"] = "전역 비율"
+--[[Translation missing --]]
+L["GROUP"] = "Group"
+--[[Translation missing --]]
+L["GROUPED"] = "Grouped"
 L["GUARDIANS"] = "하수인"
 L["GUILD"] = "길드"
 L["HARE"] = "산토끼"
@@ -4369,6 +4491,8 @@ L["PURGEABLE"] = "무효화 가능"
 L["PURGEABLE_COLOR"] = "Purgeable color"
 L["PVP"] = "PvP"
 L["PVP_FLAG_CARRIER"] = "PvP 깃발 운반자"
+--[[Translation missing --]]
+L["PVP_FLAGGED"] = "PvP Flagged"
 L["QUEST"] = "퀘스트"
 L["QUEST_OBJECTIVE"] = "퀘스트 목표"
 L["RABBIT"] = "집토끼"
@@ -4382,6 +4506,8 @@ L["RARITY"] = "희귀도"
 L["RAW"] = "Raw"
 L["REACTION"] = "성향"
 L["READY"] = "준비"
+--[[Translation missing --]]
+L["RECENT_PLAYER"] = "Recent Player"
 L["REGIONS"] = "영역"
 --[[Translation missing --]]
 L["RESTING"] = "Resting"
@@ -4399,6 +4525,8 @@ L["SCREEN_BOTTOM_INSET"] = "Screen bottom inset"
 --[[Translation missing --]]
 L["SCREEN_TOP_INSET"] = "Screen top inset"
 L["SHOW_ALL"] = "모두 표시"
+--[[Translation missing --]]
+L["SHOW_FIRST_NAME_ONLY"] = "Show first name only"
 L["SHOW_FRACTIONS"] = "진영 표시"
 L["SHOW_FRIENDLY_IN_INSTANCES"] = "인스턴스에서 우호적 대상 표시"
 --[[Translation missing --]]
@@ -4409,6 +4537,8 @@ L["SHOW_MODIFIERS_BRACKETS_EXAMPLES"] = "분류 기호 표시 (R/B/+/-)"
 L["SHOW_NAMEPLATES_ONLY_IF_NEEDED"] = "필요할 때만 이름표 표시"
 --[[Translation missing --]]
 L["SHOW_ON_INTERRUPT"] = "Show on interrupt"
+--[[Translation missing --]]
+L["SHOW_ONLY_FOR_PVP_FLAGGED"] = "Show only for PvP flagged"
 L["SHOW_ONLY_IN_OPEN_WORLD"] = "오픈 월드에서만 표시"
 L["SHOW_OUTLINE"] = "외곽선 표시"
 L["SHOW_PANDEMIC"] = "갱신 가능 구간 표시"
@@ -4502,6 +4632,8 @@ L["WARNING"] = "위험"
 L["WHAT_TO_EXPORT"] = "무엇을 내보낼까요?"
 --[[Translation missing --]]
 L["WHEN_ALL_APPLIED"] = "When all applied"
+--[[Translation missing --]]
+L["WHEN_MISSING"] = "When missing"
 --[[Translation missing --]]
 L["WHEN_NONE_APPLIED"] = "When none applied"
 L["WIDTH"] = "너비"
@@ -4675,6 +4807,8 @@ L["FIXED_BORDERED"] = "Fixed Bordered"
 --[[Translation missing --]]
 L["FIXED_COLOR"] = "Fixed color"
 --[[Translation missing --]]
+L["FLAGGED"] = "Flagged"
+--[[Translation missing --]]
 L["FLASHING"] = "Flashing"
 --[[Translation missing --]]
 L["FOCUS"] = "Focus"
@@ -4692,6 +4826,10 @@ L["FRIENDS_LIST"] = "Friends List"
 L["FROM_YOU"] = "Da te"
 L["GENERAL"] = "Generale "
 L["GLOBAL_SCALE"] = "Scala globale"
+--[[Translation missing --]]
+L["GROUP"] = "Group"
+--[[Translation missing --]]
+L["GROUPED"] = "Grouped"
 L["GUARDIANS"] = "Guardiani"
 L["GUILD"] = "Gilda"
 L["HARE"] = "Lepre"
@@ -4857,6 +4995,8 @@ L["PURGEABLE_COLOR"] = "Purgeable color"
 L["PVP"] = "PvP"
 --[[Translation missing --]]
 L["PVP_FLAG_CARRIER"] = "PvP Flag Carrier"
+--[[Translation missing --]]
+L["PVP_FLAGGED"] = "PvP Flagged"
 L["QUEST"] = "Missione "
 L["QUEST_OBJECTIVE"] = "Obiettivo della Missione "
 L["RABBIT"] = "Coniglio"
@@ -4872,6 +5012,8 @@ L["RARITY"] = "Rarità "
 L["RAW"] = "Raw"
 L["REACTION"] = "Reazione "
 L["READY"] = "Pronto "
+--[[Translation missing --]]
+L["RECENT_PLAYER"] = "Recent Player"
 --[[Translation missing --]]
 L["REGIONS"] = "Regions"
 --[[Translation missing --]]
@@ -4892,6 +5034,8 @@ L["SCREEN_TOP_INSET"] = "Screen top inset"
 --[[Translation missing --]]
 L["SHOW_ALL"] = "Show All"
 --[[Translation missing --]]
+L["SHOW_FIRST_NAME_ONLY"] = "Show first name only"
+--[[Translation missing --]]
 L["SHOW_FRACTIONS"] = "Show fractions"
 L["SHOW_FRIENDLY_IN_INSTANCES"] = "Mostra Amichevoli nelle Spedizioni"
 --[[Translation missing --]]
@@ -4903,6 +5047,8 @@ L["SHOW_MODIFIERS_BRACKETS_EXAMPLES"] = "Show modifiers (R/B/+/-)"
 L["SHOW_NAMEPLATES_ONLY_IF_NEEDED"] = "Mostra le targhette solo se necessario"
 --[[Translation missing --]]
 L["SHOW_ON_INTERRUPT"] = "Show on interrupt"
+--[[Translation missing --]]
+L["SHOW_ONLY_FOR_PVP_FLAGGED"] = "Show only for PvP flagged"
 L["SHOW_ONLY_IN_OPEN_WORLD"] = "Mostra solo nel mondo aperto"
 L["SHOW_OUTLINE"] = "Mostra schema"
 L["SHOW_PANDEMIC"] = "Mostra la pandemia"
@@ -5037,6 +5183,8 @@ L["WARNING"] = "Warning"
 L["WHAT_TO_EXPORT"] = "What to export?"
 --[[Translation missing --]]
 L["WHEN_ALL_APPLIED"] = "When all applied"
+--[[Translation missing --]]
+L["WHEN_MISSING"] = "When missing"
 --[[Translation missing --]]
 L["WHEN_NONE_APPLIED"] = "When none applied"
 --[[Translation missing --]]

@@ -954,12 +954,14 @@ end
 do
   local inInstanceOrParty = false
   local inInstance = false
+  local inPvEInstance = false
   local instanceTracker = CreateFrame("Frame")
   instanceTracker:RegisterEvent("PLAYER_ENTERING_WORLD")
   instanceTracker:RegisterEvent("ZONE_CHANGED_NEW_AREA")
   instanceTracker:RegisterEvent("INSTANCE_GROUP_SIZE_CHANGED")
   instanceTracker:SetScript("OnEvent", function(_, event)
     inInstance = addonTable.Display.Utilities.IsInRelevantInstance({dungeon = true, raid = true, delve = true, pvp = true})
+    inPvEInstance = addonTable.Display.Utilities.IsInRelevantInstance({dungeon = true, raid = true, delve = true})
     inInstanceOrParty = inInstance or IsInGroup()
   end)
 
@@ -967,7 +969,7 @@ do
     return inInstanceOrParty
   end
 
-  function addonTable.Display.Utilities.IsInInstance()
-    return inInstance
+  function addonTable.Display.Utilities.IsInPvEInstance()
+    return inPvEInstance
   end
 end
