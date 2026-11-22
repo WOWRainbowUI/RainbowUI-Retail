@@ -7,7 +7,7 @@
 -- Main non-UI code
 ------------------------------------------------------------
 
-PawnVersion = 2.1407
+PawnVersion = 2.1408
 
 -- Remove the two hyphens from the next line to re-enable upgrade information and Pawn scores on world quest rewards. (You'll have to /reload after you save the file.)
 -- local ShowWorldQuestUpgrades = true
@@ -36,7 +36,6 @@ local PawnIncompatibleAddons =
 	["ClassCodex"] = "Class Codex",
 	["CombatNumbersSeparator"] = "Combat Numbers Separator",
 	["FreeUI"] = "FreeUI",
-	["RatingBuster"] = "RatingBuster",
 }
 
 -- Name of our private tooltip defined in PawnUI.xml
