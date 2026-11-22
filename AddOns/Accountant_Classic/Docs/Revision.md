@@ -6,6 +6,22 @@
 
 ## Revision History
 
+### v2.30.05 (Nov. 22, 2026)
+
+- Bug fixes
+  - Changing the "Start of Week" option no longer starts a new week: before, the running week of every character was moved into "Prv. Week" and "This Week" started again from zero (issue #13). The week start is now only relabelled, and the week rolls over once the week that was running has really ended
+  - Repair of the weeks moved by that bug: on login the amounts are moved back from "Prv. Week" into "This Week" (zone data included). The previous week they replaced can't be recovered, so "Prv. Week" stays empty until the next week change
+
+### v2.30.04 (Nov. 21, 2026)
+
+- Bug fixes
+  - WoW Forever: since the November 20, 2026 hotfix the game no longer tells add-ons the realm name (GetRealmName() returns an empty string), so every Forever character was saved again under an empty realm, as if it were a new character
+    - The realm of the current character is now found from its earlier record: Forever names are unique per region, and when the same name is saved under more than one realm (e.g. a copy from the beta), the history GUID, region, ruleset and last session date decide
+    - A character first seen after the change joins the single earlier realm of the same region and ruleset, otherwise a ruleset realm such as "Forever TW PvE"
+  - Repair of the records saved under the empty realm: on login they are merged back into the character's realm, together with the zone data and the history ledger. Day / week / month / year / total amounts are added up, the newer previous period is kept, and the newer balance and session date are used
+    - Other characters are repaired at the same time when their realm is certain, otherwise on their own next login; until then they are listed under "Unknown Realm"
+  - History ledger on Forever: a player GUID whose realm part changed no longer counts as a different character (the realm ID is being obfuscated)
+
 ### v2.30.03 (Nov. 12, 2026)
 
 - Bug fixes

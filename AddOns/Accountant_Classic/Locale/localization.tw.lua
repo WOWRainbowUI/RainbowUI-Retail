@@ -1,4 +1,4 @@
-﻿-- $Id$ 
+﻿-- Traditional Chinese localization for Accountant Classic
 
 local L = LibStub("AceLocale-3.0"):NewLocale("Accountant_Classic", "zhTW", false)
 
@@ -124,6 +124,9 @@ L["Enable to show all characters' money info from all factions. Disable to only 
 L["Enhanced Tracking Options"] = "更多的追蹤選項"
 L["All Factions"] = "所有陣營"
 L["All Servers"] = "所有伺服器"
+L["Unknown Realm"] = "未知伺服器"
+L["Restored the realm of %d character(s) saved without a realm after the WoW Forever update."] = "已將 WoW Forever 更新後沒有伺服器資訊的 %d 個角色紀錄還原到原本的伺服器。"
+L["%d character(s) saved without a realm will be restored when they log in."] = "另有 %d 個沒有伺服器資訊的角色紀錄，會在該角色登入時還原。"
 
 -- Misc
 L["Are you sure you want to reset the \"%s\" data?"] = "是否確定要將「%s」頁籤的資料歸零?"

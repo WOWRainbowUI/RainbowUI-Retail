@@ -212,6 +212,20 @@ local function archiveChar(key)
 	return archived
 end
 
+---True when a saved GUID belongs to another character than the logged-in one.
+---On Forever the realm part of a GUID may be hidden or obfuscated, so only a different
+---character id on the same realm id counts there (see Realm.CompareGUID).
+---@param saved string
+---@param guid string
+---@return boolean
+local function isOtherCharacter(saved, guid)
+	local Client = private.Client
+	if Client and Client.isForever and private.Realm then
+		return private.Realm.CompareGUID(saved, guid) == false
+	end
+	return saved ~= guid
+end
+
 ---Returns (and creates when needed) the node of a character.
 ---@param server string
 ---@param name string
@@ -243,7 +257,7 @@ function History:OnLogin(server, name, info)
 	local guid = info.guid
 	if guid and issecretvalue and issecretvalue(guid) then guid = nil end
 
-	if node and guid and node.guid and node.guid ~= guid then
+	if node and guid and node.guid and isOtherCharacter(node.guid, guid) then
 		-- Same name, different character: the old one was deleted and the name reused.
 		archiveChar(key)
 		node = nil
@@ -262,6 +276,91 @@ function History:OnLogin(server, name, info)
 	self:TrimRecent()
 	self:StartOnlineTimer()
 	self:UpdateWarband()
+end
+
+---Adds the day buckets of one node into another: counts and amounts are added up, the
+---largest single amounts (mi / mo) keep the larger value and the closing balance (bal)
+---is taken from src, the later record.
+---@param src table
+---@param dst table
+local function mergeBuckets(src, dst)
+	for k, v in pairs(src) do
+		local dv = dst[k]
+		if type(v) == "table" then
+			if type(dv) == "table" then
+				mergeBuckets(v, dv)
+			else
+				dst[k] = v
+			end
+		elseif type(v) == "number" then
+			if k == "bal" then
+				dst[k] = v
+			elseif k == "mi" or k == "mo" then
+				dst[k] = (type(dv) == "number" and dv > v) and dv or v
+			else
+				dst[k] = (type(dv) == "number" and dv or 0) + v
+			end
+		elseif dv == nil then
+			dst[k] = v
+		end
+	end
+end
+
+---Moves a character node to another realm key, merging it into the node already there.
+---Used to repair the records saved under the hidden Forever realm (see Core/Realm.lua);
+---src is the later record.
+---@param fromServer string
+---@param name string
+---@param toServer string
+---@return "moved"|"merged"|nil result nil when there was nothing to move
+function History:MoveChar(fromServer, name, toServer)
+	if not db or readOnly or fromServer == toServer then return nil end
+	local fromKey, toKey = charKey(fromServer, name), charKey(toServer, name)
+	local src = db.chars[fromKey]
+	if not src then return nil end
+	local dst = db.chars[toKey]
+	if dst and src.guid and dst.guid and isOtherCharacter(dst.guid, src.guid) then
+		-- The name under the real realm belonged to a deleted character.
+		archiveChar(toKey)
+		dst = nil
+	end
+
+	local result
+	if not dst then
+		db.chars[toKey] = src
+		src.server = toServer
+		dst = src
+		result = "moved"
+	else
+		dst.days = dst.days or {}
+		for day, d in pairs(src.days or {}) do
+			local dd = dst.days[day]
+			if dd then
+				mergeBuckets(d, dd)
+			else
+				dst.days[day] = d
+			end
+		end
+		if src.since and (not dst.since or src.since < dst.since) then dst.since = src.since end
+		dst.guid = src.guid or dst.guid
+		dst.faction = src.faction or dst.faction
+		dst.class = src.class or dst.class
+		if src.moneyAt and (not dst.moneyAt or src.moneyAt >= dst.moneyAt) then
+			dst.money, dst.moneyAt = src.money, src.moneyAt
+		end
+		-- Active under either key means active.
+		if not src.deleted then dst.deleted = nil end
+		result = "merged"
+	end
+	db.chars[fromKey] = nil
+
+	for _, r in ipairs(db.recent) do
+		if r.c == fromKey then r.c = toKey end
+	end
+	if currentKey == fromKey then
+		current, currentKey = dst, toKey
+	end
+	return result
 end
 
 ---Stores the current character's last known balance and today's closing balance.

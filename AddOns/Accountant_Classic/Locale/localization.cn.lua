@@ -1,5 +1,4 @@
-﻿-- $Id$ 
-
+﻿-- Simplified Chinese localization for Accountant Classic
 local L = LibStub("AceLocale-3.0"):NewLocale("Accountant_Classic", "zhCN", false)
 
 if not L then return end
@@ -88,7 +87,8 @@ L["Done"] = "完成"
 L["Display Instruction Tips"] = "显示指引提示"
 L["Toggle whether to display minimap button or floating money frame's operation tips."] = "选择是否在小地图按钮或浮动视窗显示额外的操作提示"
 L["Select the character to be removed:"] = "选择要移除的角色:"
-L["The selected character's Accountant Classic data will be removed."] = "被选取的角色的个人会计资料将会被移除。"
+L["The selected character's Accountant Classic data will be removed."] = "被选取的角色的 Accountant Classic 资料将会被移除。"
+L["The selected character is about to be removed.\nAre you sure you want to remove the following character from Accountant Classic?"] = "即将移除选取的角色。\n是否确定要从 Accountant Classic 的资料库中\n移除下列角色?"
 L["|cffffffff\"%s - %s|cffffffff\" character's Accountant Classic data has been removed."] = "|cffffffff「%s - %s|cffffffff」角色的 Accountant Classic 资料已经移除。"
 L["Select the date format:"] = "选择日期格式："
 L["Date format showing in \"All Chars\" and \"Week\" tabs"] = "在「本周」与「所有角色」页签所显示的日期格式"
@@ -121,6 +121,9 @@ L["Enable to show all characters' money info from all factions. Disable to only 
 L["Enhanced Tracking Options"] = "增强追踪选项"
 L["All Factions"] = "所有阵营"
 L["All Servers"] = "所有服务器"
+L["Unknown Realm"] = "未知服务器"
+L["Restored the realm of %d character(s) saved without a realm after the WoW Forever update."] = "已将 WoW Forever 更新后没有服务器信息的 %d 个角色记录还原到原来的服务器。"
+L["%d character(s) saved without a realm will be restored when they log in."] = "另有 %d 个没有服务器信息的角色记录，会在该角色登录时还原。"
 
 -- Misc
 L["Are you sure you want to reset the \"%s\" data?"] = "是否确定要将「%s」页签的资料归零?"
@@ -131,6 +134,8 @@ L["g "] = "金"
 L["s "] = "银"
 L["c"] = "铜"
 L["About"] = "关于"
+L["Detected the conflicted addon - \"|cFFFF0000Accountant|r\" exists and loaded.\nIt has been disabled, click Okay button to reload the game."] = "侦测到冲突的插件 - |cFFFF0000Accountant|r。\n它已被停止启用，按下确定按键以重新载入游戏。"
+L["You have manually called the function \n|cFF00FF00AccountantClassic_CleanUpAccountantDB()|r \nto clean up conflicted data existed in \"Accountant\". \nNow click Okay button to reload the game."] = "您以手动执行了以下函式\n|cFF00FF00AccountantClassic_CleanUpAccountantDB()|r \n以清除在 \"Accountant\" 插件里冲突的资料。\n现在请按下确定按键以重新载入游戏。"
 L["Show All Characters"] = "显示所有角色"
 L["Show all characters' incoming and outgoing data."] = "显示所有角色的收入与支出加总"
 L["Initial balance captured. Tracking for subsequent money changes has started."] = "已记录初始余额。后续资金变动的追踪已启动。"
