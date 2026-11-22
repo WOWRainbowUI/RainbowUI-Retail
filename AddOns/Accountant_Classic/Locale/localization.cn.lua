@@ -1,4 +1,4 @@
-﻿-- Simplified Chinese localization for Accountant Classic
+-- Simplified Chinese localization for Accountant Classic
 local L = LibStub("AceLocale-3.0"):NewLocale("Accountant_Classic", "zhCN", false)
 
 if not L then return end
@@ -161,3 +161,5 @@ L["History matches today's classic data (%d categories)."] = "历史记录与今
 L["%d categories differ from today's classic data."] = "有 %d 个类别与今日的原有数据不一致。"
 L["History tracking started today, so money logged earlier today exists only in the classic data."] = "历史记录今天才开始，今天稍早的金流只存在于原有数据中。"
 L["Resetting the Day tab also causes differences; the history ledger is never reset with it."] = "重置“今日”分页也会造成差异；历史记录不会跟着重置。"
+
+L["Realm repair failed: %s"] = "服务器资料修复失败：%s"

@@ -161,3 +161,5 @@ L["History matches today's classic data (%d categories)."] = "History matches to
 L["%d categories differ from today's classic data."] = "%d categories differ from today's classic data."
 L["History tracking started today, so money logged earlier today exists only in the classic data."] = "History tracking started today, so money logged earlier today exists only in the classic data."
 L["Resetting the Day tab also causes differences; the history ledger is never reset with it."] = "Resetting the Day tab also causes differences; the history ledger is never reset with it."
+
+L["Realm repair failed: %s"] = "Realm repair failed: %s"

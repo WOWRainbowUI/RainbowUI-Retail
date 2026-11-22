@@ -1,4 +1,4 @@
-﻿-- Accountant Classic core logic. See Readme.md for project history and acknowledgements.
+-- Accountant Classic core logic. See Readme.md for project history and acknowledgements.
 -----------------------------------------------------------------------
 -- Upvalued Lua API.
 -----------------------------------------------------------------------
@@ -1175,7 +1175,7 @@ local function repairHiddenRealm()
 		roll = rollToCurrent,
 	})
 	if not ok then
-		printMessage("|cffff2020"..L["Accountant Classic"]..": realm repair failed: "..tostring(result).."|r")
+		printMessage("|cffff2020"..L["Accountant Classic"]..": "..format(L["Realm repair failed: %s"], tostring(result)).."|r")
 		return
 	end
 	local fixed = result.merged + result.moved
