@@ -1,25 +1,5 @@
---[[
-	FriendGroups - Platform_Render.lua
-	============================================================================
-	Classic (HybridScroll) list renderer. Loaded after Compat.lua, before
-	FriendGroups.lua.
-
-	On retail the friends list is a ScrollBox and FriendGroups.lua drives it with
-	its native DataProvider path; this file returns immediately and is inert.
-
-	On MoP Classic there is no ScrollBox: the list is the native
-	FriendsFrameFriendsScrollFrame HybridScrollFrame, whose friend buttons are a
-	structurally different template. This module renders those native buttons.
-	The per-button and header renderers are salvaged from the tested-on-5.5.x
-	2.0.0 build; their only edits are:
-	  - file-local state they used (playerFactionGroup / INVITE_RESTRICTION_NONE /
-	    groupsCount) is read from addonTable.State, which FriendGroups.lua exposes,
-	  - the two functions are file-locals here so they never collide with retail's
-	    own FriendGroups_FriendsListUpdateFriendButton.
-
-	API compliance: MoP Classic 5.5.4. Every retail-era helper is presence-guarded
-	with a Classic fallback (as in the 2.0.0 build).
-]] --
+-- Classic (HybridScroll) list renderer; inert on retail UI. Row and header renderers are
+-- file-locals reading shared state from addonTable.State.
 
 local addonName, addonTable = ...
 local Compat = addonTable.Compat
@@ -51,16 +31,8 @@ local FG_ENGLISH_CLASS_TOKENS = {
 	["Evoker"] = "EVOKER",
 }
 
--- Older clients ship incomplete class data for classes outside their expansion:
--- MoP lacks Demon Hunter / Evoker entirely; BC Anniversary 2.5.6 additionally has
--- no LOCALIZED_CLASS_NAMES entry for Death Knight / Monk (probed 2026-07: class
--- colors and circle coords ARE present there, only the names are absent). Register
--- token, localized name and class color for whatever is missing so cross-project
--- friends on those classes resolve to a token everywhere the shared name tables
--- are walked (this file's resolver + the core ones in FriendGroups.lua). Existing
--- entries are never overwritten, so each call is a no-op where the client has data.
--- Where the client ships no class ICON, LayoutRow leaves the icon hidden -- the
--- name color still conveys class.
+-- Register token, localized name and colour for classes this client lacks (MoP: DH, Evoker;
+-- BC: DK/Monk names). Never overwrites existing entries.
 local function FG_RegisterMissingClass(token, name, r, g, b)
 	if LOCALIZED_CLASS_NAMES_MALE and not LOCALIZED_CLASS_NAMES_MALE[token] then
 		LOCALIZED_CLASS_NAMES_MALE[token] = name
@@ -72,14 +44,7 @@ local function FG_RegisterMissingClass(token, name, r, g, b)
 		RAID_CLASS_COLORS[token] = CreateColor and CreateColor(r, g, b) or { r = r, g = g, b = b }
 	end
 end
--- Localized class name from the client's OWN class database (documented
--- C_CreatureInfo.GetClassInfo(classID) -> ClassInfo.className). Authoritative and
--- in the client's language, so the reverse name->token lookups below match the
--- localized className the API actually reports on a non-English client -- a
--- hardcoded English name would never match there. Falls back to the addon's own
--- localized CLASS_* key (defined in every locale file) if the query is
--- unavailable; never a hardcoded name. classIDs are stable game constants
--- (Death Knight 6, Monk 10, Demon Hunter 12, Evoker 13).
+-- Localized name from C_CreatureInfo.GetClassInfo, else our CLASS_* key; never English.
 local function FG_ClassName(classID, fallbackKey)
 	if C_CreatureInfo and type(C_CreatureInfo.GetClassInfo) == "function" then
 		local info = C_CreatureInfo.GetClassInfo(classID)
@@ -95,10 +60,7 @@ FG_RegisterMissingClass("EVOKER", FG_ClassName(13, "CLASS_EVOKER"), 0.20, 0.58, 
 FG_RegisterMissingClass("DEATHKNIGHT", FG_ClassName(6, "CLASS_DEATHKNIGHT"), 0.77, 0.12, 0.23)
 FG_RegisterMissingClass("MONK", FG_ClassName(10, "CLASS_MONK"), 0.00, 1.00, 0.59)
 
--- Row fonts, one visible step BELOW retail's 12/10 metrics. Classic's friends frame
--- is narrower than retail's, so text at retail's own sizes still reads oversized and
--- truncates; 11px names / 9px info sit right in the frame. Derived font objects only
--- (safe to size explicitly -- shared font objects are never touched).
+-- One step below retail's 12/10: Classic's frame is narrower. Derived font objects only.
 local FG_NAME_SIZE, FG_INFO_SIZE = 11, 9
 local FG_NAME_FONT, FG_INFO_FONT
 do
@@ -115,10 +77,7 @@ do
 	FG_INFO_FONT = DeriveFont("FriendGroupsClassicInfoFont", FriendsFont_Small or GameFontNormalSmall, FG_INFO_SIZE)
 end
 
--- Favorite-star art, probed once. Retail's row template ships .Favorite with the
--- friendslist-favorite atlas; MoP may not have that atlas. C_Texture.GetAtlasInfo
--- (documented on 5.5.4) decides: atlas present -> identical retail star; absent ->
--- the ReputationStar sheet (ships on 5.5), cropping its top-left star quadrant.
+-- friendslist-favorite atlas if present, else the ReputationStar sheet's top-left star.
 local FG_FAV_ATLAS_OK = nil
 local function FG_ApplyFavoriteArt(tex)
 	if FG_FAV_ATLAS_OK == nil then
@@ -199,10 +158,7 @@ local function LayoutRow(button)
 		button.fgClassIcon = button:CreateTexture(nil, "ARTWORK", nil, 2)
 	end
 	local token = showIcon and ResolveClassToken(button.fgClass)
-	-- Round class icons: MoP's UI-Classes-Circles + CLASS_ICON_TCOORDS render the correct
-	-- class (the square "classicon-*" atlas does not exist on MoP). Retail-only classes
-	-- MoP has no coords for (Demon Hunter / Evoker) use the bundled square TGAs, which the
-	-- circular mask above renders round to match.
+	-- UI-Classes-Circles + CLASS_ICON_TCOORDS; DH/Evoker use bundled TGAs, masked round.
 	local bundled = token and FG_BUNDLED_CLASS_TEX[token]
 	local tcoord = (not bundled) and token and CLASS_ICON_TCOORDS and CLASS_ICON_TCOORDS[token]
 	if bundled or tcoord then
@@ -253,10 +209,8 @@ local function LayoutRow(button)
 		x = x + 20
 	end
 
-	-- Right reserve (retail parity: FriendGroups_ApplyRowLayout): invite button +
-	-- margins, PLUS the game icon (when enabled) and the faction icon / realm flag
-	-- (only when shown). Anchoring the text's right edge here is what produces the
-	-- "..." truncation; toggling any element off lets the text reclaim that width.
+	-- Right reserve: invite button, plus game/faction/realm icons when shown, so hidden icons
+	-- give the text its width back.
 	local showGameIcon = not (FriendGroups_SavedVars and FriendGroups_SavedVars.show_game_icon == false)
 	local gameIconW = 22
 	if button.gameIcon then
@@ -685,12 +639,8 @@ RenderFriendButton = function(button, elementData)
 		HelpTip:Show(FriendsFrame, helpTipInfo, button.travelPassButton)
 	end
 
-	-- Known Alts panel hover hooks (retail parity; retail installs the identical block
-	-- in its ScrollBox renderer). Without the OnLeave hook the panel gets stuck: the
-	-- FriendsTooltip "Hide" hook's anti-flicker guard swallows the hide while the mouse
-	-- is anywhere over FriendsFrame, and nothing else ever dismisses it on Classic.
-	-- Installed once per pooled button; safe across recycling into header rows because
-	-- FriendGroups_ShowButtonAltTooltip no-ops for non-BNet button types.
+	-- Alt panel hooks, once per pooled button. OnLeave is needed: the FriendsTooltip hide hook's
+	-- anti-flicker guard never dismisses it on Classic. Safe on header rows (BNet only).
 	if not button.fgAltTooltipHooked then
 		button:HookScript("OnEnter", function(self)
 			FriendGroups_ShowButtonAltTooltip(self)
@@ -741,11 +691,7 @@ RenderHeader = function(button, elementData)
 	button.id = 0
 	button.buttonType = FRIENDS_BUTTON_TYPE_DIVIDER
 
-	-- Draggable-header contract, see Platform_Drag.lua. rawGroupName is what retail's
-	-- handlers already read; on Classic they had been falling through to button.name's
-	-- text, which happens to agree because this renderer draws the bare group name. Drag
-	-- and drop cannot rely on that coincidence, so the raw key is stamped explicitly, and
-	-- RenderClassicList clears both again when this pooled button comes back as a friend.
+	-- Drag contract (Platform_Drag.lua): stamp the raw key; RenderClassicList clears it on reuse.
 	button.rawGroupName = groupName
 	button.fgIsHeader = true
 	Compat.AttachHeaderDrag(button, groupName)
@@ -815,35 +761,14 @@ RenderHeader = function(button, elementData)
 	button:Show()
 end
 
--- ============================================================================
--- [[ OWN-LIST SELECTION AND CLICKS (Classic own-list path only) ]]
---
--- Blizzard's row handler calls FriendsFrame_SelectFriend, which writes
--- FriendsFrame.selectedFriendType. FriendsList_Update reads that field on every window
--- open, so one click on a row taints the execution that ends in RaidFrame:Show() and the
--- Raid tab stops opening in combat. So on the own-list path the rows are ours and the
--- selection is ours.
---
--- Only the TYPE is kept here. The index is read back from the client (BNGetSelectedFriend
--- / C_FriendList.GetSelectedFriend), which is exactly what Blizzard does with its own
--- field pair, and for the same reason: list indices shift as friends come and go, and the
--- client is the thing that keeps its own selection pointing at the same person. Those
--- setters and getters are C functions, so nothing addon-written travels with them.
--- ============================================================================
+-- [[ OWN-LIST SELECTION AND CLICKS ]] FriendsFrame_SelectFriend taints the open path, so on
+-- the own-list path selection is ours. Only the type is kept; the index comes from the client.
 
 local FG_SelectedType
 local FG_SelectedIndex
 
--- type, index of the selected row, or nil when nothing is selected. Mirrors Blizzard's
--- FriendsList_Update: type from the addon's own state, index from the client.
---
--- FG_SelectedIndex is a fallback, not a second source of truth. C_FriendList.SetSelectedFriend
--- is documented for Classic with no protection flag, but BNSetSelectedFriend is a legacy
--- global with no generated docs at all, and Blizzard only ever calls it from its own secure
--- row handler. If some client refuses it from addon code, the getter would report nothing and
--- the list would lose its highlight and its Send Message button. The clicked index covers
--- that: it can go stale as friends come and go, which is exactly why the client's own answer
--- is preferred whenever it gives one.
+-- type, index of the selection, or nil. FG_SelectedIndex is only a fallback in case a client
+-- refuses BNSetSelectedFriend from addon code; the client's own answer wins.
 function Compat.GetClassicSelection()
 	if FG_SelectedType == FRIENDS_BUTTON_TYPE_WOW then
 		local id = C_FriendList and C_FriendList.GetSelectedFriend and C_FriendList.GetSelectedFriend()
@@ -906,10 +831,7 @@ function Compat.SetClassicSelection(buttonType, id)
 	Compat.RefreshClassicVisible()
 end
 
--- Blizzard opens its list with the first friend selected (FriendsList_Update: "set to
--- first in list if no friend"). Same here, so the list never opens with no highlight and
--- a dead Send Message button, and so a selection lost to a friend going offline is
--- replaced rather than left dangling.
+-- Select the first friend when nothing is, like Blizzard, so Send Message isn't dead.
 function Compat.EnsureClassicSelection(layout)
 	if not layout then return end
 	local buttonType = Compat.GetClassicSelection()
@@ -927,10 +849,8 @@ function Compat.EnsureClassicSelection(layout)
 	end
 end
 
--- Row click. Left selects, right opens the unit menu. Both branches mirror Blizzard's
--- FriendsFrameFriendButton_OnClick, including the arguments it hands the menu, because
--- those are what carry FriendGroups' own injected entries (Menu.ModifyMenu on the
--- MENU_UNIT_BN_FRIEND / MENU_UNIT_FRIEND tags UnitPopup_OpenMenu raises from there).
+-- Mirrors FriendsFrameFriendButton_OnClick, including the menu arguments that carry our
+-- injected entries.
 function Compat.ClassicRowOnClick(button, mouseButton)
 	local buttonType, id = button.buttonType, button.id
 	if not buttonType or not id then return end
@@ -968,10 +888,8 @@ function Compat.ClassicRowOnClick(button, mouseButton)
 	end
 end
 
--- Blizzard's Send Message reads its own selection fields, so it has to be replaced
--- alongside the rows. Same calls it makes (ChatFrameUtil.SendTell / SendBNetTell): Classic
--- has no secret values, so the chat taint the retail priming path exists to avoid is
--- harmless here, and the button keeps working in one click.
+-- Replaces Blizzard's Send Message (it reads Blizzard's selection). No secret values on
+-- Classic, so the chat taint is harmless here.
 function Compat.ClassicSendMessageOnClick()
 	local buttonType, id = Compat.GetClassicSelection()
 	if not buttonType then return end
@@ -998,24 +916,9 @@ function Compat.ClassicSendMessageOnClick()
 	end
 end
 
--- ============================================================================
--- [[ ELVUI ADAPTER (Classic own-list path only) ]]
---
--- ElvUI styles the Classic friends list by global name -- the eleven
--- FriendsFrameFriendsScrollFrameButtonN rows and that frame's scrollbar
--- (ElvUI/Game/TBC/Skins/Friends.lua). Those names belong to Blizzard's list, so once the
--- addon draws its own, ElvUI's work lands on a frame nobody can see. This puts the same
--- treatment on our frame instead: strip the scrollbar border art, hand the bar to ElvUI's
--- own HandleScrollBar, and give each row ElvUI's highlight texture and flattened summon
--- button. Rows past the eleventh get it too, which they never did on Blizzard's frame.
---
--- Only ever touches frames FriendGroups created. Calling an ElvUI helper on a Blizzard
--- frame from here would taint it, which is the thing this whole path exists to avoid.
---
--- Respects the player's own ElvUI switches (blizzard.enable and blizzard.friends): a skin
--- they turned off must stay off. Nothing is cached as "not applicable" -- ElvUI initialises
--- on its own schedule, so an early call simply returns and the next render tries again.
--- ============================================================================
+-- [[ ELVUI ADAPTER ]] ElvUI skins Blizzard's list by global name; apply the same to ours.
+-- Only our frames: calling ElvUI on a Blizzard frame from here taints it. Respects
+-- blizzard.enable/friends, and retries until ElvUI has initialised.
 
 function Compat.SkinClassicListForElvUI()
 	local list = _G.FriendGroupsClassicList
@@ -1064,36 +967,9 @@ function Compat.SkinClassicListForElvUI()
 	end
 end
 
--- ============================================================================
--- [[ OWN-LIST ROW TOOLTIP (Classic own-list path only) ]]
---
--- The last taint source on the open path. Blizzard's FriendsFrameTooltip_Show ends with
---   tooltip.button = self
--- and Blizzard's own row renderer reads FriendsTooltip.button once per row on every window
--- open (FriendsFrame_UpdateFriendButton, "update the tooltip if hovering over a button").
--- That single write is enough to taint the execution that ends in RaidFrame:Show(), so
--- hovering a row would keep the Raid tab broken in combat even with the rows and selection
--- already ours. A decoy button object does not help: taint attaches to the field, not to
--- the value in it.
---
--- So this is Blizzard's function with that one line left out. Everything else it does is
--- safe: it draws into Blizzard's own FriendsTooltip frame, and Blizzard's
--- FriendsFrameTooltip_SetLine writes only tooltip.height and tooltip.maxWidth, which
--- nothing on the open path reads.
---
--- Blizzard's frame rather than one of our own, deliberately: addons that hook
--- FriendsTooltip:Show keep working, which on Classic means Raider.IO (MoP and Era builds;
--- there is no TBC one) and anything else that decorates the friend tooltip.
---
--- tooltip.hasBroadcast is deliberately NOT set. Blizzard's FriendsTooltip OnUpdate runs
---   if self.hasBroadcast then FriendsFrameTooltip_Show(self.button) end
--- and with .button left nil that would error every frame. All that is lost is the re-layout
--- of a broadcast line while the pointer sits still, which Blizzard added for alternate
--- alphabets; it is rebuilt on the next hover.
---
--- Mirrored from the live Classic source (FriendsFrame.lua, FriendsFrameTooltip_Show). If
--- Blizzard changes the tooltip's content, this has to follow.
--- ============================================================================
+-- [[ OWN-LIST ROW TOOLTIP ]] Blizzard's FriendsFrameTooltip_Show minus `tooltip.button = self`,
+-- which taints the open path. Mirrored from Classic FriendsFrame.lua: follow Blizzard changes.
+-- Never set hasBroadcast: its OnUpdate would call Show(nil) every frame.
 
 local FG_TOOLTIP_ONE_YEAR = 12 * 30 * 24 * 60 * 60
 
@@ -1112,10 +988,7 @@ local function FG_ShowRichPresenceOnly(client, wowProjectID, faction, realmID)
 	return false
 end
 
--- Raider.IO decorates the friend tooltip by hooking FriendsTooltip:Show and reading
--- .button to work out who the row is. With that field left nil it bails, so the profile is
--- requested directly through its documented API instead (ShowProfile draws on the tooltip
--- it is handed and shows it). Entirely optional: no Raider.IO, nothing happens.
+-- Raider.IO reads .button, which we leave nil, so call its ShowProfile directly. Optional.
 local function FG_AddRaiderIOProfile(name, realm)
 	if not name or name == "" then return end
 	local RIO = _G.RaiderIO
@@ -1341,13 +1214,7 @@ function Compat.InstallClassicSendMessageOverride()
 	Compat.UpdateClassicSendMessageButton()
 end
 
--- ============================================================================
--- [[ HYBRIDSCROLL DRIVER ]]
--- Renders the visible slice of `layout` (the array FriendGroups_FriendsListUpdate
--- builds) into the HybridScroll button pool Compat.GetClassicListFrame hands back --
--- FriendGroups' own list, or Blizzard's on the legacy path. Called for the initial
--- build and, via that frame's .update field, on every scroll.
--- ============================================================================
+-- [[ HYBRIDSCROLL DRIVER ]] Renders the visible slice of `layout`; also the frame's .update.
 function Compat.RenderClassicList(layout)
 	-- Bind shared state on first use (FriendGroups.lua has loaded by render time).
 	-- RenderHeader / RenderFriendButton share this upvalue, so they see it too.
@@ -1369,14 +1236,8 @@ function Compat.RenderClassicList(layout)
 		Compat.SkinClassicListForElvUI()
 	end
 
-	-- Force uniform fixed-height scrolling. Blizzard's friends list installs a
-	-- dynamic-height callback (scrollFrame.dynamic) for variable-height rows; our
-	-- rows are a uniform 34px. Left set, HybridScrollFrame_SetOffset calls it and
-	-- it returns nil at large scroll offsets -> math.floor(nil) crash. Clearing it
-	-- routes SetOffset through the fixed-height path (element = offset/buttonHeight).
-	--
-	-- Only Blizzard's frame ever has one; ours is created without it, so on the own-list
-	-- path this is a no-op write to our own field rather than a write to theirs.
+	-- Blizzard's dynamic-height callback returns nil at large offsets (math.floor crash); our
+	-- rows are uniform 34px. Ours never has it, so this only writes Blizzard's on the legacy path.
 	scrollFrame.dynamic = nil
 
 	local offset = HybridScrollFrame_GetOffset(scrollFrame)
@@ -1401,35 +1262,18 @@ function Compat.RenderClassicList(layout)
 				button.id = elementData.id
 				button.buttonType = elementData.buttonType
 
-				-- This pool is shared with the group headers, so the drag registration has
-				-- to come off here. A button left registered for drag swallows the click
-				-- that selects a friend as soon as the pointer moves a couple of pixels --
-				-- which is the whole point of the registration on a header, and a silent
-				-- regression on a friend row.
+				-- Shared pool: clear the drag registration or it swallows friend-row clicks.
 				button.rawGroupName = nil
 				button.fgIsHeader = nil
 				Compat.DetachHeaderDrag(button)
 
-				-- Reset recycled buttons to the click handler for the list in force. The
-				-- pool is shared with group headers, which install their own, so this has
-				-- to be re-applied on every render.
-				--
-				-- Blizzard's handler is only correct on the legacy path: it calls
-				-- FriendsFrame_SelectFriend, which writes FriendsFrame.selectedFriendType,
-				-- the field FriendsList_Update reads on every window open.
+				-- Re-applied every render (headers install their own). Blizzard's handler only on the legacy
+				-- path: it writes FriendsFrame.selectedFriendType.
 				if Compat.UseOwnClassicList() then
 					button:SetScript("OnClick", Compat.ClassicRowOnClick)
 
-					-- Hover too: Blizzard's OnEnter is FriendsFrameTooltip_Show, which
-					-- writes FriendsTooltip.button, and its OnLeave writes that field back
-					-- to nil. Both taint it. See OWN-LIST ROW TOOLTIP.
-					--
-					-- ONCE per button, unlike OnClick above. HookScript works by wrapping
-					-- whatever script is installed and setting the wrapper, so a SetScript
-					-- on every render would throw away the alt-tooltip hooks that
-					-- RenderFriendButton adds a few lines further down -- and it only adds
-					-- them once. The header renderer never touches these two, so setting
-					-- them once is enough.
+					-- Once per button: Blizzard's OnEnter/OnLeave write FriendsTooltip.button (taint), and a
+					-- SetScript per render would drop the alt hooks added once below.
 					if not button.fgOwnListHoverScripts then
 						button.fgOwnListHoverScripts = true
 						button:SetScript("OnEnter", Compat.ShowClassicRowTooltip)
@@ -1459,11 +1303,7 @@ function Compat.RenderClassicList(layout)
 	end
 end
 
--- Lightweight idle refresh -- the Classic counterpart of retail's
--- ScrollBox:ForEachFrame fast path in FriendGroups_FriendsListUpdate. Re-renders
--- the currently visible friend rows in place from their stamped id/buttonType
--- (AFK timers, status flips) without rebuilding the layout. Header rows carry
--- FRIENDS_BUTTON_TYPE_DIVIDER and are skipped, exactly like the retail path.
+-- Idle refresh of visible friend rows in place (timers, status); headers skipped.
 function Compat.RefreshClassicVisible()
 	State = State or addonTable.State
 	local scrollFrame = Compat.GetClassicListFrame()

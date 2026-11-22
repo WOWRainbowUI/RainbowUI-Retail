@@ -1,37 +1,10 @@
---[[
-	FriendGroups - Platform_Menu.lua
-	============================================================================
-	Context-menu adapter. Loaded after Compat.lua, before FriendGroups.lua.
-
-	Menu API present (every shipping flavor, probed 2026-07: retail 12.0.7,
-	    MoP 5.5.4, BC Anniversary 2.5.6) : Compat.OpenContextMenu is a
-	    pass-through to MenuUtil.CreateContextMenu, byte-identical to retail.
-	Menu API absent (no current client -- safety net only) : a lightweight
-	    polyfill implements exactly the subset of the rootDescription API that
-	    FriendGroups uses (CreateTitle / CreateButton / CreateDivider /
-	    CreateCheckbox / SetEnabled / SetTooltip, incl. nested submenus) on top
-	    of the legacy UIDropDownMenu.
-
-	The point of the polyfill is single-source menu content: the SAME generator
-	closures that build the modern menus would build the fallback menus, so the
-	two paths can never drift.
-
-	API compliance:
-	  - Retail  : MenuUtil.CreateContextMenu (WoW 12.0.7).
-	  - Classic : UIDropDownMenu_CreateInfo / _AddButton / _Initialize,
-	              ToggleDropDownMenu (MoP Classic 5.5.4).
-	Only documented globals are referenced, each guarded before use.
-]] --
+-- Context menus: Compat.OpenContextMenu forwards to MenuUtil.CreateContextMenu, or renders
+-- the same generator through a UIDropDownMenu polyfill where the Menu API is absent.
 
 local addonName, addonTable = ...
 local Compat = addonTable.Compat
 
--- ============================================================================
 -- [[ RETAIL PASS-THROUGH ]]
--- On retail the native Menu system exists; OpenContextMenu is a thin forward so
--- the call sites read uniformly on both flavors while retail behavior is exactly
--- MenuUtil.CreateContextMenu(owner, generator).
--- ============================================================================
 if Compat.HAS_MENU_API then
 	function Compat.OpenContextMenu(owner, generator)
 		return MenuUtil.CreateContextMenu(owner, generator)
@@ -39,12 +12,7 @@ if Compat.HAS_MENU_API then
 	return
 end
 
--- ============================================================================
--- [[ CLASSIC POLYFILL ]]
--- A description node accumulates children; the generator builds a tree, then the
--- tree is rendered into a UIDropDownMenu. Every node shares one metatable so
--- submenus support the same builder methods as the root.
--- ============================================================================
+-- [[ CLASSIC POLYFILL ]] Every node shares one metatable so submenus get the root's builders.
 
 local NodeMixin = {}
 local NodeMeta = { __index = NodeMixin }

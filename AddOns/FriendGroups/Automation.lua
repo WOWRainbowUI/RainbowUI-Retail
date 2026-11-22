@@ -1,27 +1,5 @@
---[[
-	FriendGroups - Automation.lua
-	============================================================================
-	Every "accept this for me" behaviour, plus the countdown toast that fronts
-	the two interactive ones (group invite, Party Sync).
-
-	Design rules:
-	  - Blizzard's own dialog stays on screen alongside the toast for the whole
-	    countdown, and is dismissed once the request is resolved -- see
-	    FG_HideBlizzardPopup for why that dismissal has to be explicit.
-	  - AcceptGroup / DeclineGroup / SendSessionBeginResponse are not protected,
-	    so the toast and its timer are safe to run at any time. What gates the
-	    toast is FriendGroups' own busy rule (FG_IsPlayerBusy), unchanged from
-	    the pre-toast behaviour.
-	  - Nothing here assumes an API exists. Every global and namespace member is
-	    type-checked before use, and events are registered through
-	    Compat.RegisterEvents so a flavor that lacks one simply skips it.
-
-	API compliance:
-	  - Retail   : WoW Midnight 12.0.7 (Interface 120007)
-	  - Classic  : MoP Classic 5.5.4, BC Anniversary 2.5.6, Classic Era 1.15.x
-	    On the Classic flavors C_QuestSession does not exist, so the Party Sync
-	    toast is never built there; the invite toast is flavor-neutral.
-]] --
+-- Auto-accept behaviours and the countdown toast for group invites and Party Sync.
+-- Blizzard's dialog stays up during the countdown; see FG_HideBlizzardPopup for its dismissal.
 
 local addonName, addonTable = ...
 local L = addonTable.L
@@ -31,34 +9,20 @@ local Compat = addonTable.Compat
 -- [[ BRAND ]]
 -- ============================================================================
 
--- FriendGroups mint, #33FF99. This is the literal colour every FriendGroups
--- chat line already carries (260+ occurrences across the locale files), and is
--- deliberately NOT RAID_CLASS_COLORS.MONK (#00FF96): the toast has to match the
--- addon's own prefix, which must not drift if Blizzard ever retunes a class
--- colour.
+-- FriendGroups mint #33FF99, matching the chat prefix; not a class colour.
 local FG_R, FG_G, FG_B = 0.20, 1.00, 0.60
 
 -- The addon's own logo, the same file the TOC declares as its IconTexture.
 local FG_LOGO = "Interface\\AddOns\\FriendGroups\\Textures\\fg"
 
--- Toast subject icons, by path rather than fileID so they resolve identically on
--- retail and Classic. The invite icon (fileID 134149) is a base-game icon present
--- on every supported flavor; the Party Sync icon (fileID 442272) is Cataclysm-era,
--- which is no constraint since Party Sync itself is retail-only.
+-- Paths, not fileIDs, so they resolve on every flavor.
 local FG_ICON_INVITE = "Interface\\Icons\\INV_Misc_GroupNeedMore"
 local FG_ICON_SYNC   = "Interface\\Icons\\Achievement_GuildPerk_EverybodysFriend"
 
--- BackdropTemplate ships on every flavor this addon supports, but the template
--- is only resolvable by name where BackdropTemplateMixin exists. Where it does
--- not, the frame keeps the pre-9.0 native SetBackdrop, which is what the
--- type-checked helpers below call. No version number is consulted.
+-- BackdropTemplate only where BackdropTemplateMixin exists; else native SetBackdrop.
 local FG_BACKDROP_TEMPLATE = (type(BackdropTemplateMixin) == "table") and "BackdropTemplate" or nil
 
--- Font path taken from the client's own GameFontNormal, so it is locale-correct
--- by construction: the koKR/zhCN/zhTW clients do not ship FRIZQT__.TTF, and a
--- hardcoded Western font path would render their text blank. STANDARD_TEXT_FONT
--- is the documented locale-aware fallback. May still end up nil, which
--- FG_ToastFontString handles.
+-- From GameFontNormal: koKR/zhCN/zhTW have no FRIZQT__.TTF. May be nil (FG_ToastFontString).
 local FG_FONT = (GameFontNormal and type(GameFontNormal.GetFont) == "function" and GameFontNormal:GetFont())
 	or STANDARD_TEXT_FONT
 
@@ -92,19 +56,7 @@ local FG_GetAddOnMetadata = (C_AddOns and type(C_AddOns.GetAddOnMetadata) == "fu
 	and C_AddOns.GetAddOnMetadata
 	or (type(GetAddOnMetadata) == "function" and GetAddOnMetadata or nil)
 
--- ============================================================================
--- [[ FEATURE REGISTRY ]]
--- The automations that a companion addon might also implement. Everything
--- downstream -- arbitration, the published claim, the diagnostic -- keys off
--- this one table so a third feature is a single entry, not a sweep.
---
--- Auto-accept resurrection and auto-release spirit were removed in 13.0.2. They
--- were never contested in practice -- GLogger implements both and wins every
--- arbitration for them -- and death automation carries a failure mode the other
--- two do not: releasing at the wrong moment costs a body recovery that cannot be
--- undone. GLogger owns them outright now. The retired sync bits are documented in
--- Sync.lua's BOOL_FIELDS.
--- ============================================================================
+-- [[ FEATURE REGISTRY ]] Arbitration, claim and diagnostic all key off this table.
 
 local FG_FEATURE_SAVEDVAR = {
 	invite  = "auto_accept_invite",
@@ -125,29 +77,9 @@ local function FG_FeatureEnabled(feature)
 	return FriendGroups_SavedVars ~= nil and FriendGroups_SavedVars[key] == true
 end
 
--- ============================================================================
--- [[ CROSS-ADDON ARBITRATION ]]
--- GLogger implements the same automations. Run side by side both would
--- answer the same invite, so exactly one has to own each feature.
---
--- FriendGroups is always the one that yields: it can read GLogger's state but
--- cannot change it, so a fixed precedence (GLogger wins) is the only scheme
--- that can be enforced from this side alone. Deliberately not user-toggleable --
--- an override could not silence GLogger, only add a second prompt on top of it.
---
--- Resolution ladder, most authoritative first:
---   1. A published claim table (the forward contract -- see the claim this file
---      publishes below). If a companion addon publishes one it is believed
---      outright, including when it says a feature is OFF.
---   2..4. Introspection: addon loaded -> AceAddon object -> module enabled.
---   5. GLogger's own GetUIState, which merges its per-character override over
---      its global setting -- the same value its handlers read.
--- Evaluated per event rather than cached, so toggling either addon's setting
--- mid-session takes effect on the very next invite. Every step is type-checked
--- and pcall-wrapped: a GLogger that has not finished initialising, or one that
--- has renamed something, reads as "not active" and FriendGroups takes the
--- invite rather than erroring.
--- ============================================================================
+-- [[ CROSS-ADDON ARBITRATION ]] GLogger always wins: we can read its state, not change it.
+-- Ladder: published claim, then addon/AceAddon/module checks, then GetUIState. Evaluated per
+-- event, pcall-wrapped; anything unreadable counts as "GLogger not active".
 
 local GLOGGER_ADDON  = "GLogger"
 local GLOGGER_MODULE = "AutoInvite"
@@ -158,14 +90,7 @@ local GLOGGER_STATE_KEY = {
 	sync    = "UIAutoAcceptSync",
 }
 
--- Named frames belonging to a companion addon's own countdown toast. Checked
--- immediately before ours is shown, as a last-ditch guarantee that two toasts
--- can never stack even if every tier of the ladder above has been defeated by a
--- rename. A frame name is the one thing that does not quietly change.
---
--- One entry per companion toast, not per companion addon: GLogger fronts group
--- invites and Party Sync with two separately named frames, and listing only the
--- invite one would leave the Party Sync toasts free to overlap.
+-- Last-ditch stacking guard, one entry per companion toast frame (GLogger has two).
 local FG_EXTERNAL_TOAST_FRAMES = { "GLoggerInviteToast", "GLoggerSyncToast" }
 
 local function FG_ExternalToastShown(index)
@@ -182,17 +107,8 @@ local function FG_ExternalToastVisible()
 	return false
 end
 
--- Marks the stack slots companion toasts are occupying, so ours is never placed
--- on top of one.
---
--- GLogger tags each of its toasts with the slot it currently holds, so reading
--- that field is exact. Merely COUNTING the visible ones is not: with GLogger
--- showing its invite toast in slot 0 and its Party Sync toast in slot 1, closing
--- the invite one leaves a count of 1, which would reserve slot 0 and send ours to
--- slot 1 -- straight onto the Party Sync toast still on screen.
---
--- A companion toast that exposes no slot falls back to reserving the next free
--- one, which is the old counting behaviour and still correct for a single toast.
+-- Reserve the slots companion toasts report holding; counting them misplaces ours when they
+-- close out of order. A toast with no slot reserves the next free one.
 local function FG_ReserveExternalSlots(occupied)
 	local fallback = 0
 	for i = 1, #FG_EXTERNAL_TOAST_FRAMES do
@@ -287,11 +203,7 @@ _G.FriendGroups_Automation_Claim = {
 	end,
 }
 
--- ============================================================================
--- [[ BUSY RULE ]]
--- No auto-accept in combat, PvP, an active Mythic+ run or mid-encounter.
--- Evaluated once, when the invite arrives.
--- ============================================================================
+-- [[ BUSY RULE ]] No auto-accept in combat, PvP, active M+ or an encounter; checked on arrival.
 
 local function FG_IsPlayerBusy()
 	if InCombatLockdown() then return true end
@@ -341,12 +253,7 @@ local function FG_InviterAllowed(guid)
 	return FG_IsTrustedInviter(guid)
 end
 
--- ============================================================================
--- [[ COUNTDOWN TOAST ]]
--- One widget, two instances (group invite, Party Sync), so both read as the
--- same control. Hovering pauses the countdown, which makes the timer an
--- attention window rather than a deadline: left alone it runs out and accepts.
--- ============================================================================
+-- [[ COUNTDOWN TOAST ]] Hover pauses the countdown; left alone it runs out and accepts.
 
 local TOAST_WIDTH, TOAST_HEIGHT = 380, 148
 local TOAST_DURATION = 5.0
@@ -368,10 +275,7 @@ local function FG_ApplyBackdrop(frame, bgR, bgG, bgB, bgA, borderAlpha)
 	frame:SetBackdropBorderColor(FG_R, FG_G, FG_B, borderAlpha)
 end
 
--- Inherits GameFontNormal so the region always carries a valid, locale-correct
--- font, then overrides only size and outline. If no font path resolved at all the
--- override is skipped and the inherited font stands: worst case the text is the
--- default size, never blank.
+-- Inherits GameFontNormal, then overrides size; no path means the inherited font stands.
 local function FG_ToastFontString(parent, size, flags)
 	local fontString = parent:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 	if FG_FONT then
@@ -558,18 +462,8 @@ local function FG_CreateToast(globalName, iconTexture, titleKey, onResolve)
 		self.CountdownBar:SetWidth(math.max(1, self.CountdownFullWidth * (remaining / duration)))
 	end)
 
-	-- Stack downward from centre when something else is already up, so a second
-	-- toast (or a companion addon's) is never hidden behind the first.
-	--
-	-- Slots are CLAIMED, not counted. Counting the shown toasts collides whenever
-	-- they close out of order: with two up in slots 0 and 1, closing the one in
-	-- slot 0 leaves a count of 1, and the next toast would be sent to slot 1 --
-	-- directly onto the one still showing.
-	--
-	-- Companion toasts take the lowest slots. They are positioned by their own
-	-- addon and cannot be moved from here, and GLogger stacks its own downward
-	-- from centre in exactly this order, so reserving the bottom of the range for
-	-- them is what keeps the two addons interleaved rather than overlapping.
+	-- Slots are claimed, not counted (out-of-order closes collide). Companion toasts take the
+	-- lowest slots, matching GLogger's own downward stacking.
 	function toast:Reanchor()
 		local occupied = {}
 		FG_ReserveExternalSlots(occupied)
@@ -656,36 +550,15 @@ end
 -- [[ GAME ACTIONS ]]
 -- ============================================================================
 
--- Dismiss one of Blizzard's own request dialogs after we have answered it.
---
--- This deliberately re-introduces a call the 12.2.2 taint pass removed. That pass
--- recorded the premise "Blizzard's own secure handlers dismiss the invite popups
--- once the invite resolves", and that premise is FALSE for a programmatic accept:
--- the PARTY_INVITE dialog is dismissed by its own Accept BUTTON being clicked
--- (StaticPopup hides a dialog whose button was pressed), not by any event. No
--- PARTY_INVITE_CANCEL fires for the player's own accept, so calling AcceptGroup()
--- from addon code leaves the dialog stranded on screen over a group already
--- joined. Explicitly hiding it is the only way to clear it.
---
--- PARTY_INVITE's OnHide fires DeclineGroup() unless Blizzard's own Accept button
--- set dialog.inviteAccepted, so hiding it here fires a second DeclineGroup(). That
--- is harmless in both directions: after AcceptGroup() the invite has already been
--- consumed server-side, and after DeclineGroup() it is a repeat of what just
--- happened. Setting inviteAccepted to suppress it would mean WRITING to a pooled
--- Blizzard frame, which is strictly more taint than calling the function, so it is
--- not done.
---
--- ORDER IS LOAD-BEARING: this must run AFTER the accept/decline. Hiding first
--- would fire the OnHide DeclineGroup() and kill the invite before we answered it.
+-- AcceptGroup() from code leaves PARTY_INVITE up (only its button hides it), so hide it.
+-- Its OnHide fires a harmless second DeclineGroup. MUST run after the accept/decline, or
+-- the OnHide decline kills the invite first.
 local function FG_HideBlizzardPopup(which)
 	if type(StaticPopup_Hide) ~= "function" then return end
 	pcall(StaticPopup_Hide, which)
 end
 
--- On failure the dialog is deliberately LEFT UP: it is the player's only way to
--- answer the invite by hand, and MSG_AUTO_ACCEPT_FAILED tells them to do exactly
--- that. Hiding it would take the button away and make the advice impossible to
--- follow. Same reasoning on every path below.
+-- On failure the dialog stays up: it is the player's only way to answer by hand.
 local function FG_AcceptInvite(inviter)
 	FG_Announce(string.format(L["MSG_AUTO_INVITE"], inviter or L["UNKNOWN"]))
 	if type(AcceptGroup) ~= "function" then return end
@@ -762,12 +635,7 @@ local SyncToast = FG_CreateToast("FriendGroupsSyncToast", FG_ICON_SYNC, "TOAST_S
 SyncToast.BodyKey = "TOAST_SYNC_BODY"
 SyncToast.BodyUnknownKey = "TOAST_SYNC_BODY_UNKNOWN"
 
--- ============================================================================
--- [[ EVENT ROUTING ]]
--- QUEST_SESSION_* is retail-era and absent on the Classic flavors;
--- Compat.RegisterEvents validates every name against the running client and
--- registers exactly the supported subset.
--- ============================================================================
+-- [[ EVENT ROUTING ]] Compat.RegisterEvents skips events the client lacks (QUEST_SESSION_*).
 
 local FriendGroups_Automation = CreateFrame("Frame")
 Compat.RegisterEvents(FriendGroups_Automation, {
@@ -807,10 +675,7 @@ FriendGroups_Automation:SetScript("OnEvent", function(self, event, ...)
 		if UnitIsGroupLeader("player") then return end
 		if InCombatLockdown() then return end
 
-		-- Same last-ditch guard the invite path carries. Arbitration should already
-		-- have stood us down if GLogger owns Party Sync, so reaching this with a
-		-- companion toast up means the ladder was defeated by a rename; one missed
-		-- auto-accept is a better failure than two countdowns for one session.
+		-- Last-ditch guard: a companion toast up means arbitration was defeated by a rename.
 		if FG_ExternalToastVisible() then return end
 		SyncToast:Present({ name = FG_PartyLeaderName() })
 
@@ -821,10 +686,7 @@ FriendGroups_Automation:SetScript("OnEvent", function(self, event, ...)
 	end
 end)
 
--- ============================================================================
--- [[ DIAGNOSTICS ]]
--- Exposed for the /fg slash handler in FriendGroups.lua.
--- ============================================================================
+-- [[ DIAGNOSTICS ]] For the /fg slash handler.
 
 -- Prints which addon owns each automation, so "why did nothing pop up" is one
 -- command rather than a support thread.
