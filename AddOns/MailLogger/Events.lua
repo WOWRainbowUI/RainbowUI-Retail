@@ -480,10 +480,11 @@ Frame:RegisterEvent("TRADE_MONEY_CHANGED")
 Frame:RegisterEvent("TRADE_PLAYER_ITEM_CHANGED")
 Frame:RegisterEvent("TRADE_TARGET_ITEM_CHANGED")
 Frame:RegisterEvent("TRADE_ACCEPT_UPDATE")
-Frame:RegisterEvent("MAIL_SEND_INFO_UPDATE")
-Frame:RegisterEvent("MAIL_SHOW")
-Frame:RegisterEvent("MAIL_CLOSED")
-Frame:RegisterEvent("UI_INFO_MESSAGE")
+	Frame:RegisterEvent("MAIL_SEND_INFO_UPDATE")
+	Frame:RegisterEvent("MAIL_SHOW")
+	Frame:RegisterEvent("MAIL_CLOSED")
+	Frame:RegisterEvent("MAIL_SEND_SUCCESS") -- 正式服/无限服(12.x)发信完成事件
+	Frame:RegisterEvent("UI_INFO_MESSAGE")
 Frame:RegisterEvent("UI_ERROR_MESSAGE")
 
 --Event处理分配
@@ -693,16 +694,55 @@ function Frame:TRADE_ACCEPT_UPDATE()
 end
 
 -- 邮件相关（记录、删除无效）
-do -- Hook SendMail，获取Recipient
-	local function GetRecipient(Recipient, Subject, Body)
+do -- Hook SendMail：在发送瞬间快照收件人、金币与物品
+	-- 关键：默认 UI 只在点击发送时调用 SetSendMailMoney()，GetSendMailMoney()
+	-- 仅在 SendMail 执行期间可靠。正式服/无限服(12.x)随后触发 MAIL_SEND_SUCCESS
+	-- 并执行 SendMailFrame_Reset() 清空表单，事后重读必为 0/nil。
+	local function SnapshotSentMail(Recipient, Subject, Body)
 		if not Config.EnableML then
 			return
 		end
-		if next(Current) and not Current.TargetName then
+		if not Current or not next(Current) then
+			return
+		end
+		if not Current.TargetName and Recipient then
 			Current.TargetName = Recipient .. "-" .. GetRealmName()
 		end
+
+		-- 金币快照：必须在表单被清空之前读取
+		if GetSendMailMoney then
+			local Money = GetSendMailMoney()
+			if Money and Money > 0 then
+				Current.GiveMoney = Money
+			end
+		end
+
+		-- 物品快照：防止发送后表单重置时空槽覆盖已记录物品
+		if GetSendMailItem then
+			local Items, itemMap = {}, {}
+			for i = 1, 12 do
+				local ItemName, _, _, Quantity = GetSendMailItem(i)
+				if ItemName then
+					local ItemLink = GetSendMailItemLink and GetSendMailItemLink(i)
+					local key = ItemLink or ItemName
+					if itemMap[key] then
+						itemMap[key].Number = itemMap[key].Number + (Quantity or 1)
+					else
+						itemMap[key] = {
+							["Name"] = ItemName,
+							["Number"] = Quantity,
+							["Enchantment"] = nil,
+							["ItemLink"] = ItemLink,
+						}
+						t_insert(Items, itemMap[key])
+					end
+				end
+			end
+			Current.GiveItems = Items
+		end
+		Current._sendSnapshot = true
 	end
-	hooksecurefunc("SendMail", GetRecipient)
+	hooksecurefunc("SendMail", SnapshotSentMail)
 end
 -- 合併物品列表 (輔助方法)
 function Addon:MergeItemList(ItemList)
@@ -834,11 +874,15 @@ function Frame:MAIL_SEND_INFO_UPDATE()
 	if not Config.EnableML then
 		return
 	end
+	-- 发送瞬间已由 SendMail Hook 快照，此后表单重置触发的本事件不得覆盖快照
+	if Current and Current._sendSnapshot then
+		return
+	end
 	-- 如果CurrentMail为空则需要先创建一个NewMail結構
 	if not Current or not next(Current) then
 		Current = Addon:NewMail()
 	end
-	
+
 	-- 重置物品列表
 	Current.GiveItems = {}
 	
@@ -893,6 +937,40 @@ function Frame:UI_ERROR_MESSAGE(...)
 		end
 	end
 end
+-- 发信记录落库：正式服/无限服用 MAIL_SEND_SUCCESS，怀旧服用 UI_INFO_MESSAGE/ERR_MAIL_SENT
+-- 两个事件都可能到达；提交后 Current 被重置为新表（无金币无物品），后续事件自然 no-op
+local function CommitSentMail()
+	if not Config.EnableML then
+		return
+	end
+	if not Current or not next(Current) then
+		return
+	end
+	-- 金币与物品已在 SendMail Hook 中快照，此处不再重读表单
+	if not (Current.GiveMoney > 0 or next(Current.GiveItems)) then
+		return
+	end
+
+	if #TradeLog > 0 and TradeLog[#TradeLog] and TradeLog[#TradeLog].Result == "received" then
+		Addon:MergeItemList(TradeLog[#TradeLog].ReceiveItems)
+	end
+	Current["Result"] = "sent"
+	Current["Date"] = date("%Y-%m-%d")
+	Current["Time"] = date("%H:%M:%S")
+	Current["Location"] = GetRealZoneText()
+	-- 清理内部临时字段，避免写入存档
+	Current._committed = nil
+	Current._sendSnapshot = nil
+	t_insert(TradeLog, Current)
+	Current = {}
+	Current = Addon:NewMail()
+end
+
+-- 正式服/无限服(12.x)发信完成事件
+function Frame:MAIL_SEND_SUCCESS()
+	CommitSentMail()
+end
+
 -- 交易/邮件通报和记录
 function Frame:UI_INFO_MESSAGE(...)
 	if not Config.EnableML then
@@ -925,22 +1003,7 @@ function Frame:UI_INFO_MESSAGE(...)
 			end
 			Current = {}
 		elseif arg[2] == ERR_MAIL_SENT then
-			local Money = GetSendMailMoney()
-			if Money > 0 then
-				Current["GiveMoney"] = Money
-			end
-			if Current.GiveMoney > 0 or (next(Current.GiveItems)) then
-				if #TradeLog > 0 and TradeLog[#TradeLog] and TradeLog[#TradeLog].Result == "received" then
-					Addon:MergeItemList(TradeLog[#TradeLog].ReceiveItems)
-				end
-				Current["Result"] = "sent"
-				Current["Date"] = date("%Y-%m-%d")
-				Current["Time"] = date("%H:%M:%S")
-				Current["Location"] = GetRealZoneText()
-				t_insert(TradeLog, Current)
-				Current = {}
-				Current = Addon:NewMail()
-			end
+			CommitSentMail()
 		end
 	end
 end

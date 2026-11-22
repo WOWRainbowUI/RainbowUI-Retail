@@ -65,3 +65,4 @@ MailLogger：
 2.1.3 Upgrade efficiency.
 2.1.4 I have forgotten it.
 2.1.5 Fix some 'nil' errors.
+2.1.6 Fix sent mail gold/items not logged on Retail/Forever(12.x): snapshot money and attachments inside the SendMail hook, commit on MAIL_SEND_SUCCESS; Classic ERR_MAIL_SENT path retained.
