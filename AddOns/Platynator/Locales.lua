@@ -9,7 +9,6 @@ local Locales = {
 PLATYNATOR_LOCALES = Locales
 
 local L = Locales.enUS
-L["DEER_SIMPLIFIED"] = "Deer Simplified"
 
 L["THANKS_FOR_USING_PLATYNATOR_DONATE"] = "Thanks for using Platynator. Consider donating to support development"
 
@@ -63,7 +62,7 @@ L["WARNING"] = "Warning"
 L["OFFTANK"] = "Off-tank"
 L["HAS_THREAT"] = "Has threat"
 L["NO_THREAT"] = "No threat"
--- duplicate translation consolidated: ALIGNMENT
+L["ALIGNMENT"] = "Alignment"
 L["ACTIVATION"] = "Activation"
 L["WORLD"] = "World"
 L["RESTING"] = "Resting"
@@ -79,7 +78,7 @@ L["ONLY_APPLY_WHEN_TANK"] = "Only apply when tank"
 L["USE_IN_DELVES"] = "Use in delves"
 L["USE_OUTSIDE_INSTANCES"] = "Use outside instances"
 L["IN_RANGE"] = "In Range"
-L["OUT_OF_RANGE"] = "Out of range"
+L["OUT_OF_RANGE"] = "Out of Range"
 L["IN_RANGE_MELEE"] = "In Range (Melee)"
 L["OUT_OF_RANGE_MELEE"] = "Out of Range (Melee)"
 L["PARTY"] = "Party"
@@ -140,7 +139,7 @@ L["NOT_TARGET_TARGET_SELECTED"] = "Not target (target selected)"
 L["NOT_TARGET_TARGET_UNSELECTED"] = "Not target (target unselected)"
 L["OBSCURED"] = "Obscured"
 L["COMBAT_OBSCURED"] = "Combat obscured"
--- duplicate translation consolidated: OUT_OF_RANGE
+L["OUT_OF_RANGE"] = "Out of range"
 L["NOT_IN_PULL"] = "Not in pull"
 L["DEFENSIVE_ONLY"] = "Defensive ONLY"
 L["FILTER_FRIENDLY_ONLY_FROM_YOU"] = "Friendlies filter only auras from you"
@@ -212,7 +211,7 @@ L["FRIENDLY_PLAYERS"] = "Friendly Players"
 L["PLAYERS_AND_FRIENDS"] = "Players and friends"
 L["FRIENDLY_NPCS"] = "Friendly NPCs"
 L["ENEMIES"] = "Enemies"
--- duplicate translation consolidated: PETS
+L["PETS"] = "Pets"
 L["MINIONS"] = "Minions"
 L["MINORS"] = "Minors"
 L["STACKING_NAMEPLATES"] = "Stacking nameplates"
@@ -240,6 +239,7 @@ L["BEAVER"] = "Beaver"
 L["HARE"] = "Hare"
 L["HARE_SIMPLIFIED"] = "Hare Simplified"
 L["DEER"] = "Deer"
+L["DEER_SIMPLIFIED"] = "Deer Simplified"
 L["HEDGEHOG"] = "Hedgehog"
 L["TYPE_COLORS"] = "Type Colors"
 L["BLIZZARD"] = "Blizzard"
@@ -377,7 +377,7 @@ L["COUNTDOWN"] = "Countdown"
 L["STACKS"] = "Stacks"
 L["LIMIT_TO"] = "Limit to"
 L["X_AURAS"] = "%d auras"
--- duplicate translation consolidated: REGIONS
+L["REGIONS"] = "Regions"
 L["CLICK"] = "Click"
 L["STACK"] = "Stack"
 L["AUTOMATICALLY_SIZED"] = "Automatically sized"
@@ -399,7 +399,7 @@ L["CANNOT_ATTACK"] = "Cannot Attack"
 L["IN_COMBAT"] = "In Combat"
 L["OUT_OF_COMBAT"] = "Out of Combat"
 L["IS_TARGET"] = "Is Target"
--- duplicate translation consolidated: NOT_TARGET
+L["NOT_TARGET"] = "Not Target"
 L["LOCATION"] = "Location"
 L["DUNGEON"] = "Dungeon"
 L["RAID"] = "Raid"
@@ -417,7 +417,7 @@ L["TANK"] = "Tank"
 L["UNSET"] = "--Unset--"
 
 L["WHAT_TO_EXPORT"] = "What to export?"
--- duplicate translation consolidated: STYLE
+L["STYLE"] = "Style"
 L["PROFILE"] = "Profile"
 
 L["THIS_WILL_OVERWRITE_STYLE_CUSTOM"] = "This will overwrite style \"Custom\". Continue?"
@@ -437,7 +437,6 @@ L["SLASH_HELP"] = "Open the Platynator settings."
 L["SLASH_UNKNOWN_COMMAND"] = "Unknown command '%s'"
 
 L["BAD_CUSTOM_STYLE_SELECT"] = "Platynator: Your \"Custom\" style select settings didn't include settings for a unit type (either \"Can Attack\" or \"Cannot Attack\")."
-
 
 local L = Locales.zhTW
 L["RECENT_PLAYER"] = "最近的盟友"
