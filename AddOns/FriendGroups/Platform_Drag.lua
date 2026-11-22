@@ -1,39 +1,6 @@
---[[
-	FriendGroups - Platform_Drag.lua
-	============================================================================
-	Group-header drag and drop, shared by all three list renderers. Loaded after
-	Compat.lua and Platform_Render.lua, before Platform_SocialUI.lua.
-
-	This began life inside Platform_SocialUI.lua, where it could only ever run on
-	a client that had the 12.1 Social UI switched on -- and that switch is server
-	driven, so on a live realm running the 12.0.7 contact list the whole feature
-	was unreachable. Nothing about reordering is Social-UI-specific, so it moved
-	here and the three renderers now share one implementation:
-
-	  retail legacy  FriendsListFrame.ScrollBox, headers drawn from
-	                 FriendGroupsFrameFriendDividerTemplate (our own template)
-	  retail 12.1    SocialUIFrame.FriendsList.ScrollBox, headers drawn from
-	                 Blizzard's SocialUIScrollableHeaderTemplate and decorated
-	  Classic        a HybridScrollFrame whose button pool is SHARED between headers
-	                 and friend rows -- FriendGroupsClassicList, or Blizzard's
-	                 FriendsFrameFriendsScrollFrame on the legacy path; the
-	                 primitives below resolve which via Compat.GetClassicListFrame
-
-	The platform divergence is confined to three Compat primitives --
-	ForEachListRowFrame, GetListScrollContainer and ScrollListByFraction -- so
-	everything below is written once against those.
-
-	HEADER CONTRACT. A frame is draggable when it is currently rendering a group
-	header, which the renderers state by stamping `fgIsHeader` and `rawGroupName`
-	and clearing them again on any other row type. That is not decoration: the
-	Classic pool recycles one button between a header and a friend row, so "what
-	is this frame right now" cannot be inferred from the frame itself.
-
-	API compliance:
-	  - Retail  : WoW Midnight 12.0.7 (Interface 120007) / 12.1 (120100)
-	  - Classic : MoP Classic 5.5.4, BC Anniversary 2.5.6, Classic Era 1.15.x
-	  Only documented globals are referenced, each guarded before use.
-]] --
+-- Group-header drag and drop for all three renderers, via Compat.ForEachListRowFrame,
+-- GetListScrollContainer and ScrollListByFraction. A frame is draggable only while stamped
+-- fgIsHeader + rawGroupName: the Classic pool recycles one button for headers and rows.
 
 local addonName, addonTable = ...
 local Compat = addonTable.Compat
@@ -43,11 +10,8 @@ local Compat = addonTable.Compat
 -- Platform_Render.lua and Platform_SocialUI.lua do.
 local State
 
--- The group being dragged, and the frame the drag started on. The frame is remembered
--- rather than relied upon: auto-scrolling during a drag rebinds pooled frames, so by the
--- time the pointer is released the frame may be showing an entirely different row -- but
--- its alpha still has to be put back, and the group name captured at the start is the one
--- that gets moved.
+-- Auto-scroll rebinds pooled frames mid-drag, so the frame may show another row by release:
+-- its alpha is still restored, and the group captured at start is the one moved.
 local FG_DragGroupName
 local FG_DragFrame
 
@@ -85,17 +49,8 @@ local function FG_CursorY(referenceFrame)
 	return y / scale
 end
 
--- Returns the insertion slot under the pointer, plus the header frame that slot sits above
--- (nil when the slot is past the last movable header currently drawn).
---
--- Screen Y increases UPWARDS and headers are laid out top to bottom, so walking them in
--- display order and counting the ones the pointer has fallen below yields the slot.
---
--- The seed is the FIRST VISIBLE movable index, not 1. Only the headers on screen can be
--- measured, so with the list scrolled down past groups 1-3 a pointer above every visible
--- header means "before group 4" -- seeding at 1 would silently promote it to the very top
--- of a list the user cannot even see. Reaching slot 1 is what the edge auto-scroll below
--- is for.
+-- Insertion slot under the pointer, plus the header it sits above (nil past the last).
+-- Seed is the first VISIBLE movable index, not 1, or a scrolled list would drop at the top.
 local function FG_ComputeDropSlot()
 	State = State or addonTable.State
 	if not State or type(State.GetMovableIndex) ~= "function" then return nil, nil end
@@ -135,14 +90,7 @@ local function FG_ComputeDropSlot()
 	return slot, byIndex[slot]
 end
 
--- The indicator is drawn on a dedicated frame parented to the scroll container and raised
--- above it, rather than straight onto the container as a texture.
---
--- Row buttons are CHILDREN of the container, and a child frame draws above its parent's
--- own regions whatever layer those are given. A texture created on the container is
--- therefore underneath every row -- and this line's entire job is to sit on the boundary
--- between two rows, which is exactly where a row's background covers it. A child frame at
--- a raised level is the only placement that puts it on top.
+-- On a raised child frame, not a container texture: rows are children and would cover it.
 local function FG_GetDropIndicator(container)
 	if not FG_DragHolder then
 		FG_DragHolder = CreateFrame("Frame", nil, container)
@@ -194,14 +142,7 @@ local function FG_UpdateDropIndicator()
 	indicator:Show()
 end
 
--- Scroll the list while the pointer is held against one of its edges.
---
--- Without this a drag can only reach a destination that is already on screen, which on a
--- long list is the same "one position at a time" problem the context menu has -- drop,
--- scroll, pick the group up again, drop again.
---
--- Strength ramps with depth into the edge zone and is scaled by the frame's own elapsed
--- time, so the speed is the same on a 30fps client and a 200fps one.
+-- Edge auto-scroll, scaled by elapsed so speed is frame-rate independent.
 local function FG_AutoScroll(container, cursorY, elapsed)
 	if type(elapsed) ~= "number" or elapsed <= 0 then return end
 
@@ -222,17 +163,8 @@ end
 
 local FG_FinishDrag
 
--- The drag loop runs on the INDICATOR HOLDER, not on the dragged header.
---
--- Auto-scrolling rebinds pooled frames, so the header the drag started on can be recycled
--- into another row -- or scrolled out of the pool entirely and hidden -- while the button
--- is still held. A script left on that frame would then be updating a row that has nothing
--- to do with the drag, and a frame that is hidden never delivers OnDragStop, which would
--- strand the indicator on screen with the loop still running. The holder is created once
--- and never recycled, so neither can happen to it.
---
--- Releasing the button is therefore detected here as well as through OnDragStop, whichever
--- arrives first; FG_FinishDrag is idempotent.
+-- Runs on the indicator holder, never the dragged header: a recycled or hidden header never
+-- delivers OnDragStop. Release is detected here too; FG_FinishDrag is idempotent.
 local function FG_DragOnUpdate(self, elapsed)
 	if not FG_DragGroupName then
 		self:SetScript("OnUpdate", nil)
@@ -296,11 +228,8 @@ local function FG_HeaderOnDragStart(self)
 	FG_DragFrame = self
 	self:SetAlpha(0.5)
 
-	-- Colour resolved once per drag rather than at texture creation. The EllesmereUI theme
-	-- can arrive after the indicator was first built, and the accent is the one value the
-	-- user edits at runtime -- so it is read here, and not from FG_DragOnUpdate, which runs
-	-- every frame of the drag. FriendGroups_AccentRGB is a global defined in
-	-- FriendGroups.lua, which loads after this file, hence the lookup at drag time.
+	-- Accent read per drag: the EUI theme can arrive late, and FriendGroups_AccentRGB is
+	-- defined in FriendGroups.lua, which loads after this file.
 	local indicator = FG_GetDropIndicator(container)
 	if indicator and type(FriendGroups_AccentRGB) == "function" then
 		local aR, aG, aB = FriendGroups_AccentRGB()
@@ -319,14 +248,8 @@ end
 -- [[ RENDERER ENTRY POINTS ]]
 -- ============================================================================
 
--- Make a header row draggable. Called from every renderer's header pass, with the group
--- that row is drawing right now.
---
--- The scripts are installed once per frame; the drag REGISTRATION is re-decided on every
--- pass, because the frame is pooled and the group on it changes. That is what keeps a
--- fixed anchor's click unsuppressed: RegisterForDrag makes WoW swallow the click as soon
--- as the pointer moves a few pixels while held, which is exactly the behaviour a movable
--- header wants and exactly the wrong behaviour for one that can never move.
+-- Scripts once per frame; drag registration re-decided each pass (pooled frames).
+-- RegisterForDrag swallows clicks, so a fixed anchor must stay unregistered.
 function Compat.AttachHeaderDrag(frame, groupName)
 	if not frame then return end
 
@@ -344,13 +267,7 @@ function Compat.AttachHeaderDrag(frame, groupName)
 	frame:SetScript("OnDragStop", FG_HeaderOnDragStop)
 end
 
--- Clear the drag registration from a frame that is no longer drawing a header.
---
--- Required on Classic, where one button pool serves headers AND friend rows: a button left
--- registered for drag would swallow the click that selects a friend the moment the pointer
--- twitched. The scripts themselves are left in place -- they cost nothing and refuse to
--- start a drag without fgIsHeader -- so a button coming back as a header only needs the
--- registration again.
+-- Required on Classic: a shared pool button left registered would swallow friend-row clicks.
 function Compat.DetachHeaderDrag(frame)
 	if not frame then return end
 	if type(frame.RegisterForDrag) == "function" then
@@ -364,23 +281,8 @@ function Compat.GetHeaderDragStarts()
 	return FG_DragStarts
 end
 
--- ============================================================================
--- [[ DIAGNOSTIC ]]
--- Numbers and booleans only -- nothing here reaches the UI, so nothing needs localizing.
--- Global purely so the module can be inspected from a /run without the addon-private
--- Compat table, exactly as FriendGroups_GetSocialUIState is:
---
---   1 dragStarts        drags that actually began
---   2 dragging          one is in progress right now
---   3 movableCount      groups the order engine considers movable
---   4 headersOnScreen   header rows the drop-slot walk can currently measure
---   5 containerFound    a scroll container resolved on this client
---
--- The pair that matters is 1 and 4. Headers on screen with dragStarts stuck at zero after
--- a real attempt means the list frame is swallowing the drag before OnDragStart is ever
--- reached -- a completely different fault from a drop that resolves to the wrong slot, and
--- one that cannot be told apart from "nothing happened" by watching the screen.
--- ============================================================================
+-- [[ DIAGNOSTIC ]] /run: 1 dragStarts, 2 dragging, 3 movableCount, 4 headersOnScreen,
+-- 5 containerFound. Headers on screen with dragStarts 0 = the list swallows the drag.
 function FriendGroups_GetHeaderDragState()
 	State = State or addonTable.State
 

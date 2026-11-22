@@ -1,18 +1,5 @@
---[[
-    FriendGroups - Settings Profile Serializer (Phase A core)
-
-    Pure-Lua, API-free serialization of the user-facing settings/customisation set
-    into a compact, checksummed, copy/paste-safe string. No WoW API surface beyond
-    optional refresh hooks in Apply(), so the Serialize/Deserialize pair is fully
-    testable outside the client.
-
-    Wire format (pre-encoding):
-        P1|t<mask>|h<height>|o<map>|c<map>|n<map>|m<map>
-    Final string:
-        FG1:<checksum>:<base64(payload)>
-
-    Maps are  key~value;key~value  with ~ ; | \ escaped via backslash.
-]]--
+-- Settings profile serializer. Pure Lua: Serialize/Deserialize run outside the client.
+-- Payload P1|t<mask>|h<height>|o|c|n|m maps (key~value;...), wrapped as FG1 or FG2.
 
 local addonName, addonTable = ...
 
@@ -22,25 +9,15 @@ _G.FriendGroups_Sync = M
 M.PROTOCOL = "P1"           -- bump only on a breaking wire change (INNER payload format)
 M.NICKNAME_MAXLEN = 20      -- characters (codepoints), not bytes
 
--- LibDeflate (pure Lua, no WoW API) is loaded by the .toc before this file. It powers the
--- FG2 envelope: deflate-compress the payload, then paste-safe print-encode it. Compression
--- is what keeps the string small enough (and the decode fast enough) at the 600-friend x
--- 10-alt ceiling to avoid the client freeze that disconnects the account.
---
--- The reference is captured optionally so this module still loads and unit-tests OUTSIDE the
--- client (a test harness may inject LibDeflate as a global). When absent, Serialize falls back
--- to the legacy uncompressed FG1 envelope, and Deserialize still reads FG1 but reports a
--- localized "library missing" reason for FG2. In-game the library is always present.
+-- FG2 (deflate) needs LibDeflate; without it Serialize writes FG1, and FG2 imports fail
+-- with a "library missing" reason. Optional so tests can run outside the client.
 local LibDeflate = (_G.LibStub and _G.LibStub("LibDeflate", true)) or _G.LibDeflate
 
 -- Max deflate ratio: smallest paste string and fastest DecompressDeflate on import, at the
 -- cost of a slower one-off CompressDeflate on export (the safe, user-initiated side).
 local COMPRESS_LEVEL = 9
 
--- ============================================================================
--- [[ BOOLEAN FIELD LAYOUT ]]
--- APPEND-ONLY. The index is the bit position; reordering corrupts older peers.
--- ============================================================================
+-- [[ BOOLEAN FIELD LAYOUT ]] APPEND-ONLY: index = bit position; reordering corrupts backups.
 local BOOL_FIELDS = {
     -- Bits 7 and 12 were gray_faction / show_btag, removed in 13.0.6: both had lost their
     -- menu entry at some point and had been unreachable since, so nobody could turn them on.
@@ -49,11 +26,8 @@ local BOOL_FIELDS = {
     "hide_high_level", "add_favorite_group", "__reserved_7", "show_mobile_afk",
     "add_mobile_text", "ingame_only", "ingame_retail", "__reserved_12",
     "show_retail", "show_search", "hide_empty_groups", "hide_afk",
-    -- Bits 20 and 21 were auto_accept_res / auto_release, removed in 13.0.2 with the rest
-    -- of the spirit automation. They are RESERVED, not deleted: thirteen fields sit after
-    -- them, so removing the entries would shift every one of those down two bits and every
-    -- backup string already in a user's hands would decode into the wrong settings --
-    -- silently, since a mask carries no field names to disagree with. See RESERVED_FIELDS.
+    -- Bits 20-21 are retired but RESERVED: removing them shifts every later bit and corrupts
+    -- every existing backup. See RESERVED_FIELDS.
     "open_one_group", "auto_accept_invite", "auto_accept_sync", "__reserved_20",
     "__reserved_21", "offline_tracker", "show_flags", "show_contact_cap",
     "show_guildmates", "show_known_alts",
@@ -64,19 +38,12 @@ local BOOL_FIELDS = {
     -- "disabled") so older backups that lack these bits decode as enabled -- their
     -- correct default -- instead of being turned off. APPEND-ONLY.
     "show_class_icons", "show_note", "show_status", "eui_skin",
-    -- Normal (midway) width flag; pairs with wide_list to encode Narrow/Normal/Wide.
-    -- Both width bits cross flavors on purpose. They are STORED everywhere so a profile
-    -- that round-trips through a Classic character still carries a retail user's width
-    -- choice back out, and are CONSUMED only where the client can actually resize
-    -- (Compat.CAN_RESIZE_WIDTH -> FriendGroups_GetExtraWidth). Filtering them out of the
-    -- mask here would make every Classic re-export silently reset width on retail.
+    -- Stored on every flavor, consumed only where width can change, so a Classic re-export
+    -- keeps a retail user's width.
     "width_normal",
     -- Default-ON display toggles, stored inverted (see DEFAULT_ON_INVERTED).
     "show_game_icon", "show_faction_color",
-    -- Appended in 13.0.6. Both default OFF, so NOT inverted: an older backup lacks these
-    -- bits and decodes as false, which is the correct default for each. safe_whisper is
-    -- stored on every flavor but only consumed on retail (hidden on Classic, which has no
-    -- secret values), the same pattern as the width bits. APPEND-ONLY.
+    -- 13.0.6, default off, so not inverted. safe_whisper is consumed on retail only.
     "safe_whisper", "streamer_mode",
     -- Appended after 13.0.7. show_compartment defaults ON, so it is inverted. APPEND-ONLY.
     "show_compartment", "show_minimap_button",
@@ -87,11 +54,7 @@ local BOOL_FIELDS = {
 -- Allowed values for the one numeric scalar we sync.
 local VALID_HEIGHTS = { [0] = true, [190] = true, [380] = true }
 
--- Row font scale: 1 Small, 2 Medium (the default), 3 Large. A scalar rather than a pair of
--- booleans in the mask, because unlike the Narrow/Normal/Wide width -- which predates this
--- and cannot be changed without breaking existing backups -- there is nothing here to stay
--- compatible with, and three states in one field cannot encode a contradiction the way two
--- independent flags can.
+-- Row font scale: 1 Small, 2 Medium (default), 3 Large.
 local VALID_FONT_SIZES = { [1] = true, [2] = true, [3] = true }
 
 -- Default-ON display toggles: stored inverted (the bit means "disabled") so a
@@ -101,13 +64,7 @@ local DEFAULT_ON_INVERTED = {
     show_game_icon = true, show_faction_color = true, show_compartment = true,
 }
 
--- Retired bit positions. They still occupy their slot in BOOL_FIELDS so the layout of every
--- existing backup string is preserved, but they are never read from or written to
--- SavedVars: exports always emit 0 and imports skip them entirely.
---
--- The compatibility works out in the useful direction. An OLD client importing a NEW profile
--- reads these bits as 0, which sets auto_accept_res / auto_release to false -- exactly right
--- for a feature that no longer exists. A NEW client importing an OLD profile ignores them.
+-- Retired bits: kept in BOOL_FIELDS for layout, never read or written (export 0, import skips).
 local RESERVED_FIELDS = {
     __reserved_7 = true,    -- was gray_faction, removed 13.0.6
     __reserved_12 = true,   -- was show_btag, removed 13.0.6
@@ -230,11 +187,8 @@ local function Base64Dec(data)
     end))
 end
 
--- ============================================================================
 -- [[ MAP ENCODE / DECODE ]]
--- ============================================================================
--- Stable string sort of a table's keys, so identical data always encodes identically
--- (deterministic string + checksum). tostring guards against a stray non-string key.
+-- Sorted keys so identical data encodes identically (string and checksum).
 local function SortedKeys(t)
     local keys = {}
     for k in pairs(t) do keys[#keys + 1] = k end
@@ -276,12 +230,7 @@ local function EncodeSet(set)
     return table.concat(out, ";")
 end
 
--- ============================================================================
--- [[ ALT CACHE ENCODE / DECODE ]]
--- Structure: alt_cache[accountId] = { {record}, ... }. Persistent fields are
--- stored positionally; the lowercase search* fields are derived on decode.
--- Layout:  account ~ rec ^ rec ; account ~ rec ...   (record fields joined by ,)
--- ============================================================================
+-- [[ ALT CACHE ENCODE / DECODE ]] account ~ rec ^ rec ; ...  (record fields joined by ,)
 -- Append-only, like BOOL_FIELDS: older decoders read the first ten and ignore the rest.
 local ALT_FIELDS = { "key", "charName", "realm", "level", "class", "faction", "zone", "guild", "project", "timestamp",
     "ruleset", "region" }
@@ -374,10 +323,7 @@ function M.Serialize(sv, timestamp)
         -- to 2^53 and the decoder reads it back with tonumber + arithmetic bit tests.
         "t" .. string.format("%.0f", mask),
         "h" .. string.format("%d", height),
-        -- Row font scale. A NEW TAG, for the same reason the font colours took one: the
-        -- decoder dispatches on tag, so an older client reading a newer profile falls
-        -- through and ignores this, and a newer client reading an older profile simply
-        -- finds no scale and keeps its own. 0 means "never set" and imports as untouched.
+        -- New tag: older decoders skip unknown tags. 0 = never set, imported as untouched.
         "z" .. string.format("%d", tonumber(sv.font_size) or 0),
         -- Raw ranks: they are fractional positions relative to the deterministic
         -- auto-order (identical on every account), so they must NOT be renumbered.
@@ -422,11 +368,7 @@ function M.Serialize(sv, timestamp)
     return "FG1:" .. chk .. ":" .. Base64Enc(payload)
 end
 
--- ============================================================================
--- [[ DESERIALIZE ]]
--- Returns a normalised profile table, or nil plus a reason code (not localised;
--- the caller maps the code to a localised L[] message).
--- ============================================================================
+-- [[ DESERIALIZE ]] Returns a profile, or nil plus an unlocalised reason code.
 function M.Deserialize(str)
     if type(str) ~= "string" then return nil, "FORMAT" end
 
@@ -533,10 +475,7 @@ function M.Deserialize(str)
     return profile
 end
 
--- ============================================================================
--- [[ APPLY (mirror the profile into live SavedVars + refresh) ]]
--- Uses WoW globals; guarded so the module still loads/tests outside the client.
--- ============================================================================
+-- [[ APPLY ]] Guarded WoW globals so the module still loads in tests.
 function M.Apply(profile)
     local sv = _G.FriendGroups_SavedVars
     if type(sv) ~= "table" or type(profile) ~= "table" then return false end
@@ -568,12 +507,8 @@ function M.Apply(profile)
     sv.manual_mains  = profile.manual_mains  or {}
     sv.main_guild    = profile.main_guild    or {}
 
-    -- Since 13.0.1 a nickname lives in the friend's Battle.net note, and sv.nicknames is
-    -- only a cache of what the notes say. Restoring nicknames straight into that cache
-    -- would therefore appear to work and then silently undo itself on the next reconcile
-    -- pass. Reverting the schema stamp instead routes them through the same one-time,
-    -- user-confirmed push that the 13.0.1 upgrade uses, so a restore actually writes the
-    -- tags back into the notes. Reconcile stays disabled until that completes.
+    -- Nicknames live in Battle.net notes; sv.nicknames is only a cache that reconcile would
+    -- overwrite. Reverting the schema stamp sends them through the confirmed note push instead.
     if next(sv.nicknames) ~= nil then
         sv.nickname_schema = nil
         _G.FriendGroups_NicknameSyncReady = false
@@ -595,10 +530,7 @@ function M.Apply(profile)
         if type(sv.guid_index) == "table" then _G.wipe(sv.guid_index) end
     end
 
-    -- Match the menu's side-effects for the two 13.0.6 bits. Without these the settings
-    -- restore but do nothing until a reload, which reads as the import having failed.
-    -- Streamer mode also re-masks the player's own BattleTag, which the list refresh at the
-    -- end of this function does not touch.
+    -- Same side effects as the menu, or the import looks like it failed until a reload.
     if _G.FriendGroups_ApplyStreamerMode then _G.FriendGroups_ApplyStreamerMode() end
     local state = addonTable and addonTable.State
     if sv.safe_whisper and state and type(state.InstallSendMessageOverride) == "function" then

@@ -1,36 +1,13 @@
---[[
-	FriendGroups - Compat.lua
-	============================================================================
-	Cross-flavor capability layer. Loaded FIRST (before FriendGroups.lua) so that
-	every platform-divergent primitive is resolved exactly once, here, and the
-	rest of the addon calls through addonTable.Compat instead of branching inline.
-
-	Design rule (retail is canonical):
-	  - Retail's execution path must be byte-identical to its pre-unification
-	    behavior. On retail every wrapper resolves to the same global the addon
-	    already used, so nothing changes.
-	  - Divergence is expressed as CAPABILITY detection (does the API exist?),
-	    never as version-number guessing, so the layer degrades gracefully.
-
-	API compliance:
-	  - Retail   : WoW Midnight 12.0.7 (Interface 120007)
-	  - Classic  : MoP Classic 5.5.4  (Interface 50504)
-	               BC Anniversary 2.5.6 (Interface 20506)
-	               Classic Era 1.15.x (FriendGroups_Vanilla.toc)
-	  Only documented globals are referenced, each guarded before use.
-]] --
+-- Cross-flavor capability layer, loaded first. Retail's path must stay identical: each
+-- wrapper resolves to the global retail already used. Detect capabilities, never versions.
 
 local addonName, addonTable = ...
 
 local Compat = {}
 addonTable.Compat = Compat
 
--- ============================================================================
--- [[ FLAVOR IDENTITY ]]
--- IS_MAINLINE is the retail PROJECT (what a friend's wowProjectID is compared with).
--- IS_RETAIL_UI is retail's FrameXML, which Forever (project 18, Camelot) also runs:
--- gate UI paths on IS_RETAIL_UI, never on IS_MAINLINE, or Forever falls into Classic code.
--- ============================================================================
+-- [[ FLAVOR IDENTITY ]] IS_MAINLINE is the retail project; IS_RETAIL_UI is retail FrameXML,
+-- which Forever also runs. Gate UI on IS_RETAIL_UI, or Forever falls into Classic code.
 Compat.PROJECT_ID   = WOW_PROJECT_ID
 Compat.IS_MAINLINE  = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE)
 Compat.IS_FOREVER   = (WOW_PROJECT_CAMELOT ~= nil and WOW_PROJECT_ID == WOW_PROJECT_CAMELOT)
@@ -42,63 +19,26 @@ Compat.FOREVER_PROJECT = WOW_PROJECT_CAMELOT or 18
 -- Realm value stored on Forever alts. Never rename: it is part of every Forever alt key.
 Compat.FOREVER_REALM = "Forever"
 
--- ============================================================================
--- [[ FEATURE DETECTION ]]
--- Presence checks against the live client, evaluated once at load.
--- ============================================================================
+-- [[ FEATURE DETECTION ]] Evaluated once at load.
 
 -- Retail's friends list is a ScrollBox (FriendsListFrame.ScrollBox + DataProvider).
 -- MoP Classic's friends list is a HybridScrollFrame (FriendsFrameFriendsScrollFrame).
 -- The renderer adapter keys off this flag to choose its draw path.
 Compat.HAS_SCROLLBOX = (FriendsListFrame ~= nil and FriendsListFrame.ScrollBox ~= nil)
 
--- Retail 11.0+ context-menu system (Menu.ModifyMenu / MenuUtil). Probed 2026-07:
--- present AND live on every shipping flavor (retail 12.0.7, MoP 5.5.4, BC
--- Anniversary 2.5.6 -- the MENU_UNIT_* friend tags fire on all of them), so the
--- modern injection path is what actually runs everywhere. The UIDropDownMenu
--- polyfill in Platform_Menu.lua is retained purely as a safety net for a client
--- that lacks the API.
+-- Present on every shipping flavor; the Platform_Menu polyfill is only a safety net.
 Compat.HAS_MENU_API = (Menu ~= nil and type(Menu.ModifyMenu) == "function")
 
--- Contact-list WIDTH resizing (Narrow / Normal / Wide). Retail's FriendsFrame and
--- FriendsListFrame redraw cleanly when grown horizontally; MoP Classic, BC Anniversary
--- and Era draw the friends frame from fixed-size art with a HybridScroll button
--- template sized to it, where the same SetWidth leaves border and rows misaligned.
--- No API reports "does this frame's art scale", so this is the one capability derived
--- from the documented flavor identity above (WOW_PROJECT_ID) rather than from a
--- presence probe -- it is a layout fact, not a missing function.
---
--- The width saved variables (wide_list / width_normal) are still STORED on every
--- flavor: settings profiles travel between flavors as Sync.lua strings, and a profile
--- that passes through a Classic character must carry a retail user's width choice back
--- out intact. They are simply never CONSUMED where this is false -- see
--- FriendGroups_GetExtraWidth / FriendGroups_IsWideList in FriendGroups.lua.
+-- Classic friends frames are fixed-size art that misaligns when widened, so width is
+-- retail UI only. Width saved variables are still stored everywhere (profiles travel).
 Compat.CAN_RESIZE_WIDTH = Compat.IS_RETAIL_UI
 
 -- The addon list under the minimap. Not every Classic client has it; LibDBIcon gates the same way.
 Compat.HAS_COMPARTMENT = (AddonCompartmentFrame ~= nil)
 
--- Retail 12.1 replaced the contact list with the Social UI. Blizzard_FriendList was
--- split into Blizzard_SocialUI (the SocialUIFrame shell and its tab rail),
--- Blizzard_SocialUIShared (SocialUIControl / C_SocialUI) and Blizzard_FriendsFrame,
--- which carries BOTH the legacy FriendsFrame and the new FriendsListSocialViewTemplate.
---
--- Every legacy global this addon hooks still exists on 12.1 -- FriendsFrame,
--- FriendsListFrame, FriendsTooltip, FriendsList_Update, FriendsFrame_UpdateFriendButton,
--- FriendsListButtonMixin are all still defined by Blizzard_FriendsFrame -- so a presence
--- probe cannot tell the two eras apart, and HAS_SCROLLBOX above is TRUE on 12.1 even
--- though that ScrollBox is no longer reachable by the player.
---
--- The only authority is Blizzard's own switch. ToggleFriendsFrame tests
--- SocialUIControl.IsEnabled() before redirecting away from the legacy frame, and
--- FriendsFrame_UpdateTabs hides the Friends/Raid/Quick Join tabs on the same condition.
--- SocialUIControl.IsEnabled() wraps C_SocialUI.IsSystemEnabled(), which is server-driven
--- and can change mid-session (SOCIAL_UI_SYSTEM_STATUS_UPDATED fires when it does), so it
--- is evaluated LIVE on every call here and never cached at load time.
---
--- The friends list itself is an ANONYMOUS frame: SocialUIFrame creates one content frame
--- per tab via CreateFrame("Frame", nil, socialUIFrame, template) and reaches it by
--- parentKey. There is no global to probe, so the reference is taken off SocialUIFrame.
+-- Every legacy global still exists on 12.1, so presence probes can't tell the lists apart.
+-- SocialUIControl.IsEnabled() is server-driven and can change mid-session: evaluate live.
+-- The friends view is anonymous; reach it via SocialUIFrame's parentKey.
 function Compat.IsSocialUIActive()
 	if not Compat.IS_RETAIL_UI then return false end
 	if type(SocialUIControl) ~= "table" or type(SocialUIControl.IsEnabled) ~= "function" then
@@ -116,12 +56,8 @@ function Compat.GetSocialUIFriendsView()
 	return SocialUIFrame.FriendsList
 end
 
--- "Is the contact list the player is actually looking at on screen right now?"
--- Every visibility guard in the addon asks this instead of testing FriendsListFrame
--- directly, because on 12.1 FriendsListFrame still exists and is permanently hidden.
--- IsVisible() rather than IsShown() on the Social UI path: the friends view is only one
--- of six sibling content frames and SocialUIFrame shows exactly one at a time, so the
--- parent chain is part of the answer.
+-- Every visibility guard uses this: FriendsListFrame exists but is hidden on 12.1.
+-- IsVisible, not IsShown: the friends view is one of six sibling content frames.
 function Compat.IsContactListShown()
 	local view = Compat.GetSocialUIFriendsView()
 	if view then
@@ -130,16 +66,8 @@ function Compat.IsContactListShown()
 	return FriendsListFrame ~= nil and FriendsListFrame:IsShown()
 end
 
--- "Is the pointer over the contact list right now?"
---
--- This is the SCOPING test for FriendGroups' unit-menu injection. The MENU_UNIT_*_FRIEND
--- tags fire from several places -- chat lines, unit frames, the glue screen -- and the
--- addon only wants its entries on the contact list, so the menu builder confirms the click
--- originated there. On 12.1 the legacy FriendsListFrame is present but permanently hidden,
--- so a direct IsMouseOver() on it is false forever and the injection silently adds nothing.
---
--- The Classic/retail-12.0.7 branch is deliberately the exact expression the menu builder
--- used before, so nothing changes on those clients.
+-- Scopes the unit-menu injection to the contact list (MENU_UNIT_* tags fire elsewhere too).
+-- The legacy frame is hidden on 12.1, so IsMouseOver on it alone would always be false.
 function Compat.IsContactListMouseOver()
 	local view = Compat.GetSocialUIFriendsView()
 	if view then
@@ -148,18 +76,7 @@ function Compat.IsContactListMouseOver()
 	return FriendsListFrame ~= nil and FriendsListFrame:IsMouseOver()
 end
 
--- True when this friend is a 12.1 TITLE friend -- the "WoW Friend" tier added in that patch,
--- created by "Add WoW Friend" rather than by BattleTag.
---
--- These are the successor to C_FriendList character friends, and the addon must treat them as
--- such: FRIENDS_BUTTON_TYPE_WOW, not _BNET. That distinction drives real behaviour --
--- FriendGroups_ShowButtonAltTooltip only raises the known-alts panel for BNET rows, because
--- the alt cache is a BATTLE.NET ACCOUNT concept and a title friend has no BattleTag to key it
--- by (confirmed on 12.1: accountInfo.battleTag is nil for the whole tier).
---
--- Enum.BattleNetFriendLevel.Title is the documented marker, and FriendsListUtil.IsTitleFriend
--- is Blizzard's own test for it; both are 12.1-only, so every earlier client answers false and
--- keeps its existing behaviour untouched.
+-- 12.1 "WoW Friend" tier: treat as FRIENDS_BUTTON_TYPE_WOW. No BattleTag, so no alt cache.
 function Compat.IsTitleFriend(accountInfo)
 	if not accountInfo then return false end
 	if type(FriendsListUtil) == "table" and type(FriendsListUtil.IsTitleFriend) == "function" then
@@ -172,15 +89,7 @@ function Compat.IsTitleFriend(accountInfo)
 	return false
 end
 
--- Walk the frames the contact list is CURRENTLY rendering, whichever list that is.
---
--- The group banner colour picker refreshes visible headers live while the user drags, by
--- iterating the ScrollBox and matching on rawGroupName. Hard-coding FriendsListFrame.ScrollBox
--- there means that on 12.1 it iterates the hidden legacy box, finds nothing, and the preview
--- silently does nothing -- the colour only appears after some unrelated rebuild.
---
--- Resolves to exactly FriendsListFrame.ScrollBox on every non-Social-UI client, so the retail
--- and Classic behaviour is unchanged.
+-- Frames the visible list is rendering; FriendsListFrame.ScrollBox off the Social UI.
 function Compat.ForEachContactListFrame(callback)
 	if type(callback) ~= "function" then return end
 
@@ -194,32 +103,9 @@ function Compat.ForEachContactListFrame(callback)
 	scrollBox:ForEachFrame(callback)
 end
 
--- ============================================================================
--- [[ CLASSIC LIST OWNERSHIP ]]
--- Which HybridScrollFrame the Classic renderer draws into: Blizzard's, or ours.
---
--- Drawing into Blizzard's FriendsFrameFriendsScrollFrame means writing fields its own
--- code reads back while the Social window opens. FriendsFrame_OnShow calls
--- FriendsList_Update(true), which reads the FriendsFrame_UpdateFriends global and
--- FriendsFrame.selectedFriendType, and the native updater then reads scrollFrame.buttons,
--- the scroll offset and FriendsTooltip.button. Reading a value addon code last wrote
--- taints the rest of that execution -- and OnShow ends in RaidFrame:Show() whenever the
--- Raid tab is selected. RaidFrame is protected, so in combat that call is refused: the
--- Raid panel never opens, which is CurseForge issue #55. On Classic that panel is the
--- only way to move raid members between groups mid-fight (SetRaidSubgroup and
--- SwapRaidSubgroup are blocked for addons and macros, but Blizzard's own drag is not),
--- so the cost is real and not cosmetic.
---
--- The fix is ownership, not cleverness: our own list frame, Blizzard's left alone.
--- FriendGroups_ClassicList.xml builds it from the same templates so nothing changes
--- visually. See FriendGroups-Classic-OwnList-Plan.md in the dev workspace.
---
--- GATED while the path is built out. The row handlers, selection and tooltip still
--- write Blizzard's fields (plan WP4-WP6), so the taint is not gone yet and this must
--- stay off by default until they land. Flip it for a test with
---   /run FriendGroups_SavedVars.classic_own_list = true  (then /reload)
--- Every caller goes through GetClassicListFrame, so with the flag off the addon behaves
--- exactly as it always has.
+-- [[ CLASSIC LIST OWNERSHIP ]] Writing Blizzard's FriendsFrameFriendsScrollFrame taints
+-- FriendsFrame_OnShow, which blocks RaidFrame:Show in combat (CurseForge #55). Off by default
+-- until row handlers stop writing Blizzard fields: /run FriendGroups_SavedVars.classic_own_list = true
 function Compat.UseOwnClassicList()
 	if Compat.HAS_SCROLLBOX then return false end
 	if not _G.FriendGroupsClassicList then return false end
@@ -227,31 +113,14 @@ function Compat.UseOwnClassicList()
 	return (sv ~= nil and sv.classic_own_list) and true or false
 end
 
--- The Classic list frame in force right now. Nil on no flavor: Blizzard's frame is the
--- fallback and exists on every Classic client (retail never reaches these callers, which
--- all sit behind HAS_SCROLLBOX checks or in the Classic-only renderer).
---
--- Resolved per call, never cached: the saved variable is read live so a /reload is the
--- only thing needed to switch paths, and no caller can be holding a stale frame.
+-- Resolved per call, never cached, so a /reload switches paths.
 function Compat.GetClassicListFrame()
 	if Compat.UseOwnClassicList() then return _G.FriendGroupsClassicList end
 	return FriendsFrameFriendsScrollFrame
 end
 
--- Walk every row frame the contact list is currently rendering, on EVERY flavor.
---
--- ForEachContactListFrame above covers the two ScrollBox platforms only, which is all the
--- banner colour preview that calls it has ever needed. Header drag and drop needs the
--- Classic list as well, and there the rows are a fixed HybridScrollFrame button pool
--- rather than a ScrollBox: the frames have to be read off scrollFrame.buttons and filtered
--- down to the ones actually on screen, because that pool keeps its off-list buttons around
--- hidden rather than releasing them.
---
--- Kept separate from ForEachContactListFrame rather than folded into it: that function's
--- callers assume the retail-only reach they were written against, and widening it would
--- start running their work on a platform that has never seen it.
---
--- The callback is handed frames in no defined order and must not assume a row type.
+-- Like ForEachContactListFrame plus the Classic HybridScroll pool (shown buttons only).
+-- Kept separate so that function's retail-only callers don't widen. Frames come unordered.
 function Compat.ForEachListRowFrame(callback)
 	if type(callback) ~= "function" then return end
 
@@ -276,13 +145,7 @@ function Compat.ForEachListRowFrame(callback)
 	end
 end
 
--- The frame the contact list SCROLLS INSIDE -- the viewport the rows move within, not the
--- outer window GetContactListAnchor returns. Drag and drop measures the pointer against
--- its top and bottom edges and parents its drop indicator to it.
---
--- Nil on a client where neither list exists, which every caller has to tolerate: on 12.1
--- the answer changes when the player is moved between the Social UI and the legacy panel
--- mid-session, so it is resolved on each call and never cached.
+-- Viewport the rows scroll in (drag edges, indicator parent). May be nil; never cached.
 function Compat.GetListScrollContainer()
 	local view = Compat.GetSocialUIFriendsView()
 	if view and view.ScrollBox then return view.ScrollBox end
@@ -290,21 +153,8 @@ function Compat.GetListScrollContainer()
 	return Compat.GetClassicListFrame()
 end
 
--- Scroll the contact list by a signed FRACTION of its total scrollable range; negative
--- moves toward the top of the list.
---
--- A fraction rather than a pixel or row count, deliberately. It makes a full traversal
--- take the same wall time on a four-group list and a forty-group one, which is the
--- property an edge-scroll wants: the user is holding the pointer against an edge and
--- waiting, and how long that wait is should not depend on how many friends they have.
---
--- ScrollBox carries its position as a 0..1 percentage (GetScrollPercentage /
--- SetScrollPercentage -- the same pair FG_ForceScrollRedraw in FriendGroups.lua uses).
--- HybridScrollFrame has no equivalent: its position lives on the companion slider the bar
--- template publishes as scrollFrame.scrollBar (parentKey, so it is there on Blizzard's
--- frame and on ours alike), is read and written in that slider's own units, and only
--- redraws because the template's OnValueChanged runs
--- HybridScrollFrame_SetOffset and then the frame's update callback.
+-- Signed fraction of the full range, so edge-scroll takes the same time at any list length.
+-- ScrollBox uses its 0..1 percentage; HybridScroll goes through scrollFrame.scrollBar.
 function Compat.ScrollListByFraction(fraction)
 	if type(fraction) ~= "number" or fraction == 0 then return end
 
@@ -329,16 +179,8 @@ function Compat.ScrollListByFraction(fraction)
 	scrollBar:SetValue(value)
 end
 
--- The PANEL that hosts the contact list -- the outer window, not the list subframe.
---
--- Two things key off this. The alt-tooltip parks itself against the panel's right edge, and
--- FriendGroups_DockNativeTooltipBelowPanel decides WHICH native tooltip is in play from it:
--- the legacy friends list draws into the dedicated FriendsTooltip, while the 12.1 card draws
--- into the shared GameTooltip. Returning SocialUIFrame there is what makes the docking code
--- select GameTooltip and the Show hook stop early-returning, with no change to either.
---
--- Returns FriendsFrame on every client that is not running the Social UI, so the retail and
--- Classic paths evaluate exactly the frame they always did.
+-- Outer contact window. Decides which native tooltip the alt panel docks to: SocialUIFrame
+-- means GameTooltip, FriendsFrame means FriendsTooltip.
 function Compat.GetContactListAnchor()
 	if Compat.IsSocialUIActive() then
 		return SocialUIFrame
@@ -346,17 +188,9 @@ function Compat.GetContactListAnchor()
 	return FriendsFrame
 end
 
--- ============================================================================
 -- [[ PLATFORM PRIMITIVES ]]
--- Small, universally-needed wrappers. Heavier render/menu adapters live in
--- their own Platform_* files; only leaf primitives that both flavors share
--- (with a differing implementation) belong here.
--- ============================================================================
 
--- Invite a unit to the player's party/raid.
--- C_PartyInfo.InviteUnit is the documented modern entry point and is present on
--- both retail 12.0.7 and MoP Classic 5.5.4; the legacy global InviteUnit is kept
--- as a defensive fallback so a missing namespace can never hard-error.
+-- C_PartyInfo.InviteUnit, falling back to the legacy InviteUnit global.
 function Compat.InviteUnit(name)
 	if type(name) ~= "string" or name == "" then return end
 	if C_PartyInfo and type(C_PartyInfo.InviteUnit) == "function" then
@@ -366,32 +200,17 @@ function Compat.InviteUnit(name)
 	end
 end
 
--- ============================================================================
--- [[ FRIEND NOTE PRIMITIVES ]]
--- The Battle.net friend note is the addon's persistent store for the note DSL
--- (see FriendGroups.lua "NOTE GRAMMAR"). It lives on the Battle.net account, so
--- it is shared by every flavor and is visible in the Battle.net desktop/mobile
--- client -- which is precisely why nicknames are stored there.
--- ============================================================================
+-- [[ FRIEND NOTE PRIMITIVES ]] The Battle.net note stores the note grammar; it is shared by
+-- every flavor and the Battle.net app.
 
--- Blizzard's own SET_BNFRIENDNOTE dialog caps the edit box at 127 letters with
--- countInvisibleLetters = true (FrameXML StaticPopup.lua). The SERVER-side limit is
--- not documented anywhere, so 127 is treated as the ceiling, and it is measured in
--- BYTES rather than codepoints: a 20-character Cyrillic or CJK nickname is up to 80
--- bytes, and a server-side truncation that lands mid-UTF-8 would corrupt the tag and
--- then be read back as garbage. Refusing slightly early is cosmetic; writing a note
--- that gets truncated is not.
+-- 127 BYTES, not characters: a server truncation mid-UTF-8 would corrupt the tag.
 Compat.BNET_NOTE_MAXBYTES = 127
 
 -- Nickname length cap, in codepoints (matches the Set Nickname edit box maxLetters
 -- and Sync.lua's envelope sanitiser).
 Compat.NICKNAME_MAXLEN = 20
 
--- Note writer, resolved ONCE at load. C_BattleNet.SetFriendNote is the modern entry
--- point; BNSetFriendNote is the legacy global (documented since 3.3.5 / 1.13.2) and is
--- the path the Classic clients take. Neither is assumed to exist: if the running client
--- exposes no writer at all, Compat.CanSetBNetNote() reports false and every caller
--- degrades to a localized message instead of erroring at click time.
+-- Resolved once at load; with no writer, CanSetBNetNote() is false and callers show a message.
 local FG_SetNoteFunc
 if C_BattleNet and type(C_BattleNet.SetFriendNote) == "function" then
 	FG_SetNoteFunc = C_BattleNet.SetFriendNote
@@ -425,17 +244,8 @@ function Compat.GetFriendInviteInfo(inviteIndex)
 	return BNGetFriendInviteInfo(inviteIndex)
 end
 
--- Total number of Battle.net friends.
---
--- BNGetNumFriends is the DOCUMENTED entry point (added 3.3.5 / 1.13.2) and is present
--- on every shipping flavor: retail 12.x, MoP Classic 5.5.4, BC Anniversary 2.5.6 and
--- Classic Era 1.15.x. C_BattleNet.GetFriendNum is NOT documented and does not exist on
--- the live clients -- every call site in this addon that appears to use it actually
--- runs its BNGetNumFriends fallback. Probing the namespace first costs nothing and
--- picks up a future addition automatically; the fallback is what does the work today.
---
--- BNGetNumFriends returns four values (total, online, favorite, favoriteOnline); only
--- the first is taken here.
+-- BNGetNumFriends is the documented call on every flavor; C_BattleNet.GetFriendNum doesn't
+-- exist on live clients. Only the first return (total) is used.
 function Compat.GetBNetFriendNum()
 	local total
 	if C_BattleNet and type(C_BattleNet.GetFriendNum) == "function" then
@@ -460,19 +270,8 @@ function Compat.Utf8Trunc(s, maxChars)
 	return s:sub(1, i - 1)
 end
 
--- Make an arbitrary string safe to live inside an @[...] tag in a friend note.
--- Every character stripped here would otherwise break a DIFFERENT part of the note
--- grammar, so none of these bans are cosmetic:
---   #     -- FriendGroups_GetPlayerGroups treats everything from the first '#' as
---            groups, regardless of nesting, so a '#' inside the tag invents a group.
---   < >   -- the guild scanner is a bare gmatch("<([^>]+)>") over the whole note, so
---            "@[Bob <the> Builder]" would invent a guild called "the".
---   [ ] @ -- tag delimiters; banning them keeps "does this note already carry a tag"
---            trivially decidable and the writer idempotent.
---   |     -- UI escape sequences; the note is rendered verbatim into a FontString.
---   %c    -- control characters.
--- Applied on READ as well as on write: since 13.0.1 a nickname can be typed by hand
--- into the note from the Battle.net app, so untrusted text reaches the parser.
+-- Strips chars that break the note grammar: '#' starts groups, '<>' match guilds, '[]@' are
+-- tag delimiters, '|' is a UI escape, %c control. Applied on read too (notes are hand-editable).
 function Compat.SanitizeNickname(s)
 	if type(s) ~= "string" then return "" end
 	s = s:gsub("[#<>@%[%]|%c]", "")
@@ -481,12 +280,7 @@ function Compat.SanitizeNickname(s)
 	return Compat.Utf8Trunc(s, Compat.NICKNAME_MAXLEN)
 end
 
--- Register a list of events on a frame, skipping any the running client does not
--- recognise. RegisterEvent raises a Lua error on an unknown event, so a retail-era
--- event absent on Classic (e.g. Party Sync's QUEST_SESSION_CREATED) would otherwise
--- abort file load. No assumption is made about which events exist: each name is
--- validated where the client exposes C_EventUtils.IsEventValid, and defensively
--- guarded with pcall otherwise, so exactly the supported subset is registered.
+-- RegisterEvent errors on unknown events and would abort file load: validate each name.
 function Compat.RegisterEvents(frame, events)
 	if not frame or type(events) ~= "table" then return end
 	local validate = (C_EventUtils and type(C_EventUtils.IsEventValid) == "function")
@@ -505,11 +299,8 @@ function Compat.RegisterEvents(frame, events)
 	end
 end
 
--- ============================================================================
--- [[ C_BattleNet.SearchFriends ]] Protected on live 12.1 and on Forever; pcall cannot stop
--- ADDON_ACTION_FORBIDDEN, so the event latches it off. Forever starts latched: it blocks the
--- very first call. Why: Desktop\Claude\FriendGroups\FriendGroups-Forever-Port-Plan.md s9.2.
--- ============================================================================
+-- [[ C_BattleNet.SearchFriends ]] Protected on live 12.1 and Forever; pcall can't stop
+-- ADDON_ACTION_FORBIDDEN, so the event latches it off. Forever starts latched.
 local searchFriendsForbidden = Compat.IS_FOREVER == true
 local searchFriendsInFlight = false
 
@@ -723,14 +514,8 @@ function Compat.IsPartySyncAvailable()
 	return true
 end
 
--- True when the given Battle.net game account is on OUR project.
--- This is the correct gate for "can I invite / group with this WoW friend": you
--- can only party with players on the same project, so both flavors must compare
--- against WOW_PROJECT_ID (self), never a hardcoded WOW_PROJECT_MAINLINE.
--- Takes the friend's gameAccountInfo. Classic clients omit wowProjectID for
--- same-project friends, so a reported project is trusted first, and otherwise the
--- realm fields decide: the API only populates realmName/realmID for SAME-project
--- friends (cross-project realms ride inside rich presence text instead).
+-- Same project as us (can group). Compare with WOW_PROJECT_ID, never MAINLINE. A reported
+-- project is trusted first; else realm fields, which the API fills only for same-project.
 function Compat.IsSameProject(gameInfo)
 	if not gameInfo then return false end
 	local pid = FG_Plain(gameInfo.wowProjectID)
@@ -744,14 +529,8 @@ function Compat.IsSameProject(gameInfo)
 		or (type(realmName) == "string" and realmName ~= "") then
 		return true
 	end
-	-- Rescue tier (12.0.7 presence reduction, observed 2026-07): most friends'
-	-- sessions now publish NO structured fields at all -- wowProjectID, realmID and
-	-- realmName are nil -- leaving only the rich-presence display text. On a retail
-	-- host, a rich-presence realm that resolves in the realm database WITHOUT a
-	-- classic tag proves the friend is on mainline (the one project retail realms
-	-- belong to), so same-project is provable from the text alone. Classic hosts
-	-- keep the strict behavior: a classic-tagged realm is ambiguous across
-	-- Era/BC/MoP, which are all different projects.
+	-- 12.0.7 often publishes only rich presence. On retail a non-classic realm in that text
+	-- proves mainline; on Classic a classic realm is ambiguous across projects.
 	if Compat.IS_MAINLINE then
 		local isClassic, source = Compat.ResolveFriendFlavor(gameInfo)
 		if source == "realm" and isClassic == false then
@@ -761,17 +540,8 @@ function Compat.IsSameProject(gameInfo)
 	return false
 end
 
--- Resolve which FLAVOR (retail vs classic-family) a WoW friend is playing.
--- Returns isClassic (boolean, nil when not a WoW client) plus the decision source
--- ("projectID" / "realm" / "same-project" / "default"), for diagnostics.
--- Decision ladder -- deterministic tiers first, heuristics last:
---   1. wowProjectID reported as a real number -> trust Blizzard (retail always
---      reports it; classic clients report it for some cross-project friends).
---   2. Realm resolves in the bundled realm database (API field or rich presence,
---      region-scoped via FriendGroups_GetRealmEntry) -> its `classic` tag decides.
---      Realm names are unique per game mode within a region, so this is exact.
---   3. API realm fields populated (same-project friends only) -> our own flavor.
---   4. Nothing resolvable -> assume retail (fail-safe default).
+-- Retail vs classic for a WoW friend, plus the deciding source. Ladder: wowProjectID, then
+-- realm database tag (exact per region), then API realm fields (ours), else retail.
 function Compat.ResolveFriendFlavor(gameInfo)
 	if not gameInfo or FG_Plain(gameInfo.clientProgram) ~= (BNET_CLIENT_WOW or "WoW") then
 		return nil, "not-wow"
@@ -800,13 +570,8 @@ local HOST_MAX_LEVEL = (GetMaxLevelForPlayerExpansion and GetMaxLevelForPlayerEx
 	or (GetMaxLevelForExpansionLevel and GetExpansionLevel and GetMaxLevelForExpansionLevel(GetExpansionLevel()))
 	or 80
 
--- Level cap BY PROJECT, for friends playing a DIFFERENT game than the host: the
--- "hide max level" toggle must compare a friend against the cap of the game THEY
--- are playing (a level-70 retail alt is not max just because BC Anniversary caps
--- at 70). The host's own entry is overwritten with the live API value below, so
--- this table only ever serves OTHER projects.
--- MAINTENANCE: bump these when an expansion raises a cap (last audit 2026-07:
--- Midnight 90 / Era-HC-SoD 60 / BC Anniversary 70 / MoP progression 90).
+-- Caps for OTHER projects; the host's own entry is overwritten from the live API.
+-- Bump when an expansion raises a cap (last audit 2026-07).
 local PROJECT_MAX_LEVEL = {
 	[WOW_PROJECT_MAINLINE or 1] = 90,
 	[WOW_PROJECT_CLASSIC or 2] = 60,
@@ -816,11 +581,7 @@ local PROJECT_MAX_LEVEL = {
 }
 PROJECT_MAX_LEVEL[WOW_PROJECT_ID] = HOST_MAX_LEVEL
 
--- True only when the friend's level is provably the cap of the friend's OWN game.
--- Fail-open by design: wrongly hiding a real level loses information, while
--- showing a redundant cap level is merely cosmetic -- so every unresolvable tier
--- answers false (show the level).
--- gameInfo == nil means a WoW character friend, who is on our client by definition.
+-- Fail-open: anything unresolvable shows the level. nil gameInfo = character friend (ours).
 function Compat.IsMaxLevel(gameInfo, level)
 	level = tonumber(FG_Plain(level))
 	if not level or level <= 0 then return false end
@@ -844,13 +605,7 @@ function Compat.IsMaxLevel(gameInfo, level)
 	return false
 end
 
--- Tint a WoW client (game) icon by flavor so retail vs Classic friends are easy to
--- tell apart: retail keeps its native gold "W"; Classic-family friends are desaturated
--- and tinted green (launcher parity). Keyed on the FRIEND's flavor, not ours, as
--- resolved by Compat.ResolveFriendFlavor (see its decision ladder above). Non-WoW
--- client icons are never tinted.
--- The green is the Monk class color (0, 255, 150), read from RAID_CLASS_COLORS so it
--- always matches the client's own monk green exactly.
+-- Classic-family friends' WoW icon is desaturated and tinted monk green; retail keeps gold.
 function Compat.TintGameIcon(icon, gameInfo)
 	if not icon then return end
 	local classicFriend = Compat.ResolveFriendFlavor(gameInfo)
@@ -881,10 +636,8 @@ function Compat.SetGameIcon(icon, gameInfo)
 	Compat.TintGameIcon(icon, gameInfo)
 end
 
--- ============================================================================
--- [[ ONLINE BY GAME ]] Buckets for the online-count tooltip. WoW splits by project; a
--- Classic friend whose project cannot be proven goes to "WoW:classic", never a guess.
--- ============================================================================
+-- [[ ONLINE BY GAME ]] WoW splits by project; an unprovable Classic friend goes to
+-- "WoW:classic", never a guess.
 local WOW_PROJECT_LABEL_KEYS = {
 	[WOW_PROJECT_MAINLINE or 1] = "GAME_WOW",
 	[WOW_PROJECT_CLASSIC or 2] = "GAME_WOW_ERA",
@@ -936,10 +689,7 @@ function Compat.GameBucketRank(bucket)
 	return 2
 end
 
--- Inline class-icon markup (for tooltip / fontstring text) given an English class
--- token. Retail uses the square class atlas; Platform_Render.lua overrides this on
--- Classic with the round UI-Classes-Circles texture and bundled TGAs, since MoP has
--- no "classicon-*" atlas.
+-- Square class atlas; Platform_Render overrides this on Classic (no classicon-* atlas).
 function Compat.ClassIconMarkup(engClass, size)
 	if not engClass or engClass == "" then return "" end
 	size = size or 16

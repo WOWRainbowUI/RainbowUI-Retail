@@ -1,21 +1,6 @@
--- ============================================================================
---  EllesmereSkin.lua
---  Auto-applied EllesmereUI theme for FriendGroups.
---
---  When the EllesmereUI suite (core addon "EllesmereUI") is detected, this
---  module reskins Blizzard's FriendsFrame window and the contact rows so the
---  list matches EllesmereUI's dark, flat aesthetic. It restyles in place and
---  keeps FriendGroups' own geometry -- it does NOT resize/relayout the frame
---  the way EllesmereUI's contact-list module does (that is what conflicts).
---
---  Design rules (agreed):
---   * NO fallbacks. The skin only runs when EllesmereUI is installed, so its
---     colour/font API is guaranteed present. If it is absent we do nothing.
---   * Enable/disable is a user toggle (default enabled); changes apply on
---     reload, matching standard UI-addon behaviour.
---   * Purely cosmetic: we hide/recolour regions and add textures/fontstrings.
---     No secure/protected attributes are touched.
--- ============================================================================
+-- EllesmereUI theme for FriendGroups, applied when the EllesmereUI core is loaded. Restyles in
+-- place and keeps FriendGroups' geometry (resizing is what conflicts with EUI's own list).
+-- No fallbacks, cosmetic only, no protected attributes; toggle applies on reload.
 
 local addonName, addonTable = ...
 local L = addonTable.L
@@ -35,10 +20,7 @@ local EUI_ADDON = "EllesmereUI"
 -- EllesmereUI window palette (copied from its friends skin).
 local BG_R, BG_G, BG_B = 0.03, 0.045, 0.05     -- frame / tab background
 local SEARCH_BG   = { 0.025, 0.035, 0.045, 0.92 }
--- Window border. Opaque BLACK, not a translucent white hairline: the grey edge that produced
--- read as a lighter rim around the panel, and against the black tab strip below it made the
--- bottom tab row look WIDER than the list it belongs to. Black puts the two flush. (Reported
--- by delasteve, who had been re-applying this one line by hand on every update.)
+-- Opaque black: a lighter edge made the tab strip look wider than the list.
 local BORDER_COL  = { 0, 0, 0, 1 }
 local TAB_WASH    = { 1, 1, 1, 0.05 }          -- active-tab wash
 local NAME_SIZE, INFO_SIZE, TAB_SIZE, TITLE_SIZE = 12, 9, 9, 12
@@ -61,33 +43,9 @@ local function GetAccent()
     return 0.047, 0.824, 0.624   -- EllesmereUI default teal #0CD29F
 end
 
--- ---------------------------------------------------------------------------
---  12.1 SOCIAL UI -- COLOURISE ONLY
---
---  Everything else in this file targets the legacy FriendsFrame. On 12.1 the
---  player cannot open that frame, which is why the toggle used to be inert
---  there: the skin ran, and skinned a window nobody sees.
---
---  This section does NOT reskin the new frame. EllesmereUI reskins SocialUIFrame
---  itself (EllesmereUIFriends/EUI_Friends_Tiles_121.lua), and a second addon
---  painting the same chrome would only fight it. We tint the regions
---  FriendGroups already writes -- the group header banner, the row background,
---  the contact count and the group drag indicator -- and nothing else.
---
---  Colours come from EllesmereUI's PUBLIC skinning API, documented in
---  SKINNING_API.md in the EllesmereUI folder and implemented in
---  EllesmereUIBlizzardSkin_SkinAPI.lua. EllesmereUI.RegisterSkin queues a
---  callback; the Blizzard-skin child addon dispatches it at PLAYER_LOGIN with a
---  facade carrying GetFont / GetAccentColor / GetPanelColor and an
---  OnLooksChanged hook, so the tint tracks the user's live accent and font
---  rather than freezing a guess. This is the sanctioned getter path: the API
---  asks callers to prefer its primitives, but there is no primitive for
---  "tint this texture", which is all we need.
---
---  The facade only arrives when the user has EUI's third-party skinning on. When
---  it never arrives we fall back to the same two direct accessors the legacy
---  skin above uses, so FriendGroups' own toggle never lies about doing nothing.
--- ---------------------------------------------------------------------------
+-- [[ 12.1 SOCIAL UI: COLOURISE ONLY ]] EUI reskins SocialUIFrame itself; we only tint our own
+-- regions (header banner, row background, count, drag indicator). Colours from the public
+-- skin facade (EllesmereUI.RegisterSkin); without it, the same direct accessors as above.
 
 -- The facade handed back by RegisterSkin, or nil.
 local euiFacade
@@ -104,10 +62,7 @@ local SOCIAL_HEADER_DARKEN = 0.55
 local SOCIAL_HEADER_ALPHA  = 0.98
 local SOCIAL_ROW_ALPHA     = 0.55
 
--- Test seam. EllesmereUI need not be installed for this to build a theme: with it
--- absent GetFont/GetAccent return their own documented fallbacks, so the draw
--- layers, hover reversion and row-recycle behaviour are all verifiable without it.
---   /run FriendGroupsEUISkin.forceTheme = true; ReloadUI()
+-- Test seam, works without EllesmereUI: /run FriendGroupsEUISkin.forceTheme = true; ReloadUI()
 Skin.forceTheme = false
 
 local function BuildSocialTheme()
@@ -123,10 +78,7 @@ local function BuildSocialTheme()
         ar, ag, ab = euiFacade.GetAccentColor()
         pr, pg, pb = euiFacade.GetPanelColor()
     else
-        -- No facade: third-party skinning is off, or we are running on the force
-        -- seam. fontFlag stays nil, which means "keep whatever flags the string
-        -- already had" -- the empty string the facade returns is a real answer
-        -- (no outline) and must not be confused with not knowing.
+        -- No facade: fontFlag nil means "keep the string's flags". The facade's "" means no outline.
         fontPath = GetFont()
         ar, ag, ab = GetAccent()
         pr, pg, pb = BG_R, BG_G, BG_B
@@ -134,11 +86,8 @@ local function BuildSocialTheme()
 
     if not fontPath or not pr then return end
 
-    -- NOTE: the accent is deliberately NOT stored here. It is the one value the user can
-    -- change at runtime from EllesmereUI's own options, and a cached copy goes stale on
-    -- the fallback path where no OnLooksChanged callback exists to invalidate it. It is
-    -- read live by Skin.GetAccentRGB instead; ar/ag/ab above are resolved only so a failed
-    -- lookup still aborts the build.
+    -- Accent not stored: the user changes it at runtime and nothing invalidates a copy on the
+    -- fallback path. Read live via Skin.GetAccentRGB.
     socialTheme = {
         fontPath = fontPath,
         fontFlag = fontFlag,
@@ -152,36 +101,22 @@ local function BuildSocialTheme()
     }
 end
 
--- The colourise theme, or nil when it does not apply. NOT Social-UI-specific: the
--- accent is FriendGroups' house gold replacement on every platform, read by
--- FriendGroups_AccentRGB for tooltips and menus as well as by the 12.1 renderer.
--- Called on the row-recycle path, so it is a cached table read after the first build.
+-- Theme or nil. Also FriendGroups' gold replacement everywhere; cached after the first build.
 function Skin.GetTheme()
     if not (Skin.enabled or Skin.forceTheme) then return nil end
     if not socialThemeBuilt then BuildSocialTheme() end
     return socialTheme
 end
 
--- The family this file draws the LEGACY window's chrome in -- title, tabs, search box,
--- Battle.net bar -- or nil when nothing is themed. Published because Platform_SocialUI adds
--- one string to that window (the streamer-mode label over the BattleTag) and has to match it.
---
--- NOT the same value as GetTheme().fontPath, which is EllesmereUI's Blizzard-skin font: that
--- is the right answer for the 12.1 Social UI, which EllesmereUI paints itself, and the wrong
--- one here the moment a user gives either module its own font override.
---
--- Read fresh, never cached, for the same reason as the accent below.
+-- Font for the legacy window's chrome. Not GetTheme().fontPath (EUI's Blizzard-skin font,
+-- right for 12.1 only). Read fresh, never cached.
 function Skin.GetChromeFontPath()
     if not (Skin.enabled or Skin.forceTheme) then return nil end
     return GetFont()
 end
 
--- The live accent, or nil when nothing is themed. Read fresh on every call, never cached:
--- EllesmereUI's accent swatch mutates ELLESMERE_GREEN IN PLACE and repaints through its
--- own registry, so a live handle is always correct while a copy is not. Verified chain:
+-- Live accent, never cached: EUI mutates ELLESMERE_GREEN in place and repaints via
 -- ApplyAccentLive -> UpdateAccentElements -> WSkin.RefreshLooks -> our OnLooksChanged.
---
--- Cheap enough for the tooltip and menu paths that call it: two table reads and a call.
 function Skin.GetAccentRGB()
     if not (Skin.enabled or Skin.forceTheme) then return nil end
 
@@ -357,10 +292,7 @@ local function SkinTabsOnce()
             wash:Hide()
 
             local bliz = tab:GetFontString()
-            -- Blizzard's own (already localized) tab label is the only source. The fallback
-            -- is EMPTY, never a constructed English string: this only fires if a tab has no
-            -- text at all, and an untranslated "Tab 3" on a Korean client would be worse
-            -- than a blank one.
+            -- Blizzard's localized label only; fallback is empty, never an English string.
             local txt = (bliz and bliz:GetText()) or ""
             if bliz then bliz:SetTextColor(0, 0, 0, 0) end
             if tab.SetPushedTextOffset then tab:SetPushedTextOffset(0, 0) end
@@ -402,10 +334,7 @@ local function UpdateTabs(override)
     end
 end
 
--- ---------------------------------------------------------------------------
---  Sub-tabs (Friends / Recent Allies / Recruit A Friend) -- Blizzard's
---  FriendsTabHeader.TabSystem. Restyled in place (kept functional).
--- ---------------------------------------------------------------------------
+-- [[ Sub-tabs ]] FriendsTabHeader.TabSystem, restyled in place.
 local euiSubTabs = {}
 
 local function RefreshSubTabs()
@@ -450,38 +379,9 @@ local function SkinSubTabs()
     RefreshSubTabs()
 end
 
--- ---------------------------------------------------------------------------
---  Contacts-page mark
---
---  SkinWindow hides Blizzard's portrait ring with the rest of the window chrome --
---  EllesmereUI's windows do not have one -- and that leaves the band above the
---  sub-tab strip empty. The FriendGroups mark goes there instead: the same asset
---  Platform_SocialUI writes to the portrait, drawn flat, with no ring and no black
---  backing disc (the mark is transparent around the glyph and the dark window is
---  exactly the backing it wants).
---
---  PARENTED TO FriendsTabHeader, Blizzard's own container for the Contacts page's
---  sub-tab strip, which is up only while that page is. That is the WHOLE of the
---  "Contacts page only" rule: no tab detection and no races -- the trap
---  Platform_SocialUI documents at length, where every attempt to decide the portrait
---  per tab produced one that flickered or came up blank.
---
---  It had a second gate ("no other page's frame is shown") as insurance, and that gate
---  is what made the mark invisible until you visited another tab and came back:
---  RaidFrame reports IsShown() at login and is not hidden until it has been opened
---  once, so the gate read "we are on the Raid page" on a freshly loaded Contacts list.
---  Deleted rather than corrected -- the parent already answers the question, and a
---  belt that can hide the mark on the page it belongs to is worse than no belt.
---
---  The drawing itself is ContactsMark.lua's -- ElvUI leaves the same hole and gets
---  the same mark from the same factory. Only the three offsets below are ours.
--- ---------------------------------------------------------------------------
--- Offsets from the first sub-tab's TOPLEFT, tuned against the live window.
---
--- The two are in DIFFERENT terms on purpose. X is a plain unit offset that landed where it
--- should. Y is that same kind of offset plus a correction measured off the rendered window in
--- GAME PIXELS, converted by Mark.Place -- so the lift is the distance that was actually
--- measured on screen, on any UI scale, rather than that number of units.
+-- [[ Contacts-page mark ]] Parented to FriendsTabHeader, which is shown only on that page:
+-- no tab detection (RaidFrame reports IsShown at login). Drawing is ContactsMark.lua's.
+-- Offsets from the first sub-tab's TOPLEFT: X in UI units, lift in game pixels.
 local LOGO_X       = 35     -- UI units, right of the tab's left edge
 local LOGO_Y       = -7     -- UI units, below the tab's top edge
 local LOGO_Y_LIFT  = 11     -- GAME PIXELS to raise it out of the tab strip
@@ -499,38 +399,13 @@ local function SkinContactsLogo()
     Skin._logo = Mark.Create(header, firstTab, LOGO_X, LOGO_Y, LOGO_Y_LIFT)
 end
 
--- ---------------------------------------------------------------------------
---  12.1 Social UI widget pass
---
---  Colourise-only covered the regions FriendGroups draws. It could not reach the
---  chrome around them -- the Add New Friend button, the search field, the filter
---  dropdown, the panel's own labels -- so those kept Blizzard's font and art while
---  everything else moved, which reads as a half-finished skin.
---
---  Done entirely through EllesmereUI's PUBLIC primitives, never by painting
---  ourselves: S.Font / S.Button / S.EditBox / S.Dropdown. Their guide is explicit
---  that they are idempotent (a re-call costs one table lookup) and taint-safe
---  (external state, alpha-only art removal, no Hide, no SetParent), and that
---  Blizzard frames inside your own window are yours to pick sensibly. It also means
---  the result tracks every future EllesmereUI tweak instead of freezing our copy.
---
---  Requires the facade. Without EllesmereUI's skin engine there is no button style
---  to apply, and inventing one is how the two addons end up fighting.
---
---  The regions are ENUMERATED, not named. Every attempt to name 12.1's internals
---  from memory in this migration has cost a round trip, and a sweep of what is
---  actually there cannot be wrong about what exists.
--- ---------------------------------------------------------------------------
+-- [[ 12.1 Social UI widget pass ]] Chrome around our regions, only via EUI's idempotent
+-- primitives (S.Font/Button/EditBox/Dropdown); needs the facade. Regions are enumerated,
+-- not named, so a renamed 12.1 internal can't break it.
 local SOCIAL_SWEEP_MAX_DEPTH = 3
 
--- S.Button gives a flat dark plate with a neutral border and leaves the label alone -- by
--- design, so it is safe to apply to anything. EllesmereUI's own primary buttons carry the
--- accent on BOTH the border and the label (its Close button is the reference), so a
--- labelled button is lifted to match rather than left as a grey plate.
---
--- Restricted to buttons that actually have text: an icon-only button has no label to
--- accent, and drawing a teal box around every arrow and clear-X in the filter bar would
--- read as noise rather than as theming.
+-- Labelled buttons get the accent on border and label, like EUI's own primary buttons.
+-- Icon-only buttons are left as plates.
 local function AccentButton(btn, S)
     local fs = btn.GetFontString and btn:GetFontString()
     if not fs or (fs:GetText() or "") == "" then return end
@@ -601,14 +476,8 @@ function Skin.SkinSocialWidgets(view)
 
     SweepWidgets(view, S, 0, skip)
 
-    -- The window TITLE and the BattleTag line hang off SocialUIFrame, not the friends
-    -- view -- probed live: the view has 5 children, the frame has 21. That frame is
-    -- shared by all six tabs, so only its OWN regions and its title container are
-    -- touched, never its children: a recursive sweep there would restyle Blizzard's Raid
-    -- and Quick Join panels as a side effect of opening the contact list.
-    --
-    -- Font family only. The BattleTag keeps Blizzard's Battle.net blue, which carries
-    -- meaning; recolouring it would be theming away information.
+    -- Title and BattleTag hang off SocialUIFrame, shared by six tabs: only its own regions,
+    -- never a recursive sweep (that would restyle Raid and Quick Join). Font only; tag stays blue.
     FontRegionsOf(SocialUIFrame, S)
     if SocialUIFrame then FontRegionsOf(SocialUIFrame.TitleContainer, S) end
 
@@ -628,24 +497,8 @@ function Skin.SkinSocialWidgets(view)
     return true
 end
 
--- ---------------------------------------------------------------------------
---  Live accent repaint
---
---  The legacy chrome above is painted ONCE, at skin time, so an accent change made
---  in EllesmereUI's own options would otherwise sit there in the old colour until
---  the next reload. Everything accent-coloured that we keep a handle to is
---  re-stated here: tab underlines, sub-tab labels, and flat button borders/labels.
---
---  Raised from the facade's OnLooksChanged. Verified chain on EllesmereUI 8.7.8:
---  ApplyAccentLive mutates ELLESMERE_GREEN in place, calls UpdateAccentElements,
---  which runs the type="callback" entry that WSkin registers, which is
---  WSkin.RefreshLooks, which walks _lookCallbacks -- ours among them.
---
---  Only reachable on the facade path. With EllesmereUI's third-party skinning off
---  there is no callback to hang this on, and the legacy chrome stays until reload;
---  the accent itself is still correct everywhere because Skin.GetAccentRGB reads
---  it live rather than from the cached theme.
--- ---------------------------------------------------------------------------
+-- [[ Live accent repaint ]] Legacy chrome is painted once; re-state accent colours on
+-- OnLooksChanged. Facade path only; without it the chrome updates on reload.
 function Skin.RefreshAccent()
     if not Skin.enabled then return end
 
@@ -670,12 +523,7 @@ function Skin.RefreshAccent()
     RefreshSubTabs()
 end
 
--- ---------------------------------------------------------------------------
---  Secondary panels (Who / Raid / Quick Join / Recent Allies / Recruit)
---  Consistent dark chrome: hide their Blizzard insets so the dark window
---  shows through, and flatten their buttons. (Deep list/roster reskins are
---  intentionally out of scope -- Raid especially has protected controls.)
--- ---------------------------------------------------------------------------
+-- [[ Secondary panels ]] Hide insets and flatten buttons only; Raid has protected controls.
 local function HidePanelChrome(f)
     if not f then return end
     if f.Bg then f.Bg:Hide() end
@@ -829,14 +677,7 @@ local function SkinWindow()
     UpdateTabs()
 end
 
--- ---------------------------------------------------------------------------
---  Row / divider skin (runs after each FriendGroups list update)
--- ---------------------------------------------------------------------------
--- NOTE: fonts are applied on EVERY pass (not guarded/once). The ScrollBox
--- recycles row frames on scroll, and Blizzard/FriendGroups may reset a
--- fontstring's font when it re-renders a recycled row -- so a one-time apply
--- leaves scrolled-in rows on the default font (the "alternating fonts" bug).
--- Re-applying each pass is cheap (a dozen visible frames) and keeps it uniform.
+-- [[ Row / divider skin ]] Fonts every pass: recycled rows reset their fonts.
 local function SkinFrame(button)
     if not button then return end
     local font = GetFont()
@@ -857,11 +698,8 @@ local function SkinFrame(button)
     if button.name and button.name.SetFont then button.name:SetFont(font, NAME_SIZE, "") end
     if button.info and button.info.SetFont then button.info:SetFont(font, INFO_SIZE, "") end
     if button.status and button.status.SetFont then button.status:SetFont(font, INFO_SIZE, "") end
-    -- Do NOT repaint button.background here: FriendGroups owns it (incl. the
-    -- faction tints), and overriding it each ScrollBox update makes the faction
-    -- colours flicker. The dark window already shows through its low alpha.
-    -- Re-run the core row layout so the inline status icon re-anchors to the
-    -- new (skinned) name width.
+    -- Never repaint button.background (FriendGroups owns it, faction tints flicker). Re-run the
+    -- row layout so the status icon re-anchors to the new name width.
     if FriendGroups_ApplyRowLayout then FriendGroups_ApplyRowLayout(button) end
 end
 
@@ -891,10 +729,8 @@ end
 local function InstallRowHook()
     if Skin._rowHook then return end
     if type(FriendGroups_FriendsListUpdate) ~= "function" then return end
-    -- Re-skin visible rows after each rebuild. We hook the list-update driver
-    -- (called by global name throughout FriendGroups) and re-walk the ScrollBox
-    -- next frame, so we are never bypassed by the element factory's captured
-    -- initializer reference.
+    -- Hook the update driver and re-walk next frame: the element factory holds a captured
+    -- initializer, so hooking the row function is bypassed.
     hooksecurefunc("FriendGroups_FriendsListUpdate", function()
         if Skin.enabled then C_Timer.After(0, SkinRows) end
     end)
@@ -908,11 +744,8 @@ function Skin.RefreshEnabled()
     socialThemeBuilt = false
 end
 
--- ---------------------------------------------------------------------------
---  EllesmereUI renderer conflicts: EllesmereUIFriends (retail) and the Forever
---  friend tiles both paint the Social UI cards FriendGroups re-texts and resizes.
---  Not gated on eui_skin. Why: Desktop\Claude\FriendGroups\FriendGroups-eui-conflicts.md
--- ---------------------------------------------------------------------------
+-- [[ EUI renderer conflicts ]] EllesmereUIFriends and the Forever tiles paint the same cards.
+-- Not gated on eui_skin. docs: FriendGroups-eui-conflicts.md
 local EUI_FRIENDS_ADDON = "EllesmereUIFriends"
 
 -- EllesmereUI 9.7.6+ on Forever. friendsListCard.enabled has no options UI; it
@@ -986,12 +819,8 @@ end
 -- The reload confirmation for the enable/disable toggle is FRIENDGROUPS_RELOAD, defined in
 -- FriendGroups.lua and shared with the Classic own-list toggle.
 
--- ---------------------------------------------------------------------------
---  Dynamic text not covered by the curated skin: the contact count and the
---  native BattleTag / status dropdown (which we keep rather than replace, so we
---  restyle the FONT ONLY -- preserving each string's size/flags/position). Blizzard
---  repopulates the BattleTag frame, so this is re-applied every time the frame shows.
--- ---------------------------------------------------------------------------
+-- Contact count, BattleTag and status dropdown: font only. Re-applied on each show because
+-- Blizzard repopulates the BattleTag frame.
 local function FontStringsIn(frame)
     if not frame then return end
     local font = GetFont()
@@ -1044,14 +873,8 @@ ev:SetScript("OnEvent", function()
     InstallRowHook()
 
     if FriendsFrame then
-        -- The deferred half is no longer just the row pass, because SkinWindow runs EXACTLY ONCE
-        -- and the panel has not necessarily finished settling when the first OnShow fires -- the
-        -- sub-tab strip the Contacts mark anchors to may still be unbuilt. Anything that missed
-        -- in that single pass used to wait for a bottom-tab click to be retried.
-        --
-        -- Re-run on EVERY open, not only the first: each call is idempotent and costs a table
-        -- lookup or a walk of the dozen visible rows, which is cheaper than reasoning about
-        -- which open is the one that needed it.
+        -- Re-run on every open: SkinWindow runs once, possibly before the sub-tab strip exists.
+        -- Each call is idempotent.
         local function ApplySkin()
             SkinWindow()
             InstallScrollHook()

@@ -1,51 +1,11 @@
---[[
-	FriendGroups - Platform_SocialUI.lua
-	============================================================================
-	Retail 12.1 Social UI list renderer. Loaded after Compat.lua and
-	Platform_Render.lua, before FriendGroups.lua.
-
-	12.1 replaced the contact list. Blizzard_FriendList was split into
-	Blizzard_SocialUI (the SocialUIFrame shell), Blizzard_SocialUIShared
-	(SocialUIControl / C_SocialUI) and Blizzard_FriendsFrame, which carries BOTH
-	the legacy FriendsFrame and the new FriendsListSocialViewTemplate. Because
-	every legacy global still exists, the addon's existing hooks all succeed and
-	silently decorate a frame the player can no longer open. See
-	Compat.IsSocialUIActive for how the two eras are told apart.
-
-	This module renders the SAME layout array FriendGroups_FriendsListUpdate
-	builds for the other two platforms, but as a TreeDataProvider instead of a
-	flat one, because that is what the Social UI's ScrollBox expects.
-
-	Node contract (read from Blizzard_FriendsFrame/Mainline/FriendsListTemplates.lua
-	and confirmed live against the 12.1 client -- a two-friend list reports
-	GetDataProviderSize() == 4: header + spacer + two cards):
-
-	  TreeDataProvider
-	  |-- { headerText = <string> }              -> SocialUIScrollableHeaderTemplate
-	  |     |-- { isSpacer = true }              -> SocialUIScrollableSpacerTemplate
-	  |     |-- { friendIndex = n,
-	  |     |     accountInfo = <table> }        -> FriendsListSocialCardTemplate
-	  |     '-- ...
-	  '-- ...
-
-	FriendsListSocialViewMixin:InitializeScrollBox selects the template purely by
-	node SHAPE (isSpacer first, then headerText ~= nil, else card), so a provider
-	built to this contract is rendered by Blizzard's own element factory with
-	Blizzard's own card visuals. Nothing here creates or restyles a row: that is
-	deliberate, and is what keeps this step small.
-
-	Collapse is NATIVE here. Blizzard's header button calls node:ToggleCollapsed(),
-	so the addon's saved collapse state is seeded onto the nodes at build time and
-	read back out again whenever the tree invalidates.
-
-	API compliance: WoW Midnight 12.1 (Interface 120100). Every Blizzard symbol
-	touched is presence-guarded, and nothing here runs on a client that does not
-	report the Social UI as enabled.
-]] --
+-- 12.1 Social UI renderer: the layout FriendGroups_FriendsListUpdate builds, as a
+-- TreeDataProvider. Blizzard's factory picks templates by node shape (isSpacer, headerText,
+-- else card), so nodes must match {headerText} > {isSpacer}, {friendIndex, accountInfo}.
 
 local addonName, addonTable = ...
 local Compat = addonTable.Compat
 local L = addonTable.L
+local Perf = addonTable.Perf
 
 -- The Social UI ships on retail and Forever only. Classic keeps the HybridScroll
 -- renderer in Platform_Render.lua and never loads any of this.
@@ -76,10 +36,8 @@ local FG_RowApplyCalls = 0
 local FG_RowApplyApplied = 0
 local FG_AltTooltipCalls = 0
 
--- Forward declaration: the row-content applier is defined further down, next to the
--- display settings it reads, but the delivery pass above it needs the reference. Without
--- this the name would compile as a global lookup in the earlier function and resolve to
--- nil at call time -- a fault no syntax check can see.
+-- Forward declarations: without them a later definition compiles as a nil global lookup,
+-- which luac -p cannot catch.
 local FG_ApplySocialCardContent
 local FG_OnCardShowTooltip
 local FG_OnCardHideTooltip
@@ -89,16 +47,9 @@ local FG_HookSearchBox
 -- at runtime -- the exact silent-failure class this file's header warns about.
 local FG_HookFilterDropdown
 local FG_RefreshPortrait
--- The legacy panel's half of the streamer-mode BattleTag, defined in the legacy section at the
--- foot of this file but dispatched to from Compat.RefreshOwnBattleTag, which sits above it.
--- Same reason as every other name in this block: without the declaration that call compiles to
--- a global lookup, resolves to nil, and the mode silently does nothing on the panel that is
--- actually on screen.
+-- Legacy-panel half of the streamer-mode BattleTag, defined at the foot of this file.
 local FG_RefreshOwnBattleTagLegacy
--- Defined with the row-density constants far below, but retried from Compat.RenderSocialUIList
--- above them. Declared here for the same reason as everything else in this block, and it is
--- worth recording that it was NOT: the call compiled to a global lookup, resolved to nil, and
--- threw on every single list render. luac -p reports that file as perfectly valid.
+-- Defined with the row-density constants below; retried from Compat.RenderSocialUIList.
 local FG_InstallCardHeightOverride
 local FG_UpdateContactCounter
 local FG_ContactCountText, FG_ContactCountHover
@@ -107,53 +58,17 @@ local FG_ContactCountText, FG_ContactCountHover
 -- by the 600-contact Battle.net limit the cap tooltip reports.
 local FG_CONTACT_COUNT_WIDTH = 36
 
--- ============================================================================
--- [[ ELLESMEREUI COLOURISE ]]
--- EllesmereSkin.lua publishes the theme; this file only asks for it. The rule is
--- colourise-ONLY: the four call sites below all sit in code that already writes the
--- region in question (header banner, row background, contact count, drag indicator),
--- so nothing new is drawn and no Blizzard chrome is touched. EllesmereUI reskins
--- SocialUIFrame itself, and fighting that is the one outcome to avoid.
---
--- Looked up by GLOBAL NAME at call time, never captured at file scope:
--- EllesmereSkin.lua is the LAST entry in the TOC, so FriendGroupsEUISkin does not
--- exist yet while this file loads. It is a true global (EllesmereSkin.lua sets
--- _G.FriendGroupsEUISkin), not a file-local, so the lookup genuinely resolves --
--- checked, because a bare global reference to another file's local returns nil in
--- silence. Returns nil on every client where EllesmereSkin.lua is not loaded at
--- all, which is all three Classic flavors.
+-- [[ ELLESMEREUI COLOURISE ]] Tint only regions we already write. FriendGroupsEUISkin is looked
+-- up at call time: EllesmereSkin.lua loads last. Nil on Classic.
 local function FG_EUITheme()
 	local skin = _G.FriendGroupsEUISkin
 	if type(skin) ~= "table" or type(skin.GetTheme) ~= "function" then return nil end
 	return skin.GetTheme()
 end
 
--- Re-font a fontstring to the EllesmereUI family, keeping Blizzard's SIZE.
---
--- The size is deliberately never touched. Every string on this frame is re-derived
--- from TextSizeManager when the user changes their UI text size, so an absolute size
--- written here would freeze one row at one scale; and a relative one would compound
--- across recycles, which is the trap FG_ShrinkFont already documents.
---
--- A nil fontFlag means "we do not know" (no facade) and keeps the string's own flags.
--- An EMPTY STRING is a real answer from EllesmereUI's API -- the user's font has no
--- outline -- and must override them.
--- ============================================================================
--- [[ FONT ADOPTION ]]
--- Give a fontstring we created the same face as one Blizzard created, so the two read as one
--- line. Every step matters, and the LAST one is the one that bit:
---
---   GetFontObject   preferred -- the object carries the player's UI text scaling, so the
---                   result tracks their settings instead of freezing today's size;
---   GetFont         for a region the template configured with an explicit SetFont, where
---                   GetFontObject answers nil;
---   a named default because a fontstring with NO font set renders absolutely nothing, and
---                   silently: the Battle.net bar's replacement label was created, positioned,
---                   given text, shown -- and was invisible, because the region it copied from
---                   had no font object and the fallback chain stopped one step short. A blank
---                   gap where a label should be is indistinguishable from "the feature did
---                   not run", which is exactly how it was reported.
--- ============================================================================
+-- [[ FONT ADOPTION ]] Copy a Blizzard string's face: font object first (keeps text scaling),
+-- then GetFont, then a named default. A fontstring with no font renders nothing, silently.
+-- EUI re-font keeps Blizzard's size; a nil flag keeps the string's, "" means no outline.
 local function FG_AdoptFont(fontString, source)
 	if not fontString then return end
 
@@ -189,12 +104,8 @@ local function FG_ApplyThemeFont(fontString, theme)
 	fontString:SetFont(theme.fontPath, size, flags)
 end
 
--- The font EllesmereSkin.lua draws the LEGACY window's chrome in, or nil when nothing is
--- themed. Deliberately NOT theme.fontPath: the theme carries EllesmereUI's Blizzard-skin font
--- (what IT paints the 12.1 Social UI with), while every string that file writes on 12.0.7's
--- FriendsFrame -- the title, the tabs, the search box, the BattleTag bar -- takes the
--- friends-module font. The two are the same until the user sets a per-module override, and a
--- label sitting between two chrome strings has to match its neighbours, not the other panel.
+-- Font of the legacy window's chrome, not theme.fontPath (EUI's 12.1 font): they differ once
+-- the user sets a per-module override.
 local function FG_EUIChromeFontPath()
 	local skin = _G.FriendGroupsEUISkin
 	if type(skin) ~= "table" or type(skin.GetChromeFontPath) ~= "function" then return nil end
@@ -213,16 +124,8 @@ local function FG_ApplyFontPath(fontString, path)
 	fontString:SetFont(path, size, flags)
 end
 
--- ============================================================================
--- [[ HEADER TEXT ]]
--- The group LABEL only. Blizzard's header template exposes exactly one string
--- (SocialUIScrollableHeaderMixin:Initialize reads nodeData.headerText and nothing else),
--- and that string is left-aligned, so the count cannot ride along inside it: joined
--- together, the numbers land at whatever x the group name happened to end at, which on a
--- list of differently-named groups is a different x on every row. FG_BuildHeaderCount
--- below produces the count as its own string, drawn right-aligned by the decoration pass --
--- which is how retail's own divider has always laid the two out.
--- ============================================================================
+-- [[ HEADER TEXT ]] Label only: the header's one string is left-aligned, so the count is drawn
+-- separately, right-aligned, by FG_ApplyHeaderDecoration.
 local function FG_BuildHeaderText(groupName)
 	if type(groupName) ~= "string" or groupName == "" then return "" end
 
@@ -239,17 +142,8 @@ local function FG_BuildHeaderText(groupName)
 	return groupName
 end
 
--- The count half. Semantics copied verbatim from
--- FriendGroups_FriendsListUpdateDividerTemplate so both platforms agree:
---   online     = groupsCount[group].Online
---   total      = groupsCount[group].Raw (the unfiltered group size), falling back to Total
---   offline groups show the total alone -- their "0/" carries no information
---   the empty-list placeholder shows no count at all
---
--- overrideOnline/overrideTotal are supplied ONLY while a native Status/Tags filter is
--- active, where the group's real membership is not what is on screen. Blizzard does the
--- same thing in InsertFriendsIntoDataProvider: with a search result in hand it zeroes its
--- totals and recounts from the survivors rather than reporting the roster.
+-- Same semantics as FriendGroups_FriendsListUpdateDividerTemplate: online/Raw (or Total).
+-- Overrides are passed only while a native Status/Tags filter is active (count the survivors).
 local function FG_BuildHeaderCount(groupName, overrideOnline, overrideTotal)
 	if type(groupName) ~= "string" or groupName == "" then return "" end
 	if groupName == L["GROUP_EMPTY"] then return "" end
@@ -258,11 +152,7 @@ local function FG_BuildHeaderCount(groupName, overrideOnline, overrideTotal)
 	local online = overrideOnline or (counts and counts.Online) or 0
 	local total = overrideTotal or (counts and (counts.Raw or counts.Total)) or 0
 
-	-- FriendGroups_IsOfflineGroup is the single authority on which groups these are, so a
-	-- fourth bucket reaches this header without an edit here. Guarded because this file is
-	-- loaded BEFORE FriendGroups.lua by the TOC -- at run time the global is always present,
-	-- but the type test costs nothing and keeps the load order from being load-bearing.
-	-- Offline groups show the total alone: their "0/" carries no information.
+	-- Offline groups show the total alone. Type-checked: this file loads before FriendGroups.lua.
 	if type(FriendGroups_IsOfflineGroup) == "function" and FriendGroups_IsOfflineGroup(groupName) then
 		return string.format(L["SOCIALUI_GROUP_COUNT_TOTAL"], total)
 	end
@@ -270,46 +160,9 @@ local function FG_BuildHeaderCount(groupName, overrideOnline, overrideTotal)
 	return string.format(L["SOCIALUI_GROUP_COUNT"], online, total)
 end
 
--- ============================================================================
--- [[ ROW CONTENT DELIVERY ]]
--- Hooking FriendsListSocialCardMixin is NOT sufficient, and the 12.1 client proved it:
--- with the mixin hook verifiably attached, it never fired once. XML mixin= applies
--- Mixin(), which COPIES functions onto each frame at creation, so a card built before the
--- hook keeps the original forever -- and the ScrollBox's frame pool has already built its
--- cards by the time any addon event runs. Frames are then recycled, never rebuilt, so the
--- mixin hook can never catch up.
---
--- The reliable route is the frame itself. After every provider swap, the visible frames
--- are walked with ForEachFrame (the same API the legacy path uses): each one gets our
--- content applied immediately, and a ONE-TIME post-hook on its OWN InitializeDisplay so
--- that recycling it onto a different friend re-applies without another pass.
---
--- Headers and spacers fall through harmlessly: they carry no elementData.accountInfo, so
--- the applier returns before touching anything.
--- ============================================================================
--- ============================================================================
--- [[ GROUP HEADER ]]
--- Blizzard's header is a plain collapse button: its factory sets a left-click OnClick that
--- toggles the node and nothing else. Retail's header additionally carries a banner colour
--- and a right-click menu (rename, colour, reorder, delete).
---
--- Both are added here rather than reimplemented. FriendGroups_FrameFriendDividerTemplate-
--- HeaderClick is the retail handler and a genuine global; it reads `rawGroupName` and
--- `name` off whatever frame it is given, so aliasing those onto the Social UI header lets
--- it run unchanged -- one menu definition serving both platforms.
---
--- HookScript rather than SetScript, so Blizzard's collapse survives; and RegisterForClicks
--- must name RightButtonUp or a right-click never reaches OnClick at all.
--- ============================================================================
--- Left-click collapses, right-click opens the group menu. Both are retail's own globals,
--- reached through the rawGroupName / name aliases set below, so the two platforms share one
--- implementation of each.
---
--- Routing collapse through FriendGroups_FrameFriendDividerTemplateCollapseClick rather than
--- node:ToggleCollapsed() is what makes "Auto Collapse Groups" work: that setting lives
--- inside this handler, and Blizzard's node toggle never reaches it. It writes
--- FriendGroups_SavedVars.collapsed and rebuilds; the rebuild reseeds every node's collapsed
--- state and Blizzard's Initialize sets the chevron from the node, so the visual follows.
+-- [[ GROUP HEADER ]] Left-click collapses via FriendGroups_FrameFriendDividerTemplateCollapseClick
+-- (where Auto Collapse lives), right-click opens the retail group menu, via the rawGroupName and
+-- name aliases. RegisterForClicks must include RightButtonUp.
 local function FG_HeaderOnClick(self, button, down)
 	if button == "RightButton" then
 		if type(FriendGroups_FrameFriendDividerTemplateHeaderClick) == "function" then
@@ -329,14 +182,8 @@ local function FG_ApplyHeaderClickScript(header)
 	header.fgSettingOwnScript = false
 end
 
--- Blizzard's element factory re-runs
---     button:SetScript("OnClick", <collapse closure>)
--- on EVERY initialisation, after button:Initialize(node) -- so hooking Initialize is too
--- early and a plain HookScript is discarded the first time the header is rebound. That is
--- why the right-click menu never appeared.
---
--- Watching SetScript itself is the one place that reliably sees their assignment land. The
--- guard flag stops our own re-assignment from re-entering the hook.
+-- Blizzard's factory re-sets OnClick after every Initialize, discarding a HookScript, so watch
+-- SetScript itself. The guard flag stops our own assignment re-entering.
 local function FG_InstallHeaderClickTakeover(header, groupName)
 	if not header.fgHeaderScriptHooked then
 		header.fgHeaderScriptHooked = true
@@ -353,29 +200,14 @@ local function FG_InstallHeaderClickTakeover(header, groupName)
 		header:RegisterForClicks("LeftButtonUp", "RightButtonUp")
 	end
 
-	-- Reordering by drag lives in Platform_Drag.lua and is shared with the other two
-	-- renderers. It used to be implemented here, which meant it could only run on a client
-	-- with the 12.1 Social UI switched on -- and that switch is server-driven, so on a live
-	-- realm serving the 12.0.7 contact list the feature was unreachable. Blizzard's factory
-	-- only ever re-sets OnClick, so the drag scripts survive a rebind untouched.
+	-- Drag lives in Platform_Drag.lua; the factory only re-sets OnClick, so its scripts survive.
 	Compat.AttachHeaderDrag(header, groupName)
 
 	FG_ApplyHeaderClickScript(header)
 end
 
--- [[ COLLAPSE INDICATOR ]]
--- Probed off a live 12.1 header rather than named from source: its regions are
---   1 FontString  2 Texture common-button-list-collapseExpand
---   3 Texture common-button-list-collapseExpand  4 FontString  5 Texture (ours)
--- The two toggle states share one atlas, and neither carries a frame-table key -- a
--- pairs() walk of the header finds only solidBannerTexture. So they are matched by
--- ATLAS, which is the one stable handle: the region index is an accident of template
--- order, and there is no name to match on.
---
--- Only touched while a theme is live. Vertex colour MULTIPLIES the atlas, so tinting an
--- unthemed client with the gold that FriendGroups_AccentRGB falls back to would visibly
--- recolour Blizzard's own art. The flag records that we tinted, so switching the skin off
--- restores white instead of leaving the accent stranded.
+-- [[ COLLAPSE INDICATOR ]] Matched by atlas: the chevrons have no key and their index is
+-- template order. Tint only while themed (vertex colour multiplies the atlas); the flag restores white.
 local FG_HEADER_TOGGLE_ATLAS = "common-button-list-collapseExpand"
 
 local function FG_TintHeaderToggle(header)
@@ -395,31 +227,9 @@ local function FG_TintHeaderToggle(header)
 	header.fgToggleTinted = themed or nil
 end
 
--- ============================================================================
--- [[ HEADER COUNT ]]
--- The "12/40" sits hard against the right edge of every header, in a column of its own, so
--- the numbers line up down the list instead of trailing group names of differing lengths.
---
--- Blizzard's header template exposes exactly one string (SocialUIScrollableHeaderMixin
--- :Initialize reads nodeData.headerText and nothing else), so this is a fontstring of our
--- own, anchored to the header's own right edge with a fixed inset that clears the chevron.
---
--- [[ TWO THINGS THIS MUST NOT DO, BOTH LEARNED THE HARD WAY ]]
---
--- It must not MEASURE the chevron. FG_ApplyHeaderDecoration runs immediately after
--- SetDataProvider, before the frames are laid out, so GetCenter/GetWidth answer nil there and
--- any decision taken from them is taken on no information -- which is how the count ended up
--- underneath the chevron instead of beside it.
---
--- It must not ANCHOR to the chevron either. Its region is found by atlas, and the atlas is
--- not proof that the region is the small glyph at the right: anchoring the count to that
--- region's LEFT edge put it off the left end of the bar, and the label -- which was anchored
--- to the count in turn -- went with it, blanking every group header on the list.
---
--- So: anchor to the header, reserve a constant, and leave Blizzard's own label alone
--- entirely. The label keeps whatever anchors its template gave it. A very long group name can
--- therefore run under the count, which is a far smaller price than a list of blank bars.
--- ============================================================================
+-- [[ HEADER COUNT ]] Our own fontstring, anchored to the header's right edge with a constant
+-- inset. Never measure the chevron (frames aren't laid out yet) or anchor to it (its region
+-- isn't proven to be the glyph); a blank header list resulted both times.
 local FG_HEADER_COUNT_GAP = 6
 
 -- Clearance from the header's right edge for the collapse chevron. A constant on purpose:
@@ -448,17 +258,8 @@ local function FG_ApplyHeaderCount(header, countText)
 
 	FG_ApplyThemeFont(count, FG_EUITheme())
 
-	-- [[ COLOUR IS COPIED FROM THE LABEL, NOT RE-DERIVED ]]
-	-- Taken from ButtonText, which by this point in FG_ApplyHeaderDecoration has already been
-	-- given whatever colour this group resolves to. So the count matches the name by
-	-- construction, with or without an override, and there is no default here to get wrong.
-	--
-	-- Re-derived it used to be, via HeaderFontRGB -- which returns NIL for a group with no
-	-- override, so the SetTextColor call was skipped and this pooled fontstring kept the last
-	-- colour it had been given. A header recycled from a red-tinted custom group onto
-	-- [No Group] carried the red with it. Blizzard's own label never shows that bug because
-	-- its template re-applies a font object on every recycle, and a font object carries its
-	-- colour; ours has no template to recover from, so it must be written every pass.
+	-- Colour copied from ButtonText every pass: this pooled string has no template to reset it,
+	-- and skipping nil overrides carried colours between groups.
 	if header.ButtonText and type(header.ButtonText.GetTextColor) == "function" then
 		local r, g, b = header.ButtonText:GetTextColor()
 		if r then count:SetTextColor(r, g, b) end
@@ -474,25 +275,13 @@ local function FG_ApplyHeaderDecoration(header, groupName, countText)
 	FG_TintHeaderToggle(header)
 
 	header.rawGroupName = groupName
-	-- Draggable-header contract, see Platform_Drag.lua. The Social UI draws headers from
-	-- their own template, so unlike the other two renderers this frame can never come back
-	-- as something else -- but the flag is what the shared code tests, so it is stated here
-	-- rather than inferred from the template it happens to have been built with.
+	-- Shared drag code tests this flag.
 	header.fgIsHeader = true
 	-- The retail handler reads frame.name:GetText() as its fallback label.
 	header.name = header.name or header.ButtonText
 
-	-- Banner colour behind the header text, from the same saved variable retail uses.
-	--
-	-- The draw layer is measured, not assumed -- two earlier guesses put this underneath
-	-- Blizzard's art and it never appeared. ListHeaderVisualTemplate gives the button a
-	-- NormalTexture covering its whole face, and that texture draws at ARTWORK, so BACKGROUND
-	-- and BORDER are both beneath it. Sitting at ARTWORK sublevel 1 puts the banner one step
-	-- above it, and the label is lifted to OVERLAY so it is guaranteed to stay on top
-	-- regardless of where the template happens to place it.
-	--
-	-- SetDrawLayer is re-applied every pass rather than only at creation, so a texture built
-	-- by an earlier build corrects itself instead of staying invisible.
+	-- Banner at ARTWORK sublevel 1, above the NormalTexture; label lifted to OVERLAY. Draw layer
+	-- re-applied every pass so older textures correct themselves.
 	if not header.solidBannerTexture then
 		header.solidBannerTexture = header:CreateTexture(nil, "ARTWORK")
 		header.solidBannerTexture:SetAllPoints(header)
@@ -503,24 +292,15 @@ local function FG_ApplyHeaderDecoration(header, groupName, countText)
 
 		FG_ApplyThemeFont(header.ButtonText, FG_EUITheme())
 
-		-- Label colour, resolved by the same shared rule the legacy renderer uses: an
-		-- explicit override wins, a banner colour implies white, and no banner returns nil so
-		-- Blizzard's own colour stands. Re-applied every pass because the header is pooled and
-		-- its template colour comes back on each recycle.
+		-- Override wins, a banner implies white, else Blizzard's colour. Every pass (pooled header).
 		State = State or addonTable.State
 		if State and type(State.HeaderFontRGB) == "function" then
 			local fontR, fontG, fontB = State.HeaderFontRGB(groupName)
 			if fontR then header.ButtonText:SetTextColor(fontR, fontG, fontB) end
 		end
 
-		-- ListHeaderVisualTemplate declares BOTH a NormalFont and a HighlightFont, and the
-		-- button swaps between them on mouseover. Applying a font object also re-applies that
-		-- object's colour, which discards our SetTextColor -- so the header reverted to grey
-		-- the moment the pointer touched it.
-		--
-		-- Re-applied on both edges rather than only on enter: the swap back on leave resets it
-		-- again. Hooked once per frame -- HookScript APPENDS, so doing this every decoration
-		-- pass would stack a new handler on each rebuild.
+		-- Normal/Highlight font swaps on hover re-apply the object's colour, so re-apply on enter and
+		-- leave. Hooked once per frame: HookScript appends.
 		if not header.fgFontHooked then
 			local function ReapplyHeaderFont(self)
 				if not self.ButtonText or not self.rawGroupName then return end
@@ -547,10 +327,7 @@ local function FG_ApplyHeaderDecoration(header, groupName, countText)
 		header.solidBannerTexture:SetColorTexture(r, g, b, 0.4)
 		header.solidBannerTexture:Show()
 	else
-		-- No custom banner. With EllesmereUI colours available the group gets the house
-		-- band -- which is what makes a group read as a band rather than as one more row
-		-- -- and without them it stays hidden exactly as before, so Blizzard's own header
-		-- art is untouched on a plain client.
+		-- No custom banner: house band when EUI colours exist, else hidden as on a plain client.
 		local theme = FG_EUITheme()
 		if theme then
 			local c = theme.headerBanner
@@ -587,7 +364,7 @@ local function FG_OnHeaderInitialize(header, node)
 	end
 end
 
-local function FG_ApplyToVisibleCards(view)
+local function FG_ApplyToVisibleCardsBody(view)
 	local scrollBox = view and view.ScrollBox
 	if not scrollBox or type(scrollBox.ForEachFrame) ~= "function" then return end
 
@@ -611,26 +388,19 @@ local function FG_ApplyToVisibleCards(view)
 		end
 
 		if not frame.fgSocialCardHooked and type(frame.InitializeDisplay) == "function" then
-			hooksecurefunc(frame, "InitializeDisplay", FG_ApplySocialCardContent)
+			-- Cards made after InitSocialUI copied the hooked mixin method; a second hook here
+			-- decorated every row twice per layout.
+			local hasMixinHook = cardHookInstalled and type(FriendsListSocialCardMixin) == "table"
+				and frame.InitializeDisplay == FriendsListSocialCardMixin.InitializeDisplay
+			if not hasMixinHook then
+				hooksecurefunc(frame, "InitializeDisplay", FG_ApplySocialCardContent)
+			end
 
-			-- [[ KNOWN-ALTS PANEL ]]
-			-- The card owns its tooltip: ShowTooltip does SetOwner(self, "ANCHOR_RIGHT")
-			-- and HideTooltip tears it down. Post-hooking the pair on the frame gives the
-			-- alt panel the same row-anchored hover the legacy list has.
-			--
-			-- Only ShowTooltip needs a partner: hiding is already handled, because
-			-- HideTooltip calls GameTooltip:Hide, which FriendGroups hooks -- and that hook
-			-- keeps the panel up while the pointer is still over the contact panel, which is
-			-- the anti-flicker behaviour.
+			-- Known-alts panel. HideTooltip is the "pointer left this row" signal: the
+			-- GameTooltip:Hide hook keeps the panel up anywhere over the contact panel.
 			if type(frame.ShowTooltip) == "function" then
 				hooksecurefunc(frame, "ShowTooltip", FG_OnCardShowTooltip)
 			end
-
-			-- The card's own HideTooltip is the precise "pointer left THIS row" signal.
-			-- The GameTooltip:Hide hook cannot serve here: its anti-flicker guard suppresses
-			-- the hide whenever the pointer is anywhere over the contact panel, which on the
-			-- Social UI is true for every row -- so the alt panel would latch on screen and
-			-- never clear, which is exactly what happened.
 			if type(frame.HideTooltip) == "function" then
 				hooksecurefunc(frame, "HideTooltip", FG_OnCardHideTooltip)
 			end
@@ -638,22 +408,19 @@ local function FG_ApplyToVisibleCards(view)
 			frame.fgSocialCardHooked = true
 		end
 
-		FG_ApplySocialCardContent(frame)
+		-- SetDataProvider has just initialised these cards through the hook; only catch misses.
+		if frame.fgAppliedData ~= frame.elementData then
+			FG_ApplySocialCardContent(frame)
+		end
 	end)
 end
 
--- ============================================================================
--- [[ GROUP FILTER ]]
--- The Groups submenu FriendGroups adds to Blizzard's Filter dropdown, alongside its own
--- Status and Tags.
---
--- SESSION STATE, deliberately not a saved variable. Blizzard's own filter options live on
--- the view and reset with the UI, and a list that comes back filtered after a reload --
--- with the only indicator buried two levels inside a dropdown -- reads as "my friends are
--- missing", which is the worst kind of bug to be on the receiving end of.
---
--- Empty means unfiltered. Ticking nothing is the same as ticking everything, which is how
--- every filter of this shape behaves, Blizzard's included.
+local function FG_ApplyToVisibleCards(view)
+	return Perf.Time("fg.cardPass", FG_ApplyToVisibleCardsBody, view)
+end
+
+-- [[ GROUP FILTER ]] Session state, not saved: a list that reloads filtered reads as missing
+-- friends. Empty means unfiltered.
 local FG_GroupFilter = {}
 
 -- The group names of the last render, in the order they appeared on screen. Captured from
@@ -661,16 +428,8 @@ local FG_GroupFilter = {}
 -- menu -- otherwise ticking one group would make every other group unreachable.
 local FG_LastGroupOrder = {}
 
--- Force a full rebuild NOW, for a change to what should be SHOWN rather than to the roster.
---
--- FriendGroups_RequestListUpdate is the wrong call here and was a real bug: it defers to
--- FriendGroups_FriendsListUpdate(false), whose `rosterUnchanged` shortcut returns
--- immediately on the Social UI path when no friend has come or gone. Ticking a filter box
--- never changes the roster, so every checkbox -- Blizzard's Status and Tags as well as our
--- own Groups -- silently did nothing. The live search box already knew this and forces.
---
--- Reached through State, NOT as a global: FriendGroups_FriendsListUpdate is a file-local of
--- FriendGroups.lua, and a bare global reference here resolves to nil in silence.
+-- Forced rebuild for display changes: RequestListUpdate's rosterUnchanged shortcut drops them.
+-- Via State: FriendGroups_FriendsListUpdate is a file-local of FriendGroups.lua.
 local function FG_ForceListRebuild()
 	State = State or addonTable.State
 	if State and type(State.FriendsListUpdate) == "function" then
@@ -687,39 +446,12 @@ local function FG_GroupPassesFilter(groupName)
 	return FG_GroupFilter[groupName] == true
 end
 
--- ============================================================================
--- [[ NATIVE FILTER CHECKBOXES ]]
--- The Filter dropdown's Status and Tags boxes are Blizzard's, and they worked by
--- re-running the whole search: OnSearchEnterPressed composes the ticked options and
--- hands them to the server, then rebuilds the provider from the result. Read from the
--- 12.1 source:
---
---   function FriendsListSocialViewMixin:OnSearchEnterPressed(text)
---       local activeSearchInfo = self:BuildActiveSearchInfo();
---       activeSearchInfo.searchText = text or "";
---       local friendsData = C_BattleNet.SearchFriends(activeSearchInfo);
---       self.ScrollBox:SetDataProvider(self:GenerateDataProvider(friendsData), ...);
---   end
---
--- Because FriendGroups re-asserts its own grouped provider over the top, that rebuild was
--- discarded and ticking a box did nothing -- a native control we silently broke.
---
--- The fix reuses Blizzard's own machinery rather than reimplementing presence and tag
--- predicates: BuildActiveSearchInfo composes the ticked options, and C_BattleNet
--- .SearchFriends returns a plain ARRAY OF FRIEND INDICES (confirmed in
--- InsertFriendsIntoDataProvider, which does `for _, friendIndex in ipairs(friendsData)`).
--- Those indices are the same index space as element.id, so honouring the filter is a set
--- membership test during the build.
---
--- Called ONCE per rebuild, never per keystroke -- the plan's standing rule about
--- SearchFriends. When nothing is ticked this returns nil before making any call at all,
--- so the unfiltered path is exactly what it was.
+-- [[ NATIVE FILTER CHECKBOXES ]] Status/Tags: SearchFriends(BuildActiveSearchInfo()) returns
+-- friend indices (same space as element.id), used as an allow-set. Once per rebuild, never
+-- per keystroke; nil with nothing ticked.
 local function FG_BuildFilterAllowSet(view)
 	if not view or type(view.BuildActiveSearchInfo) ~= "function" then return nil end
-	-- Routed through Compat.SearchFriends below, which owns the presence check AND the
-	-- forbidden latch. This path only runs with the Social UI live, which is where the call
-	-- is expected to be allowed -- but "expected" is what produced an error per keystroke on
-	-- the other call site, so it goes through the same door.
+	-- Through Compat.SearchFriends, which owns the forbidden latch.
 	if Compat.IsSearchFriendsForbidden() then return nil end
 
 	local ok, searchInfo = pcall(view.BuildActiveSearchInfo, view)
@@ -732,10 +464,8 @@ local function FG_BuildFilterAllowSet(view)
 		or (type(searchInfo.tags) == "table" and #searchInfo.tags > 0)
 	if not active then return nil end
 
-	-- The search TEXT is deliberately cleared. FriendGroups filters live from its own
-	-- matcher -- notes, groups, nicknames, realm, class, known alts, guild -- and none of
-	-- that is visible to the server. Passing the same string here as well would AND the two
-	-- and drop every row that matched on something only we can see.
+	-- Text cleared: our matcher sees notes, groups and alts the server can't, and ANDing would
+	-- drop those matches.
 	searchInfo.searchText = ""
 
 	local friendsData = Compat.SearchFriends(searchInfo)
@@ -748,26 +478,8 @@ local function FG_BuildFilterAllowSet(view)
 	return allowed
 end
 
--- ============================================================================
--- [[ RENDERER ]]
--- Consumes the flat layout array FriendGroups_FriendsListUpdate builds (dividers
--- followed by their members, already sorted) and rebuilds it as the tree the Social
--- UI's ScrollBox expects.
---
--- Skipped element types, deliberately:
---   FRIENDS_BUTTON_TYPE_INVITE      -- Battle.net friend invites are their own tab in
---                                      12.1 (SocialUITabType.FriendRequests), rendered
---                                      by FriendRequestsListTemplates; they are not
---                                      cards and would not initialise as one.
---   FRIENDS_BUTTON_TYPE_WOW         -- legacy C_FriendList character friends. Blizzard's
---                                      own generator (InsertFriendsIntoDataProvider)
---                                      walks C_BattleNet.GetFriendAccountInfo only, and
---                                      FriendsListSocialCardMixin reads elementData
---                                      .accountInfo unconditionally, so a legacy friend
---                                      has no valid card representation.
--- ============================================================================
--- True while a row's context menu is open or a mouse button is held over the list.
--- A rebuild then would release the row under the click and close or swallow its menu.
+-- [[ RENDERER ]] Skips INVITE rows (their own tab on 12.1) and WOW rows (no accountInfo card).
+-- True while a row's menu is open or a button is held over the list: a rebuild would release it.
 local function FG_RowInteractionActive(view)
 	local manager = Menu and type(Menu.GetManager) == "function" and Menu.GetManager()
 	local menu = manager and manager:GetOpenMenu()
@@ -782,6 +494,31 @@ local function FG_RowInteractionActive(view)
 end
 
 local FG_DeferredLayout
+
+-- [[ EVENT DIET ]] Social UI twin of the FriendsFrame diet in FriendGroups.lua. Blizzard's view
+-- rebuilt its whole list on every BN_FRIEND_INFO_CHANGED; the roster engine already rebuilds ours.
+-- The view re-registers in each OnShow, so this re-runs then. docs: FriendGroups-friends-list-freeze.md
+local FG_DIET_EVENT = "BN_FRIEND_INFO_CHANGED"
+local FG_DietActive = false
+
+local function FG_UpdateEventDiet()
+	local view = SocialUIFrame and SocialUIFrame.FriendsList
+	if type(view) ~= "table" or type(view.UnregisterEvent) ~= "function" then return end
+	-- Hidden: Blizzard's OnHide has dropped the event and its OnShow will add it back.
+	if not view:IsVisible() then
+		FG_DietActive = false
+		return
+	end
+	local inCharge = Compat.IsSocialUIActive() and FG_SocialProvider ~= nil
+		and view.ScrollBox ~= nil and view.ScrollBox:GetDataProvider() == FG_SocialProvider
+	if inCharge then
+		view:UnregisterEvent(FG_DIET_EVENT)
+		FG_DietActive = true
+	elseif FG_DietActive then
+		view:RegisterEvent(FG_DIET_EVENT)
+		FG_DietActive = false
+	end
+end
 
 -- [[ SCROLL MEMORY ]] Blizzard's own list, swapped in on every BN_FRIEND_INFO_CHANGED, is
 -- shorter than ours and its layout clamps the offset; ours kept the clamp, so the list jumped
@@ -820,12 +557,12 @@ end
 -- The only way FriendGroups puts its list in, so the echo guard and the restore are never missed.
 local function FG_SetOurProvider(scrollBox, provider)
 	FG_InstallingProvider = true
-	scrollBox:SetDataProvider(provider, ScrollBoxConstants.RetainScrollPosition)
+	Perf.Time("fg.setProvider", scrollBox.SetDataProvider, scrollBox, provider, ScrollBoxConstants.RetainScrollPosition)
 	FG_InstallingProvider = false
 	FG_RestoreScroll(scrollBox)
 end
 
-function Compat.RenderSocialUIList(layout)
+local function FG_RenderSocialUIList(layout)
 	State = State or addonTable.State
 
 	local view = Compat.GetSocialUIFriendsView()
@@ -834,6 +571,7 @@ function Compat.RenderSocialUIList(layout)
 
 	-- Held, not dropped: the newest layout runs as soon as the click or menu is done.
 	if FG_RowInteractionActive(view) then
+		Perf.Count("render.held")
 		local alreadyWaiting = FG_DeferredLayout ~= nil
 		FG_DeferredLayout = layout
 		if not alreadyWaiting then
@@ -853,10 +591,7 @@ function Compat.RenderSocialUIList(layout)
 	end
 	FG_DeferredLayout = nil
 
-	-- Presence guards for the two shared-XML symbols this path depends on. Both ship
-	-- with the ScrollBox system the Social UI itself is built on, so a client that
-	-- reports the Social UI as enabled always has them; the guards exist so a future
-	-- reshuffle degrades to "no grouping" instead of erroring on every list refresh.
+	-- Guards so a reshuffle degrades to "no grouping" instead of erroring every refresh.
 	if type(CreateTreeDataProvider) ~= "function" then return end
 	if type(ScrollBoxConstants) ~= "table" or ScrollBoxConstants.RetainScrollPosition == nil then return end
 	if type(TreeDataProviderMixin) ~= "table" or type(TreeDataProviderMixin.Event) ~= "table" then return end
@@ -872,13 +607,8 @@ function Compat.RenderSocialUIList(layout)
 	-- indices Blizzard's own search allows through.
 	local allowSet = FG_BuildFilterAllowSet(view)
 
-	-- [[ BUCKET, THEN EMIT ]]
-	-- The layout is walked into per-group buckets first and only turned into nodes
-	-- afterwards. A tree node's header has to be inserted BEFORE its children, but with a
-	-- filter active the header's count -- and whether the group should appear at all --
-	-- are not known until its members have been tested. Buffering is what lets both be
-	-- decided from the survivors, and it also means each friend's account info is fetched
-	-- exactly once, as the single-pass version did.
+	-- Bucket first: a header goes in before its children, but its count and visibility depend
+	-- on which members survive the filter.
 	local buckets = {}
 	local currentBucket = nil
 
@@ -898,40 +628,17 @@ function Compat.RenderSocialUIList(layout)
 			-- filtered-out friend costs nothing beyond one table lookup.
 			local allowed = (allowSet == nil) or allowSet[element.id]
 
-			-- Re-read the account info at build time rather than carrying a cached table
-			-- through the layout, matching what Blizzard's own generator does on every
-			-- refresh. element.id is the Battle.net friend index, the same value
-			-- C_BattleNet.GetFriendAccountInfo takes.
+			-- Re-read per build, like Blizzard's generator. element.id is the Battle.net friend index.
 			local accountInfo = allowed and Compat.GetFriendAccountInfo(element.id) or nil
 			if accountInfo then
-				-- [[ NOTE DSL CONTAINMENT ]]
-				-- Blizzard's card tooltip prints accountInfo.note verbatim, which would put
-				-- the addon's own grammar -- @[nickname] and #group -- on screen as raw text.
-				-- That tooltip is built by a LOCAL function in Blizzard_FriendsFrame, so it
-				-- cannot be hooked; the note is cleaned at the source instead.
-				--
-				-- Safe to mutate: C_BattleNet.GetFriendAccountInfo returns a freshly built
-				-- table on every call, and this one is ours alone -- the group parser runs
-				-- off its own separate fetch in FriendGroups_FriendsListUpdate.
-				--
-				-- FriendGroups_NoteForDisplay is the same function every other surface uses,
-				-- so what Blizzard's tooltip shows now matches the row and the alt tooltip
-				-- by construction rather than by a parallel rule that could drift.
+				-- Blizzard's card tooltip (an unhookable local) prints the note verbatim: strip our grammar
+				-- here. Safe to mutate: this accountInfo table is fresh and ours alone.
 				if type(accountInfo.note) == "string" then
 					accountInfo.note = FriendGroups_NoteForDisplay(accountInfo.note)
 				end
 
-				-- friendIndex/accountInfo are what Blizzard's card reads. id/buttonType are
-				-- the legacy element shape, carried so FriendGroups' own row-level code --
-				-- FriendGroups_ShowButtonAltTooltip in particular -- accepts the card
-				-- directly without a translation layer.
-				--
-				-- The TIER matters and must not be flattened to BNET. A 12.1 title friend is
-				-- the successor to a C_FriendList character friend, so it carries
-				-- FRIENDS_BUTTON_TYPE_WOW -- which is exactly what stops the known-alts panel
-				-- opening for someone who has no Battle.net account to track alts against, and
-				-- what makes every other tier-aware branch in the addon behave as it does on
-				-- 12.0.7 for a character friend.
+				-- friendIndex/accountInfo for Blizzard's card; id/buttonType for our row code. Title friends
+				-- stay FRIENDS_BUTTON_TYPE_WOW (no alt panel), never flattened to BNET.
 				local rowType = Compat.IsTitleFriend(accountInfo)
 					and FRIENDS_BUTTON_TYPE_WOW
 					or FRIENDS_BUTTON_TYPE_BNET
@@ -965,15 +672,8 @@ function Compat.RenderSocialUIList(layout)
 	for i = 1, #buckets do
 		local bucket = buckets[i]
 
-		-- Two independent filters decide whether a group is drawn:
-		--
-		-- The GROUP filter drops the whole group when other groups are ticked and this one
-		-- is not. The native STATUS/TAGS filter drops a group every member of which was
-		-- filtered out, rather than leaving an empty header -- which is what Blizzard's own
-		-- TryInsertFriendsSubTree does when a subtree total reaches zero.
-		--
-		-- With neither active nothing is suppressed, so "Hide Empty Groups" remains the
-		-- only thing deciding whether an empty group is drawn.
+		-- Group filter drops unticked groups; Status/Tags drops groups with no survivors. With
+		-- neither active, only Hide Empty Groups decides.
 		local groupAllowed = FG_GroupPassesFilter(bucket.groupName)
 		local hasSurvivors = (allowSet == nil) or (#bucket.members > 0)
 
@@ -994,21 +694,14 @@ function Compat.RenderSocialUIList(layout)
 				headerCount = FG_BuildHeaderCount(bucket.groupName)
 			end
 
-			-- groupName and headerCount ride alongside headerText. headerText is the LABEL
-			-- alone -- Blizzard's factory reads only that, and writes it into a left-aligned
-			-- fontstring -- while the count is drawn separately, right-aligned, by
-			-- FG_ApplyHeaderDecoration. The extra fields are free: the factory ignores them.
+			-- Factory reads only headerText; the extra fields ride along for FG_ApplyHeaderDecoration.
 			local headerNode = provider:Insert({
 				headerText = FG_BuildHeaderText(bucket.groupName),
 				headerCount = headerCount,
 				groupName = bucket.groupName,
 			})
 
-			-- Seed the saved collapse state BEFORE the children go in.
-			-- SetCollapsed(collapsed, affectChildren, skipInvalidate): children are
-			-- left alone (they are leaf cards, not subtrees) and invalidation is
-			-- skipped because the provider is still detached from the ScrollBox and
-			-- about to be handed over whole.
+			-- Seed collapse before inserting children; skip invalidation (provider not attached yet).
 			local collapsed = false
 			if type(FriendGroups_SavedVars) == "table"
 				and type(FriendGroups_SavedVars.collapsed) == "table"
@@ -1026,14 +719,11 @@ function Compat.RenderSocialUIList(layout)
 		end
 	end
 
-	-- No collapse reconcile is registered here any more. Collapse now travels one way only:
-	-- the header's click handler writes FriendGroups_SavedVars.collapsed and rebuilds, and
-	-- the build seeds each node from it. An OnSizeChanged callback writing node state back
-	-- into the same variable would make two writers for one fact, and the click handler's
-	-- "Auto Collapse Groups" pass could be undone by whichever fired last.
+	-- Collapse flows one way: click handler writes SavedVars and rebuilds. No reverse callback.
 	FG_InstallScrollMemory(view.ScrollBox)
 	FG_SocialProvider = provider
 	FG_SetOurProvider(view.ScrollBox, provider)
+	FG_UpdateEventDiet()
 
 	-- Blizzard's element factory has just initialised the visible cards with its own text.
 	-- Apply the FriendGroups display settings over the top, and hook each frame so a
@@ -1044,12 +734,7 @@ function Compat.RenderSocialUIList(layout)
 	-- the title here too -- RefreshTitle alone only fires on tab changes.
 	FG_UpdateContactCounter(view)
 
-	-- [[ ELLESMEREUI WIDGET PASS ]] the chrome around the list -- Add New Friend, the
-	-- search field, the filter dropdown, the panel's labels -- through EllesmereUI's own
-	-- primitives. Raised from here rather than once at init because these widgets are
-	-- built lazily and some do not exist until the panel has been shown. The primitives
-	-- are documented as idempotent, so a re-call on an already-skinned frame costs one
-	-- table lookup, and the pass simply does nothing when EllesmereUI is absent.
+	-- [[ ELLESMEREUI WIDGET PASS ]] Here, not at init: these widgets are built lazily. Idempotent.
 	local skin = _G.FriendGroupsEUISkin
 	if skin and type(skin.SkinSocialWidgets) == "function" then
 		skin.SkinSocialWidgets(view)
@@ -1060,22 +745,18 @@ function Compat.RenderSocialUIList(layout)
 	FG_HookFilterDropdown(view)
 end
 
--- ============================================================================
--- [[ PROVIDER RE-ASSERT ]]
--- Direct counterpart of FriendGroups_ReassertGroupedProvider on the legacy path, and
--- for the same reason: FriendsListSocialViewMixin:Refresh installs its own flat-ish
--- provider, so ours is swapped back inside the same execution, before anything renders.
--- ============================================================================
--- True once a grouped provider has been built and installed at least once this session.
--- FriendGroups_FriendsListUpdate consults this before taking its "roster unchanged, nothing
--- to do" shortcut: the very first build can be deferred (opening the list while in combat
--- queues it), and without this the queued rebuild would find a clean roster and return
--- without ever installing the grouped provider.
+function Compat.RenderSocialUIList(layout)
+	return Perf.Time("fg.render", FG_RenderSocialUIList, layout)
+end
+
+-- [[ PROVIDER RE-ASSERT ]] Blizzard's Refresh installs its flat provider; ours goes back in the
+-- same execution. HasSocialUIProvider stops the roster shortcut skipping a combat-deferred
+-- first build.
 function Compat.HasSocialUIProvider()
 	return FG_SocialProvider ~= nil
 end
 
-function Compat.ReassertSocialUIProvider()
+local function FG_ReassertSocialUIProvider()
 	if not FG_SocialProvider then return end
 
 	local view = Compat.GetSocialUIFriendsView()
@@ -1084,38 +765,21 @@ function Compat.ReassertSocialUIProvider()
 	if view.ScrollBox:GetDataProvider() == FG_SocialProvider then return end
 
 	FG_SetOurProvider(view.ScrollBox, FG_SocialProvider)
+	FG_UpdateEventDiet()
 
 	-- The swap re-initialises the visible cards from Blizzard's factory, wiping our text.
 	FG_ApplyToVisibleCards(view)
 end
 
--- ============================================================================
--- [[ ROW CONTENT ]]
--- The Social UI card carries five display strings: FriendName (the account identity),
--- then Name / Level / Class on one line, then Location. Blizzard fills all five from
--- FriendsListUtil in FriendsListSocialCardMixin:InitializeCardDisplayText.
---
--- This runs afterwards and re-states the ones FriendGroups has an opinion about, so the
--- user's display settings apply to the native card. Blizzard's own values are left in
--- place wherever FriendGroups has nothing to add -- every override below is conditional,
--- so a disabled setting means Blizzard's text simply survives untouched.
---
--- Row GEOMETRY is deliberately not touched here: the card keeps Blizzard's height and
--- anchoring, and LayoutScaledContent is re-run at the end so their layout pass sees our
--- strings. Retail's denser row is a later step.
--- ============================================================================
+function Compat.ReassertSocialUIProvider()
+	return Perf.Time("fg.reassert", FG_ReassertSocialUIProvider)
+end
 
--- [[ ROW DENSITY ]]
--- Blizzard's card is 70px (85 at large text scale) laid out over three text rows: the
--- account name, then character/level/class, then location. Retail FriendGroups packs the
--- same information into ONE rich line, with the note beneath it, and is far denser.
---
--- These two values are the tuning knobs for that. They are BASE heights: the extent
--- previewer still scales them through TextSizeManager using the card template's own
--- scaleWeight, so large-text users keep working rows.
--- Retail's own friend row is FRIENDS_FRAME_FRIEND_HEIGHT = 34 and fits BOTH lines in it.
--- These match that rather than Blizzard's roomier card, which is the whole point of the
--- exercise: a long contact list has to stay scannable.
+-- [[ ROW CONTENT ]] Runs after InitializeCardDisplayText and re-states only what a setting
+-- changes, so a disabled setting leaves Blizzard's text alone.
+
+-- [[ ROW DENSITY ]] Base heights (TextSizeManager still scales them), matching retail's 34px
+-- two-line row rather than Blizzard's 70px card.
 local FG_CARD_HEIGHT_COMPACT = 24    -- one rich line
 local FG_CARD_HEIGHT_WITH_NOTE = 34  -- rich line plus the second line, as retail
 
@@ -1128,16 +792,8 @@ local FG_ROW_ICON_SIZE = 14
 local FG_STATUS_MIN_WIDTH = 16
 local FG_STATUS_MAX_WIDTH = 24
 
--- The text column never gets less than this share of the row, whatever the icon gutters
--- would otherwise claim. A last-resort floor, not a layout rule: every gutter above it is
--- derived from the row height, so a wrong row height would otherwise push the name off the
--- card entirely rather than merely making it look odd.
---
--- Set LOW on purpose. At 0.5 it engaged on a legitimate combination -- Large text in a
--- narrow panel -- and quietly shaved the right-hand reserve, which is the one gutter that
--- must not shrink, since it is what keeps the name clear of Blizzard's game and faction
--- icons. At 0.4 every legitimate configuration clears it untouched and only a genuinely
--- broken row height reaches it.
+-- Floor on the text column's share; only a broken row height reaches it. Above 0.4 it shaved
+-- the right reserve on Large text in a narrow panel.
 local FG_MIN_TEXT_SHARE = 0.4
 
 -- Gap between the name and the second line. Named because the row-centring maths has to
@@ -1152,32 +808,9 @@ local FG_NICKNAME_COLOR = CreateColor(0, 1, 0)
 -- than the near-miss shared DISABLED_FONT_COLOR, so both platforms look identical.
 local FG_DIM_COLOR = CreateColor(148 / 255, 150 / 255, 148 / 255)
 
--- [[ ROW FONT SCALE ]]
--- Indexed by FriendGroups_GetFontScale(): 1 Small, 2 Medium, 3 Large.
---
---   fontDelta      added to Blizzard's PRISTINE size for the string, never to the current one
---   compactHeight  row height with one text line
---   noteHeight     row height with the note line as well
---
--- Medium is the historical behaviour to the point: delta -1 and the two base heights above
--- verbatim, which is what FG_ShrinkFont did unconditionally before this setting existed. So
--- a user who never opens the menu sees no change at all.
---
--- The height has to move with the font or the row clips: it is a fixed extent, not a frame
--- that grows to fit its text.
---
--- HEIGHTS ARE EXPLICIT, NOT A MULTIPLIER, and that is the whole point. A proportional
--- heightScale was tried first and made Small clip. The text block is anchored to the TOP of
--- the card by FIXED insets -- 4px above the name, 2px between the lines -- so only the glyph
--- rows scale with the font while the padding does not. Multiplying the whole row therefore
--- moved it FASTER than its contents in both directions: Small lost 4px of row to reclaim
--- 2.3px of text and clipped, Large gained 7px to spend 4.6px and just looked loose. Each
--- step now carries the height its own font size actually needs.
---
--- Small is the tight one and is the reason these are tuned rather than derived: a 1pt drop
--- across two lines is worth about 2px, so it takes 2 off the row and no more. CJK glyphs are
--- taller than Latin at equal point size and are what run out of room first, so any retune
--- has to be checked against a contact whose name or note is CJK, not against Latin alone.
+-- [[ ROW FONT SCALE ]] 1 Small, 2 Medium, 3 Large. fontDelta applies to Blizzard's pristine size.
+-- Heights are explicit, not a multiplier: padding is fixed, so scaling the row clipped Small.
+-- Check any retune against CJK names, which are taller.
 local FG_FONT_SCALE_STEPS = {
 	[1] = { fontDelta = -2, compactHeight = FG_CARD_HEIGHT_COMPACT - 1, noteHeight = FG_CARD_HEIGHT_WITH_NOTE - 2 },
 	[2] = { fontDelta = -1, compactHeight = FG_CARD_HEIGHT_COMPACT,     noteHeight = FG_CARD_HEIGHT_WITH_NOTE     },
@@ -1227,35 +860,24 @@ FG_InstallCardHeightOverride = function(view)
 	FG_ExtentScrollView = scrollView
 
 	scrollView:SetElementExtentCalculator(function(_, node)
+		local t0 = Perf.on and debugprofilestop()
 		local data = node and type(node.GetData) == "function" and node:GetData()
+		local extent
 		if data and data.isSpacer then
-			return view:CalculateTemplateExtent("SocialUIScrollableSpacerTemplate")
+			extent = view:CalculateTemplateExtent("SocialUIScrollableSpacerTemplate")
 		elseif data and data.headerText ~= nil then
-			return view:CalculateTemplateExtent("SocialUIScrollableHeaderTemplate")
+			extent = view:CalculateTemplateExtent("SocialUIScrollableHeaderTemplate")
+		else
+			extent = FG_ScaledCardHeight(view)
 		end
-		return FG_ScaledCardHeight(view)
+		if t0 then Perf.Extent(t0) end
+		return extent
 	end)
 	return true
 end
 
--- [[ CLASS ICON ]]
--- A real texture at retail's geometry, not inline markup: the retail row sizes its class
--- icon to the ROW HEIGHT (minus 4) and anchors it LEFT +4, then reserves a matching left
--- gutter for the text. Inline markup can only ever be font-sized, so it could not match.
---
--- Every number and the atlas/TexCoord fallback here are lifted from the retail renderer so
--- both platforms draw an identical icon. Returns the left gutter the text must clear.
---
--- [[ THE GUTTER IS RESERVED BY THE SETTING, NOT BY THE LOOKUP ]]
--- "Class icons are on" and "this friend's class is known" are two different questions, and
--- collapsing them into one branch is what made offline rows sit five pixels left of online
--- ones. class comes from gameAccountInfo.className, which is absent for EVERY row without a
--- live WoW session -- offline friends, app/mobile friends, friends in another Blizzard game
--- -- so those rows lost the gutter entirely and both text lines slid under the icon column.
---
--- FriendGroups_ApplyRowLayout has always had this right on the legacy list: it derives
--- leftPad from show_class_icons alone and lets the token decide only Show vs Hide. This is
--- that structure, so the two platforms now indent identically.
+-- [[ CLASS ICON ]] Retail geometry: row height - 4, LEFT +4. The gutter follows the setting,
+-- not whether the class is known, or offline and app rows shift left.
 local function FG_UpdateClassIcon(card, class, iconSize, desaturated)
 	if not card.fgClassIcon then
 		card.fgClassIcon = card:CreateTexture(nil, "ARTWORK", nil, 2)
@@ -1269,17 +891,10 @@ local function FG_UpdateClassIcon(card, class, iconSize, desaturated)
 			and State.ResolveClassToken(class) or nil
 	end
 
-	-- Retail's own two values, and now literally the same expression the legacy renderer uses.
-	-- The presence dot no longer needs to be measured here: it used to straddle the row's
-	-- top-left corner, so the text had to clear it, but it is now re-anchored into its own
-	-- reserved column to the RIGHT of this gutter (see the status block in
-	-- FG_ApplySocialCardContent), exactly as retail has always laid the row out.
+	-- Same expression as the legacy renderer; the status dot has its own column to the right.
 	local iconGutter = showIcons and (iconSize + 8) or 6
 
-	-- Either no icons at all, or no class to draw for this row. Both hide the texture; only
-	-- the first gives the space back. Keeping the column reserved in the second case is what
-	-- lines an offline (or app/mobile) row up with its neighbours -- both text lines hang off
-	-- this one value, since Location anchors to FriendName.
+	-- Hide the texture but keep the column, so classless rows line up.
 	if not token then
 		icon:Hide()
 		return iconGutter
@@ -1362,29 +977,18 @@ local function FG_ShrinkFont(card, fontString, key)
 	fontString:SetFont(path, size, flags)
 end
 
--- [[ RIGHT-SIDE ICON CLUSTER ]] faction icon then realm flag, marching leftwards from
--- Blizzard's game icon exactly as retail marches them leftwards from its own:
---   facIcon    sized to the game icon,        anchored RIGHT -> gameIcon LEFT
---   realmFlag  sized to 0.75 of the game icon, anchored RIGHT -> facIcon LEFT (-1),
---              or straight onto the game icon when no faction icon is shown
--- Returns the width the text must keep clear on the right, built the same way retail
--- accumulates its rightReserve so toggling an icon off gives the width back to the text.
+-- [[ RIGHT-SIDE ICON CLUSTER ]] Faction icon then realm flag (0.75 size), leftwards from the
+-- game icon. Returns the right reserve; hidden icons give their width back.
 local function FG_UpdateRightIcons(card, gameInfo, iconSize)
 	local gameIcon = card.GameIconHolder
 	if not gameIcon then return 31 end
 
-	-- Every row icon is driven from the SAME size as the class icon so the four of them
-	-- match and all track the Contact List Size setting together. Blizzard pins its game
-	-- icon holder to a fixed 20x20 in XML, so it is resized here too; its .Icon is
-	-- setAllPoints, so the texture follows.
+	-- One size for every row icon; Blizzard's game icon holder is fixed 20x20 in XML, so resize it.
 	local iconW, iconH = iconSize, iconSize
 	gameIcon:SetSize(iconSize, iconSize)
 
-	-- [[ SHOW GAME ICON ]] Blizzard's InitializeGameIcon decides this frame's visibility from
-	-- its own rules and re-runs before us on every initialise, so the user's setting is
-	-- applied here, afterwards. Retail does three things when the icon is off -- hides it,
-	-- drops it from the right reserve, and lets the faction icon / realm flag take over its
-	-- slot so the text reclaims the width -- and all three are mirrored below.
+	-- [[ SHOW GAME ICON ]] Blizzard re-decides visibility first on every initialise, so apply the
+	-- setting after: hide it, drop it from the reserve, slide faction/realm into its slot.
 	local showGameIcon = not (FriendGroups_SavedVars.show_game_icon == false)
 	if not showGameIcon then
 		gameIcon:Hide()
@@ -1460,7 +1064,7 @@ local function FG_UpdateRightIcons(card, gameInfo, iconSize)
 	return reserve
 end
 
-FG_ApplySocialCardContent = function(card)
+local function FG_ApplySocialCardContentBody(card)
 	FG_RowApplyCalls = FG_RowApplyCalls + 1
 
 	if not Compat.IsSocialUIActive() then return end
@@ -1469,8 +1073,11 @@ FG_ApplySocialCardContent = function(card)
 	local elementData = card and card.elementData
 	local accountInfo = elementData and elementData.accountInfo
 	if not accountInfo then return end
+	-- Blizzard's element (no buttonType) while ours exists: replaced in this same execution.
+	if FG_SocialProvider and elementData.buttonType == nil then return end
 
 	FG_RowApplyApplied = FG_RowApplyApplied + 1
+	card.fgAppliedData = elementData
 	State = State or addonTable.State
 
 	-- Make the card answer to the legacy row contract. FriendGroups_ShowButtonAltTooltip
@@ -1515,12 +1122,8 @@ FG_ApplySocialCardContent = function(card)
 		canCoop = CanCooperateWithGameAccount(accountInfo) and true or false
 	end
 
-	-- [[ TITLE FRIENDS ]] 12.1's "WoW Friend" tier. Their accountName IS a character name,
-	-- so feeding them through the Battle.net builder prints the person twice --
-	-- "Lotrui-Anasterian [Puddingpal]". Retail has never done that: a character friend
-	-- renders as the bracketed, class-coloured name plus the level suffix, nothing else.
-	-- This branch reproduces retail's character-friend row, with the nickname kept because
-	-- 12.1 lets these friends carry one.
+	-- [[ TITLE FRIENDS ]] accountName is a character name, so render retail's character-friend
+	-- row (bracketed class-coloured name and level), keeping the 12.1 nickname.
 	local isTitleFriend = false
 	if type(FriendsListUtil) == "table" and type(FriendsListUtil.IsTitleFriend) == "function" then
 		isTitleFriend = FriendsListUtil.IsTitleFriend(accountInfo) and true or false
@@ -1530,11 +1133,8 @@ FG_ApplySocialCardContent = function(card)
 	if isTitleFriend then
 		local displayName = characterName or accountInfo.accountName or UNKNOWN
 
-		-- [[ STREAMER MODE ]] This tier is exactly the case the |K escape breaks: offline,
-		-- characterName is nil and accountName is the six-byte escape, which cannot be
-		-- sliced. FriendGroups_StreamerName falls back to the plain-text name recorded while
-		-- the friend was last online, so these rows still reveal three real characters
-		-- instead of collapsing to an indistinguishable row of asterisks.
+		-- [[ STREAMER MODE ]] Offline, accountName is a |K escape that can't be sliced:
+		-- FriendGroups_StreamerName falls back to the name recorded while online.
 		if FriendGroups_IsStreamerMode and FriendGroups_IsStreamerMode() then
 			displayName = FriendGroups_StreamerName(displayName, accountInfo)
 		end
@@ -1579,21 +1179,12 @@ FG_ApplySocialCardContent = function(card)
 
 	card.FriendName:SetText(line)
 
-	-- [[ NAME COLOUR ]] The account name itself carries no colour code -- retail leaves it
-	-- to the fontstring's own colour, which is Battle.net blue for an online BNet friend and
-	-- grey when offline. FriendsFrame_GetBNetAccountNameAndStatus is Blizzard's own source
-	-- for that colour, and is what the retail row renderer reads. The embedded codes inside
-	-- the line (character name, level, aka) are unaffected; this only tints the bare account
-	-- name, exactly as on retail.
+	-- [[ NAME COLOUR ]] Colour from FriendsFrame_GetBNetAccountNameAndStatus, as retail does.
 	if type(FriendsFrame_GetBNetAccountNameAndStatus) == "function" then
 		local _, nameColor = FriendsFrame_GetBNetAccountNameAndStatus(accountInfo)
 
-		-- [[ ONE COLOUR FOR EVERY TIER ]] 12.1 tints title friends with HIGHLIGHT_FONT_COLOR
-		-- (white) to mark them apart from account friends. Retail FriendGroups has always used
-		-- FRIENDS_BNET_NAME_COLOR for BOTH Battle.net and character friends -- deliberately, so
-		-- the level suffix renders identically and class colour alone conveys the class. That
-		-- consistency is kept here: online is blue whatever the tier, offline keeps Blizzard's
-		-- grey, and the embedded codes inside the line are untouched.
+		-- [[ ONE COLOUR FOR EVERY TIER ]] Online is Battle.net blue for title friends too (12.1 uses
+		-- white), so class colour alone conveys class.
 		local gameInfoForColor = accountInfo.gameAccountInfo
 		if gameInfoForColor and gameInfoForColor.isOnline and FRIENDS_BNET_NAME_COLOR then
 			nameColor = FRIENDS_BNET_NAME_COLOR
@@ -1644,65 +1235,27 @@ FG_ApplySocialCardContent = function(card)
 	-- never sets text -- so this cannot recurse back into here.
 	card:LayoutScaledContent()
 
-	-- [[ TYPE SIZE ]] one step below Blizzard's card, which is set for a roomier row than
-	-- ours. The font OBJECT is reinstated before shrinking so repeated applications cannot
-	-- compound -- this runs on every recycle, and a relative "size - 1" without the reset
-	-- would shave a point off each time until the row was unreadable.
-	--
-	-- Applied HERE, above the geometry, and that ordering is load-bearing: it used to run at
-	-- the end of the row, so the block below was anchoring text whose size had not been set
-	-- yet and any measurement of it described the previous recycle's font. Blizzard's pass
-	-- above still sees the same fonts it has always seen, since it ran first either way.
+	-- [[ TYPE SIZE ]] Reset the font object before shrinking or it compounds on every recycle.
+	-- Must run before the geometry below, which measures the text.
 	FG_ShrinkFont(card, card.FriendName, "FriendName")
 	FG_ShrinkFont(card, card.Location, "Location")
 
-	-- [[ RETAIL ROW GEOMETRY ]] applied AFTER their pass, which would otherwise reinstate
-	-- its own three-row anchoring. Every offset below is retail's:
-	--   class icon  -> LEFT +4, sized to the row height, claiming a leftPad gutter
-	--   status icon -> LEFT at leftPad, widening the text gutter by STATUS_W + 4
-	--   text        -> nameLeft to -rightReserve, vertically CENTRED (see below). This is the
-	--                  one offset that is NOT retail's: retail hangs the block from a fixed
-	--                  -4, which only centres at the single font size it was tuned against.
-	--   second line -> directly beneath the name, sharing its right edge
-	-- One size drives every icon on the row -- class, status, faction, realm flag and
-	-- Blizzard's game icon -- so they match each other and all track the row height, and
-	-- therefore the Contact List Size setting. Retail's formula: row height less 4.
+	-- [[ RETAIL ROW GEOMETRY ]] After Blizzard's pass, which re-applies its three-row layout. One
+	-- icon size (row height - 4) for every icon; text block vertically centred.
 	local iconSize = (card:GetHeight() or 0) - 4
 	if iconSize <= 0 then iconSize = 16 end
 
 	local leftPad = FG_UpdateClassIcon(card, class, iconSize, classIsMain)
 
-	-- ====================================================================
-	-- [[ STATUS COLUMN ]]
-	-- The presence dot and the favourite star share ONE reserved column, sitting between the
-	-- class icon and the text and vertically centred across both text rows. This is the
-	-- arrangement FriendGroups_ApplyRowLayout has always used on the legacy list, ported here
-	-- verbatim -- same slot width, same star offsets, same "the star claims the slot even when
-	-- the status icon is off" rule.
-	--
-	-- The previous arrangement left Blizzard's dot where their template puts it (straddling
-	-- the row's top-left corner) and badged the star onto it. That put two different things in
-	-- the corner where the class icon's own column begins, so the cluster read as clutter and
-	-- the text gutter had to be measured around it rather than simply reserved.
-	--
-	-- Blizzard's own dot is reused rather than replaced -- it already tracks their text
-	-- scaling and carries the real presence state -- so this only re-anchors it. card.fgStatus
-	-- stays hidden: drawing a second indicator beside theirs was what gave every row two.
-	-- ====================================================================
+	-- [[ STATUS COLUMN ]] Presence dot and favourite star share one column between class icon
+	-- and text, as FriendGroups_ApplyRowLayout does. Blizzard's dot is re-anchored; fgStatus stays hidden.
 	local showStatus = FriendGroups_SavedVars.show_status ~= false
 	local hasStar = card.StateDisplay and card.StateDisplay:IsShown()
 
 	if card.fgStatus then card.fgStatus:Hide() end
 
-	-- Measured, not assumed: the dot is Blizzard's frame and scales with their text setting,
-	-- so the slot has to be as wide as whatever they built. 16 is retail's STATUS_W and the
-	-- fallback for a frame that has not laid out yet.
-	--
-	-- CLAMPED, because a measurement is only as good as the frame it came from. When the row
-	-- height override loses its race at login the card stays at Blizzard's 70px, the dot
-	-- scales with it, and an unclamped slot reserved sixty-odd pixels for an indicator --
-	-- which, on top of a class-icon gutter doing the same, left the name nothing but an
-	-- ellipsis. A presence dot is a small indicator at any legitimate row height.
+	-- Measured (scales with Blizzard's text), default 16, and clamped: a 70px card at login once
+	-- reserved 60px and left the name an ellipsis.
 	local statusW = card.PresenceHolder and card.PresenceHolder:GetWidth()
 	if not statusW or statusW < FG_STATUS_MIN_WIDTH then statusW = FG_STATUS_MIN_WIDTH end
 	if statusW > FG_STATUS_MAX_WIDTH then statusW = FG_STATUS_MAX_WIDTH end
@@ -1714,14 +1267,7 @@ FG_ApplySocialCardContent = function(card)
 		card.PresenceHolder:SetPoint("LEFT", card, "LEFT", leftPad, 0)
 	end
 
-	-- [[ FAVOURITE STAR ]] Blizzard lays StateDisplay out on the RIGHT, where it landed on top
-	-- of the realm flag. Retail's placement instead: a corner badge on the status icon when
-	-- one is shown, or centred in the slot when the star is its only occupant.
-	--
-	-- BEHIND the dot, which is why the dot is the frame raised here and not the star. The
-	-- status is the information you scan the row for; the star is a persistent property you
-	-- already know. Putting the star in front covered the thing that changes with the thing
-	-- that does not.
+	-- [[ FAVOURITE STAR ]] Corner badge on the dot, or centred alone; drawn behind the dot.
 	if card.StateDisplay then
 		card.StateDisplay:ClearAllPoints()
 		if showStatus then
@@ -1739,14 +1285,8 @@ FG_ApplySocialCardContent = function(card)
 	local nameLeft = leftPad + ((showStatus or hasStar) and (statusW + 4) or 0)
 	local rightReserve = FG_UpdateRightIcons(card, gameInfo, iconSize)
 
-	-- [[ THE NAME ALWAYS GETS ROOM ]]
-	-- Both gutters are derived from the row height, so if the row height is wrong they are
-	-- both wrong in the same direction and the text is what pays. That is not hypothetical:
-	-- it is exactly what a mis-sized card produced -- a row of icons with an ellipsis where
-	-- the contact used to be.
-	--
-	-- The gutters are given back proportionally rather than one being zeroed, so the row
-	-- degrades into something cramped-but-legible instead of losing a column outright.
+	-- [[ THE NAME ALWAYS GETS ROOM ]] A wrong row height inflates both gutters; shrink them
+	-- proportionally so the row stays legible.
 	local cardWidth = card:GetWidth() or 0
 	if cardWidth > 0 then
 		local maxGutters = cardWidth * (1 - FG_MIN_TEXT_SHARE)
@@ -1758,18 +1298,8 @@ FG_ApplySocialCardContent = function(card)
 		end
 	end
 
-	-- [[ VERTICAL CENTRING ]] The text block is centred in the row, not hung from the top by
-	-- a fixed inset. With a fixed inset only the TOP margin is a constant -- the bottom is
-	-- whatever the row has left over -- so the two matched at one font size and nowhere else,
-	-- and the block sat visibly low. Centring makes them equal by construction at every size.
-	--
-	-- Measured, not calculated from point sizes: GetStringHeight reports what the font
-	-- actually rendered, so CJK (taller than Latin at equal point size) and any font the
-	-- EllesmereUI skin substitutes are handled without a table of per-script fudge factors.
-	-- Valid only because FG_ShrinkFont now runs above.
-	--
-	-- Row height comes from the card, not FG_GetCardBaseHeight, so the centring follows
-	-- TextSizeManager's scaling of the row rather than our unscaled base value.
+	-- [[ VERTICAL CENTRING ]] From GetStringHeight (handles CJK and EUI fonts) and the card's real
+	-- height. Needs FG_ShrinkFont to have run first.
 	local rowH = card:GetHeight()
 	if not rowH or rowH <= 0 then rowH = FG_GetCardBaseHeight() end
 
@@ -1806,10 +1336,7 @@ FG_ApplySocialCardContent = function(card)
 		card.Location:SetTextColor(grey.r, grey.g, grey.b)
 	end
 
-	-- [[ FACTION ROW TINT ]] retail's own values and its own independent toggle (separate
-	-- from the faction ICON setting). Blizzard re-applies the card's background atlas in
-	-- InitializeBackground on every initialise, so an untinted row restores itself and only
-	-- the tinted case needs writing here.
+	-- [[ FACTION ROW TINT ]] InitializeBackground restores the atlas each initialise; only tint.
 	local tinted = false
 	if gameInfo and FriendGroups_SavedVars.show_faction_color ~= false and card.Background then
 		local faction = gameInfo.factionName
@@ -1825,11 +1352,7 @@ FG_ApplySocialCardContent = function(card)
 		end
 	end
 
-	-- [[ ELLESMEREUI ROW WASH ]] the faction tint keeps precedence where it applies;
-	-- every other row gets the house panel fill so the list reads as one surface instead
-	-- of a column of Blizzard's atlas plates. Written here for the same reason the faction
-	-- tint is: InitializeBackground re-asserts the atlas on every initialise, and we run
-	-- after it.
+	-- [[ ELLESMEREUI ROW WASH ]] Faction tint wins; written after InitializeBackground.
 	if not tinted and card.Background then
 		local theme = FG_EUITheme()
 		if theme then
@@ -1839,28 +1362,22 @@ FG_ApplySocialCardContent = function(card)
 	end
 end
 
--- Raise the known-alts panel for the hovered card. Runs after Blizzard's own tooltip has
--- been built and shown, so the alt panel docks beneath a tooltip whose size is already
--- settled -- the same ordering the legacy list relies on.
---
--- FriendGroups_ShowButtonAltTooltip is a genuine global (verified: no local declaration
--- shadows it in FriendGroups.lua) and reads button.id / button.buttonType, both stamped onto
--- the card by the content applier above.
+FG_ApplySocialCardContent = function(card)
+	if not Perf.on then return FG_ApplySocialCardContentBody(card) end
+	local t0 = debugprofilestop()
+	FG_ApplySocialCardContentBody(card)
+	Perf.Card(t0)
+end
+
+-- Alt panel for the hovered card, after Blizzard's tooltip has settled its size. Reads the
+-- id/buttonType the content applier stamped.
 FG_OnCardShowTooltip = function(card)
 	FG_AltTooltipCalls = FG_AltTooltipCalls + 1
 
 	if not Compat.IsSocialUIActive() then return end
 
-	-- [[ STREAMER MODE ]] Blizzard's card tooltip is built by a LOCAL function inside
-	-- Blizzard_FriendsFrame, so its CONTENT cannot be reached to mask -- and it prints the
-	-- full account name, the character, the realm and the note, which is every single thing
-	-- the row masking exists to withhold. Hovering a row was a hole straight through the
-	-- feature. This is a post-hook, so the tooltip has already been built and shown by the
-	-- time we run; hiding it here is what closes it.
-	--
-	-- ONLY Blizzard's. The known-alts panel is ours, every name in it is masked, and it is
-	-- the reason to hover a row in the first place -- suppressing it too (which an earlier
-	-- pass did) removed a working feature to solve a problem it was not causing.
+	-- [[ STREAMER MODE ]] Blizzard's tooltip (an unhookable local) shows everything the masking
+	-- hides, so hide it in this post-hook. Never the alt panel: it is masked and ours.
 	if type(FriendGroups_IsStreamerMode) == "function" and FriendGroups_IsStreamerMode() then
 		if GameTooltip then GameTooltip:Hide() end
 		if FriendsTooltip then FriendsTooltip:Hide() end
@@ -1878,22 +1395,16 @@ FG_OnCardHideTooltip = function()
 	if not Compat.IsSocialUIActive() then return end
 	if FriendGroupsAltTooltip then FriendGroupsAltTooltip:Hide() end
 
-	-- Hiding the panel is not enough: the hover ANCHOR has to go too. It is what the
-	-- GameTooltip Show hook reads to decide whether a tooltip belongs to FriendGroups, and
-	-- on 12.1 it holds SocialUIFrame rather than the FriendsFrame that hook skips -- so
-	-- leaving it set makes every spell, item and unit tooltip dock to the contact list.
-	-- Routed through State because it is a file-local in FriendGroups.lua.
+	-- Clear the hover anchor too: it holds SocialUIFrame on 12.1, and a stale one docks every
+	-- game tooltip to the list. Via State (file-local in FriendGroups.lua).
 	State = State or addonTable.State
 	if State and type(State.ClearHoverAnchor) == "function" then
 		State.ClearHoverAnchor()
 	end
 end
 
--- ============================================================================
--- [[ GROUPS SUBMENU ]]
--- Post-hook only. Replacing the dropdown's menuGenerator ran Blizzard's filter code tainted,
--- which taints view.selectedSearchFilterOptions and gets SearchFriends forbidden on the next
--- refresh (Forever, 2026-11-05). See FriendGroups-Forever-Port-Plan.md.
+-- [[ GROUPS SUBMENU ]] Post-hook only: replacing menuGenerator tainted
+-- selectedSearchFilterOptions and got SearchFriends forbidden on Forever.
 local FG_FilterMenuHooked = false
 FG_HookFilterDropdown = function(view)
 	if FG_FilterMenuHooked then return false end
@@ -1932,30 +1443,11 @@ FG_HookFilterDropdown = function(view)
 	return true
 end
 
--- ============================================================================
--- [[ HOOKS ]]
--- Refresh, and whichever search-results method this build has, are the ONLY callers of
--- self.ScrollBox:SetDataProvider on FriendsListSocialViewMixin, so post-hooking the pair
--- covers every path that would otherwise leave Blizzard's ungrouped provider on screen:
--- OnShow, BN_FRIEND_LIST_SIZE_CHANGED, BN_FRIEND_INFO_CHANGED,
--- BATTLE_NET_FRIEND_TAG_ENABLED_STATUS_UPDATED, text-scale changes, the search box, and
--- every Filter dropdown checkbox (they all route through the search-results method).
---
--- That second method is NOT a stable name -- it was OnSearchEnterPressed and is
--- RefreshSearchResults as of 12.1.0.69214 -- so it is resolved from FG_SEARCH_HOOK_NAMES at
--- install time and is treated as optional. Only Refresh is required.
---
--- Post-hooks, never replacements. GenerateDataProvider returns a value and so cannot be
--- intercepted by hooksecurefunc, and swapping a method on the instance is precisely the
--- overwrite that caused the 12.2.2 taint regression -- see the SECURE LIST REFRESH note
--- in FriendGroups.lua. Nothing here writes to a Blizzard global.
---
--- The hooks are attached to the view INSTANCE rather than to FriendsListSocialViewMixin.
--- XML mixin= applies Mixin(), which copies functions onto the frame, so hooking the mixin
--- table would not affect a frame that already exists -- and SocialUIFrame builds its
--- content frames during its own OnLoad, long before this runs.
--- ============================================================================
+-- [[ HOOKS ]] Refresh and the search method are the only SetDataProvider callers. Post-hooks
+-- on the view INSTANCE (mixin copies are made at OnLoad); never replace methods (12.2.2 taint).
+-- The search method name changed in 12.1.0.69214, so it is optional.
 local function FG_OnNativeRefresh(_, retainScrollPosition)
+	Perf.HookStart()
 	if not Compat.IsSocialUIActive() then return end
 
 	-- OnShow and BN_DISCONNECTED discard on purpose: the list opens at the top.
@@ -1973,28 +1465,14 @@ local function FG_OnNativeRefresh(_, retainScrollPosition)
 			FriendGroups_RequestListUpdate()
 		end
 	elseif State and type(State.FriendsListUpdate) == "function" then
-		-- First refresh of the session: there is nothing to re-assert yet, so build
-		-- synchronously rather than leaving Blizzard's ungrouped list on screen for the
-		-- length of the throttle window. The combat guard inside still applies.
-		--
-		-- Reached through State, NOT as a global: FriendGroups_FriendsListUpdate is a
-		-- file-local of FriendGroups.lua and a bare global reference here resolves to nil.
+		-- First refresh: build now rather than show Blizzard's list for the throttle window.
+		-- Via State: file-local in FriendGroups.lua.
 		State.FriendsListUpdate(true)
 	end
 end
 
--- The "what should be SHOWN has changed" handler needs to be SEPARATE from Refresh, and
--- conflating the two was the bug.
---
--- Refresh means the ROSTER may have changed, so the throttled, non-forcing path above is
--- right: it coalesces bursts of BN_FRIEND_INFO_CHANGED and skips the work when nothing
--- actually moved.
---
--- This one means the roster is deliberately IDENTICAL and only the view of it has moved --
--- the search text, or a checkbox in the Filter dropdown. That is exactly the case the
--- non-forcing path throws away, so it forces.
--- View methods that mean "the view of the roster has changed", newest build first. Consumed
--- by Compat.InitSocialUI, which hooks the first one this client actually has.
+-- Separate from Refresh: Refresh may mean a roster change (throttled), this means only the
+-- view changed (forced). Newest method name first.
 local FG_SEARCH_HOOK_NAMES = {
 	"RefreshSearchResults",   -- 12.1.0.69214 onwards
 	"OnSearchEnterPressed",   -- earlier 12.1 builds
@@ -2003,21 +1481,14 @@ local FG_SEARCH_HOOK_NAMES = {
 local FG_SearchForceTimer
 
 local function FG_OnNativeSearchChanged()
+	Perf.HookStart()
 	if not Compat.IsSocialUIActive() then return end
 
 	-- Immediate: Blizzard's handler has just put its own provider in, and leaving it up even
 	-- for one frame flashes the ungrouped list.
 	Compat.ReassertSocialUIProvider()
 
-	-- [[ THE REBUILD IS COALESCED ]]
-	-- On 12.1.0.69214 this handler hangs off RefreshSearchResults, which the search bar can
-	-- call on every keystroke -- and a full roster rebuild per keystroke is precisely what
-	-- FG_HookSearchBox's own 0.3s debounce exists to avoid. Its predecessor
-	-- (OnSearchEnterPressed) fired once per commit, so an unguarded force was safe there and
-	-- is not safe here.
-	--
-	-- The window is short enough to be imperceptible on a filter click, which is a single
-	-- discrete action, while still collapsing a typing burst into one pass.
+	-- Coalesced: RefreshSearchResults can fire per keystroke.
 	if FG_SearchForceTimer then FG_SearchForceTimer:Cancel() end
 	FG_SearchForceTimer = C_Timer.NewTimer(0.05, function()
 		FG_SearchForceTimer = nil
@@ -2025,46 +1496,45 @@ local function FG_OnNativeSearchChanged()
 	end)
 end
 
--- Hook installation is deliberately NOT gated on Compat.IsSocialUIActive(). That test
--- includes C_SocialUI.IsSystemEnabled(), which is server-driven: if the status has not
--- arrived by the time this runs, gating on it would skip installation permanently unless
--- the status later CHANGED (an unchanged status fires no event, so there would be no
--- retry). Installation therefore only requires the frame to exist; whether to act at all
--- is decided at call time, inside FG_OnNativeRefresh.
+-- Not gated on IsSocialUIActive: the server status may arrive late and an unchanged status
+-- fires no event. Acting is decided at call time.
+-- /fg perf attaches its end-of-refresh mark only after the Refresh hook below exists.
+Perf.fgHooksReady = function() return hooksInstalled end
+
+Perf.AddContext(function()
+	if not Compat.IsSocialUIActive() then
+		return "Social UI module: not in use, the legacy friends list is (Social UI lines below stay empty)"
+	end
+	local view = SocialUIFrame and SocialUIFrame.FriendsList
+	local diet = "n/a, list closed"
+	if view and type(view.IsVisible) == "function" and view:IsVisible() then
+		local listens = type(view.IsEventRegistered) == "function" and view:IsEventRegistered(FG_DIET_EVENT)
+		diet = string.format("%s, Blizzard listening %s", tostring(FG_DietActive), tostring(listens))
+	end
+	return string.format("Social UI module: hooks %s, grouped list %s, groups %d, row height %s (override %s), event diet %s",
+		tostring(hooksInstalled), tostring(FG_SocialProvider ~= nil), #FG_LastGroupOrder,
+		tostring(math.floor(FG_GetCardBaseHeight() or 0)), tostring(cardHeightInstalled), diet)
+end)
+
 function Compat.InitSocialUI()
 	if hooksInstalled then return end
 
 	local view = SocialUIFrame and SocialUIFrame.FriendsList
 	if not view then return end
 
-	-- [[ GATE ON WHAT IS ESSENTIAL, AND ONLY THAT ]]
-	-- Refresh is genuinely required: it is how Blizzard tells us it has installed its own
-	-- provider, and without it ours can never be re-asserted.
-	--
-	-- Nothing else is. This used to ALSO require OnSearchEnterPressed, and build
-	-- 12.1.0.69214 removed that method -- so this function returned here, before the latch
-	-- below, and every hook after it was silently never installed: the provider re-assert,
-	-- the row content, the portrait, the panel sizing, the status dropdown, the BattleTag
-	-- label. The visible result was the addon appearing to do nothing at all, because one
-	-- OPTIONAL method had gone.
-	--
-	-- The file already argues this above for IsSocialUIActive: do not gate installation on
-	-- something that can be absent for reasons that have nothing to do with whether the rest
-	-- can work. A missing method must cost the one feature that needs it, nothing more.
+	-- Gate on Refresh alone: an optional method going missing (12.1.0.69214) once disabled every
+	-- hook. A missing method may cost only its own feature.
 	if type(view.Refresh) ~= "function" then return end
 
 	hooksInstalled = true
 
 	hooksecurefunc(view, "Refresh", FG_OnNativeRefresh)
 
-	-- [[ SEARCH / FILTER FORCING PATH ]]
-	-- Whichever of these the client has, newest first. 12.1.0.69214 renamed the old
-	-- OnSearchEnterPressed to RefreshSearchResults; the predecessor is kept in the list so a
-	-- rollback to an earlier build still finds a hook rather than silently losing filters.
-	--
-	-- First match wins: hooking two names that both exist would force two rebuilds per click.
-	-- Every one of them is OPTIONAL -- if a future build renames it again, filter checkboxes
-	-- stop forcing a rebuild and nothing else changes.
+	-- After Blizzard's OnShow, which re-registers its events and refreshes.
+	view:HookScript("OnShow", FG_UpdateEventDiet)
+	view:HookScript("OnHide", FG_UpdateEventDiet)
+
+	-- First match only: two hooks would force two rebuilds per click.
 	for i = 1, #FG_SEARCH_HOOK_NAMES do
 		local methodName = FG_SEARCH_HOOK_NAMES[i]
 		if type(view[methodName]) == "function" then
@@ -2100,12 +1570,7 @@ function Compat.InitSocialUI()
 	SocialUIFrame:HookScript("OnShow", Compat.ApplySocialUISize)
 	Compat.ApplySocialUISize()
 
-	-- Row content. Hooked on the MIXIN rather than an instance because cards are pooled
-	-- and created lazily -- there is no frame to hook yet. XML mixin= applies Mixin(),
-	-- which COPIES functions onto each frame at creation, so this only reaches cards
-	-- created after this point. That is safe here and only here: the pool builds its first
-	-- card when the ScrollBox first renders, which cannot happen before the contact list
-	-- has been opened, and this runs at PLAYER_ENTERING_WORLD.
+	-- Mixin hook reaches cards created after this; the pool builds its first card on first open.
 	if type(FriendsListSocialCardMixin) == "table"
 		and type(FriendsListSocialCardMixin.InitializeDisplay) == "function" then
 		hooksecurefunc(FriendsListSocialCardMixin, "InitializeDisplay", FG_ApplySocialCardContent)
@@ -2120,28 +1585,9 @@ function Compat.InitSocialUI()
 	end
 end
 
--- ============================================================================
--- [[ PANEL SIZE ]]
--- FriendGroups_UpdateSize resizes FriendsFrame and FriendsListFrame, both permanently
--- hidden on 12.1, so the Contact List Size and width settings had no visible effect.
---
--- WIDTH goes through Blizzard's own machinery rather than around it. SocialUIFrame computes
--- its panel width in GetBestUIPanelWidth as baseUIPanelWidth plus whatever side window is
--- open, then feeds it to SetUIPanelAttribute / UpdateUIPanelPositions. Overwriting
--- baseUIPanelWidth and asking it to refresh therefore resizes the panel the way Blizzard
--- intends -- and side windows keep sizing correctly on top, which a raw SetWidth would break.
---
--- HEIGHT has no such hook, so it is a direct SetHeight. The tab content frames are anchored
--- to the frame's edges, so the list grows with it.
---
--- Both are skipped in combat: SocialUIFrame is a UIPanel, and resizing or repositioning one
--- during combat is a taint risk. FriendGroups_UpdateSize is already only called from paths
--- that respect the same rule.
--- ============================================================================
--- Blizzard keeps TWO different widths for this frame and they are not interchangeable:
---   <Size x="410">                the frame's VISUAL width
---   baseUIPanelWidth = 460        the width registered with the UIPanel manager
--- An earlier version captured one value for both, which made every SetWidth 50px too wide.
+-- [[ PANEL SIZE ]] Width via baseUIPanelWidth plus SetWidth so the UIPanel manager and side
+-- windows stay right; height is a plain SetHeight. Skipped in combat (UIPanel taint).
+-- Two widths: visual <Size x="410"> and baseUIPanelWidth 460. Don't mix them up.
 local FG_PanelBaseHeight, FG_PanelBaseVisualWidth, FG_PanelBaseUIWidth
 local FG_SizeRebuildPending = false
 
@@ -2166,33 +1612,15 @@ function Compat.ApplySocialUISize()
 
 	frame:SetHeight(FG_PanelBaseHeight + extraHeight)
 
-	-- Width needs BOTH halves, which the first attempt got wrong by doing only the second.
-	--   SetWidth            -- the frame's actual visual width
-	--   baseUIPanelWidth    -- what GetBestUIPanelWidth reports to the UIPanel manager, so
-	--                          neighbouring panels are pushed aside and side windows still
-	--                          add their own width on top
-	-- SetUIPanelAttribute("width") alone only tells the panel MANAGER how much room to
-	-- reserve; it never resizes the frame, which is why the width settings appeared dead.
+	-- Both halves: SetWidth resizes the frame, baseUIPanelWidth tells the panel manager.
 	frame:SetWidth(FG_PanelBaseVisualWidth + extraWidth)
 	frame.baseUIPanelWidth = FG_PanelBaseUIWidth + extraWidth
 	if type(frame.TryRefreshUIPanelWidth) == "function" then
 		frame:TryRefreshUIPanelWidth()
 	end
 
-	-- [[ CONTENT MUST TRACK THE FRAME, NOT THE BATTLE.NET BAR ]]
-	-- SocialUI.lua anchors each tab's content frame like this:
-	--     SetPoint("TOPLEFT",     BattleNetBar, "BOTTOMLEFT", 0, 5)
-	--     SetPoint("BOTTOMRIGHT", socialUIFrame, "BOTTOMRIGHT", -2, 2)
-	-- and SocialUIBattleNetBarTemplate is a FIXED 413 wide, anchored by TOP alone -- so it
-	-- stays centred and never stretches. Widening the frame by N therefore moves the bar's
-	-- left edge right by N/2 while the content's right edge moves by N: the list gains only
-	-- half the width and is pushed right, leaving a dead gutter down the left.
-	--
-	-- Re-anchored so the vertical still comes from the bar (keeping Blizzard's spacing) while
-	-- both horizontal edges come from the frame. FilterBar is already TOPLEFT/TOPRIGHT to the
-	-- content frame, so the search bar, ScrollBox and every row inherit the correction.
-	--
-	-- Only the Friends tab's frame is touched. The other five belong to Blizzard.
+	-- The fixed-width Battle.net bar is anchored by TOP, so content anchored to it gains half the
+	-- width. Re-anchor horizontally to the frame. Friends tab's frame only.
 	local view = Compat.GetSocialUIFriendsView()
 	if view and frame.BattleNetBar then
 		view:ClearAllPoints()
@@ -2201,14 +1629,8 @@ function Compat.ApplySocialUISize()
 		view:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -2, 2)
 	end
 
-	-- [[ BATTLE.NET BAR ]] the band carrying the BattleTag, status dropdown and hamburger.
-	-- SocialUIBattleNetBarTemplate is a fixed 413 wide anchored by TOP alone, so in a widened
-	-- window it sits marooned in the middle. Its ControlsContainer is already LEFT/RIGHT to
-	-- the bar, so the controls follow once the bar itself spans.
-	--
-	-- Its Background is an atlas with useAtlasSize="true" anchored CENTER, i.e. authored at a
-	-- fixed size. SetAllPoints overrides that so the art stretches with the bar; it was not
-	-- drawn to scale, so if it distorts badly the alternative is tiling it.
+	-- [[ BATTLE.NET BAR ]] Stretch the fixed 413px bar to the frame; SetAllPoints its fixed-size
+	-- background atlas (tile it instead if it distorts).
 	local bar = frame.BattleNetBar
 	if bar then
 		bar:ClearAllPoints()
@@ -2218,10 +1640,7 @@ function Compat.ApplySocialUISize()
 			bar.Background:ClearAllPoints()
 			bar.Background:SetAllPoints(bar)
 		end
-		-- Deferred a frame: the dropdown is measured, and re-anchoring the bar above is
-		-- exactly the kind of change that leaves a child's width unresolved until the next
-		-- layout pass. Declared as a function reference, so it is the CURRENT definition
-		-- that runs rather than one captured at file scope before it existed.
+		-- Next frame: the dropdown's width is unresolved until the next layout pass.
 		C_Timer.After(0, function()
 			Compat.RefreshStatusDropdown()
 			Compat.RefreshOwnBattleTag()
@@ -2246,15 +1665,8 @@ function Compat.ApplySocialUISize()
 		if h and h > 0 then frame.BottomFade:SetHeight(h) end
 	end
 
-	-- Widening the panel stretches the ScrollBox, but the row frames it has already laid out
-	-- keep the width they were built at, so the list stays narrow inside a wide window. The
-	-- ScrollBox re-sizes its elements on the next layout pass, so one is forced by rebuilding
-	-- the provider.
-	--
-	-- Deferred by a zero-delay timer, and flagged, so a burst of size changes collapses into
-	-- a single rebuild rather than one per setting click. Safe from recursion: verified that
-	-- FriendGroups_FriendsListUpdate never calls FriendGroups_UpdateSize, which is what
-	-- brought us here.
+	-- Existing rows keep their built width; rebuild the provider to re-layout. Deferred and
+	-- flagged so a burst of size clicks makes one rebuild.
 	if not FG_SizeRebuildPending then
 		FG_SizeRebuildPending = true
 		C_Timer.After(0, function()
@@ -2267,20 +1679,8 @@ function Compat.ApplySocialUISize()
 	end
 end
 
--- ============================================================================
--- [[ SEARCH ]]
--- Blizzard's filter bar already owns a search box, so FriendGroups drives that one rather
--- than adding a second field. Its own box stays on the legacy frame for the other platforms.
---
--- Blizzard searches only on ENTER, and through C_BattleNet.SearchFriends -- a real call that
--- must not run per keystroke. FriendGroups filters live instead, over data it already holds,
--- and matches far more than a name: notes, groups, nicknames, realm, class and known alts.
--- Hooking OnTextChanged gives that behaviour behind Blizzard's field, with the same 0.3s
--- debounce the legacy search box uses so a fast typist triggers one rebuild, not ten.
---
--- HookScript, not SetScript: Blizzard's own handler must keep running or the field loses its
--- clear button and instruction text.
--- ============================================================================
+-- [[ SEARCH ]] Drive Blizzard's search box with our live matcher (0.3s debounce) instead of
+-- its per-Enter SearchFriends. HookScript keeps its clear button and instructions.
 local FG_SearchDebounceTimer = nil
 local searchHooked = false
 
@@ -2314,38 +1714,16 @@ FG_HookSearchBox = function(view)
 	return true
 end
 
--- ============================================================================
--- [[ PORTRAIT ]]
--- SocialUIFrame is shared by all six tabs, so the FriendGroups mark is applied only while
--- the Friends tab is selected and Blizzard's own portrait is restored on the way out --
--- branding their Raid or Recruit-a-Friend tab would read as a bug, not a feature.
---
--- InitializeFrameVisuals sets the portrait once at OnLoad, so this rides RefreshVisuals,
--- which runs on every tab change.
--- ============================================================================
+-- [[ PORTRAIT ]] Our mark only on the Friends tab, Blizzard's restored elsewhere. Rides
+-- RefreshVisuals, which runs on every tab change.
 local FG_PORTRAIT_ASSET = "Interface\\AddOns\\FriendGroups\\Textures\\fg"
 
--- [[ PORTRAIT SUPPRESSION ]]
--- Another addon may have removed the portrait entirely. EllesmereUI's window engine does
--- exactly that in WSkin.RemovePortrait: it alpha-zeroes PortraitContainer's regions and the
--- portrait texture, and re-applies that on relayout.
---
--- Our mark is written to the same texture, so it disappears with Blizzard's -- but the
--- backing below is a SEPARATE texture their fade pass never enumerated, so it survives. The
--- result on screen is a black disc floating where the portrait used to be, which is what
--- this exists to prevent.
---
--- MEASURED rather than inferred from "is EllesmereUI loaded": the user can keep our colours
--- with EUI's window skinning switched off, any other skin does the same thing, and the two
--- addons can run in either order. Re-read on every call, so whichever order they land in,
--- the next RefreshVisuals corrects it.
+-- [[ PORTRAIT SUPPRESSION ]] A skin (EUI WSkin.RemovePortrait) can hide the portrait but not
+-- our separate backing, leaving a black disc. Measured every call, not "EUI loaded".
 local function FG_PortraitIsSuppressed(frame)
 	local container = frame.PortraitContainer
 	if container and container:GetAlpha() <= 0.01 then return true end
-	-- Alpha is not the only way a skin removes it: FriendGroups' OWN EllesmereUI skin hides
-	-- the container outright, which leaves alpha at 1 and read as "not suppressed" here.
-	-- IsShown is the frame's own state, not effective visibility, so this does not fire
-	-- merely because the contact list is closed.
+	-- FriendGroups' own EUI skin hides the container (alpha stays 1). IsShown, not visibility.
 	if container and not container:IsShown() then return true end
 
 	local portrait = type(frame.GetPortrait) == "function" and frame:GetPortrait() or nil
@@ -2354,27 +1732,11 @@ local function FG_PortraitIsSuppressed(frame)
 	return false
 end
 
--- Published for ContactsMark.lua. "A skin removed the portrait" is exactly the condition
--- that leaves the band above the sub-tab strip empty for the mark to fill, so both readers
--- ask the same question of the same frame rather than each keeping a guess about which
--- suites do it.
+-- Shared with ContactsMark.lua: a removed portrait is what leaves its band empty.
 Compat.PortraitIsSuppressed = FG_PortraitIsSuppressed
 
--- [[ BACKING ]] The FriendGroups mark has transparent areas, so on its own the world shows
--- through the portrait ring. Blizzard's own portrait art is fully opaque and never needed one.
---
--- A plain black square would square off a round frame, so it is masked with
--- TempPortraitAlphaMask -- the circular mask Blizzard uses for portraits throughout the UI.
--- Parented to PortraitContainer and one draw layer below the portrait itself, so it backs the
--- mark without covering the ring.
---
--- Built at most once per frame, and never while the portrait is suppressed: the mark is
--- written to Blizzard's texture and disappears with it under a skin that hides portraits, but
--- this is a SEPARATE texture that no such pass enumerates, so it would survive as a black disc
--- floating where the portrait used to be.
---
--- Shared by both contact lists, keyed on the frame it is given: the Social UI panel and the
--- legacy FriendsFrame are different frames, each carrying its own fgPortraitBacking.
+-- [[ BACKING ]] Round black backing (TempPortraitAlphaMask) behind our transparent mark, one
+-- layer below the portrait. Never built while suppressed. One per frame.
 local function FG_EnsurePortraitBacking(frame, suppressed)
 	if suppressed or frame.fgPortraitBacking then return end
 	if not frame.PortraitContainer or type(frame.GetPortrait) ~= "function" then return end
@@ -2422,27 +1784,9 @@ FG_RefreshPortrait = function()
 	end
 end
 
--- ============================================================================
--- [[ CONTACT COUNT ]]
--- Retail draws the unique-online-contacts number in its own fontstring above the group
--- headers. That fontstring is parented to FriendsListFrame, so on 12.1 it exists and is
--- invisible. The panel title is the natural replacement: SocialUIFrameMixin:RefreshTitle
--- already recomputes it on every tab change, so appending there keeps the number correct
--- without owning any new region.
---
--- Scoped to the Friends tab -- the count means nothing over Raid or Recruit-a-Friend -- and
--- gated on the same show_contact_cap setting the legacy counter uses.
--- ============================================================================
--- Retail draws this over the group headers' count column, beside its settings gear. The
--- Social UI's filter bar has the same shape -- search field left, Filter dropdown right -- so
--- the counter takes the gap between them, which is where the eye already goes on retail. The
--- number lives on the bar; an invisible frame sitting exactly on top of it carries the hover,
--- because a FontString cannot take mouse input.
---
--- The tooltip is NOT rebuilt here. FriendGroups_ShowContactTooltip is the very function the
--- legacy counter raises -- per-group online counts on banner-tinted strips, Battle.net and WoW
--- totals against their caps, pending invites, the at-cap warning. Reimplementing that for this
--- platform would guarantee the two drift apart.
+-- [[ CONTACT COUNT ]] In the filter bar gap between search and Filter, gated on
+-- show_contact_cap. An invisible frame carries the hover; the tooltip is the legacy
+-- counter's own FriendGroups_ShowContactTooltip.
 FG_UpdateContactCounter = function(view)
 	if type(FriendGroups_SavedVars) ~= "table" then return end
 
@@ -2451,10 +1795,7 @@ FG_UpdateContactCounter = function(view)
 
 	if not FG_ContactCountText then
 		FG_ContactCountText = filterBar:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-		-- A fixed, right-aligned slot wide enough for four digits. Without it the string is
-		-- sized to its text and grows LEFTWARDS from its right anchor, so a three-digit count
-		-- would slide under the search box -- and the gap between the two shrinks at Narrow.
-		-- Fixing the width also stops the bar reflowing every time a friend logs in or out.
+		-- Fixed four-digit slot: a text-sized string grows left under the search box.
 		FG_ContactCountText:SetWidth(FG_CONTACT_COUNT_WIDTH)
 		FG_ContactCountText:SetJustifyH("RIGHT")
 
@@ -2486,10 +1827,7 @@ FG_UpdateContactCounter = function(view)
 		FG_ContactCountText:SetPoint("RIGHT", filterBar, "RIGHT", -8, 0)
 	end
 
-	-- Give the counter its own space by shortening the search field. The template anchors
-	-- SearchBar LEFT to the bar and RIGHT to the dropdown, so re-setting RIGHT alone re-points
-	-- that edge and leaves the left one intact -- a frame holds only one anchor per point.
-	-- No cycle: counter -> dropdown, search -> counter, search LEFT -> bar.
+	-- Re-point only the search bar's RIGHT anchor; no cycle (counter -> dropdown, search -> counter).
 	local searchBar = filterBar.SearchBar
 	if searchBar then
 		searchBar:SetPoint("RIGHT", FG_ContactCountText, "LEFT", -10, 0)
@@ -2508,19 +1846,8 @@ FG_UpdateContactCounter = function(view)
 	FG_ContactCountHover:Show()
 end
 
--- ============================================================================
--- [[ SETTINGS MENU ]]
--- On 12.1 FriendGroups' gear button lives on FriendsListFrame, which the player cannot
--- open, so the addon would otherwise be unconfigurable. The Social UI's Battle.net bar
--- menu -- the hamburger at the top right, holding Broadcast and Ignore List -- carries a
--- real menu tag, so the settings are injected through the supported Menu API instead of
--- by bolting a button onto a frame we do not own. Nothing is overwritten and no Blizzard
--- frame is restyled, so this adds no taint surface.
---
--- FriendGroups_BuildSettingsMenu is the same generator the legacy gear raises; it is given
--- a SUBMENU description here rather than a root, which works because both expose the same
--- Create* API.
--- ============================================================================
+-- [[ SETTINGS MENU ]] The gear lives on the hidden FriendsListFrame, so inject
+-- FriendGroups_BuildSettingsMenu (as a submenu) into the Battle.net bar's menu tag.
 local function FG_InjectSettingsMenu(ownerRegion, rootDescription)
 	if not Compat.IsSocialUIActive() then return end
 	if type(FriendGroups_BuildSettingsMenu) ~= "function" then return end
@@ -2530,37 +1857,14 @@ local function FG_InjectSettingsMenu(ownerRegion, rootDescription)
 	FriendGroups_BuildSettingsMenu(ownerRegion, submenu)
 end
 
--- Registered at load rather than from Compat.InitSocialUI: Menu.ModifyMenu only records a
--- callback against a tag, so it needs no frame, and keeping it independent means the
--- settings stay reachable even if the list hooks fail to install. The tag exists only on
--- 12.1, so on any earlier client this simply never fires.
+-- Registered at load: needs no frame, and keeps settings reachable if list hooks fail.
 if Compat.HAS_MENU_API then
 	Menu.ModifyMenu("MENU_SOCIAL_UI_BATTLE_NET_BAR", FG_InjectSettingsMenu)
 end
 
--- ============================================================================
--- [[ DIAGNOSTIC ]]
--- Returns booleans only -- no strings, so nothing here needs localizing and nothing can
--- reach the UI. Exposed as a global purely so the state of this module can be inspected
--- from a /run without the addon-private Compat table:
---   1 socialUIActive    Compat.IsSocialUIActive()   -- is 12.1's Social UI the live list
---   2 viewExists        SocialUIFrame.FriendsList resolved
---   3 hooksInstalled    Compat.InitSocialUI ran to completion (Refresh post-hook attached)
---   4 providerBuilt     a grouped provider has been built at least once
---   5 providerInstalled that provider is the one currently in the ScrollBox
---   6 cardHookInstalled the row-content post-hook is attached to the card mixin
---   7 rowApplyCalls     times the row hook has fired (0 = it is never reached)
---   8 rowApplyApplied   times it got past its guards to real work
---   9 dragStarts        times a header drag actually began (0 = ScrollBox is eating it).
---                       Counted in Platform_Drag.lua and shared with the other renderers,
---                       so this is drags on ANY list, not only the Social UI's.
---
--- Appended after the panel dimensions: cardHeightInstalled, and the height a row actually
--- has right now. FALSE with a row height around 70 is the login race described in
--- Compat.InitSocialUI -- Blizzard's uncompressed card, every icon scaled to match it, and
--- the name reduced to an ellipsis. It reads as "the addon broke", so it is worth being able
--- to confirm in one call rather than inferring it from a screenshot.
--- ============================================================================
+-- [[ DIAGNOSTIC ]] /run: 1 socialUIActive, 2 viewExists, 3 hooksInstalled, 4 providerBuilt,
+-- 5 providerInstalled, 6 cardHookInstalled, 7 rowApplyCalls, 8 rowApplyApplied, 9 dragStarts,
+-- then panel sizes, cardHeightInstalled and row height (false with ~70 = login race).
 function FriendGroups_GetSocialUIState()
 	local view = SocialUIFrame and SocialUIFrame.FriendsList
 	local installed = false
@@ -2577,27 +1881,8 @@ function FriendGroups_GetSocialUIState()
 		math.floor(FG_GetCardBaseHeight() or 0)
 end
 
--- ============================================================================
--- [[ STATUS DROPDOWN PREVIEW ]]
--- The Battle.net bar's status control shows an ellipsis where the current status should be.
--- Reproduced on a stock 12.1 client with FriendGroups disabled, so this is Blizzard's and
--- not ours -- but it sits inside a window this addon has taken over, where it reads as our
--- bug, and it is cheap to correct.
---
--- Two different faults produce the same ellipsis and they need opposite fixes, so both are
--- handled, cheapest and safest first:
---
---   1. The text IS set and the button is too narrow, so WoW truncates it. Fixed by
---      measuring the string and widening the button until it fits.
---   2. The text is never set and the ellipsis is a placeholder. Fixed by deriving the
---      status ourselves and writing it.
---
--- Case 1 runs first because it cannot display anything untrue -- it only reveals text
--- Blizzard already put there. Case 2 engages only when there is demonstrably nothing to
--- reveal, because it is the one that can be wrong: BNGetInfo reports AFK and DND but has no
--- flag for "Appear Offline", which would therefore read as Online. Showing a status that is
--- merely incomplete beats showing none at all, but it stays the fallback for that reason.
--- ============================================================================
+-- [[ STATUS DROPDOWN PREVIEW ]] Blizzard bug: an ellipsis instead of the status. First widen
+-- if the text is set but truncated; else derive it (BNGetInfo has no Appear Offline flag).
 
 -- Never shrink and never exceed this: the bar also carries the BattleTag, and a dropdown
 -- that grew without bound would run into it.
@@ -2631,19 +1916,8 @@ local function FG_DropdownFontString(dd)
 	return nil
 end
 
--- Matched by METHOD, never by name or parentKey: the bar's children are anonymous and
--- Blizzard renames parentKeys between patches, so SetupMenu/OpenMenu -- DropdownButtonMixin's
--- own surface -- is the stable handle.
---
--- THE HAMBURGER IS ALSO A MENU BUTTON, and it lives on this same bar (it is where our own
--- settings menu is injected), so "has SetupMenu" alone would match it perhaps half the time
--- depending on child order. Two further tests separate them: the status control carries a
--- text label and the hamburger is icon-only, and of the survivors the status control is the
--- LEFTMOST -- the arrangement in every 12.1 screenshot, with the hamburger at the far right.
--- Neither test alone is conclusive; together they have to pick the wrong frame twice.
---
--- The Filter dropdown cannot be confused with either: it lives on the FilterBar, which is
--- not walked here.
+-- Matched by method (SetupMenu/OpenMenu), not name. The hamburger is a menu button too: the
+-- status control has a text label and is the leftmost.
 local function FG_CollectDropdowns(frame, depth, out)
 	if type(frame) ~= "table" or type(frame.GetChildren) ~= "function" then return out end
 	if depth > 3 then return out end
@@ -2683,13 +1957,8 @@ local function FG_FindStatusDropdown()
 	return FG_StatusDropdown
 end
 
--- True when the label holds nothing but ellipsis punctuation, i.e. there is no real status
--- text to reveal and widening the button would achieve nothing.
---
--- The ASCII form, the single U+2026 character and a stray escape-sequence pipe all have to
--- read as empty. Note %w is ASCII-ONLY, so a CJK client's perfectly good status label would
--- be misread as a placeholder without the high-byte range -- but U+2026 is high-byte too,
--- which is why it is stripped BEFORE the test rather than excluded inside it.
+-- True when the label is only ellipsis. Strip U+2026 first: %w is ASCII-only, so the test
+-- needs the high-byte range for CJK labels.
 local function FG_IsPlaceholderText(text)
 	if type(text) ~= "string" then return true end
 	local stripped = text:gsub("%s+", ""):gsub("%.%.%.", ""):gsub("\226\128\166", ""):gsub("|", "")
@@ -2713,10 +1982,7 @@ local function FG_DerivedStatusText()
 		icon, label = FRIENDS_TEXTURE_ONLINE, FRIENDS_LIST_AVAILABLE
 	end
 
-	-- ICON ONLY, deliberately, even though the label is resolved above: 12.1's control is a
-	-- status dot and nothing else, and appending a word here would both disagree with the
-	-- native look and force the button wide enough to hold text the layout then clips.
-	-- The label is still resolved so it can be used as the tooltip if that is ever wanted.
+	-- Icon only, like 12.1's native status dot.
 	if type(icon) == "string" and icon ~= "" then
 		return string.format("|T%s:16:16|t", icon)
 	end
@@ -2754,15 +2020,8 @@ function Compat.RefreshStatusDropdown()
 		if derived then fs:SetText(derived) end
 	end
 
-	-- [[ ICON-ONLY: SQUARE PLUS CHEVRON ]]
-	-- What 12.1 puts here is one status dot. So the icon area is simply the control's own
-	-- HEIGHT -- a square -- and the chevron is added beside it. Nothing is measured from the
-	-- string, which is what went wrong twice: a |T...|t escape does not measure like the
-	-- glyphs it draws, so measuring it first over-sized the button and left a gap, and the
-	-- corrected constant then under-sized it and clipped the dot away entirely.
-	--
-	-- The height is already correct (Blizzard sets it), so deriving the width from it cannot
-	-- be wrong at any UI scale or font size, and needs no constant to tune.
+	-- [[ ICON-ONLY ]] Width = the control's own height plus the chevron. Never measure a |T|t
+	-- escape: it doesn't measure like what it draws.
 	if not FG_LabelHasWords(fs:GetText()) then
 		local height = dd:GetHeight() or 0
 		if height <= 0 then return end
@@ -2796,28 +2055,8 @@ function Compat.RefreshStatusDropdown()
 	end
 end
 
--- ============================================================================
--- [[ STREAMER MODE: THE PLAYER'S OWN BATTLETAG ]]
--- The Battle.net bar prints the player's own BattleTag beside the status control. Masking
--- every contact on the list and then leaving the owner's own account name across the top of
--- the window would be pointless, so it is replaced outright with a label.
---
--- Replaced rather than masked, unlike every contact row. The three revealed characters exist
--- so the OWNER can still tell their contacts apart; nobody needs three characters to
--- recognise their own account, so the slot is better spent confirming at a glance that the
--- mode is actually on -- which is exactly what you want to see before you start streaming.
---
--- Blizzard draws it and exposes no handle for it, so the fontstring is FOUND rather than
--- addressed: BNGetInfo reports the player's own BattleTag, and the bar is walked for the
--- fontstring displaying it. Matching on the value rather than on a parentKey means this
--- keeps working if the template is reshuffled, and needs no knowledge of a name that is not
--- documented anywhere.
---
--- The original is HIDDEN and a replacement is drawn over it, rather than having its text
--- rewritten. Two reasons: Blizzard re-sets that text from its own handlers and would win any
--- tug-of-war over it, and leaving the real value in place keeps the search predicate above
--- valid, so the region can still be re-found later.
--- ============================================================================
+-- [[ STREAMER MODE: OWN BATTLETAG ]] Replaced with a label, not masked. Found by its value
+-- (BNGetInfo), hidden, and drawn over: Blizzard re-sets its text and would win.
 local FG_OwnTagFontString = nil
 local FG_OwnTagOverlay = nil
 -- True only while WE are the reason the copy button is hidden, so turning the mode off can
@@ -2825,13 +2064,8 @@ local FG_OwnTagOverlay = nil
 -- BattleNetUnavailableNoticeButton the same way).
 local FG_CopyButtonHidden = false
 
--- The "copy my BattleTag" button, addressed by the parentKeys the bar actually uses:
---   BattleNetBar > ControlsContainer > PersonalBattleTagDisplay > CopyBattleTagToClipboardButton
--- Every frame on that path is anonymous, so the keys are the only handle -- and they were
--- read off the live frame tree (/fg bar) rather than guessed.
---
--- Falls back to scanning the tag's own parent for a key containing "Copy", so a rename costs
--- the button staying visible rather than an error.
+-- Copy button via BattleNetBar.ControlsContainer.PersonalBattleTagDisplay.
+-- CopyBattleTagToClipboardButton, falling back to a "Copy" key scan.
 local function FG_CopyTagButton(bar, tagParent)
 	local controls = bar and bar.ControlsContainer
 	local display = controls and controls.PersonalBattleTagDisplay
@@ -2856,26 +2090,12 @@ local function FG_OwnBattleTag()
 	return battleTag
 end
 
--- Blizzard's own horizontal insets for the window title, READ FROM ITS DECLARED ANCHORS.
---
--- GetPoint reports what was SET, not where the frame currently is, so unlike GetCenter or
--- GetWidth it answers correctly even before a layout pass. That distinction is the one this
--- file keeps having to relearn: measuring early returns nil and silently takes a fallback.
---
--- Observed on a live frame stack, and the defaults below if the frame cannot be read:
---   TOPLEFT  SocialUIFrame TOPLEFT   58, -1
---   TOPRIGHT SocialUIFrame TOPRIGHT -24, -1
---
--- Only accepted when TitleContainer is anchored to SocialUIFrame, because that is what makes
--- the numbers transferable to the Battle.net bar, which spans the same frame edge to edge.
+-- Title insets from TitleContainer's declared anchors (GetPoint works before layout), only if
+-- anchored to SocialUIFrame. Defaults: TOPLEFT 58,-1 / TOPRIGHT -24,-1.
 local FG_TITLE_INSET_LEFT = 58
 local FG_TITLE_INSET_RIGHT = -24
 
--- Vertical nudge for the replacement label. The horizontal span above is anchored to the BAR,
--- so the label inherits the bar's vertical centre -- but the BattleTag it stands in for sits a
--- few pixels above that, inside its own plate. This is the difference, measured off the two
--- side by side rather than derived: the tag's frame is not a usable vertical anchor here,
--- because a single SetPoint carries both axes and the horizontal has to come from the bar.
+-- Measured: the tag sits a few pixels above the bar's vertical centre.
 local FG_TITLE_LABEL_NUDGE_Y = 4
 
 local function FG_TitleInsets()
@@ -2927,12 +2147,7 @@ local function FG_FindFontStringWithText(frame, text, depth)
 	return nil
 end
 
--- The one entry point every caller uses (FriendGroups_ApplyStreamerMode, and the event frame
--- at the foot of this file). It dispatches on which contact list is live, because 12.1 can be
--- running either: the Social UI's Battle.net bar, or 12.0.7's FriendsFrameBattlenetFrame.
---
--- Dispatching HERE rather than at the call sites is deliberate -- the caller's question is
--- "hide my BattleTag", and which panel is on screen is this file's business.
+-- Dispatches to whichever contact list is live.
 function Compat.RefreshOwnBattleTag()
 	if not Compat.IsSocialUIActive() then
 		-- Forward-declared above this function, so the legacy panel is reached rather than
@@ -2984,15 +2199,8 @@ function Compat.RefreshOwnBattleTag()
 		FG_CopyButtonHidden = true
 	end
 
-	-- [[ PARENTED TO THE STRING IT REPLACES, NOT TO THE BAR ]]
-	-- Created on the found fontstring's OWN parent. Parenting it to the BattleNetBar instead
-	-- is why it rendered as a blank gap: the tag lives inside a nested frame (the dark plate
-	-- it sits on), and a CHILD FRAME draws above every draw layer of its parent -- so an
-	-- OVERLAY fontstring on the bar sits behind that plate no matter what sublevel it is
-	-- given. It was being drawn correctly the whole time, just underneath the art.
-	--
-	-- Re-created only if the parent ever differs, which in practice happens once.
-	-- (tagParent is resolved above, alongside the copy button that shares this frame.)
+	-- Parented to the tag's own parent: on the bar it drew under the tag's plate (child frames
+	-- draw above parent layers).
 	if not FG_OwnTagOverlay or FG_OwnTagOverlay:GetParent() ~= tagParent then
 		if FG_OwnTagOverlay then FG_OwnTagOverlay:Hide() end
 		FG_OwnTagOverlay = tagParent:CreateFontString(nil, "OVERLAY")
@@ -3008,73 +2216,26 @@ function Compat.RefreshOwnBattleTag()
 	-- OBJECT, which a skin's SetFont override does not replace.
 	FG_ApplyThemeFont(FG_OwnTagOverlay, FG_EUITheme())
 
-	-- ====================================================================
-	-- [[ CENTRED UNDER THE WINDOW TITLE ]]
-	-- Spanned across the bar with the SAME horizontal insets Blizzard gives its title, and
-	-- centred within that span. So the label sits directly under "Friends" by construction,
-	-- rather than by an offset someone tuned against one locale.
-	--
-	-- Two earlier attempts missed for the same underlying reason -- anchoring to whatever
-	-- frame happened to be nearby:
-	--   LEFT to the tag      -- started where a shorter string started and ran rightwards
-	--                           through the copy button.
-	--   CENTER on the plate  -- PersonalBattleTagDisplay is a small frame sitting AT the tag,
-	--                           so centring inside it barely moves anything.
-	--
-	-- And the window centre is not the answer either: the title's insets are ASYMMETRIC (58
-	-- left against 24 right, to clear the portrait), so "Friends" sits about 17px right of
-	-- centre. Copying the insets reproduces that offset exactly and for free.
-	--
-	-- Re-anchored every pass, because the bar is re-laid-out whenever the panel is resized.
-	-- ====================================================================
+	-- [[ CENTRED UNDER THE WINDOW TITLE ]] Same asymmetric insets as the title, so it sits under
+	-- "Friends". Re-anchored every pass (resizes re-lay the bar).
 	local insetLeft, insetRight = FG_TitleInsets()
 	FG_OwnTagOverlay:ClearAllPoints()
 	FG_OwnTagOverlay:SetPoint("LEFT", bar, "LEFT", insetLeft, FG_TITLE_LABEL_NUDGE_Y)
 	FG_OwnTagOverlay:SetPoint("RIGHT", bar, "RIGHT", insetRight, FG_TITLE_LABEL_NUDGE_Y)
 	FG_OwnTagOverlay:SetJustifyH("CENTER")
 
-	-- Battle.net blue, not the source string's colour. This label stands where the BattleTag
-	-- stands, so it takes the colour Battle.net identity is drawn in everywhere else in the
-	-- addon; inheriting the plain white of the tag fontstring read as a system error message
-	-- sitting in the middle of the bar. Same fallback ladder the alt tooltip's BattleTag line
-	-- uses, so both surfaces are the same blue by construction.
+	-- Battle.net blue, same fallbacks as the alt tooltip's BattleTag line.
 	local tagColor = FRIENDS_BNET_NAME_COLOR or BATTLENET_FONT_COLOR or CreateColor(0.510, 0.773, 1.0)
 	FG_OwnTagOverlay:SetTextColor(tagColor.r, tagColor.g, tagColor.b)
 
-	-- The MENU's own label, not a second string saying the same thing. A dedicated
-	-- STREAMER_MODE_BAR key existed and every locale had translated it identically to
-	-- SET_STREAMER_MODE, so it was twelve more strings to keep in step for no gain -- and one
-	-- of them drifting would have put different wording on the bar than in the menu.
+	-- The menu's own label; a separate key duplicated it in every locale.
 	FG_OwnTagOverlay:SetText(L["SET_STREAMER_MODE"])
 	FG_OwnTagOverlay:Show()
 	FG_OwnTagFontString:Hide()
 end
 
--- ============================================================================
--- [[ THE LEGACY CONTACT LIST ON A 12.1 CLIENT ]]
--- 12.1 shipped the Social UI but did NOT switch it on: C_SocialUI.IsSystemEnabled() is
--- server-driven and answers false on live, so the window the player opens is the 12.0.7
--- FriendsFrame. Compat.IsSocialUIActive reports this correctly and the list itself renders
--- through the retail ScrollBox path as it always did.
---
--- What did NOT survive are the two decorations that were only ever built against the new
--- panel, because on the PTR that was the only panel there was:
---
---   the streamer-mode BattleTag label -- Compat.RefreshOwnBattleTag returned immediately
---   without the Social UI, so masking every contact on the list still left the owner's own
---   BattleTag across the top of the window, which is most of the point of the mode;
---
---   the FriendGroups mark on the window portrait -- FG_RefreshPortrait did the same, so the
---   panel kept Blizzard's default portrait.
---
--- Both are re-implemented here against the legacy frame rather than by loosening the guards
--- above: the two panels are different frames with different anchors, and the Social UI path is
--- staying exactly as it is for the patch where Blizzard turns it back on.
---
--- Every symbol is presence-guarded and every runtime function re-tests
--- Compat.IsSocialUIActive, so this section is inert the moment the Social UI goes live and
--- nothing here needs unwinding when it does.
--- ============================================================================
+-- [[ THE LEGACY CONTACT LIST ON A 12.1 CLIENT ]] Streamer label and portrait mark for the
+-- 12.0.7 FriendsFrame. Every function re-tests IsSocialUIActive, so it is inert once it's on.
 local FG_LegacyTagFontString = nil
 local FG_LegacyTagOverlay = nil
 -- True only while WE are the reason the copy button is hidden, exactly as FG_CopyButtonHidden
@@ -3088,18 +2249,8 @@ local function FG_LegacyListLive()
 	return type(_G.FriendsFrame) == "table"
 end
 
--- [[ STREAMER MODE: THE PLAYER'S OWN BATTLETAG, LEGACY PANEL ]]
--- The same substitution the Social UI path makes, against a much easier target: FriendsFrame
--- names this fontstring $parentTag, so it is reachable as FriendsFrameBattlenetFrame.Tag and
--- needs none of the search-by-value the anonymous Battle.net bar required. Confirmed on a live
--- 12.1 frame stack, which reports the tag under the mouse as exactly that key.
---
--- The value search is kept as a fallback for a build that renames the key, and it is safe here
--- for the same reason it is safe there: this frame carries the player's own identity and
--- nobody else's.
---
--- HIDDEN and drawn over, never rewritten -- Blizzard re-sets that text from its own status
--- handlers and would win any tug-of-war over it.
+-- [[ STREAMER MODE: LEGACY PANEL ]] FriendsFrameBattlenetFrame.Tag, value search as fallback.
+-- Hidden and drawn over, never rewritten.
 FG_RefreshOwnBattleTagLegacy = function()
 	if not FG_LegacyListLive() then return end
 
@@ -3152,26 +2303,12 @@ FG_RefreshOwnBattleTagLegacy = function()
 	end
 	FG_LegacyTagOverlay:SetDrawLayer("OVERLAY", 7)
 
-	-- Re-adopted every pass: a fontstring with no font renders nothing, silently.
-	--
-	-- Then handed to the theme, because adoption ALONE is not enough under the EllesmereUI
-	-- skin and looked like it should have been. FG_AdoptFont prefers the source's font
-	-- OBJECT, and the skin re-fonts the BattleTag with SetFont -- an override that leaves
-	-- GetFontObject still answering Blizzard's original object. So the label copied the
-	-- object, not the override, and sat there in Friz Quadrata while every string around it
-	-- was EllesmereUI's font. The chrome font is re-stated over the top at the size adoption
-	-- just resolved, and is a no-op when the skin is off or absent.
+	-- Adopt every pass, then re-state the EUI chrome font: the skin's SetFont leaves
+	-- GetFontObject on Blizzard's object.
 	FG_AdoptFont(FG_LegacyTagOverlay, tagFS)
 	FG_ApplyFontPath(FG_LegacyTagOverlay, FG_EUIChromeFontPath())
 
-	-- [[ CENTRED ON THE STRING IT REPLACES, NOT SPANNED ACROSS THE BAR ]]
-	-- The Social UI label had to copy the panel title's asymmetric insets because its bar spans
-	-- the whole window and the tag sits off-centre within it. Here the tag is already where the
-	-- label belongs, so a single CENTER anchor reproduces its position exactly.
-	--
-	-- CENTER specifically, and not SetAllPoints: pinning all four corners of a fontstring that
-	-- is auto-sized to "OSiRiS#1322" would truncate a longer replacement string, and every
-	-- locale's translation of this label is longer.
+	-- CENTER on the tag, not SetAllPoints: that would truncate longer translations.
 	FG_LegacyTagOverlay:ClearAllPoints()
 	FG_LegacyTagOverlay:SetPoint("CENTER", tagFS, "CENTER", 0, 0)
 	FG_LegacyTagOverlay:SetJustifyH("CENTER")
@@ -3188,29 +2325,9 @@ FG_RefreshOwnBattleTagLegacy = function()
 	tagFS:Hide()
 end
 
--- [[ FRIENDGROUPS MARK ON THE LEGACY PANEL PORTRAIT ]]
--- The mark is on the portrait ALWAYS, on every tab of the legacy window, over its own black
--- backing. There is no tab detection here and that is deliberate.
---
--- The Social UI path above scopes its mark to the Friends tab, and this was written the same way
--- twice. Both attempts produced a portrait that flipped between Blizzard's art and ours depending
--- on which tab you had visited and in what order, and was often blank on the first open. The
--- reason is that on the legacy panel every input to that decision is unreliable at the moment it
--- has to be made: PanelTemplates_GetSelectedTab reports the INNER strip (12.1's Contacts tab has
--- its own Friends / Recent Allies / Recruit A Friend tabs) and never leaves 1; the sub-frame
--- visibility lags the tab click by a frame; the portrait is unpainted at PLAYER_ENTERING_WORLD, so
--- there is no reliable moment to capture Blizzard's own art to put back; and Blizzard repaints
--- from paths that are not reachable by any hook this addon can install cleanly.
---
--- Every one of those is a race, and a race decides the portrait. Branding all four tabs of a
--- window the addon has taken over is a small, DETERMINISTIC cost, and it is the right trade: the
--- window is FriendGroups' either way, and a wrong-but-stable portrait beats a correct-but-flickering
--- one. If the Social UI ever goes live, its own path is untouched and keeps the per-tab behaviour.
---
--- The texture the panel actually draws its portrait into, newest shape first. 12.1 converted
--- FriendsFrame to the PortraitContainer/CircleMask template, so the vestigial FriendsFrameIcon
--- global from the old art is no longer the visible one -- writing to it is why a mark can be
--- set successfully and still not appear.
+-- [[ LEGACY PORTRAIT ]] Mark on every tab, no tab detection: every tab signal races on this
+-- panel and flickered twice. 12.1 draws into the PortraitContainer texture, not the
+-- FriendsFrameIcon global.
 local function FG_LegacyPortraitTexture(frame)
 	if type(frame.GetPortrait) == "function" then
 		local portrait = frame:GetPortrait()
@@ -3231,10 +2348,7 @@ local function FG_RefreshPortraitLegacy()
 	local portrait = FG_LegacyPortraitTexture(frame)
 	if not portrait then return end
 
-	-- The backing follows the mark, so it is shown whenever the mark is -- which is always. Still
-	-- suppressed under a skin that removes portraits (EllesmereUI's window engine alpha-zeroes
-	-- them): our mark disappears with Blizzard's texture there, but the backing is a separate
-	-- texture no such pass enumerates, and would be left as a black disc floating in its place.
+	-- Backing suppressed under a portrait-removing skin, or it floats as a black disc.
 	local suppressed = FG_PortraitIsSuppressed(frame)
 	FG_EnsurePortraitBacking(frame, suppressed)
 	if frame.fgPortraitBacking then
@@ -3252,17 +2366,7 @@ local function FG_RefreshPortraitLegacy()
 	FG_LegacyPortraitWriting = false
 end
 
--- [[ RE-ASSERT ON ANY REPAINT, WHEREVER IT COMES FROM ]]
--- The hooks in Compat.InitLegacyContactList cover the paths that are nameable -- tab clicks and
--- panel show. This covers the ones that are not: whoever repaints the portrait, from wherever, is
--- answered immediately with ours again.
---
--- This is what makes "always the FG logo" hold without a list of every Blizzard code path that
--- touches it, which is the list the two tab-scoped attempts kept getting wrong.
---
--- Recursion is the obvious hazard and the flag above is the whole defence: our own write re-enters
--- this hook, and it returns before doing anything. The asset test is a second stop, so a write of
--- the same asset from anywhere else is also a no-op rather than a bounce.
+-- Re-assert after any repaint. The flag stops our own write recursing; same-asset writes no-op.
 local function FG_HookLegacyPortraitSetter()
 	local frame = _G.FriendsFrame
 	if type(frame) ~= "table" then return end
@@ -3277,10 +2381,7 @@ local function FG_HookLegacyPortraitSetter()
 	end)
 end
 
--- [[ PORTRAIT PROBE ]] /fg portrait
--- What the portrait holds and which pieces are installed. Reduced along with the logic above --
--- there is no tab decision left to interrogate, so what remains is "is our mark on it, and is the
--- backing there". Reads only, so it is safe to run at any time.
+-- [[ PORTRAIT PROBE ]] /fg portrait. Read-only.
 function Compat.ReportLegacyPortrait()
 	local frame = _G.FriendsFrame
 	if type(frame) ~= "table" then
@@ -3311,11 +2412,7 @@ function Compat.ReportLegacyPortrait()
 		type(_G.PanelTemplates_SetTab), type(_G.FriendsFrame_Update)))
 end
 
--- Installation is NOT gated on the Social UI being off, for the mirror image of the reason
--- Compat.InitSocialUI is not gated on it being on: C_SocialUI.IsSystemEnabled() is
--- server-driven and may not have arrived yet, and an unchanged status fires no event to retry
--- on. Both runtime functions re-test it, so installing on a client that later turns the Social
--- UI on costs two hooks that decide to do nothing.
+-- Not gated on the Social UI being off (status may arrive late); both functions re-test it.
 function Compat.InitLegacyContactList()
 	if FG_LegacyHooksInstalled then return end
 
@@ -3328,16 +2425,8 @@ function Compat.InitLegacyContactList()
 	-- the one that does not depend on knowing which paths repaint.
 	FG_HookLegacyPortraitSetter()
 
-	-- [[ TAB CHANGES ]]
-	-- Still hooked even though the mark is now tab-independent: Blizzard repaints per tab, and
-	-- SetPortraitToAsset is not guaranteed to be how it does it -- a direct SetTexture on the
-	-- portrait region would slip past the setter hook above. This is the belt to its braces.
-	--
-	-- Deferred as well as immediate, because FriendsFrameTab_OnClick calls PanelTemplates_SetTab
-	-- and THEN repaints the panel, so a post-hook here runs before that repaint. One frame later
-	-- is after everything the click does, in whatever order it does it.
-	--
-	-- Filtered to FriendsFrame: this global fires for every tabbed panel in the UI.
+	-- [[ TAB CHANGES ]] Belt to the setter hook: a direct SetTexture would slip past it. Also next
+	-- frame, after the tab click's repaint. FriendsFrame only.
 	if type(_G.PanelTemplates_SetTab) == "function" then
 		hooksecurefunc("PanelTemplates_SetTab", function(tabbedFrame)
 			if tabbedFrame ~= _G.FriendsFrame then return end
@@ -3372,25 +2461,13 @@ function Compat.InitLegacyContactList()
 		end)
 	end)
 
-	-- Painted here unconditionally, open or not. The previous version waited for the panel to be
-	-- shown so that Blizzard's own art could be captured first -- and that wait is why the mark
-	-- was missing on the first load. There is nothing to capture any more, so the mark goes on
-	-- immediately and the hooks above only ever have to re-assert it.
+	-- Painted immediately; nothing to capture first.
 	FG_RefreshPortraitLegacy()
 	FG_RefreshOwnBattleTagLegacy()
 end
 
--- Self-contained wiring. PLAYER_ENTERING_WORLD is the first point at which both
--- SocialUIFrame's content frames and FriendGroups.lua's globals are guaranteed to exist.
--- SOCIAL_UI_SYSTEM_STATUS_UPDATED is what Blizzard fires when C_SocialUI.IsSystemEnabled()
--- changes, so a client that enables the Social UI mid-session still gets hooked.
--- Compat.RegisterEvents validates each name, so an event this client does not know is
--- skipped instead of erroring.
---
--- The BN_* events keep the status preview honest after the player changes their own status.
--- Every name is validated by Compat.RegisterEvents, so the ones a given client does not know
--- are skipped rather than erroring -- which is why several candidates can be listed without
--- having to pin down which one 12.1 actually fires for a self-status change.
+-- PLAYER_ENTERING_WORLD: frames and globals exist. SOCIAL_UI_SYSTEM_STATUS_UPDATED hooks a
+-- mid-session switch. BN_* keep the status preview current. Unknown events are skipped.
 local FG_SocialUIInitFrame = CreateFrame("Frame")
 Compat.RegisterEvents(FG_SocialUIInitFrame, {
 	"PLAYER_ENTERING_WORLD",
