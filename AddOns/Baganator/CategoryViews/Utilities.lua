@@ -14,7 +14,9 @@ function addonTable.CategoryViews.Utilities.GetAddedItemData(itemID, itemLink)
   end
 end
 
-function addonTable.CategoryViews.Utilities.GetBagTypes(characterData, section, indexes)
+function addonTable.CategoryViews.Utilities.GetBagTypes(characterData, section, indexes, offset)
+  offset = offset or 0
+
   local result = {}
   if not characterData.containerInfo or not characterData.containerInfo[section] then
     for index, bagID in ipairs(indexes) do
@@ -26,7 +28,7 @@ function addonTable.CategoryViews.Utilities.GetBagTypes(characterData, section, 
   local containerInfo = characterData.containerInfo[section]
 
   for index, bagID in ipairs(indexes) do
-    local details = containerInfo[index - 1]
+    local details = containerInfo[index + offset]
     local itemID = details and details.itemID
 
     table.insert(result, addonTable.Utilities.GetBagType(bagID, itemID))

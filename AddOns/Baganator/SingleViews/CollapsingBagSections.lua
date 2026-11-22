@@ -1,6 +1,7 @@
 ---@class addonTableBaganator
 local addonTable = select(2, ...)
-function addonTable.SingleViews.GetCollapsingBagDetails(character, section, indexes, slotsCount)
+function addonTable.SingleViews.GetCollapsingBagDetails(character, section, indexes, slotsCount, offset)
+  offset = offset or 1
   local characterInfo = Syndicator.API.GetCharacter(character)
   if characterInfo.containerInfo == nil or characterInfo.containerInfo[section] == nil then
     local cleanMain = {}
@@ -19,7 +20,7 @@ function addonTable.SingleViews.GetCollapsingBagDetails(character, section, inde
   for index = 1, slotsCount do
     if containerInfo[index] and containerInfo[index].itemID ~= nil then
       local key = addonTable.Utilities.GetBagType(nil, containerInfo[index].itemID)
-      local bagIndex = index + 1
+      local bagIndex = index + offset
       if key ~= 0 then
         seenIndexes[bagIndex] = true
         inSlots[key] = inSlots[key] or {}

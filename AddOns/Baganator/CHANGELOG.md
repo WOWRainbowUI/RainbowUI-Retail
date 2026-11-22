@@ -1,9 +1,10 @@
 # Baganator
 
-## [867](https://github.com/TheMouseNest/Baganator/tree/867) (2026-11-20)
-[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/866...867) 
+## [868](https://github.com/TheMouseNest/Baganator/tree/868) (2026-11-21)
+[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/867...868) 
 
-- Add separate "Keyring" section and category  
-- Fallback for dead items (when the item data is missing on Blizzard's end)  
-- Forever: Fix faction separation for gold  
-- Gamepad: Lock bags in combat properly  
+- Forever: Single: Bank: Add collapsing bag sections based on bag type  
+- Forever: Categories: Show bag type markers in bank  
+- Gamepad: Hide close button on bank  
+- Forever: Use new Syndicator keyword "spell reagent" for spell reagents category  
+- Mac: Fix pattern for cleaning equipment sets detection pattern  

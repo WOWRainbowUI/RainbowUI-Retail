@@ -110,13 +110,12 @@ function BaganatorCategoryViewBankViewCharacterTabsAsBagsViewMixin:ShowTab(chara
   end
 
   local characterData = Syndicator.API.GetCharacter(character)
-  local bagTypes = addonTable.CategoryViews.Utilities.GetBagTypes(characterData, "bank", Syndicator.Constants.AllBankIndexes)
+  local bagTypes = addonTable.CategoryViews.Utilities.GetBagTypes(characterData, "characterBank", Syndicator.Constants.AllBankIndexes)
   local bagWidth = addonTable.Config.Get(addonTable.Config.Options.BANK_VIEW_WIDTH)
   local bagData = {}
   local bagIndexes
   for _, tab in ipairs(characterData.bankTabs) do
     table.insert(bagData, tab.slots)
-    table.insert(bagTypes, 0)
   end
   bagIndexes = Syndicator.Constants.AllBankIndexes
   self.LayoutManager:Layout(bagData, bagWidth, bagTypes, bagIndexes, sideSpacing, topSpacing, function(maxWidth, maxHeight, firstVisible, lastVisible)
