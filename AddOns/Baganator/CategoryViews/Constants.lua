@@ -93,6 +93,12 @@ if addonTable.Constants.IsEra or addonTable.Constants.IsBC or addonTable.Constan
       search = "#" .. KEYRING:lower(),
       priorityOffset = -30,
     },
+    {
+      key = "spell_reagent",
+      name = addonTable.Locales.CATEGORY_SPELL_REAGENT,
+      search = "#" .. (Syndicator.Locales.KEYWORD_SPELL_REAGENT or "spell reagent"),
+      priorityOffset = -25,
+    },
   }
 
   if not addonTable.Constants.IsEra and not addonTable.Constants.IsForever then
@@ -358,10 +364,11 @@ elseif addonTable.Constants.IsClassic then -- Cata/Mists
     [[{"categories":[],"version":1,"order":["default_auto_recents","----","default_hearthstone","default_consumable","default_questitem","_EQUIPMENT","default_auto_equipment_sets","default_weapon","default_armor","__end","_CRAFTING","default_reagent","default_tradegoods","default_recipe","__end","default_gem","default_container","default_key","default_miscellaneous","default_battlepet","default_other","----","default_junk","default_special_empty"],"modifications":[],"hidden":[]}]],
   }
 elseif addonTable.Constants.IsForever then
-  addonTable.CategoryViews.Constants.DefaultImportVersion = 2
+  addonTable.CategoryViews.Constants.DefaultImportVersion = 3
   addonTable.CategoryViews.Constants.DefaultImport = {
     [[{"categories":[],"version":1,"order":["default_auto_recents","----","default_hearthstone","default_consumable","default_questitem","_EQUIPMENT","default_auto_equipment_sets","default_weapon","default_armor","__end","_CRAFTING","default_reagent","default_tradegoods","default_recipe","__end","default_projectile","default_container","default_quiver","default_key","default_miscellaneous","default_other","----","default_junk","default_special_empty"],"modifications":[],"hidden":[]}]],
-    [[BGR!1!dVHLVsIwEF34GWz8ARfAF7RSSkXKQzhHVzmxGdpAmymTRGTH8SvcenThD7o32NOCr2ySuTNz753J+1XCDaRIEvQ+QBJAz625gCW3uWHcGmQECSijexfu3NSZDDiZTBtUMKuxBJW2Bb/PYVpDGwvaSAOFz9q3rW+0sLGyLBwz02B0XOe2wEtUo6aUCqSAMVDCZ51xDRPw1LU20oa4cFOgOBI527KEqrWpKwlXkBh5YtG5NlwqoPhoWj4ADetwDbtF/S6kTiDPuQK02mfd8UkRSZVWco17NBnQ1+Kua2hl1bqh06UzyXMGRWl2oRPVEtXZQB8sumW+eu2XnuIFRMF0EU1GQTz3uhUSDoO7WRSHXqeKB5czrz93QMCFQBX5POWKG6TeWipx8smjAoVcSgccFJ7exjrDbUhoywnBUj5+9DVaSuDvkQclSUdjduf9TAqI1P5fgp+r+d16uAWo/Sc=]]
+    [[BGR!1!dVHLVsIwEF34GWz8ARfAF7RSSkXKQzhHVzmxGdpAmymTRGTH8SvcenThD7o32NOCr2ySuTNz753J+1XCDaRIEvQ+QBJAz625gCW3uWHcGmQECSijexfu3NSZDDiZTBtUMKuxBJW2Bb/PYVpDGwvaSAOFz9q3rW+0sLGyLBwz02B0XOe2wEtUo6aUCqSAMVDCZ51xDRPw1LU20oa4cFOgOBI527KEqrWpKwlXkBh5YtG5NlwqoPhoWj4ADetwDbtF/S6kTiDPuQK02mfd8UkRSZVWco17NBnQ1+Kua2hl1bqh06UzyXMGRWl2oRPVEtXZQB8sumW+eu2XnuIFRMF0EU1GQTz3uhUSDoO7WRSHXqeKB5czrz93QMCFQBX5POWKG6TeWipx8smjAoVcSgccFJ7exjrDbUhoywnBUj5+9DVaSuDvkQclSUdjduf9TAqI1P5fgp+r+d16uAWo/Sc=]],
+    [[BGR!1!dVHBUsIwEHXGz9CDP+AB+IJWClSkKOKMnjKxWehCmy2bROXG+BVeHT34g94NYioezCWzb9/uvrf7cZ5LC3NiBLNJiBXwy/FUwUy60grpLAmGHLQ13VP/rkOmAMm2MJY0TAKWkzaukvclXAVo5cBYtFDFonV79KctrBzWle8sDFiThdwjyJr0qKFyRXwTIlNDWXpBcu7rEiFAq1i0xyH9k2gEWZbKeyP1296bwRp2pQ2vZlpAbnFPuPdiJWrg7NcKPgAPQ7iEdSOrQpN7YVIDOROLzniPxKjnu3GNJ7IF8Pc6LwK0cHq57zJHWQqoarvu+6EGSR8OzFaiX/Fb1HrtallBmlzdpJejJJtGnR3SHyZ3kzTrR+1dPDibRL2pBxKpFOk0lnOppSXuLlGrvdOPKlI4Qw9sJzy/j01Bj30mV18yzPDps2fIcQ5/7zKoGX25XZ/0ClSQ6s2/hVGrIR8E8vZXoDdf]],
   }
 elseif addonTable.Constants.IsRetail then
   addonTable.CategoryViews.Constants.DefaultImportVersion = 3

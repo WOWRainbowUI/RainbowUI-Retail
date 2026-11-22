@@ -222,7 +222,7 @@ function BaganatorCategoryViewBackpackViewMixin:UpdateForCharacter(character, is
     return
   end
 
-  local bagTypes = addonTable.CategoryViews.Utilities.GetBagTypes(characterData, "bags", Syndicator.Constants.AllBagIndexes)
+  local bagTypes = addonTable.CategoryViews.Utilities.GetBagTypes(characterData, "bags", Syndicator.Constants.AllBagIndexes, -1)
   local bagWidth = addonTable.Config.Get(addonTable.Config.Options.BAG_VIEW_WIDTH)
 
   self.LayoutManager:Layout(characterData.bags, bagWidth, bagTypes, Syndicator.Constants.AllBagIndexes, sideSpacing, topSpacing, function(maxWidth, maxHeight, firstVisible, lastVisible)

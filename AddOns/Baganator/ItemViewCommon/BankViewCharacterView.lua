@@ -247,7 +247,6 @@ function BaganatorItemViewCommonBankViewCharacterViewMixin:OnFinished(forceResiz
     local sideSpacing, topSpacing, searchSpacing = addonTable.Utilities.GetSpacing()
 
     local buttonPadding = 5
-    local additionalPadding = 0
     if addonTable.Config.Get(addonTable.Config.Options.REDUCE_SPACING) then
       buttonPadding = 3
     end

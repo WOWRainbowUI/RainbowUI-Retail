@@ -25,7 +25,6 @@ function BaganatorItemViewCommonBackpackViewMixin:OnLoad()
     self.layoutType = "ButtonFrameTemplateNoPortrait"
     self.FrameGlow = CreateFrame("Frame", nil, self, "FrameGlowTemplate")
     self.FrameGlow:Hide()
-    self.CloseButton:Hide()
   end
 
   self.ButtonsManager = addonTable.Utilities.InitFrameWithMixin(self, addonTable.ItemViewCommon.ButtonsMixin)

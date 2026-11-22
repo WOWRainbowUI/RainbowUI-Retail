@@ -4,12 +4,12 @@
     <Frames>
       <Frame parentKey="Container">
         <Frames>
-          <Frame parentKey="BankUnifiedLive" inherits="BaganatorLiveBagLayoutTemplate">
+          <Frame parentKey="BankLive" inherits="BaganatorLiveBagLayoutTemplate">
             <Anchors>
               <Anchor point="TOPLEFT" x="13" y="-50"/>
             </Anchors>
           </Frame>
-          <Frame parentKey="BankUnifiedCached" inherits="BaganatorCachedBagLayoutTemplate">
+          <Frame parentKey="BankCached" inherits="BaganatorCachedBagLayoutTemplate">
             <Anchors>
               <Anchor point="TOPLEFT" x="13" y="-50"/>
             </Anchors>

@@ -135,6 +135,10 @@ function addonTable.ItemViewCommon.ButtonsMixin:Arrange()
     addonTable.Gamepad.LinkButtons(prevLeft, "Right", prevRight)
   end
 
+  if addonTable.Constants.IsGamepadInUse and self:GetParent().CloseButton then
+    self:GetParent().CloseButton:Hide()
+  end
+
   local shown = true
   if addonTable.Config.Get(addonTable.Config.Options.SHOW_BUTTONS_ON_ALT) and not IsAltKeyDown() then
     shown = false
