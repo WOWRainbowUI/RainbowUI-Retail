@@ -116,6 +116,7 @@ L["TIMESTAMP_SPACING"] = "Timestamp spacing"
 L["TIMESTAMP_ON_RIGHT"] = "Timestamp on right"
 L["USE_CLASS_COLORS"] = "Use class colors"
 L["SHOW_PLAYER_LEVEL"] = "Show player level"
+L["SHOW_ITEM_ICONS"] = "Show item icons"
 L["HIDE_LAST_NAMES"] = "Hide last names"
 L["LEFT"] = "Left"
 L["CENTER"] = "Center"
@@ -242,6 +243,8 @@ L["ABBREV_RAID"] = "R"
 L["ABBREV_RAID_LEADER"] = "RL"
 L["ABBREV_SERVICES"] = "S"
 L["ABBREV_TRADE"] = "C"
+--[[Translation missing --]]
+L["ACCESSING_DEFAULT_SETTINGS"] = "Accessing default settings"
 L["ACTION_UNAVAILABLE_DUE_TO_ENCOUNTER_RESTRICTIONS"] = "Action indisponible en raison des restrictions de rencontre"
 L["ADDONS"] = "Add-ons"
 L["ALL_ADDONS"] = "Tous les addons"
@@ -251,10 +254,18 @@ L["BACKGROUND_COLOR"] = "Couleur d'arrière-plan"
 L["BLIZZARD"] = "Blizzard"
 L["BLIZZARD_SETTINGS"] = "Paramètres Blizzard"
 L["BOTTOM"] = "Bas"
+--[[Translation missing --]]
+L["BOXED"] = "Boxed"
+--[[Translation missing --]]
+L["BUTTONS_HIDE_BACKGROUND"] = "Hide buttons background"
 L["BUTTONS_POSITION"] = "Position des boutons"
+--[[Translation missing --]]
+L["BUTTONS_TRANSPARENCY"] = "Buttons transparency"
 L["BY_PLUSMOUSE"] = "Par plusmouse"
 L["CANT_POPOUT_THIS_CHANNEL"] = "Impossible de détacher ce canal"
 L["CENSORED_CONTENTS_LOST"] = "Contenus censurés perdus"
+--[[Translation missing --]]
+L["CENTER"] = "Center"
 L["CHAT_TRANSPARENCY"] = "Transparence de la discussion"
 L["CHATTYNATOR"] = [=[Chattynator
 ]=]
@@ -266,14 +277,28 @@ L["COPY_CHAT"] = "Copier la discussion"
 L["CTRL_C_TO_COPY"] = "CTRL + C pour copier"
 L["CUSTOMISE_CHATTYNATOR"] = "Personnaliser Chattynator"
 L["CUSTOMISE_CHATTYNATOR_TAB"] = "Personnaliser l’onglet Chattynator"
+--[[Translation missing --]]
+L["CUSTOMIZABLE"] = "Customizable"
 L["DARK"] = "Sombre"
 L["DATA_DUMPS"] = "Extraction de données"
 L["DEVELOPMENT_IS_DONE_BY_A_HUMAN"] = "|cff04cca4Développé par une personne travailleuse (sans IA)|r"
 L["DISABLE_ADDON_X"] = "%s est incompatible avec Chattynator et peut provoquer des erreurs."
 L["DISCORD_DESCRIPTION"] = "Mises à jour, suggestions et assistance"
 L["DONATE"] = "Faire un don"
+--[[Translation missing --]]
+L["EDIT_BOX_BG_COLOR"] = "Edit box color"
 L["EDIT_BOX_HEIGHT"] = "Hauteur du champ de saisie"
+--[[Translation missing --]]
+L["EDIT_BOX_HORIZONTAL_OFFSET"] = "Edit box horizontal offset"
 L["EDIT_BOX_POSITION"] = "Modifier la position de la zone d’édition"
+--[[Translation missing --]]
+L["EDIT_BOX_SEPARATOR_GAP"] = "Hide edit box gap"
+--[[Translation missing --]]
+L["EDIT_BOX_TRANSPARENCY"] = "Edit box transparency"
+--[[Translation missing --]]
+L["EDIT_BOX_VERTICAL_OFFSET"] = "Edit box vertical offset"
+--[[Translation missing --]]
+L["EDIT_BOX_WIDTH"] = "Edit box width"
 L["ELVUI"] = "ElvUI"
 L["EMPTY_WINDOW"] = "Fenêtre vide"
 L["ENABLE_MESSAGE_FADE"] = "Activer la disparition progressive des messages"
@@ -281,23 +306,33 @@ L["ENTER_PROFILE_NAME"] = "Entrez le nom du profil :"
 L["ENTER_THE_NEW_PROFILE_NAME"] = "Entrez le nouveau nom du profil"
 L["EXPORT"] = "Exporter"
 L["FADE_CHAT_WHEN_NOT_IN_USE"] = "Masquer la discussion lorsqu'il n'est pas utilisé"
+--[[Translation missing --]]
+L["FADE_WHEN_NOT_IN_USE"] = "Fade when not in use"
+--[[Translation missing --]]
+L["FADED_TRANSPARENCY"] = "Faded transparency"
 L["FIRST_MESSAGE"] = "Premier message"
 L["FLASH_TABS_ON"] = "Clignotement des onglets"
 L["FORMATTING"] = "Formatage"
 L["GLOBAL_SETTINGS"] = "Paramètres généraux"
 L["GW2_UI"] = "GW2 IU"
+--[[Translation missing --]]
+L["HIDE_LAST_NAMES"] = "Hide last names"
 L["IMPORT"] = "Importer"
 L["INVALID_IMPORT"] = "Importation invalide"
 L["JOIN_THE_DISCORD"] = "Rejoignez le Discord"
 L["KEEP_EDIT_BOX_VISIBLE"] = "Garder la zone d’édition visible"
 L["LAYOUT"] = "Disposition"
 L["LEAVE_UNTICKED_ADDONS"] = "Laissez décoché pour contrôler les addons à afficher"
+--[[Translation missing --]]
+L["LEFT"] = "Left"
 L["LEFT_INSIDE"] = "Gauche, intérieur"
 L["LEFT_OUTSIDE"] = "Gauche, extérieur"
 L["LINE_SPACING"] = "Interligne"
 L["LINK"] = "Lien"
 L["LOCK_CHAT"] = "Verrouiller la discussion"
 L["MAKE_NEW"] = "Créer un nouveau"
+--[[Translation missing --]]
+L["MESSAGE_ALIGNMENT"] = "Message alignment"
 L["MESSAGE_FADE_TIME"] = "Durée de disparition progressive des messages"
 L["MESSAGE_FONT"] = "Police des messages"
 L["MESSAGE_FONT_OUTLINE"] = "Contour de la police"
@@ -308,6 +343,8 @@ L["MESSAGE_TYPES"] = "Types de messages"
 L["MESSAGES"] = "Messages"
 L["MOUSEOVER"] = "Au survol"
 L["MOVE_TO_NEW_WINDOW"] = "Déplacer vers une nouvelle fenêtre"
+--[[Translation missing --]]
+L["MOVING_THE_WINDOW"] = "Moving the window"
 L["NEVER"] = "Jamais"
 L["NEW_PROFILE_BLANK"] = "Nouveau profil (vide)"
 L["NEW_PROFILE_CLONE"] = "Nouveau profil (cloner l’actuel)"
@@ -330,7 +367,19 @@ L["RENAME_TAB"] = "Renommer l'onglet"
 L["RENAME_X_MESSAGE"] = "Renommer \"%s\" en :"
 L["RENAMING_TAB_X"] = "Renommer l'onglet \"%s\""
 L["REWARDS"] = "Récompenses"
+--[[Translation missing --]]
+L["RIGHT"] = "Right"
+--[[Translation missing --]]
+L["RIGHT_INSIDE"] = "Right inside"
+--[[Translation missing --]]
+L["RIGHT_OUTSIDE"] = "Right outside"
 L["RUN_OR_WA"] = "/run ou WAs"
+--[[Translation missing --]]
+L["SCREEN_BOTTOM"] = "Screen Bottom"
+--[[Translation missing --]]
+L["SCREEN_CENTER"] = "Screen Center"
+--[[Translation missing --]]
+L["SCREEN_TOP"] = "Screen Top"
 L["SCROLL_TO_END"] = "Défilement jusqu’à la fin"
 L["SEARCH_IN_X_MESSAGE"] = "Rechercher dans \"%s\"  :"
 L["SELECT_TYPE_TO_CHANGE"] = "Sélectionner le type à modifier"
@@ -363,6 +412,8 @@ L["SPECIFIC_ADDONS"] = "Addons spécifiques"
 L["STORE_MESSAGES"] = "Garder les messages"
 L["TAB_COLOR"] = "Couleur de l'onglet"
 L["TAB_SETTINGS"] = "Paramètres de l'onglet"
+--[[Translation missing --]]
+L["TAB_TEXT_COLOR"] = "Tab text color"
 L["TAB_TRANSPARENCY"] = "Transparence des onglets"
 L["TAB_X"] = "Onglet %s"
 L["TABS_ABOVE"] = "Au-dessus des onglets"
@@ -370,11 +421,23 @@ L["TABS_BELOW"] = "Sous les onglets"
 L["THANKS_FOR_USING_CHATTYNATOR_DONATE"] = "Merci d’utiliser Chattynator. Pensez à faire un don pour soutenir le développement"
 L["THAT_PROFILE_NAME_ALREADY_EXISTS"] = "Ce nom de profil existe déjà"
 L["THEME"] = "Thème"
+--[[Translation missing --]]
+L["THEMES"] = "Themes"
 L["THICK"] = "Épais"
 L["THIN"] = "Fin"
 L["THIS_WILL_OVERWRITE_STYLE_CUSTOM"] = "Cela écrasera le style « Personnalisé ». Continuer ?"
 L["TIMESTAMP"] = "Horodatage"
+--[[Translation missing --]]
+L["TIMESTAMP_ON_RIGHT"] = "Timestamp on right"
 L["TIMESTAMP_SPACING"] = "Espacement des horodatages"
+--[[Translation missing --]]
+L["TIPS_ACCESSING_DEFAULT_SETTINGS"] = "Access Blizzard's chat settings by right clicking the 'Combat Log' tab."
+--[[Translation missing --]]
+L["TIPS_CUSTOMIZABLE"] = "Easily customize the size, visibility, or placement of most window elements. Lock chat to hide window customizers, like resizing or new tabs."
+--[[Translation missing --]]
+L["TIPS_MOVING_THE_WINDOW"] = "To move the chat window, unlock chat and drag the 'General' tab."
+--[[Translation missing --]]
+L["TIPS_THEMES"] = "Make Chattynator match your UI with automatic themes for ElvUI and GW2, or a simple dark option."
 L["TO_OPEN_OPTIONS_X"] = "Accéder aux paramètres avec /ctnr"
 L["TOGGLE_COMBAT_LOG_ETC"] = "Basculer le journal de combat, etc."
 L["TOP"] = "Haut"
@@ -402,6 +465,8 @@ L["ABBREV_RAID"] = "R"
 L["ABBREV_RAID_LEADER"] = "RL"
 L["ABBREV_SERVICES"] = "D"
 L["ABBREV_TRADE"] = "H"
+--[[Translation missing --]]
+L["ACCESSING_DEFAULT_SETTINGS"] = "Accessing default settings"
 L["ACTION_UNAVAILABLE_DUE_TO_ENCOUNTER_RESTRICTIONS"] = "Aktion nicht verfügbar aufgrund von Begegnungsbeschränkungen"
 L["ADDONS"] = "Addons"
 L["ALL_ADDONS"] = "Alle Addons"
@@ -411,10 +476,18 @@ L["BACKGROUND_COLOR"] = "Hintergrundfarbe"
 L["BLIZZARD"] = "Blizzard"
 L["BLIZZARD_SETTINGS"] = "Blizzard Einstellungen"
 L["BOTTOM"] = "Unten"
+--[[Translation missing --]]
+L["BOXED"] = "Boxed"
+--[[Translation missing --]]
+L["BUTTONS_HIDE_BACKGROUND"] = "Hide buttons background"
 L["BUTTONS_POSITION"] = "Button-Position"
+--[[Translation missing --]]
+L["BUTTONS_TRANSPARENCY"] = "Buttons transparency"
 L["BY_PLUSMOUSE"] = "von plusmouse"
 L["CANT_POPOUT_THIS_CHANNEL"] = "Kann diesen Kanal nicht in ein separates Fenster auslagern"
 L["CENSORED_CONTENTS_LOST"] = "Zensierte Inhalte verloren"
+--[[Translation missing --]]
+L["CENTER"] = "Center"
 L["CHAT_TRANSPARENCY"] = "Chat-Transparenz"
 L["CHATTYNATOR"] = "Chattynator"
 L["CLOSE_TAB"] = "Tab schließen"
@@ -425,6 +498,8 @@ L["COPY_CHAT"] = "Chat kopieren"
 L["CTRL_C_TO_COPY"] = "STRG+C zum kopieren"
 L["CUSTOMISE_CHATTYNATOR"] = "Chattynator anpassen"
 L["CUSTOMISE_CHATTYNATOR_TAB"] = "Chattynator Tab anpassen"
+--[[Translation missing --]]
+L["CUSTOMIZABLE"] = "Customizable"
 L["DARK"] = "Dunkel"
 L["DATA_DUMPS"] = "Daten-Dumps"
 --[[Translation missing --]]
@@ -433,8 +508,20 @@ L["DISABLE_ADDON_X"] = "%s ist nicht mit Chattynator kompatibel und kann Fehler 
 L["DISCORD_DESCRIPTION"] = "Updates, Funktionsvorschläge und Support"
 L["DONATE"] = "Spenden"
 --[[Translation missing --]]
+L["EDIT_BOX_BG_COLOR"] = "Edit box color"
+--[[Translation missing --]]
 L["EDIT_BOX_HEIGHT"] = "Edit box height"
+--[[Translation missing --]]
+L["EDIT_BOX_HORIZONTAL_OFFSET"] = "Edit box horizontal offset"
 L["EDIT_BOX_POSITION"] = "Position des Eingabefelds"
+--[[Translation missing --]]
+L["EDIT_BOX_SEPARATOR_GAP"] = "Hide edit box gap"
+--[[Translation missing --]]
+L["EDIT_BOX_TRANSPARENCY"] = "Edit box transparency"
+--[[Translation missing --]]
+L["EDIT_BOX_VERTICAL_OFFSET"] = "Edit box vertical offset"
+--[[Translation missing --]]
+L["EDIT_BOX_WIDTH"] = "Edit box width"
 L["ELVUI"] = "ElvUI"
 L["EMPTY_WINDOW"] = "Leeres Fenster"
 L["ENABLE_MESSAGE_FADE"] = "Nachrichten-Ausblendung aktivieren"
@@ -444,11 +531,17 @@ L["ENTER_THE_NEW_PROFILE_NAME"] = "Enter the new profile name"
 --[[Translation missing --]]
 L["EXPORT"] = "Export"
 L["FADE_CHAT_WHEN_NOT_IN_USE"] = "Chat ausblenden wenn nicht in Benutzung"
+--[[Translation missing --]]
+L["FADE_WHEN_NOT_IN_USE"] = "Fade when not in use"
+--[[Translation missing --]]
+L["FADED_TRANSPARENCY"] = "Faded transparency"
 L["FIRST_MESSAGE"] = "Erste Nachricht"
 L["FLASH_TABS_ON"] = "Tabs aufblinken lassen"
 L["FORMATTING"] = "Formatierung"
 L["GLOBAL_SETTINGS"] = "Globaleeinstellungen"
 L["GW2_UI"] = "GW2 UI"
+--[[Translation missing --]]
+L["HIDE_LAST_NAMES"] = "Hide last names"
 --[[Translation missing --]]
 L["IMPORT"] = "Import"
 --[[Translation missing --]]
@@ -457,6 +550,8 @@ L["JOIN_THE_DISCORD"] = "Tritt Discord bei"
 L["KEEP_EDIT_BOX_VISIBLE"] = "Eingabefeld sichtbar halten"
 L["LAYOUT"] = "Layout"
 L["LEAVE_UNTICKED_ADDONS"] = "Deaktiviert lassen, um anzuzeigen, welche Addons sichtbar sind"
+--[[Translation missing --]]
+L["LEFT"] = "Left"
 L["LEFT_INSIDE"] = "Links innen"
 L["LEFT_OUTSIDE"] = "Links außen"
 L["LINE_SPACING"] = "Zeilenabstand"
@@ -464,6 +559,8 @@ L["LINK"] = "Link"
 L["LOCK_CHAT"] = "Chat sperren"
 --[[Translation missing --]]
 L["MAKE_NEW"] = "Make new"
+--[[Translation missing --]]
+L["MESSAGE_ALIGNMENT"] = "Message alignment"
 L["MESSAGE_FADE_TIME"] = "Ausblendzeit der Nachricht"
 L["MESSAGE_FONT"] = "Nachrichtenschriftart"
 L["MESSAGE_FONT_OUTLINE"] = "Schriftkontur für Nachrichten"
@@ -474,6 +571,8 @@ L["MESSAGE_TYPES"] = "Nachrichtentypen"
 L["MESSAGES"] = "Nachrichten"
 L["MOUSEOVER"] = "Mouseover"
 L["MOVE_TO_NEW_WINDOW"] = "In neues Fenster verschieben"
+--[[Translation missing --]]
+L["MOVING_THE_WINDOW"] = "Moving the window"
 L["NEVER"] = "Nie"
 L["NEW_PROFILE_BLANK"] = "Neues Profile (leer)"
 L["NEW_PROFILE_CLONE"] = "Neues Profil (aktuelles kopieren)"
@@ -499,7 +598,19 @@ L["RENAME_TAB"] = "Tab umbenennen"
 L["RENAME_X_MESSAGE"] = "„%s“ umbenennen in:"
 L["RENAMING_TAB_X"] = "Tab „%s“ umbenennen"
 L["REWARDS"] = "Belohnungen"
+--[[Translation missing --]]
+L["RIGHT"] = "Right"
+--[[Translation missing --]]
+L["RIGHT_INSIDE"] = "Right inside"
+--[[Translation missing --]]
+L["RIGHT_OUTSIDE"] = "Right outside"
 L["RUN_OR_WA"] = "/run oder WAs"
+--[[Translation missing --]]
+L["SCREEN_BOTTOM"] = "Screen Bottom"
+--[[Translation missing --]]
+L["SCREEN_CENTER"] = "Screen Center"
+--[[Translation missing --]]
+L["SCREEN_TOP"] = "Screen Top"
 L["SCROLL_TO_END"] = "Zum Ende scrollen"
 L["SEARCH_IN_X_MESSAGE"] = "In „%s“ suchen nach:"
 L["SELECT_TYPE_TO_CHANGE"] = "Typ zum Ändern auswählen?"
@@ -533,6 +644,8 @@ L["SPECIFIC_ADDONS"] = "Spezifische Addons"
 L["STORE_MESSAGES"] = "Nachrichten speichern"
 L["TAB_COLOR"] = "Tab Farbe"
 L["TAB_SETTINGS"] = "Tab Einstellungen"
+--[[Translation missing --]]
+L["TAB_TEXT_COLOR"] = "Tab text color"
 L["TAB_TRANSPARENCY"] = "Transparenz des Tab"
 L["TAB_X"] = "%s Tab"
 L["TABS_ABOVE"] = "Über den Tabs"
@@ -542,12 +655,24 @@ L["THANKS_FOR_USING_CHATTYNATOR_DONATE"] = "Thanks for using Chattynator. Consid
 --[[Translation missing --]]
 L["THAT_PROFILE_NAME_ALREADY_EXISTS"] = "That profile name already exists"
 L["THEME"] = "Theme"
+--[[Translation missing --]]
+L["THEMES"] = "Themes"
 L["THICK"] = "Dick"
 L["THIN"] = "Dünn"
 --[[Translation missing --]]
 L["THIS_WILL_OVERWRITE_STYLE_CUSTOM"] = "This will overwrite style \"Custom\". Continue?"
 L["TIMESTAMP"] = "Zeitstempel"
+--[[Translation missing --]]
+L["TIMESTAMP_ON_RIGHT"] = "Timestamp on right"
 L["TIMESTAMP_SPACING"] = "Zeitstempelabstand"
+--[[Translation missing --]]
+L["TIPS_ACCESSING_DEFAULT_SETTINGS"] = "Access Blizzard's chat settings by right clicking the 'Combat Log' tab."
+--[[Translation missing --]]
+L["TIPS_CUSTOMIZABLE"] = "Easily customize the size, visibility, or placement of most window elements. Lock chat to hide window customizers, like resizing or new tabs."
+--[[Translation missing --]]
+L["TIPS_MOVING_THE_WINDOW"] = "To move the chat window, unlock chat and drag the 'General' tab."
+--[[Translation missing --]]
+L["TIPS_THEMES"] = "Make Chattynator match your UI with automatic themes for ElvUI and GW2, or a simple dark option."
 L["TO_OPEN_OPTIONS_X"] = "Einstellungen mit /ctnr aufrufen"
 L["TOGGLE_COMBAT_LOG_ETC"] = "Kampflog usw. de/aktivieren"
 L["TOP"] = "Oben"
@@ -575,6 +700,7 @@ L["ABBREV_RAID"] = "Р"
 L["ABBREV_RAID_LEADER"] = "РЛ"
 L["ABBREV_SERVICES"] = "У"
 L["ABBREV_TRADE"] = "Т"
+L["ACCESSING_DEFAULT_SETTINGS"] = "Доступ к настройкам по умолчанию"
 L["ACTION_UNAVAILABLE_DUE_TO_ENCOUNTER_RESTRICTIONS"] = [=[Действие недоступно из-за возникших ограничений
 
 ]=]
@@ -586,10 +712,15 @@ L["BACKGROUND_COLOR"] = "Цвет фона"
 L["BLIZZARD"] = "Blizzard"
 L["BLIZZARD_SETTINGS"] = "Настройки Blizzard"
 L["BOTTOM"] = "Внизу"
+--[[Translation missing --]]
+L["BOXED"] = "Boxed"
+L["BUTTONS_HIDE_BACKGROUND"] = "Скрыть фон кнопок"
 L["BUTTONS_POSITION"] = "Позиция кнопок"
+L["BUTTONS_TRANSPARENCY"] = "Прозрачность кнопок"
 L["BY_PLUSMOUSE"] = "от plusmouse"
 L["CANT_POPOUT_THIS_CHANNEL"] = "Нельзя выделить этот канал"
 L["CENSORED_CONTENTS_LOST"] = "Цензурированное содержимое потеряно"
+L["CENTER"] = "По центру"
 L["CHAT_TRANSPARENCY"] = "Прозрачность чата"
 L["CHATTYNATOR"] = "Chattynator"
 L["CLOSE_TAB"] = "Закрыть вкладку"
@@ -602,14 +733,27 @@ L["CUSTOMISE_CHATTYNATOR"] = "Настройка Chattynator"
 L["CUSTOMISE_CHATTYNATOR_TAB"] = [=[Настройка вкладки Chattynator
 
 ]=]
+L["CUSTOMIZABLE"] = "Настраиваемо"
 L["DARK"] = "Темная"
 L["DATA_DUMPS"] = "Дампы данных"
 L["DEVELOPMENT_IS_DONE_BY_A_HUMAN"] = "|cff04cca4Разработкой занимается трудолюбивый человек (без ИИ)|r"
 L["DISABLE_ADDON_X"] = "%s несовместим с Chattynator и может вызывать сбои."
 L["DISCORD_DESCRIPTION"] = "Обновления, предложения и поддержка"
 L["DONATE"] = "Пожертвовать"
+--[[Translation missing --]]
+L["EDIT_BOX_BG_COLOR"] = "Edit box color"
 L["EDIT_BOX_HEIGHT"] = "Высота поля редактирования"
+--[[Translation missing --]]
+L["EDIT_BOX_HORIZONTAL_OFFSET"] = "Edit box horizontal offset"
 L["EDIT_BOX_POSITION"] = "Положение поля ввода"
+--[[Translation missing --]]
+L["EDIT_BOX_SEPARATOR_GAP"] = "Hide edit box gap"
+--[[Translation missing --]]
+L["EDIT_BOX_TRANSPARENCY"] = "Edit box transparency"
+--[[Translation missing --]]
+L["EDIT_BOX_VERTICAL_OFFSET"] = "Edit box vertical offset"
+--[[Translation missing --]]
+L["EDIT_BOX_WIDTH"] = "Edit box width"
 L["ELVUI"] = "ElvUI"
 L["EMPTY_WINDOW"] = "Пустое окно"
 L["ENABLE_MESSAGE_FADE"] = "Включить затухание сообщений"
@@ -617,6 +761,8 @@ L["ENTER_PROFILE_NAME"] = "Введите имя профиля:"
 L["ENTER_THE_NEW_PROFILE_NAME"] = "Введите новое имя профиля"
 L["EXPORT"] = "Экспорт"
 L["FADE_CHAT_WHEN_NOT_IN_USE"] = "Скрыть чат, когда он не используется"
+L["FADE_WHEN_NOT_IN_USE"] = "Затенять при неиспользовании"
+L["FADED_TRANSPARENCY"] = "Прозрачность при затенении"
 L["FIRST_MESSAGE"] = [=[Первое сообщение
 
 ]=]
@@ -624,12 +770,14 @@ L["FLASH_TABS_ON"] = "Мигание вкладок"
 L["FORMATTING"] = "Формат"
 L["GLOBAL_SETTINGS"] = "Глобальные настройки"
 L["GW2_UI"] = "GW2 UI"
+L["HIDE_LAST_NAMES"] = "Скрыть вторые имена"
 L["IMPORT"] = "Импорт"
 L["INVALID_IMPORT"] = "Ошибка импорта"
 L["JOIN_THE_DISCORD"] = "Присоединяйтесь к Discord"
 L["KEEP_EDIT_BOX_VISIBLE"] = "Оставить поле редактирования видимым"
 L["LAYOUT"] = "Макет"
 L["LEAVE_UNTICKED_ADDONS"] = "Оставьте эту галочку неактивной, чтобы контролировать, какие аддоны будут отображаться."
+L["LEFT"] = "Слева"
 L["LEFT_INSIDE"] = "Слева внутри"
 L["LEFT_OUTSIDE"] = "Слева снаружи"
 L["LINE_SPACING"] = [=[Межстрочный интервал
@@ -638,6 +786,7 @@ L["LINE_SPACING"] = [=[Межстрочный интервал
 L["LINK"] = "Ссылка"
 L["LOCK_CHAT"] = "Заблокировать чат"
 L["MAKE_NEW"] = "Создать новый"
+L["MESSAGE_ALIGNMENT"] = "Выравнивание сообщений"
 L["MESSAGE_FADE_TIME"] = "Время затухания сообщений"
 L["MESSAGE_FONT"] = "Шрифт сообщений"
 L["MESSAGE_FONT_OUTLINE"] = "Контур шрифта сообщений"
@@ -648,6 +797,7 @@ L["MESSAGE_TYPES"] = "Типы сообщений"
 L["MESSAGES"] = "Сообщения"
 L["MOUSEOVER"] = "При наведении курсора мыши"
 L["MOVE_TO_NEW_WINDOW"] = "Переместить в новое окно"
+L["MOVING_THE_WINDOW"] = "Перемещение окна"
 L["NEVER"] = "Никогда"
 L["NEW_PROFILE_BLANK"] = "Новый профиль (пустой)"
 L["NEW_PROFILE_CLONE"] = "Новый профиль (клонировать текущий)"
@@ -670,7 +820,13 @@ L["RENAME_TAB"] = "Переименовать вкладку"
 L["RENAME_X_MESSAGE"] = "Переименовать \"%s\" в:"
 L["RENAMING_TAB_X"] = "Переименование вкладки \"%s\""
 L["REWARDS"] = "Награды"
+L["RIGHT"] = "Справа"
+L["RIGHT_INSIDE"] = "Справа внутри"
+L["RIGHT_OUTSIDE"] = "Справа снаружи"
 L["RUN_OR_WA"] = "/run или WAs"
+L["SCREEN_BOTTOM"] = "Внизу экрана"
+L["SCREEN_CENTER"] = "По центру экрана"
+L["SCREEN_TOP"] = "Наверху экрана"
 L["SCROLL_TO_END"] = "Прокрутить до конца"
 L["SEARCH_IN_X_MESSAGE"] = "Поиск в \"%s\":"
 L["SELECT_TYPE_TO_CHANGE"] = "Выберите тип для изменения"
@@ -707,6 +863,7 @@ L["SPECIFIC_ADDONS"] = "Конкретные аддоны"
 L["STORE_MESSAGES"] = "Сохранять сообщения"
 L["TAB_COLOR"] = "Цвет вкладки"
 L["TAB_SETTINGS"] = "Настройка вкладки"
+L["TAB_TEXT_COLOR"] = "Цвет текста вкладки"
 L["TAB_TRANSPARENCY"] = "Прозрачность вкладок"
 L["TAB_X"] = "вкладка %s"
 L["TABS_ABOVE"] = "Над вкладками"
@@ -715,12 +872,17 @@ L["THANKS_FOR_USING_CHATTYNATOR_DONATE"] = [=[Спасибо, что польз�
 ]=]
 L["THAT_PROFILE_NAME_ALREADY_EXISTS"] = "Профиль с таким именем уже существует"
 L["THEME"] = "Тема"
+L["THEMES"] = "Темы"
 L["THICK"] = "Толстый"
 L["THIN"] = "Тонкий"
 L["THIS_WILL_OVERWRITE_STYLE_CUSTOM"] = "Текущий стиль \"Пользовательский\" будет перезаписан. Продолжить?"
 L["TIMESTAMP"] = "Формат времени"
-L["TIMESTAMP_SPACING"] = [=[Интервал между временными метками
-]=]
+L["TIMESTAMP_ON_RIGHT"] = "Время справа"
+L["TIMESTAMP_SPACING"] = "Расстояние от времени"
+L["TIPS_ACCESSING_DEFAULT_SETTINGS"] = "Чтобы открыть настройки чата Blizzard, нажмите правую кнопку мыши на вкладке 'Журнал боя'."
+L["TIPS_CUSTOMIZABLE"] = "Легко настраивайте размер, видимость или расположение большинства элементов окна. Заблокируйте чат, чтобы скрыть элементы управления окном, такие как изменение размера или открытие новых вкладок."
+L["TIPS_MOVING_THE_WINDOW"] = "Чтобы переместить окно чата, разблокируйте его и тяните за вкладку 'Общий\"."
+L["TIPS_THEMES"] = "Настройте Chattynator под свой интерфейс с помощью автоматических тем ElvUI и GW2 или простого темного варианта."
 L["TO_OPEN_OPTIONS_X"] = "Открыть настройки с помощью /ctnr"
 L["TOGGLE_COMBAT_LOG_ETC"] = "Вкл/выкл журнал боя и т.д."
 L["TOP"] = "Наверху"
@@ -749,6 +911,8 @@ L["ABBREV_RAID"] = "R"
 L["ABBREV_RAID_LEADER"] = "LR"
 L["ABBREV_SERVICES"] = "S"
 L["ABBREV_TRADE"] = "C"
+--[[Translation missing --]]
+L["ACCESSING_DEFAULT_SETTINGS"] = "Accessing default settings"
 L["ACTION_UNAVAILABLE_DUE_TO_ENCOUNTER_RESTRICTIONS"] = "Ação indisponível devido a restrições do encontro"
 L["ADDONS"] = "Addons"
 L["ALL_ADDONS"] = "Todos os addons"
@@ -758,10 +922,18 @@ L["BACKGROUND_COLOR"] = "Cor de fundo"
 L["BLIZZARD"] = "Blizzard"
 L["BLIZZARD_SETTINGS"] = "Configurações da Blizzard"
 L["BOTTOM"] = "Inferior"
+--[[Translation missing --]]
+L["BOXED"] = "Boxed"
+--[[Translation missing --]]
+L["BUTTONS_HIDE_BACKGROUND"] = "Hide buttons background"
 L["BUTTONS_POSITION"] = "Posição dos botões"
+--[[Translation missing --]]
+L["BUTTONS_TRANSPARENCY"] = "Buttons transparency"
 L["BY_PLUSMOUSE"] = "por plusmouse"
 L["CANT_POPOUT_THIS_CHANNEL"] = "Não é possível destacar este canal"
 L["CENSORED_CONTENTS_LOST"] = "Conteúdo censurado perdido"
+--[[Translation missing --]]
+L["CENTER"] = "Center"
 L["CHAT_TRANSPARENCY"] = "Transparência da bate-papo"
 L["CHATTYNATOR"] = "Chattynator"
 L["CLOSE_TAB"] = "Fechar aba"
@@ -772,14 +944,28 @@ L["COPY_CHAT"] = "Copiar bate-papo"
 L["CTRL_C_TO_COPY"] = "Ctrl+C para copiar"
 L["CUSTOMISE_CHATTYNATOR"] = "Personalizar Chattynator"
 L["CUSTOMISE_CHATTYNATOR_TAB"] = "Personalizar aba do Chattynator"
+--[[Translation missing --]]
+L["CUSTOMIZABLE"] = "Customizable"
 L["DARK"] = "Escuro"
 L["DATA_DUMPS"] = "Exportações de dados"
 L["DEVELOPMENT_IS_DONE_BY_A_HUMAN"] = "|cff04cca4Desenvolvido por uma pessoa dedicada (sem IA)|r"
 L["DISABLE_ADDON_X"] = "%s é incompatível com o Chattynator e pode causar falhas."
 L["DISCORD_DESCRIPTION"] = "Atualizações, sugestões e suporte"
 L["DONATE"] = "Doar"
+--[[Translation missing --]]
+L["EDIT_BOX_BG_COLOR"] = "Edit box color"
 L["EDIT_BOX_HEIGHT"] = "Altura da caixa de edição"
+--[[Translation missing --]]
+L["EDIT_BOX_HORIZONTAL_OFFSET"] = "Edit box horizontal offset"
 L["EDIT_BOX_POSITION"] = "Posição da caixa de entrada"
+--[[Translation missing --]]
+L["EDIT_BOX_SEPARATOR_GAP"] = "Hide edit box gap"
+--[[Translation missing --]]
+L["EDIT_BOX_TRANSPARENCY"] = "Edit box transparency"
+--[[Translation missing --]]
+L["EDIT_BOX_VERTICAL_OFFSET"] = "Edit box vertical offset"
+--[[Translation missing --]]
+L["EDIT_BOX_WIDTH"] = "Edit box width"
 L["ELVUI"] = "ElvUI"
 L["EMPTY_WINDOW"] = "Janela vazia"
 L["ENABLE_MESSAGE_FADE"] = "Ativar desvanecimento das mensagens"
@@ -787,23 +973,33 @@ L["ENTER_PROFILE_NAME"] = "Insira o nome do perfil:"
 L["ENTER_THE_NEW_PROFILE_NAME"] = "Digite o novo nome do perfil"
 L["EXPORT"] = "Exportar"
 L["FADE_CHAT_WHEN_NOT_IN_USE"] = "Desvanecer bate-papo quando não estiver em uso"
+--[[Translation missing --]]
+L["FADE_WHEN_NOT_IN_USE"] = "Fade when not in use"
+--[[Translation missing --]]
+L["FADED_TRANSPARENCY"] = "Faded transparency"
 L["FIRST_MESSAGE"] = "Primeira mensagem"
 L["FLASH_TABS_ON"] = "Iluminar abas ao"
 L["FORMATTING"] = "Formatação"
 L["GLOBAL_SETTINGS"] = "Configurações globais"
 L["GW2_UI"] = "GW2 UI"
+--[[Translation missing --]]
+L["HIDE_LAST_NAMES"] = "Hide last names"
 L["IMPORT"] = "Importar"
 L["INVALID_IMPORT"] = "Importação inválida"
 L["JOIN_THE_DISCORD"] = "Junte-se ao Discord"
 L["KEEP_EDIT_BOX_VISIBLE"] = "Manter a caixa de entrada visível"
 L["LAYOUT"] = "Layout"
 L["LEAVE_UNTICKED_ADDONS"] = "Deixe desmarcado para controlar quais addons aparecem"
+--[[Translation missing --]]
+L["LEFT"] = "Left"
 L["LEFT_INSIDE"] = "Esquerda interna"
 L["LEFT_OUTSIDE"] = "Esquerda externa"
 L["LINE_SPACING"] = "Espaçamento entre linhas"
 L["LINK"] = "Link"
 L["LOCK_CHAT"] = "Bloquear bate-papo"
 L["MAKE_NEW"] = "Criar novo"
+--[[Translation missing --]]
+L["MESSAGE_ALIGNMENT"] = "Message alignment"
 L["MESSAGE_FADE_TIME"] = "Tempo de desvanecimento"
 L["MESSAGE_FONT"] = "Fonte da mensagem"
 L["MESSAGE_FONT_OUTLINE"] = "Contorno da fonte"
@@ -814,6 +1010,8 @@ L["MESSAGE_TYPES"] = "Tipos de mensagem"
 L["MESSAGES"] = "Mensagens"
 L["MOUSEOVER"] = "Passar o mouse"
 L["MOVE_TO_NEW_WINDOW"] = "Mover para nova janela"
+--[[Translation missing --]]
+L["MOVING_THE_WINDOW"] = "Moving the window"
 L["NEVER"] = "Nunca"
 L["NEW_PROFILE_BLANK"] = "Novo perfil (vazio)"
 L["NEW_PROFILE_CLONE"] = "Novo perfil (clonar atual)"
@@ -836,7 +1034,19 @@ L["RENAME_TAB"] = "Renomear aba"
 L["RENAME_X_MESSAGE"] = "Renomear \"%s\" para:"
 L["RENAMING_TAB_X"] = "Renomeando aba \"%s\""
 L["REWARDS"] = "Recompensas"
+--[[Translation missing --]]
+L["RIGHT"] = "Right"
+--[[Translation missing --]]
+L["RIGHT_INSIDE"] = "Right inside"
+--[[Translation missing --]]
+L["RIGHT_OUTSIDE"] = "Right outside"
 L["RUN_OR_WA"] = "/run ou WAs"
+--[[Translation missing --]]
+L["SCREEN_BOTTOM"] = "Screen Bottom"
+--[[Translation missing --]]
+L["SCREEN_CENTER"] = "Screen Center"
+--[[Translation missing --]]
+L["SCREEN_TOP"] = "Screen Top"
 L["SCROLL_TO_END"] = "Rolar até o final"
 L["SEARCH_IN_X_MESSAGE"] = "Pesquisar em \"%s\":"
 L["SELECT_TYPE_TO_CHANGE"] = "Selecionar tipo para alterar?"
@@ -869,6 +1079,8 @@ L["SPECIFIC_ADDONS"] = "Addons específicos"
 L["STORE_MESSAGES"] = "Armazenar mensagens"
 L["TAB_COLOR"] = "Cor da aba"
 L["TAB_SETTINGS"] = "Configurações da aba"
+--[[Translation missing --]]
+L["TAB_TEXT_COLOR"] = "Tab text color"
 L["TAB_TRANSPARENCY"] = "Transparência da aba"
 L["TAB_X"] = "Aba %s"
 L["TABS_ABOVE"] = "Abas acima"
@@ -876,11 +1088,23 @@ L["TABS_BELOW"] = "Abas abaixo"
 L["THANKS_FOR_USING_CHATTYNATOR_DONATE"] = "Obrigado por usar o Chattynator. Considere fazer uma doação para apoiar o desenvolvimento"
 L["THAT_PROFILE_NAME_ALREADY_EXISTS"] = "Esse nome de perfil já existe"
 L["THEME"] = "Tema"
+--[[Translation missing --]]
+L["THEMES"] = "Themes"
 L["THICK"] = "Espesso"
 L["THIN"] = "Fino"
 L["THIS_WILL_OVERWRITE_STYLE_CUSTOM"] = "Isso substituirá o estilo \"Personalizado\". Continuar?"
 L["TIMESTAMP"] = "Carimbo de data/hora"
+--[[Translation missing --]]
+L["TIMESTAMP_ON_RIGHT"] = "Timestamp on right"
 L["TIMESTAMP_SPACING"] = "Espaçamento das marcas de tempo"
+--[[Translation missing --]]
+L["TIPS_ACCESSING_DEFAULT_SETTINGS"] = "Access Blizzard's chat settings by right clicking the 'Combat Log' tab."
+--[[Translation missing --]]
+L["TIPS_CUSTOMIZABLE"] = "Easily customize the size, visibility, or placement of most window elements. Lock chat to hide window customizers, like resizing or new tabs."
+--[[Translation missing --]]
+L["TIPS_MOVING_THE_WINDOW"] = "To move the chat window, unlock chat and drag the 'General' tab."
+--[[Translation missing --]]
+L["TIPS_THEMES"] = "Make Chattynator match your UI with automatic themes for ElvUI and GW2, or a simple dark option."
 L["TO_OPEN_OPTIONS_X"] = "Acesse as opções com /ctnr"
 L["TOGGLE_COMBAT_LOG_ETC"] = "Alternar registro de combate, etc."
 L["TOP"] = "Superior"
@@ -908,6 +1132,8 @@ L["ABBREV_RAID"] = "B"
 L["ABBREV_RAID_LEADER"] = "JB"
 L["ABBREV_SERVICES"] = "S"
 L["ABBREV_TRADE"] = "C"
+--[[Translation missing --]]
+L["ACCESSING_DEFAULT_SETTINGS"] = "Accessing default settings"
 L["ACTION_UNAVAILABLE_DUE_TO_ENCOUNTER_RESTRICTIONS"] = "Acción no disponible debido a restricciones del encuentro"
 L["ADDONS"] = "Addons"
 L["ALL_ADDONS"] = "Todos los addons"
@@ -917,10 +1143,18 @@ L["BACKGROUND_COLOR"] = "Color de fondo"
 L["BLIZZARD"] = "Blizzard"
 L["BLIZZARD_SETTINGS"] = "Opciones de Blizzard"
 L["BOTTOM"] = "Abajo"
+--[[Translation missing --]]
+L["BOXED"] = "Boxed"
+--[[Translation missing --]]
+L["BUTTONS_HIDE_BACKGROUND"] = "Hide buttons background"
 L["BUTTONS_POSITION"] = "Posición de los botones"
+--[[Translation missing --]]
+L["BUTTONS_TRANSPARENCY"] = "Buttons transparency"
 L["BY_PLUSMOUSE"] = "por plusmouse"
 L["CANT_POPOUT_THIS_CHANNEL"] = "No se puede separar este canal"
 L["CENSORED_CONTENTS_LOST"] = "Contenido censurado perdido"
+--[[Translation missing --]]
+L["CENTER"] = "Center"
 L["CHAT_TRANSPARENCY"] = "Transparencia del chat"
 L["CHATTYNATOR"] = "Chattynator"
 L["CLOSE_TAB"] = "Cerrar pestaña"
@@ -931,14 +1165,28 @@ L["COPY_CHAT"] = "Copiar chat"
 L["CTRL_C_TO_COPY"] = "Ctrl+C para copiar"
 L["CUSTOMISE_CHATTYNATOR"] = "Personalizar Chattynator"
 L["CUSTOMISE_CHATTYNATOR_TAB"] = "Personalizar pestaña de Chattynator"
+--[[Translation missing --]]
+L["CUSTOMIZABLE"] = "Customizable"
 L["DARK"] = "Oscuro"
 L["DATA_DUMPS"] = "Volcados de datos"
 L["DEVELOPMENT_IS_DONE_BY_A_HUMAN"] = "|cff04cca4Desarrollado por una persona trabajadora (sin IA)|r"
 L["DISABLE_ADDON_X"] = "%s es incompatible con Chattynator y puede causar errores."
 L["DISCORD_DESCRIPTION"] = "Actualizaciones, sugerencias y soporte"
 L["DONATE"] = "Donar"
+--[[Translation missing --]]
+L["EDIT_BOX_BG_COLOR"] = "Edit box color"
 L["EDIT_BOX_HEIGHT"] = "Altura del cuadro de edición"
+--[[Translation missing --]]
+L["EDIT_BOX_HORIZONTAL_OFFSET"] = "Edit box horizontal offset"
 L["EDIT_BOX_POSITION"] = "Posición del cuadro de edición"
+--[[Translation missing --]]
+L["EDIT_BOX_SEPARATOR_GAP"] = "Hide edit box gap"
+--[[Translation missing --]]
+L["EDIT_BOX_TRANSPARENCY"] = "Edit box transparency"
+--[[Translation missing --]]
+L["EDIT_BOX_VERTICAL_OFFSET"] = "Edit box vertical offset"
+--[[Translation missing --]]
+L["EDIT_BOX_WIDTH"] = "Edit box width"
 L["ELVUI"] = "ElvUI"
 L["EMPTY_WINDOW"] = "Ventana vacía"
 L["ENABLE_MESSAGE_FADE"] = "Activar desvanecimiento de mensajes"
@@ -946,23 +1194,33 @@ L["ENTER_PROFILE_NAME"] = "Introduce el nombre del perfil:"
 L["ENTER_THE_NEW_PROFILE_NAME"] = "Introduce el nuevo nombre del perfil"
 L["EXPORT"] = "Exportar"
 L["FADE_CHAT_WHEN_NOT_IN_USE"] = "Desvanecer chat cuando no se use"
+--[[Translation missing --]]
+L["FADE_WHEN_NOT_IN_USE"] = "Fade when not in use"
+--[[Translation missing --]]
+L["FADED_TRANSPARENCY"] = "Faded transparency"
 L["FIRST_MESSAGE"] = "Primer mensaje"
 L["FLASH_TABS_ON"] = "Iluminar pestañas"
 L["FORMATTING"] = "Formato"
 L["GLOBAL_SETTINGS"] = "Configuración global"
 L["GW2_UI"] = "GW2 UI"
+--[[Translation missing --]]
+L["HIDE_LAST_NAMES"] = "Hide last names"
 L["IMPORT"] = "Importar"
 L["INVALID_IMPORT"] = "Importación no válida"
 L["JOIN_THE_DISCORD"] = "Únete al Discord"
 L["KEEP_EDIT_BOX_VISIBLE"] = "Mantener el cuadro de edición visible"
 L["LAYOUT"] = "Diseño"
 L["LEAVE_UNTICKED_ADDONS"] = "Dejar sin marcar para controlar qué addons se muestran"
+--[[Translation missing --]]
+L["LEFT"] = "Left"
 L["LEFT_INSIDE"] = "Izquierda interna"
 L["LEFT_OUTSIDE"] = "Izquierda externa"
 L["LINE_SPACING"] = "Espaciado entre líneas"
 L["LINK"] = "Enlace"
 L["LOCK_CHAT"] = "Bloquear chat"
 L["MAKE_NEW"] = "Crear nuevo"
+--[[Translation missing --]]
+L["MESSAGE_ALIGNMENT"] = "Message alignment"
 L["MESSAGE_FADE_TIME"] = "Tiempo de desvanecimiento del mensaje"
 L["MESSAGE_FONT"] = "Fuente del mensaje"
 L["MESSAGE_FONT_OUTLINE"] = "Contorno de la fuente"
@@ -973,6 +1231,8 @@ L["MESSAGE_TYPES"] = "Tipos de mensajes"
 L["MESSAGES"] = "Mensajes"
 L["MOUSEOVER"] = "Al pasar el ratón"
 L["MOVE_TO_NEW_WINDOW"] = "Mover a nueva ventana"
+--[[Translation missing --]]
+L["MOVING_THE_WINDOW"] = "Moving the window"
 L["NEVER"] = "Nunca"
 L["NEW_PROFILE_BLANK"] = "Nuevo perfil (vacío)"
 L["NEW_PROFILE_CLONE"] = "Nuevo perfil (clonar actual)"
@@ -995,7 +1255,19 @@ L["RENAME_TAB"] = "Renombrar pestaña"
 L["RENAME_X_MESSAGE"] = "Renombrar \"%s\" a:"
 L["RENAMING_TAB_X"] = "Renombrando pestaña \"%s\""
 L["REWARDS"] = "Recompensas"
+--[[Translation missing --]]
+L["RIGHT"] = "Right"
+--[[Translation missing --]]
+L["RIGHT_INSIDE"] = "Right inside"
+--[[Translation missing --]]
+L["RIGHT_OUTSIDE"] = "Right outside"
 L["RUN_OR_WA"] = "/run o WAs"
+--[[Translation missing --]]
+L["SCREEN_BOTTOM"] = "Screen Bottom"
+--[[Translation missing --]]
+L["SCREEN_CENTER"] = "Screen Center"
+--[[Translation missing --]]
+L["SCREEN_TOP"] = "Screen Top"
 L["SCROLL_TO_END"] = "Desplazar al final"
 L["SEARCH_IN_X_MESSAGE"] = "Buscar en \"%s\":"
 L["SELECT_TYPE_TO_CHANGE"] = "¿Seleccionar tipo para cambiar?"
@@ -1028,6 +1300,8 @@ L["SPECIFIC_ADDONS"] = "Addons específicos"
 L["STORE_MESSAGES"] = "Guardar mensajes"
 L["TAB_COLOR"] = "Color de pestaña"
 L["TAB_SETTINGS"] = "Configuración de pestañas"
+--[[Translation missing --]]
+L["TAB_TEXT_COLOR"] = "Tab text color"
 L["TAB_TRANSPARENCY"] = "Transparencia de pestañas"
 L["TAB_X"] = "Pestaña %s"
 L["TABS_ABOVE"] = "Pestañas arriba"
@@ -1035,11 +1309,23 @@ L["TABS_BELOW"] = "Pestañas abajo"
 L["THANKS_FOR_USING_CHATTYNATOR_DONATE"] = "Gracias por usar Chattynator. Considera hacer una donación para apoyar el desarrollo"
 L["THAT_PROFILE_NAME_ALREADY_EXISTS"] = "Ese nombre de perfil ya existe"
 L["THEME"] = "Tema"
+--[[Translation missing --]]
+L["THEMES"] = "Themes"
 L["THICK"] = "Grueso"
 L["THIN"] = "Delgado"
 L["THIS_WILL_OVERWRITE_STYLE_CUSTOM"] = "Esto sobrescribirá el estilo \"Personalizado\". ¿Continuar?"
 L["TIMESTAMP"] = "Marca de tiempo"
+--[[Translation missing --]]
+L["TIMESTAMP_ON_RIGHT"] = "Timestamp on right"
 L["TIMESTAMP_SPACING"] = "Espaciado de las marcas de tiempo"
+--[[Translation missing --]]
+L["TIPS_ACCESSING_DEFAULT_SETTINGS"] = "Access Blizzard's chat settings by right clicking the 'Combat Log' tab."
+--[[Translation missing --]]
+L["TIPS_CUSTOMIZABLE"] = "Easily customize the size, visibility, or placement of most window elements. Lock chat to hide window customizers, like resizing or new tabs."
+--[[Translation missing --]]
+L["TIPS_MOVING_THE_WINDOW"] = "To move the chat window, unlock chat and drag the 'General' tab."
+--[[Translation missing --]]
+L["TIPS_THEMES"] = "Make Chattynator match your UI with automatic themes for ElvUI and GW2, or a simple dark option."
 L["TO_OPEN_OPTIONS_X"] = "Accede a las opciones con /ctnr"
 L["TOGGLE_COMBAT_LOG_ETC"] = "Alternar registro de combate, etc."
 L["TOP"] = "Arriba"
@@ -1067,6 +1353,8 @@ L["ABBREV_RAID"] = "B"
 L["ABBREV_RAID_LEADER"] = "JB"
 L["ABBREV_SERVICES"] = "S"
 L["ABBREV_TRADE"] = "C"
+--[[Translation missing --]]
+L["ACCESSING_DEFAULT_SETTINGS"] = "Accessing default settings"
 L["ACTION_UNAVAILABLE_DUE_TO_ENCOUNTER_RESTRICTIONS"] = "Acción no disponible debido a restricciones del encuentro"
 L["ADDONS"] = "Addons"
 L["ALL_ADDONS"] = "Todos los addons"
@@ -1076,10 +1364,18 @@ L["BACKGROUND_COLOR"] = "Color de fondo"
 L["BLIZZARD"] = "Blizzard"
 L["BLIZZARD_SETTINGS"] = "Opciones de Blizzard"
 L["BOTTOM"] = "Abajo"
+--[[Translation missing --]]
+L["BOXED"] = "Boxed"
+--[[Translation missing --]]
+L["BUTTONS_HIDE_BACKGROUND"] = "Hide buttons background"
 L["BUTTONS_POSITION"] = "Posición de los botones"
+--[[Translation missing --]]
+L["BUTTONS_TRANSPARENCY"] = "Buttons transparency"
 L["BY_PLUSMOUSE"] = "por plusmouse"
 L["CANT_POPOUT_THIS_CHANNEL"] = "No se puede separar este canal"
 L["CENSORED_CONTENTS_LOST"] = "Contenido censurado perdido"
+--[[Translation missing --]]
+L["CENTER"] = "Center"
 L["CHAT_TRANSPARENCY"] = "Transparencia del chat"
 L["CHATTYNATOR"] = "Chattynator"
 L["CLOSE_TAB"] = "Cerrar pestaña"
@@ -1090,14 +1386,28 @@ L["COPY_CHAT"] = "Copiar chat"
 L["CTRL_C_TO_COPY"] = "Ctrl+C para copiar"
 L["CUSTOMISE_CHATTYNATOR"] = "Personalizar Chattynator"
 L["CUSTOMISE_CHATTYNATOR_TAB"] = "Personalizar pestaña de Chattynator"
+--[[Translation missing --]]
+L["CUSTOMIZABLE"] = "Customizable"
 L["DARK"] = "Oscuro"
 L["DATA_DUMPS"] = "Volcados de datos"
 L["DEVELOPMENT_IS_DONE_BY_A_HUMAN"] = "|cff04cca4Desarrollado por una persona trabajadora (sin IA)|r"
 L["DISABLE_ADDON_X"] = "%s es incompatible con Chattynator y puede causar errores."
 L["DISCORD_DESCRIPTION"] = "Actualizaciones, sugerencias y soporte"
 L["DONATE"] = "Donar"
+--[[Translation missing --]]
+L["EDIT_BOX_BG_COLOR"] = "Edit box color"
 L["EDIT_BOX_HEIGHT"] = "Altura del cuadro de edición"
+--[[Translation missing --]]
+L["EDIT_BOX_HORIZONTAL_OFFSET"] = "Edit box horizontal offset"
 L["EDIT_BOX_POSITION"] = "Posición del cuadro de edición"
+--[[Translation missing --]]
+L["EDIT_BOX_SEPARATOR_GAP"] = "Hide edit box gap"
+--[[Translation missing --]]
+L["EDIT_BOX_TRANSPARENCY"] = "Edit box transparency"
+--[[Translation missing --]]
+L["EDIT_BOX_VERTICAL_OFFSET"] = "Edit box vertical offset"
+--[[Translation missing --]]
+L["EDIT_BOX_WIDTH"] = "Edit box width"
 L["ELVUI"] = "ElvUI"
 L["EMPTY_WINDOW"] = "Ventana vacía"
 L["ENABLE_MESSAGE_FADE"] = "Activar desvanecimiento de mensajes"
@@ -1105,23 +1415,33 @@ L["ENTER_PROFILE_NAME"] = "Introduce el nombre del perfil:"
 L["ENTER_THE_NEW_PROFILE_NAME"] = "Introduce el nuevo nombre del perfil"
 L["EXPORT"] = "Exportar"
 L["FADE_CHAT_WHEN_NOT_IN_USE"] = "Desvanecer chat cuando no se use"
+--[[Translation missing --]]
+L["FADE_WHEN_NOT_IN_USE"] = "Fade when not in use"
+--[[Translation missing --]]
+L["FADED_TRANSPARENCY"] = "Faded transparency"
 L["FIRST_MESSAGE"] = "Primer mensaje"
 L["FLASH_TABS_ON"] = "Iluminar pestañas"
 L["FORMATTING"] = "Formato"
 L["GLOBAL_SETTINGS"] = "Configuración global"
 L["GW2_UI"] = "GW2 UI"
+--[[Translation missing --]]
+L["HIDE_LAST_NAMES"] = "Hide last names"
 L["IMPORT"] = "Importar"
 L["INVALID_IMPORT"] = "Importación no válida"
 L["JOIN_THE_DISCORD"] = "Únete al Discord"
 L["KEEP_EDIT_BOX_VISIBLE"] = "Mantener el cuadro de edición visible"
 L["LAYOUT"] = "Diseño"
 L["LEAVE_UNTICKED_ADDONS"] = "Dejar sin marcar para controlar qué addons se muestran"
+--[[Translation missing --]]
+L["LEFT"] = "Left"
 L["LEFT_INSIDE"] = "Izquierda interna"
 L["LEFT_OUTSIDE"] = "Izquierda externa"
 L["LINE_SPACING"] = "Espaciado entre líneas"
 L["LINK"] = "Enlace"
 L["LOCK_CHAT"] = "Bloquear chat"
 L["MAKE_NEW"] = "Crear nuevo"
+--[[Translation missing --]]
+L["MESSAGE_ALIGNMENT"] = "Message alignment"
 L["MESSAGE_FADE_TIME"] = "Tiempo de desvanecimiento del mensaje"
 L["MESSAGE_FONT"] = "Fuente del mensaje"
 L["MESSAGE_FONT_OUTLINE"] = "Contorno de la fuente"
@@ -1132,6 +1452,8 @@ L["MESSAGE_TYPES"] = "Tipos de mensajes"
 L["MESSAGES"] = "Mensajes"
 L["MOUSEOVER"] = "Al pasar el ratón"
 L["MOVE_TO_NEW_WINDOW"] = "Mover a nueva ventana"
+--[[Translation missing --]]
+L["MOVING_THE_WINDOW"] = "Moving the window"
 L["NEVER"] = "Nunca"
 L["NEW_PROFILE_BLANK"] = "Nuevo perfil (vacío)"
 L["NEW_PROFILE_CLONE"] = "Nuevo perfil (clonar actual)"
@@ -1154,7 +1476,19 @@ L["RENAME_TAB"] = "Renombrar pestaña"
 L["RENAME_X_MESSAGE"] = "Renombrar \"%s\" a:"
 L["RENAMING_TAB_X"] = "Renombrando pestaña \"%s\""
 L["REWARDS"] = "Recompensas"
+--[[Translation missing --]]
+L["RIGHT"] = "Right"
+--[[Translation missing --]]
+L["RIGHT_INSIDE"] = "Right inside"
+--[[Translation missing --]]
+L["RIGHT_OUTSIDE"] = "Right outside"
 L["RUN_OR_WA"] = "/run o WAs"
+--[[Translation missing --]]
+L["SCREEN_BOTTOM"] = "Screen Bottom"
+--[[Translation missing --]]
+L["SCREEN_CENTER"] = "Screen Center"
+--[[Translation missing --]]
+L["SCREEN_TOP"] = "Screen Top"
 L["SCROLL_TO_END"] = "Desplazar al final"
 L["SEARCH_IN_X_MESSAGE"] = "Buscar en \"%s\":"
 L["SELECT_TYPE_TO_CHANGE"] = "¿Seleccionar tipo para cambiar?"
@@ -1187,6 +1521,8 @@ L["SPECIFIC_ADDONS"] = "Addons específicos"
 L["STORE_MESSAGES"] = "Guardar mensajes"
 L["TAB_COLOR"] = "Color de pestaña"
 L["TAB_SETTINGS"] = "Configuración de pestañas"
+--[[Translation missing --]]
+L["TAB_TEXT_COLOR"] = "Tab text color"
 L["TAB_TRANSPARENCY"] = "Transparencia de pestañas"
 L["TAB_X"] = "Pestaña %s"
 L["TABS_ABOVE"] = "Pestañas arriba"
@@ -1194,11 +1530,23 @@ L["TABS_BELOW"] = "Pestañas abajo"
 L["THANKS_FOR_USING_CHATTYNATOR_DONATE"] = "Gracias por usar Chattynator. Considera hacer una donación para apoyar el desarrollo"
 L["THAT_PROFILE_NAME_ALREADY_EXISTS"] = "Ese nombre de perfil ya existe"
 L["THEME"] = "Tema"
+--[[Translation missing --]]
+L["THEMES"] = "Themes"
 L["THICK"] = "Grueso"
 L["THIN"] = "Delgado"
 L["THIS_WILL_OVERWRITE_STYLE_CUSTOM"] = "Esto sobrescribirá el estilo \"Personalizado\". ¿Continuar?"
 L["TIMESTAMP"] = "Marca de tiempo"
+--[[Translation missing --]]
+L["TIMESTAMP_ON_RIGHT"] = "Timestamp on right"
 L["TIMESTAMP_SPACING"] = "Espaciado de las marcas de tiempo"
+--[[Translation missing --]]
+L["TIPS_ACCESSING_DEFAULT_SETTINGS"] = "Access Blizzard's chat settings by right clicking the 'Combat Log' tab."
+--[[Translation missing --]]
+L["TIPS_CUSTOMIZABLE"] = "Easily customize the size, visibility, or placement of most window elements. Lock chat to hide window customizers, like resizing or new tabs."
+--[[Translation missing --]]
+L["TIPS_MOVING_THE_WINDOW"] = "To move the chat window, unlock chat and drag the 'General' tab."
+--[[Translation missing --]]
+L["TIPS_THEMES"] = "Make Chattynator match your UI with automatic themes for ElvUI and GW2, or a simple dark option."
 L["TO_OPEN_OPTIONS_X"] = "Accede a las opciones con /ctnr"
 L["TOGGLE_COMBAT_LOG_ETC"] = "Alternar registro de combate, etc."
 L["TOP"] = "Arriba"
@@ -1226,6 +1574,7 @@ L["ABBREV_RAID"] = "團"
 L["ABBREV_RAID_LEADER"] = "團長"
 L["ABBREV_SERVICES"] = "服"
 L["ABBREV_TRADE"] = "交"
+L["ACCESSING_DEFAULT_SETTINGS"] = "訪問預設設定"
 L["ACTION_UNAVAILABLE_DUE_TO_ENCOUNTER_RESTRICTIONS"] = "動作不可用，因為首領戰的限制"
 L["ADDONS"] = "插件"
 L["ALL_ADDONS"] = "所有插件"
@@ -1235,10 +1584,14 @@ L["BACKGROUND_COLOR"] = "背景顏色"
 L["BLIZZARD"] = "暴雪"
 L["BLIZZARD_SETTINGS"] = "暴雪設置"
 L["BOTTOM"] = "底部"
+L["BOXED"] = "盒裝"
+L["BUTTONS_HIDE_BACKGROUND"] = "隱藏按鈕背景"
 L["BUTTONS_POSITION"] = "按鈕位置"
+L["BUTTONS_TRANSPARENCY"] = "按鈕透明度"
 L["BY_PLUSMOUSE"] = "作者：plusmouse"
 L["CANT_POPOUT_THIS_CHANNEL"] = "無法彈出此頻道"
 L["CENSORED_CONTENTS_LOST"] = "被刪改的內容丟失"
+L["CENTER"] = "中間"
 L["CHAT_TRANSPARENCY"] = "聊天透明度"
 L["CHATTYNATOR"] = "Chattynator"
 L["CLOSE_TAB"] = "關閉標籤頁"
@@ -1249,14 +1602,21 @@ L["COPY_CHAT"] = "複製聊天"
 L["CTRL_C_TO_COPY"] = "Ctrl+C 複製"
 L["CUSTOMISE_CHATTYNATOR"] = "自訂Chattynator"
 L["CUSTOMISE_CHATTYNATOR_TAB"] = "自訂Chattynator標籤頁"
+L["CUSTOMIZABLE"] = "可自訂"
 L["DARK"] = "暗黑"
 L["DATA_DUMPS"] = "數據轉儲"
 L["DEVELOPMENT_IS_DONE_BY_A_HUMAN"] = "|cff04cca4開發工作由勤奮的人類完成（非人工智慧）。|r"
 L["DISABLE_ADDON_X"] = "%s 與Chattynator不相容，並可能導致故障。"
 L["DISCORD_DESCRIPTION"] = "獲取更新、功能建議與支持"
 L["DONATE"] = "捐助"
+L["EDIT_BOX_BG_COLOR"] = "輸入框顏色"
 L["EDIT_BOX_HEIGHT"] = "輸入框高度"
+L["EDIT_BOX_HORIZONTAL_OFFSET"] = "輸入框水平偏移"
 L["EDIT_BOX_POSITION"] = "輸入框位置"
+L["EDIT_BOX_SEPARATOR_GAP"] = "隱藏輸入框間隙"
+L["EDIT_BOX_TRANSPARENCY"] = "輸入框透明度"
+L["EDIT_BOX_VERTICAL_OFFSET"] = "輸入框垂直偏移"
+L["EDIT_BOX_WIDTH"] = "輸入框寬度"
 L["ELVUI"] = "ElvUI"
 L["EMPTY_WINDOW"] = "空視窗"
 L["ENABLE_MESSAGE_FADE"] = "啟用訊息淡出"
@@ -1264,23 +1624,28 @@ L["ENTER_PROFILE_NAME"] = "輸入設定檔名稱："
 L["ENTER_THE_NEW_PROFILE_NAME"] = "輸入新設定檔名稱"
 L["EXPORT"] = "匯出"
 L["FADE_CHAT_WHEN_NOT_IN_USE"] = "聊天視窗空閒時自動漸隱"
+L["FADE_WHEN_NOT_IN_USE"] = "不使用時淡出"
+L["FADED_TRANSPARENCY"] = "淡出透明度"
 L["FIRST_MESSAGE"] = "第一則訊息"
 L["FLASH_TABS_ON"] = "閃爍標籤"
 L["FORMATTING"] = "格式"
 L["GLOBAL_SETTINGS"] = "全局設定"
 L["GW2_UI"] = "GW2 UI"
+L["HIDE_LAST_NAMES"] = "隱藏最後名字"
 L["IMPORT"] = "匯入"
 L["INVALID_IMPORT"] = "無效的匯入"
 L["JOIN_THE_DISCORD"] = "加入 Discord 頻道"
 L["KEEP_EDIT_BOX_VISIBLE"] = "保持輸入框可見"
 L["LAYOUT"] = "布局"
 L["LEAVE_UNTICKED_ADDONS"] = "取消勾選以控制顯示的插件"
+L["LEFT"] = "左"
 L["LEFT_INSIDE"] = "左邊內側"
 L["LEFT_OUTSIDE"] = "左邊外側"
 L["LINE_SPACING"] = "行間距"
 L["LINK"] = "連結"
 L["LOCK_CHAT"] = "鎖定聊天"
 L["MAKE_NEW"] = "建立新的"
+L["MESSAGE_ALIGNMENT"] = "訊息對齊"
 L["MESSAGE_FADE_TIME"] = "訊息淡出時間"
 L["MESSAGE_FONT"] = "訊息字體"
 L["MESSAGE_FONT_OUTLINE"] = "訊息字體輪廓"
@@ -1291,6 +1656,7 @@ L["MESSAGE_TYPES"] = "訊息類型"
 L["MESSAGES"] = "訊息"
 L["MOUSEOVER"] = "滑鼠指向"
 L["MOVE_TO_NEW_WINDOW"] = "移動到新視窗"
+L["MOVING_THE_WINDOW"] = "移動此視窗"
 L["NEVER"] = "永不"
 L["NEW_PROFILE_BLANK"] = "新建設定檔（空白）"
 L["NEW_PROFILE_CLONE"] = "新建設定檔（複製當前）"
@@ -1313,7 +1679,13 @@ L["RENAME_TAB"] = "重命名標籤頁"
 L["RENAME_X_MESSAGE"] = "將\"%s\"重命名為："
 L["RENAMING_TAB_X"] = "重命名標籤頁 \"%s\""
 L["REWARDS"] = "獎勵"
+L["RIGHT"] = "右"
+L["RIGHT_INSIDE"] = "右內側"
+L["RIGHT_OUTSIDE"] = "右外側"
 L["RUN_OR_WA"] = "/run 或 WAs"
+L["SCREEN_BOTTOM"] = "螢幕底部"
+L["SCREEN_CENTER"] = "螢幕中間"
+L["SCREEN_TOP"] = "螢幕頂部"
 L["SCROLL_TO_END"] = "捲動至底部"
 L["SEARCH_IN_X_MESSAGE"] = "在\"%s\"中搜尋："
 L["SELECT_TYPE_TO_CHANGE"] = "選擇更改的類型"
@@ -1346,6 +1718,7 @@ L["SPECIFIC_ADDONS"] = "特定插件"
 L["STORE_MESSAGES"] = "存儲訊息"
 L["TAB_COLOR"] = "標籤頁顏色"
 L["TAB_SETTINGS"] = "標籤頁設定"
+L["TAB_TEXT_COLOR"] = "標籤頁文字顏色"
 L["TAB_TRANSPARENCY"] = "標籤頁透明度"
 L["TAB_X"] = "%s 標籤頁"
 L["TABS_ABOVE"] = "上方標籤頁"
@@ -1353,11 +1726,17 @@ L["TABS_BELOW"] = "下方標籤頁"
 L["THANKS_FOR_USING_CHATTYNATOR_DONATE"] = "感謝使用Chattynator。考慮捐款支持發展"
 L["THAT_PROFILE_NAME_ALREADY_EXISTS"] = "設定檔名稱已經存在"
 L["THEME"] = "主題"
+L["THEMES"] = "主題"
 L["THICK"] = "粗"
 L["THIN"] = "細"
 L["THIS_WILL_OVERWRITE_STYLE_CUSTOM"] = "這將會覆寫樣式\"自訂\"。要繼續嗎？"
 L["TIMESTAMP"] = "時間戳"
+L["TIMESTAMP_ON_RIGHT"] = "時間戳在右"
 L["TIMESTAMP_SPACING"] = "時間戳間距"
+L["TIPS_ACCESSING_DEFAULT_SETTINGS"] = "右鍵點選「戰鬥日誌」標籤頁，即可存取暴雪的聊天設定。"
+L["TIPS_CUSTOMIZABLE"] = "輕鬆自訂大多數視窗元素的大小、可見性或位置。鎖定聊天視窗即可隱藏視窗自訂選項，例如調整大小或新標籤頁。"
+L["TIPS_MOVING_THE_WINDOW"] = "要移動聊天窗口，請解鎖聊天並拖曳「綜合」標籤頁。"
+L["TIPS_THEMES"] = "透過為 ElvUI 和 GW2 自動設定主題，或提供簡單的深色選項，讓 Chattynator 與您的 UI 相符。"
 L["TO_OPEN_OPTIONS_X"] = "輸入 /ctnr 開啟選項"
 L["TOGGLE_COMBAT_LOG_ETC"] = "切換戰鬥日誌..等等。"
 L["TOP"] = "頂部"
@@ -1385,6 +1764,8 @@ L["ABBREV_RAID"] = "团"
 L["ABBREV_RAID_LEADER"] = "团长"
 L["ABBREV_SERVICES"] = "服"
 L["ABBREV_TRADE"] = "交"
+--[[Translation missing --]]
+L["ACCESSING_DEFAULT_SETTINGS"] = "Accessing default settings"
 L["ACTION_UNAVAILABLE_DUE_TO_ENCOUNTER_RESTRICTIONS"] = "由于首领战限制，该操作不可用。"
 L["ADDONS"] = "插件"
 L["ALL_ADDONS"] = "所有插件"
@@ -1394,10 +1775,18 @@ L["BACKGROUND_COLOR"] = "背景颜色"
 L["BLIZZARD"] = "暴雪风格"
 L["BLIZZARD_SETTINGS"] = "暴雪设置"
 L["BOTTOM"] = "下"
+--[[Translation missing --]]
+L["BOXED"] = "Boxed"
+--[[Translation missing --]]
+L["BUTTONS_HIDE_BACKGROUND"] = "Hide buttons background"
 L["BUTTONS_POSITION"] = "按钮位置"
+--[[Translation missing --]]
+L["BUTTONS_TRANSPARENCY"] = "Buttons transparency"
 L["BY_PLUSMOUSE"] = "作者：plusmouse"
 L["CANT_POPOUT_THIS_CHANNEL"] = "无法分离该频道"
 L["CENSORED_CONTENTS_LOST"] = "已屏蔽的内容丢失"
+--[[Translation missing --]]
+L["CENTER"] = "Center"
 L["CHAT_TRANSPARENCY"] = "聊天透明度"
 L["CHATTYNATOR"] = "Chattynator"
 L["CLOSE_TAB"] = "关闭标签"
@@ -1408,14 +1797,28 @@ L["COPY_CHAT"] = "复制聊天"
 L["CTRL_C_TO_COPY"] = "Ctrl+C 复制"
 L["CUSTOMISE_CHATTYNATOR"] = "自定义Chattynator"
 L["CUSTOMISE_CHATTYNATOR_TAB"] = "自定义 Chattynator 标签页"
+--[[Translation missing --]]
+L["CUSTOMIZABLE"] = "Customizable"
 L["DARK"] = "暗色"
 L["DATA_DUMPS"] = "数据转储"
 L["DEVELOPMENT_IS_DONE_BY_A_HUMAN"] = "|cff04cca4由辛勤的人类开发（非 AI）|r"
 L["DISABLE_ADDON_X"] = "%s 与 Chattynator 不兼容，可能会引起错误。"
 L["DISCORD_DESCRIPTION"] = "获取更新、功能建议与支持"
 L["DONATE"] = "赞助支持"
+--[[Translation missing --]]
+L["EDIT_BOX_BG_COLOR"] = "Edit box color"
 L["EDIT_BOX_HEIGHT"] = "编辑框高度"
+--[[Translation missing --]]
+L["EDIT_BOX_HORIZONTAL_OFFSET"] = "Edit box horizontal offset"
 L["EDIT_BOX_POSITION"] = "编辑框位置"
+--[[Translation missing --]]
+L["EDIT_BOX_SEPARATOR_GAP"] = "Hide edit box gap"
+--[[Translation missing --]]
+L["EDIT_BOX_TRANSPARENCY"] = "Edit box transparency"
+--[[Translation missing --]]
+L["EDIT_BOX_VERTICAL_OFFSET"] = "Edit box vertical offset"
+--[[Translation missing --]]
+L["EDIT_BOX_WIDTH"] = "Edit box width"
 L["ELVUI"] = "ElvUI"
 L["EMPTY_WINDOW"] = "空窗口"
 L["ENABLE_MESSAGE_FADE"] = "启用信息渐隐"
@@ -1423,23 +1826,33 @@ L["ENTER_PROFILE_NAME"] = "输入配置名称："
 L["ENTER_THE_NEW_PROFILE_NAME"] = "输入新的配置文件名称"
 L["EXPORT"] = "导出"
 L["FADE_CHAT_WHEN_NOT_IN_USE"] = "聊天窗口闲置时自动渐隐"
+--[[Translation missing --]]
+L["FADE_WHEN_NOT_IN_USE"] = "Fade when not in use"
+--[[Translation missing --]]
+L["FADED_TRANSPARENCY"] = "Faded transparency"
 L["FIRST_MESSAGE"] = "第一条消息"
 L["FLASH_TABS_ON"] = "标签闪烁提醒"
 L["FORMATTING"] = "格式"
 L["GLOBAL_SETTINGS"] = "全局设置"
 L["GW2_UI"] = "GW2 UI"
+--[[Translation missing --]]
+L["HIDE_LAST_NAMES"] = "Hide last names"
 L["IMPORT"] = "导入"
 L["INVALID_IMPORT"] = "导入失败"
 L["JOIN_THE_DISCORD"] = "加入 Discord 频道"
 L["KEEP_EDIT_BOX_VISIBLE"] = "保持编辑框可见"
 L["LAYOUT"] = "布局"
 L["LEAVE_UNTICKED_ADDONS"] = "取消勾选以控制显示的插件"
+--[[Translation missing --]]
+L["LEFT"] = "Left"
 L["LEFT_INSIDE"] = "内侧-左"
 L["LEFT_OUTSIDE"] = "外侧-左"
 L["LINE_SPACING"] = "行间距"
 L["LINK"] = "链接"
 L["LOCK_CHAT"] = "锁定聊天"
 L["MAKE_NEW"] = "新建"
+--[[Translation missing --]]
+L["MESSAGE_ALIGNMENT"] = "Message alignment"
 L["MESSAGE_FADE_TIME"] = "信息渐隐时间"
 L["MESSAGE_FONT"] = "信息字体"
 L["MESSAGE_FONT_OUTLINE"] = "信息字体描边"
@@ -1450,6 +1863,8 @@ L["MESSAGE_TYPES"] = "信息类型"
 L["MESSAGES"] = "消息"
 L["MOUSEOVER"] = "鼠标悬停"
 L["MOVE_TO_NEW_WINDOW"] = "移动到新窗口"
+--[[Translation missing --]]
+L["MOVING_THE_WINDOW"] = "Moving the window"
 L["NEVER"] = "从不"
 L["NEW_PROFILE_BLANK"] = "新建配置（空白）"
 L["NEW_PROFILE_CLONE"] = "新建配置（复制当前）"
@@ -1472,7 +1887,19 @@ L["RENAME_TAB"] = "重命名标签"
 L["RENAME_X_MESSAGE"] = "将\\\"%s\\\"重命名为："
 L["RENAMING_TAB_X"] = "重命名标签 \\\"%s\\\""
 L["REWARDS"] = "奖励"
+--[[Translation missing --]]
+L["RIGHT"] = "Right"
+--[[Translation missing --]]
+L["RIGHT_INSIDE"] = "Right inside"
+--[[Translation missing --]]
+L["RIGHT_OUTSIDE"] = "Right outside"
 L["RUN_OR_WA"] = "/run or WAs"
+--[[Translation missing --]]
+L["SCREEN_BOTTOM"] = "Screen Bottom"
+--[[Translation missing --]]
+L["SCREEN_CENTER"] = "Screen Center"
+--[[Translation missing --]]
+L["SCREEN_TOP"] = "Screen Top"
 L["SCROLL_TO_END"] = "滚动至底部"
 L["SEARCH_IN_X_MESSAGE"] = "在 \\\"%s\\\" 中搜索："
 L["SELECT_TYPE_TO_CHANGE"] = "选择更改的类型？"
@@ -1505,6 +1932,8 @@ L["SPECIFIC_ADDONS"] = "特定插件"
 L["STORE_MESSAGES"] = "存储消息"
 L["TAB_COLOR"] = "标签颜色"
 L["TAB_SETTINGS"] = "标签设置"
+--[[Translation missing --]]
+L["TAB_TEXT_COLOR"] = "Tab text color"
 L["TAB_TRANSPARENCY"] = "标签透明度"
 L["TAB_X"] = "%s 标签"
 L["TABS_ABOVE"] = "上方标签"
@@ -1512,11 +1941,23 @@ L["TABS_BELOW"] = "下方标签"
 L["THANKS_FOR_USING_CHATTYNATOR_DONATE"] = "感谢使用 Chattynator。请考虑赞助以支持开发。"
 L["THAT_PROFILE_NAME_ALREADY_EXISTS"] = "该配置文件名称已存在。"
 L["THEME"] = "主題"
+--[[Translation missing --]]
+L["THEMES"] = "Themes"
 L["THICK"] = "粗"
 L["THIN"] = "细"
 L["THIS_WILL_OVERWRITE_STYLE_CUSTOM"] = "这将覆盖样式“自定义”。是否继续？"
 L["TIMESTAMP"] = "时间戳"
+--[[Translation missing --]]
+L["TIMESTAMP_ON_RIGHT"] = "Timestamp on right"
 L["TIMESTAMP_SPACING"] = "时间戳间距"
+--[[Translation missing --]]
+L["TIPS_ACCESSING_DEFAULT_SETTINGS"] = "Access Blizzard's chat settings by right clicking the 'Combat Log' tab."
+--[[Translation missing --]]
+L["TIPS_CUSTOMIZABLE"] = "Easily customize the size, visibility, or placement of most window elements. Lock chat to hide window customizers, like resizing or new tabs."
+--[[Translation missing --]]
+L["TIPS_MOVING_THE_WINDOW"] = "To move the chat window, unlock chat and drag the 'General' tab."
+--[[Translation missing --]]
+L["TIPS_THEMES"] = "Make Chattynator match your UI with automatic themes for ElvUI and GW2, or a simple dark option."
 L["TO_OPEN_OPTIONS_X"] = "输入 /ctnr 打开设置"
 L["TOGGLE_COMBAT_LOG_ETC"] = "切换战斗日志等。"
 L["TOP"] = "上"
@@ -1544,6 +1985,8 @@ L["ABBREV_RAID"] = "R"
 L["ABBREV_RAID_LEADER"] = "RL"
 L["ABBREV_SERVICES"] = "S"
 L["ABBREV_TRADE"] = "T"
+--[[Translation missing --]]
+L["ACCESSING_DEFAULT_SETTINGS"] = "Accessing default settings"
 L["ACTION_UNAVAILABLE_DUE_TO_ENCOUNTER_RESTRICTIONS"] = "전투 제한 사항으로 인해 행동 불가"
 L["ADDONS"] = "애드온"
 L["ALL_ADDONS"] = "모든 애드온"
@@ -1553,10 +1996,18 @@ L["BACKGROUND_COLOR"] = "배경색"
 L["BLIZZARD"] = "Blizzard"
 L["BLIZZARD_SETTINGS"] = "블리자드 설정"
 L["BOTTOM"] = "하단"
+--[[Translation missing --]]
+L["BOXED"] = "Boxed"
+--[[Translation missing --]]
+L["BUTTONS_HIDE_BACKGROUND"] = "Hide buttons background"
 L["BUTTONS_POSITION"] = "버튼 위치"
+--[[Translation missing --]]
+L["BUTTONS_TRANSPARENCY"] = "Buttons transparency"
 L["BY_PLUSMOUSE"] = "by plusmouse"
 L["CANT_POPOUT_THIS_CHANNEL"] = "이 채널을 분리할 수 없습니다."
 L["CENSORED_CONTENTS_LOST"] = "검열된 내용이 손실되었습니다."
+--[[Translation missing --]]
+L["CENTER"] = "Center"
 L["CHAT_TRANSPARENCY"] = "채팅 투명도"
 L["CHATTYNATOR"] = "Chattynator"
 L["CLOSE_TAB"] = "탭 닫기"
@@ -1567,6 +2018,8 @@ L["COPY_CHAT"] = "채팅 복사"
 L["CTRL_C_TO_COPY"] = "Ctrl+C 복사"
 L["CUSTOMISE_CHATTYNATOR"] = "Chattynator 사용자 정의"
 L["CUSTOMISE_CHATTYNATOR_TAB"] = "Chattynator 탭 사용자 정의"
+--[[Translation missing --]]
+L["CUSTOMIZABLE"] = "Customizable"
 L["DARK"] = "어두운"
 L["DATA_DUMPS"] = "데이터 덤프"
 --[[Translation missing --]]
@@ -1575,8 +2028,20 @@ L["DISABLE_ADDON_X"] = "%s는 Chattynator와 호환되지 않으며 오류가 �
 L["DISCORD_DESCRIPTION"] = "업데이트, 기능 제안 및 지원"
 L["DONATE"] = "기부하기"
 --[[Translation missing --]]
+L["EDIT_BOX_BG_COLOR"] = "Edit box color"
+--[[Translation missing --]]
 L["EDIT_BOX_HEIGHT"] = "Edit box height"
+--[[Translation missing --]]
+L["EDIT_BOX_HORIZONTAL_OFFSET"] = "Edit box horizontal offset"
 L["EDIT_BOX_POSITION"] = "편집 상자 위치"
+--[[Translation missing --]]
+L["EDIT_BOX_SEPARATOR_GAP"] = "Hide edit box gap"
+--[[Translation missing --]]
+L["EDIT_BOX_TRANSPARENCY"] = "Edit box transparency"
+--[[Translation missing --]]
+L["EDIT_BOX_VERTICAL_OFFSET"] = "Edit box vertical offset"
+--[[Translation missing --]]
+L["EDIT_BOX_WIDTH"] = "Edit box width"
 L["ELVUI"] = "ElvUI"
 L["EMPTY_WINDOW"] = "빈 창"
 L["ENABLE_MESSAGE_FADE"] = "메시지 사라짐 기능 활성화"
@@ -1586,11 +2051,17 @@ L["ENTER_THE_NEW_PROFILE_NAME"] = "Enter the new profile name"
 --[[Translation missing --]]
 L["EXPORT"] = "Export"
 L["FADE_CHAT_WHEN_NOT_IN_USE"] = "사용하지 않을 때 채팅 숨기기"
+--[[Translation missing --]]
+L["FADE_WHEN_NOT_IN_USE"] = "Fade when not in use"
+--[[Translation missing --]]
+L["FADED_TRANSPARENCY"] = "Faded transparency"
 L["FIRST_MESSAGE"] = "첫 메시지"
 L["FLASH_TABS_ON"] = "탭 반짝임 표시"
 L["FORMATTING"] = "서식 설정"
 L["GLOBAL_SETTINGS"] = "전역 설정"
 L["GW2_UI"] = "GW2 UI"
+--[[Translation missing --]]
+L["HIDE_LAST_NAMES"] = "Hide last names"
 --[[Translation missing --]]
 L["IMPORT"] = "Import"
 --[[Translation missing --]]
@@ -1599,6 +2070,8 @@ L["JOIN_THE_DISCORD"] = "Discord 채널 가입"
 L["KEEP_EDIT_BOX_VISIBLE"] = "편집 상자 계속 표시"
 L["LAYOUT"] = "배치"
 L["LEAVE_UNTICKED_ADDONS"] = "어떤 애드온이 표시되는지 제어하려면 선택 취소"
+--[[Translation missing --]]
+L["LEFT"] = "Left"
 L["LEFT_INSIDE"] = "내부 왼쪽"
 L["LEFT_OUTSIDE"] = "외부 왼쪽"
 L["LINE_SPACING"] = "줄 간격"
@@ -1606,6 +2079,8 @@ L["LINK"] = "링크"
 L["LOCK_CHAT"] = "채팅 잠금"
 --[[Translation missing --]]
 L["MAKE_NEW"] = "Make new"
+--[[Translation missing --]]
+L["MESSAGE_ALIGNMENT"] = "Message alignment"
 L["MESSAGE_FADE_TIME"] = "메시지 사라짐 시간"
 L["MESSAGE_FONT"] = "메시지 글꼴"
 L["MESSAGE_FONT_OUTLINE"] = "메시지 글꼴 외곽선"
@@ -1616,6 +2091,8 @@ L["MESSAGE_TYPES"] = "메시지 유형"
 L["MESSAGES"] = "메시지"
 L["MOUSEOVER"] = "마우스오버"
 L["MOVE_TO_NEW_WINDOW"] = "새 창으로 이동"
+--[[Translation missing --]]
+L["MOVING_THE_WINDOW"] = "Moving the window"
 L["NEVER"] = "사용 안 함"
 L["NEW_PROFILE_BLANK"] = "새 프로필(공백)"
 L["NEW_PROFILE_CLONE"] = "새 프로필 (현재 복제)"
@@ -1641,7 +2118,19 @@ L["RENAME_TAB"] = "탭 이름 변경"
 L["RENAME_X_MESSAGE"] = "\"%s\" 이름을 다음으로 변경:"
 L["RENAMING_TAB_X"] = "탭 이름 변경 \"%s\""
 L["REWARDS"] = "보상"
+--[[Translation missing --]]
+L["RIGHT"] = "Right"
+--[[Translation missing --]]
+L["RIGHT_INSIDE"] = "Right inside"
+--[[Translation missing --]]
+L["RIGHT_OUTSIDE"] = "Right outside"
 L["RUN_OR_WA"] = "/run 또는 WAs"
+--[[Translation missing --]]
+L["SCREEN_BOTTOM"] = "Screen Bottom"
+--[[Translation missing --]]
+L["SCREEN_CENTER"] = "Screen Center"
+--[[Translation missing --]]
+L["SCREEN_TOP"] = "Screen Top"
 L["SCROLL_TO_END"] = "아래로 스크롤"
 L["SEARCH_IN_X_MESSAGE"] = "\"%s\"에서 검색:"
 L["SELECT_TYPE_TO_CHANGE"] = "변경할 유형을 선택하시겠습니까?"
@@ -1675,6 +2164,8 @@ L["SPECIFIC_ADDONS"] = "특정 애드온"
 L["STORE_MESSAGES"] = "메시지 저장"
 L["TAB_COLOR"] = "탭 색상"
 L["TAB_SETTINGS"] = "탭 설정"
+--[[Translation missing --]]
+L["TAB_TEXT_COLOR"] = "Tab text color"
 L["TAB_TRANSPARENCY"] = "탭 투명도"
 L["TAB_X"] = "%s 탭"
 L["TABS_ABOVE"] = "위쪽 탭"
@@ -1684,12 +2175,24 @@ L["THANKS_FOR_USING_CHATTYNATOR_DONATE"] = "Thanks for using Chattynator. Consid
 --[[Translation missing --]]
 L["THAT_PROFILE_NAME_ALREADY_EXISTS"] = "That profile name already exists"
 L["THEME"] = "테마"
+--[[Translation missing --]]
+L["THEMES"] = "Themes"
 L["THICK"] = "두꺼운"
 L["THIN"] = "얇은"
 --[[Translation missing --]]
 L["THIS_WILL_OVERWRITE_STYLE_CUSTOM"] = "This will overwrite style \"Custom\". Continue?"
 L["TIMESTAMP"] = "시간 표시"
+--[[Translation missing --]]
+L["TIMESTAMP_ON_RIGHT"] = "Timestamp on right"
 L["TIMESTAMP_SPACING"] = "시간 표시 간격"
+--[[Translation missing --]]
+L["TIPS_ACCESSING_DEFAULT_SETTINGS"] = "Access Blizzard's chat settings by right clicking the 'Combat Log' tab."
+--[[Translation missing --]]
+L["TIPS_CUSTOMIZABLE"] = "Easily customize the size, visibility, or placement of most window elements. Lock chat to hide window customizers, like resizing or new tabs."
+--[[Translation missing --]]
+L["TIPS_MOVING_THE_WINDOW"] = "To move the chat window, unlock chat and drag the 'General' tab."
+--[[Translation missing --]]
+L["TIPS_THEMES"] = "Make Chattynator match your UI with automatic themes for ElvUI and GW2, or a simple dark option."
 L["TO_OPEN_OPTIONS_X"] = "/ctnr 설정 열기"
 L["TOGGLE_COMBAT_LOG_ETC"] = "전투 기록 등 켜기/끄기"
 L["TOP"] = "상단"
@@ -1732,6 +2235,8 @@ L["ABBREV_SERVICES"] = "S"
 --[[Translation missing --]]
 L["ABBREV_TRADE"] = "T"
 --[[Translation missing --]]
+L["ACCESSING_DEFAULT_SETTINGS"] = "Accessing default settings"
+--[[Translation missing --]]
 L["ACTION_UNAVAILABLE_DUE_TO_ENCOUNTER_RESTRICTIONS"] = "Action unavailable, due to encounter restrictions"
 --[[Translation missing --]]
 L["ADDONS"] = "Addons"
@@ -1750,13 +2255,21 @@ L["BLIZZARD_SETTINGS"] = "Blizzard Settings"
 --[[Translation missing --]]
 L["BOTTOM"] = "Bottom"
 --[[Translation missing --]]
+L["BOXED"] = "Boxed"
+--[[Translation missing --]]
+L["BUTTONS_HIDE_BACKGROUND"] = "Hide buttons background"
+--[[Translation missing --]]
 L["BUTTONS_POSITION"] = "Buttons position"
+--[[Translation missing --]]
+L["BUTTONS_TRANSPARENCY"] = "Buttons transparency"
 --[[Translation missing --]]
 L["BY_PLUSMOUSE"] = "by plusmouse"
 --[[Translation missing --]]
 L["CANT_POPOUT_THIS_CHANNEL"] = "Can't popout this channel"
 --[[Translation missing --]]
 L["CENSORED_CONTENTS_LOST"] = "Censored contents lost"
+--[[Translation missing --]]
+L["CENTER"] = "Center"
 --[[Translation missing --]]
 L["CHAT_TRANSPARENCY"] = "Chat transparency"
 --[[Translation missing --]]
@@ -1778,6 +2291,8 @@ L["CUSTOMISE_CHATTYNATOR"] = "Customise Chattynator"
 --[[Translation missing --]]
 L["CUSTOMISE_CHATTYNATOR_TAB"] = "Customise Chattynator Tab"
 --[[Translation missing --]]
+L["CUSTOMIZABLE"] = "Customizable"
+--[[Translation missing --]]
 L["DARK"] = "Dark"
 --[[Translation missing --]]
 L["DATA_DUMPS"] = "Data Dumps"
@@ -1790,9 +2305,21 @@ L["DISCORD_DESCRIPTION"] = "Updates, feature suggestions and support"
 --[[Translation missing --]]
 L["DONATE"] = "Donate"
 --[[Translation missing --]]
+L["EDIT_BOX_BG_COLOR"] = "Edit box color"
+--[[Translation missing --]]
 L["EDIT_BOX_HEIGHT"] = "Edit box height"
 --[[Translation missing --]]
+L["EDIT_BOX_HORIZONTAL_OFFSET"] = "Edit box horizontal offset"
+--[[Translation missing --]]
 L["EDIT_BOX_POSITION"] = "Edit box position"
+--[[Translation missing --]]
+L["EDIT_BOX_SEPARATOR_GAP"] = "Hide edit box gap"
+--[[Translation missing --]]
+L["EDIT_BOX_TRANSPARENCY"] = "Edit box transparency"
+--[[Translation missing --]]
+L["EDIT_BOX_VERTICAL_OFFSET"] = "Edit box vertical offset"
+--[[Translation missing --]]
+L["EDIT_BOX_WIDTH"] = "Edit box width"
 --[[Translation missing --]]
 L["ELVUI"] = "ElvUI"
 --[[Translation missing --]]
@@ -1808,6 +2335,10 @@ L["EXPORT"] = "Export"
 --[[Translation missing --]]
 L["FADE_CHAT_WHEN_NOT_IN_USE"] = "Fade chat when not in use"
 --[[Translation missing --]]
+L["FADE_WHEN_NOT_IN_USE"] = "Fade when not in use"
+--[[Translation missing --]]
+L["FADED_TRANSPARENCY"] = "Faded transparency"
+--[[Translation missing --]]
 L["FIRST_MESSAGE"] = "First message"
 --[[Translation missing --]]
 L["FLASH_TABS_ON"] = "Flash tabs on"
@@ -1817,6 +2348,8 @@ L["FORMATTING"] = "Formatting"
 L["GLOBAL_SETTINGS"] = "Global Settings"
 --[[Translation missing --]]
 L["GW2_UI"] = "GW2 UI"
+--[[Translation missing --]]
+L["HIDE_LAST_NAMES"] = "Hide last names"
 --[[Translation missing --]]
 L["IMPORT"] = "Import"
 --[[Translation missing --]]
@@ -1830,6 +2363,8 @@ L["LAYOUT"] = "Layout"
 --[[Translation missing --]]
 L["LEAVE_UNTICKED_ADDONS"] = "Leave unticked to control which addons show"
 --[[Translation missing --]]
+L["LEFT"] = "Left"
+--[[Translation missing --]]
 L["LEFT_INSIDE"] = "Left inside"
 --[[Translation missing --]]
 L["LEFT_OUTSIDE"] = "Left outside"
@@ -1841,6 +2376,8 @@ L["LINK"] = "Link"
 L["LOCK_CHAT"] = "Lock chat"
 --[[Translation missing --]]
 L["MAKE_NEW"] = "Make new"
+--[[Translation missing --]]
+L["MESSAGE_ALIGNMENT"] = "Message alignment"
 --[[Translation missing --]]
 L["MESSAGE_FADE_TIME"] = "Message fade time"
 --[[Translation missing --]]
@@ -1861,6 +2398,8 @@ L["MESSAGES"] = "Messages"
 L["MOUSEOVER"] = "Mouseover"
 --[[Translation missing --]]
 L["MOVE_TO_NEW_WINDOW"] = "Move to new window"
+--[[Translation missing --]]
+L["MOVING_THE_WINDOW"] = "Moving the window"
 --[[Translation missing --]]
 L["NEVER"] = "Never"
 --[[Translation missing --]]
@@ -1906,7 +2445,19 @@ L["RENAMING_TAB_X"] = "Renaming tab \"%s\""
 --[[Translation missing --]]
 L["REWARDS"] = "Rewards"
 --[[Translation missing --]]
+L["RIGHT"] = "Right"
+--[[Translation missing --]]
+L["RIGHT_INSIDE"] = "Right inside"
+--[[Translation missing --]]
+L["RIGHT_OUTSIDE"] = "Right outside"
+--[[Translation missing --]]
 L["RUN_OR_WA"] = "/run or WAs"
+--[[Translation missing --]]
+L["SCREEN_BOTTOM"] = "Screen Bottom"
+--[[Translation missing --]]
+L["SCREEN_CENTER"] = "Screen Center"
+--[[Translation missing --]]
+L["SCREEN_TOP"] = "Screen Top"
 --[[Translation missing --]]
 L["SCROLL_TO_END"] = "Scroll to end"
 --[[Translation missing --]]
@@ -1972,6 +2523,8 @@ L["TAB_COLOR"] = "Tab Color"
 --[[Translation missing --]]
 L["TAB_SETTINGS"] = "Tab Settings"
 --[[Translation missing --]]
+L["TAB_TEXT_COLOR"] = "Tab text color"
+--[[Translation missing --]]
 L["TAB_TRANSPARENCY"] = "Tab transparency"
 --[[Translation missing --]]
 L["TAB_X"] = "%s Tab"
@@ -1986,6 +2539,8 @@ L["THAT_PROFILE_NAME_ALREADY_EXISTS"] = "That profile name already exists"
 --[[Translation missing --]]
 L["THEME"] = "Theme"
 --[[Translation missing --]]
+L["THEMES"] = "Themes"
+--[[Translation missing --]]
 L["THICK"] = "Thick"
 --[[Translation missing --]]
 L["THIN"] = "Thin"
@@ -1994,7 +2549,17 @@ L["THIS_WILL_OVERWRITE_STYLE_CUSTOM"] = "This will overwrite style \"Custom\". C
 --[[Translation missing --]]
 L["TIMESTAMP"] = "Timestamp"
 --[[Translation missing --]]
+L["TIMESTAMP_ON_RIGHT"] = "Timestamp on right"
+--[[Translation missing --]]
 L["TIMESTAMP_SPACING"] = "Timestamp spacing"
+--[[Translation missing --]]
+L["TIPS_ACCESSING_DEFAULT_SETTINGS"] = "Access Blizzard's chat settings by right clicking the 'Combat Log' tab."
+--[[Translation missing --]]
+L["TIPS_CUSTOMIZABLE"] = "Easily customize the size, visibility, or placement of most window elements. Lock chat to hide window customizers, like resizing or new tabs."
+--[[Translation missing --]]
+L["TIPS_MOVING_THE_WINDOW"] = "To move the chat window, unlock chat and drag the 'General' tab."
+--[[Translation missing --]]
+L["TIPS_THEMES"] = "Make Chattynator match your UI with automatic themes for ElvUI and GW2, or a simple dark option."
 --[[Translation missing --]]
 L["TO_OPEN_OPTIONS_X"] = "Access options with /chatty"
 --[[Translation missing --]]

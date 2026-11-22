@@ -15,7 +15,6 @@ https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/AddOns/Bliz
           end)
         end
       </OnLoad>
-      <OnUpdate></OnUpdate>
     </Scripts>
   </ScrollingMessageFrame>
 </Ui>

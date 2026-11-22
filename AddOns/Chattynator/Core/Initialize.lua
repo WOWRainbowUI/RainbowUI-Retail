@@ -152,6 +152,8 @@ function addonTable.Core.Initialize()
     GameTooltip:Hide()
   end)
 
+  ChattynatorHyperlinkHandler:SetScript("OnUpdate", nil)
+
   addonTable.Messages = CreateFrame("Frame")
   Mixin(addonTable.Messages, addonTable.MessagesMonitorMixin)
   addonTable.Messages:OnLoad()
@@ -208,6 +210,7 @@ function addonTable.Core.Initialize()
   addonTable.Modifiers.InitializeLevels()
   addonTable.Modifiers.InitializeHideLastNames()
   addonTable.Modifiers.InitializeURLs()
+  addonTable.Modifiers.InitializeItemIcons()  
   addonTable.Modifiers.InitializeRedundantText()
   addonTable.CustomiseDialog.Initialize()
 end

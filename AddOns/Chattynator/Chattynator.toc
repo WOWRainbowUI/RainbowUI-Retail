@@ -1,6 +1,6 @@
 ## Interface: 120100, 120105, 16001, 50504, 38001, 20506, 11509
 ## Title: Chattynator
-## Version: 239
+## Version: 241
 ## Author: plusmouse
 ## IconTexture: Interface\AddOns\Chattynator\Assets\Logo.png
 ## AddonCompartmentFunc: Chattynator_AddonCompartmentCallback
@@ -53,6 +53,7 @@ Modifiers/ShortenChannels.lua
 Modifiers/ClassColors.lua
 Modifiers/Level.lua
 Modifiers/HideLastNames.lua
+Modifiers/ItemIcons.lua
 Modifiers/URLs.lua
 Modifiers/RedundantText.lua
 

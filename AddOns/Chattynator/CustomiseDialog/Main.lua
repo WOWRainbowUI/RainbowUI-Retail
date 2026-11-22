@@ -741,6 +741,14 @@ local function SetupFormatting(parent)
     table.insert(allFrames, showPlayerLevel)
   end
 
+  if addonTable.Constants.IsMidnightNext or addonTable.Constants.IsForever then
+    local showItemIcons = addonTable.CustomiseDialog.Components.GetCheckbox(container, addonTable.Locales.SHOW_ITEM_ICONS, 28, function(state)
+      addonTable.Config.Set(addonTable.Config.Options.ITEM_ICONS, state)
+    end)
+    showItemIcons.option = addonTable.Config.Options.ITEM_ICONS
+    showItemIcons:SetPoint("TOP", allFrames[#allFrames], "BOTTOM", 0, 0)
+    table.insert(allFrames, showItemIcons)
+  end
   if addonTable.Constants.IsForever then
     local hideLastNames = addonTable.CustomiseDialog.Components.GetCheckbox(container, addonTable.Locales.HIDE_LAST_NAMES, 28, function(state)
       addonTable.Config.Set(addonTable.Config.Options.HIDE_LAST_NAMES, state)

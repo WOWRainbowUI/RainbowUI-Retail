@@ -119,6 +119,7 @@ local settings = {
   SHORTEN_FORMAT = {key = "shorten_format", default = "none", refresh = {addonTable.Constants.RefreshReason.MessageModifier}},
   CLASS_COLORS = {key = "class_colors", default = true, refresh = {addonTable.Constants.RefreshReason.MessageModifier}},
   SHOW_LEVEL = {key = "show_level", default = true, refresh = {addonTable.Constants.RefreshReason.MessageModifier}},
+  ITEM_ICONS = {key = "item_icons", default = false, refresh = {addonTable.Constants.RefreshReason.MessageModifier}},
   HIDE_LAST_NAMES = {key = "hide_last_names", default = false, refresh = {addonTable.Constants.RefreshReason.MessageModifier}},
   LINK_URLS = {key = "link_urls", default = true, refresh = {addonTable.Constants.RefreshReason.MessageModifier}},
   REDUCE_REDUNDANT_TEXT = {key = "reduce_redundant_text", default = false, refresh = {addonTable.Constants.RefreshReason.MessageModifier}},
