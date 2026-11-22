@@ -1,15 +1,12 @@
 # DBM - Dungeons, Delves, & Events
 
-## [r272](https://github.com/DeadlyBossMods/DBM-Dungeons/tree/r272) (2026-11-11)
-[Full Changelog](https://github.com/DeadlyBossMods/DBM-Dungeons/compare/r271...r272) [Previous Releases](https://github.com/DeadlyBossMods/DBM-Dungeons/releases)
+## [r273](https://github.com/DeadlyBossMods/DBM-Dungeons/tree/r273) (2026-11-22)
+[Full Changelog](https://github.com/DeadlyBossMods/DBM-Dungeons/compare/r272...r273) [Previous Releases](https://github.com/DeadlyBossMods/DBM-Dungeons/releases)
 
-- Fix bug causing cookie not to work in forever  
-- refactor: use core encounter locales (#653)  
-- Fix encounter IDs for Classic dungeons on Forever (#652)  
-    IDs from Forever's DungeonEncounter table, verified in game for multiple  
-    low-level dungeons.  
-    Co-authored-by: Claude Opus 5.5 <noreply@anthropic.com>  
-- Forever models 2 (#651)  
-    Forever models 2  
-- Forever models (#649)  
-    Forever models  
+- Update DBM-WorldEvents.toc (#678)  
+- Update DBM-WorldEvents.toc (#663)  
+- Update Forever boss localizations (#680)  
+- update CI  
+- Optimize memory by using toc directives for localization loading, preventing unneeded localizations from existing in memory going forward (even if they do return on first linie, they still loaded. well not anymore!)  
+- Add other debuff too  
+- add aura sound for Varrox Bleakhoof's bomb  
