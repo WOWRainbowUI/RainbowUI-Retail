@@ -10,6 +10,7 @@ function addonTable.Display.ChatFrameMixin:OnLoad()
   self:SetResizable(true)
   self:SetResizeBounds(240, 140)
   self:SetClampedToScreen(true)
+  self:SetIgnoreParentAlpha(true)
 
   self.editBoxBaseOffset = 6
 
@@ -17,6 +18,13 @@ function addonTable.Display.ChatFrameMixin:OnLoad()
     self.ButtonsBar:Update()
     self:SavePosition()
     self:SaveSize()
+  end)
+
+  hooksecurefunc(self, "SetID", function()
+    if self:GetID() == 1 then
+      ChattynatorHyperlinkHandler:SetAllPoints(self)
+      ChattynatorHyperlinkHandler:SetAlpha(0)
+    end
   end)
 
   self.ScrollingMessagesWrapper = CreateFrame("Frame", nil, self)

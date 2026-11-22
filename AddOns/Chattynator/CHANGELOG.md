@@ -1,6 +1,6 @@
 # Chattynator
 
-## [239](https://github.com/TheMouseNest/Chattynator/tree/239) (2026-11-18)
-[Full Changelog](https://github.com/TheMouseNest/Chattynator/compare/238...239) 
+## [241](https://github.com/TheMouseNest/Chattynator/tree/241) (2026-11-22)
+[Full Changelog](https://github.com/TheMouseNest/Chattynator/compare/240...241) 
 
-- Fix missing constant causing an error on Retail  
+- Fix visibility  
