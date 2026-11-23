@@ -58,7 +58,7 @@ L["Raid (5)"] = "團隊 (5)"
 L["Raid (10)"] = "團隊 (10)"
 L["Raid (25)"] = "團隊 (25)"
 L["Raid (40)"] = "團隊 (40)"
-L["AUTO_LAYOUT_CHANGE_DESCRIPTION"] = "允許依據隊伍大小自動更改編輯模式配置"
+L["AUTO_LAYOUT_CHANGE_DESCRIPTION"] = "允許依據隊伍大小、專精與螢幕解析度，自動切換編輯模式的版面設定。"
 L["HIDE_WHEN_NOT_MOUSEOVER_DESCRIPTION"] = "隱藏，滑鼠指向才顯示"
 L["Resize Target Frame"] = "調整目標框架大小"
 L["RESIZE_TARGET_FRAME_DESCRIPTION"] = "允許玩家框架縮小到比預設介面所允許的更小尺寸。注意：如果同時使用兩個滑桿，可能會出現非預期的結果。"
@@ -87,7 +87,7 @@ L["Power Bar"] = "能量條"
 L["Class Powers"] = "職業資源"
 
 -- Auto Layout changes
-L["AUTO_LAYOUT_CHANGES_SPECNAME_GROUP_TYPE"] = "%s - "..GROUP..TYPE
+L["AUTO_LAYOUT_CHANGES_SPECNAME_GROUP_TYPE"] = "%s - "..GROUP.." "..TYPE
 L["AUTO_LAYOUT_CHANGES_RAID_SIZE_OPTION_DESC"] = "不需要為每種人數設定專屬設定檔，若未設定，將會使用最接近的較小人數設定檔！"
 
 
