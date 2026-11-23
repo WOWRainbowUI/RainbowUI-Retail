@@ -1,16 +1,12 @@
 -----------------------------------------------------------------------
--- Upvalued Lua API.
+-- Accountant Classic configuration logic
 -----------------------------------------------------------------------
--- Functions
 local _G = getfenv(0)
 local pairs = _G.pairs
 local wipe = _G.wipe
--- Libraries
 local string = _G.string
 local format = string.format
--- ----------------------------------------------------------------------------
--- AddOn namespace.
--- ----------------------------------------------------------------------------
+
 ---@class ACNamespace
 local private = select(2, ...)
 local LibStub = _G.LibStub
@@ -316,9 +312,26 @@ local function getOptions()
 								showsessiononbutton = {
 									order = 24,
 									type = "toggle",
-									name = L["Show session info"],
-									desc = L["Show session info on minimap button's tooltip"],
+									name = L["Show income / expense"],
+									desc = L["Show the income / expense of the selected period on minimap button's tooltip"],
 									disabled = function() return addon.db.profile.minimap.hide end,
+								},
+								tooltipDisplayType = {
+									order = 25,
+									type = "select",
+									name = L["Income / expense period"],
+									desc = L["Period of the income / expense shown on minimap button's tooltip"],
+									values = function()
+										return {
+											L["This Session"],
+											L["Today"],
+											L["This Week"],
+											L["This Month"],
+										}
+									end,
+									disabled = function()
+										return addon.db.profile.minimap.hide or not addon.db.profile.showsessiononbutton
+									end,
 								},
 							},
 						},

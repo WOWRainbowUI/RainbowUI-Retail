@@ -1,6 +1,5 @@
--- Accountant Classic core logic. See Readme.md for project history and acknowledgements.
------------------------------------------------------------------------
--- Upvalued Lua API.
+﻿﻿-----------------------------------------------------------------------
+-- Accountant Classic core logic
 -----------------------------------------------------------------------
 ---@class ACNamespace
 local private = select(2, ...)
@@ -56,6 +55,7 @@ addon.Version 		= GetAddOnMetadata(addon.Name, "Version")
 addon.UpdateDate 	= GetAddOnMetadata(addon.Name, "X-Date")
 addon.Author 		= GetAddOnMetadata(addon.Name, "Author")
 _G.Accountant_Classic = addon
+private.addon = addon
 
 -- UIDropDownMenu
 local LibDD = LibStub:GetLibrary("LibUIDropDownMenu-4.0") --[[@as ACLibUIDropDownMenu]]
@@ -443,24 +443,15 @@ local function createACFrames()
 	if not f.HeaderSource then
 		local function makeHeaderButton(name, x, width)
 			local button = CreateFrame("Button", name, f)
-			button:SetSize(width, 19)
+			button:SetSize(width, 20)
 			button:SetPoint("TOPLEFT", f, "TOPLEFT", x, -91)
-			button:SetFrameStrata("HIGH")
-			button:SetScript("OnEnter", function(self)
-				if self.highlightTexture then
-					self.highlightTexture:Show()
-				else
-					self.highlightTexture = self:CreateTexture(nil, "BACKGROUND")
-					self.highlightTexture:SetAllPoints(self)
-					self.highlightTexture:SetColorTexture(1, 1, 1, 0.2)
-					self.highlightTexture:Show()
-				end
-			end)
-			button:SetScript("OnLeave", function(self)
-				if self.highlightTexture then
-					self.highlightTexture:Hide()
-				end
-			end)
+			button:SetFrameLevel(f:GetFrameLevel() + 5)
+			local hl = button:CreateTexture(nil, "HIGHLIGHT")
+			hl:SetAllPoints(button)
+			hl:SetColorTexture(1, 1, 1, 0.18)
+			hl:SetBlendMode("ADD")
+			button:SetHighlightTexture(hl)
+			button:Hide()
 			return button
 		end
 
@@ -476,13 +467,13 @@ local function createACFrames()
 			end
 		end
 
-		f.HeaderSource = makeHeaderButton(parentName.."HeaderSource", 21, 280)
+		f.HeaderSource = makeHeaderButton(parentName.."HeaderSource", 20, 288)
 		f.HeaderSource:SetScript("OnClick", function() toggleSort("name") end)
 
-		f.HeaderIn = makeHeaderButton(parentName.."HeaderIn", 294, 160)
+		f.HeaderIn = makeHeaderButton(parentName.."HeaderIn", 309, 159)
 		f.HeaderIn:SetScript("OnClick", function() toggleSort("money") end)
 
-		f.HeaderOut = makeHeaderButton(parentName.."HeaderOut", 455, 160)
+		f.HeaderOut = makeHeaderButton(parentName.."HeaderOut", 469, 160)
 		f.HeaderOut:SetScript("OnClick", function() toggleSort("date") end)
 	end
 	
@@ -545,6 +536,9 @@ local function setLabels()
 	-- if current tab is All Chars tab
 	if (AC_CURRTAB == AC_TABS) then
 		AccountantClassicFrameResetButton:Hide()
+		if f.HeaderSource then f.HeaderSource:Show() end
+		if f.HeaderIn then f.HeaderIn:Show() end
+		if f.HeaderOut then f.HeaderOut:Show() end
 
 		f.Source:SetText(L["Character"])
 		f.In:SetText(L["Money"])
@@ -574,6 +568,9 @@ local function setLabels()
 		return
 	else
 		AccountantClassicFrameResetButton:Show()
+		if f.HeaderSource then f.HeaderSource:Hide() end
+		if f.HeaderIn then f.HeaderIn:Hide() end
+		if f.HeaderOut then f.HeaderOut:Hide() end
 
 		f.Source:SetText(L["Source"])
 		f.In:SetText(L["Incomings"])
@@ -1962,9 +1959,11 @@ function AccountantClassic_OnShow(self)
 		local TotalIn = 0
 		local TotalOut = 0
 		for _, key in ipairs(AC_LOGTYPE_ORDER) do
+			local colTitle = _G["AccountantClassicFrameRow"..AC_DATA[key].InPos.."Title"]
 			local colIn = _G["AccountantClassicFrameRow"..AC_DATA[key].InPos.."In"]
 			local colOut = _G["AccountantClassicFrameRow"..AC_DATA[key].InPos.."Out"]
 
+			colTitle.logType = key
 			colIn.logType = key
 			colOut.logType = key
 			colIn.cashflow = "In"
@@ -1983,6 +1982,9 @@ function AccountantClassic_OnShow(self)
 				mIn, mOut = sumAllCharacters(allCharsServer, key, mode)
 			end
 
+			colTitle.mIn = mIn
+			colTitle.mOut = mOut
+
 			TotalIn = TotalIn + mIn
 			TotalOut = TotalOut + mOut
 
@@ -1990,6 +1992,10 @@ function AccountantClassic_OnShow(self)
 			colOut.Text:SetText(addon:GetFormattedValue(mOut))
 		end
 		setTotals(TotalIn, TotalOut)
+
+		if private.ZoneBreakdown and private.ZoneBreakdown.RefreshCurrent then
+			private.ZoneBreakdown:RefreshCurrent()
+		end
 
 		-- Set row 18 to be empty so that the total row from all characters will be clean out
 		_G["AccountantClassicFrameRow18Title"].Text:SetText("")
@@ -2040,6 +2046,9 @@ function AccountantClassic_OnShow(self)
 		AccountantClassicFrame.ExtraValue:SetText("")
 	end
 	PanelTemplates_SetTab(AccountantClassicFrame, AC_CURRTAB)
+	if private.ZoneBreakdown and private.ZoneBreakdown.UpdatePosition then
+		private.ZoneBreakdown:UpdatePosition()
+	end
 end
 
 ---@param self ACMainFrame
@@ -2057,6 +2066,9 @@ function AccountantClassic_OnMouseUp(self, button)
 	self:StopMovingOrSizing();
 	local a, b, c, d, e = self:GetPoint()
 	profile.AcFramePoint = { a, b, c, d, e }
+	if private.ZoneBreakdown and private.ZoneBreakdown.UpdatePosition then
+		private.ZoneBreakdown:UpdatePosition()
+	end
 end
 
 ---@param msg string
@@ -2281,16 +2293,32 @@ updateLDBText = function()
 	LDB.text = addon:ShowNetMoney(private.constants.ldbDisplayTypes[profile.ldbDisplayType]) or ""
 end
 
----@return string? text Session income and expense lines
-function addon:ShowSessionToolTip()
+---Returns the period of the minimap / LDB tooltip.
+---@return ACLogMode logmode
+---@return string label Localized period name
+function addon:GetTooltipPeriod()
+	local types = private.constants.tooltipDisplayTypes
+	local index = profile and profile.tooltipDisplayType or 1
+	local logmode = types[index] or "Session"
+	local labels = { Session = L["This Session"], Day = L["Today"], Week = L["This Week"], Month = L["This Month"] }
+	return logmode, labels[logmode] or L["This Session"]
+end
+
+---@param logmode ACLogMode? Period to sum up (default: Session)
+---@return string? text Income and expense lines of the period
+function addon:ShowSessionToolTip(logmode)
+	logmode = logmode or "Session"
 	local amoney_str = "";
 
 	local TotalIn = 0;
 	local TotalOut = 0;
 	local diff = 0;
 	for key in pairs(AC_DATA) do
-		TotalIn = TotalIn + AC_DATA[key]["Session"].In;
-		TotalOut = TotalOut + AC_DATA[key]["Session"].Out;
+		local data = AC_DATA[key][logmode]
+		if data then
+			TotalIn = TotalIn + (data.In or 0);
+			TotalOut = TotalOut + (data.Out or 0);
+		end
 	end
 	amoney_str = "|cFFFFFFFF"..L["Total Incomings"]..": "..addon:GetFormattedValue(TotalIn).."\n";
 	amoney_str = amoney_str.."|cFFFFFFFF"..L["Total Outgoings"]..": "..addon:GetFormattedValue(TotalOut).."\n";
@@ -2313,11 +2341,33 @@ function addon:ShowSessionToolTip()
 	end
 end
 
+---Returns the current view's server, character, and logmode.
+---@return string serverkey
+---@return string? charkey Nil when "All Chars" is selected
+---@return string logmode
+function addon:GetCurrentViewContext()
+	local tab = PanelTemplates_GetSelectedTab(AccountantClassicFrame) or AC_CURRTAB or 1
+	local logmode = private.constants.logmodes[tab] or "Session"
+	local serverkey, charkey
+	if (logmode == "Session") then
+		serverkey, charkey = AC_SERVER, AC_PLAYER
+	else
+		local index = AC_SELECTED_CHAR_NUM or resolveSelectedCharacter()
+		local entry = index and AC_CHARSCROLL_LIST and AC_CHARSCROLL_LIST[index]
+		if entry then
+			serverkey, charkey = entry[1], entry[2]
+		else
+			serverkey = AC_SERVER
+		end
+	end
+	return serverkey, charkey, logmode
+end
+
 local AC_MAXTOOLTIPLINES = private.constants.maxTooltipLines
 ---Shows the zone breakdown tooltip of a row cell.
 ---@param self ACRowColumn
 function AccountantClassic_LogTypeOnShow(self)
-	local logmode = private.constants.logmodes[AC_CURRTAB]
+	local serverkey, charkey, logmode = addon:GetCurrentViewContext()
 	if (not logmode) then
 		return;
 	end
@@ -2325,17 +2375,13 @@ function AccountantClassic_LogTypeOnShow(self)
 		return
 	end
 
-	local serverkey, charkey
-	if (logmode == "Session") then
-		serverkey, charkey = AC_SERVER, AC_PLAYER
-	else
-		local index = AC_SELECTED_CHAR_NUM or resolveSelectedCharacter()
-		local entry = AC_CHARSCROLL_LIST[index]
-		if not entry then
-			-- "All Chars" selection: per-zone breakdown across characters is not supported
-			return
-		end
-		serverkey, charkey = entry[1], entry[2]
+	if private.ZoneBreakdown and private.ZoneBreakdown.IsShownFor and private.ZoneBreakdown:IsShownFor(self.logType, self.cashflow) then
+		return
+	end
+
+	if not charkey then
+		-- "All Chars" selection: per-zone breakdown across characters is not supported
+		return
 	end
 
 	local serverData = Accountant_ClassicZoneDB and Accountant_ClassicZoneDB[serverkey]
@@ -2358,6 +2404,7 @@ function AccountantClassic_LogTypeOnShow(self)
 	end
 
 	if #lines == 0 then return end
+	lines[#lines + 1] = "|cFF00FF00<" .. (L["Click to view zone breakdown"] or "Click to view zone breakdown") .. ">|r"
 	GameTooltip:SetOwner(self, "ANCHOR_LEFT");
 	GameTooltip:AddLine(table.concat(lines, "\n"), nil, nil, nil, false);
 	GameTooltip:Show();
@@ -2394,7 +2441,9 @@ function addon:OnInitialize()
 		end
 		tooltip:AddLine(title);
 		if (profile and profile.showsessiononbutton == true) then
-			tooltip:AddLine(addon:ShowSessionToolTip());
+			local logmode, label = addon:GetTooltipPeriod()
+			tooltip:AddLine(label, 1, 0.82, 0);
+			tooltip:AddLine(addon:ShowSessionToolTip(logmode));
 		end
 		if (profile and profile.showintrotip == true) then
 			tooltip:AddLine(L["Left-Click to open Accountant Classic.\nRight-Click for Accountant Classic options.\nLeft-click and drag to move this button."]);

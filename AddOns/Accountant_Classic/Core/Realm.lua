@@ -50,6 +50,9 @@ Realm.RULESET_PREFIX = RULESET_PREFIX
 local REGIONS = { "US", "KR", "EU", "TW", "CN" }
 local REGION_SET = {}
 for _, r in ipairs(REGIONS) do REGION_SET[r] = true end
+-- Battle.net Asia (KR and TW) shares portal "KR" / GetCurrentRegion() == 2,
+-- while TW Forever realm names contain "TW" (e.g. "CAMWOW TW4 Realm 1 PvE").
+local ASIA_REGIONS = { KR = true, TW = true }
 
 local issecretvalue = _G.issecretvalue
 
@@ -225,7 +228,13 @@ local function findPrevious(saveData, historyChars, name, info)
 				s = -100
 			end
 			local region, ruleset = Realm.ParseRealm(server)
-			if info.region and region == info.region then s = s + 4 end
+			if info.region then
+				if region == info.region then
+					s = s + 4
+				elseif region and ASIA_REGIONS[info.region] and ASIA_REGIONS[region] then
+					s = s + 2
+				end
+			end
 			if info.ruleset and ruleset == info.ruleset then s = s + 2 end
 			if not isBetaRealm(server) then s = s + 1 end
 			list[#list + 1] = server
@@ -246,6 +255,26 @@ local function findPrevious(saveData, historyChars, name, info)
 	return kept, guidMatch
 end
 
+---Returns the single non-beta saved realm matching ruleset and region predicate, if unique.
+---@param saveData table<string, table<string, ACCharacterData>>
+---@param own string Fallback ruleset key to exclude
+---@param targetRuleset string
+---@param matchRegion fun(region: string?): boolean
+---@return string? match
+---@return integer count
+local function findUniqueRealm(saveData, own, targetRuleset, matchRegion)
+	local match, count = nil, 0
+	for server in pairs(saveData) do
+		if server ~= HIDDEN and server ~= own and not isBetaRealm(server) then
+			local region, ruleset = Realm.ParseRealm(server)
+			if ruleset == targetRuleset and matchRegion(region) then
+				match, count = server, count + 1
+			end
+		end
+	end
+	return match, count
+end
+
 ---Realm key for the current character while the client hides the realm.
 ---@param saveData table<string, table<string, ACCharacterData>>?
 ---@param historyChars table<string, ACHistoryChar>?
@@ -263,18 +292,21 @@ function Realm.ResolveHidden(saveData, historyChars, name, info)
 
 	-- 2. A character first seen now: the single earlier realm of its region and ruleset.
 	local own = Realm.RulesetKey(info.region, info.ruleset)
-	if info.ruleset then
-		local match, count = nil, 0
-		for server in pairs(saveData) do
-			if server ~= HIDDEN and server ~= own and not isBetaRealm(server) then
-				local region, ruleset = Realm.ParseRealm(server)
-				if ruleset == info.ruleset and region == info.region then
-					match, count = server, count + 1
-				end
-			end
-		end
-		if count == 1 and not saveData[own] then
+	if info.ruleset and not saveData[own] then
+		local match, count = findUniqueRealm(saveData, own, info.ruleset, function(region)
+			return region == info.region
+		end)
+		if count == 1 then
 			return match --[[@as string]], "region"
+		end
+		-- On Battle.net Asia, TW clients report region "KR" (GetCurrentRegion() == 2).
+		if count == 0 and info.region and ASIA_REGIONS[info.region] then
+			match, count = findUniqueRealm(saveData, own, info.ruleset, function(region)
+				return region ~= nil and ASIA_REGIONS[region] == true
+			end)
+			if count == 1 then
+				return match --[[@as string]], "region"
+			end
 		end
 	end
 

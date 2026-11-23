@@ -18,7 +18,7 @@
 ## Title-ruRU: Accountant Classic
 ## Notes-ruRU: Отслеживает заработанное и потраченное золото ваших персонажей
 ## Author: arith, kamusis
-## Version: v2.30.05
+## Version: v2.30.06
 ## Dependencies: Ace3
 ## AddonCompartmentFunc: AccountantClassic_ButtonOnClick
 ## IconTexture: Interface\AddOns\Accountant_Classic\Images\AccountantClassicButton-Up
@@ -34,7 +34,7 @@
 ## OptionalDeps: LibStub, CallbackHandler-1.0, Ace3, LibDBIcon-1.0, !LibUIDropDownMenu, LibBabble-SubZone-3.0
 ## SavedVariables: Accountant_ClassicSaveData, Accountant_ClassicDB, Accountant_Classic_NewDB, Accountant_ClassicZoneDB, Accountant_ClassicHistory
 ## X-Credits: Sabaki, Shadow, Rophy
-## X-Date: 2026-11-22T03:22:37Z
+## X-Date: 2026-11-22T16:11:54Z
 ## X-Website: https://www.curseforge.com/wow/addons/accountant-classic
 ## X-License: GPLv2
 ## X-Category: Information
@@ -55,6 +55,7 @@ Core\Core.lua
 Core\Tabs.lua
 Core\MoneyFrame.lua
 Core\Config.lua
+Core\ZoneBreakdown.lua
 
 
 
@@ -67,3 +68,4 @@ Core\Config.lua
 ## Notes-zhCN: |cff00CC33追踪每个角色的所有收入与支出状况，并可显示当日小计、当周小计、以及自有记录起的总计。并可显示所有角色的总金额。|r
 ## Notes-zhTW: Accountant Classic |n|n追蹤每個角色的所有收入與支出狀況，並可顯示當日小計、當週小計、以及自有記錄起的總計。並可顯示所有角色的總金額。|n|n|cffffd200使用方法: |r點小地圖按鈕。
 ## Category-zhTW: 交易
+

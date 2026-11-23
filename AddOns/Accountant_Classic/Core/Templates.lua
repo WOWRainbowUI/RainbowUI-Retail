@@ -71,6 +71,11 @@ local function createRowColumn(parent, key, width, offset, font, justify)
 	button:SetScript("OnLeave", function()
 		GameTooltip:Hide()
 	end)
+	button:SetScript("OnClick", function(self, btn)
+		if btn == "LeftButton" and private.ZoneBreakdown and private.ZoneBreakdown.OnRowColumnClick then
+			private.ZoneBreakdown:OnRowColumnClick(self)
+		end
+	end)
 	return button
 end
 

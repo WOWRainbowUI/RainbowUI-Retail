@@ -1,4 +1,4 @@
--- English localization for Accountant Classic
+﻿-- English localization for Accountant Classic
 
 local AceLocale = LibStub:GetLibrary("AceLocale-3.0")
 local L = AceLocale:NewLocale("Accountant_Classic", "enUS", true, true)
@@ -77,6 +77,10 @@ L["Show money"] = "Show money"
 L["Show money on minimap button's tooltip"] = "Show money on minimap button's tooltip"
 L["Show session info"] = "Show session info"
 L["Show session info on minimap button's tooltip"] = "Show session info on minimap button's tooltip"
+L["Show income / expense"] = "Show income / expense"
+L["Show the income / expense of the selected period on minimap button's tooltip"] = "Show the income / expense of the selected period on minimap button's tooltip"
+L["Income / expense period"] = "Income / expense period"
+L["Period of the income / expense shown on minimap button's tooltip"] = "Period of the income / expense shown on minimap button's tooltip"
 L["Show money on screen"] = "Show money on screen"
 L["Reset position"] = "Reset position"
 L["Reset money frame's position"] = "Reset money frame's position"
@@ -163,3 +167,10 @@ L["History tracking started today, so money logged earlier today exists only in 
 L["Resetting the Day tab also causes differences; the history ledger is never reset with it."] = "Resetting the Day tab also causes differences; the history ledger is never reset with it."
 
 L["Realm repair failed: %s"] = "Realm repair failed: %s"
+-- Zone Breakdown
+L["Zone Breakdown"] = "Zone Breakdown"
+L["Sub-zone Breakdown"] = "Sub-zone Breakdown"
+L["Click to view zone breakdown"] = "Click to view zone breakdown"
+L["No zone data recorded for this category."] = "No zone data recorded for this category."
+L["Zones"] = "Zones"
+L["General"] = "General"

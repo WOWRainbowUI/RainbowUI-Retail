@@ -1,4 +1,4 @@
--- Simplified Chinese localization for Accountant Classic
+﻿-- Simplified Chinese localization for Accountant Classic
 local L = LibStub("AceLocale-3.0"):NewLocale("Accountant_Classic", "zhCN", false)
 
 if not L then return end
@@ -77,6 +77,10 @@ L["Show money"] = "显示目前现金"
 L["Show money on minimap button's tooltip"] = "在小地图按钮的提示显示目前现金"
 L["Show session info"] = "显示本次收入/支出"
 L["Show session info on minimap button's tooltip"] = "在小地图按钮的提示显示本次收入/支出"
+L["Show income / expense"] = "显示收入/支出"
+L["Show the income / expense of the selected period on minimap button's tooltip"] = "在小地图按钮的提示显示所选期间的收入/支出"
+L["Income / expense period"] = "收入/支出的期间"
+L["Period of the income / expense shown on minimap button's tooltip"] = "小地图按钮的提示所显示的收入/支出期间"
 L["Show money on screen"] = "在游戏画面显示目前现金"
 L["Reset position"] = "重置位置"
 L["Reset money frame's position"] = "重置画面上显示现金的位置"
@@ -163,3 +167,10 @@ L["History tracking started today, so money logged earlier today exists only in 
 L["Resetting the Day tab also causes differences; the history ledger is never reset with it."] = "重置“今日”分页也会造成差异；历史记录不会跟着重置。"
 
 L["Realm repair failed: %s"] = "服务器资料修复失败：%s"
+-- 区域排行
+L["Zone Breakdown"] = "区域排行"
+L["Sub-zone Breakdown"] = "子区域明细"
+L["Click to view zone breakdown"] = "点击查看区域排行"
+L["No zone data recorded for this category."] = "该分类在此期间无区域明细记录。"
+L["Zones"] = "个区域"
+L["General"] = "通用/本地图"
