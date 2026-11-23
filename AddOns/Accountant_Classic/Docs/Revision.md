@@ -6,6 +6,28 @@
 
 ## Revision History
 
+### v2.30.06 (Nov. 23, 2026)
+
+- New feature: Zone breakdown drawer (PR #16, by kamusis)
+  - Left-click a category row in the main window to open a side drawer listing where that money was earned or spent, by zone, with the sub-zones in each zone's tooltip. Zones are sorted by amount and shown with the total and the number of zones
+  - Clicking the category name opens the larger of Incomings / Outgoings; clicking the Incomings or Outgoings column opens that one, and the drawer has buttons to switch between them. Clicking the same row again closes the drawer
+  - Follows the selected character (or all characters of the realm on the All Chars tab) and period tab; the drawer sticks to the right side of the main window, or the left side when there is no room, and closes with it
+  - The zone tooltip of a row now shows a "Click to view zone breakdown" hint, and is not shown while the drawer is already open for that row
+  - New strings translated in English, Simplified Chinese and Traditional Chinese
+- Minimap button: the tooltip can now show the income / expense of Today, This Week or This Month instead of only This Session (issue #18)
+  - New option "Income / expense period" under Minimap Button Settings (default: This Session, as before); the tooltip shows the chosen period's name above the amounts
+  - Also applies to the tooltip of LDB displays such as Titan Panel or ChocolateBar
+- Bug fixes
+  - All Chars tab: the sortable column headers (Source / In / Out) are now aligned with their columns, use a standard highlight, and are only shown on the All Chars tab, so they can no longer be hovered or clicked by accident on the other tabs (PR #15, by kamusis)
+  - WoW Forever on Battle.net Asia: a new character on a Taiwan realm (e.g. "CAMWOW TW4 Realm 1 PvE") is now joined to its saved realm even when the client reports the region as KR. An exact region match still comes first; only then is a single saved KR / TW realm of the same ruleset used (PR #17, by kamusis)
+- Enhancement
+  - Removed the following rows from Forever:
+    - Garrison / Class Order Hall Missions
+    - LFG / LFD / LFR / Scenarios
+    - Bank
+- Development
+  - Cleaned up the file header comments (replaced the old SVN $Id$ keywords)
+
 ### v2.30.05 (Nov. 22, 2026)
 
 - Bug fixes

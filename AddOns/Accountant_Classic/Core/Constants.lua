@@ -1,14 +1,11 @@
 -- ----------------------------------------------------------------------------
--- Localized Lua globals.
+-- Accountant Classic constants and client detection
 -- ----------------------------------------------------------------------------
--- Functions
 local _G = getfenv(0)
 local LibStub = _G.LibStub
 local UnitFactionGroup = _G.UnitFactionGroup
 local UnitClass = _G.UnitClass
--- ----------------------------------------------------------------------------
--- AddOn namespace.
--- ----------------------------------------------------------------------------
+
 ---@class ACNamespace
 local private = select(2, ...)
 private.addon_name = "Accountant_Classic"
@@ -78,6 +75,7 @@ constants.defaults = {
 		breakupnumbers = true,
 		weekstart = 1,
 		ldbDisplayType = 2,
+		tooltipDisplayType = 1,
 		dateformat = 1,
 		scale = 1,
 		alpha = 1,
@@ -283,11 +281,11 @@ else
 	}
 	constants.onlineData = {
 		["TRANSMO"] =	{ Title = TRANSMOGRIFY};
-		["GARRISON"] =	{ Title = GARRISON_LOCATION_TOOLTIP.." / "..ORDER_HALL_MISSIONS };
-		["LFG"] =		{ Title = L["LFD, LFR and Scen."]};
+		--["GARRISON"] =	{ Title = GARRISON_LOCATION_TOOLTIP.." / "..ORDER_HALL_MISSIONS };
+		--["LFG"] =		{ Title = L["LFD, LFR and Scen."]};
 		["BARBER"] =	{ Title = BARBERSHOP};
 		["GUILD"] =		{ Title = GUILD};
-		["BANK"] =		{ Title = BANK};
+		--["BANK"] =		{ Title = BANK};
 
 		["TRAIN"] = 	{ Title = L["Training Costs"]};
 		["TAXI"] = 		{ Title = L["Taxi Fares"]};
@@ -300,12 +298,21 @@ else
 		["LOOT"] = 		{ Title = LOOT};
 		["OTHER"] = 	{ Title = L["Unknown"]};
 	}
+	if (Client.isRetail) then
+		-- Retail-specific constants or adjustments can go here
+		constants.onlineData["GARRISON"] = { Title = GARRISON_LOCATION_TOOLTIP.." / "..ORDER_HALL_MISSIONS }
+		constants.onlineData["LFG"] = { Title = L["LFD, LFR and Scen."] }
+		constants.onlineData["Bank"] = { Title = BANK }
+	end
 end
 
 
 constants.currTab = 1
 
 constants.ldbDisplayTypes = { "Total", "Session", "Day", "Week", "Month" }
+
+-- Period of the income / expense lines in the minimap / LDB tooltip
+constants.tooltipDisplayTypes = { "Session", "Day", "Week", "Month" }
 
 constants.dateformats = { "mm/dd/yy", "dd/mm/yy", "yy/mm/dd", }
 
