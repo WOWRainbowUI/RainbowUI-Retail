@@ -1,7 +1,6 @@
 # Auctionator
 
-## [351](https://github.com/TheMouseNest/Auctionator/tree/351) (2026-11-21)
-[Full Changelog](https://github.com/TheMouseNest/Auctionator/compare/350...351) 
+## [352](https://github.com/TheMouseNest/Auctionator/tree/352) (2026-11-22)
+[Full Changelog](https://github.com/TheMouseNest/Auctionator/compare/351...352) 
 
-- Remove final usages of DBKeyFromBrowseResult  
-- Retail+Forever: Fix full scan  
+- Quick fix for tooltips in other locales  
