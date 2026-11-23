@@ -1938,6 +1938,8 @@ local function CreateRaidMarksOptions()
             order = 4,
             type = "toggle",
             width = "double",
+            -- Target markers are secret on clients with Midnight's API, so coloring by them is disabled in Modules/Color.lua
+            hidden = Addon.HAS_MIDNIGHT_API,
             arg = { "Healthbar", "UseRaidMarkColoring" },
           },
           EnableHeadlineView = {
@@ -1945,6 +1947,7 @@ local function CreateRaidMarksOptions()
             order = 5,
             type = "toggle",
             width = "double",
+            hidden = Addon.HAS_MIDNIGHT_API,
             arg = { "Name", "NameMode", "UseRaidMarkColoring" },
           },
         },
@@ -4165,10 +4168,21 @@ local function CreateAuraAreaLayoutOptions(pos, widget_info)
       return values
     end,
     set = function(info, val)
-      local call_ok, return_value = pcall(SetValue, info, val)
-      if not call_ok then
-        Addon.Logging.Error(L["Cyclic anchoring of aura areas to each other is not possible."], string.format(L["%s already anchored to %s."], val, widget_info))
+      -- Follow the anchoring chain starting at the new anchor: if it leads back to this aura area,
+      -- the anchoring would be cyclic (also over all three aura areas)
+      local db_auras = Addon.db.profile.AuraWidget
+      local area = val
+      for _ = 1, 3 do
+        if area == widget_info then
+          Addon.Logging.Error(L["Cyclic anchoring of aura areas to each other is not possible."], string.format(L["%s already anchored to %s."], val, widget_info))
+          return
+        elseif not db_auras[area] then
+          break
+        end
+        area = db_auras[area].AnchorTo
       end
+
+      SetValue(info, val)
     end,
     arg = { "AuraWidget", widget_info, "AnchorTo" }
   }
@@ -7483,6 +7497,7 @@ local function CreateHealthbarOptions()
                 order = 40,
                 type = "toggle",
                 width = "full",
+                hidden = Addon.HAS_MIDNIGHT_API,
                 arg = { "Healthbar", "UseRaidMarkColoring" },
               },
             },
@@ -8226,6 +8241,7 @@ local function CreateNameOptions()
                 type = "toggle",
                 width = "full",
                 descStyle = "inline",
+                hidden = Addon.HAS_MIDNIGHT_API,
                 arg = { "Name", "HealthbarMode", "UseRaidMarkColoring" },
               },
             },
@@ -8294,6 +8310,7 @@ local function CreateNameOptions()
                 type = "toggle",
                 width = "full",
                 descStyle = "inline",
+                hidden = Addon.HAS_MIDNIGHT_API,
                 arg = { "Name", "NameMode", "UseRaidMarkColoring" },
               },
             },
@@ -9230,6 +9247,7 @@ CreateCustomNameplateEntry = function(index)
                 type = "toggle",
                 width = "double",
                 desc = L["Additionally color the nameplate's healthbar or name based on the target mark if the unit is marked."],
+                hidden = Addon.HAS_MIDNIGHT_API,
                 disabled = function()
                   return not db.uniqueSettings[index].useColor
                 end,
@@ -10151,7 +10169,8 @@ local function CreateOptionsTable()
                   inline = true,
                   args = {
                     ModeCNA = {
-                      name = L["On Enemy Units You Cannot Attack"],
+                      name = L["On Enemy and Neutral Units You Cannot Attack"],
+                      desc = L["Shows enemy and neutral units that you cannot attack (e.g., neutral townsfolk) in headline view, regardless of their unit type settings."],
                       order = 3,
                       type = "toggle",
                       width = "double",
