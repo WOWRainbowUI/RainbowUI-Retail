@@ -58,6 +58,8 @@ function Auctionator.Utilities.DBKeyFromLink(itemLink, callback)
             local english = Auctionator.Utilities.SuffixesToLabel[suffix]
             if english then
               callback({"gr:" .. itemID .. ":" .. english, basicKey})
+            else
+              callback({basicKey})
             end
           end
         else
