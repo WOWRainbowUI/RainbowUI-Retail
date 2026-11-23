@@ -215,7 +215,6 @@ L["Color Name by Target Marks in Headline View"] = "名字检视时，名字显�
 --[[Translation missing --]]
 L["Coloring"] = "颜色"
 L["Colors"] = "颜色"
-L["Colors the countdown text once the remaining duration drops below the threshold below."] = "剩余时间低于下方设置的阈值时，更改倒计时文字的颜色。"
 L["Column Limit"] = "列限制"
 L["Combat"] = "战斗"
 L["Combo Points"] = "连击点"
@@ -670,7 +669,8 @@ L["Off-Tank"] = "副坦克"
 L["OmniCC"] = "OmniCC"
 L["On & Off"] = "显示所有点数"
 L["On Bosses & Rares"] = "首领 & 稀有怪"
-L["On Enemy Units You Cannot Attack"] = "无法攻击的敌方单位"
+--[[Translation missing --]]
+L["On Enemy and Neutral Units You Cannot Attack"] = "无法攻击的敌方与中立单位"
 L["On Target"] = "当前目标"
 L["On the left"] = "左侧"
 L["One"] = "一"
@@ -681,7 +681,6 @@ L["Only highlight expiring alerts with the selected priority."] = "Only highligh
 L["Only In Combat"] = "只有在战斗中"
 L["Only in Instances"] = "只在副本内"
 L["Only Mine"] = "只有我的"
-L["Only Names"] = "只有名字"
 --[[Translation missing --]]
 L["Only Names for Friendly Players"] = "Only Names for Friendly Players"
 --[[Translation missing --]]
@@ -891,6 +890,8 @@ L["Shows a glow based on threat level around the nameplate's healthbar (in comba
 L["Shows a glow effect on auras that you can steal or purge."] = "你可以偷取或驱散的光环显示发光效果。"
 L["Shows a glow effect on this custom nameplate."] = "在这个自定义血条上显示发光效果。"
 L["Shows an icon for friends and guild members next to the nameplate of players."] = "在玩家血条旁显示好友和公会成员图标。"
+--[[Translation missing --]]
+L["Shows enemy and neutral units that you cannot attack (e.g., neutral townsfolk) in headline view, regardless of their unit type settings."] = "无论单位类型设置如何，始终以名字检视显示无法攻击的敌方与中立单位（例如中立城镇居民）。"
 L["Shows resource information for bosses and rares."] = "显示首领和希有怪的资源。"
 --[[Translation missing --]]
 L["Shows resource information only for alternative power (of bosses or rares, mostly)."] = "Shows resource information only for alternative power (of bosses or rares, mostly)."
@@ -1191,8 +1192,5 @@ L["You cannot delete General Settings, only custom nameplates entries."] = "你�
 L["You currently have two nameplate addons enabled: |cff89F559Threat Plates|r and |cff89F559%s|r. Please disable one of these, otherwise two overlapping nameplates will be shown for units."] = "目前启用了两个血条插件: |cff89F559Threat Plates|r和|cff89F559%s|r。请停用其中一个血条插件，否则会重复出现两个叠在一起的血条。"
 L["Your version of LibDogTag-Unit-3.0 does not support nameplates. You need to install at least v90000.3 of LibDogTag-Unit-3.0."] = "你所使用的 LibDogTag-Unit-3.0 版本不支持血条，请安装  v90000.3 或更新的版本。"
 
-L["Color when Expiring"] = "即将结束时的颜色"
 
-L["Expiring Threshold"] = "即将结束阈值"
 
-L["Auras can only be shown on nameplates after combat has ended, as the aura display could not be created during combat."] = "战斗中无法创建光环显示，因此必须等战斗结束后才能在姓名板上显示光环。"
