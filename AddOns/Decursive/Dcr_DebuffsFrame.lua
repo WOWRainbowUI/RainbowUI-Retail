@@ -1,7 +1,7 @@
 --[[
     This file is part of Decursive.
 
-    Decursive (v 2.9.0-RC4) add-on for World of Warcraft UI
+    Decursive (v 2.9.0-RC5) add-on for World of Warcraft UI
     Copyright (C) 2006-2026 John Wellesz (Decursive AT 2072productions.com) ( http://www.2072productions.com/to/decursive.php )
 
     Decursive is free software: you can redistribute it and/or modify
@@ -25,7 +25,7 @@
     but WITHOUT ANY WARRANTY.
 
 
-    This file was last updated on 2026-09-25T15:31:25Z
+    This file was last updated on 2026-11-22T23:06:44Z
 --]]
 -------------------------------------------------------------------------------
 
@@ -750,6 +750,13 @@ do
     local tip = CreateFrame("GameTooltip", "DcrSecretTooltip", UIParent, "SharedTooltipTemplate")
     tip:SetClampedToScreen(true)
 
+
+    local tipRA = DC.RESTRICTED_AURAS and CreateFrame("GameTooltip", "DcrTopSecretTooltip", UIParent, "GameTooltipTemplate")
+
+    if tipRA then
+        tipRA:SetClampedToScreen(true)
+    end
+
     local function ShowMUFToolTip(unit, status, debuffs)
         tip:SetOwner(D.MFContainer, "ANCHOR_NONE")
 
@@ -791,10 +798,25 @@ do
         tip:Show()
         D.temp_tt_taint_debug = D.temp_tt_taint_debug + 1
 
+        local wasAdjusted = false
         -- if the tooltip is at the top of the screen it means it's overlaping the MUF, let's move the tooltip beneath the first MUF.
         if tip:GetTop() and floor(tip:GetTop() + 40) >= floor(UIParent:GetTop()) then -- if at top (the default game tooltip has a kind of padding...)
             tip:ClearAllPoints();
             tip:SetPoint(MicroUnitF:GetHelperAnchor(true, true));
+            wasAdjusted = true
+        end
+
+        if tipRA then
+            tipRA:SetOwner(D.MFContainer, "ANCHOR_NONE")
+            tipRA:ClearAllPoints()
+            tipRA:SetUnitDebuff(unit, 1, "HARMFUL|RAID_PLAYER_DISPELLABLE") -- show the first dispellable debuff as decided by Blizzard
+            tipRA:SetPoint(not wasAdjusted and "BOTTOMLEFT" or "TOPLEFT", tip, not wasAdjusted and "BOTTOMRIGHT" or "TOPRIGHT", 3, 0)
+            tipRA:Show()
+
+            if tipRA:GetRight() and floor(tipRA:GetRight() + 40) >= floor(UIParent:GetRight()) then
+                tipRA:ClearAllPoints();
+                tipRA:SetPoint(not wasAdjusted and "BOTTOMRIGHT" or "TOPRIGHT", tip, not wasAdjusted and "BOTTOMLEFT" or "TOPLEFT", 3, 0)
+            end
         end
     end
 
@@ -849,7 +871,9 @@ do
 
             -- set the status text, just translate the bitfield to readable text
             if Status == NORMAL then
-                StatusText = L["NORMAL"];
+                local restricted = D:AurasRestricted() and "?" or ""
+
+                StatusText = L["NORMAL"] .. restricted;
 
             elseif Status == ABSENT then
                 StatusText = L["ABSENT"]:format(Unit);
@@ -910,6 +934,11 @@ do
         end
 
         tip:Hide()
+
+        if tipRA then
+            tipRA:Hide()
+        end
+
         D.temp_tt_taint_debug = D.temp_tt_taint_debug - 1
         --[==[@debug@
         D:Debug("ttt debug: ", D.temp_tt_taint_debug)
@@ -2085,6 +2114,6 @@ function MicroUnitF:OnAttributeChanged(self, name, value)
     D:Debug("Micro unit", name, "AttributeChanged to", value);
 end
 
-T._LoadedFiles["Dcr_DebuffsFrame.lua"] = "2.9.0-RC4";
+T._LoadedFiles["Dcr_DebuffsFrame.lua"] = "2.9.0-RC5";
 
 -- Heresy

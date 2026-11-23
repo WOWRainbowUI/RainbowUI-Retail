@@ -1,7 +1,7 @@
 --[[
     This file is part of Decursive.
 
-    Decursive (v 2.9.0-RC4) add-on for World of Warcraft UI
+    Decursive (v 2.9.0-RC5) add-on for World of Warcraft UI
     Copyright (C) 2006-2026 John Wellesz (Decursive AT 2072productions.com) ( http://www.2072productions.com/to/decursive.php )
 
     Decursive is free software: you can redistribute it and/or modify
@@ -24,7 +24,7 @@
     Decursive is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY.
 
-    This file was last updated on 2026-11-04T09:37:36Z
+    This file was last updated on 2026-11-22T18:46:32Z
 --]]
 -------------------------------------------------------------------------------
 
@@ -354,6 +354,8 @@ function D:PLAYER_REGEN_DISABLED() -- {{{
         self.MFContainerHandle.isMoving = false;
         self.MicroUnitF.DraggingHandle = false;
     end
+    -- always close the window as doing changes there while in combat could cause severe tainting issues...
+    LibStub("AceConfigDialog-3.0"):Close(D.name)
 end --}}}
 
 --function D:PLAYER_REGEN_ENABLED() --{{{
@@ -404,7 +406,7 @@ do
                 end
             end
 
-            return str
+            return str .. ("-sabs:%s"):format(tostring(D:AurasRestricted()))
         end
 
         function D:ADDON_RESTRICTION_STATE_CHANGED(event, restrictionType, restrictionState)
@@ -434,8 +436,10 @@ do
         return currentState[Combat] ~= 0 or currentState[Encounter] ~= 0
     end
 
+    local ShouldAurasBeSecret =  DC.RESTRICTED_AURAS and _G.C_Secrets and C_Secrets.ShouldAurasBeSecret
+
     function D:AurasRestricted()
-        return DC.RESTRICTED_AURAS and (D:InEncounterOrCombat() or currentState[ChallengeMode] ~= 0 or currentState[PvPMatch] ~= 0)
+        return ShouldAurasBeSecret and ShouldAurasBeSecret() -- DC.RESTRICTED_AURAS and (D:InEncounterOrCombat() or currentState[ChallengeMode] ~= 0 or currentState[PvPMatch] ~= 0)
     end
 end
 
@@ -1300,6 +1304,6 @@ do
     end
 end
 
-T._LoadedFiles["Dcr_Events.lua"] = "2.9.0-RC4";
+T._LoadedFiles["Dcr_Events.lua"] = "2.9.0-RC5";
 
 -- The Great Below
