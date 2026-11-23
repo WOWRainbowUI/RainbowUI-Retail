@@ -1,7 +1,7 @@
 --[[
     This file is part of Decursive.
 
-    Decursive (v 2.9.0-RC4) add-on for World of Warcraft UI
+    Decursive (v 2.9.0-RC5) add-on for World of Warcraft UI
     Copyright (C) 2006-2026 John Wellesz (Decursive AT 2072productions.com) ( http://www.2072productions.com/to/decursive.php )
 
     Decursive is free software: you can redistribute it and/or modify
@@ -24,7 +24,7 @@
     Decursive is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY.
 
-    This file was last updated on 2026-09-25T15:08:00Z
+    This file was last updated on 2026-11-15T23:40:19Z
 --]]
 -------------------------------------------------------------------------------
 
@@ -490,6 +490,16 @@ function D:tCall(t, f)
     end
 end
 
+function D:filterSeq(tbl, predicate)
+    local result = {}
+    for _, v in ipairs(tbl) do
+        if predicate(v) then
+            result[#result + 1] = v
+        end
+    end
+    return result
+end
+
 function D:ThisSetText(frame, text) --{{{
     _G[frame:GetName().."Text"]:SetText(text);
 end --}}}
@@ -713,11 +723,7 @@ end
 
 
 function D:GetSpellUsefulInfoIfKnown(spellIdentifier) -- returns spellId, isPet
-    if _G.GetSpellBookItemInfo then
-        local spellType, spellID = GetSpellBookItemInfo(spellIdentifier);
-
-        return spellID, spellType == "PETACTION"
-    else
+    if C_SpellBook.GetSpellBookItemInfo then
         local spellBookItemSlotIndex, spellBookItemSpellBank = C_SpellBook.FindSpellBookSlotForSpell(spellIdentifier);
 
         if spellBookItemSlotIndex then
@@ -727,6 +733,10 @@ function D:GetSpellUsefulInfoIfKnown(spellIdentifier) -- returns spellId, isPet
         else
             return nil, nil;
         end
+    else
+        local spellType, spellID = GetSpellBookItemInfo(spellIdentifier);
+
+        return spellID, spellType == "PETACTION"
     end
 end
 
@@ -1219,4 +1229,4 @@ do
 
 end
 
-T._LoadedFiles["Dcr_utils.lua"] = "2.9.0-RC4";
+T._LoadedFiles["Dcr_utils.lua"] = "2.9.0-RC5";

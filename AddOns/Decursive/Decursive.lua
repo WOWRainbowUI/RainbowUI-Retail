@@ -1,7 +1,7 @@
 --[[
     This file is part of Decursive.
 
-    Decursive (v 2.9.0-RC4) add-on for World of Warcraft UI
+    Decursive (v 2.9.0-RC5) add-on for World of Warcraft UI
     Copyright (C) 2006-2026 John Wellesz (Decursive AT 2072productions.com) ( http://www.2072productions.com/to/decursive.php )
 
     Decursive is free software: you can redistribute it and/or modify
@@ -24,7 +24,7 @@
     Decursive is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY.
 
-    This file was last updated on 2026-09-27T21:20:33Z
+    This file was last updated on 2026-11-22T18:28:20Z
 --]]
 -------------------------------------------------------------------------------
 
@@ -421,10 +421,12 @@ do
 
     local filter = nil
 
+    local ShouldUnitAuraIndexBeSecret = _G.C_Secrets and C_Secrets.ShouldUnitAuraIndexBeSecret
+
     local UnitDebuff        = (not DC.RESTRICTED_AURAS and _G.UnitDebuff) or function (unitToken, i)
 
         -- this mechanism is completely disabled in 12.1 so do nothing for now...
-        if D:AurasRestricted() then
+        if D:AurasRestricted() or ShouldUnitAuraIndexBeSecret and ShouldUnitAuraIndexBeSecret(unitToken, i, filter) then
             --D:Debug("12.1: UnitDebuff was called while auras are restricted!", debugstack(2))
             return nil
         end
@@ -1037,6 +1039,6 @@ end
 
 
 
-T._LoadedFiles["Decursive.lua"] = "2.9.0-RC4";
+T._LoadedFiles["Decursive.lua"] = "2.9.0-RC5";
 
 -- Sin
