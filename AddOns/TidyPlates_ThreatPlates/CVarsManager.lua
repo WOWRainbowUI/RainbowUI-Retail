@@ -1,4 +1,4 @@
-local ADDON_NAME, Addon = ...
+﻿local ADDON_NAME, Addon = ...
 
 ---------------------------------------------------------------------------------------------------
 -- Functions for changing and savely restoring CVars (mostly after login/logout/reload UI)
@@ -317,7 +317,7 @@ local function SetCVarHook(name, value, c)
       Addon.Transparency.UpdateSettings()
       --Addon:ForceUpdate()
     elseif invalid then
-      -- Addon.Logging.Warning(L["Transparency for occluded units is being disabled as certain console variables (CVars) related to nameplate transparency are set in a way to prevent this feature from working."])
+      Addon.Logging.Warning(L["Transparency for occluded units is being disabled as certain console variables (CVars) related to nameplate transparency are set in a way to prevent this feature from working."])
     end
   end
 end

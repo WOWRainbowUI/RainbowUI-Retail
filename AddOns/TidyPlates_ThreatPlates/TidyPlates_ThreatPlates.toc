@@ -31,7 +31,7 @@
 ## X-WoWI-ID: 15749
 ## X-Wago-ID: RqGZkkNd
 
-## RequiredDeps:
+## RequiredDeps: Ace3
 ## OptionalDeps: Ace3, AceGUI-3.0-SharedMediaWidgets, LibSharedMedia-3.0, LibCustomGlow-1.0, LibDeflate, LibDualSpec-1.0
 ## X-Embeds: Ace3, AceGUI-3.0-SharedMediaWidgets, LibSharedMedia-3.0, LibCustomGlow-1.0, LibDeflate, LibDualSpec-1.0
 
