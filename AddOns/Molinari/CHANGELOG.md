@@ -1,6 +1,4 @@
-### Changes in 120100.151-Release:
+### Changes in 120100.152-Release:
 
-- Changed: Update Interface version for retail
-- Changed: Update retail data
-- Changed: Update wrath data
+- Added: Disenchanting support for certain quest related items
 
