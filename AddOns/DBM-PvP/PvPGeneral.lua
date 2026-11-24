@@ -8,13 +8,14 @@ local isRetail = DBM:IsRetail()
 local isClassic = DBM:IsVanilla()
 local isBCC = DBM:IsTBC()
 local isWrath = DBM:IsWrath()
+local isForever = DBM:IsForever()
 local playerFaction = GetPlayerFactionGroup("player")
 local startTimer, winTimer
 
 local DBM5Protocol = "1" -- DBM protocol version
-local DBM5Prefix = UnitName("player") .. "-" .. GetRealmName() .. "\t" .. DBM5Protocol .. "\t" -- Name-Realm\tProtocol version\t
+local DBM5Prefix = UnitName("player") .. (isForever and "" or "-" .. GetRealmName()) .. "\t" .. DBM5Protocol .. "\t" -- Name[-Realm]\tProtocol version\t
 
-mod:SetRevision("20261018183421")
+mod:SetRevision("20261123230009")
 mod:SetZone(DBM_DISABLE_ZONE_DETECTION)
 mod:RegisterEvents(
 	"ZONE_CHANGED_NEW_AREA",
@@ -127,6 +128,8 @@ do
 end
 
 do
+	-- Unit health is secret and addon chat is blocked during PvP matches on retail and Forever
+	local noHealthTracking = isRetail or isForever
 	local UnitGUID, UnitHealth, UnitHealthMax, RegisterAddonMessagePrefix, NewTicker = UnitGUID, UnitHealth, UnitHealthMax, C_ChatInfo.RegisterAddonMessagePrefix, C_Timer.NewTicker
 
 	local scanTargetsRaid = {"target"}
@@ -253,7 +256,7 @@ do
 
 	---@param color ColorMixin
 	function healthTracker:TrackHealth(cid, name, color)
-		if isRetail then
+		if noHealthTracking then
 			return
 		end
 		if self.ticker:IsCancelled() then
@@ -291,7 +294,7 @@ do
 			hash = hash * 31 + playerName:byte(i, i)
 			hash = hash % 4294967311
 		end
-		if not isRetail then
+		if not noHealthTracking then
 			mod:RegisterShortTermEvents("CHAT_MSG_ADDON")
 			RegisterAddonMessagePrefix("DBM-PvP")
 			RegisterAddonMessagePrefix("Capping") -- Listen to capping for extra data
@@ -306,7 +309,7 @@ do
 		}, {__index = healthTracker})
 		-- This sends up to one sync message per channel per invocation, there seem to be heavy rate limits in place to ~10 messages/second (per channel?)
 		-- TODO: figure out what works
-		if not isRetail then
+		if not noHealthTracking then
 			tracker.ticker = NewTicker(#syncChannels, function() tracker:scan() end)
 			trackers[#trackers + 1] = tracker
 		end
@@ -315,7 +318,7 @@ do
 
 	--- Cancels health tracking, it cannot be re-started on this object.
 	function healthTracker:Cancel()
-		if isRetail then
+		if noHealthTracking then
 			return
 		end
 		self.ticker:Cancel()
@@ -550,17 +553,19 @@ do
 		["HORDE_CONTESTED"]     = 3,
 		["HORDE_CONTROLLED"]    = 4
 	}
+	-- Classic and TBC number the POI icons one lower; Forever uses the retail numbers (AreaPOI table, 1.60.1)
+	local oldIconNumbers = (isClassic or isBCC) and not isForever
 	local icons = {
 		-- Graveyard
-		[(isClassic or isBCC) and 3 or 4]   = State.ALLY_CONTESTED,
-		[(isClassic or isBCC) and 14 or 15] = State.ALLY_CONTROLLED,
-		[(isClassic or isBCC) and 13 or 14] = State.HORDE_CONTESTED,
-		[(isClassic or isBCC) and 12 or 13] = State.HORDE_CONTROLLED,
+		[oldIconNumbers and 3 or 4]   = State.ALLY_CONTESTED,
+		[oldIconNumbers and 14 or 15] = State.ALLY_CONTROLLED,
+		[oldIconNumbers and 13 or 14] = State.HORDE_CONTESTED,
+		[oldIconNumbers and 12 or 13] = State.HORDE_CONTROLLED,
 		-- Tower/Lighthouse
-		[(isClassic or isBCC) and 8 or 9]   = State.ALLY_CONTESTED,
-		[(isClassic or isBCC) and 10 or 11] = State.ALLY_CONTROLLED,
-		[(isClassic or isBCC) and 11 or 12] = State.HORDE_CONTESTED,
-		[(isClassic or isBCC) and 9 or 10]  = State.HORDE_CONTROLLED,
+		[oldIconNumbers and 8 or 9]   = State.ALLY_CONTESTED,
+		[oldIconNumbers and 10 or 11] = State.ALLY_CONTROLLED,
+		[oldIconNumbers and 11 or 12] = State.HORDE_CONTESTED,
+		[oldIconNumbers and 9 or 10]  = State.HORDE_CONTROLLED,
 		-- Mine/Quarry
 		[17]                        = State.ALLY_CONTESTED,
 		[18]                        = State.ALLY_CONTROLLED,
