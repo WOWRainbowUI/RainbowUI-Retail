@@ -302,7 +302,7 @@ else
 		-- Retail-specific constants or adjustments can go here
 		constants.onlineData["GARRISON"] = { Title = GARRISON_LOCATION_TOOLTIP.." / "..ORDER_HALL_MISSIONS }
 		constants.onlineData["LFG"] = { Title = L["LFD, LFR and Scen."] }
-		constants.onlineData["Bank"] = { Title = BANK }
+		constants.onlineData["BANK"] = { Title = BANK }
 	end
 end
 

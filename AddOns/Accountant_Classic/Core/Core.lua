@@ -649,7 +649,7 @@ local function settleTabText()
 		PanelTemplates_SetNumTabs(AccountantClassicFrame, AC_TABS)
 	end
 
-	PanelTemplates_SetTab(AccountantClassicFrame, AccountantClassicFrameTab1)
+	PanelTemplates_SetTab(AccountantClassicFrame, 1)
 	PanelTemplates_UpdateTabs(AccountantClassicFrame)
 end
 
@@ -2261,8 +2261,11 @@ function addon:ShowNetMoney(logmode)
 	local diff = 0;
 	if (logmode ~= "Total" and AC_DATA["REPAIRS"][logmode]) then
 		for key in pairs(AC_DATA) do
-			TotalIn = TotalIn + AC_DATA[key][logmode].In;
-			TotalOut = TotalOut + AC_DATA[key][logmode].Out;
+			local modeData = AC_DATA[key] and AC_DATA[key][logmode]
+			if modeData then
+				TotalIn = TotalIn + modeData.In or 0;
+				TotalOut = TotalOut + modeData.Out or 0;
+			end
 		end
 		if (TotalOut > TotalIn) then
 			diff = TotalOut-TotalIn;
