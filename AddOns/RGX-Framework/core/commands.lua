@@ -26,14 +26,12 @@ RGX:RegisterSlashCommand({ "rgx", "rgxframework", "rgxf" }, function(msg)
             end
         end
     elseif cmd == "debug" then
+        -- One switch for the framework's debug output (including the options open timings and font reports).
+        RGX.debugMode = not RGX.debugMode
+        local state = RGX.debugMode and (L["COMMAND_FONT_DEBUG_ON"] or "ON") or (L["COMMAND_FONT_DEBUG_OFF"] or "OFF")
         local Fonts = RGX:GetModule("fonts")
-        if Fonts then
-            Fonts._forceDebug = not Fonts._forceDebug
-            local state = Fonts._forceDebug
-                and (L["COMMAND_FONT_DEBUG_ON"] or "ON")
-                or  (L["COMMAND_FONT_DEBUG_OFF"] or "OFF")
-            RGX:Print(L["COMMAND_FONT_DEBUG_PREFIX"] or "Font debug:", state)
-        end
+        if Fonts then Fonts._forceDebug = RGX.debugMode end
+        RGX:Print(L["COMMAND_DEBUG_PREFIX"] or "Debug:", state)
     elseif cmd == "dbtest" then
         -- The database test harness relocated out of the runtime package
         -- (tests/database_test.lua) so the shipped runtime stays clean; it is

@@ -595,15 +595,49 @@ local function CompileDeclarativeOn(on)
         error("RGXAddon: 'on' must be a table of trigger = function entries", 3)
     end
     local compiled = {}
-    for trigger, handler in pairs(on) do
+    for trigger, value in pairs(on) do
         local known = trigger == "login" or trigger == "media.updated" or DECLARATIVE_TRIGGERS[trigger] or IsRawEventName(trigger)
         if not known then
             error("RGXAddon: unknown trigger 'on." .. tostring(trigger) .. "' (use a trigger word from the contract or an UPPER_CASE event)", 3)
         end
-        if type(handler) ~= "function" then
+        local handler, unit, throttle = value, nil, nil
+        if type(value) == "table" then
+            -- Advanced form: { handler = fn, unit = "player" | { "player", "target" }, throttle = seconds }.
+            for key in pairs(value) do
+                if key ~= "handler" and key ~= "unit" and key ~= "throttle" then
+                    error("RGXAddon: unknown option '" .. tostring(key) .. "' in 'on." .. tostring(trigger) .. "' (use handler, unit, throttle)", 3)
+                end
+            end
+            handler, unit, throttle = value.handler, value.unit, value.throttle
+            if type(handler) ~= "function" then
+                error("RGXAddon: 'on." .. tostring(trigger) .. "' must have a handler function", 3)
+            end
+            if unit ~= nil then
+                if not IsRawEventName(trigger) then
+                    error("RGXAddon: unit only applies to a raw event ('on." .. tostring(trigger) .. "' is a trigger word)", 3)
+                end
+                local list = type(unit) == "table" and unit or { unit }
+                local valid = #list > 0
+                for _, token in ipairs(list) do
+                    if type(token) ~= "string" or token == "" then valid = false end
+                end
+                if not valid or (type(unit) ~= "string" and type(unit) ~= "table") then
+                    error("RGXAddon: 'on." .. tostring(trigger) .. "' unit must be a unit token or a list of them", 3)
+                end
+                unit = list
+            end
+            if throttle ~= nil then
+                if trigger == "login" then
+                    error("RGXAddon: throttle does not apply to login ('on.login' runs once)", 3)
+                end
+                if type(throttle) ~= "number" or throttle ~= throttle or throttle <= 0 then
+                    error("RGXAddon: 'on." .. tostring(trigger) .. "' throttle must be a number above 0 (seconds)", 3)
+                end
+            end
+        elseif type(handler) ~= "function" then
             error("RGXAddon: handler for 'on." .. tostring(trigger) .. "' must be a function", 3)
         end
-        compiled[#compiled + 1] = { trigger = trigger, handler = handler }
+        compiled[#compiled + 1] = { trigger = trigger, handler = handler, unit = unit, throttle = throttle }
     end
     table.sort(compiled, function(a, b) return a.trigger < b.trigger end)
     return compiled
@@ -615,7 +649,14 @@ local function BindDeclarativeOn(addon, triggers)
     if not triggers then return end
     for _, entry in ipairs(triggers) do
         local trigger, handler = entry.trigger, entry.handler
+        local throttle, lastRun = entry.throttle, nil
         local function call(...)
+            if throttle and type(GetTime) == "function" then
+                -- At most one call per throttle window; calls inside the window are dropped.
+                local now = GetTime()
+                if lastRun and now - lastRun < throttle then return end
+                lastRun = now
+            end
             local ok, err = pcall(handler, addon, ...)
             if not ok then
                 -- Reported like every other handler failure: to the game's error handler, never thrown on.
@@ -639,7 +680,11 @@ local function BindDeclarativeOn(addon, triggers)
         elseif trigger == "media.updated" then
             RGX:RegisterMessage("RGX_SHAREDMEDIA_UPDATED", function(_, ...) call(...) end, tag, addon)
         elseif IsRawEventName(trigger) then
-            RGX:RegisterEvent(trigger, function(_, ...) call(...) end, tag)
+            if entry.unit then
+                RGX:RegisterUnitEvent(trigger, entry.unit, function(_, ...) call(...) end, tag)
+            else
+                RGX:RegisterEvent(trigger, function(_, ...) call(...) end, tag)
+            end
         else
             local route = DECLARATIVE_TRIGGERS[trigger]
             local module = route and RGX:GetModule(route[1])

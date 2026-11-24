@@ -275,5 +275,6 @@ RGX:RegisterEvent("PLAYER_LOGIN", function()
             return tabs
         end)(),
         registerInSettings = false,
+        registerInSettings = true,
     })
 end, "RGX_GUIDE_PANEL")

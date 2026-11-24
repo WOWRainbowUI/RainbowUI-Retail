@@ -362,9 +362,17 @@ function BarPrototype:_Finish(completed)
         RGX:CancelTimer(self.updater)
         self.updater = nil
     end
-    local callback = completed and self.onComplete or self.onCancel
-    if callback then callback(self) end
-    self:Hide()
+    local callback
+    if completed then callback = self.onComplete else callback = self.onCancel end
+    if callback then
+        local ok, err = pcall(callback, self)
+        if not ok and type(RGX.Error) == "function" then
+            -- Reporting must not interrupt cleanup or another consumer's cancellation.
+            local textOK, text = pcall(tostring, err)
+            pcall(RGX.Error, RGX, "[RGXTimers] lifecycle callback failed: " .. (textOK and text or "<unprintable error>"))
+        end
+    end
+    if not self.running then self:Hide() end
 end
 
 RGX:RegisterModule("timers", Timers, { category = "library" })
