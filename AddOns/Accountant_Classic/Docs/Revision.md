@@ -6,6 +6,14 @@
 
 ## Revision History
 
+### v2.30.07 (Nov. 23, 2026)
+- Bug Fix: 
+  - PR #22 (by kamusis):
+    - Fix typo in Core/Constants.lua where constants.onlineData["Bank"] was set with mixed case for Client.isRetail instead of "BANK". 
+  - Issue #21 (by Ortegas007):
+    - handle missing period data when computing net money
+    - correct tab argument in settleTabText
+
 ### v2.30.06 (Nov. 23, 2026)
 
 - New feature: Zone breakdown drawer (PR #16, by kamusis)
