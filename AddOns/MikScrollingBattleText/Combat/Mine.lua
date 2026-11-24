@@ -342,6 +342,9 @@ local function DirectAvailable(self, spell, cast, key, now, area)
         or age <= AREA_MOMENT)) then return false end
     local limit = type(facts) == "table" and facts.directHits or 1
     local count = cast.outcomes and cast.outcomes[key or false] or 0
+    if key and cast.targetUncertain and cast.outcomes then
+        count = count + (cast.outcomes[false] or 0)
+    end
     return count < (limit or 1)
 end
 
@@ -649,7 +652,13 @@ end
 -- to RANGED_WINDOW before it. Nothing is changed; the reader looks for the
 -- line that came with one (Reader.lua, SwingLine) and hands it back as
 -- self.pairedSwing for the hit's decision.
-function Mine:SwingsBefore(key, now)
+-- With stray, also a melee swing whose hit comes at neither of its times:
+-- anywhere from SWING_MIN to the end of the delayed window. A druid's swings
+-- in Cat Form were reported 0.43, 0.77 or 1.0 s after their lines; once 0.76 s
+-- was learned, the first came before the window and the last between the two
+-- (1.60.1.70959). The reader asks so only once nothing else placed the hit
+-- and nobody else is seen to strike the unit (Reader.lua, StraySwingLine).
+function Mine:SwingsBefore(key, now, stray)
     local found = {}
     if not key then return found end
     for _, swing in ipairs(self.swings) do
@@ -661,10 +670,17 @@ function Mine:SwingsBefore(key, now)
             local early, late = self:MeleeWindow(swing.hand)
             local lag = self:SwingDelay(swing.hand) or USUAL_DELAY
             fits = (since >= early and since <= late) or (since >= lag + DELAYED_FROM and since <= lag + DELAYED_TO)
+                or (stray == true and since >= SWING_MIN and since <= lag + DELAYED_TO)
         end
         if not swing.used and swing.key == key and fits then found[#found + 1] = swing end
     end
     return found
+end
+
+function Mine:SwingMatchDeadline(swing)
+    local _, usualLate = self:MeleeWindow(swing.hand)
+    local lag = self:SwingDelay(swing.hand) or USUAL_DELAY
+    return swing.at + math.max(usualLate, lag + DELAYED_TO)
 end
 
 -- Optional diagnostics observe the same windows without tidying or spending.
@@ -932,6 +948,31 @@ local function AmbiguousDirectResult(self, key, school, now, bestScore)
         end
     end
     return AmbiguousResult(self, owner, mixedOwners, false)
+end
+
+-- A recipient can be settled only from a report the cast could produce.
+-- A projectile cannot corroborate a recipient in its own cast frame.
+function Mine:CanSettle(cast, key, kind, school, now)
+    local facts = self.facts(cast.spell)
+    if type(facts) == "table" and facts.travels then return false end
+    for _, entry in ipairs(self.pending) do
+        if entry.cast == cast and not entry.used
+            and (kind == "miss" or DirectCandidateScore(self, entry, key, school, now)) then
+            return true
+        end
+    end
+    return false
+end
+
+function Mine:Settle(cast, key)
+    cast.key, cast.targetUncertain, cast.candidates = key, false, nil
+    for _, list in ipairs({ self.pending, self.dots }) do
+        for _, entry in ipairs(list) do
+            if entry.cast == cast then
+                entry.key, entry.targetUncertain = key, false
+            end
+        end
+    end
 end
 
 local function RememberAmount(self, spell)
@@ -1475,9 +1516,11 @@ local function Yours(self, key, kind, school, now)
                         hand = swing.hand, who = "you", ordinal = 1,
                     }
                 end
-                -- 0.6.2: the delay of a melee hit paired by its swing's line.
-                local _, usualLate = self:MeleeWindow(swing.hand)
-                if paired and not ranged and since <= usualLate then
+                -- 0.6.2: the delay of a melee hit paired by its swing's line. One
+                -- paired before its swing's time (SwingsBefore, stray) teaches
+                -- nothing: it would open the window to everyone's hits.
+                local usualEarly, usualLate = self:MeleeWindow(swing.hand)
+                if paired and not ranged and since >= usualEarly and since <= usualLate then
                     self.swingLags = self.swingLags or {}
                     local lags = self.swingLags[swing.hand] or {}
                     self.swingLags[swing.hand] = lags
@@ -1684,6 +1727,85 @@ local function HistoricalFit(self, spell, cast, school, now, restrict, key,
     return score, tick, directSelected
 end
 
+-- Test both schools before spending either outcome in a mixed frame.
+function Mine:MixedFrameDirectSchool(key, firstSchool, secondSchool, now)
+    for _, channel in pairs(self.channels) do
+        if ChannelFits(channel, key, firstSchool, now)
+            or ChannelFits(channel, key, secondSchool, now) then return nil end
+    end
+
+    local candidate
+    for _, entry in ipairs(self.pending) do
+        if DirectCandidateScore(self, entry, key, firstSchool, now)
+            or DirectCandidateScore(self, entry, key, secondSchool, now) then
+            if candidate then return nil end
+            candidate = entry
+        end
+    end
+    if not candidate or candidate.at ~= now or candidate.caster ~= "you"
+        or candidate.targetUncertain or candidate.ambiguous
+        or candidate.cast.ambiguous then return nil end
+    local facts = self.facts(candidate.spell)
+    if not facts or facts.direct ~= true or facts.area or facts.nextSwing
+        or (facts.directHits or 1) ~= 1 or candidate.school ~= facts.school
+        or (facts.school ~= firstSchool and facts.school ~= secondSchool) then
+        return nil
+    end
+
+    -- History also holds casts with no pending entry for this target.
+    for spell, casts in pairs(self.casts) do
+        for _, cast in ipairs(casts) do
+            if cast ~= candidate.cast then
+                local _, _, first = HistoricalFit(
+                    self, spell, cast, firstSchool, now, "direct", key, true)
+                if first then return nil end
+                local _, _, second = HistoricalFit(
+                    self, spell, cast, secondSchool, now, "direct", key, true)
+                if second then return nil end
+            end
+        end
+    end
+    return facts.school
+end
+
+-- A battleground spell line can identify a cast while its target stays hidden.
+local function ConfirmUntargetedDirect(self, key, school, now)
+    if not school or self.petOut then return nil end
+    for _, channel in pairs(self.channels) do
+        if ChannelFits(channel, key, school, now) then return nil end
+    end
+
+    local candidate
+    for _, entry in ipairs(self.pending) do
+        -- A spell line can come from an impact outside the selected target.
+        if DirectCandidateScore(self, entry, entry.key or key, school, now) then
+            if candidate then return nil end
+            candidate = entry
+        end
+    end
+    if not candidate or candidate.at > now or candidate.caster ~= "you"
+        or not candidate.targetUncertain or candidate.key or candidate.cast.candidates
+        or candidate.ambiguous or candidate.cast.ambiguous then return nil end
+    local facts = self.facts(candidate.spell)
+    if not facts or facts.direct ~= true or facts.ticks ~= false
+        or facts.school ~= school or facts.area or facts.nextSwing or facts.shot
+        or (facts.directHits or 1) ~= 1
+        or (self.leechNow == true and not facts.leech) then return nil end
+
+    for spell, casts in pairs(self.casts) do
+        for _, cast in ipairs(casts) do
+            if cast ~= candidate.cast then
+                local _, _, direct = HistoricalFit(
+                    self, spell, cast, school, now, "direct", key, true)
+                if direct then return nil end
+            end
+        end
+    end
+
+    SpendDirect(self, candidate.spell, candidate.cast, nil, false)
+    return Result("you", candidate.spell, false)
+end
+
 function Mine:Likeliest(school, now, restrict, key)
     local bestSpell, bestCast, bestScore, bestTick, bestDirect
     for spell, casts in pairs(self.casts) do
@@ -1838,7 +1960,8 @@ end
 -- leech (0.3.49): true when a heal on you of the hit's amount came in its
 -- moment, false when heals on you were read and none matched, nil unknown.
 -- avoid: the game's word for a miss ("PARRY", "DODGE", "MISS", ...), nil unknown.
-function Mine:Hit(key, kind, school, now, petAttacking, line, amount, crit, restrict, leech, avoid)
+function Mine:Hit(key, kind, school, now, petAttacking, line, amount, crit,
+    restrict, leech, avoid, isolatedBattlegroundSpell)
     self.lastOutcomeReceipt = nil
     self:Tidy(now)
     self.amountNow, self.lineNow, self.ambiguous, self.critNow = amount, line, false, crit == true
@@ -1861,6 +1984,10 @@ function Mine:Hit(key, kind, school, now, petAttacking, line, amount, crit, rest
     self.restrictNow = line == true and restrict or nil
     self.leechNow = kind == "damage" and leech or nil
     local allowed = Allowed(self.restrictNow)
+    if isolatedBattlegroundSpell and self.restrictNow == "direct" then
+        local result = ConfirmUntargetedDirect(self, key, school, now)
+        if result then return result end
+    end
     -- 0.3.49: a damage shield's line (Thorns on you, an item): the hit on
     -- the enemy that struck you is yours, whatever cast or swing came before
     -- (four were left out in a battleground, 1.60.1.70374).

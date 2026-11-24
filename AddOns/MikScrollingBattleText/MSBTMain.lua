@@ -565,24 +565,40 @@ local function RestrictedActionMessage(eventSettings, message, school, spellID)
 	return CleanupActionMessage(message)
 end
 
+local function FormatConditionalDamageMinus(amount, formatted)
+	-- The native helper omits the link at zero. Otherwise stripping the
+	-- link leaves its visible minus sign. Both values stay opaque in Lua.
+	local nonzero = C_StringUtil.TruncateWhenZero(amount)
+	local link = C_StringUtil.WrapString(nonzero, "|Hmsbt-damage:", "|h-|h")
+	return string.format("%s%s", C_StringUtil.StripHyperlinks(link), formatted)
+end
+
 local function DisplayRestrictedAmount(
-	eventSettings, amount, texturePath, message, suffix, school, spellID
+	eventSettings, amount, texturePath, message, suffix, school, spellID,
+	incomingDamage
 )
 	if not eventSettings or eventSettings.disabled then
 		return
 	end
-	local template = Formatter:BuildRestrictedTemplate(
-		RestrictedActionMessage(eventSettings, message, school, spellID),
-		suffix,
-		school
+	message = RestrictedActionMessage(eventSettings, message, school, spellID)
+	local formatted = Formatter:FormatRestrictedAmount(
+		amount, MSBTProfiles.currentProfile
 	)
-	DisplayEvent(
-		eventSettings,
-		template,
-		texturePath,
-		nil,
-		Formatter:FormatRestrictedAmount(amount, MSBTProfiles.currentProfile)
-	)
+	if incomingDamage and Client.isForever and C_StringUtil
+		and type(C_StringUtil.TruncateWhenZero) == "function"
+		and type(C_StringUtil.WrapString) == "function"
+		and type(C_StringUtil.StripHyperlinks) == "function" then
+		local index = string_find(message, "%a", 1, true)
+		if index and index > 1 and message:sub(index - 1, index - 1) == "-" then
+			local ok, signed = pcall(FormatConditionalDamageMinus, amount, formatted)
+			if ok then
+				message = message:sub(1, index - 2) .. message:sub(index)
+				formatted = signed
+			end
+		end
+	end
+	local template = Formatter:BuildRestrictedTemplate(message, suffix, school)
+	DisplayEvent(eventSettings, template, texturePath, nil, formatted)
 end
 
 local function DisplayRestrictedGroup(

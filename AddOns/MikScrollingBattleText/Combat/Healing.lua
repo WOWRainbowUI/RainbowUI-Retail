@@ -3,6 +3,8 @@ local casts = {}
 local targets = {}
 local DIRECT_WINDOW, HOT_WINDOW, MAX_CASTS = 3, 30, 64
 local MEND_PET_SPELL_ID = 136
+-- How far a tick can lie from where its HoT's period puts one.
+local TICK_SLACK = 0.3
 
 function ns.ResetHealing() casts, targets = {}, {} end
 
@@ -13,6 +15,29 @@ local function TargetlessHealRecipient(unit, spell)
 	local name = ns.SpellName(spell)
 	local mendPet = ns.SpellName(MEND_PET_SPELL_ID)
 	if name and mendPet and name == mendPet then return "pet" end
+end
+
+-- True only when the game shows that no friend is selected: no target, or
+-- one you cannot assist.
+local function NoFriendSelected()
+	if type(UnitExists) ~= "function" or type(UnitCanAssist) ~= "function" then return false end
+	local exists = UnitExists("target")
+	if ns.Bool(exists) and not exists then return true end
+	local assist = UnitCanAssist("player", "target")
+	return ns.Bool(assist) and not assist
+end
+
+-- What Forever's own data says of a spell (HealSpells.lua): the facts of a
+-- spell whose own effects heal, false when the table takes it not to heal,
+-- nil on other clients, when the table does not know it or when it may heal
+-- through an effect the table cannot see.
+local function Facts(spell)
+	local client = MikSBT.Compatibility and MikSBT.Compatibility.Client
+	local known = ns.HEAL_SPELLS
+	if not (client and client.isForever) or not known then return end
+	if ns.HEAL_SPELLS_UNKNOWN[spell] then return end
+	if known[spell] then return known[spell] end
+	if spell <= (ns.HEAL_SPELLS_LAST or 0) then return false end
 end
 
 -- Healing keywords across supported client locales
@@ -143,6 +168,21 @@ local function ParseDuration(spell)
 	end
 end
 
+-- Whether a cast sent at this name went to the unit. UnitName gives a unit's
+-- second name apart: its realm, which the sent name carries after "-", or,
+-- where units have surnames (Forever), its surname after the client's own
+-- separator.
+local function IsNamed(target, token)
+	local ok, name, second = pcall(UnitName, token)
+	if not ok or not ns.Text(name) then return false end
+	if target == name then return true end
+	if not ns.Text(second) then return false end
+	local separators = Constants and Constants.CharacterNameSeparatorConsts
+	local surname = separators and separators.CHARACTERNAME_SURNAME_SEPARATOR
+	return target == name .. "-" .. second
+		or (ns.Text(surname) and target == name .. surname .. second) or false
+end
+
 function ns.NoteHealTarget(unit, target, guid, spell, now)
 	if (unit ~= "player" and unit ~= "pet")
 		or not ns.Text(guid) or not ns.Number(spell, 1) then return end
@@ -155,14 +195,17 @@ function ns.NoteHealTarget(unit, target, guid, spell, now)
 	else
 		if not ns.Text(target) or type(UnitName) ~= "function" then return end
 		for _, token in ipairs({ "player", "pet" }) do
-			local ok, name, realm = pcall(UnitName, token)
-			if ok and ns.Text(name) and (target == name
-				or (ns.Text(realm) and target == name .. "-" .. realm)) then
+			if IsNamed(target, token) then
 				if recipient then return end
 				recipient = token
 			end
 		end
-		if not recipient then return end
+		if not recipient then
+			-- A name that is not yours, your pet's or your target's is a
+			-- friend the cast went to, so it does not land on you.
+			if IsNamed(target, "target") then return end
+			recipient = false
+		end
 	end
 	for index = #targets, 1, -1 do
 		if now - targets[index].at > HOT_WINDOW then
@@ -178,8 +221,9 @@ function ns.NoteHealCast(unit, spell, key, now, guid)
 	local helpful = C_Spell and C_Spell.IsSpellHelpful
 		and C_Spell.IsSpellHelpful(spell)
 	if not ns.Bool(helpful) or not helpful then return end
+	local facts = Facts(spell)
 	-- Do not record non-healing buffs as heals.
-	if not Heals(spell) then return end
+	if facts == false or (not facts and not Heals(spell)) then return end
 	local recipient
 	if ns.Text(guid) then
 		for index = #targets, 1, -1 do
@@ -196,38 +240,90 @@ function ns.NoteHealCast(unit, spell, key, now, guid)
 	end
 	if recipient then
 		key = recipient
-	else
+	elseif recipient == nil then
+		-- Only a cast for which SENT gave no recipient goes by the selection;
+		-- one whose SENT names a friend is never yours or your pet's.
 		local selfTarget = UnitIsUnit("target", "player")
 		if ns.Bool(selfTarget) and selfTarget then key = "player" end
 		local petTarget = UnitIsUnit("target", "pet")
 		if ns.Bool(petTarget) and petTarget then key = "pet" end
+		-- With no friend selected, a heal of yours lands on you, as the game
+		-- casts it, or on your pet when it heals the pet; buffs and forms are
+		-- not heals and stay out.
+		if facts and unit == "player" and NoFriendSelected() then
+			key = facts[4] == 1 and "pet" or "player"
+		end
 	end
 	if not key then return end
 	for i = #casts, 1, -1 do
 		if now - casts[i].at > HOT_WINDOW then table.remove(casts, i) end
 	end
-	local duration = ParseDuration(spell)
+	local duration, direct, period
+	if facts then
+		direct, period = facts[1] == 1, facts[2] > 0 and facts[2] or nil
+		duration = facts[3] > 0 and facts[3] or nil
+	else
+		duration = ParseDuration(spell)
+	end
 	casts[#casts + 1] = {
 		at = now, spell = spell, key = key, duration = duration,
+		known = facts and true, direct = direct, period = period,
 		who = unit == "pet" and "pet" or "you",
 	}
 	while #casts > MAX_CASTS do table.remove(casts, 1) end
 end
 
+local function Candidate(cast, key, since, tick)
+	if cast.key ~= key or since < 0 then return false end
+	-- A spell the table knows heals only the way it can: at once, over time.
+	if not tick then
+		return since <= DIRECT_WINDOW and not cast.used
+			and (not cast.known or cast.direct)
+	end
+	if cast.known and not cast.period then return false end
+	-- A confirmed direct heal cannot claim ticks unless it has a HoT duration
+	if cast.directUsed and not cast.duration then return false end
+	return since <= (cast.duration and (cast.duration + 2) or HOT_WINDOW)
+end
+
+-- With several HoTs on one recipient, a confirmed tick is the one whose
+-- period puts a tick of its newest cast here; a recast restarts the beat.
+-- Without a period for each, or with more than one on the beat, no spell is
+-- named.
+local function OnBeat(key, now)
+	local newest = {}
+	for _, cast in ipairs(casts) do
+		if Candidate(cast, key, now - cast.at, true) then
+			if not cast.period then return end
+			newest[cast.who .. ":" .. cast.spell] = cast
+		end
+	end
+	local found
+	for _, cast in pairs(newest) do
+		local since = now - cast.at
+		local beats = math.floor(since / cast.period + 0.5)
+		if beats >= 1 and math.abs(since - beats * cast.period) <= TICK_SLACK then
+			if found then return end
+			found = cast
+		end
+	end
+	return found
+end
+
 function ns.MatchHealing(key, now, tick, confirmed)
 	if confirmed == false then return nil end
-	local best, age, ambiguous
+	local best, age, ambiguous, rival
 	for _, cast in ipairs(casts) do
 		local since = now - cast.at
-		local maxWindow = tick and (cast.duration and (cast.duration + 2) or HOT_WINDOW) or DIRECT_WINDOW
-		-- A confirmed direct heal cannot claim ticks unless it has a HoT duration
-		local directExhausted = tick and cast.directUsed and not cast.duration
-		if cast.key == key and since >= 0
-			and since <= maxWindow
-			and not directExhausted
-			and (tick or not cast.used) then
+		-- A heal only taken for a tick, with no combat log line saying so,
+		-- may be the heal at once of a known cast not matched yet, so no
+		-- spell is named for it.
+		if tick and not confirmed and cast.direct and Candidate(cast, key, since, false) then
+			return nil
+		end
+		if Candidate(cast, key, since, tick) then
 			if tick and best and (best.spell ~= cast.spell or best.who ~= cast.who) then
-				return nil
+				rival = true
 			end
 			if not age or since < age then
 				best, age, ambiguous = cast, since, false
@@ -235,6 +331,12 @@ function ns.MatchHealing(key, now, tick, confirmed)
 				ambiguous = true
 			end
 		end
+	end
+	if rival then
+		-- A tick no combat log line confirms may be someone else's, and with
+		-- several HoTs to choose from no spell is named for it.
+		if not confirmed then return nil end
+		best, ambiguous = OnBeat(key, now), false
 	end
 	if not best or ambiguous then return nil end
 	best.used = true
@@ -244,8 +346,8 @@ function ns.MatchHealing(key, now, tick, confirmed)
 	return { who = best.who, spell = best.spell, tick = tick }
 end
 
-function ns.TagIncomingHeal(record, unit, now)
-	local result = ns.MatchHealing(unit, now, record.tick, nil)
+function ns.TagIncomingHeal(record, unit, now, confirmed)
+	local result = ns.MatchHealing(unit, now, record.tick, confirmed)
 	if not result then return end
 	record.selfHeal = unit == "player" and result.who == "you"
 	record.spell = result.spell

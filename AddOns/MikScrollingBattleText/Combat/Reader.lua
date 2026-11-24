@@ -9,7 +9,8 @@ local C_Timer = ns.Timer
 local reader = {
     epoch = 0, plateGeneration = 0, plates = {}, held = {},
     lastGlow = {}, lastCC = {}, swingTimes = {}, castTargets = {},
-    windfuryNotices = {},
+    windfuryCasts = {},
+    windfuryCooldownFrames = {},
     pendingHits = setmetatable({}, { __mode = "k" }),
 }
 ns.reader = reader
@@ -79,6 +80,9 @@ local function RekeyTarget(old, new)
     if reader.lastCastTarget then Move(reader.lastCastTarget) end
     if reader.targetKey == old then reader.targetKey = new end
     if reader.departedTargetKey == old then reader.departedTargetKey = new end
+    if reader.strangers[old] then
+        reader.strangers[new], reader.strangers[old] = reader.strangers[old], nil
+    end
     if ns.traceCombat then
         ns.traceCombat("rekey", nil, { old = old, new = new })
     end
@@ -145,7 +149,7 @@ local function LineRestrict(line)
 end
 local EARLY_LINE, LATE_LINE = 0.35, 0.12
 
-local function OutgoingLocalHeal(record, unit, at, result)
+local function FindLocalHealLine(at)
     local best, distance
     for _, line in ipairs(reader.logLines or {}) do
         local gap = line.at - at
@@ -156,24 +160,43 @@ local function OutgoingLocalHeal(record, unit, at, result)
             best, distance = line, math.abs(gap)
         end
     end
-    if not best and ns.EventAvailable("COMBAT_LOG_MESSAGE") then return end
-    local tick = record.tick
-    if best then tick = LineRestrict(best) == "tick" end
-    result = result or ns.MatchHealing(unit, at, tick, true)
+    return best
+end
+
+local function SendOutgoingLocalHeal(live, record, at, result, line, tick)
     if not result then return end
-    local live = Router()
-    if not live then return end
     local outgoing = {}
     for field, value in pairs(record) do outgoing[field] = value end
     -- Pet here describes the recipient, not the caster.
     outgoing.pet, outgoing.selfHeal = nil, nil
     outgoing.tick = tick
     outgoing.result = { who = result.who, spell = result.spell, tick = tick }
-    if best then
-        best.claimed, best.hit = true, { at = at, record = outgoing }
+    if line then
+        line.claimed, line.hit = true, { at = at, record = outgoing }
     end
     live:Out(outgoing)
 end
+
+local function OutgoingLocalHeal(record, unit, at, result)
+    local line = FindLocalHealLine(at)
+    if not line and ns.EventAvailable("COMBAT_LOG_MESSAGE") then return end
+    local tick = record.tick
+    if line then tick = LineRestrict(line) == "tick" end
+    result = result or ns.MatchHealing(unit, at, tick, true)
+    local live = Router()
+    if live then SendOutgoingLocalHeal(live, record, at, result, line, tick) end
+end
+
+local function PresentForeverLocalHeal(live, record, unit, at)
+    local line = FindLocalHealLine(at)
+    local inferredTick = record.tick
+    if line then record.tick = LineRestrict(line) == "tick" end
+    local result = ns.TagIncomingHeal(record, unit, at, line and true)
+    if not result then record.tick = inferredTick end
+    live:In(record)
+    if line then SendOutgoingLocalHeal(live, record, at, result, line, record.tick) end
+end
+
 local function RecordClass(record) return record and (record.event == "miss" and "miss" or record.event) end
 -- Whether a line of yours may be the one of this hit (any hit without one):
 -- a grey line (no kinds) any; a coloured one only a hit of its class.
@@ -190,6 +213,7 @@ end
 -- yours came with it.
 local LinesRunning, DecideGroup
 local WeaponProcTrigger
+local SettleSharedName
 local function TagProcCandidate(result, at, school, key)
     if result.ambiguous or not result.proc or result.spell
         or result.drain then return end
@@ -317,6 +341,16 @@ local function OnUnitCombat(unit, event, flag, amount, school)
             record.blocked, record.blockedAmount = true, reader.shieldBlock
         end
         if record.event == "heal" then
+            local client = MikSBT.Compatibility and MikSBT.Compatibility.Client
+            if client and client.isForever and ns.HEAL_SPELLS
+                and ns.EventAvailable("COMBAT_LOG_MESSAGE") then
+                -- The first tick has no cadence yet. Wait for a log line
+                -- so both displays can use its classification and spell.
+                ns.Timer.After(LATE_LINE, function()
+                    PresentForeverLocalHeal(router, record, unit, now)
+                end)
+                return
+            end
             -- A heal can arrive before its cast succeeds in the same frame.
             -- Resolve the spell before presentation copies the record.
             C_Timer.After(0, function()
@@ -360,6 +394,11 @@ local function OnUnitCombat(unit, event, flag, amount, school)
     end
     if record.event == "damage" then
         record.victimKey, record.victim = key, CaptureVictim(unit, key)
+    end
+    -- A partly blocked hit on this unit. How much it blocked is not told, so
+    -- its trailer names no amount.
+    if record.event == "damage" and ns.Text(flag) and flag == "BLOCK_REDUCED" then
+        record.blocked = true
     end
     local hit = { record = record, key = key, at = now, unit = unit,
         petOn = PetAttacking(token) }
@@ -437,6 +476,39 @@ local function ActiveWindfurySpell(school)
 end
 ns.ActiveWindfurySpell = ActiveWindfurySpell
 
+-- A damage shield's hit (Thorns, Retribution Aura, an item's) comes with a
+-- line of its own kind, but nothing in a fight says which shield struck,
+-- and no call tells a damage shield from another buff. The client's spell
+-- data lists the damage shields with their school (DamageShields.lua), and
+-- your buffs are read out of combat (reader.auras, below): a hit takes the
+-- one shield of its school you have on, none when there are several
+-- (predicted, not yet seen in client). Only a hit whose frame brought
+-- shield lines alone is a shield's (Mine.lua, Hit): beside a line of
+-- another kind either line can be the hit's, and it stays unnamed. A shield
+-- counts as on where its end was read (0 for never) and is not past, or
+-- where your cast of it on yourself explained a hidden change of your auras
+-- since the last scan (below); a shield of the hit's school whose end could
+-- not be read leaves the hit unnamed. While a change of your auras that
+-- could not be read and may have added an aura waits half a second for an
+-- explanation, and after one that found none until a scan reads all your
+-- buffs, no hit is named (reader.auraChanges, reader.aurasUnsure, below).
+local function ShieldSpell(at, school)
+    if reader.aurasUnsure or #reader.auraChanges > 0 then return nil end
+    local shields, found = MikSBT.DAMAGE_SHIELDS or {}
+    for _, entry in pairs(reader.auras or {}) do
+        local shieldSchool = entry.spell and shields[entry.spell]
+        if shieldSchool and shieldSchool == school then
+            local expires = entry.expires
+            if expires == nil and not entry.learned then return nil end
+            if entry.learned or expires == 0 or expires > at then
+                if found and found ~= entry.spell then return nil end
+                found = entry.spell
+            end
+        end
+    end
+    return found
+end
+
 reader.procSources = {}
 local PERIODIC_PROC_AMBIGUITY_WINDOW = 0.5
 
@@ -513,11 +585,31 @@ local function ConfirmingEvidence(hit, evidence, shared)
     hit.accountingEvidence = info
 end
 
+-- Whether nobody else is seen to strike this unit: you are in no party or
+-- raid, your pet is at nothing, and for STRANGER_QUIET no report on the unit
+-- went without a line of yours (ns.DecideHit). It cannot see the first
+-- strike of someone who joins.
+local STRANGER_QUIET = 5
+reader.strangers = {}
+local function NoteStranger(key, at)
+    for other, seen in pairs(reader.strangers) do
+        if at - seen > STRANGER_QUIET then reader.strangers[other] = nil end
+    end
+    reader.strangers[key] = math.max(reader.strangers[key] or at, at)
+end
+local function Alone(key, at)
+    local party, raid = IsInGroup and IsInGroup(), IsInRaid and IsInRaid()
+    if not ns.Bool(party) or party or (ns.Bool(raid) and raid) or ns.mine.petOut then return false end
+    local seen = reader.strangers[key]
+    return not seen or at - seen > STRANGER_QUIET
+end
+
 function ns.DecideHit(hit, line, restrict)
     local router = Router()
     if not router then return end
     local record = hit.record
     local kind = record.event == "miss" and "miss" or record.event
+    if line == true then SettleSharedName(hit, kind, restrict) end
     local swingChecks = ns.mine and ns.mine.accountingEnabled
         and (kind == "damage" or kind == "miss")
         and ns.mine:AccountingSwingChecks(hit.key, hit.at) or nil
@@ -530,7 +622,8 @@ function ns.DecideHit(hit, line, restrict)
             or { who = "other" }
     else
         result = ns.mine:Hit(hit.key, kind, record.school, hit.at, hit.petOn, line,
-            ns.Number(record.amount) and record.amount or nil, record.crit, restrict, leech, record.avoid)
+            ns.Number(record.amount) and record.amount or nil, record.crit,
+            restrict, leech, record.avoid, hit.isolatedBattlegroundSpell)
     end
     if line == true and restrict == "direct" and result.who == "you"
         and not result.ambiguous
@@ -539,6 +632,11 @@ function ns.DecideHit(hit, line, restrict)
         and ProcCandidate(hit.at, record.school, hit.key)
             == WINDFURY_WEAPON_SPELL_ID then
         result.proc = true
+    end
+    -- A shield's miss is reported as Physical whatever shield caused it, so
+    -- only a shield's damage is named after its school's shield.
+    if result.shield and record.event == "damage" then
+        result.procSpell = ShieldSpell(hit.at, record.school)
     end
     TagProcCandidate(result, hit.at, record.school, hit.key)
     record.result = result
@@ -554,6 +652,7 @@ function ns.DecideHit(hit, line, restrict)
             swingChecks = swingChecks,
         }
     end
+    if line == false and (kind == "damage" or kind == "miss") then NoteStranger(hit.key, hit.at) end
     reader.pendingHits[hit] = nil
     if ns.traceCombat then
         ns.traceCombat("decision", hit, { stage = "decision",
@@ -661,6 +760,9 @@ end
 local NonPeriodicPair
 
 local function DecideReports(group, at, settled)
+    -- The units this moment's reports landed on (SettleSharedName).
+    local landed = {}
+    for _, hit in ipairs(group) do landed[hit.key], hit.landed = true, landed end
     local frameLines, kinded = {}, false
     for _, line in ipairs(reader.logLines or {}) do
         local gap = line.at - at
@@ -774,8 +876,9 @@ end
 -- with no line in its frame takes the spare line that came in the frame of a
 -- swing of yours on its unit just before, when that line can be a swing's:
 -- a melee line of its class with the "swing" role (0.6.3: never an enemy's
--- blow on you in the same frame), or one of no known kind.
-local function SwingLine(hit)
+-- blow on you in the same frame), or one of no known kind. With stray, the
+-- swing may be one whose hit comes at neither of its times (Mine:SwingsBefore).
+local function SwingLine(hit, stray)
     local record = hit.record
     if record.event ~= "damage" and record.event ~= "miss" then return nil end
     -- A melee swing's hit is physical (Mine.lua, Yours), so a hit whose school
@@ -784,7 +887,7 @@ local function SwingLine(hit)
     -- as a proc of yours, and the swing's hit went unshown (predicted, not
     -- yet seen in client).
     local otherSchool = record.event == "damage" and record.school ~= nil and record.school ~= ns.SCHOOL_PHYSICAL
-    for _, swing in ipairs(ns.mine:SwingsBefore(hit.key, hit.at)) do
+    for _, swing in ipairs(ns.mine:SwingsBefore(hit.key, hit.at, stray)) do
         for _, line in ipairs(reader.logLines or {}) do
             if not line.claimed and not line.hit and Pairs(line, record) and math.abs(line.at - swing.at) <= SWING_FRAME then
                 if line.kind == nil and swing.hand ~= "ranged" then return line, swing end
@@ -951,6 +1054,96 @@ local function NoteSwingHit(hit, line)
     while list[1] and (hit.at - list[1].at > 2 or #list > 16) do table.remove(list, 1) end
 end
 
+-- A swing's hit that comes at none of its swing's times (Mine:SwingsBefore,
+-- stray). Looked for last, once no line, no swing in its time, no proc and
+-- no bolt in flight placed the hit, and only while Alone. Not for a hit that
+-- tied with others for a line: which of them the swing's is stays open.
+local function StraySwingLine(hit)
+    if hit.tied or not Alone(hit.key, hit.at) then return nil end
+    return SwingLine(hit, true)
+end
+local function TakeSwing(hit, line, swing)
+    NoteSwingHit(hit, line)
+    line.claimed, line.hit = true, { at = hit.at, record = hit.record }
+    ns.mine.pairedSwing = swing
+end
+
+local function StraySwingDeadline(swing)
+    return ns.mine:SwingMatchDeadline(swing) + LATE_LINE + MISS_SETTLE
+end
+
+-- Let an in-window report spend the swing before committing a fallback.
+local function DeferStraySwing(hit)
+    local line, swing = StraySwingLine(hit)
+    if not line then return false end
+    local deadline = StraySwingDeadline(swing)
+    C_Timer.After(math.max(0, deadline - Now()), function()
+        if not reader.pendingHits[hit] then return end
+        local availableLine, availableSwing = SwingLine(hit, true)
+        if availableLine == line and availableSwing == swing and Alone(hit.key, Now()) then
+            TakeSwing(hit, line, swing)
+            ConfirmingEvidence(hit, line)
+            ns.DecideHit(hit, true, LineRestrict(line))
+        else
+            ns.DecideHit(hit, false)
+        end
+    end)
+    return true
+end
+
+-- Hits that fit a line of yours equally well, with fewer such lines than
+-- hits: the others are yours too where a swing of yours with no hit yet
+-- covers each of them, while Alone. A swing's hit held back one more
+-- animation comes with the next swing and with what you cast on that swing:
+-- a druid's Rake and the swing before it were both taken for someone else's
+-- (1.60.1.70959). Which hit is which stays open, so none is named
+-- (Mine:ConfirmUnidentified).
+local function SettleTie(hits, lines, Decide)
+    local need, matches, swings, deadline = #hits - lines, {}, {}, Now()
+    for _, hit in ipairs(hits) do
+        if #matches < need and Alone(hit.key, hit.at) then
+            local line, swing = SwingLine(hit, true)
+            if line and not swings[swing] then
+                line.claimed = true
+                swings[swing] = true
+                matches[#matches + 1] = { hit = hit, line = line, swing = swing }
+                deadline = math.max(deadline, StraySwingDeadline(swing))
+            end
+        end
+    end
+    for _, match in ipairs(matches) do match.line.claimed = nil end
+    if #matches < need then return false end
+
+    for _, hit in ipairs(hits) do hit.unidentified = true end
+    local function DecideTie()
+        if not reader.pendingHits[hits[1]] then return end
+        local confirmed = true
+        for _, match in ipairs(matches) do
+            local hit, line, swing = match.hit, match.line, match.swing
+            if line.claimed or line.hit or swing.used or swing.key ~= hit.key
+                or not Alone(hit.key, Now()) then
+                confirmed = false
+                break
+            end
+        end
+        if confirmed then
+            for _, match in ipairs(matches) do
+                match.line.claimed, match.swing.used = true, true
+            end
+        end
+        for _, hit in ipairs(hits) do
+            hit.unidentified = confirmed
+            Decide(hit, confirmed)
+        end
+    end
+    if deadline > Now() then
+        C_Timer.After(deadline - Now(), DecideTie)
+    else
+        DecideTie()
+    end
+    return true
+end
+
 -- Classic ranks of the three queued-strike families supported on Forever.
 local QUEUED_STRIKES = {
     -- Heroic Strike.
@@ -986,11 +1179,49 @@ local function PreferQueuedStrikeHit(group, lines, restrict)
     return false
 end
 
+local function MixedFrameDirectHit(first, second, directLine, tickLine)
+    local client = MikSBT.Compatibility and MikSBT.Compatibility.Client
+    if not client or not client.isForever then return nil end
+    local key, at = first.key, first.at
+    if key ~= second.key or at ~= second.at or directLine.at ~= at
+        or tickLine.at ~= at or directLine.hit or tickLine.hit
+        or directLine.source ~= "mine"
+        or directLine.targetContext ~= key or tickLine.targetContext ~= key
+        or LineRestrict(directLine) ~= "direct" or not Alone(key, at) then
+        return nil
+    end
+    local firstSchool, secondSchool = first.record.school, second.record.school
+    if not firstSchool or not secondSchool or firstSchool == secondSchool
+        or firstSchool == ns.SCHOOL_PHYSICAL or secondSchool == ns.SCHOOL_PHYSICAL then
+        return nil
+    end
+    local school = ns.mine:MixedFrameDirectSchool(key, firstSchool, secondSchool, at)
+    if school == firstSchool then return first, second end
+    if school == secondSchool then return second, first end
+end
+
+local function IsolatedBattlegroundSpell(hit, line)
+    local client = MikSBT.Compatibility and MikSBT.Compatibility.Client
+    if not client or not client.isForever or not IsInInstance
+        or hit.record.event ~= "damage" or hit.unit ~= "target"
+        or line.kind ~= "spell" or line.source ~= "mine" or line.hit
+        or line.at ~= hit.at or line.targetContext ~= hit.key then return false end
+    local _, instance = IsInInstance()
+    if not ns.Text(instance) or instance ~= "pvp" then return false end
+    if hit.record.school ~= ns.SCHOOL_PHYSICAL then return true end
+    return not (SwingLine(hit) or OrphanSwingLine(hit)
+        or SwingFrame(hit.at, WEAPON_PROC_TRIGGER_WINDOW))
+end
+
 -- One frame's hits (of one class, with lines by kind) against the lines of
 -- yours that may be theirs: as many lines as hits (or more: a DoT of yours
 -- on an enemy without a plate also sends one) and every hit is yours; none
 -- and none is; fewer, and the engine decides as it would without lines.
 function DecideGroup(group, frameLines, decided, settled)
+    if #group == 1 and #frameLines == 1
+        and IsolatedBattlegroundSpell(group[1], frameLines[1]) then
+        group[1].isolatedBattlegroundSpell = true
+    end
     local reportsBySchool, periodicConfirmations = {}, 0
     for _, line in ipairs(frameLines) do
         if PeriodicLine(line) then periodicConfirmations = periodicConfirmations + 1 end
@@ -1022,8 +1253,8 @@ function DecideGroup(group, frameLines, decided, settled)
         if not PeriodicLine(line) then ordinary[#ordinary + 1] = line end
     end
     for _, line in ipairs(frameLines) do
-        if PeriodicLine(line) then
-            local best, score, tied
+        if PeriodicLine(line) and not line.claimed then
+            local best, score, tied, tie
             for index, hit in ipairs(remaining) do
                 local fit
                 if not CompetingPeriodic(hit) then fit = TickFit(hit) end
@@ -1038,12 +1269,24 @@ function DecideGroup(group, frameLines, decided, settled)
                     end
                 end
                 if fit ~= nil and (not score or fit < score) then
-                    best, score, tied = index, fit, false
+                    best, score, tied, tie = index, fit, false, { hit }
                 elseif fit ~= nil and fit == score then
                     tied = true
+                    tie[#tie + 1] = hit
                 end
             end
             if tied and #frameLines >= #group and #ordinary > 0 then
+                if #group == 2 and #remaining == 2 and #frameLines == 2 then
+                    local directLine = ordinary[1]
+                    local direct, tick = MixedFrameDirectHit(
+                        remaining[1], remaining[2], directLine, line)
+                    if direct then
+                        directLine.claimed, line.claimed = true, true
+                        Decide(direct, true, "direct", directLine)
+                        Decide(tick, true, "tick", line)
+                        return
+                    end
+                end
                 -- All amounts are confirmed, but the periodic/direct roles
                 -- cannot be assigned. Preserve numbers without spending a
                 -- guessed spell or teaching a false rhythm.
@@ -1055,6 +1298,23 @@ function DecideGroup(group, frameLines, decided, settled)
                 return
             elseif tied and periodicConfirmations < #group then
                 line.claimed, best = true, nil
+                local tickLines = { line }
+                if #tie == #remaining then
+                    for _, spare in ipairs(frameLines) do
+                        if #tickLines < #tie and not spare.claimed and PeriodicLine(spare) then
+                            tickLines[#tickLines + 1] = spare
+                        end
+                    end
+                end
+                for _, hit in ipairs(tie) do hit.tied = true end
+                if SettleTie(tie, #tickLines, Decide) then
+                    for _, ownLine in ipairs(tickLines) do ownLine.claimed = true end
+                    for _, hit in ipairs(tie) do
+                        for index = #remaining, 1, -1 do
+                            if remaining[index] == hit then table.remove(remaining, index) end
+                        end
+                    end
+                end
             end
             -- Spell identity is optional when the typed confirmations cover
             -- every report. A known offscreen tick remains a competing source.
@@ -1143,7 +1403,7 @@ function DecideGroup(group, frameLines, decided, settled)
                 -- 0.3.49: a miss's report can come a frame after its line
                 -- (DecideLateMiss).
                 C_Timer.After(LATE_LINE, function() ns.DecideLateMiss(hit) end)
-            else
+            elseif not DeferStraySwing(hit) then
                 Decide(hit, false)
             end
         end
@@ -1181,7 +1441,23 @@ function DecideGroup(group, frameLines, decided, settled)
             flags[entry.hit] = rank <= lines and entry.fit ~= nil
                 and not (contested and entry.fit == cutoff)
         end
-        for _, hit in ipairs(group) do Decide(hit, flags[hit], restrict) end
+        -- The hits that tie for the lines no hit took (SettleTie): a cast's
+        -- own frame gives no hit a fit. Any other hit the lines leave out
+        -- may be a late swing's.
+        local tie, named = {}, 0
+        for _, entry in ipairs(ranked) do
+            if flags[entry.hit] then
+                named = named + 1
+            elseif entry.fit == cutoff then
+                tie[#tie + 1], entry.hit.tied = entry.hit, true
+            end
+        end
+        if named < lines then SettleTie(tie, lines - named, Decide) end
+        for _, hit in ipairs(group) do
+            if not hit.unidentified and (flags[hit] or not DeferStraySwing(hit)) then
+                Decide(hit, flags[hit], restrict)
+            end
+        end
     end
 end
 
@@ -1214,6 +1490,7 @@ function ns.DecideLate(hit)
             best, bestGap = line, math.abs(gap)
         end
     end
+    if not best and DeferStraySwing(hit) then return end
     if best then best.claimed = true end
     ConfirmingEvidence(hit, best)
     ns.DecideHit(hit, best ~= nil, best and LineRestrict(best) or nil)
@@ -1235,6 +1512,7 @@ function ns.DecideLateMiss(hit)
             best, bestGap = line, math.abs(gap)
         end
     end
+    if not best and DeferStraySwing(hit) then return end
     if best then best.claimed = true end
     ConfirmingEvidence(hit, best)
     ns.DecideHit(hit, best ~= nil, best and LineRestrict(best) or nil)
@@ -1268,7 +1546,8 @@ end
 
 local function NamedRecipient(target)
     if type(UnitName) ~= "function" then return nil, true end
-    local key, uncertain
+    local key, uncertain, unkeyed
+    local candidates = {}
     local tokens = { "target", "focus", "mouseover" }
     for token in pairs(reader.plates) do tokens[#tokens + 1] = token end
     for _, token in ipairs(tokens) do
@@ -1279,24 +1558,54 @@ local function NamedRecipient(target)
             local candidate = RecipientKey(token)
             if candidate then
                 if key and key ~= candidate then uncertain = true end
-                key = candidate
+                key, candidates[candidate] = candidate, true
             else
-                uncertain = true
+                uncertain, unkeyed = true, true
             end
         end
     end
-    if uncertain then return nil, true end
+    -- Several units with keys carry the name: a report of the cast's own
+    -- frame may still show which one took it (SettleSharedName).
+    if uncertain then return nil, true, not unkeyed and candidates or nil end
     return key, key == nil
+end
+
+-- A confirmed direct report can resolve a shared name when only one cast
+-- could have produced it and no other candidate unit received a report.
+SettleSharedName = function(hit, kind, restrict)
+    local landed = hit.landed
+    if not landed or hit.unidentified or (kind ~= "damage" and kind ~= "miss")
+        or (restrict ~= nil and restrict ~= "direct") then return end
+
+    local match
+    for _, casts in pairs(ns.mine.casts) do
+        for _, cast in ipairs(casts) do
+            local candidates = cast.candidates
+            local canReach = cast.key == hit.key or (candidates and candidates[hit.key])
+                or (cast.targetUncertain and not candidates)
+            if canReach and math.abs(cast.at - hit.at) <= SWING_FRAME
+                and ns.mine:CanSettle(cast, hit.key, kind, hit.record.school, hit.at) then
+                if match then return end
+                match = cast
+            end
+        end
+    end
+    local candidates = match and match.candidates
+    if not candidates then return end
+    for key in pairs(candidates) do
+        if key ~= hit.key and landed[key] then return end
+    end
+    ns.mine:Settle(match, hit.key)
 end
 
 local function NoteCastTarget(unit, target, guid, spell, now)
     if (unit ~= "player" and unit ~= "pet")
         or not ns.Number(spell, 1) then return end
-    local key, uncertain
+    local key, uncertain, candidates
     if not ns.Public(target) then
         uncertain = true
     elseif ns.Text(target) then
-        key, uncertain = NamedRecipient(target)
+        key, uncertain, candidates = NamedRecipient(target)
     elseif target == nil or target == "" then
         -- Older clients omit the recipient name. Keep the start snapshot;
         -- selecting another target before success must not move the cast.
@@ -1313,7 +1622,8 @@ local function NoteCastTarget(unit, target, guid, spell, now)
     end
     targets[#targets + 1] = { unit = unit, spell = spell, at = now,
         guid = ns.Text(guid) and guid or nil, key = key,
-        uncertain = uncertain == true or not ns.Text(guid) }
+        uncertain = uncertain == true or not ns.Text(guid),
+        candidates = candidates }
     while #targets > MAX_CAST_TARGETS do table.remove(targets, 1) end
 end
 
@@ -1334,7 +1644,12 @@ local function CastTarget(unit, spell, guid, now, consume)
     if found then
         local entry = reader.castTargets[found]
         if consume then table.remove(reader.castTargets, found) end
-        if entry.uncertain or count > 1 then return nil, true, true end
+        if entry.uncertain or count > 1 then
+            -- A shared name's units pass on only when the cast's GUID pairs
+            -- it with this send.
+            return nil, true, true,
+                ns.Text(guid) and entry.guid == guid and entry.candidates or nil
+        end
         return entry.key, false, true
     end
     local recent = reader.lastCastTarget
@@ -1348,35 +1663,52 @@ end
 local lastCast
 local queuedStrike
 local WINDFURY_ATTACK_SPELL_ID = 439440
-local MAX_WINDFURY_NOTICES = 16
+local WINDFURY_TOTEM_ATTACK_SPELL_ID = 10610
+local MAX_WINDFURY_CASTS = 16
 
-local function WindfuryNotice(unit, spell, guid, now)
-    local client = MikSBT.Compatibility and MikSBT.Compatibility.Client
-    if not (client and client.isForever) or unit ~= "player"
-        or spell ~= WINDFURY_ATTACK_SPELL_ID then return end
-
-    -- Windfury activity is separate from any particular damage amount.
-    -- Keep duplicate casts bounded; coalesce multiple attacks in one frame.
-    local recent = reader.windfuryNotices
-    if ns.Text(guid) then
-        for _, seen in ipairs(recent) do
-            if seen == guid then return end
-        end
-        recent[#recent + 1] = guid
-        if #recent > MAX_WINDFURY_NOTICES then table.remove(recent, 1) end
+local function FirstWindfuryCast(guid)
+    if not ns.Text(guid) then return true end
+    local recent = reader.windfuryCasts
+    for _, seen in ipairs(recent) do
+        if seen == guid then return false end
     end
+    recent[#recent + 1] = guid
+    if #recent > MAX_WINDFURY_CASTS then table.remove(recent, 1) end
+    return true
+end
+
+local function WindfuryNotice(spell, now)
     if reader.windfuryNoticeAt
         and now <= reader.windfuryNoticeAt + SWING_FRAME then return end
     reader.windfuryNoticeAt = now
 
     local router = Router()
     if router then
+        local fallbackSpell = spell == WINDFURY_ATTACK_SPELL_ID
+            and WINDFURY_WEAPON_SPELL_ID
         router:Alert({ kind = "proc",
             text = ns.SpellName(spell)
-                or ns.SpellName(WINDFURY_WEAPON_SPELL_ID) or "Windfury",
+                or (fallbackSpell and ns.SpellName(fallbackSpell)) or "Windfury",
             icon = ns.SpellIcon(spell)
-                or ns.SpellIcon(WINDFURY_WEAPON_SPELL_ID) })
+                or (fallbackSpell and ns.SpellIcon(fallbackSpell)) or nil })
     end
+end
+
+local function WindfuryTotemTriggerAt(at)
+    for _, swing in ipairs(reader.swingTimes) do
+        if swing.hand == "main" and not swing.strike
+            and math.abs(swing.at - at) <= SWING_FRAME then return true end
+    end
+    local rules = ns.PlayerClassRules()
+    local triggers = rules and rules.windfuryTotemTriggers
+    if not triggers then return false end
+    for spell in pairs(triggers) do
+        for _, cast in ipairs(ns.mine.casts[spell] or {}) do
+            if cast.caster == "you"
+                and math.abs(cast.at - at) <= SWING_FRAME then return true end
+        end
+    end
+    return false
 end
 
 local function WindfuryTriggerAt(at)
@@ -1385,11 +1717,14 @@ local function WindfuryTriggerAt(at)
             return true
         end
     end
+    local rules = ns.PlayerClassRules()
+    local spellReach = rules and rules.spellReach
     for spell, casts in pairs(ns.mine.casts) do
         local facts = ns.SpellFacts(spell)
+        local knownReach = spellReach and spellReach[spell]
         if facts and facts.direct == true and facts.school == ns.SCHOOL_PHYSICAL
             and facts.helpful ~= true and not facts.weaponProc
-            and ns.SpellReach(spell) == "melee" then
+            and (knownReach or ns.SpellReach(spell)) == "melee" then
             for _, cast in ipairs(casts) do
                 if cast.caster == "you"
                     and math.abs(cast.at - at) <= SWING_FRAME then return true end
@@ -1402,24 +1737,27 @@ end
 local function WindfuryCooldown(spell)
     local client = MikSBT.Compatibility and MikSBT.Compatibility.Client
     if not (client and client.isForever) or not ns.Number(spell, 1)
-        or spell ~= WINDFURY_ATTACK_SPELL_ID then return end
+        or (spell ~= WINDFURY_ATTACK_SPELL_ID
+            and spell ~= WINDFURY_TOTEM_ATTACK_SPELL_ID) then return end
     local at = Now()
-    local pending = reader.windfuryCooldownFrame
+    local triggerAt = spell == WINDFURY_TOTEM_ATTACK_SPELL_ID
+        and WindfuryTotemTriggerAt or WindfuryTriggerAt
+    local pending = reader.windfuryCooldownFrames[spell]
     if pending and math.abs(pending.at - at) <= SWING_FRAME then return end
     pending = { at = at }
-    reader.windfuryCooldownFrame = pending
+    reader.windfuryCooldownFrames[spell] = pending
 
     -- Recorded Forever frames expose this update beside the melee trigger
     -- and direct lines, without a cast event. Evaluate after all arrive.
     -- This correlation is an activity cue, not a hit identity or proc count.
     C_Timer.After(0, function()
-        if reader.windfuryCooldownFrame ~= pending
+        if reader.windfuryCooldownFrames[spell] ~= pending
             or not (ns.LineKindsReady and ns.LineKindsReady())
-            or not WindfuryTriggerAt(at) then return end
+            or not triggerAt(at) then return end
         for _, line in ipairs(reader.logLines) do
             if line.source == "mine" and math.abs(line.at - at) <= SWING_FRAME
                 and (line.kind == "spell" or line.kind == "spellMiss") then
-                WindfuryNotice("player", spell, nil, at)
+                WindfuryNotice(spell, at)
                 return
             end
         end
@@ -1429,8 +1767,21 @@ end
 local function OnCast(unit, spell, guid)
     if not ns.Number(spell, 1) then return end
     local now = Now()
-    WindfuryNotice(unit, spell, guid, now)
-    local key, uncertain, observed = CastTarget(unit, spell, guid, now, true)
+    if unit == "player" and spell == WINDFURY_ATTACK_SPELL_ID then
+        local client = MikSBT.Compatibility and MikSBT.Compatibility.Client
+        if client and client.isForever then
+            if FirstWindfuryCast(guid) then
+                -- Let the proc corroborate the burst without reserving a normal hit.
+                if ns.windfuryInference then
+                    ns.windfuryInference:Signal(now, spell)
+                end
+                WindfuryNotice(spell, now)
+            end
+            if ns.windfuryInference then return end
+        end
+    end
+    local key, uncertain, observed, candidates =
+        CastTarget(unit, spell, guid, now, true)
     if not observed and unit == "player" then
         key = ns.TargetKey()
     elseif not observed and unit == "pet" then
@@ -1456,6 +1807,11 @@ local function OnCast(unit, spell, guid)
             spell = spell, guid = ns.Text(guid) and guid or nil,
             uncertain = not certain, conflict = conflict == true })
     end
+    -- A cast sent to a name several units carry keeps their keys on its
+    -- record, for its own report to settle (SettleSharedName).
+    local recorded = candidates and ns.mine.casts[spell]
+    recorded = recorded and recorded[#recorded]
+    if recorded and recorded.at == now then recorded.candidates = candidates end
     -- Your pet's casts and your own with no target to hit (Life Tap) are
     -- written too (0.3.16).
     lastCast = { at = now, spell = spell, unit = unit }
@@ -1502,8 +1858,8 @@ local function OnSwing(swingType, swingDuration)
     if hand == "main" and queuedStrike and math.abs(queuedStrike.at - Now()) <= SWING_FRAME then
         strike, queuedStrike = true, nil
     end
-    times[#times + 1] = { at = Now(), ranged = hand == "ranged", strike = strike,
-        key = key, victim = CaptureVictim("target", key) }
+    times[#times + 1] = { at = Now(), hand = hand, ranged = hand == "ranged",
+        strike = strike, key = key, victim = CaptureVictim("target", key) }
     while times[1] and (Now() - times[1].at > 3 or #times > 16) do table.remove(times, 1) end
     if strike then return end
     local claimed = ns.mine:Swing(hand, key, Now(), ns.Number(swingDuration) and swingDuration or nil)
@@ -1643,11 +1999,52 @@ local function Recast()
     local entry = reader.buffSpells and reader.buffSpells[cast.spell]
     if entry then ShowBuff(entry) end
 end
+
+-- A change of your auras that could not be read may have taken a damage
+-- shield off you and put another on, unseen by the cache: shield hits are
+-- named again only after a scan reads all your buffs (a full update, or
+-- the end of the fight), unless within half a second the change is
+-- explained. The combat text's kind can be read, and its aura notices come
+-- in the frame of the change, before or after it: when the notices from
+-- that frame to the end of the half second are of a debuff only, no shield
+-- was put on you. A damage shield you cast on yourself in the moment of the
+-- change, before or after it in that frame, explains it, and is learned
+-- until the next scan; a cast of another moment may be another change's.
+local AURA_PAIR = 0.5
+reader.auraChanges = {}
+local function LearnShield(change, spell)
+    change.explained = true
+    reader.auras = reader.auras or {}
+    reader.auras["cast" .. spell] = { spell = spell, learned = true }
+end
+local function SettleAuraChange(change)
+    for index, waiting in ipairs(reader.auraChanges) do
+        if waiting == change then
+            table.remove(reader.auraChanges, index)
+            if not (change.explained or (change.harmful and not change.helpful)) then reader.aurasUnsure = true end
+            return
+        end
+    end
+end
+local function HiddenAuraChange()
+    local change, cast, notice = { at = Now() }, reader.shieldCast, reader.auraNotice
+    if cast and cast.at == change.at then LearnShield(change, cast.spell) end
+    if notice and notice.at == change.at then change.harmful, change.helpful = notice.harmful, notice.helpful end
+    reader.auraChanges[#reader.auraChanges + 1] = change
+    C_Timer.After(AURA_PAIR, function() SettleAuraChange(change) end)
+end
+
 function ns.OnBuffCast(spell)
-    if not (reader.buffSpells and reader.buffSpells[spell]) then return end
+    local shield = MikSBT.DAMAGE_SHIELDS and MikSBT.DAMAGE_SHIELDS[spell]
+    if not (shield or reader.buffSpells and reader.buffSpells[spell]) then return end
     -- Cast on a friend you target, it is theirs, not yours.
     local exists, assist, self = UnitExists("target"), UnitCanAssist("player", "target"), UnitIsUnit("target", "player")
     if ns.Bool(exists) and exists and ns.Bool(assist) and assist and not (ns.Bool(self) and self) then return end
+    if shield then
+        reader.shieldCast = { spell = spell, at = Now() }
+        for _, change in ipairs(reader.auraChanges) do if change.at == Now() then LearnShield(change, spell) end end
+    end
+    if not (reader.buffSpells and reader.buffSpells[spell]) then return end
     reader.buffCast = { spell = spell, at = Now() }
     Recast()
 end
@@ -1669,32 +2066,78 @@ local function AuraSecret(check, ...)
     return not ns.Bool(secret) or secret
 end
 ns.AuraSecret = AuraSecret
+-- Only a scan that read every buff, its spell too, settles the changes that
+-- could not be read; a debuff is no damage shield.
 local function RebuildAuras()
     reader.auras = {}
     if not C_UnitAuras or not C_UnitAuras.GetAuraDataByIndex then return end
+    local hidden = false
     for _, filter in ipairs({ "HELPFUL", "HARMFUL" }) do
+        local buffs = filter == "HELPFUL"
         for index = 1, 40 do
-            if AuraSecret("ShouldUnitAuraIndexBeSecret", "player", index, filter) then break end
+            if AuraSecret("ShouldUnitAuraIndexBeSecret", "player", index, filter) then hidden = hidden or buffs break end
             local aura = C_UnitAuras.GetAuraDataByIndex("player", index, filter)
-            if not ns.Public(aura) or aura == nil then break end
+            if not ns.Public(aura) then hidden = hidden or buffs break end
+            if aura == nil then break end
             local id, entry = AuraEntry(aura)
             if id then reader.auras[id] = entry end
+            if not (id and entry.spell) then hidden = hidden or buffs end
         end
     end
+    reader.aurasUnsure = hidden or nil
+    if not hidden then reader.auraChanges = {} end
 end
+local function RemovePlayerAuras(removed, router)
+    if not ns.Public(removed) then
+        reader.aurasUnsure = true
+        return false
+    end
+    if type(removed) ~= "table" then return false end
+    local any = false
+    for _, id in ipairs(removed) do
+        if not ns.Number(id) then
+            reader.aurasUnsure = true
+        else
+            local entry = reader.auras[id]
+            if entry then
+                any = true
+                reader.auras[id] = nil
+                if entry.spell then reader.auras["cast" .. entry.spell] = nil end
+                if router then router:Aura(false, entry.harmful, entry.name, entry.icon, entry.spell) end
+            else
+                -- A shield learned from a cast has no aura instance ID.
+                for key, cached in pairs(reader.auras) do
+                    if cached.learned then reader.auras[key] = nil end
+                end
+            end
+        end
+    end
+    return any
+end
+
 local function OnPlayerAura(info)
     if type(info) ~= "table" or not ns.Public(info) then
         reader.unreadAuraAt = Now()
+        HiddenAuraChange()
         Recast()
         return
     end
-    local full = info.isFullUpdate
-    if not ns.Bool(full) then return end
     reader.auras = reader.auras or {}
+    local full = info.isFullUpdate
+    if not ns.Bool(full) then
+        -- A delta can still identify a removal when the full flag is hidden.
+        -- A payload with no list at all may be a full update.
+        local added, removed, updated = info.addedAuras, info.removedAuraInstanceIDs, info.updatedAuraInstanceIDs
+        RemovePlayerAuras(removed)
+        local other = not ns.Public(removed) or removed ~= nil or not ns.Public(updated) or updated ~= nil
+        if not ns.Public(added) or added ~= nil or not other then HiddenAuraChange() end
+        return
+    end
     if full then RebuildAuras() return end
     local router = Router()
     local any = false
     local added, removed = info.addedAuras, info.removedAuraInstanceIDs
+    local hidden = not ns.Public(added)
     if type(added) == "table" and ns.Public(added) then
         for _, aura in ipairs(added) do
             local id, entry = AuraEntry(aura)
@@ -1704,9 +2147,14 @@ local function OnPlayerAura(info)
                 for _ in pairs(reader.auras) do count = count + 1 end
                 if count < MAX_AURAS then reader.auras[id] = entry end
                 if router then router:Aura(true, entry.harmful, entry.name, entry.icon, entry.spell) end
+                -- A buff whose spell is hidden may be a damage shield.
+                if not (entry.spell or entry.harmful) then hidden = true end
+            else
+                hidden = true
             end
         end
     end
+    if hidden then HiddenAuraChange() end
     local updated = info.updatedAuraInstanceIDs
     if type(updated) == "table" and ns.Public(updated) and C_UnitAuras and C_UnitAuras.GetAuraDataByAuraInstanceID then
         for _, id in ipairs(updated) do
@@ -1724,17 +2172,7 @@ local function OnPlayerAura(info)
             end
         end
     end
-    if type(removed) == "table" and ns.Public(removed) then
-        for _, id in ipairs(removed) do
-            local entry = ns.Number(id) and reader.auras[id]
-            if entry then
-                any = true
-                reader.auras[id] = nil
-                if router then router:Aura(false, entry.harmful, entry.name, entry.icon, entry.spell) end
-            end
-        end
-    end
-    if any then reader.auraReadAt = Now() end
+    if RemovePlayerAuras(removed, router) or any then reader.auraReadAt = Now() end
 end
 
 -- A spell of yours cast in the same frame as at, and its icon (0.3.19:
@@ -1779,7 +2217,16 @@ end
 ns.UpdateWand = UpdateWand
 
 local function OnCombatText(kind)
-    if not ns.Text(kind) or not C_CombatText or not C_CombatText.GetCurrentEventInfo then return end
+    if not ns.Text(kind) then return end
+    -- The kind of an aura gained, for the changes that could not be read:
+    -- those waiting, and one still to come in this frame.
+    local gained = kind == "SPELL_AURA_START" and "helpful" or kind == "SPELL_AURA_START_HARMFUL" and "harmful"
+    if gained then
+        if not (reader.auraNotice and reader.auraNotice.at == Now()) then reader.auraNotice = { at = Now() } end
+        reader.auraNotice[gained] = true
+        for _, change in ipairs(reader.auraChanges) do change[gained] = true end
+    end
+    if not C_CombatText or not C_CombatText.GetCurrentEventInfo then return end
     local router = Router()
     if not router then return end
     if kind == "SPELL_AURA_START" or kind == "SPELL_AURA_START_HARMFUL" or kind == "SPELL_AURA_END"
@@ -2303,9 +2750,11 @@ local function OnEvent(_, event, ...)
     elseif event == "SPELL_UPDATE_COOLDOWN" then
         local spell = ...
         if ns.windfuryInference and ns.Number(spell, 1)
-            and (spell == 10610 or (spell == WINDFURY_ATTACK_SPELL_ID
-                and ActiveWindfurySpell(ns.SCHOOL_PHYSICAL) == 8232)) then
-            ns.windfuryInference:Signal(Now(), spell)
+            and (spell == WINDFURY_TOTEM_ATTACK_SPELL_ID
+                or (spell == WINDFURY_ATTACK_SPELL_ID
+                    and ActiveWindfurySpell(ns.SCHOOL_PHYSICAL) == 8232)) then
+            local target = spell == WINDFURY_ATTACK_SPELL_ID and ns.TargetKey() or nil
+            ns.windfuryInference:Signal(Now(), spell, target)
         end
         WindfuryCooldown(...)
     elseif event == "UNIT_SPELLCAST_SENT" then
@@ -2407,10 +2856,12 @@ local function OnEvent(_, event, ...)
     elseif event == "PLAYER_REGEN_ENABLED" then
         OnCombat(false)
         ReadShieldBlock()
+        -- Your auras are read again once the fight is over, a frame later.
+        C_Timer.After(0, RebuildAuras)
     elseif event == "PLAYER_ENTERING_WORLD" then
         RebuildAuras()
-        reader.windfuryCooldownFrame, reader.windfuryNoticeAt = nil, nil
-        reader.windfuryNotices = {}
+        reader.windfuryCooldownFrames, reader.windfuryNoticeAt = {}, nil
+        reader.windfuryCasts = {}
         reader.plates, reader.targetPlate, reader.held = {}, nil, {}
         reader.castTargets, reader.lastCastTarget = {}, nil
         reader.pendingHits = setmetatable({}, { __mode = "k" })

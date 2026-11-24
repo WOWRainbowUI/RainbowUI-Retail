@@ -475,6 +475,10 @@ local function IsResourceLow(value, isHealth)
 	if success then return result end
 end
 
+local function PlayerIsAlive()
+	return not UnitIsDeadOrGhost or not UnitIsDeadOrGhost("player")
+end
+
 local function CheckLowHealth()
 	if not alertsEnabled or type(UnitHealthPercent) ~= "function" then
 		return
@@ -482,7 +486,7 @@ local function CheckLowHealth()
 
 	local isLow = IsResourceLow(UnitHealthPercent("player", false), true)
 	if isLow == nil then return end
-	if isLow and not healthAlerted then
+	if isLow and not healthAlerted and PlayerIsAlive() then
 		healthAlerted = true
 		DisplayTrigger(lowHealthSettings)
 	elseif not isLow then
@@ -504,7 +508,7 @@ local function CheckLowMana()
 	)
 	if isLow == nil then return end
 
-	if isLow and not manaAlerted then
+	if isLow and not manaAlerted and PlayerIsAlive() then
 		manaAlerted = true
 		DisplayTrigger(lowManaSettings)
 	elseif not isLow then
