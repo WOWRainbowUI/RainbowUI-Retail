@@ -164,7 +164,8 @@ function OutgoingBatcher:DisplayRestricted(
 	eventKey,
 	school,
 	candidateSpell,
-	inferenceGroup
+	inferenceGroup,
+	suffix
 )
 	if self:ShouldStackWindfury(spellID, isPet, isDot, candidateSpell) then
 		self:Queue(spellID, amount, isCrit, effectTexture, forceIsSpell,
@@ -188,7 +189,7 @@ function OutgoingBatcher:DisplayRestricted(
 	if settings.attackColorOverride then school = nil end
 	local message = not eventKey and not isPet and not isSpell and "%a" or nil
 	self.config.displayRestricted(settings, amount, effectTexture,
-		message, nil, school, spellID)
+		message, suffix, school, spellID)
 end
 
 function OutgoingBatcher:Queue(

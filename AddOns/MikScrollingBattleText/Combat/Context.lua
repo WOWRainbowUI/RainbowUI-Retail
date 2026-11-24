@@ -1,4 +1,4 @@
-local ns = { generation = 0 }
+local ns = { generation = 0, classRules = {} }
 MikSBT.CombatEngine = ns
 
 local RestrictedValue = MikSBT.API.RestrictedValue
@@ -21,6 +21,12 @@ end
 
 function ns.Bool(value)
 	return ns.Public(value) and type(value) == "boolean"
+end
+
+function ns.PlayerClassRules()
+	if type(UnitClass) ~= "function" then return end
+	local _, class = UnitClass("player")
+	if ns.Text(class) then return ns.classRules[class] end
 end
 
 function ns.LoadLearned(saved)

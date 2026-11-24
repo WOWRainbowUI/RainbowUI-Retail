@@ -472,7 +472,7 @@ function IncomingCombat:DisplayRestricted(action, isCrit, amount, flagText, scho
 		amount,
 		texture,
 		InsertSpellName(settings.message, spellName),
-		suffix
+		suffix, nil, nil, action == "WOUND"
 	)
 end
 

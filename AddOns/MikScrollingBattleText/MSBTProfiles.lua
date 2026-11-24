@@ -2782,8 +2782,9 @@ local function UpdateProfiles(profiles)
 end
 
 local function MigrateCombatTextOptions(profile)
-	if profile.blizzardDamageEnabled == nil then
-		profile.blizzardDamageEnabled = not profile.enableBlizzardV2CombatText
+	-- The profile's own values: one that was selected before can no longer look up its defaults.
+	if rawget(profile, "blizzardDamageEnabled") == nil then
+		profile.blizzardDamageEnabled = not rawget(profile, "enableBlizzardV2CombatText")
 	end
 
 	local removedOptions = {
