@@ -83,11 +83,11 @@ local function showRealDate(curseDate)
 	end
 end
 
-DBM.Revision = parseCurseDate("20261122094740")
+DBM.Revision = parseCurseDate("20261123052410")
 private.fakeBWVersion, private.fakeBWHash = 427, "fe75de4"--427.7
 
 -- The string that is shown as version
-DBM.DisplayVersion = "12.1.24"--Core version
+DBM.DisplayVersion = "12.1.25"--Core version
 DBM.classicSubVersion = 0
 DBM.dungeonSubVersion = 0
 DBM.ReleaseRevision = releaseDate(2026, 11, 22) -- the date of the latest stable version that is available, optionally pass hours, minutes, and seconds for multiple releases in one day
@@ -5387,7 +5387,7 @@ function bossModPrototype:ReceiveSync(event, sender, revision, ...)
 	end
 end
 
----@param revision number|string Either a number in the format "202101010000" (year, month, day, hour, minute) or string "20261122094740" to be auto set by packager
+---@param revision number|string Either a number in the format "202101010000" (year, month, day, hour, minute) or string "20261123052410" to be auto set by packager
 function bossModPrototype:SetRevision(revision)
 	revision = parseCurseDate(revision or "")
 	if not revision or type(revision) == "string" then

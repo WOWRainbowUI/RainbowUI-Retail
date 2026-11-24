@@ -1,8 +1,14 @@
 # DBM - Core
 
-## [12.1.24](https://github.com/DeadlyBossMods/DeadlyBossMods/tree/12.1.24) (2026-11-22)
-[Full Changelog](https://github.com/DeadlyBossMods/DeadlyBossMods/compare/12.1.23...12.1.24) [Previous Releases](https://github.com/DeadlyBossMods/DeadlyBossMods/releases)
+## [12.1.25](https://github.com/DeadlyBossMods/DeadlyBossMods/tree/12.1.25) (2026-11-23)
+[Full Changelog](https://github.com/DeadlyBossMods/DeadlyBossMods/compare/12.1.23...12.1.25) [Previous Releases](https://github.com/DeadlyBossMods/DeadlyBossMods/releases)
 
+- prep new tag for aniversary fixes  
+- Update koKR (#2288)  
+    Co-authored-by: anon1231823 <67269448+anon1231823@users.noreply.github.com>  
+- Allow aura sounds on enemies and co tanks, making dbm a bit more useful in forever and old timewalking content (like current retail BRD event bosses)  
+- Register alternative way to detect world boss deaths  
+- bump alpha  
 - prep new tag  
 - restore whisper privacy options on midnight and forever  
 - Just send "" instead of player name in syncs, keep arg order as is for now.  
