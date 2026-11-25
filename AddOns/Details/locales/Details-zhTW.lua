@@ -2754,3 +2754,8 @@ L["STRING_ATTRIBUTE_DAMAGE_MYSPELLS"] = "傷害法術"
 L["STRING_ATTRIBUTE_HEAL_MYSPELLS"] = "治療法術"
 
 L["Unknown Spell"] = "未知法術"
+
+L["STRING_OPTIONS_PROFILE_KEEPSIZES"] = "保留群組視窗大小"
+L["STRING_OPTIONS_PROFILE_KEEPSIZES_DESC"] = "群組中的視窗各自保留寬度與高度，不跟隨相連視窗的大小。不同大小的視窗會沿相連邊置中對齊，因此可能略微移動。必須啟用「儲存大小與位置」。"
+
+L["Default"] = "預設"

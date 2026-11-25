@@ -4395,3 +4395,5 @@ L["|rcheck if it is enabled in the addons control panel."] = true
 L["No options found"] = "No options found"
 
 L["Unknown Spell"] = "Unknown Spell"
+
+L["Default"] = "Default"
