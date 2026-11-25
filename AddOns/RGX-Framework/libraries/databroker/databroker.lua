@@ -29,14 +29,18 @@ DB._changeCallbacks  = {}
 local function FireNew(name, proxy)
     for _, fn in ipairs(DB._newCallbacks) do
         local ok, err = pcall(fn, name, proxy)
-        if not ok then RGX:Debug("[RGXDataBroker] OnNewDataObject error: " .. tostring(err)) end
+        if not ok then
+            pcall(function() RGX:Debug("[RGXDataBroker] OnNewDataObject error: " .. tostring(err)) end)
+        end
     end
 end
 
 local function FireChange(name, attr, value)
     for _, fn in ipairs(DB._changeCallbacks) do
         local ok, err = pcall(fn, name, attr, value)
-        if not ok then RGX:Debug("[RGXDataBroker] OnAttributeChanged error: " .. tostring(err)) end
+        if not ok then
+            pcall(function() RGX:Debug("[RGXDataBroker] OnAttributeChanged error: " .. tostring(err)) end)
+        end
     end
 end
 

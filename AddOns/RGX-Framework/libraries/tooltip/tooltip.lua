@@ -109,7 +109,7 @@ function Tooltip:Show(anchorFrame, opts)
     for _, line in ipairs(opts.lines or {}) do
         local ok, err = pcall(AddComposedLine, GameTooltip, line)
         if not ok then
-            RGX:Debug("[RGXTooltip] Show line error: " .. tostring(err))
+            pcall(function() RGX:Debug("[RGXTooltip] Show line error: " .. tostring(err)) end)
         end
     end
 
@@ -130,7 +130,7 @@ function Tooltip:Attach(frame, builder)
     frame:SetScript("OnEnter", function(self)
         local ok, opts = pcall(builder, self)
         if not ok then
-            RGX:Debug("[RGXTooltip] Attach builder error: " .. tostring(opts))
+            pcall(function() RGX:Debug("[RGXTooltip] Attach builder error: " .. tostring(opts)) end)
             return
         end
         if opts then
@@ -149,7 +149,7 @@ local function DispatchNativeHooks(tooltipTypeName, tooltip, data)
     for _, fn in ipairs(list) do
         local ok, err = pcall(fn, tooltip, data)
         if not ok then
-            RGX:Debug("[RGXTooltip] HookNative(" .. tooltipTypeName .. ") error: " .. tostring(err))
+            pcall(function() RGX:Debug("[RGXTooltip] HookNative(" .. tooltipTypeName .. ") error: " .. tostring(err)) end)
         end
     end
 end
