@@ -23,6 +23,7 @@ local string = string;
 local IsShiftKeyDown = IsShiftKeyDown;
 local select = select;
 local pairs = pairs;
+local ipairs = ipairs;
 local type = type;
 local tostring = tostring;
 local unpack = unpack;
@@ -70,6 +71,9 @@ db_defaults.displayColors = {
 
 -- streamer mode setting
 db_defaults.streamMode = false;
+
+-- Whether to redirect slash commands to the game's chat box.
+db_defaults.redirectSlashCommands = true;
 
 -- The input field takes the color of the chat type it sends as, like
 -- the game's own chat box. A Modern skin option, inert under other
@@ -246,7 +250,12 @@ local FormattingCalls = {}; -- functions which are passed events to be formatted
 
 local StringModifiers = {}; -- registered functions which will be used to format the message part of the string.
 
-local editBoxSlug = { Deactivate = function () end };
+-- EditBox Slug Functions - used to mimic an EditBox in case something else is trying to modify the default chat frame while WIM is utilizing it.
+local editBoxSlug = {};
+local _slugs = { "Deactivate", "Hide", "SetAlpha", "EnableMouse" };
+for _, slug in ipairs(_slugs) do
+	editBoxSlug[slug] = function() end
+end
 
 -- Window's Parent (Container for all Windows)
 WindowParent = _G.CreateFrame("Frame", "WIM_UIParent", _G.UIParent);
@@ -1857,8 +1866,9 @@ local function createWindow(userName, wtype, onBeforeReturn)
 			onBeforeReturn(obj);
 		end
 		CallModuleFunction("OnWindowCreated", obj);
-        table.insert(windowsByAge, obj);
-        table.sort(windowsByAge, function(a, b) return a.age > b.age; end);
+        -- loadWindowDefaults just set this window's age to now, so it is the
+        -- newest: put it first instead of sorting every window again.
+        table.insert(windowsByAge, 1, obj);
         return obj;
     else
         -- must create new object
@@ -1885,8 +1895,9 @@ local function createWindow(userName, wtype, onBeforeReturn)
 			onBeforeReturn(f);
 		end
 		CallModuleFunction("OnWindowCreated", f);
-        table.insert(windowsByAge, f);
-        table.sort(windowsByAge, function(a, b) return a.age > b.age; end);
+        -- loadWindowDefaults just set this window's age to now, so it is the
+        -- newest: put it first instead of sorting every window again.
+        table.insert(windowsByAge, 1, f);
         return f;
     end
 end
@@ -2798,7 +2809,7 @@ RegisterWidgetTrigger("msg_box", "whisper,w2w", "OnTabPressed", function(self)
 -- might have to add options for keyboard type selection for users not using a standard QWERTY keyboard.
 -- for example, on a German keyboard, the "/" character requires Shift + 7, so the key detection logic would need to account for that.
 RegisterWidgetTrigger("msg_box", "whisper,chat,w2w", "OnKeyDown", function(self, key)
-	if (key == "/" and not _G.IsShiftKeyDown() and self:GetText()) == "" then
+	if (key == "/" and not _G.IsShiftKeyDown() and self:GetText() == "" and db.redirectSlashCommands) then
 		local open = _G.ChatFrameUtil and _G.ChatFrameUtil.OpenChat or _G.ChatEdit_OpenChat;
 		open("/");
 		_G.C_Timer.After(0, function() self:SetText(""); end);
