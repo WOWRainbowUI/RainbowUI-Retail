@@ -1258,18 +1258,7 @@ function addon:SetupOptions()
         icon = addonIcon,
         OnClick = function(self, button, ...)
             if button and button == "RightButton" then
-                addon.db.profile.enabled = not addon.db.profile.enabled
-                if addon.db.profile.enabled then
-                    AssistedCombatIconFrame:Start()
-                else
-                    AssistedCombatIconFrame:Stop()
-                end
-
-                AssistedCombatIconFrame:UpdateVisibility()
-
-                if AceConfigDialog.OpenFrames[addonName] then
-                    AceConfigRegistry:NotifyChange(addonName)
-                end
+                addon:ToggleEnabled()
             else
                 addon:OpenConfig()
             end
@@ -1314,6 +1303,21 @@ function addon:OpenConfig()
     end
 end
 
+function addon:ToggleEnabled()
+    self.db.profile.enabled = not self.db.profile.enabled
+    if self.db.profile.enabled then
+        AssistedCombatIconFrame:Start()
+    else
+        AssistedCombatIconFrame:Stop()
+    end
+
+    AssistedCombatIconFrame:UpdateVisibility()
+
+    if AceConfigDialog.OpenFrames[addonName] then
+        AceConfigRegistry:NotifyChange(addonName)
+    end
+end
+
 function addon:SlashCommand(input)
     input = input:lower():trim()
 
@@ -1342,7 +1346,7 @@ function addon:SlashCommand(input)
             )
         end
     elseif input =="toggle" then
-        self.db.profile.enabled = not self.db.profile.enabled
+        self:ToggleEnabled()
         DEFAULT_CHAT_FRAME:AddMessage(
             PREFIX .. (self.db.profile.enabled and "Enabled" or "Disabled")
         )
