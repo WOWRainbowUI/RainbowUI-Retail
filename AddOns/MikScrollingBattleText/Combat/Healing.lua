@@ -2,7 +2,14 @@ local ns = MikSBT.CombatEngine
 local casts = {}
 local targets = {}
 local DIRECT_WINDOW, HOT_WINDOW, MAX_CASTS = 3, 30, 64
-local MEND_PET_SPELL_ID = 136
+local targetlessHealRecipients = {}
+for _, rules in pairs(ns.classRules or {}) do
+	if rules.targetlessHealRecipients then
+		for spell, recipient in pairs(rules.targetlessHealRecipients) do
+			targetlessHealRecipients[spell] = recipient
+		end
+	end
+end
 -- How far a tick can lie from where its HoT's period puts one.
 local TICK_SLACK = 0.3
 
@@ -10,11 +17,14 @@ function ns.ResetHealing() casts, targets = {}, {} end
 
 local function TargetlessHealRecipient(unit, spell)
 	if unit ~= "player" then return end
-	if spell == MEND_PET_SPELL_ID then return "pet" end
+	local recipient = targetlessHealRecipients[spell]
+	if recipient then return recipient end
 	-- Classic ranks have different IDs but share the localized spell name.
 	local name = ns.SpellName(spell)
-	local mendPet = ns.SpellName(MEND_PET_SPELL_ID)
-	if name and mendPet and name == mendPet then return "pet" end
+	if not name then return end
+	for baseSpell, fixedRecipient in pairs(targetlessHealRecipients) do
+		if name == ns.SpellName(baseSpell) then return fixedRecipient end
+	end
 end
 
 -- True only when the game shows that no friend is selected: no target, or

@@ -16,3 +16,7 @@ MSBTOptionsSounds.lua
 MSBTOptionsProfileTransfer.lua
 MSBTOptionsAuras.lua
 MSBTOptionsTabs.lua
+Designs\Forever\Window.lua
+Designs\Forever\Events.lua
+Designs\Forever\Areas.lua
+Designs\Forever\Pages.lua

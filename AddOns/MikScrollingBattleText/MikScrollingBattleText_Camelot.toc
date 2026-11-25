@@ -1,5 +1,5 @@
 ## Interface: 16001
-## Version: 12.057
+## Version: 12.058
 ## Title: Mik's Scrolling Battle Text
 ## Author: Mikord
 ## Notes: Scrolls battle information around the character model.
@@ -19,6 +19,7 @@ Configuration\ProfileStore.lua
 Configuration\MediaRegistry.lua
 Configuration\RuntimeController.lua
 Configuration\ProfileTransfer.lua
+Configuration\ProfileSnapshots.lua
 API\RestrictedValue.lua
 API\Sounds.lua
 API\Spells.lua
@@ -34,9 +35,12 @@ Components\OutgoingBatcher.lua
 Combat\Context.lua
 Combat\Classes\Druid.lua
 Combat\Classes\Hunter.lua
+Combat\Classes\Mage.lua
 Combat\Classes\Paladin.lua
+Combat\Classes\Priest.lua
 Combat\Classes\Rogue.lua
 Combat\Classes\Shaman.lua
+Combat\Classes\Warlock.lua
 Combat\Classes\Warrior.lua
 Combat\Helpers.lua
 Combat\SpellCatalog.lua
@@ -78,3 +82,7 @@ MSBTOptions\MSBTOptionsSounds.lua
 MSBTOptions\MSBTOptionsProfileTransfer.lua
 MSBTOptions\MSBTOptionsAuras.lua
 MSBTOptions\MSBTOptionsTabs.lua
+MSBTOptions\Designs\Forever\Window.lua
+MSBTOptions\Designs\Forever\Events.lua
+MSBTOptions\Designs\Forever\Areas.lua
+MSBTOptions\Designs\Forever\Pages.lua

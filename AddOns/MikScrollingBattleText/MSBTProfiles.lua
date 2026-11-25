@@ -72,6 +72,7 @@ local savedMedia
 
 local currentProfile
 local runtimeController
+local profileSnapshots
 
 local pathTable = {}
 
@@ -2498,7 +2499,35 @@ local function SetupBlizzardOptions()
 		end)
 	end
 
+	-- A design that can stand in the game's settings window shows its own pages there, one
+	-- category for each page, and takes over the panels' scripts.
+	local designs = MSBTOptions.Designs
+	local selected = designs.GetSelected()
+	local design = designs.designs[selected]
+	local dockPages = design.DockPages and design.DockPages()
+	if dockPages and #dockPages > 0 then
+		local openers = {}
+		for index, page in ipairs(dockPages) do
+			local panel = frame
+			if index > 1 then
+				panel = CreateFrame("Frame")
+				panel:Hide()
+				panel.name = page.label
+			end
+			openers[page.key] = Register(panel, index > 1)
+			panel:SetScript("OnShow", function(this)
+				design.Dock(this, page.key, openers)
+			end)
+			panel:SetScript("OnHide", function(this)
+				design.Undock(this)
+			end)
+		end
+		designs.SetSettingsDesign(selected, openers[dockPages[1].key])
+		return
+	end
+
 	local reopen = Register(frame)
+	designs.SetSettingsDesign("classic", reopen)
 
 	local tabs = optionsMain.GetTabs()
 	local generalIndex
@@ -2772,10 +2801,10 @@ local function UpdateProfiles(profiles)
 
 	for profileName, profile in pairs(profiles) do
 
-		local creationVersion = tonumber(select(3, string_find(tostring(profile.creationVersion), "(%d+%.%d+)")))
-
-		if (creationVersion < 5.2) then
-			profile.triggers = nil
+		local versionText = tostring(profile.creationVersion):match("(%d+%.%d+)")
+		local creationVersion = tonumber(versionText)
+		if not creationVersion or creationVersion < 5.2 then
+			if creationVersion then profile.triggers = nil end
 			profile.creationVersion = MikSBT.VERSION .. "." .. MikSBT.SVN_REVISION
 		end
 	end
@@ -2909,12 +2938,28 @@ local function ExportProfile(profileName)
 	})
 end
 
-local function ImportProfile(text, profileName)
+local function ImportProfile(text, profileName, previewMedia)
 	if InCombatLockdown() then return nil, "IN_COMBAT" end
+	local destination = savedMedia
+	if previewMedia then
+		destination = {
+			fonts = setmetatable({}, { __index = savedMedia.fonts }),
+			sounds = setmetatable({}, { __index = savedMedia.sounds }),
+		}
+	end
 	local name, details = GetProfileTransfer():Import(
-		text, profileName, savedVariables.profiles, savedMedia)
+		text, profileName, savedVariables.profiles, destination)
 	if not name then return nil, details end
-	MikSBT.Media.OnVariablesInitialized()
+	if previewMedia then
+		for _, kind in ipairs({ "fonts", "sounds" }) do
+			for mediaName, file in pairs(destination[kind]) do
+				savedMedia[kind][mediaName] = file
+			end
+		end
+		MikSBT.Media.StageImportedMedia(destination)
+	else
+		MikSBT.Media.OnVariablesInitialized()
+	end
 	SelectProfile(name)
 	return name, details
 end
@@ -2938,6 +2983,23 @@ local function InitSavedVariables()
 
 	module.savedVariables = savedVariables
 	module.savedMedia = savedMedia
+end
+
+local function GetProfileSnapshots()
+	if not profileSnapshots then
+		profileSnapshots = MikSBT.Configuration.ProfileSnapshots:New({
+			savedVariables = savedVariables,
+			savedVariablesPerChar = savedVariablesPerChar,
+			masterProfile = masterProfile,
+			selectProfile = function(profileName)
+				if not savedVariables.profiles[profileName] then
+					profileName = DEFAULT_PROFILE_NAME
+				end
+				SelectProfile(profileName)
+			end,
+		})
+	end
+	return profileSnapshots
 end
 
 local function GetNextParameter(paramString)
@@ -3047,6 +3109,10 @@ local function OnEvent(this, event, arg1)
 		end
 		collectgarbage("collect")
 	elseif event == "PLAYER_ENTERING_WORLD" or event == "PLAYER_REGEN_ENABLED" or event == "PLAYER_REGEN_DISABLED" then
+		if event == "PLAYER_ENTERING_WORLD" then
+			-- Clients without the event arguments count as an initial login.
+			GetProfileSnapshots():UpdateLoginSnapshot(arg1 ~= false)
+		end
 		ApplyContextOptions()
 	end
 end
@@ -3072,9 +3138,16 @@ module.ResetProfile					= ResetProfile
 module.SelectProfile				= SelectProfile
 module.ExportProfile				= ExportProfile
 module.ImportProfile				= ImportProfile
+module.HasImportedMedia = function()
+	return MikSBT.Media.HasImportedMedia()
+end
+module.FinishImportedMedia = function(keep)
+	MikSBT.Media.FinishImportedMedia(keep, savedMedia)
+end
 module.SetOption					= SetOption
 module.SetOptionUserDisabled		= SetOptionUserDisabled
 module.IsModDisabled				= IsModDisabled
 module.ApplyContextOptions			= ApplyContextOptions
 module.ResetOfficialBlizzardCombatText = ResetOfficialBlizzardCombatText
+module.GetProfileSnapshots			= GetProfileSnapshots
 

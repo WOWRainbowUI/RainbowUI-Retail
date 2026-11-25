@@ -439,16 +439,13 @@ end
 -- once (a seal and an enchant), so a hit takes the newest one of its school,
 -- and none when no source of its school is on (Thunderfury beside a seal).
 local PROC_KEEP = { seal = 35, poison = 3660, oil = 1860, enchant = math.huge }
--- Windfury Weapon's four Vanilla enchant ranks share the same spell icon.
-local WINDFURY_ENCHANTS = {
-    [283] = true, [284] = true, [525] = true, [1669] = true,
-}
+local windfuryWeapon = ns.WindfuryWeapon or {}
 local MELEE_WEAPON_SLOTS = { 16, 17 }
-local WINDFURY_WEAPON_SPELL_ID = 8232
 
 local function ActiveWindfurySpell(school)
     local client = MikSBT.Compatibility and MikSBT.Compatibility.Client
-    if not client or not client.isForever or school ~= ns.SCHOOL_PHYSICAL then
+    if not windfuryWeapon.enchants or not client or not client.isForever
+        or school ~= ns.SCHOOL_PHYSICAL then
         return nil
     end
     local getEnchant = C_PaperDollInfo
@@ -459,8 +456,8 @@ local function ActiveWindfurySpell(school)
             if not ok then return nil end
             if type(info) == "table" and ns.Public(info)
                 and ns.Number(info.enchantID, 1)
-                and WINDFURY_ENCHANTS[info.enchantID] then
-                return WINDFURY_WEAPON_SPELL_ID
+                and windfuryWeapon.enchants[info.enchantID] then
+                return windfuryWeapon.iconSpell
             end
         end
         return nil
@@ -470,9 +467,9 @@ local function ActiveWindfurySpell(school)
         hasOff, offTime, offCharges, offID = pcall(GetWeaponEnchantInfo)
     if not ok then return nil end
     if ns.Bool(hasMain) and hasMain and ns.Number(mainID, 1)
-        and WINDFURY_ENCHANTS[mainID] then return WINDFURY_WEAPON_SPELL_ID end
+        and windfuryWeapon.enchants[mainID] then return windfuryWeapon.iconSpell end
     if ns.Bool(hasOff) and hasOff and ns.Number(offID, 1)
-        and WINDFURY_ENCHANTS[offID] then return WINDFURY_WEAPON_SPELL_ID end
+        and windfuryWeapon.enchants[offID] then return windfuryWeapon.iconSpell end
 end
 ns.ActiveWindfurySpell = ActiveWindfurySpell
 
@@ -537,8 +534,8 @@ local function ProcCandidate(at, school, key)
         -- A bleed application can share the swing's direct confirmations.
         -- Keep this candidate separate from the known periodic effect.
         if PeriodicProcCast(at, school, key) then return nil end
-        local _, class = UnitClass("player")
-        if ns.Text(class) and class == "SHAMAN" then return windfury end
+        local rules = ns.PlayerClassRules()
+        if rules and rules.windfuryWeapon then return windfury end
         return nil
     end
     local best
@@ -591,6 +588,7 @@ end
 -- strike of someone who joins.
 local STRANGER_QUIET = 5
 reader.strangers = {}
+reader.unmatchedDamage = {}
 local function NoteStranger(key, at)
     for other, seen in pairs(reader.strangers) do
         if at - seen > STRANGER_QUIET then reader.strangers[other] = nil end
@@ -623,14 +621,14 @@ function ns.DecideHit(hit, line, restrict)
     else
         result = ns.mine:Hit(hit.key, kind, record.school, hit.at, hit.petOn, line,
             ns.Number(record.amount) and record.amount or nil, record.crit,
-            restrict, leech, record.avoid, hit.isolatedBattlegroundSpell)
+            restrict, leech, record.avoid, hit.isolatedDirectSpell)
     end
     if line == true and restrict == "direct" and result.who == "you"
         and not result.ambiguous
         and not result.spell and not result.melee and not result.tick
-        and WeaponProcTrigger(hit.at, hit.key)
+        and windfuryWeapon.iconSpell and WeaponProcTrigger(hit.at, hit.key)
         and ProcCandidate(hit.at, record.school, hit.key)
-            == WINDFURY_WEAPON_SPELL_ID then
+            == windfuryWeapon.iconSpell then
         result.proc = true
     end
     -- A shield's miss is reported as Physical whatever shield caused it, so
@@ -652,7 +650,17 @@ function ns.DecideHit(hit, line, restrict)
             swingChecks = swingChecks,
         }
     end
-    if line == false and (kind == "damage" or kind == "miss") then NoteStranger(hit.key, hit.at) end
+    if line == false and (kind == "damage" or kind == "miss") then
+        NoteStranger(hit.key, hit.at)
+        if kind == "damage" then
+            local damage = reader.unmatchedDamage
+            local cutoff = Now() - STRANGER_QUIET
+            for at in pairs(damage) do
+                if at < cutoff then damage[at] = nil end
+            end
+            damage[hit.at] = true
+        end
+    end
     reader.pendingHits[hit] = nil
     if ns.traceCombat then
         ns.traceCombat("decision", hit, { stage = "decision",
@@ -960,7 +968,7 @@ end
 local function WeaponProcLine(hit)
     local record = hit.record
     if record.event ~= "damage" or record.school ~= ns.SCHOOL_PHYSICAL
-        or ActiveWindfurySpell(record.school) ~= WINDFURY_WEAPON_SPELL_ID then
+        or not ActiveWindfurySpell(record.school) then
         return nil
     end
     -- Keep the delay relative to the confirmation, including procs triggered
@@ -1144,19 +1152,14 @@ local function SettleTie(hits, lines, Decide)
     return true
 end
 
--- Classic ranks of the three queued-strike families supported on Forever.
-local QUEUED_STRIKES = {
-    -- Heroic Strike.
-    [78] = true, [284] = true, [285] = true, [1608] = true,
-    [11564] = true, [11565] = true, [11566] = true,
-    [11567] = true, [25286] = true,
-    -- Maul.
-    [6807] = true, [6808] = true, [6809] = true, [8972] = true,
-    [9745] = true, [9880] = true, [9881] = true,
-    -- Raptor Strike.
-    [2973] = true, [14260] = true, [14261] = true, [14262] = true,
-    [14263] = true, [14264] = true, [14265] = true, [14266] = true,
-}
+local queuedStrikes = {}
+for _, rules in pairs(ns.classRules or {}) do
+    if rules.queuedStrikes then
+        for spell, enabled in pairs(rules.queuedStrikes) do
+            queuedStrikes[spell] = enabled
+        end
+    end
+end
 
 local function PreferQueuedStrikeHit(group, lines, restrict)
     local client = MikSBT.Compatibility and MikSBT.Compatibility.Client
@@ -1169,7 +1172,7 @@ local function PreferQueuedStrikeHit(group, lines, restrict)
         or last.record.school ~= ns.SCHOOL_PHYSICAL then return false end
     for _, cast in ipairs(ns.mine.pending) do
         local facts = ns.SpellFacts(cast.spell)
-        local nextSwing = QUEUED_STRIKES[cast.spell]
+        local nextSwing = queuedStrikes[cast.spell]
             or (facts and facts.nextSwing == true)
         if not cast.used and cast.caster == "you" and cast.key == first.key
             and cast.at == first.at and nextSwing then
@@ -1200,17 +1203,73 @@ local function MixedFrameDirectHit(first, second, directLine, tickLine)
     if school == secondSchool then return second, first end
 end
 
-local function IsolatedBattlegroundSpell(hit, line)
+local function UntargetedDirectInstance(hit)
     local client = MikSBT.Compatibility and MikSBT.Compatibility.Client
     if not client or not client.isForever or not IsInInstance
-        or hit.record.event ~= "damage" or hit.unit ~= "target"
-        or line.kind ~= "spell" or line.source ~= "mine" or line.hit
-        or line.at ~= hit.at or line.targetContext ~= hit.key then return false end
+        or hit.record.event ~= "damage" or hit.unit ~= "target" then return end
     local _, instance = IsInInstance()
-    if not ns.Text(instance) or instance ~= "pvp" then return false end
-    if hit.record.school ~= ns.SCHOOL_PHYSICAL then return true end
-    return not (SwingLine(hit) or OrphanSwingLine(hit)
-        or SwingFrame(hit.at, WEAPON_PROC_TRIGGER_WINDOW))
+    if ns.Text(instance) then return instance end
+end
+
+local function UntargetedDirectLine(hit, line)
+    return line.kind == "spell" and line.source == "mine" and not line.hit
+        and line.targetContext == hit.key
+end
+
+local function IsolatedDirectInstance(hit, line)
+    if not UntargetedDirectLine(hit, line) or line.at ~= hit.at then return false end
+    local instance = UntargetedDirectInstance(hit)
+    if instance ~= "pvp" and instance ~= "party" then return end
+    if hit.record.school ~= ns.SCHOOL_PHYSICAL
+        or not (SwingLine(hit) or OrphanSwingLine(hit)
+            or SwingFrame(hit.at, WEAPON_PROC_TRIGGER_WINDOW)) then
+        return instance
+    end
+end
+
+local function DecideDungeonDirect(hit)
+    if not reader.pendingHits[hit] then return end
+    local best
+    for _, line in ipairs(reader.logLines) do
+        if not line.claimed and UntargetedDirectLine(hit, line)
+            and math.abs(line.at - hit.at) <= LATE_LINE then
+            for other in pairs(reader.pendingHits) do
+                if other ~= hit and other.record.event == "damage"
+                    and math.abs(line.at - other.at) <= LATE_LINE then
+                    line.dungeonContested = true
+                    break
+                end
+            end
+            for at in pairs(reader.unmatchedDamage) do
+                if math.abs(line.at - at) <= LATE_LINE then
+                    line.dungeonContested = true
+                    break
+                end
+            end
+            if best or line.dungeonContested then
+                best = nil
+                break
+            end
+            best = line
+        end
+    end
+    if best then
+        -- A line after the hit can still match reports after the hit's timer.
+        local remaining = best.at + LATE_LINE - Now()
+        if remaining >= 0 then
+            C_Timer.After(remaining + 0.001, function() DecideDungeonDirect(hit) end)
+            return
+        end
+    end
+    if best and ns.mine:UntargetedDirectCandidate(
+        hit.key, hit.record.school, hit.at, Leech(hit), true) then
+        best.claimed = true
+        hit.isolatedDirectSpell = "party"
+        ConfirmingEvidence(hit, best)
+        ns.DecideHit(hit, true, "direct")
+    else
+        ns.DecideHit(hit, false)
+    end
 end
 
 -- One frame's hits (of one class, with lines by kind) against the lines of
@@ -1218,9 +1277,8 @@ end
 -- on an enemy without a plate also sends one) and every hit is yours; none
 -- and none is; fewer, and the engine decides as it would without lines.
 function DecideGroup(group, frameLines, decided, settled)
-    if #group == 1 and #frameLines == 1
-        and IsolatedBattlegroundSpell(group[1], frameLines[1]) then
-        group[1].isolatedBattlegroundSpell = true
+    if #group == 1 and #frameLines == 1 then
+        group[1].isolatedDirectSpell = IsolatedDirectInstance(group[1], frameLines[1])
     end
     local reportsBySchool, periodicConfirmations = {}, 0
     for _, line in ipairs(frameLines) do
@@ -1381,12 +1439,19 @@ function DecideGroup(group, frameLines, decided, settled)
         for _, hit in ipairs(rest) do
             local record = hit.record
             local procLine = ProcLine(hit)
+            local dungeonCandidate
+            if not procLine and record.school ~= ns.SCHOOL_PHYSICAL
+                and UntargetedDirectInstance(hit) == "party" then
+                dungeonCandidate = ns.mine:UntargetedDirectCandidate(
+                    hit.key, record.school, hit.at, nil, true)
+            end
             if procLine then
                 procLine.claimed, procLine.hit = true, { at = hit.at, record = record }
 
                 ns.mine.procSwing = true
                 Decide(hit, true, LineRestrict(procLine), procLine)
-            elseif record.event == "damage" and ns.mine:InFlight(hit.key, record.school, hit.at) then
+            elseif not dungeonCandidate and record.event == "damage"
+                and ns.mine:InFlight(hit.key, record.school, hit.at) then
                 if settled then
                     -- Periodic matching already waited for this hit's line.
                     ns.DecideLate(hit)
@@ -1399,6 +1464,12 @@ function DecideGroup(group, frameLines, decided, settled)
 
                 ns.mine.procSwing = true
                 Decide(hit, true, LineRestrict(flight), flight)
+            elseif #group == 1 and dungeonCandidate then
+                if settled then
+                    DecideDungeonDirect(hit)
+                else
+                    C_Timer.After(LATE_LINE, function() DecideDungeonDirect(hit) end)
+                end
             elseif record.event == "miss" and ns.LineKindsActive and ns.LineKindsActive() then
                 -- 0.3.49: a miss's report can come a frame after its line
                 -- (DecideLateMiss).
@@ -1662,7 +1733,6 @@ end
 
 local lastCast
 local queuedStrike
-local WINDFURY_ATTACK_SPELL_ID = 439440
 local WINDFURY_TOTEM_ATTACK_SPELL_ID = 10610
 local MAX_WINDFURY_CASTS = 16
 
@@ -1684,8 +1754,8 @@ local function WindfuryNotice(spell, now)
 
     local router = Router()
     if router then
-        local fallbackSpell = spell == WINDFURY_ATTACK_SPELL_ID
-            and WINDFURY_WEAPON_SPELL_ID
+        local fallbackSpell = spell == windfuryWeapon.procSpell
+            and windfuryWeapon.iconSpell
         router:Alert({ kind = "proc",
             text = ns.SpellName(spell)
                 or (fallbackSpell and ns.SpellName(fallbackSpell)) or "Windfury",
@@ -1737,7 +1807,7 @@ end
 local function WindfuryCooldown(spell)
     local client = MikSBT.Compatibility and MikSBT.Compatibility.Client
     if not (client and client.isForever) or not ns.Number(spell, 1)
-        or (spell ~= WINDFURY_ATTACK_SPELL_ID
+        or (spell ~= windfuryWeapon.procSpell
             and spell ~= WINDFURY_TOTEM_ATTACK_SPELL_ID) then return end
     local at = Now()
     local triggerAt = spell == WINDFURY_TOTEM_ATTACK_SPELL_ID
@@ -1767,7 +1837,7 @@ end
 local function OnCast(unit, spell, guid)
     if not ns.Number(spell, 1) then return end
     local now = Now()
-    if unit == "player" and spell == WINDFURY_ATTACK_SPELL_ID then
+    if unit == "player" and spell == windfuryWeapon.procSpell then
         local client = MikSBT.Compatibility and MikSBT.Compatibility.Client
         if client and client.isForever then
             if FirstWindfuryCast(guid) then
@@ -1800,7 +1870,8 @@ local function OnCast(unit, spell, guid)
     local facts = ns.SpellFacts and ns.SpellFacts(spell)
     if ns.windfuryInference and unit == "player" then
         local certain = observed == true and uncertain ~= true
-        local conflict = spell ~= 17364 and spell ~= WINDFURY_ATTACK_SPELL_ID
+        local conflict = spell ~= windfuryWeapon.triggerSpell
+            and spell ~= windfuryWeapon.procSpell
             and (not facts or (facts.school == ns.SCHOOL_PHYSICAL
                 and facts.damages ~= false))
         ns.windfuryInference:Cast({ at = now, key = certain and key or nil,
@@ -1817,7 +1888,7 @@ local function OnCast(unit, spell, guid)
     lastCast = { at = now, spell = spell, unit = unit }
     -- A queued strike of yours is kept apart from lastCast: a pet cast in the
     -- same frame must not hide that the next main-hand swing is the strike's.
-    if unit == "player" and QUEUED_STRIKES[spell] then queuedStrike = { at = now, spell = spell } end
+    if unit == "player" and queuedStrikes[spell] then queuedStrike = { at = now, spell = spell } end
     if unit == "player" and facts and facts.weaponProc then
         reader.procSources[facts.weaponProc] = { spell = spell, at = now, kind = facts.weaponProc, school = facts.procSchool }
     end
@@ -2751,9 +2822,9 @@ local function OnEvent(_, event, ...)
         local spell = ...
         if ns.windfuryInference and ns.Number(spell, 1)
             and (spell == WINDFURY_TOTEM_ATTACK_SPELL_ID
-                or (spell == WINDFURY_ATTACK_SPELL_ID
-                    and ActiveWindfurySpell(ns.SCHOOL_PHYSICAL) == 8232)) then
-            local target = spell == WINDFURY_ATTACK_SPELL_ID and ns.TargetKey() or nil
+                or (spell == windfuryWeapon.procSpell
+                    and ActiveWindfurySpell(ns.SCHOOL_PHYSICAL))) then
+            local target = spell == windfuryWeapon.procSpell and ns.TargetKey() or nil
             ns.windfuryInference:Signal(Now(), spell, target)
         end
         WindfuryCooldown(...)
@@ -2865,6 +2936,7 @@ local function OnEvent(_, event, ...)
         reader.plates, reader.targetPlate, reader.held = {}, nil, {}
         reader.castTargets, reader.lastCastTarget = {}, nil
         reader.pendingHits = setmetatable({}, { __mode = "k" })
+        reader.unmatchedDamage = {}
         reader.targetKey = nil
         reader.departedTargetKey, reader.departedTargetAt = nil, nil
         reader.epoch = reader.epoch + 1

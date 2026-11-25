@@ -1,7 +1,5 @@
 local OutgoingBatcher = {}
 OutgoingBatcher.__index = OutgoingBatcher
-local WINDFURY_WEAPON_SPELL_ID = 8232
-local WINDFURY_GROUP_DELAY = 1
 local RestrictedValue = MikSBT.API and MikSBT.API.RestrictedValue
 
 local function InferenceGroup(value)
@@ -16,6 +14,7 @@ function OutgoingBatcher:New(config)
 	return setmetatable({
 		config = config,
 		batches = {},
+		windfuryWeapon = MikSBT.CombatEngine and MikSBT.CombatEngine.WindfuryWeapon,
 	}, self)
 end
 
@@ -26,8 +25,10 @@ function OutgoingBatcher:Reset()
 end
 
 function OutgoingBatcher:ShouldStackWindfury(spellID, isPet, isDot, candidateSpell)
-	local candidate = candidateSpell == WINDFURY_WEAPON_SPELL_ID
-	return (spellID == WINDFURY_WEAPON_SPELL_ID or candidate)
+	local windfuryWeapon = self.windfuryWeapon
+	if not windfuryWeapon then return false end
+	local iconSpell = windfuryWeapon.iconSpell
+	return (spellID == iconSpell or candidateSpell == iconSpell)
 		and not isPet and not isDot
 		and self.config.getProfile().stackSimilarHits
 end
@@ -254,7 +255,7 @@ function OutgoingBatcher:Queue(
 		}
 		self.batches[batchKey] = batch
 		local delay = inferenceGroup and 0
-			or (stackWindfury and WINDFURY_GROUP_DELAY or self.config.delay)
+			or (stackWindfury and self.windfuryWeapon.groupDelay or self.config.delay)
 		self.config.after(delay, function()
 			if self.batches[batchKey] == batch then
 				self:Flush(batchKey)

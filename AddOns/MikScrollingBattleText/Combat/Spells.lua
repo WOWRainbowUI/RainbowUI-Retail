@@ -253,7 +253,6 @@ end
 -- Ranges come from C_Spell.GetSpellInfo; when they cannot be read, nothing is
 -- ruled out, so the engine behaves as before.
 local MELEE_REACH = 8
-local AUTO_SHOT = 75
 local PHYSICAL_AVOID = { DODGE = true, PARRY = true, BLOCK = true, DEFLECT = true }
 
 local function Readable(value) return not ns.Public or ns.Public(value) end
@@ -274,10 +273,9 @@ function ns.SpellReach(spell)
     local range = MaxRange(spell)
     if not range then return nil end
     if range <= MELEE_REACH then return "melee" end
-    local _, class
-    if UnitClass then _, class = UnitClass("player") end
-    if class == "HUNTER" then
-        local shot = MaxRange(AUTO_SHOT)
+    local rules = ns.PlayerClassRules and ns.PlayerClassRules()
+    if rules and rules.rangedAttackSpell then
+        local shot = MaxRange(rules.rangedAttackSpell)
         if shot and math.abs(range - shot) < 0.5 then return "ranged" end
     end
     return "spell"

@@ -9,7 +9,9 @@ local FRAME_WINDOW, SOURCE_WINDOW = 0.001, 1.6
 local WEAPON_SIGNAL_WINDOW = 0.05
 local MAX_SOURCES, MAX_TARGETS, MAX_PENDING = 8, 2, 64
 local MAX_RESERVATIONS, MAX_LINES, MAX_OUTCOMES = 8, 32, 64
-local STORMSTRIKE, WEAPON, TOTEM, ICON = 17364, 439440, 10610, 8232
+local weapon = MikSBT.CombatEngine.WindfuryWeapon
+local STORMSTRIKE, WEAPON, ICON = weapon.triggerSpell, weapon.procSpell, weapon.iconSpell
+local TOTEM = 10610
 local nextInstance = 0
 
 local function Number(value)

@@ -128,6 +128,13 @@ local function GeneralTab_EnableControls()
 end
 
 
+-- The reload button stays while the chosen design differs from the one the game's settings window shows.
+local function GeneralTab_ShowReloadButton()
+	local button = tabFrames.general.controls.reloadDesignButton
+	if MSBTDesigns.IsSwitchPending() then button:Show() else button:Hide() end
+end
+
+
 GeneralTab_Populate = function()
 	local currentProfile = MSBTProfiles.currentProfile
 	local controls = tabFrames.general.controls
@@ -148,6 +155,7 @@ GeneralTab_Populate = function()
 	controls.animationSpeedSlider:SetValue(currentProfile.animationSpeed)
 	if controls.optionsDesignDropdown then
 		controls.optionsDesignDropdown:SetSelectedID(MSBTDesigns.GetSelected())
+		GeneralTab_ShowReloadButton()
 	end
 end
 
@@ -223,27 +231,30 @@ local function GeneralTab_ValidateFont(name, path)
 	path = NormalizeFontPath(path)
 	if not path then return locale.invalidPath end
 	local validator = tabFrames.general.fontPathValidationFontString
+	-- The General tab makes its string when first shown; another design may validate before that.
+	if not validator then
+		validator = UIParent:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+		tabFrames.general.fontPathValidationFontString = validator
+	end
 	local ok, loaded = pcall(validator.SetFont, validator, path, 14, "")
 	if not ok or loaded ~= true then return locale.invalidPath end
 end
 
-local function GeneralTab_AddFont(button)
-	local tabFrame = tabFrames.general
+local function GeneralTab_ShowAddFont(parentFrame, anchorFrame, anchorPoint, relativePoint, hideHandler)
 	local locale = L.CUSTOM_FONTS
-	DisableControls(tabFrame.controls)
 	MSBTPopups.ShowInput({
 		title = locale.add,
-		parentFrame = tabFrame,
-		anchorFrame = button,
-		anchorPoint = "BOTTOMLEFT",
-		relativePoint = "TOPLEFT",
+		parentFrame = parentFrame,
+		anchorFrame = anchorFrame,
+		anchorPoint = anchorPoint,
+		relativePoint = relativePoint,
 		editboxLabel = locale.name,
 		editboxTooltip = locale.nameHelp,
 		showSecondEditbox = true,
 		secondEditboxLabel = locale.path,
 		secondEditboxTooltip = locale.pathHelp,
 		validateHandler = GeneralTab_ValidateFont,
-		hideHandler = GeneralTab_EnableControls,
+		hideHandler = hideHandler,
 		saveHandler = function(settings)
 			local name = TrimFontInput(settings.inputText)
 			local path = NormalizeFontPath(settings.secondInputText)
@@ -256,6 +267,12 @@ local function GeneralTab_AddFont(button)
 			end
 		end,
 	})
+end
+
+local function GeneralTab_AddFont(button)
+	local tabFrame = tabFrames.general
+	DisableControls(tabFrame.controls)
+	GeneralTab_ShowAddFont(tabFrame, button, "BOTTOMLEFT", "TOPLEFT", GeneralTab_EnableControls)
 end
 
 
@@ -427,8 +444,23 @@ local function GeneralTab_Create()
 		for _, key in ipairs(MSBTDesigns.keys) do
 			dropdown:AddItem(MSBTDesigns.designs[key].label, key)
 		end
-		dropdown:SetChangeHandler(function(this, id) MSBTDesigns.Select(id) end)
+		dropdown:SetChangeHandler(function(this, id)
+			MSBTDesigns.Select(id)
+			GeneralTab_ShowReloadButton()
+		end)
 		controls.optionsDesignDropdown = dropdown
+
+		-- Under the field, at its left edge, so it stays left of the divider however far the Blizzard
+		-- column reaches down. It shows while the choice waits for a reload.
+		local reload = MSBTControls.CreateOptionButton(tabFrame)
+		objLocale = L.BUTTONS["reloadDesign"]
+		reload:Configure(20, objLocale.label, objLocale.tooltip)
+		reload:SetPoint("TOPLEFT", dropdown, "BOTTOMLEFT", 0, -4)
+		reload:SetClickHandler(function()
+			MSBTDesigns.ReloadForDesign(MSBTOptMain.IsDocked() and "settings" or "window")
+		end)
+		reload:Hide()
+		controls.reloadDesignButton = reload
 	end
 
 
@@ -872,6 +904,13 @@ local function ScrollAreasTab_FontButtonOnClick(this)
 end
 
 
+local function ScrollAreasTab_GetPetMergeDestination(key)
+	local scrollAreas = MikSBT.Display and MikSBT.Display.ScrollAreas
+	local target = scrollAreas and scrollAreas:GetPetMergeTarget(key)
+	return target and L.WINDOW[target:lower()]
+end
+
+
 local function ScrollAreasTab_CreateLine(this)
 	local controls = tabFrames.scrollAreas.controls
 
@@ -909,6 +948,17 @@ local function ScrollAreasTab_CreateLine(this)
 	button:SetClickHandler(ScrollAreasTab_FontButtonOnClick)
 	controls[#controls+1] = button
 
+	checkbox = MSBTControls.CreateCheckbox(frame)
+	checkbox:Configure(20, L.CHECKBOXES.mergePetScrollArea.shortLabel)
+	checkbox:SetPoint("RIGHT", button, "LEFT", -8, 0)
+	checkbox:SetClickHandler(function(this, isChecked)
+		local areaKey = this:GetParent().scrollAreaKey
+		MSBTProfiles.SetOption("scrollAreas." .. areaKey, "mergeWhenDisabled", isChecked)
+		MSBTAnimations.UpdateScrollAreas()
+	end)
+	frame.mergeCheckbox = checkbox
+	controls[#controls+1] = checkbox
+
 	return frame
 end
 
@@ -918,6 +968,12 @@ local function ScrollAreasTab_DisplayLine(this, line, key, isSelected)
 	line.scrollAreaKey = key
 	line.enableCheckbox:SetLabel(saSettings.name)
 	line.enableCheckbox:SetChecked(not saSettings.disabled)
+	local destination = ScrollAreasTab_GetPetMergeDestination(key)
+	line.mergeCheckbox:SetShown(destination ~= nil)
+	if destination then
+		line.mergeCheckbox:SetChecked(saSettings.mergeWhenDisabled == true)
+		line.mergeCheckbox:SetTooltip(L.CHECKBOXES.mergePetScrollArea.tooltip:format(destination))
+	end
 
 	if (ScrollAreasTab_IsBuiltIn(key)) then
 		line.deleteButton:Disable()
@@ -2321,6 +2377,7 @@ module.scrollAreas = {
 	Remove = ScrollAreasTab_RemoveScrollArea,
 	IsBuiltIn = ScrollAreasTab_IsBuiltIn,
 	EnableOnClick = ScrollAreasTab_EnableOnClick,
+	GetPetMergeDestination = ScrollAreasTab_GetPetMergeDestination,
 	ShowFont = ScrollAreasTab_ShowFont,
 	ConfigureOnScreen = ScrollAreasTab_ConfigureOnScreen,
 }
@@ -2329,6 +2386,7 @@ module.scrollAreas = {
 -- The designs' General, Fonts & Colors and Profile pages share these.
 module.general = {
 	ShowMasterFont = GeneralTab_ShowMasterFont,
+	ShowAddFont = GeneralTab_ShowAddFont,
 	ResetBlizzardSCT = ResetBlizzardSCTTab_ConfirmReset,
 	ReportImport = ProfileTab_ReportImport,
 }

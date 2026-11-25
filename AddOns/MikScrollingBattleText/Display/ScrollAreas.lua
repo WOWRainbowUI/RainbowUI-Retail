@@ -3,7 +3,7 @@ local ScrollAreas = {
 	areas = {},
 	names = {},
 }
-local PET_AREA_FALLBACKS = {
+local PET_MERGE_TARGETS = {
 	OutgoingPet = "Outgoing",
 	IncomingPet = "Incoming",
 }
@@ -40,6 +40,10 @@ function ScrollAreas:Update()
 	end
 end
 
+function ScrollAreas:GetPetMergeTarget(areaKey)
+	return PET_MERGE_TARGETS[areaKey]
+end
+
 function ScrollAreas:Resolve(identifier)
 	local areaKey = identifier
 	local settings = self.areas[identifier]
@@ -53,10 +57,10 @@ function ScrollAreas:Resolve(identifier)
 		end
 	end
 
-	if settings and settings.disabled then
-		local fallbackKey = PET_AREA_FALLBACKS[areaKey]
-		if fallbackKey then
-			settings = self.areas[fallbackKey] or settings
+	if settings and settings.disabled and settings.mergeWhenDisabled == true then
+		local target = PET_MERGE_TARGETS[areaKey]
+		if target then
+			settings = self.areas[target] or settings
 		end
 	end
 

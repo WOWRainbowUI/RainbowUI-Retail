@@ -19,6 +19,87 @@ L.MSG_ITEMS							= "Gegenstände"
 L.MSG_ITEM_ALREADY_EXISTS			= "Gegenstandsname exisiert bereits."
 L.MSG_INVALID_ITEM_NAME				= "Ungültiger Gegenstandsname."
 L.MSG_CLASSIC_DESIGN				= "Klassisch"
+L.MSG_FOREVER_DESIGN				= "Forever"
+L.MSG_DESIGN_ASK_RELOAD				= "Das Optionsfenster des Spiels zeigt das neue Design erst nach dem Neuladen der Oberfläche. Jetzt neu laden?"
+
+obj = L.WINDOW
+obj.subtitle = "Optionen \194\183 %s"
+obj.groupDisplay = "Anzeige"
+obj.groupEvents = "Ereignisse"
+obj.groupMore = "Weiteres"
+obj.incoming = "Eingehend"
+obj.incomingHint = "Was andere dir antun: Schaden, Heilung, Fehlschläge."
+obj.outgoing = "Ausgehend"
+obj.outgoingHint = "Was du anderen antust: Schaden, Heilung, Fehlschläge."
+obj.pet = "Begleiter"
+obj.petHint = "Was dein Begleiter tut und was ihm angetan wird."
+obj.notifications = "Benachrichtigungen"
+obj.notificationsHint = "Stärkungen, Schwächungen, Ressourcen, Procs und andere Hinweise."
+obj.changes = "Änderungen"
+obj.changesHint = "Jede seit dem Login geänderte Einstellung. Einzeln oder alle rückgängig machen."
+obj.changesCount = "Änderungen seit Login: %d"
+obj.noChanges = "Keine Änderungen seit Login."
+obj.cancel = "Abbrechen"
+obj.cancelTooltip = "Stellt die Einstellungen vom Öffnen oder vom letzten Übernehmen wieder her und schließt das Fenster."
+obj.apply = "Übernehmen"
+obj.applyTooltip = "Behält die Änderungen. Abbrechen kehrt ab jetzt zu diesem Stand zurück."
+obj.undo = "Zurück"
+obj.undoTooltip = "Setzt diese Einstellung auf ihren Wert beim Login zurück."
+obj.undoSelectedProfileTooltip = "Wählt das Profil vom Login und stellt es wieder her, falls es gelöscht wurde."
+obj.designSwitchPending = "Übernimm oder verwirf deine Änderungen, bevor du das Optionsdesign wechselst."
+obj.applyAndSwitch = "Übernehmen und wechseln"
+obj.discardAndSwitch = "Verwerfen und wechseln"
+obj.undoAll = "Alles zurück"
+obj.undoAllTooltip = "Setzt jede Einstellung auf ihren Wert beim Login zurück."
+obj.allOn = "Alle an"
+obj.allOnTooltip = "Schaltet jedes Ereignis dieser Seite ein."
+obj.allOff = "Alle aus"
+obj.allOffTooltip = "Schaltet jedes Ereignis dieser Seite aus."
+obj.columnOn = "An"
+obj.columnEvent = "Ereignis"
+obj.columnPreview = "Vorschau"
+obj.columnArea = "Bereich"
+obj.color = "Farbe"
+obj.sampleName = "Jemand"
+obj.sampleSkill = "Fähigkeit"
+obj.sampleItem = "Trank"
+obj.sampleMoney = "1 Gold 23 Silber"
+obj.columnSound = "Sound"
+obj.headerMelee = "Nahkampf"
+obj.headerRanged = "Fernkampf"
+obj.headerSpells = "Zauber"
+obj.headerHealing = "Heilung"
+obj.headerOther = "Weiteres"
+obj.resources = "Ressourcen"
+obj.resourcesTooltip = "Wählt, welche Ressourcen \"Resource Gains\" anzeigt."
+obj.font = "Schrift"
+obj.fontTooltip = "Zurück zur Schrift dieses Ereignisses."
+obj.scrollAreasHint = "Wo der Text erscheint und wie er sich bewegt. Einen Bereich in der Skizze ziehen, um ihn zu verschieben."
+obj.onScreen = "Auf dem Bildschirm einstellen"
+obj.onScreenTooltip = "Blendet dieses Fenster aus und verschiebt die Scroll-Bereiche auf dem Spielbildschirm."
+obj.resizeTooltip = "Ziehen, um das Fenster zu vergrößern oder zu verkleinern. Rechtsklick stellt die Größe zurück."
+
+obj = L.WINDOW
+obj.fontsColors = "Schriften & Farben"
+obj.fontsColorsHint = "Schriften, Teileffekte und Farben, die Ereignisse und Scroll-Bereiche erben."
+obj.search = "Ereignissuche"
+obj.searchTooltip = "Einen Teil eines Ereignisnamens eingeben, um passende Ereignisse aller Kategorien aufzulisten."
+obj.searchHint = "Ereignisse aller Kategorien, deren Name den Suchtext enthält."
+obj.edit = "Bearbeiten"
+obj.add = "Hinzufügen"
+obj.currentProfile = "Aktuelles Profil: %s"
+obj.soundsHint = "Ereignis-Sounds einschalten und eigene Sounddateien hinzufügen."
+obj.profileHint = "Profile kopieren, zurücksetzen, löschen, exportieren und importieren."
+obj.noSounds = "Noch keine eigenen Sounds."
+obj.remove = "Entfernen"
+obj.removeTooltip = "Entfernt diesen Sound aus deinen gespeicherten Sounds. Bis zum nächsten Neuladen bleibt er wählbar und abspielbar, hier und in anderen Addons; erneutes Hinzufügen ersetzt ihn in MSBT."
+obj.resetProfile = "Profil zurücksetzen"
+obj.blizzardOnMe = "Text über mir"
+obj.blizzardOnTarget = "Text auf Ziel"
+obj.blizzardIncomingTooltip = "Blizzards Text für das, was andere dir antun: Schaden, Heilung, Fehlschläge."
+obj.blizzardNotificationsTooltip = "Alles andere, was Blizzards Text an deiner Spielfigur zeigt, etwa Auren, Kampfbeginn und Zugewinne."
+obj.blizzardNumbers = "Zahlen"
+obj.blizzardNumbersTooltip = "Blizzards Schadens- und Heilungszahlen über deinen Zielen."
 
 
 
@@ -46,7 +127,9 @@ obj["overkill"]					= { label="Über Tod", tooltip="Zeigt die Menge des Schadens
 obj["colorUnitNames"]			= { label="Farbige Namen", tooltip="Färbt die Namen in Klassenfarbe ein."}
 obj["colorClassEntry"]			= { tooltip="Aktiviert Farbe für diese Klasse."}
 obj["enableScrollArea"]			= { tooltip="Scroll-Bereich aktivieren."}
+obj["mergePetScrollArea"]		= { label="Mit %s zusammenführen", shortLabel="Zusammenführen", tooltip="Zeigt die Ereignisse dieses Begleiterbereichs unter %s an, wenn der Begleiterbereich deaktiviert ist."}
 obj["inheritField"]				= { label="Übernehmen", tooltip="Übernimmt die eingegebenen Werte.\n\nHacken entfernen, um zu überschreiben."}
+obj["inheritValue"]				= { label="Erben", tooltip="Erbt den Wert der übergeordneten Einstellung.\n\nHaken entfernen, um ihn zu überschreiben."}
 obj["hideSkillIcons"]			= { label="Symbole verstecken", tooltip="Keine Symbole in diesem Scroll-Bereich anzeigen."}
 obj["stickyEvent"]				= { label="Sticky-Stil verwenden", tooltip="Ereignis immer im 'Sticky'-Stil anzeigen."}
 obj["enableTrigger"]			= { tooltip="Auslöser aktivieren."}
@@ -400,6 +483,7 @@ L.DROPDOWNS["sound"]				= { label="Sound:", tooltip="Wählt den Sound aus, der a
 L.BUTTONS["addCustomSound"]			= { label="Sound hinzufügen", tooltip="Fügt einen benutzerdefinierten Sound zu der Liste der verfügbaren Sounds.\n\nWARNUNG: Die Datei muss in dem Ziel-Verzeichnis existieren, *BEVOR* WoW gestartet wurde.\n\nEs wird empfohlen, die Datei in den MikScrollingBattleText\\Sounds Ordner zu kopieren um Fehler zu vermeiden."}
 L.BUTTONS["customSound"]				= { tooltip="Klicken, um eine benutzerdefinierte Sound-Datei auszuwählen." }
 L.BUTTONS["playSound"]				= { label="Abspielen", tooltip="Klicken, um den ausgewählten Sound abzuspielen."}
+L.BUTTONS["reloadDesign"]			= { label="Neu laden", tooltip="Das Optionsfenster des Spiels zeigt das gewählte Design erst nach dem Neuladen der Oberfläche."}
 L.EDITBOXES["customSoundName"]	= { label="Sound Name:", tooltip="Der Name wird benutzt um den Sound zu identifizieren.\n\nBeispiel: Mein Sound"}
 L.EDITBOXES["customSoundPath"]	= { label="Sound Pfad:", tooltip="Der Pfad zu der Sound Datei.\n\nNOTIZ: Wenn die Datei in dem empfohlenen MikScrollingBattleText\\Sounds Ordner ist, muss nur der Dateiname hier eingegeben werden anstatt der ganze Pfad.\n\nBeispiel: mySound.ogg "}
 L.EDITBOXES["soundFile"]		= { label="Sound-Dateiname:", tooltip="Der Name der Sound Datei zum Abspielen wenn das Ereignis erscheint."}

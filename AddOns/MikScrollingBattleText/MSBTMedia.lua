@@ -35,3 +35,12 @@ module.IterateFonts = function()
 	return registry:IterateFonts()
 end
 module.OnVariablesInitialized = OnVariablesInitialized
+module.StageImportedMedia = function(additions)
+	registry:StageImportedMedia(additions)
+end
+module.HasImportedMedia = function()
+	return registry.importedMedia ~= nil
+end
+module.FinishImportedMedia = function(keep, savedMedia)
+	registry:FinishImportedMedia(keep, savedMedia)
+end

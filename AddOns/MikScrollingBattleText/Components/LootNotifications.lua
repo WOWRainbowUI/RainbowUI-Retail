@@ -58,21 +58,15 @@ end
 local function HandleCurrency(parserEvent)
 
 	local itemLink = parserEvent.itemLink
-	local itemName, numAmount, itemTexture, totalMax, itemQuality, numLootedFromMessage
+	local numLootedFromMessage
 	local currency = profiler:Measure("metadata",
 		C_CurrencyInfo.GetCurrencyInfoFromLink, itemLink)
-	if currency then
-		itemName, numAmount, itemTexture, totalMax, itemQuality = currency.name, currency.quantity, currency.iconFileID, currency.maxQuantity, currency.quality
-	else
-		if string.match(itemLink,"^, %d+") then
-			numLootedFromMessage = string.match(itemLink, "%d+")
-			currency = profiler:Measure("metadata",
-				C_CurrencyInfo.GetCurrencyInfo, 1901)
-			itemName, numAmount, itemTexture, totalMax, itemQuality = currency.name, currency.quantity, currency.iconFileID, currency.maxQuantity, currency.quality
-		else
-			return
-		end
+	if not currency and string.match(itemLink, "^, %d+") then
+		numLootedFromMessage = string.match(itemLink, "%d+")
+		currency = profiler:Measure("metadata", C_CurrencyInfo.GetCurrencyInfo, 1901)
 	end
+	if not currency then return end
+	local itemName, itemQuality = currency.name, currency.quality
 
 	local currentProfile = MSBTProfiles.currentProfile
 	local showEvent = true
@@ -86,7 +80,6 @@ local function HandleCurrency(parserEvent)
 		return
 	end
 
-	local qualityColor = ITEM_QUALITY_COLORS[itemQuality]
 	if qualityPatterns[itemQuality] then
 		itemName = string_format(qualityPatterns[itemQuality], itemName)
 	end
@@ -98,9 +91,9 @@ local function HandleCurrency(parserEvent)
 		local message = eventSettings.message
 			message = string_gsub(message, "%%e", itemName)
 			message = string_gsub(message, "%%a", numLooted)
-			message = string_gsub(message, "%%t", numAmount)
+			message = string_gsub(message, "%%t", currency.quantity)
 			profiler:Measure("display", DisplayEvent,
-				eventSettings, message, itemTexture)
+				eventSettings, message, currency.iconFileID)
 		end
 end
 

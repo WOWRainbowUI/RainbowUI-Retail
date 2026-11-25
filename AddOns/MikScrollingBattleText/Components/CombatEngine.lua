@@ -11,9 +11,9 @@ end
 function Engine:InferenceEnabled()
 	local client = MikSBT.Compatibility and MikSBT.Compatibility.Client
 	if not client or not client.isForever or not self.config.getProfile
-		or not RestrictedValue or type(UnitClass) ~= "function" then return false end
-	local _, class = UnitClass("player")
-	if RestrictedValue:String(class) ~= "SHAMAN" then return false end
+		or not RestrictedValue then return false end
+	local rules = ns.PlayerClassRules and ns.PlayerClassRules()
+	if not (rules and rules.windfuryWeapon) then return false end
 	local profile = RestrictedValue:Table(self.config.getProfile())
 	return profile ~= nil, profile
 end
