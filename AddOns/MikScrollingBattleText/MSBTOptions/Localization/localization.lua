@@ -57,6 +57,60 @@ L.MSG_ITEMS							= "Items"
 L.MSG_ITEM_ALREADY_EXISTS			= "Item name already exists."
 L.MSG_INVALID_ITEM_NAME				= "Invalid item name."
 L.MSG_CLASSIC_DESIGN				= "Classic"
+L.MSG_FOREVER_DESIGN				= "Forever"
+L.MSG_DESIGN_ASK_RELOAD				= "The game's settings window shows the new design after the interface is reloaded. Reload now?"
+
+L.WINDOW = {
+	subtitle = "Options \194\183 %s",
+	groupDisplay = "Display", groupEvents = "Events", groupMore = "More",
+	incoming = "Incoming", incomingHint = "What others do to you: damage, healing, misses.",
+	outgoing = "Outgoing", outgoingHint = "What you do to others: damage, healing, misses.",
+	pet = "Pet", petHint = "What your pet does and what is done to it.",
+	notifications = "Notifications", notificationsHint = "Buffs, debuffs, power, procs and other notices.",
+	changes = "Changes", changesHint = "Every setting changed since login. Undo one or all of them.",
+	changesCount = "Changes since login: %d",
+	noChanges = "No changes since login.",
+	unset = "-",
+	cancel = "Cancel", cancelTooltip = "Restore the settings from when the window was opened or last applied, then close.",
+	apply = "Apply", applyTooltip = "Keep the changes. Cancel returns to this point from now on.",
+	undo = "Undo", undoTooltip = "Restore this setting to its value at login.",
+	undoSelectedProfileTooltip = "Select the login profile and restore it if it was deleted.",
+	designSwitchPending = "Apply or discard your pending changes before switching options designs.",
+	applyAndSwitch = "Apply and switch", discardAndSwitch = "Discard and switch",
+	undoAll = "Undo all", undoAllTooltip = "Restore every setting to its value at login.",
+	allOn = "All on", allOnTooltip = "Turn on every event on this page.",
+	allOff = "All off", allOffTooltip = "Turn off every event on this page.",
+	columnOn = "On", columnEvent = "Event", columnPreview = "Preview", columnArea = "Area", columnSound = "Sound",
+	color = "Color", sampleName = "Someone", sampleSkill = "Ability",
+	sampleItem = "Potion", sampleMoney = "1 Gold 23 Silver",
+	headerMelee = "Melee", headerRanged = "Ranged", headerSpells = "Spells", headerHealing = "Healing",
+	headerOther = "Other",
+	resources = "Resources", resourcesTooltip = "Choose which resources Resource Gains shows.",
+	font = "Font", fontTooltip = "Back to the font of this event.",
+	scrollAreasHint = "Where the text appears and how it moves. Drag an area on the sketch to move it.",
+	onScreen = "Configure on screen", onScreenTooltip = "Hide this window and move the scroll areas on the game screen.",
+	resizeTooltip = "Drag to resize the window. Right-click resets the size.",
+}
+
+obj = L.WINDOW
+obj.fontsColors = "Fonts & Colors"
+obj.fontsColorsHint = "Fonts, partial effects and colors that events and scroll areas inherit."
+obj.search = "Event search"
+obj.searchTooltip = "Type part of an event name to list matching events of every category."
+obj.searchHint = "Events of every category whose name contains the search text."
+obj.edit = "Edit"
+obj.add = "Add"
+obj.currentProfile = "Current profile: %s"
+obj.noSounds = "No custom sounds yet."
+obj.remove = "Remove"
+obj.removeTooltip = "Remove this sound from your saved sounds. Until the next reload it can still be chosen and played, here and in other addons, and adding it again replaces it in MSBT."
+obj.resetProfile = "Reset Profile"
+obj.blizzardOnMe = "Text above me"
+obj.blizzardOnTarget = "Text on target"
+obj.blizzardIncomingTooltip = "Blizzard's text for what others do to you: damage, healing, misses."
+obj.blizzardNotificationsTooltip = "Everything else Blizzard's text shows at your character, such as auras, combat state and gains."
+obj.blizzardNumbers = "Numbers"
+obj.blizzardNumbersTooltip = "Blizzard's damage and healing numbers over your targets."
 
 L.CUSTOM_FONTS = {
 	add = "Add custom font",
@@ -150,6 +204,7 @@ obj["overkill"]					= { label="Overkills", tooltip="Display overkill amounts."}
 obj["colorUnitNames"]			= { label="Color Unit Names", tooltip="Apply specified class colors to unit names."}
 obj["colorClassEntry"]			= { tooltip="Enable coloring for this class."}
 obj["enableScrollArea"]			= { tooltip="Enable the scroll area."}
+obj["mergePetScrollArea"]		= { label="Merge into %s", shortLabel="Merge", tooltip="Show this pet area's events in %s when the pet area is disabled."}
 obj["inheritField"]				= { label="Inherit", tooltip="Inherit the field's value. Uncheck to override."}
 obj["hideSkillIcons"]			= { label="Hide Icons", tooltip="Do not show icons in this scroll area."}
 obj["stickyEvent"]				= { label="Always Sticky", tooltip="Always display the event using the sticky style."}
@@ -197,6 +252,7 @@ obj["copyProfile"]				= { label="Copy Profile", tooltip="Copies the profile to a
 obj["resetProfile"]				= { label="Reset Profile", tooltip="Resets the profile to the default settings."}
 obj["deleteProfile"]			= { label="Delete Profile", tooltip="Deletes the profile."}
 obj["resetBlizzardSCT"]		= { label="Reset Blizzard SCT", tooltip="Restore Blizzard scrolling combat text settings and stop MSBT from overriding them."}
+obj["reloadDesign"]		= { label="Reload", tooltip="The game's settings window shows the chosen design after the interface is reloaded."}
 obj["masterFont"]				= { label="Master Fonts", tooltip="Allows you to setup the master font settings which will be inherited by all scroll areas and events within them, unless overridden."}
 obj["partialEffects"]			= { label="Partial Effects", tooltip="Allows you to setup which partial effects will be shown, if they are color coded, and in what color."}
 obj["damageColors"]				= { label="Damage Colors", tooltip="Choose the colors used for each damage school."}

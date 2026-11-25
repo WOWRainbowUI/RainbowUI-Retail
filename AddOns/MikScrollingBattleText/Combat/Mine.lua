@@ -335,17 +335,30 @@ end
 -- preserves legacy area impacts; it never reopens an outcome on the first.
 local function DirectAvailable(self, spell, cast, key, now, area)
     local age = now - cast.at
-    if age < -0.05 or age > DirectWindow(self, spell) then return false end
+    local window = DirectWindow(self, spell)
+    if age < -0.05 or age > window then return false end
     local facts = self.facts(spell)
-    local areaSpell = type(facts) == "table" and facts.area == true
-    if cast.key ~= key and not cast.targetUncertain and not (area and (areaSpell
-        or age <= AREA_MOMENT)) then return false end
-    local limit = type(facts) == "table" and facts.directHits or 1
-    local count = cast.outcomes and cast.outcomes[key or false] or 0
-    if key and cast.targetUncertain and cast.outcomes then
-        count = count + (cast.outcomes[false] or 0)
+    if type(facts) ~= "table" then facts = nil end
+    local areaWindow = AREA_MOMENT
+    if facts and facts.area then
+        areaWindow = facts.areaWindow or window
     end
-    return count < (limit or 1)
+    if cast.key ~= key and not cast.targetUncertain
+        and not (area and age <= areaWindow) then return false end
+
+    local outcomes = cast.outcomes
+    if not outcomes then return true end
+    local count = outcomes[key or false] or 0
+    local targetLimit = facts and facts.maxDirectTargets
+    if count == 0 and targetLimit then
+        local targets = 0
+        for _ in pairs(outcomes) do
+            targets = targets + 1
+            if targets >= targetLimit then return false end
+        end
+    end
+    if key and cast.targetUncertain then count = count + (outcomes[false] or 0) end
+    return count < (facts and facts.directHits or 1)
 end
 
 local function ApplicationFailed(self, spell, cast, key)
@@ -429,11 +442,19 @@ local function ChannelFits(channel, key, school, now)
         and (not channel.stoppedAt or now <= channel.stoppedAt)
 end
 
+local function RetireChannel(self, caster)
+    local channel = self.channels[caster]
+    if not channel then return end
+    self.retiredChannels[#self.retiredChannels + 1] = channel
+    if #self.retiredChannels > MAX then table.remove(self.retiredChannels, 1) end
+    self.channels[caster] = nil
+end
+
 function Mine:StartChannel(caster, spell, key, now, targetUncertain)
     caster = caster == "pet" and "pet" or "you"
     -- Beginning another channel also ends any retired channel of that caster.
     self:StopChannel(caster, nil, now)
-    self.channels[caster] = nil
+    RetireChannel(self, caster)
     local facts = self.facts(spell)
     if type(facts) ~= "table" or facts.damages ~= true then return end
 
@@ -776,11 +797,7 @@ function Mine:Forget(key)
     end
     for caster, channel in pairs(self.channels) do
         if channel.key == key then
-            self.retiredChannels[#self.retiredChannels + 1] = channel
-            while #self.retiredChannels > MAX do
-                table.remove(self.retiredChannels, 1)
-            end
-            self.channels[caster] = nil
+            RetireChannel(self, caster)
         end
     end
     for _, list in ipairs({ self.pending, self.dots, self.swings, self.held }) do
@@ -1747,6 +1764,7 @@ function Mine:MixedFrameDirectSchool(key, firstSchool, secondSchool, now)
         or candidate.cast.ambiguous then return nil end
     local facts = self.facts(candidate.spell)
     if not facts or facts.direct ~= true or facts.area or facts.nextSwing
+        or (facts.maxDirectTargets or 1) > 1
         or (facts.directHits or 1) ~= 1 or candidate.school ~= facts.school
         or (facts.school ~= firstSchool and facts.school ~= secondSchool) then
         return nil
@@ -1768,14 +1786,26 @@ function Mine:MixedFrameDirectSchool(key, firstSchool, secondSchool, now)
     return facts.school
 end
 
--- A battleground spell line can identify a cast while its target stays hidden.
-local function ConfirmUntargetedDirect(self, key, school, now)
+-- A typed spell line can identify a cast while its target stays hidden.
+function Mine:UntargetedDirectCandidate(key, school, now, leech, allowChannel)
     if not school or self.petOut then return nil end
+    local candidate, isChannel
     for _, channel in pairs(self.channels) do
-        if ChannelFits(channel, key, school, now) then return nil end
+        if ChannelFits(channel, key, school, now) then
+            if candidate or not allowChannel then return nil end
+            candidate, isChannel = channel, true
+        end
+    end
+    if allowChannel then
+        -- Match against report time even if a newer channel has started.
+        for _, channel in ipairs(self.retiredChannels) do
+            if ChannelFits(channel, key, school, now) then
+                if candidate then return nil end
+                candidate, isChannel = channel, true
+            end
+        end
     end
 
-    local candidate
     for _, entry in ipairs(self.pending) do
         -- A spell line can come from an impact outside the selected target.
         if DirectCandidateScore(self, entry, entry.key or key, school, now) then
@@ -1784,13 +1814,18 @@ local function ConfirmUntargetedDirect(self, key, school, now)
         end
     end
     if not candidate or candidate.at > now or candidate.caster ~= "you"
-        or not candidate.targetUncertain or candidate.key or candidate.cast.candidates
-        or candidate.ambiguous or candidate.cast.ambiguous then return nil end
+        or not candidate.targetUncertain or candidate.key or candidate.ambiguous then
+        return nil
+    end
+    local cast = candidate.cast
+    if cast and (cast.candidates or cast.ambiguous) then return nil end
     local facts = self.facts(candidate.spell)
     if not facts or facts.direct ~= true or facts.ticks ~= false
+        or (isChannel and facts.allowUntargetedChannel ~= true)
         or facts.school ~= school or facts.area or facts.nextSwing or facts.shot
+        or (facts.maxDirectTargets or 1) > 1
         or (facts.directHits or 1) ~= 1
-        or (self.leechNow == true and not facts.leech) then return nil end
+        or (leech == true and not facts.leech) then return nil end
 
     for spell, casts in pairs(self.casts) do
         for _, cast in ipairs(casts) do
@@ -1802,8 +1837,7 @@ local function ConfirmUntargetedDirect(self, key, school, now)
         end
     end
 
-    SpendDirect(self, candidate.spell, candidate.cast, nil, false)
-    return Result("you", candidate.spell, false)
+    return candidate, isChannel
 end
 
 function Mine:Likeliest(school, now, restrict, key)
@@ -1961,7 +1995,7 @@ end
 -- moment, false when heals on you were read and none matched, nil unknown.
 -- avoid: the game's word for a miss ("PARRY", "DODGE", "MISS", ...), nil unknown.
 function Mine:Hit(key, kind, school, now, petAttacking, line, amount, crit,
-    restrict, leech, avoid, isolatedBattlegroundSpell)
+    restrict, leech, avoid, isolatedDirectSpell)
     self.lastOutcomeReceipt = nil
     self:Tidy(now)
     self.amountNow, self.lineNow, self.ambiguous, self.critNow = amount, line, false, crit == true
@@ -1984,9 +2018,15 @@ function Mine:Hit(key, kind, school, now, petAttacking, line, amount, crit,
     self.restrictNow = line == true and restrict or nil
     self.leechNow = kind == "damage" and leech or nil
     local allowed = Allowed(self.restrictNow)
-    if isolatedBattlegroundSpell and self.restrictNow == "direct" then
-        local result = ConfirmUntargetedDirect(self, key, school, now)
-        if result then return result end
+    if isolatedDirectSpell and self.restrictNow == "direct" then
+        local candidate, isChannel = self:UntargetedDirectCandidate(
+            key, school, now, leech, isolatedDirectSpell == "party")
+        if candidate then
+            if not isChannel then
+                SpendDirect(self, candidate.spell, candidate.cast, nil, false)
+            end
+            return Result("you", candidate.spell, false)
+        end
     end
     -- 0.3.49: a damage shield's line (Thorns on you, an item): the hit on
     -- the enemy that struck you is yours, whatever cast or swing came before

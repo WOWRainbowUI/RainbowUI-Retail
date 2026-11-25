@@ -48,7 +48,7 @@ function Formatter:FormatRestrictedAmount(amount, profile)
 	return amount
 end
 
-local RESTRICTED_AMOUNT_TOKEN = "\001"
+Formatter.restrictedAmountToken = "\001"
 
 function Formatter:ColorDamageAmount(amount, damageType)
 	local profile = self:GetProfile()
@@ -61,15 +61,19 @@ function Formatter:ColorDamageAmount(amount, damageType)
 	return amount
 end
 
-function Formatter:BuildRestrictedTemplate(message, suffix, damageType)
-	message = string.gsub(message, "%%a", RESTRICTED_AMOUNT_TOKEN, 1)
-	message = string.gsub(message, "%%a", "")
+function Formatter:MarkRestrictedAmount(message)
+	message = string.gsub(message, "%%a", self.restrictedAmountToken, 1)
+	return (string.gsub(message, "%%a", ""))
+end
+
+function Formatter:BuildRestrictedTemplate(message, suffix, damageType, amountMarked)
+	if not amountMarked then message = self:MarkRestrictedAmount(message) end
 	if suffix then
 		message = message .. suffix
 	end
 	message = string.gsub(message, "%%", "%%%%")
 	local placeholder = self:ColorDamageAmount("%s", damageType)
-	return (string.gsub(message, RESTRICTED_AMOUNT_TOKEN, function()
+	return (string.gsub(message, self.restrictedAmountToken, function()
 		return placeholder
 	end))
 end
@@ -167,14 +171,13 @@ local function FormatSkill(self, message, event, profile)
 		return message
 	end
 
-	if string.find(message, "%e", 1, true) then
-		message = string.gsub(message, "%%e", effectName)
+	local hasSkill = string.find(message, "%s", 1, true)
+	local hideSkill = hasSkill and event.hideSkills
+	if hideSkill then
+		message = string.gsub(message, "%s?%-?%s?%%sl?%s?%-?%s?", "")
 	end
-	if not string.find(message, "%s", 1, true) then
-		return message
-	end
-	if event.hideSkills then
-		return string.gsub(message, "%s?%-?%s?%%sl?%s?%-?%s?", ""), true
+	if not hasSkill or hideSkill then
+		return string.gsub(message, "%%e", function() return effectName end), hideSkill
 	end
 
 	local isChanged
@@ -183,14 +186,16 @@ local function FormatSkill(self, message, event, profile)
 		effectName = substitution
 		isChanged = true
 	end
-	if string.find(message, "%sl", 1, true) then
-		message = string.gsub(message, "%%sl", effectName)
-	end
+	local shortName = effectName
 	if self.config.isEnglish and not isChanged and profile.abbreviateAbilities then
-		effectName = self:AbbreviateSkillName(effectName)
+		shortName = self:AbbreviateSkillName(effectName)
 	end
 
-	return string.gsub(message, "%%s", effectName), false
+	return string.gsub(message, "%%([es])(l?)", function(token, long)
+		if token == "e" then return event.effectName .. long end
+		if long == "l" then return effectName end
+		return shortName
+	end), false
 end
 
 function Formatter:FormatEvent(event)
@@ -218,6 +223,12 @@ function Formatter:FormatEvent(event)
 	message, nameChanged = FormatName(self, message, event, profile)
 	checkParens = checkParens or nameChanged
 
+	if event.damageType and string.find(message, "%t", 1, true) then
+		local damageType = self.config.damageTypes[event.damageType]
+			or self.config.unknownSchool
+		message = string.gsub(message, "%%t", damageType)
+	end
+
 	local skillChanged
 	message, skillChanged = FormatSkill(self, message, event, profile)
 	checkParens = checkParens or skillChanged
@@ -229,11 +240,6 @@ function Formatter:FormatEvent(event)
 		message = string.gsub(message, "%<%>", "")
 	end
 
-	if event.damageType and string.find(message, "%t", 1, true) then
-		local damageType = self.config.damageTypes[event.damageType]
-			or self.config.unknownSchool
-		message = string.gsub(message, "%%t", damageType)
-	end
 	if event.partialEffects then
 		message = message .. event.partialEffects
 	end

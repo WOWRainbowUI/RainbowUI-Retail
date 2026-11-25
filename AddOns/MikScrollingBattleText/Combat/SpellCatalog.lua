@@ -26,7 +26,7 @@ local ns = source
 -- and the ranged attacks; the Classic spells' schools agree with the Classic
 -- Era data. Left out, among others: spells whose damage comes from another
 -- spell (Arcane Missiles, Hellfire, Execute), procs (poisons, weapon enchants;
--- a Seal Proc has its own rule, see ns.Seals), totems, and Mana Burn. Holy
+-- a Seal Proc needs its own evidence), totems, and Mana Burn. Holy
 -- Shock, whose damage a script makes, is in, so that its Hit on an enemy gets its icon; the cost is
 -- that its cast on a friend, which heals, competes with the casts that could
 -- have made a Holy Hit.
@@ -64,28 +64,6 @@ local JUDGEMENT_WINDOW = 0.2
 local function judges(ids)
 	addSpell({ school = HOLY, window = JUDGEMENT_WINDOW }, ids)
 end
-
--- The Seals, by the spell ID of their cast, from Forever's spell data, each with
--- whether its Seal Proc gets an icon (see Identity's sealProc). Any Seal's cast
--- replaces the Active Seal. Seal of Martyrdom also procs Holy damage, but no
--- Trace has it, so it only replaces the last Seal.
-local seals = {}
-ns.Seals = seals
-
-local function sealsWith(proc, ids)
-	for _, id in ipairs(ids) do
-		seals[id] = proc
-	end
-end
-
-sealsWith(true, { 20154, 20287, 20288, 20289, 20290, 20291, 20292, 20293, 21084 }) -- Righteousness
-sealsWith(true, { 20375, 20915, 20918, 20919, 20920 }) -- Command
-sealsWith(true, { 20163, 20419, 20421, 20422, 20423, 1311649, 1311656 }) -- Fury, Forever only
-sealsWith(false, { 20164 }) -- Justice
-sealsWith(false, { 20165, 20347, 20348, 20349 }) -- Light
-sealsWith(false, { 20166, 20356, 20357 }) -- Wisdom
-sealsWith(false, { 20162, 20305, 20306, 20307, 20308, 21082 }) -- the Crusader
-sealsWith(false, { 407798 }) -- Martyrdom
 
 -- Consecration's casts. Its ticks are direct Holy Hits with no cast of their
 -- own, so during it they cannot be told from a Seal Proc (see Identity).
@@ -359,17 +337,28 @@ end
 
 end
 
+local classSpellFacts = {}
+for _, rules in pairs(engine.classRules or {}) do
+    if rules.spellFacts then
+        for spellID, facts in pairs(rules.spellFacts) do
+            classSpellFacts[spellID] = facts
+        end
+    end
+end
+
 -- Return a fresh normalized record: source ranks share immutable tables.
 -- Unconstrained direct casts keep MSBT's existing three-second flight policy:
 -- upstream Identity's 1.5 seconds is an inference window, not spell metadata.
 -- Explicit per-spell windows and Pairing's 2.5-second shot window are retained.
 -- A nil school is deliberate for Shoot, whose wand sets its school.
 function engine.CatalogSpellFacts(spellID)
+    local override = classSpellFacts[spellID]
     local direct = source.DirectSpells[spellID]
     local ticking = source.TickSpells[spellID]
     local spell = ticking or direct
-    if not spell then return nil end
-    return {
+    if not spell and not override then return nil end
+
+    local facts = spell and {
         damages = true,
         school = spell.school,
         direct = direct ~= nil or spell.hits == true,
@@ -384,5 +373,9 @@ function engine.CatalogSpellFacts(spellID)
         learnsSchool = spell.learns == true,
         source = "nameplatesct-reforged",
         sourceBuild = "1.60.1.70888",
-    }
+    } or {}
+    if override then
+        for key, value in pairs(override) do facts[key] = value end
+    end
+    return facts
 end

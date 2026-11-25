@@ -529,14 +529,16 @@ local function ResolveBatchDisplaySettings(eventSettings, critSettings, hitCount
 	return eventSettings
 end
 
-local function CleanupActionMessage(message)
+local function CleanupActionMessage(message, skillFormatted)
 	if not message then
 		return message
 	end
-	message = string_gsub(message, "%%n", "")
-	message = string_gsub(message, "%%sl", "")
-	message = string_gsub(message, "%%s", "")
-	message = string_gsub(message, "%%e", "")
+	if not skillFormatted then
+		message = string_gsub(message, "%%n", "")
+		message = string_gsub(message, "%%sl", "")
+		message = string_gsub(message, "%%s", "")
+		message = string_gsub(message, "%%e", "")
+	end
 	message = string_gsub(message, "%s+%-%s*([%)%]%}>])", "%1")
 	message = string_gsub(message, "([%(%[%{<])%s*%-%s+", "%1")
 	message = string_gsub(message, "%(%s*%-?%s*%)", "")
@@ -551,10 +553,11 @@ local function CleanupActionMessage(message)
 end
 
 local function RestrictedActionMessage(eventSettings, message, school, spellID)
-	message = message or eventSettings.message or "%a"
+	message = Formatter:MarkRestrictedAmount(message or eventSettings.message or "%a")
 	local publicSpellID = RestrictedValue:Number(spellID)
+	local spellName
 	if publicSpellID then
-		local spellName = not IsAutoAttackSpellID(publicSpellID)
+		spellName = not IsAutoAttackSpellID(publicSpellID)
 			and RestrictedValue:String(GetSpellInfo(publicSpellID)) or nil
 		-- Format readable metadata without sending the hidden amount into Lua.
 		message = Formatter:FormatLegacyEvent(
@@ -562,7 +565,7 @@ local function RestrictedActionMessage(eventSettings, message, school, spellID)
 			nil, nil, nil, MSBTProfiles.currentProfile.hideSkills
 		)
 	end
-	return CleanupActionMessage(message)
+	return CleanupActionMessage(message, not not spellName)
 end
 
 local function FormatConditionalDamageMinus(amount, formatted)
@@ -588,7 +591,7 @@ local function DisplayRestrictedAmount(
 		and type(C_StringUtil.TruncateWhenZero) == "function"
 		and type(C_StringUtil.WrapString) == "function"
 		and type(C_StringUtil.StripHyperlinks) == "function" then
-		local index = string_find(message, "%a", 1, true)
+		local index = string_find(message, Formatter.restrictedAmountToken, 1, true)
 		if index and index > 1 and message:sub(index - 1, index - 1) == "-" then
 			local ok, signed = pcall(FormatConditionalDamageMinus, amount, formatted)
 			if ok then
@@ -597,7 +600,7 @@ local function DisplayRestrictedAmount(
 			end
 		end
 	end
-	local template = Formatter:BuildRestrictedTemplate(message, suffix, school)
+	local template = Formatter:BuildRestrictedTemplate(message, suffix, school, true)
 	DisplayEvent(eventSettings, template, texturePath, nil, formatted)
 end
 
@@ -612,10 +615,8 @@ local function DisplayRestrictedGroup(
 		)
 		placeholders[index] = Formatter:ColorDamageAmount("%s", school)
 	end
-	local message = (eventSettings.message or "%a"):gsub("%%a", "\001", 1)
-		:gsub("%%a", "")
-	message = RestrictedActionMessage(eventSettings, message, school, spellID)
-	message = message:gsub("%%", "%%%%"):gsub("\001", function()
+	local message = RestrictedActionMessage(eventSettings, nil, school, spellID)
+	message = message:gsub("%%", "%%%%"):gsub(Formatter.restrictedAmountToken, function()
 		return table.concat(placeholders, " + ")
 	end) .. string.format(" [%d %s]", #amounts, L.MSG_HITS or "Hits")
 	DisplayEvent(eventSettings, message, texturePath, nil,
@@ -668,7 +669,7 @@ local outgoingBatcher = OutgoingBatcher:New({
 			eventSettings.message, amount, school, nil, nil, nil,
 			nil, nil, spellName, nil, nil, nil,
 			MSBTProfiles.currentProfile.hideSkills
-		))
+		), not not spellName)
 	end,
 	display = DisplayEvent,
 	displayRestricted = DisplayRestrictedAmount,

@@ -2,6 +2,7 @@ local Presentation = {}
 Presentation.__index = Presentation
 
 local RestrictedValue = MikSBT.API.RestrictedValue
+local windfuryWeapon = MikSBT.CombatEngine and MikSBT.CombatEngine.WindfuryWeapon
 local HEALER_PAIR_WINDOW = 0.2
 local MISS_TYPES = {
 	"MISS", "DODGE", "PARRY", "BLOCK", "RESIST", "EVADE",
@@ -496,8 +497,9 @@ function Presentation:Out(record)
 		local profile = self.config.getProfile and self.config.getProfile()
 		if inferenceGroup and client and client.isForever
 			and RestrictedValue:Table(profile)
-			and RestrictedValue:Number(record.inferredWindfuryIcon) == 8232 then
-			icon = self.config.getSpellTexture(8232)
+			and windfuryWeapon and RestrictedValue:Number(record.inferredWindfuryIcon)
+				== windfuryWeapon.iconSpell then
+			icon = self.config.getSpellTexture(windfuryWeapon.iconSpell)
 		end
 	end
 	if record.event == "damage" then
