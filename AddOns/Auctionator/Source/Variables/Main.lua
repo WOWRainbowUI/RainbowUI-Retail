@@ -160,7 +160,7 @@ function Auctionator.Variables.InitializeDatabase()
       success, data = pcall(LibCBOR.Deserialize, LibCBOR, raw)
     end
     if not success then
-      AUCTIONATOR_PRICE_DATABASE[realm] = {}
+      AUCTIONATOR_PRICE_DATABASE[realm] = {suffixes = true}
     else
       AUCTIONATOR_PRICE_DATABASE[realm] = data
     end
@@ -169,6 +169,20 @@ function Auctionator.Variables.InitializeDatabase()
   -- Fix conversion error from old code
   if type(AUCTIONATOR_PRICE_DATABASE[realm]) ~= "table" then
     AUCTIONATOR_PRICE_DATABASE[realm] = {}
+  end
+
+  if Auctionator.Constants.IsForever and AUCTIONATOR_PRICE_DATABASE[realm].suffixes == nil then
+    local new = {suffixes = true}
+    for key, value in pairs(AUCTIONATOR_PRICE_DATABASE[realm]) do
+      local p1, p2 = key:match("(gr:%d+:)([%a%s']+)")
+      if p1 and p2 then
+        local newKey = p1 .. tIndexOf(Auctionator.Utilities.SuffixLabels, p2)
+        new[newKey] = value
+      else
+        new[key] = value
+      end
+    end
+    AUCTIONATOR_PRICE_DATABASE[realm] = new
   end
 
   assert(AUCTIONATOR_PRICE_DATABASE[realm], "Realm data missing somehow")

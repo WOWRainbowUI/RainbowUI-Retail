@@ -68,8 +68,6 @@ function AuctionatorIncrementalScanFrameMixin:InitiateScan()
     self.previousDatabaseCount = Auctionator.Database:GetItemCount()
     self.doingFullScan = true
 
-    self.queued = 0
-
     Auctionator.EventBus:Fire(self, Auctionator.IncrementalScan.Events.ScanStart)
     self:FireProgressEvent()
   else
