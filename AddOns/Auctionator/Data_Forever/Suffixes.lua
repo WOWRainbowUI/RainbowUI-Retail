@@ -107,15 +107,22 @@ Auctionator.Utilities.SuffixLabels = {
 "of the Prophet",
 }
 
+Auctionator.Utilities.SuffixesExtraChecks = {}
+
 Auctionator.Utilities.SuffixesToLabel = {}
 local itemID = 10259
 local link = "item:10259::::::::14:1485::1:1:12753:1:28:5239:::::"
 Item:CreateFromItemID(itemID):ContinueOnItemLoad(function()
   local baseName = C_Item.GetItemNameByID(itemID) .. " "
-  local len = string.len(baseName .. " ")
+  local len = string.len(baseName) + 1
   for bonusID, index in pairs(Auctionator.Utilities.SuffixBonusIDs) do
     local bonusLink = link:gsub("12753", bonusID)
-    local bonusName = C_Item.GetItemNameByID(bonusLink):sub(len)
-    Auctionator.Utilities.SuffixesToLabel[bonusName] = Auctionator.Utilities.SuffixLabels[index]
+    local bonusName = C_Item.GetItemNameByID(bonusLink)
+    local suffix = bonusName:sub(len)
+    if bonusName:sub(1, len - 1) ~= baseName then
+      table.insert(Auctionator.Utilities.SuffixesExtraChecks, bonusID)
+    else
+      Auctionator.Utilities.SuffixesToLabel[suffix] = index
+    end
   end
 end)

@@ -1,6 +1,7 @@
 # Auctionator
 
-## [352](https://github.com/TheMouseNest/Auctionator/tree/352) (2026-11-22)
-[Full Changelog](https://github.com/TheMouseNest/Auctionator/compare/351...352) 
+## [353](https://github.com/TheMouseNest/Auctionator/tree/353) (2026-11-24)
+[Full Changelog](https://github.com/TheMouseNest/Auctionator/compare/352...353) 
 
-- Quick fix for tooltips in other locales  
+- Only store suffix index, not entire thing (hopefully reduce risk of CBOR issues)  
+- Fix suffix detection for other locales  
