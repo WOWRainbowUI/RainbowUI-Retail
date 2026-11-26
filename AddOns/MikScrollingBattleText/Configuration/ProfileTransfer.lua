@@ -58,6 +58,7 @@ local OPTIONAL_TYPES = {
 	skillIconsDisabled = "boolean", classColoringDisabled = "boolean",
 	skillColoringDisabled = "boolean", partialColoringDisabled = "boolean",
 	damageColoringDisabled = "boolean",
+	damageSchoolColorsDisabled = "boolean",
 }
 local RECORD_TYPES = {
 	name = "string", message = "string", mainEvents = "string",

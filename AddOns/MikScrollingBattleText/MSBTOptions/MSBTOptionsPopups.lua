@@ -932,8 +932,17 @@ local function CreateDamageColors()
 	frame:SetSize(380, 410)
 	frame.titleFontString:SetText(L.BUTTONS.damageColors.label)
 
+	local checkbox = MSBTControls.CreateCheckbox(frame)
+	local objLocale = L.CHECKBOXES.disableDamageSchoolColors
+	checkbox:Configure(24, objLocale.label, objLocale.tooltip)
+	checkbox:SetPoint("TOPLEFT", frame, "TOPLEFT", 44, -80)
+	checkbox:SetClickHandler(function(this, isChecked)
+		MSBTProfiles.SetOption(nil, "damageSchoolColorsDisabled", isChecked)
+	end)
+	frame.colorCheckbox = checkbox
+
 	local scrollFrame = CreateFrame("ScrollFrame", nil, frame, "UIPanelScrollFrameTemplate")
-	scrollFrame:SetPoint("TOPLEFT", frame, "TOPLEFT", 44, -80)
+	scrollFrame:SetPoint("TOPLEFT", checkbox, "BOTTOMLEFT", 0, -8)
 	scrollFrame:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -64, 68)
 
 	local content = CreateFrame("Frame", nil, scrollFrame)
@@ -976,6 +985,7 @@ local function ShowDamageColors(configTable)
 
 	local frame = popupFrames.damageColorsFrame
 	ChangePopupParent(frame, configTable.parentFrame)
+	frame.colorCheckbox:SetChecked(MSBTProfiles.currentProfile.damageSchoolColorsDisabled == true)
 
 	local profileEntry
 	for damageType, profileKey in pairs(MSBTMain.damageColorProfileEntries) do

@@ -61,6 +61,7 @@ end
 
 function OutgoingBatcher:DamageSettings(settings, isSpell, isDot, school)
 	if isDot or (isSpell and school ~= 1) then return settings end
+	if self.config.getProfile().damageSchoolColorsDisabled == true then return settings end
 	-- Use attack colors without changing the user's saved event settings.
 	return setmetatable({
 		colorR = 1, colorG = 1, colorB = isSpell and 0 or 1,
