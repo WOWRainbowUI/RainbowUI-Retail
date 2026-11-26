@@ -36,6 +36,8 @@ function Auctionator.Utilities.DBKeyFromLink(itemLink, callback)
       local suffixString = Auctionator.Utilities.SuffixStringIDTOSuffixString[suffixStringID]
       if suffixString then
         callback({"gr:" .. basicKey .. ":" .. suffixString, basicKey})
+      else
+        callback({basicKey})
       end
     else
       local item = Item:CreateFromItemLink(itemLink)
