@@ -417,7 +417,8 @@ addonTable.Data.Spells[class] = {
     ['spells'] = {
       [1] = 20925,
       [2] = 20927,
-      [3] = 20928
+      [3] = 20928,
+      [4] = 1239570
     },
     ['name'] = 'Holy Shield',
     ['isRanked'] = true

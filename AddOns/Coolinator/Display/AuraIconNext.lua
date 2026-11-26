@@ -166,12 +166,13 @@ function addonTable.Display.AuraIconNextMixin:ApplyPadding(horizontal, vertical)
     self.harmfulButton:SetScale(self:GetEffectiveScale() / UIParent:GetScale())
     self.harmfulButton:SetFrameLevel(self:GetFrameLevel() + 1)
     PixelUtil.SetRoundLayoutToNearestPixelRecursively(self.harmfulButton, true)
+
+    for _, sa in ipairs(self.sizeAssistants) do
+      sa:SetRoundLayoutToNearestPixel(false)
+    end
   end
 
   self:SetRoundLayoutToNearestPixel(false)
-  for _, sa in ipairs(self.sizeAssistants) do
-    sa:SetRoundLayoutToNearestPixel(false)
-  end
 end
 
 function addonTable.Display.AuraIconNextMixin:Setup(details)

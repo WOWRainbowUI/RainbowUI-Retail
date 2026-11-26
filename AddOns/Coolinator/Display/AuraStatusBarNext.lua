@@ -227,12 +227,12 @@ function addonTable.Display.AuraStatusBarNextMixin:ApplyPadding(horizontal, vert
     self.harmfulButton:SetSize(self.harmfulButton.sizingWidth + horizontal, self.harmfulButton.sizingHeight + vertical)
     self.harmfulButton:SetScale(self:GetEffectiveScale() / UIParent:GetScale())
     self.harmfulButton:SetFrameLevel(self:GetFrameLevel() + 1)
-  end
 
-  self:SetRoundLayoutToNearestPixel(false)
-  for _, sa in ipairs(self.sizeAssistants) do
-    sa:SetRoundLayoutToNearestPixel(false)
+    for _, sa in ipairs(self.sizeAssistants) do
+      sa:SetRoundLayoutToNearestPixel(false)
+    end
   end
+  self:SetRoundLayoutToNearestPixel(false)
 end
 
 function addonTable.Display.AuraStatusBarNextMixin:ApplySize(width, height)
