@@ -910,7 +910,7 @@ L["BuffPanel.Sound"] = "聲音"
 L["BuffPanel.Sound.None"] = "無"
 L["BuffPanel.Detached"] = "自己的框架 (獨立的)"
 L["BuffPanel.Detached.Desc"] = "將此增益從其類別中拉出到其自己獨立定位的框架中。 \n從佈局頁面或透過解鎖框架來定位它。"
-L["BuffPanel.ShowSharedWithHealthstone"] = "Healthstones use this setting too."
+
 
 
 L["DisabledReason.NotDetached"] = "此增益不是獨立的 - 它位於其類別框架內。"

@@ -1724,3 +1724,6 @@ L["BuffPanel.Show.Always"] = "所有人一律显示"
 L["BuffPanel.Show.Always.Desc"] = "所有人在所有场合都会看见提醒。"
 
 L["Externals.AppearanceNote"] = "战斗中所做的更改会在离开战斗后立即生效。解锁框架即可拖动整行。"
+
+L["BuffReminders"] = "增益提醒"
+L["|cffffffffBuff|r|cffffcc00Reminders|r"] = "|cffffffff增益|r|cffffcc00提醒|r"
