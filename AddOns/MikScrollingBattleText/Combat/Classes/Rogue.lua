@@ -2,6 +2,9 @@
 local mutilate = { directHits = 2 }
 
 MikSBT.CombatEngine.classRules.ROGUE = {
+    extraAttackSpells = {
+        [16459] = true, -- Hack and Slash's extra-attack grant.
+    },
     spellFacts = {
         [1310707] = mutilate, [399956] = mutilate,
         [1241582] = mutilate, [1241584] = mutilate,

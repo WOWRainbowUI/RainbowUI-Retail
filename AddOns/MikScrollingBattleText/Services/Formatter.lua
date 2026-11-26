@@ -52,6 +52,8 @@ Formatter.restrictedAmountToken = "\001"
 
 function Formatter:ColorDamageAmount(amount, damageType)
 	local profile = self:GetProfile()
+	if profile.damageSchoolColorsDisabled == true then return amount end
+
 	local entries = self.config.damageColorEntries
 	local entry = damageType and entries and entries[damageType]
 	local settings = entry and profile[entry]

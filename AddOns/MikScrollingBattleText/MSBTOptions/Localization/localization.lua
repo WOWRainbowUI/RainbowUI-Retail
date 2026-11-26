@@ -193,6 +193,7 @@ obj["disableIncoming"] = {
 }
 obj["stickyCrits"]				= { label="Sticky Crits", tooltip="Display crits using the sticky style."}
 obj["colorPartialEffects"]		= { label="Color Partial Effects", tooltip="Apply specified colors to partial effects."}
+obj["disableDamageSchoolColors"]	= { label="Disable All School Colors", tooltip="Use the configured event colors for damage numbers."}
 obj["crushing"]					= { label="Crushing Blows", tooltip="Display the crushing blows trailer."}
 obj["glancing"]					= { label="Glancing Hits", tooltip="Display the glancing hits trailer."}
 obj["absorb"]					= { label="Partial Absorbs", tooltip="Display partial absorb amounts."}
