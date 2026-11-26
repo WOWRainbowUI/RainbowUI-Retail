@@ -158,3 +158,11 @@ L["Other"] = "其他"
 L["Eat buff food raising this stat. Untick it to keep that buff food in your bags; food raising another ticked stat too is still eaten."] = "食用可提高此属性的增益食物。取消勾选会将这类食物留在背包；若食物同时提高其他已勾选的属性，仍会食用。"
 
 L["Eat buff food whose buff raises no single stat: feasts, random buffs and the like. Untick it to keep that buff food in your bags."] = "食用不提高单一特定属性的增益食物，例如盛宴、随机增益等。取消勾选会将这类食物留在背包。"
+
+-- 新版顯示文字
+L["Show mana potion when mana gem is on cooldown"] = "法力宝石冷却时显示法力药水"
+L["When your mana gem is on cooldown and a mana potion is ready (or comes off cooldown sooner), show and use the mana potion first until the mana gem is ready again. Because macros cannot be edited in combat, if the mana gem comes off cooldown mid-fight, the macro stays potion-only until combat ends."] = "法力宝石冷却中，而法力药水已可使用（或较早冷却完毕）时，优先显示并使用法力药水，直到法力宝石可用。战斗中无法编辑巨集，因此若法力宝石在战斗中冷却完毕，巨集仍会只使用药水，直到脱离战斗。"
+L["Separate Mana Gem macro (AutoManaGem)"] = "独立的法力宝石巨集（AutoManaGem）"
+L["Create a separate AutoManaGem macro for your best mana gem and keep AutoManaPotion for mana potions only."] = "为最佳的法力宝石建立独立的 AutoManaGem 巨集，让 AutoManaPotion 只使用法力药水。"
+L["Your best conjured mana gem."] = "你持有的最佳召唤法力宝石。"
+L["AutoManaGem"] = "AutoManaGem"
