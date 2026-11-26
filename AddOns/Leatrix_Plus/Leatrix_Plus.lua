@@ -1,5 +1,6 @@
 ----------------------------------------------------------------------
--- 	Leatrix Plus 12.1.19 (20th November 2026)
+-- 	Leatrix Plus 12.1.20 (26th November 2026)
+
 ----------------------------------------------------------------------
 
 --	01:Functions 02:Locks,  03:Restart 40:Player
@@ -18,7 +19,7 @@
 	local void
 
 	-- Version
-	LeaPlusLC["AddonVer"] = "12.1.19"
+	LeaPlusLC["AddonVer"] = "12.1.20"
 
 	-- Get locale table
 	local void, Leatrix_Plus = ...
@@ -589,8 +590,6 @@
 		LeaPlusLC:LockOption("ClassColFrames", "ClassColFramesBtn", true)			-- Class colored frames
 		LeaPlusLC:LockOption("SetWeatherDensity", "SetWeatherDensityBtn", false)	-- Set weather density
 		LeaPlusLC:LockOption("MuteGameSounds", "MuteGameSoundsBtn", false)			-- Mute game sounds
-		LeaPlusLC:LockOption("MuteMountSounds", "MuteMountSoundsBtn", false)		-- Mute mount sounds
-		LeaPlusLC:LockOption("MuteCustomSounds", "MuteCustomSoundsBtn", false)		-- Mute custom sounds
 		LeaPlusLC:LockOption("FasterLooting", "FasterLootingBtn", true)				-- Faster auto loot
 		LeaPlusLC:LockOption("NoTransforms", "NoTransformsBtn", false)				-- Remove transforms
 		LeaPlusLC:LockOption("SetEditModeLayout", "SetEditModeLayoutBtn", false)	-- Set edit mode layout
@@ -5319,218 +5318,62 @@
 		end
 
 		----------------------------------------------------------------------
-		-- Mute mount sounds (no reload required)
-		----------------------------------------------------------------------
-
-		do
-
-			-- Get mute table
-			local mountTable = Leatrix_Plus["mountTable"]
-
-			-- Give table file level scope (its used during logout and for wipe and admin commands)
-			LeaPlusLC["mountTable"] = mountTable
-
-			-- Load saved settings or set default values
-			for k, v in pairs(mountTable) do
-				if LeaPlusDB[k] and type(LeaPlusDB[k]) == "string" and LeaPlusDB[k] == "On" or LeaPlusDB[k] == "Off" then
-					LeaPlusLC[k] = LeaPlusDB[k]
-				else
-					LeaPlusLC[k] = "Off"
-					LeaPlusDB[k] = "Off"
-				end
-			end
-
-			-- Create configuration panel
-			local MountPanel = LeaPlusLC:CreatePanel("Mute mount sounds", "MountPanel")
-
-			-- Add checkboxes
-			LeaPlusLC:MakeTx(MountPanel, "Mounts", 16, -72)
-			LeaPlusLC:MakeCB(MountPanel, "MuteAerials", "Aerials", 16, -92, false, "If checked, jet aerial units will be quieter.|n|nThis applies to Aerial Unit R-21X and Rustbolt Resistor.")
-			LeaPlusLC:MakeCB(MountPanel, "MuteAirships", "Airships", 16, -112, false, "If checked, airships will be muted.|n|nThis applies to airship mounts and transports.")
-			LeaPlusLC:MakeCB(MountPanel, "MuteBikes", "Bikes", 16, -132, false, "If checked, most of the bike mount sounds will be muted.")
-			LeaPlusLC:MakeCB(MountPanel, "MuteBrooms", "Brooms", 16, -152, false, "If checked, broom mounts will be muted.")
-			LeaPlusLC:MakeCB(MountPanel, "MuteDragonriding", "Dragonriding", 16, -172, false, "If checked, dragonriding mounts will be quieter.")
-			LeaPlusLC:MakeCB(MountPanel, "MuteFish", "Fish", 16, -192, false, "If checked, fish mounts will be quieter.|n|nThis applies to Wondrous Wavewhisker.")
-			LeaPlusLC:MakeCB(MountPanel, "MuteFurlines", "Furlines", 16, -212, false, "If checked, furlines will be muted.")
-			LeaPlusLC:MakeCB(MountPanel, "MuteGyrocopters", "Gyrocopters", 16, -232, false, "If checked, gyrocopters will be muted.|n|nThis applies to Mimiron's Head, Mecha-Mogul MK2 and other gyrocopter mounts.|n|nEnabling this option will also mute airplane gear shift sounds.")
-
-			LeaPlusLC:MakeCB(MountPanel, "MuteHovercraft", "Hovercraft", 150, -92, false, "If checked, hovercraft will be quieter.|n|nThis applies to Xiwyllag ATV.")
-			LeaPlusLC:MakeCB(MountPanel, "MuteLunarwing", "Lunarwing", 150, -112, false, "If checked, Archdruid's Lunarwing Form will be quieter.")
-			LeaPlusLC:MakeCB(MountPanel, "MuteMechSteps", "Mechsteps", 150, -132, false, "If checked, footsteps for mechanical mounts will be muted.")
-			LeaPlusLC:MakeCB(MountPanel, "MuteStriders", "Mechstriders", 150, -152, false, "If checked, mechanostriders will be quieter.")
-			LeaPlusLC:MakeCB(MountPanel, "MuteMechsuits", "Mechsuits", 150, -172, false, "If checked, mechsuits will be quieter.|n|nThis applies to Felsteel Annihilator, Lightforged Warframe, Sky Golem and other mechsuits.")
-			LeaPlusLC:MakeCB(MountPanel, "MuteOttuks", "Ottuks", 150, -192, false, "If checked, ottuks will be quieter.")
-			LeaPlusLC:MakeCB(MountPanel, "MutePanthers", "Panthers", 150, -212, false, "If checked, the jewelcrafting panther mounts will be quieter.")
-			LeaPlusLC:MakeCB(MountPanel, "MuteRabbits", "Rabbits", 150, -232, false, "If checked, divine rabbit mounts will be quieter.|n|nThis applies to Jade, Bright Foreseer.")
-
-			LeaPlusLC:MakeCB(MountPanel, "MuteRazorwings", "Razorwings", 284, -92, false, "If checked, razorwings will be muted.")
-			LeaPlusLC:MakeCB(MountPanel, "MuteRockets", "Rockets", 284, -112, false, "If checked, rockets will be muted.")
-			LeaPlusLC:MakeCB(MountPanel, "MuteSoulEaters", "Soul Eaters", 284, -132, false, "If checked, Gladiator Soul Eater mounts will be quieter.")
-			LeaPlusLC:MakeCB(MountPanel, "MuteSoulseekers", "Soulseekers", 284, -152, false, "If checked, soulseekers will be quieter.|n|nThis applies to Corridor Creeper, Mawsworn Soulhunter and Bound Shadehound.")
-			LeaPlusLC:MakeCB(MountPanel, "MuteTravelers", "Travelers", 284, -172, false, "If checked, traveling merchant greetings and farewells will be muted.|n|nThis applies to Traveler's Tundra Mammoth, Grand Expedition Yak and Mighty Caravan Brutosaur.")
-			LeaPlusLC:MakeCB(MountPanel, "MuteUnicorns", "Unicorns", 284, -192, false, "If checked, unicorns will be quieter.|n|nThis applies to Lucid Nightmare, Wild Dreamrunner, Pureheart Courser and other unicorn mounts.")
-			LeaPlusLC:MakeCB(MountPanel, "MuteZeppelins", "Zeppelins", 284, -212, false, "If checked, zeppelins will be muted.|n|nThis applies to zeppelin mounts and transports.")
-
-			LeaPlusLC:MakeTx(MountPanel, "Specific", 418, -72)
-			LeaPlusLC:MakeCB(MountPanel, "MuteBanLu", "Ban-Lu", 418, -92, false, "If checked, Ban-Lu will no longer talk to you.")
-			LeaPlusLC:MakeCB(MountPanel, "MuteSoar", "Soar", 418, -112, false, "If checked, Soar (Dracthyr) will be quieter.")
-			LeaPlusLC:MakeCB(MountPanel, "MuteTempest", "Tempest", 418, -132, false, "If checked, the Coldflame Tempest mount will be quieter.")
-
-			-- Set click width for sounds checkboxes
-			for k, v in pairs(mountTable) do
-				LeaPlusCB[k].f:SetWidth(90)
-				if LeaPlusCB[k].f:GetStringWidth() > 90 then
-					LeaPlusCB[k]:SetHitRectInsets(0, -80, 0, 0)
-				else
-					LeaPlusCB[k]:SetHitRectInsets(0, -LeaPlusCB[k].f:GetStringWidth() + 4, 0, 0)
-				end
-			end
-
-			-- Function to mute and unmute sounds
-			local function SetupMute()
-				for k, v in pairs(mountTable) do
-					if LeaPlusLC["MuteMountSounds"] == "On" and LeaPlusLC[k] == "On" then
-						for i, e in pairs(v) do
-							local file, soundID = e:match("([^,]+)%#([^,]+)")
-							MuteSoundFile(soundID)
-						end
-					else
-						for i, e in pairs(v) do
-							local file, soundID = e:match("([^,]+)%#([^,]+)")
-							UnmuteSoundFile(soundID)
-						end
-					end
-				end
-			end
-
-			-- Setup mute on startup if option is enabled
-			if LeaPlusLC["MuteMountSounds"] == "On" then SetupMute() end
-
-			-- Mute sounds when UNIT_FACTION is loaded (required for Soar)
-			local delayMute = CreateFrame("FRAME")
-			delayMute:RegisterEvent("UNIT_FACTION")
-			delayMute:SetScript("OnEvent", function() if LeaPlusLC["MuteMountSounds"] == "On" then SetupMute() end end)
-
-			-- Setup mute when options are clicked
-			for k, v in pairs(mountTable) do
-				LeaPlusCB[k]:HookScript("OnClick", SetupMute)
-			end
-			LeaPlusCB["MuteMountSounds"]:HookScript("OnClick", SetupMute)
-
-			-- Help button hidden
-			MountPanel.h:Hide()
-
-			-- Back button handler
-			MountPanel.b:SetScript("OnClick", function()
-				MountPanel:Hide(); LeaPlusLC["PageF"]:Show(); LeaPlusLC["Page7"]:Show()
-				return
-			end)
-
-			-- Reset button handler
-			MountPanel.r:SetScript("OnClick", function()
-
-				-- Reset checkboxes
-				for k, v in pairs(mountTable) do
-					LeaPlusLC[k] = "Off"
-				end
-				SetupMute()
-
-				-- Refresh panel
-				MountPanel:Hide(); MountPanel:Show()
-
-			end)
-
-			-- Show panal when options panel button is clicked
-			LeaPlusCB["MuteMountSoundsBtn"]:SetScript("OnClick", function()
-				if IsShiftKeyDown() and IsControlKeyDown() then
-					-- Preset profile
-					for k, v in pairs(mountTable) do
-						LeaPlusLC[k] = "On"
-					end
-					SetupMute()
-				else
-					MountPanel:Show()
-					LeaPlusLC:HideFrames()
-				end
-			end)
-
-		end
-
-		----------------------------------------------------------------------
 		-- Mute game sounds (no reload required)
 		----------------------------------------------------------------------
 
 		do
 
-			-- Get mute table
-			local muteTable = Leatrix_Plus["muteTable"]
+			-- Create configuration panels (game sounds and mount sounds are tabs of the same option)
+			local SoundPanel = LeaPlusLC:CreatePanel("Mute game sounds", "SoundPanel", true)
+			local MountPanel = LeaPlusLC:CreatePanel("Mute game sounds", "MountPanel", true)
+			local soundScroll, mountScroll = SoundPanel.scrollChild, MountPanel.scrollChild
 
-			-- Give table file level scope (its used during logout and for wipe and admin commands)
-			LeaPlusLC["muteTable"] = muteTable
+			-- Give panels file level scope (the custom sounds tab is created in the Mute custom sounds section)
+			LeaPlusLC["MuteSoundPanel"], LeaPlusLC["MuteMountPanel"] = SoundPanel, MountPanel
 
-			-- Load saved settings or set default values
-			for k, v in pairs(muteTable) do
-				if LeaPlusDB[k] and type(LeaPlusDB[k]) == "string" and LeaPlusDB[k] == "On" or LeaPlusDB[k] == "Off" then
-					LeaPlusLC[k] = LeaPlusDB[k]
-				else
-					LeaPlusLC[k] = "Off"
-					LeaPlusDB[k] = "Off"
+			-- Add tabs to the game sounds panel
+			local soundGameTab, soundMountTab, soundCustomTab = LeaPlusLC:MakePanelTabs(SoundPanel, "MuteSoundGameTab", "General", "MuteSoundMountTab", "Mounts", "MuteSoundCustomTab", "Custom")
+			LeaPlusLC:SetPanelTabStyle(soundGameTab, true)
+			LeaPlusLC:SetPanelTabStyle(soundMountTab, false)
+			LeaPlusLC:SetPanelTabStyle(soundCustomTab, false)
+			soundMountTab:SetScript("OnClick", function() SoundPanel:Hide(); MountPanel:Show() end)
+			soundCustomTab:SetScript("OnClick", function() SoundPanel:Hide(); LeaPlusLC["MuteCustomPanel"]:Show() end)
+
+			-- Add tabs to the mount sounds panel
+			local mountGameTab, mountMountTab, mountCustomTab = LeaPlusLC:MakePanelTabs(MountPanel, "MuteMountGameTab", "General", "MuteMountMountTab", "Mounts", "MuteMountCustomTab", "Custom")
+			LeaPlusLC:SetPanelTabStyle(mountGameTab, false)
+			LeaPlusLC:SetPanelTabStyle(mountMountTab, true)
+			LeaPlusLC:SetPanelTabStyle(mountCustomTab, false)
+			mountGameTab:SetScript("OnClick", function() MountPanel:Hide(); SoundPanel:Show() end)
+			mountCustomTab:SetScript("OnClick", function() MountPanel:Hide(); LeaPlusLC["MuteCustomPanel"]:Show() end)
+
+			-- Function to set the click width for sounds checkboxes
+			local function SetClickWidth(soundTable)
+				for k, v in pairs(soundTable) do
+					LeaPlusCB[k].f:SetWidth(90)
+					if LeaPlusCB[k].f:GetStringWidth() > 90 then
+						LeaPlusCB[k]:SetHitRectInsets(0, -80, 0, 0)
+					else
+						LeaPlusCB[k]:SetHitRectInsets(0, -LeaPlusCB[k].f:GetStringWidth() + 4, 0, 0)
+					end
 				end
 			end
 
-			-- Create configuration panel
-			local SoundPanel = LeaPlusLC:CreatePanel("Mute game sounds", "SoundPanel")
-
-			-- Add checkboxes
-			LeaPlusLC:MakeTx(SoundPanel, "General", 16, -72)
-			LeaPlusLC:MakeCB(SoundPanel, "MuteChimes", "Chimes", 16, -92, false, "If checked, clock hourly chimes will be muted.")
-			LeaPlusLC:MakeCB(SoundPanel, "MuteEvents", "Events", 16, -112, false, "If checked, holiday event sounds will be muted.|n|nThis applies to Headless Horseman.")
-			LeaPlusLC:MakeCB(SoundPanel, "MuteFizzle", "Fizzle", 16, -132, false, "If checked, the spell fizzle sounds will be muted.")
-			LeaPlusLC:MakeCB(SoundPanel, "MuteInterface", "Interface", 16, -152, false, "If checked, the interface button sound, the chat frame tab click sound and the game menu toggle sound will be muted.")
-			LeaPlusLC:MakeCB(SoundPanel, "MuteLogin", "Login", 16, -172, false, "If checked, login screen sounds will be muted when you logout of the game.|n|nNote that login screen sounds will not be muted when you initially launch the game.|n|nThey will only be muted when you logout of the game.  This includes manually logging out as well as being forcefully logged out by the game server for reasons such as being away for an extended period of time.")
-			LeaPlusLC:MakeCB(SoundPanel, "MuteReady", "Ready", 16, -192, false, "If checked, the ready check sound will be muted.")
-			LeaPlusLC:MakeCB(SoundPanel, "MuteSniffing", "Sniffing", 16, -212, false, "If checked, the worgen sniffing sounds will be muted.")
-			LeaPlusLC:MakeCB(SoundPanel, "MuteTrains", "Trains", 16, -232, false, "If checked, train sounds will be muted.")
-
-			LeaPlusLC:MakeTx(SoundPanel, "General", 150, -72)
-			LeaPlusLC:MakeCB(SoundPanel, "MuteVaults", "Vaults", 150, -92, false, "If checked, the mechanical guild vault idle sound will be muted.")
-			LeaPlusLC:MakeCB(SoundPanel, "MuteVigor", "Vigor", 150, -112, false, "If checked, the dragonriding vigor recharging sound will be muted.")
-
-			LeaPlusLC:MakeTx(SoundPanel, "Pets", 150, -152)
-			LeaPlusLC:MakeCB(SoundPanel, "MutePierre", "Pierre", 150, -172, false, "If checked, Pierre will be quieter.")
-			LeaPlusLC:MakeCB(SoundPanel, "MuteSunflower", "Sunflower", 150, -192, false, "If checked, the Singing Sunflower pet will be muted.")
-
-			LeaPlusLC:MakeTx(SoundPanel, "Toys", 284, -72)
-			LeaPlusLC:MakeCB(SoundPanel, "MuteAnima", "Anima", 284, -92, false, "If checked, the Experimental Anima Cell toy will be quieter.")
-			LeaPlusLC:MakeCB(SoundPanel, "MuteBalls", "Balls", 284, -112, false, "If checked, the Foot Ball sounds will be muted.")
-			LeaPlusLC:MakeCB(SoundPanel, "MuteHarp", "Harp", 284, -132, false, "If checked, the Fae Harp toy will be muted.")
-			LeaPlusLC:MakeCB(SoundPanel, "MuteMeerah", "Meerah", 284, -152, false, "If checked, Meerah's Jukebox wil be muted.")
-			LeaPlusLC:MakeCB(SoundPanel, "MutePiccolo", "Piccolo", 284, -172, false, "If checked, Piccolo of the Flaming Fire wil be muted.|n|nNote that enabling this will also mute the harp sound of the warlock seduction spell.")
-
-			LeaPlusLC:MakeTx(SoundPanel, "Combat", 284, -212)
-			LeaPlusLC:MakeCB(SoundPanel, "MuteArena", "Arena", 284, -232, false, "If checked, arena announcers will be muted.")
-			LeaPlusLC:MakeCB(SoundPanel, "MuteBattleShouts", "Shouts", 284, -252, false, "If checked, your character will not shout and wail during combat.")
-
-			LeaPlusLC:MakeTx(SoundPanel, "Misc", 418, -72)
-			LeaPlusLC:MakeCB(SoundPanel, "MuteDucks", "Ducks", 418, -92, false, "If checked, duck greetings will be muted.|n|nUse this if you like to do your Valdrakken banking in peace.")
-			LeaPlusLC:MakeCB(SoundPanel, "MuteYawns", "Yawns", 418, -112, false, "If checked, yawns from hunter pet cats will be muted.")
-			LeaPlusLC:MakeCB(SoundPanel, "MuteDundun", "Dundun", 418, -132, false, "If checked, Dundun (Loa of Abundance) will be quieter.")
-			LeaPlusLC:MakeCB(SoundPanel, "MuteValeera", "Valeera", 418, -152, false, "If checked, Valeera (Midnight) will be quieter.")
-			LeaPlusLC:MakeCB(SoundPanel, "MuteNanea", "Nanea", 418, -172, false, "If checked, Loa Speaker Nanea (Devout of Nalorakk) will be quieter.")
-
-			-- Set click width for sounds checkboxes
-			for k, v in pairs(muteTable) do
-				LeaPlusCB[k].f:SetWidth(90)
-				if LeaPlusCB[k].f:GetStringWidth() > 90 then
-					LeaPlusCB[k]:SetHitRectInsets(0, -80, 0, 0)
-				else
-					LeaPlusCB[k]:SetHitRectInsets(0, -LeaPlusCB[k].f:GetStringWidth() + 4, 0, 0)
+			-- Function to load saved settings or set default values
+			local function LoadSoundSettings(soundTable)
+				for k, v in pairs(soundTable) do
+					if LeaPlusDB[k] and type(LeaPlusDB[k]) == "string" and LeaPlusDB[k] == "On" or LeaPlusDB[k] == "Off" then
+						LeaPlusLC[k] = LeaPlusDB[k]
+					else
+						LeaPlusLC[k] = "Off"
+						LeaPlusDB[k] = "Off"
+					end
 				end
 			end
 
-			-- Function to mute and unmute sounds
-			local function SetupMute()
-				for k, v in pairs(muteTable) do
+			-- Function to mute and unmute the sounds in a table
+			local function SetupMuteTable(soundTable)
+				for k, v in pairs(soundTable) do
 					if LeaPlusLC["MuteGameSounds"] == "On" and LeaPlusLC[k] == "On" then
 						for i, e in pairs(v) do
 							local file, soundID = e:match("([^,]+)%#([^,]+)")
@@ -5545,25 +5388,130 @@
 				end
 			end
 
+			-- Get mute tables
+			local muteTable = Leatrix_Plus["muteTable"]
+			local mountTable = Leatrix_Plus["mountTable"]
+
+			-- Give tables file level scope (they are used during logout and for wipe and admin commands)
+			LeaPlusLC["muteTable"] = muteTable
+			LeaPlusLC["mountTable"] = mountTable
+
+			-- Load saved settings or set default values
+			LoadSoundSettings(muteTable)
+			LoadSoundSettings(mountTable)
+
+			-- Add game sounds checkboxes
+			LeaPlusLC:MakeTx(soundScroll, "Game", 16, -2)
+			LeaPlusLC:MakeCB(soundScroll, "MuteChimes", "Chimes", 16, -22, false, "If checked, clock hourly chimes will be muted.")
+			LeaPlusLC:MakeCB(soundScroll, "MuteEvents", "Events", 16, -42, false, "If checked, holiday event sounds will be muted.|n|nThis applies to Headless Horseman.")
+			LeaPlusLC:MakeCB(soundScroll, "MuteFizzle", "Fizzle", 16, -62, false, "If checked, the spell fizzle sounds will be muted.")
+			LeaPlusLC:MakeCB(soundScroll, "MuteInterface", "Interface", 16, -82, false, "If checked, the interface button sound, the chat frame tab click sound and the game menu toggle sound will be muted.")
+			LeaPlusLC:MakeCB(soundScroll, "MuteLogin", "Login", 16, -102, false, "If checked, login screen sounds will be muted when you logout of the game.|n|nNote that login screen sounds will not be muted when you initially launch the game.|n|nThey will only be muted when you logout of the game.  This includes manually logging out as well as being forcefully logged out by the game server for reasons such as being away for an extended period of time.")
+			LeaPlusLC:MakeCB(soundScroll, "MuteReady", "Ready", 16, -122, false, "If checked, the ready check sound will be muted.")
+			LeaPlusLC:MakeCB(soundScroll, "MuteSniffing", "Sniffing", 16, -142, false, "If checked, the worgen sniffing sounds will be muted.")
+			LeaPlusLC:MakeCB(soundScroll, "MuteTrains", "Trains", 16, -162, false, "If checked, train sounds will be muted.")
+
+			LeaPlusLC:MakeCB(soundScroll, "MuteVaults", "Vaults", 16, -182, false, "If checked, the mechanical guild vault idle sound will be muted.")
+			LeaPlusLC:MakeCB(soundScroll, "MuteVigor", "Vigor", 16, -202, false, "If checked, the dragonriding vigor recharging sound will be muted.")
+
+			LeaPlusLC:MakeTx(soundScroll, "Pets", 150, -2)
+			LeaPlusLC:MakeCB(soundScroll, "MutePierre", "Pierre", 150, -22, false, "If checked, Pierre will be quieter.")
+			LeaPlusLC:MakeCB(soundScroll, "MuteSunflower", "Sunflower", 150, -42, false, "If checked, the Singing Sunflower pet will be muted.")
+
+			LeaPlusLC:MakeTx(soundScroll, "Toys", 284, -2)
+			LeaPlusLC:MakeCB(soundScroll, "MuteAnima", "Anima", 284, -22, false, "If checked, the Experimental Anima Cell toy will be quieter.")
+			LeaPlusLC:MakeCB(soundScroll, "MuteBalls", "Balls", 284, -42, false, "If checked, the Foot Ball sounds will be muted.")
+			LeaPlusLC:MakeCB(soundScroll, "MuteHarp", "Harp", 284, -62, false, "If checked, the Fae Harp toy will be muted.")
+			LeaPlusLC:MakeCB(soundScroll, "MuteMeerah", "Meerah", 284, -82, false, "If checked, Meerah's Jukebox wil be muted.")
+			LeaPlusLC:MakeCB(soundScroll, "MutePiccolo", "Piccolo", 284, -102, false, "If checked, Piccolo of the Flaming Fire wil be muted.|n|nNote that enabling this will also mute the harp sound of the warlock seduction spell.")
+
+			LeaPlusLC:MakeTx(soundScroll, "Combat", 284, -142)
+			LeaPlusLC:MakeCB(soundScroll, "MuteArena", "Arena", 284, -162, false, "If checked, arena announcers will be muted.")
+			LeaPlusLC:MakeCB(soundScroll, "MuteBattleShouts", "Shouts", 284, -182, false, "If checked, your character will not shout and wail during combat.")
+
+			LeaPlusLC:MakeTx(soundScroll, "Misc", 418, -2)
+			LeaPlusLC:MakeCB(soundScroll, "MuteDucks", "Ducks", 418, -22, false, "If checked, duck greetings will be muted.|n|nUse this if you like to do your Valdrakken banking in peace.")
+			LeaPlusLC:MakeCB(soundScroll, "MuteYawns", "Yawns", 418, -42, false, "If checked, yawns from hunter pet cats will be muted.")
+			LeaPlusLC:MakeCB(soundScroll, "MuteDundun", "Dundun", 418, -62, false, "If checked, Dundun (Loa of Abundance) will be quieter.")
+			LeaPlusLC:MakeCB(soundScroll, "MuteValeera", "Valeera", 418, -82, false, "If checked, Valeera (Midnight) will be quieter.")
+			LeaPlusLC:MakeCB(soundScroll, "MuteNanea", "Nanea", 418, -102, false, "If checked, Loa Speaker Nanea (Devout of Nalorakk) will be quieter.")
+
+			-- Add mount sounds checkboxes
+			LeaPlusLC:MakeTx(mountScroll, "Types", 16, -2)
+			LeaPlusLC:MakeCB(mountScroll, "MuteAerials", "Aerials", 16, -22, false, "If checked, jet aerial units will be quieter.|n|nThis applies to Aerial Unit R-21X and Rustbolt Resistor.")
+			LeaPlusLC:MakeCB(mountScroll, "MuteAirships", "Airships", 16, -42, false, "If checked, airships will be muted.|n|nThis applies to airship mounts and transports.")
+			LeaPlusLC:MakeCB(mountScroll, "MuteBikes", "Bikes", 16, -62, false, "If checked, most of the bike mount sounds will be muted.")
+			LeaPlusLC:MakeCB(mountScroll, "MuteBrooms", "Brooms", 16, -82, false, "If checked, broom mounts will be muted.")
+			LeaPlusLC:MakeCB(mountScroll, "MuteDragonriding", "Dragonriding", 16, -102, false, "If checked, dragonriding mounts will be quieter.")
+			LeaPlusLC:MakeCB(mountScroll, "MuteFish", "Fish", 16, -122, false, "If checked, fish mounts will be quieter.|n|nThis applies to Wondrous Wavewhisker.")
+			LeaPlusLC:MakeCB(mountScroll, "MuteFurlines", "Furlines", 16, -142, false, "If checked, furlines will be muted.")
+			LeaPlusLC:MakeCB(mountScroll, "MuteGyrocopters", "Gyrocopters", 16, -162, false, "If checked, gyrocopters will be muted.|n|nThis applies to Mimiron's Head, Mecha-Mogul MK2 and other gyrocopter mounts.|n|nEnabling this option will also mute airplane gear shift sounds.")
+
+			LeaPlusLC:MakeCB(mountScroll, "MuteHovercraft", "Hovercraft", 150, -22, false, "If checked, hovercraft will be quieter.|n|nThis applies to Xiwyllag ATV.")
+			LeaPlusLC:MakeCB(mountScroll, "MuteLunarwing", "Lunarwing", 150, -42, false, "If checked, Archdruid's Lunarwing Form will be quieter.")
+			LeaPlusLC:MakeCB(mountScroll, "MuteMechSteps", "Mechsteps", 150, -62, false, "If checked, footsteps for mechanical mounts will be muted.")
+			LeaPlusLC:MakeCB(mountScroll, "MuteStriders", "Mechstriders", 150, -82, false, "If checked, mechanostriders will be quieter.")
+			LeaPlusLC:MakeCB(mountScroll, "MuteMechsuits", "Mechsuits", 150, -102, false, "If checked, mechsuits will be quieter.|n|nThis applies to Felsteel Annihilator, Lightforged Warframe, Sky Golem and other mechsuits.")
+			LeaPlusLC:MakeCB(mountScroll, "MuteOttuks", "Ottuks", 150, -122, false, "If checked, ottuks will be quieter.")
+			LeaPlusLC:MakeCB(mountScroll, "MutePanthers", "Panthers", 150, -142, false, "If checked, the jewelcrafting panther mounts will be quieter.")
+			LeaPlusLC:MakeCB(mountScroll, "MuteRabbits", "Rabbits", 150, -162, false, "If checked, divine rabbit mounts will be quieter.|n|nThis applies to Jade, Bright Foreseer.")
+
+			LeaPlusLC:MakeCB(mountScroll, "MuteRazorwings", "Razorwings", 284, -22, false, "If checked, razorwings will be muted.")
+			LeaPlusLC:MakeCB(mountScroll, "MuteRockets", "Rockets", 284, -42, false, "If checked, rockets will be muted.")
+			LeaPlusLC:MakeCB(mountScroll, "MuteSoulEaters", "Soul Eaters", 284, -62, false, "If checked, Gladiator Soul Eater mounts will be quieter.")
+			LeaPlusLC:MakeCB(mountScroll, "MuteSoulseekers", "Soulseekers", 284, -82, false, "If checked, soulseekers will be quieter.|n|nThis applies to Corridor Creeper, Mawsworn Soulhunter and Bound Shadehound.")
+			LeaPlusLC:MakeCB(mountScroll, "MuteTravelers", "Travelers", 284, -102, false, "If checked, traveling merchant greetings and farewells will be muted.|n|nThis applies to Traveler's Tundra Mammoth, Grand Expedition Yak and Mighty Caravan Brutosaur.")
+			LeaPlusLC:MakeCB(mountScroll, "MuteUnicorns", "Unicorns", 284, -122, false, "If checked, unicorns will be quieter.|n|nThis applies to Lucid Nightmare, Wild Dreamrunner, Pureheart Courser and other unicorn mounts.")
+			LeaPlusLC:MakeCB(mountScroll, "MuteZeppelins", "Zeppelins", 284, -142, false, "If checked, zeppelins will be muted.|n|nThis applies to zeppelin mounts and transports.")
+
+			LeaPlusLC:MakeTx(mountScroll, "Specific", 418, -2)
+			LeaPlusLC:MakeCB(mountScroll, "MuteBanLu", "Ban-Lu", 418, -22, false, "If checked, Ban-Lu will no longer talk to you.")
+			LeaPlusLC:MakeCB(mountScroll, "MuteSoar", "Soar", 418, -42, false, "If checked, Soar (Dracthyr) will be quieter.")
+			LeaPlusLC:MakeCB(mountScroll, "MuteTempest", "Tempest", 418, -62, false, "If checked, the Coldflame Tempest mount will be quieter.")
+
+			-- Set click width for sounds checkboxes
+			SetClickWidth(muteTable)
+			SetClickWidth(mountTable)
+
+			-- Function to mute and unmute game sounds and mount sounds
+			local function SetupMute()
+				SetupMuteTable(muteTable)
+				SetupMuteTable(mountTable)
+			end
+
 			-- Setup mute on startup if option is enabled
 			if LeaPlusLC["MuteGameSounds"] == "On" then SetupMute() end
 
-			-- Setup mute when options are clicked
+			-- Mute mount sounds when UNIT_FACTION is loaded (required for Soar)
+			local delayMute = CreateFrame("FRAME")
+			delayMute:RegisterEvent("UNIT_FACTION")
+			delayMute:SetScript("OnEvent", function() if LeaPlusLC["MuteGameSounds"] == "On" then SetupMuteTable(mountTable) end end)
+
+			-- Setup mute when options are clicked (turning the option off unmutes both tabs)
 			for k, v in pairs(muteTable) do
+				LeaPlusCB[k]:HookScript("OnClick", SetupMute)
+			end
+			for k, v in pairs(mountTable) do
 				LeaPlusCB[k]:HookScript("OnClick", SetupMute)
 			end
 			LeaPlusCB["MuteGameSounds"]:HookScript("OnClick", SetupMute)
 
-			-- Help button hidden
+			-- Help buttons hidden
 			SoundPanel.h:Hide()
+			MountPanel.h:Hide()
 
-			-- Back button handler
+			-- Back button handlers
 			SoundPanel.b:SetScript("OnClick", function()
 				SoundPanel:Hide(); LeaPlusLC["PageF"]:Show(); LeaPlusLC["Page7"]:Show()
 				return
 			end)
 
-			-- Reset button handler
+			MountPanel.b:SetScript("OnClick", function()
+				MountPanel:Hide(); LeaPlusLC["PageF"]:Show(); LeaPlusLC["Page7"]:Show()
+				return
+			end)
+
+			-- Reset button handlers (each tab resets its own checkboxes)
 			SoundPanel.r:SetScript("OnClick", function()
 
 				-- Reset checkboxes
@@ -5577,6 +5525,19 @@
 
 			end)
 
+			MountPanel.r:SetScript("OnClick", function()
+
+				-- Reset checkboxes
+				for k, v in pairs(mountTable) do
+					LeaPlusLC[k] = "Off"
+				end
+				SetupMute()
+
+				-- Refresh panel
+				MountPanel:Hide(); MountPanel:Show()
+
+			end)
+
 			-- Show panal when options panel button is clicked
 			LeaPlusCB["MuteGameSoundsBtn"]:SetScript("OnClick", function()
 				if IsShiftKeyDown() and IsControlKeyDown() then
@@ -5586,12 +5547,26 @@
 					end
 					LeaPlusLC["MuteReady"] = "Off"
 					LeaPlusLC["MuteVigor"] = "Off"
+					for k, v in pairs(mountTable) do
+						LeaPlusLC[k] = "On"
+					end
 					SetupMute()
 				else
-					SoundPanel:Show()
+					-- Show the tab that was open last time (1 is general, 2 is mounts, 3 is custom)
+					if LeaPlusLC["MuteGameSoundsTab"] == 2 then
+						MountPanel:Show()
+					elseif LeaPlusLC["MuteGameSoundsTab"] == 3 and LeaPlusLC["MuteCustomPanel"] then
+						LeaPlusLC["MuteCustomPanel"]:Show()
+					else
+						SoundPanel:Show()
+					end
 					LeaPlusLC:HideFrames()
 				end
 			end)
+
+			-- Remember the last tab that was shown (saved between sessions)
+			SoundPanel:HookScript("OnShow", function() LeaPlusLC["MuteGameSoundsTab"] = 1 end)
+			MountPanel:HookScript("OnShow", function() LeaPlusLC["MuteGameSoundsTab"] = 2 end)
 
 			----------------------------------------------------------------------
 			-- Login setting
@@ -7906,7 +7881,7 @@
 
 			-- Create custom NewTicker function (from Wrath)
 			local function LeaPlusNewTicker(duration, callback, iterations)
-				local ticker = setmetatable({}, TickerMetatable)
+				local ticker = {}
 				ticker._remainingIterations = iterations
 				ticker._callback = function()
 					if (not ticker._cancelled) then
@@ -7926,24 +7901,55 @@
 				return ticker
 			end
 
-			-- Create configuration panel
-			local SellJunkFrame = LeaPlusLC:CreatePanel("Sell junk automatically", "SellJunkFrame")
-			LeaPlusLC:MakeTx(SellJunkFrame, "Settings", 16, -72)
-			LeaPlusLC:MakeCB(SellJunkFrame, "AutoSellShowSummary", "Show vendor summary in chat", 16, -92, false, "If checked, a vendor summary will be shown in chat when junk is automatically sold.")
-			LeaPlusLC:MakeCB(SellJunkFrame, "AutoSellNoKeeperTahult", "Exclude Keeper Ta'hult's pet items", 16, -112, false, L["If checked, the following junk items required to purchase pets from Keeper Ta'hult in Oribos will not be sold automatically."] .. L["|cff889D9D|n"] .. L["|n- A Frayed Knot|n- Dark Iron Baby Booties|n- Ground Gear|n- Large Slimy Bone|n- Rabbits Foot|n- Robbles Wobbly Staff|n- Rotting Bear Carcass|n- The Stoppable Force|n- Very Unlucky Rock"] .. "|r")
-			LeaPlusLC:MakeCB(SellJunkFrame, "AutoSellNoGreyGear", "Exclude all unbound grey gear", 16, -132, false, L["If checked, grey gear that is not soulbound to your character will not be sold.|n|nUse this setting if you plan to sell grey gear in the auction house."])
+			-- Create configuration panels (settings and the item list are tabs of the same option)
+			local SellJunkFrame = LeaPlusLC:CreatePanel("Sell junk automatically", "SellJunkFrame", true)
+			local SellJunkListPanel = LeaPlusLC:CreatePanel("Sell junk automatically", "SellJunkListPanel")
 
-			-- Help button hidden
+			-- Add settings checkboxes (inside the box so the tabs sit flush on top of it)
+			local sellScroll = SellJunkFrame.scrollChild
+			LeaPlusLC:MakeTx(sellScroll, "Settings", 16, -2)
+			LeaPlusLC:MakeCB(sellScroll, "AutoSellShowSummary", "Show vendor summary in chat", 16, -22, false, "If checked, a vendor summary will be shown in chat when junk is automatically sold.")
+			LeaPlusLC:MakeCB(sellScroll, "AutoSellNoKeeperTahult", "Exclude Keeper Ta'hult's pet items", 16, -42, false, L["If checked, the following junk items required to purchase pets from Keeper Ta'hult in Oribos will not be sold automatically."] .. L["|cff889D9D|n"] .. L["|n- A Frayed Knot|n- Dark Iron Baby Booties|n- Ground Gear|n- Large Slimy Bone|n- Rabbits Foot|n- Robbles Wobbly Staff|n- Rotting Bear Carcass|n- The Stoppable Force|n- Very Unlucky Rock"] .. "|r")
+			LeaPlusLC:MakeCB(sellScroll, "AutoSellNoGreyGear", "Exclude all unbound grey gear", 16, -62, false, L["If checked, grey gear that is not soulbound to your character will not be sold.|n|nUse this setting if you plan to sell grey gear in the auction house."])
+
+			-- Add list box to the item list panel (same box as the settings panel so the tabs sit flush on top of it)
+			local eb = CreateFrame("Frame", nil, SellJunkListPanel, "BackdropTemplate")
+			eb:SetPoint("TOPLEFT", 16, -68)
+			eb:SetPoint("BOTTOMRIGHT", -16, 98)
+			eb:SetBackdrop({bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background"})
+			eb:SetBackdropColor(0, 0, 1, 0.5)
+			SellJunkListPanel.tabAnchor = eb
+
+			-- Add tabs to both panels
+			local setSettingsTab, setListTab = LeaPlusLC:MakePanelTabs(SellJunkFrame, "SellJunkSetSettingsTab", "Settings", "SellJunkSetListTab", "Exceptions")
+			LeaPlusLC:SetPanelTabStyle(setSettingsTab, true)
+			LeaPlusLC:SetPanelTabStyle(setListTab, false)
+			setListTab:SetScript("OnClick", function() SellJunkFrame:Hide(); SellJunkListPanel:Show() end)
+
+			local listSettingsTab, listListTab = LeaPlusLC:MakePanelTabs(SellJunkListPanel, "SellJunkListSettingsTab", "Settings", "SellJunkListListTab", "Exceptions")
+			LeaPlusLC:SetPanelTabStyle(listSettingsTab, false)
+			LeaPlusLC:SetPanelTabStyle(listListTab, true)
+			listSettingsTab:SetScript("OnClick", function() SellJunkListPanel:Hide(); SellJunkFrame:Show() end)
+
+			-- Remember the last tab that was shown (saved between sessions)
+			SellJunkFrame:HookScript("OnShow", function() LeaPlusLC["AutoSellJunkTab"] = 1 end)
+			SellJunkListPanel:HookScript("OnShow", function() LeaPlusLC["AutoSellJunkTab"] = 2 end)
+
+			-- Help buttons hidden
 			SellJunkFrame.h:Hide()
+			SellJunkListPanel.h:Hide()
 
-			-- Back button handler
+			-- Back button handlers
 			SellJunkFrame.b:SetScript("OnClick", function()
 				SellJunkFrame:Hide(); LeaPlusLC["PageF"]:Show(); LeaPlusLC["Page1"]:Show();
 				return
 			end)
+			SellJunkListPanel.b:SetScript("OnClick", function()
+				SellJunkListPanel:Hide(); LeaPlusLC["PageF"]:Show(); LeaPlusLC["Page1"]:Show();
+				return
+			end)
 
-			-- Reset button handler
-			SellJunkFrame.r.tiptext = SellJunkFrame.r.tiptext .. "|n|n" .. L["Note that this will not reset your exclusions list."]
+			-- Reset button handler (settings tab only, the item list is not reset)
 			SellJunkFrame.r:SetScript("OnClick", function()
 
 				-- Reset checkboxes
@@ -7955,8 +7961,9 @@
 				SellJunkFrame:Hide(); SellJunkFrame:Show()
 
 			end)
+			SellJunkListPanel.r:Hide()
 
-			-- Show panal when options panel button is clicked
+			-- Show panel when options panel button is clicked (the tab that was open last time is shown)
 			LeaPlusCB["AutoSellJunkBtn"]:SetScript("OnClick", function()
 				if IsShiftKeyDown() and IsControlKeyDown() then
 					-- Preset profile
@@ -7964,7 +7971,11 @@
 					LeaPlusLC["AutoSellNoKeeperTahult"] = "On"
 					LeaPlusLC["AutoSellNoGreyGear"] = "Off"
 				else
-					SellJunkFrame:Show()
+					if LeaPlusLC["AutoSellJunkTab"] == 2 then
+						SellJunkListPanel:Show()
+					else
+						SellJunkFrame:Show()
+					end
 					LeaPlusLC:HideFrames()
 				end
 			end)
@@ -7977,51 +7988,80 @@
 				SellJunkFrame:UnregisterEvent("UI_ERROR_MESSAGE")
 			end
 
-			-- Create excluded box
-			local titleTX = LeaPlusLC:MakeTx(SellJunkFrame, "Exclusions", 356, -72)
-			titleTX:SetWidth(200)
-			titleTX:SetWordWrap(false)
-			titleTX:SetJustifyH("LEFT")
+			----------------------------------------------------------------------
+			-- Item list (junk items in the list are kept, white items in the list are sold)
+			----------------------------------------------------------------------
 
-			-- Show help button for exclusions
-			LeaPlusLC:CreateHelpButton("SellJunkExcludeHelpButton", SellJunkFrame, titleTX, "Enter item IDs separated by commas.  Item IDs can be found in item tooltips while this panel is showing.|n|nJunk items entered here will not be sold automatically.|n|nWhite items entered here will be sold automatically.|n|nThe editbox tooltip will show you more information about the items you have entered.")
+			-- The list is saved as item IDs separated by commas in the order added (AutoSellExcludeList, same as before)
+			local entries, seen, selected, rows, rowByID = {}, {}, {}, {}, {} -- rowByID gives the row showing an item
+			local invalid = {} -- Item IDs the game says don't exist (only kept for the session)
+			local pendingAdd = {} -- Item IDs waiting for the game to load them before they can be checked and added
+			local anchorID -- Item that was clicked last (shift click selects from here)
+			local ROW_HEIGHT = 20
+			local ID_X, NAME_X, ACTION_X, PRICE_X = 8, 80, 300, 388 -- Position of the item ID, item name, action and price columns in each row
+			local ACTION_W, PRICE_W = 80, 105 -- Width of the action and price columns
+			local RefreshList -- Function to refresh the list (defined further down)
+			local UpdatePreview -- Function to update the item shown next to the new item box (defined further down)
 
-			local eb = CreateFrame("Frame", nil, SellJunkFrame, "BackdropTemplate")
-			eb:SetSize(200, LeaPlusLC.MainPanelHeight - 180)
-			eb:SetPoint("TOPLEFT", 350, -92)
-			eb:SetBackdrop({
-				bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
-				edgeFile = "Interface\\PVPFrame\\UI-Character-PVP-Highlight",
-				edgeSize = 16,
-				insets = {left = 8, right = 6, top = 8, bottom = 8},
-			})
-			eb:SetBackdropBorderColor(1.0, 0.85, 0.0, 0.5)
+			-- Function to check an item ID (a whole number in the range used by the game)
+			local function ValidID(id)
+				return id and id >= 1 and id < 999999999 and id % 1 == 0
+			end
 
-			eb.scroll = CreateFrame("ScrollFrame", nil, eb, "LeaPlusSellJunkScrollFrameTemplate")
-			eb.scroll:SetPoint("TOPLEFT", eb, 12, -10)
-			eb.scroll:SetPoint("BOTTOMRIGHT", eb, -30, 10)
-			eb.scroll:SetPanExtent(16)
+			-- Function to see if an item exists (if the game can tell, items the game hasn't loaded yet still exist)
+			local function ItemExists(id)
+				if invalid[id] then return false end
+				if C_Item.DoesItemExistByID and not C_Item.DoesItemExistByID(id) then
+					invalid[id] = true
+					return false
+				end
+				return true
+			end
 
-			-- Create character count
-			eb.scroll.CharCount = eb.scroll:CreateFontString(nil, 'ARTWORK', 'GameFontNormal')
-			eb.scroll.CharCount:Hide()
+			-- Function to get the name, quality and action for an item
+			-- Actions are keep (junk items), sell (white items), nosale (no sell price), incompat (other qualities), loading and invalid
+			local function GetItemDetails(id)
+				if not ItemExists(id) then return nil, nil, "invalid" end
+				local name, link, quality, iLevel, reqLevel, class, subclass, maxStack, equipSlot, texture, price = C_Item.GetItemInfo(id)
+				if not name then
+					-- Item isn't loaded yet (the list is refreshed when it is)
+					if C_Item.RequestLoadItemDataByID then C_Item.RequestLoadItemDataByID(id) end
+					return nil, nil, "loading"
+				end
+				if not price or price == 0 then return name, quality, "nosale", 0 end
+				if quality == 0 then return name, quality, "keep", price end
+				if quality == 1 then return name, quality, "sell", price end
+				return name, quality, "incompat", price
+			end
 
-			eb.Text = eb.scroll.EditBox
-			eb.Text:SetWidth(150)
-			eb.Text:SetPoint("TOPLEFT", eb.scroll)
-			eb.Text:SetPoint("BOTTOMRIGHT", eb.scroll, -12, 0)
-			eb.Text:SetMaxLetters(2000)
-			eb.Text:SetFontObject(GameFontNormalLarge)
-			eb.Text:SetAutoFocus(false)
-			eb.scroll:SetScrollChild(eb.Text)
+			-- Function to show a vendor price with coin icons (blank if there isn't one)
+			local function PriceText(price)
+				if not price or price <= 0 then return "" end
+				return C_CurrencyInfo.GetCoinTextureString(price, 12)
+			end
 
-			-- Set focus on the editbox text when clicking the editbox
-			eb:SetScript("OnMouseDown", function()
-				eb.Text:SetFocus()
-				eb.Text:SetCursorPosition(eb.Text:GetMaxLetters())
-			end)
+			-- Action text and colors (and the order actions are sorted in)
+			local actionText = {keep = L["Keep"], sell = L["Sell"], nosale = L["Cannot be sold"], incompat = L["Incompatible"], loading = "", invalid = "-"}
+			local actionColor = {keep = {0.3, 1, 0.3}, sell = {1, 0.82, 0}, nosale = {0.6, 0.6, 0.6}, incompat = {1, 0.5, 0.25}, loading = {0.6, 0.6, 0.6}, invalid = {1, 0.3, 0.3}}
+			local actionHex = {keep = "4cff4c", sell = "ffd100", nosale = "ff4c4c", incompat = "ff8040", loading = "999999", invalid = "ff4c4c"}
+			local actionOrder = {keep = 1, sell = 2, nosale = 3, incompat = 4, loading = 5, invalid = 6}
 
-			-- Function to create whitelist
+			-- Function to set a fontstring to an item's name in its quality color
+			local function SetNameText(fs, name, quality, action)
+				if action == "invalid" then
+					fs:SetText(L["Unknown item"])
+					fs:SetTextColor(1, 0.3, 0.3)
+				elseif action == "loading" then
+					fs:SetText(L["Loading..."])
+					fs:SetTextColor(0.6, 0.6, 0.6)
+				else
+					fs:SetText(name)
+					local color = quality and ITEM_QUALITY_COLORS and ITEM_QUALITY_COLORS[quality]
+					if color then fs:SetTextColor(color.r, color.g, color.b) else fs:SetTextColor(1, 1, 1) end
+				end
+			end
+
+			-- Function to create whitelist (items the vendor function treats differently)
 			local whiteList = {}
 			local function UpdateWhiteList()
 				wipe(whiteList)
@@ -8071,154 +8111,918 @@
 
 				-- End of whitelist
 
-				local whiteString = eb.Text:GetText()
-				if whiteString and whiteString ~= "" then
-					whiteString = whiteString:gsub("[^,%d]", "")
-					local tList = {strsplit(",", whiteString)}
-					for i = 1, #tList do
-						if tList[i] then
-							tList[i] = tonumber(tList[i])
-							if tList[i] then
-								whiteList[tList[i]] = true
-							end
-						end
-					end
+				for i, e in ipairs(entries) do
+					whiteList[e.id] = true
 				end
-
-				LeaPlusLC["AutoSellExcludeList"] = whiteString
-				eb.Text:SetText(LeaPlusLC["AutoSellExcludeList"])
 
 			end
 
-			-- Save the excluded list when it changes and at startup
-			eb.Text:SetScript("OnTextChanged", UpdateWhiteList)
-			eb.Text:SetText(LeaPlusLC["AutoSellExcludeList"])
-			UpdateWhiteList()
+			-- Function to save the list (and update the whitelist)
+			local function SaveList()
+				local list = {}
+				for i, e in ipairs(entries) do
+					list[i] = e.id
+				end
+				LeaPlusLC["AutoSellExcludeList"] = table.concat(list, ",")
+				UpdateWhiteList()
+			end
 
-			-- Create whitelist on startup and option, reset or preset is clicked
-			UpdateWhiteList()
+			-- Function to load the list (duplicates and anything that isn't an item ID are removed)
+			local function LoadList()
+				wipe(entries); wipe(seen); wipe(selected)
+				local text = LeaPlusLC["AutoSellExcludeList"]
+				if type(text) == "string" then
+					for num in text:gmatch("%d+") do
+						local id = tonumber(num)
+						if ValidID(id) and not seen[id] then
+							seen[id] = true
+							entries[#entries + 1] = {id = id}
+						end
+					end
+				end
+				SaveList()
+			end
+
+			-- Column headings (click to sort by that column, click again to reverse)
+			-- The list is always saved in the order added, sorting only changes how it's shown (the sort is saved between sessions)
+			local sortKeys = {"id", "name", "action", "price"}
+			local sortNum = LeaPlusLC["AutoSellSort"] or 1
+			local sortKey = sortKeys[math.ceil(sortNum / 2)] or "id"
+			local sortDesc = sortNum % 2 == 0
+			local sortHeadings = {}
+			local function SaveSort()
+				local num = 1
+				for i, key in ipairs(sortKeys) do
+					if key == sortKey then num = i * 2 - (sortDesc and 0 or 1) end
+				end
+				LeaPlusLC["AutoSellSort"] = num
+			end
+
+			-- Function to show the sort arrow on the column the list is sorted by
+			local function UpdateSortArrows()
+				for key, heading in pairs(sortHeadings) do
+					local arrow = heading.arrow
+					if key == sortKey then
+						if arrow.SetVertexOffset then
+							-- Triangle (made by pulling two corners of a rectangle into a point)
+							for v = 1, 4 do arrow:SetVertexOffset(v, 0, 0) end
+							if sortDesc then
+								arrow:SetVertexOffset(LOWER_LEFT_VERTEX or 2, 3.5, 0)
+								arrow:SetVertexOffset(LOWER_RIGHT_VERTEX or 4, -3.5, 0)
+							else
+								arrow:SetVertexOffset(UPPER_LEFT_VERTEX or 1, 3.5, 0)
+								arrow:SetVertexOffset(UPPER_RIGHT_VERTEX or 3, -3.5, 0)
+							end
+						else
+							arrow:SetTexture(sortDesc and "Interface\\Buttons\\Arrow-Down-Up" or "Interface\\Buttons\\Arrow-Up-Up")
+						end
+						arrow:Show()
+					else
+						arrow:Hide()
+					end
+				end
+			end
+
+			-- Function to create a column heading
+			local function MakeSortHeading(key, label, x)
+				local heading = CreateFrame("Button", nil, eb)
+				heading:SetPoint("TOPLEFT", eb, "TOPLEFT", x, -12)
+				heading.text = heading:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+				heading.text:SetPoint("LEFT", 0, 0)
+				heading.text:SetText(L[label])
+				heading:SetSize(heading.text:GetStringWidth() + 14, 14)
+				heading.arrow = heading:CreateTexture(nil, "ARTWORK")
+				if heading.arrow.SetVertexOffset then
+					heading.arrow:SetSize(7, 4)
+					heading.arrow:SetColorTexture(1, 0.82, 0)
+				else
+					heading.arrow:SetSize(12, 12)
+				end
+				heading.arrow:SetPoint("LEFT", heading.text, "RIGHT", 4, 0)
+				heading.arrow:Hide()
+				heading:SetScript("OnEnter", function(self) self.text:SetTextColor(1, 1, 1) end)
+				heading:SetScript("OnLeave", function(self) self.text:SetTextColor(1, 0.82, 0) end)
+				heading:SetScript("OnClick", function()
+					if sortKey ~= key then
+						sortKey, sortDesc = key, false
+					else
+						sortDesc = not sortDesc
+					end
+					SaveSort()
+					UpdateSortArrows()
+					RefreshList()
+				end)
+				sortHeadings[key] = heading
+			end
+			MakeSortHeading("id", "Item ID", 8 + ID_X)
+			NAME_X = math.max(NAME_X, ID_X + math.ceil(sortHeadings["id"]:GetWidth()) + 8) -- (the item column moves right if the item ID heading is long, such as in some languages)
+			MakeSortHeading("name", "Item", 8 + NAME_X)
+			MakeSortHeading("action", "Action", 8 + ACTION_X)
+			MakeSortHeading("price", "Price", 8 + PRICE_X)
+			UpdateSortArrows()
+
+			-- List (scrolling)
+			local listScroll = CreateFrame("ScrollFrame", nil, eb, "LeaPlusConfigurationPanelScrollFrameTemplate")
+			local NEW_GAP = 22 -- Space between the list and the new item row (the add an item heading goes in it)
+			listScroll:SetPoint("TOPLEFT", 8, -34)
+			listScroll:SetPoint("BOTTOMRIGHT", -29, 6 + ROW_HEIGHT + NEW_GAP)
+			listScroll:SetPanExtent(ROW_HEIGHT)
+			local listChild = CreateFrame("Frame", nil, listScroll)
+			listChild:SetSize(500, 1)
+			listScroll:SetScrollChild(listChild)
+			listScroll:HookScript("OnSizeChanged", function(self, width) listChild:SetWidth(width) end)
+
+			-- Message shown when the list is empty or nothing matches the search
+			local noMatch = eb:CreateFontString(nil, "ARTWORK", "GameFontDisable")
+			noMatch:SetPoint("TOPLEFT", listScroll, "TOPLEFT", ID_X, -4)
+			noMatch:Hide()
+
+			-- Hints shown on two lines at the bottom of the panel (centered on the back button)
+			local dragHint = SellJunkListPanel:CreateFontString(nil, "ARTWORK", "GameFontDisableSmall")
+			dragHint:SetPoint("BOTTOMLEFT", SellJunkListPanel, "BOTTOMLEFT", 16, 66)
+			dragHint:SetPoint("BOTTOMRIGHT", SellJunkListPanel.b, "BOTTOMLEFT", -10, 13) -- (stops before the back button)
+			dragHint:SetWordWrap(false)
+			dragHint:SetHeight(12)
+			dragHint:SetJustifyH("LEFT")
+			dragHint:SetJustifyV("MIDDLE")
+			dragHint:SetText(L["Drag an item from your bags onto the list to add it."])
+
+			local listHint = SellJunkListPanel:CreateFontString(nil, "ARTWORK", "GameFontDisableSmall")
+			listHint:SetPoint("BOTTOMLEFT", SellJunkListPanel, "BOTTOMLEFT", 16, 54)
+			listHint:SetPoint("BOTTOMRIGHT", SellJunkListPanel.b, "BOTTOMLEFT", -10, 1) -- (stops before the back button)
+			listHint:SetWordWrap(false)
+			listHint:SetHeight(12)
+			listHint:SetJustifyH("LEFT")
+			listHint:SetJustifyV("MIDDLE")
+			listHint:SetText(L["Right-click an item for more options."])
+
+			-- Function to show a message in the footer for a few seconds (used instead of printing to chat)
+			local hintR, hintG, hintB = listHint:GetTextColor()
+			local hintTimer
+			local function ShowMessage(text)
+				listHint:SetText(text)
+				listHint:SetTextColor(1, 0.5, 0.25)
+				if hintTimer then hintTimer:Cancel() end
+				hintTimer = C_Timer.NewTimer(3, function()
+					hintTimer = nil
+					listHint:SetText(L["Right-click an item for more options."])
+					listHint:SetTextColor(hintR, hintG, hintB)
+				end)
+			end
+
+			-- Function to scroll the list so an item can be seen (such as an item that has just been added)
+			-- (by item ID as refreshing the list can remove items and move the others)
+			local function ScrollToEntry(id)
+				C_Timer.After(0, function()
+					local row = rowByID[id]
+					if not row then return end
+					local top, bottom = (row.pos - 1) * ROW_HEIGHT, row.pos * ROW_HEIGHT
+					local scroll, height = listScroll:GetVerticalScroll(), listScroll:GetHeight()
+					if top < scroll then
+						listScroll:SetVerticalScroll(top)
+					elseif bottom > scroll + height then
+						listScroll:SetVerticalScroll(math.min(bottom - height, listScroll:GetVerticalScrollRange()))
+					end
+				end)
+			end
+
+			-- Brief gold flash on a row so you can see an item that has just been added (the same flash as jumping to a setting)
+			local rowFlash = CreateFrame("Frame", nil, listChild)
+			rowFlash:SetFrameLevel(listChild:GetFrameLevel() + 4)
+			rowFlash:Hide()
+			rowFlash.t = rowFlash:CreateTexture(nil, "OVERLAY")
+			rowFlash.t:SetAllPoints()
+			rowFlash.t:SetColorTexture(1, 0.82, 0, 0.35)
+			rowFlash.t:SetBlendMode("ADD")
+			local rowFlashAnim = rowFlash:CreateAnimationGroup()
+			for i, v in ipairs({{0, 1, 0.2}, {1, 0, 0.4}, {0, 1, 0.2}, {1, 0, 0.8}}) do
+				local a = rowFlashAnim:CreateAnimation("Alpha")
+				a:SetFromAlpha(v[1])
+				a:SetToAlpha(v[2])
+				a:SetDuration(v[3])
+				a:SetOrder(i)
+			end
+			rowFlashAnim:SetScript("OnFinished", function() rowFlash:Hide() end)
+			local flashID -- Item ID of the row that is flashing
+
+			-- Function to put the flash on the row showing an item (hidden if the item isn't shown, such as after it's removed)
+			local function AnchorFlash()
+				local row = flashID and rowByID[flashID]
+				if row then
+					rowFlash:ClearAllPoints()
+					rowFlash:SetAllPoints(row)
+				else
+					rowFlashAnim:Stop()
+					rowFlash:Hide()
+				end
+			end
+
+			-- Function to flash the row showing an item (waits a frame so the list has scrolled to it first)
+			local function FlashEntry(id)
+				flashID = id
+				C_Timer.After(0, function()
+					if flashID ~= id or not SellJunkListPanel:IsShown() then return end
+					rowFlashAnim:Stop()
+					AnchorFlash()
+					if rowByID[id] then
+						rowFlash:Show()
+						rowFlashAnim:Play()
+					end
+				end)
+			end
+
+			-- Function to get the number of selected entries
+			local function GetSelected()
+				local count = 0
+				for i, e in ipairs(entries) do
+					if selected[e.id] then count = count + 1 end
+				end
+				return count
+			end
+
+			----------------------------------------------------------------------
+			-- Search (shows only the items whose item ID or name contains the search text)
+			----------------------------------------------------------------------
+
+			local filter = ""
+			-- Search box sits on the tab row opposite the tabs
+			local searchBox = CreateFrame("EditBox", nil, eb)
+			searchBox:SetAutoFocus(false)
+			searchBox:SetFontObject("GameFontHighlight")
+			searchBox:SetTextColor(1, 1, 1)
+			searchBox:SetMaxLetters(100) -- (room for a long item name in quotes)
+			searchBox:SetSize(160, ROW_HEIGHT)
+			searchBox:SetPoint("BOTTOMRIGHT", eb, "TOPRIGHT", -3, 3)
+			searchBox.bg = searchBox:CreateTexture(nil, "BACKGROUND")
+			searchBox.bg:SetPoint("TOPLEFT", -3, 0)
+			searchBox.bg:SetPoint("BOTTOMRIGHT", 3, 0)
+			searchBox.bg:SetColorTexture(1, 1, 1, 0.07)
+			searchBox:SetScript("OnEscapePressed", searchBox.ClearFocus)
+			searchBox:SetScript("OnEnterPressed", searchBox.ClearFocus)
+
+			local searchIcon = searchBox:CreateTexture(nil, "OVERLAY")
+			searchIcon:SetTexture("Interface\\Common\\UI-Searchbox-Icon")
+			searchIcon:SetVertexColor(0.6, 0.6, 0.6)
+			searchIcon:SetSize(14, 14)
+			searchIcon:SetPoint("LEFT", 2, -1)
+			local searchHint = searchBox:CreateFontString(nil, "ARTWORK", "GameFontDisable")
+			searchHint:SetPoint("LEFT", 19, 0)
+			searchHint:SetText(L["Search items"])
+
+			-- Clear button (the game's usual round cross used in search boxes, shown when there is text)
+			local function AddClearButton(box, left, onClick)
+				box:SetTextInsets(left, 18, 0, 0)
+				local btn = CreateFrame("Button", nil, box)
+				btn:SetSize(14, 14)
+				btn:SetPoint("RIGHT", -3, 0)
+				btn:SetFrameLevel(box:GetFrameLevel() + 2)
+				btn.icon = btn:CreateTexture(nil, "OVERLAY")
+				btn.icon:SetSize(14, 14)
+				btn.icon:SetPoint("CENTER")
+				btn.icon:SetTexture("Interface\\FriendsFrame\\ClearBroadcastIcon")
+				btn.icon:SetAlpha(0.5)
+				btn:SetScript("OnEnter", function(self) self.icon:SetAlpha(1) end)
+				btn:SetScript("OnLeave", function(self) self.icon:SetAlpha(0.5) end)
+				btn:SetScript("OnMouseDown", function(self) self.icon:SetPoint("CENTER", 1, -1) end)
+				btn:SetScript("OnMouseUp", function(self) self.icon:SetPoint("CENTER", 0, 0) end)
+				btn:SetScript("OnClick", onClick)
+				btn:Hide()
+				box:HookScript("OnTextChanged", function(self) btn:SetShown(self:GetText() ~= "") end)
+			end
+			AddClearButton(searchBox, 19, function() searchBox:SetText(""); searchBox:ClearFocus() end)
+
+			-- Function to check if an item matches the search
+			-- Search text in double quotes only matches that exact item name (the same as the auction house)
+			local exactName -- Item name to match exactly (lower case, nil if the search isn't in quotes)
+			local function Matches(e, lowerName)
+				if filter == "" then return true end
+				if exactName then return lowerName == exactName end
+				return tostring(e.id):find(filter, 1, true) or (lowerName and lowerName:find(filter, 1, true))
+			end
+
+			-- Function to clear the search (adding or showing an item clears it so the item is shown with the rest of the list)
+			local function ClearSearch()
+				if filter == "" then return end
+				filter, exactName = "", nil -- (set first so clearing the search box doesn't refresh the list again)
+				searchBox:SetText("")
+			end
+
+			-- Function to say an item is already in the list and show it (the search is cleared, then it's selected and scrolled to)
+			local function ShowExisting(id)
+				ShowMessage(L["That item is already in the list."])
+				if seen[id] then
+					ClearSearch()
+					wipe(selected)
+					selected[id] = true
+					anchorID = id
+					RefreshList()
+					ScrollToEntry(id)
+					FlashEntry(id)
+				end
+			end
+
+			-- Update the list as you type (the selection is cleared so hidden items can't be removed by mistake)
+			searchBox:HookScript("OnTextChanged", function(self)
+				searchHint:SetShown(self:GetText() == "")
+				local text = strtrim(self:GetText()):lower()
+				if text ~= filter then
+					filter = text
+					exactName = text:match('^"(.+)"$')
+					wipe(selected)
+					anchorID = nil
+					RefreshList()
+					listScroll:SetVerticalScroll(0)
+				end
+			end)
+
+			-- Drop an item on the search box to search for it (its name is put in quotes so only that item is shown, it flashes if it's in the list)
+			local function SearchFromCursor()
+				local cursorType, itemID = GetCursorInfo()
+				if cursorType ~= "item" or not itemID then return end
+				ClearCursor()
+				local name = C_Item.GetItemInfo(itemID)
+				searchBox:SetText(name and ('"' .. name .. '"') or tostring(itemID))
+				searchBox:ClearFocus()
+				if seen[itemID] then
+					FlashEntry(itemID)
+				else
+					ShowMessage(L["That item is not in the list."])
+				end
+			end
+			searchBox:SetScript("OnReceiveDrag", SearchFromCursor)
+			searchBox:HookScript("OnMouseDown", SearchFromCursor)
+
+			-- Function to create a gold outline that pulses while an item is held over a place it can be dropped
+			-- The outline hides when the item is dropped or let go (the cursor event is only watched while the outline is showing)
+			local function MakeDropGlow(target, x, y, fillAlpha)
+				local glow = CreateFrame("Frame", nil, target, "BackdropTemplate")
+				glow:SetPoint("TOPLEFT", -x, y)
+				glow:SetPoint("BOTTOMRIGHT", x, -y)
+				glow:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8X8", edgeFile = "Interface\\Buttons\\WHITE8X8", edgeSize = 1})
+				glow:SetBackdropColor(1, 0.82, 0, fillAlpha)
+				glow:SetBackdropBorderColor(1, 0.82, 0, 1)
+				glow:Hide()
+				glow.pulse = glow:CreateAnimationGroup()
+				glow.pulse:SetLooping("BOUNCE")
+				local fade = glow.pulse:CreateAnimation("Alpha")
+				fade:SetFromAlpha(1)
+				fade:SetToAlpha(0.4)
+				fade:SetDuration(0.4)
+				fade:SetSmoothing("IN_OUT")
+				glow:SetScript("OnShow", function(self) self.pulse:Play(); self:RegisterEvent("CURSOR_CHANGED") end)
+				glow:SetScript("OnHide", function(self) self.pulse:Stop(); self:UnregisterEvent("CURSOR_CHANGED") end)
+				glow:SetScript("OnEvent", function(self) if GetCursorInfo() ~= "item" then self:Hide() end end)
+				return glow
+			end
+
+			-- Search box outline
+			local searchGlow = MakeDropGlow(searchBox, 4, 1, 0.12)
+			searchBox:SetScript("OnEnter", function() if GetCursorInfo() == "item" then searchGlow:Show() end end)
+			searchBox:SetScript("OnLeave", function() searchGlow:Hide() end)
+
+			-- List box outline (the whole box including the add an item row is one place to drop items)
+			-- Moving between parts of the box (rows, the list, the add an item row) keeps it showing
+			local listGlow = MakeDropGlow(eb, 0, 0, 0.06)
+			local function ListHoverEnter() if GetCursorInfo() == "item" then listGlow:Show() end end
+			local function ListHoverLeave() if not eb:IsMouseOver() then listGlow:Hide() end end
+
+			----------------------------------------------------------------------
+			-- New item row (fixed under the list)
+			----------------------------------------------------------------------
+
+			local newRow = CreateFrame("Frame", nil, eb)
+			newRow:SetHeight(ROW_HEIGHT)
+			newRow:SetPoint("BOTTOMLEFT", 8, 6)
+			newRow:SetPoint("BOTTOMRIGHT", -29, 6)
+
+			-- Heading for the new item row (lined up with the column headings)
+			local newHeading = LeaPlusLC:MakeTx(eb, "Add an item", 16, 0)
+			newHeading:ClearAllPoints()
+			newHeading:SetPoint("BOTTOMLEFT", newRow, "TOPLEFT", ID_X, 4)
+
+			-- Item ID box (several item IDs separated by commas can be pasted in at once)
+			local newID = CreateFrame("EditBox", nil, newRow)
+			newID:SetAutoFocus(false)
+			newID:SetFontObject("GameFontHighlight")
+			newID:SetTextColor(1, 1, 1)
+			newID:SetHeight(ROW_HEIGHT)
+			newID:SetMaxLetters(2000)
+			newID:SetPoint("LEFT", ID_X, 0)
+			newID:SetWidth(100)
+			newID.bg = newID:CreateTexture(nil, "BACKGROUND")
+			newID.bg:SetPoint("TOPLEFT", -3, 0)
+			newID.bg:SetPoint("BOTTOMRIGHT", 3, 0)
+			newID.bg:SetColorTexture(1, 1, 1, 0.07)
+			local idHint = newID:CreateFontString(nil, "ARTWORK", "GameFontDisable")
+			idHint:SetPoint("LEFT", 0, 0)
+			idHint:SetText(L["Item ID"])
+			AddClearButton(newID, 0, function() newID:SetText(""); newID:SetFocus() end)
+			newID:SetScript("OnEscapePressed", newID.ClearFocus)
+
+			-- Add button with a gold plus icon
+			local newAdd = LeaPlusLC:CreateButton("SellJunkAddButton", newRow, "Add", "LEFT", 0, 0, 0, 20, true, "")
+			newAdd:ClearAllPoints()
+			newAdd:SetPoint("LEFT", newID, "RIGHT", 10, 0)
+			newAdd:SetScript("OnEnter", nil)
+			newAdd:SetScript("OnLeave", nil)
+			newAdd:SetPushedTextOffset(0, 0)
+			newAdd.icon = newAdd:CreateTexture(nil, "ARTWORK") -- (empty texture that holds the plus)
+			newAdd.icon:SetSize(10, 10)
+			for i, size in ipairs({{10, 2}, {2, 10}}) do
+				local bar = newAdd:CreateTexture(nil, "ARTWORK")
+				bar:SetColorTexture(1, 0.82, 0)
+				bar:SetSize(size[1], size[2])
+				bar:SetPoint("CENTER", newAdd.icon)
+			end
+			local addText = newAdd:GetFontString()
+			newAdd:SetWidth(ceil(10 + 5 + addText:GetStringWidth() + 20))
+			addText:ClearAllPoints()
+			addText:SetWidth(0)
+			addText:SetJustifyH("LEFT")
+			local addLeft = floor((newAdd:GetWidth() - (10 + 5 + addText:GetStringWidth())) / 2 + 0.5)
+			newAdd.icon:SetPoint("LEFT", newAdd, "LEFT", addLeft, 0)
+			addText:SetPoint("LEFT", newAdd.icon, "RIGHT", 5, 0)
+
+			-- Preview of the item that has been entered (name in its quality color and what will happen to it)
+			local preview = newRow:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+			preview:SetPoint("LEFT", newAdd, "RIGHT", 10, 0)
+			preview:SetPoint("RIGHT", newRow, "RIGHT", -8, 0)
+			preview:SetJustifyH("LEFT")
+			preview:SetWordWrap(false)
+			local previewID -- Item ID shown in the preview (nil if there isn't one)
+
+			UpdatePreview = function()
+				local text = newID:GetText()
+				idHint:SetShown(text == "")
+				previewID = nil
+				local id = text:match("^%s*(%d+)%s*$") and tonumber(text)
+				if not id then preview:SetText("") return end
+				if not ValidID(id) then
+					preview:SetText(L["Invalid item ID."])
+					preview:SetTextColor(1, 0.3, 0.3)
+					return
+				end
+				previewID = id
+				local name, quality, action = GetItemDetails(id)
+				if action == "invalid" then
+					preview:SetText(L["Invalid item ID."])
+					preview:SetTextColor(1, 0.3, 0.3)
+				else
+					SetNameText(preview, name, quality, action)
+					if actionText[action] ~= "" then
+						preview:SetText(preview:GetText() .. "  |cff" .. actionHex[action] .. "(" .. actionText[action] .. ")|r")
+					end
+				end
+			end
+			newID:HookScript("OnTextChanged", UpdatePreview)
+
+			-- Function to add item IDs to the list (returns the number added and the number waiting for the game to load them)
+			-- Only junk and white items that can be sold are added (anything else would do nothing in the list)
+			-- Items the game hasn't loaded yet are checked and added when they have loaded (see itemLoader)
+			local function AddIDs(list)
+				local added, waiting, lastID, lastDuplicate, lastNoSale, lastIncompat, lastInvalid = 0, 0
+				for i, id in ipairs(list) do
+					if not ValidID(id) or not ItemExists(id) then
+						lastInvalid = true
+					elseif seen[id] then
+						lastDuplicate = id
+					else
+						local name, quality, action = GetItemDetails(id)
+						if action == "invalid" then
+							lastInvalid = true
+						elseif action == "loading" then
+							pendingAdd[id] = true
+							waiting = waiting + 1
+						elseif action == "nosale" then
+							lastNoSale = true
+						elseif action == "incompat" then
+							lastIncompat = true
+						else
+							seen[id] = true
+							entries[#entries + 1] = {id = id}
+							added = added + 1
+							lastID = id
+						end
+					end
+				end
+				if added > 0 then
+					ClearSearch()
+					SaveList()
+					RefreshList()
+					ScrollToEntry(lastID)
+					FlashEntry(lastID)
+				elseif waiting > 0 then
+					-- Nothing to say yet (the item is added or a message is shown when it has loaded)
+				elseif lastDuplicate then
+					ShowExisting(lastDuplicate)
+				elseif lastNoSale then
+					ShowMessage(L["That item cannot be sold."])
+				elseif lastIncompat then
+					ShowMessage(L["Only junk and white items can be added."])
+				elseif lastInvalid then
+					ShowMessage(L["Invalid item ID."])
+				end
+				return added, waiting
+			end
+
+			-- Function to add the item IDs in the new item box
+			local function CommitNew()
+				local list = {}
+				for num in newID:GetText():gmatch("%d+") do
+					list[#list + 1] = tonumber(num)
+				end
+				if #list == 0 then
+					ShowMessage(L["Invalid item ID."])
+					return
+				end
+				-- The box is cleared when something was added (items still loading clear it when they're added)
+				if AddIDs(list) > 0 then newID:SetText("") end
+			end
+			newID:SetScript("OnEnterPressed", CommitNew)
+			newAdd:SetScript("OnClick", function() CommitNew(); newID:SetFocus() end)
+
+			-- Function to add the item on the cursor (dragged from your bags), returns true if there was one
+			local function AddFromCursor()
+				local cursorType, itemID = GetCursorInfo()
+				if cursorType ~= "item" or not itemID then return false end
+				ClearCursor()
+				AddIDs({itemID})
+				return true
+			end
+
+			-- Items can be dropped on the list box, the list and the new item box
+			-- (the list box still moves the panel when dragged, the same as the rest of the panel)
+			local function StartPanelMove() SellJunkListPanel:StartMoving() end
+			local function StopPanelMove() SellJunkListPanel:GetScript("OnDragStop")(SellJunkListPanel) end
+			for i, frame in ipairs({eb, listChild}) do
+				frame:EnableMouse(true)
+				frame:RegisterForDrag("LeftButton")
+				frame:SetScript("OnDragStart", StartPanelMove)
+				frame:SetScript("OnDragStop", StopPanelMove)
+				frame:SetScript("OnReceiveDrag", AddFromCursor)
+				frame:SetScript("OnMouseUp", AddFromCursor)
+			end
+			newID:SetScript("OnReceiveDrag", AddFromCursor)
+			newID:HookScript("OnMouseDown", AddFromCursor)
+			-- The add button and column headings take dropped items too (clicking one with an item held adds the item instead of clicking it)
+			local dropButtons = {newAdd}
+			for key, heading in pairs(sortHeadings) do dropButtons[#dropButtons + 1] = heading end
+			for i, button in ipairs(dropButtons) do
+				local onClick = button:GetScript("OnClick")
+				button:SetScript("OnClick", function(self, ...)
+					if AddFromCursor() then return end
+					onClick(self, ...)
+				end)
+				button:SetScript("OnReceiveDrag", AddFromCursor)
+			end
+
+			-- Show the list box outline while an item is held over any part of the box (rows are hooked when they're made)
+			for i, frame in ipairs({eb, listChild, newID, newAdd}) do
+				frame:HookScript("OnEnter", ListHoverEnter)
+				frame:HookScript("OnLeave", ListHoverLeave)
+			end
+			for key, heading in pairs(sortHeadings) do
+				heading:HookScript("OnEnter", ListHoverEnter)
+				heading:HookScript("OnLeave", ListHoverLeave)
+			end
+
+			-- Help button next to the panel title (shows gold boxes over each part of the panel with a tip for each one)
+			LeaPlusLC:CreateHelpPlate(SellJunkListPanel, {
+				{
+					title = "Search",
+					tip = "Search the list by item name or item ID.|n|nPut a name in double quotes to only show items with exactly that name.|n|nYou can also drop an item from your bags here to search for it.",
+					region = searchBox, insets = {5, 3, 5, 3}, iconSize = 22,
+				},
+				{
+					title = "Sorting",
+					tip = "Click a column heading to sort the list by that column.  Click it again to reverse the order.",
+					points = {{"TOPLEFT", eb, "TOPLEFT", 6, -5}, {"BOTTOMRIGHT", eb, "TOPRIGHT", -6, -31}},
+				},
+				{
+					title = "Exceptions",
+					tip = "Junk items in the list are kept.  White items in the list are sold.  The action column shows what will happen to each item.|n|nClick an item to select it.  Hold control to select more than one or hold shift to select a range.  Right-click for more options.|n|nHover over an item to see its tooltip.  Drop an item from your bags anywhere on the list to add it.",
+					region = listScroll, insets = {2, 1, 24, 0},
+				},
+				{
+					title = "Add an item",
+					tip = "Enter an item ID and press enter or click the add button.  Several item IDs separated by commas can be entered at once.|n|nItem IDs can be found in item tooltips while this panel is showing.|n|nOnly junk and white items that can be sold are added.",
+					points = {{"TOPLEFT", newHeading, "TOPLEFT", -14, 2}, {"BOTTOMRIGHT", newRow, "BOTTOMRIGHT", 23, -4}},
+				},
+			})
+
+			----------------------------------------------------------------------
+			-- Removing items
+			----------------------------------------------------------------------
+
+			-- Function to remove the selected items
+			local function RemoveSelected()
+				for i = #entries, 1, -1 do
+					local e = entries[i]
+					if selected[e.id] then
+						seen[e.id] = nil
+						selected[e.id] = nil
+						tremove(entries, i)
+					end
+				end
+				SaveList()
+				RefreshList()
+			end
+
+			----------------------------------------------------------------------
+			-- List rows
+			----------------------------------------------------------------------
+
+			-- Right-click menu for a row (uses the Leatrix Plus pop-up list instead of the game's menu, see LeaPlusLC:CreatePopupList for why)
+			local rowMenu = LeaPlusLC:CreatePopupList(SellJunkListPanel)
+
+			-- Item tooltip for the list (our own tooltip rather than GameTooltip, made the first time it's needed)
+			-- Only GameTooltip has supportsItemComparison set so this tooltip never shows the comparison tooltips for
+			-- equipped items, and nothing is written to GameTooltip (GameTooltip_SuppressAutomaticCompareItem writes a
+			-- field on to GameTooltip and only stops the always compare setting, not holding shift)
+			local listTooltip
+			local function GetListTooltip()
+				if not listTooltip then
+					listTooltip = CreateFrame("GameTooltip", "LeaPlusSellJunkListTooltip", UIParent, "GameTooltipTemplate")
+					listTooltip:SetFrameStrata("TOOLTIP")
+					listTooltip:SetClampedToScreen(true)
+				end
+				return listTooltip
+			end
+			local function NotChecked() return false end
+			local function RunMenuEntry(entry) entry.action() end
+
+			-- Function to show the right-click menu for a row (opens under the row where it was clicked)
+			local function ShowRowMenu(row)
+				local count = GetSelected()
+				local items
+				if count > 1 then
+					items = {{name = format(L["Remove %d items"], count), action = RemoveSelected}}
+				else
+					-- How many of the item are in your bags and banks (shown in grey, it can't be clicked)
+					-- Bank counts include the reagent bank and warband bank and are known without visiting the bank
+					local e = entries[row.index]
+					local inBags = e and C_Item.GetItemCount(e.id) or 0
+					local inBank = e and (C_Item.GetItemCount(e.id, true, false, true, true) - inBags) or 0
+					local countText = format(L["In bags: %d"], inBags)
+					if inBank > 0 then countText = countText .. "   " .. format(L["Bank: %d"], inBank) end
+					items = {
+						{name = countText, disabled = true},
+						{name = L["Remove"], action = RemoveSelected, divider = true},
+					}
+				end
+				local x = GetCursorPosition() / row:GetEffectiveScale() - row:GetLeft()
+				rowMenu:Open(row, items, NotChecked, RunMenuEntry, "TOPLEFT", "BOTTOMLEFT", x, 0)
+			end
+
+			-- Function to create a list row
+			local function GetRow(i)
+				if rows[i] then return rows[i] end
+				local row = CreateFrame("Button", nil, listChild)
+				row:SetHeight(ROW_HEIGHT)
+				row:SetPoint("TOPLEFT", 0, -(i - 1) * ROW_HEIGHT)
+				row:SetPoint("TOPRIGHT", 0, -(i - 1) * ROW_HEIGHT)
+				row:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+
+				-- Hover highlight (a plain tint across the row)
+				local hover = row:CreateTexture(nil, "HIGHLIGHT")
+				hover:SetAllPoints()
+				hover:SetColorTexture(1, 1, 1, 0.08)
+
+				row.sel = row:CreateTexture(nil, "BACKGROUND")
+				row.sel:SetAllPoints()
+				row.sel:SetColorTexture(1, 0.82, 0, 0.25)
+				row.idText = row:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+				row.idText:SetPoint("LEFT", ID_X, 0)
+				row.idText:SetWidth(NAME_X - ID_X - 4)
+				row.idText:SetJustifyH("LEFT")
+				row.actionText = row:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+				row.actionText:SetPoint("LEFT", ACTION_X, 0)
+				row.actionText:SetWidth(ACTION_W)
+				row.actionText:SetJustifyH("LEFT")
+				row.actionText:SetWordWrap(false)
+				row.priceText = row:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+				row.priceText:SetPoint("LEFT", PRICE_X, 0)
+				row.priceText:SetWidth(PRICE_W)
+				row.priceText:SetJustifyH("LEFT")
+				row.priceText:SetWordWrap(false)
+				row.nameText = row:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+				row.nameText:SetPoint("LEFT", NAME_X, 0)
+				row.nameText:SetPoint("RIGHT", row, "LEFT", ACTION_X - 8, 0)
+				row.nameText:SetJustifyH("LEFT")
+				row.nameText:SetWordWrap(false)
+
+				-- Hovering over a row shows the item tooltip
+				row:SetScript("OnEnter", function(self)
+					local e = entries[self.index]
+					if not e or invalid[e.id] then return end
+					local tip = GetListTooltip()
+					-- Same scale as GameTooltip (so it follows the Enhance tooltip scale setting, including changes made after it was created)
+					tip:SetScale(GameTooltip:GetScale())
+					tip:SetOwner(self, "ANCHOR_NONE")
+					-- Tooltip goes to the right of the panel (or the left if there isn't room, the same as other panel tooltips)
+					local gap = UIParent:GetRight() * UIParent:GetEffectiveScale() - SellJunkListPanel:GetRight() * SellJunkListPanel:GetEffectiveScale()
+					if gap < 250 * tip:GetEffectiveScale() then
+						tip:SetPoint("TOPRIGHT", SellJunkListPanel, "TOPLEFT", 0, 0)
+					else
+						tip:SetPoint("TOPLEFT", SellJunkListPanel, "TOPRIGHT", 0, 0)
+					end
+					tip:SetItemByID(e.id)
+					tip:Show()
+				end)
+				row:SetScript("OnLeave", function() if listTooltip then listTooltip:Hide() end end)
+
+				-- Items dropped on a row are added (the list box outline shows while an item is held over the row)
+				row:SetScript("OnReceiveDrag", AddFromCursor)
+				row:HookScript("OnEnter", ListHoverEnter)
+				row:HookScript("OnLeave", ListHoverLeave)
+
+				-- Click selects an item, ctrl click adds or removes an item, shift click selects a range, right-click shows the menu
+				row:SetScript("OnClick", function(self, button)
+					-- Clicking with an item on the cursor adds it
+					if AddFromCursor() then return end
+					if button ~= "RightButton" then rowMenu:Close() end
+					local e = entries[self.index]
+					if not e then return end
+					local id = e.id
+					if button == "RightButton" then
+						-- Right-click on a row that is not selected selects only that row
+						if not selected[id] then
+							wipe(selected)
+							selected[id] = true
+							anchorID = id
+							RefreshList()
+						end
+						ShowRowMenu(self)
+						return
+					end
+					local anchorRow = anchorID and rowByID[anchorID]
+					if IsShiftKeyDown() and anchorRow then
+						-- Shift click selects every item shown from the last clicked item to this one
+						wipe(selected)
+						local a, b = anchorRow.pos, self.pos
+						if a > b then a, b = b, a end
+						for p = a, b do
+							local r = rows[p]
+							if r and r:IsShown() and entries[r.index] then selected[entries[r.index].id] = true end
+						end
+					elseif IsControlKeyDown() then
+						-- Ctrl click adds the item to the selection or removes it
+						selected[id] = not selected[id] or nil
+						anchorID = id
+					else
+						-- Click selects only this item (clicking a selected item on its own clears the selection)
+						if selected[id] and GetSelected() == 1 then
+							selected[id] = nil
+						else
+							wipe(selected)
+							selected[id] = true
+						end
+						anchorID = id
+					end
+					RefreshList()
+				end)
+
+				rows[i] = row
+				return row
+			end
+
+			-- Function to refresh the list (only items that match the search are shown)
+			local order, sortValues, details = {}, {}, setmetatable({}, {__mode = "k"}) -- Order the items are shown in (indexes into entries), the value each item is sorted by and the details of each item (by entry)
+			local function SortOrder(a, b)
+				local va, vb = sortValues[a], sortValues[b]
+				if va == vb then return a < b end -- Same value so keep the order added
+				if sortDesc then return va > vb else return va < vb end
+			end
+
+			RefreshList = function()
+				-- Get the details of each item and remove items that cannot be sold, aren't junk or white or don't exist (only lists from before items were checked when added have these)
+				-- It's done here rather than at login so the game only loads the items when the list is shown
+				local removed = 0
+				for i = #entries, 1, -1 do
+					local e = entries[i]
+					local d = details[e] or {}
+					details[e] = d
+					d.name, d.quality, d.action, d.price = GetItemDetails(e.id)
+					d.lowerName = d.name and d.name:lower() -- (used for sorting and searching)
+					if d.action == "nosale" or d.action == "invalid" or d.action == "incompat" then
+						seen[e.id] = nil
+						selected[e.id] = nil
+						tremove(entries, i)
+						removed = removed + 1
+					end
+				end
+				if removed > 0 then
+					SaveList()
+					ShowMessage(format(L["Removed %d items that cannot be sold automatically."], removed))
+				end
+				wipe(rowByID)
+				wipe(order)
+				wipe(sortValues)
+				for i, e in ipairs(entries) do
+					local d = details[e]
+					order[i] = i
+					if sortKey == "name" then
+						sortValues[i] = d.lowerName or "~"
+					elseif sortKey == "action" then
+						sortValues[i] = actionOrder[d.action]
+					elseif sortKey == "price" then
+						sortValues[i] = d.price or -1
+					else
+						sortValues[i] = e.id
+					end
+				end
+				table.sort(order, SortOrder)
+				local r = 0
+				for void, i in ipairs(order) do
+					local e = entries[i]
+					local d = details[e]
+					if Matches(e, d.lowerName) then
+						r = r + 1
+						local row = GetRow(r)
+						row.index = i
+						row.pos = r
+						rowByID[e.id] = row
+						row.idText:SetText(e.id)
+						SetNameText(row.nameText, d.name, d.quality, d.action)
+						row.actionText:SetText(actionText[d.action])
+						local c = actionColor[d.action]
+						row.actionText:SetTextColor(c[1], c[2], c[3])
+						row.priceText:SetText(PriceText(d.price))
+						row.sel:SetShown(selected[e.id] and true or false)
+						row:Show()
+					end
+				end
+				for i = r + 1, #rows do
+					rows[i]:Hide()
+				end
+				listChild:SetHeight(math.max(r * ROW_HEIGHT, 1))
+				if r == 0 then
+					noMatch:SetText(filter ~= "" and L["No items match your search."] or L["The list is empty."])
+					noMatch:Show()
+				else
+					noMatch:Hide()
+				end
+				-- Rows may have moved so keep the flash on the right row
+				if rowFlash:IsShown() then AnchorFlash() end
+				-- Update the tooltip if the mouse is over a row whose item has just loaded
+				if listTooltip and listTooltip:IsShown() then
+					local owner = listTooltip:GetOwner()
+					if owner and owner:GetParent() == listChild and owner:IsMouseOver() then owner:GetScript("OnEnter")(owner) end
+				end
+			end
+
+			-- Refresh the list when items the game hadn't loaded yet have loaded (only while the panel is showing)
+			local itemLoader = CreateFrame("Frame")
+			local refreshQueued
+			local function QueuedRefresh()
+				refreshQueued = nil
+				if SellJunkListPanel:IsShown() then
+					RefreshList()
+					UpdatePreview()
+				end
+			end
+			itemLoader:SetScript("OnEvent", function(self, event, itemID, success)
+				if not (seen[itemID] or itemID == previewID or pendingAdd[itemID]) then return end
+				if success == false then invalid[itemID] = true end
+				-- Item was waiting to be added so check it and add it now (or say why it can't be added)
+				if pendingAdd[itemID] then
+					pendingAdd[itemID] = nil
+					if AddIDs({itemID}) > 0 and tonumber(strtrim(newID:GetText())) == itemID then newID:SetText("") end
+				end
+				if not refreshQueued then
+					refreshQueued = true
+					C_Timer.After(0.1, QueuedRefresh)
+				end
+			end)
+			SellJunkListPanel:HookScript("OnShow", function()
+				itemLoader:RegisterEvent("GET_ITEM_INFO_RECEIVED")
+				RefreshList()
+				UpdatePreview()
+			end)
+			SellJunkListPanel:HookScript("OnHide", function()
+				itemLoader:UnregisterEvent("GET_ITEM_INFO_RECEIVED")
+				wipe(pendingAdd)
+				if listTooltip then listTooltip:Hide() end
+				rowFlashAnim:Stop(); rowFlash:Hide()
+				rowMenu:Close()
+				newID:ClearFocus()
+				searchBox:ClearFocus()
+			end)
+
+			-- Load the list on startup (the rows are made when the panel is shown)
+			LoadList()
+
+			-- Update the whitelist when the Keeper Ta'hult setting is clicked, reset or preset
 			LeaPlusCB["AutoSellNoKeeperTahult"]:HookScript("OnClick", UpdateWhiteList)
 			SellJunkFrame.r:HookScript("OnClick", UpdateWhiteList)
 			LeaPlusCB["AutoSellJunkBtn"]:HookScript("OnClick", function()
-				if IsShiftKeyDown() and IsControlKeyDown() then
-					-- Preset profile (just the whitelist part)
-					UpdateWhiteList()
-				end
+				if IsShiftKeyDown() and IsControlKeyDown() then UpdateWhiteList() end
 			end)
-
-			-- Editbox tooltip
-			local tipPrefix = ""
-
-			-- Function to make tooltip string
-			local function MakeTooltipString()
-
-				local keepMsg = ""
-				local sellMsg = ""
-				local dupMsg = ""
-				local novalueMsg = ""
-				local incompatMsg = ""
-
-				local tipString = eb.Text:GetText()
-				if tipString and tipString ~= "" then
-					tipString = tipString:gsub("[^,%d]", "")
-					local tipList = {strsplit(",", tipString)}
-					for i = 1, #tipList do
-						if tipList[i] then
-							tipList[i] = tonumber(tipList[i])
-							if tipList[i] and tipList[i] > 0 and tipList[i] < 999999999 then
-								local void, tLink, Rarity, void, void, void, void, void, void, void, ItemPrice = C_Item.GetItemInfo(tipList[i])
-								if tLink and tLink ~= "" then
-									local linkCol = string.sub(tLink, 1, 7)
-									if linkCol then
-										local linkName = tLink:match("%[(.-)%]")
-										if linkName and ItemPrice then
-											if ItemPrice > 0 then
-												if Rarity == 0 then
-													-- Junk item
-													if string.find(keepMsg, "%(" .. tipList[i] .. "%)") then
-														-- Duplicate (ID appears more than once in list)
-														dupMsg = dupMsg .. linkCol .. linkName .. " (" .. tipList[i] .. ")" .. "|r|n"
-													else
-														-- Add junk item to keep list
-														keepMsg = keepMsg .. linkCol .. linkName .. " (" .. tipList[i] .. ")" .. "|r|n"
-													end
-												elseif Rarity == 1 then
-													-- White item
-													if string.find(sellMsg, "%(" .. tipList[i] .. "%)") then
-														-- Duplicate (ID appears more than once in list)
-														dupMsg = dupMsg .. linkCol .. linkName .. " (" .. tipList[i] .. ")" .. "|r|n"
-													else
-														-- Add non-junk item to sell list
-														sellMsg = sellMsg .. linkCol .. linkName .. " (" .. tipList[i] .. ")" .. "|r|n"
-													end
-												else
-													-- Incompatible item (not junk or white)
-													if string.find(incompatMsg, "%(" .. tipList[i] .. "%)") then
-														-- Duplicate (ID appears more than once in list)
-														dupMsg = dupMsg .. linkCol .. linkName .. " (" .. tipList[i] .. ")" .. "|r|n"
-													else
-														-- Add item to incompatible list
-														incompatMsg = incompatMsg .. linkCol .. linkName .. " (" .. tipList[i] .. ")" .. "|r|n"
-													end
-												end
-											else
-												-- Item has no sell price so cannot be sold
-												if string.find(novalueMsg, "%(" .. tipList[i] .. "%)") then
-													-- Duplicate (ID appears more than once in list)
-													dupMsg = dupMsg .. linkCol .. linkName .. " (" .. tipList[i] .. ")" .. "|r|n"
-												else
-													-- Add item to cannot be sold list
-													novalueMsg = novalueMsg .. linkCol .. linkName .. " (" .. tipList[i] .. ")" .. "|r|n"
-												end
-											end
-										end
-									end
-								end
-							end
-						end
-					end
-				end
-
-				if keepMsg ~= "" then keepMsg = "|n" .. L["Keep"] .. "|n" .. keepMsg end
-				if sellMsg ~= "" then sellMsg = "|n" .. L["Sell"] .. "|n" .. sellMsg end
-				if dupMsg ~= "" then dupMsg = "|n" .. L["Duplicates"] .. "|n" .. dupMsg end
-				if novalueMsg ~= "" then novalueMsg = "|n" .. L["Cannot be sold"] .. "|n" .. novalueMsg end
-				if incompatMsg ~= "" then incompatMsg = "|n" .. L["Incompatible"] .. "|n" .. incompatMsg end
-
-				eb.tiptext = L["Exclusions"] .. "|n" .. keepMsg .. sellMsg .. dupMsg .. novalueMsg .. incompatMsg
-				eb.Text.tiptext = L["Exclusions"] .. "|n" .. keepMsg .. sellMsg .. dupMsg .. novalueMsg .. incompatMsg
-				if eb.tiptext == L["Exclusions"] .. "|n" then eb.tiptext = eb.tiptext .. "|n" .. L["Nothing to see here."] end
-				if eb.Text.tiptext == L["Exclusions"] .. "|n" then eb.Text.tiptext = "-" end
-
-				if GameTooltip:IsShown() then
-					if eb:IsMouseOver() or eb.Text:IsMouseOver() then
-						GameTooltip:SetText(eb.tiptext, nil, nil, nil, nil, false)
-					end
-				end
-
-			end
-
-			eb.Text:HookScript("OnTextChanged", MakeTooltipString)
-			eb.Text:HookScript("OnTextChanged", function()
-				C_Timer.After(0.1, function()
-					MakeTooltipString()
-				end)
-			end)
-
-			-- Show the button tooltip for the editbox
-			eb:SetScript("OnEnter", MakeTooltipString)
-			eb:HookScript("OnEnter", LeaPlusLC.TipSee)
-			eb:HookScript("OnEnter", function() GameTooltip:SetText(eb.tiptext, nil, nil, nil, nil, false) end)
-			eb:SetScript("OnLeave", GameTooltip_Hide)
-			eb.Text:SetScript("OnEnter", MakeTooltipString)
-			eb.Text:HookScript("OnEnter", LeaPlusLC.ShowDropTip)
-			eb.Text:HookScript("OnEnter", function() GameTooltip:SetText(eb.tiptext, nil, nil, nil, nil, false) end)
-			eb.Text:SetScript("OnLeave", GameTooltip_Hide)
 
 			-- Show item ID in item tooltips while configuration panel is showing
 			TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Item, function(self)
-				if self ~= GameTooltip then return end
-				if SellJunkFrame:IsShown() then
+				if self ~= GameTooltip and (not listTooltip or self ~= listTooltip) then return end
+				if SellJunkFrame:IsShown() or SellJunkListPanel:IsShown() then
 					local void, itemLink = self:GetItem()
 					if itemLink then
 						local itemID = GetItemInfoFromHyperlink(itemLink)
@@ -8268,12 +9072,11 @@
 								end
 							end
 							-- Continue
-							local cInfo = C_Container.GetContainerItemInfo(BagID, BagSlot)
-							local itemCount = cInfo.stackCount
 							if Rarity == 0 and ItemPrice ~= 0 then
 								SoldCount = SoldCount + 1
 								if MerchantFrame:IsShown() then
-									-- If merchant frame is open, vendor the item
+									-- If merchant frame is open, vendor the item (stack size is read first and only for items being sold)
+									local itemCount = C_Container.GetContainerItemInfo(BagID, BagSlot).stackCount
 									C_Container.UseContainerItem(BagID, BagSlot)
 									-- Perform actions on first iteration
 									if SellJunkTicker._remainingIterations == IterationCount then
@@ -9306,86 +10109,1476 @@
 
 		if LeaPlusLC["KeepAudioSynced"] == "On" then
 
-			SetCVar("Sound_OutputDriverIndex", "0")
+			-- Use the system default output device (only set if it isn't already, setting it can make the game reset its sound output)
+			if GetCVar("Sound_OutputDriverIndex") ~= "0" then SetCVar("Sound_OutputDriverIndex", "0") end
+
+			-- Function to restart the sound system so the game uses the new output device
+			local pending -- Set while waiting to restart (the event can come several times in a row when a device changes)
+			local function RestartSound()
+				pending = nil
+				if CinematicFrame:IsShown() or MovieFrame:IsShown() then return end -- Dont restart sound system during cinematic
+				SetCVar("Sound_OutputDriverIndex", "0")
+				Sound_GameSystem_RestartSoundSystem()
+			end
+
+			-- Restart the sound system when the output devices change (several messages close together only restart it once)
 			local event = CreateFrame("FRAME")
 			event:RegisterEvent("VOICE_CHAT_OUTPUT_DEVICES_UPDATED")
 			event:SetScript("OnEvent", function()
-				if not CinematicFrame:IsShown() and not MovieFrame:IsShown() then -- Dont restart sound system during cinematic
-					SetCVar("Sound_OutputDriverIndex", "0")
-					Sound_GameSystem_RestartSoundSystem()
+				if not pending then
+					pending = true
+					C_Timer.After(0.5, RestartSound)
 				end
 			end)
 
 		end
 
 		----------------------------------------------------------------------
-		-- Mute custom sounds (no reload required)
+		-- Mute custom sounds (no reload required) (custom tab of Mute game sounds)
 		----------------------------------------------------------------------
 
 		do
 
 			-- Create configuration panel
-			local MuteCustomPanel = LeaPlusLC:CreatePanel("Mute custom sounds", "MuteCustomPanel")
+			local MuteCustomPanel = LeaPlusLC:CreatePanel("Mute game sounds", "MuteCustomPanel")
 
-			local titleTX = LeaPlusLC:MakeTx(MuteCustomPanel, "Editor", 16, -72)
-			titleTX:SetWidth(534)
-			titleTX:SetWordWrap(false)
-			titleTX:SetJustifyH("LEFT")
+			-- Give panel file level scope (it's shown by the custom tab in the game sounds and mount sounds panels)
+			LeaPlusLC["MuteCustomPanel"] = MuteCustomPanel
 
-			-- Show help button for title
-			LeaPlusLC:CreateHelpButton("MuteGameSoundsCustomHelpButton", MuteCustomPanel, titleTX, "Enter sound file IDs separated by comma then click the Mute button.|n|nIf you wish, you can enter a brief note for each file ID but do not include numbers in your notes.|n|nFor example, you can enter 'DevAura 569679, RetAura 568744' to mute the Devotion Aura and Retribution Aura spells.|n|nUse Leatrix Sounds to find, test and play sound file IDs.")
+			-- Remember the last tab that was shown (see Mute game sounds)
+			MuteCustomPanel:HookScript("OnShow", function() LeaPlusLC["MuteGameSoundsTab"] = 3 end)
 
-			-- Add large editbox
+			-- Add list box (same box as the game sounds and mount sounds panels so the tabs sit flush on top of it)
 			local eb = CreateFrame("Frame", nil, MuteCustomPanel, "BackdropTemplate")
-			eb:SetSize(548, LeaPlusLC.MainPanelHeight - 180)
-			eb:SetPoint("TOPLEFT", 10, -92)
-			eb:SetBackdrop({
-				bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
-				edgeFile = "Interface\\PVPFrame\\UI-Character-PVP-Highlight",
-				edgeSize = 16,
-				insets = { left = 8, right = 6, top = 8, bottom = 8 },
-			})
-			eb:SetBackdropBorderColor(1.0, 0.85, 0.0, 0.5)
+			eb:SetPoint("TOPLEFT", 16, -68)
+			eb:SetPoint("BOTTOMRIGHT", -16, 98)
+			eb:SetBackdrop({bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background"})
+			eb:SetBackdropColor(0, 0, 1, 0.5)
 
-			eb.scroll = CreateFrame("ScrollFrame", nil, eb, "LeaPlusMuteCustomSoundsScrollFrameTemplate")
-			eb.scroll:SetPoint("TOPLEFT", eb, 12, -10)
-			eb.scroll:SetPoint("BOTTOMRIGHT", eb, -30, 10)
-			eb.scroll:SetPanExtent(16)
+			-- Add tabs (same as the game sounds and mount sounds panels)
+			MuteCustomPanel.tabAnchor = eb
+			local customGameTab, customMountTab, customCustomTab = LeaPlusLC:MakePanelTabs(MuteCustomPanel, "MuteCustomGameTab", "General", "MuteCustomMountTab", "Mounts", "MuteCustomCustomTab", "Custom")
+			LeaPlusLC:SetPanelTabStyle(customGameTab, false)
+			LeaPlusLC:SetPanelTabStyle(customMountTab, false)
+			LeaPlusLC:SetPanelTabStyle(customCustomTab, true)
+			customGameTab:SetScript("OnClick", function() MuteCustomPanel:Hide(); LeaPlusLC["MuteSoundPanel"]:Show() end)
+			customMountTab:SetScript("OnClick", function() MuteCustomPanel:Hide(); LeaPlusLC["MuteMountPanel"]:Show() end)
 
-			-- Create character count
-			eb.scroll.CharCount = eb.scroll:CreateFontString(nil, 'ARTWORK', 'GameFontNormal')
-			eb.scroll.CharCount:Hide()
+			-- Custom sounds list (each entry is a sound file ID with a description)
+			-- Under the list is an empty row (fixed at the bottom of the box) that you can type into to add a new sound
+			-- Sounds in the list are edited in place (enter, tab or clicking away keeps the change, escape cancels it)
+			local entries, seen, selected, rows, rowOf, rowByID = {}, {}, {}, {}, {}, {} -- rowOf and rowByID give the row showing an entry (by index and by sound ID)
+			local anchorID -- Sound that was clicked last (shift click selects from here)
+			local ROW_HEIGHT = 20
+			local ID_X, NOTE_X = 8, 112 -- Position of the sound ID and description columns in each row
+			local ID_W = 92 -- Width of the sound ID boxes (room for 8 digits with the clear button showing)
+			local NOTE_MAX = 60 -- Most characters a description can have
+			local NOTE_RIGHT = -8 -- Right edge of the description
+			local soundStatus = {} -- Whether each sound file ID could be played (true or false, nil if not checked yet, only kept for the session)
+			local playHandle, playTicker, remuteID, playID, playSource -- What is playing ("new" for the new sound row or "list" for a sound in the list)
+			local StartSoundCheck -- Function to check sounds that haven't been checked (defined further down)
+			local RefreshList -- Function to refresh the list (defined further down)
 
-			eb.Text = eb.scroll.EditBox
-			eb.Text:SetWidth(494)
-			eb.Text:SetHeight(230)
-			eb.Text:SetPoint("TOPLEFT", eb.scroll)
-			eb.Text:SetPoint("BOTTOMRIGHT", eb.scroll, -12, 0)
-			eb.Text:SetMaxLetters(2000)
-			eb.Text:SetFontObject(GameFontNormalLarge)
-			eb.Text:SetAutoFocus(false)
-			eb.scroll:SetScrollChild(eb.Text)
+			-- Function to check a sound file ID (a whole number in the range used by the game)
+			local function ValidID(id)
+				return id and id >= 1 and id < 20000000 and id % 1 == 0
+			end
 
-			-- Set focus on the editbox text when clicking the editbox
-			eb:SetScript("OnMouseDown", function()
-				eb.Text:SetFocus()
-				eb.Text:SetCursorPosition(eb.Text:GetMaxLetters())
-			end)
+			-- Function to shorten a sound file name to just the name (such as sound/spells/fizzle/fizzlefirea.ogg to fizzlefirea)
+			local function TidyFileName(token)
+				local lower = token:lower()
+				if lower:find(".ogg", 1, true) or lower:find(".mp3", 1, true) or lower:find(".wav", 1, true) then
+					token = token:gsub("^.*[/\\]", "")
+					token = token:gsub("%.[Oo][Gg][Gg]", "")
+					token = token:gsub("%.[Mm][Pp]3", "")
+					token = token:gsub("%.[Ww][Aa][Vv]", "")
+				end
+				return token
+			end
 
-			-- Function to save the custom sound list
-			local function SaveString(self, userInput)
-				local keytext = eb.Text:GetText()
-				if keytext and keytext ~= "" then
-					LeaPlusLC["MuteCustomList"] = strtrim(eb.Text:GetText())
-				else
-					LeaPlusLC["MuteCustomList"] = ""
+			-- Function to shorten a description to the most characters allowed (counts characters rather than bytes so accented letters work)
+			local function LimitNote(note)
+				local count, cut = 0, nil
+				for pos in note:gmatch("()[%z\1-\127\194-\244][\128-\191]*") do
+					count = count + 1
+					if count > NOTE_MAX then cut = pos break end
+				end
+				if cut then note = strtrim(note:sub(1, cut - 1)) end
+				return note
+			end
+
+			-- Function to tidy a description from the old list format (only used for the one time import of the old list)
+			-- In the old format every number was a sound file ID and commas separated the sounds so those can't be part of the description
+			-- Sound file names are shortened, # and double quotes are removed and single quotes are removed if they wrap the description
+			local function CleanNote(text)
+				local note = (text or ""):gsub("[^%s\"']+", TidyFileName)
+				note = note:gsub("[#\"%d,]", " ")
+				note = strtrim((note:gsub("%s+", " ")))
+				note = strtrim((note:gsub("^'(.*)'$", "%1")))
+				note = LimitNote(note)
+				-- Sounds without a description show a dash
+				if note == "" then note = "-" end
+				return note
+			end
+
+			-- Function to tidy a typed description (anything can be used, sounds without a description show a dash)
+			local function CleanTypedNote(text)
+				local note = LimitNote(strtrim(((text or ""):gsub("%s+", " "))))
+				if note == "" then note = "-" end
+				return note
+			end
+
+			-- Function to read entries from the old list format (numbers are sound file IDs, the rest of each comma separated part is the description)
+			local function ParseList(text)
+				text = (text or ""):gsub("\n", ",")
+				for part in (text .. ","):gmatch("([^,]*),") do
+					local note = CleanNote(part)
+					for num in part:gmatch("%d+") do
+						local id = tonumber(num)
+						if ValidID(id) and not seen[id] then
+							seen[id] = true
+							entries[#entries + 1] = {id = id, note = note}
+						end
+					end
 				end
 			end
 
-			-- Save the custom sound list when it changes and at startup
-			eb.Text:SetScript("OnTextChanged", SaveString)
-			eb.Text:SetText(LeaPlusLC["MuteCustomList"])
-			SaveString()
+			-- Function to read entries from the saved list (a table of sounds in the order added, each with a sound file ID and description)
+			local function ParseSavedList(list)
+				if type(list) ~= "table" then return end
+				for i, item in ipairs(list) do
+					local id = type(item) == "table" and tonumber(item.id)
+					if ValidID(id) and not seen[id] then
+						seen[id] = true
+						entries[#entries + 1] = {id = id, note = CleanTypedNote(type(item.note) == "string" and item.note or "")}
+					end
+				end
+			end
+
+			-- Function to save the entries (each sound is saved with its sound file ID and description so descriptions can contain anything)
+			local function SaveList()
+				local list = {}
+				for i, e in ipairs(entries) do
+					list[i] = {id = e.id, note = e.note}
+				end
+				LeaPlusLC["MuteCustomSoundList"] = list
+			end
+
+			-- Function to load the entries from the saved list
+			-- The old list (MuteCustomList, a string where every number was a sound file ID) is imported once and then deleted
+			local function LoadList()
+				wipe(entries); wipe(seen); wipe(selected)
+				ParseSavedList(LeaPlusLC["MuteCustomSoundList"])
+				if type(LeaPlusDB["MuteCustomList"]) == "string" then
+					ParseList(LeaPlusDB["MuteCustomList"])
+				end
+				LeaPlusDB["MuteCustomList"] = nil
+				SaveList()
+			end
+
+			-- Function to create an editbox for the list (used for inline editing and the new sound row)
+			-- The editboxes have no border (each one is shown slightly lighter than the list instead)
+			local function MakeListBox(parent)
+				local box = CreateFrame("EditBox", nil, parent)
+				box:SetAutoFocus(false)
+				box:SetFontObject("GameFontHighlight")
+				box:SetTextColor(1, 1, 1)
+				box:SetHeight(ROW_HEIGHT)
+				box:EnableMouse(true)
+				box.bg = box:CreateTexture(nil, "BACKGROUND")
+				box.bg:SetPoint("TOPLEFT", -3, 0)
+				box.bg:SetPoint("BOTTOMRIGHT", 3, 0)
+				box.bg:SetColorTexture(1, 1, 1, 0.07)
+				return box
+			end
+
+			-- Column headings (click to sort by that column, click again to reverse)
+			-- The list is always saved in the order added, sorting only changes how it's shown (the sort is saved between sessions)
+			local sortKey, sortDesc -- Column the list is sorted by ("id" or "note") and whether it's reversed
+			local sortHeadings = {}
+
+			-- Sort is saved as a number (1 and 2 for sound ID, 3 and 4 for description, even numbers are reversed, sound ID is the default)
+			local sortKeys = {"id", "note"}
+			local sortNum = LeaPlusLC["MuteCustomSort"] or 1
+			sortKey = sortKeys[math.ceil(sortNum / 2)] or "id"
+			sortDesc = sortNum % 2 == 0
+			local function SaveSort()
+				local num = 1
+				for i, key in ipairs(sortKeys) do
+					if key == sortKey then num = i * 2 - (sortDesc and 0 or 1) end
+				end
+				LeaPlusLC["MuteCustomSort"] = num
+			end
+
+			-- Function to show the sort arrow on the column the list is sorted by
+			local function UpdateSortArrows()
+				for key, heading in pairs(sortHeadings) do
+					local arrow = heading.arrow
+					if key == sortKey then
+						if arrow.SetVertexOffset then
+							-- Triangle (made by pulling two corners of a rectangle into a point)
+							for v = 1, 4 do arrow:SetVertexOffset(v, 0, 0) end
+							if sortDesc then
+								arrow:SetVertexOffset(LOWER_LEFT_VERTEX or 2, 3.5, 0)
+								arrow:SetVertexOffset(LOWER_RIGHT_VERTEX or 4, -3.5, 0)
+							else
+								arrow:SetVertexOffset(UPPER_LEFT_VERTEX or 1, 3.5, 0)
+								arrow:SetVertexOffset(UPPER_RIGHT_VERTEX or 3, -3.5, 0)
+							end
+						else
+							arrow:SetTexture(sortDesc and "Interface\\Buttons\\Arrow-Down-Up" or "Interface\\Buttons\\Arrow-Up-Up")
+						end
+						arrow:Show()
+					else
+						arrow:Hide()
+					end
+				end
+			end
+
+			-- Function to create a column heading
+			local function MakeSortHeading(key, label, point, relativeTo, relativePoint, x, y)
+				local heading = CreateFrame("Button", nil, eb)
+				heading:SetPoint(point, relativeTo, relativePoint, x, y)
+				heading.text = heading:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+				heading.text:SetPoint("LEFT", 0, 0)
+				heading.text:SetText(L[label])
+				heading:SetSize(heading.text:GetStringWidth() + 14, 14)
+				heading.arrow = heading:CreateTexture(nil, "ARTWORK")
+				if heading.arrow.SetVertexOffset then
+					heading.arrow:SetSize(7, 4)
+					heading.arrow:SetColorTexture(1, 0.82, 0)
+				else
+					heading.arrow:SetSize(12, 12)
+				end
+				heading.arrow:SetPoint("LEFT", heading.text, "RIGHT", 4, 0)
+				heading.arrow:Hide()
+				heading:SetScript("OnEnter", function(self) self.text:SetTextColor(1, 1, 1) end)
+				heading:SetScript("OnLeave", function(self) self.text:SetTextColor(1, 0.82, 0) end)
+				heading:SetScript("OnClick", function()
+					if sortKey ~= key then
+						sortKey, sortDesc = key, false
+					else
+						sortDesc = not sortDesc
+					end
+					SaveSort()
+					UpdateSortArrows()
+					RefreshList()
+				end)
+				sortHeadings[key] = heading
+			end
+			MakeSortHeading("id", "Sound ID", "TOPLEFT", eb, "TOPLEFT", 16, -12)
+			MakeSortHeading("note", "Description", "TOPLEFT", eb, "TOPLEFT", 8 + NOTE_X, -12)
+			UpdateSortArrows()
+
+			-- List (scrolling)
+			local listScroll = CreateFrame("ScrollFrame", nil, eb, "LeaPlusConfigurationPanelScrollFrameTemplate")
+			local NEW_GAP = 22 -- Space between the list and the new sound row (the add a sound heading goes in it)
+			listScroll:SetPoint("TOPLEFT", 8, -34)
+			listScroll:SetPoint("BOTTOMRIGHT", -29, 6 + ROW_HEIGHT + NEW_GAP)
+			listScroll:SetPanExtent(ROW_HEIGHT)
+			local listChild = CreateFrame("Frame", nil, listScroll)
+			listChild:SetSize(500, 1)
+			listScroll:SetScrollChild(listChild)
+			listScroll:HookScript("OnSizeChanged", function(self, width) listChild:SetWidth(width) end)
+
+			-- Function to show the sound ID in red if the sound is invalid (such as sounds removed from the game)
+			local function SetIDColor(row, id)
+				if soundStatus[id] == false then
+					row.idText:SetTextColor(1, 0.3, 0.3)
+				else
+					row.idText:SetTextColor(1, 1, 1)
+				end
+			end
+
+			-- Function to update the sound ID color of a sound (only the row showing it, if there is one)
+			local function UpdateIDColor(id)
+				local row = rowByID[id]
+				if row then SetIDColor(row, id) end
+			end
+
+			-- Sounds are checked by playing them and seeing if they are still playing a moment later
+			-- Sound IDs that don't exist won't play at all and some (such as old sound kit numbers) stop straight away
+			-- Checks play on the ambience channel with its volume turned down while checking so they aren't heard
+			local CHECK_TIME = 0.1 -- Sounds still playing after this many seconds are valid
+			local CHECK_BATCH = 8 -- Number of sounds checked at the same time
+			local checkPending = {} -- Sounds being checked
+			local checkFirst = {} -- Sounds to check before the sounds in the list (such as a sound being added)
+			local checkDone = {} -- Functions to run when a sound has been checked
+			local savedAmbience -- Ambience channel settings while checking (put back when checking finishes)
+			local soundChecker = CreateFrame("Frame", nil, MuteCustomPanel)
+			soundChecker:Hide()
+
+			-- Functions to turn the ambience channel down while checking and put it back afterwards (also put back on logout)
+			local function QuietChannel()
+				if savedAmbience then return end
+				savedAmbience = {GetCVar("Sound_AmbienceVolume"), GetCVar("Sound_EnableAmbience")}
+				SetCVar("Sound_AmbienceVolume", 0)
+				SetCVar("Sound_EnableAmbience", 1)
+				soundChecker:RegisterEvent("PLAYER_LOGOUT")
+			end
+			local function RestoreChannel()
+				if not savedAmbience then return end
+				SetCVar("Sound_EnableAmbience", savedAmbience[2])
+				SetCVar("Sound_AmbienceVolume", savedAmbience[1])
+				savedAmbience = nil
+				soundChecker:UnregisterEvent("PLAYER_LOGOUT")
+			end
+			soundChecker:SetScript("OnEvent", RestoreChannel)
+
+			-- Function to record the result of a check
+			local function SetChecked(id, valid)
+				soundStatus[id] = valid
+				UpdateIDColor(id)
+				local func = checkDone[id]
+				if func then checkDone[id] = nil; func() end
+			end
+
+			-- Function to stop a sound that is being checked (sounds in the list are muted again if the option is enabled)
+			-- (not if you started playing the same sound while it was being checked, it's muted again when you stop it)
+			local function EndCheck(p)
+				StopSound(p.handle)
+				if p.unmuted and p.id ~= remuteID then MuteSoundFile(p.id) end
+			end
+
+			-- Function to start checking a sound
+			local function StartCheck(id)
+				local unmuted = LeaPlusLC["MuteGameSounds"] == "On" and seen[id]
+				if unmuted then UnmuteSoundFile(id) end
+				local willPlay, handle = PlaySoundFile(id, "Ambience")
+				if not willPlay or not handle then
+					if unmuted then MuteSoundFile(id) end
+					SetChecked(id, false)
+				elseif not (C_Sound and C_Sound.IsPlaying) then
+					-- Game can't tell if a sound is still playing so the sound is valid if it started
+					EndCheck({id = id, handle = handle, unmuted = unmuted})
+					SetChecked(id, true)
+				else
+					checkPending[#checkPending + 1] = {id = id, handle = handle, unmuted = unmuted, start = GetTime()}
+				end
+			end
+
+			-- Function to get the next sound to check (remove is true to take it off the list of sounds to check first)
+			local function NextCheck(remove)
+				local function Waiting(id)
+					-- A sound that you're playing is checked after you stop it (so the check doesn't mute it while it plays)
+					if soundStatus[id] ~= nil or id == remuteID then return false end
+					for i = 1, #checkPending do
+						if checkPending[i].id == id then return false end
+					end
+					return true
+				end
+				while #checkFirst > 0 do
+					local id = checkFirst[1]
+					if Waiting(id) then
+						if remove then tremove(checkFirst, 1) end
+						return id
+					end
+					tremove(checkFirst, 1)
+				end
+				for i, e in ipairs(entries) do
+					if Waiting(e.id) then return e.id end
+				end
+			end
+
+			-- Sounds are checked while the panel is showing (the frame is only shown while there are sounds to check)
+			soundChecker:SetScript("OnUpdate", function(self)
+				local now = GetTime()
+				for i = #checkPending, 1, -1 do
+					local p = checkPending[i]
+					local playing = C_Sound.IsPlaying(p.handle)
+					if not playing or now - p.start >= CHECK_TIME then
+						tremove(checkPending, i)
+						EndCheck(p)
+						SetChecked(p.id, playing and true or false)
+					end
+				end
+				-- Turn the ambience channel down and wait a frame before the first check so the change has taken effect
+				if not savedAmbience then
+					if NextCheck() then QuietChannel() return end
+				else
+					while #checkPending < CHECK_BATCH do
+						local id = NextCheck(true)
+						if not id then break end
+						StartCheck(id)
+					end
+				end
+				if #checkPending == 0 and not NextCheck() then self:Hide() end
+			end)
+
+			-- When checking stops (finished or the panel closed), stop any checks that haven't finished and put the ambience channel back
+			soundChecker:SetScript("OnHide", function()
+				for i = 1, #checkPending do EndCheck(checkPending[i]) end
+				wipe(checkPending)
+				wipe(checkFirst)
+				wipe(checkDone)
+				RestoreChannel()
+			end)
+
+			-- Function to start checking sounds that haven't been checked (not when game sound is turned off as nothing would play)
+			local function SoundOn()
+				return GetCVar("Sound_EnableAllSound") ~= "0"
+			end
+			StartSoundCheck = function()
+				if MuteCustomPanel:IsShown() and SoundOn() and NextCheck() then soundChecker:Show() end
+			end
+			-- The list rows are made when the panel is shown (not at login) and refreshing starts checking any sounds that haven't been checked
+			MuteCustomPanel:HookScript("OnShow", function() RefreshList() end)
+
+			-- Function to check a sound straight away and run a function when it has been checked
+			local function CheckNow(id, func)
+				tinsert(checkFirst, 1, id)
+				checkDone[id] = func
+				soundChecker:Show()
+			end
+
+			-- Function to see if a sound needs checking before it can be added (not when game sound is turned off as nothing would play)
+			local function NeedsCheck(id)
+				return soundStatus[id] == nil and SoundOn()
+			end
+
+			-- Hints shown on two lines next to the buttons at the bottom of the panel (centered on the back button)
+			local playHint = MuteCustomPanel:CreateFontString(nil, "ARTWORK", "GameFontDisableSmall")
+			playHint:SetPoint("BOTTOMLEFT", MuteCustomPanel, "BOTTOMLEFT", 16, 66)
+			playHint:SetPoint("BOTTOMRIGHT", MuteCustomPanel.b, "BOTTOMLEFT", -10, 13) -- (stops before the buttons)
+			playHint:SetWordWrap(false)
+			playHint:SetHeight(12)
+			playHint:SetJustifyH("LEFT")
+			playHint:SetJustifyV("MIDDLE")
+			playHint:SetText(L["Click a sound to play it and click again to stop it."])
+
+			local listHint = MuteCustomPanel:CreateFontString(nil, "ARTWORK", "GameFontDisableSmall")
+			listHint:SetPoint("BOTTOMLEFT", MuteCustomPanel, "BOTTOMLEFT", 16, 54)
+			listHint:SetPoint("BOTTOMRIGHT", MuteCustomPanel.b, "BOTTOMLEFT", -10, 1) -- (stops before the buttons)
+			listHint:SetWordWrap(false)
+			listHint:SetHeight(12)
+			listHint:SetJustifyH("LEFT")
+			listHint:SetJustifyV("MIDDLE")
+			listHint:SetText(L["Right-click a sound for more options."])
+
+			-- Function to show a message in the footer for a few seconds (used instead of printing to chat)
+			local hintR, hintG, hintB = listHint:GetTextColor()
+			local hintTimer
+			local function ShowMessage(text)
+				listHint:SetText(text)
+				listHint:SetTextColor(1, 0.5, 0.25)
+				if hintTimer then hintTimer:Cancel() end
+				hintTimer = C_Timer.NewTimer(3, function()
+					hintTimer = nil
+					listHint:SetText(L["Right-click a sound for more options."])
+					listHint:SetTextColor(hintR, hintG, hintB)
+				end)
+			end
+
+			-- Function to scroll the list so a sound can be seen (such as a sound that has just been added)
+			local function ScrollToEntry(index)
+				C_Timer.After(0, function()
+					local row = rowOf[index]
+					if not row then return end
+					local top, bottom = (row.pos - 1) * ROW_HEIGHT, row.pos * ROW_HEIGHT
+					local scroll, height = listScroll:GetVerticalScroll(), listScroll:GetHeight()
+					if top < scroll then
+						listScroll:SetVerticalScroll(top)
+					elseif bottom > scroll + height then
+						listScroll:SetVerticalScroll(math.min(bottom - height, listScroll:GetVerticalScrollRange()))
+					end
+				end)
+			end
+
+			-- Brief gold flash on a row so you can see a sound that has just been added (the same flash as jumping to a setting)
+			local AnchorFlash, FlashEntry
+			do
+				local rowFlash = CreateFrame("Frame", nil, listChild)
+				rowFlash:SetFrameLevel(listChild:GetFrameLevel() + 4)
+				rowFlash:Hide()
+				rowFlash.t = rowFlash:CreateTexture(nil, "OVERLAY")
+				rowFlash.t:SetAllPoints()
+				rowFlash.t:SetColorTexture(1, 0.82, 0, 0.35)
+				rowFlash.t:SetBlendMode("ADD")
+				local rowFlashAnim = rowFlash:CreateAnimationGroup()
+				for i, v in ipairs({{0, 1, 0.2}, {1, 0, 0.4}, {0, 1, 0.2}, {1, 0, 0.8}}) do
+					local a = rowFlashAnim:CreateAnimation("Alpha")
+					a:SetFromAlpha(v[1])
+					a:SetToAlpha(v[2])
+					a:SetDuration(v[3])
+					a:SetOrder(i)
+				end
+				rowFlashAnim:SetScript("OnFinished", function() rowFlash:Hide() end)
+				local flashID -- Sound ID of the row that is flashing
+
+				-- Function to keep the flash on the row showing the sound (hidden if the sound isn't shown, such as after it's removed)
+				AnchorFlash = function()
+					if not rowFlash:IsShown() then return end
+					local row = flashID and rowByID[flashID]
+					if row then
+						rowFlash:ClearAllPoints()
+						rowFlash:SetAllPoints(row)
+					else
+						rowFlashAnim:Stop()
+						rowFlash:Hide()
+					end
+				end
+
+				-- Function to flash the row showing a sound (waits a frame so the list has scrolled to it first)
+				FlashEntry = function(id)
+					flashID = id
+					C_Timer.After(0, function()
+						if flashID ~= id or not MuteCustomPanel:IsShown() then return end
+						rowFlashAnim:Stop()
+						rowFlash:Hide()
+						local row = rowByID[id]
+						if row then
+							rowFlash:ClearAllPoints()
+							rowFlash:SetAllPoints(row)
+							rowFlash:Show()
+							rowFlashAnim:Play()
+						end
+					end)
+				end
+			end
+
+			-- Function to get the number of selected entries (and the index of the last one)
+			local function GetSelected()
+				local count, index = 0, nil
+				for i, e in ipairs(entries) do
+					if selected[e.id] then count = count + 1; index = i end
+				end
+				return count, index
+			end
+
+			----------------------------------------------------------------------
+			-- Search (shows only the sounds whose sound ID or description contains the search text)
+			----------------------------------------------------------------------
+
+			local filter = ""
+			-- Search box sits on the tab row opposite the tabs (styled like the new sound row boxes)
+			local searchBox = CreateFrame("EditBox", nil, eb)
+			searchBox:SetAutoFocus(false)
+			searchBox:SetFontObject("GameFontHighlight")
+			searchBox:SetTextColor(1, 1, 1)
+			searchBox:SetMaxLetters(50)
+			searchBox:SetSize(160, ROW_HEIGHT)
+			searchBox:SetPoint("BOTTOMRIGHT", eb, "TOPRIGHT", -3, 3)
+			searchBox.bg = searchBox:CreateTexture(nil, "BACKGROUND")
+			searchBox.bg:SetPoint("TOPLEFT", -3, 0)
+			searchBox.bg:SetPoint("BOTTOMRIGHT", 3, 0)
+			searchBox.bg:SetColorTexture(1, 1, 1, 0.07)
+			searchBox:SetScript("OnEscapePressed", searchBox.ClearFocus)
+			searchBox:SetScript("OnEnterPressed", searchBox.ClearFocus)
+
+			-- Magnifying glass icon and hint so it's clear the search is for the muted sounds in the list
+			local searchIcon = searchBox:CreateTexture(nil, "OVERLAY")
+			searchIcon:SetTexture("Interface\\Common\\UI-Searchbox-Icon")
+			searchIcon:SetVertexColor(0.6, 0.6, 0.6)
+			searchIcon:SetSize(14, 14)
+			searchIcon:SetPoint("LEFT", 2, -1)
+			local searchHint = searchBox:CreateFontString(nil, "ARTWORK", "GameFontDisable")
+			searchHint:SetPoint("LEFT", 19, 0)
+			searchHint:SetText(L["Search muted sounds"])
+
+			-- Clear button (the game's usual round cross used in search boxes, shown when there is text)
+			searchBox:SetTextInsets(19, 18, 0, 0)
+			local searchClear = CreateFrame("Button", nil, searchBox)
+			searchClear:SetSize(14, 14)
+			searchClear:SetPoint("RIGHT", -3, 0)
+			searchClear:SetFrameLevel(searchBox:GetFrameLevel() + 2)
+			searchClear.icon = searchClear:CreateTexture(nil, "OVERLAY")
+			searchClear.icon:SetSize(14, 14)
+			searchClear.icon:SetPoint("CENTER")
+			searchClear.icon:SetTexture("Interface\\FriendsFrame\\ClearBroadcastIcon")
+			searchClear.icon:SetAlpha(0.5)
+			searchClear:SetScript("OnEnter", function(self) self.icon:SetAlpha(1) end)
+			searchClear:SetScript("OnLeave", function(self) self.icon:SetAlpha(0.5) end)
+			searchClear:SetScript("OnMouseDown", function(self) self.icon:SetPoint("CENTER", 1, -1) end)
+			searchClear:SetScript("OnMouseUp", function(self) self.icon:SetPoint("CENTER", 0, 0) end)
+			searchClear:SetScript("OnClick", function() searchBox:SetText(""); searchBox:ClearFocus() end)
+			searchClear:Hide()
+			searchBox:HookScript("OnTextChanged", function(self) searchClear:SetShown(self:GetText() ~= "") end)
+
+			-- Function to check if a sound matches the search
+			local function Matches(e)
+				if filter == "" then return true end
+				return tostring(e.id):find(filter, 1, true) or e.note:lower():find(filter, 1, true)
+			end
+
+			-- Function to clear the search (adding or showing a sound clears it so the sound is shown with the rest of the list)
+			local function ClearSearch()
+				if filter == "" then return end
+				filter = "" -- (set first so clearing the search box doesn't refresh the list again)
+				searchBox:SetText("")
+			end
+
+			-- Function to say a sound is already in the list and show it (the search is cleared, then it's selected and scrolled to)
+			local function ShowExisting(id)
+				ShowMessage(L["That sound is already in the list."])
+				for i, e in ipairs(entries) do
+					if e.id == id then
+						ClearSearch()
+						wipe(selected)
+						selected[id] = true
+						anchorID = id
+						RefreshList()
+						ScrollToEntry(i)
+						FlashEntry(id)
+						return
+					end
+				end
+			end
+
+			-- Update the list as you type (the selection is cleared so hidden sounds can't be removed by mistake)
+			searchBox:HookScript("OnTextChanged", function(self)
+				searchHint:SetShown(self:GetText() == "")
+				local text = strtrim(self:GetText()):lower()
+				if text ~= filter then
+					filter = text
+					wipe(selected)
+					anchorID = nil
+					RefreshList()
+					listScroll:SetVerticalScroll(0)
+				end
+			end)
+
+			-- Message shown when nothing matches the search
+			local noMatch = eb:CreateFontString(nil, "ARTWORK", "GameFontDisable")
+			noMatch:SetPoint("TOPLEFT", listScroll, "TOPLEFT", ID_X, -4)
+			noMatch:SetText(L["No sounds match your search."])
+			noMatch:Hide()
+
+			----------------------------------------------------------------------
+			-- New sound row (fixed under the list)
+			----------------------------------------------------------------------
+
+			-- (it's fixed at the bottom of the box under the list so it doesn't scroll, and it lines up with the list columns)
+			local newRow = CreateFrame("Frame", nil, eb)
+			newRow:SetHeight(ROW_HEIGHT)
+			newRow:SetPoint("BOTTOMLEFT", 8, 6)
+			newRow:SetPoint("BOTTOMRIGHT", -29, 6)
+
+			-- Heading for the new sound row (lined up with the column headings)
+			local newHeading = LeaPlusLC:MakeTx(eb, "Add a sound", 16, 0)
+			newHeading:ClearAllPoints()
+			newHeading:SetPoint("BOTTOMLEFT", newRow, "TOPLEFT", ID_X, 4)
+			local newID = MakeListBox(newRow)
+			newID:SetNumeric(true)
+			newID:SetMaxLetters(8)
+			newID:SetPoint("LEFT", ID_X, 0)
+			newID:SetWidth(ID_W)
+			local newNote = MakeListBox(newRow)
+			newNote:SetMaxLetters(NOTE_MAX)
+			newNote:SetPoint("LEFT", NOTE_X, 0)
+
+			-- Hints shown in the new sound row boxes while they're empty
+			local idHint = newID:CreateFontString(nil, "ARTWORK", "GameFontDisable")
+			idHint:SetPoint("LEFT", 0, 0)
+			idHint:SetText(L["Sound ID"])
+			local noteHint = newNote:CreateFontString(nil, "ARTWORK", "GameFontDisable")
+			noteHint:SetPoint("LEFT", 0, 0)
+			noteHint:SetPoint("RIGHT", 0, 0)
+			noteHint:SetJustifyH("LEFT")
+			noteHint:SetWordWrap(false)
+			local suggestNote -- Description suggested by Leatrix Sounds for the sound file ID in the new sound row (nil if none)
+			local function SetNewHint()
+				idHint:SetShown(newID:GetText() == "")
+				noteHint:SetText(suggestNote or L["Description"])
+				noteHint:SetShown(newNote:GetText() == "")
+			end
+			newID:HookScript("OnTextChanged", SetNewHint)
+			newNote:HookScript("OnTextChanged", SetNewHint)
+
+			-- Suggest the sound file name from Leatrix Sounds as the description when a sound file ID is entered (only if Leatrix Sounds is loaded)
+			-- The suggestion is shown as the hint in the empty description box, typing a description replaces it and adding the sound without one uses it
+			-- Leatrix Sounds builds its index the first time (it takes a moment) and answers straight away after that
+			newID:HookScript("OnTextChanged", function(self)
+				suggestNote = nil
+				local id = tonumber(self:GetText())
+				local api = LeatrixSoundsAPI
+				if ValidID(id) and api and api.GetSoundFile then
+					api.GetSoundFile(id, function(file)
+						-- Only use the answer if the sound file ID hasn't changed
+						if tonumber(newID:GetText()) ~= id then return end
+						local name = file and LimitNote(TidyFileName(file))
+						suggestNote = name ~= "" and name or nil
+						SetNewHint()
+					end)
+				end
+				SetNewHint()
+			end)
+
+			-- Set when a button in the new sound row is clicked (so the click doesn't count as leaving the row)
+			local rowClick = false
+			local escapeLeave = false -- Set when escape takes the cursor out of the new sound row (so the sound isn't added)
+			local function RowClicked()
+				rowClick = true
+				C_Timer.After(0, function() C_Timer.After(0, function() rowClick = false end) end)
+			end
+
+			-- Clear buttons (the game's usual round cross used in search boxes, shown when there is text)
+			local function AddClearButton(box)
+				box:SetTextInsets(0, 16, 0, 0)
+				local btn = CreateFrame("Button", nil, box)
+				btn:SetSize(14, 14)
+				btn:SetPoint("RIGHT", -1, 0)
+				btn:SetFrameLevel(box:GetFrameLevel() + 2)
+				btn.icon = btn:CreateTexture(nil, "OVERLAY")
+				btn.icon:SetSize(14, 14)
+				btn.icon:SetPoint("CENTER")
+				btn.icon:SetTexture("Interface\\FriendsFrame\\ClearBroadcastIcon")
+				btn.icon:SetAlpha(0.5)
+				btn:SetScript("OnEnter", function(self) self.icon:SetAlpha(1) end)
+				btn:SetScript("OnLeave", function(self) self.icon:SetAlpha(0.5) end)
+				btn:SetScript("OnMouseDown", function(self) self.icon:SetPoint("CENTER", 1, -1); RowClicked() end)
+				btn:SetScript("OnMouseUp", function(self) self.icon:SetPoint("CENTER", 0, 0) end)
+				btn:SetScript("OnClick", function() RowClicked(); box:SetText(""); box:SetFocus() end)
+				btn:Hide()
+				box:HookScript("OnTextChanged", function(self) btn:SetShown(self:GetText() ~= "") end)
+			end
+			AddClearButton(newID)
+			AddClearButton(newNote)
+
+			----------------------------------------------------------------------
+			-- Player (the new sound row has a play button and sounds in the list are played by clicking them or from the right-click menu)
+			----------------------------------------------------------------------
+
+			-- Gold icons (the same style as Leatrix Sounds)
+			local iconGold = {1.0, 0.82, 0.0}
+			local function MakeIcon(parent, kind)
+				local icon = parent:CreateTexture(nil, "ARTWORK")
+				if kind == "stop" then
+					-- Square
+					icon:SetSize(8, 8)
+					icon:SetColorTexture(iconGold[1], iconGold[2], iconGold[3])
+				else
+					-- Triangle pointing right (made by pulling two corners of a square into a point)
+					if icon.SetVertexOffset then
+						icon:SetSize(7, 10)
+						icon:SetColorTexture(iconGold[1], iconGold[2], iconGold[3])
+						icon:SetVertexOffset(UPPER_RIGHT_VERTEX or 3, 0, -5)
+						icon:SetVertexOffset(LOWER_RIGHT_VERTEX or 4, 0, 5)
+					else
+						-- Game can't draw triangles so use the chat arrow
+						icon:SetSize(12, 12)
+						icon:SetTexture("Interface\\ChatFrame\\ChatFrameExpandArrow")
+					end
+				end
+				return icon
+			end
+
+			-- Function to create a play button with a gold icon (changes to stop while its sound is playing)
+			local function MakePlayButton(name, parent)
+				local btn = LeaPlusLC:CreateButton(name, parent, "Play", "RIGHT", 0, 0, 0, 20, true, "")
+				btn:SetScript("OnEnter", nil)
+				btn:SetScript("OnLeave", nil)
+				btn:SetPushedTextOffset(0, 0)
+				btn.play = MakeIcon(btn, "play")
+				btn.stop = MakeIcon(btn, "stop")
+				btn.stop:Hide()
+
+				-- Size the button to fit the longer of the play and stop text so it doesn't change size
+				local text = btn:GetFontString()
+				btn:SetText(L["Stop"])
+				local stopTextWidth = text:GetStringWidth()
+				btn:SetText(L["Play"])
+				local playTextWidth = text:GetStringWidth()
+				btn:SetWidth(ceil(math.max(btn.play:GetWidth() + playTextWidth, btn.stop:GetWidth() + stopTextWidth) + 5 + 20))
+
+				-- Function to show the play or stop state (the icon and text are centered in the button)
+				function btn:SetPlaying(playing)
+					if self.playing == playing then return end
+					self.playing = playing
+					self:SetText(playing and L["Stop"] or L["Play"])
+					self.play:SetShown(not playing)
+					self.stop:SetShown(playing)
+					local icon = playing and self.stop or self.play
+					text:ClearAllPoints()
+					text:SetWidth(0)
+					text:SetJustifyH("LEFT")
+					local left = floor((self:GetWidth() - (icon:GetWidth() + 5 + text:GetStringWidth())) / 2 + 0.5)
+					icon:ClearAllPoints()
+					icon:SetPoint("LEFT", self, "LEFT", left, 0)
+					text:SetPoint("LEFT", icon, "RIGHT", 5, 0)
+				end
+				btn:SetPlaying(false)
+				return btn
+			end
+
+			-- Play button at the end of the new sound row (plays the sound ID that has been entered)
+			local newPlay = MakePlayButton("MuteCustomPlayButton", newRow)
+			newPlay:HookScript("OnMouseDown", RowClicked)
+
+			-- Add button with a gold plus icon (between the description box and the play button)
+			local newAdd = LeaPlusLC:CreateButton("MuteCustomAddButton", newRow, "Add", "RIGHT", 0, 0, 0, 20, true, "")
+			newAdd:ClearAllPoints()
+			newAdd:SetPoint("RIGHT", newPlay, "LEFT", -6, 0)
+			newAdd:SetScript("OnEnter", nil)
+			newAdd:SetScript("OnLeave", nil)
+			newAdd:SetPushedTextOffset(0, 0)
+			newAdd.icon = newAdd:CreateTexture(nil, "ARTWORK") -- (empty texture that holds the plus)
+			newAdd.icon:SetSize(10, 10)
+			for i, size in ipairs({{10, 2}, {2, 10}}) do
+				local bar = newAdd:CreateTexture(nil, "ARTWORK")
+				bar:SetColorTexture(iconGold[1], iconGold[2], iconGold[3])
+				bar:SetSize(size[1], size[2])
+				bar:SetPoint("CENTER", newAdd.icon)
+			end
+			local addText = newAdd:GetFontString()
+			newAdd:SetWidth(ceil(10 + 5 + addText:GetStringWidth() + 20))
+			addText:ClearAllPoints()
+			addText:SetWidth(0)
+			addText:SetJustifyH("LEFT")
+			local addLeft = floor((newAdd:GetWidth() - (10 + 5 + addText:GetStringWidth())) / 2 + 0.5)
+			newAdd.icon:SetPoint("LEFT", newAdd, "LEFT", addLeft, 0)
+			addText:SetPoint("LEFT", newAdd.icon, "RIGHT", 5, 0)
+			newAdd:HookScript("OnMouseDown", RowClicked)
+			newNote:SetPoint("RIGHT", newAdd, "LEFT", -8, 0)
+
+			local lastFocusBox -- New sound row box that had the cursor last (the play button puts it back)
+
+			-- Musical note shown at the end of the sound in the list that is playing (drawn with textures in gold)
+			local playNote = CreateFrame("Frame", nil, listChild)
+			playNote:SetSize(10, 14)
+			playNote:SetFrameLevel(listChild:GetFrameLevel() + 5)
+			playNote:Hide()
+			playNote.head = playNote:CreateTexture(nil, "ARTWORK")
+			playNote.head:SetTexture("Interface\\CharacterFrame\\TempPortraitAlphaMask")
+			playNote.head:SetVertexColor(iconGold[1], iconGold[2], iconGold[3])
+			playNote.head:SetSize(7, 6)
+			playNote.head:SetPoint("BOTTOMLEFT", 0, 0)
+			playNote.stem = playNote:CreateTexture(nil, "ARTWORK")
+			playNote.stem:SetColorTexture(iconGold[1], iconGold[2], iconGold[3])
+			playNote.stem:SetSize(1.5, 11)
+			playNote.stem:SetPoint("BOTTOMRIGHT", playNote.head, "RIGHT", 0, 0)
+			playNote.flag = playNote:CreateTexture(nil, "ARTWORK")
+			playNote.flag:SetColorTexture(iconGold[1], iconGold[2], iconGold[3])
+			playNote.flag:SetSize(5, 1.5)
+			playNote.flag:SetPoint("CENTER", playNote.stem, "TOP", 2, -2)
+			playNote.flag:SetRotation(-0.8)
+
+			-- Note pulses gently while the sound is playing (the animation only runs while the note is showing)
+			playNote.pulse = playNote:CreateAnimationGroup()
+			playNote.pulse:SetLooping("BOUNCE")
+			local pulseAlpha = playNote.pulse:CreateAnimation("Alpha")
+			pulseAlpha:SetFromAlpha(1)
+			pulseAlpha:SetToAlpha(0.35)
+			pulseAlpha:SetDuration(0.5)
+			pulseAlpha:SetSmoothing("IN_OUT")
+			playNote:SetScript("OnShow", function(self) self.pulse:Play() end)
+			playNote:SetScript("OnHide", function(self) self.pulse:Stop() end)
+
+			-- Stop button at the right of the column headings (only shown while a sound in the list is playing, so it can be
+			-- stopped even when its row is scrolled out of view or hidden by the search)
+			-- It's the same style as the buttons in the new sound row (gold stop icon and text centered in the button)
+			local headStop = LeaPlusLC:CreateButton("MuteCustomStopButton", eb, "Stop", "TOPRIGHT", 0, 0, 0, 20, true, "")
+			headStop:ClearAllPoints()
+			headStop:SetPoint("TOPRIGHT", eb, "TOPRIGHT", -12, -9)
+			headStop:SetScript("OnEnter", nil)
+			headStop:SetScript("OnLeave", nil)
+			headStop:SetPushedTextOffset(0, 0)
+			headStop.icon = MakeIcon(headStop, "stop")
+			local stopText = headStop:GetFontString()
+			headStop:SetWidth(ceil(headStop.icon:GetWidth() + 5 + stopText:GetStringWidth() + 20))
+			stopText:ClearAllPoints()
+			stopText:SetWidth(0)
+			stopText:SetJustifyH("LEFT")
+			local stopLeft = floor((headStop:GetWidth() - (headStop.icon:GetWidth() + 5 + stopText:GetStringWidth())) / 2 + 0.5)
+			headStop.icon:SetPoint("LEFT", headStop, "LEFT", stopLeft, 0)
+			stopText:SetPoint("LEFT", headStop.icon, "RIGHT", 5, 0)
+			headStop:Hide()
+
+			-- The stop button fades in and out (quickly, so it doesn't feel slow)
+			local function MakeFade(fromAlpha, toAlpha)
+				local group = headStop:CreateAnimationGroup()
+				local fade = group:CreateAnimation("Alpha")
+				fade:SetFromAlpha(fromAlpha)
+				fade:SetToAlpha(toAlpha)
+				fade:SetDuration(0.15)
+				fade:SetSmoothing(toAlpha == 1 and "OUT" or "IN")
+				group:SetToFinalAlpha(true)
+				return group
+			end
+			local stopFadeIn, stopFadeOut = MakeFade(0, 1), MakeFade(1, 0)
+			stopFadeOut:SetScript("OnFinished", function() headStop:Hide() end)
+
+			-- Function to show or hide the stop button (does nothing if it's already showing or hiding)
+			local function SetStopShown(show)
+				if show then
+					if stopFadeOut:IsPlaying() then
+						-- Asked to show again while fading out so stay shown
+						stopFadeOut:Stop()
+						headStop:SetAlpha(1)
+					elseif not headStop:IsShown() then
+						headStop:Show()
+						stopFadeIn:Play()
+					end
+				elseif headStop:IsShown() and not stopFadeOut:IsPlaying() then
+					stopFadeIn:Stop()
+					if headStop:IsVisible() then
+						stopFadeOut:Play()
+					else
+						-- Panel isn't showing so there's nothing to fade
+						headStop:SetAlpha(1)
+						headStop:Hide()
+					end
+				end
+			end
+
+			-- Function to show the new sound row play button as play or stop, and the heading stop button and the note on the sound in the list that is playing
+			local shortRows = {} -- Rows that have their description shortened to make room for the note
+			local function ShowPlaying()
+				newPlay:SetPlaying(playHandle and playSource == "new" and true or false)
+				SetStopShown(playHandle and playSource == "list" and true or false)
+
+				-- Put back any descriptions that were shortened
+				for row in pairs(shortRows) do row.noteText:SetPoint("RIGHT", NOTE_RIGHT, 0) end
+				wipe(shortRows)
+
+				-- Row of the sound that is playing (if it's shown)
+				local playRow = playHandle and playSource == "list" and rowByID[playID]
+
+				-- Note at the end of the sound that is playing (long descriptions are shortened to leave room for it)
+				if playRow then
+					playRow.noteText:SetPoint("RIGHT", NOTE_RIGHT - 18, 0)
+					shortRows[playRow] = true
+					playNote:ClearAllPoints()
+					playNote:SetPoint("RIGHT", playRow, "RIGHT", -8, 0)
+					playNote:Show()
+				else
+					playNote:Hide()
+				end
+			end
+
+			-- Function to stop the sound that is playing
+			local function StopPlay()
+				if playTicker then playTicker:Cancel(); playTicker = nil end
+				if playHandle then StopSound(playHandle); playHandle = nil end
+				-- Mute the sound again if it was unmuted so it could be played
+				if remuteID then
+					if LeaPlusLC["MuteGameSounds"] == "On" and seen[remuteID] then MuteSoundFile(remuteID) end
+					remuteID = nil
+					-- Check the sound now if it was waiting to be checked while it was playing
+					StartSoundCheck()
+				end
+				playID, playSource = nil, nil
+				ShowPlaying()
+			end
+
+			-- Function to play a sound file ID (source is "new" or "list")
+			local function PlayID(id, source)
+				StopPlay()
+				if not ValidID(id) then
+					ShowMessage(L["Invalid sound ID."])
+					return
+				end
+				-- Sounds in the list are muted when the option is enabled so unmute while the sound is playing
+				if LeaPlusLC["MuteGameSounds"] == "On" and seen[id] then
+					UnmuteSoundFile(id)
+					remuteID = id
+				end
+				local willPlay, handle = PlaySoundFile(id, "Master")
+				if not willPlay or not handle then
+					soundStatus[id] = false
+					UpdateIDColor(id)
+					StopPlay()
+					ShowMessage(L["Invalid sound ID."])
+					return
+				end
+				playHandle, playID, playSource = handle, id, source
+				ShowPlaying()
+				-- Show that nothing is playing when the sound finishes (if the game can tell)
+				if C_Sound and C_Sound.IsPlaying then
+					playTicker = C_Timer.NewTicker(0.25, function()
+						if not playHandle or not C_Sound.IsPlaying(playHandle) then StopPlay() end
+					end)
+				end
+			end
+
+			-- Function to play or stop a sound (stops it if it's already playing from the same place)
+			local function TogglePlay(id, source)
+				if playHandle and playID == id and playSource == source then
+					StopPlay()
+				else
+					PlayID(id, source)
+				end
+			end
+
+			-- New sound row play button plays the sound file ID that has been entered
+			newPlay:SetScript("OnClick", function(self)
+				RowClicked()
+				if playHandle and playSource == "new" then
+					StopPlay()
+				else
+					-- Show the same message as tab and enter if the sound is already in the list (it's still played)
+					local id = tonumber(newID:GetText())
+					PlayID(id, "new")
+					if id and seen[id] and playHandle then ShowExisting(id) end
+				end
+				-- Put the cursor back in the box it was in (so you can carry on with the sound)
+				if lastFocusBox and (newID:GetText() ~= "" or newNote:GetText() ~= "") then lastFocusBox:SetFocus() end
+			end)
+
+			-- Stop button at the right of the column headings stops the sound that is playing
+			headStop:SetScript("OnClick", function() StopPlay() end)
+
+			-- Scroll the mousewheel over the new sound ID box to play neighbouring sound files
+			newID:SetScript("OnMouseWheel", function(self, delta)
+				local id = tonumber(self:GetText())
+				if id then
+					if delta == 1 then id = id + 1 else id = id - 1 end
+					if id < 1 then id = 1 elseif id >= 20000000 then id = 19999999 end
+					self:SetText(id)
+					SetNewHint()
+					PlayID(id, "new")
+				end
+			end)
+
+			----------------------------------------------------------------------
+			-- Adding sounds (from the new sound row)
+			----------------------------------------------------------------------
+
+			-- Function to add the sound in the new sound row (nothing happens if no sound ID has been entered yet)
+			local function CommitNew(refocus)
+				local id = tonumber(newID:GetText())
+				if not id then return end
+				if not ValidID(id) then
+					ShowMessage(L["Invalid sound ID."])
+					return
+				end
+				if seen[id] then
+					ShowExisting(id)
+					return
+				end
+				if soundStatus[id] == false then
+					ShowMessage(L["Invalid sound ID."])
+					return
+				end
+				-- Check the sound first if it hasn't been checked (the sound is added after the check if it's valid)
+				-- If the panel is closing the sound can't be checked now so it's added and checked when the panel is next shown
+				if NeedsCheck(id) and MuteCustomPanel:IsVisible() then
+					CheckNow(id, function()
+						if tonumber(newID:GetText()) == id then CommitNew(refocus) end
+					end)
+					return
+				end
+				if playSource == "new" then StopPlay() end
+				seen[id] = true
+				-- An empty description uses the suggestion from Leatrix Sounds (if there is one)
+				local note = newNote:GetText()
+				if strtrim(note) == "" and suggestNote then note = suggestNote end
+				entries[#entries + 1] = {id = id, note = CleanTypedNote(note)}
+				ClearSearch()
+				-- Mute the new sound straight away if the option is enabled
+				if LeaPlusLC["MuteGameSounds"] == "On" then MuteSoundFile(id) end
+				SaveList()
+				newID:SetText(""); newNote:SetText(""); SetNewHint()
+				RefreshList()
+				ScrollToEntry(#entries)
+				FlashEntry(id)
+				if refocus then newID:SetFocus() end
+			end
+
+			-- The sound is added when you leave the new sound row (moving between its two boxes doesn't count)
+			-- (clicking a button in the row doesn't count as leaving it)
+			local function NewFocusLost(self)
+				lastFocusBox = self
+				C_Timer.After(0, function()
+					if newID:HasFocus() or newNote:HasFocus() or rowClick then return end
+					-- Leaving the row with escape doesn't add the sound
+					if escapeLeave then escapeLeave = false; return end
+					CommitNew(false)
+				end)
+			end
+			newID:SetScript("OnEditFocusLost", NewFocusLost)
+			newNote:SetScript("OnEditFocusLost", NewFocusLost)
+
+			-- Function to check the sound ID box before moving to the description box (stays in the sound ID box if there's a problem)
+			local function CheckNewID()
+				local text = newID:GetText()
+				if text == "" then return true end
+				local id = tonumber(text)
+				if not ValidID(id) then
+					ShowMessage(L["Invalid sound ID."])
+				elseif seen[id] then
+					ShowExisting(id)
+				elseif soundStatus[id] == false then
+					ShowMessage(L["Invalid sound ID."])
+				else
+					return true
+				end
+				newID:HighlightText()
+				return false
+			end
+			local function NewIDToNote()
+				-- If the sound hasn't been checked yet, check it first (takes a fraction of a second) then try again
+				local text = newID:GetText()
+				local id = tonumber(text)
+				if ValidID(id) and not seen[id] and NeedsCheck(id) then
+					CheckNow(id, function()
+						if newID:HasFocus() and newID:GetText() == text then NewIDToNote() end
+					end)
+					return
+				end
+				if CheckNewID() then newNote:SetFocus() end
+			end
+
+			-- Enter in the sound ID box moves to the description box, enter in the description box adds the sound and starts a new one
+			newID:SetScript("OnEnterPressed", NewIDToNote)
+			newNote:SetScript("OnEnterPressed", function() CommitNew(true) end)
+
+			-- Add button adds the sound (or says that a sound ID is needed)
+			newAdd:SetScript("OnClick", function()
+				RowClicked()
+				if newID:GetText() == "" then
+					ShowMessage(L["Invalid sound ID."])
+					newID:SetFocus()
+				else
+					CommitNew(true)
+				end
+			end)
+
+			-- Clicking the description box checks the sound ID the same as tab (goes back to the sound ID box if it's invalid)
+			newNote:HookScript("OnEditFocusGained", function()
+				local text = newID:GetText()
+				if text == "" then return end
+				local id = tonumber(text)
+				if ValidID(id) and not seen[id] and NeedsCheck(id) then
+					CheckNow(id, function()
+						if soundStatus[id] == false and newNote:HasFocus() and newID:GetText() == text then
+							newID:SetFocus()
+							CheckNewID()
+						end
+					end)
+				elseif not CheckNewID() then
+					newID:SetFocus()
+					newID:HighlightText()
+				end
+			end)
+
+			-- Tab moves between the two boxes
+			newID:SetScript("OnTabPressed", NewIDToNote)
+			newNote:SetScript("OnTabPressed", function() newID:SetFocus() end)
+
+			-- Escape leaves the row without adding anything (what you typed is kept)
+			local function EscapeNew(self)
+				escapeLeave = true
+				self:ClearFocus()
+			end
+			newID:SetScript("OnEscapePressed", EscapeNew)
+			newNote:SetScript("OnEscapePressed", EscapeNew)
+
+			----------------------------------------------------------------------
+			-- Inline editing (for sounds in the list)
+			----------------------------------------------------------------------
+
+			local inline = MakeListBox(listChild)
+			inline:SetFrameLevel(listChild:GetFrameLevel() + 10)
+			inline:Hide()
+
+			-- Function to finish editing a description (the change is saved when you finish)
+			local function FinishEdit()
+				local index = inline.index
+				if not index then return end
+				inline.index = nil
+				local e = entries[index]
+				if e then
+					e.note = CleanTypedNote(inline:GetText())
+					SaveList()
+				end
+				inline:ClearFocus()
+				inline:Hide()
+				RefreshList()
+			end
+
+			-- Function to start editing a description (sound file IDs aren't edited, remove the sound and add the new one instead)
+			local function StartEdit(index)
+				FinishEdit()
+				local row, e = rowOf[index], entries[index]
+				if not row or not e then return end
+				inline.index = index
+				inline:ClearAllPoints()
+				inline:SetMaxLetters(NOTE_MAX)
+				inline:SetPoint("LEFT", row, "LEFT", NOTE_X, 0)
+				inline:SetPoint("RIGHT", row, "RIGHT", NOTE_RIGHT, 0)
+				inline:SetText(e.note)
+				inline:Show()
+				inline:SetFocus()
+				inline:HighlightText()
+				RefreshList()
+			end
+
+			-- Function to cancel editing (the change is not used)
+			local function CancelEdit()
+				if not inline.index then return end
+				inline.index = nil
+				inline:ClearFocus()
+				inline:Hide()
+				RefreshList()
+			end
+
+			-- Enter, tab and clicking away finish editing (changes are kept), escape cancels editing
+			inline:SetScript("OnEnterPressed", FinishEdit)
+			inline:SetScript("OnEscapePressed", CancelEdit)
+			inline:SetScript("OnTabPressed", FinishEdit)
+			inline:SetScript("OnEditFocusLost", FinishEdit)
+
+			-- Function to finish any editing (used when clicking the list and when the panel is closed)
+			local function FinishAllEditing()
+				FinishEdit()
+				newID:ClearFocus()
+				newNote:ClearFocus()
+			end
+
+			-- Finish editing and stop the sound when the panel is closed
+			MuteCustomPanel:HookScript("OnHide", function()
+				-- The new sound row is added if the cursor is in it (its boxes lose focus), not if you left it with escape
+				FinishAllEditing()
+				StopPlay()
+			end)
+
+			----------------------------------------------------------------------
+			-- Removing sounds
+			----------------------------------------------------------------------
+
+			-- Function to remove entries (only the ones for which the test function returns true)
+			local function RemoveWhere(test)
+				FinishEdit()
+				for i = #entries, 1, -1 do
+					local e = entries[i]
+					if test(e) then
+						if playSource == "list" and playID == e.id then StopPlay() end
+						-- Unmute the sound if the option is enabled (it was muted by this list)
+						if LeaPlusLC["MuteGameSounds"] == "On" then UnmuteSoundFile(e.id) end
+						seen[e.id] = nil
+						selected[e.id] = nil
+						tremove(entries, i)
+					end
+				end
+				SaveList()
+				RefreshList()
+			end
+
+			-- Function to remove the selected sounds
+			local function RemoveSelected()
+				RemoveWhere(function(e) return selected[e.id] end)
+			end
+
+			----------------------------------------------------------------------
+			-- List rows
+			----------------------------------------------------------------------
+
+			-- Right-click menu for a row (uses the Leatrix Plus pop-up list instead of the game's menu, see LeaPlusLC:CreatePopupList for why)
+			local rowMenu = LeaPlusLC:CreatePopupList(MuteCustomPanel)
+			local function NotChecked() return false end
+			local function RunMenuEntry(entry) entry.action() end
+
+			-- Function to set the descriptions of sounds to their sound file names from Leatrix Sounds (Leatrix Sounds must be installed and enabled)
+			-- The list is saved and refreshed once when every sound has been looked up (sounds Leatrix Sounds doesn't know are left as they are)
+			local function UseFileNames(list)
+				local api = LeatrixSoundsAPI
+				if not (api and api.GetSoundFile) then
+					ShowMessage(L["This needs Leatrix Sounds to be installed and enabled."])
+					return
+				end
+				local waiting, missing, found = #list, 0, {}
+				for void, e in ipairs(list) do
+					api.GetSoundFile(e.id, function(file)
+						local name = file and LimitNote(TidyFileName(file))
+						if not name or name == "" then
+							missing = missing + 1
+						else
+							found[e] = name
+						end
+						waiting = waiting - 1
+						if waiting == 0 then
+							-- Finish any editing first (the list may have changed while Leatrix Sounds was getting ready)
+							if next(found) then
+								FinishEdit()
+								for entry, note in pairs(found) do
+									if seen[entry.id] then entry.note = note end -- (the sound may have been removed)
+								end
+								SaveList()
+								RefreshList()
+							end
+							if missing > 0 then
+								if #list == 1 then
+									ShowMessage(L["That sound is not in Leatrix Sounds."])
+								else
+									ShowMessage(format(L["%d of the sounds are not in Leatrix Sounds."], missing))
+								end
+							end
+						end
+					end)
+				end
+			end
+
+			-- Function to show the right-click menu for a row (opens under the row where it was clicked)
+			local function ShowRowMenu(row)
+				local e = entries[row.index]
+				if not e then return end
+				local items
+				local count = GetSelected()
+				if count > 1 then
+					items = {
+						{name = format(L["Set %d descriptions to file names"], count), action = function()
+							local list = {}
+							for void, x in ipairs(entries) do
+								if selected[x.id] then list[#list + 1] = x end
+							end
+							UseFileNames(list)
+						end},
+						{name = format(L["Remove %d sounds"], count), action = RemoveSelected, divider = true},
+					}
+				else
+					local index = row.index
+					items = {
+						{name = (playHandle and playSource == "list" and playID == e.id) and L["Stop"] or L["Play"], action = function() TogglePlay(e.id, "list") end},
+						{name = L["Edit description"], action = function() StartEdit(index) end},
+						{name = L["Set description to file name"], action = function() UseFileNames({e}) end},
+						{name = L["Remove"], action = RemoveSelected, divider = true},
+					}
+				end
+				local x = GetCursorPosition() / row:GetEffectiveScale() - row:GetLeft()
+				rowMenu:Open(row, items, NotChecked, RunMenuEntry, "TOPLEFT", "BOTTOMLEFT", x, 0)
+			end
+
+			-- Function to create a list row
+			local function GetRow(i)
+				if rows[i] then return rows[i] end
+				local row = CreateFrame("Button", nil, listChild)
+				row:SetHeight(ROW_HEIGHT)
+				row:SetPoint("TOPLEFT", 0, -(i - 1) * ROW_HEIGHT)
+				row:SetPoint("TOPRIGHT", 0, -(i - 1) * ROW_HEIGHT)
+				row:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+
+				-- Hover highlight (a plain tint across the row)
+				local hover = row:CreateTexture(nil, "HIGHLIGHT")
+				hover:SetAllPoints()
+				hover:SetColorTexture(1, 1, 1, 0.08)
+
+				row.sel = row:CreateTexture(nil, "BACKGROUND")
+				row.sel:SetAllPoints()
+				row.sel:SetColorTexture(1, 0.82, 0, 0.25)
+				row.idText = row:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+				row.idText:SetPoint("LEFT", ID_X, 0)
+				row.idText:SetWidth(80)
+				row.idText:SetJustifyH("LEFT")
+				row.noteText = row:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+				row.noteText:SetPoint("LEFT", NOTE_X, 0)
+				row.noteText:SetPoint("RIGHT", NOTE_RIGHT, 0)
+				row.noteText:SetJustifyH("LEFT")
+				row.noteText:SetWordWrap(false)
+
+				-- Click selects and plays a sound, ctrl click adds or removes a sound, shift click selects a range, right-click shows the menu
+				row:SetScript("OnClick", function(self, button)
+					self.lastButton = button
+					-- Left-click closes the right-click menu (it only closes by itself when clicking somewhere other than its row)
+					if button ~= "RightButton" then rowMenu:Close() end
+					-- Finish any editing first
+					FinishAllEditing()
+					local e = entries[self.index]
+					if not e then return end
+					local id = e.id
+					if button == "RightButton" then
+						-- Right-click on a row that is not selected selects only that row
+						if not selected[id] then
+							wipe(selected)
+							selected[id] = true
+							anchorID = id
+							RefreshList()
+						end
+						ShowRowMenu(self)
+						return
+					end
+					-- Row showing the last clicked sound (there isn't one if it's hidden by the search)
+					local anchorRow = anchorID and rowByID[anchorID]
+					if IsShiftKeyDown() and anchorRow then
+						-- Shift click selects every sound shown from the last clicked sound to this one
+						wipe(selected)
+						local a, b = anchorRow.pos, self.pos
+						if a > b then a, b = b, a end
+						for p = a, b do
+							local row = rows[p]
+							if row and row:IsShown() and entries[row.index] then selected[entries[row.index].id] = true end
+						end
+					elseif IsControlKeyDown() then
+						-- Ctrl click adds the sound to the selection or removes it
+						selected[id] = not selected[id] or nil
+						anchorID = id
+					else
+						-- Click selects only this sound and plays it (clicking the sound that is playing stops it)
+						wipe(selected)
+						selected[id] = true
+						anchorID = id
+						RefreshList()
+						TogglePlay(id, "list")
+						return
+					end
+					RefreshList()
+				end)
+
+				-- Double-click does nothing more than the first click did (so the sound isn't stopped straight after it started)
+				-- WoW treats any two quick clicks as a double-click (such as a left-click then a right-click) so those are handled as a normal click
+				row:SetScript("OnDoubleClick", function(self, button)
+					if button ~= "LeftButton" or self.lastButton ~= "LeftButton" then
+						self:GetScript("OnClick")(self, button)
+						return
+					end
+					self.lastButton = nil
+				end)
+
+				rows[i] = row
+				return row
+			end
+
+			-- Function to refresh the list (only sounds that match the search are shown)
+			local order, sortValues = {}, {} -- Order the sounds are shown in (indexes into entries) and the value each sound is sorted by
+			local function SortOrder(a, b)
+				local va, vb = sortValues[a], sortValues[b]
+				if va == vb then return a < b end -- Same value so keep the order added
+				if sortDesc then return va > vb else return va < vb end
+			end
+
+			RefreshList = function()
+				wipe(rowOf)
+				wipe(rowByID)
+				wipe(order)
+				wipe(sortValues)
+				for i, e in ipairs(entries) do
+					order[i] = i
+					sortValues[i] = sortKey == "note" and e.note:lower() or e.id
+				end
+				table.sort(order, SortOrder)
+				local r = 0
+				for _, i in ipairs(order) do
+					local e = entries[i]
+					if Matches(e) then
+						r = r + 1
+						local row = GetRow(r)
+						row.index = i
+						row.pos = r
+						rowOf[i] = row
+						rowByID[e.id] = row
+						row.idText:SetText(e.id)
+						row.noteText:SetText(e.note)
+						SetIDColor(row, e.id)
+						row.noteText:SetShown(inline.index ~= i)
+						row.sel:SetShown(selected[e.id] and true or false)
+						row:Show()
+					end
+				end
+				for i = r + 1, #rows do
+					rows[i]:Hide()
+				end
+				listChild:SetHeight(math.max(r * ROW_HEIGHT, 1))
+				-- Rows may have moved so keep the flash on the right row
+				AnchorFlash()
+				noMatch:SetShown(filter ~= "" and r == 0)
+				-- Rows may have moved so put the playing note on the right row
+				ShowPlaying()
+				-- Check any sounds that haven't been checked yet
+				StartSoundCheck()
+			end
+
+			-- Load the list on startup (the rows are made when the panel is shown)
+			LoadList()
+			SetNewHint()
 
 			-- Help button hidden
 			MuteCustomPanel.h:Hide()
@@ -9399,85 +11592,152 @@
 			-- Reset button hidden
 			MuteCustomPanel.r:Hide()
 
-			-- Show configuration panal when options panel button is clicked
-			LeaPlusCB["MuteCustomSoundsBtn"]:SetScript("OnClick", function()
-				if IsShiftKeyDown() and IsControlKeyDown() then
-					-- Preset profile
-					LeaPlusLC["MuteCustomList"] = "Devotion Aura 569679, Retribution Aura 568744"
-					eb.Text:SetText(LeaPlusLC["MuteCustomList"])
-				else
-					MuteCustomPanel:Show()
-					LeaPlusLC:HideFrames()
-				end
-			end)
+			-- Function to mute or unmute the sounds in the list
+			local function MuteCustomListFunc(unmute)
+				for i, e in ipairs(entries) do
+					if unmute then
+						UnmuteSoundFile(e.id)
+					else
+						MuteSoundFile(e.id)
 
-			-- Function to mute custom sound list
-			local function MuteCustomListFunc(unmute, userInput)
-				-- local mutedebug = true -- Debug
-				local counter = 0
-				local muteString = LeaPlusLC["MuteCustomList"]
-				if muteString and muteString ~= "" then
-					muteString = muteString:gsub("%s", ",")
-					muteString = muteString:gsub("[\n]", ",")
-					muteString = muteString:gsub("[^,%d]", "")
-					if mutedebug then print(muteString) end
-					local tList = {strsplit(",", muteString)}
-					if mutedebug then ChatFrame1:Clear() end
-					for i = 1, #tList do
-						if tList[i] then
-							tList[i] = tonumber(tList[i])
-							if tList[i] and tList[i] < 20000000 then
-								if mutedebug then print(tList[i]) end
-								if unmute then
-									UnmuteSoundFile(tList[i])
-								else
-									MuteSoundFile(tList[i])
-								end
-								counter = counter + 1
-							end
-						end
-					end
-					if userInput then
-						if unmute then
-							if counter == 1 then
-								LeaPlusLC:Print(L["Unmuted"] .. " " .. counter .. " " .. L["sound"] .. "。")
-							else
-								LeaPlusLC:Print(L["Unmuted"] .. " " .. counter .. " " .. L["sounds"] .. "。")
-							end
-						else
-							if counter == 1 then
-								LeaPlusLC:Print(L["Muted"] .. " " .. counter .. " " .. L["sound"] .. "。")
-							else
-								LeaPlusLC:Print(L["Muted"] .. " " .. counter .. " " .. L["sounds"] .. "。")
-							end
-						end
 					end
 				end
 			end
 
 			-- Mute custom list on startup if option is enabled
-			if LeaPlusLC["MuteCustomSounds"] == "On" then
+			if LeaPlusLC["MuteGameSounds"] == "On" then
 				MuteCustomListFunc()
 			end
 
-			-- Mute or unmute when option is clicked
-			LeaPlusCB["MuteCustomSounds"]:HookScript("OnClick", function()
-				if LeaPlusLC["MuteCustomSounds"] == "On" then
-					MuteCustomListFunc(false, false)
+			-- Mute or unmute when option is clicked (custom sounds is a tab of Mute game sounds)
+			LeaPlusCB["MuteGameSounds"]:HookScript("OnClick", function()
+				if LeaPlusLC["MuteGameSounds"] == "On" then
+					MuteCustomListFunc(false)
 				else
-					MuteCustomListFunc(true, false)
+					MuteCustomListFunc(true)
 				end
 			end)
 
-			-- Add mute button
-			local MuteCustomNowButton = LeaPlusLC:CreateButton("MuteCustomNowButton", MuteCustomPanel, "Mute", "BOTTOMLEFT", 16, 53, 0, 25, true, "Click to mute sounds in the list.")
-			LeaPlusCB["MuteCustomNowButton"]:SetScript("OnClick", function() MuteCustomListFunc(false, true) end)
+			-- Set the custom preset when the Mute game sounds preset is used (shift and control click on the cogwheel)
+			LeaPlusCB["MuteGameSoundsBtn"]:HookScript("OnClick", function()
+				if IsShiftKeyDown() and IsControlKeyDown() then
+					soundChecker:Hide()
+					local muted = LeaPlusLC["MuteGameSounds"] == "On"
+					if muted then MuteCustomListFunc(true) end
+					LeaPlusLC["MuteCustomSoundList"] = {{id = 569679, note = "Devotion Aura"}, {id = 568744, note = "Retribution Aura"}}
+					LoadList()
+					RefreshList()
+					if muted then MuteCustomListFunc() end
+				end
+			end)
 
-			-- Add unmute button
-			local UnmuteCustomNowButton = LeaPlusLC:CreateButton("UnmuteCustomNowButton", MuteCustomPanel, "Unmute", "BOTTOMLEFT", 16, 53, 0, 25, true, "Click to unmute sounds in the list.")
-			LeaPlusCB["UnmuteCustomNowButton"]:ClearAllPoints()
-			LeaPlusCB["UnmuteCustomNowButton"]:SetPoint("LEFT", MuteCustomNowButton, "RIGHT", 10, 0)
-			LeaPlusCB["UnmuteCustomNowButton"]:SetScript("OnClick", function() MuteCustomListFunc(true, true) end)
+			-- Debug: fill the list with test sounds (/ltp mutetest) (replaces the list, invalid IDs, long music, short sounds and odd descriptions)
+			function LeaPlusLC:MuteCustomTestList()
+				soundChecker:Hide()
+				local muted = LeaPlusLC["MuteGameSounds"] == "On"
+				if muted then MuteCustomListFunc(true) end
+				LeaPlusLC["MuteCustomSoundList"] = {
+					{id = 1659518, note = "mon alliance airship land 01"},
+					{id = 1659530, note = "mon alliance airship engine fly loop 03"},
+					{id = 1659525, note = "Dragon \"roar\" loud"},
+					{id = 550511, note = "gnomespidertankwoundd"},
+					{id = 1020, note = "Old sound kit 1020"},
+					{id = 569773, note = "fizzlefirea"},
+					{id = 569774, note = "FizzleNatureA"},
+					{id = 1659500, note = "mon hordezeppelin summon01"},
+					{id = 552077, note = "Sword/Shield hit"},
+					{id = 567407, note = "uChatScrollButton"},
+					{id = 1659521, note = "mon alliance airship turn wood stress 02"},
+					{id = 552086, note = "wood01"},
+					{id = 569775, note = "FizzleFrostA"},
+					{id = 552065, note = "It's back\\slash"},
+					{id = 1345, note = "Old sound kit 1345"},
+					{id = 1659511, note = "mon alliance airship engine start 04"},
+					{id = 566254, note = "kharazahnbelltoll"},
+					{id = 567481, note = "iUiInterfaceButtonA"},
+					{id = 552081, note = "dirt02"},
+					{id = 603149, note = "Boss #3 phase 2"},
+					{id = 569772, note = "FizzleHolyA"},
+					{id = 1686535, note = "mon alliance airship enginestartlong 03"},
+					{id = 1659496, note = "mon hordezeppelin idle"},
+					{id = 552068, note = "stone02"},
+					{id = 3, note = "Tiny number"},
+					{id = 552083, note = "\"Quoted\" whole thing"},
+					{id = 1659499, note = "mon hordezeppelin rocket03"},
+					{id = 552082, note = "stone04"},
+					{id = 567478, note = "levelup2"},
+					{id = 1686533, note = "mon alliance airship enginestartlong 01"},
+					{id = 550514, note = "a/b/c/d/e/f/g/h"},
+					{id = 555123, note = "smechastriderattackb"},
+					{id = 652796, note = "go fx zeppelin propeller blades loop"},
+					{id = 555129, note = "mechastriderwoundb"},
+					{id = 42, note = "The answer"},
+					{id = 552060, note = "stone05"},
+					{id = 555127, note = "10 man raid horn"},
+					{id = 566258, note = "zeppelinheliumc"},
+					{id = 566604, note = "zeppelinheliuma"},
+					{id = 555132, note = "mechastriderattackc"},
+					{id = 566064, note = "dwarfhorn"},
+					{id = 552070, note = ""},
+					{id = 1659528, note = "mon alliance airship engine fly loop 01"},
+					{id = 1686539, note = "mon alliance airship gearshiftlong 03"},
+					{id = 101, note = "-"},
+					{id = 1659494, note = "mon hordezeppelin flight rocketblast03"},
+					{id = 1659529, note = "mon alliance airship engine fly loop 02"},
+					{id = 552090, note = "'single quotes'"},
+					{id = 555124, note = "mechastriderloop"},
+					{id = 1659516, note = "mon alliance airship impact metal wood 02"},
+					{id = 1659507, note = "mon alliance airship engine idle loop 03"},
+					{id = 567464, note = "uEscapeScreenClose"},
+					{id = 1659508, note = "Commas, in, here"},
+					{id = 1659522, note = "mon alliance airship turn wood stress 03"},
+					{id = 555, note = "Invalid 555"},
+					{id = 1659502, note = "mon hordezeppelin summon03"},
+					{id = 1659493, note = "mon hordezeppelin flight rocketblast02"},
+					{id = 550498, note = "gnomespidertankwoundf"},
+					{id = 1659510, note = "Very long description that goes on and on"},
+					{id = 1686536, note = "mon alliance airship enginestartlong 04"},
+					{id = 1686540, note = "mon alliance airship mountspecial 01"},
+					{id = 1659514, note = "mon alliance airship gear shift 03"},
+					{id = 1659497, note = "mon hordezeppelin rocket01"},
+					{id = 1659524, note = "   spaces   around   "},
+					{id = 7777, note = ""},
+					{id = 1659504, note = "mon alliance airship engine fly loop 04"},
+					{id = 1686534, note = "mon alliance airship enginestartlong 02"},
+					{id = 552076, note = "wood03"},
+					{id = 552072, note = "dirt03"},
+					{id = 555131, note = "mechastriderwoundcrit"},
+					{id = 567042, note = "zeppelinheliumd"},
+					{id = 555128, note = "mechastriderwounda"},
+					{id = 550500, note = "gnomespidertankfootstepd"},
+					{id = 1659491, note = "mon hordezeppelin flight"},
+					{id = 12345, note = "Made up 12345"},
+					{id = 1686541, note = "mon alliance airship mountspecial 02"},
+					{id = 8269358, note = "Music: mus c60 felblood scar c"},
+					{id = 8181051, note = "Music: mus c day barren dry 2"},
+					{id = 8180937, note = "Music: mus c mystery 3"},
+					{id = 8180957, note = "Music: mus c magic 1 zone 2"},
+					{id = 8180774, note = "Music: mus c day evil forest 2"},
+					{id = 8158700, note = "Music: mus c60 bolderok d"},
+					{id = 8269352, note = "Music: mus c60 farholde keep c"},
+					{id = 8176626, note = "Music: mus c ahnqiraj exterior walking 1"},
+					{id = 19999999, note = "Too big but allowed"},
+					{id = 8181003, note = "Music: mus c undercity 1"},
+					{id = 8198465, note = "Music: mus c60 daegun a"},
+					{id = 8158714, note = "Music: mus c60 riverglades general a"},
+					{id = 8180772, note = "Music: mus c day evil forest 1"},
+					{id = 8181309, note = "Music: mus c night plains 1"},
+					{id = 8180919, note = "Music: mus c naxxramas walking 5"},
+					{id = 8180740, note = "Music: mus c cursed land 2"},
+					{id = 8180903, note = "Music: mus c battle 3"},
+					{id = 8888, note = "Invalid \"quoted\"/slash"},
+				}
+				wipe(soundStatus)
+				LoadList()
+				RefreshList()
+				if muted then MuteCustomListFunc() end
+				return #entries
+			end
 
 			----------------------------------------------------------------------
 			-- Sound finder
@@ -9486,7 +11746,7 @@
 			do
 
 				-- Create configuration panel
-				local SoundFinderPanel = LeaPlusLC:CreatePanel("Mute custom sounds", "SoundFinderPanel")
+				local SoundFinderPanel = LeaPlusLC:CreatePanel("Mute game sounds", "SoundFinderPanel")
 
 				-- Locals
 				local SoundMax = 9000000
@@ -9495,17 +11755,49 @@
 				local queue = {}
 				local playHandle
 				local queueTotal, queueDone = 0, 0
-				local restarted, restartWhenDone, allMuted
+				local restarted, restartWhenDone
 				local foundText = ""
 
 				-- Add sound finder button to the mute custom sounds panel (left of the back to main menu button)
 				local MuteCustomFindButton = LeaPlusLC:CreateButton("MuteCustomFindButton", MuteCustomPanel, "Sound Finder", "BOTTOMLEFT", 16, 53, 0, 25, true, "Click to toggle the sound finder.")
 				LeaPlusCB["MuteCustomFindButton"]:ClearAllPoints()
 				LeaPlusCB["MuteCustomFindButton"]:SetPoint("RIGHT", MuteCustomPanel.b, "LEFT", -10, 0)
+				-- The hints stop before this button instead of the back button
+				playHint:SetPoint("BOTTOMRIGHT", MuteCustomFindButton, "BOTTOMLEFT", -10, 13)
+				listHint:SetPoint("BOTTOMRIGHT", MuteCustomFindButton, "BOTTOMLEFT", -10, 1)
 				LeaPlusCB["MuteCustomFindButton"]:SetScript("OnClick", function()
 					SoundFinderPanel:Show(); MuteCustomPanel:Hide()
 					return
 				end)
+
+				-- Help button next to the custom sounds panel title (shows gold boxes over each part of the panel with a tip for each one)
+				LeaPlusLC:CreateHelpPlate(MuteCustomPanel, {
+					{
+						title = "Search",
+						tip = "Search the list by sound ID or description.",
+						region = searchBox, insets = {5, 3, 5, 3}, iconSize = 22,
+					},
+					{
+						title = "Sorting",
+						tip = "Click a column heading to sort the list by that column.  Click it again to reverse the order.|n|nWhile a sound from the list is playing, a stop button is shown here so you can stop it even if it's scrolled out of view.",
+						points = {{"TOPLEFT", eb, "TOPLEFT", 6, -5}, {"BOTTOMRIGHT", eb, "TOPRIGHT", -6, -31}},
+					},
+					{
+						title = "Muted sounds",
+						tip = "Sounds in the list are muted while Mute game sounds is enabled.|n|nClick a sound to play it and click it again to stop it.  Hold control to select more than one sound or hold shift to select a range.  Right-click for more options such as editing and removing sounds.|n|nSound IDs shown in red could not be played and may have been removed from the game.",
+						region = listScroll, insets = {2, 1, 24, 0},
+					},
+					{
+						title = "Add a sound",
+						tip = "Enter a sound file ID and press enter to move to the description box, then press enter again to add the sound.  You can also click the add button.|n|nClick the play button to hear the sound before you add it.  Scroll the mousewheel over the sound ID box to play the neighbouring sound files.|n|nIf Leatrix Sounds is installed, the sound file name is suggested as the description.  Type your own description to replace it.",
+						points = {{"TOPLEFT", newHeading, "TOPLEFT", -14, 2}, {"BOTTOMRIGHT", newRow, "BOTTOMRIGHT", 23, -4}},
+					},
+					{
+						title = "Sound finder",
+						tip = "Click to open the sound finder.  It helps you find the file ID of a sound that is playing in the game so you can add it to the list.",
+						region = LeaPlusCB["MuteCustomFindButton"], insets = {4, 4, 4, 4}, iconSize = 22,
+					},
+				})
 
 				-- Add second sound finder button to the sound finder panel (same position as the first one)
 				local MuteCustomFindButton2 = LeaPlusLC:CreateButton("MuteCustomFindButton2", SoundFinderPanel, "Sound Finder", "BOTTOMLEFT", 16, 53, 0, 25, true, "Click to toggle the sound finder.")
@@ -9632,13 +11924,9 @@
 					return btn
 				end
 
-				-- Restart sound system, mute all and unmute all buttons (right side of the button row)
-				local unmuteAllBtn = MakeIconButton("voicechat-icon-speaker", "Click to unmute every sound file in the game.  This ends the current search and also unmutes sounds muted by Leatrix Plus or other addons (reload your UI to restore them).")
-				unmuteAllBtn:SetPoint("TOPRIGHT", -16, -170)
-				local muteAllBtn = MakeIconButton("voicechat-icon-speaker-mute", "Click to mute every sound file in the game.  This ends the current search and sounds stay muted when the panel is closed.")
-				muteAllBtn:SetPoint("RIGHT", unmuteAllBtn, "LEFT", -8, 0)
+				-- Restart sound system button (right side of the button row)
 				local restartBtn = MakeIconButton("UI-RefreshButton", "Click to restart the sound system.  Use this after each step if you are looking for music or ambience (sounds that are already playing are not muted until the sound system is restarted).")
-				restartBtn:SetPoint("RIGHT", muteAllBtn, "LEFT", -8, 0)
+				restartBtn:SetPoint("TOPRIGHT", -16, -170)
 
 				-- Sound file ID editbox (read only, text is highlighted so it can be copied) and play button (top right above the progress bar)
 				local playBtn = LeaPlusLC:CreateButton("SoundFinderPlayButton", SoundFinderPanel, "Play", "TOPRIGHT", -16, -108, 0, 25, true, "Click to play the sound file that was found.")
@@ -9691,10 +11979,24 @@
 					LeaPlusLC:LockItem(silentBtn, busy or not lo or found)
 					LeaPlusLC:LockItem(undoBtn, busy or not lo or #history < 2)
 					LeaPlusLC:LockItem(restartBtn, busy)
-					LeaPlusLC:LockItem(muteAllBtn, busy)
-					LeaPlusLC:LockItem(unmuteAllBtn, busy)
 					LeaPlusLC:LockItem(playBtn, foundText == "")
 					LeaPlusLC:LockItem(idBox, foundText == "")
+				end
+
+				-- Function to mute the sounds that Mute game sounds mutes (the game sounds, mount sounds and custom sounds that are enabled)
+				local function RemuteGameSounds()
+					if LeaPlusLC["MuteGameSounds"] ~= "On" then return end
+					for void, soundTable in ipairs({LeaPlusLC["muteTable"] or {}, LeaPlusLC["mountTable"] or {}}) do
+						for k, v in pairs(soundTable) do
+							if LeaPlusLC[k] == "On" then
+								for i, e in pairs(v) do
+									local soundID = e:match("[^,]+%#([^,]+)")
+									if soundID then MuteSoundFile(soundID) end
+								end
+							end
+						end
+					end
+					MuteCustomListFunc()
 				end
 
 				-- Worker frame to mute and unmute sound files in small chunks each frame (prevents the game from freezing)
@@ -9717,6 +12019,8 @@
 						-- Queue finished (restart sound system if it was restarted during a search that has now been closed)
 						worker:Hide()
 						queueTotal, queueDone = 0, 0
+						-- Mute the Mute game sounds sounds again when the finder has been closed (undoing the steps unmutes every sound in the ranges it muted)
+						if not SoundFinderPanel:IsShown() then RemuteGameSounds() end
 						if restartWhenDone then
 							restartWhenDone = false
 							Sound_GameSystem_RestartSoundSystem()
@@ -9748,24 +12052,6 @@
 					Sound_GameSystem_RestartSoundSystem()
 				end)
 
-				-- Mute all button (ends the search without reversing it as everything is muted anyway)
-				muteAllBtn:SetScript("OnClick", function()
-					wipe(history)
-					lo, hi, mid, found = nil, nil, nil, false
-					allMuted = true
-					SetMuted(1, SoundMax, true)
-					UpdatePanel()
-				end)
-
-				-- Unmute all button (ends the search without reversing it as everything is unmuted anyway)
-				unmuteAllBtn:SetScript("OnClick", function()
-					wipe(history)
-					lo, hi, mid, found = nil, nil, nil, false
-					allMuted = false
-					SetMuted(1, SoundMax, false)
-					UpdatePanel()
-				end)
-
 				-- Start button (mute the upper half of all sound files)
 				startBtn:SetScript("OnClick", function()
 					ResetSteps()
@@ -9773,14 +12059,8 @@
 					idBox:SetText("")
 					lo, hi, found = 1, SoundMax, false
 					mid = math.floor((lo + hi) / 2)
-					if allMuted then
-						-- Everything is muted so unmute the lower half instead
-						tinsert(history, {first = lo, last = mid, mute = false})
-						SetMuted(lo, mid, false)
-					else
-						tinsert(history, {first = mid + 1, last = hi, mute = true})
-						SetMuted(mid + 1, hi, true)
-					end
+					tinsert(history, {first = mid + 1, last = hi, mute = true})
+					SetMuted(mid + 1, hi, true)
 					UpdatePanel()
 				end)
 
@@ -9903,46 +12183,6 @@
 
 			end
 
-			----------------------------------------------------------------------
-			-- Rest of things
-			----------------------------------------------------------------------
-
-			-- Add play sound file editbox
-			local willPlay, musicHandle
-			local MuteCustomSoundsStopButton = LeaPlusLC:CreateButton("MuteCustomSoundsStopButton", MuteCustomPanel, "Stop", "TOPRIGHT", -18, -66, 0, 25, true, "")
-			MuteCustomSoundsStopButton:SetScript("OnClick", function()
-				if musicHandle then StopSound(musicHandle) end
-			end)
-
-			local MuteCustomSoundsPlayButton = LeaPlusLC:CreateButton("MuteCustomSoundsPlayButton", MuteCustomPanel, "Play", "TOPRIGHT", -18, -66, 0, 25, true, "")
-			MuteCustomSoundsPlayButton:ClearAllPoints()
-			MuteCustomSoundsPlayButton:SetPoint("RIGHT", MuteCustomSoundsStopButton, "LEFT", -10, 0)
-
-			local MuteCustomSoundsSoundBox = LeaPlusLC:CreateEditBox("MuteCustomSoundsSoundBox", eb, 80, 8, "TOPRIGHT", -10, 20, "PlaySoundBox", "PlaySoundBox")
-			MuteCustomSoundsSoundBox:SetNumeric(true)
-			MuteCustomSoundsSoundBox:ClearAllPoints()
-			MuteCustomSoundsSoundBox:SetPoint("RIGHT", MuteCustomSoundsPlayButton, "LEFT", -10, 0)
-			MuteCustomSoundsPlayButton:SetScript("OnClick", function()
-				MuteCustomSoundsSoundBox:GetText()
-				if musicHandle then StopSound(musicHandle) end
-				willPlay, musicHandle = PlaySoundFile(MuteCustomSoundsSoundBox:GetText(), "Master")
-			end)
-
-			-- Add mousewheel support to the editbox
-			MuteCustomSoundsSoundBox:SetScript("OnMouseWheel", function(self, delta)
-				local endSound = tonumber(MuteCustomSoundsSoundBox:GetText())
-				if endSound then
-					if delta == 1 then endSound = endSound + 1 else endSound = endSound - 1 end
-					if endSound < 1 then endSound = 1 elseif endSound >= 10000000 then endSound = 10000000 end
-					MuteCustomSoundsSoundBox:SetText(endSound)
-					MuteCustomSoundsPlayButton:Click()
-				end
-			end)
-
-			local titlePlayer = LeaPlusLC:MakeTx(MuteCustomPanel, "Player", 16, -72)
-			titlePlayer:ClearAllPoints()
-			titlePlayer:SetPoint("TOPLEFT", MuteCustomSoundsSoundBox, "TOPLEFT", -4, 16)
-			LeaPlusLC:CreateHelpButton("MuteGameSoundsCustomPlayHelpButton", MuteCustomPanel, titlePlayer, "If you want to listen to a sound file, enter the sound file ID into the editbox and click the play button.|n|nYou can scroll the mousewheel over the editbox to play neighbouring sound files.")
 		end
 
 		----------------------------------------------------------------------
@@ -10222,6 +12462,42 @@
 				return false
 			end
 
+			-- Function to sort a list of button names (the kept buttons list and the button bag use the same order)
+			local SortButtonList
+			do
+				-- Function to get the name a button is sorted by (the readable name shown in the kept buttons list,
+				-- without color codes, in lower case and with numbers padded so that 2 comes before 10)
+				local function GetButtonSortName(name)
+					local button = LibDBIconStub:GetMinimapButton(name)
+					local dataObject = button and button.dataObject
+					local title
+					if dataObject and type(dataObject.label) == "string" and dataObject.label ~= "" then
+						title = dataObject.label
+					else
+						title = string.gsub(name, "^LeaPlusCustomIcon_", "")
+						title = string.gsub(title, "_", " ") -- Button names often use underscores for spaces
+					end
+					title = string.gsub(title, "|c%x%x%x%x%x%x%x%x", "")
+					title = string.gsub(title, "|cn[^:]*:", "")
+					title = string.gsub(title, "|r", "")
+					title = string.gsub(title, "%d+", function(n) if #n < 10 then return strrep("0", 10 - #n) .. n end end)
+					return strlower(strtrim(title))
+				end
+
+				-- Sort names are worked out once per sort and kept here while sorting
+				local sortNames = {}
+				local function CompareButtonNames(a, b)
+					local sa, sb = sortNames[a], sortNames[b]
+					if sa ~= sb then return sa < sb end
+					return a < b -- Same sort name so use the button name to keep the order the same every time
+				end
+				function SortButtonList(list)
+					wipe(sortNames)
+					for i = 1, #list do sortNames[list[i]] = GetButtonSortName(list[i]) end
+					table.sort(list, CompareButtonNames)
+				end
+			end
+
 			-- Function to apply the kept state to a button straight away (set further down)
 			local ApplyMiniButtonKeep
 
@@ -10287,41 +12563,14 @@
 			LeaPlusLC:MakeCB(miniScroll, "UnclampMinimap", "Unclamp minimap cluster", 16, -102, true, "If checked, you will be able to drag the minimap cluster to the edge of the screen using Edit Mode.|n|nWhile positioning the minimap with Edit Mode, you may need to disable Snap to position the minimap precisely.")
 			LeaPlusLC:MakeCB(miniScroll, "MiniHeaderOnHover", "Show header on hover", 16, -122, false, "If checked, the minimap header (zone name, tracking, clock and calendar) will only be shown while the pointer is over the minimap or the header.|n|nIf you want the header below the minimap, you can set this in Edit Mode.")
 
-			-- Page tabs (they sit on top of the list box and the selected tab has the same background as the box so
-			-- it joins on to it)
+			-- Page tabs (shared configuration panel tabs)
 			local function SetMiniTabStyle(tab, selected)
-				tab.selected = selected
-				if selected then
-					tab:SetBackdropColor(0, 0, 1, 0.5)
-					tab.text:SetTextColor(1, 1, 1)
-				else
-					tab:SetBackdropColor(0, 0, 0.5, 0.25)
-					tab.text:SetTextColor(1, 0.82, 0)
-				end
-			end
-
-			-- Function to create a tab
-			local function MakeMiniTab(name, panel, label)
-				local tab = CreateFrame("Button", nil, panel, "BackdropTemplate")
-				LeaPlusCB[name] = tab
-				tab:SetBackdrop({bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background"})
-				tab.text = tab:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-				tab.text:SetPoint("CENTER", 0, 0)
-				tab.text:SetText(L[label])
-				tab:SetSize(tab.text:GetStringWidth() + 30, 24)
-				tab:SetScript("OnEnter", function(self) if not self.selected then self:SetBackdropColor(0, 0, 0.8, 0.4) end end)
-				tab:SetScript("OnLeave", function(self) if not self.selected then self:SetBackdropColor(0, 0, 0.5, 0.25) end end)
-				return tab
+				LeaPlusLC:SetPanelTabStyle(tab, selected)
 			end
 
 			-- Function to add the page tabs to a panel (shown in place of the panel subtitle)
 			local function MakeMiniTabs(panel, prefix)
-				panel.v:Hide()
-				local settingsTab = MakeMiniTab(prefix .. "SettingsTab", panel, "General")
-				settingsTab:SetPoint("BOTTOMLEFT", panel.backFrame, "TOPLEFT", 0, 0)
-				local buttonsTab = MakeMiniTab(prefix .. "ButtonsTab", panel, "Kept buttons")
-				buttonsTab:SetPoint("LEFT", settingsTab, "RIGHT", 2, 0)
-				return settingsTab, buttonsTab
+				return LeaPlusLC:MakePanelTabs(panel, prefix .. "SettingsTab", "General", prefix .. "ButtonsTab", "Kept buttons")
 			end
 
 			-- Add tabs to the settings page (the kept buttons tab is set further down)
@@ -10565,7 +12814,7 @@
 					-- Addon buttons (sorted by readable name)
 					local titles = {}
 					for i = 1, #names do titles[names[i]] = GetButtonTitle(names[i]) end
-					table.sort(names, function(a, b) return strlower(titles[a]) < strlower(titles[b]) end)
+					SortButtonList(names)
 
 					-- Everything is laid out on 20 pixel lines like the other configuration panels
 					local y, used = -2, 0 -- Same heading position as "Settings" in the Enhance minimap panel
@@ -11147,13 +13396,6 @@
 				-- Hide new LibDBIcon icons
 				-- LibDBIcon_IconCreated: Done in LibDBIcon callback function
 
-				-- Function to sort button names (custom buttons are sorted by the name of the addon they replace)
-				local function SortButtons(a, b)
-					a = string.gsub(a, "^LeaPlusCustomIcon_", "")
-					b = string.gsub(b, "^LeaPlusCustomIcon_", "")
-					return a:lower() < b:lower()
-				end
-
 				-- Function to place the buttons in the button frame
 				local function LayoutBag()
 
@@ -11192,7 +13434,7 @@
 							end
 						end
 					end
-					table.sort(shownButtons, SortButtons)
+					SortButtonList(shownButtons)
 
 					-- Calculate buttons per row
 					local totalButtons = #shownButtons
@@ -16019,6 +18261,32 @@
 				end
 			end
 
+			-- EllesmereUI chat: its copy chat button opens this window instead (for the chat tab that is showing)
+			if C_AddOns.IsAddOnLoaded("EllesmereUIChat") then
+				-- Wait a frame so EllesmereUI has made its chat sidebar buttons (it makes them when you log in)
+				C_Timer.After(0, function()
+					local getChatData = EllesmereUI and EllesmereUI._chatCFD
+					if type(getChatData) ~= "function" or not ChatFrame1 then return end
+					local chatData = getChatData(ChatFrame1)
+					local copyBtn = type(chatData) == "table" and chatData.copyBtn
+					if not copyBtn or not copyBtn.SetScript then return end
+					-- Leave the button alone if it is protected (a secure button can't be changed in combat and replacing its click would break it)
+					if not copyBtn.IsProtected or copyBtn:IsProtected() then return end
+					-- Replace the button's click (the button belongs to EllesmereUI, it is not a game frame)
+					copyBtn:SetScript("OnClick", function()
+						-- The chat tab that is showing (EllesmereUI selects tabs through the main chat window), then the last clicked tab
+						local chatFrame = FCFDock_GetSelectedWindow and GENERAL_CHAT_DOCK and FCFDock_GetSelectedWindow(GENERAL_CHAT_DOCK) or SELECTED_CHAT_FRAME or DEFAULT_CHAT_FRAME
+						if win:IsShown() and currentChatFrame == chatFrame then
+							-- Clicking again for the same chat tab closes the window
+							win:Hide()
+						else
+							ApplyFont(chatFrame)
+							ShowChatbox(chatFrame)
+						end
+					end)
+				end)
+			end
+
 			-- Hook normal chat frame tab clicks
 			for i = 1, 50 do
 				if _G["ChatFrame" .. i] then
@@ -17936,6 +20204,13 @@
 
 				UpdateVars("SetChatFontSize", "MoreChatFontSizes")			-- 12.1.15 (18th October 2026)
 
+				-- Mute mount sounds and Mute custom sounds merged into Mute game sounds (they are now tabs of Mute game sounds)
+				if LeaPlusDB["MuteMountSounds"] == "On" or LeaPlusDB["MuteCustomSounds"] == "On" then
+					LeaPlusDB["MuteGameSounds"] = "On"
+				end
+				LeaPlusDB["MuteMountSounds"] = nil
+				LeaPlusDB["MuteCustomSounds"] = nil
+
 				-- Automation
 				LeaPlusLC:LoadVarChk("AutomateQuests", "Off")				-- Automate quests
 				LeaPlusLC:LoadVarChk("AutoQuestShift", "Off")				-- Automate quests requires shift
@@ -17961,7 +20236,10 @@
 				LeaPlusLC:LoadVarChk("AutoSellNoKeeperTahult", "On")		-- Sell junk exclude Keeper Ta'hult
 				LeaPlusLC:LoadVarChk("AutoSellNoGreyGear", "Off")			-- Sell junk exclude all grey gear
 				LeaPlusLC:LoadVarStr("AutoSellExcludeList", "")				-- Sell junk exclude list
+				LeaPlusLC:LoadVarNum("AutoSellJunkTab", 1, 1, 2)			-- Sell junk last tab
+				LeaPlusLC:LoadVarNum("AutoSellSort", 1, 1, 8)				-- Sell junk item list sort order
 				LeaPlusLC:LoadVarChk("AutoRepairGear", "On")				-- Repair automatically
+
 				LeaPlusLC:LoadVarChk("AutoRepairGuildFunds", "On")			-- Repair using guild funds
 				LeaPlusLC:LoadVarChk("AutoRepairShowSummary", "On")			-- Repair show summary in chat
 
@@ -18125,9 +20403,14 @@
 				LeaPlusLC:LoadVarChk("NoRestedEmotes", "Off")				-- Silence rested emotes
 				LeaPlusLC:LoadVarChk("KeepAudioSynced", "On")				-- Keep audio synced
 				LeaPlusLC:LoadVarChk("MuteGameSounds", "Off")				-- Mute game sounds
-				LeaPlusLC:LoadVarChk("MuteMountSounds", "Off")				-- Mute mount sounds
-				LeaPlusLC:LoadVarChk("MuteCustomSounds", "Off")				-- Mute custom sounds
-				LeaPlusLC:LoadVarStr("MuteCustomList", "")					-- Mute custom sounds list
+				LeaPlusLC:LoadVarNum("MuteGameSoundsTab", 1, 1, 3)			-- Mute game sounds last tab
+				LeaPlusLC:LoadVarNum("MuteCustomSort", 1, 1, 4)				-- Mute game sounds custom tab sort order
+				-- Mute custom sounds list (the old MuteCustomList string is imported into this once and then deleted)
+				if type(LeaPlusDB["MuteCustomSoundList"]) == "table" then
+					LeaPlusLC["MuteCustomSoundList"] = LeaPlusDB["MuteCustomSoundList"]
+				else
+					LeaPlusLC["MuteCustomSoundList"] = {}
+				end
 
 				LeaPlusLC:LoadVarChk("NoPetAutomation", "Off")				-- Disable pet automation
 				LeaPlusLC:LoadVarChk("NoRaidRestrictions", "Off")			-- Remove raid restrictions
@@ -18295,6 +20578,16 @@
 
 				end
 
+				-- EllesmereUI shows a popup advising that Leatrix Plus has options that conflict with it
+				-- The popup is not needed because Leatrix Plus now locks the options that are not compatible with EllesmereUI (see above)
+				-- So mark the popup as dismissed for Leatrix Plus (the same as clicking Don't show again in the popup), only if it is not already marked
+				if C_AddOns.IsAddOnLoaded("EllesmereUI") and type(EllesmereUIDB) == "table" then
+					if EllesmereUIDB.dismissedConflicts == nil then EllesmereUIDB.dismissedConflicts = {} end
+					if type(EllesmereUIDB.dismissedConflicts) == "table" and not EllesmereUIDB.dismissedConflicts["Leatrix_Plus"] then
+						EllesmereUIDB.dismissedConflicts["Leatrix_Plus"] = true
+					end
+				end
+
 				-- Lock options currently not compatible with the next expansion (LeaPlusLC.DF)
 				local function LockDF(option, reason)
 					LeaPlusLC[option] = "Off"
@@ -18354,6 +20647,8 @@
 			LeaPlusDB["AutoSellNoKeeperTahult"] = LeaPlusLC["AutoSellNoKeeperTahult"]
 			LeaPlusDB["AutoSellNoGreyGear"] 	= LeaPlusLC["AutoSellNoGreyGear"]
 			LeaPlusDB["AutoSellExcludeList"] 	= LeaPlusLC["AutoSellExcludeList"]
+			LeaPlusDB["AutoSellJunkTab"] 		= LeaPlusLC["AutoSellJunkTab"]
+			LeaPlusDB["AutoSellSort"] 			= LeaPlusLC["AutoSellSort"]
 			LeaPlusDB["AutoRepairGear"] 		= LeaPlusLC["AutoRepairGear"]
 			LeaPlusDB["AutoRepairGuildFunds"] 	= LeaPlusLC["AutoRepairGuildFunds"]
 			LeaPlusDB["AutoRepairShowSummary"] 	= LeaPlusLC["AutoRepairShowSummary"]
@@ -18506,9 +20801,9 @@
 			LeaPlusDB["NoRestedEmotes"]			= LeaPlusLC["NoRestedEmotes"]
 			LeaPlusDB["KeepAudioSynced"]		= LeaPlusLC["KeepAudioSynced"]
 			LeaPlusDB["MuteGameSounds"]			= LeaPlusLC["MuteGameSounds"]
-			LeaPlusDB["MuteMountSounds"]		= LeaPlusLC["MuteMountSounds"]
-			LeaPlusDB["MuteCustomSounds"]		= LeaPlusLC["MuteCustomSounds"]
-			LeaPlusDB["MuteCustomList"]			= LeaPlusLC["MuteCustomList"]
+			LeaPlusDB["MuteGameSoundsTab"]		= LeaPlusLC["MuteGameSoundsTab"]
+			LeaPlusDB["MuteCustomSort"]			= LeaPlusLC["MuteCustomSort"]
+			LeaPlusDB["MuteCustomSoundList"]	= LeaPlusLC["MuteCustomSoundList"]
 
 			LeaPlusDB["NoPetAutomation"]		= LeaPlusLC["NoPetAutomation"]
 			LeaPlusDB["NoRaidRestrictions"]		= LeaPlusLC["NoRaidRestrictions"]
@@ -18554,7 +20849,7 @@
 				LeaPlusDB[k] = LeaPlusLC[k]
 			end
 
-			-- Mute mount sounds (LeaPlusLC["MuteMountSounds"])
+			-- Mute game sounds mount sounds (LeaPlusLC["MuteGameSounds"])
 			for k, v in pairs(LeaPlusLC["mountTable"]) do
 				LeaPlusDB[k] = LeaPlusLC[k]
 			end
@@ -18618,11 +20913,19 @@
 				end
 			end
 
-			-- Mute mount sounds (LeaPlusLC["MuteMountSounds"])
+			-- Mute game sounds mount sounds (LeaPlusLC["MuteGameSounds"])
 			for k, v in pairs(LeaPlusLC["mountTable"]) do
 				for i, e in pairs(v) do
 					local file, soundID = e:match("([^,]+)%#([^,]+)")
 					UnmuteSoundFile(soundID)
+				end
+			end
+
+			-- Mute game sounds custom sounds (LeaPlusLC["MuteCustomSoundList"])
+			if type(LeaPlusLC["MuteCustomSoundList"]) == "table" then
+				for i, e in ipairs(LeaPlusLC["MuteCustomSoundList"]) do
+					local soundID = type(e) == "table" and tonumber(e.id)
+					if soundID then UnmuteSoundFile(soundID) end
 				end
 			end
 
@@ -18791,6 +21094,14 @@
 			footMessage:ClearAllPoints()
 			footMessage:SetPoint("TOPRIGHT", Side.scrollFrame, "TOPRIGHT", 28, 24)
 
+			-- Only show the scroll for more message if the list is long enough to scroll
+			local function SetFootMessage()
+				footMessage:SetShown(Side.scrollFrame:GetVerticalScrollRange() > 1)
+			end
+			Side.scrollFrame:HookScript("OnScrollRangeChanged", SetFootMessage)
+			Side.scrollFrame:HookScript("OnShow", SetFootMessage)
+			SetFootMessage()
+
 			-- Give child a file level scope (it's used in LeaPlusLC.TipSee)
 			LeaPlusLC[globref .. "ScrollChild"] = Side.scrollChild
 
@@ -18799,6 +21110,79 @@
 		-- Return the frame
 		return Side
 
+	end
+
+	-- Function to give a texture a vertical gradient (bottom color then top color, works with the old and new game gradient functions)
+	local function SetTabSheen(tex, r, g, b, bottomAlpha, topAlpha)
+		if tex.SetGradientAlpha then
+			tex:SetGradientAlpha("VERTICAL", r, g, b, bottomAlpha, r, g, b, topAlpha)
+		else
+			tex:SetGradient("VERTICAL", CreateColor(r, g, b, bottomAlpha), CreateColor(r, g, b, topAlpha))
+		end
+	end
+
+	-- Set the style of a configuration panel tab (tabs sit on top of the list box)
+	-- The selected tab has the same background as the box so it joins on to it, it's slightly taller and has a gold sheen that fades down into the box
+	-- The other tabs are darker with grey text (gold text and a faint white sheen when hovered)
+	function LeaPlusLC:SetPanelTabStyle(tab, selected)
+		tab.selected = selected
+		if selected then
+			tab:SetHeight(26)
+			tab:SetBackdropColor(0, 0, 1, 0.5)
+			tab.text:SetTextColor(1, 1, 1)
+			SetTabSheen(tab.sheen, 1, 0.82, 0, 0, 0.3)
+			tab.sheen:Show()
+		else
+			tab:SetHeight(22)
+			if tab:IsMouseOver() then
+				tab:SetBackdropColor(0, 0, 0.8, 0.4)
+				tab.text:SetTextColor(1, 0.82, 0)
+				SetTabSheen(tab.sheen, 1, 1, 1, 0, 0.12)
+				tab.sheen:Show()
+			else
+				tab:SetBackdropColor(0, 0, 0.2, 0.5)
+				tab.text:SetTextColor(0.6, 0.6, 0.6)
+				tab.sheen:Hide()
+			end
+		end
+	end
+
+	-- Create a configuration panel tab
+	function LeaPlusLC:MakePanelTab(name, panel, label)
+		local tab = CreateFrame("Button", nil, panel, "BackdropTemplate")
+		LeaPlusCB[name] = tab
+		tab:SetBackdrop({bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background"})
+		tab.text = tab:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+		tab.text:SetPoint("CENTER", 0, 0)
+		tab.text:SetText(L[label])
+		tab:SetWidth(tab.text:GetStringWidth() + 30)
+		-- Sheen across the tab (gold on the selected tab, white when hovering over another tab, behind the text)
+		tab.sheen = tab:CreateTexture(nil, "BORDER")
+		tab.sheen:SetAllPoints()
+		tab.sheen:SetTexture("Interface\\Buttons\\WHITE8X8")
+		tab.sheen:Hide()
+		tab:SetScript("OnEnter", function(self) LeaPlusLC:SetPanelTabStyle(self, self.selected) end)
+		tab:SetScript("OnLeave", function(self) LeaPlusLC:SetPanelTabStyle(self, self.selected) end)
+		-- Refresh when the panel is shown (clicking a tab hides its panel before the tab knows the mouse has left so it would still look hovered)
+		tab:SetScript("OnShow", function(self) LeaPlusLC:SetPanelTabStyle(self, self.selected) end)
+		LeaPlusLC:SetPanelTabStyle(tab, false)
+		return tab
+	end
+
+	-- Add two or three page tabs to a configuration panel (shown in place of the panel subtitle)
+	-- Tabs sit on top of the panel list box (or on top of panel.tabAnchor if the panel has one)
+	function LeaPlusLC:MakePanelTabs(panel, leftName, leftLabel, rightName, rightLabel, thirdName, thirdLabel)
+		panel.v:Hide()
+		local leftTab = LeaPlusLC:MakePanelTab(leftName, panel, leftLabel)
+		leftTab:SetPoint("BOTTOMLEFT", panel.tabAnchor or panel.backFrame, "TOPLEFT", 0, 0)
+		local rightTab = LeaPlusLC:MakePanelTab(rightName, panel, rightLabel)
+		rightTab:SetPoint("BOTTOMLEFT", leftTab, "BOTTOMRIGHT", 2, 0) -- Tabs are lined up along the bottom (the selected tab is taller)
+		local thirdTab
+		if thirdName then
+			thirdTab = LeaPlusLC:MakePanelTab(thirdName, panel, thirdLabel)
+			thirdTab:SetPoint("BOTTOMLEFT", rightTab, "BOTTOMRIGHT", 2, 0)
+		end
+		return leftTab, rightTab, thirdTab
 	end
 
 	-- Define subheadings
@@ -19032,6 +21416,192 @@
 	end
 
 	----------------------------------------------------------------------
+	-- Help plates
+	----------------------------------------------------------------------
+
+	-- A help button next to the panel title that shows gold boxes over parts of the panel, each with a tip when hovered
+	-- (the same idea as the game's help plates, made with our own frames so nothing is done to the game's help plate frames)
+	-- Each section is {title = "", tip = "", region = frame, insets = {left, top, right, bottom}} or uses points = {{SetPoint arguments}, ...}
+	-- Sections can set iconSize for small boxes (the info icon is 30 by default)
+	-- The boxes are made the first time the help is shown
+
+	function LeaPlusLC:CreateHelpPlate(panel, sections)
+
+		-- Plate (dims the panel, sits above everything in it)
+		local plate = CreateFrame("Frame", nil, panel)
+		plate:SetAllPoints(panel)
+		plate:SetFrameLevel(panel:GetFrameLevel() + 100)
+		plate:Hide()
+		plate.dim = plate:CreateTexture(nil, "BACKGROUND")
+		plate.dim:SetAllPoints()
+		plate.dim:SetColorTexture(0, 0, 0, 0.45)
+
+		-- Function to show a box as hovered or not
+		local function SetBoxHover(box, hover)
+			box:SetBackdropColor(1, 0.82, 0, hover and 0.15 or 0.05)
+			box:SetBackdropBorderColor(1, 0.82, 0, hover and 1 or 0.7)
+		end
+
+		-- Function to add a scale animation (works with the old and new animation functions)
+		local function AddScale(group, fromScale, toScale, duration, delay, smoothing)
+			local anim = group:CreateAnimation("Scale")
+			if anim.SetScaleFrom then
+				anim:SetScaleFrom(fromScale, fromScale)
+				anim:SetScaleTo(toScale, toScale)
+			else
+				anim:SetFromScale(fromScale, fromScale)
+				anim:SetToScale(toScale, toScale)
+			end
+			anim:SetOrigin("CENTER", 0, 0)
+			anim:SetDuration(duration)
+			anim:SetStartDelay(delay or 0)
+			anim:SetSmoothing(smoothing or "OUT")
+			return anim
+		end
+
+		-- Function to add an alpha animation
+		local function AddAlpha(group, fromAlpha, toAlpha, duration, delay, smoothing)
+			local anim = group:CreateAnimation("Alpha")
+			anim:SetFromAlpha(fromAlpha)
+			anim:SetToAlpha(toAlpha)
+			anim:SetDuration(duration)
+			anim:SetStartDelay(delay or 0)
+			anim:SetSmoothing(smoothing or "OUT")
+			return anim
+		end
+
+		-- Plate fades in when shown
+		plate.fade = plate:CreateAnimationGroup()
+		AddAlpha(plate.fade, 0, 1, 0.2)
+
+		-- Function to make the boxes
+		-- Boxes fade in one after another, their icons pop in and then pulse gently until the box is hovered
+		local built
+		local boxes = {}
+		local function BuildBoxes()
+			built = true
+			for i, sec in ipairs(sections) do
+				local box = CreateFrame("Frame", nil, plate, "BackdropTemplate")
+				boxes[i] = box
+				if sec.points then
+					for j, point in ipairs(sec.points) do box:SetPoint(unpack(point)) end
+				else
+					local left, top, right, bottom = unpack(sec.insets or {0, 0, 0, 0})
+					box:SetPoint("TOPLEFT", sec.region, "TOPLEFT", -left, top)
+					box:SetPoint("BOTTOMRIGHT", sec.region, "BOTTOMRIGHT", right, -bottom)
+				end
+				box:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8X8", edgeFile = "Interface\\Buttons\\WHITE8X8", edgeSize = 2})
+				SetBoxHover(box, false)
+				box:EnableMouse(true)
+				box.icon = box:CreateTexture(nil, "OVERLAY")
+				box.icon:SetTexture("Interface\\COMMON\\help-i.blp")
+				box.icon:SetSize(sec.iconSize or 30, sec.iconSize or 30)
+				box.icon:SetPoint("CENTER")
+
+				-- Glow behind the icon (a brighter copy of the icon that pulses)
+				box.glow = box:CreateTexture(nil, "ARTWORK")
+				box.glow:SetTexture("Interface\\COMMON\\help-i.blp")
+				box.glow:SetBlendMode("ADD")
+				box.glow:SetSize((sec.iconSize or 30) * 1.4, (sec.iconSize or 30) * 1.4)
+				box.glow:SetPoint("CENTER")
+				box.glow:SetAlpha(0)
+
+				-- Box fades in (each box starts a little after the one before)
+				local delay = (i - 1) * 0.08
+				box.intro = box:CreateAnimationGroup()
+				AddAlpha(box.intro, 0, 1, 0.25, delay)
+				box.intro:SetToFinalAlpha(true)
+
+				-- Icon pops in as its box fades in (grows past full size then settles, only the icon is scaled)
+				box.pop = box.icon:CreateAnimationGroup()
+				local grow = AddScale(box.pop, 0.3, 1.2, 0.18, delay + 0.05)
+				grow:SetOrder(1)
+				local settle = AddScale(box.pop, 1, 1 / 1.2, 0.1, 0, "IN_OUT")
+				settle:SetOrder(2)
+
+				-- Glow pulses until the box is hovered
+				box.pulse = box.glow:CreateAnimationGroup()
+				box.pulse:SetLooping("BOUNCE")
+				AddAlpha(box.pulse, 0, 0.7, 0.8, 0, "IN_OUT")
+
+				box:SetScript("OnEnter", function(self)
+					-- Stop the pulse once a box has been looked at
+					self.pulse:Stop()
+					self.glow:SetAlpha(0)
+					SetBoxHover(self, true)
+					-- Tooltip goes beside the panel (right, or left if there isn't room) the same as option tooltips
+					GameTooltip:SetOwner(self, "ANCHOR_NONE")
+					local gap = UIParent:GetRight() * UIParent:GetEffectiveScale() - panel:GetRight() * panel:GetEffectiveScale()
+					if gap < 250 * GameTooltip:GetEffectiveScale() then
+						GameTooltip:SetPoint("TOPRIGHT", panel, "TOPLEFT", 0, 0)
+					else
+						GameTooltip:SetPoint("TOPLEFT", panel, "TOPRIGHT", 0, 0)
+					end
+					GameTooltip:SetText(L[sec.title], 1, 0.82, 0)
+					GameTooltip:AddLine(L[sec.tip], 1, 1, 1, true)
+					GameTooltip:Show()
+				end)
+				box:SetScript("OnLeave", function(self)
+					SetBoxHover(self, false)
+					GameTooltip:Hide()
+				end)
+			end
+		end
+
+		-- Help button (next to the panel title, above the plate so it can turn the help off)
+		local btn = CreateFrame("Button", nil, panel)
+		btn:SetSize(26, 26)
+		btn:SetPoint("LEFT", panel.f, "RIGHT", 6, 0)
+		btn:SetFrameLevel(plate:GetFrameLevel() + 10)
+		btn:SetNormalTexture("Interface\\COMMON\\help-i.blp")
+		btn:SetHighlightTexture("Interface\\COMMON\\help-i.blp")
+		btn:GetNormalTexture():SetVertexColor(0.9, 0.8, 0.0)
+
+		-- Gold ring around the button while the help is showing
+		btn.ring = btn:CreateTexture(nil, "BACKGROUND")
+		btn.ring:SetPoint("CENTER")
+		btn.ring:SetSize(36, 36)
+		btn.ring:SetTexture("Interface\\Buttons\\CheckButtonHilight")
+		btn.ring:SetBlendMode("ADD")
+		btn.ring:Hide()
+
+		btn:SetScript("OnClick", function()
+			if plate:IsShown() then
+				plate:Hide()
+			else
+				if not built then BuildBoxes() end
+				plate:Show()
+			end
+		end)
+		btn:SetScript("OnEnter", function(self)
+			GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+			GameTooltip:SetText(plate:IsShown() and L["Click to hide the help."] or L["Click to show help for this page."], nil, nil, nil, nil, true)
+			GameTooltip:Show()
+		end)
+		btn:SetScript("OnLeave", GameTooltip_Hide)
+
+		-- Update the button when the help is shown or hidden (the help is hidden when the panel is hidden, such as switching tabs)
+		plate:SetScript("OnShow", function()
+			btn.ring:Show()
+			plate.fade:Play()
+			for i, box in ipairs(boxes) do
+				box:SetAlpha(0)
+				box.intro:Stop(); box.intro:Play()
+				box.pop:Stop(); box.pop:Play()
+				box.pulse:Stop(); box.pulse:Play()
+			end
+		end)
+		plate:SetScript("OnHide", function()
+			btn.ring:Hide()
+			for i, box in ipairs(boxes) do box.pulse:Stop() end
+		end)
+		panel:HookScript("OnHide", function() plate:Hide() end)
+
+		return btn, plate
+
+	end
+
+	----------------------------------------------------------------------
 	-- Pop-up lists
 	----------------------------------------------------------------------
 
@@ -19042,6 +21612,7 @@
 	function LeaPlusLC:CreatePopupList(parent)
 
 		local rowHeight, rowsPerColumn, columnWidth = 20, 25, 180
+		local dividerGap = 9 -- Space added above an entry that has divider set
 		local rows = {}
 		local owner, entries, isChecked, onClick, onWheel
 
@@ -19052,8 +21623,17 @@
 		list:EnableMouseWheel(true)
 		list:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8X8", edgeFile = "Interface\\Buttons\\WHITE8X8", edgeSize = 1})
 		list:SetBackdropColor(0.05, 0.05, 0.05, 0.95)
-		list:SetBackdropBorderColor(0.3, 0.3, 0.3, 1)
+		list:SetBackdropBorderColor(1, 0.82, 0, 0.5) -- Same gold as the outline of a focused box
 		list:Hide()
+
+		-- Brief animation when the list opens (fades in)
+		-- (it doesn't grow as the 1 pixel border isn't drawn while the list is smaller than its full size)
+		list.anim = list:CreateAnimationGroup()
+		list.anim.fade = list.anim:CreateAnimation("Alpha")
+		list.anim.fade:SetFromAlpha(0)
+		list.anim.fade:SetToAlpha(1)
+		list.anim.fade:SetDuration(0.12)
+		list.anim.fade:SetSmoothing("OUT")
 
 		-- Mousewheel runs the wheel function if there is one (and stops anything under the list from scrolling)
 		list:SetScript("OnMouseWheel", function(self, delta)
@@ -19062,16 +21642,19 @@
 
 		-- Close the list when clicking anywhere else (only watched while the list is showing)
 		list:SetScript("OnShow", function(self) self:RegisterEvent("GLOBAL_MOUSE_DOWN") end)
-		list:SetScript("OnHide", function(self) self:UnregisterEvent("GLOBAL_MOUSE_DOWN") end)
+		list:SetScript("OnHide", function(self) self:UnregisterEvent("GLOBAL_MOUSE_DOWN"); self.anim:Stop() end)
 		list:SetScript("OnEvent", function(self)
 			if not self:IsMouseOver() and not (owner and owner:IsMouseOver()) then
 				self:Hide()
 			end
 		end)
 
-		-- Function to show a row as checked or not
+		-- Function to show a row as checked or not (entries with disabled set are information only and shown in grey)
 		local function SetRowCheck(row)
-			if isChecked(row.entry) then
+			if row.entry.disabled then
+				row.Check:Hide()
+				row.Text:SetTextColor(0.5, 0.5, 0.5)
+			elseif isChecked(row.entry) then
 				row.Check:Show()
 				row.Text:SetTextColor(NORMAL_FONT_COLOR:GetRGB())
 			else
@@ -19096,6 +21679,11 @@
 				row.Text:SetPoint("RIGHT", -4, 0)
 				row.Text:SetJustifyH("LEFT")
 				row.Text:SetWordWrap(false)
+				row.Divider = row:CreateTexture(nil, "ARTWORK")
+				row.Divider:SetColorTexture(1, 0.82, 0, 0.3) -- Fainter gold than the border
+				row.Divider:SetHeight(1)
+				row.Divider:SetPoint("BOTTOMLEFT", row, "TOPLEFT", 4, 4)
+				row.Divider:SetPoint("BOTTOMRIGHT", row, "TOPRIGHT", -4, 4)
 				row:SetScript("OnClick", function(self)
 					-- The click function returns true to keep the list open (such as for checkboxes)
 					if onClick(self.entry) then
@@ -19129,24 +21717,47 @@
 			owner, entries, isChecked, onClick, onWheel = button, items, checkedFunc, clickFunc, wheelFunc
 			local columns = math.ceil(count / rowsPerColumn)
 			local perColumn = math.ceil(count / columns)
+			-- Columns are made wider if an entry is too long to fit (such as a long translation)
+			local width = columnWidth
+			for i = 1, count do
+				local text = GetRow(i).Text
+				text:SetText(items[i].name)
+				local textWidth = text.GetUnboundedStringWidth and text:GetUnboundedStringWidth() or text:GetStringWidth()
+				width = math.max(width, math.ceil(textWidth) + 30) -- (room for the check and the gaps either side of the text)
+			end
+			local extra, maxExtra = 0, 0 -- Space added by dividers in the current column and the tallest column
 			for i = 1, count do
 				local row = GetRow(i)
+				local slot = (i - 1) % perColumn
+				if slot == 0 then extra = 0 end
+				-- Entries with divider set get a line above them (not at the top of a column)
+				local divider = items[i].divider and slot > 0
+				if divider then extra = extra + dividerGap end
+				maxExtra = math.max(maxExtra, extra)
+				row.Divider:SetShown(divider and true or false)
 				row.entry = items[i]
 				row.Text:SetText(items[i].name)
+				row:SetEnabled(not items[i].disabled) -- (disabled rows can't be clicked and don't highlight)
 				SetRowCheck(row)
 				row:ClearAllPoints()
-				row:SetPoint("TOPLEFT", list, "TOPLEFT", 8 + math.floor((i - 1) / perColumn) * columnWidth, -8 - ((i - 1) % perColumn) * rowHeight)
+				row:SetWidth(width)
+				row:SetPoint("TOPLEFT", list, "TOPLEFT", 8 + math.floor((i - 1) / perColumn) * width, -8 - slot * rowHeight - extra)
 				row:Show()
 			end
 			for i = count + 1, #rows do
 				rows[i]:Hide()
 				rows[i].entry = nil
 			end
-			list:SetSize(columns * columnWidth + 16, perColumn * rowHeight + 16)
+			list:SetSize(columns * width + 16, perColumn * rowHeight + maxExtra + 16)
 			list:ClearAllPoints()
 			list:SetPoint(point, button, relativePoint, x, y)
 			list:SetFrameLevel(button:GetFrameLevel() + 20)
+			-- Show the list and play the open animation (not when the list is already open, such as right-clicking again)
+			local wasShown = list:IsShown()
 			list:Show()
+			if not wasShown then
+				list.anim:Play()
+			end
 		end
 
 		-- Open the list for a button or close it if it's already open for that button
@@ -19386,6 +21997,7 @@
 					local buttonText = "Test Button " .. i
 					local dataObject = LibDataBrokerStub:NewDataObject(buttonName, {
 						type = "launcher",
+						label = buttonText,
 						text = buttonText,
 						icon = "Interface\\HELPFRAME\\ReportLagIcon-Movement",
 						OnClick = function(self, btn)
@@ -19640,6 +22252,12 @@
 					LeaPlusLC:Print("Dark Soil scanning activated.  Reload UI to exit.")
 				else
 					LeaPlusLC:Print("Dark Soil scanning is already activated.  You only need to run this once.  Reload UI to exit.")
+				end
+				return
+			elseif str == "mutetest" then
+				-- Fill the Mute game sounds custom tab with test sounds
+				if LeaPlusLC.MuteCustomTestList then
+					LeaPlusLC:Print(format("Custom sounds list replaced with %d test sounds.", LeaPlusLC:MuteCustomTestList()))
 				end
 				return
 			elseif str == "rsnd" then
@@ -21675,9 +24293,7 @@
 				LeaPlusDB["NoRestedEmotes"] = "On"				-- Silence rested emotes
 				LeaPlusDB["KeepAudioSynced"] = "On"				-- Keep audio synced
 				LeaPlusDB["MuteGameSounds"] = "On"				-- Mute game sounds
-				LeaPlusDB["MuteMountSounds"] = "On"				-- Mute mount sounds
-				LeaPlusDB["MuteCustomSounds"] = "On"			-- Mute custom sounds
-				LeaPlusDB["MuteCustomList"] = ""				-- Mute custom sounds list
+				LeaPlusDB["MuteCustomSoundList"] = {}			-- Mute custom sounds list
 
 				LeaPlusDB["NoPetAutomation"] = "On"				-- Disable pet automation
 				LeaPlusDB["NoRaidRestrictions"] = "On"			-- Remove raid restrictions
@@ -21716,7 +24332,7 @@
 				LeaPlusDB["MuteReady"] = "Off"	-- Mute ready check
 				LeaPlusDB["MuteVigor"] = "Off"	-- Mute vigor
 
-				-- Mute mount sounds (LeaPlusLC["MuteMountSounds"])
+				-- Mute game sounds mount sounds (LeaPlusLC["MuteGameSounds"])
 				for k, v in pairs(LeaPlusLC["mountTable"]) do
 					LeaPlusDB[k] = "On"
 				end
@@ -22029,7 +24645,8 @@
 				local parent = byTitle[Clean(title)]
 				for i, sub in ipairs(subs) do sub.parent = parent end
 				if parent then
-					parent.subs = subs
+					-- Options can have more than one panel (such as tabs) so add to any existing settings
+					for i, sub in ipairs(subs) do tinsert(parent.subs, sub) end
 				else
 					otherPanels[#otherPanels + 1] = {panel = panel, label = title, subs = subs}
 				end
@@ -22115,6 +24732,11 @@
 					-- Use the real cogwheel so the panel is set up as normal
 					GameTooltip:Hide()
 					cog:Click()
+					-- If the setting is on another tab of the option, show that tab instead
+					if not sub.panel:IsShown() then
+						LeaPlusLC:HideConfigPanels()
+						sub.panel:Show()
+					end
 				else
 					-- Cogwheel is locked (option is off or needs a reload) so show the option instead
 					ShowOption(parent)
@@ -22639,9 +25261,7 @@
 	LeaPlusLC:MakeCB(LeaPlusLC[pg], "MaxCameraZoom"				, 	"Max camera zoom"				, 	146, -152, 	false,	"If checked, you will be able to zoom out to a greater distance.")
 	LeaPlusLC:MakeCB(LeaPlusLC[pg], "NoRestedEmotes"			, 	"Silence rested emotes"			,	146, -172, 	true,	"If checked, emote sounds will be silenced while your character is:|n|n- resting|n- in a pet battle|n- at the Halfhill Market|n- at the Grim Guzzler|n|nEmote sounds will be enabled when none of the above apply.")
 	LeaPlusLC:MakeCB(LeaPlusLC[pg], "KeepAudioSynced"			, 	"Keep audio synced"				,	146, -192, 	true,	"If checked, when you change the audio output device in your operating system, the game audio output device will change automatically as long as a cinematic is not playing at the time.|n|nFor this to work, the game audio output device will be set to system default.")
-	LeaPlusLC:MakeCB(LeaPlusLC[pg], "MuteGameSounds"			, 	"Mute game sounds"				,	146, -212, 	false,	"If checked, you will be able to mute a selection of game sounds.")
-	LeaPlusLC:MakeCB(LeaPlusLC[pg], "MuteMountSounds"			, 	"Mute mount sounds"				,	146, -232, 	false,	"If checked, you will be able to mute a selection of mount sounds.")
-	LeaPlusLC:MakeCB(LeaPlusLC[pg], "MuteCustomSounds"			, 	"Mute custom sounds"			,	146, -252, 	false,	"If checked, you will be able to mute your own choice of sounds.")
+	LeaPlusLC:MakeCB(LeaPlusLC[pg], "MuteGameSounds"			, 	"Mute game sounds"				,	146, -212, 	false,	"If checked, you will be able to mute a selection of game sounds, mount sounds and your own choice of sounds.")
 
 	LeaPlusLC:MakeTx(LeaPlusLC[pg], "Game Options"				, 	340, -72)
 	LeaPlusLC:MakeCB(LeaPlusLC[pg], "NoPetAutomation"			, 	"Disable pet automation"		, 	340, -92, 	true, 	"If checked, battle pets which are automatically summoned will be dismissed within a few seconds.|n|nThis includes dragging a pet onto the first team slot in the pet journal and entering a battle pet team save command.|n|nNote that pets which are automatically summoned during combat will be dismissed when combat ends.")
@@ -22655,8 +25275,6 @@
 
 	LeaPlusLC:CfgBtn("SetWeatherDensityBtn", LeaPlusCB["SetWeatherDensity"])
 	LeaPlusLC:CfgBtn("MuteGameSoundsBtn", LeaPlusCB["MuteGameSounds"])
-	LeaPlusLC:CfgBtn("MuteMountSoundsBtn", LeaPlusCB["MuteMountSounds"])
-	LeaPlusLC:CfgBtn("MuteCustomSoundsBtn", LeaPlusCB["MuteCustomSounds"])
 	LeaPlusLC:CfgBtn("FasterLootingBtn", LeaPlusCB["FasterLooting"])
 	LeaPlusLC:CfgBtn("NoTransformsBtn", LeaPlusCB["NoTransforms"])
 
