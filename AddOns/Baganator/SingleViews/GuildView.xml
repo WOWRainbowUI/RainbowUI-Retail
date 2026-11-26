@@ -9,25 +9,6 @@
       <OnDragStop method="OnDragStop"/>
     </Scripts>
     <Frames>
-      <Button parentKey="CustomiseButton" inherits="BaganatorCustomiseButtonTemplate" frameLevel="700" parentArray="AllFixedButtons">
-        <Anchors>
-          <Anchor point="RIGHT" relativeKey="$parent.CloseButton" relativePoint="LEFT"/>
-          <Anchor point="TOP" y="-1"/>
-        </Anchors>
-      </Button>
-      <Button parentKey="TransferButton" inherits="BaganatorTransferButtonTemplate" frameLevel="700" parentArray="AllFixedButtons">
-        <KeyValues>
-          <KeyValue key="tooltipText" value="BAGANATOR_L_TRANSFER_GUILD_VIEW_TOOLTIP_TEXT" type="global"/>
-        </KeyValues>
-        <Anchors>
-          <Anchor point="RIGHT" relativeKey="$parent.CustomiseButton" relativePoint="LEFT"/>
-        </Anchors>
-        <Scripts>
-          <OnClick>
-            self:GetParent():Transfer()
-          </OnClick>
-        </Scripts>
-      </Button>
       <Button parentKey="ToggleTabTextButton" inherits="BaganatorTooltipIconButtonTemplate" frameLevel="700" parentArray="LiveButtons">
         <KeyValues>
           <KeyValue key="tooltipHeader" value="BAGANATOR_L_TAB_INFO" type="global"/>
@@ -130,7 +111,6 @@
       </Frame>
 
       <Frame parentKey="SearchWidget" inherits="BaganatorSearchWidgetTemplate"/>
-      <Frame parentKey="ButtonVisibility" inherits="BaganatorItemViewButtonVisibilityTemplate"/>
     </Frames>
     <Layers>
       <Layer level="BACKGROUND">

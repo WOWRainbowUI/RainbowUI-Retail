@@ -264,6 +264,7 @@ tAppendAll(addonTable.CategoryViews.Constants.DefaultCategories, {
     name = addonTable.Locales.CATEGORY_EQUIPMENT_SETS_AUTO,
     auto = "equipment_sets",
     priorityOffset = -10,
+    noPriority = true,
   },
   {
     key = "weapon",

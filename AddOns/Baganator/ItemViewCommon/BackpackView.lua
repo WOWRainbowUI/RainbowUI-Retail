@@ -56,7 +56,6 @@ function BaganatorItemViewCommonBackpackViewMixin:OnLoad()
     function() return self:GetExternalSortMethodName() end
   )
   self.ButtonsManager:AddButton("topRight", "customise")
-  self.ButtonsManager:SetGamepadDown(self.SearchWidget.SearchBox)
 
   self.liveItemButtonPool = addonTable.ItemViewCommon.GetLiveItemButtonPool(self)
 

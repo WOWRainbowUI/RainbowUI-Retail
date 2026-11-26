@@ -245,6 +245,12 @@ function BaganatorCategoryViewBackpackViewMixin:UpdateForCharacter(character, is
 
     self.CurrencyWidget:UpdateCurrencyTextPositions(self.Container:GetWidth() - buttonsWidth - 10, self.Container:GetWidth())
 
+    if self.SearchWidget:IsShown() then
+      self.ButtonsManager:SetGamepadDown(self.SearchWidget.SearchBox)
+    else
+      self.ButtonsManager:SetGamepadDown(firstVisible)
+    end
+
     self:OnFinished()
 
     local searchText = self.SearchWidget.SearchBox:GetText()
@@ -263,9 +269,13 @@ function BaganatorCategoryViewBackpackViewMixin:UpdateForCharacter(character, is
     self.CurrencyWidget:AddGamepadUp(lastVisible)
     self.CurrencyWidget:AddGamepadLeft(self.CurrencyButton)
 
-    addonTable.CategoryViews.ComputeGamepadGrid(self.activeLayouts, self.SearchWidget.SearchBox, {self.CurrencyButton}, function(b)
-      self.CurrencyWidget:AddGamepadUp(b)
-    end)
+    addonTable.CategoryViews.ComputeGamepadGrid(self.activeLayouts,
+      self.SearchWidget:IsShown() and self.SearchWidget.SearchBox or self.ButtonsManager.active.topLeft[1] or self.ButtonsManager.active.topRight[1],
+      {self.CurrencyButton},
+      function(b)
+        self.CurrencyWidget:AddGamepadUp(b)
+      end
+    )
 
     addonTable.CallbackRegistry:TriggerEvent("ViewComplete")
   end)

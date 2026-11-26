@@ -18,6 +18,17 @@ function BaganatorSingleViewGuildViewMixin:OnLoad()
 
   self.Anchor = addonTable.ItemViewCommon.GetAnchorSetter(self, addonTable.Config.Options.GUILD_VIEW_POSITION)
 
+  self.ButtonsManager = addonTable.Utilities.InitFrameWithMixin(self, addonTable.ItemViewCommon.ButtonsMixin)
+
+  self.ButtonsManager:AddButton(self.ToggleTabLogsButton)
+  self.ButtonsManager:AddButton(self.ToggleGoldLogsButton)
+  self.ButtonsManager:AddButton(self.ToggleTabTextButton)
+
+  self.ButtonsManager:AddButton("topRight", "transfer", function()
+    self:Transfer()
+  end, function() return self.wouldShowTransferButton end)
+  self.ButtonsManager:AddButton("topRight", "customise")
+
   self.tabsPool = addonTable.ItemViewCommon.GetSideTabButtonPool(self)
   self.currentTab = addonTable.Config.Get(addonTable.Config.Options.GUILD_CURRENT_TAB)
   self.otherTabsCache = {}
@@ -91,10 +102,6 @@ function BaganatorSingleViewGuildViewMixin:OnLoad()
   })
 
   addonTable.Utilities.AddBagTransferManager(self) -- self.transferManager
-
-  self.AllButtons = {}
-  tAppendAll(self.AllButtons, self.AllFixedButtons)
-  tAppendAll(self.AllButtons, self.LiveButtons)
 
   addonTable.Skins.AddFrame("ButtonFrame", self, {"guild"})
   addonTable.Skins.AddFrame("Button", self.DepositButton)
@@ -590,7 +597,6 @@ function BaganatorSingleViewGuildViewMixin:UpdateForGuild(guild, isLive)
 
     self.LogsFrame:Hide()
   end
-  self.TransferButton:SetShown(self.wouldShowTransferButton)
 
   self.SearchWidget:SetShown(addonTable.Config.Get(addonTable.Config.Options.SHOW_SEARCH_BOX) and active:IsShown())
   self.NotVisitedText:SetShown(not active:IsShown() and (not guildData or not guildData.details.visited))
@@ -619,7 +625,7 @@ function BaganatorSingleViewGuildViewMixin:UpdateForGuild(guild, isLive)
     self:UpdateScroll(44 + searchSpacing + detailsHeight, self:GetScale())
   end
 
-  self.ButtonVisibility:Update()
+  self.ButtonsManager:Arrange()
 
   self.refreshState = {}
 

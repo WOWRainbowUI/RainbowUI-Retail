@@ -88,7 +88,6 @@ function addonTable.ItemViewCommon.BankContainerTabSlotsMixin:Update(character, 
         slot:SetID(index)
         slot:SetItemDetails(info)
         slot:SetItemButtonCount(C_Container.GetContainerNumFreeSlots(self.indexes[index]))
-        slot.extendedFrame:Hide()
         slot:EnableMouse(true)
       else
         slot = self.buyPool:Acquire()

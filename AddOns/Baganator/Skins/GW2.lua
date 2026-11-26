@@ -119,12 +119,6 @@ local function SkinContainerFrame(frame, topButtons, topRightButtons)
     end
   end)
 
-  if frame.ButtonVisibility then
-    hooksecurefunc(frame.ButtonVisibility, "Update", function()
-      lastButtonsEnd = UpdateFrameButtons(frame, frame.ButtonsManager.active.topLeft, frame.ButtonsManager.topRight)
-    end)
-  end
-
   frame.backgroundMask = UIParent:CreateMaskTexture()
   frame.backgroundMask:SetPoint("TOPLEFT", frame, "TOPLEFT", -64, 64)
   frame.backgroundMask:SetPoint("BOTTOMRIGHT", frame, "BOTTOMLEFT",-64, 0)

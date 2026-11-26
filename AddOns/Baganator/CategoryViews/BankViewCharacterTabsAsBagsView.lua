@@ -123,6 +123,13 @@ function BaganatorCategoryViewBankViewCharacterTabsAsBagsViewMixin:ShowTab(chara
       math.max(addonTable.CategoryViews.Utilities.GetMinWidth(bagWidth), self:GetButtonsWidth(sideSpacing), maxWidth),
       maxHeight
     )
+
+    if self:GetParent().SearchWidget:IsShown() then
+      self:GetParent().ButtonsManager:SetGamepadDown(self:GetParent().SearchWidget.SearchBox)
+    else
+      self:GetParent().ButtonsManager:SetGamepadDown(firstVisible)
+    end
+
     self:OnFinished()
 
     self.CurrencyWidget:UpdateCurrencyTextPositions(self.Container:GetWidth() - self.buttonsWidth - 5, self.Container:GetWidth())
@@ -141,10 +148,15 @@ function BaganatorCategoryViewBankViewCharacterTabsAsBagsViewMixin:ShowTab(chara
       self.CurrencyWidget:AddGamepadLeft(self.DepositReagentsButton)
     end
 
-    addonTable.CategoryViews.ComputeGamepadGrid(self.activeLayouts, self:GetParent().SearchWidget.SearchBox, {self.isLive and self.DepositReagentsButton or nil}, function(b)
-      self.CurrencyWidget:AddGamepadUp(b)
-    end)
+    self:GetParent().ButtonsManager:Arrange()
 
+    addonTable.CategoryViews.ComputeGamepadGrid(self.activeLayouts,
+      self:GetParent().SearchWidget:IsShown() and self:GetParent().SearchWidget.SearchBox or self:GetParent().ButtonsManager.active.topLeft[1] or self:GetParent().ButtonsManager.active.topRight[1],
+      {self.isLive and self.DepositReagentsButton or nil},
+      function(b)
+        self.CurrencyWidget:AddGamepadUp(b)
+      end
+    )
 
     addonTable.CallbackRegistry:TriggerEvent("ViewComplete")
 

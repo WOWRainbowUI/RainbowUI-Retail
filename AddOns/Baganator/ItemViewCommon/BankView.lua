@@ -209,18 +209,17 @@ function BaganatorItemViewCommonBankViewMixin:UpdateView()
   end
 
   self.ButtonsManager:ClearButtons()
-  self.ButtonsManager:SetGamepadDown(self.SearchWidget.SearchBox)
-  self.ButtonsManager:AddButton("topRight", "customise")
-  self.ButtonsManager:AddButton("topRight", "sort", function(_, button)
-    self.currentTab:CombineStacksAndSort(button == "RightButton")
-  end, function()
-    return self.currentTab.isLive and not self.currentTab.isLocked
-  end)
   self.ButtonsManager:AddButton("topRight", "transfer", function(_, button)
     self:Transfer()
   end, function()
     return self.currentTab.isLive
   end)
+  self.ButtonsManager:AddButton("topRight", "sort", function(_, button)
+    self.currentTab:CombineStacksAndSort(button == "RightButton")
+  end, function()
+    return self.currentTab.isLive and not self.currentTab.isLocked
+  end)
+  self.ButtonsManager:AddButton("topRight", "customise")
 
   local sideSpacing = addonTable.Utilities.GetSpacing()
 
@@ -245,19 +244,10 @@ function BaganatorItemViewCommonBankViewMixin:GetBankType()
 end
 
 
-function BaganatorItemViewCommonBankViewMixin:OnTabFinished(firstButton, lastButton)
+function BaganatorItemViewCommonBankViewMixin:OnTabFinished()
   self.ButtonsManager:Arrange()
 
   self:SetSize(self.currentTab:GetSize())
-
-  self.SearchWidget:LinkDown(firstButton)
-
-  if self.showing then
-    C_Timer.After(0, function()
-      addonTable.Gamepad.SetTargetButton(self, firstButton)
-    end)
-    self.showing = false
-  end
 
   if addonTable.Config.Get(addonTable.Config.Options.DEBUG_TIMERS) then
     addonTable.Utilities.DebugOutput("bank", debugprofilestop() - self.start)
