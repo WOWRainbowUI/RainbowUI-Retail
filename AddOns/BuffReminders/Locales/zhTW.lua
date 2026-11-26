@@ -307,22 +307,18 @@ L["Group.WeaponBuff"] = "武器增益"
 L["Tooltip.MayShowExtraIcon"] = "可能顯示額外圖示"
 L["Tooltip.MayShowExtraIcon.Desc"] = "在施放此法術之前，該提示可能會與水之護盾/閃電之盾提示同時出現。因為系統無法確定你是想對自己施放大地之盾，還是想給隊友施放大地之盾的同時給自己施放水之護盾/閃電之盾。"
     L["Tooltip.PaladinDuplicate"] = "重複檢查"
-L["Tooltip.PaladinAuraDuplicate.Desc"] =
-    "當其他聖騎士已經給你相同類型的光環時，會發出警告。如果該光環行有備用光環，則會提示你選擇備用光環。"
-L["Tooltip.DriveBy.Desc"] =
-    "在非戰鬥狀態下，當目標是隊伍外的友方玩家且缺少你提供的增益效果時，會顯示此資訊。點擊即可施放最適合的增益效果。"
+L["Tooltip.PaladinAuraDuplicate.Desc"] = "當其他聖騎士已經給你相同類型的光環時，會發出警告。如果該光環行有備用光環，則會提示你選擇備用光環。"
+L["Tooltip.DriveBy.Desc"] = "在非戰鬥狀態下，當目標是隊伍外的友方玩家且缺少你提供的增益效果時，會顯示此資訊。點擊即可施放最適合的增益效果。"
 L["Tooltip.SleepingBag.Desc"] = "僅在等級低於最高等級時顯示。在戰鬥中、城市和旅館中隱藏。會在「休息充足」效果結束前發出警告。在睡袋中休息時，圖示會倒數顯示下一層「休息充足」效果的持續時間。當「休息充足」效果達到3層時，會倒數計時顯示下次刷新時間。"
 L["Tooltip.InstanceEntryReminder"] = "副本進本提示"
 L["Tooltip.InstanceEntryReminder.Desc"] = "進入地下城時會短暫顯示放置靈魂井的提示。施放法術或30秒後將消失。"
 L["Tooltip.MageFood"] = "僅限治療者"
 L["Tooltip.MageFood.Desc"] = "只有當你玩捕時才顯示"
 L["Tooltip.TankOnly"] = "坦克檢查"
-L["Tooltip.RighteousFuryTank.Desc"] =
-    "僅在您擔任坦克角色（或主坦克）時顯示。若要永遠顯示，請在設定中將“顯示”設為“永遠”。"
+L["Tooltip.RighteousFuryTank.Desc"] = "僅在您擔任坦克角色（或主坦克）時顯示。若要永遠顯示，請在設定中將“顯示”設為“永遠”。"
 L["Tooltip.TankHint"] = "(坦克)"
 L["Tooltip.TankTarget"] = "坦克目標"
-L["Tooltip.ThornsTank.Desc"] =
-    "組隊時，它會檢查你的坦克（坦克角色或主坦克），點擊即可對他們施放荊棘術。單人或沒有坦克時，它會檢查你。"
+L["Tooltip.ThornsTank.Desc"] = "組隊時，它會檢查你的坦克（坦克角色或主坦克），點擊即可對他們施放荊棘術。單人或沒有坦克時，它會檢查你。"
 L["BuffTooltip.ProvidedBy"] = "由 %s 提供"
 
 -- ============================================================================
@@ -483,8 +479,7 @@ L["Options.TextOutline.Monochrome"] = "單色"
 L["Options.TextOutline.OutlineMono"] = "外框 + 單色"
 L["Options.TextOutline.ThickMono"] = "粗外框 + 單色"
 L["Options.SlugOutline"] = "平滑外框"
-L["Options.SlugOutline.Desc"] =
-    "使用客戶端的Slug文字渲染器繪製外框。邊緣更平滑，但外框可能看起來稍微粗一點。"
+L["Options.SlugOutline.Desc"] = "使用客戶端的Slug文字渲染器繪製外框。邊緣更平滑，但外框可能看起來稍微粗一點。"
 L["Options.SlugOutline.Disabled"] = '僅適用於"外框"和"粗外框"樣式。'
 
 -- ============================================================================
@@ -509,8 +504,7 @@ L["Options.UseCustomColor.Desc"] = "啟用後會降低觸發發光的飽和度�
 L["Options.ExpirationReminder"] = "過期提示"
 L["Options.ExpirationWarning"] = "剩餘時間低於此值時提醒"
 L["Options.ExpirationWarning.Note"] = "持續時間較短的增益效果會更早發出警告，警告時間與其持續時間成正比。滑鼠懸停可查看範例。"
-L["Options.ExpirationWarning.Desc"] =
-    "持續時間較長的增益效果會在此階段發出警告。持續時間較短的增益效果會在其持續時間的一部分時間發出警告（請參閱「進階」部分）。持續時間為 5 分鐘或更短的增益效果僅在消失時顯示警告。自訂增益效果的持續時間由其自行決定。"
+L["Options.ExpirationWarning.Desc"] = "持續時間較長的增益效果會在此階段發出警告。持續時間較短的增益效果會在其持續時間的一部分時間發出警告（請參閱「進階」部分）。持續時間為 5 分鐘或更短的增益效果僅在消失時顯示警告。自訂增益效果的持續時間由其自行決定。"
 L["Options.ExpirationAdvanced"] = "進階"
 L["Options.ExpirationShare"] = "共享持續時間"
 L["Options.ExpirationShare.Note"] = "當增益效果剩餘約 %d%% 時發出警告，但結束以前絕不會超過 %s 秒。"
@@ -561,17 +555,13 @@ L["Options.Repair.Threshold.Desc"] = "當裝備的物品耐久度低於多少百
 L["Options.RepairHideInCombat"] = "戰鬥中隱藏"
 L["Options.RepairHideInCombat.Desc"] = "在戰鬥中時隱藏修理提醒。戰鬥中你無法修理。"
 L["Options.Reagent.Threshold"] = "低於多少警告"
-L["Options.Reagent.Threshold.Desc"] =
-    "當你攜帶的用於你所掌握的法術的材料數量少於多少數量時發出警告。"
+L["Options.Reagent.Threshold.Desc"] = "當你攜帶的用於你所掌握的法術的材料數量少於多少數量時發出警告。"
 L["Options.Reagent.RestedOnly"] = "只有在休息區域"
-L["Options.Reagent.RestedOnly.Desc"] =
-    "只在旅館和城市發出警告，那裡有商人出售材料。\n\n如果 |cffffcc00當休息時隱藏|r 是啟用的，此警告從不顯示。"
+L["Options.Reagent.RestedOnly.Desc"] = "只在旅館和城市發出警告，那裡有商人出售材料。\n\n如果 |cffffcc00當休息時隱藏|r 是啟用的，此警告從不顯示。"
 L["Options.Camp.LightFire"] = "提醒放置篝火"
-L["Options.Camp.LightFire.Desc"] =
-    "如果附近沒有篝火，當你攜帶可用的篝火工具包和至少一件營地設施時，提醒會顯示「營地」。點擊放置最合適的工具包，然後點擊地面。"
+L["Options.Camp.LightFire.Desc"] = "如果附近沒有篝火，當你攜帶可用的篝火工具包和至少一件營地設施時，提醒會顯示「營地」。點擊放置最合適的工具包，然後點擊地面。"
 L["Options.Ammo.Threshold"] = "獵人 (堆疊)"
-L["Options.Ammo.Threshold.Desc"] =
-    "警告獵人裝備的彈藥數量不得低於此數量（每組 200 發）。"
+L["Options.Ammo.Threshold.Desc"] = "警告獵人裝備的彈藥數量不得低於此數量（每組 200 發）。"
 L["Options.Ammo.Shots"] = "其他 (射擊)"
 L["Options.Ammo.Shots.Desc"] = "戰士和盜賊使用弓箭或槍械。以下警告指出他們只能射擊這麼多次。"
 
@@ -600,8 +590,7 @@ L["Options.FreeConsumables.Override.Desc"] = "勾選後，免費消耗品將使�
 -- ============================================================================
 L["Options.Icons"] = "圖示"
 L["Options.IconStyle"] = "圖示樣式"
-L["Options.IconStyle.Desc"] =
-    "現代: 扁平的方形邊框。其他選項: 遊戲中的圓形動作按鈕邊框。不用於外部或消耗品按鈕。"
+L["Options.IconStyle.Desc"] = "現代: 扁平的方形邊框。其他選項: 遊戲中的圓形動作按鈕邊框。不用於外部或消耗品按鈕。"
 L["Options.IconStyle.Modern"] = "現代"
 L["Options.IconStyle.Blizzard"] = "暴雪"
 L["Options.IconStyle.Forever"] = "永恆"
@@ -648,19 +637,15 @@ L["Options.Direction.Desc"] = "此框架圖示的排列方向。「預設」會�
 L["Options.ClickToCast"] = "點擊施法"
 L["Options.ClickToCast.DescFull"] = "你可以點擊增益圖示來施放對應的法術（僅限非戰鬥狀態）。只對你的角色可施放的法術有效。"
 L["Options.HoverHighlight"] = "懸停高亮"
-L["Options.ClickToCast.Custom.Desc"] =
-    "使該類別圖示在右鍵選單和懸停高亮顯示時可點選。即使此功能關閉，具有自訂點擊操作的增益效果仍可點擊。"
+L["Options.ClickToCast.Custom.Desc"] = "使該類別圖示在右鍵選單和懸停高亮顯示時可點選。即使此功能關閉，具有自訂點擊操作的增益效果仍可點擊。"
 L["Options.HoverHighlight.Desc"] = "將鼠標懸停在可點擊的增益圖示上時，顯示微弱的高亮效果。"
 L["Options.RightClickMenu"] = "右鍵點擊: 暫停和設定選單"
-L["Options.RightClickMenu.Desc"] =
-    "右鍵點擊需要點擊多次才能打開的提醒圖示，即可開啟選單。此選單可以暫停提醒、暫停其所屬類別或暫停所有提醒，並開啟提醒的設定。此選單僅在非戰鬥狀態下可用。如果此選項關閉，則右鍵單擊與左鍵單擊的功能相同。"
+L["Options.RightClickMenu.Desc"] = "右鍵點擊需要點擊多次才能打開的提醒圖示，即可開啟選單。此選單可以暫停提醒、暫停其所屬類別或暫停所有提醒，並開啟提醒的設定。此選單僅在非戰鬥狀態下可用。如果此選項關閉，則右鍵單擊與左鍵單擊的功能相同。"
 L["Options.SubIconReveal"] = "顯示替代的"
-L["Options.SubIconReveal.Desc"] =
-    "某些提醒會顯示替代方案的小圖示。例如：背包中的其他消耗品、其他祝福、其他追蹤功能、營地功能，以及團隊或單人版本的團隊增益效果。啟用「懸停時」後，當遊標停留在提醒圖示上時，這些圖示就會顯示。點擊圖示即可使用對應的替代方案。點選操作需要在提醒類別（「類別」標籤頁）中啟用「點擊施放」選項。如果「點擊施放」選項關閉，消耗品圖示會顯示您的物品，但無法點擊，其他替代方案也不會顯示。"
+L["Options.SubIconReveal.Desc"] = "某些提醒會顯示替代方案的小圖示。例如：背包中的其他消耗品、其他祝福、其他追蹤功能、營地功能，以及團隊或單人版本的團隊增益效果。啟用「懸停時」後，當遊標停留在提醒圖示上時，這些圖示就會顯示。點擊圖示即可使用對應的替代方案。點選操作需要在提醒類別（「類別」標籤頁）中啟用「點擊施放」選項。如果「點擊施放」選項關閉，消耗品圖示會顯示您的物品，但無法點擊，其他替代方案也不會顯示。"
 L["Options.SubIconReveal.Hover"] = "懸停時"
 L["Options.SubIconReveal.Always"] = "永遠"
-L["Options.Snooze.Note"] =
-    "暫停提醒會持續到下一個登入畫面出現，或直到你離開開始設定提醒的城市或旅館。輸入 |cFFFFD100/br snooze|r 可暫停所有提醒，再次輸入即可顯示提醒。"
+L["Options.Snooze.Note"] = "暫停提醒會持續到下一個登入畫面出現，或直到你離開開始設定提醒的城市或旅館。輸入 |cFFFFD100/br snooze|r 可暫停所有提醒，再次輸入即可顯示提醒。"
 L["Options.RequestBuffInChat"] = "在聊天中請求缺失的增益"
 L["Options.RequestBuffInChat.Tooltip"] = "點選你職業無法施放的缺失增益，向你的隊友請求幫助。"
 L["ChatRequests.PageNote"] = "點選你職業無法施放的缺失增益，即可在聊天框中請求獲得該增益。"
@@ -696,11 +681,9 @@ L["Options.PetSpecIcon"] = "懸停時顯示獵人寵物專精圖示"
 L["Options.PetSpecIcon.Title"] = "懸停時寵物專精圖示"
 L["Options.PetSpecIcon.Desc"] = "鼠標懸停時，寵物圖示將變為對應的專精技能（狡詐、狂野、堅韌）。"
 L["Options.ShowDescriptionTooltips"] = "顯示提示訊息"
-L["Options.ShowDescriptionTooltips.Desc"] =
-    "當滑鼠懸停在提示圖示上時，顯示點擊所用法術或物品的工具提示。如果點選請求隊伍獲得增益效果，工具提示會顯示增益效果及其提供者。戰鬥中不顯示工具提示。"
+L["Options.ShowDescriptionTooltips.Desc"] = "當滑鼠懸停在提示圖示上時，顯示點擊所用法術或物品的工具提示。如果點選請求隊伍獲得增益效果，工具提示會顯示增益效果及其提供者。戰鬥中不顯示工具提示。"
 L["Options.TooltipModifier"] = "提示鍵"
-L["Options.TooltipModifier.Desc"] =
-    "選取某個按鍵後，增益效果和物品的提示訊息僅在按住該按鍵時顯示。您可以先將滑鼠指標指向圖標，然後再按下按鍵。您可以在「預設設定」頁面的「互動」部分啟用提示訊息。"
+L["Options.TooltipModifier.Desc"] = "選取某個按鍵後，增益效果和物品的提示訊息僅在按住該按鍵時顯示。您可以先將滑鼠指標指向圖標，然後再按下按鍵。您可以在「預設設定」頁面的「互動」部分啟用提示訊息。"
 L["Options.TooltipModifier.None"] = "無"
 L["Options.TooltipModifier.Shift"] = "Shift"
 L["Options.TooltipModifier.Ctrl"] = "Ctrl"
@@ -744,12 +727,12 @@ L["Options.ItemDisplay"] = "物品顯示"
 L["Options.ItemDisplay.IconOnly"] = "僅圖示"
 L["Options.ItemDisplay.IconOnlyDesc"] = "顯示數量最多的物品"
 L["Options.ItemDisplay.SubIcons"] = "子圖示"
-L["Options.ItemDisplay.SubIconsDesc"] = "在每個圖示下方顯示較小的物品變體圖示"
+L["Options.ItemDisplay.SubIconsDesc"] = "其他項目以小圖示的形式顯示在主圖示旁。\"顯示替代的\" 在「預設值」頁面上設定它們何時顯示。"
 L["Options.ItemDisplay.Expanded"] = "展開"
 L["Options.ItemDisplay.ExpandedDesc"] = "將每個物品變體顯示為全尺寸圖示"
 L["Options.ItemDisplay.Mode"] = "消耗品物品顯示"
 L["Options.ItemDisplay.Mode.Desc"] = "設置具有多個變體的消耗品物品（例如各種精鍊類型）的顯示方式。"
-L["Options.SubIconSide"] = "方向"
+L["Options.SubIconSide"] = "替代方向"
 L["Options.SubIconSide.Desc"] = "選擇替代圖示要顯示在提醒圖示的哪一側。"
 L["Options.SubIconSide.Bottom"] = "底部"
 L["Options.SubIconSide.Top"] = "頂部"
@@ -842,14 +825,11 @@ L["BuffPanel.MageFoodContent.All"] = "所有副本"
 L["BuffPanel.MageFoodContent.Dungeon"] = "僅限地下城"
 L["BuffPanel.MageFoodContent.Raid"] = "僅限團隊副本"
 L["BuffPanel.ShamanImbue"] = "點擊施放"
-L["BuffPanel.ShamanImbue.Desc"] =
-    "在你學會之前，點擊會依序施放風怒、火舌和石化。"
+L["BuffPanel.ShamanImbue.Desc"] = "在你學會之前，點擊會依序施放風怒、火舌和石化。"
 L["BuffPanel.DriveBy.AllowPvP"] = "允許 PvP 標記的目標"
-L["BuffPanel.DriveBy.AllowPvP.Desc"] =
-    "給已開啟 PvP 模式的玩家加增益效果也會使你被標記為 PvP 玩家。關閉此功能後，除非你也被標記為 PvP 玩家，否則其他已標記的玩家將被忽略。"
+L["BuffPanel.DriveBy.AllowPvP.Desc"] = "給已開啟 PvP 模式的玩家加增益效果也會使你被標記為 PvP 玩家。關閉此功能後，除非你也被標記為 PvP 玩家，否則其他已標記的玩家將被忽略。"
 L["BuffPanel.DriveBy.Greeting"] = "問候"
-L["BuffPanel.DriveBy.Greeting.Desc"] =
-    "增益效果生效後，你可以密語或使用表情動作與該玩家互動，每位玩家每局限一次。戰鬥中不可使用。\n\n{name} = 玩家名字，{spell} = 增益。"
+L["BuffPanel.DriveBy.Greeting.Desc"] = "增益效果生效後，你可以密語或使用表情動作與該玩家互動，每位玩家每局限一次。戰鬥中不可使用。\n\n{name} = 玩家名字，{spell} = 增益。"
 L["BuffPanel.DriveBy.Greeting.None"] = "沒什麼"
 L["BuffPanel.DriveBy.Greeting.Whisper"] = "密語"
 L["BuffPanel.DriveBy.Greeting.Emote"] = "表情"
@@ -876,8 +856,7 @@ L["BuffPanel.WarlockDemon.Felguard"] = "如果有天賦的話，惡魔學識總�
 L["BuffPanel.WarriorStance.Hint"] = "點擊姿勢即可按內容啟用。未學習的姿勢不計入在內。空白行不顯示任何提示。"
 L["BuffPanel.DruidForm.Hint"] = "點擊型態即可按內容啟用它們。未學習的型態不計​​入。空白行不顯示任何提醒。"
 L["BuffPanel.DruidForm.Caster"] = "施放者 (無型態)"
-L["BuffPanel.PaladinBlessing.Hint"] =
-    "每個職業的主要祝福。如果其他聖騎士給予祝福，則由你提供備用祝福。"
+L["BuffPanel.PaladinBlessing.Hint"] = "每個職業的主要祝福。如果其他聖騎士給予祝福，則由你提供備用祝福。"
 L["BuffPanel.Blessing.Give"] = "給予"
 L["BuffPanel.Blessing.IfTaken"] = "如果收到"
 L["BuffPanel.Blessing.InGive"] = "在給予"
@@ -897,25 +876,19 @@ L["BuffPanel.Blessing.SelfOnlyNote"] = "僅聖騎士職業適用。"
 L["DisabledReason.BlessSelfOnly"] = '當"只有祝福我自己"啟用時關閉。'
 L["DisabledReason.BlessingDefaults"] = "所有職業都使用其預設值。"
 L["BuffPanel.BlessSelfOnly"] = "只有祝福我自己"
-L["BuffPanel.BlessSelfOnly.Desc"] =
-    "只檢查並祝福自己"
+L["BuffPanel.BlessSelfOnly.Desc"] = "只檢查並祝福自己"
 L["BuffPanel.Tracking.Scope"] = "追蹤"
-L["BuffPanel.Tracking.Scope.Desc"] =
-    "此提醒功能提供追蹤功能。一次只能啟用一個追蹤功能。如果已啟用任何追蹤功能，則此提醒將被隱藏。"
+L["BuffPanel.Tracking.Scope.Desc"] = "此提醒功能提供追蹤功能。一次只能啟用一個追蹤功能。如果已啟用任何追蹤功能，則此提醒將被隱藏。"
 L["BuffPanel.Tracking.Scope.Gathering"] = "只限採集"
 L["BuffPanel.Tracking.Scope.All"] = "全部追蹤"
 L["BuffPanel.GroupCast"] = "自動群體版本 (使用材料)"
-L["BuffPanel.GroupCast.Desc"] =
-    "如果你的隊伍中有足夠多的成員沒有增益效果且在有效範圍內，並且你擁有所需的材料，則左鍵點擊會對你施放群體版本。否則，會施放單體版本。將滑鼠懸停在圖示上即可選擇另一種施法版本。"
-L["BuffPanel.GroupCast.Blessing.Desc"] =
-    "如果一個職業中有足夠多的成員缺少相同的祝福，點擊即可施放更強大的版本（需要王者印記）。只有當你將該祝福賦予整個職業時才會發生這種情況。"
+L["BuffPanel.GroupCast.Desc"] = "如果你的隊伍中有足夠多的成員沒有增益效果且在有效範圍內，並且你擁有所需的材料，則左鍵點擊會對你施放群體版本。否則，會施放單體版本。將滑鼠懸停在圖示上即可選擇另一種施法版本。"
+L["BuffPanel.GroupCast.Blessing.Desc"] = "如果一個職業中有足夠多的成員缺少相同的祝福，點擊即可施放更強大的版本（需要王者印記）。只有當你將該祝福賦予整個職業時才會發生這種情況。"
 L["BuffPanel.GroupCastMin"] = "群體版本在"
 L["BuffPanel.GroupCastMin.Suffix"] = " 缺少"
-L["BuffPanel.GroupCastMin.Desc"] =
-    "隊伍中或某職業中，有多少成員沒有該增益效果，點擊即可施放群體版本的增益效果：對於強效祝福，則需滿足此條件。所有增益效果適用相同數值。"
+L["BuffPanel.GroupCastMin.Desc"] = "隊伍中或某職業中，有多少成員沒有該增益效果，點擊即可施放群體版本的增益效果：對於強效祝福，則需滿足此條件。所有增益效果適用相同數值。"
 L["DisabledReason.GroupCast"] = '請先啟用「自動群體版本」。'
-L["BuffPanel.PaladinAura.Hint"] =
-    "每個內容只能使用一個主要光環。如果其他聖騎士使用了該光環，則使用備用光環。空行可以接受任何光環。抗性光環在生效期間始終有效。"
+L["BuffPanel.PaladinAura.Hint"] = "每個內容只能使用一個主要光環。如果其他聖騎士使用了該光環，則使用備用光環。空行可以接受任何光環。抗性光環在生效期間始終有效。"
 L["BuffPanel.PaladinAura.Run"] = "運行"
 L["BuffPanel.PaladinAura.InRun"] = "在運行"
 L["BuffPanel.PaladinAura.MainTip"] = "你在 %s 內容中運行此光環。"
@@ -924,25 +897,22 @@ L["BuffPanel.PaladinAura.None"] = "無光環"
 L["BuffPanel.PaladinAura.None.Desc"] = "任何光環都算。"
 L["DisabledReason.AuraDefaults"] = "所有內容行均使用其預設值。"
 L["BuffPanel.ThornsRequest"] = "坦克可以請求荊棘"
-L["BuffPanel.ThornsRequest.Desc"] =
-    "如果你擔任坦克，且隊伍中有德魯伊（6級以上），則會顯示你缺少荊棘效果。點擊即可在聊天框中請求效果。需要在「聊天請求」頁面啟用「在聊天中請求缺少的增益效果」選項。"
+L["BuffPanel.ThornsRequest.Desc"] = "如果你擔任坦克，且隊伍中有德魯伊（6級以上），則會顯示你缺少荊棘效果。點擊即可在聊天框中請求效果。需要在「聊天請求」頁面啟用「在聊天中請求缺少的增益效果」選項。"
 L["BuffPanel.RighteousFuryShow"] = "顯示"
 L["BuffPanel.RighteousFuryShow.Tank"] = "擔任坦克時"
 L["BuffPanel.RighteousFuryShow.Always"] = "永遠"
-L["BuffPanel.RighteousFuryShow.Desc"] =
-    "擔任坦克時：僅限坦克職業或主坦克標記。永遠：單人或組隊均可。"
+L["BuffPanel.RighteousFuryShow.Desc"] = "擔任坦克時：僅限坦克職業或主坦克標記。永遠：單人或組隊均可。"
 L["BuffPanel.MageArmor"] = "施放"
 L["BuffPanel.MageArmor.Mage"] = "魔甲術"
 L["BuffPanel.MageArmor.Ice"] = "霜/冰甲術"
-L["BuffPanel.MageArmor.Desc"] =
-    "圖示上顯示護甲，點擊即可施放。任何護甲都符合要求。如果您還未學習這件護甲，則使用其他護甲。"
+L["BuffPanel.MageArmor.Desc"] = "圖示上顯示護甲，點擊即可施放。任何護甲都符合要求。如果您還未學習這件護甲，則使用其他護甲。"
 L["BuffPanel.Sound"] = "聲音"
 L["BuffPanel.Sound.None"] = "無"
 L["BuffPanel.Detached"] = "自己的框架 (獨立的)"
 L["BuffPanel.Detached.Desc"] = "將此增益從其類別中拉出到其自己獨立定位的框架中。 \n從佈局頁面或透過解鎖框架來定位它。"
 L["BuffPanel.ShowSharedWithHealthstone"] = "Healthstones use this setting too."
-L["BuffPanel.CasterAlways"] = "術士總是可見"
-L["BuffPanel.CasterAlways.Desc"] = "術士 (提供者) 總是可見此提醒；其他人只在準備確認時。"
+
+
 L["DisabledReason.NotDetached"] = "此增益不是獨立的 - 它位於其類別框架內。"
 L["DisabledReason.CasterAlways"] = "僅適用於準備確認模式。首先將「顯示」切換回準備確認。"
 L["Options.DisplayOrder.Note"] = "類別如何在組合框架內從上到下堆疊。分離的類別存在於它們自己的框架中並不參與。"
@@ -959,8 +929,7 @@ L["Options.Override"] = "覆蓋"
 L["Options.Override.Inherited"] = "繼承自預設值"
 L["Options.Override.Overriding"] = "覆蓋預設值"
 L["Options.Override.Appearance.Desc"] = "覆寫此類別的全域外觀預設值。 \n關閉時，下方的控制項顯示從「預設值」頁面繼承的值。"
-L["Options.Override.Interaction.Desc"] =
-    "覆寫此類別的全域互動設定。\n關閉時，下面的控制項會顯示從「預設值」頁面繼承的值。"
+L["Options.Override.Interaction.Desc"] = "覆寫此類別的全域互動設定。\n關閉時，下面的控制項會顯示從「預設值」頁面繼承的值。"
 L["Options.Override.Glow.Desc"] = "覆寫此類別的全域發光設定。 \n關閉時，下方的控制項顯示從「預設值」頁面繼承的值。"
 L["Options.Override.Externals.Desc"] = "覆寫這些圖示的全域外觀預設值。\n關閉時，下方的圖示控制項顯示從預設值頁面繼承的值。方向、文字與滑鼠提示一律分開設定。"
 L["Options.Override.OpenDefaults"] = "開啟"
@@ -1355,29 +1324,7 @@ L["Content.Raids20"] = "20人團隊副本"
 -- PvP types
 L["Content.Arena"] = "競技場"
 L["Content.Battlegrounds"] = "戰場"
-L["Display.DismissConsumablesChat"] = "在下一次登入前消耗品提示將隱藏。"
-
 L["Externals.Custom.Save"] = "儲存"
-
-L["Options.RightClickSnooze"] = "右鍵單擊以暫停"
-
-L["Options.RightClickSnooze.Desc"] = "右鍵點選消耗品圖示可暫停其提醒。如果關閉此選項，右鍵單擊會使用消耗品，就像左鍵單擊一樣。"
-
-L["Options.ClickToCast.SnoozeNote"] = "右鍵點選消耗品可暫停其提醒，直到下次的登入畫面 (|cFFFFD100/br snooze|r 總是有用)。"
-
-L["Options.RequestBuffInChat.Desc"] = "點擊您的職業無法提供的缺失增益，並在聊天中請求它。自動偵測頻道（副本/團隊/隊伍/說）。"
-
-L["Options.ChatRequest.Cooldown"] = "聊天請求冷卻"
-
-L["Options.ChatRequest.Cooldown.Desc"] = "在聊天請求之間等待5秒，以防止意外點擊形成垃圾訊息。\n如果您的請求有時根本不會發送到聊天，請將其關閉。"
-
-L["ChatRequests.PerBuffMessages"] = "每個增益的訊息"
-
-L["Options.ShowItemTooltips"] = "顯示物品提示訊息"
-
-L["Options.ShowItemTooltips.Desc"] = "將鼠標懸停在消耗品圖示上時顯示物品詳細訊息。"
-
-L["Options.ShowBuffTooltips"] = "顯示增益工具提示"
 
 L["CustomBuff.Name"] = "名稱:"
 
@@ -1389,8 +1336,6 @@ L["|cffffffffBuff|r|cffffcc00Reminders|r"] = "|cffffffff增益|r|cffffcc00提醒
 
 L["Options.BuffReminderText"] = "「增益！」文字"
 
-L["Options.ShowBuffTooltips.Desc"] = "滑鼠指向此類別的增益圖示時，顯示法術提示及提供增益的職業。"
-
 L["DisabledReason.ShowWithoutItems"] = "請先啟用「不在背包中時也顯示」。"
 
 L["DisabledReason.PetLabelsOff"] = "請先選擇「寵物標籤」的位置。"
@@ -1399,3 +1344,25 @@ L["DisabledReason.OverrideRow"] = "請先勾選此列的「覆寫」。"
 
 L["Dialog.DeleteProfile"] = "確定要刪除設定檔「%s」嗎？此操作無法復原。"
 
+
+L["Overlay.NoSacrifice"] = "未獻祭"
+
+L["Buff.DemonicSacrifice"] = "惡魔犧牲"
+
+L["BuffPanel.ShowSharedWithHealthstone"] = "治療石也使用此設定。"
+
+L["BuffPanel.Show.ReadyCheck"] = "只在準備確認時"
+
+L["BuffPanel.Show.ReadyCheck.Desc"] = "所有人只在準備確認期間看見提醒。"
+
+L["BuffPanel.Show.ReadyCheckSolo"] = "準備確認及單人時"
+
+L["BuffPanel.Show.ReadyCheckSolo.Desc"] = "所有人在準備確認期間看見提醒；術士在單人時也會看見。"
+
+L["BuffPanel.Show.Caster"] = "術士一律顯示"
+
+L["BuffPanel.Show.Caster.Desc"] = "術士在所有場合都會看見提醒，其他人只在準備確認期間看見。"
+
+L["BuffPanel.Show.Always"] = "所有人一律顯示"
+
+L["BuffPanel.Show.Always.Desc"] = "所有人在所有場合都會看見提醒。"
