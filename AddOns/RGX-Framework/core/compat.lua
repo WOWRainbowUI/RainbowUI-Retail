@@ -450,19 +450,28 @@ end
 
 function RGX.API.GetItemInfo(item)
     if C_Item and C_Item.GetItemInfo then
-        local info = C_Item.GetItemInfo(item)
-        if type(info) == "table" then
-            return info.itemName, info.itemLink, info.itemQuality, info.itemLevel, info.itemMinLevel, info.itemType, info.itemSubType, info.itemStackCount, info.itemEquipLoc, info.iconFileID, info.itemSellPrice
+        local name, link, quality, level, minLevel, itemType, subType, stack, equipLoc, icon, price = C_Item.GetItemInfo(item)
+        if type(name) == "table" then
+            return name.itemName, name.itemLink, name.itemQuality, name.itemLevel, name.itemMinLevel, name.itemType, name.itemSubType, name.itemStackCount, name.itemEquipLoc, name.iconFileID, name.itemSellPrice
         end
+        if name ~= nil then return name, link, quality, level, minLevel, itemType, subType, stack, equipLoc, icon, price end
     end
     if type(GetItemInfo) == "function" then return GetItemInfo(item) end
     return nil
 end
 
-function RGX.API.GetItemCount(itemID, includeBank)
+function RGX.API.GetItemCount(itemID, includeBank, includeReagentBank)
     if C_Item and C_Item.GetItemCount then
+        -- includeUses is third; reagent-bank inclusion is fourth. Preserve
+        -- the original two-argument call shape when the new flag is omitted.
+        if includeReagentBank ~= nil then
+            return C_Item.GetItemCount(itemID, includeBank, false, includeReagentBank)
+        end
         return C_Item.GetItemCount(itemID, includeBank)
     end
+    -- Legacy two-argument semantics are retained; an unverified extra storage
+    -- flag must not silently become a different flag on an older client.
+    if includeReagentBank == true then return nil end
     return type(GetItemCount) == "function" and GetItemCount(itemID, includeBank) or 0
 end
 

@@ -131,18 +131,20 @@ RGX:RegisterEvent("ADDON_LOADED", function(_, addon)
         end
 
         -- Initialize modules that need post-load startup.
-        -- TryInit is a no-op when a module's global is nil, so optional modules
-        -- can be removed from the XML without requiring a matching change here.
+        -- Optional modules can be removed from XML without changing this list.
+        -- Registry-only modules need no new compatibility global.
         local function TryInit(name, global)
             if type(RGX.IsModuleAvailable) == "function" and not RGX:IsModuleAvailable(name) then
                 RGX:Debug("Module " .. name .. " unavailable on " .. tostring(RGX.wowVersion))
                 return
             end
-            local mod = _G[global]
+            local mod = global and _G[global] or RGX:GetModule(name)
             if mod and type(mod.Init) == "function" then
             local ok, err = pcall(mod.Init, mod)
             if not ok then
-                RGX:Error("Init error " .. global .. ": " .. tostring(err))
+                pcall(function()
+                    RGX:Error("Init error " .. (global or name) .. ": " .. tostring(err))
+                end)
             end
             end
         end
@@ -164,6 +166,7 @@ RGX:RegisterEvent("ADDON_LOADED", function(_, addon)
         TryInit("prey", "RGXPrey")
         TryInit("collectibles", "RGXCollectibles")
         TryInit("loot", "RGXLoot")
+        TryInit("inventory")
         TryInit("triggers", "RGXTriggers")
 
         -- SavedVariables adoption safety net: databases are constructed at

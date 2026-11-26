@@ -53,10 +53,11 @@ local function canAccessTable(value)
 end
 
 local function safeErrorText(err)
-    if not canAccessValue(err) then
-        return "<inaccessible error>"
-    end
-    return tostring(err)
+    local ok, text = pcall(function()
+        if not canAccessValue(err) then return "<inaccessible error>" end
+        return tostring(err)
+    end)
+    return ok and text or "<inaccessible error>"
 end
 
 local function reportDispatchError(channel, name, id, err)
@@ -73,7 +74,7 @@ local function reportDispatchError(channel, name, id, err)
     -- dispatch (remaining handlers skipped, _dispatchDepth latched above 0)
     -- for the rest of the session. Fall back to the internal log instead.
     if type(_G.geterrorhandler) == "function" then
-        local reportOk = pcall(_G.geterrorhandler(), message)
+        local reportOk = pcall(function() _G.geterrorhandler()(message) end)
         if reportOk then return end
     end
 

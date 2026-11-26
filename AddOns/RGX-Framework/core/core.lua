@@ -312,7 +312,7 @@ function RGX:RequireModule(name)
         -- A throwing error-display addon must not turn a missing-module
         -- report into an error in the caller's frame.
         if type(_G.geterrorhandler) == "function" then
-            pcall(_G.geterrorhandler(), msg)
+            pcall(function() _G.geterrorhandler()(msg) end)
         else
             self:Error(msg)
         end
@@ -341,6 +341,7 @@ function RGX:GetDataBroker() return self:GetModule("databroker") end
 function RGX:GetSound()        return self:GetModule("sound")        end
 function RGX:GetCollectibles() return self:GetModule("collectibles") end
 function RGX:GetLoot()         return self:GetModule("loot")         end
+function RGX:GetInventory()    return self:GetModule("inventory")    end
 function RGX:GetAchievement()  return self:GetModule("achievement")  end
 function RGX:GetLevelUp()      return self:GetModule("levelup")      end
 function RGX:GetQuest()        return self:GetModule("quest")        end
@@ -660,9 +661,14 @@ local function BindDeclarativeOn(addon, triggers)
             local ok, err = pcall(handler, addon, ...)
             if not ok then
                 -- Reported like every other handler failure: to the game's error handler, never thrown on.
-                local message = "[" .. addon.name .. "] on." .. trigger .. ": " .. tostring(err)
-                local handlerFn = type(geterrorhandler) == "function" and geterrorhandler() or nil
-                if type(handlerFn) ~= "function" or not pcall(handlerFn, message) then
+                local textOK, text = pcall(function()
+                    if not RGX.API.CanAccessValue(err) then return "<inaccessible error>" end
+                    return tostring(err)
+                end)
+                local message = "[" .. addon.name .. "] on." .. trigger .. ": " .. (textOK and text or "<inaccessible error>")
+                local reported = type(geterrorhandler) == "function"
+                    and pcall(function() geterrorhandler()(message) end)
+                if not reported then
                     RGX._errorLog = RGX._errorLog or {}
                     local log = RGX._errorLog
                     log[#log + 1] = message

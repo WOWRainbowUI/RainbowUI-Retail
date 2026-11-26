@@ -48,17 +48,26 @@ local function secureInvoke(fn, ...)
     return true, result
 end
 
+local function errorText(value)
+    local ok, text = pcall(function()
+        if RGX.API and type(RGX.API.CanAccessValue) == "function"
+            and not RGX.API.CanAccessValue(value) then return "<inaccessible error>" end
+        return tostring(value)
+    end)
+    return ok and text or "<inaccessible error>"
+end
+
 local function reportRuntimeError(scope, err)
-    local message = string.format("[RGX:%s] %s", tostring(scope), tostring(err))
+    local message = string.format("[RGX:%s] %s", errorText(scope), errorText(err))
 
     -- A throwing error-display addon must not turn an error report into a
     -- second error; fall back to the plain print below.
     if type(_G.geterrorhandler) == "function" then
-        local reportOk = pcall(_G.geterrorhandler(), message)
+        local reportOk = pcall(function() _G.geterrorhandler()(message) end)
         if reportOk then return end
     end
 
-    print("|cFFFF4444" .. message .. "|r")
+    pcall(print, "|cFFFF4444" .. message .. "|r")
 end
 
 local function nowSeconds()
@@ -411,8 +420,8 @@ if timer.elapsed >= timer.duration then
                 if not ok then
                     reportRuntimeError("timer", string.format(
                         "%s: %s",
-                        tostring(timer.label or timer.id or timer.callback),
-                        tostring(err)
+                        errorText(timer.label or timer.id or timer.callback),
+                        errorText(err)
                     ))
                 elseif callbackElapsed >= timerSlowSeconds then
                     reportRuntimeError("timer-slow", string.format(
