@@ -11,19 +11,29 @@ local L = BR.L
 -- ============================================================================
 
 -- Lua stdlib locals (avoid repeated global lookups in hot paths)
-local floor, max, min = math.floor, math.max, math.min
+local floor, max = math.floor, math.max
 local tsort = table.sort
 local wipe = wipe
 
 local _, playerClass = UnitClass("player")
 local GetCategorySettings = BR.Helpers.GetCategorySettings
 local IsCategorySplit = BR.Helpers.IsCategorySplit
+local GetCategorySetting = BR.Config.GetCategorySetting
 
 local ChatRequest = BR.ChatRequest
 
 local GetTime = GetTime
 local IsSpellKnown = C_SpellBook.IsSpellKnown
 local Plain = BR.Secret.Plain
+local BuffTargets = BR.StateHelpers.BuffTargets
+local IsCountdownEntry = BR.StateHelpers.IsCountdownEntry
+local SubIcons = BR.SubIcons
+
+---@param category string?
+---@return boolean
+local function IsCategoryClickable(category)
+    return category ~= nil and GetCategorySetting(category, "clickable") == true
+end
 
 -- ============================================================================
 -- SPELL HELPERS
@@ -47,7 +57,7 @@ local function GetCastableSpellID(spellIDs)
     return nil
 end
 
-local FEL_DOMINATION_ID = 333889
+local FEL_DOMINATION_ID = BR.PET_SPELLS.felDomination
 
 -- Spell names never change once the client resolves them. An unresolved name at
 -- login is not cached, so the next display cycle retries it.
@@ -78,12 +88,9 @@ local function GetActionSpellID(buff)
         return nil
     end
     if buff.requireSpecId then
-        local spec = GetSpecialization()
-        if spec then
-            local specId = GetSpecializationInfo(spec)
-            if specId ~= buff.requireSpecId then
-                return nil
-            end
+        local specId, specIndex = BR.Client.GetSpecID()
+        if specIndex and specId ~= buff.requireSpecId then
+            return nil
         end
     end
     -- Prefer the role spell so the cast matches the icon the player sees.
@@ -127,6 +134,29 @@ local function ResolveCustomClickAction(buff)
     return nil, nil
 end
 
+---The click target of a castOnMissing buff: the player if the player lacks it, else
+---the first member in range who lacks it, else the first member who lacks it.
+---A secret or unchecked range reads as out of range.
+---@param key string
+---@return string unit
+local function PickCastUnit(key)
+    local units = BR.BuffState.GetMissingUnits(key)
+    if not units or not units[1] then
+        return "player"
+    end
+    for i = 1, #units do
+        if units[i] == "player" then
+            return "player"
+        end
+    end
+    for i = 1, #units do
+        if Plain(UnitInRange(units[i])) == true then
+            return units[i]
+        end
+    end
+    return units[1]
+end
+
 ---@param def table? Buff definition from the custom buff table
 ---@return boolean
 local function HasCustomClickAction(def)
@@ -137,17 +167,56 @@ local function HasCustomClickAction(def)
 end
 
 -- ============================================================================
--- LAST TARGET TOOLTIP
+-- INFO TOOLTIPS
 -- ============================================================================
--- Shows the last known target name for targeted buffs.
+-- Addon info about a cast: the last target of a targeted buff and the next pick.
+-- The description tooltip setting never gates them. A theme with a native tooltip
+-- uses GameTooltip, which that client skins.
+
+local TARGET_TIP = BR.Theme.targetTooltip
+local CHOICE_SPELL_FMT = L["Tooltip.ChoiceSpell"]
+
+---@param c number[]
+---@return string
+local function ColorEscape(c)
+    return string.format("|cff%02x%02x%02x", floor(c[1] * 255 + 0.5), floor(c[2] * 255 + 0.5), floor(c[3] * 255 + 0.5))
+end
+local SPELL_ESCAPE = ColorEscape(TARGET_TIP.spell)
 
 local lastTargetTooltip
+local nativeOwner
 
 ---@param anchor table Frame to anchor to
 ---@param name string Character name
 ---@param class? string English class token
 ---@param hint? string Gray text shown after the name, such as "(not in group)"
-local function ShowLastTargetTooltip(anchor, name, class, hint)
+---@param lead? string Gray text shown before the name
+---@param above? boolean Place the tooltip above the anchor
+---@param spellID? number Spell shown after the name
+local function ShowLastTargetTooltip(anchor, name, class, hint, lead, above, spellID)
+    local c = class and RAID_CLASS_COLORS and RAID_CLASS_COLORS[class]
+    local spellName = spellID and BR.GetSpellName(spellID)
+    if TARGET_TIP.native then
+        local line = (lead and (lead .. " ") or "") .. (c and ("|c" .. c.colorStr) or "|cffffffff") .. name .. "|r"
+        if spellName then
+            local icon = BR.Icons.GetBuffTexture(spellID)
+            local spell = (icon and ("|T" .. icon .. ":0|t ") or "") .. SPELL_ESCAPE .. spellName .. "|r"
+            line = line .. " " .. CHOICE_SPELL_FMT:format(spell)
+        end
+        if hint then
+            line = line .. " " .. hint
+        end
+        GameTooltip:SetOwner(anchor, above and "ANCHOR_TOP" or "ANCHOR_BOTTOM")
+        -- The line color paints the lead, the separator and the hint.
+        local n = TARGET_TIP.note
+        GameTooltip:AddLine(line, n[1], n[2], n[3])
+        GameTooltip:Show()
+        nativeOwner = anchor
+        return
+    end
+    if spellName then
+        hint = CHOICE_SPELL_FMT:format(spellName)
+    end
     if not lastTargetTooltip then
         local tip = CreateFrame("Frame", nil, UIParent, "BackdropTemplate")
         tip:SetFrameStrata("TOOLTIP")
@@ -156,8 +225,9 @@ local function ShowLastTargetTooltip(anchor, name, class, hint)
             edgeFile = "Interface\\Buttons\\WHITE8x8",
             edgeSize = 1,
         })
-        tip:SetBackdropColor(0.08, 0.08, 0.08, 0.95)
-        tip:SetBackdropBorderColor(0.25, 0.25, 0.25, 1)
+        local bg, edge = TARGET_TIP.bg, TARGET_TIP.edge
+        tip:SetBackdropColor(bg[1], bg[2], bg[3], bg[4] or 1)
+        tip:SetBackdropBorderColor(edge[1], edge[2], edge[3], edge[4] or 1)
         tip.name = tip:CreateFontString(nil, "OVERLAY")
         tip.name:SetPoint("CENTER", 0, 0)
         lastTargetTooltip = tip
@@ -165,19 +235,21 @@ local function ShowLastTargetTooltip(anchor, name, class, hint)
     local tip = lastTargetTooltip
     BR.DisplayFonts.Apply(tip.name, 13)
     local r, g, b = 1, 1, 1
-    if class then
-        local c = RAID_CLASS_COLORS and RAID_CLASS_COLORS[class]
-        if c then
-            r, g, b = c.r, c.g, c.b
-        end
+    if c then
+        r, g, b = c.r, c.g, c.b
     end
     -- A color escape in the hint overrides SetTextColor for that part only.
-    tip.name:SetText(hint and (name .. " |cff888888" .. hint .. "|r") or name)
+    local text = hint and (name .. " |cff888888" .. hint .. "|r") or name
+    tip.name:SetText(lead and ("|cff888888" .. lead .. "|r " .. text) or text)
     tip.name:SetTextColor(r, g, b)
     local textWidth, textHeight = BR.DisplayFonts.GetStringSize(tip.name)
     tip:SetSize(textWidth + 24, textHeight + 16)
     tip:ClearAllPoints()
-    tip:SetPoint("TOP", anchor, "BOTTOM", 0, -4)
+    if above then
+        tip:SetPoint("BOTTOM", anchor, "TOP", 0, 4)
+    else
+        tip:SetPoint("TOP", anchor, "BOTTOM", 0, -4)
+    end
     tip:Show()
 end
 
@@ -185,6 +257,10 @@ local function HideLastTargetTooltip()
     if lastTargetTooltip then
         lastTargetTooltip:Hide()
     end
+    if nativeOwner and GameTooltip:IsOwned(nativeOwner) then
+        GameTooltip:Hide()
+    end
+    nativeOwner = nil
 end
 
 -- ============================================================================
@@ -194,33 +270,47 @@ end
 -- The secure resolver reads `type<button>` for the mouse button that was clicked.
 -- It does not reliably fall back to the bare `type`, so a click resolves to no
 -- action unless every variant carries the type. This overwrites type2, so it
--- clears the snooze tracker and the next SetRightClickSnooze re-applies.
+-- clears the right-click mode and the next SetRightClickMode re-applies.
 ---@param button table Secure button (click overlay or consumable action button)
----@param actionType string "macro" | "item" | "spell"
+---@param actionType string "macro" | "item" | "spell", or "" for no action
 local function SetActionType(button, actionType)
     button._br_action_type = actionType
     button:SetAttribute("type", actionType)
     for i = 1, 5 do
         button:SetAttribute("type" .. i, actionType)
     end
-    button._br_snoozeRightClick = nil
+    button._br_rightClick = nil
 end
 
--- Neutralise the right button with an empty type2, which resolves to no handler.
--- PostClick reads the flag and snoozes instead. `on == false` gives the button's
--- own action back to the right click. Call it after SetActionType, which
--- overwrites type2. Self-gated, so callers can re-apply on every display cycle.
--- Must run out of combat.
-local function SetRightClickSnooze(button, on)
-    if not button then
+-- "menu" neutralises the right button with an empty type2, which resolves to no
+-- handler, and PostClick opens the reminder menu. "own" gives the button's own
+-- action to the right click.
+-- Call it after SetActionType, which overwrites type2. Self-gated, so callers can
+-- re-apply on every display cycle. Must run out of combat.
+---@param button table
+local function SetRightClickMode(button)
+    local mode = BR.profile.defaults.rightClickMenu == false and "own" or "menu"
+    if button._br_rightClick == mode then
         return
     end
-    on = on == true and BR.profile.defaults.rightClickSnooze ~= false
-    if button._br_snoozeRightClick == on then
-        return
+    button._br_rightClick = mode
+    button:SetAttribute("type2", mode == "own" and button._br_action_type or "")
+end
+
+---Open the reminder menu on a right-click up event of a button in "menu" mode.
+---@param button table The secure button
+---@param mouseButton string
+---@param down boolean
+---@param frame table? The buff frame of the button
+---@return boolean handled true when the click belongs to the menu
+local function HandleMenuClick(button, mouseButton, down, frame)
+    if mouseButton ~= "RightButton" or button._br_rightClick ~= "menu" then
+        return false
     end
-    button._br_snoozeRightClick = on
-    button:SetAttribute("type2", on and "" or button._br_action_type)
+    if not down and frame then
+        BR.Display.OpenReminderMenu(button, frame)
+    end
+    return true
 end
 
 -- ============================================================================
@@ -231,7 +321,7 @@ end
 -- ApplyAction, never at a call site.
 
 ---@class BRSecureAction
----@field kind "macro"|"item"|"spell" Secure action type
+---@field kind "macro"|"item"|"spell"|"none" Secure action type. "none": the left click does nothing
 ---@field tag string Namespace for the dirty gate. Two actions of one kind from
 ---different sources must not compare equal.
 ---@field id any Identity within the tag
@@ -241,19 +331,22 @@ end
 ---@field atPlayer boolean? The macro uses the item at the player location
 ---@field spellID number? kind == "spell"
 ---@field unit string? Cast target (nil = default targeting)
----@field snooze boolean? Right-click snoozes reminders instead of running the action
 ---@field macroFn function? Builds the macro text, also re-run by PreClick
 ---@field macroSpellID number? Argument for macroFn
 ---@field prefix string? Chat channel command in front of chatMsg
 ---@field chatKey string? Buff key when the action is a chat request
 ---@field chatMsg string? Request text without the channel prefix
+---@field pickDef RaidBuff? PreClick picks the spell and the unit for this buff
+---@field spellFn (fun(): number?)? PreClick writes the spell that this function returns
+---@field tipSpellID number? Spell that the hover tooltip names, for a macro
+---@field tipItemID number? Item that the hover tooltip names, for a macro. With tipSpellID: the item indoors
 
 -- Every resolver fills this one table, and ApplyAction copies what it needs before
 -- the next fill. A resolve runs for every frame on every display cycle, so it must
 -- not allocate.
 local scratchAction = {}
 
----@param kind "macro"|"item"|"spell"
+---@param kind "macro"|"item"|"spell"|"none"
 ---@param tag string
 ---@param id any
 ---@return BRSecureAction
@@ -316,10 +409,113 @@ local function StoreAction(button, action)
     end
 end
 
+---@return "hover"|"always"
+local function RowRevealMode()
+    local defaults = BR.profile.defaults
+    return defaults and defaults.subIconReveal == "always" and "always" or "hover"
+end
+
+-- The single-target ranks of each group-cast buff, highest first. The buff data is static.
+---@type table<string, number[]>
+local singleRanksByKey = {}
+local variantChoices = {}
+-- One reused table per buff, so a sync pass does not allocate.
+---@type table<string, SubChoiceSpell>
+local groupRankByKey = {}
+
+---@param def RaidBuff
+---@return number[]
+local function SingleRanks(def)
+    local ranks = singleRanksByKey[def.key]
+    if ranks then
+        return ranks
+    end
+    local isGroup = {}
+    for _, rank in ipairs(def.groupCast) do
+        isGroup[rank.spellID] = true
+    end
+    ranks = {}
+    local ids = def.spellID
+    if type(ids) ~= "table" then
+        ids = { ids }
+    end
+    ---@cast ids number[]
+    for _, id in ipairs(ids) do
+        if not isGroup[id] then
+            ranks[#ranks + 1] = id
+        end
+    end
+    singleRanksByKey[def.key] = ranks
+    return ranks
+end
+
+-- A raid buff with a group version offers the variant that the main click does not
+-- cast, on a member who lacks the buff. A group version needs its reagent in the bags.
+---@type SubChoiceRow
+local GROUP_VARIANT_ROW = {
+    choiceUnit = function(def)
+        return PickCastUnit(def.key)
+    end,
+    pick = function(def)
+        local groupID, groupUnit = BR.BuffState.GetGroupCastSpellID(def)
+        if groupID then
+            return groupID, groupUnit or "player"
+        end
+        local spellID = GetActionSpellID(def)
+        return spellID, spellID and PickCastUnit(def.key)
+    end,
+    others = function(def, _, spellID)
+        wipe(variantChoices)
+        local isGroup = false
+        for _, rank in ipairs(def.groupCast) do
+            isGroup = isGroup or rank.spellID == spellID
+        end
+        if isGroup then
+            variantChoices[1] = SingleRanks(def)
+        else
+            local groupID = BR.BuffState.GetGroupRank(def.groupCast)
+            if groupID then
+                local choice = groupRankByKey[def.key]
+                if choice then
+                    choice.spellID = groupID
+                else
+                    choice = { spellID = groupID }
+                    groupRankByKey[def.key] = choice
+                end
+                variantChoices[1] = choice
+            end
+        end
+        return variantChoices
+    end,
+}
+
+---The choice row of a buff: its own row, or the group variant of a group-cast raid buff.
+---@param def table?
+---@return SubChoiceRow?
+local function RowOf(def)
+    if not def then
+        return nil
+    end
+    if def.subChoices then
+        return def.subChoices
+    end
+    if def.groupCast and def.castOnMissing then
+        return GROUP_VARIANT_ROW
+    end
+    return nil
+end
+
+---A choice only casts, so a choice row needs click-to-cast.
+---@param frame table The buff frame
+---@return boolean
+local function HasRow(frame)
+    return frame._br_rowItems ~= nil or (RowOf(frame.buffDef) ~= nil and IsCategoryClickable(frame.buffCategory))
+end
+
 ---Wire an action onto a secure button. UpdateActionButtons resolves every frame on
 ---every display cycle, but the action rarely changes, so SameAction gates the
----attribute writes. The snooze write stays outside that gate, because the option
----can change while the action does not.
+---attribute writes. The right-click write stays outside that gate, because the
+---right-click option can change while the action does not.
 ---@param button table Secure button (click overlay or consumable action button)
 ---@param action BRSecureAction
 local function ApplyAction(button, action)
@@ -327,18 +523,20 @@ local function ApplyAction(button, action)
     button.itemID = action.itemID
     button._br_clickMacroFn = action.macroFn
     button._br_clickMacroSpellID = action.macroSpellID
+    button._br_pickDef = action.pickDef
+    button._br_clickSpellFn = action.spellFn
     button._br_chatRequestKey = action.chatKey
     button._br_chatRequestMsg = action.chatMsg
     if not action.chatKey then
         button._br_chatRequestCooldownUntil = nil
     end
     if not SameAction(button._br_action, action) then
-        SetActionType(button, action.kind)
+        SetActionType(button, action.kind == "none" and "" or action.kind)
         if action.kind == "macro" then
             button:SetAttribute("macrotext", MacroText(action))
         elseif action.kind == "item" then
             button:SetAttribute("item", "item:" .. action.itemID)
-        else
+        elseif action.kind == "spell" then
             button:SetAttribute("spell", action.spellID)
             -- Always write unit, because nil clears it. A stale "player" from a
             -- previous action retargets the cast onto the player.
@@ -346,31 +544,27 @@ local function ApplyAction(button, action)
         end
         StoreAction(button, action)
     end
-    SetRightClickSnooze(button, action.snooze)
+    SetRightClickMode(button)
 end
 
 ---@param itemID number
 ---@param slot number? 16 or 17 for a weapon buff, nil otherwise
----@param snooze boolean Right-click snoozes instead of using the item
 ---@param tag string? Overrides the dirty-gate namespace
 ---@return BRSecureAction
-local function ItemAction(itemID, slot, snooze, tag)
+local function ItemAction(itemID, slot, tag)
     local action = NewAction(slot and "macro" or "item", tag or (slot and "weaponitem" or "item"), itemID)
     action.itemID = itemID
     action.slot = slot
-    action.snooze = snooze
     return action
 end
 
 ---@param spellID number
 ---@param unit string? Cast target (nil = default targeting)
----@param snooze boolean? Right-click snoozes instead of casting
 ---@return BRSecureAction
-local function SpellAction(spellID, unit, snooze)
+local function SpellAction(spellID, unit)
     local action = NewAction("spell", "spell", spellID)
     action.spellID = spellID
     action.unit = unit
-    action.snooze = snooze
     return action
 end
 
@@ -408,10 +602,9 @@ local function ConsumableItemAction(item, frame)
         local action = NewAction("macro", "placeditem", item.itemID)
         action.itemID = item.itemID
         action.atPlayer = true
-        action.snooze = true
         return action
     end
-    return ItemAction(item.itemID, GetWeaponSlot(frame), true)
+    return ItemAction(item.itemID, GetWeaponSlot(frame))
 end
 
 -- Buff frames that own a secure child. Most frames never get one, so the sync
@@ -432,6 +625,292 @@ local function UnregisterSecureHost(frame)
     secureHostFrames[frame] = nil
 end
 
+local ICON_HOVER_ATLAS = "UI-HUD-ActionBar-IconFrame-Mouseover"
+
+---Match the hover highlight of a click overlay to the icon style. The Blizzard
+---style gets the action-button hover art over its frame art; the flat style, or
+---a missing atlas, keeps the square highlight.
+local function StyleOverlayHighlight(overlay)
+    local highlight = overlay.highlight
+    local IconStyle = BR.IconStyle
+    if IconStyle.UsesBlizzardArt() and BR.HasThemeAtlas(ICON_HOVER_ATLAS) then
+        if not highlight._br_actionArt then
+            highlight:ClearAllPoints()
+            highlight:SetPoint("TOPLEFT", 0, 0)
+            -- SetAtlas keeps an earlier SetTexCoord crop.
+            highlight:SetTexCoord(0, 1, 0, 1)
+            highlight:SetAtlas(ICON_HOVER_ATLAS)
+            highlight:SetBlendMode("BLEND")
+            highlight._br_actionArt = true
+        end
+        local width, height = overlay:GetSize()
+        highlight:SetSize(width * IconStyle.FRAME_WIDTH_RATIO, height)
+    elseif highlight._br_actionArt then
+        highlight:ClearAllPoints()
+        highlight:SetAllPoints()
+        highlight:SetBlendMode("BLEND")
+        highlight:SetColorTexture(1, 1, 1, 0.2)
+        highlight:SetTexCoord(BR.TEXCOORD_INSET, 1 - BR.TEXCOORD_INSET, BR.TEXCOORD_INSET, 1 - BR.TEXCOORD_INSET)
+        highlight._br_actionArt = false
+    end
+end
+
+-- ============================================================================
+-- CHOICE PICK AND CHOICE ROW
+-- ============================================================================
+-- A subChoices reminder names its next cast and its person on hover. The click and
+-- the choice row act on that person while the pick stays valid.
+
+local NEXT_LEAD = L["Tooltip.Next"]
+
+-- Frames whose row is open in "hover" mode.
+local openRows = setmetatable({}, { __mode = "k" })
+
+---The rank that the level of the unit accepts, else the highest known rank.
+---@param ranks number[] Highest rank first
+---@param unit string
+---@return number?
+local function FitRank(ranks, unit)
+    local pickRank = BR.DriveBy and BR.DriveBy.PickRank
+    local rank = pickRank and pickRank(ranks, Plain(UnitLevel(unit)) or -1)
+    if rank then
+        return rank
+    end
+    local isKnown = BR.StateHelpers.IsPlayerSpellCached
+    for _, id in ipairs(ranks) do
+        if isKnown(id) then
+            return id
+        end
+    end
+    return nil
+end
+
+---@param units string[]?
+---@param unit string
+---@return boolean
+local function IsListed(units, unit)
+    if not units then
+        return false
+    end
+    for i = 1, #units do
+        if units[i] == unit then
+            return true
+        end
+    end
+    return false
+end
+
+---The pick of the hover, while its unit is the same player and still lacks or
+---renews the buff, is in range and is not phased. Only a classChoices buff keeps
+---a pick, because its pick can change with range.
+---@param frame table The buff frame
+---@return number? spellID
+---@return string? unit
+local function RememberedPick(frame)
+    local def = frame.buffDef
+    local unit = frame._br_pickUnit
+    local guid = frame._br_pickGUID
+    if not def.classChoices or not unit or not guid or Plain(UnitGUID(unit)) ~= guid then
+        return nil
+    end
+    local key = def.key
+    if
+        not IsListed(BR.BuffState.GetMissingUnits(key), unit)
+        and not IsListed(BR.BuffState.GetChoiceRenewUnits(key), unit)
+    then
+        return nil
+    end
+    if unit ~= "player" and (Plain(UnitInRange(unit)) ~= true or Plain(UnitPhaseReason(unit)) ~= nil) then
+        return nil
+    end
+    return frame._br_pickSpell, unit
+end
+
+---The cast of the main icon: the remembered pick, else a new pick.
+---@param frame table The buff frame
+---@return number? spellID
+---@return string? unit
+local function CurrentPick(frame)
+    local spellID, unit = RememberedPick(frame)
+    if spellID then
+        return spellID, unit
+    end
+    local def = frame.buffDef
+    return RowOf(def).pick(def)
+end
+
+---The cast of a click on a castOnMissing buff, read at click time. The stored action
+---of a classChoices buff holds any known spell: the member that the click picks names
+---the spell.
+---@param pickDef RaidBuff
+---@param frame table The buff frame
+---@param spellID number? The spell of the stored action
+---@return number? spellID nil casts nothing
+---@return string? unit
+local function PickDefCast(pickDef, frame, spellID)
+    if pickDef.subChoices then
+        return CurrentPick(frame)
+    end
+    local groupSpellID, groupUnit = BR.BuffState.GetGroupCastSpellID(pickDef)
+    if groupSpellID then
+        return groupSpellID, groupUnit
+    end
+    if pickDef.classChoices then
+        return BR.BuffState.GetChoiceCast(pickDef)
+    end
+    return spellID, PickCastUnit(pickDef.key)
+end
+
+---Shown above the anchor, because the choice row can open below it.
+---@param anchor table
+---@param unit string
+---@param spellID number
+---@param lead? string
+local function ShowPickTooltip(anchor, unit, spellID, lead)
+    local _, class = UnitClass(unit)
+    local name = Plain(UnitName(unit)) or unit
+    ShowLastTargetTooltip(anchor, name, Plain(class), nil, lead, true, spellID)
+end
+
+---@param frame table The buff frame
+---@param spellID number
+---@param unit string
+local function RememberPick(frame, spellID, unit)
+    frame._br_pickSpell = spellID
+    frame._br_pickUnit = unit
+    frame._br_pickGUID = Plain(UnitGUID(unit))
+end
+
+---Remember a new pick and show it. Out of combat only.
+---@param overlay table
+---@param frame table The buff frame
+---@return boolean shown false when the click casts nothing
+local function ShowNextPick(overlay, frame)
+    frame._br_pickUnit = nil
+    local entry = BR.BuffState.entries[frame.key]
+    if InCombatLockdown() or (entry and entry.noClick) then
+        return false
+    end
+    local def = frame.buffDef
+    local spellID, unit = def.subChoices.pick(def)
+    if not spellID or not unit then
+        return false
+    end
+    RememberPick(frame, spellID, unit)
+    BR.SecureButtons.ScheduleSecureSync()
+    if unit ~= "player" then
+        ShowPickTooltip(overlay, unit, spellID, NEXT_LEAD)
+        return true
+    end
+    -- A self pick names no person, so only the description tooltip shows it.
+    BR.SecureButtons.ShowDescriptionTooltip(overlay, frame, { spellID = spellID })
+    return true
+end
+
+---@param frame table The buff frame
+local function FinishCloseRow(frame)
+    if frame.buffText then
+        frame.buffText:SetAlpha(1)
+    end
+    BR.SecureButtons.ScheduleSecureSync()
+end
+
+---Close the row. The secure sync does not run in combat, so the "BUFF!" text
+---comes back here.
+---@param frame table The buff frame
+---@param instant? boolean Skip the fade-out
+local function CloseRow(frame, instant)
+    openRows[frame] = nil
+    local fading = false
+    if not instant and not InCombatLockdown() and RowRevealMode() == "hover" then
+        for _, btn in ipairs(frame.actionButtons or {}) do
+            if btn:IsVisible() then
+                btn._br_fadeIn:Stop()
+                -- A fading button must not cast.
+                btn:EnableMouse(false)
+                btn._br_fadeOut:Play()
+                fading = true
+            end
+        end
+    end
+    if not fading then
+        FinishCloseRow(frame)
+        return
+    end
+    C_Timer.After(SubIcons.FADE_OUT_DURATION, function()
+        if not openRows[frame] then
+            FinishCloseRow(frame)
+        end
+    end)
+end
+
+local HOVER_GRACE = 0.3
+
+---Forget the pick and close the row when the cursor leaves both the icon and its
+---row. The delay covers the gap between them.
+---@param frame table The buff frame
+local function EndHoverSoon(frame)
+    C_Timer.After(HOVER_GRACE, function()
+        -- IsMouseOver ignores the mouse state, so it also covers an icon with no overlay.
+        if frame:IsVisible() and frame:IsMouseOver() then
+            return
+        end
+        local overlay = frame.clickOverlay
+        if overlay and overlay:IsVisible() and overlay:IsMouseOver() then
+            return
+        end
+        for _, btn in ipairs(frame.actionButtons or {}) do
+            if btn:IsVisible() and btn:IsMouseOver() then
+                -- A button with the mouse off gets no OnLeave to end the hover.
+                if not btn:IsMouseEnabled() then
+                    EndHoverSoon(frame)
+                end
+                return
+            end
+        end
+        frame._br_pickUnit = nil
+        -- An "always" row never closes, and a close shows the "BUFF!" text for one frame.
+        if RowRevealMode() == "hover" then
+            CloseRow(frame)
+        end
+    end)
+end
+
+---In "hover" mode, show the row while the cursor is on the icon or the row.
+---@param frame table The buff frame
+local function OpenRow(frame)
+    if InCombatLockdown() or RowRevealMode() ~= "hover" or openRows[frame] then
+        return
+    end
+    openRows[frame] = true
+    -- The fill gives the mouse back to the buttons that a fade-out took it from.
+    if frame._br_rowItems then
+        frame._br_rowDirty = true
+    end
+    -- A faded button can stay on its driver until the sync parks it: undo the fade.
+    -- The sync takes the mouse back.
+    for _, btn in ipairs(frame.actionButtons or {}) do
+        btn._br_fadeOut:Stop()
+        btn:SetAlpha(btn._br_alpha)
+    end
+    BR.SecureButtons.ScheduleSecureSync()
+end
+
+---Draw the 5 s swipe of the chat-request lockout over a click overlay.
+---@param overlay table
+---@param frame table The buff frame of the overlay
+local function ShowRequestLockout(overlay, frame)
+    if not overlay._br_chatRequestCooldown then
+        local cd = CreateFrame("Cooldown", nil, overlay, "CooldownFrameTemplate")
+        cd:SetDrawBling(false)
+        cd:SetHideCountdownNumbers(true)
+        cd.noCooldownCount = true
+        overlay._br_chatRequestCooldown = cd
+    end
+    BR.IconStyle.AnchorCooldown(overlay._br_chatRequestCooldown, overlay, frame)
+    overlay._br_chatRequestCooldown:SetCooldown(GetTime(), 5)
+end
+
 -- The overlay is parented to UIParent with NO anchor to the buff frame hierarchy:
 -- a layout dependency on that hierarchy makes the hierarchy protected.
 -- SyncSecureButtons positions it after each layout pass.
@@ -443,6 +922,7 @@ local function CreateClickOverlay(frame)
     overlay:EnableMouse(false)
     overlay:Hide()
     RegisterStateDriver(overlay, "visibility", "[combat] hide; show")
+    overlay._br_hostFrame = frame
     -- IsVisible(), not IsShown(): the frame's own shown state can be true while
     -- its parent container is hidden.
     overlay:SetScript("OnShow", function(self)
@@ -453,15 +933,50 @@ local function CreateClickOverlay(frame)
     -- Never write macrotext for a chat-request overlay here. The secure dispatcher
     -- can read the attribute snapshot before the write propagates, which sends a
     -- stale channel prefix. RefreshChatRequestMacros rewires those overlays instead.
-    overlay:SetScript("PreClick", function(self)
+    overlay:SetScript("PreClick", function(self, button)
+        if button == "RightButton" and self._br_rightClick == "menu" then
+            return
+        end
+        -- A spell action with no spell casts nothing. PostClick writes the spell back.
+        local entry = BR.BuffState.entries[frame.key]
+        if entry and entry.noClick and self._br_action_type == "spell" and not InCombatLockdown() then
+            self:SetAttribute("spell", nil)
+            self._br_spellCleared = true
+            return
+        end
         if self._br_clickMacroFn and not self._br_chatRequestKey then
-            self:SetAttribute("macrotext", self._br_clickMacroFn(self._br_clickMacroSpellID))
+            local noClick = entry and entry.noClick
+            self:SetAttribute("macrotext", noClick and "" or self._br_clickMacroFn(self._br_clickMacroSpellID))
+        end
+        local pickDef = self._br_pickDef
+        if pickDef and not InCombatLockdown() then
+            -- With no pick, the click casts nothing, and PostClick writes the spell back.
+            local castID, castUnit = PickDefCast(pickDef, frame, self._br_action.spellID)
+            self:SetAttribute("spell", castID)
+            self._br_spellCleared = castID == nil or nil
+            self:SetAttribute("unit", castUnit or "player")
+        end
+        local spellFn = self._br_clickSpellFn
+        if spellFn and not InCombatLockdown() then
+            self:SetAttribute("spell", spellFn())
         end
     end)
     overlay:SetScript("PostClick", function(self, button, down)
-        -- Fire the snooze once, on the up event, and skip the refresh below.
-        if button == "RightButton" and not down and self._br_snoozeRightClick then
-            BR.SnoozeConsumables()
+        if self._br_spellCleared then
+            self._br_spellCleared = nil
+            if not InCombatLockdown() then
+                self:SetAttribute("spell", self._br_action.spellID)
+            end
+        end
+        if HandleMenuClick(self, button, down, frame) then
+            return
+        end
+        -- The down event can carry the cast, so the up event drops the pick. The
+        -- refresh after the cast fills the row for the next pick.
+        if not down then
+            frame._br_pickUnit = nil
+        end
+        if self._br_action_type == "" then
             return
         end
         if self._br_chatRequestKey then
@@ -471,15 +986,7 @@ local function CreateClickOverlay(frame)
             if BR.profile.chatRequestCooldown ~= false then
                 self._br_chatRequestCooldownUntil = GetTime() + 5
                 self:EnableMouse(false)
-                if not self._br_chatRequestCooldown then
-                    local cd = CreateFrame("Cooldown", nil, self, "CooldownFrameTemplate")
-                    cd:SetAllPoints(self)
-                    cd:SetDrawBling(false)
-                    cd:SetHideCountdownNumbers(true)
-                    cd.noCooldownCount = true
-                    self._br_chatRequestCooldown = cd
-                end
-                self._br_chatRequestCooldown:SetCooldown(GetTime(), 5)
+                ShowRequestLockout(self, frame)
                 C_Timer.After(5, function()
                     -- ApplyAction and DisableOverlay clear the flag, so a stale
                     -- fire after a role change does nothing.
@@ -502,6 +1009,12 @@ local function CreateClickOverlay(frame)
                 BR.BuffState.InvalidateItemCache()
                 BR.SecureButtons.InvalidateConsumableCache()
                 BR.Display.Update()
+                -- The tooltip must not name the target of the last cast.
+                if frame.buffDef and frame.buffDef.subChoices and self:IsVisible() and self:IsMouseOver() then
+                    if not ShowNextPick(self, frame) then
+                        HideLastTargetTooltip()
+                    end
+                end
             end
         end)
         -- Second refresh for spells with a cast time, such as rogue poisons.
@@ -519,13 +1032,35 @@ local function CreateClickOverlay(frame)
     overlay.highlight:SetAllPoints()
     overlay.highlight:SetTexCoord(BR.TEXCOORD_INSET, 1 - BR.TEXCOORD_INSET, BR.TEXCOORD_INSET, 1 - BR.TEXCOORD_INSET)
     overlay.highlight:SetColorTexture(1, 1, 1, 0.2)
+    overlay:HookScript("OnEnter", StyleOverlayHighlight)
     overlay:HookScript("OnEnter", function()
-        if frame.buffDef and (frame.buffCategory == "targeted" or frame.buffDef.castOnOthers) then
-            -- Only the caster class has a meaningful last target.
-            if frame.buffDef.class and frame.buffDef.class ~= playerClass then
-                return
-            end
-            local name, class = BR.TargetMemory.Get(frame.buffDef.key)
+        if HasRow(frame) then
+            OpenRow(frame)
+        end
+        if
+            frame.buffDef
+            and frame.buffDef.subChoices
+            and IsCategoryClickable(frame.buffCategory)
+            and ShowNextPick(overlay, frame)
+        then
+            return
+        end
+        -- An overlay with no left action exists only for the right-click menu, so no
+        -- cast target applies. The anchor is the overlay: the cursor is over the
+        -- overlay, not over the buff frame below it.
+        if overlay._br_action_type == "" then
+            BR.SecureButtons.ShowDescriptionTooltip(overlay, frame)
+            return
+        end
+        -- Only the caster class has a meaningful last target.
+        local def = frame.buffDef
+        if
+            def
+            and BuffTargets.DEFAULT_TARGET[frame.buffCategory]
+            and BuffTargets.PicksUnit(BuffTargets.Resolve(def, frame.buffCategory))
+            and not (def.class and def.class ~= playerClass)
+        then
+            local name, class = BR.TargetMemory.Get(def.key)
             -- A pinned target overrides the automatic memory. The class color is
             -- known only when the pin matches the remembered player. If the pinned
             -- player is not in the group, the click macro does nothing.
@@ -541,33 +1076,48 @@ local function CreateClickOverlay(frame)
                     hint = L["Tooltip.PinNotInGroup"]
                 end
             end
-            if name then
-                ShowLastTargetTooltip(overlay, name, class, hint)
-            end
-            return
-        end
-        if frame.buffCategory == "consumable" then
-            local db = BR.profile
-            if not db or not db.defaults or db.defaults.showConsumableTooltips ~= true then
+            hint = hint or def.targetHint
+            if not name then
+                BR.SecureButtons.ShowDescriptionTooltip(overlay, frame)
                 return
             end
-            local itemID = overlay.itemID
-            if itemID then
-                GameTooltip:SetOwner(overlay, "ANCHOR_RIGHT")
-                GameTooltip:SetItemByID(itemID)
-                GameTooltip:Show()
+            local function showTargetInfo()
+                ShowLastTargetTooltip(overlay, name, class, hint)
+            end
+            -- The target joins the description as a line. While the tooltip key is
+            -- up, and where the description is off, the target info shows alone.
+            local shown = BR.SecureButtons.ShowDescriptionTooltip(overlay, frame, {
+                addLines = function(tooltip)
+                    -- The description owns GameTooltip by now, so only the own frame hides.
+                    if lastTargetTooltip then
+                        lastTargetTooltip:Hide()
+                    end
+                    local c = class and RAID_CLASS_COLORS and RAID_CLASS_COLORS[class]
+                    local text = hint and (name .. " |cff888888" .. hint .. "|r") or name
+                    tooltip:AddLine(" ")
+                    tooltip:AddLine(
+                        L["Tooltip.TargetLine"]:format(text),
+                        c and c.r or 1,
+                        c and c.g or 1,
+                        c and c.b or 1
+                    )
+                end,
+                fallback = showTargetInfo,
+            })
+            if not shown then
+                showTargetInfo()
             end
             return
         end
-        -- The anchor is the overlay: the cursor is over the overlay, not over the
-        -- buff frame below it.
-        if BR.Display.IsBuffTooltipOn(frame.buffCategory) then
-            BR.Display.ShowBuffSpellTooltip(frame, overlay)
-        end
+        BR.SecureButtons.ShowDescriptionTooltip(overlay, frame)
     end)
     overlay:HookScript("OnLeave", function()
+        if HasRow(frame) then
+            EndHoverSoon(frame)
+        end
         HideLastTargetTooltip()
-        if frame.buffCategory == "consumable" or frame.buffCategory == "raid" or frame.buffCategory == "presence" then
+        BR.Display.EndHoverTooltip(overlay)
+        if GameTooltip:IsOwned(overlay) then
             GameTooltip:Hide()
         end
     end)
@@ -628,10 +1178,6 @@ end
 -- CONSUMABLE ACTION BUTTONS
 -- ============================================================================
 
-local ACTION_ICON_SCALE = 0.45
-local ACTION_ICON_MIN = 18
-local ACTION_ICON_OFFSET = -6
-
 local BADGE_COLORS = {
     [L["Badge.Hearty"]] = { r = 0.4, g = 0.7, b = 1 },
     [L["Badge.Fleeting"]] = { r = 0.4, g = 0.7, b = 1 },
@@ -645,26 +1191,19 @@ local function ComputeConsumableFontSize(mainIconSize, item)
     return max(6, floor(mainIconSize * BR.TextPositions.GetSizePercent(item) / 100))
 end
 
----Parented to UIParent with NO anchor to a buff frame: an anchor taints it.
----SyncSecureButtons positions it.
+---@param owner table An item row button
+local function ShowItemRowTooltip(owner)
+    if owner.itemID and owner._br_buff_frame then
+        BR.SecureButtons.ShowDescriptionTooltip(owner, owner._br_buff_frame, { itemID = owner.itemID })
+    end
+end
+
 ---@return table btn The created button
 local function CreateActionButton()
-    local btn = CreateFrame("Button", nil, UIParent, "SecureActionButtonTemplate")
-    btn:RegisterForClicks("AnyDown", "AnyUp")
-    btn:Hide()
-    -- Starts hidden. SyncSecureButtons swaps in the combat driver after it positions
-    -- the button.
-    RegisterStateDriver(btn, "visibility", "hide")
-    btn:SetScript("OnShow", function(self)
-        local bf = self._br_buff_frame
-        if not bf or not bf:IsVisible() then
-            self:Hide()
-        end
-    end)
+    local btn = SubIcons.CreateButton()
     -- The refresh runs shortly after the click so the consumed buff disappears fast.
     btn:SetScript("PostClick", function(self, button, down)
-        if button == "RightButton" and not down and self._br_snoozeRightClick then
-            BR.SnoozeConsumables()
+        if HandleMenuClick(self, button, down, self._br_buff_frame) then
             return
         end
         BR.ConsumableMemory.RememberChoice(self.itemID, self._br_buff_frame)
@@ -676,35 +1215,11 @@ local function CreateActionButton()
             end
         end)
     end)
-
-    btn.icon = btn:CreateTexture(nil, "ARTWORK")
-    btn.icon:SetAllPoints()
-    btn.icon:SetTexCoord(BR.TEXCOORD_INSET, 1 - BR.TEXCOORD_INSET, BR.TEXCOORD_INSET, 1 - BR.TEXCOORD_INSET)
-
-    btn.count = btn:CreateFontString(nil, "OVERLAY", "NumberFontNormalSmall")
-    btn.count:SetPoint("BOTTOMRIGHT", -1, 1)
-
-    btn.highlight = btn:CreateTexture(nil, "HIGHLIGHT")
-    btn.highlight:SetAllPoints()
-    btn.highlight:SetTexCoord(BR.TEXCOORD_INSET, 1 - BR.TEXCOORD_INSET, BR.TEXCOORD_INSET, 1 - BR.TEXCOORD_INSET)
-    btn.highlight:SetColorTexture(1, 1, 1, 0.2)
-
-    btn:SetScript("OnEnter", function(self)
-        if not BR.profile or not BR.profile.defaults then
-            return
-        end
-        if BR.profile.defaults.showConsumableTooltips ~= true then
-            return
-        end
-        if not self.itemID then
-            return
-        end
-        GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-        GameTooltip:SetItemByID(self.itemID)
-        GameTooltip:Show()
-    end)
-    btn:SetScript("OnLeave", function()
+    btn:SetScript("OnEnter", ShowItemRowTooltip)
+    btn:SetScript("OnLeave", function(self)
+        BR.Display.EndHoverTooltip(self)
         GameTooltip:Hide()
+        EndHoverSoon(self._br_buff_frame)
     end)
 
     return btn
@@ -807,6 +1322,7 @@ local function RefreshConsumableCache()
                             if type(allowedEntry) == "table" then
                                 bucket.statLabel = allowedEntry.label
                                 bucket.badge = allowedEntry.badge
+                                bucket.weaponClass = allowedEntry.weaponClass
                             end
                             -- The item link carries the crafted quality tier.
                             local hyperlink = info and info.hyperlink
@@ -912,6 +1428,38 @@ end
 
 local BUFF_KEY_TO_CATEGORY = BR.BUFF_KEY_TO_CATEGORY
 
+-- Weapon subclasses (Enum.ItemWeaponSubclass) that each weaponClass accepts.
+local WEAPON_CLASS_SUBCLASSES = {
+    edged = { [0] = true, [1] = true, [6] = true, [7] = true, [8] = true, [15] = true },
+    blunt = { [4] = true, [5] = true, [10] = true, [13] = true },
+}
+
+-- Filtered weapon item list per hand slot. It is rebuilt when the bag scan makes a
+-- new list or the weapon in the hand changes.
+---@type table<number, { source: table, subclass: number|false, list: table[] }>
+local weaponFitCache = {}
+
+---Drop the items that do not fit the weapon in the hand. The order of the sorted list stays.
+---@param items table[] Sorted bag scan items of the weapon category
+---@param slot number 16 (main hand) or 17 (off hand)
+---@return table[]
+local function FilterForWeapon(items, slot)
+    local subclass = BR.BuffState.GetWeaponSubclass(slot) or false
+    local cached = weaponFitCache[slot]
+    if cached and cached.source == items and cached.subclass == subclass then
+        return cached.list
+    end
+    local list = {}
+    for _, item in ipairs(items) do
+        local accepted = item.weaponClass and WEAPON_CLASS_SUBCLASSES[item.weaponClass]
+        if not accepted or (subclass and accepted[subclass]) then
+            list[#list + 1] = item
+        end
+    end
+    weaponFitCache[slot] = { source = items, subclass = subclass, list = list }
+    return list
+end
+
 ---@param buff table The buff definition table
 ---@return table[]? items Array of { itemID, count, icon } sorted by count desc, or nil
 local function GetConsumableActionItems(buff)
@@ -924,63 +1472,288 @@ local function GetConsumableActionItems(buff)
     end
     RefreshConsumableCache()
     local items = consumableCache[category]
+    local slot = buff.checkWeaponEnchant and 16 or buff.checkWeaponEnchantOH and 17 or nil
+    if items and slot then
+        items = FilterForWeapon(items, slot)
+    end
     return items and #items > 0 and items or nil
 end
 
----Create or update the item icons for a consumable buff frame. SyncSecureButtons
----positions them.
+---Set the item row of a consumable buff frame to actionItems[startIndex..]. If no
+---item is at or after startIndex, the row clears. SyncSecureButtons builds and
+---positions the buttons.
 ---@param frame table The buff frame
 ---@param actionItems table[]|false|nil Array of { itemID, count, icon }
----@param clickable boolean? True when the buttons accept mouse input
 ---@param startIndex? number First index in actionItems to show (default 1)
-local function UpdateConsumableButtons(frame, actionItems, clickable, startIndex)
-    if InCombatLockdown() then
-        return
-    end
+local function SetItemRow(frame, actionItems, startIndex)
     startIndex = startIndex or 1
-    if not actionItems or #actionItems < startIndex then
-        if frame.actionButtons then
-            for _, btn in ipairs(frame.actionButtons) do
-                btn._br_visible = false
-                btn:Hide()
-            end
-        end
+    if actionItems and #actionItems >= startIndex then
+        frame._br_rowItems = actionItems
+        frame._br_rowStart = startIndex
+        frame._br_rowDirty = true
+        RegisterSecureHost(frame)
         return
     end
-
+    frame._br_rowItems = nil
+    openRows[frame] = nil
     if not frame.actionButtons then
-        frame.actionButtons = {}
-        RegisterSecureHost(frame)
+        return
     end
+    local inCombat = InCombatLockdown()
+    for _, btn in ipairs(frame.actionButtons) do
+        -- A plain field: the next sync parks the button.
+        btn._br_visible = false
+        if not inCombat then
+            btn:Hide()
+        end
+    end
+end
 
-    local btnIndex = 0
-    for i = startIndex, #actionItems do
-        btnIndex = btnIndex + 1
-        local item = actionItems[i]
-        local btn = frame.actionButtons[btnIndex]
+---Fill the item row buttons from the items that SetItemRow stored. Out of combat only.
+---@param frame table The buff frame
+local function FillItemRow(frame)
+    local items = frame._br_rowItems
+    local buttons = frame.actionButtons
+    if not buttons then
+        buttons = {}
+        frame.actionButtons = buttons
+    end
+    local clickable = IsCategoryClickable(frame.buffCategory)
+    local showHighlight = clickable and GetCategorySetting(frame.buffCategory, "clickableHighlight") ~= false
+    frame._br_rowDirty = nil
+    local count = 0
+    for i = frame._br_rowStart, #items do
+        count = count + 1
+        local item = items[i]
+        local btn = buttons[count]
         if not btn then
             btn = CreateActionButton()
             btn._br_buff_frame = frame
-            frame.actionButtons[btnIndex] = btn
+            buttons[count] = btn
         end
 
         btn.icon:SetTexture(item.icon or 134400)
         ApplyAction(btn, ConsumableItemAction(item, frame))
 
-        btn:EnableMouse(clickable == true)
-        btn._br_visible = true
+        btn:EnableMouse(clickable)
+        btn.highlight:SetShown(showHighlight)
         btn._br_count = item.count
         btn._br_permanent = item.permanent
         btn._br_qualityAtlas = item.qualityAtlas
         btn._br_badge = item.badge
         btn._br_needs_sync = true
     end
-
-    for i = btnIndex + 1, #frame.actionButtons do
-        frame.actionButtons[i]._br_visible = false
-        frame.actionButtons[i]:Hide()
+    frame._br_rowCount = count
+    for i = count + 1, #buttons do
+        buttons[i]._br_visible = false
+        buttons[i]:Hide()
     end
 end
+
+---Fill the item row if its items or settings changed, then show or hide it. Out of combat only.
+---@param frame table The buff frame
+---@param shown boolean The row is open
+local function ShowItemRow(frame, shown)
+    if frame._br_rowDirty then
+        FillItemRow(frame)
+    end
+    local count = shown and frame._br_rowCount or 0
+    for i, btn in ipairs(frame.actionButtons) do
+        btn._br_visible = i <= count
+    end
+end
+
+---A click-through hover area over an icon whose item row has no overlay to open it.
+---@param frame table The buff frame
+---@param on boolean
+local function SetHoverCatcher(frame, on)
+    local catcher = frame._br_hoverCatcher
+    if not on then
+        if catcher then
+            catcher:Hide()
+        end
+        return
+    end
+    if not catcher then
+        catcher = CreateFrame("Frame", nil, frame)
+        catcher:SetAllPoints()
+        -- The catcher covers the icon, so it passes the hover on to the icon scripts.
+        catcher:SetScript("OnEnter", function()
+            OpenRow(frame)
+            local onEnter = frame:GetScript("OnEnter")
+            if onEnter then
+                onEnter(frame)
+            end
+        end)
+        catcher:SetScript("OnLeave", function()
+            EndHoverSoon(frame)
+            local onLeave = frame:GetScript("OnLeave")
+            if onLeave then
+                onLeave(frame)
+            end
+        end)
+        -- After the scripts, because an OnEnter script turns the whole mouse on.
+        -- Motion only, so a click reaches the world.
+        catcher:SetMouseClickEnabled(false)
+        catcher:SetMouseMotionEnabled(true)
+        frame._br_hoverCatcher = catcher
+    end
+    catcher:Show()
+end
+
+---The target of the choice buttons of a frame.
+---@param frame table The buff frame
+---@return string? unit
+local function ChoiceUnit(frame)
+    local def = frame.buffDef
+    local row = RowOf(def)
+    if row and row.choiceUnit then
+        return row.choiceUnit(def)
+    end
+    local _, unit = CurrentPick(frame)
+    return unit
+end
+
+---@param btn table A choice button
+---@param unit string
+---@return number? spellID
+local function ChoiceCast(btn, unit)
+    return btn._br_spell or (btn._br_ranks and FitRank(btn._br_ranks, unit))
+end
+
+---A consumable action button that casts one choice of a choice row, or uses the
+---item of an item choice.
+---@param frame table The buff frame
+---@return table btn
+local function CreateChoiceButton(frame)
+    local btn = CreateActionButton()
+    btn._br_buff_frame = frame
+    btn._br_choice = true
+    btn:SetScript("PreClick", function(self, button)
+        if
+            InCombatLockdown()
+            or not (self._br_ranks or self._br_spell)
+            or (button == "RightButton" and self._br_rightClick == "menu")
+        then
+            return
+        end
+        local unit = ChoiceUnit(frame) or "player"
+        self:SetAttribute("spell", ChoiceCast(self, unit))
+        self:SetAttribute("unit", unit)
+    end)
+    btn:SetScript("PostClick", function(self, button, down)
+        HandleMenuClick(self, button, down, frame)
+    end)
+    btn:SetScript("OnEnter", function(self)
+        if InCombatLockdown() then
+            return
+        end
+        local itemID = self.itemID
+        if itemID then
+            BR.SecureButtons.ShowDescriptionTooltip(self, frame, { itemID = itemID })
+            return
+        end
+        if not (self._br_ranks or self._br_spell) then
+            return
+        end
+        local pickSpellID, pickUnit = CurrentPick(frame)
+        if not pickSpellID or not pickUnit then
+            return
+        end
+        -- A row click casts on the person that this tooltip names.
+        RememberPick(frame, pickSpellID, pickUnit)
+        local unit = ChoiceUnit(frame)
+        local castID = unit and ChoiceCast(self, unit)
+        if unit and castID then
+            ShowPickTooltip(self, unit, castID)
+        end
+    end)
+    btn:SetScript("OnLeave", function(self)
+        HideLastTargetTooltip()
+        BR.Display.EndHoverTooltip(self)
+        if GameTooltip:IsOwned(self) then
+            GameTooltip:Hide()
+        end
+        EndHoverSoon(frame)
+    end)
+    return btn
+end
+
+---Fill the choice row of a buff frame with the other choices for the
+---person of the main icon. SyncSecureButtons positions the row. Out of combat only.
+---@param frame table The buff frame
+---@param active boolean The click overlay shows
+---@param shown boolean The row is open
+local function UpdateChoiceRow(frame, active, shown)
+    local buttons = frame.actionButtons
+    local others, unit
+    if active then
+        local def = frame.buffDef
+        local spellID, pickUnit = CurrentPick(frame)
+        others = spellID and pickUnit and RowOf(def).others(def, pickUnit, spellID)
+        unit = others and ChoiceUnit(frame)
+    end
+    local valid, count = 0, 0
+    if others and unit then
+        local showHighlight = GetCategorySetting(frame.buffCategory, "clickableHighlight") ~= false
+        for _, choice in ipairs(others) do
+            local itemID = choice.itemID
+            local fixedID = choice.spellID
+            local ranks = not itemID and not fixedID and choice or nil
+            local castID = fixedID or (ranks and FitRank(ranks, unit))
+            local usable = itemID ~= nil or castID ~= nil
+            if usable then
+                valid = valid + 1
+            end
+            if shown and usable then
+                if not buttons then
+                    buttons = {}
+                    frame.actionButtons = buttons
+                end
+                count = count + 1
+                local btn = buttons[count]
+                if not btn then
+                    btn = CreateChoiceButton(frame)
+                    buttons[count] = btn
+                end
+                btn._br_ranks = ranks
+                btn._br_spell = fixedID
+                local action = btn._br_action
+                if itemID then
+                    if not action or action.itemID ~= itemID then
+                        btn.icon:SetTexture(C_Item.GetItemIconByID(itemID) or 134400)
+                        ApplyAction(btn, ItemAction(itemID))
+                    end
+                elseif castID and (not action or action.spellID ~= castID or action.unit ~= unit) then
+                    btn.icon:SetTexture(BR.Icons.GetBuffTexture(castID))
+                    ApplyAction(btn, SpellAction(castID, unit))
+                end
+                -- ApplyAction runs only when the choice changes, and the setting can change alone.
+                SetRightClickMode(btn)
+                btn.highlight:SetShown(showHighlight)
+                btn:EnableMouse(true)
+                btn._br_visible = true
+            end
+        end
+    end
+    frame._br_rowHasChoices = valid > 0
+    for i = count + 1, buttons and #buttons or 0 do
+        buttons[i]._br_visible = false
+    end
+    -- The row covers the "BUFF!" text below the icon.
+    if frame.buffText then
+        frame.buffText:SetAlpha(count > 0 and 0 or 1)
+    end
+end
+
+-- An open row closes on combat start.
+local rowEvents = CreateFrame("Frame")
+BR.Client.RegisterEvent(rowEvents, "PLAYER_REGEN_DISABLED")
+rowEvents:SetScript("OnEvent", function()
+    for frame in pairs(openRows) do
+        CloseRow(frame, true)
+    end
+end)
 
 -- ============================================================================
 -- SECURE FRAME SYNC
@@ -1005,15 +1778,13 @@ local function HideSecureFramesForCatKey(catKey)
         local effectiveCat = GetEffectiveCategory(frame)
         local groupId = frame.buffDef and frame.buffDef.groupId
         if effectiveCat == catKey or frame.key == catKey or groupId == catKey then
+            openRows[frame] = nil
+            if frame._br_hoverCatcher then
+                frame._br_hoverCatcher:Hide()
+            end
             if frame.actionButtons then
                 for _, btn in ipairs(frame.actionButtons) do
-                    if btn._br_driver_active then
-                        RegisterStateDriver(btn, "visibility", "hide")
-                        btn._br_driver_active = false
-                        btn._br_x = nil
-                    else
-                        btn:Hide()
-                    end
+                    SubIcons.Park(btn)
                 end
             end
             if frame.clickOverlay then
@@ -1045,15 +1816,13 @@ local function HideAllSecureFrames()
             frame.clickOverlay:Hide()
             frame.clickOverlay._br_left = nil
         end
+        openRows[frame] = nil
+        if frame._br_hoverCatcher then
+            frame._br_hoverCatcher:Hide()
+        end
         if frame.actionButtons then
             for _, btn in ipairs(frame.actionButtons) do
-                if btn._br_driver_active then
-                    RegisterStateDriver(btn, "visibility", "hide")
-                    btn._br_driver_active = false
-                    btn._br_x = nil
-                else
-                    btn:Hide()
-                end
+                SubIcons.Park(btn)
             end
         end
         if frame.extraFrames then
@@ -1066,6 +1835,45 @@ local function HideAllSecureFrames()
             end
         end
     end
+end
+
+---Place a click overlay over its host and show it, or hide it. On a shown overlay,
+---the caller sets the mouse.
+---@param overlay table SecureActionButton overlay
+---@param host table The frame that the overlay covers
+---@param active boolean The overlay takes clicks
+---@return boolean placed The overlay shows over the host
+local function SyncOverlay(overlay, host, active)
+    if not active or not host:IsVisible() then
+        overlay:EnableMouse(false)
+        overlay:Hide()
+        overlay._br_left = nil
+        return false
+    end
+    local left, bottom, width, height = host:GetRect()
+    if not left then
+        return false
+    end
+    if
+        overlay._br_left ~= left
+        or overlay._br_bottom ~= bottom
+        or overlay._br_width ~= width
+        or overlay._br_height ~= height
+    then
+        overlay:ClearAllPoints()
+        overlay:SetSize(width, height)
+        overlay:SetFrameStrata(host:GetFrameStrata())
+        overlay:SetFrameLevel(host:GetFrameLevel() + 5)
+        overlay:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", left, bottom)
+        overlay._br_left = left
+        overlay._br_bottom = bottom
+        overlay._br_width = width
+        overlay._br_height = height
+    end
+    if not overlay:IsShown() then
+        overlay:Show()
+    end
+    return true
 end
 
 -- Secure buttons are placed in screen coordinates, never anchored, so they cannot
@@ -1086,10 +1894,7 @@ local function SyncSecureButtons()
         -- Sync click overlay
         local overlay = frame.clickOverlay
         if overlay then
-            local cs = frame.buffCategory
-                and BR.profile.categorySettings
-                and BR.profile.categorySettings[frame.buffCategory]
-            local clickable = cs and cs.clickable == true
+            local clickable = IsCategoryClickable(frame.buffCategory)
             -- Click to cast governs casting. A chat request answers its own toggle
             -- on the Chat Requests page, and a custom buff its own click action, so
             -- both stay clickable where the category turned click-to-cast off.
@@ -1097,60 +1902,47 @@ local function SyncSecureButtons()
                 clickable = overlay._br_chatRequestKey ~= nil
                     or (frame.buffCategory == "custom" and HasCustomClickAction(frame.buffDef))
             end
-            if frame:IsVisible() then
-                if not clickable or not overlay._br_has_action then
-                    overlay:EnableMouse(false)
-                    overlay:Hide()
-                    overlay._br_left = nil
-                else
-                    local left, bottom, width, height = frame:GetRect()
-                    if left then
-                        if
-                            overlay._br_left ~= left
-                            or overlay._br_bottom ~= bottom
-                            or overlay._br_width ~= width
-                            or overlay._br_height ~= height
-                        then
-                            overlay:ClearAllPoints()
-                            overlay:SetSize(width, height)
-                            overlay:SetFrameStrata(frame:GetFrameStrata())
-                            overlay:SetFrameLevel(frame:GetFrameLevel() + 5)
-                            overlay:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", left, bottom)
-                            overlay._br_left = left
-                            overlay._br_bottom = bottom
-                            overlay._br_width = width
-                            overlay._br_height = height
-                        end
-                        -- The cooldown timer clears the timestamp when it expires.
-                        -- The next sync run then re-enables the mouse.
-                        local cdEnabled = BR.profile.chatRequestCooldown ~= false
-                        local cdUntil = cdEnabled and overlay._br_chatRequestCooldownUntil
-                        if cdUntil and cdUntil > GetTime() then
-                            overlay:EnableMouse(false)
-                        else
-                            overlay:EnableMouse(true)
-                        end
-                        if not overlay:IsShown() then
-                            overlay:Show()
-                        end
-                    end
-                end
-            else
-                overlay:Hide()
-                overlay:EnableMouse(false)
-                overlay._br_left = nil
+            if SyncOverlay(overlay, frame, clickable and overlay._br_has_action == true) then
+                -- The cooldown timer clears the timestamp when it expires.
+                -- The next sync run then re-enables the mouse.
+                local cdEnabled = BR.profile.chatRequestCooldown ~= false
+                local cdUntil = cdEnabled and overlay._br_chatRequestCooldownUntil
+                overlay:EnableMouse(not (cdUntil and cdUntil > GetTime()))
             end
         end
-        -- Sync action buttons (consumable item row)
+        local itemRow = frame._br_rowItems ~= nil
+        local overlayShown = overlay ~= nil and overlay:IsShown()
+        if itemRow or (overlay and RowOf(frame.buffDef)) then
+            if not frame:IsVisible() then
+                openRows[frame] = nil
+            end
+            local revealed = openRows[frame] or RowRevealMode() == "always"
+            if itemRow then
+                ShowItemRow(frame, revealed)
+            else
+                -- A choice only casts, so a row opens only with click-to-cast on.
+                local active = overlayShown and IsCategoryClickable(frame.buffCategory)
+                UpdateChoiceRow(frame, active, active and revealed)
+                if not frame._br_rowHasChoices then
+                    openRows[frame] = nil
+                end
+            end
+        end
+        SetHoverCatcher(frame, itemRow and not overlayShown and RowRevealMode() == "hover")
+        -- Sync action buttons (consumable item row or choice row)
         if frame.actionButtons then
             if frame:IsVisible() then
                 local left, bottom, width, height = frame:GetRect()
                 if left then
+                    -- The row and its metrics follow the icon art, inside the border.
+                    local hostInset = frame._br_borderInset or 0
+                    left, bottom = left + hostInset, bottom + hostInset
+                    width, height = width - 2 * hostInset, height - 2 * hostInset
                     local effectiveCat = GetEffectiveCategory(frame)
                     local catSettings = GetCategorySettings(effectiveCat)
-                    local size = max(ACTION_ICON_MIN, floor((catSettings.iconSize or 64) * ACTION_ICON_SCALE))
-                    local btnSpacing = max(2, floor(size * 0.2))
-                    local subIconSide = GetCategorySettings("consumable").subIconSide or "BOTTOM"
+                    local baseIconSize = (catSettings.iconSize or 64) - 2 * hostInset
+                    local size, btnSpacing = SubIcons.Metrics(baseIconSize)
+                    local subIconSide = (BR.profile.defaults or {}).subIconSide or "BOTTOM"
                     local visibleCount = 0
                     for _, btn in ipairs(frame.actionButtons) do
                         if btn._br_visible then
@@ -1158,42 +1950,27 @@ local function SyncSecureButtons()
                         end
                     end
                     if visibleCount > 0 then
-                        local baseIconSize = catSettings.iconSize or 64
                         local stackFontSize = ComputeConsumableFontSize(baseIconSize, "stackCount")
                         local badgeFontSize = ComputeConsumableFontSize(baseIconSize, "badge")
                         local showSubIconBadge = BR.Config.Get("defaults.consumableBadgeOnSubIcons") == true
+                        local blizzardArt = BR.IconStyle.UsesBlizzardArt()
+                        -- The buttons already inherit the UIParent alpha.
+                        local uiAlpha = UIParent:GetEffectiveAlpha()
+                        local hostAlpha = uiAlpha > 0 and frame:GetEffectiveAlpha() / uiAlpha or 1
                         local idx = 0
                         for _, btn in ipairs(frame.actionButtons) do
                             if btn._br_visible then
-                                local btnX, btnY
-                                local isSideways = subIconSide == "LEFT" or subIconSide == "RIGHT"
-                                if isSideways then
-                                    local maxPerCol = max(1, floor((height + btnSpacing) / (size + btnSpacing)))
-                                    local row = idx % maxPerCol
-                                    local col = floor(idx / maxPerCol)
-                                    local thisColCount = min(maxPerCol, visibleCount - col * maxPerCol)
-                                    local thisColHeight = thisColCount * size + (thisColCount - 1) * btnSpacing
-                                    local thisColStartY = bottom + (height - thisColHeight) / 2
-                                    if subIconSide == "LEFT" then
-                                        btnX = left + ACTION_ICON_OFFSET - size - col * (size + btnSpacing)
-                                    else
-                                        btnX = left + width - ACTION_ICON_OFFSET + col * (size + btnSpacing)
-                                    end
-                                    btnY = thisColStartY + row * (size + btnSpacing)
-                                else
-                                    local maxPerRow = max(1, floor((width + btnSpacing) / (size + btnSpacing)))
-                                    local col = idx % maxPerRow
-                                    local row = floor(idx / maxPerRow)
-                                    local thisRowCount = min(maxPerRow, visibleCount - row * maxPerRow)
-                                    local thisRowWidth = thisRowCount * size + (thisRowCount - 1) * btnSpacing
-                                    local thisRowStartX = left + (width - thisRowWidth) / 2
-                                    btnX = thisRowStartX + col * (size + btnSpacing)
-                                    if subIconSide == "TOP" then
-                                        btnY = bottom + height - ACTION_ICON_OFFSET + row * (size + btnSpacing)
-                                    else
-                                        btnY = bottom + ACTION_ICON_OFFSET - size - row * (size + btnSpacing)
-                                    end
-                                end
+                                local btnX, btnY = SubIcons.Position(
+                                    idx,
+                                    visibleCount,
+                                    subIconSide,
+                                    left,
+                                    bottom,
+                                    width,
+                                    height,
+                                    size,
+                                    btnSpacing
+                                )
                                 -- The size and outline stamps let the dirty check see
                                 -- a font setting change. A face change needs no stamp:
                                 -- linked fontstrings follow the shared font object.
@@ -1204,10 +1981,14 @@ local function SyncSecureButtons()
                                     or btn._br_font_size ~= stackFontSize
                                     or btn._br_badge_font_size ~= badgeFontSize
                                     or btn._br_font_outline ~= outlineFlag
+                                    or btn._br_blizzardArt ~= blizzardArt
                                 if needsUpdate then
                                     btn:ClearAllPoints()
                                     btn:SetSize(size, size)
-                                    btn:SetFrameStrata(frame:GetFrameStrata())
+                                    SubIcons.ApplyStyle(btn, blizzardArt)
+                                    StyleOverlayHighlight(btn)
+                                    local strata = frame:GetFrameStrata()
+                                    btn:SetFrameStrata(btn._br_choice and SubIcons.STRATA_ABOVE[strata] or strata)
                                     btn:SetFrameLevel(frame:GetFrameLevel() + 4)
                                     btn:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", btnX, btnY)
                                     btn._br_x = btnX
@@ -1241,7 +2022,13 @@ local function SyncSecureButtons()
                                             btn._br_badgeLabel = btn:CreateFontString(nil, "OVERLAY", nil, 7)
                                         end
                                         btn._br_badgeLabel:ClearAllPoints()
-                                        btn._br_badgeLabel:SetPoint("TOPLEFT", btn, "TOPLEFT", 1, -1)
+                                        btn._br_badgeLabel:SetPoint(
+                                            "TOPLEFT",
+                                            btn,
+                                            "TOPLEFT",
+                                            btn._br_textInset,
+                                            -btn._br_textInset
+                                        )
                                         ApplyFont(btn._br_badgeLabel, badgeFontSize)
                                         btn._br_badgeLabel:SetTextColor(bc.r, bc.g, bc.b, 1)
                                         btn._br_badgeLabel:SetText(btn._br_badge)
@@ -1262,20 +2049,20 @@ local function SyncSecureButtons()
                                     if cdStart then
                                         if not btn._br_cooldown then
                                             local cd = CreateFrame("Cooldown", nil, btn, "CooldownFrameTemplate")
-                                            cd:SetAllPoints()
-                                            cd:SetDrawEdge(true)
                                             cd:EnableMouse(false)
                                             btn._br_cooldown = cd
                                         end
+                                        BR.IconStyle.AnchorCooldown(btn._br_cooldown, btn, btn)
+                                        BR.IconStyle.StyleItemCooldown(btn._br_cooldown, btn)
                                         btn._br_cooldown:SetCooldown(cdStart, cdDuration)
                                     elseif btn._br_cooldown then
                                         btn._br_cooldown:Clear()
                                     end
                                 end
+                                SubIcons.SetAlpha(btn, hostAlpha)
                                 -- A new button starts on the "hide" driver.
-                                if not btn._br_driver_active then
-                                    RegisterStateDriver(btn, "visibility", "[combat] hide; show")
-                                    btn._br_driver_active = true
+                                if SubIcons.Activate(btn) and RowRevealMode() == "hover" then
+                                    btn._br_fadeIn:Play()
                                 end
                                 if not btn:IsShown() then
                                     btn:Show()
@@ -1286,68 +2073,25 @@ local function SyncSecureButtons()
                     end
                     for _, btn in ipairs(frame.actionButtons) do
                         if not btn._br_visible and btn._br_driver_active then
-                            RegisterStateDriver(btn, "visibility", "hide")
-                            btn._br_driver_active = false
-                            btn._br_x = nil
+                            SubIcons.Park(btn)
                         end
                     end
                 end
             else
                 for _, btn in ipairs(frame.actionButtons) do
-                    if btn._br_driver_active then
-                        RegisterStateDriver(btn, "visibility", "hide")
-                        btn._br_driver_active = false
-                        btn._br_x = nil
-                    else
-                        btn:Hide()
-                    end
+                    SubIcons.Park(btn)
                 end
             end
         end
-        -- Sync extra frame click overlays (expanded consumable display mode)
+        -- Extra frame click overlays (expanded consumables, pet actions)
         if frame.extraFrames then
+            local clickable = IsCategoryClickable(frame.buffCategory)
             for _, extra in ipairs(frame.extraFrames) do
                 local extraOverlay = extra.clickOverlay
-                if extraOverlay then
-                    if extra:IsVisible() then
-                        local extraCs = frame.buffCategory
-                            and BR.profile.categorySettings
-                            and BR.profile.categorySettings[frame.buffCategory]
-                        local extraClickable = extraCs and extraCs.clickable == true
-                        if not extraClickable then
-                            extraOverlay:EnableMouse(false)
-                            extraOverlay:Hide()
-                            extraOverlay._br_left = nil
-                        else
-                            local eLeft, eBottom, eWidth, eHeight = extra:GetRect()
-                            if eLeft then
-                                if
-                                    extraOverlay._br_left ~= eLeft
-                                    or extraOverlay._br_bottom ~= eBottom
-                                    or extraOverlay._br_width ~= eWidth
-                                    or extraOverlay._br_height ~= eHeight
-                                then
-                                    extraOverlay:ClearAllPoints()
-                                    extraOverlay:SetSize(eWidth, eHeight)
-                                    extraOverlay:SetFrameStrata(extra:GetFrameStrata())
-                                    extraOverlay:SetFrameLevel(extra:GetFrameLevel() + 5)
-                                    extraOverlay:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", eLeft, eBottom)
-                                    extraOverlay._br_left = eLeft
-                                    extraOverlay._br_bottom = eBottom
-                                    extraOverlay._br_width = eWidth
-                                    extraOverlay._br_height = eHeight
-                                end
-                                extraOverlay:EnableMouse(true)
-                                if not extraOverlay:IsShown() then
-                                    extraOverlay:Show()
-                                end
-                            end
-                        end
-                    else
-                        extraOverlay:Hide()
-                        extraOverlay:EnableMouse(false)
-                        extraOverlay._br_left = nil
-                    end
+                if
+                    extraOverlay and SyncOverlay(extraOverlay, extra, clickable and extraOverlay._br_has_action == true)
+                then
+                    extraOverlay:EnableMouse(true)
                 end
             end
         end
@@ -1372,6 +2116,8 @@ local function DisableOverlay(overlay)
     overlay._br_has_action = false
     overlay._br_clickMacroFn = nil
     overlay._br_clickMacroSpellID = nil
+    overlay._br_pickDef = nil
+    overlay._br_clickSpellFn = nil
     overlay._br_chatRequestKey = nil
     overlay._br_chatRequestMsg = nil
     overlay._br_chatRequestCooldownUntil = nil
@@ -1400,13 +2146,11 @@ end
 ---PreClick rebuilds the text on every click.
 ---@param macroFn function Builds the macro text from a spell ID
 ---@param spellID number
----@param snooze boolean Right-click snoozes instead of running the macro
 ---@return BRSecureAction
-local function ClickMacroAction(macroFn, spellID, snooze)
+local function ClickMacroAction(macroFn, spellID)
     local action = NewAction("macro", "clickmacro", spellID)
     action.macroFn = macroFn
     action.macroSpellID = spellID
-    action.snooze = snooze
     return action
 end
 
@@ -1447,19 +2191,14 @@ end
 
 ---@param frame table The buff frame
 ---@param actionItems table[]? Cached consumable items
----@param showHighlight boolean Category-level highlight setting
----@param frameHighlight boolean Per-frame highlight (same as showHighlight for consumables)
+---@param frameHighlight boolean Per-frame highlight
 ---@param db table The profile database
-local function UpdateConsumableSubElements(frame, actionItems, showHighlight, frameHighlight, db)
+local function UpdateConsumableSubElements(frame, actionItems, frameHighlight, db)
     local displayMode = (db.defaults or {}).consumableDisplayMode or "sub_icons"
 
-    if displayMode == "sub_icons" and frame.actionButtons then
-        for _, btn in ipairs(frame.actionButtons) do
-            btn:EnableMouse(true)
-            if btn.highlight then
-                btn.highlight:SetShown(showHighlight)
-            end
-        end
+    -- The sync applies the click settings to the item row.
+    if frame._br_rowItems then
+        frame._br_rowDirty = true
     end
 
     if displayMode == "expanded" and frame.extraFrames and actionItems then
@@ -1518,25 +2257,14 @@ local function UpdateExtraFrameOverlays(frame, frameHighlight, db)
 end
 
 ---@param frame table The buff frame
----@param db table The profile database
-local function DisableFrameAndChildren(frame, db)
+local function DisableFrameAndChildren(frame)
     if frame.clickOverlay then
         DisableOverlay(frame.clickOverlay)
     end
-    -- Sub-icons stay on screen in sub_icons mode. Only the mouse goes off.
+    -- An item row stays on screen with the mouse off. A choice row closes with its overlay.
     if frame.actionButtons then
-        local displayMode = (db.defaults or {}).consumableDisplayMode or "sub_icons"
         for _, btn in ipairs(frame.actionButtons) do
             btn:EnableMouse(false)
-            if displayMode ~= "sub_icons" then
-                if btn._br_driver_active then
-                    RegisterStateDriver(btn, "visibility", "hide")
-                    btn._br_driver_active = false
-                    btn._br_x = nil
-                else
-                    btn:Hide()
-                end
-            end
         end
     end
     if frame.extraFrames then
@@ -1562,6 +2290,12 @@ end
 local function ResolveAction(frame, category, db)
     local def = frame.buffDef
 
+    -- A click must not spend again the item that started the countdown.
+    local entry = BR.BuffState.entries[frame.key]
+    if entry and IsCountdownEntry(entry) then
+        return nil
+    end
+
     if category == "consumable" then
         local actionItems = GetConsumableActionItems(def)
         if actionItems then
@@ -1571,15 +2305,14 @@ local function ResolveAction(frame, category, db)
         if def and (not def.casterClass or def.casterClass == playerClass) then
             local castableID = def.castSpellID or def.spellID
             if def.clickMacro then
-                return ClickMacroAction(def.clickMacro, castableID, true), actionItems
+                return ClickMacroAction(def.clickMacro, castableID), actionItems
             end
             if def.castSpellID then
-                return SpellAction(def.castSpellID, nil, true), actionItems
+                return SpellAction(def.castSpellID), actionItems
             end
         end
         -- The player cannot create the consumable and carries none. Ask the
-        -- provider class in chat, as raid and presence buffs do. The right click
-        -- sends the request here instead of a snooze.
+        -- provider class in chat, as raid and presence buffs do.
         if def and def.chatRequestable and db.requestBuffInChat then
             return ChatAction(frame), actionItems
         end
@@ -1597,24 +2330,40 @@ local function ResolveAction(frame, category, db)
         local sources = BR.BuffState.GetRepairSources()
         local mountName = sources.mountSpellID and BR.GetSpellName(sources.mountSpellID)
         local itemID = sources.itemID
-        local macro
+        local macro, tipSpellID, tipItemID
         if mountName and itemID then
             -- Where the mount is blocked, the item takes the whole macro: an area
             -- can block mounts and still read as outdoors, and the conditional
             -- would send the click to a cast that fails.
+            tipItemID = itemID
             if BR.BuffState.IsRepairMountUsable() then
                 macro = "/use [indoors] item:" .. itemID .. "\n/cast [outdoors] " .. mountName
+                tipSpellID = sources.mountSpellID
             else
                 macro = "/use item:" .. itemID
             end
         elseif mountName then
             macro = "/cast " .. mountName
+            tipSpellID = sources.mountSpellID
         elseif itemID then
             macro = "/use item:" .. itemID
+            tipItemID = itemID
         else
             return nil
         end
-        return MacroAction("repair", macro)
+        local action = MacroAction("repair", macro)
+        action.tipSpellID = tipSpellID
+        action.tipItemID = tipItemID
+        return action
+    end
+
+    if def and def.clickMacroText then
+        local macrotext = def.clickMacroText()
+        return macrotext and MacroAction("clickmacrotext", macrotext) or nil
+    end
+
+    if def and def.clickItem then
+        return ItemAction(def.clickItem)
     end
 
     local castableID
@@ -1627,7 +2376,7 @@ local function ResolveAction(frame, category, db)
         elseif customType == "macro" then
             return MacroAction("custommacro", ExpandCustomMacro(customValue), customValue)
         elseif customType == "item" then
-            return ItemAction(customValue, nil, false, "customitem")
+            return ItemAction(customValue, nil, "customitem")
         end
     else
         castableID = GetActionSpellID(def)
@@ -1635,18 +2384,157 @@ local function ResolveAction(frame, category, db)
 
     if castableID and not (def and def.noClickToCast) then
         if def and def.clickMacro then
-            return ClickMacroAction(def.clickMacro, castableID, false)
+            return ClickMacroAction(def.clickMacro, castableID)
         end
         if frame._br_pet_spell then
             return PetAction(castableID, db)
         end
-        return SpellAction(castableID, category == "raid" and "player" or nil)
+        -- The unit stays "player" in the stored action. PreClick writes the
+        -- real spell and unit, so the refresh never overwrites a picked target.
+        if category == "raid" and def and def.castOnMissing then
+            local action = SpellAction(castableID, "player")
+            action.pickDef = def
+            return action
+        end
+        if def and def.clickSpell then
+            local action = SpellAction(castableID, def.castUnit)
+            action.spellFn = def.clickSpell
+            return action
+        end
+        return SpellAction(castableID, (category == "raid" or category == "self") and "player" or nil)
     end
 
     if db.requestBuffInChat and def and def.chatRequestable and not frame.isPlayerBuff then
         return ChatAction(frame)
     end
     return nil
+end
+
+-- ============================================================================
+-- DESCRIPTION TOOLTIPS
+-- ============================================================================
+-- The game tooltip of the spell or item that an icon uses. The tooltip setting of
+-- the category gates it, and it never shows in combat. Info tooltips (the last
+-- target and the next pick) are separate: the setting never gates them.
+
+---@class DescriptionTooltipOpts
+---@field spellID? number Spell to show in place of the resolved subject
+---@field itemID? number Item to show in place of the resolved subject
+---@field addLines? fun(tooltip: table) Adds lines at the end, before the tooltip shows
+---@field fallback? fun() Draws a short tooltip while the tooltip key is up
+
+---The spell or item that a click on the frame uses, read at hover time. Where no
+---click resolves, the spell that the icon shows. Out of combat only: the click
+---resolvers read unit state, which combat can make secret.
+---@param frame table The hovered buff frame or extra frame
+---@return "spell"|"item"|nil kind
+---@return number? id
+local function ResolveDescriptionSubject(frame)
+    if frame._br_item then
+        return "item", frame._br_item.itemID
+    end
+    if frame._br_pet_spellID then
+        return "spell", frame._br_pet_spellID
+    end
+    local def = frame.buffDef
+    if not def then
+        return nil
+    end
+    -- ResolveAction fills the shared scratch action. A hover never runs inside a resolve.
+    local action = ResolveAction(frame, frame.buffCategory, BR.profile)
+    -- A chat request asks for the buff, so the buff spell describes it.
+    if action and not action.chatKey then
+        -- The repair macro uses the item indoors and the mount outdoors.
+        if action.tipSpellID and not (action.tipItemID and IsIndoors()) then
+            return "spell", action.tipSpellID
+        end
+        local itemID = action.tipItemID or action.itemID
+        if itemID then
+            return "item", itemID
+        end
+        local spellID = action.macroSpellID or action.spellID
+        if action.pickDef then
+            spellID = PickDefCast(action.pickDef, frame, spellID)
+        elseif action.spellFn then
+            spellID = action.spellFn()
+        end
+        if spellID then
+            return "spell", spellID
+        end
+    end
+    local spellID = GetActionSpellID(def) or (type(def.spellID) == "table" and def.spellID[1] or def.spellID)
+    if spellID then
+        return "spell", spellID
+    end
+    return nil
+end
+
+---@param owner table
+---@param def table? The buff definition, for the provider line
+---@param kind "spell"|"item"|nil nil shows only the name
+---@param id number?
+---@param name string?
+---@param addLines (fun(tooltip: table))?
+local function DrawDescriptionTooltip(owner, def, kind, id, name, addLines)
+    -- The tooltip key can redraw after combat starts.
+    if InCombatLockdown() then
+        return
+    end
+    GameTooltip:SetOwner(owner, "ANCHOR_RIGHT")
+    if kind == "item" then
+        GameTooltip:SetItemByID(id)
+    elseif kind == "spell" then
+        GameTooltip:SetSpellByID(id)
+        -- The provider line helps only when another class gives the buff.
+        if def and def.class and def.class ~= playerClass then
+            local className = (LOCALIZED_CLASS_NAMES_MALE and LOCALIZED_CLASS_NAMES_MALE[def.class]) or def.class
+            local c = RAID_CLASS_COLORS and RAID_CLASS_COLORS[def.class]
+            GameTooltip:AddLine(
+                L["BuffTooltip.ProvidedBy"]:format(className),
+                c and c.r or 1,
+                c and c.g or 1,
+                c and c.b or 1
+            )
+        end
+    else
+        GameTooltip:SetText(name)
+    end
+    if addLines then
+        addLines(GameTooltip)
+    end
+    GameTooltip:Show()
+end
+
+---Show the description tooltip of a frame. The single gate for description tooltips:
+---callers do not check the setting. The subject resolves once, when the hover starts.
+---@param owner table The hovered frame, which anchors the tooltip
+---@param frame table The buff frame or extra frame that the tooltip describes
+---@param opts DescriptionTooltipOpts?
+---@return boolean shown false when the setting or combat blocks the tooltip, or when nothing describes the frame
+local function ShowDescriptionTooltip(owner, frame, opts)
+    if InCombatLockdown() or not BR.Display.IsDescriptionTooltipOn(frame.buffCategory) then
+        return false
+    end
+    ---@type "spell"|"item"|nil, number?
+    local kind, id
+    if opts and opts.itemID then
+        kind, id = "item", opts.itemID
+    elseif opts and opts.spellID then
+        kind, id = "spell", opts.spellID
+    else
+        kind, id = ResolveDescriptionSubject(frame)
+    end
+    local host = frame.isExtraFrame and frame.mainFrame or frame
+    local def = host.buffDef
+    local name = host.displayName or (def and def.name)
+    if not kind and not name then
+        return false
+    end
+    local addLines = opts and opts.addLines
+    BR.Display.ShowHoverTooltip(owner, function()
+        DrawDescriptionTooltip(owner, def, kind, id, name, addLines)
+    end, opts and opts.fallback)
+    return true
 end
 
 ---@param category string
@@ -1662,9 +2550,8 @@ local function UpdateActionButtons(category)
     end
 
     local db = BR.profile
-    local cs = db.categorySettings and db.categorySettings[category]
-    local enabled = cs and cs.clickable == true
-    local showHighlight = enabled and (cs.clickableHighlight ~= false)
+    local enabled = IsCategoryClickable(category)
+    local showHighlight = enabled and GetCategorySetting(category, "clickableHighlight") ~= false
 
     -- A category with click-to-cast off still resolves its frames when it can host
     -- a chat request: only the resolver knows whether a given frame lands on one.
@@ -1672,9 +2559,17 @@ local function UpdateActionButtons(category)
 
     for _, frame in pairs(frames) do
         if frame.buffCategory == category then
+            local entry = BR.BuffState.entries[frame.key]
+            -- Set also where nothing resolves, so the display never asks again for the same state.
+            frame._br_resolvedCountdown = entry ~= nil and IsCountdownEntry(entry)
             local action, actionItems
             if mayOverride then
                 action, actionItems = ResolveAction(frame, category, db)
+            end
+            -- The right-click menu needs an overlay also where the left click does
+            -- nothing. A loadout frame takes its own clicks, so no overlay covers it.
+            if not action and enabled and category ~= "loadout" and db.defaults.rightClickMenu ~= false then
+                action = NewAction("none", "none", true)
             end
 
             local frameEnabled = enabled
@@ -1688,7 +2583,7 @@ local function UpdateActionButtons(category)
             end
 
             if not frameEnabled then
-                DisableFrameAndChildren(frame, db)
+                DisableFrameAndChildren(frame)
             else
                 if action then
                     if not frame.clickOverlay then
@@ -1698,7 +2593,7 @@ local function UpdateActionButtons(category)
                     ApplyAction(overlay, action)
                     overlay:EnableMouse(true)
                     if overlay.highlight then
-                        overlay.highlight:SetShown(frameHighlight)
+                        overlay.highlight:SetShown(frameHighlight and action.kind ~= "none")
                     end
                     if frame._br_pet_spec_icon then
                         HookPetSpecIconHover(overlay, frame)
@@ -1708,7 +2603,7 @@ local function UpdateActionButtons(category)
                 end
 
                 if category == "consumable" then
-                    UpdateConsumableSubElements(frame, actionItems, showHighlight, frameHighlight, db)
+                    UpdateConsumableSubElements(frame, actionItems, frameHighlight, db)
                 else
                     UpdateExtraFrameOverlays(frame, frameHighlight, db)
                 end
@@ -1727,6 +2622,13 @@ local function RefreshChatRequestMacros()
     end
 end
 
+---Rewire every category, also the ones whose click to cast just turned off.
+local function UpdateAllActionButtons()
+    for _, cat in ipairs(BR.CATEGORY_ORDER) do
+        UpdateActionButtons(cat)
+    end
+end
+
 local function RefreshOverlaySpells()
     if InCombatLockdown() or BR.Display.IsTestMode() then
         return
@@ -1737,10 +2639,8 @@ local function RefreshOverlaySpells()
     if not framesByCategory then
         return
     end
-    local db = BR.profile
     for cat in pairs(framesByCategory) do
-        local cs = db.categorySettings and db.categorySettings[cat]
-        if (cs and cs.clickable == true) or cat == "custom" or ChatRequest.WantsCategory(cat) then
+        if IsCategoryClickable(cat) or cat == "custom" or ChatRequest.WantsCategory(cat) then
             UpdateActionButtons(cat)
         end
     end
@@ -1748,11 +2648,13 @@ end
 
 BR.SecureButtons = {
     UpdateActionButtons = UpdateActionButtons,
+    UpdateAllActionButtons = UpdateAllActionButtons,
+    ShowDescriptionTooltip = ShowDescriptionTooltip,
     UnregisterSecureHost = UnregisterSecureHost,
     RefreshOverlaySpells = RefreshOverlaySpells,
     RefreshChatRequestMacros = RefreshChatRequestMacros,
     GetConsumableActionItems = GetConsumableActionItems,
-    UpdateConsumableButtons = UpdateConsumableButtons,
+    SetItemRow = SetItemRow,
     InvalidateConsumableCache = InvalidateConsumableCache,
     HideAllSecureFrames = HideAllSecureFrames,
     HideSecureFramesForCatKey = HideSecureFramesForCatKey,

@@ -6,6 +6,8 @@ local BR = ns
 -- TYPE DEFINITIONS
 -- ============================================================================
 
+---@alias IconStyle "modern"|"blizzard"
+
 ---@class DefaultSettings
 ---@field iconSize number
 ---@field iconWidth? number
@@ -16,10 +18,12 @@ local BR = ns
 ---@field spacing number
 ---@field iconZoom number
 ---@field borderSize number
+---@field iconStyle IconStyle Global only. "blizzard" draws the action-button frame and mask
 ---@field growDirection string
 ---@field showExpirationGlow boolean
 ---@field showMissingGlow boolean
 ---@field expirationThreshold number
+---@field expirationShare? number Percent of a buff duration
 ---@field preKeyThreshold number
 ---@field glowType number
 ---@field glowColor? number[]
@@ -63,17 +67,34 @@ local BR = ns
 ---@field healthstoneVisibility? "readyCheck"|"always"|"casterOnly"
 ---@field healthstoneThreshold? number
 ---@field healthstoneLowStock? boolean
----@field soulstoneVisibility? "readyCheck"|"always"|"casterOnly"
+---@field soulstoneVisibility? SoulstoneVisibility
 ---@field soulstoneHideCooldown? boolean
 ---@field soulstonePinnedTarget? string
 ---@field repairThreshold? number Durability percent
 ---@field repairHideInCombat? boolean
+---@field reagentThreshold? number
+---@field reagentRestedOnly? boolean
+---@field campLightFire? boolean
+---@field ammoThresholdStacks? number
+---@field ammoThresholdShots? number
+---@field groupCastMin? number Members of one party (one class for a blessing) who lack a buff before a group cast
+---@field driveByGreeting? "none"|"whisper"|"emote"
+---@field driveByWhisper? string Greeting whisper. nil = the localized default
+---@field driveByEmote? string Emote token for DoEmote, or "CUSTOM" for driveByEmoteText
+---@field driveByEmoteText? string Custom greeting emote. nil = the localized default
+---@field driveByAllowPvP? boolean Drive-by buffs also offer PvP-flagged targets
 ---@field mageFoodContent? "all"|"dungeon"|"raid"
+---@field shamanImbue? "windfury"|"flametongue"|"rockbiter"|"frostbrand" The imbue that the WoW Forever click casts
 ---@field placeAtPlayer? boolean
 ---@field consumableDisplayMode? "icon_only"|"sub_icons"|"expanded"
 ---@field consumableBadgeOnSubIcons? boolean
----@field showConsumableTooltips? boolean
----@field rightClickSnooze? boolean
+---@field clickable? boolean
+---@field clickableHighlight? boolean
+---@field showDescriptionTooltips? boolean
+---@field tooltipModifier? "SHIFT"|"CTRL"|"ALT" Key that hover tooltips wait for. nil: no key
+---@field rightClickMenu? boolean false: the right click does the left-click action
+---@field subIconReveal? "hover"|"always"
+---@field subIconSide? "TOP"|"BOTTOM"|"LEFT"|"RIGHT"
 ---@field consumableTextScale? number
 ---@field hideConsumableLabels? boolean
 ---@field hideLegacyConsumables? boolean
@@ -86,6 +107,15 @@ local BR = ns
 ---@field useFelDomination? boolean
 ---@field warlockDemons? table<string, table<string, boolean>> Content row -> allowed demon keys
 ---@field warlockWrongDemon? boolean
+---@field warriorStances? table<string, table<string, boolean>> Content row -> allowed stance keys
+---@field druidForms? table<string, table<string, boolean>> Content row -> allowed form keys
+---@field paladinBlessingsByClass? table<string, (string|false)[]> Class token -> blessing keys in priority order
+---@field paladinBlessingScope? "group"|"self"
+---@field trackingScope? "gathering"|"all"
+---@field paladinAuraOrder? table<string, (string|false)[]> Content row -> aura keys in priority order. An empty row accepts any aura
+---@field thornsRequest? boolean A tank of another class sees a Thorns request reminder
+---@field righteousFuryShow? "tank"|"always"
+---@field mageArmorPreference? "mage"|"ice" Armor that the icon shows and the click casts
 ---@field textPositions? table<string, {zone: string, offsetX: number, offsetY: number}>
 ---@field textSizes? table<string, number>
 
@@ -111,6 +141,7 @@ local BR = ns
 ---@field showText? boolean
 ---@field useCustomAppearance? boolean
 ---@field useCustomGlow? boolean
+---@field useCustomInteraction? boolean clickable, clickableHighlight and showDescriptionTooltips follow defaults while false
 ---@field glowType? number
 ---@field glowColor? number[]
 ---@field glowSize? number
@@ -144,9 +175,8 @@ local BR = ns
 ---@field split? boolean
 ---@field clickable? boolean
 ---@field clickableHighlight? boolean
----@field subIconSide? string
 ---@field showOnlyOnReadyCheck? boolean
----@field showBuffTooltips? boolean Spell tooltip on hover (raid, presence, targeted, self)
+---@field showDescriptionTooltips? boolean Loadout ignores it
 ---@field priority? number
 
 --- All category settings must be defined here. When adding a new category:
@@ -198,15 +228,21 @@ local BR = ns
 ---@field isExtraFrame? boolean
 ---@field mainFrame? BuffFrame
 ---@field _br_pet_spell? string             -- Localized spell name for pet click-to-cast
+---@field _br_pet_spellID? number           -- Pet summon spell for the hover tooltip
 ---@field _br_item? table                   -- Consumable item an expanded extra frame shows
+---@field _br_subIcon? boolean             -- A test-mode sub-icon, not a layout frame
 ---@field _br_pet_spec_icon? number        -- Pet spec ability icon texture for hover swap
 ---@field _br_pet_label_key? string        -- Cache key for pet label updates
 ---@field _br_count_scale? number          -- Font scale the count text was last written with
+---@field _br_textInsetRatio? number      -- Share of the icon size that keeps inside text off the frame art
+---@field _br_borderInset? number        -- Border width inside the frame edge, 0 without a native border
 ---@field _br_pet_name_text? FontString    -- Pet name label below icon
 ---@field _br_pet_family_text? FontString  -- Pet spec label below name
 ---@field _br_pet_extra_text? FontString   -- Spirit Beast label below spec
 ---@field _cachedItems? table|false         -- Per-cycle cache for GetConsumableActionItems result
 ---@field _sameStatItems? table             -- Reused list for the expiring fan-out (GetSameStatItems)
+---@field countdownSweep? table           -- Cooldown frame
+---@field countdownTextHost? table        -- Carrier that keeps the texts above countdownSweep
 
 -- Lua stdlib locals (avoid repeated global lookups in hot paths)
 local floor, max, min = math.floor, math.max, math.min
@@ -332,7 +368,7 @@ local function BuildLoadoutRulesArray()
     -- per-rule satisfied/icon verdicts can now be keyed to stale definitions.
     BR.BuffState.InvalidateLoadoutCache()
     wipe(LoadoutRules)
-    if not db or not db.loadoutReminders then
+    if not db or not db.loadoutReminders or not BR.Loadouts then
         return
     end
     local sortedKeys = {}
@@ -437,9 +473,9 @@ local function UpdateAuraEventRegistration()
     end
     auraEventsNarrow = narrow
     if narrow then
-        eventFrame:RegisterUnitEvent("UNIT_AURA", "player", "pet")
+        BR.Client.RegisterEvent(eventFrame, "UNIT_AURA", "player", "pet")
     else
-        eventFrame:RegisterEvent("UNIT_AURA")
+        BR.Client.RegisterEvent(eventFrame, "UNIT_AURA")
         SetDirty("group") -- catch group changes missed while narrowed
     end
 end
@@ -472,6 +508,14 @@ BR.CATEGORY_LABELS = {
 }
 
 BR.CATEGORIES = CATEGORIES
+
+-- The options UI and the movers list only these. Frames, defaults and state keep every category.
+BR.AVAILABLE_CATEGORIES = {}
+for _, category in ipairs(CATEGORIES) do
+    if BR.IsCategoryAvailable(category) then
+        BR.AVAILABLE_CATEGORIES[#BR.AVAILABLE_CATEGORIES + 1] = category
+    end
+end
 
 -- Early init of BR.Display for split modules (populated further below and in InitializeFrames)
 BR.Display = BR.Display or {}
@@ -533,7 +577,7 @@ local function BuildCategorySettings(category)
             iconAlpha = globalDefaults.iconAlpha or 1,
             textAlpha = globalDefaults.textAlpha or 1,
             textColor = globalDefaults.textColor or { 1, 1, 1 },
-            spacing = globalDefaults.spacing or 0.2,
+            spacing = globalDefaults.spacing or defaults.defaults.spacing,
             iconZoom = globalDefaults.iconZoom or 0,
             borderSize = globalDefaults.borderSize or 2,
             growDirection = globalDefaults.growDirection or "CENTER",
@@ -549,7 +593,6 @@ local function BuildCategorySettings(category)
         or defaultCatSettings.position
         or { point = "CENTER", x = 0, y = 0 }
     result.split = catSettings and catSettings.split or false
-    result.subIconSide = (catSettings and catSettings.subIconSide) or defaultCatSettings.subIconSide
 
     local useCustomAppearance = catSettings and catSettings.useCustomAppearance
     if useCustomAppearance then
@@ -562,7 +605,7 @@ local function BuildCategorySettings(category)
         result.iconAlpha = (catSettings and catSettings.iconAlpha) or 1
         result.textAlpha = (catSettings and catSettings.textAlpha) or 1
         result.textColor = (catSettings and catSettings.textColor) or { 1, 1, 1 }
-        result.spacing = (catSettings and catSettings.spacing) or 0.2
+        result.spacing = (catSettings and catSettings.spacing) or defaults.defaults.spacing
         result.iconZoom = (catSettings and catSettings.iconZoom) or 0
         result.borderSize = (catSettings and catSettings.borderSize) or 2
     else
@@ -572,7 +615,7 @@ local function BuildCategorySettings(category)
         result.iconAlpha = globalDefaults.iconAlpha or 1
         result.textAlpha = globalDefaults.textAlpha or 1
         result.textColor = globalDefaults.textColor or { 1, 1, 1 }
-        result.spacing = globalDefaults.spacing or 0.2
+        result.spacing = globalDefaults.spacing or defaults.defaults.spacing
         result.iconZoom = globalDefaults.iconZoom or 0
         result.borderSize = globalDefaults.borderSize or 2
     end
@@ -649,7 +692,7 @@ end
 ---@param entry BuffStateEntry
 ---@return boolean
 local function IsCountdownText(entry)
-    return entry.isEating or entry.displayType == "expiring"
+    return entry.isEating or entry.countdownExpirationTime ~= nil or entry.displayType == "expiring"
 end
 
 ---Calculate font size from explicit textSize
@@ -691,7 +734,8 @@ local function SetCountText(frame, text, scale)
 end
 
 local FormatRemainingTime = BR.StateHelpers.FormatRemainingTime
-local FormatEatingTime = BR.StateHelpers.FormatEatingTime
+local FormatCountdownTime = BR.StateHelpers.FormatCountdownTime
+local IsCountdownEntry = BR.StateHelpers.IsCountdownEntry
 
 local GetBuffTexture = BR.Icons.GetBuffTexture
 local GetBuffIcons = BR.Icons.GetBuffIcons
@@ -746,6 +790,32 @@ local sortComparator = function(a, b)
 end
 
 local SetExpirationGlow = BR.Glow.SetExpiration
+
+-- The action-button art of the client: bronze on Forever, gold on retail. The
+-- ratios are relative to the icon size.
+local BLIZZARD_ICON_ART = {
+    frameAtlas = "UI-HUD-ActionBar-IconFrame",
+    maskAtlas = "UI-HUD-ActionBar-IconFrame-Mask",
+    frameWidthRatio = 46 / 45,
+    maskRatio = 91 / 64,
+    -- Inset of the count on a 45 px action button.
+    textInsetRatio = 5 / 45,
+    -- Inset of the cooldown on a 45 px action button. A cooldown swipe ignores masks.
+    cooldownInsetRatio = 3 / 45,
+}
+-- A missing mask atlas would hide the icon, so the style needs both atlases.
+BLIZZARD_ICON_ART.available = BR.HasThemeAtlas(BLIZZARD_ICON_ART.frameAtlas)
+    and BR.HasThemeAtlas(BLIZZARD_ICON_ART.maskAtlas)
+
+---True when the icons draw the action-button frame and mask. Masque always wins.
+local function UsesBlizzardIconStyle()
+    if not BLIZZARD_ICON_ART.available then
+        return false
+    end
+    local d = BR.profile.defaults
+    local style = d and d.iconStyle or defaults.defaults.iconStyle
+    return style == "blizzard" and not BR.Masque.IsActive()
+end
 
 -- Per-render-cycle cache for glow settings (avoids repeated DB reads)
 local expiringGlowCache = {} ---@type table<string, table>
@@ -812,7 +882,6 @@ local function GetCachedGlowSettings(category, kind)
         typeIndex = typeIndex,
         color = color,
         size = size,
-        borderSize = GetSetting(category, "borderSize") or DEFAULT_BORDER_SIZE,
         params = params,
         glowXOffset = xOff,
         glowYOffset = yOff,
@@ -825,10 +894,9 @@ end
 ---@param frame BuffFrame
 ---@param overlayText? string
 ---@param shouldGlow? boolean
----@param category? CategoryName
 ---@param cachedGlow? {typeIndex: number, color: number[], size: number}
 ---@return boolean true (for anyVisible chaining)
-local function ShowTextFrame(frame, overlayText, shouldGlow, category, cachedGlow)
+local function ShowTextFrame(frame, overlayText, shouldGlow, cachedGlow)
     frame.stackCount:Hide()
     if frame.statLabel then
         frame.statLabel:Hide()
@@ -846,7 +914,7 @@ local function ShowTextFrame(frame, overlayText, shouldGlow, category, cachedGlo
         frame.count:Hide()
     end
     frame:Show()
-    SetExpirationGlow(frame, shouldGlow or false, category, cachedGlow)
+    SetExpirationGlow(frame, shouldGlow or false, cachedGlow)
     return true
 end
 
@@ -955,6 +1023,76 @@ local function CreateCategoryFrame(category)
     return frame
 end
 
+---Side of the icon art inside the border, for the overlays that scale with the icon.
+---@param frame table
+---@param size number Frame side
+---@return number
+local function ArtSize(frame, size)
+    return size - 2 * (frame._br_borderInset or 0)
+end
+
+local function SizeBlizzardIconArt(frame, width, height)
+    frame.iconFrameArt:SetSize(width * BLIZZARD_ICON_ART.frameWidthRatio, height)
+    frame.iconMask:SetSize(width * BLIZZARD_ICON_ART.maskRatio, height * BLIZZARD_ICON_ART.maskRatio)
+end
+
+---Create the hidden action-button frame and mask on a frame with an `icon` texture.
+---@param frame table
+function BLIZZARD_ICON_ART.CreateArt(frame)
+    -- Above the icon, below the count and overlay text.
+    frame.iconFrameArt = frame:CreateTexture(nil, "ARTWORK", nil, 7)
+    frame.iconFrameArt:SetAtlas(BLIZZARD_ICON_ART.frameAtlas)
+    frame.iconFrameArt:SetPoint("TOPLEFT", 0, 0)
+    frame.iconFrameArt:Hide()
+
+    frame.iconMask = frame:CreateMaskTexture()
+    frame.iconMask:SetAtlas(BLIZZARD_ICON_ART.maskAtlas)
+    frame.iconMask:SetPoint("CENTER", frame.icon, "CENTER", 0, 0)
+
+    -- Some callers resize a frame after its styling pass, so the art follows the frame.
+    frame:HookScript("OnSizeChanged", function(self, width, height)
+        if self._br_masked then
+            SizeBlizzardIconArt(self, width, height)
+        end
+    end)
+end
+
+---Anchor a cooldown over an icon region. With the frame art shown, the swipe keeps
+---inside the art. Safe to call every render pass.
+---@param cd table The Cooldown frame
+---@param region table The region that the swipe covers
+---@param artFrame table The frame that holds the art
+function BLIZZARD_ICON_ART.AnchorCooldown(cd, region, artFrame)
+    local insetX, insetY = 0, 0
+    if artFrame._br_masked then
+        -- An anchored icon texture reads 0 until its rect resolves. The frame has an explicit size.
+        local width, height = artFrame:GetSize()
+        insetX = floor(width * BLIZZARD_ICON_ART.cooldownInsetRatio + 0.5)
+        insetY = floor(height * BLIZZARD_ICON_ART.cooldownInsetRatio + 0.5)
+    end
+    if cd._br_region == region and cd._br_insetX == insetX and cd._br_insetY == insetY then
+        return
+    end
+    cd._br_region, cd._br_insetX, cd._br_insetY = region, insetX, insetY
+    cd:ClearAllPoints()
+    cd:SetPoint("TOPLEFT", region, "TOPLEFT", insetX, -insetY)
+    cd:SetPoint("BOTTOMRIGHT", region, "BOTTOMRIGHT", -insetX, insetY)
+end
+
+---Give an item cooldown the look of an action-bar cooldown while the frame art shows:
+---no edge and no bling. Safe to call every render pass.
+---@param cd table The Cooldown frame
+---@param artFrame table The frame that holds the art
+function BLIZZARD_ICON_ART.StyleItemCooldown(cd, artFrame)
+    local actionLook = artFrame._br_masked == true
+    if cd._br_actionLook == actionLook then
+        return
+    end
+    cd._br_actionLook = actionLook
+    cd:SetDrawEdge(not actionLook)
+    cd:SetDrawBling(not actionLook)
+end
+
 -- Create icon and border textures on a buff frame (no positioning - call UpdateIconStyling after)
 local function CreateIconTextures(frame, texture)
     frame.icon = frame:CreateTexture(nil, "ARTWORK")
@@ -968,6 +1106,34 @@ local function CreateIconTextures(frame, texture)
 
     frame.border = frame:CreateTexture(nil, "BACKGROUND")
     frame.border:SetColorTexture(0, 0, 0, 1)
+
+    BLIZZARD_ICON_ART.CreateArt(frame)
+end
+
+---Show or hide the action-button frame and mask. AddMaskTexture stacks, so the
+---frame remembers whether the icon holds the mask.
+local function SetBlizzardIconArt(frame, shown, iconWidth, iconHeight)
+    if shown then
+        local width, height = frame:GetSize()
+        if width > 0 and height > 0 then
+            SizeBlizzardIconArt(frame, width, height)
+        else
+            SizeBlizzardIconArt(frame, iconWidth, iconHeight)
+        end
+        frame.iconFrameArt:Show()
+        frame._br_textInsetRatio = BLIZZARD_ICON_ART.textInsetRatio
+        if not frame._br_masked then
+            frame.icon:AddMaskTexture(frame.iconMask)
+            frame._br_masked = true
+        end
+    else
+        frame.iconFrameArt:Hide()
+        frame._br_textInsetRatio = nil
+        if frame._br_masked then
+            frame.icon:RemoveMaskTexture(frame.iconMask)
+            frame._br_masked = false
+        end
+    end
 end
 
 -- Apply icon zoom and border sizing (single source of truth for Masque vs native styling)
@@ -975,105 +1141,140 @@ local function UpdateIconStyling(frame, catSettings)
     if BR.Masque.IsActive() then
         -- Masque controls styling; hide the native border (Masque manages its own textures via ReSkin)
         frame.border:Hide()
+        SetBlizzardIconArt(frame, false)
+        frame._br_borderInset = 0
         return
     end
     -- When Masque is loaded but disabled, hide textures it created (Backdrop, Shadow, Gloss, etc.)
     -- that linger with a default Blizzard look. Skip the loop entirely if Masque was never loaded.
     if masqueGroup then
         for _, region in next, { frame:GetRegions() } do
-            if region:IsObjectType("Texture") and region ~= frame.icon and region ~= frame.border then
+            if
+                region:IsObjectType("Texture")
+                and region ~= frame.icon
+                and region ~= frame.border
+                and region ~= frame.iconFrameArt
+                and region ~= frame.iconMask
+            then
                 region:Hide()
             end
         end
     end
     -- Restore native state (Masque changes icon anchors, border texture/draw layer/alpha when skinning)
-    frame.icon:ClearAllPoints()
-    frame.icon:SetAllPoints()
     frame.border:SetDrawLayer("BACKGROUND")
     frame.border:SetAlpha(1)
     frame.border:SetColorTexture(0, 0, 0, 1)
-    -- Always apply base inset to crop texture edge artifacts; zoom adds on top
-    local additionalZoom = (catSettings.iconZoom or DEFAULT_ICON_ZOOM) / 100
-    local inset = TEXCOORD_INSET + additionalZoom
-    local iconHeight = catSettings.iconSize or 64
-    local iconWidth = GetEffectiveWidth(catSettings.iconWidth, iconHeight)
-    local xInset, yInset = GetAspectCropInsets(inset, iconWidth, iconHeight)
-    frame.icon:SetTexCoord(xInset, 1 - xInset, yInset, 1 - yInset)
-    local borderSize = catSettings.borderSize or DEFAULT_BORDER_SIZE
-    if borderSize > 0 then
+    -- The action-button frame shows the full icon, with its built-in dark border.
+    local blizzardStyle = UsesBlizzardIconStyle()
+    -- The border lies inside the frame, so the frame edge is the visible edge.
+    local borderInset = blizzardStyle and 0 or (catSettings.borderSize or DEFAULT_BORDER_SIZE)
+    frame._br_borderInset = borderInset
+    frame.icon:ClearAllPoints()
+    if borderInset > 0 then
+        frame.icon:SetPoint("TOPLEFT", borderInset, -borderInset)
+        frame.icon:SetPoint("BOTTOMRIGHT", -borderInset, borderInset)
         frame.border:ClearAllPoints()
-        frame.border:SetPoint("TOPLEFT", -borderSize, borderSize)
-        frame.border:SetPoint("BOTTOMRIGHT", borderSize, -borderSize)
+        frame.border:SetAllPoints()
         frame.border:Show()
     else
+        frame.icon:SetAllPoints()
         frame.border:Hide()
     end
+    local additionalZoom = (catSettings.iconZoom or DEFAULT_ICON_ZOOM) / 100
+    local inset = (blizzardStyle and 0 or TEXCOORD_INSET) + additionalZoom
+    local iconHeight = catSettings.iconSize or 64
+    local iconWidth = GetEffectiveWidth(catSettings.iconWidth, iconHeight)
+    local xInset, yInset =
+        GetAspectCropInsets(inset, max(1, iconWidth - 2 * borderInset), max(1, iconHeight - 2 * borderInset))
+    frame.icon:SetTexCoord(xInset, 1 - xInset, yInset, 1 - yInset)
+    SetBlizzardIconArt(frame, blizzardStyle, iconWidth, iconHeight)
 end
 
 -- Map buff key -> consumable category (derived from buff definitions in Data/Buffs.lua)
 local BUFF_KEY_TO_CATEGORY = BR.BUFF_KEY_TO_CATEGORY
 
--- Categories whose icons are spells, so a hover can show the spell tooltip.
-local BUFF_TOOLTIP_CATEGORIES = { raid = true, presence = true, targeted = true, self = true }
-
----True when the category shows the spell tooltip on hover. Off unless the user
----opted in, so a hover never pops a tooltip by surprise.
+---True when the category shows a tooltip on hover. A loadout frame owns its mouse.
 ---@param category? string
 ---@return boolean
-local function IsBuffTooltipOn(category)
-    if not category or not BUFF_TOOLTIP_CATEGORIES[category] then
+local function IsDescriptionTooltipOn(category)
+    if not category or category == "loadout" then
         return false
     end
-    local cs = BR.profile and BR.profile.categorySettings and BR.profile.categorySettings[category]
-    return cs ~= nil and cs.showBuffTooltips == true
+    return BR.Config.GetCategorySetting(category, "showDescriptionTooltips") == true
 end
-BR.Display.IsBuffTooltipOn = IsBuffTooltipOn
-BR.Display.BUFF_TOOLTIP_CATEGORIES = BUFF_TOOLTIP_CATEGORIES
+BR.Display.IsDescriptionTooltipOn = IsDescriptionTooltipOn
 
--- Show the spell tooltip for a buff frame, with a class-colored "Provided by"
--- line. The caller passes the hovered frame as `anchor`, so the tooltip lines up
--- with the cursor when a click overlay covers the icon.
-local function ShowBuffSpellTooltip(frame, anchor)
-    if not IsBuffTooltipOn(frame.buffCategory) then
+local MODIFIER_DOWN = { SHIFT = IsShiftKeyDown, CTRL = IsControlKeyDown, ALT = IsAltKeyDown }
+
+local hoverOwner, hoverShow, hoverIsDown, hoverFallback
+local modifierFrame = CreateFrame("Frame")
+modifierFrame:SetScript("OnEvent", function()
+    if not hoverOwner then
         return
     end
-    local def = frame.buffDef
-    if not def then
+    if hoverIsDown() then
+        hoverShow()
         return
     end
-    local spellID = type(def.spellID) == "table" and def.spellID[1] or def.spellID
-    if not spellID then
+    if GameTooltip:IsOwned(hoverOwner) then
+        GameTooltip:Hide()
+    end
+    if hoverFallback then
+        hoverFallback()
+    end
+end)
+
+---Run `show` now, or, if the user set a tooltip modifier, each time that key goes
+---down while the cursor stays on `owner`. Pair every call with EndHoverTooltip on leave.
+---@param owner table The hovered frame
+---@param show fun() Draws the tooltip on owner
+---@param fallback? fun() Draws a short tooltip while the key is up
+local function ShowHoverTooltip(owner, show, fallback)
+    local profileDefaults = BR.profile.defaults
+    local isDown = profileDefaults and MODIFIER_DOWN[profileDefaults.tooltipModifier]
+    if not isDown then
+        show()
         return
     end
-    GameTooltip:SetOwner(anchor or frame, "ANCHOR_RIGHT")
-    GameTooltip:SetSpellByID(spellID)
-    if def.class then
-        local className = (LOCALIZED_CLASS_NAMES_MALE and LOCALIZED_CLASS_NAMES_MALE[def.class]) or def.class
-        local r, g, b = 1, 1, 1
-        local c = RAID_CLASS_COLORS and RAID_CLASS_COLORS[def.class]
-        if c then
-            r, g, b = c.r, c.g, c.b
-        end
-        GameTooltip:AddLine(format(L["BuffTooltip.ProvidedBy"], className), r, g, b)
+    hoverOwner, hoverShow, hoverIsDown, hoverFallback = owner, show, isDown, fallback
+    BR.Client.RegisterEvent(modifierFrame, "MODIFIER_STATE_CHANGED")
+    if isDown() then
+        show()
+    elseif fallback then
+        fallback()
     end
-    GameTooltip:Show()
 end
-BR.Display.ShowBuffSpellTooltip = ShowBuffSpellTooltip
+
+---@param owner table The frame that the cursor left
+local function EndHoverTooltip(owner)
+    if hoverOwner ~= owner then
+        return
+    end
+    hoverOwner, hoverShow, hoverIsDown, hoverFallback = nil, nil, nil, nil
+    modifierFrame:UnregisterEvent("MODIFIER_STATE_CHANGED")
+end
+BR.Display.ShowHoverTooltip = ShowHoverTooltip
+BR.Display.EndHoverTooltip = EndHoverTooltip
 
 -- Apply mouse interactivity to a buff icon frame. Icons are always click-through
 -- (dragging is handled by anchor handles; click-to-cast/chat-requests live on the
 -- secure overlays that float above the icon). A frame gets hover events ONLY
--- when its category opted in to the buff tooltip - otherwise it stays fully
+-- when its category opted in to the description tooltip - otherwise it stays fully
 -- click-through so the world beneath (camera drag, unit clicks) is reachable.
--- Re-called from UpdateVisuals so toggling showBuffTooltips takes effect live.
+-- Re-called from UpdateVisuals so toggling showDescriptionTooltips takes effect live.
 local function ApplyBuffFrameMouse(frame, category)
-    if IsBuffTooltipOn(category) then
+    -- WireLoadoutFrameClick owns the mouse of a loadout frame.
+    if category == "loadout" then
+        return
+    end
+    if IsDescriptionTooltipOn(category) then
         frame:SetMouseClickEnabled(false)
         frame:SetMouseMotionEnabled(true)
         frame:SetScript("OnEnter", function(self)
-            ShowBuffSpellTooltip(self)
+            BR.SecureButtons.ShowDescriptionTooltip(self, self)
         end)
-        frame:SetScript("OnLeave", function()
+        frame:SetScript("OnLeave", function(self)
+            EndHoverTooltip(self)
             GameTooltip:Hide()
         end)
     else
@@ -1247,6 +1448,37 @@ local function GetOrCreateExtraFrame(frame, index)
     return extra
 end
 
+local lastPhysicalHeight = 1080
+
+---Gap after an icon such that icon plus gap spans a whole number of screen pixels. Each icon
+---then starts at the same sub-pixel phase, so the client rounds every gap the same way.
+---@param mainSize number Icon dimension along the growth direction
+---@param spacing number Requested gap in UI units
+---@param container table Frame whose effective scale applies
+---@return number gap
+local function PixelAlignedGap(mainSize, spacing, container)
+    -- Flush icons share an edge, so they round the same way with no snap.
+    if spacing <= 0 then
+        return spacing
+    end
+    -- The physical height reads 0 during a display mode change.
+    local _, physicalHeight = GetPhysicalScreenSize()
+    if physicalHeight and physicalHeight > 0 then
+        lastPhysicalHeight = physicalHeight
+    end
+    local scale = container:GetEffectiveScale()
+    if not scale or scale <= 0 then
+        return spacing
+    end
+    local onePixel = 768 / (lastPhysicalHeight * scale)
+    -- The epsilon keeps a value near a half-pixel boundary on the same side across reloads.
+    local pitch = floor((mainSize + spacing) / onePixel + 0.5 + 0.001) * onePixel
+    if pitch < mainSize then
+        pitch = pitch + onePixel
+    end
+    return pitch - mainSize
+end
+
 local function PositionFramesInContainer(container, frames, iconWidth, iconHeight, spacing, direction)
     local count = #frames
     if count == 0 then
@@ -1317,9 +1549,9 @@ end
 ---@param frames table[]
 ---@param widths number[] per-frame icon widths
 ---@param heights number[] per-frame icon heights
----@param spacings number[] per-frame absolute spacing values
+---@param gaps number[] gap after each frame, pixel-aligned
 ---@param direction string grow direction
-local function PositionFramesVariable(container, frames, widths, heights, spacings, direction)
+local function PositionFramesVariable(container, frames, widths, heights, gaps, direction)
     local count = #frames
     if count == 0 then
         return
@@ -1344,8 +1576,7 @@ local function PositionFramesVariable(container, frames, widths, heights, spacin
         end
 
         if i < count then
-            local gap = max(spacings[i], spacings[i + 1])
-            offset = offset + mainSize + gap
+            offset = offset + mainSize + gaps[i]
         end
     end
 end
@@ -1366,7 +1597,7 @@ local function PositionMainContainer(mainFrameBuffs)
 
         local widths = {}
         local heights = {}
-        local spacings = {} -- absolute pixel spacing per frame
+        local spacings = {}
         local maxWidth = 0
         local maxHeight = 0
         for i, frame in ipairs(mainFrameBuffs) do
@@ -1376,8 +1607,7 @@ local function PositionMainContainer(mainFrameBuffs)
             local iconWidth = GetEffectiveWidth(settings.iconWidth, iconSize)
             widths[i] = iconWidth
             heights[i] = iconSize
-            local mainDim = isVertical and iconSize or iconWidth
-            spacings[i] = floor(mainDim * (settings.spacing or 0.2))
+            spacings[i] = settings.spacing or defaults.defaults.spacing
             frame:SetSize(iconWidth, iconSize)
             if iconWidth > maxWidth then
                 maxWidth = iconWidth
@@ -1387,12 +1617,14 @@ local function PositionMainContainer(mainFrameBuffs)
             end
         end
 
+        local gaps = {}
         local totalMain = 0
         for i = 1, #widths do
             local mainSize = isVertical and heights[i] or widths[i]
             totalMain = totalMain + mainSize
             if i < #widths then
-                totalMain = totalMain + max(spacings[i], spacings[i + 1])
+                gaps[i] = PixelAlignedGap(mainSize, max(spacings[i], spacings[i + 1]), mainFrame)
+                totalMain = totalMain + gaps[i]
             end
         end
 
@@ -1416,7 +1648,7 @@ local function PositionMainContainer(mainFrameBuffs)
             mainFrame:SetPoint(anchor, UIParent, "CENTER", pos.x or 0, pos.y or 0)
         end
 
-        PositionFramesVariable(mainFrame, mainFrameBuffs, widths, heights, spacings, direction)
+        PositionFramesVariable(mainFrame, mainFrameBuffs, widths, heights, gaps, direction)
         mainFrame:Show()
     else
         lastMainSignature = ""
@@ -1446,7 +1678,7 @@ local function PositionSplitCategory(category, frames)
         local iconWidth = GetEffectiveWidth(catSettings.iconWidth, iconSize)
         local isVertical = direction == "UP" or direction == "DOWN"
         local mainSize = isVertical and iconSize or iconWidth
-        local spacing = floor(mainSize * (catSettings.spacing or 0.2))
+        local spacing = PixelAlignedGap(mainSize, catSettings.spacing or defaults.defaults.spacing, catFrame)
 
         for _, frame in ipairs(frames) do
             frame:SetSize(iconWidth, iconSize)
@@ -1508,14 +1740,16 @@ local function PositionDetachedIcon(key, frame)
     local totalFrames = 1
     if frame.extraFrames then
         for _, extra in ipairs(frame.extraFrames) do
-            if extra:IsShown() then
+            if extra:IsShown() and not extra._br_subIcon then
                 totalFrames = totalFrames + 1
             end
         end
     end
 
     -- Size the container to fit all visible frames (stacked horizontally)
-    local spacing = totalFrames > 1 and floor(iconWidth * (catSettings.spacing or 0.2)) or 0
+    local spacing = totalFrames > 1
+            and PixelAlignedGap(iconWidth, catSettings.spacing or defaults.defaults.spacing, container)
+        or 0
     local totalWidth = totalFrames * iconWidth + (totalFrames - 1) * spacing
     container:SetSize(totalWidth, iconSize)
 
@@ -1529,7 +1763,7 @@ local function PositionDetachedIcon(key, frame)
         frame:SetPoint("LEFT", container, "LEFT", 0, 0)
         local offset = iconWidth + spacing
         for _, extra in ipairs(frame.extraFrames) do
-            if extra:IsShown() then
+            if extra:IsShown() and not extra._br_subIcon then
                 extra:SetSize(iconWidth, iconSize)
                 extra:ClearAllPoints()
                 extra:SetPoint("LEFT", container, "LEFT", offset, 0)
@@ -1553,8 +1787,10 @@ local function GenerateTestEntries()
         entry.shouldGlow = false
         entry.countText = nil
         entry.overlayText = nil
-        entry.expiringTime = nil
         entry.isEating = nil
+        entry.countdownExpirationTime = nil
+        entry.countdownDuration = nil
+        entry.progressText = nil
         entry.petActions = nil
         entry.iconByRole = nil
         entry.dynamicIcon = nil
@@ -1567,6 +1803,9 @@ local function GenerateTestEntries()
         local exGlowEnabled = BR.Config.GetCategorySetting(category, "showExpirationGlow") ~= false
         local missGlowEnabled = BR.Config.GetCategorySetting(category, "showMissingGlow") ~= false
         local threshold = BR.Config.GetCategorySetting(category, "expirationThreshold") or 15
+        -- The sample buff lasts 60 min.
+        local testLead = BR.StateHelpers.AuraLead(3600, threshold * 60) or 0
+        local testRemaining = min(testModeData.fakeRemaining, testLead)
         local expiringShown = false
 
         for i, buff in ipairs(BUFF_TABLES[category]) do
@@ -1591,7 +1830,7 @@ local function GenerateTestEntries()
                 if category == "raid" then
                     if threshold > 0 and not expiringShown then
                         entry.displayType = "expiring"
-                        entry.countText = FormatRemainingTime(testModeData.fakeRemaining)
+                        entry.countText = FormatRemainingTime(testRemaining)
                         entry.shouldGlow = exGlowEnabled
                         expiringShown = true
                     else
@@ -1630,7 +1869,7 @@ local function GenerateTestEntries()
                     -- Show first buff as expiring to preview expiration countdown
                     if threshold > 0 and not buff.noExpirationGlow and not expiringShown then
                         entry.displayType = "expiring"
-                        entry.countText = FormatRemainingTime(testModeData.fakeRemaining)
+                        entry.countText = FormatRemainingTime(testRemaining)
                         entry.shouldGlow = exGlowEnabled
                         expiringShown = true
                     end
@@ -1746,18 +1985,17 @@ local function HideAllDisplayFrames()
     BR.SecureButtons.HideAllSecureFrames()
 end
 
--- Eating icon texture ID (from State.lua, matches the eating channel aura icon)
 local EATING_ICON = BR.EATING_AURA_ICON
 
 ---Apply consumable overlays (stat label top-left, badge/quality bottom-left) to a frame.
 ---@param frame table
 ---@param item table Bucket item with .statLabel, .badge, and .qualityAtlas fields
----@param iconSize number? Icon width the overlay sizes derive from (frame width if nil)
+---@param iconSize number? Icon art width the overlay sizes derive from (from the frame width if nil)
 local function ApplyConsumableOverlays(frame, item, iconSize)
     if not item.statLabel and not item.badge and not item.qualityAtlas then
         return
     end
-    iconSize = iconSize or frame:GetWidth()
+    iconSize = iconSize or ArtSize(frame, frame:GetWidth())
     local hideLabels = (BR.profile.defaults or {}).hideConsumableLabels
     if item.statLabel and not hideLabels then
         if not frame.statLabel then
@@ -1782,7 +2020,7 @@ local function ApplyConsumableOverlays(frame, item, iconSize)
             holder:SetFrameLevel(frame:GetFrameLevel() + 10)
             frame.qualityIcon = holder:CreateTexture(nil, "OVERLAY", nil, 7)
         end
-        local qOffset = -floor(iconSize * 0.125)
+        local qOffset = (frame._br_borderInset or 0) - floor(iconSize * 0.125)
         local qSize = max(14, floor(iconSize * 0.45))
         frame.qualityIcon:ClearAllPoints()
         frame.qualityIcon:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", qOffset, qOffset)
@@ -1830,13 +2068,48 @@ local function ApplyItemCooldown(frame, item)
     end
     if not frame.itemCooldown then
         local cd = CreateFrame("Cooldown", nil, frame, "CooldownFrameTemplate")
-        cd:SetAllPoints()
         cd:SetFrameLevel(frame:GetFrameLevel() + 1)
-        cd:SetDrawEdge(true)
         cd:EnableMouse(false)
         frame.itemCooldown = cd
     end
+    BLIZZARD_ICON_ART.AnchorCooldown(frame.itemCooldown, frame.icon, frame)
+    BLIZZARD_ICON_ART.StyleItemCooldown(frame.itemCooldown, frame)
     frame.itemCooldown:SetCooldown(start, duration)
+end
+
+---Sweep that fills toward the end of a countdown. A nil duration clears it.
+---@param frame BuffFrame
+---@param expTime? number
+---@param duration? number
+local function ApplyCountdownSweep(frame, expTime, duration)
+    local sweep = frame.countdownSweep
+    if not (expTime and duration) then
+        if sweep then
+            sweep:Clear()
+        end
+        return
+    end
+    if not sweep then
+        sweep = CreateFrame("Cooldown", nil, frame, "CooldownFrameTemplate")
+        sweep:SetDrawBling(false)
+        sweep:SetHideCountdownNumbers(true)
+        sweep.noCooldownCount = true
+        sweep:EnableMouse(false)
+        -- The sweep is a child frame, so it draws over every region of the icon.
+        -- The texts go on a carrier above it.
+        local textHost = CreateFrame("Frame", nil, frame)
+        textHost:SetAllPoints()
+        textHost:EnableMouse(false)
+        ---@diagnostic disable-next-line: undefined-field
+        frame.count:SetParent(textHost)
+        ---@diagnostic disable-next-line: undefined-field
+        frame.stackCount:SetParent(textHost)
+        frame.countdownSweep = sweep
+        frame.countdownTextHost = textHost
+    end
+    frame.countdownTextHost:SetFrameLevel(sweep:GetFrameLevel() + 2)
+    BLIZZARD_ICON_ART.AnchorCooldown(sweep, frame.icon, frame)
+    sweep:SetCooldown(expTime - duration, duration)
 end
 
 ---Clear consumable overlays from a frame.
@@ -1935,7 +2208,7 @@ local function ResolveConsumableFrame(frame)
             frame.icon:SetTexture(items[1].icon)
         end
         SetIconDesaturated(frame.icon, false)
-        local mainSize = frame:GetWidth()
+        local mainSize = ArtSize(frame, frame:GetWidth())
         frame.count:Hide()
         ApplyFont(frame.stackCount, BR.SecureButtons.ComputeConsumableFontSize(mainSize, "stackCount"))
         frame.stackCount:SetText(BR.SecureButtons.FormatStackCount(items[1]))
@@ -1967,48 +2240,58 @@ local function RenderVisibleEntry(frame, entry)
     -- Hide stack count by default; only the consumable-with-items path shows it
     frame.stackCount:Hide()
 
-    -- Eating override: state provides isEating as a snapshot, so the display
+    -- State provides these fields as a snapshot, so the display
     -- never reads a live flag that can change mid-cycle.
-    if entry.isEating then
+    if entry.isEating or entry.countdownExpirationTime then
         SetIconDesaturated(frame.icon, false)
-        frame.icon:SetTexture(EATING_ICON)
-        frame._br_eating_icon = true
-        if entry.eatingExpirationTime then
-            -- Seed initial text, then hand off to per-frame OnUpdate for smooth countdown
-            local remaining = entry.eatingExpirationTime - GetTime()
-            if remaining > 0 then
-                SetCountText(frame, FormatEatingTime(remaining), COUNT_TEXT_SCALE)
-                frame.count:Show()
-            else
-                frame.count:Hide()
-            end
-            if not frame._br_eating_onupdate then
-                local expTime = entry.eatingExpirationTime
+        if entry.isEating then
+            frame.icon:SetTexture(EATING_ICON)
+            frame._br_eating_icon = true
+        end
+        local expTime = entry.countdownExpirationTime
+        frame._br_countdown_exp = expTime
+        local remaining = expTime and expTime - GetTime() or 0
+        if remaining > 0 then
+            SetCountText(frame, FormatCountdownTime(remaining), COUNT_TEXT_SCALE)
+            frame.count:Show()
+            -- The handler reads the end from the frame, so a later render can move it.
+            if not frame._br_countdown_onupdate then
                 frame:SetScript("OnUpdate", function()
-                    local rem = expTime - GetTime()
+                    local rem = (frame._br_countdown_exp or 0) - GetTime()
                     if rem > 0 then
-                        frame.count:SetText(FormatEatingTime(rem))
+                        frame.count:SetText(FormatCountdownTime(rem))
                     else
                         frame.count:Hide()
                         frame:SetScript("OnUpdate", nil)
-                        frame._br_eating_onupdate = nil
+                        frame._br_countdown_onupdate = nil
                     end
                 end)
-                frame._br_eating_onupdate = true
+                frame._br_countdown_onupdate = true
             end
         else
             frame.count:Hide()
         end
+        if entry.progressText then
+            ApplyFont(
+                frame.stackCount,
+                BR.SecureButtons.ComputeConsumableFontSize(ArtSize(frame, frame:GetWidth()), "stackCount")
+            )
+            frame.stackCount:SetText(entry.progressText)
+            frame.stackCount:Show()
+        end
+        ApplyCountdownSweep(frame, expTime, entry.countdownDuration)
         frame:Show()
         SetExpirationGlow(frame, false)
         return true
-    elseif frame._br_eating_icon then
-        -- Transition from eating -> not eating: restore the correct consumable icon
+    end
+    ApplyCountdownSweep(frame, nil)
+    if frame._br_countdown_onupdate then
+        frame:SetScript("OnUpdate", nil)
+        frame._br_countdown_onupdate = nil
+    end
+    frame._br_countdown_exp = nil
+    if frame._br_eating_icon then
         frame._br_eating_icon = nil
-        if frame._br_eating_onupdate then
-            frame:SetScript("OnUpdate", nil)
-            frame._br_eating_onupdate = nil
-        end
         ResolveConsumableFrame(frame)
     end
 
@@ -2032,7 +2315,7 @@ local function RenderVisibleEntry(frame, entry)
         SetCountText(frame, entry.countText or "", COUNT_TEXT_SCALE)
         frame.count:Show()
         frame:Show()
-        SetExpirationGlow(frame, entry.shouldGlow, entry.category, cachedGlow)
+        SetExpirationGlow(frame, entry.shouldGlow, cachedGlow)
         -- Show consumable stat label for expiring consumables (resolve from cached items)
         if entry.displayType == "expiring" and BUFF_KEY_TO_CATEGORY[frame.key] then
             local items = GetCachedItems(frame)
@@ -2056,18 +2339,18 @@ local function RenderVisibleEntry(frame, entry)
             local result = ResolveConsumableFrame(frame)
             if result == "items" then
                 frame:Show()
-                SetExpirationGlow(frame, entry.shouldGlow, entry.category, cachedGlow)
+                SetExpirationGlow(frame, entry.shouldGlow, cachedGlow)
             elseif result == "missing" then
-                ShowTextFrame(frame, entry.overlayText, entry.shouldGlow, entry.category, cachedGlow)
+                ShowTextFrame(frame, entry.overlayText, entry.shouldGlow, cachedGlow)
             else
                 if testMode then
-                    ShowTextFrame(frame, entry.overlayText, entry.shouldGlow, entry.category, cachedGlow)
+                    ShowTextFrame(frame, entry.overlayText, entry.shouldGlow, cachedGlow)
                 else
                     return false
                 end
             end
         else
-            ShowTextFrame(frame, entry.overlayText, entry.shouldGlow, entry.category, cachedGlow)
+            ShowTextFrame(frame, entry.overlayText, entry.shouldGlow, cachedGlow)
         end
     end
 
@@ -2109,7 +2392,7 @@ local function ApplyConsumableDisplayMode(frame, entry, frameList, parentFrame)
     -- only the other qualities of the stat it refreshes; food being eaten keeps one icon.
     local expiring = entry.displayType == "expiring"
     if (entry.displayType ~= "text" and not expiring) or entry.isEating then
-        BR.SecureButtons.UpdateConsumableButtons(frame, nil)
+        BR.SecureButtons.SetItemRow(frame, nil)
         return
     end
     if not BUFF_KEY_TO_CATEGORY[frame.key] or not frame:IsShown() then
@@ -2125,21 +2408,16 @@ local function ApplyConsumableDisplayMode(frame, entry, frameList, parentFrame)
     if displayMode == "sub_icons" then
         if testMode and items and #items > 1 then
             -- Test mode: render visual-only sub-icon frames (no secure buttons)
-            local effectiveCat = GetEffectiveCategory(frame)
-            local catSettings = GetCategorySettings(effectiveCat)
-            local consumableSettings = GetCategorySettings("consumable")
-            local iconSize = catSettings.iconSize or 64
-            local size = max(18, floor(iconSize * 0.45))
-            local btnSpacing = max(2, floor(size * 0.2))
-            local subIconSide = consumableSettings.subIconSide or "BOTTOM"
-            local subIconOffset = -6
-            local itemCount = #items - 1
-            local isSideways = subIconSide == "LEFT" or subIconSide == "RIGHT"
-
+            local catSettings = GetCategorySettings(GetEffectiveCategory(frame))
+            local iconSize = ArtSize(frame, catSettings.iconSize or 64)
+            local size, spacing = BR.SubIcons.Metrics(iconSize)
+            local side = (BR.profile.defaults or {}).subIconSide or "BOTTOM"
+            local width, height = frame:GetWidth(), frame:GetHeight()
+            local hostInset = frame._br_borderInset or 0
             local cFontSize = BR.SecureButtons.ComputeConsumableFontSize(iconSize, "stackCount")
             for i = 2, #items do
-                local idx = i - 2
                 local extra = GetOrCreateExtraFrame(frame, i - 1)
+                extra._br_subIcon = true
                 extra:SetParent(frame)
                 extra:SetSize(size, size)
                 extra.icon:SetTexture(items[i].icon)
@@ -2151,46 +2429,28 @@ local function ApplyConsumableDisplayMode(frame, entry, frameList, parentFrame)
                 SetExpirationGlow(extra, false)
                 extra:SetFrameLevel(frame:GetFrameLevel() + 4)
 
+                local x, y = BR.SubIcons.Position(
+                    i - 2,
+                    #items - 1,
+                    side,
+                    hostInset,
+                    hostInset,
+                    width - 2 * hostInset,
+                    height - 2 * hostInset,
+                    size,
+                    spacing
+                )
                 extra:ClearAllPoints()
-                if isSideways then
-                    local maxPerCol = max(1, floor((iconSize + btnSpacing) / (size + btnSpacing)))
-                    local row = idx % maxPerCol
-                    local col = floor(idx / maxPerCol)
-                    local thisColCount = min(maxPerCol, itemCount - col * maxPerCol)
-                    local thisColHeight = thisColCount * size + (thisColCount - 1) * btnSpacing
-                    local startY = (iconSize - thisColHeight) / 2
-                    local yOff = -(startY + row * (size + btnSpacing))
-                    if subIconSide == "LEFT" then
-                        extra:SetPoint("TOPRIGHT", frame, "TOPLEFT", subIconOffset - col * (size + btnSpacing), yOff)
-                    else
-                        extra:SetPoint("TOPLEFT", frame, "TOPRIGHT", -subIconOffset + col * (size + btnSpacing), yOff)
-                    end
-                else
-                    local maxPerRow = max(1, floor((iconSize + btnSpacing) / (size + btnSpacing)))
-                    local col = idx % maxPerRow
-                    local row = floor(idx / maxPerRow)
-                    local thisRowCount = min(maxPerRow, itemCount - row * maxPerRow)
-                    local thisRowWidth = thisRowCount * size + (thisRowCount - 1) * btnSpacing
-                    local startX = (iconSize - thisRowWidth) / 2
-                    local xOff = startX + col * (size + btnSpacing)
-                    if subIconSide == "TOP" then
-                        extra:SetPoint("BOTTOMLEFT", frame, "TOPLEFT", xOff, -subIconOffset + row * (size + btnSpacing))
-                    else
-                        extra:SetPoint("TOPLEFT", frame, "BOTTOMLEFT", xOff, subIconOffset - row * (size + btnSpacing))
-                    end
-                end
-
+                extra:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", x, y)
                 extra:Show()
             end
         elseif not testMode then
-            local cs = BR.profile.categorySettings and BR.profile.categorySettings.consumable
-            local clickable = cs and cs.clickable == true
-            -- Skip first item (already shown as main icon)
-            BR.SecureButtons.UpdateConsumableButtons(frame, items, clickable, 2)
+            -- The main icon shows the first item.
+            BR.SecureButtons.SetItemRow(frame, items, 2)
         end
     else
         -- Not sub_icons: hide any leftover sub-icon buttons
-        BR.SecureButtons.UpdateConsumableButtons(frame, nil)
+        BR.SecureButtons.SetItemRow(frame, nil)
         if displayMode == "expanded" and items and #items > 1 then
             local cachedGlow = entry.category
                     and GetCachedGlowSettings(
@@ -2198,10 +2458,11 @@ local function ApplyConsumableDisplayMode(frame, entry, frameList, parentFrame)
                         entry.glowKindOverride or (expiring and "expiring" or "missing")
                     )
                 or nil
-            local expandedSize = frame:GetWidth()
+            local expandedSize = ArtSize(frame, frame:GetWidth())
             local stackFontSize = BR.SecureButtons.ComputeConsumableFontSize(expandedSize, "stackCount")
             for i = 2, #items do
                 local extra = GetOrCreateExtraFrame(frame, i - 1)
+                extra._br_subIcon = nil
                 extra._br_item = items[i] -- The click overlay uses the item this frame shows.
                 extra:SetParent(parentFrame)
                 extra:SetSize(expandedSize, frame:GetHeight())
@@ -2217,7 +2478,7 @@ local function ApplyConsumableDisplayMode(frame, entry, frameList, parentFrame)
                     extra.stackCount:Hide()
                 end
                 extra:Show()
-                SetExpirationGlow(extra, entry.shouldGlow, entry.category, cachedGlow)
+                SetExpirationGlow(extra, entry.shouldGlow, cachedGlow)
                 -- Apply consumable overlays (clear first to handle toggle-off)
                 ClearConsumableOverlays(extra)
                 if showText then
@@ -2326,11 +2587,12 @@ local function SetupPetExtraFrame(frame, index, action, entry, cachedGlow, frame
     extra.count:Hide()
     extra.stackCount:Hide()
     extra._br_pet_spell = action.spellName
+    extra._br_pet_spellID = action.spellID
     extra._br_pet_spec_icon = action.petSpecIcon
     UpdatePetLabels(extra, action)
     BR.SecureButtons.ReapplyPetSpecIconIfHovered(extra)
     extra:Show()
-    SetExpirationGlow(extra, entry.shouldGlow, entry.category, cachedGlow)
+    SetExpirationGlow(extra, entry.shouldGlow, cachedGlow)
     if frameList then
         frameList[#frameList + 1] = extra
     end
@@ -2343,6 +2605,7 @@ end
 local function ApplyPetDisplayMode(frame, entry, frameList)
     if not entry.petActions or #entry.petActions == 0 or not frame:IsShown() then
         frame._br_pet_spell = nil
+        frame._br_pet_spellID = nil
         frame._br_pet_spec_icon = nil
         UpdatePetLabels(frame, nil)
         return
@@ -2364,6 +2627,7 @@ local function ApplyPetDisplayMode(frame, entry, frameList)
         frame.icon:SetTexture(first.icon)
         frame.count:Hide()
         frame._br_pet_spell = first.spellName
+        frame._br_pet_spellID = first.spellID
         frame._br_pet_spec_icon = first.petSpecIcon
         UpdatePetLabels(frame, first)
     else
@@ -2376,6 +2640,7 @@ local function ApplyPetDisplayMode(frame, entry, frameList)
             frame.icon:SetTexture(texture)
         end
         frame._br_pet_spell = preferredAction and preferredAction.spellName
+        frame._br_pet_spellID = preferredAction and preferredAction.spellID
         frame._br_pet_spec_icon = preferredAction and preferredAction.petSpecIcon
         UpdatePetLabels(frame, preferredAction)
     end
@@ -2394,15 +2659,79 @@ local function ApplyPetDisplayMode(frame, entry, frameList)
 end
 
 -- ============================================================================
--- CONSUMABLE SNOOZE
+-- SNOOZE
 -- ============================================================================
 
---- Snooze every consumable reminder until the next loading screen. Driven by the /br snooze
---- command and by a right click on a consumable icon when consumable click-to-cast is on.
-function BR.SnoozeConsumables()
-    BR.BuffState.SetConsumablesDismissed(true)
+---Snooze reminders and confirm it in chat.
+---@param scope SnoozeScope
+---@param id? string The reminder key or the category. Ignored for "all"
+---@param label string The name of what the snooze hides
+function BR.Snooze(scope, id, label)
+    local record = BR.BuffState.Snooze(scope, id)
+    if not record then
+        return
+    end
     UpdateDisplay()
-    print("|cff00ccffBuffReminders:|r " .. L["Display.DismissConsumablesChat"])
+    local message = record.rest and L["Display.SnoozeChat.Rest"] or L["Display.SnoozeChat.Loading"]
+    print("|cff00ccffBuffReminders:|r " .. format(message, label))
+end
+
+local function ClearSnoozes()
+    BR.BuffState.EndSnoozes("all")
+    UpdateDisplay()
+    print("|cff00ccffBuffReminders:|r " .. L["Display.UnsnoozeChat"])
+end
+
+-- The names that a category snooze shows in the menu and in chat.
+local SNOOZE_CATEGORY_LABELS = {
+    raid = L["Category.RaidBuffs"],
+    presence = L["Category.PresenceBuffs"],
+    targeted = L["Category.TargetedBuffs"],
+    self = L["Category.SelfBuffs"],
+    pet = L["Category.PetReminders"],
+    consumable = L["Category.Consumables"],
+    utility = L["Category.UtilityReminders"],
+    custom = L["Category.CustomBuffs"],
+    loadout = L["Category.LoadoutReminders"],
+}
+
+local function SnoozeCommand()
+    if BR.BuffState.CountSnoozes() > 0 then
+        ClearSnoozes()
+    else
+        BR.Snooze("all", nil, L["Menu.AllReminders"])
+    end
+end
+
+---Open the right-click menu of a reminder. Out of combat only.
+---@param owner table The frame that the menu opens at
+---@param frame table The buff frame, or one of its extra frames
+function BR.Display.OpenReminderMenu(owner, frame)
+    if InCombatLockdown() then
+        return
+    end
+    local host = frame.isExtraFrame and frame.mainFrame or frame
+    local category = host.buffCategory
+    local groupId = host.buffDef and host.buffDef.groupId
+    local group = groupId and BR.BuffGroups[groupId]
+    local key = groupId or host.key
+    local name = group and group.displayName or host.displayName or key
+    local categoryLabel = SNOOZE_CATEGORY_LABELS[category] or category
+    MenuUtil.CreateContextMenu(owner, function(_, root)
+        root:CreateButton(format(L["Menu.Snooze"], name), function()
+            BR.Snooze("reminder", key, name)
+        end)
+        root:CreateButton(format(L["Menu.Snooze"], categoryLabel), function()
+            BR.Snooze("category", category, categoryLabel)
+        end)
+        root:CreateButton(L["Menu.SnoozeAll"], function()
+            BR.Snooze("all", nil, L["Menu.AllReminders"])
+        end)
+        root:CreateDivider()
+        root:CreateButton(L["Menu.Settings"], function()
+            BR.Options.OpenReminderSettings(host.buffDef, category)
+        end)
+    end)
 end
 
 -- Play per-buff sound alert when an icon first appears.
@@ -2538,13 +2867,16 @@ UpdateDisplay = function(refreshMode)
                             if IsIconDetached(entry.key) then
                                 wipe(reusableDetachedSink)
                                 ApplyConsumableDisplayMode(frame, entry, reusableDetachedSink, frame:GetParent())
+                                if shown then
+                                    PositionDetachedIcon(entry.key, frame)
+                                end
                             else
                                 ApplyConsumableDisplayMode(frame, entry, frames, frame:GetParent())
                             end
                         elseif category == "pet" then
                             if IsIconDetached(entry.key) then
-                                -- Extras were not shown yet on the first positioning
-                                -- pass; re-run it so the container fits them.
+                                -- The first positioning pass sees the extras of the last render.
+                                -- A second pass fits the container to the current ones.
                                 ApplyPetDisplayMode(frame, entry, nil)
                                 if shown then
                                     PositionDetachedIcon(entry.key, frame)
@@ -2577,6 +2909,9 @@ UpdateDisplay = function(refreshMode)
                             if IsIconDetached(entry.key) then
                                 wipe(reusableDetachedSink)
                                 ApplyConsumableDisplayMode(frame, entry, reusableDetachedSink, frame:GetParent())
+                                if shown then
+                                    PositionDetachedIcon(entry.key, frame)
+                                end
                             else
                                 ApplyConsumableDisplayMode(frame, entry, reusableMainBuffs, frame:GetParent())
                             end
@@ -2655,11 +2990,25 @@ UpdateDisplay = function(refreshMode)
         -- UpdateActionButtons is the only place that wires up their click overlays).
         if not groupOnly and not InCombatLockdown() then
             local displayMode = (BR.profile.defaults or {}).consumableDisplayMode
-            if displayMode == "expanded" then
+            local resolveConsumables = displayMode == "expanded"
+            -- The bag event that starts a meal resolves before the refresh, and the end of a meal fires none.
+            local consumables = visibleByCategory.consumable
+            if not resolveConsumables and consumables then
+                for _, entry in ipairs(consumables) do
+                    local frame = buffFrames[entry.key]
+                    if frame and frame._br_resolvedCountdown ~= IsCountdownEntry(entry) then
+                        resolveConsumables = true
+                        break
+                    end
+                end
+            end
+            if resolveConsumables then
                 BR.SecureButtons.UpdateActionButtons("consumable")
             end
             BR.SecureButtons.UpdateActionButtons("pet")
             BR.SecureButtons.UpdateActionButtons("custom")
+            -- An aura can change the action of a utility reminder (the camp stage).
+            BR.SecureButtons.UpdateActionButtons("utility")
         end
     end
 end
@@ -2710,10 +3059,16 @@ local ReparentBuffFrames
 local function WireLoadoutFrameClick(frame)
     frame:EnableMouse(true)
     frame:SetScript("OnMouseUp", function(self, button)
-        if button ~= "LeftButton" then
+        local db = BR.profile
+        if button == "RightButton" and db.defaults.rightClickMenu ~= false then
+            if BR.Config.GetCategorySetting("loadout", "clickable") == true then
+                BR.Display.OpenReminderMenu(self, self)
+            end
             return
         end
-        local db = BR.profile
+        if button ~= "LeftButton" and button ~= "RightButton" then
+            return
+        end
         local rule = db and db.loadoutReminders and db.loadoutReminders[self.key]
         if rule and rule.clickToFix then
             BR.LoadoutActions.ApplyFix(rule)
@@ -3091,6 +3446,8 @@ local function UpdateVisuals()
         local size = catSettings.iconSize or 64
         local width = GetEffectiveWidth(catSettings.iconWidth, size)
         frame:SetSize(width, size)
+        -- Before the text anchors: the icon style sets their inset.
+        UpdateIconStyling(frame, catSettings)
         -- Re-apply at the scale the current text was written with, not a guess:
         -- a frame showing a "NO X" label must not be resized to count scale.
         ApplyFont(frame.count, GetFrameFontSize(frame, frame._br_count_scale or COUNT_TEXT_SCALE))
@@ -3114,19 +3471,20 @@ local function UpdateVisuals()
 
         -- Consumable overlay font/size + reposition (per-category zones)
         if frame.statLabel or frame.badgeLabel or frame.qualityIcon then
+            local artSize = ArtSize(frame, size)
             if frame.statLabel then
-                ApplyFont(frame.statLabel, BR.SecureButtons.ComputeConsumableFontSize(size, "statLabel"))
+                ApplyFont(frame.statLabel, BR.SecureButtons.ComputeConsumableFontSize(artSize, "statLabel"))
                 local sz, sx, sy = BR.TextPositions.Get("statLabel")
                 BR.TextPositions.Apply(frame.statLabel, frame, sz, sx, sy)
             end
             if frame.badgeLabel then
-                ApplyFont(frame.badgeLabel, BR.SecureButtons.ComputeConsumableFontSize(size, "badge"))
+                ApplyFont(frame.badgeLabel, BR.SecureButtons.ComputeConsumableFontSize(artSize, "badge"))
                 local bz, bx, by = BR.TextPositions.Get("badge")
                 BR.TextPositions.Apply(frame.badgeLabel, frame, bz, bx, by)
             end
             if frame.qualityIcon then
-                local qOffset = -floor(size * 0.125)
-                local qSize = max(14, floor(size * 0.45))
+                local qOffset = (frame._br_borderInset or 0) - floor(artSize * 0.125)
+                local qSize = max(14, floor(artSize * 0.45))
                 frame.qualityIcon:ClearAllPoints()
                 frame.qualityIcon:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", qOffset, qOffset)
                 frame.qualityIcon:SetSize(qSize, qSize)
@@ -3152,9 +3510,8 @@ local function UpdateVisuals()
             local lz, lx, ly = BR.TextPositions.Get("buffReminder")
             BR.TextPositions.Apply(frame.subLabel, frame, lz, lx, ly)
         end
-        UpdateIconStyling(frame, catSettings)
 
-        -- Re-apply mouse state so toggling Show Buff Tooltips (raid/presence)
+        -- Re-apply mouse state so toggling the description tooltips
         -- switches between hover-enabled and fully click-through without /reload.
         ApplyBuffFrameMouse(frame, frame.buffCategory)
 
@@ -3168,6 +3525,12 @@ local function UpdateVisuals()
             for _, extra in ipairs(frame.extraFrames) do
                 extra:SetSize(width, size)
                 UpdateIconStyling(extra, catSettings)
+                do
+                    local sz, sx, sy = BR.TextPositions.Get("stackCount")
+                    BR.TextPositions.Apply(extra.stackCount, extra, sz, sx, sy)
+                    local cz, cx, cy = BR.TextPositions.Get("count")
+                    BR.TextPositions.Apply(extra.count, extra, cz, cx, cy)
+                end
                 extra:SetAlpha(catSettings.iconAlpha or 1)
             end
         end
@@ -3220,10 +3583,12 @@ CallbackRegistry:RegisterCallback("DisplayRefresh", function()
     ResetLayoutSignatures()
     InvalidateSortedCategories()
     UpdateDisplay()
-    -- Refresh consumable action button clickability/visibility after mode changes
+    -- The consumable pass also runs where click to cast is off, to hide the sub-icons
+    -- of a display mode change. A setting can change the right-click mode of any overlay.
     if not InCombatLockdown() then
         BR.SecureButtons.UpdateActionButtons("consumable")
     end
+    BR.SecureButtons.RefreshOverlaySpells()
 end)
 
 -- Visibility toggles (hide-when, show-only-in-group, pet passive)
@@ -3252,6 +3617,8 @@ end)
 if masqueGroup then
     masqueGroup:RegisterCallback(function()
         C_Timer.After(0, function()
+            wipe(expiringGlowCache)
+            wipe(missingGlowCache)
             UpdateVisuals()
             BR.Components.RefreshAll()
         end)
@@ -3336,6 +3703,16 @@ BR.Display.ResetCategoryFramePosition = function(category, x, y)
     BR.CallbackRegistry:TriggerEvent("LayoutRefresh")
 end
 
+BR.IconStyle = {
+    UsesBlizzardArt = UsesBlizzardIconStyle,
+    CreateArt = BLIZZARD_ICON_ART.CreateArt,
+    SetArt = SetBlizzardIconArt,
+    AnchorCooldown = BLIZZARD_ICON_ART.AnchorCooldown,
+    StyleItemCooldown = BLIZZARD_ICON_ART.StyleItemCooldown,
+    FRAME_WIDTH_RATIO = BLIZZARD_ICON_ART.frameWidthRatio,
+    ARTWORK_AVAILABLE = BLIZZARD_ICON_ART.available,
+}
+
 BR.Masque = {
     IsActive = function()
         return masqueGroup ~= nil and not masqueGroup.db.Disabled
@@ -3348,8 +3725,9 @@ local function SlashHandler(msg)
 
     if cmd == "test" then
         ToggleTestMode()
+        BR.Components.RefreshAll()
     elseif cmd == "snooze" then
-        BR.SnoozeConsumables()
+        SnoozeCommand()
     elseif cmd == "lock" then
         SetFrameLocked(true)
         BR.Components.RefreshAll()
@@ -3375,6 +3753,8 @@ local function SlashHandler(msg)
     elseif cmd == "secretdebug" then
         local arg = msg:match("^%S+%s+(%S+)")
         BR.Display.PrintSecretDebug(arg)
+    elseif cmd == "spelldebug" then
+        BR.Display.ShowSpellDebug()
     elseif cmd == "shownew" then
         local WhatsNew = BR.Options.WhatsNew
         local arg = msg:match("^%S+%s+(%S+)")
@@ -3415,50 +3795,7 @@ SlashCmdList["BUFFREMINDERS"] = SlashHandler
 
 -- Event handler (ADDON_LOADED is owned by Core/Bootstrap.lua)
 eventFrame = CreateFrame("Frame")
-eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
-eventFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
-eventFrame:RegisterEvent("ZONE_CHANGED")
-eventFrame:RegisterEvent("ZONE_CHANGED_INDOORS")
-eventFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
-eventFrame:RegisterEvent("GROUP_FORMED")
-eventFrame:RegisterEvent("PLAYER_ROLES_ASSIGNED")
-eventFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
-eventFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
-eventFrame:RegisterEvent("ENCOUNTER_START")
-eventFrame:RegisterEvent("ENCOUNTER_END")
-eventFrame:RegisterEvent("PLAYER_DEAD")
-eventFrame:RegisterEvent("PLAYER_UNGHOST")
 UpdateAuraEventRegistration() -- UNIT_AURA: narrow or broad by combat/group state
-eventFrame:RegisterEvent("UNIT_FLAGS")
-eventFrame:RegisterEvent("UNIT_CONNECTION")
-eventFrame:RegisterEvent("UNIT_PHASE")
-eventFrame:RegisterEvent("READY_CHECK")
-eventFrame:RegisterEvent("SPELL_ACTIVATION_OVERLAY_GLOW_SHOW")
-eventFrame:RegisterEvent("SPELL_ACTIVATION_OVERLAY_GLOW_HIDE")
-eventFrame:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
-eventFrame:RegisterEvent("TRAIT_CONFIG_UPDATED")
-eventFrame:RegisterEvent("SPELLS_CHANGED")
-eventFrame:RegisterEvent("UNIT_PET")
-eventFrame:RegisterEvent("PET_BAR_UPDATE")
-eventFrame:RegisterEvent("UPDATE_SHAPESHIFT_FORM")
-eventFrame:RegisterEvent("UPDATE_SHAPESHIFT_FORMS")
-eventFrame:RegisterEvent("PLAYER_MOUNT_DISPLAY_CHANGED")
-eventFrame:RegisterEvent("PET_STABLE_UPDATE")
-eventFrame:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
-eventFrame:RegisterEvent("EQUIPMENT_SETS_CHANGED")
-eventFrame:RegisterEvent("UNIT_ENTERED_VEHICLE")
-eventFrame:RegisterEvent("UNIT_EXITED_VEHICLE")
-eventFrame:RegisterEvent("PLAYER_DIFFICULTY_CHANGED")
-eventFrame:RegisterEvent("CHALLENGE_MODE_START")
-eventFrame:RegisterEvent("CHALLENGE_MODE_COMPLETED")
-eventFrame:RegisterEvent("CHALLENGE_MODE_RESET")
-eventFrame:RegisterEvent("PLAYER_UPDATE_RESTING")
-eventFrame:RegisterEvent("PLAYER_LEVEL_UP")
-eventFrame:RegisterEvent("UPDATE_EXPANSION_LEVEL")
-eventFrame:RegisterEvent("BAG_UPDATE_DELAYED")
-eventFrame:RegisterEvent("UPDATE_INVENTORY_DURABILITY")
-eventFrame:RegisterEvent("NEW_MOUNT_ADDED")
-eventFrame:RegisterEvent("PVP_MATCH_STATE_CHANGED")
 
 -- The repair macro branches on whether the repair mount can be summoned here, and
 -- that answer follows the subzone. Subzone crossings are frequent, so the secure
@@ -3478,10 +3815,11 @@ end
 local eventHandlers = {}
 
 eventHandlers.PLAYER_ENTERING_WORLD = function()
-    BR.BuffState.SetConsumablesDismissed(false)
     UpdateAuraEventRegistration()
     BR.StateHelpers.ScanEatingState()
-    BR.Loadouts.EnsureAddonsReady(LoadoutRules)
+    if BR.Loadouts then
+        BR.Loadouts.EnsureAddonsReady(LoadoutRules)
+    end
     DisplayFonts.Resolve()
     if not mainFrame then
         InitializeFrames()
@@ -3489,8 +3827,11 @@ eventHandlers.PLAYER_ENTERING_WORLD = function()
         -- custom buffs with their own action, or a category that hosts a chat
         -- request, which answers the Chat Requests toggle instead.
         for _, cat in ipairs(CATEGORIES) do
-            local cs = BR.profile.categorySettings and BR.profile.categorySettings[cat]
-            if (cs and cs.clickable) or cat == "custom" or BR.ChatRequest.WantsCategory(cat) then
+            if
+                BR.Config.GetCategorySetting(cat, "clickable") == true
+                or cat == "custom"
+                or BR.ChatRequest.WantsCategory(cat)
+            then
                 BR.SecureButtons.UpdateActionButtons(cat)
             end
         end
@@ -3740,6 +4081,16 @@ eventHandlers.UNIT_ENTERED_VEHICLE = function(arg1)
 end
 eventHandlers.UNIT_EXITED_VEHICLE = eventHandlers.UNIT_ENTERED_VEHICLE
 
+-- The icon gaps align to the screen pixel grid, which moves with the scale and the resolution.
+-- UIParent:SetScale() from another addon fires no event, and a scale slider calls it every frame.
+local function OnPixelGridChanged()
+    ResetLayoutSignatures()
+    SetDirty()
+end
+eventHandlers.UI_SCALE_CHANGED = OnPixelGridChanged
+eventHandlers.DISPLAY_SIZE_CHANGED = OnPixelGridChanged
+hooksecurefunc(UIParent, "SetScale", OnPixelGridChanged)
+
 eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
     GameContext.HandleEvent(event, arg1, arg2, arg3)
     local handler = eventHandlers[event]
@@ -3747,3 +4098,16 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
         handler(arg1, arg2, arg3)
     end
 end)
+
+local SELF_REGISTERED_EVENTS = { UNIT_AURA = true }
+local function RegisterIfValid(event)
+    if not SELF_REGISTERED_EVENTS[event] then
+        BR.Client.RegisterEvent(eventFrame, event)
+    end
+end
+for event in pairs(eventHandlers) do
+    RegisterIfValid(event)
+end
+for event in GameContext.EachEvent() do
+    RegisterIfValid(event)
+end

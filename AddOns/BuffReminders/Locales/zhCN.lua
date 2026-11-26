@@ -249,11 +249,9 @@ L["Group.WeaponBuff"] = "武器增益"
 -- BUFF INFO TOOLTIPS
 -- ============================================================================
 L["Tooltip.MayShowExtraIcon"] = "可能显示额外图标"
-L["Tooltip.MayShowExtraIcon.Desc"] =
-    "在施放此法术之前，该提示可能会与水盾/闪电盾提示同时出现。因为系统无法确定你是想对自己施放大地盾，还是想给队友施放大地盾的同时给自己施放水盾/闪电盾。"
+L["Tooltip.MayShowExtraIcon.Desc"] = "在施放此法术之前，该提示可能会与水盾/闪电盾提示同时出现。因为系统无法确定你是想对自己施放大地盾，还是想给队友施放大地盾的同时给自己施放水盾/闪电盾。"
 L["Tooltip.InstanceEntryReminder"] = "副本进本提示"
-L["Tooltip.InstanceEntryReminder.Desc"] =
-    "进入地下城时会短暂显示放置灵魂之井的提示。施放法术或30秒后将消失。"
+L["Tooltip.InstanceEntryReminder.Desc"] = "进入地下城时会短暂显示放置灵魂之井的提示。施放法术或30秒后将消失。"
 L["Tooltip.MageFood"] = "仅限治疗专精"
 L["Tooltip.MageFood.Desc"] = "仅在你使用治疗专精时显示"
 L["BuffTooltip.ProvidedBy"] = "由%s提供"
@@ -298,16 +296,14 @@ L["Display.FramesLocked"] = "框体已锁定。"
 L["Display.FramesUnlocked"] = "框体已解锁。"
 L["Display.MinimapHidden"] = "小地图图标已隐藏。"
 L["Display.MinimapShown"] = "小地图图标已显示。"
+L["Display.DebugEnabled"] = "调试模式已启用。再次输入 |cFFFFD100/br debug|r 将其关闭。"
+L["Display.DebugDisabled"] = "调试模式已禁用。"
 L["Display.Description"] = "一目了然地查看所有缺失的增益。"
 L["Display.OpenOptions"] = "打开选项"
 L["Display.SlashCommands"] = "斜杠命令: /br, /br lock, /br unlock, /br test, /br minimap, /br snooze"
 L["Display.MinimapLeftClick"] = "|cFFCFCFCF左键点击|r: 选项"
 L["Display.MinimapRightClick"] = "|cFFCFCFCF右键点击|r: 测试模式"
-L["Display.DismissConsumablesChat"] = "直到下次蓝条加载前，消耗品提醒被暂时隐藏了。"
-L["Display.LoginFirstInstall"] =
-    "感谢安装！输入 |cFFFFD100/br unlock|r 来移动增益显示，或者使用 |cFFFFD100/br|r 选项面板底部的按钮。"
-L["Display.LoginSnooze"] =
-    "隐藏消耗品提示现在改为右键操作：右键点击消耗品可暂时隐藏其提示，或输入 |cFFFFD100/br snooze|r。"
+L["Display.LoginFirstInstall"] = "感谢安装！输入 |cFFFFD100/br unlock|r 来移动增益显示，或者使用 |cFFFFD100/br|r 选项面板底部的按钮。"
 
 -- ============================================================================
 -- OPTIONS: NAVIGATION LABELS
@@ -328,7 +324,7 @@ L["Externals.GroupBuffs"] = "团队增益"
 L["Externals.Movement"] = "移动加速"
 L["Externals.Aggro"] = "仇恨转移"
 L["Externals.Augmentation"] = "增效"
-
+L["Externals.Appearance"] = "外观"
 
 -- Page titles
 L["Page.General"] = "常规"
@@ -344,8 +340,7 @@ L["Page.CustomAnchors"] = "自定义锚点"
 -- Per-category page section headers
 L["Section.Tracking"] = "追踪"
 L["Section.TrackingOverrides"] = "追踪覆盖规则"
-L["Section.TrackingOverrides.Desc"] =
-    "在特定情况下收窄追踪模式。保持在“默认”则始终使用上方的模式。当多个条件同时满足时（例如练级时处于战斗中），最严格的规则生效。"
+L["Section.TrackingOverrides.Desc"] = "在特定情况下收窄追踪模式。保持在“默认”则始终使用上方的模式。当多个条件同时满足时（例如练级时处于战斗中），最严格的规则生效。"
 L["DisabledReason.PvPDisabled"] = "此类别在PvP中已被完全隐藏（详见“可见性”页面）。"
 
 -- ============================================================================
@@ -357,11 +352,11 @@ L["Options.Preview"] = "预览"
 -- ============================================================================
 -- OPTIONS: GLOBAL DEFAULTS
 -- ============================================================================
-
+L["Options.GlobalDefaults"] = "全局默认值"
 L["Options.GlobalDefaults.Note"] = "（应用于所有类别，除非被自定义外观覆盖）"
 L["Options.Default"] = "默认"
 L["Options.Text"] = "文本"
-
+L["Options.Text.Note"] = "（字体大小和颜色可按类别单独覆盖；字体、描边和位置始终全局生效）"
 L["Options.Font"] = "字体"
 L["Options.TextOutline"] = "描边"
 L["Options.TextOutline.None"] = "无"
@@ -375,8 +370,7 @@ L["Options.TextOutline.ThickMono"] = "粗描边 + 单色"
 -- OPTIONS: GLOW SETTINGS
 -- ============================================================================
 L["Options.GlowReminderIcons.Title"] = "提示图标发光"
-L["Options.GlowReminderIcons.CpuWarning"] =
-    "发光动画会在屏幕上的每个图标上逐帧渲染，因此会消耗更多CPU。如果图标长时间显示（例如战斗中不需要补的增益），该消耗将持续存在。因此默认处于禁用状态。"
+L["Options.GlowReminderIcons.CpuWarning"] = "发光动画会在屏幕上的每个图标上逐帧渲染，因此会消耗更多CPU。如果图标长时间显示（例如战斗中不需要补的增益），该消耗将持续存在。因此默认处于禁用状态。"
 L["Options.GlowKind.Expiring"] = "即将过期"
 L["Options.GlowKind.Missing"] = "缺失"
 L["Options.ExpiringGlow"] = "即将过期发光"
@@ -386,20 +380,19 @@ L["Options.MissingGlow.Desc"] = "当增益完全缺失时，使图标发光。"
 L["Options.GlowSettings.Expiring"] = "发光设置 - 即将过期"
 L["Options.GlowSettings.Missing"] = "发光设置 - 缺失"
 L["Options.Glow.Enabled"] = "启用"
-
+L["Options.Threshold"] = "阈值"
 L["Options.GlowMissingPets"] = "缺失宠物发光"
 L["Options.Expiration"] = "过期"
 L["Options.Glow"] = "发光"
 L["Options.UseCustomColor"] = "使用自定义颜色"
-L["Options.UseCustomColor.Desc"] =
-    "启用后会降低触发发光的饱和度并更改颜色。\n可能看起来不如默认触发发光清晰。"
+L["Options.UseCustomColor.Desc"] = "启用后会降低触发发光的饱和度并更改颜色。\n可能看起来不如默认触发发光清晰。"
 L["Options.ExpirationReminder"] = "过期提示"
-
-
-
+L["Options.Timing"] = "计时"
+L["Options.UseDefaultThreshold"] = "使用默认阈值"
+L["Options.UseDefaultThreshold.Desc"] =
+    "勾选后，该类别将继承“默认值”页面中的全局过期阈值。\n取消勾选可为该类别单独设置阈值。"
 L["Options.PreKeyThreshold"] = "插钥匙前阈值"
-L["Options.PreKeyThreshold.Desc"] =
-    "在史诗地下城（0层）中，插入钥石前使用更长的过期提醒阈值。\n有助于确保插钥匙前你的增益时间充足。"
+L["Options.PreKeyThreshold.Desc"] = "在史诗地下城（0层）中，插入钥石前使用更长的过期提醒阈值。\n有助于确保插钥匙前你的增益时间充足。"
 
 -- Glow params
 L["Options.Glow.Type"] = "类型:"
@@ -429,11 +422,9 @@ L["Options.Visibility"] = "显示条件"
 -- OPTIONS: HEALTHSTONE & REPAIR
 -- ============================================================================
 L["Options.Healthstone.LowStock"] = "治疗石不足警告"
-L["Options.Healthstone.LowStock.Desc"] =
-    "当有治疗石但数量较少时显示警告。不管此设置如何，没有治疗石（0个）时都会被追踪。"
+L["Options.Healthstone.LowStock.Desc"] = "当有治疗石但数量较少时显示警告。不管此设置如何，没有治疗石（0个）时都会被追踪。"
 L["Options.Healthstone.Threshold"] = "警告阈值"
-L["Options.Healthstone.Threshold.Desc"] =
-    "当治疗石等于或低于此数量时显示不足警告。\n\n|cffffcc001:|r 仅在刚好有1个时警告。\n|cffffcc002:|r 有1个或2个时警告。"
+L["Options.Healthstone.Threshold.Desc"] = "当治疗石等于或低于此数量时显示不足警告。\n\n|cffffcc001:|r 仅在刚好有1个时警告。\n|cffffcc002:|r 有1个或2个时警告。"
 L["Options.Repair.Threshold"] = "警告阈值（耐久度低于）"
 L["Options.Repair.Threshold.Desc"] = "当身上任意已装备物品的耐久度低于此百分比时显示修理提示。"
 L["Options.RepairHideInCombat"] = "战斗中隐藏"
@@ -443,8 +434,7 @@ L["Options.RepairHideInCombat.Desc"] = "在战斗中隐藏修理提示。战斗�
 -- OPTIONS: SOULSTONE
 -- ============================================================================
 L["Options.Soulstone.HideCooldown"] = "冷却时隐藏（术士）"
-L["Options.Soulstone.HideCooldown.Desc"] =
-    "启用后，当灵魂石法术处于冷却中时，不会向术士显示提示。仅适用于术士。"
+L["Options.Soulstone.HideCooldown.Desc"] = "启用后，当灵魂石法术处于冷却中时，不会向术士显示提示。仅适用于术士。"
 L["Options.Soulstone.PinnedTarget"] = "始终施放于"
 L["Tooltip.PinNotInGroup"] = "(不在队伍中)"
 
@@ -454,25 +444,24 @@ L["Tooltip.PinNotInGroup"] = "(不在队伍中)"
 L["Options.FreeConsumables"] = "免费消耗品"
 L["Options.FreeConsumables.Note"] = "（治疗石、永久强化符文）"
 L["Options.FreeConsumables.Override"] = "覆盖内容过滤"
-L["Options.FreeConsumables.Override.Desc"] =
-    "勾选后，免费消耗品将使用下方独立的内容类型设置。\n\n取消勾选后，它们将遵循与其他消耗品相同的内容过滤规则。"
+L["Options.FreeConsumables.Override.Desc"] = "勾选后，免费消耗品将使用下方独立的内容类型设置。\n\n取消勾选后，它们将遵循与其他消耗品相同的内容过滤规则。"
 
 -- ============================================================================
 -- OPTIONS: ICONS
 -- ============================================================================
 L["Options.Icons"] = "图标"
-
-
+L["Options.ShowText"] = "在图标上显示文本"
+L["Options.ShowText.Desc"] =
+    "在此类别的增益图标上显示层数或缺失文本覆盖。即将过期的倒计时时间始终保持可见。"
 L["Options.ShowMissingCountOnly"] = "仅显示缺失数量"
-L["Options.ShowMissingCountOnly.Desc"] =
-    "仅显示缺失增益的数量（例如：”1“），而不是完整的分数形式（例如：”19/20“）。"
-
-
+L["Options.ShowMissingCountOnly.Desc"] = "仅显示缺失增益的数量（例如：”1“），而不是完整的分数形式（例如：”19/20“）。"
+L["Options.ShowBuffReminderText"] = "显示“补BUFF”提示文本"
+L["Options.Size"] = "大小"
 
 -- ============================================================================
 -- OPTIONS: TEXT POSITIONS
 -- ============================================================================
-
+L["Options.TextPositions"] = "文本"
 L["Options.TextPositions.Zone"] = "位置"
 L["Options.TextPositions.OffsetX.Short"] = "X轴"
 L["Options.TextPositions.OffsetY.Short"] = "Y轴"
@@ -494,16 +483,13 @@ L["Options.TextPositions.Align.Right"] = "靠右"
 -- OPTIONS: CLICK TO CAST
 -- ============================================================================
 L["Options.ClickToCast"] = "点击施法"
-L["Options.ClickToCast.DescFull"] =
-    "你可以点击增益图标来施放对应的法术（仅限非战斗状态）。只对你的角色可施放的法术有效。"
+L["Options.ClickToCast.DescFull"] = "你可以点击增益图标来施放对应的法术（仅限非战斗状态）。只对你的角色可施放的法术有效。"
 L["Options.HoverHighlight"] = "悬停高亮"
 L["Options.HoverHighlight.Desc"] = "将鼠标悬停在可点击的增益图标上时，显示微弱的高亮效果。"
 L["Options.RequestBuffInChat"] = "在聊天频道中请求缺失的增益"
-L["Options.RequestBuffInChat.Desc"] =
-    "点击你的职业无法提供的缺失增益，可在聊天频道中发送请求。插件会自动检测当前合适的频道（副本/团队/小队/说）。"
+L["Options.RequestBuffInChat.Desc"] = "点击你的职业无法提供的缺失增益，可在聊天频道中发送请求。插件会自动检测当前合适的频道（副本/团队/小队/说）。"
 L["Options.ChatRequest.Cooldown"] = "求BUFF冷却时间"
-L["Options.ChatRequest.Cooldown.Desc"] =
-    "在聊天请求之间等待5秒，以防止误触连点刷屏。\n如果你的请求有时完全无法发送到聊天频道，请关闭此项。"
+L["Options.ChatRequest.Cooldown.Desc"] = "在聊天请求之间等待5秒，以防止误触连点刷屏。\n如果你的请求有时完全无法发送到聊天频道，请关闭此项。"
 L["Options.ChatRequest.Cooldown.Hint"] = "请求未在聊天中显示？请关闭此项。"
 L["Options.ChatRequest.ResetAll"] = "全部重置"
 L["ChatRequests.PerBuffMessages"] = "独立增益喊话信息"
@@ -525,18 +511,15 @@ L["ChatRequest.mageFood"] = "来个面包"
 -- ============================================================================
 L["Options.PetSpecIcon"] = "悬停时显示猎人宠物专精图标"
 L["Options.PetSpecIcon.Title"] = "悬停时宠物专精图标"
-L["Options.PetSpecIcon.Desc"] =
-    "鼠标悬停时，宠物图标将变为对应的专精技能（狡诈、狂野、坚韧）。"
+L["Options.PetSpecIcon.Desc"] = "鼠标悬停时，宠物图标将变为对应的专精技能（狡诈、狂野、坚韧）。"
 L["Options.ShowItemTooltips"] = "显示物品提示信息"
 L["Options.ShowItemTooltips.Desc"] = "将鼠标悬停在消耗品图标上时显示物品详细信息。"
-L["Options.ShowBuffTooltips"] = "显示增益鼠标提示信息"
-
+L["Options.Behavior"] = "行为"
 L["Options.PetPassiveCombat"] = "仅在战斗中提示被动宠物"
 L["Options.PetPassiveCombat.Desc"] = "仅在战斗中显示被动宠物提示。禁用时则始终显示。"
 L["Options.FelDomination"] = "召唤前使用邪能统御"
 L["Options.FelDomination.Title"] = "邪能统御"
-L["Options.FelDomination.Desc"] =
-    "通过点击施法召唤恶魔前自动施放邪能统御。如果邪能统御在冷却中，则正常召唤。需要点出邪能统御天赋。"
+L["Options.FelDomination.Desc"] = "通过点击施法召唤恶魔前自动施放邪能统御。如果邪能统御在冷却中，则正常召唤。需要点出邪能统御天赋。"
 
 -- ============================================================================
 -- OPTIONS: PET DISPLAY
@@ -550,47 +533,38 @@ L["Options.PetDisplay.Mode"] = "宠物显示模式"
 L["Options.PetDisplay.Mode.Desc"] = "设置缺失宠物提示的显示方式。"
 L["Options.PetLabels"] = "宠物标签"
 L["Options.PetLabels.Desc"] = "在每个图标下方显示宠物名称和专精。"
-
+L["Options.PetLabels.SizePct"] = "尺寸占比 %"
 
 -- ============================================================================
 -- OPTIONS: CONSUMABLE DISPLAY
 -- ============================================================================
-L["Options.ConsumableBadgeOnSubIcons"] = "在子图标上显示品质标签"
-L["Options.ConsumableBadgeOnSubIcons.Title"] = "子图标品质标签"
-L["Options.ConsumableBadgeOnSubIcons.Desc"] = "在每个子图标上也显示食物品质字母（例如“丰”代表丰盛，“飞”代表飞逝），而不仅在主图标上显示。"
-
-
-
-
+L["Options.ConsumableBadgeOnSubIcons.Disabled"] = "仅在“子图标”显示模式下可用。"
+L["Options.HideConsumableLabels"] = "隐藏属性标签"
+L["Options.HideConsumableLabels.Title"] = "隐藏消耗品属性标签"
+L["Options.HideConsumableLabels.Desc"] =
+    "隐藏消耗品图标左上角显示的小型属性标签（例如“高主”、“低副”）。"
 L["Options.ItemDisplay"] = "物品显示"
 L["Options.ItemDisplay.IconOnly"] = "仅图标"
 L["Options.ItemDisplay.IconOnlyDesc"] = "显示数量最多的物品"
-L["Options.ItemDisplay.SubIcons"] = "子图标"
-L["Options.ItemDisplay.SubIconsDesc"] = "在每个图标下方显示较小的物品变体图标"
 L["Options.ItemDisplay.Expanded"] = "展开"
 L["Options.ItemDisplay.ExpandedDesc"] = "将每个物品变体显示为全尺寸图标"
 L["Options.ItemDisplay.Mode"] = "消耗品物品显示"
-L["Options.ItemDisplay.Mode.Desc"] =
-    "设置具有多个变体的消耗品物品（例如各种合剂类型）的显示方式。"
-L["Options.SubIconSide"] = "方向"
+L["Options.ItemDisplay.Mode.Desc"] = "设置具有多个变体的消耗品物品（例如各种合剂类型）的显示方式。"
 L["Options.SubIconSide.Bottom"] = "底部"
 L["Options.SubIconSide.Top"] = "顶部"
 L["Options.SubIconSide.Left"] = "左侧"
 L["Options.SubIconSide.Right"] = "右侧"
 L["Options.ShowWithoutItems"] = "背包中没有也显示"
 L["Options.ShowWithoutItems.Title"] = "没有物品也显示"
-L["Options.ShowWithoutItems.Desc"] =
-    "启用后，即使背包中没有该物品，也会显示消耗品提示。禁用后，仅显示实际拥有的消耗品。"
+L["Options.ShowWithoutItems.Desc"] = "启用后，即使背包中没有该物品，也会显示消耗品提示。禁用后，仅显示实际拥有的消耗品。"
 L["Options.ShowWithoutItemsReadyCheckOnly"] = "仅在就位确认时"
 L["Options.ShowWithoutItemsReadyCheckOnly.Title"] = "仅在就位确认时显示缺失物品"
-L["Options.ShowWithoutItemsReadyCheckOnly.Desc"] =
-    "启用后，背包中未拥有的消耗品仅在就位确认期间显示。这非常适合作为开打前去补充物品的快速提醒。"
+L["Options.ShowWithoutItemsReadyCheckOnly.Desc"] = "启用后，背包中未拥有的消耗品仅在就位确认期间显示。这非常适合作为开打前去补充物品的快速提醒。"
 L["Options.DelveFoodOnly"] = "在地下堡中仅显示地下堡食物"
 L["Options.DelveFoodOnly.Desc"] = "在地下堡中隐藏除地下堡食物外的所有消耗品提示。"
 L["Options.HideLegacyConsumables"] = "隐藏旧版本消耗品"
 L["Options.HideLegacyConsumables.Title"] = "隐藏旧版本消耗品"
-L["Options.HideLegacyConsumables.Desc"] =
-    "启用后，来自旧资料片的食物、合剂和符文将从动作按钮中过滤掉。如果你还在为了时光漫游、单刷旧团本或给低装等小号使用旧版消耗品，请禁用此项。"
+L["Options.HideLegacyConsumables.Desc"] = "启用后，来自旧资料片的食物、合剂和符文将从动作按钮中过滤掉。如果你还在为了时光漫游、单刷旧团本或给低装等小号使用旧版消耗品，请禁用此项。"
 
 -- ============================================================================
 -- OPTIONS: DK RUNEFORGE PREFERENCES
@@ -603,8 +577,7 @@ L["Options.RuneDualWield"] = "双持"
 -- ============================================================================
 -- OPTIONS: ROGUE POISON PREFERENCES
 -- ============================================================================
-L["Options.RoguePoisonNote"] =
-    "选择要涂抹的毒药及其优先级顺序（最上方优先级最高）。被禁用的毒药永远不会被施放，也不会触发提示。"
+L["Options.RoguePoisonNote"] = "选择要涂抹的毒药及其优先级顺序（最上方优先级最高）。被禁用的毒药永远不会被施放，也不会触发提示。"
 L["Options.PoisonLethal"] = "致命"
 L["Options.PoisonNonLethal"] = "非致命"
 L["Options.PoisonMoveUp"] = "提高优先级"
@@ -615,14 +588,11 @@ L["Options.PoisonReset"] = "重置为默认"
 -- OPTIONS: BUFF SETTINGS GEAR ICONS
 -- ============================================================================
 L["Options.BronzeHideInCombat"] = "战斗中隐藏"
-L["Options.BronzeHideInCombat.Desc"] =
-    "在战斗中隐藏青铜龙的祝福提示。这个增益没那么关键，你通常不会想在战斗中途去补它。"
+L["Options.BronzeHideInCombat.Desc"] = "在战斗中隐藏青铜龙的祝福提示。这个增益没那么关键，你通常不会想在战斗中途去补它。"
 L["Options.DruidIgnoreTravelForm"] = "在旅行途中忽略"
-L["Options.DruidIgnoreTravelForm.Desc"] =
-    "在处于旅行形态（陆地、水生、飞行或坐骑形态）或骑乘坐骑时隐藏形态错误提示，以免在跑路时打扰你。"
+L["Options.DruidIgnoreTravelForm.Desc"] = "在处于旅行形态（陆地、水生、飞行或坐骑形态）或骑乘坐骑时隐藏形态错误提示，以免在跑路时打扰你。"
 L["Options.DelveFoodTimer"] = "30秒后自动隐藏"
-L["Options.DelveFoodTimer.Desc"] =
-    "启用后，地下堡食物提示会在进入地下堡后显示30秒，然后自动隐藏。禁用后，只要你在地下堡中且缺少该增益，提示就会一直显示。"
+L["Options.DelveFoodTimer.Desc"] = "启用后，地下堡食物提示会在进入地下堡后显示30秒，然后自动隐藏。禁用后，只要你在地下堡中且缺少该增益，提示就会一直显示。"
 
 -- ============================================================================
 -- OPTIONS: LAYOUT
@@ -631,15 +601,13 @@ L["Options.Layout"] = "布局"
 L["Options.SplitFrame"] = "分离为独立框体"
 L["Options.SplitFrame.Desc"] = "将此类别中的增益显示在可独立移动的单独框体中。"
 L["Options.DisplayOrder"] = "堆叠顺序"
-L["Options.DisplayOrder.Note"] =
-    "整合框体中各类别的自上而下排列顺序。已分离的类别位于独立的框体中，不参与此排序。"
+L["Options.DisplayOrder.Note"] = "整合框体中各类别的自上而下排列顺序。已分离的类别位于独立的框体中，不参与此排序。"
 
 -- Layout page
 L["Layout.DetachedIcons"] = "已独立图标"
 L["Layout.NoDetached"] =
     '暂无独立图标。可在“提示项”页面的增益设置面板中分离增益（“独立框体”）。'
-L["Layout.FrameNotFound"] =
-    "该框体当前在游戏中不存在。\n一旦对应的插件创建了该框体，它就会出现在锚点下拉菜单中。"
+L["Layout.FrameNotFound"] = "该框体当前在游戏中不存在。\n一旦对应的插件创建了该框体，它就会出现在锚点下拉菜单中。"
 
 -- Buff panel
 L["BuffPanel.SettingsLink"] = "设置"
@@ -661,8 +629,7 @@ L["BuffPanel.MageFoodContent.Raid"] = "仅团队副本"
 L["BuffPanel.Sound"] = "声音"
 L["BuffPanel.Sound.None"] = "无"
 L["BuffPanel.Detached"] = "独立框体 (分离)"
-L["BuffPanel.Detached.Desc"] =
-    "将此增益从其所属类别中拆分出来，放入可独立定位的框体中。\n可在“布局”页面或通过解锁框体来调整位置。"
+L["BuffPanel.Detached.Desc"] = "将此增益从其所属类别中拆分出来，放入可独立定位的框体中。\n可在“布局”页面或通过解锁框体来调整位置。"
 L["BuffPanel.CasterAlways"] = "术士始终可见"
 L["BuffPanel.CasterAlways.Desc"] = "提供此技能的术士始终会看到提示；其他玩家仅在就位确认时可见。"
 L["DisabledReason.NotDetached"] = "该增益未被分离 - 它位于其所属类别的框体内部。"
@@ -679,10 +646,8 @@ L["Options.Appearance"] = "外观"
 L["Options.Override"] = "覆盖"
 L["Options.Override.Inherited"] = "继承自默认值"
 L["Options.Override.Overriding"] = "已覆盖默认值"
-L["Options.Override.Appearance.Desc"] =
-    "为该类别覆盖全局外观默认值。\n关闭时，下方的各项控件将显示继承自“默认值”页面的数值。"
-L["Options.Override.Glow.Desc"] =
-    "为该类别覆盖全局发光设置。\n关闭时，下方的各项控件将显示继承自“默认值”页面的数值。"
+L["Options.Override.Appearance.Desc"] = "为该类别覆盖全局外观默认值。\n关闭时，下方的各项控件将显示继承自“默认值”页面的数值。"
+L["Options.Override.Glow.Desc"] = "为该类别覆盖全局发光设置。\n关闭时，下方的各项控件将显示继承自“默认值”页面的数值。"
 L["Options.Customize"] = "自定义"
 L["Options.ResetPosition"] = "重置位置"
 L["Options.MasqueNote"] = "缩放和边框设置由Masque管理。"
@@ -704,16 +669,13 @@ L["Options.HideWhen.Resting.Desc"] = "在旅店或主城时隐藏增益提示。
 L["Options.HideWhen.Combat"] = "战斗中"
 L["Options.HideWhen.Expiring"] = "战斗中不提示即将过期"
 L["Options.HideWhen.Expiring.Title"] = "战斗中不提示即将过期的增益"
-L["Options.HideWhen.Expiring.Desc"] =
-    "在战斗中不会显示即将过期的增益，仅显示完全缺失的增益"
+L["Options.HideWhen.Expiring.Desc"] = "在战斗中不会显示即将过期的增益，仅显示完全缺失的增益"
 L["Options.HideWhen.Vehicle"] = "载具中"
 L["Options.HideWhen.Vehicle.Title"] = "载具中隐藏"
-L["Options.HideWhen.Vehicle.Desc"] =
-    "使用任务载具时隐藏所有增益提示。即使禁用，团队和特殊增益仍会显示"
+L["Options.HideWhen.Vehicle.Desc"] = "使用任务载具时隐藏所有增益提示。即使禁用，团队和特殊增益仍会显示"
 L["Options.HideWhen.Mounted"] = "乘骑坐骑时"
 L["Options.HideWhen.Mounted.Title"] = "乘骑坐骑时隐藏"
-L["Options.HideWhen.Mounted.Desc"] =
-    "乘骑坐骑时隐藏所有增益提示。优先级高于类别特定的坐骑隐藏设置"
+L["Options.HideWhen.Mounted.Desc"] = "乘骑坐骑时隐藏所有增益提示。优先级高于类别特定的坐骑隐藏设置"
 L["Options.HideWhen.Legacy"] = "旧资料片副本"
 L["Options.HideWhen.Legacy.Title"] = "在旧资料片副本中隐藏"
 L["Options.HideWhen.Legacy.Desc"] = "在激活传承战利品模式的旧资料片副本中隐藏所有增益提示"
@@ -726,33 +688,23 @@ L["Options.HideWhen.Leveling.Desc"] = "未满级时隐藏所有增益提示"
 -- ============================================================================
 L["Options.BuffTracking"] = "增益追踪"
 L["Options.BuffTracking.All"] = "所有增益，所有玩家"
-L["Options.BuffTracking.All.Desc"] =
-    "显示所有职业的团队和特殊增益，并追踪整个队伍的覆盖情况。"
+L["Options.BuffTracking.All.Desc"] = "显示所有职业的团队和特殊增益，并追踪整个队伍的覆盖情况。"
 L["Options.BuffTracking.MyBuffs"] = "仅我的增益，所有玩家"
-L["Options.BuffTracking.MyBuffs.Desc"] =
-    "仅显示你的职业能提供的增益，但会追踪整个队伍的覆盖情况。"
+L["Options.BuffTracking.MyBuffs.Desc"] = "仅显示你的职业能提供的增益，但会追踪整个队伍的覆盖情况。"
 L["Options.BuffTracking.OnlyMine"] = "仅我需要的增益"
-L["Options.BuffTracking.OnlyMine.Desc"] =
-    "显示所有类型的增益，但仅检查自身是否拥有。不显示队伍计数。"
 L["Options.BuffTracking.SelfOnly"] = "仅我的增益，仅限自身"
-L["Options.BuffTracking.SelfOnly.Desc"] =
-    "仅显示你的职业能提供的增益，且仅检查自身是否拥有。不计算团队数量，不包含你对他人施放的增益。"
+L["Options.BuffTracking.SelfOnly.Desc"] = "仅显示你的职业能提供的增益，且仅检查自身是否拥有。不计算团队数量，不包含你对他人施放的增益。"
 L["Options.BuffTracking.Smart"] = "智能"
-L["Options.BuffTracking.Smart.Desc"] =
-    "对你的职业提供的增益追踪整个队伍，对其他职业的增益仅检查自身。"
+L["Options.BuffTracking.Smart.Desc"] = "对你的职业提供的增益追踪整个队伍，对其他职业的增益仅检查自身。"
 L["Options.BuffTracking.Mode"] = "增益追踪模式"
-L["Options.BuffTracking.Mode.Desc"] =
-    "控制显示哪些团队和特殊增益，以及是追踪整个队伍还是仅追踪自身。"
+L["Options.BuffTracking.Mode.Desc"] = "控制显示哪些团队和特殊增益，以及是追踪整个队伍还是仅追踪自身。"
 L["Options.BuffTracking.Override.Default"] = "默认（使用上方的模式）"
 L["Options.BuffTracking.Override.OutsideInstances"] = "地下城与团队副本外"
-L["Options.BuffTracking.Override.OutsideInstances.Desc"] =
-    "在野外使用的追踪模式。在地下城、团队副本、场景战役和PvP中仍将使用上方选定的模式。"
+L["Options.BuffTracking.Override.OutsideInstances.Desc"] = "在野外使用的追踪模式。在地下城、团队副本、场景战役和PvP中仍将使用上方选定的模式。"
 L["Options.BuffTracking.Override.Combat"] = "战斗中"
-L["Options.BuffTracking.Override.Combat.Desc"] =
-    "在战斗中使用的追踪模式。例如，切换为“仅我的增益”可在脱战时保留其他职业增益提示以便喊话补BUFF，但在开打后自动隐藏。"
+L["Options.BuffTracking.Override.Combat.Desc"] = "在战斗中使用的追踪模式。例如，切换为“仅我的增益”可在脱战时保留其他职业增益提示以便喊话补BUFF，但在开打后自动隐藏。"
 L["Options.BuffTracking.Override.Leveling"] = "练级期间"
-L["Options.BuffTracking.Override.Leveling.Desc"] =
-    "未满级时使用的追踪模式。达到满级后，将自动恢复使用上方选定的模式。"
+L["Options.BuffTracking.Override.Leveling.Desc"] = "未满级时使用的追踪模式。达到满级后，将自动恢复使用上方选定的模式。"
 
 -- ============================================================================
 -- OPTIONS: PROFILES TAB
@@ -787,8 +739,7 @@ L["Options.UnknownError"] = "未知错误"
 L["Dialog.Cancel"] = "取消"
 L["Dialog.DeleteCustomBuff"] = '是否删除自定义增益 "%s"？'
 L["Dialog.DeleteLoadout"] = '是否删除配装方案提示 "%s"？'
-L["Dialog.ResetProfile"] =
-    "是否将当前配置文件重置为默认值？\n\n当前配置文件的所有自定义设置将被删除并重载UI。"
+L["Dialog.ResetProfile"] = "是否将当前配置文件重置为默认值？\n\n当前配置文件的所有自定义设置将被删除并重载UI。"
 L["Dialog.Reset"] = "重置"
 L["Dialog.ReloadPrompt"] = "设置导入成功！\n是否重载UI以应用更改？"
 L["Dialog.Reload"] = "重载"
@@ -819,8 +770,7 @@ L["CustomBuff.EditShort"] = "编辑"
 L["CustomBuff.Add"] = "添加自定义增益"
 L["CustomBuff.AddButton"] = "+ 添加自定义增益"
 L["CustomBuff.Empty"] = "暂无自定义增益。请在下方添加。"
-L["CustomBuff.RestrictedNote"] =
-    "在战斗、首领战和大秘境中隐藏——魔兽API在这些环境下限制了光环读取。动作条发光检测在战斗中依然有效。"
+L["CustomBuff.RestrictedNote"] = "在战斗、首领战和大秘境中隐藏——魔兽API在这些环境下限制了光环读取。动作条发光检测在战斗中依然有效。"
 L["CustomBuff.SpellIDs"] = "法术ID:"
 L["CustomBuff.Lookup"] = "查找"
 L["CustomBuff.AddSpellID"] = "+ 添加法术ID"
@@ -871,8 +821,7 @@ L["CustomBuff.BarGlow.WhenNotGlowing"] = "不发光时检测"
 L["CustomBuff.BarGlow.Disabled"] = "禁用"
 L["CustomBuff.BarGlow"] = "动作条发光:"
 L["CustomBuff.BarGlow.Title"] = "动作条发光替代检测"
-L["CustomBuff.BarGlow.Desc"] =
-    "在史诗钥石/PvP/战斗中由于增益API受限，使用动作条法术发光作为替代检测方法。若仅追踪增益是否存在，请禁用此项。"
+L["CustomBuff.BarGlow.Desc"] = "在史诗钥石/PvP/战斗中由于增益API受限，使用动作条法术发光作为替代检测方法。若仅追踪增益是否存在，请禁用此项。"
 
 -- Ready check / level
 L["CustomBuff.ReadyCheckOnly"] = "仅就位确认时"
@@ -888,8 +837,7 @@ L["CustomBuff.Action.Item"] = "物品"
 L["CustomBuff.Action.Macro"] = "宏"
 L["CustomBuff.Action.OnClick"] = "点击时:"
 L["CustomBuff.Action.Title"] = "点击动作"
-L["CustomBuff.Action.Desc"] =
-    "设置点击此增益图标时的动作。法术会施放法术，物品会使用物品，宏会执行宏。"
+L["CustomBuff.Action.Desc"] = "设置点击此增益图标时的动作。法术会施放法术，物品会使用物品，宏会执行宏。"
 L["CustomBuff.Action.MacroHint"] = "例：/use item:12345\n/use 13"
 
 -- Save/Cancel/Delete
@@ -914,8 +862,7 @@ L["Options.SupportKofi.Desc"] = "喜欢使用 BuffReminders 吗？\n欢迎在 Ko
 -- ============================================================================
 -- OPTIONS: CUSTOM ANCHOR FRAMES
 -- ============================================================================
-L["Options.CustomAnchorFrames.Desc"] =
-    "在锚点下拉菜单中添加全局框体名称（例：MyAddon_PlayerFrame）。\n游戏中不存在的框体会自动跳过。"
+L["Options.CustomAnchorFrames.Desc"] = "在锚点下拉菜单中添加全局框体名称（例：MyAddon_PlayerFrame）。\n游戏中不存在的框体会自动跳过。"
 L["Options.Add"] = "添加"
 L["Options.New"] = "新建"
 L["Options.ResetToDefaults"] = "重置为默认值"
@@ -956,14 +903,17 @@ L["Component.AdjustValue.Desc"] = "点击输入或使用鼠标滚轮。"
 L["Component.AdjustValue.ClickHint"] = "点击数字以输入具体数值"
 
 -- Scope tag for globally-stored controls on category pages
-
-
-
+L["Options.GlobalTag"] = "全局"
+L["Options.GlobalTag.Title"] = "全局生效"
+L["Options.GlobalTag.Desc"] =
+    "此设置为整个插件全局保存。\n在此修改将影响所有类别，而不仅仅是当前类别。"
 
 -- Disabled-control explanations
 L["Component.DisabledReason.Title"] = "为何此项被禁用？"
-
-
+L["DisabledReason.GrowDirection"] =
+    '增长方向需要该类别处于独立框体中。\n请先在“布局”部分启用“分离为独立框体”。'
+L["DisabledReason.ResetPosition"] =
+    '仅已分离的类别才拥有独立位置。\n请先启用“分离为独立框体”。'
 L["DisabledReason.OverrideSection"] = '请先开启该部分顶部的“覆盖”选项。'
 L["DisabledReason.CombatOverride"] =
     '上方已开启“战斗中隐藏”，战斗中将不显示任何提示，因此该覆盖规则不会生效。\n取消勾选后方可使用战斗追踪覆盖规则。'
@@ -972,7 +922,7 @@ L["DisabledReason.LevelingOverride"] =
 L["DisabledReason.ExpiringInCombat"] =
     '已开启“战斗中隐藏”，战斗中所有提示都将被隐藏。'
 L["DisabledReason.HealthstoneThreshold"] = '请先启用“治疗石不足警告”。'
-
+L["DisabledReason.UseDefaultThreshold"] = '取消勾选“使用默认阈值”以设置类别专属数值。'
 
 -- Direction labels
 L["Direction.Left"] = "左侧"
@@ -1014,6 +964,25 @@ L["Content.MythicRaids"] = "史诗团队副本"
 -- PvP types
 L["Content.Arena"] = "竞技场"
 L["Content.Battlegrounds"] = "战场"
+L["Display.DismissConsumablesChat"] = "直到下次蓝条加载前，消耗品提醒被暂时隐藏了。"
+
+L["Display.LoginSnooze"] = "隐藏消耗品提示现在改为右键操作：右键点击消耗品可暂时隐藏其提示，或输入 |cFFFFD100/br snooze|r。"
+
+L["Options.ShowBuffTooltips"] = "显示增益鼠标提示信息"
+
+L["Options.ConsumableBadgeOnSubIcons"] = "在子图标上显示品质标签"
+
+L["Options.ConsumableBadgeOnSubIcons.Title"] = "子图标品质标签"
+
+L["Options.ConsumableBadgeOnSubIcons.Desc"] = "在每个子图标上也显示食物品质字母（例如“丰”代表丰盛，“飞”代表飞逝），而不仅在主图标上显示。"
+
+L["Options.ItemDisplay.SubIcons"] = "子图标"
+
+L["Options.ItemDisplay.SubIconsDesc"] = "在每个图标下方显示较小的物品变体图标"
+
+L["Options.SubIconSide"] = "方向"
+
+L["Options.BuffTracking.OnlyMine.Desc"] = "显示所有类型的增益，但仅检查自身是否拥有。不显示队伍计数。"
 
 L["Loadout.EquipFailed"] = "无法穿上装备套装，请确认套装中的每件装备都在背包里。"
 
@@ -1035,42 +1004,73 @@ L["BuffPanel.WarlockDemon.Warn.Desc"] = "当前召唤的恶魔不在此内容允
 
 L["BuffPanel.WarlockDemon.Hint"] = "点击恶魔以允许召唤，可同时允许多个。清空某一行时，该内容将允许所有恶魔。"
 
--- v6.10.0 新增與調整的顯示文字
 L["Display.LoginCasterName"] = "外部增益现在可以显示施放者。请到 |cFFFFD100/br|r > 类别 > 外部增益启用。"
+
 L["Externals.Countdown"] = "倒计时"
+
 L["Externals.CasterName"] = "施放者名称"
+
 L["Externals.CasterName.Desc"] = "在图标旁以职业颜色显示增益施放者。"
+
 L["Externals.CasterNameOff"] = "请先选择施放者名称的显示位置。"
+
 L["Options.AppliesEverywhere"] = "应用于所有类别，各类别无法覆盖。"
+
 L["Options.ExpirationWarning"] = "剩余时间低于此值时提醒"
+
 L["Options.Override.Expiration.Desc"] = "设置此类别的提醒时间。关闭时使用默认值页面的时间。"
+
 L["Options.FreeConsumables.Follows"] = "遵循上方的显示场合过滤条件。"
+
 L["Options.ShowTextToggle"] = "显示"
+
 L["Options.MainText.Desc"] = "在图标上显示主要文字，例如 17/20 的数量或「没有宠物」标签。位置由默认值页面设置，过期倒计时始终显示。"
+
 L["Options.TextPositions.Offset"] = "偏移"
+
 L["Options.Interaction"] = "交互"
+
 L["Options.TextOverlays"] = "文字与叠加效果"
+
 L["Options.BuffReminderText"] = "「增益！」文字"
+
 L["Options.ItemFilters"] = "物品"
+
 L["Options.Direction.Default"] = "默认"
+
 L["Options.Direction.Desc"] = "此框架图标的排列方向。「默认」会遵循默认值页面的方向。"
+
 L["Options.ShowBuffTooltips.Desc"] = "鼠标指向此类别的增益图标时，显示法术提示及提供增益的职业。"
+
 L["Options.PetLabels.Classes"] = "显示标签的职业"
+
 L["Options.PetLabels.Classes.Desc"] = "只在勾选职业的宠物上显示宠物标签。"
+
 L["Options.Override.Externals.Desc"] = "覆盖这些图标的全局外观默认值。\n关闭时，下方的图标控件显示从默认值页面继承的值。方向、文字与鼠标提示始终单独设置。"
+
 L["Options.Override.OpenDefaults"] = "打开"
+
 L["DisabledReason.ShowWithoutItems"] = "请先启用「不在背包中时也显示」。"
+
 L["DisabledReason.PetLabelsOff"] = "请先选择「宠物标签」的位置。"
+
 L["DisabledReason.OverrideRow"] = "请先勾选此行的「覆盖」。"
 
--- Language options
 L["Options.Language"] = "语言"
+
 L["Options.Language.Auto"] = "自动（游戏语言）"
+
 L["Options.Language.Desc"] = "插件文字的语言。自动会使用游戏语言，尚未翻译的文字则显示英文。"
+
 L["Language.enUS"] = "English"
+
 L["Dialog.ReloadLanguage"] = "重新加载界面后才会应用新的语言。\n现在重新加载吗？"
 
 L["Badge.Cauldron"] = "C"
+
 L["Options.PlaceAtPlayer"] = "将大餐和药锅放在脚下"
+
 L["Options.PlaceAtPlayer.Desc"] = "点击大餐或药锅图标会将它放在您的位置。关闭此选项时，必须在地面上选择放置位置。"
+
 L["Dialog.DeleteProfile"] = "确定要删除配置文件“%s”吗？此操作无法撤销。"
+

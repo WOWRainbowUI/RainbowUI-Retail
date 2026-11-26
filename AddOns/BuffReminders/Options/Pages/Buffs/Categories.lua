@@ -26,10 +26,12 @@ local SCROLLBAR_WIDTH = BR.Options.Constants.SCROLLBAR_WIDTH
 -- the shared template.
 local EXTERNALS_TAB = "externals"
 local TAB_CATEGORIES = {}
-for _, cat in ipairs(BR.CATEGORY_ORDER) do
+for _, cat in ipairs(BR.AVAILABLE_CATEGORIES) do
     TAB_CATEGORIES[#TAB_CATEGORIES + 1] = cat
 end
-TAB_CATEGORIES[#TAB_CATEGORIES + 1] = EXTERNALS_TAB
+if BR.Options.BuffSections.ExternalsAppearance then
+    TAB_CATEGORIES[#TAB_CATEGORIES + 1] = EXTERNALS_TAB
+end
 
 local TAB_STRIP_H = 26
 local TAB_GAP = 4
@@ -174,7 +176,8 @@ local function Build(content, scrollFrame)
 
     local mask = strip:CreateTexture(nil, "BACKGROUND")
     mask:SetAllPoints(strip)
-    mask:SetColorTexture(0.09, 0.09, 0.107, 1)
+    -- The mask hides content that scrolls under the strip, so it matches the panel body.
+    BR.SetThemeColorTexture(mask, BR.Theme.stripMask)
 
     -- Translated labels can make the row wider than the strip. Then the row
     -- scrolls inside a ScrollFrame, which clips both the drawing and the clicks.

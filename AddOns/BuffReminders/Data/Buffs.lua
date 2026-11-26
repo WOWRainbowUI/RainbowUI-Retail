@@ -2,6 +2,10 @@ local _, ns = ...
 ---@class BR
 local BR = ns
 
+if BR.CLIENT ~= BR.ClientType.Retail then
+    return
+end
+
 local L = BR.L
 
 -- Lua stdlib locals
@@ -79,31 +83,52 @@ BR.DK_RUNEFORGES = DK_RUNEFORGES
 ---@field key string
 ---@field name string
 ---@field class ClassName
+---@field reach BuffReach In a raid, "party" counts only the player's subgroup
+---@field icons? IconSpec
 ---@field levelRequired? number
 ---@field playersOnly? boolean Exclude NPCs from the count (e.g. buffs NPCs provide themselves)
+---@field defaultEnabled? boolean Ships disabled when false (opt-in); enabled otherwise. Resolved at read time by IsBuffEnabled.
 ---@field chatRequestable? boolean Offer "request this buff in chat" on click for players who can't provide it
+---@field castOnMissing? boolean The cast takes one target: the click casts on a member who lacks the buff
+---@field groupCast? GroupCastRank[] Group ranks that use a reagent, highest first. The user turns them on per buff
+---@field requiresKnownSpell? boolean Only a player who knows one of the spells sees it, except a chatRequestSpell requester. The talents of other members are unreadable
+---@field chatRequestSpell? fun(): number? The spell that a player of another class asks for. That player checks only their own aura, out of combat. The chat request names the spell
+---@field visibilityCondition? fun(): boolean Return false to hide the buff
+---@field classChoices? ClassChoiceGrid Each member wants a choice of their class list. The click casts the choice of the largest class set
+---@field target? BuffTarget|fun(): BuffTarget A function reads a user setting. Default "group"
+---@field subChoices? SubChoiceRow Choice icons beside the reminder
+---@field infoTooltip? TooltipText
+
+---@class GroupCastRank
+---@field spellID number
+---@field reagent number Item ID that the cast uses
 
 ---@class PresenceBuff
 ---@field spellID SpellID
 ---@field key string
 ---@field name string
 ---@field class ClassName
+---@field reach BuffReach In a raid, "party" counts only the player's subgroup
 ---@field levelRequired? number
 ---@field overlayText string
 ---@field groupId? string
----@field excludeSpellID? number
 ---@field icons? IconSpec
 ---@field infoTooltip? TooltipText
 ---@field noExpirationGlow? boolean
 ---@field readyCheckOnly? boolean Only show during ready checks
 ---@field showOnInstanceEntry? boolean Also show when entering an instance (not M+)
----@field castOnOthers? boolean Buff exists on the target, not the caster (e.g., Soulstone)
+---@field target? BuffTarget Default "anyone"
+---@field copies? BuffCopies Default "any"
 ---@field pinnedTarget? fun(): string? User-assigned hard target name, nil when unset (e.g., Soulstone pin)
 ---@field glowDetectable? boolean Use action bar glow as fallback detection when aura API is restricted
 ---@field groupOnly? boolean Only show when in a group (hide when solo)
 ---@field suppressedByEntry? string Hide when this entry key is already visible (e.g., self buff covers it)
 ---@field chatRequestable? boolean Offer "request this buff in chat" on click for players who can't provide it
----@field customCheck? fun(isRestricted?: boolean): boolean?
+---@field castReady? fun(isRestricted: boolean): boolean? For a caster of the class. false hides the missing reminder
+---@field castSpellID? number|number[] Click-to-cast spell when different from spellID. A list casts the first known spell
+---@field casterCheck? fun(isRestricted: boolean): string?, boolean? For a player of the class, replaces the group scan. Returns the overlay text (nil = no reminder) and true when a click must cast nothing
+---@field choiceOrder? ChoiceOrderGrid The user lists the buff choices per content row. An empty row accepts any
+---@field clickMacro? fun(spellID: number?): string
 
 ---@class TargetedBuff
 ---@field spellID SpellID
@@ -121,6 +146,13 @@ BR.DK_RUNEFORGES = DK_RUNEFORGES
 ---@field clickMacro? fun(spellID: number?): string
 ---@field casterBuffId? number Check this buff on the caster instead of scanning group
 ---@field glowDetectable? boolean Use action bar glow as fallback detection when aura API is restricted
+---@field target? BuffTarget Default "ally"
+---@field copies? BuffCopies Default "own"
+---@field targetHint? string Gray text after the remembered target name in the icon tooltip
+---@field levelRequired? number A caster in the group must have this level to count
+---@field noExpirationGlow? boolean
+---@field chatRequestable? boolean Offer "request this buff in chat" on click for players who can't provide it
+---@field visibilityCondition? fun(): boolean Return false to hide the buff
 
 ---@class SelfBuff
 ---@field spellID? SpellID
@@ -130,10 +162,12 @@ BR.DK_RUNEFORGES = DK_RUNEFORGES
 ---@field overlayText string
 ---@field groupId? string
 ---@field defaultEnabled? boolean Ships disabled when false (opt-in); enabled otherwise. Resolved at read time by IsBuffEnabled.
----@field enchantID? number
+---@field enchantID? number|table<number, true> One enchant ID, or a set of accepted IDs
+---@field enchantDuration? number Full enchant duration in seconds, that sets its warning lead
+---@field visibilityCondition? fun(): boolean Return false to hide the buff
 ---@field requiresBuffWithEnchant? boolean -- When true, require both enchant AND buff to be present (for Paladin Rites)
 ---@field getExpirationInfo? fun(): number?, number? -- Remaining seconds and expiring spell ID, for a buff with no single aura
----@field castSpellID? number           -- Spell ID used for click-to-cast when different from spellID
+---@field castSpellID? number|number[] -- Click-to-cast spell when different from spellID. A list casts the first known spell
 ---@field clickMacro? fun(spellID: number?): string -- Macro text override for click-to-cast, receives castable spell ID
 ---@field buffIdOverride? number|number[]
 ---@field requireSpecId? number        -- Only show if player's current spec matches (WoW spec ID)
@@ -141,14 +175,21 @@ BR.DK_RUNEFORGES = DK_RUNEFORGES
 ---@field excludeSpellID? number
 ---@field icons? IconSpec
 ---@field infoTooltip? TooltipText
----@field customCheck? fun(isRestricted?: boolean): boolean?
+---@field customCheck? fun(isRestricted: boolean): boolean? Replaces the aura check. true = reminder needed, false = satisfied, nil = does not apply
 ---@field getPetActions? fun(): PetAction[]?  -- Override pet actions (e.g., wrong pet -> Felguard only)
+---@field petSacrifice? PetSacrifice The player can sacrifice the pet for a buff
 ---@field glowDetectable? boolean Use action bar glow as fallback detection when aura API is restricted
----@field showOnInstanceEntry? boolean Only show when entering an instance (not M+), skip normal buff checks
 ---@field showWhenPresent? boolean Show when buff IS active (inverts normal "show when missing" logic)
 ---@field noClickToCast? boolean Suppress click-to-cast overlay (e.g., CastSpellByID can't toggle this spell)
----@field noExpirationGlow? boolean Suppress expiration glow (for permanent enchants or intentionally short buffs)
+---@field noExpirationGlow? boolean Show only the missing state, never the expiring state (permanent enchants, short buffs)
 ---@field skipSpellKnownCheck? boolean Skip the "player knows spell" check (for custom/dynamic entries)
+
+---A known sacrifice spell hides the reminder while a sacrifice buff is up. If a restricted
+---context makes the buffs unreadable, the reminder hides.
+---@class PetSacrifice
+---@field spellID number
+---@field auraIDs number[] Buffs that the sacrifice gives
+---@field reminderKey? string Self-buff reminder of the sacrifice. While it shows, it covers the missing pet
 
 ---@class ConsumableBuff
 ---@field spellID? SpellID
@@ -158,6 +199,7 @@ BR.DK_RUNEFORGES = DK_RUNEFORGES
 ---@field groupId? string
 ---@field checkWeaponEnchant? boolean Check if any weapon enchant exists (oils, stones, imbues)
 ---@field checkWeaponEnchantOH? boolean Check if off-hand weapon enchant exists
+---@field enchantDuration? number Full weapon enchant duration in seconds, that sets its warning lead
 ---@field excludeIfSpellKnown? number[] Don't show if player knows any of these spells
 ---@field buffIconID? number Detection-only: any aura whose icon matches counts as the buff (e.g., 136000 for food). Does not affect the displayed icon: a buff that detects by icon still needs icons.textures to show it.
 ---@field icons? IconSpec
@@ -243,35 +285,181 @@ local function IsInDelve()
 end
 BR.IsInDelve = IsInDelve
 
----Check if the player's pet is on passive stance
----@return boolean? true if pet exists and is on passive, nil otherwise
-local function IsPetOnPassive()
-    if not UnitExists("pet") then
-        return nil
-    end
-    for i = 1, NUM_PET_ACTION_SLOTS do
-        local name, _, _, isActive = GetPetActionInfo(i)
-        if name == "PET_MODE_PASSIVE" and isActive then
-            return true
-        end
-    end
-    return nil
+-- Extra content that the dungeon row of a per-content grid covers. nil = dungeons only.
+---@type string?
+BR.CONTENT_GRID_DUNGEON_DESC = L["BuffPanel.WarlockDemon.Dungeon.Desc"]
+
+BR.SHADOWFORM_SPELL_ID = 232698
+
+---@type SoulstoneVisibility
+BR.SOULSTONE_DEFAULT_VISIBILITY = "readyCheck"
+
+-- Icon of the eating channel aura, the same for all food types.
+BR.EATING_AURA_ICON = 133950
+
+-- Sample icons for the consumable item display preview in the options.
+BR.CONSUMABLE_PREVIEW_TEXTURES = {
+    flask = { 7548898, 7548899, 7548900 },
+    food = { 4672193, 1045939 },
+    oil = 7548987,
+}
+
+-- Consumable options that only apply to this client's item data.
+BR.CONSUMABLE_FEATURES = { itemLabels = true, delveFood = true, legacyItems = true }
+
+---@class InstanceContent
+---@field contentTypes string[] Segments of the content visibility bar, in bar order
+---@field difficulties table<string, string[]> Sub-toggle keys per content type, in bar order. No entry = no sub-row
+---@field difficultyIDs table<string, table<number, string>> Difficulty key per GetInstanceInfo difficultyID
+---@field titles? table<string, string> Content segment titles that replace the shared titles
+---@field legacyLoot boolean Old instances can run in legacy loot mode
+---@field keystones boolean Dungeons can run as Mythic Keystones
+
+---@type InstanceContent
+BR.INSTANCE_CONTENT = {
+    contentTypes = { "openWorld", "housing", "scenario", "dungeon", "raid", "pvp" },
+    difficulties = {
+        scenario = { "delves", "others" },
+        dungeon = { "normal", "heroic", "mythic", "mythicPlus", "timewalking", "follower" },
+        raid = { "lfr", "normal", "heroic", "mythic" },
+        pvp = { "arena", "bg" },
+    },
+    difficultyIDs = {
+        dungeon = {
+            [1] = "normal",
+            [2] = "heroic",
+            [23] = "mythic",
+            [8] = "mythicPlus", -- Mythic Keystone
+            [24] = "timewalking",
+            [205] = "follower",
+        },
+        raid = {
+            [17] = "lfr",
+            [14] = "normal",
+            [15] = "heroic",
+            [16] = "mythic",
+        },
+    },
+    legacyLoot = true,
+    keystones = true,
+}
+
+---@class PetSpells
+---@field callPet number[] Call Pet spells, one per stable slot
+---@field stableSlots? boolean Each Call Pet spell summons the pet of its stable slot
+---@field demonFlyout? number Flyout that holds the demon summons
+---@field demonSummons? number[] Demon summon spells, for a client without the flyout
+---@field demonChoices string[] Demon keys of the warlockDemons grid, in grid order
+---@field demonPreference string[] Demon keys in the order that the summon click prefers
+---@field felguard? number
+---@field felDomination number
+
+---@type PetSpells
+BR.PET_SPELLS = {
+    callPet = { 883, 83242, 83243, 83244, 83245 },
+    stableSlots = true,
+    demonFlyout = 10,
+    demonChoices = { "imp", "voidwalker", "felhunter", "sayaad" },
+    -- Felhunter first for its interrupt.
+    demonPreference = { "felhunter", "imp", "voidwalker", "sayaad" },
+    felguard = 30146,
+    felDomination = 333889,
+}
+
+---@class StanceChoice
+---@field key string Saved-variable key in the grid rows
+---@field spellIDs number[] Highest rank first. Empty for the caster choice (no form)
+---@field label? string Label of a choice with no spell
+---@field iconSpellID? number Icon of a choice with no spell
+---@field groupCast? GroupCastRank[] Group ranks of a buff choice, highest first
+---@field auraIDs? number[] Every aura ID that counts as the buff choice
+---@field resistance? boolean A paladin resistance aura: it reaches the whole raid and suits one boss
+
+---@class ChoiceOrderGrid
+---@field setting string Key in profile.defaults: row key -> choice keys in priority order, false in an unused slot
+---@field choices StanceChoice[] The choices that a slot can hold
+---@field rows string[] Row keys in grid order
+---@field slots integer Slots per row: the main choice, then the backups
+---@field castID fun(choice: StanceChoice): number? Highest known single-target rank of the choice
+---@field clusterEnds? table<string, boolean> Rows that end a cluster. A gap follows each one
+
+---@class ClassChoiceGrid : ChoiceOrderGrid
+---@field forClass fun(class: string): StanceChoice[] Known choices of the class list in priority order. The list is reused
+
+---@class SubChoiceRow
+---@field pick fun(def: table): number?, string? Spell and unit of the main click. A clickMacroText click ignores them. nil = no cast and no row
+---@field others fun(def: table, unit: string, spellID: number): SubChoice[] The other choices for the unit. The list is reused
+---@field choiceUnit? fun(def: table): string Target of the choice buttons. nil: the unit of the main click
+
+---@class SubChoiceItem
+---@field itemID number Item that the choice button uses
+
+---@class SubChoiceSpell
+---@field spellID number Spell that the choice button casts as is, with no rank fit
+
+---@alias SubChoice number[]|SubChoiceItem|SubChoiceSpell A rank list, highest rank first, an item, or one spell
+
+---@class StanceGrid
+---@field setting string Key of the grid in profile.defaults
+---@field choices StanceChoice[] In grid order. The click prefers the first allowed choice
+---@field hint string
+
+---@class StanceRule
+---@field allowed fun(): table<number, boolean>? Allowed stance spells (BR.NO_STANCE = no stance). nil = no reminder
+---@field castID fun(): number? Stance spell that the click casts. BR.NO_STANCE = cancel the current form
+---@field grid? StanceGrid Allowed choices per content row
+
+local STANCE_BATTLE = 386164
+local STANCE_BERSERKER = 386196
+local STANCE_DEFENSIVE = 386208
+
+-- Arms: Battle. Fury: Battle or Berserker (the Berserker talent replaces Battle).
+-- Protection: Defensive.
+local WARRIOR_EXPECTED_STANCES = {
+    [71] = { [STANCE_BATTLE] = true },
+    [72] = { [STANCE_BATTLE] = true, [STANCE_BERSERKER] = true },
+    [73] = { [STANCE_DEFENSIVE] = true },
+}
+
+-- Only Feral and Balance need a form. Incarnation talents empower the existing
+-- form and keep its stance bar slot, so the base form ID still matches.
+local DRUID_EXPECTED_FORMS = {
+    [102] = 24858, -- Balance: Moonkin Form
+    [103] = 768, -- Feral: Cat Form
+}
+local DRUID_ALLOWED_FORMS = {}
+for specId, formID in pairs(DRUID_EXPECTED_FORMS) do
+    DRUID_ALLOWED_FORMS[specId] = { [formID] = true }
 end
 
----Build a clickMacro function for targeted buffs that remembers the last target (last target re-casting).
----Macro priority: last target > mouseover > current target > no target (self-cast or error).
----@param buffKey string The buff's key, used to look up the last target
----@return fun(spellID: number): string
-local function TargetedClickMacro(buffKey)
-    return function(spellID)
-        local name = BR.GetSpellName(spellID) or ""
-        local lastTarget = BR.TargetMemory and BR.TargetMemory.Get(buffKey)
-        if lastTarget then
-            return "/cast [@" .. lastTarget .. ",help,nodead][@mouseover,help,nodead][@target,help,nodead][] " .. name
-        end
-        return "/cast [@mouseover,help,nodead][@target,help,nodead][] " .. name
-    end
-end
+---@type table<string, StanceRule>
+BR.STANCE_RULES = {
+    WARRIOR = {
+        allowed = function()
+            return WARRIOR_EXPECTED_STANCES[BR.StateHelpers.GetPlayerSpecId()]
+        end,
+        castID = function()
+            local specId = BR.StateHelpers.GetPlayerSpecId()
+            if specId == 73 then
+                return STANCE_DEFENSIVE
+            end
+            if specId == 72 and IsPlayerSpellCached(STANCE_BERSERKER) then
+                return STANCE_BERSERKER
+            end
+            return STANCE_BATTLE
+        end,
+    },
+    DRUID = {
+        allowed = function()
+            return DRUID_ALLOWED_FORMS[BR.StateHelpers.GetPlayerSpecId()]
+        end,
+        castID = function()
+            return DRUID_EXPECTED_FORMS[BR.StateHelpers.GetPlayerSpecId()]
+        end,
+    },
+}
+
+local TargetedClickMacro = BR.TargetedClickMacro
 
 -- The single source of truth for the default poison order.
 -- BR.profile.roguePoisonPreferences overrides it, with a per-entry enabled flag.
@@ -287,6 +475,16 @@ BR.DEFAULT_POISON_PREFERENCES = {
         { spellID = 5761, enabled = true }, -- Numbing
         { spellID = 3408, enabled = true }, -- Crippling
     },
+}
+
+---@class PoisonColumn
+---@field key string Key of the column list in roguePoisonPreferences
+---@field label string
+
+---@type PoisonColumn[]
+BR.POISON_COLUMNS = {
+    { key = "lethal", label = L["Options.PoisonLethal"] },
+    { key = "nonLethal", label = L["Options.PoisonNonLethal"] },
 }
 
 local poisonCache = {
@@ -470,10 +668,18 @@ BR.REPAIR_SOURCES = {
 ---@field icons? IconSpec
 ---@field infoTooltip? TooltipText
 ---@field castSpellID? number           -- Spell ID used for click-to-cast (else spellID)
+---@field castUnit? string              -- Unit that the click casts on (nil = default targeting)
+---@field clickSpell? fun(): number?    -- Spell that the click casts, read at click time. nil casts nothing
+---@field clickItem? number             -- Item that the click uses
+---@field clickMacroText? fun(): string? -- Macro that the click runs, read at each resolve. nil gives no click
+---@field subChoices? SubChoiceRow      -- Choice icons beside the reminder
 ---@field noClickToCast? boolean        -- Suppress the click-to-cast overlay
 ---@field showOnInstanceEntry? boolean  -- Only show briefly on dungeon entry (grouped, non-M+)
 ---@field visibilityCondition? fun(): boolean?
----@field customCheck? fun(isRestricted?: boolean): boolean?
+---@field customCheck? fun(isRestricted: boolean): boolean? true shows the reminder
+---@field countdown? fun(): number?, number?, string? -- End of a countdown that replaces the label, sweep length, progress text
+---@field renewAuraID? number Aura that the chore gives. While customCheck is false, the reminder warns before the aura ends
+---@field canRenew? fun(isRestricted: boolean): boolean Gates the warning on whether the player can do the chore now
 ---@field addedIn? string Version cohort for the what's-new dot
 
 ---@class BuffTables
@@ -496,6 +702,7 @@ BR.BUFF_TABLES = {
             key = "intellect",
             name = L["Buff.ArcaneIntellect"],
             class = "MAGE",
+            reach = "raid",
             levelRequired = 8,
             chatRequestable = true,
         }, -- 432778 = NPC version
@@ -504,6 +711,7 @@ BR.BUFF_TABLES = {
             key = "attackPower",
             name = L["Buff.BattleShout"],
             class = "WARRIOR",
+            reach = "raid",
             levelRequired = 10,
             chatRequestable = true,
         },
@@ -527,6 +735,7 @@ BR.BUFF_TABLES = {
             key = "bronze",
             name = L["Buff.BlessingOfTheBronze"],
             class = "EVOKER",
+            reach = "raid",
             levelRequired = 30,
             playersOnly = true, -- NPCs have their own bronze variant (e.g. 432658)
             chatRequestable = true,
@@ -536,6 +745,7 @@ BR.BUFF_TABLES = {
             key = "versatility",
             name = L["Buff.MarkOfTheWild"],
             class = "DRUID",
+            reach = "raid",
             levelRequired = 10,
             chatRequestable = true,
         }, -- 432661 = NPC version
@@ -544,6 +754,7 @@ BR.BUFF_TABLES = {
             key = "stamina",
             name = L["Buff.PowerWordFortitude"],
             class = "PRIEST",
+            reach = "raid",
             levelRequired = 10,
             chatRequestable = true,
         },
@@ -552,6 +763,7 @@ BR.BUFF_TABLES = {
             key = "skyfury",
             name = L["Buff.Skyfury"],
             class = "SHAMAN",
+            reach = "raid",
             levelRequired = 16,
             chatRequestable = true,
         },
@@ -566,6 +778,7 @@ BR.BUFF_TABLES = {
             key = "atrophicNumbingPoison",
             name = L["Buff.AtrophicNumbingPoison"],
             class = "ROGUE",
+            reach = "raid",
             levelRequired = 80,
             overlayText = L["Overlay.NoDrPoison"],
             groupOnly = true, -- self-buff "roguePoisons" already covers solo
@@ -577,6 +790,7 @@ BR.BUFF_TABLES = {
             key = "devotionAura",
             name = L["Buff.DevotionAura"],
             class = "PALADIN",
+            reach = "raid",
             levelRequired = 10,
             overlayText = L["Overlay.NoAura"],
             chatRequestable = true,
@@ -586,13 +800,15 @@ BR.BUFF_TABLES = {
             key = "soulstone",
             name = L["Buff.Soulstone"],
             class = "WARLOCK",
+            reach = "raid",
             levelRequired = 13,
             overlayText = L["Overlay.NoSoulstone"],
             chatRequestable = true,
             readyCheckOnly = true,
-            castOnOthers = true,
+            target = "ally",
+            copies = "own",
             noExpirationGlow = true,
-            customCheck = function()
+            castReady = function()
                 if playerClass ~= "WARLOCK" then
                     return nil
                 end
@@ -620,47 +836,7 @@ BR.BUFF_TABLES = {
                 return nil
             end,
             clickMacro = function(spellID)
-                local name = BR.GetSpellName(spellID) or ""
-                -- Hard-assigned target: cast ONLY on them - alive (pre-emptive stone)
-                -- or dead (offers them a res). Deliberately no fallback: if the pin
-                -- is absent or out of group the click is a safe no-op, so the stone
-                -- can never silently land on the wrong person.
-                local db = BR.profile
-                local pinned = db.defaults and db.defaults.soulstonePinnedTarget
-                if pinned and pinned ~= "" then
-                    -- Re-sanitize at use: imported profiles bypass the options input,
-                    -- and this string must never break out of the macro conditional
-                    return "/cast [@" .. pinned:gsub("[%[%]\r\n]", "") .. ",help] " .. name
-                end
-                -- Priority: sticky last target > first living healer > mouseover > target > self
-                local lastTarget = BR.TargetMemory and BR.TargetMemory.Get("soulstone")
-                if lastTarget then
-                    return "/cast [@"
-                        .. lastTarget
-                        .. ",help,nodead][@mouseover,help,nodead][@target,help,nodead][@player] "
-                        .. name
-                end
-                local numMembers = GetNumGroupMembers()
-                if numMembers > 0 then
-                    local prefix = IsInRaid() and "raid" or "party"
-                    for i = 1, numMembers do
-                        local unitId = prefix .. i
-                        if UnitExists(unitId) and not UnitIsDeadOrGhost(unitId) then
-                            -- Runs inside the secure button's PreClick, i.e. in combat,
-                            -- where a compare against a secret role can throw
-                            if Plain(UnitGroupRolesAssigned(unitId)) == "HEALER" then
-                                local healerName = GetUnitName(unitId, true)
-                                if healerName then
-                                    return "/cast [@"
-                                        .. healerName
-                                        .. ",help,nodead][@mouseover,help,nodead][@target,help,nodead][@player] "
-                                        .. name
-                                end
-                            end
-                        end
-                    end
-                end
-                return "/cast [@mouseover,help,nodead][@target,help,nodead][@player] " .. name
+                return "/cast " .. BR.SoulstoneTargetConditions() .. (BR.GetSpellName(spellID) or "")
             end,
         },
     },
@@ -698,7 +874,6 @@ BR.BUFF_TABLES = {
             class = "EVOKER",
             overlayText = L["Overlay.NoScales"],
             requireSpecId = 1473, -- Augmentation
-            requiresSpellID = 360827,
             clickMacro = TargetedClickMacro("blisteringScales"),
         },
         {
@@ -738,7 +913,6 @@ BR.BUFF_TABLES = {
             class = "EVOKER",
             overlayText = L["Overlay.NoTimeless"],
             requireSpecId = 1473, -- Augmentation
-            requiresSpellID = 412710,
             clickMacro = TargetedClickMacro("timelessness"),
         },
         {
@@ -987,8 +1161,8 @@ BR.BUFF_TABLES = {
             class = "PRIEST",
             overlayText = L["Overlay.NoForm"],
             icons = { textures = { 136200 } }, -- spell_shadow_shadowform
-            requiresSpellID = 232698,
-            castSpellID = 232698,
+            requiresSpellID = BR.SHADOWFORM_SPELL_ID,
+            castSpellID = BR.SHADOWFORM_SPELL_ID,
             noExpirationGlow = true, -- Voidform (short duration) replaces Shadowform; do not warn
             customCheck = function()
                 return not BR.BuffState.IsShadowFormActive()
@@ -1096,7 +1270,7 @@ BR.BUFF_TABLES = {
                 dynamic = function()
                     -- Show the stance the player is currently in (the wrong one); when
                     -- unstanced, fall back to the expected-for-spec icon as a hint.
-                    local current = BR.BuffState.GetCurrentWarriorStanceIcon()
+                    local current = BR.BuffState.GetCurrentStanceIcon()
                     if current then
                         return current
                     end
@@ -1123,7 +1297,9 @@ BR.BUFF_TABLES = {
             -- No class: applies to any class with a pet
             overlayText = L["Overlay.PassivePet"],
             icons = { textures = { 132311 } },
-            customCheck = IsPetOnPassive,
+            customCheck = function()
+                return BR.PetHelpers.IsPetOnPassive()
+            end,
         },
         -- Pet reminders, in alphabetical order.
         {
@@ -1475,29 +1651,4 @@ BR.BUFF_TABLES = {
             end,
         },
     },
-}
-
-local buffKeyToCategory = {}
-for _, buff in ipairs(BR.BUFF_TABLES.consumable) do
-    if buff.consumableCategory then
-        buffKeyToCategory[buff.key] = buff.consumableCategory
-    end
-end
-BR.BUFF_KEY_TO_CATEGORY = buffKeyToCategory
-
----@type table<string, BuffGroup>
-BR.BuffGroups = {
-    beacons = { displayName = L["Group.Beacons"] },
-    dkRunes = { displayName = L["Group.DKRunes"] },
-    shamanImbues = { displayName = L["Group.ShamanImbues"] },
-    paladinRites = { displayName = L["Group.PaladinRites"] },
-    pets = { displayName = L["Group.Pets"] },
-    shamanShields = { displayName = L["Group.ShamanShields"] },
-    -- Consumable groups
-    flask = { displayName = L["Group.Flask"] },
-    food = { displayName = L["Group.Food"] },
-    delveFood = { displayName = L["Group.DelveFood"] },
-    healthstone = { displayName = L["Group.Healthstone"] },
-    rune = { displayName = L["Group.AugmentRune"] },
-    weaponBuff = { displayName = L["Group.WeaponBuff"] },
 }

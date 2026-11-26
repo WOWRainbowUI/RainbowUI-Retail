@@ -21,7 +21,7 @@ local BR = ns
 ---@field iconZoom number
 ---@field borderSize number
 ---@field iconAlpha number
----@field spacing number Absolute px (Blizzard's elementSpacing), not an iconSize multiplier
+---@field spacing number Gap in px
 ---@field durationSize number Countdown text, centered on the icon
 ---@field showSwipe boolean Radial sweep that uncovers as the time runs out
 ---@field growDirection "LEFT"|"RIGHT"|"UP"|"DOWN" The flow layout has no centered growth
@@ -72,6 +72,7 @@ local BR = ns
 ---@field detachedIcons? DetachedIcons
 ---@field buffSounds? table<string, string>
 ---@field readyCheckOnlyOverrides? table<string, boolean>
+---@field groupCast? table<string, boolean> Buff key -> cast the group rank that uses a reagent
 ---@field rememberedConsumables? table<number, table<string, number>> Spec ID -> category -> spell ID
 ---@field customAnchorFrames? string[]
 ---@field position? CategoryPosition
@@ -89,9 +90,10 @@ BR.defaults = {
     buffTrackingMode = "all",
     -- Per-context tracking overrides: each is a tracking mode, or "default" for
     -- no override. When several apply at once, the most restrictive mode wins.
-    outsideInstancesMode = "self_only",
+    -- Forever players level in open-world groups, so buffs on group mates matter there.
+    outsideInstancesMode = BR.CLIENT == BR.ClientType.Forever and "my_buffs" or "self_only",
     combatMode = "default",
-    levelingMode = "my_buffs",
+    levelingMode = BR.CLIENT == BR.ClientType.Forever and "default" or "my_buffs",
     hideAllInVehicle = false,
     hideWhileMounted = false,
     hideInLegacyInstances = true,
@@ -164,20 +166,22 @@ BR.defaults = {
         -- Appearance
         iconSize = 64,
         -- iconWidth: nil = same as iconSize (square). Set explicitly for non-square icons.
-        textSize = 20,
+        textSize = BR.CLIENT == BR.ClientType.Forever and 17 or 20,
         textOutline = "OUTLINE",
         slugOutline = true,
         iconAlpha = 1,
         textAlpha = 1,
         textColor = { 1, 1, 1 },
-        spacing = 0.2, -- multiplier of iconSize
+        spacing = BR.CLIENT == BR.ClientType.Forever and 4 or 8, -- px
         iconZoom = 0, -- percentage (additional zoom on top of base TEXCOORD_INSET crop)
         borderSize = 2,
         growDirection = "CENTER", -- "LEFT", "CENTER", "RIGHT", "UP", "DOWN"
+        iconStyle = BR.CLIENT == BR.ClientType.Forever and "blizzard" or "modern",
         -- Behavior (glow settings)
         showExpirationGlow = false,
         showMissingGlow = false,
-        expirationThreshold = 15, -- minutes
+        expirationThreshold = BR.CLIENT == BR.ClientType.Forever and 5 or 15, -- minutes
+        expirationShare = 25, -- percent of a buff duration, capped by expirationThreshold
         preKeyThreshold = 0, -- minutes (0 = off); used in M0 before inserting a keystone
         glowType = 2, -- BR.Glow.Type: Pixel=1, AutoCast=2, Border=3, Proc=4 (expiring default)
         glowSize = 2,
@@ -186,6 +190,7 @@ BR.defaults = {
         delveFoodOnly = true,
         delveFoodTimer = false,
         mageFoodContent = "all", -- "all" | "dungeon" | "raid"
+        shamanImbue = "windfury", -- "windfury" | "flametongue" | "rockbiter" | "frostbrand"
         freeConsumableMode = "override",
         freeConsumableVisibility = {
             openWorld = false,
@@ -200,15 +205,29 @@ BR.defaults = {
         healthstoneLowStock = false,
         repairThreshold = 20, -- percent; repair reminder shows below this durability
         repairHideInCombat = true,
-        soulstoneVisibility = "readyCheck",
+        reagentThreshold = 5, -- the reagent reminder shows below this count
+        reagentRestedOnly = true,
+        campLightFire = true, -- WoW Forever: the camp reminder also asks for a campfire kit
+        ammoThresholdStacks = 1, -- hunters: the ammo reminder shows below this many stacks
+        ammoThresholdShots = 20, -- other classes: the ammo reminder shows below this many shots
+        groupCastMin = 2, -- group members who lack a buff before the click casts its group version
+        driveByGreeting = "none",
+        -- driveByWhisper, driveByEmoteText: absent - nil means the localized default text
+        driveByEmote = "WAVE",
+        driveByAllowPvP = false,
+        soulstoneVisibility = BR.SOULSTONE_DEFAULT_VISIBILITY,
         soulstoneHideCooldown = false,
         -- soulstonePinnedTarget: deliberately absent - nil means "no pin" (set via BuffPanel drawer)
         consumableDisplayMode = "sub_icons",
         consumableTextScale = 25,
         consumableBadgeOnSubIcons = false,
         hideConsumableLabels = false,
-        showConsumableTooltips = false,
-        rightClickSnooze = true,
+        clickable = true,
+        clickableHighlight = true,
+        showDescriptionTooltips = false,
+        rightClickMenu = true,
+        subIconReveal = "hover",
+        subIconSide = "BOTTOM",
         hideLegacyConsumables = true,
         preferReusableRunes = false,
         placeAtPlayer = true,
@@ -225,13 +244,49 @@ BR.defaults = {
         useFelDomination = false,
         -- Allowed warlock demons per content row (WARLOCK_DEMON_CHOICES keys). A row
         -- with none allows all demons. Demonology with Felguard talented ignores it.
-        warlockDemons = {
+        -- WoW Forever rows allow a demon below level 30, where Felhunter is not learned.
+        warlockDemons = BR.CLIENT == BR.ClientType.Forever and {
+            world = { imp = true, voidwalker = true, succubus = true, felhunter = true },
+            dungeon = { imp = true, felhunter = true },
+            raid = { imp = true, succubus = true },
+            pvp = { succubus = true, felhunter = true },
+        } or {
             world = { felhunter = true },
             dungeon = { felhunter = true },
             raid = { imp = true, felhunter = true, sayaad = true },
             pvp = { felhunter = true },
         },
         warlockWrongDemon = true,
+        -- The blessings of each class (WoW Forever), in priority order. A member gets the
+        -- first one that no other paladin gives them. Every slot holds a value, so that
+        -- AceDB cannot fill a slot that the user emptied.
+        paladinBlessingsByClass = BR.CLIENT == BR.ClientType.Forever and {
+            WARRIOR = { "might", "kings", false },
+            ROGUE = { "might", "kings", false },
+            HUNTER = { "kings", "wisdom", false },
+            MAGE = { "wisdom", "kings", false },
+            WARLOCK = { "wisdom", "kings", false },
+            PRIEST = { "wisdom", "kings", false },
+            DRUID = { "wisdom", "kings", false },
+            SHAMAN = { "wisdom", "kings", false },
+            PALADIN = { "wisdom", "kings", false },
+        } or nil,
+        -- WoW Forever: "self" checks and blesses only the player.
+        paladinBlessingScope = BR.CLIENT == BR.ClientType.Forever and "group" or nil,
+        -- WoW Forever: "all" adds creature tracking to the gathering tracking.
+        trackingScope = BR.CLIENT == BR.ClientType.Forever and "gathering" or nil,
+        -- The paladin auras of each content row (WoW Forever): the main aura, then the
+        -- backup. An empty row accepts any aura. Every slot holds a value, so that AceDB
+        -- cannot fill a slot that the user emptied.
+        paladinAuraOrder = BR.CLIENT == BR.ClientType.Forever and {
+            world = { false, false },
+            dungeon = { false, false },
+            raid = { false, false },
+            pvp = { false, false },
+        } or nil,
+        -- thornsRequest: absent - nil means off
+        righteousFuryShow = BR.CLIENT == BR.ClientType.Forever and "tank" or nil,
+        mageArmorPreference = BR.CLIENT == BR.ClientType.Forever and "mage" or nil,
         -- Per-text-item size override, as a percentage of the icon size. An
         -- absent key follows consumableTextScale.
         textSizes = {},
@@ -278,7 +333,8 @@ BR.defaults = {
             },
         },
         targeted = {
-            openWorld = false,
+            -- Forever druids keep Thorns on themselves while leveling in the open world.
+            openWorld = BR.CLIENT == BR.ClientType.Forever,
             dungeon = true,
             scenario = true,
             raid = true,
@@ -323,7 +379,8 @@ BR.defaults = {
             hideInPvPMatch = false,
         },
         consumable = {
-            openWorld = false,
+            -- Forever players use food, stones and poisons while leveling in the open world.
+            openWorld = BR.CLIENT == BR.ClientType.Forever,
             dungeon = true,
             scenario = true,
             raid = true,
@@ -348,6 +405,8 @@ BR.defaults = {
                 normal = true,
                 heroic = true,
                 mythic = true,
+                raid40 = true,
+                raid20 = true,
             },
         },
     },
@@ -363,73 +422,54 @@ BR.defaults = {
             useCustomAppearance = false,
             showBuffReminder = true,
             split = false,
-            clickable = true,
-            clickableHighlight = true,
             priority = 1,
         },
         presence = {
             position = { point = "CENTER", x = 0, y = 220 },
             useCustomAppearance = false,
             split = false,
-            clickable = true,
-            clickableHighlight = true,
             priority = 2,
         },
         targeted = {
             position = { point = "CENTER", x = 0, y = 180 },
             useCustomAppearance = false,
             split = false,
-            clickable = true,
-            clickableHighlight = true,
             priority = 3,
         },
         self = {
             position = { point = "CENTER", x = 0, y = 140 },
             useCustomAppearance = false,
             split = false,
-            clickable = true,
-            clickableHighlight = true,
             priority = 4,
         },
         pet = {
             position = { point = "CENTER", x = 0, y = 100 },
             useCustomAppearance = false,
             split = false,
-            clickable = true,
-            clickableHighlight = true,
             priority = 5,
         },
         consumable = {
             position = { point = "CENTER", x = 0, y = 60 },
             useCustomAppearance = false,
             split = false,
-            clickable = true,
-            clickableHighlight = true,
-            subIconSide = "BOTTOM",
             priority = 6,
         },
         utility = {
             position = { point = "CENTER", x = 0, y = -60 },
             useCustomAppearance = false,
             split = false,
-            clickable = true,
-            clickableHighlight = true,
             priority = 9,
         },
         custom = {
             position = { point = "CENTER", x = 0, y = 20 },
             useCustomAppearance = false,
             split = false,
-            clickable = false,
-            clickableHighlight = true,
             priority = 7,
         },
         loadout = {
             position = { point = "CENTER", x = 0, y = -20 },
             useCustomAppearance = false,
             split = false,
-            clickable = true,
-            clickableHighlight = true,
             priority = 8,
         },
     },

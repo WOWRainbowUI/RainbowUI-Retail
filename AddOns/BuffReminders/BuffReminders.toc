@@ -1,9 +1,8 @@
-## Interface: 120105
-# WOW_INTERFACE_TARGETS: standard
+## Interface: 120105, 16001
 ## Title: BuffReminders
 ## Notes: Track missing buffs at a glance
 ## Author: zerbi
-## Version: v6.11.0
+## Version: v7.0.1
 ## SavedVariables: BuffRemindersDB
 ## LoadSavedVariablesFirst: 1
 ## X-Curse-Project-ID: 1441094
@@ -27,19 +26,23 @@
 ## Notes-zhTW: nBuffReminders |n|讓玩家快速掌握自己或隊伍缺少的增益效果，並提供直覺的提醒方式，延續了團隊增益追蹤的便利性。|n|cffffd200使用方法：|r從Esc>選項>插件>增益提醒，進行設定。
 ## Category-zhTW: 戰鬥
 
-Libs\LibSpecialization\LibSpecialization.lua
+Libs\LibSpecialization\LibSpecialization.lua [AllowLoadGameType standard]
+
 
 Locales\enUS.lua
 Locales\zhCN.lua
 Locales\zhTW.lua
 
 Core\Core.lua
+Core\Theme.lua
 Core\Restrictions.lua
 Core\TextPositions.lua
 Core\Profiles.lua
 Core\Migrations.lua
 Core\GameContext.lua
 Data\Buffs.lua
+Data\Buffs_Forever.lua
+Data\BuffIndex.lua
 Data\Defaults.lua
 Data\Beneficiaries.lua
 Data\ConsumableItems.lua
@@ -54,6 +57,8 @@ Core\TalentLoadoutEx.lua
 Core\Loadouts.lua
 Core\LoadoutActions.lua
 Core\State.lua
+Core\DriveBy.lua
+Core\Tracking.lua
 UI\Components.lua
 UI\Glow.lua
 Display\Icons.lua
@@ -61,6 +66,7 @@ Display\Fonts.lua
 Display\Display.lua
 Core\ImportExport.lua
 Display\Movers.lua
+Display\SubIcons.lua
 Display\SecureButtons.lua
 Display\AuraTracker.lua
 Display\AuraSounds.lua

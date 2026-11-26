@@ -55,6 +55,8 @@ local GLYPH_TO_LINK_GAP = 7
 -- never overlap the buff name, regardless of how glyph visibility changes later.
 -- Three slots: new-buff dot, detached pin, sound.
 local GLYPH_RESERVE = 3 * (GLYPH_SIZE + GLYPH_GAP)
+local MATCH_HINT_GAP = 6
+local MATCH_HINT_PREFIX = "\194\183 "
 
 -- The bundled dot and pin textures are white. The vertex color sets the hue.
 local NOTIFY_DOT_TEXTURE = "Interface\\AddOns\\BuffReminders\\Media\\dot.tga"
@@ -62,6 +64,10 @@ local NOTIFY_DOT_COLOR = { 0.88, 0.42, 0.40 }
 
 local SOUND_ATLAS = "chatframe-button-icon-voicechat"
 local PIN_TEXTURE = "Interface\\AddOns\\BuffReminders\\Media\\detach.tga"
+
+-- The drawer opener of each row, by setting key.
+---@type table<string, fun()>
+local openersByKey = {}
 
 local function OpenPanel(key, displayName, icons, readyCheckOnly, freeConsumable, anchor)
     BR.Options.Dialogs.BuffPanel.Show({
@@ -132,6 +138,7 @@ local function CreateBuffRow(
     local function openPanel()
         OpenPanel(key, displayName, icons, readyCheckOnly, freeConsumable, settingsBtn)
     end
+    openersByKey[key] = openPanel
 
     settingsBtn:SetFrameLevel(holder:GetFrameLevel() + 5)
     local settingsText = settingsBtn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
@@ -219,20 +226,33 @@ local function CreateBuffRow(
         holder.label:SetJustifyH("LEFT")
     end
 
+    local matchHint = holder:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
+    BR.ApplyNoteColor(matchHint)
+    matchHint:SetPoint("LEFT", holder.infoIcon or holder.label, "RIGHT", MATCH_HINT_GAP, 0)
+    matchHint:SetPoint("RIGHT", settingsBtn, "LEFT", -(GLYPH_RESERVE + LINK_GAP), 0)
+    matchHint:SetJustifyH("LEFT")
+    matchHint:SetWordWrap(false)
+    matchHint:Hide()
+    ---Shows the search term that kept the row, when the row name does not show it.
+    ---@param term? string
+    function holder:SetMatchHint(term)
+        if term then
+            matchHint:SetText(MATCH_HINT_PREFIX .. term)
+        end
+        matchHint:SetShown(term ~= nil)
+    end
+
     settingsBtn:SetScript("OnEnter", function(self)
         settingsText:SetTextColor(unpack(self.hoverColor or LINK_HOVER))
-        GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-        GameTooltip:SetText(displayName, 1, 0.82, 0)
-        GameTooltip:AddLine(L["BuffRow.SettingsLink.Tooltip"], 1, 1, 1, true)
-        GameTooltip:Show()
+        BR.ShowTooltip(self, displayName, L["BuffRow.SettingsLink.Tooltip"], "ANCHOR_RIGHT", true)
     end)
     settingsBtn:SetScript("OnLeave", function(self)
         settingsText:SetTextColor(unpack(self.idleColor or LINK_IDLE))
-        GameTooltip:Hide()
+        BR.HideTooltip()
     end)
     settingsBtn:SetScript("OnClick", openPanel)
 
-    return y - ITEM_HEIGHT
+    return y - ITEM_HEIGHT, holder
 end
 
 -- Merge per-buff icon lists from every member of a group, deduped, in declared order.
@@ -250,7 +270,45 @@ local function MergeGroupIcons(group)
     return merged
 end
 
-local function RenderBuffArray(parent, x, y, buffArray, rowWidth)
+local function AddSearchTerm(terms, seen, term)
+    if term and term ~= "" and not seen[term] then
+        seen[term] = true
+        terms[#terms + 1] = term
+    end
+end
+
+-- Spell and class names come from the client, so the terms follow the game language.
+local function AddBuffSearchTerms(terms, seen, buff)
+    AddSearchTerm(terms, seen, buff.name)
+    local ids = buff.spellID
+    if type(ids) == "number" then
+        AddSearchTerm(terms, seen, BR.GetSpellName(ids))
+    elseif type(ids) == "table" then
+        for _, id in ipairs(ids) do
+            AddSearchTerm(terms, seen, BR.GetSpellName(id))
+        end
+    end
+    if buff.class then
+        AddSearchTerm(terms, seen, LOCALIZED_CLASS_NAMES_MALE[buff.class])
+    end
+end
+
+---@class BuffRowSearch
+---@field frame table Row holder, with SetMatchHint
+---@field terms string[] The row name first, then spell and class names
+---@field lowerTerms string[]
+
+---@return BuffRowSearch
+local function SearchRow(holder, terms)
+    local lowerTerms = {}
+    for i, term in ipairs(terms) do
+        lowerTerms[i] = term:lower()
+    end
+    return { frame = holder, terms = terms, lowerTerms = lowerTerms }
+end
+
+---@param rows? BuffRowSearch[] Receives each row frame and its search terms
+local function RenderBuffArray(parent, x, y, buffArray, rowWidth, rows)
     -- Bucket grouped buffs so the row factory sees one logical entry per groupId.
     local groupMembers = {}
     for _, buff in ipairs(buffArray) do
@@ -269,6 +327,9 @@ local function RenderBuffArray(parent, x, y, buffArray, rowWidth)
                 local groupInfo = BuffGroups[buff.groupId]
                 local readyCheckOnly = false
                 local freeConsumable = false
+                local displayName = groupInfo and groupInfo.displayName or buff.name
+                local terms, seen = {}, {}
+                AddSearchTerm(terms, seen, displayName)
                 for _, m in ipairs(members) do
                     if m.readyCheckOnly then
                         readyCheckOnly = true
@@ -276,22 +337,28 @@ local function RenderBuffArray(parent, x, y, buffArray, rowWidth)
                     if m.freeConsumable then
                         freeConsumable = true
                     end
+                    AddBuffSearchTerms(terms, seen, m)
                 end
-                y = CreateBuffRow(
+                local holder
+                y, holder = CreateBuffRow(
                     parent,
                     x,
                     y,
                     MergeGroupIcons(members),
                     buff.groupId,
-                    groupInfo and groupInfo.displayName or buff.name,
+                    displayName,
                     buff.infoTooltip,
                     readyCheckOnly,
                     freeConsumable,
                     rowWidth
                 )
+                if rows then
+                    rows[#rows + 1] = SearchRow(holder, terms)
+                end
             end
         else
-            y = CreateBuffRow(
+            local holder
+            y, holder = CreateBuffRow(
                 parent,
                 x,
                 y,
@@ -303,6 +370,11 @@ local function RenderBuffArray(parent, x, y, buffArray, rowWidth)
                 buff.freeConsumable,
                 rowWidth
             )
+            if rows then
+                local terms = {}
+                AddBuffSearchTerms(terms, {}, buff)
+                rows[#rows + 1] = SearchRow(holder, terms)
+            end
         end
     end
 
@@ -310,3 +382,15 @@ local function RenderBuffArray(parent, x, y, buffArray, rowWidth)
 end
 
 BR.Options.BuffRow.Render = RenderBuffArray
+
+---Open the drawer of a rendered row.
+---@param key string The setting key: the groupId or the buff key
+---@return boolean opened false when no row has the key
+function BR.Options.BuffRow.OpenSettings(key)
+    local open = openersByKey[key]
+    if not open then
+        return false
+    end
+    open()
+    return true
+end

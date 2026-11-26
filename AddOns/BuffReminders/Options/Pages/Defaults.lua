@@ -22,10 +22,12 @@ local LayoutSectionHeader = Helpers.LayoutSectionHeader
 local LayoutSectionNote = Helpers.LayoutSectionNote
 local MakeDefaultsGetter = Helpers.MakeDefaultsGetter
 local MakeDefaultsSetter = Helpers.MakeDefaultsSetter
+local AuraLead = BR.StateHelpers.AuraLead
 
 local COMPONENT_GAP = BR.Options.Constants.COMPONENT_GAP
 local SECTION_GAP = BR.Options.Constants.SECTION_GAP
 local COL_PADDING = BR.Options.Constants.COL_PADDING
+local DEPENDENT_INDENT = BR.Options.Constants.DEPENDENT_INDENT
 local PAGE_TOP_PADDING = BR.Options.Constants.PAGE_TOP_PADDING
 
 local tinsert = table.insert
@@ -41,6 +43,68 @@ local function BuildFontOptions()
         end
     end
     return opts
+end
+
+local PREVIEW_MINUTES = { 10, 15, 30, 60, 120 }
+
+---@param minutes number
+---@return string
+local function FormatMinutes(minutes)
+    return string.format("%.1f", minutes):gsub("%.0$", "") .. " " .. L["Options.Min"]
+end
+
+---The share rule at the current settings, with a short and a long example buff.
+---@param threshold number Minutes
+---@param share number Percent
+---@return string
+local function DescribeShare(threshold, share)
+    if threshold == 0 then
+        return L["Options.ExpirationShare.Off"]
+    end
+    local function Example(minutes)
+        local lead = AuraLead(minutes * 60, threshold * 60, 0, share / 100) / 60
+        return string.format(
+            L["Options.ExpirationShare.Example"],
+            minutes .. " " .. L["Options.Min"],
+            FormatMinutes(lead)
+        )
+    end
+    return string.format(L["Options.ExpirationShare.Note"], share, FormatMinutes(threshold))
+        .. "\n|cff808080"
+        .. string.format(L["Options.ExpirationShare.Formula"], share, FormatMinutes(threshold))
+        .. "|r\n"
+        .. Example(10)
+        .. "  "
+        .. Example(60)
+end
+
+---The threshold rule, then the warning time of sample buff durations at the current threshold.
+---@param getThreshold fun(): number Minutes
+---@param getShare fun(): number Percent
+---@return string
+local function DescribeThreshold(getThreshold, getShare)
+    local threshold = getThreshold()
+    local share = getShare() / 100
+    local lines = { L["Options.ExpirationWarning.Desc"] }
+    if threshold == 0 then
+        return lines[1]
+    end
+    tinsert(lines, "")
+    tinsert(lines, L["Options.ExpirationPreview.Header"])
+    for _, minutes in ipairs(PREVIEW_MINUTES) do
+        local lead = AuraLead(minutes * 60, threshold * 60, 0, share) / 60
+        local capped = lead >= threshold
+        local lasts = minutes .. " " .. L["Options.Min"]
+        if capped then
+            lasts = string.format(L["Options.ExpirationPreview.OrMore"], lasts)
+        end
+        local warns = FormatMinutes(lead)
+        tinsert(lines, string.format(L["Options.ExpirationPreview.Line"], lasts, warns))
+        if capped then
+            break
+        end
+    end
+    return table.concat(lines, "\n")
 end
 
 local function Build(content)
@@ -65,30 +129,105 @@ local function Build(content)
         return val == 0 and L["Options.Off"] or (val .. " " .. L["Options.Min"])
     end
 
+    local getThreshold = MakeDefaultsGetter("expirationThreshold", 15)
+    local getShare = MakeDefaultsGetter("expirationShare", 25)
+    local setThreshold = MakeDefaultsSetter("expirationThreshold")
+    local setShare = MakeDefaultsSetter("expirationShare")
+    local shareNote
     local defThresholdHolder = Components.Slider(content, {
         label = L["Options.ExpirationWarning"],
         labelWidth = thresholdLW,
         min = 0,
         max = 45,
-        step = 5,
-        get = MakeDefaultsGetter("expirationThreshold", 15),
+        step = 1,
+        get = getThreshold,
         formatValue = formatMinutes,
-        onChange = MakeDefaultsSetter("expirationThreshold"),
+        tooltip = {
+            title = L["Options.ExpirationWarning"],
+            desc = function()
+                return DescribeThreshold(getThreshold, getShare)
+            end,
+        },
+        onChange = function(val)
+            setThreshold(val)
+            shareNote:SetText(DescribeShare(val, getShare()))
+        end,
     })
     layout:Add(defThresholdHolder, nil, COMPONENT_GAP)
+    LayoutSectionNote(layout, content, L["Options.ExpirationWarning.Note"])
 
-    local preKeyThresholdHolder = Components.Slider(content, {
-        label = L["Options.PreKeyThreshold"],
-        labelWidth = thresholdLW,
-        tooltip = { title = L["Options.PreKeyThreshold"], desc = L["Options.PreKeyThreshold.Desc"] },
-        min = 0,
-        max = 60,
-        step = 5,
-        get = MakeDefaultsGetter("preKeyThreshold", 0),
-        formatValue = formatMinutes,
-        onChange = MakeDefaultsSetter("preKeyThreshold"),
-    })
-    layout:Add(preKeyThresholdHolder, nil, COMPONENT_GAP)
+    local advancedOpen = false
+    local advancedToggle = CreateFrame("Button", nil, content)
+    local advancedLabel = advancedToggle:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    advancedLabel:SetPoint("LEFT")
+    local function PaintAdvancedToggle(hover)
+        advancedLabel:SetText((advancedOpen and "- " or "+ ") .. L["Options.ExpirationAdvanced"])
+        advancedLabel:SetTextColor(unpack(hover and BR.Theme.link.hover or BR.Theme.link.linked))
+        advancedToggle:SetSize(advancedLabel:GetStringWidth(), 16)
+    end
+    PaintAdvancedToggle(false)
+    advancedToggle:SetScript("OnEnter", function()
+        PaintAdvancedToggle(true)
+    end)
+    advancedToggle:SetScript("OnLeave", function()
+        PaintAdvancedToggle(false)
+    end)
+    layout:Add(advancedToggle, nil, COMPONENT_GAP)
+
+    local advanced = CreateFrame("Frame", nil, content)
+    advanced:SetSize(content:GetWidth() - COL_PADDING * 2, 1)
+    local advancedLayout = Components.VerticalLayout(advanced, { x = DEPENDENT_INDENT, y = 0 })
+    shareNote = LayoutSectionNote(advancedLayout, advanced, DescribeShare(getThreshold(), getShare()))
+    function shareNote:Refresh()
+        self:SetText(DescribeShare(getThreshold(), getShare()))
+    end
+    tinsert(BR.RefreshableComponents, shareNote)
+    advancedLayout:Add(
+        Components.Slider(advanced, {
+            label = L["Options.ExpirationShare"],
+            labelWidth = thresholdLW,
+            min = 10,
+            max = 50,
+            step = 5,
+            get = getShare,
+            formatValue = function(val)
+                return val .. "%"
+            end,
+            onChange = function(val)
+                setShare(val)
+                shareNote:SetText(DescribeShare(getThreshold(), val))
+            end,
+        }),
+        nil,
+        0
+    )
+    local advancedHeight = math.abs(advancedLayout:GetY())
+    advanced:Hide()
+    layout:AddDynamic(advanced, function()
+        return advancedOpen and advancedHeight or 0
+    end, 0)
+    advancedToggle:SetScript("OnClick", function()
+        advancedOpen = not advancedOpen
+        advanced:SetShown(advancedOpen)
+        PaintAdvancedToggle(true)
+        layout:Reflow()
+        content:SetHeight(math.abs(layout:GetY()) + 20)
+    end)
+
+    if BR.INSTANCE_CONTENT.keystones then
+        local preKeyThresholdHolder = Components.Slider(content, {
+            label = L["Options.PreKeyThreshold"],
+            labelWidth = thresholdLW,
+            tooltip = { title = L["Options.PreKeyThreshold"], desc = L["Options.PreKeyThreshold.Desc"] },
+            min = 0,
+            max = 60,
+            step = 5,
+            get = MakeDefaultsGetter("preKeyThreshold", 0),
+            formatValue = formatMinutes,
+            onChange = MakeDefaultsSetter("preKeyThreshold"),
+        })
+        layout:Add(preKeyThresholdHolder, nil, COMPONENT_GAP)
+    end
 
     -- ========================================================================
     -- LAYOUT
@@ -153,9 +292,40 @@ local function Build(content)
         end,
         labelWidth = textLabelWidth,
         masqueCheck = IsMasqueActive,
+        borderBlocked = BR.IconStyle.UsesBlizzardArt,
+        borderBlockedReason = Helpers.IconStyleBorderReason,
     })
     layout:Add(defGrid.frame, defGrid.height, COMPONENT_GAP)
     local labelWidth = defGrid.labelWidth
+
+    -- One stored value; the label names the art that the client draws.
+    local blizzardStyleLabel = BR.CLIENT == BR.ClientType.Forever and L["Options.IconStyle.Forever"]
+        or L["Options.IconStyle.Blizzard"]
+    local iconStyleHolder = Components.Dropdown(content, {
+        label = L["Options.IconStyle"],
+        labelWidth = labelWidth,
+        tooltip = { title = L["Options.IconStyle"], desc = L["Options.IconStyle.Desc"] },
+        options = {
+            { label = L["Options.IconStyle.Modern"], value = "modern" },
+            { label = blizzardStyleLabel, value = "blizzard" },
+        },
+        width = TEXT_DD_W,
+        get = MakeDefaultsGetter("iconStyle", BR.defaults.defaults.iconStyle),
+        enabled = function()
+            return BR.IconStyle.ARTWORK_AVAILABLE and not IsMasqueActive()
+        end,
+        disabledReason = function()
+            if not BR.IconStyle.ARTWORK_AVAILABLE then
+                return L["DisabledReason.IconStyleNoArt"]
+            end
+            return L["DisabledReason.IconStyleMasque"]
+        end,
+        onChange = function(value)
+            BR.Config.Set("defaults.iconStyle", value)
+            Components.RefreshAll()
+        end,
+    })
+    layout:Add(iconStyleHolder, nil, COMPONENT_GAP)
 
     Helpers.LayoutSubsectionHeader(layout, content, L["Options.Text"])
 
@@ -302,6 +472,93 @@ local function Build(content)
     AddGlowRow(L["Options.ExpiringGlow"], L["Options.ExpiringGlow.Desc"], "showExpirationGlow", "expiring")
     AddGlowRow(L["Options.MissingGlow"], L["Options.MissingGlow.Desc"], "showMissingGlow", "missing")
 
+    -- ========================================================================
+    -- INTERACTION
+    -- ========================================================================
+    local interactionHeader = LayoutSectionHeader(layout, content, L["Options.Interaction"])
+    BR.Options.WhatsNew.AttachDot(interactionHeader, "defaults.interaction")
+
+    -- A category can override the next three keys. The keys below them are global only.
+    local function isClickable()
+        return BR.Config.Get("defaults.clickable") ~= false
+    end
+
+    local clickableHolder = Components.Checkbox(content, {
+        label = L["Options.ClickToCast"],
+        tooltip = { title = L["Options.ClickToCast"], desc = L["Options.ClickToCast.DescFull"] },
+        get = isClickable,
+        onChange = function(checked)
+            BR.Config.Set("defaults.clickable", checked)
+            BR.SecureButtons.UpdateAllActionButtons()
+            Components.RefreshAll()
+        end,
+    })
+    layout:Add(clickableHolder, nil, COMPONENT_GAP)
+
+    layout:SetX(layout:GetX() + DEPENDENT_INDENT)
+    local highlightHolder = Components.Checkbox(content, {
+        label = L["Options.HoverHighlight"],
+        tooltip = { title = L["Options.HoverHighlight"], desc = L["Options.HoverHighlight.Desc"] },
+        get = MakeDefaultsGetter("clickableHighlight", true),
+        enabled = isClickable,
+        disabledReason = L["DisabledReason.ClickToCast"],
+        onChange = function(checked)
+            BR.Config.Set("defaults.clickableHighlight", checked)
+            BR.SecureButtons.UpdateAllActionButtons()
+        end,
+    })
+    layout:Add(highlightHolder, nil, COMPONENT_GAP)
+    layout:SetX(layout:GetX() - DEPENDENT_INDENT)
+
+    local tooltipsHolder = Components.Checkbox(content, {
+        label = L["Options.ShowDescriptionTooltips"],
+        tooltip = { title = L["Options.ShowDescriptionTooltips"], desc = L["Options.ShowDescriptionTooltips.Desc"] },
+        get = MakeDefaultsGetter("showDescriptionTooltips", false),
+        onChange = MakeDefaultsSetter("showDescriptionTooltips"),
+    })
+    layout:Add(tooltipsHolder, nil, COMPONENT_GAP)
+
+    local menuHolder = Components.Checkbox(content, {
+        label = L["Options.RightClickMenu"],
+        tooltip = { title = L["Options.RightClickMenu"], desc = L["Options.RightClickMenu.Desc"] },
+        get = MakeDefaultsGetter("rightClickMenu", true),
+        onChange = MakeDefaultsSetter("rightClickMenu"),
+    })
+    layout:Add(menuHolder, nil, COMPONENT_GAP)
+
+    local interactionLW = Components.MeasureSharedLabelWidth({ L["Options.SubIconReveal"], L["Options.SubIconSide"] })
+    local revealHolder = Components.Dropdown(content, {
+        label = L["Options.SubIconReveal"],
+        labelWidth = interactionLW,
+        tooltip = { title = L["Options.SubIconReveal"], desc = L["Options.SubIconReveal.Desc"] },
+        options = {
+            { label = L["Options.SubIconReveal.Hover"], value = "hover" },
+            { label = L["Options.SubIconReveal.Always"], value = "always" },
+        },
+        width = TEXT_DD_W,
+        get = MakeDefaultsGetter("subIconReveal", "hover"),
+        onChange = MakeDefaultsSetter("subIconReveal"),
+    })
+    layout:Add(revealHolder, nil, COMPONENT_GAP)
+
+    local sideHolder = Components.Dropdown(content, {
+        label = L["Options.SubIconSide"],
+        labelWidth = interactionLW,
+        tooltip = { title = L["Options.SubIconSide"], desc = L["Options.SubIconSide.Desc"] },
+        options = {
+            { label = L["Options.SubIconSide.Bottom"], value = "BOTTOM" },
+            { label = L["Options.SubIconSide.Top"], value = "TOP" },
+            { label = L["Options.SubIconSide.Left"], value = "LEFT" },
+            { label = L["Options.SubIconSide.Right"], value = "RIGHT" },
+        },
+        width = TEXT_DD_W,
+        get = MakeDefaultsGetter("subIconSide", "BOTTOM"),
+        onChange = MakeDefaultsSetter("subIconSide"),
+    })
+    layout:Add(sideHolder, nil, COMPONENT_GAP)
+
+    Helpers.LayoutSubsectionNote(layout, content, L["Options.Snooze.Note"])
+
     content:SetHeight(math.abs(layout:GetY()) + 20)
 end
 
@@ -310,3 +567,5 @@ BR.Options.Pages.defaults = {
     showMasqueBanner = true,
     Build = Build,
 }
+
+BR.Options.WhatsNew.Register({ cohort = "7.0.0", pageId = "defaults", key = "defaults.interaction" })
