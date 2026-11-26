@@ -1,4 +1,7 @@
-﻿12.1.19 - 20th November 2026
+﻿12.1.20 - 26th November 2026
+- Gemfall no longer gives you free hints.
+
+12.1.19 - 20th November 2026
 - Fixed a potential microstutter when opening the map with 'Show discovery button' enabled.  The discovery button state is no longer saved between sessions.
 
 12.1.18 - 18th November 2026
