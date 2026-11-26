@@ -1,7 +1,7 @@
 # Auctionator
 
-## [353](https://github.com/TheMouseNest/Auctionator/tree/353) (2026-11-24)
-[Full Changelog](https://github.com/TheMouseNest/Auctionator/compare/352...353) 
+## [354](https://github.com/TheMouseNest/Auctionator/tree/354) (2026-11-25)
+[Full Changelog](https://github.com/TheMouseNest/Auctionator/compare/353...354) 
 
-- Only store suffix index, not entire thing (hopefully reduce risk of CBOR issues)  
-- Fix suffix detection for other locales  
+- Fix typo  
+- Classic Era: Fix tooltip prices on gear with no suffix  

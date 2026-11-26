@@ -16,7 +16,7 @@ function Auctionator.Utilities.DBKeyFromItemKey(itemKey, callback)
           if name ~= baseName then
             local suffix = name:sub(string.len(baseName.. " ") + 1)
             local index = Auctionator.Utilities.SuffixesToLabel[suffix]
-            if english then
+            if index then
               callback({"gr:" .. itemKey.itemID .. ":" .. index, basicKey})
             elseif #Auctionator.Utilities.SuffixesExtraChecks > 0 then
               local seen = false
