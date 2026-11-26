@@ -9,7 +9,7 @@ local BR = ns
 -- handler reads fresh values.
 -- RenderRequested asks for the render that a change needs. urgent = true asks for it now.
 
----@alias CacheId "auraTrackable"|"consumables"|"contentType"|"durability"|"healer"|"item"|"loadout"|"offHand"|"pet"|"petActions"|"repairSource"|"spec"|"spell"|"spellNameMisses"|"spellTextureMisses"|"stance"
+---@alias CacheId "ammo"|"auraTrackable"|"consumables"|"contentType"|"durability"|"foreignAura"|"healer"|"item"|"itemCooldown"|"loadout"|"offHand"|"pet"|"petActions"|"petHappiness"|"repairSource"|"spec"|"spell"|"spellNameMisses"|"spellTextureMisses"|"spellUsable"|"stance"|"subgroup"|"tracking"
 
 ---@class GameContextEventSpec
 ---@field caches? CacheId[] Cache ids to clear, in order
@@ -87,8 +87,8 @@ local function StartDungeonEntry()
     if dungeonEntryTimer then
         dungeonEntryTimer:Cancel()
     end
-    spellcastFrame:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player")
-    spellcastFrame:RegisterUnitEvent("UNIT_SPELLCAST_START", "player")
+    BR.Client.RegisterEvent(spellcastFrame, "UNIT_SPELLCAST_SUCCEEDED", "player")
+    BR.Client.RegisterEvent(spellcastFrame, "UNIT_SPELLCAST_START", "player")
     dungeonEntryTimer = C_Timer.NewTimer(ENTRY_WINDOW_SECONDS, function()
         ClearDungeonEntry()
         NotifyChanged(true)
@@ -189,13 +189,31 @@ local CONTENT_TYPE = { caches = { "contentType" } }
 ---@type GameContextEventSpec
 local HEALER = { caches = { "healer" } }
 ---@type GameContextEventSpec
+local ROSTER = { caches = { "healer", "subgroup", "foreignAura" } }
+---@type GameContextEventSpec
 local STANCE = { caches = { "stance" } }
+---@type GameContextEventSpec
+local PET_HAPPINESS = {
+    caches = { "petHappiness" },
+    handle = function()
+        NotifyChanged(false)
+    end,
+}
+---@type GameContextEventSpec
+local TRACKING = {
+    caches = { "tracking" },
+    handle = function()
+        NotifyChanged(false)
+    end,
+}
 
 ---@type table<string, GameContextEventSpec>
 local EVENT_CACHES = {
     PLAYER_ENTERING_WORLD = {
         caches = {
             "contentType",
+            "ammo",
+            "tracking",
             "auraTrackable",
             "spell",
             "spec",
@@ -206,8 +224,13 @@ local EVENT_CACHES = {
             "repairSource",
             "durability",
             "petActions",
+            "petHappiness",
             "spellTextureMisses",
             "spellNameMisses",
+            "subgroup",
+            "spellUsable",
+            "itemCooldown",
+            "foreignAura",
         },
         handle = function()
             inCombat = InCombatLockdown()
@@ -218,6 +241,7 @@ local EVENT_CACHES = {
             ComputePvPPrep()
             C_Timer.After(1, OnEnteredWorldSettled)
             SeedGlowingSpells()
+            BR.BuffState.EndSnoozes("all")
         end,
     },
     ZONE_CHANGED_NEW_AREA = {
@@ -235,8 +259,9 @@ local EVENT_CACHES = {
             NotifyChanged(true)
         end,
     },
-    PLAYER_REGEN_DISABLED = { handle = OnCombatStart },
+    PLAYER_REGEN_DISABLED = { caches = { "spellUsable" }, handle = OnCombatStart },
     PLAYER_REGEN_ENABLED = {
+        caches = { "spellUsable", "foreignAura" },
         handle = function()
             inCombat = inEncounter
         end,
@@ -248,6 +273,7 @@ local EVENT_CACHES = {
         end,
     },
     ENCOUNTER_END = {
+        caches = { "foreignAura" },
         handle = function()
             inEncounter = false
             inCombat = inCombat and InCombatLockdown()
@@ -280,10 +306,16 @@ local EVENT_CACHES = {
             inVehicle = false
         end,
     },
-    GROUP_ROSTER_UPDATE = HEALER,
-    GROUP_FORMED = HEALER,
+    GROUP_ROSTER_UPDATE = ROSTER,
+    GROUP_FORMED = ROSTER,
     PLAYER_ROLES_ASSIGNED = HEALER,
-    UNIT_PET = { playerOnly = true, caches = { "pet" } },
+    UNIT_PET = { playerOnly = true, caches = { "pet", "petHappiness" } },
+    UNIT_HAPPINESS = PET_HAPPINESS,
+    MINIMAP_UPDATE_TRACKING = TRACKING,
+    -- Death ends the active tracking.
+    PLAYER_DEAD = TRACKING,
+    PLAYER_ALIVE = TRACKING,
+    PLAYER_UNGHOST = TRACKING,
     UPDATE_SHAPESHIFT_FORM = STANCE,
     UPDATE_SHAPESHIFT_FORMS = STANCE,
     PET_STABLE_UPDATE = { caches = { "petActions" } },
@@ -308,11 +340,47 @@ local EVENT_CACHES = {
         end,
     },
     SPELLS_CHANGED = {
-        caches = { "spell", "pet", "stance", "loadout", "petActions", "spellTextureMisses", "spellNameMisses" },
+        caches = {
+            "spell",
+            "pet",
+            "stance",
+            "loadout",
+            "petActions",
+            "spellTextureMisses",
+            "spellNameMisses",
+            "spellUsable",
+        },
     },
-    PLAYER_EQUIPMENT_CHANGED = { caches = { "item", "offHand", "loadout", "durability" } },
+    -- Fires often, for example on each power change that crosses a spell cost.
+    -- An empty cache holds no stale value, so the event then requests no render.
+    SPELL_UPDATE_USABLE = {
+        handle = function()
+            if BR.BuffState.HasSpellUsableCache() then
+                GameContext.Invalidate("spellUsable")
+                NotifyChanged(false)
+            end
+        end,
+    },
+    PLAYER_EQUIPMENT_CHANGED = { caches = { "item", "offHand", "loadout", "durability", "ammo" } },
     UPDATE_INVENTORY_DURABILITY = { caches = { "durability" } },
-    BAG_UPDATE_DELAYED = { caches = { "item", "repairSource", "consumables" } },
+    -- A temporary weapon enchant starts and ends with no aura event.
+    UNIT_INVENTORY_CHANGED = {
+        playerOnly = true,
+        handle = function()
+            NotifyChanged(false)
+        end,
+    },
+    BAG_UPDATE_DELAYED = { caches = { "item", "repairSource", "consumables", "ammo" } },
+    -- Can fire on each spell cast. An empty cache holds no stale value, so the event
+    -- then requests no render.
+    BAG_UPDATE_COOLDOWN = {
+        handle = function()
+            if BR.BuffState.HasItemCooldownCache() then
+                GameContext.Invalidate("itemCooldown")
+                NotifyChanged(false)
+            end
+        end,
+    },
     NEW_MOUNT_ADDED = { caches = { "repairSource" } },
     PLAYER_MOUNT_DISPLAY_CHANGED = {
         handle = function()
@@ -376,6 +444,13 @@ function GameContext.HandleEvent(event, ...)
     if entry.handle then
         entry.handle(...)
     end
+end
+
+---Each event that HandleEvent reacts to. The caller must register them.
+---@return fun(table: table<string, table>, key?: string): string, table
+---@return table<string, table>
+function GameContext.EachEvent()
+    return pairs(EVENT_CACHES)
 end
 
 ---@return boolean inCombat True in combat or in a boss encounter

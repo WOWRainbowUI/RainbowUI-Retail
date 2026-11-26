@@ -20,16 +20,18 @@ local BR = ns
 ---@field displayType "count"|"text"|"expiring"
 ---@field countText string?                  -- "17/20" for raid buffs, "5m" for expiring consumables
 ---@field overlayText string?                -- "NO\nAURA" for non-raid
----@field expiringTime number?               -- Seconds remaining if expiring
 ---@field shouldGlow boolean                 -- Expiration glow?
 ---@field iconByRole table<RoleType,number>? -- Role-based icon override
 ---@field rebuffWarning boolean?             -- Consumable rebuff pulsing border?
 ---@field isEating boolean?                 -- Food entry: player is currently eating
----@field eatingExpirationTime number?      -- GetTime()-based expiration of eating aura
+---@field countdownExpirationTime number?   -- GetTime()-based end of a live countdown
+---@field countdownDuration number?         -- Length of the progress sweep that ends with the countdown
+---@field progressText string?              -- Progress toward the goal of the countdown, e.g. "1/3"
 ---@field petActions PetActionList?           -- Expanded pet summon actions
 ---@field dynamicIcon number|string|nil      -- Dynamic icon texture override (e.g. next poison to cast)
 ---@field glowKindOverride "expiring"|"missing"|nil -- Override glow kind (e.g. healthstone low stock uses expiring glow)
 ---@field subLabel string?                    -- Wrapping label rendered below the icon (loadout reminders: the set/talent name)
+---@field noClick boolean?                    -- The click casts nothing
 
 -- Lua stdlib locals (avoid repeated global lookups in hot paths)
 local ceil = math.ceil
@@ -130,8 +132,76 @@ local BuffState = {
 local _, playerClass = UnitClass("player")
 local playerName = GetUnitName("player", true)
 
--- Consumables dismissed state (transient, resets on instance change / reload)
-local consumablesDismissed = false
+---@alias SnoozeScope "reminder"|"category"|"all"
+
+---@class SnoozeRecord
+---@field rest? boolean The snooze started in a rest area and ends when the player leaves it
+
+-- A snooze ends at the next loading screen. A reload clears it.
+---@type table<SnoozeScope, table<string, SnoozeRecord>> Id: the reminder key, the category, or "all"
+local snoozes = { reminder = {}, category = {}, all = {} }
+
+do
+    ---@param record SnoozeRecord
+    ---@return boolean
+    local function HasEnded(record)
+        return record.rest == true and not GameContext.IsResting()
+    end
+
+    ---@param which "ended"|"all" "ended": the snoozes whose rest area the player left
+    ---@return number remaining
+    function BuffState.EndSnoozes(which)
+        local remaining = 0
+        for _, records in pairs(snoozes) do
+            for id, record in pairs(records) do
+                if which == "all" or HasEnded(record) then
+                    records[id] = nil
+                else
+                    remaining = remaining + 1
+                end
+            end
+        end
+        return remaining
+    end
+
+    ---@return number count The active snoozes. Changes no state
+    function BuffState.CountSnoozes()
+        local count = 0
+        for _, records in pairs(snoozes) do
+            for _, record in pairs(records) do
+                if not HasEnded(record) then
+                    count = count + 1
+                end
+            end
+        end
+        return count
+    end
+
+    -- The buff data is static, so the group of each key is read once.
+    ---@type table<string, string>?
+    local groupOfKey
+
+    ---A reminder snooze of a grouped buff is stored under its groupId.
+    ---@param entry BuffStateEntry
+    ---@return boolean
+    function BuffState.IsEntrySnoozed(entry)
+        if snoozes.all.all or snoozes.category[entry.category] or snoozes.reminder[entry.key] then
+            return true
+        end
+        if not groupOfKey then
+            groupOfKey = {}
+            for _, buffs in pairs(BR.BUFF_TABLES) do
+                for _, buff in ipairs(buffs) do
+                    if buff.groupId then
+                        groupOfKey[buff.key] = buff.groupId
+                    end
+                end
+            end
+        end
+        local groupId = groupOfKey[entry.key]
+        return groupId ~= nil and snoozes.reminder[groupId] ~= nil
+    end
+end
 
 -- ============================================================================
 -- CACHED VALUES (invalidated by specific events)
@@ -154,31 +224,21 @@ local consumablesDismissed = false
 local instanceCache = {}
 local GetDifficultyIDCached -- forward declaration (defined next to GetCurrentContentType)
 
--- Maps content type to its difficulty-key lookup table
-local CONTENT_DIFFICULTY_TABLES = {
-    dungeon = {
-        [1] = "normal", -- Normal
-        [2] = "heroic", -- Heroic
-        [23] = "mythic", -- Mythic
-        [8] = "mythicPlus", -- Mythic Keystone
-        [24] = "timewalking", -- Timewalking
-        [205] = "follower", -- Follower Dungeon
-    },
-    raid = {
-        [17] = "lfr", -- Looking for Raid
-        [14] = "normal", -- Normal
-        [15] = "heroic", -- Heroic
-        [16] = "mythic", -- Mythic
-    },
-}
+local CONTENT_DIFFICULTY_TABLES = BR.INSTANCE_CONTENT.difficultyIDs
 
--- Maps content type to the DB key holding its difficulty sub-filter
-local CONTENT_DIFF_DB_KEYS = {
+-- Maps content type to the DB key holding its difficulty sub-filter. A content type
+-- without a sub-row on this client ignores a saved filter, because no control can clear it.
+local CONTENT_DIFF_DB_KEYS = {}
+for contentType, diffDbKey in pairs({
     scenario = "scenarioDifficulty",
     dungeon = "dungeonDifficulty",
     raid = "raidDifficulty",
     pvp = "pvpType",
-}
+}) do
+    if BR.INSTANCE_CONTENT.difficulties[contentType] then
+        CONTENT_DIFF_DB_KEYS[contentType] = diffDbKey
+    end
+end
 
 -- Talent/spell knowledge cache
 local cachedSpellKnowledge = {}
@@ -192,6 +252,10 @@ local cachedPlayerRole = nil
 -- Off-hand slot type cache (invalidated on equipment/spec change)
 -- Populated together from a single GetInventoryItemID + GetItemInfoInstant call
 local cachedOffHandType = nil -- nil = not yet checked, "weapon" | "shield" | "none"
+
+-- Weapon subclass per hand slot, false for no weapon. Cleared with the off-hand cache.
+---@type table<number, number|false>
+local cachedWeaponSubclass = {}
 
 -- Item ownership cache
 ---@type table<string, table<number, boolean>>
@@ -227,43 +291,29 @@ local SATISFIED_LOADOUT_STATE = { satisfied = true }
 ---@type number|false|nil
 local cachedPetFamily = nil
 
--- Warrior stance spell IDs (single source of truth).
-local STANCE_BATTLE = 386164
-local STANCE_BERSERKER = 386196
-local STANCE_DEFENSIVE = 386208
+-- Happiness of the current pet (false = no pet or no value, nil = unresolved).
+-- C_PetInfo.GetPetHappiness exists only on a client with pet happiness.
+---@type number|false|nil
+local cachedPetHappiness = nil
+local GetPetHappiness = C_PetInfo and C_PetInfo.GetPetHappiness
 
--- Spec -> set of acceptable stances. Arms: Battle. Fury: Battle or Berserker
--- (Berserker talent replaces Battle). Protection: Defensive.
-local WARRIOR_EXPECTED_STANCES = {
-    [71] = { [STANCE_BATTLE] = true },
-    [72] = { [STANCE_BATTLE] = true, [STANCE_BERSERKER] = true },
-    [73] = { [STANCE_DEFENSIVE] = true },
-}
+-- Warrior stance and druid form rules of the client: the allowed stances and the
+-- stance that the click casts.
+local STANCE_RULES = BR.STANCE_RULES
+local NO_STANCE = BR.NO_STANCE
 
 -- Priest shadow forms. Shadowform is the only stance shadow priests can take;
 -- Voidform is a temporary aura that visually replaces it. The stance bar API
 -- works in restricted contexts (combat/encounter/M+) where aura queries fail
 -- for non-whitelisted spells, so the stance bar is read directly.
-local SHADOWFORM = 232698
+local SHADOWFORM = BR.SHADOWFORM_SPELL_ID
 local VOIDFORM = 194249
-
--- Druid forms. Only Feral (Cat) and Balance (Moonkin) are spec-required forms;
--- Guardian uses Bear Form but it is not enforced here, and Restoration has no
--- mandatory form. Incarnation talents (King of the Jungle / Chosen of Elune)
--- empower the existing form and do not swap the stance bar slot, so the
--- spec's base form ID still matches.
-local DRUID_CAT_FORM = 768
-local DRUID_MOONKIN_FORM = 24858
-local DRUID_EXPECTED_FORMS = {
-    [102] = DRUID_MOONKIN_FORM, -- Balance
-    [103] = DRUID_CAT_FORM, -- Feral
-}
 
 -- Travel-family shapeshift form IDs (GetShapeshiftFormID): ground Travel and
 -- Mount Form both report 3, Aquatic reports 4, Flight reports 27. Every variant
 -- shares spell 783 except Mount Form (210053), so this table keys off the engine
 -- form category instead of the spell. That covers any Mount Form appearance
--- variant. None of these collide with combat forms (Cat 1, Bear 5, Moonkin 31).
+-- variant. None of these collide with combat forms (Cat 1, Bear 5, Dire Bear 8, Moonkin 31).
 -- Used to suppress the wrong-form reminder during travel.
 local DRUID_TRAVEL_FORM_IDS = {
     [3] = true, -- ground Travel Form + Mount Form
@@ -271,20 +321,14 @@ local DRUID_TRAVEL_FORM_IDS = {
     [27] = true, -- Flight Form
 }
 
--- Shapeshift/stance cache: warrior wrong-stance + priest shadowform + druid
--- wrong-form derived values, all read off the same active-stance source and all
--- invalidated together by InvalidateStanceCache. `false` on a field = computed
--- and absent; nil = not yet computed. `activeSpellID` memoizes
--- GetActiveStanceSpellID, so a warrior/druid refresh resolves the active stance
--- once, not per derived value.
+-- Shapeshift/stance cache: the active stance and the derived priest shadowform
+-- and stance icon values, all invalidated together by InvalidateStanceCache.
+-- `false` on a field = computed and absent; nil = not yet computed.
 ---@class StanceCache
----@field wrongStance boolean|nil
----@field expectedStanceID number|false|nil     -- false = non-warrior
 ---@field currentStanceIcon number|false|nil  -- false = unstanced
 ---@field shadowFormActive boolean|nil
----@field wrongDruidForm boolean|nil
----@field expectedDruidFormID number|false|nil  -- false = non-druid or non-feral/balance
 ---@field activeSpellID number|false|nil        -- false = unstanced; nil = not computed / transient
+---@field barSpells table<number, true>|nil      -- spell IDs of the stance bar slots
 ---@type StanceCache
 local stanceCache = {}
 
@@ -296,19 +340,39 @@ local currentWeaponEnchants = {
     hasOffHand = false,
     offHandID = nil,
     offHandExpiration = nil,
+    -- The temporary slot holds stones and oils. On a client with no separate imbue slot, it holds any enchant.
+    mainHandTempID = nil,
+    mainHandTempExpiration = nil,
+    offHandTempID = nil,
+    offHandTempExpiration = nil,
+    -- The imbue slot holds poisons and shaman imbues, on a client that has it.
+    mainHandImbueID = nil,
+    mainHandImbueExpiration = nil,
+    offHandImbueID = nil,
+    offHandImbueExpiration = nil,
     permanentMH = nil, -- permanent enchant ID from item link (MH)
     permanentOH = nil, -- permanent enchant ID from item link (OH)
 }
 
+---@param enchantID number|table<number, true> One enchant ID, or a set of accepted IDs
+---@param id number?
+---@return boolean
+local function EnchantMatches(enchantID, id)
+    if type(enchantID) == "number" then
+        return id == enchantID
+    end
+    return id ~= nil and enchantID[id] == true
+end
+
 ---Seconds left on a temporary weapon enchant, from whichever hand carries it.
 ---Weapon enchant info is not an aura read, so it is safe in restricted contexts.
----@param enchantID number
+---@param enchantID number|table<number, true> One enchant ID, or a set of accepted IDs
 ---@return number? remaining nil when neither hand carries the enchant
 local function GetWeaponEnchantRemaining(enchantID)
     local expiration
-    if currentWeaponEnchants.mainHandID == enchantID then
+    if EnchantMatches(enchantID, currentWeaponEnchants.mainHandID) then
         expiration = currentWeaponEnchants.mainHandExpiration
-    elseif currentWeaponEnchants.offHandID == enchantID then
+    elseif EnchantMatches(enchantID, currentWeaponEnchants.offHandID) then
         expiration = currentWeaponEnchants.offHandExpiration
     end
     return expiration and expiration / 1000 or nil
@@ -319,7 +383,7 @@ end
 -- already-active buff on an unreachable ally still registers as covered.
 -- Counting paths apply a "phased + missing -> skip" rule to keep unfixable gaps
 -- out of the missing math; presence/targeted scans just iterate everyone.
----@type {unit: string, class: string?, isPlayer: boolean, name: string?, isPhased: boolean}[]
+---@type {unit: string, class: string?, isPlayer: boolean, name: string?, isPhased: boolean, inPlayerParty: boolean}[]
 local currentValidUnits = {}
 
 -- Solo snapshot from the most recent BuildValidUnitCache().
@@ -329,6 +393,12 @@ local currentValidUnits = {}
 local cachedIsAlone = true
 -- Whether any group member is assigned HEALER (nil = not computed this session yet).
 local cachedHealerInGroup = nil
+-- Whether the player is a tank (nil = not read since the last role event).
+---@type boolean?
+local cachedPlayerTank = nil
+-- Main Tank marks by unit token, cleared on role events.
+---@type table<string, boolean>
+local cachedMainTanks = {}
 
 -- Spec cache: playerName -> specId (populated by LibSpecialization callbacks for allies,
 -- and by BuildValidUnitCache for the local player via GetPlayerSpecId())
@@ -424,6 +494,32 @@ local AuraField = BR.Secret.AuraField
 local AuraByIndex = BR.Secret.AuraByIndex
 local AuraByInstanceID = BR.Secret.AuraByInstanceID
 
+-- The per-slot enchant list exists only on a client where one weapon holds a
+-- temporary enchant and an imbue together. The legacy GetWeaponEnchantInfo
+-- reports only the imbue then. Nil on a client without the list.
+---@type (fun(weaponSlot: number): number?, number?, number?, number?)?
+local ReadWeaponEnchantSlots
+do
+    local GetWeaponEnchantList = C_Item.GetWeaponEnchantInfo
+    local ENCHANT_TYPE_IMBUE = Enum.ItemEnchantType and Enum.ItemEnchantType.Imbue
+    if GetWeaponEnchantList then
+        ---@return number? tempID, number? tempExpirationMs, number? imbueID, number? imbueExpirationMs
+        ReadWeaponEnchantSlots = function(weaponSlot)
+            local tempID, tempExp, imbueID, imbueExp
+            for _, info in ipairs(AuraList(GetWeaponEnchantList(weaponSlot))) do
+                if AuraField(info, "hasEnchant") then
+                    if AuraField(info, "enchantType") == ENCHANT_TYPE_IMBUE then
+                        imbueID, imbueExp = AuraField(info, "enchantID"), AuraField(info, "timeLeft")
+                    else
+                        tempID, tempExp = AuraField(info, "enchantID"), AuraField(info, "timeLeft")
+                    end
+                end
+            end
+            return tempID, tempExp, imbueID, imbueExp
+        end
+    end
+end
+
 -- Set of spell IDs the addon queries on GROUP MEMBERS, per-class variants
 -- included. Used to filter group-unit UNIT_AURA payloads: an aura change outside
 -- this set cannot affect what the addon displays. Player/pet-only detection is
@@ -486,7 +582,7 @@ end
 local activeNames = {}
 
 -- Pool of reusable unit entry tables (avoids creating new tables each refresh)
----@type {unit: string, class: string?, isPlayer: boolean, name: string?, isPhased: boolean}[]
+---@type {unit: string, class: string?, isPlayer: boolean, name: string?, isPhased: boolean, inPlayerParty: boolean}[]
 local unitEntryPool = {}
 local unitEntryPoolSize = 0
 
@@ -496,8 +592,9 @@ local unitEntryPoolSize = 0
 ---@param isPlayer boolean
 ---@param name string?
 ---@param isPhased boolean True when the unit is in another phase or out of broadcast range
----@return {unit: string, class: string?, isPlayer: boolean, name: string?, isPhased: boolean}
-local function AcquireUnitEntry(unit, class, isPlayer, name, isPhased)
+---@param inPlayerParty boolean True when the unit is in the player's raid subgroup, or not in a raid
+---@return {unit: string, class: string?, isPlayer: boolean, name: string?, isPhased: boolean, inPlayerParty: boolean}
+local function AcquireUnitEntry(unit, class, isPlayer, name, isPhased, inPlayerParty)
     local entry
     if unitEntryPoolSize > 0 then
         entry = unitEntryPool[unitEntryPoolSize]
@@ -508,8 +605,16 @@ local function AcquireUnitEntry(unit, class, isPlayer, name, isPhased)
         entry.isPlayer = isPlayer
         entry.name = name
         entry.isPhased = isPhased
+        entry.inPlayerParty = inPlayerParty
     else
-        entry = { unit = unit, class = class, isPlayer = isPlayer, name = name, isPhased = isPhased }
+        entry = {
+            unit = unit,
+            class = class,
+            isPlayer = isPlayer,
+            name = name,
+            isPhased = isPhased,
+            inPlayerParty = inPlayerParty,
+        }
     end
     return entry
 end
@@ -526,6 +631,44 @@ end
 -- Max level per class for current refresh cycle (players only, for caster availability checks)
 ---@type table<ClassName, number>
 local classMaxLevels = {}
+-- The same, for the members in the player's raid subgroup only
+---@type table<ClassName, number>
+local partyClassMaxLevels = {}
+
+-- Raid subgroup per raid unit token, and the player's own subgroup under "player"
+---@type table<string, number>
+local raidSubgroups = {}
+local raidSubgroupsValid = false
+
+-- Only a party-reach buff reads raid subgroups, so a client without one skips the roster scan
+local hasPartyReachBuff = false
+for _, list in ipairs({ RaidBuffs, PresenceBuffs }) do
+    for _, buff in ipairs(list) do
+        if buff.reach == "party" then
+            hasPartyReachBuff = true
+        end
+    end
+end
+
+---@return table<string, number>
+local function GetRaidSubgroups()
+    if raidSubgroupsValid then
+        return raidSubgroups
+    end
+    wipe(raidSubgroups)
+    for i = 1, GetNumGroupMembers() do
+        local unit = "raid" .. i
+        local _, _, subgroup = GetRaidRosterInfo(i)
+        subgroup = Plain(subgroup)
+        raidSubgroups[unit] = subgroup
+        if Plain(UnitIsUnit(unit, "player")) then
+            raidSubgroups.player = subgroup
+        end
+    end
+    -- A secret roster read leaves the player's subgroup unknown, so the next refresh reads again
+    raidSubgroupsValid = raidSubgroups.player ~= nil
+    return raidSubgroups
+end
 
 ---Get the player's current spec ID (cached)
 ---@return number?
@@ -533,10 +676,7 @@ local function GetPlayerSpecId()
     if cachedSpecId then
         return cachedSpecId
     end
-    local specIndex = GetSpecialization()
-    if specIndex then
-        cachedSpecId = GetSpecializationInfo(specIndex)
-    end
+    cachedSpecId = BR.Client.GetSpecID()
     return cachedSpecId
 end
 
@@ -546,11 +686,40 @@ local function GetPlayerRole()
     if cachedPlayerRole then
         return cachedPlayerRole
     end
-    local specIndex = GetSpecialization()
+    local _, specIndex = BR.Client.GetSpecID()
     if specIndex then
         cachedPlayerRole = GetSpecializationRole(specIndex)
     end
     return cachedPlayerRole
+end
+
+---Whether a raid marks the unit as Main Tank. A secret answer reads as false and stays uncached.
+---@param unit string
+---@return boolean
+local function IsMainTank(unit)
+    local known = cachedMainTanks[unit]
+    if known ~= nil then
+        return known
+    end
+    if not GetPartyAssignment then
+        return false
+    end
+    local marked = Plain(GetPartyAssignment("MAINTANK", unit))
+    if marked == nil then
+        return false
+    end
+    known = marked == true or marked == 1
+    cachedMainTanks[unit] = known
+    return known
+end
+
+---A tank has the TANK role or a Main Tank mark. Classic groups often use only the mark.
+---@return boolean
+local function IsPlayerTank()
+    if cachedPlayerTank == nil then
+        cachedPlayerTank = Plain(UnitGroupRolesAssigned("player")) == "TANK" or IsMainTank("player")
+    end
+    return cachedPlayerTank
 end
 
 ---Check if player knows a spell (cached version of C_SpellBook.IsSpellKnown)
@@ -563,6 +732,17 @@ local function IsPlayerSpellCached(spellID)
     local knows = IsSpellKnown(spellID)
     cachedSpellKnowledge[spellID] = knows
     return knows
+end
+
+---@param spellIDs SpellID
+---@return boolean
+local function KnowsAnySpell(spellIDs)
+    for _, id in ipairs(AsSpellList(spellIDs)) do
+        if IsPlayerSpellCached(id) then
+            return true
+        end
+    end
+    return false
 end
 
 ---Check if player has an item equipped (slots 1-19)
@@ -699,6 +879,7 @@ end
 local function BuildValidUnitCache()
     RecycleUnitEntries()
     wipe(classMaxLevels)
+    wipe(partyClassMaxLevels)
     wipe(activeNames)
     -- Reset per-unit tracked-aura instance sets; the scans this refresh performs
     -- repopulate them (sets are reused; stale unit keys stay empty)
@@ -726,6 +907,10 @@ local function BuildValidUnitCache()
     -- the unit cache. Treat it as a 1-unit "group of player" so dead/phased/etc.
     -- filtering via IsValidBuffTarget runs uniformly for solo and grouped paths.
     local memberCount = groupSize == 0 and 1 or groupSize
+
+    -- An unknown player subgroup counts every raid member as the player's party
+    local subgroups = inRaid and hasPartyReachBuff and GetRaidSubgroups()
+    local playerSubgroup = subgroups and subgroups.player
 
     for i = 1, memberCount do
         local unit
@@ -759,7 +944,9 @@ local function BuildValidUnitCache()
                 end
                 local isPlayer = UnitIsPlayer(unit)
                 local isPhased = IsUnitPhased(unit)
-                currentValidUnits[#currentValidUnits + 1] = AcquireUnitEntry(unit, class, isPlayer, name, isPhased)
+                local inPlayerParty = not playerSubgroup or (subgroups and subgroups[unit]) == playerSubgroup
+                currentValidUnits[#currentValidUnits + 1] =
+                    AcquireUnitEntry(unit, class, isPlayer, name, isPhased, inPlayerParty)
                 -- Track max level per class (players only, for buff caster checks).
                 -- Skip phased / out-of-broadcast-range allies: they cannot reliably
                 -- cast on the group now. The addon must not track a buff that no
@@ -768,6 +955,9 @@ local function BuildValidUnitCache()
                     local level = UnitLevel(unit)
                     if not classMaxLevels[class] or level > classMaxLevels[class] then
                         classMaxLevels[class] = level
+                    end
+                    if inPlayerParty and (not partyClassMaxLevels[class] or level > partyClassMaxLevels[class]) then
+                        partyClassMaxLevels[class] = level
                     end
                 end
             end
@@ -783,13 +973,86 @@ end
 ---Uses classMaxLevels cache built at start of refresh cycle
 ---@param requiredClass ClassName
 ---@param levelRequired? number
+---@param reach? BuffReach "party" looks only in the player's raid subgroup
 ---@return boolean
-local function HasCasterForBuff(requiredClass, levelRequired)
-    local maxLevel = classMaxLevels[requiredClass]
+local function HasCasterForBuff(requiredClass, levelRequired, reach)
+    local maxLevel = (reach == "party" and partyClassMaxLevels or classMaxLevels)[requiredClass]
     if not maxLevel then
         return false
     end
     return not levelRequired or maxLevel >= levelRequired
+end
+
+-- The warning window of an aura copy (its lead), and the choice of the copy that a
+-- multi-member scan reports.
+local Lead = {}
+-- Fraction of the full duration, set from the defaults on each settings read.
+Lead.share = 0.25
+
+---Seconds before the end of an aura when its warning starts: a share of its full
+---duration, at most the threshold. An aura of 5 min or less shows only when missing.
+---The share rounds down to whole minutes (at least 1), so the first timer label
+---that the icon shows matches the lead.
+---An unknown duration (nil, 0, or secret) uses the threshold.
+---@param duration? number
+---@param threshold number Seconds
+---@param floor? number Seconds. Ignores the share cap, but stays a minute under the full duration
+---@param share? number Fraction of the duration. Default Lead.share
+---@return number? lead nil when the aura never warns
+function Lead.Of(duration, threshold, floor, share)
+    floor = floor or 0
+    if not duration or duration <= 0 then
+        return threshold > floor and threshold or floor
+    end
+    if duration <= 300 then
+        return nil
+    end
+    local lead = math.floor(duration * (share or Lead.share) / 60) * 60
+    if lead < 60 then
+        lead = 60
+    end
+    if lead > threshold then
+        lead = threshold
+    end
+    if floor > lead then
+        lead = floor < duration - 60 and floor or duration - 60
+    end
+    return lead
+end
+
+---Fold one copy into the best copy of a scan. A copy in its window beats one outside
+---it. Among copies in their window, the one that ends first wins. Among the others,
+---the one that enters its window first wins. nextSlack is the earliest entry into a
+---window, so a render can follow it.
+---@param remaining number
+---@param lead number
+---@param bestRemaining? number
+---@param bestLead? number
+---@param nextSlack? number
+---@return number bestRemaining
+---@return number bestLead
+---@return number? nextSlack
+function Lead.Pick(remaining, lead, bestRemaining, bestLead, nextSlack)
+    local slack = remaining - lead
+    if slack >= 0 and (not nextSlack or slack < nextSlack) then
+        nextSlack = slack
+    end
+    if not bestRemaining or not bestLead then
+        return remaining, lead, nextSlack
+    end
+    local inWindow = slack < 0
+    local better
+    if inWindow ~= (bestRemaining < bestLead) then
+        better = inWindow
+    elseif inWindow then
+        better = remaining < bestRemaining
+    else
+        better = slack < bestRemaining - bestLead
+    end
+    if better then
+        return remaining, lead, nextSlack
+    end
+    return bestRemaining, bestLead, nextSlack
 end
 
 ---Check if unit has a specific buff (handles single spellID or table of spellIDs)
@@ -798,6 +1061,7 @@ end
 ---@return boolean hasBuff
 ---@return number? remainingTime
 ---@return string? sourceUnit
+---@return number? duration Full duration of the aura, nil or 0 when it never expires
 local function UnitHasBuff(unit, spellIDs)
     -- Fast path: single numeric spellID (most common case, avoids table allocation)
     if type(spellIDs) == "number" then
@@ -811,7 +1075,7 @@ local function UnitHasBuff(unit, spellIDs)
             if exp and exp > 0 then
                 remaining = exp - GetTime()
             end
-            return true, remaining, AuraField(auraData, "sourceUnit")
+            return true, remaining, AuraField(auraData, "sourceUnit"), AuraField(auraData, "duration")
         end
         return false, nil, nil
     end
@@ -828,7 +1092,7 @@ local function UnitHasBuff(unit, spellIDs)
             if exp and exp > 0 then
                 remaining = exp - GetTime()
             end
-            return true, remaining, AuraField(auraData, "sourceUnit")
+            return true, remaining, AuraField(auraData, "sourceUnit"), AuraField(auraData, "duration")
         end
     end
 
@@ -888,6 +1152,7 @@ end
 ---@param spellIDs SpellID
 ---@return boolean found
 ---@return number? remainingTime
+---@return number? duration
 local function UnitHasBuffFromPlayer(unit, spellIDs)
     local singleId = type(spellIDs) == "number" and spellIDs or nil ---@type number?
     local i = 1
@@ -902,7 +1167,7 @@ local function UnitHasBuffFromPlayer(unit, spellIDs)
             if exp and exp > 0 then
                 remaining = exp - GetTime()
             end
-            return true, remaining
+            return true, remaining, AuraField(auraData, "duration")
         end
         i = i + 1
         auraData = AuraByIndex(unit, i, "HELPFUL|PLAYER")
@@ -922,10 +1187,10 @@ local function FormatRemainingTime(seconds)
     end
 end
 
----Format remaining time for eating countdown (always shows real value, e.g., "5m" or "23s")
+---Format the remaining time of a live countdown (always shows the real value, e.g., "5m" or "23s")
 ---@param seconds number
 ---@return string
-local function FormatEatingTime(seconds)
+local function FormatCountdownTime(seconds)
     local mins = ceil(seconds / 60)
     if mins > 1 then
         return format(FMT_MINUTES, mins)
@@ -991,7 +1256,10 @@ local function GetCurrentContentType()
     instanceCache.instanceName = instName
     instanceCache.instanceID = instanceID
     instanceCache.difficultyID = difficultyID
-    instanceCache.activeChallenge = C_ChallengeMode and C_ChallengeMode.GetActiveChallengeMapID() or nil
+    instanceCache.activeChallenge = C_ChallengeMode
+            and C_ChallengeMode.GetActiveChallengeMapID
+            and C_ChallengeMode.GetActiveChallengeMapID()
+        or nil
 
     -- Check housing before instance type (housing zones can report as instanced)
     if
@@ -1037,8 +1305,41 @@ local function GetCurrentContentType()
     end
     instanceCache.contentType = contentType
 
-    instanceCache.legacyInstance = C_Loot.IsLegacyLootModeEnabled()
+    -- WoW Forever has no legacy loot mode API.
+    instanceCache.legacyInstance = C_Loot.IsLegacyLootModeEnabled ~= nil and C_Loot.IsLegacyLootModeEnabled() or false
     return contentType
+end
+
+-- Content type -> row of a per-content grid setting. Other content uses the world row.
+local CONTENT_GRID_ROWS = { dungeon = "dungeon", scenario = "dungeon", raid = "raid", pvp = "pvp" }
+
+---Row of the per-content grid settings for the current content.
+---@return string
+local function GetContentRow()
+    return CONTENT_GRID_ROWS[GetCurrentContentType()] or "world"
+end
+
+---Whether a per-content grid allows a choice. A saved row holds only the keys
+---that the user toggled, and an unchecked choice is stored as false. A missing
+---key follows the code default.
+---@param setting string Key of the grid in profile.defaults
+---@param row string
+---@param key string
+---@return boolean
+local function IsContentChoiceAllowed(setting, row, key)
+    local defaults = BR.profile.defaults
+    local prefs = defaults and defaults[setting]
+    local saved = type(prefs) == "table" and prefs[row]
+    local allowed
+    if type(saved) == "table" then
+        allowed = saved[key]
+    end
+    if allowed == nil then
+        local defaultGrid = BR.defaults.defaults[setting]
+        local defaultRow = defaultGrid and defaultGrid[row]
+        allowed = defaultRow and defaultRow[key]
+    end
+    return allowed == true
 end
 
 ---Raw difficultyID from GetInstanceInfo, cached alongside the content type
@@ -1317,71 +1618,94 @@ local function GetEffectiveTrackingMode(db)
     return mode
 end
 
+-- Target and copies rules. One table, so that State.lua stays below the 200-local limit.
+local BuffTargets = {
+    ---@type table<string, BuffTarget>
+    DEFAULT_TARGET = { raid = "group", presence = "anyone", targeted = "ally" },
+    ---@type table<string, BuffCopies>
+    DEFAULT_COPIES = { raid = "any", presence = "any", targeted = "own" },
+}
+
+---@param buff table
+---@param category "raid"|"presence"|"targeted"
+---@return BuffTarget
+function BuffTargets.Resolve(buff, category)
+    local target = buff.target
+    if type(target) == "function" then
+        target = target()
+    end
+    return target or BuffTargets.DEFAULT_TARGET[category]
+end
+
+---@param buff table
+---@param category "raid"|"presence"|"targeted"
+---@return BuffCopies
+function BuffTargets.Copies(buff, category)
+    return buff.copies or BuffTargets.DEFAULT_COPIES[category]
+end
+
+---Whether each cast goes on one unit that the caster picks, so target memory applies.
+---@param target BuffTarget
+---@return boolean
+function BuffTargets.PicksUnit(target)
+    return target == "ally" or target == "allyOrSelf" or target == "tankOrSelf"
+end
+
+---Whether the player is a valid receiver of the buff. "Just on me" modes show only these buffs.
+---@param target BuffTarget
+---@return boolean
+function BuffTargets.IncludesPlayer(target)
+    if target == "ally" then
+        return false
+    end
+    if target == "allyOrSelf" then
+        return cachedIsAlone
+    end
+    return true
+end
+
 ---Determine visibility and scan scope for a buff based on tracking mode.
----Raid buffs go on everyone, so "scan group" means showing coverage numbers.
----Presence buffs live on the caster, so "scan group" means finding if anyone has the aura.
+---"group" buffs go on everyone, so "scan group" means showing coverage numbers.
+---"anyone" buffs need one copy, so "scan group" means finding if anyone has the aura.
 ---@param trackingMode string
 ---@param buffClass ClassName
----@param category "raid"|"presence"
+---@param target BuffTarget
 ---@param hasCaster boolean
----@param castOnOthers? boolean Buff exists on the target, not the caster (e.g., Soulstone)
 ---@return { show: boolean, playerOnly: boolean }
-local function GetTrackingScope(trackingMode, buffClass, category, hasCaster, castOnOthers)
+local function GetTrackingScope(trackingMode, buffClass, target, hasCaster)
     if not hasCaster then
         return SCOPE_HIDDEN
     end
     if ModeHidesOtherClasses(trackingMode) and buffClass ~= playerClass then
         return SCOPE_HIDDEN
     end
+    if target == "ally" and cachedIsAlone then
+        return SCOPE_HIDDEN
+    end
+    if target == "self" then
+        return SCOPE_PLAYER_ONLY
+    end
 
     if trackingMode == "self_only" then
-        -- Only the player's own class buffs, on the player. A castOnOthers buff
-        -- (e.g. Soulstone) lives on the target, not on the player.
-        if category == "presence" and castOnOthers then
-            return SCOPE_HIDDEN
-        end
-        return SCOPE_PLAYER_ONLY
+        return BuffTargets.IncludesPlayer(target) and SCOPE_PLAYER_ONLY or SCOPE_HIDDEN
     elseif trackingMode == "personal" then
-        -- Presence buffs from other classes exist only on the caster, not on the
-        -- player. In personal mode, a castOnOthers buff (Soulstone) belongs to
-        -- another player.
-        if category == "presence" and (buffClass ~= playerClass or castOnOthers) then
+        -- An "anyone" buff of another class sits on its caster, never on the player.
+        if target == "anyone" and buffClass ~= playerClass then
             return SCOPE_HIDDEN
         end
-        return SCOPE_PLAYER_ONLY
+        return BuffTargets.IncludesPlayer(target) and SCOPE_PLAYER_ONLY or SCOPE_HIDDEN
     elseif trackingMode == "smart" then
         local isMyClass = buffClass == playerClass
-        -- Raid: scan the group when the player is the caster (show coverage),
-        -- otherwise check the player only.
-        -- Presence: check the player only when the player is the caster, scan the
-        -- group to find other casters.
-        --   castOnOthers: always scan the group (the buff is on the target).
-        if category == "raid" then
-            if isMyClass then
-                return SCOPE_GROUP
-            else
-                return SCOPE_PLAYER_ONLY
-            end
-        else
-            if isMyClass and not castOnOthers then
-                return SCOPE_PLAYER_ONLY
-            else
-                return SCOPE_GROUP
-            end
-        end
-    elseif trackingMode == "my_buffs" then
-        -- Raid: scan the group to show coverage numbers.
-        -- Presence: check the player's own aura only.
-        --   castOnOthers: scan the group (the buff is on another unit).
-        if category == "presence" and not castOnOthers then
+        if target == "group" then
+            return isMyClass and SCOPE_GROUP or SCOPE_PLAYER_ONLY
+        elseif target == "anyone" and isMyClass then
             return SCOPE_PLAYER_ONLY
-        else
-            return SCOPE_GROUP
         end
-    else
-        -- "all" mode: always scan the full group
         return SCOPE_GROUP
+    elseif trackingMode == "my_buffs" then
+        return target == "anyone" and SCOPE_PLAYER_ONLY or SCOPE_GROUP
     end
+    return SCOPE_GROUP
 end
 
 -- ============================================================================
@@ -1394,13 +1718,22 @@ end
 ---@param buffKey? string Used for class benefit filtering
 ---@param playerOnly? boolean Only check the player, not the group
 ---@param playersOnly? boolean Exclude NPCs from the count (e.g. buffs NPCs provide themselves)
+---@param partyOnly? boolean In a raid, count only the player's subgroup
+---@param threshold number Input of Lead.Of
+---@param floor number Input of Lead.Of
+---@param missingUnits? string[] Wiped, then filled with the unit of each counted member who lacks the buff
 ---@return number missing
 ---@return number total
----@return number? minRemaining
-local function CountMissingBuff(spellIDs, buffKey, playerOnly, playersOnly)
+---@return number? minRemaining Remaining time of the copy that Lead.Pick chose
+---@return number? minLead Lead of that copy
+---@return number? nextSlack Seconds until the next copy enters its window
+local function CountMissingBuff(spellIDs, buffKey, playerOnly, playersOnly, partyOnly, threshold, floor, missingUnits)
+    if missingUnits then
+        wipe(missingUnits)
+    end
     local missing = 0
     local total = 0
-    local minRemaining = nil
+    local minRemaining, minLead, nextSlack = nil, nil, nil
     local beneficiaries = BuffBeneficiaries[buffKey]
     local specBeneficiaries = SpecBeneficiaries[buffKey]
 
@@ -1410,13 +1743,17 @@ local function CountMissingBuff(spellIDs, buffKey, playerOnly, playersOnly)
             return 0, 0, nil
         end
         total = 1
-        local hasBuff, remaining = UnitHasBuff("player", GetUnitSpellIDs(buffKey, spellIDs, playerClass))
+        local hasBuff, remaining, _, duration = UnitHasBuff("player", GetUnitSpellIDs(buffKey, spellIDs, playerClass))
         if not hasBuff then
             missing = 1
+            if missingUnits then
+                missingUnits[1] = "player"
+            end
         elseif remaining then
-            minRemaining = remaining
+            minLead = Lead.Of(duration, threshold, floor)
+            minRemaining = minLead and remaining
         end
-        return missing, total, minRemaining
+        return missing, total, minRemaining, minLead
     end
 
     local countNPCs = includeNPCsInCounting and not GameContext.IsInCombat() and not playersOnly
@@ -1426,9 +1763,10 @@ local function CountMissingBuff(spellIDs, buffKey, playerOnly, playersOnly)
         -- combat-whitelisted, so UnitHasBuff returns nil and the missing count is
         -- wrong. Targeted buffs use player-cast spell IDs that ARE whitelisted, so
         -- they still include NPCs.
-        if data.isPlayer or countNPCs then
+        if (data.isPlayer or countNPCs) and (data.inPlayerParty or not partyOnly) then
             if UnitBenefitsFromBuff(specBeneficiaries, beneficiaries, allySpecCache[data.name], data.class) then
-                local hasBuff, remaining = UnitHasBuff(data.unit, GetUnitSpellIDs(buffKey, spellIDs, data.class))
+                local hasBuff, remaining, _, duration =
+                    UnitHasBuff(data.unit, GetUnitSpellIDs(buffKey, spellIDs, data.class))
                 -- A phased ally counts only when the buff is already on them. A
                 -- phased member without the buff is an unfixable gap - nobody can
                 -- cast on them - so both totals omit them.
@@ -1436,9 +1774,17 @@ local function CountMissingBuff(spellIDs, buffKey, playerOnly, playersOnly)
                     total = total + 1
                     if not hasBuff then
                         missing = missing + 1
+                        if missingUnits then
+                            -- In a raid the player is a raidN unit. The click target
+                            -- picker looks for "player" to cast on the player first.
+                            local isSelf = data.unit == "player" or Plain(UnitIsUnit(data.unit, "player")) == true
+                            missingUnits[missing] = isSelf and "player" or data.unit
+                        end
                     elseif remaining then
-                        if not minRemaining or remaining < minRemaining then
-                            minRemaining = remaining
+                        local lead = Lead.Of(duration, threshold, floor)
+                        if lead then
+                            minRemaining, minLead, nextSlack =
+                                Lead.Pick(remaining, lead, minRemaining, minLead, nextSlack)
                         end
                     end
                 end
@@ -1446,58 +1792,65 @@ local function CountMissingBuff(spellIDs, buffKey, playerOnly, playersOnly)
         end
     end
 
-    return missing, total, minRemaining
+    return missing, total, minRemaining, minLead, nextSlack
 end
 
 ---Check if anyone in the group has a presence buff active
 ---Uses currentValidUnits cache built at start of refresh cycle
 ---@param spellIDs SpellID
 ---@param playerOnly? boolean Only check the player, not the group
----@param playerCastOnly? boolean Count only auras cast by the player (e.g. castOnOthers for the caster class)
+---@param playerCastOnly? boolean Count only auras cast by the player (copies = "own" for the caster class)
+---@param partyOnly? boolean In a raid, look only in the player's subgroup
+---@param threshold number Input of Lead.Of
+---@param floor number Input of Lead.Of
 ---@return boolean hasBuff
----@return number? minRemaining
+---@return number? minRemaining Remaining time of the copy that Lead.Pick chose
 ---@return table? targetEntry First non-player unit entry that has the buff
-local function HasPresenceBuff(spellIDs, playerOnly, playerCastOnly)
+---@return number? minLead Lead of that copy
+---@return number? nextSlack Seconds until the next copy enters its window
+local function HasPresenceBuff(spellIDs, playerOnly, playerCastOnly, partyOnly, threshold, floor)
     if playerOnly or #currentValidUnits <= 1 then
+        local hasBuff, remaining, duration, _
         if playerCastOnly then
-            local hasBuff, remaining = UnitHasBuffFromPlayer("player", spellIDs)
-            return hasBuff, remaining, nil
+            hasBuff, remaining, duration = UnitHasBuffFromPlayer("player", spellIDs)
+        else
+            hasBuff, remaining, _, duration = UnitHasBuff("player", spellIDs)
         end
-        local hasBuff, remaining = UnitHasBuff("player", spellIDs)
-        return hasBuff, remaining, nil
+        local lead = remaining and Lead.Of(duration, threshold, floor)
+        return hasBuff, lead and remaining, nil, lead
     end
 
-    local minRemaining = nil
+    local minRemaining, minLead, nextSlack = nil, nil, nil
     local found = false
     local targetEntry = nil
 
     for _, data in ipairs(currentValidUnits) do
         -- Skip NPCs in content where they cannot receive player buffs
-        if data.isPlayer or includeNPCsInCounting then
-            local hasBuff, remaining, sourceUnit = UnitHasBuff(data.unit, spellIDs)
+        if (data.isPlayer or includeNPCsInCounting) and (data.inPlayerParty or not partyOnly) then
+            local hasBuff, remaining, sourceUnit, duration = UnitHasBuff(data.unit, spellIDs)
             -- With player-cast auras only, another player's cast can mask the
             -- player's own via GetUnitAuraBySpellID. Fall back to a HELPFUL|PLAYER
             -- scan.
             if playerCastOnly and hasBuff and not (sourceUnit and Plain(UnitIsUnit(sourceUnit, "player"))) then
-                hasBuff, remaining = UnitHasBuffFromPlayer(data.unit, spellIDs)
+                hasBuff, remaining, duration = UnitHasBuffFromPlayer(data.unit, spellIDs)
             end
             if hasBuff then
                 found = true
                 if not targetEntry and not Plain(UnitIsUnit(data.unit, "player")) then
                     targetEntry = data
                 end
-                if remaining then
-                    if not minRemaining or remaining < minRemaining then
-                        minRemaining = remaining
-                    end
-                else
+                if not remaining then
                     return true, nil, targetEntry -- no expiration, no need to keep scanning
+                end
+                local lead = Lead.Of(duration, threshold, floor)
+                if lead then
+                    minRemaining, minLead, nextSlack = Lead.Pick(remaining, lead, minRemaining, minLead, nextSlack)
                 end
             end
         end
     end
 
-    return found, minRemaining, targetEntry
+    return found, minRemaining, targetEntry, minLead, nextSlack
 end
 
 ---Assigned role of a group member, or nil when it does not resolve. A secret role
@@ -1522,11 +1875,16 @@ end
 ---Uses currentValidUnits cache built at start of refresh cycle
 ---@param spellID number
 ---@param role? RoleType Only check units with this role
+---@param threshold number Input of Lead.Of
+---@param floor number Input of Lead.Of
 ---@return boolean
----@return number? minRemaining
+---@return number? minRemaining Remaining time of the copy that Lead.Pick chose
 ---@return table? targetEntry Unit entry of a non-player target with the buff (for last target cache)
-local function IsPlayerBuffActive(spellID, role)
-    local minRemaining = nil
+---@return number? minLead Lead of that copy
+---@return number? nextSlack Seconds until the next copy enters its window
+local function IsPlayerBuffActive(spellID, role, threshold, floor)
+    local minRemaining, minLead, nextSlack = nil, nil, nil
+    local found = false
     local targetEntry = nil
     local hasBeneficiary = not role
     for _, data in ipairs(currentValidUnits) do
@@ -1534,7 +1892,7 @@ local function IsPlayerBuffActive(spellID, role)
         if data.isPlayer or includeNPCsInCounting then
             if not role or GetUnitRole(data) == role then
                 hasBeneficiary = true
-                local hasBuff, remaining, sourceUnit = UnitHasBuff(data.unit, spellID)
+                local hasBuff, remaining, sourceUnit, duration = UnitHasBuff(data.unit, spellID)
                 if hasBuff then
                     local isFromPlayer = sourceUnit and Plain(UnitIsUnit(sourceUnit, "player"))
                     if not isFromPlayer then
@@ -1542,17 +1900,20 @@ local function IsPlayerBuffActive(spellID, role)
                         -- player cast the same spell (e.g. two Aug Evokers), that
                         -- instance can hide the player's own. Fall back to a full
                         -- aura scan.
-                        isFromPlayer, remaining = UnitHasBuffFromPlayer(data.unit, spellID)
+                        isFromPlayer, remaining, duration = UnitHasBuffFromPlayer(data.unit, spellID)
                     end
                     if isFromPlayer then
+                        found = true
                         if not targetEntry and not Plain(UnitIsUnit(data.unit, "player")) then
                             targetEntry = data
                         end
                         if not remaining then
                             return true, nil, targetEntry
                         end
-                        if not minRemaining or remaining < minRemaining then
-                            minRemaining = remaining
+                        local lead = Lead.Of(duration, threshold, floor)
+                        if lead then
+                            minRemaining, minLead, nextSlack =
+                                Lead.Pick(remaining, lead, minRemaining, minLead, nextSlack)
                         end
                     end
                 end
@@ -1563,22 +1924,23 @@ local function IsPlayerBuffActive(spellID, role)
     if not hasBeneficiary then
         return true
     end
-    return minRemaining ~= nil, minRemaining, targetEntry
+    return found, minRemaining, targetEntry, minLead, nextSlack
 end
 
----Check if player should cast their targeted buff (returns true if a beneficiary needs it)
----@param spellIDs SpellID
----@param requiredClass ClassName
----@param beneficiaryRole? RoleType
----@param requireSpecId? number
----@param buffKey? string Used for last target cache
+---Reminder state of an "ally" or "allyOrSelf" buff: one copy of the player's cast on any member.
+---@param buff TargetedBuff
+---@param threshold number Input of Lead.Of
+---@param floor number Input of Lead.Of
 ---@return boolean? shouldShow Returns nil if player can't provide this buff
 ---@return number? remainingTime
-local function ShouldShowTargetedBuff(spellIDs, requiredClass, beneficiaryRole, requireSpecId, buffKey, casterBuffId)
-    if playerClass ~= requiredClass then
+---@return number? lead Lead of the copy that remainingTime reads
+---@return number? nextSlack Seconds until the next copy enters its window
+local function AllyTargetState(buff, threshold, floor)
+    local spellIDs, buffKey, casterBuffId = buff.spellID, buff.key, buff.casterBuffId
+    if playerClass ~= buff.class then
         return nil
     end
-    if requireSpecId and GetPlayerSpecId() ~= requireSpecId then
+    if buff.requireSpecId and GetPlayerSpecId() ~= buff.requireSpecId then
         return nil
     end
 
@@ -1587,21 +1949,14 @@ local function ShouldShowTargetedBuff(spellIDs, requiredClass, beneficiaryRole, 
         return nil
     end
 
-    -- Targeted buffs require an ally to cast on. cachedIsAlone covers both
-    -- open-world solo (groupSize 0) and scenario solo (groupSize 1, player only).
-    if cachedIsAlone then
-        return nil
-    end
-
     if casterBuffId then
-        -- Shortcut: check if the caster has this buff on themselves (combat-safe spell ID)
-        local hasBuff, remaining = UnitHasBuff("player", casterBuffId)
+        local hasBuff, remaining, _, duration = UnitHasBuff("player", casterBuffId)
         -- Scan the group for the original buff and record only on a hit. The
         -- target-side spell can be unqueryable (off the aura whitelist in restricted
         -- contexts like M+, or the target is phased / out of range), so a miss is
         -- ambiguous and must NOT forget the memory. Roster pruning handles
         -- departures, and a retarget overwrites on the next successful scan.
-        if buffKey and not GameContext.IsInCombat() and hasBuff then
+        if not GameContext.IsInCombat() and hasBuff then
             for _, data in ipairs(currentValidUnits) do
                 if not Plain(UnitIsUnit(data.unit, "player")) then
                     local targetHas = UnitHasBuff(data.unit, spellIDs)
@@ -1612,25 +1967,95 @@ local function ShouldShowTargetedBuff(spellIDs, requiredClass, beneficiaryRole, 
                 end
             end
         end
-        return not hasBuff, remaining
+        local lead = remaining and Lead.Of(duration, threshold, floor)
+        return not hasBuff, lead and remaining, lead
     end
 
-    local isActive, remaining, targetEntry = IsPlayerBuffActive(spellID, beneficiaryRole)
+    local isActive, remaining, targetEntry, lead, nextSlack =
+        IsPlayerBuffActive(spellID, buff.beneficiaryRole, threshold, floor)
 
     -- Update target memory (records even in combat: this path only runs for
     -- whitelist-safe queries, gated by IsAuraTrackable at the call site)
-    if buffKey then
-        TargetMemory.Observe(buffKey, isActive, targetEntry and targetEntry.name, targetEntry and targetEntry.class)
-    end
+    TargetMemory.Observe(buffKey, isActive, targetEntry and targetEntry.name, targetEntry and targetEntry.class)
 
-    return not isActive, remaining
+    return not isActive, remaining, lead, nextSlack
+end
+
+---@param data {unit: string, name: string?}
+---@return boolean
+local function IsUnitTank(data)
+    return GetUnitRole(data) == "TANK" or IsMainTank(data.unit)
+end
+
+---Reminder state of a "tankOrSelf" buff. The caster checks the first tank who
+---lacks the buff, else the player when the group has no tank. A tank of another class
+---checks themselves, if a caster who can cast the buff is in the group.
+---@param buff TargetedBuff
+---@param playerOnly boolean
+---@param threshold number Input of Lead.Of
+---@param floor number Input of Lead.Of
+---@return boolean? shouldShow nil when the player can neither cast nor request the buff
+---@return number? remainingTime
+---@return number? lead Lead of the copy that remainingTime reads
+---@return number? nextSlack Seconds until the next tank copy enters its window
+local function TankOrSelfState(buff, playerOnly, threshold, floor)
+    local spellIDs = buff.spellID
+    if playerClass ~= buff.class then
+        if
+            not buff.chatRequestable
+            or playerOnly
+            or cachedIsAlone
+            or not IsPlayerTank()
+            or not HasCasterForBuff(buff.class, buff.levelRequired)
+        then
+            return nil
+        end
+    else
+        if not KnowsAnySpell(spellIDs) then
+            return nil
+        end
+        local target, hasTank = nil, false
+        local minRemaining, minLead, nextSlack
+        if not playerOnly and not cachedIsAlone then
+            for _, data in ipairs(currentValidUnits) do
+                if (data.isPlayer or includeNPCsInCounting) and IsUnitTank(data) then
+                    hasTank = true
+                    -- A phased member cannot receive a cast.
+                    if not data.isPhased then
+                        local has, remaining, _, duration = UnitHasBuff(data.unit, spellIDs)
+                        if not has then
+                            target = data
+                            break
+                        end
+                        local lead = remaining and Lead.Of(duration, threshold, floor)
+                        if remaining and lead then
+                            minRemaining, minLead, nextSlack =
+                                Lead.Pick(remaining, lead, minRemaining, minLead, nextSlack)
+                        end
+                    end
+                end
+            end
+        end
+        local isSelf = target and (target.unit == "player" or Plain(UnitIsUnit(target.unit, "player")) == true)
+        TargetMemory.Observe(buff.key, true, target and not isSelf and target.name or nil, target and target.class)
+        if target then
+            return true, nil
+        end
+        if hasTank then
+            return false, minRemaining, minLead, nextSlack
+        end
+    end
+    local hasBuff, remaining, _, duration = UnitHasBuff("player", spellIDs)
+    local lead = remaining and Lead.Of(duration, threshold, floor)
+    return not hasBuff, lead and remaining, lead
 end
 
 ---Check if player should cast their self buff or weapon imbue (returns true if missing)
 ---@param buff SelfBuff|CustomBuff
 ---@param skipSpellKnownCheck? boolean Skip the "player knows spell" check (for custom buffs)
+---@param isRestricted? boolean Passed to customCheck
 ---@return boolean? Returns nil if player can't/shouldn't use this buff
-local function ShouldShowSelfBuff(buff, skipSpellKnownCheck)
+local function ShouldShowSelfBuff(buff, skipSpellKnownCheck, isRestricted)
     local spellID = buff.spellID --[[@as SpellID]]
     local requiredClass, requireSpecId = buff.class, buff.requireSpecId
     local enchantID, requiresSpell, excludeSpell = buff.enchantID, buff.requiresSpellID, buff.excludeSpellID
@@ -1652,7 +2077,7 @@ local function ShouldShowSelfBuff(buff, skipSpellKnownCheck)
     end
 
     if customCheck then
-        return customCheck()
+        return customCheck(isRestricted == true)
     end
 
     -- For buffs with multiple spellIDs (like shields), check if the player knows ANY of them
@@ -1675,9 +2100,10 @@ local function ShouldShowSelfBuff(buff, skipSpellKnownCheck)
         end
     end
 
-    -- Weapon imbue: check if this specific enchant is on either weapon
+    -- Weapon imbue: check if an accepted enchant is on either weapon
     if enchantID then
-        local hasEnchant = currentWeaponEnchants.mainHandID == enchantID or currentWeaponEnchants.offHandID == enchantID
+        local hasEnchant = EnchantMatches(enchantID, currentWeaponEnchants.mainHandID)
+            or EnchantMatches(enchantID, currentWeaponEnchants.offHandID)
 
         -- For Paladin Rites: require BOTH enchant AND buff (Blizzard bug workaround)
         if requiresBuffWithEnchant then
@@ -1692,8 +2118,6 @@ local function ShouldShowSelfBuff(buff, skipSpellKnownCheck)
     return not hasBuff
 end
 
--- Icon ID for the eating channel aura (the same for all food types)
-BR.EATING_AURA_ICON = 133950
 local EATING_AURA_ICON = BR.EATING_AURA_ICON
 
 -- Event-driven eating state: tracked via UNIT_AURA payload, no per-render scanning.
@@ -1850,20 +2274,23 @@ end
 ---@return number? remainingTime seconds remaining if buff is present and has a duration
 ---@return number? activeSpellID the specific spell ID that matched (for multi-spell consumables)
 ---@return number? itemCount total count of items in inventory (for item-based consumables)
+---@return number? duration Full duration of the matched aura. A weapon enchant reports nil
 local function ShouldShowConsumableBuff(buff)
     if buff.spellID then
         local category = buff.consumableCategory
         for _, id in ipairs(AsSpellList(buff.spellID)) do
-            local hasBuff, remaining = UnitHasBuff("player", id)
+            local hasBuff, remaining, _, duration = UnitHasBuff("player", id)
             if hasBuff then
                 local CM = BR.ConsumableMemory
-                if CM and category and not CM.IsUnrememberedSpell(id) then
+                -- A count-tracked category remembers the item use spell, which can
+                -- differ from the aura (a food applies Well Fed).
+                if CM and category and not CM.IsCountTracked(category) and not CM.IsUnrememberedSpell(id) then
                     CM.Remember(GetPlayerSpecId(), category, id, true)
                 end
                 if category then
                     SetActiveConsumableSpell(category, id)
                 end
-                return false, remaining, id -- Has at least one of the consumable buffs
+                return false, remaining, id, nil, duration -- Has at least one of the consumable buffs
             end
         end
         if category then
@@ -1882,7 +2309,7 @@ local function ShouldShowConsumableBuff(buff)
                 if exp and exp > 0 then
                     remaining = exp - GetTime()
                 end
-                return false, remaining -- Has a buff with this icon
+                return false, remaining, nil, nil, AuraField(auraData, "duration") -- Has a buff with this icon
             end
             i = i + 1
             auraData = AuraByIndex("player", i, "HELPFUL")
@@ -1890,22 +2317,14 @@ local function ShouldShowConsumableBuff(buff)
     end
 
     -- Check if any weapon enchant exists (oils, stones, shaman imbues, etc.)
-    if buff.checkWeaponEnchant then
-        if currentWeaponEnchants.hasMainHand then
-            local remaining = currentWeaponEnchants.mainHandExpiration
-                    and (currentWeaponEnchants.mainHandExpiration / 1000)
-                or nil
-            return false, remaining -- Has a weapon enchant
-        end
+    if buff.checkWeaponEnchant and currentWeaponEnchants.mainHandTempID then
+        local exp = currentWeaponEnchants.mainHandTempExpiration
+        return false, exp and exp / 1000 or nil
     end
 
-    if buff.checkWeaponEnchantOH then
-        if currentWeaponEnchants.hasOffHand then
-            local remaining = currentWeaponEnchants.offHandExpiration
-                    and (currentWeaponEnchants.offHandExpiration / 1000)
-                or nil
-            return false, remaining
-        end
+    if buff.checkWeaponEnchantOH and currentWeaponEnchants.offHandTempID then
+        local exp = currentWeaponEnchants.offHandTempExpiration
+        return false, exp and exp / 1000 or nil
     end
 
     -- Check inventory for item (counts cached, invalidated on bag/equipment events)
@@ -2037,25 +2456,25 @@ end
 ---@param cat CategoryName
 ---@return boolean expiringGlow
 ---@return boolean missingGlow
----@return number threshold
+---@return number threshold Seconds
+---@return number floor Seconds of the pre-key threshold in an M0 dungeon, else 0
 local function GetCategoryGlowSettings(cat)
     local expiringGlow = BR.Config.GetCategorySetting(cat, "showExpirationGlow") ~= false
     local missingGlow = BR.Config.GetCategorySetting(cat, "showMissingGlow") ~= false
     local threshold = (BR.Config.GetCategorySetting(cat, "expirationThreshold") or 15) * 60
-    -- In M0 dungeons (before inserting a keystone), use pre-key threshold if higher
+    -- In an M0 dungeon (before a keystone goes in), the pre-key threshold forces a refresh.
     local defs = BR.profile and BR.profile.defaults
+    Lead.share = (defs and defs.expirationShare or 25) / 100
     local preKey = defs and defs.preKeyThreshold or 0
+    local floor = 0
     if preKey > 0 and GetCurrentContentType() == "dungeon" and GetCurrentDifficultyKey() == "mythic" then
-        local preKeySec = preKey * 60
-        if preKeySec > threshold then
-            threshold = preKeySec
-        end
+        floor = preKey * 60
     end
-    return expiringGlow, missingGlow, threshold
+    return expiringGlow, missingGlow, threshold, floor
 end
 
 -- Seconds until the earliest display change that no event announces: the countdown
--- text ticks a minute, remaining time crosses the expiration threshold, an
+-- text ticks a minute, remaining time crosses the warning lead, an
 -- expiring buff runs out, or item charges change.
 -- Accumulated per refresh; Display arms one timer for it instead of polling.
 local nextTimedChangeIn = nil
@@ -2068,14 +2487,18 @@ local function NoteChangeIn(seconds)
 end
 
 ---@param remaining? number
----@param threshold number
-local function NoteTimedChange(remaining, threshold)
+---@param lead number
+---@param nextSlack? number Seconds until another copy enters its window
+local function NoteTimedChange(remaining, lead, nextSlack)
+    if nextSlack and nextSlack > 0 then
+        NoteChangeIn(nextSlack)
+    end
     if not remaining or remaining <= 0 then
         return
     end
     local candidate
-    if remaining >= threshold then
-        candidate = remaining - threshold -- future crossing into "expiring"
+    if remaining >= lead then
+        candidate = remaining - lead -- future crossing into "expiring"
     elseif remaining > 60 then
         candidate = remaining % 60 -- next minute tick of the countdown text
         if candidate == 0 then
@@ -2098,18 +2521,25 @@ function BuffState.GetNextTimedChange()
     return nextTimedChangeIn
 end
 
----If remaining time is below threshold, mark entry as visible+expiring with glow.
+---If remaining time is below the lead, mark entry as visible+expiring with glow.
 ---@param entry BuffStateEntry
 ---@param remaining? number
----@param threshold number
+---@param lead? number Lead.Of of the aura, nil when it never warns
 ---@param shouldGlow boolean
+---@param nextSlack? number Seconds until another copy enters its window
 ---@return boolean wasSet true if the entry was marked as expiring
-local function TrySetEntryExpiring(entry, remaining, threshold, shouldGlow)
-    NoteTimedChange(remaining, threshold)
-    if remaining and remaining < threshold then
+local function TrySetEntryExpiring(entry, remaining, lead, shouldGlow, nextSlack)
+    if not lead then
+        -- A weapon enchant ends with no event, so the expiry needs its own render.
+        if remaining and remaining > 0 then
+            NoteChangeIn(remaining)
+        end
+        return false
+    end
+    NoteTimedChange(remaining, lead, nextSlack)
+    if remaining and remaining < lead then
         entry.visible = true
         entry.displayType = "expiring"
-        entry.expiringTime = remaining
         entry.countText = FormatRemainingTime(remaining)
         entry.shouldGlow = shouldGlow
         return true
@@ -2142,38 +2572,519 @@ local function IsAnySpellGlowing(buff)
     return IsPlayerSpellCached(spellID) and GameContext.IsSpellGlowing(spellID)
 end
 
+-- The members who lack a castOnMissing buff, by buff key. The click picks its
+-- target from this list, so only a buff that the player can cast fills one.
+---@type table<string, string[]>
+local missingUnitsByKey = {}
+
+---@param buff RaidBuff
+---@param isAuraRestricted boolean A restricted aura read returns nil, so every member reads as missing
+---@return string[]? list Empty list to fill, or nil when the buff needs none
+local function AcquireMissingUnits(buff, isAuraRestricted)
+    if not buff.castOnMissing then
+        return nil
+    end
+    local list = missingUnitsByKey[buff.key]
+    if list then
+        wipe(list)
+    end
+    if isAuraRestricted or buff.class ~= playerClass then
+        return nil
+    end
+    local known = false
+    local spellIDs = AsSpellList(buff.spellID)
+    for i = 1, #spellIDs do
+        if IsPlayerSpellCached(spellIDs[i]) then
+            known = true
+            break
+        end
+    end
+    if not known then
+        return nil
+    end
+    if not list then
+        list = {}
+        missingUnitsByKey[buff.key] = list
+    end
+    return list
+end
+
+---Units that lacked the buff at the last refresh. The player, if listed, is "player".
+---@param key string
+---@return string[]?
+function BuffState.GetMissingUnits(key)
+    return missingUnitsByKey[key]
+end
+
+---A secret or unchecked range reads as out of range.
+---@param unit string
+---@return boolean
+local function IsMissingUnitInRange(unit)
+    return unit == "player" or Plain(UnitInRange(unit)) == true
+end
+
+---@class ClassChoiceState
+---@field missing number Members who lack their choice at the last refresh
+---@field lists table<string, StanceChoice[]> Known choices of each class list, read once per refresh
+---@field wanted table<string, StanceChoice> The choice that each listed member wants
+---@field classes table<string, string> The class of each listed member
+---@field classWant table<string, StanceChoice|false> The choice that every counted member of a class wants. false when they differ
+---@field inRange table<string, boolean> Range of each listed member, read once per pick
+---@field selfWanted StanceChoice? The choice that the player lacks
+---@field renewUnits string[] Members whose choice from the player is in its warning window. Filled only when sources are read
+---@field renewChoices table<string, StanceChoice>
+---@field renewRemaining table<string, number>
+---@field foreign table<string, table<string, table|false>> Foreign copies found by a scan, by unit, then choice key. Survives refreshes
+
+-- By buff key. A classChoices buff fills its state with its missing-units list.
+---@type table<string, ClassChoiceState>
+local classChoiceStates = {}
+
+---The first choice of the list that no other caster gives the unit. Without a
+---source read, a choice on the unit counts as cast by the player.
+---@param unit string
+---@param choices StanceChoice[]
+---@param readSources boolean Only out of combat, because source reads need plain aura data
+---@param memo? table<string, table<string, table|false>> Scan results by unit, then choice key. nil = no scan, because no other caster is in the group
+---@return StanceChoice? wanted nil when other casters give every choice
+---@return boolean has The unit has the wanted choice from the player
+---@return number? remaining
+---@return number? duration
+local function WantedChoice(unit, choices, readSources, memo)
+    for i = 1, #choices do
+        local choice = choices[i]
+        local auraIDs = choice.auraIDs or choice.spellIDs
+        local has, remaining, sourceUnit, duration = UnitHasBuff(unit, auraIDs)
+        if not has then
+            return choice, false
+        end
+        if not readSources then
+            return choice, true, remaining, duration
+        end
+        -- The same choice from two casters does not stack, so a foreign instance
+        -- covers the unit, also when the player's own instance is present.
+        -- GetUnitAuraBySpellID returns one instance, so only a scan finds a second one.
+        -- A caster outside the group reads as a nil source on that one instance.
+        if sourceUnit and Plain(UnitIsUnit(sourceUnit, "player")) == true then
+            local foreign = false ---@type table|false
+            local unitMemo = memo and memo[unit]
+            local known = unitMemo and unitMemo[choice.key]
+            if known ~= nil then
+                foreign = known
+            elseif memo then
+                local index = 1
+                local aura = AuraByIndex(unit, index, "HELPFUL")
+                while aura do
+                    local source = AuraField(aura, "sourceUnit")
+                    if
+                        AuraMatchesSpellIDs(aura, nil, auraIDs)
+                        and not (source and Plain(UnitIsUnit(source, "player")) == true)
+                    then
+                        foreign = aura
+                        break
+                    end
+                    index = index + 1
+                    aura = AuraByIndex(unit, index, "HELPFUL")
+                end
+                -- The player gets no group UNIT_AURA, which clears an entry, so the
+                -- player is scanned on each refresh.
+                if unit ~= "player" and Plain(UnitIsUnit(unit, "player")) ~= true then
+                    if not unitMemo then
+                        unitMemo = {}
+                        memo[unit] = unitMemo
+                    end
+                    unitMemo[choice.key] = foreign
+                end
+            end
+            if not foreign then
+                return choice, true, remaining, duration
+            end
+            -- The removal of the foreign copy must refresh the group.
+            if unit ~= "player" then
+                RecordAuraInstance(unit, foreign)
+            end
+        end
+    end
+    return nil, false
+end
+
+---Count the group members who lack the choice that they want from the player.
+---A member of a class with an empty list does not count.
+---@param buff RaidBuff
+---@param playerOnly boolean Only check the player, not the group
+---@param threshold number Input of Lead.Of
+---@param floor number Input of Lead.Of
+---@param missingUnits? string[] Wiped, then filled with the unit of each counted member who lacks the choice
+---@param readSources boolean Tell the choices of the player from the choices of other casters
+---@return number missing
+---@return number total
+---@return number? minRemaining Remaining time of the copy that Lead.Pick chose
+---@return StanceChoice? choice Wanted by the first missing member, else the choice closest to its warning
+---@return number? minLead Lead of that copy
+---@return number? nextSlack Seconds until the next copy enters its window
+local function CountMissingClassChoice(buff, playerOnly, threshold, floor, missingUnits, readSources)
+    local state = classChoiceStates[buff.key]
+    if state then
+        wipe(state.lists)
+        wipe(state.wanted)
+        wipe(state.classes)
+        wipe(state.classWant)
+        wipe(state.renewUnits)
+        wipe(state.renewChoices)
+        wipe(state.renewRemaining)
+        state.selfWanted = nil
+    else
+        state = {
+            missing = 0,
+            lists = {},
+            wanted = {},
+            classes = {},
+            classWant = {},
+            inRange = {},
+            renewUnits = {},
+            renewChoices = {},
+            renewRemaining = {},
+            foreign = {},
+        }
+        classChoiceStates[buff.key] = state
+    end
+    if missingUnits then
+        wipe(missingUnits)
+    end
+
+    local forClass = buff.classChoices.forClass
+    local lists = state.lists
+    local selfOnly = playerOnly or #currentValidUnits <= 1
+    local partyOnly = buff.reach == "party"
+    local countNPCs = includeNPCsInCounting and not GameContext.IsInCombat() and not buff.playersOnly
+    local missing, total, minRemaining, firstWanted, minChoice, minLead, nextSlack = 0, 0, nil, nil, nil, nil, nil
+    -- The roster includes the player, so a second member of the class is another caster.
+    local casters = 0
+    for _, data in ipairs(currentValidUnits) do
+        if data.class == buff.class then
+            casters = casters + 1
+        end
+    end
+    local memo = readSources and casters > 1 and state.foreign or nil
+    for _, data in ipairs(currentValidUnits) do
+        local class = data.class
+        local isSelf = data.unit == "player" or (selfOnly and Plain(UnitIsUnit(data.unit, "player")) == true)
+        if
+            class
+            and (isSelf or not selfOnly)
+            and (data.isPlayer or countNPCs)
+            and (data.inPlayerParty or not partyOnly)
+        then
+            local choices = lists[class]
+            if not choices then
+                choices = forClass(class)
+                lists[class] = choices
+            end
+            if #choices > 0 then
+                local choice, has, remaining, duration = WantedChoice(data.unit, choices, readSources, memo)
+                -- A phased member cannot receive a cast, so a gap on them does not count.
+                if not (data.isPhased and choice and not has) then
+                    total = total + 1
+                    if choice then
+                        local want = state.classWant[class]
+                        if want == nil then
+                            state.classWant[class] = choice
+                        elseif want ~= choice then
+                            state.classWant[class] = false
+                        end
+                    end
+                    if choice and not has then
+                        missing = missing + 1
+                        firstWanted = firstWanted or choice
+                        -- In a raid the player is a raidN unit. The range check reads "player" as in range.
+                        local listed = data.unit
+                        if isSelf or Plain(UnitIsUnit(listed, "player")) == true then
+                            listed = "player"
+                            state.selfWanted = choice
+                        end
+                        if missingUnits then
+                            missingUnits[missing] = listed
+                            state.wanted[listed] = choice
+                            state.classes[listed] = class
+                        end
+                    elseif has and remaining and not data.isPhased then
+                        local lead = Lead.Of(duration, threshold, floor)
+                        if lead then
+                            minRemaining, minLead, nextSlack =
+                                Lead.Pick(remaining, lead, minRemaining, minLead, nextSlack)
+                            if minRemaining == remaining and minLead == lead then
+                                minChoice = choice
+                            end
+                        end
+                        -- Without a source read, the copy can come from another caster.
+                        if lead and readSources and remaining < lead then
+                            state.renewUnits[#state.renewUnits + 1] = data.unit
+                            state.renewChoices[data.unit] = choice
+                            state.renewRemaining[data.unit] = remaining
+                        end
+                    end
+                end
+            end
+        end
+    end
+    state.missing = missing
+    return missing, total, minRemaining, firstWanted or minChoice, minLead, nextSlack
+end
+
+---A member of the largest set of listed members who share a class and want the same
+---choice. Members in range come first. Runs on a click and on a refresh that shows the icon.
+---@param key string
+---@return string? unit
+---@return StanceChoice? choice
+---@return number count Members in the set
+local function PickChoiceTarget(key)
+    local units = missingUnitsByKey[key]
+    local state = classChoiceStates[key]
+    if not units or not units[1] or not state then
+        return nil, nil, 0
+    end
+    local wanted, classes, inRange = state.wanted, state.classes, state.inRange
+    wipe(inRange)
+    local anyInRange = false
+    for i = 1, #units do
+        local unitInRange = IsMissingUnitInRange(units[i])
+        inRange[units[i]] = unitInRange
+        anyInRange = anyInRange or unitInRange
+    end
+    local bestUnit, bestCount = nil, 0
+    for i = 1, #units do
+        local unit = units[i]
+        if inRange[unit] or not anyInRange then
+            local count = 0
+            for j = 1, #units do
+                local other = units[j]
+                if
+                    (inRange[other] or not anyInRange)
+                    and wanted[other] == wanted[unit]
+                    and classes[other] == classes[unit]
+                then
+                    count = count + 1
+                end
+            end
+            if count > bestCount then
+                bestUnit, bestCount = unit, count
+            end
+        end
+    end
+    return bestUnit, bestUnit and wanted[bestUnit], bestCount
+end
+
+---Single-target cast of a click on a classChoices buff: the picked choice and its
+---target. With no member missing, it renews the expiring choice that ends first on a
+---member in range. If the target of a missing choice is unknown, only the choice
+---that the player lacks is cast. nil = the click casts nothing.
+---@param buff RaidBuff
+---@return number? spellID
+---@return string? unit
+function BuffState.GetChoiceCast(buff)
+    local state = classChoiceStates[buff.key]
+    if not state then
+        return nil
+    end
+    local unit, choice = PickChoiceTarget(buff.key)
+    if unit and choice then
+        return buff.classChoices.castID(choice), unit
+    end
+    if state.missing > 0 then
+        if not state.selfWanted then
+            return nil
+        end
+        return buff.classChoices.castID(state.selfWanted), "player"
+    end
+    local renewUnits, renewRemaining = state.renewUnits, state.renewRemaining
+    for i = 1, #renewUnits do
+        local candidate = renewUnits[i]
+        if
+            (not unit or renewRemaining[candidate] < renewRemaining[unit])
+            and (IsMissingUnitInRange(candidate) or Plain(UnitIsUnit(candidate, "player")) == true)
+        then
+            unit = candidate
+        end
+    end
+    if not unit then
+        return nil
+    end
+    return buff.classChoices.castID(state.renewChoices[unit]), unit
+end
+
+---Members whose choice from the player expires soon. The list is reused.
+---@param key string
+---@return string[]?
+function BuffState.GetChoiceRenewUnits(key)
+    local state = classChoiceStates[key]
+    return state and state.renewUnits
+end
+
+---Highest group rank of the buff that the player knows and has the reagent for, and
+---its target, when the user turned on the group cast and enough members lack the buff.
+---A group rank reaches only the party of its target. In a raid, each subgroup is a
+---party. The rank goes on the player, so only the in-range members of the player's party count.
+---A classChoices buff casts the group rank of the picked choice on a member of its
+---class, because that rank reaches only the class of its target. Every counted member
+---of that class must want the choice, because the group rank replaces the choice
+---that the player gives each of them.
+---@param buff RaidBuff
+---@return number? spellID
+---@return string? unit
+function BuffState.GetGroupCastSpellID(buff)
+    local enabled = BR.profile.groupCast
+    local missingUnits = missingUnitsByKey[buff.key]
+    local defaults = BR.profile.defaults
+    local minCount = defaults and defaults.groupCastMin or 2
+    if not (enabled and enabled[buff.key]) or not missingUnits or #missingUnits < minCount then
+        return nil
+    end
+    local ranks = buff.groupCast
+    local unit = "player" ---@type string?
+    if buff.classChoices then
+        local choice, count
+        unit, choice, count = PickChoiceTarget(buff.key)
+        local state = classChoiceStates[buff.key]
+        if
+            not unit
+            or not choice
+            or count < minCount
+            or not state
+            or state.classWant[state.classes[unit]] ~= choice
+        then
+            return nil
+        end
+        ranks = choice.groupCast
+    else
+        local subgroups = IsInRaid() and GetRaidSubgroups()
+        local playerGroup = subgroups and subgroups.player
+        if subgroups and not playerGroup then
+            return nil
+        end
+        local count = 0
+        for i = 1, #missingUnits do
+            local member = missingUnits[i]
+            if (not subgroups or subgroups[member] == playerGroup) and IsMissingUnitInRange(member) then
+                count = count + 1
+            end
+        end
+        if count < minCount then
+            return nil
+        end
+    end
+    if not ranks then
+        return nil
+    end
+    local spellID = BuffState.GetGroupRank(ranks)
+    if spellID then
+        return spellID, unit
+    end
+    return nil
+end
+
+---Highest rank in the list that the player knows and has the reagent for.
+---@param ranks GroupCastRank[]
+---@return number? spellID nil when no known rank has its reagent in the bags
+---@return boolean known The player knows a rank of the list
+function BuffState.GetGroupRank(ranks)
+    -- The spellbook reports only the highest learned rank as known. A lower rank is
+    -- known when a higher one is.
+    local known = false
+    for i = 1, #ranks do
+        local rank = ranks[i]
+        known = known or IsPlayerSpellCached(rank.spellID)
+        if known and GetItemCountCached(rank.reagent) > 0 then
+            return rank.spellID, true
+        end
+    end
+    return nil, known
+end
+
 -- Coverage category: the reminder counts how many group members miss the buff.
-local function RefreshRaid(db, trackingMode, hideExpiring, missingCountOnly)
+local function RefreshRaid(db, trackingMode, isAuraRestricted, hideExpiring, missingCountOnly)
     local raidVisible = IsCategoryVisibleForContent("raid")
-    local raidExGlow, raidMissGlow, raidThreshold = GetCategoryGlowSettings("raid")
+    local raidExGlow, raidMissGlow, raidThreshold, raidFloor = GetCategoryGlowSettings("raid")
     local bronzeHiddenInCombat = GameContext.IsInCombat() and db.bronzeHideInCombat
+    local readSources = not isAuraRestricted and not GameContext.IsInCombat()
     for i, buff in ipairs(RaidBuffs) do
         local entry = GetOrCreateEntry(buff.key, "raid", i)
-        local scope =
-            GetTrackingScope(trackingMode, buff.class, "raid", HasCasterForBuff(buff.class, buff.levelRequired))
+        local missingUnits = AcquireMissingUnits(buff, isAuraRestricted)
+        local scope = GetTrackingScope(
+            trackingMode,
+            buff.class,
+            BuffTargets.Resolve(buff, "raid"),
+            HasCasterForBuff(buff.class, buff.levelRequired, buff.reach)
+        )
+        local requester = buff.chatRequestSpell ~= nil and playerClass ~= buff.class
+        local playerOnly = requester or scope.playerOnly
 
         if
             not (bronzeHiddenInCombat and buff.key == "bronze")
             and IsBuffEnabled(buff.key)
+            and (not isAuraRestricted or IsAuraTrackable(buff))
             and raidVisible
             and scope.show
+            and (not requester or (readSources and db.requestBuffInChat == true))
+            and (not buff.requiresKnownSpell or requester or KnowsAnySpell(buff.castSpellID or buff.spellID))
+            -- A caster who did not learn the buff yet cannot cast it.
+            and (buff.class ~= playerClass or requester or KnowsAnySpell(buff.castSpellID or buff.spellID))
+            and (not buff.visibilityCondition or buff.visibilityCondition())
         then
-            local missing, total, minRemaining =
-                CountMissingBuff(buff.spellID, buff.key, scope.playerOnly, buff.playersOnly)
+            local missing, total, minRemaining, choice, minLead, nextSlack
+            if requester then
+                -- Any copy of the buff covers the player, so only a missing buff shows.
+                local spellID = buff.chatRequestSpell()
+                missing, total = 0, 0
+                if spellID then
+                    missing, total = CountMissingBuff(
+                        buff.spellID,
+                        buff.key,
+                        true,
+                        buff.playersOnly,
+                        false,
+                        raidThreshold,
+                        raidFloor,
+                        missingUnits
+                    )
+                end
+                if missing > 0 then
+                    entry.dynamicIcon = BR.Icons.GetBuffTexture(spellID)
+                end
+            elseif buff.classChoices then
+                missing, total, minRemaining, choice, minLead, nextSlack =
+                    CountMissingClassChoice(buff, playerOnly, raidThreshold, raidFloor, missingUnits, readSources)
+            else
+                missing, total, minRemaining, minLead, nextSlack = CountMissingBuff(
+                    buff.spellID,
+                    buff.key,
+                    playerOnly,
+                    buff.playersOnly,
+                    buff.reach == "party",
+                    raidThreshold,
+                    raidFloor,
+                    missingUnits
+                )
+            end
 
             if missing > 0 then
                 entry.visible = true
                 entry.displayType = "count"
                 local buffed = total - missing
-                entry.countText = scope.playerOnly and ""
+                entry.countText = playerOnly and ""
                     or (missingCountOnly and tostring(missing) or (buffed .. "/" .. total))
                 entry.shouldGlow = raidMissGlow
-                NoteTimedChange(minRemaining, raidThreshold)
-                if minRemaining and minRemaining < raidThreshold then
-                    entry.expiringTime = minRemaining
+                if minLead then
+                    NoteTimedChange(minRemaining, minLead, nextSlack)
                 end
             elseif not hideExpiring then
-                TrySetEntryExpiring(entry, minRemaining, raidThreshold, raidExGlow)
+                TrySetEntryExpiring(entry, minRemaining, minLead, raidExGlow, nextSlack)
+            end
+            -- If a click casts a choice, the icon shows that choice.
+            if choice and entry.visible then
+                local castID = BuffState.GetChoiceCast(buff) or buff.classChoices.castID(choice)
+                if castID then
+                    entry.dynamicIcon = BR.Icons.GetBuffTexture(castID)
+                end
             end
         end
     end
@@ -2182,63 +3093,65 @@ end
 -- The player's own buffs on themselves, weapon imbues included.
 local function RefreshSelf(isAuraRestricted, hideExpiring)
     local selfVisible = IsCategoryVisibleForContent("self")
-    local selfExGlow, selfMissGlow, selfThreshold = GetCategoryGlowSettings("self")
+    local selfExGlow, selfMissGlow, selfThreshold, selfFloor = GetCategoryGlowSettings("self")
     for i, buff in ipairs(SelfBuffs) do
         local entry = GetOrCreateEntry(buff.key, "self", i)
         local settingKey = buff.groupId or buff.key
 
-        if buff.showOnInstanceEntry then
-            -- Self buff shown only briefly on zone-in - no normal buff checks.
-            -- customCheck makes an API call, so it runs after every other gate.
-            if
-                GameContext.IsInDungeonEntry()
-                and selfVisible
-                and (not buff.class or buff.class == playerClass)
-                and IsBuffEnabled(settingKey)
-                and (not buff.customCheck or buff.customCheck(isAuraRestricted))
-            then
-                SetEntryText(entry, buff.overlayText, selfMissGlow)
-            end
-        else
-            if selfVisible and IsBuffEnabled(settingKey) then
-                local trackable = IsAuraTrackable(buff)
-                local useGlowDet = isAuraRestricted and not trackable and buff.glowDetectable
-                if not isAuraRestricted or trackable or useGlowDet then
-                    if useGlowDet then
-                        if IsAnySpellGlowing(buff) then
-                            SetEntryText(entry, buff.overlayText, selfMissGlow)
-                            BR.Icons.ApplyDynamicIcon(entry, buff)
+        if
+            selfVisible
+            and IsBuffEnabled(settingKey)
+            and (not buff.visibilityCondition or buff.visibilityCondition())
+        then
+            local trackable = IsAuraTrackable(buff)
+            local useGlowDet = isAuraRestricted and not trackable and buff.glowDetectable
+            if not isAuraRestricted or trackable or useGlowDet then
+                if useGlowDet then
+                    if IsAnySpellGlowing(buff) then
+                        SetEntryText(entry, buff.overlayText, selfMissGlow)
+                        BR.Icons.ApplyDynamicIcon(entry, buff)
+                    end
+                else
+                    local shouldShow = ShouldShowSelfBuff(buff, false, isAuraRestricted)
+                    -- showWhenPresent inverts the logic (e.g., Burning Rush: show when active)
+                    local wantPresent = buff.showWhenPresent
+                    local show = (wantPresent and shouldShow == false) or (not wantPresent and shouldShow)
+                    if show then
+                        SetEntryText(entry, buff.overlayText, selfMissGlow)
+                        BR.Icons.ApplyDynamicIcon(entry, buff)
+                    elseif
+                        shouldShow == false
+                        and not wantPresent
+                        and not buff.noExpirationGlow
+                        and not hideExpiring
+                    then
+                        -- Buff present: check whether it expires soon.
+                        -- Weapon imbues (paladin rites, shaman imbues) time
+                        -- out on the enchant, not an aura.
+                        local remaining, expiringCastID, duration
+                        if buff.enchantID then
+                            remaining = GetWeaponEnchantRemaining(buff.enchantID)
+                            duration = buff.enchantDuration
+                        elseif buff.getExpirationInfo then
+                            remaining, expiringCastID = buff.getExpirationInfo()
+                            duration = buff.enchantDuration
+                        elseif buff.buffIdOverride or buff.spellID then
+                            _, remaining, _, duration =
+                                UnitHasBuff("player", (buff.buffIdOverride or buff.spellID) --[[@as SpellID]])
                         end
-                    else
-                        local shouldShow = ShouldShowSelfBuff(buff)
-                        -- showWhenPresent inverts the logic (e.g., Burning Rush: show when active)
-                        local wantPresent = buff.showWhenPresent
-                        local show = (wantPresent and shouldShow == false) or (not wantPresent and shouldShow)
-                        if show then
-                            SetEntryText(entry, buff.overlayText, selfMissGlow)
-                            BR.Icons.ApplyDynamicIcon(entry, buff)
-                        elseif
-                            shouldShow == false
-                            and not wantPresent
-                            and not buff.noExpirationGlow
-                            and not hideExpiring
+                        if
+                            TrySetEntryExpiring(
+                                entry,
+                                remaining,
+                                Lead.Of(duration, selfThreshold, selfFloor),
+                                selfExGlow
+                            )
                         then
-                            -- Buff present: check whether it expires soon.
-                            -- Weapon imbues (paladin rites, shaman imbues) time
-                            -- out on the enchant, not an aura.
-                            local remaining, expiringCastID
-                            if buff.enchantID then
-                                remaining = GetWeaponEnchantRemaining(buff.enchantID)
-                            elseif buff.getExpirationInfo then
-                                remaining, expiringCastID = buff.getExpirationInfo()
-                            elseif buff.buffIdOverride or buff.spellID then
-                                _, remaining =
-                                    UnitHasBuff("player", (buff.buffIdOverride or buff.spellID) --[[@as SpellID]])
-                            end
-                            if TrySetEntryExpiring(entry, remaining, selfThreshold, selfExGlow) then
-                                if expiringCastID then
-                                    entry.dynamicIcon = BR.Icons.GetBuffTexture(expiringCastID)
-                                end
+                            if expiringCastID then
+                                entry.dynamicIcon = BR.Icons.GetBuffTexture(expiringCastID)
+                            elseif buff.enchantID then
+                                -- The icon shows the imbue that the click casts.
+                                BR.Icons.ApplyDynamicIcon(entry, buff)
                             end
                         end
                     end
@@ -2248,11 +3161,12 @@ local function RefreshSelf(isAuraRestricted, hideExpiring)
     end
 end
 
--- Chores (drop a table, repair gear), not auras: class-gated and driven by
--- customCheck. A showOnInstanceEntry chore surfaces only briefly on zone-in.
-local function RefreshUtility(db, trackingMode, isAuraRestricted)
+-- Chores (drop a table, repair gear): class-gated and driven by customCheck. A chore
+-- with renewAuraID also warns before its aura ends. A showOnInstanceEntry chore
+-- surfaces only briefly on zone-in.
+local function RefreshUtility(db, trackingMode, isAuraRestricted, hideExpiring)
     local utilityVisible = IsCategoryVisibleForContent("utility")
-    local _, utilityMissGlow = GetCategoryGlowSettings("utility")
+    local utilityExGlow, utilityMissGlow, utilityThreshold, utilityFloor = GetCategoryGlowSettings("utility")
     local repairHiddenInCombat = GameContext.IsInCombat() and db.defaults and db.defaults.repairHideInCombat ~= false
     for i, buff in ipairs(UtilityBuffs) do
         local entry = GetOrCreateEntry(buff.key, "utility", i)
@@ -2265,10 +3179,20 @@ local function RefreshUtility(db, trackingMode, isAuraRestricted)
             and (not buff.class or buff.class == playerClass)
             and IsBuffEnabled(settingKey)
             and PassesPreChecks(buff, nil, db, trackingMode)
-            and (not buff.customCheck or buff.customCheck(isAuraRestricted))
         then
-            SetEntryText(entry, buff.overlayTextFn and buff.overlayTextFn() or buff.overlayText, utilityMissGlow)
-            BR.Icons.ApplyDynamicIcon(entry, buff)
+            if not buff.customCheck or buff.customCheck(isAuraRestricted) then
+                SetEntryText(entry, buff.overlayTextFn and buff.overlayTextFn() or buff.overlayText, utilityMissGlow)
+                if buff.countdown then
+                    entry.countdownExpirationTime, entry.countdownDuration, entry.progressText = buff.countdown()
+                end
+                BR.Icons.ApplyDynamicIcon(entry, buff)
+            elseif buff.renewAuraID and not hideExpiring and (not buff.canRenew or buff.canRenew(isAuraRestricted)) then
+                local _, remaining, _, duration = UnitHasBuff("player", buff.renewAuraID)
+                local lead = Lead.Of(duration, utilityThreshold, utilityFloor)
+                if TrySetEntryExpiring(entry, remaining, lead, utilityExGlow) then
+                    BR.Icons.ApplyDynamicIcon(entry, buff)
+                end
+            end
         end
     end
 end
@@ -2276,7 +3200,7 @@ end
 -- Presence category: one group member with the buff satisfies the reminder.
 local function RefreshPresence(db, trackingMode, isAuraRestricted, hideExpiring)
     local presenceVisible = IsCategoryVisibleForContent("presence")
-    local presExGlow, presMissGlow, presThreshold = GetCategoryGlowSettings("presence")
+    local presExGlow, presMissGlow, presThreshold, presFloor = GetCategoryGlowSettings("presence")
     for i, buff in ipairs(PresenceBuffs) do
         local entry = GetOrCreateEntry(buff.key, "presence", i)
         -- If a self-buff entry already covers this, skip entirely
@@ -2286,22 +3210,24 @@ local function RefreshPresence(db, trackingMode, isAuraRestricted, hideExpiring)
             suppressed = suppressor and suppressor.visible
         end
         if not suppressed then
+            local target = BuffTargets.Resolve(buff, "presence")
             local scope = GetTrackingScope(
                 trackingMode,
                 buff.class,
-                "presence",
-                HasCasterForBuff(buff.class, buff.levelRequired),
-                buff.castOnOthers
+                target,
+                HasCasterForBuff(buff.class, buff.levelRequired, buff.reach)
             )
             local dungeonEntryOk = buff.showOnInstanceEntry and GameContext.IsInDungeonEntry()
             local readyCheckOk = not buff.readyCheckOnly or GameContext.IsInReadyCheck()
             -- Soulstone visibility mode overrides readyCheckOnly
             if buff.key == "soulstone" and not readyCheckOk then
-                local ssMode = db.defaults and db.defaults.soulstoneVisibility or "readyCheck"
+                local ssMode = db.defaults and db.defaults.soulstoneVisibility or BR.SOULSTONE_DEFAULT_VISIBILITY
                 if ssMode == "always" then
                     readyCheckOk = true
                 elseif ssMode == "casterOnly" then
                     readyCheckOk = playerClass == "WARLOCK"
+                elseif ssMode == "readyCheckSolo" then
+                    readyCheckOk = cachedIsAlone
                 end
             end
             if not readyCheckOk and not dungeonEntryOk then
@@ -2313,16 +3239,17 @@ local function RefreshPresence(db, trackingMode, isAuraRestricted, hideExpiring)
                 and (readyCheckOk or dungeonEntryOk)
                 and scope.show
                 and (not buff.groupOnly or #currentValidUnits > 1) -- solo = 1 entry (player only)
-            -- castOnOthers target memory (e.g. Soulstone) updates on every refresh
+            -- Target memory of a one-unit buff (e.g. Soulstone) updates on every refresh
             -- the aura API allows, independent of reminder visibility: Soulstone's
             -- display is ready-check-gated, but the click macro needs current memory
             -- at all times. The display branch below reuses this scan result, so the
             -- buff is never scanned twice in one refresh.
-            local isOwnCaster = buff.castOnOthers and buff.class == playerClass
-            local hasBuff, minRemaining, targetEntry
+            local isOwnCaster = BuffTargets.Copies(buff, "presence") == "own" and buff.class == playerClass
+            local hasBuff, minRemaining, targetEntry, minLead, nextSlack
             local scanned = false
             if
                 isOwnCaster
+                and BuffTargets.PicksUnit(target)
                 and not GameContext.IsInCombat()
                 and #currentValidUnits > 1
                 and IsBuffEnabled(buff.key)
@@ -2330,7 +3257,8 @@ local function RefreshPresence(db, trackingMode, isAuraRestricted, hideExpiring)
             then
                 -- Full-group sweep (playerOnly=false): the buff lives on the target,
                 -- so a player-only scan never finds it.
-                hasBuff, minRemaining, targetEntry = HasPresenceBuff(buff.spellID, false, true)
+                hasBuff, minRemaining, targetEntry, minLead, nextSlack =
+                    HasPresenceBuff(buff.spellID, false, true, false, presThreshold, presFloor)
                 scanned = true
                 TargetMemory.Observe(
                     buff.key,
@@ -2339,7 +3267,14 @@ local function RefreshPresence(db, trackingMode, isAuraRestricted, hideExpiring)
                     targetEntry and targetEntry.class
                 )
             end
-            if showBuff and IsBuffEnabled(buff.key) then
+            if showBuff and buff.casterCheck and buff.class == playerClass and IsBuffEnabled(buff.key) then
+                local text, noClick = buff.casterCheck(isAuraRestricted)
+                if text then
+                    SetEntryText(entry, text, presMissGlow)
+                    entry.noClick = noClick
+                    BR.Icons.ApplyDynamicIcon(entry, buff)
+                end
+            elseif showBuff and IsBuffEnabled(buff.key) then
                 local trackable = IsAuraTrackable(buff)
                 local useGlowDet = isAuraRestricted and not trackable and buff.glowDetectable
                 if not isAuraRestricted or trackable or useGlowDet then
@@ -2348,24 +3283,25 @@ local function RefreshPresence(db, trackingMode, isAuraRestricted, hideExpiring)
                             SetEntryText(entry, buff.overlayText, presMissGlow)
                         end
                     else
-                        -- castOnOthers: for the caster class, count only the player's
+                        -- copies = "own": for the caster class, count only the player's
                         -- own cast. That resolves the right target and keeps another
                         -- caster's coverage from hiding the icon.
                         if not scanned then
-                            hasBuff, minRemaining = HasPresenceBuff(buff.spellID, scope.playerOnly, isOwnCaster)
+                            local _
+                            hasBuff, minRemaining, _, minLead, nextSlack = HasPresenceBuff(
+                                buff.spellID,
+                                scope.playerOnly,
+                                isOwnCaster,
+                                buff.reach == "party",
+                                presThreshold,
+                                presFloor
+                            )
                         end
-                        -- customCheck gates display (e.g., soulstone CD tracking for warlocks)
-                        local customOk = true
-                        if not hasBuff and buff.customCheck then
-                            local result = buff.customCheck(isAuraRestricted)
-                            if result == false then
-                                customOk = false
-                            end
-                        end
-                        if not hasBuff and customOk then
+                        local canCast = hasBuff or not buff.castReady or buff.castReady(isAuraRestricted) ~= false
+                        if not hasBuff and canCast then
                             SetEntryText(entry, buff.overlayText, presMissGlow)
                         elseif not buff.noExpirationGlow and not hideExpiring then
-                            TrySetEntryExpiring(entry, minRemaining, presThreshold, presExGlow)
+                            TrySetEntryExpiring(entry, minRemaining, minLead, presExGlow, nextSlack)
                         end
                     end
                 end
@@ -2374,16 +3310,19 @@ local function RefreshPresence(db, trackingMode, isAuraRestricted, hideExpiring)
     end
 end
 
--- Buffs the player must keep on other units. self_only mode tracks only buffs
--- on the player, so it hides this category.
+-- Buffs the player keeps on units that the player picks.
 local function RefreshTargeted(db, trackingMode, isAuraRestricted, hideExpiring)
-    local targetedVisible = IsCategoryVisibleForContent("targeted") and trackingMode ~= "self_only"
-    local targExGlow, targMissGlow, targThreshold = GetCategoryGlowSettings("targeted")
+    local targetedVisible = IsCategoryVisibleForContent("targeted")
+    -- Targeted buffs sit on other units, so personal mode keeps the group scope.
+    local scopeMode = trackingMode == "personal" and "all" or trackingMode
+    local targExGlow, targMissGlow, targThreshold, targFloor = GetCategoryGlowSettings("targeted")
     for i, buff in ipairs(TargetedBuffs) do
         local entry = GetOrCreateEntry(buff.key, "targeted", i)
         local settingKey = GetBuffSettingKey(buff)
+        local target = BuffTargets.Resolve(buff, "targeted")
+        local scope = GetTrackingScope(scopeMode, buff.class, target, true)
 
-        if targetedVisible and IsBuffEnabled(settingKey) then
+        if targetedVisible and scope.show and IsBuffEnabled(settingKey) then
             local trackable = IsAuraTrackable(buff)
             local useGlowDet = isAuraRestricted and not trackable and buff.glowDetectable
             if (not isAuraRestricted or trackable or useGlowDet) and PassesPreChecks(buff, nil, db, trackingMode) then
@@ -2392,19 +3331,18 @@ local function RefreshTargeted(db, trackingMode, isAuraRestricted, hideExpiring)
                         SetEntryText(entry, buff.overlayText, targMissGlow)
                     end
                 else
-                    local shouldShow, remaining = ShouldShowTargetedBuff(
-                        buff.spellID,
-                        buff.class,
-                        buff.beneficiaryRole,
-                        buff.requireSpecId,
-                        buff.key,
-                        buff.casterBuffId
-                    )
+                    local shouldShow, remaining, lead, nextSlack
+                    if target == "tankOrSelf" then
+                        shouldShow, remaining, lead, nextSlack =
+                            TankOrSelfState(buff, scope.playerOnly, targThreshold, targFloor)
+                    else
+                        shouldShow, remaining, lead, nextSlack = AllyTargetState(buff, targThreshold, targFloor)
+                    end
 
                     if shouldShow then
                         SetEntryText(entry, buff.overlayText, targMissGlow)
-                    elseif shouldShow == false and not hideExpiring then
-                        TrySetEntryExpiring(entry, remaining, targThreshold, targExGlow)
+                    elseif shouldShow == false and not buff.noExpirationGlow and not hideExpiring then
+                        TrySetEntryExpiring(entry, remaining, lead, targExGlow, nextSlack)
                     end
                 end
             end
@@ -2412,8 +3350,30 @@ local function RefreshTargeted(db, trackingMode, isAuraRestricted, hideExpiring)
     end
 end
 
+---@param sacrifice PetSacrifice
+---@param isAuraRestricted boolean
+---@return boolean
+local function IsPetSacrificed(sacrifice, isAuraRestricted)
+    if not IsPlayerSpellCached(sacrifice.spellID) then
+        return false
+    end
+    local reminder = sacrifice.reminderKey and BuffState.entries[sacrifice.reminderKey]
+    if reminder and reminder.visible then
+        return true
+    end
+    if isAuraRestricted then
+        for _, id in ipairs(sacrifice.auraIDs) do
+            if not IsAuraSpellTrackable(id) then
+                return true
+            end
+        end
+    end
+    return (UnitHasBuff("player", sacrifice.auraIDs))
+end
+
 -- Pet summon reminders. A summon has no duration, so nothing tracks expiration.
-local function RefreshPet()
+---@param isAuraRestricted boolean
+local function RefreshPet(isAuraRestricted)
     local petVisible = IsCategoryVisibleForContent("pet")
     if IsMounted() or GameContext.IsPetDismountSuppressed() then
         petVisible = false
@@ -2424,8 +3384,14 @@ local function RefreshPet()
         local entry = GetOrCreateEntry(buff.key, "pet", i)
         local settingKey = buff.groupId or buff.key
 
-        if IsBuffEnabled(settingKey) and petVisible and not (buff.key == "petPassive" and petPassiveHidden) then
-            local shouldShow = ShouldShowSelfBuff(buff)
+        if
+            IsBuffEnabled(settingKey)
+            and petVisible
+            and not (buff.key == "petPassive" and petPassiveHidden)
+            and (not buff.visibilityCondition or buff.visibilityCondition())
+            and not (buff.petSacrifice and IsPetSacrificed(buff.petSacrifice, isAuraRestricted))
+        then
+            local shouldShow = ShouldShowSelfBuff(buff, false, isAuraRestricted)
             if shouldShow then
                 SetEntryText(entry, buff.overlayText, petMissGlow)
                 BR.Icons.ApplyDynamicIcon(entry, buff)
@@ -2449,19 +3415,12 @@ local function RefreshConsumables(db, trackingMode, isAuraRestricted, hideExpiri
     local consumableVisible = IsCategoryVisibleForContent("consumable")
     -- Delve food ignores the consumable ready-check-only filter (still respects content gates)
     local consumableVisibleNoReadyCheck = IsCategoryVisibleForContent("consumable", true)
-    local consExGlow, consMissGlow, consThreshold = GetCategoryGlowSettings("consumable")
+    local consExGlow, consMissGlow, consThreshold, consFloor = GetCategoryGlowSettings("consumable")
     local delveFoodOnly = db.defaults and db.defaults.delveFoodOnly and BR.IsInDelve()
     local freeMode = db.defaults and db.defaults.freeConsumableMode or "override"
     local freeVisible = freeMode == "override" and IsFreeConsumableVisible(db) or false
     -- In follow mode, healthstones use consumable category content gates (without ready check)
     local consumableContentVisible = freeMode == "follow" and IsCategoryVisibleForContent("consumable", true) or false
-    -- Dismiss overrides all consumable visibility (transient, resets on instance change)
-    if consumablesDismissed then
-        consumableVisible = false
-        consumableVisibleNoReadyCheck = false
-        freeVisible = false
-        consumableContentVisible = false
-    end
     local freeRcMode = db.defaults and db.defaults.healthstoneVisibility or "readyCheck"
     local competitivePvP = IsInCompetitivePvP()
     for i, buff in ipairs(Consumables) do
@@ -2516,11 +3475,13 @@ local function RefreshConsumables(db, trackingMode, isAuraRestricted, hideExpiri
                             SetEntryText(entry, buff.overlayText, consMissGlow)
                         end
                     else
-                        local shouldShow, remainingTime, activeSpellID, itemCount = ShouldShowConsumableBuff(buff)
+                        local shouldShow, remainingTime, activeSpellID, itemCount, auraDuration =
+                            ShouldShowConsumableBuff(buff)
                         if shouldShow then
                             SetEntryText(entry, buff.overlayText, consMissGlow)
                         elseif
                             buff.key == "healthstone"
+                            and buff.itemMaxCharges
                             and itemCount
                             and db.defaults
                             and db.defaults.healthstoneLowStock
@@ -2531,15 +3492,21 @@ local function RefreshConsumables(db, trackingMode, isAuraRestricted, hideExpiri
                             if itemCount <= hsThreshold then
                                 entry.visible = true
                                 entry.displayType = "count"
-                                entry.countText = buff.itemMaxCharges and (itemCount .. "/" .. buff.itemMaxCharges)
-                                    or tostring(itemCount)
+                                entry.countText = itemCount .. "/" .. buff.itemMaxCharges
                                 entry.shouldGlow = consMissGlow
                                 entry.glowKindOverride = "expiring"
                                 -- A refill keeps the stone in its slot, so no bag event fires.
                                 NoteChangeIn(CHARGE_RECHECK)
                             end
                         elseif not buff.noExpirationGlow and not hideExpiring then
-                            if TrySetEntryExpiring(entry, remainingTime, consThreshold, consExGlow) then
+                            if
+                                TrySetEntryExpiring(
+                                    entry,
+                                    remainingTime,
+                                    Lead.Of(auraDuration or buff.enchantDuration, consThreshold, consFloor),
+                                    consExGlow
+                                )
+                            then
                                 if activeSpellID and type(buff.spellID) == "table" then
                                     entry.dynamicIcon = BR.Icons.GetBuffTexture(activeSpellID)
                                 end
@@ -2549,7 +3516,7 @@ local function RefreshConsumables(db, trackingMode, isAuraRestricted, hideExpiri
                         if entry.visible and buff.key == "food" then
                             entry.isEating = IsPlayerEating()
                             if entry.isEating then
-                                entry.eatingExpirationTime = GetEatingExpirationTime()
+                                entry.countdownExpirationTime = GetEatingExpirationTime()
                             end
                         end
                     end
@@ -2561,7 +3528,7 @@ end
 
 -- User-defined buffs. They take the same path as self and pet buffs.
 local function RefreshCustom(isAuraRestricted, hideExpiring)
-    local _, customMissGlow = GetCategoryGlowSettings("custom")
+    local customExGlow, customMissGlow = GetCategoryGlowSettings("custom")
     for i, buff in ipairs(CustomBuffs) do
         local entry = GetOrCreateEntry(buff.key, "custom", i)
 
@@ -2629,8 +3596,14 @@ local function RefreshCustom(isAuraRestricted, hideExpiring)
                 and buff.spellID
             then
                 -- Buff is present (not missing), check if expiring (per-buff threshold)
-                local _, remaining = UnitHasBuff("player", buff.spellID)
-                TrySetEntryExpiring(entry, remaining, buff.expirationThreshold * 60, true)
+                local _, remaining, _, duration = UnitHasBuff("player", buff.spellID)
+                -- No proportional lead: the per-buff threshold is exact. An aura that
+                -- fits in it never warns.
+                local lead = buff.expirationThreshold * 60 ---@type number?
+                if duration and duration > 0 and duration <= lead then
+                    lead = nil
+                end
+                TrySetEntryExpiring(entry, remaining, lead, customExGlow)
             end
         end
     end
@@ -2691,14 +3664,16 @@ function BuffState.Refresh(refreshMode)
             entry.shouldGlow = false
             entry.countText = nil
             entry.overlayText = nil
-            entry.expiringTime = nil
             entry.rebuffWarning = nil -- legacy field, still cleared for safety
             entry.isEating = nil
-            entry.eatingExpirationTime = nil
+            entry.countdownExpirationTime = nil
+            entry.countdownDuration = nil
+            entry.progressText = nil
             entry.petActions = nil
             entry.dynamicIcon = nil
             entry.glowKindOverride = nil
             entry.subLabel = nil
+            entry.noClick = nil
         end
     end
 
@@ -2706,13 +3681,34 @@ function BuffState.Refresh(refreshMode)
 
     if not groupOnly then
         -- Fetch weapon enchant info once per refresh cycle
-        local hasMain, mainExp, _, mainID, hasOff, offExp, _, offID = GetWeaponEnchantInfo()
-        currentWeaponEnchants.hasMainHand = hasMain or false
-        currentWeaponEnchants.mainHandID = mainID
-        currentWeaponEnchants.mainHandExpiration = mainExp
-        currentWeaponEnchants.hasOffHand = hasOff or false
-        currentWeaponEnchants.offHandID = offID
-        currentWeaponEnchants.offHandExpiration = offExp
+        local we = currentWeaponEnchants
+        if ReadWeaponEnchantSlots then
+            local mhTemp, mhTempExp, mhImbue, mhImbueExp = ReadWeaponEnchantSlots(Enum.WeaponSlot.MainHand)
+            local ohTemp, ohTempExp, ohImbue, ohImbueExp = ReadWeaponEnchantSlots(Enum.WeaponSlot.OffHand)
+            we.mainHandTempID, we.mainHandTempExpiration = mhTemp, mhTempExp
+            we.mainHandImbueID, we.mainHandImbueExpiration = mhImbue, mhImbueExp
+            we.offHandTempID, we.offHandTempExpiration = ohTemp, ohTempExp
+            we.offHandImbueID, we.offHandImbueExpiration = ohImbue, ohImbueExp
+            -- The combined fields report the imbue first, as the legacy API does.
+            we.mainHandID = mhImbue or mhTemp
+            we.mainHandExpiration = mhImbue and mhImbueExp or mhTempExp
+            we.offHandID = ohImbue or ohTemp
+            we.offHandExpiration = ohImbue and ohImbueExp or ohTempExp
+            we.hasMainHand = we.mainHandID ~= nil
+            we.hasOffHand = we.offHandID ~= nil
+        else
+            local hasMain, mainExp, _, mainID, hasOff, offExp, _, offID = GetWeaponEnchantInfo()
+            we.hasMainHand = hasMain or false
+            we.mainHandID = mainID
+            we.mainHandExpiration = mainExp
+            we.hasOffHand = hasOff or false
+            we.offHandID = offID
+            we.offHandExpiration = offExp
+            we.mainHandTempID = hasMain and (mainID or 0) or nil
+            we.mainHandTempExpiration = mainExp
+            we.offHandTempID = hasOff and (offID or 0) or nil
+            we.offHandTempExpiration = offExp
+        end
 
         -- Fetch permanent enchant IDs from item links once per refresh cycle
         local mhLink = GetInventoryItemLink("player", 16)
@@ -2726,17 +3722,17 @@ function BuffState.Refresh(refreshMode)
     local isAuraRestricted = BuffState.IsRestricted()
     local hideExpiring = isAuraRestricted and db.hideExpiringInCombat ~= false
 
-    RefreshRaid(db, trackingMode, hideExpiring, missingCountOnly)
+    RefreshRaid(db, trackingMode, isAuraRestricted, hideExpiring, missingCountOnly)
     if not groupOnly then
         -- Self buffs run before presence so suppressedByEntry can read self entries.
         RefreshSelf(isAuraRestricted, hideExpiring)
         -- Chores never depend on group state, so a group refresh skips them.
-        RefreshUtility(db, trackingMode, isAuraRestricted)
+        RefreshUtility(db, trackingMode, isAuraRestricted, hideExpiring)
     end
     RefreshPresence(db, trackingMode, isAuraRestricted, hideExpiring)
     RefreshTargeted(db, trackingMode, isAuraRestricted, hideExpiring)
     if not groupOnly then
-        RefreshPet()
+        RefreshPet(isAuraRestricted)
         RefreshConsumables(db, trackingMode, isAuraRestricted, hideExpiring)
         RefreshCustom(isAuraRestricted, hideExpiring)
         -- Loadout detection is aura-agnostic, but a gear or talent swap is blocked
@@ -2750,8 +3746,11 @@ function BuffState.Refresh(refreshMode)
     for _, list in pairs(BuffState.visibleByCategory) do
         wipe(list)
     end
+    -- A snooze filters only this list. entry.visible stays true, because a "group"
+    -- refresh does not recompute every entry, and a later pass must show it again.
+    local anySnoozed = BuffState.EndSnoozes("ended") > 0
     for _, entry in pairs(BuffState.entries) do
-        if entry.visible then
+        if entry.visible and not (anySnoozed and BuffState.IsEntrySnoozed(entry)) then
             local cat = entry.category
             if not BuffState.visibleByCategory[cat] then
                 BuffState.visibleByCategory[cat] = {}
@@ -2804,16 +3803,20 @@ function BuffState.IsLegacyInstance()
     return instanceCache.legacyInstance or false
 end
 
----Set whether consumable reminders are dismissed (transient, resets on instance change)
----@param state boolean
-function BuffState.SetConsumablesDismissed(state)
-    consumablesDismissed = state
-end
-
----Get whether consumable reminders are dismissed
----@return boolean
-function BuffState.GetConsumablesDismissed()
-    return consumablesDismissed
+---Start a snooze. A new snooze replaces the snooze of the same scope and id.
+---@param scope SnoozeScope
+---@param id? string The reminder key or the category. Ignored for "all"
+---@return SnoozeRecord? record nil when a "reminder" or "category" snooze has no id
+function BuffState.Snooze(scope, id)
+    if scope == "all" then
+        id = "all"
+    elseif not id then
+        return nil
+    end
+    ---@type SnoozeRecord
+    local record = { rest = GameContext.IsResting() or nil }
+    snoozes[scope][id] = record
+    return record
 end
 
 ---Raw difficultyID from GetInstanceInfo (cached; invalidated with content type)
@@ -2851,7 +3854,9 @@ function BuffState.GetHideAllReason(db)
     if db.showOnlyInGroup and BuffState.IsAlone() then
         return "solo"
     end
-    if db.hideWhileResting and GameContext.IsResting() then
+    -- A sleeping bag makes the player rest, but its countdown must stay visible.
+    -- BR.IsRestingInBag is nil on retail.
+    if db.hideWhileResting and GameContext.IsResting() and not (BR.IsRestingInBag and BR.IsRestingInBag()) then
         return "resting"
     end
     if db.hideInCombat and GameContext.IsInCombat() then
@@ -2932,6 +3937,10 @@ end
 ---@param updateInfo table?
 ---@return boolean
 function BuffState.GroupAuraUpdateMatters(unit, updateInfo)
+    -- Any aura change can add or remove a foreign copy, so the scan result of the unit is stale.
+    for _, state in pairs(classChoiceStates) do
+        state.foreign[unit] = nil
+    end
     if not updateInfo then
         return true
     end
@@ -2973,6 +3982,13 @@ function BuffState.InvalidateContentTypeCache()
     wipe(instanceCache)
 end
 
+---Invalidate the scan results of foreign classChoices copies.
+function BuffState.InvalidateForeignAuraCache()
+    for _, state in pairs(classChoiceStates) do
+        wipe(state.foreign)
+    end
+end
+
 ---Invalidate the aura-trackable caches.
 ---Blizzard can reclassify a spell's secrecy in a mid-session hotfix.
 function BuffState.InvalidateAuraTrackableCache()
@@ -2989,6 +4005,17 @@ end
 ---Invalidate group-healer cache
 function BuffState.InvalidateHealerCache()
     cachedHealerInGroup = nil
+    wipe(cachedMainTanks)
+    local wasTank = cachedPlayerTank
+    cachedPlayerTank = nil
+    -- A group refresh skips the self category, so a tank change asks for a full render.
+    if wasTank ~= nil and IsPlayerTank() ~= wasTank then
+        BR.CallbackRegistry:TriggerEvent("RenderRequested", false)
+    end
+end
+
+function BuffState.InvalidateSubgroupCache()
+    raidSubgroupsValid = false
 end
 
 ---Get the player's current role (cached, invalidated on spec change)
@@ -3050,10 +4077,45 @@ function BuffState.HasShield()
     return cachedOffHandType == "shield"
 end
 
+---Weapon subclass (Enum.ItemWeaponSubclass) of the item in a weapon slot (cached).
+---@param slot number 16 (main hand), 17 (off hand) or 18 (ranged)
+---@return number? subclassID nil when the slot holds no weapon or the item data is not loaded
+function BuffState.GetWeaponSubclass(slot)
+    local cached = cachedWeaponSubclass[slot]
+    if cached ~= nil then
+        return cached or nil
+    end
+    local itemID = GetInventoryItemID("player", slot)
+    if not itemID then
+        return nil
+    end
+    local _, _, _, _, _, itemClassID, itemSubClassID = C_Item.GetItemInfoInstant(itemID)
+    if not itemClassID then
+        return nil
+    end
+    cachedWeaponSubclass[slot] = itemClassID == 2 and itemSubClassID or false
+    return cachedWeaponSubclass[slot] or nil
+end
+
 ---Get the cached off-hand enchant ID from the current refresh cycle
 ---@return number|nil
 function BuffState.GetOffHandEnchantID()
     return currentWeaponEnchants.offHandID
+end
+
+---The imbue on a weapon slot, from the current refresh cycle. Always nil on a client with no imbue slot.
+---@param slot number Inventory slot ID (16 = MH, 17 = OH)
+---@return number? imbueID
+---@return number? remaining seconds
+function BuffState.GetWeaponImbue(slot)
+    local we = currentWeaponEnchants
+    local id, exp
+    if slot == 16 then
+        id, exp = we.mainHandImbueID, we.mainHandImbueExpiration
+    else
+        id, exp = we.offHandImbueID, we.offHandImbueExpiration
+    end
+    return id, exp and exp / 1000 or nil
 end
 
 ---Get the permanent enchant ID on a weapon slot (cached per refresh cycle)
@@ -3066,9 +4128,10 @@ function BuffState.GetPermanentWeaponEnchantID(slot)
     return currentWeaponEnchants.permanentOH
 end
 
----Invalidate off-hand weapon/shield cache
+---Invalidate the off-hand weapon/shield and weapon subclass caches
 function BuffState.InvalidateOffHandCache()
     cachedOffHandType = nil
+    wipe(cachedWeaponSubclass)
 end
 
 ---Invalidate item ownership + count caches
@@ -3212,6 +4275,103 @@ function BuffState.InvalidatePetCache()
     cachedPetFamily = nil
 end
 
+do
+    local ammoID, ammoCount -- false = read and empty, nil = not read
+
+    ---Equipped ammo item and its count (cached). nil when the client has no ammo slot or it is empty.
+    ---@return number? itemID
+    ---@return number count
+    function BuffState.GetEquippedAmmo()
+        if not INVSLOT_AMMO then
+            return nil, 0
+        end
+        if ammoID == nil then
+            ammoID = Plain(GetInventoryItemID("player", INVSLOT_AMMO)) or false
+            ammoCount = ammoID and Plain(GetInventoryItemCount("player", INVSLOT_AMMO)) or 0
+        end
+        return ammoID or nil, ammoCount or 0
+    end
+
+    function BuffState.InvalidateAmmoCache()
+        ammoID, ammoCount = nil, nil
+    end
+end
+
+do
+    local GetNumTrackingTypes = C_Minimap and C_Minimap.GetNumTrackingTypes
+    local GetTrackingInfo = C_Minimap and C_Minimap.GetTrackingInfo
+    local GetTrackingTexture = GetTrackingTexture
+    local trackingActive ---@type boolean? nil = not read
+
+    -- A town type (banker, flight master) is not a spell and can stay on, so only a
+    -- spell type counts. A secret flag counts as active, so the reminder fails closed.
+    ---@return boolean
+    local function ReadTrackingActive()
+        if GetNumTrackingTypes and GetTrackingInfo then
+            local count = Plain(GetNumTrackingTypes())
+            -- An unreadable or empty list (before the minimap loads) is not proof of no tracking.
+            if not count or count == 0 then
+                return true
+            end
+            for i = 1, count do
+                -- Some builds return a table, others return name, texture, active, type, subType, spellID.
+                local info, _, active, trackingType, _, spellID = GetTrackingInfo(i)
+                if type(info) == "table" then
+                    active, trackingType, spellID = info.active, info.type, info.spellID
+                end
+                trackingType = Plain(trackingType)
+                local isSpell = trackingType == "spell" or (trackingType == nil and Plain(spellID) ~= nil)
+                if Plain(active) ~= false and isSpell then
+                    return true
+                end
+            end
+            return false
+        end
+        if GetTrackingTexture then
+            return GetTrackingTexture() ~= nil
+        end
+        return true
+    end
+
+    ---Whether a tracking spell is active (cached). true on a client with no tracking API.
+    ---@return boolean
+    function BuffState.IsTrackingActive()
+        if trackingActive == nil then
+            trackingActive = ReadTrackingActive()
+        end
+        return trackingActive
+    end
+
+    function BuffState.InvalidateTrackingCache()
+        trackingActive = nil
+    end
+end
+
+---Happiness of the current pet (cached): 1 unhappy, 2 content, 3 happy.
+---@return number? happiness nil without a pet or on a client without pet happiness
+function BuffState.GetPetHappiness()
+    if not GetPetHappiness then
+        return nil
+    end
+    if cachedPetHappiness == nil then
+        if not UnitExists("pet") then
+            cachedPetHappiness = false
+        else
+            local happiness = Plain(GetPetHappiness())
+            if type(happiness) ~= "number" then
+                -- Pet data is not resolved yet. Do not cache, so the next Refresh retries.
+                return nil
+            end
+            cachedPetHappiness = happiness
+        end
+    end
+    return cachedPetHappiness or nil
+end
+
+function BuffState.InvalidatePetHappinessCache()
+    cachedPetHappiness = nil
+end
+
 ---Resolve the active stance's spell ID, or nil if unstanced/unresolved (cached).
 ---Unstanced (form 0) is a stable result and cached as `false`; a form set but
 ---with unresolved spell data is a transient load state left uncached to retry.
@@ -3233,62 +4393,77 @@ local function GetActiveStanceSpellID()
     return nil
 end
 
----Check whether a warrior's active stance does not match their spec's
----expected stance(s) (cached). Returns true when the player is unstanced
----or in a stance that does not fit the current spec.
+---Active stance spell ID, and true as second value when the stance bar has no active
+---form. Both values are nil while the spell data of an active form is unresolved.
+---@return number? spellID
+---@return boolean? unstanced
+function BuffState.GetActiveStance()
+    local spellID = GetActiveStanceSpellID()
+    return spellID, stanceCache.activeSpellID == false or nil
+end
+
+---Set of the spell IDs on the stance bar. Cached. A slot with unresolved spell data is
+---a transient load state, so that set stays uncached to retry.
+---@return table<number, true>
+function BuffState.GetStanceBarSpells()
+    local spells = stanceCache.barSpells
+    if spells then
+        return spells
+    end
+    spells = {}
+    local resolved = true
+    for i = 1, GetNumShapeshiftForms() do
+        local _, _, _, spellID = GetShapeshiftFormInfo(i)
+        if type(spellID) == "number" then
+            spells[spellID] = true
+        else
+            resolved = false
+        end
+    end
+    if resolved then
+        stanceCache.barSpells = spells
+    end
+    return spells
+end
+
+---Whether the active stance is outside the allowed stances of the rule. A form
+---set with unresolved spell data is a transient load state and reads as allowed.
+---The verdict reads live, because the allowed set can follow the content type.
+---@param rule StanceRule
 ---@return boolean
-function BuffState.IsWrongWarriorStance()
-    if stanceCache.wrongStance ~= nil then
-        return stanceCache.wrongStance
-    end
-    if playerClass ~= "WARRIOR" then
-        stanceCache.wrongStance = false
-        return false
-    end
-    local expected = WARRIOR_EXPECTED_STANCES[GetPlayerSpecId()]
-    if not expected then
-        stanceCache.wrongStance = false
+local function IsOutsideAllowedStances(rule)
+    local allowed = rule.allowed()
+    if not allowed then
         return false
     end
     local activeSpellID = GetActiveStanceSpellID()
-    if not activeSpellID then
-        -- Unstanced (form 0) is wrong; unresolved form data leaves cache nil to retry.
-        if GetShapeshiftForm() == 0 then
-            stanceCache.wrongStance = true
-            return true
-        end
-        return false
+    if activeSpellID then
+        return not allowed[activeSpellID]
     end
-    stanceCache.wrongStance = not expected[activeSpellID]
-    return stanceCache.wrongStance
+    if stanceCache.activeSpellID == false then
+        return not allowed[NO_STANCE]
+    end
+    return false
 end
 
----Preferred stance spell ID for the current warrior spec (Defensive for Protection,
----Berserker for Fury when talented, else Battle). Returns nil for non-warriors.
----Cached.
+---Whether a warrior is unstanced or in a stance that the rule does not allow.
+---@return boolean
+function BuffState.IsWrongWarriorStance()
+    return playerClass == "WARRIOR" and IsOutsideAllowedStances(STANCE_RULES.WARRIOR)
+end
+
+---Stance spell ID that the warrior click casts, or nil for non-warriors.
 ---@return number?
 function BuffState.GetExpectedWarriorStanceID()
-    if stanceCache.expectedStanceID ~= nil then
-        return stanceCache.expectedStanceID or nil
-    end
     if playerClass ~= "WARRIOR" then
-        stanceCache.expectedStanceID = false
         return nil
     end
-    local specId = GetPlayerSpecId()
-    if specId == 73 then
-        stanceCache.expectedStanceID = STANCE_DEFENSIVE
-    elseif specId == 72 and IsSpellKnown(STANCE_BERSERKER) then
-        stanceCache.expectedStanceID = STANCE_BERSERKER
-    else
-        stanceCache.expectedStanceID = STANCE_BATTLE
-    end
-    return stanceCache.expectedStanceID or nil
+    return STANCE_RULES.WARRIOR.castID()
 end
 
----Texture for the warrior's currently active stance, or nil if unstanced. Cached.
+---Texture of the active stance or form, or nil if unstanced. Cached.
 ---@return number?
-function BuffState.GetCurrentWarriorStanceIcon()
+function BuffState.GetCurrentStanceIcon()
     if stanceCache.currentStanceIcon ~= nil then
         return stanceCache.currentStanceIcon or nil
     end
@@ -3327,63 +4502,92 @@ function BuffState.IsShadowFormActive()
     return stanceCache.shadowFormActive
 end
 
----Whether a Feral or Balance druid is in any form other than their spec's
----expected form (Cat for Feral, Moonkin for Balance). Returns false for other
----specs/classes, and (when druidIgnoreTravelForm is enabled) during deliberate
----travel - any travel-family form, or on a mount. Cached, except the travel/mount
----gate, which reads live so it needs no cache wiring.
+---Whether a druid is in a form that the rule does not allow. With
+---druidIgnoreTravelForm, any travel-family form or a mount reads as allowed.
 ---@return boolean
 function BuffState.IsWrongDruidForm()
     if playerClass ~= "DRUID" then
-        stanceCache.wrongDruidForm = false
         return false
     end
-    -- Suppress during deliberate travel: any travel-family form, or a mount.
-    -- Checked before the cache and read live, so the toggle and a mount or dismount
-    -- take effect on the next refresh with no extra cache invalidation.
     if BR.profile.druidIgnoreTravelForm ~= false and (DRUID_TRAVEL_FORM_IDS[GetShapeshiftFormID()] or IsMounted()) then
         return false
     end
-    if stanceCache.wrongDruidForm ~= nil then
-        return stanceCache.wrongDruidForm
-    end
-    local expected = DRUID_EXPECTED_FORMS[GetPlayerSpecId()]
-    if not expected then
-        stanceCache.wrongDruidForm = false
-        return false
-    end
-    local activeSpellID = GetActiveStanceSpellID()
-    if not activeSpellID then
-        -- Unshifted (form 0) is wrong. A non-zero form with unresolved spell data
-        -- is a transient load state: return the safe default and retry.
-        if GetShapeshiftForm() == 0 then
-            stanceCache.wrongDruidForm = true
-            return true
-        end
-        return false
-    end
-    stanceCache.wrongDruidForm = activeSpellID ~= expected
-    return stanceCache.wrongDruidForm
+    return IsOutsideAllowedStances(STANCE_RULES.DRUID)
 end
 
----Expected form spell ID for the current druid spec (Cat Form for Feral,
----Moonkin Form for Balance). Returns nil for non-druids and other specs. Cached.
+---Form spell ID that the druid click casts (0 = cancel the form), or nil.
 ---@return number?
 function BuffState.GetExpectedDruidFormID()
-    if stanceCache.expectedDruidFormID ~= nil then
-        return stanceCache.expectedDruidFormID or nil
-    end
     if playerClass ~= "DRUID" then
-        stanceCache.expectedDruidFormID = false
         return nil
     end
-    stanceCache.expectedDruidFormID = DRUID_EXPECTED_FORMS[GetPlayerSpecId()] or false
-    return stanceCache.expectedDruidFormID or nil
+    return STANCE_RULES.DRUID.castID()
 end
 
----Invalidate all stance caches (warrior wrong-stance, priest shadowform, druid wrong-form).
+---Invalidate all stance caches (active stance, stance icon, priest shadowform).
 function BuffState.InvalidateStanceCache()
     wipe(stanceCache)
+end
+
+do
+    local IsSpellUsable = C_Spell.IsSpellUsable
+    ---@type table<number, boolean>
+    local cachedSpellUsable = {}
+
+    ---@param spellID number
+    ---@return boolean
+    function BuffState.IsSpellUsable(spellID)
+        local usable = cachedSpellUsable[spellID]
+        if usable == nil then
+            usable = IsSpellUsable(spellID) == true
+            cachedSpellUsable[spellID] = usable
+        end
+        return usable
+    end
+
+    ---@return boolean
+    function BuffState.HasSpellUsableCache()
+        return next(cachedSpellUsable) ~= nil
+    end
+
+    function BuffState.InvalidateSpellUsableCache()
+        wipe(cachedSpellUsable)
+    end
+end
+
+do
+    local GetItemCooldown = C_Item.GetItemCooldown
+    ---@type table<number, number> Item ID -> GetTime() at which the item is ready
+    local cachedItemReadyAt = {}
+
+    ---false while cooldowns are secret, so a reminder fails closed.
+    ---@param itemID number
+    ---@return boolean
+    function BuffState.IsItemOffCooldown(itemID)
+        if CooldownsRestricted() then
+            return false
+        end
+        local readyAt = cachedItemReadyAt[itemID]
+        if readyAt == nil then
+            local ok, start, duration = pcall(GetItemCooldown, itemID)
+            start, duration = ok and Plain(start) or nil, ok and Plain(duration) or nil
+            if not start or not duration then
+                return false
+            end
+            readyAt = duration > 0 and start + duration or 0
+            cachedItemReadyAt[itemID] = readyAt
+        end
+        return readyAt <= GetTime()
+    end
+
+    ---@return boolean
+    function BuffState.HasItemCooldownCache()
+        return next(cachedItemReadyAt) ~= nil
+    end
+
+    function BuffState.InvalidateItemCooldownCache()
+        wipe(cachedItemReadyAt)
+    end
 end
 
 -- ============================================================================
@@ -3394,12 +4598,8 @@ end
 -- unresolved name can evict a member the class/role fallback still needs.
 
 do
-    local GetUnitName = GetUnitName
-    local IsInRaid = IsInRaid
-    local GetNumGroupMembers = GetNumGroupMembers
-
     local rosterFrame = CreateFrame("Frame")
-    rosterFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
+    BR.Client.RegisterEvent(rosterFrame, "GROUP_ROSTER_UPDATE")
     rosterFrame:SetScript("OnEvent", function()
         local currentNames = {}
         currentNames[playerName] = true
@@ -3457,17 +4657,29 @@ end
 BR.StateHelpers = {
     GetPlayerSpecId = GetPlayerSpecId,
     FormatRemainingTime = FormatRemainingTime,
-    FormatEatingTime = FormatEatingTime,
+    AuraLead = Lead.Of,
+    FormatCountdownTime = FormatCountdownTime,
+    ---A countdown entry only reports progress toward a goal, so its click has nothing to do.
+    ---@param entry BuffStateEntry
+    ---@return boolean
+    IsCountdownEntry = function(entry)
+        return entry.isEating == true or entry.countdownExpirationTime ~= nil
+    end,
     IsPlayerEating = IsPlayerEating,
     UpdateEatingState = UpdateEatingState,
     ScanEatingState = ScanEatingState,
     GetEatingExpirationTime = GetEatingExpirationTime,
     GetCurrentContentType = GetCurrentContentType,
+    GetContentRow = GetContentRow,
+    IsContentChoiceAllowed = IsContentChoiceAllowed,
     IsCategoryVisibleForContent = IsCategoryVisibleForContent,
     GetBuffSettingKey = GetBuffSettingKey,
     IsBuffEnabled = IsBuffEnabled,
     IsPlayerSpellCached = IsPlayerSpellCached,
+    GetItemCountCached = GetItemCountCached,
+    IsPlayerTank = IsPlayerTank,
     AsSpellList = AsSpellList,
+    BuffTargets = BuffTargets,
 }
 
 BR.BuffState = BuffState
@@ -3477,10 +4689,17 @@ BR.GameContext.RegisterCache("auraTrackable", BuffState.InvalidateAuraTrackableC
 BR.GameContext.RegisterCache("spell", BuffState.InvalidateSpellCache)
 BR.GameContext.RegisterCache("spec", BuffState.InvalidateSpecCache)
 BR.GameContext.RegisterCache("healer", BuffState.InvalidateHealerCache)
+BR.GameContext.RegisterCache("subgroup", BuffState.InvalidateSubgroupCache)
 BR.GameContext.RegisterCache("offHand", BuffState.InvalidateOffHandCache)
 BR.GameContext.RegisterCache("item", BuffState.InvalidateItemCache)
 BR.GameContext.RegisterCache("durability", BuffState.InvalidateDurabilityCache)
 BR.GameContext.RegisterCache("repairSource", BuffState.InvalidateRepairSourceCache)
 BR.GameContext.RegisterCache("loadout", BuffState.InvalidateLoadoutCache)
 BR.GameContext.RegisterCache("pet", BuffState.InvalidatePetCache)
+BR.GameContext.RegisterCache("ammo", BuffState.InvalidateAmmoCache)
+BR.GameContext.RegisterCache("tracking", BuffState.InvalidateTrackingCache)
+BR.GameContext.RegisterCache("petHappiness", BuffState.InvalidatePetHappinessCache)
 BR.GameContext.RegisterCache("stance", BuffState.InvalidateStanceCache)
+BR.GameContext.RegisterCache("spellUsable", BuffState.InvalidateSpellUsableCache)
+BR.GameContext.RegisterCache("itemCooldown", BuffState.InvalidateItemCooldownCache)
+BR.GameContext.RegisterCache("foreignAura", BuffState.InvalidateForeignAuraCache)

@@ -31,6 +31,8 @@ local BR = ns
 ---@field normal? boolean
 ---@field heroic? boolean
 ---@field mythic? boolean
+---@field raid40? boolean
+---@field raid20? boolean
 
 ---@class ScenarioDifficulty
 ---@field delves? boolean
@@ -65,6 +67,58 @@ BR.Components = {}
 BR.RefreshableComponents = {}
 
 -- ============================================================================
+-- CLIENT
+-- ============================================================================
+
+---@enum ClientType
+BR.ClientType = {
+    Retail = "retail",
+    Forever = "forever",
+}
+
+---@type ClientType
+BR.CLIENT = WOW_PROJECT_ID == WOW_PROJECT_CAMELOT and BR.ClientType.Forever or BR.ClientType.Retail
+
+-- Stance key for "no stance" (stance bar form 0) in the allowed-stances sets of BR.STANCE_RULES.
+BR.NO_STANCE = 0
+
+BR.Client = {}
+
+---The player's specialization, or nil on WoW Forever and before the spec loads.
+---@return number? specID
+---@return number? specIndex
+function BR.Client.GetSpecID()
+    if BR.CLIENT == BR.ClientType.Forever then
+        return nil
+    end
+    local specIndex = GetSpecialization()
+    if not specIndex then
+        return nil
+    end
+    return GetSpecializationInfo(specIndex), specIndex
+end
+
+local IsEventValid = C_EventUtils and C_EventUtils.IsEventValid
+
+---Register the event on the frame if the client defines it. RegisterEvent throws on an event
+---that the client lacks. With units, the registration is a unit event.
+---@param frame table
+---@param event string
+---@param ... string Units
+---@return boolean registered
+function BR.Client.RegisterEvent(frame, event, ...)
+    if IsEventValid and not IsEventValid(event) then
+        return false
+    end
+    if select("#", ...) > 0 then
+        frame:RegisterUnitEvent(event, ...)
+    else
+        frame:RegisterEvent(event)
+    end
+    return true
+end
+
+-- ============================================================================
 -- SHARED CONSTANTS
 -- ============================================================================
 
@@ -76,6 +130,8 @@ BR.DEFAULT_ICON_ZOOM = 0 -- percentage; base crop (TEXCOORD_INSET) is always app
 -- larger than the numbers its constants use.
 BR.PANEL_DENSITY = 1.2
 BR.PANEL_ZOOM = { MIN = 80, MAX = 150, STEP = 10, DEFAULT = 100 }
+
+BR.DISCORD_URL = "https://discord.gg/qezQ2hXJJ7"
 
 BR.Colors = {
     Border = { 0.27, 0.27, 0.32, 1 },
@@ -258,7 +314,7 @@ local RootSettings = {
     petPassiveOnlyInCombat = "VisibilityRefresh",
     bronzeHideInCombat = "VisibilityRefresh",
     druidIgnoreTravelForm = "DisplayRefresh", -- recompute wrong-form state, then render
-    requestBuffInChat = false, -- No auto-refresh, handled manually
+    requestBuffInChat = "DisplayRefresh", -- A request reminder shows only while requests are on
     chatRequestCooldown = false, -- No auto-refresh, read live in PostClick + SyncSecureButtons
 }
 
@@ -278,7 +334,6 @@ local CategorySettingKeys = {
     expirationThreshold = "DisplayRefresh",
     spacing = "LayoutRefresh",
     layoutDirection = "LayoutRefresh",
-    subIconSide = "LayoutRefresh",
     anchorFrame = "LayoutRefresh",
     anchorPoint = "LayoutRefresh",
     -- Layout
@@ -287,10 +342,11 @@ local CategorySettingKeys = {
     showBuffReminder = "VisualsRefresh",
     buffTextSize = "VisualsRefresh",
     showText = "VisualsRefresh",
-    showBuffTooltips = "VisualsRefresh", -- Toggles hover capture vs click-through
+    showDescriptionTooltips = "VisualsRefresh", -- Toggles hover capture vs click-through
     -- Toggles
     useCustomAppearance = "VisualsRefresh",
     useCustomGlow = "VisualsRefresh",
+    useCustomInteraction = "VisualsRefresh", -- The options call UpdateActionButtons for the click overlays
     -- Per-category glow style overrides (expiring)
     glowType = "VisualsRefresh",
     glowColor = "VisualsRefresh",
@@ -339,6 +395,7 @@ local DefaultSettingKeys = {
     iconWidth = "VisualsRefresh",
     iconZoom = "VisualsRefresh",
     borderSize = "VisualsRefresh",
+    iconStyle = "VisualsRefresh",
     textSize = "VisualsRefresh",
     iconAlpha = "VisualsRefresh",
     textAlpha = "VisualsRefresh",
@@ -348,6 +405,10 @@ local DefaultSettingKeys = {
     -- Behavior (glow is global-only, lives under defaults)
     showExpirationGlow = "DisplayRefresh",
     expirationThreshold = "DisplayRefresh",
+    expirationShare = "DisplayRefresh",
+    showDescriptionTooltips = "VisualsRefresh", -- Toggles hover capture vs click-through
+    clickable = false, -- The options call UpdateActionButtons for the click overlays
+    clickableHighlight = false, -- The options call UpdateActionButtons for the click overlays
     preKeyThreshold = "DisplayRefresh",
     glowType = "VisualsRefresh",
     glowColor = "VisualsRefresh",
@@ -387,6 +448,7 @@ local DefaultSettingKeys = {
     delveFoodOnly = "DisplayRefresh",
     delveFoodTimer = "DisplayRefresh",
     mageFoodContent = "DisplayRefresh",
+    shamanImbue = "DisplayRefresh",
     freeConsumableMode = "DisplayRefresh",
     freeConsumableVisibility = "DisplayRefresh",
     healthstoneVisibility = "DisplayRefresh",
@@ -394,6 +456,17 @@ local DefaultSettingKeys = {
     healthstoneThreshold = "DisplayRefresh",
     repairThreshold = "DisplayRefresh",
     repairHideInCombat = "VisibilityRefresh",
+    reagentThreshold = "DisplayRefresh",
+    reagentRestedOnly = "DisplayRefresh",
+    campLightFire = "DisplayRefresh",
+    ammoThresholdStacks = "DisplayRefresh",
+    ammoThresholdShots = "DisplayRefresh",
+    groupCastMin = false, -- read at click time
+    driveByAllowPvP = "DisplayRefresh",
+    driveByGreeting = false, -- read when a drive-by cast succeeds
+    driveByWhisper = false,
+    driveByEmote = false,
+    driveByEmoteText = false,
     soulstoneVisibility = "DisplayRefresh",
     soulstoneHideCooldown = "DisplayRefresh",
     soulstonePinnedTarget = false, -- nil when unset (no Defaults entry); macro rebuilds on PreClick
@@ -403,8 +476,10 @@ local DefaultSettingKeys = {
     consumableBadgeOnSubIcons = "DisplayRefresh",
     consumableTextScale = "VisualsRefresh",
     hideConsumableLabels = "VisualsRefresh",
-    showConsumableTooltips = false, -- No refresh needed, read at tooltip time
-    rightClickSnooze = "DisplayRefresh", -- Re-wires the consumable buttons' type2 attribute
+    tooltipModifier = false, -- Read at hover time
+    rightClickMenu = "DisplayRefresh", -- Re-wires the type2 attribute of the click overlays
+    subIconReveal = "DisplayRefresh",
+    subIconSide = "LayoutRefresh",
     hideLegacyConsumables = "DisplayRefresh",
     preferReusableRunes = "DisplayRefresh",
     placeAtPlayer = "DisplayRefresh",
@@ -415,11 +490,25 @@ local DefaultSettingKeys = {
     petSpecIconOnHover = "DisplayRefresh",
     useFelDomination = "DisplayRefresh",
     warlockWrongDemon = "DisplayRefresh",
+    paladinBlessingScope = "DisplayRefresh",
+    paladinBlessingsByClass = "DisplayRefresh",
+    paladinAuraOrder = "DisplayRefresh",
+    trackingScope = "DisplayRefresh",
+    thornsRequest = "DisplayRefresh",
+    righteousFuryShow = "DisplayRefresh",
+    mageArmorPreference = "DisplayRefresh",
     -- Font (global-only, lives under defaults)
     fontFace = "VisualsRefresh",
     textOutline = "VisualsRefresh",
     slugOutline = "VisualsRefresh",
     position = false, -- No auto-refresh, saved directly by movers
+}
+
+-- Per-content grids (path = defaults.{grid}.{world|dungeon|raid|pvp}.{choice})
+local ContentGridKeys = {
+    warlockDemons = true,
+    warriorStances = true,
+    druidForms = true,
 }
 
 -- Canonical buff category list. The order is the display stacking order.
@@ -442,6 +531,21 @@ for _, cat in ipairs(BR.CATEGORY_ORDER) do
     end
 end
 
+---A category with nothing to show on this client stays out of the options UI and the movers.
+---Loadout reads as unavailable until Core/Loadouts.lua loads.
+---@param category string
+---@return boolean
+function BR.IsCategoryAvailable(category)
+    if category == "custom" then
+        return true
+    end
+    if category == "loadout" then
+        return BR.Loadouts ~= nil
+    end
+    local buffs = BR.BUFF_TABLES and BR.BUFF_TABLES[category]
+    return buffs ~= nil and buffs[1] ~= nil
+end
+
 -- Valid category names for config paths (categorySettings.<category>.<key>).
 -- Derived from BR.CATEGORY_ORDER plus "main", the shared/global frame whose
 -- settings live under categorySettings.main but which is not a buff category.
@@ -459,6 +563,7 @@ local DynamicRoots = {
     readyCheckOnlyOverrides = "DisplayRefresh",
     detachedIcons = "FramesReparent",
     loadoutReminders = "DisplayRefresh",
+    groupCast = false,
     -- One event for the whole subtree: AuraButton styling is creation-window-only,
     -- so every externals change takes the same reconfigure-or-defer path.
     externals = "ExternalsRefresh",
@@ -507,8 +612,8 @@ local function ValidatePath(segments)
         if segments[2] == "textSizes" and #segments == 3 then
             return true, "VisualsRefresh"
         end
-        -- defaults.warlockDemons.<world|dungeon|raid|pvp>.<demon>
-        if segments[2] == "warlockDemons" and #segments == 4 then
+        -- defaults.<grid>.<row>.<choice>
+        if ContentGridKeys[segments[2]] and #segments == 4 then
             return true, "DisplayRefresh"
         end
         return false, nil
@@ -537,7 +642,7 @@ local function ValidatePath(segments)
         return false, nil
     end
 
-    if DynamicRoots[root] then
+    if DynamicRoots[root] ~= nil then
         -- Any subpath is valid for dynamic roots
         return true, DynamicRoots[root]
     end
@@ -749,6 +854,13 @@ local GlowKeys = {
     missingGlowYOffset = true,
 }
 
+-- Keys that inherit from defaults while useCustomInteraction is false.
+local InteractionKeys = {
+    clickable = true,
+    clickableHighlight = true,
+    showDescriptionTooltips = true,
+}
+
 ---Get a category setting with inheritance from defaults
 ---@param category string Category name (raid, presence, etc.)
 ---@param key string Setting key (iconSize, showBuffReminder, etc.)
@@ -780,6 +892,13 @@ function BR.Config.GetCategorySetting(category, key)
     -- override switches.
     if GlowKeys[key] then
         if not catSettings.useCustomGlow then
+            return db.defaults and db.defaults[key]
+        end
+        return catSettings[key]
+    end
+
+    if InteractionKeys[key] then
+        if not catSettings.useCustomInteraction then
             return db.defaults and db.defaults[key]
         end
         return catSettings[key]
@@ -891,28 +1010,26 @@ end
 -- SHARED UI FACTORIES
 -- ============================================================================
 
----Create a draggable panel with standard backdrop
+-- The -32 offset of the dialog title line is load-bearing: dialogs hardcode
+-- content positions relative to this line. Restyle the line, but do not move it.
+local DIALOG_TITLE_LINE = 32
+
+---Create a draggable panel with the shell of the theme
 ---@param name string? Frame name (nil for anonymous)
 ---@param width number
 ---@param height number
----@param options? {bgColor?: table, borderColor?: table, strata?: string, level?: number, escClose?: boolean, dialog?: boolean}
+---@param options? {strata?: string, level?: number, escClose?: boolean, dialog?: boolean, header?: number, brackets?: boolean}
+---header: bottom of the header band. brackets: corner brackets.
 ---@return table
 function BR.CreatePanel(name, width, height, options)
     options = options or {}
     local isDialog = options.dialog
-    local bgColor = options.bgColor or (isDialog and { 0.098, 0.098, 0.118, 1 } or { 0.09, 0.09, 0.107, 0.97 })
-    local borderColor = options.borderColor or BR.Colors.Border
+    local shell = BR.Theme.shell
 
-    local panel = CreateFrame("Frame", name, UIParent, "BackdropTemplate")
+    local panel = CreateFrame("Frame", name, UIParent)
+    panel._br_optionsSurface = true
     panel:SetSize(width, height)
     panel:SetPoint("CENTER")
-    panel:SetBackdrop({
-        bgFile = "Interface\\Buttons\\WHITE8x8",
-        edgeFile = "Interface\\Buttons\\WHITE8x8",
-        edgeSize = 2,
-    })
-    panel:SetBackdropColor(unpack(bgColor))
-    panel:SetBackdropBorderColor(unpack(borderColor))
     panel:SetMovable(true)
     panel:EnableMouse(true)
     panel:RegisterForDrag("LeftButton")
@@ -926,8 +1043,7 @@ function BR.CreatePanel(name, width, height, options)
     end
     if isDialog then
         -- Drop shadow: concentric rings, each darker than the last. The sublevels
-        -- stay below the backdrop of the panel, so the body color paints over the
-        -- inner overlap.
+        -- stay below the shell, so the shell paints over the inner overlap.
         local SHADOW_STEPS = 6
         for i = 1, SHADOW_STEPS do
             local outset = SHADOW_STEPS - i + 1 -- 6,5,4,3,2,1 px out
@@ -938,20 +1054,12 @@ function BR.CreatePanel(name, width, height, options)
             layer:SetColorTexture(0, 0, 0, alpha)
         end
 
-        -- Sits above the shadow and backdrop, below the title separator (BORDER 0+).
-        local body = panel:CreateTexture(nil, "BORDER", nil, -7)
-        body:SetPoint("TOPLEFT", 2, -2)
-        body:SetPoint("BOTTOMRIGHT", -2, 2)
-        body:SetColorTexture(1, 1, 1, 1)
-        body:SetGradient("VERTICAL", CreateColor(0.094, 0.094, 0.112, 1), CreateColor(0.130, 0.130, 0.152, 1))
-
-        -- The -32 offset is load-bearing: dialogs hardcode content positions
-        -- relative to this line. Restyle the line, but do not move it.
+        local inset = BR.AddShell(panel, shell.dialog, DIALOG_TITLE_LINE)
         local titleSep = panel:CreateTexture(nil, "BORDER", nil, 1)
-        titleSep:SetPoint("TOPLEFT", 2, -32)
-        titleSep:SetPoint("TOPRIGHT", -2, -32)
+        titleSep:SetPoint("TOPLEFT", inset, -DIALOG_TITLE_LINE)
+        titleSep:SetPoint("TOPRIGHT", -inset, -DIALOG_TITLE_LINE)
         titleSep:SetHeight(1)
-        titleSep:SetColorTexture(unpack(BR.Colors.Border))
+        BR.AddGroove(titleSep, BR.Theme.groove.dialog)
 
         -- ESC is handled through keyboard input, not UISpecialFrames: a registered
         -- frame closes together with the parent options panel.
@@ -973,8 +1081,14 @@ function BR.CreatePanel(name, width, height, options)
         end)
 
         BR.RegisterScaledDialog(panel)
-    elseif options.escClose and name then
-        tinsert(UISpecialFrames, name)
+    else
+        if options.escClose and name then
+            tinsert(UISpecialFrames, name)
+        end
+        BR.AddShell(panel, shell.panel, options.header)
+    end
+    if options.brackets then
+        BR.AddCornerBrackets(panel)
     end
     return panel
 end
@@ -989,7 +1103,7 @@ end
 function BR.CreateSectionHeader(parent, text, x, y)
     local header = parent:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     header:SetPoint("TOPLEFT", x, y)
-    header:SetText("|cffffcc00" .. text .. "|r")
+    header:SetText(BR.TITLE_COLOR_CODE .. text .. "|r")
     return header, y - 18
 end
 
@@ -1018,10 +1132,12 @@ local CLASS_IDS = {
 BR.CLASS_SPEC_OPTIONS = {}
 for token, classID in pairs(CLASS_IDS) do
     local specs = {}
-    for i = 1, 4 do
-        local specID, name = GetSpecializationInfoForClassID(classID, i)
-        if specID then
-            table.insert(specs, { value = specID, label = name })
+    if BR.CLIENT == BR.ClientType.Retail then
+        for i = 1, 4 do
+            local specID, name = GetSpecializationInfoForClassID(classID, i)
+            if specID then
+                table.insert(specs, { value = specID, label = name })
+            end
         end
     end
     table.sort(specs, function(a, b)
@@ -1052,6 +1168,60 @@ function BR.GetSpellName(spellID)
         spellNameCache[spellID] = name
     end
     return name or nil
+end
+
+---Build a targeted-buff clickMacro. Priority: last target > mouseover > target > the default cast target.
+---@param buffKey string The buff's key, used to look up the last target
+---@return fun(spellID: number): string
+function BR.TargetedClickMacro(buffKey)
+    return function(spellID)
+        local name = BR.GetSpellName(spellID) or ""
+        local lastTarget = BR.TargetMemory and BR.TargetMemory.Get(buffKey)
+        if lastTarget then
+            return "/cast [@" .. lastTarget .. ",help,nodead][@mouseover,help,nodead][@target,help,nodead][] " .. name
+        end
+        return "/cast [@mouseover,help,nodead][@target,help,nodead][] " .. name
+    end
+end
+
+---Macro conditions of a Soulstone click, with a trailing space. A pinned target gets
+---no fallback: if the pin is absent or out of group, the click is a no-op, so the
+---stone never lands on the wrong player. Else: last target, first living healer,
+---mouseover, target, self.
+---@return string
+function BR.SoulstoneTargetConditions()
+    local defaults = BR.profile.defaults
+    local pinned = defaults and defaults.soulstonePinnedTarget
+    if pinned and pinned ~= "" then
+        -- An imported profile bypasses the options input, so the name must not
+        -- break out of the macro conditional.
+        return "[@" .. pinned:gsub("[%[%]\r\n]", "") .. ",help] "
+    end
+    local fallback = "[@mouseover,help,nodead][@target,help,nodead][@player] "
+    local lastTarget = BR.TargetMemory and BR.TargetMemory.Get("soulstone")
+    if lastTarget then
+        return "[@" .. lastTarget .. ",help,nodead]" .. fallback
+    end
+    local numMembers = GetNumGroupMembers()
+    if numMembers > 0 then
+        local prefix = IsInRaid() and "raid" or "party"
+        for i = 1, numMembers do
+            local unitId = prefix .. i
+            -- Runs in the PreClick of the secure button, so in combat too, where
+            -- a compare against a secret role can throw.
+            if
+                UnitExists(unitId)
+                and not UnitIsDeadOrGhost(unitId)
+                and BR.Secret.Plain(UnitGroupRolesAssigned(unitId)) == "HEALER"
+            then
+                local healerName = GetUnitName(unitId, true)
+                if healerName then
+                    return "[@" .. healerName .. ",help,nodead]" .. fallback
+                end
+            end
+        end
+    end
+    return fallback
 end
 
 ---Drop the cached misses, so the next BR.GetSpellName reads the API again.

@@ -1,6 +1,10 @@
 local _, ns = ...
 ---@class BR
 local BR = ns
+
+if BR.CLIENT ~= BR.ClientType.Retail then
+    return
+end
 local L = BR.L
 
 -- Lookup tables of known consumable item IDs, keyed by consumable type.
@@ -12,6 +16,7 @@ local L = BR.L
 ---@field legacy? boolean Item of a prior expansion. The hideLegacyConsumables setting hides it.
 ---@field permanent? boolean A use does not consume the item. It has no meaningful stack count.
 ---@field placed? boolean A feast or cauldron placed on the ground. The placeAtPlayer setting drops it at the player.
+---@field weaponClass? "edged"|"blunt" The weapon item fits only this class of weapon. Absent: any weapon.
 
 ---@type table<string, table<number, ConsumableItemInfo|boolean>>
 BR.CONSUMABLE_ITEMS = {

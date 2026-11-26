@@ -305,11 +305,8 @@ L["Display.OpenOptions"] = "打开选项"
 L["Display.SlashCommands"] = "斜杠命令: /br, /br lock, /br unlock, /br test, /br minimap, /br snooze"
 L["Display.MinimapLeftClick"] = "|cFFCFCFCF左键点击|r: 选项"
 L["Display.MinimapRightClick"] = "|cFFCFCFCF右键点击|r: 测试模式"
-L["Display.DismissConsumablesChat"] = "直到下次蓝条加载前，消耗品提醒被暂时隐藏了。"
 L["Display.LoginFirstInstall"] =
     "感谢安装！输入 |cFFFFD100/br unlock|r 来移动增益显示，或者使用 |cFFFFD100/br|r 选项面板底部的按钮。"
-L["Display.LoginSnooze"] =
-    "隐藏消耗品提示现在改为右键操作：右键点击消耗品可暂时隐藏其提示，或输入 |cFFFFD100/br snooze|r。"
 
 -- ============================================================================
 -- OPTIONS: NAVIGATION LABELS
@@ -533,7 +530,6 @@ L["Options.PetSpecIcon.Desc"] =
     "鼠标悬停时，宠物图标将变为对应的专精技能（狡诈、狂野、坚韧）。"
 L["Options.ShowItemTooltips"] = "显示物品提示信息"
 L["Options.ShowItemTooltips.Desc"] = "将鼠标悬停在消耗品图标上时显示物品详细信息。"
-L["Options.ShowBuffTooltips"] = "显示增益鼠标提示信息"
 L["Options.Behavior"] = "行为"
 L["Options.PetPassiveCombat"] = "仅在战斗中提示被动宠物"
 L["Options.PetPassiveCombat.Desc"] = "仅在战斗中显示被动宠物提示。禁用时则始终显示。"
@@ -559,9 +555,6 @@ L["Options.PetLabels.SizePct"] = "尺寸占比 %"
 -- ============================================================================
 -- OPTIONS: CONSUMABLE DISPLAY
 -- ============================================================================
-L["Options.ConsumableBadgeOnSubIcons"] = "在子图标上显示品质标签"
-L["Options.ConsumableBadgeOnSubIcons.Title"] = "子图标品质标签"
-L["Options.ConsumableBadgeOnSubIcons.Desc"] = "在每个子图标上也显示食物品质字母（例如“丰”代表丰盛，“飞”代表飞逝），而不仅在主图标上显示。"
 L["Options.ConsumableBadgeOnSubIcons.Disabled"] = "仅在“子图标”显示模式下可用。"
 L["Options.HideConsumableLabels"] = "隐藏属性标签"
 L["Options.HideConsumableLabels.Title"] = "隐藏消耗品属性标签"
@@ -570,14 +563,11 @@ L["Options.HideConsumableLabels.Desc"] =
 L["Options.ItemDisplay"] = "物品显示"
 L["Options.ItemDisplay.IconOnly"] = "仅图标"
 L["Options.ItemDisplay.IconOnlyDesc"] = "显示数量最多的物品"
-L["Options.ItemDisplay.SubIcons"] = "子图标"
-L["Options.ItemDisplay.SubIconsDesc"] = "在每个图标下方显示较小的物品变体图标"
 L["Options.ItemDisplay.Expanded"] = "展开"
 L["Options.ItemDisplay.ExpandedDesc"] = "将每个物品变体显示为全尺寸图标"
 L["Options.ItemDisplay.Mode"] = "消耗品物品显示"
 L["Options.ItemDisplay.Mode.Desc"] =
     "设置具有多个变体的消耗品物品（例如各种合剂类型）的显示方式。"
-L["Options.SubIconSide"] = "方向"
 L["Options.SubIconSide.Bottom"] = "底部"
 L["Options.SubIconSide.Top"] = "顶部"
 L["Options.SubIconSide.Left"] = "左侧"
@@ -737,8 +727,6 @@ L["Options.BuffTracking.MyBuffs"] = "仅我的增益，所有玩家"
 L["Options.BuffTracking.MyBuffs.Desc"] =
     "仅显示你的职业能提供的增益，但会追踪整个队伍的覆盖情况。"
 L["Options.BuffTracking.OnlyMine"] = "仅我需要的增益"
-L["Options.BuffTracking.OnlyMine.Desc"] =
-    "显示所有类型的增益，但仅检查自身是否拥有。不显示队伍计数。"
 L["Options.BuffTracking.SelfOnly"] = "仅我的增益，仅限自身"
 L["Options.BuffTracking.SelfOnly.Desc"] =
     "仅显示你的职业能提供的增益，且仅检查自身是否拥有。不计算团队数量，不包含你对他人施放的增益。"

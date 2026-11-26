@@ -9,6 +9,7 @@ local BR = ns
 -- content.
 --
 -- Each page is registered as BR.Options.Pages.<id> = { title, Build = fn(content), showMasqueBanner = bool }.
+-- The header search box filters the SEARCH_PAGE_ID page through its Search(text) function.
 
 local max, min = math.max, math.min
 
@@ -33,9 +34,13 @@ local CONTENT_TOP_OFFSET = C.CONTENT_TOP_OFFSET
 local PANEL_BOTTOM_MARGIN = C.PANEL_BOTTOM_MARGIN
 local SCROLLBAR_WIDTH = C.SCROLLBAR_WIDTH
 local COL_PADDING = C.COL_PADDING
+-- Top of the content: the header divider, and the bottom of the header band.
+local HEADER_HEIGHT = CONTENT_TOP_OFFSET - 4
 
-local BORDER_R, BORDER_G, BORDER_B = unpack(BR.Colors.Border)
-local ACCENT_R, ACCENT_G, ACCENT_B = unpack(BR.Colors.Accent)
+local Theme = BR.Theme
+local SetTextColor = BR.SetThemeTextColor
+local SetColorTexture = BR.SetThemeColorTexture
+local PaintGradient = BR.PaintGradient
 
 local optionsPanel = nil
 
@@ -129,7 +134,7 @@ StaticPopupDialogs["BUFFREMINDERS_DISCORD_URL"] = {
     hasEditBox = true,
     editBoxWidth = 250,
     OnShow = function(self)
-        self.EditBox:SetText("https://discord.gg/qezQ2hXJJ7")
+        self.EditBox:SetText(BR.DISCORD_URL)
         self.EditBox:HighlightText()
         self.EditBox:SetFocus()
     end,
@@ -166,20 +171,22 @@ StaticPopupDialogs["BUFFREMINDERS_KOFI_URL"] = {
 -- ============================================================================
 
 local function CreateSidebarGroupHeader(parent, text)
+    local colors = Theme.sidebarGroup
     local header = CreateFrame("Frame", nil, parent)
     header:SetSize(SIDEBAR_WIDTH, 22)
 
     local fs = header:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     fs:SetPoint("LEFT", 8, 0)
-    fs:SetText("|cffffcc00" .. text:upper() .. "|r")
     fs:SetJustifyH("LEFT")
+    fs:SetText(text:upper())
+    SetTextColor(fs, colors.text)
     header.label = fs
 
     local sep = header:CreateTexture(nil, "ARTWORK")
     sep:SetHeight(1)
     sep:SetPoint("BOTTOMLEFT", 4, 1)
     sep:SetPoint("BOTTOMRIGHT", -4, 1)
-    sep:SetColorTexture(0.4, 0.32, 0.05, 0.6)
+    PaintGradient(sep, "HORIZONTAL", colors.left, colors.right)
 
     return header
 end
@@ -199,37 +206,29 @@ local function AttachNotificationDot(anchorLabel)
     return dot
 end
 
--- A toggle for the sidebar footer (Lock / Test). When active, its fill, border
--- and text take the given accent.
+-- A toggle for the sidebar footer (Lock / Test).
 -- opts: { accent = {r,g,b}, tooltip = {title, desc}, onClick = fn(self) }.
 local function CreateFooterToggle(parent, opts)
-    local accent = opts.accent
-    local btn = CreateFrame("Button", nil, parent, "BackdropTemplate")
+    local btn = CreateFrame("Button", nil, parent)
     btn:SetHeight(24)
-    btn:SetBackdrop({
-        bgFile = "Interface\\Buttons\\WHITE8x8",
-        edgeFile = "Interface\\Buttons\\WHITE8x8",
-        edgeSize = 1,
-    })
+    local surface = BR.CreateSurface(btn)
     local label = btn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     label:SetPoint("CENTER", 0, 0)
     btn.label = label
 
+    local styles = Theme.footer
+    local normalStyle = BR.ResolveStyle(styles.normal, opts.accent)
+    local hoverStyle = BR.ResolveStyle(styles.hover, opts.accent)
+    local activeStyle = BR.ResolveStyle(styles.active, opts.accent)
     local isHovered, isActive = false, false
     local function Update()
+        local style = normalStyle
         if isActive then
-            btn:SetBackdropColor(accent[1], accent[2], accent[3], 0.22)
-            btn:SetBackdropBorderColor(accent[1], accent[2], accent[3], 1)
-            label:SetTextColor(1, 1, 1)
+            style = activeStyle
         elseif isHovered then
-            btn:SetBackdropColor(1, 1, 1, 0.06)
-            btn:SetBackdropBorderColor(accent[1], accent[2], accent[3], 0.8)
-            label:SetTextColor(1, 1, 1)
-        else
-            btn:SetBackdropColor(0, 0, 0, 0)
-            btn:SetBackdropBorderColor(BORDER_R, BORDER_G, BORDER_B, 1)
-            label:SetTextColor(0.85, 0.85, 0.85)
+            style = hoverStyle
         end
+        BR.PaintStyled(surface, label, style)
     end
 
     btn:SetScript("OnEnter", function()
@@ -261,19 +260,33 @@ local function CreateFooterToggle(parent, opts)
     return btn
 end
 
+---@param btn table
+---@param hovered boolean
+local function PaintSidebarButton(btn, hovered)
+    local nav = Theme.nav
+    local style = nav.idle
+    if btn.isActive then
+        style = nav.active
+    elseif hovered then
+        style = nav.hover
+    end
+    PaintGradient(btn.bg, "HORIZONTAL", style.left, style.right)
+    SetTextColor(btn.label, style.text)
+    btn.accent:SetShown(btn.isActive)
+end
+
 local function CreateSidebarButton(parent, text)
     local btn = CreateFrame("Button", nil, parent)
     btn:SetSize(SIDEBAR_WIDTH, 24)
 
     local bg = btn:CreateTexture(nil, "BACKGROUND")
     bg:SetAllPoints()
-    bg:SetColorTexture(1, 1, 1, 0)
     btn.bg = bg
 
     local accent = btn:CreateTexture(nil, "ARTWORK")
-    accent:SetSize(2, 18)
+    accent:SetSize(2, Theme.nav.barHeight)
     accent:SetPoint("LEFT", 0, 0)
-    accent:SetColorTexture(ACCENT_R, ACCENT_G, ACCENT_B, 1)
+    SetColorTexture(accent, Theme.nav.bar)
     accent:Hide()
     btn.accent = accent
 
@@ -284,29 +297,15 @@ local function CreateSidebarButton(parent, text)
     btn.label = fs
 
     btn:SetScript("OnEnter", function(self)
-        if not self.isActive then
-            self.bg:SetColorTexture(1, 1, 1, 0.06)
-        end
+        PaintSidebarButton(self, true)
     end)
     btn:SetScript("OnLeave", function(self)
-        if not self.isActive then
-            self.bg:SetColorTexture(1, 1, 1, 0)
-        end
+        PaintSidebarButton(self, false)
     end)
-
     function btn:SetActive(active)
         self.isActive = active
-        if active then
-            self.bg:SetColorTexture(ACCENT_R, ACCENT_G, ACCENT_B, 0.12)
-            self.accent:Show()
-            self.label:SetTextColor(1, 1, 1)
-        else
-            self.bg:SetColorTexture(1, 1, 1, 0)
-            self.accent:Hide()
-            self.label:SetTextColor(0.85, 0.85, 0.85)
-        end
+        PaintSidebarButton(self, self:IsVisible() and self:IsMouseOver())
     end
-
     btn:SetActive(false)
     return btn
 end
@@ -315,8 +314,106 @@ end
 -- PANEL BUILDER
 -- ============================================================================
 
+local SEARCH_PAGE_ID = "allBuffs"
+local SEARCH_WIDTH = 200
+local SEARCH_HEIGHT = 20
+local SEARCH_GLYPH_SIZE = 12
+local SEARCH_CLEAR_SIZE = 16
+-- Left text inset of the search box: the glyph, plus the gap to the text.
+local SEARCH_TEXT_LEFT = 22
+local SEARCH_GLYPH_TEXTURE = "Interface\\AddOns\\BuffReminders\\Media\\search.tga"
+local SEARCH_CLEAR_TEXTURE = "Interface\\AddOns\\BuffReminders\\Media\\clear.tga"
+
+local function PaintGlyph(tex, color)
+    tex:SetVertexColor(color[1], color[2], color[3], color[4] or 1)
+end
+
+---@return table holder
+---@return table editBox
+---@return fun(text: string, matches: integer, searching: boolean) update Syncs the placeholder, clear button and count
+local function CreateSearchBar(parent)
+    local tokens = Theme.search
+    local holder = Components.TextInput(parent, { labelWidth = 0, width = SEARCH_WIDTH })
+    holder:SetHeight(SEARCH_HEIGHT)
+    local editBox = holder.editBox
+    local box = editBox:GetParent()
+    box:SetHeight(SEARCH_HEIGHT)
+
+    local glyph = box:CreateTexture(nil, "OVERLAY")
+    glyph:SetTexture(SEARCH_GLYPH_TEXTURE)
+    glyph:SetSize(SEARCH_GLYPH_SIZE, SEARCH_GLYPH_SIZE)
+    glyph:SetPoint("LEFT", editBox, "LEFT", (SEARCH_TEXT_LEFT - SEARCH_GLYPH_SIZE) / 2 - 1, 0)
+
+    -- The text inset and the placeholder share one left edge, so the text does not move on the first key.
+    local placeholder = box:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    placeholder:SetPoint("LEFT", editBox, "LEFT", SEARCH_TEXT_LEFT, 0)
+    SetTextColor(placeholder, Theme.editBox.defaultText)
+    placeholder:SetText(L["Options.SearchReminders"])
+
+    local clear = CreateFrame("Button", nil, box)
+    clear:SetSize(SEARCH_CLEAR_SIZE, SEARCH_CLEAR_SIZE)
+    clear:SetPoint("RIGHT", box, "RIGHT", -3, 0)
+    clear:SetFrameLevel(editBox:GetFrameLevel() + 2)
+    local clearTex = clear:CreateTexture(nil, "ARTWORK")
+    clearTex:SetTexture(SEARCH_CLEAR_TEXTURE)
+    clearTex:SetSize(8, 8)
+    clearTex:SetPoint("CENTER")
+    PaintGlyph(clearTex, tokens.clear)
+    clear:SetScript("OnEnter", function()
+        PaintGlyph(clearTex, tokens.clearHover)
+    end)
+    clear:SetScript("OnLeave", function()
+        PaintGlyph(clearTex, tokens.clear)
+    end)
+    clear:SetScript("OnClick", function()
+        editBox:SetText("")
+        editBox:SetFocus()
+    end)
+    clear:Hide()
+
+    local count = box:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
+    BR.ApplyNoteColor(count)
+    count:SetPoint("RIGHT", clear, "LEFT", -2, 0)
+
+    local function PaintSearchGlyph()
+        local active = editBox:HasFocus() or editBox:GetText() ~= ""
+        PaintGlyph(glyph, active and tokens.glyphActive or tokens.glyph)
+    end
+    editBox:HookScript("OnEditFocusGained", PaintSearchGlyph)
+    editBox:HookScript("OnEditFocusLost", PaintSearchGlyph)
+    editBox:HookScript("OnEscapePressed", function(self)
+        self:SetText("")
+    end)
+    editBox:HookScript("OnEnter", function(self)
+        BR.ShowTooltip(self, L["Options.SearchReminders"], L["Options.SearchReminders.Desc"], "ANCHOR_BOTTOM")
+    end)
+    editBox:HookScript("OnLeave", function()
+        BR.HideTooltip()
+    end)
+
+    local function Update(text, matches, searching)
+        local hasText = text ~= ""
+        placeholder:SetShown(not hasText)
+        clear:SetShown(hasText)
+        count:SetShown(searching)
+        count:SetFormattedText(L["Options.SearchCount"], matches)
+        local right = 4
+        if hasText then
+            right = right + SEARCH_CLEAR_SIZE + (searching and count:GetStringWidth() + 4 or 0)
+        end
+        editBox:SetTextInsets(SEARCH_TEXT_LEFT, right, 0, 0)
+        PaintSearchGlyph()
+    end
+    Update("", 0, false)
+    return holder, editBox, Update
+end
+
 local function CreateOptionsPanel()
-    local panel = CreatePanel("BuffRemindersOptions", PANEL_WIDTH, PANEL_HEIGHT, { escClose = true })
+    local panel = CreatePanel("BuffRemindersOptions", PANEL_WIDTH, PANEL_HEIGHT, {
+        escClose = true,
+        header = HEADER_HEIGHT,
+        brackets = true,
+    })
     panel:Hide()
 
     -- EditBox tracker so panel-wide hide clears focus. Components owns the
@@ -325,6 +422,7 @@ local function CreateOptionsPanel()
     Components.SetEditBoxesRef(panelEditBoxes)
     panel:SetScript("OnHide", function()
         Components.ClearEditBoxFocus()
+        BR.HideOptionsTooltip()
         -- A panel close acknowledges this release's additions. Persist first,
         -- then recompute the snapshot, so the next open shows no dots.
         BR.Options.WhatsNew.MarkSeen()
@@ -336,16 +434,31 @@ local function CreateOptionsPanel()
     -- ====================================================================
     local title = panel:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
     title:SetPoint("TOPLEFT", COL_PADDING, -14)
-    title:SetText("|cffffffffBuff|r|cffffcc00Reminders|r")
+    local brand = Theme.headerBrand
+    title:SetText(BR.ColorCode(brand[1]) .. "Buff|r" .. BR.ColorCode(brand[2]) .. "Reminders|r")
+    local headerDot = BR.ColorCode(Theme.headerDot) .. "\194\183|r"
 
     local version = panel:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
     version:SetPoint("LEFT", title, "RIGHT", 6, 0)
     local addonVersion = C_AddOns.GetAddOnMetadata("BuffReminders", "Version") or ""
     version:SetText(addonVersion)
+    SetTextColor(version, Theme.version)
+
+    local discordAnchor = version
+    local logoWidth = Theme.headerLogoWidth
+    local expansionInfo = logoWidth > 0 and GetExpansionDisplayInfo(GetClientDisplayExpansionLevel())
+    if expansionInfo and expansionInfo.logo then
+        local logo = panel:CreateTexture(nil, "ARTWORK")
+        logo:SetTexture(expansionInfo.logo)
+        -- The client logo texture is 256x128.
+        logo:SetSize(logoWidth, logoWidth / 2)
+        logo:SetPoint("LEFT", version, "RIGHT", 2, 0)
+        discordAnchor = logo
+    end
 
     local discordSep = panel:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
-    discordSep:SetPoint("LEFT", version, "RIGHT", 6, 0)
-    discordSep:SetText("|cff555555\194\183|r")
+    discordSep:SetPoint("LEFT", discordAnchor, "RIGHT", 6, 0)
+    discordSep:SetText(headerDot)
 
     local discordLink = panel:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
     discordLink:SetPoint("LEFT", discordSep, "RIGHT", 6, 0)
@@ -367,7 +480,7 @@ local function CreateOptionsPanel()
 
     local kofiSep = panel:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
     kofiSep:SetPoint("LEFT", discordLink, "RIGHT", 6, 0)
-    kofiSep:SetText("|cff555555\194\183|r")
+    kofiSep:SetText(headerDot)
 
     local kofiLink = panel:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
     kofiLink:SetPoint("LEFT", kofiSep, "RIGHT", 6, 0)
@@ -392,10 +505,11 @@ local function CreateOptionsPanel()
     -- ====================================================================
     local MIN_PCT, MAX_PCT = PANEL_ZOOM.MIN, PANEL_ZOOM.MAX
 
-    local closeBtn = BR.Options.Helpers.AddCloseButton(panel)
+    BR.Options.Helpers.AddCloseButton(panel)
 
     local scaleHolder = CreateFrame("Frame", nil, panel)
-    scaleHolder:SetPoint("RIGHT", closeBtn, "LEFT", -8, 0)
+    -- The controls center on the header band, as the title does. The close button keeps the corner.
+    scaleHolder:SetPoint("RIGHT", panel, "TOPRIGHT", C.DIALOG_CLOSE_INSET - C.DIALOG_CLOSE_SIZE - 8, -HEADER_HEIGHT / 2)
     scaleHolder:SetSize(60, 16)
 
     local scaleDown = scaleHolder:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
@@ -410,11 +524,13 @@ local function CreateOptionsPanel()
     scaleUp:SetPoint("LEFT", scaleValue, "RIGHT", 4, 0)
     scaleUp:SetText(">")
 
+    local zoomIdle, zoomLimit, zoomHover = Theme.zoom.idle, Theme.zoom.limit, Theme.zoom.hover
+
     local function UpdateScaleText()
         local pct = BR.GetPanelZoom()
         scaleValue:SetText(pct .. "%")
-        scaleDown:SetTextColor(pct > MIN_PCT and 1 or 0.4, pct > MIN_PCT and 1 or 0.4, pct > MIN_PCT and 1 or 0.4)
-        scaleUp:SetTextColor(pct < MAX_PCT and 1 or 0.4, pct < MAX_PCT and 1 or 0.4, pct < MAX_PCT and 1 or 0.4)
+        SetTextColor(scaleDown, pct > MIN_PCT and zoomIdle or zoomLimit)
+        SetTextColor(scaleUp, pct < MAX_PCT and zoomIdle or zoomLimit)
     end
 
     local function UpdateScale(delta)
@@ -431,7 +547,7 @@ local function CreateOptionsPanel()
     end)
     downBtn:SetScript("OnEnter", function()
         if BR.GetPanelZoom() > MIN_PCT then
-            scaleDown:SetTextColor(ACCENT_R, ACCENT_G, ACCENT_B)
+            SetTextColor(scaleDown, zoomHover)
         end
     end)
     downBtn:SetScript("OnLeave", function()
@@ -445,7 +561,7 @@ local function CreateOptionsPanel()
     end)
     upBtn:SetScript("OnEnter", function()
         if BR.GetPanelZoom() < MAX_PCT then
-            scaleUp:SetTextColor(ACCENT_R, ACCENT_G, ACCENT_B)
+            SetTextColor(scaleUp, zoomHover)
         end
     end)
     upBtn:SetScript("OnLeave", function()
@@ -454,15 +570,18 @@ local function CreateOptionsPanel()
 
     UpdateScaleText()
 
+    local searchHolder, searchEdit, UpdateSearchBar = CreateSearchBar(panel)
+    searchHolder:SetPoint("RIGHT", scaleHolder, "LEFT", -16, 0)
+
     panel:SetScale(BR.PanelScale())
 
     -- The header divider is the top layout primitive: the sidebar and the
     -- content area hang from it and run to the panel's bottom margin.
     local headerSep = panel:CreateTexture(nil, "ARTWORK")
     headerSep:SetHeight(1)
-    headerSep:SetPoint("TOPLEFT", SIDEBAR_X, -CONTENT_TOP_OFFSET + 4)
-    headerSep:SetPoint("TOPRIGHT", -COL_PADDING, -CONTENT_TOP_OFFSET + 4)
-    headerSep:SetColorTexture(BORDER_R, BORDER_G, BORDER_B, 1)
+    headerSep:SetPoint("TOPLEFT", SIDEBAR_X, -HEADER_HEIGHT)
+    headerSep:SetPoint("TOPRIGHT", -COL_PADDING, -HEADER_HEIGHT)
+    BR.AddGroove(headerSep, Theme.groove.header)
 
     -- ====================================================================
     -- SIDEBAR
@@ -472,15 +591,20 @@ local function CreateOptionsPanel()
     sidebar:SetPoint("BOTTOMLEFT", panel, "BOTTOMLEFT", SIDEBAR_X, PANEL_BOTTOM_MARGIN)
     sidebar:SetWidth(SIDEBAR_WIDTH)
 
+    -- The inset keeps the recess clear of the shade line under the header groove.
+    local sidebarColors = Theme.sidebar
+    local sidebarTop = -sidebarColors.inset
+
     local sidebarBg = sidebar:CreateTexture(nil, "BACKGROUND")
-    sidebarBg:SetAllPoints()
-    sidebarBg:SetColorTexture(0, 0, 0.04, 0.35)
+    sidebarBg:SetPoint("TOPLEFT", 0, sidebarTop)
+    sidebarBg:SetPoint("BOTTOMRIGHT", 0, 0)
 
     local sidebarBorder = sidebar:CreateTexture(nil, "BORDER")
     sidebarBorder:SetWidth(1)
-    sidebarBorder:SetPoint("TOPRIGHT", 0, 0)
+    sidebarBorder:SetPoint("TOPRIGHT", 0, sidebarTop)
     sidebarBorder:SetPoint("BOTTOMRIGHT", 0, 0)
-    sidebarBorder:SetColorTexture(BORDER_R, BORDER_G, BORDER_B, 1)
+    PaintGradient(sidebarBg, "VERTICAL", sidebarColors.bottom, sidebarColors.top)
+    SetColorTexture(sidebarBorder, sidebarColors.edge)
 
     -- ====================================================================
     -- CONTENT AREA
@@ -550,6 +674,10 @@ local function CreateOptionsPanel()
             return
         end
         activePageId = pageId
+        -- The search filters one page, so a kept query would hide rows on the next visit with no visible reason.
+        if pageId ~= SEARCH_PAGE_ID and searchEdit:GetText() ~= "" then
+            searchEdit:SetText("")
+        end
         for id, scrollFrame in pairs(pageContainers) do
             if id == pageId then
                 BuildPageIfNeeded(id)
@@ -659,7 +787,7 @@ local function CreateOptionsPanel()
     local UNLOCK_ACCENT = { 0.95, 0.55, 0.2 } -- orange = "edit mode", matching the anchor hint banner
 
     local testToggle = CreateFooterToggle(sidebar, {
-        accent = { ACCENT_R, ACCENT_G, ACCENT_B },
+        accent = BR.Colors.Accent,
         tooltip = { title = L["Options.TestAppearance"], desc = L["Options.TestAppearance.Desc"] },
         onClick = function(self)
             ToggleTestMode()
@@ -695,11 +823,11 @@ local function CreateOptionsPanel()
     lockToggle:Refresh()
     table.insert(BR.RefreshableComponents, lockToggle)
 
-    local footerSep = sidebar:CreateTexture(nil, "ARTWORK")
-    footerSep:SetHeight(1)
-    footerSep:SetPoint("BOTTOMLEFT", lockToggle, "TOPLEFT", 0, FOOTER_PAD)
-    footerSep:SetPoint("BOTTOMRIGHT", lockToggle, "TOPRIGHT", 0, FOOTER_PAD)
-    footerSep:SetColorTexture(BORDER_R, BORDER_G, BORDER_B, 0.7)
+    local footerSepLeft, footerSepRight = BR.CreateRule(sidebar, "ARTWORK", Theme.footerRule)
+    footerSepLeft:SetPoint("BOTTOMLEFT", lockToggle, "TOPLEFT", 0, FOOTER_PAD)
+    footerSepLeft:SetPoint("BOTTOMRIGHT", lockToggle, "TOP", 0, FOOTER_PAD)
+    footerSepRight:SetPoint("BOTTOMLEFT", lockToggle, "TOP", 0, FOOTER_PAD)
+    footerSepRight:SetPoint("BOTTOMRIGHT", lockToggle, "TOPRIGHT", 0, FOOTER_PAD)
 
     local unlockBanner = Components.Banner(panel, {
         text = L["Options.AnchorHint"],
@@ -717,12 +845,32 @@ local function CreateOptionsPanel()
     -- builds. The row dots and the sidebar bubble-up read that snapshot.
     BR.Options.WhatsNew.Refresh()
 
+    -- A query typed on another page opens the search page first.
+    searchEdit:HookScript("OnTextChanged", function(self)
+        local text = self:GetText()
+        if text ~= "" and activePageId ~= SEARCH_PAGE_ID and BR.Options.Pages[SEARCH_PAGE_ID] then
+            ActivatePage(SEARCH_PAGE_ID)
+        end
+        local matches, searching = 0, false
+        if pageBuilt[SEARCH_PAGE_ID] then
+            matches, searching = BR.Options.Pages[SEARCH_PAGE_ID].Search(text)
+        end
+        UpdateSearchBar(text, matches, searching)
+    end)
+    panel:HookScript("OnHide", function()
+        searchEdit:SetText("")
+    end)
+
     if firstPageId then
         ActivatePage(firstPageId)
     end
 
     panel.ActivatePage = ActivatePage
     BR.Options.ActivatePage = ActivatePage
+    ---@param text string
+    BR.Options.SetSearch = function(text)
+        searchEdit:SetText(text)
+    end
 
     return panel
 end
@@ -756,6 +904,35 @@ local function ToggleOptions()
     end
 end
 
+---Open the settings of one reminder: its drawer on the All Buffs page, or the
+---editor of a custom or a loadout reminder.
+---@param def table The buff definition, the custom buff, or the loadout rule
+---@param category CategoryName
+local function OpenReminderSettings(def, category)
+    ShowOptions()
+    local refresh = BR.Components.RefreshAll
+    if category == "custom" then
+        BR.Options.ActivatePage("custom")
+        BR.Options.Dialogs.CustomBuff.Show(def.key, refresh)
+        return
+    end
+    if category == "loadout" then
+        local dialog = BR.Options.Dialogs.LoadoutReminder
+        if dialog then
+            BR.Options.ActivatePage("loadout")
+            dialog.Show(def.key, refresh)
+        end
+        return
+    end
+    local group = def.groupId and BR.BuffGroups[def.groupId]
+    BR.Options.SetSearch(group and group.displayName or def.name)
+    -- The drawer anchors to the row, which the filter places on the next layout pass.
+    C_Timer.After(0, function()
+        BR.Options.BuffRow.OpenSettings(def.groupId or def.key)
+    end)
+end
+
 BR.Options.Toggle = ToggleOptions
+BR.Options.OpenReminderSettings = OpenReminderSettings
 BR.Options.Show = ShowOptions
 BR.Options.Hide = HideOptions

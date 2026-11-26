@@ -110,7 +110,9 @@ english["Loadout.Tag.Loadout"] = "WRONG\nBUILD"
 -- These must be kept very short (2-4 chars per line) to fit on small icons.
 english["Overlay.NoDrPoison"] = "NO\nDR\nPOISON"
 english["Overlay.NoAura"] = "NO\nAURA"
+english["Overlay.Duplicate"] = "DUPE"
 english["Overlay.NoStone"] = "NO\nSTONE"
+english["Overlay.NoGem"] = "NO\nGEM"
 english["Overlay.NoSoulstone"] = "NO\nSS"
 english["Overlay.NoFaith"] = "NO\nFAITH"
 english["Overlay.NoLight"] = "NO\nLIGHT"
@@ -126,7 +128,18 @@ english["Overlay.DropWell"] = "DROP\nWELL"
 english["Overlay.DropTable"] = "DROP\nTABLE"
 english["Overlay.Repair"] = "REPAIR\nGEAR"
 english["Overlay.RepairLabel"] = "REPAIR"
+english["Overlay.Reagents"] = "LOW\nREAG"
+english["Overlay.ReagentLabel"] = "REAG"
+english["Overlay.Ammo"] = "LOW\nAMMO"
+english["Overlay.AmmoLabel"] = "AMMO"
+english["Overlay.EquipAmmo"] = "EQUIP\nAMMO"
+english["Overlay.DriveBy"] = "BUFF\nTARGET"
+english["Overlay.NoTracking"] = "NO\nTRACK"
+english["Overlay.SleepingBag"] = "SLEEP\nBAG"
+english["Overlay.CampSit"] = "SIT"
+english["Overlay.CampKit"] = "CAMP"
 english["Overlay.NoGrim"] = "NO\nGRIM"
+english["Overlay.NoSacrifice"] = "NO\nSAC"
 english["Overlay.BurningRush"] = "RUSH"
 english["Overlay.NoRite"] = "NO\nRITE"
 english["Overlay.ApplyPoison"] = "APPLY\nPOISON"
@@ -137,11 +150,20 @@ english["Overlay.NoTG"] = "NO\nTG"
 english["Overlay.NoWF"] = "NO\nWF"
 english["Overlay.NoSelfES"] = "NO\nSELF ES"
 english["Overlay.NoShield"] = "NO\nSHIELD"
+english["Overlay.NoImbue"] = "NO\nIMBUE"
 english["Overlay.NoPet"] = "NO\nPET"
 english["Overlay.PassivePet"] = "PASSIVE\nPET"
 english["Overlay.WrongPet"] = "WRONG\nPET"
+english["Overlay.FeedPet"] = "FEED\nPET"
 english["Overlay.WrongStance"] = "WRONG\nSTANCE"
 english["Overlay.WrongForm"] = "WRONG\nFORM"
+english["Overlay.WrongAura"] = "WRONG\nAURA"
+english["Overlay.NoAspect"] = "NO\nASPECT"
+english["Overlay.NoArmor"] = "NO\nARMOR"
+english["Overlay.NoRighteousFury"] = "NO\nFURY"
+english["Overlay.NoInnerFire"] = "NO\nINNER\nFIRE"
+english["Overlay.NoThorns"] = "NO\nTHORNS"
+english["Overlay.NoOath"] = "NO\nOATH"
 english["Overlay.NoRune"] = "NO\nRUNE"
 english["Overlay.DKWrongRune"] = "WRONG\nRUNE"
 english["Overlay.DKWrongRuneOH"] = "WRONG\nOH\nRUNE"
@@ -190,6 +212,7 @@ english["Label.Imp"] = "Imp"
 english["Label.Voidwalker"] = "Voidwalker"
 english["Label.Felhunter"] = "Felhunter"
 english["Label.Sayaad"] = "Sayaad"
+english["Label.Succubus"] = "Succubus"
 english["Label.Ghoul"] = "Ghoul"
 english["Label.WaterElemental"] = "Water Elemental"
 english["Badge.Hearty"] = "H"
@@ -206,6 +229,8 @@ english["Buff.BlessingOfTheBronze"] = "Blessing of the Bronze"
 english["Buff.MarkOfTheWild"] = "Mark of the Wild"
 english["Buff.PowerWordFortitude"] = "Power Word: Fortitude"
 english["Buff.Skyfury"] = "Skyfury"
+english["Buff.DivineSpirit"] = "Divine Spirit"
+english["Buff.ShadowProtection"] = "Shadow Protection"
 -- Presence
 english["Buff.AtrophicNumbingPoison"] = "Atrophic/Numbing Poison"
 english["Buff.DevotionAura"] = "Devotion Aura"
@@ -225,7 +250,14 @@ english["Buff.Attunement"] = "Attunement"
 english["Buff.CreateSoulwell"] = "Create Soulwell"
 english["Buff.RefreshmentTable"] = "Refreshment Table"
 english["Buff.RepairGear"] = "Repair Equipment"
+english["Buff.LowReagents"] = "Low Reagents"
+english["Buff.LowAmmo"] = "Low Ammo"
+english["Buff.DriveByBuffs"] = "Drive-by Buffs"
+english["Buff.Tracking"] = "Tracking"
+english["Buff.SleepingBag"] = "Cozy Sleeping Bag"
+english["Buff.Camp"] = "Camp Benefits"
 english["Buff.DruidForm"] = "Druid Form"
+english["Buff.DemonicSacrifice"] = "Demonic Sacrifice"
 english["Buff.GrimoireOfSacrifice"] = "Grimoire of Sacrifice"
 english["Buff.BurningRush"] = "Burning Rush"
 english["Buff.RiteOfAdjuration"] = "Rite of Adjuration"
@@ -238,17 +270,32 @@ english["Buff.EarthlivingWeapon"] = "Earthliving Weapon"
 english["Buff.FlametongueWeapon"] = "Flametongue Weapon"
 english["Buff.TidecallersGuard"] = "Tidecaller's Guard"
 english["Buff.WindfuryWeapon"] = "Windfury Weapon"
+english["Buff.RockbiterWeapon"] = "Rockbiter Weapon"
+english["Buff.FrostbrandWeapon"] = "Frostbrand Weapon"
 english["Buff.EarthShieldSelf"] = "Earth Shield (Self)"
 english["Buff.WaterLightningShield"] = "Water/Lightning Shield"
 english["Buff.ShieldNoTalent"] = "Shield (No Talent)"
 -- Pet
 english["Buff.PetPassive"] = "Pet Passive"
 english["Buff.HunterPet"] = "Hunter Pet"
+english["Buff.PetHappiness"] = "Pet Happiness"
 english["Buff.UnholyGhoul"] = "Unholy Ghoul"
 english["Buff.WarlockDemon"] = "Warlock Demon"
 english["Buff.WaterElemental"] = "Water Elemental"
 english["Buff.WrongDemon"] = "Wrong Demon"
 english["Buff.WarriorStance"] = "Warrior Stance"
+english["Buff.PaladinAura"] = "Paladin Aura"
+english["Buff.PaladinBlessing"] = "Paladin Blessing"
+english["Buff.HunterAspect"] = "Hunter Aspect"
+english["Buff.TrueshotAura"] = "Trueshot Aura"
+english["Buff.MageArmor"] = "Frost/Ice/Mage Armor"
+english["Buff.RighteousFury"] = "Righteous Fury"
+english["Buff.InnerFire"] = "Inner Fire"
+english["Buff.LightningShield"] = "Lightning Shield"
+english["Buff.ShamanImbue"] = "Weapon Imbue"
+english["Buff.WarlockArmor"] = "Demon Skin/Armor"
+english["Buff.Thorns"] = "Thorns"
+english["Buff.OathOfLight"] = "Oath of Light"
 -- Consumable
 english["Buff.AugmentRune"] = "Augment Rune"
 english["Buff.Flask"] = "Flask"
@@ -256,6 +303,7 @@ english["Buff.DelveFood"] = "Delve Food"
 english["Buff.Food"] = "Food"
 english["Buff.MageFood"] = "Mage Food"
 english["Buff.Healthstone"] = "Healthstone"
+english["Buff.ManaGem"] = "Mana Gem"
 english["Buff.Weapon"] = "Weapon"
 english["Buff.WeaponOH"] = "Weapon (OH)"
 
@@ -281,11 +329,24 @@ english["Group.WeaponBuff"] = "Weapon Buff"
 english["Tooltip.MayShowExtraIcon"] = "May Show Extra Icon"
 english["Tooltip.MayShowExtraIcon.Desc"] =
     "Until you cast this, you might see both this and the Water/Lightning Shield reminder. I can't tell if you want Earth Shield on yourself, or Earth Shield on an ally + Water/Lightning Shield on yourself."
+english["Tooltip.PaladinDuplicate"] = "Duplicate Check"
+english["Tooltip.PaladinAuraDuplicate.Desc"] =
+    "Warns when another paladin already gives you the same aura type. If the content row has a backup aura, the reminder asks for it."
+english["Tooltip.DriveBy.Desc"] =
+    "Out of combat, shows when your target is a friendly player outside your group who lacks one of your buffs. Click to cast the best rank for them."
+english["Tooltip.SleepingBag.Desc"] = "Shows only below max level. Hidden in combat, in cities and in inns. Warns before Well-Rested ends. While you rest in the bag, the icon counts down to the next stack of Well-Rested. At 3 stacks, it counts down to the next refresh."
 english["Tooltip.InstanceEntryReminder"] = "Instance Entry Reminder"
 english["Tooltip.InstanceEntryReminder.Desc"] =
     "Briefly shown when entering a dungeon as a reminder to drop a Soulwell. Dismissed after casting or after 30 seconds."
 english["Tooltip.MageFood"] = "Healers Only"
 english["Tooltip.MageFood.Desc"] = "Only shown while you're playing a healer"
+english["Tooltip.TankOnly"] = "Tank Check"
+english["Tooltip.RighteousFuryTank.Desc"] =
+    "Shows only while you tank (Tank role or Main Tank). To always show it, set Show to Always in its settings."
+english["Tooltip.TankHint"] = "(tank)"
+english["Tooltip.TankTarget"] = "Tank Target"
+english["Tooltip.ThornsTank.Desc"] =
+    "In a group, checks your tanks (Tank role or Main Tank) and a click casts Thorns on them. Solo or with no tank, it checks you."
 english["BuffTooltip.ProvidedBy"] = "Provided by %s"
 
 -- ============================================================================
@@ -333,11 +394,13 @@ english["Display.OpenOptions"] = "Open Options"
 english["Display.SlashCommands"] = "Slash commands: /br, /br lock, /br unlock, /br test, /br minimap, /br snooze"
 english["Display.MinimapLeftClick"] = "|cFFCFCFCFLeft click|r: Options"
 english["Display.MinimapRightClick"] = "|cFFCFCFCFRight click|r: Test mode"
-english["Display.DismissConsumablesChat"] = "Consumable reminders hidden until next loading screen."
+english["Display.SnoozeChat.Loading"] = "%s: snoozed until the next loading screen. Type /br snooze to show all reminders again."
+english["Display.SnoozeChat.Rest"] = "%s: snoozed until you leave this rest area. Type /br snooze to show all reminders again."
+english["Display.UnsnoozeChat"] = "Snoozed reminders show again."
 english["Display.LoginFirstInstall"] =
     "Thanks for installing! Type |cFFFFD100/br unlock|r to move the buff display, or use the button at the bottom of the |cFFFFD100/br|r options panel."
 english["Display.LoginSnooze"] =
-    "The consumable dismiss button is now a right-click: right-click a consumable to snooze its reminders, or type |cFFFFD100/br snooze|r."
+    "Right-click a reminder icon to snooze it or to open its settings. Type |cFFFFD100/br snooze|r to snooze all reminders, or to end all snoozes."
 english["Display.LoginCasterName"] =
     "External Buffs can now show who cast each buff. Turn it on in |cFFFFD100/br|r > Categories > External Buffs."
 
@@ -484,6 +547,18 @@ english["Options.UseCustomColor.Desc"] =
     "When enabled, the proc glow is desaturated and recolored.\nThis looks less vibrant than the default proc glow."
 english["Options.ExpirationReminder"] = "Expiration Reminder"
 english["Options.ExpirationWarning"] = "Warn when under"
+english["Options.ExpirationWarning.Note"] = "Short buffs warn earlier, in proportion to their duration. Hover for examples."
+english["Options.ExpirationWarning.Desc"] =
+    "Long buffs warn at this time. Short buffs warn at a share of their duration (see Advanced). Buffs of 5 min or less show only when missing. Custom buffs keep their own time."
+english["Options.ExpirationAdvanced"] = "Advanced"
+english["Options.ExpirationShare"] = "Share of duration"
+english["Options.ExpirationShare.Note"] = "Warns when about %d%% of the buff is left, but never more than %s before it ends."
+english["Options.ExpirationShare.Example"] = "%s buff: %s."
+english["Options.ExpirationShare.Formula"] = "Warning time = min(%d%% x duration, %s), rounded down to whole minutes"
+english["Options.ExpirationShare.Off"] = "Expiration warnings are off."
+english["Options.ExpirationPreview.Header"] = "Warning time by buff duration:"
+english["Options.ExpirationPreview.Line"] = "%s: %s"
+english["Options.ExpirationPreview.OrMore"] = "%s or more"
 english["Options.Override.Expiration.Desc"] =
     "Set a warning time for this category. While off, the time from the Defaults page applies."
 english["Options.PreKeyThreshold"] = "Pre-Key Threshold"
@@ -529,6 +604,20 @@ english["Options.Repair.Threshold.Desc"] =
 english["Options.RepairHideInCombat"] = "Hide in combat"
 english["Options.RepairHideInCombat.Desc"] =
     "Hide the repair reminder in combat. You cannot repair during a fight."
+english["Options.Reagent.Threshold"] = "Warn below"
+english["Options.Reagent.Threshold.Desc"] =
+    "Warn when you carry fewer than this many of a reagent for a spell you know."
+english["Options.Reagent.RestedOnly"] = "Only in rested areas"
+english["Options.Reagent.RestedOnly.Desc"] =
+    "Warn only in inns and cities, where vendors sell reagents.\n\nIf |cffffcc00Hide while resting|r is on, the warning never shows."
+english["Options.Camp.LightFire"] = "Remind to place a campfire"
+english["Options.Camp.LightFire.Desc"] =
+    "With no campfire near you, the reminder shows CAMP when you carry a Campfire Kit that you can use and at least one camp feature. Click to place the best kit, then click the ground."
+english["Options.Ammo.Threshold"] = "Hunters (stacks)"
+english["Options.Ammo.Threshold.Desc"] =
+    "A hunter is warned below this many stacks (200 each) of equipped ammo."
+english["Options.Ammo.Shots"] = "Others (shots)"
+english["Options.Ammo.Shots.Desc"] = "Warriors and rogues pull with a bow or gun. They are warned below this many shots."
 
 -- ============================================================================
 -- OPTIONS: SOULSTONE
@@ -538,6 +627,9 @@ english["Options.Soulstone.HideCooldown.Desc"] =
     "When enabled, warlocks won't see the soulstone reminder while the spell is on cooldown. Only applies to warlocks."
 english["Options.Soulstone.PinnedTarget"] = "Always cast on"
 english["Tooltip.PinNotInGroup"] = "(not in group)"
+english["Tooltip.TargetLine"] = "Casts on: %s"
+english["Tooltip.Next"] = "Next:"
+english["Tooltip.ChoiceSpell"] = "· %s"
 
 -- ============================================================================
 -- OPTIONS: FREE CONSUMABLES
@@ -553,6 +645,15 @@ english["Options.FreeConsumables.Override.Desc"] =
 -- OPTIONS: ICONS
 -- ============================================================================
 english["Options.Icons"] = "Icons"
+english["Options.IconStyle"] = "Icon style"
+english["Options.IconStyle.Desc"] =
+    "Modern: a flat square border. The other option: the game's rounded action-button frame. Not used on externals or consumable item buttons."
+english["Options.IconStyle.Modern"] = "Modern"
+english["Options.IconStyle.Blizzard"] = "Blizzard"
+english["Options.IconStyle.Forever"] = "Forever"
+english["DisabledReason.IconStyleFrame"] = 'This icon style has its own frame. For a border, set Icon style to "%s" (Defaults page).'
+english["DisabledReason.IconStyleMasque"] = "Masque styles the icons. Disable the BuffReminders group in Masque to use this."
+english["DisabledReason.IconStyleNoArt"] = "This game client lacks the button art. Icons stay Modern."
 english["Options.ShowTextToggle"] = "Show"
 english["Options.MainText.Desc"] =
     "Show the main text on the icons: a count like 17/20, or a label like NO PET. The Defaults page sets its position. The expiring countdown always stays visible."
@@ -598,22 +699,31 @@ english["Options.Direction.Desc"] =
 english["Options.ClickToCast"] = "Click to cast"
 english["Options.ClickToCast.DescFull"] =
     "Make buff icons clickable to cast the corresponding spell (out of combat only). Only works for spells your character can cast."
-english["Options.RightClickSnooze"] = "Right-click to snooze"
-english["Options.RightClickSnooze.Desc"] =
-    "Right-click a consumable icon to snooze its reminders. If this option is off, right-click uses the consumable, like left-click."
-english["Options.ClickToCast.SnoozeNote"] =
-    "A snooze hides the consumable reminders until the next loading screen. The |cFFFFD100/br snooze|r command always works."
 english["Options.HoverHighlight"] = "Hover highlight"
+english["Options.ClickToCast.Custom.Desc"] =
+    "Make the icons of this category clickable for the right-click menu and the hover highlight. A custom buff with its own click action stays clickable while this is off."
 english["Options.HoverHighlight.Desc"] = "Show a subtle highlight when hovering over clickable buff icons."
+english["Options.RightClickMenu"] = "Right-click: snooze and settings menu"
+english["Options.RightClickMenu.Desc"] =
+    "Right-click a reminder icon that takes clicks to open a menu. The menu snoozes the reminder, its category, or all reminders, and opens the settings of the reminder. The menu works out of combat only. If this option is off, right-click does the same as left-click."
+english["Options.SubIconReveal"] = "Show alternatives"
+english["Options.SubIconReveal.Desc"] =
+    "Some reminders show small icons for the alternatives. Examples: the other consumables in your bags, other blessings, other tracking, camp features, and the group or single version of a raid buff. With \"On hover\", the icons show while the cursor is on the reminder icon. Click an icon to use that alternative. A click needs \"Click to cast\" on in the category of the reminder (Categories tab). If \"Click to cast\" is off, the consumable icons show your items but do not take clicks, and the other alternatives do not show."
+english["Options.SubIconReveal.Hover"] = "On hover"
+english["Options.SubIconReveal.Always"] = "Always"
+english["Options.Snooze.Note"] =
+    "A snooze lasts until the next loading screen, or until you leave the city or inn where it started. Type |cFFFFD100/br snooze|r to snooze all reminders, and again to show them."
 english["Options.RequestBuffInChat"] = "Request missing buffs in chat"
-english["Options.RequestBuffInChat.Desc"] =
-    "Click a missing buff your class cannot provide to request it in chat. Auto-detects channel (instance/raid/party/say)."
-english["Options.ChatRequest.Cooldown"] = "Chat request cooldown"
-english["Options.ChatRequest.Cooldown.Desc"] =
-    "Waits 5 seconds between chat requests to prevent accidental spam-clicking.\nIf your requests sometimes aren't sent to chat at all, turn this off."
-english["Options.ChatRequest.Cooldown.Hint"] = "Requests not showing up in chat? Turn this off."
-english["Options.ChatRequest.ResetAll"] = "Reset All"
-english["ChatRequests.PerBuffMessages"] = "Per-buff messages"
+english["Options.RequestBuffInChat.Tooltip"] = "Click a missing buff your class can't cast to ask your group for it."
+english["ChatRequests.PageNote"] = "Click a missing buff your class can't cast to ask for it in chat."
+english["Options.ChatRequest.Wait"] = "Wait 5 s between requests"
+english["Options.ChatRequest.Wait.Desc"] = "Stops double clicks from spamming chat."
+english["Options.ChatRequest.Cooldown.Hint"] = "Requests not showing in chat? Turn this off."
+english["Options.ChatRequest.ResetAll"] = "Reset all"
+english["ChatRequests.Messages"] = "Messages"
+english["ChatRequests.Restore"] = "Restore: %s"
+english["DisabledReason.ChatRequestsOff"] = "Off while requests are off."
+english["DisabledReason.NoCustomMessages"] = "No custom messages."
 -- Chat request messages
 -- EU/US translators: leave untranslated so chat messages stay in English.
 -- Asian translators: translate these so chat messages match your locale.
@@ -622,12 +732,15 @@ english["ChatRequest.attackPower"] = "Battle Shout buff pls"
 english["ChatRequest.bronze"] = "Blessing of the Bronze buff pls"
 english["ChatRequest.versatility"] = "Mark of the Wild buff pls"
 english["ChatRequest.stamina"] = "Power Word: Fortitude buff pls"
+english["ChatRequest.shadowProtection"] = "Shadow Protection buff pls"
 english["ChatRequest.skyfury"] = "Skyfury buff pls"
 english["ChatRequest.atrophicNumbingPoison"] = "Atrophic/Numbing Poison pls"
 english["ChatRequest.devotionAura"] = "Devotion Aura pls"
 english["ChatRequest.soulstone"] = "Soulstone pls"
 english["ChatRequest.healthstone"] = "Healthstones pls"
 english["ChatRequest.mageFood"] = "Mage food pls"
+english["ChatRequest.thorns"] = "Thorns pls"
+english["ChatRequest.paladinBlessing"] = "%s pls"
 
 -- ============================================================================
 -- OPTIONS: PET
@@ -636,11 +749,20 @@ english["Options.PetSpecIcon"] = "Show hunter pet spec icon on hover"
 english["Options.PetSpecIcon.Title"] = "Pet spec icon on hover"
 english["Options.PetSpecIcon.Desc"] =
     "Swap the pet icon to its specialization ability (Cunning, Ferocity, Tenacity) when hovering."
-english["Options.ShowItemTooltips"] = "Show item tooltips"
-english["Options.ShowItemTooltips.Desc"] = "When hovering over a consumable icon, show its item tooltip."
-english["Options.ShowBuffTooltips"] = "Show buff tooltips"
-english["Options.ShowBuffTooltips.Desc"] =
-    "When the mouse is on a buff icon of this category, show the spell tooltip and which class provides the buff."
+english["Options.ShowDescriptionTooltips"] = "Show tooltips"
+english["Options.ShowDescriptionTooltips.Desc"] =
+    "When the mouse is on a reminder icon, show the tooltip of the spell or item that a click uses. If the click asks the group for a buff, the tooltip shows the buff and which class provides it. There are no tooltips in combat."
+english["Options.TooltipModifier"] = "Tooltip key"
+english["Options.TooltipModifier.Desc"] =
+    "If you select a key, buff and item tooltips show only while you hold that key. You can point at an icon first and push the key after. Turn on the tooltips in the Interaction section of the Defaults page."
+english["Options.TooltipModifier.None"] = "None"
+english["Options.TooltipModifier.Shift"] = "Shift"
+english["Options.TooltipModifier.Ctrl"] = "Ctrl"
+english["Options.TooltipModifier.Alt"] = "Alt"
+english["Menu.Snooze"] = "Snooze %s"
+english["Menu.SnoozeAll"] = "Snooze all reminders"
+english["Menu.AllReminders"] = "All reminders"
+english["Menu.Settings"] = "Settings..."
 english["Options.PetPassiveCombat"] = "Pet passive only in combat"
 english["Options.PetPassiveCombat.Desc"] =
     "Only show the passive pet reminder while in combat. When disabled, the reminder is always shown."
@@ -671,21 +793,23 @@ english["Options.ConsumableTextScale"] = "Base size"
 english["Options.ConsumableTextScale.Title"] = "Base text size"
 english["Options.ConsumableTextScale.Desc"] =
     "Font size for stack counts, stat labels and badges, as a percentage of icon size. Each of the three can override it below."
-english["Options.ConsumableBadgeOnSubIcons"] = "Show quality badge on sub-icons"
-english["Options.ConsumableBadgeOnSubIcons.Title"] = "Quality badge on sub-icons"
+english["Options.ConsumableBadgeOnSubIcons"] = "Show quality badge on alternatives"
+english["Options.ConsumableBadgeOnSubIcons.Title"] = "Quality badge on alternatives"
 english["Options.ConsumableBadgeOnSubIcons.Desc"] =
-    'Show the food quality letter (e.g. "H" for Hearty, "F" for Fleeting) on each sub-icon, not just the main icon.'
+    'Show the food quality letter (e.g. "H" for Hearty, "F" for Fleeting) on each alternative icon, not only on the main icon.'
 english["Options.ItemDisplay"] = "Item display"
 english["Options.ItemDisplay.IconOnly"] = "Icon only"
 english["Options.ItemDisplay.IconOnlyDesc"] = "Shows the item with the highest count"
-english["Options.ItemDisplay.SubIcons"] = "Sub-icons"
-english["Options.ItemDisplay.SubIconsDesc"] = "Small clickable item variants below each icon"
+english["Options.ItemDisplay.SubIcons"] = "Alternative icons"
+english["Options.ItemDisplay.SubIconsDesc"] =
+    "The other items show as small icons next to the main icon. \"Show alternatives\" on the Defaults page sets when they show."
 english["Options.ItemDisplay.Expanded"] = "Expanded"
 english["Options.ItemDisplay.ExpandedDesc"] = "Each item variant as a full-sized icon"
 english["Options.ItemDisplay.Mode"] = "Consumable item display"
 english["Options.ItemDisplay.Mode.Desc"] =
     "How consumable items with multiple variants (e.g. different flask types) are displayed."
-english["Options.SubIconSide"] = "Side"
+english["Options.SubIconSide"] = "Alternatives side"
+english["Options.SubIconSide.Desc"] = "Select the side of the reminder icon where the alternative icons show."
 english["Options.SubIconSide.Bottom"] = "Bottom"
 english["Options.SubIconSide.Top"] = "Top"
 english["Options.SubIconSide.Left"] = "Left"
@@ -727,6 +851,8 @@ english["Options.RoguePoisonNote"] =
     "Choose which poisons to apply and their priority order (top = highest). Disabled poisons are never cast and do not trigger reminders."
 english["Options.PoisonLethal"] = "Lethal"
 english["Options.PoisonNonLethal"] = "Non-Lethal"
+english["Options.PoisonMainHand"] = "Main Hand"
+english["Options.PoisonOffHand"] = "Off Hand"
 english["Options.PoisonMoveUp"] = "Move up in priority"
 english["Options.PoisonMoveDown"] = "Move down in priority"
 english["Options.PoisonReset"] = "Reset to Default"
@@ -773,6 +899,11 @@ english["BuffRow.Glyph.Detached.Desc"] =
     "This icon is placed freely on screen. Manage it in the buff's Settings or on the Layout page."
 english["BuffRow.Glyph.New"] = "New buff"
 english["BuffRow.Glyph.New.Desc"] = "Added in the latest update."
+english["Options.SearchReminders"] = "Search reminders"
+english["Options.SearchReminders.Desc"] = "Find a reminder by its name, a spell name, or a class name."
+-- %d is the number of matching reminders
+english["Options.SearchCount"] = "%d found"
+english["Options.SearchEmpty"] = "No reminder matches this search."
 -- %s is the option name
 english["BuffPanel.EditOption"] = "Edit %s"
 english["BuffPanel.Show"] = "Show"
@@ -780,6 +911,29 @@ english["BuffPanel.MageFoodContent"] = "Where"
 english["BuffPanel.MageFoodContent.All"] = "All instances"
 english["BuffPanel.MageFoodContent.Dungeon"] = "Dungeons only"
 english["BuffPanel.MageFoodContent.Raid"] = "Raids only"
+english["BuffPanel.ShamanImbue"] = "Click casts"
+english["BuffPanel.ShamanImbue.Desc"] =
+    "Until you learn it, the click casts Windfury, then Flametongue, then Rockbiter."
+english["BuffPanel.DriveBy.AllowPvP"] = "Allow PvP-flagged targets"
+english["BuffPanel.DriveBy.AllowPvP.Desc"] =
+    "Buffing a PvP-flagged player flags you too. When off, flagged players are ignored unless you are flagged."
+english["BuffPanel.DriveBy.Greeting"] = "Greeting"
+english["BuffPanel.DriveBy.Greeting.Desc"] =
+    "Whisper or emote at the player after your buff lands, once per player per session. Not in combat.\n\n{name} = player name, {spell} = buff."
+english["BuffPanel.DriveBy.Greeting.None"] = "Nothing"
+english["BuffPanel.DriveBy.Greeting.Whisper"] = "Whisper"
+english["BuffPanel.DriveBy.Greeting.Emote"] = "Emote"
+english["BuffPanel.DriveBy.Whisper"] = "Text"
+english["BuffPanel.DriveBy.Emote"] = "Emote"
+english["BuffPanel.DriveBy.Emote.Wave"] = "Wave"
+english["BuffPanel.DriveBy.Emote.Hello"] = "Hello"
+english["BuffPanel.DriveBy.Emote.Bow"] = "Bow"
+english["BuffPanel.DriveBy.Emote.Salute"] = "Salute"
+english["BuffPanel.DriveBy.Emote.Smile"] = "Smile"
+english["BuffPanel.DriveBy.Emote.Cheer"] = "Cheer"
+english["BuffPanel.DriveBy.Emote.Custom"] = "Custom emote..."
+english["DriveBy.WhisperDefault"] = "Buffed you with {spell}, have fun!"
+english["DriveBy.EmoteDefault"] = "buffs {name} with {spell}. Have fun!"
 english["BuffPanel.WarlockDemon.Warn"] = "Warn when a different demon is out"
 english["BuffPanel.WarlockDemon.Warn.Desc"] = "Show a Wrong Demon reminder if the active demon is not one of the demons that you allow for this content."
 english["BuffPanel.WarlockDemon.Hint"] = "Click a demon to allow it. You can allow more than one. If you clear a row, all demons are allowed there."
@@ -789,16 +943,84 @@ english["BuffPanel.WarlockDemon.Dungeon.Desc"] = "Also covers scenarios and Delv
 english["BuffPanel.WarlockDemon.Raid"] = "Raid"
 english["BuffPanel.WarlockDemon.PvP"] = "PvP"
 english["BuffPanel.WarlockDemon.Felguard"] = "Demonology always summons Felguard if talented."
+english["BuffPanel.WarriorStance.Hint"] = "Click stances to allow them per content. Unlearned stances do not count. An empty row shows no reminder."
+english["BuffPanel.DruidForm.Hint"] = "Click forms to allow them per content. Unlearned forms do not count. An empty row shows no reminder."
+english["BuffPanel.DruidForm.Caster"] = "Caster (no form)"
+english["BuffPanel.PaladinBlessing.Hint"] =
+    "Main blessing per class. If another paladin gives it, you give the backup."
+english["BuffPanel.Blessing.Give"] = "Give"
+english["BuffPanel.Blessing.IfTaken"] = "If taken"
+english["BuffPanel.Blessing.InGive"] = "in Give"
+english["BuffPanel.Blessing.InBackup"] = "in If taken"
+english["BuffPanel.Blessing.NotLearnedShort"] = "not learned"
+english["BuffPanel.Blessing.Clear"] = "Clear"
+english["BuffPanel.Blessing.MainTip"] = "You give this to each %s."
+english["BuffPanel.Blessing.BackupTip"] = "Used if another paladin gives %s."
+english["BuffPanel.Blessing.NotLearned"] = "Not learned. You give %s instead."
+english["BuffPanel.Blessing.NotLearnedNone"] = "Not learned. Skipped."
+english["BuffPanel.Blessing.None"] = "No blessing"
+english["BuffPanel.Blessing.None.Desc"] = "This class gets no reminder."
+english["BuffPanel.Blessing.AddBackup"] = "Add a backup"
+english["BuffPanel.Blessing.ClickToChange"] = "Click to change."
+english["BuffPanel.Blessing.ResetRow"] = "Reset to default"
+english["BuffPanel.Blessing.SelfOnlyNote"] = "Only the Paladin row applies."
+english["DisabledReason.BlessSelfOnly"] = 'Off while "Only bless myself" is on.'
+english["DisabledReason.BlessingDefaults"] = "All classes use their defaults."
+english["BuffPanel.BlessSelfOnly"] = "Only bless myself"
+english["BuffPanel.BlessSelfOnly.Desc"] =
+    "Check and bless only yourself."
+english["BuffPanel.Tracking.Scope"] = "Track"
+english["BuffPanel.Tracking.Scope.Desc"] =
+    "The tracking that the reminder offers. Only one tracking can be active. If any tracking is active, the reminder hides."
+english["BuffPanel.Tracking.Scope.Gathering"] = "Gathering only"
+english["BuffPanel.Tracking.Scope.All"] = "All tracking"
+english["BuffPanel.GroupCast"] = "Auto group version (uses a reagent)"
+english["BuffPanel.GroupCast.Desc"] =
+    "If enough members of your party lack the buff and are in range, and you have the reagent, a left click casts the group version on you. Otherwise it casts the single-target version. Hover the icon to pick the other version for one cast."
+english["BuffPanel.GroupCast.Blessing.Desc"] =
+    "If enough members of one class lack the same blessing, a click casts the Greater version (needs Symbol of Kings). Only when you give that blessing to the whole class."
+english["BuffPanel.GroupCastMin"] = "Group version at"
+english["BuffPanel.GroupCastMin.Suffix"] = " missing"
+english["BuffPanel.GroupCastMin.Desc"] =
+    "How many members must lack the buff before a click casts the group version: in your party, or in one class for a Greater Blessing. One value for all buffs."
+english["DisabledReason.GroupCast"] = 'Turn on "Auto group version" first.'
+english["BuffPanel.PaladinAura.Hint"] =
+    "Main aura per content. If another paladin gives it, you run the backup. An empty row accepts any aura. A resistance aura always counts while it runs."
+english["BuffPanel.PaladinAura.Run"] = "Run"
+english["BuffPanel.PaladinAura.InRun"] = "in Run"
+english["BuffPanel.PaladinAura.MainTip"] = "You run this aura in %s content."
+english["BuffPanel.PaladinAura.NotLearned"] = "Not learned. You run %s instead."
+english["BuffPanel.PaladinAura.None"] = "No aura"
+english["BuffPanel.PaladinAura.None.Desc"] = "Any aura counts."
+english["DisabledReason.AuraDefaults"] = "All content rows use their defaults."
+english["BuffPanel.ThornsRequest"] = "Tanks can ask for Thorns"
+english["BuffPanel.ThornsRequest.Desc"] =
+    "If you tank and a druid (level 6+) is in your group, shows when you lack Thorns. A click asks for it in chat. Needs \"Request missing buffs in chat\" on (Chat Requests page)."
+english["BuffPanel.RighteousFuryShow"] = "Show"
+english["BuffPanel.RighteousFuryShow.Tank"] = "When tanking"
+english["BuffPanel.RighteousFuryShow.Always"] = "Always"
+english["BuffPanel.RighteousFuryShow.Desc"] =
+    "When tanking: only with the Tank role or a Main Tank mark. Always: solo and in any group."
+english["BuffPanel.MageArmor"] = "Cast"
+english["BuffPanel.MageArmor.Mage"] = "Mage Armor"
+english["BuffPanel.MageArmor.Ice"] = "Frost/Ice Armor"
+english["BuffPanel.MageArmor.Desc"] =
+    "The armor that the icon shows and a click casts. Any armor satisfies the reminder. If you do not know this armor yet, the other armor is used."
 english["BuffPanel.Sound"] = "Sound"
 english["BuffPanel.Sound.None"] = "None"
 english["BuffPanel.Detached"] = "Own frame (detached)"
 english["BuffPanel.Detached.Desc"] =
     "Pull this buff out of its category into its own independently positioned frame.\nPosition it from the Layout page or by unlocking frames."
-english["BuffPanel.CasterAlways"] = "Warlocks always see it"
-english["BuffPanel.CasterAlways.Desc"] =
-    "Warlocks always see the reminder; everyone else only on ready check."
+english["BuffPanel.ShowSharedWithHealthstone"] = "Healthstones use this setting too."
+english["BuffPanel.Show.ReadyCheck"] = "Only at ready checks"
+english["BuffPanel.Show.ReadyCheck.Desc"] = "everyone sees it only during a ready check."
+english["BuffPanel.Show.ReadyCheckSolo"] = "Ready checks, and when solo"
+english["BuffPanel.Show.ReadyCheckSolo.Desc"] = "everyone sees it during a ready check, and a warlock also sees it while solo."
+english["BuffPanel.Show.Caster"] = "Always for warlocks"
+english["BuffPanel.Show.Caster.Desc"] = "warlocks see it everywhere, others during a ready check."
+english["BuffPanel.Show.Always"] = "Always, for everyone"
+english["BuffPanel.Show.Always.Desc"] = "everyone sees it everywhere."
 english["DisabledReason.NotDetached"] = "This buff isn't detached - it sits inside its category frame."
-english["DisabledReason.CasterAlways"] = 'Only applies in ready-check mode. Switch "Show" back to ready check first.'
 english["Options.DisplayOrder.Note"] =
     "Order inside the combined frame, top to bottom. Split categories are not listed."
 
@@ -815,6 +1037,8 @@ english["Options.Override.Inherited"] = "Inherited from Defaults"
 english["Options.Override.Overriding"] = "Overriding defaults"
 english["Options.Override.Appearance.Desc"] =
     "Override the global appearance defaults for this category.\nWhile off, the controls below show the inherited values from the Defaults page."
+english["Options.Override.Interaction.Desc"] =
+    "Override the global interaction settings for this category.\nWhile off, the controls below show the inherited values from the Defaults page."
 english["Options.Override.Glow.Desc"] =
     "Override the global glow settings for this category.\nWhile off, the controls below show the inherited values from the Defaults page."
 english["Options.Override.Externals.Desc"] =
@@ -878,7 +1102,7 @@ english["Options.BuffTracking.MyBuffs.Desc"] =
     "Only show buffs your class can provide. Still tracks full group coverage."
 english["Options.BuffTracking.OnlyMine"] = "All buffs, just on me"
 english["Options.BuffTracking.OnlyMine.Desc"] =
-    "Show all buff types, but only check whether you personally have them. No group counts."
+    "Show all buff types, but only check whether you personally have them. No group counts. Buffs you cast on others, such as Beacon of Light, still show."
 english["Options.BuffTracking.SelfOnly"] = "Only my buffs, just on me"
 english["Options.BuffTracking.SelfOnly.Desc"] =
     "Only show buffs your class can provide, and only check whether you personally have them. No group counts, no buffs you cast on others."
@@ -1122,6 +1346,12 @@ english["Options.Min"] = "min"
 -- ============================================================================
 -- Content filter tooltip
 english["Content.ClickToFilter"] = "Click to filter by %s difficulty"
+english["Content.ClickToToggleVisibility"] = "Click to toggle visibility in %s"
+
+-- Width and height link
+english["DimensionLink.Link"] = "Link width and height"
+english["DimensionLink.Unlink"] = "Unlink width and height"
+english["DimensionLink.Desc"] = "When linked, changing one updates both."
 
 -- Mover labels
 english["Mover.AnchorGrowth"] = "Anchor · Growth %s"
@@ -1172,7 +1402,7 @@ english["DisabledReason.OverrideSection"] = 'Turn on "Override" at the top of th
 english["DisabledReason.CombatOverride"] =
     '"In combat" hiding is enabled above, so nothing shows in combat and this override would have no effect.\nUncheck it to use a combat tracking override.'
 english["DisabledReason.LevelingOverride"] =
-    '"Leveling" hiding is enabled above, so nothing shows while leveling and this override would have no effect.\nUncheck it to use a leveling tracking override.'
+    '"Leveling" is checked under Hide when above, so nothing shows while leveling. Uncheck it to use this.'
 english["DisabledReason.ExpiringInCombat"] =
     '"In combat" hiding is enabled, so everything is already hidden during combat.'
 english["DisabledReason.HealthstoneThreshold"] = 'Enable "Warn when low" first.'
@@ -1180,6 +1410,8 @@ english["DisabledReason.ClickToCast"] = 'Turn on "Click to cast" first.'
 english["DisabledReason.ShowWithoutItems"] = 'Turn on "Show when not in bags" first.'
 english["DisabledReason.PetLabelsOff"] = 'Pick a position for "Pet labels" first.'
 english["DisabledReason.OverrideRow"] = 'Tick "Override" on this row first.'
+english["DisabledReason.RaidClickToCast"] =
+    'Needs "Click to cast" on for raid buffs (Defaults page, or the Interaction override of the Raid tab).'
 
 -- Direction labels
 english["Direction.Left"] = "Left"
@@ -1197,6 +1429,7 @@ english["Content.OpenWorld"] = "Open World"
 english["Content.Housing"] = "Housing"
 english["Content.Scenarios"] = "Scenarios (Delves, Torghast, etc.)"
 english["Content.Dungeons"] = "Dungeons (including M+)"
+english["Content.AnyDungeon"] = "Dungeons"
 english["Content.Raids"] = "Raids"
 english["Content.PvP"] = "PvP (Arena & Battlegrounds)"
 
@@ -1217,6 +1450,8 @@ english["Content.LFR"] = "Looking for Raid"
 english["Content.NormalRaids"] = "Normal Raids"
 english["Content.HeroicRaids"] = "Heroic Raids"
 english["Content.MythicRaids"] = "Mythic Raids"
+english["Content.Raids40"] = "40-Player Raids"
+english["Content.Raids20"] = "20-Player Raids"
 
 -- PvP types
 english["Content.Arena"] = "Arena"

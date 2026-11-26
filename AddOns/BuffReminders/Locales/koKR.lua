@@ -312,11 +312,8 @@ L["Display.OpenOptions"] = "옵션 열기"
 L["Display.SlashCommands"] = "슬래시 명령어: /br, /br lock, /br unlock, /br test, /br minimap, /br snooze"
 L["Display.MinimapLeftClick"] = "|cFFCFCFCF왼쪽 클릭|r: 옵션"
 L["Display.MinimapRightClick"] = "|cFFCFCFCF오른쪽 클릭|r: 테스트 모드"
-L["Display.DismissConsumablesChat"] = "소모품 알림이 다음 로딩 화면까지 숨겨집니다."
 L["Display.LoginFirstInstall"] =
     "설치해 주셔서 감사합니다! |cFFFFD100/br unlock|r을 입력하여 버프 표시를 이동하거나, |cFFFFD100/br|r 옵션 패널 하단의 버튼을 사용하세요."
-L["Display.LoginSnooze"] =
-    "우클릭으로 소모품 알림 해제: 소모품에 우클릭이나 |cFFFFD100/br snooze|r를 입력하면 리마인더를 이번 세션에서만 해제할 수 있습니다."
 L["Display.LoginCasterName"] =
     "외부 버프는 이제 버프마다 시전자를 표시할 수 있습니다. |cFFFFD100/br|r > 카테고리 > 외부 버프에서 켜세요."
 
@@ -577,11 +574,6 @@ L["Options.Direction.Desc"] =
 L["Options.ClickToCast"] = "클릭으로 시전"
 L["Options.ClickToCast.DescFull"] =
     "버프 아이콘을 클릭해 해당 주문을 시전할 수 있습니다.(비전투 시에만) 내 캐릭터가 시전 가능한 주문에만 작동합니다."
-L["Options.RightClickSnooze"] = "우클릭으로 알림 일시 중지"
-L["Options.RightClickSnooze.Desc"] =
-    "소모품 아이콘을 우클릭하면 알림을 일시 중지합니다. 이 옵션을 끄면 우클릭으로도 소모품을 사용합니다."
-L["Options.ClickToCast.SnoozeNote"] =
-    "일시 중지하면 다음 로딩 화면이 나올 때까지 소모품 알림이 숨겨집니다. |cFFFFD100/br snooze|r 명령어는 항상 동작합니다."
 L["Options.HoverHighlight"] = "마우스오버 강조"
 L["Options.HoverHighlight.Desc"] = "클릭 가능한 버프 아이콘에 마우스를 올리면 희미한 강조 효과가 표시됩니다."
 L["Options.RequestBuffInChat"] = "없는 버프를 채팅으로 요청"
@@ -617,9 +609,6 @@ L["Options.PetSpecIcon.Desc"] =
     "마우스를 올리면 소환수 아이콘이 특성 능력(교활, 야성, 끈기)으로 바뀝니다."
 L["Options.ShowItemTooltips"] = "아이템 툴팁 표시"
 L["Options.ShowItemTooltips.Desc"] = "소모품 아이콘에 마우스를 올리면 아이템 툴팁이 표시됩니다."
-L["Options.ShowBuffTooltips"] = "버프 툴팁 표시"
-L["Options.ShowBuffTooltips.Desc"] =
-    "이 카테고리의 버프 아이콘에 마우스를 올리면 주문 툴팁과 걸어준 직업이 표시됩니다."
 L["Options.PetPassiveCombat"] = "전투 중에만 수동적 소환수 알림"
 L["Options.PetPassiveCombat.Desc"] =
     "전투 중에만 수동적 소환수 알림을 표시합니다. 비활성화 시 항상 표시됩니다."
@@ -650,21 +639,14 @@ L["Options.ConsumableTextScale"] = "기본 크기"
 L["Options.ConsumableTextScale.Title"] = "기본 텍스트 크기"
 L["Options.ConsumableTextScale.Desc"] =
     "아이콘 크기 비율에 따른 개수, 능력치 라벨, 등급의 글꼴 크기입니다. 아래에서 3개 항목을 각자 설정할 수 있습니다."
-L["Options.ConsumableBadgeOnSubIcons"] = "하위 아이콘에 등급 표시"
-L["Options.ConsumableBadgeOnSubIcons.Title"] = "하위 아이콘 등급 표시"
-L["Options.ConsumableBadgeOnSubIcons.Desc"] =
-    '주 아이콘을 제외하고 각 하위 아이콘에 음식 품질 글자를 표시합니다. (예시: 든든한에 "든", 덧없는에 "덧")'
 L["Options.ItemDisplay"] = "아이템 표시"
 L["Options.ItemDisplay.IconOnly"] = "아이콘만 표시"
 L["Options.ItemDisplay.IconOnlyDesc"] = "수량이 가장 많은 아이템 표시"
-L["Options.ItemDisplay.SubIcons"] = "하위 아이콘"
-L["Options.ItemDisplay.SubIconsDesc"] = "각 아이콘 아래에 클릭되는 다른 등급의 작은 아이템을 표시합니다"
 L["Options.ItemDisplay.Expanded"] = "확장"
 L["Options.ItemDisplay.ExpandedDesc"] = "다른 등급 아이템 아이콘을 원래 크기로 확장합니다"
 L["Options.ItemDisplay.Mode"] = "소모품 아이템 표시"
 L["Options.ItemDisplay.Mode.Desc"] =
     "복수의 등급이 있는 소모품 아이템(예: 다양한 영약 등급)의 표시 방식을 설정합니다."
-L["Options.SubIconSide"] = "방향"
 L["Options.SubIconSide.Bottom"] = "아래"
 L["Options.SubIconSide.Top"] = "위"
 L["Options.SubIconSide.Left"] = "왼쪽"
@@ -849,8 +831,6 @@ L["Options.BuffTracking.MyBuffs"] = "내 버프만, 모든 사람에게"
 L["Options.BuffTracking.MyBuffs.Desc"] =
     "내 직업이 걸 수 있는 버프만 표시하되, 그룹 전체 적용 여부는 추적합니다."
 L["Options.BuffTracking.OnlyMine"] = "모든 버프, 나한테만"
-L["Options.BuffTracking.OnlyMine.Desc"] =
-    "모든 버프 유형을 표시하지만 나한테 있는지만을 확인합니다. 그룹은 세지 않습니다."
 L["Options.BuffTracking.SelfOnly"] = "내 버프만, 나한테만"
 L["Options.BuffTracking.SelfOnly.Desc"] =
     "내 직업이 걸 수 있는 버프만 표시하고 나한테 있는지만 확인합니다. 그룹 및 다른 사람에게 건 버프 수는 세지 않습니다."

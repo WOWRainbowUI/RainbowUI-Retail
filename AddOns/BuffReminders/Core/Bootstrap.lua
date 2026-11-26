@@ -16,7 +16,7 @@ local defaults = BR.defaults
 local CATEGORIES = BR.CATEGORY_ORDER
 
 local bootstrapFrame = CreateFrame("Frame")
-bootstrapFrame:RegisterEvent("ADDON_LOADED")
+BR.Client.RegisterEvent(bootstrapFrame, "ADDON_LOADED")
 bootstrapFrame:SetScript("OnEvent", function(_, event, arg1)
     if event ~= "ADDON_LOADED" or arg1 ~= addonName then
         return
@@ -93,6 +93,7 @@ bootstrapFrame:SetScript("OnEvent", function(_, event, arg1)
     local title = settingsPanel:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
     title:SetPoint("TOPLEFT", 16, -16)
     title:SetText("BuffReminders")
+    BR.ApplyTitleColor(title)
 
     local desc = settingsPanel:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
     desc:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -8)
@@ -129,6 +130,7 @@ bootstrapFrame:SetScript("OnEvent", function(_, event, arg1)
                     BR.Options.Toggle()
                 elseif button == "RightButton" then
                     BR.Display.ToggleTestMode()
+                    BR.Components.RefreshAll()
                 end
             end,
             OnTooltipShow = function(tooltip)
@@ -149,20 +151,23 @@ bootstrapFrame:SetScript("OnEvent", function(_, event, arg1)
     C_Timer.After(5, function()
         local glob = BR.aceDB.global
         if isFirstInstall then
-            -- A fresh install never had the dismiss button. Skip the transition notice.
-            glob.snoozeNoticeShown = true
-            glob.casterNameNoticeShown = true
             print("|cff00ccffBuffReminders:|r " .. L["Display.LoginFirstInstall"])
+        end
+        -- Dead key: no notice reads it.
+        glob.snoozeNoticeShown = nil
+        if isFirstInstall then
+            -- A fresh install has no earlier behavior to explain. Skip the change notices.
+            glob.reminderMenuNoticeShown = true
+            glob.casterNameNoticeShown = true
             return
         end
         if BR.profile.showLoginMessages ~= false and not glob.casterNameNoticeShown then
             glob.casterNameNoticeShown = true
             print("|cff00ccffBuffReminders:|r " .. L["Display.LoginCasterName"])
         end
-        -- Right-click and /br snooze replace the consumable dismiss button.
-        -- An existing user gets this notice one time only.
-        if BR.profile.showLoginMessages ~= false and not glob.snoozeNoticeShown then
-            glob.snoozeNoticeShown = true
+        -- An existing user learns about the right-click menu one time only.
+        if BR.profile.showLoginMessages ~= false and not glob.reminderMenuNoticeShown then
+            glob.reminderMenuNoticeShown = true
             print("|cff00ccffBuffReminders:|r " .. L["Display.LoginSnooze"])
         end
     end)
