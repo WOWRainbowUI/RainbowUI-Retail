@@ -369,13 +369,18 @@ if addonTable.Constants.IsRetail then
   }
 elseif addonTable.Constants.IsForever then
   addonTable.Constants.AuraStackOverrides = {
-    [324] = 3, -- Rank 1 Shaman Lightning Shield
+    [324] = 3, -- Shaman: Rank 1 Lightning Shield
     [325] = 3,
     [905] = 3,
     [945] = 3,
     [8134] = 3,
     [10431] = 3,
-    [10432] = 3, -- Rank 7 Shaman Lightning Shield
-
+    [10432] = 3, -- Shaman: Rank 7 Lightning Shield
+    [408505] = 5, -- Shaman: Maelstrom Weapon
+    [408498] = 5, -- Shaman: Maelstrom Weapon
+    [20925] = 4, -- Paladin: Holy Shield (1)
+    [20927] = 4, -- Paladin: Holy Shield (2)
+    [20928] = 4, -- Paladin: Holy Shield (3)
+    [1239570] = 4, -- Paladin: Holy Shield (4)
   }
 end

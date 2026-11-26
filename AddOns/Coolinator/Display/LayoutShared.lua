@@ -29,7 +29,6 @@ function addonTable.Display.LayoutManagerSharedMixin:OnLoad()
     cooldown = addonTable.Display.GeneratePool(addonTable.Display.CooldownMixin),
     abilityBar = addonTable.Display.GeneratePool(addonTable.Display.AbilityStatusBarMixin),
     abilityChargesPip = addonTable.Display.GeneratePool(addonTable.Display.AbilityChargesPipMixin),
-    auraStatusBar = addonTable.Display.GeneratePool(addonTable.Display.AuraStatusBarMixin),
     totemStatusBar = addonTable.Display.GeneratePool(addonTable.Display.TotemStatusBarMixin),
     totemIcon = addonTable.Display.GeneratePool(addonTable.Display.TotemIconMixin),
     castBar = addonTable.Display.GeneratePool(addonTable.Display.CastBarMixin),
