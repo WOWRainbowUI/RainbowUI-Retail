@@ -1168,6 +1168,7 @@ D["MythicDungeonTools"] = {
         text = "迷你視窗：點主視窗右上角的縮小箭頭切換成迷你導覽視窗。\n\n(下方的插件模組需要打勾載入)\n",
     },
 };
+D["MDTGuide"] = {defaultEnable = 0,};
 D["MythicPlusTimer"] = {
     defaultEnable = 1,
 	tags = { "BOSSRAID" },
