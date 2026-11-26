@@ -120,10 +120,7 @@ function Tradeskill:UNIT_SPELLCAST_START(object, bar, unit, guid, spellID)
 	if unit ~= "player" then
 		return self.hooks[object].UNIT_SPELLCAST_START(object, bar, unit, guid, spellID)
 	end
-	local spell, displayName, icon, startTime, endTime, isTradeskill = UnitCastingInfo(unit)
-	if not issecretvalue(displayName) and (displayName == nil or displayName == "") then
-		displayName = spell
-	end
+	local _, displayName, icon, startTime, endTime, isTradeskill = UnitCastingInfo(unit)
 	if isTradeskill and not (issecretvalue(startTime) or issecretvalue(endTime)) then
 		Player.Bar:CancelTimerAnimation()
 		repeattimes = repeattimes or 1

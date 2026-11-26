@@ -74,12 +74,45 @@ media:Register("border", "Tooltip enlarged", "Interface\\AddOns\\Quartz\\texture
 Quartz3.dbRevision = 2
 
 function Quartz3:OnInitialize()
+	local savedKeys = self.IsForever and Quartz3DB and Quartz3DB.profileKeys and CopyTable(Quartz3DB.profileKeys)
+
 	self.db = LibStub("AceDB-3.0"):New("Quartz3DB", defaults, true)
 	-- Registered before the first db.profile access, so a missing revision reliably identifies pre-upgrade profiles.
 	self.db.RegisterCallback(self, "OnNewProfile", "OnNewProfile")
+	if self.IsForever then
+		self:MigrateLegacyCharKey(savedKeys)
+	end
 	db = self.db.profile
 
 	self:SetupOptions()
+end
+
+-- AceDB 36 keyed Forever characters as "name - ruleset"; later versions use the full name.
+function Quartz3:MigrateLegacyCharKey(savedKeys)
+	local ruleset = "PvE"
+	if C_GameRules.IsGameRuleActive(Enum.GameRule.HardcoreRuleset) then
+		ruleset = "Hardcore"
+	elseif C_GameRules.IsGameRuleActive(Enum.GameRule.RPRuleset) then
+		ruleset = "RP"
+	elseif C_GameRules.IsGameRuleActive(Enum.GameRule.PvPRuleset) then
+		ruleset = "PvP"
+	end
+	local oldKey, newKey = UnitName("player") .. " - " .. ruleset, self.db.keys.char
+	if oldKey == newKey then
+		return
+	end
+
+	for _, namespace in pairs(Quartz3DB.namespaces or {}) do
+		local char = namespace.char
+		if char and char[oldKey] ~= nil and char[newKey] == nil then
+			char[newKey], char[oldKey] = char[oldKey], nil
+		end
+	end
+
+	local profile = savedKeys and savedKeys[newKey] == nil and savedKeys[oldKey]
+	if type(profile) == "string" then
+		self.db:SetProfile(profile)
+	end
 end
 
 function Quartz3:OnNewProfile(event, database, key)
