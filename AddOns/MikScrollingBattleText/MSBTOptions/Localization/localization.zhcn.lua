@@ -657,3 +657,5 @@ L.MSG_FOREVER_DESIGN = "永恒"
 L.MSG_DESIGN_ASK_RELOAD = "重载界面后，游戏设置窗口才会显示新设计。现在重载？"
 L.CHECKBOXES.mergePetScrollArea = { label="合并至 %s", shortLabel="合并", tooltip="禁用此宠物区域时，将其事件显示在 %s。" }
 L.BUTTONS.reloadDesign = { label="重载", tooltip="重载界面后，游戏设置窗口才会显示所选设计。" }
+
+L.CHECKBOXES.disableDamageSchoolColors = { label="禁用所有法术系别颜色", tooltip="伤害数字使用各事件所设置的颜色。" }

@@ -662,3 +662,5 @@ L.MSG_FOREVER_DESIGN = "永恆"
 L.MSG_DESIGN_ASK_RELOAD = "重新載入介面後，遊戲設定視窗才會顯示新設計。現在重新載入？"
 L.CHECKBOXES.mergePetScrollArea = { label="合併至 %s", shortLabel="合併", tooltip="停用此寵物區域時，將其事件顯示在 %s。" }
 L.BUTTONS.reloadDesign = { label="重新載入", tooltip="重新載入介面後，遊戲設定視窗才會顯示所選設計。" }
+
+L.CHECKBOXES.disableDamageSchoolColors = { label="停用所有法術系別顏色", tooltip="傷害數字使用各事件所設定的顏色。" }

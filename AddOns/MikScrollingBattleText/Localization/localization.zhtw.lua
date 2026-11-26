@@ -122,3 +122,5 @@ L.COMMAND_USAGE_DESIGN = "  %s - 以此設計開啟選項視窗。"
 L.CLEU_TRIGGERS_DISABLED = "依賴戰鬥紀錄事件的觸發器已停用。"
 
 L.MSG_CONTROL_BROKEN = "解除控場"
+
+L.MSG_EXTRA_ATTACK = "額外攻擊"
