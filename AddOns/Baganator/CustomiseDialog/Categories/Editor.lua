@@ -473,6 +473,8 @@ function BaganatorCustomiseDialogCategoriesEditorMixin:SetState(value)
     self.HelpButton:Disable()
     self.Blocker:Show()
     self.ExportButton:Disable()
+    self.PrioritySlider:SetEnabled(not category.noPriority)
+    self.PrioritySlider:SetAlpha(category.noPriority and disabledAlpha or 1)
   end
   self.LocationsDropDown:GenerateMenu()
   self.HiddenCheckBox:SetChecked(addonTable.Config.Get(addonTable.Config.Options.CATEGORY_HIDDEN)[value])

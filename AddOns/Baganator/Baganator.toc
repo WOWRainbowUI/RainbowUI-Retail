@@ -1,7 +1,7 @@
 ## Interface: 120100, 120105, 16001, 50504, 38001, 20506, 11509
 ## ExcludeLoadGameType: wowhack
 ## Title: Baganator
-## Version: 868
+## Version: 869
 ## Author: plusmouse
 ## OptionalDeps: Syndicator, Masque
 ## SavedVariables: BAGANATOR_CONFIG, BAGANATOR_DATA
@@ -80,8 +80,6 @@ ItemViewCommon\CurrencyBar.lua
 ItemViewCommon\CurrencyBar.xml
 ItemViewCommon\CurrencyPanel.lua
 ItemViewCommon\CurrencyBlizzardTracking.lua
-ItemViewCommon\ButtonVisibility.lua
-ItemViewCommon\ButtonVisibility.xml
 ItemViewCommon\OpenClose.lua
 ItemViewCommon\BackpackView.lua
 ItemViewCommon\BackpackView.xml

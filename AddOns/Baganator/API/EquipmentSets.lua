@@ -299,9 +299,16 @@ if not addonTable.Constants.IsRetail then
         DoBag(bagID, bagData)
       end
       if bankOpen then
-        for index, bagData in ipairs(characterData.bank) do
-          local bagID = Syndicator.Constants.AllBankIndexes[index]
-          DoBag(bagID, bagData)
+        if Syndicator.Constants.CharacterBankTabsActive then
+          for index, tab in ipairs(characterData.bankTabs) do
+            local bagID = Syndicator.Constants.AllBankIndexes[index]
+            DoBag(bagID, tab.slots)
+          end
+        else
+          for index, bagData in ipairs(characterData.bank) do
+            local bagID = Syndicator.Constants.AllBankIndexes[index]
+            DoBag(bagID, bagData)
+          end
         end
       end
       if next(missing) then

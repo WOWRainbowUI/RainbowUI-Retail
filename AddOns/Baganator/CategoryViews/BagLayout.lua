@@ -488,11 +488,19 @@ function addonTable.CategoryViews.BagLayoutMixin:Display(bagWidth, bagIndexes, b
 
   local width, height = addonTable.CategoryViews.PackSimple(layoutsShown, activeLabels, 0, 0, bagWidth, addonTable.CategoryViews.Utilities.GetMinWidth(bagWidth))
 
-  local firstHit, lastHit
+  local firstHit, lastHit, firstLabel
   if addonTable.Constants.IsGamepadInUse then
     local index = 0
     for _, layout in ipairs(container.activeLayouts) do
-      if layout.type == "category" then
+      if layout.type == "section" and not layout.moveOffscreen then
+        if not firstLabel then
+          firstLabel = layout
+        end
+      end
+      if layout.type == "category" and not layout.moveOffscreen then
+        if not firstLabel then
+          firstLabel = layout.associatedLabel
+        end
         for _, itemButton in ipairs(layout.buttons) do
           index = index + 1
           itemButton.gamepadIndex = index
@@ -505,7 +513,7 @@ function addonTable.CategoryViews.BagLayoutMixin:Display(bagWidth, bagIndexes, b
     end
   end
 
-  return width, height, firstHit, lastHit
+  return width, height, firstHit, lastHit, firstLabel
 end
 
 function addonTable.CategoryViews.BagLayoutMixin:RestoreGamepadFocus(bagIndexes)
@@ -591,9 +599,9 @@ function addonTable.CategoryViews.BagLayoutMixin:Layout(allBags, bagWidth, bagTy
   local function Next()
     if index > #calls then
       if #calls > 0 or refreshState[addonTable.Constants.RefreshReason.Cosmetic] or refreshState[addonTable.Constants.RefreshReason.ItemWidgets] or refreshState[addonTable.Constants.RefreshReason.ItemTextures] or refreshState[addonTable.Constants.RefreshReason.Layout] then
-        self.state.maxWidth, self.state.maxHeight, self.firstHit, self.lastHit = self:Display(bagWidth, bagIndexes, bagTypes, CopyTable(self.state.composed), self.state.emptySlotsOrder, self.state.emptySlotsByType, bagWidth, sideSpacing, topSpacing)
+        self.state.maxWidth, self.state.maxHeight, self.firstHit, self.lastHit, self.firstLabel = self:Display(bagWidth, bagIndexes, bagTypes, CopyTable(self.state.composed), self.state.emptySlotsOrder, self.state.emptySlotsByType, bagWidth, sideSpacing, topSpacing)
       end
-      callback(self.state.maxWidth, self.state.maxHeight, self.firstHit, self.lastHit)
+      callback(self.state.maxWidth, self.state.maxHeight, self.firstLabel, self.lastHit)
       self:RestoreGamepadFocus(bagIndexes)
     else
       index = index + 1

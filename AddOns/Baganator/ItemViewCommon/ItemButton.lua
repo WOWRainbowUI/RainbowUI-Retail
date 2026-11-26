@@ -652,7 +652,6 @@ function BaganatorRetailLiveContainerItemButtonMixin:SetItemDetails(cacheData)
   SetItemButtonCount(self, itemCount, itemCount and itemCount > 9999); -- true results in abbreviating large numbers
   SetItemButtonDesaturated(self, locked);
 
-  self:UpdateExtended();
   self:UpdateJunkItem(quality, noValue);
   if not addonTable.Constants.IsGamepadInUse then -- This taints the SmartNav, so we skip it
     self:SetReadable(readable);

@@ -159,6 +159,12 @@ function BaganatorSingleViewBackpackViewMixin:UpdateForCharacter(character, isLi
     )
   end
 
+  if self.SearchWidget:IsShown() then
+    self.ButtonsManager:SetGamepadDown(self.SearchWidget.SearchBox)
+  else
+    self.ButtonsManager:SetGamepadDown(activeBag.buttons[1])
+  end
+
   self:OnFinished()
 
   if self.refreshState[addonTable.Constants.RefreshReason.Buttons] or self.refreshState[addonTable.Constants.RefreshReason.Layout] then

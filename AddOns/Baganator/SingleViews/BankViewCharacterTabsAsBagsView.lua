@@ -163,6 +163,8 @@ function BaganatorSingleViewBankViewCharacterTabsAsBagsViewMixin:ShowTab(charact
         lastButton = button
       end
     end
+
+    self:GetParent().SearchWidget:LinkDown(activeBank.buttons[1])
     if lastButton then
       addonTable.Gamepad.LinkButtons(lastButton, "Right", self.DepositReagentsButton)
       self.DepositReagentsButton:SetPoint("LEFT", lastButton, "RIGHT", 5, 0)
@@ -179,9 +181,17 @@ function BaganatorSingleViewBankViewCharacterTabsAsBagsViewMixin:ShowTab(charact
       self.CurrencyWidget:AddGamepadLeft(lastButton)
     end
 
+    if self:GetParent().SearchWidget:IsShown() then
+      self:GetParent().ButtonsManager:SetGamepadDown(self:GetParent().SearchWidget.SearchBox)
+    else
+      self:GetParent().ButtonsManager:SetGamepadDown(activeBank.buttons[1])
+    end
+
     local all = {activeBank}
     tAppendAll(all, activeBankBagCollapsibles)
-    addonTable.SingleViews.ComputeGamepadGrid(all, self:GetParent().SearchWidget.SearchBox, allButtons, function(b)
+    addonTable.SingleViews.ComputeGamepadGrid(all,
+      self:GetParent().SearchWidget:IsVisible() and self:GetParent().SearchWidget.SearchBox or self:GetParent().ButtonsManager.active.topLeft[1] or self:GetParent().ButtonsManager.active.topRight[1],
+      allButtons, function(b)
       self.CurrencyWidget:AddGamepadUp(b)
     end)
 
@@ -199,7 +209,14 @@ function BaganatorSingleViewBankViewCharacterTabsAsBagsViewMixin:ShowTab(charact
     self.CurrencyWidget:UpdateCurrencyTextPositions(self.Container:GetWidth() - self.buttonsWidth - 5, self.Container:GetWidth())
   end
 
-  self:GetParent():OnTabFinished(activeBank.buttons[1], activeBank.buttons[#activeBank.buttons])
+  if self.showing then
+    C_Timer.After(0, function()
+      addonTable.Gamepad.SetTargetButton(self, activeBank.buttons[1])
+    end)
+    self.showing = false
+  end
+
+  self:GetParent():OnTabFinished()
 end
 
 if table.freeze then

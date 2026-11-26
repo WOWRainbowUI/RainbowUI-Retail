@@ -118,6 +118,10 @@ function addonTable.CustomiseDialog.Components.GetSlider(parent, label, min, max
     return holder.Slider:Enable()
   end
 
+  function holder:SetEnabled(state)
+    return holder.Slider:SetEnabled(state)
+  end
+
   addonTable.Skins.AddFrame("Slider", holder.Slider)
 
   holder:SetScript("OnMouseWheel", function(_, delta)
