@@ -263,3 +263,7 @@ L:SetMiscLocalization({
 	ResTimerParty = "为你的队友显示复活计时条。",
 	ResTimerPartyClassColors = "为队友的复活计时条使用职业颜色。"
 })
+-- Darkspear Islands: follow upstream module and timer identifiers.
+L = DBM:GetModLocalization("z2997")
+L:SetTimerLocalization({ TimerCap = "%s", TimerFlag = "旗帜重生" })
+L:SetOptionLocalization({ TimerCap = "显示占领计时条", TimerFlag = "显示旗帜重生计时条" })

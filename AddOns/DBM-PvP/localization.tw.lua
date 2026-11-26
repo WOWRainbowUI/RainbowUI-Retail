@@ -147,3 +147,8 @@ L:SetMiscLocalization({
 	OrbTaken	= "(%S+) 奪走了 (%S+) 異能球！",
 	OrbReturn	= " (%S+) 異能球已回到初始位置！"
 })
+
+-- Darkspear Islands: follow upstream module and timer identifiers.
+L = DBM:GetModLocalization("z2997")
+L:SetTimerLocalization({ TimerCap = "%s", TimerFlag = "旗幟重生" })
+L:SetOptionLocalization({ TimerCap = "顯示佔領計時條", TimerFlag = "顯示旗幟重生計時條" })
