@@ -12,6 +12,7 @@ local string_format = string.format
 local CopyTable = MikSBT.CopyTable
 local EraseTable = MikSBT.EraseTable
 local GetSkillName = MikSBT.GetSkillName
+local GetSpellInfo = MikSBT.GetSpellInfo
 local Print = MikSBT.Print
 local SplitString = MikSBT.SplitString
 local Client = MikSBT.Compatibility.Client
@@ -2848,6 +2849,35 @@ local function MigrateRangedEvents(profile)
 	profile.rangedEventsMigrated = true
 end
 
+local FOREVER_DEFAULT_AURAS = {
+	[412735] = "Demonic Knowledge",
+	[1299038] = "Plainsrunning",
+}
+
+local function SeedDefaultAuraRules(profile)
+	if not Client.isForever or rawget(profile, "defaultAuraRulesAdded") then return end
+
+	local rules = rawget(profile, "auraTracking")
+	if type(rules) ~= "table" then
+		rules = {}
+		profile.auraTracking = rules
+	end
+	local enabledNames = {}
+	for key, enabled in pairs(rules) do
+		local spellID = enabled == true and tonumber(key)
+		local name = spellID and GetSpellInfo and GetSpellInfo(spellID)
+		if name then enabledNames[name] = true end
+	end
+	for spellID, fallbackName in pairs(FOREVER_DEFAULT_AURAS) do
+		local name = GetSpellInfo and GetSpellInfo(spellID) or fallbackName
+		local key = "name:" .. name
+		if rawget(rules, key) == nil and not enabledNames[name] then
+			rules[key] = false
+		end
+	end
+	profile.defaultAuraRulesAdded = true
+end
+
 local function SelectProfile(profileName)
 
 	if (savedVariables.profiles[profileName]) then
@@ -2857,6 +2887,7 @@ local function SelectProfile(profileName)
 		currentProfile = savedVariables.profiles[profileName]
 		MigrateCombatTextOptions(currentProfile)
 		MigrateRangedEvents(currentProfile)
+		SeedDefaultAuraRules(currentProfile)
 		module.currentProfile = currentProfile
 
 		EraseTable(differentialMap)
@@ -2907,6 +2938,7 @@ local function ResetProfile(profileName, showOutput)
 		EraseTable(savedVariables.profiles[profileName])
 
 		savedVariables.profiles[profileName].creationVersion = MikSBT.VERSION .. "." .. MikSBT.SVN_REVISION
+		SeedDefaultAuraRules(savedVariables.profiles[profileName])
 
 		if (profileName == savedVariablesPerChar.currentProfileName) then
 
@@ -2950,6 +2982,8 @@ local function ImportProfile(text, profileName, previewMedia)
 	local name, details = GetProfileTransfer():Import(
 		text, profileName, savedVariables.profiles, destination)
 	if not name then return nil, details end
+	-- An imported rule list also records which rows the user removed.
+	if Client.isForever then savedVariables.profiles[name].defaultAuraRulesAdded = true end
 	if previewMedia then
 		for _, kind in ipairs({ "fonts", "sounds" }) do
 			for mediaName, file in pairs(destination[kind]) do
@@ -2978,6 +3012,11 @@ local function InitSavedVariables()
 	savedVariables = state.savedVariables
 	savedVariablesPerChar = state.savedVariablesPerChar
 	savedMedia = state.savedMedia
+	if Client.isForever then
+		for _, profile in pairs(savedVariables.profiles) do
+			SeedDefaultAuraRules(profile)
+		end
+	end
 
 	SelectProfile(state.currentProfileName)
 

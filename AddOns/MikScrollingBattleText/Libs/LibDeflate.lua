@@ -75,9 +75,9 @@ Their original licenses shall be comply when used.
 ]] --[[
 	Curseforge auto-packaging replacements:
 
-	Project Date: 2026-11-25T11:29:25Z
-	Project Hash: 3142698c035dcd90a9d55063e5c89e19a9b693de
-	Project Version: v12.059
+	Project Date: 2026-11-26T23:44:28Z
+	Project Hash: 6064f3c09fdd8eaeff8b5601af5b4c2a9001bd6e
+	Project Version: v12.060
 --]] local LibDeflate
 
 -- MSBT adaptation: private registration and bounded zlib decompression.

@@ -269,7 +269,8 @@ function ProfileTransfer:Export(name, profile, availableMedia)
 		SpamControl = {}, LootAlerts = {}, Cooldowns = {},
 	}
 	for key, value in pairs(settings) do
-		if key ~= "creationVersion" and key ~= "rangedEventsMigrated" then
+		if key ~= "creationVersion" and key ~= "rangedEventsMigrated"
+			and key ~= "defaultAuraRulesAdded" then
 			local section = SECTION_KEYS[key] or "General"
 			if COLLECTIONS[section] then
 				sections[section] = value
