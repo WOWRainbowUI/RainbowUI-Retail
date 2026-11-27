@@ -12,6 +12,7 @@ local MARKS = "blizzardSwitches"
 -- The note that a profile's ranged events were made is written when the profile is selected. It is
 -- no setting, so it is not listed or counted; a restore still takes it back with the rest.
 local MIGRATED = "rangedEventsMigrated"
+local DEFAULT_AURA_RULES_ADDED = "defaultAuraRulesAdded"
 
 function ProfileSnapshots:New(options)
 	local snapshots = setmetatable({}, self)
@@ -79,7 +80,8 @@ local found, limit, master
 
 -- Profiles sit at depth 2; inside one, a missing raw value is the master value at that path.
 local function CompareValues(entries, path, depth, key, old, new, default)
-	if depth == 3 and (key == MARKS or key == MIGRATED) then return end
+	if depth == 3 and (key == MARKS or key == MIGRATED
+		or key == DEFAULT_AURA_RULES_ADDED) then return end
 	path[depth] = key
 	local oldIsTable, newIsTable = type(old) == "table", type(new) == "table"
 	-- A profile on one side only is one entry, so a revert copies or removes it whole.
