@@ -91,3 +91,5 @@ L["Class Powers"] = true
 L["AUTO_LAYOUT_CHANGES_SPECNAME_GROUP_TYPE"] = "%s - "..GROUP.." "..TYPE
 L["AUTO_LAYOUT_CHANGES_RAID_SIZE_OPTION_DESC"] = "You do not need to set a profile for every size, the next-smallest size will be used if nothing is set!"
 L["Extras"] = "额外设置"
+
+L["AUTO_LAYOUT_CHANGE_RESOLUTION_DESCRIPTION"] = "如果上方没有为当前专精指定布局配置，则根据屏幕分辨率自动切换编辑模式的布局配置。"

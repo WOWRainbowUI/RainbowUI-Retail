@@ -132,3 +132,5 @@ L["Name Scale"] = true
 L["Reparent Frame"] = true
 L["Allows frames to be reparented to other frames. Use at your own risk. May cause errors if not properly used."] = true
 L["Extras"] = true
+
+L["AUTO_LAYOUT_CHANGE_RESOLUTION_DESCRIPTION"] = "Automatically change your Edit Mode profile based on screen resolution, if no specific profile is set for your spec above."

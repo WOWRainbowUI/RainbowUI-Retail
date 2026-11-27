@@ -130,3 +130,5 @@ L["Name Scale"] = "名字大小"
 L["Reparent Frame"] = "重新指定父框架"
 L["Allows frames to be reparented to other frames. Use at your own risk. May cause errors if not properly used."] = "允許將框架重新指定給其他框架作為父框架。使用風險自負，若使用不當可能導致錯誤。"
 L["Extras"] = "額外設定"
+
+L["AUTO_LAYOUT_CHANGE_RESOLUTION_DESCRIPTION"] = "如果上方沒有為目前專精指定版面設定，便依螢幕解析度自動切換編輯模式的版面設定。"
