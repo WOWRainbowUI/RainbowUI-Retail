@@ -14,14 +14,13 @@ local L = BR.L
 local GameContext = BR.GameContext
 local StateHelpers = BR.StateHelpers
 local IsBuffEnabled = StateHelpers.IsBuffEnabled
-local IsPlayerSpellCached = StateHelpers.IsPlayerSpellCached
 local Plain = BR.Secret.Plain
 local AuraField = BR.Secret.AuraField
 local BuffBeneficiaries = BR.BuffBeneficiaries
 local GetUnitAuraBySpellID = C_UnitAuras.GetUnitAuraBySpellID
 
-local RANK_LEVELS = BR.DRIVE_BY.rankLevels
-local LEVEL_SPAN = BR.DRIVE_BY.levelSpan
+local RANK_LEVELS = BR.SPELL_RANKS.levels
+local FitRank = BR.Ranks.Fit
 local FEATURE_KEY = "driveByBuffs"
 
 local _, playerClass = UnitClass("player")
@@ -43,7 +42,7 @@ local OFFER_PRIORITY = { stamina = 1, spirit = 2 }
 local candidates = {}
 local scanIndex = {}
 for _, category in ipairs({ "raid", "self" }) do
-    for _, buff in ipairs(BR.BUFF_TABLES[category]) do
+    for _, buff in ipairs(BR.BuffData.buffTables[category]) do
         if buff.class == playerClass and HasRankLevels(buff.spellID) then
             candidates[#candidates + 1] = buff
             scanIndex[buff] = #candidates
@@ -71,10 +70,13 @@ local targetState = nil ---@type boolean? nil = not read, false = no target that
 local NO_AURA, OTHER_AURA, OWN_AURA = 0, 1, 2
 ---@type table<table, integer> Aura ID list -> NO_AURA, OTHER_AURA or OWN_AURA
 local targetAuraState = {}
+---@type table<function, boolean>
+local targetCastBlocked = {}
 
 local function InvalidateCache()
     targetState = nil
     wipe(targetAuraState)
+    wipe(targetCastBlocked)
 end
 
 ---@return DriveByTarget?
@@ -128,31 +130,33 @@ local function TargetHasAura(auraIDs)
     return state ~= NO_AURA, state == OWN_AURA
 end
 
+---An aura on the target makes the cast fail.
+---@param castBlocked? fun(unit: string): boolean
+---@return boolean
+local function TargetBlocked(castBlocked)
+    if not castBlocked then
+        return false
+    end
+    local blocked = targetCastBlocked[castBlocked]
+    if blocked == nil then
+        blocked = castBlocked("target")
+        targetCastBlocked[castBlocked] = blocked
+    end
+    return blocked
+end
+
+---@param buff RaidBuff
+---@return boolean
+local function TargetCanTake(buff)
+    return not TargetHasAura(StateHelpers.AsSpellList(buff.spellID)) and not TargetBlocked(buff.castBlocked)
+end
+
 ---@param beneficiaryKey string
 ---@param class string
 ---@return boolean
 local function TargetBenefits(beneficiaryKey, class)
     local classes = BuffBeneficiaries[beneficiaryKey]
     return not classes or classes[class] == true
-end
-
--- IsSpellKnown answers true only for the highest learned rank, so every rank
--- below it counts as known too.
----@param ranks number[] Highest rank first
----@param level number Target level, -1 when unknown
----@return number?
-local function PickRank(ranks, level)
-    local known = false
-    for _, id in ipairs(ranks) do
-        local rankLevel = RANK_LEVELS[id]
-        if rankLevel then
-            known = known or IsPlayerSpellCached(id)
-            if known and (level < 0 or level >= rankLevel - LEVEL_SPAN) then
-                return id
-            end
-        end
-    end
-    return nil
 end
 
 ---The rank to cast on the target, or nil when no reminder shows. Safe to call every render.
@@ -180,17 +184,15 @@ local function Pick()
                 if own then
                     break
                 end
-                if not has then
-                    spellID = PickRank(choice.spellIDs, current.level)
+                if not has and not TargetBlocked(choice.castBlocked) then
+                    spellID = FitRank(choice.spellIDs, current.level)
                     if spellID then
                         break
                     end
                 end
             end
-        elseif
-            TargetBenefits(buff.key, current.class) and not TargetHasAura(StateHelpers.AsSpellList(buff.spellID))
-        then
-            spellID = PickRank(StateHelpers.AsSpellList(buff.spellID), current.level)
+        elseif TargetBenefits(buff.key, current.class) and TargetCanTake(buff) then
+            spellID = FitRank(StateHelpers.AsSpellList(buff.spellID), current.level)
         end
         if spellID then
             return spellID
@@ -244,18 +246,15 @@ local function Others(mainSpellID)
                 if
                     not Contains(choice.spellIDs, mainSpellID)
                     and not TargetHasAura(choice.auraIDs or choice.spellIDs)
-                    and PickRank(choice.spellIDs, current.level)
+                    and not TargetBlocked(choice.castBlocked)
+                    and FitRank(choice.spellIDs, current.level)
                 then
                     others[#others + 1] = choice.spellIDs
                 end
             end
         else
             local ranks = rankLists[buff]
-            if
-                not Contains(ranks, mainSpellID)
-                and not TargetHasAura(StateHelpers.AsSpellList(buff.spellID))
-                and PickRank(ranks, current.level)
-            then
+            if not Contains(ranks, mainSpellID) and TargetCanTake(buff) and FitRank(ranks, current.level) then
                 others[#others + 1] = ranks
             end
         end
@@ -303,7 +302,7 @@ local function SendGreeting(name, spellID)
         return
     end
     greeted[name] = true
-    local send = C_ChatInfo and C_ChatInfo.SendChatMessage or SendChatMessage
+    local send = C_ChatInfo.SendChatMessage
     if mode == "whisper" then
         local text = defaults.driveByWhisper or L["DriveBy.WhisperDefault"]
         send(FillGreeting(text, name, spellID), "WHISPER", nil, name)
@@ -353,6 +352,7 @@ BR.Client.RegisterEvent(eventFrame, "UNIT_FLAGS", "target")
 BR.Client.RegisterEvent(eventFrame, "UNIT_LEVEL", "target")
 BR.Client.RegisterEvent(eventFrame, "UNIT_CONNECTION", "target")
 BR.Client.RegisterEvent(eventFrame, "UNIT_FACTION", "target", "player")
+BR.Client.RegisterEvent(eventFrame, "SPELLS_CHANGED")
 BR.Client.RegisterEvent(eventFrame, "UNIT_SPELLCAST_SENT", "player")
 BR.Client.RegisterEvent(eventFrame, "UNIT_SPELLCAST_SUCCEEDED", "player")
 
@@ -375,6 +375,5 @@ end)
 
 BR.DriveBy = {
     Pick = Pick,
-    PickRank = PickRank,
     Others = Others,
 }

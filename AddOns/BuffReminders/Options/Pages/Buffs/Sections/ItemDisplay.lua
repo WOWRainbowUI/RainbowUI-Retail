@@ -75,7 +75,7 @@ local function Build(ctx, layout)
     local P_GAP = 3
     local P_STEP = P_ICON + P_GAP + P_BORDER * 2
     local P_SUB_STEP = P_SUB + P_BORDER * 2
-    local previewTextures = BR.CONSUMABLE_PREVIEW_TEXTURES
+    local previewTextures = BR.ConsumableData.previewTextures
     local TEX_FLASK = previewTextures.flask
     local TEX_FOOD = previewTextures.food
     local TEX_OIL = previewTextures.oil
@@ -212,7 +212,7 @@ local function Build(ctx, layout)
 
     updateBadgeVisibility = function(mode)
         local subIcons = mode == "sub_icons"
-        badgeOnSubIconsHolder:SetShown(subIcons and BR.CONSUMABLE_FEATURES.itemLabels)
+        badgeOnSubIconsHolder:SetShown(subIcons and BR.ConsumableData.features.itemLabels)
     end
     updateBadgeVisibility(BR.Config.Get("defaults.consumableDisplayMode"))
     table.insert(BR.RefreshableComponents, {
@@ -227,30 +227,30 @@ end
 local function BuildOverlays(ctx, layout)
     local parent = ctx.content
 
-    local consumableTextScaleHolder = Components.Slider(parent, {
-        label = L["Options.ConsumableTextScale"],
+    local itemTextSizeHolder = Components.Slider(parent, {
+        label = L["Options.ItemTextSize"],
         labelWidth = ctx.overlayLabelWidth,
-        min = 5,
-        max = 80,
+        min = 6,
+        max = 40,
         step = 1,
-        suffix = "%",
+        suffix = "px",
         get = function()
-            return BR.Config.Get("defaults.consumableTextScale")
+            return BR.Config.Get("defaults.itemTextSize")
         end,
         tooltip = {
-            title = L["Options.ConsumableTextScale.Title"],
-            desc = L["Options.ConsumableTextScale.Desc"],
+            title = L["Options.ItemTextSize.Title"],
+            desc = L["Options.ItemTextSize.Desc"],
         },
         onChange = function(val)
-            BR.Config.Set("defaults.consumableTextScale", val)
+            BR.Config.Set("defaults.itemTextSize", val)
         end,
     })
-    layout:Add(consumableTextScaleHolder, nil, COMPONENT_GAP)
+    layout:Add(itemTextSizeHolder, nil, COMPONENT_GAP)
 
     local labelWidth = ctx.overlayLabelWidth
 
     local function FormatSize(val)
-        return val == 0 and L["Options.Auto"] or (val .. "%")
+        return val == 0 and L["Options.Auto"] or (val .. "px")
     end
 
     ---@param item string
@@ -273,7 +273,7 @@ local function BuildOverlays(ctx, layout)
             -- 0 is the inherit sentinel: it stores nil, so the item follows the base size.
             size = {
                 min = 0,
-                max = 80,
+                max = 40,
                 format = FormatSize,
                 get = function()
                     return BR.TextPositions.GetSizeOverride(item) or 0
@@ -303,7 +303,7 @@ local function BuildOverlays(ctx, layout)
         })
     end
 
-    if BR.CONSUMABLE_FEATURES.itemLabels then
+    if BR.ConsumableData.features.itemLabels then
         -- "Off" on the stat label row is the stored hideConsumableLabels flag.
         TextItemRow("statLabel", L["Options.TextPositions.StatLabel"], {
             get = function()
@@ -363,7 +363,7 @@ local function BuildFilters(ctx, layout)
     layout:Add(readyCheckOnlyHolder, nil, COMPONENT_GAP)
     layout:SetX(layout:GetX() - DEPENDENT_INDENT)
 
-    if BR.CONSUMABLE_FEATURES.delveFood then
+    if BR.ConsumableData.features.delveFood then
         local delveFoodOnlyHolder = Components.Checkbox(parent, {
             label = L["Options.DelveFoodOnly"],
             get = function()
@@ -380,7 +380,7 @@ local function BuildFilters(ctx, layout)
         layout:Add(delveFoodOnlyHolder, nil, COMPONENT_GAP)
     end
 
-    if BR.CONSUMABLE_FEATURES.legacyItems then
+    if BR.ConsumableData.features.legacyItems then
         local hideLegacyHolder = Components.Checkbox(parent, {
             label = L["Options.HideLegacyConsumables"],
             get = function()

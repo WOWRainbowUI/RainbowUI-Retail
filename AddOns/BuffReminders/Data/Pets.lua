@@ -28,7 +28,7 @@ local IsSpellKnown = C_SpellBook.IsSpellKnown
 ---@class PetActionList : PetAction[]
 ---@field genericIndex? number  -- Preferred index for generic (collapsed) display mode
 
-local PET_SPELLS = BR.PET_SPELLS
+local PET_SPELLS = BR.BuffData.petSpells
 
 local CALL_PET_SPELLS = PET_SPELLS.callPet
 
@@ -224,14 +224,14 @@ local WARLOCK_DEMON_PREFERENCE = DemonList(PET_SPELLS.demonPreference)
 
 ---@return string
 local function GetWarlockDemonRow()
-    return BR.StateHelpers.GetContentRow()
+    return BR.Visibility.GetContentRow()
 end
 
 ---@param row string
 ---@param key string
 ---@return boolean
 local function IsWarlockDemonAllowed(row, key)
-    return BR.StateHelpers.IsContentChoiceAllowed("warlockDemons", row, key)
+    return BR.Visibility.IsContentChoiceAllowed("warlockDemons", row, key)
 end
 
 ---Summon spell ID for the current content row: the first demon in preference order

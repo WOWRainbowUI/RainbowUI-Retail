@@ -281,6 +281,7 @@ local function BuildRetail()
             hoverLeft = { 0.25, 0.22, 0.1, 1 },
             hoverRight = { 0.25, 0.22, 0.1, 1 },
             bar = CLEAR,
+            selected = ACCENT,
             text = TEXT,
             textHover = ACCENT,
             check = MUTED,
@@ -607,6 +608,7 @@ local function BuildForever()
             hoverLeft = P.menuHover,
             hoverRight = Alpha(P.menuHover, 0),
             bar = Alpha(P.accent, 1),
+            selected = Alpha(P.accent, 1),
             text = P.text,
             textHover = TITLE,
             check = P.accent,
@@ -709,7 +711,7 @@ local function BuildForever()
     return theme
 end
 
-BR.Theme = BR.CLIENT == BR.ClientType.Forever and BuildForever() or BuildRetail()
+BR.Theme = BR.ByClient({ retail = BuildRetail, forever = BuildForever })()
 BR.THEME_CLEAR = CLEAR
 
 -- ============================================================================

@@ -282,7 +282,7 @@ function Loadouts.CurrentInstanceMatches(instances)
     -- Identity comes from State's content-type cache: one GetInstanceInfo per zone
     -- instead of one per rule per refresh. State loads after this file, but only
     -- State.Refresh calls this function, so the runtime access is safe.
-    local name, instanceID, activeChallenge = BR.BuffState.GetInstanceContext()
+    local name, instanceID, activeChallenge = BR.GameContext.GetInstanceContext()
     for _, inst in ipairs(instances) do
         if inst.name and inst.name == name then
             return true
@@ -440,3 +440,9 @@ function Loadouts.GetRuleIcon(rule)
 end
 
 BR.Loadouts = Loadouts
+
+local readyFrame = CreateFrame("Frame")
+BR.Client.RegisterEvent(readyFrame, "PLAYER_ENTERING_WORLD")
+readyFrame:SetScript("OnEvent", function()
+    Loadouts.EnsureAddonsReady(BR.BuffData.buffTables.loadout)
+end)

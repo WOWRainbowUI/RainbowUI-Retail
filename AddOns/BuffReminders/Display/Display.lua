@@ -11,7 +11,9 @@ local BR = ns
 ---@class DefaultSettings
 ---@field iconSize number
 ---@field iconWidth? number
----@field textSize number
+---@field countTextSize number Screen pixels
+---@field missingTextSize number Screen pixels
+---@field captionTextSize number Screen pixels
 ---@field iconAlpha number
 ---@field textAlpha number
 ---@field textColor number[]
@@ -95,17 +97,19 @@ local BR = ns
 ---@field rightClickMenu? boolean false: the right click does the left-click action
 ---@field subIconReveal? "hover"|"always"
 ---@field subIconSide? "TOP"|"BOTTOM"|"LEFT"|"RIGHT"
----@field consumableTextScale? number
+---@field itemTextSize? number Screen pixels
 ---@field hideConsumableLabels? boolean
 ---@field hideLegacyConsumables? boolean
 ---@field preferReusableRunes? boolean
 ---@field petDisplayMode? "generic"|"expanded"
 ---@field petLabels? boolean
----@field petLabelScale? number
+---@field petLabelSize? number Screen pixels
 ---@field petSpecIconOnHover? boolean
 ---@field petLabelClasses? table<ClassName, boolean>
 ---@field useFelDomination? boolean
 ---@field warlockDemons? table<string, table<string, boolean>> Content row -> allowed demon keys
+---@field warlockSacrificeDemons? table<string, table<string, boolean>> Talent group row -> the demon to sacrifice, at most one (WoW Forever)
+---@field warlockStones? table<string, table<string, boolean>> Talent group row -> the picked stone, at most one (WoW Forever)
 ---@field warlockWrongDemon? boolean
 ---@field warriorStances? table<string, table<string, boolean>> Content row -> allowed stance keys
 ---@field druidForms? table<string, table<string, boolean>> Content row -> allowed form keys
@@ -117,7 +121,7 @@ local BR = ns
 ---@field righteousFuryShow? "tank"|"always"
 ---@field mageArmorPreference? "mage"|"ice" Armor that the icon shows and the click casts
 ---@field textPositions? table<string, {zone: string, offsetX: number, offsetY: number}>
----@field textSizes? table<string, number>
+---@field textSizes? table<string, number> Screen pixels
 
 ---@class CategorySetting
 ---@field position CategoryPosition
@@ -125,7 +129,8 @@ local BR = ns
 ---@field anchorPoint? string
 ---@field iconSize? number
 ---@field iconWidth? number
----@field textSize? number
+---@field countTextSize? number
+---@field missingTextSize? number
 ---@field iconAlpha? number
 ---@field textAlpha? number
 ---@field textColor? number[]
@@ -137,7 +142,6 @@ local BR = ns
 ---@field showMissingGlow? boolean
 ---@field expirationThreshold? number
 ---@field showBuffReminder? boolean
----@field buffTextSize? number
 ---@field showText? boolean
 ---@field useCustomAppearance? boolean
 ---@field useCustomGlow? boolean
@@ -233,9 +237,10 @@ local BR = ns
 ---@field _br_subIcon? boolean             -- A test-mode sub-icon, not a layout frame
 ---@field _br_pet_spec_icon? number        -- Pet spec ability icon texture for hover swap
 ---@field _br_pet_label_key? string        -- Cache key for pet label updates
----@field _br_count_scale? number          -- Font scale the count text was last written with
+---@field _br_count_key? string          -- Size setting the count text was last written with
 ---@field _br_textInsetRatio? number      -- Share of the icon size that keeps inside text off the frame art
 ---@field _br_borderInset? number        -- Border width inside the frame edge, 0 without a native border
+---@field _br_artBorder? number          -- Border width from the settings, for sizes that scale with the art
 ---@field _br_pet_name_text? FontString    -- Pet name label below icon
 ---@field _br_pet_family_text? FontString  -- Pet spec label below name
 ---@field _br_pet_extra_text? FontString   -- Spirit Beast label below spec
@@ -265,7 +270,8 @@ local IsInGroup = IsInGroup
 
 -- Shared display font (Display/Fonts.lua), aliased for hot render paths
 local DisplayFonts = BR.DisplayFonts
-local ApplyFont = DisplayFonts.Apply
+local Pixels = BR.Pixels
+local ApplyFont = DisplayFonts.ApplyPixels
 local GetFontPath = DisplayFonts.GetFontPath
 local GetOutline = DisplayFonts.GetOutline
 
@@ -276,7 +282,7 @@ local masqueGroup = Masque and Masque:Group("BuffReminders")
 -- Global API table for external addon integration
 BuffReminders = {}
 
-local BUFF_TABLES = BR.BUFF_TABLES
+local BUFF_TABLES = BR.BuffData.buffTables
 
 local RaidBuffs = BUFF_TABLES.raid
 local SelfBuffs = BUFF_TABLES.self
@@ -368,7 +374,7 @@ local function BuildLoadoutRulesArray()
     -- per-rule satisfied/icon verdicts can now be keyed to stale definitions.
     BR.BuffState.InvalidateLoadoutCache()
     wipe(LoadoutRules)
-    if not db or not db.loadoutReminders or not BR.Loadouts then
+    if not db or not db.loadoutReminders or not BR.IsCategoryAvailable("loadout") then
         return
     end
     local sortedKeys = {}
@@ -388,8 +394,8 @@ end
 local defaults = BR.defaults
 
 local CODE_DEFAULTS = defaults.defaults
-local OVERLAY_TEXT_SCALE = 0.6 -- scale for "NO X" warning text
-local COUNT_TEXT_SCALE = 1 -- scale for group counts and countdowns
+local MISSING_TEXT_KEY = "missingTextSize" -- "NO X" warning text
+local COUNT_TEXT_KEY = "countTextSize" -- group counts and countdowns
 
 local mainFrame
 local buffFrames = {}
@@ -573,7 +579,8 @@ local function BuildCategorySettings(category)
             position = catSettings and catSettings.position or { point = "CENTER", x = 0, y = 0 },
             iconSize = globalDefaults.iconSize or 64,
             iconWidth = globalDefaults.iconWidth,
-            textSize = globalDefaults.textSize or CODE_DEFAULTS.textSize,
+            countTextSize = globalDefaults.countTextSize or CODE_DEFAULTS.countTextSize,
+            missingTextSize = globalDefaults.missingTextSize or CODE_DEFAULTS.missingTextSize,
             iconAlpha = globalDefaults.iconAlpha or 1,
             textAlpha = globalDefaults.textAlpha or 1,
             textColor = globalDefaults.textColor or { 1, 1, 1 },
@@ -601,7 +608,8 @@ local function BuildCategorySettings(category)
         -- copies the current defaults when useCustomAppearance turns on.
         result.iconSize = (catSettings and catSettings.iconSize) or 64
         result.iconWidth = catSettings and catSettings.iconWidth
-        result.textSize = (catSettings and catSettings.textSize) or CODE_DEFAULTS.textSize
+        result.countTextSize = (catSettings and catSettings.countTextSize) or CODE_DEFAULTS.countTextSize
+        result.missingTextSize = (catSettings and catSettings.missingTextSize) or CODE_DEFAULTS.missingTextSize
         result.iconAlpha = (catSettings and catSettings.iconAlpha) or 1
         result.textAlpha = (catSettings and catSettings.textAlpha) or 1
         result.textColor = (catSettings and catSettings.textColor) or { 1, 1, 1 }
@@ -611,7 +619,8 @@ local function BuildCategorySettings(category)
     else
         result.iconSize = globalDefaults.iconSize or 64
         result.iconWidth = globalDefaults.iconWidth
-        result.textSize = globalDefaults.textSize or CODE_DEFAULTS.textSize
+        result.countTextSize = globalDefaults.countTextSize or CODE_DEFAULTS.countTextSize
+        result.missingTextSize = globalDefaults.missingTextSize or CODE_DEFAULTS.missingTextSize
         result.iconAlpha = globalDefaults.iconAlpha or 1
         result.textAlpha = globalDefaults.textAlpha or 1
         result.textColor = globalDefaults.textColor or { 1, 1, 1 }
@@ -695,14 +704,6 @@ local function IsCountdownText(entry)
     return entry.isEating or entry.countdownExpirationTime ~= nil or entry.displayType == "expiring"
 end
 
----Calculate font size from explicit textSize
----@param scale? number
----@param textSize number
----@return number
-local function GetFontSize(scale, textSize)
-    return max(6, floor(textSize * (scale or 1)))
-end
-
 ---Get effective icon width (falls back to iconSize for square icons)
 ---@param iconWidth? number Explicit width setting
 ---@param iconSize number Icon height (used as fallback)
@@ -711,25 +712,23 @@ local function GetEffectiveWidth(iconWidth, iconSize)
     return iconWidth or iconSize
 end
 
----Get font size for a specific frame based on its effective category
+---Font size in screen pixels of one text of a frame, from its effective category.
 ---@param frame table
----@param scale? number
+---@param key string COUNT_TEXT_KEY or MISSING_TEXT_KEY
 ---@return number
-local function GetFrameFontSize(frame, scale)
-    local effectiveCat = GetEffectiveCategory(frame)
-    local catSettings = GetCategorySettings(effectiveCat)
-    return GetFontSize(scale, catSettings.textSize)
+local function GetFrameFontSize(frame, key)
+    return GetCategorySettings(GetEffectiveCategory(frame))[key]
 end
 
----Write the count overlay text and its font size in one step. Labels render
----smaller than counts, so the two must stay in step. The frame records the
----scale, so UpdateVisuals can re-apply it without a read of the current text.
+---Write the count overlay text and its font size in one step. Labels and counts
+---have separate sizes. The frame records which one, so UpdateVisuals can re-apply
+---it without a read of the current text.
 ---@param frame BuffFrame
 ---@param text string
----@param scale number OVERLAY_TEXT_SCALE for labels, COUNT_TEXT_SCALE for numbers
-local function SetCountText(frame, text, scale)
-    frame._br_count_scale = scale
-    ApplyFont(frame.count, GetFrameFontSize(frame, scale))
+---@param key string MISSING_TEXT_KEY for labels, COUNT_TEXT_KEY for numbers
+local function SetCountText(frame, text, key)
+    frame._br_count_key = key
+    ApplyFont(frame.count, GetFrameFontSize(frame, key))
     frame.count:SetText(text)
 end
 
@@ -908,7 +907,7 @@ local function ShowTextFrame(frame, overlayText, shouldGlow, cachedGlow)
         frame.qualityIcon:Hide()
     end
     if overlayText then
-        SetCountText(frame, overlayText, OVERLAY_TEXT_SCALE)
+        SetCountText(frame, overlayText, MISSING_TEXT_KEY)
         frame.count:Show()
     else
         frame.count:Hide()
@@ -922,7 +921,6 @@ end
 -- BELOW-center "buffReminder" text zone. The width caps near the icon, so multi-word
 -- names wrap. A single word that is too long is truncated.
 local SUBLABEL_WIDTH_FACTOR = 1.1
-local SUBLABEL_FONT_SCALE = 0.8
 
 -- Anchor point for each growth direction (anchor is the fixed point, icons grow away from it)
 local DIRECTION_ANCHORS = {
@@ -1023,17 +1021,26 @@ local function CreateCategoryFrame(category)
     return frame
 end
 
----Side of the icon art inside the border, for the overlays that scale with the icon.
+---Width of the icon art inside the border, for the overlays that scale with the icon. It
+---reads the settings, not the snapped frame size, so a UI scale change keeps every font
+---size, and the set of shared Font objects stays small.
 ---@param frame table
----@param size number Frame side
 ---@return number
-local function ArtSize(frame, size)
-    return size - 2 * (frame._br_borderInset or 0)
+local function ArtSize(frame)
+    local catSettings = GetCategorySettings(GetEffectiveCategory(frame))
+    local width = GetEffectiveWidth(catSettings.iconWidth, catSettings.iconSize or 64)
+    return width - 2 * (frame._br_artBorder or 0)
 end
 
+---The art fits the frame, so the frame edge is the visible edge. The icon takes the part of
+---the art that an action button gives its icon.
 local function SizeBlizzardIconArt(frame, width, height)
-    frame.iconFrameArt:SetSize(width * BLIZZARD_ICON_ART.frameWidthRatio, height)
-    frame.iconMask:SetSize(width * BLIZZARD_ICON_ART.maskRatio, height * BLIZZARD_ICON_ART.maskRatio)
+    local iconWidth = width / BLIZZARD_ICON_ART.frameWidthRatio
+    frame.iconFrameArt:SetSize(width, height)
+    frame.icon:ClearAllPoints()
+    frame.icon:SetPoint("TOPLEFT")
+    frame.icon:SetPoint("BOTTOMRIGHT", -Pixels.Round(width - iconWidth, frame), 0)
+    frame.iconMask:SetSize(iconWidth * BLIZZARD_ICON_ART.maskRatio, height * BLIZZARD_ICON_ART.maskRatio)
 end
 
 ---Create the hidden action-button frame and mask on a frame with an `icon` texture.
@@ -1132,6 +1139,9 @@ local function SetBlizzardIconArt(frame, shown, iconWidth, iconHeight)
         if frame._br_masked then
             frame.icon:RemoveMaskTexture(frame.iconMask)
             frame._br_masked = false
+            -- The art narrowed the icon.
+            frame.icon:ClearAllPoints()
+            frame.icon:SetAllPoints()
         end
     end
 end
@@ -1143,6 +1153,7 @@ local function UpdateIconStyling(frame, catSettings)
         frame.border:Hide()
         SetBlizzardIconArt(frame, false)
         frame._br_borderInset = 0
+        frame._br_artBorder = 0
         return
     end
     -- When Masque is loaded but disabled, hide textures it created (Backdrop, Shadow, Gloss, etc.)
@@ -1167,30 +1178,35 @@ local function UpdateIconStyling(frame, catSettings)
     -- The action-button frame shows the full icon, with its built-in dark border.
     local blizzardStyle = UsesBlizzardIconStyle()
     -- The border lies inside the frame, so the frame edge is the visible edge.
-    local borderInset = blizzardStyle and 0 or (catSettings.borderSize or DEFAULT_BORDER_SIZE)
+    local borderInset = blizzardStyle and 0 or Pixels.Snap(catSettings.borderSize or DEFAULT_BORDER_SIZE, frame, true)
+    local iconHeight = catSettings.iconSize or 64
+    local iconWidth = GetEffectiveWidth(catSettings.iconWidth, iconHeight)
+    -- Before the icon anchors: the art anchors the icon in the Blizzard style.
+    SetBlizzardIconArt(frame, blizzardStyle, iconWidth, iconHeight)
     frame._br_borderInset = borderInset
-    frame.icon:ClearAllPoints()
+    frame._br_artBorder = blizzardStyle and 0 or (catSettings.borderSize or DEFAULT_BORDER_SIZE)
     if borderInset > 0 then
+        frame.icon:ClearAllPoints()
         frame.icon:SetPoint("TOPLEFT", borderInset, -borderInset)
         frame.icon:SetPoint("BOTTOMRIGHT", -borderInset, borderInset)
         frame.border:ClearAllPoints()
         frame.border:SetAllPoints()
         frame.border:Show()
     else
-        frame.icon:SetAllPoints()
+        if not blizzardStyle then
+            frame.icon:ClearAllPoints()
+            frame.icon:SetAllPoints()
+        end
         frame.border:Hide()
     end
     local additionalZoom = (catSettings.iconZoom or DEFAULT_ICON_ZOOM) / 100
     local inset = (blizzardStyle and 0 or TEXCOORD_INSET) + additionalZoom
-    local iconHeight = catSettings.iconSize or 64
-    local iconWidth = GetEffectiveWidth(catSettings.iconWidth, iconHeight)
-    local xInset, yInset =
-        GetAspectCropInsets(inset, max(1, iconWidth - 2 * borderInset), max(1, iconHeight - 2 * borderInset))
+    local artWidth = blizzardStyle and iconWidth / BLIZZARD_ICON_ART.frameWidthRatio or iconWidth - 2 * borderInset
+    local xInset, yInset = GetAspectCropInsets(inset, max(1, artWidth), max(1, iconHeight - 2 * borderInset))
     frame.icon:SetTexCoord(xInset, 1 - xInset, yInset, 1 - yInset)
-    SetBlizzardIconArt(frame, blizzardStyle, iconWidth, iconHeight)
 end
 
--- Map buff key -> consumable category (derived from buff definitions in Data/Buffs.lua)
+-- Map buff key -> consumable category (derived from the buff definitions)
 local BUFF_KEY_TO_CATEGORY = BR.BUFF_KEY_TO_CATEGORY
 
 ---True when the category shows a tooltip on hover. A loadout frame owns its mouse.
@@ -1256,18 +1272,25 @@ end
 BR.Display.ShowHoverTooltip = ShowHoverTooltip
 BR.Display.EndHoverTooltip = EndHoverTooltip
 
+-- Lock state is session-only: frames start locked on every login/reload and the
+-- unlocked state is never persisted. A user cannot accidentally leave anchor
+-- handles showing across sessions.
+local frameLocked = true
+
 -- Apply mouse interactivity to a buff icon frame. Icons are always click-through
 -- (dragging is handled by anchor handles; click-to-cast/chat-requests live on the
 -- secure overlays that float above the icon). A frame gets hover events ONLY
 -- when its category opted in to the description tooltip - otherwise it stays fully
 -- click-through so the world beneath (camera drag, unit clicks) is reachable.
 -- Re-called from UpdateVisuals so toggling showDescriptionTooltips takes effect live.
+-- While the frames are unlocked, every icon is click-through.
 local function ApplyBuffFrameMouse(frame, category)
-    -- WireLoadoutFrameClick owns the mouse of a loadout frame.
+    -- WireLoadoutFrameClick owns the scripts of a loadout frame.
     if category == "loadout" then
+        frame:EnableMouse(frameLocked)
         return
     end
-    if IsDescriptionTooltipOn(category) then
+    if frameLocked and IsDescriptionTooltipOn(category) then
         frame:SetMouseClickEnabled(false)
         frame:SetMouseMotionEnabled(true)
         frame:SetScript("OnEnter", function(self)
@@ -1335,7 +1358,7 @@ local function CreateBuffFrame(buff, category)
         BR.TextPositions.Apply(frame.count, frame, cz, cx, cy)
     end
     frame.count:SetTextColor(textColor[1], textColor[2], textColor[3], textAlpha)
-    ApplyFont(frame.count, GetFontSize(1, catSettings.textSize))
+    ApplyFont(frame.count, catSettings.countTextSize)
 
     -- Stack count (bottom-right by default; user-positionable via textPositions)
     frame.stackCount = frame:CreateFontString(nil, "OVERLAY", "NumberFontNormal")
@@ -1354,7 +1377,7 @@ local function CreateBuffFrame(buff, category)
         local raidCs = db.categorySettings and db.categorySettings.raid
         local bz, bx, by = BR.TextPositions.Get("buffReminder")
         BR.TextPositions.Apply(frame.buffText, frame, bz, bx, by)
-        ApplyFont(frame.buffText, (raidCs and raidCs.buffTextSize) or GetFontSize(0.8, catSettings.textSize))
+        ApplyFont(frame.buffText, (db.defaults and db.defaults.captionTextSize) or CODE_DEFAULTS.captionTextSize)
         frame.buffText:SetTextColor(textColor[1], textColor[2], textColor[3], textAlpha)
         frame.buffText:SetText(L["Overlay.Buff"])
         if raidCs and raidCs.showBuffReminder == false then
@@ -1371,7 +1394,7 @@ local function CreateBuffFrame(buff, category)
         frame.subLabel:SetWidth(iconWidth * SUBLABEL_WIDTH_FACTOR)
         local lz, lx, ly = BR.TextPositions.Get("buffReminder")
         BR.TextPositions.Apply(frame.subLabel, frame, lz, lx, ly)
-        ApplyFont(frame.subLabel, GetFontSize(SUBLABEL_FONT_SCALE, catSettings.textSize))
+        ApplyFont(frame.subLabel, (db.defaults and db.defaults.captionTextSize) or CODE_DEFAULTS.captionTextSize)
         frame.subLabel:SetTextColor(textColor[1], textColor[2], textColor[3], textAlpha)
         frame.subLabel:Hide()
     end
@@ -1437,7 +1460,7 @@ local function GetOrCreateExtraFrame(frame, index)
         BR.TextPositions.Apply(extra.count, extra, cz, cx, cy)
     end
     extra.count:SetTextColor(textColor[1], textColor[2], textColor[3], textAlpha)
-    ApplyFont(extra.count, GetFontSize(1, catSettings.textSize))
+    ApplyFont(extra.count, catSettings.countTextSize)
     extra.count:Hide()
 
     extra:SetAlpha(catSettings.iconAlpha or 1)
@@ -1446,37 +1469,6 @@ local function GetOrCreateExtraFrame(frame, index)
 
     frame.extraFrames[index] = extra
     return extra
-end
-
-local lastPhysicalHeight = 1080
-
----Gap after an icon such that icon plus gap spans a whole number of screen pixels. Each icon
----then starts at the same sub-pixel phase, so the client rounds every gap the same way.
----@param mainSize number Icon dimension along the growth direction
----@param spacing number Requested gap in UI units
----@param container table Frame whose effective scale applies
----@return number gap
-local function PixelAlignedGap(mainSize, spacing, container)
-    -- Flush icons share an edge, so they round the same way with no snap.
-    if spacing <= 0 then
-        return spacing
-    end
-    -- The physical height reads 0 during a display mode change.
-    local _, physicalHeight = GetPhysicalScreenSize()
-    if physicalHeight and physicalHeight > 0 then
-        lastPhysicalHeight = physicalHeight
-    end
-    local scale = container:GetEffectiveScale()
-    if not scale or scale <= 0 then
-        return spacing
-    end
-    local onePixel = 768 / (lastPhysicalHeight * scale)
-    -- The epsilon keeps a value near a half-pixel boundary on the same side across reloads.
-    local pitch = floor((mainSize + spacing) / onePixel + 0.5 + 0.001) * onePixel
-    if pitch < mainSize then
-        pitch = pitch + onePixel
-    end
-    return pitch - mainSize
 end
 
 local function PositionFramesInContainer(container, frames, iconWidth, iconHeight, spacing, direction)
@@ -1557,22 +1549,30 @@ local function PositionFramesVariable(container, frames, widths, heights, gaps, 
         return
     end
 
-    -- Anchor points place frames at the center of the cross-axis edge,
-    -- so smaller frames are automatically centered - no manual offset needed.
+    -- Anchor points place frames at the center of the cross-axis edge, so smaller frames
+    -- center on their own. An odd size difference needs a half pixel to stay on the grid.
     local offset = 0
     local isVertical = direction == "UP" or direction == "DOWN"
     local layout = DIRECTION_LAYOUT[direction]
-    local containerWidth = (direction == "CENTER") and container:GetWidth() or 0
+    local containerWidth, containerHeight = container:GetSize()
 
     for i, frame in ipairs(frames) do
         local mainSize = isVertical and heights[i] or widths[i]
+        local crossX = isVertical and Pixels.CenterOffset(containerWidth, widths[i], container) or 0
+        local crossY = isVertical and 0 or Pixels.CenterOffset(containerHeight, heights[i], container)
 
         frame:ClearAllPoints()
         if layout then
-            frame:SetPoint(layout.anchor, container, layout.anchor, layout.xMult * offset, layout.yMult * offset)
+            frame:SetPoint(
+                layout.anchor,
+                container,
+                layout.anchor,
+                layout.xMult * offset + crossX,
+                layout.yMult * offset + crossY
+            )
         else -- CENTER (horizontal)
             local startX = -containerWidth / 2 + offset
-            frame:SetPoint("CENTER", container, "CENTER", startX + widths[i] / 2, 0)
+            frame:SetPoint("CENTER", container, "CENTER", startX + widths[i] / 2, crossY)
         end
 
         if i < count then
@@ -1603,11 +1603,11 @@ local function PositionMainContainer(mainFrameBuffs)
         for i, frame in ipairs(mainFrameBuffs) do
             local effectiveCat = GetEffectiveCategory(frame)
             local settings = GetCategorySettings(effectiveCat)
-            local iconSize = settings.iconSize or 64
-            local iconWidth = GetEffectiveWidth(settings.iconWidth, iconSize)
+            local iconSize = Pixels.Snap(settings.iconSize or 64, mainFrame)
+            local iconWidth = Pixels.Snap(GetEffectiveWidth(settings.iconWidth, settings.iconSize or 64), mainFrame)
             widths[i] = iconWidth
             heights[i] = iconSize
-            spacings[i] = settings.spacing or defaults.defaults.spacing
+            spacings[i] = Pixels.Snap(settings.spacing or defaults.defaults.spacing, mainFrame, true)
             frame:SetSize(iconWidth, iconSize)
             if iconWidth > maxWidth then
                 maxWidth = iconWidth
@@ -1623,7 +1623,7 @@ local function PositionMainContainer(mainFrameBuffs)
             local mainSize = isVertical and heights[i] or widths[i]
             totalMain = totalMain + mainSize
             if i < #widths then
-                gaps[i] = PixelAlignedGap(mainSize, max(spacings[i], spacings[i + 1]), mainFrame)
+                gaps[i] = max(spacings[i], spacings[i + 1])
                 totalMain = totalMain + gaps[i]
             end
         end
@@ -1645,7 +1645,7 @@ local function PositionMainContainer(mainFrameBuffs)
             local extAnchor = EXT_DIRECTION_ANCHORS[extPoint] and EXT_DIRECTION_ANCHORS[extPoint][direction] or anchor
             mainFrame:SetPoint(extAnchor, extFrame, extPoint, pos.x or 0, pos.y or 0)
         else
-            mainFrame:SetPoint(anchor, UIParent, "CENTER", pos.x or 0, pos.y or 0)
+            Pixels.SetPoint(mainFrame, anchor, pos.x or 0, pos.y or 0)
         end
 
         PositionFramesVariable(mainFrame, mainFrameBuffs, widths, heights, gaps, direction)
@@ -1674,11 +1674,11 @@ local function PositionSplitCategory(category, frames)
         local direction = catSettings.growDirection or "CENTER"
         local anchor = DIRECTION_ANCHORS[direction] or "CENTER"
         local pos = catSettings.position or { point = "CENTER", x = 0, y = 0 }
-        local iconSize = catSettings.iconSize or 64
-        local iconWidth = GetEffectiveWidth(catSettings.iconWidth, iconSize)
+        local iconSize = Pixels.Snap(catSettings.iconSize or 64, catFrame)
+        local iconWidth = Pixels.Snap(GetEffectiveWidth(catSettings.iconWidth, catSettings.iconSize or 64), catFrame)
         local isVertical = direction == "UP" or direction == "DOWN"
         local mainSize = isVertical and iconSize or iconWidth
-        local spacing = PixelAlignedGap(mainSize, catSettings.spacing or defaults.defaults.spacing, catFrame)
+        local spacing = Pixels.Snap(catSettings.spacing or defaults.defaults.spacing, catFrame, true)
 
         for _, frame in ipairs(frames) do
             frame:SetSize(iconWidth, iconSize)
@@ -1698,7 +1698,7 @@ local function PositionSplitCategory(category, frames)
             local extAnchor = EXT_DIRECTION_ANCHORS[extPoint] and EXT_DIRECTION_ANCHORS[extPoint][direction] or anchor
             catFrame:SetPoint(extAnchor, extFrame, extPoint, pos.x or 0, pos.y or 0)
         else
-            catFrame:SetPoint(anchor, UIParent, "CENTER", pos.x or 0, pos.y or 0)
+            Pixels.SetPoint(catFrame, anchor, pos.x or 0, pos.y or 0)
         end
 
         PositionFramesInContainer(catFrame, frames, iconWidth, iconSize, spacing, direction)
@@ -1734,8 +1734,8 @@ local function PositionDetachedIcon(key, frame)
 
     local effectiveCat = GetEffectiveCategory(frame)
     local catSettings = GetCategorySettings(effectiveCat)
-    local iconSize = catSettings.iconSize or 64
-    local iconWidth = GetEffectiveWidth(catSettings.iconWidth, iconSize)
+    local iconSize = Pixels.Snap(catSettings.iconSize or 64, container)
+    local iconWidth = Pixels.Snap(GetEffectiveWidth(catSettings.iconWidth, catSettings.iconSize or 64), container)
 
     local totalFrames = 1
     if frame.extraFrames then
@@ -1747,15 +1747,14 @@ local function PositionDetachedIcon(key, frame)
     end
 
     -- Size the container to fit all visible frames (stacked horizontally)
-    local spacing = totalFrames > 1
-            and PixelAlignedGap(iconWidth, catSettings.spacing or defaults.defaults.spacing, container)
+    local spacing = totalFrames > 1 and Pixels.Snap(catSettings.spacing or defaults.defaults.spacing, container, true)
         or 0
     local totalWidth = totalFrames * iconWidth + (totalFrames - 1) * spacing
     container:SetSize(totalWidth, iconSize)
 
     local pos = GetDetachedPosition(key)
     container:ClearAllPoints()
-    container:SetPoint("CENTER", UIParent, "CENTER", pos.x or 0, pos.y or 0)
+    Pixels.SetPoint(container, "CENTER", pos.x or 0, pos.y or 0)
 
     frame:SetSize(iconWidth, iconSize)
     frame:ClearAllPoints()
@@ -1925,9 +1924,7 @@ ToggleTestMode = function()
         -- Reset layout signatures so positioning runs fresh
         lastMainSignature = ""
         wipe(lastSplitSignatures)
-        if BR.AuraTracker then
-            BR.AuraTracker.SetTestMode(false)
-        end
+        BR.CallbackRegistry:TriggerEvent("TestModeChanged", false)
         UpdateDisplay()
         return false
     else
@@ -1949,9 +1946,7 @@ ToggleTestMode = function()
         BR.SecureButtons.HideAllSecureFrames()
         lastMainSignature = ""
         wipe(lastSplitSignatures)
-        if BR.AuraTracker then
-            BR.AuraTracker.SetTestMode(true)
-        end
+        BR.CallbackRegistry:TriggerEvent("TestModeChanged", true)
         UpdateDisplay()
         return true
     end
@@ -1995,7 +1990,7 @@ local function ApplyConsumableOverlays(frame, item, iconSize)
     if not item.statLabel and not item.badge and not item.qualityAtlas then
         return
     end
-    iconSize = iconSize or ArtSize(frame, frame:GetWidth())
+    iconSize = iconSize or ArtSize(frame)
     local hideLabels = (BR.profile.defaults or {}).hideConsumableLabels
     if item.statLabel and not hideLabels then
         if not frame.statLabel then
@@ -2005,7 +2000,7 @@ local function ApplyConsumableOverlays(frame, item, iconSize)
             local sz, sx, sy = BR.TextPositions.Get("statLabel")
             BR.TextPositions.Apply(frame.statLabel, frame, sz, sx, sy)
         end
-        ApplyFont(frame.statLabel, BR.SecureButtons.ComputeConsumableFontSize(iconSize, "statLabel"))
+        ApplyFont(frame.statLabel, BR.SecureButtons.ComputeConsumableFontSize("statLabel"))
         frame.statLabel:SetTextColor(1, 1, 1, 1)
         frame.statLabel:SetText(item.statLabel)
         frame.statLabel:Show()
@@ -2041,7 +2036,7 @@ local function ApplyConsumableOverlays(frame, item, iconSize)
                 local bz, bx, by = BR.TextPositions.Get("badge")
                 BR.TextPositions.Apply(frame.badgeLabel, frame, bz, bx, by)
             end
-            ApplyFont(frame.badgeLabel, BR.SecureButtons.ComputeConsumableFontSize(iconSize, "badge"))
+            ApplyFont(frame.badgeLabel, BR.SecureButtons.ComputeConsumableFontSize("badge"))
             frame.badgeLabel:SetTextColor(bc.r, bc.g, bc.b, 1)
             frame.badgeLabel:SetText(item.badge)
             frame.badgeLabel:Show()
@@ -2208,9 +2203,9 @@ local function ResolveConsumableFrame(frame)
             frame.icon:SetTexture(items[1].icon)
         end
         SetIconDesaturated(frame.icon, false)
-        local mainSize = ArtSize(frame, frame:GetWidth())
+        local mainSize = ArtSize(frame)
         frame.count:Hide()
-        ApplyFont(frame.stackCount, BR.SecureButtons.ComputeConsumableFontSize(mainSize, "stackCount"))
+        ApplyFont(frame.stackCount, BR.SecureButtons.ComputeConsumableFontSize("stackCount"))
         frame.stackCount:SetText(BR.SecureButtons.FormatStackCount(items[1]))
         frame.stackCount:Show()
         ApplyConsumableOverlays(frame, items[1], mainSize)
@@ -2252,7 +2247,7 @@ local function RenderVisibleEntry(frame, entry)
         frame._br_countdown_exp = expTime
         local remaining = expTime and expTime - GetTime() or 0
         if remaining > 0 then
-            SetCountText(frame, FormatCountdownTime(remaining), COUNT_TEXT_SCALE)
+            SetCountText(frame, FormatCountdownTime(remaining), COUNT_TEXT_KEY)
             frame.count:Show()
             -- The handler reads the end from the frame, so a later render can move it.
             if not frame._br_countdown_onupdate then
@@ -2272,10 +2267,7 @@ local function RenderVisibleEntry(frame, entry)
             frame.count:Hide()
         end
         if entry.progressText then
-            ApplyFont(
-                frame.stackCount,
-                BR.SecureButtons.ComputeConsumableFontSize(ArtSize(frame, frame:GetWidth()), "stackCount")
-            )
+            ApplyFont(frame.stackCount, BR.SecureButtons.ComputeConsumableFontSize("stackCount"))
             frame.stackCount:SetText(entry.progressText)
             frame.stackCount:Show()
         end
@@ -2312,7 +2304,7 @@ local function RenderVisibleEntry(frame, entry)
         if frame.buffCategory == "consumable" then
             SetIconDesaturated(frame.icon, false)
         end
-        SetCountText(frame, entry.countText or "", COUNT_TEXT_SCALE)
+        SetCountText(frame, entry.countText or "", COUNT_TEXT_KEY)
         frame.count:Show()
         frame:Show()
         SetExpirationGlow(frame, entry.shouldGlow, cachedGlow)
@@ -2408,13 +2400,13 @@ local function ApplyConsumableDisplayMode(frame, entry, frameList, parentFrame)
     if displayMode == "sub_icons" then
         if testMode and items and #items > 1 then
             -- Test mode: render visual-only sub-icon frames (no secure buttons)
-            local catSettings = GetCategorySettings(GetEffectiveCategory(frame))
-            local iconSize = ArtSize(frame, catSettings.iconSize or 64)
+            local iconSize = ArtSize(frame)
             local size, spacing = BR.SubIcons.Metrics(iconSize)
+            size, spacing = Pixels.Snap(size, frame), Pixels.Snap(spacing, frame)
             local side = (BR.profile.defaults or {}).subIconSide or "BOTTOM"
             local width, height = frame:GetWidth(), frame:GetHeight()
             local hostInset = frame._br_borderInset or 0
-            local cFontSize = BR.SecureButtons.ComputeConsumableFontSize(iconSize, "stackCount")
+            local cFontSize = BR.SecureButtons.ComputeConsumableFontSize("stackCount")
             for i = 2, #items do
                 local extra = GetOrCreateExtraFrame(frame, i - 1)
                 extra._br_subIcon = true
@@ -2441,7 +2433,7 @@ local function ApplyConsumableDisplayMode(frame, entry, frameList, parentFrame)
                     spacing
                 )
                 extra:ClearAllPoints()
-                extra:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", x, y)
+                extra:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", Pixels.Round(x, frame), Pixels.Round(y, frame))
                 extra:Show()
             end
         elseif not testMode then
@@ -2458,14 +2450,14 @@ local function ApplyConsumableDisplayMode(frame, entry, frameList, parentFrame)
                         entry.glowKindOverride or (expiring and "expiring" or "missing")
                     )
                 or nil
-            local expandedSize = ArtSize(frame, frame:GetWidth())
-            local stackFontSize = BR.SecureButtons.ComputeConsumableFontSize(expandedSize, "stackCount")
+            local expandedSize = ArtSize(frame)
+            local stackFontSize = BR.SecureButtons.ComputeConsumableFontSize("stackCount")
             for i = 2, #items do
                 local extra = GetOrCreateExtraFrame(frame, i - 1)
                 extra._br_subIcon = nil
                 extra._br_item = items[i] -- The click overlay uses the item this frame shows.
                 extra:SetParent(parentFrame)
-                extra:SetSize(expandedSize, frame:GetHeight())
+                extra:SetSize(frame:GetWidth(), frame:GetHeight())
                 extra.icon:SetTexture(items[i].icon)
                 ApplyFont(extra.stackCount, stackFontSize)
                 extra.stackCount:SetText(BR.SecureButtons.FormatStackCount(items[i]))
@@ -2516,21 +2508,21 @@ local function UpdatePetLabels(frame, petAction)
     end
 
     -- Every input the labels derive from is part of the cache key: zone and
-    -- offsets so live position edits re-anchor, frame width because the
-    -- sizes scale off it, and the shared font and outline because ApplyFont
+    -- offsets so live position edits re-anchor, the border inset because the
+    -- anchors step over it, and the shared font and outline because ApplyFont
     -- reads those.
-    local scale = defs.petLabelScale or 100
+    local size = defs.petLabelSize or CODE_DEFAULTS.petLabelSize --[[@as number]]
     local zone, offX, offY = BR.TextPositions.Get("petLabel")
     local cacheKey = format(
-        "%s:%s:%s:%d:%s:%s:%s:%d:%s:%s",
+        "%s:%s:%s:%d:%s:%s:%s:%s:%s:%s",
         petAction.key,
         petAction.label or "",
         petAction.petFamily or "",
-        scale,
+        size,
         zone,
         tostring(offX),
         tostring(offY),
-        frame:GetWidth(),
+        tostring(frame._br_borderInset or 0),
         GetFontPath(),
         GetOutline()
     )
@@ -2545,9 +2537,8 @@ local function UpdatePetLabels(frame, petAction)
         frame._br_pet_extra_text = frame:CreateFontString(nil, "OVERLAY")
     end
 
-    local ratio = scale / 100
-    local nameSize = max(7, floor(frame:GetWidth() * 0.18 * ratio))
-    local familySize = max(7, floor(nameSize * 0.85))
+    local nameSize = size
+    local familySize = size * 0.85
     ApplyFont(frame._br_pet_name_text, nameSize)
     BR.TextPositions.Apply(frame._br_pet_name_text, frame, zone, offX, offY)
     frame._br_pet_name_text:SetText(petAction.label or "")
@@ -3057,7 +3048,6 @@ local ReparentBuffFrames
 -- or opening the talent UI are not protected actions out of combat, so they do not
 -- need a SecureActionButton overlay like the click-to-cast categories do.
 local function WireLoadoutFrameClick(frame)
-    frame:EnableMouse(true)
     frame:SetScript("OnMouseUp", function(self, button)
         local db = BR.profile
         if button == "RightButton" and db.defaults.rightClickMenu ~= false then
@@ -3450,7 +3440,7 @@ local function UpdateVisuals()
         UpdateIconStyling(frame, catSettings)
         -- Re-apply at the scale the current text was written with, not a guess:
         -- a frame showing a "NO X" label must not be resized to count scale.
-        ApplyFont(frame.count, GetFrameFontSize(frame, frame._br_count_scale or COUNT_TEXT_SCALE))
+        ApplyFont(frame.count, GetFrameFontSize(frame, frame._br_count_key or COUNT_TEXT_KEY))
 
         -- Re-anchor text overlays on every VisualsRefresh so config changes
         -- take effect immediately.
@@ -3471,14 +3461,14 @@ local function UpdateVisuals()
 
         -- Consumable overlay font/size + reposition (per-category zones)
         if frame.statLabel or frame.badgeLabel or frame.qualityIcon then
-            local artSize = ArtSize(frame, size)
+            local artSize = ArtSize(frame)
             if frame.statLabel then
-                ApplyFont(frame.statLabel, BR.SecureButtons.ComputeConsumableFontSize(artSize, "statLabel"))
+                ApplyFont(frame.statLabel, BR.SecureButtons.ComputeConsumableFontSize("statLabel"))
                 local sz, sx, sy = BR.TextPositions.Get("statLabel")
                 BR.TextPositions.Apply(frame.statLabel, frame, sz, sx, sy)
             end
             if frame.badgeLabel then
-                ApplyFont(frame.badgeLabel, BR.SecureButtons.ComputeConsumableFontSize(artSize, "badge"))
+                ApplyFont(frame.badgeLabel, BR.SecureButtons.ComputeConsumableFontSize("badge"))
                 local bz, bx, by = BR.TextPositions.Get("badge")
                 BR.TextPositions.Apply(frame.badgeLabel, frame, bz, bx, by)
             end
@@ -3492,7 +3482,10 @@ local function UpdateVisuals()
         end
         if frame.buffText then
             local raidCs = BR.profile.categorySettings and BR.profile.categorySettings.raid
-            ApplyFont(frame.buffText, (raidCs and raidCs.buffTextSize) or GetFrameFontSize(frame, 0.8))
+            ApplyFont(
+                frame.buffText,
+                (BR.profile.defaults and BR.profile.defaults.captionTextSize) or CODE_DEFAULTS.captionTextSize
+            )
             frame.buffText:SetTextColor(tc[1], tc[2], tc[3], ta)
             local bz, bx, by = BR.TextPositions.Get("buffReminder")
             BR.TextPositions.Apply(frame.buffText, frame, bz, bx, by)
@@ -3504,7 +3497,10 @@ local function UpdateVisuals()
             frame.buffText:SetShown(showReminder)
         end
         if frame.subLabel then
-            ApplyFont(frame.subLabel, GetFrameFontSize(frame, SUBLABEL_FONT_SCALE))
+            ApplyFont(
+                frame.subLabel,
+                (BR.profile.defaults and BR.profile.defaults.captionTextSize) or CODE_DEFAULTS.captionTextSize
+            )
             frame.subLabel:SetTextColor(tc[1], tc[2], tc[3], ta)
             frame.subLabel:SetWidth(width * SUBLABEL_WIDTH_FACTOR)
             local lz, lx, ly = BR.TextPositions.Get("buffReminder")
@@ -3653,24 +3649,20 @@ BR.Helpers = {
     end,
 }
 
--- Lock state is session-only: frames start locked on every login/reload and the
--- unlocked state is never persisted. A user cannot accidentally leave anchor
--- handles showing across sessions.
-local frameLocked = true
 local function IsFrameLocked()
     return frameLocked
 end
 local function SetFrameLocked(locked)
     frameLocked = locked
+    for _, frame in pairs(buffFrames) do
+        ApplyBuffFrameMouse(frame, frame.buffCategory)
+    end
     if locked then
         BR.Movers.HideAll()
     else
         BR.Movers.UpdateAnchor()
     end
-    -- External buffs sit outside the category/mover system but share the same lock.
-    if BR.AuraTracker then
-        BR.AuraTracker.SetUnlocked(not locked)
-    end
+    CallbackRegistry:TriggerEvent("FrameLockChanged", locked)
 end
 
 local function ToggleLock()
@@ -3709,7 +3701,6 @@ BR.IconStyle = {
     SetArt = SetBlizzardIconArt,
     AnchorCooldown = BLIZZARD_ICON_ART.AnchorCooldown,
     StyleItemCooldown = BLIZZARD_ICON_ART.StyleItemCooldown,
-    FRAME_WIDTH_RATIO = BLIZZARD_ICON_ART.frameWidthRatio,
     ARTWORK_AVAILABLE = BLIZZARD_ICON_ART.available,
 }
 
@@ -3755,6 +3746,8 @@ local function SlashHandler(msg)
         BR.Display.PrintSecretDebug(arg)
     elseif cmd == "spelldebug" then
         BR.Display.ShowSpellDebug()
+    elseif cmd == "auras" then
+        BR.Options.Dialogs.AuraPicker.Show(msg:match("^%S+%s+(%S+)"))
     elseif cmd == "shownew" then
         local WhatsNew = BR.Options.WhatsNew
         local arg = msg:match("^%S+%s+(%S+)")
@@ -3817,9 +3810,6 @@ local eventHandlers = {}
 eventHandlers.PLAYER_ENTERING_WORLD = function()
     UpdateAuraEventRegistration()
     BR.StateHelpers.ScanEatingState()
-    if BR.Loadouts then
-        BR.Loadouts.EnsureAddonsReady(LoadoutRules)
-    end
     DisplayFonts.Resolve()
     if not mainFrame then
         InitializeFrames()
@@ -4013,6 +4003,7 @@ eventHandlers.UPDATE_EXPANSION_LEVEL = eventHandlers.PLAYER_UPDATE_RESTING
 eventHandlers.PLAYER_MOUNT_DISPLAY_CHANGED = eventHandlers.PLAYER_UPDATE_RESTING
 eventHandlers.SPELL_ACTIVATION_OVERLAY_GLOW_SHOW = eventHandlers.PLAYER_UPDATE_RESTING
 eventHandlers.SPELL_ACTIVATION_OVERLAY_GLOW_HIDE = eventHandlers.PLAYER_UPDATE_RESTING
+eventHandlers.ACTIVE_TALENT_GROUP_CHANGED = eventHandlers.PLAYER_UPDATE_RESTING
 
 eventHandlers.PLAYER_SPECIALIZATION_CHANGED = function(arg1)
     if arg1 ~= "player" then
@@ -4042,9 +4033,23 @@ eventHandlers.TRAIT_CONFIG_UPDATED = function()
     end)
 end
 
-eventHandlers.SPELLS_CHANGED = function()
-    -- Catch delayed spell availability after spec/talent changes (noisy event, keep cheap)
-    SetDirty()
+do
+    local overlayRefreshPending = false
+
+    local function RefreshOverlaySpellsSoon()
+        overlayRefreshPending = false
+        BR.SecureButtons.RefreshOverlaySpells()
+    end
+
+    eventHandlers.SPELLS_CHANGED = function()
+        SetDirty()
+        -- A stored click action keeps its spell ID, so a newly learned rank needs a resolve.
+        -- The event comes in bursts, so one resolve covers the burst.
+        if not overlayRefreshPending then
+            overlayRefreshPending = true
+            C_Timer.After(0.2, RefreshOverlaySpellsSoon)
+        end
+    end
 end
 
 eventHandlers.PLAYER_EQUIPMENT_CHANGED = function()
@@ -4081,15 +4086,32 @@ eventHandlers.UNIT_ENTERED_VEHICLE = function(arg1)
 end
 eventHandlers.UNIT_EXITED_VEHICLE = eventHandlers.UNIT_ENTERED_VEHICLE
 
--- The icon gaps align to the screen pixel grid, which moves with the scale and the resolution.
--- UIParent:SetScale() from another addon fires no event, and a scale slider calls it every frame.
+-- Icon sizes, borders and gaps snap to the screen pixel grid, which moves with the scale and
+-- the resolution. UIParent:SetScale() from another addon fires no event, and a scale slider
+-- calls it every frame, so one refresh covers the calls of a short window.
 local function OnPixelGridChanged()
-    ResetLayoutSignatures()
-    SetDirty()
+    if not mainFrame then
+        -- No layout yet, but the externals can hold pixel-sized fonts already.
+        DisplayFonts.Resolve()
+        return
+    end
+    if eventFrame._br_pixelGridPending then
+        return
+    end
+    eventFrame._br_pixelGridPending = true
+    C_Timer.After(0.2, function()
+        eventFrame._br_pixelGridPending = nil
+        CallbackRegistry:TriggerEvent("VisualsRefresh")
+    end)
 end
 eventHandlers.UI_SCALE_CHANGED = OnPixelGridChanged
 eventHandlers.DISPLAY_SIZE_CHANGED = OnPixelGridChanged
 hooksecurefunc(UIParent, "SetScale", OnPixelGridChanged)
+
+-- Click overlays sit at screen coordinates, so they do not follow an anchor frame that Edit Mode moves.
+eventHandlers.EDIT_MODE_LAYOUTS_UPDATED = function()
+    BR.SecureButtons.ScheduleSecureSync()
+end
 
 eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
     GameContext.HandleEvent(event, arg1, arg2, arg3)

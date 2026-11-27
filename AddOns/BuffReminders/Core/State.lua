@@ -64,14 +64,21 @@ local FMT_LESS_THAN_ONE = BR.L["Overlay.LessThanOneMinute"]
 local FMT_SECONDS = BR.L["Overlay.SecondsFormat"]
 
 -- Buff tables from Buffs.lua (via BR namespace)
-local BUFF_TABLES = BR.BUFF_TABLES
-local REPAIR_SOURCES = BR.REPAIR_SOURCES
+local BUFF_TABLES = BR.BuffData.buffTables
 local BuffBeneficiaries = BR.BuffBeneficiaries
 local SpecBeneficiaries = BR.SpecBeneficiaries
 
 -- Sticky target memory for cast-on-others buffs (Core/TargetMemory.lua)
 local TargetMemory = BR.TargetMemory
 local GameContext = BR.GameContext
+local GetCurrentContentType = GameContext.GetContentType
+local GetCurrentDifficultyKey = GameContext.GetDifficultyKey
+local GetDifficultyIDCached = GameContext.GetDifficultyID
+local IsInCompetitivePvP = GameContext.IsInCompetitivePvP
+local IsCategoryVisibleForContent = BR.Visibility.IsCategoryVisibleForContent
+local IsCustomBuffVisibleForContent = BR.Visibility.IsCustomBuffVisibleForContent
+local IsLoadoutRuleVisibleForContent = BR.Visibility.IsLoadoutRuleVisibleForContent
+local IsFreeConsumableVisible = BR.Visibility.IsFreeConsumableVisible
 
 -- Buffs with class-specific aura variants can resolve to a single spell ID per unit.
 -- This avoids scanning every possible variant for every raid member on each refresh.
@@ -190,7 +197,7 @@ do
         end
         if not groupOfKey then
             groupOfKey = {}
-            for _, buffs in pairs(BR.BUFF_TABLES) do
+            for _, buffs in pairs(BR.BuffData.buffTables) do
                 for _, buff in ipairs(buffs) do
                     if buff.groupId then
                         groupOfKey[buff.key] = buff.groupId
@@ -207,71 +214,21 @@ end
 -- CACHED VALUES (invalidated by specific events)
 -- ============================================================================
 
--- Instance/content context cache: everything derived from the current zone lives
--- in ONE table because it all shares one lifecycle. Fields populate lazily and
--- InvalidateContentTypeCache clears the whole table with a single wipe, so a
--- newly added derived field can never be forgotten in the invalidator.
----@class InstanceCache
----@field contentType string?    -- "openWorld"|"dungeon"|"scenario"|"raid"|"housing"|"pvp"
----@field instanceType string?   -- raw WoW instanceType
----@field difficultyID number?   -- raw GetInstanceInfo difficultyID
----@field instanceName string?   -- GetInstanceInfo name
----@field instanceID number?     -- GetInstanceInfo instanceID
----@field activeChallenge number? -- active challenge map ID (keystone)
----@field difficultyKey string?  -- mapped difficulty key (only valid keys are cached)
----@field competitivePvP boolean? -- arena or rated BG
----@field legacyInstance boolean? -- legacy loot mode (populated with contentType)
-local instanceCache = {}
-local GetDifficultyIDCached -- forward declaration (defined next to GetCurrentContentType)
-
-local CONTENT_DIFFICULTY_TABLES = BR.INSTANCE_CONTENT.difficultyIDs
-
--- Maps content type to the DB key holding its difficulty sub-filter. A content type
--- without a sub-row on this client ignores a saved filter, because no control can clear it.
-local CONTENT_DIFF_DB_KEYS = {}
-for contentType, diffDbKey in pairs({
-    scenario = "scenarioDifficulty",
-    dungeon = "dungeonDifficulty",
-    raid = "raidDifficulty",
-    pvp = "pvpType",
-}) do
-    if BR.INSTANCE_CONTENT.difficulties[contentType] then
-        CONTENT_DIFF_DB_KEYS[contentType] = diffDbKey
-    end
-end
-
 -- Talent/spell knowledge cache
 local cachedSpellKnowledge = {}
 
 -- Spec ID cache
 local cachedSpecId = nil
 
+-- Active talent group cache
+local cachedSpecGroup = nil
+
 -- Player role cache
 local cachedPlayerRole = nil
-
--- Off-hand slot type cache (invalidated on equipment/spec change)
--- Populated together from a single GetInventoryItemID + GetItemInfoInstant call
-local cachedOffHandType = nil -- nil = not yet checked, "weapon" | "shield" | "none"
-
--- Weapon subclass per hand slot, false for no weapon. Cleared with the off-hand cache.
----@type table<number, number|false>
-local cachedWeaponSubclass = {}
 
 -- Item ownership cache
 ---@type table<string, table<number, boolean>>
 local cachedItemOwnership = {}
-
--- Lowest equipped-item durability ratio (0-1). The 18-slot scan is a read-only
--- lookup whose answer only changes on durability / equipment events, so it is
--- memoized and reused on the fallback ticker instead of re-scanned every refresh.
----@type number|nil
-local cachedLowestDurability = nil
-
--- Resolved repair click sources (mount to summon / item to use). Mount collection
--- and bag contents only change on their own events, so the pair is resolved once.
--- Only ever holds a positive answer (see GetRepairSources).
----@type { mountSpellID: number?, mountID: number?, itemID: number? }|nil
-local cachedRepairSources = nil
 
 -- Loadout state cache: rule.key -> { satisfied, icon }. The detection calls
 -- (IsSatisfied / GetRuleIcon) are read-only WoW lookups whose answers only change
@@ -286,51 +243,6 @@ local cachedLoadoutState = {}
 -- reads an icon, so a satisfied rule must not pay to resolve one. Never mutated,
 -- so every satisfied rule can hold this one table.
 local SATISFIED_LOADOUT_STATE = { satisfied = true }
-
--- Creature family of the current pet (false = no pet, nil = unresolved).
----@type number|false|nil
-local cachedPetFamily = nil
-
--- Happiness of the current pet (false = no pet or no value, nil = unresolved).
--- C_PetInfo.GetPetHappiness exists only on a client with pet happiness.
----@type number|false|nil
-local cachedPetHappiness = nil
-local GetPetHappiness = C_PetInfo and C_PetInfo.GetPetHappiness
-
--- Warrior stance and druid form rules of the client: the allowed stances and the
--- stance that the click casts.
-local STANCE_RULES = BR.STANCE_RULES
-local NO_STANCE = BR.NO_STANCE
-
--- Priest shadow forms. Shadowform is the only stance shadow priests can take;
--- Voidform is a temporary aura that visually replaces it. The stance bar API
--- works in restricted contexts (combat/encounter/M+) where aura queries fail
--- for non-whitelisted spells, so the stance bar is read directly.
-local SHADOWFORM = BR.SHADOWFORM_SPELL_ID
-local VOIDFORM = 194249
-
--- Travel-family shapeshift form IDs (GetShapeshiftFormID): ground Travel and
--- Mount Form both report 3, Aquatic reports 4, Flight reports 27. Every variant
--- shares spell 783 except Mount Form (210053), so this table keys off the engine
--- form category instead of the spell. That covers any Mount Form appearance
--- variant. None of these collide with combat forms (Cat 1, Bear 5, Dire Bear 8, Moonkin 31).
--- Used to suppress the wrong-form reminder during travel.
-local DRUID_TRAVEL_FORM_IDS = {
-    [3] = true, -- ground Travel Form + Mount Form
-    [4] = true, -- Aquatic Form
-    [27] = true, -- Flight Form
-}
-
--- Shapeshift/stance cache: the active stance and the derived priest shadowform
--- and stance icon values, all invalidated together by InvalidateStanceCache.
--- `false` on a field = computed and absent; nil = not yet computed.
----@class StanceCache
----@field currentStanceIcon number|false|nil  -- false = unstanced
----@field shadowFormActive boolean|nil
----@field activeSpellID number|false|nil        -- false = unstanced; nil = not computed / transient
----@field barSpells table<number, true>|nil      -- spell IDs of the stance bar slots
----@type StanceCache
-local stanceCache = {}
 
 -- Weapon enchant info for current refresh cycle (set once per BuffState.Refresh())
 local currentWeaponEnchants = {
@@ -678,6 +590,14 @@ local function GetPlayerSpecId()
     end
     cachedSpecId = BR.Client.GetSpecID()
     return cachedSpecId
+end
+
+---@return number groupIndex 1 or 2
+local function GetPlayerSpecGroup()
+    if not cachedSpecGroup then
+        cachedSpecGroup = C_SpecializationInfo.GetActiveSpecGroup()
+    end
+    return cachedSpecGroup
 end
 
 ---Get the player's current role (cached)
@@ -1241,316 +1161,6 @@ local function IsBuffEnabled(key)
     return GetDefaultEnabledLookup()[key] ~= false
 end
 
----Get the current content type based on instance/zone (cached)
----@return string contentType One of "openWorld", "dungeon", "scenario", "raid", "housing", "pvp"
-local function GetCurrentContentType()
-    if instanceCache.contentType then
-        return instanceCache.contentType
-    end
-
-    -- Stash the raw GetInstanceInfo identity for reuse - same lifecycle, cleared
-    -- together in InvalidateContentTypeCache. The identity fields freeze with the
-    -- content type: a transient nil name at populate time relies on the post-load
-    -- invalidation events to repopulate.
-    local instName, _, difficultyID, _, _, _, _, instanceID = GetInstanceInfo()
-    instanceCache.instanceName = instName
-    instanceCache.instanceID = instanceID
-    instanceCache.difficultyID = difficultyID
-    instanceCache.activeChallenge = C_ChallengeMode
-            and C_ChallengeMode.GetActiveChallengeMapID
-            and C_ChallengeMode.GetActiveChallengeMapID()
-        or nil
-
-    -- Check housing before instance type (housing zones can report as instanced)
-    if
-        C_Housing
-        and (
-            (C_Housing.IsInsideHouseOrPlot and C_Housing.IsInsideHouseOrPlot())
-            or (C_Housing.IsOnNeighborhoodMap and C_Housing.IsOnNeighborhoodMap())
-        )
-    then
-        instanceCache.contentType = "housing"
-        return "housing"
-    end
-
-    -- Delves report inInstance=false but instanceType="scenario" and difficultyID=208;
-    -- check difficultyID first so they are correctly classified as scenarios.
-    if difficultyID == 208 then
-        instanceCache.contentType = "scenario"
-        return "scenario"
-    end
-
-    local inInstance, instanceType = IsInInstance()
-    instanceCache.instanceType = instanceType
-    -- A difficultyID of 0 inside an instance is a transient loading-screen read
-    -- (GetCurrentDifficultyKey relies on retrying until it resolves); leave it
-    -- uncached so GetDifficultyIDCached re-reads live until real data arrives.
-    -- Open world legitimately reports 0 and keeps the cached value.
-    if inInstance and difficultyID == 0 then
-        instanceCache.difficultyID = nil
-    end
-    local contentType
-    if not inInstance then
-        contentType = "openWorld"
-    elseif instanceType == "raid" then
-        contentType = "raid"
-    elseif instanceType == "scenario" then
-        contentType = "scenario"
-    else
-        if instanceType == "arena" or instanceType == "pvp" then
-            contentType = "pvp"
-        else
-            contentType = "dungeon"
-        end
-    end
-    instanceCache.contentType = contentType
-
-    -- WoW Forever has no legacy loot mode API.
-    instanceCache.legacyInstance = C_Loot.IsLegacyLootModeEnabled ~= nil and C_Loot.IsLegacyLootModeEnabled() or false
-    return contentType
-end
-
--- Content type -> row of a per-content grid setting. Other content uses the world row.
-local CONTENT_GRID_ROWS = { dungeon = "dungeon", scenario = "dungeon", raid = "raid", pvp = "pvp" }
-
----Row of the per-content grid settings for the current content.
----@return string
-local function GetContentRow()
-    return CONTENT_GRID_ROWS[GetCurrentContentType()] or "world"
-end
-
----Whether a per-content grid allows a choice. A saved row holds only the keys
----that the user toggled, and an unchecked choice is stored as false. A missing
----key follows the code default.
----@param setting string Key of the grid in profile.defaults
----@param row string
----@param key string
----@return boolean
-local function IsContentChoiceAllowed(setting, row, key)
-    local defaults = BR.profile.defaults
-    local prefs = defaults and defaults[setting]
-    local saved = type(prefs) == "table" and prefs[row]
-    local allowed
-    if type(saved) == "table" then
-        allowed = saved[key]
-    end
-    if allowed == nil then
-        local defaultGrid = BR.defaults.defaults[setting]
-        local defaultRow = defaultGrid and defaultGrid[row]
-        allowed = defaultRow and defaultRow[key]
-    end
-    return allowed == true
-end
-
----Raw difficultyID from GetInstanceInfo, cached alongside the content type
----(nil cache = not yet computed, or a transient in-instance 0 left unresolved;
----GetInstanceInfo itself never returns nil here).
----@return number
-function GetDifficultyIDCached()
-    local id = instanceCache.difficultyID
-    if id == nil then
-        GetCurrentContentType() -- populates instanceCache.difficultyID (unless transient)
-        id = instanceCache.difficultyID
-        if id == nil then
-            -- Content type already cached while the difficulty read was still
-            -- transient: retry live until it resolves, then cache.
-            id = select(3, GetInstanceInfo())
-            if id ~= 0 then
-                instanceCache.difficultyID = id
-            end
-        end
-    end
-    return id or 0
-end
-
----Instance identity from GetInstanceInfo plus the active challenge map ID,
----cached alongside the content type (used by loadout instance filters).
----@return string? name
----@return number? instanceID
----@return number? activeChallengeMapID
-function BuffState.GetInstanceContext()
-    if instanceCache.contentType == nil then
-        GetCurrentContentType() -- populates the instance identity fields
-    end
-    return instanceCache.instanceName, instanceCache.instanceID, instanceCache.activeChallenge
-end
-
----Get the current difficulty key (cached)
----Only caches valid keys; returns nil (retried next call) if the API returns
----an unmapped difficultyID (e.g. 0 during a loading transition).
----@return string? difficultyKey or nil if not in a dungeon/raid or unknown difficulty
-local function GetCurrentDifficultyKey()
-    if instanceCache.difficultyKey ~= nil then
-        return instanceCache.difficultyKey
-    end
-    local difficultyID = GetDifficultyIDCached()
-    local contentType = GetCurrentContentType()
-    local diffTable = CONTENT_DIFFICULTY_TABLES[contentType]
-    if diffTable then
-        local key = diffTable[difficultyID]
-        if key then
-            instanceCache.difficultyKey = key
-        end
-        return key
-    elseif contentType == "scenario" then
-        local key = difficultyID == 208 and "delves" or "others"
-        instanceCache.difficultyKey = key
-        return key
-    elseif contentType == "pvp" then
-        local key = instanceCache.instanceType == "arena" and "arena" or "bg"
-        instanceCache.difficultyKey = key
-        return key
-    end
-    return nil
-end
-
----Whether a category is visible for the current content type
----@param category CategoryName
----@return boolean
-local function IsCategoryVisibleForContent(category, skipReadyCheck)
-    if GameContext.IsInVehicle() and category ~= "raid" and category ~= "presence" then
-        return false
-    end
-    local db = BR.profile
-    if not db.categoryVisibility then
-        return true
-    end
-    local visibility = db.categoryVisibility[category]
-    if not visibility then
-        return true
-    end
-    local contentType = GetCurrentContentType()
-    if visibility[contentType] == false then
-        return false
-    end
-    local diffKey = GetCurrentDifficultyKey()
-    if diffKey then
-        local diffDbKey = CONTENT_DIFF_DB_KEYS[contentType]
-        local diffTable = diffDbKey and visibility[diffDbKey]
-        if diffTable and diffTable[diffKey] == false then
-            return false
-        end
-    end
-    -- Hide category when PvP match is active (past prep phase)
-    if contentType == "pvp" and not GameContext.IsPvPPrepPhase() and visibility.hideInPvPMatch then
-        return false
-    end
-    -- Per-category ready check filter (skipped when caller handles ready check independently)
-    if not skipReadyCheck then
-        local catSettings = db.categorySettings and db.categorySettings[category]
-        if catSettings and catSettings.showOnlyOnReadyCheck and not GameContext.IsInReadyCheck() then
-            return false
-        end
-    end
-    return true
-end
-
----Whether a custom buff is visible under its per-buff loadConditions
----@param buff CustomBuff
----@return boolean
-local function IsCustomBuffVisibleForContent(buff)
-    if GameContext.IsInVehicle() then
-        return false
-    end
-    local lc = buff.loadConditions
-    if not lc then
-        return true
-    end -- nil = show everywhere
-
-    local contentType = GetCurrentContentType()
-    if lc[contentType] == false then
-        return false
-    end
-
-    local diffKey = GetCurrentDifficultyKey()
-    if diffKey then
-        local diffDbKey = CONTENT_DIFF_DB_KEYS[contentType]
-        local diffTable = diffDbKey and lc[diffDbKey]
-        if diffTable and diffTable[diffKey] == false then
-            return false
-        end
-    end
-
-    if lc.readyCheckOnly and not GameContext.IsInReadyCheck() then
-        return false
-    end
-
-    if lc.levelFilter then
-        if lc.levelFilter == "maxLevel" and GameContext.GetPlayerLevel() < GameContext.GetMaxExpansionLevel() then
-            return false
-        elseif
-            lc.levelFilter == "belowMaxLevel" and GameContext.GetPlayerLevel() >= GameContext.GetMaxExpansionLevel()
-        then
-            return false
-        end
-    end
-
-    return true
-end
-
--- Loadout rule "scope" -> the content type its content must equal. Gear/talents
--- lock once a key or match starts, so scope is just the content bucket (no
--- per-difficulty granularity). "dungeon" covers every dungeon difficulty incl.
--- Mythic+; arena/battleground both live under "pvp" and split on instance type;
--- "delve" lives under "scenario" and splits on difficulty key.
-local LOADOUT_SCOPE_CONTENT = {
-    openWorld = "openWorld",
-    raid = "raid",
-    dungeon = "dungeon",
-    delve = "scenario",
-    arena = "pvp",
-    battleground = "pvp",
-}
-
----Whether a loadout rule is visible for the current content. Rules store a
----player-facing `scope` (openWorld / dungeon / delve / raid / arena / battleground) plus an optional
----instance allow-list and a `readyCheckOnly` gate. Scope captures intent directly,
----so there is no deny-list to infer.
----@param rule LoadoutRule
----@return boolean
-local function IsLoadoutRuleVisibleForContent(rule)
-    if GameContext.IsInVehicle() then
-        return false
-    end
-    local when = rule.when
-    if not when then
-        return true
-    end
-
-    local scope = when.scope
-    if scope then
-        local needContent = LOADOUT_SCOPE_CONTENT[scope]
-        if not needContent then
-            -- Unknown or retired scope: hide rather than show in the wrong content.
-            return false
-        end
-        if GetCurrentContentType() ~= needContent then
-            return false
-        end
-        -- Arena and battleground share the "pvp" content type; split on diff key.
-        -- Delves share the "scenario" content type with Torghast etc.; split too.
-        if scope == "arena" then
-            if GetCurrentDifficultyKey() ~= "arena" then
-                return false
-            end
-        elseif scope == "battleground" then
-            if GetCurrentDifficultyKey() ~= "bg" then
-                return false
-            end
-        elseif scope == "delve" then
-            if GetCurrentDifficultyKey() ~= "delves" then
-                return false
-            end
-        end
-    end
-
-    if when.readyCheckOnly and not GameContext.IsInReadyCheck() then
-        return false
-    end
-
-    return true
-end
-
 -- Pre-allocated scope objects for GetTrackingScope (callers only read, never mutate)
 local SCOPE_HIDDEN = { show = false, playerOnly = false }
 local SCOPE_PLAYER_ONLY = { show = true, playerOnly = true }
@@ -1722,12 +1332,23 @@ end
 ---@param threshold number Input of Lead.Of
 ---@param floor number Input of Lead.Of
 ---@param missingUnits? string[] Wiped, then filled with the unit of each counted member who lacks the buff
+---@param castBlocked? fun(unit: string): boolean
 ---@return number missing
 ---@return number total
 ---@return number? minRemaining Remaining time of the copy that Lead.Pick chose
 ---@return number? minLead Lead of that copy
 ---@return number? nextSlack Seconds until the next copy enters its window
-local function CountMissingBuff(spellIDs, buffKey, playerOnly, playersOnly, partyOnly, threshold, floor, missingUnits)
+local function CountMissingBuff(
+    spellIDs,
+    buffKey,
+    playerOnly,
+    playersOnly,
+    partyOnly,
+    threshold,
+    floor,
+    missingUnits,
+    castBlocked
+)
     if missingUnits then
         wipe(missingUnits)
     end
@@ -1744,6 +1365,9 @@ local function CountMissingBuff(spellIDs, buffKey, playerOnly, playersOnly, part
         end
         total = 1
         local hasBuff, remaining, _, duration = UnitHasBuff("player", GetUnitSpellIDs(buffKey, spellIDs, playerClass))
+        if not hasBuff and castBlocked and castBlocked("player") then
+            hasBuff = true
+        end
         if not hasBuff then
             missing = 1
             if missingUnits then
@@ -1767,6 +1391,9 @@ local function CountMissingBuff(spellIDs, buffKey, playerOnly, playersOnly, part
             if UnitBenefitsFromBuff(specBeneficiaries, beneficiaries, allySpecCache[data.name], data.class) then
                 local hasBuff, remaining, _, duration =
                     UnitHasBuff(data.unit, GetUnitSpellIDs(buffKey, spellIDs, data.class))
+                if not hasBuff and castBlocked and castBlocked(data.unit) then
+                    hasBuff = true
+                end
                 -- A phased ally counts only when the buff is already on them. A
                 -- phased member without the buff is an unfixable gap - nobody can
                 -- cast on them - so both totals omit them.
@@ -2194,7 +1821,7 @@ local function IsFreeConsumable(buff)
     if buff.freeConsumable then
         return true
     end
-    local items = buff.consumableCategory and BR.CONSUMABLE_ITEMS[buff.consumableCategory]
+    local items = buff.consumableCategory and BR.ConsumableData.items[buff.consumableCategory]
     if items then
         for itemID, entry in pairs(items) do
             if type(entry) == "table" and entry.permanent and HasItemByMode(itemID) then
@@ -2203,56 +1830,6 @@ local function IsFreeConsumable(buff)
         end
     end
     return false
-end
-
----Whether a free consumable is visible under its override visibility settings
----@param db table Database settings
----@return boolean
-local function IsFreeConsumableVisible(db)
-    if GameContext.IsInVehicle() then
-        return false
-    end
-    local vis = db.defaults and db.defaults.freeConsumableVisibility
-    if not vis then
-        return true
-    end
-    local contentType = GetCurrentContentType()
-    if vis[contentType] == false then
-        return false
-    end
-    local diffKey = GetCurrentDifficultyKey()
-    if diffKey then
-        local diffDbKey = CONTENT_DIFF_DB_KEYS[contentType]
-        local diffTable = diffDbKey and vis[diffDbKey]
-        if diffTable and diffTable[diffKey] == false then
-            return false
-        end
-    end
-    -- PvP match hiding follows the consumable category's setting
-    if contentType == "pvp" and not GameContext.IsPvPPrepPhase() then
-        local catVis = db.categoryVisibility and db.categoryVisibility.consumable
-        if catVis and catVis.hideInPvPMatch then
-            return false
-        end
-    end
-    return true
-end
-
----Check if the player is in competitive PvP (arena or rated battleground)
----Consumables flagged disabledInCompetitivePvP are hidden here.
----@return boolean
-local function IsInCompetitivePvP()
-    if instanceCache.competitivePvP ~= nil then
-        return instanceCache.competitivePvP
-    end
-    local contentType = GetCurrentContentType()
-    if contentType ~= "pvp" then
-        instanceCache.competitivePvP = false
-        return false
-    end
-    local result = instanceCache.instanceType == "arena" or C_PvP.IsRatedMap() == true
-    instanceCache.competitivePvP = result
-    return result
 end
 
 -- Aura spell of the consumable the player runs now, per consumable category. The
@@ -2646,7 +2223,7 @@ local classChoiceStates = {}
 ---@param choices StanceChoice[]
 ---@param readSources boolean Only out of combat, because source reads need plain aura data
 ---@param memo? table<string, table<string, table|false>> Scan results by unit, then choice key. nil = no scan, because no other caster is in the group
----@return StanceChoice? wanted nil when other casters give every choice
+---@return StanceChoice? wanted nil when other casters give every choice, or the unit cannot take it
 ---@return boolean has The unit has the wanted choice from the player
 ---@return number? remaining
 ---@return number? duration
@@ -2656,16 +2233,17 @@ local function WantedChoice(unit, choices, readSources, memo)
         local auraIDs = choice.auraIDs or choice.spellIDs
         local has, remaining, sourceUnit, duration = UnitHasBuff(unit, auraIDs)
         if not has then
-            return choice, false
-        end
-        if not readSources then
+            -- A choice that the unit cannot take passes to the next one, as a foreign copy does.
+            if not (choice.castBlocked and choice.castBlocked(unit)) then
+                return choice, false
+            end
+        elseif not readSources then
             return choice, true, remaining, duration
-        end
-        -- The same choice from two casters does not stack, so a foreign instance
-        -- covers the unit, also when the player's own instance is present.
-        -- GetUnitAuraBySpellID returns one instance, so only a scan finds a second one.
-        -- A caster outside the group reads as a nil source on that one instance.
-        if sourceUnit and Plain(UnitIsUnit(sourceUnit, "player")) == true then
+        elseif sourceUnit and Plain(UnitIsUnit(sourceUnit, "player")) == true then
+            -- The same choice from two casters does not stack, so a foreign instance
+            -- covers the unit, also when the player's own instance is present.
+            -- GetUnitAuraBySpellID returns one instance, so only a scan finds a second one.
+            -- A caster outside the group reads as a nil source on that one instance.
             local foreign = false ---@type table|false
             local unitMemo = memo and memo[unit]
             local known = unitMemo and unitMemo[choice.key]
@@ -3044,7 +2622,8 @@ local function RefreshRaid(db, trackingMode, isAuraRestricted, hideExpiring, mis
                         false,
                         raidThreshold,
                         raidFloor,
-                        missingUnits
+                        missingUnits,
+                        buff.castBlocked
                     )
                 end
                 if missing > 0 then
@@ -3062,7 +2641,8 @@ local function RefreshRaid(db, trackingMode, isAuraRestricted, hideExpiring, mis
                     buff.reach == "party",
                     raidThreshold,
                     raidFloor,
-                    missingUnits
+                    missingUnits,
+                    buff.castBlocked
                 )
             end
 
@@ -3108,7 +2688,11 @@ local function RefreshSelf(isAuraRestricted, hideExpiring)
             if not isAuraRestricted or trackable or useGlowDet then
                 if useGlowDet then
                     if IsAnySpellGlowing(buff) then
-                        SetEntryText(entry, buff.overlayText, selfMissGlow)
+                        SetEntryText(
+                            entry,
+                            buff.overlayTextFn and buff.overlayTextFn() or buff.overlayText,
+                            selfMissGlow
+                        )
                         BR.Icons.ApplyDynamicIcon(entry, buff)
                     end
                 else
@@ -3117,7 +2701,11 @@ local function RefreshSelf(isAuraRestricted, hideExpiring)
                     local wantPresent = buff.showWhenPresent
                     local show = (wantPresent and shouldShow == false) or (not wantPresent and shouldShow)
                     if show then
-                        SetEntryText(entry, buff.overlayText, selfMissGlow)
+                        SetEntryText(
+                            entry,
+                            buff.overlayTextFn and buff.overlayTextFn() or buff.overlayText,
+                            selfMissGlow
+                        )
                         BR.Icons.ApplyDynamicIcon(entry, buff)
                     elseif
                         shouldShow == false
@@ -3416,7 +3004,7 @@ local function RefreshConsumables(db, trackingMode, isAuraRestricted, hideExpiri
     -- Delve food ignores the consumable ready-check-only filter (still respects content gates)
     local consumableVisibleNoReadyCheck = IsCategoryVisibleForContent("consumable", true)
     local consExGlow, consMissGlow, consThreshold, consFloor = GetCategoryGlowSettings("consumable")
-    local delveFoodOnly = db.defaults and db.defaults.delveFoodOnly and BR.IsInDelve()
+    local delveFoodOnly = db.defaults and db.defaults.delveFoodOnly and GameContext.IsInDelve()
     local freeMode = db.defaults and db.defaults.freeConsumableMode or "override"
     local freeVisible = freeMode == "override" and IsFreeConsumableVisible(db) or false
     -- In follow mode, healthstones use consumable category content gates (without ready check)
@@ -3774,35 +3362,6 @@ function BuffState.Refresh(refreshMode)
     BuffState.lastUpdate = GetTime()
 end
 
----Check if the current zone qualifies for dungeon entry triggers
----(grouped dungeons only, excluding M+ and follower dungeons)
----@return boolean
-function BuffState.ShouldTriggerDungeonEntry()
-    if BuffState.IsAlone() then
-        return false
-    end
-    if GetCurrentContentType() ~= "dungeon" then
-        return false
-    end
-    local diffKey = GetCurrentDifficultyKey()
-    return diffKey ~= "mythicPlus" and diffKey ~= "follower"
-end
-
----Check if the current zone qualifies for delve entry triggers
----@return boolean
-function BuffState.ShouldTriggerDelveEntry()
-    return BR.IsInDelve()
-end
-
----Check if the current instance is legacy content (cached alongside content type)
----@return boolean
-function BuffState.IsLegacyInstance()
-    if instanceCache.legacyInstance == nil then
-        GetCurrentContentType() -- populates instanceCache.legacyInstance
-    end
-    return instanceCache.legacyInstance or false
-end
-
 ---Start a snooze. A new snooze replaces the snooze of the same scope and id.
 ---@param scope SnoozeScope
 ---@param id? string The reminder key or the category. Ignored for "all"
@@ -3818,9 +3377,6 @@ function BuffState.Snooze(scope, id)
     snoozes[scope][id] = record
     return record
 end
-
----Raw difficultyID from GetInstanceInfo (cached; invalidated with content type)
-BuffState.GetDifficultyID = GetDifficultyIDCached
 
 ---Whether the player is in a restricted context: aura queries return secret
 ---values. Measured through C_Secrets.ShouldAurasBeSecret.
@@ -3855,8 +3411,7 @@ function BuffState.GetHideAllReason(db)
         return "solo"
     end
     -- A sleeping bag makes the player rest, but its countdown must stay visible.
-    -- BR.IsRestingInBag is nil on retail.
-    if db.hideWhileResting and GameContext.IsResting() and not (BR.IsRestingInBag and BR.IsRestingInBag()) then
+    if db.hideWhileResting and GameContext.IsResting() and not BR.BuffData.isRestingInBag() then
         return "resting"
     end
     if db.hideInCombat and GameContext.IsInCombat() then
@@ -3868,7 +3423,7 @@ function BuffState.GetHideAllReason(db)
     if db.hideWhileMounted and IsMounted() then
         return "mounted"
     end
-    if db.hideInLegacyInstances and BuffState.IsLegacyInstance() then
+    if db.hideInLegacyInstances and GameContext.IsLegacyInstance() then
         return "legacyInstance"
     end
     if db.hideWhileLeveling and GameContext.GetPlayerLevel() < GameContext.GetMaxExpansionLevel() then
@@ -3977,11 +3532,6 @@ end
 -- CACHE INVALIDATION
 -- ============================================================================
 
----Invalidate content type cache
-function BuffState.InvalidateContentTypeCache()
-    wipe(instanceCache)
-end
-
 ---Invalidate the scan results of foreign classChoices copies.
 function BuffState.InvalidateForeignAuraCache()
     for _, state in pairs(classChoiceStates) do
@@ -3999,6 +3549,7 @@ end
 ---Invalidate spec ID cache
 function BuffState.InvalidateSpecCache()
     cachedSpecId = nil
+    cachedSpecGroup = nil
     cachedPlayerRole = nil
 end
 
@@ -4027,74 +3578,6 @@ function BuffState.InvalidateSpellCache()
     cachedSpellKnowledge = {}
     cachedSpecId = nil
     cachedPlayerRole = nil
-end
-
-local function ResolveOffHandType()
-    if cachedOffHandType ~= nil then
-        return
-    end
-    local offhandItemID = GetInventoryItemID("player", 17) -- INVSLOT_OFFHAND
-    if not offhandItemID then
-        -- Trust an empty off-hand only when inventory data is loaded. Right after
-        -- a loading screen or an equipment swap, slot 17 can transiently read nil
-        -- for a real dual-wielder. A cached "none" then poisons the rest of the
-        -- session (dual-wielder read as two-handed -> wrong rune bucket). The main
-        -- hand is always equipped, so a readable MH means inventory is loaded and a
-        -- nil off-hand is truly empty. If MH is also nil, leave the cache unset so
-        -- the next refresh retries.
-        if GetInventoryItemID("player", 16) then -- INVSLOT_MAINHAND
-            cachedOffHandType = "none"
-        end
-        return
-    end
-    local _, _, _, _, _, itemClassID, itemSubClassID = C_Item.GetItemInfoInstant(offhandItemID)
-    if not itemClassID then
-        -- Item data is not available yet (intermittent right after login/reload).
-        -- Leave the cache unset so the next refresh retries. A stale "none" here
-        -- poisons the session and makes a dual-wielder read as two-handed.
-        return
-    end
-    if itemClassID == 2 then -- Enum.ItemClass.Weapon
-        cachedOffHandType = "weapon"
-    elseif itemClassID == 4 and itemSubClassID == 6 then -- Armor + Shield
-        cachedOffHandType = "shield"
-    else
-        cachedOffHandType = "none"
-    end
-end
-
----Check if off-hand slot has a weapon (cached)
----@return boolean
-function BuffState.HasOffHandWeapon()
-    ResolveOffHandType()
-    return cachedOffHandType == "weapon"
-end
-
----Check if off-hand slot has a shield (cached)
----@return boolean
-function BuffState.HasShield()
-    ResolveOffHandType()
-    return cachedOffHandType == "shield"
-end
-
----Weapon subclass (Enum.ItemWeaponSubclass) of the item in a weapon slot (cached).
----@param slot number 16 (main hand), 17 (off hand) or 18 (ranged)
----@return number? subclassID nil when the slot holds no weapon or the item data is not loaded
-function BuffState.GetWeaponSubclass(slot)
-    local cached = cachedWeaponSubclass[slot]
-    if cached ~= nil then
-        return cached or nil
-    end
-    local itemID = GetInventoryItemID("player", slot)
-    if not itemID then
-        return nil
-    end
-    local _, _, _, _, _, itemClassID, itemSubClassID = C_Item.GetItemInfoInstant(itemID)
-    if not itemClassID then
-        return nil
-    end
-    cachedWeaponSubclass[slot] = itemClassID == 2 and itemSubClassID or false
-    return cachedWeaponSubclass[slot] or nil
 end
 
 ---Get the cached off-hand enchant ID from the current refresh cycle
@@ -4128,109 +3611,10 @@ function BuffState.GetPermanentWeaponEnchantID(slot)
     return currentWeaponEnchants.permanentOH
 end
 
----Invalidate the off-hand weapon/shield and weapon subclass caches
-function BuffState.InvalidateOffHandCache()
-    cachedOffHandType = nil
-    wipe(cachedWeaponSubclass)
-end
-
 ---Invalidate item ownership + count caches
 function BuffState.InvalidateItemCache()
     cachedItemOwnership = {}
     cachedItemCounts = {}
-end
-
----Lowest equipped-item durability ratio (0-1; 1 when nothing is damaged), cached.
----Slots without durability (neck/rings/trinkets/shirt/tabard) return nil and are skipped.
----@return number
-function BuffState.GetLowestDurability()
-    if cachedLowestDurability ~= nil then
-        return cachedLowestDurability
-    end
-    local lowest = 1
-    local readable = false
-    for slot = 1, 18 do
-        local cur, max = GetInventoryItemDurability(slot)
-        if cur and max and max > 0 then
-            readable = true
-            local pct = cur / max
-            if pct < lowest then
-                lowest = pct
-            end
-        end
-    end
-    -- Only a readable answer is cached: a zone change answers nil for every slot
-    -- while the inventory resolves, and a frozen "nothing is damaged" hides the
-    -- repair reminder until the next durability event.
-    if readable then
-        cachedLowestDurability = lowest
-    end
-    return lowest
-end
-
----Invalidate the durability cache
-function BuffState.InvalidateDurabilityCache()
-    cachedLowestDurability = nil
-end
-
----Best repair sources for the repair reminder's click action: a collected repair
----mount and/or a usable repair item. Both answers only change on collection and
----bag events, so the resolved pair is memoized.
----@return { mountSpellID: number?, mountID: number?, itemID: number? }
-function BuffState.GetRepairSources()
-    if cachedRepairSources then
-        return cachedRepairSources
-    end
-    local sources = {}
-    for _, spellID in ipairs(REPAIR_SOURCES.mounts) do
-        local mountID = C_MountJournal.GetMountFromSpell(spellID)
-        if mountID then
-            local _, _, _, _, _, _, _, _, _, _, isCollected = C_MountJournal.GetMountInfoByID(mountID)
-            if isCollected then
-                sources.mountSpellID = spellID
-                sources.mountID = mountID
-                break
-            end
-        end
-    end
-    for _, itemID in ipairs(REPAIR_SOURCES.items) do
-        if HasItemInBags(itemID) then
-            -- A retired use effect must not arm a dead click, so ownership is not
-            -- enough. An unreadable verdict means the item info is not cached yet;
-            -- ownership decides then.
-            local ok, usable = pcall(C_Item.IsUsableItem, itemID)
-            if not ok or usable ~= false then
-                sources.itemID = itemID
-                break
-            end
-        end
-    end
-    -- Only a positive resolution is cached: the mount journal is not always
-    -- populated at login, and a frozen "owns nothing" leaves the icon inert for the
-    -- whole session. An empty answer resolves again on the next arming pass.
-    if sources.mountSpellID or sources.itemID then
-        cachedRepairSources = sources
-    end
-    return sources
-end
-
----Whether the collected repair mount can be summoned where the player stands.
----The `[outdoors]` macro conditional cannot answer this: an outdoor area that
----blocks mounts still reads as outdoors, so the click spends nothing. The mount
----journal knows the real restriction. The answer follows the subzone, so it is
----never cached - the macro that reads it is rebuilt on every zone change.
----@return boolean
-function BuffState.IsRepairMountUsable()
-    local mountID = BuffState.GetRepairSources().mountID
-    if not mountID then
-        return false
-    end
-    return C_MountJournal.GetMountUsabilityByID(mountID, IsIndoors()) == true
-end
-
----Invalidate the repair source cache
-function BuffState.InvalidateRepairSourceCache()
-    cachedRepairSources = nil
 end
 
 ---Aura spell of the consumable the player runs now, or nil when none is up.
@@ -4243,58 +3627,6 @@ end
 ---Invalidate loadout state cache
 function BuffState.InvalidateLoadoutCache()
     cachedLoadoutState = {}
-end
-
----Check whether the player's current pet is not an allowed demon. Returns false
----when there is no pet or no desired demon. If the family read hits a secret
----value, the result stays uncached so later refreshes retry.
----@return boolean
-function BuffState.IsWrongDemonPet()
-    if not BR.PetHelpers.GetDesiredWarlockDemon() then
-        return false
-    end
-    if cachedPetFamily == nil then
-        if not UnitExists("pet") then
-            cachedPetFamily = false
-        else
-            local _, familyID = UnitCreatureFamily("pet")
-            familyID = Plain(familyID)
-            if type(familyID) ~= "number" then
-                -- Pet data is not resolved yet, or is a secret value. Do not cache, so the
-                -- next Refresh retries.
-                return false
-            end
-            cachedPetFamily = familyID
-        end
-    end
-    return cachedPetFamily ~= false and not BR.PetHelpers.IsAllowedWarlockFamily(cachedPetFamily)
-end
-
----Invalidate wrong-pet cache
-function BuffState.InvalidatePetCache()
-    cachedPetFamily = nil
-end
-
-do
-    local ammoID, ammoCount -- false = read and empty, nil = not read
-
-    ---Equipped ammo item and its count (cached). nil when the client has no ammo slot or it is empty.
-    ---@return number? itemID
-    ---@return number count
-    function BuffState.GetEquippedAmmo()
-        if not INVSLOT_AMMO then
-            return nil, 0
-        end
-        if ammoID == nil then
-            ammoID = Plain(GetInventoryItemID("player", INVSLOT_AMMO)) or false
-            ammoCount = ammoID and Plain(GetInventoryItemCount("player", INVSLOT_AMMO)) or 0
-        end
-        return ammoID or nil, ammoCount or 0
-    end
-
-    function BuffState.InvalidateAmmoCache()
-        ammoID, ammoCount = nil, nil
-    end
 end
 
 do
@@ -4345,188 +3677,6 @@ do
     function BuffState.InvalidateTrackingCache()
         trackingActive = nil
     end
-end
-
----Happiness of the current pet (cached): 1 unhappy, 2 content, 3 happy.
----@return number? happiness nil without a pet or on a client without pet happiness
-function BuffState.GetPetHappiness()
-    if not GetPetHappiness then
-        return nil
-    end
-    if cachedPetHappiness == nil then
-        if not UnitExists("pet") then
-            cachedPetHappiness = false
-        else
-            local happiness = Plain(GetPetHappiness())
-            if type(happiness) ~= "number" then
-                -- Pet data is not resolved yet. Do not cache, so the next Refresh retries.
-                return nil
-            end
-            cachedPetHappiness = happiness
-        end
-    end
-    return cachedPetHappiness or nil
-end
-
-function BuffState.InvalidatePetHappinessCache()
-    cachedPetHappiness = nil
-end
-
----Resolve the active stance's spell ID, or nil if unstanced/unresolved (cached).
----Unstanced (form 0) is a stable result and cached as `false`; a form set but
----with unresolved spell data is a transient load state left uncached to retry.
----@return number?
-local function GetActiveStanceSpellID()
-    if stanceCache.activeSpellID ~= nil then
-        return stanceCache.activeSpellID or nil
-    end
-    local active = GetShapeshiftForm()
-    if not active or active == 0 then
-        stanceCache.activeSpellID = false
-        return nil
-    end
-    local _, _, _, spellID = GetShapeshiftFormInfo(active)
-    if type(spellID) == "number" then
-        stanceCache.activeSpellID = spellID
-        return spellID
-    end
-    return nil
-end
-
----Active stance spell ID, and true as second value when the stance bar has no active
----form. Both values are nil while the spell data of an active form is unresolved.
----@return number? spellID
----@return boolean? unstanced
-function BuffState.GetActiveStance()
-    local spellID = GetActiveStanceSpellID()
-    return spellID, stanceCache.activeSpellID == false or nil
-end
-
----Set of the spell IDs on the stance bar. Cached. A slot with unresolved spell data is
----a transient load state, so that set stays uncached to retry.
----@return table<number, true>
-function BuffState.GetStanceBarSpells()
-    local spells = stanceCache.barSpells
-    if spells then
-        return spells
-    end
-    spells = {}
-    local resolved = true
-    for i = 1, GetNumShapeshiftForms() do
-        local _, _, _, spellID = GetShapeshiftFormInfo(i)
-        if type(spellID) == "number" then
-            spells[spellID] = true
-        else
-            resolved = false
-        end
-    end
-    if resolved then
-        stanceCache.barSpells = spells
-    end
-    return spells
-end
-
----Whether the active stance is outside the allowed stances of the rule. A form
----set with unresolved spell data is a transient load state and reads as allowed.
----The verdict reads live, because the allowed set can follow the content type.
----@param rule StanceRule
----@return boolean
-local function IsOutsideAllowedStances(rule)
-    local allowed = rule.allowed()
-    if not allowed then
-        return false
-    end
-    local activeSpellID = GetActiveStanceSpellID()
-    if activeSpellID then
-        return not allowed[activeSpellID]
-    end
-    if stanceCache.activeSpellID == false then
-        return not allowed[NO_STANCE]
-    end
-    return false
-end
-
----Whether a warrior is unstanced or in a stance that the rule does not allow.
----@return boolean
-function BuffState.IsWrongWarriorStance()
-    return playerClass == "WARRIOR" and IsOutsideAllowedStances(STANCE_RULES.WARRIOR)
-end
-
----Stance spell ID that the warrior click casts, or nil for non-warriors.
----@return number?
-function BuffState.GetExpectedWarriorStanceID()
-    if playerClass ~= "WARRIOR" then
-        return nil
-    end
-    return STANCE_RULES.WARRIOR.castID()
-end
-
----Texture of the active stance or form, or nil if unstanced. Cached.
----@return number?
-function BuffState.GetCurrentStanceIcon()
-    if stanceCache.currentStanceIcon ~= nil then
-        return stanceCache.currentStanceIcon or nil
-    end
-    local activeSpellID = GetActiveStanceSpellID()
-    if not activeSpellID then
-        stanceCache.currentStanceIcon = false
-        return nil
-    end
-    stanceCache.currentStanceIcon = C_Spell.GetSpellTexture(activeSpellID) or false
-    return stanceCache.currentStanceIcon or nil
-end
-
----Whether the priest is currently in Shadowform (or Voidform, which lives in
----the same stance bar slot). Cached. Reliable in restricted contexts because
----the stance API is unaffected by combat/encounter/M+ aura restrictions.
----@return boolean
-function BuffState.IsShadowFormActive()
-    if stanceCache.shadowFormActive ~= nil then
-        return stanceCache.shadowFormActive
-    end
-    if playerClass ~= "PRIEST" then
-        stanceCache.shadowFormActive = false
-        return false
-    end
-    local activeSpellID = GetActiveStanceSpellID()
-    if not activeSpellID then
-        -- Form 0 = no shadowform (cache). A non-zero form with unresolved spell
-        -- data is a transient load state: return the safe default and retry.
-        if GetShapeshiftForm() == 0 then
-            stanceCache.shadowFormActive = false
-            return false
-        end
-        return true
-    end
-    stanceCache.shadowFormActive = activeSpellID == SHADOWFORM or activeSpellID == VOIDFORM
-    return stanceCache.shadowFormActive
-end
-
----Whether a druid is in a form that the rule does not allow. With
----druidIgnoreTravelForm, any travel-family form or a mount reads as allowed.
----@return boolean
-function BuffState.IsWrongDruidForm()
-    if playerClass ~= "DRUID" then
-        return false
-    end
-    if BR.profile.druidIgnoreTravelForm ~= false and (DRUID_TRAVEL_FORM_IDS[GetShapeshiftFormID()] or IsMounted()) then
-        return false
-    end
-    return IsOutsideAllowedStances(STANCE_RULES.DRUID)
-end
-
----Form spell ID that the druid click casts (0 = cancel the form), or nil.
----@return number?
-function BuffState.GetExpectedDruidFormID()
-    if playerClass ~= "DRUID" then
-        return nil
-    end
-    return STANCE_RULES.DRUID.castID()
-end
-
----Invalidate all stance caches (active stance, stance icon, priest shadowform).
-function BuffState.InvalidateStanceCache()
-    wipe(stanceCache)
 end
 
 do
@@ -4656,6 +3806,7 @@ end
 -- Utility functions the display layer uses.
 BR.StateHelpers = {
     GetPlayerSpecId = GetPlayerSpecId,
+    GetPlayerSpecGroup = GetPlayerSpecGroup,
     FormatRemainingTime = FormatRemainingTime,
     AuraLead = Lead.Of,
     FormatCountdownTime = FormatCountdownTime,
@@ -4669,14 +3820,11 @@ BR.StateHelpers = {
     UpdateEatingState = UpdateEatingState,
     ScanEatingState = ScanEatingState,
     GetEatingExpirationTime = GetEatingExpirationTime,
-    GetCurrentContentType = GetCurrentContentType,
-    GetContentRow = GetContentRow,
-    IsContentChoiceAllowed = IsContentChoiceAllowed,
-    IsCategoryVisibleForContent = IsCategoryVisibleForContent,
     GetBuffSettingKey = GetBuffSettingKey,
     IsBuffEnabled = IsBuffEnabled,
     IsPlayerSpellCached = IsPlayerSpellCached,
     GetItemCountCached = GetItemCountCached,
+    HasItemInBags = HasItemInBags,
     IsPlayerTank = IsPlayerTank,
     AsSpellList = AsSpellList,
     BuffTargets = BuffTargets,
@@ -4684,22 +3832,14 @@ BR.StateHelpers = {
 
 BR.BuffState = BuffState
 
-BR.GameContext.RegisterCache("contentType", BuffState.InvalidateContentTypeCache)
 BR.GameContext.RegisterCache("auraTrackable", BuffState.InvalidateAuraTrackableCache)
 BR.GameContext.RegisterCache("spell", BuffState.InvalidateSpellCache)
 BR.GameContext.RegisterCache("spec", BuffState.InvalidateSpecCache)
 BR.GameContext.RegisterCache("healer", BuffState.InvalidateHealerCache)
 BR.GameContext.RegisterCache("subgroup", BuffState.InvalidateSubgroupCache)
-BR.GameContext.RegisterCache("offHand", BuffState.InvalidateOffHandCache)
 BR.GameContext.RegisterCache("item", BuffState.InvalidateItemCache)
-BR.GameContext.RegisterCache("durability", BuffState.InvalidateDurabilityCache)
-BR.GameContext.RegisterCache("repairSource", BuffState.InvalidateRepairSourceCache)
 BR.GameContext.RegisterCache("loadout", BuffState.InvalidateLoadoutCache)
-BR.GameContext.RegisterCache("pet", BuffState.InvalidatePetCache)
-BR.GameContext.RegisterCache("ammo", BuffState.InvalidateAmmoCache)
 BR.GameContext.RegisterCache("tracking", BuffState.InvalidateTrackingCache)
-BR.GameContext.RegisterCache("petHappiness", BuffState.InvalidatePetHappinessCache)
-BR.GameContext.RegisterCache("stance", BuffState.InvalidateStanceCache)
 BR.GameContext.RegisterCache("spellUsable", BuffState.InvalidateSpellUsableCache)
 BR.GameContext.RegisterCache("itemCooldown", BuffState.InvalidateItemCooldownCache)
 BR.GameContext.RegisterCache("foreignAura", BuffState.InvalidateForeignAuraCache)
