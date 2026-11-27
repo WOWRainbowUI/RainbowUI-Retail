@@ -31,7 +31,11 @@ local unpack = unpack
 
 local gcdbar, gcdbar_width, gcdspark
 local starttime, duration
-local GCD_SPELL_ID = Quartz3.IsForever and 29515 or 61304
+local GCD_SPELL_ID = 61304
+if Quartz3.IsForever then
+	-- 1283885 is the only "cooldown never secret" spell on Forever.
+	GCD_SPELL_ID = C_Spell.DoesSpellExist(1283885) and 1283885 or 29515
+end
 
 local db, getOptions
 
@@ -233,9 +237,9 @@ function GCD:CheckGCD(event, unit)
 
 	local cooldown = C_Spell.GetSpellCooldown(GCD_SPELL_ID)
 	if cooldown and cooldown.isActive then
-		local start, dur = cooldown.startTime, cooldown.duration
 		if db.displayMode == "bar" then
 			if not gcdbar:IsShown() then
+				local dur = cooldown.duration
 				-- cooldown.startTime can be secret, GetTime() never is.
 				starttime = GetTime()
 				duration  = issecretvalue(dur) and 1.5 or dur
@@ -245,7 +249,10 @@ function GCD:CheckGCD(event, unit)
 			end
 		else -- icon
 			if gcdbar.cd then
-				gcdbar.cd:SetCooldown(start, dur)
+				local durationObj = C_Spell.GetSpellCooldownDuration(GCD_SPELL_ID)
+				if durationObj then
+					gcdbar.cd:SetCooldownFromDurationObject(durationObj)
+				end
 			end
 		end
 		gcdbar:Show()
