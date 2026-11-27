@@ -203,8 +203,6 @@ function CCS.GetStatCritForever()
 		critChance = meleeCrit or 0
 	end
 
-	--local targetValue = CCS.GetBlizzardStatValue(STAT_CRITICAL_STRIKE)
-	
 	leftText = STAT_CRITICAL_STRIKE
 	rightText = format('%s%%', CCS.round(critChance))
 	
@@ -243,7 +241,14 @@ function CCS.GetStatHasteForever()
 	if not CCS.AreSecretsDisabled() then
 
 		local rangedHaste = baseRangedHaste + ammoHaste;
-		maxHaste = max(meleeHaste, rangedHaste, spellHaste);
+
+		if classType == "CASTER" then
+			maxHaste = spellHaste or 0
+		elseif classType == "RANGED" then
+			maxHaste = rangedHaste or 0
+		else
+			maxHaste = meleeHaste or 0
+		end
 
 		isZero = (maxHaste == 0)
 
@@ -269,7 +274,6 @@ function CCS.GetStatHasteForever()
 	else
 		rightText = targetValue or format('%s%%', CCS.round(0))
 	end
-
 		
 	return leftText, rightText, tt_name, tt_desc, link, isZero, isApplicable
 end
@@ -593,6 +597,14 @@ function CCS.GetStatHitChanceForever()
 		spellHit = GetCombatRatingBonus(CR_HIT_SPELL) + GetSpellHitModifier();
 	
 		maxHit = max(meleeHit, rangedHit, spellHit);
+		
+		if classType == "CASTER" then
+			maxHit = spellHit or 0
+		elseif classType == "RANGED" then
+			maxHit = rangedHit or 0
+		else
+			maxHit = meleeHit or 0
+		end
 
 		tt_name = format(PAPERDOLLFRAME_TOOLTIP_FORMAT, STAT_HIT_CHANCE).." "..format("%.1F%%", maxHit)
 

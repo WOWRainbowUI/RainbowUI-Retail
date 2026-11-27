@@ -24,6 +24,67 @@ local modtex2 = _G["CharacterModelFramebgtex2"] or modbg:CreateTexture("Characte
 local modelbtn = _G["CCS_clk_Btn"] or CreateFrame("Button", "CCS_clk_Btn", PaperDollFrame)
 local modelbtnfont1 = _G["CCS_clk_Btnfs1"] or modelbtn:CreateFontString("CCS_clk_Btnfs1")
 local ccs_cshow
+
+local function UpdatePlayerModel(modelScene)
+    if not modelScene then return end
+
+    local form = GetShapeshiftFormID();
+    local creatureDisplayID = C_PlayerInfo.GetDisplayID();
+    local nativeDisplayID = C_PlayerInfo.GetNativeDisplayID();
+
+    -- Hide the currently active actors without releasing them.  That removes the taint to Blizzard's code.
+    for actor in modelScene:EnumerateActiveActors() do
+        actor:Hide();
+
+        if actor.dropShadowTexture then
+            actor.dropShadowTexture:Hide();
+        end
+    end
+
+    -- Handle shapeshift forms.
+    if form and creatureDisplayID ~= 0 and not UnitOnTaxi("player") then
+        local actorTag;
+
+        if form == 5 then
+            actorTag = "druid-bear-form";
+        elseif ANIMAL_FORMS and ANIMAL_FORMS[form] then
+            actorTag = ANIMAL_FORMS[form].actorTag;
+        end
+
+        if actorTag then
+            local actor = modelScene:GetPlayerActor(actorTag);
+
+            if actor then
+                local displayIDIsNative = creatureDisplayID == nativeDisplayID;
+                local displayRaceIsNative = C_PlayerInfo.IsDisplayRaceNative();
+                local isMirrorImage = C_PlayerInfo.IsMirrorImage();
+
+                if not displayIDIsNative and not isMirrorImage and displayRaceIsNative then
+                    actor:SetModelByCreatureDisplayID(creatureDisplayID, true);
+                    actor:SetAnimationBlendOperation(Enum.ModelBlendOperation.None);
+                    actor:Show();
+                    return;
+                end
+            end
+        end
+    end
+
+    -- Show the normal player actor.
+    local actor = modelScene:GetPlayerActor();
+    if actor then
+        local inAlternateForm = select(2, C_PlayerInfo.GetAlternateFormInfo());
+        local sheatheWeapon = GetSheathState() == 1;
+        local autodress = true;
+        local hideWeapon = false;
+        local useNativeForm = not inAlternateForm;
+
+        actor:SetModelByUnit("player", sheatheWeapon, autodress, hideWeapon, useNativeForm);
+        actor:SetAnimationBlendOperation(Enum.ModelBlendOperation.None);
+        actor:Show();
+    end
+end
+
+
 local function hookfix() 
 
     if CCS.activeClickedRow then
@@ -595,7 +656,7 @@ local function ReputationFrame_Update()
                     select(1, k2.ReputationBar:GetRegions()):SetHeight(reph)
                     k2.ReputationBar.Fill:SetHeight(reph)
                     k2.ReputationBar.Mask:SetHeight(reph)
-                    local percent = barMax > 0 and (barValue / barMax) or 0
+                    local percent = barMax > 0 and ((barValue - barMin) / (barMax - barMin)) or 0
                     k2.ReputationBar:SetFillPercent(math.min(percent, 1))
                 end
                 
@@ -1452,6 +1513,14 @@ function module:SetupBlizzardFrameOverrides()
     modbg:SetFrameStrata("LOW")
     modbg:SetFrameLevel(5000)
 
+    --[[ Patch to Blizzard's broken code.  They didn't put in the correct shapeshift id for druid bear form.
+    if ANIMAL_FORMS and not ANIMAL_FORMS[5] then
+        ANIMAL_FORMS[5] = {
+            actorTag = "druid-bear-form",
+        }
+    end --]]
+
+
     if true then -- Just for testing
         if option("showcharacterstats") then
             CharacterStatsPaneScrollBox:ClearAllPoints()
@@ -1600,6 +1669,7 @@ function module:ApplyDynamicLayout()
 	--------------------------------
 	-- Only process character sheet scale
 	--------------------------------
+
     if CCS.lastChangedOption == nil or CCS.lastChangedOption == "sheetscale" then
 		if scaling ~= 1 or (scaling == 1 and CharacterFrame:GetScale() ~= 1) then -- If scaling is 1, then we can let other addons adjust the sheet scale.
 			CharacterFrame:SetScale(scaling); 
@@ -1846,6 +1916,10 @@ function CCS.ForeverCharacterSheetEventHandler(event, ...)
 
     if CCS.initall == true then return end
    
+    if event == "UNIT_MODEL_CHANGED" then
+        C_Timer.After(0, function() UpdatePlayerModel(CharacterModelScene) end);
+    end
+   
     if event == "PLAYER_ENTERING_WORLD" then
             for slot = 1, 19 do
                 local link = GetInventoryItemLink("player", slot)
@@ -1857,6 +1931,7 @@ function CCS.ForeverCharacterSheetEventHandler(event, ...)
                     end
                 end
             end
+
             if not CCS.characterUpdatePending then
                 CCS.characterUpdatePending = true
                 C_Timer.After(0.2, function()
@@ -1928,6 +2003,7 @@ function CCS.ForeverCharacterSheetEventHandler(event, ...)
                 end                    
 
             end)
+            C_Timer.After(0, function() UpdatePlayerModel(CharacterModelScene) end);
         end
         return true
     else 
