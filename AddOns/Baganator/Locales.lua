@@ -444,6 +444,8 @@ L["OVERWRITE"] = "Overwrite"
 L["MAKE_NEW"] = "Make new"
 L["INVALID_IMPORT"] = "Invalid import"
 
+L["REAGENT_BAG"] = "Reagent Bag"
+
 L["SYNDICATOR_ENABLE_MESSAGE"] = "|cffd1b219Syndicator|r is required to use Baganator."
 L["SYNDICATOR_INSTALL_MESSAGE"] = "Use your addon website/client to install |cffd1b219Syndicator|r in order to use Baganator."
 

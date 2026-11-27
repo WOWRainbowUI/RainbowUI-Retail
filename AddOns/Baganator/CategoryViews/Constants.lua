@@ -386,6 +386,7 @@ addonTable.Utilities.OnAddonLoaded("TradeSkillMaster", function()
     name = addonTable.Locales.CATEGORY_TRADESKILLMASTER_AUTO,
     auto = "tradeskillmaster",
     priorityOffset = -15,
+    noPriority = true,
   }
   table.insert(addonTable.CategoryViews.Constants.DefaultCategories, spec)
   addonTable.CategoryViews.Constants.SourceToCategory[spec.source] = spec
