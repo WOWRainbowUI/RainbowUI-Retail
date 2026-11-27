@@ -529,6 +529,8 @@ local eventHandlers = {
     
     ["UNIT_MODEL_CHANGED"] = {
         { fn = WrapHandler("UNIT_MODEL_CHANGED", CCS.TBCCharacterStatsEventHandler, "TBCCharacterStatsEventHandler"), versions = { CCS.TBC } },
+        { fn = WrapHandler("UNIT_MODEL_CHANGED", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.FOREVER } },
+        { fn = WrapHandler("UNIT_MODEL_CHANGED", CCS.ForeverCharacterSheetEventHandler, "ForeverCharacterSheetEventHandler"), versions = { CCS.FOREVER } },
     },
     
     ["UNIT_MAXHEALTH"] = {

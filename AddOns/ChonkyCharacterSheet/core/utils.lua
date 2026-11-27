@@ -2498,6 +2498,8 @@ function CCS.updateLocationInfo(unit, slotIndex, framename)
 			elseif slotIndex == 2 then --  "Neck" !
 				if CCS.expansionID == LE_EXPANSION_WAR_WITHIN or expacID == LE_EXPANSION_WAR_WITHIN then
 					--Enchant = "<" .. ENSCRIBE .. ": " .. ADDON_MISSING .. ">"
+				elseif CCS.CurrentVersion == CCS.FOREVER then
+					Enchant = "<" .. ENSCRIBE .. ": " .. ADDON_MISSING .. ">"                        
 				elseif CCS.expansionID == LE_EXPANSION_MIDNIGHT then
 					--Enchant = "<" .. ENSCRIBE .. ": " .. ADDON_MISSING .. ">"                        
 				end                
@@ -2510,6 +2512,8 @@ function CCS.updateLocationInfo(unit, slotIndex, framename)
 			elseif slotIndex == 5 then --  "Chest" !
 				if CCS.expansionID == LE_EXPANSION_WAR_WITHIN or expacID == LE_EXPANSION_WAR_WITHIN then
 					Enchant = "<" .. ENSCRIBE .. ": " .. ADDON_MISSING .. ">"
+				elseif CCS.CurrentVersion == CCS.FOREVER then
+					Enchant = "<" .. ENSCRIBE .. ": " .. ADDON_MISSING .. ">"                        
 				elseif CCS.expansionID == LE_EXPANSION_MIDNIGHT then
 					Enchant = "<" .. ENSCRIBE .. ": " .. ADDON_MISSING .. ">"                        
 				end
@@ -2522,24 +2526,32 @@ function CCS.updateLocationInfo(unit, slotIndex, framename)
 			elseif slotIndex == 7 then --  "Legs" -
 				if CCS.expansionID == LE_EXPANSION_WAR_WITHIN or expacID == LE_EXPANSION_WAR_WITHIN then
 					Enchant = "<" .. ENSCRIBE .. ": " .. ADDON_MISSING .. ">"
+				elseif CCS.CurrentVersion == CCS.FOREVER then
+					Enchant = "<" .. ENSCRIBE .. ": " .. ADDON_MISSING .. ">"                        
 				elseif CCS.expansionID == LE_EXPANSION_MIDNIGHT then
 					Enchant = "<" .. ENSCRIBE .. ": " .. ADDON_MISSING .. ">"                        
 				end                
 			elseif slotIndex == 8 then --  "Feet" !
 				if CCS.expansionID == LE_EXPANSION_WAR_WITHIN or expacID == LE_EXPANSION_WAR_WITHIN then
 					Enchant = "<" .. ENSCRIBE .. ": " .. ADDON_MISSING .. ">"
+				elseif CCS.CurrentVersion == CCS.FOREVER then
+					Enchant = "<" .. ENSCRIBE .. ": " .. ADDON_MISSING .. ">"                        
 				elseif CCS.expansionID == LE_EXPANSION_MIDNIGHT then
 					Enchant = "<" .. ENSCRIBE .. ": " .. ADDON_MISSING .. ">"                        
 				end                
 			elseif slotIndex == 9 then --  "Wrist" !
 				if CCS.expansionID == LE_EXPANSION_WAR_WITHIN or expacID == LE_EXPANSION_WAR_WITHIN then
 					Enchant = "<" .. ENSCRIBE .. ": " .. ADDON_MISSING .. ">"
+				elseif CCS.CurrentVersion == CCS.FOREVER then
+					Enchant = "<" .. ENSCRIBE .. ": " .. ADDON_MISSING .. ">"                        
 				elseif CCS.expansionID == LE_EXPANSION_MIDNIGHT then
 					--Enchant = "<" .. ENSCRIBE .. ": " .. ADDON_MISSING .. ">"                        
 				end                
 			elseif slotIndex == 10 then --  "Hands" !
 				if CCS.expansionID == LE_EXPANSION_WAR_WITHIN or expacID == LE_EXPANSION_WAR_WITHIN then
 					--Enchant = "<" .. ENSCRIBE .. ": " .. ADDON_MISSING .. ">"
+				elseif CCS.CurrentVersion == CCS.FOREVER then
+					Enchant = "<" .. ENSCRIBE .. ": " .. ADDON_MISSING .. ">"                        
 				elseif CCS.expansionID == LE_EXPANSION_MIDNIGHT then
 					--Enchant = "<" .. ENSCRIBE .. ": " .. ADDON_MISSING .. ">"                        
 				end                
@@ -2558,18 +2570,24 @@ function CCS.updateLocationInfo(unit, slotIndex, framename)
 			elseif slotIndex == 15 then --  "Back" !
 				if CCS.expansionID == LE_EXPANSION_WAR_WITHIN or expacID == LE_EXPANSION_WAR_WITHIN then
 					Enchant = "<" .. ENSCRIBE .. ": " .. ADDON_MISSING .. ">"
+				elseif CCS.CurrentVersion == CCS.FOREVER then
+					Enchant = "<" .. ENSCRIBE .. ": " .. ADDON_MISSING .. ">"                        
 				elseif CCS.expansionID == LE_EXPANSION_MIDNIGHT then
 					--Enchant = "<" .. ENSCRIBE .. ": " .. ADDON_MISSING .. ">"                        
 				end                
 			elseif slotIndex == 16 then --  "MainHand" !
 				if CCS.expansionID == LE_EXPANSION_WAR_WITHIN or expacID == LE_EXPANSION_WAR_WITHIN then
 					Enchant = "<" .. ENSCRIBE .. ": " .. ADDON_MISSING .. ">"
+				elseif CCS.CurrentVersion == CCS.FOREVER then
+					Enchant = "<" .. ENSCRIBE .. ": " .. ADDON_MISSING .. ">"                        
 				elseif CCS.expansionID == LE_EXPANSION_MIDNIGHT then
 					Enchant = "<" .. ENSCRIBE .. ": " .. ADDON_MISSING .. ">"                        
 				end                
 			elseif slotIndex == 17 and itemType == "Weapon" then --  "SecondaryHand" -
 				if CCS.expansionID == LE_EXPANSION_WAR_WITHIN or expacID == LE_EXPANSION_WAR_WITHIN then
 					Enchant = "<" .. ENSCRIBE .. ": " .. ADDON_MISSING .. ">"
+				elseif CCS.CurrentVersion == CCS.FOREVER then
+					Enchant = "<" .. ENSCRIBE .. ": " .. ADDON_MISSING .. ">"                        
 				elseif CCS.expansionID == LE_EXPANSION_MIDNIGHT then
 					Enchant = "<" .. ENSCRIBE .. ": " .. ADDON_MISSING .. ">"                        
 				end                
@@ -3353,8 +3371,8 @@ function CCS.ClassType()
     if  class == "MAGE" or class == "WARLOCK" or class == "PRIEST" or class == "SHAMAN"	or class == "PALADIN" then
         classtype = "CASTER"
     elseif class == "DRUID" then
-        local formIndex= GetShapeshiftForm() -- 1 Bear Form, 2 Cat Form
-        if formIndex == 1 or formIndex == 2 then  
+        local formIndex= GetShapeshiftFormID() -- 5 Bear Form, 2 Cat Form
+        if formIndex == 1 or formIndex == 5 then
             classtype = "MELEE"
         else
             classtype = "CASTER"

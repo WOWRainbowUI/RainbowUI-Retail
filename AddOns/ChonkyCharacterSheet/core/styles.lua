@@ -725,7 +725,7 @@ function CCS.CreateChonkyNineSlice(parent)
     end
     if option("theme") == "None" then frame:Hide() end
 
-    if not option("showcharacterstats") then
+    if not option("showcharacterstats") and CharacterStatsPane.ChonkyNS ~= nil then
         CharacterStatsPane.ChonkyNS:Hide()
         CharacterStatsPane.BG:Hide()
     end
