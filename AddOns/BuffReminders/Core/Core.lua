@@ -79,8 +79,36 @@ BR.ClientType = {
 ---@type ClientType
 BR.CLIENT = WOW_PROJECT_ID == WOW_PROJECT_CAMELOT and BR.ClientType.Forever or BR.ClientType.Retail
 
--- Stance key for "no stance" (stance bar form 0) in the allowed-stances sets of BR.STANCE_RULES.
+---Marks "no value" in BR.ByClient. A nil field drops out of the table, so the type check cannot see it.
+BR.NONE = {}
+
+-- Fields must not accept nil: LuaLS treats a nil-able field as optional and skips the missing-field check.
+---@class ClientValues
+---@field retail boolean|number|string|table|function
+---@field forever boolean|number|string|table|function
+
+---The value of the running client, or nil for BR.NONE.
+---Each call builds a table, so resolve at load time, not in the refresh path.
+---@param values ClientValues
+---@return any
+function BR.ByClient(values)
+    local value = values[BR.CLIENT]
+    if value == BR.NONE then
+        return nil
+    end
+    return value
+end
+
+-- Stance key for "no stance" (stance bar form 0) in the allowed-stances sets of BR.BuffData.stanceRules.
 BR.NO_STANCE = 0
+
+BR.SHADOWFORM_SPELL_ID = BR.ByClient({ retail = 232698, forever = 15473 })
+
+-- Icon of the eating channel aura, the same for all food types.
+BR.EATING_AURA_ICON = BR.ByClient({ retail = 133950, forever = 134062 })
+
+---@type SoulstoneVisibility
+BR.SOULSTONE_DEFAULT_VISIBILITY = BR.ByClient({ retail = "readyCheck", forever = "readyCheckSolo" })
 
 BR.Client = {}
 
@@ -96,6 +124,39 @@ function BR.Client.GetSpecID()
         return nil
     end
     return GetSpecializationInfo(specIndex), specIndex
+end
+
+---The specializations of the player class, in spec index order. Empty on WoW Forever.
+---@return { index: number, name: string }[]
+function BR.Client.ListPlayerSpecs()
+    local specs = {}
+    if BR.CLIENT == BR.ClientType.Forever then
+        return specs
+    end
+    for i = 1, GetNumSpecializations() do
+        local _, name = GetSpecializationInfo(i)
+        if name then
+            specs[#specs + 1] = { index = i, name = name }
+        end
+    end
+    return specs
+end
+
+---The specializations of a class, in spec index order. Empty on WoW Forever.
+---@param classID number
+---@return { specID: number, name: string }[]
+function BR.Client.ListClassSpecs(classID)
+    local specs = {}
+    if BR.CLIENT == BR.ClientType.Forever then
+        return specs
+    end
+    for i = 1, 4 do
+        local specID, name = GetSpecializationInfoForClassID(classID, i)
+        if specID then
+            specs[#specs + 1] = { specID = specID, name = name }
+        end
+    end
+    return specs
 end
 
 local IsEventValid = C_EventUtils and C_EventUtils.IsEventValid
@@ -268,6 +329,8 @@ CallbackRegistry:GenerateCallbackEvents({
     "CustomAnchorsChanged", -- Fired when the user's anchor-target list gains or loses a name
     "ActiveConsumableChanged", -- Fired when the running consumable aura changes: (category, spellID)
     "RenderRequested", -- A change needs a render: (urgent, reason?)
+    "TestModeChanged", -- Test mode turned on or off: (enabled)
+    "FrameLockChanged", -- The global frame lock changed: (locked)
 })
 BR.CallbackRegistry = CallbackRegistry
 
@@ -326,7 +389,8 @@ local CategorySettingKeys = {
     iconWidth = "VisualsRefresh",
     iconZoom = "VisualsRefresh",
     borderSize = "VisualsRefresh",
-    textSize = "VisualsRefresh",
+    countTextSize = "VisualsRefresh",
+    missingTextSize = "VisualsRefresh",
     iconAlpha = "VisualsRefresh",
     textAlpha = "VisualsRefresh",
     textColor = "VisualsRefresh",
@@ -340,7 +404,6 @@ local CategorySettingKeys = {
     priority = "LayoutRefresh",
     -- Behavior
     showBuffReminder = "VisualsRefresh",
-    buffTextSize = "VisualsRefresh",
     showText = "VisualsRefresh",
     showDescriptionTooltips = "VisualsRefresh", -- Toggles hover capture vs click-through
     -- Toggles
@@ -396,7 +459,9 @@ local DefaultSettingKeys = {
     iconZoom = "VisualsRefresh",
     borderSize = "VisualsRefresh",
     iconStyle = "VisualsRefresh",
-    textSize = "VisualsRefresh",
+    countTextSize = "VisualsRefresh",
+    missingTextSize = "VisualsRefresh",
+    captionTextSize = "VisualsRefresh",
     iconAlpha = "VisualsRefresh",
     textAlpha = "VisualsRefresh",
     textColor = "VisualsRefresh",
@@ -474,7 +539,7 @@ local DefaultSettingKeys = {
     -- Consumable display mode
     consumableDisplayMode = "DisplayRefresh",
     consumableBadgeOnSubIcons = "DisplayRefresh",
-    consumableTextScale = "VisualsRefresh",
+    itemTextSize = "VisualsRefresh",
     hideConsumableLabels = "VisualsRefresh",
     tooltipModifier = false, -- Read at hover time
     rightClickMenu = "DisplayRefresh", -- Re-wires the type2 attribute of the click overlays
@@ -486,7 +551,7 @@ local DefaultSettingKeys = {
     -- Pet display mode
     petDisplayMode = "DisplayRefresh",
     petLabels = "DisplayRefresh",
-    petLabelScale = "DisplayRefresh",
+    petLabelSize = "DisplayRefresh",
     petSpecIconOnHover = "DisplayRefresh",
     useFelDomination = "DisplayRefresh",
     warlockWrongDemon = "DisplayRefresh",
@@ -504,9 +569,11 @@ local DefaultSettingKeys = {
     position = false, -- No auto-refresh, saved directly by movers
 }
 
--- Per-content grids (path = defaults.{grid}.{world|dungeon|raid|pvp}.{choice})
+-- Choice grids (path = defaults.{grid}.{row}.{choice})
 local ContentGridKeys = {
     warlockDemons = true,
+    warlockSacrificeDemons = true,
+    warlockStones = true,
     warriorStances = true,
     druidForms = true,
 }
@@ -517,11 +584,11 @@ local ContentGridKeys = {
 BR.CATEGORY_ORDER = { "raid", "presence", "targeted", "self", "pet", "consumable", "utility", "custom", "loadout" }
 
 -- Virtual categories: user-defined entries that live in db.customBuffs /
--- db.loadoutReminders rather than BR.BUFF_TABLES. Consumers that walk only the
+-- db.loadoutReminders rather than BR.BuffData.buffTables. Consumers that walk only the
 -- built-in buff tables (chat requests, static-buff iteration) skip these.
 BR.VIRTUAL_CATEGORIES = { custom = true, loadout = true }
 
--- Built-in (non-virtual) categories that have entries in BR.BUFF_TABLES, in
+-- Built-in (non-virtual) categories that have entries in BR.BuffData.buffTables, in
 -- display order. Derived from BR.CATEGORY_ORDER minus the virtual categories so
 -- there is still exactly one ordered list to maintain.
 BR.STATIC_CATEGORIES = {}
@@ -542,7 +609,7 @@ function BR.IsCategoryAvailable(category)
     if category == "loadout" then
         return BR.Loadouts ~= nil
     end
-    local buffs = BR.BUFF_TABLES and BR.BUFF_TABLES[category]
+    local buffs = BR.BuffData and BR.BuffData.buffTables[category]
     return buffs ~= nil and buffs[1] ~= nil
 end
 
@@ -804,7 +871,8 @@ end
 local AppearanceKeys = {
     iconSize = true,
     iconWidth = true,
-    textSize = true,
+    countTextSize = true,
+    missingTextSize = true,
     iconAlpha = true,
     textAlpha = true,
     textColor = true,
@@ -1132,13 +1200,8 @@ local CLASS_IDS = {
 BR.CLASS_SPEC_OPTIONS = {}
 for token, classID in pairs(CLASS_IDS) do
     local specs = {}
-    if BR.CLIENT == BR.ClientType.Retail then
-        for i = 1, 4 do
-            local specID, name = GetSpecializationInfoForClassID(classID, i)
-            if specID then
-                table.insert(specs, { value = specID, label = name })
-            end
-        end
+    for _, spec in ipairs(BR.Client.ListClassSpecs(classID)) do
+        table.insert(specs, { value = spec.specID, label = spec.name })
     end
     table.sort(specs, function(a, b)
         return a.label < b.label

@@ -300,7 +300,7 @@ L["Display.DebugEnabled"] = "调试模式已启用。再次输入 |cFFFFD100/br 
 L["Display.DebugDisabled"] = "调试模式已禁用。"
 L["Display.Description"] = "一目了然地查看所有缺失的增益。"
 L["Display.OpenOptions"] = "打开选项"
-L["Display.SlashCommands"] = "斜杠命令: /br, /br lock, /br unlock, /br test, /br minimap, /br snooze"
+L["Display.SlashCommands"] = "使用指令: /br, /br lock, /br unlock, /br test, /br minimap, /br snooze, /br auras"
 L["Display.MinimapLeftClick"] = "|cFFCFCFCF左键点击|r: 选项"
 L["Display.MinimapRightClick"] = "|cFFCFCFCF右键点击|r: 测试模式"
 L["Display.LoginFirstInstall"] = "感谢安装！输入 |cFFFFD100/br unlock|r 来移动增益显示，或者使用 |cFFFFD100/br|r 选项面板底部的按钮。"
@@ -895,8 +895,6 @@ L["Appearance.Zoom"] = "缩放"
 L["Appearance.Border"] = "边框"
 L["Appearance.Spacing"] = "间距"
 L["Appearance.Alpha"] = "透明度"
-L["Appearance.Text"] = "字体大小"
-
 -- Slider tooltip
 L["Component.AdjustValue"] = "调整数值"
 L["Component.AdjustValue.Desc"] = "点击输入或使用鼠标滚轮。"
@@ -1350,12 +1348,6 @@ L["Options.PetLabels.Classes"] = "显示标签的职业"
 
 L["Options.PetLabels.Classes.Desc"] = "只在勾选职业的宠物上显示宠物标签。"
 
-L["Options.ConsumableTextScale"] = "基础大小"
-
-L["Options.ConsumableTextScale.Title"] = "基础文字大小"
-
-L["Options.ConsumableTextScale.Desc"] = "堆叠计数、属性标签和标志的字体大小，以图示大小的百分比表示。三者中的每一个都可以覆盖下面的。"
-
 L["Options.ConsumableBadgeOnSubIcons"] = "在子图示上显示品质标记"
 
 L["Options.ConsumableBadgeOnSubIcons.Title"] = "品质标记在子图示上"
@@ -1434,7 +1426,7 @@ L["BuffPanel.WarlockDemon.Warn"] = "当不同的恶魔出现时发出警告"
 
 L["BuffPanel.WarlockDemon.Warn.Desc"] = "当前召唤的恶魔不在此内容允许的恶魔之列时，显示「错误的恶魔」提醒。"
 
-L["BuffPanel.WarlockDemon.Hint"] = "点击恶魔以允许召唤，可同时允许多个。清空某一行时，该内容将允许所有恶魔。"
+L["BuffPanel.WarlockDemon.Hint"] = "选择各种内容允许的恶魔。若该列留空，则允许所有恶魔。"
 
 L["BuffPanel.WarlockDemon.World"] = "世界"
 
@@ -1446,9 +1438,9 @@ L["BuffPanel.WarlockDemon.Raid"] = "团队"
 
 L["BuffPanel.WarlockDemon.Felguard"] = "如果有天赋的话，恶魔学识总是会召唤恶魔守卫。"
 
-L["BuffPanel.WarriorStance.Hint"] = "点击姿势即可按内容启用。未学习的姿势不计入在内。空白行不显示任何提示。"
+L["BuffPanel.WarriorStance.Hint"] = "选择各种内容允许的姿态。若该列留空，则不显示提醒。"
 
-L["BuffPanel.DruidForm.Hint"] = "点击型态即可按内容启用它们。未学习的型态不计​​入。空白行不显示任何提醒。"
+L["BuffPanel.DruidForm.Hint"] = "选择各种内容允许的形态。若该列留空，则不显示提醒。"
 
 L["BuffPanel.DruidForm.Caster"] = "施放者 (无型态)"
 
@@ -1703,8 +1695,6 @@ L["Dialog.DeleteProfile"] = "确定要删除配置文件“%s”吗？此操作�
 
 L["Overlay.NoSacrifice"] = "未献祭"
 
-L["Buff.DemonicSacrifice"] = "恶魔牺牲"
-
 L["BuffPanel.ShowSharedWithHealthstone"] = "治疗石也使用此设定。"
 
 L["BuffPanel.Show.ReadyCheck"] = "只在准备确认时"
@@ -1727,3 +1717,45 @@ L["Externals.AppearanceNote"] = "战斗中所做的更改会在离开战斗后�
 
 L["BuffReminders"] = "增益提醒"
 L["|cffffffffBuff|r|cffffcc00Reminders|r"] = "|cffffffff增益|r|cffffcc00提醒|r"
+
+L["Overlay.FindLeyline"] = "寻找\n地脉"
+L["Buff.DemonicSacrificeSoulLink"] = "恶魔牺牲与灵魂链结"
+L["Buff.WarlockStone"] = "法术石／火焰石"
+L["Buff.Spellstone"] = "法术石"
+L["Buff.Firestone"] = "火焰石"
+L["Buff.SkyborneAttunement"] = "调谐／充能 (Skyborne)"
+L["Tooltip.DemonSetup"] = "恶魔配置"
+L["Tooltip.DemonSetup.Desc"] = "显示恶魔配置的下一个步骤。使用灵魂链结时，与你的恶魔建立链结。使用恶魔契约时，先牺牲一个恶魔，再召唤另一个恶魔，然後建立链结。"
+L["Options.ItemTextSize"] = "物品文字大小"
+L["Options.ItemTextSize.Title"] = "物品文字大小"
+L["Options.ItemTextSize.Desc"] = "堆叠数量、属性标签和徽记的字级。下方可分别设定这三种文字的大小。"
+L["BuffPanel.WarlockStone.Hint"] = "选择各天赋组使用的石头。若该列留空，任一种石头都符合要求。"
+L["BuffPanel.TalentGroup.Primary"] = "主要"
+L["BuffPanel.TalentGroup.Secondary"] = "次要"
+L["BuffPanel.SacrificeDemon.Hint"] = "选择各天赋组要牺牲的恶魔。如果目前召唤的是其他恶魔，点击後会先召唤所选恶魔。若该列留空，则使用偏好的恶魔。"
+L["CustomBuff.PickFromAuras"] = "从我的增益效果选取"
+L["AuraPicker.Title"] = "光环与法术 ID"
+L["AuraPicker.PickTitle"] = "选取增益效果"
+L["AuraPicker.Buffs"] = "增益效果"
+L["AuraPicker.Debuffs"] = "减益效果"
+L["AuraPicker.SpellID"] = "法术 ID"
+L["AuraPicker.Name"] = "名称"
+L["AuraPicker.Refresh"] = "重新整理"
+L["AuraPicker.CopyHint"] = "点击一列或复制图示，再按 Ctrl+C。"
+L["AuraPicker.Stacks"] = "堆叠层数"
+L["AuraPicker.Source"] = "来源"
+L["AuraPicker.Time"] = "时间"
+L["AuraPicker.CopyRow"] = "复制此列"
+L["AuraPicker.CopyField"] = "复制"
+L["AuraPicker.CopyAll"] = "全部复制"
+L["AuraPicker.ShowList"] = "返回清单"
+L["AuraPicker.CopyAllHint"] = "按 Ctrl+C，再按 Esc 返回。"
+L["AuraPicker.SelectedHint"] = "按 Ctrl+C。再次点击该列或按 Esc 取消选取。"
+L["AuraPicker.Copied"] = "已复制。"
+L["AuraPicker.PickHint"] = "点击增益效果以加入其法术 ID。"
+L["AuraPicker.Restricted"] = "魔兽世界会在战斗、首领战、传奇+与 PvP 期间隐藏光环资料。请在这些场合之外重新开启此清单。"
+L["AuraPicker.NoUnit"] = "此单位不存在。用法: /br auras [unit]，例如 /br auras target。"
+L["Appearance.CountSize"] = "数量文字大小"
+L["Appearance.MissingSize"] = "缺少提示字级"
+L["Appearance.CaptionSize"] = "标题字级"
+L["Appearance.CaptionSize.Desc"] = "「BUFF!」文字与配置名称的字级。"

@@ -162,9 +162,17 @@ end
 
 local GRID_ROWS = {
     { key = "world", label = L["BuffPanel.WarlockDemon.World"] },
-    { key = "dungeon", label = L["BuffPanel.WarlockDemon.Dungeon"], desc = BR.CONTENT_GRID_DUNGEON_DESC },
+    {
+        key = "dungeon",
+        label = L["BuffPanel.WarlockDemon.Dungeon"],
+        desc = BR.ByClient({ retail = L["BuffPanel.WarlockDemon.Dungeon.Desc"], forever = BR.NONE }),
+    },
     { key = "raid", label = L["BuffPanel.WarlockDemon.Raid"] },
     { key = "pvp", label = L["BuffPanel.WarlockDemon.PvP"] },
+}
+local TALENT_GROUP_ROWS = {
+    { key = "spec1", label = L["BuffPanel.TalentGroup.Primary"] },
+    { key = "spec2", label = L["BuffPanel.TalentGroup.Secondary"] },
 }
 local GRID_CELL = 24
 local GRID_GAP = 4
@@ -197,13 +205,16 @@ end
 ---@field label string
 ---@field icon number?
 
--- One row of choice toggles per content row of the grid in profile.defaults[setting].
+-- One row of choice toggles per row of the grid in profile.defaults[setting].
 ---@param layout table
 ---@param setting string
 ---@param hintText string
 ---@param choices ContentGridChoice[]
-local function AddContentGrid(layout, setting, hintText, choices)
-    local IsContentChoiceAllowed = BR.StateHelpers.IsContentChoiceAllowed
+---@param single? boolean A row holds at most one choice. A click on the selected choice clears the row.
+---@param rows? { key: string, label: string, desc: string? }[] The content rows if nil
+local function AddContentGrid(layout, setting, hintText, choices, single, rows)
+    rows = rows or GRID_ROWS
+    local IsContentChoiceAllowed = BR.Visibility.IsContentChoiceAllowed
     local hint = body:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
     hint:SetWidth(bodyW)
     hint:SetJustifyH("LEFT")
@@ -211,11 +222,11 @@ local function AddContentGrid(layout, setting, hintText, choices)
     layout:AddText(hint, math.max(12, math.ceil(hint:GetStringHeight())), GRID_GAP + 2)
 
     local rowLabels = {}
-    for i, row in ipairs(GRID_ROWS) do
+    for i, row in ipairs(rows) do
         rowLabels[i] = row.label
     end
     local labelW = Components.MeasureSharedLabelWidth(rowLabels, "GameFontHighlightSmall", DRAWER_LABEL_W)
-    for _, row in ipairs(GRID_ROWS) do
+    for _, row in ipairs(rows) do
         if row.desc then
             local w = Components.MeasureSharedLabelWidth({ row.label }, "GameFontHighlightSmall", 0)
             labelW = math.max(labelW, w + GRID_INFO_ICON)
@@ -223,7 +234,7 @@ local function AddContentGrid(layout, setting, hintText, choices)
     end
 
     local holder = CreateFrame("Frame", nil, body)
-    holder:SetSize(bodyW, #GRID_ROWS * (GRID_CELL + GRID_GAP) - GRID_GAP)
+    holder:SetSize(bodyW, #rows * (GRID_CELL + GRID_GAP) - GRID_GAP)
     local cells = {}
 
     function holder:Refresh()
@@ -236,7 +247,7 @@ local function AddContentGrid(layout, setting, hintText, choices)
         end
     end
 
-    for r, row in ipairs(GRID_ROWS) do
+    for r, row in ipairs(rows) do
         local y = -(r - 1) * (GRID_CELL + GRID_GAP)
         local label = holder:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
         label:SetPoint("LEFT", holder, "TOPLEFT", 0, y - GRID_CELL / 2)
@@ -275,7 +286,17 @@ local function AddContentGrid(layout, setting, hintText, choices)
             cell.choiceKey = choice.key
             cell:SetScript("OnClick", function()
                 local allowed = IsContentChoiceAllowed(setting, row.key, choice.key)
-                BR.Config.Set("defaults." .. setting .. "." .. row.key .. "." .. choice.key, not allowed)
+                local rowPath = "defaults." .. setting .. "." .. row.key .. "."
+                if single then
+                    -- Every choice gets an explicit value, because a missing key reads the code default.
+                    local changes = {}
+                    for _, other in ipairs(choices) do
+                        changes[rowPath .. other.key] = other == choice and not allowed
+                    end
+                    BR.Config.SetMulti(changes)
+                else
+                    BR.Config.Set(rowPath .. choice.key, not allowed)
+                end
                 Components.RefreshAll()
             end)
             cell:SetScript("OnEnter", function(self)
@@ -296,12 +317,17 @@ local function AddContentGrid(layout, setting, hintText, choices)
     layout:Add(holder, holder:GetHeight(), GRID_GAP + 2)
 end
 
-local function AddWarlockDemonGrid(layout)
+---@return ContentGridChoice[]
+local function WarlockDemonGridChoices()
     local choices = {}
     for i, demon in ipairs(BR.PetHelpers.WARLOCK_DEMON_CHOICES) do
         choices[i] = { key = demon.key, label = demon.label, icon = C_Spell.GetSpellTexture(demon.spellID) }
     end
-    AddContentGrid(layout, "warlockDemons", L["BuffPanel.WarlockDemon.Hint"], choices)
+    return choices
+end
+
+local function AddWarlockDemonGrid(layout)
+    AddContentGrid(layout, "warlockDemons", L["BuffPanel.WarlockDemon.Hint"], WarlockDemonGridChoices())
 
     local felguardSpellID = BR.PetHelpers.FELGUARD_SPELL_ID
     if not felguardSpellID then
@@ -342,7 +368,7 @@ end
 -- fire. GetSpecialState colors the All Buffs row link orange for it.
 local function PoisonNeedsSetup()
     local prefs = BR.profile.roguePoisonPreferences
-    for _, column in ipairs(BR.POISON_COLUMNS) do
+    for _, column in ipairs(BR.BuffData.poisonColumns) do
         local list = prefs and prefs[column.key]
         for _, entry in ipairs(list or {}) do
             if entry.enabled and entry.spellID then
@@ -354,8 +380,8 @@ local function PoisonNeedsSetup()
 end
 
 -- Stance grids of the client. A client with spec-based stance rules has none.
-local WARRIOR_STANCE_GRID = BR.STANCE_RULES.WARRIOR.grid
-local DRUID_FORM_GRID = BR.STANCE_RULES.DRUID.grid
+local WARRIOR_STANCE_GRID = BR.BuffData.stanceRules.WARRIOR.grid
+local DRUID_FORM_GRID = BR.BuffData.stanceRules.DRUID.grid
 
 ---True when no row of the stance grid allows a choice, so no reminder can fire.
 ---@param grid StanceGrid
@@ -363,7 +389,7 @@ local DRUID_FORM_GRID = BR.STANCE_RULES.DRUID.grid
 local function StanceGridNeedsSetup(grid)
     for _, row in ipairs(GRID_ROWS) do
         for _, choice in ipairs(grid.choices) do
-            if BR.StateHelpers.IsContentChoiceAllowed(grid.setting, row.key, choice.key) then
+            if BR.Visibility.IsContentChoiceAllowed(grid.setting, row.key, choice.key) then
                 return false
             end
         end
@@ -1500,6 +1526,28 @@ local SPECIAL_SECTIONS = {
         end,
     },
 
+    demonicSacrifice = {
+        build = function(layout)
+            AddContentGrid(
+                layout,
+                "warlockSacrificeDemons",
+                L["BuffPanel.SacrificeDemon.Hint"],
+                WarlockDemonGridChoices(),
+                true,
+                TALENT_GROUP_ROWS
+            )
+        end,
+    },
+
+    warlockStone = {
+        build = function(layout)
+            AddContentGrid(layout, "warlockStones", L["BuffPanel.WarlockStone.Hint"], {
+                { key = "spellstone", label = BR.GetSpellName(1237152) or L["Buff.Spellstone"], icon = 134131 },
+                { key = "firestone", label = BR.GetSpellName(758) or L["Buff.Firestone"], icon = 134085 },
+            }, true, TALENT_GROUP_ROWS)
+        end,
+    },
+
     driveByBuffs = {
         build = function(layout, relayout)
             local function GreetingMode()
@@ -1721,7 +1769,7 @@ end
 -- Buffs with group ranks get the group cast section. Their definitions belong to
 -- the active client, so the sections build at load time from its buff table.
 -- A classChoices buff keeps its group ranks on each choice.
-for _, buff in ipairs(BR.BUFF_TABLES.raid) do
+for _, buff in ipairs(BR.BuffData.buffTables.raid) do
     local grid = buff.classChoices
     if grid then
         local groupCast = MakeGroupCastSection(buff, L["BuffPanel.GroupCast.Blessing.Desc"])
@@ -1771,7 +1819,7 @@ local CONTENT_ROW_LABELS = {}
 for _, row in ipairs(GRID_ROWS) do
     CONTENT_ROW_LABELS[row.key] = row.label
 end
-for _, buff in ipairs(BR.BUFF_TABLES.presence) do
+for _, buff in ipairs(BR.BuffData.buffTables.presence) do
     local grid = buff.choiceOrder
     if grid then
         SPECIAL_SECTIONS[buff.key] = {
@@ -1796,7 +1844,7 @@ for _, buff in ipairs(BR.BUFF_TABLES.presence) do
 end
 
 -- The low-stock warning counts charges, so a healthstone without charges has no section.
-for _, buff in ipairs(BR.BUFF_TABLES.consumable) do
+for _, buff in ipairs(BR.BuffData.buffTables.consumable) do
     if buff.key == "healthstone" and not buff.itemMaxCharges then
         SPECIAL_SECTIONS.healthstone = nil
     end

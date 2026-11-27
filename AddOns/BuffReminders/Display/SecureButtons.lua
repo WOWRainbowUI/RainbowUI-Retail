@@ -28,6 +28,7 @@ local Plain = BR.Secret.Plain
 local BuffTargets = BR.StateHelpers.BuffTargets
 local IsCountdownEntry = BR.StateHelpers.IsCountdownEntry
 local SubIcons = BR.SubIcons
+local Pixels = BR.Pixels
 
 ---@param category string?
 ---@return boolean
@@ -57,7 +58,7 @@ local function GetCastableSpellID(spellIDs)
     return nil
 end
 
-local FEL_DOMINATION_ID = BR.PET_SPELLS.felDomination
+local FEL_DOMINATION_ID = BR.BuffData.petSpells.felDomination
 
 -- Spell names never change once the client resolves them. An unresolved name at
 -- login is not cached, so the next display cycle retries it.
@@ -644,7 +645,7 @@ local function StyleOverlayHighlight(overlay)
             highlight._br_actionArt = true
         end
         local width, height = overlay:GetSize()
-        highlight:SetSize(width * IconStyle.FRAME_WIDTH_RATIO, height)
+        highlight:SetSize(width, height)
     elseif highlight._br_actionArt then
         highlight:ClearAllPoints()
         highlight:SetAllPoints()
@@ -671,8 +672,8 @@ local openRows = setmetatable({}, { __mode = "k" })
 ---@param unit string
 ---@return number?
 local function FitRank(ranks, unit)
-    local pickRank = BR.DriveBy and BR.DriveBy.PickRank
-    local rank = pickRank and pickRank(ranks, Plain(UnitLevel(unit)) or -1)
+    local fit = BR.Ranks and BR.Ranks.Fit
+    local rank = fit and fit(ranks, Plain(UnitLevel(unit)) or -1)
     if rank then
         return rank
     end
@@ -1184,11 +1185,10 @@ local BADGE_COLORS = {
     [L["Badge.Cauldron"]] = { r = 0.4, g = 0.7, b = 1 },
 }
 
----@param mainIconSize number The consumable category's main icon size
 ---@param item string? A BR.TextPositions.SizedItems key; nil uses the shared base
----@return number fontSize
-local function ComputeConsumableFontSize(mainIconSize, item)
-    return max(6, floor(mainIconSize * BR.TextPositions.GetSizePercent(item) / 100))
+---@return number fontSize Screen pixels
+local function ComputeConsumableFontSize(item)
+    return BR.TextPositions.GetSizePixels(item)
 end
 
 ---@param owner table An item row button
@@ -1293,7 +1293,7 @@ local function RefreshConsumableCache()
     end
 
     local specId = BR.StateHelpers and BR.StateHelpers.GetPlayerSpecId()
-    local itemSets = BR.CONSUMABLE_ITEMS or {}
+    local itemSets = BR.ConsumableData.items
     local defs = BR.profile and BR.profile.defaults or {}
     local hideLegacy = defs.hideLegacyConsumables ~= false
     local preferReusableRunes = defs.preferReusableRunes == true
@@ -1883,13 +1883,13 @@ local function SyncSecureButtons()
     if InCombatLockdown() then
         return
     end
-    -- Test mode shows frames that no real buff state backs.
-    if BR.Display.IsTestMode() then
+    -- Test mode shows frames that no real buff state backs. Unlock mode moves the frames, so a click must not cast.
+    if BR.Display.IsTestMode() or not BR.Display.IsFrameLocked() then
         HideAllSecureFrames()
         return
     end
     local outlineFlag = BR.DisplayFonts.GetOutline()
-    local ApplyFont = BR.DisplayFonts.Apply
+    local ApplyFont = BR.DisplayFonts.ApplyPixels
     for frame in pairs(secureHostFrames) do
         -- Sync click overlay
         local overlay = frame.clickOverlay
@@ -1940,8 +1940,10 @@ local function SyncSecureButtons()
                     width, height = width - 2 * hostInset, height - 2 * hostInset
                     local effectiveCat = GetEffectiveCategory(frame)
                     local catSettings = GetCategorySettings(effectiveCat)
-                    local baseIconSize = (catSettings.iconSize or 64) - 2 * hostInset
+                    local baseIconSize = (catSettings.iconSize or 64) - 2 * (frame._br_artBorder or 0)
                     local size, btnSpacing = SubIcons.Metrics(baseIconSize)
+                    size = Pixels.Snap(size, frame)
+                    btnSpacing = Pixels.Snap(btnSpacing, frame)
                     local subIconSide = (BR.profile.defaults or {}).subIconSide or "BOTTOM"
                     local visibleCount = 0
                     for _, btn in ipairs(frame.actionButtons) do
@@ -1950,8 +1952,8 @@ local function SyncSecureButtons()
                         end
                     end
                     if visibleCount > 0 then
-                        local stackFontSize = ComputeConsumableFontSize(baseIconSize, "stackCount")
-                        local badgeFontSize = ComputeConsumableFontSize(baseIconSize, "badge")
+                        local stackFontSize = ComputeConsumableFontSize("stackCount")
+                        local badgeFontSize = ComputeConsumableFontSize("badge")
                         local showSubIconBadge = BR.Config.Get("defaults.consumableBadgeOnSubIcons") == true
                         local blizzardArt = BR.IconStyle.UsesBlizzardArt()
                         -- The buttons already inherit the UIParent alpha.
@@ -1971,6 +1973,7 @@ local function SyncSecureButtons()
                                     size,
                                     btnSpacing
                                 )
+                                btnX, btnY = Pixels.Round(btnX, frame), Pixels.Round(btnY, frame)
                                 -- The size and outline stamps let the dirty check see
                                 -- a font setting change. A face change needs no stamp:
                                 -- linked fontstrings follow the shared font object.
@@ -2110,6 +2113,8 @@ local function ScheduleSecureSync()
         SyncSecureButtons()
     end)
 end
+
+BR.CallbackRegistry:RegisterCallback("FrameLockChanged", ScheduleSecureSync)
 
 ---@param overlay table SecureActionButton overlay
 local function DisableOverlay(overlay)

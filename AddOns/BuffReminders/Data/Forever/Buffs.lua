@@ -25,41 +25,10 @@ local AMMO_EQUIP_TEXT = L["Overlay.EquipAmmo"]
 
 local _, playerClass = UnitClass("player")
 
--- Each export mirrors a retail export that shared code reads.
-
----@type DKRuneforge[]
-BR.DK_RUNEFORGES = {}
-
----@return boolean
-function BR.IsInDelve()
-    return false
-end
-
----@type string?
-BR.CONTENT_GRID_DUNGEON_DESC = nil
-
-BR.SHADOWFORM_SPELL_ID = 15473
-
--- Classic warlocks keep a stone on themselves while they play solo.
----@type SoulstoneVisibility
-BR.SOULSTONE_DEFAULT_VISIBILITY = "readyCheckSolo"
-
-BR.EATING_AURA_ICON = 134062
-
--- Sample icons for the consumable item display preview in the options.
-BR.CONSUMABLE_PREVIEW_TEXTURES = {
-    flask = { 134842, 134877, 134821 }, -- Titans, Distilled Wisdom, Supreme Power
-    food = { 132804, 134020 }, -- Nightfin Soup, Smoked Desert Dumplings
-    oil = 134727, -- Brilliant Wizard Oil
-}
-
--- Forever items have no crafted quality, stat labels, Delve food or legacy tier.
-BR.CONSUMABLE_FEATURES = { itemLabels = false, delveFood = false, legacyItems = false }
-
 -- Forever has no housing, scenarios or arenas, and all its dungeons have one difficulty.
 -- The raid map holds the raid difficultyIDs that Forever raids use.
 ---@type InstanceContent
-BR.INSTANCE_CONTENT = {
+local INSTANCE_CONTENT = {
     contentTypes = { "openWorld", "dungeon", "raid", "pvp" },
     difficulties = {
         raid = { "raid40", "raid20" },
@@ -82,7 +51,7 @@ BR.INSTANCE_CONTENT = {
 }
 
 -- One poison column per hand. Each entry is the rank 1 spell of a poison type.
-BR.DEFAULT_POISON_PREFERENCES = {
+local DEFAULT_POISON_PREFERENCES = {
     mainHand = {
         { spellID = 8679, enabled = true }, -- Instant
         { spellID = 2823, enabled = true }, -- Deadly
@@ -100,191 +69,19 @@ BR.DEFAULT_POISON_PREFERENCES = {
 }
 
 ---@type PoisonColumn[]
-BR.POISON_COLUMNS = {
+local POISON_COLUMNS = {
     { key = "mainHand", label = L["Options.PoisonMainHand"] },
     { key = "offHand", label = L["Options.PoisonOffHand"] },
 }
 
-BR.REPAIR_SOURCES = {
-    mounts = {},
-    items = {},
-}
-
 ---@type PetSpells
-BR.PET_SPELLS = {
+local PET_SPELLS = {
     callPet = { 883 },
     demonSummons = { 688, 697, 712, 691 }, -- Imp, Voidwalker, Succubus, Felhunter
     demonChoices = { "imp", "voidwalker", "succubus", "felhunter" },
     -- Voidwalker first for solo play. Felhunter is learned at level 30, Imp at level 1.
     demonPreference = { "voidwalker", "felhunter", "imp", "succubus" },
     felDomination = 18708,
-}
-
--- Food items list every food of every level that gives a food buff.
----@type table<string, table<number, ConsumableItemInfo|boolean>>
-BR.CONSUMABLE_ITEMS = {
-    food = {
-        [724] = true, -- Goretusk Liver Pie
-        [733] = true, -- Westfall Stew
-        [787] = true, -- Slitherskin Mackerel
-        [1017] = true, -- Seasoned Wolf Kabob
-        [1082] = true, -- Redridge Goulash
-        [2680] = true, -- Spiced Wolf Meat
-        [2681] = true, -- Roasted Boar Meat
-        [2682] = true, -- Cooked Crab Claw
-        [2683] = true, -- Crab Cake
-        [2684] = true, -- Coyote Steak
-        [2685] = true, -- Succulent Pork Ribs
-        [2687] = true, -- Dry Pork Ribs
-        [2888] = true, -- Beer Basted Boar Ribs
-        [3220] = true, -- Blood Sausage
-        [3662] = true, -- Crocolisk Steak
-        [3663] = true, -- Murloc Fin Soup
-        [3664] = true, -- Crocolisk Gumbo
-        [3665] = true, -- Curiously Tasty Omelet
-        [3666] = true, -- Gooey Spider Cake
-        [3726] = true, -- Big Bear Steak
-        [3727] = true, -- Hot Lion Chops
-        [3728] = true, -- Tasty Lion Steak
-        [3729] = true, -- Soothing Turtle Bisque
-        [4457] = true, -- Barbecued Buzzard Wing
-        [4592] = true, -- Longjaw Mud Snapper
-        [4593] = true, -- Bristle Whisker Catfish
-        [4594] = true, -- Rockscale Cod
-        [5095] = true, -- Rainbow Fin Albacore
-        [5472] = true, -- Kaldorei Spider Kabob
-        [5474] = true, -- Roasted Kodo Meat
-        [5476] = true, -- Fillet of Frenzy
-        [5477] = true, -- Strider Stew
-        [5479] = true, -- Crispy Lizard Tail
-        [5480] = true, -- Lean Venison
-        [5527] = true, -- Goblin Deviled Clams
-        [6038] = true, -- Giant Clam Scorcho
-        [6290] = true, -- Brilliant Smallfish
-        [6316] = true, -- Loch Frenzy Delight
-        [6887] = true, -- Spotted Yellowtail
-        [6888] = true, -- Herb Baked Egg
-        [6890] = true, -- Smoked Bear Meat
-        [7806] = true, -- Lollipop
-        [7807] = true, -- Candy Bar
-        [7808] = true, -- Chocolate Square
-        [8364] = true, -- Mithril Head Trout
-        [8957] = true, -- Spinefin Halibut
-        [10841] = true, -- Goldthorn Tea
-        [11584] = true, -- Cactus Apple Surprise
-        [11950] = true, -- Windblossom Berries
-        [12209] = true, -- Lean Wolf Steak
-        [12210] = true, -- Roast Raptor
-        [12212] = true, -- Jungle Stew
-        [12213] = true, -- Carrion Surprise
-        [12214] = true, -- Mystery Stew
-        [12215] = true, -- Heavy Kodo Stew
-        [12216] = true, -- Spiced Chili Crab
-        [12217] = true, -- Dragonbreath Chili
-        [12218] = true, -- Monster Omelet
-        [12224] = true, -- Crispy Bat Wing
-        [13810] = true, -- Blessed Sunfruit
-        [13813] = true, -- Blessed Sunfruit Juice
-        [13851] = true, -- Hot Wolf Ribs
-        [13927] = true, -- Cooked Glossy Mightfish
-        [13928] = true, -- Grilled Squid
-        [13929] = true, -- Hot Smoked Bass
-        [13930] = true, -- Filet of Redgill
-        [13931] = true, -- Nightfin Soup
-        [13932] = true, -- Poached Sunscale Salmon
-        [13933] = true, -- Lobster Stew
-        [13934] = true, -- Mightfish Steak
-        [13935] = true, -- Baked Salmon
-        [16971] = true, -- Clamlette Surprise
-        [17197] = true, -- Gingerbread Cookie
-        [17198] = true, -- Egg Nog
-        [17222] = true, -- Spider Sausage
-        [18045] = true, -- Tender Wolf Steak
-        [18254] = true, -- Runn Tum Tuber Surprise
-        [20074] = true, -- Heavy Crocolisk Stew
-        [20452] = true, -- Smoked Desert Dumplings
-        [21023] = true, -- Dirge's Kickin' Chimaerok Chops
-        [21072] = true, -- Smoked Sagefish
-        [21217] = true, -- Sagefish Delight
-        [238638] = true, -- Filet o' Flank
-        [249865] = true, -- Peace Tea
-        [249866] = true, -- Royal Tea
-        [249867] = true, -- Root Tea
-        [249868] = true, -- Triage Tea
-        [249869] = true, -- Sunny Tea
-        [249870] = true, -- Sage's Tea
-        [249871] = true, -- Venomous Smoothie
-        [249872] = true, -- Slimy Smoothie
-        [249873] = true, -- Mrrggl Smrrthle
-        [249874] = true, -- Calcified Smoothie
-        [249875] = true, -- Spicy Smoothie
-        [249876] = true, -- Wicked Smoothie
-        [250065] = true, -- Savory Stag Sliders
-        [250066] = true, -- Soaring Pamplona
-        [250067] = true, -- Bat Hachee
-        [250068] = true, -- Savory Turtle Stew
-        [250069] = true, -- Flank au Poivre
-        [250070] = true, -- Bear Bruscitti
-        [250071] = true, -- Steaming Stag Steak
-        [250072] = true, -- Swiftstrike Steak
-        [250073] = true, -- Raging Raptor Ribs
-        [250074] = true, -- Bear Brisket
-        [250075] = true, -- Prehistoric Pulled Raptor
-        [250076] = true, -- Raptor Rouladen
-        [250077] = true, -- Twice-Spiced Raptor Slice
-        [250078] = true, -- Giant Scrambled Eggs
-        [250079] = true, -- Tasty Raptor Bites
-        [250080] = true, -- Breakfast Omelette
-        [263509] = true, -- Skywall Souffle
-        [263512] = true, -- Pincer Bites
-        [267341] = true, -- Sweetpaw Jam
-        [268912] = true, -- Expiring Crab Cake
-        [268913] = true, -- Expiring Crocolisk Steak
-        [274971] = true, -- Briny Seafood Stew
-        [274976] = true, -- Plain Ol' Paletusk
-        [286152] = true, -- Plated Armorfish
-        [287973] = true, -- Tender Wolf Steak
-        [287974] = true, -- Grilled Squid
-    },
-    -- Flask of Petrification is absent: a click must never petrify the player.
-    flask = {
-        [13510] = true, -- Flask of the Titans
-        [13511] = true, -- Flask of Distilled Wisdom
-        [13512] = true, -- Flask of Supreme Power
-        [13513] = true, -- Flask of Chromatic Resistance
-    },
-    weapon = {
-        -- Sharpening stones. Elemental and Consecrated fit any melee weapon.
-        [2862] = { weaponClass = "edged" }, -- Rough Sharpening Stone
-        [2863] = { weaponClass = "edged" }, -- Coarse Sharpening Stone
-        [2871] = { weaponClass = "edged" }, -- Heavy Sharpening Stone
-        [7964] = { weaponClass = "edged" }, -- Solid Sharpening Stone
-        [12404] = { weaponClass = "edged" }, -- Dense Sharpening Stone
-        [18262] = true, -- Elemental Sharpening Stone
-        [23122] = true, -- Consecrated Sharpening Stone
-        -- Weightstones
-        [3239] = { weaponClass = "blunt" }, -- Rough Weightstone
-        [3240] = { weaponClass = "blunt" }, -- Coarse Weightstone
-        [3241] = { weaponClass = "blunt" }, -- Heavy Weightstone
-        [7965] = { weaponClass = "blunt" }, -- Solid Weightstone
-        [12643] = { weaponClass = "blunt" }, -- Dense Weightstone
-        -- Oils
-        [20744] = true, -- Minor Wizard Oil
-        [20746] = true, -- Lesser Wizard Oil
-        [20750] = true, -- Wizard Oil
-        [20749] = true, -- Brilliant Wizard Oil
-        [23123] = true, -- Blessed Wizard Oil
-        [20745] = true, -- Minor Mana Oil
-        [20747] = true, -- Lesser Mana Oil
-        [20748] = true, -- Brilliant Mana Oil
-        [3824] = true, -- Shadow Oil
-        [3829] = true, -- Frost Oil
-    },
-}
-
--- Petrification is a short stun shield, not the flask that the player runs.
-BR.UNREMEMBERED_FLASK_ITEMS = {
-    [13506] = true, -- Flask of Petrification
 }
 
 -- Pet food type (ItemPetFood ID) -> the items of that type. Buff food is in the list, and
@@ -388,7 +185,7 @@ local function FindPetFood()
     local _, familyID = UnitCreatureFamily("pet")
     familyID = Plain(familyID)
     local diet = type(familyID) == "number" and PET_DIETS[familyID] or nil
-    local buffFood = BR.CONSUMABLE_ITEMS.food
+    local buffFood = BR.ConsumableData.items.food
     local bestID, bestLevel = nil, -1
     for bag = 0, NUM_BAG_SLOTS or 4 do
         for slot = 1, C_Container.GetContainerNumSlots(bag) do
@@ -448,12 +245,149 @@ local PET_HAPPINESS = {
 ---@type PetSacrifice
 local DEMONIC_SACRIFICE =
     { spellID = 18788, auraIDs = { 18789, 18790, 18791, 18792 }, reminderKey = "demonicSacrifice" }
+-- Sacrifice buff -> summon spell of the sacrificed demon.
+local SACRIFICED_DEMON = { [18789] = 688, [18790] = 691, [18791] = 712, [18792] = 697 }
+-- Soul Link needs a live demon, so without Demonic Pact it excludes the sacrifice.
+-- Demonic Pact keeps the sacrifice buff through the summon of a different demon.
+local SOUL_LINK = 19028
+local SOUL_LINK_AURA = 25228
+local DEMONIC_PACT = 425464
+-- Summon spells of the demons that Soul Link accepts: Imp, Voidwalker, Felhunter, Succubus.
+local SOUL_LINK_DEMONS = { 688, 697, 691, 712 }
+
+---@param familyID number
+---@return boolean
+local function IsSoulLinkFamily(familyID)
+    local families = BR.PetHelpers.WARLOCK_DEMON_FAMILIES
+    for _, summonID in ipairs(SOUL_LINK_DEMONS) do
+        if families[summonID][familyID] then
+            return true
+        end
+    end
+    return false
+end
+
+---Summon spell of the sacrificed demon, nil without a sacrifice buff.
+---@return number?
+local function SacrificedDemon()
+    for auraID, summonID in pairs(SACRIFICED_DEMON) do
+        if C_UnitAuras.GetPlayerAuraBySpellID(auraID) then
+            return summonID
+        end
+    end
+    return nil
+end
+
+---@return boolean
+local function KnowsDemonicPact()
+    local IsKnown = BR.StateHelpers.IsPlayerSpellCached
+    return IsKnown(SOUL_LINK) and IsKnown(DEMONIC_PACT)
+end
+
+---@alias DemonSetupStep "sacrifice"|"summon"|"link"
+
+---Next step of the sacrifice and Soul Link setup, nil when the setup is complete or does not apply.
+---@return DemonSetupStep?
+local function DemonSetupStep()
+    local link = BR.StateHelpers.IsPlayerSpellCached(SOUL_LINK)
+    local pact = link and KnowsDemonicPact()
+    local sacrificed = SacrificedDemon()
+    if not sacrificed and (pact or not link) then
+        return "sacrifice"
+    end
+    if not link then
+        return nil
+    end
+    local familyID = BR.BuffState.GetPetFamily()
+    if familyID == nil then
+        return nil
+    end
+    if familyID == false or UnitIsDead("pet") then
+        -- Without Demonic Pact, the missing-demon reminder covers this state.
+        return pact and "summon" or nil
+    end
+    if IsSoulLinkFamily(familyID) and not C_UnitAuras.GetPlayerAuraBySpellID(SOUL_LINK_AURA) then
+        return "link"
+    end
+    return nil
+end
+
+---Row of a talent group grid for the active talent group.
+---@return string
+local function TalentGroupRow()
+    return "spec" .. BR.StateHelpers.GetPlayerSpecGroup()
+end
+
+---Known demon of the first choice that a grid allows in a row.
+---@param setting string Key of the grid in profile.defaults
+---@param row string
+---@param skipSpellID number?
+---@return PetAction?
+local function GridDemonAction(setting, row, skipSpellID)
+    local actions = BR.PetHelpers.GetPetActions("WARLOCK")
+    if not actions then
+        return nil
+    end
+    for _, demon in ipairs(BR.PetHelpers.WARLOCK_DEMON_CHOICES) do
+        if demon.spellID ~= skipSpellID and BR.Visibility.IsContentChoiceAllowed(setting, row, demon.key) then
+            for _, action in ipairs(actions) do
+                if action.spellID == demon.spellID then
+                    return action
+                end
+            end
+        end
+    end
+    return nil
+end
+
+---First known demon other than the given one.
+---@param skipSpellID number?
+---@return PetAction?
+local function OtherDemonAction(skipSpellID)
+    for _, action in ipairs(BR.PetHelpers.GetPetActions("WARLOCK") or {}) do
+        if action.spellID ~= skipSpellID then
+            return action
+        end
+    end
+    return nil
+end
+
+---Demon to summon after a Demonic Pact sacrifice. A summon of the sacrificed demon cancels the buff.
+---@return PetAction?
+local function PactSummonAction()
+    local sacrificed = SacrificedDemon()
+    local desired = BR.PetHelpers.GetDesiredWarlockDemon()
+    if desired and desired.spellID ~= sacrificed then
+        return desired
+    end
+    return GridDemonAction("warlockDemons", BR.Visibility.GetContentRow(), sacrificed) or OtherDemonAction(sacrificed)
+end
+
+---Demon that the sacrifice click summons when no demon is out and the talent group picks none.
+---@return PetAction?
+local function FallbackSacrificeDemon()
+    local actions = BR.PetHelpers.GetPetActions("WARLOCK")
+    local desired = BR.PetHelpers.GetDesiredWarlockDemon() or (actions and actions[1])
+    -- With Demonic Pact, the preferred demon is the one that stays out after the sacrifice.
+    if desired and KnowsDemonicPact() then
+        return OtherDemonAction(desired.spellID) or desired
+    end
+    return desired
+end
+
+local DEMON_SETUP_TEXT = {
+    sacrifice = L["Overlay.NoSacrifice"],
+    summon = L["Overlay.NoPet"],
+    link = L["Overlay.NoLink"],
+}
 
 -- IsSpellKnown answers true only for the highest rank, so each list holds every rank.
 local CREATE_HEALTHSTONE = { 11730, 11729, 5699, 6202, 6201 }
 local CREATE_SOULSTONE = { 20757, 20756, 20755, 20752, 693 }
 local SOULSTONE_ITEMS = { 16896, 16895, 16893, 16892, 5232 } -- Major to Minor
 local CONJURE_MANA_GEM = { 10054, 10053, 3552, 759 } -- Ruby, Citrine, Jade, Agate
+local SKYBORNE_RACIALS = { 1259705, 1259686 } -- Read Leyline (High Order), Skysight (Windshaper)
+
 -- Shaman weapon imbues per setting value, highest rank first.
 local SHAMAN_IMBUE_RANKS = {
     windfury = { 16362, 10486, 8235, 8232 },
@@ -481,6 +415,41 @@ local SHAMAN_IMBUES = {}
 for _, key in ipairs({ "rockbiter", "flametongue", "frostbrand", "windfury" }) do
     for _, id in ipairs(SHAMAN_IMBUE_RANKS[key]) do
         SHAMAN_IMBUES[#SHAMAN_IMBUES + 1] = id
+    end
+end
+---@class WarlockStone
+---@field key string Choice key in the warlockStones grid
+---@field create number[] Create spells, highest rank first
+---@field items number[] Stone items, highest rank first
+---@field enchants table<number, true>
+---@field icon number
+
+-- A stone takes the imbue slot, so it stacks with a weapon oil.
+---@type WarlockStone[]
+local WARLOCK_STONES = {
+    {
+        key = "spellstone",
+        create = { 17728, 17727, 2362 },
+        items = { 13603, 13602, 5522 },
+        enchants = { [8061] = true, [8060] = true, [8059] = true },
+        icon = 134131,
+    },
+    {
+        key = "firestone",
+        create = { 17953, 17952, 17951, 6366 },
+        items = { 13701, 13700, 13699, 1254 },
+        enchants = { [1825] = true, [1824] = true, [1823] = true, [1803] = true },
+        icon = 134085,
+    },
+}
+local WARLOCK_STONE_CREATE = {}
+local WARLOCK_STONE_ENCHANTS = {}
+for _, stone in ipairs(WARLOCK_STONES) do
+    for _, id in ipairs(stone.create) do
+        WARLOCK_STONE_CREATE[#WARLOCK_STONE_CREATE + 1] = id
+    end
+    for id in pairs(stone.enchants) do
+        WARLOCK_STONE_ENCHANTS[id] = true
     end
 end
 
@@ -526,17 +495,43 @@ local function SoulstoneReady()
     return true
 end
 
--- A demon must be out for the sacrifice, so with no demon the click summons one.
+-- The sacrifice needs a demon out. If the talent group picks a demon and another one is out,
+-- the click summons the picked demon first.
 ---@param spellID number?
 ---@return string
 local function DemonicSacrificeMacro(spellID)
     local sacrifice = BR.GetSpellName(spellID or DEMONIC_SACRIFICE.spellID) or ""
-    local actions = BR.PetHelpers.GetPetActions("WARLOCK")
-    local demon = actions and actions[actions.genericIndex or 1]
+    local picked = GridDemonAction("warlockSacrificeDemons", TalentGroupRow())
+    if picked then
+        local familyID = BR.BuffState.GetPetFamily()
+        if familyID == nil then
+            return "/cast [nopet] " .. picked.spellName .. "; " .. sacrifice
+        end
+        local families = BR.PetHelpers.WARLOCK_DEMON_FAMILIES[picked.spellID]
+        if familyID and families[familyID] and not UnitIsDead("pet") then
+            return "/cast " .. sacrifice
+        end
+        return "/cast " .. picked.spellName
+    end
+    local demon = FallbackSacrificeDemon()
     if not demon then
         return "/cast " .. sacrifice
     end
     return "/cast [nopet] " .. demon.spellName .. "; " .. sacrifice
+end
+
+---@param spellID number?
+---@return string
+local function DemonSetupMacro(spellID)
+    local step = DemonSetupStep()
+    if step == "link" then
+        return "/cast " .. (BR.GetSpellName(SOUL_LINK) or "")
+    end
+    if step == "summon" then
+        local demon = PactSummonAction()
+        return demon and ("/cast " .. demon.spellName) or ""
+    end
+    return DemonicSacrificeMacro(spellID)
 end
 
 ---Highest known rank of the preferred imbue, else of the first known fallback imbue.
@@ -557,7 +552,7 @@ local function ShamanImbueCastID()
     return nil
 end
 
--- A poison sits in the imbue slot of a weapon, beside a stone or an oil in the temporary slot.
+-- A poison sits in the imbue slot of a weapon, beside an oil in the temporary slot.
 -- Poison items per type, highest rank first. The rank 1 spell names the type.
 local POISON_ITEMS = {
     [8679] = { 8928, 8927, 8926, 6950, 6949, 6947 }, -- Instant Poison
@@ -585,7 +580,7 @@ local function PoisonList(column)
     local prefs = BR.profile.roguePoisonPreferences
     local list = prefs and prefs[column]
     if not list or #list == 0 then
-        list = BR.DEFAULT_POISON_PREFERENCES[column]
+        list = DEFAULT_POISON_PREFERENCES[column]
     end
     return list
 end
@@ -669,6 +664,61 @@ local function PoisonMacro()
     return itemID and ("/use item:" .. itemID .. "\n/use " .. hand.slot) or ""
 end
 
+---The known stone that the active talent group picks, or nil when either stone counts.
+---@return WarlockStone?
+local function PickedStone()
+    local row = TalentGroupRow()
+    for _, stone in ipairs(WARLOCK_STONES) do
+        if BR.Visibility.IsContentChoiceAllowed("warlockStones", row, stone.key) then
+            return HighestKnownSpell(stone.create) and stone or nil
+        end
+    end
+    return nil
+end
+
+---@param stone WarlockStone
+---@return number? itemID
+local function StoneInBags(stone)
+    local GetItemCountCached = BR.StateHelpers.GetItemCountCached
+    for _, itemID in ipairs(stone.items) do
+        if GetItemCountCached(itemID) > 0 then
+            return itemID
+        end
+    end
+    return nil
+end
+
+---The stone of the click: the picked stone, else a stone in the bags, else the first known stone.
+---@return WarlockStone stone
+---@return number? itemID nil when the click creates the stone
+local function ClickStone()
+    local picked = PickedStone()
+    if picked then
+        return picked, StoneInBags(picked)
+    end
+    for _, stone in ipairs(WARLOCK_STONES) do
+        local itemID = StoneInBags(stone)
+        if itemID then
+            return stone, itemID
+        end
+    end
+    for _, stone in ipairs(WARLOCK_STONES) do
+        if HighestKnownSpell(stone.create) then
+            return stone
+        end
+    end
+    return WARLOCK_STONES[1]
+end
+
+---@return string
+local function WarlockStoneMacro()
+    local stone, itemID = ClickStone()
+    if itemID then
+        return "/use item:" .. itemID .. "\n/use 16"
+    end
+    return CastHighestKnownMacro(stone.create)
+end
+
 local NO_STANCE = BR.NO_STANCE
 
 ---@type StanceGrid
@@ -715,11 +765,11 @@ local function GridStanceRule(grid)
         -- The set is reused, so a caller must read it before the next call.
         allowed = function()
             wipe(allowedSet)
-            local row = BR.StateHelpers.GetContentRow()
+            local row = BR.Visibility.GetContentRow()
             local any = false
             for _, choice in ipairs(grid.choices) do
                 local known = KnownChoiceSpell(choice)
-                if known and BR.StateHelpers.IsContentChoiceAllowed(grid.setting, row, choice.key) then
+                if known and BR.Visibility.IsContentChoiceAllowed(grid.setting, row, choice.key) then
                     any = true
                     allowedSet[known] = true
                     for _, id in ipairs(choice.spellIDs) do
@@ -730,10 +780,10 @@ local function GridStanceRule(grid)
             return any and allowedSet or nil
         end,
         castID = function()
-            local row = BR.StateHelpers.GetContentRow()
+            local row = BR.Visibility.GetContentRow()
             for _, choice in ipairs(grid.choices) do
                 local known = KnownChoiceSpell(choice)
-                if known and BR.StateHelpers.IsContentChoiceAllowed(grid.setting, row, choice.key) then
+                if known and BR.Visibility.IsContentChoiceAllowed(grid.setting, row, choice.key) then
                     return known
                 end
             end
@@ -743,7 +793,7 @@ local function GridStanceRule(grid)
 end
 
 ---@type table<string, StanceRule>
-BR.STANCE_RULES = {
+local STANCE_RULES = {
     WARRIOR = GridStanceRule(WARRIOR_STANCE_GRID),
     DRUID = GridStanceRule(DRUID_FORM_GRID),
 }
@@ -801,53 +851,174 @@ end
 
 local SYMBOL_OF_KINGS = 21177
 
+---@class RankSpec
+---@field key string
+---@field ranks number[][] Single-target ranks, highest first: spell ID, SpellLevel, base points of the first effect
+---@field groupCast? GroupCastRank[] Highest rank first
+---@field blockers? number[] Scroll auras. Each camp feature adds the aura of its buff
+
+---@class RankedBuff : StanceChoice, RankSpec
+---@field blockers number[] The auras exclude each other, so the first one found decides
+
+-- A rank lands only on a target whose level is at least the rank level minus this span.
+local RANK_LEVEL_SPAN = 10
+---@type table<number, number> Single-target rank -> SpellLevel
+local RANK_LEVELS = {}
+---@type table<number, number> Single-target rank -> base points of the first effect
+local RANK_POINTS = {}
+-- Every single-target rank, in the order of the definitions.
+local SINGLE_TARGET_RANKS = {}
+
+---A cast that is not stronger than an aura of the same stat on the target fails:
+---"A more powerful spell is already active". The rank is the one that the unit level
+---accepts, else the highest rank. An aura with unreadable points blocks.
+---@param buff RankedBuff
+---@return fun(unit: string): boolean
+local function CastBlockedBy(buff)
+    return function(unit)
+        for _, id in ipairs(buff.blockers) do
+            local aura = C_UnitAuras.GetUnitAuraBySpellID(unit, id)
+            if aura then
+                local points = BR.Secret.AuraField(aura, "points")
+                local held = points and BR.Secret.Plain(points[1])
+                if not held then
+                    return true
+                end
+                local castID = BR.Ranks.Fit(buff.spellIDs, BR.Secret.Plain(UnitLevel(unit)) or -1)
+                return held >= (RANK_POINTS[castID or buff.spellIDs[1]] or 0)
+            end
+        end
+        return false
+    end
+end
+
+---@param spec RankSpec
+---@return RankedBuff
+local function Ranked(spec)
+    ---@cast spec RankedBuff
+    local spellIDs, auraIDs = {}, {}
+    for _, rank in ipairs(spec.ranks) do
+        local id = rank[1]
+        spellIDs[#spellIDs + 1] = id
+        auraIDs[#auraIDs + 1] = id
+        SINGLE_TARGET_RANKS[#SINGLE_TARGET_RANKS + 1] = id
+        RANK_LEVELS[id] = rank[2]
+        RANK_POINTS[id] = rank[3]
+    end
+    for _, rank in ipairs(spec.groupCast or {}) do
+        auraIDs[#auraIDs + 1] = rank.spellID
+    end
+    spec.spellIDs = spellIDs
+    spec.auraIDs = auraIDs
+    spec.blockers = spec.blockers or {}
+    spec.castBlocked = CastBlockedBy(spec)
+    return spec
+end
+
+-- Single-target rank data from the SpellLevels and SpellEffect DB2 tables.
+local ARCANE_INTELLECT = Ranked({
+    key = "intellect",
+    ranks = { { 10157, 56, 31 }, { 10156, 42, 22 }, { 1461, 28, 15 }, { 1460, 14, 7 }, { 1459, 1, 2 } },
+    groupCast = { { spellID = 23028, reagent = 17020 } },
+    blockers = { 12176, 8098, 8097, 8096 }, -- Scroll of Intellect IV to I
+})
+local MARK_OF_THE_WILD = Ranked({
+    key = "versatility",
+    ranks = {
+        { 9885, 60, 385 },
+        { 9884, 50, 324 },
+        { 8907, 40, 263 },
+        { 5234, 30, 203 },
+        { 6756, 20, 142 },
+        { 5232, 10, 88 },
+        { 1126, 1, 34 },
+    },
+    groupCast = { { spellID = 21850, reagent = 17026 }, { spellID = 21849, reagent = 17021 } },
+})
+local POWER_WORD_FORTITUDE = Ranked({
+    key = "stamina",
+    ranks = {
+        { 10938, 60, 70 },
+        { 10937, 48, 56 },
+        { 2791, 36, 42 },
+        { 1245, 24, 26 },
+        { 1244, 12, 10 },
+        { 1243, 1, 4 },
+    },
+    groupCast = { { spellID = 21564, reagent = 17029 }, { spellID = 21562, reagent = 17028 } },
+    blockers = { 12178, 8101, 8100, 8099 }, -- Scroll of Stamina IV to I
+})
+local DIVINE_SPIRIT = Ranked({
+    key = "spirit",
+    ranks = { { 27841, 60, 40 }, { 14819, 50, 33 }, { 14818, 40, 23 }, { 14752, 30, 17 } },
+    groupCast = { { spellID = 27681, reagent = 17029 } },
+    blockers = { 12177, 8114, 8113, 8112 }, -- Scroll of Spirit IV to I
+})
+
 -- A player keeps one blessing from each paladin, and the same blessing from two
 -- paladins does not stack. A Greater Blessing reaches every group member of the
 -- target's class.
----@type StanceChoice[]
+---@type RankedBuff[]
 local PALADIN_BLESSINGS = {
-    {
+    Ranked({
         key = "might",
-        spellIDs = { 25291, 19838, 19837, 19836, 19835, 19834, 19740 },
+        ranks = {
+            { 25291, 60, 133 },
+            { 19838, 52, 112 },
+            { 19837, 42, 83 },
+            { 19836, 32, 61 },
+            { 19835, 22, 40 },
+            { 19834, 12, 25 },
+            { 19740, 4, 14 },
+        },
         groupCast = {
             { spellID = 25916, reagent = SYMBOL_OF_KINGS },
             { spellID = 25782, reagent = SYMBOL_OF_KINGS },
         },
-    },
-    {
+    }),
+    Ranked({
         key = "wisdom",
-        spellIDs = { 25290, 19854, 19853, 19852, 19850, 19742 },
+        ranks = {
+            { 25290, 60, 40 },
+            { 19854, 54, 36 },
+            { 19853, 44, 30 },
+            { 19852, 34, 24 },
+            { 19850, 24, 18 },
+            { 19742, 14, 12 },
+        },
         groupCast = {
             { spellID = 25918, reagent = SYMBOL_OF_KINGS },
             { spellID = 25894, reagent = SYMBOL_OF_KINGS },
         },
-    },
-    {
+    }),
+    Ranked({
         key = "kings",
-        spellIDs = { 20217 },
+        ranks = { { 20217, 20, 10 } },
         groupCast = { { spellID = 25898, reagent = SYMBOL_OF_KINGS } },
-    },
+    }),
 }
+
+---@class SpellRankData
+---@field levelSpan number
+---@field levels table<number, number> Single-target rank -> SpellLevel
+
+-- Only code of this client reads this export, so retail has no mirror.
+---@type SpellRankData
+BR.SPELL_RANKS = { levelSpan = RANK_LEVEL_SPAN, levels = RANK_LEVELS }
 
 -- Every rank of a blessing covers the member, whoever cast it. The stored click
 -- action is the first known ID in spellID, so the single-target ranks come first.
 local ALL_BLESSING_IDS = {}
----@type table<string, StanceChoice>
+---@type table<string, RankedBuff>
 local BLESSING_BY_KEY = {}
----@type table<number, StanceChoice> Every aura ID of a blessing -> the blessing
+---@type table<number, RankedBuff> Every aura ID of a blessing -> the blessing
 local BLESSING_BY_SPELL = {}
 for _, choice in ipairs(PALADIN_BLESSINGS) do
-    local auraIDs = {}
     for _, id in ipairs(choice.spellIDs) do
-        auraIDs[#auraIDs + 1] = id
         ALL_BLESSING_IDS[#ALL_BLESSING_IDS + 1] = id
     end
-    for _, rank in ipairs(choice.groupCast) do
-        auraIDs[#auraIDs + 1] = rank.spellID
-    end
-    choice.auraIDs = auraIDs
     BLESSING_BY_KEY[choice.key] = choice
-    for _, id in ipairs(auraIDs) do
+    for _, id in ipairs(choice.auraIDs) do
         BLESSING_BY_SPELL[id] = choice
     end
 end
@@ -1014,7 +1185,7 @@ end
 local function WantedPaladinAura()
     local defaults = BR.profile.defaults
     local byRow = defaults and defaults.paladinAuraOrder
-    local order = type(byRow) == "table" and byRow[BR.StateHelpers.GetContentRow()]
+    local order = type(byRow) == "table" and byRow[BR.Visibility.GetContentRow()]
     if type(order) ~= "table" then
         return nil
     end
@@ -1274,14 +1445,6 @@ end
 
 local BATTLE_SHOUT = { 25289, 11551, 11550, 11549, 6192, 5242, 6673 }
 
--- Every rank of a raid buff, the group version included.
-local RAID_BUFF_IDS = {
-    intellect = { 10157, 10156, 1461, 1460, 1459, 23028 },
-    spirit = { 27841, 14819, 14818, 14752, 27681 },
-    versatility = { 9885, 9884, 8907, 5234, 6756, 5232, 1126, 21850, 21849 },
-    stamina = { 10938, 10937, 2791, 1245, 1244, 1243, 21564, 21562 },
-}
-
 -- Rage drains between fights, so the reminder shows only while the shout is castable.
 -- The usable check includes talents that change the rage cost.
 ---@return boolean
@@ -1298,74 +1461,16 @@ local function BattleShoutReady()
     return castID ~= nil and BR.BuffState.IsSpellUsable(castID)
 end
 
--- Drive-by buffs: the single-target ranks that can buff another player, with the
--- SpellLevel of each rank from the SpellLevels DB2 table. A rank lands only on a
--- target whose level is at least the rank level minus levelSpan.
-local DRIVE_BY_RANKS = {
-    { 10157, 56 }, -- Arcane Intellect
-    { 10156, 42 },
-    { 1461, 28 },
-    { 1460, 14 },
-    { 1459, 1 },
-    { 9885, 60 }, -- Mark of the Wild
-    { 9884, 50 },
-    { 8907, 40 },
-    { 5234, 30 },
-    { 6756, 20 },
-    { 5232, 10 },
-    { 1126, 1 },
-    { 10938, 60 }, -- Power Word: Fortitude
-    { 10937, 48 },
-    { 2791, 36 },
-    { 1245, 24 },
-    { 1244, 12 },
-    { 1243, 1 },
-    { 27841, 60 }, -- Divine Spirit
-    { 14819, 50 },
-    { 14818, 40 },
-    { 14752, 30 },
-    { 25291, 60 }, -- Blessing of Might
-    { 19838, 52 },
-    { 19837, 42 },
-    { 19836, 32 },
-    { 19835, 22 },
-    { 19834, 12 },
-    { 19740, 4 },
-    { 25290, 60 }, -- Blessing of Wisdom
-    { 19854, 54 },
-    { 19853, 44 },
-    { 19852, 34 },
-    { 19850, 24 },
-    { 19742, 14 },
-    { 20217, 20 }, -- Blessing of Kings
-}
-local DRIVE_BY_SPELLS = {}
----@type table<number, number>
-local DRIVE_BY_RANK_LEVELS = {}
-for i, rank in ipairs(DRIVE_BY_RANKS) do
-    DRIVE_BY_SPELLS[i] = rank[1]
-    DRIVE_BY_RANK_LEVELS[rank[1]] = rank[2]
-end
-
----@class DriveByData
----@field levelSpan number
----@field rankLevels table<number, number> Spell ID of a single-target rank -> spell level
-
--- Only code of this client reads this export, so retail has no mirror.
----@type DriveByData
-BR.DRIVE_BY = { levelSpan = 10, rankLevels = DRIVE_BY_RANK_LEVELS }
-
 ---A single-target blessing rank that the level of the unit accepts.
 ---@param spellID number
 ---@param unit string
 ---@return number
 local function FitBlessingRank(spellID, unit)
     local choice = BLESSING_BY_SPELL[spellID]
-    local pickRank = BR.DriveBy and BR.DriveBy.PickRank
-    if not choice or not pickRank or not DRIVE_BY_RANK_LEVELS[spellID] or unit == "player" then
+    if not choice or not RANK_LEVELS[spellID] or unit == "player" then
         return spellID
     end
-    return pickRank(choice.spellIDs, BR.Secret.Plain(UnitLevel(unit)) or -1) or spellID
+    return BR.Ranks.Fit(choice.spellIDs, BR.Secret.Plain(UnitLevel(unit)) or -1) or spellID
 end
 
 ---@param def RaidBuff
@@ -1399,24 +1504,22 @@ local function UnitHasAnyAura(unit, auraIDs)
 end
 
 ---Every known blessing except the one that the main click casts and the ones that
----the unit has from any paladin. The class lists do not apply, so the row can
----override them. A blessing needs a rank that the level of the unit accepts.
+---the unit has from any paladin or cannot take. The class lists do not apply, so the
+---row can override them. A blessing needs a rank that the level of the unit accepts.
 ---@param unit string
 ---@param spellID number
 ---@return number[][]
 local function OtherBlessings(_, unit, spellID)
     wipe(otherBlessings)
     local main = BLESSING_BY_SPELL[spellID]
-    local pickRank = BR.DriveBy and BR.DriveBy.PickRank
     local level = BR.Secret.Plain(UnitLevel(unit)) or -1
     for _, choice in ipairs(PALADIN_BLESSINGS) do
-        local castID
-        if pickRank then
-            castID = pickRank(choice.spellIDs, level)
-        else
-            castID = HighestKnownSpell(choice.spellIDs)
-        end
-        if choice ~= main and castID and not UnitHasAnyAura(unit, choice.auraIDs) then
+        if
+            choice ~= main
+            and BR.Ranks.Fit(choice.spellIDs, level)
+            and not UnitHasAnyAura(unit, choice.auraIDs)
+            and not choice.castBlocked(unit)
+        then
             otherBlessings[#otherBlessings + 1] = choice.spellIDs
         end
     end
@@ -1455,7 +1558,6 @@ local SLEEPING_BAG = {
 local function IsRestingInBag()
     return C_UnitAuras.GetUnitAuraBySpellID("player", SLEEPING_BAG.restingID) ~= nil
 end
-BR.IsRestingInBag = IsRestingInBag
 
 -- The Resting aura has no duration, so the rest starts when the addon first sees it.
 local restInstanceID, restStartedAt
@@ -1530,30 +1632,32 @@ end
 
 ---@class CampFeature
 ---@field itemIDs number[] Highest tier first. A higher tier also gives the buff of its tier 1 feature
----@field conflict? number[] Aura IDs of the class buff that does not stack with the feature buff
+---@field auraID? number The feature buff, from the "mutually exclusive" spell tooltip
+---@field conflict? RankedBuff The class buff that does not stack with the feature buff
+---@field conflictAuras? number[] Aura IDs of a totem or aura that does not stack with the feature buff
 
 -- The placeable features that give a buff to players who sit nearby. A feature needs
 -- a campfire nearby, and all features share one cooldown.
 ---@type CampFeature[]
 local CAMP_FEATURES = {
     -- Alchemy Laboratory, Fermenter, Mana Well
-    { itemIDs = { 279990, 279970, 279956 }, conflict = BLESSING_BY_KEY.wisdom.auraIDs },
+    { itemIDs = { 279990, 279970, 279956 }, auraID = 1230587, conflict = BLESSING_BY_KEY.wisdom },
     -- Master Forge, Anvil, Sharpening Wheel. Strength of Earth Totem ranks 5 to 1
-    { itemIDs = { 279955, 279988, 279944 }, conflict = { 25362, 10441, 8163, 8162, 8076 } },
+    { itemIDs = { 279955, 279988, 279944 }, conflictAuras = { 25362, 10441, 8163, 8162, 8076 } },
     -- Arcane Forge, Arcane Salvager, Enchanted Lute
-    { itemIDs = { 279987, 279985, 279976 }, conflict = RAID_BUFF_IDS.versatility },
+    { itemIDs = { 279987, 279985, 279976 }, auraID = 1230653, conflict = MARK_OF_THE_WILD },
     -- Plague Doctor's Laboratory, Toxin Study, First Aid Kit
-    { itemIDs = { 279951, 279940, 279968 }, conflict = RAID_BUFF_IDS.stamina },
+    { itemIDs = { 279951, 279940, 279968 }, auraID = 1230124, conflict = POWER_WORD_FORTITUDE },
     -- Fishing Hut, Fishing Rack, Fish Bowl
-    { itemIDs = { 279966, 279965, 279967 }, conflict = BLESSING_BY_KEY.kings.auraIDs },
+    { itemIDs = { 279966, 279965, 279967 }, auraID = 1230098, conflict = BLESSING_BY_KEY.kings },
     -- Seed Hybridizer, Greenhouse, Incense Candle
-    { itemIDs = { 279947, 279964, 279962 }, conflict = RAID_BUFF_IDS.intellect },
+    { itemIDs = { 279947, 279964, 279962 }, auraID = 1229513, conflict = ARCANE_INTELLECT },
     -- Molten Foundry, Rock Garden, Lodestone
-    { itemIDs = { 279952, 279948, 279960 }, conflict = BLESSING_BY_KEY.might.auraIDs },
+    { itemIDs = { 279952, 279948, 279960 }, auraID = 1230164, conflict = BLESSING_BY_KEY.might },
     -- Field Guide, Camp Chair. Moonkin Aura
-    { itemIDs = { 279969, 279979 }, conflict = { 24907 } },
+    { itemIDs = { 279969, 279979 }, conflictAuras = { 24907 } },
     -- Loom, Spinning Wheel, Faction Banner (Horde, Alliance)
-    { itemIDs = { 279959, 279943, 279972, 279973 }, conflict = RAID_BUFF_IDS.spirit },
+    { itemIDs = { 279959, 279943, 279972, 279973 }, auraID = 1229718, conflict = DIVINE_SPIRIT },
     -- Sewing Machine, Tanning Rack, Camp Tent
     { itemIDs = { 279945, 279941, 279978 } },
 }
@@ -1562,6 +1666,10 @@ local CAMP_FEATURE_CHOICES = {}
 for _, feature in ipairs(CAMP_FEATURES) do
     for _, itemID in ipairs(feature.itemIDs) do
         CAMP_FEATURE_CHOICES[itemID] = { itemID = itemID }
+    end
+    if feature.conflict and feature.auraID then
+        local blockers = feature.conflict.blockers
+        blockers[#blockers + 1] = feature.auraID
     end
 end
 
@@ -1639,7 +1747,8 @@ local function CampFeatureChoices()
     local GetItemCount = BR.StateHelpers.GetItemCountCached
     local covered = 0
     for _, feature in ipairs(CAMP_FEATURES) do
-        local last = feature.conflict ~= nil and UnitHasAnyAura("player", feature.conflict)
+        local conflictIDs = feature.conflict and feature.conflict.auraIDs or feature.conflictAuras
+        local last = conflictIDs ~= nil and UnitHasAnyAura("player", conflictIDs)
         for _, itemID in ipairs(feature.itemIDs) do
             if GetItemCount(itemID) > 0 then
                 local choice = CAMP_FEATURE_CHOICES[itemID]
@@ -1721,18 +1830,19 @@ local TRACKING_ROW = {
 -- A single-target raid buff sets castOnMissing, so that the click casts on a member
 -- who lacks the buff. groupCast lists its group ranks, highest first.
 ---@type BuffTables
-BR.BUFF_TABLES = {
+local BUFF_TABLES = {
     ---@type RaidBuff[]
     raid = {
         {
-            spellID = RAID_BUFF_IDS.intellect,
+            spellID = ARCANE_INTELLECT.auraIDs,
+            castBlocked = ARCANE_INTELLECT.castBlocked,
             key = "intellect",
             name = L["Buff.ArcaneIntellect"],
             class = "MAGE",
             reach = "raid",
             icons = { spells = { 10157 } },
             castOnMissing = true,
-            groupCast = { { spellID = 23028, reagent = 17020 } },
+            groupCast = ARCANE_INTELLECT.groupCast,
             chatRequestable = true,
         },
         {
@@ -1745,26 +1855,28 @@ BR.BUFF_TABLES = {
             visibilityCondition = BattleShoutReady,
         },
         {
-            spellID = RAID_BUFF_IDS.spirit,
+            spellID = DIVINE_SPIRIT.auraIDs,
+            castBlocked = DIVINE_SPIRIT.castBlocked,
             key = "spirit",
             name = L["Buff.DivineSpirit"],
             class = "PRIEST",
             reach = "raid",
             icons = { spells = { 27841 } },
             castOnMissing = true,
-            groupCast = { { spellID = 27681, reagent = 17029 } },
+            groupCast = DIVINE_SPIRIT.groupCast,
             -- A talent: only a priest who knows it sees the reminder.
             requiresKnownSpell = true,
         },
         {
-            spellID = RAID_BUFF_IDS.versatility,
+            spellID = MARK_OF_THE_WILD.auraIDs,
+            castBlocked = MARK_OF_THE_WILD.castBlocked,
             key = "versatility",
             name = L["Buff.MarkOfTheWild"],
             class = "DRUID",
             reach = "raid",
             icons = { spells = { 9885 } },
             castOnMissing = true,
-            groupCast = { { spellID = 21850, reagent = 17026 }, { spellID = 21849, reagent = 17021 } },
+            groupCast = MARK_OF_THE_WILD.groupCast,
             chatRequestable = true,
         },
         -- Each member gets the blessing of their class list in the options grid.
@@ -1788,14 +1900,15 @@ BR.BUFF_TABLES = {
             end,
         },
         {
-            spellID = RAID_BUFF_IDS.stamina,
+            spellID = POWER_WORD_FORTITUDE.auraIDs,
+            castBlocked = POWER_WORD_FORTITUDE.castBlocked,
             key = "stamina",
             name = L["Buff.PowerWordFortitude"],
             class = "PRIEST",
             reach = "raid",
             icons = { spells = { 10938 } },
             castOnMissing = true,
-            groupCast = { { spellID = 21564, reagent = 17029 }, { spellID = 21562, reagent = 17028 } },
+            groupCast = POWER_WORD_FORTITUDE.groupCast,
             chatRequestable = true,
         },
         {
@@ -1880,6 +1993,15 @@ BR.BUFF_TABLES = {
     ---@type TargetedBuff[]
     targeted = {
         {
+            spellID = 1328548,
+            key = "oathOfLight",
+            target = "allyOrSelf",
+            name = L["Buff.OathOfLight"],
+            class = "PALADIN",
+            overlayText = L["Overlay.NoOath"],
+            clickMacro = BR.TargetedClickMacro("oathOfLight"),
+        },
+        {
             spellID = { 9910, 9756, 8914, 1075, 782, 467 },
             key = "thorns",
             name = L["Buff.Thorns"],
@@ -1898,18 +2020,25 @@ BR.BUFF_TABLES = {
             clickMacro = TankOrSelfMacro("thorns"),
             infoTooltip = { title = L["Tooltip.TankTarget"], desc = L["Tooltip.ThornsTank.Desc"] },
         },
-        {
-            spellID = 1328548,
-            key = "oathOfLight",
-            target = "allyOrSelf",
-            name = L["Buff.OathOfLight"],
-            class = "PALADIN",
-            overlayText = L["Overlay.NoOath"],
-            clickMacro = BR.TargetedClickMacro("oathOfLight"),
-        },
     },
     ---@type SelfBuff[]
     self = {
+        -- spellID holds the racials for the known-spell gate. Each Skyborne race knows one of them.
+        {
+            spellID = SKYBORNE_RACIALS,
+            buffIdOverride = { 1259691, 1270893 }, -- Attuned, Charged
+            key = "skyborneAttunement",
+            defaultEnabled = false, -- opt-in: ships disabled
+            name = L["Buff.SkyborneAttunement"],
+            overlayText = L["Overlay.FindLeyline"],
+            icons = {
+                spells = SKYBORNE_RACIALS,
+                dynamic = function()
+                    local id = HighestKnownSpell(SKYBORNE_RACIALS)
+                    return id and BR.Icons.GetBuffTexture(id)
+                end,
+            },
+        },
         {
             spellID = {
                 11735, -- Demon Armor
@@ -1926,14 +2055,36 @@ BR.BUFF_TABLES = {
             class = "WARLOCK",
             overlayText = L["Overlay.NoArmor"],
         },
+        -- One reminder for the whole setup, because the order of the steps matters: a
+        -- sacrifice kills the linked demon. The link ends with its demon, so each summon needs a new cast.
         {
             spellID = DEMONIC_SACRIFICE.spellID,
-            buffIdOverride = DEMONIC_SACRIFICE.auraIDs,
+            -- Sacrifice buffs first, so that the expiration check reads the timed buff.
+            buffIdOverride = { 18789, 18790, 18791, 18792, SOUL_LINK_AURA },
             key = "demonicSacrifice",
-            name = L["Buff.DemonicSacrifice"],
+            name = L["Buff.DemonicSacrificeSoulLink"],
             class = "WARLOCK",
             overlayText = L["Overlay.NoSacrifice"],
-            clickMacro = DemonicSacrificeMacro,
+            overlayTextFn = function()
+                return DEMON_SETUP_TEXT[DemonSetupStep() or "sacrifice"]
+            end,
+            icons = {
+                spells = { DEMONIC_SACRIFICE.spellID, SOUL_LINK },
+                dynamic = function()
+                    local step = DemonSetupStep()
+                    if step == "summon" then
+                        local demon = PactSummonAction()
+                        return demon and demon.icon
+                    end
+                    return BR.Icons.GetBuffTexture(step == "link" and SOUL_LINK or DEMONIC_SACRIFICE.spellID)
+                end,
+            },
+            requiresSpellID = DEMONIC_SACRIFICE.spellID,
+            customCheck = function()
+                return DemonSetupStep() ~= nil
+            end,
+            clickMacro = DemonSetupMacro,
+            infoTooltip = { title = L["Tooltip.DemonSetup"], desc = L["Tooltip.DemonSetup.Desc"] },
         },
         -- The stance bar stays readable in combat, so this reminder works there.
         {
@@ -2066,6 +2217,34 @@ BR.BUFF_TABLES = {
             end,
         },
         {
+            spellID = WARLOCK_STONE_CREATE,
+            key = "warlockStone",
+            name = L["Buff.WarlockStone"],
+            class = "WARLOCK",
+            overlayText = L["Overlay.NoStone"],
+            -- The enchant set times the expiry warning. customCheck decides what is missing.
+            enchantID = WARLOCK_STONE_ENCHANTS,
+            enchantDuration = 7200, -- seconds
+            visibilityCondition = function()
+                return HandHoldsWeapon(16)
+            end,
+            customCheck = function()
+                if not HighestKnownSpell(WARLOCK_STONE_CREATE) then
+                    return nil
+                end
+                local id = BR.BuffState.GetWeaponImbue(16)
+                local picked = PickedStone()
+                return not (id and (picked and picked.enchants or WARLOCK_STONE_ENCHANTS)[id])
+            end,
+            icons = {
+                textures = { WARLOCK_STONES[1].icon, WARLOCK_STONES[2].icon },
+                dynamic = function()
+                    return (ClickStone()).icon
+                end,
+            },
+            clickMacro = WarlockStoneMacro,
+        },
+        {
             spellID = { 20906, 20905, 19506, 1299348, 1299346 },
             key = "trueshotAura",
             name = L["Buff.TrueshotAura"],
@@ -2169,6 +2348,8 @@ BR.BUFF_TABLES = {
             overlayText = L["Overlay.WrongPet"],
             icons = { textures = { 136217 } }, -- Summon Felhunter
             groupId = "pets",
+            -- The setup reminder picks the demons, and a summon can cancel the sacrifice.
+            petSacrifice = DEMONIC_SACRIFICE,
             customCheck = function()
                 local defaults = BR.profile.defaults
                 if defaults and defaults.warlockWrongDemon == false then
@@ -2324,79 +2505,6 @@ BR.BUFF_TABLES = {
     },
     ---@type UtilityBuff[]
     utility = {
-        -- spellID gives the click overlay a known spell. PreClick replaces it with the pick.
-        {
-            key = "driveByBuffs",
-            defaultEnabled = false, -- opt-in: casts on strangers
-            name = L["Buff.DriveByBuffs"],
-            spellID = DRIVE_BY_SPELLS,
-            icons = {
-                spells = { 10157, 10938, 9885 },
-                dynamic = function()
-                    local spellID = BR.DriveBy.Pick()
-                    return spellID and BR.Icons.GetBuffTexture(spellID)
-                end,
-            },
-            overlayText = L["Overlay.DriveBy"],
-            infoTooltip = { title = L["Buff.DriveByBuffs"], desc = L["Tooltip.DriveBy.Desc"] },
-            castUnit = "target",
-            subChoices = DRIVE_BY_ROW,
-            clickSpell = function()
-                return BR.DriveBy.Pick()
-            end,
-            customCheck = function()
-                return BR.DriveBy.Pick() ~= nil
-            end,
-        },
-        {
-            key = "tracking",
-            name = L["Buff.Tracking"],
-            spellID = TRACKING_SPELL_IDS,
-            icons = {
-                spells = { 2383, 2580, 1494 },
-                dynamic = function()
-                    local spellID = BR.Tracking.Pick()
-                    return spellID and BR.Icons.GetBuffTexture(spellID)
-                end,
-            },
-            overlayText = L["Overlay.NoTracking"],
-            subChoices = TRACKING_ROW,
-            clickSpell = function()
-                return BR.Tracking.Pick()
-            end,
-            customCheck = function()
-                if BR.GameContext.IsInCombat() then
-                    return false
-                end
-                return BR.Tracking.Pick() ~= nil and not BR.BuffState.IsTrackingActive()
-            end,
-        },
-        {
-            key = "sleepingBag",
-            name = L["Buff.SleepingBag"],
-            icons = { textures = { C_Item.GetItemIconByID(SLEEPING_BAG.itemID) or 134400 } }, -- else a question mark
-            overlayText = L["Overlay.SleepingBag"],
-            infoTooltip = { title = L["Buff.SleepingBag"], desc = L["Tooltip.SleepingBag.Desc"] },
-            clickItem = SLEEPING_BAG.itemID,
-            countdown = SleepingBagRestEnd,
-            customCheck = function(isAuraRestricted)
-                local GameContext = BR.GameContext
-                if isAuraRestricted or GameContext.IsInCombat() then
-                    return false
-                end
-                if GameContext.GetPlayerLevel() >= GameContext.GetMaxExpansionLevel() then
-                    return false
-                end
-                -- The bag itself makes the player rest, so this check comes before the rest check.
-                if SleepingBagRestEnd() then
-                    return true
-                end
-                return CanPlaceSleepingBag(isAuraRestricted)
-                    and not C_UnitAuras.GetUnitAuraBySpellID("player", SLEEPING_BAG.auraID)
-            end,
-            renewAuraID = SLEEPING_BAG.auraID,
-            canRenew = CanPlaceSleepingBag,
-        },
         {
             key = "camp",
             name = L["Buff.Camp"],
@@ -2431,6 +2539,56 @@ BR.BUFF_TABLES = {
             end,
             renewAuraID = CAMP.benefitsID,
             canRenew = CanRenewCamp,
+        },
+        {
+            key = "sleepingBag",
+            name = L["Buff.SleepingBag"],
+            icons = { textures = { C_Item.GetItemIconByID(SLEEPING_BAG.itemID) or 134400 } }, -- else a question mark
+            overlayText = L["Overlay.SleepingBag"],
+            infoTooltip = { title = L["Buff.SleepingBag"], desc = L["Tooltip.SleepingBag.Desc"] },
+            clickItem = SLEEPING_BAG.itemID,
+            countdown = SleepingBagRestEnd,
+            customCheck = function(isAuraRestricted)
+                local GameContext = BR.GameContext
+                if isAuraRestricted or GameContext.IsInCombat() then
+                    return false
+                end
+                if GameContext.GetPlayerLevel() >= GameContext.GetMaxExpansionLevel() then
+                    return false
+                end
+                -- The bag itself makes the player rest, so this check comes before the rest check.
+                if SleepingBagRestEnd() then
+                    return true
+                end
+                return CanPlaceSleepingBag(isAuraRestricted)
+                    and not C_UnitAuras.GetUnitAuraBySpellID("player", SLEEPING_BAG.auraID)
+            end,
+            renewAuraID = SLEEPING_BAG.auraID,
+            canRenew = CanPlaceSleepingBag,
+        },
+        -- spellID gives the click overlay a known spell. PreClick replaces it with the pick.
+        {
+            key = "driveByBuffs",
+            defaultEnabled = false, -- opt-in: casts on strangers
+            name = L["Buff.DriveByBuffs"],
+            spellID = SINGLE_TARGET_RANKS,
+            icons = {
+                spells = { 10157, 10938, 9885 },
+                dynamic = function()
+                    local spellID = BR.DriveBy.Pick()
+                    return spellID and BR.Icons.GetBuffTexture(spellID)
+                end,
+            },
+            overlayText = L["Overlay.DriveBy"],
+            infoTooltip = { title = L["Buff.DriveByBuffs"], desc = L["Tooltip.DriveBy.Desc"] },
+            castUnit = "target",
+            subChoices = DRIVE_BY_ROW,
+            clickSpell = function()
+                return BR.DriveBy.Pick()
+            end,
+            customCheck = function()
+                return BR.DriveBy.Pick() ~= nil
+            end,
         },
         {
             key = "lowAmmo",
@@ -2506,10 +2664,46 @@ BR.BUFF_TABLES = {
                 return BR.BuffState.GetLowestDurability() < (BR.Config.Get("defaults.repairThreshold", 20) / 100)
             end,
         },
+        {
+            key = "tracking",
+            name = L["Buff.Tracking"],
+            spellID = TRACKING_SPELL_IDS,
+            icons = {
+                spells = { 2383, 2580, 1494 },
+                dynamic = function()
+                    local spellID = BR.Tracking.Pick()
+                    return spellID and BR.Icons.GetBuffTexture(spellID)
+                end,
+            },
+            overlayText = L["Overlay.NoTracking"],
+            subChoices = TRACKING_ROW,
+            clickSpell = function()
+                return BR.Tracking.Pick()
+            end,
+            customCheck = function()
+                if BR.GameContext.IsInCombat() then
+                    return false
+                end
+                return BR.Tracking.Pick() ~= nil and not BR.BuffState.IsTrackingActive()
+            end,
+        },
     },
 }
 
 -- The happiness reminder exists only on a client with pet happiness.
 if C_PetInfo and C_PetInfo.GetPetHappiness then
-    table.insert(BR.BUFF_TABLES.pet, 1, PET_HAPPINESS)
+    table.insert(BUFF_TABLES.pet, 1, PET_HAPPINESS)
 end
+
+---@type BuffData
+BR.BuffData = {
+    buffTables = BUFF_TABLES,
+    dkRuneforges = {},
+    instanceContent = INSTANCE_CONTENT,
+    petSpells = PET_SPELLS,
+    stanceRules = STANCE_RULES,
+    poisonDefaults = DEFAULT_POISON_PREFERENCES,
+    poisonColumns = POISON_COLUMNS,
+    repairSources = { mounts = {}, items = {} },
+    isRestingInBag = IsRestingInBag,
+}

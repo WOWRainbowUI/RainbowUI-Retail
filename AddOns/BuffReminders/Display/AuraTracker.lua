@@ -180,7 +180,7 @@ local function StyleButton(button)
 
     -- Duration text: the addon places and fonts it, Blizzard writes it. The call
     -- stores nothing on the region - per-button state on this subtree goes forbidden.
-    BR.DisplayFonts.Apply(regions.duration, Setting("durationSize") or 16)
+    BR.DisplayFonts.ApplyPixels(regions.duration, Setting("durationSize") or 16)
 
     -- SetDrawSwipe, not Hide: Blizzard calls SetCooldown on this frame on every
     -- aura refresh, and that call re-shows the frame. Swipe drawing is persistent
@@ -210,7 +210,7 @@ local function StyleButton(button)
     local gap = 2
     local x = anchor.dx * gap + (Setting("casterNameOffsetX") or 0)
     local y = anchor.dy * gap + (Setting("casterNameOffsetY") or 0)
-    BR.DisplayFonts.Apply(casterName, Setting("casterNameSize") or 12)
+    BR.DisplayFonts.ApplyPixels(casterName, Setting("casterNameSize") or 12)
     casterName:ClearAllPoints()
     if anchor.dy ~= 0 then
         -- Two anchors cap the name at the icon width, and the missing word wrap
@@ -773,8 +773,7 @@ function ScheduleRecovery()
     end)
 end
 
----Driven by Display.lua's ToggleTestMode alongside the reminder categories. A
----denied reconfigure (toggled during combat) is retried by the lift watcher.
+---A denied reconfigure (toggled during combat) is retried by the lift watcher.
 local function SetTestMode(enabled)
     testMode = enabled == true
     Refresh()
@@ -872,14 +871,10 @@ BR.CallbackRegistry:RegisterCallback("ExternalsRefresh", Refresh)
 -- `defaults` and fire VisualsRefresh. A change to them must restyle these buttons
 -- too. Refresh does nothing while the display is disabled.
 BR.CallbackRegistry:RegisterCallback("VisualsRefresh", Refresh)
-
-BR.AuraTracker = {
-    Refresh = Refresh,
-    SetUnlocked = SetUnlocked,
-    SetTestMode = SetTestMode,
-    BuildSpellIDMap = BuildSpellIDMap,
-    ---True when a reconfigure was denied and waits for a restriction lift.
-    IsApplyPending = function()
-        return applyPending
-    end,
-}
+BR.CallbackRegistry:RegisterCallback("TestModeChanged", function(_, enabled)
+    SetTestMode(enabled)
+end)
+-- The externals display has no category mover, but it shares the global frame lock.
+BR.CallbackRegistry:RegisterCallback("FrameLockChanged", function(_, locked)
+    SetUnlocked(not locked)
+end)
