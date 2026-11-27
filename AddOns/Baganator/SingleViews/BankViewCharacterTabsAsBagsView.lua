@@ -187,6 +187,8 @@ function BaganatorSingleViewBankViewCharacterTabsAsBagsViewMixin:ShowTab(charact
       self:GetParent().ButtonsManager:SetGamepadDown(activeBank.buttons[1])
     end
 
+    self:GetParent().ButtonsManager:Arrange()
+
     local all = {activeBank}
     tAppendAll(all, activeBankBagCollapsibles)
     addonTable.SingleViews.ComputeGamepadGrid(all,

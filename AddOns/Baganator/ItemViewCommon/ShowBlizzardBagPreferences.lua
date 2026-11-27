@@ -84,14 +84,16 @@ local function AddButtons_BagCleanup(description, bagID)
   end
 end
 
+local overrideNames = {
+  ["reagentBag"] = addonTable.Locales.REAGENT_BAG,
+}
+
 function addonTable.ItemViewCommon.AddBlizzardBagContextMenu(originBagID)
   local rootName
-  local showReagents = false
   local bagIndexes
   if tIndexOf(Syndicator.Constants.AllBagIndexes, originBagID) ~= nil then
     rootName = BAG_NAME_BACKPACK
     bagIndexes = Syndicator.Constants.AllBagIndexes
-    showReagents = true
   else
     rootName = addonTable.Locales.BANK
     bagIndexes = Syndicator.Constants.AllBankIndexes
@@ -100,28 +102,25 @@ function addonTable.ItemViewCommon.AddBlizzardBagContextMenu(originBagID)
   MenuUtil.CreateContextMenu(UIParent, function(_, rootDescription)
     rootDescription:SetTag("MENU_CONTAINER_FRAME_COMBINED");
 
-    rootDescription:CreateTitle(BAG_FILTER_TITLE_SORTING);
-
     for index, bagID in ipairs(bagIndexes) do
-      if addonTable.Utilities.GetBagType(bagID) ~= "reagentBag" then
-        local name
-        if index == 1 then
-          name = rootName
-        else
-          name = BAG_NAME_BAG_1:gsub("1", tostring(index - 1))
+      local bagType = addonTable.Utilities.GetBagType(bagID)
+      if bagType ~= "keyring" then
+        local name = overrideNames[bagType]
+        if not name then
+          if index == 1 then
+            name = rootName
+          else
+            name = BAG_NAME_BAG_1:gsub("1", tostring(index - 1))
+          end
         end
-        ---@diagnostic disable-next-line: missing-parameter
         local submenu = rootDescription:CreateButton(name);
-        if addonTable.Config.Get(addonTable.Config.Options.SORT_METHOD) == "blizzard" then
-          AddButtons_BagFilters(submenu, bagID);
+        if not overrideNames[bagType] then
+          if addonTable.Config.Get(addonTable.Config.Options.SORT_METHOD) == "blizzard" then
+            AddButtons_BagFilters(submenu, bagID);
+          end
         end
         AddButtons_BagCleanup(submenu, bagID);
       end
-    end
-    if showReagents and addonTable.Utilities.GetBagType(bagIndexes[#bagIndexes]) == "reagentBag" then
-        ---@diagnostic disable-next-line: missing-parameter
-        local submenu = rootDescription:CreateButton(addonTable.Locales.REAGENTS);
-        AddButtons_BagCleanup(submenu, bagIndexes[#bagIndexes]);
     end
   end)
 end
