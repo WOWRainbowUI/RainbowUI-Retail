@@ -246,7 +246,7 @@ do
 			end
 		end
 		--Prio the afk warning if afk
-		if not private.isRetail and (self.Options.AFKHealthWarning2 and not private.IsEncounterInProgress() and UnitIsAFK("player") and self:AntiSpam(3, "AFK")) then--You are afk and losing health, some griever is trying to kill you while you are afk/tabbed out.
+		if self.Options.AFKHealthWarning2 and not private.IsEncounterInProgress() and (not (private.isRetail or private.isForever) or not C_ChatInfo.InChatMessagingLockdown()) and UnitIsAFK("player") and self:AntiSpam(3, "AFK") then
 			self:FlashClientIcon()
 			local voice = DBM.Options.ChosenVoicePack2
 			local path = 566558--Nightelf Bell
@@ -254,7 +254,7 @@ do
 				path = "Interface\\AddOns\\DBM-VP" .. voice .. "\\checkhp.ogg"
 			end
 			self:PlaySoundFile(path)
-			if UnitHealthMax("player") ~= 0 then
+			if not private.isRetail and not private.isForever and UnitHealthMax("player") ~= 0 then
 				local health = UnitHealth("player") / UnitHealthMax("player") * 100
 				self:AddMsg(L.AFK_WARNING:format(health))
 			end
@@ -933,6 +933,7 @@ do
 					self.Options.RestoreSettingAmbiance = true
 				end
 				if self.Options.DisableMusic and GetCVar("Sound_EnableMusic") == "1" then
+					self:CancelEventMusicRotation()
 					SetCVar("Sound_EnableMusic", 0)
 					self.Options.RestoreSettingMusic = true
 				end
@@ -1094,22 +1095,7 @@ do
 							self.Options.RestoreSettingCustomMusic = nil--Don't actually need it
 						end
 					end
-					local path = "MISSING"
-					if self.Options.EventSoundMusic == "Random" then
-						local usedTable = self.Options.EventSoundMusicCombined and self:GetMusic() or self:GetBattleMusic()
-						if #usedTable >= 3 then
-							local random = fastrandom(3, #usedTable)
-							---@diagnostic disable-next-line: cast-local-type
-							path = usedTable[random].value
-						end
-					else
-						path = self.Options.EventSoundMusic
-					end
-					if path ~= "MISSING" then
-						PlayMusic(path)
-						self.Options.musicPlaying = true
-						--self:Debug("Starting combat music with file: " .. path)
-					end
+					self:PlayEventMusic(self.Options.EventSoundMusic, false)
 				end
 			else
 				self:AddMsg(L.COMBAT_STATE_RECOVERED:format(difficulties.difficultyText .. name, stringUtils.strFromTime(delay)))
@@ -1131,7 +1117,7 @@ do
 		end
 		local cId = self:GetUnitCreatureId(uId)
 		local health = 10--above 2 less than 97, so the usual classic checks will succeed on retail as always "in progress world boss"
-		if not private.isRetail then
+		if not private.isRetail and not private.isForever then
 			--Health is always secret on enemies, even outdoors
 			local currentHealth, maxHealth = UnitHealth(uId), UnitHealthMax(uId)
 			if maxHealth ~= 0 then
@@ -1151,7 +1137,7 @@ do
 					end
 				end
 			end
-			if private.isRetail then return end
+			if private.isRetail or private.isForever then return end
 			if UnitIsUnit("player", uId) and health < 100 and not private.IsEncounterInProgress() then
 				--PRIO afk alert first (still disabled on retail because UnitIsAFK is restricted in combat)
 				if self.Options.AFKHealthWarning2 and (health < (private.isHardcoreServer and 95 or 85)) and UnitIsAFK("player") and self:AntiSpam(5, "AFK") then

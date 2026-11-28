@@ -18,7 +18,7 @@
 ## LoadOnDemand: 0
 ## DefaultState: enabled
 ## Author: MysticalOS, QartemisT
-## Version: 12.1.25
+## Version: 12.1.26
 ## X-Curse-Project-ID: 3358
 ## X-Wago-ID: qv633o6b
 ## X-Website: https://deadlybossmods.com
@@ -97,6 +97,7 @@ modules\objects\EnrageTimer.lua
 modules\objects\Announce.lua
 modules\objects\SpecialWarning.lua
 modules\objects\Yell.lua
+modules\objects\QuestTurnIn.lua
 modules\objects\Sorting.lua
 DBM-TextTimers.lua
 modules\AuraTracking.lua [AllowLoadGameType mainline]
