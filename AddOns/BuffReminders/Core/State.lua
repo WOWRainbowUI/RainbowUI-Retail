@@ -21,12 +21,12 @@ local BR = ns
 ---@field countText string?                  -- "17/20" for raid buffs, "5m" for expiring consumables
 ---@field overlayText string?                -- "NO\nAURA" for non-raid
 ---@field shouldGlow boolean                 -- Expiration glow?
----@field iconByRole table<RoleType,number>? -- Role-based icon override
 ---@field rebuffWarning boolean?             -- Consumable rebuff pulsing border?
 ---@field isEating boolean?                 -- Food entry: player is currently eating
 ---@field countdownExpirationTime number?   -- GetTime()-based end of a live countdown
 ---@field countdownDuration number?         -- Length of the progress sweep that ends with the countdown
 ---@field progressText string?              -- Progress toward the goal of the countdown, e.g. "1/3"
+---@field stackText string?                 -- Bag count of the click item, shown above 1
 ---@field petActions PetActionList?           -- Expanded pet summon actions
 ---@field dynamicIcon number|string|nil      -- Dynamic icon texture override (e.g. next poison to cast)
 ---@field glowKindOverride "expiring"|"missing"|nil -- Override glow kind (e.g. healthstone low stock uses expiring glow)
@@ -122,6 +122,16 @@ local Consumables = BUFF_TABLES.consumable
 local UtilityBuffs = BUFF_TABLES.utility
 local CustomBuffs = BUFF_TABLES.custom
 local LoadoutRules = BUFF_TABLES.loadout
+
+---@type (RaidBuff|PresenceBuff|TargetedBuff|SelfBuff|ConsumableBuff|UtilityBuff)[]
+local DynamicIconBuffs = {}
+for _, list in ipairs({ RaidBuffs, PresenceBuffs, TargetedBuffs, SelfBuffs, PetBuffs, Consumables, UtilityBuffs }) do
+    for _, buff in ipairs(list) do
+        if buff.icons and buff.icons.dynamic then
+            DynamicIconBuffs[#DynamicIconBuffs + 1] = buff
+        end
+    end
+end
 
 -- ============================================================================
 -- MODULE STATE
@@ -720,6 +730,32 @@ local function HasItemByMode(itemID, mode)
     return result
 end
 
+---@param items number|number[]
+---@param mode? "owned"|"equipped"|"bags"
+---@return number? itemID The first item in list order that the player has
+local function FirstOwnedItem(items, mode)
+    for _, itemID in ipairs(AsSpellList(items)) do
+        if HasItemByMode(itemID, mode) then
+            return itemID
+        end
+    end
+    return nil
+end
+
+---Where a custom buff looks for its items. With no item check, the click still
+---needs an item that the player has.
+---@param buff CustomBuff
+---@return "owned"|"equipped"|"bags"
+local function CustomItemMode(buff)
+    local gate = buff.itemGate
+    if gate == "equipped" then
+        return "equipped"
+    elseif gate == "bags" then
+        return "bags"
+    end
+    return "owned"
+end
+
 -- Item count cache (charges included), invalidated together with
 -- cachedItemOwnership. Item counts only change on bag updates. Charge counts do
 -- change without a bag event, so they stay out of this cache.
@@ -749,6 +785,25 @@ local function GetItemCountCached(itemID, live)
     -- Failed/nil read: do not cache, so the next refresh retries instead of
     -- freezing a false 0 until the next bag event.
     return 0
+end
+
+---@type table<number, number>
+local cachedItemIcons = {}
+
+---@param itemID number
+---@return number?
+local function GetItemIconCached(itemID)
+    local icon = cachedItemIcons[itemID]
+    if icon then
+        return icon
+    end
+    -- pcall: the ID is user-entered and an invalid ID can throw.
+    local ok, fileID = pcall(C_Item.GetItemIconByID, itemID)
+    if ok and fileID then
+        cachedItemIcons[itemID] = fileID
+        return fileID
+    end
+    return nil
 end
 
 -- ============================================================================
@@ -2052,7 +2107,7 @@ end
 
 -- Seconds until the earliest display change that no event announces: the countdown
 -- text ticks a minute, remaining time crosses the warning lead, an
--- expiring buff runs out, or item charges change.
+-- expiring buff runs out, item charges change, or a cooldown that hides a reminder ends.
 -- Accumulated per refresh; Display arms one timer for it instead of polling.
 local nextTimedChangeIn = nil
 
@@ -2693,7 +2748,6 @@ local function RefreshSelf(isAuraRestricted, hideExpiring)
                             buff.overlayTextFn and buff.overlayTextFn() or buff.overlayText,
                             selfMissGlow
                         )
-                        BR.Icons.ApplyDynamicIcon(entry, buff)
                     end
                 else
                     local shouldShow = ShouldShowSelfBuff(buff, false, isAuraRestricted)
@@ -2706,7 +2760,6 @@ local function RefreshSelf(isAuraRestricted, hideExpiring)
                             buff.overlayTextFn and buff.overlayTextFn() or buff.overlayText,
                             selfMissGlow
                         )
-                        BR.Icons.ApplyDynamicIcon(entry, buff)
                     elseif
                         shouldShow == false
                         and not wantPresent
@@ -2721,8 +2774,8 @@ local function RefreshSelf(isAuraRestricted, hideExpiring)
                             remaining = GetWeaponEnchantRemaining(buff.enchantID)
                             duration = buff.enchantDuration
                         elseif buff.getExpirationInfo then
-                            remaining, expiringCastID = buff.getExpirationInfo()
-                            duration = buff.enchantDuration
+                            remaining, expiringCastID, duration = buff.getExpirationInfo()
+                            duration = duration or buff.enchantDuration
                         elseif buff.buffIdOverride or buff.spellID then
                             _, remaining, _, duration =
                                 UnitHasBuff("player", (buff.buffIdOverride or buff.spellID) --[[@as SpellID]])
@@ -2733,14 +2786,9 @@ local function RefreshSelf(isAuraRestricted, hideExpiring)
                                 remaining,
                                 Lead.Of(duration, selfThreshold, selfFloor),
                                 selfExGlow
-                            )
+                            ) and expiringCastID
                         then
-                            if expiringCastID then
-                                entry.dynamicIcon = BR.Icons.GetBuffTexture(expiringCastID)
-                            elseif buff.enchantID then
-                                -- The icon shows the imbue that the click casts.
-                                BR.Icons.ApplyDynamicIcon(entry, buff)
-                            end
+                            entry.dynamicIcon = BR.Icons.GetBuffTexture(expiringCastID)
                         end
                     end
                 end
@@ -2773,13 +2821,10 @@ local function RefreshUtility(db, trackingMode, isAuraRestricted, hideExpiring)
                 if buff.countdown then
                     entry.countdownExpirationTime, entry.countdownDuration, entry.progressText = buff.countdown()
                 end
-                BR.Icons.ApplyDynamicIcon(entry, buff)
             elseif buff.renewAuraID and not hideExpiring and (not buff.canRenew or buff.canRenew(isAuraRestricted)) then
                 local _, remaining, _, duration = UnitHasBuff("player", buff.renewAuraID)
                 local lead = Lead.Of(duration, utilityThreshold, utilityFloor)
-                if TrySetEntryExpiring(entry, remaining, lead, utilityExGlow) then
-                    BR.Icons.ApplyDynamicIcon(entry, buff)
-                end
+                TrySetEntryExpiring(entry, remaining, lead, utilityExGlow)
             end
         end
     end
@@ -2860,7 +2905,6 @@ local function RefreshPresence(db, trackingMode, isAuraRestricted, hideExpiring)
                 if text then
                     SetEntryText(entry, text, presMissGlow)
                     entry.noClick = noClick
-                    BR.Icons.ApplyDynamicIcon(entry, buff)
                 end
             elseif showBuff and IsBuffEnabled(buff.key) then
                 local trackable = IsAuraTrackable(buff)
@@ -2885,7 +2929,14 @@ local function RefreshPresence(db, trackingMode, isAuraRestricted, hideExpiring)
                                 presFloor
                             )
                         end
-                        local canCast = hasBuff or not buff.castReady or buff.castReady(isAuraRestricted) ~= false
+                        local canCast = true
+                        if not hasBuff and buff.castReady then
+                            local ready, readyIn = buff.castReady(isAuraRestricted)
+                            canCast = ready ~= false
+                            if readyIn and readyIn > 0 then
+                                NoteChangeIn(readyIn)
+                            end
+                        end
                         if not hasBuff and canCast then
                             SetEntryText(entry, buff.overlayText, presMissGlow)
                         elseif not buff.noExpirationGlow and not hideExpiring then
@@ -2927,7 +2978,15 @@ local function RefreshTargeted(db, trackingMode, isAuraRestricted, hideExpiring)
                         shouldShow, remaining, lead, nextSlack = AllyTargetState(buff, targThreshold, targFloor)
                     end
 
-                    if shouldShow then
+                    local canCast = true
+                    if shouldShow and buff.castReady then
+                        local ready, readyIn = buff.castReady()
+                        canCast = ready ~= false
+                        if readyIn and readyIn > 0 then
+                            NoteChangeIn(readyIn)
+                        end
+                    end
+                    if shouldShow and canCast then
                         SetEntryText(entry, buff.overlayText, targMissGlow)
                     elseif shouldShow == false and not buff.noExpirationGlow and not hideExpiring then
                         TrySetEntryExpiring(entry, remaining, lead, targExGlow, nextSlack)
@@ -2982,7 +3041,6 @@ local function RefreshPet(isAuraRestricted)
             local shouldShow = ShouldShowSelfBuff(buff, false, isAuraRestricted)
             if shouldShow then
                 SetEntryText(entry, buff.overlayText, petMissGlow)
-                BR.Icons.ApplyDynamicIcon(entry, buff)
                 if buff.getPetActions then
                     local actions = buff.getPetActions()
                     if actions and #actions > 0 then
@@ -3043,9 +3101,13 @@ local function RefreshConsumables(db, trackingMode, isAuraRestricted, hideExpiri
                     freeReadyCheckOk = not buff.casterClass or buff.casterClass == playerClass
                 end
             end
+            -- The suppressor is a presence entry. A "group" refresh recomputes it without this
+            -- entry, so the two icons can overlap until the next full refresh.
+            local suppressor = buff.suppressedByEntry and BuffState.entries[buff.suppressedByEntry]
             -- Boolean gates run first; IsAuraTrackable and PassesPreChecks come later.
             if
-                IsBuffEnabled(settingKey)
+                not (suppressor and suppressor.visible)
+                and IsBuffEnabled(settingKey)
                 and (catVisible or isFreeConsumable or (buff.freeConsumable and consumableContentVisible))
                 and not (competitivePvP and buff.disabledInCompetitivePvP)
                 and freeReadyCheckOk
@@ -3140,14 +3202,15 @@ local function RefreshCustom(isAuraRestricted, hideExpiring)
             end
         end
 
+        local itemIDs = buff.itemIDs
+        local foundItemID = itemIDs and FirstOwnedItem(itemIDs, CustomItemMode(buff)) or nil
         if shouldProcess then
-            local gateItemID = buff.requireItemID or buff.castItemID
-            if gateItemID and not HasItemByMode(gateItemID, buff.requireItemMode) then
+            if itemIDs and buff.itemGate ~= "always" and not foundItemID then
                 shouldProcess = false
             end
-            if shouldProcess and gateItemID and buff.itemCooldownCondition and not CooldownsRestricted() then
-                -- pcall: gateItemID is user-entered and an invalid ID can throw.
-                local ok, _, duration = pcall(C_Item.GetItemCooldown, gateItemID)
+            if shouldProcess and foundItemID and buff.itemCooldownCondition and not CooldownsRestricted() then
+                -- pcall: foundItemID is user-entered and an invalid ID can throw.
+                local ok, _, duration = pcall(C_Item.GetItemCooldown, foundItemID)
                 duration = ok and Plain(duration) or nil
                 if duration then
                     local isReady = duration == 0
@@ -3192,6 +3255,16 @@ local function RefreshCustom(isAuraRestricted, hideExpiring)
                     lead = nil
                 end
                 TrySetEntryExpiring(entry, remaining, lead, customExGlow)
+            end
+        end
+
+        entry.stackText = nil
+        if entry.visible and itemIDs and buff.clickAction == "item" then
+            -- Same pick as the click: the first found item, else the first listed item.
+            entry.dynamicIcon = GetItemIconCached(foundItemID or AsSpellList(itemIDs)[1])
+            local count = foundItemID and GetItemCountCached(foundItemID) or 0
+            if count > 1 then
+                entry.stackText = tostring(count)
             end
         end
     end
@@ -3257,6 +3330,7 @@ function BuffState.Refresh(refreshMode)
             entry.countdownExpirationTime = nil
             entry.countdownDuration = nil
             entry.progressText = nil
+            entry.stackText = nil
             entry.petActions = nil
             entry.dynamicIcon = nil
             entry.glowKindOverride = nil
@@ -3327,6 +3401,14 @@ function BuffState.Refresh(refreshMode)
         -- in every restricted context, so the reminder there is unactionable noise.
         if not isAuraRestricted then
             RefreshLoadout()
+        end
+    end
+
+    -- One pass for every visible state, so the icon always shows what the click casts.
+    for _, buff in ipairs(DynamicIconBuffs) do
+        local entry = BuffState.entries[buff.key]
+        if entry and entry.visible and not entry.dynamicIcon then
+            entry.dynamicIcon = buff.icons.dynamic()
         end
     end
 
@@ -3615,6 +3697,7 @@ end
 function BuffState.InvalidateItemCache()
     cachedItemOwnership = {}
     cachedItemCounts = {}
+    cachedItemIcons = {}
 end
 
 ---Aura spell of the consumable the player runs now, or nil when none is up.
@@ -3825,7 +3908,15 @@ BR.StateHelpers = {
     IsPlayerSpellCached = IsPlayerSpellCached,
     GetItemCountCached = GetItemCountCached,
     HasItemInBags = HasItemInBags,
+    FirstOwnedItem = FirstOwnedItem,
+    CustomItemMode = CustomItemMode,
     IsPlayerTank = IsPlayerTank,
+    GetUnitRole = GetUnitRole,
+    ---Members who can receive a cast, from the last roster scan. The list is reused.
+    ---@return table[]
+    GetValidUnits = function()
+        return currentValidUnits
+    end,
     AsSpellList = AsSpellList,
     BuffTargets = BuffTargets,
 }

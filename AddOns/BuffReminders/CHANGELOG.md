@@ -1,32 +1,33 @@
 # BuffReminders
 
-## [v7.1.0](https://github.com/zerbiniandrea/BuffReminders/tree/v7.1.0) (2026-11-26)
-[Full Changelog](https://github.com/zerbiniandrea/BuffReminders/compare/v7.0.1...v7.1.0) [Previous Releases](https://github.com/zerbiniandrea/BuffReminders/releases)
+## [v7.1.1](https://github.com/zerbiniandrea/BuffReminders/tree/v7.1.1) (2026-11-27)
+[Full Changelog](https://github.com/zerbiniandrea/BuffReminders/compare/v7.1.0...v7.1.1) [Previous Releases](https://github.com/zerbiniandrea/BuffReminders/releases)
 
 ### New Features ✨
 
-- **Appearance:**
-  - Allow negative spacing so icons can overlap
-  - Size each text in pixels with its own control
-- **Custom-buffs:** pick spell IDs from your active buffs with /br auras
+- **Custom-buffs:**
+  - List several click items and use the first one you have
+  - Show the icon and stack count of the click item
+  - Set the click action and needed items on one tab
 - **WoW Forever:**
-  - **Racials:** remind Skyborne players to get Attuned or Charged
-  - **Warlock:**
-    - Remind Sacrifice, Pact and Soul Link in order
-    - Add a Spellstone and Firestone weapon reminder
-    - Choose the demon to sacrifice per content
+  - **Mage-armor:** pick the armor to cast in each content
+  - **Priest:** remind to keep Fear Ward up
+  - **Reagents:** warn per reagent and list all counts on hover
+  - **Soulstone:**
+    - Remind to keep a Soulstone in the bags
+    - Hide the Soulstone reminder on cooldown by default
+  - **Tracking:** pick each tracking spell that the reminder offers
+  - Pick the stance, form and imbue of each talent group
 
 ### Bug Fixes 🐛
 
-- **Appearance:** render every icon gap at its exact pixel width
 - **Click-to-cast:**
-  - Move the click area with the icon after a set position
-  - Stop icon clicks and hover effects while frames are unlocked
-  - Cast a newly learned rank without waiting for combat
-- **Layout:** leave the coordinate field after Enter applies the position
-- Show long buff names in full in the buff list
+  - Highlight the member that a click buffs, not yourself
+  - Cast on the ally that the tooltip names
+- **Soulstone:** show the Soulstone reminder as soon as its cooldown ends
 - **WoW Forever:**
-  - **Raid-buffs:** skip players whose scroll or camp buff blocks the cast
+  - **Racials:** show the Attuned or Charged icon as it expires
+  - Show what the click casts on an expiring buff icon
 
 ### Localization 🌐
 
@@ -34,5 +35,5 @@
 
 ### Other Changes 🔧
 
-- 17 internal changes (code cleanup, build and docs). The full changelog lists each one.
+- 2 internal changes (code cleanup, build and docs). The full changelog lists each one.
 

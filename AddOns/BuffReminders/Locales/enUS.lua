@@ -165,6 +165,7 @@ english["Overlay.NoRighteousFury"] = "NO\nFURY"
 english["Overlay.NoInnerFire"] = "NO\nINNER\nFIRE"
 english["Overlay.NoThorns"] = "NO\nTHORNS"
 english["Overlay.NoOath"] = "NO\nOATH"
+english["Overlay.NoFearWard"] = "NO\nFEAR\nWARD"
 english["Overlay.NoRune"] = "NO\nRUNE"
 english["Overlay.DKWrongRune"] = "WRONG\nRUNE"
 english["Overlay.DKWrongRuneOH"] = "WRONG\nOH\nRUNE"
@@ -296,11 +297,12 @@ english["Buff.MageArmor"] = "Frost/Ice/Mage Armor"
 english["Buff.RighteousFury"] = "Righteous Fury"
 english["Buff.InnerFire"] = "Inner Fire"
 english["Buff.LightningShield"] = "Lightning Shield"
-english["Buff.ShamanImbue"] = "Weapon Imbue"
+english["Buff.ShamanImbue"] = "Shaman Imbue"
 english["Buff.SkyborneAttunement"] = "Attuned / Charged (Skyborne)"
 english["Buff.WarlockArmor"] = "Demon Skin/Armor"
 english["Buff.Thorns"] = "Thorns"
 english["Buff.OathOfLight"] = "Oath of Light"
+english["Buff.FearWard"] = "Fear Ward"
 -- Consumable
 english["Buff.AugmentRune"] = "Augment Rune"
 english["Buff.Flask"] = "Flask"
@@ -309,6 +311,7 @@ english["Buff.Food"] = "Food"
 english["Buff.MageFood"] = "Mage Food"
 english["Buff.Healthstone"] = "Healthstone"
 english["Buff.ManaGem"] = "Mana Gem"
+english["Buff.SoulstoneItem"] = "Soulstone (in bags)"
 english["Buff.Weapon"] = "Weapon"
 english["Buff.WeaponOH"] = "Weapon (OH)"
 
@@ -464,7 +467,6 @@ english["Externals.ShowTooltips.Desc"] =
 english["Externals.CasterName"] = "Caster name"
 english["Externals.CasterName.Desc"] =
     "Show who cast the buff next to the icon, in class color."
-english["Externals.CasterNameOff"] = "Pick a side for Caster name first."
 english["Externals.Sound.Claimed"] = "%s already plays a sound for this spell ID."
 -- Externals: the player's own entries
 english["Externals.Custom"] = "Your Buffs"
@@ -613,12 +615,16 @@ english["Options.Repair.Threshold.Desc"] =
 english["Options.RepairHideInCombat"] = "Hide in combat"
 english["Options.RepairHideInCombat.Desc"] =
     "Hide the repair reminder in combat. You cannot repair during a fight."
-english["Options.Reagent.Threshold"] = "Warn below"
-english["Options.Reagent.Threshold.Desc"] =
-    "Warn when you carry fewer than this many of a reagent for a spell you know."
+english["Options.Reagent.Note"] = "Warn below this many. 0 turns it off."
+english["Options.Reagent.Off"] = "Off"
+english["Options.Reagent.Reset"] = "Reset to Default"
 english["Options.Reagent.RestedOnly"] = "Only in rested areas"
 english["Options.Reagent.RestedOnly.Desc"] =
-    "Warn only in inns and cities, where vendors sell reagents.\n\nIf |cffffcc00Hide while resting|r is on, the warning never shows."
+    "Warn only in inns and cities, where vendors sell reagents.\n\nIf |cffffcc00Hide while resting|r is on, the warning does not show in them."
+english["Options.Reagent.DropWarning"] = "Show for %d seconds when a count drops"
+english["Options.Reagent.DropWarning.Desc"] =
+    "Outside inns and cities, the warning shows for %d seconds when a reagent drops below its count. In combat, it shows when combat ends."
+english["DisabledReason.ReagentDropWarning"] = "Turn on Only in rested areas. Without it, the warning always shows."
 english["Options.Camp.LightFire"] = "Remind to place a campfire"
 english["Options.Camp.LightFire.Desc"] =
     "With no campfire near you, the reminder shows CAMP when you carry a Campfire Kit that you can use and at least one camp feature. Click to place the best kit, then click the ground."
@@ -639,6 +645,7 @@ english["Tooltip.PinNotInGroup"] = "(not in group)"
 english["Tooltip.TargetLine"] = "Casts on: %s"
 english["Tooltip.Next"] = "Next:"
 english["Tooltip.ChoiceSpell"] = "· %s"
+english["Tooltip.ReagentCounts"] = "Reagents:"
 
 -- ============================================================================
 -- OPTIONS: FREE CONSUMABLES
@@ -673,7 +680,6 @@ english["Options.ShowMissingCountOnly.Desc"] =
 -- ============================================================================
 -- OPTIONS: TEXT POSITIONS
 -- ============================================================================
-english["Options.TextPositions.Zone"] = "Position"
 english["Options.TextPositions.Offset"] = "Offset"
 english["Options.TextPositions.OffsetX.Short"] = "X"
 english["Options.TextPositions.OffsetY.Short"] = "Y"
@@ -793,7 +799,6 @@ english["Options.PetDisplay.Mode.Desc"] = "How missing pet reminders are display
 english["Options.PetLabels"] = "Pet labels"
 english["Options.PetLabels.Classes"] = "Labels for"
 english["Options.PetLabels.Classes.Desc"] = "Pet labels show only on the pets of the ticked classes."
-english["Options.PetLabels.Desc"] = "Show pet name and specialization below each icon."
 
 -- ============================================================================
 -- OPTIONS: CONSUMABLE DISPLAY
@@ -901,6 +906,7 @@ english["BuffRow.SettingsLink.Tooltip"] = "Sound alert, show mode, and detach op
 english["BuffRow.Extras"] = "Extras"
 english["BuffRow.Option.Poisons"] = "Poisons"
 english["BuffRow.Option.Runeforge"] = "Runeforge"
+english["BuffRow.Option.Reagents"] = "Reagents"
 -- Row state glyphs
 english["BuffRow.Glyph.Sound"] = "Sound alert"
 english["BuffRow.Glyph.Detached"] = "Detached icon"
@@ -920,9 +926,8 @@ english["BuffPanel.MageFoodContent"] = "Where"
 english["BuffPanel.MageFoodContent.All"] = "All instances"
 english["BuffPanel.MageFoodContent.Dungeon"] = "Dungeons only"
 english["BuffPanel.MageFoodContent.Raid"] = "Raids only"
-english["BuffPanel.ShamanImbue"] = "Click casts"
-english["BuffPanel.ShamanImbue.Desc"] =
-    "Until you learn it, the click casts Windfury, then Flametongue, then Rockbiter."
+english["BuffPanel.ShamanImbue.Hint"] =
+    "Select the imbue that a click casts in each talent group. In an empty row, a click casts the first known imbue."
 english["BuffPanel.WarlockStone.Hint"] = "Select the stone of each talent group. In an empty row, either stone counts."
 english["BuffPanel.TalentGroup.Primary"] = "Primary"
 english["BuffPanel.TalentGroup.Secondary"] = "Secondary"
@@ -957,8 +962,9 @@ english["BuffPanel.WarlockDemon.Dungeon.Desc"] = "Also covers scenarios and Delv
 english["BuffPanel.WarlockDemon.Raid"] = "Raid"
 english["BuffPanel.WarlockDemon.PvP"] = "PvP"
 english["BuffPanel.WarlockDemon.Felguard"] = "Demonology always summons Felguard if talented."
-english["BuffPanel.WarriorStance.Hint"] = "Select the stances to allow in each content. An empty row shows no reminder."
-english["BuffPanel.DruidForm.Hint"] = "Select the forms to allow in each content. An empty row shows no reminder."
+english["BuffPanel.WarriorStance.Hint"] =
+    "Select the stances to allow in each talent group. An empty row shows no reminder."
+english["BuffPanel.DruidForm.Hint"] = "Select the forms to allow in each talent group. An empty row shows no reminder."
 english["BuffPanel.DruidForm.Caster"] = "Caster (no form)"
 english["BuffPanel.PaladinBlessing.Hint"] =
     "Main blessing per class. If another paladin gives it, you give the backup."
@@ -983,11 +989,11 @@ english["DisabledReason.BlessingDefaults"] = "All classes use their defaults."
 english["BuffPanel.BlessSelfOnly"] = "Only bless myself"
 english["BuffPanel.BlessSelfOnly.Desc"] =
     "Check and bless only yourself."
-english["BuffPanel.Tracking.Scope"] = "Track"
-english["BuffPanel.Tracking.Scope.Desc"] =
-    "The tracking that the reminder offers. Only one tracking can be active. If any tracking is active, the reminder hides."
-english["BuffPanel.Tracking.Scope.Gathering"] = "Gathering only"
-english["BuffPanel.Tracking.Scope.All"] = "All tracking"
+english["BuffPanel.Tracking.Hint"] =
+    "Select the tracking that the reminder can offer. It offers the last one you cast. Only one tracking can be active, and any active tracking hides the reminder."
+english["BuffPanel.Tracking.Profession"] = "Profession"
+english["BuffPanel.Tracking.Racial"] = "Racial"
+english["BuffPanel.Tracking.Class"] = "Class"
 english["BuffPanel.GroupCast"] = "Auto group version (uses a reagent)"
 english["BuffPanel.GroupCast.Desc"] =
     "If enough members of your party lack the buff and are in range, and you have the reagent, a left click casts the group version on you. Otherwise it casts the single-target version. Hover the icon to pick the other version for one cast."
@@ -1015,11 +1021,10 @@ english["BuffPanel.RighteousFuryShow.Tank"] = "When tanking"
 english["BuffPanel.RighteousFuryShow.Always"] = "Always"
 english["BuffPanel.RighteousFuryShow.Desc"] =
     "When tanking: only with the Tank role or a Main Tank mark. Always: solo and in any group."
-english["BuffPanel.MageArmor"] = "Cast"
 english["BuffPanel.MageArmor.Mage"] = "Mage Armor"
 english["BuffPanel.MageArmor.Ice"] = "Frost/Ice Armor"
-english["BuffPanel.MageArmor.Desc"] =
-    "The armor that the icon shows and a click casts. Any armor satisfies the reminder. If you do not know this armor yet, the other armor is used."
+english["BuffPanel.MageArmor.Hint"] =
+    "Select the armor to cast in each content. Any armor satisfies the reminder."
 english["BuffPanel.Sound"] = "Sound"
 english["BuffPanel.Sound.None"] = "None"
 english["BuffPanel.Detached"] = "Own frame (detached)"
@@ -1210,6 +1215,7 @@ english["CustomBuff.RestrictedNote"] =
     "WoW blocks aura reads in combat, boss fights and Mythic+. Glow tracking still works."
 english["CustomBuff.SpellIDs"] = "Spell IDs"
 english["CustomBuff.AddSpellID"] = "+ Add Spell ID"
+english["CustomBuff.AddItemID"] = "+ Add Item ID"
 english["CustomBuff.PickFromAuras"] = "Pick from my buffs"
 
 english["AuraPicker.Title"] = "Auras and Spell IDs"
@@ -1239,14 +1245,14 @@ english["CustomBuff.LineBreakHint"] = "Type \\n for a line break."
 
 -- Custom buff dialog tabs
 english["CustomBuff.Tab.Buff"] = "Buff"
-english["CustomBuff.Tab.Rules"] = "Rules"
-english["CustomBuff.Tab.Click"] = "Click"
+english["CustomBuff.Tab.Use"] = "Use"
+english["CustomBuff.Tab.When"] = "When"
 
 -- Custom buff dialog section headers
 english["CustomBuff.Section.Track"] = "Spells"
 english["CustomBuff.Section.ShowIcon"] = "Display"
 english["CustomBuff.Section.Who"] = "Character"
-english["CustomBuff.Section.Item"] = "Required item"
+english["CustomBuff.Section.Items"] = "Items"
 english["CustomBuff.Section.Where"] = "Where it shows"
 english["CustomBuff.Section.OnClick"] = "Click action"
 
@@ -1280,16 +1286,19 @@ english["Class.Warrior"] = "Warrior"
 -- Custom buff fields
 english["CustomBuff.Spec"] = "Spec"
 english["CustomBuff.Class"] = "Class"
-english["CustomBuff.RequireItem"] = "Item ID"
-english["CustomBuff.RequireItem.EquippedBags"] = "Equipped/Bags"
-english["CustomBuff.RequireItem.Equipped"] = "Equipped"
-english["CustomBuff.RequireItem.InBags"] = "In bags"
 english["CustomBuff.ItemCooldown"] = "Cooldown"
 english["CustomBuff.ItemCooldown.Any"] = "Any"
 english["CustomBuff.ItemCooldown.OffCooldown"] = "Off cooldown"
 english["CustomBuff.ItemCooldown.OnCooldown"] = "On cooldown"
-english["CustomBuff.RequireItem.Mode"] = "Location"
-english["CustomBuff.RequireItem.Disabled"] = "Set an item ID first."
+english["CustomBuff.ItemGate"] = "Needs item"
+english["CustomBuff.ItemGate.Owned"] = "In bags or equipped"
+english["CustomBuff.ItemGate.Equipped"] = "Equipped"
+english["CustomBuff.ItemGate.Bags"] = "In bags"
+english["CustomBuff.ItemGate.Always"] = "Not needed"
+english["CustomBuff.ItemGate.Title"] = "Item check"
+english["CustomBuff.ItemGate.Desc"] =
+    "The icon shows only if you have at least one item from the list in this place. A click on Item uses that item."
+english["CustomBuff.ItemGate.Disabled"] = "Add an item ID first."
 
 -- Bar glow options
 english["CustomBuff.BarGlow.WhenGlowing"] = "Detect when glowing"
@@ -1319,9 +1328,11 @@ english["CustomBuff.Action.Desc"] =
     "What happens when you click this buff icon. Spell casts a spell, Item uses an item, Macro runs a macro command."
 english["CustomBuff.Action.MacroHint"] = "e.g. /use item:12345\\n/use 13"
 english["CustomBuff.Action.SpellID"] = "Spell ID"
-english["CustomBuff.Action.ItemID"] = "Item ID"
+english["CustomBuff.ItemIDs"] = "Item IDs"
 english["CustomBuff.Action.MacroText"] = "Macro"
 english["CustomBuff.Action.SpellHint"] = "This can differ from the tracked spell. Track the buff, cast the ability."
+english["CustomBuff.Action.ItemHint"] = "A click uses the first item from the Items list that you have."
+english["CustomBuff.Action.NoneHint"] = "A click casts the tracked spell if you know it and click-to-cast is on."
 
 -- Save/Cancel/Delete
 english["CustomBuff.Save"] = "Save"
@@ -1339,6 +1350,7 @@ english["CustomBuff.Share.ImportDisabled"] = "Paste a custom buff string first."
 english["CustomBuff.Share.MacroWarning"] = "A click on this buff runs the macro above. Import it only from a source you trust."
 english["CustomBuff.Share.Spells"] = "Spells:"
 english["CustomBuff.Share.Runs"] = "Click runs:"
+english["CustomBuff.Share.Items"] = "Items:"
 
 -- Custom buff status
 english["CustomBuff.NotFound"] = "Not found"
@@ -1375,8 +1387,6 @@ english["Options.ResetToDefaults"] = "Reset to Defaults"
 -- ============================================================================
 english["Options.Off"] = "Off"
 english["Options.Auto"] = "Auto"
-english["Options.Always"] = "Always"
-english["Options.ReadyCheck"] = "Ready check"
 english["Options.Min"] = "min"
 
 -- ============================================================================

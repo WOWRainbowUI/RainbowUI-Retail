@@ -193,7 +193,6 @@ BR.defaults = {
         delveFoodOnly = true,
         delveFoodTimer = false,
         mageFoodContent = "all", -- "all" | "dungeon" | "raid"
-        shamanImbue = "windfury", -- "windfury" | "flametongue" | "rockbiter" | "frostbrand"
         freeConsumableMode = "override",
         freeConsumableVisibility = {
             openWorld = false,
@@ -208,8 +207,9 @@ BR.defaults = {
         healthstoneLowStock = false,
         repairThreshold = 20, -- percent; repair reminder shows below this durability
         repairHideInCombat = true,
-        reagentThreshold = 5, -- the reagent reminder shows below this count
+        reagentThresholds = {}, -- WoW Forever
         reagentRestedOnly = true,
+        reagentDropWarning = true, -- WoW Forever
         campLightFire = true, -- WoW Forever: the camp reminder also asks for a campfire kit
         ammoThresholdStacks = 1, -- hunters: the ammo reminder shows below this many stacks
         ammoThresholdShots = 20, -- other classes: the ammo reminder shows below this many shots
@@ -219,7 +219,7 @@ BR.defaults = {
         driveByEmote = "WAVE",
         driveByAllowPvP = false,
         soulstoneVisibility = BR.SOULSTONE_DEFAULT_VISIBILITY,
-        soulstoneHideCooldown = false,
+        soulstoneHideCooldown = BR.ByClient({ retail = false, forever = true }),
         -- soulstonePinnedTarget: deliberately absent - nil means "no pin" (set via BuffPanel drawer)
         consumableDisplayMode = "sub_icons",
         itemTextSize = BR.ByClient({ retail = 15, forever = 16 }),
@@ -274,6 +274,12 @@ BR.defaults = {
             forever = { spec1 = {}, spec2 = {} },
         }),
         warlockWrongDemon = true,
+        -- The imbue that a click casts in each talent group (WoW Forever), at most one. An empty
+        -- row casts the first known imbue.
+        shamanImbues = BR.ByClient({
+            retail = BR.NONE,
+            forever = { spec1 = { windfury = true }, spec2 = { windfury = true } },
+        }),
         -- The blessings of each class (WoW Forever), in priority order. A member gets the
         -- first one that no other paladin gives them. Every slot holds a value, so that
         -- AceDB cannot fill a slot that the user emptied.
@@ -293,8 +299,15 @@ BR.defaults = {
         }),
         -- WoW Forever: "self" checks and blesses only the player.
         paladinBlessingScope = BR.ByClient({ retail = BR.NONE, forever = "group" }),
-        -- WoW Forever: "all" adds creature tracking to the gathering tracking.
-        trackingScope = BR.ByClient({ retail = BR.NONE, forever = "gathering" }),
+        -- The tracking spells that the reminder offers (WoW Forever), per kind.
+        trackingSpells = BR.ByClient({
+            retail = BR.NONE,
+            forever = {
+                profession = { herbs = true, minerals = true },
+                racial = { treasure = true },
+                class = {},
+            },
+        }),
         -- The paladin auras of each content row (WoW Forever): the main aura, then the
         -- backup. An empty row accepts any aura. Every slot holds a value, so that AceDB
         -- cannot fill a slot that the user emptied.
@@ -309,7 +322,16 @@ BR.defaults = {
         }),
         -- thornsRequest: absent - nil means off
         righteousFuryShow = BR.ByClient({ retail = BR.NONE, forever = "tank" }),
-        mageArmorPreference = BR.ByClient({ retail = BR.NONE, forever = "mage" }),
+        -- The armor that the icon shows and a click casts in each content row (WoW Forever), at most one.
+        mageArmors = BR.ByClient({
+            retail = BR.NONE,
+            forever = {
+                world = { ice = true },
+                dungeon = { mage = true },
+                raid = { mage = true },
+                pvp = { ice = true },
+            },
+        }),
         -- Per-text-item size override in screen pixels. An
         -- absent key follows itemTextSize.
         textSizes = {},

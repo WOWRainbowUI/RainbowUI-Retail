@@ -926,14 +926,11 @@ L["CustomBuff.LineBreakHint"] = "(\\n을 사용해서 줄바꿈)"
 
 -- Custom buff dialog tabs
 L["CustomBuff.Tab.Buff"] = "버프"
-L["CustomBuff.Tab.Rules"] = "규칙"
-L["CustomBuff.Tab.Click"] = "클릭"
 
 -- Custom buff dialog section headers
 L["CustomBuff.Section.Track"] = "주문"
 L["CustomBuff.Section.ShowIcon"] = "디스플레이"
 L["CustomBuff.Section.Who"] = "캐릭터"
-L["CustomBuff.Section.Item"] = "필요 아이템"
 L["CustomBuff.Section.Where"] = "표시 위치"
 L["CustomBuff.Section.OnClick"] = "클릭 동작"
 
@@ -967,16 +964,11 @@ L["Class.Warrior"] = "전사"
 -- Custom buff fields
 L["CustomBuff.Spec"] = "전문화:"
 L["CustomBuff.Class"] = "직업:"
-L["CustomBuff.RequireItem.EquippedBags"] = "착용 중/소지품"
-L["CustomBuff.RequireItem.Equipped"] = "착용 중"
-L["CustomBuff.RequireItem.InBags"] = "소지품"
 L["CustomBuff.RequireItem.Hint"] = "아이템 ID - 없으면 숨김"
 L["CustomBuff.ItemCooldown"] = "쿨타임:"
 L["CustomBuff.ItemCooldown.Any"] = "모두"
 L["CustomBuff.ItemCooldown.OffCooldown"] = "쿨타임 아님"
 L["CustomBuff.ItemCooldown.OnCooldown"] = "쿨타임 상태"
-L["CustomBuff.RequireItem.Mode"] = "위치"
-L["CustomBuff.RequireItem.Disabled"] = "먼저 아이템 ID를 설정하세요."
 
 -- Bar glow options
 L["CustomBuff.BarGlow.WhenGlowing"] = "반짝일 때 감지"
@@ -1005,7 +997,6 @@ L["CustomBuff.Action.Desc"] =
     "이 버프 아이콘을 클릭했을 때의 동작을 설정합니다. 주문은 주문 시전, 아이템은 아이템 사용, 매크로는 매크로를 실행합니다."
 L["CustomBuff.Action.MacroHint"] = "예: /사용 item:12345\n/사용 13"
 L["CustomBuff.Action.SpellID"] = "주문 ID"
-L["CustomBuff.Action.ItemID"] = "아이템 ID"
 L["CustomBuff.Action.MacroText"] = "매크로"
 L["CustomBuff.Action.SpellHint"] = "추적한 주문과 다를 수 있습니다. 추적한 것이 버프고 시전은 어빌리티로 하는 경우입니다."
 

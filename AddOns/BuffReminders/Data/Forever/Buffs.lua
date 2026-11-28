@@ -15,6 +15,10 @@ local AuraField = BR.Secret.AuraField
 local Plain = BR.Secret.Plain
 local CooldownsRestricted = BR.Restrictions.CooldownsRestricted
 local UnitIsUnit = UnitIsUnit
+local GetTime = GetTime
+local GetSpellCooldown = C_Spell.GetSpellCooldown
+-- The global cooldown reads as a cooldown of up to 1.5 s.
+local GLOBAL_COOLDOWN = 1.5
 
 local REPAIR_LABEL = L["Overlay.RepairLabel"]
 local REAGENT_LABEL = L["Overlay.ReagentLabel"]
@@ -388,7 +392,7 @@ local SOULSTONE_ITEMS = { 16896, 16895, 16893, 16892, 5232 } -- Major to Minor
 local CONJURE_MANA_GEM = { 10054, 10053, 3552, 759 } -- Ruby, Citrine, Jade, Agate
 local SKYBORNE_RACIALS = { 1259705, 1259686 } -- Read Leyline (High Order), Skysight (Windshaper)
 
--- Shaman weapon imbues per setting value, highest rank first.
+-- Shaman weapon imbues per choice key of the shamanImbues grid, highest rank first.
 local SHAMAN_IMBUE_RANKS = {
     windfury = { 16362, 10486, 8235, 8232 },
     flametongue = { 16342, 16341, 16339, 8030, 8027, 8024 },
@@ -464,6 +468,26 @@ local function HighestKnownSpell(spellIDs)
     return nil
 end
 
+local SKYBORNE_AURAS = { 1259691, 1270893 } -- Attuned, Charged
+
+---The expiration warning shows the aura that expires, not the racial that the missing state shows.
+---@return number? remaining
+---@return number? auraID
+---@return number? duration
+local function SkyborneAuraExpiration()
+    for _, id in ipairs(SKYBORNE_AURAS) do
+        local aura = C_UnitAuras.GetUnitAuraBySpellID("player", id)
+        if aura then
+            local exp = AuraField(aura, "expirationTime")
+            if not exp or exp <= 0 then
+                return nil
+            end
+            return exp - GetTime(), id, AuraField(aura, "duration")
+        end
+    end
+    return nil
+end
+
 -- The macro names the highest spell that the player knows.
 ---@param spellIDs number[] Highest rank first
 ---@return string
@@ -475,7 +499,7 @@ end
 ---@return number? itemID
 local function SoulstoneInBags()
     for _, id in ipairs(SOULSTONE_ITEMS) do
-        if C_Item.GetItemCount(id) > 0 then
+        if BR.StateHelpers.GetItemCountCached(id) > 0 then
             return id
         end
     end
@@ -483,16 +507,41 @@ local function SoulstoneInBags()
 end
 
 -- All Soulstone ranks share one cooldown. A stone outside the bags still reports it.
----@return boolean
+---@return boolean ready
+---@return number? readyIn
 local function SoulstoneReady()
     for _, id in ipairs(SOULSTONE_ITEMS) do
-        local _, duration = C_Item.GetItemCooldown(id)
-        duration = Plain(duration)
-        if duration and duration > 0 then
-            return false
+        local startTime, duration = C_Item.GetItemCooldown(id)
+        startTime, duration = Plain(startTime), Plain(duration)
+        if startTime and duration and duration > GLOBAL_COOLDOWN then
+            local readyIn = startTime + duration - GetTime()
+            if readyIn > 0 then
+                return false, readyIn
+            end
         end
     end
     return true
+end
+
+local FEAR_WARD = 6346
+
+---@return boolean ready
+---@return number? readyIn
+local function FearWardReady()
+    if CooldownsRestricted() then
+        return false
+    end
+    local info = GetSpellCooldown(FEAR_WARD)
+    local duration = info and Plain(info.duration)
+    local startTime = info and Plain(info.startTime)
+    if not (duration and startTime) or duration <= GLOBAL_COOLDOWN then
+        return true
+    end
+    local readyIn = startTime + duration - GetTime()
+    if readyIn <= 0 then
+        return true
+    end
+    return false, readyIn
 end
 
 -- The sacrifice needs a demon out. If the talent group picks a demon and another one is out,
@@ -534,17 +583,20 @@ local function DemonSetupMacro(spellID)
     return DemonicSacrificeMacro(spellID)
 end
 
----Highest known rank of the preferred imbue, else of the first known fallback imbue.
+---Highest known rank of the imbue that the active talent group picks, else of the first known fallback imbue.
 ---@return number?
 local function ShamanImbueCastID()
-    local defaults = BR.profile.defaults
-    local ranks = SHAMAN_IMBUE_RANKS[defaults and defaults.shamanImbue or "windfury"]
-    local id = ranks and HighestKnownSpell(ranks)
-    if id then
-        return id
+    local row = TalentGroupRow()
+    for key, ranks in pairs(SHAMAN_IMBUE_RANKS) do
+        if BR.Visibility.IsContentChoiceAllowed("shamanImbues", row, key) then
+            local id = HighestKnownSpell(ranks)
+            if id then
+                return id
+            end
+        end
     end
     for _, key in ipairs(SHAMAN_IMBUE_FALLBACK) do
-        id = HighestKnownSpell(SHAMAN_IMBUE_RANKS[key])
+        local id = HighestKnownSpell(SHAMAN_IMBUE_RANKS[key])
         if id then
             return id
         end
@@ -644,19 +696,26 @@ local function PoisonRemaining()
     return soonest
 end
 
----Applies a poison to the first hand that misses one, else to the hand whose poison expires first.
----@return string
-local function PoisonMacro()
+---The hand that the click poisons: a hand with no poison first, else the soonest to expire.
+---@return {slot: number, column: string}?
+local function PoisonTargetHand()
     local hand = HandMissingPoison()
-    if not hand then
-        local soonest
-        for _, h in ipairs(POISON_HANDS) do
-            local id, remaining = BR.BuffState.GetWeaponImbue(h.slot)
-            if HandHoldsWeapon(h.slot) and id and remaining and (not soonest or remaining < soonest) then
-                hand, soonest = h, remaining
-            end
+    if hand then
+        return hand
+    end
+    local soonest
+    for _, h in ipairs(POISON_HANDS) do
+        local id, remaining = BR.BuffState.GetWeaponImbue(h.slot)
+        if HandHoldsWeapon(h.slot) and id and remaining and (not soonest or remaining < soonest) then
+            hand, soonest = h, remaining
         end
     end
+    return hand
+end
+
+---@return string
+local function PoisonMacro()
+    local hand = PoisonTargetHand()
     if not hand then
         return ""
     end
@@ -755,7 +814,7 @@ local function KnownChoiceSpell(choice)
     return HighestKnownSpell(choice.spellIDs)
 end
 
----A choice counts only if the current content row allows it and the player knows it.
+---A choice counts only if the active talent group allows it and the player knows it.
 ---@param grid StanceGrid
 ---@return StanceRule
 local function GridStanceRule(grid)
@@ -765,7 +824,7 @@ local function GridStanceRule(grid)
         -- The set is reused, so a caller must read it before the next call.
         allowed = function()
             wipe(allowedSet)
-            local row = BR.Visibility.GetContentRow()
+            local row = TalentGroupRow()
             local any = false
             for _, choice in ipairs(grid.choices) do
                 local known = KnownChoiceSpell(choice)
@@ -780,7 +839,7 @@ local function GridStanceRule(grid)
             return any and allowedSet or nil
         end,
         castID = function()
-            local row = BR.Visibility.GetContentRow()
+            local row = TalentGroupRow()
             for _, choice in ipairs(grid.choices) do
                 local known = KnownChoiceSpell(choice)
                 if known and BR.Visibility.IsContentChoiceAllowed(grid.setting, row, choice.key) then
@@ -823,30 +882,15 @@ for _, list in ipairs({ ICE_ARMOR_IDS, MAGE_ARMOR_IDS }) do
     end
 end
 
----Highest known rank of the preferred armor, else of the other armor.
+---Highest known rank of the armor that the content row picks, else of the other armor.
 ---@return number?
 local function PreferredMageArmor()
-    local defaults = BR.profile.defaults
-    local preferIce = defaults ~= nil and defaults.mageArmorPreference == "ice"
+    local preferIce = BR.Visibility.IsContentChoiceAllowed("mageArmors", BR.Visibility.GetContentRow(), "ice")
     local first, second = MAGE_ARMOR_IDS, ICE_ARMOR_IDS
     if preferIce then
         first, second = ICE_ARMOR_IDS, MAGE_ARMOR_IDS
     end
     return HighestKnownSpell(first) or HighestKnownSpell(second)
-end
-
--- State remembers the tank that a role buff goes on. With no tank, the buff goes on the player.
----@param buffKey string
----@return fun(spellID: number?): string
-local function TankOrSelfMacro(buffKey)
-    return function(spellID)
-        local name = BR.GetSpellName(spellID) or ""
-        local tank = BR.TargetMemory.Get(buffKey)
-        if tank then
-            return "/cast [@" .. tank .. ",help,nodead] " .. name
-        end
-        return "/cast [@player] " .. name
-    end
 end
 
 local SYMBOL_OF_KINGS = 21177
@@ -1299,59 +1343,141 @@ local function CheckOwnPaladinAura(isAuraRestricted)
     return WRONG_AURA_TEXT
 end
 
----@class ForeverReagent
+---@class ForeverReagentRank
 ---@field item number
 ---@field icon number
----@field class ClassName
----@field spells number[] Spells that consume the reagent
+---@field spells number[] Spells that use the item
 
--- Vendor reagents only. A reagent counts only while the player knows one of its spells,
--- so a rank-bound reagent lists only its own rank.
+---@class ForeverReagent
+---@field key string Key in defaults.reagentThresholds
+---@field classes ClassName[]
+---@field warnBelow number Default threshold. 0 turns the warning off
+---@field ranks ForeverReagentRank[] Highest first. Only the highest rank that the player knows counts
+
+-- Vendor reagents only. A spell rank can need its own item, and a player keeps the
+-- lower ranks, so only the item of the highest known rank counts.
 ---@type ForeverReagent[]
 local REAGENTS = {
-    { item = 17020, icon = 133848, class = "MAGE", spells = { 23028 } }, -- Arcane Powder
-    -- Rune of Teleportation
-    { item = 17031, icon = 134419, class = "MAGE", spells = { 3561, 3562, 3563, 3565, 3566, 3567, 1297659 } },
-    -- Rune of Portals
-    { item = 17032, icon = 134421, class = "MAGE", spells = { 10059, 11416, 11417, 11418, 11419, 11420 } },
-    { item = 17028, icon = 133752, class = "PRIEST", spells = { 21562 } }, -- Holy Candle
-    { item = 17029, icon = 133751, class = "PRIEST", spells = { 21564, 27681, 27683 } }, -- Sacred Candle
-    { item = 17021, icon = 133749, class = "DRUID", spells = { 21849 } }, -- Wild Berries
-    { item = 17026, icon = 134412, class = "DRUID", spells = { 21850 } }, -- Wild Thornroot
-    { item = 17034, icon = 133944, class = "DRUID", spells = { 20484 } }, -- Maple Seed
-    { item = 17035, icon = 133944, class = "DRUID", spells = { 20739 } }, -- Stranglethorn Seed
-    { item = 17036, icon = 133944, class = "DRUID", spells = { 20742 } }, -- Ashwood Seed
-    { item = 17037, icon = 133944, class = "DRUID", spells = { 20747 } }, -- Hornbeam Seed
-    { item = 17038, icon = 133944, class = "DRUID", spells = { 20748 } }, -- Ironwood Seed
-    -- Symbol of Kings
-    { item = 21177, icon = 134471, class = "PALADIN", spells = { 25782, 25916, 25894, 25918, 25898 } },
-    { item = 17030, icon = 133439, class = "SHAMAN", spells = { 20608 } }, -- Ankh
-    { item = 5140, icon = 134387, class = "ROGUE", spells = { 1856, 1857, 27617, 457437, 1285372 } }, -- Flash Powder
+    {
+        key = "arcanePowder",
+        classes = { "MAGE" },
+        warnBelow = 20,
+        ranks = { { item = 17020, icon = 133848, spells = { 23028 } } },
+    },
+    {
+        key = "teleportRune",
+        classes = { "MAGE" },
+        warnBelow = 3,
+        ranks = {
+            { item = 17031, icon = 134419, spells = { 3561, 3562, 3563, 3565, 3566, 3567, 1297659 } },
+        },
+    },
+    {
+        key = "portalRune",
+        classes = { "MAGE" },
+        warnBelow = 3,
+        ranks = { { item = 17032, icon = 134421, spells = { 10059, 11416, 11417, 11418, 11419, 11420 } } },
+    },
+    {
+        key = "lightFeather",
+        classes = { "MAGE", "PRIEST" },
+        warnBelow = 3,
+        ranks = { { item = 17056, icon = 132917, spells = { 130, 1706 } } }, -- Slow Fall, Levitate
+    },
+    {
+        key = "prayerCandle",
+        classes = { "PRIEST" },
+        warnBelow = 20,
+        ranks = {
+            { item = 17029, icon = 133751, spells = { 21564, 27681, 27683 } }, -- Sacred Candle
+            { item = 17028, icon = 133752, spells = { 21562 } }, -- Holy Candle
+        },
+    },
+    {
+        key = "wildReagent",
+        classes = { "DRUID" },
+        warnBelow = 20,
+        ranks = {
+            { item = 17026, icon = 134412, spells = { 21850 } }, -- Wild Thornroot
+            { item = 17021, icon = 133749, spells = { 21849 } }, -- Wild Berries
+        },
+    },
+    {
+        key = "rebirthSeed",
+        classes = { "DRUID" },
+        warnBelow = 3,
+        ranks = {
+            { item = 17038, icon = 133944, spells = { 20748 } }, -- Ironwood Seed
+            { item = 17037, icon = 133944, spells = { 20747 } }, -- Hornbeam Seed
+            { item = 17036, icon = 133944, spells = { 20742 } }, -- Ashwood Seed
+            { item = 17035, icon = 133944, spells = { 20739 } }, -- Stranglethorn Seed
+            { item = 17034, icon = 133944, spells = { 20484 } }, -- Maple Seed
+        },
+    },
+    {
+        key = "symbolOfKings",
+        classes = { "PALADIN" },
+        warnBelow = 20,
+        ranks = { { item = 21177, icon = 134471, spells = { 25782, 25916, 25894, 25918, 25898 } } },
+    },
+    {
+        key = "symbolOfDivinity",
+        classes = { "PALADIN" },
+        warnBelow = 3,
+        ranks = { { item = 17033, icon = 135259, spells = { 19752 } } }, -- Divine Intervention
+    },
+    {
+        key = "ankh",
+        classes = { "SHAMAN" },
+        warnBelow = 3,
+        ranks = { { item = 17030, icon = 133439, spells = { 20608 } } },
+    },
+    {
+        key = "fishScales",
+        classes = { "SHAMAN" },
+        warnBelow = 0,
+        ranks = { { item = 17057, icon = 134310, spells = { 131 } } }, -- Water Breathing
+    },
+    {
+        key = "fishOil",
+        classes = { "SHAMAN" },
+        warnBelow = 0,
+        ranks = { { item = 17058, icon = 134844, spells = { 546 } } }, -- Water Walking
+    },
+    {
+        key = "flashPowder",
+        classes = { "ROGUE" },
+        warnBelow = 10,
+        ranks = { { item = 5140, icon = 134387, spells = { 1856, 1857, 27617, 457437, 1285372 } } },
+    },
+    {
+        key = "infernalStone",
+        classes = { "WARLOCK" },
+        warnBelow = 3,
+        ranks = { { item = 5565, icon = 135231, spells = { 1122 } } }, -- Inferno
+    },
+    {
+        key = "demonicFigurine",
+        classes = { "WARLOCK" },
+        warnBelow = 0,
+        ranks = { { item = 16583, icon = 134337, spells = { 18540 } } }, -- Ritual of Doom
+    },
 }
 
----@type ForeverReagent[]
-local PLAYER_REAGENTS = {}
-for _, reagent in ipairs(REAGENTS) do
-    if reagent.class == playerClass then
-        PLAYER_REAGENTS[#PLAYER_REAGENTS + 1] = reagent
-    end
-end
-
----Reagent with the lowest count among those for known spells. Ties go to the first in list order.
----@return ForeverReagent?
----@return number? count
-local function LowestReagent()
-    local lowest, lowestCount
-    for _, reagent in ipairs(PLAYER_REAGENTS) do
-        if HighestKnownSpell(reagent.spells) then
-            local count = BR.StateHelpers.GetItemCountCached(reagent.item)
-            if not lowestCount or count < lowestCount then
-                lowest, lowestCount = reagent, count
+---The icon of the first reagent of the class, else Arcane Powder.
+---@return number
+local function DefaultReagentIcon()
+    for _, reagent in ipairs(REAGENTS) do
+        for _, class in ipairs(reagent.classes) do
+            if class == playerClass then
+                return reagent.ranks[1].icon
             end
         end
     end
-    return lowest, lowestCount
+    return 133848
 end
+
+BR.REAGENTS = REAGENTS
 
 local AMMO_ICON_ARROW = 132382
 local AMMO_ICON_BULLET = 132384
@@ -1778,9 +1904,10 @@ local CAMP_ROW = {
     others = CampFeatureChoices,
 }
 
----@alias TrackingKind "gathering"|"creature"
+---@alias TrackingKind "profession"|"racial"|"class"
 
 ---@class TrackingSpell
+---@field key string Choice key in defaults.trackingSpells[kind]
 ---@field spellID number
 ---@field kind TrackingKind
 ---@field form? number Stance spell that the cast needs. The game ends the tracking when the form ends
@@ -1788,20 +1915,20 @@ local CAMP_ROW = {
 -- Minimap tracking spells, in the order of the fallback pick. The game allows one active tracking.
 ---@type TrackingSpell[]
 BR.TRACKING_SPELLS = {
-    { spellID = 2383, kind = "gathering" }, -- Find Herbs
-    { spellID = 2580, kind = "gathering" }, -- Find Minerals
-    { spellID = 2481, kind = "gathering" }, -- Find Treasure
-    { spellID = 1494, kind = "creature" }, -- Track Beasts
-    { spellID = 19883, kind = "creature" }, -- Track Humanoids
-    { spellID = 19884, kind = "creature" }, -- Track Undead
-    { spellID = 19878, kind = "creature" }, -- Track Demons
-    { spellID = 19880, kind = "creature" }, -- Track Elementals
-    { spellID = 19882, kind = "creature" }, -- Track Giants
-    { spellID = 19879, kind = "creature" }, -- Track Dragonkin
-    { spellID = 19885, kind = "creature" }, -- Track Hidden
-    { spellID = 5225, kind = "creature", form = 768 }, -- Track Humanoids (Druid), Cat Form
-    { spellID = 5502, kind = "creature" }, -- Sense Undead
-    { spellID = 5500, kind = "creature" }, -- Sense Demons
+    { key = "herbs", spellID = 2383, kind = "profession" }, -- Find Herbs
+    { key = "minerals", spellID = 2580, kind = "profession" }, -- Find Minerals
+    { key = "treasure", spellID = 2481, kind = "racial" }, -- Find Treasure
+    { key = "beasts", spellID = 1494, kind = "class" }, -- Track Beasts
+    { key = "humanoids", spellID = 19883, kind = "class" }, -- Track Humanoids
+    { key = "undead", spellID = 19884, kind = "class" }, -- Track Undead
+    { key = "demons", spellID = 19878, kind = "class" }, -- Track Demons
+    { key = "elementals", spellID = 19880, kind = "class" }, -- Track Elementals
+    { key = "giants", spellID = 19882, kind = "class" }, -- Track Giants
+    { key = "dragonkin", spellID = 19879, kind = "class" }, -- Track Dragonkin
+    { key = "hidden", spellID = 19885, kind = "class" }, -- Track Hidden
+    { key = "humanoidsCat", spellID = 5225, kind = "class", form = 768 }, -- Track Humanoids (Druid), Cat Form
+    { key = "senseUndead", spellID = 5502, kind = "class" }, -- Sense Undead
+    { key = "senseDemons", spellID = 5500, kind = "class" }, -- Sense Demons
 }
 
 ---@type number[]
@@ -1981,17 +2108,22 @@ local BUFF_TABLES = {
                 local pinned = defaults and defaults.soulstonePinnedTarget
                 return pinned ~= "" and pinned or nil
             end,
-            clickMacro = function(spellID)
-                local stone = SoulstoneInBags()
-                if stone then
-                    return "/use " .. BR.SoulstoneTargetConditions() .. "item:" .. stone
-                end
-                return "/cast " .. (BR.GetSpellName(spellID) or "")
-            end,
+            fallbackRole = "HEALER",
+            clickItem = SoulstoneInBags,
         },
     },
     ---@type TargetedBuff[]
     targeted = {
+        {
+            spellID = FEAR_WARD,
+            key = "fearWard",
+            name = L["Buff.FearWard"],
+            class = "PRIEST",
+            overlayText = L["Overlay.NoFearWard"],
+            target = "allyOrSelf",
+            defaultEnabled = false,
+            castReady = FearWardReady,
+        },
         {
             spellID = 1328548,
             key = "oathOfLight",
@@ -1999,7 +2131,6 @@ local BUFF_TABLES = {
             name = L["Buff.OathOfLight"],
             class = "PALADIN",
             overlayText = L["Overlay.NoOath"],
-            clickMacro = BR.TargetedClickMacro("oathOfLight"),
         },
         {
             spellID = { 9910, 9756, 8914, 1075, 782, 467 },
@@ -2017,7 +2148,6 @@ local BUFF_TABLES = {
                 local defaults = BR.profile.defaults
                 return playerClass == "DRUID" or (defaults ~= nil and defaults.thornsRequest == true)
             end,
-            clickMacro = TankOrSelfMacro("thorns"),
             infoTooltip = { title = L["Tooltip.TankTarget"], desc = L["Tooltip.ThornsTank.Desc"] },
         },
     },
@@ -2026,7 +2156,8 @@ local BUFF_TABLES = {
         -- spellID holds the racials for the known-spell gate. Each Skyborne race knows one of them.
         {
             spellID = SKYBORNE_RACIALS,
-            buffIdOverride = { 1259691, 1270893 }, -- Attuned, Charged
+            buffIdOverride = SKYBORNE_AURAS,
+            getExpirationInfo = SkyborneAuraExpiration,
             key = "skyborneAttunement",
             defaultEnabled = false, -- opt-in: ships disabled
             name = L["Buff.SkyborneAttunement"],
@@ -2181,7 +2312,7 @@ local BUFF_TABLES = {
             icons = {
                 spells = { 8679, 2823 }, -- Instant Poison, Deadly Poison
                 dynamic = function()
-                    local hand = HandMissingPoison()
+                    local hand = PoisonTargetHand()
                     local _, spellID = PickPoison(hand and hand.column or "mainHand")
                     return spellID and BR.Icons.GetBuffTexture(spellID)
                 end,
@@ -2214,6 +2345,32 @@ local BUFF_TABLES = {
             noExpirationGlow = true,
             customCheck = function()
                 return not BR.BuffState.IsShadowFormActive()
+            end,
+        },
+        -- Vanilla shamans do not dual-wield, so any imbue on the weapon counts.
+        {
+            spellID = SHAMAN_IMBUES,
+            key = "shamanImbue",
+            name = L["Buff.ShamanImbue"],
+            class = "SHAMAN",
+            overlayText = L["Overlay.NoImbue"],
+            enchantID = SHAMAN_IMBUE_ENCHANTS,
+            enchantDuration = 3600, -- seconds
+            -- An unarmed hand or a fishing pole takes no imbue.
+            visibilityCondition = function()
+                local subclass = BR.BuffState.GetWeaponSubclass(16)
+                return subclass ~= nil and subclass ~= 20 -- Enum.ItemWeaponSubclass.Fishingpole
+            end,
+            icons = {
+                spells = { 16362, 16342, 16316, 16356 }, -- Windfury, Flametongue, Rockbiter, Frostbrand
+                dynamic = function()
+                    local id = ShamanImbueCastID()
+                    return id and BR.Icons.GetBuffTexture(id)
+                end,
+            },
+            clickMacro = function()
+                local id = ShamanImbueCastID()
+                return id and ("/cast " .. (BR.GetSpellName(id) or "")) or ""
             end,
         },
         {
@@ -2275,32 +2432,6 @@ local BUFF_TABLES = {
             end,
             clickMacro = function()
                 return StanceMacro(BR.BuffState.GetExpectedWarriorStanceID())
-            end,
-        },
-        -- Vanilla shamans do not dual-wield, so any imbue on the weapon counts.
-        {
-            spellID = SHAMAN_IMBUES,
-            key = "shamanImbue",
-            name = L["Buff.ShamanImbue"],
-            class = "SHAMAN",
-            overlayText = L["Overlay.NoImbue"],
-            enchantID = SHAMAN_IMBUE_ENCHANTS,
-            enchantDuration = 3600, -- seconds
-            -- An unarmed hand or a fishing pole takes no imbue.
-            visibilityCondition = function()
-                local subclass = BR.BuffState.GetWeaponSubclass(16)
-                return subclass ~= nil and subclass ~= 20 -- Enum.ItemWeaponSubclass.Fishingpole
-            end,
-            icons = {
-                spells = { 16362, 16342, 16316, 16356 }, -- Windfury, Flametongue, Rockbiter, Frostbrand
-                dynamic = function()
-                    local id = ShamanImbueCastID()
-                    return id and BR.Icons.GetBuffTexture(id)
-                end,
-            },
-            clickMacro = function()
-                local id = ShamanImbueCastID()
-                return id and ("/cast " .. (BR.GetSpellName(id) or "")) or ""
             end,
         },
     },
@@ -2474,6 +2605,23 @@ local BUFF_TABLES = {
                 return CastHighestKnownMacro(CONJURE_MANA_GEM)
             end,
         },
+        -- Create Soulstone has no cooldown, so a stone can wait in the bags while the last one is on a target.
+        {
+            itemID = SOULSTONE_ITEMS,
+            key = "soulstoneItem",
+            name = L["Buff.SoulstoneItem"],
+            casterClass = "WARLOCK",
+            overlayText = L["Overlay.NoSoulstone"],
+            icons = { spells = { 693 } }, -- Create Soulstone (Minor)
+            defaultEnabled = false, -- opt-in: ships disabled
+            suppressedByEntry = "soulstone", -- the Soulstone click creates a stone too
+            visibilityCondition = function()
+                return playerClass == "WARLOCK" and HighestKnownSpell(CREATE_SOULSTONE) ~= nil
+            end,
+            clickMacro = function()
+                return CastHighestKnownMacro(CREATE_SOULSTONE)
+            end,
+        },
         {
             checkWeaponEnchant = true,
             enchantDuration = 1800, -- seconds
@@ -2627,27 +2775,39 @@ local BUFF_TABLES = {
             key = "lowReagents",
             name = L["Buff.LowReagents"],
             icons = {
-                textures = { PLAYER_REAGENTS[1] and PLAYER_REAGENTS[1].icon or 133848 }, -- else Arcane Powder
+                textures = { DefaultReagentIcon() },
                 dynamic = function()
-                    local reagent = LowestReagent()
+                    local reagent = BR.Reagents.Low()
                     return reagent and reagent.icon
                 end,
             },
             overlayText = REAGENTS_TEXT,
             overlayTextFn = function()
-                local _, count = LowestReagent()
+                local _, count = BR.Reagents.Low()
                 return count and (REAGENT_LABEL .. "\n" .. count) or REAGENTS_TEXT
+            end,
+            tooltipItemID = function()
+                local reagent = BR.Reagents.Low()
+                return reagent and reagent.item
+            end,
+            tooltipLines = function(tooltip)
+                BR.Reagents.AddTooltipLines(tooltip)
             end,
             customCheck = function()
                 if BR.GameContext.IsInCombat() then
                     return false
                 end
                 local defaults = BR.profile.defaults
-                if (not defaults or defaults.reagentRestedOnly ~= false) and not BR.GameContext.IsResting() then
+                local restedOnly = not defaults or defaults.reagentRestedOnly ~= false
+                local dropWarning = not defaults or defaults.reagentDropWarning ~= false
+                if
+                    restedOnly
+                    and not BR.GameContext.IsResting()
+                    and not (dropWarning and BR.Reagents.IsWindowOpen())
+                then
                     return false
                 end
-                local _, count = LowestReagent()
-                return count ~= nil and count < (defaults and defaults.reagentThreshold or 5)
+                return BR.Reagents.Low() ~= nil
             end,
         },
         {

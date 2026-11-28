@@ -210,9 +210,11 @@ end
 ---@param setting string
 ---@param hintText string
 ---@param choices ContentGridChoice[]
----@param single? boolean A row holds at most one choice. A click on the selected choice clears the row.
----@param rows? { key: string, label: string, desc: string? }[] The content rows if nil
-local function AddContentGrid(layout, setting, hintText, choices, single, rows)
+---@param pick? "atMostOne"|"exactlyOne" Choices per row. Default any number. "atMostOne": a click on the
+---selected choice clears the row. "exactlyOne": a click on the selected choice does nothing.
+---@param rows? { key: string, label: string, desc: string?, choices: ContentGridChoice[]? }[] The content rows if nil.
+---A row with its own choices ignores the choices argument. Cells wrap at the body width.
+local function AddContentGrid(layout, setting, hintText, choices, pick, rows)
     rows = rows or GRID_ROWS
     local IsContentChoiceAllowed = BR.Visibility.IsContentChoiceAllowed
     local hint = body:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
@@ -234,7 +236,14 @@ local function AddContentGrid(layout, setting, hintText, choices, single, rows)
     end
 
     local holder = CreateFrame("Frame", nil, body)
-    holder:SetSize(bodyW, #rows * (GRID_CELL + GRID_GAP) - GRID_GAP)
+    local step = GRID_CELL + GRID_GAP
+    local perLine = math.max(1, math.floor((bodyW - labelW) / step))
+    local rowY, height = {}, 0
+    for r, row in ipairs(rows) do
+        rowY[r] = -height
+        height = height + math.ceil(#(row.choices or choices) / perLine) * step
+    end
+    holder:SetSize(bodyW, height - GRID_GAP)
     local cells = {}
 
     function holder:Refresh()
@@ -248,7 +257,8 @@ local function AddContentGrid(layout, setting, hintText, choices, single, rows)
     end
 
     for r, row in ipairs(rows) do
-        local y = -(r - 1) * (GRID_CELL + GRID_GAP)
+        local y = rowY[r]
+        local rowChoices = row.choices or choices
         local label = holder:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
         label:SetPoint("LEFT", holder, "TOPLEFT", 0, y - GRID_CELL / 2)
         label:SetWidth(labelW)
@@ -270,10 +280,11 @@ local function AddContentGrid(layout, setting, hintText, choices, single, rows)
             hit:SetScript("OnLeave", BR.HideTooltip)
         end
 
-        for c, choice in ipairs(choices) do
+        for c, choice in ipairs(rowChoices) do
             local cell = CreateFrame("Button", nil, holder, "BackdropTemplate")
             cell:SetSize(GRID_CELL, GRID_CELL)
-            cell:SetPoint("TOPLEFT", labelW + GRID_GAP + (c - 1) * (GRID_CELL + GRID_GAP), y)
+            local line, column = math.floor((c - 1) / perLine), (c - 1) % perLine
+            cell:SetPoint("TOPLEFT", labelW + GRID_GAP + column * step, y - line * step)
             cell:SetBackdrop({ edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1 })
             cell.icon = BR.CreateBuffIcon(cell, GRID_CELL - 2, choice.icon)
             cell.icon:SetPoint("CENTER")
@@ -287,10 +298,12 @@ local function AddContentGrid(layout, setting, hintText, choices, single, rows)
             cell:SetScript("OnClick", function()
                 local allowed = IsContentChoiceAllowed(setting, row.key, choice.key)
                 local rowPath = "defaults." .. setting .. "." .. row.key .. "."
-                if single then
+                if pick == "exactlyOne" and allowed then
+                    return
+                elseif pick then
                     -- Every choice gets an explicit value, because a missing key reads the code default.
                     local changes = {}
-                    for _, other in ipairs(choices) do
+                    for _, other in ipairs(rowChoices) do
                         changes[rowPath .. other.key] = other == choice and not allowed
                     end
                     BR.Config.SetMulti(changes)
@@ -382,12 +395,14 @@ end
 -- Stance grids of the client. A client with spec-based stance rules has none.
 local WARRIOR_STANCE_GRID = BR.BuffData.stanceRules.WARRIOR.grid
 local DRUID_FORM_GRID = BR.BuffData.stanceRules.DRUID.grid
+-- Minimap tracking spells. nil on a client without the tracking reminder.
+local TRACKING_SPELLS = BR.TRACKING_SPELLS
 
 ---True when no row of the stance grid allows a choice, so no reminder can fire.
 ---@param grid StanceGrid
 ---@return boolean
 local function StanceGridNeedsSetup(grid)
-    for _, row in ipairs(GRID_ROWS) do
+    for _, row in ipairs(TALENT_GROUP_ROWS) do
         for _, choice in ipairs(grid.choices) do
             if BR.Visibility.IsContentChoiceAllowed(grid.setting, row.key, choice.key) then
                 return false
@@ -409,7 +424,7 @@ local function AddStanceGrid(layout, grid)
             icon = C_Spell.GetSpellTexture(spellID),
         }
     end
-    AddContentGrid(layout, grid.setting, grid.hint, choices)
+    AddContentGrid(layout, grid.setting, grid.hint, choices, nil, TALENT_GROUP_ROWS)
 end
 
 ---A stored list without unknown keys, repeats and empty slots.
@@ -1182,34 +1197,7 @@ local SPECIAL_SECTIONS = {
     },
 
     lowReagents = {
-        build = function(layout)
-            local thresholdHolder = Components.Slider(body, {
-                label = L["Options.Reagent.Threshold"],
-                labelWidth = 110,
-                min = 1,
-                max = 20,
-                step = 1,
-                get = function()
-                    return BR.Config.Get("defaults.reagentThreshold") or 5
-                end,
-                tooltip = { title = L["Options.Reagent.Threshold"], desc = L["Options.Reagent.Threshold.Desc"] },
-                onChange = function(val)
-                    BR.Config.Set("defaults.reagentThreshold", val)
-                end,
-            })
-            tinsert(bodyHolders, thresholdHolder)
-            layout:Add(thresholdHolder, nil, COMPONENT_GAP)
-            AddSpecialCheckbox(layout, {
-                label = L["Options.Reagent.RestedOnly"],
-                get = function()
-                    return BR.Config.Get("defaults.reagentRestedOnly") ~= false
-                end,
-                tooltip = { title = L["Options.Reagent.RestedOnly"], desc = L["Options.Reagent.RestedOnly.Desc"] },
-                onChange = function(checked)
-                    BR.Config.Set("defaults.reagentRestedOnly", checked)
-                end,
-            })
-        end,
+        editor = "Reagents",
     },
 
     camp = {
@@ -1286,9 +1274,7 @@ local SPECIAL_SECTIONS = {
                     return BR.Config.Get("defaults.soulstonePinnedTarget") or ""
                 end,
                 onChange = function(text)
-                    -- Strip macro-structural characters: the name is spliced into
-                    -- macrotext and must never break out of the [@...] conditional
-                    text = strtrim(((text or ""):gsub("[%[%]\r\n]", "")))
+                    text = strtrim(text or "")
                     BR.Config.Set("defaults.soulstonePinnedTarget", text ~= "" and text or nil)
                     Components.RefreshAll()
                 end,
@@ -1363,24 +1349,18 @@ local SPECIAL_SECTIONS = {
 
     mageArmor = {
         build = function(layout)
-            local drop = Components.Dropdown(body, {
-                label = L["BuffPanel.MageArmor"],
-                labelWidth = DRAWER_LABEL_W,
-                width = DRAWER_FIELD_W,
-                options = {
-                    { label = L["BuffPanel.MageArmor.Mage"], value = "mage" },
-                    { label = L["BuffPanel.MageArmor.Ice"], value = "ice" },
+            AddContentGrid(layout, "mageArmors", L["BuffPanel.MageArmor.Hint"], {
+                {
+                    key = "mage",
+                    label = L["BuffPanel.MageArmor.Mage"],
+                    icon = C_Spell.GetSpellTexture(22783),
                 },
-                get = function()
-                    return BR.Config.Get("defaults.mageArmorPreference", "mage")
-                end,
-                tooltip = { title = L["BuffPanel.MageArmor"], desc = L["BuffPanel.MageArmor.Desc"] },
-                onChange = function(val)
-                    BR.Config.Set("defaults.mageArmorPreference", val)
-                end,
-            })
-            tinsert(bodyHolders, drop)
-            layout:Add(drop, 26, COMPONENT_GAP)
+                {
+                    key = "ice",
+                    label = L["BuffPanel.MageArmor.Ice"],
+                    icon = C_Spell.GetSpellTexture(10220),
+                },
+            }, "exactlyOne")
         end,
     },
 
@@ -1499,30 +1479,27 @@ local SPECIAL_SECTIONS = {
 
     shamanImbue = {
         build = function(layout)
-            local options = {}
+            local choices = {}
             for _, imbue in ipairs({
-                { value = "windfury", spellID = 8232, fallback = L["Buff.WindfuryWeapon"] },
-                { value = "flametongue", spellID = 8024, fallback = L["Buff.FlametongueWeapon"] },
-                { value = "rockbiter", spellID = 8017, fallback = L["Buff.RockbiterWeapon"] },
-                { value = "frostbrand", spellID = 8033, fallback = L["Buff.FrostbrandWeapon"] },
+                { key = "windfury", spellID = 8232, fallback = L["Buff.WindfuryWeapon"] },
+                { key = "flametongue", spellID = 8024, fallback = L["Buff.FlametongueWeapon"] },
+                { key = "rockbiter", spellID = 8017, fallback = L["Buff.RockbiterWeapon"] },
+                { key = "frostbrand", spellID = 8033, fallback = L["Buff.FrostbrandWeapon"] },
             }) do
-                tinsert(options, { label = BR.GetSpellName(imbue.spellID) or imbue.fallback, value = imbue.value })
+                tinsert(choices, {
+                    key = imbue.key,
+                    label = BR.GetSpellName(imbue.spellID) or imbue.fallback,
+                    icon = C_Spell.GetSpellTexture(imbue.spellID),
+                })
             end
-            local drop = Components.Dropdown(body, {
-                label = L["BuffPanel.ShamanImbue"],
-                labelWidth = DRAWER_LABEL_W,
-                width = DRAWER_FIELD_W,
-                options = options,
-                tooltip = { title = L["BuffPanel.ShamanImbue"], desc = L["BuffPanel.ShamanImbue.Desc"] },
-                get = function()
-                    return BR.Config.Get("defaults.shamanImbue", "windfury")
-                end,
-                onChange = function(val)
-                    BR.Config.Set("defaults.shamanImbue", val)
-                end,
-            })
-            tinsert(bodyHolders, drop)
-            layout:Add(drop, 26, COMPONENT_GAP)
+            AddContentGrid(
+                layout,
+                "shamanImbues",
+                L["BuffPanel.ShamanImbue.Hint"],
+                choices,
+                "atMostOne",
+                TALENT_GROUP_ROWS
+            )
         end,
     },
 
@@ -1533,7 +1510,7 @@ local SPECIAL_SECTIONS = {
                 "warlockSacrificeDemons",
                 L["BuffPanel.SacrificeDemon.Hint"],
                 WarlockDemonGridChoices(),
-                true,
+                "atMostOne",
                 TALENT_GROUP_ROWS
             )
         end,
@@ -1544,7 +1521,7 @@ local SPECIAL_SECTIONS = {
             AddContentGrid(layout, "warlockStones", L["BuffPanel.WarlockStone.Hint"], {
                 { key = "spellstone", label = BR.GetSpellName(1237152) or L["Buff.Spellstone"], icon = 134131 },
                 { key = "firestone", label = BR.GetSpellName(758) or L["Buff.Firestone"], icon = 134085 },
-            }, true, TALENT_GROUP_ROWS)
+            }, "atMostOne", TALENT_GROUP_ROWS)
         end,
     },
 
@@ -1676,26 +1653,37 @@ local SPECIAL_SECTIONS = {
         end,
     },
 
-    tracking = {
+    tracking = TRACKING_SPELLS and {
         build = function(layout)
-            local scope = Components.Dropdown(body, {
-                label = L["BuffPanel.Tracking.Scope"],
-                labelWidth = DRAWER_LABEL_W,
-                width = DRAWER_FIELD_W,
-                options = {
-                    { label = L["BuffPanel.Tracking.Scope.Gathering"], value = "gathering" },
-                    { label = L["BuffPanel.Tracking.Scope.All"], value = "all" },
-                },
-                get = function()
-                    return BR.Config.Get("defaults.trackingScope", "gathering")
-                end,
-                tooltip = { title = L["BuffPanel.Tracking.Scope"], desc = L["BuffPanel.Tracking.Scope.Desc"] },
-                onChange = function(val)
-                    BR.Config.Set("defaults.trackingScope", val)
-                end,
-            })
-            tinsert(bodyHolders, scope)
-            layout:Add(scope, 26, COMPONENT_GAP)
+            local rows = {
+                { key = "profession", label = L["BuffPanel.Tracking.Profession"], choices = {} },
+                { key = "racial", label = L["BuffPanel.Tracking.Racial"], choices = {} },
+                { key = "class", label = L["BuffPanel.Tracking.Class"], choices = {} },
+            }
+            local rowByKind = {}
+            for _, row in ipairs(rows) do
+                rowByKind[row.key] = row
+            end
+            for _, spell in ipairs(TRACKING_SPELLS) do
+                local row = rowByKind[spell.kind]
+                row.choices[#row.choices + 1] = {
+                    key = spell.key,
+                    label = BR.GetSpellName(spell.spellID) or spell.key,
+                    icon = C_Spell.GetSpellTexture(spell.spellID),
+                }
+            end
+            AddContentGrid(layout, "trackingSpells", L["BuffPanel.Tracking.Hint"], {}, nil, rows)
+        end,
+        warn = function()
+            if not BR.StateHelpers.IsBuffEnabled("tracking") then
+                return false
+            end
+            for _, spell in ipairs(TRACKING_SPELLS) do
+                if BR.Visibility.IsContentChoiceAllowed("trackingSpells", spell.kind, spell.key) then
+                    return false
+                end
+            end
+            return true
         end,
     },
 
