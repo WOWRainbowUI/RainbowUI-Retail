@@ -33,6 +33,8 @@ L["Prevents button elements from going over the edges."] = "防止按鈕超過�
 L["Auto show/hide"] = "自動顯示/隱藏"
 L["Allow the button to control its own visibility"] = "允許按鈕控制自己是否顯示。"
 L["Disable Masque"] = "停用按鈕外觀 Masque"
+
+
 L["Add to ignore list"] = "加入忽略清單"
 L["Options of adding buttons"] = "加入按鈕選項"
 L["Bar settings"] = "選單設定"
@@ -68,6 +70,8 @@ L["Try to grab after"] = "嘗試在"
 L["sec."] = "秒後收入"
 L["Grab buttons without a name"] = "收入沒有名稱的按鈕 (|cffff2020不推薦|r)"
 L["Add button manually"] = "手動加入按鈕"
+
+
 L["Point to button"] = "指向按鈕"
 L["Number of buttons"] = "行/列的按鈕數量"
 L["Buttons Size"] = "按鈕大小"
@@ -77,12 +81,16 @@ L["Position of minimap buttons"] = "小地圖按鈕位置"
 L["A new line"] = "新的一行"
 L["Followed"] = "已跟隨"
 L["Mixed"] = "混合"
+
+
 L["Direction of buttons"] = "按鈕的方向"
 L["Right to left"] = "從右至左"
 L["Left to right"] = "從左至右"
 L["Top to bottom"] = "從上到下"
 L["Bottom to top"] = "從下到上"
 L["Intercept the position of tooltips"] = "浮動提示資訊的位置"
+
+
 L["Top"] = "上"
 L["Top left"] = "左上"
 L["Top right"] = "右上"
@@ -144,3 +152,5 @@ L["Localization Translators:"] = "翻譯者:"
 -- 自行加入
 L["HidingBar"] = "小地圖-按鈕"
 L["HidingBar "] = "小地圖按鈕選單"
+
+

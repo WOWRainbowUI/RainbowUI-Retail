@@ -2,7 +2,7 @@
 -----------------------------------------------------------
 -- LibSFDropDown - DropDown menu for non-Blizzard addons --
 -----------------------------------------------------------
-local MAJOR_VERSION, MINOR_VERSION = "LibSFDropDown-1.5", 42
+local MAJOR_VERSION, MINOR_VERSION = "LibSFDropDown-1.5", 43
 local lib, oldminor = LibStub:NewLibrary(MAJOR_VERSION, MINOR_VERSION)
 if not lib then return end
 oldminor = oldminor or 0
@@ -1000,7 +1000,7 @@ local function applyRightSideElements(btn, textPos, rightText, menuButtonHeight)
 		btn.rightString:SetText(btn._rightText)
 		btn.rightString:SetJustifyH("RIGHT")
 		btn.rightString:Show()
-		textPos = textPos - btn.rightString:GetWidth()
+		textPos = textPos - btn.rightString:GetWidth() - 5
 	end
 
 	if btn.remove then
@@ -1165,7 +1165,6 @@ function DropDownMenuSearchMixin:init(menu, info)
 	local height = self.menuButtonHeight * math.min(self.maxSize, #info.list)
 	self.scrollBox:SetHeight(height)
 
-
 	if info.hideSearch and not info.searchAlways then
 		self.searchBox:Hide()
 		self.hOffset = 3
@@ -1181,7 +1180,7 @@ function DropDownMenuSearchMixin:init(menu, info)
 		self:addButton(info.list[i])
 	end
 
-	local btn = self.view:GetFrames()[1]
+	local btn = menu.buttonsList[menu.numButtons + 1]
 	btn.isTitle = nil
 	btn.fontObject = nil
 	btn.font = nil
@@ -1334,14 +1333,9 @@ end
 
 
 function DropDownMenuSearchMixin:addButton(info)
-	local frames = self.view:GetFrames()
-	if #frames == 0 then
-		self.view:AcquireInternal(1, info)
-		self.view:InvokeInitializers()
-	end
-	local btn = frames[1]
-
+	local btn = self.menu.buttonsList[self.menu.numButtons + 1]
 	local btnInfo = {}
+
 	for i = 1, #v.dropDownOptions do
 		local opt = v.dropDownOptions[i]
 		btnInfo[opt] = info[opt]
@@ -1367,11 +1361,12 @@ function DropDownMenuSearchMixin:addButton(info)
 	end
 
 	if btn.rightText then
-		btn.rightString = btn.NormalText
+		btn.rightString = v.fontStringRightPool:Acquire()
 		v.setRightFont(btn)
-		btn.rightString = nil
-		btn:SetText(type(btn.rightText) == "function" and btn:rightText(btn.arg1, btn.arg2) or btn.rightText)
-		width = width + btn.NormalText:GetWidth()
+		btn.rightString:SetText(type(btn.rightText) == "function" and btn:rightText(btn.arg1, btn.arg2) or btn.rightText)
+		btn.rightString:Show()
+		width = width + btn.rightString:GetWidth() + 5
+		btn.rightString:Hide()
 	end
 
 	if btn.indent then
@@ -2850,17 +2845,6 @@ if oldminor < 38 then
 		end
 	end
 
-	for i, f in lib:IterateSearchFrames() do
-		for k, v in next, DropDownMenuSearchMixin do f[k] = v end
-		f.view:SetElementInitializer("BUTTON", DropDownMenuSearchButtonInit)
-
-		for j, btn in lib:IterateSearchFrameButtons(i) do
-			btn:SetScript("OnEnter", DropDownMenuButton_OnEnter)
-			btn:SetScript("OnLeave", DropDownMenuButton_OnLeave)
-			btn:SetScript("OnHide", DropDownMenuButton_OnHide)
-		end
-	end
-
 	for i = 1, #v.widgetFrames do
 		local widget = v.widgetFrames[i]
 		widget:SetScript("OnEnter", widget_OnEnter)
@@ -2876,4 +2860,18 @@ if oldminor < 38 then
 	v.removeButton:SetScript("OnEnter", widget_OnEnter)
 	v.arrowDownButton:SetScript("OnEnter", widget_OnEnter)
 	v.arrowUpButton:SetScript("OnEnter", widget_OnEnter)
+end
+
+
+if oldminor < 43 then
+	for i, f in lib:IterateSearchFrames() do
+		for k, v in next, DropDownMenuSearchMixin do f[k] = v end
+		f.view:SetElementInitializer("BUTTON", DropDownMenuSearchButtonInit)
+
+		for j, btn in lib:IterateSearchFrameButtons(i) do
+			btn:SetScript("OnEnter", DropDownMenuButton_OnEnter)
+			btn:SetScript("OnLeave", DropDownMenuButton_OnLeave)
+			btn:SetScript("OnHide", DropDownMenuButton_OnHide)
+		end
+	end
 end
