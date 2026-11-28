@@ -137,3 +137,8 @@ L["Mark look Desc"] = "設定已收集物品的標記方式：彩色（綠色，
 L["MarkLook_Color"] = "彩色"
 L["MarkLook_Custom"] = "自訂顏色"
 L["MarkLook_Gray"] = "灰色"
+
+L["Enter the maximum item level"] = "輸入最高物品等級 (0 為關閉):"
+L["Enter the minimum item level"] = "輸入最低物品等級 (0 為關閉):"
+L["Maximum item level"] = "最高物品等級"
+L["Minimum item level"] = "最低物品等級"
