@@ -268,7 +268,6 @@ L["Delete"] = "删除"
 L["Delta Percentage"] = "增量百分比"
 L["Delta Threat Value"] = "增量仇恨值"
 L["Determine your role (tank/dps/healing) automatically based on current spec."] = "根据当前天赋自动切换你的角色(坦克/输出/治疗)"
-L["Determine your role (tank/dps/healing) automatically based on current stance, form, aura, presence, or rune."] = "根据当前的姿态、形态、光环、姿态或符文自动确定你的角色（坦克/输出/治疗）。"
 L["Disable"] = "停用"
 L["Disable threat scale for target marked, mouseover or casting units."] = "停用被标记图示、鼠标指向或正在施法单位的仇恨值缩放大小变化。"
 L["Disable threat transparency for target marked, mouseover or casting units."] = "停用被标记图示、鼠标指向或正在施法单位的仇恨值透明度变化。"
@@ -1194,3 +1193,9 @@ L["Your version of LibDogTag-Unit-3.0 does not support nameplates. You need to i
 
 
 
+--[[Translation missing --]]
+L["Determine your role (tank/dps/healing) automatically: tank if your assigned group role is tank, otherwise based on current stance, form, aura, presence, or rune."] = "自动判断你的角色 (坦克／伤害／治疗)：若队伍指派的角色为坦克，则视为坦克；否则依目前的姿态、形态、光环、领域或符文判断。"
+--[[Translation missing --]]
+L["If checked, pets and guardians of your group tanking a mob also count as off-tanks."] = "勾选後，队伍中正在坦住怪物的宠物与守护者也会视为副坦。"
+--[[Translation missing --]]
+L["Pets as Off-Tanks"] = "宠物视为副坦"

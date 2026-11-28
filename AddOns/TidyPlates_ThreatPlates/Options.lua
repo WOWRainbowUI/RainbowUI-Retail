@@ -892,24 +892,26 @@ end
 ---------------------------------------------------------------------------------------------------
 
 local function GetUnitVisibilitySetting(info)
-  local unit_type = info.arg
-  local show_unit = Addon.db.profile.Visibility[unit_type].Show
-
-  if type(show_unit) == "string" then
-    show_unit = GetCVarBool(show_unit)
-  end
-
-  return show_unit
+  return Addon.db.profile.Visibility[info.arg].Show
 end
 
 local function SetUnitVisibilitySetting(info, value)
   local unit_type = info.arg
   local unit_visibility = Addon.db.profile.Visibility[unit_type]
 
-  if type(unit_visibility.Show) == "string" then
-    CVars:Overwrite(unit_visibility.Show, (value and 1) or 0)
+  unit_visibility.Show = value
+  if unit_visibility.CVar then
+    local cvar = unit_visibility.CVar
+    -- While the combat automation hides these nameplates, it applies the new setting when it shows them again
+    if not Addon.UnitVisibilityIsControlledByCombatAutomation(unit_type) then
+      CVars:OverwriteBool(cvar, value)
+    end
+    -- The instance automation restores the CVar from this backup when leaving the instance
+    local cvars_backup = Addon.db.profile.CVarsBackup
+    if cvars_backup[cvar] then
+      cvars_backup[cvar] = (value and "1") or "0"
+    end
   else
-    unit_visibility.Show = value
     Addon:ForceUpdate()
   end
 end
@@ -6130,12 +6132,12 @@ local function CreateVisibilityTab()
             type = "toggle",
             width = "full",
             set = function(info, value)
-              CVars:OverwriteBool("nameplateShowFriendlyPlayers", value)
-              CVars:OverwriteBool("nameplateShowFriendlyNpcs", value)
+              SetUnitVisibilitySetting({ arg = "FriendlyPlayer" }, value)
+              SetUnitVisibilitySetting({ arg = "FriendlyNPC" }, value)
               CVars:OverwriteBool("nameplateShowEnemies", value)
             end,
             get = function(info)
-              return GetCVarBool("nameplateShowFriendlyPlayers") and GetCVarBool("nameplateShowFriendlyNpcs") and GetCVarBool("nameplateShowEnemies")
+              return GetUnitVisibilitySetting({ arg = "FriendlyPlayer" }) and GetUnitVisibilitySetting({ arg = "FriendlyNPC" }) and GetCVarBool("nameplateShowEnemies")
             end,
           },
           AllHostile = {
@@ -8370,7 +8372,7 @@ local function CreateSpecRolesClassic()
   -- Create a list of specs for the player's class
   local result = {
     Automatic_Spec_Detection = {
-      name = L["Determine your role (tank/dps/healing) automatically based on current stance, form, aura, presence, or rune."],
+      name = L["Determine your role (tank/dps/healing) automatically: tank if your assigned group role is tank, otherwise based on current stance, form, aura, presence, or rune."],
       type = "toggle",
       width = "full",
       order = 1,
@@ -8381,6 +8383,7 @@ local function CreateSpecRolesClassic()
       type = "group",
       inline = true,
       order = 3,
+      disabled = function() return Addon.db.profile.optionRoleDetectionAutomatic end,
       args = {
         Tank = {
           name = L["Tank"],
@@ -11118,7 +11121,6 @@ local function CreateOptionsTable()
                   type = "group",
                   order = 10,
                   inline = true,
-                  hidden = Addon.HAS_MIDNIGHT_API,
                   args = {
                     OffTank = {
                       type = "toggle",
@@ -11128,6 +11130,16 @@ local function CreateOptionsTable()
                       desc = L["If checked, nameplates of mobs attacking another tank can be shown with different color, scale, and transparency."],
                       descStyle = "inline",
                       arg = { "threat", "toggle", "OffTank" },
+                    },
+                    OffTankPets = {
+                      type = "toggle",
+                      name = L["Pets as Off-Tanks"],
+                      order = 20,
+                      width = "full",
+                      desc = L["If checked, pets and guardians of your group tanking a mob also count as off-tanks."],
+                      descStyle = "inline",
+                      arg = { "threat", "toggle", "OffTankPets" },
+                      disabled = function() return not db.threat.toggle.OffTank end,
                     },
                   },
                 },
@@ -11730,6 +11742,9 @@ end
 
 function Addon:ProfChange()
   db = Addon.db.profile
+
+  -- The new profile takes over the current visibility CVars, instead of changing them
+  Addon.SyncUnitVisibilityWithCVars()
 
   Addon:ReloadTheme()
 

@@ -245,7 +245,6 @@ L["Delete"] = "刪除"
 L["Delta Percentage"] = "增量百分比"
 L["Delta Threat Value"] = "增量仇恨值"
 L["Determine your role (tank/dps/healing) automatically based on current spec."] = "自動依據當前的專精決定角色類型 (坦克/傷害/治療)。"
-L["Determine your role (tank/dps/healing) automatically based on current stance, form, aura, presence, or rune."] = "自動根據當前的姿勢、形態、光環、領域或符文決定角色職責 (坦克/傷害/治療)。"
 L["Disable"] = "停用"
 L["Disable threat scale for target marked, mouseover or casting units."] = "停用被標記圖示、滑鼠指向或正在施法單位的仇恨值縮放大小變化。"
 L["Disable threat transparency for target marked, mouseover or casting units."] = "停用被標記圖示、滑鼠指向或正在施法單位的仇恨值透明度變化。"
@@ -1179,3 +1178,9 @@ L["Unknown restrictions type: "] = "未知限制類型:"
 L["Valid types: combat, encounter, challenge, pvp, map"] = "有效類型: 戰鬥、首領戰、挑戰、PvP、地圖"
 
 
+--[[Translation missing --]]
+L["Determine your role (tank/dps/healing) automatically: tank if your assigned group role is tank, otherwise based on current stance, form, aura, presence, or rune."] = "自動判斷你的角色 (坦克／傷害／治療)：若隊伍指派的角色為坦克，則視為坦克；否則依目前的姿態、形態、光環、領域或符文判斷。"
+--[[Translation missing --]]
+L["If checked, pets and guardians of your group tanking a mob also count as off-tanks."] = "勾選後，隊伍中正在坦住怪物的寵物與守護者也會視為副坦。"
+--[[Translation missing --]]
+L["Pets as Off-Tanks"] = "寵物視為副坦"
