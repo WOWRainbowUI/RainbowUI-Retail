@@ -152,5 +152,3 @@ L["Localization Translators:"] = "翻譯者:"
 -- 自行加入
 L["HidingBar"] = "小地圖-按鈕"
 L["HidingBar "] = "小地圖按鈕選單"
-
-
