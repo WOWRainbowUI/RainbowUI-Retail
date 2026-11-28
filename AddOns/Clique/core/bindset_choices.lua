@@ -137,7 +137,7 @@ addon.BindSetChoiceText = { where = WHERE_TEXT, units = UNITS_TEXT, when = WHEN_
 
 ---@param choices BindSetChoices
 ---@param numSpecs number
----@return string text e.g. "Unit frames · Friendly · In combat"
+---@return string text e.g. "Unit frames, Friendly, In combat"
 function addon:DescribeBindSetChoices(choices, numSpecs)
     if choices.where == "disabled" then
         return WHERE_TEXT.disabled
@@ -165,7 +165,7 @@ function addon:DescribeBindSetChoices(choices, numSpecs)
         parts[#parts + 1] = table.concat(specs, "/")
     end
 
-    return table.concat(parts, " · ")
+    return table.concat(parts, ", ")
 end
 
 -- Whether the edit page's controls show these bind-sets exactly. A missing

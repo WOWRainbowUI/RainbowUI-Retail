@@ -14,7 +14,7 @@ local libMacros = addon.macroCatalog
 ---@class BindingConfig
 local config = {}
 
--- Mutually exclusive content pages — only one visible at a time
+-- Mutually exclusive content pages - only one visible at a time
 local exclusivePages = {}
 
 function config:HideOtherPages(except)
