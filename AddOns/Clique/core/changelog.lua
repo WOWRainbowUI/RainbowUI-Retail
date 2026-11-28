@@ -22,6 +22,14 @@ addon.changelogPinned = nil
 -- hasn't seen yet (see ShouldAutoShowChangelog).
 addon.changelog = {
     {
+        version  = "5.1.6",
+        date     = "2026-11-27",
+        autoShow = false,
+        items = {
+            "Fix an issue with missing font glyphs",
+        },
+    },
+    {
         version  = "5.1.5",
         date     = "2026-11-08",
         autoShow = false,
