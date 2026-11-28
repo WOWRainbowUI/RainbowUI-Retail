@@ -9,13 +9,24 @@ local isClassic = DBM:IsVanilla()
 local isBCC = DBM:IsTBC()
 local isWrath = DBM:IsWrath()
 local isForever = DBM:IsForever()
+-- Capture and start times are measured to within about a second on Forever; elsewhere they stay approximate ("~")
+local exactTimerType = isForever and "next" or nil
+
+-- NewTimer with a timer type instead of the default "cd" (approximate, shown with "~"), e.g. "next" for exact timers
+---@param timerType string?
+---@param timer number
+---@param name string
+---@param icon string|number?
+local function newTypedTimer(timerType, timer, name, icon)
+	return mod:NewTimer(timer, name, icon, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, timerType)
+end
 local playerFaction = GetPlayerFactionGroup("player")
 local startTimer, winTimer
 
 local DBM5Protocol = "1" -- DBM protocol version
 local DBM5Prefix = UnitName("player") .. (isForever and "" or "-" .. GetRealmName()) .. "\t" .. DBM5Protocol .. "\t" -- Name[-Realm]\tProtocol version\t
 
-mod:SetRevision("20261125205550")
+mod:SetRevision("20261127101958")
 mod:SetZone(DBM_DISABLE_ZONE_DETECTION)
 mod:RegisterEvents(
 	"ZONE_CHANGED_NEW_AREA",
@@ -64,7 +75,7 @@ do
 	end
 end
 
-local subscribedMapID, numObjectives, objectivesStore
+local subscribedMapID, numObjectives, objectivesStore, customResPerSec
 
 function mod:SubscribeAssault(mapID, objectsCount)
 	self:RegisterShortTermEvents(
@@ -74,14 +85,17 @@ function mod:SubscribeAssault(mapID, objectsCount)
 	subscribedMapID = mapID
 	objectivesStore = {}
 	numObjectives = objectsCount
+	customResPerSec = nil
 	UpdateGametime()
 end
 
 --- For battlegrounds whose mod reads the objectives from widgets itself: sets up the win timer without POI tracking.
 --- The mod then calls UpdateWinTimer.
 ---@param objectsCount number
-function mod:SubscribeWinTimer(objectsCount)
+---@param resPerSec number[]? Resources per second by bases held (index 1 = no base), if they differ from the usual ones
+function mod:SubscribeWinTimer(objectsCount, resPerSec)
 	numObjectives = objectsCount
+	customResPerSec = resPerSec
 	UpdateGametime()
 end
 
@@ -120,6 +134,7 @@ do
 			self:Stop()
 			DBM.InfoFrame:Hide()
 			subscribedMapID = nil
+			customResPerSec = nil
 			if mod.Options.HideBossEmoteFrame then
 				DBM:HideBlizzardEvents(0, true)
 			end
@@ -381,7 +396,7 @@ do
 	local FACTION_ALLIANCE = FACTION_ALLIANCE
 
 	local flagTimer			= mod:NewTimer(12, "TimerFlag", "132483") -- Interface\\icons\\inv_banner_02.blp
-	startTimer				= mod:NewTimer(120, "TimerStart", playerFaction == "Alliance" and "132486" or "132485") -- Interface\\Icons\\INV_BannerPVP_02.blp || Interface\\Icons\\INV_BannerPVP_01.blp
+	startTimer				= newTypedTimer(exactTimerType, 120, "TimerStart", playerFaction == "Alliance" and "132486" or "132485") -- Interface\\Icons\\INV_BannerPVP_02.blp || Interface\\Icons\\INV_BannerPVP_01.blp
 	local vulnerableTimer, timerShadow, timerDamp
 	if isRetail then
 		vulnerableTimer	= mod:NewNextTimer(60, 46392)
@@ -440,15 +455,16 @@ do
 	end
 
 	function mod:CHAT_MSG_BG_SYSTEM_NEUTRAL(msg)
-		-- in Classic era the chat msg is about 1.5 seconds early
+		-- in Classic era the chat msg is about 1.5 seconds early, on Forever it is on time
+		local early = isClassic and not isForever
 		if self.Options.TimerStart and (msg:find(L.BgStart120) or msg:find(L.BgStart120era)) then
 			startTimer:Update(0, 120)
 		elseif self.Options.TimerStart and (msg:find(L.BgStart60) or msg:find(L.BgStart60era) or msg == L.ArenaStart60 or msg:find(L.ArenaStart60)) then
-			startTimer:Update(isClassic and 58.5 or 60, 120)
+			startTimer:Update(early and 58.5 or 60, 120)
 		elseif self.Options.TimerStart and (msg:find(L.BgStart30) or msg:find(L.BgStart30era) or msg == L.ArenaStart30 or msg:find(L.ArenaStart30)) then
-			startTimer:Update(isClassic and 88.5 or 90, 120)
+			startTimer:Update(early and 88.5 or 90, 120)
 		elseif self.Options.TimerStart and (msg == L.ArenaStart15 or msg:find(L.ArenaStart15)) then
-			startTimer:Update(isClassic and 103.5 or 105, 120)
+			startTimer:Update(early and 103.5 or 105, 120)
 		elseif not isClassic and (msg == L.Vulnerable1 or msg == L.Vulnerable2 or msg:find(L.Vulnerable1) or msg:find(L.Vulnerable2)) then
 			vulnerableTimer:Start()
 		end
@@ -511,7 +527,7 @@ do
 	end
 
 	function mod:UpdateWinTimer(maxScore, allianceScore, hordeScore, allianceBases, hordeBases)
-		local resPerSec = resourcesPerSec[numObjectives]
+		local resPerSec = customResPerSec or resourcesPerSec[numObjectives]
 		local gameTime = GetGametime()
 		local allyTime = mfloor(mmin(maxScore, (maxScore - allianceScore) / resPerSec[allianceBases + 1]))
 		local hordeTime = mfloor(mmin(maxScore, (maxScore - hordeScore) / resPerSec[hordeBases + 1]))
@@ -637,7 +653,7 @@ do
 	}
 	-- Forever: 60.5 to 61.4 s measured in Arathi Basin (14 captures)
 	local defaultCapTime = isRetail and 60 or isForever and 61 or 64
-	local capTimer = mod:NewTimer(defaultCapTime, "TimerCap", "136002") -- Interface\\icons\\spell_misc_hellifrepvphonorholdfavor.blp
+	local capTimer = newTypedTimer(exactTimerType, defaultCapTime, "TimerCap", "136002") -- Interface\\icons\\spell_misc_hellifrepvphonorholdfavor.blp
 
 	function mod:AREA_POIS_UPDATED(widget)
 		local allyBases, hordeBases = 0, 0

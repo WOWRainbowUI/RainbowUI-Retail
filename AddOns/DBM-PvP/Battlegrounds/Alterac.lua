@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("z30", "DBM-PvP")
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260919193510")
+mod:SetRevision("20261127101924")
 mod:SetZone(DBM_DISABLE_ZONE_DETECTION)
 mod:RegisterEvents(
 	"LOADING_SCREEN_DISABLED",
@@ -9,7 +9,28 @@ mod:RegisterEvents(
 	"PLAYER_ENTERING_WORLD"
 )
 
-mod:AddBoolOption("AutoTurnIn")
+-- Hands in the battleground's item quests; only tested on Forever.
+-- [questID] = {itemID, count}; IDs from QuestieDB (Forever), counts from Classic
+local turnIn = DBM:IsForever() and mod:NewQuestTurnIn({
+	-- Alliance
+	[7386] = {17423, 5},  -- Crystal Cluster: Storm Crystal (Archdruid Renferal)
+	[6881] = {17423, 1},  -- Ivus the Forest Lord: Storm Crystal (Archdruid Renferal)
+	[7223] = {17422, 20}, -- Armor Scraps (Murgot Deepforge)
+	[6781] = {17422, 20}, -- More Armor Scraps (Murgot Deepforge)
+	[6942] = {17502, 1},  -- Call of Air - Slidore's Fleet: Frostwolf Soldier's Medal
+	[6941] = {17503, 1},  -- Call of Air - Vipore's Fleet: Frostwolf Lieutenant's Medal
+	[6943] = {17504, 1},  -- Call of Air - Ichman's Fleet: Frostwolf Commander's Medal
+	[7026] = {17643, 1},  -- Ram Riding Harnesses: Frostwolf Hide
+	-- Horde
+	[7385] = {17306, 5},  -- A Gallon of Blood: Stormpike Soldier's Blood (Primalist Thurloga)
+	[6801] = {17306, 1},  -- Lokholar the Ice Lord: Stormpike Soldier's Blood (Primalist Thurloga)
+	[7224] = {17422, 20}, -- Enemy Booty: Armor Scraps (Smith Regzar)
+	[6741] = {17422, 20}, -- More Booty!: Armor Scraps (Smith Regzar)
+	[6825] = {17326, 1},  -- Call of Air - Guse's Fleet: Stormpike Soldier's Flesh
+	[6826] = {17327, 1},  -- Call of Air - Jeztor's Fleet: Stormpike Lieutenant's Flesh
+	[6827] = {17328, 1},  -- Call of Air - Mulverick's Fleet: Stormpike Commander's Flesh
+	[7002] = {17642, 1},  -- Ram Hide Harnesses: Alterac Ram Hide
+})
 
 do
 	local bgzone = false
@@ -18,12 +39,10 @@ do
 		local zoneID = DBM:GetCurrentArea()
 		if not bgzone and (zoneID == 30 or zoneID == 2197) then -- Regular AV (retail and classic), Korrak
 			bgzone = true
-			self:RegisterShortTermEvents(
-				"CHAT_MSG_MONSTER_YELL"
-				--"GOSSIP_SHOW",
-				--"QUEST_PROGRESS",
-				--"QUEST_COMPLETE"
-			)
+			self:RegisterShortTermEvents("CHAT_MSG_MONSTER_YELL")
+			if turnIn then
+				turnIn:Enable()
+			end
 			local assaultID
 			if zoneID == 30 then
 				assaultID = not DBM:IsRetail() and 1459 or 91
@@ -45,6 +64,9 @@ do
 			bgzone = false
 			self:UnregisterShortTermEvents()
 			self:Stop()
+			if turnIn then
+				turnIn:Disable()
+			end
 			if self.tracker then
 				self.tracker:Cancel()
 				self.tracker = nil
@@ -59,73 +81,6 @@ do
 	mod.PLAYER_ENTERING_WORLD	= mod.LOADING_SCREEN_DISABLED
 	mod.OnInitialize			= mod.LOADING_SCREEN_DISABLED
 end
-
---[[
-do
-	local ipairs, type = ipairs, type
-	local UnitGUID, GetItemCount, GetNumGossipActiveQuests, SelectGossipActiveQuest, SelectGossipAvailableQuest, IsQuestCompletable, CompleteQuest, GetQuestReward = UnitGUID, GetItemCount, C_GossipInfo and C_GossipInfo.GetNumActiveQuests, C_GossipInfo and C_GossipInfo.SelectActiveQuest, C_GossipInfo and C_GossipInfo.SelectAvailableQuest, IsQuestCompletable, CompleteQuest, GetQuestReward
-
-	local quests = {
-		[13442] = { -- Archdruid Renferal [A]
-			{17423, 5}, -- Storm Crystal
-			{17423, 1}, -- Storm Crystal
-		},
-		[13257] = {17422, 20}, -- Murgot Deepforge / Armor Scraps[A]
-		[13438] = {17502, 1}, -- Wing Commander Slidore / Frostwolf Soldier's Medal [A]
-		[13439] = {17503, 1}, -- Wing Commander Vipore / Frostwolf Lieutenant's Medal [A]
-		[13437] = {17504, 1}, -- Wing Commander Ichman / Frostwolf Commander's Medal [A]
-		[13577] = {17643, 1}, -- Stormpike Ram Rider Commander / Frostwolf Hide [A]
-		[13236] = { -- Primalist Thurloga [H]
-			{17306, 5}, -- Stormpike Soldier's Blood
-			{17306, 1}, -- Stormpike Soldier's Blood
-		},
-		[13176] = {17422, 20}, -- Smith Regzar / Armor Scraps [H]
-		[13179] = {17326, 1}, -- Wing Commander Guse / Stormpike Soldier's Flesh [H]
-		[13180] = {17327, 1}, -- Wing Commander Jeztor / Stormpike Lieutenant's Flesh [H]
-		[13181] = {17328, 1}, -- Wing Commander Mulverick / Stormpike Commander's Flesh [H]
-		[13441] = {17642, 1}, -- Frostwolf Wolf Rider Commander / Alterac Ram Hide [H]
-	}
-
-	function mod:GOSSIP_SHOW()
-		if not self.Options.AutoTurnIn or DBM.Options.DontAutoGossip then
-			return
-		end
-		local quest = quests[self:GetCIDFromGUID(UnitGUID("target") or "") or 0]
-		if quest and type(quest[1]) == "table" then
-			for _, v in ipairs(quest) do
-				local questId = v[1]
-				---@cast questId number
-				local num = GetItemCount(questId)
-				if num > 0 then
-					if GetNumGossipActiveQuests() == 1 then
-						SelectGossipActiveQuest(questId)
-					else
-						SelectGossipAvailableQuest(questId)
-					end
-					break
-				end
-			end
-		elseif quest then
-			local questId = quest[1]
-			---@cast questId number
-			if GetItemCount(questId) > quest[2] then
-				SelectGossipAvailableQuest(questId)
-			end
-		end
-	end
-
-	function mod:QUEST_PROGRESS()
-		self:GOSSIP_SHOW()
-		if IsQuestCompletable() then
-			CompleteQuest()
-		end
-	end
-
-	function mod:QUEST_COMPLETE()
-		GetQuestReward(0)
-	end
-end
---]]
 
 do
 	local bossTimer	= mod:NewTimer(600, "TimerBoss")
