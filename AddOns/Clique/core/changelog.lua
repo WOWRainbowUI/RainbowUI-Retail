@@ -8,6 +8,7 @@
 
 ---@class CliqueAddon: AddonCore
 local addon = select(2, ...)
+local L = addon.L
 
 -- Changelog content is intentionally NOT localized: it's authored per release
 -- in English and we don't maintain translations for it.
@@ -26,7 +27,7 @@ addon.changelog = {
         date     = "2026-11-27",
         autoShow = false,
         items = {
-            "Fix an issue with missing font glyphs",
+            L["Fix an issue with missing font glyphs"],
         },
     },
     {

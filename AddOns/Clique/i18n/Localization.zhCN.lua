@@ -233,5 +233,7 @@ local baseLocale = {
 
 baseLocale["Works like an action bar key. The mouse can be anywhere, and the spell uses your current target. A mouse click on a unit frame uses that frame's unit. On unit frames, a 'Unit frames' binding on the same key is preferred. Use this for spells you do not want on an action bar. Do not use the same key for an 'Any unit under the mouse' binding."] = "如同动作条按键，鼠标可位于任何位置，法术会对当前目标施放。点击单位框体时则使用该框体的单位；同一按键若有“单位框体”绑定，会优先使用该绑定。适用于不想放在动作条上的法术。请勿与“鼠标下的任意单位”绑定使用相同按键。"
 
+baseLocale["Fix an issue with missing font glyphs"] = "修正部分字体缺字的问题"
+
 addon:RegisterLocale('zhCN', baseLocale)
 

@@ -229,4 +229,6 @@ local baseLocale = {
     ["Clique"] = "Clique",
 }
 
+baseLocale["Fix an issue with missing font glyphs"] = "Fix an issue with missing font glyphs"
+
 addon:RegisterLocale('enUS', baseLocale)
