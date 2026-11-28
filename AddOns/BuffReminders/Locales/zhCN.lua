@@ -462,7 +462,6 @@ L["Options.Size"] = "大小"
 -- OPTIONS: TEXT POSITIONS
 -- ============================================================================
 L["Options.TextPositions"] = "文本"
-L["Options.TextPositions.Zone"] = "位置"
 L["Options.TextPositions.OffsetX.Short"] = "X轴"
 L["Options.TextPositions.OffsetY.Short"] = "Y轴"
 L["Options.TextPositions.MainText"] = "主文本"
@@ -532,7 +531,6 @@ L["Options.PetDisplay.SummonDesc"] = "将每个召唤宠物法术显示为单独
 L["Options.PetDisplay.Mode"] = "宠物显示模式"
 L["Options.PetDisplay.Mode.Desc"] = "设置缺失宠物提示的显示方式。"
 L["Options.PetLabels"] = "宠物标签"
-L["Options.PetLabels.Desc"] = "在每个图标下方显示宠物名称和专精。"
 L["Options.PetLabels.SizePct"] = "尺寸占比 %"
 
 -- ============================================================================
@@ -806,9 +804,6 @@ L["Class.Warrior"] = "战士"
 -- Custom buff fields
 L["CustomBuff.Spec"] = "专精:"
 L["CustomBuff.Class"] = "职业:"
-L["CustomBuff.RequireItem.EquippedBags"] = "已装备/背包中"
-L["CustomBuff.RequireItem.Equipped"] = "已装备"
-L["CustomBuff.RequireItem.InBags"] = "背包中"
 L["CustomBuff.RequireItem.Hint"] = "物品ID - 缺失时隐藏"
 L["CustomBuff.ItemCooldown"] = "冷却："
 L["CustomBuff.ItemCooldown.Any"] = "任意"
@@ -871,8 +866,6 @@ L["Options.ResetToDefaults"] = "重置为默认值"
 -- OPTIONS: MISC
 -- ============================================================================
 L["Options.Off"] = "关闭"
-L["Options.Always"] = "始终"
-L["Options.ReadyCheck"] = "就位确认"
 L["Options.Min"] = "分钟"
 
 -- ============================================================================
@@ -1064,7 +1057,7 @@ L["Buff.InnerFire"] = "心灵之火"
 
 L["Buff.LightningShield"] = "闪电盾"
 
-L["Buff.ShamanImbue"] = "武器灌注"
+L["Buff.ShamanImbue"] = "萨满武器附魔"
 
 L["Buff.WarlockArmor"] = "恶魔皮肤/护甲"
 
@@ -1158,8 +1151,6 @@ L["Externals.CasterName"] = "施放者名称"
 
 L["Externals.CasterName.Desc"] = "在图标旁以职业颜色显示增益施放者。"
 
-L["Externals.CasterNameOff"] = "请先选择施放者名称的显示位置。"
-
 L["Externals.Sound.Claimed"] = "%s 已经为此法术ID播放一个声音。"
 
 L["Externals.Custom"] = "你的增益"
@@ -1228,13 +1219,9 @@ L["Options.ExpirationPreview.OrMore"] = "%s 或更多"
 
 L["Options.Override.Expiration.Desc"] = "设置此类别的提醒时间。关闭时使用默认值页面的时间。"
 
-L["Options.Reagent.Threshold"] = "低於多少警告"
-
-L["Options.Reagent.Threshold.Desc"] = "当你携带的用於你所掌握的法术的材料数量少於多少数量时发出警告。"
-
 L["Options.Reagent.RestedOnly"] = "只有在休息区域"
 
-L["Options.Reagent.RestedOnly.Desc"] = "只在旅馆和城市发出警告，那里有商人出售材料。\n\n如果 |cffffcc00当休息时隐藏|r 是启用的，此警告从不显示。"
+L["Options.Reagent.RestedOnly.Desc"] = "只在有商人贩售施法材料的旅店和城市发出警告。\n\n若开启 |cffffcc00休息时隐藏|r，这些地方也不会显示警告。"
 
 L["Options.Camp.LightFire"] = "提醒放置篝火"
 
@@ -1382,10 +1369,6 @@ L["Options.SearchCount"] = "%d 找到"
 
 L["Options.SearchEmpty"] = "没有找到与此搜寻相符的提醒。"
 
-L["BuffPanel.ShamanImbue"] = "点击施放"
-
-L["BuffPanel.ShamanImbue.Desc"] = "在你学会之前，点击会依序施放风怒、火舌和石化。"
-
 L["BuffPanel.DriveBy.AllowPvP"] = "允许 PvP 标记的目标"
 
 L["BuffPanel.DriveBy.AllowPvP.Desc"] = "给已开启 PvP 模式的玩家加增益效果也会使你被标记为 PvP 玩家。关闭此功能後，除非你也被标记为 PvP 玩家，否则其他已标记的玩家将被忽略。"
@@ -1438,9 +1421,9 @@ L["BuffPanel.WarlockDemon.Raid"] = "团队"
 
 L["BuffPanel.WarlockDemon.Felguard"] = "如果有天赋的话，恶魔学识总是会召唤恶魔守卫。"
 
-L["BuffPanel.WarriorStance.Hint"] = "选择各种内容允许的姿态。若该列留空，则不显示提醒。"
+L["BuffPanel.WarriorStance.Hint"] = "选择各天赋组允许的姿态。若该列留空，则不显示提醒。"
 
-L["BuffPanel.DruidForm.Hint"] = "选择各种内容允许的形态。若该列留空，则不显示提醒。"
+L["BuffPanel.DruidForm.Hint"] = "选择各天赋组允许的形态。若该列留空，则不显示提醒。"
 
 L["BuffPanel.DruidForm.Caster"] = "施放者 (无型态)"
 
@@ -1484,14 +1467,6 @@ L["BuffPanel.BlessSelfOnly"] = "只有祝福我自己"
 
 L["BuffPanel.BlessSelfOnly.Desc"] = "只检查并祝福自己"
 
-L["BuffPanel.Tracking.Scope"] = "追踪"
-
-L["BuffPanel.Tracking.Scope.Desc"] = "此提醒功能提供追踪功能。一次只能启用一个追踪功能。如果已启用任何追踪功能，则此提醒将被隐藏。"
-
-L["BuffPanel.Tracking.Scope.Gathering"] = "只限采集"
-
-L["BuffPanel.Tracking.Scope.All"] = "全部追踪"
-
 L["BuffPanel.GroupCast"] = "自动群体版本 (使用材料)"
 
 L["BuffPanel.GroupCast.Desc"] = "如果你的队伍中有足够多的成员没有增益效果且在有效范围内，并且你拥有所需的材料，则左键点击会对你施放群体版本。否则，会施放单体版本。将滑鼠悬停在图示上即可选择另一种施法版本。"
@@ -1532,13 +1507,9 @@ L["BuffPanel.RighteousFuryShow.Always"] = "永远"
 
 L["BuffPanel.RighteousFuryShow.Desc"] = "担任坦克时：仅限坦克职业或主坦克标记。永远：单人或组队均可。"
 
-L["BuffPanel.MageArmor"] = "施放"
-
 L["BuffPanel.MageArmor.Mage"] = "魔甲术"
 
 L["BuffPanel.MageArmor.Ice"] = "霜/冰甲术"
-
-L["BuffPanel.MageArmor.Desc"] = "图示上显示护甲，点击即可施放。任何护甲都符合要求。如果您还未学习这件护甲，则使用其他护甲。"
 
 L["Options.Override.Interaction.Desc"] = "覆写此类别的全域互动设定。\n关闭时，下面的控制项会显示从「预设值」页面继承的值。"
 
@@ -1562,17 +1533,11 @@ L["CustomBuff.Text"] = "叠加文字"
 
 L["CustomBuff.Tab.Buff"] = "增益"
 
-L["CustomBuff.Tab.Rules"] = "规则"
-
-L["CustomBuff.Tab.Click"] = "点击"
-
 L["CustomBuff.Section.Track"] = "法术"
 
 L["CustomBuff.Section.ShowIcon"] = "显示"
 
 L["CustomBuff.Section.Who"] = "角色"
-
-L["CustomBuff.Section.Item"] = "需要物品"
 
 L["CustomBuff.Section.Where"] = "显示的地方"
 
@@ -1586,17 +1551,9 @@ L["CustomBuff.ShowWhen"] = "显示"
 
 L["CustomBuff.Expiration.Disabled"] = "过期警告仅适用於您缺失时显示的增益"
 
-L["CustomBuff.RequireItem"] = "物品ID"
-
-L["CustomBuff.RequireItem.Mode"] = "地点"
-
-L["CustomBuff.RequireItem.Disabled"] = "请先设定一个物品ID。"
-
 L["CustomBuff.Content"] = "内容"
 
 L["CustomBuff.Action.SpellID"] = "法术ID"
-
-L["CustomBuff.Action.ItemID"] = "物品ID"
 
 L["CustomBuff.Action.MacroText"] = "巨集"
 
@@ -1759,3 +1716,37 @@ L["Appearance.CountSize"] = "数量文字大小"
 L["Appearance.MissingSize"] = "缺少提示字级"
 L["Appearance.CaptionSize"] = "标题字级"
 L["Appearance.CaptionSize.Desc"] = "「BUFF!」文字与配置名称的字级。"
+
+L["Overlay.NoFearWard"] = "没有\n防恐"
+L["Buff.FearWard"] = "防护恐惧结界"
+L["Buff.SoulstoneItem"] = "灵魂石 (背包中)"
+L["Options.Reagent.Note"] = "数量低於此值时警告。设为 0 可关闭。"
+L["Options.Reagent.Off"] = "关闭"
+L["Options.Reagent.Reset"] = "恢复预设值"
+L["Options.Reagent.DropWarning"] = "数量减少时显示 %d 秒"
+L["Options.Reagent.DropWarning.Desc"] = "在旅店和城市之外，施法材料数量低於设定值时显示警告 %d 秒。战斗中触发时，会在战斗结束後显示。"
+L["DisabledReason.ReagentDropWarning"] = "请先开启「只在休息区」。未开启时会持续显示警告。"
+L["Tooltip.ReagentCounts"] = "施法材料:"
+L["BuffRow.Option.Reagents"] = "施法材料"
+L["BuffPanel.ShamanImbue.Hint"] = "选择各天赋组点击时施放的武器附魔。若该列留空，则施放第一个已学会的附魔。"
+L["BuffPanel.Tracking.Hint"] = "选择提醒可提供的追踪法术，会使用你上次施放的法术。同时只能启用一种追踪；只要有任何追踪启用，就会隐藏提醒。"
+L["BuffPanel.Tracking.Profession"] = "专业技能"
+L["BuffPanel.Tracking.Racial"] = "种族"
+L["BuffPanel.Tracking.Class"] = "职业"
+L["BuffPanel.MageArmor.Hint"] = "选择各种内容要施放的护甲。任一种护甲都符合提醒要求。"
+L["CustomBuff.AddItemID"] = "+ 新增物品 ID"
+L["CustomBuff.Tab.Use"] = "使用"
+L["CustomBuff.Tab.When"] = "时机"
+L["CustomBuff.Section.Items"] = "物品"
+L["CustomBuff.ItemGate"] = "需要物品"
+L["CustomBuff.ItemGate.Owned"] = "在背包中或已装备"
+L["CustomBuff.ItemGate.Equipped"] = "已装备"
+L["CustomBuff.ItemGate.Bags"] = "在背包中"
+L["CustomBuff.ItemGate.Always"] = "不需要"
+L["CustomBuff.ItemGate.Title"] = "物品检查"
+L["CustomBuff.ItemGate.Desc"] = "只有在指定位置持有清单中至少一件物品时才显示图示。点击「物品」会使用该物品。"
+L["CustomBuff.ItemGate.Disabled"] = "请先新增物品 ID。"
+L["CustomBuff.ItemIDs"] = "物品 ID"
+L["CustomBuff.Action.ItemHint"] = "点击後会使用物品清单中第一个持有的物品。"
+L["CustomBuff.Action.NoneHint"] = "若已学会追踪的法术并开启点击施法，点击後会施放该法术。"
+L["CustomBuff.Share.Items"] = "物品:"

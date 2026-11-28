@@ -513,7 +513,6 @@ local DefaultSettingKeys = {
     delveFoodOnly = "DisplayRefresh",
     delveFoodTimer = "DisplayRefresh",
     mageFoodContent = "DisplayRefresh",
-    shamanImbue = "DisplayRefresh",
     freeConsumableMode = "DisplayRefresh",
     freeConsumableVisibility = "DisplayRefresh",
     healthstoneVisibility = "DisplayRefresh",
@@ -521,8 +520,8 @@ local DefaultSettingKeys = {
     healthstoneThreshold = "DisplayRefresh",
     repairThreshold = "DisplayRefresh",
     repairHideInCombat = "VisibilityRefresh",
-    reagentThreshold = "DisplayRefresh",
     reagentRestedOnly = "DisplayRefresh",
+    reagentDropWarning = "DisplayRefresh",
     campLightFire = "DisplayRefresh",
     ammoThresholdStacks = "DisplayRefresh",
     ammoThresholdShots = "DisplayRefresh",
@@ -534,7 +533,7 @@ local DefaultSettingKeys = {
     driveByEmoteText = false,
     soulstoneVisibility = "DisplayRefresh",
     soulstoneHideCooldown = "DisplayRefresh",
-    soulstonePinnedTarget = false, -- nil when unset (no Defaults entry); macro rebuilds on PreClick
+    soulstonePinnedTarget = "DisplayRefresh", -- nil when unset (no Defaults entry)
 
     -- Consumable display mode
     consumableDisplayMode = "DisplayRefresh",
@@ -558,10 +557,8 @@ local DefaultSettingKeys = {
     paladinBlessingScope = "DisplayRefresh",
     paladinBlessingsByClass = "DisplayRefresh",
     paladinAuraOrder = "DisplayRefresh",
-    trackingScope = "DisplayRefresh",
     thornsRequest = "DisplayRefresh",
     righteousFuryShow = "DisplayRefresh",
-    mageArmorPreference = "DisplayRefresh",
     -- Font (global-only, lives under defaults)
     fontFace = "VisualsRefresh",
     textOutline = "VisualsRefresh",
@@ -574,8 +571,11 @@ local ContentGridKeys = {
     warlockDemons = true,
     warlockSacrificeDemons = true,
     warlockStones = true,
+    mageArmors = true,
     warriorStances = true,
     druidForms = true,
+    shamanImbues = true,
+    trackingSpells = true,
 }
 
 -- Canonical buff category list. The order is the display stacking order.
@@ -678,6 +678,10 @@ local function ValidatePath(segments)
         -- defaults.textSizes.<item>; nil clears the override
         if segments[2] == "textSizes" and #segments == 3 then
             return true, "VisualsRefresh"
+        end
+        -- defaults.reagentThresholds.<reagent>; nil restores the reagent default
+        if segments[2] == "reagentThresholds" and #segments == 3 then
+            return true, "DisplayRefresh"
         end
         -- defaults.<grid>.<row>.<choice>
         if ContentGridKeys[segments[2]] and #segments == 4 then
@@ -1231,60 +1235,6 @@ function BR.GetSpellName(spellID)
         spellNameCache[spellID] = name
     end
     return name or nil
-end
-
----Build a targeted-buff clickMacro. Priority: last target > mouseover > target > the default cast target.
----@param buffKey string The buff's key, used to look up the last target
----@return fun(spellID: number): string
-function BR.TargetedClickMacro(buffKey)
-    return function(spellID)
-        local name = BR.GetSpellName(spellID) or ""
-        local lastTarget = BR.TargetMemory and BR.TargetMemory.Get(buffKey)
-        if lastTarget then
-            return "/cast [@" .. lastTarget .. ",help,nodead][@mouseover,help,nodead][@target,help,nodead][] " .. name
-        end
-        return "/cast [@mouseover,help,nodead][@target,help,nodead][] " .. name
-    end
-end
-
----Macro conditions of a Soulstone click, with a trailing space. A pinned target gets
----no fallback: if the pin is absent or out of group, the click is a no-op, so the
----stone never lands on the wrong player. Else: last target, first living healer,
----mouseover, target, self.
----@return string
-function BR.SoulstoneTargetConditions()
-    local defaults = BR.profile.defaults
-    local pinned = defaults and defaults.soulstonePinnedTarget
-    if pinned and pinned ~= "" then
-        -- An imported profile bypasses the options input, so the name must not
-        -- break out of the macro conditional.
-        return "[@" .. pinned:gsub("[%[%]\r\n]", "") .. ",help] "
-    end
-    local fallback = "[@mouseover,help,nodead][@target,help,nodead][@player] "
-    local lastTarget = BR.TargetMemory and BR.TargetMemory.Get("soulstone")
-    if lastTarget then
-        return "[@" .. lastTarget .. ",help,nodead]" .. fallback
-    end
-    local numMembers = GetNumGroupMembers()
-    if numMembers > 0 then
-        local prefix = IsInRaid() and "raid" or "party"
-        for i = 1, numMembers do
-            local unitId = prefix .. i
-            -- Runs in the PreClick of the secure button, so in combat too, where
-            -- a compare against a secret role can throw.
-            if
-                UnitExists(unitId)
-                and not UnitIsDeadOrGhost(unitId)
-                and BR.Secret.Plain(UnitGroupRolesAssigned(unitId)) == "HEALER"
-            then
-                local healerName = GetUnitName(unitId, true)
-                if healerName then
-                    return "[@" .. healerName .. ",help,nodead]" .. fallback
-                end
-            end
-        end
-    end
-    return fallback
 end
 
 ---Drop the cached misses, so the next BR.GetSpellName reads the API again.

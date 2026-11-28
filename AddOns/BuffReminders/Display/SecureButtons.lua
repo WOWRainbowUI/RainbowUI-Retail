@@ -27,6 +27,9 @@ local IsSpellKnown = C_SpellBook.IsSpellKnown
 local Plain = BR.Secret.Plain
 local BuffTargets = BR.StateHelpers.BuffTargets
 local IsCountdownEntry = BR.StateHelpers.IsCountdownEntry
+local FirstOwnedItem = BR.StateHelpers.FirstOwnedItem
+local CustomItemMode = BR.StateHelpers.CustomItemMode
+local AsSpellList = BR.StateHelpers.AsSpellList
 local SubIcons = BR.SubIcons
 local Pixels = BR.Pixels
 
@@ -105,22 +108,30 @@ local function GetActionSpellID(buff)
     return GetCastableSpellID(buff.castSpellID or buff.spellID)
 end
 
----Priority: castMacro > castItemID > castSpellID > spellID[1] that the player knows.
----@param buff table The custom buff definition
+---With no click action, a click casts the first tracked spell that the player knows.
+---@param buff CustomBuff?
 ---@return string? actionType "spell"|"item"|"macro" or nil
----@return any actionValue The spell ID, item string, or macro text
+---@return any actionValue The spell ID, item ID, or macro text
 local function ResolveCustomClickAction(buff)
     if not buff then
         return nil, nil
     end
-    if buff.castMacro and buff.castMacro ~= "" then
-        return "macro", buff.castMacro
+    local action = buff.clickAction
+    if action == "macro" then
+        if buff.castMacro and buff.castMacro ~= "" then
+            return "macro", buff.castMacro
+        end
+        return nil, nil
     end
-    if buff.castItemID then
-        return "item", buff.castItemID
+    if action == "item" then
+        local items = buff.itemIDs
+        if items then
+            return "item", FirstOwnedItem(items, CustomItemMode(buff)) or AsSpellList(items)[1]
+        end
+        return nil, nil
     end
-    if buff.castSpellID then
-        if IsSpellKnown(buff.castSpellID) then
+    if action == "spell" then
+        if buff.castSpellID and IsSpellKnown(buff.castSpellID) then
             return "spell", buff.castSpellID
         end
         return nil, nil
@@ -135,36 +146,13 @@ local function ResolveCustomClickAction(buff)
     return nil, nil
 end
 
----The click target of a castOnMissing buff: the player if the player lacks it, else
----the first member in range who lacks it, else the first member who lacks it.
----A secret or unchecked range reads as out of range.
----@param key string
----@return string unit
-local function PickCastUnit(key)
-    local units = BR.BuffState.GetMissingUnits(key)
-    if not units or not units[1] then
-        return "player"
-    end
-    for i = 1, #units do
-        if units[i] == "player" then
-            return "player"
-        end
-    end
-    for i = 1, #units do
-        if Plain(UnitInRange(units[i])) == true then
-            return units[i]
-        end
-    end
-    return units[1]
-end
-
 ---@param def table? Buff definition from the custom buff table
 ---@return boolean
 local function HasCustomClickAction(def)
     if not def then
         return false
     end
-    return def.castSpellID ~= nil or def.castItemID ~= nil or (def.castMacro ~= nil and def.castMacro ~= "")
+    return def.clickAction ~= nil
 end
 
 -- ============================================================================
@@ -281,6 +269,26 @@ local function SetActionType(button, actionType)
         button:SetAttribute("type" .. i, actionType)
     end
     button._br_rightClick = nil
+end
+
+-- On hover, the game highlights the unit of the `unit` attribute, so a cast with no
+-- range gets no unit. Always write unit, because nil clears a unit that a previous
+-- action left, and a stale unit retargets the cast.
+
+---@param button table Secure button
+---@param spellID number?
+---@param unit string?
+local function WriteSpellCast(button, spellID, unit)
+    button:SetAttribute("spell", spellID)
+    button:SetAttribute("unit", spellID and unit and C_Spell.SpellHasRange(spellID) and unit or nil)
+end
+
+---@param button table Secure button
+---@param itemID number
+---@param unit string?
+local function WriteItemUse(button, itemID, unit)
+    button:SetAttribute("item", "item:" .. itemID)
+    button:SetAttribute("unit", unit and C_Item.ItemHasRange(itemID) and unit or nil)
 end
 
 -- "menu" neutralises the right button with an empty type2, which resolves to no
@@ -455,7 +463,7 @@ end
 ---@type SubChoiceRow
 local GROUP_VARIANT_ROW = {
     choiceUnit = function(def)
-        return PickCastUnit(def.key)
+        return BR.BuffState.GetCastUnit(def, "raid") or "player"
     end,
     pick = function(def)
         local groupID, groupUnit = BR.BuffState.GetGroupCastSpellID(def)
@@ -463,7 +471,7 @@ local GROUP_VARIANT_ROW = {
             return groupID, groupUnit or "player"
         end
         local spellID = GetActionSpellID(def)
-        return spellID, spellID and PickCastUnit(def.key)
+        return spellID, spellID and BR.BuffState.GetCastUnit(def, "raid")
     end,
     others = function(def, _, spellID)
         wipe(variantChoices)
@@ -533,15 +541,15 @@ local function ApplyAction(button, action)
     end
     if not SameAction(button._br_action, action) then
         SetActionType(button, action.kind == "none" and "" or action.kind)
-        if action.kind == "macro" then
-            button:SetAttribute("macrotext", MacroText(action))
-        elseif action.kind == "item" then
-            button:SetAttribute("item", "item:" .. action.itemID)
+        if action.kind == "item" then
+            WriteItemUse(button, action.itemID, action.unit)
         elseif action.kind == "spell" then
-            button:SetAttribute("spell", action.spellID)
-            -- Always write unit, because nil clears it. A stale "player" from a
-            -- previous action retargets the cast onto the player.
-            button:SetAttribute("unit", action.unit)
+            WriteSpellCast(button, action.spellID, action.unit)
+        else
+            button:SetAttribute("unit", nil)
+            if action.kind == "macro" then
+                button:SetAttribute("macrotext", MacroText(action))
+            end
         end
         StoreAction(button, action)
     end
@@ -551,11 +559,13 @@ end
 ---@param itemID number
 ---@param slot number? 16 or 17 for a weapon buff, nil otherwise
 ---@param tag string? Overrides the dirty-gate namespace
+---@param unit string? Use target (nil = default targeting)
 ---@return BRSecureAction
-local function ItemAction(itemID, slot, tag)
+local function ItemAction(itemID, slot, tag, unit)
     local action = NewAction(slot and "macro" or "item", tag or (slot and "weaponitem" or "item"), itemID)
     action.itemID = itemID
     action.slot = slot
+    action.unit = unit
     return action
 end
 
@@ -759,7 +769,22 @@ local function PickDefCast(pickDef, frame, spellID)
     if pickDef.classChoices then
         return BR.BuffState.GetChoiceCast(pickDef)
     end
-    return spellID, PickCastUnit(pickDef.key)
+    return spellID, BR.BuffState.GetCastUnit(pickDef, "raid")
+end
+
+---The target of a click on the frame, from the target rule of its category.
+---@param def table?
+---@param category string
+---@return string? unit nil: default targeting
+---@return boolean? blocked The click casts nothing
+local function CastTarget(def, category)
+    if def and BuffTargets.DEFAULT_TARGET[category] then
+        return BR.BuffState.GetCastUnit(def, category)
+    end
+    if category == "self" then
+        return "player"
+    end
+    return nil
 end
 
 ---Shown above the anchor, because the choice row can open below it.
@@ -953,9 +978,8 @@ local function CreateClickOverlay(frame)
         if pickDef and not InCombatLockdown() then
             -- With no pick, the click casts nothing, and PostClick writes the spell back.
             local castID, castUnit = PickDefCast(pickDef, frame, self._br_action.spellID)
-            self:SetAttribute("spell", castID)
+            WriteSpellCast(self, castID, castUnit or "player")
             self._br_spellCleared = castID == nil or nil
-            self:SetAttribute("unit", castUnit or "player")
         end
         local spellFn = self._br_clickSpellFn
         if spellFn and not InCombatLockdown() then
@@ -966,7 +990,7 @@ local function CreateClickOverlay(frame)
         if self._br_spellCleared then
             self._br_spellCleared = nil
             if not InCombatLockdown() then
-                self:SetAttribute("spell", self._br_action.spellID)
+                WriteSpellCast(self, self._br_action.spellID, self._br_action.unit)
             end
         end
         if HandleMenuClick(self, button, down, frame) then
@@ -1046,42 +1070,28 @@ local function CreateClickOverlay(frame)
         then
             return
         end
-        -- An overlay with no left action exists only for the right-click menu, so no
-        -- cast target applies. The anchor is the overlay: the cursor is over the
-        -- overlay, not over the buff frame below it.
-        if overlay._br_action_type == "" then
-            BR.SecureButtons.ShowDescriptionTooltip(overlay, frame)
-            return
-        end
-        -- Only the caster class has a meaningful last target.
+        -- The tooltip names the unit that the click casts on. Only the caster class
+        -- casts, and a self cast names nobody unless the user pinned it.
         local def = frame.buffDef
+        local name, class, hint
         if
             def
             and BuffTargets.DEFAULT_TARGET[frame.buffCategory]
             and BuffTargets.PicksUnit(BuffTargets.Resolve(def, frame.buffCategory))
             and not (def.class and def.class ~= playerClass)
         then
-            local name, class = BR.TargetMemory.Get(def.key)
-            -- A pinned target overrides the automatic memory. The class color is
-            -- known only when the pin matches the remembered player. If the pinned
-            -- player is not in the group, the click macro does nothing.
-            local hint
-            local pinned = frame.buffDef.pinnedTarget and frame.buffDef.pinnedTarget()
-            if pinned then
-                if pinned ~= name then
-                    class = nil
-                end
-                name = pinned
-                local ok, inGroup = pcall(UnitExists, pinned)
-                if not (ok and inGroup) then
-                    hint = L["Tooltip.PinNotInGroup"]
-                end
+            local pinned = def.pinnedTarget and def.pinnedTarget()
+            local unit, blocked = CastTarget(def, frame.buffCategory)
+            if blocked then
+                name, hint = pinned, L["Tooltip.PinNotInGroup"]
+            elseif overlay._br_action_type ~= "" and unit and (pinned or Plain(UnitIsUnit(unit, "player")) ~= true) then
+                local _, unitClass = UnitClass(unit)
+                name, class, hint = Plain(GetUnitName(unit, true)), Plain(unitClass), def.targetHint
             end
-            hint = hint or def.targetHint
-            if not name then
-                BR.SecureButtons.ShowDescriptionTooltip(overlay, frame)
-                return
-            end
+        end
+        -- The anchor is the overlay: the cursor is over the overlay, not over the
+        -- buff frame below it.
+        if name then
             local function showTargetInfo()
                 ShowLastTargetTooltip(overlay, name, class, hint)
             end
@@ -1638,8 +1648,8 @@ local function CreateChoiceButton(frame)
             return
         end
         local unit = ChoiceUnit(frame) or "player"
-        self:SetAttribute("spell", ChoiceCast(self, unit))
-        self:SetAttribute("unit", unit)
+        local castID = ChoiceCast(self, unit)
+        WriteSpellCast(self, castID, unit)
     end)
     btn:SetScript("PostClick", function(self, button, down)
         HandleMenuClick(self, button, down, frame)
@@ -2368,7 +2378,17 @@ local function ResolveAction(frame, category, db)
     end
 
     if def and def.clickItem then
-        return ItemAction(def.clickItem)
+        local itemID = def.clickItem
+        if type(itemID) == "function" then
+            itemID = itemID()
+        end
+        if itemID then
+            local unit, blocked = CastTarget(def, category)
+            if blocked then
+                return NewAction("none", "pinblocked", true)
+            end
+            return ItemAction(itemID, nil, nil, unit)
+        end
     end
 
     local castableID
@@ -2394,10 +2414,11 @@ local function ResolveAction(frame, category, db)
         if frame._br_pet_spell then
             return PetAction(castableID, db)
         end
-        -- The unit stays "player" in the stored action. PreClick writes the
-        -- real spell and unit, so the refresh never overwrites a picked target.
+        -- The stored unit is the current pick, for the hover highlight. PreClick
+        -- picks again at click time, because the group can change in between.
         if category == "raid" and def and def.castOnMissing then
-            local action = SpellAction(castableID, "player")
+            local _, pickUnit = PickDefCast(def, frame, castableID)
+            local action = SpellAction(castableID, pickUnit or "player")
             action.pickDef = def
             return action
         end
@@ -2406,7 +2427,12 @@ local function ResolveAction(frame, category, db)
             action.spellFn = def.clickSpell
             return action
         end
-        return SpellAction(castableID, (category == "raid" or category == "self") and "player" or nil)
+        -- A pin blocks only a cast that takes a target, so Create Soulstone still casts.
+        local unit, blocked = CastTarget(def, category)
+        if blocked and C_Spell.SpellHasRange(castableID) then
+            return NewAction("none", "pinblocked", true)
+        end
+        return SpellAction(castableID, unit)
     end
 
     if db.requestBuffInChat and def and def.chatRequestable and not frame.isPlayerBuff then
@@ -2444,6 +2470,10 @@ local function ResolveDescriptionSubject(frame)
     local def = frame.buffDef
     if not def then
         return nil
+    end
+    local tooltipItemID = def.tooltipItemID and def.tooltipItemID()
+    if tooltipItemID then
+        return "item", tooltipItemID
     end
     -- ResolveAction fills the shared scratch action. A hover never runs inside a resolve.
     local action = ResolveAction(frame, frame.buffCategory, BR.profile)
@@ -2535,7 +2565,17 @@ local function ShowDescriptionTooltip(owner, frame, opts)
     if not kind and not name then
         return false
     end
-    local addLines = opts and opts.addLines
+    local optLines = opts and opts.addLines
+    local defLines = def and def.tooltipLines
+    local addLines = optLines
+    if defLines then
+        addLines = function(tooltip)
+            defLines(tooltip)
+            if optLines then
+                optLines(tooltip)
+            end
+        end
+    end
     BR.Display.ShowHoverTooltip(owner, function()
         DrawDescriptionTooltip(owner, def, kind, id, name, addLines)
     end, opts and opts.fallback)

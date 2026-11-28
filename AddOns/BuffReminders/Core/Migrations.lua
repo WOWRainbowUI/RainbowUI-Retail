@@ -15,7 +15,7 @@ local BR = ns
 
 BR.Migrations = {}
 
-BR.Migrations.DB_VERSION = 71
+BR.Migrations.DB_VERSION = 76
 BR.Migrations.MIN_DB_VERSION = 48
 
 ---Move a category's growth direction from growDirection, read only under the
@@ -581,6 +581,80 @@ function BR.Migrations.StampUnversionedProfiles(profiles)
     end
 end
 
+---@param ids any number|number[] from a raw table
+---@return number[]
+local function IDList(ids)
+    if type(ids) == "table" then
+        return ids
+    end
+    return { ids }
+end
+
+---@param a any
+---@param b any
+---@return boolean
+local function SameIDs(a, b)
+    local listA, listB = IDList(a), IDList(b)
+    if #listA ~= #listB then
+        return false
+    end
+    for i = 1, #listA do
+        if listA[i] ~= listB[i] then
+            return false
+        end
+    end
+    return true
+end
+
+---Convert one raw custom buff from the click item and required item keys to one item
+---list and an explicit click action. Click priority was macro, then item, then spell.
+---A buff with no required item checked its click items. A click item that differs from
+---the required item becomes a /use macro, so the click and the check stay the same.
+---Single custom buff strings skip the migrations, so the import also calls this.
+---@param buff table Raw custom buff
+function BR.Migrations.ConvertCustomBuffItems(buff)
+    local castItems, requiredItems = buff.castItemID, buff.requireItemID
+    local hasMacro = type(buff.castMacro) == "string" and buff.castMacro ~= ""
+
+    if buff.clickAction == nil then
+        if hasMacro then
+            buff.clickAction = "macro"
+        elseif castItems ~= nil then
+            buff.clickAction = "item"
+        elseif buff.castSpellID ~= nil then
+            buff.clickAction = "spell"
+        end
+    end
+
+    if buff.itemIDs == nil and (requiredItems ~= nil or castItems ~= nil) then
+        local firstCastItem = castItems ~= nil and IDList(castItems)[1] or nil
+        if
+            buff.clickAction == "item"
+            and requiredItems ~= nil
+            and type(firstCastItem) == "number"
+            and not SameIDs(castItems, requiredItems)
+        then
+            buff.castMacro = "/use item:" .. math.floor(firstCastItem)
+            buff.clickAction = "macro"
+        end
+        buff.itemIDs = requiredItems ~= nil and requiredItems or castItems
+    end
+
+    if buff.itemGate == nil and (buff.requireItemMode == "equipped" or buff.requireItemMode == "bags") then
+        buff.itemGate = buff.requireItemMode
+    end
+
+    if buff.clickAction ~= "spell" then
+        buff.castSpellID = nil
+    end
+    if buff.clickAction ~= "macro" then
+        buff.castMacro = nil
+    end
+    buff.castItemID = nil
+    buff.requireItemID = nil
+    buff.requireItemMode = nil
+end
+
 ---Run the pending migrations on one raw profile table and stamp it. A profile below
 ---MIN_DB_VERSION resets to empty. A profile above DB_VERSION comes from a newer build
 ---and stays untouched.
@@ -787,6 +861,98 @@ function BR.Migrations.RunProfile(profile, isImport)
         -- (BR.Migrations.RecordTextSizesForScale).
         [71] = function()
             BR.Migrations.RecordTextSizesForScale(profile)
+        end,
+        -- [72] A custom buff gets one item list and an explicit click action
+        -- (BR.Migrations.ConvertCustomBuffItems).
+        [72] = function()
+            local customBuffs = profile.customBuffs
+            if type(customBuffs) == "table" then
+                for _, buff in pairs(customBuffs) do
+                    if type(buff) == "table" then
+                        BR.Migrations.ConvertCustomBuffItems(buff)
+                    end
+                end
+            end
+        end,
+        -- [73] The tracking scope becomes a set of tracking spells. The defaults allow the
+        -- profession and racial spells, so only the "all" scope writes the class spells.
+        [73] = function()
+            local profileDefaults = profile.defaults
+            if type(profileDefaults) ~= "table" then
+                return
+            end
+            if profileDefaults.trackingScope == "all" then
+                local spells = type(profileDefaults.trackingSpells) == "table" and profileDefaults.trackingSpells or {}
+                profileDefaults.trackingSpells = spells
+                local class = type(spells.class) == "table" and spells.class or {}
+                spells.class = class
+                for _, key in ipairs({
+                    "beasts",
+                    "humanoids",
+                    "undead",
+                    "demons",
+                    "elementals",
+                    "giants",
+                    "dragonkin",
+                    "hidden",
+                    "humanoidsCat",
+                    "senseUndead",
+                    "senseDemons",
+                }) do
+                    class[key] = true
+                end
+            end
+            profileDefaults.trackingScope = nil
+        end,
+        -- [74] The reagent threshold becomes one count per reagent, with a default per
+        -- reagent. A single count does not fit every reagent, so it is not carried over.
+        [74] = function()
+            local profileDefaults = profile.defaults
+            if type(profileDefaults) == "table" then
+                profileDefaults.reagentThreshold = nil
+            end
+        end,
+        -- [75] The mage armor choice becomes one choice per content row. The old choice
+        -- is not carried over, so every profile starts on the new per-content defaults.
+        [75] = function()
+            local profileDefaults = profile.defaults
+            if type(profileDefaults) == "table" then
+                profileDefaults.mageArmorPreference = nil
+            end
+        end,
+        -- [76] WoW Forever: the stance and form grids change from content rows to talent group
+        -- rows, and the imbue choice becomes one choice per talent group. Each talent group
+        -- gets the old dungeon row. A content row does not tell which talent group it suits.
+        [76] = function()
+            local profileDefaults = profile.defaults
+            if type(profileDefaults) ~= "table" then
+                return
+            end
+            for _, setting in ipairs({ "warriorStances", "druidForms" }) do
+                local grid = profileDefaults[setting]
+                if type(grid) == "table" then
+                    local dungeon = type(grid.dungeon) == "table" and grid.dungeon or nil
+                    local newGrid = {}
+                    if dungeon then
+                        for _, row in ipairs({ "spec1", "spec2" }) do
+                            newGrid[row] = {}
+                            for key, allowed in pairs(dungeon) do
+                                newGrid[row][key] = allowed
+                            end
+                        end
+                    end
+                    profileDefaults[setting] = newGrid
+                end
+            end
+            local imbue = profileDefaults.shamanImbue
+            if imbue == "flametongue" or imbue == "rockbiter" or imbue == "frostbrand" then
+                -- The default row allows Windfury, so the row writes it as false.
+                profileDefaults.shamanImbues = {
+                    spec1 = { windfury = false, [imbue] = true },
+                    spec2 = { windfury = false, [imbue] = true },
+                }
+            end
+            profileDefaults.shamanImbue = nil
         end,
     }
 

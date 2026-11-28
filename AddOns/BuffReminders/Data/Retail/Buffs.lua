@@ -34,6 +34,9 @@ local Plain = BR.Secret.Plain
 
 -- Restriction predicate for the cooldown domain (see Core/Restrictions.lua)
 local CooldownsRestricted = BR.Restrictions.CooldownsRestricted
+-- The global cooldown reads as a cooldown of up to 1.5 s.
+local GLOBAL_COOLDOWN = 1.5
+local GetTime = GetTime
 
 -- ============================================================================
 -- BUFF DATA TABLES
@@ -119,11 +122,13 @@ local DK_RUNEFORGES = {
 ---@field target? BuffTarget Default "anyone"
 ---@field copies? BuffCopies Default "any"
 ---@field pinnedTarget? fun(): string? User-assigned hard target name, nil when unset (e.g., Soulstone pin)
+---@field fallbackRole? RoleType With no pin and no remembered target, the click casts on the first member with this role
+---@field clickItem? fun(): number? Item that the click uses on the cast target. nil: the click casts castSpellID
 ---@field glowDetectable? boolean Use action bar glow as fallback detection when aura API is restricted
 ---@field groupOnly? boolean Only show when in a group (hide when solo)
 ---@field suppressedByEntry? string Hide when this entry key is already visible (e.g., self buff covers it)
 ---@field chatRequestable? boolean Offer "request this buff in chat" on click for players who can't provide it
----@field castReady? fun(isRestricted: boolean): boolean? For a caster of the class. false hides the missing reminder
+---@field castReady? fun(isRestricted: boolean): boolean?, number? For a caster of the class. false hides the missing reminder. The number is the seconds until ready
 ---@field castSpellID? number|number[] Click-to-cast spell when different from spellID. A list casts the first known spell
 ---@field casterCheck? fun(isRestricted: boolean): string?, boolean? For a player of the class, replaces the group scan. Returns the overlay text (nil = no reminder) and true when a click must cast nothing
 ---@field choiceOrder? ChoiceOrderGrid The user lists the buff choices per content row. An empty row accepts any
@@ -142,16 +147,17 @@ local DK_RUNEFORGES = {
 ---@field requireSpecId? number
 ---@field infoTooltip? TooltipText
 ---@field defaultEnabled? boolean Ships disabled when false (opt-in); enabled otherwise. Resolved at read time by IsBuffEnabled.
----@field clickMacro? fun(spellID: number?): string
 ---@field casterBuffId? number Check this buff on the caster instead of scanning group
 ---@field glowDetectable? boolean Use action bar glow as fallback detection when aura API is restricted
 ---@field target? BuffTarget Default "ally"
 ---@field copies? BuffCopies Default "own"
 ---@field targetHint? string Gray text after the remembered target name in the icon tooltip
+---@field fallbackRole? RoleType With no remembered target, the click casts on the first member with this role
 ---@field levelRequired? number A caster in the group must have this level to count
 ---@field noExpirationGlow? boolean
 ---@field chatRequestable? boolean Offer "request this buff in chat" on click for players who can't provide it
 ---@field visibilityCondition? fun(): boolean Return false to hide the buff
+---@field castReady? fun(): boolean?, number? For the caster. false hides the missing reminder. The number is the seconds until ready
 
 ---@class SelfBuff
 ---@field spellID? SpellID
@@ -165,7 +171,7 @@ local DK_RUNEFORGES = {
 ---@field enchantDuration? number Full enchant duration in seconds, that sets its warning lead
 ---@field visibilityCondition? fun(): boolean Return false to hide the buff
 ---@field requiresBuffWithEnchant? boolean -- When true, require both enchant AND buff to be present (for Paladin Rites)
----@field getExpirationInfo? fun(): number?, number? -- Remaining seconds and expiring spell ID, for a buff with no single aura
+---@field getExpirationInfo? fun(): number?, number?, number? -- Remaining seconds, expiring spell ID, full duration (else enchantDuration)
 ---@field castSpellID? number|number[] -- Click-to-cast spell when different from spellID. A list casts the first known spell
 ---@field clickMacro? fun(spellID: number?): string -- Macro text override for click-to-cast, receives castable spell ID
 ---@field buffIdOverride? number|number[]
@@ -180,6 +186,8 @@ local DK_RUNEFORGES = {
 ---@field glowDetectable? boolean Use action bar glow as fallback detection when aura API is restricted
 ---@field showWhenPresent? boolean Show when buff IS active (inverts normal "show when missing" logic)
 ---@field overlayTextFn? fun(): string Live overlay text, wins over overlayText
+---@field tooltipItemID? fun(): number? Item that the description tooltip shows, read at hover time
+---@field tooltipLines? fun(tooltip: table) Adds lines at the end of the description tooltip
 ---@field noClickToCast? boolean Suppress click-to-cast overlay (e.g., CastSpellByID can't toggle this spell)
 ---@field noExpirationGlow? boolean Show only the missing state, never the expiring state (permanent enchants, short buffs)
 ---@field skipSpellKnownCheck? boolean Skip the "player knows spell" check (for custom/dynamic entries)
@@ -213,6 +221,8 @@ local DK_RUNEFORGES = {
 ---@field glowDetectable? boolean Use action bar glow as fallback detection when aura API is restricted
 ---@field consumableCategory? string Category key in BR.ConsumableData.items for bag scanning (only set when items exist)
 ---@field freeConsumable? boolean Bypass content gates (always show when enabled)
+---@field suppressedByEntry? string Hide when this entry key is already visible
+---@field defaultEnabled? boolean Ships disabled when false (opt-in); enabled otherwise. Resolved at read time by IsBuffEnabled.
 ---@field showOnInstanceEntry? boolean Only show briefly when entering an instance
 ---@field disabledInCompetitivePvP? boolean Unusable in arenas and rated BGs
 ---@field ignoresReadyCheckFilter? boolean Ignore the consumable category ready-check-only filter (still respects content gates)
@@ -233,12 +243,12 @@ local DK_RUNEFORGES = {
 ---@field requireSpellKnown? boolean -- Only show if player knows at least one of the tracked spells
 ---@field showWhenPresent? boolean  -- Show icon when buff IS on player (default: show when missing)
 ---@field glowMode? "whenGlowing"|"whenNotGlowing"|"disabled"  -- Action bar glow fallback mode: nil/"whenGlowing" = detect when glowing (default), "whenNotGlowing" = detect when NOT glowing, "disabled" = don't track glow
+---@field clickAction? "spell"|"item"|"macro" -- What a click does (nil = cast the tracked spell)
 ---@field castSpellID? number       -- Spell to cast on click (separate from tracked aura)
----@field castItemID? number        -- Item to use on click
 ---@field castMacro? string         -- Raw macro text for click action
----@field requireItemID? number    -- Only show if this item is owned/equipped/in bags (see requireItemMode)
----@field requireItemMode? "owned"|"equipped"|"bags" -- How to check requireItemID: "owned" (default) = bags or equipped, "equipped" = equipped only, "bags" = bags only
----@field itemCooldownCondition? "offCooldown"|"onCooldown" -- Gate visibility on item cooldown state (nil = ignore cooldown)
+---@field itemIDs? number|number[]  -- Items of the reminder: "item" clicks use the first one found, itemGate checks them
+---@field itemGate? "always"|"equipped"|"bags" -- When itemIDs show the icon: nil = one is in the bags or equipped, "always" = no check
+---@field itemCooldownCondition? "offCooldown"|"onCooldown" -- Gate visibility on the cooldown of the found item (nil = ignore cooldown)
 ---@field expirationThreshold? number  -- Per-buff expiration threshold in minutes (0 = off)
 ---@field loadConditions? LoadConditions  -- Per-buff content visibility (nil = show everywhere)
 
@@ -379,7 +389,7 @@ local PET_SPELLS = {
 ---@class StanceRule
 ---@field allowed fun(): table<number, boolean>? Allowed stance spells (BR.NO_STANCE = no stance). nil = no reminder
 ---@field castID fun(): number? Stance spell that the click casts. BR.NO_STANCE = cancel the current form
----@field grid? StanceGrid Allowed choices per content row
+---@field grid? StanceGrid Allowed choices per talent group
 
 local STANCE_BATTLE = 386164
 local STANCE_BERSERKER = 386196
@@ -430,8 +440,6 @@ local STANCE_RULES = {
         end,
     },
 }
-
-local TargetedClickMacro = BR.TargetedClickMacro
 
 -- The single source of truth for the default poison order.
 -- BR.profile.roguePoisonPreferences overrides it, with a per-entry enabled flag.
@@ -797,7 +805,15 @@ local BUFF_TABLES = {
                     return true
                 end
                 local duration = Plain(info.duration)
-                return duration == nil or duration == 0
+                local startTime = Plain(info.startTime)
+                if not (duration and startTime) or duration <= GLOBAL_COOLDOWN then
+                    return true
+                end
+                local readyIn = startTime + duration - GetTime()
+                if readyIn <= 0 then
+                    return true
+                end
+                return false, readyIn
             end,
             pinnedTarget = function()
                 local db = BR.profile
@@ -807,9 +823,7 @@ local BUFF_TABLES = {
                 end
                 return nil
             end,
-            clickMacro = function(spellID)
-                return "/cast " .. BR.SoulstoneTargetConditions() .. (BR.GetSpellName(spellID) or "")
-            end,
+            fallbackRole = "HEALER",
         },
     },
     ---@type TargetedBuff[]
@@ -825,7 +839,6 @@ local BUFF_TABLES = {
             glowDetectable = true,
             excludeSpellID = 200025, -- Hide when Beacon of Virtue is known
             icons = { textures = { 236247 } }, -- Force original icon (talents replace the texture)
-            clickMacro = TargetedClickMacro("beaconOfLight"),
         },
         {
             spellID = 156910,
@@ -837,7 +850,6 @@ local BUFF_TABLES = {
             requireSpecId = 65, -- Holy only
             glowDetectable = true,
             excludeSpellID = 200025, -- Hide when Beacon of Virtue is known
-            clickMacro = TargetedClickMacro("beaconOfFaith"),
         },
         {
             spellID = 360827,
@@ -846,7 +858,6 @@ local BUFF_TABLES = {
             class = "EVOKER",
             overlayText = L["Overlay.NoScales"],
             requireSpecId = 1473, -- Augmentation
-            clickMacro = TargetedClickMacro("blisteringScales"),
         },
         {
             spellID = 974,
@@ -858,7 +869,6 @@ local BUFF_TABLES = {
                 title = L["Tooltip.MayShowExtraIcon"],
                 desc = L["Tooltip.MayShowExtraIcon.Desc"],
             },
-            clickMacro = TargetedClickMacro("earthShieldOthers"),
         },
         {
             spellID = 369459,
@@ -867,7 +877,7 @@ local BUFF_TABLES = {
             class = "EVOKER",
             beneficiaryRole = "HEALER",
             overlayText = L["Overlay.NoSource"],
-            clickMacro = TargetedClickMacro("sourceOfMagic"),
+            fallbackRole = "HEALER",
         },
         {
             spellID = 474750,
@@ -876,7 +886,6 @@ local BUFF_TABLES = {
             name = L["Buff.SymbioticRelationship"],
             class = "DRUID",
             overlayText = L["Overlay.NoLink"],
-            clickMacro = TargetedClickMacro("symbioticRelationship"),
         },
         {
             spellID = 412710,
@@ -885,7 +894,6 @@ local BUFF_TABLES = {
             class = "EVOKER",
             overlayText = L["Overlay.NoTimeless"],
             requireSpecId = 1473, -- Augmentation
-            clickMacro = TargetedClickMacro("timelessness"),
         },
         {
             -- 408233 is the cast spell (known by the player); 410318 is the link aura applied
@@ -898,7 +906,6 @@ local BUFF_TABLES = {
             class = "EVOKER",
             overlayText = L["Overlay.NoWeyrnstone"],
             icons = { spells = { 408233 } }, -- Force the cast-spell icon (avoid duplicate icons from spellID list)
-            clickMacro = TargetedClickMacro("weyrnstone"),
         },
     },
     ---@type SelfBuff[]

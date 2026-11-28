@@ -2,7 +2,7 @@
 ## Title: BuffReminders
 ## Notes: Track missing buffs at a glance
 ## Author: zerbi
-## Version: v7.1.0
+## Version: v7.1.1
 ## SavedVariables: BuffRemindersDB
 ## LoadSavedVariablesFirst: 1
 ## X-Curse-Project-ID: 1441094
@@ -62,9 +62,11 @@ Core\State.lua
 Core\State\Stances.lua
 Core\State\Pets.lua
 Core\State\Equipment.lua
+Core\State\CastTarget.lua
 Core\Ranks.lua
 Core\DriveBy.lua
 Core\Tracking.lua
+Core\Reagents.lua
 UI\Components.lua
 UI\Glow.lua
 Display\Icons.lua
@@ -88,6 +90,7 @@ Options\Dialogs\AuraPicker.lua
 Options\Dialogs\LoadoutReminder.lua
 Options\Dialogs\RoguePoison.lua
 Options\Dialogs\Runeforge.lua
+Options\Dialogs\Reagents.lua
 Options\Dialogs\BuffPanel.lua
 Options\Pages\Defaults.lua
 Options\Pages\Visibility.lua
