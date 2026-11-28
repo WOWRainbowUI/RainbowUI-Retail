@@ -203,7 +203,184 @@ local function makeHandlerId(callback, id)
     return tostring(callback)
 end
 
-local function registerHandler(container, key, callback, id, owner, defaultOwner)
+local MAX_EVENT_BUCKET_KEYS = 128
+
+local function normalizeBucketOptions(options)
+    if options == nil then return nil end
+    if type(options) ~= "table" then return false end
+    if type(options.bucket) ~= "number" or options.bucket ~= options.bucket
+        or options.bucket <= 0 or options.bucket >= math.huge then
+        return false
+    end
+    if options.key ~= nil and type(options.key) ~= "function" then return false end
+    return true
+end
+
+local function clearEventBucket(entry)
+    entry._bucketGeneration = (entry._bucketGeneration or 0) + 1
+    local timer = entry._eventBucketTimer
+    local overflowTimer = entry._eventBucketOverflowTimer
+    entry._eventBuckets = nil
+    entry._eventBucketTimer = nil
+    entry._eventBucketOverflow = nil
+    entry._eventBucketOverflowTimer = nil
+    if type(RGX.CancelTimer) == "function" then
+        if timer then pcall(RGX.CancelTimer, RGX, timer) end
+        if overflowTimer then pcall(RGX.CancelTimer, RGX, overflowTimer) end
+    end
+end
+
+local function invokeHandler(channel, id, entry, key, ...)
+    local ok, err
+    if entry.callbackType == "string" then
+        -- Resolve the method inside the pcall: a poisoned owner __index is a
+        -- handler fault, not a framework one, and stays isolated.
+        local method
+        ok, method = pcall(function() return entry.owner[entry.callback] end)
+        if not ok then err = method end
+        if ok then ok, err = pcall(method, entry.owner, key, ...) end
+    else
+        ok, err = pcall(entry.callback, key, ...)
+    end
+    if not ok then reportDispatchError(channel, key, id, err) end
+end
+
+local function flushEventBatch(entry, batch)
+    if not batch then return end
+    -- Detach only the batch being flushed. A callback may queue a new batch or
+    -- unregister this handler; neither action may be overwritten or resurrected.
+    if entry._eventBuckets == batch then
+        entry._eventBuckets = nil
+        entry._eventBucketTimer = nil
+    end
+    for _, bucketKey in ipairs(batch.order) do
+        if entry._bucketGeneration ~= batch.lifecycle then break end
+        local item = batch.items[bucketKey]
+        invokeHandler(item.channel, item.id, entry, item.event, unpack(item.args, 1, item.args.n))
+    end
+end
+
+local function scheduleEventBatch(entry, batch, delay, id)
+    batch.lifecycle = entry._bucketGeneration
+    local lifecycle = batch.lifecycle
+    if type(RGX.After) ~= "function" then
+        flushEventBatch(entry, batch)
+        return nil
+    end
+    local ok, timer = pcall(RGX.After, RGX, delay, function()
+        if entry._bucketGeneration == lifecycle then flushEventBatch(entry, batch) end
+    end, "RGX:event-bucket:" .. tostring(id))
+    if not ok then
+        flushEventBatch(entry, batch)
+        return nil
+    end
+    return timer
+end
+
+local function flushOverflowBatches(entry, id)
+    local overflow = entry._eventBucketOverflow
+    entry._eventBucketOverflow = nil
+    entry._eventBucketOverflowTimer = nil
+    if overflow then
+        for _, batch in ipairs(overflow) do
+            if entry._bucketGeneration ~= batch.lifecycle then return end
+            flushEventBatch(entry, batch)
+        end
+    end
+
+    -- A flush callback may have caused another overflow. Drain that newer batch
+    -- before allowing the current interval batch to run, preserving FIFO order.
+    if entry._eventBucketOverflow and #entry._eventBucketOverflow > 0 then
+        local lifecycle = entry._bucketGeneration
+        local ok, timer = pcall(RGX.After, RGX, 0, function()
+            if entry._bucketGeneration == lifecycle then flushOverflowBatches(entry, id) end
+        end, "RGX:event-bucket-overflow:" .. tostring(id))
+        if ok then entry._eventBucketOverflowTimer = timer end
+        return
+    end
+
+    local pending = entry._eventBuckets
+    if pending and not entry._eventBucketTimer then
+        entry._eventBucketTimer = scheduleEventBatch(entry, pending, entry.bucketSeconds, id)
+    end
+end
+
+local function ensureOverflowTimer(entry, id)
+    local timer = entry._eventBucketOverflowTimer
+    if timer and timer.active == false then entry._eventBucketOverflowTimer = nil end
+    if entry._eventBucketOverflowTimer then return end
+    local lifecycle = entry._bucketGeneration
+    local ok, nextTimer = pcall(RGX.After, RGX, 0, function()
+        if entry._bucketGeneration == lifecycle then flushOverflowBatches(entry, id) end
+    end, "RGX:event-bucket-overflow:" .. tostring(id))
+    if ok then
+        entry._eventBucketOverflowTimer = nextTimer
+    else
+        flushOverflowBatches(entry, id)
+    end
+end
+
+local function queueEventBucket(entry, channel, id, key, ...)
+    local bucketKey = key
+    if entry.bucketKey then
+        local ok, result = pcall(entry.bucketKey, key, ...)
+        if ok then
+            if result ~= nil and result == result then
+                bucketKey = result
+            elseif result ~= nil and result ~= result then
+                reportDispatchError(channel, key, id .. ":key", "bucket key is NaN")
+            end
+        else
+            reportDispatchError(channel, key, id .. ":key", result)
+        end
+    end
+
+    local pending = entry._eventBuckets
+    if not pending then
+        pending = { items = {}, order = {}, count = 0 }
+        entry._eventBuckets = pending
+    end
+    if pending.items[bucketKey] == nil and pending.count >= MAX_EVENT_BUCKET_KEYS then
+        -- Detach before scheduling the early flush. The callback runs later, so
+        -- it cannot overwrite or resurrect state from this enqueue operation.
+        local overflow = pending
+        overflow.lifecycle = entry._bucketGeneration
+        entry._eventBuckets = nil
+        local previousTimer = entry._eventBucketTimer
+        entry._eventBucketTimer = nil
+        if previousTimer and type(RGX.CancelTimer) == "function" then
+            pcall(RGX.CancelTimer, RGX, previousTimer)
+        end
+        entry._eventBucketOverflow = entry._eventBucketOverflow or {}
+        entry._eventBucketOverflow[#entry._eventBucketOverflow + 1] = overflow
+        pending = { items = {}, order = {}, count = 0 }
+        entry._eventBuckets = pending
+    end
+
+    if pending.items[bucketKey] == nil then
+        pending.count = pending.count + 1
+        pending.order[#pending.order + 1] = bucketKey
+    end
+    pending.items[bucketKey] = {
+        channel = channel,
+        id = id,
+        event = key,
+        args = { n = select("#", ...), ... },
+    }
+
+    if entry._eventBucketOverflow then
+        ensureOverflowTimer(entry, id)
+    else
+        local timer = entry._eventBucketTimer
+        if timer and timer.active == false then entry._eventBucketTimer = nil end
+        if not entry._eventBucketTimer then
+            entry._eventBucketTimer = scheduleEventBatch(entry, pending, entry.bucketSeconds, id)
+        end
+    end
+    return true
+end
+
+local function registerHandler(container, key, callback, id, owner, defaultOwner, options)
     if type(key) ~= "string" or key == "" then
         return false
     end
@@ -219,6 +396,7 @@ local function registerHandler(container, key, callback, id, owner, defaultOwner
             return false
         end
     end
+    if normalizeBucketOptions(options) == false then return false end
 
     local bucket = container[key]
     if not bucket then
@@ -233,10 +411,13 @@ local function registerHandler(container, key, callback, id, owner, defaultOwner
         and bucket[handlerId] and bucket[handlerId].owner ~= owner then
         handlerId = handlerId .. "@" .. tostring(owner)
     end
+    if bucket[handlerId] then clearEventBucket(bucket[handlerId]) end
     bucket[handlerId] = {
         callback = callback,
         callbackType = callbackType,
         owner = owner,
+        bucketSeconds = options and options.bucket or nil,
+        bucketKey = options and options.key or nil,
     }
 
     return handlerId
@@ -248,6 +429,7 @@ local function unregisterHandler(container, key, id)
         return false
     end
 
+    if bucket[id] then clearEventBucket(bucket[id]) end
     bucket[id] = nil
     if not next(bucket) then
         container[key] = nil
@@ -264,6 +446,7 @@ local function unregisterHandlerEverywhere(container, id)
     local removed = false
     for key, bucket in pairs(container) do
         if bucket[id] then
+            clearEventBucket(bucket[id])
             bucket[id] = nil
             removed = true
         end
@@ -294,23 +477,10 @@ local function dispatchHandlers(container, channel, key, ...)
         local item = queued[index]
         local entry = item.entry
 
-        local ok, err
-        if entry.callbackType == "string" then
-            -- Resolve the method inside the pcall: a poisoned owner __index
-            -- is a handler fault, not a framework one, and must stay
-            -- isolated like any other handler error.
-            local method
-            ok, method = pcall(function() return entry.owner[entry.callback] end)
-            if not ok then err = method end
-            if ok then
-                ok, err = pcall(method, entry.owner, key, ...)
-            end
+        if entry.bucketSeconds then
+            queueEventBucket(entry, channel, item.id, key, ...)
         else
-            ok, err = pcall(entry.callback, key, ...)
-        end
-
-        if not ok then
-            reportDispatchError(channel, key, item.id, err)
+            invokeHandler(channel, item.id, entry, key, ...)
         end
     end
 
@@ -411,9 +581,9 @@ RGX.eventFrame:SetScript("OnEvent", function(_, event, ...)
     RGX:FireEvent(event, ...)
 end)
 
-function RGX:RegisterEvent(event, callback, id, owner)
+function RGX:RegisterEvent(event, callback, id, owner, options)
     local created = not hasAnyEventHandlers(self, event)
-    local handlerId = registerHandler(self.events, event, callback, id, owner, self)
+    local handlerId = registerHandler(self.events, event, callback, id, owner, self, options)
     if not handlerId then
         return false
     end
@@ -446,6 +616,7 @@ function RGX:UnregisterAllEvents(id)
 
   for event, bucket in pairs(self.events) do
     if bucket[id] then
+      clearEventBucket(bucket[id])
       bucket[id] = nil
       removed = true
     end
@@ -469,7 +640,7 @@ end
 --
 -- The callback receives (event, unit, ...) — the unit token is always the
 -- second argument, matching WoW's native unit event signature.
-function RGX:RegisterUnitEvent(event, unit, callback, id, owner)
+function RGX:RegisterUnitEvent(event, unit, callback, id, owner, options)
   if not canAccessValue(event) or type(event) ~= "string" or event == "" then return false end
 
   local units
@@ -492,7 +663,7 @@ function RGX:RegisterUnitEvent(event, unit, callback, id, owner)
   end
 
   local created = not hasAnyEventHandlers(self, event)
-  local handlerId = registerHandler(self.unitEvents, event, callback, id, owner, self)
+  local handlerId = registerHandler(self.unitEvents, event, callback, id, owner, self, options)
   if not handlerId then return false end
 
   local entry = self.unitEvents[event][handlerId]
@@ -529,6 +700,7 @@ function RGX:UnregisterAllUnitEvents(id)
   local touched = {}
   for event, bucket in pairs(self.unitEvents) do
     if bucket[id] then
+      clearEventBucket(bucket[id])
       bucket[id] = nil
       removed = true
       touched[event] = true
@@ -583,19 +755,10 @@ function RGX:FireEvent(event, ...)
             end
           end
           if match then
-            local ok, err
-            if entry.callbackType == "string" then
-              local method
-              ok, method = pcall(function() return entry.owner[entry.callback] end)
-              if not ok then err = method end
-              if ok then
-                ok, err = pcall(method, entry.owner, event, ...)
-              end
+            if entry.bucketSeconds then
+              queueEventBucket(entry, "unitEvent", item.id, event, ...)
             else
-              ok, err = pcall(entry.callback, event, ...)
-            end
-            if not ok then
-              reportDispatchError("unitEvent", event, item.id, err)
+              invokeHandler("unitEvent", item.id, entry, event, ...)
             end
             count = count + 1
           end

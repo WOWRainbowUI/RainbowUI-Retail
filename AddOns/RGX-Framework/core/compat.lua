@@ -230,8 +230,11 @@ local function SecretPredicate(name, ...)
 end
 
 -- A client is secret-capable only when it actually ships the secret-value
--- machinery. Clients without it (the 4.4.2 Cataclysm contract, the WoW Forever
--- beta) cannot produce secret values at all.
+-- machinery. The 4.4.2 Cataclysm contract predates it. Forever 1.60.1.70938
+-- exposes C_Secrets and the Lua secret-value predicates (dump e230342a,
+-- Resources/GlobalAPI.lua:3777-3803,6873-6889); their presence does not prove
+-- that any particular value is restricted, so each access still needs its own
+-- predicate/capability check.
 local function SecretMachineryPresent()
     if type(canaccessvalue) == "function"
         or type(issecretvalue) == "function"
